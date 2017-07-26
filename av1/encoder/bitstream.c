@@ -1634,14 +1634,16 @@ static void write_cfl_alphas(FRAME_CONTEXT *const frame_ctx, int idx,
   aom_write_symbol(w, joint_sign, frame_ctx->cfl_sign_cdf, CFL_JOINT_SIGNS);
 
   // Magnitudes are only signaled for nonzero codes.
-  if (signs[CFL_PRED_U] != CFL_SIGN_ZERO)
-    aom_write_symbol(w, CFL_IDX_U(idx),
-                     frame_ctx->cfl_alpha_cdf[joint_sign][CFL_PRED_U],
+  if (signs[CFL_PRED_U] != CFL_SIGN_ZERO) {
+    const CFL_ALPHA_CONTEXT ctx = get_alpha_context(joint_sign, CFL_PRED_U);
+    aom_write_symbol(w, CFL_IDX_U(idx), frame_ctx->cfl_alpha_cdf[ctx],
                      UV_ALPHABET_SIZE);
-  if (signs[CFL_PRED_V] != CFL_SIGN_ZERO)
-    aom_write_symbol(w, CFL_IDX_V(idx),
-                     frame_ctx->cfl_alpha_cdf[joint_sign][CFL_PRED_V],
+  }
+  if (signs[CFL_PRED_V] != CFL_SIGN_ZERO) {
+    const CFL_ALPHA_CONTEXT ctx = get_alpha_context(joint_sign, CFL_PRED_V);
+    aom_write_symbol(w, CFL_IDX_V(idx), frame_ctx->cfl_alpha_cdf[ctx],
                      UV_ALPHABET_SIZE);
+  }
 }
 #endif
 

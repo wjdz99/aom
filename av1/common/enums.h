@@ -355,6 +355,9 @@ typedef enum {
 
 // CFL_SIGN_ZERO,CFL_SIGN_ZERO is invalid
 #define CFL_JOINT_SIGNS (CFL_SIGNS * CFL_SIGNS - 1)
+
+typedef int CFL_ALPHA_CONTEXT;
+#define CFL_ALPHA_CONTEXTS 6
 #endif
 
 #if CONFIG_PALETTE
