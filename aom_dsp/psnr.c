@@ -289,6 +289,25 @@ int64_t aom_highbd_get_v_sse(const YV12_BUFFER_CONFIG *a,
 }
 #endif  // CONFIG_HIGHBITDEPTH
 
+int64_t aom_get_sse_plane(const YV12_BUFFER_CONFIG *a,
+                          const YV12_BUFFER_CONFIG *b, int plane, int highbd) {
+  if (highbd) {
+    switch (plane) {
+      case 0: return aom_get_y_sse(a, b);
+      case 1: return aom_get_u_sse(a, b);
+      case 2: return aom_get_v_sse(a, b);
+      default: assert(plane >= 0 && plane <= 2); return 0;
+    }
+  } else {
+    switch (plane) {
+      case 0: return aom_highbd_get_y_sse(a, b);
+      case 1: return aom_highbd_get_u_sse(a, b);
+      case 2: return aom_highbd_get_v_sse(a, b);
+      default: assert(plane >= 0 && plane <= 2); return 0;
+    }
+  }
+}
+
 #if CONFIG_HIGHBITDEPTH
 void aom_calc_highbd_psnr(const YV12_BUFFER_CONFIG *a,
                           const YV12_BUFFER_CONFIG *b, PSNR_STATS *psnr,
