@@ -22,6 +22,30 @@
       "revId": "7968302e47dc35a063ecd58cad0d6d8b318bb733",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c4cb5bdd_7fda49ee",
+        "filename": "av1/common/mvref_common.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2017-07-27T18:21:17Z",
+      "side": 1,
+      "message": "This makes the offset aligned to 8x8 block grid in the frame.\n\nConsider mi_row \u003d 3, mi_col \u003d 0 case. The nearest neighbors will be scanned in 4x4 unit.\nWhen row_offset is above 1, the search should be aligned to row index 0 instead of 1, i.e., row_offset in use should be -3 instead of -4, if one wants to only store the 8x8 block mvs for non-immediate spatial neighbors.",
+      "parentUuid": "80820107_dbda5814",
+      "range": {
+        "startLine": 172,
+        "startChar": 0,
+        "endLine": 173,
+        "endChar": 39
+      },
+      "revId": "7968302e47dc35a063ecd58cad0d6d8b318bb733",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
