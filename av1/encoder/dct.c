@@ -1098,6 +1098,15 @@ static void flgt4(const tran_low_t *input, tran_low_t *output,
     return;
   }
 
+  // For DCT/ADST, use butterfly implementations
+  if (lgtmtx[0] == DCT4) {
+    fdct4(input, output);
+    return;
+  } else if (lgtmtx[0] == ADST4) {
+    fadst4(input, output);
+    return;
+  }
+
   // evaluate s[j] = sum of all lgtmtx[j][i]*input[i] over i=1,...,4
   tran_high_t s[4] = { 0 };
   for (int i = 0; i < 4; ++i)
@@ -1108,6 +1117,15 @@ static void flgt4(const tran_low_t *input, tran_low_t *output,
 
 static void flgt8(const tran_low_t *input, tran_low_t *output,
                   const tran_high_t *lgtmtx) {
+  // For DCT/ADST, use butterfly implementations
+  if (lgtmtx[0] == DCT8) {
+    fdct8(input, output);
+    return;
+  } else if (lgtmtx[0] == ADST8) {
+    fadst8(input, output);
+    return;
+  }
+
   // evaluate s[j] = sum of all lgtmtx[j][i]*input[i] over i=1,...,8
   tran_high_t s[8] = { 0 };
   for (int i = 0; i < 8; ++i)
@@ -1116,27 +1134,23 @@ static void flgt8(const tran_low_t *input, tran_low_t *output,
   for (int i = 0; i < 8; ++i) output[i] = (tran_low_t)fdct_round_shift(s[i]);
 }
 
-// The get_fwd_lgt functions return 1 if LGT is chosen to apply, and 0 otherwise
-int get_fwd_lgt4(transform_1d tx_orig, TxfmParam *txfm_param,
-                 const tran_high_t *lgtmtx[], int ntx) {
-  // inter/intra split
-  if (tx_orig == &fadst4) {
-    for (int i = 0; i < ntx; ++i)
-      lgtmtx[i] = txfm_param->is_inter ? &lgt4_170[0][0] : &lgt4_140[0][0];
-    return 1;
+static void flgt16up(const tran_low_t *input, tran_low_t *output,
+                     const tran_high_t *lgtmtx) {
+  if (lgtmtx[0] == DCT16) {
+    fdct16(input, output);
+    return;
+  } else if (lgtmtx[0] == ADST16) {
+    fadst16(input, output);
+    return;
+  } else if (lgtmtx[0] == DCT32) {
+    fdct32(input, output);
+    return;
+  } else if (lgtmtx[0] == ADST32) {
+    fhalfright32(input, output);
+    return;
+  } else {
+    assert(0);
   }
-  return 0;
-}
-
-int get_fwd_lgt8(transform_1d tx_orig, TxfmParam *txfm_param,
-                 const tran_high_t *lgtmtx[], int ntx) {
-  // inter/intra split
-  if (tx_orig == &fadst8) {
-    for (int i = 0; i < ntx; ++i)
-      lgtmtx[i] = txfm_param->is_inter ? &lgt8_170[0][0] : &lgt8_150[0][0];
-    return 1;
-  }
-  return 0;
 }
 #endif  // CONFIG_LGT
 
@@ -1243,6 +1257,9 @@ static void maybe_flip_input(const int16_t **src, int *src_stride, int l, int w,
 #if CONFIG_MRC_TX
     case MRC_DCT:
 #endif  // CONFIG_MRC_TX
+#if CONFIG_LGT
+    case LGT2D:
+#endif
     case DCT_DCT:
     case ADST_DCT:
     case DCT_ADST:
@@ -1327,8 +1344,10 @@ void av1_fht4x4_c(const int16_t *input, tran_low_t *output, int stride,
     // different rows/columns, indicated by the pointers to 2D arrays
     const tran_high_t *lgtmtx_col[4];
     const tran_high_t *lgtmtx_row[4];
-    int use_lgt_col = get_fwd_lgt4(ht.cols, txfm_param, lgtmtx_col, 4);
-    int use_lgt_row = get_fwd_lgt4(ht.rows, txfm_param, lgtmtx_row, 4);
+    if (tx_type == LGT2D) {
+      get_lgt4_from_pred(txfm_param, 1, lgtmtx_col, 4);
+      get_lgt4_from_pred(txfm_param, 0, lgtmtx_row, 4);
+    }
 #endif
 
     // Columns
@@ -1339,7 +1358,7 @@ void av1_fht4x4_c(const int16_t *input, tran_low_t *output, int stride,
       if (i == 0 && temp_in[0]) temp_in[0] += 1;
 #endif
 #if CONFIG_LGT
-      if (use_lgt_col)
+      if (tx_type == LGT2D)
         flgt4(temp_in, temp_out, lgtmtx_col[i]);
       else
 #endif
@@ -1351,7 +1370,7 @@ void av1_fht4x4_c(const int16_t *input, tran_low_t *output, int stride,
     for (i = 0; i < 4; ++i) {
       for (j = 0; j < 4; ++j) temp_in[j] = out[j + i * 4];
 #if CONFIG_LGT
-      if (use_lgt_row)
+      if (tx_type == LGT2D)
         flgt4(temp_in, temp_out, lgtmtx_row[i]);
       else
 #endif
@@ -1410,8 +1429,10 @@ void av1_fht4x8_c(const int16_t *input, tran_low_t *output, int stride,
 #if CONFIG_LGT
   const tran_high_t *lgtmtx_col[4];
   const tran_high_t *lgtmtx_row[8];
-  int use_lgt_col = get_fwd_lgt8(ht.cols, txfm_param, lgtmtx_col, 4);
-  int use_lgt_row = get_fwd_lgt4(ht.rows, txfm_param, lgtmtx_row, 8);
+  if (tx_type == LGT2D) {
+    get_lgt8_from_pred(txfm_param, 1, lgtmtx_col, 4);
+    get_lgt4_from_pred(txfm_param, 0, lgtmtx_row, 8);
+  }
 #endif
 
   // Rows
@@ -1420,7 +1441,7 @@ void av1_fht4x8_c(const int16_t *input, tran_low_t *output, int stride,
       temp_in[j] =
           (tran_low_t)fdct_round_shift(input[i * stride + j] * 4 * Sqrt2);
 #if CONFIG_LGT
-    if (use_lgt_row)
+    if (tx_type == LGT2D)
       flgt4(temp_in, temp_out, lgtmtx_row[i]);
     else
 #endif
@@ -1432,7 +1453,7 @@ void av1_fht4x8_c(const int16_t *input, tran_low_t *output, int stride,
   for (i = 0; i < n; ++i) {
     for (j = 0; j < n2; ++j) temp_in[j] = out[j + i * n2];
 #if CONFIG_LGT
-    if (use_lgt_col)
+    if (tx_type == LGT2D)
       flgt8(temp_in, temp_out, lgtmtx_col[i]);
     else
 #endif
@@ -1486,8 +1507,10 @@ void av1_fht8x4_c(const int16_t *input, tran_low_t *output, int stride,
 #if CONFIG_LGT
   const tran_high_t *lgtmtx_col[8];
   const tran_high_t *lgtmtx_row[4];
-  int use_lgt_col = get_fwd_lgt4(ht.cols, txfm_param, lgtmtx_col, 8);
-  int use_lgt_row = get_fwd_lgt8(ht.rows, txfm_param, lgtmtx_row, 4);
+  if (tx_type == LGT2D) {
+    get_lgt4_from_pred(txfm_param, 1, lgtmtx_col, 8);
+    get_lgt8_from_pred(txfm_param, 0, lgtmtx_row, 4);
+  }
 #endif
 
   // Columns
@@ -1496,7 +1519,7 @@ void av1_fht8x4_c(const int16_t *input, tran_low_t *output, int stride,
       temp_in[j] =
           (tran_low_t)fdct_round_shift(input[j * stride + i] * 4 * Sqrt2);
 #if CONFIG_LGT
-    if (use_lgt_col)
+    if (tx_type == LGT2D)
       flgt4(temp_in, temp_out, lgtmtx_col[i]);
     else
 #endif
@@ -1508,7 +1531,7 @@ void av1_fht8x4_c(const int16_t *input, tran_low_t *output, int stride,
   for (i = 0; i < n; ++i) {
     for (j = 0; j < n2; ++j) temp_in[j] = out[j + i * n2];
 #if CONFIG_LGT
-    if (use_lgt_row)
+    if (tx_type == LGT2D)
       flgt8(temp_in, temp_out, lgtmtx_row[i]);
     else
 #endif
@@ -1560,15 +1583,19 @@ void av1_fht4x16_c(const int16_t *input, tran_low_t *output, int stride,
 #endif
 
 #if CONFIG_LGT
+  const tran_high_t *lgtmtx_col[4];
   const tran_high_t *lgtmtx_row[16];
-  int use_lgt_row = get_fwd_lgt4(ht.rows, txfm_param, lgtmtx_row, 16);
+  if (tx_type == LGT2D) {
+    get_lgt16up_from_pred(txfm_param, 1, lgtmtx_col, 4);
+    get_lgt4_from_pred(txfm_param, 0, lgtmtx_row, 16);
+  }
 #endif
 
   // Rows
   for (i = 0; i < n4; ++i) {
     for (j = 0; j < n; ++j) temp_in[j] = input[i * stride + j] * 4;
 #if CONFIG_LGT
-    if (use_lgt_row)
+    if (tx_type == LGT2D)
       flgt4(temp_in, temp_out, lgtmtx_row[i]);
     else
 #endif
@@ -1579,7 +1606,12 @@ void av1_fht4x16_c(const int16_t *input, tran_low_t *output, int stride,
   // Columns
   for (i = 0; i < n; ++i) {
     for (j = 0; j < n4; ++j) temp_in[j] = out[j + i * n4];
-    ht.cols(temp_in, temp_out);
+#if CONFIG_LGT
+    if (tx_type == LGT2D)
+      flgt16up(temp_in, temp_out, lgtmtx_col[i]);
+    else
+#endif
+      ht.cols(temp_in, temp_out);
     for (j = 0; j < n4; ++j)
       output[i + j * n] = (temp_out[j] + (temp_out[j] < 0)) >> 1;
   }
@@ -1628,14 +1660,18 @@ void av1_fht16x4_c(const int16_t *input, tran_low_t *output, int stride,
 
 #if CONFIG_LGT
   const tran_high_t *lgtmtx_col[16];
-  int use_lgt_col = get_fwd_lgt4(ht.cols, txfm_param, lgtmtx_col, 16);
+  const tran_high_t *lgtmtx_row[4];
+  if (tx_type == LGT2D) {
+    get_lgt4_from_pred(txfm_param, 1, lgtmtx_col, 16);
+    get_lgt16up_from_pred(txfm_param, 0, lgtmtx_row, 4);
+  }
 #endif
 
   // Columns
   for (i = 0; i < n4; ++i) {
     for (j = 0; j < n; ++j) temp_in[j] = input[j * stride + i] * 4;
 #if CONFIG_LGT
-    if (use_lgt_col)
+    if (tx_type == LGT2D)
       flgt4(temp_in, temp_out, lgtmtx_col[i]);
     else
 #endif
@@ -1646,7 +1682,12 @@ void av1_fht16x4_c(const int16_t *input, tran_low_t *output, int stride,
   // Rows
   for (i = 0; i < n; ++i) {
     for (j = 0; j < n4; ++j) temp_in[j] = out[j + i * n4];
-    ht.rows(temp_in, temp_out);
+#if CONFIG_LGT
+    if (tx_type == LGT2D)
+      flgt16up(temp_in, temp_out, lgtmtx_row[i]);
+    else
+#endif
+      ht.rows(temp_in, temp_out);
     for (j = 0; j < n4; ++j)
       output[j + i * n4] = (temp_out[j] + (temp_out[j] < 0)) >> 1;
   }
@@ -1694,8 +1735,12 @@ void av1_fht8x16_c(const int16_t *input, tran_low_t *output, int stride,
 #endif
 
 #if CONFIG_LGT
+  const tran_high_t *lgtmtx_col[8];
   const tran_high_t *lgtmtx_row[16];
-  int use_lgt_row = get_fwd_lgt8(ht.rows, txfm_param, lgtmtx_row, 16);
+  if (tx_type == LGT2D) {
+    get_lgt16up_from_pred(txfm_param, 1, lgtmtx_col, 8);
+    get_lgt8_from_pred(txfm_param, 0, lgtmtx_row, 16);
+  }
 #endif
 
   // Rows
@@ -1704,7 +1749,7 @@ void av1_fht8x16_c(const int16_t *input, tran_low_t *output, int stride,
       temp_in[j] =
           (tran_low_t)fdct_round_shift(input[i * stride + j] * 4 * Sqrt2);
 #if CONFIG_LGT
-    if (use_lgt_row)
+    if (tx_type == LGT2D)
       flgt8(temp_in, temp_out, lgtmtx_row[i]);
     else
 #endif
@@ -1716,7 +1761,12 @@ void av1_fht8x16_c(const int16_t *input, tran_low_t *output, int stride,
   // Columns
   for (i = 0; i < n; ++i) {
     for (j = 0; j < n2; ++j) temp_in[j] = out[j + i * n2];
-    ht.cols(temp_in, temp_out);
+#if CONFIG_LGT
+    if (tx_type == LGT2D)
+      flgt16up(temp_in, temp_out, lgtmtx_col[i]);
+    else
+#endif
+      ht.cols(temp_in, temp_out);
     for (j = 0; j < n2; ++j) output[i + j * n] = temp_out[j];
   }
   // Note: overall scale factor of transform is 8 times unitary
@@ -1764,7 +1814,11 @@ void av1_fht16x8_c(const int16_t *input, tran_low_t *output, int stride,
 
 #if CONFIG_LGT
   const tran_high_t *lgtmtx_col[16];
-  int use_lgt_col = get_fwd_lgt8(ht.cols, txfm_param, lgtmtx_col, 16);
+  const tran_high_t *lgtmtx_row[8];
+  if (tx_type == LGT2D) {
+    get_lgt8_from_pred(txfm_param, 1, lgtmtx_col, 16);
+    get_lgt16up_from_pred(txfm_param, 0, lgtmtx_row, 8);
+  }
 #endif
 
   // Columns
@@ -1773,7 +1827,7 @@ void av1_fht16x8_c(const int16_t *input, tran_low_t *output, int stride,
       temp_in[j] =
           (tran_low_t)fdct_round_shift(input[j * stride + i] * 4 * Sqrt2);
 #if CONFIG_LGT
-    if (use_lgt_col)
+    if (tx_type == LGT2D)
       flgt8(temp_in, temp_out, lgtmtx_col[i]);
     else
 #endif
@@ -1785,7 +1839,12 @@ void av1_fht16x8_c(const int16_t *input, tran_low_t *output, int stride,
   // Rows
   for (i = 0; i < n; ++i) {
     for (j = 0; j < n2; ++j) temp_in[j] = out[j + i * n2];
-    ht.rows(temp_in, temp_out);
+#if CONFIG_LGT
+    if (tx_type == LGT2D)
+      flgt16up(temp_in, temp_out, lgtmtx_row[i]);
+    else
+#endif
+      ht.rows(temp_in, temp_out);
     for (j = 0; j < n2; ++j) output[j + i * n2] = temp_out[j];
   }
   // Note: overall scale factor of transform is 8 times unitary
@@ -1832,15 +1891,19 @@ void av1_fht8x32_c(const int16_t *input, tran_low_t *output, int stride,
 #endif
 
 #if CONFIG_LGT
+  const tran_high_t *lgtmtx_col[8];
   const tran_high_t *lgtmtx_row[32];
-  int use_lgt_row = get_fwd_lgt8(ht.rows, txfm_param, lgtmtx_row, 32);
+  if (tx_type == LGT2D) {
+    get_lgt16up_from_pred(txfm_param, 1, lgtmtx_col, 8);
+    get_lgt8_from_pred(txfm_param, 0, lgtmtx_row, 32);
+  }
 #endif
 
   // Rows
   for (i = 0; i < n4; ++i) {
     for (j = 0; j < n; ++j) temp_in[j] = input[i * stride + j] * 4;
 #if CONFIG_LGT
-    if (use_lgt_row)
+    if (tx_type == LGT2D)
       flgt8(temp_in, temp_out, lgtmtx_row[i]);
     else
 #endif
@@ -1851,7 +1914,12 @@ void av1_fht8x32_c(const int16_t *input, tran_low_t *output, int stride,
   // Columns
   for (i = 0; i < n; ++i) {
     for (j = 0; j < n4; ++j) temp_in[j] = out[j + i * n4];
-    ht.cols(temp_in, temp_out);
+#if CONFIG_LGT
+    if (tx_type == LGT2D)
+      flgt16up(temp_in, temp_out, lgtmtx_col[i]);
+    else
+#endif
+      ht.cols(temp_in, temp_out);
     for (j = 0; j < n4; ++j)
       output[i + j * n] = ROUND_POWER_OF_TWO_SIGNED(temp_out[j], 2);
   }
@@ -1900,14 +1968,18 @@ void av1_fht32x8_c(const int16_t *input, tran_low_t *output, int stride,
 
 #if CONFIG_LGT
   const tran_high_t *lgtmtx_col[32];
-  int use_lgt_col = get_fwd_lgt8(ht.cols, txfm_param, lgtmtx_col, 32);
+  const tran_high_t *lgtmtx_row[8];
+  if (tx_type == LGT2D) {
+    get_lgt8_from_pred(txfm_param, 1, lgtmtx_col, 32);
+    get_lgt16up_from_pred(txfm_param, 0, lgtmtx_row, 8);
+  }
 #endif
 
   // Columns
   for (i = 0; i < n4; ++i) {
     for (j = 0; j < n; ++j) temp_in[j] = input[j * stride + i] * 4;
 #if CONFIG_LGT
-    if (use_lgt_col)
+    if (tx_type == LGT2D)
       flgt8(temp_in, temp_out, lgtmtx_col[i]);
     else
 #endif
@@ -1918,7 +1990,12 @@ void av1_fht32x8_c(const int16_t *input, tran_low_t *output, int stride,
   // Rows
   for (i = 0; i < n; ++i) {
     for (j = 0; j < n4; ++j) temp_in[j] = out[j + i * n4];
-    ht.rows(temp_in, temp_out);
+#if CONFIG_LGT
+    if (tx_type == LGT2D)
+      flgt16up(temp_in, temp_out, lgtmtx_row[i]);
+    else
+#endif
+      ht.rows(temp_in, temp_out);
     for (j = 0; j < n4; ++j)
       output[j + i * n4] = ROUND_POWER_OF_TWO_SIGNED(temp_out[j], 2);
   }
@@ -1928,6 +2005,9 @@ void av1_fht32x8_c(const int16_t *input, tran_low_t *output, int stride,
 void av1_fht16x32_c(const int16_t *input, tran_low_t *output, int stride,
                     TxfmParam *txfm_param) {
   int tx_type = txfm_param->tx_type;
+#if CONFIG_LGT
+  assert(tx_type != LGT2D && "Invalid tx type for tx size");
+#endif  // CONFIG_LGT
 #if CONFIG_MRC_TX
   assert(tx_type != MRC_DCT && "Invalid tx type for tx size");
 #endif  // CONFIG_MRC_TX
@@ -1987,6 +2067,9 @@ void av1_fht16x32_c(const int16_t *input, tran_low_t *output, int stride,
 void av1_fht32x16_c(const int16_t *input, tran_low_t *output, int stride,
                     TxfmParam *txfm_param) {
   int tx_type = txfm_param->tx_type;
+#if CONFIG_LGT
+  assert(tx_type != LGT2D && "Invalid tx type for tx size");
+#endif  // CONFIG_LGT
 #if CONFIG_MRC_TX
   assert(tx_type != MRC_DCT && "Invalid tx type for tx size");
 #endif  // CONFIG_MRC_TX
@@ -2217,8 +2300,10 @@ void av1_fht8x8_c(const int16_t *input, tran_low_t *output, int stride,
 #if CONFIG_LGT
     const tran_high_t *lgtmtx_col[8];
     const tran_high_t *lgtmtx_row[8];
-    int use_lgt_col = get_fwd_lgt8(ht.cols, txfm_param, lgtmtx_col, 8);
-    int use_lgt_row = get_fwd_lgt8(ht.rows, txfm_param, lgtmtx_row, 8);
+    if (tx_type == LGT2D) {
+      get_lgt8_from_pred(txfm_param, 1, lgtmtx_col, 8);
+      get_lgt8_from_pred(txfm_param, 0, lgtmtx_row, 8);
+    }
 #endif
 
     // Columns
@@ -2229,7 +2314,7 @@ void av1_fht8x8_c(const int16_t *input, tran_low_t *output, int stride,
       for (j = 0; j < 8; ++j) temp_in[j] = input[j * stride + i] * 4;
 #endif
 #if CONFIG_LGT
-      if (use_lgt_col)
+      if (tx_type == LGT2D)
         flgt8(temp_in, temp_out, lgtmtx_col[i]);
       else
 #endif
@@ -2241,7 +2326,7 @@ void av1_fht8x8_c(const int16_t *input, tran_low_t *output, int stride,
     for (i = 0; i < 8; ++i) {
       for (j = 0; j < 8; ++j) temp_in[j] = out[j + i * 8];
 #if CONFIG_LGT
-      if (use_lgt_row)
+      if (tx_type == LGT2D)
         flgt8(temp_in, temp_out, lgtmtx_row[i]);
       else
 #endif
@@ -2316,6 +2401,9 @@ void av1_fwht4x4_c(const int16_t *input, tran_low_t *output, int stride) {
 void av1_fht16x16_c(const int16_t *input, tran_low_t *output, int stride,
                     TxfmParam *txfm_param) {
   int tx_type = txfm_param->tx_type;
+#if CONFIG_LGT
+  assert(tx_type != LGT2D && "Invalid tx type for tx size");
+#endif  // CONFIG_LGT
 #if CONFIG_MRC_TX
   assert(tx_type != MRC_DCT && "Invalid tx type for tx size");
 #endif  // CONFIG_MRC_TX
@@ -2376,6 +2464,9 @@ void av1_highbd_fwht4x4_c(const int16_t *input, tran_low_t *output,
 void av1_fht32x32_c(const int16_t *input, tran_low_t *output, int stride,
                     TxfmParam *txfm_param) {
   int tx_type = txfm_param->tx_type;
+#if CONFIG_LGT
+  assert(tx_type != LGT2D && "Invalid tx type for tx size");
+#endif  // CONFIG_LGT
 #if CONFIG_DCT_ONLY
   assert(tx_type == DCT_DCT);
 #endif
@@ -2479,6 +2570,9 @@ static void fdct64_row(const tran_low_t *input, tran_low_t *output) {
 void av1_fht64x64_c(const int16_t *input, tran_low_t *output, int stride,
                     TxfmParam *txfm_param) {
   int tx_type = txfm_param->tx_type;
+#if CONFIG_LGT
+  assert(tx_type != LGT2D && "Invalid tx type for tx size");
+#endif  // CONFIG_LGT
 #if CONFIG_MRC_TX
   assert(tx_type != MRC_DCT && "Invalid tx type for tx size");
 #endif  // CONFIG_MRC_TX
