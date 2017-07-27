@@ -142,6 +142,30 @@
       "revId": "7968302e47dc35a063ecd58cad0d6d8b318bb733",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e13f3a6d_19cf3969",
+        "filename": "av1/common/mvref_common.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 5550
+      },
+      "writtenOn": "2017-07-27T21:48:39Z",
+      "side": 1,
+      "message": "Ah, right, (0,-1) points left - I had the two switched.\nI guess my point was that using lower-right MV to represent the 8x8 granularity position is beneficial as it can act as both an above and left neighbor.",
+      "parentUuid": "132e00b0_fea699aa",
+      "range": {
+        "startLine": 172,
+        "startChar": 0,
+        "endLine": 173,
+        "endChar": 39
+      },
+      "revId": "7968302e47dc35a063ecd58cad0d6d8b318bb733",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
