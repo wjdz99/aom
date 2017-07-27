@@ -4547,24 +4547,35 @@ static void write_global_motion(AV1_COMP *cpi, aom_writer *w) {
   AV1_COMMON *const cm = &cpi->common;
   int frame;
   YV12_BUFFER_CONFIG *ref_buf;
+  int all_identity = 1;
   for (frame = LAST_FRAME; frame <= ALTREF_FRAME; ++frame) {
-    ref_buf = get_ref_frame_buffer(cpi, frame);
-    if (cpi->source->y_crop_width == ref_buf->y_crop_width &&
-        cpi->source->y_crop_height == ref_buf->y_crop_height) {
-      write_global_motion_params(&cm->global_motion[frame],
-                                 &cm->prev_frame->global_motion[frame], w,
-                                 cm->allow_high_precision_mv);
-    } else {
-      assert(cm->global_motion[frame].wmtype == IDENTITY &&
-             "Invalid warp type for frames of different resolutions");
+    if (cm->global_motion[frame].wmtype != IDENTITY) {
+      all_identity = 0;
+      break;
     }
-    /*
-    printf("Frame %d/%d: Enc Ref %d (used %d): %d %d %d %d\n",
-           cm->current_video_frame, cm->show_frame, frame,
-           cpi->global_motion_used[frame], cm->global_motion[frame].wmmat[0],
-           cm->global_motion[frame].wmmat[1], cm->global_motion[frame].wmmat[2],
-           cm->global_motion[frame].wmmat[3]);
-           */
+  }
+  aom_write_bit(w, all_identity);
+  if (!all_identity) {
+    for (frame = LAST_FRAME; frame <= ALTREF_FRAME; ++frame) {
+      ref_buf = get_ref_frame_buffer(cpi, frame);
+      if (cpi->source->y_crop_width == ref_buf->y_crop_width &&
+          cpi->source->y_crop_height == ref_buf->y_crop_height) {
+        write_global_motion_params(&cm->global_motion[frame],
+                                   &cm->prev_frame->global_motion[frame], w,
+                                   cm->allow_high_precision_mv);
+      } else {
+        assert(cm->global_motion[frame].wmtype == IDENTITY &&
+               "Invalid warp type for frames of different resolutions");
+      }
+      /*
+      printf("Frame %d/%d: Enc Ref %d (used %d): %d %d %d %d\n",
+             cm->current_video_frame, cm->show_frame, frame,
+             cpi->global_motion_used[frame], cm->global_motion[frame].wmmat[0],
+             cm->global_motion[frame].wmmat[1],
+             cm->global_motion[frame].wmmat[2],
+             cm->global_motion[frame].wmmat[3]);
+             */
+    }
   }
 }
 #endif
