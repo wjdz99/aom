@@ -20,6 +20,8 @@
 extern "C" {
 #endif
 
+#define DISABLE_TRELLIS
+
 struct optimize_ctx {
   ENTROPY_CONTEXT ta[MAX_MB_PLANE][2 * MAX_MIB_SIZE];
   ENTROPY_CONTEXT tl[MAX_MB_PLANE][2 * MAX_MIB_SIZE];
