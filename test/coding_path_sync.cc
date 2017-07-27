@@ -39,8 +39,8 @@ struct CompressedSource {
     cfg.rc_end_usage = AOM_CQ;
     cfg.rc_max_quantizer = max_q;
     cfg.rc_min_quantizer = max_q;
-    cfg.g_w = WIDTH;
-    cfg.g_h = HEIGHT;
+    cfg.g_w = kWidth;
+    cfg.g_h = kHeight;
     cfg.g_lag_in_frames = 0;
 
     aom_codec_enc_init(&enc_, algo, &cfg, 0);
@@ -48,8 +48,8 @@ struct CompressedSource {
 
   ~CompressedSource() { aom_codec_destroy(&enc_); }
 
-  const aom_codec_cx_pkt_t *readFrame() {
-    uint8_t buf[WIDTH * HEIGHT * 3 / 2] = { 0 };
+  const aom_codec_cx_pkt_t *ReadFrame() {
+    uint8_t buf[kWidth * kHeight * 3 / 2] = { 0 };
 
     // render regular pattern
     const int period = rnd_.Rand8() % 32 + 1;
@@ -57,11 +57,12 @@ struct CompressedSource {
 
     const int val_a = rnd_.Rand8();
     const int val_b = rnd_.Rand8();
+
     for (int i = 0; i < (int)sizeof buf; ++i)
       buf[i] = (i + phase) % period < period / 2 ? val_a : val_b;
 
     aom_image_t img;
-    aom_img_wrap(&img, AOM_IMG_FMT_I420, WIDTH, HEIGHT, 0, buf);
+    aom_img_wrap(&img, AOM_IMG_FMT_I420, kWidth, kHeight, 0, buf);
     aom_codec_encode(&enc_, &img, frame_count_++, 1, 0, 0);
 
     aom_codec_iter_t iter = NULL;
@@ -72,12 +73,12 @@ struct CompressedSource {
   ACMRandom rnd_;
   aom_codec_ctx_t enc_;
   int frame_count_;
-  static const int WIDTH = 32;
-  static const int HEIGHT = 32;
+  static const int kWidth = 32;
+  static const int kHeight = 32;
 };
 
 // lowers an aom_image_t to a easily comparable/printable form
-std::vector<int16_t> serialize(const aom_image_t *img) {
+std::vector<int16_t> Serialize(const aom_image_t *img) {
   const int w_uv = ROUND_POWER_OF_TWO(img->d_w, img->x_chroma_shift);
   const int h_uv = ROUND_POWER_OF_TWO(img->d_h, img->y_chroma_shift);
   const int w[] = { (int)img->d_w, w_uv, w_uv };
@@ -98,7 +99,8 @@ std::vector<int16_t> serialize(const aom_image_t *img) {
   return bytes;
 }
 
-struct Decoder {
+class Decoder {
+ public:
   explicit Decoder(int allowLowbitdepth) {
     aom_codec_iface_t *algo = &aom_codec_av1_dx_algo;
 
@@ -115,7 +117,7 @@ struct Decoder {
                      NULL, 0);
 
     aom_codec_iter_t iter = NULL;
-    return serialize(aom_codec_get_frame(&dec_, &iter));
+    return Serialize(aom_codec_get_frame(&dec_, &iter));
   }
 
  private:
@@ -123,20 +125,19 @@ struct Decoder {
 };
 
 // Try to reveal a mismatch between LBD and HBD coding paths.
-TEST(CodingPathSync, SearchForHbdLbdMismatch) {
+TEST(DISABLED_CodingPathSync, SearchForHbdLbdMismatch) {
   // disable test. Re-enable it locally to help diagnosing LBD/HBD mismatches.
-  // And re-enable it once both coding paths match
+  // This test should be re-enabled once both coding paths match,
   // so they don't diverge anymore.
-  return;
 
   const int count_tests = 100;
   for (int i = 0; i < count_tests; ++i) {
-    Decoder dec_HBD(0);
-    Decoder dec_LBD(1);
+    Decoder dec_hbd(0);
+    Decoder dec_lbd(1);
 
     CompressedSource enc(i);
-    const aom_codec_cx_pkt_t *frame = enc.readFrame();
-    ASSERT_EQ(dec_LBD.decode(frame), dec_HBD.decode(frame));
+    const aom_codec_cx_pkt_t *frame = enc.ReadFrame();
+    ASSERT_EQ(dec_lbd.decode(frame), dec_hbd.decode(frame));
   }
 }
 
