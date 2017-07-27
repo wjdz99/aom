@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "aeecbe63_a3e9a209",
+        "filename": "av1/common/av1_loopfilter.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 3073,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2017-07-27T21:09:33Z",
+      "side": 1,
+      "message": "Thanks for pointing that out. I will change it and submit in a new cl.",
+      "parentUuid": "d276fad4_9a3bff04",
+      "revId": "e94df5cfae97fa2a7cf1a811b720c2c61d03c721",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "baf77720_7c92540e",
         "filename": "av1/common/av1_loopfilter.c",
         "patchSetId": 3
@@ -30,6 +48,30 @@
       "writtenOn": "2017-07-27T19:20:09Z",
       "side": 1,
       "message": "this should be plane_idx:\n\nhttps://google.github.io/styleguide/cppguide.html#Variable_Names",
+      "range": {
+        "startLine": 3093,
+        "startChar": 15,
+        "endLine": 3093,
+        "endChar": 23
+      },
+      "revId": "e94df5cfae97fa2a7cf1a811b720c2c61d03c721",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5e7e9a6e_12c807f1",
+        "filename": "av1/common/av1_loopfilter.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 3093,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2017-07-27T21:09:33Z",
+      "side": 1,
+      "message": "All parameters are mixed case in parallel_deblocking experiment.\n\nShall I keep it as it is? Or clean up all params using underscore in parallel_deblocking?",
+      "parentUuid": "baf77720_7c92540e",
       "range": {
         "startLine": 3093,
         "startChar": 15,
@@ -59,6 +101,24 @@
     },
     {
       "key": {
+        "uuid": "07aca940_504b3ba6",
+        "filename": "av1/encoder/picklpf.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2017-07-27T21:09:33Z",
+      "side": 1,
+      "message": "OK. Will submit a new cl to fix them.",
+      "parentUuid": "a53fa95f_710942e8",
+      "revId": "e94df5cfae97fa2a7cf1a811b720c2c61d03c721",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9bf08f76_4f34bd7c",
         "filename": "av1/encoder/picklpf.c",
         "patchSetId": 3
@@ -70,6 +130,24 @@
       "writtenOn": "2017-07-27T19:20:09Z",
       "side": 1,
       "message": "you can assert here if this should never happen. otherwise this can be merged with \u0027case 0:\u0027",
+      "revId": "e94df5cfae97fa2a7cf1a811b720c2c61d03c721",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1bb411be_976af7ae",
+        "filename": "av1/encoder/picklpf.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2017-07-27T21:09:33Z",
+      "side": 1,
+      "message": "OK.",
+      "parentUuid": "9bf08f76_4f34bd7c",
       "revId": "e94df5cfae97fa2a7cf1a811b720c2c61d03c721",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
