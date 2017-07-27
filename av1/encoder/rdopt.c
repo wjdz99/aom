@@ -2326,6 +2326,12 @@ static int skip_txfm_search(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bs,
   // the search for TX_32X32
   if (tx_type == MRC_DCT && tx_size != TX_32X32) return 1;
 #endif  // CONFIG_MRC_TX
+#if CONFIG_LGT
+  // Only LGT with length 4 or 8 are implemented.
+  if (tx_type == LGT2D && tx_size_wide[tx_size] > 8 &&
+      tx_size_high[tx_size] > 8)
+    return 1;
+#endif  // CONFIG_LGT
   if (mbmi->ref_mv_idx > 0 && tx_type != DCT_DCT) return 1;
   if (FIXED_TX_TYPE && tx_type != get_default_tx_type(0, xd, 0, tx_size))
     return 1;
@@ -2440,6 +2446,9 @@ static void choose_largest_tx_size(const AV1_COMP *const cpi, MACROBLOCK *x,
         }
         if (!ext_tx_used_intra[ext_tx_set][tx_type]) continue;
       }
+#if CONFIG_LGT
+      if (tx_type == LGT2D && !is_lgt_allowed(mbmi->mode, bs)) continue;
+#endif  // CONFIG_LGT
 
       mbmi->tx_type = tx_type;
 
@@ -2590,6 +2599,9 @@ static void choose_tx_size_type_from_rd(const AV1_COMP *const cpi,
     TX_TYPE tx_type;
     for (tx_type = tx_start; tx_type < tx_end; ++tx_type) {
       if (mbmi->ref_mv_idx > 0 && tx_type != DCT_DCT) continue;
+#if CONFIG_LGT
+      if (tx_type == LGT2D && !is_lgt_allowed(mbmi->mode, bs)) continue;
+#endif  // CONFIG_LGT
       const TX_SIZE rect_tx_size = max_txsize_rect_lookup[bs];
       RD_STATS this_rd_stats;
       int ext_tx_set =
@@ -2638,6 +2650,9 @@ static void choose_tx_size_type_from_rd(const AV1_COMP *const cpi,
     TX_TYPE tx_type;
     for (tx_type = tx_start; tx_type < tx_end; ++tx_type) {
       if (mbmi->ref_mv_idx > 0 && tx_type != DCT_DCT) continue;
+#if CONFIG_LGT
+      if (tx_type == LGT2D && !is_lgt_allowed(mbmi->mode, bs)) continue;
+#endif  // CONFIG_LGT
       const TX_SIZE tx_size = quarter_txsize_lookup[bs];
       RD_STATS this_rd_stats;
       int ext_tx_set =
@@ -5114,6 +5129,9 @@ static void select_tx_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
       }
       if (!ext_tx_used_intra[ext_tx_set][tx_type]) continue;
     }
+#if CONFIG_LGT
+    if (tx_type == LGT2D && !is_lgt_allowed(mbmi->mode, bsize)) continue;
+#endif  // CONFIG_LGT
 #else   // CONFIG_EXT_TX
     if (is_inter && cpi->sf.tx_type_search.prune_mode > NO_PRUNE &&
         !do_tx_type_search(tx_type, prune))

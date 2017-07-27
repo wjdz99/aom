@@ -252,6 +252,9 @@ typedef enum {
   H_ADST = 13,
   V_FLIPADST = 14,
   H_FLIPADST = 15,
+#if CONFIG_LGT
+  LGT2D = 16,  // LGT in one direction, and adst for the other
+#endif
 #endif  // CONFIG_EXT_TX
 #if CONFIG_MRC_TX
   MRC_DCT,  // DCT in both directions with mrc based bitmask
@@ -282,6 +285,7 @@ typedef enum {
 #else
 #define EXT_TX_SIZES 4  // number of sizes that use extended transforms
 #endif                  // CONFIG_CHROMA_2X2
+
 #if CONFIG_MRC_TX
 #define EXT_TX_SETS_INTER 5  // Sets of transform selections for INTER
 #define EXT_TX_SETS_INTRA 4  // Sets of transform selections for INTRA

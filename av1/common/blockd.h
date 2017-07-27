@@ -834,8 +834,14 @@ typedef enum {
 #endif  // CONFIG_MRC_TX
   // Discrete Trig transforms w/o flip (4) + Identity (1)
   EXT_TX_SET_DTT4_IDTX,
+#if CONFIG_LGT
+  // Discrete Trig transforms w/o flip (4) + Identity (1) + 1D Hor/Ver DCT (2)
+  // + LGT (1)
+  EXT_TX_SET_DTT4_IDTX_1DDCT_LGT,
+#else
   // Discrete Trig transforms w/o flip (4) + Identity (1) + 1D Hor/vert DCT (2)
   EXT_TX_SET_DTT4_IDTX_1DDCT,
+#endif
   // Discrete Trig transforms w/ flip (9) + Identity (1) + 1D Hor/Ver DCT (2)
   EXT_TX_SET_DTT9_IDTX_1DDCT,
   // Discrete Trig transforms w/ flip (9) + Identity (1) + 1D Hor/Ver (6)
@@ -868,13 +874,23 @@ static const int ext_tx_set_index_intra[EXT_TX_SET_TYPES] = { 0, -1, 3,  -1,
 // Maps set types above to the indices used for inter
 static const int ext_tx_set_index_inter[EXT_TX_SET_TYPES] = { 0,  3,  -1, 4,
                                                               -1, -1, 2,  1 };
-#else   // CONFIG_MRC_TX
+#else  // CONFIG_MRC_TX
 // Number of transform types in each set type
+#if CONFIG_LGT
+static const int num_ext_tx_set[EXT_TX_SET_TYPES] = { 1, 2, 5, 8, 12, 16 };
+#else
 static const int num_ext_tx_set[EXT_TX_SET_TYPES] = { 1, 2, 5, 7, 12, 16 };
+#endif
 
 // Maps intra set index to the set type
 static const int ext_tx_set_type_intra[EXT_TX_SETS_INTRA] = {
-  EXT_TX_SET_DCTONLY, EXT_TX_SET_DTT4_IDTX_1DDCT, EXT_TX_SET_DTT4_IDTX
+  EXT_TX_SET_DCTONLY,
+#if CONFIG_LGT
+  EXT_TX_SET_DTT4_IDTX_1DDCT_LGT,
+#else
+  EXT_TX_SET_DTT4_IDTX_1DDCT,
+#endif
+  EXT_TX_SET_DTT4_IDTX
 };
 
 // Maps inter set index to the set type
@@ -915,8 +931,13 @@ static INLINE TxSetType get_ext_tx_set_type(TX_SIZE tx_size, BLOCK_SIZE bs,
     return (tx_size_sqr == TX_16X16 ? EXT_TX_SET_DTT9_IDTX_1DDCT
                                     : EXT_TX_SET_ALL16);
   else
+#if CONFIG_LGT
+    return (tx_size_sqr == TX_16X16 ? EXT_TX_SET_DTT4_IDTX
+                                    : EXT_TX_SET_DTT4_IDTX_1DDCT_LGT);
+#else
     return (tx_size_sqr == TX_16X16 ? EXT_TX_SET_DTT4_IDTX
                                     : EXT_TX_SET_DTT4_IDTX_1DDCT);
+#endif
 }
 
 static INLINE int get_ext_tx_set(TX_SIZE tx_size, BLOCK_SIZE bs, int is_inter,
@@ -1012,6 +1033,25 @@ static const int use_inter_ext_tx_for_txsize[EXT_TX_SETS_INTER][EXT_TX_SIZES] =
 #endif  // CONFIG_CHROMA_2X2
     };
 
+#if CONFIG_LGT
+// Transform types used in each intra set
+static const int ext_tx_used_intra[EXT_TX_SETS_INTRA][TX_TYPES] = {
+  { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1 },
+  { 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0 },
+};
+
+// Numbers of transform types used in each intra set
+static const int ext_tx_cnt_intra[EXT_TX_SETS_INTRA] = { 1, 8, 5 };
+
+// Transform types used in each inter set
+static const int ext_tx_used_inter[EXT_TX_SETS_INTER][TX_TYPES] = {
+  { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0 },
+  { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0 },
+  { 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0 },
+};
+#else   // CONFIG_LGT
 // Transform types used in each intra set
 static const int ext_tx_used_intra[EXT_TX_SETS_INTRA][TX_TYPES] = {
   { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
@@ -1029,6 +1069,7 @@ static const int ext_tx_used_inter[EXT_TX_SETS_INTER][TX_TYPES] = {
   { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0 },
   { 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0 },
 };
+#endif  // CONFIG_LGT
 
 // Numbers of transform types used in each inter set
 static const int ext_tx_cnt_inter[EXT_TX_SETS_INTER] = { 1, 16, 12, 2 };
@@ -1046,6 +1087,62 @@ static INLINE int get_ext_tx_types(TX_SIZE tx_size, BLOCK_SIZE bs, int is_inter,
       get_ext_tx_set_type(tx_size, bs, is_inter, use_reduced_set);
   return num_ext_tx_set[set_type];
 }
+
+#if CONFIG_LGT
+// TX_TYPE to TX_TYPE_1D
+static INLINE TX_TYPE_1D get_1d_tx_type(TX_TYPE tx_type, int is_col) {
+  assert(is_col == 0 || is_col == 1);
+  /* clang-format off */
+  TX_TYPE_1D tx1d_arr[TX_TYPES][2] = {
+    { DCT_1D, DCT_1D },            // DCT_DCT
+    { DCT_1D, ADST_1D },           // ADST_DCT
+    { ADST_1D, DCT_1D },           // DCT_ADST
+    { ADST_1D, ADST_1D },          // ADST_ADST
+    { DCT_1D, FLIPADST_1D },       // FLIPADST_DCT
+    { FLIPADST_1D, DCT_1D },       // DCT_FLIPADST
+    { FLIPADST_1D, FLIPADST_1D },  // FLIPADST_FLIPADST
+    { FLIPADST_1D, ADST_1D },      // ADST_FLIPADST
+    { ADST_1D, FLIPADST_1D },      // FLIPADST_ADST
+    { IDTX_1D, IDTX_1D },          // IDTX
+    { IDTX_1D, DCT_1D },           // V_DCT
+    { DCT_1D, IDTX_1D },           // H_DCT
+    { IDTX_1D, ADST_1D },          // V_ADST
+    { ADST_1D, IDTX_1D },          // H_ADST
+    { IDTX_1D, FLIPADST_1D },      // V_FLIPADST
+    { FLIPADST_1D, IDTX_1D },      // H_FLIPADST
+  };
+  /* clang-format on */
+  return tx1d_arr[tx_type][is_col];
+}
+
+static INLINE int is_lgt_allowed(PREDICTION_MODE mode, BLOCK_SIZE bsize) {
+  switch (mode) {
+    case DC_PRED:
+    case TM_PRED:
+#if CONFIG_ALT_INTRA
+    case SMOOTH_PRED:
+#endif
+      return block_size_wide[bsize] <= 8 || block_size_high[bsize] <= 8;
+    case D45_PRED:
+    case D63_PRED:
+    case V_PRED:
+    case D117_PRED:
+#if CONFIG_SMOOTH_HV
+    case SMOOTH_V_PRED:
+#endif
+      return block_size_wide[bsize] <= 8;
+    case D135_PRED:
+    case D153_PRED:
+    case H_PRED:
+    case D207_PRED:
+#if CONFIG_SMOOTH_HV
+    case SMOOTH_H_PRED:
+#endif
+      return block_size_high[bsize] <= 8;
+    default: return 0;
+  }
+}
+#endif  // CONFIG_LGT
 
 #if CONFIG_RECT_TX
 static INLINE int is_rect_tx_allowed_bsize(BLOCK_SIZE bsize) {
@@ -1282,6 +1379,16 @@ static INLINE TX_TYPE av1_get_tx_type(PLANE_TYPE plane_type,
     return DCT_DCT;
   }
 #endif  // CONFIG_MRC_TX
+#if CONFIG_LGT
+  if (mbmi->tx_type == LGT2D) {
+    if (plane_type == PLANE_TYPE_Y && !xd->lossless[mbmi->segment_id]) {
+      assert(tx_size_wide[tx_size] <= 8 || tx_size_high[tx_size] <= 8);
+      assert(!is_inter_block(mbmi));
+      return mbmi->tx_type;
+    }
+    return DCT_DCT;
+  }
+#endif  // CONFIG_LGT
   if (xd->lossless[mbmi->segment_id] || txsize_sqr_map[tx_size] > TX_32X32 ||
       (txsize_sqr_map[tx_size] >= TX_32X32 && !is_inter_block(mbmi)))
     return DCT_DCT;
