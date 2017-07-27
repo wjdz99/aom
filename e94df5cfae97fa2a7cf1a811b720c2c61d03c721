@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "131c59bc_c13d980e",
+        "filename": "av1/common/av1_loopfilter.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 3073,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2017-07-27T22:28:14Z",
+      "side": 1,
+      "message": "OK.",
+      "parentUuid": "5dd17f42_9f173581",
+      "revId": "e94df5cfae97fa2a7cf1a811b720c2c61d03c721",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "baf77720_7c92540e",
         "filename": "av1/common/av1_loopfilter.c",
         "patchSetId": 3
@@ -114,6 +132,30 @@
       "side": 1,
       "message": "\u003e All parameters are mixed case in parallel_deblocking experiment.\n\u003e \n\u003e Shall I keep it as it is? Or clean up all params using underscore in parallel_deblocking?\n\nIt\u0027s good to match local style so it\u0027s correct now, but it would be good to do a cleanup pass to normalize the style and make other developers aware of the preference.",
       "parentUuid": "5e7e9a6e_12c807f1",
+      "range": {
+        "startLine": 3093,
+        "startChar": 15,
+        "endLine": 3093,
+        "endChar": 23
+      },
+      "revId": "e94df5cfae97fa2a7cf1a811b720c2c61d03c721",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4c54ab27_469d0fdf",
+        "filename": "av1/common/av1_loopfilter.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 3093,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2017-07-27T22:28:14Z",
+      "side": 1,
+      "message": "OK. I will clean it up.",
+      "parentUuid": "d6380d9e_d3109129",
       "range": {
         "startLine": 3093,
         "startChar": 15,
