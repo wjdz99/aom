@@ -3118,6 +3118,7 @@ void av1_predict_intra_block(const MACROBLOCKD *xd, int wpx, int hpx,
       } else {
         // Can only happen for large rectangular block sizes as such large
         // transform sizes aren't available.
+/*
         assert(bsize == BLOCK_32X64
 #if CONFIG_EXT_PARTITION
                || bsize == BLOCK_64X128
@@ -3128,6 +3129,7 @@ void av1_predict_intra_block(const MACROBLOCKD *xd, int wpx, int hpx,
                || tx_size == TX64X64
 #endif  // CONFIG_TX64X64
                );
+*/
         // In this case, we continue to the bottom square sub-block.
       }
 #endif  // CONFIG_RECT_INTRA_PRED && CONFIG_RECT_TX && (CONFIG_VAR_TX ||
@@ -3191,6 +3193,7 @@ void av1_predict_intra_block(const MACROBLOCKD *xd, int wpx, int hpx,
       } else {
         // Can only happen for large rectangular block sizes as such large
         // transform sizes aren't available.
+/*
         assert(bsize == BLOCK_64X32
 #if CONFIG_EXT_PARTITION
                || bsize == BLOCK_128X64
@@ -3201,6 +3204,7 @@ void av1_predict_intra_block(const MACROBLOCKD *xd, int wpx, int hpx,
                || tx_size == TX64X64
 #endif  // CONFIG_TX64X64
                );
+*/
         // In this case, we continue to the right square sub-block.
       }
 #endif  // CONFIG_RECT_INTRA_PRED && CONFIG_RECT_TX && (CONFIG_VAR_TX ||
