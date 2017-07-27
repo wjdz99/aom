@@ -47,6 +47,8 @@ int64_t aom_get_v_sse_part(const YV12_BUFFER_CONFIG *a,
                            const YV12_BUFFER_CONFIG *b, int hstart, int width,
                            int vstart, int height);
 int64_t aom_get_v_sse(const YV12_BUFFER_CONFIG *a, const YV12_BUFFER_CONFIG *b);
+int64_t aom_get_sse_plane(const YV12_BUFFER_CONFIG *a,
+                          const YV12_BUFFER_CONFIG *b, int plane);
 #if CONFIG_HIGHBITDEPTH
 int64_t aom_highbd_get_y_sse_part(const YV12_BUFFER_CONFIG *a,
                                   const YV12_BUFFER_CONFIG *b, int hstart,
@@ -63,6 +65,8 @@ int64_t aom_highbd_get_v_sse_part(const YV12_BUFFER_CONFIG *a,
                                   int width, int vstart, int height);
 int64_t aom_highbd_get_v_sse(const YV12_BUFFER_CONFIG *a,
                              const YV12_BUFFER_CONFIG *b);
+int64_t aom_highbd_get_sse_plane(const YV12_BUFFER_CONFIG *a,
+                                 const YV12_BUFFER_CONFIG *b, int plane);
 void aom_calc_highbd_psnr(const YV12_BUFFER_CONFIG *a,
                           const YV12_BUFFER_CONFIG *b, PSNR_STATS *psnr,
                           unsigned int bit_depth, unsigned int in_bit_depth);

@@ -228,6 +228,16 @@ int64_t aom_get_v_sse(const YV12_BUFFER_CONFIG *a,
                  a->uv_crop_width, a->uv_crop_height);
 }
 
+int64_t aom_get_sse_plane(const YV12_BUFFER_CONFIG *a,
+                          const YV12_BUFFER_CONFIG *b, int plane) {
+  switch (plane) {
+    case 0: return aom_get_y_sse(a, b);
+    case 1: return aom_get_u_sse(a, b);
+    case 2: return aom_get_v_sse(a, b);
+    default: assert(plane >= 0 && plane <= 2); return 0;
+  }
+}
+
 #if CONFIG_HIGHBITDEPTH
 int64_t aom_highbd_get_y_sse_part(const YV12_BUFFER_CONFIG *a,
                                   const YV12_BUFFER_CONFIG *b, int hstart,
@@ -286,6 +296,16 @@ int64_t aom_highbd_get_v_sse(const YV12_BUFFER_CONFIG *a,
 
   return highbd_get_sse(a->v_buffer, a->uv_stride, b->v_buffer, b->uv_stride,
                         a->uv_crop_width, a->uv_crop_height);
+}
+
+int64_t aom_highbd_get_sse_plane(const YV12_BUFFER_CONFIG *a,
+                                 const YV12_BUFFER_CONFIG *b, int plane) {
+  switch (plane) {
+    case 0: return aom_highbd_get_y_sse(a, b);
+    case 1: return aom_highbd_get_u_sse(a, b);
+    case 2: return aom_highbd_get_v_sse(a, b);
+    default: assert(plane >= 0 && plane <= 2); return 0;
+  }
 }
 #endif  // CONFIG_HIGHBITDEPTH
 

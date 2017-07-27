@@ -26,6 +26,8 @@ add_proto qw/void aom_yv12_copy_u/, "const struct yv12_buffer_config *src_bc, st
 
 add_proto qw/void aom_yv12_copy_v/, "const struct yv12_buffer_config *src_bc, struct yv12_buffer_config *dst_bc";
 
+add_proto qw/void aom_yv12_copy_plane/, "const struct yv12_buffer_config *src_bc, struct yv12_buffer_config *dst_bc, int plane";
+
 if (aom_config("CONFIG_AV1") eq "yes") {
     add_proto qw/void aom_extend_frame_borders/, "struct yv12_buffer_config *ybf";
     specialize qw/aom_extend_frame_borders dspr2/;
