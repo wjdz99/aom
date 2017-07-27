@@ -753,6 +753,24 @@ int main(int argc, const char **argv) {
                      "TYPES)]");
 #endif
 
+#if CONFIG_EXT_TX
+  // TODO(kslu): this is temporarily added here for LGT experiment, to see
+  // how frequent LGT2D is chosen.
+  cts_each_dim[0] = EXT_TX_SETS_INTRA;
+  cts_each_dim[1] = EXT_TX_SIZES;
+  cts_each_dim[2] = INTRA_MODES;
+  cts_each_dim[3] = TX_TYPES;
+  optimize_entropy_table(&fc.intra_ext_tx[0][0][0][0], probsfile, 4,
+                         cts_each_dim, av1_ext_tx_intra_tree[1], 0,
+                         "static const aom_prob default_intra_ext_tx_prob "
+                         "[EXT_TX_SETS_INTRA][EXT_TX_SIZES][INTRA_MODES]"
+                         "[TX_TYPES - 1]");
+  optimize_cdf_table(&fc.intra_ext_tx[0][0][0][0], probsfile, 4, cts_each_dim,
+                     "static const aom_cdf_prob "
+                     "default_intra_ext_tx_cdf[EXT_TX_SETS_INTRA]"
+                     "[EXT_TX_SIZES][INTRA_MODES][CDF_SIZES(TX_TYPES)]");
+#endif
+
 /* supertx experiment */
 #if CONFIG_SUPERTX
   cts_each_dim[0] = PARTITION_SUPERTX_CONTEXTS;
