@@ -556,6 +556,9 @@ post_process_cmdline() {
     enabled ext_comp_refs && disable_feature one_sided_compound
     enabled altref2 && enable_feature ext_refs
     enabled rect_tx_ext && enable_feature rect_tx
+    enabled lgt && enable_feature ext_tx
+    enabled lgt && disable_feature mrc_dct
+    enabled lgt && disable_feature daala_dct4
 
     if ! enabled delta_q && enabled ext_delta_q; then
       log_echo "ext_delta_q requires delta_q, so disabling ext_delta_q"
