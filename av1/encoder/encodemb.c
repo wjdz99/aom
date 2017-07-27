@@ -451,6 +451,10 @@ int av1_optimize_b(const AV1_COMMON *cm, MACROBLOCK *mb, int plane, int blk_row,
   return eob;
 #endif
 
+#ifdef DISABLE_TRELLIS
+  return eob;
+#endif
+
 #if !CONFIG_LV_MAP
   (void)plane_bsize;
   (void)blk_row;
@@ -916,7 +920,12 @@ void av1_encode_sb(AV1_COMMON *cm, MACROBLOCK *x, BLOCK_SIZE bsize, int mi_row,
   MACROBLOCKD *const xd = &x->e_mbd;
   struct optimize_ctx ctx;
   MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
+#ifdef DISABLE_TRELLIS 
   struct encode_b_args arg = { cm, x, &ctx, &mbmi->skip, NULL, NULL, 1 };
+#else
+  struct encode_b_args arg = { cm, x, &ctx, &mbmi->skip, NULL, NULL, 0 };
+#endif
+
   int plane;
 
   mbmi->skip = 1;

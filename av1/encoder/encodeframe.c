@@ -70,6 +70,7 @@
 #define IF_HBD(...)
 #endif  // CONFIG_HIGHBITDEPTH
 
+
 static void encode_superblock(const AV1_COMP *const cpi, ThreadData *td,
                               TOKENEXTRA **t, RUN_TYPE dry_run, int mi_row,
                               int mi_col, BLOCK_SIZE bsize, int *rate);
@@ -5995,12 +5996,18 @@ static void encode_superblock(const AV1_COMP *const cpi, ThreadData *td,
   x->cfl_store_y = 1;
 #endif
 
+  int enable_trellis = 1;
+
+#ifdef DISABLE_TRELLIS
+  enable_trellis = 0;
+#endif
+
   if (!is_inter) {
     int plane;
     mbmi->skip = 1;
     for (plane = 0; plane < MAX_MB_PLANE; ++plane) {
-      av1_encode_intra_block_plane((AV1_COMMON *)cm, x, block_size, plane, 1,
-                                   mi_row, mi_col);
+      av1_encode_intra_block_plane((AV1_COMMON *)cm, x, block_size, plane,
+                                   enable_trellis, mi_row, mi_col);
     }
     if (!dry_run) {
       sum_intra_stats(td->counts, xd, mi, xd->above_mi, xd->left_mi,

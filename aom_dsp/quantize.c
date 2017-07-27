@@ -564,7 +564,7 @@ void aom_quantize_dc_32x32(const tran_low_t *coeff_ptr, int skip_block,
 
   if (!skip_block) {
     tmp = clamp(abs_coeff + ROUND_POWER_OF_TWO(round_ptr[rc != 0], 1),
-                INT16_MIN, INT16_MAX);
+        INT16_MIN, INT16_MAX);
     tmp = (tmp * quant) >> 15;
     qcoeff_ptr[rc] = (tmp ^ coeff_sign) - coeff_sign;
     dqcoeff_ptr[rc] = qcoeff_ptr[rc] * dequant_ptr / 2;
@@ -760,8 +760,7 @@ void aom_highbd_quantize_b_32x32_c(
       const int coeff = coeff_ptr[rc];
       const int coeff_sign = (coeff >> 31);
       const int abs_coeff = (coeff ^ coeff_sign) - coeff_sign;
-      const int64_t tmp1 =
-          abs_coeff + ROUND_POWER_OF_TWO(round_ptr[rc != 0], 1);
+      const int64_t tmp1 = abs_coeff + ROUND_POWER_OF_TWO(round_ptr[rc != 0], 1);
       const int64_t tmp2 = ((tmp1 * quant_ptr[rc != 0]) >> 16) + tmp1;
       const int abs_qcoeff = (int)((tmp2 * quant_shift_ptr[rc != 0]) >> 15);
       qcoeff_ptr[rc] = (tran_low_t)((abs_qcoeff ^ coeff_sign) - coeff_sign);
