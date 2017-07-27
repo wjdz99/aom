@@ -42,6 +42,8 @@
 #include "av1/common/cfl.h"
 #endif
 
+//#define DISABLE_TRELLIS
+
 // Check if one needs to use c version subtraction.
 static int check_subtract_block_size(int w, int h) { return w < 4 || h < 4; }
 
@@ -448,6 +450,10 @@ int av1_optimize_b(const AV1_COMMON *cm, MACROBLOCK *mb, int plane, int blk_row,
   (void)tx_size;
   (void)a;
   (void)l;
+  return eob;
+#endif
+
+#ifdef DISABLE_TRELLIS
   return eob;
 #endif
 
