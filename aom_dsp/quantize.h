@@ -19,6 +19,9 @@
 extern "C" {
 #endif
 
+#define RND_SHIFT 1
+#define FACTOR 3/4
+
 #if CONFIG_AOM_QM
 void aom_quantize_dc(const tran_low_t *coeff_ptr, int n_coeffs, int skip_block,
                      const int16_t *round_ptr, const int16_t quant_ptr,
