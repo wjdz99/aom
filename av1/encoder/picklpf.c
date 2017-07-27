@@ -49,6 +49,7 @@ static int64_t try_filter_frame(const YV12_BUFFER_CONFIG *sd,
 
 #if CONFIG_VAR_TX || CONFIG_EXT_PARTITION || CONFIG_CB4X4
 #if CONFIG_UV_LVL
+  assert((plane >= 0 && plane <= 2) && "plane can only be 0, 1, 2.");
   av1_loop_filter_frame(cm->frame_to_show, cm, &cpi->td.mb.e_mbd, filt_level,
                         plane, partial_frame);
 #else
@@ -68,36 +69,40 @@ static int64_t try_filter_frame(const YV12_BUFFER_CONFIG *sd,
 #if CONFIG_UV_LVL
 #if CONFIG_HIGHBITDEPTH
   if (cm->use_highbitdepth) {
-    if (plane == 0)
+    if (plane == 0) {
       filt_err = aom_highbd_get_y_sse(sd, cm->frame_to_show);
-    else if (plane == 1)
+    } else if (plane == 1) {
       filt_err = aom_highbd_get_u_sse(sd, cm->frame_to_show);
-    else
+    } else {
       filt_err = aom_highbd_get_v_sse(sd, cm->frame_to_show);
+    }
   } else {
-    if (plane == 0)
+    if (plane == 0) {
       filt_err = aom_get_y_sse(sd, cm->frame_to_show);
-    else if (plane == 1)
+    } else if (plane == 1) {
       filt_err = aom_get_u_sse(sd, cm->frame_to_show);
-    else
+    } else {
       filt_err = aom_get_v_sse(sd, cm->frame_to_show);
+    }
   }
 #else
-  if (plane == 0)
+  if (plane == 0) {
     filt_err = aom_get_y_sse(sd, cm->frame_to_show);
-  else if (plane == 1)
+  } else if (plane == 1) {
     filt_err = aom_get_u_sse(sd, cm->frame_to_show);
-  else
+  } else {
     filt_err = aom_get_v_sse(sd, cm->frame_to_show);
+  }
 #endif  // CONFIG_HIGHBITDEPTH
 
   // Re-instate the unfiltered frame
-  if (plane == 0)
+  if (plane == 0) {
     aom_yv12_copy_y(&cpi->last_frame_uf, cm->frame_to_show);
-  else if (plane == 1)
+  } else if (plane == 1) {
     aom_yv12_copy_u(&cpi->last_frame_uf, cm->frame_to_show);
-  else
+  } else {
     aom_yv12_copy_v(&cpi->last_frame_uf, cm->frame_to_show);
+  }
 #else
 #if CONFIG_HIGHBITDEPTH
   if (cm->use_highbitdepth) {
@@ -140,7 +145,7 @@ int av1_search_filter_level(const YV12_BUFFER_CONFIG *sd, AV1_COMP *cpi,
     case 0: lvl = lf->filter_level; break;
     case 1: lvl = lf->filter_level_u; break;
     case 2: lvl = lf->filter_level_v; break;
-    default: lvl = lf->filter_level; break;
+    default: assert(0 && "plane can only be 0, 1, 2."); return;
   }
   int filt_mid = clamp(lvl, min_filter_level, max_filter_level);
 #else
@@ -154,12 +159,13 @@ int av1_search_filter_level(const YV12_BUFFER_CONFIG *sd, AV1_COMP *cpi,
   memset(ss_err, 0xFF, sizeof(ss_err));
 
 #if CONFIG_UV_LVL
-  if (plane == 0)
+  if (plane == 0) {
     aom_yv12_copy_y(cm->frame_to_show, &cpi->last_frame_uf);
-  else if (plane == 1)
+  } else if (plane == 1) {
     aom_yv12_copy_u(cm->frame_to_show, &cpi->last_frame_uf);
-  else if (plane == 2)
+  } else if (plane == 2) {
     aom_yv12_copy_v(cm->frame_to_show, &cpi->last_frame_uf);
+  }
 #else
   //  Make a copy of the unfiltered / processed recon buffer
   aom_yv12_copy_y(cm->frame_to_show, &cpi->last_frame_uf);

@@ -3047,6 +3047,8 @@ void av1_loop_filter_rows(YV12_BUFFER_CONFIG *frame_buffer, AV1_COMMON *cm,
   const int plane_end = plane_start + 1;
 #else
   const int num_planes = y_only ? 1 : MAX_MB_PLANE;
+  const int plane_start = 0;
+  const int plane_end = num_planes;
 #endif  // CONFIG_UV_LVL
   int mi_row, mi_col;
 
@@ -3070,11 +3072,7 @@ void av1_loop_filter_rows(YV12_BUFFER_CONFIG *frame_buffer, AV1_COMMON *cm,
 
       av1_setup_dst_planes(planes, cm->sb_size, frame_buffer, mi_row, mi_col);
 
-#if CONFIG_UV_LVL
       for (plane = plane_start; plane < plane_end; ++plane) {
-#else
-      for (plane = 0; plane < num_planes; ++plane) {
-#endif  // CONFIG_UV_LVL
         av1_filter_block_plane_non420_ver(cm, &planes[plane], mi + mi_col,
                                           mi_row, mi_col, plane);
         av1_filter_block_plane_non420_hor(cm, &planes[plane], mi + mi_col,
@@ -3089,11 +3087,7 @@ void av1_loop_filter_rows(YV12_BUFFER_CONFIG *frame_buffer, AV1_COMMON *cm,
     MODE_INFO **mi = cm->mi_grid_visible + mi_row * cm->mi_stride;
     for (mi_col = 0; mi_col < cm->mi_cols; mi_col += MAX_MIB_SIZE) {
       av1_setup_dst_planes(planes, cm->sb_size, frame_buffer, mi_row, mi_col);
-#if CONFIG_UV_LVL
       for (int planeIdx = plane_start; planeIdx < plane_end; ++planeIdx) {
-#else
-      for (int planeIdx = 0; planeIdx < num_planes; planeIdx += 1) {
-#endif  // CONFIG_UV_LVL
         const int32_t scaleHorz = planes[planeIdx].subsampling_x;
         const int32_t scaleVert = planes[planeIdx].subsampling_y;
         av1_filter_block_plane_vert(
@@ -3108,11 +3102,7 @@ void av1_loop_filter_rows(YV12_BUFFER_CONFIG *frame_buffer, AV1_COMMON *cm,
     MODE_INFO **mi = cm->mi_grid_visible + mi_row * cm->mi_stride;
     for (mi_col = 0; mi_col < cm->mi_cols; mi_col += MAX_MIB_SIZE) {
       av1_setup_dst_planes(planes, cm->sb_size, frame_buffer, mi_row, mi_col);
-#if CONFIG_UV_LVL
       for (int planeIdx = plane_start; planeIdx < plane_end; ++planeIdx) {
-#else
-      for (int planeIdx = 0; planeIdx < num_planes; planeIdx += 1) {
-#endif  // CONFIG_UV_LVL
         const int32_t scaleHorz = planes[planeIdx].subsampling_x;
         const int32_t scaleVert = planes[planeIdx].subsampling_y;
         av1_filter_block_plane_horz(
