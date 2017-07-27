@@ -94,6 +94,30 @@
       "revId": "7968302e47dc35a063ecd58cad0d6d8b318bb733",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e0a1219c_780c9f52",
+        "filename": "av1/common/mvref_common.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 5550
+      },
+      "writtenOn": "2017-07-27T20:22:06Z",
+      "side": 1,
+      "message": "I think lower-right is slightly preferable, as (0,-1) is the lower-left of the above block and (-1,0) is the upper-right of the left block. This would require double the storage for each 8x8 granularity position. If we use the lower-right, it can be used as a neighbor for both sides.  (also, more compatibility with the VP9 code).",
+      "parentUuid": "a2bac816_712ddb91",
+      "range": {
+        "startLine": 172,
+        "startChar": 0,
+        "endLine": 173,
+        "endChar": 39
+      },
+      "revId": "7968302e47dc35a063ecd58cad0d6d8b318bb733",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
