@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d276fad4_9a3bff04",
+        "filename": "av1/common/av1_loopfilter.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 3073,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-07-27T19:20:09Z",
+      "side": 1,
+      "message": "this structure is a bit unfriendly to {} completion in editors, though a bit more economical spacewise. you could use CONFIG_UV_LVL as a test here (CONFIG_UV_LVL ? plane_start ...) if the constant were removed",
+      "revId": "e94df5cfae97fa2a7cf1a811b720c2c61d03c721",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "baf77720_7c92540e",
+        "filename": "av1/common/av1_loopfilter.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 3093,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-07-27T19:20:09Z",
+      "side": 1,
+      "message": "this should be plane_idx:\n\nhttps://google.github.io/styleguide/cppguide.html#Variable_Names",
+      "range": {
+        "startLine": 3093,
+        "startChar": 15,
+        "endLine": 3093,
+        "endChar": 23
+      },
+      "revId": "e94df5cfae97fa2a7cf1a811b720c2c61d03c721",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a53fa95f_710942e8",
+        "filename": "av1/encoder/picklpf.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-07-27T19:20:09Z",
+      "side": 1,
+      "message": "prefer {}s on conditionals that continue to the next line. they\u0027re not strictly necessary, but are less error prone and can improve readability.",
+      "revId": "e94df5cfae97fa2a7cf1a811b720c2c61d03c721",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9bf08f76_4f34bd7c",
+        "filename": "av1/encoder/picklpf.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-07-27T19:20:09Z",
+      "side": 1,
+      "message": "you can assert here if this should never happen. otherwise this can be merged with \u0027case 0:\u0027",
+      "revId": "e94df5cfae97fa2a7cf1a811b720c2c61d03c721",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
