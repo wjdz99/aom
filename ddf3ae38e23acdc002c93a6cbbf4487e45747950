@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "59ce4c8d_9f1eb302",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-07-28T19:57:56Z",
+      "side": 1,
+      "message": "The usual idiom for a fixed-size array would just be sizeof(cfl-\u003esub8x8_val). That guarantees it\u0027s never out of sync with the declaration.",
+      "revId": "ddf3ae38e23acdc002c93a6cbbf4487e45747950",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a3050e47_cb7fb815",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 320,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-07-28T19:57:56Z",
+      "side": 1,
+      "message": "I\u0027m not a huge fan of this kind of big if-else tree, since it doesn\u0027t generalize (not that I expect we\u0027ll be adding more sub-8x8 block sizes, but still).\n\nSomething like\n\n  int unit_r;\n  int unit_c;\n  for (unit_r \u003d 0; unit_r \u003c tx_size_high_unit[tx_size]; unit_r++) {\n    for (unit_c \u003d 0; unit_c \u003c tx_size_wide_unit[tx_size]; unit_c++) {\n      assert(row + unit_r \u003c 2);\n      assert(col + unit_c \u003c 2);\n      cfl-\u003esub8x8_val[(row + unit_r)*2 + col + unit_c] \u003d 1;\n    }\n  }\n\ngets rid of all of the special cases.\n\nShould we also assert that the corresponding cfl-\u003esub8x8_val entry is 0 before setting it?",
+      "revId": "ddf3ae38e23acdc002c93a6cbbf4487e45747950",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "49a3b7e3_53286ec0",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 383,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-07-28T19:57:56Z",
+      "side": 1,
+      "message": "This also seems like somewhere a loop would be terser and make more sense.",
+      "revId": "ddf3ae38e23acdc002c93a6cbbf4487e45747950",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
