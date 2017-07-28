@@ -16,6 +16,24 @@
       "revId": "0d448426e091b52150e6911973320fbf12a2ab34",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a2cba7a4_a7877936",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1937,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2017-07-28T19:32:40Z",
+      "side": 1,
+      "message": "Fixed, thx for thinking of this, even the small.",
+      "parentUuid": "eae6997c_20c42924",
+      "revId": "0d448426e091b52150e6911973320fbf12a2ab34",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
