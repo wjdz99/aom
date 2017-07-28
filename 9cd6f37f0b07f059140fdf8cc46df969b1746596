@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "89dd645a_5d188744",
+        "filename": "av1/encoder/picklpf.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-07-28T19:11:06Z",
+      "side": 1,
+      "message": "these ()s are unnecessary. the string is redundant too given what will be output with the assertion failure",
+      "range": {
+        "startLine": 52,
+        "startChar": 34,
+        "endLine": 52,
+        "endChar": 35
+      },
+      "revId": "9cd6f37f0b07f059140fdf8cc46df969b1746596",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "732bc116_618aae05",
+        "filename": "av1/encoder/picklpf.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-07-28T19:11:06Z",
+      "side": 1,
+      "message": "this could be the same as the assert above",
+      "revId": "9cd6f37f0b07f059140fdf8cc46df969b1746596",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
