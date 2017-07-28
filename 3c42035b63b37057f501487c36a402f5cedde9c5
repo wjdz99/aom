@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4d318042_c5d055dd",
+        "filename": "av1/common/enums.h",
+        "patchSetId": 22
+      },
+      "lineNbr": 359,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-07-28T16:19:51Z",
+      "side": 1,
+      "message": "Could be CFL_JOINT_SIGNS - 2\nThis would align with the comment",
+      "revId": "3c42035b63b37057f501487c36a402f5cedde9c5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
