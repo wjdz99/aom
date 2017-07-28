@@ -2061,7 +2061,11 @@ static void decode_token_and_recon_block(AV1Decoder *const pbi,
         av1_setup_pre_planes(xd, ref, ref_buf->buf, mi_row, mi_col,
                              &ref_buf->sf);
       }
+#if 1
     }
+#else
+    }
+#endif
 
 #if CONFIG_CB4X4
     av1_build_inter_predictors_sb(cm, xd, mi_row, mi_col, NULL, bsize);
