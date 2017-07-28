@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5d1177dd_04a7715b",
+        "filename": "av1/encoder/picklpf.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 5030
+      },
+      "writtenOn": "2017-07-28T20:57:00Z",
+      "side": 1,
+      "message": "Optional: This plane copying stuff is ripe for a refactor",
+      "range": {
+        "startLine": 71,
+        "startChar": 0,
+        "endLine": 105,
+        "endChar": 3
+      },
+      "revId": "259dbe08616daf682729150da72a18d2045c5501",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
