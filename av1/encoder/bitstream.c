@@ -1549,6 +1549,7 @@ void av1_write_tx_type(const AV1_COMMON *const cm, const MACROBLOCKD *xd,
       av1_get_tx_type(plane_type, xd, blk_row, blk_col, block, tx_size);
 #endif
 
+  if (tx_type == MRC_DCT) printf("here\n");
   if (!FIXED_TX_TYPE) {
 #if CONFIG_EXT_TX
     const TX_SIZE square_tx_size = txsize_sqr_map[tx_size];
