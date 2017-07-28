@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5addab70_4300772d",
+        "filename": "test/coding_path_sync.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-07-28T02:51:02Z",
+      "side": 1,
+      "message": "seems like this could be controlled in the .mk similar to other sources rather than producing an empty module",
+      "revId": "4c4d385737f6d7c349bad27565ca96dfbe1fd249",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4dead1ca_6d6dd8f1",
+        "filename": "test/coding_path_sync.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-07-28T02:51:02Z",
+      "side": 1,
+      "message": "https://google.github.io/styleguide/cppguide.html#Structs_vs._Classes",
+      "revId": "4c4d385737f6d7c349bad27565ca96dfbe1fd249",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a19ddcf0_1d9cbb1d",
+        "filename": "test/coding_path_sync.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-07-28T02:51:02Z",
+      "side": 1,
+      "message": "this could be done in the initializer list",
+      "revId": "4c4d385737f6d7c349bad27565ca96dfbe1fd249",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "35d26553_a54f0802",
+        "filename": "test/coding_path_sync.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-07-28T02:51:02Z",
+      "side": 1,
+      "message": "constants come first in each section\n\nhttps://google.github.io/styleguide/cppguide.html#Declaration_Order",
+      "revId": "4c4d385737f6d7c349bad27565ca96dfbe1fd249",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
