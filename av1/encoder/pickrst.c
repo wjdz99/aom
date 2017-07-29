@@ -1211,7 +1211,7 @@ static double search_switchable_restoration(
         tilebits +=
             count_sgrproj_bits(&rsi->sgrproj_info[tile_idx], &ref_sgrproj_info);
       tilebits <<= AV1_PROB_COST_SHIFT;
-      tilebits += cpi->switchable_restore_cost[r];
+      tilebits += x->switchable_restore_cost[r];
       double cost =
           RDCOST_DBL(x->rdmult, tilebits >> 4, tile_cost[r][tile_idx]);
 
