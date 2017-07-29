@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fc902d22_5a0b6f9a",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-07-29T01:03:20Z",
+      "side": 1,
+      "message": "s/consts/cost arrays/",
+      "revId": "66c2c06dd9ed32b2a4f6cdc71c9adbd6217ceeb8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "00c1b1c5_d67be103",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-07-29T01:03:20Z",
+      "side": 1,
+      "message": "\"  // CONFIG_EXT_PARTITION_TYPES\"",
+      "revId": "66c2c06dd9ed32b2a4f6cdc71c9adbd6217ceeb8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5bfa1aaf_d03d44aa",
+        "filename": "av1/encoder/rd.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 917,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-07-29T01:03:20Z",
+      "side": 1,
+      "message": "If only \u0027cm\u0027 is needed now, we can pass that directly to this function.",
+      "revId": "66c2c06dd9ed32b2a4f6cdc71c9adbd6217ceeb8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0df82f05_95692747",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2214,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-07-29T01:03:20Z",
+      "side": 1,
+      "message": "Pass \u0027cm\u0027 directly here also",
+      "revId": "66c2c06dd9ed32b2a4f6cdc71c9adbd6217ceeb8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
