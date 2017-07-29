@@ -362,7 +362,6 @@ void av1_tokenize_palette_sb(const AV1_COMP *cpi,
 #else
   (*t)->context_tree = NULL;
 #endif
-  (*t)->skip_eob_node = 0;
   ++(*t);
 
   const int n = pmi->palette_size[plane];
@@ -391,7 +390,6 @@ void av1_tokenize_palette_sb(const AV1_COMP *cpi,
 #else
       (*t)->context_tree = probs[n - PALETTE_MIN_SIZE][color_ctx];
 #endif
-      (*t)->skip_eob_node = 0;
       ++(*t);
     }
   }
