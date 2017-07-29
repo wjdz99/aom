@@ -41,7 +41,6 @@ typedef struct {
   aom_cdf_prob *palette_cdf;
 #endif
   int eob_val;
-  int first_val;
   const aom_prob *context_tree;
   EXTRABIT extra;
   uint8_t token;

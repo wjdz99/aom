@@ -313,7 +313,6 @@ static INLINE void add_token(TOKENEXTRA **t,
   (*t)->tail_cdf = tail_cdf;
   (*t)->head_cdf = head_cdf;
   (*t)->eob_val = eob_val;
-  (*t)->first_val = first_val;
   (*t)++;
 
   if (token == BLOCK_Z_TOKEN) {

@@ -718,6 +718,7 @@ static void pack_mb_tokens(aom_writer *w, const TOKENEXTRA **tp,
   int count = 0;
   const int seg_eob = tx_size_2d[tx_size];
 #endif
+  int first_val = 1;
 
   while (p < stop && p->token != EOSB_TOKEN) {
     const int token = p->token;
@@ -736,8 +737,8 @@ static void pack_mb_tokens(aom_writer *w, const TOKENEXTRA **tp,
       // Just code a flag indicating whether the value is >1 or 1.
       aom_write_bit(w, token != ONE_TOKEN);
     } else {
-      int comb_symb = 2 * AOMMIN(token, TWO_TOKEN) - eob_val + p->first_val;
-      aom_write_symbol(w, comb_symb, *p->head_cdf, HEAD_TOKENS + p->first_val);
+      int comb_symb = 2 * AOMMIN(token, TWO_TOKEN) - eob_val + first_val;
+      aom_write_symbol(w, comb_symb, *p->head_cdf, HEAD_TOKENS + first_val);
     }
     if (token > ONE_TOKEN) {
       aom_write_symbol(w, token - TWO_TOKEN, *p->tail_cdf, TAIL_TOKENS);
@@ -772,6 +773,7 @@ static void pack_mb_tokens(aom_writer *w, const TOKENEXTRA **tp,
     ++count;
     if (eob_val == EARLY_EOB || count == seg_eob) break;
 #endif
+    first_val = 0;
   }
 
   *tp = p;
