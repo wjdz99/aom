@@ -5027,8 +5027,7 @@ static int64_t select_tx_size_fix_type(const AV1_COMP *cpi, MACROBLOCK *x,
   }
 #else
   if (mbmi->min_tx_size < TX_32X32 && !xd->lossless[xd->mi[0]->mbmi.segment_id])
-    rd_stats->rate +=
-        cpi->inter_tx_type_costs[mbmi->min_tx_size][mbmi->tx_type];
+    rd_stats->rate += x->inter_tx_type_costs[mbmi->min_tx_size][mbmi->tx_type];
 #endif  // CONFIG_EXT_TX
 #endif  // CONFIG_TXK_SEL
 
@@ -6084,6 +6083,7 @@ static int check_best_zero_mv(
 #endif
   (void)mi_row;
   (void)mi_col;
+  (void)cpi;
 #if CONFIG_GLOBAL_MOTION
   if (this_mode == ZEROMV
 #if CONFIG_EXT_INTER
