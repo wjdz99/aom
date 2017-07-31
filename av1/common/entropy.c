@@ -17,6 +17,9 @@
 #include "av1/common/entropymode.h"
 #include "av1/common/onyxc_int.h"
 #include "av1/common/scan.h"
+#if CONFIG_Q_ADAPT_PROBS
+#include "av1/common/token_cdfs.h"
+#endif  // CONFIG_Q_ADAPT_PROBS
 #if CONFIG_LV_MAP
 #include "av1/common/txb_common.h"
 #endif
@@ -5483,10 +5486,16 @@ void av1_coef_pareto_cdfs(FRAME_CONTEXT *fc) {
 }
 
 void av1_default_coef_probs(AV1_COMMON *cm) {
+  av1_copy(cm->fc->blockzero_probs, av1_default_blockzero_probs);
 #if CONFIG_Q_ADAPT_PROBS
   const int index = AOMMIN(
       ROUND_POWER_OF_TWO(cm->base_qindex, 8 - QCTX_BIN_BITS), QCTX_BINS - 1);
+#if 1
+  av1_copy(cm->fc->coef_head_cdfs, av1_default_coef_head_cdfs[index]);
+#else
   av1_copy(cm->fc->coef_probs, default_qctx_coef_probs[index]);
+  av1_coef_head_cdfs(cm->fc);
+#endif
 #else
 #if CONFIG_CHROMA_2X2
   av1_copy(cm->fc->coef_probs[TX_2X2], default_coef_probs_4x4);
@@ -5498,10 +5507,9 @@ void av1_default_coef_probs(AV1_COMMON *cm) {
 #if CONFIG_TX64X64
   av1_copy(cm->fc->coef_probs[TX_64X64], default_coef_probs_64x64);
 #endif  // CONFIG_TX64X64
-#endif  // CONFIG_Q_ADAPT_PROBS
-  av1_copy(cm->fc->blockzero_probs, av1_default_blockzero_probs);
   /* Load the head tokens */
   av1_default_coef_cdfs(cm->fc);
+#endif  // CONFIG_Q_ADAPT_PROBS
   av1_coef_pareto_cdfs(cm->fc);
 }
 
@@ -5808,3 +5816,7 @@ void av1_average_tile_pvq_cdfs(FRAME_CONTEXT *fc, FRAME_CONTEXT *ec_ctxs[],
   AVERAGE_TILE_CDFS(pvq_context.pvq.pvq_skip_dir_cdf)
 }
 #endif  // CONFIG_PVQ
+
+#if CONFIG_Q_ADAPT_PROBS
+
+#endif  // CONFIG_Q_ADAPT_PROBS
