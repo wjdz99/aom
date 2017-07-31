@@ -178,6 +178,7 @@ int av1_lookahead_push(struct lookahead_ctx *ctx, YV12_BUFFER_CONFIG *src,
     }
     // Partial copy not implemented yet
     av1_copy_and_extend_frame(src, &buf->img);
+
 #if USE_PARTIAL_COPY
   }
 #endif
