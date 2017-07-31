@@ -17,6 +17,9 @@ AV1_COMMON_SRCS-yes += common/av1_loopfilter.h
 AV1_COMMON_SRCS-yes += common/blockd.c
 AV1_COMMON_SRCS-yes += common/debugmodes.c
 AV1_COMMON_SRCS-yes += common/entropy.c
+ifeq ($(CONFIG_Q_ADAPT_PROBS),yes)
+AV1_COMMON_SRCS-$(HAVE_SSE4_1) += common/token_cdfs.h
+endif
 AV1_COMMON_SRCS-yes += common/entropymode.c
 AV1_COMMON_SRCS-yes += common/entropymv.c
 AV1_COMMON_SRCS-yes += common/frame_buffers.c

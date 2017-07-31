@@ -17,6 +17,9 @@
 #include "av1/common/entropymode.h"
 #include "av1/common/onyxc_int.h"
 #include "av1/common/scan.h"
+#if CONFIG_Q_ADAPT_PROBS
+#include "av1/common/token_cdfs.h"
+#endif  // CONFIG_Q_ADAPT_PROBS
 #if CONFIG_LV_MAP
 #include "av1/common/txb_common.h"
 #endif
@@ -5483,10 +5486,73 @@ void av1_coef_pareto_cdfs(FRAME_CONTEXT *fc) {
 }
 
 void av1_default_coef_probs(AV1_COMMON *cm) {
+  av1_copy(cm->fc->blockzero_probs, av1_default_blockzero_probs);
 #if CONFIG_Q_ADAPT_PROBS
+#if 0
+  {
+    FILE *fp = fopen("cdfs.txt", "a");
+    for (int idx = 0; idx < 4; ++idx) {
+      av1_copy(cm->fc->coef_probs, default_qctx_coef_probs[idx]);
+      av1_coef_head_cdfs(cm->fc);
+      fprintf(fp, "{  // Q ctx %d\n", idx);
+      for (int tx_size = 0; tx_size < TX_SIZES; ++tx_size) {
+        fprintf(fp, "{  // tx size %d\n", tx_size);
+        //fprintf(fp, "{\n");
+        for (int plane_type = 0; plane_type < PLANE_TYPES; ++plane_type) {
+          if (plane_type == 0)
+            fprintf(fp, "{  // Y plane\n");
+          else
+            fprintf(fp, "{  // UV plane\n");
+          for (int ref_type = 0; ref_type < REF_TYPES; ++ref_type) {
+            if (ref_type == 0)
+              fprintf(fp, "{  // Intra\n");
+            else
+              fprintf(fp, "{  // Inter\n");
+            for (int band = 0; band < COEF_BANDS; ++band) {
+              fprintf(fp, "{  // Band %d\n", band);
+              for (int coef_ctx = 0; coef_ctx < BAND_COEFF_CONTEXTS(band);
+                   ++coef_ctx) {
+               // fprintf(fp, "{  // Context %d\n", coef_ctx);
+                fprintf(fp, "{ ");
+                for (int node = 0; node < ((band == 0) ? 6 : 5); ++node) {
+                  fprintf(
+                      fp, "AOM_ICDF(%d), ",
+                      AOM_ICDF(
+                          cm->fc->coef_head_cdfs[tx_size][plane_type][ref_type]
+                                                [band][coef_ctx][node]));
+                  if (node == 3) fprintf(fp, "\n");
+                }
+                fprintf(fp, "},\n");
+                //fprintf(fp, "},");
+              }
+              //fprintf(fp, "},\n");
+              fprintf(fp, "}, ");
+            }
+            //fprintf(fp, "},\n");
+            fprintf(fp, "}, ");
+          }
+          //fprintf(fp, "},\n");
+          fprintf(fp, "}, ");
+        }
+        //fprintf(fp, "},\n");
+        fprintf(fp, "}, ");
+      }
+      if (idx < 3 || 1)
+        fprintf(fp, "},\n");
+      else
+        fprintf(fp, "}");
+    }
+    fclose(fp);
+  }
+#endif
   const int index = AOMMIN(
       ROUND_POWER_OF_TWO(cm->base_qindex, 8 - QCTX_BIN_BITS), QCTX_BINS - 1);
+#if 1
+  av1_copy(cm->fc->coef_head_cdfs, av1_default_coef_head_cdfs[index]);
+#else
   av1_copy(cm->fc->coef_probs, default_qctx_coef_probs[index]);
+  av1_coef_head_cdfs(cm->fc);
+#endif
 #else
 #if CONFIG_CHROMA_2X2
   av1_copy(cm->fc->coef_probs[TX_2X2], default_coef_probs_4x4);
@@ -5498,10 +5564,9 @@ void av1_default_coef_probs(AV1_COMMON *cm) {
 #if CONFIG_TX64X64
   av1_copy(cm->fc->coef_probs[TX_64X64], default_coef_probs_64x64);
 #endif  // CONFIG_TX64X64
-#endif  // CONFIG_Q_ADAPT_PROBS
-  av1_copy(cm->fc->blockzero_probs, av1_default_blockzero_probs);
   /* Load the head tokens */
   av1_default_coef_cdfs(cm->fc);
+#endif  // CONFIG_Q_ADAPT_PROBS
   av1_coef_pareto_cdfs(cm->fc);
 }
 
@@ -5808,3 +5873,7 @@ void av1_average_tile_pvq_cdfs(FRAME_CONTEXT *fc, FRAME_CONTEXT *ec_ctxs[],
   AVERAGE_TILE_CDFS(pvq_context.pvq.pvq_skip_dir_cdf)
 }
 #endif  // CONFIG_PVQ
+
+#if CONFIG_Q_ADAPT_PROBS
+
+#endif  // CONFIG_Q_ADAPT_PROBS
