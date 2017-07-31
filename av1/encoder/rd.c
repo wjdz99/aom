@@ -440,7 +440,9 @@ void av1_initialize_rd_consts(AV1_COMP *cpi) {
   AV1_COMMON *const cm = &cpi->common;
   MACROBLOCK *const x = &cpi->td.mb;
   RD_OPT *const rd = &cpi->rd;
+#if CONFIG_GLOBAL_MOTION
   int i;
+#endif  // CONFIG_GLOBAL_MOTION
   int nmv_ctx;
 
   aom_clear_system_state();
