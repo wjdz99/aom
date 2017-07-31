@@ -22,6 +22,30 @@
       "revId": "259dbe08616daf682729150da72a18d2045c5501",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "97855183_7f857a1a",
+        "filename": "av1/encoder/picklpf.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2017-07-31T21:52:28Z",
+      "side": 1,
+      "message": "Refactored. Please see the new patch.",
+      "parentUuid": "5d1177dd_04a7715b",
+      "range": {
+        "startLine": 71,
+        "startChar": 0,
+        "endLine": 105,
+        "endChar": 3
+      },
+      "revId": "259dbe08616daf682729150da72a18d2045c5501",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
