@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b5896f94_dddfb76b",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-07-31T23:44:21Z",
+      "side": 1,
+      "message": "for large changes like this it can be better to split out the cosmetics (#1) to a separate patch to make reviewing the functional changes easier.",
+      "revId": "61a12ef2833d716577cb4cd5b73a50f67a3ed829",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f31023b8_08f5ddb5",
+        "filename": "av1/common/av1_loopfilter.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2825,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-07-31T23:44:21Z",
+      "side": 1,
+      "message": "the names of these variables are inconsistent. prev_level would match a bit better, \u0027cur_\u0027 is probably a more common prefix in the code base",
+      "range": {
+        "startLine": 2825,
+        "startChar": 15,
+        "endLine": 2825,
+        "endChar": 35
+      },
+      "revId": "61a12ef2833d716577cb4cd5b73a50f67a3ed829",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b113c785_c63f4f8e",
+        "filename": "av1/common/av1_loopfilter.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2848,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-07-31T23:44:21Z",
+      "side": 1,
+      "message": "these ()s are unnecessary",
+      "range": {
+        "startLine": 2848,
+        "startChar": 35,
+        "endLine": 2848,
+        "endChar": 36
+      },
+      "revId": "61a12ef2833d716577cb4cd5b73a50f67a3ed829",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
