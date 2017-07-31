@@ -90,6 +90,16 @@ AV1_COMMON_SRCS-yes += common/warped_motion.h
 AV1_COMMON_SRCS-yes += common/warped_motion.c
 endif
 ifeq ($(CONFIG_CDEF),yes)
+ifeq ($(CONFIG_CDEF_SINGLEPASS),yes)
+AV1_COMMON_SRCS-$(HAVE_SSE2) += common/cdef_block_sse2.c
+AV1_COMMON_SRCS-$(HAVE_SSSE3) += common/cdef_block_ssse3.c
+AV1_COMMON_SRCS-$(HAVE_SSE4_1) += common/cdef_block_sse4.c
+AV1_COMMON_SRCS-$(HAVE_SSE4_1) += common/cdef_block_avx2.c
+AV1_COMMON_SRCS-$(HAVE_NEON) += common/cdef_block_neon.c
+AV1_COMMON_SRCS-yes += common/cdef_block.c
+AV1_COMMON_SRCS-yes += common/cdef_block.h
+AV1_COMMON_SRCS-yes += common/cdef_block_simd.h
+else
 AV1_COMMON_SRCS-yes += common/clpf.c
 AV1_COMMON_SRCS-yes += common/clpf_simd.h
 AV1_COMMON_SRCS-yes += common/cdef_simd.h
@@ -104,6 +114,7 @@ AV1_COMMON_SRCS-$(HAVE_NEON) += common/od_dering_neon.c
 AV1_COMMON_SRCS-yes += common/od_dering.c
 AV1_COMMON_SRCS-yes += common/od_dering.h
 AV1_COMMON_SRCS-yes += common/od_dering_simd.h
+endif
 AV1_COMMON_SRCS-yes += common/cdef.c
 AV1_COMMON_SRCS-yes += common/cdef.h
 endif
