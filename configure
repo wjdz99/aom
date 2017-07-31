@@ -339,6 +339,7 @@ EXPERIMENT_LIST="
     mrc_tx
     lpf_direct
     uv_lvl
+    hash_me
 "
 CONFIG_LIST="
     dependency_tracking
