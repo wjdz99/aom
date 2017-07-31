@@ -95,9 +95,18 @@ int ifd_inspect(insp_frame_data *fd, void *decoder) {
       mi->tx_size = mbmi->tx_size;
 
 #if CONFIG_CDEF
+#if !CONFIG_CDEF_SINGLEPASS
       mi->cdef_level = cm->cdef_strengths[mbmi->cdef_strength] / CLPF_STRENGTHS;
+#else
+      mi->cdef_level =
+          cm->cdef_strengths[mbmi->cdef_strength] / CDEF_SEC_STRENGTHS;
+#endif
       mi->cdef_strength =
+#if !CONFIG_CDEF_SINGLEPASS
           cm->cdef_strengths[mbmi->cdef_strength] % CLPF_STRENGTHS;
+#else
+          cm->cdef_strengths[mbmi->cdef_strength] % CDEF_SEC_STRENGTHS;
+#endif
       mi->cdef_strength += mi->cdef_strength == 3;
 #endif
 #if CONFIG_CFL
