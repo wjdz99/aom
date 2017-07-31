@@ -4777,6 +4777,11 @@ void av1_init_tile_data(AV1_COMP *cpi) {
   }
 }
 
+static void enc_setup_across_tile_boundary_info(
+    const AV1_COMMON *const cm, const TileInfo *const tile_info) {
+  av1_setup_across_tile_boundary_info(cm, tile_info);
+}
+
 void av1_encode_tile(AV1_COMP *cpi, ThreadData *td, int tile_row,
                      int tile_col) {
   AV1_COMMON *const cm = &cpi->common;
@@ -4885,7 +4890,7 @@ void av1_encode_tile(AV1_COMP *cpi, ThreadData *td, int tile_row,
   td->mb.daala_enc.state.adapt = &this_tile->tctx.pvq_context;
 #endif  // CONFIG_PVQ
 
-  av1_setup_across_tile_boundary_info(cm, tile_info);
+  enc_setup_across_tile_boundary_info(cm, tile_info);
 
 #if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
   for (int i = BLOCK_8X8; i < BLOCK_SIZES_ALL; i++) {
@@ -5058,6 +5063,10 @@ static int is_screen_content(const uint8_t *src,
   return counts * blk_h * blk_w * 10 > width * height;
 }
 #endif  // CONFIG_PALETTE
+
+static void enc_setup_frame_boundary_info(const AV1_COMMON *const cm) {
+  av1_setup_frame_boundary_info(cm);
+}
 
 static void encode_frame_internal(AV1_COMP *cpi) {
   ThreadData *const td = &cpi->td;
@@ -5331,7 +5340,7 @@ static void encode_frame_internal(AV1_COMP *cpi) {
     }
 #endif
 
-    av1_setup_frame_boundary_info(cm);
+    enc_setup_frame_boundary_info(cm);
 
     // If allowed, encoding tiles in parallel with one thread handling one tile.
     // TODO(geza.lore): The multi-threaded encoder is not safe with more than
