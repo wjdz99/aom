@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "731b6b71_9a3a006f",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 7880
+      },
+      "writtenOn": "2017-07-31T04:11:07Z",
+      "side": 1,
+      "message": "Please change \"move\" to \"moves\".",
+      "revId": "e35945857473c806ee9f11b1ae0cd040ce5fffb4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
