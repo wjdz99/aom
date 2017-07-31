@@ -5133,6 +5133,9 @@ static void encode_frame_internal(AV1_COMP *cpi) {
 
     for (frame = LAST_FRAME; frame <= ALTREF_FRAME; ++frame) {
       ref_buf[frame] = get_ref_frame_buffer(cpi, frame);
+#if CONFIG_HIGHBITDEPTH
+      ref_buf[frame]->buf_8bit_valid = 0;
+#endif
       int pframe;
       // check for duplicate buffer
       for (pframe = LAST_FRAME; pframe < frame; ++pframe) {
