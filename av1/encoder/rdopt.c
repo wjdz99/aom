@@ -80,6 +80,18 @@ static const int filter_sets[DUAL_FILTER_SET_SIZE][2] = {
 #endif  // USE_EXTRA_FILTER
 #endif  // CONFIG_DUAL_FILTER
 
+#ifdef OUTPUT_STATS
+double improve_rate = 0;
+int64_t ada_ncobmc_count = 0;
+double ip_rate[BLOCK_SIZES][MAX_NCOBMC_MODES];
+double ip_dist[BLOCK_SIZES][MAX_NCOBMC_MODES];
+int ncobmc_counts[BLOCK_SIZES][MAX_NCOBMC_MODES];
+#endif
+
+#ifdef DUMP_TRAINING_DATA_QD
+extern FILE *tr_data;
+#endif
+
 #if CONFIG_EXT_REFS
 
 #define LAST_FRAME_MODE_MASK                                      \
@@ -8348,11 +8360,14 @@ static int64_t motion_mode_rd(
   // right now since it requires mvs from all neighboring blocks. We will
   // check if this mode is beneficial after all the mv's in the current
   // superblock are selected.
-  last_motion_mode_allowed = motion_mode_allowed_wrapper(1,
+  last_motion_mode_allowed = motion_mode_allowed_wrapper(
+#ifndef MERGE_OBMC
+      1,
+#endif
 #if CONFIG_GLOBAL_MOTION
-                                                         0, xd->global_motion,
+      0, xd->global_motion,
 #endif  // CONFIG_GLOBAL_MOTION
-                                                         mi);
+      mi);
 #else
   last_motion_mode_allowed = motion_mode_allowed(
 #if CONFIG_GLOBAL_MOTION
@@ -8547,6 +8562,15 @@ static int64_t motion_mode_rd(
       else
         rd_stats->rate += x->motion_mode_cost1[bsize][mbmi->motion_mode];
 #endif  // CONFIG_WARPED_MOTION && CONFIG_MOTION_VAR
+#if CONFIG_NCOBMC_ADAPT_WEIGHT
+#ifdef MERGE_OBMC
+      {
+        ADAPT_OVERLAP_BLOCK aob = adapt_overlap_block_lookup[bsize];
+        mbmi->ncobmc_mode[0] = OBMC_MODE;
+        rd_stats->rate += cpi->ncobmc_mode_cost[aob][mbmi->ncobmc_mode[0]];
+      }
+#endif
+#endif
     }
 #if CONFIG_WARPED_MOTION
     if (mbmi->motion_mode == WARPED_CAUSAL) {
@@ -8800,9 +8824,14 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   int64_t skip_sse_sb = INT64_MAX;
   int16_t mode_ctx;
 #if CONFIG_NCOBMC_ADAPT_WEIGHT && CONFIG_MOTION_VAR
-  // dummy fillers
+// dummy fillers
+#ifdef MERGE_OBMC
+  mbmi->ncobmc_mode[0] = OBMC_MODE;
+  mbmi->ncobmc_mode[1] = OBMC_MODE;
+#else
   mbmi->ncobmc_mode[0] = NO_OVERLAP;
   mbmi->ncobmc_mode[1] = NO_OVERLAP;
+#endif
 #endif
 
 #if CONFIG_EXT_INTER
@@ -12555,4 +12584,500 @@ void av1_check_ncobmc_rd(const struct AV1_COMP *cpi, struct macroblock *x,
   }
 }
 #endif  // CONFIG_NCOBMC
+
+#if CONFIG_NCOBMC_ADAPT_WEIGHT
+// #define ORI_SKIP
+void av1_check_ncobmc_adapt_weight_rd(const struct AV1_COMP *cpi,
+                                      struct macroblock *x, int mi_row,
+                                      int mi_col) {
+  const AV1_COMMON *const cm = &cpi->common;
+  MACROBLOCKD *const xd = &x->e_mbd;
+  MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
+  BLOCK_SIZE bsize = mbmi->sb_type;
+  MB_MODE_INFO backup_mbmi;
+  int plane, ref, skip_blk, backup_skip;
+  RD_STATS rd_stats_y, rd_stats_uv, rd_stats_y2, rd_stats_uv2;
+  int rate_skip0 = av1_cost_bit(av1_get_skip_prob(cm, xd), 0);
+  int rate_skip1 = av1_cost_bit(av1_get_skip_prob(cm, xd), 1);
+  int64_t prev_rd, naw_rd;  // ncobmc_adapt_weight_rd
+
+  // Recompute the rd for the motion mode decided in rd loop
+  if (mbmi->motion_mode == SIMPLE_TRANSLATION ||
+      mbmi->motion_mode == OBMC_CAUSAL) {
+    set_ref_ptrs(cm, xd, mbmi->ref_frame[0], mbmi->ref_frame[1]);
+    for (ref = 0; ref < 1 + has_second_ref(mbmi); ++ref) {
+      YV12_BUFFER_CONFIG *cfg = get_ref_frame_buffer(cpi, mbmi->ref_frame[ref]);
+      assert(cfg != NULL);
+      av1_setup_pre_planes(xd, ref, cfg, mi_row, mi_col,
+                           &xd->block_refs[ref]->sf);
+    }
+    av1_setup_dst_planes(x->e_mbd.plane, bsize,
+                         get_frame_new_buffer(&cpi->common), mi_row, mi_col);
+
+    av1_build_inter_predictors_sb(cm, xd, mi_row, mi_col, NULL, bsize);
+    if (mbmi->motion_mode == OBMC_CAUSAL) {
+      av1_build_obmc_inter_predictors_sb(cm, xd, mi_row, mi_col);
+    }
+    for (plane = 0; plane < MAX_MB_PLANE; ++plane)
+      av1_subtract_plane(x, bsize, plane);
+#if CONFIG_VAR_TX
+    if (cm->tx_mode == TX_MODE_SELECT && !xd->lossless[mbmi->segment_id]) {
+      select_tx_type_yrd(cpi, x, &rd_stats_y2, bsize, INT64_MAX);
+    } else {
+      int idx, idy;
+      super_block_yrd(cpi, x, &rd_stats_y2, bsize, INT64_MAX);
+      for (idy = 0; idy < xd->n8_h; ++idy)
+        for (idx = 0; idx < xd->n8_w; ++idx)
+          mbmi->inter_tx_size[idy][idx] = mbmi->tx_size;
+      memset(x->blk_skip[0], rd_stats_y2.skip,
+             sizeof(uint8_t) * xd->n8_h * xd->n8_w * 4);
+    }
+    inter_block_uvrd(cpi, x, &rd_stats_uv2, bsize, INT64_MAX);
+#else
+    super_block_yrd(cpi, x, &rd_stats_y2, bsize, INT64_MAX);
+    super_block_uvrd(cpi, x, &rd_stats_uv2, bsize, INT64_MAX);
+#endif
+  }
+
+  if (rd_stats_y2.skip && rd_stats_uv2.skip) {
+    rd_stats_y2.rate = rate_skip1;
+    rd_stats_uv2.rate = 0;
+    rd_stats_y2.dist = rd_stats_y2.sse;
+    rd_stats_uv2.dist = rd_stats_uv2.sse;
+    skip_blk = 1;
+  } else if (RDCOST(x->rdmult,
+                    (rd_stats_y2.rate + rd_stats_uv2.rate + rate_skip0),
+                    (rd_stats_y2.dist + rd_stats_uv2.dist)) >
+             RDCOST(x->rdmult, rate_skip1,
+                    (rd_stats_y2.sse + rd_stats_uv2.sse))) {
+    rd_stats_y2.rate = rate_skip1;
+    rd_stats_uv2.rate = 0;
+    rd_stats_y2.dist = rd_stats_y2.sse;
+    rd_stats_uv2.dist = rd_stats_uv2.sse;
+    skip_blk = 1;
+  } else {
+    rd_stats_y2.rate += rate_skip0;
+    skip_blk = 0;
+  }
+
+  backup_mbmi = *mbmi;
+  backup_skip = skip_blk;
+  prev_rd = RDCOST(x->rdmult, (rd_stats_y2.rate + rd_stats_uv2.rate),
+                   (rd_stats_y2.dist + rd_stats_uv2.dist));
+  prev_rd +=
+      RDCOST(x->rdmult, x->motion_mode_cost[bsize][mbmi->motion_mode], 0);
+
+#ifdef MERGE_OBMC
+  {
+    ADAPT_OVERLAP_BLOCK aob = adapt_overlap_block_lookup[bsize];
+    prev_rd +=
+        RDCOST(x->rdmult, cpi->ncobmc_mode_cost[aob][mbmi->ncobmc_mode[0]], 0);
+  }
+#endif
+
+// Compute the rd cost for ncobmc adaptive weight
+#ifdef MERGE_OBMC
+  mbmi->motion_mode = OBMC_CAUSAL;
+#else
+  mbmi->motion_mode = NCOBMC_ADAPT_WEIGHT;
+#endif
+  for (plane = 0; plane < MAX_MB_PLANE; ++plane) {
+    get_pred_from_intrpl_buf(xd, mi_row, mi_col, bsize, plane);
+  }
+  for (plane = 0; plane < MAX_MB_PLANE; ++plane)
+    av1_subtract_plane(x, bsize, 0);
+#if CONFIG_VAR_TX
+  if (cm->tx_mode == TX_MODE_SELECT && !xd->lossless[mbmi->segment_id]) {
+    select_tx_type_yrd(cpi, x, &rd_stats_y, bsize, INT64_MAX);
+  } else {
+    int idx, idy;
+    super_block_yrd(cpi, x, &rd_stats_y, bsize, INT64_MAX);
+    for (idy = 0; idy < xd->n8_h; ++idy)
+      for (idx = 0; idx < xd->n8_w; ++idx)
+        mbmi->inter_tx_size[idy][idx] = mbmi->tx_size;
+    memset(x->blk_skip[0], rd_stats_y.skip,
+           sizeof(uint8_t) * xd->n8_h * xd->n8_w * 4);
+  }
+  inter_block_uvrd(cpi, x, &rd_stats_uv, bsize, INT64_MAX);
+#else
+  super_block_yrd(cpi, x, &rd_stats_y, bsize, INT64_MAX);
+  super_block_uvrd(cpi, x, &rd_stats_uv, bsize, INT64_MAX);
+#endif
+  assert(rd_stats_y.rate != INT_MAX && rd_stats_uv.rate != INT_MAX);
+
+#ifdef ORI_SKIP
+  if (backup_skip) {
+    rd_stats_y.rate = rate_skip1;
+    rd_stats_uv.rate = 0;
+    rd_stats_y.dist = rd_stats_y.sse;
+    rd_stats_uv.dist = rd_stats_uv.sse;
+    skip_blk = 1;
+  } else {
+    rd_stats_y.rate += rate_skip0;
+    skip_blk = 0;
+  }
+#else
+  if (rd_stats_y.skip && rd_stats_uv.skip) {
+    rd_stats_y.rate = rate_skip1;
+    rd_stats_uv.rate = 0;
+    rd_stats_y.dist = rd_stats_y.sse;
+    rd_stats_uv.dist = rd_stats_uv.sse;
+    skip_blk = 1;
+  } else if (RDCOST(x->rdmult,
+                    (rd_stats_y.rate + rd_stats_uv.rate + rate_skip0),
+                    (rd_stats_y.dist + rd_stats_uv.dist)) >
+             RDCOST(x->rdmult, rate_skip1,
+                    (rd_stats_y.sse + rd_stats_uv.sse))) {
+    rd_stats_y.rate = rate_skip1;
+    rd_stats_uv.rate = 0;
+    rd_stats_y.dist = rd_stats_y.sse;
+    rd_stats_uv.dist = rd_stats_uv.sse;
+    skip_blk = 1;
+  } else {
+    rd_stats_y.rate += rate_skip0;
+    skip_blk = 0;
+  }
+#endif
+  naw_rd = RDCOST(x->rdmult, (rd_stats_y.rate + rd_stats_uv.rate),
+                  (rd_stats_y.dist + rd_stats_uv.dist));
+  naw_rd += RDCOST(x->rdmult, x->motion_mode_cost[bsize][mbmi->motion_mode], 0);
+
+  // Calculate the ncobmc mode costs
+  {
+    ADAPT_OVERLAP_BLOCK aob = adapt_overlap_block_lookup[bsize];
+    naw_rd +=
+        RDCOST(x->rdmult, x->ncobmc_mode_cost[aob][mbmi->ncobmc_mode[0]], 0);
+    if (mi_size_wide[bsize] != mi_size_high[bsize])
+      naw_rd +=
+          RDCOST(x->rdmult, x->ncobmc_mode_cost[aob][mbmi->ncobmc_mode[1]], 0);
+  }
+
+#ifdef DUMP_DATA
+#ifndef SELECTIVE_DUMP
+  // disable interpolation to make the data kernel independent
+  naw_rd = INT64_MAX;
+#endif
+#endif
+
+  if (prev_rd > naw_rd) {
+    x->skip = skip_blk;
+#ifdef OUTPUT_STATS
+    fprintf(stdout, "[%ld/%ld : %0.4f]\n", naw_rd, prev_rd,
+            ((double)naw_rd / (double)prev_rd));
+    improve_rate += ((double)naw_rd / (double)prev_rd);
+    ++ada_ncobmc_count;
+
+    ip_rate[bsize][mbmi->ncobmc_mode[0]] += ((double)naw_rd / (double)prev_rd);
+    ip_dist[bsize][mbmi->ncobmc_mode[0]] +=
+        (double)(rd_stats_y.dist + rd_stats_uv.dist) /
+        (double)(rd_stats_y2.dist + rd_stats_uv2.dist);
+
+    ncobmc_counts[bsize][mbmi->ncobmc_mode[0]] += 1;
+    if (mi_size_wide[bsize] != mi_size_high[bsize]) {
+      ip_rate[bsize][mbmi->ncobmc_mode[1]] +=
+          ((double)naw_rd / (double)prev_rd);
+      ip_dist[bsize][mbmi->ncobmc_mode[1]] +=
+          (double)(rd_stats_y.dist + rd_stats_uv.dist) /
+          (double)(rd_stats_y2.dist + rd_stats_uv2.dist);
+      ncobmc_counts[bsize][mbmi->ncobmc_mode[1]] += 1;
+    }
+#endif  // OUTPUT_STATS
+#ifdef MY_OUTPUT
+    {
+      ADAPT_OVERLAP_BLOCK aob = adapt_overlap_block_lookup[bsize];
+      int ncobmc_cost = 0;
+      ncobmc_cost += cpi->ncobmc_mode_cost[aob][mbmi->ncobmc_mode[0]];
+      if (mi_size_wide[bsize] != mi_size_high[bsize])
+        ncobmc_cost += cpi->ncobmc_mode_cost[aob][mbmi->ncobmc_mode[1]];
+      fprintf(stdout,
+              "[%d %d %d (%d/%d)]: (%d) [%d %d+%d] "
+              "[%ld (%ld + %ld)/%ld] [%ld (%ld + %ld)/%ld]\n",
+              mi_row, mi_col, bsize,
+              cpi->motion_mode_cost[bsize][SIMPLE_TRANSLATION],
+              cpi->motion_mode_cost[bsize][OBMC_CAUSAL],
+              backup_mbmi.motion_mode,
+              cpi->motion_mode_cost[bsize][backup_mbmi.motion_mode],
+              cpi->motion_mode_cost[bsize][mbmi->motion_mode], ncobmc_cost,
+              prev_rd, rd_stats_y2.dist, rd_stats_uv2.dist, rd_stats_y2.sse,
+              naw_rd, rd_stats_y.dist, rd_stats_uv.dist, rd_stats_y.sse);
+    }
+#endif
+  } else {
+    *mbmi = backup_mbmi;
+    x->skip = backup_skip;
+  }
+}
+
+// Similar to av1_setup_src_planes but in pixel precision instead of mi
+void av1_setup_src_planes_pxl(MACROBLOCK *x, const YV12_BUFFER_CONFIG *src,
+                              int pxl_row, int pxl_col) {
+  uint8_t *const buffers[3] = { src->y_buffer, src->u_buffer, src->v_buffer };
+  const int widths[3] = { src->y_crop_width, src->uv_crop_width,
+                          src->uv_crop_width };
+  const int heights[3] = { src->y_crop_height, src->uv_crop_height,
+                           src->uv_crop_height };
+  const int strides[3] = { src->y_stride, src->uv_stride, src->uv_stride };
+  int i;
+
+  // Set current frame pointer.
+  x->e_mbd.cur_buf = src;
+
+  for (i = 0; i < MAX_MB_PLANE; ++i) {
+    setup_pred_plane_pxl(&x->plane[i].src, buffers[i], widths[i], heights[i],
+                         strides[i], pxl_row, pxl_col, NULL,
+                         x->e_mbd.plane[i].subsampling_x,
+                         x->e_mbd.plane[i].subsampling_y);
+  }
+}
+
+// Note: block can exceed frame boundary to prevent further partition to
+//       save bit.
+int64_t get_ncobmc_error(MACROBLOCKD *xd, int pxl_row, int pxl_col,
+                         BLOCK_SIZE bsize, int plane, struct buf_2d *src) {
+  const int wide = AOMMIN(mi_size_wide[bsize] * MI_SIZE,
+                          (xd->sb_mi_bd.mi_col_end + 1) * MI_SIZE - pxl_col);
+  const int high = AOMMIN(mi_size_high[bsize] * MI_SIZE,
+                          (xd->sb_mi_bd.mi_row_end + 1) * MI_SIZE - pxl_row);
+  const int ss_x = xd->plane[plane].subsampling_x;
+  const int ss_y = xd->plane[plane].subsampling_y;
+  int row_offset = (pxl_row - xd->sb_mi_bd.mi_row_begin * MI_SIZE) >> ss_y;
+  int col_offset = (pxl_col - xd->sb_mi_bd.mi_col_begin * MI_SIZE) >> ss_x;
+  int dst_stride = xd->ncobmc_pred_buf_stride[plane];
+  int dst_offset = row_offset * dst_stride + col_offset;
+  int src_stride = src->stride;
+
+  int r, c;
+  int64_t tmp, error = 0;
+
+  for (r = 0; r < (high >> ss_y); ++r) {
+    for (c = 0; c < (wide >> ss_x); ++c) {
+      tmp = xd->ncobmc_pred_buf[plane][r * dst_stride + c + dst_offset] -
+            src->buf[r * src_stride + c];
+      error += tmp * tmp;
+    }
+  }
+#ifdef CHECK_PATCHES
+  if (plane == 0) {
+    fprintf(stdout, "src [%d %d]: \n", pxl_row, pxl_col);
+    for (r = 0; r < (high >> ss_y); ++r) {
+      for (c = 0; c < (wide >> ss_x); ++c)
+        fprintf(stdout, "%d ", src->buf[r * src_stride + c]);
+      fprintf(stdout, "\n");
+    }
+    fprintf(stdout, "dst [%d %d]: \n", pxl_row, pxl_col);
+    for (r = 0; r < (high >> ss_y); ++r) {
+      for (c = 0; c < (wide >> ss_x); ++c)
+        fprintf(stdout, "%d ",
+                xd->ncobmc_pred_buf[plane][r * dst_stride + c + dst_offset]);
+      fprintf(stdout, "\n");
+    }
+  }
+#endif
+  return error;
+}
+
+#ifdef DUMP_DATA
+#define NCOBMC_INDX "./tmp/ncobmc_indx_%d.ind"
+#define NCOBMC_DATA "./tmp/ncobmc_data_%d.bin"
+// #define DUMP_UV
+void dump_training_data(MACROBLOCK *const x, int best_mode, BLOCK_SIZE bsize,
+                        uint8_t *pred_buf[4][MAX_MB_PLANE], int pd_stride) {
+  const int size = block_size_wide[bsize];
+  const ADAPT_OVERLAP_BLOCK aob = adapt_overlap_block_lookup[bsize];
+  char indx[100];
+  char data[100];
+  uint8_t *tmp_buf;
+  int h, pd;
+  FILE *f_indx, *f_data;
+#ifdef DUMP_UV
+  int plane;
+#endif
+
+  snprintf(indx, sizeof(indx), NCOBMC_INDX, aob);
+  snprintf(data, sizeof(data), NCOBMC_DATA, aob);
+  f_indx = fopen(indx, "a");
+  f_data = fopen(data, "a");
+
+  fprintf(f_indx, "%d %d\n", size, best_mode);
+
+  // print out the patches
+  tmp_buf = x->plane[0].src.buf;
+  h = size;
+  do {
+    fwrite(tmp_buf, size, 1, f_data);
+    tmp_buf += x->plane[0].src.stride;
+  } while (--h);
+  // do high bit depth?
+  // print the four predictions
+  for (pd = 0; pd < 4; ++pd) {
+    h = size;
+    tmp_buf = pred_buf[pd][0];
+    do {
+      fwrite(tmp_buf, size, 1, f_data);
+      tmp_buf += pd_stride;
+    } while (--h);
+  }
+  fclose(f_indx);
+  fclose(f_data);
+}
+#endif
+
+int get_ncobmc_mode(const AV1_COMP *const cpi, MACROBLOCK *const x,
+                    MACROBLOCKD *xd, int mi_row, int mi_col, int bsize) {
+  const AV1_COMMON *const cm = &cpi->common;
+#if CONFIG_HIGHBITDEPTH
+  DECLARE_ALIGNED(16, uint8_t, tmp_buf_0[2 * MAX_MB_PLANE * MAX_SB_SQUARE]);
+  DECLARE_ALIGNED(16, uint8_t, tmp_buf_1[2 * MAX_MB_PLANE * MAX_SB_SQUARE]);
+  DECLARE_ALIGNED(16, uint8_t, tmp_buf_2[2 * MAX_MB_PLANE * MAX_SB_SQUARE]);
+  DECLARE_ALIGNED(16, uint8_t, tmp_buf_3[2 * MAX_MB_PLANE * MAX_SB_SQUARE]);
+#else
+  DECLARE_ALIGNED(16, uint8_t, tmp_buf_0[MAX_MB_PLANE * MAX_SB_SQUARE]);
+  DECLARE_ALIGNED(16, uint8_t, tmp_buf_1[MAX_MB_PLANE * MAX_SB_SQUARE]);
+  DECLARE_ALIGNED(16, uint8_t, tmp_buf_2[MAX_MB_PLANE * MAX_SB_SQUARE]);
+  DECLARE_ALIGNED(16, uint8_t, tmp_buf_3[MAX_MB_PLANE * MAX_SB_SQUARE]);
+#endif
+  uint8_t *pred_buf[4][MAX_MB_PLANE];
+
+  // TODO(weitinglin): stride size needs to be fixed for high-bit depth
+  int pred_stride[MAX_MB_PLANE] = { MAX_SB_SIZE, MAX_SB_SIZE, MAX_SB_SIZE };
+
+  // target block in pxl
+  int pxl_row = mi_row << MI_SIZE_LOG2;
+  int pxl_col = mi_col << MI_SIZE_LOG2;
+  int64_t error, best_error = INT64_MAX;
+  int same_src_mi = 0;
+  int plane, tmp_mode, best_mode = 0;
+#if CONFIG_HIGHBITDEPTH
+  if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
+    int len = sizeof(uint16_t);
+    ASSIGN_ALIGNED_PTRS_HBD(pred_buf[0], tmp_buf_0, MAX_SB_SQUARE, len);
+    ASSIGN_ALIGNED_PTRS_HBD(pred_buf[1], tmp_buf_0, MAX_SB_SQUARE, len);
+    ASSIGN_ALIGNED_PTRS_HBD(pred_buf[2], tmp_buf_0, MAX_SB_SQUARE, len);
+    ASSIGN_ALIGNED_PTRS_HBD(pred_buf[3], tmp_buf_0, MAX_SB_SQUARE, len);
+  } else {
+#endif  // CONFIG_HIGHBITDEPTH
+    ASSIGN_ALIGNED_PTRS(pred_buf[0], tmp_buf_0, MAX_SB_SQUARE);
+    ASSIGN_ALIGNED_PTRS(pred_buf[1], tmp_buf_1, MAX_SB_SQUARE);
+    ASSIGN_ALIGNED_PTRS(pred_buf[2], tmp_buf_2, MAX_SB_SQUARE);
+    ASSIGN_ALIGNED_PTRS(pred_buf[3], tmp_buf_3, MAX_SB_SQUARE);
+#if CONFIG_HIGHBITDEPTH
+  }
+#endif
+  // set up source buffers.
+  av1_setup_src_planes_pxl(x, cpi->source, pxl_row, pxl_col);
+
+  same_src_mi = av1_get_ext_blk_preds(cm, xd, bsize, mi_row, mi_col, pred_buf,
+                                      pred_stride);
+  av1_get_ori_blk_pred(cm, xd, bsize, mi_row, mi_col, pred_buf[3], pred_stride);
+
+  if (0) {
+    best_mode = 0;
+  } else {
+// int max_mode = (bsize == BLOCK_8X8) ? 4 : MAX_NCOBMC_MODES;
+// TODO(weitinglin): remove nonoverlapping mode
+#ifdef ONE_MODE
+    for (tmp_mode = 0; tmp_mode < 1; ++tmp_mode) {
+#else
+#ifdef TWO_MODE
+    for (tmp_mode = 0; tmp_mode < 2; ++tmp_mode) {
+#else
+    for (tmp_mode = 0; tmp_mode < MAX_NCOBMC_MODES - 1; ++tmp_mode) {
+#endif  // TWO_MODE
+#endif  // ONE_MODE
+      error = 0;
+      for (plane = 0; plane < MAX_MB_PLANE; ++plane) {
+        build_ncobmc_intrpl_pred(cm, xd, plane, pxl_row, pxl_col, bsize,
+                                 pred_buf, pred_stride, tmp_mode);
+        error += get_ncobmc_error(xd, pxl_row, pxl_col, bsize, plane,
+                                  &x->plane[plane].src);
+      }
+      if (error < best_error) {
+        best_mode = tmp_mode;
+        best_error = error;
+      }
+    }
+  }
+#ifdef BEST_MODE_0
+  best_mode = 0;
+#endif
+
+  for (plane = 0; plane < MAX_MB_PLANE; ++plane) {
+    build_ncobmc_intrpl_pred(cm, xd, plane, pxl_row, pxl_col, bsize, pred_buf,
+                             pred_stride, best_mode);
+#ifdef CHECK_PATCHES
+    error += get_ncobmc_error(xd, pxl_row, pxl_col, bsize, plane,
+                              &x->plane[plane].src);
+#endif
+  }
+
+#ifdef DUMP_DATA
+#ifndef SELECTIVE_DUMP
+  // throw the data exceed boundary
+  if (mi_col + mi_size_wide[bsize] < cm->mi_cols &&
+      mi_row + mi_size_high[bsize] < cm->mi_rows) {
+    dump_training_data(x, best_mode, bsize, pred_buf, pred_stride[0]);
+  }
+#endif
+#endif
+  return best_mode;
+}
+
+#ifdef DUMP_DATA
+void rebuild_ncobmc_mode(const AV1_COMP *const cpi, MACROBLOCK *const x,
+                         MACROBLOCKD *xd, int mi_row, int mi_col, int bsize,
+                         int xd_mi_offset, NCOBMC_MODE best_mode, int rebuild) {
+  const AV1_COMMON *const cm = &cpi->common;
+#if CONFIG_HIGHBITDEPTH
+  DECLARE_ALIGNED(16, uint8_t, tmp_buf_0[2 * MAX_MB_PLANE * MAX_SB_SQUARE]);
+  DECLARE_ALIGNED(16, uint8_t, tmp_buf_1[2 * MAX_MB_PLANE * MAX_SB_SQUARE]);
+  DECLARE_ALIGNED(16, uint8_t, tmp_buf_2[2 * MAX_MB_PLANE * MAX_SB_SQUARE]);
+  DECLARE_ALIGNED(16, uint8_t, tmp_buf_3[2 * MAX_MB_PLANE * MAX_SB_SQUARE]);
+#else
+  DECLARE_ALIGNED(16, uint8_t, tmp_buf_0[MAX_MB_PLANE * MAX_SB_SQUARE]);
+  DECLARE_ALIGNED(16, uint8_t, tmp_buf_1[MAX_MB_PLANE * MAX_SB_SQUARE]);
+  DECLARE_ALIGNED(16, uint8_t, tmp_buf_2[MAX_MB_PLANE * MAX_SB_SQUARE]);
+  DECLARE_ALIGNED(16, uint8_t, tmp_buf_3[MAX_MB_PLANE * MAX_SB_SQUARE]);
+#endif
+  uint8_t *pred_buf[4][MAX_MB_PLANE];
+
+  // TODO(weitinglin): stride size needs to be fixed for high-bit depth
+  int pred_stride[MAX_MB_PLANE] = { MAX_SB_SIZE, MAX_SB_SIZE, MAX_SB_SIZE };
+
+  // target block in pxl
+  int pxl_row = mi_row << MI_SIZE_LOG2;
+  int pxl_col = mi_col << MI_SIZE_LOG2;
+  int same_src_mi = 0;
+  int plane;
+#if CONFIG_HIGHBITDEPTH
+  if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
+    int len = sizeof(uint16_t);
+    ASSIGN_ALIGNED_PTRS_HBD(pred_buf[0], tmp_buf_0, MAX_SB_SQUARE, len);
+    ASSIGN_ALIGNED_PTRS_HBD(pred_buf[1], tmp_buf_0, MAX_SB_SQUARE, len);
+    ASSIGN_ALIGNED_PTRS_HBD(pred_buf[2], tmp_buf_0, MAX_SB_SQUARE, len);
+    ASSIGN_ALIGNED_PTRS_HBD(pred_buf[3], tmp_buf_0, MAX_SB_SQUARE, len);
+  } else {
+#endif  // CONFIG_HIGHBITDEPTH
+    ASSIGN_ALIGNED_PTRS(pred_buf[0], tmp_buf_0, MAX_SB_SQUARE);
+    ASSIGN_ALIGNED_PTRS(pred_buf[1], tmp_buf_1, MAX_SB_SQUARE);
+    ASSIGN_ALIGNED_PTRS(pred_buf[2], tmp_buf_2, MAX_SB_SQUARE);
+    ASSIGN_ALIGNED_PTRS(pred_buf[3], tmp_buf_3, MAX_SB_SQUARE);
+#if CONFIG_HIGHBITDEPTH
+  }
+#endif
+  // set up source buffers.
+  av1_setup_src_planes_pxl(x, cpi->source, pxl_row, pxl_col);
+
+  same_src_mi = av1_get_ext_blk_preds(cm, xd, bsize, mi_row, mi_col, pred_buf,
+                                      pred_stride);
+  av1_get_ori_blk_pred(cm, xd, bsize, mi_row, mi_col, pred_buf[3], pred_stride);
+  if (rebuild) {
+    for (plane = 0; plane < MAX_MB_PLANE; ++plane) {
+      build_ncobmc_intrpl_pred(cm, xd, plane, pxl_row, pxl_col, bsize, pred_buf,
+                               pred_stride, best_mode);
+    }
+  }
+  dump_training_data(x, best_mode, bsize, pred_buf, pred_stride[0]);
+}
+#endif  // DUMP_DATA
+#endif  // CONFIG_NCOBMC_ADAPT_WEIGHT
 #endif  // CONFIG_MOTION_VAR
