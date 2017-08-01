@@ -22,6 +22,30 @@
       "revId": "2a22983790fbd9c4b34286428dc028730a45e9d4",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "528f91b9_9ed13a0d",
+        "filename": "av1/encoder/bgsprite.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 705,
+      "author": {
+        "id": 7490
+      },
+      "writtenOn": "2017-08-01T21:23:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "97992128_543eb38b",
+      "range": {
+        "startLine": 705,
+        "startChar": 20,
+        "endLine": 705,
+        "endChar": 0
+      },
+      "revId": "2a22983790fbd9c4b34286428dc028730a45e9d4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
