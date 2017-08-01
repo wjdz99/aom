@@ -3077,7 +3077,7 @@ void av1_predict_intra_block(const MACROBLOCKD *xd, int wpx, int hpx,
   const int block_width = block_size_wide[bsize];
   const int block_height = block_size_high[bsize];
 #if CONFIG_RECT_INTRA_PRED && CONFIG_RECT_TX && (CONFIG_VAR_TX || CONFIG_EXT_TX)
-  const TX_SIZE tx_size = max_txsize_rect_lookup[bsize];
+  const TX_SIZE tx_size = get_max_rect_tx_size(bsize, 0);
   assert(tx_size < TX_SIZES_ALL);
 #else
   const TX_SIZE tx_size = max_txsize_lookup[bsize];
