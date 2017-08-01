@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "5d47639d_d72ee091",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 5254,
+      "author": {
+        "id": 5195
+      },
+      "writtenOn": "2017-08-01T18:19:15Z",
+      "side": 1,
+      "message": "Done. It\u0027s better just reset all boundary_info instead of memset zero whole data structure.",
+      "parentUuid": "1cfd19c4_414eeccb",
+      "range": {
+        "startLine": 5254,
+        "startChar": 4,
+        "endLine": 5254,
+        "endChar": 10
+      },
+      "revId": "6d0ecd7e41b7f9545b88d4e481633d89cbc6b8c1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3aaeb5a1_991c0433",
         "filename": "av1/decoder/decodeframe.c",
         "patchSetId": 1
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "09d19efb_8bb98a9d",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 5255,
+      "author": {
+        "id": 5195
+      },
+      "writtenOn": "2017-08-01T18:19:15Z",
+      "side": 1,
+      "message": "I assume memset costs less than resetting boundary_info. This (see above) is, however, proceed only when frame geometry changes, and this code seems clear and easy to maintain.",
+      "parentUuid": "3aaeb5a1_991c0433",
+      "range": {
+        "startLine": 5255,
+        "startChar": 0,
+        "endLine": 5255,
+        "endChar": 18
+      },
+      "revId": "6d0ecd7e41b7f9545b88d4e481633d89cbc6b8c1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "afd0217f_47f8626e",
         "filename": "av1/encoder/encodeframe.c",
         "patchSetId": 1
@@ -59,6 +107,30 @@
       "writtenOn": "2017-08-01T04:54:50Z",
       "side": 1,
       "message": "Should not change the encoder side?",
+      "range": {
+        "startLine": 4893,
+        "startChar": 2,
+        "endLine": 4893,
+        "endChar": 37
+      },
+      "revId": "6d0ecd7e41b7f9545b88d4e481633d89cbc6b8c1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "81f4b82a_cdcdd2b6",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 4893,
+      "author": {
+        "id": 5195
+      },
+      "writtenOn": "2017-08-01T18:19:15Z",
+      "side": 1,
+      "message": "Done. Also enc_setup_frame_boundary_info() should be av1_setup_frame_boundary_info().",
+      "parentUuid": "afd0217f_47f8626e",
       "range": {
         "startLine": 4893,
         "startChar": 2,
