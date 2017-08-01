@@ -623,6 +623,44 @@ static const TX_SIZE max_txsize_lookup[BLOCK_SIZES_ALL] = {
 };
 
 #if CONFIG_RECT_TX && (CONFIG_EXT_TX || CONFIG_VAR_TX)
+static const TX_SIZE max_txsize_rect_intra_lookup[BLOCK_SIZES_ALL] = {
+  // 2X2,    2X4,      4X2,
+#if CONFIG_CHROMA_2X2
+  TX_2X2,    TX_2X2,   TX_2X2,
+#elif CONFIG_CHROMA_SUB8X8
+  TX_4X4,    TX_4X4,   TX_4X4,
+#endif  // CONFIG_CHROMA_SUB8X8
+  //                   4X4
+                       TX_4X4,
+  // 4X8,    8X4,      8X8
+  TX_4X8,    TX_8X4,   TX_8X8,
+  // 8X16,   16X8,     16X16
+  TX_8X16,   TX_16X8,  TX_16X16,
+  // 16X32,  32X16,    32X32
+  TX_16X32,  TX_32X16, TX_32X32,
+  // 32X64,  64X32,
+  TX_32X32,  TX_32X32,
+#if CONFIG_TX64X64
+  // 64X64
+  TX_64X64,
+#if CONFIG_EXT_PARTITION
+  // 64x128, 128x64,   128x128
+  TX_64X64,  TX_64X64, TX_64X64,
+#endif  // CONFIG_EXT_PARTITION
+#else
+  // 64X64
+  TX_32X32,
+#if CONFIG_EXT_PARTITION
+  // 64x128, 128x64,   128x128
+  TX_32X32,  TX_32X32, TX_32X32,
+#endif  // CONFIG_EXT_PARTITION
+#endif  // CONFIG_TX64X64
+  // 4x16,   16x4,     8x32
+  TX_4X4,    TX_4X4,   TX_8X8,
+  // 32x8
+  TX_8X8
+};
+
 static const TX_SIZE max_txsize_rect_lookup[BLOCK_SIZES_ALL] = {
   // 2X2,    2X4,      4X2,
 #if CONFIG_CHROMA_2X2
@@ -657,7 +695,7 @@ static const TX_SIZE max_txsize_rect_lookup[BLOCK_SIZES_ALL] = {
 #endif  // CONFIG_TX64X64
 #if CONFIG_RECT_TX_EXT
   // 4x16,   16x4,     8x32
-  TX_4X16,   TX_16X4,  TX_8X32,
+  TX_4X8,   TX_8X4,  TX_8X32,
   // 32x8
   TX_32X8
 #else
