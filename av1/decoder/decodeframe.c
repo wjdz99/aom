@@ -731,32 +731,23 @@ static void decode_reconstruct_tx(AV1_COMMON *cm, MACROBLOCKD *const xd,
     const TX_SIZE sub_txs = sub_tx_size_map[tx_size];
     assert(sub_txs < tx_size);
 #endif
-    const int bsl = tx_size_wide_unit[sub_txs];
-    int sub_step = tx_size_wide_unit[sub_txs] * tx_size_high_unit[sub_txs];
-    int i;
+    const int bsw = tx_size_wide_unit[sub_txs];
+    const int bsh = tx_size_high_unit[sub_txs];
+    const int sub_step = bsw * bsh;
 
-    assert(bsl > 0);
+    assert(bsw > 0 && bsh > 0);
 
-    for (i = 0; i < 4; ++i) {
-#if CONFIG_RECT_TX_EXT
-      int is_wide_tx = tx_size_wide_unit[sub_txs] > tx_size_high_unit[sub_txs];
-      const int offsetr =
-          is_qttx ? (is_wide_tx ? i * tx_size_high_unit[sub_txs] : 0)
-                  : blk_row + ((i >> 1) * bsl);
-      const int offsetc =
-          is_qttx ? (is_wide_tx ? 0 : i * tx_size_wide_unit[sub_txs])
-                  : blk_col + (i & 0x01) * bsl;
-#else
-      const int offsetr = blk_row + (i >> 1) * bsl;
-      const int offsetc = blk_col + (i & 0x01) * bsl;
-#endif
+    for (int row = 0; row < tx_size_high_unit[tx_size]; row += bsh)
+      for (int col = 0; col < tx_size_wide_unit[tx_size]; col += bsw) {
+        const int offsetr = blk_row + row;
+        const int offsetc = blk_col + col;
 
-      if (offsetr >= max_blocks_high || offsetc >= max_blocks_wide) continue;
+        if (offsetr >= max_blocks_high || offsetc >= max_blocks_wide) continue;
 
-      decode_reconstruct_tx(cm, xd, r, mbmi, plane, plane_bsize, offsetr,
-                            offsetc, block, sub_txs, eob_total);
-      block += sub_step;
-    }
+        decode_reconstruct_tx(cm, xd, r, mbmi, plane, plane_bsize, offsetr,
+                              offsetc, block, sub_txs, eob_total);
+        block += sub_step;
+      }
   }
 }
 #endif  // CONFIG_VAR_TX
@@ -2079,6 +2070,10 @@ static void decode_token_and_recon_block(AV1Decoder *const pbi,
 #endif
     }
 #endif  // CONFIG_MOTION_VAR
+
+    // printf("%d %d %d %d %d %d\n", mi_row, mi_col, is_inter_block(mbmi),
+    // bsize,
+    //     mbmi->tx_size, mbmi->inter_tx_size[0][0]);
 
     // Reconstruction
     if (!mbmi->skip) {

@@ -1118,8 +1118,8 @@ static INLINE int is_quarter_tx_allowed_bsize(BLOCK_SIZE bsize) {
 #endif  // CONFIG_EXT_PARTITION
     0,  // BLOCK_4X16
     0,  // BLOCK_16X4
-    0,  // BLOCK_8X32
-    0,  // BLOCK_32X8
+    1,  // BLOCK_8X32
+    1,  // BLOCK_32X8
   };
 
   return LUT_QTTX[bsize];
@@ -1133,11 +1133,20 @@ static INLINE int is_quarter_tx_allowed(const MACROBLOCKD *xd,
 }
 #endif
 
+#if CONFIG_RECT_TX && (CONFIG_EXT_TX || CONFIG_VAR_TX)
+static INLINE TX_SIZE get_max_rect_tx_size(BLOCK_SIZE bsize, int is_inter) {
+  if (is_inter)
+    return max_txsize_rect_lookup[bsize];
+  else
+    return max_txsize_rect_intra_lookup[bsize];
+}
+#endif
+
 static INLINE TX_SIZE tx_size_from_tx_mode(BLOCK_SIZE bsize, TX_MODE tx_mode,
                                            int is_inter) {
   const TX_SIZE largest_tx_size = tx_mode_to_biggest_tx_size[tx_mode];
 #if (CONFIG_VAR_TX || CONFIG_EXT_TX) && CONFIG_RECT_TX
-  const TX_SIZE max_rect_tx_size = max_txsize_rect_lookup[bsize];
+  const TX_SIZE max_rect_tx_size = get_max_rect_tx_size(bsize, is_inter);
 #else
   const TX_SIZE max_tx_size = max_txsize_lookup[bsize];
 #endif  // (CONFIG_VAR_TX || CONFIG_EXT_TX) && CONFIG_RECT_TX

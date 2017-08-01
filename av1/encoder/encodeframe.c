@@ -6099,7 +6099,7 @@ static void encode_superblock(const AV1_COMP *const cpi, ThreadData *td,
         const TX_SIZE coded_tx_size = txsize_sqr_up_map[tx_size];
         const int depth = tx_size_to_depth(coded_tx_size);
         ++td->counts->tx_size[tx_size_cat][tx_size_ctx][depth];
-        if (tx_size != max_txsize_rect_lookup[bsize]) ++x->txb_split_count;
+        if (tx_size != get_max_rect_tx_size(bsize, 0)) ++x->txb_split_count;
       }
 #else
       const int tx_size_ctx = get_tx_size_context(xd);
@@ -6113,9 +6113,10 @@ static void encode_superblock(const AV1_COMP *const cpi, ThreadData *td,
 
 #if CONFIG_RECT_TX_EXT && (CONFIG_EXT_TX || CONFIG_VAR_TX)
       if (is_quarter_tx_allowed(xd, mbmi, is_inter) &&
-          quarter_txsize_lookup[bsize] != max_txsize_rect_lookup[bsize] &&
+          quarter_txsize_lookup[bsize] !=
+              get_max_rect_tx_size(bsize, is_inter) &&
           (mbmi->tx_size == quarter_txsize_lookup[bsize] ||
-           mbmi->tx_size == max_txsize_rect_lookup[bsize])) {
+           mbmi->tx_size == get_max_rect_tx_size(bsize, is_inter))) {
         ++td->counts
               ->quarter_tx_size[mbmi->tx_size == quarter_txsize_lookup[bsize]];
       }
@@ -6152,7 +6153,8 @@ static void encode_superblock(const AV1_COMP *const cpi, ThreadData *td,
 
 #if CONFIG_VAR_TX
       mbmi->min_tx_size = get_min_tx_size(intra_tx_size);
-      if (intra_tx_size != max_txsize_rect_lookup[bsize]) ++x->txb_split_count;
+      if (intra_tx_size != get_max_rect_tx_size(bsize, is_inter))
+        ++x->txb_split_count;
 #endif
     }
 
