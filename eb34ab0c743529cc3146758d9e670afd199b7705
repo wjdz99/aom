@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "77a938a9_5f8b3824",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 4576,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-08-01T04:59:15Z",
+      "side": 1,
+      "message": "That isn\u0027t exactly true, right? If you set \"error resilient mode\", you\u0027ll call av1_setup_past_independence(), which will reset the frame_context for the current frame to defaults. You can then store it in all reference frame slots to put them all in a known state. That\u0027s perhaps not precisely the same as resetting them, but achieves the same goals.",
+      "revId": "eb34ab0c743529cc3146758d9e670afd199b7705",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6d13b1bc_e1bcc661",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 354,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-08-01T04:59:15Z",
+      "side": 1,
+      "message": "idx still needs to be checked to see that it\u0027s \u003e\u003d 0, right?",
+      "revId": "eb34ab0c743529cc3146758d9e670afd199b7705",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d0b97080_a30ec699",
+        "filename": "av1/common/entropymode.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 5461,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-08-01T04:59:15Z",
+      "side": 0,
+      "message": "This whitespace change is extraneous.",
+      "revId": "dae1921ef09f7a0add301c0a0cd1a1ff378ea915",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
