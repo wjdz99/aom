@@ -46,6 +46,10 @@ extern "C" {
 
 #define MAX_MB_PLANE 3
 
+#if CONFIG_NCOBMC_ADAPT_WEIGHT
+// #define NCOBMC_NO_RECT
+#endif
+
 #if CONFIG_EXT_INTER
 
 #if CONFIG_COMPOUND_SEGMENT
@@ -108,6 +112,22 @@ typedef struct PVQ_QUEUE {
   int buf_len;    // allocated buffer length
   int last_pos;   // last written position of PVQ_INFO in a tile
 } PVQ_QUEUE;
+#endif
+
+#if CONFIG_NCOBMC_ADAPT_WEIGHT
+typedef struct superblock_mi_boundaries {
+  int mi_row_begin;
+  int mi_col_begin;
+  int mi_row_end;
+  int mi_col_end;
+} SB_MI_BD;
+
+typedef struct {
+  int KERNEL_TL[MAX_SB_SIZE][MAX_SB_SIZE];
+  int KERNEL_TR[MAX_SB_SIZE][MAX_SB_SIZE];
+  int KERNEL_BL[MAX_SB_SIZE][MAX_SB_SIZE];
+  int KERNEL_BR[MAX_SB_SIZE][MAX_SB_SIZE];
+} NCOBMC_KERNELS;
 #endif
 
 typedef struct {
@@ -438,7 +458,7 @@ typedef struct MB_MODE_INFO {
   // blocks. A rectangular block is divided into two squared blocks and each
   // squared block has an interpolation mode.
   NCOBMC_MODE ncobmc_mode[2];
-#endif
+#endif  // CONFIG_NCOBMC_ADAPT_WEIGHT
 #endif  // CONFIG_MOTION_VAR
   int_mv mv[2];
   int_mv pred_mv[2];
@@ -769,6 +789,12 @@ typedef struct macroblockd {
 
 #if CONFIG_CFL
   CFL_CTX *cfl;
+#endif
+
+#if CONFIG_NCOBMC_ADAPT_WEIGHT
+  uint8_t *ncobmc_pred_buf[MAX_MB_PLANE];
+  int ncobmc_pred_buf_stride[MAX_MB_PLANE];
+  SB_MI_BD sb_mi_bd;
 #endif
 } MACROBLOCKD;
 
@@ -1549,22 +1575,34 @@ static INLINE MOTION_MODE motion_mode_allowed(
 
 #if CONFIG_NCOBMC_ADAPT_WEIGHT && CONFIG_MOTION_VAR
 static INLINE NCOBMC_MODE ncobmc_mode_allowed_bsize(BLOCK_SIZE bsize) {
-  if (bsize < BLOCK_8X8 || bsize > BLOCK_64X64)
+  if (bsize < BLOCK_8X8 || bsize > BLOCK_32X32
+#ifdef NCOBMC_NO_RECT
+      || mi_size_wide[bsize] != mi_size_high[bsize]
+#endif
+      )
+#ifdef MERGE_OBMC
+    return OBMC_MODE;
+#else
     return NO_OVERLAP;
+#endif
   else
-    return (NCOBMC_MODE)(MAX_NCOBMC_MODES - 1);
+    return NCOBMC_MODE_8;
 }
 
-static INLINE MOTION_MODE
-motion_mode_allowed_wrapper(int for_mv_search,
+static INLINE MOTION_MODE motion_mode_allowed_wrapper(
+#ifndef MERGE_OBMC
+    int for_mv_search,
+#endif
 #if CONFIG_GLOBAL_MOTION
-                            int block, const WarpedMotionParams *gm_params,
+    int block, const WarpedMotionParams *gm_params,
 #endif  // CONFIG_GLOBAL_MOTION
 #if CONFIG_WARPED_MOTION
-                            const MACROBLOCKD *xd,
+    const MACROBLOCKD *xd,
 #endif
-                            const MODE_INFO *mi) {
+    const MODE_INFO *mi) {
+#ifndef MERGE_OBMC
   const MB_MODE_INFO *mbmi = &mi->mbmi;
+#endif
   MOTION_MODE motion_mode_for_mv_search = motion_mode_allowed(
 #if CONFIG_GLOBAL_MOTION
       int block, const WarpedMotionParams *gm_params,
@@ -1573,15 +1611,20 @@ motion_mode_allowed_wrapper(int for_mv_search,
       xd,
 #endif
       mi);
+#ifdef MERGE_OBMC
+  return motion_mode_for_mv_search;
+#else
   int ncobmc_mode_allowed =
-      ncobmc_mode_allowed_bsize(mbmi->sb_type) && is_inter_mode(mbmi->mode);
+      (ncobmc_mode_allowed_bsize(mbmi->sb_type) < NO_OVERLAP) &&
+      is_inter_mode(mbmi->mode) && is_motion_variation_allowed_compound(mbmi);
   if (for_mv_search)
     return motion_mode_for_mv_search;
   else
     return ncobmc_mode_allowed ? NCOBMC_ADAPT_WEIGHT
                                : motion_mode_for_mv_search;
+#endif  // MERGE_OBMC
 }
-#endif
+#endif  // CONFIG_NCOBMC_ADAPT_WEIGHT && CONFIG_MOTION_VAR
 
 static INLINE void assert_motion_mode_valid(MOTION_MODE mode,
 #if CONFIG_GLOBAL_MOTION
@@ -1593,12 +1636,14 @@ static INLINE void assert_motion_mode_valid(MOTION_MODE mode,
 #endif
                                             const MODE_INFO *mi) {
 #if CONFIG_NCOBMC_ADAPT_WEIGHT
-  const MOTION_MODE last_motion_mode_allowed =
-      motion_mode_allowed_wrapper(0,
+  const MOTION_MODE last_motion_mode_allowed = motion_mode_allowed_wrapper(
+#ifndef MERGE_OBMC
+      0,
+#endif
 #if CONFIG_GLOBAL_MOTION
-                                  block, gm_params,
+      block, gm_params,
 #endif  // CONFIG_GLOBAL_MOTION
-                                  mi);
+      mi);
 #else
   const MOTION_MODE last_motion_mode_allowed = motion_mode_allowed(
 #if CONFIG_GLOBAL_MOTION
