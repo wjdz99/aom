@@ -1,0 +1,124 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "99be08fa_de7e2be4",
+        "filename": "av1/encoder/bgsprite.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 523,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-08-01T21:24:49Z",
+      "side": 1,
+      "message": "Maybe just create const doubles for (j-1)/j and 1/j instead? (I think that\u0027s the only use of \u0027j\u0027 right?)",
+      "revId": "7375bc8e30dfa9ff82ad062e24ff8a005dac52f2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "778b95d6_7a9003a8",
+        "filename": "av1/encoder/bgsprite.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 541,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-08-01T21:24:49Z",
+      "side": 1,
+      "message": "Make \"pow((double)image_stack[y][x][i].y - model-\u003emean[0], 2)\" a const , so you don\u0027t compute it twice",
+      "range": {
+        "startLine": 541,
+        "startChar": 18,
+        "endLine": 541,
+        "endChar": 73
+      },
+      "revId": "7375bc8e30dfa9ff82ad062e24ff8a005dac52f2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d0e231ab_b63f5a99",
+        "filename": "av1/encoder/bgsprite.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 605,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-08-01T21:24:49Z",
+      "side": 1,
+      "message": "\"pow(temp_y_mean - model-\u003emean[opposite], 2)\" should again be a const.",
+      "range": {
+        "startLine": 605,
+        "startChar": 25,
+        "endLine": 605,
+        "endChar": 68
+      },
+      "revId": "7375bc8e30dfa9ff82ad062e24ff8a005dac52f2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aa744d8d_354b028e",
+        "filename": "av1/encoder/bgsprite.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 619,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-08-01T21:24:49Z",
+      "side": 1,
+      "message": "Right, should be an \"assert(0);\" simply.",
+      "revId": "7375bc8e30dfa9ff82ad062e24ff8a005dac52f2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "63223821_1a8f2db4",
+        "filename": "av1/encoder/bgsprite.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 659,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-08-01T21:24:49Z",
+      "side": 1,
+      "message": "\u0027const\u0027?",
+      "range": {
+        "startLine": 659,
+        "startChar": 23,
+        "endLine": 659,
+        "endChar": 41
+      },
+      "revId": "7375bc8e30dfa9ff82ad062e24ff8a005dac52f2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7425ca6f_ae6d3a67",
+        "filename": "av1/encoder/bgsprite.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 865,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-08-01T21:24:49Z",
+      "side": 1,
+      "message": "Put this under \"#if 0\" instead",
+      "revId": "7375bc8e30dfa9ff82ad062e24ff8a005dac52f2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
