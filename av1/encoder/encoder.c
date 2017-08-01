@@ -46,6 +46,9 @@
 #include "av1/encoder/ethread.h"
 #include "av1/encoder/firstpass.h"
 #include "av1/encoder/mbgraph.h"
+#if CONFIG_NCOBMC_ADAPT_WEIGHT
+#include "av1/common/ncobmc_kernels.h"
+#endif  // CONFIG_NCOBMC_ADAPT_WEIGHT
 #include "av1/encoder/picklpf.h"
 #if CONFIG_LOOP_RESTORATION
 #include "av1/encoder/pickrst.h"
@@ -79,6 +82,10 @@ FRAME_COUNTS aggregate_fc;
 FRAME_COUNTS aggregate_fc_per_type[FRAME_CONTEXTS];
 #endif  // CONFIG_ENTROPY_STATS
 
+#ifdef DUMP_TRAINING_DATA_QD
+extern FILE *tr_data;
+#endif
+
 #define AM_SEGMENT_ID_INACTIVE 7
 #define AM_SEGMENT_ID_ACTIVE 0
 
@@ -90,6 +97,15 @@ FRAME_COUNTS aggregate_fc_per_type[FRAME_CONTEXTS];
                                        // mv. Choose a very high value for
                                        // now so that HIGH_PRECISION is always
                                        // chosen.
+
+#ifdef OUTPUT_STATS
+extern double improve_rate;
+extern int64_t ada_ncobmc_count;
+extern double ip_rate[BLOCK_SIZES][MAX_NCOBMC_MODES];
+extern double ip_dist[BLOCK_SIZES][MAX_NCOBMC_MODES];
+extern int ncobmc_counts[BLOCK_SIZES][MAX_NCOBMC_MODES];
+#endif
+
 // #define OUTPUT_YUV_REC
 #ifdef OUTPUT_YUV_DENOISED
 FILE *yuv_denoised_file = NULL;
@@ -2319,6 +2335,31 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
   cm->free_mi = av1_enc_free_mi;
   cm->setup_mi = av1_enc_setup_mi;
 
+#if CONFIG_NCOBMC_ADAPT_WEIGHT
+#ifdef READ_FROM_FILE
+  FILE *f_kernels = fopen(NCOBMC_KERNEL, "r");
+  read_ncobmc_kernels(cm, BLOCK_64X64, f_kernels);
+  read_ncobmc_kernels(cm, BLOCK_32X32, f_kernels);
+  read_ncobmc_kernels(cm, BLOCK_16X16, f_kernels);
+  read_ncobmc_kernels(cm, BLOCK_8X8, f_kernels);
+  fclose(f_kernels);
+#else
+  get_default_ncobmc_kernels(cm);
+#endif  // READ_FROM_FILE
+#ifdef DUMP_TRAINING_DATA_QD
+  tr_data = fopen(DATA_NAME, "a");
+#endif
+#ifdef OUTPUT_STATS
+  for (int blk = 0; blk < BLOCK_SIZES; ++blk) {
+    for (int mm = 0; mm < MAX_NCOBMC_MODES; ++mm) {
+      ncobmc_counts[blk][mm] = 0;
+      ip_dist[blk][mm] = 0;
+      ip_rate[blk][mm] = 0;
+    }
+  }
+#endif
+#endif  // CONFIG_NCOBMC_ADAPT_WEIGHT
+
   CHECK_MEM_ERROR(cm, cm->fc,
                   (FRAME_CONTEXT *)aom_memalign(32, sizeof(*cm->fc)));
   CHECK_MEM_ERROR(cm, cm->frame_contexts,
@@ -2440,7 +2481,7 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
   yuv_skinmap_file = fopen("skinmap.yuv", "ab");
 #endif
 #ifdef OUTPUT_YUV_REC
-  yuv_rec_file = fopen("rec.yuv", "wb");
+  yuv_rec_file = fopen("./tmp/raw/rec.yuv", "wb");
 #endif
 
 #if 0
@@ -2752,6 +2793,40 @@ void av1_remove_compressor(AV1_COMP *cpi) {
       fwrite(aggregate_fc_per_type, sizeof(aggregate_fc_per_type[0]),
              FRAME_CONTEXTS, f);
       fclose(f);
+#if CONFIG_NCOBMC_ADAPT_WEIGHT
+#ifdef OUTPUT_STATS
+      {
+        for (t = 0; t < BLOCK_SIZES; ++t) {
+          fprintf(stdout, "[%d]: ", t);
+          for (i = 0; i < MOTION_MODES; ++i)
+            fprintf(stdout, "%d ", aggregate_fc.motion_mode[t][i]);
+          fprintf(stdout, "\n");
+        }
+
+        for (t = 0; t < ADAPT_OVERLAP_BLOCKS; ++t) {
+          fprintf(stdout, "[%d]: ", t);
+          for (int mm = 0; mm < MAX_NCOBMC_MODES - 1; ++mm) {
+            fprintf(stdout, "%d ", aggregate_fc.ncobmc_mode[t][mm]);
+          }
+          fprintf(stdout, "\n");
+        }
+
+        fprintf(stdout, "average improve rate = %1.5f\n",
+                improve_rate / ada_ncobmc_count);
+
+        for (int blk = BLOCK_8X8; blk <= BLOCK_32X32; ++blk) {
+          for (int mm = 0; mm < MAX_NCOBMC_MODES - 1; ++mm) {
+            fprintf(stdout, "{%d %d}: ", blk, mm);
+            if (ncobmc_counts[blk][mm] == 0) ++ncobmc_counts[blk][mm];
+            fprintf(stdout, "[%d %1.5f %1.5f]\n", ncobmc_counts[blk][mm],
+                    ip_rate[blk][mm] / ncobmc_counts[blk][mm],
+                    ip_dist[blk][mm] / ncobmc_counts[blk][mm]);
+          }
+          fprintf(stdout, "\n");
+        }
+      }
+#endif
+#endif
     }
 #endif  // CONFIG_ENTROPY_STATS
 #if CONFIG_INTERNAL_STATS
@@ -2882,9 +2957,11 @@ void av1_remove_compressor(AV1_COMP *cpi) {
   fclose(yuv_skinmap_file);
 #endif
 #ifdef OUTPUT_YUV_REC
-  fclose(yuv_rec_file);
+  if (yuv_rec_file) fclose(yuv_rec_file);
 #endif
-
+#ifdef DUMP_TRAINING_DATA_QD
+  fclose(tr_data);
+#endif
 #if 0
 
   if (keyfile)
@@ -3050,7 +3127,7 @@ static void check_show_existing_frame(AV1_COMP *cpi) {
 void aom_write_one_yuv_frame(AV1_COMMON *cm, YV12_BUFFER_CONFIG *s) {
   uint8_t *src = s->y_buffer;
   int h = cm->height;
-
+  if (yuv_rec_file == NULL) return;
 #if CONFIG_HIGHBITDEPTH
   if (s->flags & YV12_FLAG_HIGHBITDEPTH) {
     uint16_t *src16 = CONVERT_TO_SHORTPTR(s->y_buffer);
@@ -4885,6 +4962,10 @@ static void encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
 
   // Pick the loop filter level for the frame.
   loopfilter_frame(cpi, cm);
+
+#ifdef OUTPUT_YUV_REC
+  aom_write_one_yuv_frame(cm, cm->frame_to_show);
+#endif
 
   // Build the bitstream
   av1_pack_bitstream(cpi, dest, size);

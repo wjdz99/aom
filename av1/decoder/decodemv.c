@@ -305,15 +305,17 @@ static MOTION_MODE read_motion_mode(AV1_COMMON *cm, MACROBLOCKD *xd,
 #endif
 
 #if CONFIG_NCOBMC_ADAPT_WEIGHT
-  const MOTION_MODE last_motion_mode_allowed =
-      motion_mode_allowed_wrapper(0,
+  const MOTION_MODE last_motion_mode_allowed = motion_mode_allowed_wrapper(
+#ifndef MERGE_OBMC
+      0,
+#endif
 #if CONFIG_GLOBAL_MOTION
-                                  0, xd->global_motion,
+      0, xd->global_motion,
 #endif  // CONFIG_GLOBAL_MOTION
 #if CONFIG_WARPED_MOTION
-                                  xd,
+      xd,
 #endif
-                                  mi);
+      mi);
 #else
   const MOTION_MODE last_motion_mode_allowed = motion_mode_allowed(
 #if CONFIG_GLOBAL_MOTION
@@ -352,45 +354,34 @@ static MOTION_MODE read_motion_mode(AV1_COMMON *cm, MACROBLOCKD *xd,
 
 #if CONFIG_NCOBMC_ADAPT_WEIGHT
 static void read_ncobmc_mode(MACROBLOCKD *xd, MODE_INFO *mi,
-#ifndef TRAINING_WEIGHTS
-                             NCOBMC_MODE ncobmc_mode[2],
-#else
-                             NCOBMC_MODE ncobmc_mode[][4],
-#endif
-                             aom_reader *r) {
+                             NCOBMC_MODE ncobmc_mode[2], aom_reader *r) {
   MB_MODE_INFO *mbmi = &mi->mbmi;
   FRAME_COUNTS *counts = xd->counts;
   ADAPT_OVERLAP_BLOCK ao_block = adapt_overlap_block_lookup[mbmi->sb_type];
+#ifdef MERGE_OBMC
+  if (mbmi->motion_mode != OBMC_CAUSAL) return;
+#else
   if (mbmi->motion_mode != NCOBMC_ADAPT_WEIGHT) return;
+#endif
 
-#ifndef TRAINING_WEIGHTS
   ncobmc_mode[0] = aom_read_symbol(r, xd->tile_ctx->ncobmc_mode_cdf[ao_block],
                                    MAX_NCOBMC_MODES, ACCT_STR);
   if (counts) ++counts->ncobmc_mode[ao_block][ncobmc_mode[0]];
 
   if (mi_size_wide[mbmi->sb_type] != mi_size_high[mbmi->sb_type]) {
-    ncobmc_mode[1] = aom_read_symbol(r, xd->tile_ctx->ncobmc_mode_cdf[ao_block],
-                                     MAX_NCOBMC_MODES, ACCT_STR);
-    if (counts) ++counts->ncobmc_mode[ao_block][ncobmc_mode[1]];
-  }
-#else
-  int i;
-  for (i = 0; i < 4; ++i) {
-    ncobmc_mode[0][i] = aom_read_symbol(
-        r, xd->tile_ctx->ncobmc_mode_cdf[ao_block], MAX_NCOBMC_MODES, ACCT_STR);
-    if (counts) ++counts->ncobmc_mode[ao_block][ncobmc_mode[0][i]];
-  }
-  if (mi_size_wide[mbmi->sb_type] != mi_size_high[mbmi->sb_type]) {
-    for (i = 0; i < 4; ++i) {
-      ncobmc_mode[1][i] =
+#ifdef MERGE_OBMC
+    if (ncobmc_mode[0] != OBMC_MODE) {
+#endif
+      ncobmc_mode[1] =
           aom_read_symbol(r, xd->tile_ctx->ncobmc_mode_cdf[ao_block],
                           MAX_NCOBMC_MODES, ACCT_STR);
-      if (counts) ++counts->ncobmc_mode[ao_block][ncobmc_mode[1][i]];
+      if (counts) ++counts->ncobmc_mode[ao_block][ncobmc_mode[1]];
+#ifdef MERGE_OBMC
     }
+#endif
   }
-#endif
 }
-#endif
+#endif  // CONFIG_NCOBMC_ADAPT_WEIGHT
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
 
 #if CONFIG_EXT_INTER

@@ -33,7 +33,9 @@
 
 #include "av1/decoder/decodeframe.h"
 #include "av1/decoder/decoder.h"
-
+#if CONFIG_NCOBMC_ADAPT_WEIGHT
+#include "av1/common/ncobmc_kernels.h"
+#endif  // CONFIG_NCOBMC_ADAPT_WEIGHT
 #if !CONFIG_PVQ
 #include "av1/decoder/detokenize.h"
 #endif
@@ -132,6 +134,19 @@ AV1Decoder *av1_decoder_create(BufferPool *const pool) {
   cm->setup_mi = av1_dec_setup_mi;
 
   av1_loop_filter_init(cm);
+
+#if CONFIG_NCOBMC_ADAPT_WEIGHT
+#ifdef READ_FROM_FILE
+  FILE *f_kernels = fopen(NCOBMC_KERNEL, "r");
+  read_ncobmc_kernels(cm, BLOCK_64X64, f_kernels);
+  read_ncobmc_kernels(cm, BLOCK_32X32, f_kernels);
+  read_ncobmc_kernels(cm, BLOCK_16X16, f_kernels);
+  read_ncobmc_kernels(cm, BLOCK_8X8, f_kernels);
+  fclose(f_kernels);
+#else
+  get_default_ncobmc_kernels(cm);
+#endif  // READ_FROM_FILE
+#endif  // CONFIG_NCOBMC_ADAPT_WEIGHT
 
 #if CONFIG_AOM_QM
   aom_qm_init(cm);
