@@ -3555,7 +3555,7 @@ static int64_t rd_pick_intra_sub_8x8_y_mode(const AV1_COMP *const cpi,
   const int *bmode_costs = cpi->mbmode_cost[0];
   const int is_lossless = xd->lossless[mbmi->segment_id];
 #if CONFIG_EXT_TX && CONFIG_RECT_TX
-  const TX_SIZE tx_size = is_lossless ? TX_4X4 : max_txsize_rect_lookup[bsize];
+  const TX_SIZE tx_size = is_lossless ? TX_4X4 : get_max_rect_tx_size(bsize, 0);
 #else
   const TX_SIZE tx_size = TX_4X4;
 #endif  // CONFIG_EXT_TX && CONFIG_RECT_TX
@@ -4505,7 +4505,7 @@ static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
   int64_t this_rd = INT64_MAX;
   ENTROPY_CONTEXT *pta = ta + blk_col;
   ENTROPY_CONTEXT *ptl = tl + blk_row;
-  int i;
+  // int i;
   int ctx = txfm_partition_context(tx_above + blk_col, tx_left + blk_row,
                                    mbmi->sb_type, tx_size);
   int64_t sum_rd = INT64_MAX;
@@ -4737,31 +4737,34 @@ static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
         av1_cost_bit(cpi->common.fc->txfm_partition_prob[ctx], 1);
 
     assert(tx_size < TX_SIZES_ALL);
+    assert(tx_size_wide_unit[sub_txs] == tx_size_high_unit[sub_txs]);
 
     ref_best_rd = AOMMIN(this_rd, ref_best_rd);
 
-    for (i = 0; i < 4 && this_cost_valid; ++i) {
-      int offsetr = blk_row + (i >> 1) * bsl;
-      int offsetc = blk_col + (i & 0x01) * bsl;
+    for (int r = 0; r < tx_size_high_unit[tx_size]; r += bsl) {
+      for (int c = 0; c < tx_size_wide_unit[tx_size]; c += bsl) {
+        int offsetr = blk_row + r;
+        int offsetc = blk_col + c;
 
-      if (offsetr >= max_blocks_high || offsetc >= max_blocks_wide) continue;
+        if (offsetr >= max_blocks_high || offsetc >= max_blocks_wide) continue;
 
-      select_tx_block(cpi, x, offsetr, offsetc, plane, block, block32, sub_txs,
-                      depth + 1, plane_bsize, ta, tl, tx_above, tx_left,
-                      &this_rd_stats, ref_best_rd - tmp_rd, &this_cost_valid,
-                      rd_stats_stack);
+        select_tx_block(cpi, x, offsetr, offsetc, plane, block, block32,
+                        sub_txs, depth + 1, plane_bsize, ta, tl, tx_above,
+                        tx_left, &this_rd_stats, ref_best_rd - tmp_rd,
+                        &this_cost_valid, rd_stats_stack);
 #if CONFIG_DIST_8X8
-      if (plane == 0 && tx_size == TX_8X8) {
-        sub8x8_eob[i] = p->eobs[block];
-      }
+        if (plane == 0 && tx_size == TX_8X8) {
+          sub8x8_eob[i] = p->eobs[block];
+        }
 #endif  // CONFIG_DIST_8X8
-      av1_merge_rd_stats(&sum_rd_stats, &this_rd_stats);
+        av1_merge_rd_stats(&sum_rd_stats, &this_rd_stats);
 
-      tmp_rd = RDCOST(x->rdmult, sum_rd_stats.rate, sum_rd_stats.dist);
+        tmp_rd = RDCOST(x->rdmult, sum_rd_stats.rate, sum_rd_stats.dist);
 #if !CONFIG_DIST_8X8
-      if (this_rd < tmp_rd) break;
+        if (this_rd < tmp_rd) break;
 #endif
-      block += sub_step;
+        block += sub_step;
+      }
     }
 #if CONFIG_DIST_8X8
     if (this_cost_valid && plane == 0 && tx_size == TX_8X8) {
@@ -4936,7 +4939,7 @@ static void inter_block_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
     const BLOCK_SIZE plane_bsize = get_plane_block_size(bsize, pd);
     const int mi_width = block_size_wide[plane_bsize] >> tx_size_wide_log2[0];
     const int mi_height = block_size_high[plane_bsize] >> tx_size_high_log2[0];
-    const TX_SIZE max_tx_size = max_txsize_rect_lookup[plane_bsize];
+    const TX_SIZE max_tx_size = get_max_rect_tx_size(bsize, 1);
     const int bh = tx_size_high_unit[max_tx_size];
     const int bw = tx_size_wide_unit[max_tx_size];
     int idx, idy;
@@ -5237,7 +5240,7 @@ static int inter_block_uvrd(const AV1_COMP *cpi, MACROBLOCK *x,
     const BLOCK_SIZE plane_bsize = get_plane_block_size(bsize, pd);
     const int mi_width = block_size_wide[plane_bsize] >> tx_size_wide_log2[0];
     const int mi_height = block_size_high[plane_bsize] >> tx_size_high_log2[0];
-    const TX_SIZE max_tx_size = max_txsize_rect_lookup[plane_bsize];
+    const TX_SIZE max_tx_size = get_max_rect_tx_size(plane_bsize, 1);
     const int bh = tx_size_high_unit[max_tx_size];
     const int bw = tx_size_wide_unit[max_tx_size];
     int idx, idy;

@@ -475,8 +475,8 @@ static void read_tx_size_vartx(AV1_COMMON *cm, MACROBLOCKD *xd,
 
   if (is_split) {
     const TX_SIZE sub_txs = sub_tx_size_map[tx_size];
-    const int bsl = tx_size_wide_unit[sub_txs];
-    int i;
+    const int bsw = tx_size_wide_unit[sub_txs];
+    const int bsh = tx_size_high_unit[sub_txs];
 
     if (counts) ++counts->txfm_partition[ctx][1];
 
@@ -493,12 +493,14 @@ static void read_tx_size_vartx(AV1_COMMON *cm, MACROBLOCKD *xd,
       return;
     }
 
-    assert(bsl > 0);
-    for (i = 0; i < 4; ++i) {
-      int offsetr = blk_row + (i >> 1) * bsl;
-      int offsetc = blk_col + (i & 0x01) * bsl;
-      read_tx_size_vartx(cm, xd, mbmi, counts, sub_txs, depth + 1, offsetr,
-                         offsetc, r);
+    assert(bsw > 0 && bsh > 0);
+    for (int row = 0; row < tx_size_high_unit[tx_size]; row += bsh) {
+      for (int col = 0; col < tx_size_wide_unit[tx_size]; col += bsw) {
+        int offsetr = blk_row + row;
+        int offsetc = blk_col + col;
+        read_tx_size_vartx(cm, xd, mbmi, counts, sub_txs, depth + 1, offsetr,
+                           offsetc, r);
+      }
     }
   } else {
     int idx, idy;
@@ -563,11 +565,11 @@ static TX_SIZE read_tx_size(AV1_COMMON *cm, MACROBLOCKD *xd, int is_inter,
             quarter_tx = 1;
           }
           return quarter_tx ? quarter_txsize_lookup[bsize]
-                            : max_txsize_rect_lookup[bsize];
+                            : get_max_rect_tx_size(bsize, is_inter);
         }
 #endif  // CONFIG_RECT_TX_EXT
 
-        return max_txsize_rect_lookup[bsize];
+        return get_max_rect_tx_size(bsize, is_inter);
       }
 #else
       assert(coded_tx_size <= max_txsize_lookup[bsize]);
@@ -579,7 +581,7 @@ static TX_SIZE read_tx_size(AV1_COMMON *cm, MACROBLOCKD *xd, int is_inter,
   } else {
 #if CONFIG_EXT_TX && CONFIG_RECT_TX
     assert(IMPLIES(tx_mode == ONLY_4X4, bsize == BLOCK_4X4));
-    return max_txsize_rect_lookup[bsize];
+    return get_max_rect_tx_size(bsize, is_inter);
 #else
     return TX_4X4;
 #endif  // CONFIG_EXT_TX && CONFIG_RECT_TX
