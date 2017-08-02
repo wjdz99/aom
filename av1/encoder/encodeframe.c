@@ -2170,7 +2170,12 @@ static void encode_sb(const AV1_COMP *const cpi, ThreadData *td,
           }
         }
 #else
-        if (supertx_size < TX_32X32 && !xd->mi[0]->mbmi.skip) {
+        int valid_tx_size = supertx_size < TX_32X32;
+#if CONFIG_MRC_TX
+        valid_tx_size |= (supertx_size == TX_32X32 &&
+                          tx_type_32x32_valid(xd->mi[0]->mbmi.tx_type, 1));
+#endif  // CONFIG_MRC_TX
+        if (valid_tx_size && !xd->mi[0]->mbmi.skip) {
           ++td->counts->inter_ext_tx[supertx_size][xd->mi[0]->mbmi.tx_type];
         }
 #endif  // CONFIG_EXT_TX
@@ -5960,7 +5965,12 @@ void av1_update_tx_type_count(const AV1_COMMON *cm, MACROBLOCKD *xd,
   }
 #else
   (void)bsize;
-  if (tx_size < TX_32X32 &&
+  int valid_tx_size = tx_size < TX_32X32;
+#if CONFIG_MRC_TX
+  valid_tx_size |= (tx_size == TX_32X32 &&
+                    tx_type_32x32_valid(xd->mi[0]->mbmi.tx_type, 1));
+#endif  // CONFIG_MRC_TX
+  if (valid_tx_size &&
       ((!cm->seg.enabled && cm->base_qindex > 0) ||
        (cm->seg.enabled && xd->qindex[mbmi->segment_id] > 0)) &&
       !mbmi->skip &&
@@ -7249,7 +7259,9 @@ static void rd_supertx_sb(const AV1_COMP *const cpi, ThreadData *td,
 #if CONFIG_EXT_TX
     if (!ext_tx_used_inter[ext_tx_set][tx_type]) continue;
 #else
-    if (tx_size >= TX_32X32 && tx_type != DCT_DCT) continue;
+    if (tx_size == TX_32X32 && !tx_type_32x32_valid(tx_type, is_inter))
+      continue;
+    if (tx_size > TX_32X32 && tx_type != DCT_DCT) continue;
 #endif  // CONFIG_EXT_TX
     mbmi->tx_type = tx_type;
 
@@ -7276,7 +7288,12 @@ static void rd_supertx_sb(const AV1_COMP *const cpi, ThreadData *td,
             x->inter_tx_type_costs[ext_tx_set][mbmi->tx_size][mbmi->tx_type];
     }
 #else
-    if (tx_size < TX_32X32 && !xd->lossless[xd->mi[0]->mbmi.segment_id] &&
+    int valid_tx_size = tx_size < TX_32X32;
+#if CONFIG_MRC_TX
+    valid_tx_size |= (tx_size == TX_32X32 &&
+                      tx_type_32x32_valid(mbmi->tx_type, 1));
+#endif  // CONFIG_MRC_TX
+    if (valid_tx_size && !xd->lossless[xd->mi[0]->mbmi.segment_id] &&
         this_rate != INT_MAX) {
       this_rate += x->inter_tx_type_costs[tx_size][mbmi->tx_type];
     }
