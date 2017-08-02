@@ -167,7 +167,7 @@ TEST_P(AV1HighbdTrans8x8HT, HighbdCoeffCheck) { RunBitexactCheck(); }
 
 using std::tr1::make_tuple;
 
-#if HAVE_SSE2
+#if HAVE_SSE2 && !CONFIG_DAALA_DCT8
 const Ht8x8Param kArrayHt8x8Param_sse2[] = {
   make_tuple(&av1_fht8x8_sse2, &av1_iht8x8_64_add_sse2, 0, AOM_BITS_8, 64),
   make_tuple(&av1_fht8x8_sse2, &av1_iht8x8_64_add_sse2, 1, AOM_BITS_8, 64),
