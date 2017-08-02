@@ -26,6 +26,18 @@ struct AV1_COMP;
 struct macroblock;
 struct RD_STATS;
 
+#if !CONFIG_EXT_TX
+static INLINE int tx_type_32x32_valid(TX_TYPE tx_type, int is_inter) {
+  (void)is_inter;
+  if (tx_type == DCT_DCT) return 1;
+#if CONFIG_MRC_TX
+  if (tx_type == MRC_DCT)
+    return (is_inter && USE_MRC_INTER) || (!is_inter && USE_MRC_INTRA);
+#endif  // CONFIG_MRC_TX
+  return 0;
+}
+#endif  // !CONFIG_EXT_TX
+
 #if CONFIG_RD_DEBUG
 static INLINE void av1_update_txb_coeff_cost(RD_STATS *rd_stats, int plane,
                                              TX_SIZE tx_size, int blk_row,

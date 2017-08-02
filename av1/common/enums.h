@@ -289,12 +289,20 @@ typedef enum {
 #define EXT_TX_SETS_INTER 4  // Sets of transform selections for INTER
 #define EXT_TX_SETS_INTRA 3  // Sets of transform selections for INTRA
 #endif                       // CONFIG_MRC_TX
+#else                        // CONFIG_EXT_TX
+#if CONFIG_MRC_TX
+#if CONFIG_CHROMA_2X2
+#define EXT_TX_SIZES 5  // number of sizes that use extended transforms
 #else
+#define EXT_TX_SIZES 4  // number of sizes that use extended transforms
+#endif
+#else  // CONFIG_MRC_TX
 #if CONFIG_CHROMA_2X2
 #define EXT_TX_SIZES 4  // number of sizes that use extended transforms
 #else
 #define EXT_TX_SIZES 3  // number of sizes that use extended transforms
-#endif
+#endif  // CONFIG_CHROMA_2X2
+#endif  // CONFIG_MRC_TX
 #endif  // CONFIG_EXT_TX
 
 typedef enum {
