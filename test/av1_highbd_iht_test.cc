@@ -218,7 +218,7 @@ INSTANTIATE_TEST_CASE_P(SSE4_1, AV1HighbdInvHTNxN,
                         ::testing::ValuesIn(kArrayIhtParam));
 #endif  // HAVE_SSE4_1 && CONFIG_HIGHBITDEPTH
 
-#if HAVE_AVX2 && CONFIG_HIGHBITDEPTH
+#if HAVE_AVX2 && CONFIG_HIGHBITDEPTH && !CONFIG_DAALA_DCT32
 #define PARAM_LIST_32X32                                   \
   &av1_fwd_txfm2d_32x32_c, &av1_inv_txfm2d_add_32x32_avx2, \
       &av1_inv_txfm2d_add_32x32_c, 1024
