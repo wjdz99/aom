@@ -265,11 +265,6 @@ endif()
 
 if (CONFIG_DAALA_DCT4 OR CONFIG_DAALA_DCT8 OR CONFIG_DAALA_DCT16 OR
     CONFIG_DAALA_DCT32 OR CONFIG_DAALA_DCT64)
-  if (HAVE_MMX)
-     message(WARNING
-       "--- Disabled HAVE_MMX, incompatible with CONFIG_DAALA_DCTx.")
-     set(HAVE_MMX 0)
-  endif()
   if (CONFIG_RECT_TX)
      message(WARNING
        "--- Disabled CONFIG_RECT_TX, incompatible with  CONFIG_DAALA_DCTx.")
