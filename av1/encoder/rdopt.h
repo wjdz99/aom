@@ -26,6 +26,19 @@ struct AV1_COMP;
 struct macroblock;
 struct RD_STATS;
 
+#if !CONFIG_EXT_TX
+// This is its own function so it can be used in a in a future patch
+// to allow disabling MRC_DCT for inter or intra blocks separately
+static INLINE int tx_type_32x32_valid(TX_TYPE tx_type, int is_inter) {
+  (void)is_inter;
+  if (tx_type == DCT_DCT) return 1;
+#if CONFIG_MRC_TX
+  if (tx_type == MRC_DCT) return 1;
+#endif  // CONFIG_MRC_TX
+  return 0;
+}
+#endif  // !CONFIG_EXT_TX
+
 #if CONFIG_RD_DEBUG
 static INLINE void av1_update_txb_coeff_cost(RD_STATS *rd_stats, int plane,
                                              TX_SIZE tx_size, int blk_row,
