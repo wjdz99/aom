@@ -1507,6 +1507,15 @@ static INLINE int check_num_overlappable_neighbors(const MB_MODE_INFO *mbmi) {
 }
 #endif
 
+#if CONFIG_NCOBMC_ADAPT_WEIGHT
+static INLINE NCOBMC_MODE ncobmc_mode_allowed_bsize(BLOCK_SIZE bsize) {
+  if (bsize < BLOCK_8X8 || bsize > BLOCK_64X64)
+    return NO_OVERLAP;
+  else
+    return AVAILABLE_NCOBMC_MODES;
+}
+#endif
+
 static INLINE MOTION_MODE motion_mode_allowed(
 #if CONFIG_GLOBAL_MOTION
     int block, const WarpedMotionParams *gm_params,
@@ -1533,12 +1542,18 @@ static INLINE MOTION_MODE motion_mode_allowed(
 #endif
 #if CONFIG_WARPED_MOTION
     if (!has_second_ref(mbmi) && mbmi->num_proj_ref[0] >= 1 &&
-        !av1_is_scaled(&(xd->block_refs[0]->sf)))
+        !av1_is_scaled(&(xd->block_refs[0]->sf))) {
       return WARPED_CAUSAL;
-    else
+    } else {
 #endif  // CONFIG_WARPED_MOTION
 #if CONFIG_MOTION_VAR
-      return OBMC_CAUSAL;
+#if CONFIG_NCOBMC_ADAPT_WEIGHT
+      if (ncobmc_mode_allowed_bsize(mbmi->sb_type) < NO_OVERLAP)
+        return NCOBMC_ADAPT_WEIGHT;
+      else
+#endif
+        return OBMC_CAUSAL;
+    }
 #else
     return SIMPLE_TRANSLATION;
 #endif  // CONFIG_MOTION_VAR
@@ -1546,42 +1561,6 @@ static INLINE MOTION_MODE motion_mode_allowed(
     return SIMPLE_TRANSLATION;
   }
 }
-
-#if CONFIG_NCOBMC_ADAPT_WEIGHT && CONFIG_MOTION_VAR
-static INLINE NCOBMC_MODE ncobmc_mode_allowed_bsize(BLOCK_SIZE bsize) {
-  if (bsize < BLOCK_8X8 || bsize > BLOCK_64X64)
-    return NO_OVERLAP;
-  else
-    return (NCOBMC_MODE)(MAX_NCOBMC_MODES - 1);
-}
-
-static INLINE MOTION_MODE
-motion_mode_allowed_wrapper(int for_mv_search,
-#if CONFIG_GLOBAL_MOTION
-                            int block, const WarpedMotionParams *gm_params,
-#endif  // CONFIG_GLOBAL_MOTION
-#if CONFIG_WARPED_MOTION
-                            const MACROBLOCKD *xd,
-#endif
-                            const MODE_INFO *mi) {
-  const MB_MODE_INFO *mbmi = &mi->mbmi;
-  MOTION_MODE motion_mode_for_mv_search = motion_mode_allowed(
-#if CONFIG_GLOBAL_MOTION
-      int block, const WarpedMotionParams *gm_params,
-#endif
-#if CONFIG_WARPED_MOTION
-      xd,
-#endif
-      mi);
-  int ncobmc_mode_allowed =
-      ncobmc_mode_allowed_bsize(mbmi->sb_type) && is_inter_mode(mbmi->mode);
-  if (for_mv_search)
-    return motion_mode_for_mv_search;
-  else
-    return ncobmc_mode_allowed ? NCOBMC_ADAPT_WEIGHT
-                               : motion_mode_for_mv_search;
-}
-#endif
 
 static INLINE void assert_motion_mode_valid(MOTION_MODE mode,
 #if CONFIG_GLOBAL_MOTION
@@ -1592,14 +1571,6 @@ static INLINE void assert_motion_mode_valid(MOTION_MODE mode,
                                             const MACROBLOCKD *xd,
 #endif
                                             const MODE_INFO *mi) {
-#if CONFIG_NCOBMC_ADAPT_WEIGHT
-  const MOTION_MODE last_motion_mode_allowed =
-      motion_mode_allowed_wrapper(0,
-#if CONFIG_GLOBAL_MOTION
-                                  block, gm_params,
-#endif  // CONFIG_GLOBAL_MOTION
-                                  mi);
-#else
   const MOTION_MODE last_motion_mode_allowed = motion_mode_allowed(
 #if CONFIG_GLOBAL_MOTION
       block, gm_params,
@@ -1608,7 +1579,6 @@ static INLINE void assert_motion_mode_valid(MOTION_MODE mode,
       xd,
 #endif
       mi);
-#endif
   // Check that the input mode is not illegal
   if (last_motion_mode_allowed < mode)
     assert(0 && "Illegal motion mode selected");

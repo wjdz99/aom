@@ -910,7 +910,106 @@ static const aom_cdf_prob
     };
 
 #elif CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
+#if CONFIG_NCOBMC_ADAPT_WEIGHT
+const aom_tree_index av1_motion_mode_tree[TREE_SIZE(MOTION_MODES)] = {
+  -SIMPLE_TRANSLATION, 2, -OBMC_CAUSAL, 4, -WARPED_CAUSAL, -NCOBMC_ADAPT_WEIGHT
+};
 
+static const aom_prob default_motion_mode_prob[BLOCK_SIZES_ALL][MOTION_MODES -
+                                                                1] = {
+#if CONFIG_CHROMA_2X2 || CONFIG_CHROMA_SUB8X8
+  { 128, 128, 255 }, { 128, 128, 255 }, { 128, 128, 255 },
+#endif
+  { 128, 128, 255 }, { 128, 128, 255 }, { 128, 128, 255 }, { 62, 115, 255 },
+  { 39, 131, 255 },  { 39, 132, 255 },  { 118, 94, 255 },  { 77, 125, 255 },
+  { 100, 121, 255 }, { 190, 66, 255 },  { 207, 102, 255 }, { 197, 100, 255 },
+  { 239, 76, 255 },
+#if CONFIG_EXT_PARTITION
+  { 252, 200, 255 }, { 252, 200, 255 }, { 252, 200, 255 },
+#endif  // CONFIG_EXT_PARTITION
+  { 208, 200, 255 }, { 208, 200, 255 }, { 208, 200, 255 }, { 208, 200, 255 }
+};
+static const aom_cdf_prob
+    default_motion_mode_cdf[BLOCK_SIZES_ALL][CDF_SIZE(MOTION_MODES)] = {
+#if CONFIG_CHROMA_2X2 || CONFIG_CHROMA_SUB8X8
+      { AOM_ICDF(16384), AOM_ICDF(24576), AOM_ICDF(32767), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(16384), AOM_ICDF(24576), AOM_ICDF(32767), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(16384), AOM_ICDF(24576), AOM_ICDF(32767), AOM_ICDF(32768), 0 },
+#endif
+      { AOM_ICDF(16384), AOM_ICDF(24576), AOM_ICDF(32767), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(16384), AOM_ICDF(24576), AOM_ICDF(32767), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(16384), AOM_ICDF(24576), AOM_ICDF(32767), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(7936), AOM_ICDF(19091), AOM_ICDF(32767), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(4991), AOM_ICDF(19205), AOM_ICDF(32767), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(4992), AOM_ICDF(19314), AOM_ICDF(32767), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(15104), AOM_ICDF(21590), AOM_ICDF(32767), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(9855), AOM_ICDF(21043), AOM_ICDF(32767), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(12800), AOM_ICDF(22238), AOM_ICDF(32767), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(24320), AOM_ICDF(26498), AOM_ICDF(32767), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(26496), AOM_ICDF(28995), AOM_ICDF(32767), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(25216), AOM_ICDF(28166), AOM_ICDF(32767), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(30592), AOM_ICDF(31238), AOM_ICDF(32767), AOM_ICDF(32768), 0 },
+#if CONFIG_EXT_PARTITION
+      { AOM_ICDF(32256), AOM_ICDF(32656), AOM_ICDF(32767), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(32256), AOM_ICDF(32656), AOM_ICDF(32767), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(32256), AOM_ICDF(32656), AOM_ICDF(32767), AOM_ICDF(32768), 0 },
+#endif
+      { AOM_ICDF(32640), AOM_ICDF(32740), AOM_ICDF(32767), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(32640), AOM_ICDF(32740), AOM_ICDF(32767), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(32640), AOM_ICDF(32740), AOM_ICDF(32767), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(32640), AOM_ICDF(32740), AOM_ICDF(32767), AOM_ICDF(32768), 0 },
+    };
+
+const aom_tree_index av1_obmc_tree[TREE_SIZE(MOTION_MODES)] = {
+  -SIMPLE_TRANSLATION, 2, -OBMC_CAUSAL, -NCOBMC_ADAPT_WEIGHT
+};
+
+static const aom_prob
+    default_obmc_prob[BLOCK_SIZES_ALL][OBMC_FAMILY_MODES - 1] = {
+#if CONFIG_CHROMA_2X2 || CONFIG_CHROMA_SUB8X8
+      { 128, 255 }, { 128, 255 }, { 128, 255 },
+#endif
+      { 128, 255 }, { 128, 255 }, { 128, 255 }, { 45, 255 },  { 79, 255 },
+      { 75, 255 },  { 130, 255 }, { 141, 255 }, { 144, 255 }, { 208, 255 },
+      { 201, 255 }, { 186, 255 }, { 231, 255 },
+#if CONFIG_EXT_PARTITION
+      { 252, 255 }, { 252, 255 }, { 252, 255 },
+#endif  // CONFIG_EXT_PARTITION
+      { 208, 255 }, { 208, 255 }, { 208, 255 }, { 208, 255 }
+    };
+
+static const aom_cdf_prob
+    default_obmc_cdf[BLOCK_SIZES_ALL][CDF_SIZE(OBMC_FAMILY_MODES)] = {
+#if CONFIG_CHROMA_2X2 || CONFIG_CHROMA_SUB8X8
+      { AOM_ICDF(128 * 128), AOM_ICDF(32767), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(128 * 128), AOM_ICDF(32767), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(128 * 128), AOM_ICDF(32767), AOM_ICDF(32768), 0 },
+#endif
+      { AOM_ICDF(128 * 128), AOM_ICDF(32767), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(128 * 128), AOM_ICDF(32767), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(128 * 128), AOM_ICDF(32767), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(45 * 128), AOM_ICDF(32767), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(79 * 128), AOM_ICDF(32767), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(75 * 128), AOM_ICDF(32767), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(130 * 128), AOM_ICDF(32767), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(141 * 128), AOM_ICDF(32767), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(144 * 128), AOM_ICDF(32767), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(208 * 128), AOM_ICDF(32767), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(201 * 128), AOM_ICDF(32767), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(186 * 128), AOM_ICDF(32767), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(231 * 128), AOM_ICDF(32767), AOM_ICDF(32768), 0 },
+#if CONFIG_EXT_PARTITION
+      { AOM_ICDF(252 * 128), AOM_ICDF(32767), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(252 * 128), AOM_ICDF(32767), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(252 * 128), AOM_ICDF(32767), AOM_ICDF(32768), 0 },
+#endif  // CONFIG_EXT_PARTITION
+      { AOM_ICDF(208 * 128), AOM_ICDF(32767), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(208 * 128), AOM_ICDF(32767), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(208 * 128), AOM_ICDF(32767), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(208 * 128), AOM_ICDF(32767), AOM_ICDF(32768), 0 },
+    };
+
+#else
 const aom_tree_index av1_motion_mode_tree[TREE_SIZE(MOTION_MODES)] = {
   -SIMPLE_TRANSLATION, 2, -OBMC_CAUSAL, -WARPED_CAUSAL,
 };
@@ -1002,7 +1101,8 @@ static const aom_cdf_prob default_obmc_cdf[BLOCK_SIZES_ALL][CDF_SIZE(2)] = {
   { AOM_ICDF(208 * 128), AOM_ICDF(32768), 0 },
 };
 #endif  // CONFIG_NEW_MULTISYMBOL
-#endif
+#endif  // CONFIG_NCOBMC_ADAPT_WEIGHT
+#endif  // CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
 
 #if CONFIG_DELTA_Q
 static const aom_prob default_delta_q_probs[DELTA_Q_PROBS] = { 220, 220, 220 };
@@ -5077,9 +5177,13 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
 #endif
 #if CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
   av1_copy(fc->obmc_prob, default_obmc_prob);
+#if CONFIG_NCOBMC_ADAPT_WEIGHT
+  av1_copy(fc->obmc_cdf, default_obmc_cdf);
+#else
 #if CONFIG_NEW_MULTISYMBOL
   av1_copy(fc->obmc_cdf, default_obmc_cdf);
 #endif
+#endif  // CONFIG_NCOBMC_ADAPT_WEIGHT
 #endif  // CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
 #if CONFIG_EXT_INTER
@@ -5260,9 +5364,15 @@ void av1_adapt_inter_frame_probs(AV1_COMMON *cm) {
                          counts->ncobmc_mode[i], fc->ncobmc_mode_prob[i]);
 #endif
 #if CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
+#if CONFIG_NCOBMC_ADAPT_WEIGHT
+  for (i = BLOCK_8X8; i < BLOCK_SIZES_ALL; ++i)
+    aom_tree_merge_probs(av1_obmc_tree, pre_fc->obmc_prob[i], counts->obmc[i],
+                         fc->obmc_prob[i]);
+#else
   for (i = BLOCK_8X8; i < BLOCK_SIZES_ALL; ++i)
     fc->obmc_prob[i] =
         av1_mode_mv_merge_probs(pre_fc->obmc_prob[i], counts->obmc[i]);
+#endif
 #endif  // CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
 
