@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "06f64707_97ffc47b",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-08-02T18:46:34Z",
+      "side": 1,
+      "message": "out side -\u003e outside",
+      "revId": "8a6a286bdd91a99027839ea83bfc5639e3298535",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "276c1637_5349c7aa",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 5146,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-08-02T18:46:34Z",
+      "side": 1,
+      "message": "Not quite understand why buf_8_bit_valid is reset to zero here. Should we just keep this flag as it at the beginning of encoding any new frame?",
+      "revId": "8a6a286bdd91a99027839ea83bfc5639e3298535",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bf149aac_a5635e41",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 4827,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-08-02T18:46:34Z",
+      "side": 1,
+      "message": "Not quite understand here why buf_8bit_valid is reset to zero for cm-\u003eframe_to_show?\n\nIn the current AV1 encoder, cm-\u003eframe_to_show here for (show_existing_frame \u003d\u003d 1) either points to a reference frame in the reference frame buffer that is acted as BWDREF_FRAME or ALTREF_FRAME. Should we just keep \u0027buf_8bit_valid\u0027 as is so that if it is set to \u00271\u0027, the corresponding reference frame can be used as a reference to provide global motion vectors?",
+      "revId": "8a6a286bdd91a99027839ea83bfc5639e3298535",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "54e94691_32880082",
+        "filename": "av1/encoder/global_motion.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 248,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-08-02T18:46:34Z",
+      "side": 1,
+      "message": "Could not find out where frm-\u003ey_buffer_8bit, i.e. buf_8bit got its memory allocated ...",
+      "revId": "8a6a286bdd91a99027839ea83bfc5639e3298535",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
