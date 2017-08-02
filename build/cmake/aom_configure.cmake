@@ -255,14 +255,6 @@ if (CONFIG_VAR_TX_NO_TX_MODE AND NOT CONFIG_VAR_TX)
    set(CONFIG_VAR_TX_NO_TX_MODE 0)
 endif()
 
-if (CONFIG_DAALA_DCT4)
-  if (NOT CONFIG_DCT_ONLY)
-     message(WARNING
-       "--- Enabled CONFIG_DCT_ONLY, needed for CONFIG_DAALA_DCT4.")
-     set(CONFIG_DCT_ONLY 1)
-   endif()
-endif()
-
 if (CONFIG_DAALA_DCT64)
   if (NOT CONFIG_TX64X64)
      message(WARNING
