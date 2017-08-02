@@ -2433,6 +2433,11 @@ static const aom_prob default_intra_ext_tx_prob[EXT_TX_SIZES][TX_TYPES]
                                                    { 16, 128, 4, 8 },
                                                    { 16, 128, 248, 128 },
                                                    { 4, 1, 248, 128 } },
+                                                 { { 248, 128, 85, 128 },
+                                                   { 16, 128, 4, 248 },
+                                                   { 16, 128, 4, 8 },
+                                                   { 16, 128, 248, 128 },
+                                                   { 4, 1, 248, 128 } },
                                                };
 
 static const aom_prob default_inter_ext_tx_prob[EXT_TX_SIZES][TX_TYPES - 1] = {
@@ -2441,6 +2446,7 @@ static const aom_prob default_inter_ext_tx_prob[EXT_TX_SIZES][TX_TYPES - 1] = {
 #endif
   { 160, 1, 85, 128 },
   { 176, 1, 85, 128 },
+  { 192, 128, 85, 128 },
   { 192, 128, 85, 128 },
 };
 #else

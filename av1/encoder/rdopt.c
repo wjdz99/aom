@@ -2363,7 +2363,12 @@ int av1_tx_type_cost(const AV1_COMMON *cm, const MACROBLOCK *x,
 #else
   (void)bsize;
   (void)cm;
-  if (tx_size < TX_32X32 && !xd->lossless[xd->mi[0]->mbmi.segment_id] &&
+  int valid_tx_size = tx_size < TX_32X32;
+#if CONFIG_MRC_TX
+  valid_tx_size |= (tx_size == TX_32X32 &&
+                    tx_type_32x32_valid(mbmi->tx_type, is_inter_block(mbmi)));
+#endif  // CONFIG_MRC_TX
+  if (valid_tx_size && !xd->lossless[xd->mi[0]->mbmi.segment_id] &&
       !FIXED_TX_TYPE) {
     if (is_inter) {
       return x->inter_tx_type_costs[tx_size][tx_type];
@@ -2475,7 +2480,8 @@ static int skip_txfm_search(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bs,
     if (!ext_tx_used_intra[ext_tx_set][tx_type]) return 1;
   }
 #else   // CONFIG_EXT_TX
-  if (tx_size >= TX_32X32 && tx_type != DCT_DCT) return 1;
+  if (tx_size == TX_32X32 && !tx_type_32x32_valid(tx_type, is_inter)) return 1;
+  if (tx_size > TX_32X32 && tx_type != DCT_DCT) return 1;
   if (is_inter && cpi->sf.tx_type_search.prune_mode > NO_PRUNE &&
       !do_tx_type_search(tx_type, prune))
     return 1;
@@ -2601,9 +2607,17 @@ static void choose_largest_tx_size(const AV1_COMP *const cpi, MACROBLOCK *x,
                      cpi->sf.use_fast_coef_costing);
   }
 #else   // CONFIG_EXT_TX
+#if CONFIG_MRC_TX
+  if (mbmi->tx_size <= TX_32X32 && !xd->lossless[mbmi->segment_id]) {
+#else
   if (mbmi->tx_size < TX_32X32 && !xd->lossless[mbmi->segment_id]) {
+#endif  // CONFIG_MRC_TX
     for (tx_type = 0; tx_type < TX_TYPES; ++tx_type) {
       RD_STATS this_rd_stats;
+#if CONFIG_MRC_TX
+      if (mbmi->tx_size == TX_32X32 && !tx_type_32x32_valid(tx_type, is_inter))
+        continue;
+#endif  // CONFIG_MRC_TX
       if (!is_inter && x->use_default_intra_tx_type &&
           tx_type != get_default_tx_type(0, xd, 0, mbmi->tx_size))
         continue;
@@ -5149,7 +5163,12 @@ static int64_t select_tx_size_fix_type(const AV1_COMP *cpi, MACROBLOCK *x,
     }
   }
 #else
-  if (mbmi->min_tx_size < TX_32X32 && !xd->lossless[xd->mi[0]->mbmi.segment_id])
+  int valid_tx_size = tx_size < TX_32X32;
+#if CONFIG_MRC_TX
+  valid_tx_size |= (tx_size == TX_32X32 &&
+                    tx_type_32x32_valid(mbmi->tx_type, is_inter_block(mbmi)));
+#endif  // CONFIG_MRC_TX
+  if (valid_tx_size && !xd->lossless[xd->mi[0]->mbmi.segment_id])
     rd_stats->rate += x->inter_tx_type_costs[mbmi->min_tx_size][mbmi->tx_type];
 #endif  // CONFIG_EXT_TX
 #endif  // CONFIG_TXK_SEL
