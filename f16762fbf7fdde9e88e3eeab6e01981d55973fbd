@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8c6fae66_8158468e",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2017-08-02T18:09:00Z",
+      "side": 1,
+      "message": "Does this change performance at all?",
+      "range": {
+        "startLine": 13,
+        "startChar": 2,
+        "endLine": 16,
+        "endChar": 66
+      },
+      "revId": "f16762fbf7fdde9e88e3eeab6e01981d55973fbd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b0f38a8f_d7d37c55",
+        "filename": "av1/common/entropy.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 5731,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2017-08-02T18:09:00Z",
+      "side": 1,
+      "message": "This is the only place where you don\u0027t add a comment at the #endif, maybe add it for consistency.",
+      "range": {
+        "startLine": 5731,
+        "startChar": 0,
+        "endLine": 5731,
+        "endChar": 6
+      },
+      "revId": "f16762fbf7fdde9e88e3eeab6e01981d55973fbd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
