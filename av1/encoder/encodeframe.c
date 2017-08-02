@@ -7276,7 +7276,12 @@ static void rd_supertx_sb(const AV1_COMP *const cpi, ThreadData *td,
             x->inter_tx_type_costs[ext_tx_set][mbmi->tx_size][mbmi->tx_type];
     }
 #else
-    if (tx_size < TX_32X32 && !xd->lossless[xd->mi[0]->mbmi.segment_id] &&
+    int valid_tx_size = tx_size < TX_32X32;
+#if CONFIG_MRC_TX
+    valid_tx_size |= (tx_size == TX_32X32 &&
+                      tx_type_32x32_valid(mbmi->tx_type, 1));
+#endif  // CONFIG_MRC_TX
+    if (valid_tx_size && !xd->lossless[xd->mi[0]->mbmi.segment_id] &&
         this_rate != INT_MAX) {
       this_rate += x->inter_tx_type_costs[tx_size][mbmi->tx_type];
     }
