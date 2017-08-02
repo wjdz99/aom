@@ -10,9 +10,9 @@
  */
 
 #include "./av1_rtcd.h"
-#include "./cdef_simd.h"
 #include "aom_ports/bitops.h"
 #include "aom_ports/mem.h"
+#include "av1/common/cdef_block_simd.h"
 
 // sign(a - b) * min(abs(a - b), max(0, strength - (abs(a - b) >> adjdamp)))
 SIMD_INLINE v128 constrain(v256 a, v256 b, unsigned int strength,
