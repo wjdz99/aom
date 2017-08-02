@@ -4203,7 +4203,7 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
           : NULL;
   int palette_y_mode_ctx = 0;
   const int try_palette =
-      cpi->common.allow_screen_content_tools && bsize >= BLOCK_8X8;
+      cpi->common.allow_screen_content_tools && bsize >= BLOCK_8X8 && bsize <= BLOCK_LARGEST;
 #endif  // CONFIG_PALETTE
   const MODE_INFO *above_mi = xd->above_mi;
   const MODE_INFO *left_mi = xd->left_mi;
@@ -5934,6 +5934,8 @@ static int64_t rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
 #endif  // CONFIG_PVQ
 #if CONFIG_PALETTE
   PALETTE_MODE_INFO *const pmi = &mbmi->palette_mode_info;
+  const int try_palette =
+      cpi->common.allow_screen_content_tools && bsize >= BLOCK_8X8 && bsize <= BLOCK_LARGEST;
 #endif  // CONFIG_PALETTE
 
   for (int mode_idx = 0; mode_idx < UV_INTRA_MODES; ++mode_idx) {
@@ -5995,8 +5997,7 @@ static int64_t rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
       this_rate += av1_cost_bit(cpi->common.fc->filter_intra_probs[1], 0);
 #endif  // CONFIG_FILTER_INTRA
 #if CONFIG_PALETTE
-    if (cpi->common.allow_screen_content_tools && mbmi->sb_type >= BLOCK_8X8 &&
-        mode == UV_DC_PRED)
+    if (try_palette && mode == UV_DC_PRED)
       this_rate += av1_cost_bit(
           av1_default_palette_uv_mode_prob[pmi->palette_size[0] > 0], 0);
 #endif  // CONFIG_PALETTE
@@ -6017,7 +6018,7 @@ static int64_t rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   }
 
 #if CONFIG_PALETTE
-  if (cpi->common.allow_screen_content_tools && mbmi->sb_type >= BLOCK_8X8) {
+  if (try_palette) {
     uint8_t *best_palette_color_map = x->palette_buffer->best_palette_color_map;
     rd_pick_palette_intra_sbuv(cpi, x,
                                x->intra_uv_mode_cost[mbmi->mode][UV_DC_PRED],
@@ -10022,6 +10023,8 @@ static void pick_filter_intra_interframe(
   MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
 #if CONFIG_PALETTE
   PALETTE_MODE_INFO *const pmi = &mbmi->palette_mode_info;
+  const int try_palette =
+      cpi->common.allow_screen_content_tools && bsize >= BLOCK_8X8 && bsize <= BLOCK_LARGEST;
 #endif  // CONFIG_PALETTE
   int rate2 = 0, rate_y = INT_MAX, skippable = 0, rate_uv, rate_dummy, i;
   int dc_mode_index;
@@ -10090,8 +10093,7 @@ static void pick_filter_intra_interframe(
   rate2 = rate_y + intra_mode_cost[mbmi->mode] + rate_uv +
           x->intra_uv_mode_cost[mbmi->mode][mbmi->uv_mode];
 #if CONFIG_PALETTE
-  if (cpi->common.allow_screen_content_tools && mbmi->mode == DC_PRED &&
-      bsize >= BLOCK_8X8)
+  if (try_palette && mbmi->mode == DC_PRED)
     rate2 += av1_cost_bit(
         av1_default_palette_y_mode_prob[bsize - BLOCK_8X8][palette_ctx], 0);
 #endif  // CONFIG_PALETTE
