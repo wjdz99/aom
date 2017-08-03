@@ -1280,6 +1280,19 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
       ctx->pending_cx_data = NULL;
       ctx->pending_cx_data_sz = 0;
       ctx->pending_frame_count = 0;
+
+      // If the show_existing_frame flag is set, the frame has already been
+      // flushed and the av1_twopass_postencode_update function already
+      // incremented gf group index.
+      // The loop must exit, or else the superframe might contain multiple
+      // shown frames. This causes a mismatch in the test_decode function in
+      // that av1_cx_iface.c:ctrl_get_new_frame_image will return the frame at
+      // last_show_frame_buf_idx whereas,
+      // av1_dx_iface.c:ctrl_get_new_frame_image will return cm->frame_to_show
+      if (cpi->common.show_existing_frame) {
+        cpi->common.show_existing_frame = 0;
+        break;
+      }
     }
   }
 
