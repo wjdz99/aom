@@ -5712,7 +5712,6 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
     // Clear down mmx registers
     aom_clear_system_state();
 
-    cm->show_existing_frame = 0;
     return 0;
   }
 #endif  // CONFIG_EXT_REFS && !CONFIG_XIPHRC
