@@ -2206,8 +2206,13 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
             (i >= active_min_gf_interval + arf_active_or_kf) &&
             (!flash_detected) &&
             ((mv_ratio_accumulator > mv_ratio_accumulator_thresh) ||
+#if 1
              (abs_mv_in_out_accumulator > 3.0) ||
              (mv_in_out_accumulator < -2.0) ||
+#else
+             (abs_mv_in_out_accumulator > 4.0) ||
+             (mv_in_out_accumulator > 3.0) || (mv_in_out_accumulator < -4.0) ||
+#endif
              ((boost_score - old_boost_score) < BOOST_BREAKOUT)))) {
       boost_score = old_boost_score;
       break;
@@ -2243,6 +2248,18 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   // Set the interval until the next gf.
   rc->baseline_gf_interval = i - (is_key_frame || rc->source_alt_ref_pending);
 #if CONFIG_EXT_REFS
+
+#if 1
+  FILE *f;
+  printf("Frame=%d\n", cm->current_video_frame);
+  if (cm->current_video_frame == 0)
+    f = fopen("base_interval.stt", "wb");
+  else
+    f = fopen("base_interval.stt", "ab");
+  fwrite(&rc->baseline_gf_interval, sizeof(rc->baseline_gf_interval), 1, f);
+  fclose(f);
+#endif
+
 #if CONFIG_FLEX_REFS
   const int num_mbs = (cpi->oxcf.resize_mode != RESIZE_NONE) ? cpi->initial_mbs
                                                              : cpi->common.MBs;
