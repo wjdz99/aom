@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "57968d75_0224ebec",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5975
+      },
+      "writtenOn": "2017-08-03T16:18:48Z",
+      "side": 1,
+      "message": "This change refers only to the decoder (the encoder calls the mv prediction functions once per block, before picking modes, so doesn\u0027t have an equivalent condition). So all this should be able to affect is encode/decode mismatches or decoder crashes. I haven\u0027t been able to hit any, but this seems like the correct thing to do regardless.\n\nThat said, I\u0027ve just added in another change, so I might as well kick off an AWCY run just to check that this doesn\u0027t break anything.",
+      "parentUuid": "8c6fae66_8158468e",
+      "range": {
+        "startLine": 13,
+        "startChar": 2,
+        "endLine": 16,
+        "endChar": 66
+      },
+      "revId": "f16762fbf7fdde9e88e3eeab6e01981d55973fbd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b0f38a8f_d7d37c55",
         "filename": "av1/common/entropy.c",
         "patchSetId": 4
@@ -36,6 +60,30 @@
       "writtenOn": "2017-08-02T18:09:00Z",
       "side": 1,
       "message": "This is the only place where you don\u0027t add a comment at the #endif, maybe add it for consistency.",
+      "range": {
+        "startLine": 5731,
+        "startChar": 0,
+        "endLine": 5731,
+        "endChar": 6
+      },
+      "revId": "f16762fbf7fdde9e88e3eeab6e01981d55973fbd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "00eb1f0c_61cf1c7f",
+        "filename": "av1/common/entropy.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 5731,
+      "author": {
+        "id": 5975
+      },
+      "writtenOn": "2017-08-03T16:18:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b0f38a8f_d7d37c55",
       "range": {
         "startLine": 5731,
         "startChar": 0,
