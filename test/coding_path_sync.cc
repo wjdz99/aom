@@ -126,11 +126,7 @@ class Decoder {
 };
 
 // Try to reveal a mismatch between LBD and HBD coding paths.
-TEST(DISABLED_CodingPathSync, SearchForHbdLbdMismatch) {
-  // disable test. Re-enable it locally to help diagnosing LBD/HBD mismatches.
-  // This test should be re-enabled once both coding paths match,
-  // so they don't diverge anymore.
-
+TEST(CodingPathSync, SearchForHbdLbdMismatch) {
   const int count_tests = 100;
   for (int i = 0; i < count_tests; ++i) {
     Decoder dec_hbd(0);
@@ -138,7 +134,19 @@ TEST(DISABLED_CodingPathSync, SearchForHbdLbdMismatch) {
 
     CompressedSource enc(i);
     const aom_codec_cx_pkt_t *frame = enc.ReadFrame();
-    ASSERT_EQ(dec_lbd.decode(frame), dec_hbd.decode(frame));
+
+    // disable the comparison for now.
+    // Re-enable it locally to help diagnosing LBD/HBD mismatches,
+    // and re-enable for everybody when both coding paths match,
+    // so they don't diverge anymore.
+    if (0) {
+      ASSERT_EQ(dec_lbd.decode(frame), dec_hbd.decode(frame));
+    } else {
+      // until the comparison is re-enabled, keep doing the decoding,
+      // as it still detects decoder crashes (Issue 677)
+      dec_lbd.decode(frame);
+      dec_hbd.decode(frame);
+    }
   }
 }
 
