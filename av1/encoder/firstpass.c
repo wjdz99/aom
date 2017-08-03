@@ -67,6 +67,8 @@
 
 #define DOUBLE_DIVIDE_CHECK(x) ((x) < 0 ? (x)-0.000001 : (x) + 0.000001)
 
+#define LONG_ZOOMIN_INTERVAL 1
+
 #if ARF_STATS_OUTPUT
 unsigned int arf_count = 0;
 #endif
@@ -2206,8 +2208,13 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
             (i >= active_min_gf_interval + arf_active_or_kf) &&
             (!flash_detected) &&
             ((mv_ratio_accumulator > mv_ratio_accumulator_thresh) ||
+#if LONG_ZOOMIN_INTERVAL
+             (abs_mv_in_out_accumulator > 4.0) ||
+             (mv_in_out_accumulator > 3.0) || (mv_in_out_accumulator < -4.0) ||
+#else
              (abs_mv_in_out_accumulator > 3.0) ||
              (mv_in_out_accumulator < -2.0) ||
+#endif
              ((boost_score - old_boost_score) < BOOST_BREAKOUT)))) {
       boost_score = old_boost_score;
       break;
@@ -2243,6 +2250,7 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   // Set the interval until the next gf.
   rc->baseline_gf_interval = i - (is_key_frame || rc->source_alt_ref_pending);
 #if CONFIG_EXT_REFS
+
 #if CONFIG_FLEX_REFS
   const int num_mbs = (cpi->oxcf.resize_mode != RESIZE_NONE) ? cpi->initial_mbs
                                                              : cpi->common.MBs;
