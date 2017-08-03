@@ -22,6 +22,30 @@
       "revId": "43e6a2361e512ba0d7c0a8dd9df73e66b5e05e77",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0ef66342_6cb6eea8",
+        "filename": "test/coding_path_sync.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-08-03T18:52:15Z",
+      "side": 1,
+      "message": "sorry, this is correct. Ignore previous comment.",
+      "parentUuid": "c63963f4_1acc8548",
+      "range": {
+        "startLine": 115,
+        "startChar": 21,
+        "endLine": 115,
+        "endChar": 35
+      },
+      "revId": "43e6a2361e512ba0d7c0a8dd9df73e66b5e05e77",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
