@@ -65,6 +65,8 @@
   } while (0)
 #endif
 
+#define BOOST_ALTREF 1
+
 // Tables relating active max Q to active min Q
 static int kf_low_motion_minq_8[QINDEX_RANGE];
 static int kf_high_motion_minq_8[QINDEX_RANGE];
@@ -926,8 +928,12 @@ int av1_frame_type_qdelta(const AV1_COMP *cpi, int rf_level, int q) {
 #else
     1.00,  // INTER_HIGH
     1.50,  // GF_ARF_LOW
-#endif     // CONFIG_EXT_REFS
+#endif  // CONFIG_EXTREFS
+#if BOOST_ALTREF
+    2.25,  // GF_ARF_STD
+#else
     2.00,  // GF_ARF_STD
+#endif
     2.00,  // KF_STD
   };
   static const FRAME_TYPE frame_type[RATE_FACTOR_LEVELS] =
