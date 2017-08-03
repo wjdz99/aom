@@ -2962,8 +2962,10 @@ int av1_update_entropy(AV1_COMP *cpi, int update) {
 }
 
 #if defined(OUTPUT_YUV_DENOISED) || defined(OUTPUT_YUV_SKINMAP)
-// The denoiser buffer is allocated as a YUV 440 buffer. This function writes it
-// as YUV 420. We simply use the top-left pixels of the UV buffers, since we do
+// The denoiser buffer is allocated as a YUV 440 buffer. This function writes
+// it
+// as YUV 420. We simply use the top-left pixels of the UV buffers, since we
+// do
 // not denoise the UV channels at this time. If ever we implement UV channel
 // denoising we will have to modify this.
 void aom_write_yuv_frame_420(YV12_BUFFER_CONFIG *s, FILE *f) {
@@ -3117,7 +3119,8 @@ static int recode_loop_test(AV1_COMP *cpi, int high_limit, int low_limit, int q,
   if ((rc->projected_frame_size >= rc->max_frame_bandwidth) ||
       (cpi->sf.recode_loop == ALLOW_RECODE) ||
       (frame_is_kfgfarf && (cpi->sf.recode_loop == ALLOW_RECODE_KFARFGF))) {
-    // TODO(agrange) high_limit could be greater than the scale-down threshold.
+    // TODO(agrange) high_limit could be greater than the scale-down
+    // threshold.
     if ((rc->projected_frame_size > high_limit && q < maxq) ||
         (rc->projected_frame_size < low_limit && q > minq)) {
       force_recode = 1;
@@ -3212,7 +3215,8 @@ static void enc_check_valid_ref_frames(AV1_COMP *const cpi) {
   MV_REFERENCE_FRAME ref_frame;
 
   // TODO(zoeliu): To handle ALTREF_FRAME the same way as do with other
-  //               reference frames. Current encoder invalid ALTREF when ALTREF
+  //               reference frames. Current encoder invalid ALTREF when
+  //               ALTREF
   //               is the same as LAST, but invalid all the other references
   //               when they are the same as ALTREF.
   for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
@@ -3267,9 +3271,11 @@ void av1_update_reference_frames(AV1_COMP *cpi) {
     // av1_bitstream.c::get_refresh_mask() we left it in the GF slot and, if
     // we're updating the GF with the current decoded frame, we save it to the
     // ARF slot instead.
-    // We now have to update the ARF with the current frame and swap gld_fb_idx
+    // We now have to update the ARF with the current frame and swap
+    // gld_fb_idx
     // and alt_fb_idx so that, overall, we've stored the old GF in the new ARF
-    // slot and, if we're updating the GF, the current frame becomes the new GF.
+    // slot and, if we're updating the GF, the current frame becomes the new
+    // GF.
     int tmp;
 
     ref_cnt_fb(pool->frame_bufs, &cm->ref_frame_map[cpi->alt_fb_idx],
@@ -3365,7 +3371,8 @@ void av1_update_reference_frames(AV1_COMP *cpi) {
   if (cpi->refresh_last_frame) {
 #if CONFIG_EXT_REFS
     // NOTE(zoeliu): We have two layers of mapping (1) from the per-frame
-    // reference to the reference frame buffer virtual index; and then (2) from
+    // reference to the reference frame buffer virtual index; and then (2)
+    // from
     // the virtual index to the reference frame buffer physical index:
     //
     // LAST_FRAME,      ..., LAST3_FRAME,     ..., ALTREF_FRAME
@@ -3381,7 +3388,8 @@ void av1_update_reference_frames(AV1_COMP *cpi) {
     // LAST_FRAME -> LAST2_FRAME -> LAST3_FRAME
     // , and then have LAST_FRAME refreshed by the newly coded frame.
     //
-    // To fulfill it, the decoder will be notified to execute following 2 steps:
+    // To fulfill it, the decoder will be notified to execute following 2
+    // steps:
     //
     // (a) To change ref_frame_map[] and have the virtual index of LAST3_FRAME
     //     to point to the newly coded frame, i.e.
@@ -3432,8 +3440,10 @@ void av1_update_reference_frames(AV1_COMP *cpi) {
         // Refresh the LAST_FRAME with the BWDREF_FRAME and retire the
         // LAST3_FRAME by updating the virtual indices.
         //
-        // NOTE: The source frame for BWDREF does not have a holding position as
-        //       the OVERLAY frame for ALTREF's. Hence, to resolve the reference
+        // NOTE: The source frame for BWDREF does not have a holding position
+        // as
+        //       the OVERLAY frame for ALTREF's. Hence, to resolve the
+        //       reference
         //       virtual index reshuffling for BWDREF, the encoder always
         //       specifies a LAST_BIPRED right before BWDREF and completes the
         //       reshuffling job accordingly.
@@ -3574,7 +3584,8 @@ static void release_scaled_references(AV1_COMP *cpi) {
   int i;
   if (cpi->oxcf.pass == 0) {
     // Only release scaled references under certain conditions:
-    // if reference will be updated, or if scaled reference has same resolution.
+    // if reference will be updated, or if scaled reference has same
+    // resolution.
     int refresh[INTER_REFS_PER_FRAME];
     refresh[0] = (cpi->refresh_last_frame) ? 1 : 0;
 #if CONFIG_EXT_REFS
@@ -3940,7 +3951,8 @@ static void superres_post_encode(AV1_COMP *cpi) {
   } else {
     assert(cpi->unscaled_source->y_crop_width != cm->superres_upscaled_width);
     assert(cpi->unscaled_source->y_crop_height != cm->superres_upscaled_height);
-    // Do downscale. cm->(width|height) has been updated by av1_superres_upscale
+    // Do downscale. cm->(width|height) has been updated by
+    // av1_superres_upscale
     if (aom_realloc_frame_buffer(
             &cpi->scaled_source, cm->superres_upscaled_width,
             cm->superres_upscaled_height, cm->subsampling_x, cm->subsampling_y,
@@ -4347,6 +4359,8 @@ static void encode_with_recode_loop(AV1_COMP *cpi, size_t *size,
       ++loop_count;
       ++loop_at_this_size;
 
+      printf("Reencode===================\n");
+
 #if CONFIG_INTERNAL_STATS
       ++cpi->tot_recode_hits;
 #endif
@@ -4629,7 +4643,8 @@ static void encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
   // NOTE:
   // (1) Move the setup of the ref_frame_flags upfront as it would be
   //     determined by the current frame properties;
-  // (2) The setup of the ref_frame_flags applies to both show_existing_frame's
+  // (2) The setup of the ref_frame_flags applies to both
+  // show_existing_frame's
   //     and the other cases.
   if (cm->current_video_frame > 0)
     cpi->ref_frame_flags = get_ref_frame_flags(cpi);
@@ -5058,8 +5073,10 @@ static void Pass2Encode(AV1_COMP *cpi, size_t *size, uint8_t *dest,
   encode_frame_to_data_rate(cpi, size, dest, 0, frame_flags);
 
 #if CONFIG_EXT_REFS
-  // Do not do post-encoding update for those frames that do not have a spot in
-  // a gf group, but note that an OVERLAY frame always has a spot in a gf group,
+  // Do not do post-encoding update for those frames that do not have a spot
+  // in
+  // a gf group, but note that an OVERLAY frame always has a spot in a gf
+  // group,
   // even when show_existing_frame is used.
   if (!cpi->common.show_existing_frame || cpi->rc.is_src_frame_alt_ref) {
     av1_twopass_postencode_update(cpi);
@@ -5466,7 +5483,8 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
     // We need to adjust frame rate for an overlay frame
     if (cpi->rc.is_src_frame_alt_ref) adjust_frame_rate(cpi, source);
 
-    // Find a free buffer for the new frame, releasing the reference previously
+    // Find a free buffer for the new frame, releasing the reference
+    // previously
     // held.
     if (cm->new_fb_idx != INVALID_IDX) {
       --pool->frame_bufs[cm->new_fb_idx].ref_count;
@@ -5593,7 +5611,6 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
     *time_stamp = source->ts_start;
     *time_end = source->ts_end;
     *frame_flags = (source->flags & AOM_EFLAG_FORCE_KF) ? FRAMEFLAGS_KEY : 0;
-
   } else {
     *size = 0;
     if (flush && oxcf->pass == 1 && !cpi->twopass.first_pass_done) {

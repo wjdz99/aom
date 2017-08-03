@@ -2312,7 +2312,8 @@ static void enc_dump_logs(AV1_COMP *cpi, int mi_row, int mi_col) {
   m = xd->mi[0];
   if (is_inter_block(&m->mbmi)) {
 #define FRAME_TO_CHECK 1
-    if (cm->current_video_frame == FRAME_TO_CHECK /* && cm->show_frame == 1*/) {
+    if (cm->current_video_frame == FRAME_TO_CHECK
+        /* && cm->show_frame == 1*/) {
       const MB_MODE_INFO *const mbmi = &m->mbmi;
       const BLOCK_SIZE bsize = mbmi->sb_type;
 

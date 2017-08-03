@@ -2248,7 +2248,6 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
 
   read_ref_frames(cm, xd, r, mbmi->segment_id, mbmi->ref_frame);
   is_compound = has_second_ref(mbmi);
-
 #if CONFIG_EXT_COMP_REFS
 #if !USE_UNI_COMP_REFS
   // NOTE: uni-directional comp refs disabled
