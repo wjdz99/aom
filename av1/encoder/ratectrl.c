@@ -926,7 +926,7 @@ int av1_frame_type_qdelta(const AV1_COMP *cpi, int rf_level, int q) {
 #else
     1.00,  // INTER_HIGH
     1.50,  // GF_ARF_LOW
-#endif     // CONFIG_EXT_REFS
+#endif     // CONFIG_EXTREFS
     2.00,  // GF_ARF_STD
     2.00,  // KF_STD
   };

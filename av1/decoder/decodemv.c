@@ -2185,7 +2185,8 @@ static void dec_dump_logs(AV1_COMMON *cm, MODE_INFO *const mi,
 
   int8_t ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
 #define FRAME_TO_CHECK 1
-  if (cm->current_video_frame == FRAME_TO_CHECK /*&& cm->show_frame == 0*/) {
+  if (cm->current_video_frame == FRAME_TO_CHECK
+      /*&& cm->show_frame == 0*/) {
     printf(
         "=== DECODER ===: "
         "Frame=%d, (mi_row,mi_col)=(%d,%d), mode=%d, bsize=%d, "
@@ -2248,7 +2249,6 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
 
   read_ref_frames(cm, xd, r, mbmi->segment_id, mbmi->ref_frame);
   is_compound = has_second_ref(mbmi);
-
 #if CONFIG_EXT_COMP_REFS
 #if !USE_UNI_COMP_REFS
   // NOTE: uni-directional comp refs disabled

@@ -67,6 +67,8 @@
 
 #define DOUBLE_DIVIDE_CHECK(x) ((x) < 0 ? (x)-0.000001 : (x) + 0.000001)
 
+#define FIX_INTERVAL 1
+
 #if ARF_STATS_OUTPUT
 unsigned int arf_count = 0;
 #endif
@@ -2209,8 +2211,14 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
              (abs_mv_in_out_accumulator > 3.0) ||
              (mv_in_out_accumulator < -2.0) ||
              ((boost_score - old_boost_score) < BOOST_BREAKOUT)))) {
-      boost_score = old_boost_score;
-      break;
+#if FIX_INTERVAL
+      if (i == 9 || i >= 13) {
+#endif  // FIX_INTERVAL
+        boost_score = old_boost_score;
+        break;
+#if FIX_INTERVAL
+      }
+#endif  // FIX_INTERVAL
     }
 
     *this_frame = next_frame;
@@ -2263,6 +2271,7 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
        avg_raw_err_stdev < MAX_RAW_ERR_VAR);
 
   if (disable_bwd_extarf) cpi->extra_arf_allowed = cpi->bwd_ref_allowed = 0;
+  //  if (1) cpi->extra_arf_allowed = cpi->bwd_ref_allowed = 0;
 
   if (!cpi->extra_arf_allowed)
     cpi->num_extra_arfs = 0;
