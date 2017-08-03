@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "85eca9e4_f1df9987",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2017-08-03T23:14:47Z",
+      "side": 1,
+      "message": "Thanks.",
+      "parentUuid": "a45fdd8c_cc76a8f8",
+      "range": {
+        "startLine": 7,
+        "startChar": 5,
+        "endLine": 7,
+        "endChar": 16
+      },
+      "revId": "aae97e5fa65a37eb8bbfd8f79b6dd0d03dd3424b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "1432f221_72d30036",
         "filename": "av1/encoder/encodeframe.c",
         "patchSetId": 1
@@ -36,6 +60,24 @@
       "writtenOn": "2017-08-03T22:56:15Z",
       "side": 1,
       "message": "some of this could be factored to a local int which accumulates the test since there\u0027s a common base",
+      "revId": "aae97e5fa65a37eb8bbfd8f79b6dd0d03dd3424b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "354cd719_e0a1a767",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1858,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2017-08-03T23:14:47Z",
+      "side": 1,
+      "message": "Good idea. Please see the new patch.",
+      "parentUuid": "1432f221_72d30036",
       "revId": "aae97e5fa65a37eb8bbfd8f79b6dd0d03dd3424b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
