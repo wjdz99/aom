@@ -140,6 +140,30 @@
       "revId": "cf93f58e3362079c6518f1a849d720ad281dc5b7",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0102e29c_58b5cb0e",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1009,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-08-03T19:03:30Z",
+      "side": 1,
+      "message": "I meant make sure that you want \"- diff16\" rather than \"+ diff16\" in your computation. I don\u0027t have the context to check that myself.",
+      "parentUuid": "16a69439_431d7a7e",
+      "range": {
+        "startLine": 1009,
+        "startChar": 49,
+        "endLine": 1009,
+        "endChar": 55
+      },
+      "revId": "cf93f58e3362079c6518f1a849d720ad281dc5b7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
