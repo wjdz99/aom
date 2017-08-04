@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "7ef43b72_d3d44aa2",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1255,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-08-04T18:11:44Z",
+      "side": 1,
+      "message": "Yes it relevant, when the loop continues, it causes a mismatch in the test_decode function, as it is the caller of this function.\n\nConcretely, after encoder_encode() the test_decode function will also decode the content and obtain the reconstructed frames using the functions av1_cx_iface.c:ctrl_get_new_frame_image and av1_dx_iface.c:ctrl_get_new_frame_image.\n\nThe function av1_cx_iface.c:ctrl_get_new_frame_image will return the frame at\nlast_show_frame_buf_idx whereas, the function av1_dx_iface.c:ctrl_get_new_frame_image\nwill return cm-\u003eframe_to_show. If the current loop does not exit, these frames will not match.\n\nThis can be reproduced by following the instructions in https://bugs.chromium.org/p/aomedia/issues/detail?id\u003d669\n\nAnother solution could be to make functions av1_cx_iface.c:ctrl_get_new_frame_image and av1_dx_iface.c:ctrl_get_new_frame_image return the same frame.",
+      "parentUuid": "6479ebe2_5f58dcde",
+      "revId": "da01fcf33956031777b59e4f7d39df0b4854a3ee",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9c42cda4_37ffee19",
         "filename": "av1/av1_cx_iface.c",
         "patchSetId": 2
