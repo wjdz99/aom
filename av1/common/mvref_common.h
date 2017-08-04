@@ -19,6 +19,8 @@ extern "C" {
 #endif
 
 #define MVREF_NEIGHBOURS 9
+#define MVREF_ROWS 3
+#define MVREF_COLS 4
 
 typedef struct position {
   int row;
