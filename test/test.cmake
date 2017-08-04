@@ -277,6 +277,7 @@ if (NOT BUILD_SHARED_LIBS)
         "${AOM_ROOT}/test/binary_codes_test.cc"
         "${AOM_ROOT}/test/divu_small_test.cc"
         "${AOM_ROOT}/test/ethread_test.cc"
+        "${AOM_ROOT}/test/coding_path_sync.cc"
         "${AOM_ROOT}/test/idct8x8_test.cc"
         "${AOM_ROOT}/test/partial_idct_test.cc"
         "${AOM_ROOT}/test/superframe_test.cc"
