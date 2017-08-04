@@ -50,8 +50,21 @@ static int64_t try_filter_frame(const YV12_BUFFER_CONFIG *sd,
 #if CONFIG_VAR_TX || CONFIG_EXT_PARTITION || CONFIG_CB4X4
 #if CONFIG_UV_LVL
   int filter_level[2] = { filt_level, filt_level };
-  if (plane == 0 && dir == 0) filter_level[1] = cm->lf.filter_level[1];
-  if (plane == 0 && dir == 1) filter_level[0] = cm->lf.filter_level[0];
+  if (dir == 0) {
+    switch (plane) {
+      case 0: filter_level[1] = cm->lf.filter_level[1]; break;
+      case 1: filter_level[1] = cm->lf.filter_level_u[1]; break;
+      case 2: filter_level[1] = cm->lf.filter_level_v[1]; break;
+      default: assert(plane >= 0 && plane <= 2); return 0;
+    }
+  } else if (dir == 1) {
+    switch (plane) {
+      case 0: filter_level[0] = cm->lf.filter_level[0]; break;
+      case 1: filter_level[0] = cm->lf.filter_level_u[0]; break;
+      case 2: filter_level[0] = cm->lf.filter_level_v[0]; break;
+      default: assert(plane >= 0 && plane <= 2); return 0;
+    }
+  }
 
   av1_loop_filter_frame(cm->frame_to_show, cm, &cpi->td.mb.e_mbd,
                         filter_level[0], filter_level[1], plane, partial_frame);
@@ -142,8 +155,12 @@ int av1_search_filter_level(const YV12_BUFFER_CONFIG *sd, AV1_COMP *cpi,
   int lvl;
   switch (plane) {
     case 0: lvl = (dir == 1) ? lf->filter_level[1] : lf->filter_level[0]; break;
-    case 1: lvl = lf->filter_level_u; break;
-    case 2: lvl = lf->filter_level_v; break;
+    case 1:
+      lvl = (dir == 1) ? lf->filter_level_u[1] : lf->filter_level_u[0];
+      break;
+    case 2:
+      lvl = (dir == 1) ? lf->filter_level_v[1] : lf->filter_level_v[0];
+      break;
     default:
       lvl = lf->filter_level[0];
       exit(0);
@@ -299,6 +316,7 @@ void av1_pick_filter_level(const YV12_BUFFER_CONFIG *sd, AV1_COMP *cpi,
 #endif
   } else {
 #if CONFIG_UV_LVL
+    // pick horizontal and vertical filter level for Y
     lf->filter_level[0] = lf->filter_level[1] = av1_search_filter_level(
         sd, cpi, method == LPF_PICK_FROM_SUBIMAGE, NULL, 0, 2);
     lf->filter_level[0] = av1_search_filter_level(
@@ -306,10 +324,21 @@ void av1_pick_filter_level(const YV12_BUFFER_CONFIG *sd, AV1_COMP *cpi,
     lf->filter_level[1] = av1_search_filter_level(
         sd, cpi, method == LPF_PICK_FROM_SUBIMAGE, NULL, 0, 1);
 
-    lf->filter_level_u = av1_search_filter_level(
+    // pick horizontal and vertical filter level for U
+    lf->filter_level_u[0] = lf->filter_level_u[1] = av1_search_filter_level(
+        sd, cpi, method == LPF_PICK_FROM_SUBIMAGE, NULL, 1, 2);
+    lf->filter_level_u[0] = av1_search_filter_level(
         sd, cpi, method == LPF_PICK_FROM_SUBIMAGE, NULL, 1, 0);
-    lf->filter_level_v = av1_search_filter_level(
+    lf->filter_level_u[1] = av1_search_filter_level(
+        sd, cpi, method == LPF_PICK_FROM_SUBIMAGE, NULL, 1, 1);
+
+    // pick horizontal and vertical filter level for V
+    lf->filter_level_v[0] = lf->filter_level_v[1] = av1_search_filter_level(
+        sd, cpi, method == LPF_PICK_FROM_SUBIMAGE, NULL, 2, 2);
+    lf->filter_level_v[0] = av1_search_filter_level(
         sd, cpi, method == LPF_PICK_FROM_SUBIMAGE, NULL, 2, 0);
+    lf->filter_level_v[1] = av1_search_filter_level(
+        sd, cpi, method == LPF_PICK_FROM_SUBIMAGE, NULL, 2, 1);
 #else
     lf->filter_level = av1_search_filter_level(
         sd, cpi, method == LPF_PICK_FROM_SUBIMAGE, NULL);

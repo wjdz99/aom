@@ -3384,8 +3384,10 @@ static void encode_loopfilter(AV1_COMMON *cm, struct aom_write_bit_buffer *wb) {
   aom_wb_write_literal(wb, lf->filter_level[0], 6);
   aom_wb_write_literal(wb, lf->filter_level[1], 6);
   if (lf->filter_level[0] || lf->filter_level[1]) {
-    aom_wb_write_literal(wb, lf->filter_level_u, 6);
-    aom_wb_write_literal(wb, lf->filter_level_v, 6);
+    aom_wb_write_literal(wb, lf->filter_level_u[0], 6);
+    aom_wb_write_literal(wb, lf->filter_level_u[1], 6);
+    aom_wb_write_literal(wb, lf->filter_level_v[0], 6);
+    aom_wb_write_literal(wb, lf->filter_level_v[1], 6);
   }
 #else
   aom_wb_write_literal(wb, lf->filter_level, 6);

@@ -38,8 +38,8 @@ enum lf_path {
 struct loopfilter {
 #if CONFIG_UV_LVL
   int filter_level[2];
-  int filter_level_u;
-  int filter_level_v;
+  int filter_level_u[2];
+  int filter_level_v[2];
 #else
   int filter_level;
 #endif

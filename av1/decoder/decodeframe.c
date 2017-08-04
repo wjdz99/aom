@@ -2987,8 +2987,10 @@ static void setup_loopfilter(AV1_COMMON *cm, struct aom_read_bit_buffer *rb) {
   lf->filter_level[0] = aom_rb_read_literal(rb, 6);
   lf->filter_level[1] = aom_rb_read_literal(rb, 6);
   if (lf->filter_level[0] || lf->filter_level[1]) {
-    lf->filter_level_u = aom_rb_read_literal(rb, 6);
-    lf->filter_level_v = aom_rb_read_literal(rb, 6);
+    lf->filter_level_u[0] = aom_rb_read_literal(rb, 6);
+    lf->filter_level_u[1] = aom_rb_read_literal(rb, 6);
+    lf->filter_level_v[0] = aom_rb_read_literal(rb, 6);
+    lf->filter_level_v[1] = aom_rb_read_literal(rb, 6);
   }
 #else
   lf->filter_level = aom_rb_read_literal(rb, 6);
@@ -3954,9 +3956,11 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
     av1_loop_filter_frame(get_frame_new_buffer(cm), cm, &pbi->mb,
                           cm->lf.filter_level[0], cm->lf.filter_level[1], 0, 0);
     av1_loop_filter_frame(get_frame_new_buffer(cm), cm, &pbi->mb,
-                          cm->lf.filter_level_u, cm->lf.filter_level_u, 1, 0);
+                          cm->lf.filter_level_u[0], cm->lf.filter_level_u[1], 1,
+                          0);
     av1_loop_filter_frame(get_frame_new_buffer(cm), cm, &pbi->mb,
-                          cm->lf.filter_level_v, cm->lf.filter_level_v, 2, 0);
+                          cm->lf.filter_level_v[0], cm->lf.filter_level_v[1], 2,
+                          0);
   }
 #else
   av1_loop_filter_frame(get_frame_new_buffer(cm), cm, &pbi->mb,

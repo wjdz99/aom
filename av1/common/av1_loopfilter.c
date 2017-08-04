@@ -665,7 +665,9 @@ void av1_loop_filter_init(AV1_COMMON *cm) {
 void av1_loop_filter_frame_init(AV1_COMMON *cm, int default_filt_lvl,
                                 int default_filt_lvl_r) {
   int seg_id;
+#if !CONFIG_UV_LVL
   (void)default_filt_lvl_r;
+#endif
   // n_shift is the multiplier for lf_deltas
   // the multiplier is 1 for when filter_lvl is between 0 and 31;
   // 2 when filter_lvl is between 32 and 63

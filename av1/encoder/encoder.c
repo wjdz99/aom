@@ -4007,10 +4007,10 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
 #if CONFIG_UV_LVL
     av1_loop_filter_frame(cm->frame_to_show, cm, xd, lf->filter_level[0],
                           lf->filter_level[1], 0, 0);
-    av1_loop_filter_frame(cm->frame_to_show, cm, xd, lf->filter_level_u,
-                          lf->filter_level_u, 1, 0);
-    av1_loop_filter_frame(cm->frame_to_show, cm, xd, lf->filter_level_v,
-                          lf->filter_level_v, 2, 0);
+    av1_loop_filter_frame(cm->frame_to_show, cm, xd, lf->filter_level_u[0],
+                          lf->filter_level_u[1], 1, 0);
+    av1_loop_filter_frame(cm->frame_to_show, cm, xd, lf->filter_level_v[0],
+                          lf->filter_level_v[1], 2, 0);
 
 #else
     av1_loop_filter_frame(cm->frame_to_show, cm, xd, lf->filter_level, 0, 0);
