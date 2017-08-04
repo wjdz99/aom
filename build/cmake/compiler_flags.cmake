@@ -13,6 +13,7 @@ set(AOM_BUILD_CMAKE_COMPILER_FLAGS_CMAKE_ 1)
 
 include(CheckCCompilerFlag)
 include(CheckCXXCompilerFlag)
+include("${AOM_ROOT}/build/cmake/compiler_tests.cmake")
 
 # Strings used to cache failed C/CXX flags.
 set(AOM_FAILED_C_FLAGS)
@@ -239,6 +240,20 @@ function (append_link_flag_to_target target flags)
   endif ()
 
   set_target_properties(${target} PROPERTIES LINK_FLAGS ${target_link_flags})
+endfunction ()
+
+# Adds $flag to executable linker flags, and makes sure C/CXX builds still work.
+function (require_linker_flag flag)
+  append_exe_linker_flag(${flag})
+
+  unset(c_passed)
+  aom_check_c_compiles("LINKER_FLAG_C_TEST(${flag})" "" c_passed)
+  unset(cxx_passed)
+  aom_check_cxx_compiles("LINKER_FLAG_CXX_TEST(${flag})" "" cxx_passed)
+
+  if (NOT c_passed OR NOT cxx_passed)
+    message(FATAL_ERROR "Linker flag test for ${flag} failed.")
+  endif ()
 endfunction ()
 
 endif ()  # AOM_BUILD_CMAKE_COMPILER_FLAGS_CMAKE_
