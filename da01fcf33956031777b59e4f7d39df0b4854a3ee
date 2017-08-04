@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "f6ae2d55_aa7fffd7",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1255,
+      "author": {
+        "id": 6000
+      },
+      "writtenOn": "2017-08-04T07:04:38Z",
+      "side": 1,
+      "message": "I suggest instead to modify the condition to:\nif(!cpi-\u003ecommon.show_frame \u0026\u0026 !cpi-\u003ecommon.show_existing_frame)\n\nIt seems simpler than messing with the control flow ; what do you think?",
+      "revId": "da01fcf33956031777b59e4f7d39df0b4854a3ee",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9c42cda4_37ffee19",
         "filename": "av1/av1_cx_iface.c",
         "patchSetId": 2
@@ -34,6 +51,24 @@
       "revId": "da01fcf33956031777b59e4f7d39df0b4854a3ee",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "784bff52_25927810",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1287,
+      "author": {
+        "id": 6000
+      },
+      "writtenOn": "2017-08-04T07:04:38Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "b9f5bfbe_57260baf",
+      "revId": "da01fcf33956031777b59e4f7d39df0b4854a3ee",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
