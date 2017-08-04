@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "7b20885e_6cf5458f",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-08-04T23:33:21Z",
+      "side": 1,
+      "message": "was there a perf/cleanup bug for this?",
+      "revId": "c054722af79a7ad520828f32ce3d2b3f702bf764",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "778ed04f_bb1cca50",
         "filename": "av1/encoder/k_means_template.h",
         "patchSetId": 3
