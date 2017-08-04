@@ -17,6 +17,7 @@
 #include <stdio.h>
 
 #include "av1/common/enums.h"
+#include "av1/common/blockd.h"
 #include "aom/aom_integer.h"
 #include "aom_dsp/aom_dsp_common.h"
 
@@ -210,8 +211,10 @@ static INLINE void set_flip_cfg(int tx_type, TXFM_2D_FLIP_CFG *cfg) {
 }
 
 #if CONFIG_MRC_TX
-static INLINE int get_mrc_mask(const uint8_t *pred, int pred_stride, int *mask,
-                               int mask_stride, int width, int height) {
+static INLINE int get_mrc_mask_inter(const uint8_t *pred, int pred_stride,
+                                     int *mask, int mask_stride, int width,
+                                     int height) {
+  // placeholder mask generation function
   int n_masked_vals = 0;
   for (int i = 0; i < height; ++i) {
     for (int j = 0; j < width; ++j) {
@@ -220,6 +223,34 @@ static INLINE int get_mrc_mask(const uint8_t *pred, int pred_stride, int *mask,
     }
   }
   return n_masked_vals;
+}
+
+static INLINE int get_mrc_mask_intra(const uint8_t *pred, int pred_stride,
+                                     int *mask, int mask_stride, int width,
+                                     int height) {
+  // placeholder mask generation function
+  int n_masked_vals = 0;
+  for (int i = 0; i < height; ++i) {
+    for (int j = 0; j < width; ++j) {
+      mask[i * mask_stride + j] = pred[i * pred_stride + j] > 100 ? 1 : 0;
+      n_masked_vals += mask[i * mask_stride + j];
+    }
+  }
+  return n_masked_vals;
+}
+
+static INLINE int get_mrc_mask(const uint8_t *pred, int pred_stride, int *mask,
+                               int mask_stride, int width, int height,
+                               int is_inter) {
+  if (is_inter) {
+    assert(USE_MRC_INTER && "MRC invalid for inter blocks");
+    return get_mrc_mask_inter(pred, pred_stride, mask, mask_stride, width,
+                              height);
+  } else {
+    assert(USE_MRC_INTRA && "MRC invalid for intra blocks");
+    return get_mrc_mask_intra(pred, pred_stride, mask, mask_stride, width,
+                              height);
+  }
 }
 
 static INLINE int is_valid_mrc_mask(int n_masked_vals, int width, int height) {
