@@ -431,8 +431,7 @@ void av1_loop_filter_frame_mt(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
     mi_rows_to_filter = AOMMAX(cm->mi_rows / 8, 8);
   }
   end_mi_row = start_mi_row + mi_rows_to_filter;
-  av1_loop_filter_frame_init(cm, frame_filter_level);
-
+  av1_loop_filter_frame_init(cm, frame_filter_level, frame_filter_level);
   loop_filter_rows_mt(frame, cm, planes, start_mi_row, end_mi_row, y_only,
                       workers, num_workers, lf_sync);
 }
