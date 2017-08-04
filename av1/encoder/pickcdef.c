@@ -305,7 +305,11 @@ void av1_cdef_search(YV12_BUFFER_CONFIG *frame, const YV12_BUFFER_CONFIG *ref,
   int *sb_index = aom_malloc(nvfb * nhfb * sizeof(*sb_index));
   int *selected_strength = aom_malloc(nvfb * nhfb * sizeof(*sb_index));
   uint64_t(*mse[2])[TOTAL_STRENGTHS];
+#if !CONFIG_CDEF_SINGLEPASS
   int pri_damping = 6;
+#else
+  int pri_damping = 3 + (cm->base_qindex >> 6);
+#endif
   int sec_damping = 3 + (cm->base_qindex >> 6);
   int i;
   int nb_strengths;
@@ -414,6 +418,7 @@ void av1_cdef_search(YV12_BUFFER_CONFIG *frame, const YV12_BUFFER_CONFIG *ref,
           int xsize = (nhb << mi_wide_l2[pli]) +
                       CDEF_HBORDER * (fbc != nhfb - 1) + xoff;
           sec_strength = gi % CDEF_SEC_STRENGTHS;
+#if !CONFIG_CDEF_SINGLEPASS
           if (sec_strength == 0)
             copy_sb16_16(&in[(-yoff * CDEF_BSTRIDE - xoff)], CDEF_BSTRIDE,
                          src[pli],
@@ -425,6 +430,17 @@ void av1_cdef_search(YV12_BUFFER_CONFIG *frame, const YV12_BUFFER_CONFIG *ref,
                          pli, dlist, cdef_count, threshold,
                          sec_strength + (sec_strength == 3), sec_damping,
                          pri_damping, coeff_shift, sec_strength != 0, 1);
+#else
+          copy_sb16_16(&in[(-yoff * CDEF_BSTRIDE - xoff)], CDEF_BSTRIDE,
+                       src[pli],
+                       (fbr * MI_SIZE_64X64 << mi_high_l2[pli]) - yoff,
+                       (fbc * MI_SIZE_64X64 << mi_wide_l2[pli]) - xoff,
+                       stride[pli], ysize, xsize);
+          cdef_filter_fb(NULL, tmp_dst, CDEF_BSTRIDE, in, xdec[pli], ydec[pli],
+                         dir, &dirinit, var, pli, dlist, cdef_count, threshold,
+                         sec_strength + (sec_strength == 3), pri_damping,
+                         sec_damping, coeff_shift);
+#endif
           curr_mse = compute_cdef_dist(
               ref_coeff[pli] +
                   (fbr * MI_SIZE_64X64 << mi_high_l2[pli]) * stride[pli] +
