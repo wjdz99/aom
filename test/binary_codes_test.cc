@@ -61,7 +61,11 @@ TEST(AV1, TestPrimitiveRefbilivel) {
   }
   aom_stop_encode(&bw);
   aom_reader br;
+#if CONFIG_ANS
+  aom_reader_init(&br, bw_buffer, kBufferSize, NULL, NULL);
+#else
   aom_reader_init(&br, bw_buffer, bw.pos, NULL, NULL);
+#endif  // CONFIG_ANS
   GTEST_ASSERT_GE(aom_reader_tell(&br), 0u);
   GTEST_ASSERT_LE(aom_reader_tell(&br), 1u);
   for (int n = 0; n < kRanges; ++n) {
@@ -111,7 +115,11 @@ TEST(AV1, TestPrimitiveRefsubexpfin) {
   }
   aom_stop_encode(&bw);
   aom_reader br;
+#if CONFIG_ANS
+  aom_reader_init(&br, bw_buffer, kBufferSize, NULL, NULL);
+#else
   aom_reader_init(&br, bw_buffer, bw.pos, NULL, NULL);
+#endif  // CONFIG_ANS
   GTEST_ASSERT_GE(aom_reader_tell(&br), 0u);
   GTEST_ASSERT_LE(aom_reader_tell(&br), 1u);
   for (int n = 0; n < kRanges; ++n) {
