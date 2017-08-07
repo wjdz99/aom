@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e3185923_3bf99c75",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-08-07T19:10:59Z",
+      "side": 1,
+      "message": "remove unused code",
+      "range": {
+        "startLine": 49,
+        "startChar": 0,
+        "endLine": 51,
+        "endChar": 6
+      },
+      "revId": "8b9d6b7e711df4168ace6488f3e886a32cc7ee06",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "328c3ad6_a6f3083e",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 1590,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-08-07T19:10:59Z",
+      "side": 1,
+      "message": "no support for 32x64 and 64x32 even?",
+      "range": {
+        "startLine": 1590,
+        "startChar": 35,
+        "endLine": 1590,
+        "endChar": 46
+      },
+      "revId": "8b9d6b7e711df4168ace6488f3e886a32cc7ee06",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "753ce268_cee8e27f",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 1620,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-08-07T19:10:59Z",
+      "side": 1,
+      "message": "\u003e\u003d OBMC_CAUSAL?",
+      "range": {
+        "startLine": 1620,
+        "startChar": 35,
+        "endLine": 1620,
+        "endChar": 46
+      },
+      "revId": "8b9d6b7e711df4168ace6488f3e886a32cc7ee06",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "661a0d65_560c1b02",
+        "filename": "av1/common/enums.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-08-07T19:10:59Z",
+      "side": 1,
+      "message": "add \"\u003d 0\"",
+      "range": {
+        "startLine": 204,
+        "startChar": 2,
+        "endLine": 204,
+        "endChar": 15
+      },
+      "revId": "8b9d6b7e711df4168ace6488f3e886a32cc7ee06",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e9d2f6f0_e3ad9578",
+        "filename": "av1/common/enums.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-08-07T19:10:59Z",
+      "side": 1,
+      "message": "NO_OVERLAP should be MAX_NCOBMC_MODES + 1 if you want to use \u003c NO_OVERLAP as a condition for eligibility of ncobmc mode",
+      "range": {
+        "startLine": 212,
+        "startChar": 2,
+        "endLine": 212,
+        "endChar": 12
+      },
+      "revId": "8b9d6b7e711df4168ace6488f3e886a32cc7ee06",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "be6a8618_cbcfeb38",
+        "filename": "av1/common/onyxc_int.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 458,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-08-07T19:10:59Z",
+      "side": 1,
+      "message": "Do you even need one kernel for no overlap?",
+      "range": {
+        "startLine": 458,
+        "startChar": 54,
+        "endLine": 458,
+        "endChar": 74
+      },
+      "revId": "8b9d6b7e711df4168ace6488f3e886a32cc7ee06",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
