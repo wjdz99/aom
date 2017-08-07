@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fb58cb97_29e5fac6",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1262,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-08-07T22:12:01Z",
+      "side": 1,
+      "message": "We need the index_size and update the cx_data pointer accordingly:\nunsigned char *cx_data \u003d ctx-\u003ecx_data\n\nDue to the above, if no index_size is obtained, then there will be no index written to a superframe, which is against the design of the essence of a superframe.",
+      "revId": "345dcfb6f6b169d400de1daece93cf8cd2c6cabc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
