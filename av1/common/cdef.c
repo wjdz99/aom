@@ -260,14 +260,13 @@ void av1_cdef_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
            uv_sec_strength == 0) ||
           (cdef_count = sb_compute_cdef_list(
                cm, fbr * MI_SIZE_64X64, fbc * MI_SIZE_64X64, dlist,
-               get_filter_skip(level) || get_filter_skip(uv_level))) == 0) {
+               (level & 1) || (uv_level & 1))) == 0) {
         cdef_left = 0;
         continue;
       }
 
       curr_row_cdef[fbc] = 1;
       for (pli = 0; pli < nplanes; pli++) {
-        uint16_t dst[CDEF_BLOCKSIZE * CDEF_BLOCKSIZE];
         int coffset;
         int rend, cend;
         int pri_damping = cm->cdef_pri_damping;
@@ -386,15 +385,16 @@ void av1_cdef_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
 #if CONFIG_HIGHBITDEPTH
         if (cm->use_highbitdepth) {
           cdef_filter_fb(
-              (uint8_t *)&CONVERT_TO_SHORTPTR(
+              NULL,
+              &CONVERT_TO_SHORTPTR(
                   xd->plane[pli]
                       .dst.buf)[xd->plane[pli].dst.stride *
                                     (MI_SIZE_64X64 * fbr << mi_high_l2[pli]) +
                                 (fbc * MI_SIZE_64X64 << mi_wide_l2[pli])],
-              xd->plane[pli].dst.stride, dst,
+              xd->plane[pli].dst.stride,
               &src[CDEF_VBORDER * CDEF_BSTRIDE + CDEF_HBORDER], xdec[pli],
               ydec[pli], dir, NULL, var, pli, dlist, cdef_count, level,
-              sec_strength, sec_damping, pri_damping, coeff_shift, 0, 1);
+              sec_strength, pri_damping, sec_damping, coeff_shift);
         } else {
 #endif
           cdef_filter_fb(
@@ -402,10 +402,10 @@ void av1_cdef_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
                    .dst.buf[xd->plane[pli].dst.stride *
                                 (MI_SIZE_64X64 * fbr << mi_high_l2[pli]) +
                             (fbc * MI_SIZE_64X64 << mi_wide_l2[pli])],
-              xd->plane[pli].dst.stride, dst,
+              NULL, xd->plane[pli].dst.stride,
               &src[CDEF_VBORDER * CDEF_BSTRIDE + CDEF_HBORDER], xdec[pli],
               ydec[pli], dir, NULL, var, pli, dlist, cdef_count, level,
-              sec_strength, sec_damping, pri_damping, coeff_shift, 0, 0);
+              sec_strength, pri_damping, sec_damping, coeff_shift);
 
 #if CONFIG_HIGHBITDEPTH
         }
