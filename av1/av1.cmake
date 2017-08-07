@@ -234,36 +234,30 @@ endif ()
 if (CONFIG_CDEF)
   set(AOM_AV1_COMMON_SOURCES
       ${AOM_AV1_COMMON_SOURCES}
-      "${AOM_ROOT}/av1/common/clpf.c"
-      "${AOM_ROOT}/av1/common/clpf_simd.h"
       "${AOM_ROOT}/av1/common/cdef.c"
       "${AOM_ROOT}/av1/common/cdef.h"
       "${AOM_ROOT}/av1/common/cdef_block.c"
       "${AOM_ROOT}/av1/common/cdef_block.h"
-      "${AOM_ROOT}/av1/common/cdef_block_simd.h")
+      "${AOM_ROOT}/av1/common/cdef_block.h")
 
   set(AOM_AV1_ENCODER_SOURCES
       ${AOM_AV1_ENCODER_SOURCES}
       "${AOM_ROOT}/av1/encoder/pickcdef.c")
 
-  set(AOM_AV1_COMMON_INTRIN_SSE2
-      ${AOM_AV1_COMMON_INTRIN_SSE2}
-      "${AOM_ROOT}/av1/common/clpf_sse2.c"
+  set(AOM_AV1_COMMON_SSE2_INTRIN
+      ${AOM_AV1_COMMON_SSE2_INTRIN}
       "${AOM_ROOT}/av1/common/cdef_block_sse2.c")
 
-  set(AOM_AV1_COMMON_INTRIN_SSSE3
-      ${AOM_AV1_COMMON_INTRIN_SSSE3}
-      "${AOM_ROOT}/av1/common/clpf_ssse3.c"
+  set(AOM_AV1_COMMON_SSSE3_INTRIN
+      ${AOM_AV1_COMMON_SSSE3_INTRIN}
       "${AOM_ROOT}/av1/common/cdef_block_ssse3.c")
 
-  set(AOM_AV1_COMMON_INTRIN_SSE4_1
-      ${AOM_AV1_COMMON_INTRIN_SSE4_1}
-      "${AOM_ROOT}/av1/common/clpf_sse4.c"
+  set(AOM_AV1_COMMON_SSE4_1_INTRIN
+      ${AOM_AV1_COMMON_SSE4_1_INTRIN}
       "${AOM_ROOT}/av1/common/cdef_block_sse4.c")
 
-  set(AOM_AV1_COMMON_INTRIN_NEON
-      ${AOM_AV1_COMMON_INTRIN_NEON}
-      "${AOM_ROOT}/av1/common/clpf_neon.c"
+  set(AOM_AV1_COMMON_NEON_INTRIN
+      ${AOM_AV1_COMMON_NEON_INTRIN}
       "${AOM_ROOT}/av1/common/cdef_block_neon.c")
 endif ()
 

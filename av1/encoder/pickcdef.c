@@ -68,11 +68,11 @@ static uint64_t search_one_dual(int *lev0, int *lev1, int nb_strengths,
                                 uint64_t (**mse)[TOTAL_STRENGTHS], int sb_count,
                                 int fast) {
   uint64_t tot_mse[TOTAL_STRENGTHS][TOTAL_STRENGTHS];
-  const int total_strengths = fast ? REDUCED_TOTAL_STRENGTHS : TOTAL_STRENGTHS;
   int i, j;
   uint64_t best_tot_mse = (uint64_t)1 << 63;
   int best_id0 = 0;
   int best_id1 = 0;
+  const int total_strengths = fast ? REDUCED_TOTAL_STRENGTHS : TOTAL_STRENGTHS;
   memset(tot_mse, 0, sizeof(tot_mse));
   for (i = 0; i < sb_count; i++) {
     int gi;
@@ -305,7 +305,7 @@ void av1_cdef_search(YV12_BUFFER_CONFIG *frame, const YV12_BUFFER_CONFIG *ref,
   int *sb_index = aom_malloc(nvfb * nhfb * sizeof(*sb_index));
   int *selected_strength = aom_malloc(nvfb * nhfb * sizeof(*sb_index));
   uint64_t(*mse[2])[TOTAL_STRENGTHS];
-  int pri_damping = 6;
+  int pri_damping = 3 + (cm->base_qindex >> 6);
   int sec_damping = 3 + (cm->base_qindex >> 6);
   int i;
   int nb_strengths;
@@ -414,17 +414,15 @@ void av1_cdef_search(YV12_BUFFER_CONFIG *frame, const YV12_BUFFER_CONFIG *ref,
           int xsize = (nhb << mi_wide_l2[pli]) +
                       CDEF_HBORDER * (fbc != nhfb - 1) + xoff;
           sec_strength = gi % CDEF_SEC_STRENGTHS;
-          if (sec_strength == 0)
-            copy_sb16_16(&in[(-yoff * CDEF_BSTRIDE - xoff)], CDEF_BSTRIDE,
-                         src[pli],
-                         (fbr * MI_SIZE_64X64 << mi_high_l2[pli]) - yoff,
-                         (fbc * MI_SIZE_64X64 << mi_wide_l2[pli]) - xoff,
-                         stride[pli], ysize, xsize);
-          cdef_filter_fb(sec_strength ? NULL : (uint8_t *)in, CDEF_BSTRIDE,
-                         tmp_dst, in, xdec[pli], ydec[pli], dir, &dirinit, var,
-                         pli, dlist, cdef_count, threshold,
-                         sec_strength + (sec_strength == 3), sec_damping,
-                         pri_damping, coeff_shift, sec_strength != 0, 1);
+          copy_sb16_16(&in[(-yoff * CDEF_BSTRIDE - xoff)], CDEF_BSTRIDE,
+                       src[pli],
+                       (fbr * MI_SIZE_64X64 << mi_high_l2[pli]) - yoff,
+                       (fbc * MI_SIZE_64X64 << mi_wide_l2[pli]) - xoff,
+                       stride[pli], ysize, xsize);
+          cdef_filter_fb(NULL, tmp_dst, CDEF_BSTRIDE, in, xdec[pli], ydec[pli],
+                         dir, &dirinit, var, pli, dlist, cdef_count, threshold,
+                         sec_strength + (sec_strength == 3), pri_damping,
+                         sec_damping, coeff_shift);
           curr_mse = compute_cdef_dist(
               ref_coeff[pli] +
                   (fbr * MI_SIZE_64X64 << mi_high_l2[pli]) * stride[pli] +
