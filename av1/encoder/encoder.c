@@ -4103,7 +4103,11 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
     cm->cdef_strengths[0] = 0;
     cm->nb_cdef_strengths = 1;
   } else {
+#if !CONFIG_CDEF_SINGLEPASS
     // Find cm->dering_level, cm->clpf_strength_u and cm->clpf_strength_v
+#else
+    // Find CDEF parameters
+#endif
     av1_cdef_search(cm->frame_to_show, cpi->source, cm, xd,
                     cpi->oxcf.speed > 0);
 
