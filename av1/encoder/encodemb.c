@@ -407,6 +407,8 @@ int av1_optimize_b(const AV1_COMMON *cm, MACROBLOCK *mb, int plane, int blk_row,
   if (eob == 0) return eob;
   if (xd->lossless[xd->mi[0]->mbmi.segment_id]) return eob;
 
+  return eob;
+
 #if CONFIG_PVQ
   (void)cm;
   (void)tx_size;
@@ -444,7 +446,7 @@ typedef enum QUANT_FUNC {
 static AV1_QUANT_FACADE
     quant_func_list[AV1_XFORM_QUANT_TYPES][QUANT_FUNC_TYPES] = {
 #if !CONFIG_NEW_QUANT
-      { av1_quantize_fp_facade, av1_highbd_quantize_fp_facade },
+      { av1_quantize_b_facade, av1_highbd_quantize_b_facade },
       { av1_quantize_b_facade, av1_highbd_quantize_b_facade },
       { av1_quantize_dc_facade, av1_highbd_quantize_dc_facade },
 #else   // !CONFIG_NEW_QUANT
