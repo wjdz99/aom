@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7e1bee6a_2e1d8e70",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-08-07T16:55:57Z",
+      "side": 1,
+      "message": "Fixed, thanks for pointing that out.",
+      "parentUuid": "59ce4c8d_9f1eb302",
+      "revId": "ddf3ae38e23acdc002c93a6cbbf4487e45747950",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a3050e47_cb7fb815",
         "filename": "av1/common/cfl.c",
         "patchSetId": 4
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "b419bfc2_c0d92e4e",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 320,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-08-07T16:55:57Z",
+      "side": 1,
+      "message": "done\n\nBecause of RDO adding an assert that cfl-\u003esub8x8_val[row_off + col + unit_c] \u003d\u003d 0 is not trivial and will be done in another commit.",
+      "parentUuid": "a3050e47_cb7fb815",
+      "revId": "ddf3ae38e23acdc002c93a6cbbf4487e45747950",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "49a3b7e3_53286ec0",
         "filename": "av1/common/cfl.c",
         "patchSetId": 4
@@ -47,6 +83,24 @@
       "writtenOn": "2017-07-28T19:57:56Z",
       "side": 1,
       "message": "This also seems like somewhere a loop would be terser and make more sense.",
+      "revId": "ddf3ae38e23acdc002c93a6cbbf4487e45747950",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8f3b0f0c_69cad831",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 383,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-08-07T16:55:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "49a3b7e3_53286ec0",
       "revId": "ddf3ae38e23acdc002c93a6cbbf4487e45747950",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
