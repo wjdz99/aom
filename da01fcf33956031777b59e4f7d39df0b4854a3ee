@@ -73,6 +73,24 @@
     },
     {
       "key": {
+        "uuid": "cabebaa5_2b2d049c",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1255,
+      "author": {
+        "id": 6000
+      },
+      "writtenOn": "2017-08-07T08:19:11Z",
+      "side": 1,
+      "message": "Thanks for your detailed explanation.\n\nIt indeed seems legitimate to expect enc and dec versions of ctrl_get_new_frame_image to return the same frame. I also expect to be able to get *every* encoded frame using these functions, doesn\u0027t this last point require to stop the loop? Otherwise, isn\u0027t there a risk to skip some frames?\n\n(by the way, I prefer, by far, patchset #2 over patchset #4)",
+      "parentUuid": "7ef43b72_d3d44aa2",
+      "revId": "da01fcf33956031777b59e4f7d39df0b4854a3ee",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9c42cda4_37ffee19",
         "filename": "av1/av1_cx_iface.c",
         "patchSetId": 2
