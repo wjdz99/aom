@@ -22,6 +22,10 @@ extern "C" {
 
 #undef MAX_SB_SIZE
 
+#if CONFIG_WARPED_MOTION && CONFIG_NCOBMC
+#define NONCAUSAL_WARP 1
+#endif
+
 // Max superblock size
 #if CONFIG_EXT_PARTITION
 #define MAX_SB_SIZE_LOG2 7

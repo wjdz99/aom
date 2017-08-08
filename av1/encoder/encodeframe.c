@@ -2042,6 +2042,7 @@ static void encode_b(const AV1_COMP *const cpi, const TileInfo *const tile,
       xd,
 #endif
       xd->mi[0]);
+
   check_ncobmc = is_inter_block(mbmi) && motion_allowed >= OBMC_CAUSAL;
   if (!dry_run && check_ncobmc) {
     av1_check_ncobmc_rd(cpi, x, mi_row, mi_col);
@@ -4440,6 +4441,9 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
     if (bsize == cm->sb_size) {
 #if CONFIG_MOTION_VAR && CONFIG_NCOBMC
       set_mode_info_sb(cpi, td, tile_info, tp, mi_row, mi_col, bsize, pc_tree);
+#endif
+#if NONCAUSAL_WARP
+      set_sb_mi_boundaries(cm, xd, mi_row, mi_col);
 #endif
       encode_sb(cpi, td, tile_info, tp, mi_row, mi_col, OUTPUT_ENABLED, bsize,
                 pc_tree, NULL);

@@ -110,6 +110,15 @@ typedef struct PVQ_QUEUE {
 } PVQ_QUEUE;
 #endif
 
+#if NONCAUSAL_WARP
+typedef struct superblock_mi_boundaries {
+  int mi_row_begin;
+  int mi_col_begin;
+  int mi_row_end;
+  int mi_col_end;
+} SB_MI_BD;
+#endif
+
 typedef struct {
   uint8_t *plane[MAX_MB_PLANE];
   int stride[MAX_MB_PLANE];
@@ -773,6 +782,10 @@ typedef struct macroblockd {
 
 #if CONFIG_CFL
   CFL_CTX *cfl;
+#endif
+
+#if NONCAUSAL_WARP
+  SB_MI_BD sb_mi_bd;
 #endif
 } MACROBLOCKD;
 
