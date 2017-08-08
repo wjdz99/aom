@@ -1733,7 +1733,8 @@ static int cost_coeffs(const AV1_COMMON *const cm, MACROBLOCK *x, int plane,
 int av1_cost_coeffs(const AV1_COMP *const cpi, MACROBLOCK *x, int plane,
                     int blk_row, int blk_col, int block, TX_SIZE tx_size,
                     const SCAN_ORDER *scan_order, const ENTROPY_CONTEXT *a,
-                    const ENTROPY_CONTEXT *l, int use_fast_coef_costing) {
+                    const ENTROPY_CONTEXT *l, const int rtx_ctx,
+                    int use_fast_coef_costing) {
 #if !CONFIG_LV_MAP
   (void)blk_row;
   (void)blk_col;
@@ -1758,7 +1759,7 @@ int av1_cost_coeffs(const AV1_COMP *const cpi, MACROBLOCK *x, int plane,
 #endif  // CONFIG_CB4X4
 
   TXB_CTX txb_ctx;
-  get_txb_ctx(plane_bsize, tx_size, plane, a, l, &txb_ctx);
+  get_txb_ctx(plane_bsize, tx_size, plane, a, l, rtx_ctx, &txb_ctx);
   return av1_cost_coeffs_txb(cpi, x, plane, blk_row, blk_col, block, tx_size,
                              &txb_ctx);
 #endif  // !CONFIG_LV_MAP
@@ -2152,7 +2153,7 @@ static void block_rd_txfm(int plane, int block, int blk_row, int blk_col,
 #endif
       RDCOST(x->rdmult, 0, tmp_dist) + args->this_rd < args->best_rd) {
     av1_optimize_b(cm, x, plane, blk_row, blk_col, block, plane_bsize, tx_size,
-                   a, l);
+                   a, l, 0);
   } else {
     args->exit_early = 1;
     return;
@@ -2204,7 +2205,7 @@ CALCULATE_RD : {}
   const SCAN_ORDER *scan_order = get_scan(cm, tx_size, tx_type, mbmi);
   this_rd_stats.rate =
       av1_cost_coeffs(cpi, x, plane, blk_row, blk_col, block, tx_size,
-                      scan_order, a, l, args->use_fast_coef_costing);
+                      scan_order, a, l, 0, args->use_fast_coef_costing);
 #else   // !CONFIG_PVQ
   this_rd_stats.rate = x->rate;
 #endif  // !CONFIG_PVQ
@@ -3421,7 +3422,7 @@ static int64_t rd_pick_intra_sub_8x8_y_subblock_mode(
             av1_xform_quant(cm, x, 0, block, row + idy, col + idx, BLOCK_8X8,
                             tx_size, coeff_ctx, AV1_XFORM_QUANT_FP);
             ratey += av1_cost_coeffs(cpi, x, 0, 0, 0, block, tx_size,
-                                     scan_order, tempa + idx, templ + idy,
+                                     scan_order, tempa + idx, templ + idy, 0,
                                      cpi->sf.use_fast_coef_costing);
             skip = (p->eobs[block] == 0);
             can_skip &= skip;
@@ -3474,10 +3475,10 @@ static int64_t rd_pick_intra_sub_8x8_y_subblock_mode(
             av1_xform_quant(cm, x, 0, block, row + idy, col + idx, BLOCK_8X8,
                             tx_size, coeff_ctx, AV1_XFORM_QUANT_FP);
             av1_optimize_b(cm, x, 0, 0, 0, block, BLOCK_8X8, tx_size,
-                           tempa + idx, templ + idy);
+                           tempa + idx, templ + idy, 0);
 #endif  // DISABLE_TRELLISQ_SEARCH
             ratey += av1_cost_coeffs(cpi, x, 0, 0, 0, block, tx_size,
-                                     scan_order, tempa + idx, templ + idy,
+                                     scan_order, tempa + idx, templ + idy, 0,
                                      cpi->sf.use_fast_coef_costing);
             skip = (p->eobs[block] == 0);
             can_skip &= skip;
@@ -3648,10 +3649,10 @@ static int64_t rd_pick_intra_sub_8x8_y_subblock_mode(
                         BLOCK_8X8, tx_size, coeff_ctx, xform_quant);
 
         av1_optimize_b(cm, x, 0, 0, 0, block, BLOCK_8X8, tx_size, tempa + idx,
-                       templ + idy);
+                       templ + idy, 0);
 #endif  // DISABLE_TRELLISQ_SEARCH
         ratey += av1_cost_coeffs(cpi, x, 0, 0, 0, block, tx_size, scan_order,
-                                 tempa + idx, templ + idy,
+                                 tempa + idx, templ + idy, 0,
                                  cpi->sf.use_fast_coef_costing);
         skip = (p->eobs[block] == 0);
         can_skip &= skip;
@@ -4534,7 +4535,8 @@ static int super_block_uvrd(const AV1_COMP *const cpi, MACROBLOCK *x,
 void av1_tx_block_rd_b(const AV1_COMP *cpi, MACROBLOCK *x, TX_SIZE tx_size,
                        int blk_row, int blk_col, int plane, int block,
                        int plane_bsize, const ENTROPY_CONTEXT *a,
-                       const ENTROPY_CONTEXT *l, RD_STATS *rd_stats) {
+                       const ENTROPY_CONTEXT *l, const int rtx_ctx,
+                       RD_STATS *rd_stats) {
   const AV1_COMMON *const cm = &cpi->common;
   MACROBLOCKD *xd = &x->e_mbd;
   const struct macroblock_plane *const p = &x->plane[plane];
@@ -4642,7 +4644,7 @@ void av1_tx_block_rd_b(const AV1_COMP *cpi, MACROBLOCK *x, TX_SIZE tx_size,
 #endif
       RDCOST(x->rdmult, 0, tmp_dist) < rd_stats->ref_rdcost) {
     av1_optimize_b(cm, x, plane, blk_row, blk_col, block, plane_bsize, tx_size,
-                   a, l);
+                   a, l, rtx_ctx);
   } else {
     rd_stats->rate += rd_stats->zero_rate;
     rd_stats->dist += tmp_sse >> shift;
@@ -4696,7 +4698,7 @@ void av1_tx_block_rd_b(const AV1_COMP *cpi, MACROBLOCK *x, TX_SIZE tx_size,
   }
   rd_stats->dist += tmp * 16;
   txb_coeff_cost = av1_cost_coeffs(cpi, x, plane, blk_row, blk_col, block,
-                                   tx_size, scan_order, a, l, 0);
+                                   tx_size, scan_order, a, l, rtx_ctx, 0);
   rd_stats->rate += txb_coeff_cost;
   rd_stats->skip &= (eob == 0);
 
@@ -4712,7 +4714,8 @@ static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
                             ENTROPY_CONTEXT *ta, ENTROPY_CONTEXT *tl,
                             TXFM_CONTEXT *tx_above, TXFM_CONTEXT *tx_left,
                             RD_STATS *rd_stats, int64_t ref_best_rd,
-                            int *is_cost_valid, RD_STATS *rd_stats_stack) {
+                            int *is_cost_valid, int rtx_ctx,
+                            RD_STATS *rd_stats_stack) {
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
   struct macroblock_plane *const p = &x->plane[plane];
@@ -4774,7 +4777,7 @@ static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
 #if CONFIG_LV_MAP
   TX_SIZE txs_ctx = get_txsize_context(tx_size);
   TXB_CTX txb_ctx;
-  get_txb_ctx(plane_bsize, tx_size, plane, pta, ptl, &txb_ctx);
+  get_txb_ctx(plane_bsize, tx_size, plane, pta, ptl, rtx_ctx, &txb_ctx);
   zero_blk_rate =
       av1_cost_bit(xd->fc->txb_skip[txs_ctx][txb_ctx.txb_skip_ctx], 1);
 #else
@@ -4796,7 +4799,7 @@ static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
       x->blk_skip[plane][blk_row * bw + blk_col] = rd_stats->skip;
     } else {
       av1_tx_block_rd_b(cpi, x, tx_size, blk_row, blk_col, plane, block,
-                        plane_bsize, pta, ptl, rd_stats);
+                        plane_bsize, pta, ptl, rtx_ctx, rd_stats);
       if (tx_size == TX_32X32) {
         rd_stats_stack[block32] = *rd_stats;
       }
@@ -4961,6 +4964,9 @@ static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
 
     assert(tx_size < TX_SIZES_ALL);
 
+    int is_last_block = 0;
+    int sub_rtx_ctx = 0;
+
     ref_best_rd = AOMMIN(this_rd, ref_best_rd);
 
     for (i = 0; i < 4 && this_cost_valid; ++i) {
@@ -4969,10 +4975,13 @@ static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
 
       if (offsetr >= max_blocks_high || offsetc >= max_blocks_wide) continue;
 
+      is_last_block = is_last_rtx(tx_size, i);
+      if (is_last_block && plane == 0 && sum_rd_stats.skip) sub_rtx_ctx = 1;
+
       select_tx_block(cpi, x, offsetr, offsetc, plane, block, block32, sub_txs,
                       depth + 1, plane_bsize, ta, tl, tx_above, tx_left,
                       &this_rd_stats, ref_best_rd - tmp_rd, &this_cost_valid,
-                      rd_stats_stack);
+                      sub_rtx_ctx, rd_stats_stack);
 #if CONFIG_DIST_8X8
       if (plane == 0 && tx_size == TX_8X8) {
         sub8x8_eob[i] = p->eobs[block];
@@ -5183,7 +5192,7 @@ static void inter_block_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
         select_tx_block(cpi, x, idy, idx, 0, block, block32, max_tx_size,
                         mi_height != mi_width, plane_bsize, ctxa, ctxl,
                         tx_above, tx_left, &pn_rd_stats, ref_best_rd - this_rd,
-                        &is_cost_valid, rd_stats_stack);
+                        &is_cost_valid, 0, rd_stats_stack);
         av1_merge_rd_stats(rd_stats, &pn_rd_stats);
         this_rd += AOMMIN(RDCOST(x->rdmult, pn_rd_stats.rate, pn_rd_stats.dist),
                           RDCOST(x->rdmult, 0, pn_rd_stats.sse));
@@ -5401,7 +5410,7 @@ static void tx_block_rd(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
     ENTROPY_CONTEXT *ta = above_ctx + blk_col;
     ENTROPY_CONTEXT *tl = left_ctx + blk_row;
     av1_tx_block_rd_b(cpi, x, tx_size, blk_row, blk_col, plane, block,
-                      plane_bsize, ta, tl, rd_stats);
+                      plane_bsize, ta, tl, 0, rd_stats);
     av1_set_txb_context(x, plane, block, tx_size, ta, tl);
   } else {
     const TX_SIZE sub_txs = sub_tx_size_map[tx_size];
