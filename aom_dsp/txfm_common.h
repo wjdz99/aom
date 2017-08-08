@@ -30,6 +30,7 @@ typedef struct txfm_param {
 #if CONFIG_MRC_TX || CONFIG_LGT
   int is_inter;
   int stride;
+  int *mask;
   uint8_t *dst;
 #if CONFIG_MRC_TX
   int *valid_mask;

@@ -622,6 +622,20 @@ static void update_skip_probs(AV1_COMMON *cm, aom_writer *w,
 }
 #endif
 
+#if CONFIG_MRC_TX
+static void pack_mrc_tokens(aom_writer *w, const TOKENEXTRA **tp, int num) {
+  const TOKENEXTRA *p = *tp;
+  write_uniform(w, 2, p->token);  // The first mask value.
+  ++p;
+  --num;
+  for (int i = 0; i < num; ++i) {
+    aom_write_symbol(w, p->token, p->mrc_cdf, 2);
+    ++p;
+  }
+  *tp = p;
+}
+#endif  // CONFIG_MRC_TX
+
 #if CONFIG_PALETTE
 static void pack_palette_tokens(aom_writer *w, const TOKENEXTRA **tp, int n,
                                 int num) {
@@ -702,6 +716,20 @@ static void pack_mb_tokens(aom_writer *w, const TOKENEXTRA **tp,
   int count = 0;
   const int seg_eob = tx_size_2d[tx_size];
 #endif
+
+#if CONFIG_MRC_TX
+  const TX_TYPE tx_type =
+      av1_get_tx_type(type, xd, blk_row, blk_col, block, tx_size);
+  if (tx_type == MRC_DCT) {
+      int rows = tx_size_high[tx_size];
+      int cols = tx_size_wide[tx_size];
+      assert(mbmi->tx_size == TX_32X32);
+      assert(mbmi->valid_mrc_mask);
+      assert(*tok < tok_end);
+      pack_mrc_tokens(w, tok, cols, rows * cols);
+      assert(*tok < tok_end + mbmi->skip);
+    }
+#endif  // CONFIG_MRC_TX
 
   while (p < stop && p->token != EOSB_TOKEN) {
     const int token = p->token;

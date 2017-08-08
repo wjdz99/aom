@@ -329,6 +329,51 @@ static INLINE void add_token(TOKENEXTRA **t,
 }
 #endif  // !CONFIG_PVQ || CONFIG_VAR_TX
 
+#if CONFIG_MRC_TX
+void av1_tokenize_mrc_mask(const struct ThreadData *const td,
+                          TOKENEXTRA **t, RUN_TYPE dry_run, TX_SIZE tx_size,
+                          int *rate) {
+  const MACROBLOCK *const x = &td->mb;
+  const MACROBLOCKD *const xd = &x->e_mbd;
+  const MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
+  const uint8_t *const mrc_mask = xd->mrc_mask;
+  // use same palette probabilities for mrc for now
+  aom_cdf_prob(
+      *palette_cdf)[PALETTE_COLOR_INDEX_CONTEXTS][CDF_SIZE(PALETTE_COLORS)] =
+            xd->tile_ctx->palette_y_color_index_cdf;
+  int rows = tx_size_high[tx_size];
+  int cols = tx_size_wide[tx_size];
+
+  // The first color index does not use context or entropy.
+  (*t)->token = mrc_mask[0];
+  (*t)->mrc_cdf = NULL;
+  (*t)->skip_eob_node = 0;
+  ++(*t);
+
+  const int n = 2;
+  const int calc_rate = rate && dry_run == DRY_RUN_COSTCOEFFS;
+  int this_rate = 0;
+  uint8_t color_order[PALETTE_MAX_SIZE];
+  for (int i = 0; i < rows; ++i) {
+    for (int j = (i == 0 ? 1 : 0); j < cols; ++j) {
+      int color_new_idx;
+      const int color_ctx = av1_get_palette_color_index_context(
+          mrc_mask, cols, i, j, n, color_order, &mask_new_idx);
+      assert(mask_new_idx >= 0 && mask_new_idx < n);
+      if (calc_rate) {
+        this_rate += x->palette_y_color_cost[n - PALETTE_MIN_SIZE][color_ctx]
+                                            [color_new_idx];
+      }
+      (*t)->token = mask_new_idx;
+      (*t)->mrc_cdf = palette_cdf[n - PALETTE_MIN_SIZE][color_ctx];
+      (*t)->skip_eob_node = 0;
+      ++(*t);
+    }
+  }
+  if (rate) *rate += this_rate;
+}
+#endif  // CONFIG_MRC_TX
+
 #if CONFIG_PALETTE
 void av1_tokenize_palette_sb(const struct ThreadData *const td, int plane,
                              TOKENEXTRA **t, RUN_TYPE dry_run, BLOCK_SIZE bsize,
@@ -479,6 +524,11 @@ static void tokenize_b(int plane, int block, int blk_row, int blk_col,
   scan = scan_order->scan;
   nb = scan_order->neighbors;
   c = 0;
+
+#if CONFIG_MRC_TX
+  if (!mbmi->skip && tx_type == MRC_DCT && !dry_run)
+    av1_tokenize_mrc_mask(td, t, dry_run, tx_size, rate);
+#endif  // CONFIG_MRC_TX
 
   if (eob == 0)
     add_token(&t, &coef_tail_cdfs[band[c]][pt], &coef_head_cdfs[band[c]][pt], 1,
