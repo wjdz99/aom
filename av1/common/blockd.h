@@ -46,6 +46,12 @@ extern "C" {
 
 #define MAX_MB_PLANE 3
 
+#if CONFIG_MRC_TX
+#define USE_MRC_INTRA 0
+#define USE_MRC_INTER 1
+#define IMPLICIT_MASK_INTER 0
+#endif  // CONFIG_MRC_TX
+
 #if CONFIG_EXT_INTER
 
 #if CONFIG_COMPOUND_SEGMENT
@@ -787,6 +793,10 @@ typedef struct macroblockd {
   DECLARE_ALIGNED(16, uint8_t, seg_mask[2 * MAX_SB_SQUARE]);
 #endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SEGMENT
 
+#if CONFIG_MRC_TX && !IMPLICIT_MASK_INTER
+  DECLARE_ALIGNED(16, int, mrc_mask[2 * MAX_SB_SQUARE]);
+#endif  // CONFIG_MRC_TX && IMPLICIT_MASK_INTER
+
 #if CONFIG_CFL
   CFL_CTX *cfl;
 #endif
@@ -843,11 +853,6 @@ static INLINE int supertx_enabled(const MB_MODE_INFO *mbmi) {
 #if CONFIG_RECT_TX
 static INLINE int is_rect_tx(TX_SIZE tx_size) { return tx_size >= TX_SIZES; }
 #endif  // CONFIG_RECT_TX
-
-#if CONFIG_MRC_TX
-#define USE_MRC_INTRA 0
-#define USE_MRC_INTER 1
-#endif  // CONFIG_MRC_TX
 
 #if CONFIG_EXT_TX
 #define ALLOW_INTRA_EXT_TX 1
