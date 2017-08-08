@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "4041c83f_1856d415",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1236,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-08-08T05:30:19Z",
+      "side": 1,
+      "message": "The only issue I see here is that on the checking of \"cx_data_sz \u003e\u003d ctx-\u003ecx_data_sz / 2\", cx_data_size does not consider the potential non-zero superframe index size. But since cx_data_sz has been initialized as a big number and this checking is pretty loose, it should not cause any problem, even though it may be fully safe to have the following checking:\n\ncx_data_sz - 256 \u003e\u003d ctx-\u003ecx_data_sz / 2",
+      "revId": "345dcfb6f6b169d400de1daece93cf8cd2c6cabc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fb58cb97_29e5fac6",
         "filename": "av1/av1_cx_iface.c",
         "patchSetId": 5
