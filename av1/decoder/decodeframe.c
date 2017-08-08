@@ -2027,6 +2027,7 @@ static void decode_token_and_recon_block(AV1Decoder *const pbi,
 
           for (blk_row = row; blk_row < unit_height; blk_row += stepr)
             for (blk_col = col; blk_col < unit_width; blk_col += stepc)
+              //sarahparker
               predict_and_reconstruct_intra_block(cm, xd, r, mbmi, plane,
                                                   blk_row, blk_col, tx_size);
         }

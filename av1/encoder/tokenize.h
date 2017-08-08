@@ -37,6 +37,9 @@ typedef struct {
 typedef struct {
   aom_cdf_prob (*tail_cdf)[CDF_SIZE(ENTROPY_TOKENS)];
   aom_cdf_prob (*head_cdf)[CDF_SIZE(ENTROPY_TOKENS)];
+#if CONFIG_MRC_TX
+  aom_cdf_prob *mrc_cdf;
+#endif  // CONFIG_MRC_TX
 #if CONFIG_PALETTE
   aom_cdf_prob *palette_cdf;
 #endif  // CONFIG_PALETTE
@@ -78,9 +81,11 @@ void av1_tokenize_sb_vartx(const struct AV1_COMP *cpi, struct ThreadData *td,
                            int mi_col, BLOCK_SIZE bsize, int *rate);
 #endif
 #if CONFIG_PALETTE
+int av1_cost_palette_sb(const struct ThreadData *const td, int plane,
+                        BLOCK_SIZE bsize);
+
 void av1_tokenize_palette_sb(const struct ThreadData *const td, int plane,
-                             TOKENEXTRA **t, RUN_TYPE dry_run, BLOCK_SIZE bsize,
-                             int *rate);
+                             TOKENEXTRA **t, BLOCK_SIZE bsize);
 #endif  // CONFIG_PALETTE
 void av1_tokenize_sb(const struct AV1_COMP *cpi, struct ThreadData *td,
                      TOKENEXTRA **t, RUN_TYPE dry_run, BLOCK_SIZE bsize,
