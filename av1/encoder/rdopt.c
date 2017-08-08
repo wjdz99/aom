@@ -12901,6 +12901,7 @@ int64_t get_prediction_rd_cost(const struct AV1_COMP *cpi, struct macroblock *x,
 
 // TODO(weitinglin): supporting !WARPED_MOTION_SORT_SAMPLES
 #if WARPED_MOTION_SORT_SAMPLES
+// #define RESEL_TX
 void av1_check_noncausal_warp_rd(const struct AV1_COMP *cpi,
                                  struct macroblock *x, int mi_row, int mi_col) {
   const AV1_COMMON *const cm = &cpi->common;
@@ -12921,6 +12922,7 @@ void av1_check_noncausal_warp_rd(const struct AV1_COMP *cpi,
   rd_cost1 =
       get_prediction_rd_cost(cpi, x, mi_row, mi_col, &skip_blk1, &backup_mbmi);
 
+#ifndef RESEL_TX
   // check if non-causal sampling helps
   mbmi->num_proj_ref[0] =
       findNonCausalSamples(cm, xd, mi_row, mi_col, pts0, pts_inref0, pts_mv0);
@@ -12940,6 +12942,10 @@ void av1_check_noncausal_warp_rd(const struct AV1_COMP *cpi,
   } else {
     rd_cost2 = INT64_MAX;
   }
+#else
+  skip_blk2 = skip_blk1;
+  rd_cost2 = INT64_MAX;
+#endif
 
   if (rd_cost2 < rd_cost1) {
     x->skip = skip_blk2;
