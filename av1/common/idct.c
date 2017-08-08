@@ -2197,13 +2197,43 @@ static void init_txfm_param(const MACROBLOCKD *xd, TX_SIZE tx_size,
 #endif
 }
 
-#if !CONFIG_TXMG
+#if CONFIG_TXMG
+static void copy_block_from_frame_buffer(uint16_t *dst, int dst_stride,
+                                         const uint8_t *src, int src_stride,
+                                         int w, int h, const MACROBLOCKD *xd) {
+  for (int r = 0; r < h; ++r) {
+    for (int c = 0; c < w; ++c) {
+      const int src_offset = r * src_stride + c;
+      const int dst_offset = r * dst_stride + c;
+      if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH)
+        dst[dst_offset] = CONVERT_TO_SHORTPTR(src)[src_offset];
+      else
+        dst[dst_offset] = src[src_offset];
+    }
+  }
+}
+
+static void copy_block_to_frame_buffer(uint8_t *dst, int dst_stride,
+                                       const uint16_t *src, int src_stride,
+                                       int w, int h, const MACROBLOCKD *xd) {
+  for (int r = 0; r < h; ++r) {
+    for (int c = 0; c < w; ++c) {
+      const int src_offset = r * src_stride + c;
+      const int dst_offset = r * dst_stride + c;
+      if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH)
+        CONVERT_TO_SHORTPTR(dst)[dst_offset] = src[src_offset];
+      else
+        dst[dst_offset] = src[src_offset];
+    }
+  }
+}
+#else
 typedef void (*InvTxfmFunc)(const tran_low_t *dqcoeff, uint8_t *dst, int stride,
                             TxfmParam *txfm_param);
 
 static InvTxfmFunc inv_txfm_func[2] = { av1_inv_txfm_add,
                                         av1_highbd_inv_txfm_add };
-#endif
+#endif  // CONFIG_TXMG
 
 // TODO(kslu) Change input arguments to TxfmParam, which contains mode,
 // tx_type, tx_size, dst, stride, eob. Thus, the additional argument when LGT
@@ -2245,20 +2275,14 @@ void av1_inverse_transform_block(const MACROBLOCKD *xd,
   int tmp_stride = MAX_TX_SIZE;
   int w = tx_size_wide[tx_size];
   int h = tx_size_high[tx_size];
-  for (int r = 0; r < h; ++r) {
-    for (int c = 0; c < w; ++c) {
-      tmp[r * tmp_stride + c] = dst[r * stride + c];
-    }
-  }
+
+  copy_block_from_frame_buffer(tmp, tmp_stride, dst, stride, w, h, xd);
 
   av1_highbd_inv_txfm_add(dqcoeff, CONVERT_TO_BYTEPTR(tmp), tmp_stride,
                           &txfm_param);
 
-  for (int r = 0; r < h; ++r) {
-    for (int c = 0; c < w; ++c) {
-      dst[r * stride + c] = tmp[r * tmp_stride + c];
-    }
-  }
+  copy_block_to_frame_buffer(dst, stride, tmp, tmp_stride, w, h, xd);
+
 #else   // CONFIG_TXMG
   const int is_hbd = get_bitdepth_data_path_index(xd);
   inv_txfm_func[is_hbd](dqcoeff, dst, stride, &txfm_param);
