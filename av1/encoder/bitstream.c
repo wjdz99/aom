@@ -2769,7 +2769,7 @@ static void write_tokens_b(AV1_COMP *cpi, const TileInfo *const tile,
 #endif  // CONFIG_COEF_INTERLEAVE
 }
 
-#if CONFIG_MOTION_VAR && (CONFIG_NCOBMC || CONFIG_NCOBMC_ADAPT_WEIGHT)
+#if HAS_NONCAUSAL
 static void write_tokens_sb(AV1_COMP *cpi, const TileInfo *const tile,
                             aom_writer *w, const TOKENEXTRA **tok,
                             const TOKENEXTRA *const tok_end, int mi_row,
@@ -2841,7 +2841,7 @@ static void write_tokens_sb(AV1_COMP *cpi, const TileInfo *const tile,
     }
   }
 }
-#endif
+#endif  // HAS_NONCAUSAL
 
 static void write_modes_b(AV1_COMP *cpi, const TileInfo *const tile,
                           aom_writer *w, const TOKENEXTRA **tok,
@@ -2855,7 +2855,7 @@ static void write_modes_b(AV1_COMP *cpi, const TileInfo *const tile,
                supertx_enabled,
 #endif
                mi_row, mi_col);
-#if CONFIG_MOTION_VAR && (CONFIG_NCOBMC || CONFIG_NCOBMC_ADAPT_WEIGHT)
+#if HAS_NONCAUSAL
   (void)tok;
   (void)tok_end;
 #else
@@ -2863,7 +2863,7 @@ static void write_modes_b(AV1_COMP *cpi, const TileInfo *const tile,
   if (!supertx_enabled)
 #endif
     write_tokens_b(cpi, tile, w, tok, tok_end, mi_row, mi_col);
-#endif
+#endif  // HAS_NONCAUSAL
 }
 
 static void write_partition(const AV1_COMMON *const cm,
@@ -3209,9 +3209,9 @@ static void write_modes(AV1_COMP *const cpi, const TileInfo *const tile,
     for (mi_col = mi_col_start; mi_col < mi_col_end; mi_col += cm->mib_size) {
       write_modes_sb_wrapper(cpi, tile, w, tok, tok_end, 0, mi_row, mi_col,
                              cm->sb_size);
-#if CONFIG_MOTION_VAR && (CONFIG_NCOBMC || CONFIG_NCOBMC_ADAPT_WEIGHT)
+#if HAS_NONCAUSAL
       write_tokens_sb(cpi, tile, w, tok, tok_end, mi_row, mi_col, cm->sb_size);
-#endif
+#endif  // HAS_NONCAUSAL
     }
   }
 #if CONFIG_PVQ
