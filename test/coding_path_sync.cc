@@ -66,7 +66,9 @@ class CompressedSource {
     aom_codec_encode(&enc_, &img, frame_count_++, 1, 0, 0);
 
     aom_codec_iter_t iter = NULL;
-    return aom_codec_get_cx_data(&enc_, &iter);
+    const aom_codec_cx_pkt_t *pkt = aom_codec_get_cx_data(&enc_, &iter);
+    assert(!pkt || pkt->kind == AOM_CODEC_CX_FRAME_PKT);
+    return pkt;
   }
 
  private:
