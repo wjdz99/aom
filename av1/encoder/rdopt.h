@@ -83,7 +83,8 @@ int64_t av1_dist_8x8(const AV1_COMP *const cpi, const MACROBLOCKD *xd,
 int av1_cost_coeffs(const AV1_COMP *const cpi, MACROBLOCK *x, int plane,
                     int blk_row, int blk_col, int block, TX_SIZE tx_size,
                     const SCAN_ORDER *scan_order, const ENTROPY_CONTEXT *a,
-                    const ENTROPY_CONTEXT *l, int use_fast_coef_costing);
+                    const ENTROPY_CONTEXT *l, const int rtx_ctx,
+                    int use_fast_coef_costing);
 #endif
 void av1_rd_pick_intra_mode_sb(const struct AV1_COMP *cpi, struct macroblock *x,
                                struct RD_STATS *rd_cost, BLOCK_SIZE bsize,
@@ -128,7 +129,8 @@ void av1_check_ncobmc_rd(const struct AV1_COMP *cpi, struct macroblock *x,
 void av1_tx_block_rd_b(const AV1_COMP *cpi, MACROBLOCK *x, TX_SIZE tx_size,
                        int blk_row, int blk_col, int plane, int block,
                        int plane_bsize, const ENTROPY_CONTEXT *a,
-                       const ENTROPY_CONTEXT *l, RD_STATS *rd_stats);
+                       const ENTROPY_CONTEXT *l, const int rtx_ctx,
+                       RD_STATS *rd_stats);
 #endif
 
 void av1_txfm_rd_in_plane_supertx(MACROBLOCK *x, const AV1_COMP *cpi, int *rate,

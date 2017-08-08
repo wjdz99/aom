@@ -7173,7 +7173,7 @@ static void rd_supertx_sb(const AV1_COMP *const cpi, ThreadData *td,
 
     av1_subtract_plane(x, bsize, plane);
     av1_tx_block_rd_b(cpi, x, tx_size, 0, 0, plane, 0,
-                      get_plane_block_size(bsize, pd), &ctxa[0], &ctxl[0],
+                      get_plane_block_size(bsize, pd), &ctxa[0], &ctxl[0], 0,
                       &this_rd_stats);
 
     this_rate = this_rd_stats.rate;
@@ -7219,7 +7219,7 @@ static void rd_supertx_sb(const AV1_COMP *const cpi, ThreadData *td,
 #if CONFIG_VAR_TX
     av1_init_rd_stats(&this_rd_stats);
     av1_get_entropy_contexts(bsize, tx_size, pd, ctxa, ctxl);
-    av1_tx_block_rd_b(cpi, x, tx_size, 0, 0, 0, 0, bsize, &ctxa[0], &ctxl[0],
+    av1_tx_block_rd_b(cpi, x, tx_size, 0, 0, 0, 0, bsize, &ctxa[0], &ctxl[0], 0,
                       &this_rd_stats);
 
     this_rate = this_rd_stats.rate;

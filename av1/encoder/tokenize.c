@@ -282,7 +282,7 @@ static void cost_coeffs_b(int plane, int block, int blk_row, int blk_col,
   const SCAN_ORDER *const scan_order = get_scan(cm, tx_size, tx_type, mbmi);
   const int rate = av1_cost_coeffs(
       cpi, x, plane, blk_row, blk_col, block, tx_size, scan_order,
-      pd->above_context + blk_col, pd->left_context + blk_row, 0);
+      pd->above_context + blk_col, pd->left_context + blk_row, 0, 0);
   args->this_rate += rate;
   (void)plane_bsize;
   av1_set_contexts(xd, pd, plane, tx_size, p->eobs[block] > 0, blk_col,
@@ -566,7 +566,8 @@ int av1_is_skippable_in_plane(MACROBLOCK *x, BLOCK_SIZE bsize, int plane) {
 #if CONFIG_VAR_TX
 void tokenize_vartx(ThreadData *td, TOKENEXTRA **t, RUN_TYPE dry_run,
                     TX_SIZE tx_size, BLOCK_SIZE plane_bsize, int blk_row,
-                    int blk_col, int block, int plane, void *arg) {
+                    int blk_col, int block, int plane, void *arg, int *skip) {
+  struct tokenize_b_args *const args = arg;
   MACROBLOCK *const x = &td->mb;
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
@@ -590,6 +591,7 @@ void tokenize_vartx(ThreadData *td, TOKENEXTRA **t, RUN_TYPE dry_run,
     if (!dry_run) {
       av1_update_and_record_txb_context(plane, block, blk_row, blk_col,
                                         plane_bsize, tx_size, arg);
+      *skip &= args->skip;
     } else if (dry_run == DRY_RUN_NORMAL) {
       av1_update_txb_context_b(plane, block, blk_row, blk_col, plane_bsize,
                                tx_size, arg);
@@ -619,6 +621,13 @@ void tokenize_vartx(ThreadData *td, TOKENEXTRA **t, RUN_TYPE dry_run,
 
     assert(bsl > 0);
 
+    int is_last_block = 0;
+    int all_zero_prior = 1;
+    int txl_row = 0, txl_col = 0;
+    TX_SIZE dtx_size = sub_txs;
+    int sub_rtx_ctx = 0;
+    int sub_skip = 1;
+
     for (i = 0; i < 4; ++i) {
 #if CONFIG_RECT_TX_EXT
       int is_wide_tx = tx_size_wide_unit[sub_txs] > tx_size_high_unit[sub_txs];
@@ -637,10 +646,24 @@ void tokenize_vartx(ThreadData *td, TOKENEXTRA **t, RUN_TYPE dry_run,
 
       if (offsetr >= max_blocks_high || offsetc >= max_blocks_wide) continue;
 
+      is_last_block = is_last_rtx(tx_size, i);
+
+      if (is_last_block && plane == 0) {
+        txl_row = offsetr >> (1 - pd->subsampling_y);
+        txl_col = offsetc >> (1 - pd->subsampling_x);
+        dtx_size = mbmi->inter_tx_size[txl_row][txl_col];
+
+        if (sub_txs == dtx_size && all_zero_prior) sub_rtx_ctx = 1;
+      }
+      args->rtx_ctx = sub_rtx_ctx;
+
       tokenize_vartx(td, t, dry_run, sub_txs, plane_bsize, offsetr, offsetc,
-                     block, plane, arg);
+                     block, plane, arg, &sub_skip);
       block += step;
+
+      all_zero_prior &= sub_skip;
     }
+    *skip &= sub_skip;
   }
 }
 
@@ -659,7 +682,7 @@ void av1_tokenize_sb_vartx(const AV1_COMP *cpi, ThreadData *td, TOKENEXTRA **t,
   const int ctx = av1_get_skip_context(xd);
   const int skip_inc =
       !segfeature_active(&cm->seg, mbmi->segment_id, SEG_LVL_SKIP);
-  struct tokenize_b_args arg = { cpi, td, t, 0 };
+  struct tokenize_b_args arg = { cpi, td, t, 0, 0, 0 };
   int plane;
   if (mi_row >= cm->mi_rows || mi_col >= cm->mi_cols) return;
 
@@ -723,10 +746,12 @@ void av1_tokenize_sb_vartx(const AV1_COMP *cpi, ThreadData *td, TOKENEXTRA **t,
         int blk_row, blk_col;
         const int unit_height = AOMMIN(mu_blocks_high + idy, mi_height);
         const int unit_width = AOMMIN(mu_blocks_wide + idx, mi_width);
+        int skip = 1;
         for (blk_row = idy; blk_row < unit_height; blk_row += bh) {
           for (blk_col = idx; blk_col < unit_width; blk_col += bw) {
+            arg.rtx_ctx = 0;
             tokenize_vartx(td, t, dry_run, max_tx_size, plane_bsize, blk_row,
-                           blk_col, block, plane, &arg);
+                           blk_col, block, plane, &arg, &skip);
             block += step;
           }
         }
@@ -753,7 +778,7 @@ void av1_tokenize_sb(const AV1_COMP *cpi, ThreadData *td, TOKENEXTRA **t,
   const int ctx = av1_get_skip_context(xd);
   const int skip_inc =
       !segfeature_active(&cm->seg, mbmi->segment_id, SEG_LVL_SKIP);
-  struct tokenize_b_args arg = { cpi, td, t, 0 };
+  struct tokenize_b_args arg = { cpi, td, t, 0, 0, 0 };
   if (mbmi->skip) {
     if (!dry_run) td->counts->skip[ctx][1] += skip_inc;
     av1_reset_skip_context(xd, mi_row, mi_col, bsize);
@@ -840,7 +865,7 @@ void av1_tokenize_sb_supertx(const AV1_COMP *cpi, ThreadData *td,
   const int ctx = av1_get_skip_context(xd);
   const int skip_inc =
       !segfeature_active(&cm->seg, mbmi->segment_id_supertx, SEG_LVL_SKIP);
-  struct tokenize_b_args arg = { cpi, td, t, 0 };
+  struct tokenize_b_args arg = { cpi, td, t, 0, 0, 0 };
   if (mbmi->skip) {
     if (!dry_run) td->counts->skip[ctx][1] += skip_inc;
     av1_reset_skip_context(xd, mi_row, mi_col, bsize);

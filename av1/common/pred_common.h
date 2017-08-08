@@ -74,6 +74,18 @@ static INLINE aom_prob av1_get_skip_prob(const AV1_COMMON *cm,
   return cm->fc->skip_probs[av1_get_skip_context(xd)];
 }
 
+static INLINE int is_last_rtx(TX_SIZE tx_size, int proc_id) {
+  int last = 0;
+  if (tx_size_wide[tx_size] > tx_size_high[tx_size])
+    if (proc_id == 1) last = 1;
+  if (tx_size_wide[tx_size] < tx_size_high[tx_size])
+    if (proc_id == 2) last = 1;
+  if (tx_size_wide[tx_size] == tx_size_high[tx_size])
+    if (proc_id == 3) last = 1;
+
+  return last;
+}
+
 #if CONFIG_DUAL_FILTER
 int av1_get_pred_context_switchable_interp(const MACROBLOCKD *xd, int dir);
 #else
