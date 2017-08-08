@@ -25,6 +25,29 @@
     },
     {
       "key": {
+        "uuid": "7ca6cffd_8e5d928d",
+        "filename": "av1/common/reconinter.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2488,
+      "author": {
+        "id": 7555
+      },
+      "writtenOn": "2017-08-08T16:09:35Z",
+      "side": 1,
+      "message": "updated as bh \u003d (xd-\u003en8_h \u003c\u003c (MI_SIZE_LOG2 - 1)) \u003e\u003e pd-\u003esubsampling_y;",
+      "range": {
+        "startLine": 2488,
+        "startChar": 11,
+        "endLine": 2488,
+        "endChar": 51
+      },
+      "revId": "1e5590e4f9bed3a3b8b742d610d712f0adcaf7b8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "1739c152_cc165e47",
         "filename": "av1/common/reconinter.c",
         "patchSetId": 5
@@ -41,6 +64,53 @@
         "startChar": 50,
         "endLine": 2590,
         "endChar": 62
+      },
+      "revId": "1e5590e4f9bed3a3b8b742d610d712f0adcaf7b8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f0718398_360b9d9d",
+        "filename": "av1/common/reconinter.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2590,
+      "author": {
+        "id": 7555
+      },
+      "writtenOn": "2017-08-08T16:09:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1739c152_cc165e47",
+      "range": {
+        "startLine": 2590,
+        "startChar": 50,
+        "endLine": 2590,
+        "endChar": 62
+      },
+      "revId": "1e5590e4f9bed3a3b8b742d610d712f0adcaf7b8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "30c202a0_3740521c",
+        "filename": "av1/common/reconinter.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2595,
+      "author": {
+        "id": 7555
+      },
+      "writtenOn": "2017-08-08T16:09:35Z",
+      "side": 1,
+      "message": "Ditto",
+      "range": {
+        "startLine": 2595,
+        "startChar": 6,
+        "endLine": 2595,
+        "endChar": 73
       },
       "revId": "1e5590e4f9bed3a3b8b742d610d712f0adcaf7b8",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
@@ -71,6 +141,30 @@
     },
     {
       "key": {
+        "uuid": "2a4c6f98_155d36ab",
+        "filename": "av1/common/reconinter.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 3422,
+      "author": {
+        "id": 7555
+      },
+      "writtenOn": "2017-08-08T16:09:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "434f0a56_e4925095",
+      "range": {
+        "startLine": 3422,
+        "startChar": 34,
+        "endLine": 3422,
+        "endChar": 35
+      },
+      "revId": "1e5590e4f9bed3a3b8b742d610d712f0adcaf7b8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "eef1062e_9636ac72",
         "filename": "av1/common/reconinter.c",
         "patchSetId": 5
@@ -91,6 +185,30 @@
       "revId": "1e5590e4f9bed3a3b8b742d610d712f0adcaf7b8",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c7138fc3_f9d09945",
+        "filename": "av1/common/reconinter.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 3424,
+      "author": {
+        "id": 7555
+      },
+      "writtenOn": "2017-08-08T16:09:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "eef1062e_9636ac72",
+      "range": {
+        "startLine": 3424,
+        "startChar": 34,
+        "endLine": 3424,
+        "endChar": 36
+      },
+      "revId": "1e5590e4f9bed3a3b8b742d610d712f0adcaf7b8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -117,6 +235,30 @@
     },
     {
       "key": {
+        "uuid": "4d62827f_7dfd9461",
+        "filename": "av1/common/reconinter.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 3439,
+      "author": {
+        "id": 7555
+      },
+      "writtenOn": "2017-08-08T16:09:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "26b4a5cb_935f4270",
+      "range": {
+        "startLine": 3439,
+        "startChar": 2,
+        "endLine": 3439,
+        "endChar": 24
+      },
+      "revId": "1e5590e4f9bed3a3b8b742d610d712f0adcaf7b8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fb7f3387_7a06e54c",
         "filename": "av1/common/reconinter.c",
         "patchSetId": 5
@@ -137,6 +279,30 @@
       "revId": "1e5590e4f9bed3a3b8b742d610d712f0adcaf7b8",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "21830bc5_258dd545",
+        "filename": "av1/common/reconinter.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 3458,
+      "author": {
+        "id": 7555
+      },
+      "writtenOn": "2017-08-08T16:09:35Z",
+      "side": 1,
+      "message": "I want to make the sampling pattern symmetric, but I didn\u0027t test which pattern work better.",
+      "parentUuid": "fb7f3387_7a06e54c",
+      "range": {
+        "startLine": 3458,
+        "startChar": 26,
+        "endLine": 3458,
+        "endChar": 30
+      },
+      "revId": "1e5590e4f9bed3a3b8b742d610d712f0adcaf7b8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -163,6 +329,30 @@
     },
     {
       "key": {
+        "uuid": "398eb93f_1c6e3823",
+        "filename": "av1/common/reconinter.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 3483,
+      "author": {
+        "id": 7555
+      },
+      "writtenOn": "2017-08-08T16:09:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "62e7a1a6_00ffa4b2",
+      "range": {
+        "startLine": 3483,
+        "startChar": 14,
+        "endLine": 3483,
+        "endChar": 67
+      },
+      "revId": "1e5590e4f9bed3a3b8b742d610d712f0adcaf7b8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4565ee98_98e0e832",
         "filename": "av1/common/reconinter.c",
         "patchSetId": 5
@@ -186,6 +376,30 @@
     },
     {
       "key": {
+        "uuid": "5aa4b026_adcc49eb",
+        "filename": "av1/common/reconinter.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 3484,
+      "author": {
+        "id": 7555
+      },
+      "writtenOn": "2017-08-08T16:09:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4565ee98_98e0e832",
+      "range": {
+        "startLine": 3484,
+        "startChar": 12,
+        "endLine": 3484,
+        "endChar": 56
+      },
+      "revId": "1e5590e4f9bed3a3b8b742d610d712f0adcaf7b8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ef428ad2_7087e095",
         "filename": "av1/common/reconinter.h",
         "patchSetId": 5
@@ -206,6 +420,30 @@
       "revId": "1e5590e4f9bed3a3b8b742d610d712f0adcaf7b8",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2c638b67_4d2e079a",
+        "filename": "av1/common/reconinter.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 901,
+      "author": {
+        "id": 7555
+      },
+      "writtenOn": "2017-08-08T16:09:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ef428ad2_7087e095",
+      "range": {
+        "startLine": 898,
+        "startChar": 0,
+        "endLine": 901,
+        "endChar": 55
+      },
+      "revId": "1e5590e4f9bed3a3b8b742d610d712f0adcaf7b8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }

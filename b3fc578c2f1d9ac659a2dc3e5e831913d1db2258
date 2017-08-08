@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bedecec6_f373bbe0",
+        "filename": "av1/common/reconinter.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 2499,
+      "author": {
+        "id": 7555
+      },
+      "writtenOn": "2017-08-08T16:09:35Z",
+      "side": 1,
+      "message": "The overlapping area is half a block size, so we shift 1/2 block height.",
+      "range": {
+        "startLine": 2499,
+        "startChar": 49,
+        "endLine": 2499,
+        "endChar": 64
+      },
+      "revId": "b3fc578c2f1d9ac659a2dc3e5e831913d1db2258",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
