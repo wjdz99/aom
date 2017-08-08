@@ -219,7 +219,7 @@ uint8_t av1_read_coeffs_txb_facade(AV1_COMMON *cm, MACROBLOCKD *xd,
                                    aom_reader *r, int row, int col, int block,
                                    int plane, tran_low_t *tcoeffs,
                                    TX_SIZE tx_size, int16_t *max_scan_line,
-                                   int *eob) {
+                                   int *eob, int rtx_ctx) {
   MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
   struct macroblockd_plane *pd = &xd->plane[plane];
 
@@ -236,7 +236,7 @@ uint8_t av1_read_coeffs_txb_facade(AV1_COMMON *cm, MACROBLOCKD *xd,
 
   TXB_CTX txb_ctx;
   get_txb_ctx(plane_bsize, tx_size, plane, pd->above_context + col,
-              pd->left_context + row, &txb_ctx);
+              pd->left_context + row, rtx_ctx, &txb_ctx);
   uint8_t cul_level =
       av1_read_coeffs_txb(cm, xd, r, row, col, block, plane, tcoeffs, &txb_ctx,
                           tx_size, max_scan_line, eob);
