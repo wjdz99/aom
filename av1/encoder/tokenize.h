@@ -61,6 +61,8 @@ struct tokenize_b_args {
   struct ThreadData *td;
   TOKENEXTRA **tp;
   int this_rate;
+  int rtx_ctx;
+  int skip;
 };
 
 typedef enum {

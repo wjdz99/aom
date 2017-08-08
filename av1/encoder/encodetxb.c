@@ -1578,7 +1578,7 @@ void av1_update_and_record_txb_context(int plane, int block, int blk_row,
   int c, i;
   TXB_CTX txb_ctx;
   get_txb_ctx(plane_bsize, tx_size, plane, pd->above_context + blk_col,
-              pd->left_context + blk_row, &txb_ctx);
+              pd->left_context + blk_row, args->rtx_ctx, &txb_ctx);
   const int bwl = b_width_log2_lookup[txsize_to_bsize[tx_size]] + 2;
   const int height = tx_size_high[tx_size];
   int cul_level = 0;
@@ -1597,8 +1597,10 @@ void av1_update_and_record_txb_context(int plane, int block, int blk_row,
 
   if (eob == 0) {
     av1_set_contexts(xd, pd, plane, tx_size, 0, blk_col, blk_row);
+    args->skip = 1;
     return;
   }
+  args->skip = 0;
 
 #if CONFIG_TXK_SEL
   av1_update_tx_type_count(cm, xd, blk_row, blk_col, block, plane,
@@ -1704,7 +1706,7 @@ void av1_update_txb_context(const AV1_COMP *cpi, ThreadData *td,
   const int ctx = av1_get_skip_context(xd);
   const int skip_inc =
       !segfeature_active(&cm->seg, mbmi->segment_id, SEG_LVL_SKIP);
-  struct tokenize_b_args arg = { cpi, td, NULL, 0 };
+  struct tokenize_b_args arg = { cpi, td, NULL, 0, 0, 0 };
   (void)rate;
   (void)mi_row;
   (void)mi_col;
@@ -1862,7 +1864,8 @@ int64_t av1_search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
                             int block, int blk_row, int blk_col,
                             BLOCK_SIZE plane_bsize, TX_SIZE tx_size,
                             const ENTROPY_CONTEXT *a, const ENTROPY_CONTEXT *l,
-                            int use_fast_coef_costing, RD_STATS *rd_stats) {
+                            const int rtx_ctx, int use_fast_coef_costing,
+                            RD_STATS *rd_stats) {
   const AV1_COMMON *cm = &cpi->common;
   MACROBLOCKD *xd = &x->e_mbd;
   MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
@@ -1901,14 +1904,14 @@ int64_t av1_search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
     av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize, tx_size,
                     coeff_ctx, AV1_XFORM_QUANT_FP);
     av1_optimize_b(cm, x, plane, blk_row, blk_col, block, plane_bsize, tx_size,
-                   a, l);
+                   a, l, rtx_ctx);
     av1_dist_block(cpi, x, plane, plane_bsize, block, blk_row, blk_col, tx_size,
                    &this_rd_stats.dist, &this_rd_stats.sse,
                    OUTPUT_HAS_PREDICTED_PIXELS);
     const SCAN_ORDER *scan_order = get_scan(cm, tx_size, tx_type, mbmi);
     this_rd_stats.rate =
         av1_cost_coeffs(cpi, x, plane, blk_row, blk_col, block, tx_size,
-                        scan_order, a, l, use_fast_coef_costing);
+                        scan_order, a, l, rtx_ctx, use_fast_coef_costing);
     int rd = RDCOST(x->rdmult, this_rd_stats.rate, this_rd_stats.dist);
 
     if (rd < best_rd) {
@@ -1936,7 +1939,7 @@ int64_t av1_search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
     av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize, tx_size,
                     coeff_ctx, AV1_XFORM_QUANT_FP);
     av1_optimize_b(cm, x, plane, blk_row, blk_col, block, plane_bsize, tx_size,
-                   a, l);
+                   a, l, rtx_ctx);
 
     av1_inverse_transform_block_facade(xd, plane, block, blk_row, blk_col,
                                        x->plane[plane].eobs[block]);
