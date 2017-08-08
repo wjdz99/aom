@@ -2043,13 +2043,22 @@ static void encode_b(const AV1_COMP *const cpi, const TileInfo *const tile,
 #endif
       xd->mi[0]);
 
-  check_ncobmc = is_inter_block(mbmi) && motion_allowed >= OBMC_CAUSAL;
+  // In current implementation, we do not try to replace warp motion with ncobmc
+  check_ncobmc = is_inter_block(mbmi) && motion_allowed >= OBMC_CAUSAL &&
+                 mbmi->motion_mode <= OBMC_CAUSAL;
   if (!dry_run && check_ncobmc) {
     av1_check_ncobmc_rd(cpi, x, mi_row, mi_col);
     av1_setup_dst_planes(x->e_mbd.plane, bsize,
                          get_frame_new_buffer(&cpi->common), mi_row, mi_col);
   }
-#endif
+#if NONCAUSAL_WARP && WARPED_MOTION_SORT_SAMPLES
+  if (!dry_run && mbmi->motion_mode == WARPED_CAUSAL) {
+    av1_check_noncausal_warp_rd(cpi, x, mi_row, mi_col);
+    av1_setup_dst_planes(x->e_mbd.plane, bsize,
+                         get_frame_new_buffer(&cpi->common), mi_row, mi_col);
+  }
+#endif  // NONCAUSAL_WARP && WARPED_MOTION_SORT_SAMPLES
+#endif  // CONFIG_MOTION_VAR && CONFIG_NCOBMC
   encode_superblock(cpi, td, tp, dry_run, mi_row, mi_col, bsize, rate);
 
   if (!dry_run) {

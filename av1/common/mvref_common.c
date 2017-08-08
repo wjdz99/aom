@@ -1268,11 +1268,9 @@ int findNonCausalSamples(const AV1_COMMON *cm, MACROBLOCKD *xd, int mi_row,
   int ref_frame = mbmi0->ref_frame[0];
   int up_available = xd->up_available;
   int left_available = xd->left_available;
-  int i, mi_step = 1, np = 0, n, j, k;
+  int i, mi_step = 1, np = 0;
   int global_offset_c = mi_col * MI_SIZE;
   int global_offset_r = mi_row * MI_SIZE;
-
-  const TileInfo *const tile = &xd->tile;
 
   // scan the above rows
   if (up_available) {
@@ -1387,6 +1385,8 @@ int findNonCausalSamples(const AV1_COMMON *cm, MACROBLOCKD *xd, int mi_row,
       }
     }
   }
+  assert(2 * np <= SAMPLES_ARRAY_SIZE);
+
   return np;
 }
 #endif
