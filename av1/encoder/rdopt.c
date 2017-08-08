@@ -4637,8 +4637,12 @@ void av1_tx_block_rd_b(const AV1_COMP *cpi, MACROBLOCK *x, TX_SIZE tx_size,
         av1_block_error(coeff, dqcoeff, buffer_length, &tmp_sse) >> shift;
 
   if (
+#if CONFIG_MRC_TX
+      (tx_type != MRC_DCT ||
+       (tx_type == MRC_DCT && xd->mi[0]->mbmi.valid_mrc_mask)) &&
+#endif  // CONFIG_MRC_TX
 #if CONFIG_DIST_8X8
-      sub8x8tx_in_gte8x8blk_in_plane0 ||
+          sub8x8tx_in_gte8x8blk_in_plane0 ||
 #endif
       RDCOST(x->rdmult, 0, tmp_dist) < rd_stats->ref_rdcost) {
     av1_optimize_b(cm, x, plane, blk_row, blk_col, block, plane_bsize, tx_size,
@@ -4789,8 +4793,13 @@ static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
   if (cpi->common.tx_mode == TX_MODE_SELECT || tx_size == TX_4X4) {
     inter_tx_size[0][0] = tx_size;
 
+#if CONFIG_MRC_TX
+    if (tx_size == TX_32X32 && mbmi->tx_type != DCT_DCT &&
+        rd_stats_stack[block32].rate != INT_MAX && !USE_MRC_INTER) {
+#else
     if (tx_size == TX_32X32 && mbmi->tx_type != DCT_DCT &&
         rd_stats_stack[block32].rate != INT_MAX) {
+#endif  // CONFIG_MRC_TX
       *rd_stats = rd_stats_stack[block32];
       p->eobs[block] = !rd_stats->skip;
       x->blk_skip[plane][blk_row * bw + blk_col] = rd_stats->skip;
