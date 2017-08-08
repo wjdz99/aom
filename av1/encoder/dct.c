@@ -1102,6 +1102,11 @@ static void get_masked_residual32(const int16_t **input, int *input_stride,
     *valid_mask = 0;
     return;
   }
+/*
+  //TODO(sarahparker) copy mask to mask ptr
+  if (is_inter && IMPLICIT_MASK_INTER)
+    memcpy(
+*/
   int32_t sum = 0;
   int16_t avg;
   // Get the masked average of the prediction

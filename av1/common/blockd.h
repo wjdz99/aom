@@ -847,6 +847,7 @@ static INLINE int is_rect_tx(TX_SIZE tx_size) { return tx_size >= TX_SIZES; }
 #if CONFIG_MRC_TX
 #define USE_MRC_INTRA 0
 #define USE_MRC_INTER 1
+#define IMPLICIT_MASK_INTER 0
 #endif  // CONFIG_MRC_TX
 
 #if CONFIG_EXT_TX
