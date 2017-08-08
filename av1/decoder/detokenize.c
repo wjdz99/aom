@@ -218,6 +218,46 @@ static int decode_coefs(MACROBLOCKD *xd, PLANE_TYPE type, tran_low_t *dqcoeff,
 }
 #endif  // !CONFIG_PVQ
 
+#if CONFIG_MRC_TX
+void av1_decode_mrc_tokens(MACROBLOCKD *const xd, aom_reader *r,
+                           TX_SIZE tx_size) {
+  uint8_t color_order[PALETTE_MAX_SIZE];
+  const int n = 2;
+  uint8_t *const mrc_mask = xd->mrc_mask;
+  aom_cdf_prob(
+      *palette_cdf)[PALETTE_COLOR_INDEX_CONTEXTS][CDF_SIZE(PALETTE_COLORS)] =
+            xd->tile_ctx->palette_y_color_index_cdf;
+  int rows = tx_size_high[tx_size];
+  int cols = tx_size_wide[tx_size];
+
+  // The first mask index.
+  mrc_mask[0] = av1_read_uniform(r, n);
+  assert(mrc_mask[0] < n);
+
+  for (int i = 0; i < rows; ++i) {
+    for (int j = (i == 0 ? 1 : 0); j < cols; ++j) {
+      const int mask_ctx = av1_get_palette_color_index_context(
+          mrc_mask, cols , i, j, n, color_order, NULL);
+      const int mask_idx = aom_read_symbol(
+          r, palette_cdf[n - PALETTE_MIN_SIZE][mask_ctx], n, ACCT_STR);
+      assert(mask_idx >= 0 && mask_idx < n);
+      mrc_mask[i * cols + j] = color_order[mask_idx];
+    }
+  }
+/*
+    memset(color_map + i * cols + cols,
+           mrc_mask[i * cols + cols - 1],
+           (cols- cols));  // Copy last column to extra columns.
+  }
+  // Copy last row to extra rows.
+  for (int i = rows; i < plane_block_height; ++i) {
+    memcpy(mrc_mask + i * plane_block_width,
+           mrc_mask + (rows - 1) * plane_block_width, plane_block_width);
+  }
+*/
+}
+#endif  // CONFIG_MRC_TX
+
 #if CONFIG_PALETTE
 void av1_decode_palette_tokens(MACROBLOCKD *const xd, int plane,
                                aom_reader *r) {
@@ -296,6 +336,14 @@ int av1_decode_block_tokens(AV1_COMMON *cm, MACROBLOCKD *const xd, int plane,
   int dq =
       get_dq_profile_from_ctx(xd->qindex[seg_id], ctx, ref, pd->plane_type);
 #endif  //  CONFIG_NEW_QUANT
+
+#if CONFIG_MRC_TX
+  if (tx_type == MRC_DCT) {
+    assert(plane == 0);
+    assert(tx_size == TX_32X32);
+    av1_decode_mrc_tokens(xd, r, tx_size);
+  }
+#endif  // CONFIG_MRC_TX
 
   const int eob =
       decode_coefs(xd, pd->plane_type, pd->dqcoeff, tx_size, tx_type, dequant,

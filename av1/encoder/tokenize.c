@@ -264,6 +264,65 @@ const av1_extra_bit av1_extra_bits[ENTROPY_TOKENS] = {
 };
 #endif
 
+#if CONFIG_MRC_TX
+int av1_cost_mrc_sb(const struct ThreadData *const td, TX_SIZE tx_size) {
+  const MACROBLOCK *const x = &td->mb;
+  const MACROBLOCKD *const xd = &x->e_mbd;
+  const uint8_t *const mrc_mask = xd->mrc_mask;
+  int rows = tx_size_high[tx_size];
+  int cols = tx_size_wide[tx_size];
+  const int n = 2;
+  int this_rate = 0;
+  uint8_t color_order[PALETTE_MAX_SIZE];
+  for (int i = 0; i < rows; ++i) {
+    for (int j = (i == 0 ? 1 : 0); j < cols; ++j) {
+      int mask_new_idx;
+      const int mask_ctx = av1_get_palette_color_index_context(
+          mrc_mask, cols, i, j, n, color_order, &mask_new_idx);
+      assert(mask_new_idx >= 0 && mask_new_idx < n);
+      this_rate += x->palette_y_color_cost[n - PALETTE_MIN_SIZE][mask_ctx]
+                                          [mask_new_idx];
+    }
+  }
+  return this_rate;
+}
+
+void av1_tokenize_mrc_mask(const struct ThreadData *const td,
+                          TOKENEXTRA **t, TX_SIZE tx_size) {
+  const MACROBLOCK *const x = &td->mb;
+  const MACROBLOCKD *const xd = &x->e_mbd;
+  const uint8_t *const mrc_mask = xd->mrc_mask;
+  // use same palette probabilities for mrc for now
+  aom_cdf_prob(
+      *palette_cdf)[PALETTE_COLOR_INDEX_CONTEXTS][CDF_SIZE(PALETTE_COLORS)] =
+            xd->tile_ctx->palette_y_color_index_cdf;
+  int rows = tx_size_high[tx_size];
+  int cols = tx_size_wide[tx_size];
+
+  // The first color index does not use context or entropy.
+  (*t)->token = mrc_mask[0];
+  (*t)->mrc_cdf = NULL;
+  (*t)->skip_eob_node = 0;
+  ++(*t);
+
+  const int n = 2;
+  uint8_t color_order[PALETTE_MAX_SIZE];
+  for (int i = 0; i < rows; ++i) {
+    for (int j = (i == 0 ? 1 : 0); j < cols; ++j) {
+      int mask_new_idx;
+      const int mask_ctx = av1_get_palette_color_index_context(
+          mrc_mask, cols, i, j, n, color_order, &mask_new_idx);
+      assert(mask_new_idx >= 0 && mask_new_idx < n);
+      (*t)->token = mask_new_idx;
+      (*t)->mrc_cdf = palette_cdf[n - PALETTE_MIN_SIZE][mask_ctx];
+      (*t)->skip_eob_node = 0;
+      ++(*t);
+    }
+  }
+}
+#endif  // CONFIG_MRC_TX
+
+
 #if !CONFIG_PVQ || CONFIG_VAR_TX
 static void cost_coeffs_b(int plane, int block, int blk_row, int blk_col,
                           BLOCK_SIZE plane_bsize, TX_SIZE tx_size, void *arg) {
@@ -280,9 +339,13 @@ static void cost_coeffs_b(int plane, int block, int blk_row, int blk_col,
   const TX_TYPE tx_type =
       av1_get_tx_type(type, xd, blk_row, blk_col, block, tx_size);
   const SCAN_ORDER *const scan_order = get_scan(cm, tx_size, tx_type, mbmi);
-  const int rate = av1_cost_coeffs(
+  int rate = av1_cost_coeffs(
       cpi, x, plane, blk_row, blk_col, block, tx_size, scan_order,
       pd->above_context + blk_col, pd->left_context + blk_row, 0);
+#if CONFIG_MRC_TX
+  if (tx_type == MRC_DCT)
+    rate += av1_cost_mrc_sb(td, tx_size);
+#endif  // CONFIG_MRC_TX
   args->this_rate += rate;
   (void)plane_bsize;
   av1_set_contexts(xd, pd, plane, tx_size, p->eobs[block] > 0, blk_col,
@@ -330,9 +393,42 @@ static INLINE void add_token(TOKENEXTRA **t,
 #endif  // !CONFIG_PVQ || CONFIG_VAR_TX
 
 #if CONFIG_PALETTE
+int av1_cost_palette_sb(const struct ThreadData *const td, int plane,
+                        BLOCK_SIZE bsize) {
+  assert(plane == 0 || plane == 1);
+  const MACROBLOCK *const x = &td->mb;
+  const MACROBLOCKD *const xd = &x->e_mbd;
+  const MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
+  const uint8_t *const color_map = xd->plane[plane].color_index_map;
+  const PALETTE_MODE_INFO *const pmi = &mbmi->palette_mode_info;
+  int plane_block_width, rows, cols;
+  av1_get_block_dimensions(bsize, plane, xd, &plane_block_width, NULL, &rows,
+                           &cols);
+
+  const int n = pmi->palette_size[plane];
+  int this_rate = 0;
+  uint8_t color_order[PALETTE_MAX_SIZE];
+#if CONFIG_PALETTE_THROUGHPUT
+  for (int k = 1; k < rows + cols - 1; ++k) {
+    for (int j = AOMMIN(k, cols - 1); j >= AOMMAX(0, k - rows + 1); --j) {
+      int i = k - j;
+#else
+  for (int i = 0; i < rows; ++i) {
+    for (int j = (i == 0 ? 1 : 0); j < cols; ++j) {
+#endif  // CONFIG_PALETTE_THROUGHPUT
+      int color_new_idx;
+      const int color_ctx = av1_get_palette_color_index_context(
+          color_map, plane_block_width, i, j, n, color_order, &color_new_idx);
+      assert(color_new_idx >= 0 && color_new_idx < n);
+      this_rate += x->palette_y_color_cost[n - PALETTE_MIN_SIZE][color_ctx]
+                                          [color_new_idx];
+    }
+  }
+  return this_rate;
+}
+
 void av1_tokenize_palette_sb(const struct ThreadData *const td, int plane,
-                             TOKENEXTRA **t, RUN_TYPE dry_run, BLOCK_SIZE bsize,
-                             int *rate) {
+                             TOKENEXTRA **t, BLOCK_SIZE bsize) {
   assert(plane == 0 || plane == 1);
   const MACROBLOCK *const x = &td->mb;
   const MACROBLOCKD *const xd = &x->e_mbd;
@@ -350,12 +446,9 @@ void av1_tokenize_palette_sb(const struct ThreadData *const td, int plane,
   // The first color index does not use context or entropy.
   (*t)->token = color_map[0];
   (*t)->palette_cdf = NULL;
-  (*t)->skip_eob_node = 0;
   ++(*t);
 
   const int n = pmi->palette_size[plane];
-  const int calc_rate = rate && dry_run == DRY_RUN_COSTCOEFFS;
-  int this_rate = 0;
   uint8_t color_order[PALETTE_MAX_SIZE];
 #if CONFIG_PALETTE_THROUGHPUT
   for (int k = 1; k < rows + cols - 1; ++k) {
@@ -369,17 +462,11 @@ void av1_tokenize_palette_sb(const struct ThreadData *const td, int plane,
       const int color_ctx = av1_get_palette_color_index_context(
           color_map, plane_block_width, i, j, n, color_order, &color_new_idx);
       assert(color_new_idx >= 0 && color_new_idx < n);
-      if (calc_rate) {
-        this_rate += x->palette_y_color_cost[n - PALETTE_MIN_SIZE][color_ctx]
-                                            [color_new_idx];
-      }
       (*t)->token = color_new_idx;
       (*t)->palette_cdf = palette_cdf[n - PALETTE_MIN_SIZE][color_ctx];
-      (*t)->skip_eob_node = 0;
       ++(*t);
     }
   }
-  if (rate) *rate += this_rate;
 }
 #endif  // CONFIG_PALETTE
 
@@ -480,6 +567,11 @@ static void tokenize_b(int plane, int block, int blk_row, int blk_col,
   nb = scan_order->neighbors;
   c = 0;
 
+#if CONFIG_MRC_TX
+  if (!mbmi->skip && tx_type == MRC_DCT)
+    av1_tokenize_mrc_mask(td, tp, tx_size);
+#endif  // CONFIG_MRC_TX
+
   if (eob == 0)
     add_token(&t, &coef_tail_cdfs[band[c]][pt], &coef_head_cdfs[band[c]][pt], 1,
               1, 0, BLOCK_Z_TOKEN);
@@ -564,6 +656,8 @@ int av1_is_skippable_in_plane(MACROBLOCK *x, BLOCK_SIZE bsize, int plane) {
 }
 
 #if CONFIG_VAR_TX
+// TODO(sarahparker) *td and **t are included in *arg and can be removed
+// from this function signature in a cleanup.
 void tokenize_vartx(ThreadData *td, TOKENEXTRA **t, RUN_TYPE dry_run,
                     TX_SIZE tx_size, BLOCK_SIZE plane_bsize, int blk_row,
                     int blk_col, int block, int plane, void *arg) {

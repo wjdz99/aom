@@ -601,6 +601,7 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
   txfm_param.lossless = xd->lossless[mbmi->segment_id];
 #if CONFIG_MRC_TX || CONFIG_LGT
   txfm_param.is_inter = is_inter_block(mbmi);
+  txfm_param.mask = xd->mrc_mask;
   txfm_param.dst = dst;
   txfm_param.stride = dst_stride;
 #if CONFIG_MRC_TX
