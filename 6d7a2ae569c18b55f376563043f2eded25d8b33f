@@ -1,0 +1,326 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2afdc3df_ce64be6c",
+        "filename": "av1/common/onyxc_int.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2017-08-08T01:00:58Z",
+      "side": 1,
+      "message": "This structure is for encoder only. As a future work, we should figure out a way to move it out of common. Maybe add a TODO?",
+      "range": {
+        "startLine": 134,
+        "startChar": 2,
+        "endLine": 134,
+        "endChar": 24
+      },
+      "revId": "6d7a2ae569c18b55f376563043f2eded25d8b33f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3dac0f51_145c8ef8",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2017-08-08T01:00:58Z",
+      "side": 1,
+      "message": "This should go to line 48, following alphabetical order.",
+      "range": {
+        "startLine": 75,
+        "startChar": 0,
+        "endLine": 77,
+        "endChar": 6
+      },
+      "revId": "6d7a2ae569c18b55f376563043f2eded25d8b33f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f4be21d7_f3ce853f",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 5993,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2017-08-08T01:00:58Z",
+      "side": 1,
+      "message": "const int",
+      "range": {
+        "startLine": 5993,
+        "startChar": 4,
+        "endLine": 5993,
+        "endChar": 7
+      },
+      "revId": "6d7a2ae569c18b55f376563043f2eded25d8b33f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0034e8a1_6cba68d3",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 5994,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2017-08-08T01:00:58Z",
+      "side": 1,
+      "message": "const int",
+      "range": {
+        "startLine": 5994,
+        "startChar": 4,
+        "endLine": 5994,
+        "endChar": 7
+      },
+      "revId": "6d7a2ae569c18b55f376563043f2eded25d8b33f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4c7f30e2_b6a6f6bd",
+        "filename": "av1/encoder/hash_motion.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2017-08-08T01:00:58Z",
+      "side": 1,
+      "message": "crc_mask can also be defined here.",
+      "range": {
+        "startLine": 63,
+        "startChar": 0,
+        "endLine": 64,
+        "endChar": 37
+      },
+      "revId": "6d7a2ae569c18b55f376563043f2eded25d8b33f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "39f013c0_19de25a5",
+        "filename": "av1/encoder/hash_motion.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 342,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2017-08-08T01:00:58Z",
+      "side": 1,
+      "message": "const uint8_t",
+      "range": {
+        "startLine": 342,
+        "startChar": 2,
+        "endLine": 342,
+        "endChar": 9
+      },
+      "revId": "6d7a2ae569c18b55f376563043f2eded25d8b33f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "194b66d6_63145cf8",
+        "filename": "av1/encoder/hash_motion.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 358,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2017-08-08T01:00:58Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 358,
+        "startChar": 2,
+        "endLine": 358,
+        "endChar": 5
+      },
+      "revId": "6d7a2ae569c18b55f376563043f2eded25d8b33f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5dcbd01a_a1dfcae3",
+        "filename": "av1/encoder/hash_motion.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 359,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2017-08-08T01:00:58Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 359,
+        "startChar": 2,
+        "endLine": 359,
+        "endChar": 9
+      },
+      "revId": "6d7a2ae569c18b55f376563043f2eded25d8b33f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1e424ac8_1ee4b607",
+        "filename": "av1/encoder/hash_motion.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2017-08-08T01:00:58Z",
+      "side": 1,
+      "message": "block_size X block_size?",
+      "range": {
+        "startLine": 58,
+        "startChar": 3,
+        "endLine": 58,
+        "endChar": 15
+      },
+      "revId": "6d7a2ae569c18b55f376563043f2eded25d8b33f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "70973591_15c60f22",
+        "filename": "av1/encoder/hash_motion.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2017-08-08T01:00:58Z",
+      "side": 1,
+      "message": "ditto",
+      "range": {
+        "startLine": 62,
+        "startChar": 3,
+        "endLine": 62,
+        "endChar": 15
+      },
+      "revId": "6d7a2ae569c18b55f376563043f2eded25d8b33f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "837cb75a_3c8fce23",
+        "filename": "av1/encoder/mcomp.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2567,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2017-08-08T01:00:58Z",
+      "side": 1,
+      "message": "May replace 5 with MAX_HASH_MV_TABLE_SIZE.",
+      "range": {
+        "startLine": 2567,
+        "startChar": 30,
+        "endLine": 2567,
+        "endChar": 70
+      },
+      "revId": "6d7a2ae569c18b55f376563043f2eded25d8b33f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ad6c89f6_a31d557f",
+        "filename": "av1/encoder/mcomp.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2686,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2017-08-08T01:00:58Z",
+      "side": 1,
+      "message": "const uint8_t",
+      "range": {
+        "startLine": 2686,
+        "startChar": 8,
+        "endLine": 2686,
+        "endChar": 15
+      },
+      "revId": "6d7a2ae569c18b55f376563043f2eded25d8b33f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "31b10c88_05601a7b",
+        "filename": "av1/encoder/mcomp.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2703,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2017-08-08T01:00:58Z",
+      "side": 1,
+      "message": "const int",
+      "range": {
+        "startLine": 2703,
+        "startChar": 8,
+        "endLine": 2703,
+        "endChar": 11
+      },
+      "revId": "6d7a2ae569c18b55f376563043f2eded25d8b33f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "013e7ebf_3803b820",
+        "filename": "third_party/vector/LICENSE.txt",
+        "patchSetId": 2
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2017-08-08T01:00:58Z",
+      "side": 1,
+      "message": "Do we need this file? This information is already in vector.h/c.",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 19,
+        "endChar": 74
+      },
+      "revId": "6d7a2ae569c18b55f376563043f2eded25d8b33f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
