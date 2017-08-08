@@ -21,6 +21,8 @@
 #include "aom/aom_integer.h"
 #include "aom_dsp/aom_dsp_common.h"
 
+#define MAX_TXFM_STAGE_NUM 12
+
 static const int cos_bit_min = 10;
 static const int cos_bit_max = 16;
 
