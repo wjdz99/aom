@@ -100,6 +100,10 @@ typedef struct macroblock MACROBLOCK;
 struct macroblock {
   struct macroblock_plane plane[MAX_MB_PLANE];
 
+#if CONFIG_MRC_DCT && !IMPLICIT_MASK_INTER
+  DECLARE_ALIGNED(16, int, mrc_mask[2 * MAX_SB_SQUARE]);
+#endif
+
   MACROBLOCKD e_mbd;
   MB_MODE_INFO_EXT *mbmi_ext;
   int skip_block;
