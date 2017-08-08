@@ -604,6 +604,9 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
   txfm_param.dst = dst;
   txfm_param.stride = dst_stride;
 #if CONFIG_MRC_TX
+#if !IMPLICIT_MASK_INTER
+  txfm_param.mask = xd->mrc_mask;
+#endif  // !IMPLICIT_MASK_INTER
   txfm_param.valid_mask = &mbmi->valid_mrc_mask;
 #endif  // CONFIG_MRC_TX
 #endif  // CONFIG_MRC_TX || CONFIG_LGT

@@ -1807,7 +1807,7 @@ static const aom_prob
     };
 #endif  // CONFIG_LOOP_RESTORATION
 
-#if CONFIG_PALETTE
+#if CONFIG_PALETTE || (CONFIG_MRC_TX && !IMPLICIT_MASK_INTER)
 #define NUM_PALETTE_NEIGHBORS 3  // left, top-left and top.
 int av1_get_palette_color_index_context(const uint8_t *color_map, int stride,
                                         int r, int c, int palette_size,
@@ -1892,7 +1892,7 @@ int av1_get_palette_color_index_context(const uint8_t *color_map, int stride,
 #undef NUM_PALETTE_NEIGHBORS
 #undef MAX_COLOR_CONTEXT_HASH
 
-#endif  // CONFIG_PALETTE
+#endif  // CONFIG_PALETTE || (CONFIG_MRC_TX && !IMPLICIT_MASK_INTER)
 
 #if CONFIG_VAR_TX
 static const aom_prob default_txfm_partition_probs[TXFM_PARTITION_CONTEXTS] = {

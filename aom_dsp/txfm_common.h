@@ -33,6 +33,7 @@ typedef struct txfm_param {
   uint8_t *dst;
 #if CONFIG_MRC_TX
   int *valid_mask;
+  uint8_t *mask;
 #endif  // CONFIG_MRC_TX
 #endif  // CONFIG_MRC_TX || CONFIG_LGT
 #if CONFIG_LGT
