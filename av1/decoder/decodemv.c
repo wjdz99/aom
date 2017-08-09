@@ -2726,7 +2726,9 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
       if (find_projection(mbmi->num_proj_ref[0], pts, pts_inref, bsize,
                           mbmi->mv[0].as_mv.row, mbmi->mv[0].as_mv.col,
                           &mbmi->wm_params[0], mi_row, mi_col)) {
+        // Disable this because now we can do non-causal warp motion
         aom_internal_error(&cm->error, AOM_CODEC_ERROR, "Invalid Warped Model");
+        // mbmi->num_proj_ref[0] = -1;
       }
     }
 #endif  // CONFIG_WARPED_MOTION

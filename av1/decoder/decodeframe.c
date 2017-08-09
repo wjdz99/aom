@@ -66,6 +66,9 @@
 
 #if CONFIG_WARPED_MOTION || CONFIG_GLOBAL_MOTION
 #include "av1/common/warped_motion.h"
+#if NONCAUSAL_WARP
+#include "av1/common/mvref_common.h"
+#endif
 #endif  // CONFIG_WARPED_MOTION || CONFIG_GLOBAL_MOTION
 
 #define MAX_AV1_HEADER_SIZE 80
@@ -2063,6 +2066,22 @@ static void decode_token_and_recon_block(AV1Decoder *const pbi,
       }
     }
 
+#if NONCAUSAL_WARP
+    if (mbmi->motion_mode == WARPED_CAUSAL) {
+      const MOTION_MODE motion_allowed = motion_mode_allowed(
+#if CONFIG_GLOBAL_MOTION
+          0, xd->global_motion,
+#endif  // CONFIG_GLOBAL_MOTION
+#if CONFIG_WARPED_MOTION
+          xd,
+#endif
+          xd->mi[0]);
+      assert(motion_allowed == WARPED_CAUSAL);
+
+      try_noncausal_warp(cm, xd, mi_row, mi_col);
+    }
+#endif
+
 #if CONFIG_CB4X4
     av1_build_inter_predictors_sb(cm, xd, mi_row, mi_col, NULL, bsize);
 #else
@@ -2158,7 +2177,7 @@ static void decode_token_and_recon_block(AV1Decoder *const pbi,
   aom_merge_corrupted_flag(&xd->corrupted, reader_corrupted_flag);
 }
 
-#if (CONFIG_NCOBMC || CONFIG_NCOBMC_ADAPT_WEIGHT) && CONFIG_MOTION_VAR
+#if HAS_NONCAUSAL
 static void detoken_and_recon_sb(AV1Decoder *const pbi, MACROBLOCKD *const xd,
                                  int mi_row, int mi_col, aom_reader *r,
                                  BLOCK_SIZE bsize) {
@@ -2237,7 +2256,7 @@ static void detoken_and_recon_sb(AV1Decoder *const pbi, MACROBLOCKD *const xd,
     }
   }
 }
-#endif
+#endif  // HAS_NONCAUSAL
 
 static void decode_block(AV1Decoder *const pbi, MACROBLOCKD *const xd,
 #if CONFIG_SUPERTX
@@ -2258,12 +2277,12 @@ static void decode_block(AV1Decoder *const pbi, MACROBLOCKD *const xd,
 #endif
                     bsize);
 
-#if !(CONFIG_MOTION_VAR && (CONFIG_NCOBMC || CONFIG_NCOBMC_ADAPT_WEIGHT))
+#if !(CONFIG_MOTION_VAR && HAS_NONCAUSAL)
 #if CONFIG_SUPERTX
   if (!supertx_enabled)
 #endif  // CONFIG_SUPERTX
     decode_token_and_recon_block(pbi, xd, mi_row, mi_col, r, bsize);
-#endif
+#endif  // !(CONFIG_MOTION_VAR && HAS_NONCAUSAL)
 }
 
 static PARTITION_TYPE read_partition(AV1_COMMON *cm, MACROBLOCKD *xd,
@@ -3886,12 +3905,15 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
 
         for (mi_col = tile_info.mi_col_start; mi_col < tile_info.mi_col_end;
              mi_col += cm->mib_size) {
+#if NONCAUSAL_WARP
+          set_sb_mi_boundaries(cm, &td->xd, mi_row, mi_col);
+#endif
           decode_partition(pbi, &td->xd,
 #if CONFIG_SUPERTX
                            0,
 #endif  // CONFIG_SUPERTX
                            mi_row, mi_col, &td->bit_reader, cm->sb_size);
-#if (CONFIG_NCOBMC || CONFIG_NCOBMC_ADAPT_WEIGHT) && CONFIG_MOTION_VAR
+#if HAS_NONCAUSAL
           detoken_and_recon_sb(pbi, &td->xd, mi_row, mi_col, &td->bit_reader,
                                cm->sb_size);
 #endif
@@ -4042,7 +4064,7 @@ static int tile_worker_hook(TileWorkerData *const tile_data,
                        0,
 #endif
                        mi_row, mi_col, &tile_data->bit_reader, cm->sb_size);
-#if (CONFIG_NCOBMC || CONFIG_NCOBMC_ADAPT_WEIGHT) && CONFIG_MOTION_VAR
+#if HAS_NONCAUSAL
       detoken_and_recon_sb(pbi, &tile_data->xd, mi_row, mi_col,
                            &tile_data->bit_reader, cm->sb_size);
 #endif

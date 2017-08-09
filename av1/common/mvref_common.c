@@ -1238,6 +1238,245 @@ int findSamples(const AV1_COMMON *cm, MACROBLOCKD *xd, int mi_row, int mi_col,
 
   return np;
 }
+#if NONCAUSAL_WARP
+#define ADD_SAMPLE(r, rs, c, cs)                                             \
+  if (mbmi->ref_frame[0] == ref_frame && mbmi->ref_frame[1] == NONE_FRAME) { \
+    record_samples(mbmi, pts, pts_inref, pts_mv, global_offset_r,            \
+                   global_offset_c, r, rs, c, cs);                           \
+    pts += 2;                                                                \
+    pts_inref += 2;                                                          \
+    pts_mv += 2;                                                             \
+    np++;                                                                    \
+  }
+
+int sortSamples_w_mv(int *pts_mv, MV *mv, int *pts, int *pts_inref, int len) {
+  int pts_mvd[SAMPLES_ARRAY_SIZE] = { 0 };
+  int i, j, k;
+  int ret = len;
+
+  for (i = 0; i < len; ++i)
+    pts_mvd[i] =
+        abs(pts_mv[2 * i] - mv->col) + abs(pts_mv[2 * i + 1] - mv->row);
+
+  for (i = 1; i <= len - 1; ++i) {
+    for (j = 0; j < i; ++j) {
+      if (pts_mvd[j] > pts_mvd[i]) {
+        int temp, tempi, tempj, ptempi, ptempj;
+        int vtmpi, vtmpj;
+
+        temp = pts_mvd[i];
+        tempi = pts[2 * i];
+        tempj = pts[2 * i + 1];
+        ptempi = pts_inref[2 * i];
+        ptempj = pts_inref[2 * i + 1];
+        vtmpi = pts_mv[2 * i];
+        vtmpj = pts_mv[2 * i + 1];
+
+        for (k = i; k > j; k--) {
+          pts_mvd[k] = pts_mvd[k - 1];
+          pts[2 * k] = pts[2 * (k - 1)];
+          pts[2 * k + 1] = pts[2 * (k - 1) + 1];
+          pts_inref[2 * k] = pts_inref[2 * (k - 1)];
+          pts_inref[2 * k + 1] = pts_inref[2 * (k - 1) + 1];
+          pts_mv[2 * k] = pts_mv[2 * (k - 1)];
+          pts_mv[2 * k + 1] = pts_mv[2 * (k - 1) + 1];
+        }
+
+        pts_mvd[j] = temp;
+        pts[2 * j] = tempi;
+        pts[2 * j + 1] = tempj;
+        pts_inref[2 * j] = ptempi;
+        pts_inref[2 * j + 1] = ptempj;
+        pts_mv[2 * j] = vtmpi;
+        pts_mv[2 * j + 1] = vtmpj;
+        break;
+      }
+    }
+  }
+
+  for (i = len - 1; i >= 1; i--) {
+    int low = (i == 1) ? 1 : AOMMAX((pts_mvd[i - 1] - pts_mvd[0]) / (i - 1), 1);
+
+    if ((pts_mvd[i] - pts_mvd[i - 1]) >= TRIM_THR * low) ret = i;
+  }
+
+  if (ret > LEAST_SQUARES_SAMPLES_MAX) ret = LEAST_SQUARES_SAMPLES_MAX;
+  return ret;
+}
+
+int appendNonCausalSamples(const AV1_COMMON *cm, MACROBLOCKD *xd, int mi_row,
+                           int mi_col, int *pts, int *pts_inref, int *pts_mv,
+                           int *has_no_causal) {
+  MB_MODE_INFO *const mbmi0 = &(xd->mi[0]->mbmi);
+  BLOCK_SIZE bsize = mbmi0->sb_type;
+  int ref_frame = mbmi0->ref_frame[0];
+  int i, mi_step = 1, np;
+  int global_offset_c = mi_col * MI_SIZE;
+  int global_offset_r = mi_row * MI_SIZE;
+
+  np = findSamples(cm, xd, mi_row, mi_col, pts, pts_inref, pts_mv);
+
+  np = sortSamples_w_mv(pts_mv, &mbmi0->mv[0].as_mv, pts, pts_inref, np);
+
+  // test if we can have causal projection
+  if (np == 0) {
+    *has_no_causal = 1;
+  } else {
+    if (find_projection(mbmi0->num_proj_ref[0], pts, pts_inref, bsize,
+                        mbmi0->mv[0].as_mv.row, mbmi0->mv[0].as_mv.col,
+                        &mbmi0->wm_params[0], mi_row, mi_col)) {
+      *has_no_causal = 1;
+    } else {
+      *has_no_causal = 0;
+    }
+  }
+  // remove this condition because we will search if ncwm for
+  // simple translation now
+
+  // assert(np > 0);
+
+  pts += 2 * np;
+  pts_inref += 2 * np;
+  pts_mv += 2 * np;
+
+  // scan the bottom row
+  if (mi_row + xd->n8_h < xd->sb_mi_bd.mi_row_end) {
+    int mi_row_offset = xd->n8_h;
+    MODE_INFO *mi = xd->mi[mi_row_offset * xd->mi_stride];
+    MB_MODE_INFO *mbmi = &mi->mbmi;
+    uint8_t n8_w = mi_size_wide[mbmi->sb_type];
+    // Handle "current block width <= above block width" case.
+    if (xd->n8_w <= n8_w) {
+      int col_offset = -mi_col % n8_w;
+
+      ADD_SAMPLE(xd->n8_h, 1, col_offset, 1);
+
+    } else {
+      // Handle "current block height > above block height" case.
+      for (i = 0; i < AOMMIN(xd->n8_w, cm->mi_cols - mi_col); i += mi_step) {
+        int mi_col_offset = i;
+
+        mi = xd->mi[mi_col_offset + mi_row_offset * xd->mi_stride];
+        mbmi = &mi->mbmi;
+        n8_w = mi_size_wide[mbmi->sb_type];
+
+        mi_step = n8_w;
+
+        ADD_SAMPLE(xd->n8_h, 1, i, 1);
+      }
+    }
+  }
+
+  assert(2 * np <= SAMPLES_ARRAY_SIZE);
+
+  // scan the right column
+  if (mi_col + xd->n8_w < xd->sb_mi_bd.mi_col_end) {
+    int mi_col_offset = xd->n8_w;
+    MODE_INFO *mi = xd->mi[mi_col_offset];
+    MB_MODE_INFO *mbmi = &mi->mbmi;
+    uint8_t n8_h = mi_size_high[mbmi->sb_type];
+    // Handle "current block height <= above block height" case.
+    if (xd->n8_h <= n8_h) {
+      int row_offset = -mi_row % n8_h;
+
+      ADD_SAMPLE(row_offset, 1, xd->n8_w, 1);
+    } else {
+      // Handle "current block height > above block height" case.
+      for (i = 0; i < AOMMIN(xd->n8_h, cm->mi_rows - mi_row); i += mi_step) {
+        int mi_row_offset = i;
+        mi = xd->mi[mi_col_offset + mi_row_offset * xd->mi_stride];
+        mbmi = &mi->mbmi;
+        n8_h = mi_size_high[mbmi->sb_type];
+
+        mi_step = n8_h;
+
+        ADD_SAMPLE(i, 1, xd->n8_w, 1);
+      }
+    }
+  }
+  assert(2 * np <= SAMPLES_ARRAY_SIZE);
+  return np;
+}
+
+int try_projection_mtx(WarpedMotionParams *wm, int mi_row, int mi_col, int mvx,
+                       int mvy, int bsize) {
+  const int bw = block_size_wide[bsize];
+  const int bh = block_size_high[bsize];
+  const int isuy = (mi_row * MI_SIZE + AOMMAX(bh, MI_SIZE) / 2 - 1);
+  const int isux = (mi_col * MI_SIZE + AOMMAX(bw, MI_SIZE) / 2 - 1);
+  const int suy = isuy * 8;
+  const int sux = isux * 8;
+  const int duy = suy + mvy;
+  const int dux = sux + mvx;
+
+  int64_t mx, my;
+
+  mx = wm->wmmat[2] * sux + wm->wmmat[3] * suy + wm->wmmat[0];
+  my = wm->wmmat[4] * sux + wm->wmmat[5] * suy + wm->wmmat[1];
+
+  mx = mx >> WARPEDMODEL_PREC_BITS;
+  my = my >> WARPEDMODEL_PREC_BITS;
+
+  return (int)abs(mx - dux) + (int)abs(my - duy);
+}
+
+int try_noncausal_warp(const AV1_COMMON *cm, MACROBLOCKD *xd, int mi_row,
+                       int mi_col) {
+  MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
+  BLOCK_SIZE bsize = mbmi->sb_type;
+#if WARPED_MOTION_SORT_SAMPLES
+  int pts0[SAMPLES_ARRAY_SIZE], pts_inref0[SAMPLES_ARRAY_SIZE];
+  int pts_mv0[SAMPLES_ARRAY_SIZE];
+#else
+  int pts[SAMPLES_ARRAY_SIZE], pts_inref[SAMPLES_ARRAY_SIZE];
+#endif  // WARPED_MOTION_SORT_SAMPLES
+  MB_MODE_INFO backup_mbmi = *mbmi;
+  int has_no_causal_warp;
+
+  mbmi->wm_params[0].wmtype = DEFAULT_WMTYPE;
+
+  mbmi->num_proj_ref[0] = appendNonCausalSamples(
+      cm, xd, mi_row, mi_col, pts0, pts_inref0, pts_mv0, &has_no_causal_warp);
+
+  if (mbmi->num_proj_ref[0] > 1) {
+    mbmi->num_proj_ref[0] = sortSamples(pts_mv0, &mbmi->mv[0].as_mv, pts0,
+                                        pts_inref0, mbmi->num_proj_ref[0]);
+#if CONFIG_EXT_INTER
+    best_bmc_mbmi->num_proj_ref[0] = mbmi->num_proj_ref[0];
+#endif  // CONFIG_EXT_INTER
+  }
+  // recover to backup if we cannot find projection for noncausal warp
+  if (find_projection(mbmi->num_proj_ref[0], pts0, pts_inref0, bsize,
+                      mbmi->mv[0].as_mv.row, mbmi->mv[0].as_mv.col,
+                      &mbmi->wm_params[0], mi_row, mi_col)) {
+    *mbmi = backup_mbmi;
+    return 0;
+  } else {
+    int nc_diff =
+        try_projection_mtx(&mbmi->wm_params[0], mi_row, mi_col,
+                           mbmi->mv[0].as_mv.col, mbmi->mv[0].as_mv.row, bsize);
+    // try if
+    int c_diff = INT_MAX;
+
+    if (!has_no_causal_warp) {
+      c_diff = try_projection_mtx(&backup_mbmi.wm_params[0], mi_row, mi_col,
+                                  mbmi->mv[0].as_mv.col, mbmi->mv[0].as_mv.row,
+                                  bsize);
+
+      if (nc_diff < c_diff) {
+        return 1;
+      } else {
+        *mbmi = backup_mbmi;
+        return 0;
+      }
+    } else {
+      return 1;
+    }
+  }
+}
+
+#endif
+
 #else
 void calc_projection_samples(MB_MODE_INFO *const mbmi, int x, int y,
                              int *pts_inref) {

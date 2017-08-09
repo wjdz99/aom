@@ -3358,3 +3358,19 @@ void av1_build_wedge_inter_predictor_from_buf(
   }
 }
 #endif  // CONFIG_EXT_INTER
+#if NONCAUSAL_WARP
+void set_sb_mi_boundaries(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
+                          const int mi_row, const int mi_col) {
+  const BLOCK_SIZE sb = cm->sb_size;
+  const int num_mi_w = mi_size_wide[sb];
+  const int num_mi_h = mi_size_high[sb];
+
+  xd->sb_mi_bd.mi_col_begin = mi_col;
+  xd->sb_mi_bd.mi_row_begin = mi_row;
+  // points to the last mi
+  xd->sb_mi_bd.mi_col_end =
+      mi_col + num_mi_w > cm->mi_cols ? cm->mi_cols - 1 : mi_col + num_mi_w - 1;
+  xd->sb_mi_bd.mi_row_end =
+      mi_row + num_mi_h > cm->mi_rows ? cm->mi_rows - 1 : mi_row + num_mi_h - 1;
+}
+#endif
