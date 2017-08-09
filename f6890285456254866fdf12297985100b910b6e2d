@@ -34,6 +34,24 @@
       "revId": "f6890285456254866fdf12297985100b910b6e2d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fc442d1b_1ab11f76",
+        "filename": "av1/encoder/palette.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-08-09T17:45:53Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "22c50fd9_9b0a2874",
+      "revId": "f6890285456254866fdf12297985100b910b6e2d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
