@@ -1066,6 +1066,61 @@ int sortSamples(int *pts_mv, MV *mv, int *pts, int *pts_inref, int len) {
   return ret;
 }
 
+int sortSamples2(int *pts_mv, MV *mv, int *pts, int *pts_inref, int len,
+                 int *max_mv_d) {
+  int pts_mvd[SAMPLES_ARRAY_SIZE] = { 0 };
+  int i, j, k;
+  int ret = len;
+
+  for (i = 0; i < len; ++i)
+    pts_mvd[i] =
+        abs(pts_mv[2 * i] - mv->col) + abs(pts_mv[2 * i + 1] - mv->row);
+
+  for (i = 1; i <= len - 1; ++i) {
+    for (j = 0; j < i; ++j) {
+      if (pts_mvd[j] > pts_mvd[i]) {
+        int temp, tempi, tempj, ptempi, ptempj;
+
+        temp = pts_mvd[i];
+        tempi = pts[2 * i];
+        tempj = pts[2 * i + 1];
+        ptempi = pts_inref[2 * i];
+        ptempj = pts_inref[2 * i + 1];
+
+        for (k = i; k > j; k--) {
+          pts_mvd[k] = pts_mvd[k - 1];
+          pts[2 * k] = pts[2 * (k - 1)];
+          pts[2 * k + 1] = pts[2 * (k - 1) + 1];
+          pts_inref[2 * k] = pts_inref[2 * (k - 1)];
+          pts_inref[2 * k + 1] = pts_inref[2 * (k - 1) + 1];
+        }
+
+        pts_mvd[j] = temp;
+        pts[2 * j] = tempi;
+        pts[2 * j + 1] = tempj;
+        pts_inref[2 * j] = ptempi;
+        pts_inref[2 * j + 1] = ptempj;
+        break;
+      }
+    }
+  }
+
+  for (i = len - 1; i >= 1; i--) {
+    int low = (i == 1) ? 1 : AOMMAX((pts_mvd[i - 1] - pts_mvd[0]) / (i - 1), 1);
+
+    if ((pts_mvd[i] - pts_mvd[i - 1]) >= TRIM_THR * low) ret = i;
+  }
+
+  if (ret > LEAST_SQUARES_SAMPLES_MAX) ret = LEAST_SQUARES_SAMPLES_MAX;
+
+  if (ret)
+    *max_mv_d = pts_mvd[ret - 1];
+  else
+    *max_mv_d = 0;
+
+  return ret;
+}
+
 // Note: Samples returned are at 1/8-pel precision
 int findSamples(const AV1_COMMON *cm, MACROBLOCKD *xd, int mi_row, int mi_col,
                 int *pts, int *pts_inref, int *pts_mv) {
@@ -1471,14 +1526,28 @@ int try_noncausal_warp(const AV1_COMMON *cm, MACROBLOCKD *xd, int mi_row,
 #endif  // WARPED_MOTION_SORT_SAMPLES
   MB_MODE_INFO backup_mbmi = *mbmi;
   int has_top, has_left, has_bottom, has_right;
+  int max_mv_d1, max_mv_d2;
+
+  // find largest mv for causal warp
+  mbmi->num_proj_ref[0] =
+      findSamples(cm, xd, mi_row, mi_col, pts0, pts_inref0, pts_mv0);
+  if (mbmi->num_proj_ref[0] > 1) {
+    mbmi->num_proj_ref[0] =
+        sortSamples2(pts_mv0, &mbmi->mv[0].as_mv, pts0, pts_inref0,
+                     mbmi->num_proj_ref[0], &max_mv_d1);
+#if CONFIG_EXT_INTER
+    best_bmc_mbmi->num_proj_ref[0] = mbmi->num_proj_ref[0];
+#endif  // CONFIG_EXT_INTER
+  }
 
   mbmi->num_proj_ref[0] =
       findNonCausalSamples(cm, xd, mi_row, mi_col, pts0, pts_inref0, pts_mv0,
                            &has_top, &has_left, &has_bottom, &has_right);
 
   if (mbmi->num_proj_ref[0] > 1) {
-    mbmi->num_proj_ref[0] = sortSamples(pts_mv0, &mbmi->mv[0].as_mv, pts0,
-                                        pts_inref0, mbmi->num_proj_ref[0]);
+    mbmi->num_proj_ref[0] =
+        sortSamples2(pts_mv0, &mbmi->mv[0].as_mv, pts0, pts_inref0,
+                     mbmi->num_proj_ref[0], &max_mv_d2);
 #if CONFIG_EXT_INTER
     best_bmc_mbmi->num_proj_ref[0] = mbmi->num_proj_ref[0];
 #endif  // CONFIG_EXT_INTER
@@ -1488,25 +1557,9 @@ int try_noncausal_warp(const AV1_COMMON *cm, MACROBLOCKD *xd, int mi_row,
   // noncausal pattern larger than the samples from causal pattern
   if (!noncausal_warp_allowed(mbmi->num_proj_ref[0],
                               backup_mbmi.num_proj_ref[0], has_top, has_left,
-                              has_bottom, has_right)) {
+                              has_bottom, has_right) &&
+      max_mv_d2 > max_mv_d1) {
     *mbmi = backup_mbmi;
-    /*
-    // recover the warping parameters
-    mbmi->num_proj_ref[0] =
-          findSamples(cm, xd, mi_row, mi_col, pts0, pts_inref0, pts_mv0);
-    if (mbmi->num_proj_ref[0] > 1) {
-      mbmi->num_proj_ref[0] = sortSamples(pts_mv0, &mbmi->mv[0].as_mv, pts0,
-                                          pts_inref0, mbmi->num_proj_ref[0]);
-#if CONFIG_EXT_INTER
-      best_bmc_mbmi->num_proj_ref[0] = mbmi->num_proj_ref[0];
-#endif  // CONFIG_EXT_INTER
-    }
-    if (find_projection(mbmi->num_proj_ref[0], pts0, pts_inref0, bsize,
-                            mbmi->mv[0].as_mv.row, mbmi->mv[0].as_mv.col,
-                            &mbmi->wm_params[0], mi_row, mi_col)) {
-      assert(0 && "error");
-    }
-    */
     return 0;
   } else {
     // recover to backup if we cannot find projection for noncausal warp
@@ -1514,26 +1567,8 @@ int try_noncausal_warp(const AV1_COMMON *cm, MACROBLOCKD *xd, int mi_row,
                         mbmi->mv[0].as_mv.row, mbmi->mv[0].as_mv.col,
                         &mbmi->wm_params[0], mi_row, mi_col)) {
       *mbmi = backup_mbmi;
-      /*
-      // recover the warping parameters
-      mbmi->num_proj_ref[0] =
-            findSamples(cm, xd, mi_row, mi_col, pts0, pts_inref0, pts_mv0);
-      if (mbmi->num_proj_ref[0] > 1) {
-        mbmi->num_proj_ref[0] = sortSamples(pts_mv0, &mbmi->mv[0].as_mv, pts0,
-                                            pts_inref0, mbmi->num_proj_ref[0]);
-#if CONFIG_EXT_INTER
-        best_bmc_mbmi->num_proj_ref[0] = mbmi->num_proj_ref[0];
-#endif  // CONFIG_EXT_INTER
-      }
-      if (find_projection(mbmi->num_proj_ref[0], pts0, pts_inref0, bsize,
-                              mbmi->mv[0].as_mv.row, mbmi->mv[0].as_mv.col,
-                              &mbmi->wm_params[0], mi_row, mi_col)) {
-        assert(0 && "error");
-      }
-      */
       return 0;
     } else {
-      *mbmi = backup_mbmi;
       return 1;
     }
   }
