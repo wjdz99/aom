@@ -2151,11 +2151,15 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
     }
   }
 
-#if CONFIG_FLEX_REFS
+#if CONFIG_FLEX_REFS || CONFIG_BGSPRITE
   double avg_sr_coded_error = 0;
   double avg_raw_err_stdev = 0;
   int non_zero_stdev_count = 0;
 #endif  // CONFIG_FLEX_REFS
+#if CONFIG_BGSPRITE
+  double avg_pcnt_second_ref = 0;
+  int non_zero_pcnt_second_ref_count = 0;
+#endif
 
   i = 0;
   while (i < rc->static_scene_max_gf_interval && i < rc->frames_to_key) {
@@ -2180,14 +2184,20 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
     accumulate_frame_motion_stats(
         &next_frame, &this_frame_mv_in_out, &mv_in_out_accumulator,
         &abs_mv_in_out_accumulator, &mv_ratio_accumulator);
-#if CONFIG_FLEX_REFS
+#if CONFIG_FLEX_REFS || CONFIG_BGSPRITE
     // sum up the metric values of current gf group
     avg_sr_coded_error += next_frame.sr_coded_error;
     if (next_frame.raw_error_stdev) {
       non_zero_stdev_count++;
       avg_raw_err_stdev += next_frame.raw_error_stdev;
     }
-#endif  // CONFIG_FLEX_REFS
+#endif  // CONFIG_FLEX_REFS || CONFIG_BGSPRITE
+#if CONFIG_BGSPRITE
+    if (this_frame->pcnt_second_ref) {
+      avg_pcnt_second_ref += this_frame->pcnt_second_ref;
+    }
+    non_zero_pcnt_second_ref_count++;
+#endif  // CONFIG_BGSPRITE
 
     // Accumulate the effect of prediction quality decay.
     if (!flash_detected) {
@@ -2239,6 +2249,13 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   // Was the group length constrained by the requirement for a new KF?
   rc->constrained_gf_group = (i >= rc->frames_to_key) ? 1 : 0;
 
+#if CONFIG_FLEX_REFS || CONFIG_BGSPRITE
+  const int num_mbs = (cpi->oxcf.resize_mode != RESIZE_NONE) ? cpi->initial_mbs
+                                                             : cpi->common.MBs;
+  assert(num_mbs > 0);
+  if (i) avg_sr_coded_error /= i;
+#endif  // CONFIG_FLEX_REFS || CONFIG_BGSPRITE
+
   // Should we use the alternate reference frame.
   if (allow_alt_ref && (i < cpi->oxcf.lag_in_frames) &&
       (i >= rc->min_gf_interval)) {
@@ -2253,6 +2270,17 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
          (zero_motion_accumulator < 0.995))
             ? 1
             : 0;
+#if CONFIG_BGSPRITE
+    if (non_zero_pcnt_second_ref_count) {
+      avg_pcnt_second_ref /= non_zero_pcnt_second_ref_count;
+    }
+
+    cpi->bgsprite_allowed = 1;
+    if (abs_mv_in_out_accumulator > 0.30 || decay_accumulator < 0.90 ||
+        avg_sr_coded_error / num_mbs < 20 || avg_pcnt_second_ref < 0.30) {
+      cpi->bgsprite_allowed = 0;
+    }
+#endif  // CONFIG_BGSPRITE
   } else {
     rc->gfu_boost = AOMMAX((int)boost_score, MIN_ARF_GF_BOOST);
     rc->source_alt_ref_pending = 0;
@@ -2262,9 +2290,6 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   rc->baseline_gf_interval = i - (is_key_frame || rc->source_alt_ref_pending);
 #if CONFIG_EXT_REFS
 #if CONFIG_FLEX_REFS
-  const int num_mbs = (cpi->oxcf.resize_mode != RESIZE_NONE) ? cpi->initial_mbs
-                                                             : cpi->common.MBs;
-  if (i) avg_sr_coded_error /= i;
   if (non_zero_stdev_count) avg_raw_err_stdev /= non_zero_stdev_count;
 
   // Disable extra alter refs and backward ref for "still" gf group
@@ -2274,7 +2299,6 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   // in gf group
   // avg_raw_err_stdev indicates the average of the standard deviation of (0, 0)
   // motion error per block of each frame in gf group
-  assert(num_mbs > 0);
   const int disable_bwd_extarf =
       (zero_motion_accumulator > MIN_ZERO_MOTION &&
        avg_sr_coded_error / num_mbs < MAX_SR_CODED_ERROR &&
