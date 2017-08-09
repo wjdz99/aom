@@ -32,7 +32,7 @@
  * 0 = Median
  * 1 = Mean
  */
-#define BGSPRITE_BLENDING_MODE 0
+#define BGSPRITE_BLENDING_MODE 1
 
 /* Interpolation for panorama alignment sampling:
  * 0 = Nearest neighbor
