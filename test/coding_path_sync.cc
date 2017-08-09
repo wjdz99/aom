@@ -34,11 +34,18 @@ class CompressedSource {
     aom_codec_enc_cfg_t cfg;
     aom_codec_enc_config_default(algo, &cfg, 0);
 
-    const int max_q = cfg.rc_max_quantizer;
+    // force the quantizer, to reduce the sensitivity on encoding choices.
+    // e.g, we don't want this test to break when the rate control is modified.
+    {
+      const int max_q = cfg.rc_max_quantizer;
+      const int min_q = cfg.rc_min_quantizer;
+      const int q = rnd_.PseudoUniform(max_q - min_q + 1) + min_q;
 
-    cfg.rc_end_usage = AOM_CQ;
-    cfg.rc_max_quantizer = max_q;
-    cfg.rc_min_quantizer = max_q;
+      cfg.rc_end_usage = AOM_CQ;
+      cfg.rc_max_quantizer = q;
+      cfg.rc_min_quantizer = q;
+    }
+
     cfg.g_w = kWidth;
     cfg.g_h = kHeight;
     cfg.g_lag_in_frames = 0;
@@ -129,7 +136,7 @@ class Decoder {
 
 // Try to reveal a mismatch between LBD and HBD coding paths.
 TEST(CodingPathSync, SearchForHbdLbdMismatch) {
-  const int count_tests = 100;
+  const int count_tests = 10;
   for (int i = 0; i < count_tests; ++i) {
     Decoder dec_hbd(0);
     Decoder dec_lbd(1);
