@@ -1533,6 +1533,7 @@ int try_noncausal_warp(const AV1_COMMON *cm, MACROBLOCKD *xd, int mi_row,
       */
       return 0;
     } else {
+      *mbmi = backup_mbmi;
       return 1;
     }
   }
