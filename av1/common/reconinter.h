@@ -873,6 +873,11 @@ void av1_build_wedge_inter_predictor_from_buf(
     int ext_dst_stride1[3]);
 #endif  // CONFIG_EXT_INTER
 
+#if NONCAUSAL_WARP
+void set_sb_mi_boundaries(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
+                          const int mi_row, const int mi_col);
+#endif  // NONCAUSAL_WARP
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif
