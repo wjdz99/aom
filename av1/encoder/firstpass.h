@@ -84,7 +84,7 @@ typedef struct {
   double new_mv_count;
   double duration;
   double count;
-#if CONFIG_FLEX_REFS
+#if CONFIG_FLEX_REFS || CONFIG_BGSPRITE
   // standard deviation for (0, 0) motion prediction error
   double raw_error_stdev;
 #endif  // CONFIG_FLEX_REFS
