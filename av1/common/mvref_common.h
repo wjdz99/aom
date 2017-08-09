@@ -454,7 +454,12 @@ static INLINE int is_dv_valid(const MV dv, const TileInfo *const tile,
 #endif  // CONFIG_INTRABC
 #if NONCAUSAL_WARP
 int findNonCausalSamples(const AV1_COMMON *cm, MACROBLOCKD *xd, int mi_row,
-                         int mi_col, int *pts, int *pts_inref, int *pts_mv);
+                         int mi_col, int *pts, int *pts_inref, int *pts_mv,
+                         int *has_top, int *has_left, int *has_bottom,
+                         int *has_right);
+
+int try_noncausal_warp(const AV1_COMMON *cm, MACROBLOCKD *xd, int mi_row,
+                       int mi_col);
 #endif
 
 #ifdef __cplusplus

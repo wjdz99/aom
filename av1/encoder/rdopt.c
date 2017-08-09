@@ -80,6 +80,13 @@ static const int filter_sets[DUAL_FILTER_SET_SIZE][2] = {
 #endif  // USE_EXTRA_FILTER
 #endif  // CONFIG_DUAL_FILTER
 
+#if NONCAUSAL_WARP
+int tt_warp_blk;
+int nc_warp_blk;
+NCWP_STATS ncwp_stats;
+NCWP_STATS cwp_stats;
+#endif
+
 #if CONFIG_EXT_REFS
 
 #if CONFIG_ALTREF2
@@ -12902,6 +12909,13 @@ int64_t get_prediction_rd_cost(const struct AV1_COMP *cpi, struct macroblock *x,
 // TODO(weitinglin): supporting !WARPED_MOTION_SORT_SAMPLES
 #if WARPED_MOTION_SORT_SAMPLES
 // #define RESEL_TX
+#define CWARP_CHECK  // check causal warp
+
+typedef struct warp_nn {
+  int nn;
+  int sorted_nn;
+} WPNN;
+
 void av1_check_noncausal_warp_rd(const struct AV1_COMP *cpi,
                                  struct macroblock *x, int mi_row, int mi_col) {
   const AV1_COMMON *const cm = &cpi->common;
@@ -12917,15 +12931,17 @@ void av1_check_noncausal_warp_rd(const struct AV1_COMP *cpi,
   MB_MODE_INFO backup_mbmi;
   int64_t rd_cost1, rd_cost2;
   int skip_blk1, skip_blk2;
+  int has_top, has_left, has_bottom, has_right;
 
-  // check the original rd performance
-  rd_cost1 =
-      get_prediction_rd_cost(cpi, x, mi_row, mi_col, &skip_blk1, &backup_mbmi);
+#ifdef CWARP_CHECK
+  WPNN cwp, ncwp;
 
-#ifndef RESEL_TX
-  // check if non-causal sampling helps
   mbmi->num_proj_ref[0] =
-      findNonCausalSamples(cm, xd, mi_row, mi_col, pts0, pts_inref0, pts_mv0);
+      findSamples(cm, xd, mi_row, mi_col, pts0, pts_inref0, pts_mv0);
+
+  // assert(mbmi->num_proj_ref[0] > 1);
+
+  cwp.nn = mbmi->num_proj_ref[0];
 
   if (mbmi->num_proj_ref[0] > 1) {
     mbmi->num_proj_ref[0] = sortSamples(pts_mv0, &mbmi->mv[0].as_mv, pts0,
@@ -12934,6 +12950,35 @@ void av1_check_noncausal_warp_rd(const struct AV1_COMP *cpi,
     best_bmc_mbmi->num_proj_ref[0] = mbmi->num_proj_ref[0];
 #endif  // CONFIG_EXT_INTER
   }
+
+  cwp.sorted_nn = mbmi->num_proj_ref[0];
+#endif
+
+  // check the original rd performance
+  rd_cost1 =
+      get_prediction_rd_cost(cpi, x, mi_row, mi_col, &skip_blk1, &backup_mbmi);
+
+#ifndef RESEL_TX
+  // check if non-causal sampling helps
+  mbmi->num_proj_ref[0] =
+      findNonCausalSamples(cm, xd, mi_row, mi_col, pts0, pts_inref0, pts_mv0,
+                           &has_top, &has_left, &has_bottom, &has_right);
+
+#ifdef CWARP_CHECK
+  ncwp.nn = mbmi->num_proj_ref[0];
+#endif
+
+  if (mbmi->num_proj_ref[0] > 1) {
+    mbmi->num_proj_ref[0] = sortSamples(pts_mv0, &mbmi->mv[0].as_mv, pts0,
+                                        pts_inref0, mbmi->num_proj_ref[0]);
+#if CONFIG_EXT_INTER
+    best_bmc_mbmi->num_proj_ref[0] = mbmi->num_proj_ref[0];
+#endif  // CONFIG_EXT_INTER
+  }
+
+#ifdef CWARP_CHECK
+  ncwp.sorted_nn = mbmi->num_proj_ref[0];
+#endif
 
   if (!find_projection(mbmi->num_proj_ref[0], pts0, pts_inref0, bsize,
                        mbmi->mv[0].as_mv.row, mbmi->mv[0].as_mv.col,
@@ -12953,6 +12998,42 @@ void av1_check_noncausal_warp_rd(const struct AV1_COMP *cpi,
     *mbmi = backup_mbmi;
     x->skip = skip_blk1;
   }
+
+#ifdef CWARP_CHECK
+  int pass_cond =
+      noncausal_warp_allowed(mbmi->num_proj_ref[0], backup_mbmi.num_proj_ref[0],
+                             has_top, has_left, has_bottom, has_right);
+
+  if (rd_cost2 != INT64_MAX) ++tt_warp_blk;
+
+  if (rd_cost2 < rd_cost1) {
+    if (ncwp.nn > cwp.nn) ncwp_stats.nn_larger += 1;
+    if (ncwp.sorted_nn > cwp.sorted_nn) ncwp_stats.sn_larger += 1;
+    if (pass_cond) ncwp_stats.cond += 1;
+    ++nc_warp_blk;
+
+  } else {
+    if (rd_cost2 != INT64_MAX) {
+      if (cwp.nn >= ncwp.nn) cwp_stats.nn_larger += 1;
+      if (cwp.sorted_nn >= ncwp.sorted_nn) cwp_stats.sn_larger += 1;
+      if (pass_cond) cwp_stats.cond += 1;
+    }
+  }
+#endif  // CWARP_CHECK
 }
+
+void update_noncausal_warp_tx(const struct AV1_COMP *cpi, struct macroblock *x,
+                              int mi_row, int mi_col) {
+  const AV1_COMMON *const cm = &cpi->common;
+  MACROBLOCKD *const xd = &x->e_mbd;
+  int update_tx = try_noncausal_warp(cm, xd, mi_row, mi_col);
+  int skip_blk;
+
+  if (update_tx) {
+    get_prediction_rd_cost(cpi, x, mi_row, mi_col, &skip_blk, NULL);
+    x->skip = skip_blk;
+  }
+}
+
 #endif  // WARPED_MOTION_SORT_SAMPLES
 #endif  // NONCAUSAL_WARP

@@ -73,6 +73,13 @@
 #include "aom_util/debug_util.h"
 #endif  // CONFIG_BITSTREAM_DEBUG
 
+#if NONCAUSAL_WARP
+extern int tt_warp_blk;
+extern int nc_warp_blk;
+extern NCWP_STATS ncwp_stats;
+extern NCWP_STATS cwp_stats;
+#endif
+
 #if CONFIG_ENTROPY_STATS
 FRAME_COUNTS aggregate_fc;
 // Aggregate frame counts per frame context type
@@ -2412,6 +2419,17 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
 
   av1_zero(*cpi);
 
+#if NONCAUSAL_WARP
+  tt_warp_blk = 0;
+  nc_warp_blk = 0;
+  ncwp_stats.nn_larger = 0;
+  ncwp_stats.sn_larger = 0;
+  ncwp_stats.cond = 0;
+  cwp_stats.nn_larger = 0;
+  cwp_stats.sn_larger = 0;
+  cwp_stats.cond = 0;
+#endif
+
   if (setjmp(cm->error.jmp)) {
     cm->error.setjmp = 0;
     av1_remove_compressor(cpi);
@@ -2876,6 +2894,13 @@ void av1_remove_compressor(AV1_COMP *cpi) {
       fclose(f);
     }
 #endif  // CONFIG_ENTROPY_STATS
+#if NONCAUSAL_WARP
+    fprintf(stdout, "warp counts: %d / %d \n", tt_warp_blk, nc_warp_blk);
+    fprintf(stdout, " C: [%d %d %d]\n", cwp_stats.nn_larger,
+            cwp_stats.sn_larger, cwp_stats.cond);
+    fprintf(stdout, "NC: [%d %d %d]\n", ncwp_stats.nn_larger,
+            ncwp_stats.sn_larger, ncwp_stats.cond);
+#endif
 #if CONFIG_INTERNAL_STATS
     aom_clear_system_state();
 

@@ -66,6 +66,9 @@
 
 #if CONFIG_WARPED_MOTION || CONFIG_GLOBAL_MOTION
 #include "av1/common/warped_motion.h"
+#if NONCAUSAL_WARP
+#include "av1/common/mvref_common.h"
+#endif
 #endif  // CONFIG_WARPED_MOTION || CONFIG_GLOBAL_MOTION
 
 #define MAX_AV1_HEADER_SIZE 80
@@ -2067,6 +2070,12 @@ static void decode_token_and_recon_block(AV1Decoder *const pbi,
       }
     }
 
+#if NONCAUSAL_WARP
+    if (mbmi->motion_mode == WARPED_CAUSAL) {
+      try_noncausal_warp(cm, xd, mi_row, mi_col);
+    }
+#endif
+
 #if CONFIG_CB4X4
     av1_build_inter_predictors_sb(cm, xd, mi_row, mi_col, NULL, bsize);
 #else
@@ -3888,6 +3897,9 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
 
         for (mi_col = tile_info.mi_col_start; mi_col < tile_info.mi_col_end;
              mi_col += cm->mib_size) {
+#if NONCAUSAL_WARP
+          set_sb_mi_boundaries(cm, &td->xd, mi_row, mi_col);
+#endif
           decode_partition(pbi, &td->xd,
 #if CONFIG_SUPERTX
                            0,

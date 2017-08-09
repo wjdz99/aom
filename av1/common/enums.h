@@ -29,7 +29,7 @@ extern "C" {
 #if CONFIG_NCOBMC || CONFIG_NCOBMC_ADAPT_WEIGHT || NONCAUSAL_WARP
 #define HAS_NONCAUSAL 1
 #else
-#define HAS_NONCAUSAL 1
+#define HAS_NONCAUSAL 0
 #endif
 
 // Max superblock size

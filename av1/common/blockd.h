@@ -117,6 +117,12 @@ typedef struct superblock_mi_boundaries {
   int mi_row_end;
   int mi_col_end;
 } SB_MI_BD;
+
+typedef struct noncausal_warp_stats {
+  int nn_larger;
+  int sn_larger;
+  int cond;
+} NCWP_STATS;
 #endif
 
 typedef struct {
@@ -1729,6 +1735,23 @@ static INLINE int is_nontrans_global_motion(const MACROBLOCKD *xd) {
 static INLINE PLANE_TYPE get_plane_type(int plane) {
   return (plane == 0) ? PLANE_TYPE_Y : PLANE_TYPE_UV;
 }
+
+#if NONCAUSAL_WARP
+static INLINE int noncausal_warp_allowed(int new_np, int old_np, int has_top,
+                                         int has_left, int has_bottom,
+                                         int has_right) {
+  // (void) has_bottom;
+  // (void) has_right;
+  //  && (has_bottom || has_right)
+  // if (new_np > old_np && (has_bottom && has_right)) return 1;
+  int side_num = has_top + has_left + has_bottom + has_right;
+
+  if (new_np > old_np && side_num > 2)
+    return 1;
+  else
+    return 0;
+}
+#endif  // NONCAUSAL_WARP
 
 #ifdef __cplusplus
 }  // extern "C"

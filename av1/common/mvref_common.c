@@ -1261,9 +1261,23 @@ int findSamples(const AV1_COMMON *cm, MACROBLOCKD *xd, int mi_row, int mi_col,
     pts_mv += 2;                                                             \
     np++;                                                                    \
   }
+
+#define ADD_SAMPLE_2(r, rs, c, cs, valid)                                    \
+  if (mbmi->ref_frame[0] == ref_frame && mbmi->ref_frame[1] == NONE_FRAME) { \
+    record_samples(mbmi, pts, pts_inref, pts_mv, global_offset_r,            \
+                   global_offset_c, r, rs, c, cs);                           \
+    pts += 2;                                                                \
+    pts_inref += 2;                                                          \
+    pts_mv += 2;                                                             \
+    np++;                                                                    \
+    *valid = 1;                                                              \
+  }
+#define DO_CORNER
 // Note: Samples returned are at 1/8-pel precision
 int findNonCausalSamples(const AV1_COMMON *cm, MACROBLOCKD *xd, int mi_row,
-                         int mi_col, int *pts, int *pts_inref, int *pts_mv) {
+                         int mi_col, int *pts, int *pts_inref, int *pts_mv,
+                         int *has_top, int *has_left, int *has_bottom,
+                         int *has_right) {
   MB_MODE_INFO *const mbmi0 = &(xd->mi[0]->mbmi);
   int ref_frame = mbmi0->ref_frame[0];
   int up_available = xd->up_available;
@@ -1271,6 +1285,16 @@ int findNonCausalSamples(const AV1_COMMON *cm, MACROBLOCKD *xd, int mi_row,
   int i, mi_step = 1, np = 0;
   int global_offset_c = mi_col * MI_SIZE;
   int global_offset_r = mi_row * MI_SIZE;
+#ifdef DO_CORNER
+  const TileInfo *const tile = &xd->tile;
+  int do_tl = 1;
+  int do_tr = 1;
+#endif
+
+  *has_top = 0;
+  *has_left = 0;
+  *has_bottom = 0;
+  *has_right = 0;
 
   // scan the above rows
   if (up_available) {
@@ -1283,7 +1307,12 @@ int findNonCausalSamples(const AV1_COMMON *cm, MACROBLOCKD *xd, int mi_row,
     if (xd->n8_w <= n8_w) {
       int col_offset = -mi_col % n8_w;
 
-      ADD_SAMPLE(0, -1, col_offset, 1);
+      ADD_SAMPLE_2(0, -1, col_offset, 1, has_top);
+
+#ifdef DO_CORNER
+      if (col_offset < 0) do_tl = 0;
+      if (col_offset + n8_w > xd->n8_w) do_tr = 0;
+#endif
     } else {
       // Handle "current block width > above block width" case.
       for (i = 0; i < AOMMIN(xd->n8_w, cm->mi_cols - mi_col); i += mi_step) {
@@ -1295,12 +1324,10 @@ int findNonCausalSamples(const AV1_COMMON *cm, MACROBLOCKD *xd, int mi_row,
 
         mi_step = n8_w;
 
-        ADD_SAMPLE(0, -1, i, 1);
+        ADD_SAMPLE_2(0, -1, i, 1, has_top);
       }
     }
   }
-
-  assert(4 * np <= SAMPLES_ARRAY_SIZE);
 
   // scan the left columns
   if (left_available) {
@@ -1313,7 +1340,9 @@ int findNonCausalSamples(const AV1_COMMON *cm, MACROBLOCKD *xd, int mi_row,
     if (xd->n8_h <= n8_h) {
       int row_offset = -mi_row % n8_h;
 
-      ADD_SAMPLE(row_offset, 1, 0, -1);
+      ADD_SAMPLE_2(row_offset, 1, 0, -1, has_left);
+
+      if (row_offset < 0) do_tl = 0;
 
     } else {
       // Handle "current block height > above block height" case.
@@ -1325,7 +1354,7 @@ int findNonCausalSamples(const AV1_COMMON *cm, MACROBLOCKD *xd, int mi_row,
 
         mi_step = n8_h;
 
-        ADD_SAMPLE(i, 1, 0, -1);
+        ADD_SAMPLE_2(i, 1, 0, -1, has_left);
       }
     }
   }
@@ -1341,7 +1370,8 @@ int findNonCausalSamples(const AV1_COMMON *cm, MACROBLOCKD *xd, int mi_row,
     if (xd->n8_w <= n8_w) {
       int col_offset = -mi_col % n8_w;
 
-      ADD_SAMPLE(xd->n8_h, 1, col_offset, 1);
+      ADD_SAMPLE_2(xd->n8_h, 1, col_offset, 1, has_bottom);
+
     } else {
       // Handle "current block height > above block height" case.
       for (i = 0; i < AOMMIN(xd->n8_w, cm->mi_cols - mi_col); i += mi_step) {
@@ -1353,7 +1383,7 @@ int findNonCausalSamples(const AV1_COMMON *cm, MACROBLOCKD *xd, int mi_row,
 
         mi_step = n8_w;
 
-        ADD_SAMPLE(xd->n8_h, 1, i, 1);
+        ADD_SAMPLE_2(xd->n8_h, 1, i, 1, has_bottom);
       }
     }
   }
@@ -1369,7 +1399,7 @@ int findNonCausalSamples(const AV1_COMMON *cm, MACROBLOCKD *xd, int mi_row,
     if (xd->n8_h <= n8_h) {
       int row_offset = -mi_row % n8_h;
 
-      ADD_SAMPLE(row_offset, 1, xd->n8_w, 1);
+      ADD_SAMPLE_2(row_offset, 1, xd->n8_w, 1, has_right);
 
     } else {
       // Handle "current block height > above block height" case.
@@ -1381,14 +1411,133 @@ int findNonCausalSamples(const AV1_COMMON *cm, MACROBLOCKD *xd, int mi_row,
 
         mi_step = n8_h;
 
-        ADD_SAMPLE(i, 1, xd->n8_w, 1);
+        ADD_SAMPLE_2(i, 1, xd->n8_w, 1, has_right);
       }
     }
   }
-  assert(2 * np <= SAMPLES_ARRAY_SIZE);
 
+#ifdef DO_CORNER
+  // Top-left block
+  if (do_tl && left_available && up_available) {
+    int mi_row_offset = -1;
+    int mi_col_offset = -1;
+
+    MODE_INFO *mi = xd->mi[mi_col_offset + mi_row_offset * xd->mi_stride];
+    MB_MODE_INFO *mbmi = &mi->mbmi;
+
+    if (mbmi->ref_frame[0] == ref_frame && mbmi->ref_frame[1] == NONE_FRAME) {
+      record_samples(mbmi, pts, pts_inref, pts_mv, global_offset_r,
+                     global_offset_c, 0, -1, 0, -1);
+      pts += 2;
+      pts_inref += 2;
+      pts_mv += 2;
+      np++;
+    }
+  }
+
+  // Top-right block
+  if (do_tr && has_top_right(xd, mi_row, mi_col, AOMMAX(xd->n8_w, xd->n8_h))) {
+    POSITION trb_pos = { -1, xd->n8_w };
+
+    if (is_inside(tile, mi_col, mi_row, cm->mi_rows, cm, &trb_pos)) {
+      int mi_row_offset = -1;
+      int mi_col_offset = xd->n8_w;
+
+      MODE_INFO *mi = xd->mi[mi_col_offset + mi_row_offset * xd->mi_stride];
+      MB_MODE_INFO *mbmi = &mi->mbmi;
+
+      if (mbmi->ref_frame[0] == ref_frame && mbmi->ref_frame[1] == NONE_FRAME) {
+        record_samples(mbmi, pts, pts_inref, pts_mv, global_offset_r,
+                       global_offset_c, 0, -1, xd->n8_w, 1);
+        np++;
+      }
+    }
+  }
+#endif
+
+  assert(2 * np <= SAMPLES_ARRAY_SIZE);
   return np;
 }
+
+int try_noncausal_warp(const AV1_COMMON *cm, MACROBLOCKD *xd, int mi_row,
+                       int mi_col) {
+  MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
+  BLOCK_SIZE bsize = mbmi->sb_type;
+#if WARPED_MOTION_SORT_SAMPLES
+  int pts0[SAMPLES_ARRAY_SIZE], pts_inref0[SAMPLES_ARRAY_SIZE];
+  int pts_mv0[SAMPLES_ARRAY_SIZE];
+#else
+  int pts[SAMPLES_ARRAY_SIZE], pts_inref[SAMPLES_ARRAY_SIZE];
+#endif  // WARPED_MOTION_SORT_SAMPLES
+  MB_MODE_INFO backup_mbmi = *mbmi;
+  int has_top, has_left, has_bottom, has_right;
+
+  mbmi->num_proj_ref[0] =
+      findNonCausalSamples(cm, xd, mi_row, mi_col, pts0, pts_inref0, pts_mv0,
+                           &has_top, &has_left, &has_bottom, &has_right);
+
+  if (mbmi->num_proj_ref[0] > 1) {
+    mbmi->num_proj_ref[0] = sortSamples(pts_mv0, &mbmi->mv[0].as_mv, pts0,
+                                        pts_inref0, mbmi->num_proj_ref[0]);
+#if CONFIG_EXT_INTER
+    best_bmc_mbmi->num_proj_ref[0] = mbmi->num_proj_ref[0];
+#endif  // CONFIG_EXT_INTER
+  }
+
+  // we replace causal warp with non-causal warp when the samples form
+  // noncausal pattern larger than the samples from causal pattern
+  if (!noncausal_warp_allowed(mbmi->num_proj_ref[0],
+                              backup_mbmi.num_proj_ref[0], has_top, has_left,
+                              has_bottom, has_right)) {
+    *mbmi = backup_mbmi;
+    /*
+    // recover the warping parameters
+    mbmi->num_proj_ref[0] =
+          findSamples(cm, xd, mi_row, mi_col, pts0, pts_inref0, pts_mv0);
+    if (mbmi->num_proj_ref[0] > 1) {
+      mbmi->num_proj_ref[0] = sortSamples(pts_mv0, &mbmi->mv[0].as_mv, pts0,
+                                          pts_inref0, mbmi->num_proj_ref[0]);
+#if CONFIG_EXT_INTER
+      best_bmc_mbmi->num_proj_ref[0] = mbmi->num_proj_ref[0];
+#endif  // CONFIG_EXT_INTER
+    }
+    if (find_projection(mbmi->num_proj_ref[0], pts0, pts_inref0, bsize,
+                            mbmi->mv[0].as_mv.row, mbmi->mv[0].as_mv.col,
+                            &mbmi->wm_params[0], mi_row, mi_col)) {
+      assert(0 && "error");
+    }
+    */
+    return 0;
+  } else {
+    // recover to backup if we cannot find projection for noncausal warp
+    if (find_projection(mbmi->num_proj_ref[0], pts0, pts_inref0, bsize,
+                        mbmi->mv[0].as_mv.row, mbmi->mv[0].as_mv.col,
+                        &mbmi->wm_params[0], mi_row, mi_col)) {
+      *mbmi = backup_mbmi;
+      /*
+      // recover the warping parameters
+      mbmi->num_proj_ref[0] =
+            findSamples(cm, xd, mi_row, mi_col, pts0, pts_inref0, pts_mv0);
+      if (mbmi->num_proj_ref[0] > 1) {
+        mbmi->num_proj_ref[0] = sortSamples(pts_mv0, &mbmi->mv[0].as_mv, pts0,
+                                            pts_inref0, mbmi->num_proj_ref[0]);
+#if CONFIG_EXT_INTER
+        best_bmc_mbmi->num_proj_ref[0] = mbmi->num_proj_ref[0];
+#endif  // CONFIG_EXT_INTER
+      }
+      if (find_projection(mbmi->num_proj_ref[0], pts0, pts_inref0, bsize,
+                              mbmi->mv[0].as_mv.row, mbmi->mv[0].as_mv.col,
+                              &mbmi->wm_params[0], mi_row, mi_col)) {
+        assert(0 && "error");
+      }
+      */
+      return 0;
+    } else {
+      return 1;
+    }
+  }
+}
+
 #endif
 
 #else
