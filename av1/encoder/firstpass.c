@@ -2253,6 +2253,12 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
          (zero_motion_accumulator < 0.995))
             ? 1
             : 0;
+#if CONFIG_BGSPRITE
+    cpi->bgsprite_allowed = 1;
+    if (abs_mv_in_out_accumulator > 0.30 || decay_accumulator < 0.95) {
+      cpi->bgsprite_allowed = 0;
+    }
+#endif  // CONFIG_BGSPRITE
   } else {
     rc->gfu_boost = AOMMAX((int)boost_score, MIN_ARF_GF_BOOST);
     rc->source_alt_ref_pending = 0;
