@@ -16,6 +16,23 @@
       "revId": "bf85ba737bd19a652339aec3567e028a4ea65196",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "877bac2d_70431dc9",
+        "filename": "test/coding_path_sync.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 6000
+      },
+      "writtenOn": "2017-08-09T07:40:08Z",
+      "side": 1,
+      "message": "The encoder doesn\u0027t seem to output anything else than frame packets in this test.\n\nIndeed, if I add the following assertion, it doesn\u0027t fail:\n\nassert(pkt-\u003ekind \u003d\u003d AOM_CODEC_CX_FRAME_PKT)\n\nCould you please expand on why you think explicit filtering is needed here?",
+      "revId": "bf85ba737bd19a652339aec3567e028a4ea65196",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
