@@ -1,0 +1,95 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "812da2ad_76e9192d",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 375,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-08-09T23:29:50Z",
+      "side": 1,
+      "message": "This is just bsize in cfl.h. This only ever gets called for the luma plane, right?",
+      "range": {
+        "startLine": 375,
+        "startChar": 55,
+        "endLine": 375,
+        "endChar": 66
+      },
+      "revId": "364f78e87aaca20248f33ac8e99de1046854c5f6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a378d6fa_af694239",
+        "filename": "av1/encoder/encodemb.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 737,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-08-09T23:29:50Z",
+      "side": 1,
+      "message": "This breaks brace-matching in most editors. Since Yushin\u0027s been working so hard to fix this in other places, can we move the trailing brace outside of the #if/#else so that there\u0027s only one of them?",
+      "revId": "364f78e87aaca20248f33ac8e99de1046854c5f6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e2b66ba2_3c9ce8e2",
+        "filename": "av1/encoder/encodemb.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 756,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-08-09T23:29:50Z",
+      "side": 1,
+      "message": "Does this need to check cfl-\u003estore_y? If not, why not?\n\nDoes this function ever get called for intra modes? It looks to me like encode_block_intra() does its own reconstruction, and if this function did somehow get called for an intra mode, we would want to store it (because it means we didn\u0027t go through encode_block_intra()). Maybe it\u0027s better to just make is_inter_block(mbmi) an assert?",
+      "revId": "364f78e87aaca20248f33ac8e99de1046854c5f6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d127d5b9_b79110cc",
+        "filename": "av1/encoder/encodemb.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 1431,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-08-09T23:29:50Z",
+      "side": 1,
+      "message": "How does this interact with av1_encode_block_intra_dpcm()?\n\nIt looks like it returns early above, so it won\u0027t reach this call. However, if we have such blocks in a sub-8x8 partition, we need to store them in case the bottom-right is a normal intra block, right?",
+      "revId": "364f78e87aaca20248f33ac8e99de1046854c5f6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d66da150_fe98fae0",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 2188,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-08-09T23:29:50Z",
+      "side": 1,
+      "message": "Same question about DPCM intra. It appears to use a goto to jump to the CALCULATE_RD label below, so it will skip this call.",
+      "revId": "364f78e87aaca20248f33ac8e99de1046854c5f6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
