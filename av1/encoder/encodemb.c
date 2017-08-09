@@ -19,6 +19,7 @@
 #include "aom_ports/mem.h"
 
 #include "av1/common/idct.h"
+#include "av1/common/pred_common.h"
 #include "av1/common/reconinter.h"
 #include "av1/common/reconintra.h"
 #include "av1/common/scan.h"
@@ -721,7 +722,7 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
 
 #if !CONFIG_PVQ
   av1_optimize_b(cm, x, plane, blk_row, blk_col, block, plane_bsize, tx_size, a,
-                 l, 0);
+                 l, args->rtx_ctx);
 
   av1_set_txb_context(x, plane, block, tx_size, a, l);
 
@@ -749,7 +750,7 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
 #if CONFIG_VAR_TX
 static void encode_block_inter(int plane, int block, int blk_row, int blk_col,
                                BLOCK_SIZE plane_bsize, TX_SIZE tx_size,
-                               void *arg) {
+                               void *arg, int *rtx_skip) {
   struct encode_b_args *const args = arg;
   MACROBLOCK *const x = args->x;
   MACROBLOCKD *const xd = &x->e_mbd;
@@ -770,6 +771,7 @@ static void encode_block_inter(int plane, int block, int blk_row, int blk_col,
 
   if (tx_size == plane_tx_size) {
     encode_block(plane, block, blk_row, blk_col, plane_bsize, tx_size, arg);
+    *rtx_skip &= !x->plane[plane].eobs[block];
   } else {
     assert(tx_size < TX_SIZES_ALL);
 #if CONFIG_RECT_TX_EXT
@@ -784,6 +786,13 @@ static void encode_block_inter(int plane, int block, int blk_row, int blk_col,
     int bsl = tx_size_wide_unit[sub_txs];
     int i;
     assert(bsl > 0);
+
+    int is_last_block = 0;
+    int all_zero_prior = 1;
+    int txl_row = 0, txl_col = 0;
+    TX_SIZE dtx_size = sub_txs;
+    int sub_rtx_ctx = 0;
+    int sub_skip = 1;
 
     for (i = 0; i < 4; ++i) {
 #if CONFIG_RECT_TX_EXT
@@ -802,10 +811,23 @@ static void encode_block_inter(int plane, int block, int blk_row, int blk_col,
 
       if (offsetr >= max_blocks_high || offsetc >= max_blocks_wide) continue;
 
+      is_last_block = is_last_rtx(tx_size, i);
+
+      if (is_last_block && plane == 0) {
+        txl_row = offsetr >> (1 - pd->subsampling_y);
+        txl_col = offsetc >> (1 - pd->subsampling_x);
+        dtx_size = mbmi->inter_tx_size[txl_row][txl_col];
+
+        if (sub_txs == dtx_size && all_zero_prior) sub_rtx_ctx = 1;
+      }
+      args->rtx_ctx = sub_rtx_ctx;
+
       encode_block_inter(plane, block, offsetr, offsetc, plane_bsize, sub_txs,
-                         arg);
+                         arg, &sub_skip);
       block += step;
+      all_zero_prior &= sub_skip;
     }
+    *rtx_skip &= sub_skip;
   }
 }
 #endif
@@ -891,7 +913,7 @@ void av1_encode_sb(AV1_COMMON *cm, MACROBLOCK *x, BLOCK_SIZE bsize, int mi_row,
   MACROBLOCKD *const xd = &x->e_mbd;
   struct optimize_ctx ctx;
   MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
-  struct encode_b_args arg = { cm, x, &ctx, &mbmi->skip, NULL, NULL, 1 };
+  struct encode_b_args arg = { cm, x, &ctx, &mbmi->skip, NULL, NULL, 1, 0 };
   int plane;
 
   mbmi->skip = 1;
@@ -956,8 +978,10 @@ void av1_encode_sb(AV1_COMMON *cm, MACROBLOCK *x, BLOCK_SIZE bsize, int mi_row,
         const int unit_width = AOMMIN(mu_blocks_wide + idx, mi_width);
         for (blk_row = idy; blk_row < unit_height; blk_row += bh) {
           for (blk_col = idx; blk_col < unit_width; blk_col += bw) {
+            int rtx_skip = 1;
+            arg.rtx_ctx = 0;
             encode_block_inter(plane, block, blk_row, blk_col, plane_bsize,
-                               max_tx_size, &arg);
+                               max_tx_size, &arg, &rtx_skip);
             block += step;
           }
         }
@@ -1431,7 +1455,7 @@ void av1_encode_intra_block_plane(AV1_COMMON *cm, MACROBLOCK *x,
   ENTROPY_CONTEXT tl[2 * MAX_MIB_SIZE] = { 0 };
 
   struct encode_b_args arg = {
-    cm, x, NULL, &xd->mi[0]->mbmi.skip, ta, tl, enable_optimize_b
+    cm, x, NULL, &xd->mi[0]->mbmi.skip, ta, tl, enable_optimize_b, 0
   };
 
 #if CONFIG_CB4X4

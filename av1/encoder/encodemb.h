@@ -33,6 +33,7 @@ struct encode_b_args {
   ENTROPY_CONTEXT *ta;
   ENTROPY_CONTEXT *tl;
   int8_t enable_optimize_b;
+  int rtx_ctx;
 };
 
 typedef enum AV1_XFORM_QUANT {
