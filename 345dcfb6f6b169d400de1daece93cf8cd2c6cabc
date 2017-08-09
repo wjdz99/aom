@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "8923d5ef_71f0c5eb",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1236,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-08-09T02:39:42Z",
+      "side": 1,
+      "message": "Thanks for explaining 256,\n\nLooking at the code in write_superframe_index(), we could determine an upper limit on the index_size by using 4 * (ctx-\u003epending_frame_count -1) + 2 this would be more precise than 256. What do you think?",
+      "parentUuid": "b7560b34_6ed567cc",
+      "revId": "345dcfb6f6b169d400de1daece93cf8cd2c6cabc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fb58cb97_29e5fac6",
         "filename": "av1/av1_cx_iface.c",
         "patchSetId": 5
