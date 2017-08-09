@@ -146,8 +146,8 @@ int av1_tx_type_cost(const AV1_COMMON *cm, const MACROBLOCK *x,
                      const MACROBLOCKD *xd, BLOCK_SIZE bsize, int plane,
                      TX_SIZE tx_size, TX_TYPE tx_type);
 #if NONCAUSAL_WARP
-void av1_check_noncausal_warp_rd(const struct AV1_COMP *cpi,
-                                 struct macroblock *x, int mi_row, int mi_col);
+int av1_check_noncausal_warp_rd(const struct AV1_COMP *cpi,
+                                struct macroblock *x, int mi_row, int mi_col);
 void update_noncausal_warp_tx(const struct AV1_COMP *cpi, struct macroblock *x,
                               int mi_row, int mi_col);
 #endif

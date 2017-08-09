@@ -12916,8 +12916,8 @@ typedef struct warp_nn {
   int sorted_nn;
 } WPNN;
 
-void av1_check_noncausal_warp_rd(const struct AV1_COMP *cpi,
-                                 struct macroblock *x, int mi_row, int mi_col) {
+int av1_check_noncausal_warp_rd(const struct AV1_COMP *cpi,
+                                struct macroblock *x, int mi_row, int mi_col) {
   const AV1_COMMON *const cm = &cpi->common;
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
@@ -12931,38 +12931,15 @@ void av1_check_noncausal_warp_rd(const struct AV1_COMP *cpi,
   MB_MODE_INFO backup_mbmi;
   int64_t rd_cost1, rd_cost2;
   int skip_blk1, skip_blk2;
-  int has_top, has_left, has_bottom, has_right;
 
 #ifdef CWARP_CHECK
   WPNN cwp, ncwp;
 
-  mbmi->num_proj_ref[0] =
-      findSamples(cm, xd, mi_row, mi_col, pts0, pts_inref0, pts_mv0);
-
-  // assert(mbmi->num_proj_ref[0] > 1);
-
-  cwp.nn = mbmi->num_proj_ref[0];
-
-  if (mbmi->num_proj_ref[0] > 1) {
-    mbmi->num_proj_ref[0] = sortSamples(pts_mv0, &mbmi->mv[0].as_mv, pts0,
-                                        pts_inref0, mbmi->num_proj_ref[0]);
-#if CONFIG_EXT_INTER
-    best_bmc_mbmi->num_proj_ref[0] = mbmi->num_proj_ref[0];
-#endif  // CONFIG_EXT_INTER
-  }
-
-  cwp.sorted_nn = mbmi->num_proj_ref[0];
-#endif
-
-  // check the original rd performance
-  rd_cost1 =
-      get_prediction_rd_cost(cpi, x, mi_row, mi_col, &skip_blk1, &backup_mbmi);
-
+// get cost of noncausal sampling
 #ifndef RESEL_TX
   // check if non-causal sampling helps
   mbmi->num_proj_ref[0] =
-      findNonCausalSamples(cm, xd, mi_row, mi_col, pts0, pts_inref0, pts_mv0,
-                           &has_top, &has_left, &has_bottom, &has_right);
+      appendNonCausalSamples(cm, xd, mi_row, mi_col, pts0, pts_inref0, pts_mv0);
 
 #ifdef CWARP_CHECK
   ncwp.nn = mbmi->num_proj_ref[0];
@@ -12992,6 +12969,35 @@ void av1_check_noncausal_warp_rd(const struct AV1_COMP *cpi,
   rd_cost2 = INT64_MAX;
 #endif
 
+  // get cost of causal sampling
+  mbmi->num_proj_ref[0] =
+      findSamples(cm, xd, mi_row, mi_col, pts0, pts_inref0, pts_mv0);
+
+  // assert(mbmi->num_proj_ref[0] > 1);
+
+  cwp.nn = mbmi->num_proj_ref[0];
+
+  if (mbmi->num_proj_ref[0] > 1) {
+    mbmi->num_proj_ref[0] = sortSamples(pts_mv0, &mbmi->mv[0].as_mv, pts0,
+                                        pts_inref0, mbmi->num_proj_ref[0]);
+#if CONFIG_EXT_INTER
+    best_bmc_mbmi->num_proj_ref[0] = mbmi->num_proj_ref[0];
+#endif  // CONFIG_EXT_INTER
+  }
+
+  cwp.sorted_nn = mbmi->num_proj_ref[0];
+#endif
+
+  if (!find_projection(mbmi->num_proj_ref[0], pts0, pts_inref0, bsize,
+                       mbmi->mv[0].as_mv.row, mbmi->mv[0].as_mv.col,
+                       &mbmi->wm_params[0], mi_row, mi_col)) {
+    // check the original rd performance
+    rd_cost1 = get_prediction_rd_cost(cpi, x, mi_row, mi_col, &skip_blk1,
+                                      &backup_mbmi);
+  } else {
+    assert(0 && "error");
+  }
+
   if (rd_cost2 < rd_cost1) {
     x->skip = skip_blk2;
   } else {
@@ -13000,26 +13006,23 @@ void av1_check_noncausal_warp_rd(const struct AV1_COMP *cpi,
   }
 
 #ifdef CWARP_CHECK
-  int pass_cond =
-      noncausal_warp_allowed(mbmi->num_proj_ref[0], backup_mbmi.num_proj_ref[0],
-                             has_top, has_left, has_bottom, has_right);
-
+  int cond = mbmi->num_proj_ref[0] > 3;
   if (rd_cost2 != INT64_MAX) ++tt_warp_blk;
 
   if (rd_cost2 < rd_cost1) {
     if (ncwp.nn > cwp.nn) ncwp_stats.nn_larger += 1;
     if (ncwp.sorted_nn > cwp.sorted_nn) ncwp_stats.sn_larger += 1;
-    if (pass_cond) ncwp_stats.cond += 1;
+    if (!cond) ncwp_stats.cond += 1;
     ++nc_warp_blk;
-
   } else {
     if (rd_cost2 != INT64_MAX) {
       if (cwp.nn >= ncwp.nn) cwp_stats.nn_larger += 1;
       if (cwp.sorted_nn >= ncwp.sorted_nn) cwp_stats.sn_larger += 1;
-      if (pass_cond) cwp_stats.cond += 1;
+      if (cond) cwp_stats.cond += 1;
     }
   }
 #endif  // CWARP_CHECK
+  return rd_cost2 < rd_cost1;
 }
 
 void update_noncausal_warp_tx(const struct AV1_COMP *cpi, struct macroblock *x,

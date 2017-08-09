@@ -1657,6 +1657,19 @@ static int32_t get_mult_shift_diag(int64_t Px, int16_t iDet, int shift) {
 }
 #endif  // USE_LIMITED_PREC_MULT
 
+#define USE_MEAN
+
+void find_mean(int np, int *pts, int px, int py, int *mx, int *my) {
+  *mx = px;
+  *my = py;
+  for (int i = 0; i < np; ++i) {
+    *mx += pts[i * 2];
+    *my += pts[i * 2 + 1];
+  }
+  *mx /= (np + 1);
+  *my /= (np + 1);
+}
+
 static int find_affine_int(int np, int *pts1, int *pts2, BLOCK_SIZE bsize,
                            int mvy, int mvx, WarpedMotionParams *wm, int mi_row,
                            int mi_col) {
@@ -1669,10 +1682,23 @@ static int find_affine_int(int np, int *pts1, int *pts2, BLOCK_SIZE bsize,
   const int bh = block_size_high[bsize];
   const int isuy = (mi_row * MI_SIZE + AOMMAX(bh, MI_SIZE) / 2 - 1);
   const int isux = (mi_col * MI_SIZE + AOMMAX(bw, MI_SIZE) / 2 - 1);
+#ifdef USE_MEAN
+  int _suy = isuy * 8;
+  int _sux = isux * 8;
+  int _duy = _suy + mvy;
+  int _dux = _sux + mvx;
+  int suy, sux, duy, dux;
+
+  find_mean(AOMMIN(np, LEAST_SQUARES_SAMPLES_MAX), pts1, _sux, _suy, &sux,
+            &suy);
+  find_mean(AOMMIN(np, LEAST_SQUARES_SAMPLES_MAX), pts2, _dux, _duy, &dux,
+            &duy);
+#else
   const int suy = isuy * 8;
   const int sux = isux * 8;
   const int duy = suy + mvy;
   const int dux = sux + mvx;
+#endif
 
   // Assume the center pixel of the block has exactly the same motion vector
   // as transmitted for the block. First shift the origin of the source
@@ -1714,6 +1740,26 @@ static int find_affine_int(int np, int *pts1, int *pts2, BLOCK_SIZE bsize,
       n++;
     }
   }
+
+#ifdef USE_MEAN
+  {
+    dx = _dux - dux;
+    dy = _duy - duy;
+    sx = _sux - sux;
+    sy = _suy - suy;
+    if (abs(sx - dx) < LS_MV_MAX && abs(sy - dy) < LS_MV_MAX) {
+      A[0][0] += LS_SQUARE(sx);
+      A[0][1] += LS_PRODUCT1(sx, sy);
+      A[1][1] += LS_SQUARE(sy);
+      Bx[0] += LS_PRODUCT2(sx, dx);
+      Bx[1] += LS_PRODUCT1(sy, dx);
+      By[0] += LS_PRODUCT1(sx, dy);
+      By[1] += LS_PRODUCT2(sy, dy);
+      n++;
+    }
+  }
+#endif
+
   int downshift;
   if (n >= 4)
     downshift = LS_MAT_DOWN_BITS;

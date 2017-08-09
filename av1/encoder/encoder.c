@@ -2895,7 +2895,8 @@ void av1_remove_compressor(AV1_COMP *cpi) {
     }
 #endif  // CONFIG_ENTROPY_STATS
 #if NONCAUSAL_WARP
-    fprintf(stdout, "warp counts: %d / %d \n", tt_warp_blk, nc_warp_blk);
+    fprintf(stdout, "warp counts: %d / %d \n", tt_warp_blk - nc_warp_blk,
+            nc_warp_blk);
     fprintf(stdout, " C: [%d %d %d]\n", cwp_stats.nn_larger,
             cwp_stats.sn_larger, cwp_stats.cond);
     fprintf(stdout, "NC: [%d %d %d]\n", ncwp_stats.nn_larger,

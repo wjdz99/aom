@@ -2055,7 +2055,13 @@ static void encode_b(const AV1_COMP *const cpi, const TileInfo *const tile,
 #endif  // CONFIG_MOTION_VAR && HAS_NONCAUSAL
 #if NONCAUSAL_WARP && WARPED_MOTION_SORT_SAMPLES
   if (!dry_run && mbmi->motion_mode == WARPED_CAUSAL) {
-    // av1_check_noncausal_warp_rd(cpi, x, mi_row, mi_col);
+    int use_nc = av1_check_noncausal_warp_rd(cpi, x, mi_row, mi_col);
+
+    if (use_nc)
+      fprintf(stdout, "nc better:\n");
+    else
+      fprintf(stdout, "ori better: \n");
+
     update_noncausal_warp_tx(cpi, x, mi_row, mi_col);
     av1_setup_dst_planes(x->e_mbd.plane, bsize,
                          get_frame_new_buffer(&cpi->common), mi_row, mi_col);
