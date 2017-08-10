@@ -290,9 +290,9 @@ int64_t aom_highbd_get_v_sse(const YV12_BUFFER_CONFIG *a,
 #endif  // CONFIG_HIGHBITDEPTH
 
 #if CONFIG_HIGHBITDEPTH
-void aom_calc_highbd_psnr(const YV12_BUFFER_CONFIG *a,
-                          const YV12_BUFFER_CONFIG *b, PSNR_STATS *psnr,
-                          uint32_t bit_depth, uint32_t in_bit_depth) {
+static void aom_calc_highbd_psnr(const YV12_BUFFER_CONFIG *a,
+                                 const YV12_BUFFER_CONFIG *b, PSNR_STATS *psnr,
+                                 uint32_t bit_depth, uint32_t in_bit_depth) {
   const int widths[3] = { a->y_crop_width, a->uv_crop_width, a->uv_crop_width };
   const int heights[3] = { a->y_crop_height, a->uv_crop_height,
                            a->uv_crop_height };
@@ -335,11 +335,10 @@ void aom_calc_highbd_psnr(const YV12_BUFFER_CONFIG *a,
   psnr->psnr[0] =
       aom_sse_to_psnr((double)total_samples, peak, (double)total_sse);
 }
+#endif  // CONFIG_HIGHBITDEPTH
 
-#endif  // !CONFIG_HIGHBITDEPTH
-
-void aom_calc_psnr(const YV12_BUFFER_CONFIG *a, const YV12_BUFFER_CONFIG *b,
-                   PSNR_STATS *psnr) {
+static void aom_calc_lowbd_psnr(const YV12_BUFFER_CONFIG *a,
+                                const YV12_BUFFER_CONFIG *b, PSNR_STATS *psnr) {
   static const double peak = 255.0;
   const int widths[3] = { a->y_crop_width, a->uv_crop_width, a->uv_crop_width };
   const int heights[3] = { a->y_crop_height, a->uv_crop_height,
@@ -370,4 +369,20 @@ void aom_calc_psnr(const YV12_BUFFER_CONFIG *a, const YV12_BUFFER_CONFIG *b,
   psnr->samples[0] = total_samples;
   psnr->psnr[0] =
       aom_sse_to_psnr((double)total_samples, peak, (double)total_sse);
+}
+
+void aom_calc_psnr(const YV12_BUFFER_CONFIG *a, const YV12_BUFFER_CONFIG *b,
+                   PSNR_STATS *psnr, uint32_t bit_depth,
+                   uint32_t in_bit_depth) {
+#if CONFIG_HIGHBITDEPTH
+  if (a->flags & YV12_FLAG_HIGHBITDEPTH) {
+    aom_calc_highbd_psnr(a, b, psnr, bit_depth, in_bit_depth);
+    return;
+  }
+#endif  // CONFIG_HIGHBITDEPTH
+  (void)bit_depth;
+  assert(bit_depth == 8);
+  (void)in_bit_depth;
+  assert(in_bit_depth == 8);
+  aom_calc_lowbd_psnr(a, b, psnr);
 }
