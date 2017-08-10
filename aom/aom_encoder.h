@@ -394,8 +394,7 @@ typedef struct aom_codec_enc_cfg {
    * upscaling after the encode/decode process. Taking control of upscaling and
    * using restoration filters should allow it to outperform normal resizing.
    *
-   * Mode 0 is SUPERRES_NONE, mode 1 is SUPERRES_FIXED, and mode 2 is
-   * SUPERRES_DYNAMIC.
+   * Valid modes are 0 - 3.
    */
   unsigned int rc_superres_mode;
 
@@ -407,7 +406,7 @@ typedef struct aom_codec_enc_cfg {
    *
    * Valid numerators are 8 to 16.
    *
-   * Ignored by SUPERRES_DYNAMIC.
+   * Ignored by SUPERRES_DYNAMIC and SUPERRES_RANDOM modes.
    */
   unsigned int rc_superres_numerator;
 

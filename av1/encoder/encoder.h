@@ -141,9 +141,10 @@ typedef enum {
 } RESIZE_MODE;
 #if CONFIG_FRAME_SUPERRES
 typedef enum {
-  SUPERRES_NONE = 0,
-  SUPERRES_FIXED = 1,
-  SUPERRES_DYNAMIC = 2
+  SUPERRES_NONE,    // No scaling.
+  SUPERRES_FIXED,   // Fixed scaling factor for all frames.
+  SUPERRES_RANDOM,  // Random scaling factor for each frame (testing only).
+  SUPERRES_DYNAMIC  // Scaling factor dynamically selected for each frame.
 } SUPERRES_MODE;
 #endif  // CONFIG_FRAME_SUPERRES
 

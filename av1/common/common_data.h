@@ -20,6 +20,11 @@
 extern "C" {
 #endif
 
+#if CONFIG_FRAME_SUPERRES
+// TODO(urvang): Separate ones for key frame and non-keyframe?
+#define SUPERRES_MAX_QUANTIZER 176
+#endif  // CONFIG_FRAME_SUPERRES
+
 #if CONFIG_EXT_PARTITION
 #define IF_EXT_PARTITION(...) __VA_ARGS__,
 #else
