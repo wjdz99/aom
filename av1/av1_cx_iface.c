@@ -55,6 +55,9 @@ struct av1_extracfg {
   unsigned int qm_min;
   unsigned int qm_max;
 #endif
+#if CONFIG_DIST_8X8
+  unsigned int enable_dist_8x8;
+#endif
   unsigned int num_tg;
   unsigned int mtu_size;
 #if CONFIG_TEMPMV_SIGNALING
@@ -118,6 +121,9 @@ static struct av1_extracfg default_extra_cfg = {
   0,                 // enable_qm
   DEFAULT_QM_FIRST,  // qm_min
   DEFAULT_QM_LAST,   // qm_max
+#endif
+#if CONFIG_DIST_8X8
+  0,
 #endif
   1,  // max number of tile groups
   0,  // mtu_size
@@ -321,7 +327,15 @@ static aom_codec_err_t validate_config(aom_codec_alg_priv_t *ctx,
 
   // TODO(yaowu): remove this when ssim tuning is implemented for av1
   if (extra_cfg->tuning == AOM_TUNE_SSIM)
-    ERROR("Option --tune=ssim is not currently supported in AV1.");
+    ERROR("Option --tune-metric=ssim is not currently supported in AV1.");
+
+#if CONFIG_DIST_8X8
+  if (extra_cfg->tuning == AOM_TUNE_CDEF_DIST)
+    ERROR("Option --tune-metric=cdef-dist is not currently supported in AV1.");
+
+  if (extra_cfg->tuning == AOM_TUNE_DAALA_DIST)
+    ERROR("Option --tune-metric=daala-dist is not currently supported in AV1.");
+#endif  // CONFIG_DIST_8X8
 
   if (cfg->g_pass == AOM_RC_LAST_PASS) {
 #if !CONFIG_XIPHRC
@@ -477,7 +491,13 @@ static aom_codec_err_t set_encoder_config(
   oxcf->qm_minlevel = extra_cfg->qm_min;
   oxcf->qm_maxlevel = extra_cfg->qm_max;
 #endif
-
+#if CONFIG_DIST_8X8
+  oxcf->using_dist_8x8 = extra_cfg->enable_dist_8x8;
+  if (extra_cfg->tuning == AOM_TUNE_CDEF_DIST ||
+      extra_cfg->tuning == AOM_TUNE_DAALA_DIST)
+    oxcf->using_dist_8x8 = 1;
+  oxcf->tuning = extra_cfg->tuning;
+#endif
   oxcf->num_tile_groups = extra_cfg->num_tg;
 #if CONFIG_EXT_TILE
   // In large-scale tile encoding mode, num_tile_groups is always 1.
@@ -862,7 +882,14 @@ static aom_codec_err_t ctrl_set_qm_max(aom_codec_alg_priv_t *ctx,
   return update_extra_cfg(ctx, &extra_cfg);
 }
 #endif
-
+#if CONFIG_DIST_8X8
+static aom_codec_err_t ctrl_set_enable_dist_8x8(aom_codec_alg_priv_t *ctx,
+                                                va_list args) {
+  struct av1_extracfg extra_cfg = ctx->extra_cfg;
+  extra_cfg.enable_dist_8x8 = CAST(AV1E_SET_ENABLE_DIST_8X8, args);
+  return update_extra_cfg(ctx, &extra_cfg);
+}
+#endif
 static aom_codec_err_t ctrl_set_num_tg(aom_codec_alg_priv_t *ctx,
                                        va_list args) {
   struct av1_extracfg extra_cfg = ctx->extra_cfg;
@@ -1534,6 +1561,9 @@ static aom_codec_ctrl_fn_map_t encoder_ctrl_maps[] = {
   { AV1E_SET_ENABLE_QM, ctrl_set_enable_qm },
   { AV1E_SET_QM_MIN, ctrl_set_qm_min },
   { AV1E_SET_QM_MAX, ctrl_set_qm_max },
+#endif
+#if CONFIG_DIST_8X8
+  { AV1E_SET_ENABLE_DIST_8X8, ctrl_set_enable_dist_8x8 },
 #endif
   { AV1E_SET_NUM_TG, ctrl_set_num_tg },
   { AV1E_SET_MTU, ctrl_set_mtu },
