@@ -1717,10 +1717,38 @@ uint8_t av1_calculate_next_resize_scale(const AV1_COMP *cpi) {
 }
 
 #if CONFIG_FRAME_SUPERRES
+#define SUPERRES_RANDOM 0
+
+void update_superres_numerator_and_q(uint8_t *new_num, int *q) {
+  if (q == NULL || *q <= SUPERRES_MAX_QUANTIZER) {
+    *new_num = SCALE_DENOMINATOR;  // No rescaling.
+    // q unchanged.
+    return;
+  }
+
+  const int orig_q = *q;
+  *q = SUPERRES_MAX_QUANTIZER;
+
+  const int scale_range = 256 - SUPERRES_MAX_QUANTIZER;
+  const int scale_step = ROUND_POWER_OF_TWO(scale_range, 3);
+
+  for (int i = 1; i <= 7; ++i) {
+    if (orig_q <= SUPERRES_MAX_QUANTIZER + i * scale_step) {
+      *new_num = SCALE_DENOMINATOR - i;
+      return;
+    }
+  }
+  assert(orig_q <= 256);
+  assert(SCALE_DENOMINATOR - 8 == SUPERRES_SCALE_NUMERATOR_MIN);
+  *new_num = SUPERRES_SCALE_NUMERATOR_MIN;
+}
+
 // TODO(afergs): Rename av1_rc_update_superres_scale(...)?
 uint8_t av1_calculate_next_superres_scale(const AV1_COMP *cpi, int width,
-                                          int height) {
+                                          int height, int *q) {
+#if SUPERRES_RANDOM
   static unsigned int seed = 34567;
+#endif  // SUPERRES_RANDOM
   const AV1EncoderConfig *oxcf = &cpi->oxcf;
   if (oxcf->pass == 1) return SCALE_DENOMINATOR;
   uint8_t new_num = SCALE_DENOMINATOR;
@@ -1734,8 +1762,12 @@ uint8_t av1_calculate_next_superres_scale(const AV1_COMP *cpi, int width,
         new_num = oxcf->superres_scale_numerator;
       break;
     case SUPERRES_DYNAMIC:
+#if SUPERRES_RANDOM
       // SUPERRES_DYNAMIC: Just random for now.
       new_num = lcg_rand16(&seed) % 9 + 8;
+#else
+      update_superres_numerator_and_q(&new_num, q);
+#endif  // SUPERRES_RANDOM
       break;
     default: assert(0);
   }

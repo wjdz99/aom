@@ -3940,23 +3940,25 @@ static void set_size_independent_vars(AV1_COMP *cpi) {
 #endif  // CONFIG_EXT_INTER
 }
 
-static void set_size_dependent_vars(AV1_COMP *cpi, int *q, int *bottom_index,
-                                    int *top_index) {
+static void set_size_dependent_vars(AV1_COMP *cpi, int *q, int update_q,
+                                    int *bottom_index, int *top_index) {
   AV1_COMMON *const cm = &cpi->common;
   const AV1EncoderConfig *const oxcf = &cpi->oxcf;
 
   // Setup variables that depend on the dimensions of the frame.
   av1_set_speed_features_framesize_dependent(cpi);
 
+  if (update_q) {
 // Decide q and q bounds.
 #if CONFIG_XIPHRC
-  int frame_type = cm->frame_type == KEY_FRAME ? OD_I_FRAME : OD_P_FRAME;
-  *q = od_enc_rc_select_quantizers_and_lambdas(
-      &cpi->od_rc, cpi->refresh_golden_frame, cpi->refresh_alt_ref_frame,
-      frame_type, bottom_index, top_index);
+    int frame_type = cm->frame_type == KEY_FRAME ? OD_I_FRAME : OD_P_FRAME;
+    *q = od_enc_rc_select_quantizers_and_lambdas(
+        &cpi->od_rc, cpi->refresh_golden_frame, cpi->refresh_alt_ref_frame,
+        frame_type, bottom_index, top_index);
 #else
-  *q = av1_rc_pick_q_and_bounds(cpi, bottom_index, top_index);
+    *q = av1_rc_pick_q_and_bounds(cpi, bottom_index, top_index);
 #endif
+  }
 
   if (!frame_is_intra_only(cm)) {
     av1_set_high_precision_mv(cpi, (*q) < HIGH_PRECISION_MV_QTHRESH);
@@ -4099,7 +4101,7 @@ static void set_frame_size(AV1_COMP *cpi, int width, int height) {
   set_ref_ptrs(cm, xd, LAST_FRAME, LAST_FRAME);
 }
 
-static void setup_frame_size(AV1_COMP *cpi) {
+static void setup_frame_size(AV1_COMP *cpi, int *q) {
   int encode_width = cpi->oxcf.width;
   int encode_height = cpi->oxcf.height;
 
@@ -4111,7 +4113,7 @@ static void setup_frame_size(AV1_COMP *cpi) {
   cm->superres_upscaled_width = encode_width;
   cm->superres_upscaled_height = encode_height;
   cm->superres_scale_numerator =
-      av1_calculate_next_superres_scale(cpi, encode_width, encode_height);
+      av1_calculate_next_superres_scale(cpi, encode_width, encode_height, q);
   av1_calculate_scaled_size(&encode_width, &encode_height,
                             cm->superres_scale_numerator);
 #endif  // CONFIG_FRAME_SUPERRES
@@ -4182,7 +4184,7 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
 
     aom_usec_timer_start(&timer);
 
-    av1_pick_filter_level(cpi->source, cpi, cpi->sf.lpf_pick);
+    av1_pick_filter_level(&cpi->scaled_source, cpi, cpi->sf.lpf_pick);
 
     aom_usec_timer_mark(&timer);
     cpi->time_pick_lpf += aom_usec_timer_elapsed(&timer);
@@ -4245,11 +4247,11 @@ static void encode_without_recode_loop(AV1_COMP *cpi) {
   aom_clear_system_state();
 
   set_size_independent_vars(cpi);
-  setup_frame_size(cpi);
+  setup_frame_size(cpi, NULL);
   assert(cm->width == cpi->scaled_source.y_crop_width);
   assert(cm->height == cpi->scaled_source.y_crop_height);
 
-  set_size_dependent_vars(cpi, &q, &bottom_index, &top_index);
+  set_size_dependent_vars(cpi, &q, 1, &bottom_index, &top_index);
 
   cpi->source =
       av1_scale_if_required(cm, cpi->unscaled_source, &cpi->scaled_source);
@@ -4294,6 +4296,8 @@ static void encode_without_recode_loop(AV1_COMP *cpi) {
   aom_clear_system_state();
 }
 
+int quantizer_within_bounds(int q) { return q <= SUPERRES_MAX_QUANTIZER; }
+
 static void encode_with_recode_loop(AV1_COMP *cpi, size_t *size,
                                     uint8_t *dest) {
   AV1_COMMON *const cm = &cpi->common;
@@ -4324,11 +4328,22 @@ static void encode_with_recode_loop(AV1_COMP *cpi, size_t *size,
   do {
     aom_clear_system_state();
 
-    setup_frame_size(cpi);
+    setup_frame_size(cpi, &q);
 
     if (loop_count == 0) {
-      set_size_dependent_vars(cpi, &q, &bottom_index, &top_index);
+      set_size_dependent_vars(cpi, &q, 1, &bottom_index, &top_index);
 
+      // TODO(now): Should this be done for every loop? (not relevant for AOM_Q)
+      if (!quantizer_within_bounds(q)) {
+        // Change superres size based on q, and clip q to a max value.
+        setup_frame_size(cpi, &q);
+        if (bottom_index > q) bottom_index = q;
+        // Set size dependent vars expect 'q'.
+        set_size_dependent_vars(cpi, &q, 0, &bottom_index, &top_index);
+      }
+    }
+
+    if (loop_count == 0) {
       // TODO(agrange) Scale cpi->max_mv_magnitude if frame-size has changed.
       set_mv_search_params(cpi);
 
@@ -5111,9 +5126,10 @@ static void encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
 #if CONFIG_HIGHBITDEPTH
     if (cm->use_highbitdepth) {
       cpi->ambient_err =
-          aom_highbd_get_y_sse(cpi->source, get_frame_new_buffer(cm));
+          aom_highbd_get_y_sse(&cpi->scaled_source, get_frame_new_buffer(cm));
     } else {
-      cpi->ambient_err = aom_get_y_sse(cpi->source, get_frame_new_buffer(cm));
+      cpi->ambient_err =
+          aom_get_y_sse(&cpi->scaled_source, get_frame_new_buffer(cm));
     }
 #else
     cpi->ambient_err = aom_get_y_sse(cpi->source, get_frame_new_buffer(cm));
@@ -6045,7 +6061,7 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
 #else
     av1_rc_get_second_pass_params(cpi);
   } else if (oxcf->pass == 1) {
-    setup_frame_size(cpi);
+    setup_frame_size(cpi, NULL);
   }
 #endif
 
