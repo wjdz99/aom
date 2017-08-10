@@ -166,8 +166,8 @@ static double aom_highbd_ssim2(const uint8_t *img1, const uint8_t *img2,
 }
 #endif  // CONFIG_HIGHBITDEPTH
 
-double aom_calc_ssim(const YV12_BUFFER_CONFIG *source,
-                     const YV12_BUFFER_CONFIG *dest, double *weight) {
+double aom_calc_lowbd_ssim(const YV12_BUFFER_CONFIG *source,
+                           const YV12_BUFFER_CONFIG *dest, double *weight) {
   double a, b, c;
   double ssimv;
 
@@ -460,3 +460,17 @@ double aom_highbd_calc_ssim(const YV12_BUFFER_CONFIG *source,
 }
 
 #endif  // CONFIG_HIGHBITDEPTH
+
+double aom_calc_ssim(const YV12_BUFFER_CONFIG *source,
+                     const YV12_BUFFER_CONFIG *dest, double *weight,
+                     uint32_t bd, uint32_t in_bd) {
+#if CONFIG_HIGHBITDEPTH
+  if (source->flags & YV12_FLAG_HIGHBITDEPTH)
+    return aom_highbd_calc_ssim(source, dest, weight, bd, in_bd);
+#endif  // CONFIG_HIGHBITDEPTH
+  (void)bd;
+  assert(bd == 8);
+  (void)in_bd;
+  assert(in_bd == 8);
+  return aom_calc_lowbd_ssim(source, dest, weight);
+}

@@ -3028,12 +3028,8 @@ static void generate_psnr_packet(AV1_COMP *cpi) {
   struct aom_codec_cx_pkt pkt;
   int i;
   PSNR_STATS psnr;
-#if CONFIG_HIGHBITDEPTH
-  aom_calc_highbd_psnr(cpi->source, cpi->common.frame_to_show, &psnr,
-                       cpi->td.mb.e_mbd.bd, cpi->oxcf.input_bit_depth);
-#else
-  aom_calc_psnr(cpi->source, cpi->common.frame_to_show, &psnr);
-#endif
+  aom_calc_psnr(cpi->source, cpi->common.frame_to_show, &psnr,
+                cpi->td.mb.e_mbd.bd, cpi->oxcf.input_bit_depth);
 
   for (i = 0; i < 4; ++i) {
     pkt.data.psnr.samples[i] = psnr.samples[i];
@@ -5620,20 +5616,15 @@ static void adjust_image_stat(double y, double u, double v, double all,
 static void compute_internal_stats(AV1_COMP *cpi, int frame_bytes) {
   AV1_COMMON *const cm = &cpi->common;
   double samples = 0.0;
-  uint32_t in_bit_depth = 8;
-  uint32_t bit_depth = 8;
 
 #if CONFIG_INTER_STATS_ONLY
   if (cm->frame_type == KEY_FRAME) return;  // skip key frame
 #endif
   cpi->bytes += frame_bytes;
 
-#if CONFIG_HIGHBITDEPTH
-  if (cm->use_highbitdepth) {
-    in_bit_depth = cpi->oxcf.input_bit_depth;
-    bit_depth = cm->bit_depth;
-  }
-#endif
+  const uint32_t in_bit_depth = cpi->oxcf.input_bit_depth;
+  const uint32_t bit_depth = cm->bit_depth;
+
   if (cm->show_frame) {
     const YV12_BUFFER_CONFIG *orig = cpi->source;
     const YV12_BUFFER_CONFIG *recon = cpi->common.frame_to_show;
@@ -5642,30 +5633,19 @@ static void compute_internal_stats(AV1_COMP *cpi, int frame_bytes) {
     cpi->count++;
     if (cpi->b_calculate_psnr) {
       PSNR_STATS psnr;
-      double frame_ssim2 = 0.0, weight = 0.0;
       aom_clear_system_state();
-// TODO(yaowu): unify these two versions into one.
-#if CONFIG_HIGHBITDEPTH
-      aom_calc_highbd_psnr(orig, recon, &psnr, bit_depth, in_bit_depth);
-#else
-      aom_calc_psnr(orig, recon, &psnr);
-#endif  // CONFIG_HIGHBITDEPTH
+
+      aom_calc_psnr(orig, recon, &psnr, bit_depth, in_bit_depth);
 
       adjust_image_stat(psnr.psnr[1], psnr.psnr[2], psnr.psnr[3], psnr.psnr[0],
                         &cpi->psnr);
       cpi->total_sq_error += psnr.sse[0];
       cpi->total_samples += psnr.samples[0];
       samples = psnr.samples[0];
-// TODO(yaowu): unify these two versions into one.
-#if CONFIG_HIGHBITDEPTH
-      if (cm->use_highbitdepth)
-        frame_ssim2 =
-            aom_highbd_calc_ssim(orig, recon, &weight, bit_depth, in_bit_depth);
-      else
-        frame_ssim2 = aom_calc_ssim(orig, recon, &weight);
-#else
-      frame_ssim2 = aom_calc_ssim(orig, recon, &weight);
-#endif  // CONFIG_HIGHBITDEPTH
+
+      double weight = 0.0;
+      const double frame_ssim2 =
+          aom_calc_ssim(orig, recon, &weight, bit_depth, in_bit_depth);
 
       cpi->worst_ssim = AOMMIN(cpi->worst_ssim, frame_ssim2);
       cpi->summed_quality += frame_ssim2 * weight;
