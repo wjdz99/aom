@@ -1,0 +1,123 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a6a61df5_fe847460",
+        "filename": "av1/av1.cmake",
+        "patchSetId": 56
+      },
+      "lineNbr": 271,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-08-10T00:46:02Z",
+      "side": 1,
+      "message": "Does CONFIG_CDEF_SINGLEPASS need cdef_block_avx2.c somewhere? It\u0027s present in av1_common.mk, but not here.",
+      "revId": "41ed2aeef9f5dec2d3e01a3b687ea72764532bd4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "70740060_2eda7c3a",
+        "filename": "av1/common/cdef.c",
+        "patchSetId": 56
+      },
+      "lineNbr": 266,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-08-10T00:46:02Z",
+      "side": 1,
+      "message": "Please put the brace outside the #if/#else. Otherwise this breaks brace matching in most editors (I know this happens all over the code, but we\u0027ve been trying to clean it up, so let\u0027s not add more).",
+      "revId": "41ed2aeef9f5dec2d3e01a3b687ea72764532bd4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0edaea27_e1d1be23",
+        "filename": "av1/common/cdef_block.c",
+        "patchSetId": 56
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-08-10T00:46:02Z",
+      "side": 1,
+      "message": "Just to make sure I understand, the only reason sum/16.0 can exceed the range [min, max] is because the total weights of the filter taps are actually 24, right? I.e., we\u0027re summing the results of (what was formerly) two filters instead of averaging them?",
+      "revId": "41ed2aeef9f5dec2d3e01a3b687ea72764532bd4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5c5ae3a0_47e78d59",
+        "filename": "av1/common/cdef_block.c",
+        "patchSetId": 56
+      },
+      "lineNbr": 428,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-08-10T00:46:02Z",
+      "side": 1,
+      "message": "Where do 19 and 7 come from?",
+      "revId": "41ed2aeef9f5dec2d3e01a3b687ea72764532bd4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5be78d39_2dd030de",
+        "filename": "av1/common/cdef_block.c",
+        "patchSetId": 56
+      },
+      "lineNbr": 452,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-08-10T00:46:02Z",
+      "side": 1,
+      "message": "Did we need to rename dlist[] to list[] (it wasn\u0027t renamed in all callers, e.g., search_one_dual())? If so, can we rename it in the !CONFIG_CDEF_SINGLEPASS case, too? The way it\u0027s used here, it\u0027s causing brace-matching problems again with two copies of the start of this loop.",
+      "revId": "41ed2aeef9f5dec2d3e01a3b687ea72764532bd4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6cc98181_4d7d0838",
+        "filename": "av1/common/cdef_block.c",
+        "patchSetId": 56
+      },
+      "lineNbr": 540,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-08-10T00:46:02Z",
+      "side": 1,
+      "message": "It might be better to end the #if here and start a new one after the closing brace (moving the trailing closing brace inside the existing #endif below), but at least this one shouldn\u0027t confuse editors.",
+      "revId": "41ed2aeef9f5dec2d3e01a3b687ea72764532bd4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "60b95b8e_b25ae1db",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 56
+      },
+      "lineNbr": 3019,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-08-10T00:46:02Z",
+      "side": 1,
+      "message": "Since the current encoder always sets this to the same value as cdef_sec_damping, should we maybe just write a single damping value for the whole filter? It would save a few header bits.",
+      "revId": "41ed2aeef9f5dec2d3e01a3b687ea72764532bd4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
