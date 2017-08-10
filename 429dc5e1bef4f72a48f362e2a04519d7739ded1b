@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "55ba2580_ffb28fed",
+        "filename": "aom_scale/aom_scale_rtcd.pl",
+        "patchSetId": 8
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5030
+      },
+      "writtenOn": "2017-08-10T22:04:42Z",
+      "side": 1,
+      "message": "I think this should be a regular prototype instead of an rtcd prototype",
+      "range": {
+        "startLine": 29,
+        "startChar": 0,
+        "endLine": 29,
+        "endChar": 128
+      },
+      "revId": "429dc5e1bef4f72a48f362e2a04519d7739ded1b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
