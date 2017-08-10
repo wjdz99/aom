@@ -494,32 +494,32 @@ post_process_cmdline() {
     # Enable adopted experiments by default
     soft_enable cb4x4
     soft_enable chroma_sub8x8
-    soft_enable filter_7bit
-    soft_enable reference_buffer
-    soft_enable delta_q
-    soft_enable rect_tx
-    soft_enable global_motion
-    soft_enable ext_tx
-    soft_enable cdef
-    soft_enable ext_intra
-    soft_enable mv_compress
-    soft_enable ext_refs
-    soft_enable dual_filter
-    soft_enable motion_var
-    soft_enable warped_motion
-    soft_enable ext_delta_q
-    soft_enable loopfiltering_across_tiles
-    soft_enable ec_smallmul
-    soft_enable var_tx
-    soft_enable ext_inter
-    soft_enable wedge
-    soft_enable compound_segment
-    soft_enable interintra
-    soft_enable one_sided_compound
-    soft_enable smooth_hv
-    soft_enable parallel_deblocking
-    soft_enable rect_intra_pred
-    soft_enable convolve_round
+    #soft_enable filter_7bit
+    #soft_enable reference_buffer
+    #soft_enable delta_q
+    #soft_enable rect_tx
+    #soft_enable global_motion
+    #soft_enable ext_tx
+    #soft_enable cdef
+    #soft_enable ext_intra
+    #soft_enable mv_compress
+    #soft_enable ext_refs
+    #soft_enable dual_filter
+    #soft_enable motion_var
+    #soft_enable warped_motion
+    #soft_enable ext_delta_q
+    #soft_enable loopfiltering_across_tiles
+    #soft_enable ec_smallmul
+    #soft_enable var_tx
+    #soft_enable ext_inter
+    #soft_enable wedge
+    #soft_enable compound_segment
+    #soft_enable interintra
+    #soft_enable one_sided_compound
+    #soft_enable smooth_hv
+    #soft_enable parallel_deblocking
+    #soft_enable rect_intra_pred
+    #soft_enable convolve_round
 
     # Backwards/jenkins compatibility with --enable-aom-highbitdepth
     enabled aom_highbitdepth && enable_feature highbitdepth
