@@ -20,6 +20,10 @@
 extern "C" {
 #endif
 
+// TODO(now): Separate ones for key frame and non-keyframe
+//#define SUPERRES_MAX_QUANTIZER 200
+#define SUPERRES_MAX_QUANTIZER 176
+
 #if CONFIG_EXT_PARTITION
 #define IF_EXT_PARTITION(...) __VA_ARGS__,
 #else
