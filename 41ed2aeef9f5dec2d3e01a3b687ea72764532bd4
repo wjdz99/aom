@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "b52bbf8d_d233c76b",
+        "filename": "av1/common/cdef.c",
+        "patchSetId": 56
+      },
+      "lineNbr": 266,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2017-08-10T07:56:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "70740060_2eda7c3a",
+      "revId": "41ed2aeef9f5dec2d3e01a3b687ea72764532bd4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0edaea27_e1d1be23",
         "filename": "av1/common/cdef_block.c",
         "patchSetId": 56
@@ -47,6 +65,24 @@
       "writtenOn": "2017-08-10T00:46:02Z",
       "side": 1,
       "message": "Just to make sure I understand, the only reason sum/16.0 can exceed the range [min, max] is because the total weights of the filter taps are actually 24, right? I.e., we\u0027re summing the results of (what was formerly) two filters instead of averaging them?",
+      "revId": "41ed2aeef9f5dec2d3e01a3b687ea72764532bd4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "464777b2_bb259305",
+        "filename": "av1/common/cdef_block.c",
+        "patchSetId": 56
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2017-08-10T07:56:05Z",
+      "side": 1,
+      "message": "Correct, except that the total weights are actually 26 when !CDEF_FULL (CDEF_FULL weights: 3 2 1, !CDEF_FULL: 4 3).\n\nThis clipping corresponds to equation 8 in the updated design doc.  It caps the amount of change (no overshoot) and ensures the low-pass effect.  I did try to divide by 32 first (and also try other weights summing up to 32), but the code as it is now worked much better.  I wrote a script to try a few hundred combinations in AWCY and from the best group with internal differences within the noise range I picked what looked most like the original two-pass.\n\n(Clipping here is part of the original generalised CLPF (also presented at IETF95), so it\u0027s not a new idea)",
+      "parentUuid": "0edaea27_e1d1be23",
       "revId": "41ed2aeef9f5dec2d3e01a3b687ea72764532bd4",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -70,6 +106,24 @@
     },
     {
       "key": {
+        "uuid": "7cf9cf4f_73428a3c",
+        "filename": "av1/common/cdef_block.c",
+        "patchSetId": 56
+      },
+      "lineNbr": 428,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2017-08-10T07:56:05Z",
+      "side": 1,
+      "message": "Heuristics, and possibly autotuned for objective-1-fast.  It doesn\u0027t make a clear difference what these strengths are, but it does help to assign some meaning in this case when the skip condition flag otherwise would be redundant.",
+      "parentUuid": "5c5ae3a0_47e78d59",
+      "revId": "41ed2aeef9f5dec2d3e01a3b687ea72764532bd4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5be78d39_2dd030de",
         "filename": "av1/common/cdef_block.c",
         "patchSetId": 56
@@ -81,6 +135,24 @@
       "writtenOn": "2017-08-10T00:46:02Z",
       "side": 1,
       "message": "Did we need to rename dlist[] to list[] (it wasn\u0027t renamed in all callers, e.g., search_one_dual())? If so, can we rename it in the !CONFIG_CDEF_SINGLEPASS case, too? The way it\u0027s used here, it\u0027s causing brace-matching problems again with two copies of the start of this loop.",
+      "revId": "41ed2aeef9f5dec2d3e01a3b687ea72764532bd4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c7b98851_0d16c96a",
+        "filename": "av1/common/cdef_block.c",
+        "patchSetId": 56
+      },
+      "lineNbr": 452,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2017-08-10T07:56:05Z",
+      "side": 1,
+      "message": "I\u0027ve changed it to dlist again to avoid confusion.  The intention was to change it to dlist everywhere (since dlist comes from dering_list which was changed to cdef_list), but the clean-up patch missed this.",
+      "parentUuid": "5be78d39_2dd030de",
       "revId": "41ed2aeef9f5dec2d3e01a3b687ea72764532bd4",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -104,6 +176,24 @@
     },
     {
       "key": {
+        "uuid": "fde9b1ab_350ec1b6",
+        "filename": "av1/common/cdef_block.c",
+        "patchSetId": 56
+      },
+      "lineNbr": 540,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2017-08-10T07:56:05Z",
+      "side": 1,
+      "message": "Fixed.  Some of these oddities come from that I used the -D option of patch to add the experiment flags, but patch will try to minimise the difference and care little about readability, so I had to clean this up manually many places (not to mention the clearing up the incorrect code that patch produced for diffs involving preprocessor directives).",
+      "parentUuid": "6cc98181_4d7d0838",
+      "revId": "41ed2aeef9f5dec2d3e01a3b687ea72764532bd4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "60b95b8e_b25ae1db",
         "filename": "av1/decoder/decodeframe.c",
         "patchSetId": 56
@@ -115,6 +205,24 @@
       "writtenOn": "2017-08-10T00:46:02Z",
       "side": 1,
       "message": "Since the current encoder always sets this to the same value as cdef_sec_damping, should we maybe just write a single damping value for the whole filter? It would save a few header bits.",
+      "revId": "41ed2aeef9f5dec2d3e01a3b687ea72764532bd4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "145c62e5_e1cc0ed8",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 56
+      },
+      "lineNbr": 3019,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2017-08-10T07:56:05Z",
+      "side": 1,
+      "message": "Yes, and I\u0027m inclined to agree. IIRC I discussed this with JM (when it was only two-pass) who preferred the freedom of choice on the encoder side and to make things orthogonal (perhaps it can add 0.1% - 0.2% gains at the cost of adding a dimension to the search space), and I favoured a single value but didn\u0027t have a strong opinion.  For two-pass it was only one bit, now it\u0027s two (and the same for pri and sec), so it may be worth revisiting.  I don\u0027t have a strong opinion.  I must remember to update the design doc if we make the change.\n\nIf JM doesn\u0027t object by 20:00UTC today, I\u0027ll make the change.",
+      "parentUuid": "60b95b8e_b25ae1db",
       "revId": "41ed2aeef9f5dec2d3e01a3b687ea72764532bd4",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
