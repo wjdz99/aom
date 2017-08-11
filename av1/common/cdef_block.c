@@ -442,7 +442,12 @@ void cdef_filter_fb(uint8_t *dst8, uint16_t *dst16, int dstride, uint16_t *in,
   bsizex = 3 - xdec;
   bsizey = 3 - ydec;
 #if CONFIG_CDEF_SINGLEPASS
-  if (dirinit && pri_strength == 0 && sec_strength == 0) {
+  if (dirinit && pri_strength == 0 && sec_strength == 0)
+#else
+  if (!skip_dering)
+#endif
+  {
+#if CONFIG_CDEF_SINGLEPASS
     // If we're here, both primary and secondary strengths are 0, and
     // we still haven't written anything to y[] yet, so we just copy
     // the input to y[]. This is necessary only for av1_cdef_search()
@@ -451,7 +456,6 @@ void cdef_filter_fb(uint8_t *dst8, uint16_t *dst16, int dstride, uint16_t *in,
       by = dlist[bi].by;
       bx = dlist[bi].bx;
 #else
-  if (!skip_dering) {
     if (pli == 0) {
       if (!dirinit || !*dirinit) {
         for (bi = 0; bi < cdef_count; bi++) {
