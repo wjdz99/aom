@@ -34,7 +34,7 @@
 #if CONFIG_CDEF_SINGLEPASS
 // Filter configuration
 #define CDEF_CAP 1   // 1 = Cap change to largest diff
-#define CDEF_FULL 0  // 1 = 7x7 filter, 0 = 5x5 filter
+#define CDEF_FULL 1  // 1 = 7x7 filter, 0 = 5x5 filter
 
 #if CDEF_FULL
 extern const int cdef_pri_taps[2][3];
