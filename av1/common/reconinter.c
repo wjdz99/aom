@@ -2051,9 +2051,15 @@ void av1_build_obmc_inter_prediction(const AV1_COMMON *cm, MACROBLOCKD *xd,
       // With chroma-sub8x8, the chroma information is found to the right
       // (i.e. with odd mi_col) when blocks are narrower than 8x8. See
       // av1_count_overlappable_neighbors for details.
+      /*
       if (mi_step == 1 && ((mi_col + i) % 2 == 0)) {
         ilimit = AOMMIN(AOMMAX(ilimit, i + 1), cols_remaining);
         continue;
+      }
+      */
+      if (mi_step == 1) {
+        above_mbmi = &xd->mi[i + 1 - 1 * xd->mi_stride]->mbmi;
+        mi_step = 2;
       }
 #endif
       if (is_neighbor_overlappable(above_mbmi)) {
@@ -2109,9 +2115,15 @@ void av1_build_obmc_inter_prediction(const AV1_COMMON *cm, MACROBLOCKD *xd,
       // With chroma-sub8x8, the chroma information is found in the lower half
       // (i.e. with odd mi_row) when blocks are shorter than 8x8. See
       // av1_count_overlappable_neighbors for details.
+      /*
       if (mi_step == 1 && ((mi_row + i) % 2 == 0)) {
         ilimit = AOMMIN(AOMMAX(ilimit, i + 1), rows_remaining);
         continue;
+      }
+      */
+      if (mi_step == 1) {
+        left_mbmi = &xd->mi[-1 + (i + 1) * xd->mi_stride]->mbmi;
+        mi_step = 2;
       }
 #endif
       if (is_neighbor_overlappable(left_mbmi)) {
@@ -2194,9 +2206,15 @@ void av1_build_prediction_by_above_preds(const AV1_COMMON *cm, MACROBLOCKD *xd,
     mi_step = mi_size_wide[above_mbmi->sb_type];
 #if CONFIG_CHROMA_SUB8X8
     // See note in av1_count_overlappable_neighbors for how this works
+    /*
     if (mi_step == 1 && ((mi_col + i) % 2 == 0)) {
       ilimit = AOMMIN(AOMMAX(ilimit, i + 1), cols_remaining);
       continue;
+    }
+    */
+    if (mi_step == 1) {
+      above_mbmi = &xd->mi[i + 1 - 1 * xd->mi_stride]->mbmi;
+      mi_step = 2;
     }
 #endif
 
@@ -2298,9 +2316,15 @@ void av1_build_prediction_by_left_preds(const AV1_COMMON *cm, MACROBLOCKD *xd,
     mi_step = mi_size_high[left_mbmi->sb_type];
 #if CONFIG_CHROMA_SUB8X8
     // See note in av1_count_overlappable_neighbors for how this works
+    /*
     if (mi_step == 1 && ((mi_row + i) % 2 == 0)) {
       ilimit = AOMMIN(AOMMAX(ilimit, i + 1), rows_remaining);
       continue;
+    }
+    */
+    if (mi_step == 1) {
+      left_mbmi = &xd->mi[-1 + (i + 1) * xd->mi_stride]->mbmi;
+      mi_step = 2;
     }
 #endif
 
