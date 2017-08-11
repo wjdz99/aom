@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3d85150a_2d3e8206",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2057,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-08-11T21:15:23Z",
+      "side": 1,
+      "message": "I guess this condition is not necessary. Even if the first pass picks S_T, we should compare S_T vs. NCWM in the second pass. Here the condition should be motion_allowed \u003e\u003d WARPED_CAUSAL",
+      "range": {
+        "startLine": 2057,
+        "startChar": 14,
+        "endLine": 2057,
+        "endChar": 52
+      },
+      "revId": "6d698ff4e222b10ab39c9857a503e2ead5204876",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "63fcac6c_ac7207aa",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 13039,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-08-11T21:15:23Z",
+      "side": 1,
+      "message": "I guess you need to try both ST and NCWM here like in av1_check_ncobmc_rd()",
+      "range": {
+        "startLine": 13036,
+        "startChar": 0,
+        "endLine": 13039,
+        "endChar": 3
+      },
+      "revId": "6d698ff4e222b10ab39c9857a503e2ead5204876",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
