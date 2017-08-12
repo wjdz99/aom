@@ -3991,7 +3991,10 @@ static void set_restoration_tilesize(int width, int height, int sx, int sy,
   int s = 0;
 #endif  // !COUPLED_CHROMA_FROM_LUMA_RESTORATION
 
-  rst[0].restoration_tilesize = (RESTORATION_TILESIZE_MAX >> 1);
+  if (width * height > 352 * 288)
+    rst[0].restoration_tilesize = RESTORATION_TILESIZE_MAX;
+  else
+    rst[0].restoration_tilesize = (RESTORATION_TILESIZE_MAX >> 1);
   rst[1].restoration_tilesize = rst[0].restoration_tilesize >> s;
   rst[2].restoration_tilesize = rst[1].restoration_tilesize;
 }
