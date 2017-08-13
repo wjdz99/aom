@@ -4596,6 +4596,10 @@ static void write_global_motion(AV1_COMP *cpi, aom_writer *w) {
   int frame;
   YV12_BUFFER_CONFIG *ref_buf;
   for (frame = LAST_FRAME; frame <= ALTREF_FRAME; ++frame) {
+    write_global_motion_params(&cm->global_motion[frame],
+                               &cm->prev_frame->global_motion[frame], w,
+                               cm->allow_high_precision_mv);
+    /*
     ref_buf = get_ref_frame_buffer(cpi, frame);
     if (cpi->source->y_crop_width == ref_buf->y_crop_width &&
         cpi->source->y_crop_height == ref_buf->y_crop_height) {
@@ -4606,6 +4610,7 @@ static void write_global_motion(AV1_COMP *cpi, aom_writer *w) {
       assert(cm->global_motion[frame].wmtype == IDENTITY &&
              "Invalid warp type for frames of different resolutions");
     }
+    */
     /*
     printf("Frame %d/%d: Enc Ref %d (used %d): %d %d %d %d\n",
            cm->current_video_frame, cm->show_frame, frame,
