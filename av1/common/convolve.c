@@ -63,7 +63,7 @@ void av1_convolve_horiz_scale(const uint8_t *src, int src_stride, uint8_t *dst,
                               ConvolveParams *conv_params) {
   int x, y;
   int filter_size = filter_params.taps;
-  assert(conv_params->round == CONVOLVE_OPT_ROUND);
+  // assert(conv_params->round == CONVOLVE_OPT_ROUND);
   src -= filter_size / 2 - 1;
   for (y = 0; y < h; ++y) {
     int x_qn = subpel_x_qn;
@@ -128,7 +128,7 @@ void av1_convolve_vert_scale(const uint8_t *src, int src_stride, uint8_t *dst,
                              ConvolveParams *conv_params) {
   int x, y;
   int filter_size = filter_params.taps;
-  assert(conv_params->round == CONVOLVE_OPT_ROUND);
+  // assert(conv_params->round == CONVOLVE_OPT_ROUND);
   src -= src_stride * (filter_size / 2 - 1);
   for (x = 0; x < w; ++x) {
     int y_qn = subpel_y_qn;
@@ -226,7 +226,7 @@ void av1_convolve_horiz_facade_scale(const uint8_t *src, int src_stride,
                                      const InterpFilterParams filter_params,
                                      const int subpel_x_qn, int x_step_qn,
                                      ConvolveParams *conv_params) {
-  assert(conv_params->round == CONVOLVE_OPT_ROUND);
+  // assert(conv_params->round == CONVOLVE_OPT_ROUND);
   if (filter_params.taps == SUBPEL_TAPS) {
     const int16_t *filter_x = av1_get_interp_filter_subpel_kernel(
         filter_params, subpel_x_qn >> SCALE_EXTRA_BITS);
@@ -292,7 +292,7 @@ void av1_convolve_vert_facade_scale(const uint8_t *src, int src_stride,
                                     const InterpFilterParams filter_params,
                                     const int subpel_y_qn, int y_step_qn,
                                     ConvolveParams *conv_params) {
-  assert(conv_params->round == CONVOLVE_OPT_ROUND);
+  // assert(conv_params->round == CONVOLVE_OPT_ROUND);
   if (filter_params.taps == SUBPEL_TAPS) {
     const int16_t *filter_y = av1_get_interp_filter_subpel_kernel(
         filter_params, subpel_y_qn >> SCALE_EXTRA_BITS);
@@ -322,6 +322,49 @@ void av1_convolve_rounding_c(const int32_t *src, int src_stride, uint8_t *dst,
 }
 
 #if CONFIG_COMPOUND_ROUND
+void av1_convolve_2d_scale_c(const uint8_t *src, int src_stride, CONV_BUF_TYPE *dst,
+                             int dst_stride, int w, int h,
+                             InterpFilterParams *filter_params_x,
+                             InterpFilterParams *filter_params_y,
+                             const int subpel_x_q4, const int subpel_y_q4,
+                             ConvolveParams *conv_params) {
+  int x, y, k;
+  uint8_t im_block[(MAX_SB_SIZE + MAX_FILTER_TAP - 1) * MAX_SB_SIZE];
+  int im_h = h + filter_params_y->taps - 1;
+  int im_stride = w;
+  const int fo_vert = filter_params_y->taps / 2 - 1;
+  const int fo_horiz = filter_params_x->taps / 2 - 1;
+
+  // horizontal filter
+  const uint8_t *src_horiz = src - fo_vert * src_stride;
+  const int16_t *x_filter = av1_get_interp_filter_subpel_kernel(
+      *filter_params_x, subpel_x_q4 & SUBPEL_MASK);
+  for (y = 0; y < im_h; ++y) {
+    for (x = 0; x < w; ++x) {
+      int32_t sum = 0;
+      for (k = 0; k < filter_params_x->taps; ++k) {
+        sum += x_filter[k] * src_horiz[y * src_stride + x - fo_horiz + k];
+      }
+      im_block[y * im_stride + x] =
+          clip_pixel(ROUND_POWER_OF_TWO(sum, conv_params->round_0));
+    }
+  }
+
+  // vertical filter
+  uint8_t *src_vert = im_block + fo_vert * im_stride;
+  const int16_t *y_filter = av1_get_interp_filter_subpel_kernel(
+      *filter_params_y, subpel_y_q4 & SUBPEL_MASK);
+  for (y = 0; y < h; ++y) {
+    for (x = 0; x < w; ++x) {
+      CONV_BUF_TYPE sum = 0;
+      for (k = 0; k < filter_params_y->taps; ++k) {
+        sum += y_filter[k] * src_vert[(y - fo_vert + k) * im_stride + x];
+      }
+      CONV_BUF_TYPE res = ROUND_POWER_OF_TWO(sum, conv_params->round_1);
+      dst[y * dst_stride + x] += res;
+    }
+  }
+}
 void av1_convolve_2d_c(const uint8_t *src, int src_stride, CONV_BUF_TYPE *dst,
                        int dst_stride, int w, int h,
                        InterpFilterParams *filter_params_x,
@@ -812,7 +855,7 @@ static void convolve_scale_helper(const uint8_t *src, int src_stride,
   InterpFilterParams filter_params =
       av1_get_interp_filter_params(interp_filter);
 #endif
-  assert(conv_params->round == CONVOLVE_OPT_ROUND);
+  // assert(conv_params->round == CONVOLVE_OPT_ROUND);
 
   assert(w <= MAX_BLOCK_WIDTH);
   assert(h <= MAX_BLOCK_HEIGHT);
