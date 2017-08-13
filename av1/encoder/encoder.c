@@ -4141,6 +4141,13 @@ static void encode_with_recode_loop(AV1_COMP *cpi, size_t *size,
 
     cpi->source =
         av1_scale_if_required(cm, cpi->unscaled_source, &cpi->scaled_source);
+
+#if CONFIG_GLOBAL_MOTION
+    // if frame was scaled calculate global_motion_search again if already done
+    if (cpi->source != cpi->unscaled_source)
+      cpi->global_motion_search_done = 0;
+#endif  // CONFIG_GLOBAL_MOTION
+
     if (cpi->unscaled_last_source != NULL)
       cpi->last_source = av1_scale_if_required(cm, cpi->unscaled_last_source,
                                                &cpi->scaled_last_source);
