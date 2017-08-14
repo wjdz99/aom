@@ -56,6 +56,12 @@ void av1_convolve_2d_facade(const uint8_t *src, int src_stride, uint8_t *dst,
                             const int subpel_x_q4, int x_step_q4,
                             const int subpel_y_q4, int y_step_q4,
                             ConvolveParams *conv_params);
+void av1_convolve_2d_facade_scale(const uint8_t *src, int src_stride,
+                                  uint8_t *dst, int dst_stride, int w, int h,
+                                  const InterpFilter *interp_filter,
+                                  const int subpel_x_qn, int x_step_qn,
+                                  const int subpel_y_qn, int y_step_qn,
+                                  ConvolveParams *conv_params);
 
 static INLINE ConvolveParams get_conv_params_no_round(int ref, int do_average,
                                                       int plane, int32_t *dst,
@@ -84,6 +90,13 @@ void av1_highbd_convolve_2d_facade(const uint8_t *src8, int src_stride,
                                    const int subpel_x_q4, int x_step_q4,
                                    const int subpel_y_q4, int y_step_q4,
                                    ConvolveParams *conv_params, int bd);
+void av1_highbd_convolve_2d_facade_scale(const uint8_t *src8, int src_stride,
+                                         uint8_t *dst, int dst_stride, int w,
+                                         int h,
+                                         const InterpFilter *interp_filter,
+                                         const int subpel_x_qn, int x_step_qn,
+                                         const int subpel_y_qn, int y_step_qn,
+                                         ConvolveParams *conv_params, int bd);
 #endif
 #endif  // CONFIG_CONVOLVE_ROUND
 
