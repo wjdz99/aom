@@ -572,8 +572,11 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
 
 #if CONFIG_PVQ || CONFIG_DIST_8X8 || CONFIG_LGT || CONFIG_MRC_TX
   dst = &pd->dst.buf[(blk_row * dst_stride + blk_col) << tx_size_wide_log2[0]];
+#endif  // CONFIG_PVQ || CONFIG_DIST_8X8 || CONFIG_LGT || CONFIG_MRC_TX
+
 #if CONFIG_PVQ || CONFIG_DIST_8X8
-  pred = &pd->pred[(blk_row * diff_stride + blk_col) << tx_size_wide_log2[0]];
+  if (CONFIG_PVQ || x->using_dist_8x8) {
+    pred = &pd->pred[(blk_row * diff_stride + blk_col) << tx_size_wide_log2[0]];
 
 // copy uint8 orig and predicted block to int16 buffer
 // in order to use existing VP10 transform functions
@@ -591,8 +594,8 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
 #if CONFIG_HIGHBITDEPTH
   }
 #endif  // CONFIG_HIGHBITDEPTH
+  }
 #endif  // CONFIG_PVQ || CONFIG_DIST_8X8
-#endif  // CONFIG_PVQ || CONFIG_DIST_8X8 || CONFIG_LGT || CONFIG_MRC_TX
 
   (void)ctx;
 
