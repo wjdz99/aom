@@ -66,8 +66,25 @@ static INLINE void inter_predictor(const uint8_t *src, int src_stride,
   if (has_scale(xs, ys)) {
     // TODO(afergs, debargha): Use a different scale convolve function
     // that uses higher precision for subpel_x, subpel_y, xs, ys
-    av1_convolve_scale(src, src_stride, dst, dst_stride, w, h, interp_filter,
-                       subpel_x, xs, subpel_y, ys, conv_params);
+    if (conv_params->round == CONVOLVE_OPT_NO_ROUND) {
+#if CONFIG_CONVOLVE_ROUND
+      av1_convolve_2d_facade_scale(src, src_stride, dst, dst_stride, w, h,
+#if CONFIG_DUAL_FILTER
+                                   interp_filter,
+#else   // CONFIG_DUAL_FILTER
+                                   &interp_filter,
+#endif  // CONFIG_DUAL_FILTER
+                                   subpel_x, xs, subpel_y, ys, conv_params);
+      conv_params->do_post_rounding = 1;
+#else
+      assert(0);
+#endif  // CONFIG_CONVOLVE_ROUND
+    } else {
+      conv_params->round = CONVOLVE_OPT_ROUND;
+      assert(conv_params->round == CONVOLVE_OPT_ROUND);
+      av1_convolve_scale(src, src_stride, dst, dst_stride, w, h, interp_filter,
+                         subpel_x, xs, subpel_y, ys, conv_params);
+    }
   } else {
     subpel_x >>= SCALE_EXTRA_BITS;
     subpel_y >>= SCALE_EXTRA_BITS;
