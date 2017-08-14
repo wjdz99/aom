@@ -63,6 +63,10 @@ typedef struct {
   int costs[CFL_JOINT_SIGNS][CFL_PRED_PLANES][CFL_ALPHABET_SIZE];
 
   int mi_row, mi_col;
+
+  // Whether the reconstructed luma pixels need to be stored
+  int store_y;
+
 } CFL_CTX;
 
 static INLINE int get_scaled_luma_q0(int alpha_q3, int y_pix, int avg_q3) {
