@@ -578,12 +578,13 @@ static void init_wedge_master_masks() {
   }
 }
 
-// If the signs for the wedges for various blocksizes are
-// inconsistent flip the sign flag. Do it only once for every
-// wedge codebook.
+// TODO(david.barker): Change this to calculate wedge signs per interintra
+// mode, as well as per block size and wedge type, then re-enable this function.
 static void init_wedge_signs() {
   BLOCK_SIZE sb_type;
   memset(wedge_signflip_lookup, 0, sizeof(wedge_signflip_lookup));
+  return; // Temporary
+
   for (sb_type = BLOCK_4X4; sb_type < BLOCK_SIZES_ALL; ++sb_type) {
     const int bw = block_size_wide[sb_type];
     const int bh = block_size_high[sb_type];
@@ -2860,7 +2861,7 @@ static int ii_size_scales[BLOCK_SIZES_ALL] = {
 #endif  // CONFIG_EXT_PARTITION
 
 static void combine_interintra(INTERINTRA_MODE mode, int use_wedge_interintra,
-                               int wedge_index, int wedge_sign,
+                               int wedge_index,
                                BLOCK_SIZE bsize, BLOCK_SIZE plane_bsize,
                                uint8_t *comppred, int compstride,
                                const uint8_t *interpred, int interstride,
@@ -2873,7 +2874,38 @@ static void combine_interintra(INTERINTRA_MODE mode, int use_wedge_interintra,
   if (use_wedge_interintra) {
     if (is_interintra_wedge_used(bsize)) {
       const uint8_t *mask =
-          av1_get_contiguous_soft_mask(wedge_index, wedge_sign, bsize);
+          av1_get_contiguous_soft_mask(wedge_index, 0, bsize);
+      // Choose the wedge sign such that, along the relevant edge(s),
+      // we use intra prediction at least as much as the inter prediction.
+      // This happens iff the average (ie, sum / n) is at least 32.
+      // Thus we invert the mask if sum < 32*n.
+      // Note that this could in principle be pre-calculated per block size + interintra mode
+      const size_t mask_stride = MASK_MASTER_STRIDE;
+      int sum = 0;
+      int n = 0;
+      switch (mode) {
+        case II_V_PRED:
+          n = bw;
+          for (j = 0; j < bw; ++j)
+            sum += mask[j];
+          break;
+
+        case II_H_PRED:
+          n = bh;
+          for (i = 0; i < bh; ++i)
+            sum += mask[i * mask_stride];
+          break;
+
+        default:
+          n = bw + bh - 1;
+          for (i = 0; i < bh; ++i)
+            sum += mask[i * mask_stride];
+          for (j = 1; j < bw; ++j)
+            sum += mask[j];
+          break;
+      }
+      if (sum < 32*n)
+        mask = av1_get_contiguous_soft_mask(wedge_index, 1, bsize);
       const int subw = 2 * num_4x4_blocks_wide_lookup[bsize] == bw;
       const int subh = 2 * num_4x4_blocks_high_lookup[bsize] == bh;
       aom_blend_a64_mask(comppred, compstride, intrapred, intrastride,
@@ -2937,7 +2969,7 @@ static void combine_interintra(INTERINTRA_MODE mode, int use_wedge_interintra,
 #if CONFIG_HIGHBITDEPTH
 static void combine_interintra_highbd(
     INTERINTRA_MODE mode, int use_wedge_interintra, int wedge_index,
-    int wedge_sign, BLOCK_SIZE bsize, BLOCK_SIZE plane_bsize,
+    BLOCK_SIZE bsize, BLOCK_SIZE plane_bsize,
     uint8_t *comppred8, int compstride, const uint8_t *interpred8,
     int interstride, const uint8_t *intrapred8, int intrastride, int bd) {
   const int bw = block_size_wide[plane_bsize];
@@ -2952,7 +2984,33 @@ static void combine_interintra_highbd(
   if (use_wedge_interintra) {
     if (is_interintra_wedge_used(bsize)) {
       const uint8_t *mask =
-          av1_get_contiguous_soft_mask(wedge_index, wedge_sign, bsize);
+          av1_get_contiguous_soft_mask(wedge_index, 0, bsize);
+      const size_t mask_stride = MASK_MASTER_STRIDE;
+      int sum = 0;
+      int n = 0;
+      switch (mode) {
+        case II_V_PRED:
+          n = bw;
+          for (j = 0; j < bw; ++j)
+            sum += mask[j];
+          break;
+
+        case II_H_PRED:
+          n = bh;
+          for (i = 0; i < bh; ++i)
+            sum += mask[i * mask_stride];
+          break;
+
+        default:
+          n = bw + bh - 1;
+          for (i = 0; i < bh; ++i)
+            sum += mask[i * mask_stride];
+          for (j = 1; j < bw; ++j)
+            sum += mask[j];
+          break;
+      }
+      if (sum < 32*n)
+        mask = av1_get_contiguous_soft_mask(wedge_index, 1, bsize);
       const int subh = 2 * num_4x4_blocks_high_lookup[bsize] == bh;
       const int subw = 2 * num_4x4_blocks_wide_lookup[bsize] == bw;
       aom_highbd_blend_a64_mask(comppred8, compstride, intrapred8, intrastride,
@@ -3036,8 +3094,7 @@ void av1_combine_interintra(MACROBLOCKD *xd, BLOCK_SIZE bsize, int plane,
   if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
     combine_interintra_highbd(
         xd->mi[0]->mbmi.interintra_mode, xd->mi[0]->mbmi.use_wedge_interintra,
-        xd->mi[0]->mbmi.interintra_wedge_index,
-        xd->mi[0]->mbmi.interintra_wedge_sign, bsize, plane_bsize,
+        xd->mi[0]->mbmi.interintra_wedge_index, bsize, plane_bsize,
         xd->plane[plane].dst.buf, xd->plane[plane].dst.stride, inter_pred,
         inter_stride, intra_pred, intra_stride, xd->bd);
     return;
@@ -3045,8 +3102,7 @@ void av1_combine_interintra(MACROBLOCKD *xd, BLOCK_SIZE bsize, int plane,
 #endif  // CONFIG_HIGHBITDEPTH
   combine_interintra(xd->mi[0]->mbmi.interintra_mode,
                      xd->mi[0]->mbmi.use_wedge_interintra,
-                     xd->mi[0]->mbmi.interintra_wedge_index,
-                     xd->mi[0]->mbmi.interintra_wedge_sign, bsize, plane_bsize,
+                     xd->mi[0]->mbmi.interintra_wedge_index, bsize, plane_bsize,
                      xd->plane[plane].dst.buf, xd->plane[plane].dst.stride,
                      inter_pred, inter_stride, intra_pred, intra_stride);
 }
