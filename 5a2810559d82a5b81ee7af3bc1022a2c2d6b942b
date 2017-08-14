@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "181475f0_455737ec",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 6
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2017-08-14T18:25:23Z",
+      "side": 1,
+      "message": "Added the code back. It dropped out for some reason.",
+      "parentUuid": "c6b642e8_2aa871fb",
+      "range": {
+        "startLine": 14,
+        "startChar": 3,
+        "endLine": 14,
+        "endChar": 51
+      },
+      "revId": "5a2810559d82a5b81ee7af3bc1022a2c2d6b942b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7b15eaee_aa46c43c",
         "filename": "av1/decoder/decodeframe.c",
         "patchSetId": 6
@@ -39,6 +63,24 @@
       "revId": "5a2810559d82a5b81ee7af3bc1022a2c2d6b942b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4a5e2f00_7f1edb60",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 4964,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2017-08-14T18:25:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7b15eaee_aa46c43c",
+      "revId": "5a2810559d82a5b81ee7af3bc1022a2c2d6b942b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -59,6 +101,24 @@
     },
     {
       "key": {
+        "uuid": "f07c6346_41b0debf",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 4601,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2017-08-14T18:25:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "83cd1894_72a9bdd4",
+      "revId": "5a2810559d82a5b81ee7af3bc1022a2c2d6b942b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cee417ae_34344fde",
         "filename": "av1/encoder/encodeframe.c",
         "patchSetId": 6
@@ -73,6 +133,24 @@
       "revId": "5a2810559d82a5b81ee7af3bc1022a2c2d6b942b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "76fa759a_311caedd",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 5100,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2017-08-14T18:25:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cee417ae_34344fde",
+      "revId": "5a2810559d82a5b81ee7af3bc1022a2c2d6b942b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
