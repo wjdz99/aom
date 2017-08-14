@@ -585,30 +585,15 @@ static void init_wedge_signs() {
   BLOCK_SIZE sb_type;
   memset(wedge_signflip_lookup, 0, sizeof(wedge_signflip_lookup));
   for (sb_type = BLOCK_4X4; sb_type < BLOCK_SIZES_ALL; ++sb_type) {
-    const int bw = block_size_wide[sb_type];
-    const int bh = block_size_high[sb_type];
     const wedge_params_type wedge_params = wedge_params_lookup[sb_type];
     const int wbits = wedge_params.bits;
     const int wtypes = 1 << wbits;
-    int i, w;
+    int w;
     if (wbits == 0) continue;
     for (w = 0; w < wtypes; ++w) {
       // Get the mask master, i.e. index [0]
       const uint8_t *mask = get_wedge_mask_inplace(w, 0, sb_type);
-      int avg = 0;
-      for (i = 0; i < bw; ++i) avg += mask[i];
-      for (i = 1; i < bh; ++i) avg += mask[i * MASK_MASTER_STRIDE];
-      avg = (avg + (bw + bh - 1) / 2) / (bw + bh - 1);
-      // Default sign of this wedge is 1 if the average < 32, 0 otherwise.
-      // If default sign is 1:
-      //   If sign requested is 0, we need to flip the sign and return
-      //   the complement i.e. index [1] instead. If sign requested is 1
-      //   we need to flip the sign and return index [0] instead.
-      // If default sign is 0:
-      //   If sign requested is 0, we need to return index [0] the master
-      //   if sign requested is 1, we need to return the complement index [1]
-      //   instead.
-      wedge_params.signflip[w] = (avg < 32);
+      wedge_params.signflip[w] = (mask[0] < 32);
       // printf("%d[%d] = %d\n", sb_type, w, wedge_params.signflip[w]);
     }
   }
