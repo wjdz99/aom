@@ -35,6 +35,9 @@
 
 #define DEC_MISMATCH_DEBUG 0
 
+int warp_n;
+int nc_warp_n;
+
 static PREDICTION_MODE read_intra_mode(aom_reader *r, aom_cdf_prob *cdf) {
   return (PREDICTION_MODE)
       av1_intra_mode_inv[aom_read_symbol(r, cdf, INTRA_MODES, ACCT_STR)];
@@ -349,7 +352,20 @@ static MOTION_MODE read_motion_mode(AV1_COMMON *cm, MACROBLOCKD *xd,
   }
 #endif  // CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
 }
-
+#if NONCAUSAL_WARP && NC_SIGNALLING && !NC_INFO
+static int read_noncausal_usage(MACROBLOCKD *xd, MODE_INFO *mi, int mi_row,
+                                int mi_col, aom_reader *r) {
+  MB_MODE_INFO *mbmi = &mi->mbmi;
+  int noncausal_allowed =
+      is_noncausal_allowed(xd, mi_row, mi_col, mbmi->sb_type);
+  int is_noncausal = 0;
+  if (mbmi->motion_mode == WARPED_CAUSAL && noncausal_allowed) {
+    is_noncausal =
+        aom_read_symbol(r, xd->tile_ctx->ncwm_cdf[mbmi->sb_type], 2, ACCT_STR);
+  }
+  return is_noncausal;
+}
+#endif
 #if CONFIG_NCOBMC_ADAPT_WEIGHT
 static void read_ncobmc_mode(MACROBLOCKD *xd, MODE_INFO *mi,
                              NCOBMC_MODE ncobmc_mode[2], aom_reader *r) {
@@ -2689,7 +2705,7 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
   if (mbmi->sb_type >= BLOCK_8X8 && !has_second_ref(mbmi))
 #if WARPED_MOTION_SORT_SAMPLES
     mbmi->num_proj_ref[0] =
-        findSamples(cm, xd, mi_row, mi_col, pts, pts_inref, pts_mv);
+        findSamples(cm, xd, mi_row, mi_col, pts, pts_inref, pts_mv, NULL);
 #else
     mbmi->num_proj_ref[0] = findSamples(cm, xd, mi_row, mi_col, pts, pts_inref);
 #endif  // WARPED_MOTION_SORT_SAMPLES
@@ -2705,7 +2721,9 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
     if (mbmi->ref_frame[1] != INTRA_FRAME)
 #endif  // CONFIG_EXT_INTER
       mbmi->motion_mode = read_motion_mode(cm, xd, mi, r);
-
+#if NONCAUSAL_WARP && NC_SIGNALLING && !NC_INFO
+    mbmi->is_noncausal = read_noncausal_usage(xd, mi, mi_row, mi_col, r);
+#endif
 #if CONFIG_NCOBMC_ADAPT_WEIGHT
     read_ncobmc_mode(xd, mi, mbmi->ncobmc_mode, r);
 #endif
@@ -2717,16 +2735,24 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
     if (mbmi->motion_mode == WARPED_CAUSAL) {
       mbmi->wm_params[0].wmtype = DEFAULT_WMTYPE;
 
+      warp_n += 1;
 #if WARPED_MOTION_SORT_SAMPLES
       if (mbmi->num_proj_ref[0] > 1)
         mbmi->num_proj_ref[0] = sortSamples(pts_mv, &mbmi->mv[0].as_mv, pts,
                                             pts_inref, mbmi->num_proj_ref[0]);
+#if HAS_NONCAUSAL
+      mbmi->causal_proj_num = mbmi->num_proj_ref[0];
+#endif
 #endif  // WARPED_MOTION_SORT_SAMPLES
 
       if (find_projection(mbmi->num_proj_ref[0], pts, pts_inref, bsize,
                           mbmi->mv[0].as_mv.row, mbmi->mv[0].as_mv.col,
                           &mbmi->wm_params[0], mi_row, mi_col)) {
+        // Disable this because now we can do non-causal warp motion
+        nc_warp_n += 1;
+#if !APPLY_NC_WARP
         aom_internal_error(&cm->error, AOM_CODEC_ERROR, "Invalid Warped Model");
+#endif
       }
     }
 #endif  // CONFIG_WARPED_MOTION

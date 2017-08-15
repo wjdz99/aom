@@ -38,6 +38,9 @@
 #include "av1/decoder/detokenize.h"
 #endif
 
+extern int warp_n;
+extern int nc_warp_n;
+
 static void initialize_dec(void) {
   static volatile int init_done = 0;
 
@@ -97,6 +100,9 @@ AV1Decoder *av1_decoder_create(BufferPool *const pool) {
 
   av1_zero(*pbi);
 
+  warp_n = 0;
+  nc_warp_n = 0;
+
   if (setjmp(cm->error.jmp)) {
     cm->error.setjmp = 0;
     av1_decoder_remove(pbi);
@@ -153,6 +159,8 @@ AV1Decoder *av1_decoder_create(BufferPool *const pool) {
 
 void av1_decoder_remove(AV1Decoder *pbi) {
   int i;
+
+  fprintf(stdout, "[%d / %d]", warp_n, nc_warp_n);
 
   if (!pbi) return;
 

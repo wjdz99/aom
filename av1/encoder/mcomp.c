@@ -1046,6 +1046,9 @@ unsigned int av1_refine_warped_mv(const AV1_COMP *cpi, MACROBLOCK *const x,
         if (total_samples > 1)
           mbmi->num_proj_ref[0] =
               sortSamples(pts_mv0, &this_mv, pts, pts_inref, total_samples);
+#if HAS_NONCAUSAL
+        mbmi->causal_proj_num = mbmi->num_proj_ref[0];
+#endif
 #endif  // WARPED_MOTION_SORT_SAMPLES
 
         if (!find_projection(mbmi->num_proj_ref[0], pts, pts_inref, bsize, *tr,
@@ -1078,6 +1081,7 @@ unsigned int av1_refine_warped_mv(const AV1_COMP *cpi, MACROBLOCK *const x,
   mbmi->wm_params[0] = best_wm_params;
 #if WARPED_MOTION_SORT_SAMPLES
   mbmi->num_proj_ref[0] = best_num_proj_ref;
+  mbmi->causal_proj_num = mbmi->num_proj_ref[0];
 #endif  // WARPED_MOTION_SORT_SAMPLES
   return bestmse;
 }

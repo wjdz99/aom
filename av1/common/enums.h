@@ -27,6 +27,42 @@ extern "C" {
 // #define FOUR_MODE
 #endif
 
+#if CONFIG_WARPED_MOTION
+// Transmit flag indicating whether NCWM is used
+// NC_INFO 0: flag decoded right after motion mode;
+// NC_INFO 1: flag decoded before decoding with coefficient
+// SKIP_BR_BD 1: forbidding blocks on the border to use ncwm
+#define NC_SIGNALLING 0
+#define NC_INFO 1
+#define SKIP_BR_BD 1
+
+#define NONCAUSAL_WARP 1
+#define APPLY_NC_WARP 1
+#define RP_ALL 1
+#define RP_WM_ONLY 1
+
+// 1: always select NCWM is available
+// 0: select NCWM if center of the target block is closer to the point
+//    its mv points to
+#define NC_ALL 1
+
+#define SORTING_APPENDED 1
+#define APPEND_ALL 1
+
+#define TX_RESEL_INTER 0
+#define TX_RESEL_INTRA 0
+#define KEEP_CASAUL_ZERO 0
+
+#define UPDATE_SKIP 1
+#define RM_8_SAMPLES 1
+#endif
+
+#if CONFIG_NCOBMC || CONFIG_NCOBMC_ADAPT_WEIGHT || NONCAUSAL_WARP
+#define HAS_NONCAUSAL 1
+#else
+#define HAS_NONCAUSAL 0
+#endif
+
 // Max superblock size
 #if CONFIG_EXT_PARTITION
 #define MAX_SB_SIZE_LOG2 7
