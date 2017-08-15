@@ -410,6 +410,9 @@ typedef struct MB_MODE_INFO {
 #if CONFIG_TXK_SEL
   TX_TYPE txk_type[MAX_SB_SQUARE / (TX_SIZE_W_MIN * TX_SIZE_H_MIN)];
 #endif
+#if CONFIG_LGT
+  int use_lgt;
+#endif
 
 #if CONFIG_FILTER_INTRA
   FILTER_INTRA_MODE_INFO filter_intra_mode_info;
@@ -1069,6 +1072,36 @@ static INLINE int get_ext_tx_types(TX_SIZE tx_size, BLOCK_SIZE bs, int is_inter,
   return num_ext_tx_set[set_type];
 }
 
+#if CONFIG_LGT
+static INLINE int is_lgt_allowed(PREDICTION_MODE mode, TX_SIZE tx_size) {
+  if (!LGT_FROM_PRED_INTRA && !is_inter_mode(mode)) return 0;
+  if (!LGT_FROM_PRED_INTER && is_inter_mode(mode)) return 0;
+
+  switch (mode) {
+    case D45_PRED:
+    case D63_PRED:
+    case D117_PRED:
+    case V_PRED:
+#if CONFIG_SMOOTH_HV
+    case SMOOTH_V_PRED:
+#endif
+      return tx_size_wide[tx_size] <= 8;
+    case D135_PRED:
+    case D153_PRED:
+    case D207_PRED:
+    case H_PRED:
+#if CONFIG_SMOOTH_HV
+    case SMOOTH_H_PRED:
+#endif
+      return tx_size_high[tx_size] <= 8;
+    case DC_PRED:
+    case SMOOTH_PRED:
+    case TM_PRED:
+    default: return tx_size_wide[tx_size] <= 8 || tx_size_high[tx_size] <= 8;
+  }
+}
+#endif  // CONFIG_LGT
+
 #if CONFIG_RECT_TX
 static INLINE int is_rect_tx_allowed_bsize(BLOCK_SIZE bsize) {
   static const char LUT[BLOCK_SIZES_ALL] = {
@@ -1235,16 +1268,13 @@ static INLINE int av1_raster_order_to_block_index(TX_SIZE tx_size,
   return (tx_size == TX_4X4) ? raster_order : (raster_order > 0) ? 2 : 0;
 }
 
-#if CONFIG_DPCM_INTRA || CONFIG_LGT
+#if CONFIG_DPCM_INTRA
 static INLINE PREDICTION_MODE get_prediction_mode(const MODE_INFO *mi,
                                                   int plane, TX_SIZE tx_size,
                                                   int block_idx) {
-  const MB_MODE_INFO *const mbmi = &mi->mbmi;
-  if (is_inter_block(mbmi)) return mbmi->mode;
-
   int block_raster_idx = av1_block_index_to_raster_order(tx_size, block_idx);
   return (plane == PLANE_TYPE_Y) ? get_y_mode(mi, block_raster_idx)
-                                 : get_uv_mode(mbmi->uv_mode);
+                                 : get_uv_mode(mi->mbmi.uv_mode);
 }
 #endif
 
