@@ -329,9 +329,43 @@ static INLINE void add_token(TOKENEXTRA **t,
 }
 #endif  // !CONFIG_PVQ || CONFIG_VAR_TX
 
+#if CONFIG_PALETTE
+int av1_cost_palette_sb(const struct ThreadData *const td, int plane,
+                        BLOCK_SIZE bsize) {
+  assert(plane == 0 || plane == 1);
+  const MACROBLOCK *const x = &td->mb;
+  const MACROBLOCKD *const xd = &x->e_mbd;
+  const MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
+  const uint8_t *const color_map = xd->plane[plane].color_index_map;
+  const PALETTE_MODE_INFO *const pmi = &mbmi->palette_mode_info;
+  int plane_block_width, rows, cols;
+  av1_get_block_dimensions(bsize, plane, xd, &plane_block_width, NULL, &rows,
+                           &cols);
+
+  const int n = pmi->palette_size[plane];
+  int this_rate = 0;
+  uint8_t color_order[PALETTE_MAX_SIZE];
+#if CONFIG_PALETTE_THROUGHPUT
+  for (int k = 1; k < rows + cols - 1; ++k) {
+    for (int j = AOMMIN(k, cols - 1); j >= AOMMAX(0, k - rows + 1); --j) {
+      int i = k - j;
+#else
+  for (int i = 0; i < rows; ++i) {
+    for (int j = (i == 0 ? 1 : 0); j < cols; ++j) {
+#endif  // CONFIG_PALETTE_THROUGHPUT
+      int color_new_idx;
+      const int color_ctx = av1_get_palette_color_index_context(
+          color_map, plane_block_width, i, j, n, color_order, &color_new_idx);
+      assert(color_new_idx >= 0 && color_new_idx < n);
+      this_rate += x->palette_y_color_cost[n - PALETTE_MIN_SIZE][color_ctx]
+                                          [color_new_idx];
+    }
+  }
+  return this_rate;
+}
+
 void av1_tokenize_palette_sb(const struct ThreadData *const td, int plane,
-                             TOKENEXTRA **t, RUN_TYPE dry_run, BLOCK_SIZE bsize,
-                             int *rate) {
+                             TOKENEXTRA **t, BLOCK_SIZE bsize) {
   assert(plane == 0 || plane == 1);
   const MACROBLOCK *const x = &td->mb;
   const MACROBLOCKD *const xd = &x->e_mbd;
@@ -352,8 +386,6 @@ void av1_tokenize_palette_sb(const struct ThreadData *const td, int plane,
   ++(*t);
 
   const int n = pmi->palette_size[plane];
-  const int calc_rate = rate && dry_run == DRY_RUN_COSTCOEFFS;
-  int this_rate = 0;
   uint8_t color_order[PALETTE_MAX_SIZE];
 #if CONFIG_PALETTE_THROUGHPUT
   for (int k = 1; k < rows + cols - 1; ++k) {
@@ -367,16 +399,11 @@ void av1_tokenize_palette_sb(const struct ThreadData *const td, int plane,
       const int color_ctx = av1_get_palette_color_index_context(
           color_map, plane_block_width, i, j, n, color_order, &color_new_idx);
       assert(color_new_idx >= 0 && color_new_idx < n);
-      if (calc_rate) {
-        this_rate += x->palette_y_color_cost[n - PALETTE_MIN_SIZE][color_ctx]
-                                            [color_new_idx];
-      }
       (*t)->token = color_new_idx;
       (*t)->palette_cdf = palette_cdf[n - PALETTE_MIN_SIZE][color_ctx];
       ++(*t);
     }
   }
-  if (rate) *rate += this_rate;
 }
 
 #if CONFIG_PVQ
