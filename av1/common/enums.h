@@ -25,6 +25,8 @@ extern "C" {
 #if CONFIG_NCOBMC_ADAPT_WEIGHT
 #define TWO_MODE
 // #define FOUR_MODE
+#define INTRA_RESEL 1
+#define INTER_RESEL 1
 #endif
 
 // Max superblock size

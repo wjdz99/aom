@@ -2117,9 +2117,20 @@ static void encode_b(const AV1_COMP *const cpi, const TileInfo *const tile,
   }
 #endif
 #if CONFIG_NCOBMC_ADAPT_WEIGHT
-  if (dry_run == OUTPUT_ENABLED && motion_allowed == NCOBMC_ADAPT_WEIGHT) {
-    get_ncobmc_intrpl_pred(cpi, td, mi_row, mi_col, bsize);
-    av1_check_ncobmc_adapt_weight_rd(cpi, x, mi_row, mi_col);
+  if (dry_run == OUTPUT_ENABLED && !frame_is_intra_only(&cpi->common)) {
+    // we also need to handle inter-intra
+    if (motion_allowed == NCOBMC_ADAPT_WEIGHT && is_inter_block(mbmi)) {
+      get_ncobmc_intrpl_pred(cpi, td, mi_row, mi_col, bsize);
+      av1_check_ncobmc_adapt_weight_rd(cpi, x, mi_row, mi_col);
+#if INTER_RESEL
+    } else if (is_inter_block(mbmi)) {
+      transform_selecting_second_pass(cpi, x, mi_row, mi_col);
+#endif
+#if INTRA_RESEL
+    } else if (!is_inter_block(mbmi)) {
+      transform_reselect_intra(cpi, x);
+#endif
+    }
     av1_setup_dst_planes(x->e_mbd.plane, bsize,
                          get_frame_new_buffer(&cpi->common), mi_row, mi_col);
   }

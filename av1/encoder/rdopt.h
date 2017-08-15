@@ -149,6 +149,12 @@ void av1_check_ncobmc_adapt_weight_rd(const struct AV1_COMP *cpi,
                                       struct macroblock *x, int mi_row,
                                       int mi_col);
 
+void transform_selecting_second_pass(const struct AV1_COMP *cpi,
+                                     struct macroblock *x, int mi_row,
+                                     int mi_col);
+
+void transform_reselect_intra(const struct AV1_COMP *cpi, struct macroblock *x);
+
 int get_ncobmc_mode(const AV1_COMP *const cpi, MACROBLOCK *const x,
                     MACROBLOCKD *xd, int mi_row, int mi_col, int bsize);
 
