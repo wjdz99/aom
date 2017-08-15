@@ -395,7 +395,7 @@ void av1_update_mv_context(const AV1_COMMON *cm, const MACROBLOCKD *xd,
 #if WARPED_MOTION_SORT_SAMPLES
 int sortSamples(int *pts_mv, MV *mv, int *pts, int *pts_inref, int len);
 int findSamples(const AV1_COMMON *cm, MACROBLOCKD *xd, int mi_row, int mi_col,
-                int *pts, int *pts_inref, int *pts_mv);
+                int *pts, int *pts_inref, int *pts_mv, int *do_bl);
 #else
 int findSamples(const AV1_COMMON *cm, MACROBLOCKD *xd, int mi_row, int mi_col,
                 int *pts, int *pts_inref);
@@ -452,6 +452,14 @@ static INLINE int is_dv_valid(const MV dv, const TileInfo *const tile,
   return 1;
 }
 #endif  // CONFIG_INTRABC
+#if NONCAUSAL_WARP
+int appendNonCausalSamples(const AV1_COMMON *cm, MACROBLOCKD *xd, int mi_row,
+                           int mi_col, int *pts, int *pts_inref, int *pts_mv,
+                           int np, int *has_nc, int do_bl);
+
+int warp_model_selection(const AV1_COMMON *cm, MACROBLOCKD *xd, int mi_row,
+                         int mi_col, int get_causal, int *has_nc);
+#endif
 
 #ifdef __cplusplus
 }  // extern "C"

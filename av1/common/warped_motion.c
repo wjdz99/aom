@@ -1580,6 +1580,11 @@ void av1_warp_plane(WarpedMotionParams *wm,
 #define LS_PRODUCT2(a, b) \
   (((a) * (b)*4 + ((a) + (b)) * 2 * LS_STEP + LS_STEP * LS_STEP * 2) >> 2)
 
+#define LS_SUM_T(a) ((a)*4)
+#define LS_SQUARE_T(a) (((a) * (a)*4))
+#define LS_PRODUCT_T1(a, b) (((a) * (b)*4))
+#define LS_PRODUCT_T2(a, b) (((a) * (b)*4))
+
 #define USE_LIMITED_PREC_MULT 0
 
 #if USE_LIMITED_PREC_MULT
@@ -1673,7 +1678,6 @@ static int find_affine_int(int np, int *pts1, int *pts2, BLOCK_SIZE bsize,
   const int sux = isux * 8;
   const int duy = suy + mvy;
   const int dux = sux + mvx;
-
   // Assume the center pixel of the block has exactly the same motion vector
   // as transmitted for the block. First shift the origin of the source
   // points to the block center, and the origin of the destination points to
@@ -1698,7 +1702,7 @@ static int find_affine_int(int np, int *pts1, int *pts2, BLOCK_SIZE bsize,
   // We need to just compute inv(A).Bx and inv(A).By for the solutions.
   int sx, sy, dx, dy;
   // Contribution from neighbor block
-  for (i = 0; i < np && n < LEAST_SQUARES_SAMPLES_MAX; i++) {
+  for (i = 0; i < np && (n < LEAST_SQUARES_SAMPLES_MAX || RM_8_SAMPLES); i++) {
     dx = pts2[i * 2] - dux;
     dy = pts2[i * 2 + 1] - duy;
     sx = pts1[i * 2] - sux;
@@ -1714,6 +1718,7 @@ static int find_affine_int(int np, int *pts1, int *pts2, BLOCK_SIZE bsize,
       n++;
     }
   }
+
   int downshift;
   if (n >= 4)
     downshift = LS_MAT_DOWN_BITS;
@@ -1766,12 +1771,14 @@ static int find_affine_int(int np, int *pts1, int *pts2, BLOCK_SIZE bsize,
   // 2nd and 3rd terms are (2^16 - 1) * (2^13 - 1). That leaves enough room
   // for the first term so that the overall sum in the worst case fits
   // within 32 bits overall.
+
   int32_t vx = mvx * (1 << (WARPEDMODEL_PREC_BITS - 3)) -
                (isux * (wm->wmmat[2] - (1 << WARPEDMODEL_PREC_BITS)) +
                 isuy * wm->wmmat[3]);
   int32_t vy = mvy * (1 << (WARPEDMODEL_PREC_BITS - 3)) -
                (isux * wm->wmmat[4] +
                 isuy * (wm->wmmat[5] - (1 << WARPEDMODEL_PREC_BITS)));
+
   wm->wmmat[0] =
       clamp(vx, -WARPEDMODEL_TRANS_CLAMP, WARPEDMODEL_TRANS_CLAMP - 1);
   wm->wmmat[1] =
