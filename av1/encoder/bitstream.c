@@ -541,6 +541,20 @@ static void write_motion_mode(const AV1_COMMON *cm, MACROBLOCKD *xd,
 #endif  // CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
 }
 
+#if NONCAUSAL_WARP && NC_SIGNALLING
+static void write_non_causal_usage(MACROBLOCKD *xd, const MODE_INFO *mi,
+                                   int mi_row, int mi_col, aom_writer *w) {
+  const MB_MODE_INFO *mbmi = &mi->mbmi;
+  int noncausal_allowed =
+      is_noncausal_allowed(xd, mi_row, mi_col, mbmi->sb_type) &&
+      mbmi->motion_mode == WARPED_CAUSAL;
+
+  if (noncausal_allowed)
+    aom_write_symbol(w, mbmi->is_noncausal,
+                     xd->tile_ctx->ncwm_cdf[mbmi->sb_type], 2);
+}
+#endif
+
 #if CONFIG_NCOBMC_ADAPT_WEIGHT
 static void write_ncobmc_mode(MACROBLOCKD *xd, const MODE_INFO *mi,
                               aom_writer *w) {
@@ -2519,6 +2533,21 @@ static void write_tokens_b(AV1_COMP *cpi, const TileInfo *const tile,
 #endif  // CONFIG_DEPENDENT_HORZTILES
                  cm->mi_rows, cm->mi_cols);
 
+#if NC_SIGNALLING && NONCAUSAL_WARP
+  if (is_inter_block(mbmi) && mbmi->motion_mode == WARPED_CAUSAL &&
+      is_noncausal_allowed(xd, mi_row, mi_col, mbmi->sb_type)) {
+    int has_nc = 0;
+    int warp_model = warp_model_selection(cm, xd, mi_row, mi_col, 0, &has_nc);
+
+    if (warp_model == 2) has_nc = 1;
+
+    if (has_nc) {
+      write_non_causal_usage(xd, m, mi_row, mi_col, w);
+      assert(warp_model > 1);
+    }
+  }
+#endif
+
   for (plane = 0; plane <= 1; ++plane) {
     const uint8_t palette_size_plane =
         mbmi->palette_mode_info.palette_size[plane];
@@ -2754,7 +2783,7 @@ static void write_tokens_b(AV1_COMP *cpi, const TileInfo *const tile,
 #endif  // CONFIG_COEF_INTERLEAVE
 }
 
-#if CONFIG_MOTION_VAR && (CONFIG_NCOBMC || CONFIG_NCOBMC_ADAPT_WEIGHT)
+#if HAS_NONCAUSAL
 static void write_tokens_sb(AV1_COMP *cpi, const TileInfo *const tile,
                             aom_writer *w, const TOKENEXTRA **tok,
                             const TOKENEXTRA *const tok_end, int mi_row,
@@ -2826,7 +2855,7 @@ static void write_tokens_sb(AV1_COMP *cpi, const TileInfo *const tile,
     }
   }
 }
-#endif
+#endif  // HAS_NONCAUSAL
 
 static void write_modes_b(AV1_COMP *cpi, const TileInfo *const tile,
                           aom_writer *w, const TOKENEXTRA **tok,
@@ -2840,7 +2869,7 @@ static void write_modes_b(AV1_COMP *cpi, const TileInfo *const tile,
                supertx_enabled,
 #endif
                mi_row, mi_col);
-#if CONFIG_MOTION_VAR && (CONFIG_NCOBMC || CONFIG_NCOBMC_ADAPT_WEIGHT)
+#if HAS_NONCAUSAL
   (void)tok;
   (void)tok_end;
 #else
@@ -2848,7 +2877,7 @@ static void write_modes_b(AV1_COMP *cpi, const TileInfo *const tile,
   if (!supertx_enabled)
 #endif
     write_tokens_b(cpi, tile, w, tok, tok_end, mi_row, mi_col);
-#endif
+#endif  // HAS_NONCAUSAL
 }
 
 static void write_partition(const AV1_COMMON *const cm,
@@ -3192,11 +3221,14 @@ static void write_modes(AV1_COMP *const cpi, const TileInfo *const tile,
     av1_zero_left_context(xd);
 
     for (mi_col = mi_col_start; mi_col < mi_col_end; mi_col += cm->mib_size) {
+#if NONCAUSAL_WARP
+      set_sb_mi_boundaries(cm, xd, mi_row, mi_col);
+#endif
       write_modes_sb_wrapper(cpi, tile, w, tok, tok_end, 0, mi_row, mi_col,
                              cm->sb_size);
-#if CONFIG_MOTION_VAR && (CONFIG_NCOBMC || CONFIG_NCOBMC_ADAPT_WEIGHT)
+#if HAS_NONCAUSAL
       write_tokens_sb(cpi, tile, w, tok, tok_end, mi_row, mi_col, cm->sb_size);
-#endif
+#endif  // HAS_NONCAUSAL
     }
   }
 #if CONFIG_PVQ

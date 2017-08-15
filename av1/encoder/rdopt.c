@@ -8594,7 +8594,7 @@ static int64_t motion_mode_rd(
   aom_clear_system_state();
 #if WARPED_MOTION_SORT_SAMPLES
   mbmi->num_proj_ref[0] =
-      findSamples(cm, xd, mi_row, mi_col, pts0, pts_inref0, pts_mv0);
+      findSamples(cm, xd, mi_row, mi_col, pts0, pts_inref0, pts_mv0, NULL);
   total_samples = mbmi->num_proj_ref[0];
 #else
   mbmi->num_proj_ref[0] = findSamples(cm, xd, mi_row, mi_col, pts, pts_inref);
@@ -8719,6 +8719,9 @@ static int64_t motion_mode_rd(
       if (mbmi->num_proj_ref[0] > 1) {
         mbmi->num_proj_ref[0] = sortSamples(pts_mv0, &mbmi->mv[0].as_mv, pts,
                                             pts_inref, mbmi->num_proj_ref[0]);
+#if HAS_NONCAUSAL
+        mbmi->causal_proj_num = mbmi->num_proj_ref[0];
+#endif
 #if CONFIG_EXT_INTER
         best_bmc_mbmi->num_proj_ref[0] = mbmi->num_proj_ref[0];
 #endif  // CONFIG_EXT_INTER
@@ -8813,6 +8816,11 @@ static int64_t motion_mode_rd(
 #if CONFIG_WARPED_MOTION
     if (mbmi->motion_mode == WARPED_CAUSAL) {
       rd_stats->rate -= rs;
+#if NONCAUSAL_WARP && NC_SIGNALLING
+      // add causal warp cost
+      if (is_noncausal_allowed(xd, mi_row, mi_col, bsize))
+        rd_stats->rate += x->ncwm_cost[bsize][0];
+#endif  // NONCAUSAL_WARP && NC_SIGNALLING
     }
 #endif  // CONFIG_WARPED_MOTION
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
@@ -12227,6 +12235,20 @@ PALETTE_EXIT:
 
   assert(best_mode_index >= 0);
 
+// FIXME: make the re-selection works with var-tx
+#if UPDATE_SKIP && !CONFIG_VAR_TX
+  if (is_inter_block(mbmi)) {
+    int update_skip;
+    get_prediction_rd_cost(cpi, x, mi_row, mi_col, &update_skip, NULL);
+    x->skip = update_skip;
+#if CONFIG_VAR_TX
+    for (i = 0; i < MAX_MB_PLANE; ++i)
+      memcpy(ctx->blk_skip[i], x->blk_skip[i],
+             sizeof(uint8_t) * ctx->num_4x4_blk);
+#endif
+  }
+#endif
+
   store_coding_context(x, ctx, best_mode_index, best_pred_diff,
                        best_mode_skippable);
 
@@ -12311,11 +12333,14 @@ void av1_rd_pick_inter_mode_sb_seg_skip(const AV1_COMP *cpi,
 #if WARPED_MOTION_SORT_SAMPLES
     int pts_mv[SAMPLES_ARRAY_SIZE];
     mbmi->num_proj_ref[0] =
-        findSamples(cm, xd, mi_row, mi_col, pts, pts_inref, pts_mv);
+        findSamples(cm, xd, mi_row, mi_col, pts, pts_inref, pts_mv, NULL);
     // Rank the samples by motion vector difference
     if (mbmi->num_proj_ref[0] > 1)
       mbmi->num_proj_ref[0] = sortSamples(pts_mv, &mbmi->mv[0].as_mv, pts,
                                           pts_inref, mbmi->num_proj_ref[0]);
+#if HAS_NONCAUSAL
+    mbmi->causal_proj_num = mbmi->num_proj_ref[0];
+#endif
 #else
     mbmi->num_proj_ref[0] = findSamples(cm, xd, mi_row, mi_col, pts, pts_inref);
 #endif  // WARPED_MOTION_SORT_SAMPLES
@@ -12391,6 +12416,20 @@ void av1_rd_pick_inter_mode_sb_seg_skip(const AV1_COMP *cpi,
                             cpi->sf.adaptive_rd_thresh, bsize, THR_ZEROMV);
 
   av1_zero(best_pred_diff);
+
+// FIXME: make the re-selection works with var-tx
+#if UPDATE_SKIP && !CONFIG_VAR_TX
+  if (is_inter_block(mbmi)) {
+    int update_skip;
+    get_prediction_rd_cost(cpi, x, mi_row, mi_col, &update_skip, NULL);
+    x->skip = update_skip;
+#if CONFIG_VAR_TX
+    for (i = 0; i < MAX_MB_PLANE; ++i)
+      memcpy(ctx->blk_skip[i], x->blk_skip[i],
+             sizeof(uint8_t) * ctx->num_4x4_blk);
+#endif
+  }
+#endif
 
   store_coding_context(x, ctx, THR_ZEROMV, best_pred_diff, 0);
 }
@@ -12778,3 +12817,272 @@ void av1_check_ncobmc_rd(const struct AV1_COMP *cpi, struct macroblock *x,
 }
 #endif  // CONFIG_NCOBMC
 #endif  // CONFIG_MOTION_VAR
+
+int64_t get_prediction_rd_cost(const struct AV1_COMP *cpi, struct macroblock *x,
+                               int mi_row, int mi_col, int *skip_blk,
+                               MB_MODE_INFO *backup_mbmi) {
+  const AV1_COMMON *const cm = &cpi->common;
+  MACROBLOCKD *const xd = &x->e_mbd;
+  MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
+  BLOCK_SIZE bsize = mbmi->sb_type;
+
+  RD_STATS rd_stats_y, rd_stats_uv;
+  int rate_skip0 = av1_cost_bit(av1_get_skip_prob(cm, xd), 0);
+  int rate_skip1 = av1_cost_bit(av1_get_skip_prob(cm, xd), 1);
+  int64_t this_rd;
+  int ref;
+
+#if CONFIG_CB4X4
+  x->skip_chroma_rd =
+      !is_chroma_reference(mi_row, mi_col, bsize, xd->plane[1].subsampling_x,
+                           xd->plane[1].subsampling_y);
+#endif
+
+  set_ref_ptrs(cm, xd, mbmi->ref_frame[0], mbmi->ref_frame[1]);
+  for (ref = 0; ref < 1 + has_second_ref(mbmi); ++ref) {
+    YV12_BUFFER_CONFIG *cfg = get_ref_frame_buffer(cpi, mbmi->ref_frame[ref]);
+    assert(cfg != NULL);
+    av1_setup_pre_planes(xd, ref, cfg, mi_row, mi_col,
+                         &xd->block_refs[ref]->sf);
+  }
+  av1_setup_dst_planes(x->e_mbd.plane, bsize,
+                       get_frame_new_buffer(&cpi->common), mi_row, mi_col);
+
+  av1_build_inter_predictors_sb(cm, xd, mi_row, mi_col, NULL, bsize);
+
+#if CONFIG_MOTION_VAR
+  if (mbmi->motion_mode == OBMC_CAUSAL) {
+#if CONFIG_NCOBMC
+    if (dry_run == OUTPUT_ENABLED)
+      av1_build_ncobmc_inter_predictors_sb(cm, xd, mi_row, mi_col);
+    else
+#endif
+      av1_build_obmc_inter_predictors_sb(cm, xd, mi_row, mi_col);
+  }
+#endif  // CONFIG_MOTION_VAR
+
+  av1_subtract_plane(x, bsize, 0);
+#if CONFIG_VAR_TX
+  if (cm->tx_mode == TX_MODE_SELECT || xd->lossless[mbmi->segment_id]) {
+    select_tx_type_yrd(cpi, x, &rd_stats_y, bsize, INT64_MAX);
+  } else {
+    int idx, idy;
+    super_block_yrd(cpi, x, &rd_stats_y, bsize, INT64_MAX);
+    for (idy = 0; idy < xd->n8_h; ++idy)
+      for (idx = 0; idx < xd->n8_w; ++idx)
+        mbmi->inter_tx_size[idy][idx] = mbmi->tx_size;
+    memset(x->blk_skip[0], rd_stats_y.skip,
+           sizeof(uint8_t) * xd->n8_h * xd->n8_w * 4);
+  }
+
+  inter_block_uvrd(cpi, x, &rd_stats_uv, bsize, INT64_MAX);
+#else
+  super_block_yrd(cpi, x, &rd_stats_y, bsize, INT64_MAX);
+  super_block_uvrd(cpi, x, &rd_stats_uv, bsize, INT64_MAX);
+#endif  // CONFIG_VAR_TX
+  assert(rd_stats_y.rate != INT_MAX && rd_stats_uv.rate != INT_MAX);
+
+  if (rd_stats_y.skip && rd_stats_uv.skip) {
+    rd_stats_y.rate = rate_skip1;
+    rd_stats_uv.rate = 0;
+    rd_stats_y.dist = rd_stats_y.sse;
+    rd_stats_uv.dist = rd_stats_uv.sse;
+    *skip_blk = 1;
+  } else if (RDCOST(x->rdmult,
+                    (rd_stats_y.rate + rd_stats_uv.rate + rate_skip0),
+                    (rd_stats_y.dist + rd_stats_uv.dist)) >
+             RDCOST(x->rdmult, rate_skip1,
+                    (rd_stats_y.sse + rd_stats_uv.sse))) {
+    rd_stats_y.rate = rate_skip1;
+    rd_stats_uv.rate = 0;
+    rd_stats_y.dist = rd_stats_y.sse;
+    rd_stats_uv.dist = rd_stats_uv.sse;
+    *skip_blk = 1;
+  } else {
+    rd_stats_y.rate += rate_skip0;
+    *skip_blk = 0;
+  }
+
+  if (backup_mbmi) *backup_mbmi = *mbmi;
+
+  this_rd = RDCOST(x->rdmult, (rd_stats_y.rate + rd_stats_uv.rate),
+                   (rd_stats_y.dist + rd_stats_uv.dist));
+  this_rd +=
+      RDCOST(x->rdmult, x->motion_mode_cost[bsize][mbmi->motion_mode], 0);
+
+  return this_rd;
+}
+#if NONCAUSAL_WARP
+// TODO(weitinglin): supporting !WARPED_MOTION_SORT_SAMPLES
+#if WARPED_MOTION_SORT_SAMPLES
+// #define RESEL_TX
+#define CWARP_CHECK  // check causal warp
+#define PRINT_MTX 0
+
+void print_projection_mtx(WarpedMotionParams *wm, int mvx, int mvy) {
+  fprintf(stdout, "this mv: [%d %d]\n",
+          ((int32_t)mvx) * (1 << (WARPEDMODEL_PREC_BITS - 3)),
+          ((int32_t)mvy) * (1 << (WARPEDMODEL_PREC_BITS - 3)));
+  fprintf(stdout, "translation:\n");
+  fprintf(stdout, "[%d %d]\n", wm->wmmat[0], wm->wmmat[1]);
+  fprintf(stdout, "rotation:\n");
+  fprintf(stdout, "[%d %d\n %d %d]\n", wm->wmmat[2], wm->wmmat[3], wm->wmmat[4],
+          wm->wmmat[5]);
+}
+
+void print_warp_center(WarpedMotionParams *wm, int mi_row, int mi_col, int mvx,
+                       int mvy, int bsize) {
+  const int bw = block_size_wide[bsize];
+  const int bh = block_size_high[bsize];
+  const int isuy = (mi_row * MI_SIZE + AOMMAX(bh, MI_SIZE) / 2 - 1);
+  const int isux = (mi_col * MI_SIZE + AOMMAX(bw, MI_SIZE) / 2 - 1);
+  const int suy = isuy * 8;
+  const int sux = isux * 8;
+  const int duy = suy + mvy;
+  const int dux = sux + mvx;
+
+  int64_t mx, my;
+
+  mx = wm->wmmat[2] * sux + wm->wmmat[3] * suy + wm->wmmat[0];
+  my = wm->wmmat[4] * sux + wm->wmmat[5] * suy + wm->wmmat[1];
+
+  mx = mx >> WARPEDMODEL_PREC_BITS;
+  my = my >> WARPEDMODEL_PREC_BITS;
+
+  fprintf(stdout, "[%d %d] -> [%ld %ld] should be (%d %d) diff: (%ld %ld)\n",
+          isux, isuy, mx >> 3, my >> 3, dux >> 3, duy >> 3, mx - dux, my - duy);
+}
+
+int select_warp_rd(const struct AV1_COMP *cpi, struct macroblock *x, int mi_row,
+                   int mi_col) {
+  const AV1_COMMON *const cm = &cpi->common;
+  MACROBLOCKD *const xd = &x->e_mbd;
+  MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
+  MB_MODE_INFO backup_mbmi = *mbmi;
+  MB_MODE_INFO st_mbmi, obmc_mbmi, cwm_mbmi;
+  int warp_model;
+  int skip_blk, obmc_skip, st_skip, cwm_skip;
+  int64_t st_rd, obmc_rd, ncwm_rd, cwm_rd;
+  int has_nc, rs;
+#if NC_SIGNALLING
+  int noncausal_allowed;
+#endif
+  // get the rd for all three available modes
+  mbmi->is_noncausal = 0;
+  // get simple translation rd
+  mbmi->motion_mode = SIMPLE_TRANSLATION;
+  if (backup_mbmi.motion_mode != WARPED_CAUSAL) {
+    rs = av1_get_switchable_rate(cm, x, xd);
+  } else {
+    InterpFilter assign_filter = SWITCHABLE;
+    // for now, we only use the default interp_filter. One can do full
+    // interp_filter search if necessary
+    if (cm->interp_filter == SWITCHABLE) {
+#if !CONFIG_DUAL_FILTER
+      assign_filter = av1_is_interp_needed(xd)
+                          ? predict_interp_filter(cpi, x, bsize, mi_row, mi_col,
+                                                  single_filter)
+                          : cm->interp_filter;
+#endif  // !CONFIG_DUAL_FILTER
+    } else {
+      assign_filter = cm->interp_filter;
+    }
+    set_default_interp_filters(mbmi, assign_filter);
+
+    rs = av1_get_switchable_rate(cm, x, xd);
+  }
+
+  st_rd = get_prediction_rd_cost(cpi, x, mi_row, mi_col, &st_skip, &st_mbmi);
+  // add rate for interpolation filter
+  st_rd += RDCOST(x->rdmult, rs, 0);
+
+  assert(st_rd < INT64_MAX);
+
+  // get obmc rd
+  mbmi->motion_mode = OBMC_CAUSAL;
+  obmc_rd =
+      get_prediction_rd_cost(cpi, x, mi_row, mi_col, &obmc_skip, &obmc_mbmi);
+  obmc_rd += RDCOST(x->rdmult, rs, 0);
+
+  assert(obmc_rd < INT64_MAX);
+
+  // get causal warp rd
+
+  // check causal warp rd
+  mbmi->motion_mode = WARPED_CAUSAL;
+  if (backup_mbmi.motion_mode != WARPED_CAUSAL) {
+    set_default_interp_filters(&xd->mi[0]->mbmi, cm->interp_filter);
+  }
+  warp_model = warp_model_selection(cm, xd, mi_row, mi_col, 1, &has_nc);
+
+  mbmi->causal_proj_num = mbmi->num_proj_ref[0];
+  noncausal_allowed = is_noncausal_allowed(xd, mi_row, mi_col, mbmi->sb_type);
+
+  assert(warp_model < 2);
+
+  if (warp_model) {
+    cwm_rd =
+        get_prediction_rd_cost(cpi, x, mi_row, mi_col, &cwm_skip, &cwm_mbmi);
+    if (noncausal_allowed)
+      cwm_rd += RDCOST(x->rdmult, x->ncwm_cost[mbmi->sb_type][0], 0);
+  } else {
+    cwm_rd = INT64_MAX;
+  }
+
+#if NC_SIGNALLING
+  if (!noncausal_allowed)
+    has_nc = 0;
+  else
+    warp_model = warp_model_selection(cm, xd, mi_row, mi_col, 0, &has_nc);
+#endif
+
+#if NC_SIGNALLING
+  if (has_nc) {
+    if (cwm_rd != INT64_MAX) {
+      // correct the rd cost because non-causal exists
+      cwm_rd += RDCOST(x->rdmult, x->ncwm_cost[mbmi->sb_type][0], 0);
+    }
+#endif
+    if (warp_model == 2) {
+      // get warp motion rd
+      ncwm_rd = get_prediction_rd_cost(cpi, x, mi_row, mi_col, &skip_blk, NULL);
+#if NC_SIGNALLING
+      ncwm_rd += RDCOST(x->rdmult, x->ncwm_cost[mbmi->sb_type][1], 0);
+#endif
+    } else {
+      ncwm_rd = INT64_MAX;
+    }
+#if NC_SIGNALLING
+  } else {
+    ncwm_rd = INT64_MAX;
+  }
+#endif
+  if (AOMMIN(ncwm_rd, cwm_rd) < AOMMIN(obmc_rd, st_rd)) {
+    // warp motion is selected
+    if (ncwm_rd < cwm_rd) {
+      x->skip = skip_blk;
+#if NC_SIGNALLING
+      assert(has_nc && "invalid non-causal model selected");
+#endif
+      mbmi->is_noncausal = 1;
+      return 1;
+    } else {
+      *mbmi = cwm_mbmi;
+      x->skip = cwm_skip;
+      assert(cwm_rd != INT64_MAX);
+      return 0;
+    }
+  } else {
+    if (st_rd <= obmc_rd) {
+      *mbmi = st_mbmi;
+      x->skip = st_skip;
+    } else {
+      *mbmi = obmc_mbmi;
+      x->skip = obmc_skip;
+    }
+    return 0;
+  }
+}
+
+#endif  // WARPED_MOTION_SORT_SAMPLES
+#endif  // NONCAUSAL_WARP

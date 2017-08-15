@@ -550,6 +550,16 @@ int main(int argc, const char **argv) {
       "static const aom_cdf_prob\n"
       "default_motion_mode_cdf[BLOCK_SIZES_ALL][CDF_SIZE(MOTION_MODES)]");
 #if CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
+#if NONCAUSAL_WARP && NC_SIGNALLING
+  cts_each_dim[0] = BLOCK_SIZES_ALL;
+  cts_each_dim[1] = 2;
+  optimize_entropy_table(
+      &fc.ncwm[0][0], probsfile, 2, cts_each_dim, NULL, 1,
+      "static const aom_prob default_ncwm_prob[BLOCK_SIZES_ALL]");
+  optimize_cdf_table(&fc.ncwm[0][0], probsfile, 2, cts_each_dim,
+                     "static const aom_cdf_prob "
+                     "default_ncwm_cdf[BLOCK_SIZES_ALL][CDF_SIZE(2)]");
+#endif  // NONCAUSAL_WARP && NC_SIGNALLING
   cts_each_dim[0] = BLOCK_SIZES_ALL;
   cts_each_dim[1] = 2;
   optimize_entropy_table(
