@@ -2934,6 +2934,8 @@ void reset_xd_boundary(MACROBLOCKD *xd, int mi_row, int bh, int mi_col, int bw,
   xd->mb_to_left_edge = -((mi_col * MI_SIZE) * 8);
   xd->mb_to_right_edge = ((mi_cols - bw - mi_col) * MI_SIZE) * 8;
 }
+#endif
+#if NONCAUSAL_WARP || CONFIG_NCOBMC_ADAPT_WEIGHT
 void set_sb_mi_boundaries(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
                           const int mi_row, const int mi_col) {
   const BLOCK_SIZE sb = cm->sb_size;
@@ -3492,8 +3494,8 @@ void av1_build_wedge_inter_predictor_from_buf(
   }
 }
 #endif  // CONFIG_EXT_INTER
-#if CONFIG_NCOBMC_ADAPT_WEIGHT
 
+#if CONFIG_NCOBMC_ADAPT_WEIGHT
 void alloc_ncobmc_pred_buffer(MACROBLOCKD *const xd) {
   int i;
   // allocate interpolated prediction buffer
@@ -4202,5 +4204,4 @@ void av1_get_ori_blk_pred(const AV1_COMMON *cm, MACROBLOCKD *xd, int bsize,
                            mi_x, mi_y);
   }
 }
-
 #endif

@@ -709,6 +709,11 @@ void av1_build_wedge_inter_predictor_from_buf(
     int ext_dst_stride1[3]);
 #endif  // CONFIG_EXT_INTER
 
+#if NONCAUSAL_WARP || CONFIG_NCOBMC_ADAPT_WEIGHT
+void set_sb_mi_boundaries(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
+                          const int mi_row, const int mi_col);
+#endif  // NONCAUSAL_WARP
+
 #if CONFIG_NCOBMC_ADAPT_WEIGHT
 #define ASSIGN_ALIGNED_PTRS(p, a, s) \
   p[0] = a;                          \
@@ -722,8 +727,6 @@ void av1_build_wedge_inter_predictor_from_buf(
 
 void alloc_ncobmc_pred_buffer(MACROBLOCKD *const xd);
 void free_ncobmc_pred_buffer(MACROBLOCKD *const xd);
-void set_sb_mi_boundaries(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
-                          const int mi_row, const int mi_col);
 
 void reset_xd_boundary(MACROBLOCKD *xd, int mi_row, int bh, int mi_col, int bw,
                        int mi_rows, int mi_cols);
@@ -747,7 +750,6 @@ void av1_get_ori_blk_pred(const AV1_COMMON *cm, MACROBLOCKD *xd, int bsize,
                           uint8_t *dst_buf[MAX_MB_PLANE],
                           int dst_stride[MAX_MB_PLANE]);
 #endif  // CONFIG_NCOBMC_ADAPT_WEIGHT
-
 #ifdef __cplusplus
 }  // extern "C"
 #endif

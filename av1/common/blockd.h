@@ -110,20 +110,30 @@ typedef struct PVQ_QUEUE {
 } PVQ_QUEUE;
 #endif
 
-#if CONFIG_NCOBMC_ADAPT_WEIGHT
+#if HAS_NONCAUSAL
 typedef struct superblock_mi_boundaries {
   int mi_row_begin;
   int mi_col_begin;
   int mi_row_end;
   int mi_col_end;
 } SB_MI_BD;
+#endif
 
+#if CONFIG_NCOBMC_ADAPT_WEIGHT
 typedef struct {
   int KERNEL_TL[MAX_SB_SIZE][MAX_SB_SIZE];
   int KERNEL_TR[MAX_SB_SIZE][MAX_SB_SIZE];
   int KERNEL_BL[MAX_SB_SIZE][MAX_SB_SIZE];
   int KERNEL_BR[MAX_SB_SIZE][MAX_SB_SIZE];
 } NCOBMC_KERNELS;
+#endif
+
+#if NONCAUSAL_WARP
+typedef struct noncausal_warp_stats {
+  int nn_larger;
+  int sn_larger;
+  int cond;
+} NCWP_STATS;
 #endif
 
 typedef struct {
@@ -487,7 +497,10 @@ typedef struct MB_MODE_INFO {
   // Joint sign of alpha Cb and alpha Cr
   int cfl_alpha_signs;
 #endif
-
+#if HAS_NONCAUSAL
+  int is_noncausal;
+  int causal_proj_num;
+#endif
   BOUNDARY_TYPE boundary_info;
 } MB_MODE_INFO;
 
@@ -783,6 +796,8 @@ typedef struct macroblockd {
 #if CONFIG_NCOBMC_ADAPT_WEIGHT
   uint8_t *ncobmc_pred_buf[MAX_MB_PLANE];
   int ncobmc_pred_buf_stride[MAX_MB_PLANE];
+#endif
+#if NONCAUSAL_WARP
   SB_MI_BD sb_mi_bd;
 #endif
 } MACROBLOCKD;
@@ -1559,6 +1574,25 @@ static INLINE MOTION_MODE motion_mode_allowed(
     return SIMPLE_TRANSLATION;
   }
 }
+
+#if NONCAUSAL_WARP
+static INLINE int is_noncausal_allowed(const MACROBLOCKD *xd, int mi_row,
+                                       int mi_col, BLOCK_SIZE bsize) {
+  if (bsize > BLOCK_32X32) {
+    return 0;
+  } else {
+    int mi_wide = mi_size_wide[bsize];
+    int mi_high = mi_size_high[bsize];
+    int on_edge = mi_row + mi_high >= xd->sb_mi_bd.mi_row_end ||
+                  mi_col + mi_wide >= xd->sb_mi_bd.mi_col_end;
+    if (on_edge) {
+      return 0;
+    } else {
+      return 1;
+    }
+  }
+}
+#endif
 
 #if CONFIG_NCOBMC_ADAPT_WEIGHT && CONFIG_MOTION_VAR
 static INLINE NCOBMC_MODE ncobmc_mode_allowed_bsize(BLOCK_SIZE bsize) {
