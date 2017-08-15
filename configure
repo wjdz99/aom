@@ -298,6 +298,7 @@ EXPERIMENT_LIST="
     daala_dct16
     daala_dct32
     daala_dct64
+    daala_tx_rect
     cb4x4
     chroma_2x2
     chroma_sub8x8
@@ -580,11 +581,32 @@ post_process_cmdline() {
       log_echo "daala_dct64 requires tx64x64, so disabling daala_dct64"
       disable_feature daala_dct64
     fi
+    if enabled daala_tx_rect; then
+      if ! enabled daala_dct4; then
+        log_echo "daala_tx_rect requires daala_dct4, enabling"
+        enable_feature daala_dct4
+      fi
+      if ! enabled daala_dct8; then
+        log_echo "daala_tx_rect requires daala_dct8, enabling"
+        enable_feature daala_dct8
+      fi
+      if ! enabled daala_dct16; then
+        log_echo "daala_tx_rect requires daala_dct16, enabling"
+        enable_feature daala_dct16
+      fi
+      if ! enabled daala_dct32; then
+        log_echo "daala_tx_rect requires daala_dct32, enabling"
+        enable_feature daala_dct32
+      fi
+    fi
     if enabled daala_dct4 || enabled daala_dct8 || enabled daala_dct16 ||
         enabled daala_dct32 || enabled daala_dct64; then
-      disable_feature rect_tx
-      disable_feature var_tx
+      if ! enabled daala_tx_rect; then
+	  disable_feature rect_tx
+	  disable_feature var_tx
+      fi
       disable_feature lgt
+      disable_feature mrc_tx
       enable_feature lowbitdepth
     fi
     if enabled var_tx_no_tx_mode && ! enabled var_tx; then
