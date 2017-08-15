@@ -2469,6 +2469,23 @@ static const aom_prob default_inter_ext_tx_prob[EXT_TX_SIZES][TX_TYPES - 1] = {
 #endif  // CONFIG_MRC_TX
 #endif  // CONFIG_EXT_TX
 
+#if CONFIG_LGT
+static const aom_prob default_intra_lgt_prob[LGT_SIZES][INTRA_MODES] = {
+  { 229, 208, 204, 178, 243, 208, 207, 219, 222, 239,
+#if CONFIG_SMOOTH_HV
+    216, 217,
+#endif
+    228 },
+  { 208, 197, 216, 200, 200, 200, 200, 220, 208, 208,
+#if CONFIG_SMOOTH_HV
+    240, 240,
+#endif
+    222 },
+};
+
+static const aom_prob default_inter_lgt_prob[LGT_SIZES] = { 230, 230 };
+#endif  // CONFIG_LGT
+
 #if CONFIG_EXT_INTRA && CONFIG_INTRA_INTERP
 static const aom_prob
     default_intra_filter_probs[INTRA_FILTERS + 1][INTRA_FILTERS - 1] = {
@@ -4737,6 +4754,10 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
 #if CONFIG_FILTER_INTRA
   av1_copy(fc->filter_intra_probs, default_filter_intra_probs);
 #endif  // CONFIG_FILTER_INTRA
+#if CONFIG_LGT
+  av1_copy(fc->intra_lgt_prob, default_intra_lgt_prob);
+  av1_copy(fc->inter_lgt_prob, default_inter_lgt_prob);
+#endif
   av1_copy(fc->inter_ext_tx_prob, default_inter_ext_tx_prob);
   av1_copy(fc->intra_ext_tx_prob, default_intra_ext_tx_prob);
 #if CONFIG_LOOP_RESTORATION
@@ -4976,6 +4997,21 @@ void av1_adapt_intra_frame_probs(AV1_COMMON *cm) {
         av1_mode_mv_merge_probs(pre_fc->skip_probs[i], counts->skip[i]);
 
 #if CONFIG_EXT_TX
+#if CONFIG_LGT
+  if (LGT_FROM_PRED_INTRA) {
+    for (i = TX_4X4; i < LGT_SIZES; ++i) {
+      for (j = 0; j < INTRA_MODES; ++j)
+        fc->intra_lgt_prob[i][j] = av1_mode_mv_merge_probs(
+            pre_fc->intra_lgt_prob[i][j], counts->intra_lgt[i][j]);
+    }
+  }
+  if (LGT_FROM_PRED_INTER) {
+    for (i = TX_4X4; i < LGT_SIZES; ++i) {
+      fc->inter_lgt_prob[i] = av1_mode_mv_merge_probs(pre_fc->inter_lgt_prob[i],
+                                                      counts->inter_lgt[i]);
+    }
+  }
+#endif  // CONFIG_LGT
   for (i = TX_4X4; i < EXT_TX_SIZES; ++i) {
     int s;
     for (s = 1; s < EXT_TX_SETS_INTER; ++s) {
