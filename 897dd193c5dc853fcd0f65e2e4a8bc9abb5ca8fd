@@ -22,6 +22,30 @@
       "revId": "897dd193c5dc853fcd0f65e2e4a8bc9abb5ca8fd",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8f35ba67_b45e008c",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 3564,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2017-08-15T23:50:41Z",
+      "side": 1,
+      "message": "Thanks for the comment. \n\nThe fix was trying to address an \nissue as described in https://bugs.chromium.org/p/aomedia/issues/detail?id\u003d676. \nIn the context of the issue, partition_none was not a viable options before being overwritten by the code between line#3538-#3542, therefore partition_cost[PARTITION_NONE] was initialized to INT_MAX and never reset anywhere. So I agree with that the fix looks confusing, but functionally the fix works. \n\nI think your suggested fix is better in clarity, so feel free to upload a patch for review. \n\nthanks again,\nyaowu",
+      "parentUuid": "2a5d1312_fcce2ab9",
+      "range": {
+        "startLine": 3564,
+        "startChar": 0,
+        "endLine": 3564,
+        "endChar": 2
+      },
+      "revId": "897dd193c5dc853fcd0f65e2e4a8bc9abb5ca8fd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
