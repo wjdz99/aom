@@ -56,6 +56,7 @@ Advanced options:
   ${toggle_libyuv}                enable libyuv
   ${toggle_accounting}            enable bit accounting
   ${toggle_inspection}            enable bitstream inspection
+  ${toggle_fileoptions}           enable file based options
 
 Codecs:
   Codecs can be selectively enabled or disabled individually, or by family:
@@ -197,6 +198,7 @@ enable_feature spatial_resampling
 enable_feature multithread
 enable_feature os_support
 enable_feature highbitdepth
+enable_feature fileoptions
 
 CODECS="
     av1_encoder
@@ -391,6 +393,7 @@ CONFIG_LIST="
     colorspace_headers
     ${EXPERIMENT_LIST}
     analyzer
+    fileoptions
 "
 CMDLINE_SELECT="
     dependency_tracking
@@ -446,6 +449,7 @@ CMDLINE_SELECT="
     highbitdepth
     experimental
     colorspace_headers
+    fileoptions
 "
 
 process_cmdline() {

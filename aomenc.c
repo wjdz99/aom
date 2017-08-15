@@ -165,6 +165,11 @@ static const arg_def_t verbosearg =
     ARG_DEF("v", "verbose", 0, "Show encoder parameters");
 static const arg_def_t psnrarg =
     ARG_DEF(NULL, "psnr", 0, "Show PSNR in status line");
+#if CONFIG_FILEOPTIONS
+static const arg_def_t use_cfg = ARG_DEF("c", "cfg", 1, "Config file to use");
+static const arg_def_t global_motion = ARG_DEF(NULL, "global-motion", 1, "corresponds to CONFIG_GLOBAL_MOTION");
+static const arg_def_t warped_motion = ARG_DEF(NULL, "warped-motion", 1, "corresponds to CONFIG_WARPED_MOTION");
+#endif
 
 static const struct arg_enum_list test_decode_enum[] = {
   { "off", TEST_DECODE_OFF },
@@ -207,6 +212,9 @@ static const arg_def_t inbitdeptharg =
 #endif
 
 static const arg_def_t *main_args[] = { &debugmode,
+#if CONFIG_FILEOPTIONS
+                                        &use_cfg,
+#endif
                                         &outputfile,
                                         &codecarg,
                                         &passes,
@@ -765,11 +773,12 @@ static void validate_positive_rational(const char *msg,
   if (!rat->den) die("Error: %s has zero denominator\n", msg);
 }
 
-static void parse_global_config(struct AvxEncoderConfig *global, char **argv) {
+static void parse_global_config(struct AvxEncoderConfig *global, int *argc,char ***argv) {
   char **argi, **argj;
   struct arg arg;
   const int num_encoder = get_aom_encoder_count();
-
+  char **argv_local = (char **)*argv;
+  int argc_local = *argc;
   if (num_encoder < 1) die("Error: no valid encoder available\n");
 
   /* Initialize default parameters */
@@ -780,10 +789,27 @@ static void parse_global_config(struct AvxEncoderConfig *global, char **argv) {
   /* Assign default deadline to good quality */
   global->deadline = AOM_DL_GOOD_QUALITY;
 
-  for (argi = argj = argv; (*argj = *argi); argi += arg.argv_step) {
+  const char *cfg = NULL;
+  int cfg_included = 0;
+
+  for (argi = argj = argv_local; (*argj = *argi); argi += arg.argv_step) {
     arg.argv_step = 1;
 
-    if (arg_match(&arg, &codecarg, argi)) {
+#if CONFIG_FILEOPTIONS
+	if (arg_match(&arg, &use_cfg, argi)) {
+		if (cfg_included) continue;
+		cfg = arg.val;
+
+		arg_cfg(&argc_local, &argv_local, cfg);
+
+		*argj = *argi = *argv_local;
+		argj = argi = argv_local;
+		*argv = argv_local;
+		cfg_included = 1;
+	}
+	else
+#endif
+    if(arg_match(&arg, &codecarg, argi)) {
       global->codec = get_aom_encoder_by_name(arg.val);
       if (!global->codec)
         die("Error: Unrecognized argument (%s) to --codec\n", arg.val);
@@ -1111,6 +1137,12 @@ static int parse_stream_params(struct AvxEncoderConfig *global,
       config->cfg.kf_max_dist = arg_parse_uint(&arg);
     } else if (arg_match(&arg, &kf_disabled, argi)) {
       config->cfg.kf_mode = AOM_KF_DISABLED;
+#if CONFIG_FILEOPTIONS
+	} else if (arg_match(&arg, &global_motion, argi)) {
+		config->cfg.file_cfg.global_motion = !!arg_parse_uint(&arg) > 0;
+	} else if (arg_match(&arg, &warped_motion, argi)) {
+		config->cfg.file_cfg.warped_motion = !!arg_parse_uint(&arg) > 0;
+#endif
     } else {
       int i, match = 0;
       for (i = 0; ctrl_args[i]; i++) {
@@ -1755,7 +1787,11 @@ int main(int argc, const char **argv_) {
   memset(&input, 0, sizeof(input));
   exec_name = argv_[0];
 
+#if CONFIG_FILEOPTIONS
+  if (argc < 2) usage_exit();
+#else
   if (argc < 3) usage_exit();
+#endif
 
   /* Setup default input stream settings */
   input.framerate.numerator = 30;
@@ -1768,7 +1804,7 @@ int main(int argc, const char **argv_) {
    * codec.
    */
   argv = argv_dup(argc - 1, argv_ + 1);
-  parse_global_config(&global, argv);
+  parse_global_config(&global, &argc, &argv);
 
   switch (global.color_type) {
     case I420: input.fmt = AOM_IMG_FMT_I420; break;

@@ -305,6 +305,7 @@ typedef struct AV1EncoderConfig {
 #endif  // CONFIG_EXT_TILE
 
   unsigned int motion_vector_unit_test;
+  const file_options_t *file_cfg;
 } AV1EncoderConfig;
 
 static INLINE int is_lossless_requested(const AV1EncoderConfig *cfg) {
@@ -390,6 +391,7 @@ typedef struct AV1_COMP {
   Dequants dequants;
   AV1_COMMON common;
   AV1EncoderConfig oxcf;
+  const file_options_t *file_cfg;
   struct lookahead_ctx *lookahead;
   struct lookahead_entry *alt_ref_source;
 

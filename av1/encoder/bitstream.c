@@ -2129,6 +2129,7 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
 #endif  // CONFIG_EXT_INTER
 
 #if CONFIG_DUAL_FILTER || CONFIG_WARPED_MOTION || CONFIG_GLOBAL_MOTION
+if (cm->file_cfg->global_motion || cm->file_cfg->warped_motion)
     write_mb_interp_filter(cpi, xd, w);
 #endif  // CONFIG_DUAL_FILTE || CONFIG_WARPED_MOTION
   }
@@ -3589,8 +3590,10 @@ static void fix_interp_filter(AV1_COMMON *cm, FRAME_COUNTS *counts) {
         if (count[i]) {
 #if CONFIG_MOTION_VAR && (CONFIG_WARPED_MOTION || CONFIG_GLOBAL_MOTION)
 #if CONFIG_WARPED_MOTION
+if (cm->file_cfg->warped_motion)
           if (i == EIGHTTAP_REGULAR || WARP_WM_NEIGHBORS_WITH_OBMC)
 #else
+if (cm->file_cfg->global_motion)
           if (i == EIGHTTAP_REGULAR || WARP_GM_NEIGHBORS_WITH_OBMC)
 #endif  // CONFIG_WARPED_MOTION
 #endif  // CONFIG_MOTION_VAR && (CONFIG_WARPED_MOTION || CONFIG_GLOBAL_MOTION)
@@ -4772,6 +4775,7 @@ static uint32_t write_compressed_header(AV1_COMP *cpi, uint8_t *data) {
     if (!xd->lossless[0]) update_supertx_probs(cm, probwt, header_bc);
 #endif  // CONFIG_SUPERTX
 #if CONFIG_GLOBAL_MOTION
+if (cm->file_cfg->global_motion)
     write_global_motion(cpi, header_bc);
 #endif  // CONFIG_GLOBAL_MOTION
   }

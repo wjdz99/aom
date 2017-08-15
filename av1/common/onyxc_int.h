@@ -462,6 +462,7 @@ typedef struct AV1Common {
 #if CONFIG_NCOBMC_ADAPT_WEIGHT
   NCOBMC_KERNELS ncobmc_kernels[ADAPT_OVERLAP_BLOCKS][ALL_NCOBMC_MODES];
 #endif
+  const file_options_t *file_cfg;
 } AV1_COMMON;
 
 #if CONFIG_REFERENCE_BUFFER

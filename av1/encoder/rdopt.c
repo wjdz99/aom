@@ -6201,7 +6201,7 @@ static int check_best_zero_mv(
   (void)mi_col;
   (void)cpi;
 #if CONFIG_GLOBAL_MOTION
-  if (this_mode == ZEROMV
+  if ((this_mode == ZEROMV && (cpi->file_cfg->global_motion))
 #if CONFIG_EXT_INTER
       || this_mode == ZERO_ZEROMV
 #endif  // CONFIG_EXT_INTER
@@ -6431,6 +6431,7 @@ static void joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
 #if CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
     WarpTypesAllowed warp_types;
 #if CONFIG_GLOBAL_MOTION
+if (cpi->file_cfg->global_motion)
     warp_types.global_warp_allowed = is_global[!id];
 #endif  // CONFIG_GLOBAL_MOTION
 #if CONFIG_WARPED_MOTION
@@ -6452,7 +6453,7 @@ static void joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
 #if CONFIG_HIGHBITDEPTH
     if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
       second_pred = CONVERT_TO_BYTEPTR(second_pred_alloc_16);
-      av1_highbd_build_inter_predictor(
+      av1_highbd_build_inter_predictor( cm->file_cfg,
           ref_yv12[!id].buf, ref_yv12[!id].stride, second_pred, pw,
 #if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
           the_other_mv,
@@ -6467,7 +6468,7 @@ static void joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
     } else {
       second_pred = (uint8_t *)second_pred_alloc_16;
 #endif  // CONFIG_HIGHBITDEPTH
-      av1_build_inter_predictor(
+      av1_build_inter_predictor(cpi->file_cfg,
           ref_yv12[!id].buf, ref_yv12[!id].stride, second_pred, pw,
 #if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
           the_other_mv,
@@ -7264,6 +7265,7 @@ static void build_second_inter_pred(const AV1_COMP *cpi, MACROBLOCK *x,
 #if CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
   WarpTypesAllowed warp_types;
 #if CONFIG_GLOBAL_MOTION
+if (cpi->file_cfg->global_motion)
   warp_types.global_warp_allowed = is_global;
 #endif  // CONFIG_GLOBAL_MOTION
 #if CONFIG_WARPED_MOTION
@@ -7277,7 +7279,7 @@ static void build_second_inter_pred(const AV1_COMP *cpi, MACROBLOCK *x,
 // Get the prediction block from the 'other' reference frame.
 #if CONFIG_HIGHBITDEPTH
   if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
-    av1_highbd_build_inter_predictor(
+    av1_highbd_build_inter_predictor( cm->file_cfg,
         ref_yv12.buf, ref_yv12.stride, second_pred, pw, other_mv, &sf, pw, ph,
         0, mbmi->interp_filter,
 #if CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
@@ -7286,7 +7288,7 @@ static void build_second_inter_pred(const AV1_COMP *cpi, MACROBLOCK *x,
         plane, MV_PRECISION_Q3, mi_col * MI_SIZE, mi_row * MI_SIZE, xd);
   } else {
 #endif  // CONFIG_HIGHBITDEPTH
-    av1_build_inter_predictor(
+    av1_build_inter_predictor(cpi->file_cfg,
         ref_yv12.buf, ref_yv12.stride, second_pred, pw, other_mv, &sf, pw, ph,
         &conv_params, mbmi->interp_filter,
 #if CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
@@ -8829,7 +8831,7 @@ static int64_t motion_mode_rd(
     }
 
 #if CONFIG_GLOBAL_MOTION
-    if (this_mode == ZEROMV
+    if ((this_mode == ZEROMV && (cpi->file_cfg->global_motion))
 #if CONFIG_EXT_INTER
         || this_mode == ZERO_ZEROMV
 #endif  // CONFIG_EXT_INTER
@@ -9264,9 +9266,9 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
                       av1_compound_type_tree);
       // get inter predictors to use for masked compound modes
       av1_build_inter_predictors_for_planes_single_buf(
-          xd, bsize, 0, 0, mi_row, mi_col, 0, preds0, strides);
+          cm,xd, bsize, 0, 0, mi_row, mi_col, 0, preds0, strides);
       av1_build_inter_predictors_for_planes_single_buf(
-          xd, bsize, 0, 0, mi_row, mi_col, 1, preds1, strides);
+          cm,xd, bsize, 0, 0, mi_row, mi_col, 1, preds1, strides);
     }
 
     for (cur_type = COMPOUND_AVERAGE; cur_type < COMPOUND_TYPES; cur_type++) {
@@ -10368,11 +10370,16 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
     }
     frame_mv[NEWMV][ref_frame].as_int = INVALID_MV;
 #if CONFIG_GLOBAL_MOTION
+if (cpi->file_cfg->global_motion)
+{
     frame_mv[ZEROMV][ref_frame].as_int =
         gm_get_motion_vector(&cm->global_motion[ref_frame],
                              cm->allow_high_precision_mv, bsize, mi_col, mi_row,
                              0)
             .as_int;
+}
+else
+	frame_mv[ZEROMV][ref_frame].as_int = 0;
 #else   // CONFIG_GLOBAL_MOTION
     frame_mv[ZEROMV][ref_frame].as_int = 0;
 #endif  // CONFIG_GLOBAL_MOTION
@@ -10383,11 +10390,16 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
     frame_comp_mv[SR_NEW_NEWMV][ref_frame].as_int = INVALID_MV;
 #endif  // CONFIG_COMPOUND_SINGLEREF
 #if CONFIG_GLOBAL_MOTION
+if (cpi->file_cfg->global_motion)
+{
     frame_mv[ZERO_ZEROMV][ref_frame].as_int =
         gm_get_motion_vector(&cm->global_motion[ref_frame],
                              cm->allow_high_precision_mv, bsize, mi_col, mi_row,
                              0)
             .as_int;
+}
+else
+	frame_mv[ZERO_ZEROMV][ref_frame].as_int = 0;
 #else   // CONFIG_GLOBAL_MOTION
     frame_mv[ZERO_ZEROMV][ref_frame].as_int = 0;
 #endif  // CONFIG_GLOBAL_MOTION
@@ -10487,10 +10499,15 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
       //               BWDREF_FRAME as well.
       mode_skip_mask[ALTREF_FRAME] = ~INTER_NEAREST_NEAR_ZERO;
 #if CONFIG_GLOBAL_MOTION
+if (cpi->file_cfg->global_motion)
+{
       zeromv.as_int = gm_get_motion_vector(&cm->global_motion[ALTREF_FRAME],
                                            cm->allow_high_precision_mv, bsize,
                                            mi_col, mi_row, 0)
                           .as_int;
+}
+else
+	  zeromv.as_int = 0;
 #else
       zeromv.as_int = 0;
 #endif  // CONFIG_GLOBAL_MOTION
@@ -10772,7 +10789,7 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
         }
       }
 #if CONFIG_GLOBAL_MOTION
-    } else if (cm->global_motion[ref_frame].wmtype == IDENTITY &&
+    } else if ((cpi->file_cfg->global_motion) && cm->global_motion[ref_frame].wmtype == IDENTITY &&
                (!comp_pred ||
                 cm->global_motion[second_ref_frame].wmtype == IDENTITY)) {
 #else   // CONFIG_GLOBAL_MOTION
@@ -11874,6 +11891,8 @@ PALETTE_EXIT:
     int_mv zeromv[2];
     const uint8_t rf_type = av1_ref_frame_type(best_mbmode.ref_frame);
 #if CONFIG_GLOBAL_MOTION
+if (cpi->file_cfg->global_motion)
+{
     zeromv[0].as_int = gm_get_motion_vector(&cm->global_motion[refs[0]],
                                             cm->allow_high_precision_mv, bsize,
                                             mi_col, mi_row, 0)
@@ -11884,6 +11903,12 @@ PALETTE_EXIT:
                                                   bsize, mi_col, mi_row, 0)
                                  .as_int
                            : 0;
+}
+else
+{
+	zeromv[0].as_int = 0;
+	zeromv[1].as_int = 0;
+}
 #else
     zeromv[0].as_int = 0;
     zeromv[1].as_int = 0;
@@ -12004,6 +12029,8 @@ PALETTE_EXIT:
     if (mode_ctx & (1 << ALL_ZERO_FLAG_OFFSET)) {
       int_mv zeromv[2];
 #if CONFIG_GLOBAL_MOTION
+if (cpi->file_cfg->global_motion)
+{
       const MV_REFERENCE_FRAME refs[2] = { best_mbmode.ref_frame[0],
                                            best_mbmode.ref_frame[1] };
       zeromv[0].as_int = gm_get_motion_vector(&cm->global_motion[refs[0]],
@@ -12018,6 +12045,9 @@ PALETTE_EXIT:
                              : 0;
       lower_mv_precision(&zeromv[0].as_mv, cm->allow_high_precision_mv);
       lower_mv_precision(&zeromv[1].as_mv, cm->allow_high_precision_mv);
+}
+else
+	  zeromv[0].as_int = zeromv[1].as_int = 0;
 #else
       zeromv[0].as_int = zeromv[1].as_int = 0;
 #endif  // CONFIG_GLOBAL_MOTION
@@ -12073,7 +12103,7 @@ PALETTE_EXIT:
 // Note: this section is needed since the mode may have been forced to
 // ZEROMV by the all-zero mode handling of ref-mv.
 #if CONFIG_GLOBAL_MOTION
-  if (mbmi->mode == ZEROMV
+  if ((mbmi->mode == ZEROMV && (cpi->file_cfg->global_motion))
 #if CONFIG_EXT_INTER
       || mbmi->mode == ZERO_ZEROMV
 #endif  // CONFIG_EXT_INTER
@@ -12185,11 +12215,16 @@ void av1_rd_pick_inter_mode_sb_seg_skip(const AV1_COMP *cpi,
   mbmi->ref_frame[0] = LAST_FRAME;
   mbmi->ref_frame[1] = NONE_FRAME;
 #if CONFIG_GLOBAL_MOTION
+if (cpi->file_cfg->global_motion)
+{
   mbmi->mv[0].as_int =
       gm_get_motion_vector(&cm->global_motion[mbmi->ref_frame[0]],
                            cm->allow_high_precision_mv, bsize, mi_col, mi_row,
                            0)
           .as_int;
+}
+else
+  mbmi->mv[0].as_int = 0;
 #else   // CONFIG_GLOBAL_MOTION
   mbmi->mv[0].as_int = 0;
 #endif  // CONFIG_GLOBAL_MOTION

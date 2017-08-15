@@ -715,6 +715,7 @@ static void update_state(const AV1_COMP *const cpi, ThreadData *td,
     if (is_inter_block(mbmi)) {
       av1_update_mv_count(td);
 #if CONFIG_GLOBAL_MOTION
+if(cpi->file_cfg->global_motion)
       if (bsize >= BLOCK_8X8) {
         // TODO(sarahparker): global motion stats need to be handled per-tile
         // to be compatible with tile-based threading.
@@ -736,7 +737,7 @@ static void update_state(const AV1_COMP *const cpi, ThreadData *td,
           && mbmi->motion_mode != WARPED_CAUSAL
 #endif  // CONFIG_WARPED_MOTION
 #if CONFIG_GLOBAL_MOTION
-          && !is_nontrans_global_motion(xd)
+          && (cpi->file_cfg->global_motion) ? !is_nontrans_global_motion(xd) : 0
 #endif  // CONFIG_GLOBAL_MOTION
               ) {
 #if CONFIG_DUAL_FILTER
@@ -874,6 +875,7 @@ static void update_state_supertx(const AV1_COMP *const cpi, ThreadData *td,
     av1_update_mv_count(td);
 
 #if CONFIG_GLOBAL_MOTION
+if (cpi->file_cfg->global_motion)
     if (is_inter_block(mbmi)) {
       if (bsize >= BLOCK_8X8) {
         // TODO(sarahparker): global motion stats need to be handled per-tile
@@ -895,7 +897,7 @@ static void update_state_supertx(const AV1_COMP *const cpi, ThreadData *td,
 
     if (cm->interp_filter == SWITCHABLE
 #if CONFIG_GLOBAL_MOTION
-        && !is_nontrans_global_motion(xd)
+        && (cpi->file_cfg->global_motion) ? !is_nontrans_global_motion(xd) : 0
 #endif  // CONFIG_GLOBAL_MOTION
             ) {
 #if CONFIG_DUAL_FILTER
@@ -5083,6 +5085,8 @@ static void encode_frame_internal(AV1_COMP *cpi) {
   }
 
 #if CONFIG_GLOBAL_MOTION
+if (cpi->file_cfg->global_motion)
+{
   av1_zero(rdc->global_motion_used);
   av1_zero(cpi->gmparams_cost);
   if (cpi->common.frame_type == INTER_FRAME && cpi->source &&
@@ -5206,6 +5210,7 @@ static void encode_frame_internal(AV1_COMP *cpi) {
   }
   memcpy(cm->cur_frame->global_motion, cm->global_motion,
          TOTAL_REFS_PER_FRAME * sizeof(WarpedMotionParams));
+}
 #endif  // CONFIG_GLOBAL_MOTION
 
   for (i = 0; i < MAX_SEGMENTS; ++i) {

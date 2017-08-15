@@ -171,6 +171,10 @@ aom_codec_err_t aom_codec_enc_config_default(aom_codec_iface_t *iface,
     }
   }
 
+  /* default values */
+  cfg->file_cfg.global_motion = CONFIG_GLOBAL_MOTION;
+  cfg->file_cfg.warped_motion = CONFIG_WARPED_MOTION;
+
   return res;
 }
 

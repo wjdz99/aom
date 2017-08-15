@@ -322,7 +322,7 @@ void build_compound_seg_mask_highbd(uint8_t *mask, SEG_MASK_TYPE mask_type,
 #endif  // CONFIG_EXT_INTER
 
 #if CONFIG_EXT_INTER
-void av1_make_masked_inter_predictor(const uint8_t *pre, int pre_stride,
+void av1_make_masked_inter_predictor(const AV1_COMMON *cm, const uint8_t *pre, int pre_stride,
                                      uint8_t *dst, int dst_stride,
                                      const int subpel_x, const int subpel_y,
                                      const struct scale_factors *sf, int w,
@@ -446,7 +446,7 @@ void av1_build_masked_inter_predictor_complex(
     int plane);
 #endif  // CONFIG_SUPERTX
 
-void av1_build_inter_predictor(const uint8_t *src, int src_stride, uint8_t *dst,
+void av1_build_inter_predictor(const file_options_t *cfg, const uint8_t *src, int src_stride, uint8_t *dst,
                                int dst_stride, const MV *src_mv,
                                const struct scale_factors *sf, int w, int h,
                                ConvolveParams *conv_params,
@@ -463,7 +463,7 @@ void av1_build_inter_predictor(const uint8_t *src, int src_stride, uint8_t *dst,
                                const MACROBLOCKD *xd);
 
 #if CONFIG_HIGHBITDEPTH
-void av1_highbd_build_inter_predictor(
+void av1_highbd_build_inter_predictor(const file_options_t *cfg,
     const uint8_t *src, int src_stride, uint8_t *dst, int dst_stride,
     const MV *mv_q3, const struct scale_factors *sf, int w, int h, int do_avg,
 #if CONFIG_DUAL_FILTER
@@ -698,7 +698,7 @@ void av1_combine_interintra(MACROBLOCKD *xd, BLOCK_SIZE bsize, int plane,
 #endif  // CONFIG_INTERINTRA
 // Encoder only
 void av1_build_inter_predictors_for_planes_single_buf(
-    MACROBLOCKD *xd, BLOCK_SIZE bsize, int plane_from, int plane_to, int mi_row,
+    const AV1_COMMON *cm,MACROBLOCKD *xd, BLOCK_SIZE bsize, int plane_from, int plane_to, int mi_row,
     int mi_col, int ref, uint8_t *ext_dst[3], int ext_dst_stride[3]);
 void av1_build_wedge_inter_predictor_from_buf(
     MACROBLOCKD *xd, BLOCK_SIZE bsize, int plane_from, int plane_to,

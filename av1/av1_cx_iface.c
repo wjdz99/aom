@@ -465,6 +465,7 @@ static aom_codec_err_t set_encoder_config(
   if (oxcf->init_framerate > 180) oxcf->init_framerate = 30;
 
   oxcf->mode = GOOD;
+  oxcf->file_cfg = &cfg->file_cfg;
 
   switch (cfg->g_pass) {
     case AOM_RC_ONE_PASS: oxcf->pass = 0; break;
