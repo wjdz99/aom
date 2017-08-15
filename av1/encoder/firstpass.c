@@ -2227,8 +2227,16 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
              (abs_mv_in_out_accumulator > 3.0) ||
              (mv_in_out_accumulator < -2.0) ||
              ((boost_score - old_boost_score) < BOOST_BREAKOUT)))) {
-      boost_score = old_boost_score;
-      break;
+#if CONFIG_FLEX_REFS
+      // To enforce the GF group interval to be either 8 or 12 when it is no
+      // greater than 12.
+      if (i == (8 + 1) || i == (12 + 1) || i > (12 + 1)) {
+#endif  // CONFIG_FLEX_REFS
+        boost_score = old_boost_score;
+        break;
+#if CONFIG_FLEX_REFS
+      }
+#endif  // CONFIG_FLEX_REFS
     }
 
     *this_frame = next_frame;
