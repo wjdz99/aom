@@ -135,7 +135,8 @@ TEST_P(AV1HighbdInvHTNxN, InvTransResultCheck) { RunBitexactCheck(); }
 
 using std::tr1::make_tuple;
 
-#if HAVE_SSE4_1 && CONFIG_HIGHBITDEPTH
+#if HAVE_SSE4_1 && CONFIG_HIGHBITDEPTH && \
+  !(CONFIG_DAALA_DCT4 && CONFIG_DAALA_DCT8 && CONFIG_DAALA_DCT16)
 #if !CONFIG_DAALA_DCT4
 #define PARAM_LIST_4X4                                   \
   &av1_fwd_txfm2d_4x4_c, &av1_inv_txfm2d_add_4x4_sse4_1, \
