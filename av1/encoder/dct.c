@@ -1513,9 +1513,14 @@ void av1_fht4x8_c(const int16_t *input, tran_low_t *output, int stride,
 
   // Rows
   for (i = 0; i < n2; ++i) {
-    for (j = 0; j < n; ++j)
+    for (j = 0; j < n; ++j) {
+#if CONFIG_DAALA_TX
+      temp_in[j] = input[i * stride + j] * 16;
+#else
       temp_in[j] =
           (tran_low_t)fdct_round_shift(input[i * stride + j] * 4 * Sqrt2);
+#endif
+    }
 #if CONFIG_LGT
     if (use_lgt_row)
       flgt4(temp_in, temp_out, lgtmtx_row[i]);
@@ -1589,9 +1594,14 @@ void av1_fht8x4_c(const int16_t *input, tran_low_t *output, int stride,
 
   // Columns
   for (i = 0; i < n2; ++i) {
-    for (j = 0; j < n; ++j)
+    for (j = 0; j < n; ++j) {
+#if CONFIG_DAALA_TX
+      temp_in[j] = input[j * stride + i] * 16;
+#else
       temp_in[j] =
           (tran_low_t)fdct_round_shift(input[j * stride + i] * 4 * Sqrt2);
+#endif
+    }
 #if CONFIG_LGT
     if (use_lgt_col)
       flgt4(temp_in, temp_out, lgtmtx_col[i]);
@@ -1663,7 +1673,11 @@ void av1_fht4x16_c(const int16_t *input, tran_low_t *output, int stride,
 
   // Rows
   for (i = 0; i < n4; ++i) {
+#if CONFIG_DAALA_TX
+    for (j = 0; j < n; ++j) temp_in[j] = input[i * stride + j] * 16;
+#else
     for (j = 0; j < n; ++j) temp_in[j] = input[i * stride + j] * 4;
+#endif
 #if CONFIG_LGT
     if (use_lgt_row)
       flgt4(temp_in, temp_out, lgtmtx_row[i]);
@@ -1730,7 +1744,11 @@ void av1_fht16x4_c(const int16_t *input, tran_low_t *output, int stride,
 
   // Columns
   for (i = 0; i < n4; ++i) {
+#if CONFIG_DAALA_TX
+    for (j = 0; j < n; ++j) temp_in[j] = input[j * stride + i] * 16;
+#else
     for (j = 0; j < n; ++j) temp_in[j] = input[j * stride + i] * 4;
+#endif
 #if CONFIG_LGT
     if (use_lgt_col)
       flgt4(temp_in, temp_out, lgtmtx_col[i]);
@@ -1797,24 +1815,40 @@ void av1_fht8x16_c(const int16_t *input, tran_low_t *output, int stride,
 
   // Rows
   for (i = 0; i < n2; ++i) {
-    for (j = 0; j < n; ++j)
+    for (j = 0; j < n; ++j) {
+#if CONFIG_DAALA_TX
+      temp_in[j] = input[i * stride + j] * 16;
+#else
       temp_in[j] =
           (tran_low_t)fdct_round_shift(input[i * stride + j] * 4 * Sqrt2);
+#endif
+    }
 #if CONFIG_LGT
     if (use_lgt_row)
       flgt8(temp_in, temp_out, lgtmtx_row[i]);
     else
 #endif
       ht.rows(temp_in, temp_out);
-    for (j = 0; j < n; ++j)
+    for (j = 0; j < n; ++j) {
+#if CONFIG_DAALA_TX
+      out[j * n2 + i] = temp_out[j];
+#else
       out[j * n2 + i] = ROUND_POWER_OF_TWO_SIGNED(temp_out[j], 2);
+#endif
+    }
   }
 
   // Columns
   for (i = 0; i < n; ++i) {
     for (j = 0; j < n2; ++j) temp_in[j] = out[j + i * n2];
     ht.cols(temp_in, temp_out);
-    for (j = 0; j < n2; ++j) output[i + j * n] = temp_out[j];
+    for (j = 0; j < n; ++j) {
+#if CONFIG_DAALA_TX
+      output[i + j * n] = (temp_out[j] + (temp_out[j] < 0)) >> 1;
+#else
+      output[i + j * n] = temp_out[j];
+#endif
+    }
   }
   // Note: overall scale factor of transform is 8 times unitary
 }
@@ -1866,24 +1900,40 @@ void av1_fht16x8_c(const int16_t *input, tran_low_t *output, int stride,
 
   // Columns
   for (i = 0; i < n2; ++i) {
-    for (j = 0; j < n; ++j)
+    for (j = 0; j < n; ++j) {
+#if CONFIG_DAALA_TX
+      temp_in[j] = input[j * stride + i] * 16;
+#else
       temp_in[j] =
           (tran_low_t)fdct_round_shift(input[j * stride + i] * 4 * Sqrt2);
+#endif
+    }
 #if CONFIG_LGT
     if (use_lgt_col)
       flgt8(temp_in, temp_out, lgtmtx_col[i]);
     else
 #endif
       ht.cols(temp_in, temp_out);
-    for (j = 0; j < n; ++j)
+    for (j = 0; j < n; ++j) {
+#if CONFIG_DAALA_TX
+      out[j * n2 + i] = temp_out[j];
+#else
       out[j * n2 + i] = ROUND_POWER_OF_TWO_SIGNED(temp_out[j], 2);
+#endif
+    }
   }
 
   // Rows
   for (i = 0; i < n; ++i) {
     for (j = 0; j < n2; ++j) temp_in[j] = out[j + i * n2];
     ht.rows(temp_in, temp_out);
-    for (j = 0; j < n2; ++j) output[j + i * n2] = temp_out[j];
+    for (j = 0; j < n2; ++j) {
+#if CONFIG_DAALA_TX
+      output[j + i * n2] = (temp_out[j] + (temp_out[j] < 0)) >> 1;
+#else
+      output[j + i * n2] = temp_out[j];
+#endif
+    }
   }
   // Note: overall scale factor of transform is 8 times unitary
 }
@@ -1935,7 +1985,13 @@ void av1_fht8x32_c(const int16_t *input, tran_low_t *output, int stride,
 
   // Rows
   for (i = 0; i < n4; ++i) {
-    for (j = 0; j < n; ++j) temp_in[j] = input[i * stride + j] * 4;
+    for (j = 0; j < n; ++j) {
+#if CONFIG_DAALA_TX
+      temp_in[j] = input[i * stride + j] * 16;
+#else
+      temp_in[j] = input[i * stride + j] * 4;
+#endif
+    }
 #if CONFIG_LGT
     if (use_lgt_row)
       flgt8(temp_in, temp_out, lgtmtx_row[i]);
@@ -2002,7 +2058,13 @@ void av1_fht32x8_c(const int16_t *input, tran_low_t *output, int stride,
 
   // Columns
   for (i = 0; i < n4; ++i) {
-    for (j = 0; j < n; ++j) temp_in[j] = input[j * stride + i] * 4;
+    for (j = 0; j < n; ++j) {
+#if CONFIG_DAALA_TX
+      temp_in[j] = input[j * stride + i] * 16;
+#else
+      temp_in[j] = input[j * stride + i] * 4;
+#endif
+    }
 #if CONFIG_LGT
     if (use_lgt_col)
       flgt8(temp_in, temp_out, lgtmtx_col[i]);
@@ -2064,12 +2126,22 @@ void av1_fht16x32_c(const int16_t *input, tran_low_t *output, int stride,
 
   // Rows
   for (i = 0; i < n2; ++i) {
-    for (j = 0; j < n; ++j)
+    for (j = 0; j < n; ++j) {
+#if CONFIG_DAALA_TX
+      temp_in[j] = input[i * stride + j] * 16;
+#else
       temp_in[j] =
           (tran_low_t)fdct_round_shift(input[i * stride + j] * 4 * Sqrt2);
+#endif
+    }
     ht.rows(temp_in, temp_out);
-    for (j = 0; j < n; ++j)
+    for (j = 0; j < n; ++j) {
+#if CONFIG_DAALA_TX
+      out[j * n2 + i] = ROUND_POWER_OF_TWO_SIGNED(temp_out[j], 2);
+#else
       out[j * n2 + i] = ROUND_POWER_OF_TWO_SIGNED(temp_out[j], 4);
+#endif
+    }
   }
 
   // Columns
@@ -2123,12 +2195,22 @@ void av1_fht32x16_c(const int16_t *input, tran_low_t *output, int stride,
 
   // Columns
   for (i = 0; i < n2; ++i) {
-    for (j = 0; j < n; ++j)
+    for (j = 0; j < n; ++j) {
+#if CONFIG_DAALA_TX
+      temp_in[j] = input[j * stride + i] * 16;
+#else
       temp_in[j] =
           (tran_low_t)fdct_round_shift(input[j * stride + i] * 4 * Sqrt2);
+#endif
+    }
     ht.cols(temp_in, temp_out);
-    for (j = 0; j < n; ++j)
+    for (j = 0; j < n; ++j) {
+#if CONFIG_DAALA_TX
+      out[j * n2 + i] = ROUND_POWER_OF_TWO_SIGNED(temp_out[j], 2);
+#else
       out[j * n2 + i] = ROUND_POWER_OF_TWO_SIGNED(temp_out[j], 4);
+#endif
+    }
   }
 
   // Rows
