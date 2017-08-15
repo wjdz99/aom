@@ -452,6 +452,14 @@ static INLINE int is_dv_valid(const MV dv, const TileInfo *const tile,
   return 1;
 }
 #endif  // CONFIG_INTRABC
+#if NONCAUSAL_WARP
+int appendNonCausalSamples(const AV1_COMMON *cm, MACROBLOCKD *xd, int mi_row,
+                           int mi_col, int *pts, int *pts_inref, int *pts_mv,
+                           int np);
+
+int warp_model_selection(const AV1_COMMON *cm, MACROBLOCKD *xd, int mi_row,
+                         int mi_col);
+#endif
 
 #ifdef __cplusplus
 }  // extern "C"

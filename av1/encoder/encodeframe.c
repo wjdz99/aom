@@ -1160,7 +1160,7 @@ static void update_supertx_param_sb(const AV1_COMP *const cpi, ThreadData *td,
 }
 #endif  // CONFIG_SUPERTX
 
-#if CONFIG_MOTION_VAR && (CONFIG_NCOBMC || CONFIG_NCOBMC_ADAPT_WEIGHT)
+#if HAS_NONCAUSAL
 static void set_mode_info_b(const AV1_COMP *const cpi,
                             const TileInfo *const tile, ThreadData *td,
                             int mi_row, int mi_col, BLOCK_SIZE bsize,
@@ -1281,7 +1281,7 @@ static void set_mode_info_sb(const AV1_COMP *const cpi, ThreadData *td,
     default: assert(0 && "Invalid partition type."); break;
   }
 }
-#endif
+#endif  // HAS_NONCAUSAL
 
 void av1_setup_src_planes(MACROBLOCK *x, const YV12_BUFFER_CONFIG *src,
                           int mi_row, int mi_col) {
@@ -2011,7 +2011,7 @@ static void encode_b(const AV1_COMP *const cpi, const TileInfo *const tile,
 #endif
                      PICK_MODE_CONTEXT *ctx, int *rate) {
   MACROBLOCK *const x = &td->mb;
-#if (CONFIG_MOTION_VAR && CONFIG_NCOBMC) | CONFIG_EXT_DELTA_Q
+#if (CONFIG_MOTION_VAR && HAS_NONCAUSAL) | CONFIG_EXT_DELTA_Q
   MACROBLOCKD *xd = &x->e_mbd;
   MB_MODE_INFO *mbmi;
 #if CONFIG_MOTION_VAR && CONFIG_NCOBMC
@@ -2024,7 +2024,7 @@ static void encode_b(const AV1_COMP *const cpi, const TileInfo *const tile,
   x->e_mbd.mi[0]->mbmi.partition = partition;
 #endif
   update_state(cpi, td, ctx, mi_row, mi_col, bsize, dry_run);
-#if CONFIG_MOTION_VAR && CONFIG_NCOBMC
+#if CONFIG_MOTION_VAR && HAS_NONCAUSAL
   mbmi = &xd->mi[0]->mbmi;
 #if CONFIG_WARPED_MOTION
   set_ref_ptrs(&cpi->common, xd, mbmi->ref_frame[0], mbmi->ref_frame[1]);
@@ -2037,13 +2037,40 @@ static void encode_b(const AV1_COMP *const cpi, const TileInfo *const tile,
       xd,
 #endif
       xd->mi[0]);
-  check_ncobmc = is_inter_block(mbmi) && motion_allowed >= OBMC_CAUSAL;
+#if CONFIG_NCOBMC
+  // In current implementation, we do not try to replace warp motion with ncobmc
+  check_ncobmc = is_inter_block(mbmi) && motion_allowed >= OBMC_CAUSAL &&
+                 mbmi->motion_mode <= OBMC_CAUSAL;
   if (!dry_run && check_ncobmc) {
     av1_check_ncobmc_rd(cpi, x, mi_row, mi_col);
     av1_setup_dst_planes(x->e_mbd.plane, bsize,
                          get_frame_new_buffer(&cpi->common), mi_row, mi_col);
   }
+#endif  // CONFIG_NCOBMC
+#endif  // CONFIG_MOTION_VAR && HAS_NONCAUSAL
+#if NONCAUSAL_WARP && WARPED_MOTION_SORT_SAMPLES
+#if RP_ALL  // try to replace all three possible modes with ncwm
+  int check_ncwarp = motion_allowed == WARPED_CAUSAL && is_inter_block(mbmi);
+#else
+  int check_ncwarp = motion_allowed == WARPED_CAUSAL && is_inter_block(mbmi) &&
+#if SIMPLE_TRANS_RP
+                     (mbmi->motion_mode == WARPED_CAUSAL ||
+                      mbmi->motion_mode == SIMPLE_TRANSLATION);
+#else
+                     (mbmi->motion_mode == WARPED_CAUSAL);
 #endif
+#endif  // RP_ALL
+  if (!dry_run && check_ncwarp) {
+#if APPLY_NC_WARP
+    if (check_ncwarp)
+      check_warp_rd(cpi, x, mi_row, mi_col);
+    else
+      transform_selecting_second_pass(cpi, x, mi_row, mi_col);
+#endif
+    av1_setup_dst_planes(x->e_mbd.plane, bsize,
+                         get_frame_new_buffer(&cpi->common), mi_row, mi_col);
+  }
+#endif  // NONCAUSAL_WARP && WARPED_MOTION_SORT_SAMPLES
   encode_superblock(cpi, td, tp, dry_run, mi_row, mi_col, bsize, rate);
 
   if (!dry_run) {
@@ -4394,8 +4421,11 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
   if (best_rdc.rate < INT_MAX && best_rdc.dist < INT64_MAX &&
       pc_tree->index != 3) {
     if (bsize == cm->sb_size) {
-#if CONFIG_MOTION_VAR && CONFIG_NCOBMC
+#if HAS_NONCAUSAL
       set_mode_info_sb(cpi, td, tile_info, tp, mi_row, mi_col, bsize, pc_tree);
+#endif
+#if NONCAUSAL_WARP
+      set_sb_mi_boundaries(cm, xd, mi_row, mi_col);
 #endif
       encode_sb(cpi, td, tile_info, tp, mi_row, mi_col, OUTPUT_ENABLED, bsize,
                 pc_tree, NULL);
