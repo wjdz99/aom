@@ -427,6 +427,10 @@ set(AOM_INSTALL_INCS
     "${AOM_ROOT}/aom/aom_integer.h"
     "${AOM_ROOT}/aom/aom.h")
 
+# TODO(tomfinegan): Remove this when CONFIG_COLORSPACE_HEADERS no longer
+# controls parts of the public API (see aom_image.h).
+set(AOM_INSTALL_INCS ${AOM_INSTALL_INCS} "${AOM_CONFIG_DIR}/aom_config.h")
+
 if (CONFIG_AV1_DECODER)
   set(AOM_INSTALL_BINS ${AOM_INSTALL_BINS} aomdec)
   set(AOM_INSTALL_INCS
