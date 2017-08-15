@@ -175,7 +175,7 @@ static void ihalfright64_c(const tran_low_t *input, tran_low_t *output) {
 #endif  // CONFIG_TX64X64
 
 // Inverse identity transform and add.
-#if CONFIG_EXT_TX
+#if CONFIG_EXT_TX && !CONFIG_DAALA_TX
 static void inv_idtx_add_c(const tran_low_t *input, uint8_t *dest, int stride,
                            int bs, int tx_type) {
   int r, c;
@@ -461,6 +461,12 @@ void av1_iht4x8_32_add_c(const tran_low_t *input, uint8_t *dest, int stride,
 
   // inverse transform row vectors and transpose
   for (i = 0; i < n2; ++i) {
+#if CONFIG_DAALA_TX
+    tran_low_t temp_in[4];
+    for (j = 0; j < n; j++) temp_in[j] = input[j] * 2;
+    IHT_4x8[tx_type].rows(temp_in, outtmp);
+    for (j = 0; j < n; ++j) tmp[j][i] = outtmp[j];
+#else
 #if CONFIG_LGT
     if (use_lgt_row)
       ilgt4(input, outtmp, lgtmtx_row[0]);
@@ -469,6 +475,7 @@ void av1_iht4x8_32_add_c(const tran_low_t *input, uint8_t *dest, int stride,
       IHT_4x8[tx_type].rows(input, outtmp);
     for (j = 0; j < n; ++j)
       tmp[j][i] = (tran_low_t)dct_const_round_shift(outtmp[j] * Sqrt2);
+#endif
     input += n;
   }
 
@@ -491,7 +498,11 @@ void av1_iht4x8_32_add_c(const tran_low_t *input, uint8_t *dest, int stride,
     for (j = 0; j < n; ++j) {
       int d = i * stride + j;
       int s = j * outstride + i;
+#if CONFIG_DAALA_TX
+      dest[d] = clip_pixel_add(dest[d], ROUND_POWER_OF_TWO(outp[s], 4));
+#else
       dest[d] = clip_pixel_add(dest[d], ROUND_POWER_OF_TWO(outp[s], 5));
+#endif
     }
   }
 }
@@ -543,6 +554,12 @@ void av1_iht8x4_32_add_c(const tran_low_t *input, uint8_t *dest, int stride,
 
   // inverse transform row vectors and transpose
   for (i = 0; i < n; ++i) {
+#if CONFIG_DAALA_TX
+    tran_low_t temp_in[8];
+    for (j = 0; j < n2; j++) temp_in[j] = input[j] * 2;
+    IHT_8x4[tx_type].rows(temp_in, outtmp);
+    for (j = 0; j < n2; ++j) tmp[j][i] = outtmp[j];
+#else
 #if CONFIG_LGT
     if (use_lgt_row)
       ilgt8(input, outtmp, lgtmtx_row[0]);
@@ -551,6 +568,7 @@ void av1_iht8x4_32_add_c(const tran_low_t *input, uint8_t *dest, int stride,
       IHT_8x4[tx_type].rows(input, outtmp);
     for (j = 0; j < n2; ++j)
       tmp[j][i] = (tran_low_t)dct_const_round_shift(outtmp[j] * Sqrt2);
+#endif
     input += n2;
   }
 
@@ -573,7 +591,11 @@ void av1_iht8x4_32_add_c(const tran_low_t *input, uint8_t *dest, int stride,
     for (j = 0; j < n2; ++j) {
       int d = i * stride + j;
       int s = j * outstride + i;
+#if CONFIG_DAALA_TX
+      dest[d] = clip_pixel_add(dest[d], ROUND_POWER_OF_TWO(outp[s], 4));
+#else
       dest[d] = clip_pixel_add(dest[d], ROUND_POWER_OF_TWO(outp[s], 5));
+#endif
     }
   }
 }
@@ -622,12 +644,18 @@ void av1_iht4x16_64_add_c(const tran_low_t *input, uint8_t *dest, int stride,
 
   // inverse transform row vectors and transpose
   for (i = 0; i < n4; ++i) {
+#if CONFIG_DAALA_TX
+    tran_low_t temp_in[4];
+    for (j = 0; j < n; j++) temp_in[j] = input[j] * 2;
+    IHT_4x16[tx_type].rows(temp_in, outtmp);
+#else
 #if CONFIG_LGT
     if (use_lgt_row)
       ilgt4(input, outtmp, lgtmtx_row[0]);
     else
 #endif
       IHT_4x16[tx_type].rows(input, outtmp);
+#endif
     for (j = 0; j < n; ++j) tmp[j][i] = outtmp[j];
     input += n;
   }
@@ -646,7 +674,11 @@ void av1_iht4x16_64_add_c(const tran_low_t *input, uint8_t *dest, int stride,
     for (j = 0; j < n; ++j) {
       int d = i * stride + j;
       int s = j * outstride + i;
+#if CONFIG_DAALA_TX
+      dest[d] = clip_pixel_add(dest[d], ROUND_POWER_OF_TWO(outp[s], 4));
+#else
       dest[d] = clip_pixel_add(dest[d], ROUND_POWER_OF_TWO(outp[s], 5));
+#endif
     }
   }
 }
@@ -696,7 +728,13 @@ void av1_iht16x4_64_add_c(const tran_low_t *input, uint8_t *dest, int stride,
 
   // inverse transform row vectors and transpose
   for (i = 0; i < n; ++i) {
+#if CONFIG_DAALA_TX
+    tran_low_t temp_in[16];
+    for (j = 0; j < n4; j++) temp_in[j] = input[j] * 2;
+    IHT_16x4[tx_type].rows(temp_in, outtmp);
+#else
     IHT_16x4[tx_type].rows(input, outtmp);
+#endif
     for (j = 0; j < n4; ++j) tmp[j][i] = outtmp[j];
     input += n4;
   }
@@ -720,7 +758,11 @@ void av1_iht16x4_64_add_c(const tran_low_t *input, uint8_t *dest, int stride,
     for (j = 0; j < n4; ++j) {
       int d = i * stride + j;
       int s = j * outstride + i;
+#if CONFIG_DAALA_TX
+      dest[d] = clip_pixel_add(dest[d], ROUND_POWER_OF_TWO(outp[s], 4));
+#else
       dest[d] = clip_pixel_add(dest[d], ROUND_POWER_OF_TWO(outp[s], 5));
+#endif
     }
   }
 }
@@ -769,6 +811,12 @@ void av1_iht8x16_128_add_c(const tran_low_t *input, uint8_t *dest, int stride,
 
   // inverse transform row vectors and transpose
   for (i = 0; i < n2; ++i) {
+#if CONFIG_DAALA_TX
+    tran_low_t temp_in[8];
+    for (j = 0; j < n; j++) temp_in[j] = input[j] * 2;
+    IHT_8x16[tx_type].rows(temp_in, outtmp);
+    for (j = 0; j < n; ++j) tmp[j][i] = outtmp[j];
+#else
 #if CONFIG_LGT
     if (use_lgt_row)
       ilgt8(input, outtmp, lgtmtx_row[0]);
@@ -777,6 +825,7 @@ void av1_iht8x16_128_add_c(const tran_low_t *input, uint8_t *dest, int stride,
       IHT_8x16[tx_type].rows(input, outtmp);
     for (j = 0; j < n; ++j)
       tmp[j][i] = (tran_low_t)dct_const_round_shift(outtmp[j] * Sqrt2);
+#endif
     input += n;
   }
 
@@ -794,7 +843,11 @@ void av1_iht8x16_128_add_c(const tran_low_t *input, uint8_t *dest, int stride,
     for (j = 0; j < n; ++j) {
       int d = i * stride + j;
       int s = j * outstride + i;
+#if CONFIG_DAALA_TX
+      dest[d] = clip_pixel_add(dest[d], ROUND_POWER_OF_TWO(outp[s], 4));
+#else
       dest[d] = clip_pixel_add(dest[d], ROUND_POWER_OF_TWO(outp[s], 6));
+#endif
     }
   }
 }
@@ -844,9 +897,16 @@ void av1_iht16x8_128_add_c(const tran_low_t *input, uint8_t *dest, int stride,
 
   // inverse transform row vectors and transpose
   for (i = 0; i < n; ++i) {
+#if CONFIG_DAALA_TX
+    tran_low_t temp_in[16];
+    for (j = 0; j < n2; j++) temp_in[j] = input[j] * 2;
+    IHT_16x8[tx_type].rows(temp_in, outtmp);
+    for (j = 0; j < n2; ++j) tmp[j][i] = outtmp[j];
+#else
     IHT_16x8[tx_type].rows(input, outtmp);
     for (j = 0; j < n2; ++j)
       tmp[j][i] = (tran_low_t)dct_const_round_shift(outtmp[j] * Sqrt2);
+#endif
     input += n2;
   }
 
@@ -869,7 +929,11 @@ void av1_iht16x8_128_add_c(const tran_low_t *input, uint8_t *dest, int stride,
     for (j = 0; j < n2; ++j) {
       int d = i * stride + j;
       int s = j * outstride + i;
+#if CONFIG_DAALA_TX
+      dest[d] = clip_pixel_add(dest[d], ROUND_POWER_OF_TWO(outp[s], 4));
+#else
       dest[d] = clip_pixel_add(dest[d], ROUND_POWER_OF_TWO(outp[s], 6));
+#endif
     }
   }
 }
@@ -918,12 +982,18 @@ void av1_iht8x32_256_add_c(const tran_low_t *input, uint8_t *dest, int stride,
 
   // inverse transform row vectors and transpose
   for (i = 0; i < n4; ++i) {
+#if CONFIG_DAALA_TX
+    tran_low_t temp_in[8];
+    for (j = 0; j < n; j++) temp_in[j] = input[j] * 2;
+    IHT_8x32[tx_type].rows(temp_in, outtmp);
+#else
 #if CONFIG_LGT
     if (use_lgt_row)
       ilgt8(input, outtmp, lgtmtx_row[0]);
     else
 #endif
       IHT_8x32[tx_type].rows(input, outtmp);
+#endif
     for (j = 0; j < n; ++j) tmp[j][i] = outtmp[j];
     input += n;
   }
@@ -942,7 +1012,11 @@ void av1_iht8x32_256_add_c(const tran_low_t *input, uint8_t *dest, int stride,
     for (j = 0; j < n; ++j) {
       int d = i * stride + j;
       int s = j * outstride + i;
+#if CONFIG_DAALA_TX
+      dest[d] = clip_pixel_add(dest[d], ROUND_POWER_OF_TWO(outp[s], 4));
+#else
       dest[d] = clip_pixel_add(dest[d], ROUND_POWER_OF_TWO(outp[s], 6));
+#endif
     }
   }
 }
@@ -992,7 +1066,13 @@ void av1_iht32x8_256_add_c(const tran_low_t *input, uint8_t *dest, int stride,
 
   // inverse transform row vectors and transpose
   for (i = 0; i < n; ++i) {
+#if CONFIG_DAALA_TX
+    tran_low_t temp_in[32];
+    for (j = 0; j < n4; j++) temp_in[j] = input[j] * 2;
+    IHT_32x8[tx_type].rows(temp_in, outtmp);
+#else
     IHT_32x8[tx_type].rows(input, outtmp);
+#endif
     for (j = 0; j < n4; ++j) tmp[j][i] = outtmp[j];
     input += n4;
   }
@@ -1016,7 +1096,11 @@ void av1_iht32x8_256_add_c(const tran_low_t *input, uint8_t *dest, int stride,
     for (j = 0; j < n4; ++j) {
       int d = i * stride + j;
       int s = j * outstride + i;
+#if CONFIG_DAALA_TX
+      dest[d] = clip_pixel_add(dest[d], ROUND_POWER_OF_TWO(outp[s], 4));
+#else
       dest[d] = clip_pixel_add(dest[d], ROUND_POWER_OF_TWO(outp[s], 6));
+#endif
     }
   }
 }
@@ -1060,9 +1144,16 @@ void av1_iht16x32_512_add_c(const tran_low_t *input, uint8_t *dest, int stride,
 
   // inverse transform row vectors and transpose
   for (i = 0; i < n2; ++i) {
+#if CONFIG_DAALA_TX
+    tran_low_t temp_in[16];
+    for (j = 0; j < n; j++) temp_in[j] = input[j] * 2;
+    IHT_16x32[tx_type].rows(temp_in, outtmp);
+    for (j = 0; j < n; ++j) tmp[j][i] = outtmp[j] * 4;
+#else
     IHT_16x32[tx_type].rows(input, outtmp);
     for (j = 0; j < n; ++j)
       tmp[j][i] = (tran_low_t)dct_const_round_shift(outtmp[j] * Sqrt2);
+#endif
     input += n;
   }
 
@@ -1078,7 +1169,11 @@ void av1_iht16x32_512_add_c(const tran_low_t *input, uint8_t *dest, int stride,
     for (j = 0; j < n; ++j) {
       int d = i * stride + j;
       int s = j * outstride + i;
+#if CONFIG_DAALA_TX
+      dest[d] = clip_pixel_add(dest[d], ROUND_POWER_OF_TWO(outp[s], 5));
+#else
       dest[d] = clip_pixel_add(dest[d], ROUND_POWER_OF_TWO(outp[s], 6));
+#endif
     }
   }
 }
@@ -1122,9 +1217,16 @@ void av1_iht32x16_512_add_c(const tran_low_t *input, uint8_t *dest, int stride,
 
   // inverse transform row vectors and transpose
   for (i = 0; i < n; ++i) {
+#if CONFIG_DAALA_TX
+    tran_low_t temp_in[32];
+    for (j = 0; j < n2; j++) temp_in[j] = input[j] * 2;
+    IHT_32x16[tx_type].rows(temp_in, outtmp);
+    for (j = 0; j < n2; ++j) tmp[j][i] = outtmp[j] * 4;
+#else
     IHT_32x16[tx_type].rows(input, outtmp);
     for (j = 0; j < n2; ++j)
       tmp[j][i] = (tran_low_t)dct_const_round_shift(outtmp[j] * Sqrt2);
+#endif
     input += n2;
   }
 
@@ -1140,7 +1242,11 @@ void av1_iht32x16_512_add_c(const tran_low_t *input, uint8_t *dest, int stride,
     for (j = 0; j < n2; ++j) {
       int d = i * stride + j;
       int s = j * outstride + i;
+#if CONFIG_DAALA_TX
+      dest[d] = clip_pixel_add(dest[d], ROUND_POWER_OF_TWO(outp[s], 5));
+#else
       dest[d] = clip_pixel_add(dest[d], ROUND_POWER_OF_TWO(outp[s], 6));
+#endif
     }
   }
 }
@@ -1376,7 +1482,9 @@ void av1_iht32x32_1024_add_c(const tran_low_t *input, uint8_t *dest, int stride,
   // inverse transform column vectors
   for (i = 0; i < 32; ++i) IHT_32[tx_type].cols(tmp[i], out[i]);
 
+#if CONFIG_EXT_TX
   maybe_flip_strides(&dest, &stride, &outp, &outstride, tx_type, 32, 32);
+#endif
 
   // Sum with the destination
   for (i = 0; i < 32; ++i) {
@@ -1645,13 +1753,12 @@ static void inv_txfm_add_4x4(const tran_low_t *input, uint8_t *dest, int stride,
     av1_iwht4x4_add(input, dest, stride, txfm_param);
     return;
   }
-
-  switch (tx_type) {
-#if !CONFIG_DAALA_DCT4
-    case DCT_DCT: av1_idct4x4_add(input, dest, stride, txfm_param); break;
+#if CONFIG_DAALA_DCT4
+  (void)tx_type;
+  av1_iht4x4_16_add_c(input, dest, stride, txfm_param);
 #else
-    case DCT_DCT:
-#endif
+  switch (tx_type) {
+    case DCT_DCT: av1_idct4x4_add(input, dest, stride, txfm_param); break;
     case ADST_DCT:
     case DCT_ADST:
     case ADST_ADST:
@@ -1689,11 +1796,12 @@ static void inv_txfm_add_4x4(const tran_low_t *input, uint8_t *dest, int stride,
 #endif  // CONFIG_EXT_TX
     default: assert(0); break;
   }
+#endif  // CONFIG_DAALA_DCT4
 }
 
 static void inv_txfm_add_4x8(const tran_low_t *input, uint8_t *dest, int stride,
                              const TxfmParam *txfm_param) {
-#if CONFIG_LGT
+#if CONFIG_LGT || CONFIG_DAALA_TX
   av1_iht4x8_32_add_c(input, dest, stride, txfm_param);
 #else
   av1_iht4x8_32_add(input, dest, stride, txfm_param);
@@ -1702,7 +1810,7 @@ static void inv_txfm_add_4x8(const tran_low_t *input, uint8_t *dest, int stride,
 
 static void inv_txfm_add_8x4(const tran_low_t *input, uint8_t *dest, int stride,
                              const TxfmParam *txfm_param) {
-#if CONFIG_LGT
+#if CONFIG_LGT || CONFIG_DAALA_TX
   av1_iht8x4_32_add_c(input, dest, stride, txfm_param);
 #else
   av1_iht8x4_32_add(input, dest, stride, txfm_param);
@@ -1713,7 +1821,7 @@ static void inv_txfm_add_8x4(const tran_low_t *input, uint8_t *dest, int stride,
 #if CONFIG_RECT_TX_EXT && (CONFIG_EXT_TX || CONFIG_VAR_TX)
 static void inv_txfm_add_4x16(const tran_low_t *input, uint8_t *dest,
                               int stride, const TxfmParam *txfm_param) {
-#if CONFIG_LGT
+#if CONFIG_LGT || CONFIG_DAALA_TX
   av1_iht4x16_64_add_c(input, dest, stride, txfm_param);
 #else
   av1_iht4x16_64_add(input, dest, stride, txfm_param);
@@ -1722,7 +1830,7 @@ static void inv_txfm_add_4x16(const tran_low_t *input, uint8_t *dest,
 
 static void inv_txfm_add_16x4(const tran_low_t *input, uint8_t *dest,
                               int stride, const TxfmParam *txfm_param) {
-#if CONFIG_LGT
+#if CONFIG_LGT || CONFIG_DAALA_TX
   av1_iht16x4_64_add_c(input, dest, stride, txfm_param);
 #else
   av1_iht16x4_64_add(input, dest, stride, txfm_param);
@@ -1731,7 +1839,7 @@ static void inv_txfm_add_16x4(const tran_low_t *input, uint8_t *dest,
 
 static void inv_txfm_add_8x32(const tran_low_t *input, uint8_t *dest,
                               int stride, const TxfmParam *txfm_param) {
-#if CONFIG_LGT
+#if CONFIG_LGT || CONFIG_DAALA_TX
   av1_iht8x32_256_add_c(input, dest, stride, txfm_param);
 #else
   av1_iht8x32_256_add(input, dest, stride, txfm_param);
@@ -1740,7 +1848,7 @@ static void inv_txfm_add_8x32(const tran_low_t *input, uint8_t *dest,
 
 static void inv_txfm_add_32x8(const tran_low_t *input, uint8_t *dest,
                               int stride, const TxfmParam *txfm_param) {
-#if CONFIG_LGT
+#if CONFIG_LGT || CONFIG_DAALA_TX
   av1_iht32x8_256_add_c(input, dest, stride, txfm_param);
 #else
   av1_iht32x8_256_add(input, dest, stride, txfm_param);
@@ -1750,7 +1858,7 @@ static void inv_txfm_add_32x8(const tran_low_t *input, uint8_t *dest,
 
 static void inv_txfm_add_8x16(const tran_low_t *input, uint8_t *dest,
                               int stride, const TxfmParam *txfm_param) {
-#if CONFIG_LGT
+#if CONFIG_LGT || CONFIG_DAALA_TX
   av1_iht8x16_128_add_c(input, dest, stride, txfm_param);
 #else
   av1_iht8x16_128_add(input, dest, stride, txfm_param);
@@ -1759,7 +1867,7 @@ static void inv_txfm_add_8x16(const tran_low_t *input, uint8_t *dest,
 
 static void inv_txfm_add_16x8(const tran_low_t *input, uint8_t *dest,
                               int stride, const TxfmParam *txfm_param) {
-#if CONFIG_LGT
+#if CONFIG_LGT || CONFIG_DAALA_TX
   av1_iht16x8_128_add_c(input, dest, stride, txfm_param);
 #else
   av1_iht16x8_128_add(input, dest, stride, txfm_param);
@@ -1768,23 +1876,30 @@ static void inv_txfm_add_16x8(const tran_low_t *input, uint8_t *dest,
 
 static void inv_txfm_add_16x32(const tran_low_t *input, uint8_t *dest,
                                int stride, const TxfmParam *txfm_param) {
+#if CONFIG_DAALA_TX
+  av1_iht16x32_512_add_c(input, dest, stride, txfm_param);
+#else
   av1_iht16x32_512_add(input, dest, stride, txfm_param);
+#endif
 }
 
 static void inv_txfm_add_32x16(const tran_low_t *input, uint8_t *dest,
                                int stride, const TxfmParam *txfm_param) {
+#if CONFIG_DAALA_TX
+  av1_iht32x16_512_add_c(input, dest, stride, txfm_param);
+#else
   av1_iht32x16_512_add(input, dest, stride, txfm_param);
+#endif
 }
 
 static void inv_txfm_add_8x8(const tran_low_t *input, uint8_t *dest, int stride,
                              const TxfmParam *txfm_param) {
+#if CONFIG_DAALA_DCT8
+  av1_iht8x8_64_add_c(input, dest, stride, txfm_param);
+#else
   const TX_TYPE tx_type = txfm_param->tx_type;
   switch (tx_type) {
-#if !CONFIG_DAALA_DCT8
     case DCT_DCT: idct8x8_add(input, dest, stride, txfm_param); break;
-#else
-    case DCT_DCT:
-#endif
     case ADST_DCT:
     case DCT_ADST:
     case ADST_ADST:
@@ -1821,10 +1936,14 @@ static void inv_txfm_add_8x8(const tran_low_t *input, uint8_t *dest, int stride,
 #endif  // CONFIG_EXT_TX
     default: assert(0); break;
   }
+#endif  // CONFIG_DAALA_DCT8
 }
 
 static void inv_txfm_add_16x16(const tran_low_t *input, uint8_t *dest,
                                int stride, const TxfmParam *txfm_param) {
+#if CONFIG_DAALA_DCT16
+  av1_iht16x16_256_add_c(input, dest, stride, txfm_param);
+#else
   const TX_TYPE tx_type = txfm_param->tx_type;
   switch (tx_type) {
 #if !CONFIG_DAALA_DCT16
@@ -1858,19 +1977,17 @@ static void inv_txfm_add_16x16(const tran_low_t *input, uint8_t *dest,
 #endif  // CONFIG_MRC_TX
     default: assert(0); break;
   }
+#endif  // CONFIG_DAALA_DCT16
 }
 
 static void inv_txfm_add_32x32(const tran_low_t *input, uint8_t *dest,
                                int stride, const TxfmParam *txfm_param) {
+#if CONFIG_DAALA_DCT32
+  av1_iht32x32_1024_add_c(input, dest, stride, txfm_param);
+#else
   const TX_TYPE tx_type = txfm_param->tx_type;
   switch (tx_type) {
-#if !CONFIG_DAALA_DCT32
     case DCT_DCT: idct32x32_add(input, dest, stride, txfm_param); break;
-#else
-    case DCT_DCT:
-      av1_iht32x32_1024_add_c(input, dest, stride, txfm_param);
-      break;
-#endif
 #if CONFIG_EXT_TX
     case ADST_DCT:
     case DCT_ADST:
@@ -1895,18 +2012,18 @@ static void inv_txfm_add_32x32(const tran_low_t *input, uint8_t *dest,
 #endif  // CONFIG_MRC_TX
     default: assert(0); break;
   }
+#endif  // CONFIG_DAALA_DCT32
 }
 
 #if CONFIG_TX64X64
 static void inv_txfm_add_64x64(const tran_low_t *input, uint8_t *dest,
                                int stride, const TxfmParam *txfm_param) {
+#if CONFIG_DAALA_DCT64
+  av1_iht64x64_4096_add_c(input, dest, stride, txfm_param);
+#else
   const TX_TYPE tx_type = txfm_param->tx_type;
   switch (tx_type) {
-#if !CONFIG_DAALA_DCT64
     case DCT_DCT: idct64x64_add(input, dest, stride, txfm_param); break;
-#else
-    case DCT_DCT:
-#endif
 #if CONFIG_EXT_TX
     case ADST_DCT:
     case DCT_ADST:
@@ -1931,6 +2048,7 @@ static void inv_txfm_add_64x64(const tran_low_t *input, uint8_t *dest,
 #endif  // CONFIG_MRC_TX
     default: assert(0); break;
   }
+#endif
 }
 #endif  // CONFIG_TX64X64
 
