@@ -699,6 +699,19 @@ typedef enum {
 } FILTER_DEGREE;
 #endif  // CONFIG_LPF_DIRECT
 
+#if CONFIG_LGT
+// length 4 and length 8
+#define LGT_SIZES 2
+// TODO Currently, it will cause problem and leads to bad RD performance
+// if LGT_FROM_PRED_INTRA is off. Note: at least one of LGT_FROM_PRED_INTRA
+// and LGT_FROM_PRED_INTER must be 1
+#define LGT_FROM_PRED_INTRA 1
+#define LGT_FROM_PRED_INTER 0
+// With LGT_SL_INTRA on, we use LGTs with a mode-dependent first self-loop
+// and a break point as well
+#define LGT_SL_INTRA 0
+#endif
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif

@@ -5891,20 +5891,47 @@ void av1_update_tx_type_count(const AV1_COMMON *cm, MACROBLOCKD *xd,
       av1_get_tx_type(PLANE_TYPE_Y, xd, blk_row, blk_col, block, tx_size);
 #endif
 #if CONFIG_EXT_TX
-  if (get_ext_tx_types(tx_size, bsize, is_inter, cm->reduced_tx_set_used) > 1 &&
-      cm->base_qindex > 0 && !mbmi->skip &&
-      !segfeature_active(&cm->seg, mbmi->segment_id, SEG_LVL_SKIP)) {
-    const int eset =
-        get_ext_tx_set(tx_size, bsize, is_inter, cm->reduced_tx_set_used);
-    if (eset > 0) {
-      if (is_inter) {
-        ++counts->inter_ext_tx[eset][txsize_sqr_map[tx_size]][tx_type];
-      } else {
-        ++counts->intra_ext_tx[eset][txsize_sqr_map[tx_size]][mbmi->mode]
-                              [tx_type];
+    if (get_ext_tx_types(tx_size, bsize, is_inter, cm->reduced_tx_set_used) >
+            1 &&
+        cm->base_qindex > 0 && !mbmi->skip &&
+        !segfeature_active(&cm->seg, mbmi->segment_id, SEG_LVL_SKIP)) {
+      const int eset =
+          get_ext_tx_set(tx_size, bsize, is_inter, cm->reduced_tx_set_used);
+      if (eset > 0) {
+#if !CONFIG_LGT
+        if (is_inter)
+          ++counts->inter_ext_tx[eset][txsize_sqr_map[tx_size]][tx_type];
+        else
+          ++counts->intra_ext_tx[eset][txsize_sqr_map[tx_size]][mbmi->mode]
+                                [tx_type];
+#else
+        if (is_inter) {
+          if (LGT_FROM_PRED_INTER) {
+            if (is_lgt_allowed(mbmi->mode, tx_size) && !cm->reduced_tx_set_used)
+              ++counts->inter_lgt[txsize_sqr_map[tx_size]][mbmi->use_lgt];
+            if (!mbmi->use_lgt)
+              ++counts->inter_ext_tx[eset][txsize_sqr_map[tx_size]][tx_type];
+            else
+              mbmi->tx_type = DCT_DCT;
+          } else
+            ++counts->inter_ext_tx[eset][txsize_sqr_map[tx_size]][tx_type];
+        } else {
+          if (LGT_FROM_PRED_INTRA) {
+            if (is_lgt_allowed(mbmi->mode, tx_size) && !cm->reduced_tx_set_used)
+              ++counts->intra_lgt[txsize_sqr_map[tx_size]][mbmi->mode]
+                                 [mbmi->use_lgt];
+            if (!mbmi->use_lgt)
+              ++counts->intra_ext_tx[eset][txsize_sqr_map[tx_size]][mbmi->mode]
+                                    [tx_type];
+            else
+              mbmi->tx_type = DCT_DCT;
+          } else
+            ++counts->intra_ext_tx[eset][txsize_sqr_map[tx_size]][mbmi->mode]
+                                  [tx_type];
+        }
+#endif  // CONFIG_LGT
       }
     }
-  }
 #else
   (void)bsize;
   if (tx_size < TX_32X32 &&
