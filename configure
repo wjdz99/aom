@@ -251,7 +251,6 @@ EXPERIMENT_LIST="
     tpl_mv
     dual_filter
     convolve_round
-    compound_round
     ext_tx
     dpcm_intra
     tx64x64
