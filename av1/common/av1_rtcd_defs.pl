@@ -656,7 +656,7 @@ if (aom_config("CONFIG_LOOP_RESTORATION") eq "yes") {
   }
 }
 
-# CONVOLVE_ROUND/COMPOUND_ROUND functions
+# CONVOLVE_ROUND functions
 
 if (aom_config("CONFIG_CONVOLVE_ROUND") eq "yes") {
     add_proto qw/void av1_convolve_2d/, "const uint8_t *src, int src_stride, CONV_BUF_TYPE *dst, int dst_stride, int w, int h, InterpFilterParams *filter_params_x, InterpFilterParams *filter_params_y, const int subpel_x_q4, const int subpel_y_q4, ConvolveParams *conv_params";
