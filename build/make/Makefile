@@ -424,6 +424,18 @@ clean::
 	rm -f .projects .install-projects $(PROJECTS)
 endif
 
+# TODO(tomfinegan): Remove this when CONFIG_COLORSPACE_HEADERS no longer
+# controls parts of the public API (see aom_image.h).
+$(DIST_DIR)/include/aom/aom_config.h: $(BUILD_PFX)aom_config.h
+.install-configs: $(DIST_DIR)/include/aom/aom_config.h
+	@touch $@
+	$(if $(quiet),@echo "    [INSTALL] $<")
+	@mkdir -p $(DIST_DIR)/include/aom/
+	@cp $(BUILD_PFX)aom_config.h $(DIST_DIR)/include/aom/
+
+clean::
+	rm -f .install-configs
+
 # If there are any source files to be distributed, then include the build
 # system too.
 ifneq ($(call enabled,DIST-SRCS),)
@@ -457,7 +469,8 @@ ifeq ($(CONFIG_EXTERNAL_BUILD),yes)
     INSTALL_TARGETS += .install-projects
 endif
 BUILD_TARGETS += .docs .libs .bins
-INSTALL_TARGETS += .install-docs .install-srcs .install-libs .install-bins
+INSTALL_TARGETS += .install-docs .install-srcs .install-configs .install-libs
+INSTALL_TARGETS += .install-bins
 all: $(BUILD_TARGETS)
 install:: $(INSTALL_TARGETS)
 dist: $(INSTALL_TARGETS)
