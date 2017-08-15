@@ -103,7 +103,7 @@ const Ht16x8Param kArrayHt16x8Param_c[] = {
 INSTANTIATE_TEST_CASE_P(C, AV1Trans16x8HT,
                         ::testing::ValuesIn(kArrayHt16x8Param_c));
 
-#if HAVE_SSE2
+#if HAVE_SSE2 && !CONFIG_DAALA_TX
 const Ht16x8Param kArrayHt16x8Param_sse2[] = {
   make_tuple(&av1_fht16x8_sse2, &av1_iht16x8_128_add_sse2, 0, AOM_BITS_8, 128),
   make_tuple(&av1_fht16x8_sse2, &av1_iht16x8_128_add_sse2, 1, AOM_BITS_8, 128),
@@ -126,6 +126,6 @@ const Ht16x8Param kArrayHt16x8Param_sse2[] = {
 };
 INSTANTIATE_TEST_CASE_P(SSE2, AV1Trans16x8HT,
                         ::testing::ValuesIn(kArrayHt16x8Param_sse2));
-#endif  // HAVE_SSE2
+#endif  // HAVE_SSE2 && !CONFIG_DAALA_TX
 
 }  // namespace
