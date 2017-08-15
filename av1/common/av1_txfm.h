@@ -271,9 +271,41 @@ static INLINE int get_mrc_mask_inter(const uint8_t *pred, int pred_stride,
                                      int height) {
   // placeholder mask generation function
   int n_masked_vals = 0;
+  assert(width == 32);
+  assert(height == 32);
+  uint8_t dx[32 * 32] = {0};
+  uint8_t dy[32 * 32] = {0};
+  uint16_t dx_sum = 0;
+  uint16_t dy_sum = 0;
+  int dx_mean, dy_mean;
   for (int i = 0; i < height; ++i) {
     for (int j = 0; j < width; ++j) {
-      mask[i * mask_stride + j] = pred[i * pred_stride + j] > 100 ? 1 : 0;
+      if (i == 0 || i == height - 1) {
+        // TODO(sarahparker) come up with a better value here
+        dx[i * width + j] = 0;
+      } else {
+        dx[i * width + j] = fabs(pred[(i - 1) * pred_stride + j] -
+                                pred[(i + 1) * pred_stride + j]);
+        dx_sum += dx[i * width + j];
+      }
+      if (j == 0 || j == width - 1) {
+        // TODO(sarahparker) come up with a better value here
+        dy[i * width + j] = 0;
+      } else {
+        dy[i * width + j] = fabs(pred[i * pred_stride + j - 1] -
+                                pred[i * pred_stride + j + 1]);
+        dy_sum += dy[i * width + j];
+      }
+    }
+  }
+  dx_mean = dx_sum / (width * height - 2 * height);
+  dy_mean = dy_sum / (width * height - 2 * width);
+  double f = 3.0;
+  for (int i = 0; i < height; ++i) {
+    for (int j = 0; j < width; ++j) {
+      // 1 if x or y gradient is high, otherwise 0
+      mask[i * mask_stride + j] = (dx[i * width + j] > f * dx_mean ||
+                                   dy[i * width + j] > f * dy_mean) ? 1 : 0;
       n_masked_vals += mask[i * mask_stride + j];
     }
   }
