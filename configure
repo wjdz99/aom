@@ -559,6 +559,8 @@ post_process_cmdline() {
     enabled altref2 && enable_feature ext_refs
     enabled altref2 && enable_feature flex_refs
     enabled rect_tx_ext && enable_feature rect_tx
+    enabled lgt && enable_feature ext_tx
+    enabled lgt && enable_feature lowbitdepth
     enabled cfl && enable_feature smooth_hv
     enabled cdef_singlepass && enable_feature cdef
 

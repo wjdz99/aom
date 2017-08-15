@@ -783,6 +783,27 @@ int main(int argc, const char **argv) {
       "static const aom_cdf_prob default_filter_intra_cdf[2][CDF_SIZE(2)]");
 #endif
 
+/* lgt experiment */
+#if CONFIG_LGT
+  if (LGT_FROM_PRED_INTRA) {
+    cts_each_dim[0] = LGT_SIZES;
+    cts_each_dim[1] = INTRA_MODES;
+    cts_each_dim[2] = 2;
+    optimize_entropy_table(&fc.intra_lgt[0][0][0], probsfile, 3, cts_each_dim,
+                           NULL, 1,
+                           "static const aom_prob default_intra_lgt_prob"
+                           "[LGT_SIZES][INTRA_MODES][2]");
+  }
+  if (LGT_FROM_PRED_INTER) {
+    cts_each_dim[0] = LGT_SIZES;
+    cts_each_dim[1] = 2;
+    optimize_entropy_table(&fc.inter_lgt[0][0], probsfile, 2, cts_each_dim,
+                           NULL, 1,
+                           "static const aom_prob default_inter_lgt_prob"
+                           "[LGT_SIZES][2]");
+  }
+#endif  // CONFIG_LGT
+
   fclose(statsfile);
   fclose(logfile);
   fclose(probsfile);
