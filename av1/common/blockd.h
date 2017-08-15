@@ -110,20 +110,30 @@ typedef struct PVQ_QUEUE {
 } PVQ_QUEUE;
 #endif
 
-#if CONFIG_NCOBMC_ADAPT_WEIGHT
+#if HAS_NONCAUSAL
 typedef struct superblock_mi_boundaries {
   int mi_row_begin;
   int mi_col_begin;
   int mi_row_end;
   int mi_col_end;
 } SB_MI_BD;
+#endif
 
+#if CONFIG_NCOBMC_ADAPT_WEIGHT
 typedef struct {
   int KERNEL_TL[MAX_SB_SIZE][MAX_SB_SIZE];
   int KERNEL_TR[MAX_SB_SIZE][MAX_SB_SIZE];
   int KERNEL_BL[MAX_SB_SIZE][MAX_SB_SIZE];
   int KERNEL_BR[MAX_SB_SIZE][MAX_SB_SIZE];
 } NCOBMC_KERNELS;
+#endif
+
+#if NONCAUSAL_WARP
+typedef struct noncausal_warp_stats {
+  int nn_larger;
+  int sn_larger;
+  int cond;
+} NCWP_STATS;
 #endif
 
 typedef struct {
@@ -789,6 +799,8 @@ typedef struct macroblockd {
 #if CONFIG_NCOBMC_ADAPT_WEIGHT
   uint8_t *ncobmc_pred_buf[MAX_MB_PLANE];
   int ncobmc_pred_buf_stride[MAX_MB_PLANE];
+#endif
+#if NONCAUSAL_WARP
   SB_MI_BD sb_mi_bd;
 #endif
 } MACROBLOCKD;
@@ -1553,6 +1565,11 @@ static INLINE MOTION_MODE motion_mode_allowed(
 #endif
     const MODE_INFO *mi) {
   const MB_MODE_INFO *mbmi = &mi->mbmi;
+#if KEEP_CASAUL_ZERO
+  int skip_warp = 1;
+#else
+  int skip_warp = mbmi->num_proj_ref[0] >= 1;
+#endif
 #if CONFIG_GLOBAL_MOTION
   const TransformationType gm_type = gm_params[mbmi->ref_frame[0]].wmtype;
   if (is_global_mv_block(mi, block, gm_type)) return SIMPLE_TRANSLATION;
@@ -1569,7 +1586,7 @@ static INLINE MOTION_MODE motion_mode_allowed(
     if (!check_num_overlappable_neighbors(mbmi)) return SIMPLE_TRANSLATION;
 #endif
 #if CONFIG_WARPED_MOTION
-    if (!has_second_ref(mbmi) && mbmi->num_proj_ref[0] >= 1 &&
+    if (!has_second_ref(mbmi) && skip_warp &&
         !av1_is_scaled(&(xd->block_refs[0]->sf)))
       return WARPED_CAUSAL;
     else

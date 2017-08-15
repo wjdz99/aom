@@ -1580,6 +1580,11 @@ void av1_warp_plane(WarpedMotionParams *wm,
 #define LS_PRODUCT2(a, b) \
   (((a) * (b)*4 + ((a) + (b)) * 2 * LS_STEP + LS_STEP * LS_STEP * 2) >> 2)
 
+#define LS_SUM_T(a) ((a)*4)
+#define LS_SQUARE_T(a) (((a) * (a)*4))
+#define LS_PRODUCT_T1(a, b) (((a) * (b)*4))
+#define LS_PRODUCT_T2(a, b) (((a) * (b)*4))
+
 #define USE_LIMITED_PREC_MULT 0
 
 #if USE_LIMITED_PREC_MULT
@@ -1657,6 +1662,34 @@ static int32_t get_mult_shift_diag(int64_t Px, int16_t iDet, int shift) {
 }
 #endif  // USE_LIMITED_PREC_MULT
 
+void find_mean(int np, int *pts, int sux, int suy, int *mx, int *my) {
+  int64_t tmpx, tmpy;
+
+  tmpx = sux + 1;
+  tmpy = suy + 1;
+  for (int i = 0; i < np; ++i) {
+    tmpx += pts[2 * i] + 1;
+    tmpy += pts[2 * i + 1] + 1;
+  }
+
+  *mx = (int)(tmpx / (np + 1));
+  *my = (int)(tmpy / (np + 1));
+}
+
+void find_mean_t(int np, int *pts, int sux, int suy, int *mx, int *my) {
+  int64_t tmpx, tmpy;
+
+  tmpx = sux;
+  tmpy = suy;
+  for (int i = 0; i < np; ++i) {
+    tmpx += pts[2 * i];
+    tmpy += pts[2 * i + 1];
+  }
+
+  *mx = (int)(tmpx / (np + 1));
+  *my = (int)(tmpy / (np + 1));
+}
+
 static int find_affine_int(int np, int *pts1, int *pts2, BLOCK_SIZE bsize,
                            int mvy, int mvx, WarpedMotionParams *wm, int mi_row,
                            int mi_col) {
@@ -1669,11 +1702,38 @@ static int find_affine_int(int np, int *pts1, int *pts2, BLOCK_SIZE bsize,
   const int bh = block_size_high[bsize];
   const int isuy = (mi_row * MI_SIZE + AOMMAX(bh, MI_SIZE) / 2 - 1);
   const int isux = (mi_col * MI_SIZE + AOMMAX(bw, MI_SIZE) / 2 - 1);
+#if USE_MEAN
+  const int _suy = isuy * 8;
+  const int _sux = isux * 8;
+  const int _duy = _suy + mvy;
+  const int _dux = _sux + mvx;
+  const int use_mean = np > 1;
+
+  int suy, sux, duy, dux;
+  if (use_mean) {
+#if USE_TRUE_MEAN
+    find_mean_t(AOMMIN(np, LEAST_SQUARES_SAMPLES_MAX), pts1, _sux, _suy, &sux,
+                &suy);
+    find_mean_t(AOMMIN(np, LEAST_SQUARES_SAMPLES_MAX), pts2, _dux, _duy, &dux,
+                &duy);
+#else
+    find_mean(AOMMIN(np, LEAST_SQUARES_SAMPLES_MAX), pts1, _sux, _suy, &sux,
+              &suy);
+    find_mean(AOMMIN(np, LEAST_SQUARES_SAMPLES_MAX), pts2, _dux, _duy, &dux,
+              &duy);
+#endif
+  } else {
+    suy = _suy;
+    sux = _sux;
+    duy = _duy;
+    dux = _dux;
+  }
+#else
   const int suy = isuy * 8;
   const int sux = isux * 8;
   const int duy = suy + mvy;
   const int dux = sux + mvx;
-
+#endif
   // Assume the center pixel of the block has exactly the same motion vector
   // as transmitted for the block. First shift the origin of the source
   // points to the block center, and the origin of the destination points to
@@ -1704,6 +1764,48 @@ static int find_affine_int(int np, int *pts1, int *pts2, BLOCK_SIZE bsize,
     sx = pts1[i * 2] - sux;
     sy = pts1[i * 2 + 1] - suy;
     if (abs(sx - dx) < LS_MV_MAX && abs(sy - dy) < LS_MV_MAX) {
+#if USE_TRUE_MEAN
+      if (use_mean) {
+        A[0][0] += LS_SQUARE_T(sx);
+        A[0][1] += LS_PRODUCT_T1(sx, sy);
+        A[1][1] += LS_SQUARE_T(sy);
+        Bx[0] += LS_PRODUCT_T2(sx, dx);
+        Bx[1] += LS_PRODUCT_T1(sy, dx);
+        By[0] += LS_PRODUCT_T1(sx, dy);
+        By[1] += LS_PRODUCT_T2(sy, dy);
+      } else {
+#endif
+        A[0][0] += LS_SQUARE(sx);
+        A[0][1] += LS_PRODUCT1(sx, sy);
+        A[1][1] += LS_SQUARE(sy);
+        Bx[0] += LS_PRODUCT2(sx, dx);
+        Bx[1] += LS_PRODUCT1(sy, dx);
+        By[0] += LS_PRODUCT1(sx, dy);
+        By[1] += LS_PRODUCT2(sy, dy);
+#if USE_TRUE_MEAN
+      }
+#endif
+      n++;
+    }
+  }
+
+#if USE_MEAN
+  if (use_mean) {
+    // acount for the original sample
+    dx = _dux - dux;
+    dy = _duy - duy;
+    sx = _sux - sux;
+    sy = _suy - suy;
+    if (abs(sx - dx) < LS_MV_MAX && abs(sy - dy) < LS_MV_MAX) {
+#if USE_TRUE_MEAN
+      A[0][0] += LS_SQUARE_T(sx);
+      A[0][1] += LS_PRODUCT_T1(sx, sy);
+      A[1][1] += LS_SQUARE_T(sy);
+      Bx[0] += LS_PRODUCT_T2(sx, dx);
+      Bx[1] += LS_PRODUCT_T1(sy, dx);
+      By[0] += LS_PRODUCT_T1(sx, dy);
+      By[1] += LS_PRODUCT_T2(sy, dy);
+#else
       A[0][0] += LS_SQUARE(sx);
       A[0][1] += LS_PRODUCT1(sx, sy);
       A[1][1] += LS_SQUARE(sy);
@@ -1711,9 +1813,13 @@ static int find_affine_int(int np, int *pts1, int *pts2, BLOCK_SIZE bsize,
       Bx[1] += LS_PRODUCT1(sy, dx);
       By[0] += LS_PRODUCT1(sx, dy);
       By[1] += LS_PRODUCT2(sy, dy);
-      n++;
+#endif
+      // need not reduce precision by adding this sample?
+      // n++;
     }
   }
+#endif
+
   int downshift;
   if (n >= 4)
     downshift = LS_MAT_DOWN_BITS;
@@ -1766,12 +1872,25 @@ static int find_affine_int(int np, int *pts1, int *pts2, BLOCK_SIZE bsize,
   // 2nd and 3rd terms are (2^16 - 1) * (2^13 - 1). That leaves enough room
   // for the first term so that the overall sum in the worst case fits
   // within 32 bits overall.
-  int32_t vx = mvx * (1 << (WARPEDMODEL_PREC_BITS - 3)) -
-               (isux * (wm->wmmat[2] - (1 << WARPEDMODEL_PREC_BITS)) +
-                isuy * wm->wmmat[3]);
-  int32_t vy = mvy * (1 << (WARPEDMODEL_PREC_BITS - 3)) -
-               (isux * wm->wmmat[4] +
-                isuy * (wm->wmmat[5] - (1 << WARPEDMODEL_PREC_BITS)));
+
+  int32_t vx, vy;
+#if USE_MEAN_TRANSLATION
+  if (use_mean) {
+    vx = dux * (1 << (WARPEDMODEL_PREC_BITS - 3)) -
+         ((sux >> 3) * wm->wmmat[2] + (suy >> 3) * wm->wmmat[3]);
+    vy = duy * (1 << (WARPEDMODEL_PREC_BITS - 3)) -
+         ((sux >> 3) * wm->wmmat[4] + (suy >> 3) * wm->wmmat[5]);
+  } else {
+#endif
+    vx = mvx * (1 << (WARPEDMODEL_PREC_BITS - 3)) -
+         (isux * (wm->wmmat[2] - (1 << WARPEDMODEL_PREC_BITS)) +
+          isuy * wm->wmmat[3]);
+    vy = mvy * (1 << (WARPEDMODEL_PREC_BITS - 3)) -
+         (isux * wm->wmmat[4] +
+          isuy * (wm->wmmat[5] - (1 << WARPEDMODEL_PREC_BITS)));
+#if USE_MEAN_TRANSLATION
+  }
+#endif
   wm->wmmat[0] =
       clamp(vx, -WARPEDMODEL_TRANS_CLAMP, WARPEDMODEL_TRANS_CLAMP - 1);
   wm->wmmat[1] =

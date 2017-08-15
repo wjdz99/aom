@@ -27,6 +27,31 @@ extern "C" {
 // #define FOUR_MODE
 #endif
 
+#if CONFIG_WARPED_MOTION
+#define NONCAUSAL_WARP 1
+#define REFINE_WARP_MV 1
+#define APPLY_NC_WARP 0
+#define SIMPLE_TRANS_RP 0
+#define RP_ALL 1
+#define NCWM_SKIP_NN1 0
+#define SAVE_NCWM 1
+#define NC_ALL 0
+#define CHECK_NCWM_ONLY 1
+
+#define TX_RESEL 0
+#define KEEP_CASAUL_ZERO 0
+
+#define USE_MEAN 0
+#define USE_MEAN_TRANSLATION 0
+#define USE_TRUE_MEAN 0
+#endif
+
+#if CONFIG_NCOBMC || CONFIG_NCOBMC_ADAPT_WEIGHT || NONCAUSAL_WARP
+#define HAS_NONCAUSAL 1
+#else
+#define HAS_NONCAUSAL 0
+#endif
+
 // Max superblock size
 #if CONFIG_EXT_PARTITION
 #define MAX_SB_SIZE_LOG2 7
