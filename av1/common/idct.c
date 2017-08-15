@@ -2116,11 +2116,15 @@ static void highbd_inv_txfm_add_32x32(const tran_low_t *input, uint8_t *dest,
   const int32_t *src = (const int32_t *)input;
   switch (tx_type) {
     case DCT_DCT:
+      av1_inv_txfm2d_add_32x32(src, CONVERT_TO_SHORTPTR(dest), stride, tx_type,
+                               bd);
+      break;
+
     case ADST_DCT:
     case DCT_ADST:
     case ADST_ADST:
-      av1_inv_txfm2d_add_32x32(src, CONVERT_TO_SHORTPTR(dest), stride, tx_type,
-                               bd);
+      av1_inv_txfm2d_add_32x32_c(src, CONVERT_TO_SHORTPTR(dest), stride,
+                                 tx_type, bd);
       break;
 #if CONFIG_EXT_TX
     case FLIPADST_DCT:
@@ -2128,8 +2132,8 @@ static void highbd_inv_txfm_add_32x32(const tran_low_t *input, uint8_t *dest,
     case FLIPADST_FLIPADST:
     case ADST_FLIPADST:
     case FLIPADST_ADST:
-      av1_inv_txfm2d_add_32x32(src, CONVERT_TO_SHORTPTR(dest), stride, tx_type,
-                               bd);
+      av1_inv_txfm2d_add_32x32_c(src, CONVERT_TO_SHORTPTR(dest), stride,
+                                 tx_type, bd);
       break;
     // use the c version for anything including identity for now
     case V_DCT:
