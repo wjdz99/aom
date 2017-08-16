@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "4273a375_575eeb92",
+        "filename": "av1/encoder/tokenize.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 332,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2017-08-16T19:43:10Z",
+      "side": 1,
+      "message": "Thanks, this is helpful because I am not fully familiar with the palette code.",
+      "parentUuid": "458c0e9e_ce428ac5",
+      "range": {
+        "startLine": 332,
+        "startChar": 4,
+        "endLine": 332,
+        "endChar": 23
+      },
+      "revId": "b7f8d55553e101841602d73e6cd9026310f49ea1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "55055825_011be022",
         "filename": "av1/encoder/tokenize.c",
         "patchSetId": 4
@@ -36,6 +60,30 @@
       "writtenOn": "2017-08-16T01:35:15Z",
       "side": 1,
       "message": "The code for these two functions is very similar, so maybe it\u0027s better to:\n\n- Keep the original function as a helper, say \u0027static void palette_sb_helper( ...\u0027\n- Have two functions av1_tokenize_palette_sb() and av1_cost_palette_sb() that both call the helper with appropriate arguments.\n\nThat would avoid code duplication and at the same time give you the two separate functions you need.",
+      "range": {
+        "startLine": 366,
+        "startChar": 5,
+        "endLine": 366,
+        "endChar": 28
+      },
+      "revId": "b7f8d55553e101841602d73e6cd9026310f49ea1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b97d1cbb_2d37bfb9",
+        "filename": "av1/encoder/tokenize.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 366,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2017-08-16T19:43:10Z",
+      "side": 1,
+      "message": "Good suggestion, thank you!",
+      "parentUuid": "55055825_011be022",
       "range": {
         "startLine": 366,
         "startChar": 5,
