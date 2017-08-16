@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9357ab69_45a35c13",
+        "filename": "av1/encoder/tokenize.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 349,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-08-16T19:57:02Z",
+      "side": 1,
+      "message": "Do you need a copy to the cost table? Why not just a pointer? Should be something like:\nconst int**** color_cost \u003d plane ? \u0026x-\u003epalette_uv_color_cost : \u0026x-\u003epalette_y_color_cost;\n...\nthis_rate +\u003d (*color_cost)[..][..][..];",
+      "range": {
+        "startLine": 349,
+        "startChar": 2,
+        "endLine": 349,
+        "endChar": 8
+      },
+      "revId": "cf6074c5fa018b0d3e94262b258177c1a86f34fe",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
