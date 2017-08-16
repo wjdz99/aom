@@ -296,6 +296,14 @@ typedef enum {
   FRAME_BOTTOM_BOUNDARY = 128,
 } BOUNDARY_TYPE;
 
+#if CONFIG_EXT_INTER
+#if CONFIG_WEDGE
+#define COMPOUND_SETS 2
+#else
+#define COMPOUND_SETS 1
+#endif   // CONFIG_WEDGE
+#endif  // CONFIG_EXT_INTER
+
 #if CONFIG_EXT_TX
 #if CONFIG_CHROMA_2X2
 #define EXT_TX_SIZES 5  // number of sizes that use extended transforms

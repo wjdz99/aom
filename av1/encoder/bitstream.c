@@ -139,6 +139,7 @@ void av1_encode_token_init(void) {
                        av1_inter_singleref_comp_mode_tree);
 #endif  // CONFIG_COMPOUND_SINGLEREF
 #if CONFIG_COMPOUND_SEGMENT || CONFIG_WEDGE
+  //sarahparker
   av1_tokens_from_tree(compound_type_encodings, av1_compound_type_tree);
 #endif  // CONFIG_COMPOUND_SEGMENT || CONFIG_WEDGE
 #endif  // CONFIG_EXT_INTER

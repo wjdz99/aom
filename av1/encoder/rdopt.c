@@ -9356,6 +9356,7 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
 #endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
 
     if (masked_compound_used) {
+      //sarahparker
       av1_cost_tokens(compound_type_cost, cm->fc->compound_type_prob[bsize],
                       av1_compound_type_tree);
       // get inter predictors to use for masked compound modes

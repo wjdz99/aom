@@ -202,6 +202,10 @@ typedef struct frame_contexts {
       INTER_SINGLEREF_COMP_MODES)];
 #endif  // CONFIG_COMPOUND_SINGLEREF
   aom_prob compound_type_prob[BLOCK_SIZES_ALL][COMPOUND_TYPES - 1];
+#if CONFIG_WEDGE && CONFIG_COMPOUND_SEGMENT
+  aom_cdf_prob
+    compound_type_cdf_block64[BLOCK_SIZES_ALL][CDF_SIZE(COMPOUND_TYPES - 1)];
+#endif  // CONFIG_WEDGE && CONFIG_COMPOUND_SEGMENT
 #if CONFIG_WEDGE || CONFIG_COMPOUND_SEGMENT
   aom_cdf_prob compound_type_cdf[BLOCK_SIZES_ALL][CDF_SIZE(COMPOUND_TYPES)];
 #endif  // CONFIG_WEDGE || CONFIG_COMPOUND_SEGMENT
@@ -540,6 +544,10 @@ extern const aom_tree_index
     av1_inter_singleref_comp_mode_tree[TREE_SIZE(INTER_SINGLEREF_COMP_MODES)];
 #endif  // CONFIG_COMPOUND_SINGLEREF
 extern const aom_tree_index av1_compound_type_tree[TREE_SIZE(COMPOUND_TYPES)];
+#if CONFIG_WEDGE
+extern const aom_tree_index
+  av1_compound_type_tree_block64[TREE_SIZE(COMPOUND_TYPES - 1)];
+#endif  // CONFIG_WEDGE
 #endif  // CONFIG_EXT_INTER
 extern const aom_tree_index av1_partition_tree[TREE_SIZE(PARTITION_TYPES)];
 #if CONFIG_EXT_PARTITION_TYPES
