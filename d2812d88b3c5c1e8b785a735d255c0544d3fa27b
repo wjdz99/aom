@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "45ba1aef_b4a48c2a",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 464,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-08-16T00:27:42Z",
+      "side": 1,
+      "message": "This sentence does not look like it belongs to this control. Copy and paste?\n\nI think it would be helpful to give the user who has no idea what dist8x8 is what the purpose of this control is. As I understand it,\n\n\"dist_8x8 is enabled automatically for model tuning parameters that require measuring distortion at the 8x8 level. This control also allows measuring distortion at the 8x8 level for other tuning options (e.g., PSNR), for testing purposes.\"",
+      "revId": "d2812d88b3c5c1e8b785a735d255c0544d3fa27b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b7692c1d_e76f488e",
+        "filename": "aomenc.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 383,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-08-16T00:27:42Z",
+      "side": 1,
+      "message": "These should be behind their respective #ifdefs, right? We shouldn\u0027t advertise options that won\u0027t work, and your input validation _is_ behind an #if CONFIG_DIST_8X8, so that won\u0027t prevent someone from actually passing this into the codec (I don\u0027t know what that will do).",
+      "revId": "d2812d88b3c5c1e8b785a735d255c0544d3fa27b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2a2ec18b_bbb87f69",
+        "filename": "aomenc.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 387,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-08-16T00:27:42Z",
+      "side": 1,
+      "message": "I agree that it\u0027s nicer to be consistent with the enum name (aom_tune_metric), but --tune\u003d\u003cfoo\u003e is a well-established x264 parameter name, and one that has been used in libvpx for a long time, too, so I\u0027m not sure changing it is a good idea. I\u0027d want somebody else who is more involved in the encoder front end than I am to sign off on that change.",
+      "revId": "d2812d88b3c5c1e8b785a735d255c0544d3fa27b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a9318382_7ee1fea2",
+        "filename": "aomenc.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 562,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-08-16T00:27:42Z",
+      "side": 1,
+      "message": "Renaming here is fine.",
+      "revId": "d2812d88b3c5c1e8b785a735d255c0544d3fa27b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "67baeecb_448e7255",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 499,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-08-16T00:27:42Z",
+      "side": 1,
+      "message": "This already gets assigned on line 574. Why are we doing it early here?",
+      "revId": "d2812d88b3c5c1e8b785a735d255c0544d3fa27b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
