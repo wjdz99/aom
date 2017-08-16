@@ -164,16 +164,16 @@ static INLINE int get_base_ctx(const tran_low_t *tcoeffs,
   return ctx_idx;
 }
 
-#define BR_CONTEXT_POSITION_NUM 8  // Base range coefficient context
+#define BR_CONTEXT_POSITION_NUM 12  // Base range coefficient context
 static int br_ref_offset[BR_CONTEXT_POSITION_NUM][2] = {
   /* clang-format off*/
-  { -1, -1 }, { -1, 0 }, { -1, 1 }, { 0, -1 },
-  { 0, 1 },   { 1, -1 }, { 1, 0 },  { 1, 1 },
+  { -2, 0 }, { -1, -1 }, { -1, 0 }, { -1, 1 }, { 0, -2 }, { 0, -1 }, { 0, 1 },
+  { 0, 2 },  { 1, -1 },  { 1, 0 },  { 1, 1 },  { 2, 0 }
   /* clang-format on*/
 };
 
-static int br_level_map[9] = {
-  0, 0, 1, 1, 2, 2, 3, 3, 3,
+static int br_level_map[BR_CONTEXT_POSITION_NUM + 1] = {
+  0, 0, 1, 1, 2, 2, 3, 3, 3, 4, 4, 4, 4,
 };
 
 #define BR_MAG_OFFSET 1

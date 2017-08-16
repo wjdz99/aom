@@ -65,7 +65,7 @@ extern "C" {
 #define COEFF_BASE_CONTEXTS 42
 #define DC_SIGN_CONTEXTS 3
 
-#define BR_TMP_OFFSET 12
+#define BR_TMP_OFFSET 16
 #define BR_REF_CAT 4
 #define LEVEL_CONTEXTS (BR_TMP_OFFSET * BR_REF_CAT)
 
