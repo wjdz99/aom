@@ -65,7 +65,7 @@ extern "C" {
 
 #define SGRPROJ_BITS (SGRPROJ_PRJ_BITS * 2 + SGRPROJ_PARAMS_BITS)
 
-#define MAX_RADIUS 3  // Only 1, 2, 3 allowed
+#define MAX_RADIUS 2  // Only 1, 2, 3 allowed
 #define MAX_EPS 80    // Max value of eps
 #define MAX_NELEM ((2 * MAX_RADIUS + 1) * (2 * MAX_RADIUS + 1))
 #define SGRPROJ_MTABLE_BITS 20
