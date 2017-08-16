@@ -41,7 +41,7 @@ extern const int cdef_pri_taps[2][3];
 extern const int cdef_sec_taps[2][2];
 extern const int cdef_directions[8][3];
 #else
-extern const int cdef_pri_taps[2][2];
+extern const int cdef_pri_taps[3][2];
 extern const int cdef_sec_taps[2][2];
 extern const int cdef_directions[8][2];
 #endif
@@ -61,7 +61,8 @@ typedef void (*cdef_filter_block_func)(uint8_t *dst8, uint16_t *dst16,
                                        int dstride, const uint16_t *in,
                                        int pri_strength, int sec_strength,
                                        int dir, int pri_damping,
-                                       int sec_damping, int bsize, int max);
+                                       int sec_damping, int bsize, int max,
+                                       int pli);
 void copy_cdef_16bit_to_16bit(uint16_t *dst, int dstride, uint16_t *src,
                               cdef_list *dlist, int cdef_count, int bsize);
 #else
