@@ -22,6 +22,30 @@
       "revId": "cf6074c5fa018b0d3e94262b258177c1a86f34fe",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "54a4ac18_6bf000f2",
+        "filename": "av1/encoder/tokenize.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 349,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2017-08-16T22:29:36Z",
+      "side": 1,
+      "message": "This gives warning: initialization from incompatible pointer type. I think it is a type issue since \u0026x-\u003epalette_y_color_cost is int (*)[7][5][8] so I uploaded a patch that uses const int (*color_cost][7][5][8].",
+      "parentUuid": "9357ab69_45a35c13",
+      "range": {
+        "startLine": 349,
+        "startChar": 2,
+        "endLine": 349,
+        "endChar": 8
+      },
+      "revId": "cf6074c5fa018b0d3e94262b258177c1a86f34fe",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
