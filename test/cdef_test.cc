@@ -111,30 +111,32 @@ void test_cdef(int bsize, int iterations, cdef_filter_block_func cdef,
                          secstrength <= 4 << (depth - 8) && !error;
                          secstrength += 1 << (depth - 8)) {
                       if (secstrength == 3 << (depth - 8)) continue;
-                      ref_cdef(depth == 8 ? (uint8_t *)ref_d : 0, ref_d, size,
-                               s + CDEF_HBORDER + CDEF_VBORDER * CDEF_BSTRIDE,
-                               pristrength, secstrength, dir, pridamping,
-                               secdamping, bsize, (1 << depth) - 1);
-                      // If cdef and ref_cdef are the same, we're just testing
-                      // speed
-                      if (cdef != ref_cdef)
-                        ASM_REGISTER_STATE_CHECK(
+                      for (int pli = 0; pli < 2; pli++) {
+                        ref_cdef(depth == 8 ? (uint8_t *)ref_d : 0, ref_d, size,
+                                 s + CDEF_HBORDER + CDEF_VBORDER * CDEF_BSTRIDE,
+                                 pristrength, secstrength, dir, pridamping,
+                                 secdamping, bsize, (1 << depth) - 1, pli);
+                        // If cdef and ref_cdef are the same, we're just testing
+                        // speed
+                        if (cdef != ref_cdef)
+                          ASM_REGISTER_STATE_CHECK(
                             cdef(depth == 8 ? (uint8_t *)d : 0, d, size,
                                  s + CDEF_HBORDER + CDEF_VBORDER * CDEF_BSTRIDE,
                                  pristrength, secstrength, dir, pridamping,
-                                 secdamping, bsize, (1 << depth) - 1));
-                      if (ref_cdef != cdef) {
-                        for (pos = 0;
-                             pos<sizeof(d) / sizeof(*d)>> (depth == 8) &&
-                             !error;
-                             pos++) {
-                          error = ref_d[pos] != d[pos];
-                          errdepth = depth;
-                          errpristrength = pristrength;
-                          errsecstrength = secstrength;
-                          errboundary = boundary;
-                          errpridamping = pridamping;
-                          errsecdamping = secdamping;
+                                 secdamping, bsize, (1 << depth) - 1, pli));
+                        if (ref_cdef != cdef) {
+                          for (pos = 0;
+                               pos<sizeof(d) / sizeof(*d)>> (depth == 8) &&
+                                 !error;
+                               pos++) {
+                            error = ref_d[pos] != d[pos];
+                            errdepth = depth;
+                            errpristrength = pristrength;
+                            errsecstrength = secstrength;
+                            errboundary = boundary;
+                            errpridamping = pridamping;
+                            errsecdamping = secdamping;
+                          }
                         }
                       }
                     }
