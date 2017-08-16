@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "4589b413_dc39e5c2",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 464,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2017-08-16T01:02:35Z",
+      "side": 1,
+      "message": "Fixed. (Yeap, copied from AOM_QM.) Thanks for catching this and providing the sentence.",
+      "parentUuid": "45ba1aef_b4a48c2a",
+      "revId": "d2812d88b3c5c1e8b785a735d255c0544d3fa27b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b7692c1d_e76f488e",
         "filename": "aomenc.c",
         "patchSetId": 1
@@ -53,6 +71,24 @@
     },
     {
       "key": {
+        "uuid": "b3f0d8a1_40e7cb3f",
+        "filename": "aomenc.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 387,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2017-08-16T01:02:35Z",
+      "side": 1,
+      "message": "Sure, I will revert the name change to --tune.\n(Don\u0027t want to frusturate anyone having interests in trying these brand new features!)\n\nThe intent was that there is another option \u0027--tune-content\u0027, then I wanted to not be confused with it.",
+      "parentUuid": "2a2ec18b_bbb87f69",
+      "revId": "d2812d88b3c5c1e8b785a735d255c0544d3fa27b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a9318382_7ee1fea2",
         "filename": "aomenc.c",
         "patchSetId": 1
@@ -70,6 +106,24 @@
     },
     {
       "key": {
+        "uuid": "bc8db6d6_82ccfc45",
+        "filename": "aomenc.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 562,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2017-08-16T01:02:35Z",
+      "side": 1,
+      "message": "Thx-.",
+      "parentUuid": "a9318382_7ee1fea2",
+      "revId": "d2812d88b3c5c1e8b785a735d255c0544d3fa27b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "67baeecb_448e7255",
         "filename": "av1/av1_cx_iface.c",
         "patchSetId": 1
@@ -81,6 +135,24 @@
       "writtenOn": "2017-08-16T00:27:42Z",
       "side": 1,
       "message": "This already gets assigned on line 574. Why are we doing it early here?",
+      "revId": "d2812d88b3c5c1e8b785a735d255c0544d3fa27b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d4994c32_0ef3d904",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 499,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2017-08-16T01:02:35Z",
+      "side": 1,
+      "message": "Removed. Thanks for catching this. I thought master does not do that because \u0027-tune\u0027 feature is incomplete.",
+      "parentUuid": "67baeecb_448e7255",
       "revId": "d2812d88b3c5c1e8b785a735d255c0544d3fa27b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
