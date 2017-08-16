@@ -21,23 +21,8 @@
 #include "av1/common/reconinter.h"
 
 int sb_all_skip(const AV1_COMMON *const cm, int mi_row, int mi_col) {
-  int r, c;
-  int maxc, maxr;
-  int skip = 1;
-  maxc = cm->mi_cols - mi_col;
-  maxr = cm->mi_rows - mi_row;
-
-  maxr = AOMMIN(maxr, MI_SIZE_64X64);
-  maxc = AOMMIN(maxc, MI_SIZE_64X64);
-
-  for (r = 0; r < maxr; r++) {
-    for (c = 0; c < maxc; c++) {
-      skip = skip &&
-             cm->mi_grid_visible[(mi_row + r) * cm->mi_stride + mi_col + c]
-                 ->mbmi.skip;
-    }
-  }
-  return skip;
+  MB_MODE_INFO *const mbmi = &cm->mi_grid_visible[mi_row * cm->mi_stride + mi_col]->mbmi;
+  return mbmi->sb_type == BLOCK_64X64 && mbmi->skip;
 }
 
 static int is_8x8_block_skip(MODE_INFO **grid, int mi_row, int mi_col,
@@ -374,7 +359,7 @@ void av1_cdef_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
             (MI_SIZE_64X64 << mi_high_l2[pli]) * (fbr + 1) - CDEF_VBORDER,
             coffset, xd->plane[pli].dst.stride, CDEF_VBORDER, hsize);
 
-        if (tile_top) {
+        if (tile_top||1) {
           fill_rect(src, CDEF_BSTRIDE, CDEF_VBORDER, hsize + 2 * CDEF_HBORDER,
                     CDEF_VERY_LARGE);
         }
@@ -382,7 +367,7 @@ void av1_cdef_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
           fill_rect(src, CDEF_BSTRIDE, vsize + 2 * CDEF_VBORDER, CDEF_HBORDER,
                     CDEF_VERY_LARGE);
         }
-        if (tile_bottom) {
+        if (tile_bottom||1) {
           fill_rect(&src[(vsize + CDEF_VBORDER) * CDEF_BSTRIDE], CDEF_BSTRIDE,
                     CDEF_VBORDER, hsize + 2 * CDEF_HBORDER, CDEF_VERY_LARGE);
         }
