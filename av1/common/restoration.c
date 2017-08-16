@@ -597,7 +597,7 @@ static void av1_selfguided_restoration_internal(int32_t *dgd, int width,
   boxnum(width, height, r, num, width);
   assert(r <= 3);
   for (i = 0; i < height; ++i) {
-    for (j = 0; j < width; ++j) {
+    for (j = 0; j < width; j += r) {
       const int k = i * buf_stride + j;
       const int n = num[i * width + j];
 
@@ -630,7 +630,52 @@ static void av1_selfguided_restoration_internal(int32_t *dgd, int width,
                                              (uint32_t)one_by_x[n - 1],
                                          SGRPROJ_RECIP_BITS);
     }
+    if (r == 2) {
+      for (j = 1; j < width - 1; j += 2) {
+        const int k = i * buf_stride + j;
+        A[k] = (A[k - 1] + A[k + 1] + 1) / 2;
+        B[k] = (B[k - 1] + B[k + 1] + 1) / 2;
+      }
+      if ((width & 1) == 0) {
+        const int k = i * buf_stride + j;
+        A[k] = 2 * A[k - 1] - A[k - 2];
+        B[k] = 2 * B[k - 1] - B[k - 2];
+      }
+    }
   }
+  /*
+  i = 0;
+  for (j = 0; j < width; ++j) {
+    const int k = i * buf_stride + j;
+    const int l = i * stride + j;
+    const int nb = 3;
+    const int32_t a = 5 * A[k] + 3 * A[k + buf_stride];
+    const int32_t b = 5 * B[k] + 3 * B[k + buf_stride];
+    const int32_t v = a * dgd[l] + b;
+    dgd[l] = ROUND_POWER_OF_TWO(v, SGRPROJ_SGR_BITS + nb - SGRPROJ_RST_BITS);
+  }
+  i = height - 1;
+  for (j = 0; j < width; ++j) {
+    const int k = i * buf_stride + j;
+    const int l = i * stride + j;
+    const int nb = 3;
+    const int32_t a = 5 * A[k] + 3 * A[k - buf_stride];
+    const int32_t b = 5 * B[k] + 3 * B[k - buf_stride];
+    const int32_t v = a * dgd[l] + b;
+    dgd[l] = ROUND_POWER_OF_TWO(v, SGRPROJ_SGR_BITS + nb - SGRPROJ_RST_BITS);
+  }
+  for (i = 1; i < height - 1; ++i) {
+    for (j = 0; j < width; ++j) {
+      const int k = i * buf_stride + j;
+      const int l = i * stride + j;
+      const int nb = 2;
+      const int32_t a = 2 * A[k] + A[k - buf_stride] + A[k + buf_stride];
+      const int32_t b = 2 * B[k] + B[k - buf_stride] + B[k + buf_stride];
+      const int32_t v = a * dgd[l] + b;
+      dgd[l] = ROUND_POWER_OF_TWO(v, SGRPROJ_SGR_BITS + nb - SGRPROJ_RST_BITS);
+    }
+  }
+  */
   i = 0;
   j = 0;
   {
@@ -752,6 +797,16 @@ static void av1_selfguided_restoration_internal(int32_t *dgd, int width,
       dgd[l] = ROUND_POWER_OF_TWO(v, SGRPROJ_SGR_BITS + nb - SGRPROJ_RST_BITS);
     }
   }
+  /*
+  for (i = 0; i < height; ++i) {
+    for (j = 0; j < width; ++j) {
+      const int k = i * buf_stride + j;
+      const int l = i * stride + j;
+      const int32_t v = A[k] * dgd[l] + B[k];
+      dgd[l] = ROUND_POWER_OF_TWO(v, SGRPROJ_SGR_BITS - SGRPROJ_RST_BITS);
+    }
+  }
+  */
 }
 
 void av1_selfguided_restoration_c(uint8_t *dgd, int width, int height,
@@ -911,10 +966,10 @@ static void loop_sgrproj_filter_tile(uint8_t *data, int tile_idx, int width,
                            &h_start, &h_end, &v_start, &v_end);
   data_p = data + h_start + v_start * stride;
   dst_p = dst + h_start + v_start * dst_stride;
-  apply_selfguided_restoration(data_p, h_end - h_start, v_end - v_start, stride,
-                               rst->rsi->sgrproj_info[tile_idx].ep,
-                               rst->rsi->sgrproj_info[tile_idx].xqd, dst_p,
-                               dst_stride, rst->tmpbuf);
+  apply_selfguided_restoration_c(data_p, h_end - h_start, v_end - v_start,
+                                 stride, rst->rsi->sgrproj_info[tile_idx].ep,
+                                 rst->rsi->sgrproj_info[tile_idx].xqd, dst_p,
+                                 dst_stride, rst->tmpbuf);
 }
 
 static void loop_sgrproj_filter(uint8_t *data, int width, int height,
