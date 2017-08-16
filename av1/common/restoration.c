@@ -22,13 +22,10 @@
 
 #include "aom_ports/mem.h"
 
-#define USE_SIMPLER_SGR 1
-
-#define MAX_RADIUS 3  // Only 1, 2, 3 allowed
-#define MAX_EPS 80    // Max value of eps
-#define MAX_NELEM ((2 * MAX_RADIUS + 1) * (2 * MAX_RADIUS + 1))
-#define SGRPROJ_MTABLE_BITS 20
-#define SGRPROJ_RECIP_BITS 12
+// Turns on various hardware friendly features:
+// - skips mean / var computation for odd pixels horizontally when radius > 1
+// - Uses only vertical last stage smoothing when radius > 1
+#define USE_HWFRIENDLY_SGR 1
 
 const sgr_params_type sgr_params[SGRPROJ_PARAMS] = {
 #if USE_HIGHPASS_IN_SGRPROJ
@@ -39,7 +36,7 @@ const sgr_params_type sgr_params[SGRPROJ_PARAMS] = {
   { -3, 4, 1, 5 }, { -3, 4, 1, 6 }, { -3, 4, 1, 7 }, { -3, 4, 1, 8 }
 #else
 // r1, eps1, r2, eps2
-#if USE_SIMPLER_SGR
+#if MAX_RADIUS == 2
   { 2, 12, 1, 4 },  { 2, 15, 1, 6 },  { 2, 18, 1, 8 },  { 2, 20, 1, 9 },
   { 2, 22, 1, 10 }, { 2, 25, 1, 11 }, { 2, 35, 1, 12 }, { 2, 45, 1, 13 },
   { 2, 55, 1, 14 }, { 2, 65, 1, 15 }, { 2, 75, 1, 16 }, { 2, 30, 1, 2 },
@@ -49,7 +46,7 @@ const sgr_params_type sgr_params[SGRPROJ_PARAMS] = {
   { 2, 22, 1, 10 }, { 2, 25, 1, 11 }, { 2, 35, 1, 12 }, { 2, 45, 1, 13 },
   { 2, 55, 1, 14 }, { 2, 65, 1, 15 }, { 2, 75, 1, 16 }, { 3, 30, 1, 10 },
   { 3, 50, 1, 12 }, { 3, 50, 2, 25 }, { 3, 60, 2, 35 }, { 3, 70, 2, 45 },
-#endif  // USE_SIMPLER_SGR
+#endif  // MAX_RADIUS == 2
 #endif
 };
 
@@ -570,9 +567,11 @@ const int32_t x_by_xplus1[256] = {
 
 const int32_t one_by_x[MAX_NELEM] = {
   4096, 2048, 1365, 1024, 819, 683, 585, 512, 455, 410, 372, 341, 315,
-  293,  273,  256,  241,  228, 216, 205, 195, 186, 178, 171, 164, 158,
-  152,  146,  141,  137,  132, 128, 124, 120, 117, 114, 111, 108, 105,
-  102,  100,  98,   95,   93,  91,  89,  87,  85,  84
+  293,  273,  256,  241,  228, 216, 205, 195, 186, 178, 171, 164,
+#if MAX_RADIUS > 2
+  158,  152,  146,  141,  137, 132, 128, 124, 120, 117, 114, 111, 108,
+  105,  102,  100,  98,   95,  93,  91,  89,  87,  85,  84
+#endif  // MAX_NELEM
 };
 
 static void av1_selfguided_restoration_internal(int32_t *dgd, int width,
@@ -596,8 +595,10 @@ static void av1_selfguided_restoration_internal(int32_t *dgd, int width,
   boxsum(dgd, width, height, stride, r, 1, A, buf_stride);
   boxnum(width, height, r, num, width);
   assert(r <= 3);
+  // Note: hstep = 2 implies that the odd pixels are skipped horizontally
+  const int hstep = 1 + (USE_HWFRIENDLY_SGR && (r > 1));
   for (i = 0; i < height; ++i) {
-    for (j = 0; j < width; ++j) {
+    for (j = 0; j < width; j += hstep) {
       const int k = i * buf_stride + j;
       const int n = num[i * width + j];
 
@@ -630,7 +631,56 @@ static void av1_selfguided_restoration_internal(int32_t *dgd, int width,
                                              (uint32_t)one_by_x[n - 1],
                                          SGRPROJ_RECIP_BITS);
     }
+    // If hstep = 2, i.e. odd pixels were skipped, interpolate horizontally
+    if (hstep == 2) {
+      for (j = 1; j < width - 1; j += 2) {
+        const int k = i * buf_stride + j;
+        A[k] = (A[k - 1] + A[k + 1] + 1) / 2;
+        B[k] = (B[k - 1] + B[k + 1] + 1) / 2;
+      }
+      if ((width & 1) == 0) {
+        const int k = i * buf_stride + j;
+        A[k] = 2 * A[k - 1] - A[k - 2];
+        B[k] = 2 * B[k - 1] - B[k - 2];
+      }
+    }
   }
+  if (hstep == 2) {
+    i = 0;
+    for (j = 0; j < width; ++j) {
+      const int k = i * buf_stride + j;
+      const int l = i * stride + j;
+      const int nb = 3;
+      const int32_t a = 5 * A[k] + 3 * A[k + buf_stride];
+      const int32_t b = 5 * B[k] + 3 * B[k + buf_stride];
+      const int32_t v = a * dgd[l] + b;
+      dgd[l] = ROUND_POWER_OF_TWO(v, SGRPROJ_SGR_BITS + nb - SGRPROJ_RST_BITS);
+    }
+    i = height - 1;
+    for (j = 0; j < width; ++j) {
+      const int k = i * buf_stride + j;
+      const int l = i * stride + j;
+      const int nb = 3;
+      const int32_t a = 5 * A[k] + 3 * A[k - buf_stride];
+      const int32_t b = 5 * B[k] + 3 * B[k - buf_stride];
+      const int32_t v = a * dgd[l] + b;
+      dgd[l] = ROUND_POWER_OF_TWO(v, SGRPROJ_SGR_BITS + nb - SGRPROJ_RST_BITS);
+    }
+    for (i = 1; i < height - 1; ++i) {
+      for (j = 0; j < width; ++j) {
+        const int k = i * buf_stride + j;
+        const int l = i * stride + j;
+        const int nb = 2;
+        const int32_t a = 2 * A[k] + A[k - buf_stride] + A[k + buf_stride];
+        const int32_t b = 2 * B[k] + B[k - buf_stride] + B[k + buf_stride];
+        const int32_t v = a * dgd[l] + b;
+        dgd[l] =
+            ROUND_POWER_OF_TWO(v, SGRPROJ_SGR_BITS + nb - SGRPROJ_RST_BITS);
+      }
+    }
+    return;
+  }
+
   i = 0;
   j = 0;
   {
@@ -752,6 +802,16 @@ static void av1_selfguided_restoration_internal(int32_t *dgd, int width,
       dgd[l] = ROUND_POWER_OF_TWO(v, SGRPROJ_SGR_BITS + nb - SGRPROJ_RST_BITS);
     }
   }
+  /*
+  for (i = 0; i < height; ++i) {
+    for (j = 0; j < width; ++j) {
+      const int k = i * buf_stride + j;
+      const int l = i * stride + j;
+      const int32_t v = A[k] * dgd[l] + B[k];
+      dgd[l] = ROUND_POWER_OF_TWO(v, SGRPROJ_SGR_BITS - SGRPROJ_RST_BITS);
+    }
+  }
+  */
 }
 
 void av1_selfguided_restoration_c(uint8_t *dgd, int width, int height,
@@ -911,10 +971,17 @@ static void loop_sgrproj_filter_tile(uint8_t *data, int tile_idx, int width,
                            &h_start, &h_end, &v_start, &v_end);
   data_p = data + h_start + v_start * stride;
   dst_p = dst + h_start + v_start * dst_stride;
-  apply_selfguided_restoration(data_p, h_end - h_start, v_end - v_start, stride,
-                               rst->rsi->sgrproj_info[tile_idx].ep,
+#if USE_HWFRIENDLY_SGR
+  apply_selfguided_restoration_c(data_p, h_end - h_start, v_end - v_start,
+                                 stride, rst->rsi->sgrproj_info[tile_idx].ep,
+                                 rst->rsi->sgrproj_info[tile_idx].xqd, dst_p,
+                                 dst_stride, rst->tmpbuf);
+#else
+  apply_selfguided_restoration(data_p, h_end - h_start, v_end - v_start,
+                               stride, rst->rsi->sgrproj_info[tile_idx].ep,
                                rst->rsi->sgrproj_info[tile_idx].xqd, dst_p,
                                dst_stride, rst->tmpbuf);
+#endif  // USE_HWFRIENDLY_SGR
 }
 
 static void loop_sgrproj_filter(uint8_t *data, int width, int height,
@@ -1200,10 +1267,17 @@ static void loop_sgrproj_filter_tile_highbd(uint16_t *data, int tile_idx,
                            &h_start, &h_end, &v_start, &v_end);
   data_p = data + h_start + v_start * stride;
   dst_p = dst + h_start + v_start * dst_stride;
+#if USE_HWFRIENDLY_SGR
+  apply_selfguided_restoration_highbd_c(
+      data_p, h_end - h_start, v_end - v_start, stride, bit_depth,
+      rst->rsi->sgrproj_info[tile_idx].ep, rst->rsi->sgrproj_info[tile_idx].xqd,
+      dst_p, dst_stride, rst->tmpbuf);
+#else
   apply_selfguided_restoration_highbd(
       data_p, h_end - h_start, v_end - v_start, stride, bit_depth,
       rst->rsi->sgrproj_info[tile_idx].ep, rst->rsi->sgrproj_info[tile_idx].xqd,
       dst_p, dst_stride, rst->tmpbuf);
+#endif  // USE_HWFRIENDLY_SGR
 }
 
 static void loop_sgrproj_filter_highbd(uint8_t *data8, int width, int height,
