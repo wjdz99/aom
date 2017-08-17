@@ -97,9 +97,10 @@ static INLINE tran_high_t fdct_round_shift(tran_high_t input) {
 }
 
 #if CONFIG_LGT
-// The Line Graph Transforms (LGTs) matrices are written as follows.
-// Each 2D array is 16384 times an LGT matrix, which is the matrix of
-// eigenvectors of the graph Laplacian matrices for the line graph.
+/* The Line Graph Transforms (LGTs) matrices are defined as follows.
+ * Each 2D array is sqrt(2)*16384 times an LGT matrix, which is the
+ * matrix of eigenvectors of the graph Laplacian matrix of the associated
+ * line graph. */
 
 // LGT4 name: lgt4_140
 // Self loops: 1.400, 0.000, 0.000, 0.000
