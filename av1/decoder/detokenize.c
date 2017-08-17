@@ -111,14 +111,15 @@ static int decode_coefs(MACROBLOCKD *xd, PLANE_TYPE type, tran_low_t *dqcoeff,
 #endif  // CONFIG_NEW_QUANT
                         int ctx, const int16_t *scan, const int16_t *nb,
                         int16_t *max_scan_line, aom_reader *r) {
+#if CONFIG_NEW_QUANT || !CONFIG_AOM_QM || !CONFIG_EXT_TX
+  (void)tx_type;
+#endif  // CONFIG_NEW_QUANT || !CONFIG_AOM_QM || !CONFIG_EXT_TX
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
   const int max_eob = tx_size_2d[tx_size];
   const int ref = is_inter_block(&xd->mi[0]->mbmi);
 #if CONFIG_AOM_QM && !CONFIG_NEW_QUANT
   const qm_val_t *iqmatrix = iqm[!ref][tx_size];
-#else
-  (void)tx_type;
-#endif  // CONFIG_AOM_QM
+#endif  // CONFIG_AOM_QM && !CONFIG_NEW_QUANT
   int band, c = 0;
   const int tx_size_ctx = txsize_sqr_map[tx_size];
   aom_cdf_prob(*coef_head_cdfs)[COEFF_CONTEXTS][CDF_SIZE(ENTROPY_TOKENS)] =
