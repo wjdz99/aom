@@ -351,7 +351,6 @@ if (aom_config("CONFIG_HIGHBITDEPTH") eq "yes") {
 #}
 
 # fdct functions
-
 add_proto qw/void av1_fht4x4/, "const int16_t *input, tran_low_t *output, int stride, struct txfm_param *param";
 if (aom_config("CONFIG_DAALA_DCT4") ne "yes") {
   specialize qw/av1_fht4x4 sse2/;
