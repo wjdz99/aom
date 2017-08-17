@@ -539,7 +539,11 @@ void av1_initialize_rd_consts(AV1_COMP *cpi) {
 #if CONFIG_GLOBAL_MOTION
   if (cpi->oxcf.pass != 1) {
     for (int i = 0; i < TRANS_TYPES; ++i)
-      cpi->gmtype_cost[i] = (1 + (i > 0 ? GLOBAL_TYPE_BITS : 0))
+      // IDENTITY: 1 bit
+      // TRANSLATION: 3 bits
+      // ROTZOOM: 2 bits
+      // AFFINE: 3 bits
+      cpi->gmtype_cost[i] = (1 + (i > 0 ? (i == ROTZOOM ? 1 : 2) : 0))
                             << AV1_PROB_COST_SHIFT;
   }
 #endif  // CONFIG_GLOBAL_MOTION
