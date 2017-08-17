@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bf51e462_b38c3b4e",
+        "filename": "args.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5326
+      },
+      "writtenOn": "2017-08-17T23:14:23Z",
+      "side": 1,
+      "message": "Maxym, can we support different data types for parameters? such as some parameters can be integer type, string type, float type, etc?",
+      "range": {
+        "startLine": 48,
+        "startChar": 0,
+        "endLine": 48,
+        "endChar": 0
+      },
+      "revId": "9e931f20f1d05116542091917f91b69af191bf65",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
