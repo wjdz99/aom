@@ -395,10 +395,8 @@ void av1_cdef_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
           cdef_filter_fb(
 #if CONFIG_CDEF_SINGLEPASS
               NULL,
-              &CONVERT_TO_SHORTPTR(
-#else
-              (uint8_t *)&CONVERT_TO_SHORTPTR(
 #endif
+              (uint8_t *)&CONVERT_TO_SHORTPTR(
                   xd->plane[pli]
                       .dst.buf)[xd->plane[pli].dst.stride *
                                     (MI_SIZE_64X64 * fbr << mi_high_l2[pli]) +
