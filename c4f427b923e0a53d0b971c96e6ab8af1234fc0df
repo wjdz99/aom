@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f1c5b5bd_1941003d",
+        "filename": "build/cmake/aom_configure.cmake",
+        "patchSetId": 1
+      },
+      "lineNbr": 238,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-08-17T01:44:38Z",
+      "side": 1,
+      "message": "it might be possible to get an unused function warning, you could probably void this in the body",
+      "range": {
+        "startLine": 238,
+        "startChar": 29,
+        "endLine": 238,
+        "endChar": 35
+      },
+      "revId": "c4f427b923e0a53d0b971c96e6ab8af1234fc0df",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
