@@ -4751,7 +4751,7 @@ static int setup_interp_filter_search_mask(AV1_COMP *cpi) {
   return mask;
 }
 
-#define DUMP_RECON_FRAMES 0
+#define DUMP_RECON_FRAMES 1	
 
 #if DUMP_RECON_FRAMES == 1
 // NOTE(zoeliu): For debug - Output the filtered reconstructed video.
@@ -4759,7 +4759,7 @@ static void dump_filtered_recon_frames(AV1_COMP *cpi) {
   AV1_COMMON *const cm = &cpi->common;
   const YV12_BUFFER_CONFIG *recon_buf = cm->frame_to_show;
   int h;
-  char file_name[256] = "/tmp/enc_filtered_recon.yuv";
+  char file_name[256] = "./enc_filtered_recon.yuv";
   FILE *f_recon = NULL;
 
   if (recon_buf == NULL || !cm->show_frame) {

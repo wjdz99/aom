@@ -342,6 +342,7 @@ EXPERIMENT_LIST="
     no_frame_context_signaling
     txmg
     hash_me
+	seg_zeromv
 "
 CONFIG_LIST="
     dependency_tracking
