@@ -341,7 +341,6 @@ enum aome_enc_control_id {
    */
   AV1E_SET_COLOR_SPACE,
 
-#if CONFIG_COLORSPACE_HEADERS
   /*!\brief Codec control function to set transfer function info.
    * \note Valid ranges: 0..4, default is "UNKNOWN".
    *                     0 = UNKNOWN,
@@ -360,7 +359,6 @@ enum aome_enc_control_id {
    *                     3 = RESERVED
    */
   AV1E_SET_CHROMA_SAMPLE_POSITION,
-#endif
 
   /*!\brief Codec control function to set minimum interval between GF/ARF frames
    *
