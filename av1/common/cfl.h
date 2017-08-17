@@ -16,15 +16,7 @@
 
 #include "av1/common/enums.h"
 
-// Forward declaration of AV1_COMMON, in order to avoid creating a cyclic
-// dependency by importing av1/common/onyxc_int.h
-typedef struct AV1Common AV1_COMMON;
-
-// Forward declaration of MACROBLOCK, in order to avoid creating a cyclic
-// dependency by importing av1/common/blockd.h
-typedef struct macroblockd MACROBLOCKD;
-
-typedef struct {
+struct cfl_ctx {
   // Pixel buffer containing the luma pixels used as prediction for chroma
   // TODO(ltrudeau) Convert to uint16 for HBD support
   uint8_t y_pix[MAX_SB_SQUARE];
@@ -60,7 +52,7 @@ typedef struct {
   int dc_pred[CFL_PRED_PLANES];
 
   int mi_row, mi_col;
-} CFL_CTX;
+};
 
 static INLINE int get_scaled_luma_q0(int alpha_q3, int y_pix, int avg_q3) {
   return (alpha_q3 * ((y_pix << 3) - avg_q3) + 32) >> 6;

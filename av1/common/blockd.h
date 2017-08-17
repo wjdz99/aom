@@ -31,9 +31,6 @@
 #include "av1/common/pvq_state.h"
 #include "av1/decoder/decint.h"
 #endif
-#if CONFIG_CFL
-#include "av1/common/cfl.h"
-#endif
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -668,6 +665,10 @@ typedef struct RefBuffer {
 
 #if CONFIG_ADAPT_SCAN
 typedef int16_t EobThresholdMD[TX_TYPES][EOB_THRESHOLD_NUM];
+#endif
+
+#if CONFIG_CFL
+typedef struct cfl_ctx CFL_CTX;
 #endif
 
 typedef struct macroblockd {

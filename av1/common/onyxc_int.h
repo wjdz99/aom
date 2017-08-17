@@ -35,9 +35,6 @@
 #if CONFIG_PVQ
 #include "av1/common/pvq.h"
 #endif
-#if CONFIG_CFL
-#include "av1/common/cfl.h"
-#endif
 #if CONFIG_HASH_ME
 // TODO(youzhou@microsoft.com): Encoder only. Move it out of common
 #include "av1/encoder/hash_motion.h"
@@ -463,6 +460,10 @@ typedef struct AV1Common {
   NCOBMC_KERNELS ncobmc_kernels[ADAPT_OVERLAP_BLOCKS][ALL_NCOBMC_MODES];
 #endif
 } AV1_COMMON;
+
+#if CONFIG_CFL
+#include "av1/common/cfl.h"
+#endif
 
 #if CONFIG_REFERENCE_BUFFER
 /* Initial version of sequence header structure */
