@@ -2254,11 +2254,18 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
         is_any_masked_compound_used(bsize)) {
 #if CONFIG_COMPOUND_SEGMENT || CONFIG_WEDGE
       if (cm->allow_masked_compound) {
-        av1_write_token(
-            w, av1_compound_type_tree, cm->fc->compound_type_prob[bsize],
-            &compound_type_encodings[mbmi->interinter_compound_type]);
+#if CONFIG_WEDGE && CONFIG_COMPOUND_SEGMENT
+        if (!is_interinter_compound_used(COMPOUND_WEDGE, bsize))
+          aom_write(w, mbmi->interinter_compound_type == COMPOUND_AVERAGE,
+                    cm->fc->compound_type_prob[bsize][0]);
+        else
+#endif  // CONFIG_WEDGE && CONFIG_COMPOUND_SEGMENT
+          av1_write_token(
+              w, av1_compound_type_tree, cm->fc->compound_type_prob[bsize],
+              &compound_type_encodings[mbmi->interinter_compound_type]);
 #if CONFIG_WEDGE
-        if (mbmi->interinter_compound_type == COMPOUND_WEDGE) {
+        if (is_interinter_compound_used(COMPOUND_WEDGE, bsize) &&
+            mbmi->interinter_compound_type == COMPOUND_WEDGE) {
           aom_write_literal(w, mbmi->wedge_index, get_wedge_bits_lookup(bsize));
           aom_write_bit(w, mbmi->wedge_sign);
         }
