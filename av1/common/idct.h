@@ -26,12 +26,27 @@
 extern "C" {
 #endif
 
-// TODO(kslu) move the common stuff in idct.h to av1_txfm.h or txfm_common.h
 typedef void (*transform_1d)(const tran_low_t *, tran_low_t *);
 
 typedef struct {
   transform_1d cols, rows;  // vertical and horizontal
 } transform_2d;
+
+#if CONFIG_LGT
+int get_lgt4(const TxfmParam *txfm_param, int is_col,
+             const tran_high_t **lgtmtx);
+int get_lgt8(const TxfmParam *txfm_param, int is_col,
+             const tran_high_t **lgtmtx);
+#endif
+
+#if CONFIG_LGT_FROM_PRED
+void get_lgt4_from_pred(const TxfmParam *txfm_param, int is_col,
+                        const tran_high_t **lgtmtx, int ntx);
+void get_lgt8_from_pred(const TxfmParam *txfm_param, int is_col,
+                        const tran_high_t **lgtmtx, int ntx);
+void get_lgt16up_from_pred(const TxfmParam *txfm_param, int is_col,
+                           const tran_high_t **lgtmtx, int ntx);
+#endif  // CONFIG_LGT_FROM_PRED
 
 #if CONFIG_HIGHBITDEPTH
 typedef void (*highbd_transform_1d)(const tran_low_t *, tran_low_t *, int bd);
@@ -53,7 +68,7 @@ void av1_inv_txfm_add(const tran_low_t *input, uint8_t *dest, int stride,
                       TxfmParam *txfm_param);
 void av1_inverse_transform_block(const MACROBLOCKD *xd,
                                  const tran_low_t *dqcoeff,
-#if CONFIG_LGT
+#if CONFIG_LGT_FROM_PRED
                                  PREDICTION_MODE mode,
 #endif
                                  TX_TYPE tx_type, TX_SIZE tx_size, uint8_t *dst,
