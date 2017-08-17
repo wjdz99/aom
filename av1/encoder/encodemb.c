@@ -507,7 +507,7 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
 
   TxfmParam txfm_param;
 
-#if CONFIG_PVQ || CONFIG_DIST_8X8 || CONFIG_LGT || CONFIG_MRC_TX
+#if CONFIG_PVQ || CONFIG_DIST_8X8 || CONFIG_LGT_FROM_PRED || CONFIG_MRC_TX
   uint8_t *dst;
   const int dst_stride = pd->dst.stride;
 #if CONFIG_PVQ || CONFIG_DIST_8X8
@@ -570,9 +570,10 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
 #endif  // CONFIG_HIGHBITDEPTH
 #endif
 
-#if CONFIG_PVQ || CONFIG_DIST_8X8 || CONFIG_LGT || CONFIG_MRC_TX
+#if CONFIG_PVQ || CONFIG_DIST_8X8 || CONFIG_LGT_FROM_PRED || CONFIG_MRC_TX
   dst = &pd->dst.buf[(blk_row * dst_stride + blk_col) << tx_size_wide_log2[0]];
-#endif  // CONFIG_PVQ || CONFIG_DIST_8X8 || CONFIG_LGT || CONFIG_MRC_TX
+#endif  // CONFIG_PVQ || CONFIG_DIST_8X8 || CONFIG_LGT_FROM_PRED ||
+        // CONFIG_MRC_TX
 
 #if CONFIG_PVQ || CONFIG_DIST_8X8
   if (CONFIG_PVQ
@@ -608,15 +609,18 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
   txfm_param.lossless = xd->lossless[mbmi->segment_id];
 #if CONFIG_MRC_TX || CONFIG_LGT
   txfm_param.is_inter = is_inter_block(mbmi);
+#endif
+#if CONFIG_MRC_TX || CONFIG_LGT_FROM_PRED
   txfm_param.dst = dst;
   txfm_param.stride = dst_stride;
 #if CONFIG_MRC_TX
   txfm_param.valid_mask = &mbmi->valid_mrc_mask;
 #endif  // CONFIG_MRC_TX
-#endif  // CONFIG_MRC_TX || CONFIG_LGT
-#if CONFIG_LGT
+#if CONFIG_LGT_FROM_PRED
   txfm_param.mode = mbmi->mode;
-#endif  // CONFIG_LGT
+  txfm_param.use_lgt = mbmi->use_lgt;
+#endif  // CONFIG_LGT_FROM_PRED
+#endif  // CONFIG_MRC_TX || CONFIG_LGT_FROM_PRED
 
 #if !CONFIG_PVQ
   txfm_param.bd = xd->bd;
@@ -745,14 +749,12 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
 #endif
   TX_TYPE tx_type =
       av1_get_tx_type(pd->plane_type, xd, blk_row, blk_col, block, tx_size);
-#if CONFIG_LGT
-  PREDICTION_MODE mode = xd->mi[0]->mbmi.mode;
-  av1_inverse_transform_block(xd, dqcoeff, mode, tx_type, tx_size, dst,
-                              pd->dst.stride, p->eobs[block]);
-#else
-  av1_inverse_transform_block(xd, dqcoeff, tx_type, tx_size, dst,
-                              pd->dst.stride, p->eobs[block]);
+  av1_inverse_transform_block(xd, dqcoeff,
+#if CONFIG_LGT_FROM_PRED
+                              xd->mi[0]->mbmi.mode,
 #endif
+                              tx_type, tx_size, dst, pd->dst.stride,
+                              p->eobs[block]);
 }
 
 #if CONFIG_VAR_TX
@@ -840,6 +842,10 @@ static void encode_block_pass1(int plane, int block, int blk_row, int blk_col,
   dst = &pd->dst
              .buf[(blk_row * pd->dst.stride + blk_col) << tx_size_wide_log2[0]];
 
+#if CONFIG_LGT_FROM_PRED
+  assert(!xd->mi[0]->mbmi.use_lgt ||
+         is_lgt_allowed(xd->mi[0]->mbmi.mode, tx_size));
+#endif
   av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize, tx_size,
                   ctx, AV1_XFORM_QUANT_B);
 #if !CONFIG_PVQ
@@ -1411,7 +1417,7 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
   if (x->pvq_skip[plane]) return;
 #endif  // CONFIG_PVQ
   av1_inverse_transform_block(xd, dqcoeff,
-#if CONFIG_LGT
+#if CONFIG_LGT_FROM_PRED
                               xd->mi[0]->mbmi.mode,
 #endif
                               tx_type, tx_size, dst, dst_stride, *eob);
