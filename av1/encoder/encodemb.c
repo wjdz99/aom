@@ -507,7 +507,7 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
 
   TxfmParam txfm_param;
 
-#if CONFIG_PVQ || CONFIG_DIST_8X8 || CONFIG_LGT || CONFIG_MRC_TX
+#if CONFIG_PVQ || CONFIG_DIST_8X8 || CONFIG_LGT_FROM_PRED || CONFIG_MRC_TX
   uint8_t *dst;
   const int dst_stride = pd->dst.stride;
 #if CONFIG_PVQ || CONFIG_DIST_8X8
@@ -570,9 +570,10 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
 #endif  // CONFIG_HIGHBITDEPTH
 #endif
 
-#if CONFIG_PVQ || CONFIG_DIST_8X8 || CONFIG_LGT || CONFIG_MRC_TX
+#if CONFIG_PVQ || CONFIG_DIST_8X8 || CONFIG_LGT_FROM_PRED || CONFIG_MRC_TX
   dst = &pd->dst.buf[(blk_row * dst_stride + blk_col) << tx_size_wide_log2[0]];
-#endif  // CONFIG_PVQ || CONFIG_DIST_8X8 || CONFIG_LGT || CONFIG_MRC_TX
+#endif  // CONFIG_PVQ || CONFIG_DIST_8X8 || CONFIG_LGT_FROM_PRED ||
+        // CONFIG_MRC_TX
 
 #if CONFIG_PVQ || CONFIG_DIST_8X8
   if (CONFIG_PVQ
@@ -608,6 +609,8 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
   txfm_param.lossless = xd->lossless[mbmi->segment_id];
 #if CONFIG_MRC_TX || CONFIG_LGT
   txfm_param.is_inter = is_inter_block(mbmi);
+#endif
+#if CONFIG_MRC_TX || CONFIG_LGT_FROM_PRED
   txfm_param.dst = dst;
   txfm_param.stride = dst_stride;
 #if CONFIG_MRC_TX
@@ -616,10 +619,11 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
   txfm_param.mask = BLOCK_OFFSET(xd->mrc_mask, block);
 #endif  // SIGNAL_ANY_MRC_MASK
 #endif  // CONFIG_MRC_TX
-#endif  // CONFIG_MRC_TX || CONFIG_LGT
-#if CONFIG_LGT
+#if CONFIG_LGT_FROM_PRED
   txfm_param.mode = mbmi->mode;
-#endif  // CONFIG_LGT
+  txfm_param.use_lgt = mbmi->use_lgt;
+#endif  // CONFIG_LGT_FROM_PRED
+#endif  // CONFIG_MRC_TX || CONFIG_LGT_FROM_PRED
 
 #if !CONFIG_PVQ
   txfm_param.bd = xd->bd;
@@ -754,9 +758,9 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
   TX_TYPE tx_type =
       av1_get_tx_type(pd->plane_type, xd, blk_row, blk_col, block, tx_size);
   av1_inverse_transform_block(xd, dqcoeff,
-#if CONFIG_LGT
-                              mode,
-#endif  // CONFIG_LGT
+#if CONFIG_LGT_FROM_PRED
+                              xd->mi[0]->mbmi.mode,
+#endif
 #if CONFIG_MRC_TX && SIGNAL_ANY_MRC_MASK
                               mrc_mask,
 #endif  // CONFIG_MRC_TX && SIGNAL_ANY_MRC_MASK
@@ -1099,7 +1103,7 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
   if (x->pvq_skip[plane]) return;
 #endif  // CONFIG_PVQ
   av1_inverse_transform_block(xd, dqcoeff,
-#if CONFIG_LGT
+#if CONFIG_LGT_FROM_PRED
                               xd->mi[0]->mbmi.mode,
 #endif
 #if CONFIG_MRC_TX && SIGNAL_ANY_MRC_MASK
