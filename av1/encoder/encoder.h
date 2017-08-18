@@ -58,9 +58,9 @@ extern "C" {
 #endif  // CONFIG_SPEED_REFS
 
 typedef struct {
-  int nmv_vec_cost[NMV_CONTEXTS][MV_JOINTS];
-  int nmv_costs[NMV_CONTEXTS][2][MV_VALS];
-  int nmv_costs_hp[NMV_CONTEXTS][2][MV_VALS];
+  // int nmv_vec_cost[NMV_CONTEXTS][MV_JOINTS];
+  // int nmv_costs[NMV_CONTEXTS][2][MV_VALS];
+  // int nmv_costs_hp[NMV_CONTEXTS][2][MV_VALS];
 
   // 0 = Intra, Last, GF, ARF
   signed char last_ref_lf_deltas[TOTAL_REFS_PER_FRAME];
@@ -455,9 +455,6 @@ typedef struct AV1_COMP {
   int gmtype_cost[TRANS_TYPES];
   int gmparams_cost[TOTAL_REFS_PER_FRAME];
 #endif  // CONFIG_GLOBAL_MOTION
-
-  int nmv_costs[NMV_CONTEXTS][2][MV_VALS];
-  int nmv_costs_hp[NMV_CONTEXTS][2][MV_VALS];
 
   int64_t last_time_stamp_seen;
   int64_t last_end_time_stamp_seen;
