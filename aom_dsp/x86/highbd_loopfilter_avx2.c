@@ -201,6 +201,52 @@ static INLINE void highbd_filter4(__m256i *p, __m256i *q, const __m256i *mask,
   ps[1] = _mm256_adds_epi16(ps1, t80);
 }
 
+#if CONFIG_PARALLEL_DEBLOCKING && CONFIG_CB4X4
+void aom_highbd_lpf_horizontal_edge_16_avx2(uint16_t *s, int p,
+                                            const uint8_t *blt,
+                                            const uint8_t *lt,
+                                            const uint8_t *thr, int bd) {
+  aom_highbd_lpf_horizontal_edge_16_sse2(s, p, blt, lt, thr, bd);
+}
+
+void aom_highbd_lpf_vertical_16_dual_avx2(uint16_t *s, int p,
+                                          const uint8_t *blt, const uint8_t *lt,
+                                          const uint8_t *thr, int bd) {
+  aom_highbd_lpf_vertical_16_dual_sse2(s, p, blt, lt, thr, bd);
+}
+
+void aom_highbd_lpf_horizontal_4_dual_avx2(
+    uint16_t *s, int p, const uint8_t *blimit0, const uint8_t *limit0,
+    const uint8_t *thresh0, const uint8_t *blimit1, const uint8_t *limit1,
+    const uint8_t *thresh1, int bd) {
+  aom_highbd_lpf_horizontal_4_dual_sse2(s, p, blimit0, limit0, thresh0, blimit1,
+                                        limit1, thresh1, bd);
+}
+
+void aom_highbd_lpf_horizontal_8_dual_avx2(
+    uint16_t *s, int p, const uint8_t *blimit0, const uint8_t *limit0,
+    const uint8_t *thresh0, const uint8_t *blimit1, const uint8_t *limit1,
+    const uint8_t *thresh1, int bd) {
+  aom_highbd_lpf_horizontal_8_dual_sse2(s, p, blimit0, limit0, thresh0, blimit1,
+                                        limit1, thresh1, bd);
+}
+
+void aom_highbd_lpf_vertical_4_dual_avx2(
+    uint16_t *s, int p, const uint8_t *blimit0, const uint8_t *limit0,
+    const uint8_t *thresh0, const uint8_t *blimit1, const uint8_t *limit1,
+    const uint8_t *thresh1, int bd) {
+  aom_highbd_lpf_vertical_4_dual_sse2(s, p, blimit0, limit0, thresh0, blimit1,
+                                      limit1, thresh1, bd);
+}
+
+void aom_highbd_lpf_vertical_8_dual_avx2(
+    uint16_t *s, int p, const uint8_t *blimit0, const uint8_t *limit0,
+    const uint8_t *thresh0, const uint8_t *blimit1, const uint8_t *limit1,
+    const uint8_t *thresh1, int bd) {
+  aom_highbd_lpf_vertical_8_dual_sse2(s, p, blimit0, limit0, thresh0, blimit1,
+                                      limit1, thresh1, bd);
+}
+#else
 void aom_highbd_lpf_horizontal_edge_16_avx2(uint16_t *s, int pitch,
                                             const uint8_t *blt,
                                             const uint8_t *lt,
@@ -822,3 +868,4 @@ void aom_highbd_lpf_vertical_8_dual_avx2(
   // Transpose back
   highbd_transpose(src, 16, dst, p, 2);
 }
+#endif  // CONFIG_PARALLEL_DEBLOCKING && CONFIG_CB4X4
