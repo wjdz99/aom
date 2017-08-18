@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "63550d84_c8d38cdf",
+        "filename": "av1/common/idct.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 268,
+      "author": {
+        "id": 7230
+      },
+      "writtenOn": "2017-08-18T22:40:55Z",
+      "side": 1,
+      "message": "The purpose of get_lgt4 is to replace length-4 or length-8 ADST by lgts. If the original transform is not ADST or has larger length, lgtmtx would be set to NULL, and the ilgt4/ilgt8 should not be called.",
+      "parentUuid": "44339867_7ff06486",
+      "range": {
+        "startLine": 268,
+        "startChar": 3,
+        "endLine": 268,
+        "endChar": 24
+      },
+      "revId": "d6ea152aef62449e5ec30a8abaa5da8666e238cc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "94da161b_813efd41",
         "filename": "av1/common/idct.c",
         "patchSetId": 8
@@ -59,6 +83,30 @@
       "writtenOn": "2017-08-18T19:06:24Z",
       "side": 1,
       "message": "Is there a reason you\u0027re making this an array with only length 1 instead of something like const tran_high_t **lgtmtx_col?",
+      "range": {
+        "startLine": 1190,
+        "startChar": 21,
+        "endLine": 1190,
+        "endChar": 34
+      },
+      "revId": "d6ea152aef62449e5ec30a8abaa5da8666e238cc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2b6ee212_71e691a6",
+        "filename": "av1/common/idct.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 1190,
+      "author": {
+        "id": 7230
+      },
+      "writtenOn": "2017-08-18T22:40:55Z",
+      "side": 1,
+      "message": "One reason is to make it easier to test different transforms by changing this to *lgtmtx_col[8] and get different matrices in the get_lgt8 function. If I keep the same input argument type of get_lgt8 but change *lgtmtx_col[1] to **lgtmtx_col here, there is a run time error. That\u0027s why I left it unchanged. I will try to figure out a better way to change it before I leave.",
+      "parentUuid": "94da161b_813efd41",
       "range": {
         "startLine": 1190,
         "startChar": 21,
