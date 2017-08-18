@@ -386,6 +386,14 @@ typedef enum {
 #endif
 
 typedef enum {
+  PALETTE_MAP = 0,
+#if CONFIG_MRC_TX
+  MRC_MAP = 1,
+#endif  // CONFIG_MRC_TX
+  COLOR_MAP_TYPES,
+} COLOR_MAP_TYPE;
+
+typedef enum {
   TWO_COLORS,
   THREE_COLORS,
   FOUR_COLORS,
