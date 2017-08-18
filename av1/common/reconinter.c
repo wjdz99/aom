@@ -2360,7 +2360,6 @@ void av1_build_prediction_by_above_preds(const AV1_COMMON *cm, MACROBLOCKD *xd,
                                          int tmp_width[MAX_MB_PLANE],
                                          int tmp_height[MAX_MB_PLANE],
                                          int tmp_stride[MAX_MB_PLANE]) {
-  const TileInfo *const tile = &xd->tile;
   BLOCK_SIZE bsize = xd->mi[0]->mbmi.sb_type;
   int i, j, mi_step, ref;
   const int ilimit = AOMMIN(xd->n8_w, cm->mi_cols - mi_col);
@@ -2368,7 +2367,7 @@ void av1_build_prediction_by_above_preds(const AV1_COMMON *cm, MACROBLOCKD *xd,
   const int neighbor_limit = max_neighbor_obmc[b_width_log2_lookup[bsize]];
   int neighbor_count = 0;
 
-  if (mi_row <= tile->mi_row_start) return;
+  if (!xd->up_available) return;
 
   xd->mb_to_bottom_edge += xd->n8_h / 2 * MI_SIZE * 8;
   for (i = 0; i < ilimit; i += mi_step) {
@@ -2465,7 +2464,6 @@ void av1_build_prediction_by_left_preds(const AV1_COMMON *cm, MACROBLOCKD *xd,
                                         int tmp_width[MAX_MB_PLANE],
                                         int tmp_height[MAX_MB_PLANE],
                                         int tmp_stride[MAX_MB_PLANE]) {
-  const TileInfo *const tile = &xd->tile;
   BLOCK_SIZE bsize = xd->mi[0]->mbmi.sb_type;
   int i, j, mi_step, ref;
   const int ilimit = AOMMIN(xd->n8_h, cm->mi_rows - mi_row);
@@ -2473,7 +2471,7 @@ void av1_build_prediction_by_left_preds(const AV1_COMMON *cm, MACROBLOCKD *xd,
   const int neighbor_limit = max_neighbor_obmc[b_height_log2_lookup[bsize]];
   int neighbor_count = 0;
 
-  if (mi_col == 0 || (mi_col - 1 < tile->mi_col_start)) return;
+  if (!xd->left_available) return;
 
   xd->mb_to_right_edge += xd->n8_w / 2 * MI_SIZE * 8;
   for (i = 0; i < ilimit; i += mi_step) {
