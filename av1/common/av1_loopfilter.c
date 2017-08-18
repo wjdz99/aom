@@ -2938,9 +2938,9 @@ static void av1_filter_block_plane_vert(
           case 4:
 #if CONFIG_HIGHBITDEPTH
             if (cm->use_highbitdepth)
-              aom_highbd_lpf_vertical_4_c(CONVERT_TO_SHORTPTR(filt_start),
-                                          line_length, params.mblim, params.lim,
-                                          params.hev_thr, cm->bit_depth);
+              aom_highbd_lpf_vertical_4(CONVERT_TO_SHORTPTR(filt_start),
+                                        line_length, params.mblim, params.lim,
+                                        params.hev_thr, cm->bit_depth);
             else
 #endif  // CONFIG_HIGHBITDEPTH
               aom_lpf_vertical_4_c(filt_start, line_length, params.mblim,
@@ -2950,9 +2950,9 @@ static void av1_filter_block_plane_vert(
           case 8:
 #if CONFIG_HIGHBITDEPTH
             if (cm->use_highbitdepth)
-              aom_highbd_lpf_vertical_8_c(CONVERT_TO_SHORTPTR(filt_start),
-                                          line_length, params.mblim, params.lim,
-                                          params.hev_thr, cm->bit_depth);
+              aom_highbd_lpf_vertical_8(CONVERT_TO_SHORTPTR(filt_start),
+                                        line_length, params.mblim, params.lim,
+                                        params.hev_thr, cm->bit_depth);
             else
 #endif  // CONFIG_HIGHBITDEPTH
               aom_lpf_vertical_8_c(filt_start, line_length, params.mblim,
@@ -2962,9 +2962,9 @@ static void av1_filter_block_plane_vert(
           case 16:
 #if CONFIG_HIGHBITDEPTH
             if (cm->use_highbitdepth)
-              aom_highbd_lpf_vertical_16_c(
-                  CONVERT_TO_SHORTPTR(filt_start), line_length, params.mblim,
-                  params.lim, params.hev_thr, cm->bit_depth);
+              aom_highbd_lpf_vertical_16(CONVERT_TO_SHORTPTR(filt_start),
+                                         line_length, params.mblim, params.lim,
+                                         params.hev_thr, cm->bit_depth);
             else
 #endif  // CONFIG_HIGHBITDEPTH
               aom_lpf_vertical_16_c(filt_start, line_length, params.mblim,
@@ -2996,9 +2996,9 @@ static void av1_filter_block_plane_vert(
         uint8_t *const filt_start = block + pivot;
 #if CONFIG_HIGHBITDEPTH
         if (cm->use_highbitdepth)
-          aom_highbd_lpf_vertical_4_c(CONVERT_TO_SHORTPTR(filt_start),
-                                      line_length, params.mblim, params.lim,
-                                      params.hev_thr, cm->bit_depth);
+          aom_highbd_lpf_vertical_4(CONVERT_TO_SHORTPTR(filt_start),
+                                    line_length, params.mblim, params.lim,
+                                    params.hev_thr, cm->bit_depth);
         else
 #endif  // CONFIG_HIGHBITDEPTH
           aom_lpf_vertical_4_c(filt_start, line_length, params.mblim,
@@ -3008,15 +3008,15 @@ static void av1_filter_block_plane_vert(
           if (orig_pos[i] >= 0) src[orig_pos[i]] = block[i];
         }
       }
-#else  // CONFIG_LPF_DIRECT
+#else  // !CONFIG_LPF_DIRECT
       switch (params.filter_length) {
         // apply 4-tap filtering
         case 4:
 #if CONFIG_HIGHBITDEPTH
           if (cm->use_highbitdepth)
-            aom_highbd_lpf_vertical_4_c(CONVERT_TO_SHORTPTR(p), dst_stride,
-                                        params.mblim, params.lim,
-                                        params.hev_thr, cm->bit_depth);
+            aom_highbd_lpf_vertical_4(CONVERT_TO_SHORTPTR(p), dst_stride,
+                                      params.mblim, params.lim, params.hev_thr,
+                                      cm->bit_depth);
           else
 #endif  // CONFIG_HIGHBITDEPTH
             aom_lpf_vertical_4_c(p, dst_stride, params.mblim, params.lim,
@@ -3026,9 +3026,9 @@ static void av1_filter_block_plane_vert(
         case 8:
 #if CONFIG_HIGHBITDEPTH
           if (cm->use_highbitdepth)
-            aom_highbd_lpf_vertical_8_c(CONVERT_TO_SHORTPTR(p), dst_stride,
-                                        params.mblim, params.lim,
-                                        params.hev_thr, cm->bit_depth);
+            aom_highbd_lpf_vertical_8(CONVERT_TO_SHORTPTR(p), dst_stride,
+                                      params.mblim, params.lim, params.hev_thr,
+                                      cm->bit_depth);
           else
 #endif  // CONFIG_HIGHBITDEPTH
             aom_lpf_vertical_8_c(p, dst_stride, params.mblim, params.lim,
@@ -3038,9 +3038,9 @@ static void av1_filter_block_plane_vert(
         case 16:
 #if CONFIG_HIGHBITDEPTH
           if (cm->use_highbitdepth)
-            aom_highbd_lpf_vertical_16_c(CONVERT_TO_SHORTPTR(p), dst_stride,
-                                         params.mblim, params.lim,
-                                         params.hev_thr, cm->bit_depth);
+            aom_highbd_lpf_vertical_16(CONVERT_TO_SHORTPTR(p), dst_stride,
+                                       params.mblim, params.lim, params.hev_thr,
+                                       cm->bit_depth);
           else
 #endif  // CONFIG_HIGHBITDEPTH
             aom_lpf_vertical_16_c(p, dst_stride, params.mblim, params.lim,
@@ -3053,9 +3053,9 @@ static void av1_filter_block_plane_vert(
       if (params.filter_length_internal) {
 #if CONFIG_HIGHBITDEPTH
         if (cm->use_highbitdepth)
-          aom_highbd_lpf_vertical_4_c(CONVERT_TO_SHORTPTR(p + 4), dst_stride,
-                                      params.mblim, params.lim, params.hev_thr,
-                                      cm->bit_depth);
+          aom_highbd_lpf_vertical_4(CONVERT_TO_SHORTPTR(p + 4), dst_stride,
+                                    params.mblim, params.lim, params.hev_thr,
+                                    cm->bit_depth);
         else
 #endif  // CONFIG_HIGHBITDEPTH
           aom_lpf_vertical_4_c(p + 4, dst_stride, params.mblim, params.lim,
@@ -3124,9 +3124,9 @@ static void av1_filter_block_plane_horz(
           case 4:
 #if CONFIG_HIGHBITDEPTH
             if (cm->use_highbitdepth)
-              aom_highbd_lpf_horizontal_4_c(
-                  CONVERT_TO_SHORTPTR(filt_start), line_length, params.mblim,
-                  params.lim, params.hev_thr, cm->bit_depth);
+              aom_highbd_lpf_horizontal_4(CONVERT_TO_SHORTPTR(filt_start),
+                                          line_length, params.mblim, params.lim,
+                                          params.hev_thr, cm->bit_depth);
             else
 #endif  // CONFIG_HIGHBITDEPTH
               aom_lpf_horizontal_4_c(filt_start, line_length, params.mblim,
@@ -3136,9 +3136,9 @@ static void av1_filter_block_plane_horz(
           case 8:
 #if CONFIG_HIGHBITDEPTH
             if (cm->use_highbitdepth)
-              aom_highbd_lpf_horizontal_8_c(
-                  CONVERT_TO_SHORTPTR(filt_start), line_length, params.mblim,
-                  params.lim, params.hev_thr, cm->bit_depth);
+              aom_highbd_lpf_horizontal_8(CONVERT_TO_SHORTPTR(filt_start),
+                                          line_length, params.mblim, params.lim,
+                                          params.hev_thr, cm->bit_depth);
             else
 #endif  // CONFIG_HIGHBITDEPTH
               aom_lpf_horizontal_8_c(filt_start, line_length, params.mblim,
@@ -3148,7 +3148,7 @@ static void av1_filter_block_plane_horz(
           case 16:
 #if CONFIG_HIGHBITDEPTH
             if (cm->use_highbitdepth)
-              aom_highbd_lpf_horizontal_edge_16_c(
+              aom_highbd_lpf_horizontal_edge_16(
                   CONVERT_TO_SHORTPTR(filt_start), line_length, params.mblim,
                   params.lim, params.hev_thr, cm->bit_depth);
             else
@@ -3182,9 +3182,9 @@ static void av1_filter_block_plane_horz(
         uint8_t *const filt_start = block + pivot * line_length;
 #if CONFIG_HIGHBITDEPTH
         if (cm->use_highbitdepth)
-          aom_highbd_lpf_horizontal_4_c(CONVERT_TO_SHORTPTR(filt_start),
-                                        line_length, params.mblim, params.lim,
-                                        params.hev_thr, cm->bit_depth);
+          aom_highbd_lpf_horizontal_4(CONVERT_TO_SHORTPTR(filt_start),
+                                      line_length, params.mblim, params.lim,
+                                      params.hev_thr, cm->bit_depth);
         else
 #endif  // CONFIG_HIGHBITDEPTH
           aom_lpf_horizontal_4_c(filt_start, line_length, params.mblim,
@@ -3194,15 +3194,15 @@ static void av1_filter_block_plane_horz(
           if (orig_pos[i] >= 0) src[orig_pos[i]] = block[i];
         }
       }
-#else  // CONFIG_LPF_DIRECT
+#else  // !CONFIG_LPF_DIRECT
       switch (params.filter_length) {
         // apply 4-tap filtering
         case 4:
 #if CONFIG_HIGHBITDEPTH
           if (cm->use_highbitdepth)
-            aom_highbd_lpf_horizontal_4_c(CONVERT_TO_SHORTPTR(p), dst_stride,
-                                          params.mblim, params.lim,
-                                          params.hev_thr, cm->bit_depth);
+            aom_highbd_lpf_horizontal_4(CONVERT_TO_SHORTPTR(p), dst_stride,
+                                        params.mblim, params.lim,
+                                        params.hev_thr, cm->bit_depth);
           else
 #endif  // CONFIG_HIGHBITDEPTH
             aom_lpf_horizontal_4_c(p, dst_stride, params.mblim, params.lim,
@@ -3212,9 +3212,9 @@ static void av1_filter_block_plane_horz(
         case 8:
 #if CONFIG_HIGHBITDEPTH
           if (cm->use_highbitdepth)
-            aom_highbd_lpf_horizontal_8_c(CONVERT_TO_SHORTPTR(p), dst_stride,
-                                          params.mblim, params.lim,
-                                          params.hev_thr, cm->bit_depth);
+            aom_highbd_lpf_horizontal_8(CONVERT_TO_SHORTPTR(p), dst_stride,
+                                        params.mblim, params.lim,
+                                        params.hev_thr, cm->bit_depth);
           else
 #endif  // CONFIG_HIGHBITDEPTH
             aom_lpf_horizontal_8_c(p, dst_stride, params.mblim, params.lim,
@@ -3224,7 +3224,7 @@ static void av1_filter_block_plane_horz(
         case 16:
 #if CONFIG_HIGHBITDEPTH
           if (cm->use_highbitdepth)
-            aom_highbd_lpf_horizontal_edge_16_c(
+            aom_highbd_lpf_horizontal_edge_16(
                 CONVERT_TO_SHORTPTR(p), dst_stride, params.mblim, params.lim,
                 params.hev_thr, cm->bit_depth);
           else
@@ -3239,9 +3239,9 @@ static void av1_filter_block_plane_horz(
       if (params.filter_length_internal) {
 #if CONFIG_HIGHBITDEPTH
         if (cm->use_highbitdepth)
-          aom_highbd_lpf_horizontal_4_c(CONVERT_TO_SHORTPTR(p + 4 * dst_stride),
-                                        dst_stride, params.mblim, params.lim,
-                                        params.hev_thr, cm->bit_depth);
+          aom_highbd_lpf_horizontal_4(CONVERT_TO_SHORTPTR(p + 4 * dst_stride),
+                                      dst_stride, params.mblim, params.lim,
+                                      params.hev_thr, cm->bit_depth);
         else
 #endif  // CONFIG_HIGHBITDEPTH
           aom_lpf_horizontal_4_c(p + 4 * dst_stride, dst_stride, params.mblim,
