@@ -9227,7 +9227,6 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
     int best_tmp_rate_mv = rate_mv;
     int tmp_skip_txfm_sb;
     int64_t tmp_skip_sse_sb;
-    int compound_type_cost[COMPOUND_TYPES];
     DECLARE_ALIGNED(16, uint8_t, pred0[2 * MAX_SB_SQUARE]);
     DECLARE_ALIGNED(16, uint8_t, pred1[2 * MAX_SB_SQUARE]);
     uint8_t *preds0[1] = { pred0 };
@@ -9260,8 +9259,6 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
 #endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
 
     if (masked_compound_used) {
-      av1_cost_tokens(compound_type_cost, cm->fc->compound_type_prob[bsize],
-                      av1_compound_type_tree);
       // get inter predictors to use for masked compound modes
       av1_build_inter_predictors_for_planes_single_buf(
           xd, bsize, 0, 0, mi_row, mi_col, 0, preds0, strides);
@@ -9278,7 +9275,7 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
       rs2 = av1_cost_literal(get_interinter_compound_type_bits(
                 bsize, mbmi->interinter_compound_type)) +
             (masked_compound_used
-                 ? compound_type_cost[mbmi->interinter_compound_type]
+                 ? x->compound_type_cost[bsize][mbmi->interinter_compound_type]
                  : 0);
 
       switch (cur_type) {
@@ -9377,7 +9374,7 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
         av1_cost_literal(get_interinter_compound_type_bits(
             bsize, mbmi->interinter_compound_type)) +
         (masked_compound_used
-             ? compound_type_cost[mbmi->interinter_compound_type]
+             ? x->compound_type_cost[bsize][mbmi->interinter_compound_type]
              : 0);
   }
 #endif  // CONFIG_WEDGE || CONFIG_COMPOUND_SEGMENT

@@ -61,6 +61,19 @@ static const uint8_t rd_thresh_block_size_factor[BLOCK_SIZES_ALL] = {
   4,  4,  8,  8, 16, 16
 };
 
+void av1_fill_nmv_costs(AV1_COMMON *const cm, MACROBLOCK *x,
+                        FRAME_CONTEXT *fc) {
+  for (int nmv_ctx = 0; nmv_ctx < NMV_CONTEXTS; ++nmv_ctx) {
+    av1_build_nmv_cost_table(x->nmv_vec_cost[nmv_ctx],
+                             cm->allow_high_precision_mv
+                                 ? x->nmvcost_hp[nmv_ctx]
+                                 : x->nmvcost[nmv_ctx],
+                             &fc->nmvc[nmv_ctx], cm->allow_high_precision_mv);
+  }
+  x->mvcost = x->mv_cost_stack[0];
+  x->nmvjointcost = x->nmv_vec_cost[0];
+}
+
 void av1_fill_mode_rates(AV1_COMMON *const cm, MACROBLOCK *x,
                          FRAME_CONTEXT *fc) {
   int i, j;
@@ -200,8 +213,15 @@ void av1_fill_mode_rates(AV1_COMMON *const cm, MACROBLOCK *x,
   av1_cost_tokens(x->switchable_restore_cost, fc->switchable_restore_prob,
                   av1_switchable_restore_tree);
 #endif  // CONFIG_LOOP_RESTORATION
+#if CONFIG_INTRABC
+  av1_fill_nmv_costs(cm, x, fc);
+#endif
 
   if (!frame_is_intra_only(cm)) {
+#if !CONFIG_INTRABC
+    av1_fill_nmv_costs(cm, x, fc);
+#endif
+
     for (i = 0; i < NEWMV_MODE_CONTEXTS; ++i) {
 #if CONFIG_NEW_MULTISYMBOL
       av1_cost_tokens_from_cdf(x->newmv_mode_cost[i], fc->newmv_cdf[i], NULL);
@@ -241,6 +261,9 @@ void av1_fill_mode_rates(AV1_COMMON *const cm, MACROBLOCK *x,
     for (i = 0; i < INTER_MODE_CONTEXTS; ++i)
       av1_cost_tokens_from_cdf(x->inter_compound_mode_cost[i],
                                fc->inter_compound_mode_cdf[i], NULL);
+    for (i = 0; i < BLOCK_SIZES_ALL; ++i)
+      av1_cost_tokens_from_cdf(x->compound_type_cost[i],
+                               fc->compound_type_cdf[i], NULL);
 #if CONFIG_COMPOUND_SINGLEREF
     for (i = 0; i < INTER_MODE_CONTEXTS; ++i)
       av1_cost_tokens_from_cdf(x->inter_singleref_comp_mode_cost[i],
@@ -506,7 +529,6 @@ void av1_initialize_rd_consts(AV1_COMP *cpi) {
   AV1_COMMON *const cm = &cpi->common;
   MACROBLOCK *const x = &cpi->td.mb;
   RD_OPT *const rd = &cpi->rd;
-  int nmv_ctx;
 
   aom_clear_system_state();
 
@@ -516,15 +538,7 @@ void av1_initialize_rd_consts(AV1_COMP *cpi) {
 
   set_block_thresholds(cm, rd);
 
-  for (nmv_ctx = 0; nmv_ctx < NMV_CONTEXTS; ++nmv_ctx) {
-    av1_build_nmv_cost_table(
-        x->nmv_vec_cost[nmv_ctx],
-        cm->allow_high_precision_mv ? x->nmvcost_hp[nmv_ctx]
-                                    : x->nmvcost[nmv_ctx],
-        &cm->fc->nmvc[nmv_ctx], cm->allow_high_precision_mv);
-  }
-  x->mvcost = x->mv_cost_stack[0];
-  x->nmvjointcost = x->nmv_vec_cost[0];
+  av1_fill_nmv_costs(cm, x, cm->fc);
 
 #if CONFIG_INTRABC
   if (frame_is_intra_only(cm) && cm->allow_screen_content_tools &&
