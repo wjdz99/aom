@@ -82,11 +82,6 @@ static struct av1_token ext_tx_intra_encodings[EXT_TX_SETS_INTRA][TX_TYPES];
 #else
 static struct av1_token ext_tx_encodings[TX_TYPES];
 #endif  // CONFIG_EXT_TX
-#if CONFIG_EXT_INTRA
-#if CONFIG_INTRA_INTERP
-static struct av1_token intra_filter_encodings[INTRA_FILTERS];
-#endif  // CONFIG_INTRA_INTERP
-#endif  // CONFIG_EXT_INTRA
 #if CONFIG_EXT_INTER
 #if CONFIG_INTERINTRA
 static struct av1_token interintra_mode_encodings[INTERINTRA_MODES];
@@ -126,9 +121,6 @@ void av1_encode_token_init(void) {
   av1_tokens_from_tree(ext_tx_encodings, av1_ext_tx_tree);
 #endif  // CONFIG_EXT_TX
 
-#if CONFIG_EXT_INTRA && CONFIG_INTRA_INTERP
-  av1_tokens_from_tree(intra_filter_encodings, av1_intra_filter_tree);
-#endif  // CONFIG_EXT_INTRA && CONFIG_INTRA_INTERP
 #if CONFIG_EXT_INTER
 #if CONFIG_INTERINTRA
   av1_tokens_from_tree(interintra_mode_encodings, av1_interintra_mode_tree);
@@ -1276,7 +1268,6 @@ static void write_intra_angle_info(const MACROBLOCKD *xd,
   const MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
   const BLOCK_SIZE bsize = mbmi->sb_type;
 #if CONFIG_INTRA_INTERP
-  const int intra_filter_ctx = av1_get_pred_context_intra_interp(xd);
   int p_angle;
 #endif  // CONFIG_INTRA_INTERP
 
@@ -1289,8 +1280,7 @@ static void write_intra_angle_info(const MACROBLOCKD *xd,
 #if CONFIG_INTRA_INTERP
     p_angle = mode_to_angle_map[mbmi->mode] + mbmi->angle_delta[0] * ANGLE_STEP;
     if (av1_is_intra_filter_switchable(p_angle)) {
-      aom_write_symbol(w, mbmi->intra_filter,
-                       ec_ctx->intra_filter_cdf[intra_filter_ctx],
+      aom_write_symbol(w, mbmi->intra_filter, ec_ctx->intra_filter_cdf,
                        INTRA_FILTERS);
     }
 #endif  // CONFIG_INTRA_INTERP

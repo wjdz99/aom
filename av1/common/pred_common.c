@@ -135,6 +135,8 @@ static INTRA_FILTER get_ref_intra_filter(const MB_MODE_INFO *ref_mbmi) {
 }
 
 int av1_get_pred_context_intra_interp(const MACROBLOCKD *xd) {
+  return INTRA_FILTERS;
+
   int left_type = INTRA_FILTERS, above_type = INTRA_FILTERS;
 
   if (xd->left_available) left_type = get_ref_intra_filter(xd->left_mbmi);

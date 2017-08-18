@@ -289,7 +289,7 @@ struct macroblock {
 #endif  // CONFIG_EXT_TX
 #if CONFIG_EXT_INTRA
 #if CONFIG_INTRA_INTERP
-  int intra_filter_cost[INTRA_FILTERS + 1][INTRA_FILTERS];
+  int intra_filter_cost[INTRA_FILTERS];
 #endif  // CONFIG_INTRA_INTERP
 #endif  // CONFIG_EXT_INTRA
 #if CONFIG_LOOP_RESTORATION

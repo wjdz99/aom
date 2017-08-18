@@ -381,7 +381,7 @@ typedef struct frame_contexts {
   aom_cdf_prob inter_ext_tx_cdf[EXT_TX_SIZES][CDF_SIZE(TX_TYPES)];
 #endif  // CONFIG_EXT_TX
 #if CONFIG_EXT_INTRA && CONFIG_INTRA_INTERP
-  aom_cdf_prob intra_filter_cdf[INTRA_FILTERS + 1][CDF_SIZE(INTRA_FILTERS)];
+  aom_cdf_prob intra_filter_cdf[CDF_SIZE(INTRA_FILTERS)];
 #endif  // CONFIG_EXT_INTRA && CONFIG_INTRA_INTERP
 #if CONFIG_DELTA_Q
   aom_prob delta_q_prob[DELTA_Q_PROBS];
@@ -533,11 +533,6 @@ typedef struct FRAME_COUNTS {
   unsigned int supertx_size[TX_SIZES];
 #endif  // CONFIG_SUPERTX
   struct seg_counts seg;
-#if CONFIG_EXT_INTRA
-#if CONFIG_INTRA_INTERP
-  unsigned int intra_filter[INTRA_FILTERS + 1][INTRA_FILTERS];
-#endif  // CONFIG_INTRA_INTERP
-#endif  // CONFIG_EXT_INTRA
 #if CONFIG_FILTER_INTRA
   unsigned int filter_intra[PLANE_TYPES][2];
 #endif  // CONFIG_FILTER_INTRA

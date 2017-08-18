@@ -910,7 +910,6 @@ static void read_intra_angle_info(AV1_COMMON *const cm, MACROBLOCKD *const xd,
   const BLOCK_SIZE bsize = mbmi->sb_type;
 #if CONFIG_INTRA_INTERP
   FRAME_CONTEXT *const ec_ctx = xd->tile_ctx;
-  const int ctx = av1_get_pred_context_intra_interp(xd);
   int p_angle;
 #endif  // CONFIG_INTRA_INTERP
 
@@ -927,10 +926,8 @@ static void read_intra_angle_info(AV1_COMMON *const cm, MACROBLOCKD *const xd,
 #if CONFIG_INTRA_INTERP
     p_angle = mode_to_angle_map[mbmi->mode] + mbmi->angle_delta[0] * ANGLE_STEP;
     if (av1_is_intra_filter_switchable(p_angle)) {
-      FRAME_COUNTS *counts = xd->counts;
-      mbmi->intra_filter = aom_read_symbol(r, ec_ctx->intra_filter_cdf[ctx],
+      mbmi->intra_filter = aom_read_symbol(r, ec_ctx->intra_filter_cdf,
                                            INTRA_FILTERS, ACCT_STR);
-      if (counts) ++counts->intra_filter[ctx][mbmi->intra_filter];
     } else {
       mbmi->intra_filter = INTRA_FILTER_LINEAR;
     }

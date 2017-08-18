@@ -799,7 +799,7 @@ static void dr_prediction_z1(uint8_t *dst, ptrdiff_t stride, int bw, int bh,
   assert(dy == 1);
   assert(dx > 0);
 
-#if CONFIG_INTRA_INTERP
+#if CONFIG_INTRA_INTERP1
   if (filter_type != INTRA_FILTER_LINEAR) {
     const int pad_size = SUBPEL_TAPS >> 1;
     int len;
@@ -881,8 +881,13 @@ static void dr_prediction_z1(uint8_t *dst, ptrdiff_t stride, int bw, int bh,
 
     for (c = 0; c < bw; ++c, base += base_inc) {
       if (base < max_base_x) {
+#if CONFIG_INTRA_INTERP
+        val = intra_subpel_interp(base, shift, above, 0, max_base_x,
+                                  filter_type);
+#else
         val = above[base] * (256 - shift) + above[base + 1] * shift;
         val = ROUND_POWER_OF_TWO(val, 8);
+#endif  // CONFIG_INTRA_INTERP
         dst[c] = clip_pixel(val);
       } else {
         dst[c] = above[max_base_x];
@@ -962,7 +967,7 @@ static void dr_prediction_z3(uint8_t *dst, ptrdiff_t stride, int bw, int bh,
   assert(dx == 1);
   assert(dy > 0);
 
-#if CONFIG_INTRA_INTERP
+#if CONFIG_INTRA_INTERP1
   if (filter_type != INTRA_FILTER_LINEAR) {
     const int pad_size = SUBPEL_TAPS >> 1;
     int len, i;
@@ -1046,8 +1051,13 @@ static void dr_prediction_z3(uint8_t *dst, ptrdiff_t stride, int bw, int bh,
 
     for (r = 0; r < bh; ++r, base += base_inc) {
       if (base < max_base_y) {
+#if CONFIG_INTRA_INTERP
+        val = intra_subpel_interp(base, shift, left, 0, max_base_y,
+                                  filter_type);
+#else
         val = left[base] * (256 - shift) + left[base + 1] * shift;
         val = ROUND_POWER_OF_TWO(val, 8);
+#endif  // CONFIG_INTRA_INTERP
         dst[r * stride + c] = clip_pixel(val);
       } else {
         for (; r < bh; ++r) dst[r * stride + c] = left[max_base_y];

@@ -2992,20 +2992,6 @@ static const aom_prob default_inter_ext_tx_prob[EXT_TX_SIZES][TX_TYPES - 1] = {
 #endif  // CONFIG_MRC_TX
 #endif  // CONFIG_EXT_TX
 
-#if CONFIG_EXT_INTRA && CONFIG_INTRA_INTERP
-static const aom_prob
-    default_intra_filter_probs[INTRA_FILTERS + 1][INTRA_FILTERS - 1] = {
-      { 98, 63, 60 }, { 98, 82, 80 }, { 94, 65, 103 },
-      { 49, 25, 24 }, { 72, 38, 50 },
-    };
-const aom_tree_index av1_intra_filter_tree[TREE_SIZE(INTRA_FILTERS)] = {
-  -INTRA_FILTER_LINEAR,      2, -INTRA_FILTER_8TAP, 4, -INTRA_FILTER_8TAP_SHARP,
-  -INTRA_FILTER_8TAP_SMOOTH,
-};
-int av1_intra_filter_ind[INTRA_FILTERS];
-int av1_intra_filter_inv[INTRA_FILTERS];
-#endif  // CONFIG_EXT_INTRA && CONFIG_INTRA_INTERP
-
 #if CONFIG_FILTER_INTRA
 static const aom_prob default_filter_intra_probs[2] = { 230, 230 };
 #endif  // CONFIG_FILTER_INTRA
@@ -3999,6 +3985,7 @@ static const aom_cdf_prob
 #endif  // !CONFIG_EXT_TX
 
 #if CONFIG_EXT_INTRA && CONFIG_INTRA_INTERP
+/*
 static const aom_cdf_prob
     default_intra_filter_cdf[INTRA_FILTERS + 1][CDF_SIZE(INTRA_FILTERS)] = {
       { AOM_ICDF(12544), AOM_ICDF(17521), AOM_ICDF(21095), AOM_ICDF(32768), 0 },
@@ -4006,6 +3993,10 @@ static const aom_cdf_prob
       { AOM_ICDF(12032), AOM_ICDF(17297), AOM_ICDF(23522), AOM_ICDF(32768), 0 },
       { AOM_ICDF(6272), AOM_ICDF(8860), AOM_ICDF(11101), AOM_ICDF(32768), 0 },
       { AOM_ICDF(9216), AOM_ICDF(12712), AOM_ICDF(16629), AOM_ICDF(32768), 0 },
+    };*/
+static const aom_cdf_prob
+    default_intra_filter_cdf[CDF_SIZE(INTRA_FILTERS)] = {
+      AOM_ICDF(12544), AOM_ICDF(17521), AOM_ICDF(21095), AOM_ICDF(32768), 0,
     };
 #endif  // CONFIG_EXT_INTRA && CONFIG_INTRA_INTERP
 
@@ -5269,11 +5260,6 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
 #if CONFIG_NEW_MULTISYMBOL
   av1_copy(fc->seg.pred_cdf, default_segment_pred_cdf);
 #endif
-#if CONFIG_EXT_INTRA
-#if CONFIG_INTRA_INTERP
-  av1_copy(fc->intra_filter_probs, default_intra_filter_probs);
-#endif  // CONFIG_INTRA_INTERP
-#endif  // CONFIG_EXT_INTRA
 #if CONFIG_FILTER_INTRA
   av1_copy(fc->filter_intra_probs, default_filter_intra_probs);
 #endif  // CONFIG_FILTER_INTRA
@@ -5612,14 +5598,6 @@ void av1_adapt_intra_frame_probs(AV1_COMMON *cm) {
         mode_mv_merge_probs(pre_fc->delta_lf_prob[i], counts->delta_lf[i]);
 #endif  // CONFIG_EXT_DELTA_Q
 #endif
-#if CONFIG_EXT_INTRA
-#if CONFIG_INTRA_INTERP
-  for (i = 0; i < INTRA_FILTERS + 1; ++i) {
-    aom_tree_merge_probs(av1_intra_filter_tree, pre_fc->intra_filter_probs[i],
-                         counts->intra_filter[i], fc->intra_filter_probs[i]);
-  }
-#endif  // CONFIG_INTRA_INTERP
-#endif  // CONFIG_EXT_INTRA
 #if CONFIG_FILTER_INTRA
   for (i = 0; i < PLANE_TYPES; ++i) {
     fc->filter_intra_probs[i] = av1_mode_mv_merge_probs(
