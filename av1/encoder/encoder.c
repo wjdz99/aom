@@ -852,6 +852,33 @@ void av1_new_framerate(AV1_COMP *cpi, double framerate) {
 #endif
 }
 
+#if CONFIG_MAX_TILE
+
+static void set_tile_info_max_tile(AV1_COMP *cpi) {
+  AV1_COMMON *const cm = &cpi->common;
+
+  av1_get_tile_limits(cm);
+  // Configure uniform spaced tiles
+  // (API is not yet upgraded to general tiles)
+  cm->uniform_tile_spacing_flag = 1;
+
+  // configure tile columns
+  if (cm->uniform_tile_spacing_flag) {
+    cm->log2_tile_cols = AOMMAX(cpi->oxcf.tile_columns, cm->min_log2_tile_cols);
+    cm->log2_tile_cols = AOMMIN(cm->log2_tile_cols, cm->max_log2_tile_cols);
+  }
+  av1_calculate_tile_cols(cm);
+
+  // configure tile rows
+  if (cm->uniform_tile_spacing_flag) {
+    cm->log2_tile_rows = AOMMAX(cpi->oxcf.tile_rows, cm->min_log2_tile_rows);
+    cm->log2_tile_rows = AOMMIN(cm->log2_tile_rows, cm->max_log2_tile_rows);
+  }
+  av1_calculate_tile_rows(cm);
+}
+
+#endif
+
 static void set_tile_info(AV1_COMP *cpi) {
   AV1_COMMON *const cm = &cpi->common;
 #if CONFIG_DEPENDENT_HORZTILES
@@ -893,6 +920,10 @@ static void set_tile_info(AV1_COMP *cpi) {
     while (cm->tile_rows * cm->tile_height < cm->mi_rows) ++cm->tile_rows;
   } else {
 #endif  // CONFIG_EXT_TILE
+
+#if CONFIG_MAX_TILE
+    set_tile_info_max_tile(cpi);
+#else
     int min_log2_tile_cols, max_log2_tile_cols;
     av1_get_tile_n_bits(cm->mi_cols, &min_log2_tile_cols, &max_log2_tile_cols);
 
@@ -908,6 +939,7 @@ static void set_tile_info(AV1_COMP *cpi) {
 
     cm->tile_cols = AOMMIN(1 << cm->log2_tile_cols, max_cols);
     cm->tile_rows = AOMMIN(1 << cm->log2_tile_rows, max_rows);
+#endif  // CONFIG_MAX_TILE
 #if CONFIG_EXT_TILE
   }
 #endif  // CONFIG_EXT_TILE
