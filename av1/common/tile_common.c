@@ -105,11 +105,12 @@ void av1_setup_frame_boundary_info(const AV1_COMMON *const cm) {
 
 void av1_setup_across_tile_boundary_info(const AV1_COMMON *const cm,
                                          const TileInfo *const tile_info) {
-  int lpf_across_tiles_enabled = 1;
-#if CONFIG_LOOPFILTERING_ACROSS_TILES
-  lpf_across_tiles_enabled = cm->loop_filter_across_tiles_enabled;
-#endif
-  if ((cm->tile_cols * cm->tile_rows > 1) && (!lpf_across_tiles_enabled)) {
+#if !CONFIG_LOOPFILTERING_ACROSS_TILES
+  (void)cm;
+  (void)tile_info;
+  return;
+#else
+  if (cm->tile_cols * cm->tile_rows > 1) {
     const int mi_row = tile_info->mi_row_start;
     const int mi_col = tile_info->mi_col_start;
     MODE_INFO *const mi_start = cm->mi + mi_row * cm->mi_stride + mi_col;
@@ -148,6 +149,7 @@ void av1_setup_across_tile_boundary_info(const AV1_COMMON *const cm,
       mi += cm->mi_stride;
     }
   }
+#endif  // CONFIG_LOOPFILTERING_ACROSS_TILES
 }
 
 #if CONFIG_LOOPFILTERING_ACROSS_TILES

@@ -3701,18 +3701,18 @@ static void daala_dec_init(AV1_COMMON *const cm, daala_dec_ctx *daala_dec,
 }
 #endif  // #if CONFIG_PVQ
 
+#if CONFIG_LOOPFILTERING_ACROSS_TILES
 static void dec_setup_across_tile_boundary_info(
     const AV1_COMMON *const cm, const TileInfo *const tile_info) {
   if (tile_info->mi_row_start >= tile_info->mi_row_end ||
       tile_info->mi_col_start >= tile_info->mi_col_end)
     return;
 
-  if (cm->width != cm->last_width || cm->height != cm->last_height ||
-      cm->tile_cols != cm->last_tile_cols ||
-      cm->tile_rows != cm->last_tile_rows) {
+  if (!cm->loop_filter_across_tiles_enabled && !cm->tile_boundaries_cached) {
     av1_setup_across_tile_boundary_info(cm, tile_info);
   }
 }
+#endif  // CONFIG_LOOPFILTERING_ACROSS_TILES
 
 static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
                                    const uint8_t *data_end) {
@@ -3850,6 +3850,16 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
     }
   }
 
+#if CONFIG_LOOPFILTERING_ACROSS_TILES
+  // If the frame size or tile layout has changed since the previous frame,
+  // we need to recalculate the tile boundary information
+  if (cm->width != cm->last_width || cm->height != cm->last_height ||
+      cm->tile_cols != cm->last_tile_cols ||
+      cm->tile_rows != cm->last_tile_rows) {
+    cm->tile_boundaries_cached = 0;
+  }
+#endif
+
   for (tile_row = tile_rows_start; tile_row < tile_rows_end; ++tile_row) {
     const int row = inv_row_order ? tile_rows - 1 - tile_row : tile_row;
     int mi_row = 0;
@@ -3880,7 +3890,9 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
       av1_zero_above_context(cm, tile_info.mi_col_start, tile_info.mi_col_end);
 #endif
 
+#if CONFIG_LOOPFILTERING_ACROSS_TILES
       dec_setup_across_tile_boundary_info(cm, &tile_info);
+#endif  // CONFIG_LOOPFILTERING_ACROSS_TILES
 
       for (mi_row = tile_info.mi_row_start; mi_row < tile_info.mi_row_end;
            mi_row += cm->mib_size) {
@@ -3944,6 +3956,10 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
     if (cm->frame_parallel_decode)
       av1_frameworker_broadcast(pbi->cur_buf, mi_row << cm->mib_size_log2);
   }
+
+#if CONFIG_LOOPFILTERING_ACROSS_TILES
+  if (!cm->loop_filter_across_tiles_enabled) cm->tile_boundaries_cached = 1;
+#endif  // CONFIG_LOOPFILTERING_ACROSS_TILES
 
 #if CONFIG_VAR_TX || CONFIG_CB4X4
 // Loopfilter the whole frame.
@@ -4159,6 +4175,16 @@ static const uint8_t *decode_tiles_mt(AV1Decoder *pbi, const uint8_t *data,
 #endif  // CONFIG_EXT_TILE
     get_tile_buffers(pbi, data, data_end, tile_buffers);
 
+#if CONFIG_LOOPFILTERING_ACROSS_TILES
+  // If the frame size or tile layout has changed since the previous frame,
+  // we need to recalculate the tile boundary information
+  if (cm->width != cm->last_width || cm->height != cm->last_height ||
+      cm->tile_cols != cm->last_tile_cols ||
+      cm->tile_rows != cm->last_tile_rows) {
+    cm->tile_boundaries_cached = 0;
+  }
+#endif
+
   for (tile_row = tile_rows_start; tile_row < tile_rows_end; ++tile_row) {
     // Sort the buffers in this tile row based on size in descending order.
     qsort(&tile_buffers[tile_row][tile_cols_start],
@@ -4202,7 +4228,9 @@ static const uint8_t *decode_tiles_mt(AV1Decoder *pbi, const uint8_t *data,
         av1_tile_init(tile_info, cm, tile_row, buf->col);
         av1_tile_init(&twd->xd.tile, cm, tile_row, buf->col);
 
+#if CONFIG_LOOPFILTERING_ACROSS_TILES
         dec_setup_across_tile_boundary_info(cm, tile_info);
+#endif  // CONFIG_LOOPFILTERING_ACROSS_TILES
 
         setup_bool_decoder(buf->data, data_end, buf->size, &cm->error,
                            &twd->bit_reader,
@@ -4253,6 +4281,10 @@ static const uint8_t *decode_tiles_mt(AV1Decoder *pbi, const uint8_t *data,
       }
     }
   }
+
+#if CONFIG_LOOPFILTERING_ACROSS_TILES
+  if (!cm->loop_filter_across_tiles_enabled) cm->tile_boundaries_cached = 1;
+#endif  // CONFIG_LOOPFILTERING_ACROSS_TILES
 
   // Accumulate thread frame counts.
   if (cm->refresh_frame_context == REFRESH_FRAME_CONTEXT_BACKWARD) {

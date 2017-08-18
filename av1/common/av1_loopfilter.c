@@ -656,6 +656,10 @@ void av1_loop_filter_init(AV1_COMMON *cm) {
   // init hev threshold const vectors
   for (lvl = 0; lvl <= MAX_LOOP_FILTER; lvl++)
     memset(lfi->lfthr[lvl].hev_thr, (lvl >> 4), SIMD_WIDTH);
+
+#if CONFIG_LOOPFILTERING_ACROSS_TILES
+  cm->tile_boundaries_cached = 0;
+#endif
 }
 
 void av1_loop_filter_frame_init(AV1_COMMON *cm, int default_filt_lvl) {
