@@ -2862,13 +2862,6 @@ static void write_partition(const AV1_COMMON *const cm,
 #endif
                                                 bsize)
                       : 0;
-#if CONFIG_UNPOISON_PARTITION_CTX
-  const aom_prob *const probs =
-      ctx < PARTITION_CONTEXTS ? cm->fc->partition_prob[ctx] : NULL;
-#else
-  const aom_prob *const probs = cm->fc->partition_prob[ctx];
-#endif
-
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
   (void)cm;
 
@@ -2885,10 +2878,16 @@ static void write_partition(const AV1_COMMON *const cm,
 #endif  // CONFIG_EXT_PARTITION_TYPES
   } else if (!has_rows && has_cols) {
     assert(p == PARTITION_SPLIT || p == PARTITION_HORZ);
-    aom_write(w, p == PARTITION_SPLIT, probs[1]);
+    assert(bsize > BLOCK_8X8);
+    aom_cdf_prob cdf[2];
+    partition_gather_vert_alike(cdf, ec_ctx->partition_cdf[ctx]);
+    aom_write_cdf(w, p == PARTITION_SPLIT, cdf, 2);
   } else if (has_rows && !has_cols) {
     assert(p == PARTITION_SPLIT || p == PARTITION_VERT);
-    aom_write(w, p == PARTITION_SPLIT, probs[2]);
+    assert(bsize > BLOCK_8X8);
+    aom_cdf_prob cdf[2];
+    partition_gather_horz_alike(cdf, ec_ctx->partition_cdf[ctx]);
+    aom_write_cdf(w, p == PARTITION_SPLIT, cdf, 2);
   } else {
     assert(p == PARTITION_SPLIT);
   }
