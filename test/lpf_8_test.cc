@@ -499,7 +499,7 @@ TEST_P(Loop8Test9Param, DISABLED_Speed) {
 
 using std::tr1::make_tuple;
 
-#if HAVE_SSE2 && (!CONFIG_PARALLEL_DEBLOCKING)
+#if HAVE_SSE2
 #if CONFIG_HIGHBITDEPTH
 
 const loop8_param_t kHbdLoop8Test6[] = {
@@ -567,7 +567,7 @@ INSTANTIATE_TEST_CASE_P(SSE2, Loop8Test6Param,
 #endif  // CONFIG_HIGHBITDEPTH
 #endif
 
-#if HAVE_AVX2 && (!CONFIG_PARALLEL_DEBLOCKING)
+#if HAVE_AVX2
 #if CONFIG_HIGHBITDEPTH
 
 const loop8_param_t kHbdLoop8Test6Avx2[] = {
@@ -600,7 +600,7 @@ INSTANTIATE_TEST_CASE_P(
                                  &aom_lpf_horizontal_edge_16_c, 8)));
 #endif
 
-#if HAVE_SSE2 && (!CONFIG_PARALLEL_DEBLOCKING)
+#if HAVE_SSE2
 #if CONFIG_HIGHBITDEPTH
 const dualloop8_param_t kHbdLoop8Test9[] = {
   make_tuple(&aom_highbd_lpf_horizontal_4_dual_sse2,
@@ -644,7 +644,7 @@ INSTANTIATE_TEST_CASE_P(SSE2, Loop8Test9Param,
 #endif  // CONFIG_HIGHBITDEPTH
 #endif
 
-#if HAVE_AVX2 && (!CONFIG_PARALLEL_DEBLOCKING)
+#if HAVE_AVX2
 #if CONFIG_HIGHBITDEPTH
 const dualloop8_param_t kHbdLoop8Test9Avx2[] = {
   make_tuple(&aom_highbd_lpf_horizontal_4_dual_avx2,
