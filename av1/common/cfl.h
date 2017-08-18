@@ -18,6 +18,8 @@
 #include "av1/common/common.h"
 #include "av1/common/enums.h"
 
+#define MAX_SUB8X8_VAL (8)
+
 // Forward declaration of AV1_COMMON, in order to avoid creating a cyclic
 // dependency by importing av1/common/onyxc_int.h
 typedef struct AV1Common AV1_COMMON;
@@ -72,7 +74,7 @@ typedef struct {
   // The prediction used for sub8x8 blocks originates from multiple luma blocks,
   // this array is used to validate that cfl_store() is called only once for
   // each luma block
-  uint8_t sub8x8_val[4];
+  uint8_t sub8x8_val[MAX_SUB8X8_VAL];
 #endif  // CONFIG_CHROMA_SUB8X8 && CONFIG_DEBUG
 #endif  // CONFIG_CB4X4
 } CFL_CTX;
@@ -93,8 +95,10 @@ void cfl_init(CFL_CTX *cfl, AV1_COMMON *cm);
 void cfl_predict_block(MACROBLOCKD *const xd, uint8_t *dst, int dst_stride,
                        int row, int col, TX_SIZE tx_size, int plane);
 
-void cfl_store(CFL_CTX *cfl, const uint8_t *input, int input_stride, int row,
-               int col, TX_SIZE tx_size, BLOCK_SIZE bsize);
+void cfl_store_block(MACROBLOCKD *const xd, BLOCK_SIZE bsize, TX_SIZE tx_size);
+
+void cfl_store_tx(MACROBLOCKD *const xd, int row, int col, TX_SIZE tx_size,
+                  BLOCK_SIZE bsize);
 
 void cfl_compute_parameters(MACROBLOCKD *const xd, TX_SIZE tx_size);
 
