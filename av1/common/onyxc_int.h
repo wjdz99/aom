@@ -849,6 +849,37 @@ static INLINE BLOCK_SIZE scale_chroma_bsize(BLOCK_SIZE bsize, int subsampling_x,
 }
 #endif
 
+static INLINE aom_cdf_prob cdf_element_prob(const aom_cdf_prob *cdf,
+                                            size_t element) {
+  return (element > 0 ? cdf[element - 1] : CDF_PROB_TOP) - cdf[element];
+}
+
+static INLINE void partition_gather_horz_alike(aom_cdf_prob *out,
+                                               const aom_cdf_prob *const in) {
+  out[0] = 0;
+  out[0] += cdf_element_prob(in, PARTITION_HORZ);
+  out[0] += cdf_element_prob(in, PARTITION_SPLIT);
+#if CONFIG_EXT_PARTITION_TYPES
+  out[0] += cdf_element_prob(in, PARTITION_HORZ_A);
+  out[0] += cdf_element_prob(in, PARTITION_HORZ_B);
+  out[0] += cdf_element_prob(in, PARTITION_VERT_A);
+#endif
+  out[1] = 0;
+}
+
+static INLINE void partition_gather_vert_alike(aom_cdf_prob *out,
+                                               const aom_cdf_prob *const in) {
+  out[0] = 0;
+  out[0] += cdf_element_prob(in, PARTITION_VERT);
+  out[0] += cdf_element_prob(in, PARTITION_SPLIT);
+#if CONFIG_EXT_PARTITION_TYPES
+  out[0] += cdf_element_prob(in, PARTITION_HORZ_A);
+  out[0] += cdf_element_prob(in, PARTITION_VERT_A);
+  out[0] += cdf_element_prob(in, PARTITION_VERT_B);
+#endif
+  out[1] = 0;
+}
+
 #if CONFIG_EXT_PARTITION_TYPES
 static INLINE void update_ext_partition_context(MACROBLOCKD *xd, int mi_row,
                                                 int mi_col, BLOCK_SIZE subsize,
