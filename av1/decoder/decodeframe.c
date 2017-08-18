@@ -3131,6 +3131,77 @@ static void setup_frame_size_with_refs(AV1_COMMON *cm,
   pool->frame_bufs[cm->new_fb_idx].buf.render_height = cm->render_height;
 }
 
+#if CONFIG_MAX_TILE
+
+// Same function as av1_read_uniform but reading from uncompresses header wb
+static int rb_read_uniform(struct aom_read_bit_buffer *const rb, int n) {
+  const int l = get_unsigned_bits(n);
+  const int m = (1 << l) - n;
+  const int v = aom_rb_read_literal(rb, l - 1);
+  assert(l != 0);
+  if (v < m)
+    return v;
+  else
+    return (v << 1) - m + aom_rb_read_literal(rb, 1);
+}
+
+static void read_tile_info_max_tile(AV1_COMMON *const cm,
+                           struct aom_read_bit_buffer *const rb) {
+  int width_mi  = ALIGN_POWER_OF_TWO(cm->mi_cols, MAX_MIB_SIZE_LOG2);
+  int height_mi = ALIGN_POWER_OF_TWO(cm->mi_rows, MAX_MIB_SIZE_LOG2);
+  int width_sb  = width_mi  >> MAX_MIB_SIZE_LOG2;
+  int height_sb = height_mi >> MAX_MIB_SIZE_LOG2;
+  int start_sb, size_sb, i;
+
+  av1_get_tile_limits(cm);
+  cm->uniform_tile_spacing_flag = aom_rb_read_bit(rb);
+  
+  // Read tile columns
+  if (cm->uniform_tile_spacing_flag)
+  {
+    cm->log2_tile_cols = cm->min_log2_tile_cols;
+    while (cm->log2_tile_cols < cm->max_log2_tile_cols) {
+      if (!aom_rb_read_bit(rb)) {
+        break;
+      }
+      cm->log2_tile_cols++;
+    }
+  } else {
+    for (i=0, start_sb=0; width_sb>0; i++) {
+      size_sb = 1 + rb_read_uniform(rb, AOMMIN(width_sb, MAX_TILE_WIDTH_SB));
+      cm->tile_col_start_sb[i] = start_sb;
+      start_sb += size_sb;
+      width_sb -= size_sb;
+    }
+    cm->tile_cols = i;
+    cm->tile_col_start_sb[i] = start_sb;  
+  }
+  av1_calculate_tile_cols(cm);
+  
+  // Read tile rows
+  if (cm->uniform_tile_spacing_flag)
+  {
+    cm->log2_tile_rows = cm->min_log2_tile_rows;
+    while (cm->log2_tile_rows < cm->max_log2_tile_rows) {
+        if (!aom_rb_read_bit(rb)) {
+            break;
+        }
+        cm->log2_tile_rows++;
+    }
+  } else {
+    for (i=0, start_sb=0; height_sb>0; i++) {
+      size_sb = 1+rb_read_uniform(rb,AOMMIN(height_sb, cm->max_tile_height_sb));
+      cm->tile_row_start_sb[i] = start_sb;
+      start_sb += size_sb;
+      height_sb -= size_sb;
+    }
+    cm->tile_rows = i;
+    cm->tile_row_start_sb[i] = start_sb;
+  }
+  av1_calculate_tile_rows(cm);  
+}
+#endif
+
 static void read_tile_info(AV1Decoder *const pbi,
                            struct aom_read_bit_buffer *const rb) {
   AV1_COMMON *const cm = &pbi->common;
@@ -3182,6 +3253,10 @@ static void read_tile_info(AV1Decoder *const pbi,
 #endif
   } else {
 #endif  // CONFIG_EXT_TILE
+
+#if CONFIG_MAX_TILE
+    read_tile_info_max_tile(cm, rb);
+#else
     int min_log2_tile_cols, max_log2_tile_cols, max_ones;
     av1_get_tile_n_bits(cm->mi_cols, &min_log2_tile_cols, &max_log2_tile_cols);
 
@@ -3197,15 +3272,6 @@ static void read_tile_info(AV1Decoder *const pbi,
     // rows
     cm->log2_tile_rows = aom_rb_read_bit(rb);
     if (cm->log2_tile_rows) cm->log2_tile_rows += aom_rb_read_bit(rb);
-#if CONFIG_DEPENDENT_HORZTILES
-    if (cm->log2_tile_rows != 0)
-      cm->dependent_horz_tiles = aom_rb_read_bit(rb);
-    else
-      cm->dependent_horz_tiles = 0;
-#endif
-#if CONFIG_LOOPFILTERING_ACROSS_TILES
-    cm->loop_filter_across_tiles_enabled = aom_rb_read_bit(rb);
-#endif  // CONFIG_LOOPFILTERING_ACROSS_TILES
 
     cm->tile_cols = 1 << cm->log2_tile_cols;
     cm->tile_rows = 1 << cm->log2_tile_rows;
@@ -3218,6 +3284,16 @@ static void read_tile_info(AV1Decoder *const pbi,
     // round to integer multiples of superblock size
     cm->tile_width = ALIGN_POWER_OF_TWO(cm->tile_width, MAX_MIB_SIZE_LOG2);
     cm->tile_height = ALIGN_POWER_OF_TWO(cm->tile_height, MAX_MIB_SIZE_LOG2);
+#endif // CONFIG_MAX_TILE
+#if CONFIG_DEPENDENT_HORZTILES
+    if (cm->tile_rows > 1)
+      cm->dependent_horz_tiles = aom_rb_read_bit(rb);
+    else
+      cm->dependent_horz_tiles = 0;
+#endif
+#if CONFIG_LOOPFILTERING_ACROSS_TILES
+    cm->loop_filter_across_tiles_enabled = aom_rb_read_bit(rb);
+#endif  // CONFIG_LOOPFILTERING_ACROSS_TILES
 
     // tile size magnitude
     pbi->tile_size_bytes = aom_rb_read_literal(rb, 2) + 1;

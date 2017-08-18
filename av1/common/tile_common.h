@@ -50,6 +50,22 @@ void av1_setup_across_tile_boundary_info(const struct AV1Common *const cm,
 int av1_disable_loopfilter_on_tile_boundary(const struct AV1Common *cm);
 #endif  // CONFIG_LOOPFILTERING_ACROSS_TILES
 
+#if CONFIG_MAX_TILE
+
+// Define tile maximum and minimum sizes
+// There is no maximum height - tile is limied in width and area
+#define MAX_TILE_WIDTH     (4096)       // Max Tile width in pixels
+#define MAX_TILE_WIDTH_SB  (MAX_TILE_WIDTH >> MAX_SB_SIZE_LOG2)
+#define MIN_TILE_WIDTH_SB  (1)          // One superblock is the minimum width
+#define MAX_TILE_AREA      (4096*2304)  // Maximum tile area in pixels
+#define MAX_TILE_AREA_SB   (MAX_TILE_AREA >> (2*MAX_SB_SIZE_LOG2))
+#define MIN_TILE_HEIGHT_SB (1)          // One superblock is the minimum height 
+
+void av1_get_tile_limits(struct AV1Common *const cm);
+void av1_calculate_tile_cols(struct AV1Common *const cm);
+void av1_calculate_tile_rows(struct AV1Common *const cm);
+#endif
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif
