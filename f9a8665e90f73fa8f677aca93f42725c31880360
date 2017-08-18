@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4090889b_4531b07d",
+        "filename": "av1/common/idct.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 290,
+      "author": {
+        "id": 7230
+      },
+      "writtenOn": "2017-08-18T18:27:44Z",
+      "side": 1,
+      "message": "Previously, lgtmtx was defined to be a array of pointer in order to allow different transforms to different rows/columns. Now, we still choose to use the same transforms, but keep the input argument type so different transforms can still be tested in the future.",
+      "range": {
+        "startLine": 290,
+        "startChar": 4,
+        "endLine": 290,
+        "endChar": 12
+      },
+      "revId": "f9a8665e90f73fa8f677aca93f42725c31880360",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
