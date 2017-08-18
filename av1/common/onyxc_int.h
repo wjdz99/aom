@@ -391,6 +391,9 @@ typedef struct AV1Common {
 #endif
 #if CONFIG_LOOPFILTERING_ACROSS_TILES
   int loop_filter_across_tiles_enabled;
+  // Have we already calculated the tile boundary information at this
+  // frame size and tile layout?
+  int tile_boundaries_cached;
 #endif  // CONFIG_LOOPFILTERING_ACROSS_TILES
 
   int byte_alignment;
