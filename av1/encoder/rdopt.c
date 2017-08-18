@@ -2092,15 +2092,14 @@ static void block_rd_txfm(int plane, int block, int blk_row, int blk_col,
   }
 #if CONFIG_CFL
   if (plane == AOM_PLANE_Y && xd->cfl->store_y) {
-    struct macroblockd_plane *const pd = &xd->plane[plane];
-    const int dst_stride = pd->dst.stride;
-    uint8_t *dst =
-        &pd->dst.buf[(blk_row * dst_stride + blk_col) << tx_size_wide_log2[0]];
-    // TODO (ltrudeau) Store sub-8x8 inter blocks when bottom right block is
-    // intra predicted.
-    cfl_store(xd->cfl, dst, dst_stride, blk_row, blk_col, tx_size, plane_bsize);
+#if CONFIG_CHROMA_SUB8X8
+    assert(!is_inter_block(mbmi) || plane_bsize < BLOCK_8X8);
+#else
+    assert(!is_inter_block(mbmi));
+#endif  // CONFIG_CHROMA_SUB8X8
+    cfl_store_tx(xd, blk_row, blk_col, tx_size, plane_bsize);
   }
-#endif
+#endif  // CONFIG_CFL
   rd = RDCOST(x->rdmult, 0, this_rd_stats.dist);
   if (args->this_rd + rd > args->best_rd) {
     args->exit_early = 1;
@@ -6021,9 +6020,11 @@ static void choose_intra_uv_mode(const AV1_COMP *const cpi, MACROBLOCK *const x,
                                  int *rate_uv, int *rate_uv_tokenonly,
                                  int64_t *dist_uv, int *skip_uv,
                                  UV_PREDICTION_MODE *mode_uv) {
+  MACROBLOCKD *xd = &x->e_mbd;
+  MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
   // Use an estimated rd for uv_intra based on DC_PRED if the
   // appropriate speed flag is set.
-  init_sbuv_mode(&x->e_mbd.mi[0]->mbmi);
+  init_sbuv_mode(mbmi);
 #if CONFIG_CB4X4
 #if !CONFIG_CHROMA_2X2
   if (x->skip_chroma_rd) {
@@ -6034,15 +6035,34 @@ static void choose_intra_uv_mode(const AV1_COMP *const cpi, MACROBLOCK *const x,
     *mode_uv = UV_DC_PRED;
     return;
   }
-  bsize = scale_chroma_bsize(bsize, x->e_mbd.plane[AOM_PLANE_U].subsampling_x,
-                             x->e_mbd.plane[AOM_PLANE_U].subsampling_y);
+  bsize = scale_chroma_bsize(bsize, xd->plane[AOM_PLANE_U].subsampling_x,
+                             xd->plane[AOM_PLANE_U].subsampling_y);
 #endif  // !CONFIG_CHROMA_2X2
+#if CONFIG_CFL
+  // Only store reconstructed luma when there's chroma RDO. When there's no
+  // chroma RDO, the reconstructed luma will be stored in encode_superblock().
+  xd->cfl->store_y = !x->skip_chroma_rd;
+#endif  // CONFIG_CFL
 #else
   bsize = bsize < BLOCK_8X8 ? BLOCK_8X8 : bsize;
+#if CONFIG_CFL
+  xd->cfl->store_y = 1;
+#endif  // CONFIG_CFL
 #endif  // CONFIG_CB4X4
+#if CONFIG_CFL
+  if (xd->cfl->store_y) {
+    // Perform one extra call to txfm_rd_in_plane(), with the values chosen
+    // during luma RDO, so we can store reconstructed luma values
+    RD_STATS this_rd_stats;
+    txfm_rd_in_plane(x, cpi, &this_rd_stats, INT64_MAX, AOM_PLANE_Y,
+                     mbmi->sb_type, mbmi->tx_size,
+                     cpi->sf.use_fast_coef_costing);
+    xd->cfl->store_y = 0;
+  }
+#endif  // CONFIG_CFL
   rd_pick_intra_sbuv_mode(cpi, x, rate_uv, rate_uv_tokenonly, dist_uv, skip_uv,
                           bsize, max_tx_size);
-  *mode_uv = x->e_mbd.mi[0]->mbmi.uv_mode;
+  *mode_uv = mbmi->uv_mode;
 }
 
 static int cost_mv_ref(const MACROBLOCK *const x, PREDICTION_MODE mode,
@@ -9796,19 +9816,17 @@ void av1_rd_pick_intra_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
 
   if (intra_yrd < best_rd) {
 #if CONFIG_CFL
-    // Perform one extra txfm_rd_in_plane() call, this time with the best value
-    // so we can store reconstructed luma values
-    RD_STATS this_rd_stats;
-
 #if CONFIG_CB4X4
-    // Don't store the luma value if no chroma is associated.
-    // Don't worry, we will store this reconstructed luma in the following
-    // encode dry-run the chroma plane will never know.
+    // Only store reconstructed luma when there's chroma RDO. When there's no
+    // chroma RDO, the reconstructed luma will be stored in encode_superblock().
     xd->cfl->store_y = !x->skip_chroma_rd;
 #else
     xd->cfl->store_y = 1;
 #endif  // CONFIG_CB4X4
     if (xd->cfl->store_y) {
+      // Perform one extra call to txfm_rd_in_plane(), with the values chosen
+      // during luma RDO, so we can store reconstructed luma values
+      RD_STATS this_rd_stats;
       txfm_rd_in_plane(x, cpi, &this_rd_stats, INT64_MAX, AOM_PLANE_Y,
                        mbmi->sb_type, mbmi->tx_size,
                        cpi->sf.use_fast_coef_costing);
@@ -10079,7 +10097,7 @@ static void pick_filter_intra_interframe(
   rate2 += write_uniform_cost(
       FILTER_INTRA_MODES, mbmi->filter_intra_mode_info.filter_intra_mode[0]);
 #if CONFIG_EXT_INTRA
-  if (av1_is_directional_mode(mbmi->uv_mode, bsize) &&
+  if (av1_is_directional_mode(get_uv_mode(mbmi->uv_mode), bsize) &&
       av1_use_angle_delta(bsize)) {
     rate2 += write_uniform_cost(2 * MAX_ANGLE_DELTA + 1,
                                 MAX_ANGLE_DELTA + mbmi->angle_delta[1]);
@@ -10924,7 +10942,7 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
                                       MAX_ANGLE_DELTA + mbmi->angle_delta[0]);
         }
       }
-      if (av1_is_directional_mode(mbmi->uv_mode, bsize) &&
+      if (av1_is_directional_mode(get_uv_mode(mbmi->uv_mode), bsize) &&
           av1_use_angle_delta(bsize)) {
         rate2 += write_uniform_cost(2 * MAX_ANGLE_DELTA + 1,
                                     MAX_ANGLE_DELTA + mbmi->angle_delta[1]);
@@ -12012,6 +12030,24 @@ PALETTE_EXIT:
       }
     }
   }
+  /*
+  #if CONFIG_CFL && CONFIG_CHROMA_SUB8X8
+    *mbmi = best_mbmode;
+    CFL_CTX *const cfl = xd->cfl;
+    if (is_inter_block(mbmi) &&
+        !is_chroma_reference(mi_row, mi_col, bsize, cfl->subsampling_x,
+                             cfl->subsampling_y)) {
+      xd->cfl->store_y = 1;
+      // Perform one extra call to txfm_rd_in_plane(), with the values chosen
+      // during luma RDO, so we can store reconstructed luma values
+      RD_STATS this_rd_stats;
+      txfm_rd_in_plane(x, cpi, &this_rd_stats, INT64_MAX, AOM_PLANE_Y,
+                       mbmi->sb_type, mbmi->tx_size,
+                       cpi->sf.use_fast_coef_costing);
+      xd->cfl->store_y = 0;
+    }
+  #endif  // CONFIG_CFL && CONFIG_CHROMA_SUB8X8
+  */
 
   if (best_mode_index < 0 || best_rd >= best_rd_so_far) {
     rd_cost->rate = INT_MAX;
