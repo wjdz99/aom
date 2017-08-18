@@ -685,6 +685,7 @@ typedef struct {
 #endif  // CONFIG_LOOP_RESTORATION
 
 #if CONFIG_CFL
+#define CFL_MAX_SUB8X8_VAL (8)
 typedef struct cfl_ctx {
   // Pixel buffer containing the luma pixels used as prediction for chroma
   // TODO(ltrudeau) Convert to uint16 for HBD support
@@ -731,7 +732,7 @@ typedef struct cfl_ctx {
   // The prediction used for sub8x8 blocks originates from multiple luma blocks,
   // this array is used to validate that cfl_store() is called only once for
   // each luma block
-  uint8_t sub8x8_val[4];
+  uint8_t sub8x8_val[MAX_SUB8X8_VAL];
 #endif  // CONFIG_CHROMA_SUB8X8 && CONFIG_DEBUG
 #endif  // CONFIG_CB4X4
 } CFL_CTX;
