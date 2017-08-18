@@ -546,11 +546,11 @@ static void save_coding_context(AV1_COMP *cpi) {
   // restored with a call to av1_restore_coding_context. These functions are
   // intended for use in a re-code loop in av1_compress_frame where the
   // quantizer value is adjusted between loop iterations.
-  for (i = 0; i < NMV_CONTEXTS; ++i) {
-    av1_copy(cc->nmv_vec_cost[i], cpi->td.mb.nmv_vec_cost[i]);
-    av1_copy(cc->nmv_costs, cpi->nmv_costs);
-    av1_copy(cc->nmv_costs_hp, cpi->nmv_costs_hp);
-  }
+  /*  for (i = 0; i < NMV_CONTEXTS; ++i) {
+      av1_copy(cc->nmv_vec_cost[i], cpi->td.mb.nmv_vec_cost[i]);
+      av1_copy(cc->nmv_costs, cpi->td.mb.nmvcost_array);
+      av1_copy(cc->nmv_costs_hp, cpi->td.mb.nmvcost_hp_array);
+    }*/
 
   av1_copy(cc->last_ref_lf_deltas, cm->lf.last_ref_deltas);
   av1_copy(cc->last_mode_lf_deltas, cm->lf.last_mode_deltas);
@@ -565,11 +565,11 @@ static void restore_coding_context(AV1_COMP *cpi) {
 
   // Restore key state variables to the snapshot state stored in the
   // previous call to av1_save_coding_context.
-  for (i = 0; i < NMV_CONTEXTS; ++i) {
-    av1_copy(cpi->td.mb.nmv_vec_cost[i], cc->nmv_vec_cost[i]);
-    av1_copy(cpi->nmv_costs, cc->nmv_costs);
-    av1_copy(cpi->nmv_costs_hp, cc->nmv_costs_hp);
-  }
+  /*  for (i = 0; i < NMV_CONTEXTS; ++i) {
+      av1_copy(cpi->td.mb.nmv_vec_cost[i], cc->nmv_vec_cost[i]);
+      av1_copy(cpi->td.mb.nmvcost_array, cc->nmv_costs);
+      av1_copy(cpi->td.mb.nmvcost_hp_array, cc->nmv_costs_hp);
+    }*/
 
   av1_copy(cm->lf.last_ref_deltas, cc->last_ref_lf_deltas);
   av1_copy(cm->lf.last_mode_deltas, cc->last_mode_lf_deltas);
@@ -2457,11 +2457,6 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
 
   realloc_segmentation_maps(cpi);
 
-  for (i = 0; i < NMV_CONTEXTS; ++i) {
-    memset(cpi->nmv_costs, 0, sizeof(cpi->nmv_costs));
-    memset(cpi->nmv_costs_hp, 0, sizeof(cpi->nmv_costs_hp));
-  }
-
   for (i = 0; i < (sizeof(cpi->mbgraph_stats) / sizeof(cpi->mbgraph_stats[0]));
        i++) {
     CHECK_MEM_ERROR(
@@ -2523,13 +2518,6 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
 #endif  // CONFIG_ENTROPY_STATS
 
   cpi->first_time_stamp_ever = INT64_MAX;
-
-  for (i = 0; i < NMV_CONTEXTS; ++i) {
-    cpi->td.mb.nmvcost[i][0] = &cpi->nmv_costs[i][0][MV_MAX];
-    cpi->td.mb.nmvcost[i][1] = &cpi->nmv_costs[i][1][MV_MAX];
-    cpi->td.mb.nmvcost_hp[i][0] = &cpi->nmv_costs_hp[i][0][MV_MAX];
-    cpi->td.mb.nmvcost_hp[i][1] = &cpi->nmv_costs_hp[i][1][MV_MAX];
-  }
 
 #ifdef OUTPUT_YUV_SKINMAP
   yuv_skinmap_file = fopen("skinmap.yuv", "ab");
