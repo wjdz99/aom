@@ -6104,9 +6104,7 @@ static void encode_superblock(const AV1_COMP *const cpi, ThreadData *td,
 
   if (!is_inter) {
 #if CONFIG_CFL
-    // TODO(ltrudeau) Remove key_frame check (used to test CfL only in Intra
-    // frame).
-    xd->cfl->store_y = cm->frame_type == KEY_FRAME;
+    xd->cfl->store_y = 1;
 #endif  // CONFIG_CFL
     int plane;
     mbmi->skip = 1;
@@ -6116,13 +6114,13 @@ static void encode_superblock(const AV1_COMP *const cpi, ThreadData *td,
     }
 #if CONFIG_CFL
     xd->cfl->store_y = 0;
-#if CONFIG_CB4X4 && CONFIG_DEBUG
+#if CONFIG_CHROMA_SUB8X8 && CONFIG_DEBUG
     if (is_chroma_reference(mi_row, mi_col, bsize, xd->cfl->subsampling_x,
                             xd->cfl->subsampling_y) &&
         !xd->cfl->are_parameters_computed) {
       cfl_clear_sub8x8_val(xd->cfl);
     }
-#endif  // CONFIG_CB4X4 && CONFIG_DEBUG
+#endif  // CONFIG_CHROMA_SUB8X8 && CONFIG_DEBUG
 #endif  // CONFIG_CFL
     if (!dry_run) {
       sum_intra_stats(td->counts, xd, mi, xd->above_mi, xd->left_mi,
@@ -6331,6 +6329,15 @@ static void encode_superblock(const AV1_COMP *const cpi, ThreadData *td,
     set_txfm_ctxs(tx_size, xd->n8_w, xd->n8_h, (mbmi->skip || seg_skip), xd);
   }
 #endif  // CONFIG_VAR_TX
+#if CONFIG_CFL && CONFIG_CHROMA_SUB8X8
+  CFL_CTX *const cfl = xd->cfl;
+  if (is_inter_block(mbmi) &&
+      !is_chroma_reference(mi_row, mi_col, bsize, cfl->subsampling_x,
+                           cfl->subsampling_y)) {
+    // Store the reconstructed pixels of sub8x8 luma-only inter blocks
+    cfl_store_block(xd, mbmi->sb_type, mbmi->tx_size);
+  }
+#endif  // CONFIG_CFL && CONFIG_CHROMA_SUB8X8
 }
 
 #if CONFIG_SUPERTX
