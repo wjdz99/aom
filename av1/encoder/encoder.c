@@ -4388,6 +4388,7 @@ static void encode_with_recode_loop(AV1_COMP *cpi, size_t *size,
     }
 
     // transform / motion compensation build reconstruction frame
+    save_coding_context(cpi);
     av1_encode_frame(cpi);
 
     // Update the skip mb flag probabilities based on the distribution
@@ -4400,8 +4401,7 @@ static void encode_with_recode_loop(AV1_COMP *cpi, size_t *size,
     // accurate estimate of output frame size to determine if we need
     // to recode.
     if (cpi->sf.recode_loop >= ALLOW_RECODE_KFARFGF) {
-      save_coding_context(cpi);
-
+      restore_coding_context(cpi);
       av1_pack_bitstream(cpi, dest, size);
 
       rc->projected_frame_size = (int)(*size) << 3;
@@ -4922,6 +4922,7 @@ static void encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
     cpi->rc.is_last_bipred_frame = 0;
     cpi->rc.is_bipred_frame = 0;
 
+    restore_coding_context(cpi);
     // Build the bitstream
     av1_pack_bitstream(cpi, dest, size);
 
