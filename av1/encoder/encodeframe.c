@@ -4536,6 +4536,7 @@ static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
       }
     }
 
+    x->tx_rd_record.num = x->tx_rd_record.index_start = 0;
     av1_zero(x->pred_mv);
     pc_root->index = 0;
 
@@ -4905,6 +4906,8 @@ void av1_encode_tile(AV1_COMP *cpi, ThreadData *td, int tile_row,
 #if CONFIG_LV_MAP
   av1_fill_coeff_costs(&td->mb, cm->fc);
 #endif
+
+  av1_crc_calculator_init(&td->mb.tx_rd_record.crc_calculator, 24, 0x5D6DCB);
 
   for (mi_row = tile_info->mi_row_start; mi_row < tile_info->mi_row_end;
        mi_row += cm->mib_size) {
