@@ -4537,6 +4537,7 @@ static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
       }
     }
 
+    av1_zero(x->tx_rd_record);
     av1_zero(x->pred_mv);
     pc_root->index = 0;
 
