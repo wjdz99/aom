@@ -4646,6 +4646,7 @@ static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
         }
       }
 #else  // !CONFIG_SPEED_REFS
+      av1_zero(td->mb.tx_rd_record);
       rd_pick_partition(cpi, td, tile_data, tp, mi_row, mi_col, cm->sb_size,
                         &dummy_rdc,
 #if CONFIG_SUPERTX
