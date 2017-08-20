@@ -154,10 +154,17 @@ void av1_init_txb_probs(FRAME_CONTEXT *fc) {
   for (tx_size = 0; tx_size < TX_SIZES; ++tx_size) {
     for (plane = 0; plane < PLANE_TYPES; ++plane) {
       for (ctx = 0; ctx < LEVEL_CONTEXTS; ++ctx) {
-        fc->coeff_lps_cdf[tx_size][plane][ctx][0] =
-            AOM_ICDF(128 * (aom_cdf_prob)fc->coeff_lps[tx_size][plane][ctx]);
-        fc->coeff_lps_cdf[tx_size][plane][ctx][1] = AOM_ICDF(32768);
-        fc->coeff_lps_cdf[tx_size][plane][ctx][2] = 0;
+        int idx;
+        unsigned int cdf_count = 0;
+        cdf_count = 128 * 100; //  (aom_cdf_prob)fc->coeff_lps[tx_size][plane][ctx];
+        fc->coeff_lps_cdf[tx_size][plane][ctx][0] = AOM_ICDF(cdf_count);
+
+        for (idx = 1; idx < COEFF_BASE_RANGE; ++idx) {
+          cdf_count += 128 * 10;
+          fc->coeff_lps_cdf[tx_size][plane][ctx][idx] = AOM_ICDF(cdf_count);
+        }
+        fc->coeff_lps_cdf[tx_size][plane][ctx][idx] = AOM_ICDF(32768);
+        fc->coeff_lps_cdf[tx_size][plane][ctx][idx + 1] = 0;
       }
     }
   }

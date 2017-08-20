@@ -190,7 +190,6 @@ void av1_write_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
     tran_low_t v = tcoeff[scan[c]];
     tran_low_t level = abs(v);
     int sign = (v < 0) ? 1 : 0;
-    int idx;
     int ctx;
 
     if (level <= NUM_BASE_LEVELS) continue;
@@ -208,24 +207,11 @@ void av1_write_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
 
     // level is above 1.
     ctx = get_br_ctx(tcoeff, scan[c], bwl, height);
-    for (idx = 0; idx < COEFF_BASE_RANGE; ++idx) {
-      if (level == (idx + 1 + NUM_BASE_LEVELS)) {
-#if LV_MAP_PROB
-        aom_write_symbol(w, 1, cm->fc->coeff_lps_cdf[txs_ctx][plane_type][ctx],
-                         2);
-#else
-        aom_write(w, 1, cm->fc->coeff_lps[txs_ctx][plane_type][ctx]);
-#endif
-        break;
-      }
-#if LV_MAP_PROB
-      aom_write_symbol(w, 0, cm->fc->coeff_lps_cdf[txs_ctx][plane_type][ctx],
-                       2);
-#else
-      aom_write(w, 0, cm->fc->coeff_lps[txs_ctx][plane_type][ctx]);
-#endif
-    }
-    if (idx < COEFF_BASE_RANGE) continue;
+
+    int val = AOMMIN(COEFF_BASE_RANGE, level - 1 - NUM_BASE_LEVELS);
+    aom_write_symbol(w, val, cm->fc->coeff_lps_cdf[txs_ctx][plane_type][ctx],
+                     COEFF_BASE_RANGE + 1);
+    if (val < COEFF_BASE_RANGE) continue;
 
     // use 0-th order Golomb code to handle the residual level.
     write_golomb(w, level - COEFF_BASE_RANGE - 1 - NUM_BASE_LEVELS);
@@ -419,13 +405,8 @@ int av1_cost_coeffs_txb(const AV1_COMP *const cpi, MACROBLOCK *x, int plane,
 
         ctx = get_br_ctx(qcoeff, scan[c], bwl, height);
 
-        for (idx = 0; idx < COEFF_BASE_RANGE; ++idx) {
-          if (level == (idx + 1 + NUM_BASE_LEVELS)) {
-            cost += coeff_costs->lps_cost[ctx][1];
-            break;
-          }
-          cost += coeff_costs->lps_cost[ctx][0];
-        }
+        idx = AOMMIN(COEFF_BASE_RANGE, level - 1 - NUM_BASE_LEVELS);
+        cost += coeff_costs->lps_cost[ctx][idx];
 
         if (idx >= COEFF_BASE_RANGE) {
           // residual cost
@@ -1709,7 +1690,6 @@ void av1_update_and_record_txb_context(int plane, int block, int blk_row,
   for (c = update_eob; c >= 0; --c) {
     tran_low_t v = qcoeff[scan[c]];
     tran_low_t level = abs(v);
-    int idx;
     int ctx;
 
     if (level <= NUM_BASE_LEVELS) continue;
@@ -1728,22 +1708,13 @@ void av1_update_and_record_txb_context(int plane, int block, int blk_row,
 
     // level is above 1.
     ctx = get_br_ctx(tcoeff, scan[c], bwl, height);
-    for (idx = 0; idx < COEFF_BASE_RANGE; ++idx) {
-      if (level == (idx + 1 + NUM_BASE_LEVELS)) {
-        ++td->counts->coeff_lps[txsize_ctx][plane_type][ctx][1];
-#if LV_MAP_PROB
-        update_cdf(cm->fc->coeff_lps_cdf[txsize_ctx][plane_type][ctx],
-                   1, 2);
-#endif
-        break;
-      }
-      ++td->counts->coeff_lps[txsize_ctx][plane_type][ctx][0];
-#if LV_MAP_PROB
-      update_cdf(cm->fc->coeff_lps_cdf[txsize_ctx][plane_type][ctx],
-                 0, 2);
-#endif
-    }
-    if (idx < COEFF_BASE_RANGE) continue;
+
+    int val = AOMMIN(COEFF_BASE_RANGE, level - 1 - NUM_BASE_LEVELS);
+
+    update_cdf(cm->fc->coeff_lps_cdf[txsize_ctx][plane_type][ctx],
+               val, COEFF_BASE_RANGE + 1);
+
+    if (val < COEFF_BASE_RANGE) continue;
 
     // use 0-th order Golomb code to handle the residual level.
   }
