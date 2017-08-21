@@ -528,6 +528,7 @@ typedef struct AV1Common {
 #if CONFIG_LPF_SB
   int final_lpf_encode;
 #endif
+  const file_options_t *file_cfg;
 } AV1_COMMON;
 
 #if CONFIG_REFERENCE_BUFFER
