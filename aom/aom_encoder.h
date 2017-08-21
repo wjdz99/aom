@@ -226,6 +226,25 @@ enum aom_kf_mode {
 typedef long aom_enc_frame_flags_t;
 #define AOM_EFLAG_FORCE_KF (1 << 0) /**< Force this frame to be a keyframe */
 
+/*!\brief Config File Options
+ *
+ * This type allows to enumerate and control options defined for control
+ * via config file at runtime.
+ */
+typedef struct file_options {
+  /*!\brief Reflects if global motion should be enabled
+   *
+   * If this value is non-zero it enabled the feature
+   */
+  unsigned int global_motion;
+
+  /*!\brief Reflects if warped motion should be enabled
+   *
+   * If this value is non-zero it enabled the feature
+   */
+  unsigned int warped_motion;
+} file_options_t;
+
 /*!\brief Encoder configuration structure
  *
  * This structure contains the encoder settings that have common representations
@@ -619,6 +638,11 @@ typedef struct aom_codec_enc_cfg {
    * implies a large-scale tile coding.
    */
   unsigned int large_scale_tile;
+
+  /*!\brief Options defined per config file
+   *
+   */
+  file_options_t file_cfg;
 } aom_codec_enc_cfg_t; /**< alias for struct aom_codec_enc_cfg */
 
 /*!\brief Initialize an encoder instance
