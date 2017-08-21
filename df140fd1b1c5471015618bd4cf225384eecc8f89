@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3d90b035_71de81fa",
+        "filename": "av1/common/resize.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 293,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-08-21T18:48:19Z",
+      "side": 1,
+      "message": "You can add this before #endif\n#else\n#error \"Invalid value of INTERP_SIMPLE_TAPS\"",
+      "revId": "df140fd1b1c5471015618bd4cf225384eecc8f89",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "87b8b11b_e09f99d8",
+        "filename": "av1/common/resize.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 598,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-08-21T18:48:19Z",
+      "side": 1,
+      "message": "I\u0027m curious: should \"aom_malloc\" be used instead?\nI guess this is OK though, if we don\u0027t need alignment.",
+      "range": {
+        "startLine": 598,
+        "startChar": 31,
+        "endLine": 598,
+        "endChar": 37
+      },
+      "revId": "df140fd1b1c5471015618bd4cf225384eecc8f89",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
