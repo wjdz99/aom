@@ -718,30 +718,34 @@ static void update_state(const AV1_COMP *const cpi, ThreadData *td,
     if (is_inter_block(mbmi)) {
       av1_update_mv_count(td);
 #if CONFIG_GLOBAL_MOTION
-      if (bsize >= BLOCK_8X8) {
-        // TODO(sarahparker): global motion stats need to be handled per-tile
-        // to be compatible with tile-based threading.
-        update_global_motion_used(mbmi->mode, bsize, mbmi, rdc);
-      } else {
-        const int num_4x4_w = num_4x4_blocks_wide_lookup[bsize];
-        const int num_4x4_h = num_4x4_blocks_high_lookup[bsize];
-        int idx, idy;
-        for (idy = 0; idy < 2; idy += num_4x4_h) {
-          for (idx = 0; idx < 2; idx += num_4x4_w) {
-            const int j = idy * 2 + idx;
-            update_global_motion_used(mi->bmi[j].as_mode, bsize, mbmi, rdc);
+      if (cpi->file_cfg->global_motion) {
+        if (bsize >= BLOCK_8X8) {
+          // TODO(sarahparker): global motion stats need to be handled per-tile
+          // to be compatible with tile-based threading.
+          update_global_motion_used(mbmi->mode, bsize, mbmi, rdc);
+        } else {
+          const int num_4x4_w = num_4x4_blocks_wide_lookup[bsize];
+          const int num_4x4_h = num_4x4_blocks_high_lookup[bsize];
+          int idx, idy;
+          for (idy = 0; idy < 2; idy += num_4x4_h) {
+            for (idx = 0; idx < 2; idx += num_4x4_w) {
+              const int j = idy * 2 + idx;
+              update_global_motion_used(mi->bmi[j].as_mode, bsize, mbmi, rdc);
+            }
           }
         }
       }
 #endif  // CONFIG_GLOBAL_MOTION
       if (cm->interp_filter == SWITCHABLE
 #if CONFIG_WARPED_MOTION
-          && mbmi->motion_mode != WARPED_CAUSAL
+                  && mbmi->motion_mode != WARPED_CAUSAL
 #endif  // CONFIG_WARPED_MOTION
 #if CONFIG_GLOBAL_MOTION
-          && !is_nontrans_global_motion(xd)
+                  && (cpi->file_cfg->global_motion)
+              ? !is_nontrans_global_motion(xd)
+              : 0
 #endif  // CONFIG_GLOBAL_MOTION
-              ) {
+          ) {
 #if CONFIG_DUAL_FILTER
         update_filter_type_count(td->counts, xd, mbmi);
 #else
@@ -883,30 +887,33 @@ static void update_state_supertx(const AV1_COMP *const cpi, ThreadData *td,
     av1_update_mv_count(td);
 
 #if CONFIG_GLOBAL_MOTION
-    if (is_inter_block(mbmi)) {
-      if (bsize >= BLOCK_8X8) {
-        // TODO(sarahparker): global motion stats need to be handled per-tile
-        // to be compatible with tile-based threading.
-        update_global_motion_used(mbmi->mode, bsize, mbmi, rdc);
-      } else {
-        const int num_4x4_w = num_4x4_blocks_wide_lookup[bsize];
-        const int num_4x4_h = num_4x4_blocks_high_lookup[bsize];
-        int idx, idy;
-        for (idy = 0; idy < 2; idy += num_4x4_h) {
-          for (idx = 0; idx < 2; idx += num_4x4_w) {
-            const int j = idy * 2 + idx;
-            update_global_motion_used(mi->bmi[j].as_mode, bsize, mbmi, rdc);
+    if (cpi->file_cfg->global_motion)
+      if (is_inter_block(mbmi)) {
+        if (bsize >= BLOCK_8X8) {
+          // TODO(sarahparker): global motion stats need to be handled per-tile
+          // to be compatible with tile-based threading.
+          update_global_motion_used(mbmi->mode, bsize, mbmi, rdc);
+        } else {
+          const int num_4x4_w = num_4x4_blocks_wide_lookup[bsize];
+          const int num_4x4_h = num_4x4_blocks_high_lookup[bsize];
+          int idx, idy;
+          for (idy = 0; idy < 2; idy += num_4x4_h) {
+            for (idx = 0; idx < 2; idx += num_4x4_w) {
+              const int j = idy * 2 + idx;
+              update_global_motion_used(mi->bmi[j].as_mode, bsize, mbmi, rdc);
+            }
           }
         }
       }
-    }
 #endif  // CONFIG_GLOBAL_MOTION
 
     if (cm->interp_filter == SWITCHABLE
 #if CONFIG_GLOBAL_MOTION
-        && !is_nontrans_global_motion(xd)
+                && (cpi->file_cfg->global_motion)
+            ? !is_nontrans_global_motion(xd)
+            : 0
 #endif  // CONFIG_GLOBAL_MOTION
-            ) {
+        ) {
 #if CONFIG_DUAL_FILTER
       update_filter_type_count(td->counts, xd, mbmi);
 #else
@@ -5304,131 +5311,134 @@ static void encode_frame_internal(AV1_COMP *cpi) {
 #endif
 
 #if CONFIG_GLOBAL_MOTION
-  av1_zero(rdc->global_motion_used);
-  av1_zero(cpi->gmparams_cost);
-  if (cpi->common.frame_type == INTER_FRAME && cpi->source &&
-      !cpi->global_motion_search_done) {
-    YV12_BUFFER_CONFIG *ref_buf[TOTAL_REFS_PER_FRAME];
-    int frame;
-    double params_by_motion[RANSAC_NUM_MOTIONS * (MAX_PARAMDIM - 1)];
-    const double *params_this_motion;
-    int inliers_by_motion[RANSAC_NUM_MOTIONS];
-    WarpedMotionParams tmp_wm_params;
-    static const double kIdentityParams[MAX_PARAMDIM - 1] = {
-      0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0
-    };
-    int num_refs_using_gm = 0;
+  if (cpi->file_cfg->global_motion) {
+    av1_zero(rdc->global_motion_used);
+    av1_zero(cpi->gmparams_cost);
+    if (cpi->common.frame_type == INTER_FRAME && cpi->source &&
+        !cpi->global_motion_search_done) {
+      YV12_BUFFER_CONFIG *ref_buf[TOTAL_REFS_PER_FRAME];
+      int frame;
+      double params_by_motion[RANSAC_NUM_MOTIONS * (MAX_PARAMDIM - 1)];
+      const double *params_this_motion;
+      int inliers_by_motion[RANSAC_NUM_MOTIONS];
+      WarpedMotionParams tmp_wm_params;
+      static const double kIdentityParams[MAX_PARAMDIM - 1] = {
+        0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0
+      };
+      int num_refs_using_gm = 0;
 
-    for (frame = LAST_FRAME; frame <= ALTREF_FRAME; ++frame) {
-      ref_buf[frame] = get_ref_frame_buffer(cpi, frame);
-      int pframe;
-      set_default_warp_params(&cm->global_motion[frame]);
-      if (cm->error_resilient_mode)
-        set_default_warp_params(&cm->prev_frame->global_motion[frame]);
-      // check for duplicate buffer
-      for (pframe = LAST_FRAME; pframe < frame; ++pframe) {
-        if (ref_buf[frame] == ref_buf[pframe]) break;
-      }
-      if (pframe < frame) {
-        memcpy(&cm->global_motion[frame], &cm->global_motion[pframe],
-               sizeof(WarpedMotionParams));
-      } else if (ref_buf[frame] &&
-                 ref_buf[frame]->y_crop_width == cpi->source->y_crop_width &&
-                 ref_buf[frame]->y_crop_height == cpi->source->y_crop_height &&
-                 do_gm_search_logic(&cpi->sf, num_refs_using_gm, frame)) {
-        TransformationType model;
-        const int64_t ref_frame_error = av1_frame_error(
+      for (frame = LAST_FRAME; frame <= ALTREF_FRAME; ++frame) {
+        ref_buf[frame] = get_ref_frame_buffer(cpi, frame);
+        int pframe;
+        set_default_warp_params(&cm->global_motion[frame]);
+        if (cm->error_resilient_mode)
+          set_default_warp_params(&cm->prev_frame->global_motion[frame]);
+        // check for duplicate buffer
+        for (pframe = LAST_FRAME; pframe < frame; ++pframe) {
+          if (ref_buf[frame] == ref_buf[pframe]) break;
+        }
+        if (pframe < frame) {
+          memcpy(&cm->global_motion[frame], &cm->global_motion[pframe],
+                 sizeof(WarpedMotionParams));
+        } else if (ref_buf[frame] &&
+                   ref_buf[frame]->y_crop_width == cpi->source->y_crop_width &&
+                   ref_buf[frame]->y_crop_height ==
+                       cpi->source->y_crop_height &&
+                   do_gm_search_logic(&cpi->sf, num_refs_using_gm, frame)) {
+          TransformationType model;
+          const int64_t ref_frame_error = av1_frame_error(
 #if CONFIG_HIGHBITDEPTH
-            xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH, xd->bd,
+              xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH, xd->bd,
 #endif  // CONFIG_HIGHBITDEPTH
-            ref_buf[frame]->y_buffer, ref_buf[frame]->y_stride,
-            cpi->source->y_buffer, cpi->source->y_width, cpi->source->y_height,
-            cpi->source->y_stride);
+              ref_buf[frame]->y_buffer, ref_buf[frame]->y_stride,
+              cpi->source->y_buffer, cpi->source->y_width,
+              cpi->source->y_height, cpi->source->y_stride);
 
-        if (ref_frame_error == 0) continue;
+          if (ref_frame_error == 0) continue;
 
-        aom_clear_system_state();
-        for (model = ROTZOOM; model < GLOBAL_TRANS_TYPES_ENC; ++model) {
-          int64_t best_warp_error = INT64_MAX;
-          // Initially set all params to identity.
-          for (i = 0; i < RANSAC_NUM_MOTIONS; ++i) {
-            memcpy(params_by_motion + (MAX_PARAMDIM - 1) * i, kIdentityParams,
-                   (MAX_PARAMDIM - 1) * sizeof(*params_by_motion));
-          }
+          aom_clear_system_state();
+          for (model = ROTZOOM; model < GLOBAL_TRANS_TYPES_ENC; ++model) {
+            int64_t best_warp_error = INT64_MAX;
+            // Initially set all params to identity.
+            for (i = 0; i < RANSAC_NUM_MOTIONS; ++i) {
+              memcpy(params_by_motion + (MAX_PARAMDIM - 1) * i, kIdentityParams,
+                     (MAX_PARAMDIM - 1) * sizeof(*params_by_motion));
+            }
 
-          compute_global_motion_feature_based(
-              model, cpi->source, ref_buf[frame],
+            compute_global_motion_feature_based(
+                model, cpi->source, ref_buf[frame],
 #if CONFIG_HIGHBITDEPTH
-              cpi->common.bit_depth,
+                cpi->common.bit_depth,
 #endif  // CONFIG_HIGHBITDEPTH
-              inliers_by_motion, params_by_motion, RANSAC_NUM_MOTIONS);
+                inliers_by_motion, params_by_motion, RANSAC_NUM_MOTIONS);
 
-          for (i = 0; i < RANSAC_NUM_MOTIONS; ++i) {
-            if (inliers_by_motion[i] == 0) continue;
+            for (i = 0; i < RANSAC_NUM_MOTIONS; ++i) {
+              if (inliers_by_motion[i] == 0) continue;
 
-            params_this_motion = params_by_motion + (MAX_PARAMDIM - 1) * i;
-            convert_model_to_params(params_this_motion, &tmp_wm_params);
+              params_this_motion = params_by_motion + (MAX_PARAMDIM - 1) * i;
+              convert_model_to_params(params_this_motion, &tmp_wm_params);
 
-            if (tmp_wm_params.wmtype != IDENTITY) {
-              const int64_t warp_error = refine_integerized_param(
-                  &tmp_wm_params, tmp_wm_params.wmtype,
+              if (tmp_wm_params.wmtype != IDENTITY) {
+                const int64_t warp_error = refine_integerized_param(
+                    &tmp_wm_params, tmp_wm_params.wmtype,
 #if CONFIG_HIGHBITDEPTH
-                  xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH, xd->bd,
+                    xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH, xd->bd,
 #endif  // CONFIG_HIGHBITDEPTH
-                  ref_buf[frame]->y_buffer, ref_buf[frame]->y_width,
-                  ref_buf[frame]->y_height, ref_buf[frame]->y_stride,
-                  cpi->source->y_buffer, cpi->source->y_width,
-                  cpi->source->y_height, cpi->source->y_stride, 5,
-                  best_warp_error);
-              if (warp_error < best_warp_error) {
-                best_warp_error = warp_error;
-                // Save the wm_params modified by refine_integerized_param()
-                // rather than motion index to avoid rerunning refine() below.
-                memcpy(&(cm->global_motion[frame]), &tmp_wm_params,
-                       sizeof(WarpedMotionParams));
+                    ref_buf[frame]->y_buffer, ref_buf[frame]->y_width,
+                    ref_buf[frame]->y_height, ref_buf[frame]->y_stride,
+                    cpi->source->y_buffer, cpi->source->y_width,
+                    cpi->source->y_height, cpi->source->y_stride, 5,
+                    best_warp_error);
+                if (warp_error < best_warp_error) {
+                  best_warp_error = warp_error;
+                  // Save the wm_params modified by refine_integerized_param()
+                  // rather than motion index to avoid rerunning refine() below.
+                  memcpy(&(cm->global_motion[frame]), &tmp_wm_params,
+                         sizeof(WarpedMotionParams));
+                }
               }
             }
-          }
-          if (cm->global_motion[frame].wmtype <= AFFINE)
-            if (!get_shear_params(&cm->global_motion[frame]))
+            if (cm->global_motion[frame].wmtype <= AFFINE)
+              if (!get_shear_params(&cm->global_motion[frame]))
+                set_default_warp_params(&cm->global_motion[frame]);
+
+            if (cm->global_motion[frame].wmtype == TRANSLATION) {
+              cm->global_motion[frame].wmmat[0] =
+                  convert_to_trans_prec(cm->allow_high_precision_mv,
+                                        cm->global_motion[frame].wmmat[0]) *
+                  GM_TRANS_ONLY_DECODE_FACTOR;
+              cm->global_motion[frame].wmmat[1] =
+                  convert_to_trans_prec(cm->allow_high_precision_mv,
+                                        cm->global_motion[frame].wmmat[1]) *
+                  GM_TRANS_ONLY_DECODE_FACTOR;
+            }
+
+            // If the best error advantage found doesn't meet the threshold for
+            // this motion type, revert to IDENTITY.
+            if (!is_enough_erroradvantage(
+                    (double)best_warp_error / ref_frame_error,
+                    gm_get_params_cost(&cm->global_motion[frame],
+                                       &cm->prev_frame->global_motion[frame],
+                                       cm->allow_high_precision_mv))) {
               set_default_warp_params(&cm->global_motion[frame]);
-
-          if (cm->global_motion[frame].wmtype == TRANSLATION) {
-            cm->global_motion[frame].wmmat[0] =
-                convert_to_trans_prec(cm->allow_high_precision_mv,
-                                      cm->global_motion[frame].wmmat[0]) *
-                GM_TRANS_ONLY_DECODE_FACTOR;
-            cm->global_motion[frame].wmmat[1] =
-                convert_to_trans_prec(cm->allow_high_precision_mv,
-                                      cm->global_motion[frame].wmmat[1]) *
-                GM_TRANS_ONLY_DECODE_FACTOR;
+            }
+            if (cm->global_motion[frame].wmtype != IDENTITY) break;
           }
-
-          // If the best error advantage found doesn't meet the threshold for
-          // this motion type, revert to IDENTITY.
-          if (!is_enough_erroradvantage(
-                  (double)best_warp_error / ref_frame_error,
-                  gm_get_params_cost(&cm->global_motion[frame],
-                                     &cm->prev_frame->global_motion[frame],
-                                     cm->allow_high_precision_mv))) {
-            set_default_warp_params(&cm->global_motion[frame]);
-          }
-          if (cm->global_motion[frame].wmtype != IDENTITY) break;
+          aom_clear_system_state();
         }
-        aom_clear_system_state();
+        if (cm->global_motion[frame].wmtype != IDENTITY) num_refs_using_gm++;
+        cpi->gmparams_cost[frame] =
+            gm_get_params_cost(&cm->global_motion[frame],
+                               &cm->prev_frame->global_motion[frame],
+                               cm->allow_high_precision_mv) +
+            cpi->gmtype_cost[cm->global_motion[frame].wmtype] -
+            cpi->gmtype_cost[IDENTITY];
       }
-      if (cm->global_motion[frame].wmtype != IDENTITY) num_refs_using_gm++;
-      cpi->gmparams_cost[frame] =
-          gm_get_params_cost(&cm->global_motion[frame],
-                             &cm->prev_frame->global_motion[frame],
-                             cm->allow_high_precision_mv) +
-          cpi->gmtype_cost[cm->global_motion[frame].wmtype] -
-          cpi->gmtype_cost[IDENTITY];
+      cpi->global_motion_search_done = 1;
     }
-    cpi->global_motion_search_done = 1;
+    memcpy(cm->cur_frame->global_motion, cm->global_motion,
+           TOTAL_REFS_PER_FRAME * sizeof(WarpedMotionParams));
   }
-  memcpy(cm->cur_frame->global_motion, cm->global_motion,
-         TOTAL_REFS_PER_FRAME * sizeof(WarpedMotionParams));
 #endif  // CONFIG_GLOBAL_MOTION
 
   for (i = 0; i < MAX_SEGMENTS; ++i) {
