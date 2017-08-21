@@ -155,13 +155,20 @@ void av1_init_txb_probs(FRAME_CONTEXT *fc) {
     for (plane = 0; plane < PLANE_TYPES; ++plane) {
       for (ctx = 0; ctx < LEVEL_CONTEXTS; ++ctx) {
         int idx;
-        unsigned int cdf_count = 0;
-        cdf_count = 128 * 100; //  (aom_cdf_prob)fc->coeff_lps[tx_size][plane][ctx];
-        fc->coeff_lps_cdf[tx_size][plane][ctx][0] = AOM_ICDF(cdf_count);
+        int pmf_count = 10240 + 1024;
+        int64_t cdf_count[COEFF_BASE_RANGE + 1] = { 0 };
 
-        for (idx = 1; idx < COEFF_BASE_RANGE; ++idx) {
-          cdf_count += 128 * 10;
-          fc->coeff_lps_cdf[tx_size][plane][ctx][idx] = AOM_ICDF(cdf_count);
+        cdf_count[0] = pmf_count;
+        for (idx = 1; idx < COEFF_BASE_RANGE + 1; ++idx) {
+          pmf_count = (int)(pmf_count * (1.0 - (double)fc->coeff_lps[tx_size][plane][ctx] / 256.0)) + 1024;
+          cdf_count[idx] = cdf_count[idx - 1] + pmf_count;
+        }
+        int64_t cum_sum = cdf_count[COEFF_BASE_RANGE];
+        int64_t rounding = cum_sum >> 1;
+
+        for (idx = 0; idx < COEFF_BASE_RANGE; ++idx) {
+          fc->coeff_lps_cdf[tx_size][plane][ctx][idx] = AOM_ICDF(
+              (cdf_count[idx] * CDF_PROB_TOP + rounding) / cum_sum);
         }
         fc->coeff_lps_cdf[tx_size][plane][ctx][idx] = AOM_ICDF(32768);
         fc->coeff_lps_cdf[tx_size][plane][ctx][idx + 1] = 0;
