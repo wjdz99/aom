@@ -469,6 +469,7 @@ static aom_codec_err_t init_decoder(aom_codec_alg_priv_t *ctx) {
       set_error_detail(ctx, "Failed to allocate frame_worker_data");
       return AOM_CODEC_MEM_ERROR;
     }
+    frame_worker_data->pbi->common.file_cfg = &ctx->cfg.file_cfg;
     frame_worker_data->pbi->frame_worker_owner = worker;
     frame_worker_data->worker_id = i;
     frame_worker_data->scratch_buffer = NULL;

@@ -104,6 +104,7 @@ typedef struct aom_codec_dec_cfg {
   unsigned int w;       /**< Width */
   unsigned int h;       /**< Height */
   unsigned int allow_lowbitdepth; /**< Allow use of low-bitdepth coding path */
+  file_options_t file_cfg;        /**< Options defined per config file */
 } aom_codec_dec_cfg_t;            /**< alias for struct aom_codec_dec_cfg */
 
 /*!\brief Initialize a decoder instance
