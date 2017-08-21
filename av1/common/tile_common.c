@@ -26,16 +26,10 @@ void av1_tile_set_col(TileInfo *tile, const AV1_COMMON *cm, int col) {
 #if CONFIG_DEPENDENT_HORZTILES
 void av1_tile_set_tg_boundary(TileInfo *tile, const AV1_COMMON *const cm,
                               int row, int col) {
-  if (row < cm->tile_rows - 1) {
-    tile->tg_horz_boundary =
-        col >= cm->tile_group_start_col[row][col]
-            ? (row == cm->tile_group_start_row[row][col] ? 1 : 0)
-            : (row == cm->tile_group_start_row[row + 1][col] ? 1 : 0);
-  } else {
-    assert(col >= cm->tile_group_start_col[row][col]);
-    tile->tg_horz_boundary =
-        (row == cm->tile_group_start_row[row][col] ? 1 : 0);
-  }
+  int tg_start_row = cm->tile_group_start_row[row][col];
+  int tg_start_col = cm->tile_group_start_col[row][col];
+  tile->tg_horz_boundary = ((row == tg_start_row && col >= tg_start_col) ||
+                            (row == tg_start_row + 1 && col < tg_start_col));
 }
 #endif
 void av1_tile_init(TileInfo *tile, const AV1_COMMON *cm, int row, int col) {
