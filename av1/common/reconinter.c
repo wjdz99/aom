@@ -3771,8 +3771,7 @@ void get_pred_by_horz_neighbor(const AV1_COMMON *cm, MACROBLOCKD *xd, int bsize,
       bw = mi_size_wide[bsize] << (MI_SIZE_LOG2 - 1) >> pd->subsampling_x;
       bh = (mi_step << MI_SIZE_LOG2) >> pd->subsampling_y;
 
-      build_inter_predictors(cm, xd, j, mi_col_offset, mi_row_offset, 0, bw, bh,
-                             0, 0, bw, bh,
+      build_inter_predictors(cm, xd, j, left_mi, 1, 0, bw, bh, 0, 0, bw, bh,
 #if CONFIG_SUPERTX && CONFIG_EXT_INTER
                              0, 0,
 #endif  // CONFIG_SUPERTX && CONFIG_EXT_INTER
@@ -3867,8 +3866,7 @@ void get_pred_by_horz_neighbor(const AV1_COMMON *cm, MACROBLOCKD *xd, int bsize,
       bw = mi_size_wide[bsize] << (MI_SIZE_LOG2 - 1) >> pd->subsampling_x;
       bh = (mi_step << MI_SIZE_LOG2) >> pd->subsampling_y;
 
-      build_inter_predictors(cm, xd, j, mi_col_offset, mi_row_offset, 0, bw, bh,
-                             0, 0, bw, bh,
+      build_inter_predictors(cm, xd, j, right_mi, 1, 0, bw, bh, 0, 0, bw, bh,
 #if CONFIG_SUPERTX && CONFIG_EXT_INTER
                              0, 0,
 #endif  // CONFIG_SUPERTX && CONFIG_EXT_INTER
@@ -3987,8 +3985,7 @@ void get_pred_by_vert_neighbor(const AV1_COMMON *cm, MACROBLOCKD *xd, int bsize,
       bh = mi_size_high[bsize] << (MI_SIZE_LOG2 - 1) >> pd->subsampling_x;
       bw = (mi_step << MI_SIZE_LOG2) >> pd->subsampling_y;
 
-      build_inter_predictors(cm, xd, j, mi_col_offset, mi_row_offset, 0, bw, bh,
-                             0, 0, bw, bh,
+      build_inter_predictors(cm, xd, j, above_mi, 1, 0, bw, bh, 0, 0, bw, bh,
 #if CONFIG_SUPERTX && CONFIG_EXT_INTER
                              0, 0,
 #endif  // CONFIG_SUPERTX && CONFIG_EXT_INTER
@@ -4088,8 +4085,7 @@ void get_pred_by_vert_neighbor(const AV1_COMMON *cm, MACROBLOCKD *xd, int bsize,
       bh = mi_size_high[bsize] << (MI_SIZE_LOG2 - 1) >> pd->subsampling_x;
       bw = (mi_step << MI_SIZE_LOG2) >> pd->subsampling_y;
 
-      build_inter_predictors(cm, xd, j, mi_col_offset, mi_row_offset, 0, bw, bh,
-                             0, 0, bw, bh,
+      build_inter_predictors(cm, xd, j, bottom_mi, 1, 0, bw, bh, 0, 0, bw, bh,
 #if CONFIG_SUPERTX && CONFIG_EXT_INTER
                              0, 0,
 #endif  // CONFIG_SUPERTX && CONFIG_EXT_INTER
@@ -4199,8 +4195,7 @@ void get_pred_by_corner_neighbor(const AV1_COMMON *cm, MACROBLOCKD *xd,
       const struct macroblockd_plane *pd = &xd->plane[j];
       bh = mi_high << MI_SIZE_LOG2 >> (pd->subsampling_x + 1);
       bw = mi_wide << MI_SIZE_LOG2 >> (pd->subsampling_y + 1);
-      build_inter_predictors(cm, xd, j, mi_col_offset, mi_row_offset, 0, bw, bh,
-                             0, 0, bw, bh,
+      build_inter_predictors(cm, xd, j, corner_mi, 1, 0, bw, bh, 0, 0, bw, bh,
 #if CONFIG_SUPERTX && CONFIG_EXT_INTER
                              0, 0,
 #endif  // CONFIG_SUPERTX && CONFIG_EXT_INTER
