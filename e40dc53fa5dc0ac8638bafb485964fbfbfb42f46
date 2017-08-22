@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "523593f0_d6cde57a",
+        "filename": "av1/common/enums.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 389,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-08-22T21:10:11Z",
+      "side": 1,
+      "message": "\"\u003d 0\" and \"\u003d 1\" aren\u0027t required; those are the default values you\u0027ll get as it\u0027s an enum",
+      "revId": "e40dc53fa5dc0ac8638bafb485964fbfbfb42f46",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "767335c3_12c1cb6e",
+        "filename": "av1/encoder/tokenize.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 267,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-08-22T21:10:11Z",
+      "side": 1,
+      "message": "typedef struct {\n...\n} ColorMapParam;\n\nThat is, typedef an anonymous struct directly, so we only have one type defined.",
+      "revId": "e40dc53fa5dc0ac8638bafb485964fbfbfb42f46",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
