@@ -932,6 +932,8 @@ EOF
 ##
 ## END APPLICATION SPECIFIC CONFIGURATION
 ##
+
+# Generate aom_config.c.
 CONFIGURE_ARGS="$@"
 process "$@"
 print_webm_license ${BUILD_PFX}aom_config.c "/*" " */"
@@ -940,3 +942,7 @@ cat <<EOF >> ${BUILD_PFX}aom_config.c
 static const char* const cfg = "$CONFIGURE_ARGS";
 const char *aom_codec_build_config(void) {return cfg;}
 EOF
+
+# Generate aom_version.h.
+"${source_path}/build/make/version.sh" "${source_path}" \
+  ${BUILD_PFX}aom_version.h

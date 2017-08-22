@@ -333,10 +333,6 @@ endif
 $(filter %.s.o,$(OBJS-yes)):     $(BUILD_PFX)aom_config.asm
 $(filter %$(ASM).o,$(OBJS-yes)): $(BUILD_PFX)aom_config.asm
 
-
-$(shell $(SRC_PATH_BARE)/build/make/version.sh "$(SRC_PATH_BARE)" $(BUILD_PFX)aom_version.h)
-CLEAN-OBJS += $(BUILD_PFX)aom_version.h
-
 #
 # Add include path for libwebm sources.
 #
