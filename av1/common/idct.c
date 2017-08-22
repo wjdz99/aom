@@ -1668,7 +1668,7 @@ static void inv_txfm_add_4x4(const tran_low_t *input, uint8_t *dest, int stride,
     case ADST_DCT:
     case DCT_ADST:
     case ADST_ADST:
-#if CONFIG_LGT
+#if CONFIG_LGT || CONFIG_DAALA_DCT4
       // LGT only exists in C verson
       av1_iht4x4_16_add_c(input, dest, stride, txfm_param);
       break;
@@ -1682,7 +1682,7 @@ static void inv_txfm_add_4x4(const tran_low_t *input, uint8_t *dest, int stride,
     case FLIPADST_FLIPADST:
     case ADST_FLIPADST:
     case FLIPADST_ADST:
-#if CONFIG_LGT
+#if CONFIG_LGT || CONFIG_DAALA_DCT4
       av1_iht4x4_16_add_c(input, dest, stride, txfm_param);
       break;
 #else
@@ -1801,7 +1801,7 @@ static void inv_txfm_add_8x8(const tran_low_t *input, uint8_t *dest, int stride,
     case ADST_DCT:
     case DCT_ADST:
     case ADST_ADST:
-#if CONFIG_LGT
+#if CONFIG_LGT || CONFIG_DAALA_DCT8
       av1_iht8x8_64_add_c(input, dest, stride, txfm_param);
       break;
 #else
@@ -1814,7 +1814,7 @@ static void inv_txfm_add_8x8(const tran_low_t *input, uint8_t *dest, int stride,
     case FLIPADST_FLIPADST:
     case ADST_FLIPADST:
     case FLIPADST_ADST:
-#if CONFIG_LGT
+#if CONFIG_LGT || CONFIG_DAALA_DCT8
       av1_iht8x8_64_add_c(input, dest, stride, txfm_param);
       break;
 #else
