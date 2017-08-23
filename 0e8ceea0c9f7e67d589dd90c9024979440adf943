@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2277c2dc_a69c196b",
+        "filename": "av1/common/idct.c",
+        "patchSetId": 25
+      },
+      "lineNbr": 698,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2017-08-23T20:43:52Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 695,
+        "startChar": 0,
+        "endLine": 698,
+        "endChar": 41
+      },
+      "revId": "0e8ceea0c9f7e67d589dd90c9024979440adf943",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4fb20776_240efd6a",
+        "filename": "av1/encoder/dct.c",
+        "patchSetId": 25
+      },
+      "lineNbr": 1303,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2017-08-23T20:43:52Z",
+      "side": 1,
+      "message": "These can be const",
+      "range": {
+        "startLine": 1300,
+        "startChar": 0,
+        "endLine": 1303,
+        "endChar": 41
+      },
+      "revId": "0e8ceea0c9f7e67d589dd90c9024979440adf943",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dde0c74b_27dd2a39",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 25
+      },
+      "lineNbr": 5923,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2017-08-23T20:43:52Z",
+      "side": 1,
+      "message": "Can you explain the case where is_lgt_allowed \u003d\u003d 1 and !mbmi-\u003euse_lgt \u003d\u003d 1? Why do you update both counts?",
+      "range": {
+        "startLine": 5920,
+        "startChar": 9,
+        "endLine": 5923,
+        "endChar": 75
+      },
+      "revId": "0e8ceea0c9f7e67d589dd90c9024979440adf943",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9d559fcf_e221d6eb",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 25
+      },
+      "lineNbr": 2460,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2017-08-23T20:43:52Z",
+      "side": 1,
+      "message": "You can get rid of the #else if you do\n\n#if CONFIG_LGT_FROM_PRED\nif (is_lgt_allowed)\n    ...\nif (!mbmi-\u003euse_lgt)\n#endif  // CONFIG_LGT_FROM_PRED",
+      "range": {
+        "startLine": 2454,
+        "startChar": 0,
+        "endLine": 2460,
+        "endChar": 77
+      },
+      "revId": "0e8ceea0c9f7e67d589dd90c9024979440adf943",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "47d8d200_68e1a533",
+        "filename": "tools/aom_entropy_optimizer.c",
+        "patchSetId": 25
+      },
+      "lineNbr": 789,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2017-08-23T20:43:52Z",
+      "side": 1,
+      "message": "This is the same in both inter and intra branches so it can be factored out.",
+      "range": {
+        "startLine": 789,
+        "startChar": 0,
+        "endLine": 789,
+        "endChar": 32
+      },
+      "revId": "0e8ceea0c9f7e67d589dd90c9024979440adf943",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
