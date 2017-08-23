@@ -135,10 +135,6 @@ extern "C" {
 #if WIENER_FILT_PREC_BITS != 7
 #error "Wiener filter currently only works if WIENER_FILT_PREC_BITS == 7"
 #endif
-typedef struct {
-  DECLARE_ALIGNED(16, InterpKernel, vfilter);
-  DECLARE_ALIGNED(16, InterpKernel, hfilter);
-} WienerInfo;
 
 typedef struct {
 #if USE_HIGHPASS_IN_SGRPROJ
@@ -151,11 +147,6 @@ typedef struct {
   int r2;
   int e2;
 } sgr_params_type;
-
-typedef struct {
-  int ep;
-  int xqd[2];
-} SgrprojInfo;
 
 typedef struct {
   int restoration_tilesize;
@@ -261,6 +252,16 @@ void av1_loop_restoration_frame(YV12_BUFFER_CONFIG *frame, struct AV1Common *cm,
                                 RestorationInfo *rsi, int components_pattern,
                                 int partial_frame, YV12_BUFFER_CONFIG *dst);
 void av1_loop_restoration_precal();
+
+// Return 1 if the current block is a top-level superblock which is at the
+// top-left corner of an area of coefficients signalled for the loop
+// restoration filter. Return 0 otherwise.
+//
+// If tile_idx is non-NULL then if this block does begin a tile the function
+// writes the index of the tile to *tile_idx.
+int av1_loop_restoration_sb_is_rest_tl(const struct AV1Common *cm, int mi_row,
+                                       int mi_col, BLOCK_SIZE bsize,
+                                       int *tile_idx);
 #ifdef __cplusplus
 }  // extern "C"
 #endif

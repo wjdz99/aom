@@ -1426,3 +1426,39 @@ void av1_loop_restoration_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
   loop_restoration_rows(frame, cm, start_mi_row, end_mi_row, components_pattern,
                         rsi, dst);
 }
+
+int av1_loop_restoration_sb_is_rest_tl(const struct AV1Common *cm, int mi_row,
+                                       int mi_col, BLOCK_SIZE bsize,
+                                       int *tile_idx) {
+  if (bsize != cm->sb_size) return 0;
+
+#if CONFIG_FRAME_SUPERRES
+  const int width = cm->superres_upscaled_width;
+  const int height = cm->superres_upscaled_height;
+#else
+  const int width = cm->width;
+  const int height = cm->height;
+#endif  // CONFIG_FRAME_SUPERRES
+
+  int tile_w, tile_h, nhtiles, nvtiles;
+  av1_get_rest_ntiles(width, height, cm->rst_info[0].restoration_tilesize,
+                      &tile_w, &tile_h, &nhtiles, &nvtiles);
+
+  const int row = mi_row * MI_SIZE;
+  const int col = mi_col * MI_SIZE;
+
+  // This is the top-left of a block if the row and column are a
+  // multiple of tile_h and tile_w and we aren't at the bottom or
+  // right edge (the lowest/rightmost tile can be extended up to 50%)
+  if (!((row % tile_h == 0) && (row <= (nvtiles - 1) * tile_h) &&
+        (col % tile_w == 0) && (col <= (nhtiles - 1) * tile_w)))
+    return 0;
+
+  if (tile_idx) {
+    const int tile_row = AOMMIN(row / tile_h, nvtiles);
+    const int tile_col = AOMMIN(col / tile_w, nhtiles);
+    *tile_idx = nhtiles * tile_row + tile_col;
+  }
+
+  return 1;
+}
