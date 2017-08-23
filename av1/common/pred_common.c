@@ -157,6 +157,8 @@ int av1_get_pred_context_intra_interp(const MACROBLOCKD *xd) {
 int av1_get_palette_cache(const MODE_INFO *above_mi, const MODE_INFO *left_mi,
                           int plane, uint16_t *cache) {
   int above_n = 0, left_n = 0;
+  //if (above_mi == NULL) printf("above_mi is NULL \n");
+  above_mi = NULL;
   if (above_mi)
     above_n = above_mi->mbmi.palette_mode_info.palette_size[plane != 0];
   if (left_mi)
@@ -166,8 +168,10 @@ int av1_get_palette_cache(const MODE_INFO *above_mi, const MODE_INFO *left_mi,
   int left_idx = plane * PALETTE_MAX_SIZE;
   int n = 0;
   const uint16_t *above_colors =
-      above_mi->mbmi.palette_mode_info.palette_colors;
-  const uint16_t *left_colors = left_mi->mbmi.palette_mode_info.palette_colors;
+      above_mi ? above_mi->mbmi.palette_mode_info.palette_colors : NULL;
+  //printf("above_colors is %d \n", above_colors);
+  const uint16_t *left_colors =
+      left_mi ? left_mi->mbmi.palette_mode_info.palette_colors : NULL;
   // Merge the sorted lists of base colors from above and left to get
   // combined sorted color cache.
   while (above_n > 0 && left_n > 0) {
