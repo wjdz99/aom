@@ -1463,17 +1463,19 @@ static const aom_prob av1_default_blockzero_probs[TX_SIZES][PLANE_TYPES]
     },
   },
 #if CONFIG_TX64X64
-  { // TX_64x64 FIXME: currently the same as 32x32
+  { // TX_64x64
     { //  Y plane
-      { 17, 7, 1, },  // Intra
-      { 36, 29, 10, },  // Inter
+      {  13, 4, 1 },  // Intra
+      {  22, 6, 2 }   // Inter
     },
     { // UV plane
+      // FIXME: Never used for YUV 4:2:0 without ext-partition. Will need to be
+      // tuned for cases where it is actually used.
       { 181, 61, 10, },  // Intra
       { 197, 82, 25, },  // Inter
     },
   },
-#endif
+#endif  // CONFIG_TX64X64
 };
 
 #if !CONFIG_Q_ADAPT_PROBS

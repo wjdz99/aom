@@ -1982,14 +1982,40 @@ int av1_get_palette_color_index_context(const uint8_t *color_map, int stride,
 
 #if CONFIG_VAR_TX
 static const aom_prob default_txfm_partition_probs[TXFM_PARTITION_CONTEXTS] = {
-  250, 231, 212, 241, 166, 66, 241, 230, 135, 243, 154, 64, 248, 161, 63, 128,
 #if CONFIG_TX64X64
-  128, 128, 128, 128, 128, 128
+  255, 240, 222, 250, 228, 173, 248, 239, 199, 240, 206,
+  166, 233, 207, 159, 225, 179, 147, 192, 151, 125, 128
+#else
+  250, 231, 212, 241, 166, 66, 241, 230, 135, 243, 154, 64, 248, 161, 63, 128
 #endif  // CONFIG_TX64X64
 };
 #if CONFIG_NEW_MULTISYMBOL
 static const aom_cdf_prob
     default_txfm_partition_cdf[TXFM_PARTITION_CONTEXTS][CDF_SIZE(2)] = {
+#if CONFIG_TX64X64
+      { AOM_ICDF(255 * 128), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(240 * 128), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(222 * 128), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(250 * 128), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(228 * 128), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(173 * 128), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(248 * 128), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(239 * 128), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(199 * 128), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(240 * 128), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(206 * 128), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(166 * 128), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(233 * 128), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(207 * 128), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(159 * 128), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(225 * 128), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(179 * 128), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(147 * 128), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(192 * 128), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(151 * 128), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(125 * 128), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(128 * 128), AOM_ICDF(32768), 0 }
+#else
       { AOM_ICDF(250 * 128), AOM_ICDF(32768), 0 },
       { AOM_ICDF(231 * 128), AOM_ICDF(32768), 0 },
       { AOM_ICDF(212 * 128), AOM_ICDF(32768), 0 },
@@ -2006,13 +2032,6 @@ static const aom_cdf_prob
       { AOM_ICDF(161 * 128), AOM_ICDF(32768), 0 },
       { AOM_ICDF(63 * 128), AOM_ICDF(32768), 0 },
       { AOM_ICDF(128 * 128), AOM_ICDF(32768), 0 },
-#if CONFIG_TX64X64
-      { AOM_ICDF(128 * 128), AOM_ICDF(32768), 0 } { AOM_ICDF(128 * 128),
-                                                    AOM_ICDF(32768), 0 } {
-          AOM_ICDF(128 * 128), AOM_ICDF(32768), 0 } { AOM_ICDF(128 * 128),
-                                                      AOM_ICDF(32768), 0 } {
-          AOM_ICDF(128 * 128), AOM_ICDF(32768), 0 } { AOM_ICDF(128 * 128),
-                                                      AOM_ICDF(32768), 0 }
 #endif  // CONFIG_TX64X64
     };
 #endif  // CONFIG_NEW_MULTISYMBOL
