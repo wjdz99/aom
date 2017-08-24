@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bf90f54e_602f4926",
+        "filename": "av1/common/onyxc_int.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 881,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-08-24T16:38:57Z",
+      "side": 1,
+      "message": "does this work with EC_SMALLMUL both on and off?",
+      "revId": "71661202aa3f5b78c7ee9a3324fb2d45c6599daf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9216a4ae_5d091d57",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 2163,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-08-24T16:38:57Z",
+      "side": 1,
+      "message": "Should be AOM_ICDF(CDF_PROB_TOP)",
+      "revId": "71661202aa3f5b78c7ee9a3324fb2d45c6599daf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4acf4f4e_b9d1a41b",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 2170,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-08-24T16:38:57Z",
+      "side": 1,
+      "message": "Should be AOM_ICDF(CDF_PROB_TOP)",
+      "revId": "71661202aa3f5b78c7ee9a3324fb2d45c6599daf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
