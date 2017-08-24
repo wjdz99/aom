@@ -369,6 +369,13 @@ static INLINE int get_tx_size_context(const MACROBLOCKD *xd) {
   return (above_ctx + left_ctx) > max_tx_size + TX_SIZE_LUMA_MIN;
 }
 
+// Returns true if palette mode is supported for the given block size.
+static INLINE int av1_is_palette_supported(int allow_screen_content_tools,
+                                           BLOCK_SIZE bsize) {
+  return allow_screen_content_tools && bsize >= MIN_PALETTE_BSIZE &&
+         bsize <= MAX_PALETTE_BSIZE;
+}
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif
