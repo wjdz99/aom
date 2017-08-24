@@ -1518,7 +1518,7 @@ static void write_palette_mode_info(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   const BLOCK_SIZE bsize = mbmi->sb_type;
   const PALETTE_MODE_INFO *const pmi = &mbmi->palette_mode_info;
 
-  assert(bsize >= BLOCK_8X8 && bsize <= BLOCK_LARGEST);
+  assert(bsize >= MIN_PALETTE_BSIZE && bsize <= MAX_PALETTE_BSIZE);
   const int block_palette_idx = bsize - BLOCK_8X8;
 
   if (mbmi->mode == DC_PRED) {
@@ -1862,7 +1862,7 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
 #if CONFIG_EXT_INTRA
     write_intra_angle_info(xd, ec_ctx, w);
 #endif  // CONFIG_EXT_INTRA
-    if (bsize >= BLOCK_8X8 && cm->allow_screen_content_tools)
+    if (av1_is_palette_supported(cm->allow_screen_content_tools, bsize))
       write_palette_mode_info(cm, xd, mi, w);
 #if CONFIG_FILTER_INTRA
     if (bsize >= BLOCK_8X8 || unify_bsize)
@@ -2274,8 +2274,7 @@ static void write_mb_modes_kf(AV1_COMMON *cm,
 #if CONFIG_EXT_INTRA
   write_intra_angle_info(xd, ec_ctx, w);
 #endif  // CONFIG_EXT_INTRA
-  if (bsize >= BLOCK_8X8 && bsize <= BLOCK_LARGEST &&
-      cm->allow_screen_content_tools)
+  if (av1_is_palette_supported(cm->allow_screen_content_tools, bsize))
     write_palette_mode_info(cm, xd, mi, w);
 #if CONFIG_FILTER_INTRA
   if (bsize >= BLOCK_8X8 || unify_bsize)
