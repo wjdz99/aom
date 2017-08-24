@@ -1589,14 +1589,6 @@ const aom_cdf_prob
         AOM_ICDF(29821), AOM_ICDF(31617), AOM_ICDF(32768), 0 },
       { AOM_ICDF(12543), AOM_ICDF(20838), AOM_ICDF(27455), AOM_ICDF(28762),
         AOM_ICDF(29763), AOM_ICDF(31546), AOM_ICDF(32768), 0 },
-#if CONFIG_EXT_PARTITION
-      { AOM_ICDF(12543), AOM_ICDF(20838), AOM_ICDF(27455), AOM_ICDF(28762),
-        AOM_ICDF(29763), AOM_ICDF(31546), AOM_ICDF(32768), 0 },
-      { AOM_ICDF(12543), AOM_ICDF(20838), AOM_ICDF(27455), AOM_ICDF(28762),
-        AOM_ICDF(29763), AOM_ICDF(31546), AOM_ICDF(32768), 0 },
-      { AOM_ICDF(12543), AOM_ICDF(20838), AOM_ICDF(27455), AOM_ICDF(28762),
-        AOM_ICDF(29763), AOM_ICDF(31546), AOM_ICDF(32768), 0 },
-#endif
     };
 
 const aom_cdf_prob default_palette_uv_size_cdf[PALETTE_BLOCK_SIZES][CDF_SIZE(
@@ -1621,14 +1613,6 @@ const aom_cdf_prob default_palette_uv_size_cdf[PALETTE_BLOCK_SIZES][CDF_SIZE(
     AOM_ICDF(31409), AOM_ICDF(32545), AOM_ICDF(32768), 0 },
   { AOM_ICDF(9216), AOM_ICDF(14276), AOM_ICDF(19043), AOM_ICDF(22689),
     AOM_ICDF(25799), AOM_ICDF(28712), AOM_ICDF(32768), 0 },
-#if CONFIG_EXT_PARTITION
-  { AOM_ICDF(9216), AOM_ICDF(14276), AOM_ICDF(19043), AOM_ICDF(22689),
-    AOM_ICDF(25799), AOM_ICDF(28712), AOM_ICDF(32768), 0 },
-  { AOM_ICDF(9216), AOM_ICDF(14276), AOM_ICDF(19043), AOM_ICDF(22689),
-    AOM_ICDF(25799), AOM_ICDF(28712), AOM_ICDF(32768), 0 },
-  { AOM_ICDF(9216), AOM_ICDF(14276), AOM_ICDF(19043), AOM_ICDF(22689),
-    AOM_ICDF(25799), AOM_ICDF(28712), AOM_ICDF(32768), 0 },
-#endif
 };
 
 // When palette mode is enabled, following probability tables indicate the
@@ -1640,9 +1624,6 @@ const aom_prob av1_default_palette_y_mode_prob
       { 240, 180, 100 }, { 240, 180, 100 }, { 240, 180, 100 },
       { 240, 180, 100 }, { 240, 180, 100 }, { 240, 180, 100 },
       { 240, 180, 100 },
-#if CONFIG_EXT_PARTITION
-      { 240, 180, 100 }, { 240, 180, 100 }, { 240, 180, 100 },
-#endif  // CONFIG_EXT_PARTITION
     };
 
 const aom_prob av1_default_palette_uv_mode_prob[PALETTE_UV_MODE_CONTEXTS] = {

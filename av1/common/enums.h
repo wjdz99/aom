@@ -72,6 +72,18 @@ extern "C" {
 
 #define MI_SIZE_64X64 (64 >> MI_SIZE_LOG2)
 
+
+#define MIN_PALETTE_BSIZE BLOCK_8X8
+#define MAX_PALETTE_BSIZE BLOCK_64X64
+#define MAX_PALETTE_SQUARE (64 * 64)
+// Maximum number of colors in a palette.
+#define PALETTE_MAX_SIZE 8
+// Minimum number of colors in a palette.
+#define PALETTE_MIN_SIZE 2
+// Palette mode is available for block sizes between MIN_PALETTE_BSIZE and
+// MAX_PALETTE_BSIZE.
+#define PALETTE_BLOCK_SIZES (MAX_PALETTE_BSIZE - MIN_PALETTE_BSIZE + 1)
+
 // Bitstream profiles indicated by 2-3 bits in the uncompressed header.
 // 00: Profile 0.  8-bit 4:2:0 only.
 // 10: Profile 1.  8-bit 4:4:4, 4:2:2, and 4:4:0.
