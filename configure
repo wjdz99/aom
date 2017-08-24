@@ -522,6 +522,7 @@ post_process_cmdline() {
     soft_enable rect_intra_pred
     soft_enable convolve_round
     soft_enable aom_qm
+    soft_enable cfl
 
     # Enable low-bitdepth pixel pipeline by default
     soft_enable lowbitdepth
@@ -556,6 +557,7 @@ post_process_cmdline() {
     enabled ext_comp_refs && enable_feature ext_refs
     enabled ext_comp_refs && enable_feature one_sided_compound
     enabled rect_tx_ext && enable_feature rect_tx
+    enabled highbitdepth && disable_feature cfl
     enabled cfl && enable_feature smooth_hv
     enabled cdef_singlepass && enable_feature cdef
 
