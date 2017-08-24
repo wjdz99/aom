@@ -292,6 +292,43 @@ static void optimize_cdf_table(aom_count_type *counts, FILE *const probsfile,
   fprintf(probsfile, "};\n\n");
 }
 
+// Given the counts and eob_counts tables, calculate coef_counts.
+static void GetCoefficientCounts(
+    av1_coeff_count_model counts[TX_SIZES][PLANE_TYPES],
+    unsigned int eob_counts[TX_SIZES][PLANE_TYPES][REF_TYPES][COEF_BANDS]
+                           [COEFF_CONTEXTS],
+    unsigned int coef_counts[TX_SIZES][PLANE_TYPES][REF_TYPES][COEF_BANDS]
+                            [COEFF_CONTEXTS][UNCONSTRAINED_NODES][2]) {
+  for (int tx_size = 0; tx_size < TX_SIZES; ++tx_size) {
+    // Note: Same logic as in adapt_coef_probs().
+    for (int i = 0; i < PLANE_TYPES; ++i) {
+      for (int j = 0; j < REF_TYPES; ++j) {
+        for (int k = 0; k < COEF_BANDS; ++k) {
+          const int num_valid_contexts = BAND_COEFF_CONTEXTS(k);
+          for (int l = 0; l < num_valid_contexts; ++l) {
+            const int n0 = counts[tx_size][i][j][k][l][ZERO_TOKEN];
+            const int n1 = counts[tx_size][i][j][k][l][ONE_TOKEN];
+            const int n2 = counts[tx_size][i][j][k][l][TWO_TOKEN];
+            const int neob = counts[tx_size][i][j][k][l][EOB_MODEL_TOKEN];
+            const int eob_count = eob_counts[tx_size][i][j][k][l];
+            coef_counts[tx_size][i][j][k][l][0][0] = neob;
+            coef_counts[tx_size][i][j][k][l][0][1] = eob_count - neob;
+            coef_counts[tx_size][i][j][k][l][1][0] = n0;
+            coef_counts[tx_size][i][j][k][l][1][1] = n1 + n2;
+            coef_counts[tx_size][i][j][k][l][2][0] = n1;
+            coef_counts[tx_size][i][j][k][l][2][1] = n2;
+          }
+          // Fill in zeroes for the invalid contexts (unused).
+          for (int l = num_valid_contexts; l < COEFF_CONTEXTS; ++l) {
+            memset(&coef_counts[tx_size][i][j][k][l], 0,
+                   sizeof(coef_counts[tx_size][i][j][k][l]));
+          }
+        }
+      }
+    }
+  }
+}
+
 int main(int argc, const char **argv) {
   if (argc < 2) {
     fprintf(stderr, "Please specify the input stats file!\n");
@@ -446,6 +483,31 @@ int main(int argc, const char **argv) {
   optimize_cdf_table(&fc.drl_mode[0][0], probsfile, 2, cts_each_dim,
                      "static const aom_cdf_prob "
                      "default_drl_cdf[DRL_MODE_CONTEXTS][CDF_SIZE(2)]");
+
+/* Coefficients */
+#if !CONFIG_Q_ADAPT_PROBS
+  unsigned int coef_counts[TX_SIZES][PLANE_TYPES][REF_TYPES][COEF_BANDS]
+                          [COEFF_CONTEXTS][UNCONSTRAINED_NODES][2];
+  GetCoefficientCounts(fc.coef, fc.eob_branch, coef_counts);
+
+  cts_each_dim[0] = TX_SIZES;
+  cts_each_dim[1] = PLANE_TYPES;
+  cts_each_dim[2] = REF_TYPES;
+  cts_each_dim[3] = COEF_BANDS;
+  cts_each_dim[4] = COEFF_CONTEXTS;
+  cts_each_dim[5] = UNCONSTRAINED_NODES;
+  cts_each_dim[6] = 2;
+
+  // TODO(urvang): Need to split this into multiple named arrays to match the
+  // ones in entropy.c (e.g. 'default_coef_probs_4x4' etc). Or even better would
+  // be to merge the named arrays in entropy.c into one.
+  optimize_entropy_table(&coef_counts[0][0][0][0][0][0][0], probsfile, 7,
+                         cts_each_dim, NULL, 1,
+                         "static const av1_coeff_probs_model "
+                         "default_coef_probs[TX_SIZES][PLANE_TYPES]");
+// TODO(urvang): Optimize 'default_coef_head_cdf_xxx' too?
+
+#endif  // !CONFIG_Q_ADAPT_PROBS
 
 /* ext_inter experiment */
 #if CONFIG_EXT_INTER
