@@ -36,6 +36,7 @@ include("${AOM_ROOT}/build/cmake/aom_config_defaults.cmake")
 include("${AOM_ROOT}/build/cmake/aom_optimization.cmake")
 include("${AOM_ROOT}/build/cmake/compiler_flags.cmake")
 include("${AOM_ROOT}/build/cmake/compiler_tests.cmake")
+include("${AOM_ROOT}/build/cmake/util.cmake")
 
 # Build a list of all configurable variables.
 get_cmake_property(cmake_cache_vars CACHE_VARIABLES)
@@ -443,5 +444,11 @@ if (NOT MSVC)
   endif ()
   file(APPEND "${pkgconfig_file}" "Cflags: -I${prefix}/include\n")
 endif ()
+
+# Setup rules to regenerate aom.pc and aom_version.h when the git hash changes.
+extract_version_string("${AOM_CONFIG_DIR}/aom_version.h" aom_version)
+message(FATAL_ERROR "AOM_GIT_DESCRIPTION=${AOM_GIT_DESCRIPTION}
+                     AOM_GIT_HASH=${AOM_GIT_HASH}
+                     aom_version=${aom_version}")
 
 endif ()  # AOM_BUILD_CMAKE_AOM_CONFIGURE_CMAKE_
