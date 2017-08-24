@@ -18,6 +18,7 @@ if (NOT EMSCRIPTEN)
 endif ()
 
 option(ENABLE_CCACHE "Enable ccache support." OFF)
+option(ENABLE_COMPILER_TESTS "Enables compiler tests." ON)
 option(ENABLE_DISTCC "Enable distcc support." OFF)
 option(ENABLE_DOCS "Enable documentation generation (doxygen required)." ON)
 option(ENABLE_GOMA "Enable goma support." OFF)
