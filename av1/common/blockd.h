@@ -489,6 +489,10 @@ typedef struct MB_MODE_INFO {
 #endif
 
   BOUNDARY_TYPE boundary_info;
+
+#if CONFIG_LPF_DC
+  int eob;
+#endif
 } MB_MODE_INFO;
 
 typedef struct MODE_INFO {
