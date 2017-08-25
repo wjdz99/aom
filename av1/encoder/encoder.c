@@ -996,7 +996,9 @@ static void init_buffer_indices(AV1_COMP *cpi) {
 #else   // !CONFIG_ALTREF2
   cpi->alt_fb_idx = LAST_REF_FRAMES + 2;
 #endif  // CONFIG_ALTREF2
-  for (fb_idx = 0; fb_idx < MAX_EXT_ARFS + 1; ++fb_idx)
+  for (fb_idx = 0;
+       fb_idx < AOMMIN(MAX_EXT_ARFS + 1, REF_FRAMES - LAST_REF_FRAMES - 2);
+       ++fb_idx)
     cpi->arf_map[fb_idx] = LAST_REF_FRAMES + 2 + fb_idx;
 #else   // !CONFIG_EXT_REFS
   cpi->lst_fb_idx = 0;
@@ -3400,7 +3402,7 @@ void av1_update_reference_frames(AV1_COMP *cpi) {
     cpi->gld_fb_idx = tmp;
 
 #if CONFIG_EXT_REFS
-    // We need to modify the mapping accordingly
+    // We need to modify the ARF mapping accordingly
     cpi->arf_map[0] = cpi->alt_fb_idx;
 #endif  // CONFIG_EXT_REFS
 // TODO(zoeliu): Do we need to copy cpi->interp_filter_selected[0] over to
@@ -3479,8 +3481,11 @@ void av1_update_reference_frames(AV1_COMP *cpi) {
 #if CONFIG_EXT_REFS
     // === BWDREF_FRAME ===
     if (cpi->refresh_bwd_ref_frame) {
-#if !CONFIG_ALTREF2
+#if CONFIG_ALTREF2
+      if (cpi->rc.is_bwd_ref_frame && cpi->num_extra_arfs == MAX_EXT_ARFS) {
+#else  // !CONFIG_ALTREF2
       if (cpi->rc.is_bwd_ref_frame && cpi->num_extra_arfs) {
+#endif  // CONFIG_ALTREF2
         // We have swapped the virtual indices to allow bwd_ref_frame to use
         // ALT0 as reference frame. We need to swap them back.
         // NOTE: The ALT_REFs' are indexed reversely, and ALT0 refers to the
@@ -3490,7 +3495,6 @@ void av1_update_reference_frames(AV1_COMP *cpi) {
         cpi->alt_fb_idx = cpi->bwd_fb_idx;
         cpi->bwd_fb_idx = tmp;
       }
-#endif  // !CONFIG_ALTREF2
 
       ref_cnt_fb(pool->frame_bufs, &cm->ref_frame_map[cpi->bwd_fb_idx],
                  cm->new_fb_idx);
@@ -3503,10 +3507,16 @@ void av1_update_reference_frames(AV1_COMP *cpi) {
 #if CONFIG_ALTREF2
     // === ALTREF2_FRAME ===
     if (cpi->refresh_alt2_ref_frame) {
-      ref_cnt_fb(pool->frame_bufs, &cm->ref_frame_map[cpi->alt2_fb_idx],
-                 cm->new_fb_idx);
+      int arf_idx = cpi->alt2_fb_idx;
+      int which_arf = 0;
+      if (cpi->oxcf.pass == 2 && cpi->num_extra_arfs == MAX_EXT_ARFS) {
+        const GF_GROUP *const gf_group = &cpi->twopass.gf_group;
+        which_arf = gf_group->arf_update_idx[gf_group->index];
+        arf_idx = cpi->arf_map[which_arf];
+      }
+      ref_cnt_fb(pool->frame_bufs, &cm->ref_frame_map[arf_idx], cm->new_fb_idx);
 
-      memcpy(cpi->interp_filter_selected[ALTREF2_FRAME],
+      memcpy(cpi->interp_filter_selected[ALTREF2_FRAME + which_arf],
              cpi->interp_filter_selected[0],
              sizeof(cpi->interp_filter_selected[0]));
     }
@@ -3548,8 +3558,11 @@ void av1_update_reference_frames(AV1_COMP *cpi) {
     // lst_fb_idxes[2], lst_fb_idxes[0], lst_fb_idxes[1]
     int ref_frame;
 
-#if !CONFIG_ALTREF2
+#if CONFIG_ALTREF2
+    if (cpi->rc.is_bwd_ref_frame && cpi->num_extra_arfs == MAX_EXT_ARFS) {
+#else  // !CONFIG_ALTREF2
     if (cpi->rc.is_bwd_ref_frame && cpi->num_extra_arfs) {
+#endif  // CONFIG_ALTREF2
       // We have swapped the virtual indices to use ALT0 as BWD_REF
       // and we need to swap them back.
       int tmp = cpi->arf_map[0];
@@ -3557,7 +3570,6 @@ void av1_update_reference_frames(AV1_COMP *cpi) {
       cpi->alt_fb_idx = cpi->bwd_fb_idx;
       cpi->bwd_fb_idx = tmp;
     }
-#endif  // !CONFIG_ALTREF2
 
     if (cm->frame_type == KEY_FRAME) {
       for (ref_frame = 0; ref_frame < LAST_REF_FRAMES; ++ref_frame) {

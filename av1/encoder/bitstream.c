@@ -3686,9 +3686,10 @@ static int get_refresh_mask(AV1_COMP *cpi) {
   int refresh_mask = 0;
 
 #if CONFIG_EXT_REFS
-  // NOTE(zoeliu): When LAST_FRAME is to get refreshed, the decoder will be
-  // notified to get LAST3_FRAME refreshed and then the virtual indexes for all
-  // the 3 LAST reference frames will be updated accordingly, i.e.:
+  // === refresh_last_frame ===
+  // NOTE: When LAST_FRAME is to get refreshed, the decoder will be notified to
+  //       get LAST3_FRAME refreshed and then the virtual indexes for all the 3
+  //       LAST reference frames will be updated accordingly, i.e.:
   // (1) The original virtual index for LAST3_FRAME will become the new virtual
   //     index for LAST_FRAME; and
   // (2) The original virtual indexes for LAST_FRAME and LAST2_FRAME will be
@@ -3697,17 +3698,21 @@ static int get_refresh_mask(AV1_COMP *cpi) {
   refresh_mask |=
       (cpi->refresh_last_frame << cpi->lst_fb_idxes[LAST_REF_FRAMES - 1]);
 
+// === refresh_bwd_ref_frame ===
 #if CONFIG_ALTREF2
-  refresh_mask |= (cpi->refresh_bwd_ref_frame << cpi->bwd_fb_idx);
-  refresh_mask |= (cpi->refresh_alt2_ref_frame << cpi->alt2_fb_idx);
-#else   // !CONFIG_ALTREF2
-  if (cpi->rc.is_bwd_ref_frame && cpi->num_extra_arfs) {
+  if (cpi->rc.is_bwd_ref_frame && cpi->num_extra_arfs == MAX_EXT_ARFS)
+#else  // !CONFIG_ALTREF2
+  if (cpi->rc.is_bwd_ref_frame && cpi->num_extra_arfs)
+#endif  // CONFIG_ALTREF2
     // We have swapped the virtual indices
     refresh_mask |= (cpi->refresh_bwd_ref_frame << cpi->arf_map[0]);
-  } else {
+  else
     refresh_mask |= (cpi->refresh_bwd_ref_frame << cpi->bwd_fb_idx);
-  }
+
+#if CONFIG_ALTREF2
+  refresh_mask |= (cpi->refresh_alt2_ref_frame << cpi->alt2_fb_idx);
 #endif  // CONFIG_ALTREF2
+
 #else   // !CONFIG_EXT_REFS
   refresh_mask |= (cpi->refresh_last_frame << cpi->lst_fb_idx);
 #endif  // CONFIG_EXT_REFS
