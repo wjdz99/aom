@@ -47,7 +47,8 @@ typedef double (*search_restore_type)(const YV12_BUFFER_CONFIG *src,
                                       double *best_tile_cost,
                                       YV12_BUFFER_CONFIG *dst_frame);
 
-const int frame_level_restore_bits[RESTORE_TYPES] = { 2, 2, 2, 2 };
+const int frame_level_restore_bits[2][RESTORE_TYPES] = { { 2, 2, 2, 2 },
+                                                         { 1, 2, 2, -1 } };
 
 static int64_t sse_restoration_tile(const YV12_BUFFER_CONFIG *src,
                                     const YV12_BUFFER_CONFIG *dst,
@@ -88,10 +89,10 @@ static int64_t sse_restoration_tile(const YV12_BUFFER_CONFIG *src,
   return filt_err;
 }
 
-static int64_t sse_restoration_frame(AV1_COMMON *const cm,
-                                     const YV12_BUFFER_CONFIG *src,
-                                     const YV12_BUFFER_CONFIG *dst,
-                                     int components_pattern) {
+int64_t sse_restoration_frame(AV1_COMMON *const cm,
+                              const YV12_BUFFER_CONFIG *src,
+                              const YV12_BUFFER_CONFIG *dst,
+                              int components_pattern) {
   int64_t filt_err = 0;
 #if CONFIG_HIGHBITDEPTH
   if (cm->use_highbitdepth) {
@@ -513,7 +514,7 @@ static double search_sgrproj(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
   }
   // Cost for Sgrproj filtering
   set_default_sgrproj(&ref_sgrproj_info);
-  bits = frame_level_restore_bits[rsi[plane].frame_restoration_type]
+  bits = frame_level_restore_bits[!!plane][rsi[plane].frame_restoration_type]
          << AV1_PROB_COST_SHIFT;
   for (tile_idx = 0; tile_idx < ntiles; ++tile_idx) {
     bits +=
@@ -1139,7 +1140,7 @@ static double search_wiener(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
   }
   // Cost for Wiener filtering
   set_default_wiener(&ref_wiener_info);
-  bits = frame_level_restore_bits[rsi[plane].frame_restoration_type]
+  bits = frame_level_restore_bits[!!plane][rsi[plane].frame_restoration_type]
          << AV1_PROB_COST_SHIFT;
   for (tile_idx = 0; tile_idx < ntiles; ++tile_idx) {
     bits +=
@@ -1202,7 +1203,7 @@ static double search_norestore(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
   }
   // RD cost associated with no restoration
   err = sse_restoration_frame(cm, src, cm->frame_to_show, (1 << plane));
-  bits = frame_level_restore_bits[RESTORE_NONE] << AV1_PROB_COST_SHIFT;
+  bits = frame_level_restore_bits[!!plane][RESTORE_NONE] << AV1_PROB_COST_SHIFT;
   cost_norestore = RDCOST_DBL(x->rdmult, (bits >> 4), err);
   return cost_norestore;
 }
@@ -1234,7 +1235,7 @@ static double search_switchable_restoration(
   (void)partial_frame;
 
   rsi->frame_restoration_type = RESTORE_SWITCHABLE;
-  bits = frame_level_restore_bits[rsi->frame_restoration_type]
+  bits = frame_level_restore_bits[!!plane][rsi->frame_restoration_type]
          << AV1_PROB_COST_SHIFT;
   cost_switchable = RDCOST_DBL(x->rdmult, bits >> 4, 0);
   for (tile_idx = 0; tile_idx < ntiles; ++tile_idx) {
@@ -1278,8 +1279,59 @@ static double search_switchable_restoration(
   return cost_switchable;
 }
 
-void av1_pick_filter_restoration(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
-                                 LPF_PICK_METHOD method) {
+int count_rst_bits(AV1_COMP *cpi, const YV12_BUFFER_CONFIG *src, int plane,
+                   RestorationInfo *rsi) {
+  MACROBLOCK *x = &cpi->td.mb;
+  int width, height;
+  int bits = 0;
+  if (plane == AOM_PLANE_Y) {
+    width = src->y_crop_width;
+    height = src->y_crop_height;
+  } else {
+    width = src->uv_crop_width;
+    height = src->uv_crop_height;
+  }
+  const int ntiles = av1_get_rest_ntiles(
+      width, height, rsi->restoration_tilesize, NULL, NULL, NULL,
+      NULL);
+  SgrprojInfo ref_sgrproj_info;
+  set_default_sgrproj(&ref_sgrproj_info);
+  WienerInfo ref_wiener_info;
+  set_default_wiener(&ref_wiener_info);
+  bits = frame_level_restore_bits[!!plane][rsi->frame_restoration_type]
+         << AV1_PROB_COST_SHIFT;
+  if (rsi->frame_restoration_type == RESTORE_NONE) return bits;
+
+  for (int tile_idx = 0; tile_idx < ntiles; ++tile_idx) {
+    int tilebits = 0;
+    const RestorationType r = rsi->restoration_type[tile_idx];
+    if (rsi->frame_restoration_type == RESTORE_SWITCHABLE)
+      bits += x->switchable_restore_cost[r];
+    else if (rsi->frame_restoration_type == RESTORE_WIENER)
+      bits += av1_cost_bit(RESTORE_NONE_WIENER_PROB, r != RESTORE_NONE);
+    else if (rsi->frame_restoration_type == RESTORE_SGRPROJ)
+      bits += av1_cost_bit(RESTORE_NONE_SGRPROJ_PROB, r != RESTORE_NONE);
+
+    switch (r) {
+      case RESTORE_NONE: break;
+      case RESTORE_SGRPROJ:
+        tilebits +=
+            count_sgrproj_bits(&rsi->sgrproj_info[tile_idx], &ref_sgrproj_info);
+        break;
+      case RESTORE_WIENER:
+        tilebits += count_wiener_bits(
+            (plane == AOM_PLANE_Y ? WIENER_WIN : WIENER_WIN - 2),
+            &rsi->wiener_info[tile_idx], &ref_wiener_info);
+        break;
+      default: assert(0);
+    }
+    bits += (tilebits << AV1_PROB_COST_SHIFT);
+  }
+  return bits;
+}
+
+uint64_t av1_pick_filter_restoration(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
+                                     LPF_PICK_METHOD method) {
   static search_restore_type search_restore_fun[RESTORE_SWITCHABLE_TYPES] = {
     search_norestore, search_wiener, search_sgrproj,
   };
@@ -1293,6 +1345,7 @@ void av1_pick_filter_restoration(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
   const int yheight = src->y_crop_height;
   const int uvwidth = src->uv_crop_width;
   const int uvheight = src->uv_crop_height;
+  uint64_t total_bits = 0;
 
   const int ntiles_y =
       av1_get_rest_ntiles(ywidth, yheight, cm->rst_info[0].restoration_tilesize,
@@ -1335,6 +1388,7 @@ void av1_pick_filter_restoration(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
       }
     }
     cm->rst_info[plane].frame_restoration_type = best_restore;
+    total_bits += count_rst_bits(cpi, src, plane, &cm->rst_info[plane]);
     if (force_restore_type != 0)
       assert(best_restore == force_restore_type ||
              best_restore == RESTORE_NONE);
@@ -1359,4 +1413,5 @@ void av1_pick_filter_restoration(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
     aom_free(tile_cost[r]);
     aom_free(restore_types[r]);
   }
+  return total_bits;
 }
