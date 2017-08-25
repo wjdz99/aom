@@ -3400,7 +3400,7 @@ void av1_update_reference_frames(AV1_COMP *cpi) {
     cpi->gld_fb_idx = tmp;
 
 #if CONFIG_EXT_REFS
-    // We need to modify the mapping accordingly
+    // We need to modify the ARF mapping accordingly
     cpi->arf_map[0] = cpi->alt_fb_idx;
 #endif  // CONFIG_EXT_REFS
 // TODO(zoeliu): Do we need to copy cpi->interp_filter_selected[0] over to
@@ -3503,12 +3503,20 @@ void av1_update_reference_frames(AV1_COMP *cpi) {
 #if CONFIG_ALTREF2
     // === ALTREF2_FRAME ===
     if (cpi->refresh_alt2_ref_frame) {
-      ref_cnt_fb(pool->frame_bufs, &cm->ref_frame_map[cpi->alt2_fb_idx],
-                 cm->new_fb_idx);
+      if (cpi->num_extra_arfs == MAX_EXT_ARFS) {
+        if (cpi->oxcf.pass == 2) {
+          const GF_GROUP *const gf_group = &cpi->twopass.gf_group;
+          const int which_arf = gf_group->arf_update_idx[gf_group->index];
+          const int arf_idx = cpi->arf_map[which_arf];
+        }
+      } else {
+        ref_cnt_fb(pool->frame_bufs, &cm->ref_frame_map[cpi->alt2_fb_idx],
+                   cm->new_fb_idx);
 
-      memcpy(cpi->interp_filter_selected[ALTREF2_FRAME],
-             cpi->interp_filter_selected[0],
-             sizeof(cpi->interp_filter_selected[0]));
+        memcpy(cpi->interp_filter_selected[ALTREF2_FRAME],
+               cpi->interp_filter_selected[0],
+               sizeof(cpi->interp_filter_selected[0]));
+      }
     }
 #endif  // CONFIG_ALTREF2
 #endif  // CONFIG_EXT_REFS
