@@ -2938,12 +2938,19 @@ static void av1_average_cdf(aom_cdf_prob *cdf_ptr[], aom_cdf_prob *fc_cdf_ptr,
     do {
       int sum = 0;
       int j;
+#if !CONFIG_PVQ
+    // When PVQ is on, some symbol is never used then cdf is not initialized.
       assert(i < cdf_size);
+#else
+      if (i >= cdf_size) break;
+#endif  // !CONFIG_PVQ
       for (j = 0; j < num_tiles; ++j) sum += AOM_ICDF(cdf_ptr[j][i]);
       fc_cdf_ptr[i] = AOM_ICDF(sum / num_tiles);
     } while (fc_cdf_ptr[i++] != AOM_ICDF(CDF_PROB_TOP));
     // Zero symbol counts for the next frame
+#if !CONFIG_PVQ
     assert(i < cdf_size);
+#endif  // !CONFIG_PVQ
     fc_cdf_ptr[i++] = 0;
     // Skip trailing zeros until the start of the next CDF.
     for (; i < cdf_size && fc_cdf_ptr[i] == 0; ++i) {
