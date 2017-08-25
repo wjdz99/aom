@@ -82,6 +82,11 @@ FRAME_COUNTS aggregate_fc;
 FRAME_COUNTS aggregate_fc_per_type[FRAME_CONTEXTS];
 #endif  // CONFIG_ENTROPY_STATS
 
+#if CONFIG_LOOP_RESTORATION && CONFIG_CDEF
+// If set as 1, choose one or the other but not both
+#define LR_CDEF_EXCLUSIVE 1
+#endif
+
 #define AM_SEGMENT_ID_INACTIVE 7
 #define AM_SEGMENT_ID_ACTIVE 0
 
@@ -246,6 +251,23 @@ int av1_get_active_map(AV1_COMP *cpi, unsigned char *new_map_16x16, int rows,
     return 0;
   } else {
     return -1;
+  }
+}
+
+void av1_set_high_precision_mv(AV1_COMP *cpi, int allow_high_precision_mv) {
+  MACROBLOCK *const mb = &cpi->td.mb;
+  cpi->common.allow_high_precision_mv = allow_high_precision_mv;
+
+  if (cpi->common.allow_high_precision_mv) {
+    int i;
+    for (i = 0; i < NMV_CONTEXTS; ++i) {
+      mb->mv_cost_stack[i] = mb->nmvcost_hp[i];
+    }
+  } else {
+    int i;
+    for (i = 0; i < NMV_CONTEXTS; ++i) {
+      mb->mv_cost_stack[i] = mb->nmvcost[i];
+    }
   }
 }
 
@@ -523,11 +545,18 @@ static void dealloc_compressor_data(AV1_COMP *cpi) {
 static void save_coding_context(AV1_COMP *cpi) {
   CODING_CONTEXT *const cc = &cpi->coding_context;
   AV1_COMMON *cm = &cpi->common;
+  int i;
 
   // Stores a snapshot of key state variables which can subsequently be
   // restored with a call to av1_restore_coding_context. These functions are
   // intended for use in a re-code loop in av1_compress_frame where the
   // quantizer value is adjusted between loop iterations.
+  for (i = 0; i < NMV_CONTEXTS; ++i) {
+    av1_copy(cc->nmv_vec_cost[i], cpi->td.mb.nmv_vec_cost[i]);
+    av1_copy(cc->nmv_costs, cpi->nmv_costs);
+    av1_copy(cc->nmv_costs_hp, cpi->nmv_costs_hp);
+  }
+
   av1_copy(cc->last_ref_lf_deltas, cm->lf.last_ref_deltas);
   av1_copy(cc->last_mode_lf_deltas, cm->lf.last_mode_deltas);
 
@@ -537,9 +566,16 @@ static void save_coding_context(AV1_COMP *cpi) {
 static void restore_coding_context(AV1_COMP *cpi) {
   CODING_CONTEXT *const cc = &cpi->coding_context;
   AV1_COMMON *cm = &cpi->common;
+  int i;
 
   // Restore key state variables to the snapshot state stored in the
   // previous call to av1_save_coding_context.
+  for (i = 0; i < NMV_CONTEXTS; ++i) {
+    av1_copy(cpi->td.mb.nmv_vec_cost[i], cc->nmv_vec_cost[i]);
+    av1_copy(cpi->nmv_costs, cc->nmv_costs);
+    av1_copy(cpi->nmv_costs_hp, cc->nmv_costs_hp);
+  }
+
   av1_copy(cm->lf.last_ref_deltas, cc->last_ref_lf_deltas);
   av1_copy(cm->lf.last_mode_deltas, cc->last_mode_lf_deltas);
 
@@ -2296,7 +2332,7 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
   set_compound_tools(cm);
 #endif  // CONFIG_EXT_INTER
   av1_reset_segment_features(cm);
-  cm->allow_high_precision_mv = 0;
+  av1_set_high_precision_mv(cpi, 0);
 
   set_rc_buffer_sizes(rc, &cpi->oxcf);
 
@@ -2426,6 +2462,11 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
 
   realloc_segmentation_maps(cpi);
 
+  for (i = 0; i < NMV_CONTEXTS; ++i) {
+    memset(cpi->nmv_costs, 0, sizeof(cpi->nmv_costs));
+    memset(cpi->nmv_costs_hp, 0, sizeof(cpi->nmv_costs_hp));
+  }
+
   for (i = 0; i < (sizeof(cpi->mbgraph_stats) / sizeof(cpi->mbgraph_stats[0]));
        i++) {
     CHECK_MEM_ERROR(
@@ -2487,6 +2528,13 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
 #endif  // CONFIG_ENTROPY_STATS
 
   cpi->first_time_stamp_ever = INT64_MAX;
+
+  for (i = 0; i < NMV_CONTEXTS; ++i) {
+    cpi->td.mb.nmvcost[i][0] = &cpi->nmv_costs[i][0][MV_MAX];
+    cpi->td.mb.nmvcost[i][1] = &cpi->nmv_costs[i][1][MV_MAX];
+    cpi->td.mb.nmvcost_hp[i][0] = &cpi->nmv_costs_hp[i][0][MV_MAX];
+    cpi->td.mb.nmvcost_hp[i][1] = &cpi->nmv_costs_hp[i][1][MV_MAX];
+  }
 
 #ifdef OUTPUT_YUV_SKINMAP
   yuv_skinmap_file = fopen("skinmap.yuv", "ab");
@@ -3875,8 +3923,9 @@ static void set_size_dependent_vars(AV1_COMP *cpi, int *q, int *bottom_index,
   *q = av1_rc_pick_q_and_bounds(cpi, bottom_index, top_index);
 #endif
 
-  if (!frame_is_intra_only(cm))
-    cm->allow_high_precision_mv = (*q) < HIGH_PRECISION_MV_QTHRESH;
+  if (!frame_is_intra_only(cm)) {
+    av1_set_high_precision_mv(cpi, (*q) < HIGH_PRECISION_MV_QTHRESH);
+  }
 
   // Configure experimental use of segmentation for enhanced coding of
   // static regions if indicated.
@@ -4132,10 +4181,68 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
       av1_loop_filter_frame_mt(cm->frame_to_show, cm, xd->plane,
                                lf->filter_level, 0, 0, cpi->workers,
                                cpi->num_workers, &cpi->lf_row_sync);
-    else
-      av1_loop_filter_frame(cm->frame_to_show, cm, xd, lf->filter_level, 0, 0);
-#endif
+#endif  // CONFIG_VAR_TX || CONFIG_EXT_PARTITION || CONFIG_CB4X4
   }
+#if CONFIG_LOOP_RESTORATION && CONFIG_CDEF && LR_CDEF_EXCLUSIVE
+  int64_t cdef_bits = 0;
+  int64_t lr_bits = 0;
+  cm->cdef_bits = 0;
+  cm->cdef_strengths[0] = 0;
+  cm->nb_cdef_strengths = 1;
+// Turn off CDEF in this mode if superres is used
+#if CONFIG_FRAME_SUPERRES
+  if (av1_superres_unscaled(cm))
+#endif  // CONFIG_FRAME_SUPERRES
+    if (is_lossless_requested(&cpi->oxcf)) {
+      cm->cdef_bits = 0;
+      cm->cdef_strengths[0] = 0;
+      cm->nb_cdef_strengths = 1;
+    } else {
+      // Find CDEF parameters
+      cdef_bits = av1_cdef_search(cm->frame_to_show, cpi->source, cm, xd,
+                                  cpi->oxcf.speed > 0);
+    }
+#if CONFIG_FRAME_SUPERRES
+  superres_post_encode(cpi);
+#endif  // CONFIG_FRAME_SUPERRES
+  lr_bits = av1_pick_filter_restoration(cpi->source, cpi, cpi->sf.lpf_pick);
+  // if both are used choose one or the other
+  if (cm->cdef_bits &&
+      (cm->rst_info[0].frame_restoration_type != RESTORE_NONE ||
+       cm->rst_info[1].frame_restoration_type != RESTORE_NONE ||
+       cm->rst_info[2].frame_restoration_type != RESTORE_NONE)) {
+    MACROBLOCK *x = &cpi->td.mb;
+    aom_yv12_copy_frame(cm->frame_to_show, &cpi->last_frame_uf);
+    av1_cdef_frame(&cpi->last_frame_uf, cm, xd);
+    int64_t cdef_err =
+        sse_restoration_frame(cm, cpi->source, &cpi->last_frame_uf, 7);
+    double cdef_cost = RDCOST_DBL(x->rdmult, (cdef_bits >> 4), cdef_err);
+    av1_loop_restoration_frame(cm->frame_to_show, cm, cm->rst_info, 7, 0, NULL);
+    int64_t lr_err =
+        sse_restoration_frame(cm, cpi->source, cm->frame_to_show, 7);
+    double lr_cost = RDCOST_DBL(x->rdmult, (lr_bits >> 4), lr_err);
+    printf("cdef: %" PRId64 "/%f, %" PRId64 "/%f\n", cdef_bits, cdef_cost,
+           lr_bits, lr_cost);
+    if (lr_cost < cdef_cost) {
+      // Disable cdef
+      cm->cdef_bits = 0;
+      cm->cdef_strengths[0] = 0;
+      cm->nb_cdef_strengths = 1;
+    } else {
+      // Disable loop-restoration
+      cm->rst_info[0].frame_restoration_type =
+          cm->rst_info[1].frame_restoration_type =
+              cm->rst_info[2].frame_restoration_type = RESTORE_NONE;
+      aom_yv12_copy_frame(&cpi->last_frame_uf, cm->frame_to_show);
+    }
+  } else if (cm->cdef_bits) {
+    av1_cdef_frame(cm->frame_to_show, cm, xd);
+  } else if (cm->rst_info[0].frame_restoration_type != RESTORE_NONE ||
+             cm->rst_info[1].frame_restoration_type != RESTORE_NONE ||
+             cm->rst_info[2].frame_restoration_type != RESTORE_NONE) {
+    av1_loop_restoration_frame(cm->frame_to_show, cm, cm->rst_info, 7, 0, NULL);
+  }
+#else
 #if CONFIG_CDEF
   if (is_lossless_requested(&cpi->oxcf)) {
     cm->cdef_bits = 0;
@@ -4145,7 +4252,6 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
     // Find CDEF parameters
     av1_cdef_search(cm->frame_to_show, cpi->source, cm, xd,
                     cpi->oxcf.speed > 0);
-
     // Apply the filter
     av1_cdef_frame(cm->frame_to_show, cm, xd);
   }
@@ -4163,6 +4269,7 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
     av1_loop_restoration_frame(cm->frame_to_show, cm, cm->rst_info, 7, 0, NULL);
   }
 #endif  // CONFIG_LOOP_RESTORATION
+#endif  // CONFIG_LOOP_RESTORATION && CONFIG_CDEF && LR_CDEF_EXCLUSIVE
   // TODO(debargha): Fix mv search range on encoder side
   // aom_extend_frame_inner_borders(cm->frame_to_show);
   aom_extend_frame_borders(cm->frame_to_show);
@@ -4581,12 +4688,12 @@ static int get_ref_frame_flags(const AV1_COMP *cpi) {
     !CONFIG_EXT_COMP_REFS  // Changes LL & HL bitstream
   /* Allow biprediction between two identical frames (e.g. bwd_is_last = 1) */
   if (bwd_is_alt && (flags & AOM_BWD_FLAG)) flags &= ~AOM_BWD_FLAG;
-#else   // !CONFIG_ONE_SIDED_COMPOUND || CONFIG_EXT_COMP_REFS
+#else                      // !CONFIG_ONE_SIDED_COMPOUND || CONFIG_EXT_COMP_REFS
   if ((bwd_is_last || bwd_is_last2 || bwd_is_last3 || bwd_is_gld ||
        bwd_is_alt) &&
       (flags & AOM_BWD_FLAG))
     flags &= ~AOM_BWD_FLAG;
-#endif  // CONFIG_ONE_SIDED_COMPOUND && !CONFIG_EXT_COMP_REFS
+#endif                     // CONFIG_ONE_SIDED_COMPOUND && !CONFIG_EXT_COMP_REFS
 
 #if CONFIG_ALTREF2
   if ((alt2_is_last || alt2_is_last2 || alt2_is_last3 || alt2_is_gld ||
@@ -5689,7 +5796,7 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
 
   aom_usec_timer_start(&cmptimer);
 
-  cm->allow_high_precision_mv = ALTREF_HIGH_PRECISION_MV;
+  av1_set_high_precision_mv(cpi, ALTREF_HIGH_PRECISION_MV);
 
   // Is multi-arf enabled.
   // Note that at the moment multi_arf is only configured for 2 pass VBR
