@@ -284,8 +284,9 @@ uint64_t compute_cdef_dist(uint16_t *dst, int dstride, uint16_t *src,
   return sum >> 2 * coeff_shift;
 }
 
-void av1_cdef_search(YV12_BUFFER_CONFIG *frame, const YV12_BUFFER_CONFIG *ref,
-                     AV1_COMMON *cm, MACROBLOCKD *xd, int fast) {
+int64_t av1_cdef_search(YV12_BUFFER_CONFIG *frame,
+                        const YV12_BUFFER_CONFIG *ref,
+                        AV1_COMMON *cm, MACROBLOCKD *xd, int fast) {
   int r, c;
   int fbr, fbc;
   uint16_t *src[3];
@@ -532,4 +533,5 @@ void av1_cdef_search(YV12_BUFFER_CONFIG *frame, const YV12_BUFFER_CONFIG *ref,
   }
   aom_free(sb_index);
   aom_free(selected_strength);
+  return (cm->cdef_bits * (int64_t)sb_count + 2) << AV1_PROB_COST_SHIFT;
 }
