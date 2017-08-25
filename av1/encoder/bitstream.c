@@ -1776,6 +1776,17 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
   }
 #endif
 
+#if CONFIG_CDEF
+  if (cm->cdef_bits != 0 && !cm->all_lossless &&
+      (mi_row % MI_SIZE_64X64 == 0) && (mi_col % MI_SIZE_64X64 == 0)) {
+    if (!skip) {
+      aom_write_literal(w, cm->mi_grid_visible[mi_row * cm->mi_stride + mi_col]
+                               ->mbmi.cdef_strength,
+                        cm->cdef_bits);
+    }
+  }
+#endif  // CONFIG_CDEF
+
 #if CONFIG_SUPERTX
   if (!supertx_enabled)
 #endif  // CONFIG_SUPERTX
@@ -2200,7 +2211,24 @@ static void write_mb_modes_kf(AV1_COMMON *cm,
     }
   }
 #else
-  write_skip(cm, xd, mbmi->segment_id, mi, w);
+  const int skip = write_skip(cm, xd, mbmi->segment_id, mi, w);
+#endif
+
+#if CONFIG_CDEF
+  // determine cdef strength if current block is the first partition
+  // of the superblock (64x64)
+  // TODO(chengchen): support superblock is 128x128
+  if (cm->cdef_bits != 0 && !cm->all_lossless &&
+      (mi_row % MI_SIZE_64X64 == 0) && (mi_col % MI_SIZE_64X64 == 0)) {
+    if (!skip) {
+      aom_write_literal(w, cm->mi_grid_visible[mi_row * cm->mi_stride + mi_col]
+                               ->mbmi.cdef_strength,
+                        cm->cdef_bits);
+    }
+  }
+#endif  // CONFIG_CDEF
+#if CONFIG_DELTA_Q
+  (void)skip;
 #endif
 
   int enable_tx_size = cm->tx_mode == TX_MODE_SELECT &&
@@ -2948,6 +2976,7 @@ static void write_modes_sb(AV1_COMP *const cpi, const TileInfo *const tile,
   if (mi_row >= cm->mi_rows || mi_col >= cm->mi_cols) return;
 
   write_partition(cm, xd, hbs, mi_row, mi_col, partition, bsize, w);
+
 #if CONFIG_SUPERTX
   mbmi = &cm->mi_grid_visible[mi_offset]->mbmi;
   xd->mi = cm->mi_grid_visible + mi_offset;
@@ -3138,28 +3167,6 @@ static void write_modes_sb(AV1_COMP *const cpi, const TileInfo *const tile,
       (bsize == BLOCK_8X8 || partition != PARTITION_SPLIT))
     update_partition_context(xd, mi_row, mi_col, subsize, bsize);
 #endif  // CONFIG_EXT_PARTITION_TYPES
-
-#if CONFIG_CDEF
-  if (bsize == cm->sb_size && cm->cdef_bits != 0 && !cm->all_lossless) {
-    int width_step = mi_size_wide[BLOCK_64X64];
-    int height_step = mi_size_high[BLOCK_64X64];
-    int width, height;
-    for (height = 0; (height < mi_size_high[cm->sb_size]) &&
-                     (mi_row + height < cm->mi_rows);
-         height += height_step) {
-      for (width = 0; (width < mi_size_wide[cm->sb_size]) &&
-                      (mi_col + width < cm->mi_cols);
-           width += width_step) {
-        if (!sb_all_skip(cm, mi_row + height, mi_col + width))
-          aom_write_literal(
-              w, cm->mi_grid_visible[(mi_row + height) * cm->mi_stride +
-                                     (mi_col + width)]
-                     ->mbmi.cdef_strength,
-              cm->cdef_bits);
-      }
-    }
-  }
-#endif
 }
 
 static void write_modes(AV1_COMP *const cpi, const TileInfo *const tile,

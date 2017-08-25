@@ -1089,6 +1089,19 @@ static void read_intra_frame_mode_info(AV1_COMMON *const cm,
   }
 #endif
 
+#if CONFIG_CDEF
+  if (cm->cdef_bits != 0 && !cm->all_lossless &&
+      (mi_row % MI_SIZE_64X64 == 0) && (mi_col % MI_SIZE_64X64 == 0)) {
+    if (mbmi->skip) {
+      cm->mi_grid_visible[mi_row * cm->mi_stride + mi_col]->mbmi.cdef_strength =
+          -1;
+    } else {
+      cm->mi_grid_visible[mi_row * cm->mi_stride + mi_col]->mbmi.cdef_strength =
+          aom_read_literal(r, cm->cdef_bits, ACCT_STR);
+    }
+  }
+#endif  // CONFIG_CDEF
+
   mbmi->ref_frame[0] = INTRA_FRAME;
   mbmi->ref_frame[1] = NONE_FRAME;
 
@@ -2833,6 +2846,21 @@ static void read_inter_frame_mode_info(AV1Decoder *const pbi,
 #endif
   }
 #endif
+
+#if CONFIG_CDEF
+  // determine cdef strength if current block is the first partition
+  // of the superblock (64x64)
+  if (cm->cdef_bits != 0 && !cm->all_lossless &&
+      (mi_row % MI_SIZE_64X64 == 0) && (mi_col % MI_SIZE_64X64 == 0)) {
+    if (mbmi->skip) {
+      cm->mi_grid_visible[mi_row * cm->mi_stride + mi_col]->mbmi.cdef_strength =
+          -1;
+    } else {
+      cm->mi_grid_visible[mi_row * cm->mi_stride + mi_col]->mbmi.cdef_strength =
+          aom_read_literal(r, cm->cdef_bits, ACCT_STR);
+    }
+  }
+#endif  // CONFIG_CDEF
 
 #if CONFIG_SUPERTX
   if (!supertx_enabled) {

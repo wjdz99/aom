@@ -2542,27 +2542,6 @@ static void decode_partition(AV1Decoder *const pbi, MACROBLOCKD *const xd,
       (bsize == BLOCK_8X8 || partition != PARTITION_SPLIT))
     update_partition_context(xd, mi_row, mi_col, subsize, bsize);
 #endif  // CONFIG_EXT_PARTITION_TYPES
-
-#if CONFIG_CDEF
-  if (bsize == cm->sb_size) {
-    int width_step = mi_size_wide[BLOCK_64X64];
-    int height_step = mi_size_wide[BLOCK_64X64];
-    int w, h;
-    for (h = 0; (h < mi_size_high[cm->sb_size]) && (mi_row + h < cm->mi_rows);
-         h += height_step) {
-      for (w = 0; (w < mi_size_wide[cm->sb_size]) && (mi_col + w < cm->mi_cols);
-           w += width_step) {
-        if (!cm->all_lossless && !sb_all_skip(cm, mi_row + h, mi_col + w))
-          cm->mi_grid_visible[(mi_row + h) * cm->mi_stride + (mi_col + w)]
-              ->mbmi.cdef_strength =
-              aom_read_literal(r, cm->cdef_bits, ACCT_STR);
-        else
-          cm->mi_grid_visible[(mi_row + h) * cm->mi_stride + (mi_col + w)]
-              ->mbmi.cdef_strength = -1;
-      }
-    }
-  }
-#endif  // CONFIG_CDEF
 }
 
 static void setup_bool_decoder(const uint8_t *data, const uint8_t *data_end,

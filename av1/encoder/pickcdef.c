@@ -400,7 +400,13 @@ void av1_cdef_search(YV12_BUFFER_CONFIG *frame, const YV12_BUFFER_CONFIG *ref,
       cm->mi_grid_visible[MI_SIZE_64X64 * fbr * cm->mi_stride +
                           MI_SIZE_64X64 * fbc]
           ->mbmi.cdef_strength = -1;
-      if (sb_all_skip(cm, fbr * MI_SIZE_64X64, fbc * MI_SIZE_64X64)) continue;
+
+      // TODO(chengchen): Make it support cm->sb_size = 128x128
+      if (cm->mi_grid_visible[MI_SIZE_64X64 * fbr * cm->mi_stride +
+                              MI_SIZE_64X64 * fbc]
+              ->mbmi.skip)
+        continue;
+
       cdef_count = sb_compute_cdef_list(cm, fbr * MI_SIZE_64X64,
                                         fbc * MI_SIZE_64X64, dlist, 1);
       for (pli = 0; pli < nplanes; pli++) {
