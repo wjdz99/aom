@@ -4717,6 +4717,9 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
 #if CONFIG_LOOP_RESTORATION
   decode_restoration_mode(cm, rb);
 #endif  // CONFIG_LOOP_RESTORATION
+#if CONFIG_CDEF && CONFIG_LOOP_RESTORATION && LR_CDEF_EXCLUSIVE
+  assert(!(is_cdef_used(cm) && is_restoration_used(cm)));
+#endif  // CONFIG_CDEF && CONFIG_LOOP_RESTORATION && LR_CDEF_EXCLUSIVE
   cm->tx_mode = read_tx_mode(cm, rb);
   cm->reference_mode = read_frame_reference_mode(cm, rb);
 #if CONFIG_EXT_INTER
@@ -5365,9 +5368,12 @@ void av1_decode_frame(AV1Decoder *pbi, const uint8_t *data,
     *p_data_end = decode_tiles(pbi, data + first_partition_size, data_end);
   }
 
+  aom_extend_frame_borders(new_fb);
 #if CONFIG_CDEF
   if (!cm->skip_loop_filter && !cm->all_lossless) {
-    av1_cdef_frame(&pbi->cur_buf->buf, cm, &pbi->mb);
+    if (is_cdef_used(cm)) {
+      av1_cdef_frame(&pbi->cur_buf->buf, cm, &pbi->mb);
+    }
   }
 #endif  // CONFIG_CDEF
 
@@ -5376,9 +5382,7 @@ void av1_decode_frame(AV1Decoder *pbi, const uint8_t *data,
 #endif  // CONFIG_FRAME_SUPERRES
 
 #if CONFIG_LOOP_RESTORATION
-  if (cm->rst_info[0].frame_restoration_type != RESTORE_NONE ||
-      cm->rst_info[1].frame_restoration_type != RESTORE_NONE ||
-      cm->rst_info[2].frame_restoration_type != RESTORE_NONE) {
+  if (is_restoration_used(cm)) {
     av1_loop_restoration_frame(new_fb, cm, cm->rst_info, 7, 0, NULL);
   }
 #endif  // CONFIG_LOOP_RESTORATION
