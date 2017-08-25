@@ -63,6 +63,12 @@ typedef void (*restore_func_highbd_type)(uint8_t *data8, int width, int height,
                                          int dst_stride);
 #endif  // CONFIG_HIGHBITDEPTH
 
+int is_restoration_used(const struct AV1Common *const cm) {
+  return cm->rst_info[0].frame_restoration_type != RESTORE_NONE ||
+         cm->rst_info[1].frame_restoration_type != RESTORE_NONE ||
+         cm->rst_info[2].frame_restoration_type != RESTORE_NONE;
+}
+
 int av1_alloc_restoration_struct(AV1_COMMON *cm, RestorationInfo *rst_info,
                                  int width, int height) {
   const int ntiles = av1_get_rest_ntiles(
