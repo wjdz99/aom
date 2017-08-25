@@ -43,8 +43,10 @@ int sb_compute_cdef_list(const AV1_COMMON *const cm, int mi_row, int mi_col,
                          cdef_list *dlist, int filter_skip);
 void av1_cdef_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm, MACROBLOCKD *xd);
 
-void av1_cdef_search(YV12_BUFFER_CONFIG *frame, const YV12_BUFFER_CONFIG *ref,
-                     AV1_COMMON *cm, MACROBLOCKD *xd, int fast);
+// Returns number of cdef bits used
+int64_t av1_cdef_search(YV12_BUFFER_CONFIG *frame,
+                        const YV12_BUFFER_CONFIG *ref,
+                        AV1_COMMON *cm, MACROBLOCKD *xd, int fast);
 
 #ifdef __cplusplus
 }  // extern "C"
