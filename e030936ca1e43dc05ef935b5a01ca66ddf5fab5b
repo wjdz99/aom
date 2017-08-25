@@ -16,6 +16,24 @@
       "revId": "e030936ca1e43dc05ef935b5a01ca66ddf5fab5b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c968333c_b9d53936",
+        "filename": "aom_dsp/entcode.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-08-25T20:06:25Z",
+      "side": 0,
+      "message": "No, because ANS controls whether AOM_ICDF() does the inversion or is an identity. OD_ICDF() is only used in daala_ec-specific code, which does not run when CONFIG_ANS is set.",
+      "parentUuid": "84ac39d7_2ac5de17",
+      "revId": "e030936ca1e43dc05ef935b5a01ca66ddf5fab5b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
