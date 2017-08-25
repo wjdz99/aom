@@ -45,10 +45,18 @@ typedef struct {
 // NOTE: Currently each BFG contains one backward ref (BWF) frame plus a certain
 //       number of bi-predictive frames.
 #define BFG_INTERVAL 2
-// The maximum number of extra ALT_REF's
-// NOTE: This number cannot be greater than 2 or the reference frame buffer will
-//       overflow.
+// The maximum number of extra ALTREF's
+// NOTE: The total number of frames buffered as reference shall not exceed 8.
+#if CONFIG_ALTREF2
+// NOTE: In a GF group, MAX_EXT_ARFS specifies the number of frames that may
+//       serve as a backward reference in addition to:
+//       (1) The last frame of the GF group, usually temporally filtered, served
+//           as ALTREF_FRAME;
+//       (2) The nearest backward reference frame, served as BWDREF_FRAME.
+#define MAX_EXT_ARFS 3
+#else  // !CONFIG_ALTREF2
 #define MAX_EXT_ARFS 2
+#endif  // CONFIG_ALTREF2
 #define MIN_EXT_ARF_INTERVAL 4
 
 #define MIN_ZERO_MOTION 0.95
@@ -194,11 +202,21 @@ void av1_twopass_postencode_update(struct AV1_COMP *cpi);
 #if CONFIG_EXT_REFS
 static INLINE int get_number_of_extra_arfs(int interval, int arf_pending) {
   if (arf_pending && MAX_EXT_ARFS > 0)
+#if CONFIG_ALTREF2
+    return interval >= MIN_EXT_ARF_INTERVAL * (MAX_EXT_ARFS + 1)
+               ? MAX_EXT_ARFS
+               : interval >= MIN_EXT_ARF_INTERVAL * MAX_EXT_ARFS
+                     ? MAX_EXT_ARFS - 1
+                     : interval >= MIN_EXT_ARF_INTERVAL * (MAX_EXT_ARFS - 1)
+                           ? MAX_EXT_ARFS - 2
+                           : 0;
+#else   // !CONFIG_ALTREF2
     return interval >= MIN_EXT_ARF_INTERVAL * (MAX_EXT_ARFS + 1)
                ? MAX_EXT_ARFS
                : interval >= MIN_EXT_ARF_INTERVAL * MAX_EXT_ARFS
                      ? MAX_EXT_ARFS - 1
                      : 0;
+#endif  // CONFIG_ALTREF2
   else
     return 0;
 }

@@ -1795,21 +1795,46 @@ static void allocate_gf_group_bits(AV1_COMP *cpi, int64_t gf_group_bits,
 
 #if CONFIG_EXT_REFS
     // Work out the ARFs' positions in this gf group
-    // NOTE(weitinglin): ALT_REFs' are indexed inversely, but coded in display
-    // order (except for the original ARF). In the example of three ALT_REF's,
-    // We index ALTREF's as: KEY ----- ALT2 ----- ALT1 ----- ALT0
-    // but code them in the following order:
-    // KEY-ALT0-ALT2 ----- OVERLAY2-ALT1 ----- OVERLAY1 ----- OVERLAY0
+    // === ALT0 ===
     arf_pos[0] = frame_index + cpi->num_extra_arfs +
                  gf_group->arf_src_offset[frame_index] + 1;
-    for (i = 0; i < cpi->num_extra_arfs; ++i) {
-      arf_pos[i + 1] =
-          frame_index + (cpi->num_extra_arfs - i) * (ext_arf_interval + 2);
-      subgroup_interval[i] = arf_pos[i] - arf_pos[i + 1] - (i == 0 ? 1 : 2);
+#if CONFIG_ALTREF2
+    if (cpi->num_extra_arfs == 3) {
+      // Display order:
+      //   ALT[0]0_{n-1}/-/-/-/ALT[3]/-/-/-/ALT[2]/-/-/-/ALT[1]/-/-/-/
+      //   ALT[0]0_{n}
+      // Coding order:
+      //   OVERLAY[0]_{n-1}
+      //   /ALT[0]/ALT[2]/ALT[3]/-/-/-/OVERLAY[3]/-/-/-/OVERLAY[2]/ALT[1]/-/-/-/
+      //   OVERLAY[1]/-/-/-/OVERLAY[0]_{n}
+
+      for (i = 0; i < cpi->num_extra_arfs; ++i) {
+        arf_pos[i + 1] = frame_index +
+                         (cpi->num_extra_arfs - i) * (ext_arf_interval + 2) +
+                         (i == 2 ? 1 : 0);
+        subgroup_interval[i] = arf_pos[i] - arf_pos[i + 1] - (i == 1 ? 2 : 1);
+      }
+      subgroup_interval[cpi->num_extra_arfs] =
+          arf_pos[cpi->num_extra_arfs] - frame_index -
+          (cpi->num_extra_arfs == 0 ? 1 : 3);
+    } else {
+#endif  // CONFIG_ALTREF2
+      // NOTE(weitinglin): ALT_REFs' are indexed inversely, but coded in display
+      // order (except for the original ARF). In the example of three ALT_REF's,
+      // We index ALTREF's as: KEY ----- ALT2 ----- ALT1 ----- ALT0
+      // but code them in the following order:
+      // KEY-ALT0-ALT2 ----- OVERLAY2-ALT1 ----- OVERLAY1 ----- OVERLAY0
+      for (i = 0; i < cpi->num_extra_arfs; ++i) {
+        arf_pos[i + 1] =
+            frame_index + (cpi->num_extra_arfs - i) * (ext_arf_interval + 2);
+        subgroup_interval[i] = arf_pos[i] - arf_pos[i + 1] - (i == 0 ? 1 : 2);
+      }
+      subgroup_interval[cpi->num_extra_arfs] =
+          arf_pos[cpi->num_extra_arfs] - frame_index -
+          (cpi->num_extra_arfs == 0 ? 1 : 2);
+#if CONFIG_ALTREF2
     }
-    subgroup_interval[cpi->num_extra_arfs] = arf_pos[cpi->num_extra_arfs] -
-                                             frame_index -
-                                             (cpi->num_extra_arfs == 0 ? 1 : 2);
+#endif  // CONFIG_ALTREF2
 #endif  // CONFIG_EXT_REFS
 
     ++frame_index;
@@ -1826,10 +1851,38 @@ static void allocate_gf_group_bits(AV1_COMP *cpi, int64_t gf_group_bits,
 //                    for internal ALT_REF's:
 #endif  // CONFIG_ALTREF2
       gf_group->rf_level[frame_index] = GF_ARF_LOW;
-      gf_group->arf_src_offset[frame_index] = ext_arf_interval;
-      gf_group->arf_update_idx[frame_index] = which_arf;
+
+#if CONFIG_ALTREF2
+      if (cpi->num_extra_arfs == MAX_EXT_ARFS) {
+        // ALT[3] and ALT[2] are handled in their reverse order
+        // === ALT[2] ===
+        gf_group->arf_src_offset[frame_index] = ext_arf_interval * 2 + 1;
+        gf_group->arf_update_idx[frame_index] = which_arf - 1;
+      } else {
+#endif  // CONFIG_ALTREF2
+        gf_group->arf_src_offset[frame_index] = ext_arf_interval;
+        gf_group->arf_update_idx[frame_index] = which_arf;
+#if CONFIG_ALTREF2
+      }
+#endif  // CONFIG_ALTREF2
       gf_group->arf_ref_idx[frame_index] = 0;
       ++frame_index;
+
+#if CONFIG_ALTREF2
+      if (cpi->num_extra_arfs == MAX_EXT_ARFS) {
+        // === ALT[3] ===
+        gf_group->update_type[frame_index] = INTNL_ARF_UPDATE;
+        gf_group->rf_level[frame_index] = GF_ARF_LOW;
+        gf_group->arf_src_offset[frame_index] = ext_arf_interval;
+        gf_group->arf_update_idx[frame_index] = which_arf;
+        gf_group->arf_ref_idx[frame_index] = 0;
+        ++frame_index;
+
+        // Add the interval for the subgroup of ALT[2]
+        // (The interval for the subgroup of ALT[3] will be added afterwards)
+        accumulative_subgroup_interval += subgroup_interval[which_arf - 1];
+      }
+#endif  // CONFIG_ALTREF2
     }
     accumulative_subgroup_interval += subgroup_interval[cpi->num_extra_arfs];
 #else   // !CONFIG_EXT_ARFS
@@ -1902,7 +1955,6 @@ static void allocate_gf_group_bits(AV1_COMP *cpi, int64_t gf_group_bits,
     // NOTE: BIDIR_PRED is only enabled when the length of the bi-predictive
     //       frame group interval is strictly smaller than that of the GOLDEN
     //       FRAME group interval.
-    // TODO(zoeliu): Currently BIDIR_PRED is only enabled when alt-ref is on.
     if (is_sg_bipred_enabled && !bipred_group_end) {
       const int cur_brf_src_offset = rc->bipred_group_interval - 1;
 
@@ -1973,22 +2025,32 @@ static void allocate_gf_group_bits(AV1_COMP *cpi, int64_t gf_group_bits,
     if (is_sg_bipred_enabled && cpi->num_extra_arfs && which_arf > 0 &&
         frame_index > arf_pos[which_arf]) {
       --which_arf;
-      accumulative_subgroup_interval += subgroup_interval[which_arf] + 1;
       // Meet the new subgroup; Reset the bipred_group_end flag.
       bipred_group_end = 0;
-      // Insert another extra ARF after the overlay frame
-      if (which_arf) {
+
 #if CONFIG_ALTREF2
-        gf_group->update_type[frame_index] = INTNL_ARF_UPDATE;
+      if (cpi->num_extra_arfs < MAX_EXT_ARFS ||
+          which_arf <= (cpi->num_extra_arfs >> 1)) {
+#endif  // CONFIG_ATLREF2
+        accumulative_subgroup_interval += subgroup_interval[which_arf] + 1;
+
+        // Insert another extra ARF after the overlay frame
+        if (which_arf) {
+#if CONFIG_ALTREF2
+          gf_group->update_type[frame_index] = INTNL_ARF_UPDATE;
 #else  // !CONFIG_ALTREF2
         gf_group->update_type[frame_index] = ARF_UPDATE;
 #endif  // CONFIG_ALTREF2
-        gf_group->rf_level[frame_index] = GF_ARF_LOW;
-        gf_group->arf_src_offset[frame_index] = ext_arf_interval;
-        gf_group->arf_update_idx[frame_index] = which_arf;
-        gf_group->arf_ref_idx[frame_index] = 0;
-        ++frame_index;
+          gf_group->rf_level[frame_index] = GF_ARF_LOW;
+          gf_group->arf_src_offset[frame_index] = ext_arf_interval;
+          gf_group->arf_update_idx[frame_index] = which_arf;
+          gf_group->arf_ref_idx[frame_index] = 0;
+
+          ++frame_index;
+        }
+#if CONFIG_ALTREF2
       }
+#endif  // CONFIG_ALTREF2
     }
 #endif  // CONFIG_EXT_REFS
   }
@@ -2014,9 +2076,22 @@ static void allocate_gf_group_bits(AV1_COMP *cpi, int64_t gf_group_bits,
       // Overwrite the update_type for internal ARF's:
       //   Change from LF_UPDATE to INTNL_OVERLAY_UPDATE.
       for (i = cpi->num_extra_arfs; i > 0; --i) {
-        int arf_pos_in_gf = (i == cpi->num_extra_arfs ? 2 : arf_pos[i + 1] + 1);
+        int arf_pos_in_gf;
+#if CONFIG_ALTREF2
+        if (cpi->num_extra_arfs == MAX_EXT_ARFS) {
+          arf_pos_in_gf =
+              (i == cpi->num_extra_arfs
+                   ? 3
+                   : i == (cpi->num_extra_arfs - 1) ? 2 : arf_pos[i + 1] + 1);
+        } else {
+#endif  // CONFIG_ALTREF2
+          arf_pos_in_gf = (i == cpi->num_extra_arfs ? 2 : arf_pos[i + 1] + 1);
+#if CONFIG_ALTREF2
+        }
+#endif  // CONFIG_ALTREF2
         gf_group->bit_allocation[arf_pos_in_gf] =
             gf_group->bit_allocation[arf_pos[i]];
+
         gf_group->update_type[arf_pos[i]] = INTNL_OVERLAY_UPDATE;
         // Encoder's choice: Set show_existing_frame == 1 for both internal
         // ARF's, and hence allocate zero bit for both internal OVERLAY frames.
@@ -2024,7 +2099,7 @@ static void allocate_gf_group_bits(AV1_COMP *cpi, int64_t gf_group_bits,
         gf_group->rf_level[arf_pos[i]] = INTER_NORMAL;
       }
     }
-#else
+#else   // !CONFIG_EXT_REFS
     // Final setup for second arf and its overlay.
     if (cpi->multi_arf_enabled) {
       gf_group->bit_allocation[2] =
