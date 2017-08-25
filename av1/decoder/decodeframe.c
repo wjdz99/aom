@@ -473,7 +473,12 @@ static int av1_pvq_decode_helper2(AV1_COMMON *cm, MACROBLOCKD *const xd,
 
 static void predict_and_reconstruct_intra_block(
     AV1_COMMON *cm, MACROBLOCKD *const xd, aom_reader *const r,
-    MB_MODE_INFO *const mbmi, int plane, int row, int col, TX_SIZE tx_size) {
+    MB_MODE_INFO *const mbmi, int plane, int row, int col, TX_SIZE tx_size
+#if CONFIG_LPF_DC
+    ,
+    int mi_row, int mi_col
+#endif
+    ) {
   PLANE_TYPE plane_type = get_plane_type(plane);
   const int block_idx = get_block_idx(xd, plane, row, col);
 #if CONFIG_PVQ
@@ -492,7 +497,7 @@ static void predict_and_reconstruct_intra_block(
     // tx_type will be read out in av1_read_coeffs_txb_facade
     const TX_TYPE tx_type =
         av1_get_tx_type(plane_type, xd, row, col, block_idx, tx_size);
-#else   // CONFIG_LV_MAP
+#else  // CONFIG_LV_MAP
     const TX_TYPE tx_type =
         av1_get_tx_type(plane_type, xd, row, col, block_idx, tx_size);
     const SCAN_ORDER *scan_order = get_scan(cm, tx_size, tx_type, mbmi);
@@ -500,6 +505,12 @@ static void predict_and_reconstruct_intra_block(
     const int eob =
         av1_decode_block_tokens(cm, xd, plane, scan_order, col, row, tx_size,
                                 tx_type, &max_scan_line, r, mbmi->segment_id);
+#if CONFIG_LPF_DC
+    const int mi_offset = (mi_row + row) * cm->mi_stride + (mi_col + col);
+    MODE_INFO *mi = *(cm->mi_grid_visible + mi_offset);
+    MB_MODE_INFO *mbmi_cur = &mi->mbmi;
+    if (mbmi_cur) mbmi_cur->eob[plane] = eob;
+#endif  // CONFIG_LPF_DC
 #endif  // CONFIG_LV_MAP
     if (eob) {
       uint8_t *dst =
@@ -540,7 +551,12 @@ static void decode_reconstruct_tx(AV1_COMMON *cm, MACROBLOCKD *const xd,
                                   aom_reader *r, MB_MODE_INFO *const mbmi,
                                   int plane, BLOCK_SIZE plane_bsize,
                                   int blk_row, int blk_col, int block,
-                                  TX_SIZE tx_size, int *eob_total) {
+                                  TX_SIZE tx_size, int *eob_total
+#if CONFIG_LPF_DC
+                                  ,
+                                  int mi_row, int mi_col
+#endif
+                                  ) {
   const struct macroblockd_plane *const pd = &xd->plane[plane];
   const BLOCK_SIZE bsize = txsize_to_bsize[tx_size];
   const int tx_row = blk_row >> (1 - pd->subsampling_y);
@@ -573,6 +589,13 @@ static void decode_reconstruct_tx(AV1_COMMON *cm, MACROBLOCKD *const xd,
         cm, xd, plane, sc, blk_col, blk_row, plane_tx_size, tx_type,
         &max_scan_line, r, mbmi->segment_id);
 #endif  // CONFIG_LV_MAP
+#if CONFIG_LPF_DC
+    const int mi_offset =
+        (mi_row + blk_row) * cm->mi_stride + (mi_col + blk_col);
+    MODE_INFO *mi = *(cm->mi_grid_visible + mi_offset);
+    MB_MODE_INFO *mbmi_cur = &mi->mbmi;
+    if (mbmi_cur) mbmi_cur->eob[plane] = eob;
+#endif  // CONFIG_LPF_DC
     inverse_transform_block(xd, plane,
 #if CONFIG_LGT
                             mbmi->mode,
@@ -614,7 +637,12 @@ static void decode_reconstruct_tx(AV1_COMMON *cm, MACROBLOCKD *const xd,
       if (offsetr >= max_blocks_high || offsetc >= max_blocks_wide) continue;
 
       decode_reconstruct_tx(cm, xd, r, mbmi, plane, plane_bsize, offsetr,
-                            offsetc, block, sub_txs, eob_total);
+                            offsetc, block, sub_txs, eob_total
+#if CONFIG_LPF_DC
+                            ,
+                            mi_row, mi_col
+#endif
+                            );
       block += sub_step;
     }
   }
@@ -1884,7 +1912,12 @@ static void decode_token_and_recon_block(AV1Decoder *const pbi,
           for (blk_row = row; blk_row < unit_height; blk_row += stepr)
             for (blk_col = col; blk_col < unit_width; blk_col += stepc)
               predict_and_reconstruct_intra_block(cm, xd, r, mbmi, plane,
-                                                  blk_row, blk_col, tx_size);
+                                                  blk_row, blk_col, tx_size
+#if CONFIG_LPF_DC
+                                                  ,
+                                                  mi_row, mi_col
+#endif
+                                                  );
         }
       }
     }
@@ -1994,7 +2027,12 @@ static void decode_token_and_recon_block(AV1Decoder *const pbi,
               for (blk_col = col; blk_col < unit_width; blk_col += bw_var_tx) {
                 decode_reconstruct_tx(cm, xd, r, mbmi, plane, plane_bsize,
                                       blk_row, blk_col, block, max_tx_size,
-                                      &eobtotal);
+                                      &eobtotal
+#if CONFIG_LPF_DC
+                                      ,
+                                      mi_row, mi_col
+#endif
+                                      );
                 block += step;
               }
             }

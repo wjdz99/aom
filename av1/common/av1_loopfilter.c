@@ -2919,6 +2919,34 @@ static void set_lpf_parameters(
             // update the level if the current block is skipped,
             // but the previous one is not
             level = (curr_level) ? (curr_level) : (pv_lvl);
+
+#if CONFIG_LPF_DC
+            const int eob_curr = mbmi->eob[plane];
+            const int eob_prev = mi_prev->mbmi.eob[plane];
+            const int filt_lvl_offset = 5;
+            const int min_filter_level = 0;
+            const int max_filter_level = 63;
+            assert(eob_curr >= 0 && eob_prev >= 0);
+
+            if (eob_curr == 0 && eob_prev == 0) {
+              // no filtering
+              params->filter_length = 0;
+              params->filter_length_internal = 0;
+            } else if (eob_curr + eob_prev == 1) {
+              // original strategy
+            } else if (eob_curr == 1 && eob_prev == 1) {
+              // more filtering
+              level = clamp(level + filt_lvl_offset, min_filter_level,
+                            max_filter_level);
+            } else if ((eob_curr == 1 && eob_prev > 1) ||
+                       (eob_curr > 1 && eob_prev == 1)) {
+              // original strategy
+            } else if (eob_curr > 1 && eob_prev > 1) {
+              // reduce filtering
+              level = clamp(level - filt_lvl_offset, min_filter_level,
+                            max_filter_level);
+            }
+#endif  // CONFIG_LPF_DC
           }
         }
       }

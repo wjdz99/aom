@@ -745,6 +745,15 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
 #endif
   TX_TYPE tx_type =
       av1_get_tx_type(pd->plane_type, xd, blk_row, blk_col, block, tx_size);
+#if CONFIG_LPF_DC
+  // store eob to mbmi
+  int mi_row = args->mi_row;
+  int mi_col = args->mi_col;
+  const int mi_offset = (mi_row + blk_row) * cm->mi_stride + (mi_col + blk_col);
+  MODE_INFO *mi = *(cm->mi_grid_visible + mi_offset);
+  MB_MODE_INFO *mbmi = &mi->mbmi;
+  if (mbmi) mbmi->eob[plane] = p->eobs[block];
+#endif  // CONFIG_LPF_DC
 #if CONFIG_LGT
   PREDICTION_MODE mode = xd->mi[0]->mbmi.mode;
   av1_inverse_transform_block(xd, dqcoeff, mode, tx_type, tx_size, dst,
@@ -900,7 +909,12 @@ void av1_encode_sb(AV1_COMMON *cm, MACROBLOCK *x, BLOCK_SIZE bsize, int mi_row,
   MACROBLOCKD *const xd = &x->e_mbd;
   struct optimize_ctx ctx;
   MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
+#if CONFIG_LPF_DC
+  struct encode_b_args arg = { cm,   x, &ctx,   &mbmi->skip, NULL,
+                               NULL, 1, mi_row, mi_col };
+#else
   struct encode_b_args arg = { cm, x, &ctx, &mbmi->skip, NULL, NULL, 1 };
+#endif  // CONFIG_LPF_DC
   int plane;
 
   mbmi->skip = 1;
@@ -1077,6 +1091,15 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
     av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize, tx_size,
                     ctx, AV1_XFORM_QUANT_B);
   }
+#if CONFIG_LPF_DC
+  // store eob to mbmi
+  int mi_row = args->mi_row;
+  int mi_col = args->mi_col;
+  const int mi_offset = (mi_row + blk_row) * cm->mi_stride + (mi_col + blk_col);
+  MODE_INFO *mi = *(cm->mi_grid_visible + mi_offset);
+  MB_MODE_INFO *mbmi = &mi->mbmi;
+  if (mbmi) mbmi->eob[plane] = *eob;
+#endif  // CONFIG_LPF_DC
 
 #if CONFIG_PVQ
   // *(args->skip) == mbmi->skip
@@ -1111,9 +1134,16 @@ void av1_encode_intra_block_plane(AV1_COMMON *cm, MACROBLOCK *x,
   ENTROPY_CONTEXT ta[2 * MAX_MIB_SIZE] = { 0 };
   ENTROPY_CONTEXT tl[2 * MAX_MIB_SIZE] = { 0 };
 
+#if CONFIG_LPF_DC
+  struct encode_b_args arg = {
+    cm,     x,     NULL, &xd->mi[0]->mbmi.skip, ta, tl, enable_optimize_b,
+    mi_row, mi_col
+  };
+#else
   struct encode_b_args arg = {
     cm, x, NULL, &xd->mi[0]->mbmi.skip, ta, tl, enable_optimize_b
   };
+#endif  // CONFIG_LPF_DC
 
 #if CONFIG_CB4X4
   if (!is_chroma_reference(mi_row, mi_col, bsize,
