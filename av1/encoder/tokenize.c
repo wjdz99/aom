@@ -16,6 +16,7 @@
 
 #include "aom_mem/aom_mem.h"
 
+#include "av1/common/blockd.h"
 #include "av1/common/entropy.h"
 #include "av1/common/pred_common.h"
 #include "av1/common/scan.h"
@@ -263,23 +264,6 @@ const av1_extra_bit av1_extra_bits[ENTROPY_TOKENS] = {
   { 0, 0, 0, zero_cost }                          // EOB_TOKEN
 };
 #endif
-
-/* clang-format off */
-typedef aom_cdf_prob (*MapCdf)[PALETTE_COLOR_INDEX_CONTEXTS]
-                              [CDF_SIZE(PALETTE_COLORS)];
-typedef const int (*ColorCost)[PALETTE_SIZES][PALETTE_COLOR_INDEX_CONTEXTS]
-                              [PALETTE_COLORS];
-/* clang-format on */
-
-typedef struct {
-  int rows;
-  int cols;
-  int n_colors;
-  int plane_width;
-  uint8_t *color_map;
-  MapCdf map_cdf;
-  ColorCost color_cost;
-} ColorMapParam;
 
 #if !CONFIG_PVQ || CONFIG_VAR_TX
 static void cost_coeffs_b(int plane, int block, int blk_row, int blk_col,
