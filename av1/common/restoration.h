@@ -261,6 +261,8 @@ void av1_loop_restoration_frame(YV12_BUFFER_CONFIG *frame, struct AV1Common *cm,
                                 RestorationInfo *rsi, int components_pattern,
                                 int partial_frame, YV12_BUFFER_CONFIG *dst);
 void av1_loop_restoration_precal();
+
+int is_restoration_used(const struct AV1Common *const cm);
 #ifdef __cplusplus
 }  // extern "C"
 #endif

@@ -42,6 +42,12 @@
 // TODO(youzhou@microsoft.com): Encoder only. Move it out of common
 #include "av1/encoder/hash_motion.h"
 #endif
+
+#if CONFIG_LOOP_RESTORATION && CONFIG_CDEF
+// If set as 1, choose one or the other but not both
+#define LR_CDEF_EXCLUSIVE 1
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif

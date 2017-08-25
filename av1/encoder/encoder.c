@@ -561,15 +561,9 @@ static void save_coding_context(AV1_COMP *cpi) {
 static void restore_coding_context(AV1_COMP *cpi) {
   CODING_CONTEXT *const cc = &cpi->coding_context;
   AV1_COMMON *cm = &cpi->common;
-  int i;
 
   // Restore key state variables to the snapshot state stored in the
   // previous call to av1_save_coding_context.
-  for (i = 0; i < NMV_CONTEXTS; ++i) {
-    av1_copy(cpi->td.mb.nmv_vec_cost[i], cc->nmv_vec_cost[i]);
-    av1_copy(cpi->nmv_costs, cc->nmv_costs);
-    av1_copy(cpi->nmv_costs_hp, cc->nmv_costs_hp);
-  }
 
   av1_copy(cm->lf.last_ref_deltas, cc->last_ref_lf_deltas);
   av1_copy(cm->lf.last_mode_deltas, cc->last_mode_lf_deltas);
@@ -4178,20 +4172,90 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
                                cpi->num_workers, &cpi->lf_row_sync);
     else
       av1_loop_filter_frame(cm->frame_to_show, cm, xd, lf->filter_level, 0, 0);
-#endif
+#endif  // CONFIG_VAR_TX || CONFIG_EXT_PARTITION || CONFIG_CB4X4
   }
+  aom_extend_frame_borders(cm->frame_to_show);
+#if CONFIG_LOOP_RESTORATION && CONFIG_CDEF && LR_CDEF_EXCLUSIVE
+  int64_t cdef_bits = 0;
+  int64_t lr_bits = 0;
+  cm->cdef_bits = 0;
+  cm->cdef_strengths[0] = 0;
+  cm->cdef_uv_strengths[0] = 0;
+  cm->nb_cdef_strengths = 1;
+  cm->rst_info[0].frame_restoration_type =
+      cm->rst_info[1].frame_restoration_type =
+          cm->rst_info[2].frame_restoration_type = RESTORE_NONE;
+  if (is_lossless_requested(&cpi->oxcf)
+// Turn off CDEF in this mode if superres is used
+#if CONFIG_FRAME_SUPERRES
+      || av1_superres_unscaled(cm)
+#endif  // CONFIG_FRAME_SUPERRES
+          ) {
+    cm->cdef_bits = 0;
+    cm->cdef_strengths[0] = 0;
+    cm->cdef_uv_strengths[0] = 0;
+    cm->nb_cdef_strengths = 1;
+  } else {
+    // Find CDEF parameters
+    cdef_bits = av1_cdef_search(cm->frame_to_show, cpi->source, cm, xd,
+                                cpi->oxcf.speed > 0);
+  }
+#if CONFIG_FRAME_SUPERRES
+  superres_post_encode(cpi);
+#endif  // CONFIG_FRAME_SUPERRES
+  lr_bits = av1_pick_restoration(cm->frame_to_show, cpi->source, cpi,
+                                 cpi->sf.lpf_pick);
+  // if both are used choose one or the other
+  if (is_cdef_used(cm) && is_restoration_used(cm)) {
+    MACROBLOCK *x = &cpi->td.mb;
+    aom_yv12_copy_frame(cm->frame_to_show, &cpi->last_frame_uf);
+    av1_cdef_frame(&cpi->last_frame_uf, cm, xd);
+    int64_t cdef_err =
+        sse_restoration_frame(cm, cpi->source, &cpi->last_frame_uf, 7);
+    double cdef_cost = RDCOST_DBL(x->rdmult, (cdef_bits >> 4), cdef_err);
+    // aom_yv12_copy_frame(cm->frame_to_show, &cpi->last_frame_uf);
+    av1_loop_restoration_frame(cm->frame_to_show, cm, cm->rst_info, 7, 0, NULL);
+    int64_t lr_err =
+        sse_restoration_frame(cm, cpi->source, cm->frame_to_show, 7);
+    double lr_cost = RDCOST_DBL(x->rdmult, (lr_bits >> 4), lr_err);
+    /*
+    printf("%s [cdef: %" PRId64 "/%f, lr: %" PRId64 "/%f]\n",
+           (lr_cost < cdef_cost ? "LR" : "CDEF"), cdef_bits, cdef_cost, lr_bits,
+           lr_cost);
+           */
+    if (lr_cost < cdef_cost) {
+      // Disable cdef
+      cm->cdef_bits = 0;
+      cm->cdef_strengths[0] = 0;
+      cm->cdef_uv_strengths[0] = 0;
+      cm->nb_cdef_strengths = 1;
+    } else {
+      // Disable loop-restoration
+      cm->rst_info[0].frame_restoration_type =
+          cm->rst_info[1].frame_restoration_type =
+              cm->rst_info[2].frame_restoration_type = RESTORE_NONE;
+      // Copy cdef filtered result back to cm->frame_to_show
+      aom_yv12_copy_frame(&cpi->last_frame_uf, cm->frame_to_show);
+    }
+    assert(!(is_cdef_used(cm) && is_restoration_used(cm)));
+  } else if (is_cdef_used(cm)) {
+    av1_cdef_frame(cm->frame_to_show, cm, xd);
+  } else if (is_restoration_used(cm)) {
+    av1_loop_restoration_frame(cm->frame_to_show, cm, cm->rst_info, 7, 0, NULL);
+  }
+#else
 #if CONFIG_CDEF
   if (is_lossless_requested(&cpi->oxcf)) {
     cm->cdef_bits = 0;
     cm->cdef_strengths[0] = 0;
+    cm->cdef_uv_strengths[0] = 0;
     cm->nb_cdef_strengths = 1;
   } else {
     // Find CDEF parameters
     av1_cdef_search(cm->frame_to_show, cpi->source, cm, xd,
                     cpi->oxcf.speed > 0);
-
     // Apply the filter
-    av1_cdef_frame(cm->frame_to_show, cm, xd);
+    if (is_cdef_used(cm)) av1_cdef_frame(cm->frame_to_show, cm, xd);
   }
 #endif
 
@@ -4200,13 +4264,12 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
 #endif  // CONFIG_FRAME_SUPERRES
 
 #if CONFIG_LOOP_RESTORATION
-  av1_pick_filter_restoration(cpi->source, cpi, cpi->sf.lpf_pick);
-  if (cm->rst_info[0].frame_restoration_type != RESTORE_NONE ||
-      cm->rst_info[1].frame_restoration_type != RESTORE_NONE ||
-      cm->rst_info[2].frame_restoration_type != RESTORE_NONE) {
+  av1_pick_restoration(cm->frame_to_show, cpi->source, cpi, cpi->sf.lpf_pick);
+  if (is_restoration_used(cm)) {
     av1_loop_restoration_frame(cm->frame_to_show, cm, cm->rst_info, 7, 0, NULL);
   }
 #endif  // CONFIG_LOOP_RESTORATION
+#endif  // CONFIG_LOOP_RESTORATION && CONFIG_CDEF && LR_CDEF_EXCLUSIVE
   // TODO(debargha): Fix mv search range on encoder side
   // aom_extend_frame_inner_borders(cm->frame_to_show);
   aom_extend_frame_borders(cm->frame_to_show);
