@@ -264,23 +264,6 @@ const av1_extra_bit av1_extra_bits[ENTROPY_TOKENS] = {
 };
 #endif
 
-/* clang-format off */
-typedef aom_cdf_prob (*MapCdf)[PALETTE_COLOR_INDEX_CONTEXTS]
-                              [CDF_SIZE(PALETTE_COLORS)];
-typedef const int (*ColorCost)[PALETTE_SIZES][PALETTE_COLOR_INDEX_CONTEXTS]
-                              [PALETTE_COLORS];
-/* clang-format on */
-
-typedef struct {
-  int rows;
-  int cols;
-  int n_colors;
-  int plane_width;
-  uint8_t *color_map;
-  MapCdf map_cdf;
-  ColorCost color_cost;
-} ColorMapParam;
-
 #if !CONFIG_PVQ || CONFIG_VAR_TX
 static void cost_coeffs_b(int plane, int block, int blk_row, int blk_col,
                           BLOCK_SIZE plane_bsize, TX_SIZE tx_size, void *arg) {
