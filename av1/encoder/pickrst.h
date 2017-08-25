@@ -20,8 +20,12 @@ extern "C" {
 struct yv12_buffer_config;
 struct AV1_COMP;
 
-void av1_pick_filter_restoration(const YV12_BUFFER_CONFIG *sd, AV1_COMP *cpi,
-                                 LPF_PICK_METHOD method);
+int64_t sse_restoration_frame(AV1_COMMON *const cm,
+                              const YV12_BUFFER_CONFIG *src,
+                              const YV12_BUFFER_CONFIG *dst,
+                              int components_pattern);
+uint64_t av1_pick_filter_restoration(const YV12_BUFFER_CONFIG *sd,
+                                     AV1_COMP *cpi, LPF_PICK_METHOD method);
 
 #ifdef __cplusplus
 }  // extern "C"
