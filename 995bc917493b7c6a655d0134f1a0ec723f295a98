@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "59b773cc_0316796c",
+        "filename": "av1/common/entropy.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2946,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-08-26T00:26:20Z",
+      "side": 1,
+      "message": "I don\u0027t think this works correctly if you have multiple tiles, and a CDF is initialized in one tile and not initialized in a different tile (fc_cdf_ptr[i] may never be AOM_ICDF(CDF_PROB_TOP)).",
+      "revId": "995bc917493b7c6a655d0134f1a0ec723f295a98",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
