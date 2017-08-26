@@ -627,6 +627,9 @@ typedef struct macroblockd_plane {
                                       [COEF_BANDS];
 #endif
   uint8_t *color_index_map;
+#if CONFIG_MRC_TX
+  uint8_t *mrc_mask;
+#endif // CONFIG_MRC_TX
 
   // number of 4x4s in current block
   uint16_t n4_w, n4_h;
