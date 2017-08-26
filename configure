@@ -348,6 +348,7 @@ EXPERIMENT_LIST="
     colorspace_headers
     mfmv
     jnt_comp
+    lpf_sb
 "
 CONFIG_LIST="
     dependency_tracking
