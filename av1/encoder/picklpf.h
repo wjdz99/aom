@@ -21,13 +21,19 @@ extern "C" {
 struct yv12_buffer_config;
 struct AV1_COMP;
 int av1_get_max_filter_level(const AV1_COMP *cpi);
+#if CONFIG_LPF_SB
+int av1_search_filter_level(const YV12_BUFFER_CONFIG *sd, AV1_COMP *cpi,
+                            int partial_frame, double *err, int mi_row,
+                            int mi_col, int last_lvl);
+#else
 #if CONFIG_LOOPFILTER_LEVEL
 int av1_search_filter_level(const YV12_BUFFER_CONFIG *sd, AV1_COMP *cpi,
                             int partial_frame, double *err, int plane, int dir);
 #else
 int av1_search_filter_level(const YV12_BUFFER_CONFIG *sd, AV1_COMP *cpi,
                             int partial_frame, double *err);
-#endif
+#endif  // CONFIG_LOOPFILTER_LEVEL
+#endif  // CONFIG_LPF_SB
 void av1_pick_filter_level(const struct yv12_buffer_config *sd,
                            struct AV1_COMP *cpi, LPF_PICK_METHOD method);
 #ifdef __cplusplus
