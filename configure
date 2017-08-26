@@ -348,6 +348,7 @@ EXPERIMENT_LIST="
     mfmv
     jnt_comp
     amvr
+    lpf_sb
 "
 CONFIG_LIST="
     dependency_tracking
