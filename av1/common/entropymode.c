@@ -5673,6 +5673,40 @@ static const aom_cdf_prob
     };
 #endif  // CONFIG_LPF_SB
 
+#if CONFIG_LPF_SB
+static const aom_cdf_prob default_lpf_reuse_cdf[LPF_REUSE_CONTEXT][CDF_SIZE(
+    2)] = { { AOM_ICDF(4259), AOM_ICDF(32768), 0 },
+            { AOM_ICDF(728), AOM_ICDF(32768), 0 } };
+
+static const aom_cdf_prob
+    default_lpf_delta_cdf[LPF_DELTA_CONTEXT][CDF_SIZE(DELTA_RANGE)] = {
+      { AOM_ICDF(100), AOM_ICDF(688), AOM_ICDF(2128), AOM_ICDF(4642),
+        AOM_ICDF(7895), AOM_ICDF(11851), AOM_ICDF(17050), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(100), AOM_ICDF(1291), AOM_ICDF(4358), AOM_ICDF(7425),
+        AOM_ICDF(10654), AOM_ICDF(13559), AOM_ICDF(18563), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(100), AOM_ICDF(1086), AOM_ICDF(4982), AOM_ICDF(9134),
+        AOM_ICDF(13031), AOM_ICDF(16991), AOM_ICDF(23123), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(100), AOM_ICDF(1068), AOM_ICDF(3395), AOM_ICDF(7973),
+        AOM_ICDF(12512), AOM_ICDF(17967), AOM_ICDF(22812), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(100), AOM_ICDF(442), AOM_ICDF(2809), AOM_ICDF(7178),
+        AOM_ICDF(12535), AOM_ICDF(17450), AOM_ICDF(22417), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(100), AOM_ICDF(561), AOM_ICDF(2246), AOM_ICDF(6050),
+        AOM_ICDF(11103), AOM_ICDF(16592), AOM_ICDF(21353), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(100), AOM_ICDF(345), AOM_ICDF(2399), AOM_ICDF(5559),
+        AOM_ICDF(9682), AOM_ICDF(13992), AOM_ICDF(20126), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(100), AOM_ICDF(337), AOM_ICDF(1540), AOM_ICDF(3573),
+        AOM_ICDF(6438), AOM_ICDF(10196), AOM_ICDF(16320), AOM_ICDF(32768), 0 }
+    };
+
+static const aom_cdf_prob
+    default_lpf_sign_cdf[LPF_REUSE_CONTEXT][LPF_SIGN_CONTEXT][CDF_SIZE(2)] = {
+      { { AOM_ICDF(100), AOM_ICDF(32768), 0 },
+        { AOM_ICDF(11932), AOM_ICDF(32768), 0 } },
+      { { AOM_ICDF(14785), AOM_ICDF(32768), 0 },
+        { AOM_ICDF(8145), AOM_ICDF(32768), 0 } }
+    };
+#endif  // CONFIG_LPF_SB
+
 static void init_mode_probs(FRAME_CONTEXT *fc) {
   av1_copy(fc->partition_prob, default_partition_probs);
   av1_copy(fc->intra_inter_prob, default_intra_inter_p);
