@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2c290acc_34d57edd",
+        "filename": "av1/common/cfl.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 6340
+      },
+      "writtenOn": "2017-08-26T08:00:21Z",
+      "side": 1,
+      "message": "Extra blank line here.",
+      "revId": "a8d2dc11580439863099b49f5db67d89f52310e8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
