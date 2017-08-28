@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d8e96342_273d7d9a",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-08-28T23:28:55Z",
+      "side": 1,
+      "message": "I\u0027m sure you mean identical and not idental.",
+      "revId": "6325854f34ee3e8576da641d99b2de6b6c9e8817",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
