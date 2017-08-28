@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "11fc0e99_6fa0347e",
+        "filename": "configure",
+        "patchSetId": 3
+      },
+      "lineNbr": 571,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2017-08-28T17:45:36Z",
+      "side": 1,
+      "message": "Are you sure cfl is not supporting highbitdepth?\nNote that highbitdepth and lowbitdepth are two separate option, though the lowbitdepth is only meaningful when highbitdepth is turn on, which is by default at this moment.\nHighbitdepth is all sw infra, enabling encoder/decoder can work for all of 8, 10, 12 bits input date. Meanwhile, lowbitdepth option enforce 8bit processing in highbitdepth enabled storage and functions for 8bit input, which are only few lines of code.",
+      "revId": "c9091b47d43e96aa39c0ce07dd4977176b3d768c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
