@@ -21,6 +21,8 @@
 #include "av1/common/av1_fwd_txfm1d.h"
 #include "av1/common/av1_fwd_txfm1d_cfg.h"
 #include "av1/common/idct.h"
+#include "av1/common/scan.h"
+
 #if CONFIG_DAALA_DCT4 || CONFIG_DAALA_DCT8 || CONFIG_DAALA_DCT16 || \
     CONFIG_DAALA_DCT32 || CONFIG_DAALA_DCT64
 #include "av1/common/daala_tx.h"
@@ -2665,6 +2667,16 @@ void av1_fht64x64_c(const int16_t *input, tran_low_t *output, int stride,
       output[j + i * 64] =
           (tran_low_t)((temp_out[j] + 1 + (temp_out[j] < 0)) >> 2);
 #endif
+  }
+
+  if (tx_type == DCT_DCT) {
+    // Zero out 3/4th of the last coefficients.
+    const SCAN_ORDER *const so = &av1_default_scan_orders[TX_64X64];
+    const int16_t *const scan = so->scan;
+    for (int n = 1024; n < 4096; ++n) {
+      const int index = scan[n];
+      output[index] = 0;
+    }
   }
 }
 #endif  // CONFIG_TX64X64
