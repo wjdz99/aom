@@ -21,6 +21,8 @@
 #include "av1/common/av1_fwd_txfm1d.h"
 #include "av1/common/av1_fwd_txfm1d_cfg.h"
 #include "av1/common/idct.h"
+#include "av1/common/scan.h"
+
 #if CONFIG_DAALA_DCT4 || CONFIG_DAALA_DCT8 || CONFIG_DAALA_DCT16 || \
     CONFIG_DAALA_DCT32 || CONFIG_DAALA_DCT64
 #include "av1/common/daala_tx.h"
@@ -2658,6 +2660,16 @@ void av1_fht64x64_c(const int16_t *input, tran_low_t *output, int stride,
           (tran_low_t)((temp_out[j] + 1 + (temp_out[j] < 0)) >> 2);
 #endif
   }
+
+  if (tx_type == DCT_DCT) {
+    // Zero out 3/4th of the last coefficients.
+    const SCAN_ORDER *const scan_order = get_default_scan(TX_64X64, DCT_DCT, 0);
+    const int16_t *const scan = scan_order->scan;
+    for (int pos = 1024; pos < 4096; ++pos) {
+      const int index = scan[pos];
+      output[index] = 0;
+    }
+  }
 }
 
 void av1_fht64x32_c(const int16_t *input, tran_low_t *output, int stride,
@@ -2717,6 +2729,16 @@ void av1_fht64x32_c(const int16_t *input, tran_low_t *output, int stride,
       output[j + i * n2] =
           (tran_low_t)ROUND_POWER_OF_TWO_SIGNED(temp_out[j], 2);
   }
+
+  if (tx_type == DCT_DCT) {
+    // Zero out half of the last coefficients.
+    const SCAN_ORDER *const scan_order = get_default_scan(TX_64X32, DCT_DCT, 0);
+    const int16_t *const scan = scan_order->scan;
+    for (int pos = 1024; pos < 2048; ++pos) {
+      const int index = scan[pos];
+      output[index] = 0;
+    }
+  }
 }
 
 void av1_fht32x64_c(const int16_t *input, tran_low_t *output, int stride,
@@ -2774,6 +2796,16 @@ void av1_fht32x64_c(const int16_t *input, tran_low_t *output, int stride,
     ht.cols(temp_in, temp_out);
     for (j = 0; j < n2; ++j)
       output[i + j * n] = (tran_low_t)ROUND_POWER_OF_TWO_SIGNED(temp_out[j], 2);
+  }
+
+  if (tx_type == DCT_DCT) {
+    // Zero out half of the last coefficients.
+    const SCAN_ORDER *const scan_order = get_default_scan(TX_32X64, DCT_DCT, 0);
+    const int16_t *const scan = scan_order->scan;
+    for (int pos = 1024; pos < 2048; ++pos) {
+      const int index = scan[pos];
+      output[index] = 0;
+    }
   }
 }
 #endif  // CONFIG_TX64X64
