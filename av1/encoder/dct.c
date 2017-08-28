@@ -2933,6 +2933,14 @@ void av1_fht64x64_c(const int16_t *input, tran_low_t *output, int stride,
           (tran_low_t)((temp_out[j] + 1 + (temp_out[j] < 0)) >> 2);
 #endif
   }
+
+  if (tx_type == DCT_DCT) {
+    // Zero out 3/4th of the last coefficients.
+    for (int row = 0; row < 32; ++row) {  // Zero out top-right 32x32 area.
+      memset(output + row * 64 + 32, 0, 32);
+    }
+    memset(output + 32 * 64, 0, 32 * 64);  // Zero out the bottom 64x32 area.
+  }
 }
 
 void av1_fht64x32_c(const int16_t *input, tran_low_t *output, int stride,
@@ -2992,6 +3000,13 @@ void av1_fht64x32_c(const int16_t *input, tran_low_t *output, int stride,
       output[j + i * n2] =
           (tran_low_t)ROUND_POWER_OF_TWO_SIGNED(temp_out[j], 2);
   }
+
+  if (tx_type == DCT_DCT) {
+    // Zero out half of the last coefficients.
+    for (int row = 0; row < n; ++row) {  // Zero out right 32x32 area.
+      memset(output + row * n2 + n, 0, n);
+    }
+  }
 }
 
 void av1_fht32x64_c(const int16_t *input, tran_low_t *output, int stride,
@@ -3049,6 +3064,11 @@ void av1_fht32x64_c(const int16_t *input, tran_low_t *output, int stride,
     ht.cols(temp_in, temp_out);
     for (j = 0; j < n2; ++j)
       output[i + j * n] = (tran_low_t)ROUND_POWER_OF_TWO_SIGNED(temp_out[j], 2);
+  }
+
+  if (tx_type == DCT_DCT) {
+    // Zero out half of the last coefficients.
+    memset(output + n * n, 0, n * n);  // Zero out the bottom 32x32 area.
   }
 }
 #endif  // CONFIG_TX64X64
