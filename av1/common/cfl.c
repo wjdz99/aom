@@ -31,6 +31,22 @@ void cfl_init(CFL_CTX *cfl, AV1_COMMON *cm) {
 #endif  // CONFIG_CHROMA_SUB8X8 && CONFIG_DEBUG
 }
 
+static void cfl_luma_subsampling_420(const uint8_t *y_pix, uint8_t *output,
+                                     int width, int height) {
+  for (int j = 0; j < height; j++) {
+    for (int i = 0; i < width; i++) {
+      int top = i << 1;
+      int bot = top + MAX_SB_SIZE;
+
+      int sum = y_pix[top] + y_pix[top + 1] + y_pix[bot] + y_pix[bot + 1];
+
+      output[i] = (sum + 2) >> 2;
+    }
+    y_pix += MAX_SB_SIZE << 1;
+    output += MAX_SB_SIZE;
+  }
+}
+
 // Load from the CfL pixel buffer into output
 static void cfl_load(CFL_CTX *cfl, int row, int col, int width, int height) {
   const int sub_x = cfl->subsampling_x;
@@ -59,20 +75,7 @@ static void cfl_load(CFL_CTX *cfl, int row, int col, int width, int height) {
     }
   } else if (sub_y == 1 && sub_x == 1) {
     y_pix = &cfl->y_pix[(row * MAX_SB_SIZE + col) << (off_log2 + sub_y)];
-    for (int j = 0; j < height; j++) {
-      for (int i = 0; i < width; i++) {
-        int top_left = (pred_row_offset + i) << sub_y;
-        int bot_left = top_left + MAX_SB_SIZE;
-        // In 4:2:0, average pixels in 2x2 grid
-        output[output_row_offset + i] = OD_SHR_ROUND(
-            y_pix[top_left] + y_pix[top_left + 1]        // Top row
-                + y_pix[bot_left] + y_pix[bot_left + 1]  // Bottom row
-            ,
-            2);
-      }
-      pred_row_offset += MAX_SB_SIZE;
-      output_row_offset += MAX_SB_SIZE;
-    }
+    cfl_luma_subsampling_420(y_pix, output, width, height);
   } else {
     assert(0);  // Unsupported chroma subsampling
   }
