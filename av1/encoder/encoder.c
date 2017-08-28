@@ -4103,7 +4103,11 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
 
     aom_usec_timer_start(&timer);
 
+#if CONFIG_LPF_SB
+    av1_pick_filter_level(cpi->source, cpi, cpi->sf.lpf_pick, 0);
+#else
     av1_pick_filter_level(cpi->source, cpi, cpi->sf.lpf_pick);
+#endif  // CONFIG_LPF_SB
 
     aom_usec_timer_mark(&timer);
     cpi->time_pick_lpf += aom_usec_timer_elapsed(&timer);
@@ -4117,6 +4121,18 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
   {
 #if CONFIG_VAR_TX || CONFIG_EXT_PARTITION || CONFIG_CB4X4
 #if CONFIG_LPF_SB
+    //  Make a copy of the unfiltered / processed recon buffer
+    aom_yv12_copy_y(cm->frame_to_show, &cpi->last_frame_uf);
+
+    // try loop filter whole frame using one frame level filter
+    av1_loop_filter_frame(cm->frame_to_show, cm, xd, lf->filter_level, 0, 0, 0,
+                          0);
+
+    // Re-instate the unfiltered frame
+    aom_yv12_copy_y(&cpi->last_frame_uf, cm->frame_to_show);
+
+    // try filter whole frame by each superblock with separate filter levels
+    av1_pick_filter_level(cpi->source, cpi, cpi->sf.lpf_pick, 1);
     av1_loop_filter_frame(cm->frame_to_show, cm, xd, lf->filter_level, 0, 0, 0,
                           0);
 #else

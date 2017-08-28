@@ -93,9 +93,10 @@ int av1_get_max_filter_level(const AV1_COMP *cpi) {
 }
 
 #if CONFIG_LPF_SB
-static int64_t try_filter_frame(const YV12_BUFFER_CONFIG *sd,
-                                AV1_COMP *const cpi, int filt_level,
-                                int partial_frame, int mi_row, int mi_col) {
+static int64_t try_filter_superblock(const YV12_BUFFER_CONFIG *sd,
+                                     AV1_COMP *const cpi, int filt_level,
+                                     int partial_frame, int mi_row,
+                                     int mi_col) {
   AV1_COMMON *const cm = &cpi->common;
   int64_t filt_err;
 
@@ -128,9 +129,11 @@ static int64_t try_filter_frame(const YV12_BUFFER_CONFIG *sd,
   return filt_err;
 }
 
-int av1_search_filter_level(const YV12_BUFFER_CONFIG *sd, AV1_COMP *cpi,
-                            int partial_frame, double *best_cost_ret,
-                            int mi_row, int mi_col, int last_lvl) {
+int av1_search_filter_level_sb(const YV12_BUFFER_CONFIG *sd, AV1_COMP *cpi,
+                               int partial_frame, double *best_cost_ret,
+                               int mi_row, int mi_col, int last_lvl) {
+  assert(partial_frame == 1);
+
   const AV1_COMMON *const cm = &cpi->common;
   const struct loopfilter *const lf = &cm->lf;
   const int min_filter_level = 0;
@@ -154,7 +157,8 @@ int av1_search_filter_level(const YV12_BUFFER_CONFIG *sd, AV1_COMP *cpi,
   //  Make a copy of the unfiltered / processed recon buffer
   aom_yv12_copy_y(cm->frame_to_show, &cpi->last_frame_uf);
 
-  best_err = try_filter_frame(sd, cpi, filt_mid, partial_frame, mi_row, mi_col);
+  best_err =
+      try_filter_superblock(sd, cpi, filt_mid, partial_frame, mi_row, mi_col);
   filt_best = filt_mid;
   ss_err[filt_mid] = best_err;
 
@@ -176,8 +180,8 @@ int av1_search_filter_level(const YV12_BUFFER_CONFIG *sd, AV1_COMP *cpi,
     if (filt_direction <= 0 && filt_low != filt_mid) {
       // Get Low filter error score
       if (ss_err[filt_low] < 0) {
-        ss_err[filt_low] =
-            try_filter_frame(sd, cpi, filt_low, partial_frame, mi_row, mi_col);
+        ss_err[filt_low] = try_filter_superblock(sd, cpi, filt_low,
+                                                 partial_frame, mi_row, mi_col);
       }
       // If value is close to the best so far then bias towards a lower loop
       // filter value.
@@ -193,8 +197,8 @@ int av1_search_filter_level(const YV12_BUFFER_CONFIG *sd, AV1_COMP *cpi,
     // Now look at filt_high
     if (filt_direction >= 0 && filt_high != filt_mid) {
       if (ss_err[filt_high] < 0) {
-        ss_err[filt_high] =
-            try_filter_frame(sd, cpi, filt_high, partial_frame, mi_row, mi_col);
+        ss_err[filt_high] = try_filter_superblock(
+            sd, cpi, filt_high, partial_frame, mi_row, mi_col);
       }
       // If value is significantly better than previous best, bias added against
       // raising filter value
@@ -220,8 +224,8 @@ int av1_search_filter_level(const YV12_BUFFER_CONFIG *sd, AV1_COMP *cpi,
   if (best_cost_ret) *best_cost_ret = RDCOST_DBL(x->rdmult, 0, best_err);
   return filt_best;
 }
+#endif  // CONFIG_LPF_SB
 
-#else  // CONFIG_LPF_SB
 static int64_t try_filter_frame(const YV12_BUFFER_CONFIG *sd,
                                 AV1_COMP *const cpi, int filt_level,
                                 int partial_frame
@@ -242,9 +246,15 @@ static int64_t try_filter_frame(const YV12_BUFFER_CONFIG *sd,
 
   av1_loop_filter_frame(cm->frame_to_show, cm, &cpi->td.mb.e_mbd,
                         filter_level[0], filter_level[1], plane, partial_frame);
+#else  // CONFIG_LOOPFILTER_LEVEL
+#if CONFIG_LPF_SB
+  assert(partial_frame == 0);
+  av1_loop_filter_frame(cm->frame_to_show, cm, &cpi->td.mb.e_mbd, filt_level, 1,
+                        partial_frame, 0, 0);
 #else
   av1_loop_filter_frame(cm->frame_to_show, cm, &cpi->td.mb.e_mbd, filt_level, 1,
                         partial_frame);
+#endif  // CONFIG_LPF_SB
 #endif  // CONFIG_LOOPFILTER_LEVEL
 #else
   if (cpi->num_workers > 1)
@@ -283,6 +293,9 @@ int av1_search_filter_level(const YV12_BUFFER_CONFIG *sd, AV1_COMP *cpi,
                             int plane, int dir
 #endif
                             ) {
+#if CONFIG_LPF_SB
+  assert(partial_frame == 0);
+#endif
   const AV1_COMMON *const cm = &cpi->common;
   const struct loopfilter *const lf = &cm->lf;
   const int min_filter_level = 0;
@@ -396,10 +409,14 @@ int av1_search_filter_level(const YV12_BUFFER_CONFIG *sd, AV1_COMP *cpi,
   if (best_cost_ret) *best_cost_ret = RDCOST_DBL(x->rdmult, 0, best_err);
   return filt_best;
 }
-#endif  // CONFIG_LPF_SB
 
 void av1_pick_filter_level(const YV12_BUFFER_CONFIG *sd, AV1_COMP *cpi,
-                           LPF_PICK_METHOD method) {
+                           LPF_PICK_METHOD method
+#if CONFIG_LPF_SB
+                           ,
+                           int per_superblock
+#endif
+                           ) {
   AV1_COMMON *const cm = &cpi->common;
   struct loopfilter *const lf = &cm->lf;
 
@@ -448,23 +465,41 @@ void av1_pick_filter_level(const YV12_BUFFER_CONFIG *sd, AV1_COMP *cpi,
 #endif
   } else {
 #if CONFIG_LPF_SB
+    FILE *pfile = fopen("filt_lvl.txt", "a");
     int mi_row, mi_col;
-    int last_lvl = 0;
-    for (mi_row = 0; mi_row < cm->mi_rows; mi_row += cm->mib_size) {
-      for (mi_col = 0; mi_col < cm->mi_cols; mi_col += cm->mib_size) {
-        int lvl =
-            av1_search_filter_level(sd, cpi, 1, NULL, mi_row, mi_col, last_lvl);
-        int row, col;
-        for (row = mi_row; row < mi_row + MAX_MIB_SIZE && row < cm->mi_rows;
-             ++row) {
-          for (col = mi_col; col < mi_col + MAX_MIB_SIZE && col < cm->mi_cols;
-               ++col) {
-            cm->mi_grid_visible[row * cm->mi_stride + col]->mbmi.filt_lvl = lvl;
+    int row, col;
+    if (per_superblock) {
+      fprintf(pfile, "frame %d, per_superblock: \n", cm->current_video_frame);
+      int last_lvl = 0;
+      for (mi_row = 0; mi_row < cm->mi_rows; mi_row += cm->mib_size) {
+        for (mi_col = 0; mi_col < cm->mi_cols; mi_col += cm->mib_size) {
+          int lvl = av1_search_filter_level_sb(sd, cpi, 1, NULL, mi_row, mi_col,
+                                               last_lvl);
+          fprintf(pfile, "mi_row %d, mi_col %d, lvl %d\n", mi_row, mi_col, lvl);
+          for (row = mi_row; row < mi_row + MAX_MIB_SIZE && row < cm->mi_rows;
+               ++row) {
+            for (col = mi_col; col < mi_col + MAX_MIB_SIZE && col < cm->mi_cols;
+                 ++col) {
+              cm->mi_grid_visible[row * cm->mi_stride + col]->mbmi.filt_lvl =
+                  lvl;
+            }
           }
+          last_lvl = lvl;
         }
-        last_lvl = lvl;
+      }
+    } else {
+      lf->filter_level = av1_search_filter_level(
+          sd, cpi, method == LPF_PICK_FROM_SUBIMAGE, NULL);
+      fprintf(pfile, "frame %d, filter level: %d\n", cm->current_video_frame,
+              lf->filter_level);
+      for (mi_row = 0; mi_row < cm->mi_rows; mi_row++) {
+        for (mi_col = 0; mi_col < cm->mi_cols; mi_col++) {
+          cm->mi_grid_visible[mi_row * cm->mi_stride + mi_col]->mbmi.filt_lvl =
+              lf->filter_level;
+        }
       }
     }
+    fclose(pfile);
 #else
 #if CONFIG_LOOPFILTER_LEVEL
     lf->filter_level[0] = lf->filter_level[1] = av1_search_filter_level(
