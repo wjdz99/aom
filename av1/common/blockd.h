@@ -835,10 +835,17 @@ static INLINE int supertx_enabled(const MB_MODE_INFO *mbmi) {
 static INLINE int is_rect_tx(TX_SIZE tx_size) { return tx_size >= TX_SIZES; }
 #endif  // CONFIG_RECT_TX
 
+/* clang-format off */
 #if CONFIG_MRC_TX
 #define USE_MRC_INTRA 0
 #define USE_MRC_INTER 1
+#define SIGNAL_MRC_MASK_INTRA 0
+#define SIGNAL_MRC_MASK_INTER 1
+#define SIGNAL_ANY_MRC_MASK                    \
+  ((USE_MRC_INTRA && SIGNAL_MRC_MASK_INTRA) || \
+   (USE_MRC_INTER && SIGNAL_MRC_MASK_INTER))
 #endif  // CONFIG_MRC_TX
+/* clang-format on */
 
 #if CONFIG_EXT_TX
 #define ALLOW_INTRA_EXT_TX 1
