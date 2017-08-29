@@ -36,6 +36,7 @@ typedef struct txfm_param {
 #endif
 #if CONFIG_MRC_TX
   int *valid_mask;
+  const uint8_t *mask;
 #endif  // CONFIG_MRC_TX
 #endif  // CONFIG_MRC_TX || CONFIG_LGT
 // for inverse transforms only
