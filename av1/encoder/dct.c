@@ -1144,14 +1144,21 @@ static void fhalfright32(const tran_low_t *input, tran_low_t *output) {
 #if CONFIG_MRC_TX
 static void get_masked_residual32(const int16_t **input, int *input_stride,
                                   const uint8_t *pred, int pred_stride,
-                                  int16_t *masked_input, int *valid_mask,
-                                  int is_inter) {
-  int mrc_mask[32 * 32];
+                                  int16_t *masked_input,
+                                  TxfmParam *txfm_param) {
+  uint8_t mrc_mask[32 * 32];
   int n_masked_vals =
-      get_mrc_mask(pred, pred_stride, mrc_mask, 32, 32, 32, is_inter);
+      get_mrc_mask(*input, *input_stride, pred, pred_stride, mrc_mask, 32, 32,
+                   32, txfm_param->is_inter);
+  if ((txfm_param->is_inter && SIGNAL_MRC_MASK_INTER) ||
+      (!txfm_param->is_inter && SIGNAL_MRC_MASK_INTRA)) {
+    //sarahparker see if this can be revised
+    memcpy(txfm_param->mask, mrc_mask, 32 * 32 * sizeof(*mrc_mask));
+  }
+
   // Do not use MRC_DCT if mask is invalid. DCT_DCT will be used instead.
   if (!is_valid_mrc_mask(n_masked_vals, 32, 32)) {
-    *valid_mask = 0;
+    *txfm_param->valid_mask = 0;
     return;
   }
   int32_t sum = 0;
@@ -1172,7 +1179,7 @@ static void get_masked_residual32(const int16_t **input, int *input_stride,
   }
   *input = masked_input;
   *input_stride = 32;
-  *valid_mask = 1;
+  *txfm_param->valid_mask = 1;
 }
 #endif  // CONFIG_MRC_TX
 
@@ -2494,8 +2501,7 @@ void av1_fht32x32_c(const int16_t *input, tran_low_t *output, int stride,
   if (tx_type == MRC_DCT) {
     int16_t masked_input[32 * 32];
     get_masked_residual32(&input, &stride, txfm_param->dst, txfm_param->stride,
-                          masked_input, txfm_param->valid_mask,
-                          txfm_param->is_inter);
+                          masked_input, txfm_param);
   }
 #endif  // CONFIG_MRC_TX
 
