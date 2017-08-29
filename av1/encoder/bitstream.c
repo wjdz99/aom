@@ -689,12 +689,16 @@ static INLINE void write_coeff_extra(const aom_prob *pb, int value,
 static void pack_mb_tokens(aom_writer *w, const TOKENEXTRA **tp,
                            const TOKENEXTRA *const stop,
                            aom_bit_depth_t bit_depth, const TX_SIZE tx_size,
+#if CONFIG_MRC_TX
+                           TX_TYPE tx_type,
+#endif  // CONFIG_MRC_TX
                            TOKEN_STATS *token_stats) {
   const TOKENEXTRA *p = *tp;
 #if CONFIG_VAR_TX
   int count = 0;
   const int seg_eob = tx_size_2d[tx_size];
 #endif
+(void)tx_type;
 
   while (p < stop && p->token != EOSB_TOKEN) {
     const int token = p->token;
@@ -939,6 +943,11 @@ static void pack_txb_tokens(aom_writer *w, const TOKENEXTRA **tp,
   TX_SIZE plane_tx_size;
   const int max_blocks_high = max_block_high(xd, plane_bsize, plane);
   const int max_blocks_wide = max_block_wide(xd, plane_bsize, plane);
+#if CONFIG_MRC_TX
+  TX_TYPE tx_type =
+      av1_get_tx_type(plane ? PLANE_TYPE_UV : PLANE_TYPE_Y,
+                      xd, blk_row, blk_col, block, tx_size);
+#endif  // CONFIG_MRC_TX
 
   if (blk_row >= max_blocks_high || blk_col >= max_blocks_wide) return;
 
@@ -950,7 +959,11 @@ static void pack_txb_tokens(aom_writer *w, const TOKENEXTRA **tp,
     TOKEN_STATS tmp_token_stats;
     init_token_stats(&tmp_token_stats);
 #if !CONFIG_PVQ
-    pack_mb_tokens(w, tp, tok_end, bit_depth, tx_size, &tmp_token_stats);
+    pack_mb_tokens(w, tp, tok_end, bit_depth, tx_size,
+#if CONFIG_MRC_TX
+                   tx_type,
+#endif  // CONFIG_MRC_TX
+                   &tmp_token_stats);
 #else
     pack_pvq_tokens(w, x, xd, plane, bsize, tx_size);
 #endif
@@ -2716,7 +2729,15 @@ static void write_tokens_b(AV1_COMP *cpi, const TileInfo *const tile,
             for (blk_row = row; blk_row < unit_height; blk_row += bkh) {
               for (blk_col = col; blk_col < unit_width; blk_col += bkw) {
 #if !CONFIG_PVQ
+#if CONFIG_MRC_TX
+               TX_TYPE tx_type =
+                  av1_get_tx_type(plane ? PLANE_TYPE_UV : PLANE_TYPE_Y,
+                                  xd, blk_row, blk_col, 0, tx);
+#endif   // CONFIG_MRC_TX
                 pack_mb_tokens(w, tok, tok_end, cm->bit_depth, tx,
+#if CONFIG_MRC_TX
+                               tx_type,
+#endif  // CONFIG_MRC_TX
                                &token_stats);
 #else
                 pack_pvq_tokens(w, x, xd, plane, bsize, tx);
@@ -2736,7 +2757,16 @@ static void write_tokens_b(AV1_COMP *cpi, const TileInfo *const tile,
       (void)tx;
       av1_write_coeffs_mb(cm, x, w, plane);
 #else   // CONFIG_LV_MAP
-      pack_mb_tokens(w, tok, tok_end, cm->bit_depth, tx, &token_stats);
+#if CONFIG_MRC_TX
+      TX_TYPE tx_type =
+         av1_get_tx_type(plane ? PLANE_TYPE_UV : PLANE_TYPE_Y,
+                         xd, blk_row, blk_col, 0, tx);
+#endif   // CONFIG_MRC_TX
+      pack_mb_tokens(w, tok, tok_end, cm->bit_depth, tx,
+#if CONFIG_MRC_TX
+                     tx_type,
+#endif  // CONFIG_MRC_TX
+                     &token_stats);
 #endif  // CONFIG_LV_MAP
 
 #else
@@ -3098,6 +3128,11 @@ static void write_modes_sb(AV1_COMP *const cpi, const TileInfo *const tile,
     if (!skip) {
       assert(*tok < tok_end);
       for (plane = 0; plane < MAX_MB_PLANE; ++plane) {
+#if CONFIG_MRC_TX
+        TX_TYPE tx_type =
+          av1_get_tx_type(plane ? PLANE_TYPE_UV : PLANE_TYPE_Y,
+                          xd, blk_row, blk_col, block, tx_size);
+#endif  // CONFIG_MRC_TX
         const struct macroblockd_plane *const pd = &xd->plane[plane];
         const int mbmi_txb_size = txsize_to_bsize[mbmi->tx_size];
         const BLOCK_SIZE plane_bsize = get_plane_block_size(mbmi_txb_size, pd);
@@ -3116,7 +3151,11 @@ static void write_modes_sb(AV1_COMP *const cpi, const TileInfo *const tile,
         token_stats.cost = 0;
         for (row = 0; row < max_blocks_high; row += stepr)
           for (col = 0; col < max_blocks_wide; col += stepc)
-            pack_mb_tokens(w, tok, tok_end, cm->bit_depth, tx, &token_stats);
+            pack_mb_tokens(w, tok, tok_end, cm->bit_depth, tx,
+#if CONFIG_MRC_TX
+                           tx_type,
+#endif  // CONFIG_MRC_TX
+                           &token_stats);
         assert(*tok < tok_end && (*tok)->token == EOSB_TOKEN);
         (*tok)++;
       }
