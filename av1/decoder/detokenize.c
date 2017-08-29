@@ -287,7 +287,7 @@ static void get_palette_params(const MACROBLOCKD *const xd, int plane,
                            &params->plane_height, &params->rows, &params->cols);
 }
 
-#if CONFIG_MRC_TX
+#if CONFIG_MRC_TX && SIGNAL_ANY_MRC_MASK
 static void get_mrc_params(const MACROBLOCKD *const xd, int plane,
                            BLOCK_SIZE bsize, Av1ColorMapParam *params) {
   // TODO(sarahparker)
@@ -296,7 +296,7 @@ static void get_mrc_params(const MACROBLOCKD *const xd, int plane,
   (void)bsize;
   memset(params, 0, sizeof(*params));
 }
-#endif  // CONFIG_MRC_TX
+#endif  // CONFIG_MRC_TX && SIGNAL_ANY_MRC_MASK
 
 void av1_decode_palette_tokens(MACROBLOCKD *const xd, int plane,
                                aom_reader *r) {
@@ -309,14 +309,14 @@ void av1_decode_palette_tokens(MACROBLOCKD *const xd, int plane,
   decode_color_map_tokens(&color_map_params, r);
 }
 
-#if CONFIG_MRC_TX
+#if CONFIG_MRC_TX && SIGNAL_ANY_MRC_MASK
 void av1_decode_mrc_tokens(MACROBLOCKD *const xd, int plane, aom_reader *r) {
   const MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
   Av1ColorMapParam color_map_params;
   get_mrc_params(xd, plane, mbmi->sb_type, &color_map_params);
   decode_color_map_tokens(&color_map_params, r);
 }
-#endif  // CONFIG_MRC_TX
+#endif  // CONFIG_MRC_TX && SIGNAL_ANY_MRC_MASK
 
 #if !CONFIG_PVQ || CONFIG_VAR_TX
 int av1_decode_block_tokens(AV1_COMMON *cm, MACROBLOCKD *const xd, int plane,
@@ -332,6 +332,11 @@ int av1_decode_block_tokens(AV1_COMMON *cm, MACROBLOCKD *const xd, int plane,
   int dq =
       get_dq_profile_from_ctx(xd->qindex[seg_id], ctx, ref, pd->plane_type);
 #endif  //  CONFIG_NEW_QUANT
+
+#if CONFIG_MRC_TX && SIGNAL_ANY_MRC_MASK
+  if (tx_type == MRC_DCT)
+    av1_decode_mrc_tokens(xd, plane, r);
+#endif  // CONFIG_MRC_TX && SIGNAL_ANY_MRC_MASK
 
   const int eob =
       decode_coefs(xd, pd->plane_type, pd->dqcoeff, tx_size, tx_type, dequant,
