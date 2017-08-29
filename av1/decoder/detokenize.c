@@ -89,10 +89,9 @@ static int token_to_value(aom_reader *const r, int token, TX_SIZE tx_size,
     case CATEGORY5_TOKEN:
       return CAT5_MIN_VAL + READ_COEFF(av1_cat5_prob, av1_cat5_cdf, 5, r);
     case CATEGORY6_TOKEN: {
-      const int skip_bits = (int)sizeof(av1_cat6_prob) -
-                            av1_get_cat6_extrabits_size(tx_size, bit_depth);
-      return CAT6_MIN_VAL + READ_COEFF(av1_cat6_prob + skip_bits, av1_cat6_cdf,
-                                       18 - skip_bits, r);
+      const int num_bits = av1_get_cat6_extrabits_size(tx_size, bit_depth);
+      const aom_prob *probs = av1_cat6_prob + sizeof(av1_cat6_prob) - num_bits;
+      return CAT6_MIN_VAL + READ_COEFF(probs, av1_cat6_cdf, num_bits, r);
     }
     default:
       assert(0);  // Invalid token.
