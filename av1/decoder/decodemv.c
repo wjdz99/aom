@@ -317,6 +317,19 @@ static MOTION_MODE read_motion_mode(AV1_COMMON *cm, MACROBLOCKD *xd,
 
   if (last_motion_mode_allowed == SIMPLE_TRANSLATION) return SIMPLE_TRANSLATION;
 #if CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
+#if CONFIG_NCOBMC_ADAPT_WEIGHT
+  if (last_motion_mode_allowed == NCOBMC_ADAPT_WEIGHT) {
+    motion_mode = aom_read_symbol(r, xd->tile_ctx->ncobmc_cdf[mbmi->sb_type],
+                                  OBMC_FAMILY_MODES, ACCT_STR);
+    if (counts) ++counts->ncobmc[mbmi->sb_type][motion_mode];
+    return (MOTION_MODE)(SIMPLE_TRANSLATION + motion_mode);
+  } else if (last_motion_mode_allowed == OBMC_CAUSAL) {
+    motion_mode =
+        aom_read_symbol(r, xd->tile_ctx->obmc_cdf[mbmi->sb_type], 2, ACCT_STR);
+    if (counts) ++counts->obmc[mbmi->sb_type][motion_mode];
+    return (MOTION_MODE)(SIMPLE_TRANSLATION + motion_mode);
+  } else {
+#else
   if (last_motion_mode_allowed == OBMC_CAUSAL) {
 #if CONFIG_NEW_MULTISYMBOL
     motion_mode =
@@ -327,6 +340,7 @@ static MOTION_MODE read_motion_mode(AV1_COMMON *cm, MACROBLOCKD *xd,
     if (counts) ++counts->obmc[mbmi->sb_type][motion_mode];
     return (MOTION_MODE)(SIMPLE_TRANSLATION + motion_mode);
   } else {
+#endif  // CONFIG_NCOBMC_ADAPT_WEIGHT
 #endif  // CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
     motion_mode =
         aom_read_symbol(r, xd->tile_ctx->motion_mode_cdf[mbmi->sb_type],
