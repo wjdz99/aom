@@ -1,0 +1,118 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "507dacc0_300edcc0",
+        "filename": "av1/common/pred_common.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 372,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-08-29T22:25:44Z",
+      "side": 1,
+      "message": "\"if\" --\u003e \"true if\"\n\"should be\" --\u003e \"is\"",
+      "range": {
+        "startLine": 372,
+        "startChar": 27,
+        "endLine": 372,
+        "endChar": 36
+      },
+      "revId": "120c3a4915b817e7cc6acdd1cc936c1d7bcdb6e9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c622f470_06f8e5d5",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 790,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-08-29T22:25:44Z",
+      "side": 1,
+      "message": "assert(av1_is_palette_supported(...))?",
+      "revId": "120c3a4915b817e7cc6acdd1cc936c1d7bcdb6e9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bd6f4352_21410294",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1521,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-08-29T22:25:44Z",
+      "side": 1,
+      "message": "assert(av1_is_palette_supported(...))?",
+      "range": {
+        "startLine": 1521,
+        "startChar": 2,
+        "endLine": 1521,
+        "endChar": 8
+      },
+      "revId": "120c3a4915b817e7cc6acdd1cc936c1d7bcdb6e9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d99e99aa_7598cfdd",
+        "filename": "av1/encoder/context_tree.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-08-29T22:25:44Z",
+      "side": 1,
+      "message": "\u0027alloc_mode_context\u0027 is called once per encoder/frame (and not once per block, right)?\nSo, even \u0027num_pix\u0027 is larger, we should still allocate \u0027MAX_PALETTE_SQUARE\u0027 pixels, right?\nThat way, the color index maps can still be used for \u003c\u003d 64x64 blocks.",
+      "revId": "120c3a4915b817e7cc6acdd1cc936c1d7bcdb6e9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a016b9cf_1c69ee96",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 3029,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-08-29T22:25:44Z",
+      "side": 1,
+      "message": "assert(av1_is_palette_supported(...))?",
+      "revId": "120c3a4915b817e7cc6acdd1cc936c1d7bcdb6e9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e3655571_19d26ec1",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 5438,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-08-29T22:25:44Z",
+      "side": 1,
+      "message": "assert(av1_is_palette_supported(...))?",
+      "revId": "120c3a4915b817e7cc6acdd1cc936c1d7bcdb6e9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
