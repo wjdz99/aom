@@ -134,6 +134,11 @@ void av1_setup_across_tile_boundary_info(const AV1_COMMON *const cm,
     }
 
     mi = mi_start + (row_diff - 1) * cm->mi_stride;
+    // Note:
+    // This assert and above are used to guarantee MODE_INFO array accessing
+    // is strictly inside allocated space.
+    assert((intptr_t)&(mi + col_diff - 1)->mbmi.boundary_info <
+           (intptr_t)cm->mip + cm->mi_alloc_size);
     for (col = 0; col < col_diff; ++col) {
       mi->mbmi.boundary_info |= TILE_BOTTOM_BOUNDARY;
       mi += 1;
