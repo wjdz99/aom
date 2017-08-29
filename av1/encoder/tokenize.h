@@ -39,6 +39,7 @@ typedef struct {
   aom_cdf_prob (*head_cdf)[CDF_SIZE(ENTROPY_TOKENS)];
   aom_cdf_prob *color_map_cdf;
   int eob_val;
+  int mrc;//sarahparker
   int first_val;
   const aom_prob *context_tree;
   EXTRABIT extra;
@@ -75,11 +76,11 @@ void av1_tokenize_sb_vartx(const struct AV1_COMP *cpi, struct ThreadData *td,
                            int mi_col, BLOCK_SIZE bsize, int *rate);
 #endif
 
-int av1_cost_color_map(const MACROBLOCK *const x, int plane, BLOCK_SIZE bsize,
-                       COLOR_MAP_TYPE type);
+int av1_cost_color_map(const MACROBLOCK *const x, int plane, int block,
+                       BLOCK_SIZE bsize, TX_SIZE tx_size, COLOR_MAP_TYPE type);
 
-void av1_tokenize_color_map(const MACROBLOCK *const x, int plane,
-                            TOKENEXTRA **t, BLOCK_SIZE bsize,
+void av1_tokenize_color_map(const MACROBLOCK *const x, int plane, int block,
+                            TOKENEXTRA **t, BLOCK_SIZE bsize, TX_SIZE tx_size,
                             COLOR_MAP_TYPE type);
 
 void av1_tokenize_sb(const struct AV1_COMP *cpi, struct ThreadData *td,
