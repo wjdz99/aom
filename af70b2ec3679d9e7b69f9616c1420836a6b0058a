@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ddfcd533_879b88bb",
+        "filename": "build/cmake/pkg_config.cmake",
+        "patchSetId": 10
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-08-29T22:49:36Z",
+      "side": 1,
+      "message": "line continuation differs here and in version.cmake fwiw",
+      "revId": "af70b2ec3679d9e7b69f9616c1420836a6b0058a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "421c763d_f4ad939c",
+        "filename": "build/cmake/pkg_config.cmake",
+        "patchSetId": 10
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-08-29T22:49:36Z",
+      "side": 1,
+      "message": "this line could go",
+      "revId": "af70b2ec3679d9e7b69f9616c1420836a6b0058a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
