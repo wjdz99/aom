@@ -1809,9 +1809,21 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td, int mi_row,
               counts->motion_mode[mbmi->sb_type][mbmi->motion_mode]++;
               update_cdf(xd->tile_ctx->motion_mode_cdf[mbmi->sb_type],
                          mbmi->motion_mode, MOTION_MODES);
+#if CONFIG_NCOBMC_ADAPT_WEIGHT
+            } else if (motion_allowed == NCOBMC_ADAPT_WEIGHT) {
+              counts->ncobmc[mbmi->sb_type][mbmi->motion_mode]++;
+              update_cdf(xd->tile_ctx->ncobmc_cdf[mbmi->sb_type],
+                         mbmi->motion_mode, OBMC_FAMILY_MODES);
+            } else if (motion_allowed == OBMC_CAUSAL) {
+              counts->obmc[mbmi->sb_type][mbmi->motion_mode == OBMC_CAUSAL]++;
+              update_cdf(xd->tile_ctx->obmc_cdf[mbmi->sb_type],
+                         mbmi->motion_mode, 2);
+            }
+#else
             } else if (motion_allowed == OBMC_CAUSAL) {
               counts->obmc[mbmi->sb_type][mbmi->motion_mode == OBMC_CAUSAL]++;
             }
+#endif  // CONFIG_NCOBMC_ADAPT_WEIGHT
           }
 #else
         if (motion_allowed > SIMPLE_TRANSLATION) {
