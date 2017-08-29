@@ -279,6 +279,9 @@ static void inverse_transform_block(MACROBLOCKD *xd, int plane,
 #if CONFIG_LGT
                               mode,
 #endif
+#if CONFIG_MRC_TX && SIGNAL_ANY_MRC_MASK
+                              xd->mrc_mask,
+#endif  // CONFIG_MRC_TX && SIGNAL_ANY_MRC_MASK
                               tx_type, tx_size, dst, stride, eob);
   memset(dqcoeff, 0, (scan_line + 1) * sizeof(dqcoeff[0]));
 }
@@ -337,10 +340,11 @@ static int av1_pvq_decode_helper(MACROBLOCKD *xd, tran_low_t *ref_coeff,
     pvq_dc_quant = 1;
   else {
     if (use_activity_masking)
-      pvq_dc_quant = OD_MAXI(
-          1, (quant[0] << (OD_COEFF_SHIFT - 3) >> hbd_downshift) *
-                     dec->state.pvq_qm_q4[pli][od_qm_get_index(bs, 0)] >>
-                 4);
+      pvq_dc_quant =
+          OD_MAXI(1,
+                  (quant[0] << (OD_COEFF_SHIFT - 3) >> hbd_downshift) *
+                          dec->state.pvq_qm_q4[pli][od_qm_get_index(bs, 0)] >>
+                      4);
     else
       pvq_dc_quant =
           OD_MAXI(1, quant[0] << (OD_COEFF_SHIFT - 3) >> hbd_downshift);
