@@ -36,6 +36,7 @@ include("${AOM_ROOT}/build/cmake/aom_config_defaults.cmake")
 include("${AOM_ROOT}/build/cmake/aom_optimization.cmake")
 include("${AOM_ROOT}/build/cmake/compiler_flags.cmake")
 include("${AOM_ROOT}/build/cmake/compiler_tests.cmake")
+include("${AOM_ROOT}/build/cmake/util.cmake")
 
 # Build a list of all configurable variables.
 get_cmake_property(cmake_cache_vars CACHE_VARIABLES)
@@ -330,19 +331,8 @@ configure_file("${aom_config_h_template}" "${AOM_CONFIG_DIR}/aom_config.h")
 
 # Read the current git hash.
 find_package(Git)
-set(AOM_GIT_DESCRIPTION)
-set(AOM_GIT_HASH)
-if (GIT_FOUND)
-  # TODO(tomfinegan): Add build rule so users don't have to re-run cmake to
-  # create accurately versioned cmake builds.
-  execute_process(COMMAND ${GIT_EXECUTABLE}
-                  --git-dir=${AOM_ROOT}/.git rev-parse HEAD
-                  OUTPUT_VARIABLE AOM_GIT_HASH)
-  execute_process(COMMAND ${GIT_EXECUTABLE} --git-dir=${AOM_ROOT}/.git describe
-                  OUTPUT_VARIABLE AOM_GIT_DESCRIPTION ERROR_QUIET)
-  # Consume the newline at the end of the git output.
-  string(STRIP "${AOM_GIT_HASH}" AOM_GIT_HASH)
-  string(STRIP "${AOM_GIT_DESCRIPTION}" AOM_GIT_DESCRIPTION)
+if (NOT GIT_FOUND)
+  message(FATAL_ERROR "Git is required to build the AV1 library.")
 endif ()
 
 configure_file("${AOM_ROOT}/build/cmake/aom_config.c.cmake"
@@ -406,13 +396,14 @@ function (add_rtcd_build_step config output source symbol)
 endfunction ()
 
 # Generate aom_version.h.
-if ("${AOM_GIT_DESCRIPTION}" STREQUAL "")
-  set(AOM_GIT_DESCRIPTION "${AOM_ROOT}/CHANGELOG")
-endif ()
 execute_process(
-  COMMAND ${PERL_EXECUTABLE} "${AOM_ROOT}/build/cmake/aom_version.pl"
-  --version_data=${AOM_GIT_DESCRIPTION}
-  --version_filename=${AOM_CONFIG_DIR}/aom_version.h)
+  COMMAND ${CMAKE_COMMAND}
+  -DAOM_CONFIG_DIR=${AOM_CONFIG_DIR}
+  -DAOM_ROOT=${AOM_ROOT}
+  -DGIT_EXECUTABLE=${GIT_EXECUTABLE}
+  -DPERL_EXECUTABLE=${PERL_EXECUTABLE}
+  -P "${AOM_ROOT}/build/cmake/version.cmake"
+  OUTPUT_VARIABLE aom_version)
 
 # Generate aom.pc (pkg-config file).
 if (NOT MSVC)
@@ -445,5 +436,11 @@ if (NOT MSVC)
   endif ()
   file(APPEND "${pkgconfig_file}" "Cflags: -I${prefix}/include\n")
 endif ()
+
+## Setup rules to regenerate aom.pc and aom_version.h when the git hash changes.
+#extract_version_string("${AOM_CONFIG_DIR}/aom_version.h" aom_version)
+#message(FATAL_ERROR "AOM_GIT_DESCRIPTION=${AOM_GIT_DESCRIPTION}
+#                     AOM_GIT_HASH=${AOM_GIT_HASH}
+#                     aom_version=${aom_version}")
 
 endif ()  # AOM_BUILD_CMAKE_AOM_CONFIGURE_CMAKE_
