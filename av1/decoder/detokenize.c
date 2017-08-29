@@ -333,6 +333,11 @@ int av1_decode_block_tokens(AV1_COMMON *cm, MACROBLOCKD *const xd, int plane,
       get_dq_profile_from_ctx(xd->qindex[seg_id], ctx, ref, pd->plane_type);
 #endif  //  CONFIG_NEW_QUANT
 
+#if CONFIG_MRC_TX
+  if (tx_type == MRC_DCT)
+    av1_decode_mrc_tokens(xd, plane, r);
+#endif  // CONFIG_MRC_TX
+
   const int eob =
       decode_coefs(xd, pd->plane_type, pd->dqcoeff, tx_size, tx_type, dequant,
 #if CONFIG_NEW_QUANT
