@@ -16,6 +16,24 @@
       "revId": "c9091b47d43e96aa39c0ce07dd4977176b3d768c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1992ef86_5f874fa6",
+        "filename": "configure",
+        "patchSetId": 3
+      },
+      "lineNbr": 571,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2017-08-29T21:50:58Z",
+      "side": 1,
+      "message": "Missed the point that what will happen later. The lowbitdepth flag will go off once the results from 1) highbitdepth ON, lowbitdepth ON and 2) highbitdepth ON, lowbitdepth OFF are matched for 8bit input data.",
+      "parentUuid": "11fc0e99_6fa0347e",
+      "revId": "c9091b47d43e96aa39c0ce07dd4977176b3d768c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
