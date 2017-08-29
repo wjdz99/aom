@@ -1513,7 +1513,15 @@ static INLINE int check_num_overlappable_neighbors(const MB_MODE_INFO *mbmi) {
   return !(mbmi->overlappable_neighbors[0] == 0 &&
            mbmi->overlappable_neighbors[1] == 0);
 }
-#endif
+#if CONFIG_NCOBMC_ADAPT_WEIGHT
+static INLINE NCOBMC_MODE ncobmc_mode_allowed_bsize(BLOCK_SIZE bsize) {
+  if (bsize < BLOCK_8X8 || bsize >= BLOCK_64X64)
+    return NO_OVERLAP;
+  else
+    return MAX_NCOBMC_MODES;
+}
+#endif  // CONFIG_NCOBMC_ADAPT_WEIGHT
+#endif  // CONFIG_MOTION_VAR
 
 static INLINE MOTION_MODE motion_mode_allowed(
 #if CONFIG_GLOBAL_MOTION
@@ -1546,6 +1554,11 @@ static INLINE MOTION_MODE motion_mode_allowed(
     else
 #endif  // CONFIG_WARPED_MOTION
 #if CONFIG_MOTION_VAR
+#if CONFIG_NCOBMC_ADAPT_WEIGHT
+        if (ncobmc_mode_allowed_bsize(mbmi->sb_type) < NO_OVERLAP)
+      return NCOBMC_ADAPT_WEIGHT;
+    else
+#endif
       return OBMC_CAUSAL;
 #else
     return SIMPLE_TRANSLATION;
@@ -1556,13 +1569,6 @@ static INLINE MOTION_MODE motion_mode_allowed(
 }
 
 #if CONFIG_NCOBMC_ADAPT_WEIGHT && CONFIG_MOTION_VAR
-static INLINE NCOBMC_MODE ncobmc_mode_allowed_bsize(BLOCK_SIZE bsize) {
-  if (bsize < BLOCK_8X8 || bsize >= BLOCK_64X64)
-    return NO_OVERLAP;
-  else
-    return MAX_NCOBMC_MODES;
-}
-
 static INLINE MOTION_MODE
 motion_mode_allowed_wrapper(int for_mv_search,
 #if CONFIG_GLOBAL_MOTION
@@ -1601,17 +1607,6 @@ static INLINE void assert_motion_mode_valid(MOTION_MODE mode,
                                             const MACROBLOCKD *xd,
 #endif
                                             const MODE_INFO *mi) {
-#if CONFIG_NCOBMC_ADAPT_WEIGHT
-  const MOTION_MODE last_motion_mode_allowed =
-      motion_mode_allowed_wrapper(0,
-#if CONFIG_GLOBAL_MOTION
-                                  block, gm_params,
-#endif  // CONFIG_GLOBAL_MOTION
-#if CONFIG_WARPED_MOTION
-                                  xd,
-#endif
-                                  mi);
-#else
   const MOTION_MODE last_motion_mode_allowed = motion_mode_allowed(
 #if CONFIG_GLOBAL_MOTION
       block, gm_params,
@@ -1620,7 +1615,7 @@ static INLINE void assert_motion_mode_valid(MOTION_MODE mode,
       xd,
 #endif
       mi);
-#endif
+
   // Check that the input mode is not illegal
   if (last_motion_mode_allowed < mode)
     assert(0 && "Illegal motion mode selected");
