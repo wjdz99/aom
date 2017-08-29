@@ -2997,36 +2997,36 @@ static void av1_filter_block_plane_vert(
           case 4:
 #if CONFIG_HIGHBITDEPTH
             if (cm->use_highbitdepth)
-              aom_highbd_lpf_vertical_4_c(CONVERT_TO_SHORTPTR(filt_start),
+              aom_highbd_lpf_vertical_4(CONVERT_TO_SHORTPTR(filt_start),
                                           line_length, params.mblim, params.lim,
                                           params.hev_thr, cm->bit_depth);
             else
 #endif  // CONFIG_HIGHBITDEPTH
-              aom_lpf_vertical_4_c(filt_start, line_length, params.mblim,
+              aom_lpf_vertical_4(filt_start, line_length, params.mblim,
                                    params.lim, params.hev_thr);
             break;
           // apply 8-tap filtering
           case 8:
 #if CONFIG_HIGHBITDEPTH
             if (cm->use_highbitdepth)
-              aom_highbd_lpf_vertical_8_c(CONVERT_TO_SHORTPTR(filt_start),
+              aom_highbd_lpf_vertical_8(CONVERT_TO_SHORTPTR(filt_start),
                                           line_length, params.mblim, params.lim,
                                           params.hev_thr, cm->bit_depth);
             else
 #endif  // CONFIG_HIGHBITDEPTH
-              aom_lpf_vertical_8_c(filt_start, line_length, params.mblim,
+              aom_lpf_vertical_8(filt_start, line_length, params.mblim,
                                    params.lim, params.hev_thr);
             break;
           // apply 16-tap filtering
           case 16:
 #if CONFIG_HIGHBITDEPTH
             if (cm->use_highbitdepth)
-              aom_highbd_lpf_vertical_16_c(
+              aom_highbd_lpf_vertical_16(
                   CONVERT_TO_SHORTPTR(filt_start), line_length, params.mblim,
                   params.lim, params.hev_thr, cm->bit_depth);
             else
 #endif  // CONFIG_HIGHBITDEPTH
-              aom_lpf_vertical_16_c(filt_start, line_length, params.mblim,
+              aom_lpf_vertical_16(filt_start, line_length, params.mblim,
                                     params.lim, params.hev_thr);
             break;
           // no filtering
@@ -3183,36 +3183,36 @@ static void av1_filter_block_plane_horz(
           case 4:
 #if CONFIG_HIGHBITDEPTH
             if (cm->use_highbitdepth)
-              aom_highbd_lpf_horizontal_4_c(
+              aom_highbd_lpf_horizontal_4(
                   CONVERT_TO_SHORTPTR(filt_start), line_length, params.mblim,
                   params.lim, params.hev_thr, cm->bit_depth);
             else
 #endif  // CONFIG_HIGHBITDEPTH
-              aom_lpf_horizontal_4_c(filt_start, line_length, params.mblim,
+              aom_lpf_horizontal_4(filt_start, line_length, params.mblim,
                                      params.lim, params.hev_thr);
             break;
           // apply 8-tap filtering
           case 8:
 #if CONFIG_HIGHBITDEPTH
             if (cm->use_highbitdepth)
-              aom_highbd_lpf_horizontal_8_c(
+              aom_highbd_lpf_horizontal_8(
                   CONVERT_TO_SHORTPTR(filt_start), line_length, params.mblim,
                   params.lim, params.hev_thr, cm->bit_depth);
             else
 #endif  // CONFIG_HIGHBITDEPTH
-              aom_lpf_horizontal_8_c(filt_start, line_length, params.mblim,
+              aom_lpf_horizontal_8(filt_start, line_length, params.mblim,
                                      params.lim, params.hev_thr);
             break;
           // apply 16-tap filtering
           case 16:
 #if CONFIG_HIGHBITDEPTH
             if (cm->use_highbitdepth)
-              aom_highbd_lpf_horizontal_edge_16_c(
+              aom_highbd_lpf_horizontal_edge_16(
                   CONVERT_TO_SHORTPTR(filt_start), line_length, params.mblim,
                   params.lim, params.hev_thr, cm->bit_depth);
             else
 #endif  // CONFIG_HIGHBITDEPTH
-              aom_lpf_horizontal_edge_16_c(filt_start, line_length,
+              aom_lpf_horizontal_edge_16(filt_start, line_length,
                                            params.mblim, params.lim,
                                            params.hev_thr);
             break;
@@ -3241,12 +3241,12 @@ static void av1_filter_block_plane_horz(
         uint8_t *const filt_start = block + pivot * line_length;
 #if CONFIG_HIGHBITDEPTH
         if (cm->use_highbitdepth)
-          aom_highbd_lpf_horizontal_4_c(CONVERT_TO_SHORTPTR(filt_start),
+          aom_highbd_lpf_horizontal_4(CONVERT_TO_SHORTPTR(filt_start),
                                         line_length, params.mblim, params.lim,
                                         params.hev_thr, cm->bit_depth);
         else
 #endif  // CONFIG_HIGHBITDEPTH
-          aom_lpf_horizontal_4_c(filt_start, line_length, params.mblim,
+          aom_lpf_horizontal_4(filt_start, line_length, params.mblim,
                                  params.lim, params.hev_thr);
 
         for (i = 0; i < 256; ++i) {
@@ -3259,36 +3259,36 @@ static void av1_filter_block_plane_horz(
         case 4:
 #if CONFIG_HIGHBITDEPTH
           if (cm->use_highbitdepth)
-            aom_highbd_lpf_horizontal_4_c(CONVERT_TO_SHORTPTR(p), dst_stride,
+            aom_highbd_lpf_horizontal_4(CONVERT_TO_SHORTPTR(p), dst_stride,
                                           params.mblim, params.lim,
                                           params.hev_thr, cm->bit_depth);
           else
 #endif  // CONFIG_HIGHBITDEPTH
-            aom_lpf_horizontal_4_c(p, dst_stride, params.mblim, params.lim,
+            aom_lpf_horizontal_4(p, dst_stride, params.mblim, params.lim,
                                    params.hev_thr);
           break;
         // apply 8-tap filtering
         case 8:
 #if CONFIG_HIGHBITDEPTH
           if (cm->use_highbitdepth)
-            aom_highbd_lpf_horizontal_8_c(CONVERT_TO_SHORTPTR(p), dst_stride,
+            aom_highbd_lpf_horizontal_8(CONVERT_TO_SHORTPTR(p), dst_stride,
                                           params.mblim, params.lim,
                                           params.hev_thr, cm->bit_depth);
           else
 #endif  // CONFIG_HIGHBITDEPTH
-            aom_lpf_horizontal_8_c(p, dst_stride, params.mblim, params.lim,
+            aom_lpf_horizontal_8(p, dst_stride, params.mblim, params.lim,
                                    params.hev_thr);
           break;
         // apply 16-tap filtering
         case 16:
 #if CONFIG_HIGHBITDEPTH
           if (cm->use_highbitdepth)
-            aom_highbd_lpf_horizontal_edge_16_c(
+            aom_highbd_lpf_horizontal_edge_16(
                 CONVERT_TO_SHORTPTR(p), dst_stride, params.mblim, params.lim,
                 params.hev_thr, cm->bit_depth);
           else
 #endif  // CONFIG_HIGHBITDEPTH
-            aom_lpf_horizontal_edge_16_c(p, dst_stride, params.mblim,
+            aom_lpf_horizontal_edge_16(p, dst_stride, params.mblim,
                                          params.lim, params.hev_thr);
           break;
         // no filtering
@@ -3298,12 +3298,12 @@ static void av1_filter_block_plane_horz(
       if (params.filter_length_internal) {
 #if CONFIG_HIGHBITDEPTH
         if (cm->use_highbitdepth)
-          aom_highbd_lpf_horizontal_4_c(CONVERT_TO_SHORTPTR(p + 4 * dst_stride),
+          aom_highbd_lpf_horizontal_4(CONVERT_TO_SHORTPTR(p + 4 * dst_stride),
                                         dst_stride, params.mblim, params.lim,
                                         params.hev_thr, cm->bit_depth);
         else
 #endif  // CONFIG_HIGHBITDEPTH
-          aom_lpf_horizontal_4_c(p + 4 * dst_stride, dst_stride, params.mblim,
+          aom_lpf_horizontal_4(p + 4 * dst_stride, dst_stride, params.mblim,
                                  params.lim, params.hev_thr);
       }
 #endif  // CONFIG_LPF_DIRECT
