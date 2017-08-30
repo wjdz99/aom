@@ -27,38 +27,26 @@ typedef struct AV1Common AV1_COMMON;
 typedef struct macroblockd MACROBLOCKD;
 
 typedef struct {
-  // Pixel buffer containing the luma pixels used as prediction for chroma
-  // TODO(ltrudeau) Convert to uint16 for HBD support
-  uint8_t y_pix[MAX_SB_SQUARE];
+  // Contains subsampled reconstructed luma pixels subtracted by their transform
+  // block-sized average (Approximation of the spatial AC contribution).
+  // BitDepth (8 to 12) + Q3 Precision (3) + Sign Bit (1) <= 16
+  // Worst case (4:4:4), MAX_SB_SQUARE will have to be stored.
+  int16_t ac_con_q3[MAX_SB_SQUARE];
 
-  // Pixel buffer containing the downsampled luma pixels used as prediction for
-  // chroma
-  // TODO(ltrudeau) Convert to uint16 for HBD support
-  uint8_t y_down_pix[MAX_SB_SQUARE];
+  // Total height and width of the all AC contributions currently in the buffer.
+  int ac_height, ac_width;
 
-  // Height and width of the luma prediction block currently in the pixel buffer
-  int y_height, y_width;
-
-  // Height and width of the chroma prediction block currently associated with
-  // this context
+  // Height and width of the chroma partition currently associated with
+  // this context.
   int uv_height, uv_width;
 
-  // Transform level averages of the luma reconstructed values over the entire
-  // prediction unit
-  // Fixed point y_averages is Q12.3:
-  //   * Worst case division is 1/1024
-  //   * Max error will be 1/16th.
-  // Note: 3 is chosen so that y_averages fits in 15 bits when 12 bit input is
-  // used
-  int y_averages_q3[MAX_NUM_TXB];
-  int y_averages_stride;
-
+  // Avoid computing parameters multiple times
   int are_parameters_computed;
 
   // Chroma subsampling
   int subsampling_x, subsampling_y;
 
-  // Block level DC_PRED for each chromatic plane
+  // Partition level DC_PRED (one for each chroma plane)
   int dc_pred[CFL_PRED_PLANES];
 
   int mi_row, mi_col;
@@ -75,12 +63,8 @@ typedef struct {
   uint8_t sub8x8_val[4];
 #endif  // CONFIG_CHROMA_SUB8X8 && CONFIG_DEBUG
 #endif  // CONFIG_CB4X4
+  int avg;
 } CFL_CTX;
-
-static INLINE int get_scaled_luma_q0(int alpha_q3, int y_pix, int avg_q3) {
-  int scaled_luma_q6 = alpha_q3 * ((y_pix << 3) - avg_q3);
-  return ROUND_POWER_OF_TWO_SIGNED(scaled_luma_q6, 6);
-}
 
 #if CONFIG_CHROMA_SUB8X8 && CONFIG_DEBUG
 static INLINE void cfl_clear_sub8x8_val(CFL_CTX *cfl) {
