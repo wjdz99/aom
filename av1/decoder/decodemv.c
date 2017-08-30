@@ -35,6 +35,17 @@
 
 #define DEC_MISMATCH_DEBUG 0
 
+// DELETEME
+/*static INLINE int cfl_idx_to_alpha(int alpha_idx, int joint_sign,
+                                   CFL_PRED_TYPE pred_type) {
+  const int alpha_sign = (pred_type == CFL_PRED_U) ? CFL_SIGN_U(joint_sign)
+                                                   : CFL_SIGN_V(joint_sign);
+  if (alpha_sign == CFL_SIGN_ZERO) return 0;
+  const int abs_alpha_q3 =
+      (pred_type == CFL_PRED_U) ? CFL_IDX_U(alpha_idx) : CFL_IDX_V(alpha_idx);
+  return (alpha_sign == CFL_SIGN_POS) ? abs_alpha_q3 + 1 : -abs_alpha_q3 - 1;
+}*/
+
 static PREDICTION_MODE read_intra_mode(aom_reader *r, aom_cdf_prob *cdf) {
   return (PREDICTION_MODE)
       av1_intra_mode_inv[aom_read_symbol(r, cdf, INTRA_MODES, ACCT_STR)];
@@ -1048,6 +1059,7 @@ static INLINE int assign_dv(AV1_COMMON *cm, MACROBLOCKD *xd, int_mv *mv,
 }
 #endif  // CONFIG_INTRABC
 
+// int printed = 0;
 static void read_intra_frame_mode_info(AV1_COMMON *const cm,
                                        MACROBLOCKD *const xd, int mi_row,
                                        int mi_col, aom_reader *r) {
@@ -1227,6 +1239,27 @@ static void read_intra_frame_mode_info(AV1_COMMON *const cm,
 #endif
                    r);
 #endif  // !CONFIG_TXK_SEL
+  // int f_row = mi_row << 2;
+  // int f_col = mi_col << 2;
+  // int b_height = block_size_high[bsize] b_width = block_size_wide[bsize];
+  /*
+    xd->cfl->print_data = mbmi->sb_type == BLOCK_16X16 &&
+                          mbmi->uv_mode == UV_CFL_PRED && printed == 0;
+      if (xd->cfl->print_data) {
+        printed = 1;
+        printf("\nrow %d col %d width %d height %d tx_size %d mode %d uv_mode
+      %d\n",
+               f_row, f_col, b_width, b_height, mbmi->tx_size, mbmi->mode,
+               mbmi->uv_mode);
+        const int alpha_q3_u = cfl_idx_to_alpha(mbmi->cfl_alpha_idx,
+                                                mbmi->cfl_alpha_signs,
+      CFL_PRED_U);
+        const int alpha_q3_v = cfl_idx_to_alpha(mbmi->cfl_alpha_idx,
+                                                mbmi->cfl_alpha_signs,
+      CFL_PRED_V);
+        printf("Alphas %d %d\n", alpha_q3_u, alpha_q3_v);
+      }
+      */
 }
 
 static int read_mv_component(aom_reader *r, nmv_component *mvcomp,
