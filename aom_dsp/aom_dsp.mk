@@ -167,6 +167,7 @@ DSP_SRCS-$(ARCH_X86)$(ARCH_X86_64)   += x86/loopfilter_sse2.c
 DSP_SRCS-$(HAVE_AVX2)                += x86/loopfilter_avx2.c
 DSP_SRCS-$(HAVE_SSE2)                += x86/lpf_common_sse2.h
 
+ifneq ($(CONFIG_PARALLEL_DEBLOCKING),yes)
 DSP_SRCS-$(HAVE_NEON)   += arm/loopfilter_neon.c
 ifeq ($(HAVE_NEON_ASM),yes)
 DSP_SRCS-yes  += arm/loopfilter_mb_neon$(ASM)
@@ -192,6 +193,7 @@ DSP_SRCS-$(HAVE_DSPR2)  += mips/loopfilter_masks_dspr2.h
 DSP_SRCS-$(HAVE_DSPR2)  += mips/loopfilter_mb_dspr2.c
 DSP_SRCS-$(HAVE_DSPR2)  += mips/loopfilter_mb_horiz_dspr2.c
 DSP_SRCS-$(HAVE_DSPR2)  += mips/loopfilter_mb_vert_dspr2.c
+endif  # !CONFIG_PARALLEL_DEBLOCKING
 
 ifeq ($(CONFIG_HIGHBITDEPTH),yes)
 DSP_SRCS-$(HAVE_SSE2)   += x86/highbd_loopfilter_sse2.c
