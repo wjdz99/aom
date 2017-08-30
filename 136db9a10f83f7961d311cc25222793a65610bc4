@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "a1251ad8_0d76ce3f",
+        "filename": "av1/common/mvref_common.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 396,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2017-08-30T15:40:08Z",
+      "side": 1,
+      "message": "I can give it a try and see the coding performance change.\n\nHow about comparing the integer mvs? like (mv1 \u003e\u003e 3) !\u003d (mv2 \u003e\u003e 3). Would that be a good idea?",
+      "parentUuid": "07e25bf9_67bb95cb",
+      "range": {
+        "startLine": 392,
+        "startChar": 0,
+        "endLine": 396,
+        "endChar": 0
+      },
+      "revId": "136db9a10f83f7961d311cc25222793a65610bc4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c5f21b9b_6b936069",
         "filename": "av1/common/mvref_common.c",
         "patchSetId": 2
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "1bc8f8b0_43c2e016",
+        "filename": "av1/common/mvref_common.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 428,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2017-08-30T15:40:08Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "c5f21b9b_6b936069",
+      "range": {
+        "startLine": 428,
+        "startChar": 0,
+        "endLine": 428,
+        "endChar": 79
+      },
+      "revId": "136db9a10f83f7961d311cc25222793a65610bc4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c35940cc_c33db639",
         "filename": "av1/common/mvref_common.c",
         "patchSetId": 2
@@ -59,6 +107,24 @@
       "writtenOn": "2017-08-29T18:14:03Z",
       "side": 1,
       "message": "Does this mean we need to store the MVs of all ref frames? Without this experiment, we only need to store the MVs of the previous frame.",
+      "revId": "136db9a10f83f7961d311cc25222793a65610bc4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "99c06cfe_2c96ecf9",
+        "filename": "av1/common/mvref_common.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1406,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2017-08-30T15:40:08Z",
+      "side": 1,
+      "message": "Yes, we need to store more mv frames. All the future frames (arf etc) + one last frame as before.",
+      "parentUuid": "c35940cc_c33db639",
       "revId": "136db9a10f83f7961d311cc25222793a65610bc4",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
