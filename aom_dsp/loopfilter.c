@@ -516,7 +516,11 @@ void aom_lpf_vertical_16_c(uint8_t *s, int p, const uint8_t *blimit,
 
 void aom_lpf_vertical_16_dual_c(uint8_t *s, int p, const uint8_t *blimit,
                                 const uint8_t *limit, const uint8_t *thresh) {
+#if CONFIG_PARALLEL_DEBLOCKING && CONFIG_CB4X4
+  mb_lpf_vertical_edge_w(s, p, blimit, limit, thresh, 8);
+#else
   mb_lpf_vertical_edge_w(s, p, blimit, limit, thresh, 16);
+#endif
 }
 
 #if CONFIG_HIGHBITDEPTH
