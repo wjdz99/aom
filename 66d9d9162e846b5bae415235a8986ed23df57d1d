@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "661202b8_6809302e",
+        "filename": "av1/common/mvref_common.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1029,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-08-30T01:30:46Z",
+      "side": 1,
+      "message": "these can all be const",
+      "revId": "66d9d9162e846b5bae415235a8986ed23df57d1d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a128214c_3f51b28b",
+        "filename": "av1/common/mvref_common.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1039,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-08-30T01:30:46Z",
+      "side": 1,
+      "message": "it\u0027s not strictly enforced here, but I\u0027d prefer {}s on conditionals that continue to the next line for readability",
+      "revId": "66d9d9162e846b5bae415235a8986ed23df57d1d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "60fef4fa_2185a70e",
+        "filename": "av1/common/mvref_common.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1065,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-08-30T01:30:46Z",
+      "side": 1,
+      "message": "probably want a \u0027//  CONFIG_MFMV\u0027 here given the size of the block",
+      "revId": "66d9d9162e846b5bae415235a8986ed23df57d1d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e8963be2_e1fb7035",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 4452,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-08-30T01:30:46Z",
+      "side": 1,
+      "message": "this one can be const",
+      "revId": "66d9d9162e846b5bae415235a8986ed23df57d1d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "41f22361_ccf07a34",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 5298,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-08-30T01:30:46Z",
+      "side": 1,
+      "message": "it might be worth factoring the arf_offset part out given it\u0027s shared with bitstream.c",
+      "revId": "66d9d9162e846b5bae415235a8986ed23df57d1d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "adbe493f_43438328",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 5302,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-08-30T01:30:46Z",
+      "side": 1,
+      "message": "const",
+      "revId": "66d9d9162e846b5bae415235a8986ed23df57d1d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
