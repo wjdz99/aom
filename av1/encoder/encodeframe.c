@@ -6222,7 +6222,7 @@ static void encode_superblock(const AV1_COMP *const cpi, ThreadData *td,
       !is_chroma_reference(mi_row, mi_col, bsize, cfl->subsampling_x,
                            cfl->subsampling_y)) {
     // Store the reconstructed pixels of sub8x8 luma-only inter blocks
-    cfl_store_block(xd, mbmi->sb_type, mbmi->tx_size);
+    // cfl_store_block(xd, mbmi->sb_type, mbmi->tx_size);
   }
 #endif  // CONFIG_CFL && CONFIG_CHROMA_SUB8X8
 }
