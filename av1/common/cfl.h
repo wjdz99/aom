@@ -27,31 +27,16 @@ typedef struct AV1Common AV1_COMMON;
 typedef struct macroblockd MACROBLOCKD;
 
 typedef struct {
-  // Pixel buffer containing the luma pixels used as prediction for chroma
-  // TODO(ltrudeau) Convert to uint16 for HBD support
-  uint8_t y_pix[MAX_SB_SQUARE];
+  // Contains subsampled reconstructed luma pixels subtracted by their transform
+  // block-sized average (Approximation of the spatial AC contribution).
+  int16_t ac_con_q3[MAX_SB_SQUARE];
 
-  // Pixel buffer containing the downsampled luma pixels used as prediction for
-  // chroma
-  // TODO(ltrudeau) Convert to uint16 for HBD support
-  uint8_t y_down_pix[MAX_SB_SQUARE];
-
-  // Height and width of the luma prediction block currently in the pixel buffer
-  int y_height, y_width;
+  // Total height and width of the all AC contributions currently in the buffer.
+  int ac_height, ac_width;
 
   // Height and width of the chroma prediction block currently associated with
   // this context
   int uv_height, uv_width;
-
-  // Transform level averages of the luma reconstructed values over the entire
-  // prediction unit
-  // Fixed point y_averages is Q12.3:
-  //   * Worst case division is 1/1024
-  //   * Max error will be 1/16th.
-  // Note: 3 is chosen so that y_averages fits in 15 bits when 12 bit input is
-  // used
-  int y_averages_q3[MAX_NUM_TXB];
-  int y_averages_stride;
 
   int are_parameters_computed;
 
@@ -75,6 +60,9 @@ typedef struct {
   uint8_t sub8x8_val[4];
 #endif  // CONFIG_CHROMA_SUB8X8 && CONFIG_DEBUG
 #endif  // CONFIG_CB4X4
+
+  // For debugging purposes
+  // int print_data;
 } CFL_CTX;
 
 static INLINE int get_scaled_luma_q0(int alpha_q3, int y_pix, int avg_q3) {
