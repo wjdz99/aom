@@ -144,10 +144,19 @@ int av1_tx_type_cost(const AV1_COMMON *cm, const MACROBLOCK *x,
                      const MACROBLOCKD *xd, BLOCK_SIZE bsize, int plane,
                      TX_SIZE tx_size, TX_TYPE tx_type);
 
+int64_t get_prediction_rd_cost(const struct AV1_COMP *cpi, struct macroblock *x,
+                               int mi_row, int mi_col, int *skip_blk,
+                               MB_MODE_INFO *backup_mbmi);
+void transform_selecting_second_pass(const struct AV1_COMP *cpi,
+                                     struct macroblock *x, int mi_row,
+                                     int mi_col);
+
 #if CONFIG_NCOBMC_ADAPT_WEIGHT
 void av1_check_ncobmc_adapt_weight_rd(const struct AV1_COMP *cpi,
                                       struct macroblock *x, int mi_row,
                                       int mi_col);
+
+void transform_reselect_intra(const struct AV1_COMP *cpi, struct macroblock *x);
 
 int get_ncobmc_mode(const AV1_COMP *const cpi, MACROBLOCK *const x,
                     MACROBLOCKD *xd, int mi_row, int mi_col, int bsize);
