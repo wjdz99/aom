@@ -9244,6 +9244,7 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
     masked_compound_used = masked_compound_used && cm->allow_masked_compound;
 #endif  // CONFIG_COMPOUND_SEGMENT || CONFIG_WEDGE
     COMPOUND_TYPE cur_type;
+    int best_compmode_interinter_cost = 0;
 
     best_mv[0].as_int = cur_mv[0].as_int;
     best_mv[1].as_int = cur_mv[1].as_int;
@@ -9288,7 +9289,7 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
         else
 #endif  // CONFIG_WEDGE && CONFIG_COMPOUND_SEGMENT
           masked_type_cost +=
-              compound_type_cost[mbmi->interinter_compound_type];
+              x->compound_type_cost[bsize][mbmi->interinter_compound_type];
       }
       rs2 = av1_cost_literal(get_interinter_compound_type_bits(
                 bsize, mbmi->interinter_compound_type)) +
@@ -9342,6 +9343,7 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
 #endif  // CONFIG_COMPOUND_SEGMENT
         best_compound_data.interinter_compound_type =
             mbmi->interinter_compound_type;
+        best_compmode_interinter_cost = rs2;
         if (have_newmv_in_inter_mode(this_mode)) {
           if (use_masked_motion_search(cur_type)) {
             best_tmp_rate_mv = tmp_rate_mv;
@@ -9386,12 +9388,7 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
 
     pred_exists = 0;
 
-    compmode_interinter_cost =
-        av1_cost_literal(get_interinter_compound_type_bits(
-            bsize, mbmi->interinter_compound_type)) +
-        (masked_compound_used
-             ? compound_type_cost[mbmi->interinter_compound_type]
-             : 0);
+    compmode_interinter_cost = best_compmode_interinter_cost;
   }
 #endif  // CONFIG_WEDGE || CONFIG_COMPOUND_SEGMENT
 
