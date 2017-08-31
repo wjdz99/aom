@@ -189,6 +189,8 @@ typedef struct frame_contexts {
                              [COEFF_BASE_CONTEXTS][CDF_SIZE(2)];
   aom_cdf_prob coeff_lps_cdf[TX_SIZES][PLANE_TYPES][LEVEL_CONTEXTS]
                             [CDF_SIZE(2)];
+  aom_cdf_prob coeff_br_cdf[TX_SIZES][PLANE_TYPES][LEVEL_CONTEXTS]
+                           [BASE_RANGE_SETS][CDF_SIZE(2)];
 #endif  // LV_MAP_PROB
 #endif
 

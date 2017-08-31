@@ -488,6 +488,12 @@ void av1_fill_coeff_costs(MACROBLOCK *x, FRAME_CONTEXT *fc) {
               fc->coeff_base_cdf[tx_size][plane][layer][ctx], NULL);
 
       for (int ctx = 0; ctx < LEVEL_CONTEXTS; ++ctx)
+        for (int br = 0; br < BASE_RANGE_SETS; ++br)
+          av1_cost_tokens_from_cdf(
+              pcost->br_cost[ctx][br],
+              fc->coeff_br_cdf[tx_size][plane][ctx][br], NULL);
+
+      for (int ctx = 0; ctx < LEVEL_CONTEXTS; ++ctx)
         av1_cost_tokens_from_cdf(pcost->lps_cost[ctx],
                                  fc->coeff_lps_cdf[tx_size][plane][ctx], NULL);
 #else

@@ -217,6 +217,24 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
 
     if (cm->fc->coeff_lps[txs_ctx][plane_type][ctx] == 0) exit(0);
 
+#if BR_NODE
+    for (idx = 0; idx < BASE_RANGE_SETS; ++idx) {
+      if (aom_read_symbol(r,
+                          cm->fc->coeff_br_cdf[txs_ctx][plane_type][ctx][idx],
+                          2, ACCT_STR)) {
+        int extra_bits = br_extra_bits[idx];
+        int br_offset = aom_read_literal(r, extra_bits, ACCT_STR);
+        int br_base = br_index_to_coeff[idx];
+
+        *v = NUM_BASE_LEVELS + 1 + br_base + br_offset;
+        cul_level += *v;
+        if (sign) *v = -(*v);
+        break;
+      }
+    }
+
+    if (idx < BASE_RANGE_SETS) continue;
+#else
     for (idx = 0; idx < COEFF_BASE_RANGE; ++idx) {
 #if LV_MAP_PROB
       if (aom_read_symbol(r, cm->fc->coeff_lps_cdf[txs_ctx][plane_type][ctx], 2,
@@ -235,6 +253,7 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
       if (counts) ++counts->coeff_lps[txs_ctx][plane_type][ctx][0];
     }
     if (idx < COEFF_BASE_RANGE) continue;
+#endif
 
     // decode 0-th order Golomb code
     *v = read_golomb(xd, r) + COEFF_BASE_RANGE + 1 + NUM_BASE_LEVELS;
