@@ -25,6 +25,8 @@ extern "C" {
 #define RINT(x) ((x) < 0 ? (int)((x)-0.5) : (int)((x) + 0.5))
 
 #define RESTORATION_PROC_UNIT_SIZE 64
+#define RESTORATION_BORDER_VERT 0  // Determines line buffer requirement
+#define RESTORATION_BORDER_HORZ 3
 
 #define RESTORATION_TILESIZE_MAX 256
 #define RESTORATION_TILEPELS_MAX \
