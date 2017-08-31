@@ -12842,18 +12842,100 @@ void av1_check_ncobmc_adapt_weight_rd(const struct AV1_COMP *cpi,
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
   BLOCK_SIZE bsize = mbmi->sb_type;
-  MB_MODE_INFO st_mbmi, obmc_mbmi;
-  int skip_blk, st_skip, obmc_skip;
+  MB_MODE_INFO st_mbmi, obmc_mbmi, naw_mbmi;
+  int naw_skip, st_skip, obmc_skip;
   int64_t st_rd, obmc_rd, naw_rd;  // ncobmc_adapt_weight_rd
-
+#if CONFIG_WARPED_MOTION
+  const AV1_COMMON *const cm = &cpi->common;
+  ;
+  const int is_warp_motion = mbmi->motion_mode == WARPED_CAUSAL;
+  const int rs = RDCOST(x->rdmult, av1_get_switchable_rate(cm, x, xd), 0);
+  MB_MODE_INFO warp_mbmi;
+  int64_t warp_rd;
+  int warp_skip;
+#endif
   // Recompute the rd for the motion mode decided in rd loop
 
   mbmi->motion_mode = SIMPLE_TRANSLATION;
   st_rd = get_prediction_rd_cost(cpi, x, mi_row, mi_col, &st_skip, &st_mbmi);
+#if CONFIG_WARPED_MOTION
+  st_rd += rs;
+#endif
 
   mbmi->motion_mode = OBMC_CAUSAL;
   obmc_rd =
       get_prediction_rd_cost(cpi, x, mi_row, mi_col, &obmc_skip, &obmc_mbmi);
+#if CONFIG_WARPED_MOTION
+  obmc_rd += rs;
+#endif
+
+  // Compute the rd cost for ncobmc adaptive weight
+  mbmi->motion_mode = NCOBMC_ADAPT_WEIGHT;
+  naw_rd = get_prediction_rd_cost(cpi, x, mi_row, mi_col, &naw_skip, &naw_mbmi);
+#if CONFIG_WARPED_MOTION
+  naw_rd += rs;
+#endif
+  // Calculate the ncobmc mode costs
+  {
+    ADAPT_OVERLAP_BLOCK aob = adapt_overlap_block_lookup[bsize];
+    naw_rd +=
+        RDCOST(x->rdmult, x->ncobmc_mode_cost[aob][mbmi->ncobmc_mode[0]], 0);
+    if (mi_size_wide[bsize] != mi_size_high[bsize])
+      naw_rd +=
+          RDCOST(x->rdmult, x->ncobmc_mode_cost[aob][mbmi->ncobmc_mode[1]], 0);
+  }
+
+#if CONFIG_WARPED_MOTION
+  if (is_warp_motion) {
+    mbmi->motion_mode = WARPED_CAUSAL;
+    warp_rd =
+        get_prediction_rd_cost(cpi, x, mi_row, mi_col, &warp_skip, &warp_mbmi);
+  } else {
+    warp_rd = INT64_MAX;
+  }
+#endif
+
+  if (AOMMIN(naw_rd, warp_rd) < AOMMIN(st_rd, obmc_rd)) {
+    if (naw_rd < warp_rd) {
+      x->skip = naw_skip;
+      *mbmi = naw_mbmi;
+    } else {
+      x->skip = warp_skip;
+      *mbmi = warp_mbmi;
+    }
+  } else {
+    if (obmc_rd < st_rd) {
+      *mbmi = obmc_mbmi;
+      x->skip = obmc_skip;
+    } else {
+      *mbmi = st_mbmi;
+      x->skip = st_skip;
+    }
+  }
+}
+
+void av1_check_noncausal_rd(const struct AV1_COMP *cpi, struct macroblock *x,
+                            int mi_row, int mi_col) {
+  MACROBLOCKD *const xd = &x->e_mbd;
+  MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
+  BLOCK_SIZE bsize = mbmi->sb_type;
+  MB_MODE_INFO causal_mbmi;
+  int skip_blk, causal_skip;
+  int64_t causal_rd, naw_rd;  // ncobmc_adapt_weight_rd
+#if CONFIG_WARPED_MOTION
+  const AV1_COMMON *const cm = &cpi->common;
+  int rs;
+
+  if (mbmi->motion_mode == WARPED_CAUSAL) {
+    rs = av1_get_switchable_rate(cm, x, xd);
+  } else {
+    rs = 0;
+  }
+#endif
+  // Recompute the rd for the motion mode decided in rd loop
+
+  causal_rd = get_prediction_rd_cost(cpi, x, mi_row, mi_col, &causal_skip,
+                                     &causal_mbmi);
 
   // Compute the rd cost for ncobmc adaptive weight
   mbmi->motion_mode = NCOBMC_ADAPT_WEIGHT;
@@ -12869,14 +12951,15 @@ void av1_check_ncobmc_adapt_weight_rd(const struct AV1_COMP *cpi,
           RDCOST(x->rdmult, x->ncobmc_mode_cost[aob][mbmi->ncobmc_mode[1]], 0);
   }
 
-  if (naw_rd < AOMMIN(st_rd, obmc_rd)) {
+#if CONFIG_WARPED_MOTION
+  naw_rd += rs;
+#endif
+
+  if (naw_rd < causal_rd) {
     x->skip = skip_blk;
-  } else if (obmc_rd < st_rd) {
-    *mbmi = obmc_mbmi;
-    x->skip = obmc_skip;
   } else {
-    *mbmi = st_mbmi;
-    x->skip = st_skip;
+    *mbmi = causal_mbmi;
+    x->skip = causal_skip;
   }
 }
 
