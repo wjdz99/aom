@@ -159,6 +159,13 @@ void av1_init_txb_probs(FRAME_CONTEXT *fc) {
             AOM_ICDF(128 * (aom_cdf_prob)fc->coeff_lps[tx_size][plane][ctx]);
         fc->coeff_lps_cdf[tx_size][plane][ctx][1] = AOM_ICDF(32768);
         fc->coeff_lps_cdf[tx_size][plane][ctx][2] = 0;
+
+        for (int br = 0; br < BASE_RANGE_SETS; ++br) {
+          fc->coeff_br_cdf[tx_size][plane][ctx][br][0] =
+              AOM_ICDF(128 * (aom_cdf_prob)fc->coeff_lps[tx_size][plane][ctx]);
+          fc->coeff_br_cdf[tx_size][plane][ctx][br][1] = AOM_ICDF(32768);
+          fc->coeff_br_cdf[tx_size][plane][ctx][br][2] = 0;
+        }
       }
     }
   }
@@ -172,6 +179,10 @@ void av1_adapt_txb_probs(AV1_COMMON *cm, unsigned int count_sat,
   const FRAME_COUNTS *counts = &cm->counts;
   TX_SIZE tx_size;
   int plane, ctx, level;
+
+#if LV_MAP_PROB
+  return;
+#endif
 
   // Update probability models for transform block skip flag
   for (tx_size = 0; tx_size < TX_SIZES; ++tx_size)
