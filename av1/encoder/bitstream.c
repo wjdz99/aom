@@ -96,7 +96,7 @@ static struct av1_token compound_type_encodings[COMPOUND_TYPES];
 #endif  // CONFIG_COMPOUND_SEGMENT || CONFIG_WEDGE
 #endif  // CONFIG_EXT_INTER
 #if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
-#if CONFIG_NCOBMC_ADAPT_WEIGHT
+#if CONFIG_NCOBMC_ADAPT_WEIGHT && 0
 static struct av1_token ncobmc_mode_encodings[MAX_NCOBMC_MODES];
 #endif
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
@@ -143,7 +143,7 @@ void av1_encode_token_init(void) {
 #endif  // CONFIG_COMPOUND_SEGMENT || CONFIG_WEDGE
 #endif  // CONFIG_EXT_INTER
 #if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
-#if CONFIG_NCOBMC_ADAPT_WEIGHT
+#if CONFIG_NCOBMC_ADAPT_WEIGHT && 0
   av1_tokens_from_tree(ncobmc_mode_encodings, av1_ncobmc_mode_tree);
 #endif
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
@@ -307,7 +307,7 @@ static void encode_unsigned_max(struct aom_write_bit_buffer *wb, int data,
   aom_wb_write_literal(wb, data, get_unsigned_bits(max));
 }
 
-#if CONFIG_NCOBMC_ADAPT_WEIGHT
+#if CONFIG_NCOBMC_ADAPT_WEIGHT && 0
 static void prob_diff_update(const aom_tree_index *tree,
                              aom_prob probs[/*n - 1*/],
                              const unsigned int counts[/* n */], int n,
@@ -4724,7 +4724,7 @@ static uint32_t write_compressed_header(AV1_COMP *cpi, uint8_t *data) {
 #endif  // CONFIG_EXT_INTER
 
 #if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
-#if CONFIG_NCOBMC_ADAPT_WEIGHT
+#if CONFIG_NCOBMC_ADAPT_WEIGHT && 0
     for (i = ADAPT_OVERLAP_BLOCK_8X8; i < ADAPT_OVERLAP_BLOCKS; ++i) {
       prob_diff_update(av1_ncobmc_mode_tree, fc->ncobmc_mode_prob[i],
                        counts->ncobmc_mode[i], MAX_NCOBMC_MODES, probwt,

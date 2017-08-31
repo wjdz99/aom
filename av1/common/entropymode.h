@@ -590,6 +590,9 @@ extern const aom_tree_index av1_ext_tx_tree[TREE_SIZE(TX_TYPES)];
 #endif  // CONFIG_EXT_TX
 #if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
 extern const aom_tree_index av1_motion_mode_tree[TREE_SIZE(MOTION_MODES)];
+#if CONFIG_WARPED_MOTION
+extern const aom_tree_index av1_ncobmc_tree[TREE_SIZE(OBMC_FAMILY_MODES)];
+#endif
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
 #if CONFIG_NCOBMC_ADAPT_WEIGHT && CONFIG_MOTION_VAR
 extern const aom_tree_index av1_ncobmc_mode_tree[TREE_SIZE(MAX_NCOBMC_MODES)];
