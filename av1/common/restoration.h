@@ -25,19 +25,29 @@ extern "C" {
 #define RINT(x) ((x) < 0 ? (int)((x)-0.5) : (int)((x) + 0.5))
 
 #define RESTORATION_PROC_UNIT_SIZE 64
+#define RESTORATION_BORDER_VERT 0  // determines line buffer requirement
+#define RESTORATION_BORDER_HORZ 3  // this only affects sgr currently
+
+// Pad up to 20 more (may be much less is needed)
+#define RESTORATION_PROC_UNIT_PELS                                   \
+  ((RESTORATION_PROC_UNIT_SIZE + RESTORATION_BORDER_HORZ * 2 + 20) * \
+   (RESTORATION_PROC_UNIT_SIZE + RESTORATION_BORDER_VERT * 2 + 20))
 
 #define RESTORATION_TILESIZE_MAX 256
-#define RESTORATION_TILEPELS_MAX \
-  (RESTORATION_TILESIZE_MAX * RESTORATION_TILESIZE_MAX * 9 / 4)
+#define RESTORATION_TILEPELS_MAX                                     \
+  (RESTORATION_TILESIZE_MAX * 3 / 2 + 2 * RESTORATION_BORDER_HORZ) * \
+      (RESTORATION_TILESIZE_MAX * 3 / 2 + 2 * RESTORATION_BORDER_VERT)
 
 // 4 32-bit buffers needed for the filter:
 // 2 for the restored versions of the frame and
 // 2 for each restoration operation
-#define SGRPROJ_OUTBUF_SIZE \
-  ((RESTORATION_TILESIZE_MAX * 3 / 2) * (RESTORATION_TILESIZE_MAX * 3 / 2 + 16))
+#define SGRPROJ_OUTBUF_SIZE                                           \
+  ((RESTORATION_TILESIZE_MAX * 3 / 2 + 2 * RESTORATION_BORDER_VERT) * \
+   (RESTORATION_TILESIZE_MAX * 3 / 2 + 2 * RESTORATION_BORDER_HORZ + 16))
 #define SGRPROJ_TMPBUF_SIZE                         \
   (RESTORATION_TILEPELS_MAX * 2 * sizeof(int32_t) + \
-   SGRPROJ_OUTBUF_SIZE * 2 * sizeof(int32_t))
+   SGRPROJ_OUTBUF_SIZE * 2 * sizeof(int32_t) + RESTORATION_PROC_UNIT_PELS)
+
 #define SGRPROJ_EXTBUF_SIZE (0)
 #define SGRPROJ_PARAMS_BITS 4
 #define SGRPROJ_PARAMS (1 << SGRPROJ_PARAMS_BITS)
