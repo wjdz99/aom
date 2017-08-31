@@ -63,7 +63,7 @@ int av1_count_colors(const uint8_t *src, int stride, int rows, int cols);
 // Same as av1_count_colors(), but for high-bitdepth mode.
 int av1_count_colors_highbd(const uint8_t *src8, int stride, int rows, int cols,
                             int bit_depth);
-#endif  // CONFIG_HIGHBITDEPTH
+#endif // CONFIG_HIGHBITDEPTH
 
 void av1_dist_block(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
                     BLOCK_SIZE plane_bsize, int block, int blk_row, int blk_col,
@@ -102,7 +102,7 @@ void av1_rd_pick_inter_mode_sb(const struct AV1_COMP *cpi,
                                struct RD_STATS *rd_cost,
 #if CONFIG_SUPERTX
                                int *returnrate_nocoef,
-#endif  // CONFIG_SUPERTX
+#endif // CONFIG_SUPERTX
                                BLOCK_SIZE bsize, PICK_MODE_CONTEXT *ctx,
                                int64_t best_rd_so_far);
 
@@ -119,7 +119,7 @@ int av1_active_edge_sb(const struct AV1_COMP *cpi, int mi_row, int mi_col);
 #if CONFIG_MOTION_VAR && CONFIG_NCOBMC
 void av1_check_ncobmc_rd(const struct AV1_COMP *cpi, struct macroblock *x,
                          int mi_row, int mi_col);
-#endif  // CONFIG_MOTION_VAR && CONFIG_NCOBMC
+#endif // CONFIG_MOTION_VAR && CONFIG_NCOBMC
 
 #if CONFIG_SUPERTX
 #if CONFIG_VAR_TX
@@ -134,15 +134,22 @@ void av1_txfm_rd_in_plane_supertx(MACROBLOCK *x, const AV1_COMP *cpi, int *rate,
                                   int64_t *sse, int64_t ref_best_rd, int plane,
                                   BLOCK_SIZE bsize, TX_SIZE tx_size,
                                   int use_fast_coef_casting);
-#endif  // CONFIG_SUPERTX
+#endif // CONFIG_SUPERTX
 
 #ifdef __cplusplus
-}  // extern "C"
+} // extern "C"
 #endif
 
 int av1_tx_type_cost(const AV1_COMMON *cm, const MACROBLOCK *x,
                      const MACROBLOCKD *xd, BLOCK_SIZE bsize, int plane,
                      TX_SIZE tx_size, TX_TYPE tx_type);
+
+int64_t get_prediction_rd_cost(const struct AV1_COMP *cpi, struct macroblock *x,
+                               int mi_row, int mi_col, int *skip_blk,
+                               MB_MODE_INFO *backup_mbmi);
+void transform_selecting_second_pass(const struct AV1_COMP *cpi,
+                                     struct macroblock *x, int mi_row,
+                                     int mi_col);
 
 #if CONFIG_NCOBMC_ADAPT_WEIGHT
 void av1_check_ncobmc_adapt_weight_rd(const struct AV1_COMP *cpi,
@@ -151,13 +158,6 @@ void av1_check_ncobmc_adapt_weight_rd(const struct AV1_COMP *cpi,
 
 int get_ncobmc_mode(const AV1_COMP *const cpi, MACROBLOCK *const x,
                     MACROBLOCKD *xd, int mi_row, int mi_col, int bsize);
-
-void av1_setup_src_planes_pxl(MACROBLOCK *x, const YV12_BUFFER_CONFIG *src,
-                              int pxl_row, int pxl_col);
-
-void rebuild_ncobmc_mode(const AV1_COMP *const cpi, MACROBLOCK *const x,
-                         MACROBLOCKD *xd, int mi_row, int mi_col, int bsize,
-                         int xd_mi_offset, NCOBMC_MODE best_mode, int rebuild);
 #endif
 
-#endif  // AV1_ENCODER_RDOPT_H_
+#endif // AV1_ENCODER_RDOPT_H_
