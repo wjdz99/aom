@@ -12824,6 +12824,13 @@ int get_ncobmc_mode(const AV1_COMP *const cpi, MACROBLOCK *const x,
       error += get_ncobmc_error(xd, pxl_row, pxl_col, bsize, plane,
                                 &x->plane[plane].src);
     }
+#if USE_RD_SLCT_MODE
+    // compute rd cost instead of pure error
+    {
+      ADAPT_OVERLAP_BLOCK aob = adapt_overlap_block_lookup[bsize];
+      error = RDCOST(x->rdmult, x->ncobmc_mode_cost[aob][tmp_mode], error);
+    }
+#endif
     if (error < best_error) {
       best_mode = tmp_mode;
       best_error = error;
