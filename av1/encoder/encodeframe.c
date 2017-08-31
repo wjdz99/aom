@@ -2106,8 +2106,12 @@ static void encode_b(const AV1_COMP *const cpi, const TileInfo *const tile,
 
 #if CONFIG_NCOBMC_ADAPT_WEIGHT
   if (dry_run == OUTPUT_ENABLED && !frame_is_intra_only(&cpi->common)) {
-    // we also need to handle inter-intra
+// we also need to handle inter-intra
+#if CONFIG_WARPED_MOTION
+    if (motion_allowed >= NCOBMC_ADAPT_WEIGHT && is_inter_block(mbmi)) {
+#else
     if (motion_allowed == NCOBMC_ADAPT_WEIGHT && is_inter_block(mbmi)) {
+#endif
       get_ncobmc_intrpl_pred(cpi, td, mi_row, mi_col, bsize);
       av1_check_ncobmc_adapt_weight_rd(cpi, x, mi_row, mi_col);
     }
@@ -3100,24 +3104,66 @@ static INLINE void load_pred_mv(MACROBLOCK *x, PICK_MODE_CONTEXT *ctx) {
 
 #if CONFIG_FP_MB_STATS
 const int qindex_skip_threshold_lookup[BLOCK_SIZES] = {
-  0, 10, 10, 30, 40, 40, 60, 80, 80, 90, 100, 100, 120,
+  0,
+  10,
+  10,
+  30,
+  40,
+  40,
+  60,
+  80,
+  80,
+  90,
+  100,
+  100,
+  120,
 #if CONFIG_EXT_PARTITION
   // TODO(debargha): What are the correct numbers here?
-  130, 130, 150
+  130,
+  130,
+  150
 #endif  // CONFIG_EXT_PARTITION
 };
 const int qindex_split_threshold_lookup[BLOCK_SIZES] = {
-  0, 3, 3, 7, 15, 15, 30, 40, 40, 60, 80, 80, 120,
+  0,
+  3,
+  3,
+  7,
+  15,
+  15,
+  30,
+  40,
+  40,
+  60,
+  80,
+  80,
+  120,
 #if CONFIG_EXT_PARTITION
   // TODO(debargha): What are the correct numbers here?
-  160, 160, 240
+  160,
+  160,
+  240
 #endif  // CONFIG_EXT_PARTITION
 };
 const int complexity_16x16_blocks_threshold[BLOCK_SIZES] = {
-  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 4, 4, 6,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  4,
+  4,
+  6,
 #if CONFIG_EXT_PARTITION
   // TODO(debargha): What are the correct numbers here?
-  8, 8, 10
+  8,
+  8,
+  10
 #endif  // CONFIG_EXT_PARTITION
 };
 
