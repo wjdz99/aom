@@ -12847,7 +12847,6 @@ void transform_reselect_intra(const struct AV1_COMP *cpi,
 void av1_check_ncobmc_adapt_weight_rd(const struct AV1_COMP *cpi,
                                       struct macroblock *x, int mi_row,
                                       int mi_col) {
-  const AV1_COMMON *const cm = &cpi->common;
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
   BLOCK_SIZE bsize = mbmi->sb_type;
@@ -12975,6 +12974,13 @@ int get_ncobmc_mode(const AV1_COMP *const cpi, MACROBLOCK *const x,
       error += get_ncobmc_error(xd, pxl_row, pxl_col, bsize, plane,
                                 &x->plane[plane].src);
     }
+#if USE_RD_SLCT_MODE
+    // compute rd cost instead of pure error
+    {
+      ADAPT_OVERLAP_BLOCK aob = adapt_overlap_block_lookup[bsize];
+      error = RDCOST(x->rdmult, x->ncobmc_mode_cost[aob][tmp_mode], error);
+    }
+#endif
     if (error < best_error) {
       best_mode = tmp_mode;
       best_error = error;

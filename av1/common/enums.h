@@ -27,6 +27,8 @@ extern "C" {
 // #define FOUR_MODE
 #define INTRA_RESEL 0
 #define INTER_RESEL 0
+#define PRINT_COUNTS 1
+#define USE_RD_SLCT_MODE 0
 #endif
 
 #if CONFIG_NCOBMC || CONFIG_NCOBMC_ADAPT_WEIGHT
