@@ -19,56 +19,76 @@ include("${AOM_ROOT}/build/cmake/compiler_tests.cmake")
 set(AOM_FAILED_C_FLAGS)
 set(AOM_FAILED_CXX_FLAGS)
 
-# Checks C compiler for support of $c_flag. Adds $c_flag to $CMAKE_C_FLAGS when
-# the compile test passes. Caches $c_flag in $AOM_FAILED_C_FLAGS when the test
-# fails.
+# Checks C compiler for support of $c_flag. Adds $c_flag to all
+# $CMAKE_C_FLAGS_<CONFIG>s stored in AOM_C_CONFIGS when the compile test passes.
+# Caches $c_flag in $AOM_FAILED_C_FLAGS when the test fails.
 function (add_c_flag_if_supported c_flag)
   if (DEBUG_CMAKE_DISABLE_COMPILER_TESTS)
     return()
   endif ()
 
-  unset(C_FLAG_FOUND CACHE)
-  string(FIND "${CMAKE_C_FLAGS}" "${c_flag}" C_FLAG_FOUND)
   unset(C_FLAG_FAILED CACHE)
   string(FIND "${AOM_FAILED_C_FLAGS}" "${c_flag}" C_FLAG_FAILED)
+  if (${C_FLAG_FAILED} NOT EQUAL -1)
+    return()
+  endif ()
+ 
+  # TODO(tomfinegan): Technically this needs to be run for each configuration in
+  # $AOM_C_CONFIGS by setting CMAKE_TRY_COMPILE_CONFIGURATION before each use of
+  # check_c_compiler_flag(). Doing so behind a flag might be a good idea, but
+  # unconditional exhaustive testing of the flags will lead to excessively long
+  # CMake generation runs.
+  unset(C_FLAG_SUPPORTED CACHE)
+  message("checking c compiler flag support for: " ${c_flag})
+  check_c_compiler_flag("${c_flag}" C_FLAG_SUPPORTED)
 
-  if (${C_FLAG_FOUND} EQUAL -1 AND ${C_FLAG_FAILED} EQUAL -1)
-    unset(C_FLAG_SUPPORTED CACHE)
-    message("Checking C compiler flag support for: " ${c_flag})
-    check_c_compiler_flag("${c_flag}" C_FLAG_SUPPORTED)
-    if (C_FLAG_SUPPORTED)
-      set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${c_flag}" CACHE STRING "" FORCE)
-    else ()
-      set(AOM_FAILED_C_FLAGS "${AOM_FAILED_C_FLAGS} ${c_flag}" CACHE STRING ""
-          FORCE)
-    endif ()
+  if (${C_FLAG_SUPPORTED})
+    foreach (config ${AOM_C_CONFIGS})
+      unset(C_FLAG_FOUND)
+      string(FIND "${${config}}" "${c_flag}" C_FLAG_FOUND)
+
+      if (${C_FLAG_FOUND} EQUAL -1)
+        if (C_FLAG_SUPPORTED)
+          set(${config} "${${config}} ${c_flag}" CACHE STRING "" FORCE)
+        else ()
+          set(AOM_FAILED_C_FLAGS "${AOM_FAILED_C_FLAGS} ${c_flag}" CACHE STRING
+              "" FORCE)
+          return()
+        endif ()
+      endif ()
+    endforeach ()
   endif ()
 endfunction ()
 
-# Checks C++ compiler for support of $cxx_flag. Adds $cxx_flag to
-# $CMAKE_CXX_FLAGS when the compile test passes. Caches $c_flag in
-# $AOM_FAILED_CXX_FLAGS when the test fails.
+# Checks C++ compiler for support of $cxx_flag. Adds $cxx_flag to all
+# $CMAKE_CXX_FLAGS_<CONFIG>s stored in AOM_CXX_CONFIGS when the compile test
+# passes. Caches $cxx_flag in $AOM_FAILED_CXX_FLAGS when the test fails.
 function (add_cxx_flag_if_supported cxx_flag)
   if (DEBUG_CMAKE_DISABLE_COMPILER_TESTS)
     return()
   endif ()
 
-  unset(CXX_FLAG_FOUND CACHE)
-  string(FIND "${CMAKE_CXX_FLAGS}" "${cxx_flag}" CXX_FLAG_FOUND)
   unset(CXX_FLAG_FAILED CACHE)
   string(FIND "${AOM_FAILED_CXX_FLAGS}" "${cxx_flag}" CXX_FLAG_FAILED)
 
-  if (${CXX_FLAG_FOUND} EQUAL -1 AND ${CXX_FLAG_FAILED} EQUAL -1)
-    unset(CXX_FLAG_SUPPORTED CACHE)
-    message("Checking CXX compiler flag support for: " ${cxx_flag})
-    check_cxx_compiler_flag("${cxx_flag}" CXX_FLAG_SUPPORTED)
-    if (CXX_FLAG_SUPPORTED)
-      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${cxx_flag}" CACHE STRING ""
-          FORCE)
-    else()
-      set(AOM_FAILED_CXX_FLAGS "${AOM_FAILED_CXX_FLAGS} ${cxx_flag}" CACHE
-          STRING "" FORCE)
-    endif ()
+  if (${CXX_FLAG_FAILED} EQUAL -1)
+    foreach (config ${AOM_CXX_CONFIGS})
+      unset(CXX_FLAG_FOUND)
+      string(FIND "${${config}}" "${cxx_flag}" CXX_FLAG_FOUND)
+
+      if (${CXX_FLAG_FOUND} EQUAL -1)
+        unset(CXX_FLAG_SUPPORTED CACHE)
+        message("checking c compiler flag support for: " ${cxx_flag})
+        check_cxx_compiler_flag("${cxx_flag}" CXX_FLAG_SUPPORTED)
+        if (CXX_FLAG_SUPPORTED)
+          set(${config} "${${config}} ${cxx_flag}" CACHE STRING "" FORCE)
+        else ()
+          set(AOM_FAILED_CXX_FLAGS "${AOM_FAILED_CXX_FLAGS} ${cxx_flag}" CACHE
+              STRING "" FORCE)
+          return()
+        endif ()
+      endif ()
+    endforeach ()
   endif ()
 endfunction ()
 
@@ -98,7 +118,9 @@ function (require_c_flag c_flag update_c_flags)
               "${PROJECT_NAME} requires support for C flag: ${c_flag}.")
     endif ()
     if (update_c_flags)
-      set(CMAKE_C_FLAGS "${c_flag} ${CMAKE_C_FLAGS}" CACHE STRING "" FORCE)
+      foreach (config ${AOM_C_CONFIGS})
+        set(${config} "${${config}} ${c_flag}" CACHE STRING "" FORCE)
+      endforeach ()
     endif ()
   endif ()
 endfunction ()
@@ -122,8 +144,9 @@ function (require_cxx_flag cxx_flag update_cxx_flags)
               "${PROJECT_NAME} requires support for CXX flag: ${cxx_flag}.")
     endif ()
     if (update_cxx_flags)
-      set(CMAKE_CXX_FLAGS "${cxx_flag} ${CMAKE_CXX_FLAGS}" CACHE STRING ""
-          FORCE)
+      foreach (config ${AOM_CXX_CONFIGS})
+        set(${config} "${${config}} ${cxx_flag}" CACHE STRING "" FORCE)
+      endforeach ()
     endif ()
   endif ()
 endfunction ()
@@ -166,8 +189,9 @@ function (add_c_preproc_definition preproc_def)
   string(FIND "${CMAKE_C_FLAGS}" "${preproc_def}" PREPROC_DEF_FOUND)
 
   if (${PREPROC_DEF_FOUND} EQUAL -1)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D${preproc_def}" CACHE STRING ""
-        FORCE)
+    foreach (config ${AOM_C_CONFIGS})
+      set(${config} "${${config}} -D${preproc_def}" CACHE STRING "" FORCE)
+    endforeach ()
   endif ()
 endfunction ()
 
@@ -178,8 +202,9 @@ function (add_cxx_preproc_definition preproc_def)
   string(FIND "${CMAKE_CXX_FLAGS}" "${preproc_def}" PREPROC_DEF_FOUND)
 
   if (${PREPROC_DEF_FOUND} EQUAL -1)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D${preproc_def}" CACHE STRING ""
-        FORCE)
+    foreach (config ${AOM_CXX_CONFIGS})
+      set(${config} "${${config}} -D${preproc_def}" CACHE STRING "" FORCE)
+    endforeach ()
   endif ()
 endfunction ()
 
@@ -206,7 +231,9 @@ function (append_c_flag flag)
   string(FIND "${CMAKE_C_FLAGS}" "${flag}" C_FLAG_FOUND)
 
   if (${C_FLAG_FOUND} EQUAL -1)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${flag}" CACHE STRING "" FORCE)
+    foreach (config ${AOM_C_CONFIGS})
+      set(${config} "${${config}} ${flag}" CACHE STRING "" FORCE)
+    endforeach ()
   endif ()
 endfunction ()
 
@@ -216,7 +243,9 @@ function (append_cxx_flag flag)
   string(FIND "${CMAKE_CXX_FLAGS}" "${flag}" CXX_FLAG_FOUND)
 
   if (${CXX_FLAG_FOUND} EQUAL -1)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${flag}" CACHE STRING "" FORCE)
+    foreach (config ${AOM_CXX_CONFIGS})
+      set(${config} "${${config}} ${flag}" CACHE STRING "" FORCE)
+    endforeach ()
   endif ()
 endfunction ()
 
@@ -226,15 +255,15 @@ function (append_compiler_flag flag)
   append_cxx_flag(${flag})
 endfunction ()
 
-# Adds $flag to the executable linker command line.
+# Adds $flag to the executable linker command line when not present.
 function (append_exe_linker_flag flag)
-  unset(LINKER_FLAG_FOUND CACHE)
-  string(FIND "${CMAKE_EXE_LINKER_FLAGS}" "${flag}" LINKER_FLAG_FOUND)
-
-  if (${LINKER_FLAG_FOUND} EQUAL -1)
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${flag}" CACHE STRING
-        "" FORCE)
-  endif ()
+  foreach (config ${AOM_EXE_LINKER_CONFIGS})
+    unset(LINKER_FLAG_FOUND CACHE)
+    string(FIND "${config}" "${flag}" LINKER_FLAG_FOUND)
+    if (${LINKER_FLAG_FOUND} EQUAL -1)
+      set(${config} "${${config}} ${flag}" CACHE STRING "" FORCE)
+    endif()
+  endforeach ()
 endfunction ()
 
 # Adds $flag to the link flags for $target.

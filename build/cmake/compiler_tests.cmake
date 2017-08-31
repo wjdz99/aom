@@ -14,6 +14,56 @@ set(AOM_BUILD_CMAKE_COMPILER_TESTS_CMAKE_ 1)
 include(CheckCSourceCompiles)
 include(CheckCXXSourceCompiles)
 
+# CMake passes command line flags like this:
+#   $compiler $lang_flags $lang_flags_config ...
+# To ensure the flags tested here and elsewhere are obeyed a list of active
+# build configuration types is built, and flags are applied to the flag strings 
+# for each configuration currently active for C and CXX builds as determined by
+# reading $CMAKE_CONFIGURATION_TYPES and $CMAKE_BUILD_TYPE. When
+# $CMAKE_CONFIGURATION_TYPES is non-empty a multi-configuration generator is in
+# use: currently this includes MSVC and Xcode. For other generators
+# $CMAKE_BUILD_TYPE is used. For both cases AOM_<LANG>_CONFIGS is populated with
+# CMake string variable names that contain flags for the currently available
+# configuration(s).
+unset(AOM_C_CONFIGS)
+unset(AOM_CXX_CONFIGS)
+list(LENGTH CMAKE_CONFIGURATION_TYPES num_configs)
+if (${num_configs} GREATER 0)
+  foreach (config ${CMAKE_CONFIGURATION_TYPES})
+    string(TOUPPER ${config} config)
+    list(APPEND AOM_C_CONFIGS "CMAKE_C_FLAGS_${config}")
+    list(APPEND AOM_CXX_CONFIGS "CMAKE_CXX_FLAGS_${config}")
+    list(APPEND AOM_EXE_LINKER_CONFIGS "CMAKE_EXE_LINKER_FLAGS_${config}")
+    list(APPEND AOM_TARGET_LINKER_CONFIGS "LINK_FLAGS_${config}")
+  endforeach ()
+else ()
+  string(TOUPPER ${CMAKE_BUILD_TYPE} config)
+  set(AOM_C_CONFIGS "CMAKE_C_FLAGS_${config}")
+  set(AOM_CXX_CONFIGS "CMAKE_CXX_FLAGS_${config}")
+  set(AOM_EXE_LINKER_CONFIGS "CMAKE_EXE_LINKER_FLAGS_${config}")
+  set(AOM_TARGET_LINKER_CONFIGS "LINK_FLAGS_${config}")
+endif ()
+
+message("-----AOM_C_CONFIGS=${AOM_C_CONFIGS}")
+message("-----AOM_CXX_CONFIGS=${AOM_CXX_CONFIGS}")
+message("-----AOM_EXE_LINKER_CONFIGS=${AOM_EXE_LINKER_CONFIGS}")
+message("-----AOM_TARGET_LINKER_CONFIGS=${AOM_TARGET_LINKER_CONFIGS}")
+foreach (config ${AOM_C_CONFIGS})
+  message("-----C ${config}=${${config}}")
+endforeach ()
+
+foreach (config ${AOM_CXX_CONFIGS})
+  message("-----CXX ${config}=${${config}}")
+endforeach ()
+
+foreach (config ${AOM_EXE_LINKER_CONFIGS})
+  message("-----EXE_LINKER ${config}=${${config}}")
+endforeach ()
+
+foreach (config ${AOM_TARGET_LINKER_CONFIGS})
+  message("-----TARGET_LINKER ${config}=${${config}}")
+endforeach ()
+
 # The basic main() function used in all compile tests.
 set(AOM_C_MAIN "\nint main(void) { return 0; }")
 set(AOM_CXX_MAIN "\nint main() { return 0; }")
