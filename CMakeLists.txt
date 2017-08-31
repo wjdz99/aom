@@ -30,6 +30,9 @@ option(BUILD_SHARED_LIBS "CMake should generate a shared library build." OFF)
 
 project(AOM C CXX)
 
+message("------CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}")
+message("------CMAKE_CONFIGURATION_TYPES=${CMAKE_CONFIGURATION_TYPES}")
+
 set(AOM_ROOT "${CMAKE_CURRENT_SOURCE_DIR}")
 set(AOM_CONFIG_DIR "${CMAKE_CURRENT_BINARY_DIR}")
 
