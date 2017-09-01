@@ -2759,6 +2759,16 @@ static void write_tokens_b(AV1_COMP *cpi, const TileInfo *const tile,
     }
   }
 #endif  // CONFIG_COEF_INTERLEAVE
+// Put cdef here
+#if CONFIG_CDEF
+  if (cm->cdef_bits != 0 && !cm->all_lossless && mi_row % MI_SIZE_64X64 == 0 &&
+      mi_col % MI_SIZE_64X64 == 0) {
+    if (!sb_all_skip(cm, mi_row, mi_col))
+      aom_write_literal(w, cm->mi_grid_visible[mi_row * cm->mi_stride + mi_col]
+                               ->mbmi.cdef_strength,
+                        cm->cdef_bits);
+  }
+#endif
 }
 
 #if CONFIG_MOTION_VAR && (CONFIG_NCOBMC || CONFIG_NCOBMC_ADAPT_WEIGHT)
@@ -3138,28 +3148,6 @@ static void write_modes_sb(AV1_COMP *const cpi, const TileInfo *const tile,
       (bsize == BLOCK_8X8 || partition != PARTITION_SPLIT))
     update_partition_context(xd, mi_row, mi_col, subsize, bsize);
 #endif  // CONFIG_EXT_PARTITION_TYPES
-
-#if CONFIG_CDEF
-  if (bsize == cm->sb_size && cm->cdef_bits != 0 && !cm->all_lossless) {
-    int width_step = mi_size_wide[BLOCK_64X64];
-    int height_step = mi_size_high[BLOCK_64X64];
-    int width, height;
-    for (height = 0; (height < mi_size_high[cm->sb_size]) &&
-                     (mi_row + height < cm->mi_rows);
-         height += height_step) {
-      for (width = 0; (width < mi_size_wide[cm->sb_size]) &&
-                      (mi_col + width < cm->mi_cols);
-           width += width_step) {
-        if (!sb_all_skip(cm, mi_row + height, mi_col + width))
-          aom_write_literal(
-              w, cm->mi_grid_visible[(mi_row + height) * cm->mi_stride +
-                                     (mi_col + width)]
-                     ->mbmi.cdef_strength,
-              cm->cdef_bits);
-      }
-    }
-  }
-#endif
 }
 
 static void write_modes(AV1_COMP *const cpi, const TileInfo *const tile,
