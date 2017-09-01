@@ -67,6 +67,9 @@
 
 #if CONFIG_WARPED_MOTION || CONFIG_GLOBAL_MOTION
 #include "av1/common/warped_motion.h"
+#if NONCAUSAL_WARP
+#include "av1/common/mvref_common.h"
+#endif  // NONCAUSAL_WARP
 #endif  // CONFIG_WARPED_MOTION || CONFIG_GLOBAL_MOTION
 
 #define MAX_AV1_HEADER_SIZE 80
@@ -1760,6 +1763,31 @@ static void recon_ncobmc_intrpl_pred(AV1_COMMON *const cm,
   av1_setup_dst_planes(xd->plane, bsize, get_frame_new_buffer(cm), mi_row,
                        mi_col);
 }
+
+#if NONCAUSAL_WARP && NC_SIGNALLING
+static int read_is_noncausal_warp(AV1_COMMON *const cm, MACROBLOCKD *xd,
+                                  MODE_INFO *mi,
+                                  int mi_row, int mi_col, aom_reader *r) {
+  MB_MODE_INFO *mbmi = &mi->mbmi;
+  int noncausal_allowed =
+      is_inter_block(mbmi) && mbmi->motion_mode == WARPED_CAUSAL &&
+      is_ncwm_allowed(xd, mi_row, mi_col, mbmi->sb_type);
+  int warp_model, has_nc = 0;
+  int is_noncausal = 0;
+
+  if (noncausal_allowed) {
+    warp_model = warp_model_selection(cm, xd, mi_row, mi_col, 0, &has_nc);
+  }
+
+  if (has_nc) {
+    assert(warp_model == 2);
+    is_noncausal =
+        aom_read_symbol(r, xd->tile_ctx->ncwm_cdf[mbmi->sb_type], 2, ACCT_STR);
+  }
+
+  return is_noncausal;
+}
+#endif  // NONCAUSAL_WARP && NC_SIGNALLING
 #endif  // CONFIG_NCOBMC_ADAPT_WEIGHT
 
 static void decode_token_and_recon_block(AV1Decoder *const pbi,
@@ -1774,6 +1802,11 @@ static void decode_token_and_recon_block(AV1Decoder *const pbi,
 
   set_offsets(cm, xd, bsize, mi_row, mi_col, bw, bh, x_mis, y_mis);
   MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
+
+#if NC_SIGNALLING && NONCAUSAL_WARP
+  mbmi->is_noncausal =
+      read_is_noncausal_warp(cm, xd, xd->mi[0], mi_row, mi_col, r);
+#endif
 
 #if CONFIG_DELTA_Q
   if (cm->delta_q_present_flag) {
@@ -2010,6 +2043,28 @@ static void decode_token_and_recon_block(AV1Decoder *const pbi,
                              &ref_buf->sf);
       }
     }
+
+#if NONCAUSAL_WARP
+    if (mbmi->motion_mode == WARPED_CAUSAL) {
+#if NC_SIGNALLING
+      int selected_warp_model;
+      int has_nc;
+
+      if (mbmi->is_noncausal) {
+        selected_warp_model =
+            warp_model_selection(cm, xd, mi_row, mi_col, 0, &has_nc);
+        assert(selected_warp_model == 2);
+      } else {
+        selected_warp_model =
+            warp_model_selection(cm, xd, mi_row, mi_col, 1, &has_nc);
+        assert(selected_warp_model == 1);
+      }
+#else
+      int selected_warp_model = warp_model_selection(cm, xd, mi_row, mi_col, 0);
+      assert(selected_warp_model > 0);
+#endif
+    }
+#endif
 
 #if CONFIG_CB4X4
     av1_build_inter_predictors_sb(cm, xd, mi_row, mi_col, NULL, bsize);
