@@ -32,7 +32,9 @@
 #if WARPED_MOTION_SORT_SAMPLES
 // Search 1 row on the top and 1 column on the left, 1 upper-left block,
 // 1 upper-right block.
-#define SAMPLES_ARRAY_SIZE ((MAX_MIB_SIZE * 2 + 2) * 2)
+// #define SAMPLES_ARRAY_SIZE ((MAX_MIB_SIZE * 2 + 2) * 2)
+// We need to double it if non-causal warp-motion is allowed
+#define SAMPLES_ARRAY_SIZE ((MAX_MIB_SIZE * 2 + 2) * 4)
 #else
 #define SAMPLES_ARRAY_SIZE (LEAST_SQUARES_SAMPLES_MAX * 2)
 #endif  // WARPED_MOTION_SORT_SAMPLES
