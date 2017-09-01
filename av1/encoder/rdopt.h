@@ -149,9 +149,8 @@ int64_t get_prediction_rd_cost(const struct AV1_COMP *cpi, struct macroblock *x,
                                MB_MODE_INFO *backup_mbmi);
 
 #if CONFIG_NCOBMC_ADAPT_WEIGHT
-void av1_check_ncobmc_adapt_weight_rd(const struct AV1_COMP *cpi,
-                                      struct macroblock *x, int mi_row,
-                                      int mi_col);
+void av1_check_non_causal_modes(const struct AV1_COMP *cpi,
+                                struct macroblock *x, int mi_row, int mi_col);
 int get_ncobmc_mode(const AV1_COMP *const cpi, MACROBLOCK *const x,
                     MACROBLOCKD *xd, int mi_row, int mi_col, int bsize);
 

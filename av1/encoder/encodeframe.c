@@ -1879,7 +1879,20 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td, int mi_row,
                        MAX_NCOBMC_MODES);
           }
         }
-#endif
+#if NONCAUSAL_WARP
+        {
+          int has_nc = 0;
+          if (mbmi->motion_mode == WARPED_CAUSAL &&
+              is_ncwm_allowed(xd, mi_row, mi_col, mbmi->sb_type))
+            warp_model_selection(cm, xd, mi_row, mi_col, 0, &has_nc);
+          if (has_nc) {
+            counts->ncwm[mbmi->sb_type][mbmi->is_noncausal]++;
+            update_cdf(xd->tile_ctx->ncwm_cdf[mbmi->sb_type],
+                       mbmi->is_noncausal, 2);
+          }
+        }
+#endif  // NONCAUSAL_WARP
+#endif  // CONFIG_NCOBMC_ADAPT_WEIGHT
 
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
 
@@ -2152,7 +2165,7 @@ static void encode_b(const AV1_COMP *const cpi, const TileInfo *const tile,
   if (dry_run == OUTPUT_ENABLED && !frame_is_intra_only(&cpi->common)) {
     if (motion_allowed >= NCOBMC_ADAPT_WEIGHT && is_inter_block(mbmi)) {
       get_ncobmc_intrpl_pred(cpi, td, mi_row, mi_col, bsize);
-      av1_check_ncobmc_adapt_weight_rd(cpi, x, mi_row, mi_col);
+      av1_check_non_causal_modes(cpi, x, mi_row, mi_col);
     }
     av1_setup_dst_planes(x->e_mbd.plane, bsize,
                          get_frame_new_buffer(&cpi->common), mi_row, mi_col);

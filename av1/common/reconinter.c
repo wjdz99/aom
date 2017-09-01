@@ -3664,6 +3664,7 @@ void get_pred_by_horz_neighbor(const AV1_COMMON *cm, MACROBLOCKD *xd, int bsize,
     }
 
     backup_mbmi = *left_mbmi;
+    set_default_interp_filters(left_mbmi, cm->interp_filter);
     modify_neighbor_predictor_for_obmc(left_mbmi);
 
     for (j = 0; j < MAX_MB_PLANE; ++j) {
@@ -3760,6 +3761,7 @@ void get_pred_by_horz_neighbor(const AV1_COMMON *cm, MACROBLOCKD *xd, int bsize,
     }
 
     backup_mbmi = *right_mbmi;
+    set_default_interp_filters(right_mbmi, cm->interp_filter);
     modify_neighbor_predictor_for_obmc(right_mbmi);
 
     for (j = 0; j < MAX_MB_PLANE; ++j) {
@@ -3876,6 +3878,7 @@ void get_pred_by_vert_neighbor(const AV1_COMMON *cm, MACROBLOCKD *xd, int bsize,
     }
 
     backup_mbmi = *above_mbmi;
+    set_default_interp_filters(above_mbmi, cm->interp_filter);
     modify_neighbor_predictor_for_obmc(above_mbmi);
 
     for (j = 0; j < MAX_MB_PLANE; ++j) {
@@ -3977,6 +3980,7 @@ void get_pred_by_vert_neighbor(const AV1_COMMON *cm, MACROBLOCKD *xd, int bsize,
     }
 
     backup_mbmi = *bottom_mbmi;
+    set_default_interp_filters(bottom_mbmi, cm->interp_filter);
     modify_neighbor_predictor_for_obmc(bottom_mbmi);
 
     for (j = 0; j < MAX_MB_PLANE; ++j) {
@@ -4080,6 +4084,7 @@ void get_pred_by_corner_neighbor(const AV1_COMMON *cm, MACROBLOCKD *xd,
     }
 
     backup_mbmi = *corner_mbmi;
+    set_default_interp_filters(corner_mbmi, cm->interp_filter);
     modify_neighbor_predictor_for_obmc(corner_mbmi);
 
     for (j = 0; j < MAX_MB_PLANE; ++j) {
