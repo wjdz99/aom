@@ -5197,6 +5197,35 @@ static int64_t select_tx_size_fix_type(const AV1_COMP *cpi, MACROBLOCK *x,
   return rd;
 }
 
+static int predict_skip_flag(const MACROBLOCK *x,
+                             BLOCK_SIZE bsize, int is_inter) {
+  if (!is_inter || bsize > BLOCK_32X32) return 0;
+  const float threshold_table[] = {0.32f, 0.32f, 0.28f, 0.25f, 0.32f,
+                                   0.32f, 0.28f, 0.28f, 0.15f, 0.15f};
+  const struct macroblock_plane *const p = &x->plane[0];
+  const int bw = block_size_wide[bsize];
+  const int bh = block_size_high[bsize];
+  tran_low_t DCT_coefs[32 * 32];
+  TxfmParam param;
+  param.tx_type = DCT_DCT;
+  param.tx_size = max_txsize_rect_lookup[bsize];
+  av1_fwd_txfm(p->src_diff, DCT_coefs, bw, &param);
+
+  int16_t dc = av1_dc_quant(x->qindex, 0, AOM_BITS_8);
+  int16_t ac = av1_ac_quant(x->qindex, 0, AOM_BITS_8);
+  float max_quantized_coef = 0.0f;
+  float cur_quantized_coef = fabs(DCT_coefs[0] / (float)dc);
+  if (cur_quantized_coef > max_quantized_coef)
+    max_quantized_coef = cur_quantized_coef;
+  for (int i = 1; i < bw * bh; i++) {
+    cur_quantized_coef = fabs(DCT_coefs[i] / (float)ac);
+    if (cur_quantized_coef > max_quantized_coef)
+      max_quantized_coef = cur_quantized_coef;
+  }
+
+  return max_quantized_coef < threshold_table[param.tx_size];
+}
+
 static void select_tx_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
                                RD_STATS *rd_stats, BLOCK_SIZE bsize,
                                int64_t ref_best_rd) {
@@ -5231,11 +5260,12 @@ static void select_tx_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
 #if CONFIG_EXT_TX
   const int ext_tx_set =
       get_ext_tx_set(max_tx_size, bsize, is_inter, cm->reduced_tx_set_used);
+  const int predicted_skip = predict_skip_flag(x, bsize, is_inter);
 #endif  // CONFIG_EXT_TX
 
   if (is_inter && cpi->sf.tx_type_search.prune_mode > NO_PRUNE)
 #if CONFIG_EXT_TX
-    prune = prune_tx_types(cpi, bsize, x, xd, ext_tx_set);
+    if (!predicted_skip) prune = prune_tx_types(cpi, bsize, x, xd, ext_tx_set);
 #else
     prune = prune_tx_types(cpi, bsize, x, xd, 0);
 #endif  // CONFIG_EXT_TX
@@ -5294,6 +5324,10 @@ static void select_tx_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
         for (idx = 0; idx < xd->n8_w; ++idx)
           best_tx_size[idy][idx] = mbmi->inter_tx_size[idy][idx];
     }
+
+#if CONFIG_EXT_TX
+    if (predicted_skip) break;
+#endif  // CONFIG_EXT_TX
   }
 
   mbmi->tx_type = best_tx_type;
