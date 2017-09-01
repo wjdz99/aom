@@ -1212,6 +1212,51 @@ static const aom_cdf_prob
       { AOM_ICDF(208 * 128), AOM_ICDF(32767), AOM_ICDF(32768), 0 },
       { AOM_ICDF(208 * 128), AOM_ICDF(32767), AOM_ICDF(32768), 0 }
     };
+
+#if NONCAUSAL_WARP
+static const aom_prob default_ncwm_prob[BLOCK_SIZES_ALL] = {
+#if CONFIG_CHROMA_2X2 || CONFIG_CHROMA_SUB8X8
+  128, 128, 128,
+#endif
+  200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200,
+#if CONFIG_EXT_PARTITION
+  252, 252, 252,
+#endif  // CONFIG_EXT_PARTITION
+  208, 208, 208, 208, 208, 208,
+};
+
+static const aom_cdf_prob default_ncwm_cdf[BLOCK_SIZES_ALL][CDF_SIZE(2)] = {
+#if CONFIG_CHROMA_2X2 || CONFIG_CHROMA_SUB8X8
+  { AOM_ICDF(128 * 128), AOM_ICDF(32768), 0 },
+  { AOM_ICDF(128 * 128), AOM_ICDF(32768), 0 },
+  { AOM_ICDF(128 * 128), AOM_ICDF(32768), 0 },
+#endif
+  { AOM_ICDF(200 * 128), AOM_ICDF(32768), 0 },
+  { AOM_ICDF(200 * 128), AOM_ICDF(32768), 0 },
+  { AOM_ICDF(200 * 128), AOM_ICDF(32768), 0 },
+  { AOM_ICDF(200 * 128), AOM_ICDF(32768), 0 },
+  { AOM_ICDF(200 * 128), AOM_ICDF(32768), 0 },
+  { AOM_ICDF(200 * 128), AOM_ICDF(32768), 0 },
+  { AOM_ICDF(200 * 128), AOM_ICDF(32768), 0 },
+  { AOM_ICDF(200 * 128), AOM_ICDF(32768), 0 },
+  { AOM_ICDF(200 * 128), AOM_ICDF(32768), 0 },
+  { AOM_ICDF(200 * 128), AOM_ICDF(32768), 0 },
+  { AOM_ICDF(200 * 128), AOM_ICDF(32768), 0 },
+  { AOM_ICDF(200 * 128), AOM_ICDF(32768), 0 },
+  { AOM_ICDF(200 * 128), AOM_ICDF(32768), 0 },
+#if CONFIG_EXT_PARTITION
+  { AOM_ICDF(252 * 128), AOM_ICDF(32768), 0 },
+  { AOM_ICDF(252 * 128), AOM_ICDF(32768), 0 },
+  { AOM_ICDF(252 * 128), AOM_ICDF(32768), 0 },
+#endif  // CONFIG_EXT_PARTITION
+  { AOM_ICDF(208 * 128), AOM_ICDF(32768), 0 },
+  { AOM_ICDF(208 * 128), AOM_ICDF(32768), 0 },
+  { AOM_ICDF(208 * 128), AOM_ICDF(32768), 0 },
+  { AOM_ICDF(208 * 128), AOM_ICDF(32768), 0 },
+  { AOM_ICDF(208 * 128), AOM_ICDF(32768), 0 },
+  { AOM_ICDF(208 * 128), AOM_ICDF(32768), 0 },
+};
+#endif  // NONCAUSAL_WARP
 #else
 const aom_tree_index av1_motion_mode_tree[TREE_SIZE(MOTION_MODES)] = {
   -SIMPLE_TRANSLATION, 2, -OBMC_CAUSAL, -WARPED_CAUSAL,
@@ -5138,7 +5183,11 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
 #if CONFIG_NCOBMC_ADAPT_WEIGHT && CONFIG_MOTION_VAR
   av1_copy(fc->ncobmc_mode_prob, default_ncobmc_mode_prob);
   av1_copy(fc->ncobmc_mode_cdf, default_ncobmc_mode_cdf);
-#endif
+#if NONCAUSAL_WARP
+  av1_copy(fc->ncwm_prob, default_ncwm_prob);
+  av1_copy(fc->ncwm_cdf, default_ncwm_cdf);
+#endif  // NONCAUSAL_WARP
+#endif  // CONFIG_NCOBMC_ADAPT_WEIGHT && CONFIG_MOTION_VAR
 #if CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
   av1_copy(fc->obmc_prob, default_obmc_prob);
 #if CONFIG_NEW_MULTISYMBOL || CONFIG_NCOBMC_ADAPT_WEIGHT
@@ -5332,7 +5381,12 @@ void av1_adapt_inter_frame_probs(AV1_COMMON *cm) {
   for (i = BLOCK_8X8; i < BLOCK_SIZES_ALL; ++i)
     aom_tree_merge_probs(av1_ncobmc_tree, pre_fc->ncobmc_prob[i],
                          counts->ncobmc[i], fc->ncobmc_prob[i]);
-#endif
+#if NONCAUSAL_WARP
+  for (i = BLOCK_8X8; i < BLOCK_SIZES_ALL; ++i)
+    fc->ncwm_prob[i] =
+        av1_mode_mv_merge_probs(pre_fc->ncwm_prob[i], counts->ncwm[i]);
+#endif  // NONCAUSAL_WARP
+#endif  // CONFIG_WARPED_MOTION
 #endif  // CONFIG_NCOBMC_ADAPT_WEIGHT
 #if CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
   for (i = BLOCK_8X8; i < BLOCK_SIZES_ALL; ++i)
