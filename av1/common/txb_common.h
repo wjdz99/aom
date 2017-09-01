@@ -222,11 +222,11 @@ static INLINE int get_br_count_mag(int *mag, const tran_low_t *tcoeffs, int bwl,
 static INLINE int get_br_ctx_from_count_mag(int row, int col, int count,
                                             int mag) {
   int offset = 0;
-  if (mag <= BR_MAG_OFFSET)
+  if (mag <= 3)
     offset = 0;
   else if (mag <= 3)
     offset = 1;
-  else if (mag <= 6)
+  else if (mag <= 5)
     offset = 2;
   else
     offset = 3;

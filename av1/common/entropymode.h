@@ -429,6 +429,7 @@ typedef struct FRAME_COUNTS {
   unsigned int coeff_base[TX_SIZES][PLANE_TYPES][NUM_BASE_LEVELS]
                          [COEFF_BASE_CONTEXTS][2];
   unsigned int coeff_lps[TX_SIZES][PLANE_TYPES][LEVEL_CONTEXTS][2];
+  unsigned int coeff_br[TX_SIZES][PLANE_TYPES][LEVEL_CONTEXTS][BASE_RANGE_SETS][2];
 #endif  // CONFIG_LV_MAP
 
   av1_blockz_count_model blockz_count[TX_SIZES][PLANE_TYPES];
