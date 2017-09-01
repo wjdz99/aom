@@ -294,6 +294,52 @@
       "revId": "aad1f1b9204f70ab58f074e14dca35279b288dd6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9e893023_7993842e",
+        "filename": "av1/encoder/rdopt.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-09-01T21:50:57Z",
+      "side": 1,
+      "message": "see comments in c file",
+      "range": {
+        "startLine": 152,
+        "startChar": 4,
+        "endLine": 152,
+        "endChar": 19
+      },
+      "revId": "aad1f1b9204f70ab58f074e14dca35279b288dd6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5e011049_22ef4c4e",
+        "filename": "av1/encoder/rdopt.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-09-01T21:50:57Z",
+      "side": 1,
+      "message": "Move it to the commit that these functions are being implemented",
+      "range": {
+        "startLine": 155,
+        "startChar": 0,
+        "endLine": 160,
+        "endChar": 79
+      },
+      "revId": "aad1f1b9204f70ab58f074e14dca35279b288dd6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
