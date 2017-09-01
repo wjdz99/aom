@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "69689a61_5c5236c6",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 12677,
+      "author": {
+        "id": 7555
+      },
+      "writtenOn": "2017-09-01T22:45:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5e1e653c_cd884a51",
+      "range": {
+        "startLine": 12677,
+        "startChar": 0,
+        "endLine": 12677,
+        "endChar": 19
+      },
+      "revId": "aad1f1b9204f70ab58f074e14dca35279b288dd6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba86c96a_38d9363a",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 13
@@ -96,6 +120,30 @@
     },
     {
       "key": {
+        "uuid": "7a4e0c03_5bebc6b4",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 12694,
+      "author": {
+        "id": 7555
+      },
+      "writtenOn": "2017-09-01T22:45:46Z",
+      "side": 1,
+      "message": "I thought we still want to keep obmc not replacing it completely with ncobmc?",
+      "parentUuid": "df356274_57582845",
+      "range": {
+        "startLine": 12693,
+        "startChar": 2,
+        "endLine": 12694,
+        "endChar": 39
+      },
+      "revId": "aad1f1b9204f70ab58f074e14dca35279b288dd6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9acc46ab_d2367c9a",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 13
@@ -116,6 +164,30 @@
       "revId": "aad1f1b9204f70ab58f074e14dca35279b288dd6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "876863f2_da31cc23",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 12702,
+      "author": {
+        "id": 7555
+      },
+      "writtenOn": "2017-09-01T22:45:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9acc46ab_d2367c9a",
+      "range": {
+        "startLine": 12702,
+        "startChar": 25,
+        "endLine": 12702,
+        "endChar": 34
+      },
+      "revId": "aad1f1b9204f70ab58f074e14dca35279b288dd6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -142,6 +214,30 @@
     },
     {
       "key": {
+        "uuid": "621084ad_4baf5414",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 12703,
+      "author": {
+        "id": 7555
+      },
+      "writtenOn": "2017-09-01T22:45:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d376e939_da35d3be",
+      "range": {
+        "startLine": 12703,
+        "startChar": 46,
+        "endLine": 12703,
+        "endChar": 58
+      },
+      "revId": "aad1f1b9204f70ab58f074e14dca35279b288dd6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "44282392_8e8f1838",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 13
@@ -156,6 +252,24 @@
       "revId": "aad1f1b9204f70ab58f074e14dca35279b288dd6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b3eb762f_b234e92b",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 12752,
+      "author": {
+        "id": 7555
+      },
+      "writtenOn": "2017-09-01T22:45:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "44282392_8e8f1838",
+      "revId": "aad1f1b9204f70ab58f074e14dca35279b288dd6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -182,6 +296,30 @@
     },
     {
       "key": {
+        "uuid": "f3fe2156_4974c0f9",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 12765,
+      "author": {
+        "id": 7555
+      },
+      "writtenOn": "2017-09-01T22:45:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fba9776f_5ec1678d",
+      "range": {
+        "startLine": 12765,
+        "startChar": 33,
+        "endLine": 12765,
+        "endChar": 34
+      },
+      "revId": "aad1f1b9204f70ab58f074e14dca35279b288dd6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ac438f21_7fb27fc3",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 13
@@ -205,6 +343,30 @@
     },
     {
       "key": {
+        "uuid": "b3de0226_1794aa9a",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 12796,
+      "author": {
+        "id": 7555
+      },
+      "writtenOn": "2017-09-01T22:45:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ac438f21_7fb27fc3",
+      "range": {
+        "startLine": 12785,
+        "startChar": 0,
+        "endLine": 12796,
+        "endChar": 5
+      },
+      "revId": "aad1f1b9204f70ab58f074e14dca35279b288dd6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9bf5aaa0_f0ff809c",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 13
@@ -225,6 +387,30 @@
       "revId": "aad1f1b9204f70ab58f074e14dca35279b288dd6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "46c57e11_0707aec1",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 12817,
+      "author": {
+        "id": 7555
+      },
+      "writtenOn": "2017-09-01T22:45:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9bf5aaa0_f0ff809c",
+      "range": {
+        "startLine": 12817,
+        "startChar": 0,
+        "endLine": 12817,
+        "endChar": 6
+      },
+      "revId": "aad1f1b9204f70ab58f074e14dca35279b288dd6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -268,6 +454,24 @@
     },
     {
       "key": {
+        "uuid": "886499cb_896d6e3f",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 12833,
+      "author": {
+        "id": 7555
+      },
+      "writtenOn": "2017-09-01T22:45:46Z",
+      "side": 1,
+      "message": "Thanks for spotting this bug!",
+      "parentUuid": "820aeed4_8d53395d",
+      "revId": "aad1f1b9204f70ab58f074e14dca35279b288dd6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "50e329cd_2e548516",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 13
@@ -291,6 +495,30 @@
     },
     {
       "key": {
+        "uuid": "cbe7aad5_bcf04414",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 12841,
+      "author": {
+        "id": 7555
+      },
+      "writtenOn": "2017-09-01T22:45:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "50e329cd_2e548516",
+      "range": {
+        "startLine": 12840,
+        "startChar": 0,
+        "endLine": 12841,
+        "endChar": 18
+      },
+      "revId": "aad1f1b9204f70ab58f074e14dca35279b288dd6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d57d9774_31ea4ee5",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 13
@@ -311,6 +539,30 @@
       "revId": "aad1f1b9204f70ab58f074e14dca35279b288dd6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c3ec7de6_bd315c45",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 12843,
+      "author": {
+        "id": 7555
+      },
+      "writtenOn": "2017-09-01T22:45:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d57d9774_31ea4ee5",
+      "range": {
+        "startLine": 12842,
+        "startChar": 0,
+        "endLine": 12843,
+        "endChar": 75
+      },
+      "revId": "aad1f1b9204f70ab58f074e14dca35279b288dd6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -360,6 +612,30 @@
     },
     {
       "key": {
+        "uuid": "038dcb77_a58dab4f",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 12917,
+      "author": {
+        "id": 7555
+      },
+      "writtenOn": "2017-09-01T22:45:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4009bf32_d8a03b4f",
+      "range": {
+        "startLine": 12912,
+        "startChar": 0,
+        "endLine": 12917,
+        "endChar": 19
+      },
+      "revId": "aad1f1b9204f70ab58f074e14dca35279b288dd6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "17bdf82c_c0acd77b",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 13
@@ -383,6 +659,30 @@
     },
     {
       "key": {
+        "uuid": "593a130c_071f3765",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 12934,
+      "author": {
+        "id": 7555
+      },
+      "writtenOn": "2017-09-01T22:45:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "17bdf82c_c0acd77b",
+      "range": {
+        "startLine": 12932,
+        "startChar": 0,
+        "endLine": 12934,
+        "endChar": 6
+      },
+      "revId": "aad1f1b9204f70ab58f074e14dca35279b288dd6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "23c88f84_371b6da8",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 13
@@ -397,6 +697,24 @@
       "revId": "aad1f1b9204f70ab58f074e14dca35279b288dd6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ffea56b9_e0936182",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 12935,
+      "author": {
+        "id": 7555
+      },
+      "writtenOn": "2017-09-01T22:45:46Z",
+      "side": 1,
+      "message": "Non-overlapping mode will not be tested. I completely removed the non-overlapping kernel.",
+      "parentUuid": "23c88f84_371b6da8",
+      "revId": "aad1f1b9204f70ab58f074e14dca35279b288dd6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
