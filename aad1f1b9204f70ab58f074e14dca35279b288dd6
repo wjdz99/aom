@@ -291,6 +291,29 @@
     },
     {
       "key": {
+        "uuid": "d57d9774_31ea4ee5",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 12843,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-09-01T22:25:41Z",
+      "side": 1,
+      "message": "If only using 2 weight modes, might worth trying full rd later.\nOr use model_rd_from_sse() to estimate rate+dist under current quantization step size.\nNot for this commit, can do it once the full system is checked in.",
+      "range": {
+        "startLine": 12842,
+        "startChar": 0,
+        "endLine": 12843,
+        "endChar": 75
+      },
+      "revId": "aad1f1b9204f70ab58f074e14dca35279b288dd6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "19b27b40_5eb75217",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 13
