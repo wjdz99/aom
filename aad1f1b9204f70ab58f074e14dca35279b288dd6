@@ -69,6 +69,185 @@
       "revId": "aad1f1b9204f70ab58f074e14dca35279b288dd6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "df356274_57582845",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 12694,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-09-01T21:40:23Z",
+      "side": 1,
+      "message": "instead of if (ST || OS), just make mbmi-\u003emotion_mode \u003d SIMPLE_TRANSLATION",
+      "parentUuid": "88496c7b_1d1fa8a4",
+      "range": {
+        "startLine": 12693,
+        "startChar": 2,
+        "endLine": 12694,
+        "endChar": 39
+      },
+      "revId": "aad1f1b9204f70ab58f074e14dca35279b288dd6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9acc46ab_d2367c9a",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 12702,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-09-01T21:40:23Z",
+      "side": 1,
+      "message": "xd-\u003e",
+      "range": {
+        "startLine": 12702,
+        "startChar": 25,
+        "endLine": 12702,
+        "endChar": 34
+      },
+      "revId": "aad1f1b9204f70ab58f074e14dca35279b288dd6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d376e939_da35d3be",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 12703,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-09-01T21:40:23Z",
+      "side": 1,
+      "message": "cm",
+      "range": {
+        "startLine": 12703,
+        "startChar": 46,
+        "endLine": 12703,
+        "endChar": 58
+      },
+      "revId": "aad1f1b9204f70ab58f074e14dca35279b288dd6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ac438f21_7fb27fc3",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 12796,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-09-01T21:40:23Z",
+      "side": 1,
+      "message": "remove code for debugging",
+      "range": {
+        "startLine": 12785,
+        "startChar": 0,
+        "endLine": 12796,
+        "endChar": 5
+      },
+      "revId": "aad1f1b9204f70ab58f074e14dca35279b288dd6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9bf5aaa0_f0ff809c",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 12817,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-09-01T21:40:23Z",
+      "side": 1,
+      "message": "remove",
+      "range": {
+        "startLine": 12817,
+        "startChar": 0,
+        "endLine": 12817,
+        "endChar": 6
+      },
+      "revId": "aad1f1b9204f70ab58f074e14dca35279b288dd6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "820aeed4_8d53395d",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 12833,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-09-01T21:40:23Z",
+      "side": 1,
+      "message": "When VAR_TX is on, x-\u003eskip_blk[] need to be stored. For example, store x-\u003eskip_blk[] of previous selection into a temp array, if in the nd the previous selection is better, restore it\n#if CONFIG_VAR_TX\n  for (int i \u003d 0; i \u003c MAX_MB_PLANE; ++i)\n    memcpy(x-\u003eblk_skip[i], tmp_blk_skip[i],\n           sizeof(uint8_t) * xd-\u003en8_h * xd-\u003en8_w * 4);\n#endif  // CONFIG_VAR_TX",
+      "revId": "aad1f1b9204f70ab58f074e14dca35279b288dd6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4009bf32_d8a03b4f",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 12917,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-09-01T21:40:23Z",
+      "side": 1,
+      "message": "only keep 2 mode case",
+      "range": {
+        "startLine": 12912,
+        "startChar": 0,
+        "endLine": 12917,
+        "endChar": 19
+      },
+      "revId": "aad1f1b9204f70ab58f074e14dca35279b288dd6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "17bdf82c_c0acd77b",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 12934,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-09-01T21:40:23Z",
+      "side": 1,
+      "message": "remove",
+      "range": {
+        "startLine": 12932,
+        "startChar": 0,
+        "endLine": 12934,
+        "endChar": 6
+      },
+      "revId": "aad1f1b9204f70ab58f074e14dca35279b288dd6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
