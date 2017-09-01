@@ -235,7 +235,11 @@ typedef struct frame_contexts {
   aom_prob ncobmc_mode_prob[ADAPT_OVERLAP_BLOCKS][MAX_NCOBMC_MODES - 1];
   aom_cdf_prob ncobmc_mode_cdf[ADAPT_OVERLAP_BLOCKS]
                               [CDF_SIZE(MAX_NCOBMC_MODES)];
-#endif
+#if NONCAUSAL_WARP
+  aom_prob ncwm_prob[BLOCK_SIZES_ALL];
+  aom_cdf_prob ncwm_cdf[BLOCK_SIZES_ALL][CDF_SIZE(2)];
+#endif  // NONCAUSAL_WARP
+#endif  // CONFIG_NCOBMC_ADAPT_WEIGHT && CONFIG_MOTION_VAR
 #if CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
 #if CONFIG_NCOBMC_ADAPT_WEIGHT
   aom_prob ncobmc_prob[BLOCK_SIZES_ALL][OBMC_FAMILY_MODES - 1];
@@ -465,6 +469,9 @@ typedef struct FRAME_COUNTS {
 #if CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
 #if CONFIG_NCOBMC_ADAPT_WEIGHT
   unsigned int ncobmc[BLOCK_SIZES_ALL][OBMC_FAMILY_MODES];
+#if NONCAUSAL_WARP
+  unsigned int ncwm[BLOCK_SIZES_ALL][2];
+#endif  // NONCAUSAL_WARP
 #endif  // CONFIG_NCOBMC_ADAPT_WEIGHT
   unsigned int obmc[BLOCK_SIZES_ALL][2];
 #endif  // CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION

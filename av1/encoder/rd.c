@@ -275,10 +275,13 @@ void av1_fill_mode_rates(AV1_COMMON *const cm, MACROBLOCK *x,
 #endif
 #if CONFIG_NEW_MULTISYMBOL || CONFIG_NCOBMC_ADAPT_WEIGHT
       av1_cost_tokens_from_cdf(x->motion_mode_cost1[i], fc->obmc_cdf[i], NULL);
+#if NONCAUSAL_WARP
+      av1_cost_tokens_from_cdf(x->ncwm_cost[i], fc->ncwm_cdf[i], NULL);
+#endif
 #else
       x->motion_mode_cost1[i][0] = av1_cost_bit(fc->obmc_prob[i], 0);
       x->motion_mode_cost1[i][1] = av1_cost_bit(fc->obmc_prob[i], 1);
-#endif
+#endif  // CONFIG_NEW_MULTISYMBOL || CONFIG_NCOBMC_ADAPT_WEIGHT
     }
 #endif  // CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
 #if CONFIG_MOTION_VAR && CONFIG_NCOBMC_ADAPT_WEIGHT

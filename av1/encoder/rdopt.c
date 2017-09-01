@@ -8418,8 +8418,11 @@ static int64_t motion_mode_rd(
 #if CONFIG_WARPED_MOTION
   aom_clear_system_state();
 #if WARPED_MOTION_SORT_SAMPLES
-  mbmi->num_proj_ref[0] =
-      findSamples(cm, xd, mi_row, mi_col, pts0, pts_inref0, pts_mv0);
+  mbmi->num_proj_ref[0] = findSamples(cm, xd, mi_row, mi_col,
+#if NONCAUSAL_WARP
+                                      NULL,
+#endif
+                                      pts0, pts_inref0, pts_mv0);
   total_samples = mbmi->num_proj_ref[0];
 #else
   mbmi->num_proj_ref[0] = findSamples(cm, xd, mi_row, mi_col, pts, pts_inref);
@@ -12134,8 +12137,11 @@ void av1_rd_pick_inter_mode_sb_seg_skip(const AV1_COMP *cpi,
     int pts[SAMPLES_ARRAY_SIZE], pts_inref[SAMPLES_ARRAY_SIZE];
 #if WARPED_MOTION_SORT_SAMPLES
     int pts_mv[SAMPLES_ARRAY_SIZE];
-    mbmi->num_proj_ref[0] =
-        findSamples(cm, xd, mi_row, mi_col, pts, pts_inref, pts_mv);
+    mbmi->num_proj_ref[0] = findSamples(cm, xd, mi_row, mi_col,
+#if NONCAUSAL_WARP
+                                        NULL,
+#endif
+                                        pts, pts_inref, pts_mv);
     // Rank the samples by motion vector difference
     if (mbmi->num_proj_ref[0] > 1)
       mbmi->num_proj_ref[0] = sortSamples(pts_mv, &mbmi->mv[0].as_mv, pts,
@@ -12637,9 +12643,10 @@ int64_t get_prediction_rd_cost(const struct AV1_COMP *cpi, struct macroblock *x,
 #endif  // CONFIG_MOTION_VAR
 
 #if CONFIG_NCOBMC_ADAPT_WEIGHT
-  if (mbmi->motion_mode == NCOBMC_ADAPT_WEIGHT)
+  if (mbmi->motion_mode == NCOBMC_ADAPT_WEIGHT) {
     for (int plane = 0; plane < MAX_MB_PLANE; ++plane)
       get_pred_from_intrpl_buf(xd, mi_row, mi_col, bsize, plane);
+  }
 #endif
   av1_subtract_plane(x, bsize, 0);
 
@@ -12707,6 +12714,91 @@ int64_t get_prediction_rd_cost(const struct AV1_COMP *cpi, struct macroblock *x,
 }
 
 #if CONFIG_NCOBMC_ADAPT_WEIGHT
+#if NONCAUSAL_WARP
+int64_t select_warp_rd(const struct AV1_COMP *cpi, struct macroblock *x,
+                       int mi_row, int mi_col, int *skip_blk,
+                       MB_MODE_INFO *backup_mbmi) {
+  const AV1_COMMON *const cm = &cpi->common;
+  MACROBLOCKD *const xd = &x->e_mbd;
+  MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
+  MB_MODE_INFO cwm_mbmi;
+  int warp_model;
+  int ncwm_skip, cwm_skip;
+  int64_t cwm_rd, ncwm_rd = INT64_MAX;
+  int has_nc = 0;
+#if NC_SIGNALLING
+  int noncausal_allowed;
+#endif
+  assert(mbmi->motion_mode == WARPED_CAUSAL);
+
+  // check causal warp rd
+  warp_model = warp_model_selection(cm, xd, mi_row, mi_col, 1, &has_nc);
+  noncausal_allowed = is_ncwm_allowed(xd, mi_row, mi_col, mbmi->sb_type);
+
+  assert(warp_model < 2);
+
+  if (warp_model) {
+    cwm_rd =
+        get_prediction_rd_cost(cpi, x, mi_row, mi_col, &cwm_skip, &cwm_mbmi);
+  } else {
+    cwm_rd = INT64_MAX;
+  }
+
+#if NC_SIGNALLING
+  if (noncausal_allowed)
+    warp_model = warp_model_selection(cm, xd, mi_row, mi_col, 0, &has_nc);
+#endif
+
+#if NC_SIGNALLING
+  if (has_nc) {
+    if (cwm_rd != INT64_MAX) {
+      // correct the rd cost because non-causal exists
+      cwm_rd += RDCOST(x->rdmult, x->ncwm_cost[mbmi->sb_type][0], 0);
+    }
+#endif
+    if (warp_model == 2) {
+      // get warp motion rd
+      ncwm_rd =
+          get_prediction_rd_cost(cpi, x, mi_row, mi_col, &ncwm_skip, NULL);
+#if NC_SIGNALLING
+      ncwm_rd += RDCOST(x->rdmult, x->ncwm_cost[mbmi->sb_type][1], 0);
+#endif
+    }
+#if NC_SIGNALLING
+  }
+#endif
+
+  if (noncausal_allowed && has_nc) cwm_rd = INT64_MAX;
+
+  if (ncwm_rd < cwm_rd) {
+    *skip_blk = ncwm_skip;
+    assert(has_nc && "invalid non-causal model selected");
+    mbmi->is_noncausal = 1;
+    *backup_mbmi = *mbmi;
+    return ncwm_rd;
+  } else {
+    *backup_mbmi = cwm_mbmi;
+    *skip_blk = cwm_skip;
+    return cwm_rd;
+  }
+}
+#endif  // NONCAUSAL_WARP
+
+static INLINE int is_default_interp_filter(MB_MODE_INFO *const mbmi,
+                                           InterpFilter frame_interp_filter) {
+  int is_default = 1;
+  InterpFilter default_filter = frame_interp_filter == SWITCHABLE
+                                    ? EIGHTTAP_REGULAR
+                                    : frame_interp_filter;
+#if CONFIG_DUAL_FILTER
+  int dir;
+  for (dir = 0; dir < 4; ++dir)
+    is_default &= mbmi->interp_filter[dir] == default_filter;
+#else
+  is_default &= mbmi->interp_filter[dir] == default_filter;
+#endif  // CONFIG_DUAL_FILTER
+  return is_default;
+}
 void av1_check_ncobmc_adapt_weight_rd(const struct AV1_COMP *cpi,
                                       struct macroblock *x, int mi_row,
                                       int mi_col) {
@@ -12724,13 +12816,24 @@ void av1_check_ncobmc_adapt_weight_rd(const struct AV1_COMP *cpi,
   int64_t st_rd, obmc_rd, ncobmc_rd;
 #if CONFIG_WARPED_MOTION
   const AV1_COMMON *const cm = &cpi->common;
-  const int is_warp_motion = mbmi->motion_mode == WARPED_CAUSAL;
-  const int rs = RDCOST(x->rdmult, av1_get_switchable_rate(cm, x, xd), 0);
-  MB_MODE_INFO warp_mbmi;
-  int64_t warp_rd;
-  int warp_skip;
+  const int warp_update_allowed =
+      is_default_interp_filter(mbmi, cm->interp_filter);
+  const MOTION_MODE motion_allowed = motion_mode_allowed(
+#if CONFIG_GLOBAL_MOTION
+      0, xd->global_motion,
+#endif  // CONFIG_GLOBAL_MOTION
+#if CONFIG_WARPED_MOTION
+      xd,
 #endif
+      xd->mi[0]);
+  MB_MODE_INFO warp_mbmi;
+  int warp_skip;
+  int64_t warp_rd, rs;
 
+  rs = RDCOST(x->rdmult, av1_get_switchable_rate(cm, x, xd), 0);
+#endif  // CONFIG_WARPED_MOTION
+
+  mbmi->is_noncausal = 0;
   // Recompute the rd for the motion mode decided in rd loop
   mbmi->motion_mode = SIMPLE_TRANSLATION;
   st_rd = get_prediction_rd_cost(cpi, x, mi_row, mi_col, &st_skip, &st_mbmi);
@@ -12772,14 +12875,23 @@ void av1_check_ncobmc_adapt_weight_rd(const struct AV1_COMP *cpi,
 #endif
 
 #if CONFIG_WARPED_MOTION
-  if (is_warp_motion) {
+  if (motion_allowed == WARPED_CAUSAL && warp_update_allowed) {
     mbmi->motion_mode = WARPED_CAUSAL;
-    warp_rd =
-        get_prediction_rd_cost(cpi, x, mi_row, mi_col, &warp_skip, &warp_mbmi);
+#if NONCAUSAL_WARP
+    warp_rd = select_warp_rd(cpi, x, mi_row, mi_col, &warp_skip, &warp_mbmi);
   } else {
     warp_rd = INT64_MAX;
   }
-#endif
+#else
+    if (is_warp_motion) {
+      mbmi->motion_mode = WARPED_CAUSAL;
+      warp_rd = get_prediction_rd_cost(cpi, x, mi_row, mi_col, &warp_skip,
+                                       &warp_mbmi);
+    } else {
+      warp_rd = INT64_MAX;
+    }
+#endif  // NONCAUSAL_WARP
+#endif  // CONFIG_WARPED_MOTION
 
 #if CONFIG_WARPED_MOTION
   if (AOMMIN(ncobmc_rd, warp_rd) < AOMMIN(st_rd, obmc_rd)) {
@@ -12910,6 +13022,5 @@ int get_ncobmc_mode(const AV1_COMP *const cpi, MACROBLOCK *const x,
 
   return best_mode;
 }
-
 #endif  // CONFIG_NCOBMC_ADAPT_WEIGHT
 #endif  // CONFIG_MOTION_VAR
