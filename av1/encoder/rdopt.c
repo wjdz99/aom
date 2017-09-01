@@ -5206,6 +5206,36 @@ static void fetch_tx_rd_info(int n4, const TX_RD_INFO *const tx_rd_info,
   *rd_stats = tx_rd_info->rd_stats;
 }
 
+static int predict_skip_flag(const MACROBLOCK *x,
+                             BLOCK_SIZE bsize, int is_inter) {
+  if (!is_inter || bsize > BLOCK_16X16) return 0;
+  // Tuned for target false-positive rate of 15% for all block sizes:
+  const float threshold_table[] = {0.65f, 0.65f, 0.65f, 0.75f, 0.61f,
+                                   0.61f, 0.73f, 0.29f, 0.29f, 0.57f};
+  const struct macroblock_plane *const p = &x->plane[0];
+  const int bw = block_size_wide[bsize];
+  const int bh = block_size_high[bsize];
+  tran_low_t DCT_coefs[32 * 32];
+  TxfmParam param;
+  param.tx_type = DCT_DCT;
+  param.tx_size = max_txsize_rect_lookup[bsize];
+  av1_fwd_txfm(p->src_diff, DCT_coefs, bw, &param);
+
+  int16_t dc = av1_dc_quant(x->qindex, 0, AOM_BITS_8);
+  int16_t ac = av1_ac_quant(x->qindex, 0, AOM_BITS_8);
+  float max_quantized_coef = 0.0f;
+  float cur_quantized_coef = fabs(DCT_coefs[0] / (float)dc);
+  if (cur_quantized_coef > max_quantized_coef)
+    max_quantized_coef = cur_quantized_coef;
+  for (int i = 1; i < bw * bh; i++) {
+    cur_quantized_coef = fabs(DCT_coefs[i] / (float)ac);
+    if (cur_quantized_coef > max_quantized_coef)
+      max_quantized_coef = cur_quantized_coef;
+  }
+
+  return max_quantized_coef < threshold_table[bsize - BLOCK_4X4];
+}
+
 static void select_tx_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
                                RD_STATS *rd_stats, BLOCK_SIZE bsize,
                                int64_t ref_best_rd) {
@@ -5242,13 +5272,6 @@ static void select_tx_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
       get_ext_tx_set(max_tx_size, bsize, is_inter, cm->reduced_tx_set_used);
 #endif  // CONFIG_EXT_TX
 
-  if (is_inter && cpi->sf.tx_type_search.prune_mode > NO_PRUNE)
-#if CONFIG_EXT_TX
-    prune = prune_tx_types(cpi, bsize, x, xd, ext_tx_set);
-#else
-    prune = prune_tx_types(cpi, bsize, x, xd, 0);
-#endif  // CONFIG_EXT_TX
-
   av1_invalid_rd_stats(rd_stats);
 
   for (idx = 0; idx < count32; ++idx)
@@ -5269,6 +5292,84 @@ static void select_tx_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
       }
     }
   }
+
+  const int predicted_skip = predict_skip_flag(x, bsize, is_inter);
+#if 1
+  if (predicted_skip) {
+#if CONFIG_RECT_TX && (CONFIG_EXT_TX || CONFIG_VAR_TX)
+    const TX_SIZE tx_size = max_txsize_rect_lookup[bsize];
+#else
+    const TX_SIZE tx_size = max_tx_size;
+#endif
+    mbmi->tx_type = DCT_DCT;
+    for (idy = 0; idy < xd->n8_h; ++idy)
+      for (idx = 0; idx < xd->n8_w; ++idx)
+        mbmi->inter_tx_size[idy][idx] = tx_size;
+    mbmi->tx_size = tx_size;
+    mbmi->min_tx_size = get_min_tx_size(tx_size);
+    memset(x->blk_skip[0], 1, sizeof(best_blk_skip[0]) * n4);
+    rd_stats->skip = 1;
+
+    // Rate.
+    const int tx_size_ctx = txsize_sqr_map[tx_size];
+    ENTROPY_CONTEXT ctxa[2 * MAX_MIB_SIZE];
+    ENTROPY_CONTEXT ctxl[2 * MAX_MIB_SIZE];
+    av1_get_entropy_contexts(bsize, 0, &xd->plane[0], ctxa, ctxl);
+    int coeff_ctx = get_entropy_context(tx_size, ctxa, ctxl);
+    int rate =
+        x->token_head_costs[tx_size_ctx][PLANE_TYPE_Y][1][0][coeff_ctx][0];
+    if (tx_size > TX_4X4) {
+      int ctx = txfm_partition_context(xd->above_txfm_context,
+                                       xd->left_txfm_context, mbmi->sb_type,
+                                       tx_size);
+      rate += av1_cost_bit(cpi->common.fc->txfm_partition_prob[ctx], 0);
+    }
+#if !CONFIG_TXK_SEL
+#if CONFIG_EXT_TX
+    if (get_ext_tx_types(mbmi->min_tx_size, bsize, is_inter,
+                         cm->reduced_tx_set_used) > 1 &&
+        !xd->lossless[xd->mi[0]->mbmi.segment_id]) {
+      if (is_inter) {
+        if (ext_tx_set > 0)
+          rate +=
+              x->inter_tx_type_costs[ext_tx_set]
+                                     [txsize_sqr_map[mbmi->min_tx_size]]
+                                     [mbmi->tx_type];
+      } else {
+        if (ext_tx_set > 0 && ALLOW_INTRA_EXT_TX)
+          rate += x->intra_tx_type_costs[ext_tx_set][mbmi->min_tx_size]
+                                                    [mbmi->mode][mbmi->tx_type];
+      }
+    }
+#else
+  if (mbmi->min_tx_size < TX_32X32 && !xd->lossless[xd->mi[0]->mbmi.segment_id])
+    rd_stats->rate += x->inter_tx_type_costs[mbmi->min_tx_size][mbmi->tx_type];
+#endif  // CONFIG_EXT_TX
+#endif  // CONFIG_TXK_SEL
+    rd_stats->rate = rate;
+
+    // Distortion.
+    int64_t tmp = pixel_diff_dist(x, 0, x->plane[0].src_diff,
+                                  block_size_wide[bsize], 0, 0, bsize, bsize);
+#if CONFIG_HIGHBITDEPTH
+    if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH)
+      tmp = ROUND_POWER_OF_TWO(tmp, (xd->bd - 8) * 2);
+#endif  // CONFIG_HIGHBITDEPTH
+    rd_stats->dist = rd_stats->sse = (tmp << 4);
+    return;
+  }
+#endif
+
+
+  if (is_inter && cpi->sf.tx_type_search.prune_mode > NO_PRUNE &&
+      !predicted_skip) {
+#if CONFIG_EXT_TX
+    prune = prune_tx_types(cpi, bsize, x, xd, ext_tx_set);
+#else
+    prune = prune_tx_types(cpi, bsize, x, xd, 0);
+#endif  // CONFIG_EXT_TX
+  }
+
 
   for (tx_type = txk_start; tx_type < txk_end; ++tx_type) {
     RD_STATS this_rd_stats;
@@ -5319,6 +5420,8 @@ static void select_tx_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
         for (idx = 0; idx < xd->n8_w; ++idx)
           best_tx_size[idy][idx] = mbmi->inter_tx_size[idy][idx];
     }
+
+    if (predicted_skip) break;
   }
 
   mbmi->tx_type = best_tx_type;
