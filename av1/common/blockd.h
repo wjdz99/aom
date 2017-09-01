@@ -446,6 +446,9 @@ typedef struct MB_MODE_INFO {
   // blocks. A rectangular block is divided into two squared blocks and each
   // squared block has an interpolation mode.
   NCOBMC_MODE ncobmc_mode[2];
+#if NONCAUSAL_WARP
+  int is_noncausal;
+#endif  // NONCAUSAL_WARP
 #endif  // CONFIG_NCOBMC_ADAPT_WEIGHT
 #endif  // CONFIG_MOTION_VAR
   int_mv mv[2];
@@ -1542,6 +1545,24 @@ static INLINE NCOBMC_MODE ncobmc_mode_allowed_bsize(BLOCK_SIZE bsize) {
   else
     return MAX_NCOBMC_MODES;
 }
+#if NONCAUSAL_WARP
+static INLINE int is_ncwm_allowed(const MACROBLOCKD *xd, int mi_row, int mi_col,
+                                  BLOCK_SIZE bsize) {
+  if (bsize > BLOCK_32X32) {
+    return 0;
+  } else {
+    int mi_wide = mi_size_wide[bsize];
+    int mi_high = mi_size_high[bsize];
+    int on_edge = mi_row + mi_high >= xd->sb_mi_bd.mi_row_end ||
+                  mi_col + mi_wide >= xd->sb_mi_bd.mi_col_end;
+    if (on_edge) {
+      return 0;
+    } else {
+      return 1;
+    }
+  }
+}
+#endif  // NONCAUSAL_WARP
 #endif  // CONFIG_NCOBMC_ADAPT_WEIGHT
 #endif  // CONFIG_MOTION_VAR
 
