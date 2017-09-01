@@ -1879,7 +1879,14 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td, int mi_row,
                        MAX_NCOBMC_MODES);
           }
         }
-#endif
+#if NONCAUSAL_WARP
+        if (mbmi->motion_mode == WARPED_CAUSAL && mbmi->has_ncwm) {
+          counts->ncwm[mbmi->sb_type][mbmi->is_noncausal]++;
+          update_cdf(xd->tile_ctx->ncwm_cdf[mbmi->sb_type], mbmi->is_noncausal,
+                     2);
+        }
+#endif  // NONCAUSAL_WARP
+#endif  // CONFIG_NCOBMC_ADAPT_WEIGHT
 
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
 

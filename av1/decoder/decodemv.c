@@ -2690,8 +2690,11 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
 #if CONFIG_WARPED_MOTION
   if (mbmi->sb_type >= BLOCK_8X8 && !has_second_ref(mbmi))
 #if WARPED_MOTION_SORT_SAMPLES
-    mbmi->num_proj_ref[0] =
-        findSamples(cm, xd, mi_row, mi_col, pts, pts_inref, pts_mv);
+    mbmi->num_proj_ref[0] = findSamples(cm, xd, mi_row, mi_col,
+#if NONCAUSAL_WARP
+                                        NULL,
+#endif
+                                        pts, pts_inref, pts_mv);
 #else
     mbmi->num_proj_ref[0] = findSamples(cm, xd, mi_row, mi_col, pts, pts_inref);
 #endif  // WARPED_MOTION_SORT_SAMPLES
@@ -2728,7 +2731,9 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
       if (find_projection(mbmi->num_proj_ref[0], pts, pts_inref, bsize,
                           mbmi->mv[0].as_mv.row, mbmi->mv[0].as_mv.col,
                           &mbmi->wm_params[0], mi_row, mi_col)) {
+#if !NONCAUSAL_WARP
         aom_internal_error(&cm->error, AOM_CODEC_ERROR, "Invalid Warped Model");
+#endif
       }
     }
 #endif  // CONFIG_WARPED_MOTION
