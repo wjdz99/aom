@@ -205,6 +205,52 @@
     },
     {
       "key": {
+        "uuid": "50e329cd_2e548516",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 12841,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-09-01T21:45:45Z",
+      "side": 1,
+      "message": "Not descriptive comments for the function, either remove it or comment at the exact place",
+      "range": {
+        "startLine": 12840,
+        "startChar": 0,
+        "endLine": 12841,
+        "endChar": 18
+      },
+      "revId": "aad1f1b9204f70ab58f074e14dca35279b288dd6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "19b27b40_5eb75217",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 12869,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-09-01T21:45:45Z",
+      "side": 1,
+      "message": "Maybe name it pick_ncobmc_weight()",
+      "range": {
+        "startLine": 12869,
+        "startChar": 4,
+        "endLine": 12869,
+        "endChar": 19
+      },
+      "revId": "aad1f1b9204f70ab58f074e14dca35279b288dd6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "4009bf32_d8a03b4f",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 13
