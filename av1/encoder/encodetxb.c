@@ -250,7 +250,18 @@ void av1_write_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
       if (idx == br_set_idx) {
         br_base = br_index_to_coeff[br_set_idx];
         br_offset = base_range - br_base;
-        aom_write_literal(w, br_offset, br_extra_bits[idx]);
+        int extra_bits = (1 << br_extra_bits[idx]) - 1;
+        for (int tok = 0; tok < extra_bits; ++tok) {
+          if (tok == br_offset) {
+            aom_write_symbol(w, 1,
+                             cm->fc->coeff_lps_cdf[txs_ctx][plane_type][ctx],
+                             2);
+            break;
+          }
+          aom_write_symbol(w, 0,
+                           cm->fc->coeff_lps_cdf[txs_ctx][plane_type][ctx], 2);
+        }
+//        aom_write_literal(w, br_offset, br_extra_bits[idx]);
         break;
       }
     }
@@ -475,9 +486,18 @@ int av1_cost_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCK *x, int plane,
 
         for (idx = 0; idx < BASE_RANGE_SETS; ++idx) {
           if (br_set_idx == idx) {
-            int extra_bits = br_extra_bits[idx];
+            int br_base = br_index_to_coeff[br_set_idx];
+            int br_offset = base_range - br_base;
+            int extra_bits = (1 << br_extra_bits[idx]) - 1;
             cost += coeff_costs->br_cost[ctx][idx][1];
-            cost += extra_bits * av1_cost_bit(128, 1);
+            for (int tok = 0; tok < extra_bits; ++tok) {
+              if (tok == br_offset) {
+                cost += coeff_costs->lps_cost[ctx][1];
+                break;
+              }
+              cost += coeff_costs->lps_cost[ctx][0];
+            }
+//            cost += extra_bits * av1_cost_bit(128, 1);
             break;
           }
           cost += coeff_costs->br_cost[ctx][idx][0];
@@ -1747,10 +1767,23 @@ void av1_update_and_record_txb_context(int plane, int block, int blk_row,
     int base_range = level - 1 - NUM_BASE_LEVELS;
     int br_set_idx = base_range < COEFF_BASE_RANGE ?
         coeff_to_br_index[base_range] : BASE_RANGE_SETS;
+
     for (idx = 0; idx < BASE_RANGE_SETS; ++idx) {
       if (idx == br_set_idx) {
+        int br_base = br_index_to_coeff[br_set_idx];
+        int br_offset = base_range - br_base;
         update_cdf(ec_ctx->coeff_br_cdf[txsize_ctx][plane_type][ctx][idx], 1,
                    2);
+        int extra_bits = (1 << br_extra_bits[idx]) - 1;
+        for (int tok = 0; tok < extra_bits; ++tok) {
+          if (br_offset == tok) {
+            update_cdf(ec_ctx->coeff_lps_cdf[txsize_ctx][plane_type][ctx], 1,
+                       2);
+            break;
+          }
+          update_cdf(ec_ctx->coeff_lps_cdf[txsize_ctx][plane_type][ctx], 0,
+                     2);
+        }
         break;
       }
       update_cdf(ec_ctx->coeff_br_cdf[txsize_ctx][plane_type][ctx][idx], 0, 2);

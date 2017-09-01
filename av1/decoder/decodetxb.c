@@ -222,8 +222,20 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
       if (aom_read_symbol(r,
                           cm->fc->coeff_br_cdf[txs_ctx][plane_type][ctx][idx],
                           2, ACCT_STR)) {
-        int extra_bits = br_extra_bits[idx];
-        int br_offset = aom_read_literal(r, extra_bits, ACCT_STR);
+        int extra_bits = (1 << br_extra_bits[idx]) - 1;
+//        int br_offset = aom_read_literal(r, extra_bits, ACCT_STR);
+        int br_offset = 0;
+        int tok;
+        for (tok = 0; tok < extra_bits; ++tok) {
+          if (aom_read_symbol(r,
+                              cm->fc->coeff_lps_cdf[txs_ctx][plane_type][ctx],
+                              2, ACCT_STR)) {
+            br_offset = tok;
+            break;
+          }
+        }
+        if (tok == extra_bits) br_offset = extra_bits;
+
         int br_base = br_index_to_coeff[idx];
 
         *v = NUM_BASE_LEVELS + 1 + br_base + br_offset;
