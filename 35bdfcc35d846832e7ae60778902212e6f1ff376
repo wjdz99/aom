@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "70ffa824_47534844",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 246,
+      "author": {
+        "id": 6340
+      },
+      "writtenOn": "2017-09-02T01:27:25Z",
+      "side": 1,
+      "message": "The buffer is advanced here...",
+      "range": {
+        "startLine": 246,
+        "startChar": 6,
+        "endLine": 246,
+        "endChar": 31
+      },
+      "revId": "35bdfcc35d846832e7ae60778902212e6f1ff376",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "daebf11c_59754b58",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 6340
+      },
+      "writtenOn": "2017-09-02T01:27:25Z",
+      "side": 1,
+      "message": "...but it is not reset before the second pass.",
+      "range": {
+        "startLine": 264,
+        "startChar": 4,
+        "endLine": 264,
+        "endChar": 29
+      },
+      "revId": "35bdfcc35d846832e7ae60778902212e6f1ff376",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
