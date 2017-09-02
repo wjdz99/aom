@@ -22,6 +22,30 @@
       "revId": "c9fd1f4fc1b2487d8c263b6d789452414dec30be",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "82cb3e34_9e627b1d",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 1657,
+      "author": {
+        "id": 7555
+      },
+      "writtenOn": "2017-09-02T00:18:15Z",
+      "side": 1,
+      "message": "Yes, I should\u0027ve removed this.",
+      "parentUuid": "caf32f46_8ce78205",
+      "range": {
+        "startLine": 1649,
+        "startChar": 0,
+        "endLine": 1657,
+        "endChar": 6
+      },
+      "revId": "c9fd1f4fc1b2487d8c263b6d789452414dec30be",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
