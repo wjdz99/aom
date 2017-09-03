@@ -3556,6 +3556,27 @@ void av1_update_reference_frames(AV1_COMP *cpi) {
   // Dump out all reference frame images.
   dump_ref_frame_images(cpi);
 #endif  // DUMP_REF_FRAME_IMAGES
+
+#if DEBUG_GF_INTERVAL
+  uint8_t refresh_mask = 0;
+  refresh_mask |= (cpi->refresh_last_frame << 0);
+  refresh_mask |= (cpi->refresh_golden_frame << 0);
+  refresh_mask |= (cpi->refresh_alt2_ref_frame << 0);
+  refresh_mask |= (cpi->refresh_alt_ref_frame << 0);
+  printf(
+      "Frame %2d: show_frame=%d, refresh_last_frame=%d, "
+      "refresh_golden_frame=%d, refresh_altref2_frame=%d, "
+      "refresh_altref_frame=%d\n",
+      cm->current_video_frame, cm->show_frame, cpi->refresh_last_frame,
+      cpi->refresh_golden_frame, cpi->refresh_alt2_ref_frame,
+      cpi->refresh_alt_ref_frame);
+  for (int ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
+    printf("map_idx[%d]=%d, buf_idx[%d]=%d, sign_bias[%d]=%d\n", ref_frame,
+           get_ref_frame_map_idx(cpi, ref_frame), ref_frame,
+           get_ref_frame_buf_idx(cpi, ref_frame), ref_frame,
+           cm->ref_frame_sign_bias[ref_frame]);
+  }
+#endif  // DEBUG_GF_INTERVAL
 }
 
 static INLINE void alloc_frame_mvs(AV1_COMMON *const cm, int buffer_idx) {
@@ -4634,7 +4655,7 @@ static int setup_interp_filter_search_mask(AV1_COMP *cpi) {
   return mask;
 }
 
-#define DUMP_RECON_FRAMES 0
+#define DUMP_RECON_FRAMES 1
 
 #if DUMP_RECON_FRAMES == 1
 // NOTE(zoeliu): For debug - Output the filtered reconstructed video.

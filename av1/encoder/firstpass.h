@@ -41,6 +41,8 @@ typedef struct {
 #endif
 
 #if CONFIG_EXT_REFS
+#define DEBUG_GF_INTERVAL 1
+
 // Length of the bi-predictive frame group (BFG)
 // NOTE: Currently each BFG contains one backward ref (BWF) frame plus a certain
 //       number of bi-predictive frames.

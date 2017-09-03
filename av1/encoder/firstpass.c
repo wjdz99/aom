@@ -1676,6 +1676,79 @@ static void get_arf_buffer_indices(unsigned char *arf_buffer_indices) {
 }
 #endif  // !CONFIG_EXT_REFS
 
+#if CONFIG_EXT_REFS
+static void allocate_gf_group16_bits(AV1_COMP *cpi, int64_t gf_group_bits,
+                                     double group_error, int gf_arf_bits) {
+  RATE_CONTROL *const rc = &cpi->rc;
+  const AV1EncoderConfig *const oxcf = &cpi->oxcf;
+  TWO_PASS *const twopass = &cpi->twopass;
+  GF_GROUP *const gf_group = &twopass->gf_group;
+
+  FIRSTPASS_STATS frame_stats;
+  int i;
+  int frame_index = 0;
+  int target_frame_size;
+  int key_frame;
+  const int max_bits = frame_max_bits(&cpi->rc, &cpi->oxcf);
+  int64_t total_group_bits = gf_group_bits;
+  double modified_err = 0.0;
+  double err_fraction;
+  int mid_boost_bits = 0;
+
+  // The use of bi-predictive frames are only enabled when following 3
+  // conditions are met:
+  // (1) Alt-ref is enabled;
+  // (2) The bi-predictive group interval is at least 2; and
+  // (3) The bi-predictive group interval is strictly smaller than the
+  //     golden group interval.
+  const int is_bipred_enabled =
+      cpi->bwd_ref_allowed && rc->source_alt_ref_pending &&
+      rc->bipred_group_interval &&
+      rc->bipred_group_interval <=
+          (rc->baseline_gf_interval - rc->source_alt_ref_pending);
+  int bipred_group_end = 0;
+  int bipred_frame_index = 0;
+
+  int arf_pos[MAX_EXT_ARFS + 1];
+  const unsigned char ext_arf_interval =
+      (unsigned char)(rc->baseline_gf_interval / (cpi->num_extra_arfs + 1) - 1);
+  int which_arf = cpi->num_extra_arfs;
+  int subgroup_interval[MAX_EXT_ARFS + 1];
+  int ext_arf_boost[MAX_EXT_ARFS];
+  int is_sg_bipred_enabled = is_bipred_enabled;
+  int accumulative_subgroup_interval = 0;
+
+  assert(rc->baseline_gf_interval == 16);
+
+  // Total number of frames to examine:
+  //   rc->baseline_gf_interval + MAX_EXT_ARFS + 1
+  const int gf_update_frames = rc->baseline_gf_interval + MAX_EXT_ARFS + 1;
+
+  // gf_update_frames + 1
+  gf_group->update_type = { OVERLAY_UPDATE,
+                            ARF_UPDATE,
+                            INTNL_ARF_UPDATE,
+                            INTNL_ARF_UPDATE,
+                            BRF_UPDATE,
+                            LAST_BIPRED_UPDATE,
+                            LF_UPDATE,
+                            INTNL_OVERLAY_UPDATE,
+                            BRF_UPDATE,
+                            LAST_BIPRED_UPDATE,
+                            LF_UPDATE,
+                            INTNL_OVERLAY_UPDATE,
+                            INTNL_ARF_UPDATE,
+                            BRF_UPDATE,
+                            LAST_BIPRED_UPDATE,
+                            LF_UPDATE,
+                            INTNL_OVERLAY_UPDATE,
+                            BRF_UPDATE,
+                            LAST_BIPRED_UPDATE,
+                            LF_UPDATE,
+                            OVERLAY_UPDATE };
+}
+#endif  // CONFIG_EXT_REFS
+
 static void allocate_gf_group_bits(AV1_COMP *cpi, int64_t gf_group_bits,
                                    double group_error, int gf_arf_bits) {
   RATE_CONTROL *const rc = &cpi->rc;
@@ -2294,6 +2367,12 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
 
   // Set the interval until the next gf.
   rc->baseline_gf_interval = i - (is_key_frame || rc->source_alt_ref_pending);
+
+#if DEBUG_GF_INTERVAL
+  // NOTE(zoeliu): For debug
+  rc->baseline_gf_interval = 16;
+#endif  // DEBUG_GF_INTERVAL
+
 #if CONFIG_EXT_REFS
   if (non_zero_stdev_count) avg_raw_err_stdev /= non_zero_stdev_count;
 
@@ -2392,6 +2471,15 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
 
   // Allocate bits to each of the frames in the GF group.
   allocate_gf_group_bits(cpi, gf_group_bits, gf_group_error_left, gf_arf_bits);
+
+#if DEBUG_GF_INTERVAL
+  GF_GROUP *const gf_group = &twopass->gf_group;
+  printf("\n===GF_Group: ");
+  for (int gf_idx = 0; gf_idx < 16; ++gf_idx) {
+    printf("[%d]=%d ", gf_idx, gf_group->update_type[gf_idx]);
+  }
+  printf("\n\n");
+#endif  // DEBUG_GF_INTERVAL
 
   // Reset the file position.
   reset_fpf_position(twopass, start_pos);
