@@ -354,14 +354,12 @@ static void search_selfguided_restoration(uint8_t *dat8, int width, int height,
                                           int32_t *rstbuf) {
   int32_t *flt1 = rstbuf;
   int32_t *flt2 = flt1 + RESTORATION_TILEPELS_MAX;
-  int32_t *tmpbuf2 = flt2 + RESTORATION_TILEPELS_MAX;
   int ep, bestep = 0;
   int64_t err, besterr = -1;
   int exqd[2], bestxqd[2] = { 0, 0 };
-  int flt1_stride = width;
-  int flt2_stride = width;
-  assert(pu_width == (RESTORATION_PROC_UNIT_SIZE >> 1) ||
-         pu_width == RESTORATION_PROC_UNIT_SIZE);
+  int flt1_stride = width + RESTORATION_BORDER_HORZ * 2;
+  int flt2_stride = width + RESTORATION_BORDER_HORZ * 2;
+
   assert(pu_height == (RESTORATION_PROC_UNIT_SIZE >> 1) ||
          pu_height == RESTORATION_PROC_UNIT_SIZE);
 
@@ -382,13 +380,13 @@ static void search_selfguided_restoration(uint8_t *dat8, int width, int height,
                                      flt1_stride, sgr_params[ep].corner,
                                      sgr_params[ep].edge);
 #else
-          av1_selfguided_restoration_highbd_c(
+          av1_selfguided_restoration_highbd(
               dat_p, w, h, dat_stride, flt1_p, flt1_stride, bit_depth,
-              sgr_params[ep].r1, sgr_params[ep].e1, tmpbuf2);
+              sgr_params[ep].r1, sgr_params[ep].e1);
 #endif  // USE_HIGHPASS_IN_SGRPROJ
-          av1_selfguided_restoration_highbd_c(
+          av1_selfguided_restoration_highbd(
               dat_p, w, h, dat_stride, flt2_p, flt2_stride, bit_depth,
-              sgr_params[ep].r2, sgr_params[ep].e2, tmpbuf2);
+              sgr_params[ep].r2, sgr_params[ep].e2);
         }
     } else {
 #endif
@@ -403,13 +401,12 @@ static void search_selfguided_restoration(uint8_t *dat8, int width, int height,
           av1_highpass_filter(dat_p, w, h, dat_stride, flt1_p, flt1_stride,
                               sgr_params[ep].corner, sgr_params[ep].edge);
 #else
-        av1_selfguided_restoration_c(dat_p, w, h, dat_stride, flt1_p,
-                                     flt1_stride, sgr_params[ep].r1,
-                                     sgr_params[ep].e1, tmpbuf2);
+        av1_selfguided_restoration(dat_p, w, h, dat_stride, flt1_p, flt1_stride,
+                                   sgr_params[ep].r1, sgr_params[ep].e1);
 #endif  // USE_HIGHPASS_IN_SGRPROJ
-          av1_selfguided_restoration_c(dat_p, w, h, dat_stride, flt2_p,
-                                       flt2_stride, sgr_params[ep].r2,
-                                       sgr_params[ep].e2, tmpbuf2);
+          av1_selfguided_restoration(dat_p, w, h, dat_stride, flt2_p,
+                                     flt2_stride, sgr_params[ep].r2,
+                                     sgr_params[ep].e2);
         }
 #if CONFIG_HIGHBITDEPTH
     }
@@ -637,11 +634,12 @@ static double search_sgrproj(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
 #if CONFIG_HIGHBITDEPTH
   if (cm->use_highbitdepth)
     extend_frame_highbd(CONVERT_TO_SHORTPTR(ctxt.dgd_buffer), ctxt.plane_width,
-                        ctxt.plane_height, ctxt.dgd_stride);
+                        ctxt.plane_height, ctxt.dgd_stride, SGRPROJ_BORDER_HORZ,
+                        SGRPROJ_BORDER_VERT);
   else
 #endif
     extend_frame(ctxt.dgd_buffer, ctxt.plane_width, ctxt.plane_height,
-                 ctxt.dgd_stride);
+                 ctxt.dgd_stride, SGRPROJ_BORDER_HORZ, SGRPROJ_BORDER_VERT);
 
   for (int tile_row = 0; tile_row < cm->tile_rows; ++tile_row) {
     for (int tile_col = 0; tile_col < cm->tile_cols; ++tile_col) {
@@ -1239,14 +1237,17 @@ static double search_wiener(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
 
   AV1_COMMON *const cm = &cpi->common;
 // Construct a (WIENER_HALFWIN)-pixel border around the frame
+// Note use this border to gather stats even though the actual filter
+// may use less border on the top/bottom of a processing unit.
 #if CONFIG_HIGHBITDEPTH
   if (cm->use_highbitdepth)
     extend_frame_highbd(CONVERT_TO_SHORTPTR(ctxt.dgd_buffer), ctxt.plane_width,
-                        ctxt.plane_height, ctxt.dgd_stride);
+                        ctxt.plane_height, ctxt.dgd_stride, WIENER_HALFWIN,
+                        WIENER_HALFWIN);
   else
 #endif
     extend_frame(ctxt.dgd_buffer, ctxt.plane_width, ctxt.plane_height,
-                 ctxt.dgd_stride);
+                 ctxt.dgd_stride, WIENER_HALFWIN, WIENER_HALFWIN);
 
   // Compute best Wiener filters for each rtile, one (encoder/decoder)
   // tile at a time.
