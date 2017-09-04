@@ -44,9 +44,7 @@ extern "C" {
 #define SGRPROJ_OUTBUF_SIZE                                           \
   ((RESTORATION_TILESIZE_MAX * 3 / 2 + 2 * RESTORATION_BORDER_VERT) * \
    (RESTORATION_TILESIZE_MAX * 3 / 2 + 2 * RESTORATION_BORDER_HORZ + 16))
-#define SGRPROJ_TMPBUF_SIZE                         \
-  (RESTORATION_TILEPELS_MAX * 2 * sizeof(int32_t) + \
-   SGRPROJ_OUTBUF_SIZE * 2 * sizeof(int32_t) + RESTORATION_PROC_UNIT_PELS)
+#define SGRPROJ_TMPBUF_SIZE (SGRPROJ_OUTBUF_SIZE * 2 * sizeof(int32_t))
 
 #define SGRPROJ_EXTBUF_SIZE (0)
 #define SGRPROJ_PARAMS_BITS 4
