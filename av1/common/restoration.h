@@ -25,10 +25,6 @@ extern "C" {
 #define RINT(x) ((x) < 0 ? (int)((x)-0.5) : (int)((x) + 0.5))
 
 #define RESTORATION_PROC_UNIT_SIZE 64
-// Determines line buffer requirement for LR. Should be set at the max
-// of SGRPROJ_BORDER_VERT and WIENER_BORDER_VERT
-#define RESTORATION_BORDER_VERT 0
-#define RESTORATION_BORDER_HORZ 3  // Do not change this
 
 // Pad up to 20 more (may be much less is needed)
 #define RESTORATION_PROC_UNIT_PELS                                   \
@@ -46,9 +42,7 @@ extern "C" {
 #define SGRPROJ_OUTBUF_SIZE                                           \
   ((RESTORATION_TILESIZE_MAX * 3 / 2 + 2 * RESTORATION_BORDER_VERT) * \
    (RESTORATION_TILESIZE_MAX * 3 / 2 + 2 * RESTORATION_BORDER_HORZ + 16))
-#define SGRPROJ_TMPBUF_SIZE                         \
-  (RESTORATION_TILEPELS_MAX * 2 * sizeof(int32_t) + \
-   SGRPROJ_OUTBUF_SIZE * 2 * sizeof(int32_t) + RESTORATION_PROC_UNIT_PELS)
+#define SGRPROJ_TMPBUF_SIZE (SGRPROJ_OUTBUF_SIZE * 2 * sizeof(int32_t))
 
 #define SGRPROJ_EXTBUF_SIZE (0)
 #define SGRPROJ_PARAMS_BITS 4
@@ -82,7 +76,7 @@ extern "C" {
 
 #define SGRPROJ_BITS (SGRPROJ_PRJ_BITS * 2 + SGRPROJ_PARAMS_BITS)
 
-#define MAX_RADIUS 3  // Only 1, 2, 3 allowed
+#define MAX_RADIUS 2  // Only 1, 2, 3 allowed
 #define MAX_EPS 80    // Max value of eps
 #define MAX_NELEM ((2 * MAX_RADIUS + 1) * (2 * MAX_RADIUS + 1))
 #define SGRPROJ_MTABLE_BITS 20
@@ -154,6 +148,21 @@ extern "C" {
 #if WIENER_FILT_PREC_BITS != 7
 #error "Wiener filter currently only works if WIENER_FILT_PREC_BITS == 7"
 #endif
+
+// RESTORATION_BORDER_VERT determines line buffer requirement for LR.
+// Should be set at the max of SGRPROJ_BORDER_VERT and WIENER_BORDER_VERT.
+// Note the line buffer needed is twice the value of this macro.
+#if SGRPROJ_BORDER_VERT >= WIENER_BORDER_VERT
+#define RESTORATION_BORDER_VERT (SGRPROJ_BORDER_VERT)
+#else
+#define RESTORATION_BORDER_VERT (WIENER_BORDER_VERT)
+#endif  // SGRPROJ_BORDER_VERT >= WIENER_BORDER_VERT
+
+#if SGRPROJ_BORDER_HORZ >= WIENER_BORDER_HORZ
+#define RESTORATION_BORDER_HORZ (SGRPROJ_BORDER_HORZ)
+#else
+#define RESTORATION_BORDER_HORZ (WIENER_BORDER_HORZ)
+#endif  // SGRPROJ_BORDER_VERT >= WIENER_BORDER_VERT
 
 typedef struct {
 #if USE_HIGHPASS_IN_SGRPROJ
@@ -263,9 +272,11 @@ int av1_alloc_restoration_struct(struct AV1Common *cm,
                                  int height);
 void av1_free_restoration_struct(RestorationInfo *rst_info);
 
-void extend_frame(uint8_t *data, int width, int height, int stride);
+void extend_frame(uint8_t *data, int width, int height, int stride,
+                  int border_horz, int border_vert);
 #if CONFIG_HIGHBITDEPTH
-void extend_frame_highbd(uint16_t *data, int width, int height, int stride);
+void extend_frame_highbd(uint16_t *data, int width, int height, int stride,
+                         int border_horz, int border_vert);
 #endif  // CONFIG_HIGHBITDEPTH
 void decode_xq(int *xqd, int *xq);
 void av1_loop_restoration_frame(YV12_BUFFER_CONFIG *frame, struct AV1Common *cm,
