@@ -665,8 +665,11 @@ static const aom_prob
 #if CONFIG_EXT_PARTITION
       { 255, 1 },   { 255, 1 },   { 255, 1 },
 #endif  // CONFIG_EXT_PARTITION
-      { 208, 128 }, { 208, 128 }, { 208, 128 }, { 208, 128 }, { 208, 128 },
-      { 208, 128 },
+      { 208, 128 }, { 208, 128 }, { 208, 128 }, { 208, 128 }, { 208, 1 },
+      { 208, 1 },
+#if CONFIG_EXT_PARTITION
+      { 208, 1 },   { 208, 1 }
+#endif  // CONFIG_EXT_PARTITION
     };
 #elif !CONFIG_COMPOUND_SEGMENT && CONFIG_WEDGE
 static const aom_prob
@@ -679,7 +682,10 @@ static const aom_prob
 #if CONFIG_EXT_PARTITION
       { 255 }, { 255 }, { 255 },
 #endif  // CONFIG_EXT_PARTITION
-      { 208 }, { 208 }, { 208 }, { 208 }, { 208 }, { 208 },
+      { 208 }, { 208 }, { 208 }, { 208 }, { 255 }, { 255 },
+#if CONFIG_EXT_PARTITION
+      { 255 }, { 255 }
+#endif  // CONFIG_EXT_PARTITION
     };
 #elif CONFIG_COMPOUND_SEGMENT && !CONFIG_WEDGE
 static const aom_prob
@@ -693,6 +699,9 @@ static const aom_prob
       { 255 }, { 255 }, { 255 },
 #endif  // CONFIG_EXT_PARTITION
       { 208 }, { 208 }, { 208 }, { 208 }, { 208 }, { 208 },
+#if CONFIG_EXT_PARTITION
+      { 208 }, { 208 }
+#endif  // CONFIG_EXT_PARTITION
     };
 #else
 static const aom_prob default_compound_type_probs[BLOCK_SIZES_ALL]
@@ -729,8 +738,12 @@ static const aom_cdf_prob
       { AOM_ICDF(16384), AOM_ICDF(24576), AOM_ICDF(32768), 0 },
       { AOM_ICDF(16384), AOM_ICDF(24576), AOM_ICDF(32768), 0 },
       { AOM_ICDF(16384), AOM_ICDF(24576), AOM_ICDF(32768), 0 },
-      { AOM_ICDF(16384), AOM_ICDF(24576), AOM_ICDF(32768), 0 },
-      { AOM_ICDF(16384), AOM_ICDF(24576), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(26624), AOM_ICDF(26648), AOM_ICDF(32768), 0 },  // 208, 1
+      { AOM_ICDF(26624), AOM_ICDF(26648), AOM_ICDF(32768), 0 },
+#if CONFIG_EXT_PARTITION
+      { AOM_ICDF(26624), AOM_ICDF(26648), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(26624), AOM_ICDF(26648), AOM_ICDF(32768), 0 },
+#endif
     };
 #elif !CONFIG_COMPOUND_SEGMENT && CONFIG_WEDGE
 static const aom_cdf_prob
@@ -764,6 +777,10 @@ static const aom_cdf_prob
       { AOM_ICDF(32640), AOM_ICDF(32768), 0 },
       { AOM_ICDF(32640), AOM_ICDF(32768), 0 },
       { AOM_ICDF(32640), AOM_ICDF(32768), 0 },
+#if CONFIG_EXT_PARTITION
+      { AOM_ICDF(32640), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(32640), AOM_ICDF(32768), 0 },
+#endif  // CONFIG_EXT_PARTITION
     };
 #elif CONFIG_COMPOUND_SEGMENT && !CONFIG_WEDGE
 static const aom_cdf_prob
@@ -791,12 +808,16 @@ static const aom_cdf_prob
       { AOM_ICDF(32640), AOM_ICDF(32768), 0 },
       { AOM_ICDF(32640), AOM_ICDF(32768), 0 },
 #endif  // CONFIG_EXT_PARTITION
-      { AOM_ICDF(32640), AOM_ICDF(32768), 0 },
-      { AOM_ICDF(32640), AOM_ICDF(32768), 0 },
-      { AOM_ICDF(32640), AOM_ICDF(32768), 0 },
-      { AOM_ICDF(32640), AOM_ICDF(32768), 0 },
-      { AOM_ICDF(32640), AOM_ICDF(32768), 0 },
-      { AOM_ICDF(32640), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(26624), AOM_ICDF(32768), 0 },  // 208
+      { AOM_ICDF(26624), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(26624), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(26624), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(26624), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(26624), AOM_ICDF(32768), 0 },
+#if CONFIG_EXT_PARTITION
+      { AOM_ICDF(26624), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(26624), AOM_ICDF(32768), 0 },
+#endif  // CONFIG_EXT_PARTITION
     };
 #endif  // CONFIG_COMPOUND_SEGMENT && CONFIG_WEDGE
 
@@ -834,9 +855,12 @@ static const aom_prob default_wedge_interintra_prob[BLOCK_SIZES_ALL] = {
 #endif
   128, 128, 128, 194, 213, 217, 222, 224, 226, 220, 128, 128, 128,
 #if CONFIG_EXT_PARTITION
-  208, 208, 208,
+  255, 255, 255,
 #endif  // CONFIG_EXT_PARTITION
-  208, 208, 208, 208, 208, 208,
+  208, 208, 208, 208, 255, 255,
+#if CONFIG_EXT_PARTITION
+  255, 255
+#endif  // CONFIG_EXT_PARTITION
 };
 
 #if CONFIG_NEW_MULTISYMBOL
@@ -861,16 +885,20 @@ static const aom_cdf_prob
       { AOM_ICDF(128 * 128), AOM_ICDF(32768), 0 },
       { AOM_ICDF(128 * 128), AOM_ICDF(32768), 0 },
 #if CONFIG_EXT_PARTITION
-      { AOM_ICDF(208 * 128), AOM_ICDF(32768), 0 },
-      { AOM_ICDF(208 * 128), AOM_ICDF(32768), 0 },
-      { AOM_ICDF(208 * 128), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(255 * 128), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(255 * 128), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(255 * 128), AOM_ICDF(32768), 0 },
 #endif  // CONFIG_EXT_PARTITION
       { AOM_ICDF(208 * 128), AOM_ICDF(32768), 0 },
       { AOM_ICDF(208 * 128), AOM_ICDF(32768), 0 },
       { AOM_ICDF(208 * 128), AOM_ICDF(32768), 0 },
       { AOM_ICDF(208 * 128), AOM_ICDF(32768), 0 },
-      { AOM_ICDF(208 * 128), AOM_ICDF(32768), 0 },
-      { AOM_ICDF(208 * 128), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(255 * 128), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(255 * 128), AOM_ICDF(32768), 0 },
+#if CONFIG_EXT_PARTITION
+      { AOM_ICDF(255 * 128), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(255 * 128), AOM_ICDF(32768), 0 },
+#endif  // CONFIG_EXT_PARTITION
     };
 #endif  // CONFIG_NEW_MULTISYMBOL
 
@@ -967,6 +995,11 @@ static const aom_prob
       { 255, 200 },
       { 255, 200 },
       { 255, 200 },
+#if CONFIG_EXT_PARTITION
+      { 252, 255 },
+      { 252, 200 },
+      { 252, 200 },
+#endif  // CONFIG_EXT_PARTITION
     };
 static const aom_cdf_prob
     default_motion_mode_cdf[BLOCK_SIZES_ALL][CDF_SIZE(MOTION_MODES)] = {
@@ -1001,6 +1034,10 @@ static const aom_cdf_prob
       { AOM_ICDF(32640), AOM_ICDF(32740), AOM_ICDF(32768), 0 },
       { AOM_ICDF(32640), AOM_ICDF(32740), AOM_ICDF(32768), 0 },
       { AOM_ICDF(32640), AOM_ICDF(32740), AOM_ICDF(32768), 0 }
+#if CONFIG_EXT_PARTITION
+      { AOM_ICDF(32640), AOM_ICDF(32740), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(32640), AOM_ICDF(32740), AOM_ICDF(32768), 0 },
+#endif
     };
 #else  // CONFIG_NCOBMC_ADAPT_WEIGHT
 const aom_tree_index av1_motion_mode_tree[TREE_SIZE(MOTION_MODES)] = {
@@ -1018,6 +1055,9 @@ static const aom_prob
       { 252 }, { 252 }, { 252 },
 #endif  // CONFIG_EXT_PARTITION
       { 208 }, { 208 }, { 208 }, { 208 }, { 208 }, { 208 },
+#if CONFIG_EXT_PARTITION
+      { 208 }, { 208 }
+#endif  // CONFIG_EXT_PARTITION
     };
 
 static const aom_cdf_prob
@@ -1051,6 +1091,10 @@ static const aom_cdf_prob
       { AOM_ICDF(255 * 128), AOM_ICDF(32768), 0 },
       { AOM_ICDF(255 * 128), AOM_ICDF(32768), 0 },
       { AOM_ICDF(255 * 128), AOM_ICDF(32768), 0 },
+#if CONFIG_EXT_PARTITION
+      { AOM_ICDF(255 * 128), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(255 * 128), AOM_ICDF(32768), 0 },
+#endif  // CONFIG_EXT_PARTITION
     };
 #endif  // CONFIG_NCOBMC_ADAPT_WEIGHT
 #elif !CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
@@ -1070,6 +1114,9 @@ static const aom_prob
       { 252 }, { 252 }, { 252 },
 #endif  // CONFIG_EXT_PARTITION
       { 208 }, { 208 }, { 208 }, { 208 }, { 208 }, { 208 },
+#if CONFIG_EXT_PARTITION
+      { 252 }, { 252 }
+#endif  // CONFIG_EXT_PARTITION
     };
 
 static const aom_cdf_prob
@@ -1103,6 +1150,10 @@ static const aom_cdf_prob
       { AOM_ICDF(255 * 128), AOM_ICDF(32768), 0 },
       { AOM_ICDF(255 * 128), AOM_ICDF(32768), 0 },
       { AOM_ICDF(255 * 128), AOM_ICDF(32768), 0 },
+#if CONFIG_EXT_PARTITION
+      { AOM_ICDF(255 * 128), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(255 * 128), AOM_ICDF(32768), 0 },
+#endif  // CONFIG_EXT_PARTITION
     };
 
 #elif CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
@@ -1123,6 +1174,9 @@ static const aom_prob
 #endif  // CONFIG_EXT_PARTITION
       { 208, 200 }, { 208, 200 }, { 208, 200 }, { 208, 200 }, { 208, 200 },
       { 208, 200 },
+#if CONFIG_EXT_PARTITION
+      { 252, 200 }, { 252, 200 }
+#endif  // CONFIG_EXT_PARTITION
     };
 static const aom_cdf_prob
     default_motion_mode_cdf[BLOCK_SIZES_ALL][CDF_SIZE(MOTION_MODES)] = {
@@ -1155,6 +1209,10 @@ static const aom_cdf_prob
       { AOM_ICDF(32640), AOM_ICDF(32740), AOM_ICDF(32768), 0 },
       { AOM_ICDF(32640), AOM_ICDF(32740), AOM_ICDF(32768), 0 },
       { AOM_ICDF(32640), AOM_ICDF(32740), AOM_ICDF(32768), 0 },
+#if CONFIG_EXT_PARTITION
+      { AOM_ICDF(32256), AOM_ICDF(32656), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(32256), AOM_ICDF(32656), AOM_ICDF(32768), 0 },
+#endif
     };
 
 // Probability for the case that only 1 additional motion mode is allowed
@@ -1167,6 +1225,9 @@ static const aom_prob default_obmc_prob[BLOCK_SIZES_ALL] = {
   252, 252, 252,
 #endif  // CONFIG_EXT_PARTITION
   208, 208, 208, 208, 208, 208,
+#if CONFIG_EXT_PARTITION
+  252, 252
+#endif  // CONFIG_EXT_PARTITION
 };
 
 #if CONFIG_NEW_MULTISYMBOL
@@ -1200,6 +1261,10 @@ static const aom_cdf_prob default_obmc_cdf[BLOCK_SIZES_ALL][CDF_SIZE(2)] = {
   { AOM_ICDF(208 * 128), AOM_ICDF(32768), 0 },
   { AOM_ICDF(208 * 128), AOM_ICDF(32768), 0 },
   { AOM_ICDF(208 * 128), AOM_ICDF(32768), 0 },
+#if CONFIG_EXT_PARTITION
+  { AOM_ICDF(252 * 128), AOM_ICDF(32768), 0 },
+  { AOM_ICDF(252 * 128), AOM_ICDF(32768), 0 },
+#endif  // CONFIG_EXT_PARTITION
 };
 #endif  // CONFIG_NEW_MULTISYMBOL
 #endif
@@ -3126,17 +3191,17 @@ static const aom_cdf_prob
 #if CONFIG_EXT_PARTITION
       // 128x128 -> 64x64
       { AOM_ICDF(28416), AOM_ICDF(28705), AOM_ICDF(28926), AOM_ICDF(32258),
-        AOM_ICDF(32402), AOM_ICDF(32547), AOM_ICDF(32548), AOM_ICDF(32768), 0,
-        0, 0 },
+        AOM_ICDF(32354), AOM_ICDF(32450), AOM_ICDF(32523), AOM_ICDF(32596),
+        AOM_ICDF(32693), AOM_ICDF(32768), 0 },
       { AOM_ICDF(9216), AOM_ICDF(9952), AOM_ICDF(11849), AOM_ICDF(30134),
-        AOM_ICDF(30502), AOM_ICDF(30870), AOM_ICDF(30871), AOM_ICDF(32768), 0,
-        0, 0 },
+        AOM_ICDF(30379), AOM_ICDF(30624), AOM_ICDF(31256), AOM_ICDF(31888),
+        AOM_ICDF(32134), AOM_ICDF(32768), 0 },
       { AOM_ICDF(7424), AOM_ICDF(9008), AOM_ICDF(9528), AOM_ICDF(30664),
-        AOM_ICDF(31456), AOM_ICDF(32248), AOM_ICDF(32249), AOM_ICDF(32768), 0,
-        0, 0 },
+        AOM_ICDF(31192), AOM_ICDF(31720), AOM_ICDF(31893), AOM_ICDF(32066),
+        AOM_ICDF(32594), AOM_ICDF(32768), 0 },
       { AOM_ICDF(1280), AOM_ICDF(1710), AOM_ICDF(2069), AOM_ICDF(31978),
-        AOM_ICDF(32193), AOM_ICDF(32409), AOM_ICDF(32410), AOM_ICDF(32768), 0,
-        0, 0 },
+        AOM_ICDF(32121), AOM_ICDF(32264), AOM_ICDF(32383), AOM_ICDF(32502),
+        AOM_ICDF(32647), AOM_ICDF(32768), 0 },
 #endif
     };
 #else
@@ -5061,18 +5126,6 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
 
 int av1_switchable_interp_ind[SWITCHABLE_FILTERS];
 int av1_switchable_interp_inv[SWITCHABLE_FILTERS];
-
-#if CONFIG_EXT_PARTITION_TYPES
-int av1_num_partition_types[PARTITION_BLOCK_SIZES] = {
-  PARTITION_TYPES,      // 8x8: The 4 traditional partitions
-  EXT_PARTITION_TYPES,  // 16x16: All partitions
-  EXT_PARTITION_TYPES,  // 32x32: All partitions
-  EXT_PARTITION_TYPES,  // 64x64: All partitions
-#if CONFIG_EXT_PARTITION
-  EXT_PARTITION_TYPES - 2  // 128x128: All but 4:1 and 1:4 partitions
-#endif
-};
-#endif  // CONFIG_EXT_PARTITION_TYPES
 
 #if CONFIG_DUAL_FILTER && USE_EXTRA_FILTER
 const aom_tree_index av1_switchable_interp_tree[TREE_SIZE(SWITCHABLE_FILTERS)] =
