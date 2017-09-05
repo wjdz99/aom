@@ -152,7 +152,6 @@ static int optimize_b_greedy(const AV1_COMMON *cm, MACROBLOCK *mb, int plane,
   int dq = get_dq_profile_from_ctx(mb->qindex, ctx, ref, plane_type);
   const dequant_val_type_nuq *dequant_val = pd->dequant_val_nuq[dq];
 #endif  // CONFIG_NEW_QUANT
-  int64_t rd_cost0, rd_cost1;
   int16_t t0, t1;
   int i, final_eob = 0;
   const int cat6_bits = av1_get_cat6_extrabits_size(tx_size, xd->bd);
@@ -281,30 +280,51 @@ static int optimize_b_greedy(const AV1_COMMON *cm, MACROBLOCK *mb, int plane,
                                          tail_token_costs[band_cur][ctx_cur]);
       }
 
-      int64_t next_bits0 = 0, next_bits1 = 0;
+      int best_x;
       if (i < eob - 1) {
-        int ctx_next;
-        const int band_next = band_translate[i + 1];
-        const int token_next = av1_get_token(qcoeff[scan[i + 1]]);
-        const int eob_val_next =
-            (i + 2 == eob) ? (i + 2 == seg_eob ? LAST_EOB : EARLY_EOB) : NO_EOB;
+        // Let N0=nb[MAX_NEIGHBORS*(i+1)]; N1=nb[MAX_NEIGHBORS*(i+1)+1]. Since
+        // ctx_next depends only on token_cache[N0] and token_cache[N1], if rc
+        // != N0 and rc != N1 then next_bits0 == next_bits1. Those numbers are
+        // only used to compute best_x. Up to rounding, this only depends on
+        // next_bits0 - next_bits1 so we can just set both to zero if they
+        // would be equal.
+        const int N0 = nb[MAX_NEIGHBORS * (i + 1)];
+        const int N1 = nb[MAX_NEIGHBORS * (i + 1) + 1];
+        const int disjoint_token_cache_upd = (rc != N0 && rc != N1);
+        if (!disjoint_token_cache_upd) {
+          const int band_next = band_translate[i + 1];
+          const int token_next = av1_get_token(qcoeff[scan[i + 1]]);
+          const int eob_val_next =
+              (i + 2 == eob) ? (i + 2 == seg_eob ? LAST_EOB : EARLY_EOB)
+                             : NO_EOB;
 
-        token_cache[rc] = av1_pt_energy_class[t0];
-        ctx_next = get_coef_context(nb, token_cache, i + 1);
-        next_bits0 = av1_get_coeff_token_cost(
-            token_next, eob_val_next, 0, head_token_costs[band_next][ctx_next],
-            tail_token_costs[band_next][ctx_next]);
+          token_cache[rc] = av1_pt_energy_class[t0];
+          const int ctx_next0 = get_coef_context(nb, token_cache, i + 1);
+          const int next_bits0 =
+              av1_get_coeff_token_cost(token_next, eob_val_next, 0,
+                                       head_token_costs[band_next][ctx_next0],
+                                       tail_token_costs[band_next][ctx_next0]);
 
-        token_cache[rc] = av1_pt_energy_class[t1];
-        ctx_next = get_coef_context(nb, token_cache, i + 1);
-        next_bits1 = av1_get_coeff_token_cost(
-            token_next, eob_val_next, 0, head_token_costs[band_next][ctx_next],
-            tail_token_costs[band_next][ctx_next]);
+          token_cache[rc] = av1_pt_energy_class[t1];
+          const int ctx_next1 = get_coef_context(nb, token_cache, i + 1);
+          const int next_bits1 =
+              av1_get_coeff_token_cost(token_next, eob_val_next, 0,
+                                       head_token_costs[band_next][ctx_next1],
+                                       tail_token_costs[band_next][ctx_next1]);
+
+          const int64_t rd_cost0 = RDCOST(rdmult, (rate0 + next_bits0), d2);
+          const int64_t rd_cost1 = RDCOST(rdmult, (rate1 + next_bits1), d2_a);
+          best_x = (rd_cost1 < rd_cost0);
+        } else {
+          const int64_t rd_cost0 = RDCOST(rdmult, rate0, d2);
+          const int64_t rd_cost1 = RDCOST(rdmult, rate1, d2_a);
+          best_x = (rd_cost1 < rd_cost0);
+        }
+      } else {
+        const int64_t rd_cost0 = RDCOST(rdmult, rate0, d2);
+        const int64_t rd_cost1 = RDCOST(rdmult, rate1, d2_a);
+        best_x = (rd_cost1 < rd_cost0);
       }
-
-      rd_cost0 = RDCOST(rdmult, (rate0 + next_bits0), d2);
-      rd_cost1 = RDCOST(rdmult, (rate1 + next_bits1), d2_a);
-      const int best_x = (rd_cost1 < rd_cost0);
 
       const int eob_v = (i + 1 == seg_eob) ? LAST_EOB : EARLY_EOB;
       int64_t next_eob_bits0, next_eob_bits1;
