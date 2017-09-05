@@ -874,6 +874,15 @@ static INLINE int check_br_neighbor(tran_low_t qc) {
   return abs(qc) > BR_MAG_OFFSET;
 }
 
+#define ALNB_REF_OFFSET_NUM 2
+static int alnb_ref_offset[ALNB_REF_OFFSET_NUM][2] = {
+  { -1, 0 }, { 0, -1 },
+};
+#define NB_REF_OFFSET_NUM 4
+static int nb_ref_offset[NB_REF_OFFSET_NUM][2] = {
+  { -1, 0 }, { 0, -1 }, { 1, 0 }, { 0, 1 },
+};
+
 // TODO(angiebird): add static to this function once it's called
 int try_level_down(int coeff_idx, const TxbCache *txb_cache,
                    const LV_MAP_COEFF_COST *txb_costs, TxbInfo *txb_info,
@@ -901,9 +910,9 @@ int try_level_down(int coeff_idx, const TxbCache *txb_cache,
   const int row = coeff_idx >> txb_info->bwl;
   const int col = coeff_idx - (row << txb_info->bwl);
   if (check_nz_neighbor(qc)) {
-    for (int i = 0; i < SIG_REF_OFFSET_NUM; ++i) {
-      const int nb_row = row - sig_ref_offset[i][0];
-      const int nb_col = col - sig_ref_offset[i][1];
+    for (int i = 0; i < ALNB_REF_OFFSET_NUM; ++i) {
+      const int nb_row = row - alnb_ref_offset[i][0];
+      const int nb_col = col - alnb_ref_offset[i][1];
       const int nb_coeff_idx = nb_row * txb_info->stride + nb_col;
 
       if (nb_row < 0 || nb_col < 0 || nb_row >= txb_info->height ||
@@ -923,9 +932,9 @@ int try_level_down(int coeff_idx, const TxbCache *txb_cache,
   }
 
   if (check_base_neighbor(qc)) {
-    for (int i = 0; i < BASE_CONTEXT_POSITION_NUM; ++i) {
-      const int nb_row = row - base_ref_offset[i][0];
-      const int nb_col = col - base_ref_offset[i][1];
+    for (int i = 0; i < NB_REF_OFFSET_NUM; ++i) {
+      const int nb_row = row - nb_ref_offset[i][0];
+      const int nb_col = col - nb_ref_offset[i][1];
       const int nb_coeff_idx = nb_row * txb_info->stride + nb_col;
 
       if (nb_row < 0 || nb_col < 0 || nb_row >= txb_info->height ||
@@ -945,9 +954,9 @@ int try_level_down(int coeff_idx, const TxbCache *txb_cache,
   }
 
   if (check_br_neighbor(qc)) {
-    for (int i = 0; i < BR_CONTEXT_POSITION_NUM; ++i) {
-      const int nb_row = row - br_ref_offset[i][0];
-      const int nb_col = col - br_ref_offset[i][1];
+    for (int i = 0; i < NB_REF_OFFSET_NUM; ++i) {
+      const int nb_row = row - nb_ref_offset[i][0];
+      const int nb_col = col - nb_ref_offset[i][1];
       const int nb_coeff_idx = nb_row * txb_info->stride + nb_col;
 
       if (nb_row < 0 || nb_col < 0 || nb_row >= txb_info->height ||
