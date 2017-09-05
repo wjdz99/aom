@@ -258,8 +258,18 @@ add_proto qw/void aom_lpf_horizontal_edge_16/, "uint8_t *s, int pitch, const uin
 specialize qw/aom_lpf_horizontal_edge_16 sse2 avx2 neon_asm dspr2 msa/;
 $aom_lpf_horizontal_edge_16_neon_asm=aom_lpf_horizontal_edge_16_neon;
 
+if (aom_config("CONFIG_DEBLOCK_RELAX_HORIZ64") eq "yes") {
+  add_proto qw/void aom_lpf_horizontal_relax_edge_16/, "uint8_t *s, int pitch, const uint8_t *blimit, const uint8_t *limit, const uint8_t *thresh";
+  # TODO: SIMD implementations
+}
+
 add_proto qw/void aom_lpf_horizontal_8/, "uint8_t *s, int pitch, const uint8_t *blimit, const uint8_t *limit, const uint8_t *thresh";
 specialize qw/aom_lpf_horizontal_8 sse2 neon dspr2 msa/;
+
+if (aom_config("CONFIG_DEBLOCK_RELAX_HORIZ64") eq "yes") {
+  add_proto qw/void aom_lpf_horizontal_relax_8/, "uint8_t *s, int pitch, const uint8_t *blimit, const uint8_t *limit, const uint8_t *thresh";
+  # TODO: SIMD implementations
+}
 
 add_proto qw/void aom_lpf_horizontal_8_dual/, "uint8_t *s, int pitch, const uint8_t *blimit0, const uint8_t *limit0, const uint8_t *thresh0, const uint8_t *blimit1, const uint8_t *limit1, const uint8_t *thresh1";
 specialize qw/aom_lpf_horizontal_8_dual sse2 neon_asm dspr2 msa/;
@@ -296,8 +306,18 @@ if (aom_config("CONFIG_HIGHBITDEPTH") eq "yes") {
   add_proto qw/void aom_highbd_lpf_horizontal_edge_16/, "uint16_t *s, int pitch, const uint8_t *blimit, const uint8_t *limit, const uint8_t *thresh, int bd";
   specialize qw/aom_highbd_lpf_horizontal_edge_16 sse2 avx2/;
 
+  if (aom_config("CONFIG_DEBLOCK_RELAX_HORIZ64") eq "yes") {
+    add_proto qw/void aom_highbd_lpf_horizontal_relax_edge_16/, "uint16_t *s, int pitch, const uint8_t *blimit, const uint8_t *limit, const uint8_t *thresh, int bd";
+    # TODO: SIMD implementations
+  }
+
   add_proto qw/void aom_highbd_lpf_horizontal_8/, "uint16_t *s, int pitch, const uint8_t *blimit, const uint8_t *limit, const uint8_t *thresh, int bd";
   specialize qw/aom_highbd_lpf_horizontal_8 sse2/;
+
+  if (aom_config("CONFIG_DEBLOCK_RELAX_HORIZ64") eq "yes") {
+    add_proto qw/void aom_highbd_lpf_horizontal_relax_8/, "uint16_t *s, int pitch, const uint8_t *blimit, const uint8_t *limit, const uint8_t *thresh, int bd";
+    # TODO: SIMD implementations
+  }
 
   add_proto qw/void aom_highbd_lpf_horizontal_8_dual/, "uint16_t *s, int pitch, const uint8_t *blimit0, const uint8_t *limit0, const uint8_t *thresh0, const uint8_t *blimit1, const uint8_t *limit1, const uint8_t *thresh1, int bd";
   specialize qw/aom_highbd_lpf_horizontal_8_dual sse2 avx2/;
