@@ -16,6 +16,24 @@
       "revId": "e64594bf23404c29313e5b24deaeb55dfb4ac0ee",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5add5b9b_742f813b",
+        "filename": "av1/common/ncobmc_kernels.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 7555
+      },
+      "writtenOn": "2017-09-05T16:30:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "27c27fd3_0e640362",
+      "revId": "e64594bf23404c29313e5b24deaeb55dfb4ac0ee",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
