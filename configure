@@ -307,6 +307,7 @@ EXPERIMENT_LIST="
     adapt_scan
     filter_7bit
     parallel_deblocking
+    deblock_relax_horiz64
     loopfiltering_across_tiles
     tempmv_signaling
     rd_debug
@@ -611,6 +612,16 @@ post_process_cmdline() {
     if enabled analyzer; then
       soft_enable accounting
       soft_enable inspection
+    fi
+    if enabled deblock_relax_horiz64 ; then
+      if ! enabled parallel_deblocking ; then
+        log_echo "deblock_relax_horiz64 requires parallel_deblocking, so disabling deblock_relax_horiz64"
+        disable_feature deblock_relax_horiz64
+      fi
+      if enabled lpf_direct ; then
+        log_echo "deblock_relax_horiz64 not compatible with lpf_direct, so disabling deblock_relax_horiz64"
+        disable_feature deblock_relax_horiz64
+      fi
     fi
 }
 

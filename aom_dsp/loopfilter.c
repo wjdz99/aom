@@ -10,6 +10,7 @@
  */
 
 #include <stdlib.h>
+#include <assert.h>
 
 #include "./aom_config.h"
 #include "./aom_dsp_rtcd.h"
@@ -217,6 +218,9 @@ void aom_lpf_vertical_4_dual_c(uint8_t *s, int pitch, const uint8_t *blimit0,
 }
 
 static INLINE void filter8(int8_t mask, uint8_t thresh, int8_t flat,
+#if CONFIG_DEBLOCK_RELAX_HORIZ64
+                           int8_t relax,
+#endif
                            uint8_t *op3, uint8_t *op2, uint8_t *op1,
                            uint8_t *op0, uint8_t *oq0, uint8_t *oq1,
                            uint8_t *oq2, uint8_t *oq3) {
@@ -225,7 +229,12 @@ static INLINE void filter8(int8_t mask, uint8_t thresh, int8_t flat,
     const uint8_t q0 = *oq0, q1 = *oq1, q2 = *oq2, q3 = *oq3;
 
     // 7-tap filter [1, 1, 1, 2, 1, 1, 1]
+#if CONFIG_DEBLOCK_RELAX_HORIZ64
+    if (!relax)
+      *op2 = ROUND_POWER_OF_TWO(p3 + p3 + p3 + 2 * p2 + p1 + p0 + q0, 3);
+#else
     *op2 = ROUND_POWER_OF_TWO(p3 + p3 + p3 + 2 * p2 + p1 + p0 + q0, 3);
+#endif
     *op1 = ROUND_POWER_OF_TWO(p3 + p3 + p2 + 2 * p1 + p0 + q0 + q1, 3);
     *op0 = ROUND_POWER_OF_TWO(p3 + p2 + p1 + 2 * p0 + q0 + q1 + q2, 3);
     *oq0 = ROUND_POWER_OF_TWO(p2 + p1 + p0 + 2 * q0 + q1 + q2 + q3, 3);
@@ -236,8 +245,14 @@ static INLINE void filter8(int8_t mask, uint8_t thresh, int8_t flat,
   }
 }
 
+#if CONFIG_DEBLOCK_RELAX_HORIZ64
+static void lpf_horizontal_8_c(uint8_t *s, int p, const uint8_t *blimit,
+                               const uint8_t *limit, const uint8_t *thresh,
+                               int relax) {
+#else
 void aom_lpf_horizontal_8_c(uint8_t *s, int p, const uint8_t *blimit,
                             const uint8_t *limit, const uint8_t *thresh) {
+#endif
   int i;
 #if CONFIG_PARALLEL_DEBLOCKING && CONFIG_CB4X4
   int count = 4;
@@ -254,16 +269,37 @@ void aom_lpf_horizontal_8_c(uint8_t *s, int p, const uint8_t *blimit,
     const int8_t mask =
         filter_mask(*limit, *blimit, p3, p2, p1, p0, q0, q1, q2, q3);
     const int8_t flat = flat_mask4(1, p3, p2, p1, p0, q0, q1, q2, q3);
+#if CONFIG_DEBLOCK_RELAX_HORIZ64
+    filter8(mask, *thresh, flat, relax, s - 4 * p, s - 3 * p, s - 2 * p,
+            s - 1 * p, s, s + 1 * p, s + 2 * p, s + 3 * p);
+#else
     filter8(mask, *thresh, flat, s - 4 * p, s - 3 * p, s - 2 * p, s - 1 * p, s,
             s + 1 * p, s + 2 * p, s + 3 * p);
+#endif
     ++s;
   }
 }
+
+#if CONFIG_DEBLOCK_RELAX_HORIZ64
+// Normal and relaxed versions of the horizontal_8 filter
+void aom_lpf_horizontal_8_c(uint8_t *s, int p, const uint8_t *blimit,
+                            const uint8_t *limit, const uint8_t *thresh) {
+  lpf_horizontal_8_c(s, p, blimit, limit, thresh, 0);
+}
+
+void aom_lpf_horizontal_relax_8_c(uint8_t *s, int p, const uint8_t *blimit,
+                                  const uint8_t *limit, const uint8_t *thresh){
+  lpf_horizontal_8_c(s, p, blimit, limit, thresh, 1);
+}
+#endif
 
 void aom_lpf_horizontal_8_dual_c(uint8_t *s, int p, const uint8_t *blimit0,
                                  const uint8_t *limit0, const uint8_t *thresh0,
                                  const uint8_t *blimit1, const uint8_t *limit1,
                                  const uint8_t *thresh1) {
+#if CONFIG_DEBLOCK_RELAX_HORIZ64
+  assert(0); // Not supported yet
+#endif
   aom_lpf_horizontal_8_c(s, p, blimit0, limit0, thresh0);
   aom_lpf_horizontal_8_c(s + 8, p, blimit1, limit1, thresh1);
 }
@@ -283,8 +319,13 @@ void aom_lpf_vertical_8_c(uint8_t *s, int pitch, const uint8_t *blimit,
     const int8_t mask =
         filter_mask(*limit, *blimit, p3, p2, p1, p0, q0, q1, q2, q3);
     const int8_t flat = flat_mask4(1, p3, p2, p1, p0, q0, q1, q2, q3);
-    filter8(mask, *thresh, flat, s - 4, s - 3, s - 2, s - 1, s, s + 1, s + 2,
-            s + 3);
+#if CONFIG_DEBLOCK_RELAX_HORIZ64
+    filter8(mask, *thresh, flat, 0, s - 4, s - 3, s - 2, s - 1, s, s + 1, 
+            s + 2, s + 3);
+#else
+    filter8(mask, *thresh, flat, s - 4, s - 3, s - 2, s - 1, s, s + 1, 
+            s + 2, s + 3);
+#endif
     s += pitch;
   }
 }
@@ -322,7 +363,11 @@ static INLINE void filter12(int8_t mask, uint8_t thresh, int8_t flat,
     *oq3 = (p1 + p0 + q0 + q1 + q2 + q3 * 2 + q4 + q5 * 4 + 6) / 12;
     *oq4 = (p0 + q0 + q1 + q2 + q3 + q4 * 2 + q5 * 5 + 6) / 12;
   } else {
+#if CONFIG_DEBLOCK_RELAX_HORIZ64
+    filter8(mask, thresh, flat, 0, op3, op2, op1, op0, oq0, oq1, oq2, oq3);
+#else
     filter8(mask, thresh, flat, op3, op2, op1, op0, oq0, oq1, oq2, oq3);
+#endif
   }
 }
 #endif
@@ -347,13 +392,21 @@ static INLINE void filter10(int8_t mask, uint8_t thresh, int8_t flat,
     *oq2 = (p1 + p0 + q0 + q1 + q2 * 2 + q3 + q4 * 3 + 5) / 10;
     *oq3 = (p0 + q0 + q1 + q2 + q3 * 2 + q4 * 4 + 5) / 10;
   } else {
+#if CONFIG_DEBLOCK_RELAX_HORIZ64
+    filter8(mask, thresh, flat, 0, op3, op2, op1, op0, oq0, oq1, oq2, oq3);
+#else
     filter8(mask, thresh, flat, op3, op2, op1, op0, oq0, oq1, oq2, oq3);
+#endif
   }
 }
 #endif
 
 static INLINE void filter16(int8_t mask, uint8_t thresh, int8_t flat,
-                            int8_t flat2, uint8_t *op7, uint8_t *op6,
+                            int8_t flat2, 
+#if CONFIG_DEBLOCK_RELAX_HORIZ64
+                            int relax,
+#endif
+                            uint8_t *op7, uint8_t *op6,
                             uint8_t *op5, uint8_t *op4, uint8_t *op3,
                             uint8_t *op2, uint8_t *op1, uint8_t *op0,
                             uint8_t *oq0, uint8_t *oq1, uint8_t *oq2,
@@ -367,8 +420,14 @@ static INLINE void filter16(int8_t mask, uint8_t thresh, int8_t flat,
                   q5 = *oq5, q6 = *oq6, q7 = *oq7;
 
     // 15-tap filter [1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1]
+#if CONFIG_DEBLOCK_RELAX_HORIZ64
+    if (!relax)
+      *op6 = ROUND_POWER_OF_TWO(
+          p7 * 7 + p6 * 2 + p5 + p4 + p3 + p2 + p1 + p0 + q0, 4);
+#else
     *op6 = ROUND_POWER_OF_TWO(
         p7 * 7 + p6 * 2 + p5 + p4 + p3 + p2 + p1 + p0 + q0, 4);
+#endif
     *op5 = ROUND_POWER_OF_TWO(
         p7 * 6 + p6 + p5 * 2 + p4 + p3 + p2 + p1 + p0 + q0 + q1, 4);
     *op4 = ROUND_POWER_OF_TWO(
@@ -402,13 +461,21 @@ static INLINE void filter16(int8_t mask, uint8_t thresh, int8_t flat,
     *oq6 = ROUND_POWER_OF_TWO(
         p0 + q0 + q1 + q2 + q3 + q4 + q5 + q6 * 2 + q7 * 7, 4);
   } else {
+#if CONFIG_DEBLOCK_RELAX_HORIZ64
+    filter8(mask, thresh, flat, 0, op3, op2, op1, op0, oq0, oq1, oq2, oq3);
+#else
     filter8(mask, thresh, flat, op3, op2, op1, op0, oq0, oq1, oq2, oq3);
+#endif
   }
 }
 
 static void mb_lpf_horizontal_edge_w(uint8_t *s, int p, const uint8_t *blimit,
                                      const uint8_t *limit,
-                                     const uint8_t *thresh, int count) {
+                                     const uint8_t *thresh,
+#if CONFIG_DEBLOCK_RELAX_HORIZ64
+                                     int relax,
+#endif
+                                     int count) {
   int i;
 #if CONFIG_PARALLEL_DEBLOCKING && CONFIG_CB4X4
   int step = 4;
@@ -444,7 +511,11 @@ static void mb_lpf_horizontal_edge_w(uint8_t *s, int p, const uint8_t *blimit,
 #else
     const int8_t flat2 = flat_mask5(1, p7, p6, p5, p4, p0, q0, q4, q5, q6, q7);
 
-    filter16(mask, *thresh, flat, flat2, s - 8 * p, s - 7 * p, s - 6 * p,
+    filter16(mask, *thresh, flat, flat2,
+#if CONFIG_DEBLOCK_RELAX_HORIZ64
+             relax,
+#endif
+             s - 8 * p, s - 7 * p, s - 6 * p,
              s - 5 * p, s - 4 * p, s - 3 * p, s - 2 * p, s - 1 * p, s,
              s + 1 * p, s + 2 * p, s + 3 * p, s + 4 * p, s + 5 * p, s + 6 * p,
              s + 7 * p);
@@ -456,8 +527,36 @@ static void mb_lpf_horizontal_edge_w(uint8_t *s, int p, const uint8_t *blimit,
 
 void aom_lpf_horizontal_edge_8_c(uint8_t *s, int p, const uint8_t *blimit,
                                  const uint8_t *limit, const uint8_t *thresh) {
+#if CONFIG_DEBLOCK_RELAX_HORIZ64
+  assert(0); // Not supported yet
+  mb_lpf_horizontal_edge_w(s, p, blimit, limit, thresh, 0, 1);
+#else
   mb_lpf_horizontal_edge_w(s, p, blimit, limit, thresh, 1);
+#endif
 }
+
+#if CONFIG_DEBLOCK_RELAX_HORIZ64
+void aom_lpf_horizontal_edge_16_c(uint8_t *s, int p, const uint8_t *blimit,
+                                  const uint8_t *limit, const uint8_t *thresh) {
+#if CONFIG_PARALLEL_DEBLOCKING && CONFIG_CB4X4
+  mb_lpf_horizontal_edge_w(s, p, blimit, limit, thresh, 0, 1);
+#else
+  mb_lpf_horizontal_edge_w(s, p, blimit, limit, thresh, 0, 2);
+#endif
+}
+
+void aom_lpf_horizontal_relax_edge_16_c(uint8_t *s, int p, 
+                                        const uint8_t *blimit,
+                                        const uint8_t *limit, 
+                                        const uint8_t *thresh) {
+#if CONFIG_PARALLEL_DEBLOCKING && CONFIG_CB4X4
+  mb_lpf_horizontal_edge_w(s, p, blimit, limit, thresh, 1, 1);
+#else
+  mb_lpf_horizontal_edge_w(s, p, blimit, limit, thresh, 1, 2);
+#endif
+}
+
+#else // !CONFIG_DEBLOCK_RELAX_HORIZ64
 
 void aom_lpf_horizontal_edge_16_c(uint8_t *s, int p, const uint8_t *blimit,
                                   const uint8_t *limit, const uint8_t *thresh) {
@@ -467,6 +566,8 @@ void aom_lpf_horizontal_edge_16_c(uint8_t *s, int p, const uint8_t *blimit,
   mb_lpf_horizontal_edge_w(s, p, blimit, limit, thresh, 2);
 #endif
 }
+
+#endif
 
 static void mb_lpf_vertical_edge_w(uint8_t *s, int p, const uint8_t *blimit,
                                    const uint8_t *limit, const uint8_t *thresh,
@@ -496,7 +597,11 @@ static void mb_lpf_vertical_edge_w(uint8_t *s, int p, const uint8_t *blimit,
 #else
     const int8_t flat2 = flat_mask5(1, p7, p6, p5, p4, p0, q0, q4, q5, q6, q7);
 
-    filter16(mask, *thresh, flat, flat2, s - 8, s - 7, s - 6, s - 5, s - 4,
+    filter16(mask, *thresh, flat, flat2, 
+#if CONFIG_DEBLOCK_RELAX_HORIZ64
+             0,
+#endif
+             s - 8, s - 7, s - 6, s - 5, s - 4,
              s - 3, s - 2, s - 1, s, s + 1, s + 2, s + 3, s + 4, s + 5, s + 6,
              s + 7);
 #endif
@@ -709,6 +814,9 @@ void aom_highbd_lpf_vertical_4_dual_c(
 }
 
 static INLINE void highbd_filter8(int8_t mask, uint8_t thresh, int8_t flat,
+#if CONFIG_DEBLOCK_RELAX_HORIZ64
+                                  int relax,
+#endif
                                   uint16_t *op3, uint16_t *op2, uint16_t *op1,
                                   uint16_t *op0, uint16_t *oq0, uint16_t *oq1,
                                   uint16_t *oq2, uint16_t *oq3, int bd) {
@@ -717,7 +825,12 @@ static INLINE void highbd_filter8(int8_t mask, uint8_t thresh, int8_t flat,
     const uint16_t q0 = *oq0, q1 = *oq1, q2 = *oq2, q3 = *oq3;
 
     // 7-tap filter [1, 1, 1, 2, 1, 1, 1]
+#if CONFIG_DEBLOCK_RELAX_HORIZ64
+    if (!relax)
+      *op2 = ROUND_POWER_OF_TWO(p3 + p3 + p3 + 2 * p2 + p1 + p0 + q0, 3);
+#else
     *op2 = ROUND_POWER_OF_TWO(p3 + p3 + p3 + 2 * p2 + p1 + p0 + q0, 3);
+#endif
     *op1 = ROUND_POWER_OF_TWO(p3 + p3 + p2 + 2 * p1 + p0 + q0 + q1, 3);
     *op0 = ROUND_POWER_OF_TWO(p3 + p2 + p1 + 2 * p0 + q0 + q1 + q2, 3);
     *oq0 = ROUND_POWER_OF_TWO(p2 + p1 + p0 + 2 * q0 + q1 + q2 + q3, 3);
@@ -728,9 +841,16 @@ static INLINE void highbd_filter8(int8_t mask, uint8_t thresh, int8_t flat,
   }
 }
 
+#if CONFIG_DEBLOCK_RELAX_HORIZ64
+static void highbd_lpf_horizontal_8_c(uint16_t *s, int p, const uint8_t *blimit,
+                                      const uint8_t *limit, const uint8_t *thresh,
+                                      int relax,
+                                      int bd) {
+#else
 void aom_highbd_lpf_horizontal_8_c(uint16_t *s, int p, const uint8_t *blimit,
                                    const uint8_t *limit, const uint8_t *thresh,
                                    int bd) {
+#endif
   int i;
 #if CONFIG_PARALLEL_DEBLOCKING && CONFIG_CB4X4
   int count = 4;
@@ -748,16 +868,40 @@ void aom_highbd_lpf_horizontal_8_c(uint16_t *s, int p, const uint8_t *blimit,
         highbd_filter_mask(*limit, *blimit, p3, p2, p1, p0, q0, q1, q2, q3, bd);
     const int8_t flat =
         highbd_flat_mask4(1, p3, p2, p1, p0, q0, q1, q2, q3, bd);
+#if CONFIG_DEBLOCK_RELAX_HORIZ64
+    highbd_filter8(mask, *thresh, flat, relax, s - 4 * p, s - 3 * p, s - 2 * p,
+                   s - 1 * p, s, s + 1 * p, s + 2 * p, s + 3 * p, bd);
+#else
     highbd_filter8(mask, *thresh, flat, s - 4 * p, s - 3 * p, s - 2 * p,
                    s - 1 * p, s, s + 1 * p, s + 2 * p, s + 3 * p, bd);
+#endif
     ++s;
   }
 }
+
+#if CONFIG_DEBLOCK_RELAX_HORIZ64
+void aom_highbd_lpf_horizontal_8_c(uint16_t *s, int p, const uint8_t *blimit,
+                                   const uint8_t *limit, const uint8_t *thresh,
+                                   int bd) {
+  highbd_lpf_horizontal_8_c(s, p, blimit, limit, thresh, 0, bd);
+}
+
+void aom_highbd_lpf_horizontal_relax_8_c(uint16_t *s, int p, 
+                                         const uint8_t *blimit,
+                                         const uint8_t *limit, 
+                                         const uint8_t *thresh,
+                                         int bd) {
+  highbd_lpf_horizontal_8_c(s, p, blimit, limit, thresh, 1, bd);
+}
+#endif
 
 void aom_highbd_lpf_horizontal_8_dual_c(
     uint16_t *s, int p, const uint8_t *blimit0, const uint8_t *limit0,
     const uint8_t *thresh0, const uint8_t *blimit1, const uint8_t *limit1,
     const uint8_t *thresh1, int bd) {
+#if CONFIG_DEBLOCK_RELAX_HORIZ64
+  assert(0); // Not supported yet
+#endif
   aom_highbd_lpf_horizontal_8_c(s, p, blimit0, limit0, thresh0, bd);
   aom_highbd_lpf_horizontal_8_c(s + 8, p, blimit1, limit1, thresh1, bd);
 }
@@ -779,8 +923,14 @@ void aom_highbd_lpf_vertical_8_c(uint16_t *s, int pitch, const uint8_t *blimit,
         highbd_filter_mask(*limit, *blimit, p3, p2, p1, p0, q0, q1, q2, q3, bd);
     const int8_t flat =
         highbd_flat_mask4(1, p3, p2, p1, p0, q0, q1, q2, q3, bd);
+#if CONFIG_DEBLOCK_RELAX_HORIZ64
+    highbd_filter8(mask, *thresh, flat, 0, s - 4, s - 3, s - 2, s - 1, s,
+                   s + 1, s + 2, s + 3, bd);
+#else
     highbd_filter8(mask, *thresh, flat, s - 4, s - 3, s - 2, s - 1, s, s + 1,
                    s + 2, s + 3, bd);
+#endif
+                   
     s += pitch;
   }
 }
@@ -795,7 +945,11 @@ void aom_highbd_lpf_vertical_8_dual_c(
 }
 
 static INLINE void highbd_filter16(int8_t mask, uint8_t thresh, int8_t flat,
-                                   int8_t flat2, uint16_t *op7, uint16_t *op6,
+                                   int8_t flat2, 
+#if CONFIG_DEBLOCK_RELAX_HORIZ64
+                                   int relax,
+#endif
+                                   uint16_t *op7, uint16_t *op6,
                                    uint16_t *op5, uint16_t *op4, uint16_t *op3,
                                    uint16_t *op2, uint16_t *op1, uint16_t *op0,
                                    uint16_t *oq0, uint16_t *oq1, uint16_t *oq2,
@@ -820,8 +974,14 @@ static INLINE void highbd_filter16(int8_t mask, uint8_t thresh, int8_t flat,
     const uint16_t q7 = *oq7;
 
     // 15-tap filter [1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1]
+#if CONFIG_DEBLOCK_RELAX_HORIZ64
+    if (!relax)
+      *op6 = ROUND_POWER_OF_TWO(
+          p7 * 7 + p6 * 2 + p5 + p4 + p3 + p2 + p1 + p0 + q0, 4);
+#else
     *op6 = ROUND_POWER_OF_TWO(
         p7 * 7 + p6 * 2 + p5 + p4 + p3 + p2 + p1 + p0 + q0, 4);
+#endif
     *op5 = ROUND_POWER_OF_TWO(
         p7 * 6 + p6 + p5 * 2 + p4 + p3 + p2 + p1 + p0 + q0 + q1, 4);
     *op4 = ROUND_POWER_OF_TWO(
@@ -855,15 +1015,24 @@ static INLINE void highbd_filter16(int8_t mask, uint8_t thresh, int8_t flat,
     *oq6 = ROUND_POWER_OF_TWO(
         p0 + q0 + q1 + q2 + q3 + q4 + q5 + q6 * 2 + q7 * 7, 4);
   } else {
+#if CONFIG_DEBLOCK_RELAX_HORIZ64
+    highbd_filter8(mask, thresh, flat, 0, op3, op2, op1, op0, oq0, oq1, oq2, 
+                   oq3, bd);
+#else
     highbd_filter8(mask, thresh, flat, op3, op2, op1, op0, oq0, oq1, oq2, oq3,
                    bd);
+#endif
   }
 }
 
 static void highbd_mb_lpf_horizontal_edge_w(uint16_t *s, int p,
                                             const uint8_t *blimit,
                                             const uint8_t *limit,
-                                            const uint8_t *thresh, int count,
+                                            const uint8_t *thresh,
+#if CONFIG_DEBLOCK_RELAX_HORIZ64
+                                            int relax,
+#endif
+                                            int count,
                                             int bd) {
   int i;
 #if CONFIG_PARALLEL_DEBLOCKING && CONFIG_CB4X4
@@ -891,7 +1060,11 @@ static void highbd_mb_lpf_horizontal_edge_w(uint16_t *s, int p,
         highbd_flat_mask5(1, s[-8 * p], s[-7 * p], s[-6 * p], s[-5 * p], p0, q0,
                           s[4 * p], s[5 * p], s[6 * p], s[7 * p], bd);
 
-    highbd_filter16(mask, *thresh, flat, flat2, s - 8 * p, s - 7 * p, s - 6 * p,
+    highbd_filter16(mask, *thresh, flat, flat2,
+#if CONFIG_DEBLOCK_RELAX_HORIZ64
+                    relax,
+#endif
+                    s - 8 * p, s - 7 * p, s - 6 * p,
                     s - 5 * p, s - 4 * p, s - 3 * p, s - 2 * p, s - 1 * p, s,
                     s + 1 * p, s + 2 * p, s + 3 * p, s + 4 * p, s + 5 * p,
                     s + 6 * p, s + 7 * p, bd);
@@ -903,8 +1076,40 @@ void aom_highbd_lpf_horizontal_edge_8_c(uint16_t *s, int p,
                                         const uint8_t *blimit,
                                         const uint8_t *limit,
                                         const uint8_t *thresh, int bd) {
+#if CONFIG_DEBLOCK_RELAX_HORIZ64
+  assert(0); // Not supported yet
+  highbd_mb_lpf_horizontal_edge_w(s, p, blimit, limit, thresh, 0, 1, bd);
+#else
   highbd_mb_lpf_horizontal_edge_w(s, p, blimit, limit, thresh, 1, bd);
+#endif
 }
+
+#if CONFIG_DEBLOCK_RELAX_HORIZ64
+void aom_highbd_lpf_horizontal_edge_16_c(uint16_t *s, int p,
+                                         const uint8_t *blimit,
+                                         const uint8_t *limit,
+                                         const uint8_t *thresh, 
+                                         int bd) {
+#if CONFIG_PARALLEL_DEBLOCKING && CONFIG_CB4X4
+  highbd_mb_lpf_horizontal_edge_w(s, p, blimit, limit, thresh, 0, 1, bd);
+#else
+  highbd_mb_lpf_horizontal_edge_w(s, p, blimit, limit, thresh, 0, 2, bd);
+#endif
+}
+
+void aom_highbd_lpf_horizontal_relax_edge_16_c(uint16_t *s, int p,
+                                               const uint8_t *blimit,
+                                               const uint8_t *limit,
+                                               const uint8_t *thresh, 
+                                               int bd) {
+#if CONFIG_PARALLEL_DEBLOCKING && CONFIG_CB4X4
+  highbd_mb_lpf_horizontal_edge_w(s, p, blimit, limit, thresh, 1, 1, bd);
+#else
+  highbd_mb_lpf_horizontal_edge_w(s, p, blimit, limit, thresh, 1, 2, bd);
+#endif
+}
+
+#else   // !CONFIG_DEBLOCK_RELAX_HORIZ64
 
 void aom_highbd_lpf_horizontal_edge_16_c(uint16_t *s, int p,
                                          const uint8_t *blimit,
@@ -916,6 +1121,7 @@ void aom_highbd_lpf_horizontal_edge_16_c(uint16_t *s, int p,
   highbd_mb_lpf_horizontal_edge_w(s, p, blimit, limit, thresh, 2, bd);
 #endif
 }
+#endif
 
 static void highbd_mb_lpf_vertical_edge_w(uint16_t *s, int p,
                                           const uint8_t *blimit,
@@ -940,7 +1146,11 @@ static void highbd_mb_lpf_vertical_edge_w(uint16_t *s, int p,
     const int8_t flat2 = highbd_flat_mask5(1, s[-8], s[-7], s[-6], s[-5], p0,
                                            q0, s[4], s[5], s[6], s[7], bd);
 
-    highbd_filter16(mask, *thresh, flat, flat2, s - 8, s - 7, s - 6, s - 5,
+    highbd_filter16(mask, *thresh, flat, flat2, 
+#if CONFIG_DEBLOCK_RELAX_HORIZ64
+                    0,
+#endif
+                    s - 8, s - 7, s - 6, s - 5,
                     s - 4, s - 3, s - 2, s - 1, s, s + 1, s + 2, s + 3, s + 4,
                     s + 5, s + 6, s + 7, bd);
     s += p;

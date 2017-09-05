@@ -1000,6 +1000,9 @@ static void filter_selectively_horiz(
                                  width, height, pitch, pivot, line_length, 1,
                                  direct);
 
+#if CONFIG_DEBLOCK_RELAX_HORIZ64
+          assert(0); // Not supported yet
+#endif
           aom_lpf_horizontal_edge_8(block + pivot * line_length, line_length,
                                     lfi->mblim, lfi->lim, lfi->hev_thr);
         }
@@ -1221,10 +1224,17 @@ static void filter_selectively_horiz(
 #else   // CONFIG_LPF_DIRECT
       if (mask_16x16 & 1) {
         if ((mask_16x16 & 3) == 3) {
+#if CONFIG_DEBLOCK_RELAX_HORIZ64
+          assert(0); // Not supported yet
+#else
           aom_lpf_horizontal_edge_16(s, pitch, lfi->mblim, lfi->lim,
                                      lfi->hev_thr);
+#endif
           count = 2;
         } else {
+#if CONFIG_DEBLOCK_RELAX_HORIZ64
+          assert(0); // Not supported yet
+#endif
           aom_lpf_horizontal_edge_8(s, pitch, lfi->mblim, lfi->lim,
                                     lfi->hev_thr);
         }
@@ -1251,7 +1261,11 @@ static void filter_selectively_horiz(
           }
           count = 2;
         } else {
+#if CONFIG_DEBLOCK_RELAX_HORIZ64
+          assert(0); // Not supported yet
+#else
           aom_lpf_horizontal_8(s, pitch, lfi->mblim, lfi->lim, lfi->hev_thr);
+#endif
 
           if (mask_4x4_int & 1)
             aom_lpf_horizontal_4(s + 4 * pitch, pitch, lfi->mblim, lfi->lim,
@@ -1320,8 +1334,12 @@ static void highbd_filter_selectively_horiz(
     if (mask & 1) {
       if (mask_16x16 & 1) {
         if ((mask_16x16 & 3) == 3) {
+#if CONFIG_DEBLOCK_RELAX_HORIZ64
+          assert(0); // Not supported yet
+#else
           aom_highbd_lpf_horizontal_edge_16(s, pitch, lfi->mblim, lfi->lim,
                                             lfi->hev_thr, bd);
+#endif
           count = 2;
         } else {
           aom_highbd_lpf_horizontal_edge_8(s, pitch, lfi->mblim, lfi->lim,
@@ -1351,9 +1369,12 @@ static void highbd_filter_selectively_horiz(
           }
           count = 2;
         } else {
+#if CONFIG_DEBLOCK_RELAX_HORIZ64
+          assert(0); // Not supported yet
+#else
           aom_highbd_lpf_horizontal_8(s, pitch, lfi->mblim, lfi->lim,
                                       lfi->hev_thr, bd);
-
+#endif
           if (mask_4x4_int & 1) {
             aom_highbd_lpf_horizontal_4(s + 4 * pitch, pitch, lfi->mblim,
                                         lfi->lim, lfi->hev_thr, bd);
@@ -3269,6 +3290,22 @@ static void av1_filter_block_plane_horz(
           break;
         // apply 8-tap filtering
         case 8:
+#if CONFIG_DEBLOCK_RELAX_HORIZ64
+          // Is this a subsampled chroma edge corresponding to a 
+          // luma 64x64 edge? If so, use the relaxed filter.
+          if (scale_vert==1 && (((y << MI_SIZE_LOG2) & 31) == 0)) {
+#if CONFIG_HIGHBITDEPTH
+            if (cm->use_highbitdepth)
+              aom_highbd_lpf_horizontal_relax_8_c(CONVERT_TO_SHORTPTR(p), 
+                                                  dst_stride,
+                                                  params.mblim, params.lim,
+                                                  params.hev_thr, cm->bit_depth);
+            else
+#endif  // CONFIG_HIGHBITDEPTH
+              aom_lpf_horizontal_relax_8_c(p, dst_stride, params.mblim, 
+                                           params.lim, params.hev_thr);
+          } else
+#endif  // CONFIG_DEBLOCK_RELAX_HORIZ64
 #if CONFIG_HIGHBITDEPTH
           if (cm->use_highbitdepth)
             aom_highbd_lpf_horizontal_8(CONVERT_TO_SHORTPTR(p), dst_stride,
@@ -3281,6 +3318,20 @@ static void av1_filter_block_plane_horz(
           break;
         // apply 16-tap filtering
         case 16:
+#if CONFIG_DEBLOCK_RELAX_HORIZ64
+          // Luma 64x64 edge? If so use the relaxed filter.
+          if (((y << MI_SIZE_LOG2) & 63) == 0) {
+#if CONFIG_HIGHBITDEPTH
+            if (cm->use_highbitdepth)
+              aom_highbd_lpf_horizontal_relax_edge_16_c(
+                  CONVERT_TO_SHORTPTR(p), dst_stride, params.mblim, params.lim,
+                  params.hev_thr, cm->bit_depth);
+            else
+#endif  // CONFIG_HIGHBITDEPTH
+              aom_lpf_horizontal_relax_edge_16_c(p, dst_stride, params.mblim,
+                                                 params.lim, params.hev_thr);
+          } else
+#endif  // CONFIG_DEBLOCK_RELAX_HORIZ64
 #if CONFIG_HIGHBITDEPTH
           if (cm->use_highbitdepth)
             aom_highbd_lpf_horizontal_edge_16(
