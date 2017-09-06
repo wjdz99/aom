@@ -64,6 +64,8 @@ static struct av1_token
     inter_singleref_comp_mode_encodings[INTER_SINGLEREF_COMP_MODES];
 #endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
 
+// TODO(anybody) : remove this flag when PVQ supports pallete coding tool
+#if !CONFIG_PVQ || CONFIG_EXT_INTRA
 static INLINE void write_uniform(aom_writer *w, int n, int v) {
   const int l = get_unsigned_bits(n);
   const int m = (1 << l) - n;
@@ -75,6 +77,7 @@ static INLINE void write_uniform(aom_writer *w, int n, int v) {
     aom_write_literal(w, (v - m) & 1, 1);
   }
 }
+#endif  // !CONFIG_PVQ || CONFIG_EXT_INTRA
 
 #if CONFIG_EXT_TX
 static struct av1_token ext_tx_inter_encodings[EXT_TX_SETS_INTER][TX_TYPES];
@@ -592,6 +595,8 @@ static void update_skip_probs(AV1_COMMON *cm, aom_writer *w,
 }
 #endif
 
+// TODO(anybody) : remove this flag when PVQ supports pallete coding tool
+#if !CONFIG_PVQ
 static void pack_map_tokens(aom_writer *w, const TOKENEXTRA **tp, int n,
                             int num) {
   const TOKENEXTRA *p = *tp;
@@ -604,6 +609,7 @@ static void pack_map_tokens(aom_writer *w, const TOKENEXTRA **tp, int n,
   }
   *tp = p;
 }
+#endif  // !CONFIG_PVQ
 
 #if !CONFIG_PVQ
 #if CONFIG_SUPERTX
@@ -2493,6 +2499,8 @@ static void write_tokens_b(AV1_COMP *cpi, const TileInfo *const tile,
 #endif  // CONFIG_DEPENDENT_HORZTILES
                  cm->mi_rows, cm->mi_cols);
 
+// TODO(anybody) : remove this flag when PVQ supports pallete coding tool
+#if !CONFIG_PVQ
   for (plane = 0; plane <= 1; ++plane) {
     const uint8_t palette_size_plane =
         mbmi->palette_mode_info.palette_size[plane];
@@ -2511,6 +2519,7 @@ static void write_tokens_b(AV1_COMP *cpi, const TileInfo *const tile,
 #endif  // !CONFIG_LV_MAP
     }
   }
+#endif  // !CONFIG_PVQ
 
 #if CONFIG_COEF_INTERLEAVE
   if (!mbmi->skip) {
