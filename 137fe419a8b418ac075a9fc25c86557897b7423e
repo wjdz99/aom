@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "77aee477_557d0faa",
+        "filename": "av1/common/entropymode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 432,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2017-09-06T19:42:45Z",
+      "side": 1,
+      "message": "This one is not initialized.",
+      "range": {
+        "startLine": 432,
+        "startChar": 2,
+        "endLine": 432,
+        "endChar": 83
+      },
+      "revId": "137fe419a8b418ac075a9fc25c86557897b7423e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e7980773_7868cccd",
         "filename": "av1/common/txb_common.h",
         "patchSetId": 2
