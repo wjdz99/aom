@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "96ba3ffd_b42f194c",
+        "filename": "aom_dsp/aom_dsp.cmake",
+        "patchSetId": 9
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2017-09-06T21:26:19Z",
+      "side": 1,
+      "message": "Remove whitespace",
+      "range": {
+        "startLine": 78,
+        "startChar": 0,
+        "endLine": 78,
+        "endChar": 2
+      },
+      "revId": "cdb943351f026367a4caccd9aad444a65733f010",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "18945e12_37a5c1aa",
+        "filename": "aom_dsp/aom_dsp.cmake",
+        "patchSetId": 9
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2017-09-06T21:26:19Z",
+      "side": 1,
+      "message": "here too",
+      "range": {
+        "startLine": 103,
+        "startChar": 0,
+        "endLine": 103,
+        "endChar": 2
+      },
+      "revId": "cdb943351f026367a4caccd9aad444a65733f010",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "49cdf68f_40bc135a",
+        "filename": "aom_dsp/aom_dsp.cmake",
+        "patchSetId": 9
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2017-09-06T21:26:19Z",
+      "side": 1,
+      "message": "remove",
+      "range": {
+        "startLine": 122,
+        "startChar": 1,
+        "endLine": 122,
+        "endChar": 2
+      },
+      "revId": "cdb943351f026367a4caccd9aad444a65733f010",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2dbd387c_7238a23e",
+        "filename": "aom_dsp/aom_dsp.cmake",
+        "patchSetId": 9
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2017-09-06T21:26:19Z",
+      "side": 1,
+      "message": "remove tab here and the line above",
+      "range": {
+        "startLine": 145,
+        "startChar": 0,
+        "endLine": 145,
+        "endChar": 1
+      },
+      "revId": "cdb943351f026367a4caccd9aad444a65733f010",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7ba0c5f1_89bc58f8",
+        "filename": "aom_dsp/aom_dsp.cmake",
+        "patchSetId": 9
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2017-09-06T21:26:19Z",
+      "side": 1,
+      "message": "remove trailing whitespace",
+      "range": {
+        "startLine": 179,
+        "startChar": 1,
+        "endLine": 179,
+        "endChar": 2
+      },
+      "revId": "cdb943351f026367a4caccd9aad444a65733f010",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
