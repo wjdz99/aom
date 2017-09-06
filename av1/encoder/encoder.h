@@ -414,6 +414,11 @@ typedef struct AV1_COMP {
   int alt2_fb_idx;  // ALTREF2_FRAME
 #endif              // CONFIG_EXT_REFS
   int alt_fb_idx;
+#if CONFIG_EXT_REFS
+  int ext_fb_idx;      // index for an extra reference frame
+  int refresh_fb_idx;  // index to a reference to get updated with current coded
+                       // frame
+#endif                 // CONFIG_EXT_REFS
 
   int last_show_frame_buf_idx;  // last show frame buffer index
 
