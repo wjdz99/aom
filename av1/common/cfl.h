@@ -33,10 +33,8 @@ typedef struct {
   // TODO(ltrudeau) Convert to uint16 for HBD support
   uint8_t y_pix[MAX_SB_SQUARE];
 
-  // Pixel buffer containing the downsampled luma pixels used as prediction for
-  // chroma
-  // TODO(ltrudeau) Convert to uint16 for HBD support
-  uint8_t y_down_pix[MAX_SB_SQUARE];
+  // Downsampled luma pixels (in Q3) used for chroma prediction
+  int y_down_pix_q3[MAX_SB_SQUARE];
 
   // Height and width of the luma prediction block currently in the pixel buffer
   int y_height, y_width;
@@ -80,7 +78,7 @@ typedef struct {
 } CFL_CTX;
 
 static INLINE int get_scaled_luma_q0(int alpha_q3, int y_pix, int avg_q3) {
-  int scaled_luma_q6 = alpha_q3 * ((y_pix << 3) - avg_q3);
+  int scaled_luma_q6 = alpha_q3 * (y_pix - avg_q3);
   return ROUND_POWER_OF_TWO_SIGNED(scaled_luma_q6, 6);
 }
 
