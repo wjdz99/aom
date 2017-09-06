@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "74bf6d3a_962a8e98",
+        "filename": "build/cmake/compiler_flags.cmake",
+        "patchSetId": 1
+      },
+      "lineNbr": 329,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2017-09-06T03:04:10Z",
+      "side": 1,
+      "message": "yeah, just doing the best we can here without adding arg parsing.",
+      "parentUuid": "286d44d7_5a2afb8e",
+      "range": {
+        "startLine": 329,
+        "startChar": 4,
+        "endLine": 329,
+        "endChar": 19
+      },
+      "revId": "226934d759e31e17d23e1236119fad15e6900a66",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "997eed11_48fce89a",
         "filename": "build/cmake/compiler_flags.cmake",
         "patchSetId": 1
@@ -45,6 +69,30 @@
       "revId": "226934d759e31e17d23e1236119fad15e6900a66",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5cde304a_c9c44aa8",
+        "filename": "build/cmake/compiler_flags.cmake",
+        "patchSetId": 1
+      },
+      "lineNbr": 339,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2017-09-06T03:04:10Z",
+      "side": 1,
+      "message": "oops... missed that g i guess :/\nthx!",
+      "parentUuid": "997eed11_48fce89a",
+      "range": {
+        "startLine": 339,
+        "startChar": 44,
+        "endLine": 339,
+        "endChar": 46
+      },
+      "revId": "226934d759e31e17d23e1236119fad15e6900a66",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
