@@ -45,6 +45,52 @@
       "revId": "41df2e45f6688ba875da44a2c9d53983486f3251",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "082c7ab8_975e0c40",
+        "filename": "av1/encoder/encodetxb.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1753,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2017-09-06T19:22:51Z",
+      "side": 1,
+      "message": "Don\u0027t we need to update counts here?",
+      "range": {
+        "startLine": 1752,
+        "startChar": 8,
+        "endLine": 1753,
+        "endChar": 22
+      },
+      "revId": "41df2e45f6688ba875da44a2c9d53983486f3251",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9202ec86_3c7ac9c3",
+        "filename": "av1/encoder/encodetxb.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1756,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2017-09-06T19:22:51Z",
+      "side": 1,
+      "message": "Don\u0027t we need to update counts here?",
+      "range": {
+        "startLine": 1756,
+        "startChar": 6,
+        "endLine": 1756,
+        "endChar": 79
+      },
+      "revId": "41df2e45f6688ba875da44a2c9d53983486f3251",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
