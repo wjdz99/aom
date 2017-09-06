@@ -38,10 +38,8 @@ static void cfl_luma_subsampling_420(const uint8_t *y_pix, int *output_q3,
       int top = i << 1;
       int bot = top + MAX_SB_SIZE;
 
-      int sum = y_pix[top] + y_pix[top + 1] + y_pix[bot] + y_pix[bot + 1];
-
-      // TODO(ltrudeau) replace "+ 2 >> 2 << 3" with << 1
-      output_q3[i] = ((sum + 2) >> 2) << 3;
+      output_q3[i] = (y_pix[top] + y_pix[top + 1] + y_pix[bot] + y_pix[bot + 1])
+                     << 1;
     }
     y_pix += MAX_SB_SIZE << 1;
     output_q3 += MAX_SB_SIZE;
