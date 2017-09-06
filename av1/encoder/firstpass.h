@@ -125,6 +125,7 @@ typedef struct {
 #if CONFIG_EXT_REFS
   unsigned char brf_src_offset[(MAX_LAG_BUFFERS * 2) + 1];
   unsigned char bidir_pred_enabled[(MAX_LAG_BUFFERS * 2) + 1];
+  unsigned char ref_fb_index[(MAX_LAG_BUFFERS * 2) + 1][REF_FRAMES];
 #endif  // CONFIG_EXT_REFS
   int bit_allocation[(MAX_LAG_BUFFERS * 2) + 1];
 } GF_GROUP;
