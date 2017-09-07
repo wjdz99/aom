@@ -28,7 +28,7 @@ using std::tr1::tuple;
 using std::tr1::make_tuple;
 using libaom_test::ACMRandom;
 
-typedef tuple<> FilterTestParam;
+typedef tuple<int> FilterTestParam;
 
 class AV1SelfguidedFilterTest
     : public ::testing::TestWithParam<FilterTestParam> {
@@ -135,7 +135,7 @@ class AV1SelfguidedFilterTest
 TEST_P(AV1SelfguidedFilterTest, SpeedTest) { RunSpeedTest(); }
 TEST_P(AV1SelfguidedFilterTest, CorrectnessTest) { RunCorrectnessTest(); }
 
-const FilterTestParam params[] = { make_tuple() };
+const FilterTestParam params[] = { make_tuple(8) };
 
 #if HAVE_SSE4_1
 INSTANTIATE_TEST_CASE_P(SSE4_1, AV1SelfguidedFilterTest,
