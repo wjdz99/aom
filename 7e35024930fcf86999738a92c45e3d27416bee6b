@@ -1,0 +1,140 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "304d7e6c_dd69da6d",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 22
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-09-07T01:36:48Z",
+      "side": 1,
+      "message": "Comparing to \"without CfL\" makes it really hard to assess the impact of _this_ change. Even if you did this consistently for every commit, by itself it wouldn\u0027t tell you how other changes in master affected results between CfL commits.",
+      "revId": "7e35024930fcf86999738a92c45e3d27416bee6b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "88071a21_eae02c94",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 22
+      },
+      "lineNbr": 281,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-09-07T01:36:48Z",
+      "side": 1,
+      "message": "I agree with you that INLINE is unnecessary here (the compiler will figure out if a function is worth inlining, but in practice here it would probably just do a tail-call optimization to avoid the function call for the two callers).",
+      "revId": "7e35024930fcf86999738a92c45e3d27416bee6b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4e649e49_57272d95",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 22
+      },
+      "lineNbr": 328,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-09-07T01:36:48Z",
+      "side": 1,
+      "message": "This comment says \"what\" but not \"why\", and I\u0027m having a hard time figuring out how you can have a 4x8 block whose mi_row is odd. Also, we can have 4x16 blocks now (but their mi_row shouldn\u0027t be odd, either).\n\nI looked in is_chroma_reference(), but it doesn\u0027t do any offsetting like this. Did you mean set_skip_context()? It does do a (mi_size_high[bsize] \u003d\u003d 1) check, but again I don\u0027t understand why.\n\nMaybe this should be an assertion instead? I\u0027m okay if you want to leave it as is, though.",
+      "revId": "7e35024930fcf86999738a92c45e3d27416bee6b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "141c0347_772af01a",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 22
+      },
+      "lineNbr": 365,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-09-07T01:36:48Z",
+      "side": 1,
+      "message": "This check won\u0027t work for 4x16 and 16x4 partitions, right? Don\u0027t we need to handle those also?",
+      "revId": "7e35024930fcf86999738a92c45e3d27416bee6b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "413cb693_95b28a1e",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 22
+      },
+      "lineNbr": 388,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-09-07T01:36:48Z",
+      "side": 1,
+      "message": "Any reason not to use mi_size_wide[] and mi_size_high[]? This is a CHROMA_SUB8X8 block, so we\u0027re guaranteed CB4X4 is enabled and the mi size is 4x4.",
+      "revId": "7e35024930fcf86999738a92c45e3d27416bee6b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b72725ab_d8022928",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 22
+      },
+      "lineNbr": 1975,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-09-07T01:36:48Z",
+      "side": 1,
+      "message": "I\u0027m confused why we\u0027re clearing these flags _after_ the store above. Does that mean that store was unnecessary?",
+      "revId": "7e35024930fcf86999738a92c45e3d27416bee6b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5761f373_998d764b",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 22
+      },
+      "lineNbr": 2113,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-09-07T01:36:48Z",
+      "side": 1,
+      "message": "For inter blocks, this only needs to be done if they are not chroma reference blocks, right? Maybe at least add a TODO about not calling this when it\u0027s unnecessary. Or am I missing something that guarantees they\u0027re all necessary stores?",
+      "revId": "7e35024930fcf86999738a92c45e3d27416bee6b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "facaf976_f69164bc",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 22
+      },
+      "lineNbr": 10059,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-09-07T01:36:48Z",
+      "side": 1,
+      "message": "These two changes seem unrelated to the rest of the patch.",
+      "revId": "7e35024930fcf86999738a92c45e3d27416bee6b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
