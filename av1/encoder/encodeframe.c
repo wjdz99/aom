@@ -3547,9 +3547,7 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
     src_diff_var = get_sby_perpixel_diff_variance(cpi, &x->plane[0].src, mi_row,
                                                   mi_col, bsize);
   }
-#endif
 
-#if CONFIG_FP_MB_STATS
   // Decide whether we shall split directly and skip searching NONE by using
   // the first pass block statistics
   if (cpi->use_fp_mb_stats && bsize >= BLOCK_32X32 && do_square_split &&
