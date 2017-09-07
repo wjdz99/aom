@@ -135,9 +135,8 @@ class AV1SelfguidedFilterTest
 TEST_P(AV1SelfguidedFilterTest, SpeedTest) { RunSpeedTest(); }
 TEST_P(AV1SelfguidedFilterTest, CorrectnessTest) { RunCorrectnessTest(); }
 
-const FilterTestParam params[] = { make_tuple() };
-
 #if HAVE_SSE4_1
+const FilterTestParam params[] = { make_tuple() };
 INSTANTIATE_TEST_CASE_P(SSE4_1, AV1SelfguidedFilterTest,
                         ::testing::ValuesIn(params));
 #endif
