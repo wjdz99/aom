@@ -342,6 +342,7 @@ EXPERIMENT_LIST="
     txmg
     hash_me
     colorspace_headers
+    obu
     mfmv
     jnt_comp
 "

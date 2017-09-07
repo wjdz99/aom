@@ -379,7 +379,18 @@ int av1_receive_compressed_data(AV1Decoder *pbi, size_t size,
   }
 
   cm->error.setjmp = 1;
+
+#if !CONFIG_OBU
   av1_decode_frame(pbi, source, source + size, psource);
+#if 0
+  if (av1_decode_frame_headers_and_setup(pbi, source, source + size, psource)) {
+    av1_decode_tg_tiles_and_wrapup(pbi, source, source + size, psource, 0,
+                                   cm->tile_rows * cm->tile_cols - 1, 1);
+  }
+#endif
+#else
+  av1_decode_frame_from_obus(pbi, source, source + size, psource);
+#endif
 
   swap_frame_buffers(pbi);
 
