@@ -6152,7 +6152,12 @@ static int check_best_zero_mv(
       zeromv[cur_frm].as_int =
           gm_get_motion_vector(&cpi->common.global_motion[ref_frames[cur_frm]],
                                cpi->common.allow_high_precision_mv, bsize,
-                               mi_col, mi_row, block)
+                               mi_col, mi_row, block
+#if CONFIG_AMVR
+                               ,
+                               cpi->common.cur_frame_mv_precision_level
+#endif
+                               )
               .as_int;
     }
   }
@@ -6469,7 +6474,15 @@ static void joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
 
     x->mv_limits = tmp_mv_limits;
 
+#if CONFIG_AMVR
+    if (cpi->common.cur_frame_mv_precision_level) {
+      x->best_mv.as_mv.row *= 8;
+      x->best_mv.as_mv.col *= 8;
+    }
+    if (bestsme < INT_MAX && cpi->common.cur_frame_mv_precision_level == 0) {
+#else
     if (bestsme < INT_MAX) {
+#endif
       int dis; /* TODO: use dis in distortion calculation later. */
       unsigned int sse;
       bestsme = cpi->find_fractional_mv_step(
@@ -6856,8 +6869,12 @@ static void setup_buffer_inter(
 
   // Candidate refinement carried out at encoder and decoder
   av1_find_best_ref_mvs(cm->allow_high_precision_mv, candidates,
-                        &frame_nearest_mv[ref_frame],
-                        &frame_near_mv[ref_frame]);
+                        &frame_nearest_mv[ref_frame], &frame_near_mv[ref_frame]
+#if CONFIG_AMVR
+                        ,
+                        cm->cur_frame_mv_precision_level
+#endif
+                        );
 
 // Further refinement that is encode side only to test the top few candidates
 // in full and choose the best as the centre point for subsequent searches.
@@ -7014,7 +7031,15 @@ static void single_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,
 
   x->mv_limits = tmp_mv_limits;
 
+#if CONFIG_AMVR
+  if (cpi->common.cur_frame_mv_precision_level) {
+    x->best_mv.as_mv.row *= 8;
+    x->best_mv.as_mv.col *= 8;
+  }
+  if (bestsme < INT_MAX && cpi->common.cur_frame_mv_precision_level == 0) {
+#else
   if (bestsme < INT_MAX) {
+#endif
     int dis; /* TODO: use dis in distortion calculation later. */
 #if CONFIG_MOTION_VAR
     switch (mbmi->motion_mode) {
@@ -7320,7 +7345,15 @@ static void compound_single_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
 
   x->mv_limits = tmp_mv_limits;
 
+#if CONFIG_AMVR
+  if (cpi->common.cur_frame_mv_precision_level) {
+    x->best_mv.as_mv.row *= 8;
+    x->best_mv.as_mv.col *= 8;
+  }
+  if (bestsme < INT_MAX && cpi->common.cur_frame_mv_precision_level == 0) {
+#else
   if (bestsme < INT_MAX) {
+#endif
     int dis; /* TODO: use dis in distortion calculation later. */
     unsigned int sse;
     bestsme = cpi->find_fractional_mv_step(
@@ -9011,7 +9044,12 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
     {
       cur_mv[0] = mbmi_ext->ref_mv_stack[ref_frame_type][0].this_mv;
 
-      lower_mv_precision(&cur_mv[0].as_mv, cm->allow_high_precision_mv);
+      lower_mv_precision(&cur_mv[0].as_mv, cm->allow_high_precision_mv
+#if CONFIG_AMVR
+                         ,
+                         cm->cur_frame_mv_precision_level
+#endif
+                         );
       clamp_mv2(&cur_mv[0].as_mv, xd);
       if (mv_check_bounds(&x->mv_limits, &cur_mv[0].as_mv)) return INT64_MAX;
       mbmi->mv[0].as_int = cur_mv[0].as_int;
@@ -9020,7 +9058,12 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
     if (this_mode == NEW_NEARESTMV) {
       cur_mv[1] = mbmi_ext->ref_mv_stack[ref_frame_type][0].comp_mv;
 
-      lower_mv_precision(&cur_mv[1].as_mv, cm->allow_high_precision_mv);
+      lower_mv_precision(&cur_mv[1].as_mv, cm->allow_high_precision_mv
+#if CONFIG_AMVR
+                         ,
+                         cm->cur_frame_mv_precision_level
+#endif
+                         );
       clamp_mv2(&cur_mv[1].as_mv, xd);
       if (mv_check_bounds(&x->mv_limits, &cur_mv[1].as_mv)) return INT64_MAX;
       mbmi->mv[1].as_int = cur_mv[1].as_int;
@@ -9036,7 +9079,12 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
         this_mode == NEAR_NEARMV) {
       cur_mv[0] = mbmi_ext->ref_mv_stack[ref_frame_type][ref_mv_idx].this_mv;
 
-      lower_mv_precision(&cur_mv[0].as_mv, cm->allow_high_precision_mv);
+      lower_mv_precision(&cur_mv[0].as_mv, cm->allow_high_precision_mv
+#if CONFIG_AMVR
+                         ,
+                         cm->cur_frame_mv_precision_level
+#endif
+                         );
       clamp_mv2(&cur_mv[0].as_mv, xd);
       if (mv_check_bounds(&x->mv_limits, &cur_mv[0].as_mv)) return INT64_MAX;
       mbmi->mv[0].as_int = cur_mv[0].as_int;
@@ -9054,7 +9102,12 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
 #endif  // CONFIG_COMPOUND_SINGLEREF
         cur_mv[1] = mbmi_ext->ref_mv_stack[ref_frame_type][ref_mv_idx].comp_mv;
 
-      lower_mv_precision(&cur_mv[1].as_mv, cm->allow_high_precision_mv);
+      lower_mv_precision(&cur_mv[1].as_mv, cm->allow_high_precision_mv
+#if CONFIG_AMVR
+                         ,
+                         cm->cur_frame_mv_precision_level
+#endif
+                         );
       clamp_mv2(&cur_mv[1].as_mv, xd);
       if (mv_check_bounds(&x->mv_limits, &cur_mv[1].as_mv)) return INT64_MAX;
       mbmi->mv[1].as_int = cur_mv[1].as_int;
@@ -10293,7 +10346,12 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
     frame_mv[ZEROMV][ref_frame].as_int =
         gm_get_motion_vector(&cm->global_motion[ref_frame],
                              cm->allow_high_precision_mv, bsize, mi_col, mi_row,
-                             0)
+                             0
+#if CONFIG_AMVR
+                             ,
+                             cm->cur_frame_mv_precision_level
+#endif
+                             )
             .as_int;
 #else   // CONFIG_GLOBAL_MOTION
     frame_mv[ZEROMV][ref_frame].as_int = 0;
@@ -10308,7 +10366,12 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
     frame_mv[ZERO_ZEROMV][ref_frame].as_int =
         gm_get_motion_vector(&cm->global_motion[ref_frame],
                              cm->allow_high_precision_mv, bsize, mi_col, mi_row,
-                             0)
+                             0
+#if CONFIG_AMVR
+                             ,
+                             cm->cur_frame_mv_precision_level
+#endif
+                             )
             .as_int;
 #else   // CONFIG_GLOBAL_MOTION
     frame_mv[ZERO_ZEROMV][ref_frame].as_int = 0;
@@ -10408,7 +10471,12 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
 #if CONFIG_GLOBAL_MOTION
       zeromv.as_int = gm_get_motion_vector(&cm->global_motion[ALTREF_FRAME],
                                            cm->allow_high_precision_mv, bsize,
-                                           mi_col, mi_row, 0)
+                                           mi_col, mi_row, 0
+#if CONFIG_AMVR
+                                           ,
+                                           cm->cur_frame_mv_precision_level
+#endif
+                                           )
                           .as_int;
 #else
       zeromv.as_int = 0;
@@ -11796,14 +11864,25 @@ PALETTE_EXIT:
 #if CONFIG_GLOBAL_MOTION
     zeromv[0].as_int = gm_get_motion_vector(&cm->global_motion[refs[0]],
                                             cm->allow_high_precision_mv, bsize,
-                                            mi_col, mi_row, 0)
+                                            mi_col, mi_row, 0
+#if CONFIG_AMVR
+                                            ,
+                                            cm->cur_frame_mv_precision_level
+#endif
+                                            )
                            .as_int;
-    zeromv[1].as_int = comp_pred_mode
-                           ? gm_get_motion_vector(&cm->global_motion[refs[1]],
-                                                  cm->allow_high_precision_mv,
-                                                  bsize, mi_col, mi_row, 0)
-                                 .as_int
-                           : 0;
+    zeromv[1].as_int =
+        comp_pred_mode
+            ? gm_get_motion_vector(&cm->global_motion[refs[1]],
+                                   cm->allow_high_precision_mv, bsize, mi_col,
+                                   mi_row, 0
+#if CONFIG_AMVR
+                                   ,
+                                   cm->cur_frame_mv_precision_level
+#endif
+                                   )
+                  .as_int
+            : 0;
 #else
     zeromv[0].as_int = 0;
     zeromv[1].as_int = 0;
@@ -11928,16 +12007,37 @@ PALETTE_EXIT:
                                            best_mbmode.ref_frame[1] };
       zeromv[0].as_int = gm_get_motion_vector(&cm->global_motion[refs[0]],
                                               cm->allow_high_precision_mv,
-                                              bsize, mi_col, mi_row, 0)
+                                              bsize, mi_col, mi_row, 0
+#if CONFIG_AMVR
+                                              ,
+                                              cm->cur_frame_mv_precision_level
+#endif
+                                              )
                              .as_int;
-      zeromv[1].as_int = (refs[1] != NONE_FRAME)
-                             ? gm_get_motion_vector(&cm->global_motion[refs[1]],
-                                                    cm->allow_high_precision_mv,
-                                                    bsize, mi_col, mi_row, 0)
-                                   .as_int
-                             : 0;
-      lower_mv_precision(&zeromv[0].as_mv, cm->allow_high_precision_mv);
-      lower_mv_precision(&zeromv[1].as_mv, cm->allow_high_precision_mv);
+      zeromv[1].as_int =
+          (refs[1] != NONE_FRAME)
+              ? gm_get_motion_vector(&cm->global_motion[refs[1]],
+                                     cm->allow_high_precision_mv, bsize, mi_col,
+                                     mi_row, 0
+#if CONFIG_AMVR
+                                     ,
+                                     cm->cur_frame_mv_precision_level
+#endif
+                                     )
+                    .as_int
+              : 0;
+      lower_mv_precision(&zeromv[0].as_mv, cm->allow_high_precision_mv
+#if CONFIG_AMVR
+                         ,
+                         cm->cur_frame_mv_precision_level
+#endif
+                         );
+      lower_mv_precision(&zeromv[1].as_mv, cm->allow_high_precision_mv
+#if CONFIG_AMVR
+                         ,
+                         cm->cur_frame_mv_precision_level
+#endif
+                         );
 #else
       zeromv[0].as_int = zeromv[1].as_int = 0;
 #endif  // CONFIG_GLOBAL_MOTION
@@ -12107,8 +12207,12 @@ void av1_rd_pick_inter_mode_sb_seg_skip(const AV1_COMP *cpi,
 #if CONFIG_GLOBAL_MOTION
   mbmi->mv[0].as_int =
       gm_get_motion_vector(&cm->global_motion[mbmi->ref_frame[0]],
-                           cm->allow_high_precision_mv, bsize, mi_col, mi_row,
-                           0)
+                           cm->allow_high_precision_mv, bsize, mi_col, mi_row, 0
+#if CONFIG_AMVR
+                           ,
+                           cm->cur_frame_mv_precision_level
+#endif
+                           )
           .as_int;
 #else   // CONFIG_GLOBAL_MOTION
   mbmi->mv[0].as_int = 0;
