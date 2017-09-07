@@ -3733,6 +3733,12 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
   // store estimated motion vector
   if (cpi->sf.adaptive_motion_search) store_pred_mv(x, ctx_none);
 
+#if CONFIG_SUPERTX
+  int64_t temp_best_rdcost = INT64_MAX;
+#else
+  int64_t temp_best_rdcost = best_rdc.rdcost;
+#endif
+
   // PARTITION_SPLIT
   // TODO(jingning): use the motion vectors given by the above search as
   // the starting point of motion search in the following partition type check.
@@ -3747,20 +3753,13 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
 #else
             ctx_none->mic.mbmi.interp_filter;
 #endif
-#if CONFIG_SUPERTX
+
       rd_pick_sb_modes(cpi, tile_data, x, mi_row, mi_col, &sum_rdc,
                        &sum_rate_nocoef,
 #if CONFIG_EXT_PARTITION_TYPES
                        PARTITION_SPLIT,
 #endif
-                       subsize, pc_tree->leaf_split[0], INT64_MAX);
-#else
-      rd_pick_sb_modes(cpi, tile_data, x, mi_row, mi_col, &sum_rdc,
-#if CONFIG_EXT_PARTITION_TYPES
-                       PARTITION_SPLIT,
-#endif
-                       subsize, pc_tree->leaf_split[0], best_rdc.rdcost);
-#endif  // CONFIG_SUPERTX
+                       subsize, pc_tree->leaf_split[0], temp_best_rdcost);
       if (sum_rdc.rate == INT_MAX) {
         sum_rdc.rdcost = INT64_MAX;
 #if CONFIG_SUPERTX
@@ -3809,12 +3808,7 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
       reached_last_index = 1;
     } else {
       int idx;
-#if CONFIG_SUPERTX
-      for (idx = 0; idx < 4 && sum_rdc.rdcost < INT64_MAX; ++idx)
-#else
-      for (idx = 0; idx < 4 && sum_rdc.rdcost < best_rdc.rdcost; ++idx)
-#endif  // CONFIG_SUPERTX
-      {
+      for (idx = 0; idx < 4 && sum_rdc.rdcost < temp_best_rdcost; ++idx) {
         const int x_idx = (idx & 1) * mi_step;
         const int y_idx = (idx >> 1) * mi_step;
 
@@ -3824,15 +3818,13 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
         if (cpi->sf.adaptive_motion_search) load_pred_mv(x, ctx_none);
 
         pc_tree->split[idx]->index = idx;
-#if CONFIG_SUPERTX
         rd_pick_partition(cpi, td, tile_data, tp, mi_row + y_idx,
-                          mi_col + x_idx, subsize, &this_rdc, &this_rate_nocoef,
-                          INT64_MAX - sum_rdc.rdcost, pc_tree->split[idx]);
-#else
-        rd_pick_partition(
-            cpi, td, tile_data, tp, mi_row + y_idx, mi_col + x_idx, subsize,
-            &this_rdc, best_rdc.rdcost - sum_rdc.rdcost, pc_tree->split[idx]);
-#endif  // CONFIG_SUPERTX
+                          mi_col + x_idx, subsize, &this_rdc,
+#if CONFIG_SUPERTX
+                          &this_rate_nocoef,
+#endif
+                          temp_best_rdcost - sum_rdc.rdcost,
+                          pc_tree->split[idx]);
 
 #if CONFIG_DIST_8X8 && CONFIG_CB4X4
         if (x->using_dist_8x8 && bsize == BLOCK_8X8 &&
