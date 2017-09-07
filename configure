@@ -343,6 +343,7 @@ EXPERIMENT_LIST="
     txmg
     hash_me
     colorspace_headers
+    obu
     mfmv
     jnt_comp
 "
@@ -522,6 +523,7 @@ post_process_cmdline() {
     soft_enable rect_intra_pred
     soft_enable convolve_round
     soft_enable aom_qm
+    soft_enable obu
 
     # Enable low-bitdepth pixel pipeline by default
     soft_enable lowbitdepth
