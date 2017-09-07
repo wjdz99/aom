@@ -174,6 +174,30 @@
       "revId": "2282ce64effaecda8994228da6aada605d2cac8a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d540f48e_513081cc",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1476,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2017-09-07T17:23:20Z",
+      "side": 1,
+      "message": "obviated",
+      "parentUuid": "6cf1bbc2_da7baed5",
+      "range": {
+        "startLine": 1475,
+        "startChar": 13,
+        "endLine": 1476,
+        "endChar": 41
+      },
+      "revId": "2282ce64effaecda8994228da6aada605d2cac8a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
