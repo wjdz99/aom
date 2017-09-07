@@ -345,6 +345,7 @@ EXPERIMENT_LIST="
     max_tile
     hash_me
     colorspace_headers
+    obu
     mfmv
     jnt_comp
     amvr
