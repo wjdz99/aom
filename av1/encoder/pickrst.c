@@ -1447,8 +1447,8 @@ void av1_pick_filter_restoration(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
   for (int plane = AOM_PLANE_Y; plane <= AOM_PLANE_V; ++plane) {
     for (r = 0; r < RESTORE_SWITCHABLE_TYPES; ++r) {
       cost_restore[r] = DBL_MAX;
-      if (force_restore_type != 0)
-        if (r != RESTORE_NONE && r != force_restore_type) continue;
+      if (force_restore_type != RESTORE_NONE)
+        if (r != RESTORE_NONE) continue;
       cost_restore[r] =
           search_restore_fun[r](src, cpi, method == LPF_PICK_FROM_SUBIMAGE,
                                 plane, &cm->rst_info[plane], restore_types[r],
@@ -1464,7 +1464,7 @@ void av1_pick_filter_restoration(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
     best_restore = 0;
     for (r = 0; r < RESTORE_TYPES; ++r) {
       if (force_restore_type != 0)
-        if (r != RESTORE_NONE && r != force_restore_type) continue;
+        if (r != RESTORE_NONE) continue;
       if (cost_restore[r] < best_cost_restore) {
         best_restore = r;
         best_cost_restore = cost_restore[r];
