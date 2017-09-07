@@ -344,6 +344,7 @@ EXPERIMENT_LIST="
     colorspace_headers
     mfmv
     jnt_comp
+    amvr
 "
 CONFIG_LIST="
     dependency_tracking

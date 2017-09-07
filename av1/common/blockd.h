@@ -761,7 +761,10 @@ typedef struct macroblockd {
   int qindex[MAX_SEGMENTS];
   int lossless[MAX_SEGMENTS];
   int corrupted;
-
+#if CONFIG_AMVR
+  int cur_frame_mv_precision_level;
+  //same with that in AV1_COMMON
+#endif
   struct aom_internal_error_info *error_info;
 #if CONFIG_GLOBAL_MOTION
   WarpedMotionParams *global_motion;
@@ -1554,10 +1557,16 @@ static INLINE MOTION_MODE motion_mode_allowed(
 #endif
     const MODE_INFO *mi) {
   const MB_MODE_INFO *mbmi = &mi->mbmi;
+#if CONFIG_AMVR
+  if (xd->cur_frame_mv_precision_level == 0) {
+#endif
 #if CONFIG_GLOBAL_MOTION
   const TransformationType gm_type = gm_params[mbmi->ref_frame[0]].wmtype;
   if (is_global_mv_block(mi, block, gm_type)) return SIMPLE_TRANSLATION;
 #endif  // CONFIG_GLOBAL_MOTION
+#if CONFIG_AMVR
+  }
+#endif
 #if CONFIG_EXT_INTER
   if (is_motion_variation_allowed_bsize(mbmi->sb_type) &&
       is_inter_mode(mbmi->mode) && mbmi->ref_frame[1] != INTRA_FRAME &&
@@ -1572,7 +1581,16 @@ static INLINE MOTION_MODE motion_mode_allowed(
 #if CONFIG_WARPED_MOTION
     if (!has_second_ref(mbmi) && mbmi->num_proj_ref[0] >= 1 &&
         !av1_is_scaled(&(xd->block_refs[0]->sf))) {
-      return WARPED_CAUSAL;
+#if CONFIG_AMVR
+		if (xd->cur_frame_mv_precision_level) {
+			return OBMC_CAUSAL;
+		}
+		else {
+			return WARPED_CAUSAL;
+		}
+#else
+		return WARPED_CAUSAL;
+#endif		
     } else {
 #endif  // CONFIG_WARPED_MOTION
 #if CONFIG_MOTION_VAR

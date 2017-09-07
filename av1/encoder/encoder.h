@@ -401,6 +401,15 @@ typedef struct AV1_COMP {
 
   // For a still frame, this flag is set to 1 to skip partition search.
   int partition_search_skippable_frame;
+#if CONFIG_AMVR
+  double csm_rate_array[32];
+  double m_rate_array[32];
+  int  rate_size;
+  int  rate_index;
+  hash_table *previsou_hash_table;
+  int previsous_index;
+  int cur_poc;//DebugInfo
+#endif
 
   int scaled_ref_idx[TOTAL_REFS_PER_FRAME];
 #if CONFIG_EXT_REFS
@@ -746,7 +755,11 @@ void av1_scale_references(AV1_COMP *cpi);
 
 void av1_update_reference_frames(AV1_COMP *cpi);
 
-void av1_set_high_precision_mv(AV1_COMP *cpi, int allow_high_precision_mv);
+void av1_set_high_precision_mv(AV1_COMP *cpi, int allow_high_precision_mv
+#if CONFIG_AMVR
+                             , int cur_frame_mv_precision_level
+#endif
+);
 #if CONFIG_TEMPMV_SIGNALING
 void av1_set_temporal_mv_prediction(AV1_COMP *cpi, int allow_tempmv_prediction);
 #endif
