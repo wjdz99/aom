@@ -212,12 +212,17 @@ static aom_codec_err_t decoder_peek_si_internal(
   si->is_kf = 0;
   si->w = si->h = 0;
 
+#if CONFIG_OBU
+  *is_intra_only = intra_only_flag;
+#endif
+
   if (decrypt_cb) {
     data_sz = AOMMIN(sizeof(clear_buffer), data_sz);
     decrypt_cb(decrypt_state, data, clear_buffer, data_sz);
     data = clear_buffer;
   }
 
+#if !CONFIG_OBU  // TODO(shan):  implement peeking with OBUs
   // skip a potential superframe index
   {
     uint32_t frame_sizes[8];
@@ -300,6 +305,7 @@ static aom_codec_err_t decoder_peek_si_internal(
     }
   }
   if (is_intra_only != NULL) *is_intra_only = intra_only_flag;
+#endif
   return AOM_CODEC_OK;
 }
 
@@ -519,7 +525,9 @@ static aom_codec_err_t decode_one(aom_codec_alg_priv_t *ctx,
                                  ctx->decrypt_cb, ctx->decrypt_state);
     if (res != AOM_CODEC_OK) return res;
 
+#if !CONFIG_OBU
     if (!ctx->si.is_kf && !is_intra_only) return AOM_CODEC_ERROR;
+#endif
   }
 
   if (!ctx->frame_parallel_decode) {
