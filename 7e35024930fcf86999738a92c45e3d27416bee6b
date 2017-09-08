@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "471bf271_2f652fcc",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 22
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-09-08T19:07:18Z",
+      "side": 1,
+      "message": "This is the first patch that adds working support for CfL in inter frames. As such, there is no prior version to compare with. This being said, we can add a Subset1 run that should reveal no change to still images. I also added https://aomedia-review.googlesource.com/c/aom/+/20982 which will use CfL only on intra frames thus giving us a version to compare with results will be available here https://arewecompressedyet.com/?job\u003dcfl-no-inter%402017-09-07T15%3A06%3A32.156Z\u0026job\u003dcfl-inter%402017-08-31T14%3A34%3A04.300Z",
+      "parentUuid": "304d7e6c_dd69da6d",
+      "revId": "7e35024930fcf86999738a92c45e3d27416bee6b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "88071a21_eae02c94",
         "filename": "av1/common/cfl.c",
         "patchSetId": 22
@@ -30,6 +48,24 @@
       "writtenOn": "2017-09-07T01:36:48Z",
       "side": 1,
       "message": "I agree with you that INLINE is unnecessary here (the compiler will figure out if a function is worth inlining, but in practice here it would probably just do a tail-call optimization to avoid the function call for the two callers).",
+      "revId": "7e35024930fcf86999738a92c45e3d27416bee6b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5c363c49_18d0934c",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 22
+      },
+      "lineNbr": 281,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-09-08T19:07:18Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "88071a21_eae02c94",
       "revId": "7e35024930fcf86999738a92c45e3d27416bee6b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "ff2d1394_60b98caa",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 22
+      },
+      "lineNbr": 328,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-09-08T19:07:18Z",
+      "side": 1,
+      "message": "\"I looked in is_chroma_reference(), but it doesn\u0027t do any offsetting like this. Did you mean set_skip_context()? It does do a (mi_size_high[bsize] \u003d\u003d 1) check, but again I don\u0027t understand why.\" \nThe logic is shared with) https://aomedia.googlesource.com/aom/+/89cf53ba7a14efadd0e4ee104ef4621b8b493a2e/av1/common/onyxc_int.h#849\n\n\"I\u0027m having a hard time figuring out how you can have a 4x8 block whose mi_row is odd\"\nYou are right, bh\u003d\u003d4 and bw\u003d\u003d4 are useless.",
+      "parentUuid": "4e649e49_57272d95",
+      "revId": "7e35024930fcf86999738a92c45e3d27416bee6b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "141c0347_772af01a",
         "filename": "av1/common/cfl.c",
         "patchSetId": 22
@@ -64,6 +118,24 @@
       "writtenOn": "2017-09-07T01:36:48Z",
       "side": 1,
       "message": "This check won\u0027t work for 4x16 and 16x4 partitions, right? Don\u0027t we need to handle those also?",
+      "revId": "7e35024930fcf86999738a92c45e3d27416bee6b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7cc83f58_ce766524",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 22
+      },
+      "lineNbr": 365,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-09-08T19:07:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "141c0347_772af01a",
       "revId": "7e35024930fcf86999738a92c45e3d27416bee6b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "33d4de61_ac8fad96",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 22
+      },
+      "lineNbr": 388,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-09-08T19:07:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "413cb693_95b28a1e",
+      "revId": "7e35024930fcf86999738a92c45e3d27416bee6b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b72725ab_d8022928",
         "filename": "av1/decoder/decodeframe.c",
         "patchSetId": 22
@@ -104,6 +194,24 @@
     },
     {
       "key": {
+        "uuid": "28c22182_1b29b755",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 22
+      },
+      "lineNbr": 1975,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-09-08T19:07:18Z",
+      "side": 1,
+      "message": "This is for sub8x8, if it is the last sub8x8 and the mbmi-\u003euv_mode is not UV_CFL_PRED we clear out the stores made in the prior sub8x8 blocks. We had no choice to store before as we did not know the uv_mode of the last block",
+      "parentUuid": "b72725ab_d8022928",
+      "revId": "7e35024930fcf86999738a92c45e3d27416bee6b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5761f373_998d764b",
         "filename": "av1/decoder/decodeframe.c",
         "patchSetId": 22
@@ -115,6 +223,24 @@
       "writtenOn": "2017-09-07T01:36:48Z",
       "side": 1,
       "message": "For inter blocks, this only needs to be done if they are not chroma reference blocks, right? Maybe at least add a TODO about not calling this when it\u0027s unnecessary. Or am I missing something that guarantees they\u0027re all necessary stores?",
+      "revId": "7e35024930fcf86999738a92c45e3d27416bee6b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "420bffa6_cbfbf149",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 22
+      },
+      "lineNbr": 2113,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-09-08T19:07:18Z",
+      "side": 1,
+      "message": "I\u0027m not sure I understand this comment. We already check if it\u0027s not a chroma reference. From my understanding of CHROMA_SUB8X8, all non chroma references must be stored.",
+      "parentUuid": "5761f373_998d764b",
       "revId": "7e35024930fcf86999738a92c45e3d27416bee6b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
