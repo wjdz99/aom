@@ -182,7 +182,11 @@ static INLINE void av1_make_inter_predictor(
       build_for_obmc,
 #endif  // CONFIG_MOTION_VAR
       &final_warp_params);
-  if (do_warp) {
+  if (do_warp
+#if CONFIG_AMVR
+      && xd->cur_frame_mv_precision_level == 0
+#endif
+      ) {
     const struct macroblockd_plane *const pd = &xd->plane[plane];
     const struct buf_2d *const pre_buf = &pd->pre[ref];
     av1_warp_plane(&final_warp_params,
@@ -365,6 +369,12 @@ const wedge_params_type wedge_params_lookup[BLOCK_SIZES_ALL] = {
     wedge_masks[BLOCK_32X16] },
   { 4, wedge_codebook_16_heqw, wedge_signflip_lookup[BLOCK_32X32], 0,
     wedge_masks[BLOCK_32X32] },
+  { 0, wedge_codebook_16_hgtw, wedge_signflip_lookup[BLOCK_32X64], 0,
+    wedge_masks[BLOCK_32X64] },
+  { 0, wedge_codebook_16_hltw, wedge_signflip_lookup[BLOCK_64X32], 0,
+    wedge_masks[BLOCK_64X32] },
+  { 0, wedge_codebook_16_heqw, wedge_signflip_lookup[BLOCK_64X64], 0,
+    wedge_masks[BLOCK_64X64] },
 #else
   { 0, wedge_codebook_16_heqw, wedge_signflip_lookup[BLOCK_8X8], 0,
     wedge_masks[BLOCK_8X8] },
@@ -380,36 +390,30 @@ const wedge_params_type wedge_params_lookup[BLOCK_SIZES_ALL] = {
     wedge_masks[BLOCK_32X16] },
   { 0, wedge_codebook_16_heqw, wedge_signflip_lookup[BLOCK_32X32], 0,
     wedge_masks[BLOCK_32X32] },
+  { 0, wedge_codebook_16_hgtw, wedge_signflip_lookup[BLOCK_32X64], 0,
+    wedge_masks[BLOCK_32X64] },
+  { 0, wedge_codebook_16_hltw, wedge_signflip_lookup[BLOCK_64X32], 0,
+    wedge_masks[BLOCK_64X32] },
+  { 0, wedge_codebook_16_heqw, wedge_signflip_lookup[BLOCK_64X64], 0,
+    wedge_masks[BLOCK_64X64] },
 #endif  // CONFIG_WEDGE
-  { 0, NULL, NULL, 0, NULL },
-  { 0, NULL, NULL, 0, NULL },
-  { 0, NULL, NULL, 0, NULL },
 #if CONFIG_EXT_PARTITION
   { 0, NULL, NULL, 0, NULL },
   { 0, NULL, NULL, 0, NULL },
   { 0, NULL, NULL, 0, NULL },
 #endif  // CONFIG_EXT_PARTITION
-#if CONFIG_WEDGE
-  { 0, wedge_codebook_16_hgtw, wedge_signflip_lookup[BLOCK_4X16], 0,
+  { 4, wedge_codebook_16_hgtw, wedge_signflip_lookup[BLOCK_4X16], 0,
     wedge_masks[BLOCK_4X16] },
-  { 0, wedge_codebook_16_hltw, wedge_signflip_lookup[BLOCK_16X4], 0,
+  { 4, wedge_codebook_16_hltw, wedge_signflip_lookup[BLOCK_16X4], 0,
     wedge_masks[BLOCK_16X4] },
   { 4, wedge_codebook_16_hgtw, wedge_signflip_lookup[BLOCK_8X32], 0,
     wedge_masks[BLOCK_8X32] },
   { 4, wedge_codebook_16_hltw, wedge_signflip_lookup[BLOCK_32X8], 0,
     wedge_masks[BLOCK_32X8] },
-#else
-  { 0, wedge_codebook_16_hgtw, wedge_signflip_lookup[BLOCK_4X16], 0,
-    wedge_masks[BLOCK_4X16] },
-  { 0, wedge_codebook_16_hltw, wedge_signflip_lookup[BLOCK_16X4], 0,
-    wedge_masks[BLOCK_16X4] },
-  { 0, wedge_codebook_16_hgtw, wedge_signflip_lookup[BLOCK_8X32], 0,
+  { 0, wedge_codebook_16_hgtw, wedge_signflip_lookup[BLOCK_16X64], 0,
     wedge_masks[BLOCK_8X32] },
-  { 0, wedge_codebook_16_hltw, wedge_signflip_lookup[BLOCK_32X8], 0,
+  { 0, wedge_codebook_16_hltw, wedge_signflip_lookup[BLOCK_64X16], 0,
     wedge_masks[BLOCK_32X8] },
-#endif  // CONFIG_WEDGE
-  { 0, NULL, NULL, 0, NULL },
-  { 0, NULL, NULL, 0, NULL },
 };
 
 static const uint8_t *get_wedge_mask_inplace(int wedge_index, int neg,
@@ -3577,18 +3581,19 @@ void build_ncobmc_intrpl_pred(const AV1_COMMON *const cm, MACROBLOCKD *xd,
         int i;
         for (i = 0; i < 4; ++i) tmp_p[i] = preds[i][plane];
 
-        tmp = 0;
-        for (i = 0; i < 4; ++i)
-          tmp += knls->KERNEL[i][k_r][k_c] * tmp_p[i][pos];
-
+        tmp = (int64_t)knls->KERNEL_TL[k_r][k_c] * tmp_p[0][pos] +
+              (int64_t)knls->KERNEL_TR[k_r][k_c] * tmp_p[1][pos] +
+              (int64_t)knls->KERNEL_BL[k_r][k_c] * tmp_p[2][pos] +
+              (int64_t)knls->KERNEL_BR[k_r][k_c] * tmp_p[3][pos];
       } else {
         uint16_t *tmp_p[4];
         int i;
         for (i = 0; i < 4; ++i) tmp_p[i] = CONVERT_TO_SHORTPTR(preds[i][plane]);
 
-        tmp = 0;
-        for (i = 0; i < 4; ++i)
-          tmp += knls->KERNEL[i][k_r][k_c] * tmp_p[i][pos];
+        tmp = (int64_t)knls->KERNEL_TL[k_r][k_c] * tmp_p[0][pos] +
+              (int64_t)knls->KERNEL_TR[k_r][k_c] * tmp_p[1][pos] +
+              (int64_t)knls->KERNEL_BL[k_r][k_c] * tmp_p[2][pos] +
+              (int64_t)knls->KERNEL_BR[k_r][k_c] * tmp_p[3][pos];
       }
 
       q_tmp = (tmp <= 0) ? 0 : ROUND_POWER_OF_TWO(tmp, KERNEL_SCALE_LOG);
@@ -3702,7 +3707,8 @@ void get_pred_by_horz_neighbor(const AV1_COMMON *cm, MACROBLOCKD *xd, int bsize,
       bw = mi_size_wide[bsize] << (MI_SIZE_LOG2 - 1) >> pd->subsampling_x;
       bh = (mi_step << MI_SIZE_LOG2) >> pd->subsampling_y;
 
-      build_inter_predictors(cm, xd, j, left_mi, 1, 0, bw, bh, 0, 0, bw, bh,
+      build_inter_predictors(cm, xd, j, mi_col_offset, mi_row_offset, 0, bw, bh,
+                             0, 0, bw, bh,
 #if CONFIG_SUPERTX && CONFIG_EXT_INTER
                              0, 0,
 #endif  // CONFIG_SUPERTX && CONFIG_EXT_INTER
@@ -3797,7 +3803,8 @@ void get_pred_by_horz_neighbor(const AV1_COMMON *cm, MACROBLOCKD *xd, int bsize,
       bw = mi_size_wide[bsize] << (MI_SIZE_LOG2 - 1) >> pd->subsampling_x;
       bh = (mi_step << MI_SIZE_LOG2) >> pd->subsampling_y;
 
-      build_inter_predictors(cm, xd, j, right_mi, 1, 0, bw, bh, 0, 0, bw, bh,
+      build_inter_predictors(cm, xd, j, mi_col_offset, mi_row_offset, 0, bw, bh,
+                             0, 0, bw, bh,
 #if CONFIG_SUPERTX && CONFIG_EXT_INTER
                              0, 0,
 #endif  // CONFIG_SUPERTX && CONFIG_EXT_INTER
@@ -3916,7 +3923,8 @@ void get_pred_by_vert_neighbor(const AV1_COMMON *cm, MACROBLOCKD *xd, int bsize,
       bh = mi_size_high[bsize] << (MI_SIZE_LOG2 - 1) >> pd->subsampling_x;
       bw = (mi_step << MI_SIZE_LOG2) >> pd->subsampling_y;
 
-      build_inter_predictors(cm, xd, j, above_mi, 1, 0, bw, bh, 0, 0, bw, bh,
+      build_inter_predictors(cm, xd, j, mi_col_offset, mi_row_offset, 0, bw, bh,
+                             0, 0, bw, bh,
 #if CONFIG_SUPERTX && CONFIG_EXT_INTER
                              0, 0,
 #endif  // CONFIG_SUPERTX && CONFIG_EXT_INTER
@@ -4016,7 +4024,8 @@ void get_pred_by_vert_neighbor(const AV1_COMMON *cm, MACROBLOCKD *xd, int bsize,
       bh = mi_size_high[bsize] << (MI_SIZE_LOG2 - 1) >> pd->subsampling_x;
       bw = (mi_step << MI_SIZE_LOG2) >> pd->subsampling_y;
 
-      build_inter_predictors(cm, xd, j, bottom_mi, 1, 0, bw, bh, 0, 0, bw, bh,
+      build_inter_predictors(cm, xd, j, mi_col_offset, mi_row_offset, 0, bw, bh,
+                             0, 0, bw, bh,
 #if CONFIG_SUPERTX && CONFIG_EXT_INTER
                              0, 0,
 #endif  // CONFIG_SUPERTX && CONFIG_EXT_INTER
@@ -4126,7 +4135,8 @@ void get_pred_by_corner_neighbor(const AV1_COMMON *cm, MACROBLOCKD *xd,
       const struct macroblockd_plane *pd = &xd->plane[j];
       bh = mi_high << MI_SIZE_LOG2 >> (pd->subsampling_x + 1);
       bw = mi_wide << MI_SIZE_LOG2 >> (pd->subsampling_y + 1);
-      build_inter_predictors(cm, xd, j, corner_mi, 1, 0, bw, bh, 0, 0, bw, bh,
+      build_inter_predictors(cm, xd, j, mi_col_offset, mi_row_offset, 0, bw, bh,
+                             0, 0, bw, bh,
 #if CONFIG_SUPERTX && CONFIG_EXT_INTER
                              0, 0,
 #endif  // CONFIG_SUPERTX && CONFIG_EXT_INTER
@@ -4187,7 +4197,7 @@ void av1_get_ori_blk_pred(const AV1_COMMON *cm, MACROBLOCKD *xd, int bsize,
 
   for (i = 0; i < MAX_MB_PLANE; ++i) {
     const struct macroblockd_plane *pd = &xd->plane[i];
-    build_inter_predictors(cm, xd, i, mi, 0, 0, bw >> pd->subsampling_x,
+    build_inter_predictors(cm, xd, i, 0, 0, 0, bw >> pd->subsampling_x,
                            bh >> pd->subsampling_y, 0, 0,
                            bw >> pd->subsampling_x, bh >> pd->subsampling_y,
 #if CONFIG_SUPERTX && CONFIG_EXT_INTER
