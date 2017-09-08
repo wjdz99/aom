@@ -2,6 +2,75 @@
   "comments": [
     {
       "key": {
+        "uuid": "2d561eb2_c98664d6",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 3757,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2017-09-08T05:15:50Z",
+      "side": 1,
+      "message": "Alternative is\nrd_pick_sb_modes(cpi, tile_data, x, mi_row, mi_col, \u0026sum_rdc,\n#if CONFIG_SUPERTX\n                 \u0026sum_rate_nocoef,\n#endif\n#if CONFIG_EXT_PARTITION_TYPES\n                 ARTITION_SPLIT,\n#endif\n                 subsize, pc_tree-\u003eleaf_split[0],\n#if CONFIG_SUPERTX\n                 INT64_MAX       \n#else\n                 best_rdc.rdcost\n#endif\n);",
+      "range": {
+        "startLine": 3757,
+        "startChar": 6,
+        "endLine": 3757,
+        "endChar": 61
+      },
+      "revId": "baeebc7968ee3488410d2cd8eef651fd69a8a4eb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "667ed880_d2f71387",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 3986,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2017-09-08T05:15:50Z",
+      "side": 1,
+      "message": "Here temp_best_rdcost may not be INT64_MAX when supertx is on, due to line 3940.",
+      "range": {
+        "startLine": 3986,
+        "startChar": 25,
+        "endLine": 3986,
+        "endChar": 41
+      },
+      "revId": "baeebc7968ee3488410d2cd8eef651fd69a8a4eb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "20ab6a54_a6b680d1",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 4190,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2017-09-08T05:15:50Z",
+      "side": 1,
+      "message": "These can be combined as well.",
+      "range": {
+        "startLine": 4180,
+        "startChar": 1,
+        "endLine": 4190,
+        "endChar": 6
+      },
+      "revId": "baeebc7968ee3488410d2cd8eef651fd69a8a4eb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b1574646_a2d85cc2",
         "filename": "test/selfguided_filter_test.cc",
         "patchSetId": 4
