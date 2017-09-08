@@ -1573,7 +1573,7 @@ static INLINE MOTION_MODE motion_mode_allowed(
     if (!has_second_ref(mbmi) && mbmi->num_proj_ref[0] >= 1 &&
         !av1_is_scaled(&(xd->block_refs[0]->sf))) {
       return WARPED_CAUSAL;
-    } else {
+    }
 #endif  // CONFIG_WARPED_MOTION
 #if CONFIG_MOTION_VAR
 #if CONFIG_NCOBMC_ADAPT_WEIGHT
@@ -1582,9 +1582,6 @@ static INLINE MOTION_MODE motion_mode_allowed(
       else
 #endif
         return OBMC_CAUSAL;
-#if CONFIG_WARPED_MOTION
-    }
-#endif  // CONFIG_WARPED_MOTION
 #else
     return SIMPLE_TRANSLATION;
 #endif  // CONFIG_MOTION_VAR
