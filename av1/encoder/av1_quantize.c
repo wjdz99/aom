@@ -691,7 +691,7 @@ static void quantize_dc(const tran_low_t *coeff_ptr, int n_coeffs,
     dqcoeff_ptr[rc] = (qcoeff_ptr[rc] * dequant) / (1 << log_scale);
     if (tmp32) eob = 0;
   }
-  *eob_ptr = eob + 1;
+  *eob_ptr = (uint16_t)(eob + 1);
 }
 
 void av1_quantize_dc_facade(const tran_low_t *coeff_ptr, intptr_t n_coeffs,
