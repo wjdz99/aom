@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c5d846a1_5f9ed1e0",
+        "filename": "build/cmake/compiler_tests.cmake",
+        "patchSetId": 1
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2017-09-08T17:55:05Z",
+      "side": 0,
+      "message": "I really have no idea why this was working except a guess that there\u0027s some built in CMake magic hand holding wrt CMAKE_ flags. \n\nWhen logging this out ${var} prints the variable name. Missed this initially, and works either way. Made the change mainly because this looks wrong and I\u0027m making it additive...",
+      "range": {
+        "startLine": 56,
+        "startChar": 19,
+        "endLine": 56,
+        "endChar": 25
+      },
+      "revId": "50c62ee4855a52ebaeebaca525447244dcf4303b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
