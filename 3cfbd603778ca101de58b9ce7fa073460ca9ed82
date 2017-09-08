@@ -22,6 +22,30 @@
       "revId": "3cfbd603778ca101de58b9ce7fa073460ca9ed82",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8a8f3fe1_c141659e",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 854,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2017-09-08T22:49:24Z",
+      "side": 1,
+      "message": "It just means send the mask in the bitstream vs have the decoder construct it. Would you prefer I add a comment?",
+      "parentUuid": "1332ed44_5b69b95d",
+      "range": {
+        "startLine": 854,
+        "startChar": 30,
+        "endLine": 854,
+        "endChar": 50
+      },
+      "revId": "3cfbd603778ca101de58b9ce7fa073460ca9ed82",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
