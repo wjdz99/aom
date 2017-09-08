@@ -43,16 +43,6 @@ typedef struct {
   // this context
   int uv_height, uv_width;
 
-  // Transform level averages of the luma reconstructed values over the entire
-  // prediction unit
-  // Fixed point y_averages is Q12.3:
-  //   * Worst case division is 1/1024
-  //   * Max error will be 1/16th.
-  // Note: 3 is chosen so that y_averages fits in 15 bits when 12 bit input is
-  // used
-  int y_averages_q3[MAX_NUM_TXB];
-  int y_averages_stride;
-
   int are_parameters_computed;
 
   // Chroma subsampling
@@ -77,8 +67,8 @@ typedef struct {
 #endif  // CONFIG_CB4X4
 } CFL_CTX;
 
-static INLINE int get_scaled_luma_q0(int alpha_q3, int y_pix, int avg_q3) {
-  int scaled_luma_q6 = alpha_q3 * (y_pix - avg_q3);
+static INLINE int get_scaled_luma_q0(int alpha_q3, int y_pix) {
+  int scaled_luma_q6 = alpha_q3 * y_pix;
   return ROUND_POWER_OF_TWO_SIGNED(scaled_luma_q6, 6);
 }
 
