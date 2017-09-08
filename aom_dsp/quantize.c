@@ -165,7 +165,7 @@ void quantize_dc_helper(const tran_low_t *coeff_ptr, int n_coeffs,
     dqcoeff_ptr[rc] = (qcoeff_ptr[rc] * dequant) / (1 << log_scale);
     if (tmp32) eob = 0;
   }
-  *eob_ptr = eob + 1;
+  *eob_ptr = (uint16_t)(eob + 1);
 }
 
 /* These functions should only be called when quantisation matrices
