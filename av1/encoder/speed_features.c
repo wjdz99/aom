@@ -192,7 +192,13 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
 
     sf->tx_size_search_breakout = 1;
     sf->partition_search_breakout_rate_thr = 80;
+
+#if CONFIG_EXT_TX
+    sf->tx_type_search.prune_mode = PRUNE_2D_ACCURATE;
+#else
     sf->tx_type_search.prune_mode = PRUNE_ONE;
+#endif
+
     // Use transform domain distortion.
     // Note var-tx expt always uses pixel domain distortion.
     sf->use_transform_domain_distortion = 1;
@@ -215,7 +221,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->use_upsampled_references = 0;
     sf->adaptive_rd_thresh = 2;
 #if CONFIG_EXT_TX
-    sf->tx_type_search.prune_mode = PRUNE_TWO;
+    sf->tx_type_search.prune_mode = PRUNE_2D_FAST;
 #endif
 #if CONFIG_GLOBAL_MOTION
     sf->gm_search_type = GM_DISABLE_SEARCH;
