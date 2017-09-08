@@ -46,6 +46,9 @@ static uint8_t intrabc_max_mesh_pct[MAX_MESH_SPEED + 1] = { 100, 100, 100,
                                                             25,  25,  10 };
 #endif
 
+#define TMP_FORCE_USE_SKIP_PREDICTION 1
+#define TMP_FORCE_PRUNE_MODE PRUNE_2D_ACCURATE
+
 // Intra only frames, golden frames (except alt ref overlays) and
 // alt ref frames tend to be coded at a higher than ambient quality
 static int frame_is_boosted(const AV1_COMP *cpi) {
@@ -192,7 +195,12 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
 
     sf->tx_size_search_breakout = 1;
     sf->partition_search_breakout_rate_thr = 80;
+
+#if CONFIG_EXT_TX
+    sf->tx_type_search.prune_mode = PRUNE_2D_ACCURATE;
+#else
     sf->tx_type_search.prune_mode = PRUNE_ONE;
+#endif
     sf->tx_type_search.use_skip_flag_prediction = 1;
     // Use transform domain distortion.
     // Note var-tx expt always uses pixel domain distortion.
@@ -218,7 +226,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->use_upsampled_references = 0;
     sf->adaptive_rd_thresh = 2;
 #if CONFIG_EXT_TX
-    sf->tx_type_search.prune_mode = PRUNE_TWO;
+    sf->tx_type_search.prune_mode = PRUNE_2D_FAST;
 #endif
 #if CONFIG_GLOBAL_MOTION
     sf->gm_search_type = GM_DISABLE_SEARCH;
@@ -470,6 +478,12 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi) {
 #endif
       )
     set_good_speed_features_framesize_independent(cpi, sf, oxcf->speed);
+#ifdef TMP_FORCE_USE_SKIP_PREDICTION
+  sf->tx_type_search.use_skip_flag_prediction = TMP_FORCE_USE_SKIP_PREDICTION;
+#endif
+#ifdef TMP_FORCE_PRUNE_MODE
+  sf->tx_type_search.prune_mode = TMP_FORCE_PRUNE_MODE;
+#endif
 
   // sf->partition_search_breakout_dist_thr is set assuming max 64x64
   // blocks. Normalise this if the blocks are bigger.
