@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "b3b62671_3361f572",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 22
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-09-08T19:59:31Z",
+      "side": 1,
+      "message": "Didn\u0027t it \"work\" before, just using padding and putting the available luma pixels from the bottom-right into the upper-left instead of where they belong? We should at least be able to show an improvement over that to demonstrate that this patch is fixing something.",
+      "parentUuid": "471bf271_2f652fcc",
+      "revId": "7e35024930fcf86999738a92c45e3d27416bee6b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "88071a21_eae02c94",
         "filename": "av1/common/cfl.c",
         "patchSetId": 22
@@ -101,6 +119,24 @@
       "side": 1,
       "message": "\"I looked in is_chroma_reference(), but it doesn\u0027t do any offsetting like this. Did you mean set_skip_context()? It does do a (mi_size_high[bsize] \u003d\u003d 1) check, but again I don\u0027t understand why.\" \nThe logic is shared with) https://aomedia.googlesource.com/aom/+/89cf53ba7a14efadd0e4ee104ef4621b8b493a2e/av1/common/onyxc_int.h#849\n\n\"I\u0027m having a hard time figuring out how you can have a 4x8 block whose mi_row is odd\"\nYou are right, bh\u003d\u003d4 and bw\u003d\u003d4 are useless.",
       "parentUuid": "4e649e49_57272d95",
+      "revId": "7e35024930fcf86999738a92c45e3d27416bee6b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2dad5dc5_3c37fb6f",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 22
+      },
+      "lineNbr": 328,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-09-08T19:59:31Z",
+      "side": 1,
+      "message": "\u003e The logic is shared with) https://aomedia.googlesource.com/aom/+/89cf53ba7a14efadd0e4ee104ef4621b8b493a2e/av1/common/onyxc_int.h#849\n\nWell, those are related, but different. Given four 4x4 blocks { {A, B}, {C, D} }, is_chroma_reference() is trying to trigger on D only (and also any case \u003e\u003d 8x8) while what you\u0027re trying to do is trigger, separately, on C and D for the rows, and B and D for the columns (and not on any case \u003e\u003d 8x8). So if I were going to point someone somewhere, it\u0027d be at set_skip_context() (also in onyx_int.h), which actually adjusts things in the same cases.\n\nI\u0027d still probably assert that bh \u003d\u003d 4 (and bw \u003d\u003d 4 in the case below), just to guard against people coming up with even crazier partition schemes in the future.",
+      "parentUuid": "ff2d1394_60b98caa",
       "revId": "7e35024930fcf86999738a92c45e3d27416bee6b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -212,6 +248,24 @@
     },
     {
       "key": {
+        "uuid": "689d41c0_480511bc",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 22
+      },
+      "lineNbr": 1975,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-09-08T19:59:31Z",
+      "side": 1,
+      "message": "Sorry, still not getting it.\n\nThis block isn\u0027t checking that uv_mode is not UV_CFL_PRED (or if it does, I don\u0027t see where). So it looks like if (cfl-\u003eis_chroma_reference) is set, then 100% of the time the store made above at line 1969 just gets wiped out. If it\u0027s not set, then the continue on line 1945 guarantees we never even get to line 1969? I just can\u0027t figure out what that store is for.\n\nI also don\u0027t see how it knows this is a sub8x8 case. Clearing some debug flags a few extra times is no big deal, but extra calls to cfl_store_block() may be a bigger deal.",
+      "parentUuid": "28c22182_1b29b755",
+      "revId": "7e35024930fcf86999738a92c45e3d27416bee6b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5761f373_998d764b",
         "filename": "av1/decoder/decodeframe.c",
         "patchSetId": 22
@@ -241,6 +295,24 @@
       "side": 1,
       "message": "I\u0027m not sure I understand this comment. We already check if it\u0027s not a chroma reference. From my understanding of CHROMA_SUB8X8, all non chroma references must be stored.",
       "parentUuid": "5761f373_998d764b",
+      "revId": "7e35024930fcf86999738a92c45e3d27416bee6b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "33a01b26_05ce221a",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 22
+      },
+      "lineNbr": 2113,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-09-08T19:59:31Z",
+      "side": 1,
+      "message": "Yes, sorry, I mis-read what the comment was trying to say and apparently didn\u0027t even notice the if() above it. Please ignore me.",
+      "parentUuid": "420bffa6_cbfbf149",
       "revId": "7e35024930fcf86999738a92c45e3d27416bee6b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
