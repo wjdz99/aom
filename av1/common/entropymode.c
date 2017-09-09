@@ -4704,6 +4704,40 @@ const aom_cdf_prob
 #endif  // CONFIG_SMOOTH_HV
     };
 
+#if CONFIG_LPF_SB
+static const aom_cdf_prob default_lpf_reuse_cdf[LPF_REUSE_CONTEXT][CDF_SIZE(
+    2)] = { { AOM_ICDF(8192), AOM_ICDF(32768), 0 },
+            { AOM_ICDF(4096), AOM_ICDF(32768), 0 } };
+
+static const aom_cdf_prob
+    default_lpf_delta_cdf[LPF_DELTA_CONTEXT][CDF_SIZE(DELTA_RANGE)] = {
+      { AOM_ICDF(4096), AOM_ICDF(7680), AOM_ICDF(10816), AOM_ICDF(13560),
+        AOM_ICDF(15961), AOM_ICDF(18062), AOM_ICDF(19900), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(4096), AOM_ICDF(7680), AOM_ICDF(10816), AOM_ICDF(13560),
+        AOM_ICDF(15961), AOM_ICDF(18062), AOM_ICDF(19900), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(4096), AOM_ICDF(7680), AOM_ICDF(10816), AOM_ICDF(13560),
+        AOM_ICDF(15961), AOM_ICDF(18062), AOM_ICDF(19900), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(4096), AOM_ICDF(7680), AOM_ICDF(10816), AOM_ICDF(13560),
+        AOM_ICDF(15961), AOM_ICDF(18062), AOM_ICDF(19900), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(4096), AOM_ICDF(7680), AOM_ICDF(10816), AOM_ICDF(13560),
+        AOM_ICDF(15961), AOM_ICDF(18062), AOM_ICDF(19900), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(4096), AOM_ICDF(7680), AOM_ICDF(10816), AOM_ICDF(13560),
+        AOM_ICDF(15961), AOM_ICDF(18062), AOM_ICDF(19900), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(4096), AOM_ICDF(7680), AOM_ICDF(10816), AOM_ICDF(13560),
+        AOM_ICDF(15961), AOM_ICDF(18062), AOM_ICDF(19900), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(4096), AOM_ICDF(7680), AOM_ICDF(10816), AOM_ICDF(13560),
+        AOM_ICDF(15961), AOM_ICDF(18062), AOM_ICDF(19900), AOM_ICDF(32768), 0 }
+    };
+
+static const aom_cdf_prob
+    default_lpf_sign_cdf[LPF_REUSE_CONTEXT][LPF_SIGN_CONTEXT][CDF_SIZE(2)] = {
+      { { AOM_ICDF(6554), AOM_ICDF(32768), 0 },
+        { AOM_ICDF(26214), AOM_ICDF(32768), 0 } },
+      { { AOM_ICDF(16384), AOM_ICDF(32768), 0 },
+        { AOM_ICDF(16384), AOM_ICDF(32768), 0 } }
+    };
+#endif  // CONFIG_LPF_SB
+
 static void init_mode_probs(FRAME_CONTEXT *fc) {
   av1_copy(fc->switchable_interp_prob, default_switchable_interp_prob);
   av1_copy(fc->partition_prob, default_partition_probs);
@@ -4875,6 +4909,11 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
 #if CONFIG_INTRABC
   av1_copy(fc->intrabc_cdf, default_intrabc_cdf);
 #endif
+#if CONFIG_LPF_SB
+  av1_copy(fc->lpf_reuse_cdf, default_lpf_reuse_cdf);
+  av1_copy(fc->lpf_delta_cdf, default_lpf_delta_cdf);
+  av1_copy(fc->lpf_sign_cdf, default_lpf_sign_cdf);
+#endif  // CONFIG_LPF_SB
 }
 
 int av1_switchable_interp_ind[SWITCHABLE_FILTERS];
