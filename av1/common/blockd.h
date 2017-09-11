@@ -761,7 +761,10 @@ typedef struct macroblockd {
   int qindex[MAX_SEGMENTS];
   int lossless[MAX_SEGMENTS];
   int corrupted;
-
+#if CONFIG_AMVR
+  int cur_frame_mv_precision_level;
+// same with that in AV1_COMMON
+#endif
   struct aom_internal_error_info *error_info;
 #if CONFIG_GLOBAL_MOTION
   WarpedMotionParams *global_motion;
@@ -1557,10 +1560,16 @@ static INLINE MOTION_MODE motion_mode_allowed(
 #endif
     const MODE_INFO *mi) {
   const MB_MODE_INFO *mbmi = &mi->mbmi;
+#if CONFIG_AMVR
+  if (xd->cur_frame_mv_precision_level == 0) {
+#endif
 #if CONFIG_GLOBAL_MOTION
-  const TransformationType gm_type = gm_params[mbmi->ref_frame[0]].wmtype;
-  if (is_global_mv_block(mi, block, gm_type)) return SIMPLE_TRANSLATION;
+    const TransformationType gm_type = gm_params[mbmi->ref_frame[0]].wmtype;
+    if (is_global_mv_block(mi, block, gm_type)) return SIMPLE_TRANSLATION;
 #endif  // CONFIG_GLOBAL_MOTION
+#if CONFIG_AMVR
+  }
+#endif
 #if CONFIG_EXT_INTER
   if (is_motion_variation_allowed_bsize(mbmi->sb_type) &&
       is_inter_mode(mbmi->mode) && mbmi->ref_frame[1] != INTRA_FRAME &&
@@ -1575,179 +1584,187 @@ static INLINE MOTION_MODE motion_mode_allowed(
 #if CONFIG_WARPED_MOTION
     if (!has_second_ref(mbmi) && mbmi->num_proj_ref[0] >= 1 &&
         !av1_is_scaled(&(xd->block_refs[0]->sf))) {
+#if CONFIG_AMVR
+      if (xd->cur_frame_mv_precision_level) {
+        return OBMC_CAUSAL;
+      } 
+#endif
       return WARPED_CAUSAL;
     }
+
 #endif  // CONFIG_WARPED_MOTION
 #if CONFIG_MOTION_VAR
 #if CONFIG_NCOBMC_ADAPT_WEIGHT
-    if (ncobmc_mode_allowed_bsize(mbmi->sb_type) < NO_OVERLAP)
-      return NCOBMC_ADAPT_WEIGHT;
-    else
+      if (ncobmc_mode_allowed_bsize(mbmi->sb_type) < NO_OVERLAP)
+        return NCOBMC_ADAPT_WEIGHT;
+      else
 #endif
-      return OBMC_CAUSAL;
+        return OBMC_CAUSAL;
 #else
     return SIMPLE_TRANSLATION;
 #endif  // CONFIG_MOTION_VAR
-  } else {
-    return SIMPLE_TRANSLATION;
+    } else {
+      return SIMPLE_TRANSLATION;
+    }
   }
-}
 
-static INLINE void assert_motion_mode_valid(MOTION_MODE mode,
+  static INLINE void assert_motion_mode_valid(
+      MOTION_MODE mode,
 #if CONFIG_GLOBAL_MOTION
-                                            int block,
-                                            const WarpedMotionParams *gm_params,
+      int block, const WarpedMotionParams *gm_params,
 #endif  // CONFIG_GLOBAL_MOTION
 #if CONFIG_WARPED_MOTION
-                                            const MACROBLOCKD *xd,
+      const MACROBLOCKD *xd,
 #endif
-                                            const MODE_INFO *mi) {
-  const MOTION_MODE last_motion_mode_allowed = motion_mode_allowed(
+      const MODE_INFO *mi) {
+    const MOTION_MODE last_motion_mode_allowed = motion_mode_allowed(
 #if CONFIG_GLOBAL_MOTION
-      block, gm_params,
+        block, gm_params,
 #endif  // CONFIG_GLOBAL_MOTION
 #if CONFIG_WARPED_MOTION
-      xd,
+        xd,
 #endif
-      mi);
+        mi);
 
-  // Check that the input mode is not illegal
-  if (last_motion_mode_allowed < mode)
-    assert(0 && "Illegal motion mode selected");
-}
+    // Check that the input mode is not illegal
+    if (last_motion_mode_allowed < mode)
+      assert(0 && "Illegal motion mode selected");
+  }
 
 #if CONFIG_MOTION_VAR
-static INLINE int is_neighbor_overlappable(const MB_MODE_INFO *mbmi) {
-  return (is_inter_block(mbmi));
-}
+  static INLINE int is_neighbor_overlappable(const MB_MODE_INFO *mbmi) {
+    return (is_inter_block(mbmi));
+  }
 #endif  // CONFIG_MOTION_VAR
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
 
-// Returns sub-sampled dimensions of the given block.
-// The output values for 'rows_within_bounds' and 'cols_within_bounds' will
-// differ from 'height' and 'width' when part of the block is outside the right
-// and/or bottom image boundary.
-static INLINE void av1_get_block_dimensions(BLOCK_SIZE bsize, int plane,
-                                            const MACROBLOCKD *xd, int *width,
-                                            int *height,
-                                            int *rows_within_bounds,
-                                            int *cols_within_bounds) {
-  const int block_height = block_size_high[bsize];
-  const int block_width = block_size_wide[bsize];
-  const int block_rows = (xd->mb_to_bottom_edge >= 0)
-                             ? block_height
-                             : (xd->mb_to_bottom_edge >> 3) + block_height;
-  const int block_cols = (xd->mb_to_right_edge >= 0)
-                             ? block_width
-                             : (xd->mb_to_right_edge >> 3) + block_width;
-  const struct macroblockd_plane *const pd = &xd->plane[plane];
-  assert(IMPLIES(plane == PLANE_TYPE_Y, pd->subsampling_x == 0));
-  assert(IMPLIES(plane == PLANE_TYPE_Y, pd->subsampling_y == 0));
-  assert(block_width >= block_cols);
-  assert(block_height >= block_rows);
-  if (width) *width = block_width >> pd->subsampling_x;
-  if (height) *height = block_height >> pd->subsampling_y;
-  if (rows_within_bounds) *rows_within_bounds = block_rows >> pd->subsampling_y;
-  if (cols_within_bounds) *cols_within_bounds = block_cols >> pd->subsampling_x;
-}
+  // Returns sub-sampled dimensions of the given block.
+  // The output values for 'rows_within_bounds' and 'cols_within_bounds' will
+  // differ from 'height' and 'width' when part of the block is outside the
+  // right
+  // and/or bottom image boundary.
+  static INLINE void av1_get_block_dimensions(
+      BLOCK_SIZE bsize, int plane, const MACROBLOCKD *xd, int *width,
+      int *height, int *rows_within_bounds, int *cols_within_bounds) {
+    const int block_height = block_size_high[bsize];
+    const int block_width = block_size_wide[bsize];
+    const int block_rows = (xd->mb_to_bottom_edge >= 0)
+                               ? block_height
+                               : (xd->mb_to_bottom_edge >> 3) + block_height;
+    const int block_cols = (xd->mb_to_right_edge >= 0)
+                               ? block_width
+                               : (xd->mb_to_right_edge >> 3) + block_width;
+    const struct macroblockd_plane *const pd = &xd->plane[plane];
+    assert(IMPLIES(plane == PLANE_TYPE_Y, pd->subsampling_x == 0));
+    assert(IMPLIES(plane == PLANE_TYPE_Y, pd->subsampling_y == 0));
+    assert(block_width >= block_cols);
+    assert(block_height >= block_rows);
+    if (width) *width = block_width >> pd->subsampling_x;
+    if (height) *height = block_height >> pd->subsampling_y;
+    if (rows_within_bounds)
+      *rows_within_bounds = block_rows >> pd->subsampling_y;
+    if (cols_within_bounds)
+      *cols_within_bounds = block_cols >> pd->subsampling_x;
+  }
 
-/* clang-format off */
+  /* clang-format off */
 typedef aom_cdf_prob (*MapCdf)[PALETTE_COLOR_INDEX_CONTEXTS]
                               [CDF_SIZE(PALETTE_COLORS)];
 typedef const int (*ColorCost)[PALETTE_SIZES][PALETTE_COLOR_INDEX_CONTEXTS]
                               [PALETTE_COLORS];
-/* clang-format on */
+  /* clang-format on */
 
-typedef struct {
-  int rows;
-  int cols;
-  int n_colors;
-  int plane_width;
-  int plane_height;
-  uint8_t *color_map;
-  MapCdf map_cdf;
-  ColorCost color_cost;
-} Av1ColorMapParam;
+  typedef struct {
+    int rows;
+    int cols;
+    int n_colors;
+    int plane_width;
+    int plane_height;
+    uint8_t *color_map;
+    MapCdf map_cdf;
+    ColorCost color_cost;
+  } Av1ColorMapParam;
 
 #if CONFIG_GLOBAL_MOTION
-static INLINE int is_nontrans_global_motion(const MACROBLOCKD *xd) {
-  const MODE_INFO *mi = xd->mi[0];
-  const MB_MODE_INFO *const mbmi = &mi->mbmi;
-  int ref;
+  static INLINE int is_nontrans_global_motion(const MACROBLOCKD *xd) {
+    const MODE_INFO *mi = xd->mi[0];
+    const MB_MODE_INFO *const mbmi = &mi->mbmi;
+    int ref;
 #if CONFIG_CB4X4
-  const int unify_bsize = 1;
+    const int unify_bsize = 1;
 #else
   const int unify_bsize = 0;
 #endif
 
-  // First check if all modes are ZEROMV
-  if (mbmi->sb_type >= BLOCK_8X8 || unify_bsize) {
+    // First check if all modes are ZEROMV
+    if (mbmi->sb_type >= BLOCK_8X8 || unify_bsize) {
 #if CONFIG_EXT_INTER
-    if (mbmi->mode != ZEROMV && mbmi->mode != ZERO_ZEROMV) return 0;
+      if (mbmi->mode != ZEROMV && mbmi->mode != ZERO_ZEROMV) return 0;
 #else
     if (mbmi->mode != ZEROMV) return 0;
 #endif  // CONFIG_EXT_INTER
-  } else {
+    } else {
 #if CONFIG_EXT_INTER
-    if ((mi->bmi[0].as_mode != ZEROMV && mi->bmi[0].as_mode != ZERO_ZEROMV) ||
-        (mi->bmi[1].as_mode != ZEROMV && mi->bmi[1].as_mode != ZERO_ZEROMV) ||
-        (mi->bmi[2].as_mode != ZEROMV && mi->bmi[2].as_mode != ZERO_ZEROMV) ||
-        (mi->bmi[3].as_mode != ZEROMV && mi->bmi[3].as_mode != ZERO_ZEROMV))
-      return 0;
+      if ((mi->bmi[0].as_mode != ZEROMV && mi->bmi[0].as_mode != ZERO_ZEROMV) ||
+          (mi->bmi[1].as_mode != ZEROMV && mi->bmi[1].as_mode != ZERO_ZEROMV) ||
+          (mi->bmi[2].as_mode != ZEROMV && mi->bmi[2].as_mode != ZERO_ZEROMV) ||
+          (mi->bmi[3].as_mode != ZEROMV && mi->bmi[3].as_mode != ZERO_ZEROMV))
+        return 0;
 #else
     if (mi->bmi[0].as_mode != ZEROMV || mi->bmi[1].as_mode != ZEROMV ||
         mi->bmi[2].as_mode != ZEROMV || mi->bmi[3].as_mode != ZEROMV)
       return 0;
 #endif  // CONFIG_EXT_INTER
-  }
+    }
 
 #if !GLOBAL_SUB8X8_USED
-  if (mbmi->sb_type < BLOCK_8X8) return 0;
+    if (mbmi->sb_type < BLOCK_8X8) return 0;
 #endif
 
-  // Now check if all global motion is non translational
-  for (ref = 0; ref < 1 + has_second_ref(mbmi); ++ref) {
-    if (xd->global_motion[mbmi->ref_frame[ref]].wmtype <= TRANSLATION) return 0;
+    // Now check if all global motion is non translational
+    for (ref = 0; ref < 1 + has_second_ref(mbmi); ++ref) {
+      if (xd->global_motion[mbmi->ref_frame[ref]].wmtype <= TRANSLATION)
+        return 0;
+    }
+    return 1;
   }
-  return 1;
-}
 #endif  // CONFIG_GLOBAL_MOTION
 
-static INLINE PLANE_TYPE get_plane_type(int plane) {
-  return (plane == 0) ? PLANE_TYPE_Y : PLANE_TYPE_UV;
-}
+  static INLINE PLANE_TYPE get_plane_type(int plane) {
+    return (plane == 0) ? PLANE_TYPE_Y : PLANE_TYPE_UV;
+  }
 
-static INLINE void transpose_uint8(uint8_t *dst, int dst_stride,
-                                   const uint8_t *src, int src_stride, int w,
-                                   int h) {
-  int r, c;
-  for (r = 0; r < h; ++r)
-    for (c = 0; c < w; ++c) dst[c * dst_stride + r] = src[r * src_stride + c];
-}
+  static INLINE void transpose_uint8(uint8_t * dst, int dst_stride,
+                                     const uint8_t *src, int src_stride, int w,
+                                     int h) {
+    int r, c;
+    for (r = 0; r < h; ++r)
+      for (c = 0; c < w; ++c) dst[c * dst_stride + r] = src[r * src_stride + c];
+  }
 
-static INLINE void transpose_uint16(uint16_t *dst, int dst_stride,
-                                    const uint16_t *src, int src_stride, int w,
-                                    int h) {
-  int r, c;
-  for (r = 0; r < h; ++r)
-    for (c = 0; c < w; ++c) dst[c * dst_stride + r] = src[r * src_stride + c];
-}
+  static INLINE void transpose_uint16(uint16_t * dst, int dst_stride,
+                                      const uint16_t *src, int src_stride,
+                                      int w, int h) {
+    int r, c;
+    for (r = 0; r < h; ++r)
+      for (c = 0; c < w; ++c) dst[c * dst_stride + r] = src[r * src_stride + c];
+  }
 
-static INLINE void transpose_int16(int16_t *dst, int dst_stride,
-                                   const int16_t *src, int src_stride, int w,
-                                   int h) {
-  int r, c;
-  for (r = 0; r < h; ++r)
-    for (c = 0; c < w; ++c) dst[c * dst_stride + r] = src[r * src_stride + c];
-}
+  static INLINE void transpose_int16(int16_t * dst, int dst_stride,
+                                     const int16_t *src, int src_stride, int w,
+                                     int h) {
+    int r, c;
+    for (r = 0; r < h; ++r)
+      for (c = 0; c < w; ++c) dst[c * dst_stride + r] = src[r * src_stride + c];
+  }
 
-static INLINE void transpose_int32(int32_t *dst, int dst_stride,
-                                   const int32_t *src, int src_stride, int w,
-                                   int h) {
-  int r, c;
-  for (r = 0; r < h; ++r)
-    for (c = 0; c < w; ++c) dst[c * dst_stride + r] = src[r * src_stride + c];
-}
+  static INLINE void transpose_int32(int32_t * dst, int dst_stride,
+                                     const int32_t *src, int src_stride, int w,
+                                     int h) {
+    int r, c;
+    for (r = 0; r < h; ++r)
+      for (c = 0; c < w; ++c) dst[c * dst_stride + r] = src[r * src_stride + c];
+  }
 
 #ifdef __cplusplus
 }  // extern "C"
