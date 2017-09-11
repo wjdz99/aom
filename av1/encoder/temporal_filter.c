@@ -652,14 +652,27 @@ void av1_temporal_filter(AV1_COMP *cpi,
     strength = 0;
     frames_to_blur = 1;
   }
-#endif  // CONFIG_EXT_REFS
 
-#if CONFIG_EXT_REFS
-  if (strength == 0 && frames_to_blur == 1) {
-    cpi->is_arf_filter_off[gf_group->arf_update_idx[gf_group->index]] = 1;
-  } else {
-    cpi->is_arf_filter_off[gf_group->arf_update_idx[gf_group->index]] = 0;
+  int which_arf = gf_group->arf_update_idx[gf_group->index];
+
+#if USE_GF16_MULTI_LAYER
+  if (cpi->rc.baseline_gf_interval == 16) {
+    // Set the temporal filtering status for the corresponding OVERLAY frame
+    which_arf = 0;
+    const int num_arfs_in_gf = cpi->num_extra_arfs + 1;
+    for (int arf_idx = 0; arf_idx < num_arfs_in_gf; arf_idx++) {
+      if (gf_group->index == cpi->arf_pos_in_gf[arf_idx]) {
+        which_arf = arf_idx;
+        break;
+      }
+    }
   }
+#endif  // USE_GF16_MULTI_LAYER
+
+  if (strength == 0 && frames_to_blur == 1)
+    cpi->is_arf_filter_off[which_arf] = 1;
+  else
+    cpi->is_arf_filter_off[which_arf] = 0;
 #endif  // CONFIG_EXT_REFS
 
   frames_to_blur_backward = (frames_to_blur / 2);
