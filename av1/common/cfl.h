@@ -29,15 +29,13 @@ typedef struct AV1Common AV1_COMMON;
 typedef struct macroblockd MACROBLOCKD;
 
 typedef struct {
-  // Pixel buffer containing the luma pixels used as prediction for chroma
-  // TODO(ltrudeau) Convert to uint16 for HBD support
-  uint8_t y_pix[MAX_SB_SQUARE];
+  // The CfL prediction buffer is used in two steps
+  //   1. Stores Q3 reconstructed luma pixels
+  //   2. Stores Q3 AC contributions (step1 - tx block avg)
+  int16_t pred_buf_q3[MAX_SB_SQUARE];
 
-  // Downsampled luma pixels (in Q3) used for chroma prediction
-  int y_down_pix_q3[MAX_SB_SQUARE];
-
-  // Height and width of the luma prediction block currently in the pixel buffer
-  int y_height, y_width;
+  // Height and width currently used in the CfL prediction buffer.
+  int buf_height, buf_width;
 
   // Height and width of the chroma prediction block currently associated with
   // this context
@@ -67,8 +65,8 @@ typedef struct {
 #endif  // CONFIG_CB4X4
 } CFL_CTX;
 
-static INLINE int get_scaled_luma_q0(int alpha_q3, int y_pix) {
-  int scaled_luma_q6 = alpha_q3 * y_pix;
+static INLINE int get_scaled_luma_q0(int alpha_q3, int16_t pred_buf_q3) {
+  int scaled_luma_q6 = alpha_q3 * pred_buf_q3;
   return ROUND_POWER_OF_TWO_SIGNED(scaled_luma_q6, 6);
 }
 
