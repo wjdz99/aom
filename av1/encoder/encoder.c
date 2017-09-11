@@ -4183,9 +4183,9 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
       av1_loop_filter_frame(cm->frame_to_show, cm, xd, lf->filter_level, 0, 0);
 #endif
   }
-  aom_extend_frame_borders(cm->frame_to_show);
 
 #if CONFIG_CDEF
+  aom_extend_frame_borders(cm->frame_to_show);
   if (is_lossless_requested(&cpi->oxcf)) {
     cm->cdef_bits = 0;
     cm->cdef_strengths[0] = 0;
@@ -4205,6 +4205,7 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
 #endif  // CONFIG_FRAME_SUPERRES
 
 #if CONFIG_LOOP_RESTORATION
+  aom_extend_frame_borders(cm->frame_to_show);
   av1_pick_filter_restoration(cpi->source, cpi, cpi->sf.lpf_pick);
   if (cm->rst_info[0].frame_restoration_type != RESTORE_NONE ||
       cm->rst_info[1].frame_restoration_type != RESTORE_NONE ||
