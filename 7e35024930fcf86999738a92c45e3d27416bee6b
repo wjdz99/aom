@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "e194849f_b97f0439",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 22
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-09-11T16:27:05Z",
+      "side": 1,
+      "message": "I did not work before, because we need to store inter sub 8x8 values and this is what this patch enables. We could test without CHROMA_SUB8X8, but the metrics would include gains from CHROMA_SUB8X8. What I proposed was to do an AWCY run with Video sequences with CFL in intra only. This way, we can establish the gains from going to intra in inter CfL. Results are not available yet, but should be available soon.",
+      "parentUuid": "b3b62671_3361f572",
+      "revId": "7e35024930fcf86999738a92c45e3d27416bee6b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "88071a21_eae02c94",
         "filename": "av1/common/cfl.c",
         "patchSetId": 22
@@ -137,6 +155,24 @@
       "side": 1,
       "message": "\u003e The logic is shared with) https://aomedia.googlesource.com/aom/+/89cf53ba7a14efadd0e4ee104ef4621b8b493a2e/av1/common/onyxc_int.h#849\n\nWell, those are related, but different. Given four 4x4 blocks { {A, B}, {C, D} }, is_chroma_reference() is trying to trigger on D only (and also any case \u003e\u003d 8x8) while what you\u0027re trying to do is trigger, separately, on C and D for the rows, and B and D for the columns (and not on any case \u003e\u003d 8x8). So if I were going to point someone somewhere, it\u0027d be at set_skip_context() (also in onyx_int.h), which actually adjusts things in the same cases.\n\nI\u0027d still probably assert that bh \u003d\u003d 4 (and bw \u003d\u003d 4 in the case below), just to guard against people coming up with even crazier partition schemes in the future.",
       "parentUuid": "ff2d1394_60b98caa",
+      "revId": "7e35024930fcf86999738a92c45e3d27416bee6b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b94cde70_1d1e9b75",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 22
+      },
+      "lineNbr": 328,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-09-11T16:27:05Z",
+      "side": 1,
+      "message": "I removed the comment about is_chroma_reference.\nsub8x8_adjust_offset in only visible inside cfl.c and is only called when bh\u003d\u003d4 or bw\u003d\u003d4. So asserts would never trigger.",
+      "parentUuid": "2dad5dc5_3c37fb6f",
       "revId": "7e35024930fcf86999738a92c45e3d27416bee6b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -266,6 +302,24 @@
     },
     {
       "key": {
+        "uuid": "2585a094_a847f90a",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 22
+      },
+      "lineNbr": 1975,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-09-11T16:27:05Z",
+      "side": 1,
+      "message": "I\u0027ve added these checks, see https://aomedia-review.googlesource.com/c/aom/+/15840/24/av1/decoder/decodeframe.c#1974",
+      "parentUuid": "689d41c0_480511bc",
+      "revId": "7e35024930fcf86999738a92c45e3d27416bee6b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5761f373_998d764b",
         "filename": "av1/decoder/decodeframe.c",
         "patchSetId": 22
@@ -313,6 +367,24 @@
       "side": 1,
       "message": "Yes, sorry, I mis-read what the comment was trying to say and apparently didn\u0027t even notice the if() above it. Please ignore me.",
       "parentUuid": "420bffa6_cbfbf149",
+      "revId": "7e35024930fcf86999738a92c45e3d27416bee6b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "028decdd_bbe05c69",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 22
+      },
+      "lineNbr": 2113,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-09-11T16:27:05Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "33a01b26_05ce221a",
       "revId": "7e35024930fcf86999738a92c45e3d27416bee6b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
