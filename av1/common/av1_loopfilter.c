@@ -276,7 +276,22 @@ static int pick_min_grad_direct(uint8_t *const src, int length, int row,
 #endif  // CONFIG_LPF_DIRECT
 
 #define PARALLEL_DEBLOCKING_15TAPLUMAONLY 1
-#define PARALLEL_DEBLOCKING_DISABLE_15TAP 0
+#define PARALLEL_DEBLOCKING_DISABLE_15TAP 1
+#define PARALLEL_DEBLOCKING_5_TAP_CHROMA 0
+
+#if PARALLEL_DEBLOCKING_5_TAP_CHROMA
+extern void aom_lpf_vertical_6_c(uint8_t *s, int pitch, const uint8_t *blimit,
+  const uint8_t *limit, const uint8_t *thresh);
+
+extern void aom_lpf_horizontal_6_c(uint8_t *s, int p, const uint8_t *blimit,
+  const uint8_t *limit, const uint8_t *thresh);
+
+extern void aom_highbd_lpf_horizontal_6_c(uint16_t *s, int p,
+  const uint8_t *blimit, const uint8_t *limit, const uint8_t *thresh, int bd);
+
+extern void aom_highbd_lpf_vertical_6_c(uint16_t *s, int pitch,
+  const uint8_t *blimit, const uint8_t *limit, const uint8_t *thresh, int bd);
+#endif
 
 // 64 bit masks for left transform size. Each 1 represents a position where
 // we should apply a loop filter across the left border of an 8x8 block
@@ -2906,7 +2921,11 @@ static void set_lpf_parameters(
 #if PARALLEL_DEBLOCKING_15TAPLUMAONLY
               // No wide filtering for chroma plane
               if (plane != 0) {
+#if PARALLEL_DEBLOCKING_5_TAP_CHROMA
+                params->filter_length = 6;
+#else
                 params->filter_length = 8;
+#endif
               }
 #endif
             }
@@ -3080,6 +3099,20 @@ static void av1_filter_block_plane_vert(
             aom_lpf_vertical_4(p, dst_stride, params.mblim, params.lim,
                                params.hev_thr);
           break;
+#if PARALLEL_DEBLOCKING_5_TAP_CHROMA
+        case 6: //apply 6-tap filter for chroma plane only
+          assert(plane != 0);
+#if CONFIG_HIGHBITDEPTH
+          if (cm->use_highbitdepth)
+            aom_highbd_lpf_vertical_6_c(CONVERT_TO_SHORTPTR(p), dst_stride,
+              params.mblim, params.lim, params.hev_thr,
+              cm->bit_depth);
+          else
+#endif  // CONFIG_HIGHBITDEPTH
+            aom_lpf_vertical_6_c(p, dst_stride, params.mblim, params.lim,
+              params.hev_thr);
+          break;
+#endif
         // apply 8-tap filtering
         case 8:
 #if CONFIG_HIGHBITDEPTH
@@ -3265,6 +3298,21 @@ static void av1_filter_block_plane_horz(
             aom_lpf_horizontal_4(p, dst_stride, params.mblim, params.lim,
                                  params.hev_thr);
           break;
+#if PARALLEL_DEBLOCKING_5_TAP_CHROMA
+        // apply 6-tap filtering
+        case 6:
+          assert(plane != 0);
+#if CONFIG_HIGHBITDEPTH
+          if (cm->use_highbitdepth)
+            aom_highbd_lpf_horizontal_6_c(CONVERT_TO_SHORTPTR(p), dst_stride,
+              params.mblim, params.lim,
+              params.hev_thr, cm->bit_depth);
+          else
+#endif  // CONFIG_HIGHBITDEPTH
+            aom_lpf_horizontal_6_c(p, dst_stride, params.mblim, params.lim,
+              params.hev_thr);
+          break;
+#endif
         // apply 8-tap filtering
         case 8:
 #if CONFIG_HIGHBITDEPTH
