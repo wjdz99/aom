@@ -22,8 +22,8 @@ static INLINE void cfl_clear_sub8x8_val(CFL_CTX *cfl) {
 }
 #endif  // CONFIG_CHROMA_SUB8X8 && CONFIG_DEBUG
 
-static INLINE int get_scaled_luma_q0(int alpha_q3, int y_down_pix_q3) {
-  int scaled_luma_q6 = alpha_q3 * y_down_pix_q3;
+static INLINE int get_scaled_luma_q0(int alpha_q3, int16_t pred_buf_q3) {
+  int scaled_luma_q6 = alpha_q3 * pred_buf_q3;
   return ROUND_POWER_OF_TWO_SIGNED(scaled_luma_q6, 6);
 }
 
