@@ -5129,13 +5129,13 @@ static void encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
                               &cm->counts);
 #endif  // CONFIG_ENTROPY_STATS
   if (cm->refresh_frame_context == REFRESH_FRAME_CONTEXT_BACKWARD) {
-#if CONFIG_LV_MAP
-    av1_adapt_coef_probs(cm);
-#endif  // CONFIG_LV_MAP
     av1_adapt_intra_frame_probs(cm);
     make_update_tile_list_enc(cpi, cm->tile_rows, cm->tile_cols, tile_ctxs);
     av1_average_tile_coef_cdfs(cpi->common.fc, tile_ctxs, cdf_ptrs,
                                cm->tile_rows * cm->tile_cols);
+#if CONFIG_LV_MAP
+    av1_adapt_coef_probs(cm);
+#endif  // CONFIG_LV_MAP
     av1_average_tile_intra_cdfs(cpi->common.fc, tile_ctxs, cdf_ptrs,
                                 cm->tile_rows * cm->tile_cols);
 #if CONFIG_PVQ
