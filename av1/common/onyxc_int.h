@@ -652,7 +652,7 @@ static INLINE void cfl_init(CFL_CTX *cfl, AV1_COMMON *cm) {
     aom_internal_error(&cm->error, AOM_CODEC_UNSUP_BITSTREAM,
                        "Only 4:4:4 and 4:2:0 are currently supported by CfL");
   }
-  memset(&cfl->y_pix, 0, sizeof(cfl->y_pix));
+  memset(&cfl->pred_buf_q3, 0, sizeof(cfl->pred_buf_q3));
   cfl->subsampling_x = cm->subsampling_x;
   cfl->subsampling_y = cm->subsampling_y;
   cfl->are_parameters_computed = 0;
