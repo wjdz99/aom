@@ -3118,6 +3118,7 @@
   } while (0)
 #endif
 
+#if 0
 void od_bin_fdct4(od_coeff y[4], const od_coeff *x, int xstride) {
   int q0;
   int q1;
@@ -3149,6 +3150,85 @@ void od_bin_idct4(od_coeff *x, int xstride, const od_coeff y[4]) {
   x[2*xstride] = q2;
   x[3*xstride] = q3;
 }
+#else
+# define TX_RSHIFT(_a, _b) OD_UNBIASED_RSHIFT32(_a, _b)
+
+typedef int32_t tx_coeff;
+
+void od_bin_fdct4(od_coeff y[4], const od_coeff *x, int xstride) {
+  tx_coeff q0;
+  tx_coeff q1;
+  tx_coeff q2;
+  tx_coeff q3;
+  tx_coeff q3h;
+  tx_coeff u1;
+  tx_coeff u2;
+  tx_coeff u2h;
+  tx_coeff t0;
+  tx_coeff t1;
+  tx_coeff t2;
+  tx_coeff t3;
+  q0 = x[0*xstride];
+  q1 = x[1*xstride];
+  q2 = x[2*xstride];
+  q3 = x[3*xstride];
+  q3 = q0 - q3;
+  u1 = q1 - q2;
+  /* 8867/32768 ~= Cos[3*Pi/8]/Sqrt[2] ~= 0.270598050073099 */
+  t0 = (q3*8867 + 16384) >> 15;
+  /* 21407/32768 ~= Cos[Pi/8]/Sqrt[2] ~= 0.653281482438188 */
+  t1 = (u1*21407 + 16384) >> 15;
+  /* 21407/32768 ~= Cos[Pi/8]/Sqrt[2] ~= 0.653281482438188 */
+  t2 = (q3*21407 + 16384) >> 15;
+  /* 8867/32768 ~= Cos[3*Pi/8]/Sqrt[2] ~= 0.270598050073099 */
+  t3 = (u1*8867 + 16384) >> 15;
+  u2 = q1 + q2;
+  u2h = TX_RSHIFT(u2, 1);
+  q3h = TX_RSHIFT(q3, 1);
+  q0 -= q3h;
+  q0 += u2h;
+  y[0] = q0;
+  y[1] = t2 + t3;
+  y[2] = q0 - u2;
+  y[3] = t0 - t1;
+}
+
+void od_bin_idct4(od_coeff *x, int xstride, const od_coeff y[4]) {
+  tx_coeff q0;
+  tx_coeff q1;
+  tx_coeff q2;
+  tx_coeff q3;
+  tx_coeff q2h;
+  tx_coeff u1;
+  tx_coeff u3;
+  tx_coeff t0;
+  tx_coeff t1;
+  tx_coeff t2;
+  tx_coeff t3;
+  q0 = y[0];
+  q1 = y[1];
+  q2 = y[2];
+  q3 = y[3];
+  /* 21407/32768 ~= Cos[Pi/8]/Sqrt[2] ~= 0.653281482438188 */
+  t0 = (q1*21407 + 16384) >> 15;
+  /* 8867/32768 ~= Cos[3*Pi/8]/Sqrt[2] ~= 0.270598050073099 */
+  t1 = (q3*8867 + 16384) >> 15;
+  /* 8867/32768 ~= Cos[3*Pi/8]/Sqrt[2] ~= 0.270598050073099 */
+  t2 = (q1*8867 + 16384) >> 15;
+  /* 21407/32768 ~= Cos[Pi/8]/Sqrt[2] ~= 0.653281482438188 */
+  t3 = (q3*21407 + 16384) >> 15;
+  u3 = t0 + t1;
+  u1 = t2 - t3;
+  q2 = q0 - q2;
+  q2h = TX_RSHIFT(q2, 1);
+  q0 -= q2h;
+  q1 = q2h - u1;
+  x[0*xstride] = q0 + u3;
+  x[1*xstride] = q2 - q1;
+  x[2*xstride] = q2;
+  x[3*xstride] = q0 - u3;
+}
+#endif
 
 void od_bin_fdst4(od_coeff y[4], const od_coeff *x, int xstride) {
   int q0;
