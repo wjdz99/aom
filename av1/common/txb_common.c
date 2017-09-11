@@ -239,6 +239,7 @@ void av1_adapt_txb_probs(AV1_COMMON *cm, unsigned int count_sat,
 #endif  // BR_NODE
     }
   }
+  av1_init_txb_probs(fc);
 }
 
 void av1_init_lv_map(AV1_COMMON *cm) {
