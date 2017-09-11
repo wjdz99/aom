@@ -29,10 +29,6 @@ typedef struct AV1Common AV1_COMMON;
 typedef struct macroblockd MACROBLOCKD;
 
 typedef struct {
-  // Pixel buffer containing the luma pixels used as prediction for chroma
-  // TODO(ltrudeau) Convert to uint16 for HBD support
-  uint8_t y_pix[MAX_SB_SQUARE];
-
   // Downsampled luma pixels (in Q3) used for chroma prediction
   int y_down_pix_q3[MAX_SB_SQUARE];
 

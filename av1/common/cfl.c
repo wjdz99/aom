@@ -21,7 +21,7 @@ void cfl_init(CFL_CTX *cfl, AV1_COMMON *cm) {
     aom_internal_error(&cm->error, AOM_CODEC_UNSUP_BITSTREAM,
                        "Only 4:4:4 and 4:2:0 are currently supported by CfL");
   }
-  memset(&cfl->y_pix, 0, sizeof(cfl->y_pix));
+  memset(&cfl->y_down_pix_q3, 0, sizeof(cfl->y_down_pix_q3));
   cfl->subsampling_x = cm->subsampling_x;
   cfl->subsampling_y = cm->subsampling_y;
   cfl->are_parameters_computed = 0;
@@ -31,33 +31,33 @@ void cfl_init(CFL_CTX *cfl, AV1_COMMON *cm) {
 #endif  // CONFIG_CHROMA_SUB8X8 && CONFIG_DEBUG
 }
 
-static void cfl_luma_subsampling_420(const uint8_t *y_pix, int *output_q3,
-                                     int width, int height) {
+static void cfl_luma_subsampling_420(const uint8_t *input, int input_stride,
+                                     int *output_q3, int width, int height) {
   for (int j = 0; j < height; j++) {
     for (int i = 0; i < width; i++) {
       int top = i << 1;
-      int bot = top + MAX_SB_SIZE;
+      int bot = top + input_stride;
 
-      output_q3[i] = (y_pix[top] + y_pix[top + 1] + y_pix[bot] + y_pix[bot + 1])
+      output_q3[i] = (input[top] + input[top + 1] + input[bot] + input[bot + 1])
                      << 1;
     }
-    y_pix += MAX_SB_SIZE << 1;
+    input += input_stride << 1;
     output_q3 += MAX_SB_SIZE;
   }
 }
 
 // Load from the CfL pixel buffer into output
 static void cfl_load(CFL_CTX *cfl, int width, int height) {
-  const int sub_x = cfl->subsampling_x;
-  const int sub_y = cfl->subsampling_y;
+  // const int sub_x = cfl->subsampling_x;
+  // const int sub_y = cfl->subsampling_y;
 
   // TODO(ltrudeau) convert to uint16 to add HBD support
-  const uint8_t *y_pix = cfl->y_pix;
+  // const uint8_t *y_pix = cfl->y_pix;
   int *output_q3 = cfl->y_down_pix_q3;
 
   // TODO(ltrudeau) should be faster to downsample when we store the values
   // TODO(ltrudeau) add support for 4:2:2
-  if (sub_y == 0 && sub_x == 0) {
+  /*if (sub_y == 0 && sub_x == 0) {
     int pred_row_offset = 0;
     int output_row_offset = 0;
     for (int j = 0; j < height; j++) {
@@ -69,10 +69,10 @@ static void cfl_load(CFL_CTX *cfl, int width, int height) {
       output_row_offset += MAX_SB_SIZE;
     }
   } else if (sub_y == 1 && sub_x == 1) {
-    cfl_luma_subsampling_420(y_pix, output_q3, width, height);
+    // cfl_luma_subsampling_420(y_pix, output_q3, width, height);
   } else {
     assert(0);  // Unsupported chroma subsampling
-  }
+  }*/
   // Due to frame boundary issues, it is possible that the total area of
   // covered by Chroma exceeds that of Luma. When this happens, we write over
   // the broken data by repeating the last columns and/or rows.
@@ -81,8 +81,8 @@ static void cfl_load(CFL_CTX *cfl, int width, int height) {
   // overrun,
   // we apply rows first. This way, when the rows overrun the bottom of the
   // frame, the columns will be copied over them.
-  const int diff_width = width - (cfl->y_width >> sub_x);
-  const int diff_height = height - (cfl->y_height >> sub_y);
+  const int diff_width = width - cfl->y_width;
+  const int diff_height = height - cfl->y_height;
 
   if (diff_width > 0) {
     int last_pixel;
@@ -95,7 +95,7 @@ static void cfl_load(CFL_CTX *cfl, int width, int height) {
       }
       output_row_offset += MAX_SB_SIZE;
     }
-    cfl->y_width = width << sub_x;
+    cfl->y_width = width;
   }
 
   if (diff_height > 0) {
@@ -108,7 +108,7 @@ static void cfl_load(CFL_CTX *cfl, int width, int height) {
       }
       output_row_offset += MAX_SB_SIZE;
     }
-    cfl->y_height = height << sub_y;
+    cfl->y_height = height;
   }
 }
 
@@ -265,6 +265,10 @@ static INLINE void cfl_store(CFL_CTX *cfl, const uint8_t *input,
                              int input_stride, int row, int col, int width,
                              int height) {
   const int tx_off_log2 = tx_size_wide_log2[0];
+  const int store_row = row << (tx_off_log2 - cfl->subsampling_y);
+  const int store_col = col << (tx_off_log2 - cfl->subsampling_x);
+  const int store_height = height >> cfl->subsampling_y;
+  const int store_width = width >> cfl->subsampling_x;
 
   // Invalidate current parameters
   cfl->are_parameters_computed = 0;
@@ -273,28 +277,31 @@ static INLINE void cfl_store(CFL_CTX *cfl, const uint8_t *input,
   // can manage chroma overrun (e.g. when the chroma surfaces goes beyond the
   // frame boundary)
   if (col == 0 && row == 0) {
-    cfl->y_width = width;
-    cfl->y_height = height;
+    cfl->y_width = store_width;
+    cfl->y_height = store_height;
   } else {
-    cfl->y_width = OD_MAXI((col << tx_off_log2) + width, cfl->y_width);
-    cfl->y_height = OD_MAXI((row << tx_off_log2) + height, cfl->y_height);
+    cfl->y_width = OD_MAXI(store_col + store_width, cfl->y_width);
+    cfl->y_height = OD_MAXI(store_row + store_height, cfl->y_height);
   }
 
   // Check that we will remain inside the pixel buffer.
-  assert((row << tx_off_log2) + height <= MAX_SB_SIZE);
-  assert((col << tx_off_log2) + width <= MAX_SB_SIZE);
+  assert(store_row + store_height <= MAX_SB_SIZE);
+  assert(store_col + store_width <= MAX_SB_SIZE);
 
   // Store the input into the CfL pixel buffer
-  uint8_t *y_pix = &cfl->y_pix[(row * MAX_SB_SIZE + col) << tx_off_log2];
+  int *y_pix = cfl->y_down_pix_q3 + (store_row * MAX_SB_SIZE + store_col);
 
+  // TODO(ltrudeau) Add 4:4:4
+  cfl_luma_subsampling_420(input, input_stride, y_pix, store_width,
+                           store_height);
   // TODO(ltrudeau) Speedup possible by moving the downsampling to cfl_store
-  for (int j = 0; j < height; j++) {
+  /*for (int j = 0; j < height; j++) {
     for (int i = 0; i < width; i++) {
       y_pix[i] = input[i];
     }
     y_pix += MAX_SB_SIZE;
     input += input_stride;
-  }
+  }*/
 }
 #if CONFIG_CHROMA_SUB8X8
 // Adjust the row and column of blocks smaller than 8X8, as chroma-referenced
@@ -406,8 +413,8 @@ void cfl_compute_parameters(MACROBLOCKD *const xd, TX_SIZE tx_size) {
 
 #if CONFIG_DEBUG
   if (mbmi->sb_type >= BLOCK_8X8) {
-    assert(cfl->y_width <= cfl->uv_width << cfl->subsampling_x);
-    assert(cfl->y_height <= cfl->uv_height << cfl->subsampling_y);
+    assert(cfl->y_width <= cfl->uv_width);
+    assert(cfl->y_height <= cfl->uv_height);
   }
 #endif  // CONFIG_DEBUG
 
