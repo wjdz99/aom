@@ -2116,6 +2116,7 @@ static const unsigned char gf16_multi_layer_params[][GF_FRAME_PARAMS] = {
   }
 };
 
+// === GF Group of 16 ===
 static void define_gf_group_structure_16(AV1_COMP *cpi) {
   RATE_CONTROL *const rc = &cpi->rc;
   TWO_PASS *const twopass = &cpi->twopass;
@@ -3385,6 +3386,144 @@ static void find_next_key_frame(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   twopass->modified_error_left -= kf_group_err;
 }
 
+#if USE_GF16_MULTI_LAYER
+// === GF Group of 16 ===
+static void ref_frame_map_idx_updates(AV1_COMP *cpi) {
+  int ref_fb_idx_prev[REF_FRAMES];
+  int ref_fb_idx_curr[REF_FRAMES];
+
+  ref_fb_idx_prev[LAST_FRAME - LAST_FRAME] =
+      cpi->lst_fb_idxes[LAST_FRAME - LAST_FRAME];
+  ref_fb_idx_prev[LAST2_FRAME - LAST_FRAME] =
+      cpi->lst_fb_idxes[LAST2_FRAME - LAST_FRAME];
+  ref_fb_idx_prev[LAST3_FRAME - LAST_FRAME] =
+      cpi->lst_fb_idxes[LAST3_FRAME - LAST_FRAME];
+  ref_fb_idx_prev[GOLDEN_FRAME - LAST_FRAME] = cpi->gld_fb_idx;
+  ref_fb_idx_prev[BWDREF_FRAME - LAST_FRAME] = cpi->bwd_fb_idx;
+  ref_fb_idx_prev[ALTREF2_FRAME - LAST_FRAME] = cpi->alt2_fb_idx;
+  ref_fb_idx_prev[ALTREF_FRAME - LAST_FRAME] = cpi->alt_fb_idx;
+  ref_fb_idx_prev[REF_FRAMES - LAST_FRAME] = cpi->ext_fb_idx;
+
+  // Update map index for each reference frame
+  TWO_PASS *const twopass = &cpi->twopass;
+  GF_GROUP *const gf_group = &twopass->gf_group;
+  for (int ref_idx = 0; ref_idx < REF_FRAMES; ++ref_idx) {
+    int ref_frame = gf_group->ref_fb_idx_map[gf_group->index][ref_idx];
+    ref_fb_idx_curr[ref_idx] = ref_fb_idx_prev[ref_frame];
+  }
+
+  cpi->lst_fb_idxes[LAST_FRAME - LAST_FRAME] =
+      ref_fb_idx_curr[LAST_FRAME - LAST_FRAME];
+  cpi->lst_fb_idxes[LAST2_FRAME - LAST_FRAME] =
+      ref_fb_idx_curr[LAST2_FRAME - LAST_FRAME];
+  cpi->lst_fb_idxes[LAST3_FRAME - LAST_FRAME] =
+      ref_fb_idx_curr[LAST3_FRAME - LAST_FRAME];
+  cpi->gld_fb_idx = ref_fb_idx_curr[GOLDEN_FRAME - LAST_FRAME];
+  cpi->bwd_fb_idx = ref_fb_idx_curr[BWDREF_FRAME - LAST_FRAME];
+  cpi->alt2_fb_idx = ref_fb_idx_curr[ALTREF2_FRAME - LAST_FRAME];
+  cpi->alt_fb_idx = ref_fb_idx_curr[ALTREF_FRAME - LAST_FRAME];
+  cpi->ext_fb_idx = ref_fb_idx_curr[REF_FRAMES - LAST_FRAME];
+}
+
+// Define the reference buffers that will be updated post encode.
+static void configure_buffer_updates_16(AV1_COMP *cpi) {
+  TWO_PASS *const twopass = &cpi->twopass;
+  GF_GROUP *const gf_group = &twopass->gf_group;
+
+  // Update reference frame map indexes
+  ref_frame_map_idx_updates(cpi);
+
+  // Update refresh index
+  switch (gf_group->refresh_idx[gf_group->index]) {
+    case LAST_FRAME:
+      cpi->refresh_fb_idx = cpi->lst_fb_idxes[LAST_FRAME - LAST_FRAME];
+      break;
+
+    case LAST2_FRAME:
+      cpi->refresh_fb_idx = cpi->lst_fb_idxes[LAST2_FRAME - LAST_FRAME];
+      break;
+
+    case LAST3_FRAME:
+      cpi->refresh_fb_idx = cpi->lst_fb_idxes[LAST3_FRAME - LAST_FRAME];
+      break;
+
+    case GOLDEN_FRAME: cpi->refresh_fb_idx = cpi->gld_fb_idx; break;
+
+    case BWDREF_FRAME: cpi->refresh_fb_idx = cpi->bwd_fb_idx; break;
+
+    case ALTREF2_FRAME: cpi->refresh_fb_idx = cpi->alt2_fb_idx; break;
+
+    case ALTREF_FRAME: cpi->refresh_fb_idx = cpi->alt_fb_idx; break;
+
+    case REF_FRAMES: cpi->refresh_fb_idx = cpi->ext_fb_idx; break;
+
+    default: assert(0); break;
+  }
+
+  // Update refresh flags
+  switch (gf_group->refresh_flag[gf_group->index]) {
+    case LAST_FRAME:
+      cpi->refresh_last_frame = 1;
+      cpi->refresh_golden_frame = 0;
+      cpi->refresh_bwd_ref_frame = 0;
+      cpi->refresh_alt2_ref_frame = 0;
+      cpi->refresh_alt_ref_frame = 0;
+      break;
+
+    case GOLDEN_FRAME:
+      cpi->refresh_last_frame = 0;
+      cpi->refresh_golden_frame = 1;
+      cpi->refresh_bwd_ref_frame = 0;
+      cpi->refresh_alt2_ref_frame = 0;
+      cpi->refresh_alt_ref_frame = 0;
+      break;
+
+    case BWDREF_FRAME:
+      cpi->refresh_last_frame = 0;
+      cpi->refresh_golden_frame = 0;
+      cpi->refresh_bwd_ref_frame = 1;
+      cpi->refresh_alt2_ref_frame = 0;
+      cpi->refresh_alt_ref_frame = 0;
+      break;
+
+    case ALTREF2_FRAME:
+      cpi->refresh_last_frame = 0;
+      cpi->refresh_golden_frame = 0;
+      cpi->refresh_bwd_ref_frame = 0;
+      cpi->refresh_alt2_ref_frame = 1;
+      cpi->refresh_alt_ref_frame = 0;
+      break;
+
+    case ALTREF_FRAME:
+      cpi->refresh_last_frame = 0;
+      cpi->refresh_golden_frame = 0;
+      cpi->refresh_bwd_ref_frame = 0;
+      cpi->refresh_alt2_ref_frame = 0;
+      cpi->refresh_alt_ref_frame = 1;
+      break;
+
+    default: assert(0); break;
+  }
+
+  switch (gf_group->update_type[gf_group->index]) {
+    case OVERLAY_UPDATE: cpi->rc.is_src_frame_alt_ref = 1; break;
+
+    case BRF_UPDATE: cpi->rc.is_bwd_ref_frame = 1; break;
+
+    case LAST_BIPRED_UPDATE: cpi->rc.is_last_bipred_frame = 1; break;
+
+    case BIPRED_UPDATE: cpi->rc.is_bipred_frame = 1; break;
+
+    case INTNL_OVERLAY_UPDATE:
+      cpi->rc.is_src_frame_ext_arf = 1;
+      cpi->rc.is_src_frame_alt_ref = 1;
+      break;
+
+    default: break;
+  }
+}
+#endif  // USE_GF16_MULTI_LAYER
+
 // Define the reference buffers that will be updated post encode.
 static void configure_buffer_updates(AV1_COMP *cpi) {
   TWO_PASS *const twopass = &cpi->twopass;
@@ -3398,6 +3537,14 @@ static void configure_buffer_updates(AV1_COMP *cpi) {
   cpi->rc.is_last_bipred_frame = 0;
   cpi->rc.is_bipred_frame = 0;
   cpi->rc.is_src_frame_ext_arf = 0;
+
+#if USE_GF16_MULTI_LAYER
+  RATE_CONTROL *const rc = &cpi->rc;
+  if (rc->baseline_gf_interval == 16) {
+    configure_buffer_updates_16(cpi);
+    return;
+  }
+#endif  // USE_GF16_MULTI_LAYER
 #endif  // CONFIG_EXT_REFS
 
   switch (twopass->gf_group.update_type[twopass->gf_group.index]) {
