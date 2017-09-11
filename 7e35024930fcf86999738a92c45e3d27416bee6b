@@ -73,6 +73,24 @@
     },
     {
       "key": {
+        "uuid": "084b3dd2_caf51903",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 22
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-09-11T23:22:43Z",
+      "side": 1,
+      "message": "I\u0027m not sure I understand that proposal, but I\u0027ll take a look at it when you have the numbers.",
+      "parentUuid": "e194849f_b97f0439",
+      "revId": "7e35024930fcf86999738a92c45e3d27416bee6b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "88071a21_eae02c94",
         "filename": "av1/common/cfl.c",
         "patchSetId": 22
@@ -173,6 +191,24 @@
       "side": 1,
       "message": "I removed the comment about is_chroma_reference.\nsub8x8_adjust_offset in only visible inside cfl.c and is only called when bh\u003d\u003d4 or bw\u003d\u003d4. So asserts would never trigger.",
       "parentUuid": "2dad5dc5_3c37fb6f",
+      "revId": "7e35024930fcf86999738a92c45e3d27416bee6b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4ab9febf_0fec275f",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 22
+      },
+      "lineNbr": 328,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-09-11T23:22:43Z",
+      "side": 1,
+      "message": "That\u0027s not 100% obvious, since you only check that at least one dimension is 4, and not necessarily the one corresponding to the odd mi coordinate (which is the part that some crazy partitioning scheme elsewhere in the codebase could affect), but it\u0027s not worth arguing about. I\u0027m okay with leaving them out.",
+      "parentUuid": "b94cde70_1d1e9b75",
       "revId": "7e35024930fcf86999738a92c45e3d27416bee6b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -314,6 +350,24 @@
       "side": 1,
       "message": "I\u0027ve added these checks, see https://aomedia-review.googlesource.com/c/aom/+/15840/24/av1/decoder/decodeframe.c#1974",
       "parentUuid": "689d41c0_480511bc",
+      "revId": "7e35024930fcf86999738a92c45e3d27416bee6b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f9c33ac3_e32b4e0d",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 22
+      },
+      "lineNbr": 1975,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-09-11T23:22:43Z",
+      "side": 1,
+      "message": "Okay, it\u0027s starting to look a little less fishy, but this was passing with CONFIG_DEBUG and asserts enabled before, right? As I understand it, right now we assert that everything in sub8x8_val is set during cfl_compute_parameters, and we _don\u0027t_ assert that something is unset just before we set it.\n\nSo if we remove a call to cfl_clear_sub8x8_val() in some cases and no asserts trigger before or after, doesn\u0027t that still imply we have some useless stores?",
+      "parentUuid": "2585a094_a847f90a",
       "revId": "7e35024930fcf86999738a92c45e3d27416bee6b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
