@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8a57c048_56f5abd9",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 3428,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2017-09-12T23:58:09Z",
+      "side": 1,
+      "message": "the assert will be removed after testing!",
+      "range": {
+        "startLine": 3428,
+        "startChar": 33,
+        "endLine": 3428,
+        "endChar": 34
+      },
+      "revId": "b1e0c5c8424a341c274f0b6108f125a92b8b0d42",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
