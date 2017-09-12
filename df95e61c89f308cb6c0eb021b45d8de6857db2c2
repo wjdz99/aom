@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ebaf114e_d8c6eb95",
+        "filename": "av1/common/av1_loopfilter.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 3136,
+      "author": {
+        "id": 5326
+      },
+      "writtenOn": "2017-09-12T22:29:37Z",
+      "side": 1,
+      "message": "should use _c function here as well",
+      "range": {
+        "startLine": 3136,
+        "startChar": 36,
+        "endLine": 3136,
+        "endChar": 38
+      },
+      "revId": "df95e61c89f308cb6c0eb021b45d8de6857db2c2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b7f5c08a_b6a126d4",
+        "filename": "av1/common/av1_loopfilter.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 3335,
+      "author": {
+        "id": 5326
+      },
+      "writtenOn": "2017-09-12T22:29:37Z",
+      "side": 1,
+      "message": "should use _c function here as well",
+      "range": {
+        "startLine": 3335,
+        "startChar": 43,
+        "endLine": 3335,
+        "endChar": 45
+      },
+      "revId": "df95e61c89f308cb6c0eb021b45d8de6857db2c2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
