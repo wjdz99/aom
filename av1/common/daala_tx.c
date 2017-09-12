@@ -3150,6 +3150,38 @@ void od_bin_idct4(od_coeff *x, int xstride, const od_coeff y[4]) {
   x[2*xstride] = q2;
   x[3*xstride] = q3;
 }
+
+void od_bin_fdst4(od_coeff y[4], const od_coeff *x, int xstride) {
+  int q0;
+  int q1;
+  int q2;
+  int q3;
+  q0 = x[3*xstride];
+  q2 = x[2*xstride];
+  q1 = x[1*xstride];
+  q3 = x[0*xstride];
+  OD_FDST_4(q0, q2, q1, q3);
+  y[0] = (od_coeff)q3;
+  y[1] = (od_coeff)q2;
+  y[2] = (od_coeff)q1;
+  y[3] = (od_coeff)q0;
+}
+
+void od_bin_idst4(od_coeff *x, int xstride, const od_coeff y[4]) {
+  int q0;
+  int q1;
+  int q2;
+  int q3;
+  q0 = y[3];
+  q2 = y[2];
+  q1 = y[1];
+  q3 = y[0];
+  OD_IDST_4(q0, q2, q1, q3);
+  x[0*xstride] = q3;
+  x[1*xstride] = q2;
+  x[2*xstride] = q1;
+  x[3*xstride] = q0;
+}
 #else
 # define TX_RSHIFT(_a, _b) OD_UNBIASED_RSHIFT32(_a, _b)
 
@@ -3228,39 +3260,87 @@ void od_bin_idct4(od_coeff *x, int xstride, const od_coeff y[4]) {
   x[2*xstride] = (od_coeff)q1;
   x[3*xstride] = (od_coeff)(q0 - u3);
 }
-#endif
 
 void od_bin_fdst4(od_coeff y[4], const od_coeff *x, int xstride) {
-  int q0;
-  int q1;
-  int q2;
-  int q3;
-  q0 = x[3*xstride];
-  q2 = x[2*xstride];
-  q1 = x[1*xstride];
-  q3 = x[0*xstride];
-  OD_FDST_4(q0, q2, q1, q3);
-  y[0] = (od_coeff)q3;
-  y[1] = (od_coeff)q2;
-  y[2] = (od_coeff)q1;
-  y[3] = (od_coeff)q0;
+  /* 5 "muls", 11 adds */
+  tx_coeff q0;
+  tx_coeff q1;
+  tx_coeff q2;
+  tx_coeff q3;
+  tx_coeff t0;
+  tx_coeff t1;
+  tx_coeff t2;
+  tx_coeff t3;
+  tx_coeff t4;
+  q0 = (tx_coeff)x[0*xstride];
+  q1 = (tx_coeff)x[1*xstride];
+  q2 = (tx_coeff)x[2*xstride];
+  q3 = (tx_coeff)x[3*xstride];
+  t0 = q1 + q3;
+  t1 = q0 + q1 - q3;
+  t2 = q0 - q1;
+  t3 = q2;
+  t4 = q0 + q3;
+  /* 7021/16384 ~= 2*Sin[2*Pi/9]/3 ~= 0.428525073124360 */
+  t0 = (t0*7021 + 8192) >> 14;
+  /* 18919/32768 ~= 2*Sin[3*Pi/9]/3 ~= 0.577350269189626 */
+  t1 = (t1*18919 + 16384) >> 15;
+  /* 21513/32768 ~= 2*Sin[4*Pi/9]/3 ~= 0.656538502008139 */
+  t2 = (t2*21513 + 16384) >> 15;
+  /* 18919/32768 ~= 2*Sin[3*Pi/9]/3 ~= 0.577350269189626 */
+  t3 = (t3*18919 + 16384) >> 15;
+  /* 467/2048 ~= 2*Sin[1*Pi/9]/3 ~= 0.228013428883779 */
+  t4 = (t4*467 + 1024) >> 11;
+  q0 = t0 + t3 + t4;
+  q1 = t1;
+  q2 = t0 + t2 - t3;
+  q3 = t2 + t3 - t4;
+  y[0] = (od_coeff)q0;
+  y[1] = (od_coeff)q1;
+  y[2] = (od_coeff)q2;
+  y[3] = (od_coeff)q3;
 }
 
 void od_bin_idst4(od_coeff *x, int xstride, const od_coeff y[4]) {
-  int q0;
-  int q1;
-  int q2;
-  int q3;
-  q0 = y[3];
-  q2 = y[2];
-  q1 = y[1];
-  q3 = y[0];
-  OD_IDST_4(q0, q2, q1, q3);
-  x[0*xstride] = q3;
-  x[1*xstride] = q2;
-  x[2*xstride] = q1;
-  x[3*xstride] = q0;
+  /* 5 "muls", 11 adds */
+  tx_coeff q0;
+  tx_coeff q1;
+  tx_coeff q2;
+  tx_coeff q3;
+  tx_coeff t0;
+  tx_coeff t1;
+  tx_coeff t2;
+  tx_coeff t3;
+  tx_coeff t4;
+  q0 = (tx_coeff)y[0];
+  q1 = (tx_coeff)y[1];
+  q2 = (tx_coeff)y[2];
+  q3 = (tx_coeff)y[3];
+  t0 = q0 - q3;
+  t1 = q0 + q2;
+  t2 = q0 - q2 + q3;
+  t3 = q1;
+  t4 = q2 + q3;
+  /* 467/2048 ~= 2*Sin[1*Pi/9]/3 ~= 0.228013428883779 */
+  t0 = (t0*467 + 1024) >> 11;
+  /* 7021/16384 ~= 2*Sin[2*Pi/9]/3 ~= 0.428525073124360 */
+  t1 = (t1*7021 + 8192) >> 14;
+  /* 18919/32768 ~= 2*Sin[3*Pi/9]/3 ~= 0.577350269189626 */
+  t2 = (t2*18919 + 16384) >> 15;
+  /* 18919/32768 ~= 2*Sin[3*Pi/9]/3 ~= 0.577350269189626 */
+  t3 = (t3*18919 + 16384) >> 15;
+  /* 21513/32768 ~= 2*Sin[4*Pi/9]/3 ~= 0.656538502008139 */
+  t4 = (t4*21513 + 16384) >> 15;
+  q0 = t0 + t3 + t4;
+  q1 = t1 + t3 - t4;
+  q2 = t2;
+  q3 = t0 + t1 - t3;
+  x[0*xstride] = (od_coeff)q0;
+  x[1*xstride] = (od_coeff)q1;
+  x[2*xstride] = (od_coeff)q2;
+  x[3*xstride] = (od_coeff)q3;
 }
+#endif
 
 void od_bin_fdct8(od_coeff y[8], const od_coeff *x, int xstride) {
   int r0;
