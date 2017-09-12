@@ -626,8 +626,9 @@ static INLINE int write_uniform_cost(int n, int v) {
 #define FAST_EXT_TX_EDST_MARGIN 0.3
 
 #if CONFIG_DIST_8X8
-static uint64_t cdef_dist_8x8_16bit(uint16_t *dst, int dstride, uint16_t *src,
-                                    int sstride, int coeff_shift) {
+static INLINE uint64_t cdef_dist_8x8_16bit(uint16_t *dst, int dstride,
+                                           uint16_t *src, int sstride,
+                                           int coeff_shift) {
   uint64_t svar = 0;
   uint64_t dvar = 0;
   uint64_t sum_s = 0;
@@ -799,8 +800,7 @@ static double od_compute_dist_common(int activity_masking, uint16_t *x,
 static double od_compute_dist(uint16_t *x, uint16_t *y, int bsize_w,
                               int bsize_h, int qindex) {
   int i;
-  double sum;
-  sum = 0;
+  double sum = 0;
 
   assert(bsize_w >= 8 && bsize_h >= 8);
 
@@ -838,8 +838,7 @@ static double od_compute_dist(uint16_t *x, uint16_t *y, int bsize_w,
 static double od_compute_dist_diff(uint16_t *x, int16_t *e, int bsize_w,
                                    int bsize_h, int qindex) {
   int i;
-  double sum;
-  sum = 0;
+  double sum = 0;
 
   assert(bsize_w >= 8 && bsize_h >= 8);
 
