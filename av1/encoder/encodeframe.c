@@ -1607,7 +1607,9 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td, int mi_row,
   const MB_MODE_INFO *const mbmi = &mi->mbmi;
   const MB_MODE_INFO_EXT *const mbmi_ext = x->mbmi_ext;
   const BLOCK_SIZE bsize = mbmi->sb_type;
+#if CONFIG_NEW_MULTISYMBOL
   FRAME_CONTEXT *fc = xd->tile_ctx;
+#endif
 
 #if CONFIG_DELTA_Q
   // delta quant applies to both intra and inter
@@ -1796,8 +1798,10 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td, int mi_row,
             update_cdf(fc->interintra_cdf[bsize_group], 1, 2);
 #endif
             counts->interintra_mode[bsize_group][mbmi->interintra_mode]++;
+#if CONFIG_NEW_MULTISYMBOL
             update_cdf(fc->interintra_mode_cdf[bsize_group],
                        mbmi->interintra_mode, INTERINTRA_MODES);
+#endif
             if (is_interintra_wedge_used(bsize)) {
               counts->wedge_interintra[bsize][mbmi->use_wedge_interintra]++;
 #if CONFIG_NEW_MULTISYMBOL
@@ -1837,16 +1841,22 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td, int mi_row,
           {
             if (motion_allowed == WARPED_CAUSAL) {
               counts->motion_mode[mbmi->sb_type][mbmi->motion_mode]++;
+#if CONFIG_NEW_MULTISYMBOL
               update_cdf(fc->motion_mode_cdf[mbmi->sb_type], mbmi->motion_mode,
                          MOTION_MODES);
+#endif
 #if CONFIG_NCOBMC_ADAPT_WEIGHT
             } else if (motion_allowed == NCOBMC_ADAPT_WEIGHT) {
               counts->ncobmc[mbmi->sb_type][mbmi->motion_mode]++;
+#if CONFIG_NEW_MULTISYMBOL
               update_cdf(fc->ncobmc_cdf[mbmi->sb_type], mbmi->motion_mode,
                          OBMC_FAMILY_MODES);
+#endif
             } else if (motion_allowed == OBMC_CAUSAL) {
               counts->obmc[mbmi->sb_type][mbmi->motion_mode == OBMC_CAUSAL]++;
+#if CONFIG_NEW_MULTISYMBOL
               update_cdf(fc->obmc_cdf[mbmi->sb_type], mbmi->motion_mode, 2);
+#endif
             }
 #else
             } else if (motion_allowed == OBMC_CAUSAL) {
@@ -1861,8 +1871,10 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td, int mi_row,
 #else
         if (motion_allowed > SIMPLE_TRANSLATION) {
           counts->motion_mode[mbmi->sb_type][mbmi->motion_mode]++;
+#if CONFIG_NEW_MULTISYMBOL
           update_cdf(fc->motion_mode_cdf[mbmi->sb_type], mbmi->motion_mode,
                      MOTION_MODES);
+#endif
         }
 #endif  // CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
 
@@ -1871,12 +1883,16 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td, int mi_row,
           ADAPT_OVERLAP_BLOCK ao_block =
               adapt_overlap_block_lookup[mbmi->sb_type];
           ++counts->ncobmc_mode[ao_block][mbmi->ncobmc_mode[0]];
+#if CONFIG_NEW_MULTISYMBOL
           update_cdf(fc->ncobmc_mode_cdf[ao_block], mbmi->ncobmc_mode[0],
                      MAX_NCOBMC_MODES);
+#endif
           if (mi_size_wide[mbmi->sb_type] != mi_size_high[mbmi->sb_type]) {
             ++counts->ncobmc_mode[ao_block][mbmi->ncobmc_mode[1]];
+#if CONFIG_NEW_MULTISYMBOL
             update_cdf(fc->ncobmc_mode_cdf[ao_block], mbmi->ncobmc_mode[1],
                        MAX_NCOBMC_MODES);
+#endif
           }
         }
 #endif
@@ -1900,8 +1916,10 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td, int mi_row,
 #endif
             counts
                 ->compound_interinter[bsize][mbmi->interinter_compound_type]++;
+#if CONFIG_NEW_MULTISYMBOL
             update_cdf(fc->compound_type_cdf[bsize],
                        mbmi->interinter_compound_type, COMPOUND_TYPES);
+#endif
 #if CONFIG_WEDGE && CONFIG_COMPOUND_SEGMENT
           }
 #endif
@@ -1918,8 +1936,10 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td, int mi_row,
       if (has_second_ref(mbmi)) {
         mode_ctx = mbmi_ext->compound_mode_context[mbmi->ref_frame[0]];
         ++counts->inter_compound_mode[mode_ctx][INTER_COMPOUND_OFFSET(mode)];
+#if CONFIG_NEW_MULTISYMBOL
         update_cdf(fc->inter_compound_mode_cdf[mode_ctx],
                    INTER_COMPOUND_OFFSET(mode), INTER_COMPOUND_MODES);
+#endif
 #if CONFIG_COMPOUND_SINGLEREF
       } else if (is_inter_singleref_comp_mode(mode)) {
         mode_ctx = mbmi_ext->compound_mode_context[mbmi->ref_frame[0]];
