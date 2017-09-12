@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1b086841_f26ce492",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 5259,
+      "author": {
+        "id": 5975
+      },
+      "writtenOn": "2017-09-12T16:34:47Z",
+      "side": 0,
+      "message": "It might be worth also moving this block, since they\u0027re closely related so it makes sense to keep them together",
+      "range": {
+        "startLine": 5245,
+        "startChar": 0,
+        "endLine": 5259,
+        "endChar": 0
+      },
+      "revId": "72c99e1aabd1817ca2de0e5b2ca4d810955752b6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
