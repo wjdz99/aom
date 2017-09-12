@@ -1153,7 +1153,8 @@ static void get_masked_residual32(const int16_t **input, int *input_stride,
       (!txfm_param->is_inter && SIGNAL_MRC_MASK_INTRA)) {
     mrc_mask = txfm_param->mask;
     n_masked_vals = get_mrc_diff_mask(*input, *input_stride, mrc_mask, 32, 32,
-                                      32, txfm_param->is_inter);
+                                      32, txfm_param->is_inter,
+                                      txfm_param->dequant);
   } else {
     mrc_mask = mask_tmp;
     n_masked_vals = get_mrc_pred_mask(pred, pred_stride, mrc_mask, 32, 32, 32,

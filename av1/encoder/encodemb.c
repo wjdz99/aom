@@ -614,6 +614,13 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
   txfm_param.valid_mask = &mbmi->valid_mrc_mask;
 #if SIGNAL_ANY_MRC_MASK
   txfm_param.mask = BLOCK_OFFSET(xd->mrc_mask, block);
+  const int dequant_shift =
+#if CONFIG_HIGHBITDEPTH
+      (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) ?
+          xd->bd - 5 :
+#endif  // CONFIG_HIGHBITDEPTH
+      3;
+  txfm_param.dequant = pd->dequant[1] >> dequant_shift;
 #endif  // SIGNAL_ANY_MRC_MASK
 #endif  // CONFIG_MRC_TX
 #endif  // CONFIG_MRC_TX || CONFIG_LGT
