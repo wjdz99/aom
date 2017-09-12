@@ -3225,7 +3225,7 @@ void od_bin_idct4(od_coeff *x, int xstride, const od_coeff y[4]) {
   q1 = q2h - u1;
   x[0*xstride] = (od_coeff)(q0 + u3);
   x[1*xstride] = (od_coeff)(q2 - q1);
-  x[2*xstride] = (od_coeff)q2;
+  x[2*xstride] = (od_coeff)q1;
   x[3*xstride] = (od_coeff)(q0 - u3);
 }
 #endif
