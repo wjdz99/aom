@@ -433,7 +433,7 @@ static const uint16_t *const orders[BLOCK_SIZES_ALL] = {
 /* clang-format on */
 #endif  // CONFIG_EXT_PARTITION
 
-#if CONFIG_EXT_PARTITION_TYPES
+#if CONFIG_EXT_PARTITION_TYPES && !CONFIG_EXT_PARTITION_TYPES_AB
 static const uint16_t orders_verta_64x64[4] = {
   0, 2, 1, 2,
 };
@@ -523,7 +523,7 @@ static const uint16_t *const orders_verta[BLOCK_SIZES] = {
 
 static int has_top_right(BLOCK_SIZE bsize, int mi_row, int mi_col,
                          int top_available, int right_available,
-#if CONFIG_EXT_PARTITION_TYPES
+#if CONFIG_EXT_PARTITION_TYPES && !CONFIG_EXT_PARTITION_TYPES_AB
                          PARTITION_TYPE partition,
 #endif
                          TX_SIZE txsz, int row_off, int col_off, int ss_x) {
@@ -575,7 +575,7 @@ static int has_top_right(BLOCK_SIZE bsize, int mi_row, int mi_col,
     // General case (neither top row nor rightmost column): check if the
     // top-right block is coded before the current block.
     const uint16_t *const order =
-#if CONFIG_EXT_PARTITION_TYPES
+#if CONFIG_EXT_PARTITION_TYPES && !CONFIG_EXT_PARTITION_TYPES_AB
         (partition == PARTITION_VERT_A) ? orders_verta[bsize] :
 #endif  // CONFIG_EXT_PARTITION_TYPES
                                         orders[bsize];
@@ -2964,7 +2964,7 @@ static void predict_intra_block_helper(const MACROBLOCKD *xd, int wpx, int hpx,
                                         (MI_SIZE_LOG2 - tx_size_wide_log2[0])) <
                               xd->tile.mi_col_end;
   const int bottom_available = (yd > 0);
-#if CONFIG_EXT_PARTITION_TYPES
+#if CONFIG_EXT_PARTITION_TYPES && !CONFIG_EXT_PARTITION_TYPES_AB
   const PARTITION_TYPE partition = xd->mi[0]->mbmi.partition;
 #endif
 
@@ -2975,7 +2975,7 @@ static void predict_intra_block_helper(const MACROBLOCKD *xd, int wpx, int hpx,
 
   const int have_top_right =
       has_top_right(bsize, mi_row, mi_col, have_top, right_available,
-#if CONFIG_EXT_PARTITION_TYPES
+#if CONFIG_EXT_PARTITION_TYPES && !CONFIG_EXT_PARTITION_TYPES_AB
                     partition,
 #endif
                     tx_size, row_off, col_off, pd->subsampling_x);
