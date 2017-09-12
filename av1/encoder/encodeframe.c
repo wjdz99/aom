@@ -1607,7 +1607,9 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td, int mi_row,
   const MB_MODE_INFO *const mbmi = &mi->mbmi;
   const MB_MODE_INFO_EXT *const mbmi_ext = x->mbmi_ext;
   const BLOCK_SIZE bsize = mbmi->sb_type;
+#if CONFIG_NEW_MULTISYMBOL
   FRAME_CONTEXT *fc = xd->tile_ctx;
+#endif
 
 #if CONFIG_DELTA_Q
   // delta quant applies to both intra and inter
@@ -1796,8 +1798,10 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td, int mi_row,
             update_cdf(fc->interintra_cdf[bsize_group], 1, 2);
 #endif
             counts->interintra_mode[bsize_group][mbmi->interintra_mode]++;
+#if CONFIG_NEW_MULTISYMBOL
             update_cdf(fc->interintra_mode_cdf[bsize_group],
                        mbmi->interintra_mode, INTERINTRA_MODES);
+#endif
             if (is_interintra_wedge_used(bsize)) {
               counts->wedge_interintra[bsize][mbmi->use_wedge_interintra]++;
 #if CONFIG_NEW_MULTISYMBOL
