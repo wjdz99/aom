@@ -384,6 +384,7 @@ typedef struct MB_MODE_INFO {
 
 #if CONFIG_MRC_TX
   int valid_mrc_mask;
+  int16_t zero_threshold;
 #endif  // CONFIG_MRC_TX
 
   // Only for INTRA blocks

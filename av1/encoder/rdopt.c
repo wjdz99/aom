@@ -1633,8 +1633,8 @@ int av1_cost_coeffs(const AV1_COMP *const cpi, MACROBLOCK *x, int plane,
   const int is_inter = is_inter_block(mbmi);
   if (tx_type == MRC_DCT && ((is_inter && SIGNAL_MRC_MASK_INTER) ||
                              (!is_inter && SIGNAL_MRC_MASK_INTRA))) {
-    const int mrc_mask_cost =
-        av1_cost_color_map(x, plane, block, mbmi->sb_type, tx_size, MRC_MAP);
+    const int mrc_mask_cost = 0;
+        //av1_cost_color_map(x, plane, block, mbmi->sb_type, tx_size, MRC_MAP);
     return cost_coeffs(cm, x, plane, block, tx_size, scan_order, a, l,
                        use_fast_coef_costing) +
            mrc_mask_cost;
