@@ -640,11 +640,11 @@ static uint64_t cdef_dist_8x8_16bit(uint16_t *dst, int dstride, uint16_t *src,
   int i, j;
   for (i = 0; i < 8; i++) {
     for (j = 0; j < 8; j++) {
-      sum_s += src[i * sstride + j];
-      sum_d += dst[i * dstride + j];
-      sum_s2 += src[i * sstride + j] * src[i * sstride + j];
-      sum_d2 += dst[i * dstride + j] * dst[i * dstride + j];
-      sum_sd += src[i * sstride + j] * dst[i * dstride + j];
+      sum_s += (uint64_t)src[i * sstride + j];
+      sum_d += (uint64_t)dst[i * dstride + j];
+      sum_s2 += (uint64_t)src[i * sstride + j] * src[i * sstride + j];
+      sum_d2 += (uint64_t)dst[i * dstride + j] * dst[i * dstride + j];
+      sum_sd += (uint64_t)src[i * sstride + j] * dst[i * dstride + j];
     }
   }
   /* Compute the variance -- the calculation cannot go negative. */
@@ -799,8 +799,7 @@ static double od_compute_dist_common(int activity_masking, uint16_t *x,
 static double od_compute_dist(uint16_t *x, uint16_t *y, int bsize_w,
                               int bsize_h, int qindex) {
   int i;
-  double sum;
-  sum = 0;
+  double sum = 0;
 
   assert(bsize_w >= 8 && bsize_h >= 8);
 
@@ -838,8 +837,7 @@ static double od_compute_dist(uint16_t *x, uint16_t *y, int bsize_w,
 static double od_compute_dist_diff(uint16_t *x, int16_t *e, int bsize_w,
                                    int bsize_h, int qindex) {
   int i;
-  double sum;
-  sum = 0;
+  double sum = 0;
 
   assert(bsize_w >= 8 && bsize_h >= 8);
 
@@ -885,11 +883,13 @@ int64_t av1_dist_8x8(const AV1_COMP *const cpi, const MACROBLOCK *x,
   DECLARE_ALIGNED(16, uint16_t, orig[MAX_TX_SQUARE]);
   DECLARE_ALIGNED(16, uint16_t, rec[MAX_TX_SQUARE]);
 
+  assert(bsw >= 8);
+  assert(bsh >= 8);
+  assert((bsw & 0x07) == 0);
+  assert((bsh & 0x07) == 0);
+
   if (x->tune_metric == AOM_TUNE_CDEF_DIST ||
       x->tune_metric == AOM_TUNE_DAALA_DIST) {
-    assert((bsw & 0x07) == 0);
-    assert((bsh & 0x07) == 0);
-
 #if CONFIG_HIGHBITDEPTH
     if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
       for (j = 0; j < bsh; j++)
@@ -984,11 +984,13 @@ static int64_t av1_dist_8x8_diff(const MACROBLOCK *x, const uint8_t *src,
   DECLARE_ALIGNED(16, uint16_t, orig[MAX_TX_SQUARE]);
   DECLARE_ALIGNED(16, int16_t, diff16[MAX_TX_SQUARE]);
 
+  assert(bsw >= 8);
+  assert(bsh >= 8);
+  assert((bsw & 0x07) == 0);
+  assert((bsh & 0x07) == 0);
+
   if (x->tune_metric == AOM_TUNE_CDEF_DIST ||
       x->tune_metric == AOM_TUNE_DAALA_DIST) {
-    assert((bsw & 0x07) == 0);
-    assert((bsh & 0x07) == 0);
-
 #if CONFIG_HIGHBITDEPTH
     if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
       for (j = 0; j < bsh; j++)
