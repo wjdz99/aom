@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "580386c1_a30852f0",
+        "filename": "av1/common/reconinter.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1009,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2017-09-13T23:56:06Z",
+      "side": 1,
+      "message": "this uninitialized array is used as operand in other function, build_compound_seg_mask_d32(), and I was not sure the author really meant with zero valued mask there.",
+      "range": {
+        "startLine": 1009,
+        "startChar": 59,
+        "endLine": 1009,
+        "endChar": 67
+      },
+      "revId": "67c04d42eea9b6e5f9b92c1b59cb266d64d295f3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
