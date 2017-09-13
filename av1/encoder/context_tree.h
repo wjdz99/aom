@@ -38,6 +38,12 @@ typedef struct {
   tran_low_t *coeff[MAX_MB_PLANE];
   tran_low_t *qcoeff[MAX_MB_PLANE];
   tran_low_t *dqcoeff[MAX_MB_PLANE];
+#if CONFIG_MRC_TX && NUM_MRC_IMAGE_LAYERS == 2
+  tran_low_t *coeff2;
+  tran_low_t *qcoeff2;
+  tran_low_t *dqcoeff2;
+  uint16_t *eobs2;
+#endif  // CONFIG_MRC_TX && NUM_MRC_IMAGE_LAYERS == 2
 #if CONFIG_PVQ
   tran_low_t *pvq_ref_coeff[MAX_MB_PLANE];
 #endif

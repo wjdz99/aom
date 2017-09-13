@@ -67,6 +67,16 @@ static void alloc_mode_context(AV1_COMMON *cm, int num_pix,
 #if CONFIG_MRC_TX
   CHECK_MEM_ERROR(cm, ctx->mrc_mask,
                   aom_memalign(32, num_pix * sizeof(*ctx->mrc_mask)));
+#if NUM_MRC_IMAGE_LAYERS == 2
+    CHECK_MEM_ERROR(cm, ctx->coeff2,
+                    aom_memalign(32, num_pix * sizeof(*ctx->coeff2)));
+    CHECK_MEM_ERROR(cm, ctx->qcoeff2,
+                    aom_memalign(32, num_pix * sizeof(*ctx->qcoeff2)));
+    CHECK_MEM_ERROR(cm, ctx->dqcoeff2,
+                    aom_memalign(32, num_pix * sizeof(*ctx->dqcoeff2)));
+    CHECK_MEM_ERROR(cm, ctx->eobs2,
+                    aom_memalign(32, num_blk * sizeof(*ctx->eobs2)));
+#endif  //NUM_MRC_IMAGE_LAYERS == 2
 #endif  // CONFIG_MRC_TX
 }
 
@@ -100,6 +110,12 @@ static void free_mode_context(PICK_MODE_CONTEXT *ctx) {
     ctx->color_index_map[i] = 0;
   }
 #if CONFIG_MRC_TX
+    aom_free(ctx->coeff2);
+    ctx->coeff2 = 0;
+    aom_free(ctx->qcoeff2);
+    ctx->qcoeff2 = 0;
+    aom_free(ctx->dqcoeff2);
+    ctx->dqcoeff2 = 0;
   aom_free(ctx->mrc_mask);
   ctx->mrc_mask = 0;
 #endif  // CONFIG_MRC_TX

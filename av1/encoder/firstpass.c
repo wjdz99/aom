@@ -624,6 +624,12 @@ void av1_first_pass(AV1_COMP *cpi, const struct lookahead_entry *source) {
     p[i].txb_entropy_ctx = ctx->txb_entropy_ctx[i];
 #endif
   }
+#if CONFIG_MRC_TX && MRC_IMAGE_LAYERS == 2
+  p[0].coeff2 = ctx->coeff2;
+  p[0].qcoeff2 = ctx->qcoeff2;
+  pd[0].dqcoeff2 = ctx->dqcoeff2;
+  p[0].eobs2 = ctx->eobs2;
+#endif  // CONFIG_MRC_TX && MRC_IMAGE_LAYERS == 2
 
   av1_init_mv_probs(cm);
 #if CONFIG_LV_MAP

@@ -650,6 +650,12 @@ static void update_state(const AV1_COMP *const cpi, ThreadData *td,
     p[i].txb_entropy_ctx = ctx->txb_entropy_ctx[i];
 #endif  // CONFIG_LV_MAP
   }
+#if CONFIG_MRC_TX && MRC_IMAGE_LAYERS == 2
+  p[0].coeff2 = ctx->coeff2;
+  p[0].qcoeff2 = ctx->qcoeff2;
+  pd[0].dqcoeff2 = ctx->dqcoeff2;
+  p[0].eobs2 = ctx->eobs2;
+#endif  // CONFIG_MRC_TX && MRC_IMAGE_LAYERS == 2
   for (i = 0; i < 2; ++i) pd[i].color_index_map = ctx->color_index_map[i];
 #if CONFIG_MRC_TX
   xd->mrc_mask = ctx->mrc_mask;
@@ -1467,6 +1473,12 @@ static void rd_pick_sb_modes(const AV1_COMP *const cpi, TileDataEnc *tile_data,
     p[i].txb_entropy_ctx = ctx->txb_entropy_ctx[i];
 #endif
   }
+#if CONFIG_MRC_TX && MRC_IMAGE_LAYERS == 2
+  p[0].coeff2 = ctx->coeff2;
+  p[0].qcoeff2 = ctx->qcoeff2;
+  pd[0].dqcoeff2 = ctx->dqcoeff2;
+  p[0].eobs2 = ctx->eobs2;
+#endif  // CONFIG_MRC_TX && MRC_IMAGE_LAYERS == 2
 
   for (i = 0; i < 2; ++i) pd[i].color_index_map = ctx->color_index_map[i];
 #if CONFIG_MRC_TX
