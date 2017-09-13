@@ -406,10 +406,6 @@ static PREDICTION_MODE read_inter_singleref_comp_mode(MACROBLOCKD *xd,
 #endif  // CONFIG_COMPOUND_SINGLEREF
 #endif  // CONFIG_EXT_INTER
 
-static int read_segment_id(aom_reader *r, struct segmentation_probs *segp) {
-  return aom_read_symbol(r, segp->tree_cdf, MAX_SEGMENTS, ACCT_STR);
-}
-
 #if CONFIG_VAR_TX
 static void read_tx_size_vartx(AV1_COMMON *cm, MACROBLOCKD *xd,
                                MB_MODE_INFO *mbmi, FRAME_COUNTS *counts,
@@ -566,75 +562,49 @@ static TX_SIZE read_tx_size(AV1_COMMON *cm, MACROBLOCKD *xd, int is_inter,
   }
 }
 
-static int dec_get_segment_id(const AV1_COMMON *cm, const uint8_t *segment_ids,
-                              int mi_offset, int x_mis, int y_mis) {
-  int x, y, segment_id = INT_MAX;
-
-  for (y = 0; y < y_mis; y++)
-    for (x = 0; x < x_mis; x++)
-      segment_id =
-          AOMMIN(segment_id, segment_ids[mi_offset + y * cm->mi_cols + x]);
-
-  assert(segment_id >= 0 && segment_id < MAX_SEGMENTS);
-  return segment_id;
-}
-
-static void set_segment_id(AV1_COMMON *cm, int mi_offset, int x_mis, int y_mis,
-                           int segment_id) {
-  int x, y;
-
-  assert(segment_id >= 0 && segment_id < MAX_SEGMENTS);
-
-  for (y = 0; y < y_mis; y++)
-    for (x = 0; x < x_mis; x++)
-      cm->current_frame_seg_map[mi_offset + y * cm->mi_cols + x] = segment_id;
-}
-
-static int read_intra_segment_id(AV1_COMMON *const cm, MACROBLOCKD *const xd,
-                                 int mi_offset, int x_mis, int y_mis,
-                                 aom_reader *r) {
-  struct segmentation *const seg = &cm->seg;
+static int read_segment_id(AV1_COMMON *const cm, MACROBLOCKD *const xd,
+                           int mi_row, int mi_col, aom_reader *r) {
   FRAME_COUNTS *counts = xd->counts;
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
   struct segmentation_probs *const segp = &ec_ctx->seg;
-  int segment_id;
-
-  if (!seg->enabled) return 0;  // Default for disabled segmentation
-
-  segment_id = read_segment_id(r, segp);
-  if (counts) ++counts->seg.tree_total[segment_id];
-  set_segment_id(cm, mi_offset, x_mis, y_mis, segment_id);
-  return segment_id;
-}
-
-static int read_inter_segment_id(AV1_COMMON *const cm, MACROBLOCKD *const xd,
-                                 int mi_row, int mi_col, aom_reader *r) {
-  struct segmentation *const seg = &cm->seg;
-  FRAME_COUNTS *counts = xd->counts;
-  FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
-  struct segmentation_probs *const segp = &ec_ctx->seg;
-
   MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
-  int predicted_segment_id, segment_id;
-  const int mi_offset = mi_row * cm->mi_cols + mi_col;
-  const int bw = mi_size_wide[mbmi->sb_type];
-  const int bh = mi_size_high[mbmi->sb_type];
+  const BLOCK_SIZE bsize = mbmi->sb_type;
+  int prev_tl = 0; /* Top left segment_id */
+  int prev_cl = 0; /* Current left segment_id */
+  int prev_tc = 0; /* Current top segment_id */
 
-  // TODO(slavarnway): move x_mis, y_mis into xd ?????
-  const int x_mis = AOMMIN(cm->mi_cols - mi_col, bw);
-  const int y_mis = AOMMIN(cm->mi_rows - mi_row, bh);
+  if ((mi_row - MAX_MIB_SIZE) >= 0 && (mi_col - MAX_MIB_SIZE) >= 0)
+    prev_tl = get_segment_id(cm, cm->current_frame_seg_map, bsize,
+                             mi_row - MAX_MIB_SIZE, mi_col - MAX_MIB_SIZE);
+  if ((mi_row - MAX_MIB_SIZE) >= 0)
+    prev_tc = get_segment_id(cm, cm->current_frame_seg_map, bsize,
+                             mi_row - MAX_MIB_SIZE, mi_col - 0);
+  if ((mi_row - MAX_MIB_SIZE) >= 0)
+    prev_cl = get_segment_id(cm, cm->current_frame_seg_map, bsize, mi_row - 0,
+                             mi_col - MAX_MIB_SIZE);
 
-  if (!seg->enabled) return 0;  // Default for disabled segmentation
+  int segment_id = (3 * prev_tl + 2 * prev_tc + 1 * prev_cl + (6 - 1)) / 6;
+  int pred_flag;
 
-  predicted_segment_id = cm->last_frame_seg_map
-                             ? dec_get_segment_id(cm, cm->last_frame_seg_map,
-                                                  mi_offset, x_mis, y_mis)
-                             : 0;
+#if CONFIG_NEW_MULTISYMBOL
+  aom_cdf_prob *pred_cdf = av1_get_pred_cdf_seg_id(segp, xd);
+  pred_flag = aom_read_symbol(r, pred_cdf, 2, ACCT_STR);
+#else
+  aom_prob pred_prob = av1_get_pred_prob_seg_id(segp, xd);
+  pred_flag = aom_read(r, pred_prob, ACCT_STR);
+#endif
 
-  segment_id = read_segment_id(r, segp);
+  if (!pred_flag) {
+    int coded_delta =
+        aom_read_symbol(r, segp->tree_cdf, MAX_SEGMENTS, ACCT_STR);
+    coded_delta *= 1 - 2 * aom_read_bit(r, ACCT_STR);
+    segment_id = segment_id - coded_delta;
+  }
+
   if (counts) ++counts->seg.tree_total[segment_id];
+  set_segment_id(cm, cm->current_frame_seg_map, bsize, mi_row, mi_col,
+                 segment_id);
 
-  set_segment_id(cm, mi_offset, x_mis, y_mis, segment_id);
   return segment_id;
 }
 
@@ -1033,16 +1003,9 @@ static void read_intra_frame_mode_info(AV1_COMMON *const cm,
   const MODE_INFO *left_mi = xd->left_mi;
   const BLOCK_SIZE bsize = mbmi->sb_type;
   int i;
-  const int mi_offset = mi_row * cm->mi_cols + mi_col;
-  const int bw = mi_size_wide[bsize];
-  const int bh = mi_size_high[bsize];
-
-  // TODO(slavarnway): move x_mis, y_mis into xd ?????
-  const int x_mis = AOMMIN(cm->mi_cols - mi_col, bw);
-  const int y_mis = AOMMIN(cm->mi_rows - mi_row, bh);
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
 
-  mbmi->segment_id = read_intra_segment_id(cm, xd, mi_offset, x_mis, y_mis, r);
+  mbmi->segment_id = read_segment_id(cm, xd, mi_row, mi_col, r);
   mbmi->skip = read_skip(cm, xd, mbmi->segment_id, r);
 
 #if CONFIG_DELTA_Q
@@ -2773,7 +2736,7 @@ static void read_inter_frame_mode_info(AV1Decoder *const pbi,
 
   mbmi->mv[0].as_int = 0;
   mbmi->mv[1].as_int = 0;
-  mbmi->segment_id = read_inter_segment_id(cm, xd, mi_row, mi_col, r);
+  mbmi->segment_id = read_segment_id(cm, xd, mi_row, mi_col, r);
 #if CONFIG_SUPERTX
   if (!supertx_enabled)
 #endif  // CONFIG_SUPERTX

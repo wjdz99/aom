@@ -997,13 +997,6 @@ static void pack_txb_tokens(aom_writer *w, const TOKENEXTRA **tp,
 #endif  // CONFIG_LV_MAP
 #endif  // CONFIG_VAR_TX
 
-static void write_segment_id(aom_writer *w, const struct segmentation *seg,
-                             struct segmentation_probs *segp, int segment_id) {
-  if (seg->enabled) {
-    aom_write_symbol(w, segment_id, segp->tree_cdf, MAX_SEGMENTS);
-  }
-}
-
 #if CONFIG_NEW_MULTISYMBOL
 #define WRITE_REF_BIT(bname, pname) \
   aom_write_symbol(w, bname, av1_get_pred_cdf_##pname(cm, xd), 2)
@@ -1011,6 +1004,48 @@ static void write_segment_id(aom_writer *w, const struct segmentation *seg,
 #define WRITE_REF_BIT(bname, pname) \
   aom_write(w, bname, av1_get_pred_prob_##pname(cm, xd))
 #endif
+
+static void write_segment_id(const AV1_COMMON *cm, const MACROBLOCKD *xd,
+                             aom_writer *w, const struct segmentation *seg,
+                             struct segmentation_probs *segp, BLOCK_SIZE bsize,
+                             int mi_row, int mi_col, int segment_id) {
+  if (!seg->enabled) return;
+
+  int prev_tl = 0; /* Top left segment_id */
+  int prev_cl = 0; /* Current left segment_id */
+  int prev_tc = 0; /* Current top segment_id */
+
+  if ((mi_row - MAX_MIB_SIZE) >= 0 && (mi_col - MAX_MIB_SIZE) >= 0)
+    prev_tl = get_segment_id(cm, cm->current_frame_seg_map, bsize,
+                             mi_row - MAX_MIB_SIZE, mi_col - MAX_MIB_SIZE);
+  if ((mi_row - MAX_MIB_SIZE) >= 0)
+    prev_tc = get_segment_id(cm, cm->current_frame_seg_map, bsize,
+                             mi_row - MAX_MIB_SIZE, mi_col - 0);
+  if ((mi_row - MAX_MIB_SIZE) >= 0)
+    prev_cl = get_segment_id(cm, cm->current_frame_seg_map, bsize, mi_row - 0,
+                             mi_col - MAX_MIB_SIZE);
+
+  int pred = (3 * prev_tl + 2 * prev_tc + 1 * prev_cl + (6 - 1)) / 6;
+
+  int coded_id = pred - segment_id;
+  int pred_flag = coded_id == 0;
+
+#if CONFIG_NEW_MULTISYMBOL
+  aom_cdf_prob *pred_cdf = av1_get_pred_cdf_seg_id(segp, xd);
+  aom_write_symbol(w, pred_flag, pred_cdf, 2);
+#else
+  aom_prob pred_prob = av1_get_pred_prob_seg_id(segp, xd);
+  aom_write(w, pred_flag, pred_prob);
+#endif
+
+  if (!pred_flag) {
+    aom_write_symbol(w, abs(coded_id), segp->tree_cdf, MAX_SEGMENTS);
+    aom_write_bit(w, coded_id < 0);
+  }
+
+  set_segment_id(cm, cm->current_frame_seg_map, bsize, mi_row, mi_col,
+                 segment_id);
+}
 
 // This function encodes the reference frame
 static void write_ref_frames(const AV1_COMMON *cm, const MACROBLOCKD *xd,
@@ -1697,10 +1732,9 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
 #else
   const int unify_bsize = 0;
 #endif
-  (void)mi_row;
-  (void)mi_col;
 
-  write_segment_id(w, seg, segp, segment_id);
+  write_segment_id(cm, xd, w, seg, segp, bsize, mi_row, mi_col,
+                   mbmi->segment_id);
 
 #if CONFIG_SUPERTX
   if (supertx_enabled)
@@ -2132,7 +2166,8 @@ static void write_mb_modes_kf(AV1_COMMON *cm,
   (void)mi_row;
   (void)mi_col;
 
-  write_segment_id(w, seg, segp, mbmi->segment_id);
+  write_segment_id(cm, xd, w, seg, segp, bsize, mi_row, mi_col,
+                   mbmi->segment_id);
 
 #if CONFIG_DELTA_Q
   const int skip = write_skip(cm, xd, mbmi->segment_id, mi, w);
@@ -3469,7 +3504,7 @@ static void encode_quantization(const AV1_COMMON *const cm,
 #endif
 }
 
-static void encode_segmentation(AV1_COMMON *cm, MACROBLOCKD *xd,
+static void encode_segmentation(AV1_COMMON *cm,
                                 struct aom_write_bit_buffer *wb) {
   int i, j;
   const struct segmentation *seg = &cm->seg;
@@ -4523,7 +4558,7 @@ static void write_uncompressed_header(AV1_COMP *cpi,
 
   encode_loopfilter(cm, wb);
   encode_quantization(cm, wb);
-  encode_segmentation(cm, xd, wb);
+  encode_segmentation(cm, wb);
 #if CONFIG_DELTA_Q
   {
     int i;

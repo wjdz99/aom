@@ -588,6 +588,7 @@ static void configure_static_seg_features(AV1_COMP *cpi) {
   if (cm->frame_type == KEY_FRAME) {
     // Clear down the global segmentation map
     memset(cpi->segmentation_map, 0, cm->mi_rows * cm->mi_cols);
+    memset(cm->current_frame_seg_map, 0, (cm->mi_rows * cm->mi_cols));
     seg->update_data = 0;
     cpi->static_mb_pct = 0;
 
@@ -600,6 +601,7 @@ static void configure_static_seg_features(AV1_COMP *cpi) {
     // If this is an alt ref frame
     // Clear down the global segmentation map
     memset(cpi->segmentation_map, 0, cm->mi_rows * cm->mi_cols);
+    memset(cm->current_frame_seg_map, 0, (cm->mi_rows * cm->mi_cols));
     seg->update_data = 0;
     cpi->static_mb_pct = 0;
 
@@ -658,6 +660,7 @@ static void configure_static_seg_features(AV1_COMP *cpi) {
         av1_disable_segmentation(seg);
 
         memset(cpi->segmentation_map, 0, cm->mi_rows * cm->mi_cols);
+        memset(cm->current_frame_seg_map, 0, (cm->mi_rows * cm->mi_cols));
 
         seg->update_data = 0;
 
