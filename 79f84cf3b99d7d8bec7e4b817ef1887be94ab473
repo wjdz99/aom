@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "75c806f1_dc24735e",
+        "filename": "test/av1_highbd_iht_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-09-13T15:01:38Z",
+      "side": 1,
+      "message": "What is our policy on comments for #endif? I try to add them all the time (but I often forget). Anyway, do consider adding them here. Because there are a lot of #ifs",
+      "revId": "79f84cf3b99d7d8bec7e4b817ef1887be94ab473",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a9c370b8_b22e2c86",
+        "filename": "test/av1_highbd_iht_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-09-13T15:01:38Z",
+      "side": 1,
+      "message": "Please change comment to match #if",
+      "revId": "79f84cf3b99d7d8bec7e4b817ef1887be94ab473",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
