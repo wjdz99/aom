@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "c7e13b21_d387ba1b",
+        "filename": "av1/common/tile_common.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 7984
+      },
+      "writtenOn": "2017-09-13T17:59:47Z",
+      "side": 1,
+      "message": "This is the behavior intended from the max tile discussion. In particular, I got the feedback that it should be possible to achieve the min tile width or height. So for example if you wanted a tile every minimum tile row or column. In the example you give a max_log2_tile_cols of 1 would give a minimum tile width of 13/2\u003d6.5-\u003e7 (when rounded up). This is greater than the minimum 4 specified. max_log2_tile_col\u003d2 gives a width of 13/4\u003d3.25-\u003e4 (when rounded up) which achieves the minimum tile width.",
+      "parentUuid": "56d42d25_fe281ac1",
+      "range": {
+        "startLine": 56,
+        "startChar": 2,
+        "endLine": 57,
+        "endChar": 63
+      },
+      "revId": "d9b0b47ebb7053d4e2b4f6792536a55a384b361f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9271f2b1_8b8641be",
         "filename": "av1/common/tile_common.c",
         "patchSetId": 6
@@ -36,6 +60,30 @@
       "writtenOn": "2017-09-13T16:56:16Z",
       "side": 1,
       "message": "Remove these lines.",
+      "range": {
+        "startLine": 127,
+        "startChar": 0,
+        "endLine": 130,
+        "endChar": 6
+      },
+      "revId": "d9b0b47ebb7053d4e2b4f6792536a55a384b361f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dc743cc6_45990adc",
+        "filename": "av1/common/tile_common.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 7984
+      },
+      "writtenOn": "2017-09-13T17:59:47Z",
+      "side": 1,
+      "message": "Yes, will do.",
+      "parentUuid": "9271f2b1_8b8641be",
       "range": {
         "startLine": 127,
         "startChar": 0,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "ef4c8d1b_e5f34aed",
+        "filename": "av1/common/tile_common.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 7984
+      },
+      "writtenOn": "2017-09-13T17:59:47Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "610f7ddc_414b7d39",
+      "range": {
+        "startLine": 139,
+        "startChar": 0,
+        "endLine": 142,
+        "endChar": 6
+      },
+      "revId": "d9b0b47ebb7053d4e2b4f6792536a55a384b361f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "16af512d_7292e2e8",
         "filename": "av1/encoder/bitstream.c",
         "patchSetId": 6
@@ -82,6 +154,30 @@
       "writtenOn": "2017-09-13T16:56:16Z",
       "side": 1,
       "message": "This is non-uniform tile - Why called it wb_write_uniform?",
+      "range": {
+        "startLine": 3601,
+        "startChar": 6,
+        "endLine": 3601,
+        "endChar": 22
+      },
+      "revId": "d9b0b47ebb7053d4e2b4f6792536a55a384b361f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "baf75432_43d841e2",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 3601,
+      "author": {
+        "id": 7984
+      },
+      "writtenOn": "2017-09-13T17:59:47Z",
+      "side": 1,
+      "message": "This follows the naming of the (already existing) \"write_uniform\" bit-stream function that writes a value which has uniformly distributed probability over range from minimum to maximum. The wb_write_uniform() is the same as write_uniform() except that it writes raw bits to the uncompressed header rather than bool coded bits to the compressed stream. So, the uniform refers to uniform bit-stream probability.",
+      "parentUuid": "16af512d_7292e2e8",
       "range": {
         "startLine": 3601,
         "startChar": 6,
