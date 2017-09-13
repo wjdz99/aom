@@ -81,8 +81,6 @@ extern "C" {
 #define FRAME_CONTEXTS (1 << FRAME_CONTEXTS_LOG2)
 #endif  // CONFIG_NO_FRAME_CONTEXT_SIGNALING
 
-#define NUM_PING_PONG_BUFFERS 2
-
 typedef enum {
   SINGLE_REFERENCE = 0,
   COMPOUND_REFERENCE = 1,
@@ -339,12 +337,6 @@ typedef struct AV1Common {
   // Whether to use previous frame's motion vectors for prediction.
   int use_prev_frame_mvs;
 
-  // Persistent mb segment id map used in prediction.
-  int seg_map_idx;
-  int prev_seg_map_idx;
-
-  uint8_t *seg_map_array[NUM_PING_PONG_BUFFERS];
-  uint8_t *last_frame_seg_map;
   uint8_t *current_frame_seg_map;
   int seg_map_alloc_size;
 

@@ -40,38 +40,14 @@ void av1_set_mb_mi(AV1_COMMON *cm, int width, int height) {
 }
 
 static int alloc_seg_map(AV1_COMMON *cm, int seg_map_size) {
-  int i;
-
-  for (i = 0; i < NUM_PING_PONG_BUFFERS; ++i) {
-    cm->seg_map_array[i] = (uint8_t *)aom_calloc(seg_map_size, 1);
-    if (cm->seg_map_array[i] == NULL) return 1;
-  }
+  cm->current_frame_seg_map = (uint8_t *)aom_calloc(seg_map_size, 1);
   cm->seg_map_alloc_size = seg_map_size;
-
-  // Init the index.
-  cm->seg_map_idx = 0;
-  cm->prev_seg_map_idx = 1;
-
-  cm->current_frame_seg_map = cm->seg_map_array[cm->seg_map_idx];
-  if (!cm->frame_parallel_decode)
-    cm->last_frame_seg_map = cm->seg_map_array[cm->prev_seg_map_idx];
-
   return 0;
 }
 
 static void free_seg_map(AV1_COMMON *cm) {
-  int i;
-
-  for (i = 0; i < NUM_PING_PONG_BUFFERS; ++i) {
-    aom_free(cm->seg_map_array[i]);
-    cm->seg_map_array[i] = NULL;
-  }
-
+  aom_free(cm->current_frame_seg_map);
   cm->current_frame_seg_map = NULL;
-
-  if (!cm->frame_parallel_decode) {
-    cm->last_frame_seg_map = NULL;
-  }
 }
 
 void av1_free_ref_frame_buffers(BufferPool *pool) {
@@ -222,16 +198,4 @@ void av1_remove_common(AV1_COMMON *cm) {
 
 void av1_init_context_buffers(AV1_COMMON *cm) {
   cm->setup_mi(cm);
-  if (cm->last_frame_seg_map && !cm->frame_parallel_decode)
-    memset(cm->last_frame_seg_map, 0, cm->mi_rows * cm->mi_cols);
-}
-
-void av1_swap_current_and_last_seg_map(AV1_COMMON *cm) {
-  // Swap indices.
-  const int tmp = cm->seg_map_idx;
-  cm->seg_map_idx = cm->prev_seg_map_idx;
-  cm->prev_seg_map_idx = tmp;
-
-  cm->current_frame_seg_map = cm->seg_map_array[cm->seg_map_idx];
-  cm->last_frame_seg_map = cm->seg_map_array[cm->prev_seg_map_idx];
 }
