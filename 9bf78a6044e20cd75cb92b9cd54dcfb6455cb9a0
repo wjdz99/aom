@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6a1cf539_9d6ff295",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2017-09-13T21:52:39Z",
+      "side": 1,
+      "message": "Sorry, one last comment on this. The lines in this message should be ~70 characters.",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 18,
+        "endChar": 49
+      },
+      "revId": "9bf78a6044e20cd75cb92b9cd54dcfb6455cb9a0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
