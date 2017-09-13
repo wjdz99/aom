@@ -981,6 +981,7 @@ void av1_make_masked_inter_predictor(const uint8_t *pre, int pre_stride,
   CONV_BUF_TYPE *org_dst = conv_params->dst;
   int org_dst_stride = conv_params->dst_stride;
   if (conv_params->round == CONVOLVE_OPT_NO_ROUND) {
+    memset(tmp_dst2, 0, sizeof(tmp_dst2));
     conv_params->dst = tmp_dst2;
     conv_params->dst_stride = tmp_dst2_stride;
     // mask compound has its own average mechanism
