@@ -189,7 +189,6 @@ static void apply_active_map(AV1_COMP *cpi) {
       av1_disable_segfeature(seg, AM_SEGMENT_ID_INACTIVE, SEG_LVL_ALT_LF);
       if (seg->enabled) {
         seg->update_data = 1;
-        seg->update_map = 1;
       }
     }
     cpi->active_map.update = 0;
@@ -589,7 +588,6 @@ static void configure_static_seg_features(AV1_COMP *cpi) {
   if (cm->frame_type == KEY_FRAME) {
     // Clear down the global segmentation map
     memset(cpi->segmentation_map, 0, cm->mi_rows * cm->mi_cols);
-    seg->update_map = 0;
     seg->update_data = 0;
     cpi->static_mb_pct = 0;
 
@@ -602,7 +600,6 @@ static void configure_static_seg_features(AV1_COMP *cpi) {
     // If this is an alt ref frame
     // Clear down the global segmentation map
     memset(cpi->segmentation_map, 0, cm->mi_rows * cm->mi_cols);
-    seg->update_map = 0;
     seg->update_data = 0;
     cpi->static_mb_pct = 0;
 
@@ -617,7 +614,6 @@ static void configure_static_seg_features(AV1_COMP *cpi) {
     // If segmentation was enabled set those features needed for the
     // arf itself.
     if (seg->enabled) {
-      seg->update_map = 1;
       seg->update_data = 1;
 
       qi_delta =
@@ -638,7 +634,6 @@ static void configure_static_seg_features(AV1_COMP *cpi) {
     if (rc->frames_since_golden == 0) {
       // Set up segment features for normal frames in an arf group
       if (rc->source_alt_ref_active) {
-        seg->update_map = 0;
         seg->update_data = 1;
         seg->abs_delta = SEGMENT_DELTADATA;
 
@@ -664,7 +659,6 @@ static void configure_static_seg_features(AV1_COMP *cpi) {
 
         memset(cpi->segmentation_map, 0, cm->mi_rows * cm->mi_cols);
 
-        seg->update_map = 0;
         seg->update_data = 0;
 
         av1_clearall_segfeatures(seg);
@@ -695,25 +689,8 @@ static void configure_static_seg_features(AV1_COMP *cpi) {
       // All other frames.
 
       // No updates.. leave things as they are.
-      seg->update_map = 0;
       seg->update_data = 0;
     }
-  }
-}
-
-static void update_reference_segmentation_map(AV1_COMP *cpi) {
-  AV1_COMMON *const cm = &cpi->common;
-  MODE_INFO **mi_8x8_ptr = cm->mi_grid_visible;
-  uint8_t *cache_ptr = cm->last_frame_seg_map;
-  int row, col;
-
-  for (row = 0; row < cm->mi_rows; row++) {
-    MODE_INFO **mi_8x8 = mi_8x8_ptr;
-    uint8_t *cache = cache_ptr;
-    for (col = 0; col < cm->mi_cols; col++, mi_8x8++, cache++)
-      cache[0] = mi_8x8[0]->mbmi.segment_id;
-    mi_8x8_ptr += cm->mi_stride;
-    cache_ptr += cm->mi_cols;
   }
 }
 
@@ -4934,7 +4911,6 @@ static void encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
 
     // If segmentation is enabled force a map update for key frames.
     if (seg->enabled) {
-      seg->update_map = 1;
       seg->update_data = 1;
     }
 
@@ -5114,8 +5090,6 @@ static void encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
   if (cm->show_frame) dump_filtered_recon_frames(cpi);
 #endif  // DUMP_RECON_FRAMES
 
-  if (cm->seg.update_map) update_reference_segmentation_map(cpi);
-
   if (frame_is_intra_only(cm) == 0) {
     release_scaled_references(cpi);
   }
@@ -5211,7 +5185,6 @@ static void encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
 
   // Clear the one shot update flags for segmentation map and mode/ref loop
   // filter deltas.
-  cm->seg.update_map = 0;
   cm->seg.update_data = 0;
   cm->lf.mode_ref_delta_update = 0;
 
@@ -5355,8 +5328,7 @@ static int frame_is_reference(const AV1_COMP *cpi) {
          cpi->refresh_bwd_ref_frame || cpi->refresh_alt2_ref_frame ||
 #endif  // CONFIG_EXT_REFS
          cpi->refresh_alt_ref_frame || !cm->error_resilient_mode ||
-         cm->lf.mode_ref_delta_update || cm->seg.update_map ||
-         cm->seg.update_data;
+         cm->lf.mode_ref_delta_update || cm->seg.update_data;
 }
 
 static void adjust_frame_rate(AV1_COMP *cpi,

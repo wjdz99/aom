@@ -40,13 +40,8 @@ static INLINE int get_segment_id(const AV1_COMMON *const cm,
 }
 
 static INLINE int av1_get_pred_context_seg_id(const MACROBLOCKD *xd) {
-  const MODE_INFO *const above_mi = xd->above_mi;
-  const MODE_INFO *const left_mi = xd->left_mi;
-  const int above_sip =
-      (above_mi != NULL) ? above_mi->mbmi.seg_id_predicted : 0;
-  const int left_sip = (left_mi != NULL) ? left_mi->mbmi.seg_id_predicted : 0;
-
-  return above_sip + left_sip;
+  /* TODO: use for spatial prediction */
+  return 0;
 }
 
 static INLINE aom_prob av1_get_pred_prob_seg_id(

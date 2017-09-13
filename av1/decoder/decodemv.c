@@ -601,25 +601,10 @@ static int read_intra_segment_id(AV1_COMMON *const cm, MACROBLOCKD *const xd,
 
   if (!seg->enabled) return 0;  // Default for disabled segmentation
 
-  assert(seg->update_map && !seg->temporal_update);
-
   segment_id = read_segment_id(r, segp);
   if (counts) ++counts->seg.tree_total[segment_id];
   set_segment_id(cm, mi_offset, x_mis, y_mis, segment_id);
   return segment_id;
-}
-
-static void copy_segment_id(const AV1_COMMON *cm,
-                            const uint8_t *last_segment_ids,
-                            uint8_t *current_segment_ids, int mi_offset,
-                            int x_mis, int y_mis) {
-  int x, y;
-
-  for (y = 0; y < y_mis; y++)
-    for (x = 0; x < x_mis; x++)
-      current_segment_ids[mi_offset + y * cm->mi_cols + x] =
-          last_segment_ids ? last_segment_ids[mi_offset + y * cm->mi_cols + x]
-                           : 0;
 }
 
 static int read_inter_segment_id(AV1_COMMON *const cm, MACROBLOCKD *const xd,
@@ -646,32 +631,9 @@ static int read_inter_segment_id(AV1_COMMON *const cm, MACROBLOCKD *const xd,
                                                   mi_offset, x_mis, y_mis)
                              : 0;
 
-  if (!seg->update_map) {
-    copy_segment_id(cm, cm->last_frame_seg_map, cm->current_frame_seg_map,
-                    mi_offset, x_mis, y_mis);
-    return predicted_segment_id;
-  }
+  segment_id = read_segment_id(r, segp);
+  if (counts) ++counts->seg.tree_total[segment_id];
 
-  if (seg->temporal_update) {
-    const int ctx = av1_get_pred_context_seg_id(xd);
-#if CONFIG_NEW_MULTISYMBOL
-    aom_cdf_prob *pred_cdf = segp->pred_cdf[ctx];
-    mbmi->seg_id_predicted = aom_read_symbol(r, pred_cdf, 2, ACCT_STR);
-#else
-    const aom_prob pred_prob = segp->pred_probs[ctx];
-    mbmi->seg_id_predicted = aom_read(r, pred_prob, ACCT_STR);
-#endif
-    if (counts) ++counts->seg.pred[ctx][mbmi->seg_id_predicted];
-    if (mbmi->seg_id_predicted) {
-      segment_id = predicted_segment_id;
-    } else {
-      segment_id = read_segment_id(r, segp);
-      if (counts) ++counts->seg.tree_mispred[segment_id];
-    }
-  } else {
-    segment_id = read_segment_id(r, segp);
-    if (counts) ++counts->seg.tree_total[segment_id];
-  }
   set_segment_id(cm, mi_offset, x_mis, y_mis, segment_id);
   return segment_id;
 }

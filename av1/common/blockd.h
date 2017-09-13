@@ -380,7 +380,6 @@ typedef struct MB_MODE_INFO {
   // Minimum of all segment IDs under the current supertx block.
   int8_t segment_id_supertx;
 #endif                      // CONFIG_SUPERTX
-  int8_t seg_id_predicted;  // valid only when temporal_update is enabled
 
 #if CONFIG_MRC_TX
   int valid_mrc_mask;
