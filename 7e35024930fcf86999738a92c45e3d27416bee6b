@@ -91,6 +91,24 @@
     },
     {
       "key": {
+        "uuid": "9615a195_2eb976eb",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 22
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-09-13T13:43:46Z",
+      "side": 1,
+      "message": "My proposal is in two steps:\n  * First, I propose to compare master without CfL to CfL in intra frames only (see 20982).\n  * Next, I propose to compare 20982 to 15480 both with CfL enabled.\nI know it is not perfect, but I don\u0027t see enough returns to justify investing time to add padding back into CfL to deal with CHROMA_SUB8X8 (this is tricky get right).",
+      "parentUuid": "084b3dd2_caf51903",
+      "revId": "7e35024930fcf86999738a92c45e3d27416bee6b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "88071a21_eae02c94",
         "filename": "av1/common/cfl.c",
         "patchSetId": 22
@@ -209,6 +227,24 @@
       "side": 1,
       "message": "That\u0027s not 100% obvious, since you only check that at least one dimension is 4, and not necessarily the one corresponding to the odd mi coordinate (which is the part that some crazy partitioning scheme elsewhere in the codebase could affect), but it\u0027s not worth arguing about. I\u0027m okay with leaving them out.",
       "parentUuid": "b94cde70_1d1e9b75",
+      "revId": "7e35024930fcf86999738a92c45e3d27416bee6b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "429d8386_f4d1e6d8",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 22
+      },
+      "lineNbr": 328,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-09-13T13:43:46Z",
+      "side": 1,
+      "message": "I Agree, I\u0027ve added an assert for that.",
+      "parentUuid": "4ab9febf_0fec275f",
       "revId": "7e35024930fcf86999738a92c45e3d27416bee6b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -368,6 +404,24 @@
       "side": 1,
       "message": "Okay, it\u0027s starting to look a little less fishy, but this was passing with CONFIG_DEBUG and asserts enabled before, right? As I understand it, right now we assert that everything in sub8x8_val is set during cfl_compute_parameters, and we _don\u0027t_ assert that something is unset just before we set it.\n\nSo if we remove a call to cfl_clear_sub8x8_val() in some cases and no asserts trigger before or after, doesn\u0027t that still imply we have some useless stores?",
       "parentUuid": "2585a094_a847f90a",
+      "revId": "7e35024930fcf86999738a92c45e3d27416bee6b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bd83aad8_7bcfc42f",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 22
+      },
+      "lineNbr": 1975,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-09-13T13:43:46Z",
+      "side": 1,
+      "message": "We cannot remove cfl_clear_sub8x8_val() without causing asserts. I\u0027ve rewrote how store validation is managed. Let me know if you find it less fishy.",
+      "parentUuid": "f9c33ac3_e32b4e0d",
       "revId": "7e35024930fcf86999738a92c45e3d27416bee6b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
