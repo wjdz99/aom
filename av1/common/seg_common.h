@@ -42,10 +42,8 @@ typedef enum {
 
 struct segmentation {
   uint8_t enabled;
-  uint8_t update_map;
   uint8_t update_data;
   uint8_t abs_delta;
-  uint8_t temporal_update;
 
   int16_t feature_data[MAX_SEGMENTS][SEG_LVL_MAX];
   unsigned int feature_mask[MAX_SEGMENTS];

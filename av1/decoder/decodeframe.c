@@ -2603,25 +2603,10 @@ static void setup_segmentation(AV1_COMMON *const cm,
   struct segmentation *const seg = &cm->seg;
   int i, j;
 
-  seg->update_map = 0;
   seg->update_data = 0;
 
   seg->enabled = aom_rb_read_bit(rb);
   if (!seg->enabled) return;
-
-  // Segmentation map update
-  if (frame_is_intra_only(cm) || cm->error_resilient_mode) {
-    seg->update_map = 1;
-  } else {
-    seg->update_map = aom_rb_read_bit(rb);
-  }
-  if (seg->update_map) {
-    if (frame_is_intra_only(cm) || cm->error_resilient_mode) {
-      seg->temporal_update = 0;
-    } else {
-      seg->temporal_update = aom_rb_read_bit(rb);
-    }
-  }
 
   // Segmentation data update
   seg->update_data = aom_rb_read_bit(rb);

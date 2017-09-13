@@ -5553,17 +5553,8 @@ void av1_adapt_intra_frame_probs(AV1_COMMON *cm) {
   }
 #endif  // CONFIG_EXT_TX
 
-  if (cm->seg.temporal_update) {
-    for (i = 0; i < PREDICTION_PROBS; i++)
-      fc->seg.pred_probs[i] = av1_mode_mv_merge_probs(pre_fc->seg.pred_probs[i],
-                                                      counts->seg.pred[i]);
-
-    aom_tree_merge_probs(av1_segment_tree, pre_fc->seg.tree_probs,
-                         counts->seg.tree_mispred, fc->seg.tree_probs);
-  } else {
-    aom_tree_merge_probs(av1_segment_tree, pre_fc->seg.tree_probs,
-                         counts->seg.tree_total, fc->seg.tree_probs);
-  }
+  aom_tree_merge_probs(av1_segment_tree, pre_fc->seg.tree_probs,
+                       counts->seg.tree_total, fc->seg.tree_probs);
 
 #if CONFIG_EXT_PARTITION_TYPES
   for (i = 0; i < PARTITION_PLOFFSET; ++i)

@@ -999,7 +999,7 @@ static void pack_txb_tokens(aom_writer *w, const TOKENEXTRA **tp,
 
 static void write_segment_id(aom_writer *w, const struct segmentation *seg,
                              struct segmentation_probs *segp, int segment_id) {
-  if (seg->enabled && seg->update_map) {
+  if (seg->enabled) {
     aom_write_symbol(w, segment_id, segp->tree_cdf, MAX_SEGMENTS);
   }
 }
@@ -1700,21 +1700,7 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
   (void)mi_row;
   (void)mi_col;
 
-  if (seg->update_map) {
-    if (seg->temporal_update) {
-      const int pred_flag = mbmi->seg_id_predicted;
-#if CONFIG_NEW_MULTISYMBOL
-      aom_cdf_prob *pred_cdf = av1_get_pred_cdf_seg_id(segp, xd);
-      aom_write_symbol(w, pred_flag, pred_cdf, 2);
-#else
-      aom_prob pred_prob = av1_get_pred_prob_seg_id(segp, xd);
-      aom_write(w, pred_flag, pred_prob);
-#endif
-      if (!pred_flag) write_segment_id(w, seg, segp, segment_id);
-    } else {
-      write_segment_id(w, seg, segp, segment_id);
-    }
-  }
+  write_segment_id(w, seg, segp, segment_id);
 
 #if CONFIG_SUPERTX
   if (supertx_enabled)
@@ -2146,7 +2132,7 @@ static void write_mb_modes_kf(AV1_COMMON *cm,
   (void)mi_row;
   (void)mi_col;
 
-  if (seg->update_map) write_segment_id(w, seg, segp, mbmi->segment_id);
+  write_segment_id(w, seg, segp, mbmi->segment_id);
 
 #if CONFIG_DELTA_Q
   const int skip = write_skip(cm, xd, mbmi->segment_id, mi, w);
@@ -3490,24 +3476,6 @@ static void encode_segmentation(AV1_COMMON *cm, MACROBLOCKD *xd,
 
   aom_wb_write_bit(wb, seg->enabled);
   if (!seg->enabled) return;
-
-  // Segmentation map
-  if (!frame_is_intra_only(cm) && !cm->error_resilient_mode) {
-    aom_wb_write_bit(wb, seg->update_map);
-  } else {
-    assert(seg->update_map == 1);
-  }
-  if (seg->update_map) {
-    // Select the coding strategy (temporal or spatial)
-    av1_choose_segmap_coding_method(cm, xd);
-
-    // Write out the chosen coding method.
-    if (!frame_is_intra_only(cm) && !cm->error_resilient_mode) {
-      aom_wb_write_bit(wb, seg->temporal_update);
-    } else {
-      assert(seg->temporal_update == 0);
-    }
-  }
 
   // Segmentation data
   aom_wb_write_bit(wb, seg->update_data);

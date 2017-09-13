@@ -40,8 +40,6 @@ void av1_clear_segdata(struct segmentation *seg, int segment_id,
 void av1_set_segment_data(struct segmentation *seg, int8_t *feature_data,
                           unsigned char abs_delta);
 
-void av1_choose_segmap_coding_method(AV1_COMMON *cm, MACROBLOCKD *xd);
-
 void av1_reset_segment_features(AV1_COMMON *cm);
 
 #ifdef __cplusplus
