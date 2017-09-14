@@ -35,6 +35,9 @@
 #if CONFIG_PVQ
 #include "av1/common/pvq.h"
 #endif
+#if CONFIG_CFL
+#include "av1/common/cfl.h"
+#endif
 #if CONFIG_HASH_ME
 // TODO(youzhou@microsoft.com): Encoder only. Move it out of common
 #include "av1/encoder/hash_motion.h"
@@ -638,8 +641,22 @@ static INLINE int frame_is_intra_only(const AV1_COMMON *const cm) {
 }
 
 #if CONFIG_CFL
-void cfl_init(CFL_CTX *cfl, AV1_COMMON *cm);
-#endif
+static INLINE void cfl_init(CFL_CTX *cfl, AV1_COMMON *cm) {
+  if (!((cm->subsampling_x == 0 && cm->subsampling_y == 0) ||
+        (cm->subsampling_x == 1 && cm->subsampling_y == 1))) {
+    aom_internal_error(&cm->error, AOM_CODEC_UNSUP_BITSTREAM,
+                       "Only 4:4:4 and 4:2:0 are currently supported by CfL");
+  }
+  memset(&cfl->y_pix, 0, sizeof(cfl->y_pix));
+  cfl->subsampling_x = cm->subsampling_x;
+  cfl->subsampling_y = cm->subsampling_y;
+  cfl->are_parameters_computed = 0;
+  cfl->store_y = 0;
+#if CONFIG_CHROMA_SUB8X8 && CONFIG_DEBUG
+  cfl_clear_sub8x8_val(cfl);
+#endif  // CONFIG_CHROMA_SUB8X8 && CONFIG_DEBUG
+}
+#endif  // CONFIG_CFL
 
 static INLINE void av1_init_macroblockd(AV1_COMMON *cm, MACROBLOCKD *xd,
 #if CONFIG_PVQ
