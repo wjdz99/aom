@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4dc4748e_1ca853b0",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-09-14T23:29:11Z",
+      "side": 1,
+      "message": "May better to have a macro for \"63\".",
+      "revId": "8fffcbaeeb5b24072ae6ce8753dd611a90741810",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8005ef63_6cfdd2b5",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 4068,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-09-14T23:29:11Z",
+      "side": 1,
+      "message": "seed is a random number, right? A comment is preferred here for the choice of this specific number.",
+      "revId": "8fffcbaeeb5b24072ae6ce8753dd611a90741810",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
