@@ -170,7 +170,7 @@ typedef struct frame_contexts {
   aom_prob dc_sign[PLANE_TYPES][DC_SIGN_CONTEXTS];
   aom_prob coeff_base[TX_SIZES][PLANE_TYPES][NUM_BASE_LEVELS]
                      [COEFF_BASE_CONTEXTS];
-  aom_prob coeff_lps[TX_SIZES][PLANE_TYPES][LEVEL_CONTEXTS];
+  aom_prob coeff_lps[TX_SIZES][PLANE_TYPES][BASE_RANGE_SETS][LEVEL_CONTEXTS];
 #if BR_NODE
   aom_prob coeff_br[TX_SIZES][PLANE_TYPES][BASE_RANGE_SETS][LEVEL_CONTEXTS];
 #endif
@@ -184,8 +184,8 @@ typedef struct frame_contexts {
   aom_cdf_prob dc_sign_cdf[PLANE_TYPES][DC_SIGN_CONTEXTS][CDF_SIZE(2)];
   aom_cdf_prob coeff_base_cdf[TX_SIZES][PLANE_TYPES][NUM_BASE_LEVELS]
                              [COEFF_BASE_CONTEXTS][CDF_SIZE(2)];
-  aom_cdf_prob coeff_lps_cdf[TX_SIZES][PLANE_TYPES][LEVEL_CONTEXTS]
-                            [CDF_SIZE(2)];
+  aom_cdf_prob coeff_lps_cdf[TX_SIZES][PLANE_TYPES][BASE_RANGE_SETS]
+                            [LEVEL_CONTEXTS][CDF_SIZE(2)];
 #if BR_NODE
   aom_cdf_prob coeff_br_cdf[TX_SIZES][PLANE_TYPES][BASE_RANGE_SETS]
                            [LEVEL_CONTEXTS][CDF_SIZE(2)];
@@ -429,7 +429,8 @@ typedef struct FRAME_COUNTS {
   unsigned int dc_sign[PLANE_TYPES][DC_SIGN_CONTEXTS][2];
   unsigned int coeff_base[TX_SIZES][PLANE_TYPES][NUM_BASE_LEVELS]
                          [COEFF_BASE_CONTEXTS][2];
-  unsigned int coeff_lps[TX_SIZES][PLANE_TYPES][LEVEL_CONTEXTS][2];
+  unsigned int coeff_lps[TX_SIZES][PLANE_TYPES][BASE_RANGE_SETS][LEVEL_CONTEXTS]
+                        [2];
   unsigned int coeff_br[TX_SIZES][PLANE_TYPES][BASE_RANGE_SETS][LEVEL_CONTEXTS]
                        [2];
 #endif  // CONFIG_LV_MAP

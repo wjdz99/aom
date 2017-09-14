@@ -4741,7 +4741,13 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
   av1_copy(fc->eob_flag, default_eob_flag);
   av1_copy(fc->dc_sign, default_dc_sign);
   av1_copy(fc->coeff_base, default_coeff_base);
-  av1_copy(fc->coeff_lps, default_coeff_lps);
+
+  for (int txs = 0; txs < TX_SIZES; ++txs)
+    for (int plane = 0; plane < PLANE_TYPES; ++plane)
+      for (int br = 0; br < BASE_RANGE_SETS; ++br)
+        for (int ctx = 0; ctx < LEVEL_CONTEXTS; ++ctx)
+          fc->coeff_lps[txs][plane][br][ctx] =
+              default_coeff_lps[txs][plane][ctx];
 #if BR_NODE
   av1_copy(fc->coeff_br, default_coeff_br);
 #endif

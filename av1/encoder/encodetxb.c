@@ -253,11 +253,11 @@ void av1_write_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
         for (int tok = 0; tok < extra_bits; ++tok) {
           if (tok == br_offset) {
             aom_write_symbol(
-                w, 1, ec_ctx->coeff_lps_cdf[txs_ctx][plane_type][ctx], 2);
+                w, 1, ec_ctx->coeff_lps_cdf[txs_ctx][plane_type][idx][ctx], 2);
             break;
           }
-          aom_write_symbol(w, 0,
-                           ec_ctx->coeff_lps_cdf[txs_ctx][plane_type][ctx], 2);
+          aom_write_symbol(
+              w, 0, ec_ctx->coeff_lps_cdf[txs_ctx][plane_type][idx][ctx], 2);
         }
         //        aom_write_literal(w, br_offset, br_extra_bits[idx]);
         break;
@@ -1789,16 +1789,17 @@ void av1_update_and_record_txb_context(int plane, int block, int blk_row,
         int extra_bits = (1 << br_extra_bits[idx]) - 1;
         for (int tok = 0; tok < extra_bits; ++tok) {
           if (br_offset == tok) {
-            ++td->counts->coeff_lps[txsize_ctx][plane_type][ctx][1];
+            ++td->counts->coeff_lps[txsize_ctx][plane_type][idx][ctx][1];
 #if LV_MAP_PROB
-            update_cdf(ec_ctx->coeff_lps_cdf[txsize_ctx][plane_type][ctx], 1,
-                       2);
+            update_cdf(ec_ctx->coeff_lps_cdf[txsize_ctx][plane_type][idx][ctx],
+                       1, 2);
 #endif
             break;
           }
-          ++td->counts->coeff_lps[txsize_ctx][plane_type][ctx][0];
+          ++td->counts->coeff_lps[txsize_ctx][plane_type][idx][ctx][0];
 #if LV_MAP_PROB
-          update_cdf(ec_ctx->coeff_lps_cdf[txsize_ctx][plane_type][ctx], 0, 2);
+          update_cdf(ec_ctx->coeff_lps_cdf[txsize_ctx][plane_type][idx][ctx], 0,
+                     2);
 #endif
         }
         break;
@@ -1941,9 +1942,12 @@ static void write_txb_probs(aom_writer *const bc, AV1_COMP *cpi,
   }
 
   for (plane = 0; plane < PLANE_TYPES; ++plane) {
-    for (ctx = 0; ctx < LEVEL_CONTEXTS; ++ctx) {
-      find_new_prob(counts->coeff_lps[tx_size][plane][ctx],
-                    &fc->coeff_lps[tx_size][plane][ctx], &savings, update, bc);
+    for (int idx = 0; idx < BASE_RANGE_SETS; ++idx) {
+      for (ctx = 0; ctx < LEVEL_CONTEXTS; ++ctx) {
+        find_new_prob(counts->coeff_lps[tx_size][plane][idx][ctx],
+                      &fc->coeff_lps[tx_size][plane][idx][ctx], &savings,
+                      update, bc);
+      }
     }
   }
 
@@ -1984,9 +1988,12 @@ static void write_txb_probs(aom_writer *const bc, AV1_COMP *cpi,
   }
 
   for (plane = 0; plane < PLANE_TYPES; ++plane) {
-    for (ctx = 0; ctx < LEVEL_CONTEXTS; ++ctx) {
-      find_new_prob(counts->coeff_lps[tx_size][plane][ctx],
-                    &fc->coeff_lps[tx_size][plane][ctx], &savings, NULL, bc);
+    for (int br = 0; br < BASE_RANGE_SETS; ++br) {
+      for (ctx = 0; ctx < LEVEL_CONTEXTS; ++ctx) {
+        find_new_prob(counts->coeff_lps[tx_size][plane][br][ctx],
+                      &fc->coeff_lps[tx_size][plane][br][ctx], &savings, NULL,
+                      bc);
+      }
     }
   }
 }
