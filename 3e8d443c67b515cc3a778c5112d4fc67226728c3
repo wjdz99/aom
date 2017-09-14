@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7ffc56e1_d0fa082d",
+        "filename": "av1/common/cfl.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 6340
+      },
+      "writtenOn": "2017-09-14T15:28:48Z",
+      "side": 1,
+      "message": "This could alternatively move alongside cfl_init() in onyxc_int.h.\nThat would however make the string.h dependency less neat.",
+      "revId": "3e8d443c67b515cc3a778c5112d4fc67226728c3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
