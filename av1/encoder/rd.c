@@ -556,10 +556,6 @@ void av1_fill_coeff_costs(MACROBLOCK *x, FRAME_CONTEXT *fc) {
 #endif  // BR_NODE
 
       for (int ctx = 0; ctx < LEVEL_CONTEXTS; ++ctx) {
-        int lps_rate[2];
-        av1_cost_tokens_from_cdf(lps_rate,
-                                 fc->coeff_lps_cdf[tx_size][plane][ctx], NULL);
-
         for (int base_range = 0; base_range < COEFF_BASE_RANGE + 1;
              ++base_range) {
           int br_set_idx = base_range < COEFF_BASE_RANGE
@@ -569,6 +565,10 @@ void av1_fill_coeff_costs(MACROBLOCK *x, FRAME_CONTEXT *fc) {
           pcost->lps_cost[ctx][base_range] = 0;
 
           for (int idx = 0; idx < BASE_RANGE_SETS; ++idx) {
+            int lps_rate[2];
+            av1_cost_tokens_from_cdf(
+                lps_rate, fc->coeff_lps_cdf[tx_size][plane][idx][ctx], NULL);
+
             if (idx == br_set_idx) {
               pcost->lps_cost[ctx][base_range] += pcost->br_cost[idx][ctx][1];
 

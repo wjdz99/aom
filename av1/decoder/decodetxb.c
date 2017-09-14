@@ -234,19 +234,19 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
         if (counts) ++counts->coeff_br[txs_ctx][plane_type][idx][ctx][1];
         for (tok = 0; tok < extra_bits; ++tok) {
 #if LV_MAP_PROB
-          if (aom_read_symbol(r,
-                              ec_ctx->coeff_lps_cdf[txs_ctx][plane_type][ctx],
-                              2, ACCT_STR))
+          if (aom_read_symbol(
+                  r, ec_ctx->coeff_lps_cdf[txs_ctx][plane_type][idx][ctx], 2,
+                  ACCT_STR))
 #else
           if (aom_read(r, ec_ctx->coeff_lps[txs_ctx][plane_type][ctx],
                        ACCT_STR))
 #endif
           {
             br_offset = tok;
-            if (counts) ++counts->coeff_lps[txs_ctx][plane_type][ctx][1];
+            if (counts) ++counts->coeff_lps[txs_ctx][plane_type][idx][ctx][1];
             break;
           }
-          if (counts) ++counts->coeff_lps[txs_ctx][plane_type][ctx][0];
+          if (counts) ++counts->coeff_lps[txs_ctx][plane_type][idx][ctx][0];
         }
         if (tok == extra_bits) br_offset = extra_bits;
 
@@ -364,8 +364,10 @@ static void read_txb_probs(FRAME_CONTEXT *fc, const TX_SIZE tx_size,
                              ACCT_STR);
 
   for (plane = 0; plane < PLANE_TYPES; ++plane)
-    for (ctx = 0; ctx < LEVEL_CONTEXTS; ++ctx)
-      av1_diff_update_prob(r, &fc->coeff_lps[tx_size][plane][ctx], ACCT_STR);
+    for (int br = 0; br < BASE_RANGE_SETS; ++br)
+      for (ctx = 0; ctx < LEVEL_CONTEXTS; ++ctx)
+        av1_diff_update_prob(r, &fc->coeff_lps[tx_size][plane][br][ctx],
+                             ACCT_STR);
 }
 
 void av1_read_txb_probs(FRAME_CONTEXT *fc, TX_MODE tx_mode, aom_reader *r) {
