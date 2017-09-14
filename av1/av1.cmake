@@ -403,6 +403,7 @@ if (CONFIG_LOOP_RESTORATION)
 
   set(AOM_AV1_COMMON_INTRIN_SSE4_1
       ${AOM_AV1_COMMON_INTRIN_SSE4_1}
+      "${AOM_ROOT}/av1/common/x86/intra_edge_sse4.c"
       "${AOM_ROOT}/av1/common/x86/selfguided_sse4.c")
 
   set(AOM_AV1_ENCODER_SOURCES
