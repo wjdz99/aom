@@ -1985,9 +1985,16 @@ static void block_rd_txfm(int plane, int block, int blk_row, int blk_col,
   int64_t rd1, rd2, rd;
   RD_STATS this_rd_stats;
 #if CONFIG_DIST_8X8
-  int sub8x8tx_in_gte8x8blk_in_plane0 =
-      plane == 0 && plane_bsize >= BLOCK_8X8 &&
-      (tx_size == TX_4X4 || tx_size == TX_4X8 || tx_size == TX_8X4);
+  // If sub8x8 tx, 8x8 or larger partition, and luma channel,
+  // dist-8x8 disables early skip, because the distortion metrics for
+  // sub8x8 tx (MSE) and reference distortion from 8x8 or larger partition
+  // (new distortion metric) are different.
+  // Exception is: dist-8x8 is enabled but still MSE is used,
+  // i.e. "--tune=" encoder option is not used.
+  int disable_early_skip =
+      x->using_dist_8x8 && plane == 0 && plane_bsize >= BLOCK_8X8 &&
+      (tx_size == TX_4X4 || tx_size == TX_4X8 || tx_size == TX_8X4) &&
+      x->tune_metric != AOM_TUNE_PSNR;
 #endif  // CONFIG_DIST_8X8
 
 #if !CONFIG_SUPERTX && !CONFIG_VAR_TX
@@ -2030,7 +2037,7 @@ static void block_rd_txfm(int plane, int block, int blk_row, int blk_col,
 
   if (
 #if CONFIG_DIST_8X8
-      (x->using_dist_8x8 && sub8x8tx_in_gte8x8blk_in_plane0) ||
+      disable_early_skip ||
 #endif
       RDCOST(x->rdmult, 0, tmp_dist) + args->this_rd < args->best_rd) {
     av1_optimize_b(cm, x, plane, blk_row, blk_col, block, plane_bsize, tx_size,
@@ -2117,15 +2124,12 @@ static void block_rd_txfm(int plane, int block, int blk_row, int blk_col,
   args->this_rd += rd;
 
 #if CONFIG_DIST_8X8
-  if (!x->using_dist_8x8 || !sub8x8tx_in_gte8x8blk_in_plane0) {
+  if (!disable_early_skip)
 #endif
     if (args->this_rd > args->best_rd) {
       args->exit_early = 1;
       return;
     }
-#if CONFIG_DIST_8X8
-  }
-#endif
 }
 
 #if CONFIG_DIST_8X8
@@ -4451,6 +4455,12 @@ void av1_tx_block_rd_b(const AV1_COMP *cpi, MACROBLOCK *x, TX_SIZE tx_size,
   const int16_t *diff =
       &p->src_diff[(blk_row * diff_stride + blk_col) << tx_size_wide_log2[0]];
   int txb_coeff_cost;
+#if CONFIG_DIST_8X8 && !DISABLE_TRELLISQ_SEARCH
+  int disable_early_skip =
+      x->using_dist_8x8 && plane == 0 && plane_bsize >= BLOCK_8X8 &&
+      (tx_size == TX_4X4 || tx_size == TX_4X8 || tx_size == TX_8X4) &&
+      x->tune_metric != AOM_TUNE_PSNR;
+#endif  // CONFIG_DIST_8X8
 
   assert(tx_size < TX_SIZES_ALL);
 
@@ -4500,11 +4510,6 @@ void av1_tx_block_rd_b(const AV1_COMP *cpi, MACROBLOCK *x, TX_SIZE tx_size,
   tran_low_t *const coeff = BLOCK_OFFSET(p->coeff, block);
   const int buffer_length = tx_size_2d[tx_size];
   int64_t tmp_dist, tmp_sse;
-#if CONFIG_DIST_8X8
-  int sub8x8tx_in_gte8x8blk_in_plane0 =
-      plane == 0 && plane_bsize >= BLOCK_8X8 &&
-      (tx_size == TX_4X4 || tx_size == TX_4X8 || tx_size == TX_8X4);
-#endif  // CONFIG_DIST_8X8
 
 #if CONFIG_HIGHBITDEPTH
   if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH)
@@ -4524,7 +4529,7 @@ void av1_tx_block_rd_b(const AV1_COMP *cpi, MACROBLOCK *x, TX_SIZE tx_size,
 #endif  // CONFIG_MRC_TX
   if (
 #if CONFIG_DIST_8X8
-      (x->using_dist_8x8 && sub8x8tx_in_gte8x8blk_in_plane0) ||
+      disable_early_skip ||
 #endif
       RDCOST(x->rdmult, 0, tmp_dist) < rd_stats->ref_rdcost) {
     av1_optimize_b(cm, x, plane, blk_row, blk_col, block, plane_bsize, tx_size,
