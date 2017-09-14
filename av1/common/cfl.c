@@ -13,24 +13,6 @@
 #include "av1/common/common_data.h"
 #include "av1/common/onyxc_int.h"
 
-#include "aom/internal/aom_codec_internal.h"
-
-void cfl_init(CFL_CTX *cfl, AV1_COMMON *cm) {
-  if (!((cm->subsampling_x == 0 && cm->subsampling_y == 0) ||
-        (cm->subsampling_x == 1 && cm->subsampling_y == 1))) {
-    aom_internal_error(&cm->error, AOM_CODEC_UNSUP_BITSTREAM,
-                       "Only 4:4:4 and 4:2:0 are currently supported by CfL");
-  }
-  memset(&cfl->y_pix, 0, sizeof(cfl->y_pix));
-  cfl->subsampling_x = cm->subsampling_x;
-  cfl->subsampling_y = cm->subsampling_y;
-  cfl->are_parameters_computed = 0;
-  cfl->store_y = 0;
-#if CONFIG_CHROMA_SUB8X8 && CONFIG_DEBUG
-  cfl_clear_sub8x8_val(cfl);
-#endif  // CONFIG_CHROMA_SUB8X8 && CONFIG_DEBUG
-}
-
 // Load from the CfL pixel buffer into output
 static void cfl_load(CFL_CTX *cfl, int row, int col, int width, int height) {
   const int sub_x = cfl->subsampling_x;
