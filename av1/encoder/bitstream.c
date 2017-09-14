@@ -3141,7 +3141,10 @@ static void write_modes_sb(AV1_COMP *const cpi, const TileInfo *const tile,
 #endif  // CONFIG_EXT_PARTITION_TYPES
 
 #if CONFIG_LPF_SB
-  // send filter level for each superblock (64x64)
+  // send filter level for each superblock
+  const int has_incomplte_sb_row = cm->mi_rows % MAX_MIB_SIZE;
+  const int has_incomplte_sb_col = cm->mi_cols % MAX_MIB_SIZE;
+
   if (bsize == cm->sb_size) {
     if (mi_row == 0 && mi_col == 0) {
       aom_write_literal(w, cm->mi_grid_visible[0]->mbmi.filt_lvl, 6);
@@ -3163,36 +3166,43 @@ static void write_modes_sb(AV1_COMP *const cpi, const TileInfo *const tile,
       MB_MODE_INFO *prev_mbmi =
           &cm->mi_grid_visible[prev_mi_row * cm->mi_stride + prev_mi_col]->mbmi;
 
-      const uint8_t curr_lvl = curr_mbmi->filt_lvl;
-      const uint8_t prev_lvl = prev_mbmi->filt_lvl;
-
-      const int reuse_prev_lvl = curr_lvl == prev_lvl;
-      const int reuse_ctx = prev_mbmi->reuse_sb_lvl;
-      curr_mbmi->reuse_sb_lvl = reuse_prev_lvl;
-      aom_write_symbol(w, reuse_prev_lvl,
-                       xd->tile_ctx->lpf_reuse_cdf[reuse_ctx], 2);
-      cpi->td.counts->lpf_reuse[reuse_ctx][reuse_prev_lvl]++;
-
-      if (reuse_prev_lvl) {
-        curr_mbmi->delta = 0;
-        curr_mbmi->sign = 0;
+      if ((has_incomplte_sb_row || has_incomplte_sb_col) &&
+          ((mi_row + MAX_MIB_SIZE > cm->mi_rows) ||
+           (mi_col + MAX_MIB_SIZE > cm->mi_cols))) {
+        // if current superblock is not full of pixels, don't send filter level
+        // its filter level is the same as the previous superblock
       } else {
-        const unsigned int delta = abs(curr_lvl - prev_lvl) / LPF_STEP;
-        const int delta_ctx = prev_mbmi->delta;
-        curr_mbmi->delta = delta;
-        aom_write_symbol(w, delta, xd->tile_ctx->lpf_delta_cdf[delta_ctx],
-                         DELTA_RANGE);
-        cpi->td.counts->lpf_delta[delta_ctx][delta]++;
+        const uint8_t curr_lvl = curr_mbmi->filt_lvl;
+        const uint8_t prev_lvl = prev_mbmi->filt_lvl;
 
-        if (delta) {
-          const int sign = curr_lvl > prev_lvl;
-          const int sign_ctx = prev_mbmi->sign;
-          curr_mbmi->sign = sign;
-          aom_write_symbol(w, sign,
-                           xd->tile_ctx->lpf_sign_cdf[reuse_ctx][sign_ctx], 2);
-          cpi->td.counts->lpf_sign[reuse_ctx][sign_ctx][sign]++;
-        } else {
+        const int reuse_prev_lvl = curr_lvl == prev_lvl;
+        const int reuse_ctx = prev_mbmi->reuse_sb_lvl;
+        curr_mbmi->reuse_sb_lvl = reuse_prev_lvl;
+        aom_write_symbol(w, reuse_prev_lvl,
+                         xd->tile_ctx->lpf_reuse_cdf[reuse_ctx], 2);
+        cpi->td.counts->lpf_reuse[reuse_ctx][reuse_prev_lvl]++;
+
+        if (reuse_prev_lvl) {
+          curr_mbmi->delta = 0;
           curr_mbmi->sign = 0;
+        } else {
+          const unsigned int delta = abs(curr_lvl - prev_lvl) / LPF_STEP;
+          const int delta_ctx = prev_mbmi->delta;
+          curr_mbmi->delta = delta;
+          aom_write_symbol(w, delta, xd->tile_ctx->lpf_delta_cdf[delta_ctx],
+                           DELTA_RANGE);
+          cpi->td.counts->lpf_delta[delta_ctx][delta]++;
+
+          if (delta) {
+            const int sign = curr_lvl > prev_lvl;
+            const int sign_ctx = prev_mbmi->sign;
+            curr_mbmi->sign = sign;
+            aom_write_symbol(
+                w, sign, xd->tile_ctx->lpf_sign_cdf[reuse_ctx][sign_ctx], 2);
+            cpi->td.counts->lpf_sign[reuse_ctx][sign_ctx][sign]++;
+          } else {
+            curr_mbmi->sign = 0;
+          }
         }
       }
     }

@@ -36,10 +36,22 @@ static int compute_sb_y_sse_highbd(const YV12_BUFFER_CONFIG *src,
   int sse = 0;
   const int mi_row_start = AOMMAX(0, mi_row - FILT_BOUNDARY_MI_OFFSET);
   const int mi_col_start = AOMMAX(0, mi_col - FILT_BOUNDARY_MI_OFFSET);
-  const int mi_row_range = mi_row - FILT_BOUNDARY_MI_OFFSET + MAX_MIB_SIZE;
-  const int mi_col_range = mi_col - FILT_BOUNDARY_MI_OFFSET + MAX_MIB_SIZE;
-  const int mi_row_end = AOMMIN(mi_row_range, cm->mi_rows);
-  const int mi_col_end = AOMMIN(mi_col_range, cm->mi_cols);
+  int mi_row_end, mi_col_end;
+
+  const int num_complete_sb_row = cm->mi_rows / MAX_MIB_SIZE;
+  const int num_complete_sb_col = cm->mi_cols / MAX_MIB_SIZE;
+  const int sb_row = mi_row / MAX_MIB_SIZE;
+  const int sb_col = mi_col / MAX_MIB_SIZE;
+  if (sb_row == num_complete_sb_row - 1) {
+    mi_row_end = cm->mi_rows;
+  } else {
+    mi_row_end = mi_row - FILT_BOUNDARY_MI_OFFSET + MAX_MIB_SIZE;
+  }
+  if (sb_col == num_complete_sb_col - 1) {
+    mi_col_end = cm->mi_cols;
+  } else {
+    mi_col_end = mi_col - FILT_BOUNDARY_MI_OFFSET + MAX_MIB_SIZE;
+  }
 
   const int row = mi_row_start * MI_SIZE;
   const int col = mi_col_start * MI_SIZE;
@@ -69,10 +81,22 @@ static int compute_sb_y_sse(const YV12_BUFFER_CONFIG *src,
   int sse = 0;
   const int mi_row_start = AOMMAX(0, mi_row - FILT_BOUNDARY_MI_OFFSET);
   const int mi_col_start = AOMMAX(0, mi_col - FILT_BOUNDARY_MI_OFFSET);
-  const int mi_row_range = mi_row - FILT_BOUNDARY_MI_OFFSET + MAX_MIB_SIZE;
-  const int mi_col_range = mi_col - FILT_BOUNDARY_MI_OFFSET + MAX_MIB_SIZE;
-  const int mi_row_end = AOMMIN(mi_row_range, cm->mi_rows);
-  const int mi_col_end = AOMMIN(mi_col_range, cm->mi_cols);
+  int mi_row_end, mi_col_end;
+
+  const int num_complete_sb_row = cm->mi_rows / MAX_MIB_SIZE;
+  const int num_complete_sb_col = cm->mi_cols / MAX_MIB_SIZE;
+  const int sb_row = mi_row / MAX_MIB_SIZE;
+  const int sb_col = mi_col / MAX_MIB_SIZE;
+  if (sb_row == num_complete_sb_row - 1) {
+    mi_row_end = cm->mi_rows;
+  } else {
+    mi_row_end = mi_row - FILT_BOUNDARY_MI_OFFSET + MAX_MIB_SIZE;
+  }
+  if (sb_col == num_complete_sb_col - 1) {
+    mi_col_end = cm->mi_cols;
+  } else {
+    mi_col_end = mi_col - FILT_BOUNDARY_MI_OFFSET + MAX_MIB_SIZE;
+  }
 
   const int row = mi_row_start * MI_SIZE;
   const int col = mi_col_start * MI_SIZE;
@@ -200,11 +224,16 @@ static int search_filter_level(const YV12_BUFFER_CONFIG *sd, AV1_COMP *cpi,
   // best filter level, use previous level such that we can only send one bit
   // to indicate current filter level is the same as the previous.
   int threshold = 400;
+  const int num_complete_sb_row = cm->mi_rows / MAX_MIB_SIZE;
+  const int num_complete_sb_col = cm->mi_cols / MAX_MIB_SIZE;
 
   // ratio = the filtering area / a superblock size
   int ratio = 1;
-  if (mi_row + MAX_MIB_SIZE > cm->mi_rows) {
-    ratio *= (cm->mi_rows - mi_row);
+
+  const int sb_row = mi_row / MAX_MIB_SIZE;
+  const int mi_row_start = mi_row ? mi_row - FILT_BOUNDARY_MI_OFFSET : 0;
+  if (sb_row == num_complete_sb_row - 1) {
+    ratio *= (cm->mi_rows - mi_row_start);
   } else {
     if (mi_row == 0) {
       ratio *= (MAX_MIB_SIZE - FILT_BOUNDARY_MI_OFFSET);
@@ -212,8 +241,11 @@ static int search_filter_level(const YV12_BUFFER_CONFIG *sd, AV1_COMP *cpi,
       ratio *= MAX_MIB_SIZE;
     }
   }
-  if (mi_col + MAX_MIB_SIZE > cm->mi_cols) {
-    ratio *= (cm->mi_cols - mi_col);
+
+  const int sb_col = mi_col / MAX_MIB_SIZE;
+  const int mi_col_start = mi_col ? mi_col - FILT_BOUNDARY_MI_OFFSET : 0;
+  if (sb_col == num_complete_sb_col - 1) {
+    ratio *= (cm->mi_cols - mi_col_start);
   } else {
     if (mi_col == 0) {
       ratio *= (MAX_MIB_SIZE - FILT_BOUNDARY_MI_OFFSET);
@@ -221,12 +253,12 @@ static int search_filter_level(const YV12_BUFFER_CONFIG *sd, AV1_COMP *cpi,
       ratio *= MAX_MIB_SIZE;
     }
   }
+
   threshold = threshold * ratio / (MAX_MIB_SIZE * MAX_MIB_SIZE);
-
   const int diff = abs(estimate_err - best_err);
-
   const int percent_thresh = (int)((double)estimate_err * 0.01);
   threshold = AOMMAX(threshold, percent_thresh);
+
   if (diff < threshold) {
     best_err = estimate_err;
     filt_best = last_lvl;
@@ -467,15 +499,21 @@ void av1_pick_filter_level(const YV12_BUFFER_CONFIG *sd, AV1_COMP *cpi,
 #endif
   } else {
 #if CONFIG_LPF_SB
-    int mi_row, mi_col;
     // TODO(chengchen): init last_lvl using previous frame's info?
     int last_lvl = 0;
-    // TODO(chengchen): if the frame size makes the last superblock very small,
-    // consider merge it to the previous superblock to save bits.
-    // Example, if frame size 1080x720, then in the last row of superblock,
-    // there're (FILT_BOUNDAR_OFFSET + 16) pixels.
-    for (mi_row = 0; mi_row < cm->mi_rows; mi_row += MAX_MIB_SIZE) {
-      for (mi_col = 0; mi_col < cm->mi_cols; mi_col += MAX_MIB_SIZE) {
+
+    // Notice: since we shift the filtering area by offset = 8 pixels.
+    // Even if the frame is exactly integer multipliers of 64 (superblock size),
+    // The last 8 pixel will be a separate superblock. Sending filter level for
+    // it will be unnecessary. So merge the last incomplete sb to the previous.
+    const int num_complete_sb_row = cm->mi_rows / MAX_MIB_SIZE;
+    const int num_complete_sb_col = cm->mi_cols / MAX_MIB_SIZE;
+
+    int sb_row, sb_col;
+    for (sb_row = 0; sb_row < num_complete_sb_row; ++sb_row) {
+      for (sb_col = 0; sb_col < num_complete_sb_col; ++sb_col) {
+        const int mi_row = sb_row * MAX_MIB_SIZE;
+        const int mi_col = sb_col * MAX_MIB_SIZE;
         int lvl =
             search_filter_level(sd, cpi, 1, NULL, mi_row, mi_col, last_lvl);
 
@@ -483,7 +521,7 @@ void av1_pick_filter_level(const YV12_BUFFER_CONFIG *sd, AV1_COMP *cpi,
 
         // For the superblock at row start, its previous filter level should be
         // the one above it, not the one at the end of last row
-        if (mi_col + MAX_MIB_SIZE >= cm->mi_cols) {
+        if (sb_col == num_complete_sb_col - 1) {
           last_lvl = cm->mi_grid_visible[mi_row * cm->mi_stride]->mbmi.filt_lvl;
         } else {
           last_lvl = lvl;

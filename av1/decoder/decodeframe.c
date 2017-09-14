@@ -2539,8 +2539,12 @@ static void decode_partition(AV1Decoder *const pbi, MACROBLOCKD *const xd,
 #endif  // CONFIG_EXT_PARTITION_TYPES
 
 #if CONFIG_LPF_SB
+  const int has_incomplte_sb_row = cm->mi_rows % MAX_MIB_SIZE;
+  const int has_incomplte_sb_col = cm->mi_cols % MAX_MIB_SIZE;
+
   if (bsize == cm->sb_size) {
     int filt_lvl;
+    int update_filt_lvl = 1;
     if (mi_row == 0 && mi_col == 0) {
       filt_lvl = aom_read_literal(r, 6, ACCT_STR);
       cm->mi_grid_visible[0]->mbmi.reuse_sb_lvl = 0;
@@ -2560,38 +2564,49 @@ static void decode_partition(AV1Decoder *const pbi, MACROBLOCKD *const xd,
           &cm->mi_grid_visible[mi_row * cm->mi_stride + mi_col]->mbmi;
       MB_MODE_INFO *prev_mbmi =
           &cm->mi_grid_visible[prev_mi_row * cm->mi_stride + prev_mi_col]->mbmi;
-      const uint8_t prev_lvl = prev_mbmi->filt_lvl;
 
-      const int reuse_ctx = prev_mbmi->reuse_sb_lvl;
-      const int reuse_prev_lvl = aom_read_symbol(
-          r, xd->tile_ctx->lpf_reuse_cdf[reuse_ctx], 2, ACCT_STR);
-      curr_mbmi->reuse_sb_lvl = reuse_prev_lvl;
-
-      if (reuse_prev_lvl) {
-        filt_lvl = prev_lvl;
-        curr_mbmi->delta = 0;
-        curr_mbmi->sign = 0;
+      if ((has_incomplte_sb_row || has_incomplte_sb_col) &&
+          ((mi_row + MAX_MIB_SIZE > cm->mi_rows) ||
+           (mi_col + MAX_MIB_SIZE > cm->mi_cols))) {
+        // if current superblock is not full of pixels
+        // its filter level is the same as the previous superblock
+        update_filt_lvl = 0;
       } else {
-        const int delta_ctx = prev_mbmi->delta;
-        unsigned int delta = aom_read_symbol(
-            r, xd->tile_ctx->lpf_delta_cdf[delta_ctx], DELTA_RANGE, ACCT_STR);
-        curr_mbmi->delta = delta;
-        delta *= LPF_STEP;
+        const uint8_t prev_lvl = prev_mbmi->filt_lvl;
 
-        if (delta) {
-          const int sign_ctx = prev_mbmi->sign;
-          const int sign = aom_read_symbol(
-              r, xd->tile_ctx->lpf_sign_cdf[reuse_ctx][sign_ctx], 2, ACCT_STR);
-          curr_mbmi->sign = sign;
-          filt_lvl = sign ? prev_lvl + delta : prev_lvl - delta;
-        } else {
+        const int reuse_ctx = prev_mbmi->reuse_sb_lvl;
+        const int reuse_prev_lvl = aom_read_symbol(
+            r, xd->tile_ctx->lpf_reuse_cdf[reuse_ctx], 2, ACCT_STR);
+        curr_mbmi->reuse_sb_lvl = reuse_prev_lvl;
+
+        if (reuse_prev_lvl) {
           filt_lvl = prev_lvl;
+          curr_mbmi->delta = 0;
           curr_mbmi->sign = 0;
+        } else {
+          const int delta_ctx = prev_mbmi->delta;
+          unsigned int delta = aom_read_symbol(
+              r, xd->tile_ctx->lpf_delta_cdf[delta_ctx], DELTA_RANGE, ACCT_STR);
+          curr_mbmi->delta = delta;
+          delta *= LPF_STEP;
+
+          if (delta) {
+            const int sign_ctx = prev_mbmi->sign;
+            const int sign = aom_read_symbol(
+                r, xd->tile_ctx->lpf_sign_cdf[reuse_ctx][sign_ctx], 2,
+                ACCT_STR);
+            curr_mbmi->sign = sign;
+            filt_lvl = sign ? prev_lvl + delta : prev_lvl - delta;
+          } else {
+            filt_lvl = prev_lvl;
+            curr_mbmi->sign = 0;
+          }
         }
       }
     }
 
-    av1_loop_filter_sb_level_init(cm, mi_row, mi_col, filt_lvl);
+    if (update_filt_lvl)
+      av1_loop_filter_sb_level_init(cm, mi_row, mi_col, filt_lvl);
   }
 #endif
 

@@ -683,10 +683,22 @@ void av1_loop_filter_sb_level_init(AV1_COMMON *cm, int mi_row, int mi_col,
                                    int lvl) {
   const int mi_row_start = AOMMAX(0, mi_row - FILT_BOUNDARY_MI_OFFSET);
   const int mi_col_start = AOMMAX(0, mi_col - FILT_BOUNDARY_MI_OFFSET);
-  const int mi_row_range = mi_row - FILT_BOUNDARY_MI_OFFSET + MAX_MIB_SIZE;
-  const int mi_col_range = mi_col - FILT_BOUNDARY_MI_OFFSET + MAX_MIB_SIZE;
-  const int mi_row_end = AOMMIN(mi_row_range, cm->mi_rows);
-  const int mi_col_end = AOMMIN(mi_col_range, cm->mi_cols);
+  int mi_row_end, mi_col_end;
+
+  const int num_complete_sb_row = cm->mi_rows / MAX_MIB_SIZE;
+  const int num_complete_sb_col = cm->mi_cols / MAX_MIB_SIZE;
+  const int sb_row = mi_row / MAX_MIB_SIZE;
+  const int sb_col = mi_col / MAX_MIB_SIZE;
+  if (sb_row >= num_complete_sb_row - 1) {
+    mi_row_end = cm->mi_rows;
+  } else {
+    mi_row_end = mi_row - FILT_BOUNDARY_MI_OFFSET + MAX_MIB_SIZE;
+  }
+  if (sb_col >= num_complete_sb_col - 1) {
+    mi_col_end = cm->mi_cols;
+  } else {
+    mi_col_end = mi_col - FILT_BOUNDARY_MI_OFFSET + MAX_MIB_SIZE;
+  }
 
   int row, col;
   for (row = mi_row_start; row < mi_row_end; ++row) {
@@ -3004,11 +3016,11 @@ static void av1_filter_block_plane_vert(
   const int dst_stride = plane_ptr->dst.stride;
 #if CONFIG_LPF_SB
   int y_range = mi_row ? MAX_MIB_SIZE : MAX_MIB_SIZE - FILT_BOUNDARY_MI_OFFSET;
-  y_range = AOMMIN(y_range, cm->mi_rows);
+  y_range = AOMMIN((uint32_t)y_range, cm->mi_rows - mi_row);
   y_range >>= scale_vert;
 
   int x_range = mi_col ? MAX_MIB_SIZE : MAX_MIB_SIZE - FILT_BOUNDARY_MI_OFFSET;
-  x_range = AOMMIN(x_range, cm->mi_cols);
+  x_range = AOMMIN((uint32_t)x_range, cm->mi_cols - mi_col);
   x_range >>= scale_horz;
 #else
   const int y_range = (MAX_MIB_SIZE >> scale_vert);
@@ -3202,11 +3214,11 @@ static void av1_filter_block_plane_horz(
   const int dst_stride = plane_ptr->dst.stride;
 #if CONFIG_LPF_SB
   int y_range = mi_row ? MAX_MIB_SIZE : MAX_MIB_SIZE - FILT_BOUNDARY_MI_OFFSET;
-  y_range = AOMMIN(y_range, cm->mi_rows);
+  y_range = AOMMIN((uint32_t)y_range, cm->mi_rows - mi_row);
   y_range >>= scale_vert;
 
   int x_range = mi_col ? MAX_MIB_SIZE : MAX_MIB_SIZE - FILT_BOUNDARY_MI_OFFSET;
-  x_range = AOMMIN(x_range, cm->mi_cols);
+  x_range = AOMMIN((uint32_t)x_range, cm->mi_cols - mi_col);
   x_range >>= scale_horz;
 #else
   const int y_range = (MAX_MIB_SIZE >> scale_vert);
@@ -3573,10 +3585,21 @@ void av1_loop_filter_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
   if (partial_frame) {
     start_mi_row = AOMMAX(0, mi_row - FILT_BOUNDARY_MI_OFFSET);
     start_mi_col = AOMMAX(0, mi_col - FILT_BOUNDARY_MI_OFFSET);
-    const int mi_row_range = mi_row - FILT_BOUNDARY_MI_OFFSET + MAX_MIB_SIZE;
-    const int mi_col_range = mi_col - FILT_BOUNDARY_MI_OFFSET + MAX_MIB_SIZE;
-    end_mi_row = AOMMIN(mi_row_range, cm->mi_rows);
-    end_mi_col = AOMMIN(mi_col_range, cm->mi_cols);
+
+    const int num_complete_sb_row = cm->mi_rows / MAX_MIB_SIZE;
+    const int num_complete_sb_col = cm->mi_cols / MAX_MIB_SIZE;
+    const int sb_row = mi_row / MAX_MIB_SIZE;
+    const int sb_col = mi_col / MAX_MIB_SIZE;
+    if (sb_row == num_complete_sb_row - 1) {
+      end_mi_row = cm->mi_rows;
+    } else {
+      end_mi_row = mi_row - FILT_BOUNDARY_MI_OFFSET + MAX_MIB_SIZE;
+    }
+    if (sb_col == num_complete_sb_col - 1) {
+      end_mi_col = cm->mi_cols;
+    } else {
+      end_mi_col = mi_col - FILT_BOUNDARY_MI_OFFSET + MAX_MIB_SIZE;
+    }
 
     av1_loop_filter_sb_level_init(cm, mi_row, mi_col, frame_filter_level);
   } else {
