@@ -3140,75 +3140,6 @@ static void write_modes_sb(AV1_COMP *const cpi, const TileInfo *const tile,
     update_partition_context(xd, mi_row, mi_col, subsize, bsize);
 #endif  // CONFIG_EXT_PARTITION_TYPES
 
-#if CONFIG_LPF_SB
-  // send filter level for each superblock
-  const int has_incomplte_sb_row = cm->mi_rows % MAX_MIB_SIZE;
-  const int has_incomplte_sb_col = cm->mi_cols % MAX_MIB_SIZE;
-
-  if (bsize == cm->sb_size) {
-    if (mi_row == 0 && mi_col == 0) {
-      aom_write_literal(w, cm->mi_grid_visible[0]->mbmi.filt_lvl, 6);
-      cm->mi_grid_visible[0]->mbmi.reuse_sb_lvl = 0;
-      cm->mi_grid_visible[0]->mbmi.delta = 0;
-      cm->mi_grid_visible[0]->mbmi.sign = 0;
-    } else {
-      int prev_mi_row, prev_mi_col;
-      if (mi_col - MAX_MIB_SIZE < 0) {
-        prev_mi_row = mi_row - MAX_MIB_SIZE;
-        prev_mi_col = mi_col;
-      } else {
-        prev_mi_row = mi_row;
-        prev_mi_col = mi_col - MAX_MIB_SIZE;
-      }
-
-      MB_MODE_INFO *curr_mbmi =
-          &cm->mi_grid_visible[mi_row * cm->mi_stride + mi_col]->mbmi;
-      MB_MODE_INFO *prev_mbmi =
-          &cm->mi_grid_visible[prev_mi_row * cm->mi_stride + prev_mi_col]->mbmi;
-
-      if ((has_incomplte_sb_row || has_incomplte_sb_col) &&
-          ((mi_row + MAX_MIB_SIZE > cm->mi_rows) ||
-           (mi_col + MAX_MIB_SIZE > cm->mi_cols))) {
-        // if current superblock is not full of pixels, don't send filter level
-        // its filter level is the same as the previous superblock
-      } else {
-        const uint8_t curr_lvl = curr_mbmi->filt_lvl;
-        const uint8_t prev_lvl = prev_mbmi->filt_lvl;
-
-        const int reuse_prev_lvl = curr_lvl == prev_lvl;
-        const int reuse_ctx = prev_mbmi->reuse_sb_lvl;
-        curr_mbmi->reuse_sb_lvl = reuse_prev_lvl;
-        aom_write_symbol(w, reuse_prev_lvl,
-                         xd->tile_ctx->lpf_reuse_cdf[reuse_ctx], 2);
-        cpi->td.counts->lpf_reuse[reuse_ctx][reuse_prev_lvl]++;
-
-        if (reuse_prev_lvl) {
-          curr_mbmi->delta = 0;
-          curr_mbmi->sign = 0;
-        } else {
-          const unsigned int delta = abs(curr_lvl - prev_lvl) / LPF_STEP;
-          const int delta_ctx = prev_mbmi->delta;
-          curr_mbmi->delta = delta;
-          aom_write_symbol(w, delta, xd->tile_ctx->lpf_delta_cdf[delta_ctx],
-                           DELTA_RANGE);
-          cpi->td.counts->lpf_delta[delta_ctx][delta]++;
-
-          if (delta) {
-            const int sign = curr_lvl > prev_lvl;
-            const int sign_ctx = prev_mbmi->sign;
-            curr_mbmi->sign = sign;
-            aom_write_symbol(
-                w, sign, xd->tile_ctx->lpf_sign_cdf[reuse_ctx][sign_ctx], 2);
-            cpi->td.counts->lpf_sign[reuse_ctx][sign_ctx][sign]++;
-          } else {
-            curr_mbmi->sign = 0;
-          }
-        }
-      }
-    }
-  }
-#endif
-
 #if CONFIG_CDEF
   if (bsize == cm->sb_size && cm->cdef_bits != 0 && !cm->all_lossless) {
     int width_step = mi_size_wide[BLOCK_64X64];
@@ -4721,6 +4652,136 @@ static void write_uncompressed_header(AV1_COMP *cpi,
   write_tile_info(cm, wb);
 }
 
+#if CONFIG_LPF_SB
+// send filter level for each superblock
+static void write_deblock_filter_level(AV1_COMP *cpi, aom_writer *w) {
+  AV1_COMMON *const cm = &cpi->common;
+
+  // if a superblock is not full of pixels, don't send filter level
+  // its filter level is the same as the previous superblock
+  const int num_complete_sb_row = cm->mi_rows / MAX_MIB_SIZE;
+  const int num_complete_sb_col = cm->mi_cols / MAX_MIB_SIZE;
+  int all_same_lvl = 1;
+  int max_lvl_diff = 0;
+  int min_lvl_diff = 64;
+
+  int sb_row, sb_col;
+  for (sb_row = 0; sb_row < num_complete_sb_row; ++sb_row) {
+    for (sb_col = 0; sb_col < num_complete_sb_col; ++sb_col) {
+      if (sb_row == 0 && sb_col == 0) continue;
+
+      const int mi_row = sb_row * MAX_MIB_SIZE;
+      const int mi_col = sb_col * MAX_MIB_SIZE;
+      int prev_mi_row, prev_mi_col;
+      if (mi_col - MAX_MIB_SIZE < 0) {
+        prev_mi_row = mi_row - MAX_MIB_SIZE;
+        prev_mi_col = mi_col;
+      } else {
+        prev_mi_row = mi_row;
+        prev_mi_col = mi_col - MAX_MIB_SIZE;
+      }
+
+      MB_MODE_INFO *curr_mbmi =
+          &cm->mi_grid_visible[mi_row * cm->mi_stride + mi_col]->mbmi;
+      MB_MODE_INFO *prev_mbmi =
+          &cm->mi_grid_visible[prev_mi_row * cm->mi_stride + prev_mi_col]->mbmi;
+      const uint8_t curr_lvl = curr_mbmi->filt_lvl;
+      const uint8_t prev_lvl = prev_mbmi->filt_lvl;
+      int diff = abs(curr_lvl - prev_lvl);
+
+      if (curr_lvl != prev_lvl) {
+        all_same_lvl = 0;
+        max_lvl_diff = diff > max_lvl_diff ? diff : max_lvl_diff;
+        min_lvl_diff = diff < min_lvl_diff ? diff : min_lvl_diff;
+      }
+    }
+  }
+
+  aom_write_literal(w, all_same_lvl, 1);
+  aom_write_literal(w, cm->mi_grid_visible[0]->mbmi.filt_lvl, 6);
+
+  if (all_same_lvl) return;
+
+  // Maximum delta_bits is restricted to LPF_DELTA_BITS == 3
+  int delta_range = (max_lvl_diff - min_lvl_diff) / LPF_STEP;
+  int delta_bits;
+  if (delta_range == 0) {
+    delta_bits = 0;
+  } else if (delta_range < 2) {
+    delta_bits = 1;
+  } else if (delta_range < 4) {
+    delta_bits = 2;
+  } else {
+    delta_bits = 3;
+  }
+  delta_range = delta_bits ? (1 << delta_bits) : 0;
+  aom_write_literal(w, delta_bits, 2);
+  aom_write_literal(w, min_lvl_diff / LPF_STEP, LPF_DELTA_BITS);
+
+  for (sb_row = 0; sb_row < num_complete_sb_row; ++sb_row) {
+    for (sb_col = 0; sb_col < num_complete_sb_col; ++sb_col) {
+      if (sb_row == 0 && sb_col == 0) {
+        cm->mi_grid_visible[0]->mbmi.reuse_sb_lvl = 0;
+        cm->mi_grid_visible[0]->mbmi.delta = 0;
+        cm->mi_grid_visible[0]->mbmi.sign = 0;
+        continue;
+      }
+
+      const int mi_row = sb_row * MAX_MIB_SIZE;
+      const int mi_col = sb_col * MAX_MIB_SIZE;
+      int prev_mi_row, prev_mi_col;
+      if (mi_col - MAX_MIB_SIZE < 0) {
+        prev_mi_row = mi_row - MAX_MIB_SIZE;
+        prev_mi_col = mi_col;
+      } else {
+        prev_mi_row = mi_row;
+        prev_mi_col = mi_col - MAX_MIB_SIZE;
+      }
+
+      MB_MODE_INFO *curr_mbmi =
+          &cm->mi_grid_visible[mi_row * cm->mi_stride + mi_col]->mbmi;
+      MB_MODE_INFO *prev_mbmi =
+          &cm->mi_grid_visible[prev_mi_row * cm->mi_stride + prev_mi_col]->mbmi;
+      const uint8_t curr_lvl = curr_mbmi->filt_lvl;
+      const uint8_t prev_lvl = prev_mbmi->filt_lvl;
+
+      const int reuse_prev_lvl = curr_lvl == prev_lvl;
+      const int reuse_ctx = prev_mbmi->reuse_sb_lvl;
+      curr_mbmi->reuse_sb_lvl = reuse_prev_lvl;
+      aom_write_symbol(w, reuse_prev_lvl, cm->fc->lpf_reuse_cdf[reuse_ctx], 2);
+      cpi->td.counts->lpf_reuse[reuse_ctx][reuse_prev_lvl]++;
+
+      if (reuse_prev_lvl) {
+        curr_mbmi->delta = 0;
+        curr_mbmi->sign = 0;
+      } else {
+        if (delta_bits == 0) {
+          curr_mbmi->delta = 0;
+        } else {
+          const unsigned int delta =
+              (abs(curr_lvl - prev_lvl) - min_lvl_diff) / LPF_STEP;
+          const int delta_ctx = prev_mbmi->delta;
+          curr_mbmi->delta = delta;
+          /*
+          aom_write_symbol(w, delta, xd->tile_ctx->lpf_delta_cdf[delta_ctx],
+                           delta_range);
+          */
+          // Since delta_range is not a constant any more, can't use cdf
+          aom_write_literal(w, delta, delta_bits);
+          cpi->td.counts->lpf_delta[delta_ctx][delta]++;
+        }
+
+        const int sign = curr_lvl > prev_lvl;
+        const int sign_ctx = prev_mbmi->sign;
+        curr_mbmi->sign = sign;
+        aom_write_symbol(w, sign, cm->fc->lpf_sign_cdf[reuse_ctx][sign_ctx], 2);
+        cpi->td.counts->lpf_sign[reuse_ctx][sign_ctx][sign]++;
+      }
+    }
+  }
+}
+#endif
+
 static uint32_t write_compressed_header(AV1_COMP *cpi, uint8_t *data) {
   AV1_COMMON *const cm = &cpi->common;
 #if CONFIG_SUPERTX
@@ -4867,6 +4928,11 @@ static uint32_t write_compressed_header(AV1_COMP *cpi, uint8_t *data) {
     if (!xd->lossless[0]) update_supertx_probs(cm, probwt, header_bc);
 #endif  // CONFIG_SUPERTX
   }
+
+#if CONFIG_LPF_SB
+  write_deblock_filter_level(cpi, header_bc);
+#endif  // CONFIG_LPF_SB
+
   aom_stop_encode(header_bc);
   assert(header_bc->pos <= 0xffff);
   return header_bc->pos;

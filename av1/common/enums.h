@@ -79,7 +79,7 @@ extern "C" {
 
 #if CONFIG_LPF_SB
 #define LPF_DELTA_BITS 3
-#define LPF_STEP 2
+#define LPF_STEP 4
 #define DELTA_RANGE (1 << LPF_DELTA_BITS)
 #define MAX_LPF_OFFSET (LPF_STEP * ((1 << LPF_DELTA_BITS) - 1))
 

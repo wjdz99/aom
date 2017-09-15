@@ -2538,78 +2538,6 @@ static void decode_partition(AV1Decoder *const pbi, MACROBLOCKD *const xd,
     update_partition_context(xd, mi_row, mi_col, subsize, bsize);
 #endif  // CONFIG_EXT_PARTITION_TYPES
 
-#if CONFIG_LPF_SB
-  const int has_incomplte_sb_row = cm->mi_rows % MAX_MIB_SIZE;
-  const int has_incomplte_sb_col = cm->mi_cols % MAX_MIB_SIZE;
-
-  if (bsize == cm->sb_size) {
-    int filt_lvl;
-    int update_filt_lvl = 1;
-    if (mi_row == 0 && mi_col == 0) {
-      filt_lvl = aom_read_literal(r, 6, ACCT_STR);
-      cm->mi_grid_visible[0]->mbmi.reuse_sb_lvl = 0;
-      cm->mi_grid_visible[0]->mbmi.delta = 0;
-      cm->mi_grid_visible[0]->mbmi.sign = 0;
-    } else {
-      int prev_mi_row, prev_mi_col;
-      if (mi_col - MAX_MIB_SIZE < 0) {
-        prev_mi_row = mi_row - MAX_MIB_SIZE;
-        prev_mi_col = mi_col;
-      } else {
-        prev_mi_row = mi_row;
-        prev_mi_col = mi_col - MAX_MIB_SIZE;
-      }
-
-      MB_MODE_INFO *curr_mbmi =
-          &cm->mi_grid_visible[mi_row * cm->mi_stride + mi_col]->mbmi;
-      MB_MODE_INFO *prev_mbmi =
-          &cm->mi_grid_visible[prev_mi_row * cm->mi_stride + prev_mi_col]->mbmi;
-
-      if ((has_incomplte_sb_row || has_incomplte_sb_col) &&
-          ((mi_row + MAX_MIB_SIZE > cm->mi_rows) ||
-           (mi_col + MAX_MIB_SIZE > cm->mi_cols))) {
-        // if current superblock is not full of pixels
-        // its filter level is the same as the previous superblock
-        update_filt_lvl = 0;
-      } else {
-        const uint8_t prev_lvl = prev_mbmi->filt_lvl;
-
-        const int reuse_ctx = prev_mbmi->reuse_sb_lvl;
-        const int reuse_prev_lvl = aom_read_symbol(
-            r, xd->tile_ctx->lpf_reuse_cdf[reuse_ctx], 2, ACCT_STR);
-        curr_mbmi->reuse_sb_lvl = reuse_prev_lvl;
-
-        if (reuse_prev_lvl) {
-          filt_lvl = prev_lvl;
-          curr_mbmi->delta = 0;
-          curr_mbmi->sign = 0;
-        } else {
-          const int delta_ctx = prev_mbmi->delta;
-          unsigned int delta = aom_read_symbol(
-              r, xd->tile_ctx->lpf_delta_cdf[delta_ctx], DELTA_RANGE, ACCT_STR);
-          curr_mbmi->delta = delta;
-          delta *= LPF_STEP;
-
-          if (delta) {
-            const int sign_ctx = prev_mbmi->sign;
-            const int sign = aom_read_symbol(
-                r, xd->tile_ctx->lpf_sign_cdf[reuse_ctx][sign_ctx], 2,
-                ACCT_STR);
-            curr_mbmi->sign = sign;
-            filt_lvl = sign ? prev_lvl + delta : prev_lvl - delta;
-          } else {
-            filt_lvl = prev_lvl;
-            curr_mbmi->sign = 0;
-          }
-        }
-      }
-    }
-
-    if (update_filt_lvl)
-      av1_loop_filter_sb_level_init(cm, mi_row, mi_col, filt_lvl);
-  }
-#endif
-
 #if CONFIG_CDEF
   if (bsize == cm->sb_size) {
     int width_step = mi_size_wide[BLOCK_64X64];
@@ -4965,6 +4893,237 @@ static void read_supertx_probs(FRAME_CONTEXT *fc, aom_reader *r) {
 }
 #endif  // CONFIG_SUPERTX
 
+#if CONFIG_GLOBAL_MOTION
+static int read_global_motion_params(WarpedMotionParams *params,
+                                     WarpedMotionParams *ref_params,
+                                     aom_reader *r, int allow_hp) {
+  TransformationType type = aom_read_bit(r, ACCT_STR);
+  if (type != IDENTITY) {
+#if GLOBAL_TRANS_TYPES > 4
+    type += aom_read_literal(r, GLOBAL_TYPE_BITS, ACCT_STR);
+#else
+    if (aom_read_bit(r, ACCT_STR))
+      type = ROTZOOM;
+    else
+      type = aom_read_bit(r, ACCT_STR) ? TRANSLATION : AFFINE;
+#endif  // GLOBAL_TRANS_TYPES > 4
+  }
+
+  int trans_bits;
+  int trans_dec_factor;
+  int trans_prec_diff;
+  set_default_warp_params(params);
+  params->wmtype = type;
+  switch (type) {
+    case HOMOGRAPHY:
+    case HORTRAPEZOID:
+    case VERTRAPEZOID:
+      if (type != HORTRAPEZOID)
+        params->wmmat[6] =
+            aom_read_signed_primitive_refsubexpfin(
+                r, GM_ROW3HOMO_MAX + 1, SUBEXPFIN_K,
+                (ref_params->wmmat[6] >> GM_ROW3HOMO_PREC_DIFF), ACCT_STR) *
+            GM_ROW3HOMO_DECODE_FACTOR;
+      if (type != VERTRAPEZOID)
+        params->wmmat[7] =
+            aom_read_signed_primitive_refsubexpfin(
+                r, GM_ROW3HOMO_MAX + 1, SUBEXPFIN_K,
+                (ref_params->wmmat[7] >> GM_ROW3HOMO_PREC_DIFF), ACCT_STR) *
+            GM_ROW3HOMO_DECODE_FACTOR;
+    case AFFINE:
+    case ROTZOOM:
+      params->wmmat[2] = aom_read_signed_primitive_refsubexpfin(
+                             r, GM_ALPHA_MAX + 1, SUBEXPFIN_K,
+                             (ref_params->wmmat[2] >> GM_ALPHA_PREC_DIFF) -
+                                 (1 << GM_ALPHA_PREC_BITS),
+                             ACCT_STR) *
+                             GM_ALPHA_DECODE_FACTOR +
+                         (1 << WARPEDMODEL_PREC_BITS);
+      if (type != VERTRAPEZOID)
+        params->wmmat[3] =
+            aom_read_signed_primitive_refsubexpfin(
+                r, GM_ALPHA_MAX + 1, SUBEXPFIN_K,
+                (ref_params->wmmat[3] >> GM_ALPHA_PREC_DIFF), ACCT_STR) *
+            GM_ALPHA_DECODE_FACTOR;
+      if (type >= AFFINE) {
+        if (type != HORTRAPEZOID)
+          params->wmmat[4] =
+              aom_read_signed_primitive_refsubexpfin(
+                  r, GM_ALPHA_MAX + 1, SUBEXPFIN_K,
+                  (ref_params->wmmat[4] >> GM_ALPHA_PREC_DIFF), ACCT_STR) *
+              GM_ALPHA_DECODE_FACTOR;
+        params->wmmat[5] = aom_read_signed_primitive_refsubexpfin(
+                               r, GM_ALPHA_MAX + 1, SUBEXPFIN_K,
+                               (ref_params->wmmat[5] >> GM_ALPHA_PREC_DIFF) -
+                                   (1 << GM_ALPHA_PREC_BITS),
+                               ACCT_STR) *
+                               GM_ALPHA_DECODE_FACTOR +
+                           (1 << WARPEDMODEL_PREC_BITS);
+      } else {
+        params->wmmat[4] = -params->wmmat[3];
+        params->wmmat[5] = params->wmmat[2];
+      }
+    // fallthrough intended
+    case TRANSLATION:
+      trans_bits = (type == TRANSLATION) ? GM_ABS_TRANS_ONLY_BITS - !allow_hp
+                                         : GM_ABS_TRANS_BITS;
+      trans_dec_factor = (type == TRANSLATION)
+                             ? GM_TRANS_ONLY_DECODE_FACTOR * (1 << !allow_hp)
+                             : GM_TRANS_DECODE_FACTOR;
+      trans_prec_diff = (type == TRANSLATION)
+                            ? GM_TRANS_ONLY_PREC_DIFF + !allow_hp
+                            : GM_TRANS_PREC_DIFF;
+      params->wmmat[0] =
+          aom_read_signed_primitive_refsubexpfin(
+              r, (1 << trans_bits) + 1, SUBEXPFIN_K,
+              (ref_params->wmmat[0] >> trans_prec_diff), ACCT_STR) *
+          trans_dec_factor;
+      params->wmmat[1] =
+          aom_read_signed_primitive_refsubexpfin(
+              r, (1 << trans_bits) + 1, SUBEXPFIN_K,
+              (ref_params->wmmat[1] >> trans_prec_diff), ACCT_STR) *
+          trans_dec_factor;
+    case IDENTITY: break;
+    default: assert(0);
+  }
+  if (params->wmtype <= AFFINE) {
+    int good_shear_params = get_shear_params(params);
+    if (!good_shear_params) return 0;
+  }
+
+  return 1;
+}
+
+static void read_global_motion(AV1_COMMON *cm, aom_reader *r) {
+  int frame;
+  for (frame = LAST_FRAME; frame <= ALTREF_FRAME; ++frame) {
+    int good_params = read_global_motion_params(
+        &cm->global_motion[frame], &cm->prev_frame->global_motion[frame], r,
+        cm->allow_high_precision_mv);
+    if (!good_params)
+      aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
+                         "Invalid shear parameters for global motion.");
+
+    // TODO(sarahparker, debargha): The logic in the commented out code below
+    // does not work currently and causes mismatches when resize is on. Fix it
+    // before turning the optimization back on.
+    /*
+    YV12_BUFFER_CONFIG *ref_buf = get_ref_frame(cm, frame);
+    if (cm->width == ref_buf->y_crop_width &&
+        cm->height == ref_buf->y_crop_height) {
+      read_global_motion_params(&cm->global_motion[frame],
+                                &cm->prev_frame->global_motion[frame], r,
+                                cm->allow_high_precision_mv);
+    } else {
+      set_default_warp_params(&cm->global_motion[frame]);
+    }
+    */
+    /*
+    printf("Dec Ref %d [%d/%d]: %d %d %d %d\n",
+           frame, cm->current_video_frame, cm->show_frame,
+           cm->global_motion[frame].wmmat[0],
+           cm->global_motion[frame].wmmat[1],
+           cm->global_motion[frame].wmmat[2],
+           cm->global_motion[frame].wmmat[3]);
+           */
+  }
+  memcpy(cm->cur_frame->global_motion, cm->global_motion,
+         TOTAL_REFS_PER_FRAME * sizeof(WarpedMotionParams));
+}
+#endif  // CONFIG_GLOBAL_MOTION
+
+#if CONFIG_LPF_SB
+static void read_deblock_filter_level(AV1Decoder *pbi, aom_reader *r) {
+  AV1_COMMON *const cm = &pbi->common;
+  const int num_complete_sb_row = cm->mi_rows / MAX_MIB_SIZE;
+  const int num_complete_sb_col = cm->mi_cols / MAX_MIB_SIZE;
+
+  const int all_same_lvl = aom_read_literal(r, 1, ACCT_STR);
+  int filt_lvl = aom_read_literal(r, 6, ACCT_STR);
+  int sb_row, sb_col;
+
+  if (all_same_lvl) {
+    for (sb_row = 0; sb_row < num_complete_sb_row; ++sb_row) {
+      for (sb_col = 0; sb_col < num_complete_sb_col; ++sb_col) {
+        const int mi_row = sb_row * MAX_MIB_SIZE;
+        const int mi_col = sb_col * MAX_MIB_SIZE;
+        av1_loop_filter_sb_level_init(cm, mi_row, mi_col, filt_lvl);
+      }
+    }
+
+    return;
+  }
+
+  const int delta_bits = aom_read_literal(r, 2, ACCT_STR);
+  const int min_lvl_diff =
+      aom_read_literal(r, LPF_DELTA_BITS, ACCT_STR) * LPF_STEP;
+  const int delta_range = delta_bits ? (1 << delta_bits) : 0;
+
+  for (sb_row = 0; sb_row < num_complete_sb_row; ++sb_row) {
+    for (sb_col = 0; sb_col < num_complete_sb_col; ++sb_col) {
+      const int mi_row = sb_row * MAX_MIB_SIZE;
+      const int mi_col = sb_col * MAX_MIB_SIZE;
+
+      if (sb_row == 0 && sb_col == 0) {
+        av1_loop_filter_sb_level_init(cm, mi_row, mi_col, filt_lvl);
+        cm->mi[0].mbmi.reuse_sb_lvl = 0;
+        cm->mi[0].mbmi.delta = 0;
+        cm->mi[0].mbmi.sign = 0;
+        continue;
+      }
+
+      int prev_mi_row, prev_mi_col;
+      if (mi_col - MAX_MIB_SIZE < 0) {
+        prev_mi_row = mi_row - MAX_MIB_SIZE;
+        prev_mi_col = mi_col;
+      } else {
+        prev_mi_row = mi_row;
+        prev_mi_col = mi_col - MAX_MIB_SIZE;
+      }
+
+      MB_MODE_INFO *curr_mbmi = &cm->mi[mi_row * cm->mi_stride + mi_col].mbmi;
+      MB_MODE_INFO *prev_mbmi =
+          &cm->mi[prev_mi_row * cm->mi_stride + prev_mi_col].mbmi;
+      const uint8_t prev_lvl = prev_mbmi->filt_lvl;
+
+      const int reuse_ctx = prev_mbmi->reuse_sb_lvl;
+      const int reuse_prev_lvl =
+          aom_read_symbol(r, cm->fc->lpf_reuse_cdf[reuse_ctx], 2, ACCT_STR);
+      curr_mbmi->reuse_sb_lvl = reuse_prev_lvl;
+
+      if (reuse_prev_lvl) {
+        filt_lvl = prev_lvl;
+        curr_mbmi->delta = 0;
+        curr_mbmi->sign = 0;
+      } else {
+        int delta = 0;
+        if (delta_bits == 0) {
+          curr_mbmi->delta = 0;
+        } else {
+          const int delta_ctx = prev_mbmi->delta;
+          /*
+          delta = aom_read_symbol(r, xd->tile_ctx->lpf_delta_cdf[delta_ctx],
+                                  delta_range, ACCT_STR);
+          */
+          delta = aom_read_literal(r, delta_bits, ACCT_STR);
+          curr_mbmi->delta = delta;
+          delta *= LPF_STEP;
+        }
+        delta += min_lvl_diff;
+
+        const int sign_ctx = prev_mbmi->sign;
+        const int sign = aom_read_symbol(
+            r, cm->fc->lpf_sign_cdf[reuse_ctx][sign_ctx], 2, ACCT_STR);
+        curr_mbmi->sign = sign;
+        filt_lvl = sign ? prev_lvl + delta : prev_lvl - delta;
+      }
+
+      av1_loop_filter_sb_level_init(cm, mi_row, mi_col, filt_lvl);
+    }
+  }
+}
+#endif  // CONFIG_LPF_SB
+
 static int read_compressed_header(AV1Decoder *pbi, const uint8_t *data,
                                   size_t partition_size) {
   AV1_COMMON *const cm = &pbi->common;
@@ -5060,6 +5219,10 @@ static int read_compressed_header(AV1Decoder *pbi, const uint8_t *data,
     if (!xd->lossless[0]) read_supertx_probs(fc, &r);
 #endif
   }
+
+#if CONFIG_LPF_SB
+  read_deblock_filter_level(pbi, &r);
+#endif  // CONFIG_LPF_SB
 
   return aom_reader_has_error(&r);
 }
