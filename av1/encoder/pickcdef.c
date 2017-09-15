@@ -395,12 +395,16 @@ void av1_cdef_search(YV12_BUFFER_CONFIG *frame, const YV12_BUFFER_CONFIG *ref,
       int nvb, nhb;
       int gi;
       int dirinit = 0;
+      const MB_MODE_INFO *const mbmi =
+          &cm->mi_grid_visible[MI_SIZE_64X64 * (fbr * cm->mi_stride + fbc)]
+               ->mbmi;
       nhb = AOMMIN(MI_SIZE_64X64, cm->mi_cols - MI_SIZE_64X64 * fbc);
       nvb = AOMMIN(MI_SIZE_64X64, cm->mi_rows - MI_SIZE_64X64 * fbr);
       cm->mi_grid_visible[MI_SIZE_64X64 * fbr * cm->mi_stride +
                           MI_SIZE_64X64 * fbc]
           ->mbmi.cdef_strength = -1;
-      if (sb_all_skip(cm, fbr * MI_SIZE_64X64, fbc * MI_SIZE_64X64)) continue;
+      // No filtering if skip and maximum block size
+      if (mbmi->skip && mbmi->sb_type == cm->sb_size) continue;
       cdef_count = sb_compute_cdef_list(cm, fbr * MI_SIZE_64X64,
                                         fbc * MI_SIZE_64X64, dlist, 1);
       for (pli = 0; pli < nplanes; pli++) {

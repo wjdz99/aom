@@ -1349,6 +1349,34 @@ static void write_cfl_alphas(FRAME_CONTEXT *const ec_ctx, int idx,
 }
 #endif
 
+static void write_cdef(AV1_COMMON *cm, aom_writer *w, int skip,
+                       BLOCK_SIZE bsize, int mi_col, int mi_row) {
+  const MB_MODE_INFO *mbmi =
+      &cm->mi_grid_visible[mi_row * cm->mi_stride + mi_col]->mbmi;
+  if (!(mi_row & (cm->mib_size - 1)) &&
+      !(mi_col & (cm->mib_size - 1)) &&  // Top left?
+      !cm->all_lossless && (bsize != cm->sb_size || !skip)) {
+    // Write CDEF bits unless skip and no partitioning
+    aom_write_literal(w, mbmi->cdef_strength, cm->cdef_bits);
+#if CONFIG_EXT_PARTITION
+    if (cm->sb_size == BLOCK_128X128) {
+      mbmi = &cm->mi_grid_visible[mi_row * cm->mi_stride + mi_col +
+                                  cm->mib_size / 2]
+                  ->mbmi;
+      aom_write_literal(w, mbmi->cdef_strength, cm->cdef_bits);
+      mbmi = &cm->mi_grid_visible[(mi_row + cm->mib_size / 2) * cm->mi_stride +
+                                  mi_col]
+                  ->mbmi;
+      aom_write_literal(w, mbmi->cdef_strength, cm->cdef_bits);
+      mbmi = &cm->mi_grid_visible[(mi_row + cm->mib_size / 2) * cm->mi_stride +
+                                  mi_col + cm->mib_size / 2]
+                  ->mbmi;
+      aom_write_literal(w, mbmi->cdef_strength, cm->cdef_bits);
+    }
+#endif
+  }
+}
+
 static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
                                 const int mi_col, aom_writer *w) {
   AV1_COMMON *const cm = &cpi->common;
@@ -1388,9 +1416,11 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
   }
 
   skip = write_skip(cm, xd, segment_id, mi, w);
+  write_cdef(cm, w, skip, bsize, mi_col, mi_row);
 #if CONFIG_Q_SEGMENTATION
   write_q_segment_id(cm, skip, mbmi, w, seg, segp, bsize, mi_row, mi_col);
 #endif
+
   if (cm->delta_q_present_flag) {
     int super_block_upper_left = ((mi_row & (cm->mib_size - 1)) == 0) &&
                                  ((mi_col & (cm->mib_size - 1)) == 0);
@@ -1724,9 +1754,13 @@ static void write_mb_modes_kf(AV1_COMMON *cm, MACROBLOCKD *xd,
   if (seg->update_map) write_segment_id(w, seg, segp, mbmi->segment_id);
 
   const int skip = write_skip(cm, xd, mbmi->segment_id, mi, w);
+
+  write_cdef(cm, w, skip, bsize, mi_col, mi_row);
+
 #if CONFIG_Q_SEGMENTATION
   write_q_segment_id(cm, skip, mbmi, w, seg, segp, bsize, mi_row, mi_col);
 #endif
+
   if (cm->delta_q_present_flag) {
     int super_block_upper_left = ((mi_row & (cm->mib_size - 1)) == 0) &&
                                  ((mi_col & (cm->mib_size - 1)) == 0);
@@ -2436,26 +2470,6 @@ static void write_modes_sb(AV1_COMP *const cpi, const TileInfo *const tile,
   }
 #endif
 
-  if (bsize == cm->sb_size && cm->cdef_bits != 0 && !cm->all_lossless) {
-    int width_step = mi_size_wide[BLOCK_64X64];
-    int height_step = mi_size_high[BLOCK_64X64];
-    int width, height;
-    for (height = 0; (height < mi_size_high[cm->sb_size]) &&
-                     (mi_row + height < cm->mi_rows);
-         height += height_step) {
-      for (width = 0; (width < mi_size_wide[cm->sb_size]) &&
-                      (mi_col + width < cm->mi_cols);
-           width += width_step) {
-        if (!sb_all_skip(cm, mi_row + height, mi_col + width))
-          aom_write_literal(
-              w,
-              cm->mi_grid_visible[(mi_row + height) * cm->mi_stride +
-                                  (mi_col + width)]
-                  ->mbmi.cdef_strength,
-              cm->cdef_bits);
-      }
-    }
-  }
 #if CONFIG_LOOP_RESTORATION
   for (int plane = 0; plane < MAX_MB_PLANE; ++plane) {
     int rcol0, rcol1, rrow0, rrow1, tile_tl_idx;
