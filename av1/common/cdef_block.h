@@ -70,7 +70,6 @@ typedef void (*cdef_direction_func)(uint16_t *y, int ystride,
                                     const uint16_t *in, int threshold, int dir,
                                     int damping);
 
-int get_filter_skip(int level);
 #endif
 
 #if CONFIG_CDEF_SINGLEPASS

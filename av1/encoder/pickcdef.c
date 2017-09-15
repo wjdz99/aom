@@ -23,7 +23,7 @@
 #define REDUCED_TOTAL_STRENGTHS (REDUCED_PRI_STRENGTHS * CDEF_SEC_STRENGTHS)
 #define TOTAL_STRENGTHS (CDEF_PRI_STRENGTHS * CDEF_SEC_STRENGTHS)
 
-static int priconv[REDUCED_PRI_STRENGTHS] = { 0, 1, 2, 3, 4, 7, 12, 25 };
+static int priconv[REDUCED_PRI_STRENGTHS] = { 0, 1, 2, 3, 5, 7, 10, 13 };
 
 /* Search for the best strength to add as an option, knowing we
    already selected nb_strengths options. */
@@ -400,9 +400,10 @@ void av1_cdef_search(YV12_BUFFER_CONFIG *frame, const YV12_BUFFER_CONFIG *ref,
       cm->mi_grid_visible[MI_SIZE_64X64 * fbr * cm->mi_stride +
                           MI_SIZE_64X64 * fbc]
           ->mbmi.cdef_strength = -1;
+      // No filtering if the entire filter block is skipped
       if (sb_all_skip(cm, fbr * MI_SIZE_64X64, fbc * MI_SIZE_64X64)) continue;
       cdef_count = sb_compute_cdef_list(cm, fbr * MI_SIZE_64X64,
-                                        fbc * MI_SIZE_64X64, dlist, 1);
+                                        fbc * MI_SIZE_64X64, dlist);
       for (pli = 0; pli < nplanes; pli++) {
         for (i = 0; i < CDEF_INBUF_SIZE; i++) inbuf[i] = CDEF_VERY_LARGE;
         for (gi = 0; gi < total_strengths; gi++) {

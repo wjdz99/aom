@@ -51,7 +51,7 @@ static int is_8x8_block_skip(MODE_INFO **grid, int mi_row, int mi_col,
 }
 
 int sb_compute_cdef_list(const AV1_COMMON *const cm, int mi_row, int mi_col,
-                         cdef_list *dlist, int filter_skip) {
+                         cdef_list *dlist) {
   int r, c;
   int maxc, maxr;
   MODE_INFO **grid;
@@ -71,25 +71,13 @@ int sb_compute_cdef_list(const AV1_COMMON *const cm, int mi_row, int mi_col,
   assert(r_step == 1 || r_step == 2);
   assert(c_step == 1 || c_step == 2);
 
-  if (filter_skip) {
-    for (r = 0; r < maxr; r += r_step) {
-      for (c = 0; c < maxc; c += c_step) {
+  for (r = 0; r < maxr; r += r_step) {
+    for (c = 0; c < maxc; c += c_step) {
+      if (!is_8x8_block_skip(grid, mi_row + r, mi_col + c, cm->mi_stride)) {
         dlist[count].by = r >> r_shift;
         dlist[count].bx = c >> c_shift;
-        dlist[count].skip =
-            is_8x8_block_skip(grid, mi_row + r, mi_col + c, cm->mi_stride);
+        dlist[count].skip = 0;
         count++;
-      }
-    }
-  } else {
-    for (r = 0; r < maxr; r += r_step) {
-      for (c = 0; c < maxc; c += c_step) {
-        if (!is_8x8_block_skip(grid, mi_row + r, mi_col + c, cm->mi_stride)) {
-          dlist[count].by = r >> r_shift;
-          dlist[count].bx = c >> c_shift;
-          dlist[count].skip = 0;
-          count++;
-        }
       }
     }
   }
@@ -260,13 +248,7 @@ void av1_cdef_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
       if ((level == 0 && sec_strength == 0 && uv_level == 0 &&
            uv_sec_strength == 0) ||
           (cdef_count = sb_compute_cdef_list(
-               cm, fbr * MI_SIZE_64X64, fbc * MI_SIZE_64X64, dlist,
-#if CONFIG_CDEF_SINGLEPASS
-               (level & 1) || (uv_level & 1))) == 0)
-#else
-                 get_filter_skip(level) || get_filter_skip(uv_level))) == 0)
-#endif
-      {
+               cm, fbr * MI_SIZE_64X64, fbc * MI_SIZE_64X64, dlist)) == 0) {
         cdef_left = 0;
         continue;
       }
