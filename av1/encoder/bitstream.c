@@ -3671,9 +3671,11 @@ static int get_refresh_mask(AV1_COMP *cpi) {
 #if USE_GF16_MULTI_LAYER
   if (cpi->rc.baseline_gf_interval == 16) return get_refresh_mask_gf16(cpi);
 #endif  // USE_GF16_MULTI_LAYER
+#endif  // CONFIG_EXT_REFS
 
   int refresh_mask = 0;
 
+#if CONFIG_EXT_REFS
   // NOTE(zoeliu): When LAST_FRAME is to get refreshed, the decoder will be
   // notified to get LAST3_FRAME refreshed and then the virtual indexes for all
   // the 3 LAST reference frames will be updated accordingly, i.e.:
