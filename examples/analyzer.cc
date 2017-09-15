@@ -338,21 +338,21 @@ void AnalyzerPanel::render() {
 
 void AnalyzerPanel::computeBitsPerPixel() {
   Accounting *acct;
-  double bpp_total;
   int totals_q3[MAX_SYMBOL_TYPES] = { 0 };
   int sym_count[MAX_SYMBOL_TYPES] = { 0 };
   decoder.getAccountingStruct(&acct);
+  int bits_total_q3 = 0;
   for (int j = 0; j < decoder.getHeight(); j++) {
     for (int i = 0; i < decoder.getWidth(); i++) {
       bpp_q3[j * decoder.getWidth() + i] = 0.0;
     }
   }
-  bpp_total = 0;
   for (int i = 0; i < acct->syms.num_syms; i++) {
     AccountingSymbol *s;
     s = &acct->syms.syms[i];
     totals_q3[s->id] += s->bits;
     sym_count[s->id] += s->samples;
+    bits_total_q3 += s->bits;
   }
   printf("=== Frame: %-3i ===\n", decoder.frame - 1);
   for (int i = 0; i < acct->syms.dictionary.num_strs; i++) {
@@ -361,6 +361,13 @@ void AnalyzerPanel::computeBitsPerPixel() {
              (float)totals_q3[i] / 8, (float)totals_q3[i] / 8 / sym_count[i]);
     }
   }
+  double bits_total = bits_total_q3 / 8.0;
+
+  fprintf(stderr, "%30s = %10.3f\n", "bits_total", bits_total);
+  fprintf(stderr, "%30s = %10.3i\n", "nb_syms", acct->syms.num_syms);
+  double bpp_total =
+      bits_total / ((double)decoder.getWidth() * decoder.getHeight());
+  fprintf(stderr, "%30s = %10.3f\n", "bpp_total", bpp_total);
   printf("\n");
 }
 
