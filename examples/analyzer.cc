@@ -338,7 +338,6 @@ void AnalyzerPanel::render() {
 
 void AnalyzerPanel::computeBitsPerPixel() {
   Accounting *acct;
-  double bpp_total;
   int totals_q3[MAX_SYMBOL_TYPES] = { 0 };
   int sym_count[MAX_SYMBOL_TYPES] = { 0 };
   decoder.getAccountingStruct(&acct);
@@ -347,7 +346,6 @@ void AnalyzerPanel::computeBitsPerPixel() {
       bpp_q3[j * decoder.getWidth() + i] = 0.0;
     }
   }
-  bpp_total = 0;
   for (int i = 0; i < acct->syms.num_syms; i++) {
     AccountingSymbol *s;
     s = &acct->syms.syms[i];
