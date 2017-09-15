@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "48712b7c_ff8d99df",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2017-09-15T23:10:54Z",
+      "side": 1,
+      "message": "A question beyond the scope of this CL.\nShouldn\u0027t we have different geometric distribution for each BR node?",
+      "range": {
+        "startLine": 77,
+        "startChar": 2,
+        "endLine": 77,
+        "endChar": 53
+      },
+      "revId": "3da1b227dcebce0f98c4486dc677cf6c40b17aef",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
