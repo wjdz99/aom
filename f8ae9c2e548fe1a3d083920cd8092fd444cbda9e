@@ -22,6 +22,30 @@
       "revId": "f8ae9c2e548fe1a3d083920cd8092fd444cbda9e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "627ce0e9_a92bf67f",
+        "filename": "av1/common/tile_common.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 7984
+      },
+      "writtenOn": "2017-09-15T13:21:19Z",
+      "side": 1,
+      "message": "Yes, it is a strange formula. The reasoning is that we want to choose max_log2_tile_cols as the largest such that:\n\nroundup(sb_cols/(1\u003c\u003cmax_log2_tile_cols)) \u003e\u003d MIN_TILE_WIDTH_SB\n\nFor MIN_TILE_WIDTH_SB\u003e1, this is the same as:\n\n(float)sb_cols/(1\u003c\u003cmax_log2_tile_cols) \u003e MIN_TILE_WIDTH_SB-1\n\nwhich is the same as:\n\nsb_cols \u003e ((MIN_TILE_WIDTH_SB-1) \u003c\u003c max_log2_tile_cols)\n\nWhich is the same as the smallest max_log2_tile_cols such that\n\nsb_cols \u003c\u003d ((2*MIN_TILE_WIDTH_SB-2) \u003c\u003c max_log2_tile_cols)\n\nHowever the feedback on minimum tile size from the WG seems consistent that we want MIN_TILE_WIDTH_SB\u003d1 and MIN_TILE_HEIGHT_SB\u003d1. The same is the case in your ext_tile experiment. In that case the formula becomes much simpler and I can remove the 2*MIN_TILE_WIDTH_SB-2 and 2*MIN_TILE_HEIGHT_SB-2 expression altogether.\n\nSo then I would like to simplify the code and remove MIN_TILE_WIDTH_SB and MIN_TILE_HEIGHT_SB (and these will always be 1).\n\nDo you agree with that approach?",
+      "parentUuid": "f3df1e7a_e4bfd8c3",
+      "range": {
+        "startLine": 57,
+        "startChar": 23,
+        "endLine": 57,
+        "endChar": 48
+      },
+      "revId": "f8ae9c2e548fe1a3d083920cd8092fd444cbda9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
