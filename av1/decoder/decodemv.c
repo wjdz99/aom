@@ -40,6 +40,18 @@ static PREDICTION_MODE read_intra_mode(aom_reader *r, aom_cdf_prob *cdf) {
       av1_intra_mode_inv[aom_read_symbol(r, cdf, INTRA_MODES, ACCT_STR)];
 }
 
+#if CONFIG_CDEF
+static void read_cdef(AV1_COMMON *cm, aom_reader *r, MB_MODE_INFO *const mbmi,
+                      int mi_col, int mi_row) {
+  if (!cm->all_lossless && !(mi_col & MAX_MIB_MASK) &&
+      !(mi_row & MAX_MIB_MASK))  // Top left block?
+    cm->mi_grid_visible[mi_row * cm->mi_stride + mi_col]->mbmi.cdef_strength =
+        mbmi->sb_type != BLOCK_LARGEST || !mbmi->skip
+            ? aom_read_literal(r, cm->cdef_bits, ACCT_STR)
+            : -1;  // Skip and no partitioning, so CDEF implicitly disabled
+}
+#endif
+
 #if CONFIG_DELTA_Q
 static int read_delta_qindex(AV1_COMMON *cm, MACROBLOCKD *xd, aom_reader *r,
                              MB_MODE_INFO *const mbmi, int mi_col, int mi_row) {
@@ -1082,6 +1094,10 @@ static void read_intra_frame_mode_info(AV1_COMMON *const cm,
 
   mbmi->segment_id = read_intra_segment_id(cm, xd, mi_offset, x_mis, y_mis, r);
   mbmi->skip = read_skip(cm, xd, mbmi->segment_id, r);
+
+#if CONFIG_CDEF
+  read_cdef(cm, r, mbmi, mi_col, mi_row);
+#endif
 
 #if CONFIG_DELTA_Q
   if (cm->delta_q_present_flag) {
@@ -2823,6 +2839,10 @@ static void read_inter_frame_mode_info(AV1Decoder *const pbi,
   if (!supertx_enabled)
 #endif  // CONFIG_SUPERTX
     mbmi->skip = read_skip(cm, xd, mbmi->segment_id, r);
+
+#if CONFIG_CDEF
+  read_cdef(cm, r, mbmi, mi_col, mi_row);
+#endif
 
 #if CONFIG_DELTA_Q
   if (cm->delta_q_present_flag) {
