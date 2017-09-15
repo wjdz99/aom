@@ -20,26 +20,6 @@
 #include "av1/common/onyxc_int.h"
 #include "av1/common/reconinter.h"
 
-int sb_all_skip(const AV1_COMMON *const cm, int mi_row, int mi_col) {
-  int r, c;
-  int maxc, maxr;
-  int skip = 1;
-  maxc = cm->mi_cols - mi_col;
-  maxr = cm->mi_rows - mi_row;
-
-  maxr = AOMMIN(maxr, MI_SIZE_64X64);
-  maxc = AOMMIN(maxc, MI_SIZE_64X64);
-
-  for (r = 0; r < maxr; r++) {
-    for (c = 0; c < maxc; c++) {
-      skip = skip &&
-             cm->mi_grid_visible[(mi_row + r) * cm->mi_stride + mi_col + c]
-                 ->mbmi.skip;
-    }
-  }
-  return skip;
-}
-
 static int is_8x8_block_skip(MODE_INFO **grid, int mi_row, int mi_col,
                              int mi_stride) {
   int is_skip = 1;
