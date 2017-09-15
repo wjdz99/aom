@@ -530,6 +530,9 @@ typedef struct AV1Common {
   int cdef_strengths[CDEF_MAX_STRENGTHS];
   int cdef_uv_strengths[CDEF_MAX_STRENGTHS];
   int cdef_bits;
+#if CONFIG_EXT_PARTITION
+  int cdef_unassigned_strengths[3];
+#endif
 
   int delta_q_present_flag;
   // Resolution of delta quant
