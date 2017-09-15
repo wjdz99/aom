@@ -62,17 +62,12 @@ static INLINE void cfl_pad(CFL_CTX *cfl, int width, int height) {
   }
 }
 
-static INLINE void sum_above_row(const MACROBLOCKD *xd, int width,
-                                 int *out_sum_u, int *out_sum_v) {
-  const struct macroblockd_plane *const pd_u = &xd->plane[AOM_PLANE_U];
-  const struct macroblockd_plane *const pd_v = &xd->plane[AOM_PLANE_V];
-
-  const int dst_u_stride = pd_u->dst.stride;
-  const int dst_v_stride = pd_v->dst.stride;
-
-  const uint8_t *above_dst_u = pd_u->dst.buf - dst_u_stride;
-  const uint8_t *above_dst_v = pd_v->dst.buf - dst_v_stride;
-
+static INLINE void sum_above_row_lbd(const uint8_t *dst_u, int dst_u_stride,
+                                     const uint8_t *dst_v, int dst_v_stride,
+                                     int width, int *out_sum_u,
+                                     int *out_sum_v) {
+  const uint8_t *above_dst_u = dst_u - dst_u_stride;
+  const uint8_t *above_dst_v = dst_v - dst_v_stride;
   int sum_u = 0;
   int sum_v = 0;
   for (int i = 0; i < width; i++) {
@@ -82,18 +77,47 @@ static INLINE void sum_above_row(const MACROBLOCKD *xd, int width,
   *out_sum_u += sum_u;
   *out_sum_v += sum_v;
 }
+#if CONFIG_HIGHBITDEPTH
+static INLINE void sum_above_row_hbd(const uint16_t *dst_u, int dst_u_stride,
+                                     const uint16_t *dst_v, int dst_v_stride,
+                                     int width, int *out_sum_u,
+                                     int *out_sum_v) {
+  const uint16_t *above_dst_u = dst_u - dst_u_stride;
+  const uint16_t *above_dst_v = dst_v - dst_v_stride;
+  int sum_u = 0;
+  int sum_v = 0;
+  for (int i = 0; i < width; i++) {
+    sum_u += above_dst_u[i];
+    sum_v += above_dst_v[i];
+  }
+  *out_sum_u += sum_u;
+  *out_sum_v += sum_v;
+}
+#endif  // CONFIG_HIGHBITDEPTH
 
-static INLINE void sum_left_col(const MACROBLOCKD *xd, int height,
-                                int *out_sum_u, int *out_sum_v) {
+static INLINE void sum_above_row(const MACROBLOCKD *xd, int width,
+                                 int *out_sum_u, int *out_sum_v) {
   const struct macroblockd_plane *const pd_u = &xd->plane[AOM_PLANE_U];
   const struct macroblockd_plane *const pd_v = &xd->plane[AOM_PLANE_V];
+#if CONFIG_HIGHBITDEPTH
+  if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
+    const uint16_t *dst_u_16 = CONVERT_TO_SHORTPTR(pd_u->dst.buf);
+    const uint16_t *dst_v_16 = CONVERT_TO_SHORTPTR(pd_v->dst.buf);
+    sum_above_row_hbd(dst_u_16, pd_u->dst.stride, dst_v_16, pd_v->dst.stride,
+                      width, out_sum_u, out_sum_v);
+    return;
+  }
+#endif  // CONFIG_HIGHBITDEPTH
+  sum_above_row_lbd(pd_u->dst.buf, pd_u->dst.stride, pd_v->dst.buf,
+                    pd_v->dst.stride, width, out_sum_u, out_sum_v);
+}
 
-  const int dst_u_stride = pd_u->dst.stride;
-  const int dst_v_stride = pd_v->dst.stride;
-
-  const uint8_t *left_dst_u = pd_u->dst.buf - 1;
-  const uint8_t *left_dst_v = pd_v->dst.buf - 1;
-
+static INLINE void sum_left_col_lbd(const uint8_t *dst_u, int dst_u_stride,
+                                    const uint8_t *dst_v, int dst_v_stride,
+                                    int height, int *out_sum_u,
+                                    int *out_sum_v) {
+  const uint8_t *left_dst_u = dst_u - 1;
+  const uint8_t *left_dst_v = dst_v - 1;
   int sum_u = 0;
   int sum_v = 0;
   for (int i = 0; i < height; i++) {
@@ -103,13 +127,49 @@ static INLINE void sum_left_col(const MACROBLOCKD *xd, int height,
   *out_sum_u += sum_u;
   *out_sum_v += sum_v;
 }
+#if CONFIG_HIGHBITDEPTH
+static INLINE void sum_left_col_hbd(const uint16_t *dst_u, int dst_u_stride,
+                                    const uint16_t *dst_v, int dst_v_stride,
+                                    int height, int *out_sum_u,
+                                    int *out_sum_v) {
+  const uint16_t *left_dst_u = dst_u - 1;
+  const uint16_t *left_dst_v = dst_v - 1;
+  int sum_u = 0;
+  int sum_v = 0;
+  for (int i = 0; i < height; i++) {
+    sum_u += left_dst_u[i * dst_u_stride];
+    sum_v += left_dst_v[i * dst_v_stride];
+  }
+  *out_sum_u += sum_u;
+  *out_sum_v += sum_v;
+}
+#endif  // CONFIG_HIGHBITDEPTH
+static INLINE void sum_left_col(const MACROBLOCKD *xd, int height,
+                                int *out_sum_u, int *out_sum_v) {
+  const struct macroblockd_plane *const pd_u = &xd->plane[AOM_PLANE_U];
+  const struct macroblockd_plane *const pd_v = &xd->plane[AOM_PLANE_V];
 
-// CfL computes its own block-level DC_PRED. This is required to compute both
+#if CONFIG_HIGHBITDEPTH
+  if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
+    const uint16_t *dst_u_16 = CONVERT_TO_SHORTPTR(pd_u->dst.buf);
+    const uint16_t *dst_v_16 = CONVERT_TO_SHORTPTR(pd_v->dst.buf);
+    sum_left_col_hbd(dst_u_16, pd_u->dst.stride, dst_v_16, pd_v->dst.stride,
+                     height, out_sum_u, out_sum_v);
+    return;
+  }
+#endif  // CONFIG_HIGHBITDEPTH
+  sum_left_col_lbd(pd_u->dst.buf, pd_u->dst.stride, pd_v->dst.buf,
+                   pd_v->dst.stride, height, out_sum_u, out_sum_v);
+}
+
+// CfL computes its own block-level DC_PRED. This is required to compute
+// both
 // alpha_cb and alpha_cr before the prediction are computed.
 static void cfl_dc_pred(MACROBLOCKD *xd, BLOCK_SIZE plane_bsize) {
   CFL_CTX *const cfl = xd->cfl;
 
-  // Compute DC_PRED until block boundary. We can't assume the neighbor will use
+  // Compute DC_PRED until block boundary. We can't assume the neighbor will
+  // use
   // the same transform size.
   const int width = max_block_wide(xd, plane_bsize, AOM_PLANE_U)
                     << tx_size_wide_log2[0];
@@ -154,8 +214,10 @@ static void cfl_dc_pred(MACROBLOCKD *xd, BLOCK_SIZE plane_bsize) {
     sum_v += height * (base + 1);
   }
 
-  // TODO(ltrudeau) Because of max_block_wide and max_block_high, num_pel will
-  // not be a power of two. So these divisions will have to use a lookup table.
+  // TODO(ltrudeau) Because of max_block_wide and max_block_high, num_pel
+  // will
+  // not be a power of two. So these divisions will have to use a lookup
+  // table.
   cfl->dc_pred[CFL_PRED_U] = (sum_u + (num_pel >> 1)) / num_pel;
   cfl->dc_pred[CFL_PRED_V] = (sum_v + (num_pel >> 1)) / num_pel;
 }
@@ -211,11 +273,10 @@ static INLINE int cfl_idx_to_alpha(int alpha_idx, int joint_sign,
   return (alpha_sign == CFL_SIGN_POS) ? abs_alpha_q3 + 1 : -abs_alpha_q3 - 1;
 }
 
-// TODO(ltrudeau) add support for HBD.
-static INLINE void cfl_build_prediction(const int16_t *pred_buf_q3,
-                                        uint8_t *dst, int dst_stride,
-                                        int alpha_q3, int dc_pred, int width,
-                                        int height) {
+static INLINE void cfl_build_prediction_lbd(const int16_t *pred_buf_q3,
+                                            uint8_t *dst, int dst_stride,
+                                            int width, int height, int alpha_q3,
+                                            int dc_pred) {
   for (int j = 0; j < height; j++) {
     for (int i = 0; i < width; i++) {
       dst[i] =
@@ -224,6 +285,40 @@ static INLINE void cfl_build_prediction(const int16_t *pred_buf_q3,
     dst += dst_stride;
     pred_buf_q3 += MAX_SB_SIZE;
   }
+}
+
+#if CONFIG_HIGHBITDEPTH
+static INLINE void cfl_build_prediction_hbd(const int16_t *pred_buf_q3,
+                                            uint16_t *dst, int dst_stride,
+                                            int width, int height, int alpha_q3,
+                                            int dc_pred, int bit_depth) {
+  for (int j = 0; j < height; j++) {
+    for (int i = 0; i < width; i++) {
+      dst[i] = clip_pixel_highbd(
+          get_scaled_luma_q0(alpha_q3, pred_buf_q3[i]) + dc_pred, bit_depth);
+    }
+    dst += dst_stride;
+    pred_buf_q3 += MAX_SB_SIZE;
+  }
+}
+#endif  // CONFIG_HIGHBITDEPTH
+
+static INLINE void cfl_build_prediction(const int16_t *pred_buf_q3,
+                                        uint8_t *dst, int dst_stride, int width,
+                                        int height, int alpha_q3, int dc_pred,
+                                        int use_hbd, int bit_depth) {
+#if CONFIG_HIGHBITDEPTH
+  if (use_hbd) {
+    uint16_t *dst_16 = CONVERT_TO_SHORTPTR(dst);
+    cfl_build_prediction_hbd(pred_buf_q3, dst_16, dst_stride, width, height,
+                             alpha_q3, dc_pred, bit_depth);
+    return;
+  }
+#endif  // CONFIG_HIGHBITDEPTH
+  (void)use_hbd;
+  (void)bit_depth;
+  cfl_build_prediction_lbd(pred_buf_q3, dst, dst_stride, width, height,
+                           alpha_q3, dc_pred);
 }
 
 void cfl_predict_block(MACROBLOCKD *const xd, uint8_t *dst, int dst_stride,
@@ -238,16 +333,17 @@ void cfl_predict_block(MACROBLOCKD *const xd, uint8_t *dst, int dst_stride,
       cfl->pred_buf_q3 + ((row * MAX_SB_SIZE + col) << tx_size_wide_log2[0]);
   const int alpha_q3 =
       cfl_idx_to_alpha(mbmi->cfl_alpha_idx, mbmi->cfl_alpha_signs, plane - 1);
+  const int use_hbd = xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH;
 
-  cfl_build_prediction(pred_buf_q3, dst, dst_stride, alpha_q3,
-                       cfl->dc_pred[plane - 1], tx_size_wide[tx_size],
-                       tx_size_high[tx_size]);
+  cfl_build_prediction(pred_buf_q3, dst, dst_stride, tx_size_wide[tx_size],
+                       tx_size_high[tx_size], alpha_q3, cfl->dc_pred[plane - 1],
+                       use_hbd, xd->bd);
 }
 
-static INLINE void cfl_luma_subsampling_420(const uint8_t *input,
-                                            int input_stride,
-                                            int16_t *output_q3, int width,
-                                            int height) {
+static INLINE void cfl_luma_subsampling_420_lbd(const uint8_t *input,
+                                                int input_stride,
+                                                int16_t *output_q3, int width,
+                                                int height) {
   for (int j = 0; j < height; j++) {
     for (int i = 0; i < width; i++) {
       int top = i << 1;
@@ -258,6 +354,40 @@ static INLINE void cfl_luma_subsampling_420(const uint8_t *input,
     input += input_stride << 1;
     output_q3 += MAX_SB_SIZE;
   }
+}
+
+#if CONFIG_HIGHBITDEPTH
+static INLINE void cfl_luma_subsampling_420_hbd(const uint16_t *input,
+                                                int input_stride,
+                                                int16_t *output_q3, int width,
+                                                int height) {
+  for (int j = 0; j < height; j++) {
+    for (int i = 0; i < width; i++) {
+      int top = i << 1;
+      int bot = top + input_stride;
+      output_q3[i] = (input[top] + input[top + 1] + input[bot] + input[bot + 1])
+                     << 1;
+    }
+    input += input_stride << 1;
+    output_q3 += MAX_SB_SIZE;
+  }
+}
+#endif  // CONFIG_HIGHBITDEPTH
+
+static INLINE void cfl_luma_subsampling_420(const uint8_t *input,
+                                            int input_stride,
+                                            int16_t *output_q3, int width,
+                                            int height, int use_hbd) {
+#if CONFIG_HIGHBITDEPTH
+  if (use_hbd) {
+    const uint16_t *input_16 = CONVERT_TO_SHORTPTR(input);
+    cfl_luma_subsampling_420_hbd(input_16, input_stride, output_q3, width,
+                                 height);
+    return;
+  }
+#endif  // CONFIG_HIGHBITDEPTH
+  (void)use_hbd;
+  cfl_luma_subsampling_420_lbd(input, input_stride, output_q3, width, height);
 }
 
 static INLINE void cfl_luma_subsampling_444(const uint8_t *input,
@@ -275,7 +405,7 @@ static INLINE void cfl_luma_subsampling_444(const uint8_t *input,
 
 static INLINE void cfl_store(CFL_CTX *cfl, const uint8_t *input,
                              int input_stride, int row, int col, int width,
-                             int height) {
+                             int height, int use_hbd) {
   const int tx_off_log2 = tx_size_wide_log2[0];
   const int sub_x = cfl->subsampling_x;
   const int sub_y = cfl->subsampling_y;
@@ -288,7 +418,8 @@ static INLINE void cfl_store(CFL_CTX *cfl, const uint8_t *input,
   cfl->are_parameters_computed = 0;
 
   // Store the surface of the pixel buffer that was written to, this way we
-  // can manage chroma overrun (e.g. when the chroma surfaces goes beyond the
+  // can manage chroma overrun (e.g. when the chroma surfaces goes beyond
+  // the
   // frame boundary)
   if (col == 0 && row == 0) {
     cfl->buf_width = store_width;
@@ -307,11 +438,13 @@ static INLINE void cfl_store(CFL_CTX *cfl, const uint8_t *input,
       cfl->pred_buf_q3 + (store_row * MAX_SB_SIZE + store_col);
 
   if (sub_y == 0 && sub_x == 0) {
+    // TODO(ltrudeau) add support for HBD 4:4:4
+    assert(!use_hbd);
     cfl_luma_subsampling_444(input, input_stride, pred_buf_q3, store_width,
                              store_height);
   } else if (sub_y == 1 && sub_x == 1) {
     cfl_luma_subsampling_420(input, input_stride, pred_buf_q3, store_width,
-                             store_height);
+                             store_height, use_hbd);
   } else {
     // TODO(ltrudeau) add support for 4:2:2
     assert(0);  // Unsupported chroma subsampling
@@ -319,7 +452,8 @@ static INLINE void cfl_store(CFL_CTX *cfl, const uint8_t *input,
 }
 
 #if CONFIG_CHROMA_SUB8X8
-// Adjust the row and column of blocks smaller than 8X8, as chroma-referenced
+// Adjust the row and column of blocks smaller than 8X8, as
+// chroma-referenced
 // and non-chroma-referenced blocks are stored together in the CfL buffer.
 static INLINE void sub8x8_adjust_offset(const CFL_CTX *cfl, int *row_out,
                                         int *col_out) {
@@ -355,6 +489,7 @@ void cfl_store_tx(MACROBLOCKD *const xd, int row, int col, TX_SIZE tx_size,
                   BLOCK_SIZE bsize) {
   CFL_CTX *const cfl = xd->cfl;
   struct macroblockd_plane *const pd = &xd->plane[AOM_PLANE_Y];
+  const int use_hbd = xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH;
   uint8_t *dst =
       &pd->dst.buf[(row * pd->dst.stride + col) << tx_size_wide_log2[0]];
   (void)bsize;
@@ -372,12 +507,13 @@ void cfl_store_tx(MACROBLOCKD *const xd, int row, int col, TX_SIZE tx_size,
   }
 #endif
   cfl_store(cfl, dst, pd->dst.stride, row, col, tx_size_wide[tx_size],
-            tx_size_high[tx_size]);
+            tx_size_high[tx_size], use_hbd);
 }
 
 void cfl_store_block(MACROBLOCKD *const xd, BLOCK_SIZE bsize, TX_SIZE tx_size) {
   CFL_CTX *const cfl = xd->cfl;
   struct macroblockd_plane *const pd = &xd->plane[AOM_PLANE_Y];
+  const int use_hbd = xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH;
   int row = 0;
   int col = 0;
 #if CONFIG_CHROMA_SUB8X8
@@ -391,7 +527,7 @@ void cfl_store_block(MACROBLOCKD *const xd, BLOCK_SIZE bsize, TX_SIZE tx_size) {
 #endif  // CONFIG_CHROMA_SUB8X8
   const int width = max_intra_block_width(xd, bsize, AOM_PLANE_Y, tx_size);
   const int height = max_intra_block_height(xd, bsize, AOM_PLANE_Y, tx_size);
-  cfl_store(cfl, pd->dst.buf, pd->dst.stride, row, col, width, height);
+  cfl_store(cfl, pd->dst.buf, pd->dst.stride, row, col, width, height, use_hbd);
 }
 
 void cfl_compute_parameters(MACROBLOCKD *const xd, TX_SIZE tx_size) {
