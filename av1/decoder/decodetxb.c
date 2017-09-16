@@ -234,9 +234,9 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
         if (counts) ++counts->coeff_br[txs_ctx][plane_type][idx][ctx][1];
         for (tok = 0; tok < extra_bits; ++tok) {
 #if LV_MAP_PROB
-          if (aom_read_symbol(
-                  r, ec_ctx->coeff_lps_cdf[txs_ctx][plane_type][idx][ctx], 2,
-                  ACCT_STR))
+          if (aom_read_cdf(r,
+                           ec_ctx->coeff_lps_cdf[txs_ctx][plane_type][idx][ctx],
+                           2, ACCT_STR))
 #else
           if (aom_read(r, ec_ctx->coeff_lps[txs_ctx][plane_type][ctx],
                        ACCT_STR))
@@ -249,6 +249,13 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
           if (counts) ++counts->coeff_lps[txs_ctx][plane_type][idx][ctx][0];
         }
         if (tok == extra_bits) br_offset = extra_bits;
+
+        for (int l = 0; l < br_offset; ++l)
+          update_cdf(ec_ctx->coeff_lps_cdf[txs_ctx][plane_type][idx][ctx], 0,
+                     2);
+        if (tok < extra_bits)
+          update_cdf(ec_ctx->coeff_lps_cdf[txs_ctx][plane_type][idx][ctx], 1,
+                     2);
 
         int br_base = br_index_to_coeff[idx];
 
