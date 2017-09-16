@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e48ac64a_fac6a4e3",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 32
+      },
+      "lineNbr": 328,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-09-16T01:00:00Z",
+      "side": 1,
+      "message": "This looks like you\u0027re trying to handle 4x16 and 16x4, but I don\u0027t think you can have a hard-coded stride of 2 for both cases (the 16x4 case will alias the start of the second row with the end of the first), and CFL_MAX_SUB8X8_VAL will be larger than 8 if you use a hard-coded stride of 4.\n\nAlso, CFL_MAX_SUB8X8_INDEX might be a better name. It was a little confusing to see cfl-\u003esub8x8_val get incremented above, and then have a constant called ...MAX...VAL that was not being compared to the actual value.",
+      "revId": "425adea35a8e40584eee236f8c4e03ef2512066d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c181b99c_92f50bc3",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 32
+      },
+      "lineNbr": 345,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-09-16T01:00:00Z",
+      "side": 1,
+      "message": "Isn\u0027t it the other way around? (swap row/col?)",
+      "revId": "425adea35a8e40584eee236f8c4e03ef2512066d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
