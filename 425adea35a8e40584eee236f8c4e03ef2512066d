@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "2481c012_7610cc96",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 32
+      },
+      "lineNbr": 328,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-09-16T02:09:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e48ac64a_fac6a4e3",
+      "revId": "425adea35a8e40584eee236f8c4e03ef2512066d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c181b99c_92f50bc3",
         "filename": "av1/common/cfl.c",
         "patchSetId": 32
@@ -30,6 +48,24 @@
       "writtenOn": "2017-09-16T01:00:00Z",
       "side": 1,
       "message": "Isn\u0027t it the other way around? (swap row/col?)",
+      "revId": "425adea35a8e40584eee236f8c4e03ef2512066d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "002a2ad9_b13685c3",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 32
+      },
+      "lineNbr": 345,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-09-16T02:09:08Z",
+      "side": 1,
+      "message": "I don\u0027t think so.\n\nFor example, the assert would trigger if a 8x4 started at col \u003d\u003d 1.",
+      "parentUuid": "c181b99c_92f50bc3",
       "revId": "425adea35a8e40584eee236f8c4e03ef2512066d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
