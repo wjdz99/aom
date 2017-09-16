@@ -69,6 +69,24 @@
       "revId": "425adea35a8e40584eee236f8c4e03ef2512066d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "52841006_028318ad",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 32
+      },
+      "lineNbr": 345,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-09-16T05:47:55Z",
+      "side": 1,
+      "message": "If I have an 8x4 starting at an odd column, plugging those into your expression gives\n\n  (true || false) \u0026\u0026 (false || ??)\n\nSo if it started at an even row, then the assert would not trigger. Or did I miss something?\n\nI think the following is a bit more intuitive:\n\n  !((col \u0026 1) \u0026\u0026 block_size_wide[bsize] !\u003d 4) \u0026\u0026 !((row \u0026 1) \u0026\u0026 block_size_high[bsize] !\u003d 4)\n\nI.e., the two things we don\u0027t want are starting at an odd column with a width that isn\u0027t four, and starting at an odd row with a height that isn\u0027t four. That\u0027s equivalent to\n\n  (!(col \u0026 1) || block_size_wide[bsize] \u003d\u003d 4) \u0026\u0026 (!(row \u0026 1) || block_size_high[bsize] \u003d\u003d 4)\n\nYou could even make those two separate asserts, to make it obvious which one is failing if one fails.",
+      "parentUuid": "002a2ad9_b13685c3",
+      "revId": "425adea35a8e40584eee236f8c4e03ef2512066d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
