@@ -252,14 +252,19 @@ void av1_write_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
         int extra_bits = (1 << br_extra_bits[idx]) - 1;
         for (int tok = 0; tok < extra_bits; ++tok) {
           if (tok == br_offset) {
-            aom_write_symbol(
+            aom_write_cdf(
                 w, 1, ec_ctx->coeff_lps_cdf[txs_ctx][plane_type][idx][ctx], 2);
             break;
           }
-          aom_write_symbol(
+          aom_write_cdf(
               w, 0, ec_ctx->coeff_lps_cdf[txs_ctx][plane_type][idx][ctx], 2);
         }
-        //        aom_write_literal(w, br_offset, br_extra_bits[idx]);
+        for (int l = 0; l < br_offset; ++l)
+          update_cdf(ec_ctx->coeff_lps_cdf[txs_ctx][plane_type][idx][ctx], 0,
+                     2);
+        if (br_offset < extra_bits)
+          update_cdf(ec_ctx->coeff_lps_cdf[txs_ctx][plane_type][idx][ctx], 1,
+                     2);
         break;
       }
     }
@@ -1757,18 +1762,16 @@ void av1_update_and_record_txb_context(int plane, int block, int blk_row,
         for (int tok = 0; tok < extra_bits; ++tok) {
           if (br_offset == tok) {
             ++td->counts->coeff_lps[txsize_ctx][plane_type][idx][ctx][1];
-#if LV_MAP_PROB
-            update_cdf(ec_ctx->coeff_lps_cdf[txsize_ctx][plane_type][idx][ctx],
-                       1, 2);
-#endif
             break;
           }
           ++td->counts->coeff_lps[txsize_ctx][plane_type][idx][ctx][0];
-#if LV_MAP_PROB
+        }
+        for (int l = 0; l < br_offset; ++l)
           update_cdf(ec_ctx->coeff_lps_cdf[txsize_ctx][plane_type][idx][ctx], 0,
                      2);
-#endif
-        }
+        if (br_offset < extra_bits)
+          update_cdf(ec_ctx->coeff_lps_cdf[txsize_ctx][plane_type][idx][ctx], 1,
+                     2);
         break;
       }
       ++td->counts->coeff_br[txsize_ctx][plane_type][idx][ctx][0];
