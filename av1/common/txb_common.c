@@ -222,9 +222,10 @@ void av1_adapt_txb_probs(AV1_COMMON *cm, unsigned int count_sat,
   for (tx_size = 0; tx_size < TX_SIZES; ++tx_size) {
     for (plane = 0; plane < PLANE_TYPES; ++plane) {
       for (ctx = 0; ctx < LEVEL_CONTEXTS; ++ctx) {
-        fc->coeff_lps[tx_size][plane][ctx] = merge_probs(
-            pre_fc->coeff_lps[tx_size][plane][ctx],
-            counts->coeff_lps[tx_size][plane][ctx], count_sat, update_factor);
+        fc->coeff_lps[tx_size][plane][ctx] =
+            merge_probs(pre_fc->coeff_lps[tx_size][plane][ctx],
+                        counts->coeff_lps[tx_size][plane][0][ctx], count_sat,
+                        update_factor);
       }
 #if BR_NODE
       for (int br = 0; br < BASE_RANGE_SETS; ++br) {
