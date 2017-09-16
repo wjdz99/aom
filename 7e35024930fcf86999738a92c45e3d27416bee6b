@@ -109,6 +109,24 @@
     },
     {
       "key": {
+        "uuid": "9927d193_b087531b",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 22
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-09-16T00:43:04Z",
+      "side": 1,
+      "message": "Okay, now I understand. Sorry, I didn\u0027t realize we\u0027d removed the padding code (I thought we still needed it for chroma blocks that have no corresponding luma pixels on the edge of the frame).",
+      "parentUuid": "9615a195_2eb976eb",
+      "revId": "7e35024930fcf86999738a92c45e3d27416bee6b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "88071a21_eae02c94",
         "filename": "av1/common/cfl.c",
         "patchSetId": 22
@@ -422,6 +440,24 @@
       "side": 1,
       "message": "We cannot remove cfl_clear_sub8x8_val() without causing asserts. I\u0027ve rewrote how store validation is managed. Let me know if you find it less fishy.",
       "parentUuid": "f9c33ac3_e32b4e0d",
+      "revId": "7e35024930fcf86999738a92c45e3d27416bee6b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "915d1bbc_78e3b1d3",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 22
+      },
+      "lineNbr": 1975,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-09-16T00:43:04Z",
+      "side": 1,
+      "message": "I didn\u0027t mean remove the call entirely. I meant the if() you added above means there were cases we called this function before that we don\u0027t call it now.",
+      "parentUuid": "bd83aad8_7bcfc42f",
       "revId": "7e35024930fcf86999738a92c45e3d27416bee6b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
