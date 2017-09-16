@@ -127,6 +127,24 @@
     },
     {
       "key": {
+        "uuid": "03842081_b6eb61ba",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 22
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-09-16T02:16:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9927d193_b087531b",
+      "revId": "7e35024930fcf86999738a92c45e3d27416bee6b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "88071a21_eae02c94",
         "filename": "av1/common/cfl.c",
         "patchSetId": 22
@@ -458,6 +476,24 @@
       "side": 1,
       "message": "I didn\u0027t mean remove the call entirely. I meant the if() you added above means there were cases we called this function before that we don\u0027t call it now.",
       "parentUuid": "bd83aad8_7bcfc42f",
+      "revId": "7e35024930fcf86999738a92c45e3d27416bee6b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da3747e4_aee716ad",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 22
+      },
+      "lineNbr": 1975,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-09-16T02:16:33Z",
+      "side": 1,
+      "message": "Case1: When uv_mode\u003d\u003dUV_CFL_PRED, we will clear when we build the prediction\nCase2: When !cfl-\u003eis_chroma_reference, we will store just in case the chroma_reference is UV_CFL_PRED\nCase3: When cfl-\u003eis_chroma_reference and uv_mode!\u003dUV_CFL_PRED we must clear what we stored in Case2.",
+      "parentUuid": "915d1bbc_78e3b1d3",
       "revId": "7e35024930fcf86999738a92c45e3d27416bee6b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
