@@ -865,18 +865,6 @@ static void fadst8(const tran_low_t *input, tran_low_t *output) {
   output[7] = (tran_low_t)-x1;
 }
 
-#if CONFIG_DAALA_DCT16
-static void fadst16(const tran_low_t *input, tran_low_t *output) {
-  int i;
-  od_coeff x[16];
-  od_coeff y[16];
-  for (i = 0; i < 16; i++) x[i] = (od_coeff)input[i];
-  od_bin_fdst16(y, x, 1);
-  for (i = 0; i < 16; i++) output[i] = (tran_low_t)y[i];
-}
-
-#else
-
 static void fadst16(const tran_low_t *input, tran_low_t *output) {
   tran_high_t s0, s1, s2, s3, s4, s5, s6, s7, s8;
   tran_high_t s9, s10, s11, s12, s13, s14, s15;
@@ -1044,7 +1032,6 @@ static void fadst16(const tran_low_t *input, tran_low_t *output) {
   output[14] = (tran_low_t)x9;
   output[15] = (tran_low_t)-x1;
 }
-#endif
 
 // For use in lieu of ADST
 #if CONFIG_DAALA_DCT32
