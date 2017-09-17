@@ -26,12 +26,8 @@
 
 int av1_get_tx_scale(const TX_SIZE tx_size) {
 #if CONFIG_DAALA_TX
-#if CONFIG_TX64X64
-  if (tx_size == TX_64X64) return 2;
-#else
   (void)tx_size;
   return 0;
-#endif
 #else
   const int pels = tx_size_2d[tx_size];
   return (pels > 256) + (pels > 1024) + (pels > 4096);
@@ -1574,7 +1570,9 @@ void av1_iht64x64_4096_add_c(const tran_low_t *input, uint8_t *dest, int stride,
     for (j = 0; j < 64; ++j) {
       int d = i * stride + j;
       int s = j * outstride + i;
-#if CONFIG_DAALA_DCT64
+#if CONFIG_DAALA_TX
+      dest[d] = clip_pixel_add(dest[d], ROUND_POWER_OF_TWO(outp[s], 4));
+#elif CONFIG_DAALA_DCT64
       dest[d] = clip_pixel_add(dest[d], ROUND_POWER_OF_TWO(outp[s], 2));
 #else
       dest[d] = clip_pixel_add(dest[d], ROUND_POWER_OF_TWO(outp[s], 5));
