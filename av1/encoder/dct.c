@@ -2653,14 +2653,16 @@ void av1_fht64x64_c(const int16_t *input, tran_low_t *output, int stride,
   for (i = 0; i < 64; ++i) {
 #if CONFIG_DAALA_DCT64
     for (j = 0; j < 64; ++j) temp_in[j] = input[j * stride + i] * 16;
-    ht.cols(temp_in, temp_out);
-    for (j = 0; j < 64; ++j)
-      out[j * 64 + i] = (temp_out[j] + 1 + (temp_out[j] > 0)) >> 3;
-
 #else
     for (j = 0; j < 64; ++j) temp_in[j] = input[j * stride + i];
+#endif
     ht.cols(temp_in, temp_out);
     for (j = 0; j < 64; ++j)
+#if CONFIG_DAALA_TX
+      out[j * 64 + i] = temp_out[j];
+#elif CONFIG_DAALA_DCT64
+      out[j * 64 + i] = (temp_out[j] + 1 + (temp_out[j] > 0)) >> 3;
+#else
       out[j * 64 + i] = (temp_out[j] + 1 + (temp_out[j] > 0)) >> 2;
 #endif
   }
@@ -2670,7 +2672,9 @@ void av1_fht64x64_c(const int16_t *input, tran_low_t *output, int stride,
     for (j = 0; j < 64; ++j) temp_in[j] = out[j + i * 64];
     ht.rows(temp_in, temp_out);
     for (j = 0; j < 64; ++j)
-#if CONFIG_DAALA_DCT64
+#if CONFIG_DAALA_TX
+      output[j + i * 64] = ROUND_POWER_OF_TWO_SIGNED(temp_out[j], 1);
+#elif CONFIG_DAALA_DCT64
       output[j + i * 64] = temp_out[j];
 #else
       output[j + i * 64] =
