@@ -2502,7 +2502,9 @@ void av1_fht32x32_c(const int16_t *input, tran_low_t *output, int stride,
     }
     ht.cols(temp_in, temp_out);
     for (j = 0; j < 32; ++j) {
-#if CONFIG_DAALA_DCT32
+#if CONFIG_DAALA_TX
+      out[j * 32 + i] = temp_out[j];
+#elif CONFIG_DAALA_DCT32
       out[j * 32 + i] = ROUND_POWER_OF_TWO_SIGNED(temp_out[j], 2);
 #else
       out[j * 32 + i] = ROUND_POWER_OF_TWO_SIGNED(temp_out[j], 4);
@@ -2515,7 +2517,11 @@ void av1_fht32x32_c(const int16_t *input, tran_low_t *output, int stride,
     for (j = 0; j < 32; ++j) temp_in[j] = out[j + i * 32];
     ht.rows(temp_in, temp_out);
     for (j = 0; j < 32; ++j) {
+#if CONFIG_DAALA_TX
+      output[j + i * 32] = ROUND_POWER_OF_TWO_SIGNED(temp_out[j], 1);
+#else
       output[j + i * 32] = temp_out[j];
+#endif
     }
   }
 }
