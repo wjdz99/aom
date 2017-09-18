@@ -16,6 +16,24 @@
       "revId": "01f021d2e98a3afc6a90bf595ec3d1155b9d578f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "26b4291b_37e8b236",
+        "filename": "test/av1_convolve_scale_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 315,
+      "author": {
+        "id": 7560
+      },
+      "writtenOn": "2017-09-18T09:04:10Z",
+      "side": 1,
+      "message": "Ok, I\u0027ll change the test to take function pointers for the tested functions.\n\nI don\u0027t think I understand your other comment about doing this in two patches. This test is checking that the SSE4 code gives the same answer as the C code, which it takes as a sort of golden reference. There wouldn\u0027t be any point in just running one function.",
+      "parentUuid": "4f401f56_2a09b5c8",
+      "revId": "01f021d2e98a3afc6a90bf595ec3d1155b9d578f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
