@@ -2450,6 +2450,10 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
   cpi->tile_data = NULL;
   cpi->last_show_frame_buf_idx = INVALID_IDX;
 
+#if CONFIG_TEMP_PRED_DIFFERENT_REF_SIZE
+  cm->curr_scale_num = SCALE_DENOMINATOR;
+#endif
+
   realloc_segmentation_maps(cpi);
 
   for (i = 0; i < NMV_CONTEXTS; ++i) {
@@ -4062,11 +4066,31 @@ static void set_frame_size(AV1_COMP *cpi, int width, int height) {
   set_ref_ptrs(cm, xd, LAST_FRAME, LAST_FRAME);
 }
 
+#define SOO_INTERVAL 5
+
 static void setup_frame_size(AV1_COMP *cpi) {
   int encode_width = cpi->oxcf.width;
   int encode_height = cpi->oxcf.height;
 
   uint8_t resize_num = av1_calculate_next_resize_scale(cpi);
+
+#if CONFIG_TEMP_PRED_DIFFERENT_REF_SIZE
+  cpi->common.curr_scale_num = resize_num;
+#endif
+
+#if !CONFIG_TEMP_PRED_DIFFERENT_REF_SIZE
+  if ((cpi->common.current_video_frame >= 1 * SOO_INTERVAL && cpi->common.current_video_frame < 2 * SOO_INTERVAL) ||
+      (cpi->common.current_video_frame >= 3 * SOO_INTERVAL && cpi->common.current_video_frame < 4 * SOO_INTERVAL) ||
+      (cpi->common.current_video_frame >= 5 * SOO_INTERVAL && cpi->common.current_video_frame < 6 * SOO_INTERVAL) ||
+      (cpi->common.current_video_frame >= 7 * SOO_INTERVAL && cpi->common.current_video_frame < 8 * SOO_INTERVAL) ||
+      (cpi->common.current_video_frame >= 9 * SOO_INTERVAL && cpi->common.current_video_frame < 10 * SOO_INTERVAL) ||
+      (cpi->common.current_video_frame >= 11 * SOO_INTERVAL && cpi->common.current_video_frame < 12 * SOO_INTERVAL) ||
+      (cpi->common.current_video_frame >= 13 * SOO_INTERVAL && cpi->common.current_video_frame < 14 * SOO_INTERVAL) ||
+      (cpi->common.current_video_frame >= 15 * SOO_INTERVAL && cpi->common.current_video_frame < 16 * SOO_INTERVAL)) {
+    resize_num = 8;
+  }
+#endif
+
   av1_calculate_scaled_size(&encode_width, &encode_height, resize_num);
 
 #if CONFIG_FRAME_SUPERRES
@@ -4736,7 +4760,7 @@ static void dump_filtered_recon_frames(AV1_COMP *cpi) {
   AV1_COMMON *const cm = &cpi->common;
   const YV12_BUFFER_CONFIG *recon_buf = cm->frame_to_show;
   int h;
-  char file_name[256] = "/tmp/enc_filtered_recon.yuv";
+  char file_name[256] = "./enc_filtered_recon.yuv";
   FILE *f_recon = NULL;
 
   if (recon_buf == NULL || !cm->show_frame) {

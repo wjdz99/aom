@@ -1698,6 +1698,7 @@ uint8_t av1_calculate_next_resize_scale(const AV1_COMP *cpi) {
   const AV1EncoderConfig *oxcf = &cpi->oxcf;
   if (oxcf->pass == 1) return SCALE_DENOMINATOR;
   uint8_t new_num = SCALE_DENOMINATOR;
+  const AV1_COMMON *const cm = &cpi->common;
 
   switch (oxcf->resize_mode) {
     case RESIZE_NONE: new_num = SCALE_DENOMINATOR; break;
@@ -1711,6 +1712,19 @@ uint8_t av1_calculate_next_resize_scale(const AV1_COMP *cpi) {
       // RESIZE_DYNAMIC: Just random for now.
       new_num = lcg_rand16(&seed) % 4 + 13;
       break;
+#if CONFIG_TEMP_PRED_DIFFERENT_REF_SIZE
+    case RESIZE_INTERVAL:
+      new_num = cm->curr_scale_num;
+      if (cpi->oxcf.encode_res_switch_interval && cpi->common.current_video_frame &&
+         (cpi->common.current_video_frame % cpi->oxcf.encode_res_switch_interval == 0)) {
+        if (cm->curr_scale_num == SCALE_DENOMINATOR) {
+          new_num = SCALE_DENOMINATOR >> 1;
+        }else {
+          new_num = SCALE_DENOMINATOR;
+        }
+      }
+      break;
+#endif
     default: assert(0);
   }
   return new_num;
