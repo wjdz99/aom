@@ -492,6 +492,15 @@ enum aome_enc_control_id {
    */
   AV1E_SET_MTU,
 
+  /*!\brief Codec control function to set frame interval when encode resolution
+   * changes.
+   *
+   * The default value is 0, which means no resolution change
+   *
+   * Experiment: TEMP_PRED_DIFFERENT_REF_SIZE
+   */
+   AV1E_SET_ENCODE_RES_SWITCH_INTERVAL,
+   
   /*!\brief Codec control function to set dependent_horz_tiles.
   *
   * In encoding and decoding, AV1 allows enabling dependent horizontal tile
@@ -726,6 +735,9 @@ AOM_CTRL_USE_TYPE(AV1E_SET_NUM_TG, unsigned int)
 #define AOM_CTRL_AV1E_SET_NUM_TG
 AOM_CTRL_USE_TYPE(AV1E_SET_MTU, unsigned int)
 #define AOM_CTRL_AV1E_SET_MTU
+
+AOM_CTRL_USE_TYPE(AV1E_SET_ENCODE_RES_SWITCH_INTERVAL, unsigned int)
+#define AOM_CTRL_AV1E_SET_ENCODE_RES_SWITCH_INTERVAL
 
 AOM_CTRL_USE_TYPE(AV1E_SET_DISABLE_TEMPMV, unsigned int)
 #define AOM_CTRL_AV1E_SET_DISABLE_TEMPMV
