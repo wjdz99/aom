@@ -22,6 +22,30 @@
       "revId": "3d0e53b4b9319d5d06803d611738f88d8903997f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7624055a_43fc2b1d",
+        "filename": "README.md",
+        "patchSetId": 7
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2017-09-18T18:29:08Z",
+      "side": 1,
+      "message": "doubly unfortunate... :|\ndone",
+      "parentUuid": "9cf20890_ac1f8e83",
+      "range": {
+        "startLine": 115,
+        "startChar": 26,
+        "endLine": 115,
+        "endChar": 27
+      },
+      "revId": "3d0e53b4b9319d5d06803d611738f88d8903997f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
