@@ -1891,8 +1891,10 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td, int mi_row,
 #endif
             counts
                 ->compound_interinter[bsize][mbmi->interinter_compound_type]++;
+#if CONFIG_WEDGE || CONFIG_COMPOUND_SEGMENT
             update_cdf(fc->compound_type_cdf[bsize],
                        mbmi->interinter_compound_type, COMPOUND_TYPES);
+#endif
 #if CONFIG_WEDGE && CONFIG_COMPOUND_SEGMENT
           }
 #endif
