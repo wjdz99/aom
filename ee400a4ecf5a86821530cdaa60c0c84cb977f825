@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "afd01b76_bb1a8385",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1364,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2017-09-18T11:03:14Z",
+      "side": 1,
+      "message": "Simpler and clearer just to write #define READ_REF_BIT2 READ_REF_BIT ?",
+      "range": {
+        "startLine": 1364,
+        "startChar": 8,
+        "endLine": 1364,
+        "endChar": 21
+      },
+      "revId": "ee400a4ecf5a86821530cdaa60c0c84cb977f825",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a8003855_871598dc",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1015,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2017-09-18T11:03:14Z",
+      "side": 1,
+      "message": "See comment in decodemv.c",
+      "range": {
+        "startLine": 1015,
+        "startChar": 1,
+        "endLine": 1015,
+        "endChar": 22
+      },
+      "revId": "ee400a4ecf5a86821530cdaa60c0c84cb977f825",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
