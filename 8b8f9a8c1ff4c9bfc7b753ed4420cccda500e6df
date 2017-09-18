@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c994dda9_a4513c60",
+        "filename": "av1/common/idct.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5540
+      },
+      "writtenOn": "2017-09-18T12:32:49Z",
+      "side": 1,
+      "message": "doesn\u0027t this need to be moved over bit-by-bit?  daala_tx.h still applies tot he transforms not yet moved from idct.c",
+      "revId": "8b8f9a8c1ff4c9bfc7b753ed4420cccda500e6df",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
