@@ -30,9 +30,10 @@ static InterpFilter get_ref_filter_type(const MODE_INFO *mi,
   };
 
   if (ref_mbmi->ref_frame[0] == ref_frame && use_subpel[0])
-    ref_type = ref_mbmi->interp_filter[(dir & 0x01)];
+    ref_type = av1_extract_interp_filter(ref_mbmi->interp_filters, dir & 0x01);
   else if (ref_mbmi->ref_frame[1] == ref_frame && use_subpel[1])
-    ref_type = ref_mbmi->interp_filter[(dir & 0x01) + 2];
+    ref_type =
+        av1_extract_interp_filter(ref_mbmi->interp_filters, (dir & 0x01) + 2);
 
   return ref_type;
 }
@@ -79,13 +80,15 @@ int av1_get_pred_context_switchable_interp(const MACROBLOCKD *xd) {
   // left of the entries corresponding to real macroblocks.
   // The prediction flags in these dummy entries are initialized to 0.
   const MB_MODE_INFO *const left_mbmi = xd->left_mbmi;
-  const int left_type = xd->left_available && is_inter_block(left_mbmi)
-                            ? left_mbmi->interp_filter
-                            : SWITCHABLE_FILTERS;
+  const int left_type =
+      xd->left_available && is_inter_block(left_mbmi)
+          ? av1_extract_interp_filter(left_mbmi->interp_filters, 0)
+          : SWITCHABLE_FILTERS;
   const MB_MODE_INFO *const above_mbmi = xd->above_mbmi;
-  const int above_type = xd->up_available && is_inter_block(above_mbmi)
-                             ? above_mbmi->interp_filter
-                             : SWITCHABLE_FILTERS;
+  const int above_type =
+      xd->up_available && is_inter_block(above_mbmi)
+          ? av1_extract_interp_filter(above_mbmi->interp_filters, 0)
+          : SWITCHABLE_FILTERS;
 
   if (left_type == above_type) {
     return left_type;
@@ -110,11 +113,7 @@ static INTRA_FILTER get_ref_intra_filter(const MB_MODE_INFO *ref_mbmi) {
   if (ref_mbmi->sb_type >= BLOCK_8X8) {
     const PREDICTION_MODE mode = ref_mbmi->mode;
     if (is_inter_block(ref_mbmi)) {
-#if CONFIG_DUAL_FILTER
-      switch (ref_mbmi->interp_filter[0]) {
-#else
-      switch (ref_mbmi->interp_filter) {
-#endif
+      switch (av1_extract_interp_filter(ref_mbmi->interp_filters, 0)) {
         case EIGHTTAP_REGULAR: ref_type = INTRA_FILTER_8TAP; break;
         case EIGHTTAP_SMOOTH: ref_type = INTRA_FILTER_8TAP_SMOOTH; break;
         case MULTITAP_SHARP: ref_type = INTRA_FILTER_8TAP_SHARP; break;

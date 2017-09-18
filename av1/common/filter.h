@@ -12,6 +12,8 @@
 #ifndef AV1_COMMON_FILTER_H_
 #define AV1_COMMON_FILTER_H_
 
+#include <assert.h>
+
 #include "./aom_config.h"
 #include "aom/aom_integer.h"
 #include "aom_dsp/aom_filter.h"
@@ -50,6 +52,50 @@ typedef enum {
   TEMPORALFILTER_12TAP = SWITCHABLE_FILTERS + EXTRA_FILTERS,
 #endif
 } InterpFilter;
+
+// With CONFIG_DUAL_FILTER, pack four InterpFilter's into a uint32_t: since
+// there are at most 10 filters, we can use 8 bits for each and have more than
+// enough space. This reduces argument passing and unifies the operation of
+// setting a (pair of) filters.
+//
+// Without CONFIG_DUAL_FILTER,
+#if CONFIG_DUAL_FILTER
+typedef uint32_t InterpFilters;
+static INLINE InterpFilter av1_extract_interp_filter(InterpFilters filters,
+                                                     unsigned idx) {
+  assert(idx <= 1);
+  return (InterpFilter)((idx ? filters >> 16 : filters) & 0xffff);
+}
+
+static INLINE InterpFilters av1_update_interp_filters(
+    InterpFilters interp_filters, unsigned idx, InterpFilter filter) {
+  assert(idx < 4);
+  unsigned shift = idx * 8;
+  uint32_t mask = 0xff << shift;
+  return (interp_filters & ~mask) | ((uint32_t)(filter & 0xff) << shift);
+}
+
+static INLINE InterpFilters av1_duplicate_interp_filters(InterpFilter f0,
+                                                         InterpFilter f1) {
+  uint16_t low = (f0 & 0xff) | ((uint16_t)(f1 & 0xff) << 8);
+  return low | ((uint32_t)low << 16);
+}
+
+static INLINE InterpFilters av1_broadcast_interp_filter(InterpFilter filter) {
+  return av1_duplicate_interp_filters(filter, filter);
+}
+#else
+typedef InterpFilter InterpFilters;
+static INLINE InterpFilter av1_extract_interp_filter(InterpFilters filters,
+                                                     unsigned idx) {
+  assert(idx == 0);
+  return filters;
+}
+
+static INLINE InterpFilters av1_broadcast_interp_filter(InterpFilter filter) {
+  return filter;
+}
+#endif
 
 #if USE_EXTRA_FILTER
 #define LOG_SWITCHABLE_FILTERS \
