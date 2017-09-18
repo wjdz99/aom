@@ -1717,3 +1717,78 @@ void av1_set_target_rate(AV1_COMP *cpi, int width, int height) {
     vbr_rate_correction(cpi, &target_rate);
   rc_set_frame_target(cpi, target_rate, width, height);
 }
+
+uint8_t av1_calculate_next_resize_scale(const AV1_COMP *cpi) {
+  static unsigned int seed = 56789;
+  const AV1EncoderConfig *oxcf = &cpi->oxcf;
+  if (oxcf->pass == 1) return SCALE_DENOMINATOR;
+  uint8_t new_num = SCALE_DENOMINATOR;
+#if CONFIG_ENCODE_RES_SWITCH
+  const AV1_COMMON *const cm = &cpi->common;
+#endif
+
+  switch (oxcf->resize_mode) {
+    case RESIZE_NONE: new_num = SCALE_DENOMINATOR; break;
+    case RESIZE_FIXED:
+      if (cpi->common.frame_type == KEY_FRAME)
+        new_num = oxcf->resize_kf_scale_numerator;
+      else
+        new_num = oxcf->resize_scale_numerator;
+      break;
+    case RESIZE_RANDOM:
+      // RESIZE_DYNAMIC: Just random for now.
+      new_num = lcg_rand16(&seed) % 4 + 13;
+      break;
+#if CONFIG_ENCODE_RES_SWITCH
+    case RESIZE_INTERVAL:
+      new_num = cm->curr_scale_num;
+      if (cpi->oxcf.encode_res_switch_interval &&
+          cpi->common.current_video_frame &&
+          (cpi->common.current_video_frame %
+               cpi->oxcf.encode_res_switch_interval ==
+           0)) {
+        if (cm->curr_scale_num == SCALE_DENOMINATOR) {
+          new_num = SCALE_DENOMINATOR >> 1;
+        } else {
+          new_num = SCALE_DENOMINATOR;
+        }
+      }
+      break;
+#endif
+    default: assert(0);
+  }
+  return new_num;
+}
+
+#if CONFIG_FRAME_SUPERRES
+// TODO(afergs): Rename av1_rc_update_superres_scale(...)?
+uint8_t av1_calculate_next_superres_scale(const AV1_COMP *cpi, int width,
+                                          int height) {
+  static unsigned int seed = 34567;
+  const AV1EncoderConfig *oxcf = &cpi->oxcf;
+  if (oxcf->pass == 1) return SCALE_DENOMINATOR;
+  uint8_t new_num = SCALE_DENOMINATOR;
+
+  switch (oxcf->superres_mode) {
+    case SUPERRES_NONE: new_num = SCALE_DENOMINATOR; break;
+    case SUPERRES_FIXED:
+      if (cpi->common.frame_type == KEY_FRAME)
+        new_num = oxcf->superres_kf_scale_numerator;
+      else
+        new_num = oxcf->superres_scale_numerator;
+      break;
+    case SUPERRES_DYNAMIC:
+      // SUPERRES_DYNAMIC: Just random for now.
+      new_num = lcg_rand16(&seed) % 9 + 8;
+      break;
+    default: assert(0);
+  }
+
+  // Make sure overall reduction is no more than 1/2 of the source size.
+  av1_calculate_scaled_size(&width, &height, new_num);
+  if (width * 2 < oxcf->width || height * 2 < oxcf->height)
+    new_num = SCALE_DENOMINATOR;
+
+  return new_num;
+}
+#endif

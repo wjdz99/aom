@@ -345,6 +345,8 @@ EXPERIMENT_LIST="
     hash_me
     colorspace_headers
     mfmv
+    temp_pred_different_ref_size
+    encode_res_switch
     jnt_comp
 "
 CONFIG_LIST="
