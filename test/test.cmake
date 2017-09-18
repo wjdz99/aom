@@ -252,6 +252,11 @@ if (CONFIG_AV1_ENCODER)
             "${AOM_ROOT}/test/av1_convolve_2d_test_util.cc"
             "${AOM_ROOT}/test/av1_convolve_2d_test_util.h")
       endif ()
+      if (HAVE_SSE4_1)
+        set(AOM_UNIT_TEST_ENCODER_SOURCES
+            ${AOM_UNIT_TEST_ENCODER_SOURCES}
+            "${AOM_ROOT}/test/av1_convolve_scale_test.cc")
+      endif ()
     endif ()
 
     if (CONFIG_EXT_INTER)
