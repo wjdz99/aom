@@ -830,6 +830,7 @@ static void find_mv_refs_idx(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   const TileInfo *const tile_ = &xd->tile;
   int mi_row_end = tile_->mi_row_end;
   int mi_col_end = tile_->mi_col_end;
+#if !CONFIG_TEMP_PRED_DIFFERENT_REF_SIZE
   const MV_REF *const prev_frame_mvs =
       cm->use_prev_frame_mvs
           ? cm->prev_frame->mvs +
@@ -839,6 +840,19 @@ static void find_mv_refs_idx(const AV1_COMMON *cm, const MACROBLOCKD *xd,
                 AOMMIN(((mi_col >> 1) << 1) + 1 + (((xd->n8_w - 1) >> 1) << 1),
                        mi_col_end - 1)
           : NULL;
+#else
+  const struct scale_factors *const sf = &cm->frame_refs[0].sf;
+  int prev_row = ((mi_row >> 1) << 1) + 1 + (((xd->n8_h - 1) >> 1) << 1);
+  int prev_col = ((mi_col >> 1) << 1) + 1 + (((xd->n8_w - 1) >> 1) << 1);
+  prev_row = (prev_row * sf->x_scale_fp) >> 14;
+  prev_col = (prev_col * sf->y_scale_fp) >> 14;
+  const MV_REF *const prev_frame_mvs = 
+      cm->use_prev_frame_mvs ? 
+      cm->prev_frame->mvs + AOMMIN(prev_row, mi_row_end - 1) * cm->mi_cols +
+                            AOMMIN(prev_col, mi_col_end - 1) :
+                            NULL;
+       
+#endif
 #else
   const MV_REF *const prev_frame_mvs =
       cm->use_prev_frame_mvs

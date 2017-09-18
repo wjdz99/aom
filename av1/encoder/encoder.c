@@ -2506,6 +2506,10 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
   cpi->tile_data = NULL;
   cpi->last_show_frame_buf_idx = INVALID_IDX;
 
+#if CONFIG_ENCODE_RES_SWITCH
+  cm->curr_scale_num = SCALE_DENOMINATOR;
+#endif
+
   realloc_segmentation_maps(cpi);
 
   for (i = 0; i < NMV_CONTEXTS; ++i) {
@@ -4333,7 +4337,14 @@ size_params_type av1_calculate_next_size_params(AV1_COMP *cpi) {
 static void setup_frame_size_from_params(AV1_COMP *cpi, size_params_type *rsz) {
   int encode_width = cpi->oxcf.width;
   int encode_height = cpi->oxcf.height;
+
+#if CONFIG_ENCODE_RES_SWITCH
+  uint8_t resize_num = av1_calculate_next_resize_scale(cpi);
+  cpi->common.curr_scale_num = resize_num;
+  av1_calculate_scaled_size(&encode_width, &encode_height, resize_num);
+#else
   av1_calculate_scaled_size(&encode_width, &encode_height, rsz->resize_num);
+#endif
 
 #if CONFIG_FRAME_SUPERRES
   AV1_COMMON *cm = &cpi->common;
@@ -5009,7 +5020,7 @@ static void dump_filtered_recon_frames(AV1_COMP *cpi) {
   AV1_COMMON *const cm = &cpi->common;
   const YV12_BUFFER_CONFIG *recon_buf = cm->frame_to_show;
   int h;
-  char file_name[256] = "/tmp/enc_filtered_recon.yuv";
+  char file_name[256] = "./enc_filtered_recon.yuv";
   FILE *f_recon = NULL;
 
   if (recon_buf == NULL || !cm->show_frame) {
