@@ -358,4 +358,69 @@ INSTANTIATE_TEST_CASE_P(
                        ::testing::ValuesIn(kBlockDim),
                        ::testing::ValuesIn(kNTaps), ::testing::ValuesIn(kNTaps),
                        ::testing::ValuesIn(kAvg)));
+
+#if CONFIG_HIGHBITDEPTH
+typedef void (*highbd_convolve_fun_t)(
+    const uint16_t *src, int src_stride, int32_t *dst, int dst_stride, int w,
+    int h, InterpFilterParams *filter_params_x,
+    InterpFilterParams *filter_params_y, const int subpel_x_qn,
+    const int x_step_qn, const int subpel_y_qn, const int y_step_qn,
+    ConvolveParams *conv_params, int bd);
+
+// Test parameter list:
+//  <tst_fun, dims, ntaps_x, ntaps_y, avg, bd>
+typedef tuple<highbd_convolve_fun_t, BlockDimension, uint16_t, uint16_t, bool,
+              int>
+    HighBDParams;
+
+class HighBDConvolveScaleTest
+    : public ConvolveScaleTestBase<uint16_t>,
+      public ::testing::WithParamInterface<HighBDParams> {
+ public:
+  virtual ~HighBDConvolveScaleTest() {}
+
+  void SetUp() {
+    tst_fun_ = GET_PARAM(0);
+
+    const BlockDimension &block = GET_PARAM(1);
+    int ntaps_x = GET_PARAM(2);
+    int ntaps_y = GET_PARAM(3);
+    bool avg = GET_PARAM(4);
+    int bd = GET_PARAM(5);
+
+    SetParams(make_tuple(block, ntaps_x, ntaps_y, avg), bd);
+  }
+
+  void RunOne() {
+    const uint16_t *ref_src = image_->GetSrcData(true, false);
+    const uint16_t *tst_src = image_->GetSrcData(false, false);
+    CONV_BUF_TYPE *ref_dst = image_->GetDstData(true, false);
+    CONV_BUF_TYPE *tst_dst = image_->GetDstData(false, false);
+    int src_stride = image_->GetStride(false);
+    int dst_stride = image_->GetStride(true);
+
+    tst_fun_(tst_src, src_stride, tst_dst, dst_stride, width_, height_,
+             &filter_x_.params_, &filter_y_.params_, subpel_x_, x_step_qn,
+             subpel_y_, y_step_qn, &convolve_params_, bd_);
+    av1_highbd_convolve_2d_scale_c(
+        ref_src, src_stride, ref_dst, dst_stride, width_, height_,
+        &filter_x_.params_, &filter_y_.params_, subpel_x_, x_step_qn, subpel_y_,
+        y_step_qn, &convolve_params_, bd_);
+  }
+
+ private:
+  highbd_convolve_fun_t tst_fun_;
+};
+
+const int kBDs[] = { 8, 10, 12 };
+
+TEST_P(HighBDConvolveScaleTest, Check) { Run(); }
+INSTANTIATE_TEST_CASE_P(
+    SSE4_1, HighBDConvolveScaleTest,
+    ::testing::Combine(::testing::Values(av1_highbd_convolve_2d_scale_sse4_1),
+                       ::testing::ValuesIn(kBlockDim),
+                       ::testing::ValuesIn(kNTaps), ::testing::ValuesIn(kNTaps),
+                       ::testing::ValuesIn(kAvg), ::testing::ValuesIn(kBDs)));
+
+#endif  // CONFIG_HIGHBITDEPTH
 }  // namespace
