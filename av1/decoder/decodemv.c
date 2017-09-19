@@ -40,7 +40,6 @@ static PREDICTION_MODE read_intra_mode(aom_reader *r, aom_cdf_prob *cdf) {
       av1_intra_mode_inv[aom_read_symbol(r, cdf, INTRA_MODES, ACCT_STR)];
 }
 
-#if CONFIG_DELTA_Q
 static int read_delta_qindex(AV1_COMMON *cm, MACROBLOCKD *xd, aom_reader *r,
                              MB_MODE_INFO *const mbmi, int mi_col, int mi_row) {
   FRAME_COUNTS *counts = xd->counts;
@@ -117,7 +116,6 @@ static int read_delta_lflevel(AV1_COMMON *cm, MACROBLOCKD *xd, aom_reader *r,
   }
   return reduced_delta_lflevel;
 }
-#endif
 #endif
 
 static PREDICTION_MODE read_intra_mode_y(FRAME_CONTEXT *ec_ctx, MACROBLOCKD *xd,
@@ -1095,7 +1093,6 @@ static void read_intra_frame_mode_info(AV1_COMMON *const cm,
   mbmi->segment_id = read_intra_segment_id(cm, xd, mi_offset, x_mis, y_mis, r);
   mbmi->skip = read_skip(cm, xd, mbmi->segment_id, r);
 
-#if CONFIG_DELTA_Q
   if (cm->delta_q_present_flag) {
     xd->current_qindex =
         xd->prev_qindex +
@@ -1113,7 +1110,6 @@ static void read_intra_frame_mode_info(AV1_COMMON *const cm,
     }
 #endif
   }
-#endif
 
   mbmi->ref_frame[0] = INTRA_FRAME;
   mbmi->ref_frame[1] = NONE_FRAME;
@@ -2931,7 +2927,6 @@ static void read_inter_frame_mode_info(AV1Decoder *const pbi,
 #endif  // CONFIG_SUPERTX
     mbmi->skip = read_skip(cm, xd, mbmi->segment_id, r);
 
-#if CONFIG_DELTA_Q
   if (cm->delta_q_present_flag) {
     xd->current_qindex =
         xd->prev_qindex +
@@ -2949,7 +2944,6 @@ static void read_inter_frame_mode_info(AV1Decoder *const pbi,
     }
 #endif
   }
-#endif
 
 #if CONFIG_SUPERTX
   if (!supertx_enabled) {
