@@ -346,6 +346,8 @@ EXPERIMENT_LIST="
     colorspace_headers
     mfmv
     jnt_comp
+    encode_res_switch
+    temp_pred_different_ref_size
 "
 CONFIG_LIST="
     dependency_tracking
