@@ -227,6 +227,12 @@ if (CONFIG_AMVR)
   change_config_and_warn(CONFIG_HASH_ME 1 CONFIG_AMVR)
 endif ()
 
+if (CONFIG_OBU_REPEAT_TYPE)
+  if (NOT CONFIG_OBU)
+    change_config_and_warn(CONFIG_OBU 1 CONFIG_OBU_REPEAT_TYPE)
+  endif ()
+endif ()
+
 if ("${AOM_TARGET_SYSTEM}" MATCHES "Darwin\|Linux\|Windows")
   set(CONFIG_OS_SUPPORT 1)
 endif ()
