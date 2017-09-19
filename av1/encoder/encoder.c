@@ -2689,6 +2689,10 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
   cpi->tile_data = NULL;
   cpi->last_show_frame_buf_idx = INVALID_IDX;
 
+#if CONFIG_ENCODE_RES_SWITCH
+  cm->curr_scale_num = SCALE_NUMERATOR;
+#endif
+
   realloc_segmentation_maps(cpi);
 
   for (i = 0; i < NMV_CONTEXTS; ++i) {
@@ -4035,7 +4039,7 @@ static void release_scaled_references(AV1_COMP *cpi) {
     int refresh[INTER_REFS_PER_FRAME];
     refresh[0] = (cpi->refresh_last_frame) ? 1 : 0;
 #if CONFIG_EXT_REFS
-    refresh[1] = refresh[2] = 0;
+    refresh[2] = refresh[1] = refresh[0];
     refresh[3] = (cpi->refresh_golden_frame) ? 1 : 0;
     refresh[4] = (cpi->refresh_bwd_ref_frame) ? 1 : 0;
     refresh[5] = (cpi->refresh_alt2_ref_frame) ? 1 : 0;
@@ -4432,6 +4436,10 @@ static uint8_t calculate_next_resize_scale(const AV1_COMP *cpi) {
   if (oxcf->pass == 1) return SCALE_NUMERATOR;
   uint8_t new_denom = SCALE_NUMERATOR;
 
+#if CONFIG_ENCODE_RES_SWITCH
+  const AV1_COMMON *const cm = &cpi->common;
+#endif
+
   switch (oxcf->resize_mode) {
     case RESIZE_NONE: new_denom = SCALE_NUMERATOR; break;
     case RESIZE_FIXED:
@@ -4441,6 +4449,22 @@ static uint8_t calculate_next_resize_scale(const AV1_COMP *cpi) {
         new_denom = oxcf->resize_scale_denominator;
       break;
     case RESIZE_RANDOM: new_denom = lcg_rand16(&seed) % 9 + 8; break;
+#if CONFIG_ENCODE_RES_SWITCH
+    case RESIZE_INTERVAL:
+      new_denom = cm->curr_scale_num;
+      if (cpi->oxcf.encode_res_switch_interval &&
+          cpi->common.current_video_frame &&
+          (cpi->common.current_video_frame %
+               cpi->oxcf.encode_res_switch_interval ==
+           0)) {
+        if (cm->curr_scale_num == SCALE_NUMERATOR) {
+          new_denom = SCALE_NUMERATOR << 1;
+        } else {
+          new_denom = SCALE_NUMERATOR;
+        }
+      }
+      break;
+#endif
     default: assert(0);
   }
   return new_denom;
@@ -4578,7 +4602,11 @@ size_params_type av1_calculate_next_size_params(AV1_COMP *cpi) {
     rsz.resize_height = cpi->oxcf.height;
     av1_calculate_scaled_size(&rsz.resize_width, &rsz.resize_height,
                               resize_denom);
+#if CONFIG_ENCODE_RES_SWITCH
+    cpi->common.curr_scale_num = resize_denom;
+#endif
   }
+
 #if CONFIG_FRAME_SUPERRES
   rsz.superres_denom = calculate_next_superres_scale(cpi);
   if (!validate_size_scales(oxcf->resize_mode, oxcf->superres_mode, oxcf->width,

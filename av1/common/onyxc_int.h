@@ -57,7 +57,11 @@ extern "C" {
 // of framebuffers.
 // TODO(jkoleszar): These 3 extra references could probably come from the
 // normal reference pool.
+#if CONFIG_ENCODE_RES_SWITCH
+#define FRAME_BUFFERS (REF_FRAMES + 10)
+#else
 #define FRAME_BUFFERS (REF_FRAMES + 7)
+#endif
 
 #if CONFIG_REFERENCE_BUFFER
 /* Constant values while waiting for the sequence header */
@@ -504,7 +508,9 @@ typedef struct AV1Common {
   int cdef_uv_strengths[CDEF_MAX_STRENGTHS];
   int cdef_bits;
 #endif
-
+#if CONFIG_ENCODE_RES_SWITCH
+  int curr_scale_num;
+#endif
   int delta_q_present_flag;
   // Resolution of delta quant
   int delta_q_res;
