@@ -22,6 +22,30 @@
       "revId": "61f651f8bb68b1c7f629dded51b36325464a33e6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "83d4d170_cef0d06a",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2017-09-19T22:34:47Z",
+      "side": 1,
+      "message": "Another possible issue is that, if EXT_PARTITION is enabled and partition size is 64x128, it is supposed to send two strengths for this partition (every 64x64), but this change will only send one.",
+      "parentUuid": "3fd77a8b_88c869d9",
+      "range": {
+        "startLine": 49,
+        "startChar": 8,
+        "endLine": 49,
+        "endChar": 38
+      },
+      "revId": "61f651f8bb68b1c7f629dded51b36325464a33e6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
