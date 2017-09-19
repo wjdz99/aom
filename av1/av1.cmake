@@ -302,7 +302,6 @@ if (CONFIG_CONVOLVE_ROUND)
       "${AOM_ROOT}/av1/common/x86/convolve_avx2.c")
 endif ()
 
-if (CONFIG_EXT_INTER)
   set(AOM_AV1_ENCODER_SOURCES
       ${AOM_AV1_ENCODER_SOURCES}
       "${AOM_ROOT}/av1/encoder/wedge_utils.c")

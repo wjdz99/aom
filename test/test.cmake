@@ -254,7 +254,6 @@ if (CONFIG_AV1_ENCODER)
       endif ()
     endif ()
 
-    if (CONFIG_EXT_INTER)
       set(AOM_UNIT_TEST_ENCODER_SOURCES
           ${AOM_UNIT_TEST_ENCODER_SOURCES}
           "${AOM_ROOT}/test/av1_wedge_utils_test.cc"
