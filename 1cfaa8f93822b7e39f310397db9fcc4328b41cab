@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9fd27d99_19fc4398",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 37
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-09-19T01:03:54Z",
+      "side": 1,
+      "message": "Seems like a better place for this would also be before the store to averages_q3[] (with \u003c instead of \u003c\u003d).",
+      "revId": "1cfaa8f93822b7e39f310397db9fcc4328b41cab",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "639c690e_be578408",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 37
+      },
+      "lineNbr": 343,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-09-19T01:03:54Z",
+      "side": 1,
+      "message": "Doesn\u0027t the 2 need to be CFL_SUB8X8_VAL_MI_SIZE here and in both asserts above? (this assert actually seems redundant with those, but I guess that\u0027s harmless)",
+      "revId": "1cfaa8f93822b7e39f310397db9fcc4328b41cab",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
