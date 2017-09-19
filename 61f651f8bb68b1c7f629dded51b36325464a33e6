@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3fd77a8b_88c869d9",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 6815
+      },
+      "writtenOn": "2017-09-19T15:29:36Z",
+      "side": 1,
+      "message": "If EXT_PARTITION is enabled, then BLOCK_LARGEST\u003d128x128.\nBut if the bitstream is using superblock size 64x64, then sb_type will never be equal to 128x128 and as a consequence the strength will always be present, even if the 64x64 is a skip.\n\nIs that intended?",
+      "range": {
+        "startLine": 49,
+        "startChar": 8,
+        "endLine": 49,
+        "endChar": 38
+      },
+      "revId": "61f651f8bb68b1c7f629dded51b36325464a33e6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
