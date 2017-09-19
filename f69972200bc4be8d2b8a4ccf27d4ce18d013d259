@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cacdea1e_54fd53aa",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1095,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2017-09-19T12:40:43Z",
+      "side": 1,
+      "message": "I think we also want to transmit the strength (and filter the superblock) if the superblock has partitioning (when sb_type !\u003d BLOCK_LARGEST), otherwise we would not transmit anything when the top-left sub-block is skip but the rest of the superblock is non-skip.  And the same fix must be applied elsewhere in this patch.\n\nI suggest that we go for 22340 instead, but this patch is still useful as an independent verification.",
+      "range": {
+        "startLine": 1095,
+        "startChar": 8,
+        "endLine": 1095,
+        "endChar": 18
+      },
+      "revId": "f69972200bc4be8d2b8a4ccf27d4ce18d013d259",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
