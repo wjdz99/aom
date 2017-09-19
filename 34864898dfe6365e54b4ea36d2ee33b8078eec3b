@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "73dba85e_0eeb7674",
+        "filename": "av1/common/mv.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 7465
+      },
+      "writtenOn": "2017-09-19T19:02:40Z",
+      "side": 1,
+      "message": "Let\u0027s keep it here for now, and defer the update after adoption decision is made.",
+      "parentUuid": "2fc7fd9a_04247c8c",
+      "range": {
+        "startLine": 241,
+        "startChar": 0,
+        "endLine": 244,
+        "endChar": 6
+      },
+      "revId": "34864898dfe6365e54b4ea36d2ee33b8078eec3b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "96ce05e3_16c8ca05",
         "filename": "av1/encoder/encoder.c",
         "patchSetId": 3
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "33da7b36_98d11c40",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 5646,
+      "author": {
+        "id": 7465
+      },
+      "writtenOn": "2017-09-19T19:02:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "96ce05e3_16c8ca05",
+      "range": {
+        "startLine": 5646,
+        "startChar": 0,
+        "endLine": 5646,
+        "endChar": 17
+      },
+      "revId": "34864898dfe6365e54b4ea36d2ee33b8078eec3b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "eb93265c_697a9c51",
         "filename": "av1/encoder/encoder.c",
         "patchSetId": 3
@@ -59,6 +107,30 @@
       "writtenOn": "2017-09-16T01:49:16Z",
       "side": 1,
       "message": "Please call aom_clear_system_state() before using double operation.\nOtherwise, the double operation will mess up with mmx register.",
+      "range": {
+        "startLine": 5655,
+        "startChar": 0,
+        "endLine": 5656,
+        "endChar": 40
+      },
+      "revId": "34864898dfe6365e54b4ea36d2ee33b8078eec3b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aba19258_eb6028d3",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 5656,
+      "author": {
+        "id": 7465
+      },
+      "writtenOn": "2017-09-19T19:02:40Z",
+      "side": 1,
+      "message": "Added. Thanks!",
+      "parentUuid": "eb93265c_697a9c51",
       "range": {
         "startLine": 5655,
         "startChar": 0,
