@@ -5939,13 +5939,16 @@ void av1_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
         break;
       case OBU_FRAME_HEADER:
         // Only decode first frame header received
-        if (!frame_header_received) {
-          frame_header_size = obu_payload_size =
+        assert(!frame_header_received);
+        frame_header_size = obu_payload_size =
               read_frame_header_obu(pbi, data, data_end, p_data_end);
-          frame_header_received = 1;
-        } else {
-          obu_payload_size = frame_header_size;
-        }
+        frame_header_received = 1;
+        if (cm->show_existing_frame) frame_decoding_finished = 1;
+        break;
+      case OBU_REPEAT_FRAME_HEADER:
+        // We don't yet support independent tile group decoding
+        assert(frame_header_received);
+        obu_payload_size = frame_header_size;
         if (cm->show_existing_frame) frame_decoding_finished = 1;
         break;
       case OBU_TILE_GROUP:

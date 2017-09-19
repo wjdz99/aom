@@ -5507,6 +5507,11 @@ static uint32_t write_tiles_in_tg_obus(AV1_COMP *const cpi, uint8_t *const dst,
             // except before the first tile group
             data = dst + total_size;
             memmove(data, frame_header_obu_location, frame_header_obu_size);
+#if CONFIG_OBU_REPEAT_TYPE
+            // Set OBU type to be a repeat frame header
+            *(data + 4) |=  OBU_REPEAT_FLAG;
+            assert( *(data + 4) == OBU_REPEAT_FRAME_HEADER);
+#endif
             total_size += frame_header_obu_size;
           }
           data = dst + total_size;
