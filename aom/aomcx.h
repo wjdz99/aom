@@ -512,6 +512,17 @@ enum aome_enc_control_id {
    */
   AV1E_SET_TILE_HEIGHT,
 
+  /*!\brief Codec control function to set an MTU size for a tile group.
+   *
+   * This will set the fixed interval at which the encoder resolution
+   * will toggle
+   *
+   * By default, the value is 0, in which no resolution change occurs
+   *
+   * Experiment: ENCODE_RES_SWITCH
+   */
+  AV1E_SET_ENCODE_RES_SWITCH_INTERVAL,
+
   /*!\brief Codec control function to set dependent_horz_tiles.
   *
   * In encoding and decoding, AV1 allows enabling dependent horizontal tile
@@ -751,6 +762,9 @@ AOM_CTRL_USE_TYPE(AV1E_SET_NUM_TG, unsigned int)
 #define AOM_CTRL_AV1E_SET_NUM_TG
 AOM_CTRL_USE_TYPE(AV1E_SET_MTU, unsigned int)
 #define AOM_CTRL_AV1E_SET_MTU
+
+AOM_CTRL_USE_TYPE(AV1E_SET_ENCODE_RES_SWITCH_INTERVAL, unsigned int)
+#define AOM_CTRL_AV1E_SET_ENCODE_RES_SWITCH_INTERVAL
 
 AOM_CTRL_USE_TYPE(AV1E_SET_DISABLE_TEMPMV, unsigned int)
 #define AOM_CTRL_AV1E_SET_DISABLE_TEMPMV
