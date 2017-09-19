@@ -467,7 +467,6 @@ typedef struct AV1Common {
   int cdef_bits;
 #endif
 
-#if CONFIG_DELTA_Q
   int delta_q_present_flag;
   // Resolution of delta quant
   int delta_q_res;
@@ -475,7 +474,6 @@ typedef struct AV1Common {
   int delta_lf_present_flag;
   // Resolution of delta lf level
   int delta_lf_res;
-#endif
 #endif
   int num_tg;
 #if CONFIG_REFERENCE_BUFFER

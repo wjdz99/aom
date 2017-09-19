@@ -119,7 +119,7 @@ typedef enum {
   VARIANCE_AQ = 1,
   COMPLEXITY_AQ = 2,
   CYCLIC_REFRESH_AQ = 3,
-#if CONFIG_DELTA_Q && !CONFIG_EXT_DELTA_Q
+#if !CONFIG_EXT_DELTA_Q
   DELTA_AQ = 4,
 #endif
   AQ_MODE_COUNT  // This should always be the last member of the enum
@@ -760,14 +760,6 @@ static INLINE int is_altref_enabled(const AV1_COMP *const cpi) {
 }
 
 // TODO(zoeliu): To set up cpi->oxcf.enable_auto_brf
-#if 0 && CONFIG_EXT_REFS
-static INLINE int is_bwdref_enabled(const AV1_COMP *const cpi) {
-  // NOTE(zoeliu): The enabling of bi-predictive frames depends on the use of
-  //               alt_ref, and now will be off when the alt_ref interval is
-  //               not sufficiently large.
-  return is_altref_enabled(cpi) && cpi->oxcf.enable_auto_brf;
-}
-#endif  // CONFIG_EXT_REFS
 
 static INLINE void set_ref_ptrs(const AV1_COMMON *cm, MACROBLOCKD *xd,
                                 MV_REFERENCE_FRAME ref0,
