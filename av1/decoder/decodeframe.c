@@ -3230,14 +3230,10 @@ static void read_tile_info(AV1Decoder *const pbi,
     cm->loop_filter_across_tiles_enabled = aom_rb_read_bit(rb);
 #endif  // CONFIG_LOOPFILTERING_ACROSS_TILES
 
-    cm->tile_width = get_tile_size(cm->mi_cols, cm->log2_tile_cols);
-    cm->tile_height = get_tile_size(cm->mi_rows, cm->log2_tile_rows);
-
-    const int max_cols = (cm->mi_cols + cm->tile_width - 1) / cm->tile_width;
-    const int max_rows = (cm->mi_rows + cm->tile_height - 1) / cm->tile_height;
-
-    cm->tile_cols = AOMMIN(1 << cm->log2_tile_cols, max_cols);
-    cm->tile_rows = AOMMIN(1 << cm->log2_tile_rows, max_rows);
+    cm->tile_width =
+        get_tile_size(cm->mi_cols, cm->log2_tile_cols, &cm->tile_cols);
+    cm->tile_height =
+        get_tile_size(cm->mi_rows, cm->log2_tile_rows, &cm->tile_rows);
 
     // tile size magnitude
     pbi->tile_size_bytes = aom_rb_read_literal(rb, 2) + 1;
