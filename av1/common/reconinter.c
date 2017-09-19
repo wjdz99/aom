@@ -985,17 +985,16 @@ void av1_make_masked_inter_predictor(const uint8_t *pre, int pre_stride,
   const int bd = 8;
 #endif
 
-  av1_make_inter_predictor(pre, pre_stride, tmp_dst, MAX_SB_SIZE, subpel_x,
-                           subpel_y, sf, w, h, conv_params, interp_filter,
-#if CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
-                           warp_types, p_col, p_row, plane, ref,
-#endif  // CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
-#if CONFIG_MOTION_VAR
-                           mi, 0,
-#endif
-                           xs, ys, xd);
-
 #if CONFIG_CONVOLVE_ROUND
+  // tmp_dst2 is the destination for the inter-prediction from the second
+  // reference frame (which is what we're being called with).
+  //
+  // With COMPOUND_SEG, once we've generated that, we'll compute a mask based
+  // on its contents and also those of conv_params->dst, the first reference
+  // frame (which gets locally referred to as org_dst).
+  //
+  // With COMPOUND_WEDGE, the mask is actually fixed, but we still compute both
+  // predictions in advance and blend.
   const int is_conv_no_round = conv_params->round == CONVOLVE_OPT_NO_ROUND;
   DECLARE_ALIGNED(16, CONV_BUF_TYPE, tmp_dst2[MAX_SB_SQUARE]);
   int tmp_dst2_stride = MAX_SB_SIZE;
@@ -1008,6 +1007,16 @@ void av1_make_masked_inter_predictor(const uint8_t *pre, int pre_stride,
     conv_params->do_average = 0;
   }
 #endif  // CONFIG_CONVOLVE_ROUND
+
+  av1_make_inter_predictor(pre, pre_stride, tmp_dst, MAX_SB_SIZE, subpel_x,
+                           subpel_y, sf, w, h, conv_params, interp_filter,
+#if CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
+                           warp_types, p_col, p_row, plane, ref,
+#endif  // CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
+#if CONFIG_MOTION_VAR
+                           mi, 0,
+#endif
+                           xs, ys, xd);
 
 #if CONFIG_COMPOUND_SEGMENT
   if (!plane && comp_data.interinter_compound_type == COMPOUND_SEG) {
