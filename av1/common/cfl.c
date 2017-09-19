@@ -226,7 +226,7 @@ static void cfl_compute_averages(CFL_CTX *cfl, TX_SIZE tx_size) {
   }
 
   cfl->y_averages_stride = stride;
-  assert(a <= MAX_NUM_TXB);
+  assert(a <= MAX_NUM_TXB_SQUARE);
 }
 
 static INLINE int cfl_idx_to_alpha(int alpha_idx, int joint_sign,
