@@ -7036,7 +7036,7 @@ static void single_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,
 #else   // !CONFIG_COMPOUND_SINGLEREF
   int ref = mbmi->ref_frame[ref_idx];
 #endif  // CONFIG_COMPOUND_SINGLEREF
-#else   // !CONFIG_EXT_INTER
+#else  // !CONFIG_EXT_INTER
   int ref = mbmi->ref_frame[0];
   int ref_idx = 0;
 #endif  // CONFIG_EXT_INTER
@@ -7095,8 +7095,13 @@ static void single_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,
 
     if (tlevel < 5) step_param += 2;
 
-    // prev_mv_sad is not setup for dynamically scaled frames.
+// prev_mv_sad is not setup for dynamically scaled frames.
+#if !CONFIG_ENCODE_RES_SWITCH
     if (cpi->oxcf.resize_mode != RESIZE_RANDOM) {
+#else
+    if (cpi->oxcf.resize_mode != RESIZE_RANDOM ||
+        cpi->oxcf.resize_mode != RESIZE_INTERVAL) {
+#endif
       int i;
       for (i = LAST_FRAME; i <= ALTREF_FRAME && cm->show_frame; ++i) {
         if ((x->pred_mv_sad[ref] >> 3) > x->pred_mv_sad[i]) {
@@ -7281,7 +7286,7 @@ static void build_second_inter_pred(const AV1_COMP *cpi, MACROBLOCK *x,
 #if CONFIG_COMPOUND_SINGLEREF
   const int other_ref =
       has_second_ref(mbmi) ? mbmi->ref_frame[!ref_idx] : mbmi->ref_frame[0];
-#else  // !CONFIG_COMPOUND_SINGLEREF
+#else   // !CONFIG_COMPOUND_SINGLEREF
   const int other_ref = mbmi->ref_frame[!ref_idx];
 #endif  // CONFIG_COMPOUND_SINGLEREF
   struct scale_factors sf;
@@ -10501,7 +10506,7 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
 #endif
                              )
             .as_int;
-#else   // CONFIG_GLOBAL_MOTION
+#else  // CONFIG_GLOBAL_MOTION
     frame_mv[ZERO_ZEROMV][ref_frame].as_int = 0;
 #endif  // CONFIG_GLOBAL_MOTION
 #endif  // CONFIG_EXT_INTER
