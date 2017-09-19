@@ -116,11 +116,11 @@ void av1_encode_token_init(void) {
   int s;
   for (s = 1; s < EXT_TX_SETS_INTER; ++s) {
     av1_tokens_from_tree(ext_tx_inter_encodings[s],
-                         av1_ext_tx_tree[av1_ext_tx_set_type_inter[s]]);
+                         av1_ext_tx_tree[av1_ext_tx_set_idx_to_type[1][s]]);
   }
   for (s = 1; s < EXT_TX_SETS_INTRA; ++s) {
     av1_tokens_from_tree(ext_tx_intra_encodings[s],
-                         av1_ext_tx_tree[av1_ext_tx_set_type_intra[s]]);
+                         av1_ext_tx_tree[av1_ext_tx_set_idx_to_type[0][s]]);
   }
   for (s = 1; s < EXT_TX_SET_TYPES; ++s) {
     av1_indices_from_tree(av1_ext_tx_ind[s], av1_ext_tx_inv[s],
