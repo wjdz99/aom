@@ -45,6 +45,30 @@
       "revId": "b6e251edd13f27954a05cab31fb7fcbbb9b97c6c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b2263f6f_b55feefe",
+        "filename": "configure",
+        "patchSetId": 1
+      },
+      "lineNbr": 563,
+      "author": {
+        "id": 5975
+      },
+      "writtenOn": "2017-09-19T10:16:00Z",
+      "side": 1,
+      "message": "My understanding is that ext-inter shouldn\u0027t depend on any of its sub-experiments (wedge/compound-segment/interintra) - has this changed recently?",
+      "parentUuid": "210511b8_eb9d3ffc",
+      "range": {
+        "startLine": 563,
+        "startChar": 4,
+        "endLine": 563,
+        "endChar": 56
+      },
+      "revId": "b6e251edd13f27954a05cab31fb7fcbbb9b97c6c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
