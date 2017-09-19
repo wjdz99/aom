@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a679dc4_49633ce0",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 5222,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2017-09-19T18:06:17Z",
+      "side": 1,
+      "message": "To be safe, can also set param.bd \u003d 8, param.lossless \u003d 0.",
+      "range": {
+        "startLine": 5222,
+        "startChar": 2,
+        "endLine": 5222,
+        "endChar": 7
+      },
+      "revId": "cf9079e455d78b59b463f0ed9f74f58547a8e131",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "13fe19f1_35a91c79",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 5228,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2017-09-19T18:06:17Z",
+      "side": 1,
+      "message": "Jenkins is complaining about \"conversion to ‘float’ from ‘double’ may alter its value\".",
+      "range": {
+        "startLine": 5228,
+        "startChar": 2,
+        "endLine": 5228,
+        "endChar": 60
+      },
+      "revId": "cf9079e455d78b59b463f0ed9f74f58547a8e131",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
