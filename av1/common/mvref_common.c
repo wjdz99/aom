@@ -509,11 +509,24 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   int len, nr_len;
 
 #if CONFIG_MV_COMPRESS
+#if !CONFIG_TEMP_PRED_DIFFERENT_REF_SIZE
   const MV_REF *const prev_frame_mvs_base =
       cm->use_prev_frame_mvs
           ? cm->prev_frame->mvs + (((mi_row >> 1) << 1) + 1) * cm->mi_cols +
                 ((mi_col >> 1) << 1) + 1
           : NULL;
+#else
+  const struct scale_factors *const sf = &cm->frame_refs[0].sf;
+  int prev_row = ((mi_row >> 1) << 1) + 1;
+  int prev_col = ((mi_col >> 1) << 1) + 1;
+  int prev_mi_cols = cm->prev_frame->mi_cols;
+  prev_row = (prev_row * sf->x_scale_fp) >> REF_SCALE_SHIFT;
+  prev_col = (prev_col * sf->y_scale_fp) >> REF_SCALE_SHIFT;
+  const MV_REF *const prev_frame_mvs_base = 
+      cm->use_prev_frame_mvs ?
+           cm->prev_frame->mvs + prev_row * prev_mi_cols + prev_col :
+           NULL;
+#endif
 #else
   const MV_REF *const prev_frame_mvs_base =
       cm->use_prev_frame_mvs
@@ -783,6 +796,7 @@ static void find_mv_refs_idx(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   const TileInfo *const tile_ = &xd->tile;
   int mi_row_end = tile_->mi_row_end;
   int mi_col_end = tile_->mi_col_end;
+#if !CONFIG_TEMP_PRED_DIFFERENT_REF_SIZE
   const MV_REF *const prev_frame_mvs =
       cm->use_prev_frame_mvs
           ? cm->prev_frame->mvs +
@@ -792,6 +806,20 @@ static void find_mv_refs_idx(const AV1_COMMON *cm, const MACROBLOCKD *xd,
                 AOMMIN(((mi_col >> 1) << 1) + 1 + (((xd->n8_w - 1) >> 1) << 1),
                        mi_col_end - 1)
           : NULL;
+#else
+  const struct scale_factors *const sf = &cm->frame_refs[0].sf;
+  int prev_row = ((mi_row >> 1) << 1) + 1 + (((xd->n8_h - 1) >> 1) << 1);
+  int prev_col = ((mi_col >> 1) << 1) + 1 + (((xd->n8_w - 1) >> 1) << 1);
+  int prev_mi_cols = cm->prev_frame->mi_cols;
+  prev_row = (prev_row * sf->x_scale_fp) >> REF_SCALE_SHIFT;
+  prev_col = (prev_col * sf->y_scale_fp) >> REF_SCALE_SHIFT;
+  const MV_REF *const prev_frame_mvs =
+      cm->use_prev_frame_mvs ?
+      cm->prev_frame->mvs + AOMMIN(prev_row, mi_row_end - 1) * prev_mi_cols +
+      AOMMIN(prev_col, mi_col_end - 1) :
+      NULL;
+
+#endif
 #else
   const MV_REF *const prev_frame_mvs =
       cm->use_prev_frame_mvs
@@ -913,11 +941,27 @@ static void find_mv_refs_idx(const AV1_COMMON *cm, const MACROBLOCKD *xd,
     }
 
     if (prev_frame_mvs->ref_frame[0] == ref_frame) {
+#if !CONFIG_TEMP_PRED_DIFFERENT_REF_SIZE
       ADD_MV_REF_LIST(prev_frame_mvs->mv[0], refmv_count, mv_ref_list, bw, bh,
                       xd, Done);
-    } else if (prev_frame_mvs->ref_frame[1] == ref_frame) {
-      ADD_MV_REF_LIST(prev_frame_mvs->mv[1], refmv_count, mv_ref_list, bw, bh,
+#else
+      int_mv mv = prev_frame_mvs->mv[0];
+      mv.as_mv.row = mv.as_mv.row * (1 << REF_SCALE_SHIFT) / sf->y_scale_fp;
+      mv.as_mv.col = mv.as_mv.col * (1 << REF_SCALE_SHIFT) / sf->x_scale_fp;
+      ADD_MV_REF_LIST(mv, refmv_count, mv_ref_list, bw, bh,
                       xd, Done);
+#endif
+    } else if (prev_frame_mvs->ref_frame[1] == ref_frame) {
+#if !CONFIG_TEMP_PRED_DIFFERENT_REF_SIZE
+        ADD_MV_REF_LIST(prev_frame_mvs->mv[1], refmv_count, mv_ref_list, bw, bh,
+                      xd, Done);
+#else
+        int_mv mv = prev_frame_mvs->mv[1];
+        mv.as_mv.row = mv.as_mv.row * (1 << REF_SCALE_SHIFT) / sf->y_scale_fp;
+        mv.as_mv.col = mv.as_mv.col * (1 << REF_SCALE_SHIFT) / sf->x_scale_fp;
+        ADD_MV_REF_LIST(mv, refmv_count, mv_ref_list, bw, bh,
+            xd, Done);
+#endif
     }
   }
 
@@ -949,6 +993,10 @@ static void find_mv_refs_idx(const AV1_COMMON *cm, const MACROBLOCKD *xd,
     if (prev_frame_mvs->ref_frame[0] != ref_frame &&
         prev_frame_mvs->ref_frame[0] > INTRA_FRAME) {
       int_mv mv = prev_frame_mvs->mv[0];
+#if CONFIG_TEMP_PRED_DIFFERENT_REF_SIZE
+      mv.as_mv.row = mv.as_mv.row * (1<<REF_SCALE_SHIFT) / sf->y_scale_fp;
+      mv.as_mv.col = mv.as_mv.col * (1<<REF_SCALE_SHIFT) / sf->x_scale_fp;
+#endif
       if (ref_sign_bias[prev_frame_mvs->ref_frame[0]] !=
           ref_sign_bias[ref_frame]) {
         mv.as_mv.row *= -1;
@@ -960,6 +1008,10 @@ static void find_mv_refs_idx(const AV1_COMMON *cm, const MACROBLOCKD *xd,
     if (prev_frame_mvs->ref_frame[1] > INTRA_FRAME &&
         prev_frame_mvs->ref_frame[1] != ref_frame) {
       int_mv mv = prev_frame_mvs->mv[1];
+#if CONFIG_TEMP_PRED_DIFFERENT_REF_SIZE
+      mv.as_mv.row = mv.as_mv.row * (1<<REF_SCALE_SHIFT) / sf->y_scale_fp;
+      mv.as_mv.col = mv.as_mv.col * (1<<REF_SCALE_SHIFT) / sf->x_scale_fp;
+#endif
       if (ref_sign_bias[prev_frame_mvs->ref_frame[1]] !=
           ref_sign_bias[ref_frame]) {
         mv.as_mv.row *= -1;

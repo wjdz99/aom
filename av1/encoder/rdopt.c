@@ -7071,7 +7071,11 @@ static void single_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,
     if (tlevel < 5) step_param += 2;
 
     // prev_mv_sad is not setup for dynamically scaled frames.
+#if !CONFIG_ENCODE_RES_SWITCH
     if (cpi->oxcf.resize_mode != RESIZE_RANDOM) {
+#else
+    if (cpi->oxcf.resize_mode != RESIZE_RANDOM || cpi->oxcf.resize_mode != RESIZE_INTERVAL) {
+#endif
       int i;
       for (i = LAST_FRAME; i <= ALTREF_FRAME && cm->show_frame; ++i) {
         if ((x->pred_mv_sad[ref] >> 3) > x->pred_mv_sad[i]) {
