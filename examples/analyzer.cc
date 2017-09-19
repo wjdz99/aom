@@ -357,8 +357,10 @@ void AnalyzerPanel::computeBitsPerPixel() {
   printf("=== Frame: %-3i ===\n", decoder.frame - 1);
   for (int i = 0; i < acct->syms.dictionary.num_strs; i++) {
     if (totals_q3[i]) {
-      printf("%30s = %10.3f (%f bit/symbol)\n", acct->syms.dictionary.strs[i],
-             (float)totals_q3[i] / 8, (float)totals_q3[i] / 8 / sym_count[i]);
+      printf("%30s = %10.3f (%f bit/symbol) %6.2f%%\n",
+             acct->syms.dictionary.strs[i], (float)totals_q3[i] / 8,
+             (float)totals_q3[i] / 8 / sym_count[i],
+             totals_q3[i] / ((double)bits_total_q3) * 100);
     }
   }
   double bits_total = bits_total_q3 / 8.0;
