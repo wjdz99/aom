@@ -1778,7 +1778,6 @@ static void decode_token_and_recon_block(AV1Decoder *const pbi,
   set_offsets(cm, xd, bsize, mi_row, mi_col, bw, bh, x_mis, y_mis);
   MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
 
-#if CONFIG_DELTA_Q
   if (cm->delta_q_present_flag) {
     int i;
     for (i = 0; i < MAX_SEGMENTS; i++) {
@@ -1800,7 +1799,6 @@ static void decode_token_and_recon_block(AV1Decoder *const pbi,
       }
     }
   }
-#endif
 
 #if CONFIG_CB4X4
   if (mbmi->skip) av1_reset_skip_context(xd, mi_row, mi_col, bsize);
@@ -2439,7 +2437,6 @@ static void decode_partition(AV1Decoder *const pbi, MACROBLOCKD *const xd,
 
     set_segment_id_supertx(cm, mi_row, mi_col, bsize);
 
-#if CONFIG_DELTA_Q
     if (cm->delta_q_present_flag) {
       for (i = 0; i < MAX_SEGMENTS; i++) {
         int j;
@@ -2454,7 +2451,6 @@ static void decode_partition(AV1Decoder *const pbi, MACROBLOCKD *const xd,
         }
       }
     }
-#endif
 
     xd->mi = cm->mi_grid_visible + offset;
     xd->mi[0] = cm->mi + offset;
@@ -4890,7 +4886,6 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
 
   setup_segmentation(cm, rb);
 
-#if CONFIG_DELTA_Q
   {
     struct segmentation *const seg = &cm->seg;
     int segment_quantizer_active = 0;
@@ -4923,10 +4918,10 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
 #endif  // CONFIG_EXT_DELTA_Q
     }
   }
-#endif
 #if CONFIG_AMVR
   xd->cur_frame_mv_precision_level = cm->cur_frame_mv_precision_level;
 #endif
+
   for (i = 0; i < MAX_SEGMENTS; ++i) {
     const int qindex = cm->seg.enabled
                            ? av1_get_qindex(&cm->seg, i, cm->base_qindex)
