@@ -5061,10 +5061,12 @@ static void debug_check_frame_counts(const AV1_COMMON *const cm) {
       !memcmp(&cm->counts.mv[0], &zero_counts.mv[0], sizeof(cm->counts.mv[0])));
   assert(
       !memcmp(&cm->counts.mv[1], &zero_counts.mv[1], sizeof(cm->counts.mv[0])));
+#if CONFIG_ENTROPY_STATS
   assert(!memcmp(cm->counts.inter_ext_tx, zero_counts.inter_ext_tx,
                  sizeof(cm->counts.inter_ext_tx)));
   assert(!memcmp(cm->counts.intra_ext_tx, zero_counts.intra_ext_tx,
                  sizeof(cm->counts.intra_ext_tx)));
+#endif  // CONFIG_ENTROPY_STATS
 }
 #endif  // NDEBUG
 
