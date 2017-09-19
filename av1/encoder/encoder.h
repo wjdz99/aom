@@ -132,6 +132,9 @@ typedef enum {
   RESIZE_NONE = 0,    // No frame resizing allowed.
   RESIZE_FIXED = 1,   // All frames are coded at the specified scale.
   RESIZE_RANDOM = 2,  // All frames are coded at a random scale.
+#if CONFIG_ENCODE_RES_SWITCH
+  RESIZE_INTERVAL = 3,
+#endif
   RESIZE_MODES
 } RESIZE_MODE;
 #if CONFIG_FRAME_SUPERRES
@@ -212,7 +215,10 @@ typedef struct AV1EncoderConfig {
 #endif
   unsigned int num_tile_groups;
   unsigned int mtu;
-
+#if CONFIG_ENCODE_RES_SWITCH
+  unsigned int encode_res_switch_interval;
+  unsigned int curr_scale_num;
+#endif
 #if CONFIG_TEMPMV_SIGNALING
   unsigned int disable_tempmv;
 #endif

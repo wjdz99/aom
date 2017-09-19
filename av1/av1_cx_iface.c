@@ -62,6 +62,9 @@ struct av1_extracfg {
 #endif
   unsigned int num_tg;
   unsigned int mtu_size;
+#if CONFIG_ENCODE_RES_SWITCH
+  unsigned int encode_res_switch_interval;
+#endif
 #if CONFIG_TEMPMV_SIGNALING
   unsigned int disable_tempmv;
 #endif
@@ -127,6 +130,9 @@ static struct av1_extracfg default_extra_cfg = {
 #endif
   1,  // max number of tile groups
   0,  // mtu_size
+#if CONFIG_ENCODE_RES_SWITCH
+  0,  // encode_res_switch_interval
+#endif
 #if CONFIG_TEMPMV_SIGNALING
   0,  // disable temporal mv prediction
 #endif
@@ -508,6 +514,9 @@ static aom_codec_err_t set_encoder_config(
   if (cfg->large_scale_tile) oxcf->num_tile_groups = 1;
 #endif  // CONFIG_EXT_TILE
   oxcf->mtu = extra_cfg->mtu_size;
+#if CONFIG_ENCODE_RES_SWITCH
+  oxcf->encode_res_switch_interval = extra_cfg->encode_res_switch_interval;
+#endif
 
 #if CONFIG_TEMPMV_SIGNALING
   oxcf->disable_tempmv = extra_cfg->disable_tempmv;
@@ -903,6 +912,15 @@ static aom_codec_err_t ctrl_set_mtu(aom_codec_alg_priv_t *ctx, va_list args) {
   extra_cfg.mtu_size = CAST(AV1E_SET_MTU, args);
   return update_extra_cfg(ctx, &extra_cfg);
 }
+#if CONFIG_ENCODE_RES_SWITCH
+static aom_codec_err_t ctrl_set_encode_res_switch_interval(
+    aom_codec_alg_priv_t *ctx, va_list args) {
+  struct av1_extracfg extra_cfg = ctx->extra_cfg;
+  extra_cfg.encode_res_switch_interval =
+      CAST(AV1E_SET_ENCODE_RES_SWITCH_INTERVAL, args);
+  return update_extra_cfg(ctx, &extra_cfg);
+}
+#endif
 #if CONFIG_TEMPMV_SIGNALING
 static aom_codec_err_t ctrl_set_disable_tempmv(aom_codec_alg_priv_t *ctx,
                                                va_list args) {
@@ -1589,6 +1607,9 @@ static aom_codec_ctrl_fn_map_t encoder_ctrl_maps[] = {
 #endif
   { AV1E_SET_NUM_TG, ctrl_set_num_tg },
   { AV1E_SET_MTU, ctrl_set_mtu },
+#if CONFIG_ENCODE_RES_SWITCH
+  { AV1E_SET_ENCODE_RES_SWITCH_INTERVAL, ctrl_set_encode_res_switch_interval },
+#endif
 #if CONFIG_TEMPMV_SIGNALING
   { AV1E_SET_DISABLE_TEMPMV, ctrl_set_disable_tempmv },
 #endif

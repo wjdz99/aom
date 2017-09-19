@@ -354,6 +354,8 @@ EXPERIMENT_LIST="
     tmv
     restrict_compressed_hdr
     horzonly_frame_superres
+    temp_pred_different_ref_size
+    encode_res_switch
 "
 CONFIG_LIST="
     dependency_tracking

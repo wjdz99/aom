@@ -448,6 +448,11 @@ static const arg_def_t mtu_size =
     ARG_DEF(NULL, "mtu-size", 1,
             "MTU size for a tile group, default is 0 (no MTU targeting), "
             "overrides maximum number of tile groups");
+#if CONFIG_ENCODE_RES_SWITCH
+static const arg_def_t encode_res_switch_interval =
+    ARG_DEF(NULL, "encode-res-switch-interval", 1,
+            "Switch encode resolution interval (default is 0)");
+#endif
 #if CONFIG_TEMPMV_SIGNALING
 static const arg_def_t disable_tempmv = ARG_DEF(
     NULL, "disable-tempmv", 1, "Disable temporal mv prediction (default is 0)");
@@ -593,6 +598,9 @@ static const arg_def_t *av1_args[] = { &cpu_used_av1,
 #endif  // CONFIG_EXT_PARTITION
                                        &num_tg,
                                        &mtu_size,
+#if CONFIG_ENCODE_RES_SWITCH
+                                       &encode_res_switch_interval,
+#endif
 #if CONFIG_TEMPMV_SIGNALING
                                        &disable_tempmv,
 #endif
@@ -650,6 +658,9 @@ static const int av1_arg_ctrl_map[] = { AOME_SET_CPUUSED,
 #endif  // CONFIG_EXT_PARTITION
                                         AV1E_SET_NUM_TG,
                                         AV1E_SET_MTU,
+#if CONFIG_ENCODE_RES_SWITCH
+                                        AV1E_SET_ENCODE_RES_SWITCH_INTERVAL,
+#endif
 #if CONFIG_TEMPMV_SIGNALING
                                         AV1E_SET_DISABLE_TEMPMV,
 #endif
