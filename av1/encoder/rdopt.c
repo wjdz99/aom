@@ -6559,7 +6559,7 @@ static void joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
 #else   // !(CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF)
           &frame_mv[refs[!id]].as_mv,
 #endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
-          &sf, pw, ph, 0, mbmi->interp_filter,
+          &sf, pw, ph, 0, mbmi->interp_filters,
 #if CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
           &warp_types, p_col, p_row,
 #endif  // CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
@@ -6574,7 +6574,7 @@ static void joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
 #else   // !(CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF)
         &frame_mv[refs[!id]].as_mv,
 #endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
-          &sf, pw, ph, &conv_params, mbmi->interp_filter,
+          &sf, pw, ph, &conv_params, mbmi->interp_filters,
 #if CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
           &warp_types, p_col, p_row, plane, !id,
 #endif  // CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
@@ -7381,7 +7381,7 @@ static void build_second_inter_pred(const AV1_COMP *cpi, MACROBLOCK *x,
   if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
     av1_highbd_build_inter_predictor(
         ref_yv12.buf, ref_yv12.stride, second_pred, pw, other_mv, &sf, pw, ph,
-        0, mbmi->interp_filter,
+        0, mbmi->interp_filters,
 #if CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
         &warp_types, p_col, p_row,
 #endif  // CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
@@ -7390,7 +7390,7 @@ static void build_second_inter_pred(const AV1_COMP *cpi, MACROBLOCK *x,
 #endif  // CONFIG_HIGHBITDEPTH
     av1_build_inter_predictor(
         ref_yv12.buf, ref_yv12.stride, second_pred, pw, other_mv, &sf, pw, ph,
-        &conv_params, mbmi->interp_filter,
+        &conv_params, mbmi->interp_filters,
 #if CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
         &warp_types, p_col, p_row, plane, !ref_idx,
 #endif  // CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
@@ -7750,8 +7750,11 @@ static InterpFilter predict_interp_filter(
                   (mbmi->ref_frame[1] < 0 ? 0 : mbmi->ref_frame[1]) };
   if (pred_filter_search) {
     InterpFilter af = SWITCHABLE, lf = SWITCHABLE;
-    if (xd->up_available) af = xd->mi[-xd->mi_stride]->mbmi.interp_filter;
-    if (xd->left_available) lf = xd->mi[-1]->mbmi.interp_filter;
+    if (xd->up_available)
+      af = av1_extract_interp_filter(
+          xd->mi[-xd->mi_stride]->mbmi.interp_filters, 0);
+    if (xd->left_available)
+      lf = av1_extract_interp_filter(xd->mi[-1]->mbmi.interp_filters, 0);
 
 #if CONFIG_EXT_INTER
     if ((this_mode != NEWMV && this_mode != NEW_NEWMV) || (af == lf))
@@ -8474,12 +8477,7 @@ int64_t interpolation_filter_search(
       const int filter_set_size = SWITCHABLE_FILTERS;
 #endif  // CONFIG_DUAL_FILTER
       int best_in_temp = 0;
-#if CONFIG_DUAL_FILTER
-      InterpFilter best_filter[4];
-      av1_copy(best_filter, mbmi->interp_filter);
-#else
-      InterpFilter best_filter = mbmi->interp_filter;
-#endif  // CONFIG_DUAL_FILTER
+      InterpFilters best_filters = mbmi->interp_filters;
       restore_dst_buf(xd, *tmp_dst);
       // EIGHTTAP_REGULAR mode is calculated beforehand
       for (i = 1; i < filter_set_size; ++i) {
@@ -8488,12 +8486,10 @@ int64_t interpolation_filter_search(
         int tmp_rs;
         int64_t tmp_rd;
 #if CONFIG_DUAL_FILTER
-        mbmi->interp_filter[0] = filter_sets[i][0];
-        mbmi->interp_filter[1] = filter_sets[i][1];
-        mbmi->interp_filter[2] = filter_sets[i][0];
-        mbmi->interp_filter[3] = filter_sets[i][1];
+        mbmi->interp_filters =
+            av1_make_interp_filters(filter_sets[i][0], filter_sets[i][1]);
 #else
-        mbmi->interp_filter = (InterpFilter)i;
+        mbmi->interp_filters = av1_broadcast_interp_filter((InterpFilter)i);
 #endif  // CONFIG_DUAL_FILTER
         tmp_rs = av1_get_switchable_rate(cm, x, xd);
         av1_build_inter_predictors_sb(cm, xd, mi_row, mi_col, orig_dst, bsize);
@@ -8504,11 +8500,7 @@ int64_t interpolation_filter_search(
         if (tmp_rd < *rd) {
           *rd = tmp_rd;
           *switchable_rate = av1_get_switchable_rate(cm, x, xd);
-#if CONFIG_DUAL_FILTER
-          av1_copy(best_filter, mbmi->interp_filter);
-#else
-          best_filter = mbmi->interp_filter;
-#endif  // CONFIG_DUAL_FILTER
+          best_filters = mbmi->interp_filters;
           *skip_txfm_sb = tmp_skip_sb;
           *skip_sse_sb = tmp_skip_sse;
           best_in_temp = !best_in_temp;
@@ -8524,23 +8516,28 @@ int64_t interpolation_filter_search(
       } else {
         restore_dst_buf(xd, *orig_dst);
       }
-#if CONFIG_DUAL_FILTER
-      av1_copy(mbmi->interp_filter, best_filter);
-#else
-      mbmi->interp_filter = best_filter;
-#endif  // CONFIG_DUAL_FILTER
+      mbmi->interp_filters = best_filters;
     } else {
-#if CONFIG_DUAL_FILTER
-      for (i = 0; i < 4; ++i)
-        assert(mbmi->interp_filter[i] == EIGHTTAP_REGULAR);
-#else
-      assert(mbmi->interp_filter == EIGHTTAP_REGULAR);
-#endif  // CONFIG_DUAL_FILTER
+      assert(mbmi->interp_filters ==
+             av1_broadcast_interp_filter(EIGHTTAP_REGULAR));
     }
   }
 
   return 0;
 }
+
+#if CONFIG_DUAL_FILTER
+static InterpFilters condition_interp_filters_on_mv(
+    InterpFilters interp_filters, const MACROBLOCKD *xd) {
+  InterpFilter filters[2];
+  for (int i = 0; i < 2; ++i)
+    filters[i] = (has_subpel_mv_component(xd->mi[0], xd, i))
+                     ? av1_extract_interp_filter(interp_filters, i)
+                     : EIGHTTAP_REGULAR;
+
+  return av1_make_interp_filters(filters[0], filters[1]);
+}
+#endif
 
 // TODO(afergs): Refactor the MBMI references in here - there's four
 // TODO(afergs): Refactor optional args - add them to a struct or remove
@@ -8681,10 +8678,8 @@ static int64_t motion_mode_rd(
         tmp_rate2 = rate2_nocoeff - rate_mv + tmp_rate_mv;
 #endif  // CONFIG_EXT_INTER
 #if CONFIG_DUAL_FILTER
-        if (!has_subpel_mv_component(xd->mi[0], xd, 0))
-          mbmi->interp_filter[0] = EIGHTTAP_REGULAR;
-        if (!has_subpel_mv_component(xd->mi[0], xd, 1))
-          mbmi->interp_filter[1] = EIGHTTAP_REGULAR;
+        mbmi->interp_filters =
+            condition_interp_filters_on_mv(mbmi->interp_filters, xd);
 #endif  // CONFIG_DUAL_FILTER
         av1_build_inter_predictors_sb(cm, xd, mi_row, mi_col, orig_dst, bsize);
 #if CONFIG_EXT_INTER
@@ -8710,15 +8705,8 @@ static int64_t motion_mode_rd(
       mbmi->motion_mode = WARPED_CAUSAL;
 #endif  // CONFIG_EXT_INTER
       mbmi->wm_params[0].wmtype = DEFAULT_WMTYPE;
-#if CONFIG_DUAL_FILTER
-      for (int dir = 0; dir < 4; ++dir)
-        mbmi->interp_filter[dir] = cm->interp_filter == SWITCHABLE
-                                       ? EIGHTTAP_REGULAR
-                                       : cm->interp_filter;
-#else
-      mbmi->interp_filter = cm->interp_filter == SWITCHABLE ? EIGHTTAP_REGULAR
-                                                            : cm->interp_filter;
-#endif  // CONFIG_DUAL_FILTER
+      mbmi->interp_filters = av1_broadcast_interp_filter(
+          av1_unswitchable_filter(cm->interp_filter));
 
 #if WARPED_MOTION_SORT_SAMPLES
       memcpy(pts, pts0, total_samples * 2 * sizeof(*pts0));
@@ -8779,10 +8767,8 @@ static int64_t motion_mode_rd(
             tmp_rate2 = rate2_nocoeff - rate_mv + tmp_rate_mv;
 #endif  // CONFIG_EXT_INTER
 #if CONFIG_DUAL_FILTER
-            if (!has_subpel_mv_component(xd->mi[0], xd, 0))
-              mbmi->interp_filter[0] = EIGHTTAP_REGULAR;
-            if (!has_subpel_mv_component(xd->mi[0], xd, 1))
-              mbmi->interp_filter[1] = EIGHTTAP_REGULAR;
+            mbmi->interp_filters =
+                condition_interp_filters_on_mv(mbmi->interp_filters, xd);
 #endif  // CONFIG_DUAL_FILTER
           } else {
             // Restore the old MV and WM parameters.
@@ -8945,18 +8931,8 @@ static int64_t motion_mode_rd(
         ) {
       if (is_nontrans_global_motion(xd)) {
         rd_stats->rate -= rs;
-#if CONFIG_DUAL_FILTER
-        mbmi->interp_filter[0] = cm->interp_filter == SWITCHABLE
-                                     ? EIGHTTAP_REGULAR
-                                     : cm->interp_filter;
-        mbmi->interp_filter[1] = cm->interp_filter == SWITCHABLE
-                                     ? EIGHTTAP_REGULAR
-                                     : cm->interp_filter;
-#else
-        mbmi->interp_filter = cm->interp_filter == SWITCHABLE
-                                  ? EIGHTTAP_REGULAR
-                                  : cm->interp_filter;
-#endif  // CONFIG_DUAL_FILTER
+        mbmi->interp_filters = av1_broadcast_interp_filter(
+            av1_unswitchable_filter(cm->interp_filter));
       }
     }
 #endif  // CONFIG_GLOBAL_MOTION
@@ -9673,11 +9649,8 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
 #endif  // CONFIG_EXT_INTER
 
   if (!is_comp_pred)
-#if CONFIG_DUAL_FILTER
-    args->single_filter[this_mode][refs[0]] = mbmi->interp_filter[0];
-#else
-    args->single_filter[this_mode][refs[0]] = mbmi->interp_filter;
-#endif  // CONFIG_DUAL_FILTER
+    args->single_filter[this_mode][refs[0]] =
+        av1_extract_interp_filter(mbmi->interp_filters, 0);
 
 #if CONFIG_EXT_INTER
   if (args->modelled_rd != NULL) {
@@ -9846,11 +9819,7 @@ static int64_t rd_pick_intrabc_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
     mbmi->mode = DC_PRED;
     mbmi->uv_mode = UV_DC_PRED;
     mbmi->mv[0].as_mv = dv;
-#if CONFIG_DUAL_FILTER
-    for (int idx = 0; idx < 4; ++idx) mbmi->interp_filter[idx] = BILINEAR;
-#else
-    mbmi->interp_filter = BILINEAR;
-#endif
+    mbmi->interp_filters = av1_broadcast_interp_filter(BILINEAR);
     mbmi->skip = 0;
     x->skip = 0;
     av1_build_inter_predictors_sb(cm, xd, mi_row, mi_col, NULL, bsize);
@@ -12125,24 +12094,14 @@ PALETTE_EXIT:
     return;
   }
 
+  assert((cm->interp_filter == SWITCHABLE) ||
+         (cm->interp_filter ==
+          av1_extract_interp_filter(best_mbmode.interp_filters, 0)) ||
+         !is_inter_block(&best_mbmode));
 #if CONFIG_DUAL_FILTER
   assert((cm->interp_filter == SWITCHABLE) ||
-         (cm->interp_filter == best_mbmode.interp_filter[0]) ||
-         !is_inter_block(&best_mbmode));
-  assert((cm->interp_filter == SWITCHABLE) ||
-         (cm->interp_filter == best_mbmode.interp_filter[1]) ||
-         !is_inter_block(&best_mbmode));
-  if (best_mbmode.ref_frame[1] > INTRA_FRAME) {
-    assert((cm->interp_filter == SWITCHABLE) ||
-           (cm->interp_filter == best_mbmode.interp_filter[2]) ||
-           !is_inter_block(&best_mbmode));
-    assert((cm->interp_filter == SWITCHABLE) ||
-           (cm->interp_filter == best_mbmode.interp_filter[3]) ||
-           !is_inter_block(&best_mbmode));
-  }
-#else
-  assert((cm->interp_filter == SWITCHABLE) ||
-         (cm->interp_filter == best_mbmode.interp_filter) ||
+         (cm->interp_filter ==
+          av1_extract_interp_filter(best_mbmode.interp_filters, 1)) ||
          !is_inter_block(&best_mbmode));
 #endif  // CONFIG_DUAL_FILTER
 
@@ -12176,17 +12135,8 @@ PALETTE_EXIT:
 
     // Correct the interpolation filter for ZEROMV
     if (is_nontrans_global_motion(xd)) {
-#if CONFIG_DUAL_FILTER
-      mbmi->interp_filter[0] = cm->interp_filter == SWITCHABLE
-                                   ? EIGHTTAP_REGULAR
-                                   : cm->interp_filter;
-      mbmi->interp_filter[1] = cm->interp_filter == SWITCHABLE
-                                   ? EIGHTTAP_REGULAR
-                                   : cm->interp_filter;
-#else
-      mbmi->interp_filter = cm->interp_filter == SWITCHABLE ? EIGHTTAP_REGULAR
-                                                            : cm->interp_filter;
-#endif  // CONFIG_DUAL_FILTER
+      mbmi->interp_filters = av1_broadcast_interp_filter(
+          av1_unswitchable_filter(cm->interp_filter));
     }
   }
 #endif  // CONFIG_GLOBAL_MOTION
@@ -12319,30 +12269,17 @@ void av1_rd_pick_inter_mode_sb_seg_skip(const AV1_COMP *cpi,
       int rs;
       int best_rs = INT_MAX;
       for (i = 0; i < SWITCHABLE_FILTERS; ++i) {
-#if CONFIG_DUAL_FILTER
-        int k;
-        for (k = 0; k < 4; ++k) mbmi->interp_filter[k] = i;
-#else
-        mbmi->interp_filter = i;
-#endif  // CONFIG_DUAL_FILTER
+        mbmi->interp_filters = av1_broadcast_interp_filter(i);
         rs = av1_get_switchable_rate(cm, x, xd);
         if (rs < best_rs) {
           best_rs = rs;
-#if CONFIG_DUAL_FILTER
-          best_filter = mbmi->interp_filter[0];
-#else
-          best_filter = mbmi->interp_filter;
-#endif  // CONFIG_DUAL_FILTER
+          best_filter = av1_extract_interp_filter(mbmi->interp_filters, 0);
         }
       }
     }
   }
-// Set the appropriate filter
-#if CONFIG_DUAL_FILTER
-  for (i = 0; i < 4; ++i) mbmi->interp_filter[i] = best_filter;
-#else
-  mbmi->interp_filter = best_filter;
-#endif  // CONFIG_DUAL_FILTER
+  // Set the appropriate filter
+  mbmi->interp_filters = av1_broadcast_interp_filter(best_filter);
   rate2 += av1_get_switchable_rate(cm, x, xd);
 
   if (cm->reference_mode == REFERENCE_MODE_SELECT)
@@ -12363,13 +12300,9 @@ void av1_rd_pick_inter_mode_sb_seg_skip(const AV1_COMP *cpi,
     return;
   }
 
-#if CONFIG_DUAL_FILTER
   assert((cm->interp_filter == SWITCHABLE) ||
-         (cm->interp_filter == mbmi->interp_filter[0]));
-#else
-  assert((cm->interp_filter == SWITCHABLE) ||
-         (cm->interp_filter == mbmi->interp_filter));
-#endif  // CONFIG_DUAL_FILTER
+         (cm->interp_filter ==
+          av1_extract_interp_filter(mbmi->interp_filters, 0)));
 
   av1_update_rd_thresh_fact(cm, tile_data->thresh_freq_fact,
                             cpi->sf.adaptive_rd_thresh, bsize, THR_ZEROMV);
