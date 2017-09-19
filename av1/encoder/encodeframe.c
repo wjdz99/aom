@@ -6052,6 +6052,9 @@ void av1_update_tx_type_count(const AV1_COMMON *cm, MACROBLOCKD *xd,
   MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
   int is_inter = is_inter_block(mbmi);
   FRAME_CONTEXT *fc = xd->tile_ctx;
+#if !CONFIG_ENTROPY_STATS
+  (void)counts;
+#endif  // !CONFIG_ENTROPY_STATS
 
 #if !CONFIG_TXK_SEL
   TX_TYPE tx_type = mbmi->tx_type;
@@ -6076,10 +6079,14 @@ void av1_update_tx_type_count(const AV1_COMMON *cm, MACROBLOCKD *xd,
         update_cdf(fc->inter_ext_tx_cdf[eset][txsize_sqr_map[tx_size]],
                    av1_ext_tx_ind[tx_set_type][tx_type],
                    av1_num_ext_tx_set[tx_set_type]);
+#if CONFIG_ENTROPY_STATS
         ++counts->inter_ext_tx[eset][txsize_sqr_map[tx_size]][tx_type];
+#endif  // CONFIG_ENTROPY_STATS
       } else {
+#if CONFIG_ENTROPY_STATS
         ++counts->intra_ext_tx[eset][txsize_sqr_map[tx_size]][mbmi->mode]
                               [tx_type];
+#endif  // CONFIG_ENTROPY_STATS
         update_cdf(
             fc->intra_ext_tx_cdf[eset][txsize_sqr_map[tx_size]][mbmi->mode],
             av1_ext_tx_ind[tx_set_type][tx_type],
@@ -6095,12 +6102,16 @@ void av1_update_tx_type_count(const AV1_COMMON *cm, MACROBLOCKD *xd,
       !mbmi->skip &&
       !segfeature_active(&cm->seg, mbmi->segment_id, SEG_LVL_SKIP)) {
     if (is_inter) {
+#if CONFIG_ENTROPY_STATS
       ++counts->inter_ext_tx[tx_size][tx_type];
+#endif  // CONFIG_ENTROPY_STATS
       update_cdf(fc->inter_ext_tx_cdf[tx_size], av1_ext_tx_ind[tx_type],
                  TX_TYPES);
     } else {
+#if CONFIG_ENTROPY_STATS
       ++counts->intra_ext_tx[tx_size][intra_mode_to_tx_type_context[mbmi->mode]]
                             [tx_type];
+#endif  // CONFIG_ENTROPY_STATS
       update_cdf(
           fc->intra_ext_tx_cdf[tx_size]
                               [intra_mode_to_tx_type_context[mbmi->mode]],
