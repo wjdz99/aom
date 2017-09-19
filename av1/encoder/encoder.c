@@ -2699,6 +2699,10 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
   cpi->tile_data = NULL;
   cpi->last_show_frame_buf_idx = INVALID_IDX;
 
+#if CONFIG_ENCODE_RES_SWITCH
+  cm->curr_scale_num = SCALE_DENOMINATOR;
+#endif
+
   realloc_segmentation_maps(cpi);
 
   for (i = 0; i < NMV_CONTEXTS; ++i) {
@@ -4445,6 +4449,9 @@ static uint8_t calculate_next_resize_scale(const AV1_COMP *cpi) {
   const AV1EncoderConfig *oxcf = &cpi->oxcf;
   if (oxcf->pass == 1) return SCALE_DENOMINATOR;
   uint8_t new_num = SCALE_DENOMINATOR;
+#if CONFIG_ENCODE_RES_SWITCH
+  const AV1_COMMON *const cm = &cpi->common;
+#endif
 
   switch (oxcf->resize_mode) {
     case RESIZE_NONE: new_num = SCALE_DENOMINATOR; break;
@@ -4455,6 +4462,22 @@ static uint8_t calculate_next_resize_scale(const AV1_COMP *cpi) {
         new_num = oxcf->resize_scale_numerator;
       break;
     case RESIZE_RANDOM: new_num = lcg_rand16(&seed) % 9 + 8; break;
+#if CONFIG_ENCODE_RES_SWITCH
+    case RESIZE_INTERVAL:
+      new_num = cm->curr_scale_num;
+      if (cpi->oxcf.encode_res_switch_interval &&
+          cpi->common.current_video_frame &&
+          (cpi->common.current_video_frame %
+               cpi->oxcf.encode_res_switch_interval ==
+           0)) {
+        if (cm->curr_scale_num == SCALE_DENOMINATOR) {
+          new_num = SCALE_DENOMINATOR >> 1;
+        } else {
+          new_num = SCALE_DENOMINATOR;
+        }
+      }
+      break;
+#endif
     default: assert(0);
   }
   return new_num;
@@ -4578,6 +4601,10 @@ size_params_type av1_calculate_next_size_params(AV1_COMP *cpi) {
     av1_calculate_scaled_size(&rsz.resize_width, &rsz.resize_height,
                               resize_num);
   }
+#if CONFIG_ENCODE_RES_SWITCH
+  cpi->common.curr_scale_num = resize_num;
+#endif
+
 #if CONFIG_FRAME_SUPERRES
   rsz.superres_num = calculate_next_superres_scale(cpi);
   if (!validate_size_scales(oxcf->resize_mode, oxcf->superres_mode, oxcf->width,
