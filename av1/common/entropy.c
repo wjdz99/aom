@@ -2330,9 +2330,8 @@ void av1_average_tile_inter_cdfs(AV1_COMMON *cm, FRAME_CONTEXT *fc,
 #endif
 #endif
 
-// FIXME: cdfs not defined for super_tx
+  // FIXME: cdfs not defined for super_tx
 
-#if CONFIG_EXT_INTER
   AVERAGE_TILE_CDFS(inter_compound_mode_cdf)
 
 #if CONFIG_WEDGE || CONFIG_COMPOUND_SEGMENT
@@ -2349,7 +2348,6 @@ void av1_average_tile_inter_cdfs(AV1_COMMON *cm, FRAME_CONTEXT *fc,
 #endif
   AVERAGE_TILE_CDFS(interintra_mode_cdf)
 #endif
-#endif  // CONFIG_EXT_INTER
 
   /* NB: kf_y_cdf is discarded after use, so no need
      for backwards update */
