@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "ab6886d1_80226847",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 5228,
+      "author": {
+        "id": 7560
+      },
+      "writtenOn": "2017-09-20T10:42:51Z",
+      "side": 1,
+      "message": "Also, couldn\u0027t you just set max_quantized_coef to this unconditionally then declare cur_quantized_coef inside the for() loop? It would be a couple of lines shorter and would a bit more obvious what\u0027s going on.",
+      "parentUuid": "13fe19f1_35a91c79",
+      "range": {
+        "startLine": 5228,
+        "startChar": 2,
+        "endLine": 5228,
+        "endChar": 60
+      },
+      "revId": "cf9079e455d78b59b463f0ed9f74f58547a8e131",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d6078080_9130a611",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 7
@@ -83,6 +107,30 @@
       "side": 1,
       "message": "That\u0027s because it\u0027s possible to use the high bit depth path with 8-bit data. In that case, the flags variable has the YV12_FLAG_HIGHBITDEPTH bit set (which means \"each pixel takes 2 bytes\") but the bit_depth field equals 8.\n\nIf I understand correctly, the original check against bit_depth was correct: this model has been trained on 8-bit data and doesn\u0027t care how it\u0027s laid out in memory.",
       "parentUuid": "d6078080_9130a611",
+      "range": {
+        "startLine": 5361,
+        "startChar": 18,
+        "endLine": 5361,
+        "endChar": 53
+      },
+      "revId": "cf9079e455d78b59b463f0ed9f74f58547a8e131",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "80c581c3_a5300671",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 5361,
+      "author": {
+        "id": 7560
+      },
+      "writtenOn": "2017-09-20T10:42:51Z",
+      "side": 1,
+      "message": "Ah, that\u0027s only half true. If you want to check bit_depth here, you also need to change the call to av1_fwd_txfm so that it calls the high bitdepth version if necessary.",
+      "parentUuid": "15d9b28f_58c3e14d",
       "range": {
         "startLine": 5361,
         "startChar": 18,
