@@ -2870,6 +2870,7 @@ static void set_lpf_parameters(
             (coord & av1_transform_masks[edge_dir][ts]) ? (0) : (1);
         if (tu_edge) {
           const MODE_INFO *const mi_prev = *(mi - mode_step);
+          const MB_MODE_INFO *const prev_mbmi = &mi_prev->mbmi;
           const int pv_row =
               (VERT_EDGE == edge_dir) ? (mi_row) : (mi_row - (1 << scale_vert));
           const int pv_col =
@@ -2878,21 +2879,28 @@ static void set_lpf_parameters(
               av1_get_transform_size(mi_prev, edge_dir, pv_row, pv_col, plane,
                                      plane_ptr, scale_horz, scale_vert);
 
+          const int same_ref =
+              (mbmi->ref_frame[0] == prev_mbmi->ref_frame[0]) &&
+              (mbmi->ref_frame[1] == prev_mbmi->ref_frame[1]);
+          const int same_mv =
+              same_ref &&
+              (mbmi->mv[0].as_mv.row == prev_mbmi->mv[0].as_mv.row) &&
+              (mbmi->mv[0].as_mv.col == prev_mbmi->mv[0].as_mv.col) &&
+              (mbmi->mv[1].as_mv.row == prev_mbmi->mv[1].as_mv.row) &&
+              (mbmi->mv[1].as_mv.col == prev_mbmi->mv[1].as_mv.col);
+
 #if CONFIG_EXT_DELTA_Q
 #if CONFIG_LOOPFILTER_LEVEL
           const uint32_t pv_lvl =
-              get_filter_level(cm, &cm->lf_info, edge_dir, &mi_prev->mbmi);
+              get_filter_level(cm, &cm->lf_info, edge_dir, prev_mbmi);
 #else
-          const uint32_t pv_lvl =
-              get_filter_level(cm, &cm->lf_info, &mi_prev->mbmi);
+          const uint32_t pv_lvl = get_filter_level(cm, &cm->lf_info, prev_mbmi);
 #endif
 #else
-          const uint32_t pv_lvl =
-              get_filter_level(&cm->lf_info, &mi_prev->mbmi);
+          const uint32_t pv_lvl = get_filter_level(&cm->lf_info, prev_mbmi);
 #endif  // CONFIG_EXT_DELTA_Q
 
-          const int pv_skip =
-              mi_prev->mbmi.skip && is_inter_block(&mi_prev->mbmi);
+          const int pv_skip = mi_prev->mbmi.skip && is_inter_block(prev_mbmi);
           const int32_t pu_edge =
               (coord &
                av1_prediction_masks[edge_dir]
@@ -2901,9 +2909,10 @@ static void set_lpf_parameters(
                   ? (0)
                   : (1);
           // if the current and the previous blocks are skipped,
+          // and their mvs are the same,
           // deblock the edge if the edge belongs to a PU's edge only.
           if ((curr_level || pv_lvl) &&
-              (!pv_skip || !curr_skipped || pu_edge)) {
+              (!pv_skip || !curr_skipped || pu_edge || !same_mv)) {
             const TX_SIZE min_ts = AOMMIN(ts, pv_ts);
             if (TX_4X4 >= min_ts) {
               params->filter_length = 4;
