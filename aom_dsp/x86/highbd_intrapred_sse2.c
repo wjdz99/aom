@@ -855,7 +855,6 @@ void aom_highbd_dc_predictor_8x4_sse2(uint16_t *dst, ptrdiff_t stride,
   _mm_store_si128((__m128i *)dst, row);
   dst += stride;
   _mm_store_si128((__m128i *)dst, row);
-  dst += stride;
 }
 
 void aom_highbd_dc_predictor_8x16_sse2(uint16_t *dst, ptrdiff_t stride,
