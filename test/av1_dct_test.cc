@@ -109,7 +109,13 @@ INSTANTIATE_TEST_CASE_P(
 #if !CONFIG_DAALA_DCT4 || !CONFIG_DAALA_DCT8 || !CONFIG_DAALA_DCT16
                       FdctParam(&fdct4, &reference_dct_1d, 4, 1),
 #endif
-                      FdctParam(&fdct8, &reference_dct_1d, 8, 1),
-                      FdctParam(&fdct16, &reference_dct_1d, 16, 2),
-                      FdctParam(&fdct32, &reference_dct_1d, 32, 3)));
+                      FdctParam(&fdct8, &reference_dct_1d, 8, 1)
+#if !CONFIG_DAALA_DCT4 || !CONFIG_DAALA_DCT8 || !CONFIG_DAALA_DCT16 || \
+  !CONFIG_DAALA_DCT32
+                      ,FdctParam(&fdct16, &reference_dct_1d, 16, 2)
+#endif
+#if !CONFIG_DAALA_DCT8 || !CONFIG_DAALA_DCT16 || !CONFIG_DAALA_DCT32
+                      ,FdctParam(&fdct32, &reference_dct_1d, 32, 3)
+#endif
+                      ));
 }  // namespace
