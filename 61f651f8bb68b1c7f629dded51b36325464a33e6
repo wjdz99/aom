@@ -70,6 +70,30 @@
       "revId": "61f651f8bb68b1c7f629dded51b36325464a33e6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9eee5229_3a7df45e",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 6815
+      },
+      "writtenOn": "2017-09-20T07:10:32Z",
+      "side": 1,
+      "message": "Perhaps a variant of (2):\n\nKeep behaviour as before, hence the filter block is always 64x64.\n\nStill signal per 64x64 when possible. Up to 4 signals per superblocks.\nThe signalling happens in the top-left partition of the 64x64 (not collected at the end of the superblock as it is today). The signalling only happens if the 64x64 is partitioned OR if it is not skip.\nExamples:\n* 128x128 : signal if not skip\n* 128x64+128x64 : for each partition, signal if not skip\n* 4*64x64 : for each partition, signal if not skip\n* 16*32x32 : for each 32x32 that is top-left in an aligned 64x64, signal the strength (no skip check)\n\nThe key thing is that we want the signalling to happen _before_ the mode_info and residual associated with the filter_block, AND that it only depends on a single skip_flag. Also, I think keeping 64x64 filter_block is good. IIRC, some companies asked for keeping CDEF and LR 64x64 based even in the case of 128x128 superblocks.\n\nDoes this make sense?",
+      "parentUuid": "6c759a28_0bcebd67",
+      "range": {
+        "startLine": 49,
+        "startChar": 8,
+        "endLine": 49,
+        "endChar": 38
+      },
+      "revId": "61f651f8bb68b1c7f629dded51b36325464a33e6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
