@@ -559,6 +559,9 @@ static void dealloc_compressor_data(AV1_COMP *cpi) {
   av1_free_context_buffers(cm);
 
   aom_free_frame_buffer(&cpi->last_frame_uf);
+#if CONFIG_CDEF
+  av1_free_cdef_buffers(cm);
+#endif
 #if CONFIG_LOOP_RESTORATION
   av1_free_restoration_buffers(cm);
   aom_free_frame_buffer(&cpi->last_frame_db);
@@ -4350,6 +4353,9 @@ static void set_frame_size(AV1_COMP *cpi, int width, int height) {
     aom_internal_error(&cm->error, AOM_CODEC_MEM_ERROR,
                        "Failed to allocate frame buffer");
 
+#if CONFIG_CDEF
+  av1_alloc_cdef_buffers(cm);
+#endif
 #if CONFIG_LOOP_RESTORATION
   set_restoration_tilesize(
 #if CONFIG_FRAME_SUPERRES

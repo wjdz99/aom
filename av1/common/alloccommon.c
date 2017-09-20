@@ -116,6 +116,23 @@ void av1_free_ref_frame_buffers(BufferPool *pool) {
   }
 }
 
+#if CONFIG_CDEF
+void av1_alloc_cdef_buffers(AV1_COMMON *cm) {
+  int nvfb = (cm->mi_rows + MI_SIZE_64X64 - 1) / MI_SIZE_64X64;
+  int nhfb = (cm->mi_cols + MI_SIZE_64X64 - 1) / MI_SIZE_64X64;
+  cm->cdef_stride = nhfb;
+
+  aom_free(cm->cdef_strength_index);
+  CHECK_MEM_ERROR(
+      cm, cm->cdef_strength_index,
+      (int8_t *)aom_calloc(nvfb * nhfb, sizeof(*cm->cdef_strength_index)));
+}
+
+void av1_free_cdef_buffers(AV1_COMMON *cm) {
+  aom_free(cm->cdef_strength_index);
+}
+#endif
+
 #if CONFIG_LOOP_RESTORATION
 // Assumes cm->rst_info[p].restoration_tilesize is already initialized
 void av1_alloc_restoration_buffers(AV1_COMMON *cm) {

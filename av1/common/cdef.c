@@ -215,9 +215,7 @@ void av1_cdef_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
       curr_row_cdef[fbc] = 0;
       if (cm->mi_grid_visible[MI_SIZE_64X64 * fbr * cm->mi_stride +
                               MI_SIZE_64X64 * fbc] == NULL ||
-          cm->mi_grid_visible[MI_SIZE_64X64 * fbr * cm->mi_stride +
-                              MI_SIZE_64X64 * fbc]
-                  ->mbmi.cdef_strength == -1) {
+          cm->cdef_strength_index[fbr * cm->cdef_stride + fbc] == -1) {
         cdef_left = 0;
         continue;
       }
@@ -245,17 +243,14 @@ void av1_cdef_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
       else
         tile_right = 1;
 
-      const int mbmi_cdef_strength =
-          cm->mi_grid_visible[MI_SIZE_64X64 * fbr * cm->mi_stride +
-                              MI_SIZE_64X64 * fbc]
-              ->mbmi.cdef_strength;
-      level = cm->cdef_strengths[mbmi_cdef_strength] / CDEF_SEC_STRENGTHS;
-      sec_strength =
-          cm->cdef_strengths[mbmi_cdef_strength] % CDEF_SEC_STRENGTHS;
+      const int strength_index =
+          cm->cdef_strength_index[fbr * cm->cdef_stride + fbc];
+      level = cm->cdef_strengths[strength_index] / CDEF_SEC_STRENGTHS;
+      sec_strength = cm->cdef_strengths[strength_index] % CDEF_SEC_STRENGTHS;
       sec_strength += sec_strength == 3;
-      uv_level = cm->cdef_uv_strengths[mbmi_cdef_strength] / CDEF_SEC_STRENGTHS;
+      uv_level = cm->cdef_uv_strengths[strength_index] / CDEF_SEC_STRENGTHS;
       uv_sec_strength =
-          cm->cdef_uv_strengths[mbmi_cdef_strength] % CDEF_SEC_STRENGTHS;
+          cm->cdef_uv_strengths[strength_index] % CDEF_SEC_STRENGTHS;
       uv_sec_strength += uv_sec_strength == 3;
       if ((level == 0 && sec_strength == 0 && uv_level == 0 &&
            uv_sec_strength == 0) ||

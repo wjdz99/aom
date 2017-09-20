@@ -2629,13 +2629,13 @@ static void decode_partition(AV1Decoder *const pbi, MACROBLOCKD *const xd,
          h += height_step) {
       for (w = 0; (w < mi_size_wide[cm->sb_size]) && (mi_col + w < cm->mi_cols);
            w += width_step) {
+        const int fbr = (mi_row + h) >> (CDEF_FB_SIZE_LOG2 - MI_SIZE_LOG2);
+        const int fbc = (mi_col + w) >> (CDEF_FB_SIZE_LOG2 - MI_SIZE_LOG2);
         if (!cm->all_lossless && !sb_all_skip(cm, mi_row + h, mi_col + w))
-          cm->mi_grid_visible[(mi_row + h) * cm->mi_stride + (mi_col + w)]
-              ->mbmi.cdef_strength =
+          cm->cdef_strength_index[fbr * cm->cdef_stride + fbc] =
               aom_read_literal(r, cm->cdef_bits, ACCT_STR);
         else
-          cm->mi_grid_visible[(mi_row + h) * cm->mi_stride + (mi_col + w)]
-              ->mbmi.cdef_strength = -1;
+          cm->cdef_strength_index[fbr * cm->cdef_stride + fbc] = -1;
       }
     }
   }
@@ -5574,6 +5574,11 @@ size_t av1_decode_frame_headers_and_setup(AV1Decoder *pbi, const uint8_t *data,
       aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
                          "Decode failed. Frame data header is corrupted.");
   }
+
+#if CONFIG_CDEF
+  av1_alloc_cdef_buffers(cm);
+#endif
+
   return first_partition_size;
 }
 

@@ -3169,12 +3169,11 @@ static void write_modes_sb(AV1_COMP *const cpi, const TileInfo *const tile,
       for (width = 0; (width < mi_size_wide[cm->sb_size]) &&
                       (mi_col + width < cm->mi_cols);
            width += width_step) {
+        const int fbr = (mi_row + height) >> (CDEF_FB_SIZE_LOG2 - MI_SIZE_LOG2);
+        const int fbc = (mi_col + width) >> (CDEF_FB_SIZE_LOG2 - MI_SIZE_LOG2);
         if (!sb_all_skip(cm, mi_row + height, mi_col + width))
           aom_write_literal(
-              w,
-              cm->mi_grid_visible[(mi_row + height) * cm->mi_stride +
-                                  (mi_col + width)]
-                  ->mbmi.cdef_strength,
+              w, cm->cdef_strength_index[fbr * cm->cdef_stride + fbc],
               cm->cdef_bits);
       }
     }
