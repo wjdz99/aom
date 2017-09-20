@@ -307,8 +307,8 @@ void av1_cdef_search(YV12_BUFFER_CONFIG *frame, const YV12_BUFFER_CONFIG *ref,
   int sb_count;
   int nvfb = (cm->mi_rows + MI_SIZE_64X64 - 1) / MI_SIZE_64X64;
   int nhfb = (cm->mi_cols + MI_SIZE_64X64 - 1) / MI_SIZE_64X64;
-  int *sb_index = aom_malloc(nvfb * nhfb * sizeof(*sb_index));
-  int *selected_strength = aom_malloc(nvfb * nhfb * sizeof(*sb_index));
+  int *fb_index = aom_malloc(nvfb * nhfb * sizeof(*fb_index));
+  int *selected_strength = aom_malloc(nvfb * nhfb * sizeof(*selected_strength));
   uint64_t(*mse[2])[TOTAL_STRENGTHS];
 #if CONFIG_CDEF_SINGLEPASS
   int pri_damping = 3 + (cm->base_qindex >> 6);
@@ -397,9 +397,7 @@ void av1_cdef_search(YV12_BUFFER_CONFIG *frame, const YV12_BUFFER_CONFIG *ref,
       int dirinit = 0;
       nhb = AOMMIN(MI_SIZE_64X64, cm->mi_cols - MI_SIZE_64X64 * fbc);
       nvb = AOMMIN(MI_SIZE_64X64, cm->mi_rows - MI_SIZE_64X64 * fbr);
-      cm->mi_grid_visible[MI_SIZE_64X64 * fbr * cm->mi_stride +
-                          MI_SIZE_64X64 * fbc]
-          ->mbmi.cdef_strength = -1;
+      cm->cdef_strength_index[fbr * cm->cdef_stride + fbc] = -1;
       if (sb_all_skip(cm, fbr * MI_SIZE_64X64, fbc * MI_SIZE_64X64)) continue;
       cdef_count = sb_compute_cdef_list(cm, fbr * MI_SIZE_64X64,
                                         fbc * MI_SIZE_64X64, dlist, 1);
@@ -456,8 +454,7 @@ void av1_cdef_search(YV12_BUFFER_CONFIG *frame, const YV12_BUFFER_CONFIG *ref,
             mse[pli][sb_count][gi] = curr_mse;
           else
             mse[1][sb_count][gi] += curr_mse;
-          sb_index[sb_count] =
-              MI_SIZE_64X64 * fbr * cm->mi_stride + MI_SIZE_64X64 * fbc;
+          fb_index[sb_count] = fbr * cm->cdef_stride +  fbc;
         }
       }
       sb_count++;
@@ -507,7 +504,7 @@ void av1_cdef_search(YV12_BUFFER_CONFIG *frame, const YV12_BUFFER_CONFIG *ref,
       }
     }
     selected_strength[i] = best_gi;
-    cm->mi_grid_visible[sb_index[i]]->mbmi.cdef_strength = best_gi;
+    cm->cdef_strength_index[fb_index[i]] = best_gi;
   }
 
   if (fast) {
@@ -530,6 +527,6 @@ void av1_cdef_search(YV12_BUFFER_CONFIG *frame, const YV12_BUFFER_CONFIG *ref,
     aom_free(src[pli]);
     aom_free(ref_coeff[pli]);
   }
-  aom_free(sb_index);
+  aom_free(fb_index);
   aom_free(selected_strength);
 }

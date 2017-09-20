@@ -465,8 +465,6 @@ typedef struct MB_MODE_INFO {
   int dq_off_index;
   int send_dq_bit;
 #endif  // CONFIG_NEW_QUANT
-  /* deringing gain *per-superblock* */
-  int8_t cdef_strength;
 #if CONFIG_DELTA_Q
   int current_q_index;
 #if CONFIG_EXT_DELTA_Q

@@ -11,6 +11,8 @@
 #ifndef AV1_COMMON_CDEF_H_
 #define AV1_COMMON_CDEF_H_
 
+#define CDEF_FB_SIZE_LOG2 6 // Filter in 64x64 units
+
 #define CDEF_STRENGTH_BITS 7
 
 #define CDEF_PRI_STRENGTHS 32
