@@ -206,7 +206,6 @@ const map_entry prediction_mode_map[] = { ENUM(DC_PRED),
                                           ENUM(NEARMV),
                                           ENUM(ZEROMV),
                                           ENUM(NEWMV),
-#if CONFIG_EXT_INTER
                                           ENUM(NEAREST_NEARESTMV),
                                           ENUM(NEAR_NEARMV),
                                           ENUM(NEAREST_NEWMV),
@@ -215,7 +214,6 @@ const map_entry prediction_mode_map[] = { ENUM(DC_PRED),
                                           ENUM(NEW_NEARMV),
                                           ENUM(ZERO_ZEROMV),
                                           ENUM(NEW_NEWMV),
-#endif
                                           ENUM(INTRA_INVALID),
                                           LAST_ENUM };
 
