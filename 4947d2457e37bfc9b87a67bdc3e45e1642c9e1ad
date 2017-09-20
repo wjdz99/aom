@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e5d3f86f_4eac7e2f",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 5238,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-09-20T17:38:04Z",
+      "side": 1,
+      "message": "Not sure how much the floating point calculation costs. Is it possible to modify this function to use fixed point math, which may also help the speed? Also, that will make it easy to write a SIMD version later.",
+      "revId": "4947d2457e37bfc9b87a67bdc3e45e1642c9e1ad",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "64f0d41b_4a3992a0",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 5363,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-09-20T17:38:04Z",
+      "side": 1,
+      "message": "Should add the config flag here - something like what you have above:\n\n#if CONFIG_HIGHBITDEPTH\n  if (xd-\u003ecur_buf-\u003eflags \u0026 YV12_FLAG_HIGHBITDEPTH)\n\nAlso, should consider cpi-\u003esf.tx_type_search in the condition too.",
+      "range": {
+        "startLine": 5363,
+        "startChar": 18,
+        "endLine": 5363,
+        "endChar": 64
+      },
+      "revId": "4947d2457e37bfc9b87a67bdc3e45e1642c9e1ad",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
