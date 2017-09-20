@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ad8365dc_dbf49f75",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 3403,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2017-09-20T21:00:30Z",
+      "side": 1,
+      "message": "Right, this is really a hacking so i was quite careful to confirm this and was thinking\nstore the uv buff pointer somewhere when the 1st sub8x8 partition encoded, then use the save one here.",
+      "parentUuid": "003b5261_08e3c9b5",
+      "revId": "3a8f3dc3751bc3e0e9d7e2e77070e0f5b0f94c8c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8e0083db_d7173ef2",
         "filename": "av1/encoder/encodeframe.c",
         "patchSetId": 11
@@ -30,6 +48,24 @@
       "writtenOn": "2017-09-20T20:51:30Z",
       "side": 1,
       "message": "The hard-coded 4x4 here is the only thing that depends on 4:2:0, right? I think that should be very easy to generalize, and is probably something that should be done before this lands (or at the very least, you should add asserts that you\u0027re in 4:2:0, but I think it\u0027s approximately as much work to just make this work for the other subsampling formats).",
+      "revId": "3a8f3dc3751bc3e0e9d7e2e77070e0f5b0f94c8c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d7cd26d5_dcb267f9",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 3408,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2017-09-20T21:00:30Z",
+      "side": 1,
+      "message": "Yes, as my TODO above says, we need work for other chroma formats than 4:2:0",
+      "parentUuid": "8e0083db_d7173ef2",
       "revId": "3a8f3dc3751bc3e0e9d7e2e77070e0f5b0f94c8c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
