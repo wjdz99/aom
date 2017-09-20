@@ -68,6 +68,30 @@
       "revId": "cf9079e455d78b59b463f0ed9f74f58547a8e131",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "15d9b28f_58c3e14d",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 5361,
+      "author": {
+        "id": 7560
+      },
+      "writtenOn": "2017-09-20T09:48:52Z",
+      "side": 1,
+      "message": "That\u0027s because it\u0027s possible to use the high bit depth path with 8-bit data. In that case, the flags variable has the YV12_FLAG_HIGHBITDEPTH bit set (which means \"each pixel takes 2 bytes\") but the bit_depth field equals 8.\n\nIf I understand correctly, the original check against bit_depth was correct: this model has been trained on 8-bit data and doesn\u0027t care how it\u0027s laid out in memory.",
+      "parentUuid": "d6078080_9130a611",
+      "range": {
+        "startLine": 5361,
+        "startChar": 18,
+        "endLine": 5361,
+        "endChar": 53
+      },
+      "revId": "cf9079e455d78b59b463f0ed9f74f58547a8e131",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
