@@ -101,10 +101,16 @@ int ifd_inspect(insp_frame_data *fd, void *decoder) {
       mi->tx_size = mbmi->tx_size;
 
 #if CONFIG_CDEF
+      // TODO(david.barker): This may display the wrong CDEF output for
+      // 128Xh and wX128 blocks, since these may have multiple different
+      // cdef strengths used in different regions of the block.
+      const int fbr = j >> (6 - MI_SIZE_LOG2);
+      const int fbc = i >> (6 - MI_SIZE_LOG2);
+      const int strength_index = cm->cdef_strength_index[fbr * cm->cdef_stride + fbc];
       mi->cdef_level =
-          cm->cdef_strengths[mbmi->cdef_strength] / CDEF_SEC_STRENGTHS;
+          cm->cdef_strengths[strength_index] / CDEF_SEC_STRENGTHS;
       mi->cdef_strength =
-          cm->cdef_strengths[mbmi->cdef_strength] % CDEF_SEC_STRENGTHS;
+          cm->cdef_strengths[strength_index] % CDEF_SEC_STRENGTHS;
       mi->cdef_strength += mi->cdef_strength == 3;
 #endif
 #if CONFIG_CFL

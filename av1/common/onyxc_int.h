@@ -487,10 +487,16 @@ typedef struct AV1Common {
 #if CONFIG_CDEF
   int cdef_pri_damping;
   int cdef_sec_damping;
+  int cdef_bits;
   int nb_cdef_strengths;
   int cdef_strengths[CDEF_MAX_STRENGTHS];
   int cdef_uv_strengths[CDEF_MAX_STRENGTHS];
-  int cdef_bits;
+  // Store an index into the above strength arrays for each 64x64 unit
+  // in the source frame. Note that we can't store this in the 'mi' array,
+  // since (when EXT_PARTITION is enabled), one mi structure can cover
+  // multiple 64x64 units.
+  int8_t *cdef_strength_index;
+  int cdef_stride; // Stride of the above pointer
 #endif
 
 #if CONFIG_DELTA_Q

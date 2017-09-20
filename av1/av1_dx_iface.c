@@ -126,6 +126,9 @@ static aom_codec_err_t decoder_destroy(aom_codec_alg_priv_t *ctx) {
           (FrameWorkerData *)worker->data1;
       aom_get_worker_interface()->end(worker);
       av1_remove_common(&frame_worker_data->pbi->common);
+#if CONFIG_CDEF
+      av1_free_cdef_buffers(&frame_worker_data->pbi->common);
+#endif
 #if CONFIG_LOOP_RESTORATION
       av1_free_restoration_buffers(&frame_worker_data->pbi->common);
 #endif  // CONFIG_LOOP_RESTORATION
