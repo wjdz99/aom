@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "b57d1e47_feb4a118",
+        "filename": "av1/common/idct.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1106,
+      "author": {
+        "id": 5540
+      },
+      "writtenOn": "2017-09-21T12:52:21Z",
+      "side": 1,
+      "message": "I don\u0027t see how it breaks LGT, it just makes it mutually incompatible with Daala_TX, which it is.  Even if LGT is updated to be orthonormally scaled, it still can\u0027t run at the same time as Daala_TX.",
+      "parentUuid": "e10ab90d_f116e386",
+      "revId": "b28038999f655bd98a7fbb48c0f2c6d1ba4ce76c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "116880ae_409b3e43",
         "filename": "av1/encoder/dct.c",
         "patchSetId": 7
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "d9f80850_bf76e5ea",
+        "filename": "av1/encoder/dct.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5540
+      },
+      "writtenOn": "2017-09-21T12:52:21Z",
+      "side": 1,
+      "message": "Unfortunately, it is not premature-- we do not pass build verification if the transforms are left in place, as they\u0027re statically defined and not used.  If the #if expression is inadequate/flawed, we need to fix it.\n\nThis is part of what I meant by this level of individual transform configuration granularity quickly becoming very complex.  It even touches the build system for SIMD (as there are now dead functions there that also get flagged).",
+      "parentUuid": "116880ae_409b3e43",
+      "revId": "b28038999f655bd98a7fbb48c0f2c6d1ba4ce76c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b4c7df17_54c55952",
         "filename": "av1/encoder/dct.c",
         "patchSetId": 7
@@ -47,6 +83,24 @@
       "writtenOn": "2017-09-21T07:03:08Z",
       "side": 1,
       "message": "Notice that LGT is not removed here.",
+      "revId": "b28038999f655bd98a7fbb48c0f2c6d1ba4ce76c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9d07b8ec_3f1f9a0b",
+        "filename": "av1/encoder/dct.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 2032,
+      "author": {
+        "id": 5540
+      },
+      "writtenOn": "2017-09-21T12:52:21Z",
+      "side": 1,
+      "message": "Only because the code pattern used here is different, and it was less convenient to do so.  LGT and daala_tx are still mutually incompatible.",
+      "parentUuid": "b4c7df17_54c55952",
       "revId": "b28038999f655bd98a7fbb48c0f2c6d1ba4ce76c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
