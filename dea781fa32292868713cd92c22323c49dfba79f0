@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9d228529_7c2dcb85",
+        "filename": "test/av1_convolve_scale_test.cc",
+        "patchSetId": 7
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-09-21T01:20:25Z",
+      "side": 1,
+      "message": "It would be better if this were captured in a separate DISABLED_Speed test that could be run at any time. That\u0027s also the reasoning for having a C configuration here. You could skip the correctness check in that case if comparing it to itself.",
+      "revId": "dea781fa32292868713cd92c22323c49dfba79f0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "07395c24_7cbfa209",
+        "filename": "test/av1_convolve_scale_test.cc",
+        "patchSetId": 7
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-09-21T01:20:25Z",
+      "side": 1,
+      "message": "_t is a reserved namespace, better not to introduce new uses of it as code tends to move around. Also, types are named in upper camel case:\n\nhttps://google.github.io/styleguide/cppguide.html#Type_Names",
+      "revId": "dea781fa32292868713cd92c22323c49dfba79f0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7d6b9907_57a17065",
+        "filename": "test/av1_convolve_scale_test.cc",
+        "patchSetId": 7
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-09-21T01:20:25Z",
+      "side": 1,
+      "message": "typically members are meant to be accessed directly in structs.\n\nhttps://google.github.io/styleguide/cppguide.html#Structs_vs._Classes\nhttps://google.github.io/styleguide/cppguide.html#Variable_Names",
+      "revId": "dea781fa32292868713cd92c22323c49dfba79f0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "45ac4a4e_8a8a6b55",
+        "filename": "test/av1_convolve_scale_test.cc",
+        "patchSetId": 7
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-09-21T01:20:25Z",
+      "side": 1,
+      "message": "you could just use a struct for the params which would give a clearer indication of the types in their use via the members",
+      "revId": "dea781fa32292868713cd92c22323c49dfba79f0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
