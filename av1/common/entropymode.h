@@ -548,8 +548,6 @@ extern const aom_prob av1_default_palette_y_mode_prob[PALETTE_BLOCK_SIZES]
 extern const aom_prob
     av1_default_palette_uv_mode_prob[PALETTE_UV_MODE_CONTEXTS];
 
-extern const int av1_intra_mode_ind[INTRA_MODES];
-extern const int av1_intra_mode_inv[INTRA_MODES];
 #if CONFIG_EXT_TX
 extern int av1_ext_tx_intra_ind[EXT_TX_SETS_INTRA][TX_TYPES];
 extern int av1_ext_tx_intra_inv[EXT_TX_SETS_INTRA][TX_TYPES];

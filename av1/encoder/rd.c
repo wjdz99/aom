@@ -99,21 +99,14 @@ void av1_fill_mode_rates(AV1_COMMON *const cm, MACROBLOCK *x,
   for (i = 0; i < INTRA_MODES; ++i)
     for (j = 0; j < INTRA_MODES; ++j)
       av1_cost_tokens_from_cdf(x->y_mode_costs[i][j], av1_kf_y_mode_cdf[i][j],
-                               av1_intra_mode_inv);
+                               NULL);
 
   for (i = 0; i < BLOCK_SIZE_GROUPS; ++i)
     av1_cost_tokens_from_cdf(x->mbmode_cost[i], fc->y_mode_cdf[i],
-                             av1_intra_mode_inv);
-  const int *uv_mode_inv_map =
-#if CONFIG_CFL
-      // CfL codes the uv_mode without reordering it
-      NULL;
-#else
-      av1_intra_mode_inv;
-#endif
+                             NULL);
   for (i = 0; i < INTRA_MODES; ++i)
     av1_cost_tokens_from_cdf(x->intra_uv_mode_cost[i], fc->uv_mode_cdf[i],
-                             uv_mode_inv_map);
+                             NULL);
 
   for (i = 0; i < SWITCHABLE_FILTER_CONTEXTS; ++i)
     av1_cost_tokens_from_cdf(x->switchable_interp_costs[i],
