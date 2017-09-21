@@ -30,6 +30,7 @@ extern const SCAN_ORDER av1_intra_scan_orders[TX_SIZES_ALL][TX_TYPES];
 extern const SCAN_ORDER av1_inter_scan_orders[TX_SIZES_ALL][TX_TYPES];
 
 #if CONFIG_ADAPT_SCAN
+#define USE_2X2_PROB 0
 void av1_update_scan_count_facade(AV1_COMMON *cm, FRAME_COUNTS *counts,
                                   TX_SIZE tx_size, TX_TYPE tx_type,
                                   const tran_low_t *dqcoeffs, int max_scan);
@@ -99,6 +100,12 @@ static INLINE const SCAN_ORDER *get_scan(const AV1_COMMON *cm, TX_SIZE tx_size,
   return get_default_scan(tx_size, tx_type, is_inter);
 #endif  // CONFIG_ADAPT_SCAN
 }
+
+#if USE_2X2_PROB
+void av1_down_sample_scan_count(uint32_t *non_zero_count_ds,
+                                const uint32_t *non_zero_count,
+                                TX_SIZE tx_size);
+#endif
 
 #ifdef __cplusplus
 }  // extern "C"
