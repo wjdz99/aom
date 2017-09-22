@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4fa12e24_eb1f3326",
+        "filename": "av1/common/x86/av1_convolve_scale_sse4.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-09-22T07:20:45Z",
+      "side": 1,
+      "message": "this will break older visual studios (2013, 2015?), I think there are commits that dropped them",
+      "revId": "fc0ed8414ca6f8b6b8de5441aa7d3aff7cabb260",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eb4401b8_53463195",
+        "filename": "test/av1_convolve_scale_test.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 365,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-09-22T07:20:45Z",
+      "side": 1,
+      "message": "prefer {}s on multi-line conditionals",
+      "revId": "fc0ed8414ca6f8b6b8de5441aa7d3aff7cabb260",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8c92b42b_eb4452b7",
+        "filename": "test/av1_convolve_scale_test.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 393,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-09-22T07:20:45Z",
+      "side": 1,
+      "message": "call this _Speed to normalize filters",
+      "range": {
+        "startLine": 393,
+        "startChar": 40,
+        "endLine": 393,
+        "endChar": 49
+      },
+      "revId": "fc0ed8414ca6f8b6b8de5441aa7d3aff7cabb260",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
