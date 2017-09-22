@@ -5760,10 +5760,12 @@ size_t av1_decode_frame_headers_and_setup(AV1Decoder *pbi, const uint8_t *data,
   av1_zero(cm->counts);
 
   xd->corrupted = 0;
+#if CONFIG_ONLY_COMPRESSED_HDR
   new_fb->corrupted = read_compressed_header(pbi, data, first_partition_size);
   if (new_fb->corrupted)
     aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
                        "Decode failed. Frame data header is corrupted.");
+#endif  // CONFIG_ONLY_UNCOMPRESSED_HDR
 
   return first_partition_size;
 }

@@ -3898,7 +3898,6 @@ static uint32_t write_tiles(AV1_COMP *const cpi, uint8_t *const dst,
   int tile_size_bytes = 4;
   int tile_col_size_bytes;
   uint32_t uncompressed_hdr_size = 0;
-  struct aom_write_bit_buffer comp_hdr_len_wb;
   struct aom_write_bit_buffer tg_params_wb;
   struct aom_write_bit_buffer tile_size_bytes_wb;
   uint32_t saved_offset;
@@ -4021,13 +4020,19 @@ static uint32_t write_tiles(AV1_COMP *const cpi, uint8_t *const dst,
       aom_wb_overwrite_literal(&wb, (1 << n_log2_tiles) - 1, n_log2_tiles);
     }
 
+#if CONFIG_ONLY_COMPRESSED_HDR
+    uncompressed_hdr_size = aom_wb_bytes_written(&wb);
+    comp_hdr_size = 0;
+#else
     /* Write a placeholder for the compressed header length */
-    comp_hdr_len_wb = wb;
+    struct aom_write_bit_buffer comp_hdr_len_wb = wb;
     aom_wb_write_literal(&wb, 0, 16);
 
     uncompressed_hdr_size = aom_wb_bytes_written(&wb);
     comp_hdr_size = write_compressed_header(cpi, dst + uncompressed_hdr_size);
     aom_wb_overwrite_literal(&comp_hdr_len_wb, (int)(comp_hdr_size), 16);
+#endif  // CONFIG_ONLY_COMPRESSED_HDR
+
     hdr_size = uncompressed_hdr_size + comp_hdr_size;
     total_size += hdr_size;
 
