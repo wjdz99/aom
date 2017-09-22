@@ -152,8 +152,11 @@ static int64_t try_restoration_tile(const YV12_BUFFER_CONFIG *src,
   av1_loop_restoration_frame(cm->frame_to_show, cm, rsi, components_pattern,
                              partial_frame, dst_frame);
   av1_get_rest_tile_limits(tile_idx, subtile_idx, subtile_bits, nhtiles,
-                           nvtiles, tile_width, tile_height, width, height, 0,
-                           0, &h_start, &h_end, &v_start, &v_end);
+                           nvtiles, tile_width, tile_height, width, height,
+#if CONFIG_STRIPED_LOOP_RESTORATION
+                           components_pattern > 1 ? cm->subsampling_y : 0,
+#endif
+                           0, 0, &h_start, &h_end, &v_start, &v_end);
   filt_err = sse_restoration_tile(src, dst_frame, cm, h_start, h_end - h_start,
                                   v_start, v_end - v_start, components_pattern);
 
@@ -553,8 +556,11 @@ static void foreach_rtile_in_tile(const struct rest_search_ctxt *ctxt,
       int h_start, h_end, v_start, v_end;
       av1_get_rest_tile_limits(rtile_idx, 0, 0, ctxt->nrtiles_x,
                                ctxt->nrtiles_y, rtile_width, rtile_height,
-                               ctxt->plane_width, ctxt->plane_height, 0, 0,
-                               &h_start, &h_end, &v_start, &v_end);
+                               ctxt->plane_width, ctxt->plane_height,
+#if CONFIG_STRIPED_LOOP_RESTORATION
+                               ctxt->plane > 0 ? cm->subsampling_y : 0,
+#endif
+                               0, 0, &h_start, &h_end, &v_start, &v_end);
 
       fun(ctxt, rtile_idx, h_start, h_end, v_start, v_end, arg);
     }
@@ -1324,8 +1330,11 @@ static double search_norestore(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi,
   info->frame_restoration_type = RESTORE_NONE;
   for (tile_idx = 0; tile_idx < ntiles; ++tile_idx) {
     av1_get_rest_tile_limits(tile_idx, 0, 0, nhtiles, nvtiles, tile_width,
-                             tile_height, width, height, 0, 0, &h_start, &h_end,
-                             &v_start, &v_end);
+                             tile_height, width, height,
+#if CONFIG_STRIPED_LOOP_RESTORATION
+                             plane != AOM_PLANE_Y ? cm->subsampling_y : 0,
+#endif
+                             0, 0, &h_start, &h_end, &v_start, &v_end);
     err = sse_restoration_tile(src, cm->frame_to_show, cm, h_start,
                                h_end - h_start, v_start, v_end - v_start,
                                1 << plane);
