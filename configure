@@ -350,6 +350,7 @@ EXPERIMENT_LIST="
     obu
     amvr
     lpf_sb
+    only_uncompressed_hdr
 "
 CONFIG_LIST="
     dependency_tracking
