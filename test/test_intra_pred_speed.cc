@@ -94,9 +94,10 @@ void CheckMd5Signature(const char name[], const char *const signatures[],
 void TestIntraPred(const char name[], AvxPredFunc const *pred_funcs,
                    const char *const signatures[], int block_width,
                    int block_height) {
-  const int num_pixels_per_test =
-      block_width * block_height * kNumAv1IntraFuncs;
-  const int kNumTests = static_cast<int>(2.e10 / num_pixels_per_test);
+  // const int num_pixels_per_test =
+  //     block_width * block_height * kNumAv1IntraFuncs;
+  // const int kNumTests = static_cast<int>(2.e10 / num_pixels_per_test);
+  const int kNumTests = 10000000;
   Av1IntraPredTestMem intra_pred_test_mem;
   const uint8_t *const above = intra_pred_test_mem.above_mem + 16;
 
@@ -741,6 +742,21 @@ INTRA_PRED_TEST(SSSE3, TestIntraPred32, "intra32x32", NULL, NULL, NULL, NULL,
                 NULL, NULL, NULL, NULL, NULL, aom_d153_predictor_32x32_ssse3,
                 NULL, NULL, NULL, NULL, NULL, NULL)
 #endif  // HAVE_SSSE3
+
+#if HAVE_AVX2
+INTRA_PRED_TEST(AVX2_1, TestIntraPred32, "intra32x32",
+                aom_dc_predictor_32x32_avx2, aom_dc_left_predictor_32x32_avx2,
+                aom_dc_top_predictor_32x32_avx2,
+                aom_dc_128_predictor_32x32_avx2, aom_v_predictor_32x32_avx2,
+                aom_h_predictor_32x32_avx2, NULL, NULL, NULL, NULL, NULL, NULL,
+                NULL, NULL, NULL, NULL)
+INTRA_PRED_TEST(AVX2_2, TestIntraPred32, "intra32x16",
+                aom_dc_predictor_32x16_avx2, aom_dc_left_predictor_32x16_avx2,
+                aom_dc_top_predictor_32x16_avx2,
+                aom_dc_128_predictor_32x16_avx2, aom_v_predictor_32x16_avx2,
+                NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+                NULL)
+#endif  // HAVE_AVX2
 
 #if HAVE_NEON
 INTRA_PRED_TEST(NEON, TestIntraPred32, "intra32x32",
