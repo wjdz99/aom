@@ -1299,6 +1299,10 @@ static INLINE int all_lossless(const AV1_COMMON *cm, const MACROBLOCKD *xd) {
   return all_lossless;
 }
 
+static INLINE int use_compressed_header() {
+  return !CONFIG_RESTRICT_COMPRESSED_HDR;
+}
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif
