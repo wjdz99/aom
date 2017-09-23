@@ -1,0 +1,243 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6b49e297_ad7b4afc",
+        "filename": "av1/common/av1_rtcd_defs.pl",
+        "patchSetId": 9
+      },
+      "lineNbr": 659,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-09-23T03:05:59Z",
+      "side": 1,
+      "message": "indent should be 2, but this is roughly consistent with the first half of this block",
+      "revId": "67bf90d2d8b3440bc7bb38887568b48fdc85b881",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "caf45362_65af6538",
+        "filename": "test/av1_convolve_scale_test.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-09-23T03:05:59Z",
+      "side": 1,
+      "message": "2017",
+      "range": {
+        "startLine": 2,
+        "startChar": 17,
+        "endLine": 2,
+        "endChar": 21
+      },
+      "revId": "67bf90d2d8b3440bc7bb38887568b48fdc85b881",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0da12d0a_8829e078",
+        "filename": "test/av1_convolve_scale_test.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-09-23T03:05:59Z",
+      "side": 1,
+      "message": "global constants are usually spelled kConstant\n\nhttps://google.github.io/styleguide/cppguide.html#Constant_Names",
+      "revId": "67bf90d2d8b3440bc7bb38887568b48fdc85b881",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d25cfb93_d150cc76",
+        "filename": "test/av1_convolve_scale_test.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-09-23T03:05:59Z",
+      "side": 1,
+      "message": "should be NtapsToInt and prefer C++ style casts here (static_cast\u003c\u003e)",
+      "revId": "67bf90d2d8b3440bc7bb38887568b48fdc85b881",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "afebbc94_21160f37",
+        "filename": "test/av1_convolve_scale_test.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-09-23T03:05:59Z",
+      "side": 1,
+      "message": "const",
+      "revId": "67bf90d2d8b3440bc7bb38887568b48fdc85b881",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2e7d464d_ea788a5f",
+        "filename": "test/av1_convolve_scale_test.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-09-23T03:05:59Z",
+      "side": 1,
+      "message": "you can use ASSERT in tests and prefer non-yoda style checks (n \u003e\u003d 8)",
+      "revId": "67bf90d2d8b3440bc7bb38887568b48fdc85b881",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "caf5455c_3fc429b9",
+        "filename": "test/av1_convolve_scale_test.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-09-23T03:05:59Z",
+      "side": 1,
+      "message": "keep this as an int and just do 2.f * I below",
+      "range": {
+        "startLine": 73,
+        "startChar": 8,
+        "endLine": 73,
+        "endChar": 13
+      },
+      "revId": "67bf90d2d8b3440bc7bb38887568b48fdc85b881",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d5298e4e_ecb4c82f",
+        "filename": "test/av1_convolve_scale_test.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-09-23T03:05:59Z",
+      "side": 1,
+      "message": "prefer {}s on continued loops and conditionals",
+      "revId": "67bf90d2d8b3440bc7bb38887568b48fdc85b881",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a969fb4d_ab9d05fa",
+        "filename": "test/av1_convolve_scale_test.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-09-23T03:05:59Z",
+      "side": 1,
+      "message": "const",
+      "revId": "67bf90d2d8b3440bc7bb38887568b48fdc85b881",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dcb6f0af_5aea04a2",
+        "filename": "test/av1_convolve_scale_test.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-09-23T03:05:59Z",
+      "side": 1,
+      "message": "const int16_t *const",
+      "revId": "67bf90d2d8b3440bc7bb38887568b48fdc85b881",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fcdf7e5f_e3df13e7",
+        "filename": "test/av1_convolve_scale_test.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-09-23T03:05:59Z",
+      "side": 1,
+      "message": "this should be named like a type name (SrcPixel)\n\nhttps://google.github.io/styleguide/cppguide.html#General_Naming_Rules",
+      "range": {
+        "startLine": 105,
+        "startChar": 19,
+        "endLine": 105,
+        "endChar": 30
+      },
+      "revId": "67bf90d2d8b3440bc7bb38887568b48fdc85b881",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ef8ebc3f_2422f256",
+        "filename": "test/av1_convolve_scale_test.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-09-23T03:05:59Z",
+      "side": 1,
+      "message": "this would be clearer at the call site named as (src|dst)_stride()\n\nhttps://google.github.io/styleguide/cppguide.html#Function_Names",
+      "revId": "67bf90d2d8b3440bc7bb38887568b48fdc85b881",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "adefd99b_0f27b7e5",
+        "filename": "test/av1_convolve_scale_test.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 396,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-09-23T03:05:59Z",
+      "side": 1,
+      "message": "the C should be brought in as a config for use with Speed, otherwise you\u0027re left with comparing speed differences globally.",
+      "revId": "67bf90d2d8b3440bc7bb38887568b48fdc85b881",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
