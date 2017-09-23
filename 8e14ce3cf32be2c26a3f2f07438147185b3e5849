@@ -69,6 +69,24 @@
       "revId": "8e14ce3cf32be2c26a3f2f07438147185b3e5849",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "882a1bbd_a813d089",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 5838,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-09-23T08:31:18Z",
+      "side": 1,
+      "message": "Here are what were suggested, which does not seem conflict with what you have addressed:\n\n    if (!use_compressed_header(cm)) {\n      uncompressed_header_size \u003d (uint32_t)aom_wb_bytes_written(\u0026wb);\n      // To remove: data +\u003d uncompressed_header_size;\n\n      aom_clear_system_state();\n      compressed_header_size \u003d 0;\n    } else {\n      // Size of compressed header\n      aom_wb_write_literal(\u0026wb, 0, 16);\n\n      uncompressed_header_size \u003d (uint32_t)aom_wb_bytes_written(\u0026wb);\n      // To remove: data +\u003d uncompressed_header_size;\n\n      aom_clear_system_state();\n      // Write the compressed header\n      compressed_header_size \u003d write_compressed_header(cpi, data);\n    }\n    // To be replaced: data +\u003d compressed_header_size;\n    data +\u003d uncompressed_header_size + compressed_header_size;",
+      "parentUuid": "60599b1f_6576a7e7",
+      "revId": "8e14ce3cf32be2c26a3f2f07438147185b3e5849",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
