@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "2038bd96_0979ba2a",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 5773,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2017-09-23T07:52:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dbd11bf3_efd69f31",
+      "revId": "8e14ce3cf32be2c26a3f2f07438147185b3e5849",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6b4f6e4f_d01760b8",
         "filename": "av1/encoder/bitstream.c",
         "patchSetId": 4
@@ -30,6 +48,24 @@
       "writtenOn": "2017-09-23T06:34:10Z",
       "side": 1,
       "message": "Similar to the other changes, the code of \"data +\u003d uncompressed_header_size;\" may be removed from both if {} and else {} statements, and the above code may be changed to:\n\ndata +\u003d uncompressed_header_size + compressed_header_size;",
+      "revId": "8e14ce3cf32be2c26a3f2f07438147185b3e5849",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "60599b1f_6576a7e7",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 5838,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2017-09-23T07:52:59Z",
+      "side": 1,
+      "message": "Not really. Notice that the compressed_header_size \u003d write_compressed_header(cpi, data) line uses updated data.",
+      "parentUuid": "6b4f6e4f_d01760b8",
       "revId": "8e14ce3cf32be2c26a3f2f07438147185b3e5849",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
