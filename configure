@@ -352,6 +352,7 @@ EXPERIMENT_LIST="
     amvr
     lpf_sb
     opt_ref_mv
+    common_coding_points
 "
 CONFIG_LIST="
     dependency_tracking
