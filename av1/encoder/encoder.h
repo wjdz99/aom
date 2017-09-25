@@ -566,6 +566,8 @@ typedef struct AV1_COMP {
                     // normalize the firstpass stats. This will differ from the
                     // number of MBs in the current frame when the frame is
                     // scaled.
+  int resize_pending_width;
+  int resize_pending_height;
 
   int frame_flags;
 
