@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "a88d6b3d_254ce012",
+        "filename": "av1/common/pvq.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 594,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2017-09-25T22:04:08Z",
+      "side": 1,
+      "message": "I think I did those to fix Jenkin\u0027s ASAN warnings...",
+      "parentUuid": "7b104708_ab1612e5",
+      "revId": "b3aff2200e5048d4210f0d9a4f01a6a3b3c98aac",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7899f578_8ff118c1",
         "filename": "av1/common/pvq.c",
         "patchSetId": 9
@@ -47,6 +65,24 @@
       "writtenOn": "2017-09-25T22:00:57Z",
       "side": 1,
       "message": "How do these changes related to palette coding?",
+      "revId": "b3aff2200e5048d4210f0d9a4f01a6a3b3c98aac",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "81d9fd4f_5f0e9174",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 1499,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2017-09-25T22:04:08Z",
+      "side": 1,
+      "message": "Right, these are unrelated and meant for fixing Jenkin\u0027s Asan warnings, so can go to separate patch.",
+      "parentUuid": "52c44b40_15283e98",
       "revId": "b3aff2200e5048d4210f0d9a4f01a6a3b3c98aac",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
