@@ -1253,7 +1253,7 @@ static INLINE void build_inter_predictors(
   int is_global[2] = { 0, 0 };
   for (ref = 0; ref < 1 + is_compound; ++ref) {
     WarpedMotionParams *const wm = &xd->global_motion[mi->mbmi.ref_frame[ref]];
-    is_global[ref] = is_global_mv_block(mi, block, wm->wmtype);
+    is_global[ref] = is_global_mv_block(xd, mi, block, wm->wmtype);
   }
 #if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
   if (!is_compound && is_comp_mode_pred) is_global[1] = is_global[0];
@@ -3269,7 +3269,7 @@ static void build_inter_predictors_single_buf(MACROBLOCKD *xd, int plane,
 #else   // !(CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF)
   WarpedMotionParams *const wm = &xd->global_motion[mi->mbmi.ref_frame[ref]];
 #endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
-  warp_types.global_warp_allowed = is_global_mv_block(mi, block, wm->wmtype);
+  warp_types.global_warp_allowed = is_global_mv_block(xd, mi, block, wm->wmtype);
 #endif  // CONFIG_GLOBAL_MOTION
 #if CONFIG_WARPED_MOTION
   warp_types.local_warp_allowed = mi->mbmi.motion_mode == WARPED_CAUSAL;
