@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f7feeb65_c41f8823",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 6330,
+      "author": {
+        "id": 5326
+      },
+      "writtenOn": "2017-09-25T19:43:28Z",
+      "side": 1,
+      "message": "make this part consistent with line 6280",
+      "range": {
+        "startLine": 6330,
+        "startChar": 4,
+        "endLine": 6330,
+        "endChar": 7
+      },
+      "revId": "45fdc89e3d00307e13f6d35d12f0cbd216884976",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
