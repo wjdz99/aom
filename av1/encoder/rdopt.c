@@ -6299,7 +6299,7 @@ static void joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
 #endif  // CONFIG_COMPOUND_SINGLEREF
     WarpedMotionParams *const wm =
         &xd->global_motion[xd->mi[0]->mbmi.ref_frame[ref]];
-    is_global[ref] = is_global_mv_block(xd->mi[0], block, wm->wmtype);
+    is_global[ref] = is_global_mv_block(xd, xd->mi[0], block, wm->wmtype);
   }
 #if CONFIG_COMPOUND_SINGLEREF
   if (!has_second_ref(mbmi)) is_global[1] = is_global[0];
@@ -7167,7 +7167,7 @@ static void build_second_inter_pred(const AV1_COMP *cpi, MACROBLOCK *x,
   const int p_row = ((mi_row * MI_SIZE) >> pd->subsampling_y) + 4 * ir;
 #if CONFIG_GLOBAL_MOTION
   WarpedMotionParams *const wm = &xd->global_motion[other_ref];
-  int is_global = is_global_mv_block(xd->mi[0], block, wm->wmtype);
+  int is_global = is_global_mv_block(xd, xd->mi[0], block, wm->wmtype);
 #endif  // CONFIG_GLOBAL_MOTION
 #else
   (void)block;
