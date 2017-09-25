@@ -104,6 +104,24 @@
       "revId": "03a8621200b3ccbf6ea724f043e1bb4854257c75",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da0362bc_415cf565",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 396,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-09-25T07:30:00Z",
+      "side": 1,
+      "message": "Right, but what I was asking about was why these asserts are in an if(mbmi-\u003esb_type \u003e\u003d BLOCK_8X8) block?",
+      "parentUuid": "3b24ad23_f544ff4e",
+      "revId": "03a8621200b3ccbf6ea724f043e1bb4854257c75",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
