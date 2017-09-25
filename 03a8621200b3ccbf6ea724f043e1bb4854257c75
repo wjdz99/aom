@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "9add91dd_0d5e1e86",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 12
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-09-25T07:17:32Z",
+      "side": 1,
+      "message": "PSNR | PSNR Cb | PSNR Cr | PSNR HVS |   SSIM | MS SSIM | CIEDE 2000\n0.0000 |  0.0000 |  0.0000 |   0.0000 | 0.0000 |  0.0000 |     0.0000\n\nhttps://arewecompressedyet.com/?job\u003dcfl-avg-on-fly%402017-09-23T21%3A38%3A04.440Z\u0026job\u003dcfl-Sub-On-Store%402017-09-24T15%3A01%3A41.161Z",
+      "parentUuid": "9669a8cb_00eb30b0",
+      "revId": "03a8621200b3ccbf6ea724f043e1bb4854257c75",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "523084ee_62e0d950",
         "filename": "av1/common/cfl.c",
         "patchSetId": 12
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "06967ce6_fa38222d",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-09-25T07:17:32Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "523084ee_62e0d950",
+      "revId": "03a8621200b3ccbf6ea724f043e1bb4854257c75",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e1b342f4_2940ff7e",
         "filename": "av1/common/cfl.c",
         "patchSetId": 12
@@ -47,6 +83,24 @@
       "writtenOn": "2017-09-24T13:33:35Z",
       "side": 1,
       "message": "Why is it okay for cfl-\u003ebuf_width/cfl-\u003ebuf_height to be larger than cfl-\u003euv_width/cfl-\u003euv_height for sub-8x8 blocks? Does this also apply for 4x16 or 16x4 blocks? How does that even happen?\n\nI\u0027m having a hard time understanding what these asserts are testing for, because they\u0027re not right next to code that clearly depends on them, and there\u0027s no comment to tell me what goes (or has gone) wrong if they\u0027re violated.\n\nIt would be helpful to know that cfl-\u003ebuf_height \u003c\u003d cfl-\u003euv_height for the loop bounds change I suggested above (it would let you get rid of the MIN), but not if it can be violated for sub-8x8.",
+      "revId": "03a8621200b3ccbf6ea724f043e1bb4854257c75",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3b24ad23_f544ff4e",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 396,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-09-25T07:17:32Z",
+      "side": 1,
+      "message": "buf_width/height are the size of the CfL prediction buffer, while uv_width/height are the size of the whole partition unit. These asserts validate that the CfL prediction buffers contains enough information to correctly compute the CfL parameters over all of the partition unit. Something as gone wrong (might be a wrong store) if the CfL_Prediction buffer is bigger than the partition unit. After taking into account chroma sub-sampling both buffers should be be the same size or the CfL prediction buffer should be smaller if the padding is required. Which will occur in cfl_subtract_averages() which calls cfl_pad()",
+      "parentUuid": "e1b342f4_2940ff7e",
       "revId": "03a8621200b3ccbf6ea724f043e1bb4854257c75",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
