@@ -4437,7 +4437,7 @@ static void check_valid_ref_frames(AV1_COMMON *cm) {
 
 #if CONFIG_GLOBAL_MOTION
 static int read_global_motion_params(WarpedMotionParams *params,
-                                     WarpedMotionParams *ref_params,
+                                     const WarpedMotionParams *ref_params,
                                      struct aom_read_bit_buffer *rb,
                                      int allow_hp) {
   TransformationType type = aom_rb_read_bit(rb);
@@ -4534,11 +4534,11 @@ static int read_global_motion_params(WarpedMotionParams *params,
 static void read_global_motion(AV1_COMMON *cm, struct aom_read_bit_buffer *rb) {
   int frame;
   for (frame = LAST_FRAME; frame <= ALTREF_FRAME; ++frame) {
-    if (cm->error_resilient_mode)
-      set_default_warp_params(&cm->prev_frame->global_motion[frame]);
+    const WarpedMotionParams *ref_params =
+        cm->error_resilient_mode ? &default_wm_params
+                                 : &cm->prev_frame->global_motion[frame];
     int good_params = read_global_motion_params(
-        &cm->global_motion[frame], &cm->prev_frame->global_motion[frame], rb,
-        cm->allow_high_precision_mv);
+        &cm->global_motion[frame], ref_params, rb, cm->allow_high_precision_mv);
     if (!good_params)
       aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
                          "Invalid shear parameters for global motion.");
