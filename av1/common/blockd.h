@@ -588,26 +588,6 @@ PREDICTION_MODE av1_left_block_mode(const MODE_INFO *cur_mi,
 PREDICTION_MODE av1_above_block_mode(const MODE_INFO *cur_mi,
                                      const MODE_INFO *above_mi, int b);
 
-#if CONFIG_GLOBAL_MOTION
-static INLINE int is_global_mv_block(const MODE_INFO *mi, int block,
-                                     TransformationType type) {
-  PREDICTION_MODE mode = get_y_mode(mi, block);
-#if GLOBAL_SUB8X8_USED
-  const int block_size_allowed = 1;
-#else
-  const BLOCK_SIZE bsize = mi->mbmi.sb_type;
-  const int block_size_allowed =
-      AOMMIN(block_size_wide[bsize], block_size_high[bsize]) >= 8;
-#endif  // GLOBAL_SUB8X8_USED
-#if CONFIG_EXT_INTER
-  return (mode == ZEROMV || mode == ZERO_ZEROMV) && type > TRANSLATION &&
-         block_size_allowed;
-#else
-  return mode == ZEROMV && type > TRANSLATION && block_size_allowed;
-#endif  // CONFIG_EXT_INTER
-}
-#endif  // CONFIG_GLOBAL_MOTION
-
 enum mv_precision { MV_PRECISION_Q3, MV_PRECISION_Q4 };
 
 struct buf_2d {
@@ -874,6 +854,31 @@ typedef struct macroblockd {
   SB_MI_BD sb_mi_bd;
 #endif
 } MACROBLOCKD;
+
+#if CONFIG_GLOBAL_MOTION
+static INLINE int is_global_mv_block(const MACROBLOCKD *xd,
+                                     const MODE_INFO *mi, int block,
+                                     TransformationType type) {
+  PREDICTION_MODE mode = get_y_mode(mi, block);
+#if GLOBAL_SUB8X8_USED
+  const int block_size_allowed = 1;
+#else
+  const BLOCK_SIZE bsize = mi->mbmi.sb_type;
+  const int block_size_allowed =
+      AOMMIN(block_size_wide[bsize], block_size_high[bsize]) >= 8;
+#endif  // GLOBAL_SUB8X8_USED
+#if CONFIG_EXT_INTER
+  const int scaled = av1_is_scaled(&(xd->block_refs[0]->sf)) ||
+                     (has_second_ref(&mi->mbmi) &&
+                     av1_is_scaled(&(xd->block_refs[1]->sf)));
+
+  return (mode == ZEROMV || mode == ZERO_ZEROMV) && type > TRANSLATION &&
+         block_size_allowed && !scaled;
+#else
+  return mode == ZEROMV && type > TRANSLATION && block_size_allowed;
+#endif  // CONFIG_EXT_INTER
+}
+#endif  // CONFIG_GLOBAL_MOTION
 
 static INLINE int get_bitdepth_data_path_index(const MACROBLOCKD *xd) {
   return xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH ? 1 : 0;
@@ -1545,7 +1550,7 @@ static INLINE MOTION_MODE motion_mode_allowed(
 #endif
 #if CONFIG_GLOBAL_MOTION
     const TransformationType gm_type = gm_params[mbmi->ref_frame[0]].wmtype;
-    if (is_global_mv_block(mi, block, gm_type)) return SIMPLE_TRANSLATION;
+    if (is_global_mv_block(xd, mi, block, gm_type)) return SIMPLE_TRANSLATION;
 #endif  // CONFIG_GLOBAL_MOTION
 #if CONFIG_AMVR
   }
