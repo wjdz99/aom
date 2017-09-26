@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "106c8ebb_526ac7d4",
+        "filename": "av1/common/alloccommon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 7560
+      },
+      "writtenOn": "2017-09-26T13:05:21Z",
+      "side": 1,
+      "message": "This would probably be cleaner using ALIGN_POWER_OF_TWO",
+      "range": {
+        "startLine": 143,
+        "startChar": 4,
+        "endLine": 144,
+        "endChar": 42
+      },
+      "revId": "70c393ed6c3b5d49ae6fb7bcdd52283c0a63acda",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6b199774_ba6a2f67",
+        "filename": "av1/common/restoration.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 7560
+      },
+      "writtenOn": "2017-09-26T13:05:21Z",
+      "side": 1,
+      "message": "Should this be boundary_below_buf?",
+      "range": {
+        "startLine": 187,
+        "startChar": 44,
+        "endLine": 187,
+        "endChar": 49
+      },
+      "revId": "70c393ed6c3b5d49ae6fb7bcdd52283c0a63acda",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1ee6ad43_dd2f3131",
+        "filename": "av1/common/restoration.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 307,
+      "author": {
+        "id": 7560
+      },
+      "writtenOn": "2017-09-26T13:05:21Z",
+      "side": 1,
+      "message": "As a minor code style suggestion, I think it\u0027s better to keep the for loop header as common code but make procunit_height mutable and set it equal to h in the CONFIG_STRIPED_LOOP_RESTORATION case. That way, you don\u0027t get duplicate curly braces and editors don\u0027t get so confused. It\u0027s also a bit shorter.\n\nMaybe something like this? (See comment about h\u003d16 below)\n\n  for (i \u003d v_start; i \u003c v_end; i +\u003d procunit_height) {\n#if CONFIG_STRIPED_LOOP_RESTORATION\n    int h \u003d setup_processing_stripe_boundary(i, v_end, h_start, h_end, data,\n                                             stride, rst, 0);\n    h \u003d ALIGN_POWER_OF_TWO(h, 1);\n    procunit_height \u003d h;\n#else\n    // Convolve the whole tile (done in blocks here to match the requirements\n    // of the vectorized convolve functions, but the result is equivalent)\n    int h \u003d AOMMIN(procunit_height, (v_end - i + 15) \u0026 ~15);\n#endif",
+      "range": {
+        "startLine": 305,
+        "startChar": 2,
+        "endLine": 307,
+        "endChar": 21
+      },
+      "revId": "70c393ed6c3b5d49ae6fb7bcdd52283c0a63acda",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "883def60_daacb193",
+        "filename": "av1/common/restoration.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 312,
+      "author": {
+        "id": 7560
+      },
+      "writtenOn": "2017-09-26T13:05:21Z",
+      "side": 1,
+      "message": "You\u0027re right, this isn\u0027t needed. It originally came from a patch from David: he says that the rounding of widths to multiples of 16 makes the convolve slightly quicker and that he did the same for heights for no particular reason.\n\nOne thing that does matter is that the subtraction for the last argument to the convolution functions doesn\u0027t underflow (so h must be at least (3-2)*2 \u003d 2). Is there some reason that we know this to be the case (based on how procunit_height divides into v_end - v_start)? If so, this could be an assert. I think that maybe we don\u0027t know (because of the weird size of loop restoration tiles at the bottom of an image), so maybe we just need something like \"h \u003d ALIGN_POWER_OF_TWO(h, 1)\".",
+      "range": {
+        "startLine": 310,
+        "startChar": 0,
+        "endLine": 312,
+        "endChar": 35
+      },
+      "revId": "70c393ed6c3b5d49ae6fb7bcdd52283c0a63acda",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5e515765_ecaa155f",
+        "filename": "av1/common/restoration.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1137,
+      "author": {
+        "id": 7560
+      },
+      "writtenOn": "2017-09-26T13:05:21Z",
+      "side": 1,
+      "message": "Style point again: As above, I think it\u0027s cleaner if we share the for loop here (and the same for the high bitdepth cases below)",
+      "range": {
+        "startLine": 1133,
+        "startChar": 2,
+        "endLine": 1137,
+        "endChar": 61
+      },
+      "revId": "70c393ed6c3b5d49ae6fb7bcdd52283c0a63acda",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d902464d_c9310655",
+        "filename": "av1/common/restoration.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 307,
+      "author": {
+        "id": 7560
+      },
+      "writtenOn": "2017-09-26T13:05:21Z",
+      "side": 1,
+      "message": "Does RESTORATION_TILEPELS_MAX need updating to match this? I think that the vertical size can now be RESTORATION_TILE_OFFSET more than it was (for the bottom restoration row).",
+      "range": {
+        "startLine": 307,
+        "startChar": 0,
+        "endLine": 307,
+        "endChar": 3
+      },
+      "revId": "70c393ed6c3b5d49ae6fb7bcdd52283c0a63acda",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
