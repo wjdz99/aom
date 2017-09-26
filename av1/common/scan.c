@@ -6604,8 +6604,8 @@ static INLINE int clamp_64(int64_t value, int low, int high) {
   return value < low ? low : (value > high ? high : (int)value);
 }
 
+static INLINE int do_down_sample(TX_SIZE tx_size) {
 #if USE_2X2_PROB
-static int do_down_sample(TX_SIZE tx_size) {
   const int tx_w = tx_size_wide[tx_size];
   const int tx_h = tx_size_high[tx_size];
   if (tx_w > 8 || tx_h > 8) {
@@ -6613,8 +6613,13 @@ static int do_down_sample(TX_SIZE tx_size) {
   } else {
     return 0;
   }
+#else
+  (void)tx_size;
+  return 0;
+#endif
 }
 
+#if USE_2X2_PROB
 void av1_down_sample_scan_count(uint32_t *non_zero_count_ds,
                                 const uint32_t *non_zero_count,
                                 TX_SIZE tx_size) {
@@ -6637,33 +6642,61 @@ void av1_down_sample_scan_count(uint32_t *non_zero_count_ds,
 }
 #endif
 
+static INLINE int get_scan_prob_size(TX_SIZE tx_size) {
+  const int tx2d_size = tx_size_2d[tx_size];
+#if USE_2X2_PROB
+  if (do_down_sample(tx_size))
+    return tx2d_size >> 2;
+  else
+#endif
+    return tx2d_size;
+}
+
+static INLINE int get_scan_prob_width(TX_SIZE tx_size) {
+  const int tx1d_wide = tx_size_wide[tx_size];
+#if USE_2X2_PROB
+  if (do_down_sample(tx_size))
+    return tx1d_wide >> 1;
+  else
+#endif
+    return tx1d_wide;
+}
+
+static INLINE int get_scan_prob_height(TX_SIZE tx_size) {
+  const int tx1d_high = tx_size_high[tx_size];
+#if USE_2X2_PROB
+  if (do_down_sample(tx_size))
+    return tx1d_high >> 1;
+  else
+#endif
+    return tx1d_high;
+}
+
 static void update_scan_prob(AV1_COMMON *cm, TX_SIZE tx_size, TX_TYPE tx_type,
                              int rate) {
   FRAME_CONTEXT *pre_fc = cm->pre_fc;
   uint32_t *prev_non_zero_prob = get_non_zero_prob(pre_fc, tx_size, tx_type);
   uint32_t *non_zero_prob = get_non_zero_prob(cm->fc, tx_size, tx_type);
   uint32_t *non_zero_count = get_non_zero_counts(&cm->counts, tx_size, tx_type);
-  const int tx2d_size = tx_size_2d[tx_size];
   unsigned int block_num = cm->counts.txb_count[tx_size][tx_type];
   uint32_t *non_zero_count_new = non_zero_count;
-  int count_size = tx2d_size;
+  int prob_size = get_scan_prob_size(tx_size);
 #if USE_2X2_PROB
 #if CONFIG_TX64X64
   DECLARE_ALIGNED(16, uint32_t, non_zero_count_ds[1024]);
-  assert((tx2d_size >> 2) <= 1024);
+  assert(prob_size <= 1024);
 #else   // CONFIG_TX64X64
   DECLARE_ALIGNED(16, uint32_t, non_zero_count_ds[256]);
-  assert((tx2d_size >> 2) <= 256);
+  assert(prob_size <= 256);
 #endif  // CONFIG_TX64X64
   if (do_down_sample(tx_size)) {
     av1_down_sample_scan_count(non_zero_count_ds, non_zero_count, tx_size);
     non_zero_count_new = non_zero_count_ds;
-    count_size = tx2d_size >> 2;
     block_num <<= 2;
   }
-#endif
+#endif  // USE_2X2_PROB
   int i;
-  for (i = 0; i < count_size; i++) {
+  for (i = 0; i < prob_size; i++) {
     int64_t curr_prob =
         block_num == 0
             ? 0
@@ -6707,33 +6740,61 @@ void av1_augment_prob(TX_SIZE tx_size, TX_TYPE tx_type, uint32_t *prob) {
   // TODO(angiebird): check if we need is_inter here
   const SCAN_ORDER *sc = get_default_scan(tx_size, tx_type, 0);
   const int tx1d_wide = tx_size_wide[tx_size];
-  const int tx1d_high = tx_size_high[tx_size];
+  const int prob_w = get_scan_prob_width(tx_size);
+  const int prob_h = get_scan_prob_height(tx_size);
+  const int down_sample = do_down_sample(tx_size);
   int r, c;
-  for (r = 0; r < tx1d_high; r++) {
-    for (c = 0; c < tx1d_wide; c++) {
-      const int idx = r * tx1d_wide + c;
+  for (r = 0; r < prob_h; r++) {
+    for (c = 0; c < prob_w; c++) {
+      const int prob_idx = r * prob_w + c;
+      const int coeff_idx = (r << down_sample) * tx1d_wide + (c << down_sample);
       const uint32_t mask_16 = ((1 << 16) - 1);
-      const uint32_t tie_breaker = ~((uint32_t)sc->iscan[idx]);
-      // prob[idx]: 16 bits  dummy: 6 bits  scan_idx: 10 bits
-      prob[idx] = (prob[idx] << 16) | (mask_16 & tie_breaker);
+      const uint32_t tie_breaker = ~((uint32_t)sc->iscan[coeff_idx]);
+      // prob[prob_idx]: 16 bits  dummy: 6 bits  scan_idx: 10 bits
+      prob[prob_idx] = (prob[prob_idx] << 16) | (mask_16 & tie_breaker);
     }
   }
 }
 
 // topological sort
-static void dfs_scan(int tx1d_size, int *scan_idx, int coeff_idx, int16_t *scan,
-                     int16_t *iscan) {
-  const int r = coeff_idx / tx1d_size;
-  const int c = coeff_idx % tx1d_size;
+static void dfs_scan(int down_sample, int prob_wide, int *scan_idx,
+                     int prob_idx, int16_t *scan, int16_t *iscan) {
+  const int r = prob_idx / prob_wide;
+  const int c = prob_idx % prob_wide;
+  const int tx1d_wide = prob_wide << down_sample;
+  const int coeff_idx = (r << down_sample) * tx1d_wide + (c << down_sample);
 
   if (iscan[coeff_idx] != -1) return;
 
-  if (r > 0) dfs_scan(tx1d_size, scan_idx, coeff_idx - tx1d_size, scan, iscan);
+  if (r > 0)
+    dfs_scan(down_sample, prob_wide, scan_idx, prob_idx - prob_wide, scan,
+             iscan);
 
-  if (c > 0) dfs_scan(tx1d_size, scan_idx, coeff_idx - 1, scan, iscan);
+  if (c > 0)
+    dfs_scan(down_sample, prob_wide, scan_idx, prob_idx - 1, scan, iscan);
 
+#if USE_2X2_PROB
+  if (down_sample) {
+    const int si = (*scan_idx) << 2;
+    scan[si] = coeff_idx;
+    iscan[coeff_idx] = si;
+
+    scan[si + 1] = coeff_idx + 1;
+    iscan[coeff_idx + 1] = si + 1;
+
+    scan[si + 2] = coeff_idx + tx1d_wide;
+    iscan[coeff_idx + tx1d_wide] = si + 2;
+
+    scan[si + 3] = coeff_idx + 1 + tx1d_wide;
+    iscan[coeff_idx + 1 + tx1d_wide] = si + 3;
+  } else {
+    scan[*scan_idx] = coeff_idx;
+    iscan[coeff_idx] = *scan_idx;
+  }
+#else
   scan[*scan_idx] = coeff_idx;
   iscan[coeff_idx] = *scan_idx;
+#endif
   ++(*scan_idx);
 }
 
@@ -6850,36 +6911,46 @@ void av1_update_sort_order(TX_SIZE tx_size, TX_TYPE tx_type,
                            const uint32_t *non_zero_prob, int16_t *sort_order) {
   const SCAN_ORDER *sc = get_default_scan(tx_size, tx_type, 0);
   uint32_t temp[COEFF_IDX_SIZE];
-  const int tx2d_size = tx_size_2d[tx_size];
+  const int prob_size = get_scan_prob_size(tx_size);
   int sort_idx;
-  assert(tx2d_size <= COEFF_IDX_SIZE);
-  memcpy(temp, non_zero_prob, tx2d_size * sizeof(*non_zero_prob));
+  assert(prob_size <= COEFF_IDX_SIZE);
+  memcpy(temp, non_zero_prob, prob_size * sizeof(*non_zero_prob));
   av1_augment_prob(tx_size, tx_type, temp);
-  qsort(temp, tx2d_size, sizeof(*temp), cmp_prob);
-  for (sort_idx = 0; sort_idx < tx2d_size; ++sort_idx) {
+  qsort(temp, prob_size, sizeof(*temp), cmp_prob);
+  for (sort_idx = 0; sort_idx < prob_size; ++sort_idx) {
     const int default_scan_idx =
         (temp[sort_idx] & COEFF_IDX_MASK) ^ COEFF_IDX_MASK;
     const int coeff_idx = sc->scan[default_scan_idx];
-    sort_order[sort_idx] = coeff_idx;
+#if USE_2X2_PROB
+    const int tx_w = tx_size_wide[tx_size];
+    const int r = coeff_idx / tx_w;
+    const int c = coeff_idx % tx_w;
+    assert(r % 2 == 0);
+    assert(c % 2 == 0);
+    const int down_sample = do_down_sample(tx_size);
+    const int prob_idx =
+        (r >> down_sample) * (tx_w >> down_sample) + (c >> down_sample);
+#else
+    const int prob_idx = coeff_idx;
+#endif
+    sort_order[sort_idx] = prob_idx;
   }
 }
 
 void av1_update_scan_order(TX_SIZE tx_size, int16_t *sort_order, int16_t *scan,
                            int16_t *iscan) {
-  int coeff_idx;
-  int scan_idx;
-  int sort_idx;
-  const int tx1d_size = tx_size_wide[tx_size];
   const int tx2d_size = tx_size_2d[tx_size];
-
-  for (coeff_idx = 0; coeff_idx < tx2d_size; ++coeff_idx) {
+  for (int coeff_idx = 0; coeff_idx < tx2d_size; ++coeff_idx) {
     iscan[coeff_idx] = -1;
   }
 
-  scan_idx = 0;
-  for (sort_idx = 0; sort_idx < tx2d_size; ++sort_idx) {
-    coeff_idx = sort_order[sort_idx];
-    dfs_scan(tx1d_size, &scan_idx, coeff_idx, scan, iscan);
+  const int prob_wide = get_scan_prob_width(tx_size);
+  const int prob_size = get_scan_prob_size(tx_size);
+  const int down_sample = do_down_sample(tx_size);
+  int scan_idx = 0;
+  for (int sort_idx = 0; sort_idx < prob_size; ++sort_idx) {
+    int prob_idx = sort_order[sort_idx];
+    dfs_scan(down_sample, prob_wide, &scan_idx, prob_idx, scan, iscan);
   }
 }
 
@@ -6936,10 +7007,10 @@ void av1_init_scan_order(AV1_COMMON *cm) {
 #endif  // CONFIG_RECT_TX && (CONFIG_EXT_TX || CONFIG_VAR_TX)
     for (tx_type = DCT_DCT; tx_type < TX_TYPES; ++tx_type) {
       uint32_t *non_zero_prob = get_non_zero_prob(cm->fc, tx_size, tx_type);
-      const int tx2d_size = tx_size_2d[tx_size];
+      const int prob_size = get_scan_prob_size(tx_size);
       int i;
       SCAN_ORDER *sc = &cm->fc->sc[tx_size][tx_type];
-      for (i = 0; i < tx2d_size; ++i) {
+      for (i = 0; i < prob_size; ++i) {
         non_zero_prob[i] =
             (1 << ADAPT_SCAN_PROB_PRECISION) / 2;  // init non_zero_prob to 0.5
       }
