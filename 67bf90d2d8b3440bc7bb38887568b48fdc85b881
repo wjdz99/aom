@@ -242,6 +242,24 @@
     },
     {
       "key": {
+        "uuid": "23eb21db_eda266f7",
+        "filename": "test/av1_convolve_scale_test.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-09-26T22:46:45Z",
+      "side": 1,
+      "message": "\u003e I disagree. This is an assertion that the test code is correct. ASSERT tests the code being tested; assert() explodes if I messed up the test code. I want the latter. I can turn the angle bracket around if you think that\u0027s important though (note that it no longer looks like A \u003c B \u003c C, which is a bit sad).\n\nThe assert is fine, I\u0027d prefer the order to be normalized",
+      "parentUuid": "92408f9f_dd85d0e9",
+      "revId": "67bf90d2d8b3440bc7bb38887568b48fdc85b881",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "caf5455c_3fc429b9",
         "filename": "test/av1_convolve_scale_test.cc",
         "patchSetId": 9
@@ -289,6 +307,30 @@
     },
     {
       "key": {
+        "uuid": "2c627d78_0e665a55",
+        "filename": "test/av1_convolve_scale_test.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-09-26T22:46:45Z",
+      "side": 1,
+      "message": "\u003e I also know C\u0027s value promotion rules, but that misses the point. I represents the integral under a curve, which just happens to be an integer. It should be stored in a float.\n\nThe fact that you had to explain what you were after is part of the problem. The calculation cares about the type, but in storing it the more natural form is int for this purpose, that was the reason for my initial reaction.",
+      "parentUuid": "00d8dc32_9824ac82",
+      "range": {
+        "startLine": 73,
+        "startChar": 8,
+        "endLine": 73,
+        "endChar": 13
+      },
+      "revId": "67bf90d2d8b3440bc7bb38887568b48fdc85b881",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d5298e4e_ecb4c82f",
         "filename": "test/av1_convolve_scale_test.cc",
         "patchSetId": 9
@@ -318,6 +360,24 @@
       "side": 1,
       "message": "Ok, I\u0027ll make the change. Can you explain what a \"continued loop\" is here? This looks to me like a bog-standard loop that does one statement for i between 0 and n...",
       "parentUuid": "d5298e4e_ecb4c82f",
+      "revId": "67bf90d2d8b3440bc7bb38887568b48fdc85b881",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e2659c83_988c4930",
+        "filename": "test/av1_convolve_scale_test.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-09-26T22:46:45Z",
+      "side": 1,
+      "message": "\u003e Ok, I\u0027ll make the change. Can you explain what a \"continued loop\" is here? This looks to me like a bog-standard loop that does one statement for i between 0 and n...\n\nBy that I meant a loop continued on to a new line. {}s are preferred in that case for readability",
+      "parentUuid": "5c12691b_b4fd8a13",
       "revId": "67bf90d2d8b3440bc7bb38887568b48fdc85b881",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
@@ -505,6 +565,24 @@
       "side": 1,
       "message": "I\u0027m sorry, I don\u0027t understand what this means. Please can you explain?",
       "parentUuid": "adefd99b_0f27b7e5",
+      "revId": "67bf90d2d8b3440bc7bb38887568b48fdc85b881",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2504d0f1_d98fdd54",
+        "filename": "test/av1_convolve_scale_test.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 396,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-09-26T22:46:45Z",
+      "side": 1,
+      "message": "\u003e I\u0027m sorry, I don\u0027t understand what this means. Please can you explain?\n\nSplit this change in 2.\n1. bring in the test with a \u0027C\u0027 parameterized test to allow the base line timing to be obtained and to make sure there aren\u0027t any build issues introduced\n\n2. Add the sse4. This allows it to be tested and reviewed on its own. Smaller independent changes are preferred, they\u0027re easier to revert and induce less reviewer fatigue in a single patchset.",
+      "parentUuid": "ee84eca4_03e1a34c",
       "revId": "67bf90d2d8b3440bc7bb38887568b48fdc85b881",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
