@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "60fd3e57_e45923cd",
+        "filename": "av1/common/alloccommon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 6815
+      },
+      "writtenOn": "2017-09-26T14:17:10Z",
+      "side": 1,
+      "message": "Done.\nI also realized that num_stripes was buggy (I was over-allocating massively).",
+      "parentUuid": "106c8ebb_526ac7d4",
+      "range": {
+        "startLine": 143,
+        "startChar": 4,
+        "endLine": 144,
+        "endChar": 42
+      },
+      "revId": "70c393ed6c3b5d49ae6fb7bcdd52283c0a63acda",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6b199774_ba6a2f67",
         "filename": "av1/common/restoration.c",
         "patchSetId": 4
@@ -45,6 +69,30 @@
       "revId": "70c393ed6c3b5d49ae6fb7bcdd52283c0a63acda",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "43d84f4d_df788028",
+        "filename": "av1/common/restoration.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 6815
+      },
+      "writtenOn": "2017-09-26T14:17:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6b199774_ba6a2f67",
+      "range": {
+        "startLine": 187,
+        "startChar": 44,
+        "endLine": 187,
+        "endChar": 49
+      },
+      "revId": "70c393ed6c3b5d49ae6fb7bcdd52283c0a63acda",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "fa7d0038_1e22d92c",
+        "filename": "av1/common/restoration.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 307,
+      "author": {
+        "id": 6815
+      },
+      "writtenOn": "2017-09-26T14:17:10Z",
+      "side": 1,
+      "message": "Yes, I agree. Much better.",
+      "parentUuid": "1ee6ad43_dd2f3131",
+      "range": {
+        "startLine": 305,
+        "startChar": 2,
+        "endLine": 307,
+        "endChar": 21
+      },
+      "revId": "70c393ed6c3b5d49ae6fb7bcdd52283c0a63acda",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "883def60_daacb193",
         "filename": "av1/common/restoration.c",
         "patchSetId": 4
@@ -91,6 +163,30 @@
       "revId": "70c393ed6c3b5d49ae6fb7bcdd52283c0a63acda",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "319bd73a_30948fac",
+        "filename": "av1/common/restoration.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 312,
+      "author": {
+        "id": 6815
+      },
+      "writtenOn": "2017-09-26T14:17:10Z",
+      "side": 1,
+      "message": "I don\u0027t know if there\u0027s a guarantee, so round up to even seems good.",
+      "parentUuid": "883def60_daacb193",
+      "range": {
+        "startLine": 310,
+        "startChar": 0,
+        "endLine": 312,
+        "endChar": 35
+      },
+      "revId": "70c393ed6c3b5d49ae6fb7bcdd52283c0a63acda",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "0063d9a5_7050d04a",
+        "filename": "av1/common/restoration.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1137,
+      "author": {
+        "id": 6815
+      },
+      "writtenOn": "2017-09-26T14:17:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5e515765_ecaa155f",
+      "range": {
+        "startLine": 1133,
+        "startChar": 2,
+        "endLine": 1137,
+        "endChar": 61
+      },
+      "revId": "70c393ed6c3b5d49ae6fb7bcdd52283c0a63acda",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d902464d_c9310655",
         "filename": "av1/common/restoration.h",
         "patchSetId": 4
@@ -137,6 +257,30 @@
       "revId": "70c393ed6c3b5d49ae6fb7bcdd52283c0a63acda",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "81b83648_5728aa9a",
+        "filename": "av1/common/restoration.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 307,
+      "author": {
+        "id": 6815
+      },
+      "writtenOn": "2017-09-26T14:17:10Z",
+      "side": 1,
+      "message": "Thanks, very good point.\nI added RESTORATION_TILE_OFFSET to the vertical factor in RESTORATION_TILEPELS_MAX",
+      "parentUuid": "d902464d_c9310655",
+      "range": {
+        "startLine": 307,
+        "startChar": 0,
+        "endLine": 307,
+        "endChar": 3
+      },
+      "revId": "70c393ed6c3b5d49ae6fb7bcdd52283c0a63acda",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
