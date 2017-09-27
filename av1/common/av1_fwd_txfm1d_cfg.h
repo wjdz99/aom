@@ -280,7 +280,7 @@ static const TXFM_1D_CFG fwd_txfm_1d_cfg_identity_4 = {
   // 0,  // .log_scale
   fwd_shift_4,            // .shift
   fwd_stage_range_idx_4,  // .stage_range
-  NULL,                   // .cos_bit
+  0,                      // .cos_bit
   TXFM_TYPE_IDENTITY4,    // .txfm_type
 };
 
@@ -291,7 +291,7 @@ static const TXFM_1D_CFG fwd_txfm_1d_cfg_identity_8 = {
   // 0,  // .log_scale
   fwd_shift_8,            // .shift
   fwd_stage_range_idx_8,  // .stage_range
-  NULL,                   // .cos_bit
+  0,                      // .cos_bit
   TXFM_TYPE_IDENTITY8,    // .txfm_type
 };
 
@@ -302,7 +302,7 @@ static const TXFM_1D_CFG fwd_txfm_1d_cfg_identity_16 = {
   // 0,  // .log_scale
   fwd_shift_16,            // .shift
   fwd_stage_range_idx_16,  // .stage_range
-  NULL,                    // .cos_bit
+  0,                       // .cos_bit
   TXFM_TYPE_IDENTITY16,    // .txfm_type
 };
 
@@ -313,7 +313,7 @@ static const TXFM_1D_CFG fwd_txfm_1d_cfg_identity_32 = {
   // 1,  // .log_scale
   fwd_shift_32,            // .shift
   fwd_stage_range_idx_32,  // .stage_range
-  NULL,                    // .cos_bit
+  0,                       // .cos_bit
   TXFM_TYPE_IDENTITY32,    // .txfm_type
 };
 #endif  // CONFIG_EXT_TX
