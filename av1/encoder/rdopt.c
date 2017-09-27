@@ -9535,12 +9535,14 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
       // Skip checking missing references in both single and compound reference
       // modes. Note that a mode will be skipped iff both reference frames
       // are masked out.
+      //      printf("skipping %d because it is not available\n", ref_frame);
       ref_frame_skip_mask[0] |= (1 << ref_frame);
       ref_frame_skip_mask[1] |= SECOND_REF_FRAME_MASK;
     } else {
       for (i = LAST_FRAME; i <= ALTREF_FRAME; ++i) {
         // Skip fixed mv modes for poor references
         if ((x->pred_mv_sad[ref_frame] >> 2) > x->pred_mv_sad[i]) {
+          //  printf("skipping %d for poor sad\n", i);
           mode_skip_mask[ref_frame] |= INTER_NEAREST_NEAR_ZERO;
           break;
         }
@@ -9555,6 +9557,8 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
     }
   }
 
+  //  printf("2ref frame skip mask: %x\n", ref_frame_skip_mask[0]);
+  //#if !CONFIG_NO_FRAME_CONTEXT_SIGNALING
   // Disable this drop out case if the ref frame
   // segment level feature is enabled for this segment. This is to
   // prevent the possibility that we end up unable to pick any mode.
@@ -9597,7 +9601,7 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
 #endif  // CONFIG_COMPOUND_SINGLEREF
     }
   }
-
+  //#endif // !CONFIG_NO_FRAME_CONTEXT_SIGNALING
   if (cpi->rc.is_src_frame_alt_ref) {
     if (sf->alt_ref_search_fp) {
       assert(cpi->ref_frame_flags & flag_list[ALTREF_FRAME]);
@@ -9611,7 +9615,6 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
     if (!cm->show_frame && x->pred_mv_sad[GOLDEN_FRAME] < INT_MAX)
       if (x->pred_mv_sad[ALTREF_FRAME] > (x->pred_mv_sad[GOLDEN_FRAME] << 1))
         mode_skip_mask[ALTREF_FRAME] |= INTER_ALL;
-
   if (sf->adaptive_mode_search) {
     if (cm->show_frame && !cpi->rc.is_src_frame_alt_ref &&
         cpi->rc.frames_since_golden >= 3)
@@ -9737,10 +9740,15 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
           break;
       }
     }
-
+    //printf("ref frame skip mask: %x\n", ref_frame_skip_mask[0]);
+    //ref_frame_skip_mask[0] &= ~(1 << GOLDEN_FRAME);
     if ((ref_frame_skip_mask[0] & (1 << ref_frame)) &&
-        (ref_frame_skip_mask[1] & (1 << AOMMAX(0, second_ref_frame))))
-      continue;
+        (ref_frame_skip_mask[1] & (1 << AOMMAX(0, second_ref_frame)))) {
+      //printf("skipping search of ref frame %d\n", ref_frame);
+      //if (!get_ref_frame_map_idx(cpi, ref_frame)) {
+        continue;
+        //}
+    }
 
     if (mode_skip_mask[ref_frame] & (1 << this_mode)) continue;
 
