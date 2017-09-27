@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "fd1f173e_d1abedeb",
+        "filename": "av1/common/av1_rtcd_defs.pl",
+        "patchSetId": 9
+      },
+      "lineNbr": 659,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-09-27T04:01:12Z",
+      "side": 1,
+      "message": "\u003e \u003e Feel free to write a patch that reindents this perl script, but that\u0027s probably not part of a patch adding SSE code for a function.\n\u003e \n\u003e I was just pointing it out, massive cosmetics don\u0027t belong in a functional change.\n\n-\u003e https://aomedia-review.googlesource.com/c/aom/+/24181",
+      "parentUuid": "fe37fe72_8c9571ce",
+      "revId": "67bf90d2d8b3440bc7bb38887568b48fdc85b881",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "caf45362_65af6538",
         "filename": "test/av1_convolve_scale_test.cc",
         "patchSetId": 9
