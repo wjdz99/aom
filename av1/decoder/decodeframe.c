@@ -2651,6 +2651,7 @@ static void setup_segmentation(AV1_COMMON *const cm,
 
   seg->update_map = 0;
   seg->update_data = 0;
+  seg->temporal_update = 0;
 
   seg->enabled = aom_rb_read_bit(rb);
   if (!seg->enabled) return;
@@ -4597,6 +4598,8 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
 
   cm->last_frame_type = cm->frame_type;
   cm->last_intra_only = cm->intra_only;
+
+  cm->allow_screen_content_tools = 0;
 
 #if CONFIG_EXT_REFS
   // NOTE: By default all coded frames to be used as a reference
