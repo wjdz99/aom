@@ -176,8 +176,8 @@ static INLINE void inv_txfm2d_add_c(const int32_t *input, uint16_t *output,
   assert(cfg->col_cfg->stage_num <= MAX_TXFM_STAGE_NUM);
   av1_gen_inv_stage_range(stage_range_col, stage_range_row, cfg, fwd_shift, bd);
 
-  const int8_t *cos_bit_col = cfg->col_cfg->cos_bit;
-  const int8_t *cos_bit_row = cfg->row_cfg->cos_bit;
+  const int8_t cos_bit_col = cfg->col_cfg->cos_bit;
+  const int8_t cos_bit_row = cfg->row_cfg->cos_bit;
   const TxfmFunc txfm_func_col = inv_txfm_type_to_func(cfg->col_cfg->txfm_type);
   const TxfmFunc txfm_func_row = inv_txfm_type_to_func(cfg->row_cfg->txfm_type);
 
