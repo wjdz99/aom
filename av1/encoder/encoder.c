@@ -5301,7 +5301,7 @@ static void dump_filtered_recon_frames(AV1_COMP *cpi) {
   printf(
       "\nFrame=%5d, encode_update_type[%5d]=%1d, show_existing_frame=%d, "
       "source_alt_ref_active=%d, refresh_alt_ref_frame=%d, rf_level=%d, "
-      "y_stride=%4d, uv_stride=%4d, cm->width=%4d, cm->height=%4d\n",
+      "y_stride=%4d, uv_stride=%4d, cm->width=%4d, cm->height=%4d\n\n",
       cm->current_video_frame, cpi->twopass.gf_group.index,
       cpi->twopass.gf_group.update_type[cpi->twopass.gf_group.index],
       cm->show_existing_frame, cpi->rc.source_alt_ref_active,
@@ -5416,7 +5416,16 @@ static void encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
 
 #if DUMP_RECON_FRAMES == 1
     // NOTE(zoeliu): For debug - Output the filtered reconstructed video.
-    dump_filtered_recon_frames(cpi);
+    printf(
+        "\nFrame=%5d, encode_update_type[%5d]=%1d, show_frame=%d, "
+        "show_existing_frame=%d, rf_level=%d, size=%ld\n\n",
+        cm->current_video_frame, cpi->twopass.gf_group.index,
+        cpi->twopass.gf_group.update_type[cpi->twopass.gf_group.index],
+        cm->show_frame, cm->show_existing_frame,
+        cpi->twopass.gf_group.rf_level[cpi->twopass.gf_group.index],
+        (long int)(*size));
+
+// dump_filtered_recon_frames(cpi);
 #endif  // DUMP_RECON_FRAMES
 
     // Update the LAST_FRAME in the reference frame buffer.
@@ -5653,7 +5662,16 @@ static void encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
 
 #if DUMP_RECON_FRAMES == 1
   // NOTE(zoeliu): For debug - Output the filtered reconstructed video.
-  if (cm->show_frame) dump_filtered_recon_frames(cpi);
+  printf(
+      "\nFrame=%5d, encode_update_type[%5d]=%1d, show_frame=%d, "
+      "show_existing_frame=%d, rf_level=%d, base_qindex=%d, size=%ld\n\n",
+      cm->current_video_frame, cpi->twopass.gf_group.index,
+      cpi->twopass.gf_group.update_type[cpi->twopass.gf_group.index],
+      cm->show_frame, cm->show_existing_frame,
+      cpi->twopass.gf_group.rf_level[cpi->twopass.gf_group.index],
+      cm->base_qindex, (long int)(*size));
+
+// if (cm->show_frame) dump_filtered_recon_frames(cpi);
 #endif  // DUMP_RECON_FRAMES
 
   if (cm->seg.update_map) update_reference_segmentation_map(cpi);

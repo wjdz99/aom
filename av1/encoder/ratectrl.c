@@ -1020,11 +1020,12 @@ static int rc_pick_q_and_bounds_two_pass(const AV1_COMP *cpi, int width,
       active_best_quality +=
           av1_compute_qdelta(rc, q_val, q_val * q_adj_factor, cm->bit_depth);
     }
-  } else if (!rc->is_src_frame_alt_ref && (cpi->refresh_golden_frame ||
+  } else if (!rc->is_src_frame_alt_ref &&
+             (cpi->refresh_golden_frame ||
 #if CONFIG_EXT_REFS
-                                           cpi->refresh_alt2_ref_frame ||
+              cpi->refresh_alt2_ref_frame || cpi->refresh_bwd_ref_frame ||
 #endif  // CONFIG_EXT_REFS
-                                           cpi->refresh_alt_ref_frame)) {
+              cpi->refresh_alt_ref_frame)) {
     // Use the lower of active_worst_quality and recent
     // average Q as basis for GF/ARF best Q limit unless last frame was
     // a key frame.
@@ -1034,6 +1035,7 @@ static int rc_pick_q_and_bounds_two_pass(const AV1_COMP *cpi, int width,
     } else {
       q = active_worst_quality;
     }
+
     // For constrained quality dont allow Q less than the cq level
     if (oxcf->rc_mode == AOM_CQ) {
       if (q < cq_level) q = cq_level;
@@ -1045,7 +1047,8 @@ static int rc_pick_q_and_bounds_two_pass(const AV1_COMP *cpi, int width,
 
     } else if (oxcf->rc_mode == AOM_Q) {
 #if CONFIG_EXT_REFS
-      if (!cpi->refresh_alt_ref_frame && !cpi->refresh_alt2_ref_frame) {
+      if (!cpi->refresh_bwd_ref_frame && !cpi->refresh_alt2_ref_frame &&
+          !cpi->refresh_alt_ref_frame) {
 #else
       if (!cpi->refresh_alt_ref_frame) {
 #endif  // CONFIG_EXT_REFS
@@ -1053,10 +1056,15 @@ static int rc_pick_q_and_bounds_two_pass(const AV1_COMP *cpi, int width,
       } else {
         active_best_quality = get_gf_active_quality(rc, q, cm->bit_depth);
 
-        // Modify best quality for second level arfs. For mode AOM_Q this
-        // becomes the baseline frame q.
-        if (gf_group->rf_level[gf_group->index] == GF_ARF_LOW)
+        // Modify best quality for second level arfs and brfs. For mode AOM_Q
+        // this becomes the baseline frame q.
+        if (gf_group->rf_level[gf_group->index] == GF_ARF_LOW) {
+          assert(gf_group->update_type[gf_group->index] == INTNL_ARF_UPDATE ||
+                 gf_group->update_type[gf_group->index] == BRF_UPDATE);
           active_best_quality = (active_best_quality + cq_level + 1) / 2;
+          if (gf_group->update_type[gf_group->index] == BRF_UPDATE)
+            active_best_quality = (active_best_quality + cq_level + 1) / 2;
+        }
       }
     } else {
       active_best_quality = get_gf_active_quality(rc, q, cm->bit_depth);
@@ -1080,11 +1088,12 @@ static int rc_pick_q_and_bounds_two_pass(const AV1_COMP *cpi, int width,
   if ((cpi->oxcf.rc_mode != AOM_Q) &&
       (cpi->twopass.gf_zeromotion_pct < VLOW_MOTION_THRESHOLD)) {
     if (frame_is_intra_only(cm) ||
-        (!rc->is_src_frame_alt_ref && (cpi->refresh_golden_frame ||
+        (!rc->is_src_frame_alt_ref &&
+         (cpi->refresh_golden_frame ||
 #if CONFIG_EXT_REFS
-                                       cpi->refresh_alt2_ref_frame ||
+          cpi->refresh_alt2_ref_frame || cpi->refresh_bwd_ref_frame ||
 #endif  // CONFIG_EXT_REFS
-                                       cpi->refresh_alt_ref_frame))) {
+          cpi->refresh_alt_ref_frame))) {
       active_best_quality -=
           (cpi->twopass.extend_minq + cpi->twopass.extend_minq_fast);
       active_worst_quality += (cpi->twopass.extend_maxq / 2);
@@ -1148,6 +1157,17 @@ static int rc_pick_q_and_bounds_two_pass(const AV1_COMP *cpi, int width,
   assert(*bottom_index <= rc->worst_quality &&
          *bottom_index >= rc->best_quality);
   assert(q <= rc->worst_quality && q >= rc->best_quality);
+
+#define DEBUG_RC_EXTREFS 0
+#if DEBUG_RC_EXTREFS
+  // NOTE(zoeliu): For debug
+  printf(
+      "\nRC: Frame=%d, show_frame=%d, show_existing_frame=%d, q=%d "
+      "(bottom=%d,top=%d)\n",
+      cpi->common.current_video_frame, cpi->common.show_frame,
+      cpi->common.show_existing_frame, q, *bottom_index, *top_index);
+#endif  // DEBUG_RC_EXTREFS
+
   return q;
 }
 
