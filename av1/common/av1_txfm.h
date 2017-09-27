@@ -117,29 +117,8 @@ static INLINE int32_t half_btf(int32_t w0, int32_t in0, int32_t w1, int32_t in1,
   return round_shift(result_32, bit);
 }
 
-static INLINE int get_max_bit(int x) {
-  int max_bit = -1;
-  while (x) {
-    x = x >> 1;
-    max_bit++;
-  }
-  return max_bit;
-}
-
-// TODO(angiebird): implement SSE
-static INLINE void clamp_block(int16_t *block, int block_size_row,
-                               int block_size_col, int stride, int low,
-                               int high) {
-  int i, j;
-  for (i = 0; i < block_size_row; ++i) {
-    for (j = 0; j < block_size_col; ++j) {
-      block[i * stride + j] = clamp(block[i * stride + j], low, high);
-    }
-  }
-}
-
-typedef void (*TxfmFunc)(const int32_t *input, int32_t *output,
-                         const int8_t *cos_bit, const int8_t *stage_range);
+typedef void (*TxfmFunc)(const int32_t *input, int32_t *output, int8_t cos_bit,
+                         const int8_t *stage_range);
 
 typedef enum TXFM_TYPE {
   TXFM_TYPE_DCT4,
@@ -163,7 +142,7 @@ typedef struct TXFM_1D_CFG {
 
   const int8_t *shift;
   const int8_t *stage_range;
-  const int8_t *cos_bit;
+  const int8_t cos_bit;
   const TXFM_TYPE txfm_type;
 } TXFM_1D_CFG;
 
