@@ -810,13 +810,13 @@ static void set_param_topblock(AV1_COMMON *const cm, MACROBLOCKD *const xd,
 static void set_ref(AV1_COMMON *const cm, MACROBLOCKD *const xd, int idx,
                     int mi_row, int mi_col) {
   MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
-#if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+#if CONFIG_COMPOUND_SINGLEREF
   RefBuffer *ref_buffer =
       has_second_ref(mbmi) ? &cm->frame_refs[mbmi->ref_frame[idx] - LAST_FRAME]
                            : &cm->frame_refs[mbmi->ref_frame[0] - LAST_FRAME];
 #else
   RefBuffer *ref_buffer = &cm->frame_refs[mbmi->ref_frame[idx] - LAST_FRAME];
-#endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+#endif  // CONFIG_COMPOUND_SINGLEREF
   xd->block_refs[idx] = ref_buffer;
   if (!av1_is_valid_scale(&ref_buffer->sf))
     aom_internal_error(&cm->error, AOM_CODEC_UNSUP_BITSTREAM,
@@ -855,9 +855,9 @@ static void dec_predict_b_extend(
                             mi_row_ori, mi_col_ori);
   set_ref(cm, xd, 0, mi_row_pred, mi_col_pred);
   if (has_second_ref(&xd->mi[0]->mbmi)
-#if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+#if CONFIG_COMPOUND_SINGLEREF
       || is_inter_singleref_comp_mode(xd->mi[0]->mbmi.mode)
-#endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+#endif  // CONFIG_COMPOUND_SINGLEREF
           )
     set_ref(cm, xd, 1, mi_row_pred, mi_col_pred);
   if (!bextend) mbmi->tx_size = max_txsize_lookup[bsize_top];
@@ -868,19 +868,13 @@ static void dec_predict_b_extend(
       (c >> xd->plane[plane].subsampling_x);
 
   if (!b_sub8x8)
-    av1_build_inter_predictor_sb_extend(&pbi->common, xd,
-#if CONFIG_EXT_INTER
-                                        mi_row_ori, mi_col_ori,
-#endif  // CONFIG_EXT_INTER
-                                        mi_row_pred, mi_col_pred, plane,
-                                        bsize_pred);
+    av1_build_inter_predictor_sb_extend(&pbi->common, xd, mi_row_ori,
+                                        mi_col_ori, mi_row_pred, mi_col_pred,
+                                        plane, bsize_pred);
   else
-    av1_build_inter_predictor_sb_sub8x8_extend(&pbi->common, xd,
-#if CONFIG_EXT_INTER
-                                               mi_row_ori, mi_col_ori,
-#endif  // CONFIG_EXT_INTER
-                                               mi_row_pred, mi_col_pred, plane,
-                                               bsize_pred, block);
+    av1_build_inter_predictor_sb_sub8x8_extend(
+        &pbi->common, xd, mi_row_ori, mi_col_ori, mi_row_pred, mi_col_pred,
+        plane, bsize_pred, block);
 }
 
 static void dec_extend_dir(AV1Decoder *const pbi, MACROBLOCKD *const xd,
@@ -1971,18 +1965,18 @@ static void decode_token_and_recon_block(AV1Decoder *const pbi,
   } else {
     int ref;
 
-#if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+#if CONFIG_COMPOUND_SINGLEREF
     for (ref = 0; ref < 1 + is_inter_anyref_comp_mode(mbmi->mode); ++ref)
 #else
     for (ref = 0; ref < 1 + has_second_ref(mbmi); ++ref)
-#endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+#endif  // CONFIG_COMPOUND_SINGLEREF
     {
       const MV_REFERENCE_FRAME frame =
-#if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+#if CONFIG_COMPOUND_SINGLEREF
           has_second_ref(mbmi) ? mbmi->ref_frame[ref] : mbmi->ref_frame[0];
 #else
           mbmi->ref_frame[ref];
-#endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+#endif  // CONFIG_COMPOUND_SINGLEREF
       if (frame < LAST_FRAME) {
 #if CONFIG_INTRABC
         assert(is_intrabc_block(mbmi));
@@ -4385,7 +4379,6 @@ void read_sequence_header(SequenceHeader *seq_params) {
 }
 #endif
 
-#if CONFIG_EXT_INTER
 static void read_compound_tools(AV1_COMMON *cm,
                                 struct aom_read_bit_buffer *rb) {
   (void)cm;
@@ -4409,7 +4402,6 @@ static void read_compound_tools(AV1_COMMON *cm,
   }
 #endif  // CONFIG_WEDGE || CONFIG_COMPOUND_SEGMENT
 }
-#endif  // CONFIG_EXT_INTER
 
 #if CONFIG_VAR_REFS
 static void check_valid_ref_frames(AV1_COMMON *cm) {
@@ -5067,9 +5059,7 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
   cm->tx_mode = read_tx_mode(cm, rb);
   cm->reference_mode = read_frame_reference_mode(cm, rb);
   if (cm->reference_mode != SINGLE_REFERENCE) setup_compound_reference_mode(cm);
-#if CONFIG_EXT_INTER
   read_compound_tools(cm, rb);
-#endif  // CONFIG_EXT_INTER
 
 #if CONFIG_EXT_TX
   cm->reduced_tx_set_used = aom_rb_read_bit(rb);
@@ -5148,7 +5138,6 @@ static int read_compressed_header(AV1Decoder *pbi, const uint8_t *data,
     read_inter_mode_probs(fc, &r);
 #endif
 
-#if CONFIG_EXT_INTER
 #if CONFIG_INTERINTRA
     if (cm->reference_mode != COMPOUND_REFERENCE &&
         cm->allow_interintra_compound) {
@@ -5173,7 +5162,6 @@ static int read_compressed_header(AV1Decoder *pbi, const uint8_t *data,
 #endif  // CONFIG_WEDGE
     }
 #endif  // CONFIG_INTERINTRA
-#endif  // CONFIG_EXT_INTER
 
 #if !CONFIG_NEW_MULTISYMBOL
     for (i = 0; i < INTRA_INTER_CONTEXTS; i++)
@@ -5184,10 +5172,10 @@ static int read_compressed_header(AV1Decoder *pbi, const uint8_t *data,
     read_frame_reference_mode_probs(cm, &r);
 #endif
 
-#if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+#if CONFIG_COMPOUND_SINGLEREF
     for (i = 0; i < COMP_INTER_MODE_CONTEXTS; i++)
       av1_diff_update_prob(&r, &fc->comp_inter_mode_prob[i], ACCT_STR);
-#endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+#endif  // CONFIG_COMPOUND_SINGLEREF
 
 #if !CONFIG_NEW_MULTISYMBOL
 #if CONFIG_AMVR
@@ -5229,7 +5217,6 @@ static void debug_check_frame_counts(const AV1_COMMON *const cm) {
                  sizeof(cm->counts.blockz_count)));
   assert(!memcmp(cm->counts.switchable_interp, zero_counts.switchable_interp,
                  sizeof(cm->counts.switchable_interp)));
-#if CONFIG_EXT_INTER
   assert(!memcmp(cm->counts.inter_compound_mode,
                  zero_counts.inter_compound_mode,
                  sizeof(cm->counts.inter_compound_mode)));
@@ -5244,7 +5231,6 @@ static void debug_check_frame_counts(const AV1_COMMON *const cm) {
   assert(!memcmp(cm->counts.compound_interinter,
                  zero_counts.compound_interinter,
                  sizeof(cm->counts.compound_interinter)));
-#endif  // CONFIG_EXT_INTER
 #if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
   assert(!memcmp(cm->counts.motion_mode, zero_counts.motion_mode,
                  sizeof(cm->counts.motion_mode)));
@@ -5255,10 +5241,10 @@ static void debug_check_frame_counts(const AV1_COMMON *const cm) {
 #endif
   assert(!memcmp(cm->counts.intra_inter, zero_counts.intra_inter,
                  sizeof(cm->counts.intra_inter)));
-#if CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+#if CONFIG_COMPOUND_SINGLEREF
   assert(!memcmp(cm->counts.comp_inter_mode, zero_counts.comp_inter_mode,
                  sizeof(cm->counts.comp_inter_mode)));
-#endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SINGLEREF
+#endif  // CONFIG_COMPOUND_SINGLEREF
   assert(!memcmp(cm->counts.comp_inter, zero_counts.comp_inter,
                  sizeof(cm->counts.comp_inter)));
 #if CONFIG_EXT_COMP_REFS
