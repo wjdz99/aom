@@ -349,6 +349,30 @@
     },
     {
       "key": {
+        "uuid": "3e97dd11_9947f53d",
+        "filename": "test/av1_convolve_scale_test.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 7560
+      },
+      "writtenOn": "2017-09-27T10:57:11Z",
+      "side": 1,
+      "message": "\"I\" is now an integer.",
+      "parentUuid": "2c627d78_0e665a55",
+      "range": {
+        "startLine": 73,
+        "startChar": 8,
+        "endLine": 73,
+        "endChar": 13
+      },
+      "revId": "67bf90d2d8b3440bc7bb38887568b48fdc85b881",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d5298e4e_ecb4c82f",
         "filename": "test/av1_convolve_scale_test.cc",
         "patchSetId": 9
@@ -399,6 +423,24 @@
       "revId": "67bf90d2d8b3440bc7bb38887568b48fdc85b881",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4387c1bc_7720c33a",
+        "filename": "test/av1_convolve_scale_test.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 7560
+      },
+      "writtenOn": "2017-09-27T10:57:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e2659c83_988c4930",
+      "revId": "67bf90d2d8b3440bc7bb38887568b48fdc85b881",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -604,6 +646,24 @@
       "revId": "67bf90d2d8b3440bc7bb38887568b48fdc85b881",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "14ad918a_c08157c0",
+        "filename": "test/av1_convolve_scale_test.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 396,
+      "author": {
+        "id": 7560
+      },
+      "writtenOn": "2017-09-27T10:57:11Z",
+      "side": 1,
+      "message": "Yes, I could do that if you think it\u0027s important. It\u0027ll be a significant amount of work and it\u0027s not clear how much of the scaffolding for the actual test (which compares the C and SSE code) should go in the first patch.\n\nDo you think it\u0027s sufficiently important to do this work, or is this patch acceptable without?",
+      "parentUuid": "2504d0f1_d98fdd54",
+      "revId": "67bf90d2d8b3440bc7bb38887568b48fdc85b881",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
