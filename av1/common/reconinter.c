@@ -1013,6 +1013,11 @@ void av1_make_masked_inter_predictor(const uint8_t *pre, int pre_stride,
   CONV_BUF_TYPE *org_dst = conv_params->dst;
   int org_dst_stride = conv_params->dst_stride;
   CONV_BUF_TYPE *tmp_buf32 = (CONV_BUF_TYPE *)tmp_dst;
+#if CONFIG_HIGHBITDEPTH
+  if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH)
+    tmp_buf32 = (CONV_BUF_TYPE *)CONVERT_TO_SHORTPTR(tmp_dst);
+#endif
+
   if (is_conv_no_round) {
     conv_params->dst = tmp_buf32;
     conv_params->dst_stride = tmp_buf_stride;
