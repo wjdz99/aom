@@ -11,51 +11,33 @@
 
 #ifndef AV1_TXFM_CFG_H_
 #define AV1_TXFM_CFG_H_
-// 4x4 1D
 
-static const int8_t tx_cos_bit_col_dct_4[4] = { 13, 13, 13, 13 };
-static const int8_t tx_cos_bit_row_dct_4[4] = { 13, 13, 13, 13 };
-static const int8_t tx_cos_bit_col_adst_4[6] = { 13, 13, 13, 13, 13, 13 };
-static const int8_t tx_cos_bit_row_adst_4[6] = { 13, 13, 13, 13, 13, 13 };
+// 4x4 1D
+enum { tx_cos_bit_col_dct_4 = 13 };
+enum { tx_cos_bit_row_dct_4 = 13 };
+enum { tx_cos_bit_col_adst_4 = 13 };
+enum { tx_cos_bit_row_adst_4 = 13 };
 
 // 8x8 1D
-
-static const int8_t tx_cos_bit_col_dct_8[6] = { 13, 13, 13, 13, 13, 13 };
-static const int8_t tx_cos_bit_row_dct_8[6] = { 13, 13, 13, 13, 13, 13 };
-static const int8_t tx_cos_bit_col_adst_8[8] = {
-  13, 13, 13, 13, 13, 13, 13, 13
-};
-static const int8_t tx_cos_bit_row_adst_8[8] = {
-  13, 13, 13, 13, 13, 13, 13, 13
-};
+enum { tx_cos_bit_col_dct_8 = 13 };
+enum { tx_cos_bit_row_dct_8 = 13 };
+enum { tx_cos_bit_col_adst_8 = 13 };
+enum { tx_cos_bit_row_adst_8 = 13 };
 
 // 16x16 1D
+enum { tx_cos_bit_col_dct_16 = 13 };
+enum { tx_cos_bit_row_dct_16 = 12 };
+enum { tx_cos_bit_col_adst_16 = 13 };
+enum { tx_cos_bit_row_adst_16 = 12 };
 
-static const int8_t tx_cos_bit_col_dct_16[8] = {
-  13, 13, 13, 13, 13, 13, 13, 13
-};
-static const int8_t tx_cos_bit_row_dct_16[8] = {
-  12, 12, 12, 12, 12, 12, 12, 12
-};
-static const int8_t tx_cos_bit_col_adst_16[10] = { 13, 13, 13, 13, 13,
-                                                   13, 13, 13, 13, 13 };
-static const int8_t tx_cos_bit_row_adst_16[10] = { 12, 12, 12, 12, 12,
-                                                   12, 12, 12, 12, 12 };
 // 32x32 1D
+enum { tx_cos_bit_col_dct_32 = 12 };
+enum { tx_cos_bit_row_dct_32 = 12 };
+enum { tx_cos_bit_col_adst_32 = 12 };
+enum { tx_cos_bit_row_adst_32 = 12 };
 
-static const int8_t tx_cos_bit_col_dct_32[10] = { 12, 12, 12, 12, 12,
-                                                  12, 12, 12, 12, 12 };
-static const int8_t tx_cos_bit_row_dct_32[10] = { 12, 12, 12, 12, 12,
-                                                  12, 12, 12, 12, 12 };
-static const int8_t tx_cos_bit_col_adst_32[12] = { 12, 12, 12, 12, 12, 12,
-                                                   12, 12, 12, 12, 12, 12 };
-static const int8_t tx_cos_bit_row_adst_32[12] = { 12, 12, 12, 12, 12, 12,
-                                                   12, 12, 12, 12, 12, 12 };
 // 64x64 1D
-
-static const int8_t tx_cos_bit_col_dct_64[12] = { 13, 13, 13, 13, 13, 13,
-                                                  13, 13, 13, 13, 13, 13 };
-static const int8_t tx_cos_bit_row_dct_64[12] = { 12, 12, 12, 12, 12, 12,
-                                                  12, 12, 12, 12, 12, 12 };
+enum { tx_cos_bit_col_dct_64 = 13 };
+enum { tx_cos_bit_row_dct_64 = 12 };
 
 #endif  // AV1_TXFM_CFG_H_
