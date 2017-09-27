@@ -350,6 +350,7 @@ EXPERIMENT_LIST="
     mfmv
     jnt_comp
     obu
+    add_4bytes_obusize
     amvr
     lpf_sb
     opt_ref_mv
