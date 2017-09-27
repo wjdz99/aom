@@ -493,6 +493,10 @@ aom_codec_err_t av1_parse_superframe_index(const uint8_t *data, size_t data_sz,
   marker = read_marker(decrypt_cb, decrypt_state, data);
   *count = 0;
 
+#if CONFIG_OBU
+  return AOM_CODEC_OK;
+#endif
+
   if ((marker & 0xe0) == 0xc0) {
     const uint32_t frames = (marker & 0x7) + 1;
     const uint32_t mag = ((marker >> 3) & 0x3) + 1;
