@@ -755,6 +755,12 @@ typedef enum {
   OBU_METADATA = 5,
   OBU_PADDING = 15,
 } OBU_TYPE;
+
+typedef enum {
+  METADATA_TYPE_PRIVATE_DATA = 0,
+  METADATA_TYPE_HDR_CLL = 1,
+  METADATA_TYPE_HDR_MDCV = 2,
+} METADATA_TYPE;
 #endif
 
 #ifdef __cplusplus
