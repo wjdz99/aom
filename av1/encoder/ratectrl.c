@@ -1020,11 +1020,12 @@ static int rc_pick_q_and_bounds_two_pass(const AV1_COMP *cpi, int width,
       active_best_quality +=
           av1_compute_qdelta(rc, q_val, q_val * q_adj_factor, cm->bit_depth);
     }
-  } else if (!rc->is_src_frame_alt_ref && (cpi->refresh_golden_frame ||
+  } else if (!rc->is_src_frame_alt_ref &&
+             (cpi->refresh_golden_frame ||
 #if CONFIG_EXT_REFS
-                                           cpi->refresh_alt2_ref_frame ||
+              cpi->refresh_alt2_ref_frame || cpi->refresh_bwd_ref_frame ||
 #endif  // CONFIG_EXT_REFS
-                                           cpi->refresh_alt_ref_frame)) {
+              cpi->refresh_alt_ref_frame)) {
     // Use the lower of active_worst_quality and recent
     // average Q as basis for GF/ARF best Q limit unless last frame was
     // a key frame.
@@ -1034,6 +1035,7 @@ static int rc_pick_q_and_bounds_two_pass(const AV1_COMP *cpi, int width,
     } else {
       q = active_worst_quality;
     }
+
     // For constrained quality dont allow Q less than the cq level
     if (oxcf->rc_mode == AOM_CQ) {
       if (q < cq_level) q = cq_level;
@@ -1045,24 +1047,62 @@ static int rc_pick_q_and_bounds_two_pass(const AV1_COMP *cpi, int width,
 
     } else if (oxcf->rc_mode == AOM_Q) {
 #if CONFIG_EXT_REFS
-      if (!cpi->refresh_alt_ref_frame && !cpi->refresh_alt2_ref_frame) {
+      if (!cpi->refresh_bwd_ref_frame && !cpi->refresh_alt2_ref_frame &&
+          !cpi->refresh_alt_ref_frame) {
 #else
       if (!cpi->refresh_alt_ref_frame) {
 #endif  // CONFIG_EXT_REFS
         active_best_quality = cq_level;
       } else {
+#if CONFIG_EXT_REFS
+        active_best_quality = rc->gf_active_quality;
+#else
         active_best_quality = get_gf_active_quality(rc, q, cm->bit_depth);
+#endif  // CONFIG_EXT_REFS
 
-        // Modify best quality for second level arfs. For mode AOM_Q this
-        // becomes the baseline frame q.
-        if (gf_group->rf_level[gf_group->index] == GF_ARF_LOW)
+        // Modify best quality for second level arfs and brfs. For mode AOM_Q
+        // 'active_best_quality' will become the baseline frame q.
+        if (gf_group->rf_level[gf_group->index] == GF_ARF_LOW) {
+#if CONFIG_EXT_REFS
+          assert(gf_group->update_type[gf_group->index] == INTNL_ARF_UPDATE ||
+                 gf_group->update_type[gf_group->index] == BRF_UPDATE);
+          if (gf_group->update_type[gf_group->index] == INTNL_ARF_UPDATE) {
+            // === ALTREF2 ===
+            // Lower down cq_level by 9/16 of the delta between cq_level and
+            // 'gf_active_quality'.
+            active_best_quality =
+                cq_level -
+                ((AOMMAX(0, (cq_level - rc->gf_active_quality)) * 9 + 8) >> 4);
+          } else {
+            // === BWDREF ===
+            // Lower down cq_level by 3/8 of the delta between cq_level and
+            // 'gf_active_quality'.
+            active_best_quality =
+                cq_level -
+                ((AOMMAX(0, (cq_level - rc->gf_active_quality)) * 3 + 4) >> 3);
+          }
+#else
           active_best_quality = (active_best_quality + cq_level + 1) / 2;
+#endif  // CONFIG_EXT_REFS
+        }
       }
     } else {
       active_best_quality = get_gf_active_quality(rc, q, cm->bit_depth);
     }
   } else {
     if (oxcf->rc_mode == AOM_Q) {
+#if CONFIG_EXT_REFS
+/*
+if (gf_group->update_type[gf_group->index] == BIPRED_UPDATE ||
+    gf_group->update_type[gf_group->index] == LAST_BIPRED_UPDATE ||
+    gf_group->update_type[gf_group->index] == LF_UPDATE)
+  // Boost up cq_level by 1/8 of the delta between cq_level and
+  // 'gf_active_quality'.
+  active_best_quality = cq_level +
+      ((AOMMAX(0, (cq_level - rc->gf_active_quality)) + 4) >> 3);
+else
+ */
+#endif  // CONFIG_EXT_REFS
       active_best_quality = cq_level;
     } else {
       active_best_quality = inter_minq[active_worst_quality];
@@ -1148,8 +1188,55 @@ static int rc_pick_q_and_bounds_two_pass(const AV1_COMP *cpi, int width,
   assert(*bottom_index <= rc->worst_quality &&
          *bottom_index >= rc->best_quality);
   assert(q <= rc->worst_quality && q >= rc->best_quality);
+
+#define DEBUG_EXTREFS_AOMQ 0
+#if DEBUG_EXTREFS_AOMQ
+  // NOTE(zoeliu): For debug
+  printf(
+      "\nRC: Frame=%d, show_frame=%d, show_existing_frame=%d, q=%d "
+      "(bottom=%d,top=%d), rc->gf_active_quality=%d\n",
+      cpi->common.current_video_frame, cpi->common.show_frame,
+      cpi->common.show_existing_frame, q, *bottom_index, *top_index,
+      rc->gf_active_quality);
+#endif  // DEBUG_EXTREFS_AOMQ
+
   return q;
 }
+
+#if CONFIG_EXT_REFS
+void av1_rc_set_gf_active_quality(AV1_COMP *cpi) {
+  const AV1_COMMON *const cm = &cpi->common;
+  const AV1EncoderConfig *const oxcf = &cpi->oxcf;
+  const GF_GROUP *const gf_group = &cpi->twopass.gf_group;
+  RATE_CONTROL *const rc = &cpi->rc;
+
+  assert(oxcf->rc_mode == AOM_Q);
+  (void)cm;
+
+  if (gf_group->update_type[gf_group->index] == KF_UPDATE ||
+      gf_group->update_type[gf_group->index] == OVERLAY_UPDATE) {
+    assert(frame_is_intra_only(cm) || rc->is_src_frame_alt_ref);
+
+    const int cq_level = get_active_cq_level(rc, oxcf);
+    rc->gf_active_quality = cq_level;
+  } else if (gf_group->update_type[gf_group->index] == ARF_UPDATE) {
+    assert(cpi->refresh_alt_ref_frame == 1);
+
+    int active_worst_quality = cpi->twopass.active_worst_quality;
+    int q;
+    // Use the lower of active_worst_quality and recent
+    // average Q as basis for GF/ARF best Q limit unless last frame was
+    // a key frame.
+    if (rc->frames_since_key > 1 &&
+        rc->avg_frame_qindex[INTER_FRAME] < active_worst_quality) {
+      q = rc->avg_frame_qindex[INTER_FRAME];
+    } else {
+      q = active_worst_quality;
+    }
+    rc->gf_active_quality = get_gf_active_quality(rc, q, cm->bit_depth);
+  }
+}
+#endif  // CONFIG_EXT_REFS
 
 int av1_rc_pick_q_and_bounds(const AV1_COMP *cpi, int width, int height,
                              int *bottom_index, int *top_index) {

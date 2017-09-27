@@ -134,6 +134,9 @@ typedef struct {
 
   int worst_quality;
   int best_quality;
+#if CONFIG_EXT_REFS
+  int gf_active_quality;
+#endif  // CONFIG_EXT_REFS
 
   int64_t starting_buffer_level;
   int64_t optimal_buffer_level;
@@ -217,6 +220,10 @@ void av1_rc_compute_frame_size_bounds(const struct AV1_COMP *cpi,
                                       int this_frame_target,
                                       int *frame_under_shoot_limit,
                                       int *frame_over_shoot_limit);
+
+#if CONFIG_EXT_REFS
+void av1_rc_set_gf_active_quality(struct AV1_COMP *cpi);
+#endif  // CONFIG_EXT_REFS
 
 // Picks q and q bounds given the target for bits
 int av1_rc_pick_q_and_bounds(const struct AV1_COMP *cpi, int width, int height,

@@ -2578,6 +2578,9 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
   // Set absolute upper and lower quality limits
   rc->worst_quality = cpi->oxcf.worst_allowed_q;
   rc->best_quality = cpi->oxcf.best_allowed_q;
+#if CONFIG_EXT_REFS
+  rc->gf_active_quality = rc->best_quality;
+#endif  // CONFIG_EXT_REFS
 
   cm->interp_filter = cpi->sf.default_interp_filter;
 
@@ -4207,9 +4210,13 @@ static void set_size_dependent_vars(AV1_COMP *cpi, int *q, int *bottom_index,
       &cpi->od_rc, cpi->refresh_golden_frame, cpi->refresh_alt_ref_frame,
       frame_type, bottom_index, top_index);
 #else
+#if CONFIG_EXT_REFS
+  if (oxcf->rc_mode == AOM_Q && oxcf->pass == 2)
+    av1_rc_set_gf_active_quality(cpi);
+#endif  // CONFIG_EXT_REFS
   *q = av1_rc_pick_q_and_bounds(cpi, cm->width, cm->height, bottom_index,
                                 top_index);
-#endif
+#endif  // CONFIG_XIPHRC
 
   if (!frame_is_intra_only(cm)) {
 #if CONFIG_AMVR
@@ -5270,7 +5277,7 @@ static int setup_interp_filter_search_mask(AV1_COMP *cpi) {
   return mask;
 }
 
-#define DUMP_RECON_FRAMES 0
+#define DUMP_RECON_FRAMES 1
 
 #if DUMP_RECON_FRAMES == 1
 // NOTE(zoeliu): For debug - Output the filtered reconstructed video.
@@ -5301,7 +5308,7 @@ static void dump_filtered_recon_frames(AV1_COMP *cpi) {
   printf(
       "\nFrame=%5d, encode_update_type[%5d]=%1d, show_existing_frame=%d, "
       "source_alt_ref_active=%d, refresh_alt_ref_frame=%d, rf_level=%d, "
-      "y_stride=%4d, uv_stride=%4d, cm->width=%4d, cm->height=%4d\n",
+      "y_stride=%4d, uv_stride=%4d, cm->width=%4d, cm->height=%4d\n\n",
       cm->current_video_frame, cpi->twopass.gf_group.index,
       cpi->twopass.gf_group.update_type[cpi->twopass.gf_group.index],
       cm->show_existing_frame, cpi->rc.source_alt_ref_active,
@@ -5416,7 +5423,16 @@ static void encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
 
 #if DUMP_RECON_FRAMES == 1
     // NOTE(zoeliu): For debug - Output the filtered reconstructed video.
-    dump_filtered_recon_frames(cpi);
+    printf(
+        "\nFrame=%5d, encode_update_type[%5d]=%1d, show_frame=%d, "
+        "show_existing_frame=%d, rf_level=%d, size=%d\n\n",
+        cm->current_video_frame, cpi->twopass.gf_group.index,
+        cpi->twopass.gf_group.update_type[cpi->twopass.gf_group.index],
+        cm->show_frame, cm->show_existing_frame,
+        cpi->twopass.gf_group.rf_level[cpi->twopass.gf_group.index],
+        (int)(*size));
+
+// dump_filtered_recon_frames(cpi);
 #endif  // DUMP_RECON_FRAMES
 
     // Update the LAST_FRAME in the reference frame buffer.
@@ -5653,7 +5669,16 @@ static void encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
 
 #if DUMP_RECON_FRAMES == 1
   // NOTE(zoeliu): For debug - Output the filtered reconstructed video.
-  if (cm->show_frame) dump_filtered_recon_frames(cpi);
+  printf(
+      "\nFrame=%5d, encode_update_type[%5d]=%1d, show_frame=%d, "
+      "show_existing_frame=%d, rf_level=%d, base_qindex=%d, size=%d\n\n",
+      cm->current_video_frame, cpi->twopass.gf_group.index,
+      cpi->twopass.gf_group.update_type[cpi->twopass.gf_group.index],
+      cm->show_frame, cm->show_existing_frame,
+      cpi->twopass.gf_group.rf_level[cpi->twopass.gf_group.index],
+      cm->base_qindex, (int)(*size));
+
+// if (cm->show_frame) dump_filtered_recon_frames(cpi);
 #endif  // DUMP_RECON_FRAMES
 
   if (cm->seg.update_map) update_reference_segmentation_map(cpi);
