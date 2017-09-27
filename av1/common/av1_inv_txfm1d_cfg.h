@@ -277,7 +277,7 @@ static const TXFM_1D_CFG inv_txfm_1d_cfg_identity_4 = {
   1,                      // .stage_num
   inv_shift_4,            // .shift
   inv_stage_range_idx_4,  // .stage_range
-  NULL,                   // .cos_bit
+  0,                      // .cos_bit
   TXFM_TYPE_IDENTITY4,    // .txfm_type
 };
 
@@ -287,7 +287,7 @@ static const TXFM_1D_CFG inv_txfm_1d_cfg_identity_8 = {
   1,                      // .stage_num
   inv_shift_8,            // .shift
   inv_stage_range_idx_8,  // .stage_range
-  NULL,                   // .cos_bit
+  0,                      // .cos_bit
   TXFM_TYPE_IDENTITY8,    // .txfm_type
 };
 
@@ -297,7 +297,7 @@ static const TXFM_1D_CFG inv_txfm_1d_cfg_identity_16 = {
   1,                       // .stage_num
   inv_shift_16,            // .shift
   inv_stage_range_idx_16,  // .stage_range
-  NULL,                    // .cos_bit
+  0,                       // .cos_bit
   TXFM_TYPE_IDENTITY16,    // .txfm_type
 };
 
@@ -307,7 +307,7 @@ static const TXFM_1D_CFG inv_txfm_1d_cfg_identity_32 = {
   1,                       // .stage_num
   inv_shift_32,            // .shift
   inv_stage_range_idx_32,  // .stage_range
-  NULL,                    // .cos_bit
+  0,                       // .cos_bit
   TXFM_TYPE_IDENTITY32,    // .txfm_type
 };
 #endif  // CONFIG_EXT_TX

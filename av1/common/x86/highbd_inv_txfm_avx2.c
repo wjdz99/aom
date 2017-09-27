@@ -610,10 +610,10 @@ void av1_inv_txfm2d_add_32x32_avx2(const int32_t *coeff, uint16_t *output,
       col_cfg = &inv_txfm_1d_col_cfg_dct_32;
       load_buffer_32x32(coeff, in);
       transpose_32x32(in, out);
-      idct32_avx2(out, in, row_cfg->cos_bit[2]);
+      idct32_avx2(out, in, row_cfg->cos_bit);
       round_shift_32x32(in, -row_cfg->shift[0]);
       transpose_32x32(in, out);
-      idct32_avx2(out, in, col_cfg->cos_bit[2]);
+      idct32_avx2(out, in, col_cfg->cos_bit);
       write_buffer_32x32(in, output, stride, 0, 0, -row_cfg->shift[1], bd);
       break;
     default: assert(0);
