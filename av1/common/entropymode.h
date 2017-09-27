@@ -356,7 +356,11 @@ typedef struct frame_contexts {
 #if CONFIG_DELTA_Q
   aom_cdf_prob delta_q_cdf[CDF_SIZE(DELTA_Q_PROBS + 1)];
 #if CONFIG_EXT_DELTA_Q
+#if CONFIG_LOOPFILTER_LEVEL
+  aom_cdf_prob delta_lf_cdf[FRAME_LF_COUNT][CDF_SIZE(DELTA_LF_PROBS + 1)];
+#else
   aom_cdf_prob delta_lf_cdf[CDF_SIZE(DELTA_LF_PROBS + 1)];
+#endif  // CONFIG_LOOPFILTER_LEVEL
 #endif
 #endif  // CONFIG_DELTA_Q
 #if CONFIG_EXT_TX
@@ -374,7 +378,11 @@ typedef struct frame_contexts {
 #if CONFIG_DELTA_Q
   aom_prob delta_q_prob[DELTA_Q_PROBS];
 #if CONFIG_EXT_DELTA_Q
+#if CONFIG_LOOPFILTER_LEVEL
+  aom_prob delta_lf_prob[FRAME_LF_COUNT][DELTA_LF_PROBS];
+#else
   aom_prob delta_lf_prob[DELTA_LF_PROBS];
+#endif  // CONFIG_LOOPFILTER_LEVEL
 #endif
 #endif
 #if CONFIG_PVQ
@@ -502,7 +510,11 @@ typedef struct FRAME_COUNTS {
 #if CONFIG_DELTA_Q
   unsigned int delta_q[DELTA_Q_PROBS][2];
 #if CONFIG_EXT_DELTA_Q
+#if CONFIG_LOOPFILTER_LEVEL
+  unsigned int delta_lf[FRAME_LF_COUNT][DELTA_LF_PROBS][2];
+#else
   unsigned int delta_lf[DELTA_LF_PROBS][2];
+#endif  // CONFIG_LOOPFILTER_LEVEL
 #endif
 #endif
 #if CONFIG_EXT_TX && CONFIG_RECT_TX
