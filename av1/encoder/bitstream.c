@@ -5449,7 +5449,9 @@ static uint32_t write_obu_header(OBU_TYPE obu_type, int obu_extension,
   return size;
 }
 
+#if 0
 static uint32_t write_temporal_delimiter_obu() { return 0; }
+#endif
 
 static uint32_t write_sequence_header_obu(AV1_COMP *cpi, uint8_t *const dst) {
   AV1_COMMON *const cm = &cpi->common;
@@ -5780,12 +5782,14 @@ void av1_pack_bitstream(AV1_COMP *const cpi, uint8_t *dst, size_t *size) {
 #endif
 
 #if CONFIG_OBU
+// The TD is now written outside the frame encode loop
+#if 0
   // write temporal delimiter obu, preceded by 4-byte size
   obu_size = write_obu_header(OBU_TD, 0, data + 4);
   obu_size += write_temporal_delimiter_obu(/*data + 4 + obu_size*/);
   mem_put_le32(data, obu_size);
   data += obu_size + 4;
-
+#endif
   // write sequence header obu if KEY_FRAME, preceded by 4-byte size
   if (cm->frame_type == KEY_FRAME) {
     obu_size = write_obu_header(OBU_SEQUENCE_HEADER, 0, data + 4);

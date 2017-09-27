@@ -21,6 +21,11 @@
 #include "aom/aomcx.h"
 #include "av1/encoder/firstpass.h"
 #include "av1/av1_iface_common.h"
+#if CONFIG_OBU
+#include "aom_dsp/binary_codes_writer.h"
+#include "aom_dsp/bitwriter_buffer.h"
+#include "aom_ports/mem_ops.h"
+#endif
 
 #define MAG_SIZE (4)
 #define MAX_INDEX_SIZE (256)
@@ -1072,6 +1077,7 @@ static void pick_quickcompress_mode(aom_codec_alg_priv_t *ctx,
 // Turn on to test if supplemental superframe data breaks decoding
 #define TEST_SUPPLEMENTAL_SUPERFRAME_DATA 0
 
+#if !CONFIG_OBU
 static int write_superframe_index(aom_codec_alg_priv_t *ctx) {
   uint8_t marker = 0xc0;
   size_t max_frame_sz = 0;
@@ -1136,6 +1142,7 @@ static int write_superframe_index(aom_codec_alg_priv_t *ctx) {
 
   return (int)index_sz;
 }
+#endif
 
 // av1 uses 10,000,000 ticks/second as time stamp
 #define TICKS_PER_SEC 10000000LL
@@ -1161,6 +1168,26 @@ static aom_codec_frame_flags_t get_frame_pkt_flags(const AV1_COMP *cpi,
 
   return flags;
 }
+
+#if CONFIG_OBU
+static uint32_t write_obu_header(OBU_TYPE obu_type, int obu_extension,
+                                 uint8_t *const dst) {
+  struct aom_write_bit_buffer wb = { dst + 4, 0 };
+  uint32_t size = 0;
+
+  aom_wb_write_literal(&wb, (int)obu_type, 5);
+  aom_wb_write_literal(&wb, 0, 2);
+  aom_wb_write_literal(&wb, obu_extension ? 1 : 0, 1);
+  if (obu_extension) {
+    aom_wb_write_literal(&wb, obu_extension & 0xFF, 8);
+  }
+
+  size = aom_wb_bytes_written(&wb);
+  return size;
+}
+
+static uint32_t write_temporal_delimiter_obu() { return 0; }
+#endif
 
 static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
                                       const aom_image_t *img,
@@ -1306,6 +1333,7 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
       }
     }
     if (is_frame_visible) {
+#if !CONFIG_OBU
       // insert superframe index if needed
       if (ctx->pending_frame_count > 1) {
 #if CONFIG_DEBUG
@@ -1314,7 +1342,7 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
         write_superframe_index(ctx);
 #endif
       }
-
+#endif
       // Add the frame packet to the list of returned packets.
       aom_codec_cx_pkt_t pkt;
 
@@ -1323,6 +1351,17 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
       pkt.data.frame.buf = ctx->pending_cx_data;
       pkt.data.frame.sz = ctx->pending_cx_data_sz;
       pkt.data.frame.partition_id = -1;
+
+#if CONFIG_OBU
+      // move data 4 + 1 bytes and insert OBU_TD preceded by 4-byte size
+      uint32_t obu_size = 1;
+      memmove(ctx->pending_cx_data + 5, ctx->pending_cx_data,
+              ctx->pending_cx_data_sz);
+      obu_size = write_obu_header(OBU_TD, 0, (uint8_t *)(pkt.data.frame.buf));
+      obu_size += write_temporal_delimiter_obu(/*data + 4 + obu_size*/);
+      mem_put_le32(ctx->pending_cx_data, obu_size);
+      pkt.data.frame.sz += (obu_size + 4);
+#endif
 
       pkt.data.frame.pts = ticks_to_timebase_units(timebase, dst_time_stamp);
       pkt.data.frame.flags = get_frame_pkt_flags(cpi, lib_flags);
