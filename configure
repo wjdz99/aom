@@ -538,6 +538,8 @@ post_process_cmdline() {
     soft_enable palette_throughput
     soft_enable tempmv_signaling
 
+    soft_enable obu
+
     # Fix up experiment dependencies
     enabled pvq && disable_feature chroma_2x2
     enabled pvq && disable_feature rect_tx

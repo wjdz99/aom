@@ -5771,11 +5771,13 @@ void av1_pack_bitstream(AV1_COMP *const cpi, uint8_t *dst, size_t *size) {
 #endif
 
 #if CONFIG_OBU
+#if 0
   // write temporal delimiter obu, preceded by 4-byte size
   obu_size = write_obu_header(OBU_TD, 0, data + 4);
   obu_size += write_temporal_delimiter_obu(/*data + 4 + obu_size*/);
   mem_put_le32(data, obu_size);
   data += obu_size + 4;
+#endif
 
   // write sequence header obu if KEY_FRAME, preceded by 4-byte size
   if (cm->frame_type == KEY_FRAME) {
