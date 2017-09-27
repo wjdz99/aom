@@ -87,8 +87,8 @@ static INLINE void fwd_txfm2d_c(const int16_t *input, int32_t *output,
   assert(cfg->row_cfg->stage_num <= MAX_TXFM_STAGE_NUM);
   av1_gen_fwd_stage_range(stage_range_col, stage_range_row, cfg, bd);
 
-  const int8_t *cos_bit_col = cfg->col_cfg->cos_bit;
-  const int8_t *cos_bit_row = cfg->row_cfg->cos_bit;
+  const int8_t cos_bit_col = cfg->col_cfg->cos_bit;
+  const int8_t cos_bit_row = cfg->row_cfg->cos_bit;
   const TxfmFunc txfm_func_col = fwd_txfm_type_to_func(cfg->col_cfg->txfm_type);
   const TxfmFunc txfm_func_row = fwd_txfm_type_to_func(cfg->row_cfg->txfm_type);
 
