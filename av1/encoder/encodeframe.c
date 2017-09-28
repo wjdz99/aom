@@ -3447,7 +3447,7 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
 #endif
   BLOCK_SIZE subsize;
   RD_STATS this_rdc, sum_rdc, best_rdc;
-  const int bsize_at_least_8x8 = (bsize >= BLOCK_8X8);
+  const int bsize_at_least_8x8 = (bsize >= BLOCK_64X64);//(bsize >= BLOCK_8X8);
   int do_square_split = bsize_at_least_8x8;
 #if CONFIG_CB4X4
   const int unify_bsize = 1;
@@ -3476,7 +3476,7 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
                               !xd->lossless[0];
 #endif  // CONFIG_SUPERTX
 
-  int do_rectangular_split = 1;
+  int do_rectangular_split = 0;
 #if CONFIG_EXT_PARTITION_TYPES
   BLOCK_SIZE bsize2 = get_subsize(bsize, PARTITION_SPLIT);
 #endif
@@ -3496,10 +3496,10 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
 #endif
 
   int partition_none_allowed = !force_horz_split && !force_vert_split;
-  int partition_horz_allowed =
-      !force_vert_split && yss <= xss && bsize_at_least_8x8;
-  int partition_vert_allowed =
-      !force_horz_split && xss <= yss && bsize_at_least_8x8;
+  int partition_horz_allowed = 0;
+      //!force_vert_split && yss <= xss && bsize_at_least_8x8;
+  int partition_vert_allowed = 0;
+      //!force_horz_split && xss <= yss && bsize_at_least_8x8;
 
 #if CONFIG_PVQ
   od_rollback_buffer pre_rdo_buf;

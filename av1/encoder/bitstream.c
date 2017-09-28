@@ -1596,10 +1596,14 @@ void av1_write_tx_type(const AV1_COMMON *const cm, const MACROBLOCKD *xd,
       assert(eset > 0);
       assert(av1_ext_tx_used[tx_set_type][tx_type]);
       if (is_inter) {
+        if (tx_type == MRC_DCT)
+        printf("inter tx type: %d mrc: %d\n", tx_type, MRC_DCT);
         aom_write_symbol(w, av1_ext_tx_ind[tx_set_type][tx_type],
                          ec_ctx->inter_ext_tx_cdf[eset][square_tx_size],
                          av1_num_ext_tx_set[tx_set_type]);
       } else if (ALLOW_INTRA_EXT_TX) {
+          if (tx_type == MRC_DCT)
+          //printf("intra tx type: %d mrc: %d is_32: %d\n", tx_type, MRC_DCT, mbmi->sb_type >= BLOCK_32X32);
         aom_write_symbol(
             w, av1_ext_tx_ind[tx_set_type][tx_type],
             ec_ctx->intra_ext_tx_cdf[eset][square_tx_size][mbmi->mode],
