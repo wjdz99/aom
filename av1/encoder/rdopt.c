@@ -2695,7 +2695,7 @@ static void choose_tx_size_type_from_rd(const AV1_COMP *const cpi,
     evaluate_rect_tx = is_rect_tx(chosen_tx_size);
     assert(IMPLIES(evaluate_rect_tx, is_rect_tx_allowed(xd, mbmi)));
   }
-  if (evaluate_rect_tx) {
+  if (0) {//evaluate_rect_tx) {
     TX_TYPE tx_start = DCT_DCT;
     TX_TYPE tx_end = TX_TYPES;
 #if CONFIG_TXK_SEL
@@ -2805,6 +2805,11 @@ static void choose_tx_size_type_from_rd(const AV1_COMP *const cpi,
 #endif
     TX_TYPE tx_type;
     for (tx_type = tx_start; tx_type < tx_end; ++tx_type) {
+#if CONFIG_MRC_TX
+      if (is_inter) printf("here\n");
+      if (is_inter && bs == BLOCK_32X32 && !(tx_type == MRC_DCT && n == TX_32X32))
+        continue;
+#endif //CONFIG_MRC_TX
       RD_STATS this_rd_stats;
       if (skip_txfm_search(cpi, x, bs, tx_type, n)) continue;
       rd = txfm_yrd(cpi, x, &this_rd_stats, ref_best_rd, bs, tx_type, n);
@@ -2864,8 +2869,10 @@ static void super_block_yrd(const AV1_COMP *const cpi, MACROBLOCK *x,
   assert(bs == xd->mi[0]->mbmi.sb_type);
 
   if (xd->lossless[xd->mi[0]->mbmi.segment_id]) {
+    //printf("smallest\n");
     choose_smallest_tx_size(cpi, x, rd_stats, ref_best_rd, bs);
   } else if (cpi->sf.tx_size_search_method == USE_LARGESTALL) {
+    //printf("largest\n");
     choose_largest_tx_size(cpi, x, rd_stats, ref_best_rd, bs);
   } else {
     choose_tx_size_type_from_rd(cpi, x, rd_stats, ref_best_rd, bs);
@@ -4534,11 +4541,12 @@ void av1_tx_block_rd_b(const AV1_COMP *cpi, MACROBLOCK *x, TX_SIZE tx_size,
     return;
   }
 #endif  // CONFIG_MRC_TX
-  if (
+  int64_t tmprd = RDCOST(x->rdmult, 0, tmp_dist);
+  if (1
 #if CONFIG_DIST_8X8
-      disable_early_skip ||
+      //disable_early_skip ||
 #endif
-      RDCOST(x->rdmult, 0, tmp_dist) < rd_stats->ref_rdcost) {
+      ) {//RDCOST(x->rdmult, 0, tmp_dist) <= rd_stats->ref_rdcost) {
     av1_optimize_b(cm, x, plane, blk_row, blk_col, block, plane_bsize, tx_size,
                    a, l, 1);
   } else {
@@ -4550,7 +4558,6 @@ void av1_tx_block_rd_b(const AV1_COMP *cpi, MACROBLOCK *x, TX_SIZE tx_size,
     return;
   }
 #endif  // DISABLE_TRELLISQ_SEARCH
-
   const int eob = p->eobs[block];
 
   av1_inverse_transform_block(xd, dqcoeff,
@@ -4693,23 +4700,23 @@ static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
   if (cpi->common.tx_mode == TX_MODE_SELECT || tx_size == TX_4X4) {
     inter_tx_size[0][0] = tx_size;
 
-#if CONFIG_MRC_TX
-    if (tx_size == TX_32X32 && mbmi->tx_type != DCT_DCT &&
-        rd_stats_stack[block32].rate != INT_MAX && !USE_MRC_INTER) {
-#else
-    if (tx_size == TX_32X32 && mbmi->tx_type != DCT_DCT &&
-        rd_stats_stack[block32].rate != INT_MAX) {
-#endif  // CONFIG_MRC_TX
-      *rd_stats = rd_stats_stack[block32];
-      p->eobs[block] = !rd_stats->skip;
-      x->blk_skip[plane][blk_row * bw + blk_col] = rd_stats->skip;
-    } else {
+//f CONFIG_MRC_TX
+//  if (0 && tx_size == TX_32X32 && mbmi->tx_type != DCT_DCT &&
+//      rd_stats_stack[block32].rate != INT_MAX && !USE_MRC_INTER) {
+//lse
+//  if (tx_size == TX_32X32 && mbmi->tx_type != DCT_DCT &&
+//      rd_stats_stack[block32].rate != INT_MAX) {
+//ndif  // CONFIG_MRC_TX
+//    *rd_stats = rd_stats_stack[block32];
+//    p->eobs[block] = !rd_stats->skip;
+//    x->blk_skip[plane][blk_row * bw + blk_col] = rd_stats->skip;
+//  } else {
       av1_tx_block_rd_b(cpi, x, tx_size, blk_row, blk_col, plane, block,
                         plane_bsize, pta, ptl, rd_stats);
-      if (tx_size == TX_32X32) {
-        rd_stats_stack[block32] = *rd_stats;
-      }
-    }
+//    if (tx_size == TX_32X32) {
+//      rd_stats_stack[block32] = *rd_stats;
+//    }
+//  }
     if (rd_stats->rate == INT_MAX) return;
 
     if ((RDCOST(x->rdmult, rd_stats->rate, rd_stats->dist) >=
@@ -4858,7 +4865,7 @@ static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
 #if CONFIG_MRC_TX
   // If the tx type we are trying is MRC_DCT, we cannot partition the transform
   // into anything smaller than TX_32X32
-  if (tx_size > TX_4X4 && depth < MAX_VARTX_DEPTH && mbmi->tx_type != MRC_DCT) {
+  if (tx_size > TX_4X4 && depth < MAX_VARTX_DEPTH && mbmi->tx_type != MRC_DCT && mbmi->tx_type != DCT_DCT) {
 #else
   if (tx_size > TX_4X4 && depth < MAX_VARTX_DEPTH) {
 #endif
@@ -5300,10 +5307,8 @@ static void select_tx_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
 
   for (idx = 0; idx < count32; ++idx)
     av1_invalid_rd_stats(&rd_stats_stack[idx]);
-
   const uint32_t hash = get_block_residue_hash(x, bsize);
   TX_RD_RECORD *tx_rd_record = &x->tx_rd_record;
-
   if (ref_best_rd != INT64_MAX) {
     for (int i = 0; i < tx_rd_record->num; ++i) {
       const int index = (tx_rd_record->index_start + i) % RD_RECORD_BUFFER_LEN;
@@ -5316,10 +5321,15 @@ static void select_tx_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
       }
     }
   }
-
   for (tx_type = txk_start; tx_type < txk_end; ++tx_type) {
+    int tx_type_old = tx_type;
+    if (is_inter && bsize == BLOCK_32X32) {
+      if (tx_type_old == DCT_DCT) tx_type = MRC_DCT;
+      if (tx_type_old == MRC_DCT) tx_type = DCT_DCT;
+    }
     RD_STATS this_rd_stats;
     av1_init_rd_stats(&this_rd_stats);
+    //put skip for other txfms here
 #if CONFIG_MRC_TX
     // MRC_DCT only implemented for TX_32X32 so only include this tx in
     // the search for TX_32X32
@@ -5350,9 +5360,21 @@ static void select_tx_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
 
     if (xd->lossless[mbmi->segment_id])
       if (tx_type != DCT_DCT) continue;
+#if CONFIG_MRC_TX
+      if (is_inter && bsize == BLOCK_32X32)
+        printf("debug");
+      if (is_inter && bsize == BLOCK_32X32 && tx_type == IDTX) {
+        // if(tx_type == IDTX)// || tx_type == IDTX)
+           continue;
+       //else
+       // printf("tx type: %d, mrc: %d\n", tx_type, MRC_DCT);
+      }
+#endif  // CONFIG_MRC_TX
 
     rd = select_tx_size_fix_type(cpi, x, &this_rd_stats, bsize, ref_best_rd,
                                  tx_type, rd_stats_stack);
+ // if (tx_type == MRC_DCT && rd < INT64_MAX)
+ //   printf("rd: %d\n", rd);
     ref_best_rd = AOMMIN(rd, ref_best_rd);
     if (rd < best_rd) {
       best_rd = rd;
@@ -5365,6 +5387,7 @@ static void select_tx_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
         for (idx = 0; idx < xd->n8_w; ++idx)
           best_tx_size[idy][idx] = mbmi->inter_tx_size[idy][idx];
     }
+      tx_type = tx_type_old;
   }
 
   mbmi->tx_type = best_tx_type;

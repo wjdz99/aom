@@ -542,6 +542,7 @@ static void tokenize_b(int plane, int block, int blk_row, int blk_col,
   c = 0;
 
 #if CONFIG_MRC_TX && SIGNAL_ANY_MRC_MASK
+  //sarahparker do if eob is > 0
   if (tx_type == MRC_DCT)
     av1_tokenize_color_map(x, plane, block, &t, plane_bsize, tx_size, MRC_MAP);
 #endif  // CONFIG_MRC_TX && SIGNAL_ANY_MRC_MASK

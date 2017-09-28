@@ -1574,6 +1574,8 @@ void av1_write_tx_type(const AV1_COMMON *const cm, const MACROBLOCKD *xd,
 #if CONFIG_EXT_TX
     const TX_SIZE square_tx_size = txsize_sqr_map[tx_size];
     const BLOCK_SIZE bsize = mbmi->sb_type;
+ // if (mbmi->skip)
+ //   printf("skip\n");
     if (get_ext_tx_types(tx_size, bsize, is_inter, cm->reduced_tx_set_used) >
             1 &&
         ((!cm->seg.enabled && cm->base_qindex > 0) ||
@@ -1584,8 +1586,12 @@ void av1_write_tx_type(const AV1_COMMON *const cm, const MACROBLOCKD *xd,
 #endif  // CONFIG_SUPERTX
         !segfeature_active(&cm->seg, mbmi->segment_id, SEG_LVL_SKIP)) {
 #if CONFIG_MRC_TX
-      if (tx_type == MRC_DCT)
-        assert(mbmi->valid_mrc_mask && "Invalid MRC mask");
+//    if (tx_type == MRC_DCT && !mbmi->valid_mrc_mask)
+//      assert(mbmi->valid_mrc_mask && "Invalid MRC mask");
+//    if (mbmi->debug == 69)
+//      printf("here");
+//    if (tx_type == MRC_DCT)
+//      assert(mbmi->valid_mrc_mask && "Invalid MRC mask");
 #endif  // CONFIG_MRC_TX
       const TxSetType tx_set_type = get_ext_tx_set_type(
           tx_size, bsize, is_inter, cm->reduced_tx_set_used);
@@ -1596,10 +1602,18 @@ void av1_write_tx_type(const AV1_COMMON *const cm, const MACROBLOCKD *xd,
       assert(eset > 0);
       assert(av1_ext_tx_used[tx_set_type][tx_type]);
       if (is_inter) {
+       // if (mbmi->sb_type == BLOCK_32X32)
+       //   printf("tx type final: %d, mrc: %d, idtx: %d\n", tx_type, MRC_DCT, IDTX);
+       // else
+       //   printf("bsize:%d 64 %d\n", mbmi->sb_type, BLOCK_64X64);
+ //       if (tx_type == MRC_DCT && !mbmi->skip)
+ //       printf("inter tx type: %d mrc: %d\n", tx_type, MRC_DCT);
         aom_write_symbol(w, av1_ext_tx_ind[tx_set_type][tx_type],
                          ec_ctx->inter_ext_tx_cdf[eset][square_tx_size],
                          av1_num_ext_tx_set[tx_set_type]);
       } else if (ALLOW_INTRA_EXT_TX) {
+          //if (tx_type == MRC_DCT)
+          //printf("intra tx type: %d mrc: %d is_32: %d\n", tx_type, MRC_DCT, mbmi->sb_type >= BLOCK_32X32);
         aom_write_symbol(
             w, av1_ext_tx_ind[tx_set_type][tx_type],
             ec_ctx->intra_ext_tx_cdf[eset][square_tx_size][mbmi->mode],

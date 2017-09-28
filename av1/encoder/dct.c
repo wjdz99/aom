@@ -1025,18 +1025,22 @@ static void fhalfright32(const tran_low_t *input, tran_low_t *output) {
 }
 
 #if CONFIG_MRC_TX
-static void get_masked_residual32(const int16_t **input, int *input_stride,
+static void get_masked_residual32(const int16_t **input, int input_stride,
                                   const uint8_t *pred, int pred_stride,
-                                  int16_t *masked_input,
                                   TxfmParam *txfm_param) {
   int n_masked_vals = 0;
   uint8_t *mrc_mask;
   uint8_t mask_tmp[32 * 32];
+  int16_t masked_input[32 * input_stride];
   if ((txfm_param->is_inter && SIGNAL_MRC_MASK_INTER) ||
       (!txfm_param->is_inter && SIGNAL_MRC_MASK_INTRA)) {
     mrc_mask = txfm_param->mask;
-    n_masked_vals = get_mrc_diff_mask(*input, *input_stride, mrc_mask, 32, 32,
-                                      32, txfm_param->is_inter);
+ // n_masked_vals = get_mrc_diff_mask(*input, *input_stride, mrc_mask, 32, 32,
+ //                                   32, txfm_param->is_inter);
+    n_masked_vals = get_mrc_pred_mask(pred, pred_stride, mrc_mask, 32, 32, 32,
+                                      txfm_param->is_inter);
+//  if (n_masked_vals > 1)
+//    assert(0);
   } else {
     mrc_mask = mask_tmp;
     n_masked_vals = get_mrc_pred_mask(pred, pred_stride, mrc_mask, 32, 32, 32,
@@ -1053,7 +1057,7 @@ static void get_masked_residual32(const int16_t **input, int *input_stride,
   // Get the masked average of the prediction
   for (int i = 0; i < 32; ++i) {
     for (int j = 0; j < 32; ++j) {
-      sum += mrc_mask[i * 32 + j] * (*input)[i * (*input_stride) + j];
+      sum += mrc_mask[i * 32 + j] * (*input)[i * input_stride + j];
     }
   }
   avg = sum / n_masked_vals;
@@ -1062,11 +1066,27 @@ static void get_masked_residual32(const int16_t **input, int *input_stride,
   for (int i = 0; i < 32; ++i) {
     for (int j = 0; j < 32; ++j)
       masked_input[i * 32 + j] =
-          (mrc_mask[i * 32 + j]) ? (*input)[i * (*input_stride) + j] : avg;
+          (mrc_mask[i * 32 + j]) ? (*input)[i * input_stride + j] : avg;
   }
   *input = masked_input;
-  *input_stride = 32;
   *txfm_param->valid_mask = 1;
+}
+
+static void print_res(int16_t *m, int stride, int w, int h) {
+    for (int i =0; i< h; i++) {
+      for (int j=0; j<w; j++) {
+        printf("%d ", m[j + i * stride]);
+      }
+      printf("\n");
+    }
+}
+static void print_mask(uint8_t *m, int stride, int w, int h) {
+    for (int i =0; i< h; i++) {
+      for (int j=0; j<w; j++) {
+        printf("%d ", m[j + i * stride]);
+      }
+      printf("\n");
+    }
 }
 #endif  // CONFIG_MRC_TX
 
@@ -2341,9 +2361,8 @@ void av1_fht32x32_c(const int16_t *input, tran_low_t *output, int stride,
 
 #if CONFIG_MRC_TX
   if (tx_type == MRC_DCT) {
-    int16_t masked_input[32 * 32];
-    get_masked_residual32(&input, &stride, txfm_param->dst, txfm_param->stride,
-                          masked_input, txfm_param);
+    get_masked_residual32(&input, stride, txfm_param->dst, txfm_param->stride,
+                          txfm_param);
   }
 #endif  // CONFIG_MRC_TX
 

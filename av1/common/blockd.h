@@ -15,6 +15,7 @@
 #include "./aom_config.h"
 
 #include "aom_dsp/aom_dsp_common.h"
+#include <stdio.h>
 #include "aom_ports/mem.h"
 #include "aom_scale/yv12config.h"
 
@@ -391,6 +392,7 @@ typedef struct MB_MODE_INFO {
 
 #if CONFIG_MRC_TX
   int valid_mrc_mask;
+  int debug;
 #endif  // CONFIG_MRC_TX
 
   // Only for INTRA blocks
@@ -909,7 +911,7 @@ static INLINE int is_rect_tx(TX_SIZE tx_size) { return tx_size >= TX_SIZES; }
 #if CONFIG_MRC_TX
 #define USE_MRC_INTRA 0
 #define USE_MRC_INTER 1
-#define SIGNAL_MRC_MASK_INTRA (USE_MRC_INTRA && 0)
+#define SIGNAL_MRC_MASK_INTRA (USE_MRC_INTRA && 1)
 #define SIGNAL_MRC_MASK_INTER (USE_MRC_INTER && 1)
 #define SIGNAL_ANY_MRC_MASK (SIGNAL_MRC_MASK_INTRA || SIGNAL_MRC_MASK_INTER)
 #endif  // CONFIG_MRC_TX
