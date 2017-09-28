@@ -281,6 +281,7 @@ static int optimize_b_greedy(const AV1_COMMON *cm, MACROBLOCK *mb, int plane,
                                          tail_token_costs[band_cur][ctx_cur]);
       }
 
+#if 0     
       int64_t next_bits0 = 0, next_bits1 = 0;
       if (i < eob - 1) {
         int ctx_next;
@@ -301,9 +302,13 @@ static int optimize_b_greedy(const AV1_COMMON *cm, MACROBLOCK *mb, int plane,
             token_next, eob_val_next, 0, head_token_costs[band_next][ctx_next],
             tail_token_costs[band_next][ctx_next]);
       }
-
       rd_cost0 = RDCOST(rdmult, (rate0 + next_bits0), d2);
       rd_cost1 = RDCOST(rdmult, (rate1 + next_bits1), d2_a);
+#else
+      rd_cost0 = RDCOST(rdmult, (rate0), d2);
+      rd_cost1 = RDCOST(rdmult, (rate1), d2_a);
+#endif
+      
       const int best_x = (rd_cost1 < rd_cost0);
 
       const int eob_v = (i + 1 == seg_eob) ? LAST_EOB : EARLY_EOB;
