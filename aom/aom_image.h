@@ -126,6 +126,8 @@ typedef struct aom_image {
   unsigned int r_w; /**< Intended rendering image width */
   unsigned int r_h; /**< Intended rendering image height */
 
+  unsigned int break_the_abi; /**< Intended rendering image height */
+
   /* Chroma subsampling info */
   unsigned int x_chroma_shift; /**< subsampling order, X */
   unsigned int y_chroma_shift; /**< subsampling order, Y */
