@@ -323,6 +323,7 @@ static void write_tx_size_vartx(const AV1_COMMON *cm, MACROBLOCKD *xd,
     aom_write(w, 0, cm->fc->txfm_partition_prob[ctx]);
 #endif
 
+    printf("tx size: %d\n", tx_size);
     txfm_partition_update(xd->above_txfm_context + blk_col,
                           xd->left_txfm_context + blk_row, tx_size, tx_size);
     // TODO(yuec): set correct txfm partition update for qttx
