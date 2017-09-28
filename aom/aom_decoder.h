@@ -133,6 +133,10 @@ aom_codec_err_t aom_codec_dec_init_ver(aom_codec_ctx_t *ctx,
                                        const aom_codec_dec_cfg_t *cfg,
                                        aom_codec_flags_t flags, int ver);
 
+aom_codec_err_t aom_codec_dec_init_test(aom_codec_ctx_t *ctx,
+                                        aom_codec_iface_t *iface,
+                                        const aom_codec_dec_cfg_t *cfg,
+                                        aom_codec_flags_t flags, int ver);
 /*!\brief Convenience macro for aom_codec_dec_init_ver()
  *
  * Ensures the ABI version parameter is properly set.
