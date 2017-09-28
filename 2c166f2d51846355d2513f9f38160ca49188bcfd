@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0c0e117d_7d278d9e",
+        "filename": "test/resize_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 699,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-09-28T22:46:41Z",
+      "side": 1,
+      "message": "elsewhere this is treated as having 0/1. you could do defined(DISABLE) \u0026\u0026 DISABLE, but this is probably fine in this location.",
+      "range": {
+        "startLine": 699,
+        "startChar": 0,
+        "endLine": 699,
+        "endChar": 30
+      },
+      "revId": "2c166f2d51846355d2513f9f38160ca49188bcfd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
