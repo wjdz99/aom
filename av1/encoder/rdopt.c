@@ -2695,7 +2695,7 @@ static void choose_tx_size_type_from_rd(const AV1_COMP *const cpi,
     evaluate_rect_tx = is_rect_tx(chosen_tx_size);
     assert(IMPLIES(evaluate_rect_tx, is_rect_tx_allowed(xd, mbmi)));
   }
-  if (evaluate_rect_tx) {
+  if (0) {//evaluate_rect_tx) {
     TX_TYPE tx_start = DCT_DCT;
     TX_TYPE tx_end = TX_TYPES;
 #if CONFIG_TXK_SEL
@@ -2805,6 +2805,9 @@ static void choose_tx_size_type_from_rd(const AV1_COMP *const cpi,
 #endif
     TX_TYPE tx_type;
     for (tx_type = tx_start; tx_type < tx_end; ++tx_type) {
+      //if (is_inter) printf("here\n");
+    //if (is_inter && bs == BLOCK_32X32 && !(tx_type == MRC_DCT && n == TX_32X32))
+    //  continue;
       RD_STATS this_rd_stats;
       if (skip_txfm_search(cpi, x, bs, tx_type, n)) continue;
       rd = txfm_yrd(cpi, x, &this_rd_stats, ref_best_rd, bs, tx_type, n);
