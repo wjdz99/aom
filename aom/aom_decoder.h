@@ -133,6 +133,10 @@ aom_codec_err_t aom_codec_dec_init_ver(aom_codec_ctx_t *ctx,
                                        const aom_codec_dec_cfg_t *cfg,
                                        aom_codec_flags_t flags, int ver);
 
+aom_codec_err_t aom_codec_dec_init_test(aom_codec_ctx_t *ctx,
+                                        aom_codec_iface_t *iface,
+                                        const aom_codec_dec_cfg_t *cfg,
+                                        aom_codec_flags_t flags, int ver);
 /*!\brief Convenience macro for aom_codec_dec_init_ver()
  *
  * Ensures the ABI version parameter is properly set.
@@ -160,7 +164,7 @@ aom_codec_err_t aom_codec_dec_init_ver(aom_codec_ctx_t *ctx,
  *     buffer was too short.
  */
 aom_codec_err_t aom_codec_peek_stream_info(aom_codec_iface_t *iface,
-                                           const uint8_t *data,
+                                           const int8_t *data,
                                            unsigned int data_sz,
                                            aom_codec_stream_info_t *si);
 

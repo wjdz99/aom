@@ -61,10 +61,11 @@ aom_codec_err_t aom_codec_dec_init_ver(aom_codec_ctx_t *ctx,
 }
 
 aom_codec_err_t aom_codec_peek_stream_info(aom_codec_iface_t *iface,
-                                           const uint8_t *data,
+                                           const int8_t *data_,
                                            unsigned int data_sz,
                                            aom_codec_stream_info_t *si) {
   aom_codec_err_t res;
+  const uint8_t *data = (uint8_t *)data_;
 
   if (!iface || !data || !data_sz || !si) {
     res = AOM_CODEC_INVALID_PARAM;
