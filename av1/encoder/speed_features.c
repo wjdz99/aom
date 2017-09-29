@@ -484,7 +484,6 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi) {
 #ifdef TMP_FORCE_PRUNE_MODE
   sf->tx_type_search.prune_mode = TMP_FORCE_PRUNE_MODE;
 #endif
-
   // sf->partition_search_breakout_dist_thr is set assuming max 64x64
   // blocks. Normalise this if the blocks are bigger.
   if (MAX_SB_SIZE_LOG2 > 6) {

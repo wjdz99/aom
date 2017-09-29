@@ -205,7 +205,7 @@ typedef enum {
 #if CONFIG_EXT_TX
   // eliminates two tx types in each direction
   PRUNE_TWO = 2,
-  // adaptively prunes the least perspective tx types out of all 16
+  // adaptively prunes the least perspective tx types and sizes
   // (tuned to provide negligible quality loss)
   PRUNE_2D_ACCURATE = 3,
   // similar, but applies much more aggressive pruning to get better speed-up

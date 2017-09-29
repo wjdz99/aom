@@ -1315,6 +1315,30 @@ static void get_energy_distribution_finer(const int16_t *diff, int stride,
   for (i = 0; i < esq_h - 1; i++) verdist[i] *= e_recip;
 }
 
+static void get_2D_energy_distribution(const int16_t *diff, int stride, int bw,
+                                       int bh, float *edist) {
+  unsigned int esq[256];
+  int esq_w = bw >> 2;
+  int esq_h = bh >> 2;
+  int esq_sz = esq_w * esq_h;
+  uint64_t total = 0;
+  for (int i = 0; i < bh; i += 4)
+    for (int j = 0; j < bw; j += 4) {
+      unsigned int cur_sum_energy = 0;
+      for (int k = 0; k < 4; k++) {
+        const int16_t *cur_diff = diff + (i + k) * stride + j;
+        cur_sum_energy += cur_diff[0] * cur_diff[0] +
+                          cur_diff[1] * cur_diff[1] +
+                          cur_diff[2] * cur_diff[2] + cur_diff[3] * cur_diff[3];
+      }
+      esq[(i >> 2) * esq_w + (j >> 2)] = cur_sum_energy;
+      total += cur_sum_energy;
+    }
+
+  const float e_recip = 1.0f / (float)total;
+  for (int i = 0; i < esq_sz - 1; i++) edist[i] = esq[i] * e_recip;
+}
+
 // Similar to get_horver_correlation, but also takes into account first
 // row/column, when computing horizontal/vertical correlation.
 static void get_horver_correlation_full(const int16_t *diff, int stride, int w,
@@ -1414,8 +1438,58 @@ inline void score_2D_transform_pow8(float *scores_2D, float shift) {
   for (i = 0; i < 16; i++) scores_2D[i] /= sum;
 }
 
+float compute_tx_split_prune_score(float *features, int num_features,
+                                   const float *fc1, const float *b1,
+                                   const float *fc2, float b2,
+                                   int num_hidden_units) {
+  assert(num_hidden_units <= 64);
+  float hidden_layer[64];
+  for (int i = 0; i < num_hidden_units; i++) {
+    const float *cur_coef = fc1 + i * num_features;
+    hidden_layer[i] = 0.0f;
+    for (int j = 0; j < num_features; j++)
+      hidden_layer[i] += cur_coef[j] * features[j];
+    hidden_layer[i] = AOMMAX(hidden_layer[i] + b1[i], 0.0f);
+  }
+  float dst_score = 0.0f;
+  for (int j = 0; j < num_hidden_units; j++)
+    dst_score += fc2[j] * hidden_layer[j];
+  dst_score += b2;
+  return dst_score;
+}
+
+static int prune_tx_split(BLOCK_SIZE bsize, const int16_t *diff, float hcorr,
+                          float vcorr, int prune_split_aggr) {
+  if (prune_split_aggr <= 0) return 0;
+  if (bsize == BLOCK_4X4 || bsize > BLOCK_16X16) return 0;
+
+  float features[17];
+  int bw = block_size_wide[bsize], bh = block_size_high[bsize];
+  int feature_num = (bw / 4) * (bh / 4) + 1;
+  assert(feature_num <= 17);
+
+  get_2D_energy_distribution(diff, bw, bw, bh, features);
+  features[feature_num - 2] = hcorr;
+  features[feature_num - 1] = vcorr;
+
+  int bidx = bsize - BLOCK_4X4 - 1;
+  const float *fc1 = prune_tx_split_learned_weights[bidx];
+  const float *b1 = fc1 + prune_tx_split_num_hidden_units[bidx] * feature_num;
+  const float *fc2 = b1 + prune_tx_split_num_hidden_units[bidx];
+  float b2 = *(fc2 + prune_tx_split_num_hidden_units[bidx]);
+  float score =
+      compute_tx_split_prune_score(features, feature_num, fc1, b1, fc2, b2,
+                                   prune_tx_split_num_hidden_units[bidx]);
+
+  if (score > prune_tx_split_thresholds[bidx][prune_split_aggr - 1])
+    return 1;
+  else
+    return 0;
+}
+
 static int prune_2D_process_block(BLOCK_SIZE bsize, const int16_t *diff,
-                                  int tx_set, float score_thresh) {
+                                  int tx_set, float score_thresh,
+                                  int prune_tx_split_aggr) {
   float hfeatures[16], vfeatures[16];
   float hscores[4], vscores[4];
   float scores_2D[16];
@@ -1479,21 +1553,27 @@ static int prune_2D_process_block(BLOCK_SIZE bsize, const int16_t *diff,
     if (scores_2D[i] < score_thresh && i != max_score_i)
       prune_bitmask |= (1 << tx_type_table_2D[i]);
 
+  int prune_tx_split_flag =
+      prune_tx_split(bsize, diff, hfeatures[hfeatures_num - 1],
+                     vfeatures[vfeatures_num - 1], prune_tx_split_aggr);
+  prune_bitmask |= (prune_tx_split_flag << TX_TYPES);
   return prune_bitmask;
 }
 
-static int prune_tx_types_2D(BLOCK_SIZE bsize, const MACROBLOCK *x, int tx_set,
-                             int prune_aggr1, int prune_aggr2) {
-  const int pruning_aggressiveness_table[] = { 0, prune_aggr1, prune_aggr2, 0,
-                                               0 };
-  const int pruning_aggr = pruning_aggressiveness_table[tx_set];
-  if (pruning_aggr == 0) return 0;
+static int prune_tx_2D(BLOCK_SIZE bsize, const MACROBLOCK *x, int tx_set,
+                       int prune_tx_types_aggr1, int prune_tx_types_aggr2,
+                       int prune_tx_split_aggr) {
+  const int pruning_aggressiveness_table[] = { 0, prune_tx_types_aggr1,
+                                               prune_tx_types_aggr2, 0, 0 };
+  const int tx_type_pruning_aggr = pruning_aggressiveness_table[tx_set];
+  if (tx_type_pruning_aggr == 0) return 0;
   if (bsize >= BLOCK_32X32) return 0;
 
   const struct macroblock_plane *const p = &x->plane[0];
   float thresh =
-      prune_2D_adaptive_thresholds[bsize - BLOCK_4X4][pruning_aggr - 1];
-  return prune_2D_process_block(bsize, p->src_diff, tx_set, thresh);
+      prune_2D_adaptive_thresholds[bsize - BLOCK_4X4][tx_type_pruning_aggr - 1];
+  return prune_2D_process_block(bsize, p->src_diff, tx_set, thresh,
+                                prune_tx_split_aggr);
 }
 #endif  // CONFIG_EXT_TX
 
@@ -1523,10 +1603,10 @@ static int prune_tx_types(const AV1_COMP *cpi, BLOCK_SIZE bsize, MACROBLOCK *x,
       return prune_two_for_sby(cpi, bsize, x, xd, 1, 1);
       break;
     case PRUNE_2D_ACCURATE:
-      return prune_tx_types_2D(bsize, x, tx_set < 0 ? 1 : tx_set, 6, 4);
+      return prune_tx_2D(bsize, x, tx_set < 0 ? 1 : tx_set, 6, 4, 3);
       break;
     case PRUNE_2D_FAST:
-      return prune_tx_types_2D(bsize, x, tx_set < 0 ? 1 : tx_set, 10, 7);
+      return prune_tx_2D(bsize, x, tx_set < 0 ? 1 : tx_set, 10, 7, 3);
       break;
 #endif  // CONFIG_EXT_TX
   }
@@ -4811,7 +4891,8 @@ static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
                             ENTROPY_CONTEXT *ta, ENTROPY_CONTEXT *tl,
                             TXFM_CONTEXT *tx_above, TXFM_CONTEXT *tx_left,
                             RD_STATS *rd_stats, int64_t ref_best_rd,
-                            int *is_cost_valid, RD_STATS *rd_stats_stack) {
+                            int *is_cost_valid, RD_STATS *rd_stats_stack,
+                            int tx_split_prune_flag) {
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
   struct macroblock_plane *const p = &x->plane[plane];
@@ -5061,7 +5142,7 @@ static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
   // into anything smaller than TX_32X32
   if (tx_size > TX_4X4 && depth < MAX_VARTX_DEPTH && mbmi->tx_type != MRC_DCT) {
 #else
-  if (tx_size > TX_4X4 && depth < MAX_VARTX_DEPTH) {
+  if (tx_size > TX_4X4 && depth < MAX_VARTX_DEPTH && tx_split_prune_flag == 0) {
 #endif
     const TX_SIZE sub_txs = sub_tx_size_map[tx_size];
     const int bsl = tx_size_wide_unit[sub_txs];
@@ -5088,7 +5169,7 @@ static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
       select_tx_block(cpi, x, offsetr, offsetc, plane, block, block32, sub_txs,
                       depth + 1, plane_bsize, ta, tl, tx_above, tx_left,
                       &this_rd_stats, ref_best_rd - tmp_rd, &this_cost_valid,
-                      rd_stats_stack);
+                      rd_stats_stack, 0);
 #if CONFIG_DIST_8X8
       if (x->using_dist_8x8 && plane == 0 && tx_size == TX_8X8) {
         sub8x8_eob[i] = p->eobs[block];
@@ -5265,7 +5346,8 @@ static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
 
 static void inter_block_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
                             RD_STATS *rd_stats, BLOCK_SIZE bsize,
-                            int64_t ref_best_rd, RD_STATS *rd_stats_stack) {
+                            int64_t ref_best_rd, RD_STATS *rd_stats_stack,
+                            int tx_split_prune_flag) {
   MACROBLOCKD *const xd = &x->e_mbd;
   int is_cost_valid = 1;
   int64_t this_rd = 0;
@@ -5303,7 +5385,7 @@ static void inter_block_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
         select_tx_block(cpi, x, idy, idx, 0, block, block32, max_tx_size,
                         mi_height != mi_width, plane_bsize, ctxa, ctxl,
                         tx_above, tx_left, &pn_rd_stats, ref_best_rd - this_rd,
-                        &is_cost_valid, rd_stats_stack);
+                        &is_cost_valid, rd_stats_stack, tx_split_prune_flag);
         if (pn_rd_stats.rate == INT_MAX) {
           av1_invalid_rd_stats(rd_stats);
           return;
@@ -5330,7 +5412,8 @@ static void inter_block_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
 static int64_t select_tx_size_fix_type(const AV1_COMP *cpi, MACROBLOCK *x,
                                        RD_STATS *rd_stats, BLOCK_SIZE bsize,
                                        int64_t ref_best_rd, TX_TYPE tx_type,
-                                       RD_STATS *rd_stats_stack) {
+                                       RD_STATS *rd_stats_stack,
+                                       int tx_split_prune_flag) {
   const AV1_COMMON *const cm = &cpi->common;
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
@@ -5344,7 +5427,8 @@ static int64_t select_tx_size_fix_type(const AV1_COMP *cpi, MACROBLOCK *x,
   const int max_blocks_wide = max_block_wide(xd, bsize, 0);
 
   mbmi->tx_type = tx_type;
-  inter_block_yrd(cpi, x, rd_stats, bsize, ref_best_rd, rd_stats_stack);
+  inter_block_yrd(cpi, x, rd_stats, bsize, ref_best_rd, rd_stats_stack,
+                  tx_split_prune_flag);
   mbmi->min_tx_size = get_min_tx_size(mbmi->inter_tx_size[0][0]);
 
   if (rd_stats->rate == INT_MAX) return INT64_MAX;
@@ -5620,6 +5704,13 @@ static void select_tx_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
     prune = prune_tx_types(cpi, bsize, x, xd, 0);
 #endif  // CONFIG_EXT_TX
 
+  int tx_split_prune_flag = 0;
+#if CONFIG_EXT_TX
+  if (is_inter && cpi->sf.tx_type_search.prune_mode >= PRUNE_2D_ACCURATE) {
+    if (((prune >> TX_TYPES) & 1) == 1) tx_split_prune_flag = 1;
+  }
+#endif
+
   for (tx_type = txk_start; tx_type < txk_end; ++tx_type) {
     RD_STATS this_rd_stats;
     av1_init_rd_stats(&this_rd_stats);
@@ -5658,7 +5749,7 @@ static void select_tx_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
       if (tx_type != DCT_DCT) continue;
 
     rd = select_tx_size_fix_type(cpi, x, &this_rd_stats, bsize, ref_best_rd,
-                                 tx_type, rd_stats_stack);
+                                 tx_type, rd_stats_stack, tx_split_prune_flag);
     ref_best_rd = AOMMIN(rd, ref_best_rd);
     if (rd < best_rd) {
       best_rd = rd;
