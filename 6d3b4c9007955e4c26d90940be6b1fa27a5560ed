@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6a319da4_b62deb63",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 6012,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-09-29T23:53:23Z",
+      "side": 1,
+      "message": "As a result, the cost here will use the wrong trade-off between rate and distortion, making CfL 16x or 256x more willing to spend bits to reduce distortion compared to other intra modes for 10- and 12-bit, respectively.",
+      "revId": "6d3b4c9007955e4c26d90940be6b1fa27a5560ed",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
