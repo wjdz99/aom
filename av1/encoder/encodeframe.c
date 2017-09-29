@@ -1483,6 +1483,13 @@ static void rd_pick_sb_modes(const AV1_COMP *const cpi, TileDataEnc *tile_data,
                            xd->plane[1].subsampling_y);
 #endif
 
+#if CONFIG_DIST_8X8
+  x->mi_row = mi_row;
+  x->mi_col = mi_col;
+  x->mi_row_end = tile_info->mi_row_end;
+  x->mi_col_end = tile_info->mi_col_end;
+#endif  // CONFIG_DIST_8X8
+
 #if CONFIG_HIGHBITDEPTH
   if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
     x->source_variance = av1_high_get_sby_perpixel_variance(
