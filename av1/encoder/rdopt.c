@@ -5847,18 +5847,19 @@ static int rd_pick_intra_angle_sbuv(const AV1_COMP *const cpi, MACROBLOCK *x,
 #if CONFIG_CFL
 static int64_t cfl_alpha_dist_lbd(const int16_t *pred_buf_q3,
                                   const uint8_t *src, int src_stride, int width,
-                                  int height, int16_t dc_pred, int alpha_q3,
-                                  int64_t *dist_neg_out) {
+                                  int height, const int16_t *dc_pred,
+                                  int alpha_q3, int64_t *dist_neg_out) {
   int64_t dist = 0;
   int diff;
 
   if (alpha_q3 == 0) {
     for (int j = 0; j < height; j++) {
       for (int i = 0; i < width; i++) {
-        diff = src[i] - dc_pred;
+        diff = src[i] - dc_pred[i];
         dist += diff * diff;
       }
       src += src_stride;
+      dc_pred += MAX_SB_SIZE;
     }
 
     if (dist_neg_out) *dist_neg_out = dist;
@@ -5872,14 +5873,15 @@ static int64_t cfl_alpha_dist_lbd(const int16_t *pred_buf_q3,
       const int uv = src[i];
       const int scaled_luma = get_scaled_luma_q0(alpha_q3, pred_buf_q3[i]);
 
-      diff = uv - clip_pixel(scaled_luma + dc_pred);
+      diff = uv - clip_pixel(scaled_luma + dc_pred[i]);
       dist += diff * diff;
 
-      diff = uv - clip_pixel(-scaled_luma + dc_pred);
+      diff = uv - clip_pixel(-scaled_luma + dc_pred[i]);
       dist_neg += diff * diff;
     }
     pred_buf_q3 += MAX_SB_SIZE;
     src += src_stride;
+    dc_pred += MAX_SB_SIZE;
   }
 
   if (dist_neg_out) *dist_neg_out = dist_neg;
@@ -5889,7 +5891,7 @@ static int64_t cfl_alpha_dist_lbd(const int16_t *pred_buf_q3,
 #if CONFIG_HIGHBITDEPTH
 static int64_t cfl_alpha_dist_hbd(const int16_t *pred_buf_q3,
                                   const uint16_t *src, int src_stride,
-                                  int width, int height, int16_t dc_pred,
+                                  int width, int height, const int16_t *dc_pred,
                                   int alpha_q3, int16_t bit_depth,
                                   int64_t *dist_neg_out) {
   int64_t dist = 0;
@@ -5898,10 +5900,11 @@ static int64_t cfl_alpha_dist_hbd(const int16_t *pred_buf_q3,
   if (alpha_q3 == 0) {
     for (int j = 0; j < height; j++) {
       for (int i = 0; i < width; i++) {
-        diff = src[i] - dc_pred;
+        diff = src[i] - dc_pred[i];
         dist += diff * diff;
       }
       src += src_stride;
+      dc_pred += MAX_SB_SIZE;
     }
 
     if (dist_neg_out) *dist_neg_out = dist;
@@ -5915,14 +5918,15 @@ static int64_t cfl_alpha_dist_hbd(const int16_t *pred_buf_q3,
       const int uv = src[i];
       const int scaled_luma = get_scaled_luma_q0(alpha_q3, pred_buf_q3[i]);
 
-      diff = uv - clip_pixel_highbd(scaled_luma + dc_pred, bit_depth);
+      diff = uv - clip_pixel_highbd(scaled_luma + dc_pred[i], bit_depth);
       dist += diff * diff;
 
-      diff = uv - clip_pixel_highbd(-scaled_luma + dc_pred, bit_depth);
+      diff = uv - clip_pixel_highbd(-scaled_luma + dc_pred[i], bit_depth);
       dist_neg += diff * diff;
     }
     pred_buf_q3 += MAX_SB_SIZE;
     src += src_stride;
+    dc_pred += MAX_SB_SIZE;
   }
 
   if (dist_neg_out) *dist_neg_out = dist_neg;
@@ -5932,7 +5936,7 @@ static int64_t cfl_alpha_dist_hbd(const int16_t *pred_buf_q3,
 #endif  // CONFIG_HIGHBITDEPTH
 static int64_t cfl_alpha_dist(const int16_t *pred_buf_q3, const uint8_t *src,
                               int src_stride, int width, int height,
-                              int16_t dc_pred, int alpha_q3, int use_hbd,
+                              const int16_t *dc_pred, int alpha_q3, int use_hbd,
                               int bit_depth, int64_t *dist_neg_out) {
 #if CONFIG_HIGHBITDEPTH
   if (use_hbd) {
@@ -5962,8 +5966,8 @@ static int cfl_rd_pick_alpha(MACROBLOCK *const x, TX_SIZE tx_size) {
   cfl_compute_parameters(xd, tx_size);
   const int width = cfl->uv_width;
   const int height = cfl->uv_height;
-  const int16_t dc_pred_u = cfl->dc_pred[CFL_PRED_U];
-  const int16_t dc_pred_v = cfl->dc_pred[CFL_PRED_V];
+  const int16_t *dc_pred_u = cfl->dc_pred[CFL_PRED_U];
+  const int16_t *dc_pred_v = cfl->dc_pred[CFL_PRED_V];
   const int16_t *pred_buf_q3 = cfl->pred_buf_q3;
   const int use_hbd = xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH;
 
