@@ -1240,6 +1240,30 @@ static void get_energy_distribution_finer(const int16_t *diff, int stride,
   for (i = 0; i < esq_h - 1; i++) verdist[i] *= e_recip;
 }
 
+static void get_2D_energy_distribution(const int16_t *diff, int stride, int bw,
+                                       int bh, float *edist) {
+  unsigned int esq[256];
+  int esq_w = bw >> 2;
+  int esq_h = bh >> 2;
+  int esq_sz = esq_w * esq_h;
+  uint64_t total = 0;
+  for (int i = 0; i < bh; i += 4)
+    for (int j = 0; j < bw; j += 4) {
+      unsigned int cur_sum_energy = 0;
+      for (int k = 0; k < 4; k++) {
+        const int16_t *cur_diff = diff + (i + k) * stride + j;
+        cur_sum_energy += cur_diff[0] * cur_diff[0] +
+                          cur_diff[1] * cur_diff[1] +
+                          cur_diff[2] * cur_diff[2] + cur_diff[3] * cur_diff[3];
+      }
+      esq[(i >> 2) * esq_w + (j >> 2)] = cur_sum_energy;
+      total += cur_sum_energy;
+    }
+
+  const float e_recip = 1.0f / (float)total;
+  for (int i = 0; i < esq_sz - 1; i++) edist[i] = esq[i] * e_recip;
+}
+
 // Similar to get_horver_correlation, but also takes into account first
 // row/column, when computing horizontal/vertical correlation.
 static void get_horver_correlation_full(const int16_t *diff, int stride, int w,
@@ -1324,7 +1348,7 @@ void compute_1D_scores(float *features, int num_features, const float *fc1,
   }
 }
 
-inline void score_2D_transform_pow8(float *scores_2D, float shift) {
+void score_2D_transform_pow8(float *scores_2D, float shift) {
   float v, v2, v4;
   float sum = 0.0f;
   int i;
@@ -1339,14 +1363,61 @@ inline void score_2D_transform_pow8(float *scores_2D, float shift) {
   for (i = 0; i < 16; i++) scores_2D[i] /= sum;
 }
 
-static int prune_tx_types_2D(BLOCK_SIZE bsize, const MACROBLOCK *x,
-                             TxSetType tx_set_type,
-                             int pruning_aggressiveness) {
+float compute_tx_split_prune_score(float *features, int num_features,
+                                   const float *fc1, const float *b1,
+                                   const float *fc2, float b2,
+                                   int num_hidden_units) {
+  assert(num_hidden_units <= 64);
+  float hidden_layer[64];
+  for (int i = 0; i < num_hidden_units; i++) {
+    const float *cur_coef = fc1 + i * num_features;
+    hidden_layer[i] = 0.0f;
+    for (int j = 0; j < num_features; j++)
+      hidden_layer[i] += cur_coef[j] * features[j];
+    hidden_layer[i] = AOMMAX(hidden_layer[i] + b1[i], 0.0f);
+  }
+  float dst_score = 0.0f;
+  for (int j = 0; j < num_hidden_units; j++)
+    dst_score += fc2[j] * hidden_layer[j];
+  dst_score += b2;
+  return dst_score;
+}
+
+static int prune_tx_split(BLOCK_SIZE bsize, const int16_t *diff, float hcorr,
+                          float vcorr, int aggr) {
+  if (aggr <= 0) return 0;
+  if (bsize <= BLOCK_4X4 || bsize > BLOCK_16X16) return 0;
+
+  float features[17];
+  int bw = block_size_wide[bsize], bh = block_size_high[bsize];
+  int feature_num = (bw / 4) * (bh / 4) + 1;
+  assert(feature_num <= 17);
+
+  get_2D_energy_distribution(diff, bw, bw, bh, features);
+  features[feature_num - 2] = hcorr;
+  features[feature_num - 1] = vcorr;
+
+  int bidx = bsize - BLOCK_4X4 - 1;
+  const float *fc1 = prune_tx_split_learned_weights[bidx];
+  const float *b1 = fc1 + prune_tx_split_num_hidden_units[bidx] * feature_num;
+  const float *fc2 = b1 + prune_tx_split_num_hidden_units[bidx];
+  float b2 = *(fc2 + prune_tx_split_num_hidden_units[bidx]);
+  float score =
+      compute_tx_split_prune_score(features, feature_num, fc1, b1, fc2, b2,
+                                   prune_tx_split_num_hidden_units[bidx]);
+
+  return (score > prune_tx_split_thresholds[bidx][aggr - 1]);
+}
+
+static int prune_tx_2D(BLOCK_SIZE bsize, const MACROBLOCK *x,
+                       TxSetType tx_set_type,
+                       int tx_type_pruning_aggressiveness,
+                       int tx_split_pruning_aggressiveness) {
   if (bsize >= BLOCK_32X32) return 0;
   const struct macroblock_plane *const p = &x->plane[0];
   int bidx = AOMMAX(bsize - BLOCK_4X4, 0);
   float score_thresh =
-      prune_2D_adaptive_thresholds[bidx][pruning_aggressiveness - 1];
+      prune_2D_adaptive_thresholds[bidx][tx_type_pruning_aggressiveness - 1];
 
   float hfeatures[16], vfeatures[16];
   float hscores[4], vscores[4];
@@ -1411,14 +1482,20 @@ static int prune_tx_types_2D(BLOCK_SIZE bsize, const MACROBLOCK *x,
     if (scores_2D[i] < score_thresh && i != max_score_i)
       prune_bitmask |= (1 << tx_type_table_2D[i]);
 
+  int prune_tx_split_flag = prune_tx_split(
+      bsize, p->src_diff, hfeatures[hfeatures_num - 1],
+      vfeatures[vfeatures_num - 1], tx_split_pruning_aggressiveness);
+  prune_bitmask |= (prune_tx_split_flag << TX_TYPES);
   return prune_bitmask;
 }
 #endif  // CONFIG_EXT_TX
 
-static int prune_tx_types(const AV1_COMP *cpi, BLOCK_SIZE bsize, MACROBLOCK *x,
-                          const MACROBLOCKD *const xd, TxSetType tx_set_type) {
+static int prune_tx(const AV1_COMP *cpi, BLOCK_SIZE bsize, MACROBLOCK *x,
+                    const MACROBLOCKD *const xd, TxSetType tx_set_type,
+                    int prune_tx_split) {
   int tx_set = ext_tx_set_index[1][tx_set_type];
   assert(tx_set >= 0);
+
 #if CONFIG_EXT_TX
   const int *tx_set_1D = ext_tx_used_inter_1D[tx_set];
 #else
@@ -1443,17 +1520,17 @@ static int prune_tx_types(const AV1_COMP *cpi, BLOCK_SIZE bsize, MACROBLOCK *x,
       break;
     case PRUNE_2D_ACCURATE:
       if (tx_set_type == EXT_TX_SET_ALL16)
-        return prune_tx_types_2D(bsize, x, tx_set_type, 6);
+        return prune_tx_2D(bsize, x, tx_set_type, 6, prune_tx_split ? 4 : 0);
       else if (tx_set_type == EXT_TX_SET_DTT9_IDTX_1DDCT)
-        return prune_tx_types_2D(bsize, x, tx_set_type, 4);
+        return prune_tx_2D(bsize, x, tx_set_type, 4, prune_tx_split ? 4 : 0);
       else
         return 0;
       break;
     case PRUNE_2D_FAST:
       if (tx_set_type == EXT_TX_SET_ALL16)
-        return prune_tx_types_2D(bsize, x, tx_set_type, 10);
+        return prune_tx_2D(bsize, x, tx_set_type, 10, prune_tx_split ? 4 : 0);
       else if (tx_set_type == EXT_TX_SET_DTT9_IDTX_1DDCT)
-        return prune_tx_types_2D(bsize, x, tx_set_type, 7);
+        return prune_tx_2D(bsize, x, tx_set_type, 7, prune_tx_split ? 4 : 0);
       else
         return 0;
       break;
@@ -2682,9 +2759,9 @@ static void choose_largest_tx_size(const AV1_COMP *const cpi, MACROBLOCK *x,
 
   if (is_inter && cpi->sf.tx_type_search.prune_mode > NO_PRUNE)
 #if CONFIG_EXT_TX
-    prune = prune_tx_types(cpi, bs, x, xd, tx_set_type);
+    prune = prune_tx(cpi, bs, x, xd, tx_set_type, 0);
 #else
-    prune = prune_tx_types(cpi, bs, x, xd, 0);
+    prune = prune_tx(cpi, bs, x, xd, 0, 0);
 #endif  // CONFIG_EXT_TX
 #if CONFIG_EXT_TX
   if (get_ext_tx_types(mbmi->tx_size, bs, is_inter, cm->reduced_tx_set_used) >
@@ -2956,9 +3033,9 @@ static void choose_tx_size_type_from_rd(const AV1_COMP *const cpi,
   int prune = 0;
   if (is_inter && cpi->sf.tx_type_search.prune_mode > NO_PRUNE)
 #if CONFIG_EXT_TX
-    prune = prune_tx_types(cpi, bs, x, xd, EXT_TX_SET_ALL16);
+    prune = prune_tx(cpi, bs, x, xd, EXT_TX_SET_ALL16, 0);
 #else
-    prune = prune_tx_types(cpi, bs, x, xd, 0);
+    prune = prune_tx(cpi, bs, x, xd, 0, 0);
 #endif  // CONFIG_EXT_TX
 
   last_rd = INT64_MAX;
@@ -4780,7 +4857,8 @@ static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
                             ENTROPY_CONTEXT *ta, ENTROPY_CONTEXT *tl,
                             TXFM_CONTEXT *tx_above, TXFM_CONTEXT *tx_left,
                             RD_STATS *rd_stats, int64_t ref_best_rd,
-                            int *is_cost_valid, RD_STATS *rd_stats_stack) {
+                            int *is_cost_valid, RD_STATS *rd_stats_stack,
+                            int tx_split_prune_flag) {
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
   struct macroblock_plane *const p = &x->plane[plane];
@@ -5023,7 +5101,7 @@ static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
 #endif
   }
 
-  if (tx_size > TX_4X4 && depth < MAX_VARTX_DEPTH
+  if (tx_size > TX_4X4 && depth < MAX_VARTX_DEPTH && tx_split_prune_flag == 0
 #if CONFIG_MRC_TX
       // If the tx type we are trying is MRC_DCT, we cannot partition the
       // transform into anything smaller than TX_32X32
@@ -5055,7 +5133,7 @@ static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
       select_tx_block(cpi, x, offsetr, offsetc, plane, block, block32, sub_txs,
                       depth + 1, plane_bsize, ta, tl, tx_above, tx_left,
                       &this_rd_stats, ref_best_rd - tmp_rd, &this_cost_valid,
-                      rd_stats_stack);
+                      rd_stats_stack, 0);
 #if CONFIG_DIST_8X8
       if (x->using_dist_8x8 && plane == 0 && tx_size == TX_8X8) {
         sub8x8_eob[i] = p->eobs[block];
@@ -5232,7 +5310,8 @@ static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
 
 static void inter_block_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
                             RD_STATS *rd_stats, BLOCK_SIZE bsize,
-                            int64_t ref_best_rd, RD_STATS *rd_stats_stack) {
+                            int64_t ref_best_rd, RD_STATS *rd_stats_stack,
+                            int tx_split_prune_flag) {
   MACROBLOCKD *const xd = &x->e_mbd;
   int is_cost_valid = 1;
   int64_t this_rd = 0;
@@ -5270,7 +5349,7 @@ static void inter_block_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
         select_tx_block(cpi, x, idy, idx, 0, block, block32, max_tx_size,
                         mi_height != mi_width, plane_bsize, ctxa, ctxl,
                         tx_above, tx_left, &pn_rd_stats, ref_best_rd - this_rd,
-                        &is_cost_valid, rd_stats_stack);
+                        &is_cost_valid, rd_stats_stack, tx_split_prune_flag);
         if (pn_rd_stats.rate == INT_MAX) {
           av1_invalid_rd_stats(rd_stats);
           return;
@@ -5297,7 +5376,8 @@ static void inter_block_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
 static int64_t select_tx_size_fix_type(const AV1_COMP *cpi, MACROBLOCK *x,
                                        RD_STATS *rd_stats, BLOCK_SIZE bsize,
                                        int64_t ref_best_rd, TX_TYPE tx_type,
-                                       RD_STATS *rd_stats_stack) {
+                                       RD_STATS *rd_stats_stack,
+                                       int tx_split_prune_flag) {
   const AV1_COMMON *const cm = &cpi->common;
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
@@ -5311,7 +5391,8 @@ static int64_t select_tx_size_fix_type(const AV1_COMP *cpi, MACROBLOCK *x,
   const int max_blocks_wide = max_block_wide(xd, bsize, 0);
 
   mbmi->tx_type = tx_type;
-  inter_block_yrd(cpi, x, rd_stats, bsize, ref_best_rd, rd_stats_stack);
+  inter_block_yrd(cpi, x, rd_stats, bsize, ref_best_rd, rd_stats_stack,
+                  tx_split_prune_flag);
   mbmi->min_tx_size = get_min_tx_size(mbmi->inter_tx_size[0][0]);
 
   if (rd_stats->rate == INT_MAX) return INT64_MAX;
@@ -5586,10 +5667,18 @@ static void select_tx_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
 
   if (is_inter && cpi->sf.tx_type_search.prune_mode > NO_PRUNE)
 #if CONFIG_EXT_TX
-    prune = prune_tx_types(cpi, bsize, x, xd, tx_set_type);
+    prune = prune_tx(cpi, bsize, x, xd, tx_set_type,
+                     cpi->sf.tx_type_search.use_tx_split_pruning);
 #else
-    prune = prune_tx_types(cpi, bsize, x, xd, 0);
+    prune = prune_tx(cpi, bsize, x, xd, 0, 0);
 #endif  // CONFIG_EXT_TX
+
+  int tx_split_prune_flag = 0;
+#if CONFIG_EXT_TX
+  if (is_inter && cpi->sf.tx_type_search.prune_mode >= PRUNE_2D_ACCURATE) {
+    if (((prune >> TX_TYPES) & 1) == 1) tx_split_prune_flag = 1;
+  }
+#endif
 
   for (tx_type = txk_start; tx_type < txk_end; ++tx_type) {
     RD_STATS this_rd_stats;
@@ -5628,7 +5717,7 @@ static void select_tx_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
       if (tx_type != DCT_DCT) continue;
 
     rd = select_tx_size_fix_type(cpi, x, &this_rd_stats, bsize, ref_best_rd,
-                                 tx_type, rd_stats_stack);
+                                 tx_type, rd_stats_stack, tx_split_prune_flag);
     ref_best_rd = AOMMIN(rd, ref_best_rd);
     if (rd < best_rd) {
       best_rd = rd;

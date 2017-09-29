@@ -195,6 +195,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
 
 #if CONFIG_EXT_TX
     sf->tx_type_search.prune_mode = PRUNE_2D_ACCURATE;
+    sf->tx_type_search.use_tx_split_pruning = 1;
 #else
     sf->tx_type_search.prune_mode = PRUNE_ONE;
 #endif
@@ -411,6 +412,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi) {
   sf->tx_type_search.use_skip_flag_prediction = 1;
   sf->tx_type_search.fast_intra_tx_type_search = 0;
   sf->tx_type_search.fast_inter_tx_type_search = 0;
+  sf->tx_type_search.use_tx_split_pruning = 0;
   sf->less_rectangular_check = 0;
   sf->use_square_partition_only = 0;
   sf->auto_min_max_partition_size = NOT_IN_USE;
