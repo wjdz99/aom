@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "236dbd7e_1da7e94e",
+        "filename": "configure",
+        "patchSetId": 1
+      },
+      "lineNbr": 576,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-09-29T17:42:42Z",
+      "side": 1,
+      "message": "you can add this logic in aom_configure.cmake (~line 150) too. there\u0027s not an exhaustive test of generated aom_config.h files to catch this.",
+      "revId": "5891b65b972b107937bf5aca20ec854d4860f243",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
