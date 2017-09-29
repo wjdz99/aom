@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "b0d16ac2_84296183",
+        "filename": "av1/common/x86/av1_convolve_scale_sse4.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 7560
+      },
+      "writtenOn": "2017-09-29T09:52:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d6c6ae27_8638d6ea",
+      "range": {
+        "startLine": 2,
+        "startChar": 17,
+        "endLine": 2,
+        "endChar": 21
+      },
+      "revId": "1e99edbba508198bc5cca822233c55124b03a28d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3f180d8d_6c7d067e",
         "filename": "av1/common/x86/av1_convolve_scale_sse4.c",
         "patchSetId": 14
@@ -45,6 +69,30 @@
       "revId": "1e99edbba508198bc5cca822233c55124b03a28d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f30f89d6_fbca24da",
+        "filename": "av1/common/x86/av1_convolve_scale_sse4.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 7560
+      },
+      "writtenOn": "2017-09-29T09:52:07Z",
+      "side": 1,
+      "message": "That doesn\u0027t work if round \u003d\u003d 0.",
+      "parentUuid": "3f180d8d_6c7d067e",
+      "range": {
+        "startLine": 54,
+        "startChar": 24,
+        "endLine": 54,
+        "endChar": 40
+      },
+      "revId": "1e99edbba508198bc5cca822233c55124b03a28d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "67aa7036_595ef82b",
+        "filename": "av1/common/x86/av1_convolve_scale_sse4.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 7560
+      },
+      "writtenOn": "2017-09-29T09:52:07Z",
+      "side": 1,
+      "message": "Yes, that\u0027s true, but an optimizing compiler can figure that out on its own (it\u0027s a very standard optimization called \"strength reduction\"). I just checked the generated code and both GCC and clang manage this just fine, adding 0x10 to the destination pointer on each iteration.\n\nAre you really sure that it\u0027s better to write this out long-hand? I think it makes the code harder to read without changing the generated code and is a hand-optimization that we just don\u0027t need to do nowadays.",
+      "parentUuid": "7dfdcb5c_c7da1e40",
+      "range": {
+        "startLine": 121,
+        "startChar": 35,
+        "endLine": 121,
+        "endChar": 50
+      },
+      "revId": "1e99edbba508198bc5cca822233c55124b03a28d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f1a892fd_0ca86546",
         "filename": "av1/common/x86/av1_convolve_scale_sse4.c",
         "patchSetId": 14
@@ -91,6 +163,30 @@
       "revId": "1e99edbba508198bc5cca822233c55124b03a28d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c46790ad_c28b9a23",
+        "filename": "av1/common/x86/av1_convolve_scale_sse4.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 7560
+      },
+      "writtenOn": "2017-09-29T09:52:07Z",
+      "side": 1,
+      "message": "As above. Also, this is the tail code: I\u0027ve intentionally not tried to optimize it.",
+      "parentUuid": "f1a892fd_0ca86546",
+      "range": {
+        "startLine": 124,
+        "startChar": 37,
+        "endLine": 124,
+        "endChar": 61
+      },
+      "revId": "1e99edbba508198bc5cca822233c55124b03a28d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "68b3fc68_abe1f2db",
+        "filename": "av1/common/x86/av1_convolve_scale_sse4.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 7560
+      },
+      "writtenOn": "2017-09-29T09:52:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "44c29e1d_463f1b9f",
+      "range": {
+        "startLine": 146,
+        "startChar": 24,
+        "endLine": 146,
+        "endChar": 40
+      },
+      "revId": "1e99edbba508198bc5cca822233c55124b03a28d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1b6d1ed8_54d750a3",
         "filename": "av1/common/x86/av1_convolve_scale_sse4.c",
         "patchSetId": 14
@@ -137,6 +257,30 @@
       "revId": "1e99edbba508198bc5cca822233c55124b03a28d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "12d02664_e99927f4",
+        "filename": "av1/common/x86/av1_convolve_scale_sse4.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 7560
+      },
+      "writtenOn": "2017-09-29T09:52:07Z",
+      "side": 1,
+      "message": "I\u0027m sorry, I don\u0027t understand this comment. I definitely don\u0027t want the code to do memory loads for the coefficients in convolve_32 - it gets called multiple times with different \"src\" and the same coefficients.\n\nDid you mean to highlight the src argument? But that *is* a pointer to an integer. The fact that we do funky type-punning to load multiple integers into a __m128i register doesn\u0027t need exposing as part of the function\u0027s type signature.\n\nWhat do you mean?",
+      "parentUuid": "1b6d1ed8_54d750a3",
+      "range": {
+        "startLine": 215,
+        "startChar": 47,
+        "endLine": 216,
+        "endChar": 42
+      },
+      "revId": "1e99edbba508198bc5cca822233c55124b03a28d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -163,6 +307,30 @@
     },
     {
       "key": {
+        "uuid": "24203729_9aa5799c",
+        "filename": "av1/common/x86/av1_convolve_scale_sse4.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 7560
+      },
+      "writtenOn": "2017-09-29T09:52:07Z",
+      "side": 1,
+      "message": "As above, I\u0027m afraid I don\u0027t understand you.",
+      "parentUuid": "7be80b3e_bd76d36c",
+      "range": {
+        "startLine": 227,
+        "startChar": 49,
+        "endLine": 228,
+        "endChar": 44
+      },
+      "revId": "1e99edbba508198bc5cca822233c55124b03a28d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "db7564e0_a4311d07",
         "filename": "av1/common/x86/av1_convolve_scale_sse4.c",
         "patchSetId": 14
@@ -183,6 +351,30 @@
       "revId": "1e99edbba508198bc5cca822233c55124b03a28d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3a1528f5_0d4d77ff",
+        "filename": "av1/common/x86/av1_convolve_scale_sse4.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 7560
+      },
+      "writtenOn": "2017-09-29T09:52:07Z",
+      "side": 1,
+      "message": "That wouldn\u0027t work if conv_params-\u003eround_1 \u003d\u003d 0.",
+      "parentUuid": "db7564e0_a4311d07",
+      "range": {
+        "startLine": 251,
+        "startChar": 24,
+        "endLine": 251,
+        "endChar": 55
+      },
+      "revId": "1e99edbba508198bc5cca822233c55124b03a28d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -209,6 +401,30 @@
     },
     {
       "key": {
+        "uuid": "3285277e_06cbed81",
+        "filename": "av1/common/x86/av1_convolve_scale_sse4.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 336,
+      "author": {
+        "id": 7560
+      },
+      "writtenOn": "2017-09-29T09:52:07Z",
+      "side": 1,
+      "message": "As above.",
+      "parentUuid": "fc99ca22_a005dcea",
+      "range": {
+        "startLine": 336,
+        "startChar": 24,
+        "endLine": 336,
+        "endChar": 55
+      },
+      "revId": "1e99edbba508198bc5cca822233c55124b03a28d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "394ae656_62af47bf",
         "filename": "av1/common/x86/av1_convolve_scale_sse4.c",
         "patchSetId": 14
@@ -229,6 +445,30 @@
       "revId": "1e99edbba508198bc5cca822233c55124b03a28d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9bba70e2_3b1b98bb",
+        "filename": "av1/common/x86/av1_convolve_scale_sse4.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 411,
+      "author": {
+        "id": 7560
+      },
+      "writtenOn": "2017-09-29T09:52:07Z",
+      "side": 1,
+      "message": "Are you sure? I\u0027m also unconvinced by const int parameters, but that\u0027s the type given in av1_rtcd_defs.pl and matches all the other convolution functions.\n\nI\u0027m pretty certain that this line should match the perl script (since that turns into the header that declares the function), and I don\u0027t see any reason this should be different from the other convolutions.",
+      "parentUuid": "394ae656_62af47bf",
+      "range": {
+        "startLine": 410,
+        "startChar": 33,
+        "endLine": 411,
+        "endChar": 77
+      },
+      "revId": "1e99edbba508198bc5cca822233c55124b03a28d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
