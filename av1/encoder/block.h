@@ -340,6 +340,11 @@ struct macroblock {
 #if CONFIG_DIST_8X8
   int using_dist_8x8;
   aom_tune_metric tune_metric;
+  // Current (mi_row, mi_col) of a partition
+  int mi_row;
+  int mi_col;
+  int mi_row_end;
+  int mi_col_end;
 #if CONFIG_CB4X4
 #if CONFIG_HIGHBITDEPTH
   DECLARE_ALIGNED(16, uint16_t, decoded_8x8[8 * 8]);

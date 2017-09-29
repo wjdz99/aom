@@ -955,7 +955,20 @@ int64_t av1_dist_8x8(const AV1_COMP *const cpi, const MACROBLOCK *x,
     // Otherwise, MSE by default
     unsigned sse;
     // TODO(Any): Use even faster function which does not calculate variance
-    cpi->fn_ptr[tx_bsize].vf(src, src_stride, dst, dst_stride, &sse);
+    if ((bsw == visible_w) && (bsh == visible_h))
+      cpi->fn_ptr[tx_bsize].vf(src, src_stride, dst, dst_stride, &sse);
+    else {
+#if CONFIG_HIGHBITDEPTH
+      if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
+        uint64_t sse64 = aom_highbd_sse_odd_size(
+            src, src_stride, dst, dst_stride, visible_w, visible_h);
+        sse = (unsigned)ROUND_POWER_OF_TWO(sse64, (xd->bd - 8) * 2);
+      } else
+#endif // CONFIG_HIGHBITDEPTH
+        sse = aom_sse_odd_size(src, src_stride, dst, dst_stride, visible_w,
+                               visible_h);
+    }
+
     d = sse;
   }
 
@@ -1036,7 +1049,7 @@ static int64_t av1_dist_8x8_diff(const MACROBLOCK *x, const uint8_t *src,
     // input
   } else {
     // Otherwise, MSE by default
-    d = aom_sum_squares_2d_i16(diff, diff_stride, bsw, bsh);
+    d = aom_sum_squares_2d_i16(diff, diff_stride, visible_w, visible_h);
   }
 
   return d;
@@ -2156,8 +2169,10 @@ static void dist_8x8_sub8x8_txfm_rd(const AV1_COMP *const cpi, MACROBLOCK *x,
   const uint8_t *src = &p->src.buf[0];
   const uint8_t *dst = &pd->dst.buf[0];
   const int16_t *pred = &pd->pred[0];
-  const int bw = block_size_wide[bsize];
-  const int bh = block_size_high[bsize];
+  int bw = block_size_wide[bsize];
+  int bh = block_size_high[bsize];
+  int visible_w = bw;
+  int visible_h = bh;
 
   int i, j;
   int64_t rd, rd1, rd2;
@@ -2166,6 +2181,12 @@ static void dist_8x8_sub8x8_txfm_rd(const AV1_COMP *const cpi, MACROBLOCK *x,
 
   assert((bw & 0x07) == 0);
   assert((bh & 0x07) == 0);
+
+  if ((x->mi_row + bh / MI_SIZE) > x->mi_row_end)
+    visible_h = (x->mi_row_end - x->mi_row) * MI_SIZE;
+
+  if ((x->mi_col + bw / MI_SIZE) > x->mi_col_end)
+    visible_w = (x->mi_col_end - x->mi_col) * MI_SIZE;
 
 #if CONFIG_HIGHBITDEPTH
   uint8_t *pred8;
@@ -2193,16 +2214,24 @@ static void dist_8x8_sub8x8_txfm_rd(const AV1_COMP *const cpi, MACROBLOCK *x,
 #endif  // CONFIG_HIGHBITDEPTH
 
   tmp1 = (unsigned)av1_dist_8x8(cpi, x, src, src_stride, pred8, bw, bsize, bw,
-                                bh, bw, bh, qindex);
+                                bh, visible_w, visible_h, qindex);
   tmp2 = (unsigned)av1_dist_8x8(cpi, x, src, src_stride, dst, dst_stride, bsize,
-                                bw, bh, bw, bh, qindex);
+                                bw, bh, visible_w, visible_h, qindex);
 
   if (!is_inter_block(mbmi)) {
+    if (x->tune_metric == AOM_TUNE_PSNR) {
+      assert(args->rd_stats.sse == tmp1 * 16);
+      assert(args->rd_stats.dist == tmp2 * 16);
+    }
     args->rd_stats.sse = (int64_t)tmp1 * 16;
     args->rd_stats.dist = (int64_t)tmp2 * 16;
   } else {
     // For inter mode, the decoded pixels are provided in pd->pred,
     // while the predicted pixels are in dst.
+    if (x->tune_metric == AOM_TUNE_PSNR) {
+      assert(args->rd_stats.sse == tmp2 * 16);
+      assert(args->rd_stats.dist == tmp1 * 16);
+    }
     args->rd_stats.sse = (int64_t)tmp2 * 16;
     args->rd_stats.dist = (int64_t)tmp1 * 16;
   }
