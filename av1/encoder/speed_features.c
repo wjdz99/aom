@@ -394,8 +394,10 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi) {
   sf->partition_search_type = SEARCH_PARTITION;
 #if CONFIG_EXT_TX
   sf->tx_type_search.prune_mode = PRUNE_2D_ACCURATE;
+  sf->tx_type_search.use_tx_size_pruning = 1;
 #else
   sf->tx_type_search.prune_mode = NO_PRUNE;
+  sf->tx_type_search.use_tx_size_pruning = 0;
 #endif  // CONFIG_EXT_TX
   sf->tx_type_search.use_skip_flag_prediction = 1;
   sf->tx_type_search.fast_intra_tx_type_search = 0;
