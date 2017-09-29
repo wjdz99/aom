@@ -266,7 +266,7 @@ static INLINE int cfl_idx_to_alpha(int alpha_idx, int joint_sign,
 static INLINE void cfl_build_prediction_lbd(const int16_t *pred_buf_q3,
                                             uint8_t *dst, int dst_stride,
                                             int width, int height, int alpha_q3,
-                                            int dc_pred) {
+                                            int16_t dc_pred) {
   for (int j = 0; j < height; j++) {
     for (int i = 0; i < width; i++) {
       dst[i] =
@@ -281,7 +281,7 @@ static INLINE void cfl_build_prediction_lbd(const int16_t *pred_buf_q3,
 static INLINE void cfl_build_prediction_hbd(const int16_t *pred_buf_q3,
                                             uint16_t *dst, int dst_stride,
                                             int width, int height, int alpha_q3,
-                                            int dc_pred, int bit_depth) {
+                                            int16_t dc_pred, int bit_depth) {
   for (int j = 0; j < height; j++) {
     for (int i = 0; i < width; i++) {
       dst[i] = clip_pixel_highbd(
@@ -295,8 +295,9 @@ static INLINE void cfl_build_prediction_hbd(const int16_t *pred_buf_q3,
 
 static INLINE void cfl_build_prediction(const int16_t *pred_buf_q3,
                                         uint8_t *dst, int dst_stride, int width,
-                                        int height, int alpha_q3, int dc_pred,
-                                        int use_hbd, int bit_depth) {
+                                        int height, int alpha_q3,
+                                        int16_t dc_pred, int use_hbd,
+                                        int bit_depth) {
 #if CONFIG_HIGHBITDEPTH
   if (use_hbd) {
     uint16_t *dst_16 = CONVERT_TO_SHORTPTR(dst);
