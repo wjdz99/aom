@@ -96,6 +96,29 @@
     },
     {
       "key": {
+        "uuid": "f323eec2_0d50853b",
+        "filename": "av1/common/x86/av1_convolve_scale_sse4.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-09-29T20:11:16Z",
+      "side": 1,
+      "message": "_mm_castpd_si128, c-style casts won\u0027t compile with some toolchains (msvc).",
+      "range": {
+        "startLine": 72,
+        "startChar": 8,
+        "endLine": 72,
+        "endChar": 17
+      },
+      "revId": "1e99edbba508198bc5cca822233c55124b03a28d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7dfdcb5c_c7da1e40",
         "filename": "av1/common/x86/av1_convolve_scale_sse4.c",
         "patchSetId": 14
@@ -296,6 +319,30 @@
       "side": 1,
       "message": "The passed parameters are put on stack except the first several(4?) ones, which on some platform couldn\u0027t guarantee 128-bit alignment and causes issue. It might be ok here since there are not too many parameters. Just thought it might be a good practice to pass in a pointer.",
       "parentUuid": "12d02664_e99927f4",
+      "range": {
+        "startLine": 215,
+        "startChar": 47,
+        "endLine": 216,
+        "endChar": 42
+      },
+      "revId": "1e99edbba508198bc5cca822233c55124b03a28d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fee76a85_5d1b20f3",
+        "filename": "av1/common/x86/av1_convolve_scale_sse4.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-09-29T20:11:16Z",
+      "side": 1,
+      "message": "\u003e The passed parameters are put on stack except the first several(4?) ones, which on some platform couldn\u0027t guarantee 128-bit alignment and causes issue. It might be ok here since there are not too many parameters. Just thought it might be a good practice to pass in a pointer.\n\n3 is the limit in the win32 abi, 4 for x64",
+      "parentUuid": "fcd30679_7ec1e184",
       "range": {
         "startLine": 215,
         "startChar": 47,
