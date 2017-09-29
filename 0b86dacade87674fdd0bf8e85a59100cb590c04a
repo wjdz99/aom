@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "6a618989_5fabc0d3",
+        "filename": "av1/common/av1_fwd_txfm2d.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 277,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2017-09-29T20:15:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2fe3dac7_bbc10442",
+      "revId": "0b86dacade87674fdd0bf8e85a59100cb590c04a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c59da66b_1807bbcc",
         "filename": "av1/common/av1_fwd_txfm2d.c",
         "patchSetId": 2
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "00d9c58a_24c9ec66",
+        "filename": "av1/common/av1_fwd_txfm2d.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 376,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2017-09-29T20:15:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c59da66b_1807bbcc",
+      "revId": "0b86dacade87674fdd0bf8e85a59100cb590c04a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1fd9449e_a8a703e8",
         "filename": "av1/common/idct.c",
         "patchSetId": 2
@@ -47,6 +83,24 @@
       "writtenOn": "2017-09-29T19:00:23Z",
       "side": 1,
       "message": "Shouldn\u0027t this assert be always on (given we only use 2D DCT for larger than 32x32 transforms)?\nSame question for the condition in dct.c, too.",
+      "revId": "0b86dacade87674fdd0bf8e85a59100cb590c04a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c9610512_f6fdcb77",
+        "filename": "av1/common/idct.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1535,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2017-09-29T20:15:42Z",
+      "side": 1,
+      "message": "True. I just copied the code from 64x64. In general though it may be okay to keep this function generic enough to cover DCT_DCT and IDTX, but have the assert at a higher level.",
+      "parentUuid": "1fd9449e_a8a703e8",
       "revId": "0b86dacade87674fdd0bf8e85a59100cb590c04a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
