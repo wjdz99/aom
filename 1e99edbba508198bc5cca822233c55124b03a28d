@@ -284,6 +284,30 @@
     },
     {
       "key": {
+        "uuid": "fcd30679_7ec1e184",
+        "filename": "av1/common/x86/av1_convolve_scale_sse4.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-09-29T16:00:31Z",
+      "side": 1,
+      "message": "The passed parameters are put on stack except the first several(4?) ones, which on some platform couldn\u0027t guarantee 128-bit alignment and causes issue. It might be ok here since there are not too many parameters. Just thought it might be a good practice to pass in a pointer.",
+      "parentUuid": "12d02664_e99927f4",
+      "range": {
+        "startLine": 215,
+        "startChar": 47,
+        "endLine": 216,
+        "endChar": 42
+      },
+      "revId": "1e99edbba508198bc5cca822233c55124b03a28d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7be80b3e_bd76d36c",
         "filename": "av1/common/x86/av1_convolve_scale_sse4.c",
         "patchSetId": 14
@@ -460,6 +484,30 @@
       "side": 1,
       "message": "Are you sure? I\u0027m also unconvinced by const int parameters, but that\u0027s the type given in av1_rtcd_defs.pl and matches all the other convolution functions.\n\nI\u0027m pretty certain that this line should match the perl script (since that turns into the header that declares the function), and I don\u0027t see any reason this should be different from the other convolutions.",
       "parentUuid": "394ae656_62af47bf",
+      "range": {
+        "startLine": 410,
+        "startChar": 33,
+        "endLine": 411,
+        "endChar": 77
+      },
+      "revId": "1e99edbba508198bc5cca822233c55124b03a28d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baaf0d51_c1ca1dfc",
+        "filename": "av1/common/x86/av1_convolve_scale_sse4.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 411,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-09-29T16:00:31Z",
+      "side": 1,
+      "message": "I know Yaowu once removed a list of const int parameters. It is fine to keep it the same as in av1_rtcd_defs.pl .",
+      "parentUuid": "9bba70e2_3b1b98bb",
       "range": {
         "startLine": 410,
         "startChar": 33,
