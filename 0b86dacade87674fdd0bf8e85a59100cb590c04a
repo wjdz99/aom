@@ -104,6 +104,24 @@
       "revId": "0b86dacade87674fdd0bf8e85a59100cb590c04a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b3b17664_f3de13ac",
+        "filename": "av1/common/idct.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1535,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-09-29T20:56:53Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "c9610512_f6fdcb77",
+      "revId": "0b86dacade87674fdd0bf8e85a59100cb590c04a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
