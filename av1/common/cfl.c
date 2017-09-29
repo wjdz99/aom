@@ -208,8 +208,18 @@ static void cfl_dc_pred(MACROBLOCKD *xd, BLOCK_SIZE plane_bsize) {
 
   // TODO(ltrudeau) Because of max_block_wide and max_block_high, num_pel will
   // not be a power of two. So these divisions will have to use a lookup table.
-  cfl->dc_pred[CFL_PRED_U] = (sum_u + (num_pel >> 1)) / num_pel;
-  cfl->dc_pred[CFL_PRED_V] = (sum_v + (num_pel >> 1)) / num_pel;
+  const int16_t dc_pred_u = (sum_u + (num_pel >> 1)) / num_pel;
+  const int16_t dc_pred_v = (sum_v + (num_pel >> 1)) / num_pel;
+  int16_t *p_dc_pred_u = cfl->dc_pred[CFL_PRED_U];
+  int16_t *p_dc_pred_v = cfl->dc_pred[CFL_PRED_V];
+  for (int j = 0; j < height; j++) {
+    for (int i = 0; i < width; i++) {
+      p_dc_pred_u[i] = dc_pred_u;
+      p_dc_pred_v[i] = dc_pred_v;
+    }
+    p_dc_pred_u += MAX_SB_SIZE;
+    p_dc_pred_v += MAX_SB_SIZE;
+  }
 }
 
 static void cfl_subtract_averages(CFL_CTX *cfl, TX_SIZE tx_size) {
@@ -266,14 +276,15 @@ static INLINE int cfl_idx_to_alpha(int alpha_idx, int joint_sign,
 static INLINE void cfl_build_prediction_lbd(const int16_t *pred_buf_q3,
                                             uint8_t *dst, int dst_stride,
                                             int width, int height, int alpha_q3,
-                                            int16_t dc_pred) {
+                                            int16_t *dc_pred) {
   for (int j = 0; j < height; j++) {
     for (int i = 0; i < width; i++) {
       dst[i] =
-          clip_pixel(get_scaled_luma_q0(alpha_q3, pred_buf_q3[i]) + dc_pred);
+          clip_pixel(get_scaled_luma_q0(alpha_q3, pred_buf_q3[i]) + dc_pred[i]);
     }
     dst += dst_stride;
     pred_buf_q3 += MAX_SB_SIZE;
+    dc_pred += MAX_SB_SIZE;
   }
 }
 
@@ -281,14 +292,15 @@ static INLINE void cfl_build_prediction_lbd(const int16_t *pred_buf_q3,
 static INLINE void cfl_build_prediction_hbd(const int16_t *pred_buf_q3,
                                             uint16_t *dst, int dst_stride,
                                             int width, int height, int alpha_q3,
-                                            int16_t dc_pred, int bit_depth) {
+                                            int16_t *dc_pred, int bit_depth) {
   for (int j = 0; j < height; j++) {
     for (int i = 0; i < width; i++) {
       dst[i] = clip_pixel_highbd(
-          get_scaled_luma_q0(alpha_q3, pred_buf_q3[i]) + dc_pred, bit_depth);
+          get_scaled_luma_q0(alpha_q3, pred_buf_q3[i]) + dc_pred[i], bit_depth);
     }
     dst += dst_stride;
     pred_buf_q3 += MAX_SB_SIZE;
+    dc_pred += MAX_SB_SIZE;
   }
 }
 #endif  // CONFIG_HIGHBITDEPTH
@@ -296,7 +308,7 @@ static INLINE void cfl_build_prediction_hbd(const int16_t *pred_buf_q3,
 static INLINE void cfl_build_prediction(const int16_t *pred_buf_q3,
                                         uint8_t *dst, int dst_stride, int width,
                                         int height, int alpha_q3,
-                                        int16_t dc_pred, int use_hbd,
+                                        int16_t *dc_pred, int use_hbd,
                                         int bit_depth) {
 #if CONFIG_HIGHBITDEPTH
   if (use_hbd) {
