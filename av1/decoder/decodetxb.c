@@ -587,15 +587,12 @@ static void read_txb_probs(FRAME_CONTEXT *fc, const TX_SIZE tx_size,
       av1_diff_update_prob(r, &fc->coeff_lps[tx_size][plane][ctx], ACCT_STR);
 }
 
+#if !LV_MAP_PROB
 void av1_read_txb_probs(FRAME_CONTEXT *fc, TX_MODE tx_mode, aom_reader *r,
                         FRAME_COUNTS *counts) {
   const TX_SIZE max_tx_size = tx_mode_to_biggest_tx_size[tx_mode];
   TX_SIZE tx_size;
   int ctx, plane;
-
-#if LV_MAP_PROB
-  return;
-#endif
 
   for (plane = 0; plane < PLANE_TYPES; ++plane)
     for (ctx = 0; ctx < DC_SIGN_CONTEXTS; ++ctx)
@@ -604,3 +601,4 @@ void av1_read_txb_probs(FRAME_CONTEXT *fc, TX_MODE tx_mode, aom_reader *r,
   for (tx_size = TX_4X4; tx_size <= max_tx_size; ++tx_size)
     read_txb_probs(fc, tx_size, r, counts);
 }
+#endif  // !LV_MAP_PROB
