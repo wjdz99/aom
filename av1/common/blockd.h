@@ -684,7 +684,7 @@ typedef struct cfl_ctx {
 
   // Block level DC_PRED for each chromatic plane
   // 16 bits are used, but it only requires the pixel bit depth.
-  int16_t dc_pred[CFL_PRED_PLANES];
+  int16_t dc_pred[CFL_PRED_PLANES][MAX_SB_SQUARE];
 
   int mi_row, mi_col;
 
