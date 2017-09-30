@@ -11,6 +11,7 @@
 if (NOT AOM_BUILD_CMAKE_AOM_CONFIGURE_CMAKE_)
 set(AOM_BUILD_CMAKE_AOM_CONFIGURE_CMAKE_ 1)
 
+include(CheckSymbolExists)
 include(FindGit)
 include(FindPerl)
 include(FindThreads)
@@ -265,6 +266,8 @@ aom_check_source_compiles("pthread_check" "#include <pthread.h>" HAVE_PTHREAD_H)
 aom_check_source_compiles("unistd_check" "#include <unistd.h>" HAVE_UNISTD_H)
 
 if (NOT MSVC)
+  # TODO(tomfinegan): This should probably use CHECK_SYMBOL_EXISTS like the
+  # check below for sqrt.
   aom_push_var(CMAKE_REQUIRED_LIBRARIES "m")
   aom_check_c_compiles("fenv_check"
                        "#define _GNU_SOURCE
@@ -274,6 +277,15 @@ if (NOT MSVC)
                           (void)feenableexcept(FE_DIVBYZERO | FE_INVALID);
                         }" HAVE_FEXCEPT)
   aom_pop_var(CMAKE_REQUIRED_LIBRARIES)
+
+  CHECK_SYMBOL_EXISTS("sqrt" "math.h" FOUND_MATH_SYMBOLS)
+  if (NOT FOUND_MATH_SYMBOLS)
+    set(CMAKE_REQUIRED_LIBRARIES "${CMAKE_REQUIRED_LIBRARIES} m")
+    CHECK_SYMBOL_EXISTS("sqrt" "math.h" FOUND_MATH_SYMBOLS)
+    if (NOT FOUND_MATH_SYMBOLS)
+      message(FATAL_ERROR "--- Can't find math (aka libm) support library.")
+    endif ()
+  endif ()
 endif()
 
 include("${AOM_ROOT}/build/cmake/cpu.cmake")
