@@ -34,6 +34,24 @@
       "revId": "a55ed14369260f7cecb266d551a03230ea122612",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "76a45605_b636d941",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2187,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-09-30T01:27:40Z",
+      "side": 1,
+      "message": "No, despite the name it works fine for a whole partition. I made sure of this when I rewrote it.",
+      "parentUuid": "7bcb46f5_f53b9f47",
+      "revId": "a55ed14369260f7cecb266d551a03230ea122612",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
