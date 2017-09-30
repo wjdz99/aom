@@ -152,6 +152,23 @@ static INLINE void av1_tree_to_cdf(const aom_tree_index *tree,
 
 void av1_indices_from_tree(int *ind, int *inv, const aom_tree_index *tree);
 
+#if CONFIG_LV_MAP
+static INLINE void update_bin(aom_cdf_prob *cdf, int val, int nsymbs) {
+  const int rate = 4 + (cdf[nsymbs] > 7) + (cdf[nsymbs] > 15) + get_msb(nsymbs);
+  const int rate2 = 5;
+  const int tmp0 = 1 << rate2;
+  int i, diff;
+  int tmp = AOM_ICDF(tmp0);
+  diff = ((CDF_PROB_TOP - (nsymbs << rate2)) >> rate) << rate;
+
+  for (i = 0; i < nsymbs - 1; ++i, tmp -= tmp0) {
+    tmp -= (i == val ? diff : 0);
+    cdf[i] += ((tmp - cdf[i]) >> rate);
+  }
+  cdf[nsymbs] += (cdf[nsymbs] < 32);
+}
+#endif
+
 static INLINE void update_cdf(aom_cdf_prob *cdf, int val, int nsymbs) {
   int rate = 4 + (cdf[nsymbs] > 31) + get_msb(nsymbs);
 #if CONFIG_LV_MAP
