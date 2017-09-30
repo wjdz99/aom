@@ -16,6 +16,24 @@
       "revId": "a55ed14369260f7cecb266d551a03230ea122612",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7bcb46f5_f53b9f47",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2187,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2017-09-30T01:24:42Z",
+      "side": 1,
+      "message": "The reason why I could not use the existing function get_txb_dimensions()is the block dist_8x8_sub8x8_txfm_rd() is handling is not tx block but a partition, so it seems to me that get_txb_dimensions() is written to output visible width and height for a tx block only.",
+      "parentUuid": "192785dc_39b4e3fa",
+      "revId": "a55ed14369260f7cecb266d551a03230ea122612",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
