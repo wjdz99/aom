@@ -11,6 +11,8 @@
 if (NOT AOM_BUILD_CMAKE_AOM_CONFIGURE_CMAKE_)
 set(AOM_BUILD_CMAKE_AOM_CONFIGURE_CMAKE_ 1)
 
+include(CheckSymbolExists)
+include(CheckCXXSymbolExists)
 include(FindGit)
 include(FindPerl)
 include(FindThreads)
