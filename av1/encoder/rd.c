@@ -518,6 +518,16 @@ static void get_rate_cost(aom_prob p, int cost[2]) {
 }
 #endif  // !LV_MAP_PROB
 
+static void rate_cost_from_cdf(int cost[2], aom_cdf_prob *prob, int *p) {
+  (void)p;
+  int this_prob = (aom_prob)((prob[0] + 64) >> 7);
+  if (this_prob >= 255) this_prob = 255;
+  if (this_prob <= 0) this_prob = 1;
+
+  cost[0] = av1_cost_bit(this_prob, 0);
+  cost[1] = av1_cost_bit(this_prob, 1);
+}
+
 void av1_fill_coeff_costs(MACROBLOCK *x, FRAME_CONTEXT *fc) {
   for (TX_SIZE tx_size = 0; tx_size < TX_SIZES; ++tx_size) {
     for (int plane = 0; plane < PLANE_TYPES; ++plane) {
@@ -525,39 +535,38 @@ void av1_fill_coeff_costs(MACROBLOCK *x, FRAME_CONTEXT *fc) {
 
 #if LV_MAP_PROB
       for (int ctx = 0; ctx < TXB_SKIP_CONTEXTS; ++ctx)
-        av1_cost_tokens_from_cdf(pcost->txb_skip_cost[ctx],
-                                 fc->txb_skip_cdf[tx_size][ctx], NULL);
+        rate_cost_from_cdf(pcost->txb_skip_cost[ctx],
+                           fc->txb_skip_cdf[tx_size][ctx], NULL);
 
       for (int ctx = 0; ctx < SIG_COEF_CONTEXTS; ++ctx)
-        av1_cost_tokens_from_cdf(pcost->nz_map_cost[ctx],
-                                 fc->nz_map_cdf[tx_size][plane][ctx], NULL);
+        rate_cost_from_cdf(pcost->nz_map_cost[ctx],
+                           fc->nz_map_cdf[tx_size][plane][ctx], NULL);
 
       for (int ctx = 0; ctx < EOB_COEF_CONTEXTS; ++ctx)
-        av1_cost_tokens_from_cdf(pcost->eob_cost[ctx],
-                                 fc->eob_flag_cdf[tx_size][plane][ctx], NULL);
+        rate_cost_from_cdf(pcost->eob_cost[ctx],
+                           fc->eob_flag_cdf[tx_size][plane][ctx], NULL);
 
       for (int ctx = 0; ctx < DC_SIGN_CONTEXTS; ++ctx)
-        av1_cost_tokens_from_cdf(pcost->dc_sign_cost[ctx],
-                                 fc->dc_sign_cdf[plane][ctx], NULL);
+        rate_cost_from_cdf(pcost->dc_sign_cost[ctx],
+                           fc->dc_sign_cdf[plane][ctx], NULL);
 
       for (int layer = 0; layer < NUM_BASE_LEVELS; ++layer)
         for (int ctx = 0; ctx < COEFF_BASE_CONTEXTS; ++ctx)
-          av1_cost_tokens_from_cdf(
-              pcost->base_cost[layer][ctx],
-              fc->coeff_base_cdf[tx_size][plane][layer][ctx], NULL);
+          rate_cost_from_cdf(pcost->base_cost[layer][ctx],
+                             fc->coeff_base_cdf[tx_size][plane][layer][ctx],
+                             NULL);
 
 #if BR_NODE
       for (int br = 0; br < BASE_RANGE_SETS; ++br)
         for (int ctx = 0; ctx < LEVEL_CONTEXTS; ++ctx)
-          av1_cost_tokens_from_cdf(pcost->br_cost[br][ctx],
-                                   fc->coeff_br_cdf[tx_size][plane][br][ctx],
-                                   NULL);
+          rate_cost_from_cdf(pcost->br_cost[br][ctx],
+                             fc->coeff_br_cdf[tx_size][plane][br][ctx], NULL);
 #endif  // BR_NODE
 
       for (int ctx = 0; ctx < LEVEL_CONTEXTS; ++ctx) {
         int lps_rate[2];
-        av1_cost_tokens_from_cdf(lps_rate,
-                                 fc->coeff_lps_cdf[tx_size][plane][ctx], NULL);
+        rate_cost_from_cdf(lps_rate, fc->coeff_lps_cdf[tx_size][plane][ctx],
+                           NULL);
 
         for (int base_range = 0; base_range < COEFF_BASE_RANGE + 1;
              ++base_range) {
@@ -592,21 +601,20 @@ void av1_fill_coeff_costs(MACROBLOCK *x, FRAME_CONTEXT *fc) {
       }
 #if CONFIG_CTX1D
       for (int tx_class = 0; tx_class < TX_CLASSES; ++tx_class)
-        av1_cost_tokens_from_cdf(pcost->eob_mode_cost[tx_class],
-                                 fc->eob_mode_cdf[tx_size][plane][tx_class],
-                                 NULL);
+        rate_cost_from_cdf(pcost->eob_mode_cost[tx_class],
+                           fc->eob_mode_cdf[tx_size][plane][tx_class], NULL);
 
       for (int tx_class = 0; tx_class < TX_CLASSES; ++tx_class)
         for (int ctx = 0; ctx < EMPTY_LINE_CONTEXTS; ++ctx)
-          av1_cost_tokens_from_cdf(
-              pcost->empty_line_cost[tx_class][ctx],
-              fc->empty_line_cdf[tx_size][plane][tx_class][ctx], NULL);
+          rate_cost_from_cdf(pcost->empty_line_cost[tx_class][ctx],
+                             fc->empty_line_cdf[tx_size][plane][tx_class][ctx],
+                             NULL);
 
       for (int tx_class = 0; tx_class < TX_CLASSES; ++tx_class)
         for (int ctx = 0; ctx < HV_EOB_CONTEXTS; ++ctx)
-          av1_cost_tokens_from_cdf(
-              pcost->hv_eob_cost[tx_class][ctx],
-              fc->hv_eob_cdf[tx_size][plane][tx_class][ctx], NULL);
+          rate_cost_from_cdf(pcost->hv_eob_cost[tx_class][ctx],
+                             fc->hv_eob_cdf[tx_size][plane][tx_class][ctx],
+                             NULL);
 #endif  // CONFIG_CTX1D
 #else   // LV_MAP_PROB
       for (int ctx = 0; ctx < TXB_SKIP_CONTEXTS; ++ctx)

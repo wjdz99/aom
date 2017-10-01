@@ -207,8 +207,11 @@ static INLINE int aom_read_symbol_(aom_reader *r, aom_cdf_prob *cdf,
 static INLINE int aom_read_bin_(aom_reader *r, aom_cdf_prob *cdf,
                                 int nsymbs ACCT_STR_PARAM) {
   int ret;
-  ret = aom_read_cdf(r, cdf, nsymbs, ACCT_STR_NAME);
-  update_cdf(cdf, ret, nsymbs);
+  int prob = (cdf[0] + 64) >> 7;
+  if (prob >= 255) prob = 255;
+  if (prob <= 0) prob = 1;
+  ret = aom_read(r, prob, ACCT_STR_NAME);
+  update_bin(cdf, ret, nsymbs);
   return ret;
 }
 #endif
