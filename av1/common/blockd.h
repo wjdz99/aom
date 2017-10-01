@@ -968,14 +968,14 @@ static INLINE TxSetType get_ext_tx_set_type(TX_SIZE tx_size, BLOCK_SIZE bs,
   const TX_SIZE tx_size_sqr = txsize_sqr_map[tx_size];
 #if CONFIG_CB4X4 && USE_TXTYPE_SEARCH_FOR_SUB8X8_IN_CB4X4
   (void)bs;
-  if (tx_size_sqr > TX_32X32) return EXT_TX_SET_DCTONLY;
+  if (tx_size_sqr_up > TX_32X32) return EXT_TX_SET_DCTONLY;
 #else
-  if (tx_size_sqr > TX_32X32 || bs < BLOCK_8X8) return EXT_TX_SET_DCTONLY;
+  if (tx_size_sqr_up > TX_32X32 || bs < BLOCK_8X8) return EXT_TX_SET_DCTONLY;
 #endif
   if (use_reduced_set)
     return is_inter ? EXT_TX_SET_DCT_IDTX : EXT_TX_SET_DTT4_IDTX;
 #if CONFIG_MRC_TX
-  if (tx_size == TX_32X32) {
+  if (tx_size_sqr_up >= TX_32X32) {
     if (is_inter && USE_MRC_INTER)
       return EXT_TX_SET_MRC_DCT_IDTX;
     else if (!is_inter && USE_MRC_INTRA)
@@ -1044,8 +1044,8 @@ static INLINE int is_rect_tx_allowed_bsize(BLOCK_SIZE bsize) {
     1,  // BLOCK_16X32
     1,  // BLOCK_32X16
     0,  // BLOCK_32X32
-    0,  // BLOCK_32X64
-    0,  // BLOCK_64X32
+    1,  // BLOCK_32X64
+    1,  // BLOCK_64X32
     0,  // BLOCK_64X64
 #if CONFIG_EXT_PARTITION
     0,  // BLOCK_64X128
