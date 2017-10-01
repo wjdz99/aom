@@ -361,7 +361,7 @@ void av1_inv_txfm2d_add_64x64_c(const int32_t *input, uint16_t *output,
 void av1_inv_txfm2d_add_64x32_c(const int32_t *input, uint16_t *output,
                                 int stride, int tx_type, int bd) {
   int txfm_buf[64 * 32 + 64 + 64];
-  inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_32X64, bd);
+  inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_64X32, bd);
 }
 
 void av1_inv_txfm2d_add_32x64_c(const int32_t *input, uint16_t *output,
