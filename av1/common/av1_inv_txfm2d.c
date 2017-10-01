@@ -34,6 +34,9 @@ static INLINE TxfmFunc inv_txfm_type_to_func(TXFM_TYPE txfm_type) {
     case TXFM_TYPE_IDENTITY8: return av1_iidentity8_c;
     case TXFM_TYPE_IDENTITY16: return av1_iidentity16_c;
     case TXFM_TYPE_IDENTITY32: return av1_iidentity32_c;
+#if CONFIG_TX64X64
+    case TXFM_TYPE_IDENTITY64: return av1_iidentity64_c;
+#endif  // CONFIG_TX64X64
 #endif  // CONFIG_EXT_TX
     default: assert(0); return NULL;
   }
@@ -46,14 +49,22 @@ static const TXFM_1D_CFG *inv_txfm_col_cfg_ls[TX_TYPES_1D][TX_SIZES] = {
       NULL,
 #endif
       &inv_txfm_1d_col_cfg_dct_4, &inv_txfm_1d_col_cfg_dct_8,
-      &inv_txfm_1d_col_cfg_dct_16, &inv_txfm_1d_col_cfg_dct_32 },
+      &inv_txfm_1d_col_cfg_dct_16, &inv_txfm_1d_col_cfg_dct_32,
+#if CONFIG_TX64X64
+      &inv_txfm_1d_row_cfg_dct_64
+#endif  // CONFIG_TX64X64
+  },
   // ADST
   {
 #if CONFIG_CHROMA_2X2
       NULL,
 #endif
       &inv_txfm_1d_col_cfg_adst_4, &inv_txfm_1d_col_cfg_adst_8,
-      &inv_txfm_1d_col_cfg_adst_16, &inv_txfm_1d_col_cfg_adst_32 },
+      &inv_txfm_1d_col_cfg_adst_16, &inv_txfm_1d_col_cfg_adst_32,
+#if CONFIG_TX64X64
+      NULL
+#endif  // CONFIG_TX64X64
+  },
 #if CONFIG_EXT_TX
   // FLIPADST
   {
@@ -61,14 +72,22 @@ static const TXFM_1D_CFG *inv_txfm_col_cfg_ls[TX_TYPES_1D][TX_SIZES] = {
       NULL,
 #endif
       &inv_txfm_1d_col_cfg_adst_4, &inv_txfm_1d_col_cfg_adst_8,
-      &inv_txfm_1d_col_cfg_adst_16, &inv_txfm_1d_col_cfg_adst_32 },
+      &inv_txfm_1d_col_cfg_adst_16, &inv_txfm_1d_col_cfg_adst_32,
+#if CONFIG_TX64X64
+      NULL
+#endif  // CONFIG_TX64X64
+  },
   // IDENTITY
   {
 #if CONFIG_CHROMA_2X2
       NULL,
 #endif
       &inv_txfm_1d_cfg_identity_4, &inv_txfm_1d_cfg_identity_8,
-      &inv_txfm_1d_cfg_identity_16, &inv_txfm_1d_cfg_identity_32 },
+      &inv_txfm_1d_cfg_identity_16, &inv_txfm_1d_cfg_identity_32,
+#if CONFIG_TX64X64
+      &inv_txfm_1d_cfg_identity_64
+#endif  // CONFIG_TX64X64
+  },
 #endif  // CONFIG_EXT_TX
 };
 
@@ -79,14 +98,22 @@ static const TXFM_1D_CFG *inv_txfm_row_cfg_ls[TX_TYPES_1D][TX_SIZES] = {
       NULL,
 #endif
       &inv_txfm_1d_row_cfg_dct_4, &inv_txfm_1d_row_cfg_dct_8,
-      &inv_txfm_1d_row_cfg_dct_16, &inv_txfm_1d_row_cfg_dct_32 },
+      &inv_txfm_1d_row_cfg_dct_16, &inv_txfm_1d_row_cfg_dct_32,
+#if CONFIG_TX64X64
+      &inv_txfm_1d_row_cfg_dct_64,
+#endif  // CONFIG_TX64X64
+  },
   // ADST
   {
 #if CONFIG_CHROMA_2X2
       NULL,
 #endif
       &inv_txfm_1d_row_cfg_adst_4, &inv_txfm_1d_row_cfg_adst_8,
-      &inv_txfm_1d_row_cfg_adst_16, &inv_txfm_1d_row_cfg_adst_32 },
+      &inv_txfm_1d_row_cfg_adst_16, &inv_txfm_1d_row_cfg_adst_32,
+#if CONFIG_TX64X64
+      NULL
+#endif  // CONFIG_TX64X64
+  },
 #if CONFIG_EXT_TX
   // FLIPADST
   {
@@ -94,14 +121,22 @@ static const TXFM_1D_CFG *inv_txfm_row_cfg_ls[TX_TYPES_1D][TX_SIZES] = {
       NULL,
 #endif
       &inv_txfm_1d_row_cfg_adst_4, &inv_txfm_1d_row_cfg_adst_8,
-      &inv_txfm_1d_row_cfg_adst_16, &inv_txfm_1d_row_cfg_adst_32 },
+      &inv_txfm_1d_row_cfg_adst_16, &inv_txfm_1d_row_cfg_adst_32,
+#if CONFIG_TX64X64
+      NULL
+#endif  // CONFIG_TX64X64
+  },
   // IDENTITY
   {
 #if CONFIG_CHROMA_2X2
       NULL,
 #endif
       &inv_txfm_1d_cfg_identity_4, &inv_txfm_1d_cfg_identity_8,
-      &inv_txfm_1d_cfg_identity_16, &inv_txfm_1d_cfg_identity_32 },
+      &inv_txfm_1d_cfg_identity_16, &inv_txfm_1d_cfg_identity_32,
+#if CONFIG_TX64X64
+      &inv_txfm_1d_cfg_identity_64
+#endif  // CONFIG_TX64X64
+  },
 #endif  // CONFIG_EXT_TX
 };
 
@@ -117,6 +152,7 @@ TXFM_2D_FLIP_CFG av1_get_inv_txfm_cfg(int tx_type, int tx_size) {
   return cfg;
 }
 
+#if CONFIG_TX64X64
 TXFM_2D_FLIP_CFG av1_get_inv_txfm_64x64_cfg(int tx_type) {
   TXFM_2D_FLIP_CFG cfg = { 0, 0, NULL, NULL };
   switch (tx_type) {
@@ -129,6 +165,33 @@ TXFM_2D_FLIP_CFG av1_get_inv_txfm_64x64_cfg(int tx_type) {
   }
   return cfg;
 }
+
+TXFM_2D_FLIP_CFG av1_get_inv_txfm_32x64_cfg(int tx_type) {
+  TXFM_2D_FLIP_CFG cfg = { 0, 0, NULL, NULL };
+  switch (tx_type) {
+    case DCT_DCT:
+      cfg.col_cfg = &inv_txfm_1d_col_cfg_dct_64;
+      cfg.row_cfg = &inv_txfm_1d_row_cfg_dct_32;
+      set_flip_cfg(tx_type, &cfg);
+      break;
+    default: assert(0);
+  }
+  return cfg;
+}
+
+TXFM_2D_FLIP_CFG av1_get_inv_txfm_64x32_cfg(int tx_type) {
+  TXFM_2D_FLIP_CFG cfg = { 0, 0, NULL, NULL };
+  switch (tx_type) {
+    case DCT_DCT:
+      cfg.col_cfg = &inv_txfm_1d_col_cfg_dct_32;
+      cfg.row_cfg = &inv_txfm_1d_row_cfg_dct_64;
+      set_flip_cfg(tx_type, &cfg);
+      break;
+    default: assert(0);
+  }
+  return cfg;
+}
+#endif  // CONFIG_TX64X64
 
 void av1_gen_inv_stage_range(int8_t *stage_range_col, int8_t *stage_range_row,
                              const TXFM_2D_FLIP_CFG *cfg, int8_t fwd_shift,
@@ -353,20 +416,31 @@ void av1_inv_txfm2d_add_32x32_c(const int32_t *input, uint16_t *output,
 void av1_inv_txfm2d_add_64x64_c(const int32_t *input, uint16_t *output,
                                 int stride, int tx_type, int bd) {
   int txfm_buf[64 * 64 + 64 + 64];
+  inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_64X64, bd);
+  /*
   TXFM_2D_FLIP_CFG cfg = av1_get_inv_txfm_64x64_cfg(tx_type);
   inv_txfm2d_add_c(input, output, stride, &cfg, txfm_buf, -4, bd);
   assert(fwd_shift_sum[TX_64X64] == -4);
+  */
 }
 
 void av1_inv_txfm2d_add_64x32_c(const int32_t *input, uint16_t *output,
                                 int stride, int tx_type, int bd) {
   int txfm_buf[64 * 32 + 64 + 64];
-  inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_32X64, bd);
+  inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_64X32, bd);
+  /*
+  TXFM_2D_FLIP_CFG cfg = av1_get_inv_txfm_64x32_cfg(tx_type);
+  inv_txfm2d_add_c(input, output, stride, &cfg, txfm_buf, -4, bd);
+  */
 }
 
 void av1_inv_txfm2d_add_32x64_c(const int32_t *input, uint16_t *output,
                                 int stride, int tx_type, int bd) {
   int txfm_buf[64 * 32 + 64 + 64];
   inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_32X64, bd);
+  /*
+  TXFM_2D_FLIP_CFG cfg = av1_get_inv_txfm_32x64_cfg(tx_type);
+  inv_txfm2d_add_c(input, output, stride, &cfg, txfm_buf, -4, bd);
+  */
 }
 #endif  // CONFIG_TX64X64
