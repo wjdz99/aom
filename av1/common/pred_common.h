@@ -61,6 +61,21 @@ static INLINE aom_cdf_prob *av1_get_pred_cdf_seg_id(
 }
 #endif
 
+#if CONFIG_EXT_SKIP
+static INLINE int av1_get_skip_mode_context(const MACROBLOCKD *xd) {
+  const MODE_INFO *const above_mi = xd->above_mi;
+  const MODE_INFO *const left_mi = xd->left_mi;
+  const int above_skip_mode = above_mi ? above_mi->mbmi.skip_mode : 0;
+  const int left_skip_mode = left_mi ? left_mi->mbmi.skip_mode : 0;
+  return above_skip_mode + left_skip_mode;
+}
+
+static INLINE aom_prob av1_get_skip_mode_prob(const AV1_COMMON *cm,
+                                              const MACROBLOCKD *xd) {
+  return cm->fc->skip_mode_probs[av1_get_skip_mode_context(xd)];
+}
+#endif  // CONFIG_EXT_SKIP
+
 static INLINE int av1_get_skip_context(const MACROBLOCKD *xd) {
   const MODE_INFO *const above_mi = xd->above_mi;
   const MODE_INFO *const left_mi = xd->left_mi;
