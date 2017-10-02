@@ -359,6 +359,9 @@ typedef struct MB_MODE_INFO {
   TX_SIZE min_tx_size;
 #endif
   int8_t skip;
+#if CONFIG_EXT_SKIP
+  int8_t skip_mode;
+#endif  // CONFIG_EXT_SKIP
   int8_t segment_id;
 #if CONFIG_SUPERTX
   // Minimum of all segment IDs under the current supertx block.

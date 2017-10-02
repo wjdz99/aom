@@ -87,6 +87,12 @@ macro (fix_experiment_configs)
     endif ()
   endif ()
 
+  if (CONFIG_EXT_SKIP)
+    if (NOT CONFIG_FRAME_MARKER)
+      change_config_and_warn(CONFIG_FRAME_MARKER 1 CONFIG_EXT_SKIP)
+    endif ()
+  endif ()
+
   if (CONFIG_NEW_MULTISYMBOL)
     if (NOT CONFIG_RESTRICT_COMPRESSED_HDR)
       change_config_and_warn(CONFIG_RESTRICT_COMPRESSED_HDR 1
