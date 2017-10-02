@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2a6b5dcf_147a3c3b",
+        "filename": "configure",
+        "patchSetId": 2
+      },
+      "lineNbr": 505,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2017-10-02T20:03:37Z",
+      "side": 1,
+      "message": "This make it so cb4x4 can not be disabled from the configure line.",
+      "range": {
+        "startLine": 505,
+        "startChar": 4,
+        "endLine": 505,
+        "endChar": 18
+      },
+      "revId": "8f47c0efa05a56c3ffc2cff59da9b360aa97f3e3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
