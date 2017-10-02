@@ -955,7 +955,8 @@ void av1_read_tx_type(const AV1_COMMON *const cm, MACROBLOCKD *xd,
   const int inter_block = is_inter_block(mbmi);
 #if !CONFIG_TXK_SEL
 #if CONFIG_VAR_TX
-  const TX_SIZE tx_size = inter_block ? mbmi->min_tx_size : mbmi->tx_size;
+  const TX_SIZE max_tx_size = max_txsize_lookup[mbmi->sb_type];
+  const TX_SIZE tx_size = inter_block ? max_tx_size : mbmi->tx_size;
 #else
   const TX_SIZE tx_size = mbmi->tx_size;
 #endif
