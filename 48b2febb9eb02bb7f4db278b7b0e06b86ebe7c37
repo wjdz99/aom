@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d5b8b0ae_589a4def",
+        "filename": "av1/decoder/symbolrate.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2017-10-02T02:12:11Z",
+      "side": 1,
+      "message": "move this below to be inside the #ifndef guard?",
+      "range": {
+        "startLine": 12,
+        "startChar": 0,
+        "endLine": 12,
+        "endChar": 30
+      },
+      "revId": "48b2febb9eb02bb7f4db278b7b0e06b86ebe7c37",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
