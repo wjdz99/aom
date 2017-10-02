@@ -163,6 +163,29 @@
       "revId": "89c7e8147903c5b7975f61cdabe35f8c7a3cf231",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "331221bd_1a96ede4",
+        "filename": "build/cmake/aom_configure.cmake",
+        "patchSetId": 1
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2017-10-02T20:48:48Z",
+      "side": 1,
+      "message": "Sorry-- commented on your initial comment without reading the patch. See aom_config_defaults.cmake-- this is the form of set() you need to use to make everything appear sane. \n\nThings are this way because we\u0027re manipulating cache vars and not locals.\n\n    # set a local:\n    set(foo 0)\n\n    # set a cache var of type number:\n    set(foo 0 CACHE NUMBER \"${var_helpstring}\")\n\nLocals do not persist between CMake runs-- they\u0027re set only during the generation phase based on the CMake scripting we supply. Cache vars persist, and the values stick around because of the way we define them in aom_config_defaults.cmake.",
+      "range": {
+        "startLine": 59,
+        "startChar": 7,
+        "endLine": 59,
+        "endChar": 20
+      },
+      "revId": "89c7e8147903c5b7975f61cdabe35f8c7a3cf231",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
