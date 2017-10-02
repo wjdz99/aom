@@ -256,6 +256,12 @@ if (CONFIG_JNT_COMP)
   endif()
 endif()
 
+if (CONFIG_EXT_SKIP)
+  if (NOT CONFIG_FRAME_MARKER)
+	  change_config_and_warn(CONFIG_FRAME_MARKER 1 CONFIG_EXT_SKIP)
+  endif()
+endif()
+
 if (CONFIG_AMVR)
   change_config_and_warn(CONFIG_HASH_ME 1 CONFIG_AMVR)
 endif ()
