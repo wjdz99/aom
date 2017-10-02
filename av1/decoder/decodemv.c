@@ -1102,10 +1102,12 @@ static void read_intra_frame_mode_info(AV1_COMMON *const cm,
     xd->prev_qindex = xd->current_qindex;
 #if CONFIG_EXT_DELTA_Q
     if (cm->delta_lf_present_flag) {
-      mbmi->current_delta_lf_from_base = xd->current_delta_lf_from_base =
+      const int current_delta_lf_from_base =
           xd->prev_delta_lf_from_base +
           read_delta_lflevel(cm, xd, r, mbmi, mi_col, mi_row) *
               cm->delta_lf_res;
+      mbmi->current_delta_lf_from_base = xd->current_delta_lf_from_base =
+          clamp(current_delta_lf_from_base, 0, MAX_LOOP_FILTER);
       xd->prev_delta_lf_from_base = xd->current_delta_lf_from_base;
     }
 #endif
@@ -2849,10 +2851,12 @@ static void read_inter_frame_mode_info(AV1Decoder *const pbi,
     xd->prev_qindex = xd->current_qindex;
 #if CONFIG_EXT_DELTA_Q
     if (cm->delta_lf_present_flag) {
-      mbmi->current_delta_lf_from_base = xd->current_delta_lf_from_base =
+      const int current_delta_lf_from_base =
           xd->prev_delta_lf_from_base +
           read_delta_lflevel(cm, xd, r, mbmi, mi_col, mi_row) *
               cm->delta_lf_res;
+      mbmi->current_delta_lf_from_base = xd->current_delta_lf_from_base =
+          clamp(current_delta_lf_from_base, 0, MAX_LOOP_FILTER);
       xd->prev_delta_lf_from_base = xd->current_delta_lf_from_base;
     }
 #endif
