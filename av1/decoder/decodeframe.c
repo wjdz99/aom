@@ -5587,6 +5587,10 @@ size_t av1_decode_frame_headers_and_setup(AV1Decoder *pbi, const uint8_t *data,
                            (cm->last_frame_type != KEY_FRAME);
 #endif  // CONFIG_TEMPMV_SIGNALING
 
+#if CONFIG_EXT_SKIP
+  av1_setup_skip_mode_allowed(cm);
+#endif  // CONFIG_EXT_SKIP
+
 #if CONFIG_MFMV
   av1_setup_motion_field(cm);
 #endif  // CONFIG_MFMV
