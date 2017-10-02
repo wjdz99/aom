@@ -1,0 +1,129 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a9f6828_00e83417",
+        "filename": "test/av1_convolve_scale_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-10-02T19:53:04Z",
+      "side": 1,
+      "message": "make these const int",
+      "revId": "398a313d531fe0c2293aa9acfe58ccfd9614d850",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fb0ac624_3b6e9b31",
+        "filename": "test/av1_convolve_scale_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-10-02T19:53:04Z",
+      "side": 1,
+      "message": "prefer c++ style casts (static_cast)",
+      "range": {
+        "startLine": 78,
+        "startChar": 17,
+        "endLine": 78,
+        "endChar": 26
+      },
+      "revId": "398a313d531fe0c2293aa9acfe58ccfd9614d850",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2f4ce156_c244112c",
+        "filename": "test/av1_convolve_scale_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-10-02T19:53:04Z",
+      "side": 1,
+      "message": "these variables can all be const",
+      "revId": "398a313d531fe0c2293aa9acfe58ccfd9614d850",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "29af52a6_dec75955",
+        "filename": "test/av1_convolve_scale_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-10-02T19:53:04Z",
+      "side": 1,
+      "message": "these can be DstStride / dst_stride. Get is usually left off, set_ is used. alternatively protected is allowed in tests to simplify access and implementation\n\nhttps://google.github.io/styleguide/cppguide.html#Function_Names",
+      "revId": "398a313d531fe0c2293aa9acfe58ccfd9614d850",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1849d680_fdb079c1",
+        "filename": "test/av1_convolve_scale_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 240,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-10-02T19:53:04Z",
+      "side": 1,
+      "message": "drop this",
+      "revId": "398a313d531fe0c2293aa9acfe58ccfd9614d850",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f064ed5c_b02f4127",
+        "filename": "test/av1_convolve_scale_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-10-02T19:53:04Z",
+      "side": 1,
+      "message": "this will be run for each simd function added, rather than treating the C function as a parameter, but it\u0027s OK if it\u0027s relatively quick",
+      "revId": "398a313d531fe0c2293aa9acfe58ccfd9614d850",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "239e80cb_0ffd6cf5",
+        "filename": "test/av1_convolve_scale_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-10-02T19:53:04Z",
+      "side": 1,
+      "message": "prefer {}s on conditionals and loops continued onto another line",
+      "revId": "398a313d531fe0c2293aa9acfe58ccfd9614d850",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
