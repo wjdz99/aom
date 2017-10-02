@@ -42,59 +42,71 @@ const aom_tree_index av1_mv_fp_tree[TREE_SIZE(MV_FP_SIZE)] = { -0, 2,  -1,
                                                                4,  -2, -3 };
 
 static const nmv_context default_nmv_context = {
-  { 32, 64, 96 },  // joints
-  { AOM_ICDF(4096), AOM_ICDF(11264), AOM_ICDF(19328), AOM_ICDF(32768),
-    0 },  // joint_cdf
-  { {
-        // Vertical component
-        128,                                                   // sign
-        { 224, 144, 192, 168, 192, 176, 192, 198, 198, 245 },  // class
-        { AOM_ICDF(28672), AOM_ICDF(30976), AOM_ICDF(31858), AOM_ICDF(32320),
+    {32, 64, 96}, // joints
+    {AOM_ICDF(4096), AOM_ICDF(11264), AOM_ICDF(19328), AOM_ICDF(32768),
+     0}, // joint_cdf
+    {{
+         // Vertical component
+         128,                                                // sign
+         {224, 144, 192, 168, 192, 176, 192, 198, 198, 245}, // class
+         {AOM_ICDF(28672), AOM_ICDF(30976), AOM_ICDF(31858), AOM_ICDF(32320),
           AOM_ICDF(32551), AOM_ICDF(32656), AOM_ICDF(32740), AOM_ICDF(32757),
-          AOM_ICDF(32762), AOM_ICDF(32767), AOM_ICDF(32768), 0 },  // class_cdf
-        { 216 },                                                   // class0
-        { 136, 140, 148, 160, 176, 192, 224, 234, 234, 240 },      // bits
-        { { 128, 128, 64 }, { 96, 112, 64 } },                     // class0_fp
-        { 64, 96, 64 },                                            // fp
-        { { AOM_ICDF(16384), AOM_ICDF(24576), AOM_ICDF(26624), AOM_ICDF(32768),
-            0 },
-          { AOM_ICDF(12288), AOM_ICDF(21248), AOM_ICDF(24128), AOM_ICDF(32768),
-            0 } },  // class0_fp_cdf
-        { AOM_ICDF(8192), AOM_ICDF(17408), AOM_ICDF(21248), AOM_ICDF(32768),
-          0 },  // fp_cdf
-        160,    // class0_hp bit
-        128,    // hp
+          AOM_ICDF(32762), AOM_ICDF(32767), AOM_ICDF(32768), 0}, // class_cdf
+         {216},                                                  // class0
+         {136, 140, 148, 160, 176, 192, 224, 234, 234, 240},     // bits
+         {{128, 128, 64}, {96, 112, 64}},                        // class0_fp
+         {64, 96, 64},                                           // fp
+         {{AOM_ICDF(16384), AOM_ICDF(24576), AOM_ICDF(26624), AOM_ICDF(32768),
+           0},
+          {AOM_ICDF(12288), AOM_ICDF(21248), AOM_ICDF(24128), AOM_ICDF(32768),
+           0}}, // class0_fp_cdf
+         {AOM_ICDF(8192), AOM_ICDF(17408), AOM_ICDF(21248), AOM_ICDF(32768),
+          0}, // fp_cdf
+         160, // class0_hp bit
+         128, // hp
 #if CONFIG_NEW_MULTISYMBOL
-        { AOM_ICDF(160 * 128), AOM_ICDF(32768), 0 },
-        { AOM_ICDF(128 * 128), AOM_ICDF(32768), 0 },
-        { AOM_ICDF(216 * 128), AOM_ICDF(32768), 0 },
+         {AOM_ICDF(160 * 128), AOM_ICDF(32768), 0},
+         {AOM_ICDF(128 * 128), AOM_ICDF(32768), 0},
+         {AOM_ICDF(216 * 128), AOM_ICDF(32768), 0},
+         {{AOM_ICDF(128 * 196), AOM_ICDF(32768), 0},
+          {AOM_ICDF(128 * 198), AOM_ICDF(32768), 0},
+          {AOM_ICDF(128 * 208), AOM_ICDF(32768), 0},
+          {AOM_ICDF(128 * 224), AOM_ICDF(32768), 0},
+          {AOM_ICDF(128 * 245), AOM_ICDF(32768), 0},
+          {AOM_ICDF(128 * 240), AOM_ICDF(32768), 0}}, // bits_cdf
 #endif
-    },
-    {
-        // Horizontal component
-        128,                                                   // sign
-        { 216, 128, 176, 160, 176, 176, 192, 198, 198, 208 },  // class
-        { AOM_ICDF(28672), AOM_ICDF(30976), AOM_ICDF(31858), AOM_ICDF(32320),
+     },
+     {
+         // Horizontal component
+         128,                                                // sign
+         {216, 128, 176, 160, 176, 176, 192, 198, 198, 208}, // class
+         {AOM_ICDF(28672), AOM_ICDF(30976), AOM_ICDF(31858), AOM_ICDF(32320),
           AOM_ICDF(32551), AOM_ICDF(32656), AOM_ICDF(32740), AOM_ICDF(32757),
-          AOM_ICDF(32762), AOM_ICDF(32767), AOM_ICDF(32768), 0 },  // class_cdf
-        { 208 },                                                   // class0
-        { 136, 140, 148, 160, 176, 192, 224, 234, 234, 240 },      // bits
-        { { 128, 128, 64 }, { 96, 112, 64 } },                     // class0_fp
-        { 64, 96, 64 },                                            // fp
-        { { AOM_ICDF(16384), AOM_ICDF(24576), AOM_ICDF(26624), AOM_ICDF(32768),
-            0 },
-          { AOM_ICDF(12288), AOM_ICDF(21248), AOM_ICDF(24128), AOM_ICDF(32768),
-            0 } },  // class0_fp_cdf
-        { AOM_ICDF(8192), AOM_ICDF(17408), AOM_ICDF(21248), AOM_ICDF(32768),
-          0 },  // fp_cdf
-        160,    // class0_hp bit
-        128,    // hp
+          AOM_ICDF(32762), AOM_ICDF(32767), AOM_ICDF(32768), 0}, // class_cdf
+         {208},                                                  // class0
+         {136, 140, 148, 160, 176, 192, 224, 234, 234, 240},     // bits
+         {{128, 128, 64}, {96, 112, 64}},                        // class0_fp
+         {64, 96, 64},                                           // fp
+         {{AOM_ICDF(16384), AOM_ICDF(24576), AOM_ICDF(26624), AOM_ICDF(32768),
+           0},
+          {AOM_ICDF(12288), AOM_ICDF(21248), AOM_ICDF(24128), AOM_ICDF(32768),
+           0}}, // class0_fp_cdf
+         {AOM_ICDF(8192), AOM_ICDF(17408), AOM_ICDF(21248), AOM_ICDF(32768),
+          0}, // fp_cdf
+         160, // class0_hp bit
+         128, // hp
 #if CONFIG_NEW_MULTISYMBOL
-        { AOM_ICDF(160 * 128), AOM_ICDF(32768), 0 },
-        { AOM_ICDF(128 * 128), AOM_ICDF(32768), 0 },
-        { AOM_ICDF(216 * 128), AOM_ICDF(32768), 0 },
+         {AOM_ICDF(160 * 128), AOM_ICDF(32768), 0},
+         {AOM_ICDF(128 * 128), AOM_ICDF(32768), 0},
+         {AOM_ICDF(216 * 128), AOM_ICDF(32768), 0},
+         {{AOM_ICDF(128 * 196), AOM_ICDF(32768), 0},
+          {AOM_ICDF(128 * 198), AOM_ICDF(32768), 0},
+          {AOM_ICDF(128 * 208), AOM_ICDF(32768), 0},
+          {AOM_ICDF(128 * 224), AOM_ICDF(32768), 0},
+          {AOM_ICDF(128 * 245), AOM_ICDF(32768), 0},
+          {AOM_ICDF(128 * 240), AOM_ICDF(32768), 0}}, // bits_cdf
 #endif
-    } },
+     }},
 };
 
 static const uint8_t log_in_base_2[] = {
