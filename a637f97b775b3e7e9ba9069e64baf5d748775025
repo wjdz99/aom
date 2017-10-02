@@ -2,6 +2,75 @@
   "comments": [
     {
       "key": {
+        "uuid": "571a19a2_462f7ecd",
+        "filename": "av1/common/x86/av1_convolve_scale_sse4.c",
+        "patchSetId": 17
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5195
+      },
+      "writtenOn": "2017-10-02T23:30:20Z",
+      "side": 1,
+      "message": "In other platform like Windows, this may have build issue. Suggest to use const __m128i *a.",
+      "range": {
+        "startLine": 39,
+        "startChar": 44,
+        "endLine": 39,
+        "endChar": 53
+      },
+      "revId": "a637f97b775b3e7e9ba9069e64baf5d748775025",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3416ec87_616ab7dc",
+        "filename": "av1/common/x86/av1_convolve_scale_sse4.c",
+        "patchSetId": 17
+      },
+      "lineNbr": 221,
+      "author": {
+        "id": 5195
+      },
+      "writtenOn": "2017-10-02T23:30:20Z",
+      "side": 1,
+      "message": "The same as above.",
+      "range": {
+        "startLine": 220,
+        "startChar": 47,
+        "endLine": 221,
+        "endChar": 42
+      },
+      "revId": "a637f97b775b3e7e9ba9069e64baf5d748775025",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4430537f_c8b1d852",
+        "filename": "av1/common/x86/av1_convolve_scale_sse4.c",
+        "patchSetId": 17
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 5195
+      },
+      "writtenOn": "2017-10-02T23:30:20Z",
+      "side": 1,
+      "message": "The same as above.",
+      "range": {
+        "startLine": 232,
+        "startChar": 49,
+        "endLine": 233,
+        "endChar": 44
+      },
+      "revId": "a637f97b775b3e7e9ba9069e64baf5d748775025",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "500dc215_85c93b34",
         "filename": "test/av1_convolve_scale_test.cc",
         "patchSetId": 17
