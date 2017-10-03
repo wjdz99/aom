@@ -5176,6 +5176,12 @@ static void read_supertx_probs(FRAME_CONTEXT *fc, aom_reader *r) {
 
 static int read_compressed_header(AV1Decoder *pbi, const uint8_t *data,
                                   size_t partition_size) {
+#if CONFIG_RESTRICT_COMPRESSED_HDR
+  (void)pbi;
+  (void)data;
+  (void)partition_size;
+  return 0;
+#else
   AV1_COMMON *const cm = &pbi->common;
 #if CONFIG_SUPERTX
   MACROBLOCKD *const xd = &pbi->mb;
@@ -5273,6 +5279,7 @@ static int read_compressed_header(AV1Decoder *pbi, const uint8_t *data,
   }
 
   return aom_reader_has_error(&r);
+#endif  // CONFIG_RESTRICT_COMPRESSED_HDR
 }
 
 #ifdef NDEBUG
