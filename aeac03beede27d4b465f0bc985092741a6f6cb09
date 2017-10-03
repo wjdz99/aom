@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "18b91554_cc49ff44",
+        "filename": "av1/common/scan.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5195
+      },
+      "writtenOn": "2017-10-03T15:42:16Z",
+      "side": 1,
+      "message": "Why we don\u0027t use \"bool\" here, portability issue?",
+      "range": {
+        "startLine": 86,
+        "startChar": 14,
+        "endLine": 86,
+        "endChar": 17
+      },
+      "revId": "aeac03beede27d4b465f0bc985092741a6f6cb09",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
