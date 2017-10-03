@@ -55,7 +55,7 @@ extern "C" {
 typedef uint16_t qm_val_t;
 #define AOM_QM_BITS 5
 
-#if CONFIG_HIGHBITDEPTH
+#if CONFIG_HIGHBITDEPTH || CONFIG_TXMG
 // Note:
 // tran_low_t  is the datatype used for final transform coefficients.
 // tran_high_t is the datatype used for intermediate transform stages.
