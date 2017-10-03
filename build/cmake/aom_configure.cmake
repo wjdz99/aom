@@ -235,6 +235,12 @@ if (CONFIG_STRIPED_LOOP_RESTORATION)
   endif()
 endif()
 
+if (CONFIG_MAX_TILE)
+  if (CONFIG_LOOP_RESTORATION)
+    change_config_and_warn(CONFIG_LOOP_RESTORATION 0 CONFIG_MAX_TILE)
+  endif()
+endif()
+
 if (CONFIG_WARPED_MOTION)
   if (CONFIG_NCOBMC)
     change_config_and_warn(CONFIG_NCOBMC 0 CONFIG_WARPED_MOTION)
