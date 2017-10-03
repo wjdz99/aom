@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "47cd1f26_4c7e2e12",
+        "filename": "av1/common/entropymode.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 5309,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2017-10-03T18:09:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a3c2f0ec_673cb37d",
+      "range": {
+        "startLine": 5309,
+        "startChar": 8,
+        "endLine": 5309,
+        "endChar": 12
+      },
+      "revId": "634df9e2cec4c59447b8c17ed8593992c8d8e162",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "73dd06ee_45e74b23",
         "filename": "av1/common/entropymode.c",
         "patchSetId": 2
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "e4ed136d_6d32e8a7",
+        "filename": "av1/common/entropymode.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 5313,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2017-10-03T18:09:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "73dd06ee_45e74b23",
+      "range": {
+        "startLine": 5313,
+        "startChar": 0,
+        "endLine": 5313,
+        "endChar": 7
+      },
+      "revId": "634df9e2cec4c59447b8c17ed8593992c8d8e162",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "173df579_7f4bee8e",
         "filename": "av1/common/onyxc_int.h",
         "patchSetId": 2
@@ -59,6 +107,30 @@
       "writtenOn": "2017-10-03T15:07:23Z",
       "side": 1,
       "message": "codebase has been handle this using enum type?",
+      "range": {
+        "startLine": 508,
+        "startChar": 2,
+        "endLine": 511,
+        "endChar": 5
+      },
+      "revId": "634df9e2cec4c59447b8c17ed8593992c8d8e162",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "03a7679d_1c893989",
+        "filename": "av1/common/onyxc_int.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 511,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2017-10-03T18:09:13Z",
+      "side": 1,
+      "message": "This is just a flag. It\u0027s value will only be checked like\nif (cm-\u003edelta_lf_multi) {\n} else {\n}\n\nThere\u0027s no need to define extra enum for it.",
+      "parentUuid": "173df579_7f4bee8e",
       "range": {
         "startLine": 508,
         "startChar": 2,
