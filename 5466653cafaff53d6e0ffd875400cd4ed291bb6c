@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "35d571dd_7675d422",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 19
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-10-03T15:42:59Z",
+      "side": 1,
+      "message": "I\u0027m a little confused how this code ever worked. Isn\u0027t this just incrementing the pointer?",
+      "revId": "5466653cafaff53d6e0ffd875400cd4ed291bb6c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
