@@ -669,6 +669,30 @@ static int read_inter_segment_id(AV1_COMMON *const cm, MACROBLOCKD *const xd,
   return segment_id;
 }
 
+#if CONFIG_EXT_SKIP
+static int read_skip_mode(AV1_COMMON *cm, const MACROBLOCKD *xd, int segment_id,
+                          aom_reader *r) {
+  if (!cm->is_skip_mode_allowed) return 0;
+
+  if (segfeature_active(&cm->seg, segment_id, SEG_LVL_SKIP)) {
+    // TODO(zoeliu): To revisit the handling of this scenario.
+    return 0;
+  } else {
+    const int ctx = av1_get_skip_mode_context(xd);
+#if CONFIG_NEW_MULTISYMBOL
+    FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
+    const int skip_mode =
+        aom_read_symbol(r, ec_ctx->skip_mode_cdfs[ctx], 2, ACCT_STR);
+#else
+    const int skip_mode = aom_read(r, cm->fc->skip_mode_probs[ctx], ACCT_STR);
+#endif
+    FRAME_COUNTS *counts = xd->counts;
+    if (counts) ++counts->skip_mode[ctx][skip_mode];
+    return skip_mode;
+  }
+}
+#endif  // CONFIG_EXT_SKIP
+
 static int read_skip(AV1_COMMON *cm, const MACROBLOCKD *xd, int segment_id,
                      aom_reader *r) {
   if (segfeature_active(&cm->seg, segment_id, SEG_LVL_SKIP)) {
@@ -1422,7 +1446,24 @@ static void read_ref_frames(AV1_COMMON *const cm, MACROBLOCKD *const xd,
                                                    SEG_LVL_REF_FRAME);
     ref_frame[1] = NONE_FRAME;
   } else {
+#if CONFIG_EXT_SKIP
+    MODE_INFO *const mi = xd->mi[0];
+    MB_MODE_INFO *const mbmi = &mi->mbmi;
+
+    const REFERENCE_MODE mode = mbmi->skip_mode
+                                    ? COMPOUND_REFERENCE
+                                    : read_block_reference_mode(cm, xd, r);
+
+    if (mbmi->skip_mode) {
+      ref_frame[0] = LAST_FRAME + cm->ref_frame_idx_0;
+      ref_frame[1] = LAST_FRAME + cm->ref_frame_idx_1;
+      // TODO(zoeliu): To continue on the update of counts/probs.
+      return;
+    }
+#else
     const REFERENCE_MODE mode = read_block_reference_mode(cm, xd, r);
+#endif  // CONFIG_EXT_SKIP
+
     // FIXME(rbultje) I'm pretty sure this breaks segmentation ref frame coding
     if (mode == COMPOUND_REFERENCE) {
 #if CONFIG_EXT_COMP_REFS
@@ -2149,6 +2190,18 @@ static int read_is_inter_block(AV1_COMMON *const cm, MACROBLOCKD *const xd,
   }
 }
 
+#if CONFIG_EXT_SKIP
+static void set_is_inter_block(AV1_COMMON *const cm, MACROBLOCKD *const xd,
+                               int segment_id, const int is_inter) {
+  if (!segfeature_active(&cm->seg, segment_id, SEG_LVL_REF_FRAME)) {
+    assert(is_inter == 1);
+    const int ctx = av1_get_intra_inter_context(xd);
+    FRAME_COUNTS *counts = xd->counts;
+    if (counts) ++counts->intra_inter[ctx][is_inter];
+  }
+}
+#endif  // CONFIG_EXT_SKIP
+
 #if CONFIG_COMPOUND_SINGLEREF
 static int read_is_inter_singleref_comp_mode(AV1_COMMON *const cm,
                                              MACROBLOCKD *const xd,
@@ -2839,10 +2892,30 @@ static void read_inter_frame_mode_info(AV1Decoder *const pbi,
   mbmi->mv[0].as_int = 0;
   mbmi->mv[1].as_int = 0;
   mbmi->segment_id = read_inter_segment_id(cm, xd, mi_row, mi_col, r);
+
+#if CONFIG_EXT_SKIP
+  mbmi->skip_mode = read_skip_mode(cm, xd, mbmi->segment_id, r);
+#endif  // CONFIG_EXT_SKIP
+
+#if CONFIG_EXT_SKIP
+  if (!mbmi->skip_mode) {
+#endif  // CONFIG_EXT_SKIP
 #if CONFIG_SUPERTX
-  if (!supertx_enabled)
+    if (!supertx_enabled)
 #endif  // CONFIG_SUPERTX
-    mbmi->skip = read_skip(cm, xd, mbmi->segment_id, r);
+      mbmi->skip = read_skip(cm, xd, mbmi->segment_id, r);
+#if CONFIG_EXT_SKIP
+  } else {
+    // TODO(zoeliu): To have 'ext_skip' work with 'supertx'
+    mbmi->skip = 1;
+  }
+#endif  // CONFIG_EXT_SKIP
+
+#if CONFIG_EXT_SKIP
+  if (mbmi->skip_mode) {
+    // TODO(zoeliu): To handle cm->delta_q_present_flag differently.
+  }
+#endif  // CONFIG_EXT_SKIP
 
   if (cm->delta_q_present_flag) {
     xd->current_qindex =
@@ -2865,70 +2938,78 @@ static void read_inter_frame_mode_info(AV1Decoder *const pbi,
 #if CONFIG_SUPERTX
   if (!supertx_enabled) {
 #endif  // CONFIG_SUPERTX
-    inter_block = read_is_inter_block(cm, xd, mbmi->segment_id, r);
+#if CONFIG_EXT_SKIP
+    if (mbmi->skip_mode) {
+      set_is_inter_block(cm, xd, mbmi->segment_id, inter_block);
+    } else {
+#endif  // CONFIG_EXT_SKIP
+      inter_block = read_is_inter_block(cm, xd, mbmi->segment_id, r);
 
 #if CONFIG_VAR_TX
-    xd->above_txfm_context =
-        cm->above_txfm_context + (mi_col << TX_UNIT_WIDE_LOG2);
-    xd->left_txfm_context = xd->left_txfm_context_buffer +
-                            ((mi_row & MAX_MIB_MASK) << TX_UNIT_HIGH_LOG2);
+      xd->above_txfm_context =
+          cm->above_txfm_context + (mi_col << TX_UNIT_WIDE_LOG2);
+      xd->left_txfm_context = xd->left_txfm_context_buffer +
+                              ((mi_row & MAX_MIB_MASK) << TX_UNIT_HIGH_LOG2);
 
-    if (cm->tx_mode == TX_MODE_SELECT &&
+      if (cm->tx_mode == TX_MODE_SELECT &&
 #if CONFIG_CB4X4
-        bsize > BLOCK_4X4 &&
+          bsize > BLOCK_4X4 &&
 #else
-        bsize >= BLOCK_8X8 &&
+          bsize >= BLOCK_8X8 &&
 #endif
-        !mbmi->skip && inter_block && !xd->lossless[mbmi->segment_id]) {
-      const TX_SIZE max_tx_size = max_txsize_rect_lookup[bsize];
-      const int bh = tx_size_high_unit[max_tx_size];
-      const int bw = tx_size_wide_unit[max_tx_size];
-      const int width = block_size_wide[bsize] >> tx_size_wide_log2[0];
-      const int height = block_size_high[bsize] >> tx_size_wide_log2[0];
-      int idx, idy;
-
-      mbmi->min_tx_size = TX_SIZES_ALL;
-      for (idy = 0; idy < height; idy += bh)
-        for (idx = 0; idx < width; idx += bw)
-          read_tx_size_vartx(cm, xd, mbmi, xd->counts, max_tx_size,
-                             height != width, idy, idx, r);
-#if CONFIG_RECT_TX_EXT
-      if (is_quarter_tx_allowed(xd, mbmi, inter_block) &&
-          mbmi->tx_size == max_tx_size) {
-        int quarter_tx;
-
-        if (quarter_txsize_lookup[bsize] != max_tx_size) {
-          quarter_tx = aom_read(r, cm->fc->quarter_tx_size_prob, ACCT_STR);
-          if (xd->counts) ++xd->counts->quarter_tx_size[quarter_tx];
-        } else {
-          quarter_tx = 1;
-        }
-        if (quarter_tx) {
-          mbmi->tx_size = quarter_txsize_lookup[bsize];
-          for (idy = 0; idy < tx_size_high_unit[max_tx_size] / 2; ++idy)
-            for (idx = 0; idx < tx_size_wide_unit[max_tx_size] / 2; ++idx)
-              mbmi->inter_tx_size[idy][idx] = mbmi->tx_size;
-          mbmi->min_tx_size = get_min_tx_size(mbmi->tx_size);
-        }
-      }
-#endif
-    } else {
-      mbmi->tx_size = read_tx_size(cm, xd, inter_block, !mbmi->skip, r);
-
-      if (inter_block) {
+          !mbmi->skip && inter_block && !xd->lossless[mbmi->segment_id]) {
+        const TX_SIZE max_tx_size = max_txsize_rect_lookup[bsize];
+        const int bh = tx_size_high_unit[max_tx_size];
+        const int bw = tx_size_wide_unit[max_tx_size];
         const int width = block_size_wide[bsize] >> tx_size_wide_log2[0];
-        const int height = block_size_high[bsize] >> tx_size_high_log2[0];
+        const int height = block_size_high[bsize] >> tx_size_wide_log2[0];
         int idx, idy;
-        for (idy = 0; idy < height; ++idy)
-          for (idx = 0; idx < width; ++idx)
-            mbmi->inter_tx_size[idy >> 1][idx >> 1] = mbmi->tx_size;
+
+        mbmi->min_tx_size = TX_SIZES_ALL;
+        for (idy = 0; idy < height; idy += bh)
+          for (idx = 0; idx < width; idx += bw)
+            read_tx_size_vartx(cm, xd, mbmi, xd->counts, max_tx_size,
+                               height != width, idy, idx, r);
+#if CONFIG_RECT_TX_EXT
+        if (is_quarter_tx_allowed(xd, mbmi, inter_block) &&
+            mbmi->tx_size == max_tx_size) {
+          int quarter_tx;
+
+          if (quarter_txsize_lookup[bsize] != max_tx_size) {
+            quarter_tx = aom_read(r, cm->fc->quarter_tx_size_prob, ACCT_STR);
+            if (xd->counts) ++xd->counts->quarter_tx_size[quarter_tx];
+          } else {
+            quarter_tx = 1;
+          }
+          if (quarter_tx) {
+            mbmi->tx_size = quarter_txsize_lookup[bsize];
+            for (idy = 0; idy < tx_size_high_unit[max_tx_size] / 2; ++idy)
+              for (idx = 0; idx < tx_size_wide_unit[max_tx_size] / 2; ++idx)
+                mbmi->inter_tx_size[idy][idx] = mbmi->tx_size;
+            mbmi->min_tx_size = get_min_tx_size(mbmi->tx_size);
+          }
+        }
+#endif
+      } else {
+        mbmi->tx_size = read_tx_size(cm, xd, inter_block, !mbmi->skip, r);
+
+        if (inter_block) {
+          const int width = block_size_wide[bsize] >> tx_size_wide_log2[0];
+          const int height = block_size_high[bsize] >> tx_size_high_log2[0];
+          int idx, idy;
+          for (idy = 0; idy < height; ++idy)
+            for (idx = 0; idx < width; ++idx)
+              mbmi->inter_tx_size[idy >> 1][idx >> 1] = mbmi->tx_size;
+        }
+        mbmi->min_tx_size = get_min_tx_size(mbmi->tx_size);
+        set_txfm_ctxs(mbmi->tx_size, xd->n8_w, xd->n8_h, mbmi->skip, xd);
       }
-      mbmi->min_tx_size = get_min_tx_size(mbmi->tx_size);
-      set_txfm_ctxs(mbmi->tx_size, xd->n8_w, xd->n8_h, mbmi->skip, xd);
-    }
 #else
   mbmi->tx_size = read_tx_size(cm, xd, inter_block, !mbmi->skip, r);
 #endif  // CONFIG_VAR_TX
+#if CONFIG_EXT_SKIP
+    }
+#endif  // CONFIG_EXT_SKIP
 #if CONFIG_SUPERTX
   }
 #if CONFIG_VAR_TX

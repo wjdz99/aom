@@ -316,8 +316,14 @@ typedef struct frame_contexts {
   aom_cdf_prob txfm_partition_cdf[TXFM_PARTITION_CONTEXTS][CDF_SIZE(2)];
 #endif
 #endif  // CONFIG_VAR_TX
+#if CONFIG_EXT_SKIP
+  aom_prob skip_mode_probs[SKIP_CONTEXTS];
+#endif  // CONFIG_EXT_SKIP
   aom_prob skip_probs[SKIP_CONTEXTS];
 #if CONFIG_NEW_MULTISYMBOL
+#if CONFIG_EXT_SKIP
+  aom_prob skip_mode_cdfs[SKIP_CONTEXTS][CDF_SIZE(2)];
+#endif  // CONFIG_EXT_SKIP
   aom_cdf_prob skip_cdfs[SKIP_CONTEXTS][CDF_SIZE(2)];
   aom_cdf_prob intra_inter_cdf[INTRA_INTER_CONTEXTS][CDF_SIZE(2)];
 #endif
@@ -499,6 +505,9 @@ typedef struct FRAME_COUNTS {
 #if CONFIG_VAR_TX
   unsigned int txfm_partition[TXFM_PARTITION_CONTEXTS][2];
 #endif
+#if CONFIG_EXT_SKIP
+  unsigned int skip_mode[SKIP_MODE_CONTEXTS][2];
+#endif  // CONFIG_EXT_SKIP
   unsigned int skip[SKIP_CONTEXTS][2];
   nmv_context_counts mv[NMV_CONTEXTS];
 #if CONFIG_INTRABC
