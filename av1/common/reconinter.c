@@ -1170,9 +1170,6 @@ void build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd, int plane,
       conv_params.bck_offset = abs(cur_frame_index - bck_frame_index);
       conv_params.fwd_offset = abs(fwd_frame_index - cur_frame_index);
 
-      int fwd = abs(fwd_frame_index - cur_frame_index);
-      int bck = abs(cur_frame_index - bck_frame_index);
-
       //      if (mi_x == 0 && mi_y == 0) {
       //        fprintf(stderr, "frame index = %d\n", cm->current_video_frame);
       //        fprintf(stderr, "fwd_frame_index = %d\n", fwd_frame_index);
@@ -1180,68 +1177,29 @@ void build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd, int plane,
       //        fprintf(stderr, "cur_frame_index = %d\n\n", cur_frame_index);
       //      }
 
+      // refactor selection
+      const double fwd = abs(fwd_frame_index - cur_frame_index);
+      const double bck = abs(cur_frame_index - bck_frame_index);
+      int order;
+      double ratio;
       if (fwd > bck) {
-        double ratio = (bck != 0) ? fwd / bck : 5.0;
-        if (ratio < 1.5) {
-          conv_params.fwd_offset = 1;
-          conv_params.bck_offset = 1;
-          if (mi->mbmi.compound_idx) {
-            conv_params.fwd_offset = 1;
-            conv_params.bck_offset = 1;
-          }
-        } else if (ratio < 2.5) {
-          conv_params.fwd_offset = 2;
-          conv_params.bck_offset = 1;
-          if (mi->mbmi.compound_idx) {
-            conv_params.fwd_offset = 1;
-            conv_params.bck_offset = 1;
-          }
-        } else if (ratio < 3.5) {
-          conv_params.fwd_offset = 3;
-          conv_params.bck_offset = 1;
-          if (mi->mbmi.compound_idx) {
-            conv_params.fwd_offset = 1;
-            conv_params.bck_offset = 1;
-          }
-        } else {
-          conv_params.fwd_offset = 4;
-          conv_params.bck_offset = 1;
-          if (mi->mbmi.compound_idx) {
-            conv_params.fwd_offset = 1;
-            conv_params.bck_offset = 1;
-          }
-        }
+        ratio = (bck != 0) ? fwd / bck : 5.0;
+        order = 0;
       } else {
-        double ratio = (fwd != 0) ? bck / fwd : 5.0;
-        if (ratio < 1.5) {
-          conv_params.fwd_offset = 1;
-          conv_params.bck_offset = 1;
-          if (mi->mbmi.compound_idx) {
-            conv_params.fwd_offset = 1;
-            conv_params.bck_offset = 1;
-          }
-        } else if (ratio < 2.5) {
-          conv_params.fwd_offset = 1;
-          conv_params.bck_offset = 2;
-          if (mi->mbmi.compound_idx) {
-            conv_params.fwd_offset = 1;
-            conv_params.bck_offset = 1;
-          }
-        } else if (ratio < 3.5) {
-          conv_params.fwd_offset = 1;
-          conv_params.bck_offset = 3;
-          if (mi->mbmi.compound_idx) {
-            conv_params.fwd_offset = 1;
-            conv_params.bck_offset = 1;
-          }
-        } else {
-          conv_params.fwd_offset = 1;
-          conv_params.bck_offset = 4;
-          if (mi->mbmi.compound_idx) {
-            conv_params.fwd_offset = 1;
-            conv_params.bck_offset = 1;
-          }
-        }
+        ratio = (fwd != 0) ? bck / fwd : 5.0;
+        order = 1;
+      }
+      int quant_dist_idx;
+      for (quant_dist_idx = 0; quant_dist_idx < 4; ++quant_dist_idx) {
+        if (ratio < quant_dist_category[quant_dist_idx]) break;
+      }
+      conv_params.fwd_offset =
+          quant_dist_lookup_table[0][quant_dist_idx][order];
+      conv_params.bck_offset =
+          quant_dist_lookup_table[0][quant_dist_idx][1 - order];
+      if (mi->mbmi.compound_idx) {
+        conv_params.fwd_offset = 1;
+        conv_params.bck_offset = 1;
       }
     } else {
       conv_params.bck_offset = -1;

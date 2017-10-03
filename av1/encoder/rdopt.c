@@ -73,6 +73,8 @@ static const int filter_sets[DUAL_FILTER_SET_SIZE][2] = {
 };
 #endif  // CONFIG_DUAL_FILTER
 
+static
+
 #if CONFIG_EXT_REFS
 
 #define LAST_FRAME_MODE_MASK                                      \
@@ -119,8 +121,10 @@ static const int filter_sets[DUAL_FILTER_SET_SIZE][2] = {
 #define FILTER_FAST_SEARCH 1
 #endif  // CONFIG_EXT_INTRA
 
-const double ADST_FLIP_SVM[8] = { -6.6623, -2.8062, -3.2531, 3.1671,    // vert
-                                  -7.7051, -3.2234, -3.6193, 3.4533 };  // horz
+    const double ADST_FLIP_SVM[8] = { -6.6623, -2.8062,
+                                      -3.2531, 3.1671,  // vert
+                                      -7.7051, -3.2234,
+                                      -3.6193, 3.4533 };  // horz
 
 typedef struct {
   PREDICTION_MODE mode;
@@ -5671,145 +5675,30 @@ static void joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
     if (fwd_idx >= 0)
       fwd_frame_index = cm->buffer_pool->frame_bufs[fwd_idx].cur_frame_offset;
 
-    //    conv_params.bck_offset =
-    //        abs(cur_frame_index - bck_frame_index);
-    //    conv_params.fwd_offset =
-    //        abs(fwd_frame_index - cur_frame_index);
-
-    if (id == 0) {
-      int fwd = abs(fwd_frame_index - cur_frame_index);
-      int bck = abs(cur_frame_index - bck_frame_index);
-
-      if (fwd > bck) {
-        double ratio = (bck != 0) ? fwd / bck : 5.0;
-        if (ratio < 1.5) {
-          second_pred[4096] = 1;
-          second_pred[4097] = 1;
-          if (mbmi->compound_idx) {
-            second_pred[4096] = 1;
-            second_pred[4097] = 1;
-          }
-        } else if (ratio < 2.5) {
-          second_pred[4096] = 2;
-          second_pred[4097] = 1;
-          if (mbmi->compound_idx) {
-            second_pred[4096] = 1;
-            second_pred[4097] = 1;
-          }
-        } else if (ratio < 3.5) {
-          second_pred[4096] = 3;
-          second_pred[4097] = 1;
-          if (mbmi->compound_idx) {
-            second_pred[4096] = 1;
-            second_pred[4097] = 1;
-          }
-        } else {
-          second_pred[4096] = 4;
-          second_pred[4097] = 1;
-          if (mbmi->compound_idx) {
-            second_pred[4096] = 1;
-            second_pred[4097] = 1;
-          }
-        }
-      } else {
-        double ratio = (fwd != 0) ? bck / fwd : 5.0;
-        if (ratio < 1.5) {
-          second_pred[4096] = 1;
-          second_pred[4097] = 1;
-          if (mbmi->compound_idx) {
-            second_pred[4096] = 1;
-            second_pred[4097] = 1;
-          }
-        } else if (ratio < 2.5) {
-          second_pred[4096] = 1;
-          second_pred[4097] = 2;
-          if (mbmi->compound_idx) {
-            second_pred[4096] = 1;
-            second_pred[4097] = 1;
-          }
-        } else if (ratio < 3.5) {
-          second_pred[4096] = 1;
-          second_pred[4097] = 3;
-          if (mbmi->compound_idx) {
-            second_pred[4096] = 1;
-            second_pred[4097] = 1;
-          }
-        } else {
-          second_pred[4096] = 1;
-          second_pred[4097] = 4;
-          if (mbmi->compound_idx) {
-            second_pred[4096] = 1;
-            second_pred[4097] = 1;
-          }
-        }
-      }
+    // refactor selection
+    const double fwd = abs(fwd_frame_index - cur_frame_index);
+    const double bck = abs(cur_frame_index - bck_frame_index);
+    int order;
+    double ratio;
+    if (fwd > bck) {
+      ratio = (bck != 0) ? fwd / bck : 5.0;
+      order = 0;
     } else {
-      int fwd = abs(fwd_frame_index - cur_frame_index);
-      int bck = abs(cur_frame_index - bck_frame_index);
-
-      if (fwd > bck) {
-        double ratio = (bck != 0) ? fwd / bck : 5.0;
-        if (ratio < 1.5) {
-          second_pred[4097] = 1;
-          second_pred[4096] = 1;
-          if (mbmi->compound_idx) {
-            second_pred[4097] = 1;
-            second_pred[4096] = 1;
-          }
-        } else if (ratio < 2.5) {
-          second_pred[4097] = 2;
-          second_pred[4096] = 1;
-          if (mbmi->compound_idx) {
-            second_pred[4097] = 1;
-            second_pred[4096] = 1;
-          }
-        } else if (ratio < 3.5) {
-          second_pred[4097] = 3;
-          second_pred[4096] = 1;
-          if (mbmi->compound_idx) {
-            second_pred[4097] = 1;
-            second_pred[4096] = 1;
-          }
-        } else {
-          second_pred[4097] = 4;
-          second_pred[4096] = 1;
-          if (mbmi->compound_idx) {
-            second_pred[4097] = 1;
-            second_pred[4096] = 1;
-          }
-        }
-      } else {
-        double ratio = (fwd != 0) ? bck / fwd : 5.0;
-        if (ratio < 1.5) {
-          second_pred[4097] = 1;
-          second_pred[4096] = 1;
-          if (mbmi->compound_idx) {
-            second_pred[4097] = 1;
-            second_pred[4096] = 1;
-          }
-        } else if (ratio < 2.5) {
-          second_pred[4097] = 1;
-          second_pred[4096] = 2;
-          if (mbmi->compound_idx) {
-            second_pred[4097] = 1;
-            second_pred[4096] = 1;
-          }
-        } else if (ratio < 3.5) {
-          second_pred[4097] = 1;
-          second_pred[4096] = 3;
-          if (mbmi->compound_idx) {
-            second_pred[4097] = 1;
-            second_pred[4096] = 1;
-          }
-        } else {
-          second_pred[4097] = 1;
-          second_pred[4096] = 4;
-          if (mbmi->compound_idx) {
-            second_pred[4097] = 1;
-            second_pred[4096] = 1;
-          }
-        }
-      }
+      ratio = (fwd != 0) ? bck / fwd : 5.0;
+      order = 1;
+    }
+    int quant_dist_idx;
+    for (quant_dist_idx = 0; quant_dist_idx < 4; ++quant_dist_idx) {
+      if (ratio < quant_dist_category[quant_dist_idx]) break;
+    }
+    const int order_idx = id != 0;
+    second_pred[4096] =
+        quant_dist_lookup_table[order_idx][quant_dist_idx][order];
+    second_pred[4097] =
+        quant_dist_lookup_table[order_idx][quant_dist_idx][1 - order];
+    if (mbmi->compound_idx) {
+      second_pred[4096] = 1;
+      second_pred[4097] = 1;
     }
 
     // Do compound motion search on the current reference frame.

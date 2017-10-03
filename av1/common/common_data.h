@@ -1520,6 +1520,12 @@ static const int partition_supertx_context_lookup[PARTITION_TYPES] = { -1, 0, 0,
 #define EOB_THRESHOLD_NUM 2
 #endif
 
+static const double quant_dist_category[4] = { 1.5, 2.5, 3.5, 255 };
+static const int quant_dist_lookup_table[2][4][2] = {
+  { { 1, 1 }, { 2, 1 }, { 3, 1 }, { 4, 1 } },
+  { { 1, 1 }, { 1, 2 }, { 1, 3 }, { 1, 4 } },
+};
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif
