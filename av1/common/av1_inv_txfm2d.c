@@ -105,11 +105,11 @@ static const TXFM_1D_CFG *inv_txfm_row_cfg_ls[TX_TYPES_1D][TX_SIZES] = {
 #endif  // CONFIG_EXT_TX
 };
 
-TXFM_2D_FLIP_CFG av1_get_inv_txfm_cfg(int tx_type, int tx_size) {
+TXFM_2D_FLIP_CFG av1_get_inv_txfm_cfg(TX_TYPE tx_type, int tx_size) {
   TXFM_2D_FLIP_CFG cfg;
   set_flip_cfg(tx_type, &cfg);
-  const int tx_type_col = vtx_tab[tx_type];
-  const int tx_type_row = htx_tab[tx_type];
+  const TX_TYPE_1D tx_type_col = vtx_tab[tx_type];
+  const TX_TYPE_1D tx_type_row = htx_tab[tx_type];
   const int tx_size_col = txsize_vert_map[tx_size];
   const int tx_size_row = txsize_horz_map[tx_size];
   cfg.col_cfg = inv_txfm_col_cfg_ls[tx_type_col][tx_size_col];
@@ -117,7 +117,7 @@ TXFM_2D_FLIP_CFG av1_get_inv_txfm_cfg(int tx_type, int tx_size) {
   return cfg;
 }
 
-TXFM_2D_FLIP_CFG av1_get_inv_txfm_64x64_cfg(int tx_type) {
+TXFM_2D_FLIP_CFG av1_get_inv_txfm_64x64_cfg(TX_TYPE tx_type) {
   TXFM_2D_FLIP_CFG cfg = { 0, 0, NULL, NULL };
   switch (tx_type) {
     case DCT_DCT:
@@ -231,7 +231,7 @@ static INLINE void inv_txfm2d_add_c(const int32_t *input, uint16_t *output,
 
 static INLINE void inv_txfm2d_add_facade(const int32_t *input, uint16_t *output,
                                          int stride, int32_t *txfm_buf,
-                                         int tx_type, int tx_size, int bd) {
+                                         TX_TYPE tx_type, int tx_size, int bd) {
   TXFM_2D_FLIP_CFG cfg = av1_get_inv_txfm_cfg(tx_type, tx_size);
   int tx_size_sqr = txsize_sqr_map[tx_size];
   inv_txfm2d_add_c(input, output, stride, &cfg, txfm_buf,
@@ -239,13 +239,13 @@ static INLINE void inv_txfm2d_add_facade(const int32_t *input, uint16_t *output,
 }
 
 void av1_inv_txfm2d_add_4x8_c(const int32_t *input, uint16_t *output,
-                              int stride, int tx_type, int bd) {
+                              int stride, TX_TYPE tx_type, int bd) {
   int txfm_buf[4 * 8 + 8 + 8];
   inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_4X8, bd);
 }
 
 void av1_inv_txfm2d_add_8x4_c(const int32_t *input, uint16_t *output,
-                              int stride, int tx_type, int bd) {
+                              int stride, TX_TYPE tx_type, int bd) {
 #if CONFIG_TXMG
   int txfm_buf[8 * 4 + 8 + 8];
   int32_t rinput[8 * 4];
@@ -268,13 +268,13 @@ void av1_inv_txfm2d_add_8x4_c(const int32_t *input, uint16_t *output,
 }
 
 void av1_inv_txfm2d_add_8x16_c(const int32_t *input, uint16_t *output,
-                               int stride, int tx_type, int bd) {
+                               int stride, TX_TYPE tx_type, int bd) {
   int txfm_buf[8 * 16 + 16 + 16];
   inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_8X16, bd);
 }
 
 void av1_inv_txfm2d_add_16x8_c(const int32_t *input, uint16_t *output,
-                               int stride, int tx_type, int bd) {
+                               int stride, TX_TYPE tx_type, int bd) {
 #if CONFIG_TXMG
   int txfm_buf[16 * 8 + 16 + 16];
   int32_t rinput[16 * 8];
@@ -297,13 +297,13 @@ void av1_inv_txfm2d_add_16x8_c(const int32_t *input, uint16_t *output,
 }
 
 void av1_inv_txfm2d_add_16x32_c(const int32_t *input, uint16_t *output,
-                                int stride, int tx_type, int bd) {
+                                int stride, TX_TYPE tx_type, int bd) {
   int txfm_buf[16 * 32 + 32 + 32];
   inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_16X32, bd);
 }
 
 void av1_inv_txfm2d_add_32x16_c(const int32_t *input, uint16_t *output,
-                                int stride, int tx_type, int bd) {
+                                int stride, TX_TYPE tx_type, int bd) {
 #if CONFIG_TXMG
   int txfm_buf[32 * 16 + 32 + 32];
   int32_t rinput[32 * 16];
@@ -326,32 +326,32 @@ void av1_inv_txfm2d_add_32x16_c(const int32_t *input, uint16_t *output,
 }
 
 void av1_inv_txfm2d_add_4x4_c(const int32_t *input, uint16_t *output,
-                              int stride, int tx_type, int bd) {
+                              int stride, TX_TYPE tx_type, int bd) {
   int txfm_buf[4 * 4 + 4 + 4];
   inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_4X4, bd);
 }
 
 void av1_inv_txfm2d_add_8x8_c(const int32_t *input, uint16_t *output,
-                              int stride, int tx_type, int bd) {
+                              int stride, TX_TYPE tx_type, int bd) {
   int txfm_buf[8 * 8 + 8 + 8];
   inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_8X8, bd);
 }
 
 void av1_inv_txfm2d_add_16x16_c(const int32_t *input, uint16_t *output,
-                                int stride, int tx_type, int bd) {
+                                int stride, TX_TYPE tx_type, int bd) {
   int txfm_buf[16 * 16 + 16 + 16];
   inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_16X16, bd);
 }
 
 void av1_inv_txfm2d_add_32x32_c(const int32_t *input, uint16_t *output,
-                                int stride, int tx_type, int bd) {
+                                int stride, TX_TYPE tx_type, int bd) {
   int txfm_buf[32 * 32 + 32 + 32];
   inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_32X32, bd);
 }
 
 #if CONFIG_TX64X64
 void av1_inv_txfm2d_add_64x64_c(const int32_t *input, uint16_t *output,
-                                int stride, int tx_type, int bd) {
+                                int stride, TX_TYPE tx_type, int bd) {
   int txfm_buf[64 * 64 + 64 + 64];
   TXFM_2D_FLIP_CFG cfg = av1_get_inv_txfm_64x64_cfg(tx_type);
   inv_txfm2d_add_c(input, output, stride, &cfg, txfm_buf, -4, bd);
@@ -359,13 +359,13 @@ void av1_inv_txfm2d_add_64x64_c(const int32_t *input, uint16_t *output,
 }
 
 void av1_inv_txfm2d_add_64x32_c(const int32_t *input, uint16_t *output,
-                                int stride, int tx_type, int bd) {
+                                int stride, TX_TYPE tx_type, int bd) {
   int txfm_buf[64 * 32 + 64 + 64];
   inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_32X64, bd);
 }
 
 void av1_inv_txfm2d_add_32x64_c(const int32_t *input, uint16_t *output,
-                                int stride, int tx_type, int bd) {
+                                int stride, TX_TYPE tx_type, int bd) {
   int txfm_buf[64 * 32 + 64 + 64];
   inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_32X64, bd);
 }
