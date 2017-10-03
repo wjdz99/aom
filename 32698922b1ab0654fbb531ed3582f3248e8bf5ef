@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "b4061f81_cfddfc53",
+        "filename": "av1/common/av1_inv_txfm2d.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2017-10-03T14:17:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "aebfd9fc_499f17ef",
+      "revId": "32698922b1ab0654fbb531ed3582f3248e8bf5ef",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "db38f93c_db68fbda",
         "filename": "av1/common/common_data.h",
         "patchSetId": 6
@@ -48,6 +66,24 @@
       "side": 1,
       "message": "Now I see that once following CL is merged, TX_32X64 and TX_64X32 will be in place:\nhttps://aomedia-review.googlesource.com/c/aom/+/25201",
       "parentUuid": "db38f93c_db68fbda",
+      "revId": "32698922b1ab0654fbb531ed3582f3248e8bf5ef",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b7a96443_1c17aefa",
+        "filename": "av1/common/common_data.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 670,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2017-10-03T14:17:40Z",
+      "side": 1,
+      "message": "Yes. This patch still does not enable the 32x64 and 64x32 transforms. But the only change required to actually enable them will be the subsequent patch.",
+      "parentUuid": "d499f1ed_fafaa15c",
       "revId": "32698922b1ab0654fbb531ed3582f3248e8bf5ef",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
