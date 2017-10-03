@@ -534,6 +534,8 @@ post_process_cmdline() {
       soft_enable dist_8x8
       soft_enable loop_restoration
       soft_enable cdef_singlepass
+      soft_enable ext_partition
+      soft_enable ext_partition_types
     fi
 
     # Enable low-bitdepth pixel pipeline by default
