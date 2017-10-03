@@ -81,6 +81,12 @@ macro (fix_experiment_configs)
     endif ()
   endif ()
 
+  if (CONFIG_MAX_TILE)
+    if (CONFIG_LOOP_RESTORATION)
+      change_config_and_warn(CONFIG_LOOP_RESTORATION 0 CONFIG_MAX_TILE)
+    endif()
+  endif()
+
   if (CONFIG_MFMV)
     if (NOT CONFIG_FRAME_MARKER)
       change_config_and_warn(CONFIG_FRAME_MARKER 1 CONFIG_MFMV)
