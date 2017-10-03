@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "3dc16267_d90f9469",
+        "filename": "test/av1_convolve_scale_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 7560
+      },
+      "writtenOn": "2017-10-03T10:15:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a9f6828_00e83417",
+      "revId": "398a313d531fe0c2293aa9acfe58ccfd9614d850",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fb0ac624_3b6e9b31",
         "filename": "test/av1_convolve_scale_test.cc",
         "patchSetId": 1
@@ -42,6 +60,30 @@
     },
     {
       "key": {
+        "uuid": "b5851ec3_fb788abb",
+        "filename": "test/av1_convolve_scale_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 7560
+      },
+      "writtenOn": "2017-10-03T10:15:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fb0ac624_3b6e9b31",
+      "range": {
+        "startLine": 78,
+        "startChar": 17,
+        "endLine": 78,
+        "endChar": 26
+      },
+      "revId": "398a313d531fe0c2293aa9acfe58ccfd9614d850",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2f4ce156_c244112c",
         "filename": "test/av1_convolve_scale_test.cc",
         "patchSetId": 1
@@ -56,6 +98,24 @@
       "revId": "398a313d531fe0c2293aa9acfe58ccfd9614d850",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fadbd951_03f0d720",
+        "filename": "test/av1_convolve_scale_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 7560
+      },
+      "writtenOn": "2017-10-03T10:15:44Z",
+      "side": 1,
+      "message": "filterk is the destination of a memcpy so obviously isn\u0027t meant to be const.\n\nI\u0027ve added the const keyword to the scalar variable declarations in this block.",
+      "parentUuid": "2f4ce156_c244112c",
+      "revId": "398a313d531fe0c2293aa9acfe58ccfd9614d850",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -76,6 +136,24 @@
     },
     {
       "key": {
+        "uuid": "c0e1f8f8_18fb0784",
+        "filename": "test/av1_convolve_scale_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 7560
+      },
+      "writtenOn": "2017-10-03T10:15:44Z",
+      "side": 1,
+      "message": "Ok, I\u0027ve renamed to dst_stride etc. A protected member wouldn\u0027t help here (the tests don\u0027t inherit from the image type).",
+      "parentUuid": "29af52a6_dec75955",
+      "revId": "398a313d531fe0c2293aa9acfe58ccfd9614d850",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1849d680_fdb079c1",
         "filename": "test/av1_convolve_scale_test.cc",
         "patchSetId": 1
@@ -90,6 +168,24 @@
       "revId": "398a313d531fe0c2293aa9acfe58ccfd9614d850",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d573b3b6_a2511fb2",
+        "filename": "test/av1_convolve_scale_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 240,
+      "author": {
+        "id": 7560
+      },
+      "writtenOn": "2017-10-03T10:15:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1849d680_fdb079c1",
+      "revId": "398a313d531fe0c2293aa9acfe58ccfd9614d850",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -110,6 +206,24 @@
     },
     {
       "key": {
+        "uuid": "59633049_24aa13c1",
+        "filename": "test/av1_convolve_scale_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 7560
+      },
+      "writtenOn": "2017-10-03T10:15:44Z",
+      "side": 1,
+      "message": "Yes. If and when there\u0027s an architecture with two competing SIMD functions (why?!), someone can alter this to pass the candidate functions in a list or similar.",
+      "parentUuid": "f064ed5c_b02f4127",
+      "revId": "398a313d531fe0c2293aa9acfe58ccfd9614d850",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "239e80cb_0ffd6cf5",
         "filename": "test/av1_convolve_scale_test.cc",
         "patchSetId": 1
@@ -124,6 +238,24 @@
       "revId": "398a313d531fe0c2293aa9acfe58ccfd9614d850",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7dc3cdb1_d3404e11",
+        "filename": "test/av1_convolve_scale_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 7560
+      },
+      "writtenOn": "2017-10-03T10:15:44Z",
+      "side": 1,
+      "message": "Done. In fact, as well as adding some curly braces, I\u0027ve moved the repeated code into a helper function.",
+      "parentUuid": "239e80cb_0ffd6cf5",
+      "revId": "398a313d531fe0c2293aa9acfe58ccfd9614d850",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
