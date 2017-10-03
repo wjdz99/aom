@@ -2863,11 +2863,31 @@ static const aom_cdf_prob
     };
 #endif  // CONFIG_DUAL_FILTER
 
+#if CONFIG_EXT_SEGMENT_ID
+static const aom_cdf_prob default_seg_tree_cdf[PREDICTION_PROBS][CDF_SIZE(MAX_SEGMENTS)] = {
+  {
+    AOM_ICDF(5622), AOM_ICDF(7893), AOM_ICDF(16093), AOM_ICDF(18233),
+    AOM_ICDF(27809), AOM_ICDF(28373), AOM_ICDF(32533), AOM_ICDF(32768),
+    AOM_ICDF(32736),
+  },
+  {
+    AOM_ICDF(14274), AOM_ICDF(18230), AOM_ICDF(22557), AOM_ICDF(24935),
+    AOM_ICDF(29980), AOM_ICDF(30851), AOM_ICDF(32344), AOM_ICDF(32768),
+    AOM_ICDF(32736),
+  },
+  {
+    AOM_ICDF(27527), AOM_ICDF(28487), AOM_ICDF(28723), AOM_ICDF(28890),
+    AOM_ICDF(32397), AOM_ICDF(32647), AOM_ICDF(32679), AOM_ICDF(32768),
+    AOM_ICDF(32736),
+  },
+};
+#else
 static const aom_cdf_prob default_seg_tree_cdf[CDF_SIZE(MAX_SEGMENTS)] = {
   AOM_ICDF(4096),  AOM_ICDF(8192),  AOM_ICDF(12288),
   AOM_ICDF(16384), AOM_ICDF(20480), AOM_ICDF(24576),
   AOM_ICDF(28672), AOM_ICDF(32768), 0
 };
+#endif
 
 static const aom_cdf_prob
     default_tx_size_cdf[MAX_TX_DEPTH][TX_SIZE_CONTEXTS][CDF_SIZE(MAX_TX_DEPTH +
@@ -5051,7 +5071,12 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
 #if CONFIG_EXT_INTRA && CONFIG_INTRA_INTERP
   av1_copy(fc->intra_filter_cdf, default_intra_filter_cdf);
 #endif  // CONFIG_EXT_INTRA && CONFIG_INTRA_INTERP
+#if CONFIG_EXT_SEGMENT_ID
+  for (int i = 0; i < PREDICTION_PROBS; i++)
+    av1_copy(fc->seg.tree_cdf[i], default_seg_tree_cdf[i]);
+#else
   av1_copy(fc->seg.tree_cdf, default_seg_tree_cdf);
+#endif
   av1_copy(fc->tx_size_cdf, default_tx_size_cdf);
   av1_copy(fc->delta_q_prob, default_delta_q_probs);
   av1_copy(fc->delta_q_cdf, default_delta_q_cdf);
@@ -5339,6 +5364,10 @@ void av1_setup_past_independence(AV1_COMMON *cm) {
   int i;
   av1_clearall_segfeatures(&cm->seg);
   cm->seg.abs_delta = SEGMENT_DELTADATA;
+
+#if CONFIG_EXT_SEGMENT_ID
+  memset(cm->ext_seg_id_map, 0, cm->seg_map_alloc_size);
+#endif
 
   if (cm->last_frame_seg_map && !cm->frame_parallel_decode)
     memset(cm->last_frame_seg_map, 0, (cm->mi_rows * cm->mi_cols));

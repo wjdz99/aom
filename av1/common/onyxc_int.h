@@ -353,6 +353,9 @@ typedef struct AV1Common {
   uint8_t *seg_map_array[NUM_PING_PONG_BUFFERS];
   uint8_t *last_frame_seg_map;
   uint8_t *current_frame_seg_map;
+#if CONFIG_EXT_SEGMENT_ID
+  uint8_t *ext_seg_id_map;
+#endif
   int seg_map_alloc_size;
 
   InterpFilter interp_filter;

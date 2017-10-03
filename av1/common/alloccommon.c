@@ -67,6 +67,10 @@ static int alloc_seg_map(AV1_COMMON *cm, int seg_map_size) {
   }
   cm->seg_map_alloc_size = seg_map_size;
 
+#if CONFIG_EXT_SEGMENT_ID
+  cm->ext_seg_id_map = (uint8_t *)aom_calloc(seg_map_size, 1);
+#endif
+
   // Init the index.
   cm->seg_map_idx = 0;
   cm->prev_seg_map_idx = 1;
@@ -87,6 +91,11 @@ static void free_seg_map(AV1_COMMON *cm) {
   }
 
   cm->current_frame_seg_map = NULL;
+
+#if CONFIG_EXT_SEGMENT_ID
+  aom_free(cm->ext_seg_id_map);
+  cm->ext_seg_id_map = NULL;
+#endif
 
   if (!cm->frame_parallel_decode) {
     cm->last_frame_seg_map = NULL;
