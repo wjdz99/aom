@@ -534,6 +534,8 @@ post_process_cmdline() {
       soft_enable convolve_round
       soft_enable aom_qm
       soft_enable dist_8x8
+      soft_enable loop_restoration
+      soft_enable cdef_singlepass
     fi
 
     # Enable low-bitdepth pixel pipeline by default
@@ -634,6 +636,11 @@ post_process_cmdline() {
     if enabled striped_loop_restoration && enabled frame_superres ; then
       log_echo "striped_loop_restoration not compatible with frame_superres"
       log_echo "disabling striped_loop_restoration"
+      disable_feature striped_loop_restoration
+    fi
+    if enabled max_tile && enabled loop_restoration ; then
+      log_echo "loop_restoration not compatible with max_tile"
+      disable_feature loop_restoration
       disable_feature striped_loop_restoration
     fi
 }
