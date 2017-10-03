@@ -16,6 +16,24 @@
       "revId": "acb0adb3705996e98976ca56fda8820d455488be",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "09130efe_d9558d9a",
+        "filename": "av1/common/arm/neon/iht4x4_add_neon.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-10-03T18:15:05Z",
+      "side": 1,
+      "message": "Good catch!\nFixed.",
+      "parentUuid": "636c63e3_d0dd9eb6",
+      "revId": "acb0adb3705996e98976ca56fda8820d455488be",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
