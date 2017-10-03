@@ -1167,29 +1167,27 @@ void build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd, int plane,
       if (fwd_idx >= 0)
         fwd_frame_index = cm->buffer_pool->frame_bufs[fwd_idx].cur_frame_offset;
 
-      conv_params.bck_offset =
-          abs(cur_frame_index - bck_frame_index);
-      conv_params.fwd_offset =
-          abs(fwd_frame_index - cur_frame_index);
+      conv_params.bck_offset = abs(cur_frame_index - bck_frame_index);
+      conv_params.fwd_offset = abs(fwd_frame_index - cur_frame_index);
 
       int fwd = abs(fwd_frame_index - cur_frame_index);
       int bck = abs(cur_frame_index - bck_frame_index);
 
-//      if (mi_x == 0 && mi_y == 0) {
-//        fprintf(stderr, "frame index = %d\n", cm->current_video_frame);
-//        fprintf(stderr, "fwd_frame_index = %d\n", fwd_frame_index);
-//        fprintf(stderr, "bck_frame_index = %d\n", bck_frame_index);
-//        fprintf(stderr, "cur_frame_index = %d\n\n", cur_frame_index);
-//      }
+      //      if (mi_x == 0 && mi_y == 0) {
+      //        fprintf(stderr, "frame index = %d\n", cm->current_video_frame);
+      //        fprintf(stderr, "fwd_frame_index = %d\n", fwd_frame_index);
+      //        fprintf(stderr, "bck_frame_index = %d\n", bck_frame_index);
+      //        fprintf(stderr, "cur_frame_index = %d\n\n", cur_frame_index);
+      //      }
 
       if (fwd > bck) {
         double ratio = (bck != 0) ? fwd / bck : 5.0;
         if (ratio < 1.5) {
-          conv_params.fwd_offset = 2;
-          conv_params.bck_offset = 3;
+          conv_params.fwd_offset = 1;
+          conv_params.bck_offset = 1;
           if (mi->mbmi.compound_idx) {
-            conv_params.fwd_offset = 3;
-            conv_params.bck_offset = 2;
+            conv_params.fwd_offset = 1;
+            conv_params.bck_offset = 1;
           }
         } else if (ratio < 2.5) {
           conv_params.fwd_offset = 2;
@@ -1216,11 +1214,11 @@ void build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd, int plane,
       } else {
         double ratio = (fwd != 0) ? bck / fwd : 5.0;
         if (ratio < 1.5) {
-          conv_params.fwd_offset = 3;
-          conv_params.bck_offset = 2;
+          conv_params.fwd_offset = 1;
+          conv_params.bck_offset = 1;
           if (mi->mbmi.compound_idx) {
-            conv_params.fwd_offset = 2;
-            conv_params.bck_offset = 3;
+            conv_params.fwd_offset = 1;
+            conv_params.bck_offset = 1;
           }
         } else if (ratio < 2.5) {
           conv_params.fwd_offset = 1;
@@ -1249,7 +1247,6 @@ void build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd, int plane,
       conv_params.bck_offset = -1;
       conv_params.fwd_offset = -1;
     }
-
 
 #else
     ConvolveParams conv_params = get_conv_params(ref, plane);
@@ -1310,11 +1307,11 @@ void build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd, int plane,
     if (conv_params.do_post_rounding) {
 #if CONFIG_HIGHBITDEPTH
       if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH)
-        av1_highbd_convolve_rounding(tmp_dst, MAX_SB_SIZE, dst, dst_buf->stride,
-                                     w, h, FILTER_BITS * 2 + is_compound -
-                                               conv_params.round_0 -
-                                               conv_params.round_1,
-                                     xd->bd);
+        av1_highbd_convolve_rounding(
+            tmp_dst, MAX_SB_SIZE, dst, dst_buf->stride, w, h,
+            FILTER_BITS * 2 + is_compound - conv_params.round_0 -
+                conv_params.round_1,
+            xd->bd);
       else
 #endif  // CONFIG_HIGHBITDEPTH
         av1_convolve_rounding(tmp_dst, MAX_SB_SIZE, dst, dst_buf->stride, w, h,

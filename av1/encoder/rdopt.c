@@ -5528,7 +5528,7 @@ static void joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
     mbmi->interp_filter[3],
   };
 #else
-  const InterpFilter interp_filter = EIGHTTAP_REGULAR; // mbmi->interp_filter;
+  const InterpFilter interp_filter = EIGHTTAP_REGULAR;  // mbmi->interp_filter;
 #endif  // CONFIG_DUAL_FILTER
   struct scale_factors sf;
   struct macroblockd_plane *const pd = &xd->plane[0];
@@ -5671,10 +5671,10 @@ static void joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
     if (fwd_idx >= 0)
       fwd_frame_index = cm->buffer_pool->frame_bufs[fwd_idx].cur_frame_offset;
 
-//    conv_params.bck_offset =
-//        abs(cur_frame_index - bck_frame_index);
-//    conv_params.fwd_offset =
-//        abs(fwd_frame_index - cur_frame_index);
+    //    conv_params.bck_offset =
+    //        abs(cur_frame_index - bck_frame_index);
+    //    conv_params.fwd_offset =
+    //        abs(fwd_frame_index - cur_frame_index);
 
     if (id == 0) {
       int fwd = abs(fwd_frame_index - cur_frame_index);
@@ -5683,11 +5683,11 @@ static void joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
       if (fwd > bck) {
         double ratio = (bck != 0) ? fwd / bck : 5.0;
         if (ratio < 1.5) {
-          second_pred[4096] = 2;
-          second_pred[4097] = 3;
+          second_pred[4096] = 1;
+          second_pred[4097] = 1;
           if (mbmi->compound_idx) {
-            second_pred[4096] = 3;
-            second_pred[4097] = 2;
+            second_pred[4096] = 1;
+            second_pred[4097] = 1;
           }
         } else if (ratio < 2.5) {
           second_pred[4096] = 2;
@@ -5714,11 +5714,11 @@ static void joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
       } else {
         double ratio = (fwd != 0) ? bck / fwd : 5.0;
         if (ratio < 1.5) {
-          second_pred[4096] = 3;
-          second_pred[4097] = 2;
+          second_pred[4096] = 1;
+          second_pred[4097] = 1;
           if (mbmi->compound_idx) {
-            second_pred[4096] = 2;
-            second_pred[4097] = 3;
+            second_pred[4096] = 1;
+            second_pred[4097] = 1;
           }
         } else if (ratio < 2.5) {
           second_pred[4096] = 1;
@@ -5750,11 +5750,11 @@ static void joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
       if (fwd > bck) {
         double ratio = (bck != 0) ? fwd / bck : 5.0;
         if (ratio < 1.5) {
-          second_pred[4097] = 2;
-          second_pred[4096] = 3;
+          second_pred[4097] = 1;
+          second_pred[4096] = 1;
           if (mbmi->compound_idx) {
-            second_pred[4097] = 3;
-            second_pred[4096] = 2;
+            second_pred[4097] = 1;
+            second_pred[4096] = 1;
           }
         } else if (ratio < 2.5) {
           second_pred[4097] = 2;
@@ -5781,11 +5781,11 @@ static void joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
       } else {
         double ratio = (fwd != 0) ? bck / fwd : 5.0;
         if (ratio < 1.5) {
-          second_pred[4097] = 3;
-          second_pred[4096] = 2;
+          second_pred[4097] = 1;
+          second_pred[4096] = 1;
           if (mbmi->compound_idx) {
-            second_pred[4097] = 2;
-            second_pred[4096] = 3;
+            second_pred[4097] = 1;
+            second_pred[4096] = 1;
           }
         } else if (ratio < 2.5) {
           second_pred[4097] = 1;
@@ -6838,9 +6838,8 @@ static int64_t rd_pick_inter_best_sub8x8_mode(
 }
 
 static void estimate_ref_frame_costs(const AV1_COMMON *cm,
-                                     const MACROBLOCKD *xd,
-                                     int mi_row, int mi_col,
-                                     int segment_id,
+                                     const MACROBLOCKD *xd, int mi_row,
+                                     int mi_col, int segment_id,
                                      unsigned int *ref_costs_single,
                                      unsigned int *ref_costs_comp,
                                      aom_prob *comp_mode_p) {
@@ -8710,7 +8709,8 @@ static int64_t motion_mode_rd(
 #if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
       mbmi->skip = 0;
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
-      rd_stats->rate += av1_cost_bit(av1_get_skip_prob(cm, xd, mi_row, mi_col), 1);
+      rd_stats->rate +=
+          av1_cost_bit(av1_get_skip_prob(cm, xd, mi_row, mi_col), 1);
 
       rd_stats->dist = *skip_sse_sb;
       rd_stats->sse = *skip_sse_sb;
@@ -9658,12 +9658,14 @@ void av1_rd_pick_intra_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
     const int mi_col = -xd->mb_to_left_edge >> (3 + MI_SIZE_LOG2);
 
     if (y_skip && uv_skip) {
-      rd_cost->rate = rate_y + rate_uv - rate_y_tokenonly - rate_uv_tokenonly +
-                      av1_cost_bit(av1_get_skip_prob(cm, xd, mi_row, mi_col), 1);
+      rd_cost->rate =
+          rate_y + rate_uv - rate_y_tokenonly - rate_uv_tokenonly +
+          av1_cost_bit(av1_get_skip_prob(cm, xd, mi_row, mi_col), 1);
       rd_cost->dist = dist_y + dist_uv;
     } else {
       rd_cost->rate =
-          rate_y + rate_uv + av1_cost_bit(av1_get_skip_prob(cm, xd, mi_row, mi_col), 0);
+          rate_y + rate_uv +
+          av1_cost_bit(av1_get_skip_prob(cm, xd, mi_row, mi_col), 0);
       rd_cost->dist = dist_y + dist_uv;
     }
     rd_cost->rdcost = RDCOST(x->rdmult, x->rddiv, rd_cost->rate, rd_cost->dist);
@@ -10158,8 +10160,7 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
 #endif  // CONFIG_PALETTE
 
   estimate_ref_frame_costs(cm, xd, mi_row, mi_col, segment_id, ref_costs_single,
-                           ref_costs_comp,
-                           &comp_mode_p);
+                           ref_costs_comp, &comp_mode_p);
 
   for (i = 0; i < REFERENCE_MODES; ++i) best_pred_rd[i] = INT64_MAX;
   for (i = 0; i < TX_SIZES_ALL; i++) rate_uv_intra[i] = INT_MAX;
@@ -10848,26 +10849,25 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
 #endif  // CONFIG_EXT_INTER
         mbmi->compound_idx = comp_idx;
 
-        int64_t tmp_rd =
-            handle_inter_mode(cpi, x, bsize, &rd_stats, &rd_stats_y,
-                              &rd_stats_uv, &dummy_disable_skip, frame_mv,
-                              mi_row, mi_col, &args, best_rd);
+        int64_t tmp_rd = handle_inter_mode(
+            cpi, x, bsize, &rd_stats, &rd_stats_y, &rd_stats_uv,
+            &dummy_disable_skip, frame_mv, mi_row, mi_col, &args, best_rd);
 
         if (tmp_rd < INT64_MAX) {
           if (RDCOST(x->rdmult, x->rddiv, rd_stats.rate, rd_stats.dist) <
               RDCOST(x->rdmult, x->rddiv, 0, rd_stats.sse))
-            tmp_rd =
-                RDCOST(x->rdmult, x->rddiv,
-                       rd_stats.rate +
-                       av1_cost_bit(av1_get_skip_prob(cm, xd, mi_row, mi_col), 0),
-                       distortion2);
+            tmp_rd = RDCOST(
+                x->rdmult, x->rddiv,
+                rd_stats.rate +
+                    av1_cost_bit(av1_get_skip_prob(cm, xd, mi_row, mi_col), 0),
+                distortion2);
           else
-            tmp_rd =
-                RDCOST(x->rdmult, x->rddiv,
-                       rd_stats.rate +
-                       av1_cost_bit(av1_get_skip_prob(cm, xd, mi_row, mi_col), 1) -
-                       rd_stats_y.rate - rd_stats_uv.rate,
-                       rd_stats.sse);
+            tmp_rd = RDCOST(
+                x->rdmult, x->rddiv,
+                rd_stats.rate +
+                    av1_cost_bit(av1_get_skip_prob(cm, xd, mi_row, mi_col), 1) -
+                    rd_stats_y.rate - rd_stats_uv.rate,
+                rd_stats.sse);
         }
 
         if (tmp_rd < this_rd) {
@@ -10924,16 +10924,18 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
         if (this_rd < INT64_MAX) {
           if (RDCOST(x->rdmult, x->rddiv, rate_y + rate_uv, distortion2) <
               RDCOST(x->rdmult, x->rddiv, 0, total_sse))
-            tmp_ref_rd =
-                RDCOST(x->rdmult, x->rddiv,
-                       rate2 + av1_cost_bit(av1_get_skip_prob(cm, xd, mi_row, mi_col), 0),
-                       distortion2);
+            tmp_ref_rd = RDCOST(
+                x->rdmult, x->rddiv,
+                rate2 +
+                    av1_cost_bit(av1_get_skip_prob(cm, xd, mi_row, mi_col), 0),
+                distortion2);
           else
-            tmp_ref_rd =
-                RDCOST(x->rdmult, x->rddiv,
-                       rate2 + av1_cost_bit(av1_get_skip_prob(cm, xd, mi_row, mi_col), 1) -
-                           rate_y - rate_uv,
-                       total_sse);
+            tmp_ref_rd = RDCOST(
+                x->rdmult, x->rddiv,
+                rate2 +
+                    av1_cost_bit(av1_get_skip_prob(cm, xd, mi_row, mi_col), 1) -
+                    rate_y - rate_uv,
+                total_sse);
         }
 #if CONFIG_VAR_TX
         for (i = 0; i < MAX_MB_PLANE; ++i)
@@ -10941,7 +10943,8 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
                  sizeof(uint8_t) * ctx->num_4x4_blk);
 #endif  // CONFIG_VAR_TX
 
-        for (int sidx = 0; sidx < ref_set * (1 + has_second_ref(mbmi)); ++sidx) {
+        for (int sidx = 0; sidx < ref_set * (1 + has_second_ref(mbmi));
+             ++sidx) {
           ref_idx = sidx;
 
           if (has_second_ref(mbmi)) ref_idx /= 2;
@@ -11073,13 +11076,15 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
               tmp_alt_rd =
                   RDCOST(x->rdmult, x->rddiv,
                          tmp_rd_stats.rate +
-                             av1_cost_bit(av1_get_skip_prob(cm, xd, mi_row, mi_col), 0),
+                             av1_cost_bit(
+                                 av1_get_skip_prob(cm, xd, mi_row, mi_col), 0),
                          tmp_rd_stats.dist);
             else
               tmp_alt_rd =
                   RDCOST(x->rdmult, x->rddiv,
                          tmp_rd_stats.rate +
-                             av1_cost_bit(av1_get_skip_prob(cm, xd, mi_row, mi_col), 1) -
+                             av1_cost_bit(
+                                 av1_get_skip_prob(cm, xd, mi_row, mi_col), 1) -
                              tmp_rd_stats_y.rate - tmp_rd_stats_uv.rate,
                          tmp_rd_stats.sse);
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
@@ -11256,8 +11261,9 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
         best_mbmode = *mbmi;
         best_skip2 = this_skip2;
         best_mode_skippable = skippable;
-        best_rate_y = rate_y + av1_cost_bit(av1_get_skip_prob(cm, xd, mi_row, mi_col),
-                                            this_skip2 || skippable);
+        best_rate_y =
+            rate_y + av1_cost_bit(av1_get_skip_prob(cm, xd, mi_row, mi_col),
+                                  this_skip2 || skippable);
         best_rate_uv = rate_uv;
 
 #if CONFIG_VAR_TX
@@ -11356,13 +11362,15 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
                (rd_stats_y.dist + rd_stats_uv.dist)) >
         RDCOST(x->rdmult, x->rddiv, 0, (rd_stats_y.sse + rd_stats_uv.sse))) {
       skip_blk = 1;
-      rd_stats_y.rate = av1_cost_bit(av1_get_skip_prob(cm, xd, mi_row, mi_col), 1);
+      rd_stats_y.rate =
+          av1_cost_bit(av1_get_skip_prob(cm, xd, mi_row, mi_col), 1);
       rd_stats_uv.rate = 0;
       rd_stats_y.dist = rd_stats_y.sse;
       rd_stats_uv.dist = rd_stats_uv.sse;
     } else {
       skip_blk = 0;
-      rd_stats_y.rate += av1_cost_bit(av1_get_skip_prob(cm, xd, mi_row, mi_col), 0);
+      rd_stats_y.rate +=
+          av1_cost_bit(av1_get_skip_prob(cm, xd, mi_row, mi_col), 0);
     }
 
     if (RDCOST(x->rdmult, x->rddiv, best_rate_y + best_rate_uv, rd_cost->dist) >
@@ -11807,8 +11815,8 @@ void av1_rd_pick_inter_mode_sb_seg_skip(const AV1_COMP *cpi,
   (void)mi_row;
   (void)mi_col;
 
-  estimate_ref_frame_costs(cm, xd, mi_row, mi_col, segment_id, ref_costs_single, ref_costs_comp,
-                           &comp_mode_p);
+  estimate_ref_frame_costs(cm, xd, mi_row, mi_col, segment_id, ref_costs_single,
+                           ref_costs_comp, &comp_mode_p);
 
   for (i = 0; i < TOTAL_REFS_PER_FRAME; ++i) x->pred_sse[i] = INT_MAX;
   for (i = LAST_FRAME; i < TOTAL_REFS_PER_FRAME; ++i)
@@ -12022,8 +12030,7 @@ void av1_rd_pick_inter_mode_sub8x8(const struct AV1_COMP *cpi,
   }
 
   estimate_ref_frame_costs(cm, xd, mi_row, mi_col, segment_id, ref_costs_single,
-                           ref_costs_comp,
-                           &comp_mode_p);
+                           ref_costs_comp, &comp_mode_p);
 
   for (i = 0; i < REFERENCE_MODES; ++i) best_pred_rd[i] = INT64_MAX;
   rate_uv_intra = INT_MAX;
