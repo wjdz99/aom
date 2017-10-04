@@ -264,7 +264,7 @@ void av1_write_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
   const PLANE_TYPE plane_type = get_plane_type(plane);
   const TX_SIZE txs_ctx = get_txsize_context(tx_size);
   const TX_TYPE tx_type =
-      av1_get_tx_type(plane_type, xd, blk_row, blk_col, block, tx_size);
+      av1_get_tx_type(plane, xd, blk_row, blk_col, block, tx_size);
   const SCAN_ORDER *const scan_order = get_scan(cm, tx_size, tx_type, mbmi);
   const int16_t *scan = scan_order->scan;
   int c;
@@ -672,7 +672,7 @@ int av1_cost_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCK *x, int plane,
   TX_SIZE txs_ctx = get_txsize_context(tx_size);
   const PLANE_TYPE plane_type = get_plane_type(plane);
   const TX_TYPE tx_type =
-      av1_get_tx_type(plane_type, xd, blk_row, blk_col, block, tx_size);
+      av1_get_tx_type(plane, xd, blk_row, blk_col, block, tx_size);
   MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
   const struct macroblock_plane *p = &x->plane[plane];
   const int eob = p->eobs[block];
@@ -1881,7 +1881,7 @@ int av1_optimize_txb(const AV1_COMMON *cm, MACROBLOCK *x, int plane,
   const PLANE_TYPE plane_type = get_plane_type(plane);
   const TX_SIZE txs_ctx = get_txsize_context(tx_size);
   const TX_TYPE tx_type =
-      av1_get_tx_type(plane_type, xd, blk_row, blk_col, block, tx_size);
+      av1_get_tx_type(plane, xd, blk_row, blk_col, block, tx_size);
   const MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
   const struct macroblock_plane *p = &x->plane[plane];
   struct macroblockd_plane *pd = &xd->plane[plane];
@@ -1959,9 +1959,8 @@ void av1_update_txb_context_b(int plane, int block, int blk_row, int blk_col,
   struct macroblockd_plane *pd = &xd->plane[plane];
   const uint16_t eob = p->eobs[block];
   const tran_low_t *qcoeff = BLOCK_OFFSET(p->qcoeff, block);
-  const PLANE_TYPE plane_type = pd->plane_type;
   const TX_TYPE tx_type =
-      av1_get_tx_type(plane_type, xd, blk_row, blk_col, block, tx_size);
+      av1_get_tx_type(plane, xd, blk_row, blk_col, block, tx_size);
   const SCAN_ORDER *const scan_order = get_scan(cm, tx_size, tx_type, mbmi);
   (void)plane_bsize;
 
@@ -2133,7 +2132,7 @@ void av1_update_and_record_txb_context(int plane, int block, int blk_row,
   tran_low_t *tcoeff = BLOCK_OFFSET(x->mbmi_ext->tcoeff[plane], block);
   const int segment_id = mbmi->segment_id;
   const TX_TYPE tx_type =
-      av1_get_tx_type(plane_type, xd, blk_row, blk_col, block, tx_size);
+      av1_get_tx_type(plane, xd, blk_row, blk_col, block, tx_size);
   const SCAN_ORDER *const scan_order = get_scan(cm, tx_size, tx_type, mbmi);
   const int16_t *scan = scan_order->scan;
   const int seg_eob = av1_get_tx_eob(&cpi->common.seg, segment_id, tx_size);
@@ -2522,8 +2521,14 @@ int64_t av1_search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
   av1_invalid_rd_stats(&best_rd_stats);
 
   for (tx_type = txk_start; tx_type <= txk_end; ++tx_type) {
-    if (plane == 0) mbmi->txk_type[(blk_row << 4) + blk_col] = tx_type;
-    TX_TYPE ref_tx_type = av1_get_tx_type(get_plane_type(plane), xd, blk_row,
+    if (plane == 0) {
+      for (int i=0; i<tx_size_wide_unit[tx_size]; i++) {
+        for (int j=0; j<tx_size_high_unit[tx_size]; j++) {
+          mbmi->txk_type[((blk_row+j) << MAX_MIB_SIZE_LOG2) + (blk_col+i)] = tx_type;
+        }
+      }
+    }
+    TX_TYPE ref_tx_type = av1_get_tx_type(plane, xd, blk_row,
                                           blk_col, block, tx_size);
     if (tx_type != ref_tx_type) {
       // use av1_get_tx_type() to check if the tx_type is valid for the current
@@ -2570,7 +2575,13 @@ int64_t av1_search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
 
   if (best_eob == 0 && is_inter_block(mbmi)) best_tx_type = DCT_DCT;
 
-  if (plane == 0) mbmi->txk_type[(blk_row << 4) + blk_col] = best_tx_type;
+  if (plane == 0) {
+    for (int i=0; i<tx_size_wide_unit[tx_size]; i++) {
+      for (int j=0; j<tx_size_high_unit[tx_size]; j++) {
+        mbmi->txk_type[((blk_row+j) << MAX_MIB_SIZE_LOG2) + (blk_col+i)] = best_tx_type;
+      }
+    }
+  }
   x->plane[plane].txb_entropy_ctx[block] = best_eob;
 
   if (!is_inter_block(mbmi)) {

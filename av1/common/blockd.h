@@ -1216,6 +1216,10 @@ static INLINE int av1_raster_order_to_block_index(TX_SIZE tx_size,
   return (tx_size == TX_4X4) ? raster_order : (raster_order > 0) ? 2 : 0;
 }
 
+static INLINE PLANE_TYPE get_plane_type(int plane) {
+  return (plane == 0) ? PLANE_TYPE_Y : PLANE_TYPE_UV;
+}
+
 static INLINE TX_TYPE get_default_tx_type(PLANE_TYPE plane_type,
                                           const MACROBLOCKD *xd, int block_idx,
                                           TX_SIZE tx_size) {
@@ -1230,33 +1234,40 @@ static INLINE TX_TYPE get_default_tx_type(PLANE_TYPE plane_type,
                                            : get_uv_mode(mbmi->uv_mode)];
 }
 
-static INLINE TX_TYPE av1_get_tx_type(PLANE_TYPE plane_type,
+static INLINE TX_TYPE av1_get_tx_type(int plane,
                                       const MACROBLOCKD *xd, int blk_row,
                                       int blk_col, int block, TX_SIZE tx_size) {
   const MODE_INFO *const mi = xd->mi[0];
   const MB_MODE_INFO *const mbmi = &mi->mbmi;
-  (void)blk_row;
-  (void)blk_col;
 #if CONFIG_INTRABC && (!CONFIG_EXT_TX || CONFIG_TXK_SEL)
   // TODO(aconverse@google.com): Handle INTRABC + EXT_TX + TXK_SEL
   if (is_intrabc_block(mbmi)) return DCT_DCT;
 #endif  // CONFIG_INTRABC && (!CONFIG_EXT_TX || CONFIG_TXK_SEL)
 
 #if CONFIG_TXK_SEL
+  (void) block;
   TX_TYPE tx_type;
   if (xd->lossless[mbmi->segment_id] || txsize_sqr_map[tx_size] >= TX_32X32) {
     tx_type = DCT_DCT;
   } else {
-    if (plane_type == PLANE_TYPE_Y)
-      tx_type = mbmi->txk_type[(blk_row << 4) + blk_col];
-    else if (is_inter_block(mbmi))
-      tx_type = mbmi->txk_type[(blk_row << 5) + (blk_col << 1)];
-    else
+    if (plane == 0) {
+      tx_type = mbmi->txk_type[(blk_row << MAX_MIB_SIZE_LOG2) + blk_col];
+    } else if (is_inter_block(mbmi)) {
+      // convert from chroma to luma co-ordinates (read_tx_type only y plane)
+      const struct macroblockd_plane *const pd = &xd->plane[plane];
+      const int row = blk_row << pd->subsampling_y;
+      const int col = blk_col << pd->subsampling_x;
+      tx_type = mbmi->txk_type[(row << MAX_MIB_SIZE_LOG2) + col];
+    } else {
       tx_type = intra_mode_to_tx_type_context[mbmi->uv_mode];
+    }
   }
   assert(tx_type >= DCT_DCT && tx_type < TX_TYPES);
   return tx_type;
-#endif  // CONFIG_TXK_SEL
+#else  // CONFIG_TXK_SEL
+  (void)blk_row;
+  (void)blk_col;
+  const PLANE_TYPE plane_type = get_plane_type(plane);
 
 #if FIXED_TX_TYPE
   const int block_raster_idx = av1_block_index_to_raster_order(tx_size, block);
@@ -1334,6 +1345,7 @@ static INLINE TX_TYPE av1_get_tx_type(PLANE_TYPE plane_type,
     return DCT_DCT;
   return mbmi->tx_type;
 #endif  // CONFIG_EXT_TX
+#endif  // CONFIG_TXK_SEL
 }
 
 void av1_setup_block_planes(MACROBLOCKD *xd, int ss_x, int ss_y);
@@ -1684,10 +1696,6 @@ static INLINE int is_nontrans_global_motion(const MACROBLOCKD *xd) {
   return 1;
 }
 #endif  // CONFIG_GLOBAL_MOTION
-
-static INLINE PLANE_TYPE get_plane_type(int plane) {
-  return (plane == 0) ? PLANE_TYPE_Y : PLANE_TYPE_UV;
-}
 
 static INLINE void transpose_uint8(uint8_t *dst, int dst_stride,
                                    const uint8_t *src, int src_stride, int w,
