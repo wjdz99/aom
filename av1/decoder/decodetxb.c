@@ -300,7 +300,14 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
   if (all_zero) {
     *max_scan_line = 0;
 #if CONFIG_TXK_SEL
-    if (plane == 0) mbmi->txk_type[(blk_row << 4) + blk_col] = DCT_DCT;
+    if (plane == 0) {
+      for (int i = 0; i < tx_size_wide_unit[tx_size]; i++) {
+        for (int j = 0; j < tx_size_high_unit[tx_size]; j++) {
+          mbmi->txk_type[((blk_row + j) << MAX_MIB_SIZE_LOG2) + (blk_col + i)] =
+              DCT_DCT;
+        }
+      }
+    }
 #endif
     return 0;
   }
@@ -312,7 +319,7 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
                    get_min_tx_size(tx_size), r);
 #endif
   const TX_TYPE tx_type =
-      av1_get_tx_type(plane_type, xd, blk_row, blk_col, block, tx_size);
+      av1_get_tx_type(plane, xd, blk_row, blk_col, block, tx_size);
   const SCAN_ORDER *const scan_order = get_scan(cm, tx_size, tx_type, mbmi);
   const int16_t *scan = scan_order->scan;
 
@@ -544,8 +551,7 @@ uint8_t av1_read_coeffs_txb_facade(AV1_COMMON *cm, MACROBLOCKD *xd,
       av1_read_coeffs_txb(cm, xd, r, row, col, block, plane, tcoeffs, &txb_ctx,
                           tx_size, max_scan_line, eob);
 #if CONFIG_ADAPT_SCAN
-  PLANE_TYPE plane_type = get_plane_type(plane);
-  TX_TYPE tx_type = av1_get_tx_type(plane_type, xd, row, col, block, tx_size);
+  TX_TYPE tx_type = av1_get_tx_type(plane, xd, row, col, block, tx_size);
   if (xd->counts && *eob > 0)
     av1_update_scan_count_facade(cm, xd->counts, tx_size, tx_type, pd->dqcoeff,
                                  *eob);

@@ -134,7 +134,7 @@ static int optimize_b_greedy(const AV1_COMMON *cm, MACROBLOCK *mb, int plane,
   const int16_t *const dequant_ptr = pd->dequant;
   const uint8_t *const band_translate = get_band_translate(tx_size);
   const TX_TYPE tx_type =
-      av1_get_tx_type(plane_type, xd, blk_row, blk_col, block, tx_size);
+      av1_get_tx_type(plane, xd, blk_row, blk_col, block, tx_size);
   const SCAN_ORDER *const scan_order =
       get_scan(cm, tx_size, tx_type, &xd->mi[0]->mbmi);
   const int16_t *const scan = scan_order->scan;
@@ -459,9 +459,8 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
   struct macroblock_plane *const p = &x->plane[plane];
   struct macroblockd_plane *const pd = &xd->plane[plane];
 #endif
-  PLANE_TYPE plane_type = get_plane_type(plane);
   TX_TYPE tx_type =
-      av1_get_tx_type(plane_type, xd, blk_row, blk_col, block, tx_size);
+      av1_get_tx_type(plane, xd, blk_row, blk_col, block, tx_size);
 
 #if (CONFIG_AOM_QM || CONFIG_NEW_QUANT) && !CONFIG_PVQ
   const int is_inter = is_inter_block(mbmi);
@@ -508,7 +507,7 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
   qparam.log_scale = av1_get_tx_scale(tx_size);
 #if CONFIG_NEW_QUANT
   qparam.tx_size = tx_size;
-  qparam.dq = get_dq_profile_from_ctx(x->qindex, ctx, is_inter, plane_type);
+  qparam.dq = get_dq_profile_from_ctx(x->qindex, ctx, is_inter, pd->plane_type);
 #endif  // CONFIG_NEW_QUANT
 #if CONFIG_AOM_QM
   qparam.qmatrix = qmatrix;
@@ -733,7 +732,7 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
     PREDICTION_MODE mode = xd->mi[0]->mbmi.mode;
 #endif  // CONFIG_LGT
     TX_TYPE tx_type =
-        av1_get_tx_type(pd->plane_type, xd, blk_row, blk_col, block, tx_size);
+        av1_get_tx_type(plane, xd, blk_row, blk_col, block, tx_size);
     av1_inverse_transform_block(xd, dqcoeff,
 #if CONFIG_LGT
                                 mode,
@@ -1051,9 +1050,8 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
 #if CONFIG_MRC_TX && SIGNAL_ANY_MRC_MASK
   uint8_t *mrc_mask = BLOCK_OFFSET(xd->mrc_mask, block);
 #endif  // CONFIG_MRC_TX && SIGNAL_ANY_MRC_MASK
-  PLANE_TYPE plane_type = get_plane_type(plane);
   const TX_TYPE tx_type =
-      av1_get_tx_type(plane_type, xd, blk_row, blk_col, block, tx_size);
+      av1_get_tx_type(plane, xd, blk_row, blk_col, block, tx_size);
   uint16_t *eob = &p->eobs[block];
   const int dst_stride = pd->dst.stride;
   uint8_t *dst =
