@@ -590,6 +590,7 @@ post_process_cmdline() {
     fi
     if enabled daala_tx4 || enabled daala_tx8 || enabled daala_tx16 ||
         enabled daala_tx32 || enabled daala_tx64; then
+      disable_feature txmg
       disable_feature lgt
       enable_feature lowbitdepth
     fi
