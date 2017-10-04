@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d8af1262_d6b77b3e",
+        "filename": "av1/encoder/encodemb.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-10-04T17:09:56Z",
+      "side": 0,
+      "message": "This change looks wrong: we still need to handle the negative values of \u0027dx\u0027 as before, right?",
+      "revId": "e3c476e53ae275bdd72aa3ab8829baccc53ac0d9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
