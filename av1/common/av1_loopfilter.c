@@ -597,13 +597,13 @@ static const int mode_lf_lut[] = {
 #if CONFIG_SMOOTH_HV
   0, 0,
 #endif         // CONFIG_SMOOTH_HV
-  1, 1, 0, 1,  // INTER_MODES (ZEROMV == 0)
+  1, 1, 0, 1,  // INTER_MODES (GLOBALMV == 0)
 #if CONFIG_COMPOUND_SINGLEREF
   // 1, 1, 1, 1, 1,       // INTER_SINGLEREF_COMP_MODES
   // NOTE(zoeliu): Remove SR_NEAREST_NEWMV
   1, 1, 1, 1,             // INTER_SINGLEREF_COMP_MODES
 #endif                    // CONFIG_COMPOUND_SINGLEREF
-  1, 1, 1, 1, 1, 1, 0, 1  // INTER_COMPOUND_MODES (ZERO_ZEROMV == 0)
+  1, 1, 1, 1, 1, 1, 0, 1  // INTER_COMPOUND_MODES (ZERO_GLOBALMV == 0)
 };
 
 static void update_sharpness(loop_filter_info_n *lfi, int sharpness_lvl) {
@@ -651,8 +651,13 @@ static uint8_t get_filter_level(const AV1_COMMON *cm,
 #endif  // CONFIG_SUPERTX
   if (cm->delta_lf_present_flag) {
 #if CONFIG_LOOPFILTER_LEVEL
-    const int delta_lf_idx = delta_lf_id_lut[plane][dir_idx];
-    const int delta_lf = mbmi->curr_delta_lf[delta_lf_idx];
+    int delta_lf;
+    if (cm->delta_lf_multi) {
+      const int delta_lf_idx = delta_lf_id_lut[plane][dir_idx];
+      delta_lf = mbmi->curr_delta_lf[delta_lf_idx];
+    } else {
+      delta_lf = mbmi->current_delta_lf_from_base;
+    }
     int lvl_seg =
         clamp(delta_lf + cm->lf.filter_level[dir_idx], 0, MAX_LOOP_FILTER);
 #else

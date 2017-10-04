@@ -171,18 +171,18 @@ static void write_inter_mode(aom_writer *w, PREDICTION_MODE mode,
 
   if (mode != NEWMV) {
     if (mode_ctx & (1 << ALL_ZERO_FLAG_OFFSET)) {
-      assert(mode == ZEROMV);
+      assert(mode == GLOBALMV);
       return;
     }
 
-    const int16_t zeromv_ctx = (mode_ctx >> ZEROMV_OFFSET) & ZEROMV_CTX_MASK;
+    const int16_t zeromv_ctx = (mode_ctx >> GLOBALMV_OFFSET) & GLOBALMV_CTX_MASK;
 #if CONFIG_NEW_MULTISYMBOL
-    aom_write_symbol(w, mode != ZEROMV, ec_ctx->zeromv_cdf[zeromv_ctx], 2);
+    aom_write_symbol(w, mode != GLOBALMV, ec_ctx->zeromv_cdf[zeromv_ctx], 2);
 #else
-    aom_write(w, mode != ZEROMV, ec_ctx->zeromv_prob[zeromv_ctx]);
+    aom_write(w, mode != GLOBALMV, ec_ctx->zeromv_prob[zeromv_ctx]);
 #endif
 
-    if (mode != ZEROMV) {
+    if (mode != GLOBALMV) {
       int16_t refmv_ctx = (mode_ctx >> REFMV_OFFSET) & REFMV_CTX_MASK;
 
       if (mode_ctx & (1 << SKIP_NEARESTMV_OFFSET)) refmv_ctx = 6;
@@ -395,7 +395,7 @@ static void update_inter_mode_probs(AV1_COMMON *cm, aom_writer *w,
   for (i = 0; i < NEWMV_MODE_CONTEXTS; ++i)
     av1_cond_prob_diff_update(w, &cm->fc->newmv_prob[i], counts->newmv_mode[i],
                               probwt);
-  for (i = 0; i < ZEROMV_MODE_CONTEXTS; ++i)
+  for (i = 0; i < GLOBALMV_MODE_CONTEXTS; ++i)
     av1_cond_prob_diff_update(w, &cm->fc->zeromv_prob[i],
                               counts->zeromv_mode[i], probwt);
   for (i = 0; i < REFMV_MODE_CONTEXTS; ++i)
@@ -541,8 +541,14 @@ static void write_delta_lflevel(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   (void)cm;
 
 #if CONFIG_LOOPFILTER_LEVEL
-  aom_write_symbol(w, AOMMIN(abs, DELTA_LF_SMALL), ec_ctx->delta_lf_cdf[lf_id],
-                   DELTA_LF_PROBS + 1);
+  if (cm->delta_lf_multi) {
+    assert(lf_id >= 0 && lf_id < FRAME_LF_COUNT);
+    aom_write_symbol(w, AOMMIN(abs, DELTA_LF_SMALL),
+                     ec_ctx->delta_lf_multi_cdf[lf_id], DELTA_LF_PROBS + 1);
+  } else {
+    aom_write_symbol(w, AOMMIN(abs, DELTA_LF_SMALL), ec_ctx->delta_lf_cdf,
+                     DELTA_LF_PROBS + 1);
+  }
 #else
   aom_write_symbol(w, AOMMIN(abs, DELTA_LF_SMALL), ec_ctx->delta_lf_cdf,
                    DELTA_LF_PROBS + 1);
@@ -1724,12 +1730,20 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
 #if CONFIG_EXT_DELTA_Q
 #if CONFIG_LOOPFILTER_LEVEL
       if (cm->delta_lf_present_flag) {
-        for (int lf_id = 0; lf_id < FRAME_LF_COUNT; ++lf_id) {
+        if (cm->delta_lf_multi) {
+          for (int lf_id = 0; lf_id < FRAME_LF_COUNT; ++lf_id) {
+            int reduced_delta_lflevel =
+                (mbmi->curr_delta_lf[lf_id] - xd->prev_delta_lf[lf_id]) /
+                cm->delta_lf_res;
+            write_delta_lflevel(cm, xd, lf_id, reduced_delta_lflevel, w);
+            xd->prev_delta_lf[lf_id] = mbmi->curr_delta_lf[lf_id];
+          }
+        } else {
           int reduced_delta_lflevel =
-              (mbmi->curr_delta_lf[lf_id] - xd->prev_delta_lf[lf_id]) /
+              (mbmi->current_delta_lf_from_base - xd->prev_delta_lf_from_base) /
               cm->delta_lf_res;
-          write_delta_lflevel(cm, xd, lf_id, reduced_delta_lflevel, w);
-          xd->prev_delta_lf[lf_id] = mbmi->curr_delta_lf[lf_id];
+          write_delta_lflevel(cm, xd, -1, reduced_delta_lflevel, w);
+          xd->prev_delta_lf_from_base = mbmi->current_delta_lf_from_base;
         }
       }
 #else
@@ -2119,12 +2133,20 @@ static void write_mb_modes_kf(AV1_COMMON *cm, MACROBLOCKD *xd,
 #if CONFIG_EXT_DELTA_Q
 #if CONFIG_LOOPFILTER_LEVEL
       if (cm->delta_lf_present_flag) {
-        for (int lf_id = 0; lf_id < FRAME_LF_COUNT; ++lf_id) {
+        if (cm->delta_lf_multi) {
+          for (int lf_id = 0; lf_id < FRAME_LF_COUNT; ++lf_id) {
+            int reduced_delta_lflevel =
+                (mbmi->curr_delta_lf[lf_id] - xd->prev_delta_lf[lf_id]) /
+                cm->delta_lf_res;
+            write_delta_lflevel(cm, xd, lf_id, reduced_delta_lflevel, w);
+            xd->prev_delta_lf[lf_id] = mbmi->curr_delta_lf[lf_id];
+          }
+        } else {
           int reduced_delta_lflevel =
-              (mbmi->curr_delta_lf[lf_id] - xd->prev_delta_lf[lf_id]) /
+              (mbmi->current_delta_lf_from_base - xd->prev_delta_lf_from_base) /
               cm->delta_lf_res;
-          write_delta_lflevel(cm, xd, lf_id, reduced_delta_lflevel, w);
-          xd->prev_delta_lf[lf_id] = mbmi->curr_delta_lf[lf_id];
+          write_delta_lflevel(cm, xd, -1, reduced_delta_lflevel, w);
+          xd->prev_delta_lf_from_base = mbmi->current_delta_lf_from_base;
         }
       }
 #else
@@ -2333,11 +2355,11 @@ static void enc_dump_logs(AV1_COMP *cpi, int mi_row, int mi_col) {
       int16_t zeromv_ctx = -1;
       int16_t refmv_ctx = -1;
       if (mbmi->mode != NEWMV) {
-        zeromv_ctx = (mode_ctx >> ZEROMV_OFFSET) & ZEROMV_CTX_MASK;
+        zeromv_ctx = (mode_ctx >> GLOBALMV_OFFSET) & GLOBALMV_CTX_MASK;
         if (mode_ctx & (1 << ALL_ZERO_FLAG_OFFSET)) {
-          assert(mbmi->mode == ZEROMV);
+          assert(mbmi->mode == GLOBALMV);
         }
-        if (mbmi->mode != ZEROMV) {
+        if (mbmi->mode != GLOBALMV) {
           refmv_ctx = (mode_ctx >> REFMV_OFFSET) & REFMV_CTX_MASK;
           if (mode_ctx & (1 << SKIP_NEARESTMV_OFFSET)) refmv_ctx = 6;
           if (mode_ctx & (1 << SKIP_NEARMV_OFFSET)) refmv_ctx = 7;
@@ -4757,11 +4779,12 @@ static void write_uncompressed_header_frame(AV1_COMP *cpi,
         aom_wb_write_bit(wb, cm->delta_lf_present_flag);
         if (cm->delta_lf_present_flag) {
           aom_wb_write_literal(wb, OD_ILOG_NZ(cm->delta_lf_res) - 1, 2);
+          xd->prev_delta_lf_from_base = 0;
 #if CONFIG_LOOPFILTER_LEVEL
+          aom_wb_write_bit(wb, cm->delta_lf_multi);
           for (int lf_id = 0; lf_id < FRAME_LF_COUNT; ++lf_id)
             xd->prev_delta_lf[lf_id] = 0;
 #endif  // CONFIG_LOOPFILTER_LEVEL
-          xd->prev_delta_lf_from_base = 0;
         }
 #endif  // CONFIG_EXT_DELTA_Q
       }

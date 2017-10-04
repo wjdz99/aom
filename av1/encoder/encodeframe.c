@@ -486,7 +486,7 @@ static void update_filter_type_count(FRAME_COUNTS *counts,
 static void update_global_motion_used(PREDICTION_MODE mode, BLOCK_SIZE bsize,
                                       const MB_MODE_INFO *mbmi,
                                       RD_COUNTS *rdc) {
-  if (mode == ZEROMV || mode == ZERO_ZEROMV) {
+  if (mode == GLOBALMV || mode == ZERO_GLOBALMV) {
     const int num_4x4s =
         num_4x4_blocks_wide_lookup[bsize] * num_4x4_blocks_high_lookup[bsize];
     int ref;
@@ -1575,8 +1575,8 @@ static void update_inter_mode_stats(FRAME_COUNTS *counts, PREDICTION_MODE mode,
       return;
     }
 
-    mode_ctx = (mode_context >> ZEROMV_OFFSET) & ZEROMV_CTX_MASK;
-    if (mode == ZEROMV) {
+    mode_ctx = (mode_context >> GLOBALMV_OFFSET) & GLOBALMV_CTX_MASK;
+    if (mode == GLOBALMV) {
       ++counts->zeromv_mode[mode_ctx][0];
       return;
     } else {
@@ -1624,19 +1624,31 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td, int mi_row,
 #if CONFIG_EXT_DELTA_Q
 #if CONFIG_LOOPFILTER_LEVEL
     if (cm->delta_lf_present_flag) {
-      for (int lf_id = 0; lf_id < FRAME_LF_COUNT; ++lf_id) {
+      if (cm->delta_lf_multi) {
+        for (int lf_id = 0; lf_id < FRAME_LF_COUNT; ++lf_id) {
+          const int delta_lf =
+              (mbmi->curr_delta_lf[lf_id] - xd->prev_delta_lf[lf_id]) /
+              cm->delta_lf_res;
+          const int abs_delta_lf = abs(delta_lf);
+          for (i = 0; i < AOMMIN(abs_delta_lf, DELTA_LF_SMALL); ++i) {
+            td->counts->delta_lf_multi[lf_id][i][1]++;
+          }
+          if (abs_delta_lf < DELTA_LF_SMALL)
+            td->counts->delta_lf_multi[lf_id][abs_delta_lf][0]++;
+          xd->prev_delta_lf[lf_id] = mbmi->curr_delta_lf[lf_id];
+        }
+      } else {
         const int delta_lf =
-            (mbmi->curr_delta_lf[lf_id] - xd->prev_delta_lf[lf_id]) /
+            (mbmi->current_delta_lf_from_base - xd->prev_delta_lf_from_base) /
             cm->delta_lf_res;
         const int abs_delta_lf = abs(delta_lf);
         for (i = 0; i < AOMMIN(abs_delta_lf, DELTA_LF_SMALL); ++i) {
-          td->counts->delta_lf[lf_id][i][1]++;
+          td->counts->delta_lf[i][1]++;
         }
         if (abs_delta_lf < DELTA_LF_SMALL)
-          td->counts->delta_lf[lf_id][abs_delta_lf][0]++;
-        xd->prev_delta_lf[lf_id] = mbmi->curr_delta_lf[lf_id];
+          td->counts->delta_lf[abs_delta_lf][0]++;
+        xd->prev_delta_lf_from_base = mbmi->current_delta_lf_from_base;
       }
-      xd->prev_delta_lf_from_base = mbmi->current_delta_lf_from_base;
     }
 #else
     if (cm->delta_lf_present_flag) {

@@ -425,7 +425,7 @@ static int add_tpl_ref_mv(const AV1_COMMON *cm,
         lower_mv_precision(&this_refmv.as_mv, cm->allow_high_precision_mv);
 
         if (abs(this_refmv.as_mv.row) >= 16 || abs(this_refmv.as_mv.col) >= 16)
-          mode_context[ref_frame] |= (1 << ZEROMV_OFFSET);
+          mode_context[ref_frame] |= (1 << GLOBALMV_OFFSET);
 
         for (idx = 0; idx < *refmv_count; ++idx)
           if (abs(this_refmv.as_mv.row - ref_mv_stack[idx].this_mv.as_mv.row) <
@@ -461,7 +461,7 @@ static int add_tpl_ref_mv(const AV1_COMMON *cm,
         if (abs(this_refmv.as_mv.row) >= 16 ||
             abs(this_refmv.as_mv.col) >= 16 ||
             abs(comp_refmv.as_mv.row) >= 16 || abs(comp_refmv.as_mv.col) >= 16)
-          mode_context[ref_frame] |= (1 << ZEROMV_OFFSET);
+          mode_context[ref_frame] |= (1 << GLOBALMV_OFFSET);
 
         for (idx = 0; idx < *refmv_count; ++idx)
           if (abs(this_refmv.as_mv.row - ref_mv_stack[idx].this_mv.as_mv.row) <
@@ -528,7 +528,7 @@ static int add_col_ref_mv(const AV1_COMMON *cm,
       lower_mv_precision(&this_refmv.as_mv, cm->allow_high_precision_mv);
 #endif
       if (abs(this_refmv.as_mv.row) >= 16 || abs(this_refmv.as_mv.col) >= 16)
-        mode_context[ref_frame] |= (1 << ZEROMV_OFFSET);
+        mode_context[ref_frame] |= (1 << GLOBALMV_OFFSET);
 
       for (idx = 0; idx < *refmv_count; ++idx)
         if (this_refmv.as_int == ref_mv_stack[idx].this_mv.as_int) break;
@@ -649,7 +649,7 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
     }
   }
 
-  if (coll_blk_count == 0) mode_context[ref_frame] |= (1 << ZEROMV_OFFSET);
+  if (coll_blk_count == 0) mode_context[ref_frame] |= (1 << GLOBALMV_OFFSET);
 
   for (i = 0; i < 9; ++i) {
     blk_row = tpl_sample_pos[i][0];
@@ -707,9 +707,9 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
     }
 #endif
 
-    if (coll_blk_count == 0) mode_context[ref_frame] |= (1 << ZEROMV_OFFSET);
+    if (coll_blk_count == 0) mode_context[ref_frame] |= (1 << GLOBALMV_OFFSET);
   } else {
-    mode_context[ref_frame] |= (1 << ZEROMV_OFFSET);
+    mode_context[ref_frame] |= (1 << GLOBALMV_OFFSET);
   }
 #endif
 
