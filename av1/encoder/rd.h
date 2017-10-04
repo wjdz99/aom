@@ -81,7 +81,7 @@ typedef enum {
   THR_NEARA,
   THR_NEARG,
 
-  THR_ZEROMV,
+  THR_GLOBALMV,
 #if CONFIG_EXT_REFS
   THR_ZEROL2,
   THR_ZEROL3,
