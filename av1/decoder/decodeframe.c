@@ -479,7 +479,6 @@ static int av1_pvq_decode_helper2(AV1_COMMON *cm, MACROBLOCKD *const xd,
 static void predict_and_reconstruct_intra_block(
     AV1_COMMON *cm, MACROBLOCKD *const xd, aom_reader *const r,
     MB_MODE_INFO *const mbmi, int plane, int row, int col, TX_SIZE tx_size) {
-  PLANE_TYPE plane_type = get_plane_type(plane);
   const int block_idx = get_block_idx(xd, plane, row, col);
 #if CONFIG_PVQ
   (void)r;
@@ -496,10 +495,10 @@ static void predict_and_reconstruct_intra_block(
                                pd->dqcoeff, tx_size, &max_scan_line, &eob);
     // tx_type will be read out in av1_read_coeffs_txb_facade
     const TX_TYPE tx_type =
-        av1_get_tx_type(plane_type, xd, row, col, block_idx, tx_size);
+        av1_get_tx_type(plane, xd, row, col, block_idx, tx_size);
 #else   // CONFIG_LV_MAP
     const TX_TYPE tx_type =
-        av1_get_tx_type(plane_type, xd, row, col, block_idx, tx_size);
+        av1_get_tx_type(plane, xd, row, col, block_idx, tx_size);
     const SCAN_ORDER *scan_order = get_scan(cm, tx_size, tx_type, mbmi);
     int16_t max_scan_line = 0;
     const int eob =
@@ -518,7 +517,7 @@ static void predict_and_reconstruct_intra_block(
     }
 #else   // !CONFIG_PVQ
     const TX_TYPE tx_type =
-        av1_get_tx_type(plane_type, xd, row, col, block_idx, tx_size);
+        av1_get_tx_type(plane, xd, row, col, block_idx, tx_size);
     av1_pvq_decode_helper2(cm, xd, mbmi, plane, row, col, tx_size, tx_type);
 #endif  // !CONFIG_PVQ
   }
@@ -549,7 +548,6 @@ static void decode_reconstruct_tx(AV1_COMMON *cm, MACROBLOCKD *const xd,
   if (blk_row >= max_blocks_high || blk_col >= max_blocks_wide) return;
 
   if (tx_size == plane_tx_size) {
-    PLANE_TYPE plane_type = get_plane_type(plane);
 #if CONFIG_LV_MAP
     int16_t max_scan_line = 0;
     int eob;
@@ -557,10 +555,10 @@ static void decode_reconstruct_tx(AV1_COMMON *cm, MACROBLOCKD *const xd,
                                pd->dqcoeff, tx_size, &max_scan_line, &eob);
     // tx_type will be read out in av1_read_coeffs_txb_facade
     const TX_TYPE tx_type =
-        av1_get_tx_type(plane_type, xd, blk_row, blk_col, block, plane_tx_size);
+        av1_get_tx_type(plane, xd, blk_row, blk_col, block, plane_tx_size);
 #else   // CONFIG_LV_MAP
     const TX_TYPE tx_type =
-        av1_get_tx_type(plane_type, xd, blk_row, blk_col, block, plane_tx_size);
+        av1_get_tx_type(plane, xd, blk_row, blk_col, block, plane_tx_size);
     const SCAN_ORDER *sc = get_scan(cm, plane_tx_size, tx_type, mbmi);
     int16_t max_scan_line = 0;
     const int eob = av1_decode_block_tokens(
@@ -622,7 +620,6 @@ static int reconstruct_inter_block(AV1_COMMON *cm, MACROBLOCKD *const xd,
                                    aom_reader *const r, int segment_id,
                                    int plane, int row, int col,
                                    TX_SIZE tx_size) {
-  PLANE_TYPE plane_type = get_plane_type(plane);
   int block_idx = get_block_idx(xd, plane, row, col);
 #if CONFIG_PVQ
   int eob;
@@ -641,11 +638,11 @@ static int reconstruct_inter_block(AV1_COMMON *cm, MACROBLOCKD *const xd,
                              tx_size, &max_scan_line, &eob);
   // tx_type will be read out in av1_read_coeffs_txb_facade
   const TX_TYPE tx_type =
-      av1_get_tx_type(plane_type, xd, row, col, block_idx, tx_size);
+      av1_get_tx_type(plane, xd, row, col, block_idx, tx_size);
 #else   // CONFIG_LV_MAP
   int16_t max_scan_line = 0;
   const TX_TYPE tx_type =
-      av1_get_tx_type(plane_type, xd, row, col, block_idx, tx_size);
+      av1_get_tx_type(plane, xd, row, col, block_idx, tx_size);
   const SCAN_ORDER *scan_order =
       get_scan(cm, tx_size, tx_type, &xd->mi[0]->mbmi);
   const int eob =
@@ -663,7 +660,7 @@ static int reconstruct_inter_block(AV1_COMMON *cm, MACROBLOCKD *const xd,
                             max_scan_line, eob);
 #else
   const TX_TYPE tx_type =
-      av1_get_tx_type(plane_type, xd, row, col, block_idx, tx_size);
+      av1_get_tx_type(plane, xd, row, col, block_idx, tx_size);
   eob = av1_pvq_decode_helper2(cm, xd, &xd->mi[0]->mbmi, plane, row, col,
                                tx_size, tx_type);
 #endif
