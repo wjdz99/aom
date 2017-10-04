@@ -72,6 +72,7 @@ static void idct4x4_sse4_1(__m128i *in, int bit) {
 }
 
 static void iadst4x4_sse4_1(__m128i *in, int bit) {
+  //sarahparker sse2
   const int32_t *cospi = cospi_arr(bit);
   const __m128i cospi32 = _mm_set1_epi32(cospi[32]);
   const __m128i cospi8 = _mm_set1_epi32(cospi[8]);

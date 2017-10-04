@@ -244,11 +244,17 @@ static void highbd_fwd_txfm_4x4(const int16_t *src_diff, tran_low_t *coeff,
   }
   switch (tx_type) {
     case DCT_DCT:
+      av1_fwd_txfm2d_4x4(src_diff, dst_coeff, diff_stride, tx_type, bd);
+      break;
     case ADST_DCT:
     case DCT_ADST:
     case ADST_ADST:
-      // fallthrough intended
+#if CONFIG_TXMG
+    // use the c version for anything including identity or adst for now
+      av1_fwd_txfm2d_4x4_c(src_diff, dst_coeff, diff_stride, tx_type, bd);
+#else
       av1_fwd_txfm2d_4x4(src_diff, dst_coeff, diff_stride, tx_type, bd);
+#endif  // CONFIG_TXMG
       break;
 #if CONFIG_EXT_TX
     case FLIPADST_DCT:
@@ -256,9 +262,10 @@ static void highbd_fwd_txfm_4x4(const int16_t *src_diff, tran_low_t *coeff,
     case FLIPADST_FLIPADST:
     case ADST_FLIPADST:
     case FLIPADST_ADST:
-      // fallthrough intended
+#if !CONFIG_TXMG
       av1_fwd_txfm2d_4x4(src_diff, dst_coeff, diff_stride, tx_type, bd);
       break;
+#endif  // !CONFIG_TXMG
     // use the c version for anything including identity for now
     case V_DCT:
     case H_DCT:

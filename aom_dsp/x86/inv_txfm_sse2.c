@@ -210,6 +210,7 @@ void aom_idct4_sse2(__m128i *in) {
 }
 
 void aom_iadst4_sse2(__m128i *in) {
+  //sarahparker sse2
   const __m128i k__sinpi_p01_p04 = pair_set_epi16(sinpi_1_9, sinpi_4_9);
   const __m128i k__sinpi_p03_p02 = pair_set_epi16(sinpi_3_9, sinpi_2_9);
   const __m128i k__sinpi_p02_m01 = pair_set_epi16(sinpi_2_9, -sinpi_1_9);
