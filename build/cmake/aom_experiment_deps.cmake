@@ -69,9 +69,6 @@ macro (fix_experiment_configs)
   endif ()
 
   if (CONFIG_EXT_COMP_REFS)
-    if (NOT CONFIG_EXT_REFS)
-      change_config_and_warn(CONFIG_EXT_REFS 1 CONFIG_EXT_COMP_REFS)
-    endif ()
   endif ()
 
   if (CONFIG_STRIPED_LOOP_RESTORATION)
