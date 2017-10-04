@@ -976,23 +976,19 @@ void av1_read_tx_type(const AV1_COMMON *const cm, MACROBLOCKD *xd,
                       aom_reader *r) {
   MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
   const int inter_block = is_inter_block(mbmi);
-#if !CONFIG_TXK_SEL
+#if CONFIG_TXK_SEL
+  (void)block;
+  // only y plane's tx_type is transmitted
+  if (plane > 0) return;
+#else  // CONFIG_TXK_SEL
 #if CONFIG_VAR_TX
   const TX_SIZE tx_size = inter_block ? mbmi->min_tx_size : mbmi->tx_size;
 #else
   const TX_SIZE tx_size = mbmi->tx_size;
 #endif
-#endif  // !CONFIG_TXK_SEL
+#endif  // CONFIG_TXK_SEL
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
-
-#if !CONFIG_TXK_SEL
-  TX_TYPE *tx_type = &mbmi->tx_type;
-#else
-  // only y plane's tx_type is transmitted
-  if (plane > 0) return;
-  (void)block;
-  TX_TYPE *tx_type = &mbmi->txk_type[(blk_row << 4) + blk_col];
-#endif
+  TX_TYPE tx_type = DCT_DCT;
 
   if (!FIXED_TX_TYPE) {
 #if CONFIG_EXT_TX
@@ -1017,23 +1013,21 @@ void av1_read_tx_type(const AV1_COMMON *const cm, MACROBLOCKD *xd,
       FRAME_COUNTS *counts = xd->counts;
 #endif  // CONFIG_ENTROPY_STATS
       if (inter_block) {
-        *tx_type = av1_ext_tx_inv[tx_set_type][aom_read_symbol(
+        tx_type = av1_ext_tx_inv[tx_set_type][aom_read_symbol(
             r, ec_ctx->inter_ext_tx_cdf[eset][square_tx_size],
             av1_num_ext_tx_set[tx_set_type], ACCT_STR)];
 #if CONFIG_ENTROPY_STATS
-        if (counts) ++counts->inter_ext_tx[eset][square_tx_size][*tx_type];
+        if (counts) ++counts->inter_ext_tx[eset][square_tx_size][tx_type];
 #endif  // CONFIG_ENTROPY_STATS
       } else if (ALLOW_INTRA_EXT_TX) {
-        *tx_type = av1_ext_tx_inv[tx_set_type][aom_read_symbol(
+        tx_type = av1_ext_tx_inv[tx_set_type][aom_read_symbol(
             r, ec_ctx->intra_ext_tx_cdf[eset][square_tx_size][mbmi->mode],
             av1_num_ext_tx_set[tx_set_type], ACCT_STR)];
 #if CONFIG_ENTROPY_STATS
         if (counts)
-          ++counts->intra_ext_tx[eset][square_tx_size][mbmi->mode][*tx_type];
+          ++counts->intra_ext_tx[eset][square_tx_size][mbmi->mode][tx_type];
 #endif  // CONFIG_ENTROPY_STATS
       }
-    } else {
-      *tx_type = DCT_DCT;
     }
 #else
 
@@ -1049,27 +1043,35 @@ void av1_read_tx_type(const AV1_COMMON *const cm, MACROBLOCKD *xd,
       FRAME_COUNTS *counts = xd->counts;
 #endif  // CONFIG_ENTROPY_STATS
       if (inter_block) {
-        *tx_type = av1_ext_tx_inv[aom_read_symbol(
+        tx_type = av1_ext_tx_inv[aom_read_symbol(
             r, ec_ctx->inter_ext_tx_cdf[tx_size], TX_TYPES, ACCT_STR)];
 #if CONFIG_ENTROPY_STATS
-        if (counts) ++counts->inter_ext_tx[tx_size][*tx_type];
+        if (counts) ++counts->inter_ext_tx[tx_size][tx_type];
 #endif  // CONFIG_ENTROPY_STATS
       } else {
         const TX_TYPE tx_type_nom = intra_mode_to_tx_type_context[mbmi->mode];
-        *tx_type = av1_ext_tx_inv[aom_read_symbol(
+        tx_type = av1_ext_tx_inv[aom_read_symbol(
             r, ec_ctx->intra_ext_tx_cdf[tx_size][tx_type_nom], TX_TYPES,
             ACCT_STR)];
 #if CONFIG_ENTROPY_STATS
-        if (counts) ++counts->intra_ext_tx[tx_size][tx_type_nom][*tx_type];
+        if (counts) ++counts->intra_ext_tx[tx_size][tx_type_nom][tx_type];
 #endif  // CONFIG_ENTROPY_STATS
       }
-    } else {
-      *tx_type = DCT_DCT;
     }
 #endif  // CONFIG_EXT_TX
   }
 #if FIXED_TX_TYPE
   assert(mbmi->tx_type == DCT_DCT);
+#endif
+#if !CONFIG_TXK_SEL
+  mbmi->tx_type = tx_type;
+#else
+  for (int i = 0; i < tx_size_wide_unit[tx_size]; i++) {
+    for (int j = 0; j < tx_size_high_unit[tx_size]; j++) {
+      mbmi->txk_type[((blk_row + j) << MAX_MIB_SIZE_LOG2) + (blk_col + i)] =
+          tx_type;
+    }
+  }
 #endif
 }
 
