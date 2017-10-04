@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6ae1c536_08bc106e",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 701,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-10-04T05:28:49Z",
+      "side": 1,
+      "message": "Remove these?",
+      "range": {
+        "startLine": 698,
+        "startChar": 0,
+        "endLine": 701,
+        "endChar": 37
+      },
+      "revId": "025244a2daf002319aa80fb27b49b7b328865019",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
