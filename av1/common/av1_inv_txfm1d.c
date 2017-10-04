@@ -717,8 +717,50 @@ void av1_idct32_new(const int32_t *input, int32_t *output,
   range_check(stage, input, bf1, size, stage_range[stage]);
 }
 
+//sarahparker
 void av1_iadst4_new(const int32_t *input, int32_t *output,
                     const int8_t *cos_bit, const int8_t *stage_range) {
+#if CONFIG_TXMG
+  //sarahparker figure out bd
+  int bd = 8;
+  int64_t s0, s1, s2, s3, s4, s5, s6, s7;
+
+  int32_t x0 = input[0];
+  int32_t x1 = input[1];
+  int32_t x2 = input[2];
+  int32_t x3 = input[3];
+
+  if (!(x0 | x1 | x2 | x3)) {
+    output[0] = output[1] = output[2] = output[3] = 0;
+    return;
+  }
+
+  s0 = sinpi_1_9 * x0;
+  s1 = sinpi_2_9 * x0;
+  s2 = sinpi_3_9 * x1;
+  s3 = sinpi_4_9 * x2;
+  s4 = sinpi_1_9 * x2;
+  s5 = sinpi_2_9 * x3;
+  s6 = sinpi_4_9 * x3;
+  s7 = HIGHBD_WRAPLOW(x0 - x2 + x3, bd);
+
+  s0 = s0 + s3 + s5;
+  s1 = s1 - s4 - s6;
+  s3 = s2;
+  s2 = sinpi_3_9 * s7;
+
+  // 1-D transform scaling factor is sqrt(2).
+  // The overall dynamic range is 14b (input) + 14b (multiplication scaling)
+  // + 1b (addition) = 29b.
+  // Hence the output bit depth is 15b.
+
+  //sarahparker use HIGHBD_WRAPLOW(x, bd)
+  // dct_const_round_shift: divide by 2^14
+  output[0] = HIGHBD_WRAPLOW(dct_const_round_shift(s0 + s3), bd);
+  output[1] = HIGHBD_WRAPLOW(dct_const_round_shift(s1 + s3), bd);
+  output[2] = HIGHBD_WRAPLOW(dct_const_round_shift(s2), bd);
+  output[3] = HIGHBD_WRAPLOW(dct_const_round_shift(s0 + s1 - s3), bd);
+#else
   const int32_t size = 4;
   const int32_t *cospi;
 
@@ -780,6 +822,7 @@ void av1_iadst4_new(const int32_t *input, int32_t *output,
   bf1[2] = bf0[3];
   bf1[3] = bf0[0];
   range_check(stage, input, bf1, size, stage_range[stage]);
+#endif  // CONFIG_TXMG
 }
 
 void av1_iadst8_new(const int32_t *input, int32_t *output,

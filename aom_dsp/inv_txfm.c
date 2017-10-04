@@ -282,6 +282,9 @@ void aom_iadst4_c(const tran_low_t *input, tran_low_t *output) {
   // The overall dynamic range is 14b (input) + 14b (multiplication scaling)
   // + 1b (addition) = 29b.
   // Hence the output bit depth is 15b.
+
+  //sarahparker use HIGHBD_WRAPLOW(x, bd)
+  // dct_const_round_shift: divide by 2^14
   output[0] = WRAPLOW(dct_const_round_shift(s0 + s3));
   output[1] = WRAPLOW(dct_const_round_shift(s1 + s3));
   output[2] = WRAPLOW(dct_const_round_shift(s2));
