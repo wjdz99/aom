@@ -2178,6 +2178,21 @@ static int read_is_inter_block(AV1_COMMON *const cm, MACROBLOCKD *const xd,
   }
 }
 
+#if CONFIG_SUPERTX
+static void update_is_inter_block(AV1_COMMON *const cm, MACROBLOCKD *const xd,
+                                  int segment_id, int is_inter) {
+  if (!segfeature_active(&cm->seg, segment_id, SEG_LVL_REF_FRAME)) {
+    const int ctx = av1_get_intra_inter_context(xd);
+    FRAME_COUNTS *counts = xd->counts;
+    if (counts) ++counts->intra_inter[ctx][is_inter];
+#if CONFIG_NEW_MULTISYMBOL
+    FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
+    update_cdf(ec_ctx->intra_inter_cdf[ctx], is_inter, 2);
+#endif
+  }
+}
+#endif  // CONFIG_SUPERTX
+
 #if CONFIG_COMPOUND_SINGLEREF
 static int read_is_inter_singleref_comp_mode(AV1_COMMON *const cm,
                                              MACROBLOCKD *const xd,
@@ -2979,18 +2994,20 @@ static void read_inter_frame_mode_info(AV1Decoder *const pbi,
   mbmi->tx_size = read_tx_size(cm, xd, inter_block, !mbmi->skip, r);
 #endif  // CONFIG_VAR_TX
 #if CONFIG_SUPERTX
-  }
+  } else {
+    update_is_inter_block(cm, xd, mbmi->segment_id, inter_block);
 #if CONFIG_VAR_TX
-  else if (inter_block) {
-    const int width = num_4x4_blocks_wide_lookup[bsize];
-    const int height = num_4x4_blocks_high_lookup[bsize];
-    int idx, idy;
-    xd->mi[0]->mbmi.tx_size = xd->supertx_size;
-    for (idy = 0; idy < height; ++idy)
-      for (idx = 0; idx < width; ++idx)
-        xd->mi[0]->mbmi.inter_tx_size[idy >> 1][idx >> 1] = xd->supertx_size;
-  }
+    if (inter_block) {
+      const int width = num_4x4_blocks_wide_lookup[bsize];
+      const int height = num_4x4_blocks_high_lookup[bsize];
+      int idx, idy;
+      xd->mi[0]->mbmi.tx_size = xd->supertx_size;
+      for (idy = 0; idy < height; ++idy)
+        for (idx = 0; idx < width; ++idx)
+          xd->mi[0]->mbmi.inter_tx_size[idy >> 1][idx >> 1] = xd->supertx_size;
+    }
 #endif  // CONFIG_VAR_TX
+  }
 #endif  // CONFIG_SUPERTX
 
   if (inter_block)

@@ -1677,14 +1677,13 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td, int mi_row,
     const int seg_ref_active =
         segfeature_active(&cm->seg, mbmi->segment_id, SEG_LVL_REF_FRAME);
     if (!seg_ref_active) {
-#if CONFIG_SUPERTX
-      if (!supertx_enabled)
-#endif
-        counts->intra_inter[av1_get_intra_inter_context(xd)][inter_block]++;
+      counts->intra_inter[av1_get_intra_inter_context(xd)][inter_block]++;
+
 #if CONFIG_NEW_MULTISYMBOL
       update_cdf(fc->intra_inter_cdf[av1_get_intra_inter_context(xd)],
                  inter_block, 2);
 #endif
+
       // If the segment reference feature is enabled we have only a single
       // reference frame allowed for the segment so exclude it from
       // the reference frame counts used to work out probabilities.
