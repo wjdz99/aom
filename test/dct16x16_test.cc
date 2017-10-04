@@ -824,7 +824,7 @@ INSTANTIATE_TEST_CASE_P(
     SSE2, Trans16x16DCT,
     ::testing::Values(make_tuple(&aom_fdct16x16_sse2,
                                  &aom_idct16x16_256_add_sse2, 0, AOM_BITS_8)));
-#if !CONFIG_DAALA_DCT16
+#if !CONFIG_DAALA_TX16
 INSTANTIATE_TEST_CASE_P(
     SSE2, Trans16x16HT,
     ::testing::Values(make_tuple(&av1_fht16x16_sse2, &av1_iht16x16_256_add_sse2,
@@ -835,7 +835,7 @@ INSTANTIATE_TEST_CASE_P(
                                  2, AOM_BITS_8),
                       make_tuple(&av1_fht16x16_sse2, &av1_iht16x16_256_add_sse2,
                                  3, AOM_BITS_8)));
-#endif  // CONFIG_DAALA_DCT16
+#endif  // CONFIG_DAALA_TX16
 #endif  // HAVE_SSE2 && !CONFIG_HIGHBITDEPTH
 
 #if HAVE_SSE2 && CONFIG_HIGHBITDEPTH
@@ -843,7 +843,7 @@ INSTANTIATE_TEST_CASE_P(SSE2, Trans16x16DCT,
                         ::testing::Values(make_tuple(&aom_fdct16x16_sse2,
                                                      &aom_idct16x16_256_add_c,
                                                      0, AOM_BITS_8)));
-#if !CONFIG_DAALA_DCT16
+#if !CONFIG_DAALA_TX16
 INSTANTIATE_TEST_CASE_P(
     SSE2, Trans16x16HT,
     ::testing::Values(
@@ -860,7 +860,7 @@ INSTANTIATE_TEST_CASE_P(MSA, Trans16x16DCT,
                         ::testing::Values(make_tuple(&aom_fdct16x16_msa,
                                                      &aom_idct16x16_256_add_msa,
                                                      0, AOM_BITS_8)));
-#if !CONFIG_EXT_TX && !CONFIG_DAALA_DCT16
+#if !CONFIG_EXT_TX && !CONFIG_DAALA_TX16
 // TODO(yaowu): re-enable this after msa versions are updated to match C.
 INSTANTIATE_TEST_CASE_P(
     DISABLED_MSA, Trans16x16HT,
@@ -870,6 +870,6 @@ INSTANTIATE_TEST_CASE_P(
         make_tuple(&av1_fht16x16_msa, &av1_iht16x16_256_add_msa, 2, AOM_BITS_8),
         make_tuple(&av1_fht16x16_msa, &av1_iht16x16_256_add_msa, 3,
                    AOM_BITS_8)));
-#endif  // !CONFIG_EXT_TX && !CONFIG_DAALA_DCT16
+#endif  // !CONFIG_EXT_TX && !CONFIG_DAALA_TX16
 #endif  // HAVE_MSA && !CONFIG_HIGHBITDEPTH
 }  // namespace
