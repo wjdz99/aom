@@ -491,7 +491,7 @@ typedef enum ATTRIBUTE_PACKED {
   TM_PRED,        // True-motion
   NEARESTMV,
   NEARMV,
-  ZEROMV,
+  GLOBALMV,
   NEWMV,
 #if CONFIG_COMPOUND_SINGLEREF
   // Single ref compound modes
@@ -508,7 +508,7 @@ typedef enum ATTRIBUTE_PACKED {
   NEW_NEARESTMV,
   NEAR_NEWMV,
   NEW_NEARMV,
-  ZERO_ZEROMV,
+  GLOBAL_GLOBALMV,
   NEW_NEWMV,
   MB_MODE_COUNT,
   INTRA_MODES = TM_PRED + 1,     // TM_PRED has to be the last intra mode.
@@ -618,15 +618,15 @@ typedef enum {
 #define NMV_CONTEXTS 3
 
 #define NEWMV_MODE_CONTEXTS 7
-#define ZEROMV_MODE_CONTEXTS 2
+#define GLOBALMV_MODE_CONTEXTS 2
 #define REFMV_MODE_CONTEXTS 9
 #define DRL_MODE_CONTEXTS 5
 
-#define ZEROMV_OFFSET 3
+#define GLOBALMV_OFFSET 3
 #define REFMV_OFFSET 4
 
-#define NEWMV_CTX_MASK ((1 << ZEROMV_OFFSET) - 1)
-#define ZEROMV_CTX_MASK ((1 << (REFMV_OFFSET - ZEROMV_OFFSET)) - 1)
+#define NEWMV_CTX_MASK ((1 << GLOBALMV_OFFSET) - 1)
+#define GLOBALMV_CTX_MASK ((1 << (REFMV_OFFSET - GLOBALMV_OFFSET)) - 1)
 #define REFMV_CTX_MASK ((1 << (8 - REFMV_OFFSET)) - 1)
 
 #define ALL_ZERO_FLAG_OFFSET 8
