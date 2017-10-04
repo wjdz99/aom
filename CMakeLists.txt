@@ -376,18 +376,20 @@ if (CONFIG_AV1_ENCODER)
 
   if (ENABLE_TOOLS)
     if (CONFIG_ENTROPY_STATS)
-      # TODO(tomfinegan): Sort out why a simple link command with
-      # aom_entropy_optimizer.c won't work on macos, but dragging in all the
-      # helper machinery allows the link to succeed.
-      add_executable(aom_entropy_optimizer
-                     "${AOM_CONFIG_DIR}/usage_exit.c"
-                     "${AOM_ROOT}/tools/aom_entropy_optimizer.c"
-                     $<TARGET_OBJECTS:aom_common_app_util>
-                     $<TARGET_OBJECTS:aom_encoder_app_util>)
+      if (NOT BUILD_SHARED_LIBS)
+        # TODO(tomfinegan): Sort out why a simple link command with
+        # aom_entropy_optimizer.c won't work on macos, but dragging in all the
+        # helper machinery allows the link to succeed.
+        add_executable(aom_entropy_optimizer
+                       "${AOM_CONFIG_DIR}/usage_exit.c"
+                       "${AOM_ROOT}/tools/aom_entropy_optimizer.c"
+                       $<TARGET_OBJECTS:aom_common_app_util>
+                       $<TARGET_OBJECTS:aom_encoder_app_util>)
 
-      # Maintain a list of encoder tool targets.
-      set(AOM_ENCODER_TOOL_TARGETS
-          ${AOM_ENCODER_TOOL_TARGETS} aom_entropy_optimizer)
+        # Maintain a list of encoder tool targets.
+        set(AOM_ENCODER_TOOL_TARGETS
+            ${AOM_ENCODER_TOOL_TARGETS} aom_entropy_optimizer)
+      endif ()
     endif ()
   endif ()
 
