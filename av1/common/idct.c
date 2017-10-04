@@ -2198,11 +2198,20 @@ void av1_highbd_inv_txfm_add_4x4(const tran_low_t *input, uint8_t *dest,
   }
   switch (tx_type) {
     case DCT_DCT:
+      av1_inv_txfm2d_add_4x4(src, CONVERT_TO_SHORTPTR(dest), stride, tx_type,
+                             bd);
+      break;
     case ADST_DCT:
     case DCT_ADST:
     case ADST_ADST:
+#if CONFIG_TXMG
+    // use the c version for anything including identity or adst for now
+      av1_inv_txfm2d_add_4x4_c(src, CONVERT_TO_SHORTPTR(dest), stride, tx_type,
+                               bd);
+#else
       av1_inv_txfm2d_add_4x4(src, CONVERT_TO_SHORTPTR(dest), stride, tx_type,
                              bd);
+#endif  // CONFIG_TXMG
       break;
 #if CONFIG_EXT_TX
     case FLIPADST_DCT:
@@ -2210,10 +2219,12 @@ void av1_highbd_inv_txfm_add_4x4(const tran_low_t *input, uint8_t *dest,
     case FLIPADST_FLIPADST:
     case ADST_FLIPADST:
     case FLIPADST_ADST:
+#if !CONFIG_TXMG
       av1_inv_txfm2d_add_4x4(src, CONVERT_TO_SHORTPTR(dest), stride, tx_type,
                              bd);
       break;
-    // use the c version for anything including identity for now
+#endif  // !CONFIG_TXMG
+      // use the c version for anything including identity for now
     case V_DCT:
     case H_DCT:
     case V_ADST:
