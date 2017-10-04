@@ -2171,7 +2171,8 @@ static void write_mb_modes_kf(AV1_COMMON *cm, MACROBLOCKD *xd,
                        !xd->lossless[mbmi->segment_id];
 
 #if CONFIG_INTRABC
-  if (bsize >= BLOCK_8X8 && cm->allow_screen_content_tools) {
+  if ((bsize >= BLOCK_8X8 || bsize == BLOCK_4X4) &&
+      cm->allow_screen_content_tools) {
     int use_intrabc = is_intrabc_block(mbmi);
     aom_write_symbol(w, use_intrabc, ec_ctx->intrabc_cdf, 2);
     if (use_intrabc) {
