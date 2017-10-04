@@ -2221,16 +2221,7 @@ static int tx_size_cost(const AV1_COMP *const cpi, const MACROBLOCK *const x,
   const MACROBLOCKD *const xd = &x->e_mbd;
   const MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
 
-  const int tx_select = cm->tx_mode == TX_MODE_SELECT &&
-#if CONFIG_EXT_PARTITION_TYPES
-                        // Currently these block shapes can only use 4x4
-                        // transforms
-                        mbmi->sb_type != BLOCK_4X16 &&
-                        mbmi->sb_type != BLOCK_16X4 &&
-#endif
-                        mbmi->sb_type >= BLOCK_8X8;
-
-  if (tx_select) {
+  if (cm->tx_mode == TX_MODE_SELECT && block_signals_txsize(mbmi->sb_type)) {
     const int is_inter = is_inter_block(mbmi);
     const int tx_size_cat = is_inter ? inter_tx_size_cat_lookup[bsize]
                                      : intra_tx_size_cat_lookup[bsize];
