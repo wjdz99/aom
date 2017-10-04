@@ -901,8 +901,8 @@ static void pack_txb_tokens(aom_writer *w, const TOKENEXTRA **tp,
   const int max_blocks_high = max_block_high(xd, plane_bsize, plane);
   const int max_blocks_wide = max_block_wide(xd, plane_bsize, plane);
 #if CONFIG_MRC_TX && SIGNAL_ANY_MRC_MASK
-  TX_TYPE tx_type = av1_get_tx_type(plane ? PLANE_TYPE_UV : PLANE_TYPE_Y, xd,
-                                    blk_row, blk_col, block, tx_size);
+  TX_TYPE tx_type =
+      av1_get_tx_type(plane, xd, blk_row, blk_col, block, tx_size);
 #endif  // CONFIG_MRC_TX && SIGNAL_ANY_MRC_MASK
 
   if (blk_row >= max_blocks_high || blk_col >= max_blocks_wide) return;
@@ -1557,10 +1557,9 @@ void av1_write_tx_type(const AV1_COMMON *const cm, const MACROBLOCKD *xd,
   TX_TYPE tx_type = mbmi->tx_type;
 #else
   // Only y plane's tx_type is transmitted
-  if (plane > 0) return;
-  PLANE_TYPE plane_type = get_plane_type(plane);
+  if (plane != 0) return;
   TX_TYPE tx_type =
-      av1_get_tx_type(plane_type, xd, blk_row, blk_col, block, tx_size);
+      av1_get_tx_type(plane, xd, blk_row, blk_col, block, tx_size);
 #endif
 
   if (!FIXED_TX_TYPE) {
@@ -2684,8 +2683,7 @@ static void write_tokens_b(AV1_COMP *cpi, const TileInfo *const tile,
 #if !CONFIG_PVQ
 #if CONFIG_MRC_TX && SIGNAL_ANY_MRC_MASK
                 TX_TYPE tx_type =
-                    av1_get_tx_type(plane ? PLANE_TYPE_UV : PLANE_TYPE_Y, xd,
-                                    blk_row, blk_col, 0, tx);
+                    av1_get_tx_type(plane, xd, blk_row, blk_col, 0, tx);
 #endif  // CONFIG_MRC_TX && SIGNAL_ANY_MRC_MASK
                 pack_mb_tokens(w, tok, tok_end, cm->bit_depth, tx,
 #if CONFIG_MRC_TX && SIGNAL_ANY_MRC_MASK
@@ -2711,8 +2709,7 @@ static void write_tokens_b(AV1_COMP *cpi, const TileInfo *const tile,
       av1_write_coeffs_mb(cm, x, w, plane);
 #else  // CONFIG_LV_MAP
 #if CONFIG_MRC_TX && SIGNAL_ANY_MRC_MASK
-      TX_TYPE tx_type = av1_get_tx_type(plane ? PLANE_TYPE_UV : PLANE_TYPE_Y,
-                                        xd, blk_row, blk_col, 0, tx);
+      TX_TYPE tx_type = av1_get_tx_type(plane, xd, blk_row, blk_col, 0, tx);
 #endif  // CONFIG_MRC_TX && SIGNAL_ANY_MRC_MASK
       pack_mb_tokens(w, tok, tok_end, cm->bit_depth, tx,
 #if CONFIG_MRC_TX && SIGNAL_ANY_MRC_MASK
@@ -3126,8 +3123,8 @@ static void write_modes_sb(AV1_COMP *const cpi, const TileInfo *const tile,
       assert(*tok < tok_end);
       for (int plane = 0; plane < MAX_MB_PLANE; ++plane) {
 #if CONFIG_MRC_TX && SIGNAL_ANY_MRC_MASK
-        TX_TYPE tx_type = av1_get_tx_type(plane ? PLANE_TYPE_UV : PLANE_TYPE_Y,
-                                          xd, blk_row, blk_col, block, tx_size);
+        TX_TYPE tx_type =
+            av1_get_tx_type(plane, xd, blk_row, blk_col, block, tx_size);
 #endif  // CONFIG_MRC_TX && SIGNAL_ANY_MRC_MASK
         const struct macroblockd_plane *const pd = &xd->plane[plane];
         const int mbmi_txb_size = txsize_to_bsize[mbmi->tx_size];
