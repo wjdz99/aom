@@ -1220,11 +1220,19 @@ static INLINE void build_inter_predictors(
   (void)cm;
 #endif
 
+
 #if CONFIG_CHROMA_SUB8X8
   const BLOCK_SIZE bsize = mi->mbmi.sb_type;
   const int ss_x = pd->subsampling_x;
   const int ss_y = pd->subsampling_y;
   int sub8x8_inter = bsize < BLOCK_8X8 && (ss_x || ss_y);
+
+#if CONFIG_INTRABC 
+  if (is_intrabc) {
+      sub8x8_inter = 0;
+  }
+#endif
+
 #if CONFIG_MOTION_VAR
   sub8x8_inter = sub8x8_inter && !build_for_obmc;
 #endif  // CONFIG_MOTION_VAR

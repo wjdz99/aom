@@ -4,7 +4,7 @@
 #include "./av1_rtcd.h"
 
 static const int crc_bits = 16;
-static const int block_size_bits = 2;
+static const int block_size_bits = 3;
 static CRC_CALCULATOR crc_calculator1;
 static CRC_CALCULATOR crc_calculator2;
 static int g_crc_initialized = 0;
@@ -58,10 +58,11 @@ static int is_block_2x2_col_same_value(uint8_t *p) {
 // is used to get the first 2 bits.
 static int hash_block_size_to_index(int block_size) {
   switch (block_size) {
-    case 8: return 0;
-    case 16: return 1;
-    case 32: return 2;
-    case 64: return 3;
+    case 4:  return 0;
+    case 8:  return 1;
+    case 16: return 2;
+    case 32: return 3;
+    case 64: return 4;
     default: return -1;
   }
 }
@@ -220,7 +221,7 @@ void av1_generate_block_hash_value(const YV12_BUFFER_CONFIG *picture,
     pos += block_size - 1;
   }
 
-  if (block_size >= 8) {
+  if (block_size >= 4) {
     const int size_minus1 = block_size - 1;
     pos = 0;
     for (int y_pos = 0; y_pos < y_end; y_pos++) {
