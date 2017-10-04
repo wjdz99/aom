@@ -214,9 +214,9 @@ static PREDICTION_MODE read_inter_mode(FRAME_CONTEXT *ec_ctx, MACROBLOCKD *xd,
   }
   if (counts) ++counts->newmv_mode[mode_ctx][1];
 
-  if (ctx & (1 << ALL_ZERO_FLAG_OFFSET)) return ZEROMV;
+  if (ctx & (1 << ALL_ZERO_FLAG_OFFSET)) return GLOBALMV;
 
-  mode_ctx = (ctx >> ZEROMV_OFFSET) & ZEROMV_CTX_MASK;
+  mode_ctx = (ctx >> GLOBALMV_OFFSET) & GLOBALMV_CTX_MASK;
 
 #if CONFIG_NEW_MULTISYMBOL
   is_zeromv =
@@ -226,7 +226,7 @@ static PREDICTION_MODE read_inter_mode(FRAME_CONTEXT *ec_ctx, MACROBLOCKD *xd,
 #endif
   if (is_zeromv) {
     if (counts) ++counts->zeromv_mode[mode_ctx][0];
-    return ZEROMV;
+    return GLOBALMV;
   }
   if (counts) ++counts->zeromv_mode[mode_ctx][1];
 
@@ -1939,7 +1939,7 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
       if (is_compound) pred_mv[1].as_int = near_mv[1].as_int;
       break;
     }
-    case ZEROMV: {
+    case GLOBALMV: {
 #if CONFIG_GLOBAL_MOTION
       mv[0].as_int = gm_get_motion_vector(&cm->global_motion[ref_frame[0]],
                                           cm->allow_high_precision_mv, bsize,
@@ -2132,7 +2132,7 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
       mv[1].as_int = near_mv[1].as_int;
       break;
     }
-    case ZERO_ZEROMV: {
+    case GLOBAL_GLOBALMV: {
       assert(is_compound);
 #if CONFIG_GLOBAL_MOTION
       mv[0].as_int = gm_get_motion_vector(&cm->global_motion[ref_frame[0]],
@@ -2236,9 +2236,9 @@ static void dec_dump_logs(AV1_COMMON *cm, MODE_INFO *const mi,
   int16_t zeromv_ctx = -1;
   int16_t refmv_ctx = -1;
   if (mbmi->mode != NEWMV) {
-    if (mode_ctx & (1 << ALL_ZERO_FLAG_OFFSET)) assert(mbmi->mode == ZEROMV);
-    zeromv_ctx = (mode_ctx >> ZEROMV_OFFSET) & ZEROMV_CTX_MASK;
-    if (mbmi->mode != ZEROMV) {
+    if (mode_ctx & (1 << ALL_ZERO_FLAG_OFFSET)) assert(mbmi->mode == GLOBALMV);
+    zeromv_ctx = (mode_ctx >> GLOBALMV_OFFSET) & GLOBALMV_CTX_MASK;
+    if (mbmi->mode != GLOBALMV) {
       refmv_ctx = (mode_ctx >> REFMV_OFFSET) & REFMV_CTX_MASK;
       if (mode_ctx & (1 << SKIP_NEARESTMV_OFFSET)) refmv_ctx = 6;
       if (mode_ctx & (1 << SKIP_NEARMV_OFFSET)) refmv_ctx = 7;
@@ -2397,13 +2397,13 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
         av1_mode_context_analyzer(inter_mode_ctx, mbmi->ref_frame, bsize, -1);
   mbmi->ref_mv_idx = 0;
 
-#if CONFIG_SEGMENT_ZEROMV
+#if CONFIG_SEGMENT_GLOBALMV
   if (segfeature_active(&cm->seg, mbmi->segment_id, SEG_LVL_SKIP) ||
-      segfeature_active(&cm->seg, mbmi->segment_id, SEG_LVL_ZEROMV)) {
+      segfeature_active(&cm->seg, mbmi->segment_id, SEG_LVL_GLOBALMV)) {
 #else
   if (segfeature_active(&cm->seg, mbmi->segment_id, SEG_LVL_SKIP)) {
 #endif
-    mbmi->mode = ZEROMV;
+    mbmi->mode = GLOBALMV;
     if (bsize < BLOCK_8X8 && !unify_bsize) {
       aom_internal_error(xd->error_info, AOM_CODEC_UNSUP_BITSTREAM,
                          "Invalid usage of segment feature on small blocks");
@@ -2429,7 +2429,7 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
   }
 
   if ((bsize < BLOCK_8X8 && !unify_bsize) ||
-      (mbmi->mode != ZEROMV && mbmi->mode != ZERO_ZEROMV)) {
+      (mbmi->mode != GLOBALMV && mbmi->mode != GLOBAL_GLOBALMV)) {
     for (ref = 0; ref < 1 + is_compound; ++ref) {
 #if CONFIG_AMVR
       av1_find_best_ref_mvs(allow_hp, ref_mvs[mbmi->ref_frame[ref]],
@@ -2444,10 +2444,10 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
 
 #if CONFIG_COMPOUND_SINGLEREF
   if ((is_compound || is_singleref_comp_mode) &&
-      (bsize >= BLOCK_8X8 || unify_bsize) && mbmi->mode != ZERO_ZEROMV)
+      (bsize >= BLOCK_8X8 || unify_bsize) && mbmi->mode != GLOBAL_GLOBALMV)
 #else   // !CONFIG_COMPOUND_SINGLEREF
   if (is_compound && (bsize >= BLOCK_8X8 || unify_bsize) &&
-      mbmi->mode != ZERO_ZEROMV)
+      mbmi->mode != GLOBAL_GLOBALMV)
 #endif  // CONFIG_COMPOUND_SINGLEREF
   {
     uint8_t ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
@@ -2555,7 +2555,7 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
         else
           b_mode = read_inter_mode(ec_ctx, xd, r, mode_ctx);
 
-        if (b_mode != ZEROMV && b_mode != ZERO_ZEROMV) {
+        if (b_mode != GLOBALMV && b_mode != GLOBAL_GLOBALMV) {
           CANDIDATE_MV ref_mv_stack[2][MAX_REF_MV_STACK_SIZE];
           uint8_t ref_mv_count[2];
           for (ref = 0; ref < 1 + is_compound; ++ref) {
@@ -2581,7 +2581,7 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
           }
         }
 
-        for (ref = 0; ref < 1 + is_compound && b_mode != ZEROMV; ++ref) {
+        for (ref = 0; ref < 1 + is_compound && b_mode != GLOBALMV; ++ref) {
           ref_mv_s8[ref] = nearest_sub8x8[ref];
 #if CONFIG_AMVR
           lower_mv_precision(&ref_mv_s8[ref].as_mv, allow_hp,

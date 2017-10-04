@@ -159,18 +159,19 @@ static void write_inter_mode(aom_writer *w, PREDICTION_MODE mode,
 
   if (mode != NEWMV) {
     if (mode_ctx & (1 << ALL_ZERO_FLAG_OFFSET)) {
-      assert(mode == ZEROMV);
+      assert(mode == GLOBALMV);
       return;
     }
 
-    const int16_t zeromv_ctx = (mode_ctx >> ZEROMV_OFFSET) & ZEROMV_CTX_MASK;
+    const int16_t zeromv_ctx =
+        (mode_ctx >> GLOBALMV_OFFSET) & GLOBALMV_CTX_MASK;
 #if CONFIG_NEW_MULTISYMBOL
-    aom_write_symbol(w, mode != ZEROMV, ec_ctx->zeromv_cdf[zeromv_ctx], 2);
+    aom_write_symbol(w, mode != GLOBALMV, ec_ctx->zeromv_cdf[zeromv_ctx], 2);
 #else
-    aom_write(w, mode != ZEROMV, ec_ctx->zeromv_prob[zeromv_ctx]);
+    aom_write(w, mode != GLOBALMV, ec_ctx->zeromv_prob[zeromv_ctx]);
 #endif
 
-    if (mode != ZEROMV) {
+    if (mode != GLOBALMV) {
       int16_t refmv_ctx = (mode_ctx >> REFMV_OFFSET) & REFMV_CTX_MASK;
 
       if (mode_ctx & (1 << SKIP_NEARESTMV_OFFSET)) refmv_ctx = 6;
@@ -388,7 +389,7 @@ static void update_inter_mode_probs(AV1_COMMON *cm, aom_writer *w,
   for (i = 0; i < NEWMV_MODE_CONTEXTS; ++i)
     av1_cond_prob_diff_update(w, &cm->fc->newmv_prob[i], counts->newmv_mode[i],
                               probwt);
-  for (i = 0; i < ZEROMV_MODE_CONTEXTS; ++i)
+  for (i = 0; i < GLOBALMV_MODE_CONTEXTS; ++i)
     av1_cond_prob_diff_update(w, &cm->fc->zeromv_prob[i],
                               counts->zeromv_mode[i], probwt);
   for (i = 0; i < REFMV_MODE_CONTEXTS; ++i)
@@ -2349,11 +2350,11 @@ static void enc_dump_logs(AV1_COMP *cpi, int mi_row, int mi_col) {
       int16_t zeromv_ctx = -1;
       int16_t refmv_ctx = -1;
       if (mbmi->mode != NEWMV) {
-        zeromv_ctx = (mode_ctx >> ZEROMV_OFFSET) & ZEROMV_CTX_MASK;
+        zeromv_ctx = (mode_ctx >> GLOBALMV_OFFSET) & GLOBALMV_CTX_MASK;
         if (mode_ctx & (1 << ALL_ZERO_FLAG_OFFSET)) {
-          assert(mbmi->mode == ZEROMV);
+          assert(mbmi->mode == GLOBALMV);
         }
-        if (mbmi->mode != ZEROMV) {
+        if (mbmi->mode != GLOBALMV) {
           refmv_ctx = (mode_ctx >> REFMV_OFFSET) & REFMV_CTX_MASK;
           if (mode_ctx & (1 << SKIP_NEARESTMV_OFFSET)) refmv_ctx = 6;
           if (mode_ctx & (1 << SKIP_NEARMV_OFFSET)) refmv_ctx = 7;
