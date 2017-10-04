@@ -6159,9 +6159,9 @@ void av1_update_tx_type_count(const AV1_COMMON *cm, MACROBLOCKD *xd,
   (void)blk_row;
   (void)blk_col;
   // Only y plane's tx_type is updated
-  if (plane > 0) return;
+  if (plane != 0) return;
   TX_TYPE tx_type =
-      av1_get_tx_type(PLANE_TYPE_Y, xd, blk_row, blk_col, block, tx_size);
+      av1_get_tx_type(plane, xd, blk_row, blk_col, block, tx_size);
 #endif
 #if CONFIG_EXT_TX
   if (get_ext_tx_types(tx_size, bsize, is_inter, cm->reduced_tx_set_used) > 1 &&
