@@ -93,7 +93,7 @@ static INLINE const SCAN_ORDER *get_default_scan(TX_SIZE tx_size,
 static INLINE int do_adapt_scan(TX_SIZE tx_size, TX_TYPE tx_type) {
   (void)tx_size;
 #if CONFIG_EXT_TX
-  return tx_type < IDTX;
+  return tx_type <= ADST_ADST;
 #else
   (void)tx_type;
   return 1;
