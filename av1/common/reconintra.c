@@ -2420,7 +2420,7 @@ static void build_intra_predictors_high(
 #else
     const int need_bottom = !!(extend_modes[mode] & NEED_BOTTOMLEFT);
 #endif  // CONFIG_EXT_INTRA || CONFIG_FILTER_INTRA
-    const int num_left_pixels_needed = txhpx + (need_bottom ? txwpx : 0);
+    const int num_left_pixels_needed = txhpx + (need_bottom ? txwpx : 0) + 16;
     i = 0;
     if (n_left_px > 0) {
       for (; i < n_left_px; i++) left_col[i] = ref[i * ref_stride - 1];
@@ -2458,7 +2458,7 @@ static void build_intra_predictors_high(
 #else
     const int need_right = !!(extend_modes[mode] & NEED_ABOVERIGHT);
 #endif  // CONFIG_EXT_INTRA || CONFIG_FILTER_INTRA
-    const int num_top_pixels_needed = txwpx + (need_right ? txhpx : 0);
+    const int num_top_pixels_needed = txwpx + (need_right ? txhpx : 0) + 16;
     if (n_top_px > 0) {
       memcpy(above_row, above_ref, n_top_px * sizeof(above_ref[0]));
       i = n_top_px;
@@ -2665,7 +2665,7 @@ static void build_intra_predictors(const MACROBLOCKD *xd, const uint8_t *ref,
 #else
     const int need_bottom = !!(extend_modes[mode] & NEED_BOTTOMLEFT);
 #endif  // CONFIG_EXT_INTRA || CONFIG_FILTER_INTRA
-    const int num_left_pixels_needed = txhpx + (need_bottom ? txwpx : 0);
+    const int num_left_pixels_needed = txhpx + (need_bottom ? txwpx : 0) + 16;
     i = 0;
     if (n_left_px > 0) {
       for (; i < n_left_px; i++) left_col[i] = ref[i * ref_stride - 1];
@@ -2703,7 +2703,7 @@ static void build_intra_predictors(const MACROBLOCKD *xd, const uint8_t *ref,
 #else
     const int need_right = !!(extend_modes[mode] & NEED_ABOVERIGHT);
 #endif  // CONFIG_EXT_INTRA || CONFIG_FITLER_INTRA
-    const int num_top_pixels_needed = txwpx + (need_right ? txhpx : 0);
+    const int num_top_pixels_needed = txwpx + (need_right ? txhpx : 0) + 16;
     if (n_top_px > 0) {
       memcpy(above_row, above_ref, n_top_px);
       i = n_top_px;
