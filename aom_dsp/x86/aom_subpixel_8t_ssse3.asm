@@ -13,9 +13,11 @@
 
 %include "third_party/x86inc/x86inc.asm"
 
+%if CONFIG_PIC=0
 SECTION_RODATA
 pw_64:    times 8 dw 64
 even_byte_mask: times 8 dw 0x00ff
+%endif
 
 ; %define USE_PMULHRSW
 ; NOTE: pmulhrsw has a latency of 5 cycles.  Tests showed a performance loss
@@ -348,7 +350,16 @@ cglobal filter_block1d16_%1, 6, 6, 14, LOCAL_VARS_SIZE, \
 %ifidn %1, h8_add_src
     movu          m5, [srcq]
     mova          m7, m5
+%if CONFIG_PIC=0
     pand          m5, [even_byte_mask]
+%else
+    ; The bitwise AND of m5 with even_byte_mask is the same thing as
+    ; doing a word-width (16-bit) SIMD left shift by 8 and then
+    ; shifting back down again, but this version doesn't mention
+    ; .rodata
+    psllw         m5, 8
+    psrlw         m5, 8
+%endif
     psrlw         m7, 8
     paddsw        m0, m5
     paddsw        m4, m7
