@@ -4353,7 +4353,6 @@ static void set_frame_size(AV1_COMP *cpi, int width, int height) {
                                NULL, NULL))
     aom_internal_error(&cm->error, AOM_CODEC_MEM_ERROR,
                        "Failed to allocate frame buffer");
-
 #if CONFIG_LOOP_RESTORATION
   set_restoration_tilesize(
 #if CONFIG_FRAME_SUPERRES
