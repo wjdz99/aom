@@ -339,6 +339,80 @@ static int search_filter_level(const YV12_BUFFER_CONFIG *sd, AV1_COMP *cpi,
   aom_yv12_copy_y(cm->frame_to_show, &cpi->last_frame_uf);
 #endif  // CONFIG_LOOPFILTER_LEVEL
 
+#if 0
+  // Collect training data for loop filter level prediction
+  // using first five frames.
+  if (cpi->common.current_video_frame < 5) {
+    FILE *fp = fopen("lf_data_128_blocks.txt", "a");
+    const uint8_t *buffer = sd->y_buffer;
+    const int width = sd->y_crop_width;
+    const int height = sd->y_crop_height;
+    const int stride = sd->y_stride;
+
+    // First collect SSE values of different loop-filter levels for various
+    // blocks within a source frame, locations of which are defined by
+    // sse_block_size and sse_stride.
+    const int sse_block_size = 128;
+    const int sse_stride = 64;
+    const int num_sse_blocks_ver = (height - sse_block_size)/sse_stride;
+    const int num_sse_blocks_hor = (width - sse_block_size)/sse_stride;
+    const int num_lpf_levels = MAX_LOOP_FILTER + 1;
+    assert(num_sse_blocks_ver*num_sse_blocks_hor < 100);
+    int64_t err_vals[(MAX_LOOP_FILTER + 1)*100];
+    int sse_block_idx;
+
+    for (int i = 0; i <= MAX_LOOP_FILTER; ++i) {
+      av1_loop_filter_frame(cm->frame_to_show, cm, &cpi->td.mb.e_mbd, i, 1,
+                            partial_frame);
+
+      YV12_BUFFER_CONFIG buf1, buf2;
+      memcpy(&buf1,sd,sizeof(buf1));
+      memcpy(&buf2,cm->frame_to_show,sizeof(buf2));
+      uint8_t* buf1_y = buf1.y_buffer;
+      uint8_t* buf2_y = buf2.y_buffer;
+      buf1.y_crop_width = buf2.y_crop_width = sse_block_size;
+      buf1.y_crop_height = buf2.y_crop_height = sse_block_size;
+      sse_block_idx = 0;
+      for(int start_row = 0; start_row < height - sse_block_size; start_row += sse_stride)
+        for(int start_col = 0; start_col < width - sse_block_size; start_col += sse_stride)
+        {
+          buf1.y_buffer = buf1_y + start_row*buf1.y_stride + start_col;
+          buf2.y_buffer = buf2_y + start_row*buf2.y_stride + start_col;
+          int64_t cur_err = aom_get_sse_plane(&buf1, &buf2, 0, 0);
+          err_vals[sse_block_idx * num_lpf_levels + i] = cur_err;
+          sse_block_idx++;
+        }
+      // Re-instate the unfiltered frame
+      yv12_copy_plane(&cpi->last_frame_uf, cm->frame_to_show, 0);
+    }
+
+    // For each SSE block dump all the source values and errors of using each loop-filter level
+    sse_block_idx = 0;
+    for(int start_row = 0; start_row < height - sse_block_size; start_row += sse_stride)
+      for(int start_col = 0; start_col < width - sse_block_size; start_col += sse_stride)
+      {
+        // Frame size.
+        fprintf(fp, "Frame size %d %d\n", sse_block_size, sse_block_size);
+        // Quantization index.
+        fprintf(fp, "q-index %d\n", cpi->common.base_qindex);
+
+        for (int r = start_row; r < start_row + sse_block_size; r++) {
+          for (int c = start_col; c < start_col + sse_block_size; c++) {
+            fprintf(fp, "%3d ", buffer[r*stride+c]);
+          }
+          fprintf(fp, "\n");
+        }
+
+        for (int i = 0; i <= MAX_LOOP_FILTER; ++i) {
+          fprintf(fp, "%10lld ", err_vals[sse_block_idx * num_lpf_levels + i]);
+        }
+        sse_block_idx++;
+        fprintf(fp, "\n");
+      }
+    fclose(fp);
+  }
+#endif
+
 #if CONFIG_LOOPFILTER_LEVEL
   best_err = try_filter_frame(sd, cpi, filt_mid, partial_frame, plane, dir);
 #else
