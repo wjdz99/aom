@@ -319,6 +319,7 @@ EXPERIMENT_LIST="
     ctx1d
     txk_sel
     mv_compress
+    tmv
     segment_zeromv
     frame_superres
     new_multisymbol
