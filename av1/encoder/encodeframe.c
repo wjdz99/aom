@@ -4576,6 +4576,14 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
 #endif
       encode_sb(cpi, td, tile_info, tp, mi_row, mi_col, OUTPUT_ENABLED, bsize,
                 pc_tree, NULL);
+#if CONFIG_LPF_SB
+      if (USE_LOOP_FILTER_SUPERBLOCK) {
+        // apply deblocking filtering right after each superblock is encoded.
+        const int guess_filter_lvl = FAKE_FILTER_LEVEL;
+        av1_loop_filter_frame(get_frame_new_buffer(cm), cm, xd,
+                              guess_filter_lvl, 0, 1, mi_row, mi_col);
+      }
+#endif  // CONFIG_LPF_SB
     } else {
       encode_sb(cpi, td, tile_info, tp, mi_row, mi_col, DRY_RUN_NORMAL, bsize,
                 pc_tree, NULL);
