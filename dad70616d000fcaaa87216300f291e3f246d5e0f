@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4226e78b_38964972",
+        "filename": "av1/encoder/encodemb.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 238,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-10-05T18:19:19Z",
+      "side": 1,
+      "message": "Isn\u0027t the sign of \u0027dx\u0027 important here?",
+      "range": {
+        "startLine": 238,
+        "startChar": 8,
+        "endLine": 238,
+        "endChar": 10
+      },
+      "revId": "dad70616d000fcaaa87216300f291e3f246d5e0f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
