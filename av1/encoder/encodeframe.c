@@ -3350,6 +3350,11 @@ static void rd_test_partition3(
   MACROBLOCK *const x = &td->mb;
   MACROBLOCKD *const xd = &x->e_mbd;
   RD_STATS sum_rdc, this_rdc;
+#if CONFIG_UNPOISON_PARTITION_CTX
+  const AV1_COMMON *const cm = &cpi->common;
+  const int bs = mi_size_wide[bsize];
+  const int hbs = bs / 2;
+#endif  // CONFIG_UNPOISON_PARTITION_CTX
 #if CONFIG_SUPERTX || CONFIG_EXT_PARTITION_TYPES_AB
   const AV1_COMMON *const cm = &cpi->common;
 #endif
@@ -3433,7 +3438,8 @@ static void rd_test_partition3(
 
   int pl = partition_plane_context(xd, mi_row, mi_col,
 #if CONFIG_UNPOISON_PARTITION_CTX
-                                   has_rows, has_cols,
+                                   mi_row + hbs < cm->mi_rows,
+                                   mi_col + hbs < cm->mi_cols,
 #endif
                                    bsize);
   sum_rdc.rate += x->partition_cost[pl][partition];
