@@ -339,6 +339,47 @@ static int search_filter_level(const YV12_BUFFER_CONFIG *sd, AV1_COMP *cpi,
   aom_yv12_copy_y(cm->frame_to_show, &cpi->last_frame_uf);
 #endif  // CONFIG_LOOPFILTER_LEVEL
 
+#if 0
+  // Collect training data for loop filter level prediction.
+  // First frame only for now.
+  if (cpi->common.current_video_frame == 0) {
+    FILE *fp = fopen("lp_data.txt", "a");
+    const uint8_t *buffer = sd->y_buffer;
+    const int width = sd->y_crop_width;
+    const int height = sd->y_crop_height;
+    const int stride = sd->y_stride;
+    const int blk_size = 4;
+    const int shift = 4;
+    // Frame size.
+    fprintf(fp, "Frame size %d %d\n", width, height);
+    // Quantization index.
+    fprintf(fp, "q-index %d\n", cpi->common.base_qindex);
+    for (int r = 0; r < height; r += blk_size) {
+      for (int c = 0; c < width; c += blk_size) {
+        // Calculate average of the block of size "blk_size".
+        const uint8_t *data = buffer + c;
+        int total = 0;
+        for (int j = 0; j < blk_size; ++j) {
+          for (int i = 0; i < blk_size; ++i) {
+            total += data[i];
+          }
+          data += stride;
+        }
+        total = ROUND_POWER_OF_TWO(total, shift);
+        fprintf(fp, "%3d ", total);
+      }
+      buffer += blk_size * stride;
+      fprintf(fp, "\n");
+    }
+
+    for (int i = 0; i <= MAX_LOOP_FILTER; ++i) {
+      fprintf(fp, "%10lld ", try_filter_frame(sd, cpi, i, 0));
+    }
+    fprintf(fp, "\n");
+    fclose(fp);
+  }
+#endif
+
 #if CONFIG_LOOPFILTER_LEVEL
   best_err = try_filter_frame(sd, cpi, filt_mid, partial_frame, plane, dir);
 #else
