@@ -347,6 +347,7 @@ EXPERIMENT_LIST="
     amvr
     lpf_sb
     opt_ref_mv
+    tmv
     restrict_compressed_hdr
 "
 CONFIG_LIST="
