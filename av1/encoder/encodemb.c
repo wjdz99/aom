@@ -221,7 +221,7 @@ static int optimize_b_greedy(const AV1_COMMON *cm, MACROBLOCK *mb, int plane,
       dqv = dequant_ptr[rc != 0];
 #endif
 
-      int dx = (dqcoeff[rc] - coeff[rc]) * (1 << shift);
+      int dx = abs(dqcoeff[rc] - coeff[rc]) * (1 << shift);
       dx >>= xd->bd - 8;
       const int64_t d2 = (int64_t)dx * dx;
 
