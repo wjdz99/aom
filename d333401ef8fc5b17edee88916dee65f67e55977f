@@ -186,6 +186,30 @@
     },
     {
       "key": {
+        "uuid": "ed8d0801_9a38fb8e",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1402,
+      "author": {
+        "id": 7957
+      },
+      "writtenOn": "2017-10-05T20:41:23Z",
+      "side": 1,
+      "message": "Here i represents an index within the static tx_type_table_2D array, not the actual TX_TYPE. And this function is only called for EXT_TX_SET_ALL16 and EXT_TX_SET_DTT9_IDTX_1DDCT tx set types, so it should work correctly with CONFIG_MRC_TX as well (we just won\u0027t perform any pruning)",
+      "parentUuid": "00e8d7c1_3cd524ab",
+      "range": {
+        "startLine": 1402,
+        "startChar": 22,
+        "endLine": 1402,
+        "endChar": 24
+      },
+      "revId": "d333401ef8fc5b17edee88916dee65f67e55977f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3a7c757b_220cd936",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 6
@@ -197,6 +221,30 @@
       "writtenOn": "2017-10-05T19:58:00Z",
       "side": 1,
       "message": "ditto",
+      "range": {
+        "startLine": 1410,
+        "startChar": 22,
+        "endLine": 1410,
+        "endChar": 24
+      },
+      "revId": "d333401ef8fc5b17edee88916dee65f67e55977f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "514bee76_53141c13",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1410,
+      "author": {
+        "id": 7957
+      },
+      "writtenOn": "2017-10-05T20:41:23Z",
+      "side": 1,
+      "message": "Same.",
+      "parentUuid": "3a7c757b_220cd936",
       "range": {
         "startLine": 1410,
         "startChar": 22,
