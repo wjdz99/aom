@@ -514,6 +514,10 @@ typedef enum ATTRIBUTE_PACKED {
   INTRA_INVALID = MB_MODE_COUNT  // For uv_mode in inter blocks
 } PREDICTION_MODE;
 
+#if CONFIG_KF_CTX
+#define KF_MODE_CONTEXTS 5
+#endif
+
 #if CONFIG_CFL
 // TODO(ltrudeau) Do we really want to pack this?
 // TODO(ltrudeau) Do we match with PREDICTION_MODE?

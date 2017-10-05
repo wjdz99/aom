@@ -137,10 +137,17 @@ void av1_fill_mode_rates(AV1_COMMON *const cm, MACROBLOCK *x,
 #endif  // CONFIG_UNPOISON_PARTITION_CTX
   }
 
+#if CONFIG_KF_CTX
+  for (i = 0; i < KF_MODE_CONTEXTS; ++i)
+    for (j = 0; j < KF_MODE_CONTEXTS; ++j)
+      av1_cost_tokens_from_cdf(x->y_mode_costs[i][j], fc->kf_y_cdf[i][j],
+                               av1_intra_mode_inv);
+#else
   for (i = 0; i < INTRA_MODES; ++i)
     for (j = 0; j < INTRA_MODES; ++j)
       av1_cost_tokens_from_cdf(x->y_mode_costs[i][j], fc->kf_y_cdf[i][j],
                                av1_intra_mode_inv);
+#endif
 
   for (i = 0; i < BLOCK_SIZE_GROUPS; ++i)
     av1_cost_tokens_from_cdf(x->mbmode_cost[i], fc->y_mode_cdf[i],
