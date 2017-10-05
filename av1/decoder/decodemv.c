@@ -1269,8 +1269,7 @@ static void read_intra_frame_mode_info(AV1_COMMON *const cm,
 #endif  // CONFIG_EXT_INTRA
   mbmi->palette_mode_info.palette_size[0] = 0;
   mbmi->palette_mode_info.palette_size[1] = 0;
-  if (bsize >= BLOCK_8X8 && bsize <= BLOCK_LARGEST &&
-      cm->allow_screen_content_tools)
+  if (av1_allow_palette(cm->allow_screen_content_tools, bsize))
     read_palette_mode_info(cm, xd, r);
 #if CONFIG_FILTER_INTRA
   mbmi->filter_intra_mode_info.use_filter_intra_mode[0] = 0;
@@ -1857,7 +1856,7 @@ static void read_intra_block_mode_info(AV1_COMMON *const cm, const int mi_row,
 #endif  // CONFIG_EXT_INTRA
   mbmi->palette_mode_info.palette_size[0] = 0;
   mbmi->palette_mode_info.palette_size[1] = 0;
-  if (bsize >= BLOCK_8X8 && cm->allow_screen_content_tools)
+  if (av1_allow_palette(cm->allow_screen_content_tools, bsize))
     read_palette_mode_info(cm, xd, r);
 #if CONFIG_FILTER_INTRA
   mbmi->filter_intra_mode_info.use_filter_intra_mode[0] = 0;
