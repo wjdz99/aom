@@ -1168,10 +1168,10 @@ YV12_BUFFER_CONFIG *av1_scale_if_required(AV1_COMMON *cm,
   }
 }
 
-void av1_calculate_scaled_size(int *width, int *height, int num) {
-  if (num != SCALE_DENOMINATOR) {
-    *width = *width * num / SCALE_DENOMINATOR;
-    *height = *height * num / SCALE_DENOMINATOR;
+void av1_calculate_scaled_size(int *width, int *height, int denom) {
+  if (denom != SCALE_NUMERATOR) {
+    *width = *width * SCALE_NUMERATOR / denom;
+    *height = *height * SCALE_NUMERATOR / denom;
     // Make width and height even
     *width += *width & 1;
     *height += *height & 1;
