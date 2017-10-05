@@ -222,7 +222,11 @@ static int optimize_b_greedy(const AV1_COMMON *cm, MACROBLOCK *mb, int plane,
 #endif
 
       int dx = (dqcoeff[rc] - coeff[rc]) * (1 << shift);
-      dx >>= xd->bd - 8;
+      {
+        const int sign = dx < 0 ? 1 : 0;
+        dx = abs(dx) >> (xd->bd - 8);
+        if (sign) dx = -dx;
+      }
       const int64_t d2 = (int64_t)dx * dx;
 
       /* compute the distortion for the second candidate
