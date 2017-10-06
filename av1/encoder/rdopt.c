@@ -8501,6 +8501,12 @@ int64_t interpolation_filter_search(
       }
 #if CONFIG_DUAL_FILTER
       av1_copy(mbmi->interp_filter, best_filter);
+#if CONFIG_SHORT_FILTER
+      if (block_size_high[bsize] <= 4 && best_filter[0] == MULTITAP_SHARP)
+        mbmi->interp_filter[0] = mbmi->interp_filter[2] = EIGHTTAP_REGULAR;
+      if (block_size_wide[bsize] <= 4 && best_filter[1] == MULTITAP_SHARP)
+        mbmi->interp_filter[1] = mbmi->interp_filter[3] = EIGHTTAP_REGULAR;
+#endif
 #else
       mbmi->interp_filter = best_filter;
 #endif  // CONFIG_DUAL_FILTER
