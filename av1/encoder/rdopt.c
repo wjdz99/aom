@@ -5309,10 +5309,16 @@ static void select_tx_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
   RD_STATS *rd_stats_stack = aom_malloc(4 * sizeof(*rd_stats_stack));
 #endif  // CONFIG_EXT_PARTITION
 #if CONFIG_EXT_TX
+  const struct macroblockd_plane *const pd = &xd->plane[0];
+  const BLOCK_SIZE plane_bsize = get_plane_block_size(bsize, pd);
+  const int mi_width = block_size_wide[plane_bsize] >> tx_size_wide_log2[0];
+  const int mi_height = block_size_high[plane_bsize] >> tx_size_high_log2[0];
+  const TX_SIZE min_tx_size = (mi_width != mi_height) ? max_tx_size : // adjust this for depth macro
+                               sub_tx_size_map[sub_tx_size_map[max_tx_size]];
   const TxSetType tx_set_type = get_ext_tx_set_type(
-      max_tx_size, bsize, is_inter, cm->reduced_tx_set_used);
+      min_tx_size, bsize, is_inter, cm->reduced_tx_set_used);
   const int ext_tx_set =
-      get_ext_tx_set(max_tx_size, bsize, is_inter, cm->reduced_tx_set_used);
+      get_ext_tx_set(min_tx_size, bsize, is_inter, cm->reduced_tx_set_used);
 #endif  // CONFIG_EXT_TX
 
   av1_invalid_rd_stats(rd_stats);
@@ -5394,7 +5400,18 @@ static void select_tx_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
     rd = select_tx_size_fix_type(cpi, x, &this_rd_stats, bsize, ref_best_rd,
                                  tx_type, rd_stats_stack);
     ref_best_rd = AOMMIN(rd, ref_best_rd);
-    if (rd < best_rd) {
+    int legal_tx_type = 1;
+    for (idy = 0; idy < xd->n8_h; ++idy) {
+      for (idx = 0; idx < xd->n8_w; ++idx) {
+        const TxSetType tx_set_type_tmp = get_ext_tx_set_type(
+          mbmi->inter_tx_size[idy][idx], bsize, is_inter, cm->reduced_tx_set_used);
+        if (!av1_ext_tx_used[tx_set_type_tmp][tx_type]) {
+          legal_tx_type = 0;
+          break;
+        }
+      }
+    }
+    if (rd < best_rd && legal_tx_type) {
       best_rd = rd;
       *rd_stats = this_rd_stats;
       best_tx_type = mbmi->tx_type;
