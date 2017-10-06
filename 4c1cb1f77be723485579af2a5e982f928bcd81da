@@ -22,6 +22,30 @@
       "revId": "4c1cb1f77be723485579af2a5e982f928bcd81da",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9dad0232_d73201ee",
+        "filename": "av1/decoder/decoder.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 6000
+      },
+      "writtenOn": "2017-10-06T07:15:21Z",
+      "side": 0,
+      "message": "Because the #if condition now always evaluates to true.\nAfter this changelist, it\u0027s as if CONFIG_EXT_REFS is always equal to 1 ; so the condition becomes:\n\n#if 1 || CONFIG_TEMPMV_SIGNALING\n\nWhich simplifies to:\n\n#if 1\n\nWhich simplifies to no #if at all.\n\nDoes it make sense?",
+      "parentUuid": "6df30b70_16ba27b9",
+      "range": {
+        "startLine": 199,
+        "startChar": 23,
+        "endLine": 199,
+        "endChar": 46
+      },
+      "revId": "4c1cb1f77be723485579af2a5e982f928bcd81da",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
