@@ -1975,6 +1975,9 @@ void av1_dist_block(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
 #if CONFIG_MRC_TX && SIGNAL_ANY_MRC_MASK
                                     mrc_mask,
 #endif  // CONFIG_MRC_TX && SIGNAL_ANY_MRC_MASK
+#if CONFIG_EXT_TX
+                                    plane,
+#endif  // CONFIG_EXT_TX
                                     tx_type, tx_size, recon, MAX_TX_SIZE, eob);
 
 #if CONFIG_DIST_8X8
@@ -3992,6 +3995,9 @@ void av1_tx_block_rd_b(const AV1_COMP *cpi, MACROBLOCK *x, TX_SIZE tx_size,
 #if CONFIG_MRC_TX && SIGNAL_ANY_MRC_MASK
                               mrc_mask,
 #endif  // CONFIG_MRC_TX && SIGNAL_ANY_MRC_MASK
+#if CONFIG_EXT_TX
+                              plane,
+#endif  // CONFIG_EXT_TX
                               tx_type, tx_size, rec_buffer, MAX_TX_SIZE, eob);
   if (eob > 0) {
 #if CONFIG_DIST_8X8
@@ -4700,6 +4706,18 @@ static int predict_skip_flag_8bit(const MACROBLOCK *x, BLOCK_SIZE bsize) {
 #endif
   param.bd = 8;
   param.lossless = 0;
+#if CONFIG_EXT_TX
+  const MACROBLOCKD *xd = &x->e_mbd;
+  const struct macroblockd_plane *const pd = &xd->plane[0];
+  const BLOCK_SIZE plane_bsize =
+    get_plane_block_size(xd->mi[0]->mbmi.sb_type, pd);
+  // TODO(sarahparker) This assumes reduced_tx_set_used == 0. I will do a
+  // follow up refactor to make the actual value of reduced_tx_set_used
+  // within this function.
+  param.tx_set_type = get_ext_tx_set_type(
+    param.tx_size, plane_bsize, is_inter_block(&xd->mi[0]->mbmi),
+    0);
+#endif  // CONFIG_EXT_TX
 
 #if CONFIG_TXMG
   av1_highbd_fwd_txfm(p->src_diff, DCT_coefs, bw, &param);
@@ -4808,8 +4826,12 @@ static void select_tx_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
   int idx, idy;
   int prune = 0;
 #if CONFIG_EXT_TX
+  const TX_SIZE sqr_up_tx_size =
+    txsize_sqr_up_map[max_txsize_rect_lookup[bsize]];
+  // Get the tx_size 1 level down
+  TX_SIZE min_tx_size = sub_tx_size_map[sqr_up_tx_size];
   const TxSetType tx_set_type = get_ext_tx_set_type(
-      max_tx_size, bsize, is_inter, cm->reduced_tx_set_used);
+      min_tx_size, bsize, is_inter, cm->reduced_tx_set_used);
 #endif  // CONFIG_EXT_TX
   int within_border = (mi_row + mi_size_high[bsize] <= cm->mi_rows) &&
                       (mi_col + mi_size_wide[bsize] <= cm->mi_cols);
@@ -4902,6 +4924,13 @@ static void select_tx_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
 
     rd = select_tx_size_fix_type(cpi, x, &this_rd_stats, bsize, ref_best_rd,
                                  tx_type);
+    // If the current tx_type is not included in the tx_set for the smallest
+    // tx size found, then all vartx partitions were actually transformed with
+    // DCT_DCT and we should avoid picking it.
+    const TxSetType min_tx_set_type = get_ext_tx_set_type(
+      mbmi->min_tx_size, bsize, is_inter, cm->reduced_tx_set_used);
+    if (!av1_ext_tx_used[min_tx_set_type][tx_type]) continue;
+
     ref_best_rd = AOMMIN(rd, ref_best_rd);
     if (rd < best_rd) {
       best_rd = rd;
