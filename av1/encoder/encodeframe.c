@@ -470,6 +470,9 @@ static void reset_intmv_filter_type(const AV1_COMMON *const cm, MACROBLOCKD *xd,
 
 static void update_filter_type_count(FRAME_COUNTS *counts,
                                      const MACROBLOCKD *xd,
+#if CONFIG_SHORT_FILTER
+                                     int w, int h,
+#endif
                                      const MB_MODE_INFO *mbmi) {
   int dir;
   for (dir = 0; dir < 2; ++dir) {
@@ -477,9 +480,22 @@ static void update_filter_type_count(FRAME_COUNTS *counts,
         (mbmi->ref_frame[1] > INTRA_FRAME &&
          has_subpel_mv_component(xd->mi[0], xd, dir + 2))) {
       const int ctx = av1_get_pred_context_switchable_interp(xd, dir);
+#if CONFIG_SHORT_FILTER
+      if ((dir == 0 && h <= 4) || (dir == 1 && w <= 4)) {
+        ++counts->switchable_short_interp
+              [ctx][mbmi->interp_filter[dir] == EIGHTTAP_SMOOTH ? 1 : 0];
+        update_cdf(xd->tile_ctx->switchable_short_interp_cdf[ctx],
+                   mbmi->interp_filter[dir], SWITCHABLE_FILTERS - 1);
+      } else {
+        ++counts->switchable_interp[ctx][mbmi->interp_filter[dir]];
+        update_cdf(xd->tile_ctx->switchable_interp_cdf[ctx],
+                   mbmi->interp_filter[dir], SWITCHABLE_FILTERS);
+      }
+#else
       ++counts->switchable_interp[ctx][mbmi->interp_filter[dir]];
       update_cdf(xd->tile_ctx->switchable_interp_cdf[ctx],
                  mbmi->interp_filter[dir], SWITCHABLE_FILTERS);
+#endif
     }
   }
 }
@@ -743,7 +759,13 @@ static void update_state(const AV1_COMP *const cpi, ThreadData *td,
 #endif  // CONFIG_GLOBAL_MOTION
               ) {
 #if CONFIG_DUAL_FILTER
+#if CONFIG_SHORT_FILTER
+        update_filter_type_count(td->counts, xd, block_size_wide[bsize],
+                                 block_size_high[bsize], mbmi);
+#else
         update_filter_type_count(td->counts, xd, mbmi);
+#endif
+
 #else
         const int switchable_ctx = av1_get_pred_context_switchable_interp(xd);
         ++td->counts->switchable_interp[switchable_ctx][mbmi->interp_filter];
