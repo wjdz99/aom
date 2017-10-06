@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f98bb018_d6f30a62",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 28
+      },
+      "lineNbr": 5844,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-10-06T23:10:35Z",
+      "side": 1,
+      "message": "So, thinking about this a bit, I don\u0027t think computes the negative distance correctly.\n\nSpecifically, get_scaled_luma_q0(-alpha_q3, pred_buf_q3[i]) is NOT equivalent to -get_scaled_luma_q0(alpha_q3, pred_buf_q3[i]). When the product alpha_q3*pred_buf_q3[i] is an exact multiple of 32 (0.5 in Q6), then the right shift will round both positive and negative values towards infinity, creating a bias. So, e.g., get_scaled_luma_q0(-4, 8) will yield 0, but -get_scaled_luma_q0(4, 8) will yield -1.\n\nThis isn\u0027t a new problem with this patch, and can be addressed in a separate patch.",
+      "revId": "0295952638525f32b6b92e44f36e1f70ef6b7c9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
