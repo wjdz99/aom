@@ -186,15 +186,8 @@ static void cfl_dc_pred(MACROBLOCKD *xd, BLOCK_SIZE plane_bsize,
       int sum_u = 0;
       int sum_v = 0;
 
-// Match behavior of build_intra_predictors_high (reconintra.c) at superblock
-// boundaries:
-// base-1 base-1 base-1 .. base-1 base-1 base-1 base-1 base-1 base-1
-// base+1   A      B  ..     Y      Z
-// base+1   C      D  ..     W      X
-// base+1   E      F  ..     U      V
-// base+1   G      H  ..     S      T      T      T      T      T
-// ..
-
+// Don't match the behavior of build_intra_predictors_high
+// unavailable pixels == 128 << (xd->bd - 8) (no +/- 1)
 #if CONFIG_CHROMA_SUB8X8
       if (xd->chroma_up_available && xd->mb_to_right_edge >= 0) {
 #else
@@ -203,8 +196,8 @@ static void cfl_dc_pred(MACROBLOCKD *xd, BLOCK_SIZE plane_bsize,
         sum_above_row(xd, b_i, fr_width, &sum_u, &sum_v);
       } else {
         const int base = 128 << (xd->bd - 8);
-        sum_u = fr_width * (base - 1);
-        sum_v = fr_width * (base - 1);
+        sum_u = fr_width * base;
+        sum_v = fr_width * base;
       }
 
 #if CONFIG_CHROMA_SUB8X8
@@ -215,8 +208,8 @@ static void cfl_dc_pred(MACROBLOCKD *xd, BLOCK_SIZE plane_bsize,
         sum_left_col(xd, b_j, fr_height, &sum_u, &sum_v);
       } else {
         const int base = 128 << (xd->bd - 8);
-        sum_u += fr_height * (base + 1);
-        sum_v += fr_height * (base + 1);
+        sum_u += fr_height * base;
+        sum_v += fr_height * base;
       }
 
       // TODO(ltrudeau) Because of max_block_wide and max_block_high, num_pel
