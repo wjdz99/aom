@@ -4827,8 +4827,19 @@ static void select_tx_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
   int idx, idy;
   int prune = 0;
 #if CONFIG_EXT_TX
+  const struct macroblockd_plane *const pd = &xd->plane[0];
+  const BLOCK_SIZE plane_bsize = get_plane_block_size(bsize, pd);
+  const int mi_width = block_size_wide[plane_bsize] >> tx_size_wide_log2[0];
+  const int mi_height = block_size_high[plane_bsize] >> tx_size_high_log2[0];
+  TX_SIZE min_tx_size;
+  if (mi_width != mi_height)
+    min_tx_size = RECT_VARTX_DEPTH_INIT ? max_tx_size :
+                               sub_tx_size_map[max_tx_size];
+  else
+    min_tx_size = SQR_VARTX_DEPTH_INIT ? sub_tx_size_map[max_tx_size] :
+                               sub_tx_size_map[sub_tx_size_map[max_tx_size]];
   const TxSetType tx_set_type = get_ext_tx_set_type(
-      max_tx_size, bsize, is_inter, cm->reduced_tx_set_used);
+      min_tx_size, bsize, is_inter, cm->reduced_tx_set_used);
 #endif  // CONFIG_EXT_TX
   int within_border = (mi_row + mi_size_high[bsize] <= cm->mi_rows) &&
                       (mi_col + mi_size_wide[bsize] <= cm->mi_cols);
@@ -4922,6 +4933,17 @@ static void select_tx_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
     rd = select_tx_size_fix_type(cpi, x, &this_rd_stats, bsize, ref_best_rd,
                                  tx_type);
     ref_best_rd = AOMMIN(rd, ref_best_rd);
+//  int legal_tx_type = 1;
+//  for (idy = 0; idy < xd->n8_h; ++idy) {
+//    for (idx = 0; idx < xd->n8_w; ++idx) {
+//      const TxSetType tx_set_type_tmp = get_ext_tx_set_type(
+//        mbmi->inter_tx_size[idy][idx], bsize, is_inter, cm->reduced_tx_set_used);
+//      if (!av1_ext_tx_used[tx_set_type_tmp][tx_type]) {
+//        legal_tx_type = 0;
+//        break;
+//      }
+//    }
+//  }
     if (rd < best_rd) {
       best_rd = rd;
       *rd_stats = this_rd_stats;
