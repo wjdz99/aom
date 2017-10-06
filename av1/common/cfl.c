@@ -172,46 +172,51 @@ static void cfl_dc_pred(MACROBLOCKD *xd, BLOCK_SIZE plane_bsize,
                      << tx_size_high_log2[0];
   const int tx_width = tx_size_wide[tx_size];
   const int tx_height = tx_size_high[tx_size];
+#if CONFIG_CHROMA_SUB8X8
+  const int up_available = xd->chroma_up_available;
+  const int left_available = xd->chroma_left_available;
+#else
+  const int up_available = xd->up_available;
+  const int left_available = xd->left_available;
+#endif
 
   for (int b_j = 0; b_j < height; b_j += tx_height) {
     // Don't use out of frame neighboring pixels.
-    const int fr_height = AOMMIN(tx_height, height - b_j);
+    int fr_height = AOMMIN(tx_height, height - b_j);
 
     for (int b_i = 0; b_i < width; b_i += tx_width) {
       // Don't use out of frame neighboring pixels.
-      const int fr_width = AOMMIN(tx_width, width - b_i);
-      // Number of pixel on the top and left borders.
-      const int num_pel = fr_width + fr_height;
+      int fr_width = AOMMIN(tx_width, width - b_i);
 
       int sum_u = 0;
       int sum_v = 0;
 
-// Don't match the behavior of build_intra_predictors_high
-// unavailable pixels == 128 << (xd->bd - 8) (no +/- 1)
-#if CONFIG_CHROMA_SUB8X8
-      if (xd->chroma_up_available) {
-#else
-      if (xd->up_available) {
-#endif
+      // Don't match the behavior of build_intra_predictors_high
+      // unavailable pixels == 128 << (xd->bd - 8) (no +/- 1)
+      if (up_available) {
         sum_above_row(xd, b_i, fr_width, &sum_u, &sum_v);
+      } else if (left_available) {
+        fr_width = AOMMIN(fr_width, height - b_j);
+        sum_left_col(xd, b_j, fr_width, &sum_u, &sum_v);
       } else {
         const int base = 128 << (xd->bd - 8);
         sum_u = fr_width * base;
         sum_v = fr_width * base;
       }
 
-#if CONFIG_CHROMA_SUB8X8
-      if (xd->chroma_left_available) {
-#else
-      if (xd->left_available) {
-#endif
+      if (left_available) {
         sum_left_col(xd, b_j, fr_height, &sum_u, &sum_v);
+      } else if (up_available) {
+        fr_height = AOMMIN(fr_height, width - b_i);
+        sum_above_row(xd, b_i, fr_height, &sum_u, &sum_v);
       } else {
         const int base = 128 << (xd->bd - 8);
         sum_u += fr_height * base;
         sum_v += fr_height * base;
       }
 
+      // Number of pixel on the top and left borders.
+      const int num_pel = fr_width + fr_height;
       // TODO(ltrudeau) Because of max_block_wide and max_block_high, num_pel
       // will not be a power of two. So these divisions will have to use a
       // lookup table.
