@@ -78,6 +78,8 @@ extern "C" {
 
 #if CONFIG_VAR_TX
 #define MAX_VARTX_DEPTH 2
+#define SQR_VARTX_DEPTH_INIT 1
+#define RECT_VARTX_DEPTH_INIT 1
 #endif
 
 #define MI_SIZE_64X64 (64 >> MI_SIZE_LOG2)
