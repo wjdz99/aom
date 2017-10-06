@@ -617,8 +617,8 @@ int av1_is_skippable_in_plane(MACROBLOCK *x, BLOCK_SIZE bsize, int plane) {
 
 #if CONFIG_VAR_TX
 void tokenize_vartx(ThreadData *td, TOKENEXTRA **t, RUN_TYPE dry_run,
-                    TX_SIZE tx_size, BLOCK_SIZE plane_bsize, int blk_row,
-                    int blk_col, int block, int plane, void *arg) {
+                    TX_SIZE tx_size, BLOCK_SIZE y_bsize, BLOCK_SIZE plane_bsize,
+                    int blk_row, int blk_col, int block, int plane, void *arg) {
   MACROBLOCK *const x = &td->mb;
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
@@ -626,8 +626,8 @@ void tokenize_vartx(ThreadData *td, TOKENEXTRA **t, RUN_TYPE dry_run,
   const BLOCK_SIZE bsize = txsize_to_bsize[tx_size];
   const int tx_row = blk_row >> (1 - pd->subsampling_y);
   const int tx_col = blk_col >> (1 - pd->subsampling_x);
-  const int max_blocks_high = max_block_high(xd, plane_bsize, plane);
-  const int max_blocks_wide = max_block_wide(xd, plane_bsize, plane);
+  const int max_blocks_high = max_block_high(xd, y_bsize, plane);
+  const int max_blocks_wide = max_block_wide(xd, y_bsize, plane);
   TX_SIZE plane_tx_size;
 
   if (blk_row >= max_blocks_high || blk_col >= max_blocks_wide) return;
@@ -689,8 +689,8 @@ void tokenize_vartx(ThreadData *td, TOKENEXTRA **t, RUN_TYPE dry_run,
 
       if (offsetr >= max_blocks_high || offsetc >= max_blocks_wide) continue;
 
-      tokenize_vartx(td, t, dry_run, sub_txs, plane_bsize, offsetr, offsetc,
-                     block, plane, arg);
+      tokenize_vartx(td, t, dry_run, sub_txs, mbmi->sb_type, plane_bsize,
+                     offsetr, offsetc, block, plane, arg);
       block += step;
     }
   }
@@ -778,8 +778,8 @@ void av1_tokenize_sb_vartx(const AV1_COMP *cpi, ThreadData *td, TOKENEXTRA **t,
         const int unit_width = AOMMIN(mu_blocks_wide + idx, mi_width);
         for (blk_row = idy; blk_row < unit_height; blk_row += bh) {
           for (blk_col = idx; blk_col < unit_width; blk_col += bw) {
-            tokenize_vartx(td, t, dry_run, max_tx_size, plane_bsize, blk_row,
-                           blk_col, block, plane, &arg);
+            tokenize_vartx(td, t, dry_run, max_tx_size, bsize, plane_bsize,
+                           blk_row, blk_col, block, plane, &arg);
             block += step;
           }
         }

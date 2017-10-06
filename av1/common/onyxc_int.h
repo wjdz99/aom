@@ -1069,43 +1069,53 @@ static INLINE int partition_plane_context(const MACROBLOCKD *xd, int mi_row,
 #endif
 }
 
+// Return the width in transform block units of the block size on the
+// given plane. For example, if this is an 8x8 block, bsize will be
+// BLOCK_8X8. But maybe this is a chroma plane (so plane > 0) with x
+// subsampling. Then the result will be four pixels expressed in
+// transform block units.
 static INLINE int max_block_wide(const MACROBLOCKD *xd, BLOCK_SIZE bsize,
                                  int plane) {
-  int max_blocks_wide = block_size_wide[bsize];
   const struct macroblockd_plane *const pd = &xd->plane[plane];
+  int max_blocks_wide = block_size_wide[bsize] >> pd->subsampling_x;
+#if CONFIG_CHROMA_SUB8X8
+  max_blocks_wide = AOMMAX(4, max_blocks_wide);
+#endif
 
   if (xd->mb_to_right_edge < 0)
     max_blocks_wide += xd->mb_to_right_edge >> (3 + pd->subsampling_x);
 
-  // Scale the width in the transform block unit.
   return max_blocks_wide >> tx_size_wide_log2[0];
 }
 
+// Return the width in transform block units of the block size on the
+// given plane. See max_block_wide for usage.
 static INLINE int max_block_high(const MACROBLOCKD *xd, BLOCK_SIZE bsize,
                                  int plane) {
-  int max_blocks_high = block_size_high[bsize];
   const struct macroblockd_plane *const pd = &xd->plane[plane];
+  int max_blocks_high = block_size_high[bsize] >> pd->subsampling_y;
+#if CONFIG_CHROMA_SUB8X8
+  max_blocks_high = AOMMAX(4, max_blocks_high);
+#endif
 
   if (xd->mb_to_bottom_edge < 0)
     max_blocks_high += xd->mb_to_bottom_edge >> (3 + pd->subsampling_y);
 
-  // Scale the width in the transform block unit.
   return max_blocks_high >> tx_size_wide_log2[0];
 }
 
 #if CONFIG_CFL
-static INLINE int max_intra_block_width(const MACROBLOCKD *xd,
-                                        BLOCK_SIZE plane_bsize, int plane,
-                                        TX_SIZE tx_size) {
-  const int max_blocks_wide = max_block_wide(xd, plane_bsize, plane)
+static INLINE int max_intra_block_width(const MACROBLOCKD *xd, BLOCK_SIZE bsize,
+                                        int plane, TX_SIZE tx_size) {
+  const int max_blocks_wide = max_block_wide(xd, bsize, plane)
                               << tx_size_wide_log2[0];
   return ALIGN_POWER_OF_TWO(max_blocks_wide, tx_size_wide_log2[tx_size]);
 }
 
 static INLINE int max_intra_block_height(const MACROBLOCKD *xd,
-                                         BLOCK_SIZE plane_bsize, int plane,
+                                         BLOCK_SIZE bsize, int plane,
                                          TX_SIZE tx_size) {
-  const int max_blocks_high = max_block_high(xd, plane_bsize, plane)
+  const int max_blocks_high = max_block_high(xd, bsize, plane)
                               << tx_size_high_log2[0];
   return ALIGN_POWER_OF_TWO(max_blocks_high, tx_size_high_log2[tx_size]);
 }
