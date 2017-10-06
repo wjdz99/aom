@@ -456,7 +456,7 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
 #endif
   PLANE_TYPE plane_type = get_plane_type(plane);
   TX_TYPE tx_type =
-      av1_get_tx_type(plane_type, xd, blk_row, blk_col, block, tx_size);
+    av1_get_tx_type(plane_type, xd, blk_row, blk_col, block, tx_size);
 
 #if CONFIG_AOM_QM || CONFIG_NEW_QUANT
   const int is_inter = is_inter_block(mbmi);

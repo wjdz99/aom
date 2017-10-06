@@ -24,6 +24,9 @@
 #include "av1/common/daala_tx.h"
 #endif
 
+static void av1_highbd_inv_txfm_add(const tran_low_t *input, uint8_t *dest,
+                                    int stride, TxfmParam *txfm_param);
+
 int av1_get_tx_scale(const TX_SIZE tx_size) {
   const int pels = tx_size_2d[tx_size];
   return (pels > 256) + (pels > 1024) + (pels > 4096);
@@ -3307,8 +3310,8 @@ void av1_inverse_transform_block_facade(MACROBLOCKD *xd, int plane, int block,
                               tx_type, tx_size, dst, dst_stride, eob);
 }
 
-void av1_highbd_inv_txfm_add(const tran_low_t *input, uint8_t *dest, int stride,
-                             TxfmParam *txfm_param) {
+static void av1_highbd_inv_txfm_add(const tran_low_t *input, uint8_t *dest,
+                                    int stride, TxfmParam *txfm_param) {
   const TX_SIZE tx_size = txfm_param->tx_size;
   switch (tx_size) {
 #if CONFIG_TX64X64

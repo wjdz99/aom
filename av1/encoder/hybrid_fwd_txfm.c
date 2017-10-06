@@ -571,6 +571,7 @@ void av1_fwd_txfm(const int16_t *src_diff, tran_low_t *coeff, int diff_stride,
 
 void av1_highbd_fwd_txfm(const int16_t *src_diff, tran_low_t *coeff,
                          int diff_stride, TxfmParam *txfm_param) {
+  //TODO(sarahparker)add assert here
   const TX_SIZE tx_size = txfm_param->tx_size;
   switch (tx_size) {
 #if CONFIG_TX64X64
