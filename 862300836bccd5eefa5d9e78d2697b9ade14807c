@@ -16,6 +16,24 @@
       "revId": "862300836bccd5eefa5d9e78d2697b9ade14807c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6042190b_7d4ce205",
+        "filename": "av1/encoder/mcomp.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2599,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2017-10-06T04:26:18Z",
+      "side": 1,
+      "message": "In that corner case, if count\u003d\u003d1, is it still possible that the match is a non-trivial match (not a match with itself)? I think alternative solution is simply \"if (count \u003d\u003d 0)\" here. Trivial matches will be pruned by the validity check at line 2611.",
+      "parentUuid": "976e25f4_282d5d6f",
+      "revId": "862300836bccd5eefa5d9e78d2697b9ade14807c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
