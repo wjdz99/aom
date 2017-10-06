@@ -5597,6 +5597,12 @@ void av1_encode_frame(AV1_COMP *cpi) {
   // rather than the potential full set of 16 transforms
   cm->reduced_tx_set_used = 0;
 #endif  // CONFIG_EXT_TX
+#if CONFIG_ADAPT_SCAN
+  cm->use_adapt_scan = 1;
+  // TODO(angiebird): call av1_init_scan_order only when use_adapt_scan
+  // switches from 1 to 0
+  if (cm->use_adapt_scan == 0) av1_init_scan_order(cm);
+#endif
 
   // In the longer term the encoder should be generalized to match the
   // decoder such that we allow compound where one of the 3 buffers has a
