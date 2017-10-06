@@ -456,7 +456,7 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
 #endif
   PLANE_TYPE plane_type = get_plane_type(plane);
   TX_TYPE tx_type =
-      av1_get_tx_type(plane_type, xd, blk_row, blk_col, block, tx_size);
+    av1_get_tx_type(plane_type, xd, blk_row, blk_col, block, tx_size);
 
 #if CONFIG_AOM_QM || CONFIG_NEW_QUANT
   const int is_inter = is_inter_block(mbmi);
@@ -542,6 +542,9 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
   txfm_param.tx_type = tx_type;
   txfm_param.tx_size = tx_size;
   txfm_param.lossless = xd->lossless[mbmi->segment_id];
+  txfm_param.tx_set_type = get_ext_tx_set_type(
+    txfm_param.tx_size, plane_bsize, is_inter_block(mbmi),
+    cm->reduced_tx_set_used);
 #if CONFIG_MRC_TX || CONFIG_LGT
   txfm_param.is_inter = is_inter_block(mbmi);
 #endif
@@ -652,6 +655,9 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
 #if CONFIG_MRC_TX && SIGNAL_ANY_MRC_MASK
                                 mrc_mask,
 #endif  // CONFIG_MRC_TX && SIGNAL_ANY_MRC_MASK
+#if CONFIG_EXT_TX
+                                plane,
+#endif  // CONFIG_EXT_TX
                                 tx_type, tx_size, dst, pd->dst.stride,
                                 p->eobs[block]);
   }
@@ -751,6 +757,9 @@ static void encode_block_pass1(int plane, int block, int blk_row, int blk_col,
     txfm_param.tx_type = DCT_DCT;
     txfm_param.eob = p->eobs[block];
     txfm_param.lossless = xd->lossless[xd->mi[0]->mbmi.segment_id];
+    txfm_param.tx_set_type = get_ext_tx_set_type(
+      txfm_param.tx_size, plane_bsize, is_inter_block(&xd->mi[0]->mbmi),
+      cm->reduced_tx_set_used);
 #if CONFIG_HIGHBITDEPTH
     if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
       av1_highbd_inv_txfm_add_4x4(dqcoeff, dst, pd->dst.stride, &txfm_param);
@@ -930,6 +939,9 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
 #if CONFIG_MRC_TX && SIGNAL_ANY_MRC_MASK
                               mrc_mask,
 #endif  // CONFIG_MRC_TX && SIGNAL_ANY_MRC_MASK
+#if CONFIG_EXT_TX
+                              plane,
+#endif  // CONFIG_EXT_TX
                               tx_type, tx_size, dst, dst_stride, *eob);
 
   if (*eob) *(args->skip) = 0;
