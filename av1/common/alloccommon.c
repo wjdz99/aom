@@ -94,6 +94,37 @@ static void free_seg_map(AV1_COMMON *cm) {
   cm->seg_map_alloc_size = 0;
 }
 
+static void free_scratch_buffers(AV1_COMMON *cm) {
+  (void)cm;
+#if CONFIG_NCOBMC_ADAPT_WEIGHT
+  for (int i = 0; i < 4; ++i) {
+    if (cm->ncobmcaw_buf[0]) {
+      aom_free(cm->ncobmcaw_buf[0]);
+      cm->ncobmcaw_buf[0] = NULL;
+    }
+  }
+#endif  // CONFIG_NCOBMC_ADAPT_WEIGHT
+}
+
+static int alloc_scratch_buffers(AV1_COMMON *cm) {
+  (void)cm;
+#if CONFIG_NCOBMC && CONFIG_NCOBMC_ADAPT_WEIGHT
+  // If not allocated already allocate
+  if (!cm->ncobmcaw_buf[0] && !cm->ncobmcaw_buf[1] && !cm->ncobmcaw_buf[2] &&
+      !cm->ncobmcaw_buf[3]) {
+    cm->ncobmcaw_buf[0] = (uint8_t *)aom_memalign(
+        16, (1 + CONFIG_HIGHBITDEPTH) * MAX_MB_PLANE * MAX_SB_SQUARE);
+    cm->ncobmcaw_buf[1] = (uint8_t *)aom_memalign(
+        16, (1 + CONFIG_HIGHBITDEPTH) * MAX_MB_PLANE * MAX_SB_SQUARE);
+    cm->ncobmcaw_buf[2] = (uint8_t *)aom_memalign(
+        16, (1 + CONFIG_HIGHBITDEPTH) * MAX_MB_PLANE * MAX_SB_SQUARE);
+    cm->ncobmcaw_buf[3] = (uint8_t *)aom_memalign(
+        16, (1 + CONFIG_HIGHBITDEPTH) * MAX_MB_PLANE * MAX_SB_SQUARE);
+  }
+#endif  // CONFIG_NCOBMC && CONFIG_NCOBMC_ADAPT_WEIGHT
+  return 0;
+}
+
 void av1_free_ref_frame_buffers(BufferPool *pool) {
   int i;
 
@@ -177,6 +208,7 @@ void av1_free_context_buffers(AV1_COMMON *cm) {
   int i;
   cm->free_mi(cm);
   free_seg_map(cm);
+  free_scratch_buffers(cm);
   for (i = 0; i < MAX_MB_PLANE; i++) {
     aom_free(cm->above_context[i]);
     cm->above_context[i] = NULL;
@@ -210,6 +242,7 @@ int av1_alloc_context_buffers(AV1_COMMON *cm, int width, int height) {
     free_seg_map(cm);
     if (alloc_seg_map(cm, cm->mi_rows * cm->mi_cols)) goto fail;
   }
+  if (alloc_scratch_buffers(cm)) goto fail;
 
   if (cm->above_context_alloc_cols < cm->mi_cols) {
     // TODO(geza.lore): These are bigger than they need to be.
