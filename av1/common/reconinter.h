@@ -51,10 +51,17 @@ static INLINE void inter_predictor(const uint8_t *src, int src_stride,
       interp_filter[1 + 2 * conv_params->ref], conv_params->plane);
   const InterpFilter filter_y = av1_get_plane_interp_filter(
       interp_filter[0 + 2 * conv_params->ref], conv_params->plane);
+#if CONFIG_SHORT_FILTER
+  const InterpFilterParams interp_filter_params_x =
+	  av1_get_interp_filter_params_with_block_size(filter_x, w);
+  const InterpFilterParams interp_filter_params_y =
+	  av1_get_interp_filter_params_with_block_size(filter_y, h);
+#else
   const InterpFilterParams interp_filter_params_x =
       av1_get_interp_filter_params(filter_x);
   const InterpFilterParams interp_filter_params_y =
       av1_get_interp_filter_params(filter_y);
+#endif
 #else
   const InterpFilterParams interp_filter_params_x =
       av1_get_interp_filter_params(interp_filter);
@@ -143,10 +150,17 @@ static INLINE void highbd_inter_predictor(const uint8_t *src, int src_stride,
   assert(avg == 0 || avg == 1);
 #if CONFIG_DUAL_FILTER
   const int ref = conv_params->ref;
+#if CONFIG_SHORT_FILTER
+  const InterpFilterParams interp_filter_params_x =
+	  av1_get_interp_filter_params_with_block_size(interp_filter[1 + 2 * ref], w);
+  const InterpFilterParams interp_filter_params_y =
+	  av1_get_interp_filter_params_with_block_size(interp_filter[0 + 2 * ref], h);
+#else
   const InterpFilterParams interp_filter_params_x =
       av1_get_interp_filter_params(interp_filter[1 + 2 * ref]);
   const InterpFilterParams interp_filter_params_y =
       av1_get_interp_filter_params(interp_filter[0 + 2 * ref]);
+#endif
 #else
   const InterpFilterParams interp_filter_params_x =
       av1_get_interp_filter_params(interp_filter);

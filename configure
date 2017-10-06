@@ -254,6 +254,7 @@ EXPERIMENT_LIST="
     rect_tx_ext
     tpl_mv
     dual_filter
+    short_filter
     convolve_round
     compound_round
     ext_tx
