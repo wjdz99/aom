@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "976e25f4_282d5d6f",
+        "filename": "av1/encoder/mcomp.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2599,
+      "author": {
+        "id": 7465
+      },
+      "writtenOn": "2017-10-06T04:14:43Z",
+      "side": 1,
+      "message": "The assumption \"for intra, at lest one matching can be found, itself.\" is not always true at a corner case: when the picture is not at x8 (eg. 1262x670), the last 8x8 block of a line is out of the hash table. That is why AWCY is failed on intrabc + hash_me.",
+      "revId": "862300836bccd5eefa5d9e78d2697b9ade14807c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
