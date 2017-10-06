@@ -289,17 +289,7 @@ static void inverse_transform_block(MACROBLOCKD *xd, int plane,
 
 static int get_block_idx(const MACROBLOCKD *xd, int plane, int row, int col) {
   const int bsize = xd->mi[0]->mbmi.sb_type;
-  const struct macroblockd_plane *pd = &xd->plane[plane];
-#if CONFIG_CHROMA_SUB8X8
-  const BLOCK_SIZE plane_bsize =
-      AOMMAX(BLOCK_4X4, get_plane_block_size(bsize, pd));
-#elif CONFIG_CB4X4
-  const BLOCK_SIZE plane_bsize = get_plane_block_size(bsize, pd);
-#else
-  const BLOCK_SIZE plane_bsize =
-      get_plane_block_size(AOMMAX(BLOCK_8X8, bsize), pd);
-#endif
-  const int max_blocks_wide = max_block_wide(xd, plane_bsize, plane);
+  const int max_blocks_wide = max_block_wide(xd, bsize, plane);
   const TX_SIZE tx_size = av1_get_tx_size(plane, xd);
   const uint8_t txh_unit = tx_size_high_unit[tx_size];
   return row * max_blocks_wide + col * txh_unit;
@@ -543,8 +533,8 @@ static void decode_reconstruct_tx(AV1_COMMON *cm, MACROBLOCKD *const xd,
       plane ? uv_txsize_lookup[bsize][mbmi->inter_tx_size[tx_row][tx_col]][0][0]
             : mbmi->inter_tx_size[tx_row][tx_col];
   // Scale to match transform block unit.
-  const int max_blocks_high = max_block_high(xd, plane_bsize, plane);
-  const int max_blocks_wide = max_block_wide(xd, plane_bsize, plane);
+  const int max_blocks_high = max_block_high(xd, mbmi->sb_type, plane);
+  const int max_blocks_wide = max_block_wide(xd, mbmi->sb_type, plane);
 
   if (blk_row >= max_blocks_high || blk_col >= max_blocks_wide) return;
 
@@ -1931,23 +1921,14 @@ static void decode_token_and_recon_block(AV1Decoder *const pbi,
       const TX_SIZE tx_size = av1_get_tx_size(plane, xd);
       const int stepr = tx_size_high_unit[tx_size];
       const int stepc = tx_size_wide_unit[tx_size];
-#if CONFIG_CHROMA_SUB8X8
-      const BLOCK_SIZE plane_bsize =
-          AOMMAX(BLOCK_4X4, get_plane_block_size(bsize, pd));
-#elif CONFIG_CB4X4
-      const BLOCK_SIZE plane_bsize = get_plane_block_size(bsize, pd);
-#else
-      const BLOCK_SIZE plane_bsize =
-          get_plane_block_size(AOMMAX(BLOCK_8X8, bsize), pd);
-#endif
-      int row, col;
-      const int max_blocks_wide = max_block_wide(xd, plane_bsize, plane);
-      const int max_blocks_high = max_block_high(xd, plane_bsize, plane);
 #if CONFIG_CB4X4
       if (!is_chroma_reference(mi_row, mi_col, bsize, pd->subsampling_x,
                                pd->subsampling_y))
         continue;
 #endif
+      int row, col;
+      const int max_blocks_wide = max_block_wide(xd, bsize, plane);
+      const int max_blocks_high = max_block_high(xd, bsize, plane);
       int blk_row, blk_col;
       const BLOCK_SIZE max_unit_bsize = get_plane_block_size(BLOCK_64X64, pd);
       int mu_blocks_wide =
@@ -2036,25 +2017,14 @@ static void decode_token_and_recon_block(AV1Decoder *const pbi,
 
       for (plane = 0; plane < MAX_MB_PLANE; ++plane) {
         const struct macroblockd_plane *const pd = &xd->plane[plane];
-#if CONFIG_CHROMA_SUB8X8
-        const BLOCK_SIZE plane_bsize =
-            AOMMAX(BLOCK_4X4, get_plane_block_size(bsize, pd));
-#elif CONFIG_CB4X4
-        const BLOCK_SIZE plane_bsize = get_plane_block_size(bsize, pd);
-#else
-        const BLOCK_SIZE plane_bsize =
-            get_plane_block_size(AOMMAX(BLOCK_8X8, bsize), pd);
-#endif
-        const int max_blocks_wide = max_block_wide(xd, plane_bsize, plane);
-        const int max_blocks_high = max_block_high(xd, plane_bsize, plane);
-        int row, col;
-
 #if CONFIG_CB4X4
         if (!is_chroma_reference(mi_row, mi_col, bsize, pd->subsampling_x,
                                  pd->subsampling_y))
           continue;
 #endif
-
+        const int max_blocks_wide = max_block_wide(xd, bsize, plane);
+        const int max_blocks_high = max_block_high(xd, bsize, plane);
+        int row, col;
 #if CONFIG_VAR_TX
         const BLOCK_SIZE max_unit_bsize = get_plane_block_size(BLOCK_64X64, pd);
         int mu_blocks_wide =
@@ -2065,6 +2035,15 @@ static void decode_token_and_recon_block(AV1Decoder *const pbi,
         mu_blocks_wide = AOMMIN(max_blocks_wide, mu_blocks_wide);
         mu_blocks_high = AOMMIN(max_blocks_high, mu_blocks_high);
 
+#if CONFIG_CHROMA_SUB8X8
+        const BLOCK_SIZE plane_bsize =
+            AOMMAX(BLOCK_4X4, get_plane_block_size(bsize, pd));
+#elif CONFIG_CB4X4
+        const BLOCK_SIZE plane_bsize = get_plane_block_size(bsize, pd);
+#else
+        const BLOCK_SIZE plane_bsize =
+            get_plane_block_size(AOMMAX(BLOCK_8X8, bsize), pd);
+#endif
         const TX_SIZE max_tx_size = get_vartx_max_txsize(
             mbmi, plane_bsize, pd->subsampling_x || pd->subsampling_y);
         const int bh_var_tx = tx_size_high_unit[max_tx_size];
@@ -2555,11 +2534,10 @@ static void decode_partition(AV1Decoder *const pbi, MACROBLOCKD *const xd,
         const struct macroblockd_plane *const pd = &xd->plane[i];
         int row, col;
         const TX_SIZE tx_size = av1_get_tx_size(i, xd);
-        const BLOCK_SIZE plane_bsize = get_plane_block_size(bsize, pd);
         const int stepr = tx_size_high_unit[tx_size];
         const int stepc = tx_size_wide_unit[tx_size];
-        const int max_blocks_wide = max_block_wide(xd, plane_bsize, i);
-        const int max_blocks_high = max_block_high(xd, plane_bsize, i);
+        const int max_blocks_wide = max_block_wide(xd, bsize, i);
+        const int max_blocks_high = max_block_high(xd, bsize, i);
 
         for (row = 0; row < max_blocks_high; row += stepr)
           for (col = 0; col < max_blocks_wide; col += stepc)
