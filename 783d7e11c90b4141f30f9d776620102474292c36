@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "92f8e177_d7b67653",
+        "filename": "av1/common/x86/intra_edge_sse4.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5195
+      },
+      "writtenOn": "2017-10-06T22:33:47Z",
+      "side": 0,
+      "message": "Just want to know why valgrind warning. Please correct me if I\u0027m wrong. Because of two extra bytes accessed here, p[-1] and p[sz], for strength !\u003d 3 cases, valgrind gives warning?",
+      "range": {
+        "startLine": 36,
+        "startChar": 4,
+        "endLine": 37,
+        "endChar": 22
+      },
+      "revId": "783d7e11c90b4141f30f9d776620102474292c36",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
