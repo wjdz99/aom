@@ -188,9 +188,9 @@ static void cfl_dc_pred(MACROBLOCKD *xd, BLOCK_SIZE plane_bsize,
 // Don't match the behavior of build_intra_predictors_high
 // unavailable pixels == 128 << (xd->bd - 8) (no +/- 1)
 #if CONFIG_CHROMA_SUB8X8
-      if (xd->chroma_up_available && xd->mb_to_right_edge >= 0) {
+      if (xd->chroma_up_available) {
 #else
-      if (xd->up_available && xd->mb_to_right_edge >= 0) {
+      if (xd->up_available) {
 #endif
         sum_above_row(xd, b_i, fr_width, &sum_u, &sum_v);
       } else {
@@ -200,9 +200,9 @@ static void cfl_dc_pred(MACROBLOCKD *xd, BLOCK_SIZE plane_bsize,
       }
 
 #if CONFIG_CHROMA_SUB8X8
-      if (xd->chroma_left_available && xd->mb_to_bottom_edge >= 0) {
+      if (xd->chroma_left_available) {
 #else
-      if (xd->left_available && xd->mb_to_bottom_edge >= 0) {
+      if (xd->left_available) {
 #endif
         sum_left_col(xd, b_j, fr_height, &sum_u, &sum_v);
       } else {
