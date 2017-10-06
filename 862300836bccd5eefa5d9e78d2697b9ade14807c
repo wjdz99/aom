@@ -34,6 +34,24 @@
       "revId": "862300836bccd5eefa5d9e78d2697b9ade14807c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a7dbb572_cdd9f920",
+        "filename": "av1/encoder/mcomp.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2599,
+      "author": {
+        "id": 7465
+      },
+      "writtenOn": "2017-10-06T04:56:13Z",
+      "side": 1,
+      "message": "I do not think a non-trivial match is possible. From 178@hash_motion.c, when calculating hash values, only blocks fully inside picture are processed. In this case, hash value of current block is a random value which depends on how the out-of-boundary pixel are filled. There is no way to match any block in the established table. If there is a match, it is a false match (collision).\nRely on line 2611 is risky, since we may change the definition of valid prediction area later(larger for better compression, or smaller to please HW guys).",
+      "parentUuid": "6042190b_7d4ce205",
+      "revId": "862300836bccd5eefa5d9e78d2697b9ade14807c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
