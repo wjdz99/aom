@@ -449,7 +449,8 @@ static void read_tx_size_vartx(AV1_COMMON *cm, MACROBLOCKD *xd,
   if (blk_row >= max_blocks_high || blk_col >= max_blocks_wide) return;
   assert(tx_size > TX_4X4);
 
-  if (depth == MAX_VARTX_DEPTH) {
+  if (depth == MAX_VARTX_DEPTH ||
+      (is_inter_block(mbmi) && mbmi->ref_frame[1] == INTRA_FRAME)) {
     int idx, idy;
     inter_tx_size[0][0] = tx_size;
     for (idy = 0; idy < tx_size_high_unit[tx_size] / 2; ++idy)
@@ -2912,10 +2913,23 @@ static void read_inter_frame_mode_info(AV1Decoder *const pbi,
   }
 
 #if CONFIG_SUPERTX
-  if (!supertx_enabled) {
+  if (!supertx_enabled)
 #endif  // CONFIG_SUPERTX
     inter_block = read_is_inter_block(cm, xd, mbmi->segment_id, r);
 
+  if (inter_block)
+    read_inter_block_mode_info(pbi, xd,
+#if CONFIG_SUPERTX
+                               mi, mi_row, mi_col, r, supertx_enabled);
+#else
+                               mi, mi_row, mi_col, r);
+#endif  // CONFIG_MOTION_VAR && CONFIG_SUPERTX
+  else
+    read_intra_block_mode_info(cm, mi_row, mi_col, xd, mi, r);
+
+#if CONFIG_SUPERTX
+  if (!supertx_enabled) {
+#endif  // CONFIG_SUPERTX
 #if CONFIG_VAR_TX
     xd->above_txfm_context =
         cm->above_txfm_context + (mi_col << TX_UNIT_WIDE_LOG2);
@@ -2992,16 +3006,6 @@ static void read_inter_frame_mode_info(AV1Decoder *const pbi,
   }
 #endif  // CONFIG_VAR_TX
 #endif  // CONFIG_SUPERTX
-
-  if (inter_block)
-    read_inter_block_mode_info(pbi, xd,
-#if CONFIG_SUPERTX
-                               mi, mi_row, mi_col, r, supertx_enabled);
-#else
-                               mi, mi_row, mi_col, r);
-#endif  // CONFIG_MOTION_VAR && CONFIG_SUPERTX
-  else
-    read_intra_block_mode_info(cm, mi_row, mi_col, xd, mi, r);
 
 #if !CONFIG_TXK_SEL
   av1_read_tx_type(cm, xd,
