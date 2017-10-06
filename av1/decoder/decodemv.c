@@ -1540,15 +1540,15 @@ static void read_ref_frames(AV1_COMMON *const cm, MACROBLOCKD *const xd,
 #endif  // CONFIG_EXT_COMP_REFS
 
 // Normative in decoder (for low delay)
-#if CONFIG_ONE_SIDED_COMPOUND
+#if CONFIG_ONE_SIDED_COMPOUND || CONFIG_FRAME_SIGN_BIAS
       const int idx = 1;
-#else  // !CONFIG_ONE_SIDED_COMPOUND
+#else  // !(CONFIG_ONE_SIDED_COMPOUND || CONFIG_FRAME_SIGN_BIAS)
 #if CONFIG_EXT_REFS
       const int idx = cm->ref_frame_sign_bias[cm->comp_bwd_ref[0]];
 #else   // !CONFIG_EXT_REFS
       const int idx = cm->ref_frame_sign_bias[cm->comp_fixed_ref];
 #endif  // CONFIG_EXT_REFS
-#endif  // CONFIG_ONE_SIDED_COMPOUND
+#endif  // CONFIG_ONE_SIDED_COMPOUND || CONFIG_FRAME_SIGN_BIAS)
 
       const int ctx = av1_get_pred_context_comp_ref_p(cm, xd);
 #if CONFIG_VAR_REFS
@@ -2216,22 +2216,6 @@ static void dec_dump_logs(AV1_COMMON *cm, MODE_INFO *const mi,
   for (ref = 0; ref < 1 + has_second_ref(mbmi); ++ref)
     mv[ref].as_mv = mbmi->mv[ref].as_mv;
 
-  int interp_ctx[2] = { -1 };
-  int interp_filter[2] = { cm->interp_filter };
-  if (cm->interp_filter == SWITCHABLE) {
-    int dir;
-    for (dir = 0; dir < 2; ++dir) {
-      if (has_subpel_mv_component(xd->mi[0], xd, dir) ||
-          (mbmi->ref_frame[1] > INTRA_FRAME &&
-           has_subpel_mv_component(xd->mi[0], xd, dir + 2))) {
-        interp_ctx[dir] = av1_get_pred_context_switchable_interp(xd, dir);
-        interp_filter[dir] = mbmi->interp_filter[dir];
-      } else {
-        interp_filter[dir] = EIGHTTAP_REGULAR;
-      }
-    }
-  }
-
   const int16_t newmv_ctx = mode_ctx & NEWMV_CTX_MASK;
   int16_t zeromv_ctx = -1;
   int16_t refmv_ctx = -1;
@@ -2248,20 +2232,18 @@ static void dec_dump_logs(AV1_COMMON *cm, MODE_INFO *const mi,
 
   int8_t ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
 #define FRAME_TO_CHECK 1
-  if (cm->current_video_frame == FRAME_TO_CHECK /*&& cm->show_frame == 0*/) {
+  if (cm->current_video_frame == FRAME_TO_CHECK && cm->show_frame == 1) {
     printf(
         "=== DECODER ===: "
         "Frame=%d, (mi_row,mi_col)=(%d,%d), mode=%d, bsize=%d, "
         "show_frame=%d, mv[0]=(%d,%d), mv[1]=(%d,%d), ref[0]=%d, "
         "ref[1]=%d, motion_mode=%d, inter_mode_ctx=%d, mode_ctx=%d, "
-        "interp_ctx=(%d,%d), interp_filter=(%d,%d), newmv_ctx=%d, "
-        "zeromv_ctx=%d, refmv_ctx=%d\n",
+        "newmv_ctx=%d, zeromv_ctx=%d, refmv_ctx=%d\n",
         cm->current_video_frame, mi_row, mi_col, mbmi->mode, mbmi->sb_type,
         cm->show_frame, mv[0].as_mv.row, mv[0].as_mv.col, mv[1].as_mv.row,
         mv[1].as_mv.col, mbmi->ref_frame[0], mbmi->ref_frame[1],
-        mbmi->motion_mode, inter_mode_ctx[ref_frame_type], mode_ctx,
-        interp_ctx[0], interp_ctx[1], interp_filter[0], interp_filter[1],
-        newmv_ctx, zeromv_ctx, refmv_ctx);
+        mbmi->motion_mode, inter_mode_ctx[ref_frame_type], mode_ctx, newmv_ctx,
+        zeromv_ctx, refmv_ctx);
   }
 }
 #endif  // DEC_MISMATCH_DEBUG
