@@ -2910,6 +2910,26 @@ static const aom_cdf_prob
       { AOM_ICDF(128), AOM_ICDF(256), AOM_ICDF(32768), 0 },
       { AOM_ICDF(17408), AOM_ICDF(18248), AOM_ICDF(32768), 0 }
     };
+#if CONFIG_SHORT_FILTER
+static const aom_cdf_prob
+    default_switchable_short_interp_cdf[SWITCHABLE_FILTER_CONTEXTS][CDF_SIZE(
+        SWITCHABLE_FILTERS - 1)] = { { AOM_ICDF(32370), AOM_ICDF(32768), 0 },
+                                     { AOM_ICDF(2933), AOM_ICDF(32768), 0 },
+                                     { AOM_ICDF(32516), AOM_ICDF(32768), 0 },
+                                     { AOM_ICDF(31454), AOM_ICDF(32768), 0 },
+                                     { AOM_ICDF(32669), AOM_ICDF(32768), 0 },
+                                     { AOM_ICDF(3188), AOM_ICDF(32768), 0 },
+                                     { AOM_ICDF(32641), AOM_ICDF(32768), 0 },
+                                     { AOM_ICDF(31579), AOM_ICDF(32768), 0 },
+                                     { AOM_ICDF(32237), AOM_ICDF(32768), 0 },
+                                     { AOM_ICDF(2168), AOM_ICDF(32768), 0 },
+                                     { AOM_ICDF(32262), AOM_ICDF(32768), 0 },
+                                     { AOM_ICDF(30338), AOM_ICDF(32768), 0 },
+                                     { AOM_ICDF(32597), AOM_ICDF(32768), 0 },
+                                     { AOM_ICDF(4559), AOM_ICDF(32768), 0 },
+                                     { AOM_ICDF(32640), AOM_ICDF(32768), 0 },
+                                     { AOM_ICDF(31928), AOM_ICDF(32768), 0 } };
+#endif  // USE_SHORT_FILTER
 #endif  // USE_EXTRA_FILTER
 #else   // CONFIG_DUAL_FILTER
 static const aom_cdf_prob
@@ -5103,6 +5123,10 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
   av1_copy(fc->y_mode_cdf, default_if_y_mode_cdf);
   av1_copy(fc->uv_mode_cdf, default_uv_mode_cdf);
   av1_copy(fc->switchable_interp_cdf, default_switchable_interp_cdf);
+#if CONFIG_SHORT_FILTER
+  av1_copy(fc->switchable_short_interp_cdf,
+           default_switchable_short_interp_cdf);
+#endif
   av1_copy(fc->partition_cdf, default_partition_cdf);
   av1_copy(fc->intra_ext_tx_cdf, default_intra_ext_tx_cdf);
   av1_copy(fc->inter_ext_tx_cdf, default_inter_ext_tx_cdf);

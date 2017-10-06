@@ -1295,9 +1295,16 @@ static void write_intra_angle_info(const MACROBLOCKD *xd,
 #endif  // CONFIG_EXT_INTRA
 
 static void write_mb_interp_filter(AV1_COMP *cpi, const MACROBLOCKD *xd,
+#if CONFIG_SHORT_FILTER
+                                   int width, int height,
+#endif
                                    aom_writer *w) {
   AV1_COMMON *const cm = &cpi->common;
+#if CONFIG_SHORT_FILTER
+  MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
+#else
   const MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
+#endif
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
 
   if (!av1_is_interp_needed(xd)) {
@@ -1321,9 +1328,24 @@ static void write_mb_interp_filter(AV1_COMP *cpi, const MACROBLOCKD *xd,
           (mbmi->ref_frame[1] > INTRA_FRAME &&
            has_subpel_mv_component(xd->mi[0], xd, dir + 2))) {
         const int ctx = av1_get_pred_context_switchable_interp(xd, dir);
+#if CONFIG_SHORT_FILTER
+        if ((dir == 0 && height <= 4) || (dir == 1 && width <= 4)) {
+          if (mbmi->interp_filter[dir] == MULTITAP_SHARP)
+            mbmi->interp_filter[dir] = EIGHTTAP_REGULAR;
+          aom_write_symbol(w, mbmi->interp_filter[dir],
+                           ec_ctx->switchable_short_interp_cdf[ctx],
+                           SWITCHABLE_FILTERS - 1);
+        } else {
+          aom_write_symbol(w, mbmi->interp_filter[dir],
+                           ec_ctx->switchable_interp_cdf[ctx],
+                           SWITCHABLE_FILTERS);
+        }
+#else
         aom_write_symbol(w, mbmi->interp_filter[dir],
                          ec_ctx->switchable_interp_cdf[ctx],
                          SWITCHABLE_FILTERS);
+
+#endif
         ++cpi->interp_filter_selected[0][mbmi->interp_filter[dir]];
       } else {
         assert(mbmi->interp_filter[dir] == EIGHTTAP_REGULAR);
@@ -2095,7 +2117,12 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
 #endif  // CONFIG_EXT_INTER
 
 #if CONFIG_DUAL_FILTER || CONFIG_WARPED_MOTION || CONFIG_GLOBAL_MOTION
+#if CONFIG_SHORT_FILTER
+    write_mb_interp_filter(cpi, xd, block_size_wide[bsize],
+                           block_size_high[bsize], w);
+#else
     write_mb_interp_filter(cpi, xd, w);
+#endif
 #endif  // CONFIG_DUAL_FILTE || CONFIG_WARPED_MOTION
   }
 

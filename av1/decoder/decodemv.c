@@ -1703,6 +1703,9 @@ static void read_ref_frames(AV1_COMMON *const cm, MACROBLOCKD *const xd,
 
 static INLINE void read_mb_interp_filter(AV1_COMMON *const cm,
                                          MACROBLOCKD *const xd,
+#if CONFIG_SHORT_FILTER
+                                         int w, int h,
+#endif
                                          MB_MODE_INFO *const mbmi,
                                          aom_reader *r) {
   FRAME_COUNTS *counts = xd->counts;
@@ -1728,9 +1731,21 @@ static INLINE void read_mb_interp_filter(AV1_COMMON *const cm,
       if (has_subpel_mv_component(xd->mi[0], xd, dir) ||
           (mbmi->ref_frame[1] > INTRA_FRAME &&
            has_subpel_mv_component(xd->mi[0], xd, dir + 2))) {
+#if CONFIG_SHORT_FILTER
+        if ((dir == 0 && h <= 4) || (dir == 1 && w <= 4)) {
+          mbmi->interp_filter[dir] = (InterpFilter)aom_read_symbol(
+              r, ec_ctx->switchable_short_interp_cdf[ctx],
+              SWITCHABLE_FILTERS - 1, ACCT_STR);
+        } else {
+          mbmi->interp_filter[dir] = (InterpFilter)aom_read_symbol(
+              r, ec_ctx->switchable_interp_cdf[ctx], SWITCHABLE_FILTERS,
+              ACCT_STR);
+        }
+#else
         mbmi->interp_filter[dir] =
             (InterpFilter)aom_read_symbol(r, ec_ctx->switchable_interp_cdf[ctx],
                                           SWITCHABLE_FILTERS, ACCT_STR);
+#endif
         if (counts) ++counts->switchable_interp[ctx][mbmi->interp_filter[dir]];
       }
     }
@@ -2898,7 +2913,12 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
 #endif  // CONFIG_EXT_INTER
 
 #if CONFIG_DUAL_FILTER || CONFIG_WARPED_MOTION || CONFIG_GLOBAL_MOTION
+#if CONFIG_SHORT_FILTER
+  read_mb_interp_filter(cm, xd, block_size_wide[bsize], block_size_high[bsize],
+                        mbmi, r);
+#else
   read_mb_interp_filter(cm, xd, mbmi, r);
+#endif
 #endif  // CONFIG_DUAL_FILTER || CONFIG_WARPED_MOTION
 
 #if DEC_MISMATCH_DEBUG

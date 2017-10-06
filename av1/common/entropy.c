@@ -2360,6 +2360,9 @@ void av1_average_tile_inter_cdfs(AV1_COMMON *cm, FRAME_CONTEXT *fc,
 
   if (cm->interp_filter == SWITCHABLE) {
     AVERAGE_TILE_CDFS(switchable_interp_cdf)
+#if CONFIG_SHORT_FILTER
+    AVERAGE_TILE_CDFS(switchable_short_interp_cdf)
+#endif
   }
 #if CONFIG_NEW_MULTISYMBOL
   AVERAGE_TILE_CDFS(intra_inter_cdf)

@@ -356,6 +356,10 @@ typedef struct frame_contexts {
 #endif
   aom_cdf_prob switchable_interp_cdf[SWITCHABLE_FILTER_CONTEXTS]
                                     [CDF_SIZE(SWITCHABLE_FILTERS)];
+#if CONFIG_SHORT_FILTER
+  aom_cdf_prob switchable_short_interp_cdf[SWITCHABLE_FILTER_CONTEXTS]
+                                          [CDF_SIZE(SWITCHABLE_FILTERS - 1)];
+#endif
   /* kf_y_cdf is discarded after use, so does not require persistent storage.
      However, we keep it with the other CDFs in this struct since it needs to
      be copied to each tile to support parallelism just like the others.
@@ -409,6 +413,10 @@ typedef struct FRAME_COUNTS {
 #endif
   unsigned int switchable_interp[SWITCHABLE_FILTER_CONTEXTS]
                                 [SWITCHABLE_FILTERS];
+#if CONFIG_SHORT_FILTER
+  unsigned int switchable_short_interp[SWITCHABLE_FILTER_CONTEXTS]
+                                      [SWITCHABLE_FILTERS - 1];
+#endif
 #if CONFIG_ADAPT_SCAN
 #if CONFIG_CHROMA_2X2
   unsigned int non_zero_count_2x2[TX_TYPES][4];
