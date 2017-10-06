@@ -3226,6 +3226,60 @@ static InvTxfmFunc inv_txfm_func[2] = { av1_inv_txfm_add,
                                         av1_highbd_inv_txfm_add };
 #endif
 
+static void av1_highbd_inv_txfm_add(const tran_low_t *input, uint8_t *dest,
+                                    int stride, TxfmParam *txfm_param) {
+  const TX_SIZE tx_size = txfm_param->tx_size;
+  switch (tx_size) {
+#if CONFIG_TX64X64
+    case TX_64X64:
+      highbd_inv_txfm_add_64x64(input, dest, stride, txfm_param);
+      break;
+#endif  // CONFIG_TX64X64
+    case TX_32X32:
+      highbd_inv_txfm_add_32x32(input, dest, stride, txfm_param);
+      break;
+    case TX_16X16:
+      highbd_inv_txfm_add_16x16(input, dest, stride, txfm_param);
+      break;
+    case TX_8X8:
+      highbd_inv_txfm_add_8x8(input, dest, stride, txfm_param);
+      break;
+    case TX_4X8:
+      av1_highbd_inv_txfm_add_4x8(input, dest, stride, txfm_param);
+      break;
+    case TX_8X4:
+      av1_highbd_inv_txfm_add_8x4(input, dest, stride, txfm_param);
+      break;
+    case TX_8X16:
+      highbd_inv_txfm_add_8x16(input, dest, stride, txfm_param);
+      break;
+    case TX_16X8:
+      highbd_inv_txfm_add_16x8(input, dest, stride, txfm_param);
+      break;
+    case TX_16X32:
+      highbd_inv_txfm_add_16x32(input, dest, stride, txfm_param);
+      break;
+    case TX_32X16:
+      highbd_inv_txfm_add_32x16(input, dest, stride, txfm_param);
+      break;
+#if CONFIG_TX64X64
+    case TX_64X32:
+      highbd_inv_txfm_add_64x32(input, dest, stride, txfm_param);
+      break;
+    case TX_32X64:
+      highbd_inv_txfm_add_32x64(input, dest, stride, txfm_param);
+      break;
+#endif  // CONFIG_TX64X64
+    case TX_4X4:
+      // this is like av1_short_idct4x4 but has a special case around eob<=1
+      // which is significant (not just an optimization) for the lossless
+      // case.
+      av1_highbd_inv_txfm_add_4x4(input, dest, stride, txfm_param);
+      break;
+    default: assert(0 && "Invalid transform size"); break;
+  }
+}
+
 void av1_inverse_transform_block(const MACROBLOCKD *xd,
                                  const tran_low_t *dqcoeff,
 #if CONFIG_LGT_FROM_PRED
@@ -3305,58 +3359,4 @@ void av1_inverse_transform_block_facade(MACROBLOCKD *xd, int plane, int block,
                               mrc_mask,
 #endif  // CONFIG_MRC_TX && SIGNAL_ANY_MRC_MASK
                               tx_type, tx_size, dst, dst_stride, eob);
-}
-
-void av1_highbd_inv_txfm_add(const tran_low_t *input, uint8_t *dest, int stride,
-                             TxfmParam *txfm_param) {
-  const TX_SIZE tx_size = txfm_param->tx_size;
-  switch (tx_size) {
-#if CONFIG_TX64X64
-    case TX_64X64:
-      highbd_inv_txfm_add_64x64(input, dest, stride, txfm_param);
-      break;
-#endif  // CONFIG_TX64X64
-    case TX_32X32:
-      highbd_inv_txfm_add_32x32(input, dest, stride, txfm_param);
-      break;
-    case TX_16X16:
-      highbd_inv_txfm_add_16x16(input, dest, stride, txfm_param);
-      break;
-    case TX_8X8:
-      highbd_inv_txfm_add_8x8(input, dest, stride, txfm_param);
-      break;
-    case TX_4X8:
-      av1_highbd_inv_txfm_add_4x8(input, dest, stride, txfm_param);
-      break;
-    case TX_8X4:
-      av1_highbd_inv_txfm_add_8x4(input, dest, stride, txfm_param);
-      break;
-    case TX_8X16:
-      highbd_inv_txfm_add_8x16(input, dest, stride, txfm_param);
-      break;
-    case TX_16X8:
-      highbd_inv_txfm_add_16x8(input, dest, stride, txfm_param);
-      break;
-    case TX_16X32:
-      highbd_inv_txfm_add_16x32(input, dest, stride, txfm_param);
-      break;
-    case TX_32X16:
-      highbd_inv_txfm_add_32x16(input, dest, stride, txfm_param);
-      break;
-#if CONFIG_TX64X64
-    case TX_64X32:
-      highbd_inv_txfm_add_64x32(input, dest, stride, txfm_param);
-      break;
-    case TX_32X64:
-      highbd_inv_txfm_add_32x64(input, dest, stride, txfm_param);
-      break;
-#endif  // CONFIG_TX64X64
-    case TX_4X4:
-      // this is like av1_short_idct4x4 but has a special case around eob<=1
-      // which is significant (not just an optimization) for the lossless
-      // case.
-      av1_highbd_inv_txfm_add_4x4(input, dest, stride, txfm_param);
-      break;
-    default: assert(0 && "Invalid transform size"); break;
-  }
 }
