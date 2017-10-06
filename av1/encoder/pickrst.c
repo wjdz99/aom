@@ -540,6 +540,30 @@ static void foreach_rtile_in_tile(const struct rest_search_ctxt *ctxt,
     tile_row_end = ROUND_POWER_OF_TWO(tile_row_end, cm->subsampling_y);
   }
 
+#if CONFIG_FRAME_SUPERRES
+  // If upscaling is enabled, the tile limits need scaling to match the
+  // upscaled frame where the restoration tiles live. To do this, scale up the
+  // top-left and bottom-right of the tile.
+  //
+  // This scaling doesn't have to be a completely perfect inverse of
+  // av1_calculate_scaled_size, but we do need to make sure we don't fall off
+  // the bottom-right of the frame. av1_calculate_scaled_size rounded up, so we
+  // just multiply by the inverse of the resulting factor and round down,
+  // clamping to the frame size.
+  if (!av1_superres_unscaled(cm)) {
+    float x_upscale = (float)cm->superres_upscaled_width / cm->width;
+    float y_upscale = (float)cm->superres_upscaled_height / cm->height;
+
+    tile_col_start *= x_upscale;
+    tile_col_end *= x_upscale;
+    tile_row_start *= y_upscale;
+    tile_row_end *= y_upscale;
+
+    tile_col_end = AOMMIN(tile_col_end, ctxt->plane_width);
+    tile_row_end = AOMMIN(tile_col_end, ctxt->plane_height);
+  }
+#endif
+
   const int rtile_size = rsi->restoration_tilesize;
   const int rtile_col0 = (tile_col_start + rtile_size - 1) / rtile_size;
   const int rtile_col1 =
