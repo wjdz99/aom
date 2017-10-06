@@ -6006,7 +6006,8 @@ static void update_txfm_count(MACROBLOCK *x, MACROBLOCKD *xd,
   if (blk_row >= max_blocks_high || blk_col >= max_blocks_wide) return;
   assert(tx_size > TX_4X4);
 
-  if (depth == MAX_VARTX_DEPTH) {
+  if (depth == MAX_VARTX_DEPTH ||
+      (is_inter_block(mbmi) && mbmi->ref_frame[1] == INTRA_FRAME)) {
 // Don't add to counts in this case
 #if CONFIG_RECT_TX_EXT
     if (tx_size == plane_tx_size)

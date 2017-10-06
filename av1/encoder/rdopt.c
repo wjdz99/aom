@@ -4557,11 +4557,12 @@ static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
   TX_TYPE best_tx_type = TX_TYPES;
   int txk_idx = (blk_row << 4) + blk_col;
 #endif
+  int is_interintra = is_inter_block(mbmi) && mbmi->ref_frame[1] == INTRA_FRAME;
 #if CONFIG_RECT_TX_EXT
   TX_SIZE quarter_txsize = quarter_txsize_lookup[mbmi->sb_type];
   int check_qttx = is_quarter_tx_allowed(xd, mbmi, is_inter_block(mbmi)) &&
                    tx_size == max_txsize_rect_lookup[mbmi->sb_type] &&
-                   quarter_txsize != tx_size;
+                   quarter_txsize != tx_size && !is_interintra;
   int is_qttx_picked = 0;
   int eobs_qttx[2] = { 0, 0 };
   int skip_qttx[2] = { 0, 0 };
@@ -4583,6 +4584,10 @@ static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
   if (ref_best_rd < 0) {
     *is_cost_valid = 0;
     return;
+  }
+
+  if (is_interintra) {
+    if (tx_size != max_txsize_rect_lookup[mbmi->sb_type]) assert(0);
   }
 
   av1_init_rd_stats(rd_stats);
@@ -4651,7 +4656,7 @@ static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
       rd_stats->skip = 0;
     }
 
-    if (tx_size > TX_4X4 && depth < MAX_VARTX_DEPTH)
+    if (tx_size > TX_4X4 && depth < MAX_VARTX_DEPTH && !is_interintra)
       rd_stats->rate +=
           av1_cost_bit(cpi->common.fc->txfm_partition_prob[ctx], 0);
 #if CONFIG_RECT_TX_EXT
@@ -4773,13 +4778,14 @@ static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
 #endif
   }
 
-  if (tx_size > TX_4X4 && depth < MAX_VARTX_DEPTH
+  if (tx_size > TX_4X4 && depth < MAX_VARTX_DEPTH &&
+      !is_interintra
 #if CONFIG_MRC_TX
       // If the tx type we are trying is MRC_DCT, we cannot partition the
       // transform into anything smaller than TX_32X32
       && mbmi->tx_type != MRC_DCT
 #endif  // CONFIG_MRC_TX
-      ) {
+  ) {
     const TX_SIZE sub_txs = sub_tx_size_map[tx_size];
     const int bsl = tx_size_wide_unit[sub_txs];
     int sub_step = tx_size_wide_unit[sub_txs] * tx_size_high_unit[sub_txs];

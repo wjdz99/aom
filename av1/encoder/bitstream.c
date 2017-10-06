@@ -295,7 +295,8 @@ static void write_tx_size_vartx(const AV1_COMMON *cm, MACROBLOCKD *xd,
 
   if (blk_row >= max_blocks_high || blk_col >= max_blocks_wide) return;
 
-  if (depth == MAX_VARTX_DEPTH) {
+  if (depth == MAX_VARTX_DEPTH ||
+      (is_inter_block(mbmi) && mbmi->ref_frame[1] == INTRA_FRAME)) {
     txfm_partition_update(xd->above_txfm_context + blk_col,
                           xd->left_txfm_context + blk_row, tx_size, tx_size);
     return;
@@ -1760,52 +1761,6 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
 #endif  // CONFIG_SUPERTX
     write_is_inter(cm, xd, mbmi->segment_id, w, is_inter);
 
-  if (cm->tx_mode == TX_MODE_SELECT &&
-#if CONFIG_CB4X4 && (CONFIG_VAR_TX || CONFIG_RECT_TX)
-#if CONFIG_RECT_TX
-      bsize > BLOCK_4X4 &&
-#else
-      (bsize >= BLOCK_8X8 || (bsize > BLOCK_4X4 && is_inter)) &&
-#endif  // CONFIG_RECT_TX
-#else
-      bsize >= BLOCK_8X8 &&
-#endif
-#if CONFIG_SUPERTX
-      !supertx_enabled &&
-#endif  // CONFIG_SUPERTX
-      !(is_inter && skip) && !xd->lossless[segment_id]) {
-#if CONFIG_VAR_TX
-    if (is_inter) {  // This implies skip flag is 0.
-      const TX_SIZE max_tx_size = get_vartx_max_txsize(mbmi, bsize, 0);
-      const int bh = tx_size_high_unit[max_tx_size];
-      const int bw = tx_size_wide_unit[max_tx_size];
-      const int width = block_size_wide[bsize] >> tx_size_wide_log2[0];
-      const int height = block_size_high[bsize] >> tx_size_wide_log2[0];
-      int idx, idy;
-      for (idy = 0; idy < height; idy += bh)
-        for (idx = 0; idx < width; idx += bw)
-          write_tx_size_vartx(cm, xd, mbmi, max_tx_size, height != width, idy,
-                              idx, w);
-#if CONFIG_RECT_TX_EXT
-      if (is_quarter_tx_allowed(xd, mbmi, is_inter_block(mbmi)) &&
-          quarter_txsize_lookup[bsize] != max_tx_size &&
-          (mbmi->tx_size == quarter_txsize_lookup[bsize] ||
-           mbmi->tx_size == max_tx_size)) {
-        aom_write(w, mbmi->tx_size != max_tx_size,
-                  cm->fc->quarter_tx_size_prob);
-      }
-#endif
-    } else {
-      set_txfm_ctxs(mbmi->tx_size, xd->n8_w, xd->n8_h, skip, xd);
-      write_selected_tx_size(cm, xd, w);
-    }
-  } else {
-    set_txfm_ctxs(mbmi->tx_size, xd->n8_w, xd->n8_h, skip, xd);
-#else
-    write_selected_tx_size(cm, xd, w);
-#endif
-  }
-
   if (!is_inter) {
     if (bsize >= BLOCK_8X8 || unify_bsize) {
       write_intra_mode(ec_ctx, bsize, mode, w);
@@ -2081,6 +2036,52 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
 #if CONFIG_DUAL_FILTER || CONFIG_WARPED_MOTION || CONFIG_GLOBAL_MOTION
     write_mb_interp_filter(cpi, xd, w);
 #endif  // CONFIG_DUAL_FILTE || CONFIG_WARPED_MOTION
+  }
+
+  if (cm->tx_mode == TX_MODE_SELECT &&
+#if CONFIG_CB4X4 && (CONFIG_VAR_TX || CONFIG_RECT_TX)
+#if CONFIG_RECT_TX
+      bsize > BLOCK_4X4 &&
+#else
+      (bsize >= BLOCK_8X8 || (bsize > BLOCK_4X4 && is_inter)) &&
+#endif  // CONFIG_RECT_TX
+#else
+      bsize >= BLOCK_8X8 &&
+#endif
+#if CONFIG_SUPERTX
+      !supertx_enabled &&
+#endif  // CONFIG_SUPERTX
+      !(is_inter && skip) && !xd->lossless[segment_id]) {
+#if CONFIG_VAR_TX
+    if (is_inter) {  // This implies skip flag is 0.
+      const TX_SIZE max_tx_size = get_vartx_max_txsize(mbmi, bsize, 0);
+      const int bh = tx_size_high_unit[max_tx_size];
+      const int bw = tx_size_wide_unit[max_tx_size];
+      const int width = block_size_wide[bsize] >> tx_size_wide_log2[0];
+      const int height = block_size_high[bsize] >> tx_size_wide_log2[0];
+      int idx, idy;
+      for (idy = 0; idy < height; idy += bh)
+        for (idx = 0; idx < width; idx += bw)
+          write_tx_size_vartx(cm, xd, mbmi, max_tx_size, height != width, idy,
+                              idx, w);
+#if CONFIG_RECT_TX_EXT
+      if (is_quarter_tx_allowed(xd, mbmi, is_inter_block(mbmi)) &&
+          quarter_txsize_lookup[bsize] != max_tx_size &&
+          (mbmi->tx_size == quarter_txsize_lookup[bsize] ||
+           mbmi->tx_size == max_tx_size)) {
+        aom_write(w, mbmi->tx_size != max_tx_size,
+                  cm->fc->quarter_tx_size_prob);
+      }
+#endif
+    } else {
+      set_txfm_ctxs(mbmi->tx_size, xd->n8_w, xd->n8_h, skip, xd);
+      write_selected_tx_size(cm, xd, w);
+    }
+  } else {
+    set_txfm_ctxs(mbmi->tx_size, xd->n8_w, xd->n8_h, skip, xd);
+#else
+    write_selected_tx_size(cm, xd, w);
+#endif
   }
 
 #if !CONFIG_TXK_SEL
