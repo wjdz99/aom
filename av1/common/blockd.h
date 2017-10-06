@@ -1198,6 +1198,11 @@ static INLINE TX_TYPE get_default_tx_type(PLANE_TYPE plane_type,
                                            : get_uv_mode(mbmi->uv_mode)];
 }
 
+static INLINE BLOCK_SIZE
+get_plane_block_size(BLOCK_SIZE bsize, const struct macroblockd_plane *pd) {
+  return ss_size_lookup[bsize][pd->subsampling_x][pd->subsampling_y];
+}
+
 static INLINE TX_TYPE av1_get_tx_type(PLANE_TYPE plane_type,
                                       const MACROBLOCKD *xd, int blk_row,
                                       int blk_col, int block, TX_SIZE tx_size) {
@@ -1209,6 +1214,18 @@ static INLINE TX_TYPE av1_get_tx_type(PLANE_TYPE plane_type,
   // TODO(aconverse@google.com): Handle INTRABC + EXT_TX + TXK_SEL
   if (is_intrabc_block(mbmi)) return DCT_DCT;
 #endif  // CONFIG_INTRABC && (!CONFIG_EXT_TX || CONFIG_TXK_SEL)
+
+#if CONFIG_EXT_TX
+  const struct macroblockd_plane *const pd = &xd->plane[plane_type];
+  const BLOCK_SIZE plane_bsize = get_plane_block_size(mbmi->sb_type, pd);
+  // TODO(sarahparker) This assumes reduced_tx_set_used == 0. I will do a
+  // follow up refactor to make the actual value of reduced_tx_set_used
+  // within this function.
+  const TxSetType tx_set_type =
+      get_ext_tx_set_type(tx_size, plane_bsize, is_inter_block(mbmi), 0);
+  if (is_inter_block(mbmi) && !av1_ext_tx_used[tx_set_type][mbmi->tx_type])
+    return DCT_DCT;
+#endif  // CONFIG_EXT_TX
 
 #if CONFIG_TXK_SEL
   TX_TYPE tx_type;
@@ -1223,6 +1240,10 @@ static INLINE TX_TYPE av1_get_tx_type(PLANE_TYPE plane_type,
       tx_type = intra_mode_to_tx_type_context[mbmi->uv_mode];
   }
   assert(tx_type >= DCT_DCT && tx_type < TX_TYPES);
+#if CONFIG_EXT_TX
+  if (is_inter_block(mbmi) && !av1_ext_tx_used[tx_set_type][tx_type])
+    return DCT_DCT;
+#endif  // CONFIG_EXT_TX
   return tx_type;
 #endif  // CONFIG_TXK_SEL
 
@@ -1309,11 +1330,6 @@ static INLINE TX_SIZE av1_get_tx_size(int plane, const MACROBLOCKD *xd) {
   if (plane == 0) return mbmi->tx_size;
   const MACROBLOCKD_PLANE *pd = &xd->plane[plane];
   return av1_get_uv_tx_size(mbmi, pd);
-}
-
-static INLINE BLOCK_SIZE
-get_plane_block_size(BLOCK_SIZE bsize, const struct macroblockd_plane *pd) {
-  return ss_size_lookup[bsize][pd->subsampling_x][pd->subsampling_y];
 }
 
 void av1_reset_skip_context(MACROBLOCKD *xd, int mi_row, int mi_col,
