@@ -972,12 +972,73 @@ static void pack_txb_tokens(aom_writer *w, const TOKENEXTRA **tp,
 #endif  // CONFIG_LV_MAP
 #endif  // CONFIG_VAR_TX
 
+#if CONFIG_EXT_SEGMENT_ID
+
+/* Interleaves negative and positive values of x - ref, e.g.
+ * 0 is a diff of 0, 1 is a diff of 1, 2 is a diff of -1, 3 is a diff of 2,
+ * 4 is a diff of -2, 5 is a diff of 3, 6 is a diff of -3, etc. */
+static int neg_interleave(int x, int ref) {
+  if (!ref) {
+    return x;
+  } else {
+    int diff = x - ref;
+    if (diff >= 0)
+      return diff << 1;
+    else
+      return ((-diff) << 1) - 1;
+  }
+}
+
+/* Picks CDFs based on number of matching segment IDs */
+static int pick_cdf(int prev_tl, int prev_tc, int prev_cl) {
+  if ((prev_tl == prev_tc) && (prev_tl == prev_cl))
+    return 2;
+  else if ((prev_tl == prev_tc) || (prev_tl == prev_cl))
+    return 1;
+  else
+    return 0;
+}
+
+static void write_segment_id(const AV1_COMMON *cm,
+                             const MB_MODE_INFO *const mbmi, aom_writer *w,
+                             const struct segmentation *seg,
+                             struct segmentation_probs *segp, BLOCK_SIZE bsize,
+                             int mi_row, int mi_col, int segment_id) {
+  if (!seg->enabled || !seg->update_map) return;
+
+  int prev_tl = 0; /* Top left segment_id */
+  int prev_cl = 0; /* Current left segment_id */
+  int prev_tc = 0; /* Current top segment_id */
+
+  (void)mbmi;
+
+  if ((mi_row - MAX_MIB_SIZE) >= 0 && (mi_col - MAX_MIB_SIZE) >= 0)
+    prev_tl = get_segment_id(cm, cm->ext_seg_id_map, bsize,
+                             mi_row - MAX_MIB_SIZE, mi_col - MAX_MIB_SIZE);
+  if ((mi_row - MAX_MIB_SIZE) >= 0)
+    prev_tc = get_segment_id(cm, cm->ext_seg_id_map, bsize,
+                             mi_row - MAX_MIB_SIZE, mi_col - 0);
+  if ((mi_row - MAX_MIB_SIZE) >= 0)
+    prev_cl = get_segment_id(cm, cm->ext_seg_id_map, bsize, mi_row - 0,
+                             mi_col - MAX_MIB_SIZE);
+
+  int cdf_num = pick_cdf(prev_tl, prev_tc, prev_cl);
+
+  int pred = (3 * prev_tl + 2 * prev_tc + 1 * prev_cl + (6 - 1)) / 6;
+  int coded_id = neg_interleave(segment_id, pred);
+
+  aom_write_symbol(w, coded_id, segp->tree_cdf[cdf_num], MAX_SEGMENTS);
+
+  set_segment_id(cm, cm->ext_seg_id_map, bsize, mi_row, mi_col, segment_id);
+}
+#else
 static void write_segment_id(aom_writer *w, const struct segmentation *seg,
                              struct segmentation_probs *segp, int segment_id) {
   if (seg->enabled && seg->update_map) {
     aom_write_symbol(w, segment_id, segp->tree_cdf, MAX_SEGMENTS);
   }
 }
+#endif
 
 #if CONFIG_NEW_MULTISYMBOL
 #define WRITE_REF_BIT(bname, pname) \
@@ -1681,6 +1742,18 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
   (void)mi_row;
   (void)mi_col;
 
+#if CONFIG_EXT_SEGMENT_ID
+#if CONFIG_SUPERTX
+  if (supertx_enabled)
+    skip = mbmi->skip;
+  else
+    skip = write_skip(cm, xd, segment_id, mi, w);
+#else
+  skip = write_skip(cm, xd, segment_id, mi, w);
+#endif  // CONFIG_SUPERTX
+  write_segment_id(cm, mbmi, w, seg, segp, bsize, mi_row, mi_col,
+                   mbmi->segment_id);
+#else
   if (seg->update_map) {
     if (seg->temporal_update) {
       const int pred_flag = mbmi->seg_id_predicted;
@@ -1705,6 +1778,7 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
 #else
   skip = write_skip(cm, xd, segment_id, mi, w);
 #endif  // CONFIG_SUPERTX
+#endif  // CONFIG_EXT_SEGMENT_ID
   if (cm->delta_q_present_flag) {
     int super_block_upper_left =
         ((mi_row & MAX_MIB_MASK) == 0) && ((mi_col & MAX_MIB_MASK) == 0);
@@ -2085,9 +2159,15 @@ static void write_mb_modes_kf(AV1_COMMON *cm, MACROBLOCKD *xd,
   (void)mi_row;
   (void)mi_col;
 
-  if (seg->update_map) write_segment_id(w, seg, segp, mbmi->segment_id);
-
+#if CONFIG_EXT_SEGMENT_ID
   const int skip = write_skip(cm, xd, mbmi->segment_id, mi, w);
+  write_segment_id(cm, mbmi, w, seg, segp, bsize, mi_row, mi_col,
+                   mbmi->segment_id);
+#else
+  if (seg->update_map) write_segment_id(w, seg, segp, mbmi->segment_id);
+  const int skip = write_skip(cm, xd, mbmi->segment_id, mi, w);
+#endif
+
   if (cm->delta_q_present_flag) {
     int super_block_upper_left =
         ((mi_row & MAX_MIB_MASK) == 0) && ((mi_col & MAX_MIB_MASK) == 0);
