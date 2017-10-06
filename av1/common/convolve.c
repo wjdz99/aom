@@ -566,11 +566,19 @@ void av1_convolve_2d_facade(const uint8_t *src, int src_stride, uint8_t *dst,
   (void)dst;
   (void)dst_stride;
 #if CONFIG_DUAL_FILTER
+#if CONFIG_SHORT_FILTER
+  InterpFilterParams filter_params_x =
+      av1_get_interp_filter_params_with_block_size(
+          interp_filter[1 + 2 * conv_params->ref], w);
+  InterpFilterParams filter_params_y =
+      av1_get_interp_filter_params_with_block_size(
+          interp_filter[0 + 2 * conv_params->ref], h);
+#else
   InterpFilterParams filter_params_x =
       av1_get_interp_filter_params(interp_filter[1 + 2 * conv_params->ref]);
   InterpFilterParams filter_params_y =
       av1_get_interp_filter_params(interp_filter[0 + 2 * conv_params->ref]);
-
+#endif
 #if USE_EXTRA_FILTER
   if (filter_params_x.interp_filter == MULTITAP_SHARP &&
       filter_params_y.interp_filter == MULTITAP_SHARP) {
@@ -881,11 +889,19 @@ void av1_highbd_convolve_2d_facade(const uint8_t *src8, int src_stride,
   (void)dst;
   (void)dst_stride;
 #if CONFIG_DUAL_FILTER
+#if CONFIG_SHORT_FILTER
+  InterpFilterParams filter_params_x =
+      av1_get_interp_filter_params_with_block_size(
+          interp_filter[1 + 2 * conv_params->ref], w);
+  InterpFilterParams filter_params_y =
+      av1_get_interp_filter_params_with_block_size(
+          interp_filter[0 + 2 * conv_params->ref], h);
+#else
   InterpFilterParams filter_params_x =
       av1_get_interp_filter_params(interp_filter[1 + 2 * conv_params->ref]);
   InterpFilterParams filter_params_y =
       av1_get_interp_filter_params(interp_filter[0 + 2 * conv_params->ref]);
-
+#endif
 #if USE_EXTRA_FILTER
   if (filter_params_x.interp_filter == MULTITAP_SHARP &&
       filter_params_y.interp_filter == MULTITAP_SHARP) {
@@ -1027,11 +1043,21 @@ static void convolve_helper(const uint8_t *src, int src_stride, uint8_t *dst,
   int ignore_horiz = x_step_q4 == SUBPEL_SHIFTS && subpel_x_q4 == 0;
   int ignore_vert = y_step_q4 == SUBPEL_SHIFTS && subpel_y_q4 == 0;
 #if CONFIG_DUAL_FILTER
+#if CONFIG_SHORT_FILTER
+  InterpFilterParams filter_params_x =
+      av1_get_interp_filter_params_with_block_size(
+          interp_filter[1 + 2 * conv_params->ref], w);
+  InterpFilterParams filter_params_y =
+      av1_get_interp_filter_params_with_block_size(
+          interp_filter[0 + 2 * conv_params->ref], h);
+#else
   InterpFilterParams filter_params_x =
       av1_get_interp_filter_params(interp_filter[1 + 2 * conv_params->ref]);
   InterpFilterParams filter_params_y =
       av1_get_interp_filter_params(interp_filter[0 + 2 * conv_params->ref]);
+#endif
   InterpFilterParams filter_params;
+
 #else
   InterpFilterParams filter_params =
       av1_get_interp_filter_params(interp_filter);
@@ -1153,10 +1179,19 @@ static void convolve_scale_helper(const uint8_t *src, int src_stride,
   int ignore_horiz = x_step_qn == SCALE_SUBPEL_SHIFTS && subpel_x_qn == 0;
   int ignore_vert = y_step_qn == SCALE_SUBPEL_SHIFTS && subpel_y_qn == 0;
 #if CONFIG_DUAL_FILTER
+#if CONFIG_SHORT_FILTER
+  InterpFilterParams filter_params_x =
+      av1_get_interp_filter_params_with_block_size(
+          interp_filter[1 + 2 * conv_params->ref], w);
+  InterpFilterParams filter_params_y =
+      av1_get_interp_filter_params_with_block_size(
+          interp_filter[0 + 2 * conv_params->ref], h);
+#else
   InterpFilterParams filter_params_x =
       av1_get_interp_filter_params(interp_filter[1 + 2 * conv_params->ref]);
   InterpFilterParams filter_params_y =
       av1_get_interp_filter_params(interp_filter[0 + 2 * conv_params->ref]);
+#endif
   InterpFilterParams filter_params;
 #else
   InterpFilterParams filter_params =
@@ -1590,7 +1625,12 @@ void av1_highbd_convolve(const uint8_t *src8, int src_stride, uint8_t *dst8,
   } else if (ignore_vert) {
 #if CONFIG_DUAL_FILTER
     InterpFilterParams filter_params =
+#if CONFIG_SHORT_FILTER
+        av1_get_interp_filter_params_with_block_size(
+            interp_filter[1 + 2 * ref_idx], w);
+#else
         av1_get_interp_filter_params(interp_filter[1 + 2 * ref_idx]);
+#endif
 #else
     InterpFilterParams filter_params =
         av1_get_interp_filter_params(interp_filter);
@@ -1601,7 +1641,12 @@ void av1_highbd_convolve(const uint8_t *src8, int src_stride, uint8_t *dst8,
   } else if (ignore_horiz) {
 #if CONFIG_DUAL_FILTER
     InterpFilterParams filter_params =
+#if CONFIG_SHORT_FILTER
+        av1_get_interp_filter_params_with_block_size(
+            interp_filter[0 + 2 * ref_idx], h);
+#else
         av1_get_interp_filter_params(interp_filter[0 + 2 * ref_idx]);
+#endif
 #else
     InterpFilterParams filter_params =
         av1_get_interp_filter_params(interp_filter);
@@ -1620,10 +1665,19 @@ void av1_highbd_convolve(const uint8_t *src8, int src_stride, uint8_t *dst8,
     int filter_size;
     InterpFilterParams filter_params;
 #if CONFIG_DUAL_FILTER
+#if CONFIG_SHORT_FILTER
+    InterpFilterParams filter_params_x =
+        av1_get_interp_filter_params_with_block_size(
+            interp_filter[1 + 2 * ref_idx], w);
+    InterpFilterParams filter_params_y =
+        av1_get_interp_filter_params_with_block_size(
+            interp_filter[0 + 2 * ref_idx], h);
+#else
     InterpFilterParams filter_params_x =
         av1_get_interp_filter_params(interp_filter[1 + 2 * ref_idx]);
     InterpFilterParams filter_params_y =
         av1_get_interp_filter_params(interp_filter[0 + 2 * ref_idx]);
+#endif
 #endif
 
 #if CONFIG_DUAL_FILTER && USE_EXTRA_FILTER
@@ -1714,7 +1768,12 @@ void av1_highbd_convolve_scale(const uint8_t *src8, int src_stride,
   } else if (ignore_vert) {
 #if CONFIG_DUAL_FILTER
     InterpFilterParams filter_params =
+#if CONFIG_SHORT_FILTER
+        av1_get_interp_filter_params_with_block_size(
+            interp_filter[1 + 2 * ref_idx], w);
+#else
         av1_get_interp_filter_params(interp_filter[1 + 2 * ref_idx]);
+#endif
 #else
     InterpFilterParams filter_params =
         av1_get_interp_filter_params(interp_filter);
@@ -1725,7 +1784,12 @@ void av1_highbd_convolve_scale(const uint8_t *src8, int src_stride,
   } else if (ignore_horiz) {
 #if CONFIG_DUAL_FILTER
     InterpFilterParams filter_params =
+#if CONFIG_SHORT_FILTER
+        av1_get_interp_filter_params_with_block_size(
+            interp_filter[0 + 2 * ref_idx], h);
+#else
         av1_get_interp_filter_params(interp_filter[0 + 2 * ref_idx]);
+#endif
 #else
     InterpFilterParams filter_params =
         av1_get_interp_filter_params(interp_filter);
@@ -1744,10 +1808,19 @@ void av1_highbd_convolve_scale(const uint8_t *src8, int src_stride,
     int filter_size;
     InterpFilterParams filter_params;
 #if CONFIG_DUAL_FILTER
+#if CONFIG_SHORT_FILTER
+    InterpFilterParams filter_params_x =
+        av1_get_interp_filter_params_with_block_size(
+            interp_filter[1 + 2 * ref_idx], w);
+    InterpFilterParams filter_params_y =
+        av1_get_interp_filter_params_with_block_size(
+            interp_filter[0 + 2 * ref_idx], h);
+#else
     InterpFilterParams filter_params_x =
         av1_get_interp_filter_params(interp_filter[1 + 2 * ref_idx]);
     InterpFilterParams filter_params_y =
         av1_get_interp_filter_params(interp_filter[0 + 2 * ref_idx]);
+#endif
 #endif
 
 #if CONFIG_DUAL_FILTER && USE_EXTRA_FILTER
