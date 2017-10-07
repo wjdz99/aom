@@ -19,6 +19,23 @@
     },
     {
       "key": {
+        "uuid": "0dc15b31_686863fd",
+        "filename": "av1/common/seg_common.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-10-07T01:15:35Z",
+      "side": 1,
+      "message": "PREDICTION_PROBS seems to be controlling something else (a context based on which neighbors actually used their temporal predictor in the old scheme). I\u0027d make a separate #define for what you\u0027re doing (the name PREDICTION_PROBS is awful and generic anyway, so it should die a deserved death when your experiment is adopted).",
+      "revId": "40f3e5a55723de53551a1ad06b4845e01ae87127",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8319977d_9d816f96",
         "filename": "av1/decoder/decodemv.c",
         "patchSetId": 9
@@ -30,6 +47,74 @@
       "writtenOn": "2017-10-07T00:47:12Z",
       "side": 1,
       "message": "We don\u0027t need to support counts at all... do we?",
+      "revId": "40f3e5a55723de53551a1ad06b4845e01ae87127",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0a1c30da_934d6c20",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 979,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-10-07T01:15:35Z",
+      "side": 1,
+      "message": "This doesn\u0027t seem correct.\n\nLike PVQ\u0027s neg_interleave, this is supposed to exclude options that are not possible. So, e.g., with a ref of 1, -2 should be impossible. So the result should be {0, 1, -1, 2, 3, 4, 5, 6}. Similarly, with a ref of 6, +2 should be impossible. So the result should be {0, 1, -1, -2, -3, -4, -5, -6}. I.e., once we run out of differences on one side, the rest of the differences on the other side should just be added in without skipping the intervening slots. In all cases this acts as a permutation determined by the value of ref. I.e., for each value of ref, the 8 possible values of x (in the range 0...7) get mapped to 8 possible output values (also in the range 0...7)\n\nThat\u0027s not what your description says, and not what the code does.\n\nI don\u0027t understand how this even works. If ref is 1 and x is 7, won\u0027t this return 12? That should be hitting asserts when you try to code it.",
+      "revId": "40f3e5a55723de53551a1ad06b4845e01ae87127",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dfc06280_187c860e",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 993,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-10-07T01:15:35Z",
+      "side": 1,
+      "message": "I couldn\u0027t parse these variable names without the key below. What happend to \"u\", \"l\", and \"ul\" for up, left, and up-left? (I guess libaom uses \"above\" instead of up sometimes).",
+      "revId": "40f3e5a55723de53551a1ad06b4845e01ae87127",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0a47adc5_59150c17",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 996,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-10-07T01:15:35Z",
+      "side": 1,
+      "message": "This doesn\u0027t look like it handles the case of prev_tc \u003d\u003d prev_cl (but not prev_tl). Isn\u0027t that one of the more likely cases where exactly two segment IDs would match?\n\nIf the intent is to base the context solely on the number of neighbors that match, you could just replace the whole function with\n  ((prev_tl \u003d\u003d prev_tc) + (prev_tc \u003d\u003d prev_cl) + (prev_cl \u003d\u003d prev_tl) + 1) \u003e\u003e 1",
+      "revId": "40f3e5a55723de53551a1ad06b4845e01ae87127",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0cf713fd_f1d7e87a",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 1027,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-10-07T01:15:35Z",
+      "side": 1,
+      "message": "Even if it\u0027s not optimal for the variance-based AQ, I think this should probably use the median, if it exists (i.e., if any of the values are the same, use that common value as the predictor), and otherwise use 0.",
       "revId": "40f3e5a55723de53551a1ad06b4845e01ae87127",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
