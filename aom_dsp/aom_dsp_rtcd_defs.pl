@@ -294,16 +294,14 @@ if (aom_config("CONFIG_LOOP_RESTORATION") eq "yes") {
 }  # CONFIG_LOOP_RESTORATION
 
 # TODO(any): These need to be extended to up to 128x128 block sizes
-if (!(aom_config("CONFIG_AV1") eq "yes" && aom_config("CONFIG_EXT_PARTITION") eq "yes")) {
-  specialize qw/aom_convolve_copy       neon dspr2 msa/;
-  specialize qw/aom_convolve_avg        neon dspr2 msa/;
-  specialize qw/aom_convolve8           neon dspr2 msa/;
-  specialize qw/aom_convolve8_horiz     neon dspr2 msa/;
-  specialize qw/aom_convolve8_vert      neon dspr2 msa/;
-  specialize qw/aom_convolve8_avg       neon dspr2 msa/;
-  specialize qw/aom_convolve8_avg_horiz neon dspr2 msa/;
-  specialize qw/aom_convolve8_avg_vert  neon dspr2 msa/;
-}
+specialize qw/aom_convolve_copy       neon dspr2 msa/;
+specialize qw/aom_convolve_avg        neon dspr2 msa/;
+specialize qw/aom_convolve8           neon dspr2 msa/;
+specialize qw/aom_convolve8_horiz     neon dspr2 msa/;
+specialize qw/aom_convolve8_vert      neon dspr2 msa/;
+specialize qw/aom_convolve8_avg       neon dspr2 msa/;
+specialize qw/aom_convolve8_avg_horiz neon dspr2 msa/;
+specialize qw/aom_convolve8_avg_vert  neon dspr2 msa/;
 
 if (aom_config("CONFIG_HIGHBITDEPTH") eq "yes") {
   add_proto qw/void aom_highbd_convolve_copy/, "const uint8_t *src, ptrdiff_t src_stride, uint8_t *dst, ptrdiff_t dst_stride, const int16_t *filter_x, int x_step_q4, const int16_t *filter_y, int y_step_q4, int w, int h, int bps";
