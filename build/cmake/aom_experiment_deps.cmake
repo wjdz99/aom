@@ -43,6 +43,14 @@ macro (fix_experiment_configs)
     endif ()
   endif ()
 
+  if (CONFIG_SUPERTX)
+    if (CONFIG_EXT_PARTITION_TYPES)
+      set(CONFIG_SUPERTX 0)
+      message("--- SUPERTX incompatible with EXT_PARTITION_TYPES:"
+	      " disabled SUPERTX")
+    endif ()
+  endif ()
+
   if (CONFIG_DAALA_DCT4 OR CONFIG_DAALA_DCT8 OR CONFIG_DAALA_DCT16 OR
       CONFIG_DAALA_DCT32 OR CONFIG_DAALA_DCT64)
     if (CONFIG_LGT)
