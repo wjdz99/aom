@@ -13,9 +13,9 @@
 #define AV1_COMMON_OBMC_H_
 
 #if CONFIG_MOTION_VAR
-typedef void (*overlappable_nb_visitor_t)(MACROBLOCKD *xd, int rel_mi_pos,
-                                          uint8_t nb_mi_size, MODE_INFO *nb_mi,
-                                          void *fun_ctxt);
+typedef void (*overlappable_nb_visitor_t)(const AV1_COMMON *cm, MACROBLOCKD *xd,
+                                          int rel_mi_pos, uint8_t nb_mi_size,
+                                          MODE_INFO *nb_mi, void *fun_ctxt);
 
 static INLINE void foreach_overlappable_nb_above(const AV1_COMMON *cm,
                                                  MACROBLOCKD *xd, int mi_col,
@@ -50,7 +50,7 @@ static INLINE void foreach_overlappable_nb_above(const AV1_COMMON *cm,
     MB_MODE_INFO *above_mbmi = &above_mi[0]->mbmi;
     if (is_neighbor_overlappable(above_mbmi)) {
       ++nb_count;
-      fun(xd, above_mi_col - mi_col, AOMMIN(xd->n8_w, mi_step), *above_mi,
+      fun(cm, xd, above_mi_col - mi_col, AOMMIN(xd->n8_w, mi_step), *above_mi,
           fun_ctxt);
     }
   }
@@ -84,7 +84,7 @@ static INLINE void foreach_overlappable_nb_left(const AV1_COMMON *cm,
     MB_MODE_INFO *left_mbmi = &left_mi[0]->mbmi;
     if (is_neighbor_overlappable(left_mbmi)) {
       ++nb_count;
-      fun(xd, left_mi_row - mi_row, AOMMIN(xd->n8_h, mi_step), *left_mi,
+      fun(cm, xd, left_mi_row - mi_row, AOMMIN(xd->n8_h, mi_step), *left_mi,
           fun_ctxt);
     }
   }
