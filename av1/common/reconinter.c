@@ -2041,9 +2041,10 @@ const uint8_t *av1_get_obmc_mask_flipped(int length) {
 }
 #endif  // CONFIG_NCOBMC
 
-static INLINE void increment_int_ptr(MACROBLOCKD *xd, int rel_mi_rc,
-                                     uint8_t mi_hw, MODE_INFO *mi,
-                                     void *fun_ctxt) {
+static INLINE void increment_int_ptr(const AV1_COMMON *cm, MACROBLOCKD *xd,
+                                     int rel_mi_rc, uint8_t mi_hw,
+                                     MODE_INFO *mi, void *fun_ctxt) {
+  (void)cm;
   (void)xd;
   (void)rel_mi_rc;
   (void)mi_hw;
@@ -2100,7 +2101,8 @@ struct obmc_inter_pred_ctxt {
   int *adjacent_stride;
 };
 
-static INLINE void build_obmc_inter_pred_above(MACROBLOCKD *xd, int rel_mi_col,
+static INLINE void build_obmc_inter_pred_above(const AV1_COMMON *cm,
+                                               MACROBLOCKD *xd, int rel_mi_col,
                                                uint8_t above_mi_width,
                                                MODE_INFO *above_mi,
                                                void *fun_ctxt) {
@@ -2111,7 +2113,7 @@ static INLINE void build_obmc_inter_pred_above(MACROBLOCKD *xd, int rel_mi_col,
   const int is_hbd = (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) ? 1 : 0;
 #endif  // CONFIG_HIGHBITDEPTH
   const int overlap =
-      AOMMIN(block_size_high[bsize], block_size_high[BLOCK_64X64]) >> 1;
+      AOMMIN(block_size_high[bsize], block_size_high[cm->sb_size]) >> 1;
 
   for (int plane = 0; plane < MAX_MB_PLANE; ++plane) {
     const struct macroblockd_plane *pd = &xd->plane[plane];
@@ -2138,7 +2140,8 @@ static INLINE void build_obmc_inter_pred_above(MACROBLOCKD *xd, int rel_mi_col,
   }
 }
 
-static INLINE void build_obmc_inter_pred_left(MACROBLOCKD *xd, int rel_mi_row,
+static INLINE void build_obmc_inter_pred_left(const AV1_COMMON *cm,
+                                              MACROBLOCKD *xd, int rel_mi_row,
                                               uint8_t left_mi_height,
                                               MODE_INFO *left_mi,
                                               void *fun_ctxt) {
@@ -2146,7 +2149,7 @@ static INLINE void build_obmc_inter_pred_left(MACROBLOCKD *xd, int rel_mi_row,
   struct obmc_inter_pred_ctxt *ctxt = (struct obmc_inter_pred_ctxt *)fun_ctxt;
   const BLOCK_SIZE bsize = xd->mi[0]->mbmi.sb_type;
   const int overlap =
-      AOMMIN(block_size_wide[bsize], block_size_wide[BLOCK_64X64]) >> 1;
+      AOMMIN(block_size_wide[bsize], block_size_wide[cm->sb_size]) >> 1;
 #if CONFIG_HIGHBITDEPTH
   const int is_hbd = (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) ? 1 : 0;
 #endif  // CONFIG_HIGHBITDEPTH
@@ -2232,11 +2235,10 @@ struct build_prediction_ctxt {
   int mb_to_far_edge;
 };
 
-static INLINE void build_prediction_by_above_pred(MACROBLOCKD *xd,
-                                                  int rel_mi_col,
-                                                  uint8_t above_mi_width,
-                                                  MODE_INFO *above_mi,
-                                                  void *fun_ctxt) {
+static INLINE void build_prediction_by_above_pred(
+    const AV1_COMMON *cm, MACROBLOCKD *xd, int rel_mi_col,
+    uint8_t above_mi_width, MODE_INFO *above_mi, void *fun_ctxt) {
+  (void)cm;
   MB_MODE_INFO *above_mbmi = &above_mi->mbmi;
   const BLOCK_SIZE a_bsize = AOMMAX(BLOCK_8X8, above_mbmi->sb_type);
   struct build_prediction_ctxt *ctxt = (struct build_prediction_ctxt *)fun_ctxt;
@@ -2332,11 +2334,10 @@ void av1_build_prediction_by_above_preds(const AV1_COMMON *cm, MACROBLOCKD *xd,
   xd->mb_to_bottom_edge -= (this_height - pred_height) * 8;
 }
 
-static INLINE void build_prediction_by_left_pred(MACROBLOCKD *xd,
-                                                 int rel_mi_row,
-                                                 uint8_t left_mi_height,
-                                                 MODE_INFO *left_mi,
-                                                 void *fun_ctxt) {
+static INLINE void build_prediction_by_left_pred(
+    const AV1_COMMON *cm, MACROBLOCKD *xd, int rel_mi_row,
+    uint8_t left_mi_height, MODE_INFO *left_mi, void *fun_ctxt) {
+  (void)cm;
   MB_MODE_INFO *left_mbmi = &left_mi->mbmi;
   const BLOCK_SIZE l_bsize = AOMMAX(BLOCK_8X8, left_mbmi->sb_type);
   struct build_prediction_ctxt *ctxt = (struct build_prediction_ctxt *)fun_ctxt;
