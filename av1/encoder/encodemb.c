@@ -955,7 +955,7 @@ void av1_encode_sb(AV1_COMMON *cm, MACROBLOCK *x, BLOCK_SIZE bsize, int mi_row,
     arg.tl = ctx.tl[plane];
 
 #if CONFIG_VAR_TX
-    const BLOCK_SIZE max_unit_bsize = get_plane_block_size(BLOCK_64X64, pd);
+    const BLOCK_SIZE max_unit_bsize = get_plane_block_size(cm->sb_size, pd);
     int mu_blocks_wide =
         block_size_wide[max_unit_bsize] >> tx_size_wide_log2[0];
     int mu_blocks_high =

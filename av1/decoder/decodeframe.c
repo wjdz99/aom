@@ -1942,7 +1942,7 @@ static void decode_token_and_recon_block(AV1Decoder *const pbi,
         continue;
 #endif
       int blk_row, blk_col;
-      const BLOCK_SIZE max_unit_bsize = get_plane_block_size(BLOCK_64X64, pd);
+      const BLOCK_SIZE max_unit_bsize = get_plane_block_size(cm->sb_size, pd);
       int mu_blocks_wide =
           block_size_wide[max_unit_bsize] >> tx_size_wide_log2[0];
       int mu_blocks_high =
@@ -2049,7 +2049,7 @@ static void decode_token_and_recon_block(AV1Decoder *const pbi,
 #endif
 
 #if CONFIG_VAR_TX
-        const BLOCK_SIZE max_unit_bsize = get_plane_block_size(BLOCK_64X64, pd);
+        const BLOCK_SIZE max_unit_bsize = get_plane_block_size(cm->sb_size, pd);
         int mu_blocks_wide =
             block_size_wide[max_unit_bsize] >> tx_size_wide_log2[0];
         int mu_blocks_high =

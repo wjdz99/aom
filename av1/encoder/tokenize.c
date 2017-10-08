@@ -762,7 +762,7 @@ void av1_tokenize_sb_vartx(const AV1_COMP *cpi, ThreadData *td, TOKENEXTRA **t,
     int block = 0;
     int step = tx_size_wide_unit[max_tx_size] * tx_size_high_unit[max_tx_size];
 
-    const BLOCK_SIZE max_unit_bsize = get_plane_block_size(BLOCK_64X64, pd);
+    const BLOCK_SIZE max_unit_bsize = get_plane_block_size(cm->sb_size, pd);
     int mu_blocks_wide =
         block_size_wide[max_unit_bsize] >> tx_size_wide_log2[0];
     int mu_blocks_high =

@@ -12242,7 +12242,7 @@ static void calc_target_weighted_pred(const AV1_COMMON *cm, const MACROBLOCK *x,
   // handle above row
   if (xd->up_available) {
     const int overlap =
-        AOMMIN(block_size_high[bsize], block_size_high[BLOCK_64X64]) >> 1;
+        AOMMIN(block_size_high[bsize], block_size_high[cm->sb_size]) >> 1;
     struct calc_target_weighted_pred_ctxt ctxt = { x, above, above_stride,
                                                    overlap };
     foreach_overlappable_nb_above(cm, (MACROBLOCKD *)xd, mi_col,
@@ -12258,7 +12258,7 @@ static void calc_target_weighted_pred(const AV1_COMMON *cm, const MACROBLOCK *x,
   // handle left column
   if (xd->left_available) {
     const int overlap =
-        AOMMIN(block_size_wide[bsize], block_size_wide[BLOCK_64X64]) >> 1;
+        AOMMIN(block_size_wide[bsize], block_size_wide[cm->sb_size]) >> 1;
     struct calc_target_weighted_pred_ctxt ctxt = { x, left, left_stride,
                                                    overlap };
     foreach_overlappable_nb_left(cm, (MACROBLOCKD *)xd, mi_row,
