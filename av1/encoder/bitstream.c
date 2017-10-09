@@ -5175,15 +5175,13 @@ static uint32_t write_compressed_header(AV1_COMP *cpi, uint8_t *data) {
 #endif  // CONFIG_SUPERTX
   FRAME_CONTEXT *const fc = cm->fc;
   aom_writer *header_bc;
-  int i;
-#if !CONFIG_NEW_MULTISYMBOL
+
+#if !CONFIG_NEW_MULTISYMBOL || CONFIG_COMPOUND_SINGLEREF
   FRAME_COUNTS *counts = cpi->td.counts;
-  int j;
 #endif
 
   const int probwt = cm->num_tg;
   (void)probwt;
-  (void)i;
   (void)fc;
 
   aom_writer real_header_bc;
@@ -5219,7 +5217,7 @@ static uint32_t write_compressed_header(AV1_COMP *cpi, uint8_t *data) {
     if (cm->reference_mode != COMPOUND_REFERENCE &&
         cm->allow_interintra_compound) {
 #if !CONFIG_NEW_MULTISYMBOL
-      for (i = 0; i < BLOCK_SIZE_GROUPS; i++) {
+      for (int i = 0; i < BLOCK_SIZE_GROUPS; i++) {
         if (is_interintra_allowed_bsize_group(i)) {
           av1_cond_prob_diff_update(header_bc, &fc->interintra_prob[i],
                                     cm->counts.interintra[i], probwt);
@@ -5232,7 +5230,7 @@ static uint32_t write_compressed_header(AV1_COMP *cpi, uint8_t *data) {
 #else
       int block_sizes_to_update = BLOCK_SIZES;
 #endif
-      for (i = 0; i < block_sizes_to_update; i++) {
+      for (int i = 0; i < block_sizes_to_update; i++) {
         if (is_interintra_allowed_bsize(i) && is_interintra_wedge_used(i))
           av1_cond_prob_diff_update(header_bc, &fc->wedge_interintra_prob[i],
                                     cm->counts.wedge_interintra[i], probwt);
@@ -5242,7 +5240,7 @@ static uint32_t write_compressed_header(AV1_COMP *cpi, uint8_t *data) {
 #endif  // CONFIG_INTERINTRA
 
 #if !CONFIG_NEW_MULTISYMBOL
-    for (i = 0; i < INTRA_INTER_CONTEXTS; i++)
+    for (int i = 0; i < INTRA_INTER_CONTEXTS; i++)
       av1_cond_prob_diff_update(header_bc, &fc->intra_inter_prob[i],
                                 counts->intra_inter[i], probwt);
 #endif
@@ -5251,14 +5249,14 @@ static uint32_t write_compressed_header(AV1_COMP *cpi, uint8_t *data) {
     if (cpi->allow_comp_inter_inter) {
       const int use_hybrid_pred = cm->reference_mode == REFERENCE_MODE_SELECT;
       if (use_hybrid_pred)
-        for (i = 0; i < COMP_INTER_CONTEXTS; i++)
+        for (int i = 0; i < COMP_INTER_CONTEXTS; i++)
           av1_cond_prob_diff_update(header_bc, &fc->comp_inter_prob[i],
                                     counts->comp_inter[i], probwt);
     }
 
     if (cm->reference_mode != COMPOUND_REFERENCE) {
-      for (i = 0; i < REF_CONTEXTS; i++) {
-        for (j = 0; j < (SINGLE_REFS - 1); j++) {
+      for (int i = 0; i < REF_CONTEXTS; i++) {
+        for (int j = 0; j < (SINGLE_REFS - 1); j++) {
           av1_cond_prob_diff_update(header_bc, &fc->single_ref_prob[i][j],
                                     counts->single_ref[i][j], probwt);
         }
@@ -5267,28 +5265,28 @@ static uint32_t write_compressed_header(AV1_COMP *cpi, uint8_t *data) {
 
     if (cm->reference_mode != SINGLE_REFERENCE) {
 #if CONFIG_EXT_COMP_REFS
-      for (i = 0; i < COMP_REF_TYPE_CONTEXTS; i++)
+      for (int i = 0; i < COMP_REF_TYPE_CONTEXTS; i++)
         av1_cond_prob_diff_update(header_bc, &fc->comp_ref_type_prob[i],
                                   counts->comp_ref_type[i], probwt);
 
-      for (i = 0; i < UNI_COMP_REF_CONTEXTS; i++)
-        for (j = 0; j < (UNIDIR_COMP_REFS - 1); j++)
+      for (int i = 0; i < UNI_COMP_REF_CONTEXTS; i++)
+        for (int j = 0; j < (UNIDIR_COMP_REFS - 1); j++)
           av1_cond_prob_diff_update(header_bc, &fc->uni_comp_ref_prob[i][j],
                                     counts->uni_comp_ref[i][j], probwt);
 #endif  // CONFIG_EXT_COMP_REFS
 
-      for (i = 0; i < REF_CONTEXTS; i++) {
+      for (int i = 0; i < REF_CONTEXTS; i++) {
 #if CONFIG_EXT_REFS
-        for (j = 0; j < (FWD_REFS - 1); j++) {
+        for (int j = 0; j < (FWD_REFS - 1); j++) {
           av1_cond_prob_diff_update(header_bc, &fc->comp_ref_prob[i][j],
                                     counts->comp_ref[i][j], probwt);
         }
-        for (j = 0; j < (BWD_REFS - 1); j++) {
+        for (int j = 0; j < (BWD_REFS - 1); j++) {
           av1_cond_prob_diff_update(header_bc, &fc->comp_bwdref_prob[i][j],
                                     counts->comp_bwdref[i][j], probwt);
         }
 #else
-        for (j = 0; j < (COMP_REFS - 1); j++) {
+        for (int j = 0; j < (COMP_REFS - 1); j++) {
           av1_cond_prob_diff_update(header_bc, &fc->comp_ref_prob[i][j],
                                     counts->comp_ref[i][j], probwt);
         }
@@ -5298,7 +5296,7 @@ static uint32_t write_compressed_header(AV1_COMP *cpi, uint8_t *data) {
 #endif  // CONFIG_NEW_MULTISYMBOL
 
 #if CONFIG_COMPOUND_SINGLEREF
-    for (i = 0; i < COMP_INTER_MODE_CONTEXTS; i++)
+    for (int i = 0; i < COMP_INTER_MODE_CONTEXTS; i++)
       av1_cond_prob_diff_update(header_bc, &fc->comp_inter_mode_prob[i],
                                 counts->comp_inter_mode[i], probwt);
 #endif  // CONFIG_COMPOUND_SINGLEREF
