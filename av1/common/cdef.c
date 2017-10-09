@@ -274,7 +274,7 @@ void av1_cdef_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
       curr_row_cdef[fbc] = 1;
       for (pli = 0; pli < nplanes; pli++) {
 #if !CONFIG_CDEF_SINGLEPASS
-        uint16_t dst[CDEF_BLOCKSIZE * CDEF_BLOCKSIZE];
+        uint16_t *dst = aom_memalign(32, CDEF_BLOCKSIZE * CDEF_BLOCKSIZE * 2);
 #endif
         int coffset;
         int rend, cend;
@@ -437,6 +437,9 @@ void av1_cdef_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
 
 #if CONFIG_HIGHBITDEPTH
         }
+#endif
+#if !CONFIG_CDEF_SINGLEPASS
+        aom_free(dst);
 #endif
       }
       cdef_left = 1;
