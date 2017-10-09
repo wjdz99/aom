@@ -341,23 +341,17 @@ static void setup_frame(AV1_COMP *cpi) {
 // Just use frame context from first signaled reference frame.
 // This will always be LAST_FRAME for now.
 #else
-#if CONFIG_EXT_REFS
     const GF_GROUP *gf_group = &cpi->twopass.gf_group;
     if (gf_group->update_type[gf_group->index] == INTNL_ARF_UPDATE)
       cm->frame_context_idx = EXT_ARF_FRAME;
     else if (cpi->refresh_alt_ref_frame)
       cm->frame_context_idx = ARF_FRAME;
-#else   // !CONFIG_EXT_REFS
-    if (cpi->refresh_alt_ref_frame) cm->frame_context_idx = ARF_FRAME;
-#endif  // CONFIG_EXT_REFS
     else if (cpi->rc.is_src_frame_alt_ref)
       cm->frame_context_idx = OVERLAY_FRAME;
     else if (cpi->refresh_golden_frame)
       cm->frame_context_idx = GLD_FRAME;
-#if CONFIG_EXT_REFS
     else if (cpi->refresh_bwd_ref_frame)
       cm->frame_context_idx = BRF_FRAME;
-#endif  // CONFIG_EXT_REFS
     else
       cm->frame_context_idx = REGULAR_FRAME;
 #endif  // CONFIG_NO_FRAME_CONTEXT_SIGNALING
@@ -384,7 +378,6 @@ static void setup_frame(AV1_COMP *cpi) {
 #endif  // CONFIG_NO_FRAME_CONTEXT_SIGNALING
     av1_zero(cpi->interp_filter_selected[0]);
   }
-#if CONFIG_EXT_REFS
 #if CONFIG_ONE_SIDED_COMPOUND && \
     !CONFIG_EXT_COMP_REFS  // No change to bitstream
   if (cpi->sf.recode_loop == DISALLOW_RECODE) {
@@ -392,7 +385,6 @@ static void setup_frame(AV1_COMP *cpi) {
     cpi->rc.is_bipred_frame = 1;
   }
 #endif  // CONFIG_ONE_SIDED_COMPOUND && !CONFIG_EXT_COMP_REFS
-#endif  // CONFIG_EXT_REFS
 #if CONFIG_NO_FRAME_CONTEXT_SIGNALING
   if (frame_is_intra_only(cm) || cm->error_resilient_mode ||
       cm->frame_refs[0].idx < 0) {
@@ -1098,7 +1090,6 @@ static void update_frame_size(AV1_COMP *cpi) {
 }
 
 static void init_buffer_indices(AV1_COMP *cpi) {
-#if CONFIG_EXT_REFS
   int fb_idx;
   for (fb_idx = 0; fb_idx < LAST_REF_FRAMES; ++fb_idx)
     cpi->lst_fb_idxes[fb_idx] = fb_idx;
@@ -1109,11 +1100,6 @@ static void init_buffer_indices(AV1_COMP *cpi) {
   cpi->ext_fb_idx = LAST_REF_FRAMES + 4;
   for (fb_idx = 0; fb_idx < MAX_EXT_ARFS + 1; ++fb_idx)
     cpi->arf_map[fb_idx] = LAST_REF_FRAMES + 2 + fb_idx;
-#else   // !CONFIG_EXT_REFS
-  cpi->lst_fb_idx = 0;
-  cpi->gld_fb_idx = 1;
-  cpi->alt_fb_idx = 2;
-#endif  // CONFIG_EXT_REFS
 #if CONFIG_AMVR
   cpi->rate_index = 0;
   cpi->rate_size = 0;
@@ -2530,10 +2516,8 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
 
   cpi->refresh_last_frame = 1;
   cpi->refresh_golden_frame = 0;
-#if CONFIG_EXT_REFS
   cpi->refresh_bwd_ref_frame = 0;
   cpi->refresh_alt2_ref_frame = 0;
-#endif  // CONFIG_EXT_REFS
 
   cm->refresh_frame_context =
       (oxcf->error_resilient_mode || oxcf->frame_parallel_decoding_mode)
@@ -2595,11 +2579,9 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
   cpi->alt_ref_source = NULL;
   rc->is_src_frame_alt_ref = 0;
 
-#if CONFIG_EXT_REFS
   rc->is_bwd_ref_frame = 0;
   rc->is_last_bipred_frame = 0;
   rc->is_bipred_frame = 0;
-#endif  // CONFIG_EXT_REFS
 
 #if 0
   // Experimental RD Code
@@ -3361,7 +3343,7 @@ void aom_write_yuv_frame_420(YV12_BUFFER_CONFIG *s, FILE *f) {
 }
 #endif
 
-#if CONFIG_EXT_REFS && !CONFIG_XIPHRC
+#if !CONFIG_XIPHRC
 #if USE_GF16_MULTI_LAYER
 static void check_show_existing_frame_gf16(AV1_COMP *cpi) {
   const GF_GROUP *const gf_group = &cpi->twopass.gf_group;
@@ -3438,7 +3420,7 @@ static void check_show_existing_frame(AV1_COMP *cpi) {
   }
   cpi->rc.is_src_frame_ext_arf = 0;
 }
-#endif  // CONFIG_EXT_REFS && !CONFIG_XIPHRC
+#endif  // !CONFIG_XIPHRC
 
 #ifdef OUTPUT_YUV_REC
 void aom_write_one_yuv_frame(AV1_COMMON *cm, YV12_BUFFER_CONFIG *s) {
@@ -3602,7 +3584,6 @@ static void dump_ref_frame_images(AV1_COMP *cpi) {
 }
 #endif  // DUMP_REF_FRAME_IMAGES == 1
 
-#if CONFIG_EXT_REFS
 // This function is used to shift the virtual indices of last reference frames
 // as follows:
 // LAST_FRAME -> LAST2_FRAME -> LAST3_FRAME
@@ -3621,7 +3602,6 @@ static INLINE void shift_last_ref_frames(AV1_COMP *cpi) {
     }
   }
 }
-#endif  // CONFIG_EXT_REFS
 
 #if CONFIG_VAR_REFS
 static void enc_check_valid_ref_frames(AV1_COMP *const cpi) {
@@ -3659,7 +3639,6 @@ static void enc_check_valid_ref_frames(AV1_COMP *const cpi) {
 }
 #endif  // CONFIG_VAR_REFS
 
-#if CONFIG_EXT_REFS
 #if USE_GF16_MULTI_LAYER
 static void update_reference_frames_gf16(AV1_COMP *cpi) {
   AV1_COMMON *const cm = &cpi->common;
@@ -3703,7 +3682,6 @@ static void update_reference_frames_gf16(AV1_COMP *cpi) {
 #endif  // DUMP_REF_FRAME_IMAGES
 }
 #endif  // USE_GF16_MULTI_LAYER
-#endif  // CONFIG_EXT_REFS
 
 static void update_reference_frames(AV1_COMP *cpi) {
   AV1_COMMON *const cm = &cpi->common;
@@ -3712,14 +3690,12 @@ static void update_reference_frames(AV1_COMP *cpi) {
   //       for the purpose to verify no mismatch between encoder and decoder.
   if (cm->show_frame) cpi->last_show_frame_buf_idx = cm->new_fb_idx;
 
-#if CONFIG_EXT_REFS
 #if USE_GF16_MULTI_LAYER
   if (cpi->rc.baseline_gf_interval == 16) {
     update_reference_frames_gf16(cpi);
     return;
   }
 #endif  // USE_GF16_MULTI_LAYER
-#endif  // CONFIG_EXT_REFS
 
   BufferPool *const pool = cm->buffer_pool;
   // At this point the new frame has been encoded.
@@ -3727,12 +3703,10 @@ static void update_reference_frames(AV1_COMP *cpi) {
   if (cm->frame_type == KEY_FRAME) {
     ref_cnt_fb(pool->frame_bufs, &cm->ref_frame_map[cpi->gld_fb_idx],
                cm->new_fb_idx);
-#if CONFIG_EXT_REFS
     ref_cnt_fb(pool->frame_bufs, &cm->ref_frame_map[cpi->bwd_fb_idx],
                cm->new_fb_idx);
     ref_cnt_fb(pool->frame_bufs, &cm->ref_frame_map[cpi->alt2_fb_idx],
                cm->new_fb_idx);
-#endif  // CONFIG_EXT_REFS
     ref_cnt_fb(pool->frame_bufs, &cm->ref_frame_map[cpi->alt_fb_idx],
                cm->new_fb_idx);
   } else if (av1_preserve_existing_gf(cpi)) {
@@ -3752,13 +3726,10 @@ static void update_reference_frames(AV1_COMP *cpi) {
     cpi->alt_fb_idx = cpi->gld_fb_idx;
     cpi->gld_fb_idx = tmp;
 
-#if CONFIG_EXT_REFS
     // We need to modify the mapping accordingly
     cpi->arf_map[0] = cpi->alt_fb_idx;
-#endif  // CONFIG_EXT_REFS
-// TODO(zoeliu): Do we need to copy cpi->interp_filter_selected[0] over to
-// cpi->interp_filter_selected[GOLDEN_FRAME]?
-#if CONFIG_EXT_REFS
+    // TODO(zoeliu): Do we need to copy cpi->interp_filter_selected[0] over to
+    // cpi->interp_filter_selected[GOLDEN_FRAME]?
   } else if (cpi->rc.is_src_frame_ext_arf && cm->show_existing_frame) {
     // Deal with the special case for showing existing internal ALTREF_FRAME
     // Refresh the LAST_FRAME with the ALTREF_FRAME and retire the LAST3_FRAME
@@ -3778,18 +3749,11 @@ static void update_reference_frames(AV1_COMP *cpi) {
     memcpy(cpi->interp_filter_selected[LAST_FRAME],
            cpi->interp_filter_selected[ALTREF2_FRAME],
            sizeof(cpi->interp_filter_selected[ALTREF2_FRAME]));
-#endif     // CONFIG_EXT_REFS
   } else { /* For non key/golden frames */
     // === ALTREF_FRAME ===
     if (cpi->refresh_alt_ref_frame) {
       int arf_idx = cpi->alt_fb_idx;
       int which_arf = 0;
-#if !CONFIG_EXT_REFS
-      if ((cpi->oxcf.pass == 2) && cpi->multi_arf_allowed) {
-        const GF_GROUP *const gf_group = &cpi->twopass.gf_group;
-        arf_idx = gf_group->arf_update_idx[gf_group->index];
-      }
-#endif  // !CONFIG_EXT_REFS
       ref_cnt_fb(pool->frame_bufs, &cm->ref_frame_map[arf_idx], cm->new_fb_idx);
 
       memcpy(cpi->interp_filter_selected[ALTREF_FRAME + which_arf],
@@ -3802,15 +3766,11 @@ static void update_reference_frames(AV1_COMP *cpi) {
       ref_cnt_fb(pool->frame_bufs, &cm->ref_frame_map[cpi->gld_fb_idx],
                  cm->new_fb_idx);
 
-#if !CONFIG_EXT_REFS
-      if (!cpi->rc.is_src_frame_alt_ref)
-#endif  // !CONFIG_EXT_REFS
-        memcpy(cpi->interp_filter_selected[GOLDEN_FRAME],
-               cpi->interp_filter_selected[0],
-               sizeof(cpi->interp_filter_selected[0]));
+      memcpy(cpi->interp_filter_selected[GOLDEN_FRAME],
+             cpi->interp_filter_selected[0],
+             sizeof(cpi->interp_filter_selected[0]));
     }
 
-#if CONFIG_EXT_REFS
     // === BWDREF_FRAME ===
     if (cpi->refresh_bwd_ref_frame) {
       ref_cnt_fb(pool->frame_bufs, &cm->ref_frame_map[cpi->bwd_fb_idx],
@@ -3830,11 +3790,9 @@ static void update_reference_frames(AV1_COMP *cpi) {
              cpi->interp_filter_selected[0],
              sizeof(cpi->interp_filter_selected[0]));
     }
-#endif  // CONFIG_EXT_REFS
   }
 
   if (cpi->refresh_last_frame) {
-#if CONFIG_EXT_REFS
     // NOTE(zoeliu): We have two layers of mapping (1) from the per-frame
     // reference to the reference frame buffer virtual index; and then (2) from
     // the virtual index to the reference frame buffer physical index:
@@ -3910,15 +3868,6 @@ static void update_reference_frames(AV1_COMP *cpi) {
                sizeof(cpi->interp_filter_selected[BWDREF_FRAME]));
       }
     }
-#else   // !CONFIG_EXT_REFS
-    ref_cnt_fb(pool->frame_bufs, &cm->ref_frame_map[cpi->lst_fb_idx],
-               cm->new_fb_idx);
-    if (!cpi->rc.is_src_frame_alt_ref) {
-      memcpy(cpi->interp_filter_selected[LAST_FRAME],
-             cpi->interp_filter_selected[0],
-             sizeof(cpi->interp_filter_selected[0]));
-    }
-#endif  // CONFIG_EXT_REFS
   }
 
 #if DUMP_REF_FRAME_IMAGES == 1
@@ -3939,17 +3888,8 @@ static void scale_references(AV1_COMP *cpi) {
   AV1_COMMON *cm = &cpi->common;
   MV_REFERENCE_FRAME ref_frame;
   const AOM_REFFRAME ref_mask[INTER_REFS_PER_FRAME] = {
-    AOM_LAST_FLAG,
-#if CONFIG_EXT_REFS
-    AOM_LAST2_FLAG,
-    AOM_LAST3_FLAG,
-#endif  // CONFIG_EXT_REFS
-    AOM_GOLD_FLAG,
-#if CONFIG_EXT_REFS
-    AOM_BWD_FLAG,
-    AOM_ALT2_FLAG,
-#endif  // CONFIG_EXT_REFS
-    AOM_ALT_FLAG
+    AOM_LAST_FLAG, AOM_LAST2_FLAG, AOM_LAST3_FLAG, AOM_GOLD_FLAG,
+    AOM_BWD_FLAG,  AOM_ALT2_FLAG,  AOM_ALT_FLAG
   };
 
   for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
@@ -4034,16 +3974,11 @@ static void release_scaled_references(AV1_COMP *cpi) {
     // if reference will be updated, or if scaled reference has same resolution.
     int refresh[INTER_REFS_PER_FRAME];
     refresh[0] = (cpi->refresh_last_frame) ? 1 : 0;
-#if CONFIG_EXT_REFS
     refresh[1] = refresh[2] = 0;
     refresh[3] = (cpi->refresh_golden_frame) ? 1 : 0;
     refresh[4] = (cpi->refresh_bwd_ref_frame) ? 1 : 0;
     refresh[5] = (cpi->refresh_alt2_ref_frame) ? 1 : 0;
     refresh[6] = (cpi->refresh_alt_ref_frame) ? 1 : 0;
-#else   // !CONFIG_EXT_REFS
-    refresh[1] = (cpi->refresh_golden_frame) ? 1 : 0;
-    refresh[2] = (cpi->refresh_alt_ref_frame) ? 1 : 0;
-#endif  // CONFIG_EXT_REFS
     for (i = LAST_FRAME; i <= ALTREF_FRAME; ++i) {
       const int idx = cpi->scaled_ref_idx[i - 1];
       RefCntBuffer *const buf =
@@ -5101,7 +5036,6 @@ static void encode_with_recode_loop(AV1_COMP *cpi, size_t *size,
 static int get_ref_frame_flags(const AV1_COMP *cpi) {
   const int *const map = cpi->common.ref_frame_map;
 
-#if CONFIG_EXT_REFS
   const int last2_is_last =
       map[cpi->lst_fb_idxes[1]] == map[cpi->lst_fb_idxes[0]];
   const int last3_is_last =
@@ -5139,11 +5073,6 @@ static int get_ref_frame_flags(const AV1_COMP *cpi) {
   const int gld_is_alt = map[cpi->gld_fb_idx] == map[cpi->alt_fb_idx];
   const int bwd_is_alt = map[cpi->bwd_fb_idx] == map[cpi->alt_fb_idx];
   const int alt2_is_alt = map[cpi->alt2_fb_idx] == map[cpi->alt_fb_idx];
-#else   // !CONFIG_EXT_REFS
-  const int gld_is_last = map[cpi->gld_fb_idx] == map[cpi->lst_fb_idx];
-  const int gld_is_alt = map[cpi->gld_fb_idx] == map[cpi->alt_fb_idx];
-  const int alt_is_last = map[cpi->alt_fb_idx] == map[cpi->lst_fb_idx];
-#endif  // CONFIG_EXT_REFS
 
   int flags = AOM_REFFRAME_ALL;
 
@@ -5153,7 +5082,6 @@ static int get_ref_frame_flags(const AV1_COMP *cpi) {
 
   if (alt_is_last) flags &= ~AOM_ALT_FLAG;
 
-#if CONFIG_EXT_REFS
   if (last2_is_last || last2_is_alt) flags &= ~AOM_LAST2_FLAG;
 
   if (last3_is_last || last3_is_last2 || last3_is_alt) flags &= ~AOM_LAST3_FLAG;
@@ -5175,7 +5103,6 @@ static int get_ref_frame_flags(const AV1_COMP *cpi) {
        alt2_is_bwd || alt2_is_alt) &&
       (flags & AOM_ALT2_FLAG))
     flags &= ~AOM_ALT2_FLAG;
-#endif  // CONFIG_EXT_REFS
 
   return flags;
 }
@@ -5201,30 +5128,16 @@ static void set_ext_overrides(AV1_COMP *cpi) {
 static void set_arf_sign_bias(AV1_COMP *cpi) {
   AV1_COMMON *const cm = &cpi->common;
   int arf_sign_bias;
-#if CONFIG_EXT_REFS
   const GF_GROUP *const gf_group = &cpi->twopass.gf_group;
   // The arf_sign_bias will be one for internal ARFs'
   arf_sign_bias = cpi->rc.source_alt_ref_active &&
                   (!cpi->refresh_alt_ref_frame ||
                    gf_group->update_type[gf_group->index] == INTNL_ARF_UPDATE);
-#else   // !CONFIG_EXT_REFS
-  if ((cpi->oxcf.pass == 2) && cpi->multi_arf_allowed) {
-    const GF_GROUP *const gf_group = &cpi->twopass.gf_group;
-    arf_sign_bias = cpi->rc.source_alt_ref_active &&
-                    (!cpi->refresh_alt_ref_frame ||
-                     (gf_group->rf_level[gf_group->index] == GF_ARF_LOW));
-  } else {
-    arf_sign_bias =
-        (cpi->rc.source_alt_ref_active && !cpi->refresh_alt_ref_frame);
-  }
-#endif  // CONFIG_EXT_REFS
 
   cm->ref_frame_sign_bias[ALTREF_FRAME] = arf_sign_bias;
-#if CONFIG_EXT_REFS
   cm->ref_frame_sign_bias[BWDREF_FRAME] = cm->ref_frame_sign_bias[ALTREF_FRAME];
   cm->ref_frame_sign_bias[ALTREF2_FRAME] =
       cm->ref_frame_sign_bias[ALTREF_FRAME];
-#endif  // CONFIG_EXT_REFS
 }
 #endif  // !CONFIG_FRAME_SIGN_BIAS
 
@@ -5235,12 +5148,8 @@ static int setup_interp_filter_search_mask(AV1_COMP *cpi) {
   int mask = 0;
   int arf_idx = ALTREF_FRAME;
 
-#if CONFIG_EXT_REFS
   if (cpi->common.last_frame_type == KEY_FRAME || cpi->refresh_alt_ref_frame ||
       cpi->refresh_alt2_ref_frame)
-#else   // !CONFIG_EXT_REFS
-  if (cpi->common.last_frame_type == KEY_FRAME || cpi->refresh_alt_ref_frame)
-#endif  // CONFIG_EXT_REFS
     return mask;
 
   for (ref = LAST_FRAME; ref <= ALTREF_FRAME; ++ref)
@@ -5250,25 +5159,21 @@ static int setup_interp_filter_search_mask(AV1_COMP *cpi) {
   for (ifilter = EIGHTTAP_REGULAR; ifilter < SWITCHABLE_FILTERS; ++ifilter) {
     if ((ref_total[LAST_FRAME] &&
          cpi->interp_filter_selected[LAST_FRAME][ifilter] == 0) &&
-#if CONFIG_EXT_REFS
         (ref_total[LAST2_FRAME] == 0 ||
          cpi->interp_filter_selected[LAST2_FRAME][ifilter] * 50 <
              ref_total[LAST2_FRAME]) &&
         (ref_total[LAST3_FRAME] == 0 ||
          cpi->interp_filter_selected[LAST3_FRAME][ifilter] * 50 <
              ref_total[LAST3_FRAME]) &&
-#endif  // CONFIG_EXT_REFS
         (ref_total[GOLDEN_FRAME] == 0 ||
          cpi->interp_filter_selected[GOLDEN_FRAME][ifilter] * 50 <
              ref_total[GOLDEN_FRAME]) &&
-#if CONFIG_EXT_REFS
         (ref_total[BWDREF_FRAME] == 0 ||
          cpi->interp_filter_selected[BWDREF_FRAME][ifilter] * 50 <
              ref_total[BWDREF_FRAME]) &&
         (ref_total[ALTREF2_FRAME] == 0 ||
          cpi->interp_filter_selected[ALTREF2_FRAME][ifilter] * 50 <
              ref_total[ALTREF2_FRAME]) &&
-#endif  // CONFIG_EXT_REFS
         (ref_total[ALTREF_FRAME] == 0 ||
          cpi->interp_filter_selected[arf_idx][ifilter] * 50 <
              ref_total[ALTREF_FRAME]))
@@ -5387,7 +5292,6 @@ static void encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
       !cpi->oxcf.disable_tempmv && !cm->cur_frame->intra_only;
 #endif
 
-#if CONFIG_EXT_REFS
   // NOTE:
   // (1) Move the setup of the ref_frame_flags upfront as it would be
   //     determined by the current frame properties;
@@ -5471,7 +5375,6 @@ static void encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
     aom_free(cdf_ptrs);
     return;
   }
-#endif  // CONFIG_EXT_REFS
 
   // Set default state for segment based loop filter update flags.
   cm->lf.mode_ref_delta_update = 0;
@@ -5631,10 +5534,8 @@ static void encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
   cm->frame_to_show->render_width = cm->render_width;
   cm->frame_to_show->render_height = cm->render_height;
 
-#if CONFIG_EXT_REFS
-// TODO(zoeliu): For non-ref frames, loop filtering may need to be turned
-// off.
-#endif  // CONFIG_EXT_REFS
+  // TODO(zoeliu): For non-ref frames, loop filtering may need to be turned
+  // off.
 
   // Pick the loop filter level for the frame.
   loopfilter_frame(cpi, cm);
@@ -5723,16 +5624,10 @@ static void encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
   else
     cpi->frame_flags &= ~FRAMEFLAGS_ALTREF;
 
-#if CONFIG_EXT_REFS
   if (cpi->refresh_bwd_ref_frame == 1)
     cpi->frame_flags |= FRAMEFLAGS_BWDREF;
   else
     cpi->frame_flags &= ~FRAMEFLAGS_BWDREF;
-#endif  // CONFIG_EXT_REFS
-
-#if !CONFIG_EXT_REFS
-  cpi->ref_frame_flags = get_ref_frame_flags(cpi);
-#endif  // !CONFIG_EXT_REFS
 
   cm->last_frame_type = cm->frame_type;
 
@@ -5771,20 +5666,16 @@ static void encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
   cm->lf.mode_ref_delta_update = 0;
 
   if (cm->show_frame) {
-#if CONFIG_EXT_REFS
-// TODO(zoeliu): We may only swamp mi and prev_mi for those frames that are
-// being used as reference.
-#endif  // CONFIG_EXT_REFS
+    // TODO(zoeliu): We may only swamp mi and prev_mi for those frames that are
+    // being used as reference.
     swap_mi_and_prev_mi(cm);
     // Don't increment frame counters if this was an altref buffer
     // update not a real frame
     ++cm->current_video_frame;
   }
 
-#if CONFIG_EXT_REFS
   // NOTE: Shall not refer to any frame not used as reference.
   if (cm->is_reference_frame) {
-#endif  // CONFIG_EXT_REFS
     cm->prev_frame = cm->cur_frame;
     // keep track of the last coded dimensions
     cm->last_width = cm->width;
@@ -5792,9 +5683,7 @@ static void encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
 
     // reset to normal state now that we are done.
     cm->last_show_frame = cm->show_frame;
-#if CONFIG_EXT_REFS
   }
-#endif  // CONFIG_EXT_REFS
 
   aom_free(tile_ctxs);
   aom_free(cdf_ptrs);
@@ -5842,7 +5731,6 @@ static void Pass2Encode(AV1_COMP *cpi, size_t *size, uint8_t *dest,
                         unsigned int *frame_flags) {
   encode_frame_to_data_rate(cpi, size, dest, 0, frame_flags);
 
-#if CONFIG_EXT_REFS
   // Do not do post-encoding update for those frames that do not have a spot in
   // a gf group, but note that an OVERLAY frame always has a spot in a gf group,
   // even when show_existing_frame is used.
@@ -5850,9 +5738,6 @@ static void Pass2Encode(AV1_COMP *cpi, size_t *size, uint8_t *dest,
     av1_twopass_postencode_update(cpi);
   }
   check_show_existing_frame(cpi);
-#else
-  av1_twopass_postencode_update(cpi);
-#endif  // CONFIG_EXT_REFS
 }
 #endif
 
@@ -5905,13 +5790,10 @@ static int frame_is_reference(const AV1_COMP *cpi) {
   const AV1_COMMON *cm = &cpi->common;
 
   return cm->frame_type == KEY_FRAME || cpi->refresh_last_frame ||
-         cpi->refresh_golden_frame ||
-#if CONFIG_EXT_REFS
-         cpi->refresh_bwd_ref_frame || cpi->refresh_alt2_ref_frame ||
-#endif  // CONFIG_EXT_REFS
-         cpi->refresh_alt_ref_frame || !cm->error_resilient_mode ||
-         cm->lf.mode_ref_delta_update || cm->seg.update_map ||
-         cm->seg.update_data;
+         cpi->refresh_golden_frame || cpi->refresh_bwd_ref_frame ||
+         cpi->refresh_alt2_ref_frame || cpi->refresh_alt_ref_frame ||
+         !cm->error_resilient_mode || cm->lf.mode_ref_delta_update ||
+         cm->seg.update_map || cm->seg.update_data;
 }
 
 static void adjust_frame_rate(AV1_COMP *cpi,
@@ -5971,7 +5853,6 @@ static int get_arf_src_index(AV1_COMP *cpi) {
   return arf_src_index;
 }
 
-#if CONFIG_EXT_REFS
 static int get_brf_src_index(AV1_COMP *cpi) {
   int brf_src_index = 0;
   const GF_GROUP *const gf_group = &cpi->twopass.gf_group;
@@ -6005,7 +5886,6 @@ static int get_arf2_src_index(AV1_COMP *cpi) {
   }
   return arf2_src_index;
 }
-#endif  // CONFIG_EXT_REFS
 
 static void check_src_altref(AV1_COMP *cpi,
                              const struct lookahead_entry *source) {
@@ -6017,14 +5897,10 @@ static void check_src_altref(AV1_COMP *cpi,
   if (cpi->oxcf.pass == 2) {
     const GF_GROUP *const gf_group = &cpi->twopass.gf_group;
     rc->is_src_frame_alt_ref =
-#if CONFIG_EXT_REFS
         (gf_group->update_type[gf_group->index] == INTNL_OVERLAY_UPDATE) ||
-#endif  // CONFIG_EXT_REFS
         (gf_group->update_type[gf_group->index] == OVERLAY_UPDATE);
-#if CONFIG_EXT_REFS
     rc->is_src_frame_ext_arf =
         gf_group->update_type[gf_group->index] == INTNL_OVERLAY_UPDATE;
-#endif  // CONFIG_EXT_REFS
   } else {
     rc->is_src_frame_alt_ref =
         cpi->alt_ref_source && (source == cpi->alt_ref_source);
@@ -6034,20 +5910,16 @@ static void check_src_altref(AV1_COMP *cpi,
     // Current frame is an ARF overlay frame.
     cpi->alt_ref_source = NULL;
 
-#if CONFIG_EXT_REFS
     if (rc->is_src_frame_ext_arf && !cpi->common.show_existing_frame) {
       // For INTNL_OVERLAY, when show_existing_frame == 0, they do need to
       // refresh the LAST_FRAME, i.e. LAST3 gets retired, LAST2 becomes LAST3,
       // LAST becomes LAST2, and INTNL_OVERLAY becomes LAST.
       cpi->refresh_last_frame = 1;
     } else {
-#endif  // CONFIG_EXT_REFS
       // Don't refresh the last buffer for an ARF overlay frame. It will
       // become the GF so preserve last as an alternative prediction option.
       cpi->refresh_last_frame = 0;
-#if CONFIG_EXT_REFS
     }
-#endif  // CONFIG_EXT_REFS
   }
 }
 
@@ -6299,9 +6171,7 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
   struct lookahead_entry *last_source = NULL;
   struct lookahead_entry *source = NULL;
   int arf_src_index;
-#if CONFIG_EXT_REFS
   int brf_src_index;
-#endif  // CONFIG_EXT_REFS
   int i;
 
 #if CONFIG_XIPHRC
@@ -6341,13 +6211,11 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
 
   cpi->refresh_last_frame = 1;
   cpi->refresh_golden_frame = 0;
-#if CONFIG_EXT_REFS
   cpi->refresh_bwd_ref_frame = 0;
   cpi->refresh_alt2_ref_frame = 0;
-#endif  // CONFIG_EXT_REFS
   cpi->refresh_alt_ref_frame = 0;
 
-#if CONFIG_EXT_REFS && !CONFIG_XIPHRC
+#if !CONFIG_XIPHRC
   if (oxcf->pass == 2 && cm->show_existing_frame) {
     // Manage the source buffer and flush out the source frame that has been
     // coded already; Also get prepared for PSNR calculation if needed.
@@ -6396,7 +6264,7 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
     cm->show_existing_frame = 0;
     return 0;
   }
-#endif  // CONFIG_EXT_REFS && !CONFIG_XIPHRC
+#endif  // !CONFIG_XIPHRC
 
   // Should we encode an arf frame.
   arf_src_index = get_arf_src_index(cpi);
@@ -6441,16 +6309,13 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
       cpi->refresh_alt_ref_frame = 1;
       cpi->refresh_last_frame = 0;
       cpi->refresh_golden_frame = 0;
-#if CONFIG_EXT_REFS
       cpi->refresh_bwd_ref_frame = 0;
       cpi->refresh_alt2_ref_frame = 0;
-#endif  // CONFIG_EXT_REFS
       rc->is_src_frame_alt_ref = 0;
     }
     rc->source_alt_ref_pending = 0;
   }
 
-#if CONFIG_EXT_REFS
   // Should we encode an arf2 frame.
   arf_src_index = get_arf2_src_index(cpi);
   if (arf_src_index) {
@@ -6514,7 +6379,6 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
       rc->is_bwd_ref_frame = 1;
     }
   }
-#endif  // CONFIG_EXT_REFS
 
   if (!source) {
     // Get last frame source.
@@ -6580,16 +6444,6 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
 #if CONFIG_HIGHBITDEPTH && CONFIG_GLOBAL_MOTION
   cm->cur_frame->buf.buf_8bit_valid = 0;
 #endif
-#if !CONFIG_EXT_REFS
-  if (cpi->multi_arf_allowed) {
-    if (cm->frame_type == KEY_FRAME) {
-      init_buffer_indices(cpi);
-    } else if (oxcf->pass == 2) {
-      const GF_GROUP *const gf_group = &cpi->twopass.gf_group;
-      cpi->alt_fb_idx = gf_group->arf_ref_idx[gf_group->index];
-    }
-  }
-#endif  // !CONFIG_EXT_REFS
 
   // Start with a 0 size frame.
   *size = 0;
@@ -6783,10 +6637,8 @@ void av1_apply_encoding_flags(AV1_COMP *cpi, aom_enc_frame_flags_t flags) {
 
     if (flags & AOM_EFLAG_NO_REF_LAST) {
       ref ^= AOM_LAST_FLAG;
-#if CONFIG_EXT_REFS
       ref ^= AOM_LAST2_FLAG;
       ref ^= AOM_LAST3_FLAG;
-#endif  // CONFIG_EXT_REFS
     }
 
     if (flags & AOM_EFLAG_NO_REF_GF) ref ^= AOM_GOLD_FLAG;
@@ -6803,10 +6655,8 @@ void av1_apply_encoding_flags(AV1_COMP *cpi, aom_enc_frame_flags_t flags) {
 
     if (flags & AOM_EFLAG_NO_UPD_LAST) {
       upd ^= AOM_LAST_FLAG;
-#if CONFIG_EXT_REFS
       upd ^= AOM_LAST2_FLAG;
       upd ^= AOM_LAST3_FLAG;
-#endif  // CONFIG_EXT_REFS
     }
 
     if (flags & AOM_EFLAG_NO_UPD_GF) upd ^= AOM_GOLD_FLAG;
