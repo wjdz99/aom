@@ -5935,8 +5935,14 @@ void av1_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
             p_data_end, &frame_decoding_finished);
         is_first_tg_obu_received = 0;
         break;
-      default: break;
+      default:
+        // Skip unrecognized OBUs
+        obu_payload_size = obu_size - obu_header_size;
+        break;
     }
+    if (obu_header_size + obu_payload_size != obu_size)
+      aom_internal_error(pbi->mb.error_info, AOM_CODEC_CORRUPT_FRAME,
+                         "Incorrect OBU size");
     data += obu_payload_size;
   }
 }
