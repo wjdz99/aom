@@ -16,6 +16,24 @@
       "revId": "b83c73cd4dcc0f09ec91be32735f48f8b246a677",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "33c49d22_36c13114",
+        "filename": "av1/common/mvref_common.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 771,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2017-10-09T15:37:23Z",
+      "side": 1,
+      "message": "This condition is for the context modeling that differentiates REFMV and NEARESTMV modes.\n\nThe NEARESTMV mode will be deprecated and this syntax will no longer be needed.",
+      "parentUuid": "2171b307_0fb39fc8",
+      "revId": "b83c73cd4dcc0f09ec91be32735f48f8b246a677",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
