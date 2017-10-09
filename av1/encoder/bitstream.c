@@ -1006,6 +1006,9 @@ static void write_ref_frames(const AV1_COMMON *cm, const MACROBLOCKD *xd,
     assert(!is_compound);
     assert(mbmi->ref_frame[0] ==
            get_segdata(&cm->seg, segment_id, SEG_LVL_REF_FRAME));
+  } else if (segfeature_active(&cm->seg, segment_id, SEG_LVL_SKIP)) {
+    assert(!is_compound);
+    assert(mbmi->ref_frame[0] == LAST_FRAME);
   } else {
     // does the feature use compound prediction or not
     // (if not specified at the frame/segment level)
