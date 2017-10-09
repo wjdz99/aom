@@ -142,8 +142,8 @@ void av1_foreach_transformed_block_in_plane(
   // If mb_to_right_edge is < 0 we are in a situation in which
   // the current block size extends into the UMV and we won't
   // visit the sub blocks that are wholly within the UMV.
-  const int max_blocks_wide = max_block_wide(xd, plane_bsize, plane);
-  const int max_blocks_high = max_block_high(xd, plane_bsize, plane);
+  const int max_blocks_wide = max_block_wide(xd, bsize, plane);
+  const int max_blocks_high = max_block_high(xd, bsize, plane);
 
   int blk_row, blk_col;
 
@@ -205,12 +205,11 @@ void av1_set_contexts(const MACROBLOCKD *xd, struct macroblockd_plane *pd,
 #else
   const BLOCK_SIZE bsize = AOMMAX(xd->mi[0]->mbmi.sb_type, BLOCK_8X8);
 #endif
-  const BLOCK_SIZE plane_bsize = get_plane_block_size(bsize, pd);
 
   // above
   if (has_eob && xd->mb_to_right_edge < 0) {
     int i;
-    const int blocks_wide = max_block_wide(xd, plane_bsize, plane);
+    const int blocks_wide = max_block_wide(xd, bsize, plane);
     int above_contexts = txs_wide;
     if (above_contexts + aoff > blocks_wide)
       above_contexts = blocks_wide - aoff;
@@ -224,7 +223,7 @@ void av1_set_contexts(const MACROBLOCKD *xd, struct macroblockd_plane *pd,
   // left
   if (has_eob && xd->mb_to_bottom_edge < 0) {
     int i;
-    const int blocks_high = max_block_high(xd, plane_bsize, plane);
+    const int blocks_high = max_block_high(xd, bsize, plane);
     int left_contexts = txs_high;
     if (left_contexts + loff > blocks_high) left_contexts = blocks_high - loff;
 

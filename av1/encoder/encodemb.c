@@ -759,8 +759,8 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
 
 #if CONFIG_VAR_TX
 static void encode_block_inter(int plane, int block, int blk_row, int blk_col,
-                               BLOCK_SIZE plane_bsize, TX_SIZE tx_size,
-                               void *arg) {
+                               BLOCK_SIZE y_bsize, BLOCK_SIZE plane_bsize,
+                               TX_SIZE tx_size, void *arg) {
   struct encode_b_args *const args = arg;
   MACROBLOCK *const x = args->x;
   MACROBLOCKD *const xd = &x->e_mbd;
@@ -770,8 +770,8 @@ static void encode_block_inter(int plane, int block, int blk_row, int blk_col,
   const int tx_row = blk_row >> (1 - pd->subsampling_y);
   const int tx_col = blk_col >> (1 - pd->subsampling_x);
   TX_SIZE plane_tx_size;
-  const int max_blocks_high = max_block_high(xd, plane_bsize, plane);
-  const int max_blocks_wide = max_block_wide(xd, plane_bsize, plane);
+  const int max_blocks_high = max_block_high(xd, y_bsize, plane);
+  const int max_blocks_wide = max_block_wide(xd, y_bsize, plane);
 
   if (blk_row >= max_blocks_high || blk_col >= max_blocks_wide) return;
 
@@ -814,8 +814,8 @@ static void encode_block_inter(int plane, int block, int blk_row, int blk_col,
 
       if (offsetr >= max_blocks_high || offsetc >= max_blocks_wide) continue;
 
-      encode_block_inter(plane, block, offsetr, offsetc, plane_bsize, sub_txs,
-                         arg);
+      encode_block_inter(plane, block, offsetr, offsetc, y_bsize, plane_bsize,
+                         sub_txs, arg);
       block += step;
     }
   }
@@ -971,8 +971,8 @@ void av1_encode_sb(AV1_COMMON *cm, MACROBLOCK *x, BLOCK_SIZE bsize, int mi_row,
         const int unit_width = AOMMIN(mu_blocks_wide + idx, mi_width);
         for (blk_row = idy; blk_row < unit_height; blk_row += bh) {
           for (blk_col = idx; blk_col < unit_width; blk_col += bw) {
-            encode_block_inter(plane, block, blk_row, blk_col, plane_bsize,
-                               max_tx_size, &arg);
+            encode_block_inter(plane, block, blk_row, blk_col, bsize,
+                               plane_bsize, max_tx_size, &arg);
             block += step;
           }
         }

@@ -738,26 +738,15 @@ static void pack_pvq_tokens(aom_writer *w, MACROBLOCK *const x,
                             const TX_SIZE tx_size) {
   PVQ_INFO *pvq;
   int idx, idy;
-  const struct macroblockd_plane *const pd = &xd->plane[plane];
   od_adapt_ctx *adapt;
   int max_blocks_wide;
   int max_blocks_high;
   int step = (1 << tx_size);
 
-#if CONFIG_CHROMA_SUB8X8
-  const BLOCK_SIZE plane_bsize =
-      AOMMAX(BLOCK_4X4, get_plane_block_size(bsize, pd));
-#elif CONFIG_CB4X4
-  const BLOCK_SIZE plane_bsize = get_plane_block_size(bsize, pd);
-#else
-  const BLOCK_SIZE plane_bsize =
-      get_plane_block_size(AOMMAX(BLOCK_8X8, bsize), pd);
-#endif
-
   adapt = x->daala_enc.state.adapt;
 
-  max_blocks_wide = max_block_wide(xd, plane_bsize, plane);
-  max_blocks_high = max_block_high(xd, plane_bsize, plane);
+  max_blocks_wide = max_block_wide(xd, bsize, plane);
+  max_blocks_high = max_block_high(xd, bsize, plane);
 
   for (idy = 0; idy < max_blocks_high; idy += step) {
     for (idx = 0; idx < max_blocks_wide; idx += step) {
@@ -833,8 +822,8 @@ static void pack_txb_tokens(aom_writer *w,
   const int tx_row = blk_row >> (1 - pd->subsampling_y);
   const int tx_col = blk_col >> (1 - pd->subsampling_x);
   TX_SIZE plane_tx_size;
-  const int max_blocks_high = max_block_high(xd, plane_bsize, plane);
-  const int max_blocks_wide = max_block_wide(xd, plane_bsize, plane);
+  const int max_blocks_high = max_block_high(xd, mbmi->sb_type, plane);
+  const int max_blocks_wide = max_block_wide(xd, mbmi->sb_type, plane);
 
   if (blk_row >= max_blocks_high || blk_col >= max_blocks_wide) return;
 
@@ -903,8 +892,8 @@ static void pack_txb_tokens(aom_writer *w, const TOKENEXTRA **tp,
   const int tx_row = blk_row >> (1 - pd->subsampling_y);
   const int tx_col = blk_col >> (1 - pd->subsampling_x);
   TX_SIZE plane_tx_size;
-  const int max_blocks_high = max_block_high(xd, plane_bsize, plane);
-  const int max_blocks_wide = max_block_wide(xd, plane_bsize, plane);
+  const int max_blocks_high = max_block_high(xd, mbmi->sb_type, plane);
+  const int max_blocks_wide = max_block_wide(xd, mbmi->sb_type, plane);
 #if CONFIG_MRC_TX && SIGNAL_ANY_MRC_MASK
   TX_TYPE tx_type = av1_get_tx_type(plane ? PLANE_TYPE_UV : PLANE_TYPE_Y, xd,
                                     blk_row, blk_col, block, tx_size);
@@ -3087,12 +3076,9 @@ static void write_modes_sb(AV1_COMP *const cpi, const TileInfo *const tile,
         TX_TYPE tx_type = av1_get_tx_type(plane ? PLANE_TYPE_UV : PLANE_TYPE_Y,
                                           xd, blk_row, blk_col, block, tx_size);
 #endif  // CONFIG_MRC_TX && SIGNAL_ANY_MRC_MASK
-        const struct macroblockd_plane *const pd = &xd->plane[plane];
         const int mbmi_txb_size = txsize_to_bsize[mbmi->tx_size];
-        const BLOCK_SIZE plane_bsize = get_plane_block_size(mbmi_txb_size, pd);
-
-        const int max_blocks_wide = max_block_wide(xd, plane_bsize, plane);
-        const int max_blocks_high = max_block_high(xd, plane_bsize, plane);
+        const int max_blocks_wide = max_block_wide(xd, mbmi_txb_size, plane);
+        const int max_blocks_high = max_block_high(xd, mbmi_txb_size, plane);
 
         int row, col;
         const TX_SIZE tx = av1_get_tx_size(plane, xd);

@@ -154,14 +154,14 @@ static void sum_left_col(const MACROBLOCKD *xd, int height, int *out_sum_u,
 
 // CfL computes its own block-level DC_PRED. This is required to compute both
 // alpha_cb and alpha_cr before the prediction are computed.
-static void cfl_dc_pred(MACROBLOCKD *xd, BLOCK_SIZE plane_bsize) {
+static void cfl_dc_pred(MACROBLOCKD *xd, BLOCK_SIZE bsize) {
   CFL_CTX *const cfl = xd->cfl;
 
   // Compute DC_PRED until block boundary. We can't assume the neighbor will use
   // the same transform size.
-  const int width = max_block_wide(xd, plane_bsize, AOM_PLANE_U)
+  const int width = max_block_wide(xd, bsize, AOM_PLANE_U)
                     << tx_size_wide_log2[0];
-  const int height = max_block_high(xd, plane_bsize, AOM_PLANE_U)
+  const int height = max_block_high(xd, bsize, AOM_PLANE_U)
                      << tx_size_high_log2[0];
   // Number of pixel on the top and left borders.
   const int num_pel = width + height;
@@ -534,36 +534,29 @@ void cfl_store_block(MACROBLOCKD *const xd, BLOCK_SIZE bsize, TX_SIZE tx_size) {
 void cfl_compute_parameters(MACROBLOCKD *const xd, TX_SIZE tx_size) {
   CFL_CTX *const cfl = xd->cfl;
   MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
+  const BLOCK_SIZE bsize = mbmi->sb_type;
 
   // Do not call cfl_compute_parameters multiple time on the same values.
   assert(cfl->are_parameters_computed == 0);
 
-#if CONFIG_CHROMA_SUB8X8
-  const BLOCK_SIZE plane_bsize = AOMMAX(
-      BLOCK_4X4, get_plane_block_size(mbmi->sb_type, &xd->plane[AOM_PLANE_U]));
-#if CONFIG_DEBUG
-  if (mbmi->sb_type < BLOCK_8X8) {
-    for (int val_r = 0; val_r < mi_size_high[mbmi->sb_type]; val_r++) {
-      for (int val_c = 0; val_c < mi_size_wide[mbmi->sb_type]; val_c++) {
+#if CONFIG_CHROMA_SUB8X8 && CONFIG_DEBUG
+  if (bsize < BLOCK_8X8) {
+    for (int val_r = 0; val_r < mi_size_high[bsize]; val_r++) {
+      for (int val_c = 0; val_c < mi_size_wide[bsize]; val_c++) {
         assert(cfl->sub8x8_val[val_r * CFL_SUB8X8_VAL_MI_SIZE + val_c] == 1);
       }
     }
     cfl_clear_sub8x8_val(cfl);
   }
-#endif  // CONFIG_DEBUG
-#else
-  const BLOCK_SIZE plane_bsize =
-      get_plane_block_size(mbmi->sb_type, &xd->plane[AOM_PLANE_U]);
-#endif
+#endif  // CONFIG_CHROMA_SUB8X8 && CONFIG_DEBUG
   // AOM_PLANE_U is used, but both planes will have the same sizes.
-  cfl->uv_width = max_intra_block_width(xd, plane_bsize, AOM_PLANE_U, tx_size);
-  cfl->uv_height =
-      max_intra_block_height(xd, plane_bsize, AOM_PLANE_U, tx_size);
+  cfl->uv_width = max_intra_block_width(xd, bsize, AOM_PLANE_U, tx_size);
+  cfl->uv_height = max_intra_block_height(xd, bsize, AOM_PLANE_U, tx_size);
 
   assert(cfl->buf_width <= cfl->uv_width);
   assert(cfl->buf_height <= cfl->uv_height);
 
-  cfl_dc_pred(xd, plane_bsize);
+  cfl_dc_pred(xd, bsize);
   cfl_subtract_averages(cfl, tx_size);
   cfl->are_parameters_computed = 1;
 }
