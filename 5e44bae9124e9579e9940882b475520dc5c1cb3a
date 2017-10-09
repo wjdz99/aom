@@ -22,6 +22,30 @@
       "revId": "5e44bae9124e9579e9940882b475520dc5c1cb3a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "56e26eea_b81a577e",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 508,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2017-10-09T15:44:41Z",
+      "side": 1,
+      "message": "nope, default is AOM_CONFIG_DIR (or AOM_CONFIG_DIR/buildConfig for MSVC/Xcode).",
+      "parentUuid": "44edca67_99ba2bde",
+      "range": {
+        "startLine": 508,
+        "startChar": 12,
+        "endLine": 508,
+        "endChar": 0
+      },
+      "revId": "5e44bae9124e9579e9940882b475520dc5c1cb3a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
