@@ -616,6 +616,10 @@ typedef enum {
 
 #define SKIP_CONTEXTS 3
 
+#if CONFIG_JNT_COMP
+#define COMP_INDEX_CONTEXTS 9
+#endif  // CONFIG_JNT_COMP
+
 #define NMV_CONTEXTS 3
 
 #define NEWMV_MODE_CONTEXTS 7
