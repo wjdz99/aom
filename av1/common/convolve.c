@@ -360,11 +360,36 @@ void av1_convolve_2d_c(const uint8_t *src, int src_stride, CONV_BUF_TYPE *dst,
       for (k = 0; k < filter_params_y->taps; ++k) {
         sum += y_filter[k] * src_vert[(y - fo_vert + k) * im_stride + x];
       }
+#if CONFIG_JNT_COMP
+      if (conv_params->bck_offset == -1) {
+        CONV_BUF_TYPE res = ROUND_POWER_OF_TWO(sum, conv_params->round_1);
+        if (conv_params->do_average)
+          dst[y * dst_stride + x] += res;
+        else
+          dst[y * dst_stride + x] = res;
+      } else {
+        if (conv_params->do_average == 0) {
+          dst[y * dst_stride + x] =
+              ROUND_POWER_OF_TWO_SIGNED(sum, conv_params->round_1) * 2 *
+              conv_params->fwd_offset;
+        } else {
+          dst[y * dst_stride + x] +=
+              ROUND_POWER_OF_TWO_SIGNED(sum, conv_params->round_1) * 2 *
+              conv_params->bck_offset;
+
+          dst[y * dst_stride + x] = (int32_t)(
+              0.5 +
+              dst[y * dst_stride + x] /
+                  (double)(conv_params->fwd_offset + conv_params->bck_offset));
+        }
+      }
+#else
       CONV_BUF_TYPE res = ROUND_POWER_OF_TWO(sum, conv_params->round_1);
       if (conv_params->do_average)
         dst[y * dst_stride + x] += res;
       else
         dst[y * dst_stride + x] = res;
+#endif  // CONFIG_JNT_COMP
     }
   }
 }
@@ -418,11 +443,36 @@ void av1_convolve_2d_scale_c(const uint8_t *src, int src_stride,
       for (k = 0; k < filter_params_y->taps; ++k) {
         sum += y_filter[k] * src_y[(k - fo_vert) * im_stride];
       }
+#if CONFIG_JNT_COMP
+      if (conv_params->bck_offset == -1) {
+        CONV_BUF_TYPE res = ROUND_POWER_OF_TWO(sum, conv_params->round_1);
+        if (conv_params->do_average)
+          dst[y * dst_stride + x] += res;
+        else
+          dst[y * dst_stride + x] = res;
+      } else {
+        if (conv_params->do_average == 0) {
+          dst[y * dst_stride + x] =
+              ROUND_POWER_OF_TWO_SIGNED(sum, conv_params->round_1) * 2 *
+              conv_params->fwd_offset;
+        } else {
+          dst[y * dst_stride + x] +=
+              ROUND_POWER_OF_TWO_SIGNED(sum, conv_params->round_1) * 2 *
+              conv_params->bck_offset;
+
+          dst[y * dst_stride + x] = (int32_t)(
+              0.5 +
+              dst[y * dst_stride + x] /
+                  (double)(conv_params->fwd_offset + conv_params->bck_offset));
+        }
+      }
+#else
       CONV_BUF_TYPE res = ROUND_POWER_OF_TWO(sum, conv_params->round_1);
       if (conv_params->do_average)
         dst[y * dst_stride + x] += res;
       else
         dst[y * dst_stride + x] = res;
+#endif  // CONFIG_JNT_COMP
     }
     src_vert++;
   }
