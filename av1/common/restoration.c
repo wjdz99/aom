@@ -34,7 +34,7 @@ const sgr_params_type sgr_params[SGRPROJ_PARAMS] = {
 #if MAX_RADIUS == 2
   { 2, 12, 1, 4 },  { 2, 15, 1, 6 },  { 2, 18, 1, 8 },  { 2, 20, 1, 9 },
   { 2, 22, 1, 10 }, { 2, 25, 1, 11 }, { 2, 35, 1, 12 }, { 2, 45, 1, 13 },
-  { 2, 55, 1, 14 }, { 2, 65, 1, 15 }, { 2, 75, 1, 16 }, { 2, 30, 1, 2 },
+  { 2, 55, 1, 14 }, { 2, 65, 1, 15 }, { 2, 75, 1, 16 }, { 2, 30, 1, 6 },
   { 2, 50, 1, 12 }, { 2, 60, 1, 13 }, { 2, 70, 1, 14 }, { 2, 80, 1, 15 },
 #else
   { 2, 12, 1, 4 },  { 2, 15, 1, 6 },  { 2, 18, 1, 8 },  { 2, 20, 1, 9 },
@@ -813,6 +813,8 @@ static void av1_selfguided_restoration_internal(int32_t *dgd, int width,
       uint32_t p = (a * n < b * b) ? 0 : a * n - b * b;
       uint32_t s = sgrproj_mtable[eps - 1][n - 1];
 
+      if (p == 664394 && s == 6473)
+        printf("r %d bit_depth %d, a %d b %d\n", r, bit_depth, a, b);
       // p * s < (2^14 * n^2) * round(2^20 / n^2 eps) < 2^34 / eps < 2^32
       // as long as eps >= 4. So p * s fits into a uint32_t, and z < 2^12
       // (this holds even after accounting for the rounding in s)
