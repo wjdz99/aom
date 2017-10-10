@@ -22,6 +22,30 @@
       "revId": "523874ad8250cf7b28cde3f93aa7054ea4c151bb",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ec26f2ea_61bcd067",
+        "filename": "aom_dsp/x86/highbd_intrapred_sse2.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1025,
+      "author": {
+        "id": 5195
+      },
+      "writtenOn": "2017-10-10T15:12:08Z",
+      "side": 1,
+      "message": "Let me take a look to see if bit depth is redundant.",
+      "parentUuid": "923f906b_edc5bc2e",
+      "range": {
+        "startLine": 1025,
+        "startChar": 2,
+        "endLine": 1025,
+        "endChar": 10
+      },
+      "revId": "523874ad8250cf7b28cde3f93aa7054ea4c151bb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
