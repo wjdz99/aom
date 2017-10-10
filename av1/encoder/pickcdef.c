@@ -464,8 +464,10 @@ void av1_cdef_search(YV12_BUFFER_CONFIG *frame, const YV12_BUFFER_CONFIG *ref,
     }
   }
   nb_strength_bits = 0;
+  int intra_frame = cm->mi_grid_visible[0]->mbmi.ref_frame[0] == INTRA_FRAME;
+  int cdef_bits = intra_frame ? 3 : 3 - (cm->base_qindex >> 6);
   /* Search for different number of signalling bits. */
-  for (i = 0; i <= 3; i++) {
+  for (i = cdef_bits; i <= cdef_bits ; i++) {
     int j;
     int best_lev0[CDEF_MAX_STRENGTHS];
     int best_lev1[CDEF_MAX_STRENGTHS] = { 0 };
