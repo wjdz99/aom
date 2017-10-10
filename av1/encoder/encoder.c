@@ -775,6 +775,7 @@ static void configure_static_seg_features(AV1_COMP *cpi) {
   }
 }
 
+#if !CONFIG_EXT_SEGMENT_ID
 static void update_reference_segmentation_map(AV1_COMP *cpi) {
   AV1_COMMON *const cm = &cpi->common;
   MODE_INFO **mi_8x8_ptr = cm->mi_grid_visible;
@@ -790,6 +791,7 @@ static void update_reference_segmentation_map(AV1_COMP *cpi) {
     cache_ptr += cm->mi_cols;
   }
 }
+#endif
 
 static void alloc_raw_frame_buffers(AV1_COMP *cpi) {
   AV1_COMMON *cm = &cpi->common;
@@ -5638,7 +5640,9 @@ static void encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
   if (cm->show_frame) dump_filtered_recon_frames(cpi);
 #endif  // DUMP_RECON_FRAMES
 
+#if !CONFIG_EXT_SEGMENT_ID
   if (cm->seg.update_map) update_reference_segmentation_map(cpi);
+#endif
 
   if (frame_is_intra_only(cm) == 0) {
     release_scaled_references(cpi);
