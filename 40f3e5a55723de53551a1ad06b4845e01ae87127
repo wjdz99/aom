@@ -70,6 +70,24 @@
     },
     {
       "key": {
+        "uuid": "a447b45f_1efdebaf",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 979,
+      "author": {
+        "id": 6510
+      },
+      "writtenOn": "2017-10-10T16:23:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0a1c30da_934d6c20",
+      "revId": "40f3e5a55723de53551a1ad06b4845e01ae87127",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "dfc06280_187c860e",
         "filename": "av1/encoder/bitstream.c",
         "patchSetId": 9
@@ -81,6 +99,24 @@
       "writtenOn": "2017-10-07T01:15:35Z",
       "side": 1,
       "message": "I couldn\u0027t parse these variable names without the key below. What happend to \"u\", \"l\", and \"ul\" for up, left, and up-left? (I guess libaom uses \"above\" instead of up sometimes).",
+      "revId": "40f3e5a55723de53551a1ad06b4845e01ae87127",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "99f8558b_24c4cb40",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 993,
+      "author": {
+        "id": 6510
+      },
+      "writtenOn": "2017-10-10T16:23:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dfc06280_187c860e",
       "revId": "40f3e5a55723de53551a1ad06b4845e01ae87127",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -104,6 +140,24 @@
     },
     {
       "key": {
+        "uuid": "95b24bb1_a616cd4c",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 996,
+      "author": {
+        "id": 6510
+      },
+      "writtenOn": "2017-10-10T16:23:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0a47adc5_59150c17",
+      "revId": "40f3e5a55723de53551a1ad06b4845e01ae87127",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0cf713fd_f1d7e87a",
         "filename": "av1/encoder/bitstream.c",
         "patchSetId": 9
@@ -115,6 +169,24 @@
       "writtenOn": "2017-10-07T01:15:35Z",
       "side": 1,
       "message": "Even if it\u0027s not optimal for the variance-based AQ, I think this should probably use the median, if it exists (i.e., if any of the values are the same, use that common value as the predictor), and otherwise use 0.",
+      "revId": "40f3e5a55723de53551a1ad06b4845e01ae87127",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0797e471_4976a45c",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 1027,
+      "author": {
+        "id": 6510
+      },
+      "writtenOn": "2017-10-10T16:23:45Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "0cf713fd_f1d7e87a",
       "revId": "40f3e5a55723de53551a1ad06b4845e01ae87127",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
