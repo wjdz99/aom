@@ -9806,6 +9806,17 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
       rs, &skip_txfm_sb, &skip_sse_sb, &orig_dst);
   if (ret_val != 0) return ret_val;
 
+#if CONFIG_EXT_SKIP
+  if (cm->is_skip_mode_allowed && is_comp_pred &&
+      mbmi->ref_frame[0] == cm->ref_frame_idx_0 &&
+      mbmi->ref_frame[1] == cm->ref_frame_idx_1 &&
+      mbmi->mode == NEAREST_NEARESTMV) {
+    // TODO(zoeliu): To check the interp filter setup.
+    // To continue: To obtain the RD cost for skip_mode (still need to subtract
+    // the cost for coding intra_inter and compare against intra)
+  }
+#endif  // CONFIG_EXT_SKIP
+
   return 0;  // The rate-distortion cost will be re-calculated by caller.
 }
 
@@ -11257,7 +11268,6 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
                                     frame_comp_mv,
 #endif  // CONFIG_COMPOUND_SINGLEREF
                                     mi_row, mi_col, &args, best_rd);
-
         rate2 = rd_stats.rate;
         skippable = rd_stats.skip;
         distortion2 = rd_stats.dist;
