@@ -2698,6 +2698,7 @@ static void setup_segmentation(AV1_COMMON *const cm,
   } else {
     seg->update_map = aom_rb_read_bit(rb);
   }
+#if !CONFIG_EXT_SEGMENT_ID
   if (seg->update_map) {
     if (frame_is_intra_only(cm) || cm->error_resilient_mode) {
       seg->temporal_update = 0;
@@ -2705,6 +2706,7 @@ static void setup_segmentation(AV1_COMMON *const cm,
       seg->temporal_update = aom_rb_read_bit(rb);
     }
   }
+#endif
 
   // Segmentation data update
   seg->update_data = aom_rb_read_bit(rb);
