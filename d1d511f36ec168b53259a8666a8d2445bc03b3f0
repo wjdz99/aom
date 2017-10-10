@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5d59a13b_d53199ba",
+        "filename": "av1/common/mvref_common.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 544,
+      "author": {
+        "id": 5260
+      },
+      "writtenOn": "2017-10-10T07:46:23Z",
+      "side": 1,
+      "message": "Are you sure you want rounding here for the location?  In all the other similar places I believe the coordinates are simply rounded down.\n\nIn particular, if we have an image of width 16 MI units, and blk_col is 15, then won\u0027t this round to a location off the right hand edge of the stored motion vectors?",
+      "revId": "d1d511f36ec168b53259a8666a8d2445bc03b3f0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
