@@ -332,8 +332,12 @@ static void set_offsets(const AV1_COMP *const cpi, const TileInfo *const tile,
   // Setup segment ID.
   if (seg->enabled) {
     if (!cpi->vaq_refresh) {
+#if !CONFIG_EXT_SEGMENT_ID
       const uint8_t *const map =
           seg->update_map ? cpi->segmentation_map : cm->last_frame_seg_map;
+#else
+      const uint8_t *const map = cpi->segmentation_map;
+#endif
       mbmi->segment_id = get_segment_id(cm, map, bsize, mi_row, mi_col);
     }
     av1_init_plane_quantizers(cpi, x, mbmi->segment_id);
@@ -613,8 +617,12 @@ static void update_state(const AV1_COMP *const cpi, ThreadData *td,
   if (seg->enabled) {
     // For in frame complexity AQ copy the segment id from the segment map.
     if (cpi->oxcf.aq_mode == COMPLEXITY_AQ) {
+#if !CONFIG_EXT_SEGMENT_ID
       const uint8_t *const map =
           seg->update_map ? cpi->segmentation_map : cm->last_frame_seg_map;
+#else
+      const uint8_t *const map = cpi->segmentation_map;
+#endif
       mi_addr->mbmi.segment_id = get_segment_id(cm, map, bsize, mi_row, mi_col);
       reset_tx_size(xd, &mi_addr->mbmi, cm->tx_mode);
     }
@@ -819,8 +827,12 @@ static void update_state_supertx(const AV1_COMP *const cpi, ThreadData *td,
                                         bsize, ctx->rate, ctx->dist, 1);
     } else {
       // Otherwise just set the segment id based on the current segment map
+#if !CONFIG_EXT_SEGMENT_ID
       const uint8_t *const map =
           seg->update_map ? cpi->segmentation_map : cm->last_frame_seg_map;
+#else
+      const uint8_t *const map = cpi->segmentation_map;
+#endif
       mi_addr->mbmi.segment_id = get_segment_id(cm, map, bsize, mi_row, mi_col);
     }
     mi_addr->mbmi.segment_id_supertx = MAX_SEGMENTS;
@@ -4654,8 +4666,12 @@ static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
     pc_root->index = 0;
 
     if (seg->enabled) {
+#if !CONFIG_EXT_SEGMENT_ID
       const uint8_t *const map =
           seg->update_map ? cpi->segmentation_map : cm->last_frame_seg_map;
+#else
+      const uint8_t *const map = cpi->segmentation_map;
+#endif
       int segment_id = get_segment_id(cm, map, cm->sb_size, mi_row, mi_col);
       seg_skip = segfeature_active(seg, segment_id, SEG_LVL_SKIP);
     }

@@ -48,6 +48,8 @@ void av1_clear_segdata(struct segmentation *seg, int segment_id,
   seg->feature_data[segment_id][feature_id] = 0;
 }
 
+#if !CONFIG_EXT_SEGMENT_ID
+
 // Based on set of segment counts calculate a probability tree
 static void calc_segtree_probs(unsigned *segcounts,
                                aom_prob *segment_tree_probs,
@@ -379,6 +381,8 @@ void av1_choose_segmap_coding_method(AV1_COMMON *cm, MACROBLOCKD *xd) {
     seg->temporal_update = 0;
   }
 }
+
+#endif
 
 void av1_reset_segment_features(AV1_COMMON *cm) {
   struct segmentation *seg = &cm->seg;

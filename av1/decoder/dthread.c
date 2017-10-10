@@ -150,9 +150,11 @@ void av1_frameworker_copy_context(AVxWorker *const dst_worker,
                       &src_worker_data->stats_mutex);
   }
 
+#if !CONFIG_EXT_SEGMENT_ID
   dst_cm->last_frame_seg_map = src_cm->seg.enabled
                                    ? src_cm->current_frame_seg_map
                                    : src_cm->last_frame_seg_map;
+#endif
   dst_worker_data->pbi->need_resync = src_worker_data->pbi->need_resync;
   av1_frameworker_unlock_stats(src_worker);
 

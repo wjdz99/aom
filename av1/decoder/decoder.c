@@ -407,8 +407,10 @@ int av1_receive_compressed_data(AV1Decoder *pbi, size_t size,
 #endif  // CONFIG_EXT_REFS
       cm->prev_frame = cm->cur_frame;
 
+#if !CONFIG_EXT_SEGMENT_ID
     if (cm->seg.enabled && !cm->frame_parallel_decode)
       av1_swap_current_and_last_seg_map(cm);
+#endif
   }
 
   // Update progress in frame parallel decode.
