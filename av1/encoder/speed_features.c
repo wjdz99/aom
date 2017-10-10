@@ -433,7 +433,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi) {
 #endif  // CONFIG_CFL
   }
   sf->use_rd_breakout = 0;
-  sf->lpf_pick = LPF_PICK_FROM_FULL_IMAGE;
+  sf->lpf_pick = LPF_PICK_FROM_Q;
   sf->use_fast_coef_updates = TWO_LOOP;
   sf->use_fast_coef_costing = 0;
   sf->mode_skip_start = MAX_MODES;  // Mode index at which mode skip mask set
