@@ -352,6 +352,7 @@ EXPERIMENT_LIST="
     opt_ref_mv
     tmv
     restrict_compressed_hdr
+    simple_bwd_adapt
 "
 CONFIG_LIST="
     dependency_tracking
