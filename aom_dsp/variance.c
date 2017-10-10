@@ -358,8 +358,13 @@ void aom_comp_avg_upsampled_pred_c(uint8_t *comp_pred, const uint8_t *pred,
   double sum = bck_offset + fwd_offset;
 #endif  // CONFIG_JNT_COMP
 
+#if CONFIG_JNT_COMP
+  aom_upsampled_pred_c(comp_pred, width, height, subpel_x_q3, subpel_y_q3, ref,
+                       ref_stride);
+#else
   aom_upsampled_pred(comp_pred, width, height, subpel_x_q3, subpel_y_q3, ref,
                      ref_stride);
+#endif  // CONFIG_JNT_COMP
   for (i = 0; i < height; i++) {
     for (j = 0; j < width; j++) {
 #if CONFIG_JNT_COMP
