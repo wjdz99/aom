@@ -1913,6 +1913,14 @@ static const BLOCK_SIZE bsize_2_sqr_bsize[BLOCK_SIZES] = {
 #define EOB_THRESHOLD_NUM 2
 #endif
 
+#if CONFIG_JNT_COMP
+static const double quant_dist_category[4] = { 1.5, 2.5, 3.5, 255 };
+static const int quant_dist_lookup_table[2][4][2] = {
+  { { 1, 1 }, { 2, 1 }, { 3, 1 }, { 4, 1 } },
+  { { 1, 1 }, { 1, 2 }, { 1, 3 }, { 1, 4 } },
+};
+#endif  // CONFIG_JNT_COMP
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif
