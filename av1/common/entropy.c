@@ -2217,6 +2217,7 @@ void av1_average_tile_coef_cdfs(FRAME_CONTEXT *fc, FRAME_CONTEXT *ec_ctxs[],
   aom_cdf_prob *fc_cdf_ptr;
 
 #if CONFIG_LV_MAP
+  fc->bin_count = 0;
   AVERAGE_TILE_CDFS(txb_skip_cdf)
   AVERAGE_TILE_CDFS(nz_map_cdf)
   AVERAGE_TILE_CDFS(eob_flag_cdf)
