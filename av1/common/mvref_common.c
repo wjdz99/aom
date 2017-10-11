@@ -1059,6 +1059,7 @@ static void find_mv_refs_idx(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   mv_ref_search[2].col = (num_8x8_blocks_wide - 1) >> 1;
   mv_ref_search[3].row = (num_8x8_blocks_high - 1) >> 1;
   mv_ref_search[3].col = -1;
+#if !CONFIG_OPT_REF_MV
   mv_ref_search[4].row = -1;
   mv_ref_search[4].col = -1;
 #if CONFIG_EXT_PARTITION_TYPES
@@ -1083,6 +1084,7 @@ static void find_mv_refs_idx(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   mv_ref_search[7].col = -3;
   mv_ref_search[8].row = num_8x8_blocks_high - 1;
   mv_ref_search[8].col = -3;
+#endif  // !CONFIG_OPT_REF_MV
 
 #if CONFIG_CB4X4
   for (i = 0; i < MVREF_NEIGHBOURS; ++i) {
@@ -1215,6 +1217,7 @@ static void find_mv_refs_idx(const AV1_COMMON *cm, const MACROBLOCKD *xd,
 Done:
   if (mode_context)
     mode_context[ref_frame] = counter_to_context[context_counter];
+
   for (i = refmv_count; i < MAX_MV_REF_CANDIDATES; ++i)
     mv_ref_list[i].as_int = zeromv.as_int;
 }

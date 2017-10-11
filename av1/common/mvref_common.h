@@ -18,7 +18,11 @@
 extern "C" {
 #endif
 
+#if CONFIG_OPT_REF_MV
+#define MVREF_NEIGHBOURS 4
+#else
 #define MVREF_NEIGHBOURS 9
+#endif
 #define MVREF_ROWS 3
 #define MVREF_COLS 4
 
