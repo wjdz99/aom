@@ -649,6 +649,10 @@ typedef struct cfl_ctx {
   // Whether the reconstructed luma pixels need to be stored
   int store_y;
 
+#if CONFIG_DEBUG
+  int rate;
+#endif  // CONFIG_DEBUG
+
   int is_chroma_reference;
 #if CONFIG_CHROMA_SUB8X8 && CONFIG_DEBUG
   // The prediction used for sub8x8 blocks originates from multiple luma blocks,
