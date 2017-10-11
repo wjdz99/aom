@@ -70,8 +70,8 @@ static INLINE void av1_record_coeff(FRAME_COUNTS *counts, tran_low_t qcoeff) {
   aom_read_symbol(r, cdf, nsymbs, ACCT_STR_NAME)
 
 #if CONFIG_LV_MAP
-#define av1_read_record_bin(counts, r, cdf, nsymbs, ACCT_STR_NAME) \
-  aom_read_bin(r, cdf, nsymbs, ACCT_STR_NAME)
+#define av1_read_record_bin(counts, r, cdf, bin_count, nsymbs, ACCT_STR_NAME) \
+  aom_read_bin(r, cdf, bin_count, nsymbs, ACCT_STR_NAME)
 #endif
 
 #define av1_read_record(counts, r, prob, ACCT_STR_NAME) \

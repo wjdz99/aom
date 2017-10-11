@@ -50,6 +50,14 @@ typedef uint16_t aom_cdf_prob;
 
 #define BR_NODE 1
 
+#if CONFIG_LV_MAP
+struct bin_pack {
+  aom_cdf_prob *cdf_ptr[2];
+  uint8_t symb_set[2];
+  uint8_t count;
+};
+#endif
+
 #if CONFIG_ADAPT_SCAN
 #define CACHE_SCAN_PROB 1
 #endif
