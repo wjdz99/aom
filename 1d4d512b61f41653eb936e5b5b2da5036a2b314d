@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8517ce5e_3cf78491",
+        "filename": "av1/common/entropymode.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 5077,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-10-11T23:42:13Z",
+      "side": 1,
+      "message": "Shouldn\u0027t there be some corresponding calls to AVERAGE_TILE_CDFS() for these CDFs in entropy.c to do backwards adaptation at the end of the frame?",
+      "revId": "1d4d512b61f41653eb936e5b5b2da5036a2b314d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "13f2c686_72df0e4f",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 658,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-10-11T23:42:13Z",
+      "side": 1,
+      "message": "Is this needed for anything? It looks like there\u0027s complicated code in av1_choose_segmap_coding_method() in av1/encoder/segmentation.c that references it to decide whether or not to use prediction, but you aren\u0027t updating any of the other counts (pred and tree_mispred), because they correspond to things that don\u0027t exist with this coding method. I think we can just always use prediction and make that whole function (and these counts) go away.",
+      "revId": "1d4d512b61f41653eb936e5b5b2da5036a2b314d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e0fc6101_dbc41d71",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 734,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-10-11T23:42:13Z",
+      "side": 1,
+      "message": "This seems like it\u0027s still doing temporal prediction (even if it\u0027s just copying the segmentation map for the whole previous frame). Unless this is needed for something, we should probably get rid of it, otherwise we still need to buffer the segment IDs for the whole frame to be able to decode future frames.\n\nOnce you do that, can you just replace the whole body of this function with a call to read_intra_segment_id() in the CONFIG_EXT_SEGMENT_ID case? If not, why not?",
+      "revId": "1d4d512b61f41653eb936e5b5b2da5036a2b314d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7c0f5dd2_c6707bf1",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 1186,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-10-11T23:42:13Z",
+      "side": 1,
+      "message": "mbmi-\u003esegment_id is used to decide whether or not to read the skip flag, but you aren\u0027t reading it from the bitstream until the call below. What\u0027s even in this value right now? It seems like this breaks SEG_LVL_SKIP completely (which is why I think things should be split into two different segmentation maps, like the Intel proposal did).",
+      "revId": "1d4d512b61f41653eb936e5b5b2da5036a2b314d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c3e10de7_34bc02e1",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 977,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-10-11T23:42:13Z",
+      "side": 1,
+      "message": "BTW, these functions seem to work fine for odd values of MAX_SEGMENTS (otherwise I would have insisted on adding an assert()).",
+      "revId": "1d4d512b61f41653eb936e5b5b2da5036a2b314d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "babdf7c6_e3ef6e9a",
+        "filename": "configure",
+        "patchSetId": 12
+      },
+      "lineNbr": 352,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-10-11T23:42:13Z",
+      "side": 1,
+      "message": "You need a corresponding CMake change.",
+      "revId": "1d4d512b61f41653eb936e5b5b2da5036a2b314d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
