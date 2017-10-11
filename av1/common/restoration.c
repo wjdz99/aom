@@ -51,8 +51,8 @@ const sgr_params_type sgr_params[SGRPROJ_PARAMS] = {
 #if CONFIG_MAX_TILE
 static void tile_width_and_height(const AV1_COMMON *cm, int is_uv, int sb_w,
                                   int sb_h, int *px_w, int *px_h) {
-  const int scaled_sb_w = sb_w << MAX_MIB_SIZE_LOG2;
-  const int scaled_sb_h = sb_h << MAX_MIB_SIZE_LOG2;
+  const int scaled_sb_w = sb_w << (cm->mib_size_log2 + MI_SIZE_LOG2);
+  const int scaled_sb_h = sb_h << (cm->mib_size_log2 + MI_SIZE_LOG2);
 
   const int ss_x = is_uv && cm->subsampling_x;
   const int ss_y = is_uv && cm->subsampling_y;
