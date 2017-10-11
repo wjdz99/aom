@@ -51,8 +51,8 @@
   aom_read_symbol_(r, cdf, nsymbs ACCT_STR_ARG(ACCT_STR_NAME))
 
 #if CONFIG_LV_MAP
-#define aom_read_bin(r, cdf, nsymbs, ACCT_STR_NAME) \
-  aom_read_bin_(r, cdf, nsymbs ACCT_STR_ARG(ACCT_STR_NAME))
+#define aom_read_bin(r, cdf, bin_count, nsymbs, ACCT_STR_NAME) \
+  aom_read_bin_(r, cdf, bin_count, nsymbs ACCT_STR_ARG(ACCT_STR_NAME))
 #endif
 
 #ifdef __cplusplus
@@ -205,12 +205,22 @@ static INLINE int aom_read_symbol_(aom_reader *r, aom_cdf_prob *cdf,
 
 #if CONFIG_LV_MAP
 static INLINE int aom_read_bin_(aom_reader *r, aom_cdf_prob *cdf,
+                                struct bin_pack *bin_count,
                                 int nsymbs ACCT_STR_PARAM) {
   int ret;
   aom_cdf_prob this_cdf[3] = { (aom_cdf_prob)((cdf[0] >> 9) << 9), 0, 0 };
   this_cdf[0] = clamp(this_cdf[0], (1 << 9), (63 << 9));
   ret = aom_read_cdf(r, this_cdf, nsymbs, ACCT_STR_NAME);
-  update_bin(cdf, ret, nsymbs);
+
+  bin_count->cdf_ptr[bin_count->count] = cdf;
+  bin_count->symb_set[bin_count->count] = ret;
+  ++bin_count->count;
+
+  if (bin_count->count == 2) {
+    update_bin(bin_count->cdf_ptr[0], bin_count->symb_set[0], nsymbs);
+    update_bin(bin_count->cdf_ptr[1], bin_count->symb_set[1], nsymbs);
+    bin_count->count = 0;
+  }
   return ret;
 }
 #endif

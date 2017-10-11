@@ -144,11 +144,20 @@ static INLINE void aom_write_symbol(aom_writer *w, int symb, aom_cdf_prob *cdf,
 
 #if CONFIG_LV_MAP
 static INLINE void aom_write_bin(aom_writer *w, int symb, aom_cdf_prob *cdf,
-                                 int nsymbs) {
+                                 int nsymbs, struct bin_pack *bin_count) {
   aom_cdf_prob this_cdf[3] = { (aom_cdf_prob)((cdf[0] >> 9) << 9), 0, 0 };
   this_cdf[0] = clamp(this_cdf[0], (1 << 9), (63 << 9));
   aom_write_cdf(w, symb, this_cdf, nsymbs);
-  update_bin(cdf, symb, nsymbs);
+
+  bin_count->cdf_ptr[bin_count->count] = cdf;
+  bin_count->symb_set[bin_count->count] = symb;
+  ++bin_count->count;
+
+  if (bin_count->count == 2) {
+    update_bin(bin_count->cdf_ptr[0], bin_count->symb_set[0], nsymbs);
+    update_bin(bin_count->cdf_ptr[1], bin_count->symb_set[1], nsymbs);
+    bin_count->count = 0;
+  }
 }
 #endif
 
