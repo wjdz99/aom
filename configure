@@ -543,6 +543,7 @@ post_process_cmdline() {
       soft_enable parallel_deblocking
       soft_enable simple_bwd_adapt
       soft_enable loopfilter_level
+      soft_enable max_tile
     fi
 
     # Enable low-bitdepth pixel pipeline by default
