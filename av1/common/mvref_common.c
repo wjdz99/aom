@@ -1315,9 +1315,14 @@ void av1_find_mv_refs(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   zeromv[0].as_int = zeromv[1].as_int = 0;
 #endif  // CONFIG_GLOBAL_MOTION
 
+#if CONFIG_OPT_REF_MV
+  mv_ref_list[0].as_int = zeromv[0].as_int;
+  mv_ref_list[1].as_int = zeromv[1].as_int;
+#else
   if (ref_frame <= ALTREF_FRAME)
     find_mv_refs_idx(cm, xd, mi, ref_frame, mv_ref_list, -1, mi_row, mi_col,
                      sync, data, mode_context, zeromv[0]);
+#endif
 
   setup_ref_mv_list(cm, xd, ref_frame, ref_mv_count, ref_mv_stack, mv_ref_list,
 #if CONFIG_GLOBAL_MOTION && USE_CUR_GM_REFMV
