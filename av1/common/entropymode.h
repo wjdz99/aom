@@ -345,6 +345,7 @@ typedef struct frame_contexts {
 #endif  // CONFIG_EXT_INTRA
 #if CONFIG_FILTER_INTRA
   aom_prob filter_intra_probs[PLANE_TYPES];
+  aom_cdf_prob filter_intra_mode_cdf[PLANE_TYPES][CDF_SIZE(10)];
 #endif  // CONFIG_FILTER_INTRA
 #if CONFIG_LOOP_RESTORATION
   aom_prob switchable_restore_prob[RESTORE_SWITCHABLE_TYPES - 1];
