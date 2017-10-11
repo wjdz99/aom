@@ -219,10 +219,10 @@ static const interp_kernel filteredinterp_filters1000[(1 << SUBPEL_BITS_RS)] = {
 };
 
 #if CONFIG_FRAME_SUPERRES && CONFIG_LOOP_RESTORATION
-#define INTERP_SIMPLE_TAPS 4
-static const int16_t filter_simple[(1
-                                    << SUBPEL_BITS_RS)][INTERP_SIMPLE_TAPS] = {
-#if INTERP_SIMPLE_TAPS == 2
+#define UPSCALE_NORMATIVE_TAPS 4
+static const int16_t filter_normative[(
+    1 << SUBPEL_BITS_RS)][UPSCALE_NORMATIVE_TAPS] = {
+#if UPSCALE_NORMATIVE_TAPS == 2
   { 128, 0 },  { 126, 2 },  { 124, 4 },  { 122, 6 },  { 120, 8 },  { 118, 10 },
   { 116, 12 }, { 114, 14 }, { 112, 16 }, { 110, 18 }, { 108, 20 }, { 106, 22 },
   { 104, 24 }, { 102, 26 }, { 100, 28 }, { 98, 30 },  { 96, 32 },  { 94, 34 },
@@ -234,7 +234,7 @@ static const int16_t filter_simple[(1
   { 32, 96 },  { 30, 98 },  { 28, 100 }, { 26, 102 }, { 24, 104 }, { 22, 106 },
   { 20, 108 }, { 18, 110 }, { 16, 112 }, { 14, 114 }, { 12, 116 }, { 10, 118 },
   { 8, 120 },  { 6, 122 },  { 4, 124 },  { 2, 126 },
-#elif INTERP_SIMPLE_TAPS == 4
+#elif UPSCALE_NORMATIVE_TAPS == 4
   { 0, 128, 0, 0 },      { -1, 128, 2, -1 },    { -2, 127, 4, -1 },
   { -3, 126, 7, -2 },    { -4, 125, 9, -2 },    { -5, 125, 11, -3 },
   { -6, 124, 13, -3 },   { -7, 123, 16, -4 },   { -7, 122, 18, -5 },
@@ -257,7 +257,7 @@ static const int16_t filter_simple[(1
   { -4, 16, 123, -7 },   { -3, 13, 124, -6 },   { -3, 11, 125, -5 },
   { -2, 9, 125, -4 },    { -2, 7, 126, -3 },    { -1, 4, 127, -2 },
   { -1, 2, 128, -1 },
-#elif INTERP_SIMPLE_TAPS == 6
+#elif UPSCALE_NORMATIVE_TAPS == 6
   { 0, 0, 128, 0, 0, 0 },      { 0, -1, 128, 2, -1, 0 },
   { 1, -3, 127, 4, -2, 1 },    { 1, -4, 127, 6, -3, 1 },
   { 2, -6, 126, 8, -3, 1 },    { 2, -7, 125, 11, -4, 1 },
@@ -291,8 +291,8 @@ static const int16_t filter_simple[(1
   { 1, -3, 8, 126, -6, 2 },    { 1, -3, 6, 127, -4, 1 },
   { 1, -2, 4, 127, -3, 1 },    { 0, -1, 2, 128, -1, 0 },
 #else
-#error "Invalid value of INTERP_SIMPLE_TAPS"
-#endif  // INTERP_SIMPLE_TAPS == 2
+#error "Invalid value of UPSCALE_NORMATIVE_TAPS"
+#endif  // UPSCALE_NORMATIVE_TAPS == 2
 };
 #endif  // CONFIG_FRAME_SUPERRES && CONFIG_LOOP_RESTORATION
 
@@ -405,11 +405,44 @@ static void interpolate(const uint8_t *const input, int inlength,
 }
 
 #if CONFIG_FRAME_SUPERRES && CONFIG_LOOP_RESTORATION
-static void interpolate_simple(const uint8_t *const input, int inlength,
-                               uint8_t *output, int outlength) {
-  interpolate_core(input, inlength, output, outlength, &filter_simple[0][0],
-                   INTERP_SIMPLE_TAPS);
+static void interpolate_normative(const uint8_t *const input, int inlength,
+                                  uint8_t *output, int outlength,
+                                  int superres_denom) {
+  (void)superres_denom;
+  interpolate_core(input, inlength, output, outlength, &filter_normative[0][0],
+                   UPSCALE_NORMATIVE_TAPS);
 }
+
+#define UPSCALE_NORMATIVE_PROC_UNIT 64
+#define UPSCALE_MULTIPLIER (UPSCALE_NORMATIVE_PROC_UNIT / SCALE_NUMERATOR)
+static void interpolate_normative_blk(const uint8_t *const input,
+                                      uint8_t *output, int superres_denom) {
+  int outlength = UPSCALE_MULTIPLIER * superres_denom;
+  interpolate_core(input, UPSCALE_NORMATIVE_PROC_UNIT, output, outlength,
+                   &filter_normative[0][0], UPSCALE_NORMATIVE_TAPS);
+}
+
+static void interpolate_normative_blkbyblk(const uint8_t *const input,
+                                           int inlength, uint8_t *output,
+                                           int outlength, int superres_denom) {
+  const int outblk_length = UPSCALE_MULTIPLIER * superres_denom;
+  const int inblks = inlength / UPSCALE_NORMATIVE_PROC_UNIT;
+  int ip = 0, op = 0;
+  for (int i = 0; i < inblks;
+       ++i, ip += UPSCALE_NORMATIVE_PROC_UNIT, op += outblk_length)
+    interpolate_normative_blk(input + ip, output + op, superres_denom);
+  if (inlength > ip) {
+    uint8_t in[UPSCALE_NORMATIVE_PROC_UNIT];
+    uint8_t out[2 * UPSCALE_NORMATIVE_PROC_UNIT];
+    const int len = inlength - ip;
+    assert(len > 0);
+    memcpy(in, input + ip, len * sizeof(*in));
+    for (int k = len; k < UPSCALE_NORMATIVE_PROC_UNIT; ++k) in[k] = in[len - 1];
+    interpolate_normative_blk(in, out, superres_denom);
+    memcpy(output + op, out, sizeof(*out) * (outlength - op));
+  }
+}
+
 #endif  // CONFIG_FRAME_SUPERRES && CONFIG_LOOP_RESTORATION
 
 #ifndef __clang_analyzer__
@@ -625,12 +658,12 @@ Error:
 }
 
 #if CONFIG_FRAME_SUPERRES
-static void upscale_normative(const uint8_t *const input, int length,
-                              uint8_t *output, int olength,
-                              int superres_denom) {
+static void upscale_normative_1D(const uint8_t *const input, int length,
+                                 uint8_t *output, int olength,
+                                 int superres_denom) {
   (void)superres_denom;
 #if CONFIG_LOOP_RESTORATION
-  interpolate_simple(input, length, output, olength);
+  interpolate_normative_blkbyblk(input, length, output, olength, superres_denom);
 #else
   interpolate(input, length, output, olength);
 #endif  // CONFIG_LOOP_RESTORATION
@@ -648,19 +681,19 @@ static void upscale_normative_plane(const uint8_t *const input, int height,
 #if CONFIG_HORZONLY_FRAME_SUPERRES
   assert(height2 == height);
   for (i = 0; i < height; ++i)
-    upscale_normative(input + in_stride * i, width, output + out_stride * i,
-                      width2, superres_denom);
+    upscale_normative_1D(input + in_stride * i, width, output + out_stride * i,
+                         width2, superres_denom);
 #else
   uint8_t *intbuf = (uint8_t *)aom_malloc(sizeof(uint8_t) * width2 * height);
   uint8_t *arrbuf = (uint8_t *)aom_malloc(sizeof(uint8_t) * height);
   uint8_t *arrbuf2 = (uint8_t *)aom_malloc(sizeof(uint8_t) * height2);
   if (intbuf == NULL || arrbuf == NULL || arrbuf2 == NULL) goto Error;
   for (i = 0; i < height; ++i)
-    upscale_normative(input + in_stride * i, width, intbuf + width2 * i, width2,
-                      superres_denom);
+    upscale_normative_1D(input + in_stride * i, width, intbuf + width2 * i,
+                         width2, superres_denom);
   for (i = 0; i < width2; ++i) {
     fill_col_to_arr(intbuf + i, width2, height, arrbuf);
-    upscale_normative(arrbuf, height, arrbuf2, height2, superres_denom);
+    upscale_normative_1D(arrbuf, height, arrbuf2, height2, superres_denom);
     fill_arr_to_col(output + i, out_stride, height2, arrbuf2);
   }
 
@@ -765,10 +798,44 @@ static void highbd_interpolate(const uint16_t *const input, int inlength,
 }
 
 #if CONFIG_FRAME_SUPERRES && CONFIG_LOOP_RESTORATION
-static void highbd_interpolate_simple(const uint16_t *const input, int inlength,
-                                      uint16_t *output, int outlength, int bd) {
+static void highbd_interpolate_normative(const uint16_t *const input,
+                                         int inlength, uint16_t *output,
+                                         int outlength, int bd,
+                                         int superres_denom) {
+  (void)superres_denom;
   highbd_interpolate_core(input, inlength, output, outlength, bd,
-                          &filter_simple[0][0], INTERP_SIMPLE_TAPS);
+                          &filter_normative[0][0], UPSCALE_NORMATIVE_TAPS);
+}
+
+static void highbd_interpolate_normative_blk(const uint16_t *const input,
+                                             uint16_t *output, int bd,
+                                             int superres_denom) {
+  int outlength = UPSCALE_MULTIPLIER * superres_denom;
+  highbd_interpolate_core(input, UPSCALE_NORMATIVE_PROC_UNIT, output, outlength,
+                          bd, &filter_normative[0][0], UPSCALE_NORMATIVE_TAPS);
+}
+
+static void highbd_interpolate_normative_blkbyblk(const uint16_t *const input,
+                                                  int inlength,
+                                                  uint16_t *output,
+                                                  int outlength, int bd,
+                                                  int superres_denom) {
+  const int outblk_length = UPSCALE_MULTIPLIER * superres_denom;
+  const int inblks = inlength / UPSCALE_NORMATIVE_PROC_UNIT;
+  int ip = 0, op = 0;
+  for (int i = 0; i < inblks;
+       ++i, ip += UPSCALE_NORMATIVE_PROC_UNIT, op += outblk_length)
+    highbd_interpolate_normative_blk(input + ip, output + op, bd,
+                                     superres_denom);
+  if (inlength > ip) {
+    uint16_t in[UPSCALE_NORMATIVE_PROC_UNIT];
+    uint16_t out[2 * UPSCALE_NORMATIVE_PROC_UNIT];
+    const int len = inlength - ip;
+    memcpy(in, input + ip, len * sizeof(*in));
+    for (int k = len; k < UPSCALE_NORMATIVE_PROC_UNIT; ++k) in[k] = in[len - 1];
+    highbd_interpolate_normative_blk(in, out, bd, superres_denom);
+    memcpy(output + op, out, sizeof(*out) * (outlength - op));
+  }
 }
 #endif  // CONFIG_FRAME_SUPERRES && CONFIG_LOOP_RESTORATION
 
@@ -969,12 +1036,13 @@ Error:
 }
 
 #if CONFIG_FRAME_SUPERRES
-static void highbd_upscale_normative(const uint16_t *const input, int length,
-                                     uint16_t *output, int olength,
-                                     int superres_denom, int bd) {
+static void highbd_upscale_normative_1D(const uint16_t *const input, int length,
+                                        uint16_t *output, int olength,
+                                        int superres_denom, int bd) {
   (void)superres_denom;
 #if CONFIG_LOOP_RESTORATION
-  highbd_interpolate_simple(input, length, output, olength, bd);
+  highbd_interpolate_normative(input, length, output, olength, bd,
+                               superres_denom);
 #else
   highbd_interpolate(input, length, output, olength, bd);
 #endif  // CONFIG_LOOP_RESTORATION
@@ -993,22 +1061,24 @@ static void highbd_upscale_normative_plane(const uint8_t *const input,
 #if CONFIG_HORZONLY_FRAME_SUPERRES
   assert(height2 == height);
   for (i = 0; i < height; ++i)
-    highbd_upscale_normative(CONVERT_TO_SHORTPTR(input + in_stride * i), width,
-                             CONVERT_TO_SHORTPTR(output + out_stride * i),
-                             width2, superres_denom, bd);
+    highbd_upscale_normative_1D(CONVERT_TO_SHORTPTR(input + in_stride * i),
+                                width,
+                                CONVERT_TO_SHORTPTR(output + out_stride * i),
+                                width2, superres_denom, bd);
 #else
   uint16_t *intbuf = (uint16_t *)aom_malloc(sizeof(uint16_t) * width2 * height);
   uint16_t *arrbuf = (uint16_t *)aom_malloc(sizeof(uint16_t) * height);
   uint16_t *arrbuf2 = (uint16_t *)aom_malloc(sizeof(uint16_t) * height2);
   if (intbuf == NULL || arrbuf == NULL || arrbuf2 == NULL) goto Error;
   for (i = 0; i < height; ++i) {
-    highbd_upscale_normative(CONVERT_TO_SHORTPTR(input + in_stride * i), width,
-                             intbuf + width2 * i, width2, superres_denom, bd);
+    highbd_upscale_normative_1D(CONVERT_TO_SHORTPTR(input + in_stride * i),
+                                width, intbuf + width2 * i, width2,
+                                superres_denom, bd);
   }
   for (i = 0; i < width2; ++i) {
     highbd_fill_col_to_arr(intbuf + i, width2, height, arrbuf);
-    highbd_upscale_normative(arrbuf, height, arrbuf2, height2, superres_denom,
-                             bd);
+    highbd_upscale_normative_1D(arrbuf, height, arrbuf2, height2,
+                                superres_denom, bd);
     highbd_fill_arr_to_col(CONVERT_TO_SHORTPTR(output + i), out_stride, height2,
                            arrbuf2);
   }
