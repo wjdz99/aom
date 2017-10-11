@@ -33,6 +33,7 @@
 #define SUBPEL_BITS_RS 6
 #define SUBPEL_MASK_RS ((1 << SUBPEL_BITS_RS) - 1)
 #define INTERP_PRECISION_BITS 16
+#define INTERP_PRECISION_MASK ((1 << INTERP_PRECISION_BITS) - 1)
 #define SUBPEL_INTERP_EXTRA_BITS (INTERP_PRECISION_BITS - SUBPEL_BITS_RS)
 #define SUBPEL_INTERP_EXTRA_OFF (1 << (SUBPEL_INTERP_EXTRA_BITS - 1))
 
@@ -219,10 +220,15 @@ static const interp_kernel filteredinterp_filters1000[(1 << SUBPEL_BITS_RS)] = {
 };
 
 #if CONFIG_FRAME_SUPERRES && CONFIG_LOOP_RESTORATION
-#define INTERP_SIMPLE_TAPS 4
-static const int16_t filter_simple[(1
-                                    << SUBPEL_BITS_RS)][INTERP_SIMPLE_TAPS] = {
-#if INTERP_SIMPLE_TAPS == 2
+#if CONFIG_HORZONLY_FRAME_SUPERRES
+#define UPSCALE_NORMATIVE_TAPS 8
+#else
+#define UPSCALE_NORMATIVE_TAPS 6
+#endif  // CONFIG_HORZONLY_FRAME_SUPERRES
+
+static const int16_t filter_normative[(
+    1 << SUBPEL_BITS_RS)][UPSCALE_NORMATIVE_TAPS] = {
+#if UPSCALE_NORMATIVE_TAPS == 2
   { 128, 0 },  { 126, 2 },  { 124, 4 },  { 122, 6 },  { 120, 8 },  { 118, 10 },
   { 116, 12 }, { 114, 14 }, { 112, 16 }, { 110, 18 }, { 108, 20 }, { 106, 22 },
   { 104, 24 }, { 102, 26 }, { 100, 28 }, { 98, 30 },  { 96, 32 },  { 94, 34 },
@@ -234,7 +240,7 @@ static const int16_t filter_simple[(1
   { 32, 96 },  { 30, 98 },  { 28, 100 }, { 26, 102 }, { 24, 104 }, { 22, 106 },
   { 20, 108 }, { 18, 110 }, { 16, 112 }, { 14, 114 }, { 12, 116 }, { 10, 118 },
   { 8, 120 },  { 6, 122 },  { 4, 124 },  { 2, 126 },
-#elif INTERP_SIMPLE_TAPS == 4
+#elif UPSCALE_NORMATIVE_TAPS == 4
   { 0, 128, 0, 0 },      { -1, 128, 2, -1 },    { -2, 127, 4, -1 },
   { -3, 126, 7, -2 },    { -4, 125, 9, -2 },    { -5, 125, 11, -3 },
   { -6, 124, 13, -3 },   { -7, 123, 16, -4 },   { -7, 122, 18, -5 },
@@ -257,7 +263,7 @@ static const int16_t filter_simple[(1
   { -4, 16, 123, -7 },   { -3, 13, 124, -6 },   { -3, 11, 125, -5 },
   { -2, 9, 125, -4 },    { -2, 7, 126, -3 },    { -1, 4, 127, -2 },
   { -1, 2, 128, -1 },
-#elif INTERP_SIMPLE_TAPS == 6
+#elif UPSCALE_NORMATIVE_TAPS == 6
   { 0, 0, 128, 0, 0, 0 },      { 0, -1, 128, 2, -1, 0 },
   { 1, -3, 127, 4, -2, 1 },    { 1, -4, 127, 6, -3, 1 },
   { 2, -6, 126, 8, -3, 1 },    { 2, -7, 125, 11, -4, 1 },
@@ -290,9 +296,42 @@ static const int16_t filter_simple[(1
   { 2, -5, 13, 125, -9, 2 },   { 1, -4, 11, 125, -7, 2 },
   { 1, -3, 8, 126, -6, 2 },    { 1, -3, 6, 127, -4, 1 },
   { 1, -2, 4, 127, -3, 1 },    { 0, -1, 2, 128, -1, 0 },
+#elif UPSCALE_NORMATIVE_TAPS == 8
+  { 0, 0, 0, 128, 0, 0, 0, 0 },        { 0, 0, -1, 128, 2, -1, 0, 0 },
+  { 0, 1, -3, 127, 4, -2, 1, 0 },      { 0, 1, -4, 127, 6, -3, 1, 0 },
+  { 0, 2, -6, 126, 8, -3, 1, 0 },      { 0, 2, -7, 125, 11, -4, 1, 0 },
+  { -1, 2, -8, 125, 13, -5, 2, 0 },    { -1, 3, -9, 124, 15, -6, 2, 0 },
+  { -1, 3, -10, 123, 18, -6, 2, -1 },  { -1, 3, -11, 122, 20, -7, 3, -1 },
+  { -1, 4, -12, 121, 22, -8, 3, -1 },  { -1, 4, -13, 120, 25, -9, 3, -1 },
+  { -1, 4, -14, 118, 28, -9, 3, -1 },  { -1, 4, -15, 117, 30, -10, 4, -1 },
+  { -1, 5, -16, 116, 32, -11, 4, -1 }, { -1, 5, -16, 114, 35, -12, 4, -1 },
+  { -1, 5, -17, 112, 38, -12, 4, -1 }, { -1, 5, -18, 111, 40, -13, 5, -1 },
+  { -1, 5, -18, 109, 43, -14, 5, -1 }, { -1, 6, -19, 107, 45, -14, 5, -1 },
+  { -1, 6, -19, 105, 48, -15, 5, -1 }, { -1, 6, -19, 103, 51, -16, 5, -1 },
+  { -1, 6, -20, 101, 53, -16, 6, -1 }, { -1, 6, -20, 99, 56, -17, 6, -1 },
+  { -1, 6, -20, 97, 58, -17, 6, -1 },  { -1, 6, -20, 95, 61, -18, 6, -1 },
+  { -2, 7, -20, 93, 64, -18, 6, -2 },  { -2, 7, -20, 91, 66, -19, 6, -1 },
+  { -2, 7, -20, 88, 69, -19, 6, -1 },  { -2, 7, -20, 86, 71, -19, 6, -1 },
+  { -2, 7, -20, 84, 74, -20, 7, -2 },  { -2, 7, -20, 81, 76, -20, 7, -1 },
+  { -2, 7, -20, 79, 79, -20, 7, -2 },  { -1, 7, -20, 76, 81, -20, 7, -2 },
+  { -2, 7, -20, 74, 84, -20, 7, -2 },  { -1, 6, -19, 71, 86, -20, 7, -2 },
+  { -1, 6, -19, 69, 88, -20, 7, -2 },  { -1, 6, -19, 66, 91, -20, 7, -2 },
+  { -2, 6, -18, 64, 93, -20, 7, -2 },  { -1, 6, -18, 61, 95, -20, 6, -1 },
+  { -1, 6, -17, 58, 97, -20, 6, -1 },  { -1, 6, -17, 56, 99, -20, 6, -1 },
+  { -1, 6, -16, 53, 101, -20, 6, -1 }, { -1, 5, -16, 51, 103, -19, 6, -1 },
+  { -1, 5, -15, 48, 105, -19, 6, -1 }, { -1, 5, -14, 45, 107, -19, 6, -1 },
+  { -1, 5, -14, 43, 109, -18, 5, -1 }, { -1, 5, -13, 40, 111, -18, 5, -1 },
+  { -1, 4, -12, 38, 112, -17, 5, -1 }, { -1, 4, -12, 35, 114, -16, 5, -1 },
+  { -1, 4, -11, 32, 116, -16, 5, -1 }, { -1, 4, -10, 30, 117, -15, 4, -1 },
+  { -1, 3, -9, 28, 118, -14, 4, -1 },  { -1, 3, -9, 25, 120, -13, 4, -1 },
+  { -1, 3, -8, 22, 121, -12, 4, -1 },  { -1, 3, -7, 20, 122, -11, 3, -1 },
+  { -1, 2, -6, 18, 123, -10, 3, -1 },  { 0, 2, -6, 15, 124, -9, 3, -1 },
+  { 0, 2, -5, 13, 125, -8, 2, -1 },    { 0, 1, -4, 11, 125, -7, 2, 0 },
+  { 0, 1, -3, 8, 126, -6, 2, 0 },      { 0, 1, -3, 6, 127, -4, 1, 0 },
+  { 0, 1, -2, 4, 127, -3, 1, 0 },      { 0, 0, -1, 2, 128, -1, 0, 0 },
 #else
-#error "Invalid value of INTERP_SIMPLE_TAPS"
-#endif  // INTERP_SIMPLE_TAPS == 2
+#error "Invalid value of UPSCALE_NORMATIVE_TAPS"
+#endif  // UPSCALE_NORMATIVE_TAPS == 2
 };
 #endif  // CONFIG_FRAME_SUPERRES && CONFIG_LOOP_RESTORATION
 
@@ -405,10 +444,77 @@ static void interpolate(const uint8_t *const input, int inlength,
 }
 
 #if CONFIG_FRAME_SUPERRES && CONFIG_LOOP_RESTORATION
-static void interpolate_simple(const uint8_t *const input, int inlength,
-                               uint8_t *output, int outlength) {
-  interpolate_core(input, inlength, output, outlength, &filter_simple[0][0],
-                   INTERP_SIMPLE_TAPS);
+static void get_upscale_convolve_params(int inlength, int outlength,
+                                        int32_t *x0_qn, int32_t *x_step_qn) {
+  assert(outlength >= inlength);
+  *x_step_qn = (((uint32_t)inlength << INTERP_PRECISION_BITS) + outlength / 2) /
+               outlength;
+  *x0_qn = -(((int32_t)(outlength - inlength) << (INTERP_PRECISION_BITS - 1)) +
+             outlength / 2) /
+               outlength +
+           SUBPEL_INTERP_EXTRA_OFF;
+}
+
+static void convolve_horzonly_superres_c(const uint8_t *src, uint8_t *dst,
+                                         const InterpKernel *x_filters,
+                                         int x0_qn, int x_step_qn, int w) {
+  int x;
+  src -= SUBPEL_TAPS / 2 - 1;
+  int x_qn = x0_qn;
+  for (x = 0; x < w; ++x) {
+    const uint8_t *const src_x = &src[x_qn >> INTERP_PRECISION_BITS];
+    const int x_filter_idx =
+        (x_qn & INTERP_PRECISION_MASK) >> SUBPEL_INTERP_EXTRA_BITS;
+    assert(x_filter_idx <= SUBPEL_MASK_RS);
+    const int16_t *const x_filter = x_filters[x_filter_idx];
+    int k, sum = 0;
+    for (k = 0; k < SUBPEL_TAPS; ++k) sum += src_x[k] * x_filter[k];
+    dst[x] = clip_pixel(ROUND_POWER_OF_TWO(sum, FILTER_BITS));
+    x_qn += x_step_qn;
+  }
+}
+
+static void interpolate_normative_core(const uint8_t *const src, int inlength,
+                                       uint8_t *dst, int outlength,
+                                       int superres_denom,
+                                       const int16_t *interp_filters,
+                                       int interp_taps) {
+  (void)superres_denom;
+  int32_t x_step_qn, x0_qn;
+  get_upscale_convolve_params(inlength, outlength, &x0_qn, &x_step_qn);
+  if (interp_taps == SUBPEL_TAPS) {
+    convolve_horzonly_superres_c(src, dst, (const InterpKernel *)interp_filters,
+                                 x0_qn, x_step_qn, outlength);
+  } else {
+    int x_qn = x0_qn;
+    for (int x = 0; x < outlength; ++x, x_qn += x_step_qn) {
+      const uint8_t *const src_x = &src[x_qn >> INTERP_PRECISION_BITS];
+      const int x_filter_idx =
+          (x_qn & INTERP_PRECISION_MASK) >> SUBPEL_INTERP_EXTRA_BITS;
+      const int16_t *filter = &interp_filters[x_filter_idx * interp_taps];
+      int sum = 0;
+      for (int k = 0; k < interp_taps; ++k)
+        sum += filter[k] * src_x[-interp_taps / 2 + 1 + k];
+      dst[x] = clip_pixel(ROUND_POWER_OF_TWO(sum, FILTER_BITS));
+    }
+  }
+}
+
+static void interpolate_normative(const uint8_t *const input, int inlength,
+                                  uint8_t *output, int outlength,
+                                  int superres_denom) {
+  uint8_t *intbuf_ = (uint8_t *)aom_malloc(sizeof(uint8_t) *
+                                           (inlength + UPSCALE_NORMATIVE_TAPS));
+  uint8_t *intbuf = intbuf_ + UPSCALE_NORMATIVE_TAPS / 2;
+  memcpy(intbuf, input, sizeof(*intbuf) * inlength);
+  for (int k = 0; k < UPSCALE_NORMATIVE_TAPS / 2; ++k) {
+    intbuf[-k - 1] = intbuf[0];
+    intbuf[inlength + k] = intbuf[inlength - 1];
+  }
+  interpolate_normative_core(intbuf, inlength, output, outlength,
+                             superres_denom, &filter_normative[0][0],
+                             UPSCALE_NORMATIVE_TAPS);
+  aom_free(intbuf_);
 }
 #endif  // CONFIG_FRAME_SUPERRES && CONFIG_LOOP_RESTORATION
 
@@ -625,12 +731,12 @@ Error:
 }
 
 #if CONFIG_FRAME_SUPERRES
-static void upscale_normative(const uint8_t *const input, int length,
-                              uint8_t *output, int olength,
-                              int superres_denom) {
+static void upscale_normative_1D(const uint8_t *const input, int length,
+                                 uint8_t *output, int olength,
+                                 int superres_denom) {
   (void)superres_denom;
 #if CONFIG_LOOP_RESTORATION
-  interpolate_simple(input, length, output, olength);
+  interpolate_normative(input, length, output, olength, superres_denom);
 #else
   interpolate(input, length, output, olength);
 #endif  // CONFIG_LOOP_RESTORATION
@@ -650,19 +756,19 @@ static void upscale_normative_plane(const uint8_t *const input, int height,
   (void)height2;
   assert(height2 == height);
   for (i = 0; i < height; ++i)
-    upscale_normative(input + in_stride * i, width, output + out_stride * i,
-                      width2, superres_denom);
+    upscale_normative_1D(input + in_stride * i, width, output + out_stride * i,
+                         width2, superres_denom);
 #else
   uint8_t *intbuf = (uint8_t *)aom_malloc(sizeof(uint8_t) * width2 * height);
   uint8_t *arrbuf = (uint8_t *)aom_malloc(sizeof(uint8_t) * height);
   uint8_t *arrbuf2 = (uint8_t *)aom_malloc(sizeof(uint8_t) * height2);
   if (intbuf == NULL || arrbuf == NULL || arrbuf2 == NULL) goto Error;
   for (i = 0; i < height; ++i)
-    upscale_normative(input + in_stride * i, width, intbuf + width2 * i, width2,
-                      superres_denom);
+    upscale_normative_1D(input + in_stride * i, width, intbuf + width2 * i,
+                         width2, superres_denom);
   for (i = 0; i < width2; ++i) {
     fill_col_to_arr(intbuf + i, width2, height, arrbuf);
-    upscale_normative(arrbuf, height, arrbuf2, height2, superres_denom);
+    upscale_normative_1D(arrbuf, height, arrbuf2, height2, superres_denom);
     fill_arr_to_col(output + i, out_stride, height2, arrbuf2);
   }
 
@@ -767,10 +873,71 @@ static void highbd_interpolate(const uint16_t *const input, int inlength,
 }
 
 #if CONFIG_FRAME_SUPERRES && CONFIG_LOOP_RESTORATION
-static void highbd_interpolate_simple(const uint16_t *const input, int inlength,
-                                      uint16_t *output, int outlength, int bd) {
-  highbd_interpolate_core(input, inlength, output, outlength, bd,
-                          &filter_simple[0][0], INTERP_SIMPLE_TAPS);
+static void highbd_convolve_horzonly_superres_c(const uint16_t *src,
+                                                uint16_t *dst,
+                                                const InterpKernel *x_filters,
+                                                int x0_qn, int x_step_qn, int w,
+                                                int bd) {
+  int x;
+  src -= SUBPEL_TAPS / 2 - 1;
+  int x_qn = x0_qn;
+  for (x = 0; x < w; ++x) {
+    const uint16_t *const src_x = &src[x_qn >> INTERP_PRECISION_BITS];
+    const int x_filter_idx =
+        (x_qn & INTERP_PRECISION_MASK) >> SUBPEL_INTERP_EXTRA_BITS;
+    assert(x_filter_idx <= SUBPEL_MASK_RS);
+    const int16_t *const x_filter = x_filters[x_filter_idx];
+    int k, sum = 0;
+    for (k = 0; k < SUBPEL_TAPS; ++k) sum += src_x[k] * x_filter[k];
+    dst[x] = clip_pixel_highbd(ROUND_POWER_OF_TWO(sum, FILTER_BITS), bd);
+    x_qn += x_step_qn;
+  }
+}
+
+static void highbd_interpolate_normative_core(const uint16_t *const src,
+                                              int inlength, uint16_t *dst,
+                                              int outlength, int superres_denom,
+                                              int bd,
+                                              const int16_t *interp_filters,
+                                              int interp_taps) {
+  (void)superres_denom;
+  int32_t x_step_qn, x0_qn;
+  get_upscale_convolve_params(inlength, outlength, &x0_qn, &x_step_qn);
+  if (interp_taps == SUBPEL_TAPS) {
+    highbd_convolve_horzonly_superres_c(src, dst,
+                                        (const InterpKernel *)interp_filters,
+                                        x0_qn, x_step_qn, outlength, bd);
+  } else {
+    int x_qn = x0_qn;
+    for (int x = 0; x < outlength; ++x, x_qn += x_step_qn) {
+      const uint16_t *const src_x = &src[x_qn >> INTERP_PRECISION_BITS];
+      const int x_filter_idx =
+          (x_qn & INTERP_PRECISION_MASK) >> SUBPEL_INTERP_EXTRA_BITS;
+      const int16_t *filter = &interp_filters[x_filter_idx * interp_taps];
+      int sum = 0;
+      for (int k = 0; k < interp_taps; ++k)
+        sum += filter[k] * src_x[-interp_taps / 2 + 1 + k];
+      dst[x] = clip_pixel_highbd(ROUND_POWER_OF_TWO(sum, FILTER_BITS), bd);
+    }
+  }
+}
+
+static void highbd_interpolate_normative(const uint16_t *const input,
+                                         int inlength, uint16_t *output,
+                                         int outlength, int bd,
+                                         int superres_denom) {
+  uint16_t *intbuf_ = (uint16_t *)aom_malloc(
+      sizeof(uint16_t) * (inlength + UPSCALE_NORMATIVE_TAPS));
+  uint16_t *intbuf = intbuf_ + UPSCALE_NORMATIVE_TAPS / 2;
+  memcpy(intbuf, input, sizeof(*intbuf) * inlength);
+  for (int k = 0; k < UPSCALE_NORMATIVE_TAPS / 2; ++k) {
+    intbuf[-k - 1] = intbuf[0];
+    intbuf[inlength + k] = intbuf[inlength - 1];
+  }
+  highbd_interpolate_normative_core(intbuf, inlength, output, outlength,
+                                    superres_denom, bd, &filter_normative[0][0],
+                                    UPSCALE_NORMATIVE_TAPS);
+  aom_free(intbuf_);
 }
 #endif  // CONFIG_FRAME_SUPERRES && CONFIG_LOOP_RESTORATION
 
@@ -971,12 +1138,13 @@ Error:
 }
 
 #if CONFIG_FRAME_SUPERRES
-static void highbd_upscale_normative(const uint16_t *const input, int length,
-                                     uint16_t *output, int olength,
-                                     int superres_denom, int bd) {
+static void highbd_upscale_normative_1D(const uint16_t *const input, int length,
+                                        uint16_t *output, int olength,
+                                        int superres_denom, int bd) {
   (void)superres_denom;
 #if CONFIG_LOOP_RESTORATION
-  highbd_interpolate_simple(input, length, output, olength, bd);
+  highbd_interpolate_normative(input, length, output, olength, bd,
+                               superres_denom);
 #else
   highbd_interpolate(input, length, output, olength, bd);
 #endif  // CONFIG_LOOP_RESTORATION
@@ -997,22 +1165,24 @@ static void highbd_upscale_normative_plane(const uint8_t *const input,
   (void)height2;
   assert(height2 == height);
   for (i = 0; i < height; ++i)
-    highbd_upscale_normative(CONVERT_TO_SHORTPTR(input + in_stride * i), width,
-                             CONVERT_TO_SHORTPTR(output + out_stride * i),
-                             width2, superres_denom, bd);
+    highbd_upscale_normative_1D(CONVERT_TO_SHORTPTR(input + in_stride * i),
+                                width,
+                                CONVERT_TO_SHORTPTR(output + out_stride * i),
+                                width2, superres_denom, bd);
 #else
   uint16_t *intbuf = (uint16_t *)aom_malloc(sizeof(uint16_t) * width2 * height);
   uint16_t *arrbuf = (uint16_t *)aom_malloc(sizeof(uint16_t) * height);
   uint16_t *arrbuf2 = (uint16_t *)aom_malloc(sizeof(uint16_t) * height2);
   if (intbuf == NULL || arrbuf == NULL || arrbuf2 == NULL) goto Error;
   for (i = 0; i < height; ++i) {
-    highbd_upscale_normative(CONVERT_TO_SHORTPTR(input + in_stride * i), width,
-                             intbuf + width2 * i, width2, superres_denom, bd);
+    highbd_upscale_normative_1D(CONVERT_TO_SHORTPTR(input + in_stride * i),
+                                width, intbuf + width2 * i, width2,
+                                superres_denom, bd);
   }
   for (i = 0; i < width2; ++i) {
     highbd_fill_col_to_arr(intbuf + i, width2, height, arrbuf);
-    highbd_upscale_normative(arrbuf, height, arrbuf2, height2, superres_denom,
-                             bd);
+    highbd_upscale_normative_1D(arrbuf, height, arrbuf2, height2,
+                                superres_denom, bd);
     highbd_fill_arr_to_col(CONVERT_TO_SHORTPTR(output + i), out_stride, height2,
                            arrbuf2);
   }
