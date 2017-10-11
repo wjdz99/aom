@@ -687,6 +687,10 @@ typedef struct cfl_ctx {
   // Whether the reconstructed luma pixels need to be stored
   int store_y;
 
+#if CONFIG_DEBUG
+  int rate;
+#endif  // CONFIG_DEBUG
+
 #if CONFIG_CB4X4
   int is_chroma_reference;
 #if CONFIG_CHROMA_SUB8X8 && CONFIG_DEBUG
