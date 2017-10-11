@@ -181,6 +181,7 @@ typedef struct frame_contexts {
 #endif  // CONFIG_CTX1D
 
 #if LV_MAP_PROB
+  struct bin_pack bin_count;
   aom_cdf_prob txb_skip_cdf[TX_SIZES][TXB_SKIP_CONTEXTS][CDF_SIZE(2)];
   aom_cdf_prob nz_map_cdf[TX_SIZES][PLANE_TYPES][SIG_COEF_CONTEXTS]
                          [CDF_SIZE(2)];
