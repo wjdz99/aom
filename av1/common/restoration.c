@@ -51,8 +51,8 @@ const sgr_params_type sgr_params[SGRPROJ_PARAMS] = {
 #if CONFIG_MAX_TILE
 static void tile_width_and_height(const AV1_COMMON *cm, int is_uv, int sb_w,
                                   int sb_h, int *px_w, int *px_h) {
-  const int scaled_sb_w = sb_w << MAX_MIB_SIZE_LOG2;
-  const int scaled_sb_h = sb_h << MAX_MIB_SIZE_LOG2;
+  const int scaled_sb_w = sb_w << (cm->mib_size_log2 + MI_SIZE_LOG2);
+  const int scaled_sb_h = sb_h << (cm->mib_size_log2 + MI_SIZE_LOG2);
 
   const int ss_x = is_uv && cm->subsampling_x;
   const int ss_y = is_uv && cm->subsampling_y;
@@ -1611,8 +1611,8 @@ void av1_foreach_rest_unit_in_frame(const struct AV1Common *cm, int plane,
 // For a vertical index, mi_x should be the block's top row and tile_x_start_sb
 // should be cm->tile_row_start_sb. The return value will be "tile_row" for the
 // tile containing the block.
-static int get_tile_idx(const int *tile_x_start_sb, int mi_x) {
-  int sb_x = mi_x << MAX_MIB_SIZE_LOG2;
+static int get_tile_idx(const int *tile_x_start_sb, int mi_x, int mib_log2) {
+  int sb_x = mi_x >> mib_log2;
 
   for (int i = 0; i < MAX_TILE_COLS; ++i) {
     if (tile_x_start_sb[i + 1] > sb_x) return i;
@@ -1638,8 +1638,9 @@ int av1_loop_restoration_corners_in_sb(const struct AV1Common *cm, int plane,
 // Which tile contains the superblock? Find that tile's top-left in mi-units,
 // together with the tile's size in pixels.
 #if CONFIG_MAX_TILE
-  const int tile_row = get_tile_idx(cm->tile_row_start_sb, mi_row);
-  const int tile_col = get_tile_idx(cm->tile_col_start_sb, mi_col);
+  const int mib_log2 = cm->mib_size_log2;
+  const int tile_row = get_tile_idx(cm->tile_row_start_sb, mi_row, mib_log2);
+  const int tile_col = get_tile_idx(cm->tile_col_start_sb, mi_col, mib_log2);
 
   const int sb_t = cm->tile_row_start_sb[tile_row];
   const int sb_l = cm->tile_col_start_sb[tile_col];
@@ -1647,10 +1648,10 @@ int av1_loop_restoration_corners_in_sb(const struct AV1Common *cm, int plane,
   const int sb_r = cm->tile_col_start_sb[tile_col + 1];
 
   int tile_w, tile_h;
-  tile_width_and_height(cm, is_uv, sb_r - sb_l, sb_t - sb_b, &tile_w, &tile_h);
+  tile_width_and_height(cm, is_uv, sb_r - sb_l, sb_b - sb_t, &tile_w, &tile_h);
 
-  const int mi_top = sb_t << MAX_MIB_SIZE_LOG2;
-  const int mi_left = sb_l << MAX_MIB_SIZE_LOG2;
+  const int mi_top = sb_t << mib_log2;
+  const int mi_left = sb_l << mib_log2;
 #else
   const int tile_row = mi_row / cm->tile_height;
   const int tile_col = mi_col / cm->tile_width;
