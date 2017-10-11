@@ -387,6 +387,8 @@ typedef struct FRAME_COUNTS {
   unsigned int kf_y_mode[INTRA_MODES][INTRA_MODES][INTRA_MODES];
   unsigned int y_mode[BLOCK_SIZE_GROUPS][INTRA_MODES];
   unsigned int uv_mode[INTRA_MODES][UV_INTRA_MODES];
+  unsigned int coef_head[TX_SIZES][PLANE_TYPES][REF_TYPES][COEF_BANDS]
+                        [COEFF_CONTEXTS][ENTROPY_TOKENS];
 #endif  // CONFIG_ENTROPY_STATS
 #if CONFIG_EXT_PARTITION_TYPES
   unsigned int partition[PARTITION_CONTEXTS][EXT_PARTITION_TYPES];

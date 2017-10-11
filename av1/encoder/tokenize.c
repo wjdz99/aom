@@ -305,6 +305,9 @@ static void set_entropy_context_b(int plane, int block, int blk_row,
 static INLINE void add_token(TOKENEXTRA **t,
                              aom_cdf_prob (*tail_cdf)[CDF_SIZE(ENTROPY_TOKENS)],
                              aom_cdf_prob (*head_cdf)[CDF_SIZE(ENTROPY_TOKENS)],
+#if CONFIG_ENTROPY_STATS
+                             unsigned int head_counts[ENTROPY_TOKENS],
+#endif  // CONFIG_ENTROPY_STATS
                              int eob_val, int first_val, int32_t extra,
                              uint8_t token) {
   (*t)->token = token;
@@ -316,10 +319,16 @@ static INLINE void add_token(TOKENEXTRA **t,
   (*t)++;
 
   if (token == BLOCK_Z_TOKEN) {
+#if CONFIG_ENTROPY_STATS
+    ++head_counts[0];
+#endif  // CONFIG_ENTROPY_STATS
     update_cdf(*head_cdf, 0, HEAD_TOKENS + 1);
   } else {
     if (eob_val != LAST_EOB) {
       const int symb = 2 * AOMMIN(token, TWO_TOKEN) - eob_val + first_val;
+#if CONFIG_ENTROPY_STATS
+      ++head_counts[symb];
+#endif  // CONFIG_ENTROPY_STATS
       update_cdf(*head_cdf, symb, HEAD_TOKENS + first_val);
     }
     if (token > ONE_TOKEN)
@@ -472,6 +481,10 @@ static void tokenize_b(int plane, int block, int blk_row, int blk_col,
   const SCAN_ORDER *const scan_order = get_scan(cm, tx_size, tx_type, mbmi);
   const int ref = is_inter_block(mbmi);
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
+#if CONFIG_ENTROPY_STATS
+  unsigned int(*const coef_head_counts)[COEFF_CONTEXTS][ENTROPY_TOKENS] =
+      td->counts->coef_head[txsize_sqr_map[tx_size]][type][ref];
+#endif  // CONFIG_ENTROPY_STATS
   aom_cdf_prob(
       *const coef_head_cdfs)[COEFF_CONTEXTS][CDF_SIZE(ENTROPY_TOKENS)] =
       ec_ctx->coef_head_cdfs[txsize_sqr_map[tx_size]][type][ref];
@@ -496,9 +509,13 @@ static void tokenize_b(int plane, int block, int blk_row, int blk_col,
     av1_tokenize_color_map(x, plane, block, &t, plane_bsize, tx_size, MRC_MAP);
 #endif  // CONFIG_MRC_TX && SIGNAL_ANY_MRC_MASK
 
-  if (eob == 0)
-    add_token(&t, &coef_tail_cdfs[band[c]][pt], &coef_head_cdfs[band[c]][pt], 1,
-              1, 0, BLOCK_Z_TOKEN);
+  if (eob == 0) {
+    add_token(&t, &coef_tail_cdfs[band[c]][pt], &coef_head_cdfs[band[c]][pt],
+#if CONFIG_ENTROPY_STATS
+              coef_head_counts[band[c]][pt],
+#endif  // CONFIG_ENTROPY_STATS
+              1, 1, 0, BLOCK_Z_TOKEN);
+  }
 
   while (c < eob) {
     int v = qcoeff[scan[c]];
@@ -506,6 +523,9 @@ static void tokenize_b(int plane, int block, int blk_row, int blk_col,
 
     if (!v) {
       add_token(&t, &coef_tail_cdfs[band[c]][pt], &coef_head_cdfs[band[c]][pt],
+#if CONFIG_ENTROPY_STATS
+                coef_head_counts[band[c]][pt],
+#endif  // CONFIG_ENTROPY_STATS
                 0, first_val, 0, ZERO_TOKEN);
       token_cache[scan[c]] = 0;
     } else {
@@ -513,6 +533,9 @@ static void tokenize_b(int plane, int block, int blk_row, int blk_col,
           (c + 1 == eob) ? (c + 1 == seg_eob ? LAST_EOB : EARLY_EOB) : NO_EOB;
       av1_get_token_extra(v, &token, &extra);
       add_token(&t, &coef_tail_cdfs[band[c]][pt], &coef_head_cdfs[band[c]][pt],
+#if CONFIG_ENTROPY_STATS
+                coef_head_counts[band[c]][pt],
+#endif  // CONFIG_ENTROPY_STATS
                 eob_val, first_val, extra, (uint8_t)token);
       token_cache[scan[c]] = av1_pt_energy_class[token];
     }
