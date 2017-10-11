@@ -314,10 +314,14 @@ static BLOCK_SIZE select_sb_size(const AV1_COMP *const cpi) {
 
   assert(cpi->oxcf.superblock_size == AOM_SUPERBLOCK_SIZE_DYNAMIC);
 
+#if !CONFIG_MAX_TILE
+  // for the max_tile experiment there is no common tile_width, tile_height
+  // max_tile assumes tile dimensions are in superblocks (not 64x64 units)
   assert(IMPLIES(cpi->common.tile_cols > 1,
                  cpi->common.tile_width % MAX_MIB_SIZE == 0));
   assert(IMPLIES(cpi->common.tile_rows > 1,
                  cpi->common.tile_height % MAX_MIB_SIZE == 0));
+#endif
 
   // TODO(any): Possibly could improve this with a heuristic.
   return BLOCK_128X128;
