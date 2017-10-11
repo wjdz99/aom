@@ -4517,6 +4517,31 @@ static int super_block_uvrd(const AV1_COMP *const cpi, MACROBLOCK *x,
   return is_cost_valid;
 }
 
+static void super_block_uvrd_1(const AV1_COMP *const cpi, MACROBLOCK *x,
+                            RD_STATS *rd_stats, BLOCK_SIZE bsize,
+                            int plane) {
+  MACROBLOCKD *const xd = &x->e_mbd;
+  MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
+  const TX_SIZE uv_tx_size = av1_get_uv_tx_size(mbmi, &xd->plane[1]);
+  av1_init_rd_stats(rd_stats);
+
+#if CONFIG_CB4X4 && !CONFIG_CHROMA_2X2
+  if (x->skip_chroma_rd) return;
+
+  bsize = scale_chroma_bsize(bsize, xd->plane[1].subsampling_x,
+                             xd->plane[1].subsampling_y);
+#endif  // CONFIG_CB4X4 && !CONFIG_CHROMA_2X2
+
+#if !CONFIG_PVQ
+  if (is_inter_block(mbmi)) {
+    av1_subtract_plane(x, bsize, plane);
+  }
+#endif  // !CONFIG_PVQ
+
+  txfm_rd_in_plane(x, cpi, rd_stats, INT64_MAX, plane, bsize,
+                   uv_tx_size, cpi->sf.use_fast_coef_costing);
+}
+
 #if CONFIG_VAR_TX
 void av1_tx_block_rd_b(const AV1_COMP *cpi, MACROBLOCK *x, TX_SIZE tx_size,
                        int blk_row, int blk_col, int plane, int block,
@@ -6183,7 +6208,8 @@ static int64_t cfl_alpha_dist(const int16_t *pred_buf_q3, const uint8_t *src,
                             dc_pred, alpha_q3, dist_neg_out);
 }
 
-static int cfl_rd_pick_alpha(MACROBLOCK *const x, TX_SIZE tx_size) {
+static int cfl_rd_pick_alpha(const AV1_COMP *const cpi, MACROBLOCK *const x,
+                                  BLOCK_SIZE bsize, TX_SIZE tx_size) {
   const struct macroblock_plane *const p_u = &x->plane[AOM_PLANE_U];
   const struct macroblock_plane *const p_v = &x->plane[AOM_PLANE_V];
   const uint8_t *const src_u = p_u->src.buf;
@@ -6203,31 +6229,47 @@ static int cfl_rd_pick_alpha(MACROBLOCK *const x, TX_SIZE tx_size) {
   const int16_t *pred_buf_q3 = cfl->pred_buf_q3;
   const int use_hbd = get_bitdepth_data_path_index(xd);
 
-  int64_t sse[CFL_PRED_PLANES][CFL_MAGS_SIZE];
-  sse[CFL_PRED_U][0] =
-      cfl_alpha_dist(pred_buf_q3, src_u, src_stride_u, width, height, dc_pred_u,
-                     0, use_hbd, xd->bd, NULL);
-  sse[CFL_PRED_V][0] =
-      cfl_alpha_dist(pred_buf_q3, src_v, src_stride_v, width, height, dc_pred_v,
-                     0, use_hbd, xd->bd, NULL);
+  int rates[CFL_PRED_PLANES][CFL_MAGS_SIZE];
+  int64_t dists[CFL_PRED_PLANES][CFL_MAGS_SIZE];
+  RD_STATS rd_stats;
+
+  mbmi->cfl_alpha_idx = 0;
+
+  mbmi->cfl_alpha_signs = CFL_SIGN_ZERO * CFL_SIGNS + CFL_SIGN_POS - 1;
+  assert(CFL_SIGN_U(mbmi->cfl_alpha_signs) == CFL_SIGN_ZERO);
+  super_block_uvrd_1(cpi, x, &rd_stats, bsize, AOM_PLANE_U);
+  dists[CFL_PRED_U][0] = rd_stats.dist;
+  rates[CFL_PRED_U][0] = rd_stats.rate;
+
+  mbmi->cfl_alpha_signs = CFL_SIGN_POS * CFL_SIGNS + CFL_SIGN_ZERO - 1;
+  assert(CFL_SIGN_V(mbmi->cfl_alpha_signs) == CFL_SIGN_ZERO);
+  super_block_uvrd_1(cpi, x, &rd_stats, bsize, AOM_PLANE_V);
+  dists[CFL_PRED_V][0] = rd_stats.dist;
+  rates[CFL_PRED_V][0] = rd_stats.rate;
 
   for (int c = 0; c < CFL_ALPHABET_SIZE; c++) {
-    const int m = c * 2 + 1;
-    const int abs_alpha_q3 = c + 1;
-    sse[CFL_PRED_U][m] = cfl_alpha_dist(
-        pred_buf_q3, src_u, src_stride_u, width, height, dc_pred_u,
-        abs_alpha_q3, use_hbd, xd->bd, &sse[CFL_PRED_U][m + 1]);
-    sse[CFL_PRED_V][m] = cfl_alpha_dist(
-        pred_buf_q3, src_v, src_stride_v, width, height, dc_pred_v,
-        abs_alpha_q3, use_hbd, xd->bd, &sse[CFL_PRED_V][m + 1]);
+    mbmi->cfl_alpha_idx = (c << CFL_ALPHABET_SIZE_LOG2) + c;
+
+    for (int sign = CFL_SIGN_NEG; sign < CFL_SIGNS; sign++) {
+      const int m = c * 2 + 1 + (sign == CFL_SIGN_NEG);
+      mbmi->cfl_alpha_signs = sign * CFL_SIGNS + sign - 1;
+
+      super_block_uvrd_1(cpi, x, &rd_stats, bsize, AOM_PLANE_U);
+      dists[CFL_PRED_U][m] = rd_stats.dist;
+      rates[CFL_PRED_U][m] = rd_stats.rate;
+
+      super_block_uvrd_1(cpi, x, &rd_stats, bsize, AOM_PLANE_V);
+      dists[CFL_PRED_V][m] = rd_stats.dist;
+      rates[CFL_PRED_V][m] = rd_stats.rate;
+    }
   }
 
   int64_t dist;
   int64_t cost;
   int64_t best_cost = INT64_MAX;
+  int rate;
   int best_rate = 0;
 
-  // Compute least squares parameter of the entire block
   int ind = 0;
   int signs = 0;
 
@@ -6240,15 +6282,17 @@ static int cfl_rd_pick_alpha(MACROBLOCK *const x, TX_SIZE tx_size) {
       const int idx_u = (sign_u == CFL_SIGN_ZERO) ? 0 : u * 2 + 1;
       for (int v = 0; v < size_v; v++) {
         const int idx_v = (sign_v == CFL_SIGN_ZERO) ? 0 : v * 2 + 1;
-        dist = sse[CFL_PRED_U][idx_u + (sign_u == CFL_SIGN_NEG)] +
-               sse[CFL_PRED_V][idx_v + (sign_v == CFL_SIGN_NEG)];
-        dist *= 16;
-        const int rate = x->cfl_cost[joint_sign][CFL_PRED_U][u] +
-                         x->cfl_cost[joint_sign][CFL_PRED_V][v];
+        dist = dists[CFL_PRED_U][idx_u + (sign_u == CFL_SIGN_NEG)] +
+               dists[CFL_PRED_V][idx_v + (sign_v == CFL_SIGN_NEG)];
+        rate = x->cfl_cost[joint_sign][CFL_PRED_U][u] +
+               x->cfl_cost[joint_sign][CFL_PRED_V][v] +
+               rates[CFL_PRED_U][idx_u + (sign_u == CFL_SIGN_NEG)] +
+               rates[CFL_PRED_V][idx_v + (sign_v == CFL_SIGN_NEG)];
         cost = RDCOST(x->rdmult, rate, dist);
         if (cost < best_cost) {
           best_cost = cost;
-          best_rate = rate;
+          best_rate = x->cfl_cost[joint_sign][CFL_PRED_U][u] +
+                      x->cfl_cost[joint_sign][CFL_PRED_V][v];
           ind = (u << CFL_ALPHABET_SIZE_LOG2) + v;
           signs = joint_sign;
         }
@@ -6305,7 +6349,7 @@ static int64_t rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
     if (mode == UV_CFL_PRED) {
       assert(!is_directional_mode);
       const TX_SIZE uv_tx_size = av1_get_uv_tx_size(mbmi, &xd->plane[1]);
-      cfl_alpha_rate = cfl_rd_pick_alpha(x, uv_tx_size);
+      cfl_alpha_rate = cfl_rd_pick_alpha(cpi, x, bsize, uv_tx_size);
     }
 #endif
 #if CONFIG_EXT_INTRA
