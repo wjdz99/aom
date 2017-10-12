@@ -1648,6 +1648,25 @@ void av1_init_plane_quantizers(const AV1_COMP *cpi, MACROBLOCK *x,
   int dq;
 #endif
 
+#if 0
+  {
+    FILE *fp = fopen("qmatrix_32x16.txt", "a");
+    const TX_SIZE tx = TX_32X16;
+    const int cols = tx_size_wide[tx];
+    const int rows = tx_size_high[tx];
+    for (int level = 0; level < NUM_QM_LEVELS - 1; ++level) {
+      fprintf(fp, "level %2d\n", level);
+#if 1
+      for (int i = 0; i < cols * rows; ++i) {
+        fprintf(fp, "%3d ", cm->gqmatrix[level][0][0][tx][i]);
+      }
+#endif
+      fprintf(fp, "\n");
+    }
+    fclose(fp);
+  }
+#endif
+
   // Y
   x->plane[0].quant = quants->y_quant[qindex];
   x->plane[0].quant_fp = quants->y_quant_fp[qindex];

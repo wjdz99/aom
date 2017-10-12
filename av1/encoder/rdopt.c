@@ -4684,6 +4684,9 @@ static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
 #endif
 
   rd_stats->ref_rdcost = ref_best_rd;
+#if 1
+  rd_stats->ref_rdcost = INT64_MAX;
+#endif
   rd_stats->zero_rate = zero_blk_rate;
   if (cpi->common.tx_mode == TX_MODE_SELECT || tx_size == TX_4X4) {
     inter_tx_size[0][0] = tx_size;
@@ -4727,6 +4730,35 @@ static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
       x->blk_skip[plane][blk_row * bw + blk_col] = 0;
       rd_stats->skip = 0;
     }
+
+#if 0
+    if ((cpi->common.current_video_frame == 50 ||
+         cpi->common.current_video_frame == 50) &&
+        plane == 0 &&
+        ((plane_bsize == BLOCK_4X4 || plane_bsize == BLOCK_8X4
+            || plane_bsize == BLOCK_4X8 || plane_bsize == BLOCK_16X8
+            || plane_bsize == BLOCK_8X16 || plane_bsize == BLOCK_32X16
+            || plane_bsize == BLOCK_16X32)
+            && tx_size == max_txsize_rect_lookup[plane_bsize])) {
+      FILE *fp = fopen("rd_stats_rect.txt", "a");
+
+      // tx type
+      fprintf(fp, "tx type %d\n", mbmi->tx_type);
+
+      // RD results
+      fprintf(fp, "skip %d\n"
+                  "rate %d\n"
+                  "dist %lld\n"
+                  "sse %lld\n"
+                  "rd %lld\n",
+                  rd_stats->skip, rd_stats->rate,
+                  (long long)rd_stats->dist, (long long)rd_stats->sse,
+                  (long long)(RDCOST(x->rdmult,
+                                     rd_stats->rate, rd_stats->dist)));
+
+      fclose(fp);
+    }
+#endif
 
     if (tx_size > TX_4X4 && depth < MAX_VARTX_DEPTH)
       rd_stats->rate +=
@@ -5310,6 +5342,53 @@ static void select_tx_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
     }
   }
 
+#if 1
+  if (cpi->common.current_video_frame == 50) {
+    // residue signal
+    const struct macroblockd_plane *const pd = &xd->plane[0];
+    if (bsize > BLOCK_4X4 && bsize <= BLOCK_32X32) {
+      const int diff_stride = block_size_wide[bsize];
+      const struct macroblock_plane * const p = &x->plane[0];
+      const int16_t *diff = &p->src_diff[0];
+      const int rows = block_size_high[bsize];
+      const int cols = block_size_wide[bsize];
+      FILE *fp = fopen("rd_stats_split.txt", "a");
+
+      // residue
+      fprintf(fp, "block size (h w) %d %d\n", rows, cols);
+      fprintf(fp, "%s\n", "residue");
+      for (int r = 0; r < rows; ++r) {
+        for (int c = 0; c < cols; ++c) {
+          fprintf(fp, "%d ", diff[c]);
+        }
+        diff += diff_stride;
+      }
+      fprintf(fp, "\n");
+
+      TxfmParam txfm_param;
+      txfm_param.tx_type = DCT_DCT;
+      txfm_param.tx_size = max_txsize_rect_lookup[bsize];
+      txfm_param.lossless = 0;
+      txfm_param.bd = xd->bd;
+      tran_low_t coeff_buf[32 *32];
+      av1_fwd_txfm(&p->src_diff[0], coeff_buf, diff_stride, &txfm_param);
+      // DCT
+      fprintf(fp, "%s\n", "DCT coeff");
+      for (int r = 0; r < rows; ++r) {
+        for (int c = 0; c < cols; ++c) {
+          fprintf(fp, "%d ", coeff_buf[r * cols + c]);
+        }
+      }
+      fprintf(fp, "\n");
+
+      // quantizer
+      fprintf(fp, "quantizer %3d %3d %3d\n", cpi->common.base_qindex,
+              cpi->common.min_qmlevel, cpi->common.max_qmlevel);
+      fclose(fp);
+    }
+  }
+#endif
+
   for (tx_type = txk_start; tx_type < txk_end; ++tx_type) {
     RD_STATS this_rd_stats;
     av1_init_rd_stats(&this_rd_stats);
@@ -5345,8 +5424,48 @@ static void select_tx_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
     if (xd->lossless[mbmi->segment_id])
       if (tx_type != DCT_DCT) continue;
 
+#if 1
+    if (cpi->common.current_video_frame == 50 &&
+        (bsize > BLOCK_4X4 && bsize <= BLOCK_32X32)) {
+      // residue signal
+      rd = select_tx_size_fix_type(cpi, x, &this_rd_stats, bsize, INT64_MAX,
+                                   tx_type, rd_stats_stack);
+
+      /*
+      if (max_txsize_rect_lookup[bsize] > mbmi->inter_tx_size[0][0]) {
+        printf("%d %d\n", max_txsize_rect_lookup[bsize],
+               mbmi->inter_tx_size[0][0]);
+      }
+      */
+
+      FILE *fp = fopen("rd_stats_split.txt", "a");
+
+      // tx type
+      fprintf(fp, "tx type %d\n", tx_type);
+
+      // RD results
+      fprintf(fp, "skip %d\n"
+              "rate %d\n"
+              "dist %lld\n"
+              "sse %lld\n"
+              "rd %lld\n"
+              "split %d\n",
+          this_rd_stats.skip,
+          this_rd_stats.rate,
+          (long long) this_rd_stats.dist,
+          (long long) this_rd_stats.sse, rd,
+          max_txsize_rect_lookup[bsize] > mbmi->inter_tx_size[0][0]);
+
+      fclose(fp);
+    } else {
+      rd = select_tx_size_fix_type(cpi, x, &this_rd_stats, bsize, ref_best_rd,
+                                   tx_type, rd_stats_stack);
+    }
+
+#else
     rd = select_tx_size_fix_type(cpi, x, &this_rd_stats, bsize, ref_best_rd,
                                  tx_type, rd_stats_stack);
+#endif
     ref_best_rd = AOMMIN(rd, ref_best_rd);
     if (rd < best_rd) {
       best_rd = rd;

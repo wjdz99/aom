@@ -954,7 +954,7 @@ static INLINE TxSetType get_ext_tx_set_type(TX_SIZE tx_size, BLOCK_SIZE bs,
   if (tx_size_sqr_up == TX_32X32)
     return is_inter ? EXT_TX_SET_DCT_IDTX : EXT_TX_SET_DCTONLY;
   if (is_inter)
-    return (tx_size_sqr == TX_16X16 ? EXT_TX_SET_DTT9_IDTX_1DDCT
+    return ((tx_size_sqr == TX_16X16 && 0) ? EXT_TX_SET_DTT9_IDTX_1DDCT
                                     : EXT_TX_SET_ALL16);
   else
     return (tx_size_sqr == TX_16X16 ? EXT_TX_SET_DTT4_IDTX
