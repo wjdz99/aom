@@ -22,6 +22,30 @@
       "revId": "090c71de2de0622c2a514189c9b06927828fe16d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "730704ac_de5c38b8",
+        "filename": "av1/common/warped_motion.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1794,
+      "author": {
+        "id": 6000
+      },
+      "writtenOn": "2017-10-12T19:05:40Z",
+      "side": 1,
+      "message": "Yes, but this would mix the \"normal\" path with the \"error\" path ; which I find less clear.",
+      "parentUuid": "ff2e4e74_03c8ee8f",
+      "range": {
+        "startLine": 1792,
+        "startChar": 0,
+        "endLine": 1794,
+        "endChar": 11
+      },
+      "revId": "090c71de2de0622c2a514189c9b06927828fe16d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
