@@ -1986,6 +1986,11 @@ static void block_rd_txfm(int plane, int block, int blk_row, int blk_col,
                    tx_size, &this_rd_stats.dist, &this_rd_stats.sse,
                    OUTPUT_HAS_PREDICTED_PIXELS);
   }
+  rd = RDCOST(x->rdmult, 0, this_rd_stats.dist);
+  if (args->this_rd + rd > args->best_rd) {
+    args->exit_early = 1;
+    return;
+  }
 #if CONFIG_CFL
   if (plane == AOM_PLANE_Y && xd->cfl->store_y) {
 #if CONFIG_CHROMA_SUB8X8
@@ -1996,11 +2001,6 @@ static void block_rd_txfm(int plane, int block, int blk_row, int blk_col,
     cfl_store_tx(xd, blk_row, blk_col, tx_size, plane_bsize);
   }
 #endif  // CONFIG_CFL
-  rd = RDCOST(x->rdmult, 0, this_rd_stats.dist);
-  if (args->this_rd + rd > args->best_rd) {
-    args->exit_early = 1;
-    return;
-  }
 #if !CONFIG_PVQ
   const PLANE_TYPE plane_type = get_plane_type(plane);
   const TX_TYPE tx_type =
