@@ -43,5 +43,22 @@ static INLINE long lroundf(float x) {
 }
 #endif  // _MSC_VER < 1800
 
+#if HAVE_AVX
+#include <immintrin.h>
+
+// Note:
+// _mm256_insert_epi16 intrinsics is available from vs2017.
+// We define this inline function for vs2015 and earlier. The
+// intrinsics used here are in vs2015 document:
+// https://msdn.microsoft.com/en-us/library/hh977022.aspx
+#if _MSC_VER <= 1900
+static INLINE __m256i _mm256_insert_epi16(__m256i a, int16_t d, int indx) {
+  __m128i y = _mm256_extractf128_si256(a, indx >> 3);
+  y = _mm_insert_epi16(y, d, indx % 8);
+  return _mm256_insertf128_si256(a, y, indx >> 3);
+}
+#endif
+#endif  // HAVE_AVX
+
 #endif  // _MSC_VER
 #endif  // AOM_PORTS_MSVC_H_
