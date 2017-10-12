@@ -251,8 +251,30 @@ static int parse_counts_for_cdf_opt(aom_count_type **ct_ptr,
     (*ct_ptr) += total_modes;
 
     if (tabs > 0) fprintf(probsfile, "%*c", tabs * SPACES_PER_TAB, ' ');
-    for (int k = 0; k < total_modes; ++k)
+
+    // Hack to avoid:
+    // - Consecutive cdf values being equal, and
+    // - First cdf being 0.
+    assert(cdfs[total_modes - 1] == CDF_PROB_TOP);
+    for (int k = total_modes - 2; k >= 0; --k) {
+      if (cdfs[k] > 0 && cdfs[k] >= cdfs[k + 1]) {
+        cdfs[k] = cdfs[k + 1] - 1;
+      }
+    }
+    if (cdfs[0] == 0) cdfs[0] = 1;
+    if (cdfs[1] <= cdfs[0]) {
+      for (int k = 0; (k < total_modes - 2) && (cdfs[k] < CDF_PROB_TOP); ++k) {
+        if (cdfs[k + 1] <= cdfs[k]) {
+          cdfs[k + 1] = cdfs[k] + 1;
+          assert(cdfs[k + 1] < CDF_PROB_TOP);
+        }
+      }
+    }
+
+    for (int k = 0; k < total_modes; ++k) {
       fprintf(probsfile, " AOM_ICDF(%d),", cdfs[k]);
+      if (cdfs[k] == CDF_PROB_TOP) break;
+    }
     fprintf(probsfile, " 0 ");
   } else {
     for (int k = 0; k < cts_each_dim[0]; ++k) {
@@ -353,6 +375,19 @@ int main(int argc, const char **argv) {
       &fc.uv_mode[0][0], probsfile, 2, cts_each_dim,
       "static const aom_cdf_prob\n"
       "default_uv_mode_cdf[INTRA_MODES][CDF_SIZE(UV_INTRA_MODES)]");
+
+  /* Coefficient coding */
+  cts_each_dim[0] = TX_SIZES;
+  cts_each_dim[1] = PLANE_TYPES;
+  cts_each_dim[2] = REF_TYPES;
+  cts_each_dim[3] = COEF_BANDS;
+  cts_each_dim[4] = COEFF_CONTEXTS;
+  // Only these many are valid out of 'ENTROPY_TOKENS' values in the array.
+  cts_each_dim[5] = HEAD_TOKENS + 1;
+  optimize_cdf_table(
+      &fc.coef_head[0][0][0][0][0][0], probsfile, 6, cts_each_dim,
+      "static const coeff_cdf_model default_coef_head_cdfs[TX_SIZES]"
+      "[PLANE_TYPES]");
 
   /* Partition */
   cts_each_dim[0] = PARTITION_CONTEXTS;
