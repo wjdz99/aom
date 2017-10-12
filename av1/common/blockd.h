@@ -694,10 +694,12 @@ typedef struct cfl_ctx {
 #if CONFIG_CB4X4
   int is_chroma_reference;
 #if CONFIG_CHROMA_SUB8X8 && CONFIG_DEBUG
-  // The prediction used for sub8x8 blocks originates from multiple luma blocks,
-  // this array is used to validate that cfl_store() is called only once for
-  // each luma block
+  // Validation buffer is usually 2x2, except for 16x4 and 4x16 in that case it
+  // is 4x2 and 2x4 respectively. To simplify accessing the buffer we use a
+  // stride of CFL_SUB8X8_VAL_MI_SIZE resulting in a square of 16.
   uint8_t sub8x8_val[CFL_SUB8X8_VAL_MI_SQUARE];
+  uint8_t store_counter;
+  uint8_t last_compute_counter;
 #endif  // CONFIG_CHROMA_SUB8X8 && CONFIG_DEBUG
 #endif  // CONFIG_CB4X4
 } CFL_CTX;
