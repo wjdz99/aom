@@ -12,6 +12,7 @@
 #ifndef AOM_PORTS_MSVC_H_
 #define AOM_PORTS_MSVC_H_
 #ifdef _MSC_VER
+#include <immintrin.h>
 
 #include "./aom_config.h"
 
@@ -42,6 +43,21 @@ static INLINE long lroundf(float x) {
     return (long)(x + 0.5f);
 }
 #endif  // _MSC_VER < 1800
+
+#if HAVE_AVX2
+// Note:
+// _mm256_insert_epi16 intrinsics becomes available after vs2017.
+// We define this inline function for vs2015 and earlier. The
+// intrinsics used here are in vs2015 document:
+// https://msdn.microsoft.com/en-us/library/hh977022.aspx
+#if _MSC_VER <= 1900
+static INLINE __m256i _mm256_insert_epi16(__m256i a, uint16_t d, int indx) {
+  __m128i y = _mm256_extractf128_si256(a, indx >> 3);
+  y = _mm_insert_epi16(y, d, indx % 8);
+  return _mm256_insertf128_si256(a, y, indx >> 3);
+}
+#endif
+#endif  // HAVE_AVX2
 
 #endif  // _MSC_VER
 #endif  // AOM_PORTS_MSVC_H_
