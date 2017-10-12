@@ -22,6 +22,30 @@
       "revId": "92e8429a02b2b84dbaa6f6c6a5fb0245acb3ff0a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "471d3090_d878a87e",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 764,
+      "author": {
+        "id": 6000
+      },
+      "writtenOn": "2017-10-12T14:06:52Z",
+      "side": 1,
+      "message": "The issue is still present, and can be triggered using the CodingPathSync test (enhanced version that tests multiple chroma subsamplings): https://aomedia-review.googlesource.com/c/aom/+/27146",
+      "parentUuid": "bf13e3df_c0a6f45d",
+      "range": {
+        "startLine": 764,
+        "startChar": 48,
+        "endLine": 764,
+        "endChar": 51
+      },
+      "revId": "92e8429a02b2b84dbaa6f6c6a5fb0245acb3ff0a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
