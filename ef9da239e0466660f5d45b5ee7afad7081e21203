@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ab9d8357_8e74c3a6",
+        "filename": "aom_ports/msvc.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-10-12T19:12:17Z",
+      "side": 1,
+      "message": "you\u0027ll need to guard this for AVX, usually these have a #error if the machine type isn\u0027t being targeted",
+      "revId": "ef9da239e0466660f5d45b5ee7afad7081e21203",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "74381dd8_ad8356a7",
+        "filename": "aom_ports/msvc.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-10-12T19:12:17Z",
+      "side": 1,
+      "message": "\u0027is available\u0027 and maybe from vs2017 onward to avoid any confusion as to if this means the version after 2017 or 2017 itself",
+      "range": {
+        "startLine": 49,
+        "startChar": 34,
+        "endLine": 49,
+        "endChar": 51
+      },
+      "revId": "ef9da239e0466660f5d45b5ee7afad7081e21203",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "264111c0_c591a1e5",
+        "filename": "aom_ports/msvc.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-10-12T19:12:17Z",
+      "side": 1,
+      "message": "the signature for this is for a signed int16",
+      "range": {
+        "startLine": 54,
+        "startChar": 53,
+        "endLine": 54,
+        "endChar": 61
+      },
+      "revId": "ef9da239e0466660f5d45b5ee7afad7081e21203",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "324294e8_47adcb88",
+        "filename": "aom_ports/msvc.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-10-12T19:12:17Z",
+      "side": 1,
+      "message": "you\u0027re using insertf you\u0027ll need a cast I think",
+      "range": {
+        "startLine": 57,
+        "startChar": 33,
+        "endLine": 57,
+        "endChar": 34
+      },
+      "revId": "ef9da239e0466660f5d45b5ee7afad7081e21203",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
