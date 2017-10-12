@@ -255,6 +255,7 @@ EXPERIMENT_LIST="
     tpl_mv
     dual_filter
     convolve_round
+    convolve_reduce_precision
     compound_round
     ext_tx
     tx64x64
