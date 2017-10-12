@@ -1085,7 +1085,6 @@ static void write_ref_frames(const AV1_COMMON *cm, const MACROBLOCKD *xd,
       assert(comp_ref_type == BIDIR_COMP_REFERENCE);
 #endif  // CONFIG_EXT_COMP_REFS
 
-#if CONFIG_EXT_REFS
       const int bit = (mbmi->ref_frame[0] == GOLDEN_FRAME ||
                        mbmi->ref_frame[0] == LAST3_FRAME);
 #if CONFIG_VAR_REFS
@@ -1135,12 +1134,7 @@ static void write_ref_frames(const AV1_COMMON *cm, const MACROBLOCKD *xd,
       }
 #endif  // CONFIG_VAR_REFS
 
-#else   // !CONFIG_EXT_REFS
-      const int bit = mbmi->ref_frame[0] == GOLDEN_FRAME;
-      WRITE_REF_BIT(bit, comp_ref_p);
-#endif  // CONFIG_EXT_REFS
     } else {
-#if CONFIG_EXT_REFS
       const int bit0 = (mbmi->ref_frame[0] <= ALTREF_FRAME &&
                         mbmi->ref_frame[0] >= BWDREF_FRAME);
 #if CONFIG_VAR_REFS
@@ -1200,15 +1194,6 @@ static void write_ref_frames(const AV1_COMMON *cm, const MACROBLOCKD *xd,
 #endif  // CONFIG_VAR_REFS
         }
       }
-#else   // !CONFIG_EXT_REFS
-      const int bit0 = mbmi->ref_frame[0] != LAST_FRAME;
-      WRITE_REF_BIT(bit0, single_ref_p1);
-
-      if (bit0) {
-        const int bit1 = mbmi->ref_frame[0] != GOLDEN_FRAME;
-        WRITE_REF_BIT(bit1, single_ref_p2);
-      }
-#endif  // CONFIG_EXT_REFS
     }
   }
 }
@@ -3817,7 +3802,6 @@ static void write_tile_info(const AV1_COMMON *const cm,
 #endif  // CONFIG_LOOPFILTERING_ACROSS_TILES
 }
 
-#if CONFIG_EXT_REFS
 #if USE_GF16_MULTI_LAYER
 static int get_refresh_mask_gf16(AV1_COMP *cpi) {
   int refresh_mask = 0;
@@ -3832,11 +3816,9 @@ static int get_refresh_mask_gf16(AV1_COMP *cpi) {
   return refresh_mask;
 }
 #endif  // USE_GF16_MULTI_LAYER
-#endif  // CONFIG_EXT_REFS
 
 static int get_refresh_mask(AV1_COMP *cpi) {
   int refresh_mask = 0;
-#if CONFIG_EXT_REFS
 #if USE_GF16_MULTI_LAYER
   if (cpi->rc.baseline_gf_interval == 16) return get_refresh_mask_gf16(cpi);
 #endif  // USE_GF16_MULTI_LAYER
@@ -3854,9 +3836,6 @@ static int get_refresh_mask(AV1_COMP *cpi) {
 
   refresh_mask |= (cpi->refresh_bwd_ref_frame << cpi->bwd_fb_idx);
   refresh_mask |= (cpi->refresh_alt2_ref_frame << cpi->alt2_fb_idx);
-#else   // !CONFIG_EXT_REFS
-  refresh_mask |= (cpi->refresh_last_frame << cpi->lst_fb_idx);
-#endif  // CONFIG_EXT_REFS
 
   if (av1_preserve_existing_gf(cpi)) {
     // We have decided to preserve the previously existing golden frame as our
@@ -3871,15 +3850,7 @@ static int get_refresh_mask(AV1_COMP *cpi) {
     // (like RTC/temporal scalability).
     return refresh_mask | (cpi->refresh_golden_frame << cpi->alt_fb_idx);
   } else {
-#if CONFIG_EXT_REFS
     const int arf_idx = cpi->alt_fb_idx;
-#else   // !CONFIG_EXT_REFS
-    int arf_idx = cpi->alt_fb_idx;
-    if ((cpi->oxcf.pass == 2) && cpi->multi_arf_allowed) {
-      const GF_GROUP *const gf_group = &cpi->twopass.gf_group;
-      arf_idx = gf_group->arf_update_idx[gf_group->index];
-    }
-#endif  // CONFIG_EXT_REFS
     return refresh_mask | (cpi->refresh_golden_frame << cpi->gld_fb_idx) |
            (cpi->refresh_alt_ref_frame << arf_idx);
   }
@@ -4072,12 +4043,10 @@ static uint32_t write_tiles(AV1_COMP *const cpi, uint8_t *const dst,
 #endif  // CONFIG_EXT_TILE
     write_uncompressed_header_frame(cpi, &wb);
 
-#if CONFIG_EXT_REFS
     if (cm->show_existing_frame) {
       total_size = aom_wb_bytes_written(&wb);
       return (uint32_t)total_size;
     }
-#endif  // CONFIG_EXT_REFS
 
     // Write the tile length code
     tile_size_bytes_wb = wb;
@@ -4560,7 +4529,6 @@ static void write_uncompressed_header_frame(AV1_COMP *cpi,
   aom_wb_write_literal(wb, cm->large_scale_tile, 1);
 #endif  // CONFIG_EXT_TILE
 
-#if CONFIG_EXT_REFS
   // NOTE: By default all coded frames to be used as a reference
   cm->is_reference_frame = 1;
 
@@ -4592,11 +4560,8 @@ static void write_uncompressed_header_frame(AV1_COMP *cpi,
 
     return;
   } else {
-#endif                        // CONFIG_EXT_REFS
     aom_wb_write_bit(wb, 0);  // show_existing_frame
-#if CONFIG_EXT_REFS
   }
-#endif  // CONFIG_EXT_REFS
 
   aom_wb_write_bit(wb, cm->frame_type);
   aom_wb_write_bit(wb, cm->show_frame);
@@ -4653,18 +4618,12 @@ static void write_uncompressed_header_frame(AV1_COMP *cpi,
       }
     }
 #endif
-#if CONFIG_EXT_REFS
     cpi->refresh_frame_mask = get_refresh_mask(cpi);
-#endif  // CONFIG_EXT_REFS
 
     if (cm->intra_only) {
       write_bitdepth_colorspace_sampling(cm, wb);
 
-#if CONFIG_EXT_REFS
       aom_wb_write_literal(wb, cpi->refresh_frame_mask, REF_FRAMES);
-#else
-      aom_wb_write_literal(wb, get_refresh_mask(cpi), REF_FRAMES);
-#endif  // CONFIG_EXT_REFS
       write_frame_size(cm, wb);
 
 #if CONFIG_ANS && ANS_MAX_SYMBOLS
@@ -4675,19 +4634,13 @@ static void write_uncompressed_header_frame(AV1_COMP *cpi,
     } else {
       MV_REFERENCE_FRAME ref_frame;
 
-#if CONFIG_EXT_REFS
       aom_wb_write_literal(wb, cpi->refresh_frame_mask, REF_FRAMES);
-#else
-      aom_wb_write_literal(wb, get_refresh_mask(cpi), REF_FRAMES);
-#endif  // CONFIG_EXT_REFS
 
-#if CONFIG_EXT_REFS
       if (!cpi->refresh_frame_mask) {
         // NOTE: "cpi->refresh_frame_mask == 0" indicates that the coded frame
         //       will not be used as a reference
         cm->is_reference_frame = 0;
       }
-#endif  // CONFIG_EXT_REFS
 
       for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
         assert(get_ref_frame_map_idx(cpi, ref_frame) != INVALID_IDX);
@@ -4746,12 +4699,10 @@ static void write_uncompressed_header_frame(AV1_COMP *cpi,
     int arf_offset = AOMMIN(
         (MAX_GF_INTERVAL - 1),
         cpi->twopass.gf_group.arf_src_offset[cpi->twopass.gf_group.index]);
-#if CONFIG_EXT_REFS
     int brf_offset =
         cpi->twopass.gf_group.brf_src_offset[cpi->twopass.gf_group.index];
 
     arf_offset = AOMMIN((MAX_GF_INTERVAL - 1), arf_offset + brf_offset);
-#endif
     aom_wb_write_literal(wb, arf_offset, 4);
   }
 #endif
@@ -4854,7 +4805,6 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
   aom_wb_write_literal(wb, cm->large_scale_tile, 1);
 #endif  // CONFIG_EXT_TILE
 
-#if CONFIG_EXT_REFS
   // NOTE: By default all coded frames to be used as a reference
   cm->is_reference_frame = 1;
 
@@ -4886,11 +4836,8 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
 
     return;
   } else {
-#endif  // CONFIG_EXT_REFS
     aom_wb_write_bit(wb, 0);  // show_existing_frame
-#if CONFIG_EXT_REFS
   }
-#endif  // CONFIG_EXT_REFS
 
   cm->frame_type = cm->intra_only ? INTRA_ONLY_FRAME : cm->frame_type;
   aom_wb_write_literal(wb, cm->frame_type, 2);
@@ -4937,16 +4884,10 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
       }
     }
 #endif
-#if CONFIG_EXT_REFS
     cpi->refresh_frame_mask = get_refresh_mask(cpi);
-#endif  // CONFIG_EXT_REFS
 
     if (cm->intra_only) {
-#if CONFIG_EXT_REFS
       aom_wb_write_literal(wb, cpi->refresh_frame_mask, REF_FRAMES);
-#else
-      aom_wb_write_literal(wb, get_refresh_mask(cpi), REF_FRAMES);
-#endif  // CONFIG_EXT_REFS
       write_frame_size(cm, wb);
 
 #if CONFIG_ANS && ANS_MAX_SYMBOLS
@@ -4966,20 +4907,14 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
     }
 #endif
 
-#if CONFIG_EXT_REFS
     cpi->refresh_frame_mask = get_refresh_mask(cpi);
     aom_wb_write_literal(wb, cpi->refresh_frame_mask, REF_FRAMES);
-#else
-    aom_wb_write_literal(wb, get_refresh_mask(cpi), REF_FRAMES);
-#endif  // CONFIG_EXT_REFS
 
-#if CONFIG_EXT_REFS
     if (!cpi->refresh_frame_mask) {
       // NOTE: "cpi->refresh_frame_mask == 0" indicates that the coded frame
       //       will not be used as a reference
       cm->is_reference_frame = 0;
     }
-#endif  // CONFIG_EXT_REFS
 
     for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
       assert(get_ref_frame_map_idx(cpi, ref_frame) != INVALID_IDX);
@@ -5042,13 +4977,11 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
     }
 #endif
 
-#if CONFIG_EXT_REFS
     if (!cpi->refresh_frame_mask) {
       // NOTE: "cpi->refresh_frame_mask == 0" indicates that the coded frame
       //       will not be used as a reference
       cm->is_reference_frame = 0;
     }
-#endif  // CONFIG_EXT_REFS
 
     for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
       assert(get_ref_frame_map_idx(cpi, ref_frame) != INVALID_IDX);
@@ -5099,12 +5032,10 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
     int arf_offset = AOMMIN(
         (MAX_GF_INTERVAL - 1),
         cpi->twopass.gf_group.arf_src_offset[cpi->twopass.gf_group.index]);
-#if CONFIG_EXT_REFS
     int brf_offset =
         cpi->twopass.gf_group.brf_src_offset[cpi->twopass.gf_group.index];
 
     arf_offset = AOMMIN((MAX_GF_INTERVAL - 1), arf_offset + brf_offset);
-#endif
     aom_wb_write_literal(wb, arf_offset, 4);
   }
 #endif
@@ -5301,7 +5232,6 @@ static uint32_t write_compressed_header(AV1_COMP *cpi, uint8_t *data) {
 #endif  // CONFIG_EXT_COMP_REFS
 
       for (int i = 0; i < REF_CONTEXTS; i++) {
-#if CONFIG_EXT_REFS
         for (int j = 0; j < (FWD_REFS - 1); j++) {
           av1_cond_prob_diff_update(header_bc, &fc->comp_ref_prob[i][j],
                                     counts->comp_ref[i][j], probwt);
@@ -5310,12 +5240,6 @@ static uint32_t write_compressed_header(AV1_COMP *cpi, uint8_t *data) {
           av1_cond_prob_diff_update(header_bc, &fc->comp_bwdref_prob[i][j],
                                     counts->comp_bwdref[i][j], probwt);
         }
-#else
-        for (int j = 0; j < (COMP_REFS - 1); j++) {
-          av1_cond_prob_diff_update(header_bc, &fc->comp_ref_prob[i][j],
-                                    counts->comp_ref[i][j], probwt);
-        }
-#endif  // CONFIG_EXT_REFS
       }
     }
 #endif  // CONFIG_NEW_MULTISYMBOL
@@ -5867,12 +5791,10 @@ void av1_pack_bitstream(AV1_COMP *const cpi, uint8_t *dst, size_t *size) {
     // Write the uncompressed header
     write_uncompressed_header_frame(cpi, &wb);
 
-#if CONFIG_EXT_REFS
     if (cm->show_existing_frame) {
       *size = aom_wb_bytes_written(&wb);
       return;
     }
-#endif  // CONFIG_EXT_REFS
 
     // We do not know these in advance. Output placeholder bit.
     saved_wb = wb;
