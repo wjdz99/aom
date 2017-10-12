@@ -2097,11 +2097,6 @@ static void decode_token_and_recon_block(AV1Decoder *const pbi,
   }
 #if CONFIG_CFL && CONFIG_CHROMA_SUB8X8
   if (mbmi->uv_mode != UV_CFL_PRED) {
-#if CONFIG_DEBUG
-    if (cfl->is_chroma_reference) {
-      cfl_clear_sub8x8_val(cfl);
-    }
-#endif
     if (!cfl->is_chroma_reference && is_inter_block(mbmi)) {
       cfl_store_block(xd, mbmi->sb_type, mbmi->tx_size);
     }

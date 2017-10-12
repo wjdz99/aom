@@ -3815,11 +3815,6 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
 #else
     restore_context(x, &x_ctx, mi_row, mi_col, &pre_rdo_buf, bsize);
 #endif
-#if CONFIG_CFL && CONFIG_CHROMA_SUB8X8 && CONFIG_DEBUG
-    if (!x->skip_chroma_rd) {
-      cfl_clear_sub8x8_val(xd->cfl);
-    }
-#endif  // CONFIG_CFL && CONFIG_CHROMA_SUB8X8 && CONFIG_DEBUG
   }
 
   // store estimated motion vector
@@ -3986,11 +3981,6 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
 #endif  // CONFIG_SUPERTX
     }
 
-#if CONFIG_CFL && CONFIG_CHROMA_SUB8X8 && CONFIG_DEBUG
-    if (!reached_last_index && sum_rdc.rdcost >= best_rdc.rdcost)
-      cfl_clear_sub8x8_val(xd->cfl);
-#endif  // CONFIG_CFL && CONFIG_CHROMA_SUB8X8 && CONFIG_DEBUG
-
     if (reached_last_index && sum_rdc.rdcost < best_rdc.rdcost) {
       sum_rdc.rate += partition_cost[PARTITION_SPLIT];
       sum_rdc.rdcost = RDCOST(x->rdmult, sum_rdc.rate, sum_rdc.dist);
@@ -4149,9 +4139,6 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
     }
 #endif  // CONFIG_SUPERTX
 
-#if CONFIG_CFL && CONFIG_CHROMA_SUB8X8 && CONFIG_DEBUG
-    cfl_clear_sub8x8_val(xd->cfl);
-#endif  // CONFIG_CFL && CONFIG_CHROMA_SUB8X8 && CONFIG_DEBUG
     if (sum_rdc.rdcost < best_rdc.rdcost) {
       sum_rdc.rate += partition_cost[PARTITION_HORZ];
       sum_rdc.rdcost = RDCOST(x->rdmult, sum_rdc.rate, sum_rdc.dist);
@@ -4304,10 +4291,6 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
       pc_tree->partitioning = best_partition;
     }
 #endif  // CONFIG_SUPERTX
-
-#if CONFIG_CFL && CONFIG_CHROMA_SUB8X8 && CONFIG_DEBUG
-    cfl_clear_sub8x8_val(xd->cfl);
-#endif  // CONFIG_CFL && CONFIG_CHROMA_SUB8X8 && CONFIG_DEBUG
 
     if (sum_rdc.rdcost < best_rdc.rdcost) {
       sum_rdc.rate += partition_cost[PARTITION_VERT];
@@ -6339,13 +6322,6 @@ static void encode_superblock(const AV1_COMP *const cpi, ThreadData *td,
     }
 #if CONFIG_CFL
     xd->cfl->store_y = 0;
-#if CONFIG_CHROMA_SUB8X8 && CONFIG_DEBUG
-    if (is_chroma_reference(mi_row, mi_col, bsize, xd->cfl->subsampling_x,
-                            xd->cfl->subsampling_y) &&
-        !xd->cfl->are_parameters_computed) {
-      cfl_clear_sub8x8_val(xd->cfl);
-    }
-#endif  // CONFIG_CHROMA_SUB8X8 && CONFIG_DEBUG
 #endif  // CONFIG_CFL
     if (!dry_run) {
       sum_intra_stats(td->counts, xd, mi, xd->above_mi, xd->left_mi,
@@ -6566,13 +6542,6 @@ static void encode_superblock(const AV1_COMP *const cpi, ThreadData *td,
 #endif  // CONFIG_VAR_TX
 #if CONFIG_CFL && CONFIG_CHROMA_SUB8X8
   CFL_CTX *const cfl = xd->cfl;
-#if CONFIG_DEBUG
-  if (is_chroma_reference(mi_row, mi_col, bsize, cfl->subsampling_x,
-                          cfl->subsampling_y) &&
-      !cfl->are_parameters_computed) {
-    cfl_clear_sub8x8_val(cfl);
-  }
-#endif  // CONFIG_DEBUG
   if (is_inter_block(mbmi) &&
       !is_chroma_reference(mi_row, mi_col, bsize, cfl->subsampling_x,
                            cfl->subsampling_y)) {

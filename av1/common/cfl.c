@@ -472,16 +472,75 @@ static INLINE void sub8x8_adjust_offset(const CFL_CTX *cfl, int *row_out,
   }
 }
 #if CONFIG_DEBUG
-static INLINE void sub8x8_set_val(CFL_CTX *cfl, int row, int col, int val_high,
-                                  int val_wide) {
-  for (int val_r = 0; val_r < val_high; val_r++) {
-    assert(row + val_r < CFL_SUB8X8_VAL_MI_SIZE);
-    int row_off = (row + val_r) * CFL_SUB8X8_VAL_MI_SIZE;
-    for (int val_c = 0; val_c < val_wide; val_c++) {
-      assert(col + val_c < CFL_SUB8X8_VAL_MI_SIZE);
-      assert(cfl->sub8x8_val[row_off + col + val_c] == 0);
-      cfl->sub8x8_val[row_off + col + val_c]++;
+static uint8_t store_counter = 0;
+static uint8_t last_compute_counter = 0;
+// Since the chroma surface of sub8x8 block span across multiple luma blocks,
+// this function validates that the reconstructed luma area required to predict
+// the chroma block using CfL has been stored during the previous luma encode.
+// Issue 1: Because of the early termination strategy employed by the mode
+// decision
+// code, chroma prediction is not always performed as such we cannot guarantee
+// that every luma store will correspond to a CfL prediction.
+// Issue 2: In some situation, more than one prediction are performed for a
+// given block. This is problematic for non-referenced sub8x8 blocks as the
+// corresponding luma will not be stored. As such, some parts of the buffer must
+// be reused.
+// To resolve these issues, we increment the store_counter on each store. if
+// other sub8x8 blocks have already been coded and the counter correspond to the
+// previous value they are also set to the current value.
+// If a sub8x8 block is not stored the store_counter won't match which will be
+// detected when the CfL parements are computed.
+static void sub8x8_set_val(CFL_CTX *cfl, int row, int col, TX_SIZE tx_size,
+                           BLOCK_SIZE bsize) {
+  const int b_width = block_size_wide[bsize];
+  const int b_height = block_size_high[bsize];
+  assert(b_width == 4 || b_width == 8 || b_width == 16);
+  assert(b_height == 4 || b_height == 8 || b_height == 16);
+
+  // Validation buffer is 2x2 except for 16x4 and 4x16 in that case it is 4x2
+  // and 2x4 respectively.
+  const int val_wide = (b_width < 16 ? 1 : 2) << cfl->subsampling_x;
+  const int val_high = (b_height < 16 ? 1 : 2) << cfl->subsampling_y;
+
+  // Vertical blocks must be traversed top-down left right, which requires
+  // flipping the outter and inner loops
+  const int is_horizontal = block_size_high[bsize] <= block_size_wide[bsize];
+
+  const int tx_width = tx_size_wide[tx_size];
+  const int tx_height = tx_size_high[tx_size];
+  assert(tx_width == 4 || tx_width == 8 || tx_width == 16);
+  assert(tx_height == 4 || tx_height == 8 || tx_height == 16);
+
+  const uint8_t prev_store_counter = store_counter;
+  const int num_val_blk =
+      1 << ((tx_width != tx_height) +       // Square block = 1
+            (tx_width >> 2 == tx_height) +  // Rect 1:2 2:1 = 2
+            (tx_height >> 2 == tx_width));  // Rect 1:4 4:1 = 4
+  // Each counter in the validation buffer represents a 4x4 block. As such, a
+  // 1:2 or 2:1 rectangular sub8x8 counts as 2 4x4 blocks and a 1:4 or 4:1
+  // rectangular sub8x8 block counts as 4 4x4 blocks.
+  store_counter += num_val_blk;
+
+  int s = 0;
+  int offset = 0;
+  const int outter_len = is_horizontal ? val_high : val_wide;
+  const int inner_len = is_horizontal ? val_wide : val_high;
+  const int outter_pos = is_horizontal ? row : col;
+  const int inner_pos = is_horizontal ? col : row;
+  const uint8_t stop = inner_len * outter_pos + inner_pos + num_val_blk - 1;
+
+  for (int out = 0; out < outter_len; out++) {
+    assert(out < CFL_SUB8X8_VAL_MI_SIZE);
+    for (int in = 0; in < inner_len; in++) {
+      assert(in < CFL_SUB8X8_VAL_MI_SIZE);
+      assert(cfl->sub8x8_val[offset + in] == prev_store_counter ||
+             s + num_val_blk > stop);
+      cfl->sub8x8_val[offset + in] = store_counter;
+      s++;
+      if (s == stop + 1) break;
     }
+    if (s == stop + 1) break;
+    offset += CFL_SUB8X8_VAL_MI_SIZE;
   }
 }
 #endif  // CONFIG_DEBUG
@@ -495,15 +554,13 @@ void cfl_store_tx(MACROBLOCKD *const xd, int row, int col, TX_SIZE tx_size,
       &pd->dst.buf[(row * pd->dst.stride + col) << tx_size_wide_log2[0]];
   (void)bsize;
 #if CONFIG_CHROMA_SUB8X8
-
   if (block_size_high[bsize] == 4 || block_size_wide[bsize] == 4) {
     // Only dimensions of size 4 can have an odd offset.
     assert(!((col & 1) && tx_size_wide[tx_size] != 4));
     assert(!((row & 1) && tx_size_high[tx_size] != 4));
     sub8x8_adjust_offset(cfl, &row, &col);
 #if CONFIG_DEBUG
-    sub8x8_set_val(cfl, row, col, tx_size_high_unit[tx_size],
-                   tx_size_wide_unit[tx_size]);
+    sub8x8_set_val(cfl, row, col, tx_size, bsize);
 #endif  // CONFIG_DEBUG
   }
 #endif
@@ -521,7 +578,10 @@ void cfl_store_block(MACROBLOCKD *const xd, BLOCK_SIZE bsize, TX_SIZE tx_size) {
   if (block_size_high[bsize] == 4 || block_size_wide[bsize] == 4) {
     sub8x8_adjust_offset(cfl, &row, &col);
 #if CONFIG_DEBUG
-    sub8x8_set_val(cfl, row, col, mi_size_high[bsize], mi_size_wide[bsize]);
+    // Point to the last transform block inside the partition.
+    const int off_row = row + (block_size_high[bsize] != tx_size_high[tx_size]);
+    const int off_col = col + (block_size_wide[bsize] != tx_size_wide[tx_size]);
+    sub8x8_set_val(cfl, off_row, off_col, tx_size, bsize);
 #endif  // CONFIG_DEBUG
   }
 #endif  // CONFIG_CHROMA_SUB8X8
@@ -542,13 +602,23 @@ void cfl_compute_parameters(MACROBLOCKD *const xd, TX_SIZE tx_size) {
   const BLOCK_SIZE plane_bsize = AOMMAX(
       BLOCK_4X4, get_plane_block_size(mbmi->sb_type, &xd->plane[AOM_PLANE_U]));
 #if CONFIG_DEBUG
-  if (mbmi->sb_type < BLOCK_8X8) {
-    for (int val_r = 0; val_r < mi_size_high[mbmi->sb_type]; val_r++) {
-      for (int val_c = 0; val_c < mi_size_wide[mbmi->sb_type]; val_c++) {
-        assert(cfl->sub8x8_val[val_r * CFL_SUB8X8_VAL_MI_SIZE + val_c] == 1);
+  const BLOCK_SIZE bsize = mbmi->sb_type;
+  if (block_size_high[bsize] == 4 || block_size_wide[bsize] == 4) {
+    const uint8_t compute_counter = cfl->sub8x8_val[0];
+    assert(compute_counter != last_compute_counter);
+    const int val_wide = (block_size_wide[bsize] < 16 ? 1 : 2)
+                         << cfl->subsampling_x;
+    const int val_high = (block_size_high[bsize] < 16 ? 1 : 2)
+                         << cfl->subsampling_y;
+    for (int val_r = 0; val_r < val_high; val_r++) {
+      for (int val_c = 0; val_c < val_wide; val_c++) {
+        // If all counters in the validation buffer are equal then they are all
+        // related to the same chroma reference block.
+        assert(cfl->sub8x8_val[val_r * CFL_SUB8X8_VAL_MI_SIZE + val_c] ==
+               compute_counter);
       }
     }
-    cfl_clear_sub8x8_val(cfl);
+    last_compute_counter = compute_counter;
   }
 #endif  // CONFIG_DEBUG
 #else
