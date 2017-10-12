@@ -103,7 +103,11 @@ static INLINE ConvolveParams get_conv_params_no_round(int ref, int do_average,
 #else
   conv_params.round_0 = 5;
 #endif
+#if CONFIG_CONVOLVE_REDUCE_PRECISION
+  conv_params.round_1 = 4;
+#else
   conv_params.round_1 = 0;
+#endif
   conv_params.dst = dst;
   conv_params.dst_stride = dst_stride;
   conv_params.plane = plane;
