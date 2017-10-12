@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "be85fbe7_2b9a2264",
+        "filename": "av1/common/entropymode.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2690,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-10-12T00:26:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "44571619_9e43a2b2",
+      "range": {
+        "startLine": 2690,
+        "startChar": 68,
+        "endLine": 2690,
+        "endChar": 70
+      },
+      "revId": "c29f94f4154012315d2a350df1dc88aa018b1f3f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5d8ab52a_eb84a8dc",
         "filename": "av1/common/entropymode.h",
         "patchSetId": 3
@@ -45,6 +69,30 @@
       "revId": "c29f94f4154012315d2a350df1dc88aa018b1f3f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2d37c4a0_672287f8",
+        "filename": "av1/common/entropymode.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 348,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-10-12T00:26:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5d8ab52a_eb84a8dc",
+      "range": {
+        "startLine": 348,
+        "startChar": 59,
+        "endLine": 348,
+        "endChar": 61
+      },
+      "revId": "c29f94f4154012315d2a350df1dc88aa018b1f3f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "e80b2e42_4fa387cd",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 261,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-10-12T00:26:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "606adde2_6cbefe53",
+      "range": {
+        "startLine": 261,
+        "startChar": 42,
+        "endLine": 261,
+        "endChar": 44
+      },
+      "revId": "c29f94f4154012315d2a350df1dc88aa018b1f3f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a5ae75d_4c151d9a",
         "filename": "av1/encoder/rd.c",
         "patchSetId": 3
@@ -91,6 +163,30 @@
       "revId": "c29f94f4154012315d2a350df1dc88aa018b1f3f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "64696a1c_ee5eccbc",
+        "filename": "av1/encoder/rd.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-10-12T00:26:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a5ae75d_4c151d9a",
+      "range": {
+        "startLine": 157,
+        "startChar": 24,
+        "endLine": 157,
+        "endChar": 25
+      },
+      "revId": "c29f94f4154012315d2a350df1dc88aa018b1f3f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
