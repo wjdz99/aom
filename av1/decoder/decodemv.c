@@ -2841,7 +2841,9 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
       if (find_projection(mbmi->num_proj_ref[0], pts, pts_inref, bsize,
                           mbmi->mv[0].as_mv.row, mbmi->mv[0].as_mv.col,
                           &mbmi->wm_params[0], mi_row, mi_col)) {
-        aom_internal_error(&cm->error, AOM_CODEC_ERROR, "Invalid Warped Model");
+        // Invalid warped model, fallback to default
+        mbmi->wm_params[0] = default_warp_params;
+        mbmi->wm_params[0].wmtype = DEFAULT_WMTYPE;
       }
     }
 #endif  // CONFIG_WARPED_MOTION
