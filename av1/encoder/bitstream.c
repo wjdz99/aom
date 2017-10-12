@@ -3469,9 +3469,15 @@ static void loop_restoration_write_sb_coeffs(const AV1_COMMON *const cm,
 
   if (rsi->frame_restoration_type == RESTORE_SWITCHABLE) {
     assert(plane == 0);
+#if CONFIG_NEW_MULTISYMBOL
+    aom_write_symbol(w, rsi->restoration_type[rtile_idx],
+                     xd->tile_ctx->switchable_restore_cdf,
+                     RESTORE_SWITCHABLE_TYPES);
+#else
     av1_write_token(
         w, av1_switchable_restore_tree, cm->fc->switchable_restore_prob,
         &switchable_restore_encodings[rsi->restoration_type[rtile_idx]]);
+#endif  // CONFIG_NEW_MULTISYMBOL
     if (rsi->restoration_type[rtile_idx] == RESTORE_WIENER) {
       write_wiener_filter(wiener_win, &rsi->wiener_info[rtile_idx], wiener_info,
                           w);
@@ -3479,21 +3485,30 @@ static void loop_restoration_write_sb_coeffs(const AV1_COMMON *const cm,
       write_sgrproj_filter(&rsi->sgrproj_info[rtile_idx], sgrproj_info, w);
     }
   } else if (rsi->frame_restoration_type == RESTORE_WIENER) {
+#if CONFIG_NEW_MULTISYMBOL
+    aom_write_symbol(w, rsi->restoration_type[rtile_idx] != RESTORE_NONE,
+                     xd->tile_ctx->wiener_restore_cdf, 2);
+#else
     aom_write(w, rsi->restoration_type[rtile_idx] != RESTORE_NONE,
               RESTORE_NONE_WIENER_PROB);
+#endif  // CONFIG_NEW_MULTISYMBOL
     if (rsi->restoration_type[rtile_idx] != RESTORE_NONE) {
       write_wiener_filter(wiener_win, &rsi->wiener_info[rtile_idx], wiener_info,
                           w);
     }
   } else if (rsi->frame_restoration_type == RESTORE_SGRPROJ) {
+#if CONFIG_NEW_MULTISYMBOL
+    aom_write_symbol(w, rsi->restoration_type[rtile_idx] != RESTORE_NONE,
+                     xd->tile_ctx->sgrproj_restore_cdf, 2);
+#else
     aom_write(w, rsi->restoration_type[rtile_idx] != RESTORE_NONE,
               RESTORE_NONE_SGRPROJ_PROB);
+#endif  // CONFIG_NEW_MULTISYMBOL
     if (rsi->restoration_type[rtile_idx] != RESTORE_NONE) {
       write_sgrproj_filter(&rsi->sgrproj_info[rtile_idx], sgrproj_info, w);
     }
   }
 }
-
 #endif  // CONFIG_LOOP_RESTORATION
 
 static void encode_loopfilter(AV1_COMMON *cm, struct aom_write_bit_buffer *wb) {
