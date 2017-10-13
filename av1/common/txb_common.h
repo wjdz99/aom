@@ -588,4 +588,11 @@ static INLINE int get_hv_eob_ctx(int line_idx, int pos, int16_t *eob_ls) {
 }
 #endif  // CONFIG_CTX1D
 
+#if EOB_FIRST
+static INLINE int eob_bit_num(TX_SIZE tx_size) {
+  // bit_num = log2(tx_2d_size[tx_size])
+  return tx_size_wide_log2[tx_size] + tx_size_high_log2[tx_size];
+}
+#endif
+
 #endif  // AV1_COMMON_TXB_COMMON_H_

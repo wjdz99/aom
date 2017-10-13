@@ -45,10 +45,18 @@ static int read_golomb(MACROBLOCKD *xd, aom_reader *r, FRAME_COUNTS *counts) {
   return x - 1;
 }
 
+#if EOB_FIRST
+static INLINE int read_eob(aom_reader *r, TX_SIZE tx_size) {
+  int bit_num = eob_bit_num(tx_size);
+  int eob = 1 + aom_read_literal(r, bit_num, ACCT_STR);
+  return eob;
+}
+#endif
+
 static INLINE int read_nz_map(aom_reader *r, tran_low_t *tcoeffs, int plane,
                               const int16_t *scan, TX_SIZE tx_size,
                               TX_TYPE tx_type, FRAME_CONTEXT *fc,
-                              FRAME_COUNTS *counts) {
+                              FRAME_COUNTS *counts, int eob_first) {
   TX_SIZE txs_ctx = get_txsize_context(tx_size);
   const int bwl = b_width_log2_lookup[txsize_to_bsize[tx_size]] + 2;
   const int height = tx_size_high[tx_size];
@@ -68,8 +76,16 @@ static INLINE int read_nz_map(aom_reader *r, tran_low_t *tcoeffs, int plane,
   aom_prob *nz_map = fc->nz_map[txs_ctx][plane_type];
   aom_prob *eob_flag = fc->eob_flag[txs_ctx][plane_type];
 #endif
+  int max_eob = seg_eob;
+
+#if EOB_FIRST
+  if (eob_first) max_eob = read_eob(r, tx_size);
+#else
+  (void)eob_first;
+#endif
+
   int c;
-  for (c = 0; c < seg_eob; ++c) {
+  for (c = 0; c < max_eob; ++c) {
     int is_nz;
     int coeff_ctx = get_nz_map_ctx(tcoeffs, c, scan, bwl, height, tx_type);
     int eob_ctx = get_eob_ctx(tcoeffs, scan[c], txs_ctx, tx_type);
@@ -96,19 +112,30 @@ static INLINE int read_nz_map(aom_reader *r, tran_low_t *tcoeffs, int plane,
 
     if (counts) ++(*nz_map_count)[coeff_ctx][is_nz];
 
-    if (is_nz) {
+#if EOB_FIRST
+    if (!eob_first) {
+#endif
+      if (is_nz) {
 #if LV_MAP_PROB
-      int is_eob = av1_read_record_bin(
-          counts, r, fc->eob_flag_cdf[txs_ctx][plane_type][eob_ctx], 2,
-          ACCT_STR);
+        int is_eob = av1_read_record_bin(
+            counts, r, fc->eob_flag_cdf[txs_ctx][plane_type][eob_ctx], 2,
+            ACCT_STR);
 #else
       int is_eob = aom_read(r, eob_flag[eob_ctx], ACCT_STR);
 #endif
-      if (counts) ++counts->eob_flag[txs_ctx][plane_type][eob_ctx][is_eob];
-      if (is_eob) break;
+        if (counts) ++counts->eob_flag[txs_ctx][plane_type][eob_ctx][is_eob];
+        if (is_eob) break;
+      }
+#if EOB_FIRST
     }
+#endif
   }
-  return AOMMIN(seg_eob, c + 1);
+#if EOB_FIRST
+  if (eob_first)
+    return max_eob;
+  else
+#endif
+    return AOMMIN(seg_eob, c + 1);
 }
 
 #if CONFIG_CTX1D
@@ -290,6 +317,11 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
   const int height = tx_size_high[tx_size];
   int cul_level = 0;
   memset(tcoeffs, 0, sizeof(*tcoeffs) * seg_eob);
+#if EOB_FIRST
+  int eob_first = 1;
+#else
+  int eob_first = 0;
+#endif
 
 #if LV_MAP_PROB
   int all_zero = av1_read_record_bin(
@@ -326,8 +358,8 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
   const int16_t *iscan = scan_order->iscan;
   TX_CLASS tx_class = get_tx_class(tx_type);
   if (tx_class == TX_CLASS_2D) {
-    *eob =
-        read_nz_map(r, tcoeffs, plane, scan, tx_size, tx_type, ec_ctx, counts);
+    *eob = read_nz_map(r, tcoeffs, plane, scan, tx_size, tx_type, ec_ctx,
+                       counts, eob_first);
   } else {
 #if LV_MAP_PROB
     const int eob_mode = av1_read_record_bin(
@@ -340,7 +372,7 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
     if (counts) ++counts->eob_mode[txs_ctx][plane_type][tx_class][eob_mode];
     if (eob_mode == 0) {
       *eob = read_nz_map(r, tcoeffs, plane, scan, tx_size, tx_type, ec_ctx,
-                         counts);
+                         counts, eob_first);
     } else {
       assert(tx_class == TX_CLASS_VERT || tx_class == TX_CLASS_HORIZ);
       if (tx_class == TX_CLASS_VERT)
@@ -352,7 +384,8 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
     }
   }
 #else
-  *eob = read_nz_map(r, tcoeffs, plane, scan, tx_size, tx_type, ec_ctx, counts);
+  *eob = read_nz_map(r, tcoeffs, plane, scan, tx_size, tx_type, ec_ctx, counts,
+                     eob_first);
 #endif
   *max_scan_line = *eob;
 
