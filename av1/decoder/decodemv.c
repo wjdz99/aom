@@ -31,7 +31,7 @@
 
 #define ACCT_STR __func__
 
-#define DEC_MISMATCH_DEBUG 0
+#define DEC_MISMATCH_DEBUG 1
 
 static PREDICTION_MODE read_intra_mode(aom_reader *r, aom_cdf_prob *cdf) {
   return (PREDICTION_MODE)aom_read_symbol(r, cdf, INTRA_MODES, ACCT_STR);
@@ -613,6 +613,8 @@ static int read_skip_mode(AV1_COMMON *cm, const MACROBLOCKD *xd, int segment_id,
     // TODO(zoeliu): To revisit the handling of this scenario.
     return 0;
   } else {
+    if (!is_comp_ref_allowed(xd->mi[0]->mbmi.sb_type)) return 0;
+
     const int ctx = av1_get_skip_mode_context(xd);
 #if CONFIG_NEW_MULTISYMBOL
     FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
@@ -624,8 +626,6 @@ static int read_skip_mode(AV1_COMMON *cm, const MACROBLOCKD *xd, int segment_id,
     FRAME_COUNTS *counts = xd->counts;
     if (counts) ++counts->skip_mode[ctx][skip_mode];
 
-    // TODO(zoeliu): To handle:
-    //               if (!is_comp_ref_allowed(xd->mi[0]->mbmi.sb_type))
     return skip_mode;
   }
 }
@@ -2025,19 +2025,19 @@ static void dec_dump_logs(AV1_COMMON *cm, MODE_INFO *const mi, int mi_row,
     }
   }
 
-#define FRAME_TO_CHECK 1
+#define FRAME_TO_CHECK 3
   if (cm->current_video_frame == FRAME_TO_CHECK && cm->show_frame == 1) {
     printf(
         "=== DECODER ===: "
         "Frame=%d, (mi_row,mi_col)=(%d,%d), skip_mode=%d, mode=%d, bsize=%d, "
         "show_frame=%d, mv[0]=(%d,%d), mv[1]=(%d,%d), ref[0]=%d, "
         "ref[1]=%d, motion_mode=%d, mode_ctx=%d, "
-        "newmv_ctx=%d, zeromv_ctx=%d, refmv_ctx=%d\n",
+        "newmv_ctx=%d, zeromv_ctx=%d, refmv_ctx=%d, tx_size=%d\n",
         cm->current_video_frame, mi_row, mi_col, mbmi->skip_mode, mbmi->mode,
         mbmi->sb_type, cm->show_frame, mv[0].as_mv.row, mv[0].as_mv.col,
         mv[1].as_mv.row, mv[1].as_mv.col, mbmi->ref_frame[0],
         mbmi->ref_frame[1], mbmi->motion_mode, mode_ctx, newmv_ctx, zeromv_ctx,
-        refmv_ctx);
+        refmv_ctx, mbmi->tx_size);
   }
 }
 #endif  // DEC_MISMATCH_DEBUG

@@ -1391,7 +1391,9 @@ void av1_setup_skip_mode_allowed(AV1_COMMON *const cm) {
   cm->is_skip_mode_allowed = 0;
   cm->ref_frame_idx_0 = cm->ref_frame_idx_1 = INVALID_IDX;
 
-  if (cm->frame_type == KEY_FRAME || cm->intra_only) return;
+  if (cm->frame_type == KEY_FRAME || cm->intra_only ||
+      cm->reference_mode == SINGLE_REFERENCE)
+    return;
 
   BufferPool *const pool = cm->buffer_pool;
   RefCntBuffer *const frame_bufs = pool->frame_bufs;
