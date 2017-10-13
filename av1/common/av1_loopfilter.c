@@ -409,6 +409,10 @@ static const uint64_t left_prediction_mask[BLOCK_SIZES_ALL] = {
   0x0101010101010101ULL,  // BLOCK_32X64,
   0x0000000001010101ULL,  // BLOCK_64X32,
   0x0101010101010101ULL,  // BLOCK_64X64,
+#if CONFIG_CHROMA_SUB8X8
+  0x0000000000000001ULL,  // BLOCK_2X8,
+  0x0000000000000001ULL,  // BLOCK_8X2,
+#endif
   0x0000000000000101ULL,  // BLOCK_4X16,
   0x0000000000000001ULL,  // BLOCK_16X4,
   0x0000000001010101ULL,  // BLOCK_8X32,
@@ -437,6 +441,10 @@ static const uint64_t above_prediction_mask[BLOCK_SIZES_ALL] = {
   0x000000000000000fULL,  // BLOCK_32X64,
   0x00000000000000ffULL,  // BLOCK_64X32,
   0x00000000000000ffULL,  // BLOCK_64X64,
+#if CONFIG_CHROMA_SUB8X8
+  0x0000000000000001ULL,  // BLOCK_2X8,
+  0x0000000000000001ULL,  // BLOCK_8X2,
+#endif
   0x0000000000000001ULL,  // BLOCK_4X16,
   0x0000000000000003ULL,  // BLOCK_16X4,
   0x0000000000000001ULL,  // BLOCK_8X32,
@@ -466,6 +474,10 @@ static const uint64_t size_mask[BLOCK_SIZES_ALL] = {
   0x0f0f0f0f0f0f0f0fULL,  // BLOCK_32X64,
   0x00000000ffffffffULL,  // BLOCK_64X32,
   0xffffffffffffffffULL,  // BLOCK_64X64,
+#if CONFIG_CHROMA_SUB8X8
+  0x0000000000000001ULL,  // BLOCK_2X8,
+  0x0000000000000001ULL,  // BLOCK_8X2,
+#endif
   0x0000000000000101ULL,  // BLOCK_4X16,
   0x0000000000000003ULL,  // BLOCK_16X4,
   0x0000000001010101ULL,  // BLOCK_8X32,
@@ -525,6 +537,10 @@ static const uint16_t left_prediction_mask_uv[BLOCK_SIZES_ALL] = {
   0x1111,  // BLOCK_32X64
   0x0011,  // BLOCK_64X32,
   0x1111,  // BLOCK_64X64,
+#if CONFIG_CHROMA_SUB8X8
+  0x0001,  // BLOCK_2X8,
+  0x0001,  // BLOCK_8X2,
+#endif
   0x0001,  // BLOCK_4X16,
   0x0001,  // BLOCK_16X4,
   0x0011,  // BLOCK_8X32,
@@ -553,6 +569,10 @@ static const uint16_t above_prediction_mask_uv[BLOCK_SIZES_ALL] = {
   0x0003,  // BLOCK_32X64,
   0x000f,  // BLOCK_64X32,
   0x000f,  // BLOCK_64X64,
+#if CONFIG_CHROMA_SUB8X8
+  0x0001,  // BLOCK_2X8,
+  0x0001,  // BLOCK_8X2,
+#endif
   0x0001,  // BLOCK_4X16,
   0x0001,  // BLOCK_16X4,
   0x0001,  // BLOCK_8X32,
@@ -581,6 +601,10 @@ static const uint16_t size_mask_uv[BLOCK_SIZES_ALL] = {
   0x3333,  // BLOCK_32X64,
   0x00ff,  // BLOCK_64X32,
   0xffff,  // BLOCK_64X64,
+#if CONFIG_CHROMA_SUB8X8
+  0x0001,  // BLOCK_2X8,
+  0x0001,  // BLOCK_8X2,
+#endif
   0x0001,  // BLOCK_4X16,
   0x0001,  // BLOCK_16X4,
   0x0011,  // BLOCK_8X32,
@@ -2760,12 +2784,16 @@ static const uint32_t av1_prediction_masks[NUM_EDGE_DIRS][BLOCK_SIZES_ALL] = {
       128 - 1,  // BLOCK_128X64
       128 - 1,  // BLOCK_128X128
 #endif          // CONFIG_EXT_PARTITION
-      4 - 1,    // BLOCK_4X16,
-      16 - 1,   // BLOCK_16X4,
-      8 - 1,    // BLOCK_8X32,
-      32 - 1,   // BLOCK_32X8,
-      16 - 1,   // BLOCK_16X64,
-      64 - 1,   // BLOCK_64X16
+#if CONFIG_CHROMA_SUB8X8
+      2 - 1,  // BLOCK_2X8
+      8 - 1,  // BLOCK_8X2
+#endif
+      4 - 1,   // BLOCK_4X16,
+      16 - 1,  // BLOCK_16X4,
+      8 - 1,   // BLOCK_8X32,
+      32 - 1,  // BLOCK_32X8,
+      16 - 1,  // BLOCK_16X64,
+      64 - 1,  // BLOCK_64X16
 #if CONFIG_EXT_PARTITION
       32 - 1,   // BLOCK_32X128
       128 - 1,  // BLOCK_128X32
@@ -2796,12 +2824,16 @@ static const uint32_t av1_prediction_masks[NUM_EDGE_DIRS][BLOCK_SIZES_ALL] = {
       64 - 1,   // BLOCK_128X64
       128 - 1,  // BLOCK_128X128
 #endif          // CONFIG_EXT_PARTITION
-      16 - 1,   // BLOCK_4X16,
-      4 - 1,    // BLOCK_16X4,
-      32 - 1,   // BLOCK_8X32,
-      8 - 1,    // BLOCK_32X8,
-      64 - 1,   // BLOCK_16X64,
-      16 - 1,   // BLOCK_64X16
+#if CONFIG_CHROMA_SUB8X8
+      8 - 1,  // BLOCK_2X8
+      2 - 1,  // BLOCK_8X2
+#endif
+      16 - 1,  // BLOCK_4X16,
+      4 - 1,   // BLOCK_16X4,
+      32 - 1,  // BLOCK_8X32,
+      8 - 1,   // BLOCK_32X8,
+      64 - 1,  // BLOCK_16X64,
+      16 - 1,  // BLOCK_64X16
 #if CONFIG_EXT_PARTITION
       128 - 1,  // BLOCK_32X128
       32 - 1,   // BLOCK_128X32

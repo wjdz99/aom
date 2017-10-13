@@ -386,6 +386,10 @@ const wedge_params_type wedge_params_lookup[BLOCK_SIZES_ALL] = {
   { 0, NULL, NULL, 0, NULL },
   { 0, NULL, NULL, 0, NULL },
 #endif  // CONFIG_EXT_PARTITION
+#if CONFIG_CHROMA_SUB8X8
+  { 0, NULL, NULL, 0, NULL },
+  { 0, NULL, NULL, 0, NULL },
+#endif
 #if CONFIG_WEDGE
   { 0, wedge_codebook_16_hgtw, wedge_signflip_lookup[BLOCK_4X16], 0,
     wedge_masks[BLOCK_4X16] },
@@ -2901,6 +2905,9 @@ static int ii_size_scales[BLOCK_SIZES_ALL] = {
 #endif
     32, 16, 16, 16, 8, 8, 8, 4,
     4,  4,  2,  2,  2, 1, 1, 1,
+#if CONFIG_CHROMA_SUB8X8
+    32, 32,
+#endif
     16, 16, 8, 8, 4, 4, 2, 2
 };
 #else
@@ -2916,6 +2923,9 @@ static int ii_size_scales[BLOCK_SIZES_ALL] = {
 #endif
     16, 8, 8, 8, 4, 4, 4,
     2,  2, 2, 1, 1, 1,
+#if CONFIG_CHROMA_SUB8X8
+    16, 16,
+#endif
     8, 8, 4, 4, 2, 2,
 };
 /* clang-format on */
