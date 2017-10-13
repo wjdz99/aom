@@ -1112,6 +1112,10 @@ static INLINE int is_rect_tx_allowed_bsize(BLOCK_SIZE bsize) {
     0,  // BLOCK_128X64
     0,  // BLOCK_128X128
 #endif  // CONFIG_EXT_PARTITION
+#if CONFIG_CHROMA_SUB8X8
+    0,  // BLOCK_2X8
+    0,  // BLOCK_8X2
+#endif
     0,  // BLOCK_4X16
     0,  // BLOCK_16X4
     0,  // BLOCK_8X32
@@ -1161,6 +1165,10 @@ static INLINE int is_quarter_tx_allowed_bsize(BLOCK_SIZE bsize) {
     0,  // BLOCK_128X64
     0,  // BLOCK_128X128
 #endif  // CONFIG_EXT_PARTITION
+#if CONFIG_CHROMA_SUB8X8
+    0,  // BLOCK_2X8
+    0,  // BLOCK_8X2
+#endif
     0,  // BLOCK_4X16
     0,  // BLOCK_16X4
     0,  // BLOCK_8X32
