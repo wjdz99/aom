@@ -4631,6 +4631,11 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
   if (cm->single_tile_decoding) no_loopfilter = 1;
 #endif  // CONFIG_EXT_TILE
 
+#if 0
+  // NOTE(zoeliu): For debug - force loop filtering on/off
+  no_loopfilter = 1;
+#endif  // 0
+
   if (no_loopfilter) {
 #if CONFIG_LOOPFILTER_LEVEL
     lf->filter_level[0] = 0;
@@ -5264,13 +5269,14 @@ static void dump_filtered_recon_frames(AV1_COMP *cpi) {
     }
   }
   printf(
-      "\nFrame=%5d, encode_update_type[%5d]=%1d, show_existing_frame=%d, "
-      "source_alt_ref_active=%d, refresh_alt_ref_frame=%d, rf_level=%d, "
-      "y_stride=%4d, uv_stride=%4d, cm->width=%4d, cm->height=%4d\n",
+      "\nFrame=%5d, encode_update_type[%5d]=%1d, frame_offset=%d, "
+      "show_frame=%d, show_existing_frame=%d, source_alt_ref_active=%d, "
+      "refresh_alt_ref_frame=%d, rf_level=%d, "
+      "y_stride=%4d, uv_stride=%4d, cm->width=%4d, cm->height=%4d\n\n",
       cm->current_video_frame, cpi->twopass.gf_group.index,
       cpi->twopass.gf_group.update_type[cpi->twopass.gf_group.index],
-      cm->show_existing_frame, cpi->rc.source_alt_ref_active,
-      cpi->refresh_alt_ref_frame,
+      cm->frame_offset, cm->show_frame, cm->show_existing_frame,
+      cpi->rc.source_alt_ref_active, cpi->refresh_alt_ref_frame,
       cpi->twopass.gf_group.rf_level[cpi->twopass.gf_group.index],
       recon_buf->y_stride, recon_buf->uv_stride, cm->width, cm->height);
 #if 0
