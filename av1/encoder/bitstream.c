@@ -2200,10 +2200,6 @@ static void write_mb_modes_kf(AV1_COMMON *cm, MACROBLOCKD *xd,
 #endif  // !CONFIG_TXK_SEL
 }
 
-#define write_modes_b_wrapper(cpi, tile, w, tok, tok_end, supertx_enabled, \
-                              mi_row, mi_col)                              \
-  write_modes_b(cpi, tile, w, tok, tok_end, mi_row, mi_col)
-
 #if CONFIG_RD_DEBUG
 static void dump_mode_info(MODE_INFO *mi) {
   printf("\nmi->mbmi.mi_row == %d\n", mi->mbmi.mi_row);
@@ -2827,26 +2823,26 @@ static void write_modes_sb(AV1_COMP *const cpi, const TileInfo *const tile,
 
   write_partition(cm, xd, hbs, mi_row, mi_col, partition, bsize, w);
   if (subsize < BLOCK_8X8 && !unify_bsize) {
-    write_modes_b_wrapper(cpi, tile, w, tok, tok_end, supertx_enabled, mi_row,
+    writes_mode_b(cpi, tile, w, tok, tok_end, supertx_enabled, mi_row,
                           mi_col);
   } else {
     switch (partition) {
       case PARTITION_NONE:
-        write_modes_b_wrapper(cpi, tile, w, tok, tok_end, supertx_enabled,
+        writes_mode_b(cpi, tile, w, tok, tok_end, supertx_enabled,
                               mi_row, mi_col);
         break;
       case PARTITION_HORZ:
-        write_modes_b_wrapper(cpi, tile, w, tok, tok_end, supertx_enabled,
+        writes_mode_b(cpi, tile, w, tok, tok_end, supertx_enabled,
                               mi_row, mi_col);
         if (mi_row + hbs < cm->mi_rows)
-          write_modes_b_wrapper(cpi, tile, w, tok, tok_end, supertx_enabled,
+          writes_mode_b(cpi, tile, w, tok, tok_end, supertx_enabled,
                                 mi_row + hbs, mi_col);
         break;
       case PARTITION_VERT:
-        write_modes_b_wrapper(cpi, tile, w, tok, tok_end, supertx_enabled,
+        writes_mode_b(cpi, tile, w, tok, tok_end, supertx_enabled,
                               mi_row, mi_col);
         if (mi_col + hbs < cm->mi_cols)
-          write_modes_b_wrapper(cpi, tile, w, tok, tok_end, supertx_enabled,
+          writes_mode_b(cpi, tile, w, tok, tok_end, supertx_enabled,
                                 mi_row, mi_col + hbs);
         break;
       case PARTITION_SPLIT:
@@ -2862,70 +2858,70 @@ static void write_modes_sb(AV1_COMP *const cpi, const TileInfo *const tile,
 #if CONFIG_EXT_PARTITION_TYPES
 #if CONFIG_EXT_PARTITION_TYPES_AB
       case PARTITION_HORZ_A:
-        write_modes_b_wrapper(cpi, tile, w, tok, tok_end, supertx_enabled,
+        writes_mode_b(cpi, tile, w, tok, tok_end, supertx_enabled,
                               mi_row, mi_col);
-        write_modes_b_wrapper(cpi, tile, w, tok, tok_end, supertx_enabled,
+        writes_mode_b(cpi, tile, w, tok, tok_end, supertx_enabled,
                               mi_row + qbs, mi_col);
-        write_modes_b_wrapper(cpi, tile, w, tok, tok_end, supertx_enabled,
+        writes_mode_b(cpi, tile, w, tok, tok_end, supertx_enabled,
                               mi_row + hbs, mi_col);
         break;
       case PARTITION_HORZ_B:
-        write_modes_b_wrapper(cpi, tile, w, tok, tok_end, supertx_enabled,
+        writes_mode_b(cpi, tile, w, tok, tok_end, supertx_enabled,
                               mi_row, mi_col);
-        write_modes_b_wrapper(cpi, tile, w, tok, tok_end, supertx_enabled,
+        writes_mode_b(cpi, tile, w, tok, tok_end, supertx_enabled,
                               mi_row + hbs, mi_col);
         if (mi_row + 3 * qbs < cm->mi_rows)
-          write_modes_b_wrapper(cpi, tile, w, tok, tok_end, supertx_enabled,
+          writes_mode_b(cpi, tile, w, tok, tok_end, supertx_enabled,
                                 mi_row + 3 * qbs, mi_col);
         break;
       case PARTITION_VERT_A:
-        write_modes_b_wrapper(cpi, tile, w, tok, tok_end, supertx_enabled,
+        writes_mode_b(cpi, tile, w, tok, tok_end, supertx_enabled,
                               mi_row, mi_col);
-        write_modes_b_wrapper(cpi, tile, w, tok, tok_end, supertx_enabled,
+        writes_mode_b(cpi, tile, w, tok, tok_end, supertx_enabled,
                               mi_row, mi_col + qbs);
-        write_modes_b_wrapper(cpi, tile, w, tok, tok_end, supertx_enabled,
+        writes_mode_b(cpi, tile, w, tok, tok_end, supertx_enabled,
                               mi_row, mi_col + hbs);
         break;
       case PARTITION_VERT_B:
-        write_modes_b_wrapper(cpi, tile, w, tok, tok_end, supertx_enabled,
+        writes_mode_b(cpi, tile, w, tok, tok_end, supertx_enabled,
                               mi_row, mi_col);
-        write_modes_b_wrapper(cpi, tile, w, tok, tok_end, supertx_enabled,
+        writes_mode_b(cpi, tile, w, tok, tok_end, supertx_enabled,
                               mi_row, mi_col + hbs);
         if (mi_col + 3 * qbs < cm->mi_cols)
-          write_modes_b_wrapper(cpi, tile, w, tok, tok_end, supertx_enabled,
+          writes_mode_b(cpi, tile, w, tok, tok_end, supertx_enabled,
                                 mi_row, mi_col + 3 * qbs);
         break;
 #else
       case PARTITION_HORZ_A:
-        write_modes_b_wrapper(cpi, tile, w, tok, tok_end, supertx_enabled,
+        writes_mode_b(cpi, tile, w, tok, tok_end, supertx_enabled,
                               mi_row, mi_col);
-        write_modes_b_wrapper(cpi, tile, w, tok, tok_end, supertx_enabled,
+        writes_mode_b(cpi, tile, w, tok, tok_end, supertx_enabled,
                               mi_row, mi_col + hbs);
-        write_modes_b_wrapper(cpi, tile, w, tok, tok_end, supertx_enabled,
+        writes_mode_b(cpi, tile, w, tok, tok_end, supertx_enabled,
                               mi_row + hbs, mi_col);
         break;
       case PARTITION_HORZ_B:
-        write_modes_b_wrapper(cpi, tile, w, tok, tok_end, supertx_enabled,
+        writes_mode_b(cpi, tile, w, tok, tok_end, supertx_enabled,
                               mi_row, mi_col);
-        write_modes_b_wrapper(cpi, tile, w, tok, tok_end, supertx_enabled,
+        writes_mode_b(cpi, tile, w, tok, tok_end, supertx_enabled,
                               mi_row + hbs, mi_col);
-        write_modes_b_wrapper(cpi, tile, w, tok, tok_end, supertx_enabled,
+        writes_mode_b(cpi, tile, w, tok, tok_end, supertx_enabled,
                               mi_row + hbs, mi_col + hbs);
         break;
       case PARTITION_VERT_A:
-        write_modes_b_wrapper(cpi, tile, w, tok, tok_end, supertx_enabled,
+        writes_mode_b(cpi, tile, w, tok, tok_end, supertx_enabled,
                               mi_row, mi_col);
-        write_modes_b_wrapper(cpi, tile, w, tok, tok_end, supertx_enabled,
+        writes_mode_b(cpi, tile, w, tok, tok_end, supertx_enabled,
                               mi_row + hbs, mi_col);
-        write_modes_b_wrapper(cpi, tile, w, tok, tok_end, supertx_enabled,
+        writes_mode_b(cpi, tile, w, tok, tok_end, supertx_enabled,
                               mi_row, mi_col + hbs);
         break;
       case PARTITION_VERT_B:
-        write_modes_b_wrapper(cpi, tile, w, tok, tok_end, supertx_enabled,
+        writes_mode_b(cpi, tile, w, tok, tok_end, supertx_enabled,
                               mi_row, mi_col);
-        write_modes_b_wrapper(cpi, tile, w, tok, tok_end, supertx_enabled,
+        writes_mode_b(cpi, tile, w, tok, tok_end, supertx_enabled,
                               mi_row, mi_col + hbs);
-        write_modes_b_wrapper(cpi, tile, w, tok, tok_end, supertx_enabled,
+        writes_mode_b(cpi, tile, w, tok, tok_end, supertx_enabled,
                               mi_row + hbs, mi_col + hbs);
         break;
 #endif
@@ -2934,7 +2930,7 @@ static void write_modes_sb(AV1_COMP *const cpi, const TileInfo *const tile,
           int this_mi_row = mi_row + i * quarter_step;
           if (i > 0 && this_mi_row >= cm->mi_rows) break;
 
-          write_modes_b_wrapper(cpi, tile, w, tok, tok_end, supertx_enabled,
+          writes_mode_b(cpi, tile, w, tok, tok_end, supertx_enabled,
                                 this_mi_row, mi_col);
         }
         break;
@@ -2943,7 +2939,7 @@ static void write_modes_sb(AV1_COMP *const cpi, const TileInfo *const tile,
           int this_mi_col = mi_col + i * quarter_step;
           if (i > 0 && this_mi_col >= cm->mi_cols) break;
 
-          write_modes_b_wrapper(cpi, tile, w, tok, tok_end, supertx_enabled,
+          writes_mode_b(cpi, tile, w, tok, tok_end, supertx_enabled,
                                 mi_row, this_mi_col);
         }
         break;
