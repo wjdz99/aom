@@ -219,6 +219,14 @@ struct macroblock {
   int skip_chroma_rd;
 #endif
 
+#if CONFIG_EXT_SKIP
+  int skip_mode;             // 0: off; 1: on
+  int64_t skip_mode_rdcost;  // -1: Not set
+  int skip_mode_rate;
+  int64_t skip_mode_sse;
+  int64_t skip_mode_dist;
+#endif  // CONFIG_EXT_SKIP
+
 #if CONFIG_LV_MAP
   LV_MAP_COEFF_COST coeff_costs[TX_SIZES][PLANE_TYPES];
   uint16_t cb_offset;

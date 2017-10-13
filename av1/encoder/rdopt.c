@@ -8970,6 +8970,7 @@ static int64_t motion_mode_rd(
     }
 #endif  // CONFIG_WARPED_MOTION
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
+
     if (!*skip_txfm_sb) {
       int64_t rdcosty = INT64_MAX;
       int is_cost_valid_uv = 0;
@@ -9132,6 +9133,61 @@ static int64_t motion_mode_rd(
   restore_dst_buf(xd, *orig_dst);
   return 0;
 }
+
+#if CONFIG_EXT_SKIP
+static int64_t skip_mode_rd(const AV1_COMP *const cpi, MACROBLOCK *const x,
+                            BLOCK_SIZE bsize, int *skip_txfm_sb,
+                            int64_t *skip_sse_sb, BUFFER_SET *orig_dst) {
+  (void)cpi;
+  (void)skip_txfm_sb;
+
+#define USE_SKIP_SSE_SB 0
+#if USE_SKIP_SSE_SB
+  // == Method 1: Directly grab SSE from *skip_sse_sb ==
+  x->skip_mode_dist = x->skip_mode_sse = *skip_sse_sb;
+#else   // !USE_SKIP_SSE_SB
+  (void)skip_sse_sb;
+
+  // == Method 2: Calculate SSE in the pixel domain ==
+  MACROBLOCKD *xd = &x->e_mbd;
+  int64_t total_sse = 0;
+
+  for (int plane = 0; plane < MAX_MB_PLANE; ++plane) {
+    const struct macroblock_plane *const p = &x->plane[plane];
+    const struct macroblockd_plane *const pd = &xd->plane[plane];
+    const BLOCK_SIZE plane_bsize = get_plane_block_size(bsize, pd);
+    const int bw = block_size_wide[plane_bsize];
+    const int bh = block_size_high[plane_bsize];
+
+    // TODO(zoeliu): To investigate whether following should be used.
+    /*
+    // TODO(aconverse@google.com): Investigate using crop_width/height here
+    //                             rather than the MI size
+    const int block_width =
+        (xd->mb_to_right_edge >= 0)
+            ? bw
+            : (xd->mb_to_right_edge >> (3 + pd->subsampling_x)) + bw;
+    const int block_hight =
+        (xd->mb_to_bottom_edge >= 0)
+            ? bh
+            : (xd->mb_to_bottom_edge >> (3 + pd->subsampling_y)) + bh;
+      */
+
+    av1_subtract_plane(x, bsize, plane);
+    int64_t sse = aom_sum_squares_2d_i16(p->src_diff, bw, bw, bh);
+    sse = sse << 4;
+    total_sse += sse;
+  }
+  x->skip_mode_dist = x->skip_mode_sse = total_sse;
+#endif  // USE_SKIP_SSE_SB
+
+  x->skip_mode_rate = 0;
+  x->skip_mode_rdcost = RDCOST(x->rdmult, x->skip_mode_rate, x->skip_mode_dist);
+
+  restore_dst_buf(xd, *orig_dst);
+  return 0;
+}
+#endif  // CONFIG_EXT_SKIP
 
 static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
                                  BLOCK_SIZE bsize, RD_STATS *rd_stats,
@@ -9428,6 +9484,21 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   if (cm->interp_filter == SWITCHABLE) rate2_bmc_nocoeff += rs;
   rate_mv_bmc = rate_mv;
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
+
+#if CONFIG_EXT_SKIP
+  // Check on skip_mode based on current inter predictor
+  if (cm->is_skip_mode_allowed && is_comp_pred &&
+      mbmi->ref_frame[0] == cm->ref_frame_idx_0 &&
+      mbmi->ref_frame[1] == cm->ref_frame_idx_1 &&
+      mbmi->mode == NEAREST_NEARESTMV) {
+    // Obtain the RD cost for skip_mode (still need to subtract the cost for
+    // coding the intra_inter flag and compare against the best RD cost for both
+    // inter and intra)
+    ret_val =
+        skip_mode_rd(cpi, x, bsize, &skip_txfm_sb, &skip_sse_sb, &orig_dst);
+    if (ret_val != 0) return ret_val;
+  }
+#endif  // CONFIG_EXT_SKIP
 
 #if CONFIG_WEDGE || CONFIG_COMPOUND_SEGMENT
 #if CONFIG_COMPOUND_SINGLEREF
@@ -10767,6 +10838,10 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
     for (ref_frame = 0; ref_frame < TOTAL_REFS_PER_FRAME; ++ref_frame)
       modelled_rd[i][ref_frame] = INT64_MAX;
 
+#if CONFIG_EXT_SKIP
+  x->skip_mode_rdcost = -1;
+#endif  // CONFIG_EXT_SKIP
+
   for (midx = 0; midx < MAX_MODES; ++midx) {
     int mode_index;
     int mode_excluded = 0;
@@ -11257,7 +11332,6 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
                                     frame_comp_mv,
 #endif  // CONFIG_COMPOUND_SINGLEREF
                                     mi_row, mi_col, &args, best_rd);
-
         rate2 = rd_stats.rate;
         skippable = rd_stats.skip;
         distortion2 = rd_stats.dist;

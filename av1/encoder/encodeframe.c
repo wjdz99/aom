@@ -5612,6 +5612,9 @@ void av1_encode_frame(AV1_COMP *cpi) {
 #if CONFIG_FRAME_SIGN_BIAS
   av1_setup_frame_sign_bias(cm);
 #endif  // CONFIG_FRAME_SIGN_BIAS
+#if CONFIG_EXT_SKIP
+  av1_setup_skip_mode_allowed(cm);
+#endif  // CONFIG_EXT_SKIP
 #endif  // CONFIG_FRAME_MARKER
 
   // In the longer term the encoder should be generalized to match the

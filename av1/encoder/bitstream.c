@@ -245,6 +245,29 @@ static void write_inter_compound_mode(AV1_COMMON *cm, MACROBLOCKD *xd,
                    INTER_COMPOUND_MODES);
 }
 
+#if CONFIG_EXT_SKIP
+#if CONFIG_NEW_MULTISYMBOL
+static void update_inter_compound_mode_cdf(AV1_COMP *cpi, int unify_bsize) {
+  MACROBLOCK *const x = &cpi->td.mb;
+  MACROBLOCKD *const xd = &x->e_mbd;
+  const MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
+  const int segment_id = mbmi->segment_id;
+  const BLOCK_SIZE bsize = mbmi->sb_type;
+
+  if (segfeature_active(seg, segment_id, SEG_LVL_SKIP)) return;
+  if (bsize < BLOCK_8X8 && !unify_bsize) return;
+
+  const PREDICTION_MODE mode = mbmi->mode;
+  assert(is_inter_compound_mode(mode));
+
+  const MB_MODE_INFO_EXT *const mbmi_ext = x->mbmi_ext;
+  const int16_t mode_ctx = mbmi_ext->compound_mode_context[mbmi->ref_frame[0]];
+  update_cdf(xd->tile_ctx->inter_compound_mode_cdf[mode_ctx],
+             INTER_COMPOUND_OFFSET(mode), INTER_COMPOUND_MODES);
+}
+#endif  // CONFIG_NEW_MULTISYMBOL
+#endif  // CONFIG_EXT_SKIP
+
 #if CONFIG_COMPOUND_SINGLEREF
 static void write_inter_singleref_comp_mode(MACROBLOCKD *xd, aom_writer *w,
                                             PREDICTION_MODE mode,
@@ -412,6 +435,27 @@ static int write_skip(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   }
 }
 
+#if CONFIG_EXT_SKIP
+static int write_skip_mode(const AV1_COMMON *cm, const MACROBLOCKD *xd,
+                           int segment_id, const MODE_INFO *mi, aom_writer *w) {
+  if (!cm->is_skip_mode_allowed) return 0;
+
+  if (segfeature_active(&cm->seg, segment_id, SEG_LVL_SKIP)) {
+    return 0;
+  } else {
+    const int skip_mode = mi->mbmi.skip_mode;
+#if CONFIG_NEW_MULTISYMBOL
+    FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
+    const int ctx = av1_get_skip_mode_context(xd);
+    aom_write_symbol(w, skip_mode, ec_ctx->skip_mode_cdfs[ctx], 2);
+#else
+    aom_write(w, skip_mode, av1_get_skip_mode_prob(cm, xd));
+#endif  // CONFIG_NEW_MULTISYMBOL
+    return skip_mode;
+  }
+}
+#endif  // CONFIG_EXT_SKIP
+
 static void write_is_inter(const AV1_COMMON *cm, const MACROBLOCKD *xd,
                            int segment_id, aom_writer *w, const int is_inter) {
   if (!segfeature_active(&cm->seg, segment_id, SEG_LVL_REF_FRAME)) {
@@ -424,6 +468,19 @@ static void write_is_inter(const AV1_COMMON *cm, const MACROBLOCKD *xd,
 #endif
   }
 }
+
+#if CONFIG_EXT_SKIP
+#if CONFIG_NEW_MULTISYMBOL
+static void update_intra_inter_cdf(AV1_COMMON *const cm, MACROBLOCKD *const xd,
+                                   int segment_id, const int is_inter) {
+  if (!segfeature_active(&cm->seg, segment_id, SEG_LVL_REF_FRAME)) {
+    FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
+    const int ctx = av1_get_intra_inter_context(xd);
+    update_cdf(ec_ctx->intra_inter_cdf[ctx], is_inter, 2);
+  }
+}
+#endif  // CONFIG_NEW_MULTISYMBOL
+#endif  // CONFIG_EXT_SKIP
 
 #if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
 static void write_motion_mode(const AV1_COMMON *cm, MACROBLOCKD *xd,
@@ -1213,6 +1270,51 @@ static void write_ref_frames(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   }
 }
 
+#if CONFIG_EXT_SKIP
+#if CONFIG_NEW_MULTISYMBOL
+// This function updates the reference frame symbol cdfs for skip mode
+static void update_ref_frame_cdfs_for_skip_mode(const AV1_COMMON *cm,
+                                                const MACROBLOCKD *xd) {
+  assert(xd->mi[0]->mbmi.skip_mode);
+
+  const int segment_id = mbmi->segment_id;
+  if (segfeature_active(&cm->seg, segment_id, SEG_LVL_REF_FRAME)) return;
+
+  const MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
+  const int is_compound = has_second_ref(mbmi);
+
+  assert(is_compound);
+  assert(cm->reference_mode == SINGLE_REFERENCE ||
+         cm->reference_mode == REFERENCE_MODE_SELECT);
+  if (cm->reference_mode == REFERENCE_MODE_SELECT)
+    update_cdf(av1_get_reference_mode_cdf(cm, xd), is_compound, 2);
+
+#if CONFIG_EXT_COMP_REFS
+  assert(!has_uni_comp_refs(mbmi));
+  const COMP_REFERENCE_TYPE comp_ref_type = BIDIR_COMP_REFERENCE;
+  update_cdf(av1_get_comp_reference_type_cdf(xd), comp_ref_type, 2);
+#endif  // CONFIG_EXT_COMP_REFS
+
+// Update stats for both forward and backward references
+#define UPDATE_REF_BIT(bname, pname) \
+  update_cdf(av1_get_pred_cdf_##pname(cm, xd), bname, 2);
+
+  const int bit =
+      (mbmi->ref_frame[0] == GOLDEN_FRAME || mbmi->ref_frame[0] == LAST3_FRAME);
+  UPDATE_REF_BIT(bit, comp_ref_p);
+  if (!bit)
+    UPDATE_REF_BIT(mbmi->ref_frame[0] == LAST_FRAME, comp_ref_p1);
+  else
+    UPDATE_REF_BIT(mbmi->ref_frame[0] == GOLDEN_FRAME, comp_ref_p2);
+
+  const int bit_bwd = mbmi->ref_frame[1] == ALTREF_FRAME;
+  UPDATE_REF_BIT(bit_bwd, comp_bwdref_p);
+  if (!bit_bwd)
+    UPDATE_REF_BIT(mbmi->ref_frame[1] == ALTREF2_FRAME, comp_bwdref_p1);
+}
+#endif  // CONFIG_NEW_MULTISYMBOL
+#endif  // CONFIG_EXT_SKIP
+
 #if CONFIG_FILTER_INTRA
 static void write_filter_intra_mode_info(const AV1_COMMON *const cm,
                                          const MACROBLOCKD *xd,
@@ -1728,14 +1830,50 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
     }
   }
 
+#if CONFIG_EXT_SKIP
+  write_skip_mode(cm, xd, segment_id, mi, w);
+
+  if (mbmi->skip_mode) {
+    assert(cm->is_skip_mode_allowed);
+    assert(mbmi->skip);
+
+    if (cm->delta_q_present_flag) {
+      int super_block_upper_left =
+          ((mi_row & MAX_MIB_MASK) == 0) && ((mi_col & MAX_MIB_MASK) == 0);
+      if (bsize != BLOCK_LARGEST && super_block_upper_left) {
+        assert(mbmi->current_q_index > 0);
+        xd->prev_qindex = mbmi->current_q_index;
+#if CONFIG_EXT_DELTA_Q
+        if (cm->delta_lf_present_flag) {
+#if CONFIG_LOOPFILTER_LEVEL
+          if (cm->delta_lf_multi)
+            for (int lf_id = 0; lf_id < FRAME_LF_COUNT; ++lf_id)
+              xd->prev_delta_lf[lf_id] = mbmi->curr_delta_lf[lf_id];
+          else
+#endif  // CONFIG_LOOPFILTER_LEVEL
+            xd->prev_delta_lf_from_base = mbmi->current_delta_lf_from_base;
+        }
+#endif  // CONFIG_EXT_DELTA_Q
+      }
+    }
+
+#if CONFIG_NEW_MULTISYMBOL
+    update_intra_inter_cdf(cm, xd, segment_id, 1);
+    update_ref_frame_cdfs_for_skip_mode(cm, xd);
+    update_inter_compound_mode_cdf(cpi, unify_bsize);
+#endif  // CONFIG_NEW_MULTISYMBOL
+
+    return;
+  }
+#endif  // CONFIG_EXT_SKIP
+
 #if CONFIG_SUPERTX
   if (supertx_enabled)
     skip = mbmi->skip;
   else
-    skip = write_skip(cm, xd, segment_id, mi, w);
-#else
-  skip = write_skip(cm, xd, segment_id, mi, w);
 #endif  // CONFIG_SUPERTX
+    skip = write_skip(cm, xd, segment_id, mi, w);
+
   if (cm->delta_q_present_flag) {
     int super_block_upper_left =
         ((mi_row & MAX_MIB_MASK) == 0) && ((mi_col & MAX_MIB_MASK) == 0);
@@ -1892,7 +2030,6 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
 #endif  // CONFIG_COMPOUND_SINGLEREF
       mode_ctx = mbmi_ext->compound_mode_context[mbmi->ref_frame[0]];
     else
-
       mode_ctx = av1_mode_context_analyzer(mbmi_ext->mode_context,
                                            mbmi->ref_frame, bsize, -1);
 
@@ -1921,7 +2058,7 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
 
 #if !CONFIG_DUAL_FILTER && !CONFIG_WARPED_MOTION && !CONFIG_GLOBAL_MOTION
     write_mb_interp_filter(cpi, xd, w);
-#endif  // !CONFIG_DUAL_FILTER && !CONFIG_WARPED_MOTION
+#endif  // !CONFIG_DUAL_FILTER && !CONFIG_WARPED_MOTION && !CONFIG_GLOBAL_MOTION
 
     if (bsize < BLOCK_8X8 && !unify_bsize) {
 #if CONFIG_COMPOUND_SINGLEREF
@@ -2105,7 +2242,7 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
 
 #if CONFIG_DUAL_FILTER || CONFIG_WARPED_MOTION || CONFIG_GLOBAL_MOTION
     write_mb_interp_filter(cpi, xd, w);
-#endif  // CONFIG_DUAL_FILTE || CONFIG_WARPED_MOTION
+#endif  // CONFIG_DUAL_FILTE || CONFIG_WARPED_MOTION || CONFIG_GLOBAL_MOTION
   }
 
 #if !CONFIG_TXK_SEL
