@@ -709,10 +709,12 @@ static INLINE int enc_is_ref_frame_buf(AV1_COMP *cpi, RefCntBuffer *frame_buf) {
 }
 
 static INLINE unsigned int get_token_alloc(int mb_rows, int mb_cols) {
-  // We assume 3 planes all at full resolution. We assume up to 1 token per
+  // We assume 3 planes all at full resolution. We assume up to 2 tokens per
   // pixel, and then allow a head room of 1 EOSB token per 4x4 block per plane,
   // plus EOSB_TOKEN per plane.
-  return mb_rows * mb_cols * (16 * 16 + 17) * 3;
+  // TODO(sebastien): Figure out the exact max size needed.
+  // See: https://crbug.com/aomedia/647"
+  return mb_rows * mb_cols * (16 * 16 + 17) * 3 * 2;
 }
 
 // Get the allocated token size for a tile. It does the same calculation as in
