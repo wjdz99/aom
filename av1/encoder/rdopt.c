@@ -9939,23 +9939,16 @@ static int64_t rd_pick_intrabc_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
     const int rate_mode = x->intrabc_cost[1];
     RD_STATS rd_stats, rd_stats_uv;
     av1_subtract_plane(x, bsize, 0);
+#if CONFIG_VAR_TX
+    select_tx_type_yrd(cpi, x, &rd_stats, bsize, INT64_MAX);
+#else
     super_block_yrd(cpi, x, &rd_stats, bsize, INT64_MAX);
+#endif  // CONFIG_VAR_TX
     super_block_uvrd(cpi, x, &rd_stats_uv, bsize, INT64_MAX);
     av1_merge_rd_stats(&rd_stats, &rd_stats_uv);
 #if CONFIG_RD_DEBUG
     mbmi->rd_stats = rd_stats;
 #endif
-
-#if CONFIG_VAR_TX
-    // TODO(aconverse@google.com): Evaluate allowing VAR TX on intrabc blocks
-    const int width = block_size_wide[bsize] >> tx_size_wide_log2[0];
-    const int height = block_size_high[bsize] >> tx_size_high_log2[0];
-    int idx, idy;
-    for (idy = 0; idy < height; ++idy)
-      for (idx = 0; idx < width; ++idx)
-        mbmi->inter_tx_size[idy >> 1][idx >> 1] = mbmi->tx_size;
-    mbmi->min_tx_size = get_min_tx_size(mbmi->tx_size);
-#endif  // CONFIG_VAR_TX
 
     const aom_prob skip_prob = av1_get_skip_prob(cm, xd);
 
