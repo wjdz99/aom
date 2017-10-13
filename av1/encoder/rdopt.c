@@ -5864,7 +5864,7 @@ static void txfm_rd_in_plane_once(MACROBLOCK *const x,
   av1_init_rd_stats(&rd_stats);
   txfm_rd_in_plane(x, cpi, &rd_stats, INT64_MAX, plane, bsize, tx_size,
                    cpi->sf.use_fast_coef_costing);
-  *dist = rd_stats.dist;
+  *dist = rd_stats.sse * 16;
   *rate = rd_stats.rate;
 }
 
