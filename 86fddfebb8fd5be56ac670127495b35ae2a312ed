@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6fd8548a_d1f6c7e9",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 1347,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2017-10-13T18:22:55Z",
+      "side": 1,
+      "message": "Can move to inside the for loop.",
+      "range": {
+        "startLine": 1347,
+        "startChar": 2,
+        "endLine": 1347,
+        "endChar": 17
+      },
+      "revId": "86fddfebb8fd5be56ac670127495b35ae2a312ed",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8b580807_49f48a40",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 1380,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2017-10-13T18:22:55Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 1378,
+        "startChar": 1,
+        "endLine": 1380,
+        "endChar": 8
+      },
+      "revId": "86fddfebb8fd5be56ac670127495b35ae2a312ed",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5f583c80_1c374326",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 1495,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2017-10-13T18:22:55Z",
+      "side": 1,
+      "message": "Use {}",
+      "range": {
+        "startLine": 1491,
+        "startChar": 14,
+        "endLine": 1495,
+        "endChar": 54
+      },
+      "revId": "86fddfebb8fd5be56ac670127495b35ae2a312ed",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cb05d35c_ca313c3a",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 2979,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2017-10-13T18:22:55Z",
+      "side": 1,
+      "message": "Use {}",
+      "range": {
+        "startLine": 2979,
+        "startChar": 61,
+        "endLine": 2979,
+        "endChar": 63
+      },
+      "revId": "86fddfebb8fd5be56ac670127495b35ae2a312ed",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
