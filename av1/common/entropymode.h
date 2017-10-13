@@ -334,9 +334,6 @@ typedef struct frame_contexts {
   aom_cdf_prob intrabc_cdf[CDF_SIZE(2)];
 #endif
   int initialized;
-#if CONFIG_SUPERTX
-  aom_prob supertx_prob[PARTITION_SUPERTX_CONTEXTS][TX_SIZES];
-#endif  // CONFIG_SUPERTX
   struct segmentation_probs seg;
 #if CONFIG_EXT_INTRA
 #if CONFIG_INTRA_INTERP
@@ -557,10 +554,6 @@ typedef struct FRAME_COUNTS {
   unsigned int inter_ext_tx[EXT_TX_SIZES][TX_TYPES];
 #endif  // CONFIG_EXT_TX
 #endif  // CONFIG_ENTROPY_STATS
-#if CONFIG_SUPERTX
-  unsigned int supertx[PARTITION_SUPERTX_CONTEXTS][TX_SIZES][2];
-  unsigned int supertx_size[TX_SIZES];
-#endif  // CONFIG_SUPERTX
   struct seg_counts seg;
 #if CONFIG_EXT_INTRA
 #if CONFIG_INTRA_INTERP
