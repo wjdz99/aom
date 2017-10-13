@@ -4453,6 +4453,10 @@ void read_sequence_header(SequenceHeader *seq_params,
   if (seq_params->frame_id_numbers_present_flag) {
     seq_params->frame_id_length_minus7 = aom_rb_read_literal(rb, 4);
     seq_params->delta_frame_id_length_minus2 = aom_rb_read_literal(rb, 4);
+    int frame_id_length = seq_params->frame_id_length_minus7 + 7;
+    int diff_len = seq_params->delta_frame_id_length_minus2 + 2;
+    // Ensure that a frame may be referenced with a unique delta
+    assert(diff_len < frame_id_length);
   }
 }
 #endif  // CONFIG_REFERENCE_BUFFER
