@@ -299,7 +299,7 @@ void av1_write_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
   uint16_t update_eob = 0;
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
 #if EOB_FIRST
-  int eob_first = 1;
+  int eob_first = do_eob_first(tx_size);
 #else
   int eob_first = 0;
 #endif
@@ -747,7 +747,7 @@ int av1_cost_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCK *x, int plane,
   LV_MAP_COEFF_COST *coeff_costs = &x->coeff_costs[txs_ctx][plane_type];
 
 #if EOB_FIRST
-  int eob_first = 1;
+  int eob_first = do_eob_first(tx_size);
 #else
   int eob_first = 0;
 #endif

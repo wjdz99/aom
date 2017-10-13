@@ -318,7 +318,7 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
   int cul_level = 0;
   memset(tcoeffs, 0, sizeof(*tcoeffs) * seg_eob);
 #if EOB_FIRST
-  int eob_first = 1;
+  int eob_first = do_eob_first(tx_size);
 #else
   int eob_first = 0;
 #endif
