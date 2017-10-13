@@ -50,6 +50,8 @@ typedef uint16_t aom_cdf_prob;
 
 #define BR_NODE 1
 
+#define EOB_FIRST 0
+
 #if CONFIG_ADAPT_SCAN
 #define CACHE_SCAN_PROB 1
 #endif
