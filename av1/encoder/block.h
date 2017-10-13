@@ -108,6 +108,9 @@ typedef struct {
   uint8_t ref_mv_count[MODE_CTX_REF_FRAMES];
   CANDIDATE_MV ref_mv_stack[MODE_CTX_REF_FRAMES][MAX_REF_MV_STACK_SIZE];
   int16_t compound_mode_context[MODE_CTX_REF_FRAMES];
+#if CONFIG_EXT_SKIP
+  int8_t skip_mode_ref_count[SKIP_MODE_REFS];
+#endif  // CONFIG_EXT_SKIP
 } MB_MODE_INFO_EXT;
 
 typedef struct {
@@ -244,12 +247,15 @@ struct macroblock {
 #if CONFIG_EXT_SKIP
   int skip_mode;  // 0: off; 1: on
   int skip_mode_cost[SKIP_CONTEXTS][2];
+  int skip_mode_ref_cost[SKIP_MODE_REF_MODES][SKIP_CONTEXTS][2];
 
   int64_t skip_mode_rdcost;  // -1: Not set
   int skip_mode_rate;
   int64_t skip_mode_sse;
   int64_t skip_mode_dist;
   MV_REFERENCE_FRAME skip_mode_ref_frame[2];
+  int8_t skip_mode_ref_type;
+  PREDICTION_MODE skip_mode_pred_mode;
   int_mv skip_mode_mv[2];
   int skip_mode_index_candidate;
   int skip_mode_index;

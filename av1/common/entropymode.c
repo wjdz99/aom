@@ -1538,6 +1538,18 @@ static const aom_cdf_prob
 #if CONFIG_EXT_SKIP
 static const aom_cdf_prob default_skip_mode_cdfs[SKIP_MODE_CONTEXTS][CDF_SIZE(
     2)] = { { AOM_CDF2(24576) }, { AOM_CDF2(16384) }, { AOM_CDF2(8192) } };
+#if 0
+static const aom_cdf_prob
+    default_skip_mode_ref_cdfs[SKIP_MODE_REF_MODES][SKIP_MODE_CONTEXTS]
+                              [CDF_SIZE(2)] = {
+                                { { AOM_CDF2(24576) },
+                                  { AOM_CDF2(16384) },
+                                  { AOM_CDF2(8192) } },
+                                { { AOM_CDF2(24576) },
+                                  { AOM_CDF2(16384) },
+                                  { AOM_CDF2(8192) } }
+                              };
+#endif  // 0
 #endif  // CONFIG_EXT_SKIP
 static const aom_cdf_prob default_skip_cdfs[SKIP_CONTEXTS][CDF_SIZE(2)] = {
   { AOM_CDF2(24576) }, { AOM_CDF2(16384) }, { AOM_CDF2(8192) }
@@ -3109,6 +3121,7 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
   av1_copy(fc->inter_ext_tx_cdf, default_inter_ext_tx_cdf);
 #if CONFIG_EXT_SKIP
   av1_copy(fc->skip_mode_cdfs, default_skip_mode_cdfs);
+  av1_copy(fc->skip_mode_ref_cdfs, default_skip_mode_ref_cdfs);
 #endif  // CONFIG_EXT_SKIP
   av1_copy(fc->skip_cdfs, default_skip_cdfs);
   av1_copy(fc->intra_inter_cdf, default_intra_inter_cdf);

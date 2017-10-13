@@ -1028,12 +1028,46 @@ static void update_stats(const AV1_COMMON *const cm, TileDataEnc *tile_data,
       update_cdf(fc->skip_mode_cdfs[skip_mode_ctx], mbmi->skip_mode, 2);
   }
 
-  if (!mbmi->skip_mode) {
+  if (mbmi->skip_mode) {
+    // Update skip mode ref type stats.
+    const int ref_type = mbmi->skip_mode_ref_type;
+    assert(ref_type >= 0 && ref_type <= 2);
+
+    for (int i = 0; i < SKIP_MODE_REFS; ++i)
+      xd->skip_mode_ref_count[i] = mbmi_ext->skip_mode_ref_count[i];
+
+    const int ctx0 = av1_get_skip_mode_ref_ctx0(xd);
+    const int ref_type_bit0 = (ref_type >= 1);
+    td->counts->skip_mode_ref[0][ctx0][ref_type_bit0]++;
+    if (allow_update_cdf)
+      update_cdf(fc->skip_mode_ref_cdfs[0][ctx0], ref_type_bit0, 2);
+
+    if (ref_type_bit0) {
+      const int ctx1 = av1_get_skip_mode_ref_ctx1(xd);
+      const int ref_type_bit1 = ref_type - 1;
+      td->counts->skip_mode_ref[1][ctx1][ref_type_bit1]++;
+      if (allow_update_cdf)
+        update_cdf(fc->skip_mode_ref_cdfs[1][ctx1], ref_type_bit1, 2);
+    }
+  } else {
 #endif  // CONFIG_EXT_SKIP
     if (!seg_ref_active) {
       const int skip_ctx = av1_get_skip_context(xd);
       td->counts->skip[skip_ctx][mbmi->skip]++;
       if (allow_update_cdf) update_cdf(fc->skip_cdfs[skip_ctx], mbmi->skip, 2);
+    }
+#if CONFIG_EXT_SKIP
+  }
+#endif  // CONFIG_EXT_SKIP
+
+  if (!mbmi->skip_mode) {
+#endif  // CONFIG_EXT_SKIP
+    if (!seg_ref_active) {
+      const int skip_ctx = av1_get_skip_context(xd);
+      td->counts->skip[skip_ctx][mbmi->skip]++;
+#if CONFIG_NEW_MULTISYMBOL
+      if (allow_update_cdf) update_cdf(fc->skip_cdfs[skip_ctx], mbmi->skip, 2);
+#endif  // CONFIG_NEW_MULTISYMBOL
     }
 #if CONFIG_EXT_SKIP
   }
@@ -4223,6 +4257,19 @@ static void encode_frame_internal(AV1_COMP *cpi) {
 
   x->txb_split_count = 0;
   av1_zero(x->blk_skip_drl);
+
+#if CONFIG_EXT_SKIP
+  av1_setup_skip_mode_allowed(cm);
+#if 0
+  printf(
+      "\nENCODER: Frame=%d, frame_offset=%d, show_frame=%d, "
+      "show_existing_frame=%d, is_skip_mode_allowed=%d, "
+      "ref_frame_idx=(%d,%d)\n",
+      cm->current_video_frame, cm->frame_offset, cm->show_frame,
+      cm->show_existing_frame, cm->is_skip_mode_allowed, cm->ref_frame_idx_0,
+      cm->ref_frame_idx_1);
+#endif  // 0
+#endif  // CONFIG_EXT_SKIP
 
 #if CONFIG_MFMV
   av1_setup_motion_field(cm);

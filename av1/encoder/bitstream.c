@@ -296,6 +296,29 @@ static int write_skip_mode(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   }
   const int ctx = av1_get_skip_mode_context(xd);
   aom_write_symbol(w, skip_mode, xd->tile_ctx->skip_mode_cdfs[ctx], 2);
+
+#if 0  // Add skip mode ref type, allowing either single or comp.
+  // Write skip mode ref type.
+  if (skip_mode) {
+    for (int i = 0; i < SKIP_MODE_REFS; ++i)
+      xd->skip_mode_ref_count[i] = mbmi_ext->skip_mode_ref_count[i];
+
+    const int ref_type = mbmi->skip_mode_ref_type;
+    assert(ref_type >= 0 && ref_type <= 2);
+
+    const int ctx0 = av1_get_skip_mode_ref_ctx0(xd);
+    const int ref_type_bit0 = (ref_type >= 1);
+    aom_write_symbol(w, ref_type_bit0,
+                     xd->tile_ctx->skip_mode_ref_cdfs[0][ctx0], 2);
+
+    if (ref_type_bit0) {
+      const int ctx1 = av1_get_skip_mode_ref_ctx1(xd);
+      aom_write_symbol(w, (ref_type - 1),
+                       xd->tile_ctx->skip_mode_ref_cdfs[1][ctx1], 2);
+    }
+  }
+#endif  // 0
+
   return skip_mode;
 }
 #endif  // CONFIG_EXT_SKIP
@@ -1226,11 +1249,12 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
   }
 
 #if CONFIG_EXT_SKIP
-  write_skip_mode(cm, xd, segment_id, mi, w);
+  write_skip_mode(cm, xd, segment_id, mbmi_ext, w);
 
   if (mbmi->skip_mode) {
     skip = mbmi->skip;
     assert(skip);
+    assert(is_inter);
   } else {
 #endif  // CONFIG_EXT_SKIP
     skip = write_skip(cm, xd, segment_id, mi, w);
@@ -1689,13 +1713,13 @@ static void enc_dump_logs(AV1_COMP *cpi, int mi_row, int mi_col) {
           "=== ENCODER ===: "
           "Frame=%d, (mi_row,mi_col)=(%d,%d), skip_mode=%d, mode=%d, bsize=%d, "
           "show_frame=%d, mv[0]=(%d,%d), mv[1]=(%d,%d), ref[0]=%d, "
-          "ref[1]=%d, motion_mode=%d, mode_ctx=%d, "
+          "ref[1]=%d, skip_mode_ref_type=%d, motion_mode=%d, mode_ctx=%d, "
           "newmv_ctx=%d, zeromv_ctx=%d, refmv_ctx=%d, tx_size=%d\n",
           cm->current_video_frame, mi_row, mi_col, mbmi->skip_mode, mbmi->mode,
           bsize, cm->show_frame, mv[0].as_mv.row, mv[0].as_mv.col,
           mv[1].as_mv.row, mv[1].as_mv.col, mbmi->ref_frame[0],
-          mbmi->ref_frame[1], mbmi->motion_mode, mode_ctx, newmv_ctx,
-          zeromv_ctx, refmv_ctx, mbmi->tx_size);
+          mbmi->ref_frame[1], mbmi->skip_mode_ref_type, mbmi->motion_mode,
+          mode_ctx, newmv_ctx, zeromv_ctx, refmv_ctx, mbmi->tx_size);
 #else
       printf(
           "=== ENCODER ===: "

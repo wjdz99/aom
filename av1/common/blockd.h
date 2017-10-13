@@ -268,6 +268,7 @@ typedef struct MB_MODE_INFO {
   int8_t skip;
 #if CONFIG_EXT_SKIP
   int8_t skip_mode;
+  int8_t skip_mode_ref_type;
 #endif  // CONFIG_EXT_SKIP
   int8_t segment_id;
 #if CONFIG_Q_SEGMENTATION
@@ -718,6 +719,10 @@ typedef struct macroblockd {
 #if CONFIG_JNT_COMP
   JNT_COMP_PARAMS jcp_param;
 #endif
+
+#if CONFIG_EXT_SKIP
+  int8_t skip_mode_ref_count[SKIP_MODE_REFS];
+#endif  // CONFIG_EXT_SKIP
 } MACROBLOCKD;
 
 static INLINE int get_bitdepth_data_path_index(const MACROBLOCKD *xd) {

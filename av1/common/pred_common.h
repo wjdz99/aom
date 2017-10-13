@@ -142,6 +142,23 @@ static INLINE int av1_get_skip_mode_context(const MACROBLOCKD *xd) {
   const int left_skip_mode = left_mi ? left_mi->mbmi.skip_mode : 0;
   return above_skip_mode + left_skip_mode;
 }
+
+static INLINE int av1_get_skip_mode_ref_ctx0(const MACROBLOCKD *xd) {
+  const int skip_mode_ref_ctx =
+      (xd->skip_mode_ref_count[0] >=
+       (xd->skip_mode_ref_count[1] + xd->skip_mode_ref_count[2]))
+          ? 2
+          : (xd->skip_mode_ref_count[0] > 0);
+  return skip_mode_ref_ctx;
+}
+
+static INLINE int av1_get_skip_mode_ref_ctx1(const MACROBLOCKD *xd) {
+  const int skip_mode_ref_ctx =
+      (xd->skip_mode_ref_count[1] > xd->skip_mode_ref_count[2])
+          ? 2
+          : (xd->skip_mode_ref_count[1] == xd->skip_mode_ref_count[2]);
+  return skip_mode_ref_ctx;
+}
 #endif  // CONFIG_EXT_SKIP
 
 static INLINE int av1_get_skip_context(const MACROBLOCKD *xd) {
