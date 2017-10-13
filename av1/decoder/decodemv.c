@@ -2306,9 +2306,7 @@ static void fpm_sync(void *const data, int mi_row) {
 
 #if DEC_MISMATCH_DEBUG
 static void dec_dump_logs(AV1_COMMON *cm, MODE_INFO *const mi, int mi_row,
-                          int mi_col,
-                          int16_t inter_mode_ctx[MODE_CTX_REF_FRAMES],
-                          int16_t mode_ctx) {
+                          int mi_col, int16_t mode_ctx) {
   int_mv mv[2] = { { 0 } };
   int ref;
   MB_MODE_INFO *const mbmi = &mi->mbmi;
@@ -2329,20 +2327,19 @@ static void dec_dump_logs(AV1_COMMON *cm, MODE_INFO *const mi, int mi_row,
     }
   }
 
-  int8_t ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
 #define FRAME_TO_CHECK 1
   if (cm->current_video_frame == FRAME_TO_CHECK && cm->show_frame == 1) {
     printf(
         "=== DECODER ===: "
         "Frame=%d, (mi_row,mi_col)=(%d,%d), skip_mode=%d, mode=%d, bsize=%d, "
         "show_frame=%d, mv[0]=(%d,%d), mv[1]=(%d,%d), ref[0]=%d, "
-        "ref[1]=%d, motion_mode=%d, inter_mode_ctx=%d, mode_ctx=%d, "
+        "ref[1]=%d, motion_mode=%d, mode_ctx=%d, "
         "newmv_ctx=%d, zeromv_ctx=%d, refmv_ctx=%d\n",
         cm->current_video_frame, mi_row, mi_col, mbmi->skip_mode, mbmi->mode,
         mbmi->sb_type, cm->show_frame, mv[0].as_mv.row, mv[0].as_mv.col,
         mv[1].as_mv.row, mv[1].as_mv.col, mbmi->ref_frame[0],
-        mbmi->ref_frame[1], mbmi->motion_mode, inter_mode_ctx[ref_frame_type],
-        mode_ctx, newmv_ctx, zeromv_ctx, refmv_ctx);
+        mbmi->ref_frame[1], mbmi->motion_mode, mode_ctx, newmv_ctx, zeromv_ctx,
+        refmv_ctx);
   }
 }
 #endif  // DEC_MISMATCH_DEBUG
@@ -2856,7 +2853,7 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
 #endif  // CONFIG_WARPED_MOTION
 
 #if DEC_MISMATCH_DEBUG
-  dec_dump_logs(cm, mi, mi_row, mi_col, inter_mode_ctx, mode_ctx);
+  dec_dump_logs(cm, mi, mi_row, mi_col, mode_ctx);
 #endif  // DEC_MISMATCH_DEBUG
 }
 
