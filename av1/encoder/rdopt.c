@@ -2159,9 +2159,11 @@ static void txfm_rd_in_plane(MACROBLOCK *x, const AV1_COMP *cpi,
   av1_foreach_transformed_block_in_plane(xd, bsize, plane, block_rd_txfm,
                                          &args);
 #if CONFIG_DIST_8X8
-  if (x->using_dist_8x8 && !args.exit_early && plane == 0 &&
-      bsize >= BLOCK_8X8 &&
-      (tx_size == TX_4X4 || tx_size == TX_4X8 || tx_size == TX_8X4))
+  int bw = block_size_wide[bsize];
+  int bh = block_size_high[bsize];
+
+  if (x->using_dist_8x8 && !args.exit_early && plane == 0 && bw >= 8 &&
+      bh >= 8 && (tx_size == TX_4X4 || tx_size == TX_4X8 || tx_size == TX_8X4))
     dist_8x8_sub8x8_txfm_rd(cpi, x, bsize, &args);
 #endif
 
