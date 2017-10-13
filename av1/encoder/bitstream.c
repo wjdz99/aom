@@ -412,6 +412,27 @@ static int write_skip(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   }
 }
 
+#if CONFIG_EXT_SKIP
+static int write_skip_mode(const AV1_COMMON *cm, const MACROBLOCKD *xd,
+                           int segment_id, const MODE_INFO *mi, aom_writer *w) {
+  if (!cm->is_skip_mode_allowed) return 0;
+
+  if (segfeature_active(&cm->seg, segment_id, SEG_LVL_SKIP)) {
+    return 0;
+  } else {
+    const int skip_mode = mi->mbmi.skip_mode;
+#if CONFIG_NEW_MULTISYMBOL
+    FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
+    const int ctx = av1_get_skip_mode_context(xd);
+    aom_write_symbol(w, skip_mode, ec_ctx->skip_mode_cdfs[ctx], 2);
+#else
+    aom_write(w, skip_mode, av1_get_skip_mode_prob(cm, xd));
+#endif  // CONFIG_NEW_MULTISYMBOL
+    return skip_mode;
+  }
+}
+#endif  // CONFIG_EXT_SKIP
+
 static void write_is_inter(const AV1_COMMON *cm, const MACROBLOCKD *xd,
                            int segment_id, aom_writer *w, const int is_inter) {
   if (!segfeature_active(&cm->seg, segment_id, SEG_LVL_REF_FRAME)) {
@@ -424,6 +445,19 @@ static void write_is_inter(const AV1_COMMON *cm, const MACROBLOCKD *xd,
 #endif
   }
 }
+
+#if CONFIG_EXT_SKIP
+#if CONFIG_NEW_MULTISYMBOL
+static void update_intra_inter_cdf(AV1_COMMON *const cm, MACROBLOCKD *const xd,
+                                   int segment_id, const int is_inter) {
+  if (!segfeature_active(&cm->seg, segment_id, SEG_LVL_REF_FRAME)) {
+    FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
+    const int ctx = av1_get_intra_inter_context(xd);
+    update_cdf(ec_ctx->intra_inter_cdf[ctx], is_inter, 2);
+  }
+}
+#endif  // CONFIG_NEW_MULTISYMBOL
+#endif  // CONFIG_EXT_SKIP
 
 #if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
 static void write_motion_mode(const AV1_COMMON *cm, MACROBLOCKD *xd,
@@ -1728,14 +1762,47 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
     }
   }
 
+#if CONFIG_EXT_SKIP
+  write_skip_mode(cm, xd, segment_id, mi, w);
+
+  if (mbmi->skip_mode) {
+    assert(cm->is_skip_mode_allowed);
+    assert(mbmi->skip);
+
+    if (cm->delta_q_present_flag) {
+      int super_block_upper_left =
+          ((mi_row & MAX_MIB_MASK) == 0) && ((mi_col & MAX_MIB_MASK) == 0);
+      if (bsize != BLOCK_LARGEST && super_block_upper_left) {
+        assert(mbmi->current_q_index > 0);
+        xd->prev_qindex = mbmi->current_q_index;
+#if CONFIG_EXT_DELTA_Q
+        if (cm->delta_lf_present_flag) {
+#if CONFIG_LOOPFILTER_LEVEL
+          if (cm->delta_lf_multi)
+            for (int lf_id = 0; lf_id < FRAME_LF_COUNT; ++lf_id)
+              xd->prev_delta_lf[lf_id] = mbmi->curr_delta_lf[lf_id];
+          else
+#endif  // CONFIG_LOOPFILTER_LEVEL
+            xd->prev_delta_lf_from_base = mbmi->current_delta_lf_from_base;
+        }
+#endif  // CONFIG_EXT_DELTA_Q
+      }
+    }
+#if CONFIG_NEW_MULTISYMBOL
+    update_intra_inter_cdf(cm, xd, mbmi->segment_id, 1);
+#endif  // CONFIG_NEW_MULTISYMBOL
+
+    return;
+  }
+#endif  // CONFIG_EXT_SKIP
+
 #if CONFIG_SUPERTX
   if (supertx_enabled)
     skip = mbmi->skip;
   else
-    skip = write_skip(cm, xd, segment_id, mi, w);
-#else
-  skip = write_skip(cm, xd, segment_id, mi, w);
 #endif  // CONFIG_SUPERTX
+    skip = write_skip(cm, xd, segment_id, mi, w);
+
   if (cm->delta_q_present_flag) {
     int super_block_upper_left =
         ((mi_row & MAX_MIB_MASK) == 0) && ((mi_col & MAX_MIB_MASK) == 0);
