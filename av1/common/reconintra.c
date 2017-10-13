@@ -2945,6 +2945,9 @@ void av1_predict_intra_block_facade(const AV1_COMMON *cm, MACROBLOCKD *xd,
       if (!xd->cfl->are_parameters_computed)
         cfl_compute_parameters(xd, tx_size);
     }
+    av1_predict_intra_block(cm, xd, pd->width, pd->height,
+                            txsize_to_bsize[tx_size], DC_PRED, dst, dst_stride, dst,
+                            dst_stride, blk_col, blk_row, plane);
     cfl_predict_block(xd, dst, dst_stride, blk_row, blk_col, tx_size, plane);
     return;
   }
