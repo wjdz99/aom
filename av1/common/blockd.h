@@ -1339,6 +1339,9 @@ static INLINE MOTION_MODE
 motion_mode_allowed(int block, const WarpedMotionParams *gm_params,
                     const MACROBLOCKD *xd, const MODE_INFO *mi) {
   const MB_MODE_INFO *mbmi = &mi->mbmi;
+#if CONFIG_EXT_SKIP
+  if (mbmi->skip_mode) return SIMPLE_TRANSLATION;
+#endif  // CONFIG_EXT_SKIP
 #if CONFIG_AMVR
   if (xd->cur_frame_force_integer_mv == 0) {
 #endif
