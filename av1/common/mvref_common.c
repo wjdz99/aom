@@ -651,6 +651,9 @@ static int add_col_ref_mv(const AV1_COMMON *cm,
   int ref, idx;
   int coll_blk_count = 0;
   const int weight_unit = mi_size_wide[BLOCK_8X8];
+#if CONFIG_TMVP_WITH_SCALE
+  const struct scale_factors *const sf = &cm->frame_refs[0].sf;
+#endif
 
 #if CONFIG_TMV
   mi_pos.row = blk_row;
@@ -670,6 +673,12 @@ static int add_col_ref_mv(const AV1_COMMON *cm,
   for (ref = 0; ref < 2; ++ref) {
     if (prev_frame_mvs->ref_frame[ref] == ref_frame) {
       int_mv this_refmv = prev_frame_mvs->mv[ref];
+#if CONFIG_TMVP_WITH_SCALE
+      this_refmv.as_mv.row =
+          (this_refmv.as_mv.row * sf->y_scale_inv) >> REF_SCALE_SHIFT;
+      this_refmv.as_mv.col =
+          (this_refmv.as_mv.col * sf->x_scale_inv) >> REF_SCALE_SHIFT;
+#endif
 #if CONFIG_AMVR
       lower_mv_precision(&this_refmv.as_mv, cm->allow_high_precision_mv,
                          cm->cur_frame_mv_precision_level);
@@ -732,12 +741,25 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
 #else
   const int prev_frame_mvs_stride = cm->mi_cols;
 #if CONFIG_MV_COMPRESS
+#if !CONFIG_TMVP_WITH_SCALE
   const MV_REF *const prev_frame_mvs_base =
       cm->use_prev_frame_mvs
           ? cm->prev_frame->mvs +
                 (((mi_row >> 1) << 1) + 1) * prev_frame_mvs_stride +
                 ((mi_col >> 1) << 1) + 1
           : NULL;
+#else
+  const struct scale_factors *const sf = &cm->frame_refs[0].sf;
+  int prev_row = ((mi_row >> 1) << 1) + 1;
+  int prev_col = ((mi_col >> 1) << 1) + 1;
+  int prev_mi_cols = cm->prev_frame->mi_cols;
+  prev_row = (prev_row * sf->x_scale_fp) >> REF_SCALE_SHIFT;
+  prev_col = (prev_col * sf->y_scale_fp) >> REF_SCALE_SHIFT;
+  const MV_REF *const prev_frame_mvs_base =
+      cm->use_prev_frame_mvs
+          ? cm->prev_frame->mvs + prev_row * prev_mi_cols + prev_col
+          : NULL;
+#endif
 #else
   const MV_REF *const prev_frame_mvs_base =
       cm->use_prev_frame_mvs
@@ -1079,6 +1101,7 @@ static void find_mv_refs_idx(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   const TileInfo *const tile_ = &xd->tile;
   int mi_row_end = tile_->mi_row_end;
   int mi_col_end = tile_->mi_col_end;
+#if !CONFIG_TMVP_WITH_SCALE
   const MV_REF *const prev_frame_mvs =
       cm->use_prev_frame_mvs
           ? cm->prev_frame->mvs +
@@ -1088,6 +1111,21 @@ static void find_mv_refs_idx(const AV1_COMMON *cm, const MACROBLOCKD *xd,
                 AOMMIN(((mi_col >> 1) << 1) + 1 + (((xd->n8_w - 1) >> 1) << 1),
                        mi_col_end - 1)
           : NULL;
+#else
+  const struct scale_factors *const sf = &cm->frame_refs[0].sf;
+  int prev_row = ((mi_row >> 1) << 1) + 1 + (((xd->n8_h - 1) >> 1) << 1);
+  int prev_col = ((mi_col >> 1) << 1) + 1 + (((xd->n8_w - 1) >> 1) << 1);
+  int prev_mi_cols = cm->prev_frame->mi_cols;
+  prev_row = (prev_row * sf->x_scale_fp) >> REF_SCALE_SHIFT;
+  prev_col = (prev_col * sf->y_scale_fp) >> REF_SCALE_SHIFT;
+  const MV_REF *const prev_frame_mvs =
+      cm->use_prev_frame_mvs
+          ? cm->prev_frame->mvs +
+                AOMMIN(prev_row, mi_row_end - 1) * prev_mi_cols +
+                AOMMIN(prev_col, mi_col_end - 1)
+          : NULL;
+
+#endif
 #else
   const MV_REF *const prev_frame_mvs =
       cm->use_prev_frame_mvs
@@ -1211,11 +1249,25 @@ static void find_mv_refs_idx(const AV1_COMMON *cm, const MACROBLOCKD *xd,
     }
 
     if (prev_frame_mvs->ref_frame[0] == ref_frame) {
+#if !CONFIG_TMVP_WITH_SCALE
       ADD_MV_REF_LIST(prev_frame_mvs->mv[0], refmv_count, mv_ref_list, bw, bh,
                       xd, Done);
+#else
+      int_mv mv = prev_frame_mvs->mv[0];
+      mv.as_mv.row = (mv.as_mv.row * sf->y_scale_inv) >> REF_SCALE_SHIFT;
+      mv.as_mv.col = (mv.as_mv.col * sf->x_scale_inv) >> REF_SCALE_SHIFT;
+      ADD_MV_REF_LIST(mv, refmv_count, mv_ref_list, bw, bh, xd, Done);
+#endif
     } else if (prev_frame_mvs->ref_frame[1] == ref_frame) {
+#if !CONFIG_TMVP_WITH_SCALE
       ADD_MV_REF_LIST(prev_frame_mvs->mv[1], refmv_count, mv_ref_list, bw, bh,
                       xd, Done);
+#else
+      int_mv mv = prev_frame_mvs->mv[1];
+      mv.as_mv.row = (mv.as_mv.row * sf->y_scale_inv) >> REF_SCALE_SHIFT;
+      mv.as_mv.col = (mv.as_mv.col * sf->x_scale_inv) >> REF_SCALE_SHIFT;
+      ADD_MV_REF_LIST(mv, refmv_count, mv_ref_list, bw, bh, xd, Done);
+#endif
     }
   }
 
@@ -1247,6 +1299,10 @@ static void find_mv_refs_idx(const AV1_COMMON *cm, const MACROBLOCKD *xd,
     if (prev_frame_mvs->ref_frame[0] != ref_frame &&
         prev_frame_mvs->ref_frame[0] > INTRA_FRAME) {
       int_mv mv = prev_frame_mvs->mv[0];
+#if CONFIG_TMVP_WITH_SCALE
+      mv.as_mv.row = (mv.as_mv.row * sf->y_scale_inv) >> REF_SCALE_SHIFT;
+      mv.as_mv.col = (mv.as_mv.col * sf->x_scale_inv) >> REF_SCALE_SHIFT;
+#endif
       if (ref_sign_bias[prev_frame_mvs->ref_frame[0]] !=
           ref_sign_bias[ref_frame]) {
         mv.as_mv.row *= -1;
@@ -1258,6 +1314,10 @@ static void find_mv_refs_idx(const AV1_COMMON *cm, const MACROBLOCKD *xd,
     if (prev_frame_mvs->ref_frame[1] > INTRA_FRAME &&
         prev_frame_mvs->ref_frame[1] != ref_frame) {
       int_mv mv = prev_frame_mvs->mv[1];
+#if CONFIG_TMVP_WITH_SCALE
+      mv.as_mv.row = (mv.as_mv.row * sf->y_scale_inv) >> REF_SCALE_SHIFT;
+      mv.as_mv.col = (mv.as_mv.col * sf->x_scale_inv) >> REF_SCALE_SHIFT;
+#endif
       if (ref_sign_bias[prev_frame_mvs->ref_frame[1]] !=
           ref_sign_bias[ref_frame]) {
         mv.as_mv.row *= -1;

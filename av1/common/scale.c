@@ -81,6 +81,11 @@ void av1_setup_scale_factors_for_frame(struct scale_factors *sf, int other_w,
   sf->x_scale_fp = get_fixed_point_scale_factor(other_w, this_w);
   sf->y_scale_fp = get_fixed_point_scale_factor(other_h, this_h);
 
+#if CONFIG_TMVP_WITH_SCALE
+  sf->x_scale_inv = get_fixed_point_scale_factor(this_w, other_w);
+  sf->y_scale_inv = get_fixed_point_scale_factor(this_h, other_h);
+#endif
+
   sf->x_step_q4 = get_coarse_point_scale_factor(other_w, this_w);
   sf->y_step_q4 = get_coarse_point_scale_factor(other_h, this_h);
 

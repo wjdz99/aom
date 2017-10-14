@@ -621,8 +621,12 @@ static INLINE int frame_might_use_prev_frame_mvs(const AV1_COMMON *cm) {
 static INLINE int frame_can_use_prev_frame_mvs(const AV1_COMMON *cm) {
   return (frame_might_use_prev_frame_mvs(cm) && cm->last_show_frame &&
           cm->prev_frame && !cm->prev_frame->intra_only &&
+#if !CONFIG_TMVP_WITH_SCALE
           cm->width == cm->prev_frame->width &&
           cm->height == cm->prev_frame->height);
+#else
+          1);
+#endif
 }
 #endif
 
