@@ -30,6 +30,10 @@ struct scale_factors {
   int y_scale_fp;  // vertical fixed point scale factor
   int x_step_q4;
   int y_step_q4;
+#if CONFIG_TMVP_WITH_SCALE
+  int x_scale_inv;  // reciprocal of scale_fp
+  int y_scale_inv;
+#endif
 
   int (*scale_value_x)(int val, const struct scale_factors *sf);
   int (*scale_value_y)(int val, const struct scale_factors *sf);
