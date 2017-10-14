@@ -22,6 +22,30 @@
       "revId": "84fbc1f4704d1ddf73b96172ead7aafa5c3eb4b8",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "76341eef_e72c7682",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 746,
+      "author": {
+        "id": 6000
+      },
+      "writtenOn": "2017-10-14T06:29:08Z",
+      "side": 1,
+      "message": "I agree, this would definitely be better.\n\nHowever, this issue has already been is a codebase (reported in last July) for a long time.\nIt\u0027s a rare corner case, so maybe this is why nobody is willing to fix it?\n\nCould you please, by the way, re-open the ticket? (Isse 647). You can reproduce it by cherry-picking the changelist 27145 (stacked on this one).\n\nI do not know what a proper size would be, but I believe we\u0027re still better off with an oversized buffer that with an encoder sometimes corrupting its memory.\n\nHere\u0027s my suggestion: 1) we merge the buffer size doubling. 2) Then I merge CL 27145, which will then pass (currently it triggers the bug), and will prevent the bug from being reintroduced.\n\nThen, we\u0027ll be in good conditions to safely work on the buffer size reduction: 3) I report a ticket about the oversized buffer.\n\nPlease let me know what you think.",
+      "parentUuid": "0001fd20_b6c666fe",
+      "range": {
+        "startLine": 746,
+        "startChar": 47,
+        "endLine": 746,
+        "endChar": 51
+      },
+      "revId": "84fbc1f4704d1ddf73b96172ead7aafa5c3eb4b8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
