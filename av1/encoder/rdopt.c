@@ -1393,6 +1393,8 @@ static int cost_coeffs(const AV1_COMMON *const cm, MACROBLOCK *x, int plane,
   const struct macroblock_plane *p = &x->plane[plane];
   const struct macroblockd_plane *pd = &xd->plane[plane];
   const PLANE_TYPE type = pd->plane_type;
+
+
   const uint16_t *band_count = &band_count_table[tx_size][1];
   const int eob = p->eobs[block];
   const tran_low_t *const qcoeff = BLOCK_OFFSET(p->qcoeff, block);
@@ -1434,6 +1436,8 @@ static int cost_coeffs(const AV1_COMMON *const cm, MACROBLOCK *x, int plane,
       int16_t prev_t;
       cost = av1_get_token_cost(v, &prev_t, cat6_bits);
       eob_val = (eob == 1) ? EARLY_EOB : NO_EOB;
+
+
       cost += av1_get_coeff_token_cost(
           prev_t, eob_val, 1, (*head_token_costs)[pt], (*tail_token_costs)[pt]);
 
@@ -1461,13 +1465,15 @@ static int cost_coeffs(const AV1_COMMON *const cm, MACROBLOCK *x, int plane,
         }
       }
     } else {  // !use_fast_coef_costing
-      int band_left = *band_count++;
 
+      int band_left = *band_count++;
+      
       // dc token
       int v = qcoeff[0];
       int16_t tok;
       cost = av1_get_token_cost(v, &tok, cat6_bits);
       eob_val = (eob == 1) ? EARLY_EOB : NO_EOB;
+  
       cost += av1_get_coeff_token_cost(tok, eob_val, 1, (*head_token_costs)[pt],
                                        (*tail_token_costs)[pt]);
 
@@ -1484,6 +1490,8 @@ static int cost_coeffs(const AV1_COMMON *const cm, MACROBLOCK *x, int plane,
         pt = get_coef_context(nb, token_cache, c);
         eob_val =
             (c + 1 == eob) ? (c + 1 == seg_eob ? LAST_EOB : EARLY_EOB) : NO_EOB;
+
+
         cost += av1_get_coeff_token_cost(
             tok, eob_val, 0, (*head_token_costs)[pt], (*tail_token_costs)[pt]);
         token_cache[rc] = av1_pt_energy_class[tok];

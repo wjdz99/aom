@@ -627,6 +627,22 @@ static void pack_mb_tokens(aom_writer *w, const TOKENEXTRA **tp,
   while (p < stop && p->token != EOSB_TOKEN) {
     const int token = p->token;
     const int eob_val = p->eob_val;
+#if CONFIG_EOB_FIRST
+    if (p->first_val) {
+      int eob_t = 0;
+      aom_write_bit(w, token != t);
+      while (token != eob_t) {
+        eob_t++;
+        aom_write_bit(w, token != eob_t);
+      }
+      if (eob_t == 0) {
+#if CONFIG_VAR_TX
+        break;
+#endif
+        continue;
+      }
+    }
+#else
     if (token == BLOCK_Z_TOKEN) {
       aom_write_symbol(w, 0, *p->head_cdf, HEAD_TOKENS + 1);
       p++;
@@ -635,6 +651,7 @@ static void pack_mb_tokens(aom_writer *w, const TOKENEXTRA **tp,
 #endif
       continue;
     }
+#endif
 
     const av1_extra_bit *const extra_bits = &av1_extra_bits[token];
     if (eob_val == LAST_EOB) {

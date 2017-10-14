@@ -2491,3 +2491,5 @@ void av1_average_tile_pvq_cdfs(FRAME_CONTEXT *fc, FRAME_CONTEXT *ec_ctxs[],
   AVERAGE_TILE_CDFS(pvq_context.pvq.pvq_skip_dir_cdf)
 }
 #endif  // CONFIG_PVQ
+
+
