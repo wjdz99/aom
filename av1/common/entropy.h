@@ -484,6 +484,7 @@ void av1_default_pvq_probs(struct AV1Common *cm);
 void av1_average_tile_pvq_cdfs(struct frame_contexts *fc,
                                struct frame_contexts *ec_ctxs[], int num_tiles);
 #endif  // CONFIG_PVQ
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif

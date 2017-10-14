@@ -15,6 +15,13 @@
 #define REDUCE_CONTEXT_DEPENDENCY 0
 #define MIN_SCAN_IDX_REDUCE_CONTEXT_DEPENDENCY 0
 
+#if CONFIG_EOB_FIRST
+extern const int16_t k_eob_group_start[12];
+extern const int16_t k_eob_offset_bits[12];
+int16_t get_eob_pos_token(int eob, int16_t *extra);
+int get_eob_pos_ctx(int eob_token);
+#endif
+
 extern const int16_t av1_coeff_band_4x4[16];
 
 extern const int16_t av1_coeff_band_8x8[64];
@@ -170,12 +177,20 @@ static INLINE int get_base_ctx(const tran_low_t *tcoeffs,
 }
 
 #define BR_CONTEXT_POSITION_NUM 8  // Base range coefficient context
+#if CONFIG_EOB_FIRST
 static int br_ref_offset[BR_CONTEXT_POSITION_NUM][2] = {
   /* clang-format off*/
   { -1, -1 }, { -1, 0 }, { -1, 1 }, { 0, -1 },
   { 0, 1 },   { 1, -1 }, { 1, 0 },  { 1, 1 },
   /* clang-format on*/
 };
+#else
+static int br_ref_offset[BR_CONTEXT_POSITION_NUM][2] = {
+    /* clang-format off*/
+    {-1, -1}, {-1, 0}, {-1, 1}, {0, -1}, {0, 1}, {1, -1}, {1, 0}, {1, 1},
+    /* clang-format on*/
+};
+#endif
 
 static const int br_level_map[9] = {
   0, 0, 1, 1, 2, 2, 3, 3, 3,
@@ -266,6 +281,42 @@ static INLINE int get_br_ctx(const tran_low_t *tcoeffs,
 }
 
 #define SIG_REF_OFFSET_NUM 7
+#if CONFIG_EOB_FIRST
+static int sig_ref_offset[SIG_REF_OFFSET_NUM][2] = {
+    {2, 1}, {2, 0}, {1, 2}, {1, 1}, {1, 0}, {0, 2}, {0, 1},
+};
+
+static int sig_ref_offset_vert[SIG_REF_OFFSET_NUM][2] = {
+    {2, 1}, {2, 0}, {3, 0}, {1, 1}, {1, 0}, {4, 0}, {0, 1},
+};
+
+static int sig_ref_offset_horiz[SIG_REF_OFFSET_NUM][2] = {
+    {0, 3}, {0, 4}, {1, 2}, {1, 1}, {1, 0}, {0, 2}, {0, 1},
+};
+
+static INLINE int get_nz_count(const tran_low_t *tcoeffs, int bwl, int height,
+                               int row, int col, TX_CLASS tx_class) {
+  int count = 0;
+  for (int idx = 0; idx < SIG_REF_OFFSET_NUM; ++idx) {
+    const int ref_row = row + ((tx_class == TX_CLASS_2D)
+                                   ? sig_ref_offset[idx][0]
+                                   : ((tx_class == TX_CLASS_VERT)
+                                          ? sig_ref_offset_vert[idx][0]
+                                          : sig_ref_offset_horiz[idx][0]));
+    const int ref_col = col + ((tx_class == TX_CLASS_2D)
+                                   ? sig_ref_offset[idx][1]
+                                   : ((tx_class == TX_CLASS_VERT)
+                                          ? sig_ref_offset_vert[idx][1]
+                                          : sig_ref_offset_horiz[idx][1]));
+    if (ref_row < 0 || ref_col < 0 || ref_row >= height ||
+        ref_col >= (1 << bwl))
+      continue;
+    const int nb_pos = (ref_row << bwl) + ref_col;
+    count += (tcoeffs[nb_pos] != 0);
+  }
+  return count;
+}
+#else
 static int sig_ref_offset[SIG_REF_OFFSET_NUM][2] = {
   { -2, -1 }, { -2, 0 }, { -1, -2 }, { -1, -1 },
   { -1, 0 },  { 0, -2 }, { 0, -1 },
@@ -303,6 +354,8 @@ static INLINE int get_nz_count(const tran_low_t *tcoeffs, int bwl, int height,
 }
 #endif
 
+#endif
+
 static INLINE TX_CLASS get_tx_class(TX_TYPE tx_type) {
   switch (tx_type) {
 #if CONFIG_EXT_TX
@@ -321,7 +374,11 @@ static INLINE TX_CLASS get_tx_class(TX_TYPE tx_type) {
 // count to ctx
 static INLINE int get_nz_map_ctx_from_count(int count,
                                             int coeff_idx,  // raster order
-                                            int bwl, TX_TYPE tx_type) {
+                                            int bwl,
+#if CONFIG_EOB_FIRST
+                                            int height,
+#endif
+                                            TX_TYPE tx_type) {
   (void)tx_type;
   const int row = coeff_idx >> bwl;
   const int col = coeff_idx - (row << bwl);
@@ -339,6 +396,32 @@ static INLINE int get_nz_map_ctx_from_count(int count,
   int offset = 0;
 #endif
 
+#if CONFIG_EOB_FIRST
+  (void)height;
+  ctx = (count + 1) >> 1;
+
+  if (tx_class == TX_CLASS_2D) {
+    {
+      if (row == 0 && col == 0) return offset + 0;
+
+      if (row + col < 2) return offset + ctx + 1;
+
+      if (row + col < 4) return offset + 5 + ctx + 1;
+
+      return offset + 11 + AOMMIN(ctx, 4);
+    }
+  } else {
+    if (tx_class == TX_CLASS_VERT) {
+      if (row == 0) return offset + ctx;
+      if (row < 2) return offset + 5 + ctx;
+      return offset + 10 + ctx;
+    } else {
+      if (col == 0) return offset + ctx;
+      if (col < 2) return offset + 5 + ctx;
+      return offset + 10 + ctx;
+    }
+  }
+#else
   if (row == 0 && col == 0) return offset + 0;
 
   if (row == 0 && col == 1) return offset + 1 + count;
@@ -372,6 +455,7 @@ static INLINE int get_nz_map_ctx_from_count(int count,
   assert(12 + ctx < 16);
 
   return offset + 12 + ctx;
+#endif
 }
 
 static INLINE int get_nz_map_ctx(const tran_low_t *tcoeffs, const int scan_idx,
@@ -395,9 +479,18 @@ static INLINE int get_nz_map_ctx(const tran_low_t *tcoeffs, const int scan_idx,
   }
   int count = get_nz_count(tcoeffs, bwl, height, row, col, prev_row, prev_col);
 #else
+#if CONFIG_EOB_FIRST
+  int tx_class = get_tx_class(tx_type);
+  int count = get_nz_count(tcoeffs, bwl, height, row, col, tx_class);
+#else
   int count = get_nz_count(tcoeffs, bwl, height, row, col);
 #endif
-  return get_nz_map_ctx_from_count(count, coeff_idx, bwl, tx_type);
+#endif
+  return get_nz_map_ctx_from_count(count, coeff_idx, bwl,
+#if CONFIG_EOB_FIRST
+                                   height,
+#endif
+                                   tx_type);
 }
 
 static INLINE int get_eob_ctx(const tran_low_t *tcoeffs,

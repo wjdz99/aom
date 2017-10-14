@@ -320,3 +320,57 @@ void av1_init_lv_map(AV1_COMMON *cm) {
     }
   }
 }
+
+#if CONFIG_EOB_FIRST
+const int16_t k_eob_group_start[12] = {0,  1,  2,  3,   5,   9,
+                                       17, 33, 65, 129, 257, 513};
+const int16_t k_eob_offset_bits[12] = {0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+
+int get_eob_pos_ctx(int eob_token) { return eob_token - 1; }
+
+int rec_eob_pos(int16_t eob_token, int16_t extra) {
+  int eob = k_eob_group_start[eob_token];
+  if (eob > 2) {
+    eob += extra;
+  }
+  return eob;
+}
+
+int16_t get_eob_pos_token(int eob, int16_t *extra) {
+  int16_t t;
+  if (eob < 3) {
+    t = eob;
+  } else {
+    t = 3;
+    if (eob > 4) {
+      t++;
+    }
+    if (eob > 8) {
+      t++;
+    }
+    if (eob > 16) {
+      t++;
+    }
+    if (eob > 32) {
+      t++;
+    }
+    if (eob > 64) {
+      t++;
+    }
+    if (eob > 128) {
+      t++;
+    }
+    if (eob > 256) {
+      t++;
+    }
+    if (eob > 512) {
+      t++;
+    }
+  }
+
+  *extra = eob - k_eob_group_start[t];
+
+  return t;
+}
+
+#endif
