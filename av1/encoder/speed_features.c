@@ -403,6 +403,8 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi) {
   sf->partition_search_type = SEARCH_PARTITION;
 #if CONFIG_EXT_TX
   sf->tx_type_search.prune_mode = PRUNE_2D_ACCURATE;
+  sf->tx_type_search.opt_b_mode = CALL_ALWAYS;
+  sf->tx_type_search.opt_b_mode_separate_rd_costing = 0;
 #else
   sf->tx_type_search.prune_mode = NO_PRUNE;
 #endif  // CONFIG_EXT_TX

@@ -201,8 +201,17 @@ typedef enum {
 #endif
 } TX_TYPE_PRUNE_MODE;
 
+typedef enum {
+  CALL_ALWAYS = 0,
+  CALL_FOR_FOUR_BEST = 1,
+  CALL_FOR_THREE_BEST = 2,
+  CALL_FOR_TWO_BEST = 3,
+} OPTIMIZE_B_CALL_MODE;
+
 typedef struct {
   TX_TYPE_PRUNE_MODE prune_mode;
+  OPTIMIZE_B_CALL_MODE opt_b_mode;
+  int opt_b_mode_separate_rd_costing;
   int fast_intra_tx_type_search;
   int fast_inter_tx_type_search;
 
