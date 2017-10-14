@@ -1,0 +1,208 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5b8908dc_c0928a5b",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 6
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-10-14T00:39:08Z",
+      "side": 1,
+      "message": "Is it intended to alter the encoder output? (that is a separate question from whether or not it changes the bitstream)",
+      "revId": "6d192e6c84d0119d5baaafa399eb8400e585c567",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ff9e5f8a_8b60fda7",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 476,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-10-14T00:39:08Z",
+      "side": 1,
+      "message": "Please don\u0027t use globals like this. They\u0027re not re-entrant or thread-safe (consider multiple independent instances of an AV1 encoder running on separate threads). Put these variables alongside the sub8x8_val[] buffer in cfl_ctx.",
+      "revId": "6d192e6c84d0119d5baaafa399eb8400e585c567",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "442448cf_dd33414f",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 487,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-10-14T00:39:08Z",
+      "side": 1,
+      "message": "I don\u0027t understand what this is trying to describe. What situations? What does it mean to \"reuse\" a part of the buffer, in terms of these checks?",
+      "revId": "6d192e6c84d0119d5baaafa399eb8400e585c567",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e1feaad9_254284fe",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 501,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-10-14T00:39:08Z",
+      "side": 1,
+      "message": "You say this, but the actual buffer still appears to be CFL_SUB8X8_VAL_MI_SQUARE (16).",
+      "revId": "6d192e6c84d0119d5baaafa399eb8400e585c567",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9e16461e_c56cfea3",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 503,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-10-14T00:39:08Z",
+      "side": 1,
+      "message": "I\u0027m a little unclear what these sizes are meant to represent, which makes it hard to check that they\u0027re producing the right values in all cases. I don\u0027t think they can be what you describe above, because it seems like 1x2 and 2x1 are possible (and even 1x1 with 4:4:4).\n\nIt would also be really great if it were clear here that b_width and b_height are the width/height of the chroma plane_bsize, and not the luma bsize. I had to work back up the callstack to verify that was true.",
+      "revId": "6d192e6c84d0119d5baaafa399eb8400e585c567",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dedb041a_46d72b6b",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 507,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-10-14T00:39:08Z",
+      "side": 1,
+      "message": "This all seems really complicated. What is driving this requirement?\n\nThe only picture I could come up with in my head where this mattered for the actual order transform blocks are traversed was an 8x16 partition that used 4x8 luma transforms (I\u0027m not sure we allow that, but I know it\u0027s been talked about making it possible to signal with var_tx), in which case it seems like this does the wrong thing.\n\nWhat cases were you thinking of?",
+      "revId": "6d192e6c84d0119d5baaafa399eb8400e585c567",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "292feb64_00212c54",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 518,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-10-14T00:39:08Z",
+      "side": 1,
+      "message": "Can\u0027t this just be tx_size_wide_unit[tx_size]*tx_size_high_unit[tx_size]? That seems a lot less fragile than what you\u0027re doing here.\n\nAlso, based on the name, I would expect num_val_blk to be val_width*val_height, but that\u0027s clearly not true.",
+      "revId": "6d192e6c84d0119d5baaafa399eb8400e585c567",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6cad2f04_d69836f5",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 522,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-10-14T00:39:08Z",
+      "side": 1,
+      "message": "I\u0027m not sure what \"represents\" means here. What happens if this is merely incremented instead of adding num_val_blk?",
+      "revId": "6d192e6c84d0119d5baaafa399eb8400e585c567",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "05f8b82b_59b84f43",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 526,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-10-14T00:39:08Z",
+      "side": 1,
+      "message": "My spellchecker tells me that even in Canadian English, \"outer\" only has one t.",
+      "revId": "6d192e6c84d0119d5baaafa399eb8400e585c567",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "852a00a1_1e3c13ec",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 530,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-10-14T00:39:08Z",
+      "side": 1,
+      "message": "I don\u0027t really understand what\u0027s going on here. You have a limit here defined as a 2D index with a stride, but you\u0027re adding to it, num_val_blk, which is a TX size area without a stride. Is this hard-coding the assumption that the inner dimension of the transform size is always 1? Is that the reason for swapping everything around based on is_horizontal?",
+      "revId": "6d192e6c84d0119d5baaafa399eb8400e585c567",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4c80100c_412b9053",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 542,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-10-14T00:39:08Z",
+      "side": 1,
+      "message": "I don\u0027t get why you subtract 1 from the value of stop, but add 1 almost everywhere you use it. Would it be easier to just change the \u003e to \u003e\u003d in the assert above?",
+      "revId": "6d192e6c84d0119d5baaafa399eb8400e585c567",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8e0829bf_ad515a8f",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 583,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-10-14T00:39:08Z",
+      "side": 1,
+      "message": "This seems like it\u0027s hard-coding that transform dimensions are at least half block-size dimensions? What happens with a 16x4 block with 4x4 transforms?",
+      "revId": "6d192e6c84d0119d5baaafa399eb8400e585c567",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
