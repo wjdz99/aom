@@ -625,6 +625,7 @@ static int read_inter_segment_id(AV1_COMMON *const cm, MACROBLOCKD *const xd,
 
   MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
   int predicted_segment_id, segment_id;
+#if !CONFIG_SEGMENT_PRED_WITH_SCALE
   const int mi_offset = mi_row * cm->mi_cols + mi_col;
   const int bw = mi_size_wide[mbmi->sb_type];
   const int bh = mi_size_high[mbmi->sb_type];
@@ -632,6 +633,19 @@ static int read_inter_segment_id(AV1_COMMON *const cm, MACROBLOCKD *const xd,
   // TODO(slavarnway): move x_mis, y_mis into xd ?????
   const int x_mis = AOMMIN(cm->mi_cols - mi_col, bw);
   const int y_mis = AOMMIN(cm->mi_rows - mi_row, bh);
+#else
+  // address based on previous segmentation map size
+  const struct scale_factors *const sf = &cm->frame_refs[0].sf;
+  int prev_mi_col = (mi_col * sf->x_scale_fp) >> REF_SCALE_SHIFT;
+  int prev_mi_row = (mi_row * sf->y_scale_fp) >> REF_SCALE_SHIFT;
+  const int mi_offset = prev_mi_row * cm->prev_frame->mi_cols + prev_mi_col;
+  const int bw = AOMMAX(
+      1, ((mi_size_wide[mbmi->sb_type] * sf->x_scale_fp) >> REF_SCALE_SHIFT));
+  const int bh = AOMMAX(
+      1, ((mi_size_high[mbmi->sb_type] * sf->y_scale_fp) >> REF_SCALE_SHIFT));
+  const int x_mis = AOMMIN(cm->prev_frame->mi_cols - prev_mi_col, bw);
+  const int y_mis = AOMMIN(cm->prev_frame->mi_rows - prev_mi_row, bh);
+#endif
 
   if (!seg->enabled) return 0;  // Default for disabled segmentation
 
