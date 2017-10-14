@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "d4a743e7_67b1bb69",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 6
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-10-14T03:00:09Z",
+      "side": 1,
+      "message": "No it\u0027s just to validate behavior",
+      "parentUuid": "5b8908dc_c0928a5b",
+      "revId": "6d192e6c84d0119d5baaafa399eb8400e585c567",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ff9e5f8a_8b60fda7",
         "filename": "av1/common/cfl.c",
         "patchSetId": 6
@@ -30,6 +48,24 @@
       "writtenOn": "2017-10-14T00:39:08Z",
       "side": 1,
       "message": "Please don\u0027t use globals like this. They\u0027re not re-entrant or thread-safe (consider multiple independent instances of an AV1 encoder running on separate threads). Put these variables alongside the sub8x8_val[] buffer in cfl_ctx.",
+      "revId": "6d192e6c84d0119d5baaafa399eb8400e585c567",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "083bf41b_b12fb8a9",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 476,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-10-14T03:00:09Z",
+      "side": 1,
+      "message": "You are totally right, I got sloppy. Looking back, I don\u0027t even know why I did that.",
+      "parentUuid": "ff9e5f8a_8b60fda7",
       "revId": "6d192e6c84d0119d5baaafa399eb8400e585c567",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "c286af8b_6cf80873",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 487,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-10-14T03:00:09Z",
+      "side": 1,
+      "message": "I rewrote this whole comment block. Hopefully it\u0027s easier to understand.",
+      "parentUuid": "442448cf_dd33414f",
+      "revId": "6d192e6c84d0119d5baaafa399eb8400e585c567",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e1feaad9_254284fe",
         "filename": "av1/common/cfl.c",
         "patchSetId": 6
@@ -64,6 +118,24 @@
       "writtenOn": "2017-10-14T00:39:08Z",
       "side": 1,
       "message": "You say this, but the actual buffer still appears to be CFL_SUB8X8_VAL_MI_SQUARE (16).",
+      "revId": "6d192e6c84d0119d5baaafa399eb8400e585c567",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "97367807_45c68f98",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 501,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-10-14T03:00:09Z",
+      "side": 1,
+      "message": "Yes I use a constant stride of four. I added more details to this comment and moved it into the header.",
+      "parentUuid": "e1feaad9_254284fe",
       "revId": "6d192e6c84d0119d5baaafa399eb8400e585c567",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "1fad12ee_0fcd1756",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 503,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-10-14T03:00:09Z",
+      "side": 1,
+      "message": "I think you are highlighting another issue. The sub8x8 code should be used for 4:4:4. My understanding is that chroma_sub8x8 does not apply to 4:4:4 (please confirm with me that this is so)",
+      "parentUuid": "9e16461e_c56cfea3",
+      "revId": "6d192e6c84d0119d5baaafa399eb8400e585c567",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "dedb041a_46d72b6b",
         "filename": "av1/common/cfl.c",
         "patchSetId": 6
@@ -98,6 +188,24 @@
       "writtenOn": "2017-10-14T00:39:08Z",
       "side": 1,
       "message": "This all seems really complicated. What is driving this requirement?\n\nThe only picture I could come up with in my head where this mattered for the actual order transform blocks are traversed was an 8x16 partition that used 4x8 luma transforms (I\u0027m not sure we allow that, but I know it\u0027s been talked about making it possible to signal with var_tx), in which case it seems like this does the wrong thing.\n\nWhat cases were you thinking of?",
+      "revId": "6d192e6c84d0119d5baaafa399eb8400e585c567",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "56d9dc28_4841d8c0",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 507,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-10-14T03:00:09Z",
+      "side": 1,
+      "message": "Because these are sub8x8 non-reference blocks, I need to know if the ordering is horizontal or vertical. When I traverse my storage validation buffer order this is important or else the counters don\u0027t match. A simple example of this issue is a BLOCK_4x8 with TX_4X4, this will lead to a vertical ordering whereas a BLOCK8x4 with TX_4X4 will lead to an horizontal ordering. There might be a simpler solution, I originally had two functions (one for horizontal and one for vertical) to reduced code duplication, I merged them into this complicated thing.",
+      "parentUuid": "dedb041a_46d72b6b",
       "revId": "6d192e6c84d0119d5baaafa399eb8400e585c567",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -121,6 +229,24 @@
     },
     {
       "key": {
+        "uuid": "cd06711c_3345a05e",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 518,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-10-14T03:00:09Z",
+      "side": 1,
+      "message": "tx_size_wide_unit[tx_size]*tx_size_high_unit[tx_size] is perfect. Also, I renamed num_val_blk to val_unit_len.",
+      "parentUuid": "292feb64_00212c54",
+      "revId": "6d192e6c84d0119d5baaafa399eb8400e585c567",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6cad2f04_d69836f5",
         "filename": "av1/common/cfl.c",
         "patchSetId": 6
@@ -132,6 +258,24 @@
       "writtenOn": "2017-10-14T00:39:08Z",
       "side": 1,
       "message": "I\u0027m not sure what \"represents\" means here. What happens if this is merely incremented instead of adding num_val_blk?",
+      "revId": "6d192e6c84d0119d5baaafa399eb8400e585c567",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3af29aaf_fc2bdf3c",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 522,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-10-14T03:00:09Z",
+      "side": 1,
+      "message": "That\u0027s not needed anymore. In a previous version the counter increment was not shared and was determined based on the number of 4x4 in the block. That turned out to be way too hard to maintain.",
+      "parentUuid": "6cad2f04_d69836f5",
       "revId": "6d192e6c84d0119d5baaafa399eb8400e585c567",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -155,6 +299,24 @@
     },
     {
       "key": {
+        "uuid": "780bf6f6_add9c37f",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 526,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-10-14T03:00:09Z",
+      "side": 1,
+      "message": "Funny how inner requires two n whereas outer requires a single t. One would think it needs more ts to wrap around the two n of inner, I\u0027m over thinking this.",
+      "parentUuid": "05f8b82b_59b84f43",
+      "revId": "6d192e6c84d0119d5baaafa399eb8400e585c567",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "852a00a1_1e3c13ec",
         "filename": "av1/common/cfl.c",
         "patchSetId": 6
@@ -172,6 +334,24 @@
     },
     {
       "key": {
+        "uuid": "c57ff09a_c23f4945",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 530,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-10-14T03:00:09Z",
+      "side": 1,
+      "message": "As explained before, these are not TX blocks inside a partition, but multiple TX blocks inside multiple sub8x8 blocks.",
+      "parentUuid": "852a00a1_1e3c13ec",
+      "revId": "6d192e6c84d0119d5baaafa399eb8400e585c567",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4c80100c_412b9053",
         "filename": "av1/common/cfl.c",
         "patchSetId": 6
@@ -183,6 +363,24 @@
       "writtenOn": "2017-10-14T00:39:08Z",
       "side": 1,
       "message": "I don\u0027t get why you subtract 1 from the value of stop, but add 1 almost everywhere you use it. Would it be easier to just change the \u003e to \u003e\u003d in the assert above?",
+      "revId": "6d192e6c84d0119d5baaafa399eb8400e585c567",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a6096282_698b2d68",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 542,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-10-14T03:00:09Z",
+      "side": 1,
+      "message": "The issue I was having is that if I used stop as the exit criteria I could hit the outer break and never hit the inner break. I rewrote it to use a countdown instead.",
+      "parentUuid": "4c80100c_412b9053",
       "revId": "6d192e6c84d0119d5baaafa399eb8400e585c567",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
