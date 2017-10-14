@@ -138,10 +138,18 @@ static INLINE void write_nz_map(aom_writer *w, const tran_low_t *tcoeff,
 
     if (c == seg_eob - 1) break;
 
+#if EOB_FIRST
+    if (eob_first == 0 || c < eob - 1) {
+// When doing eob_first, the last nz_flag can be skipped
+#endif
 #if LV_MAP_PROB
-    aom_write_bin(w, is_nz, fc->nz_map_cdf[txs_ctx][plane_type][coeff_ctx], 2);
+      aom_write_bin(w, is_nz, fc->nz_map_cdf[txs_ctx][plane_type][coeff_ctx],
+                    2);
 #else
     aom_write(w, is_nz, nz_map[coeff_ctx]);
+#endif
+#if EOB_FIRST
+    }
 #endif
 
 #if EOB_FIRST
@@ -622,8 +630,15 @@ int get_nz_eob_map_cost(const LV_MAP_COEFF_COST *coeff_costs,
     tran_low_t v = qcoeff[scan[c]];
     int is_nz = (v != 0);
     if (c + 1 != seg_eob) {
-      int coeff_ctx = get_nz_map_ctx(qcoeff, c, scan, bwl, height, tx_type);
-      cost += coeff_costs->nz_map_cost[coeff_ctx][is_nz];
+#if EOB_FIRST
+      if (eob_first == 0 || c < eob - 1) {
+// When doing eob_first, the last nz_flag can be skipped
+#endif
+        int coeff_ctx = get_nz_map_ctx(qcoeff, c, scan, bwl, height, tx_type);
+        cost += coeff_costs->nz_map_cost[coeff_ctx][is_nz];
+#if EOB_FIRST
+      }
+#endif
 #if EOB_FIRST
       if (!eob_first) {
 #endif

@@ -91,12 +91,20 @@ static INLINE int read_nz_map(aom_reader *r, tran_low_t *tcoeffs, int plane,
     int eob_ctx = get_eob_ctx(tcoeffs, scan[c], txs_ctx, tx_type);
 
     if (c < seg_eob - 1) {
+#if EOB_FIRST
+      if (eob_first == 0 || c < max_eob - 1) {
+#endif
 #if LV_MAP_PROB
-      is_nz = av1_read_record_bin(
-          counts, r, fc->nz_map_cdf[txs_ctx][plane_type][coeff_ctx], 2,
-          ACCT_STR);
+        is_nz = av1_read_record_bin(
+            counts, r, fc->nz_map_cdf[txs_ctx][plane_type][coeff_ctx], 2,
+            ACCT_STR);
 #else
       is_nz = aom_read(r, nz_map[coeff_ctx], ACCT_STR);
+#endif
+#if EOB_FIRST
+      } else {
+        is_nz = 1;
+      }
 #endif
     } else {
       is_nz = 1;
