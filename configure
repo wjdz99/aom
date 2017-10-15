@@ -339,6 +339,7 @@ EXPERIMENT_LIST="
     simple_bwd_adapt
     eob_first
     eighth_pel_mv_only
+    segment_pred_last 
 "
 CONFIG_LIST="
     dependency_tracking
@@ -527,6 +528,7 @@ post_process_cmdline() {
       soft_enable kf_ctx
       soft_enable striped_loop_restoration
       soft_enable ext_intra_mod
+      soft_enable segment_pred_last
     fi
 
     # Enable low-bitdepth pixel pipeline by default
