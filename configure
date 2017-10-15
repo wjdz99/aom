@@ -339,6 +339,7 @@ EXPERIMENT_LIST="
     simple_bwd_adapt
     eob_first
     eighth_pel_mv_only
+    segment_pred_last
 "
 CONFIG_LIST="
     dependency_tracking
