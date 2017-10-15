@@ -3930,6 +3930,21 @@ static INLINE void alloc_frame_mvs(AV1_COMMON *const cm, int buffer_idx) {
   new_fb_ptr->height = cm->height;
 }
 
+#if CONFIG_SEGMENT_PRED_LAST
+static INLINE void alloc_frame_segmap(AV1_COMMON *const cm, int buffer_idx) {
+  RefCntBuffer *const new_fb_ptr = &cm->buffer_pool->frame_bufs[buffer_idx];
+  if (new_fb_ptr->seg_map == NULL || new_fb_ptr->mi_rows < cm->mi_rows ||
+      new_fb_ptr->mi_cols < cm->mi_cols) {
+    aom_free(new_fb_ptr->seg_map);
+    CHECK_MEM_ERROR(cm, new_fb_ptr->seg_map,
+                    (uint8_t *)aom_calloc(cm->mi_rows * cm->mi_cols,
+                                          sizeof(*new_fb_ptr->seg_map)));
+    new_fb_ptr->mi_rows = cm->mi_rows;
+    new_fb_ptr->mi_cols = cm->mi_cols;
+  }
+}
+#endif
+
 static void scale_references(AV1_COMP *cpi) {
   AV1_COMMON *cm = &cpi->common;
   MV_REFERENCE_FRAME ref_frame;
@@ -3982,6 +3997,9 @@ static void scale_references(AV1_COMP *cpi) {
                                       (int)cm->bit_depth);
           cpi->scaled_ref_idx[ref_frame - 1] = new_fb;
           alloc_frame_mvs(cm, new_fb);
+#if CONFIG_SEGMENT_PRED_LAST
+          alloc_frame_segmap(cm, new_fb);
+#endif
         }
 #else
       if (ref->y_crop_width != cm->width || ref->y_crop_height != cm->height) {
@@ -4005,6 +4023,9 @@ static void scale_references(AV1_COMP *cpi) {
           av1_resize_and_extend_frame(ref, &new_fb_ptr->buf);
           cpi->scaled_ref_idx[ref_frame - 1] = new_fb;
           alloc_frame_mvs(cm, new_fb);
+#if CONFIG_SEGMENT_PRED_LAST
+          alloc_frame_segmap(cm, new_fb);
+#endif
         }
 #endif  // CONFIG_HIGHBITDEPTH
       } else {
@@ -4337,6 +4358,9 @@ static void set_frame_size(AV1_COMP *cpi, int width, int height) {
 #endif
 
   alloc_frame_mvs(cm, cm->new_fb_idx);
+#if CONFIG_SEGMENT_PRED_LAST
+  alloc_frame_segmap(cm, cm->new_fb_idx);
+#endif
 
   // Reset the frame pointers to the current frame size.
   if (aom_realloc_frame_buffer(get_frame_new_buffer(cm), cm->width, cm->height,
