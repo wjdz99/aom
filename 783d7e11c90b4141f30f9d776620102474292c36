@@ -46,6 +46,30 @@
       "revId": "783d7e11c90b4141f30f9d776620102474292c36",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "74ac9332_642c5e7d",
+        "filename": "configure",
+        "patchSetId": 5
+      },
+      "lineNbr": 545,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2017-10-16T16:23:33Z",
+      "side": 1,
+      "message": "Where is it in the adoption process? There shouldn\u0027t be a distinction based on whether it affects bdrate. It is an experiment and it is either adopted or it is not.",
+      "parentUuid": "b43cbe31_3d308600",
+      "range": {
+        "startLine": 545,
+        "startChar": 0,
+        "endLine": 545,
+        "endChar": 20
+      },
+      "revId": "783d7e11c90b4141f30f9d776620102474292c36",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
