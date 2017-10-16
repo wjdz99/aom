@@ -58,6 +58,9 @@ if (NOT ENABLE_ADOPTED_EXPERIMENTS)
     if ("${var_helpstring}" STREQUAL "AV1 experiment flag.")
      if ("${var}" STREQUAL "CONFIG_CB4X4")
        # CB4X4 is required and can not be disabled.
+     elseif ("${var}" STREQUAL "CONFIG_TXMG")
+       # TXMG ensures hbd and lbd paths match.
+       # https://bugs.chromium.org/p/aomedia/issues/detail?id=39
      else ()
        set(${var} 0)
      endif ()

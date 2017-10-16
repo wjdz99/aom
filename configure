@@ -505,6 +505,7 @@ post_process_cmdline() {
     done
 
     enable_feature cb4x4
+    enable_feature txmg
 
     # Enable adopted experiments by default
     soft_enable adopted_experiments
@@ -547,9 +548,6 @@ post_process_cmdline() {
 
     # Enable low-bitdepth pixel pipeline by default
     soft_enable lowbitdepth
-
-    # Enable LBD/HBD txfm consistency tool
-    soft_enable txmg
 
     # Fix up experiment dependencies
     enabled pvq && disable_feature rect_tx
