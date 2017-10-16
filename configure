@@ -549,8 +549,6 @@ post_process_cmdline() {
     # Enable low-bitdepth pixel pipeline by default
     soft_enable lowbitdepth
 
-    # Enable LBD/HBD txfm consistency tool
-    soft_enable txmg
     soft_enable new_multisymbol
 
     # Fix up experiment dependencies
