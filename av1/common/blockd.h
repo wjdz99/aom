@@ -35,7 +35,7 @@
 extern "C" {
 #endif
 
-#if (CONFIG_CHROMA_SUB8X8 || CONFIG_CHROMA_2X2)
+#if (CONFIG_CHROMA_SUB8X8)
 #define SUB8X8_COMP_REF 0
 #else
 #define SUB8X8_COMP_REF 1
@@ -1085,7 +1085,7 @@ static INLINE int is_lgt_allowed(PREDICTION_MODE mode, TX_SIZE tx_size) {
 #if CONFIG_RECT_TX
 static INLINE int is_rect_tx_allowed_bsize(BLOCK_SIZE bsize) {
   static const char LUT[BLOCK_SIZES_ALL] = {
-#if CONFIG_CHROMA_2X2 || CONFIG_CHROMA_SUB8X8
+#if CONFIG_CHROMA_SUB8X8
     0,  // BLOCK_2X2
     0,  // BLOCK_2X4
     0,  // BLOCK_4X2
@@ -1134,7 +1134,7 @@ static INLINE int is_rect_tx_allowed(const MACROBLOCKD *xd,
 #if CONFIG_RECT_TX_EXT && (CONFIG_EXT_TX || CONFIG_VAR_TX)
 static INLINE int is_quarter_tx_allowed_bsize(BLOCK_SIZE bsize) {
   static const char LUT_QTTX[BLOCK_SIZES_ALL] = {
-#if CONFIG_CHROMA_2X2 || CONFIG_CHROMA_SUB8X8
+#if CONFIG_CHROMA_SUB8X8
     0,  // BLOCK_2X2
     0,  // BLOCK_2X4
     0,  // BLOCK_4X2
@@ -1323,10 +1323,7 @@ static INLINE TX_TYPE av1_get_tx_type(PLANE_TYPE plane_type,
     }
 
     if (is_inter_block(mbmi)) {
-// UV Inter only
-#if CONFIG_CHROMA_2X2
-      if (tx_size < TX_4X4) return DCT_DCT;
-#endif
+      // UV Inter only
       return (mbmi->tx_type == IDTX && txsize_sqr_map[tx_size] >= TX_32X32)
                  ? DCT_DCT
                  : mbmi->tx_type;
@@ -1335,12 +1332,7 @@ static INLINE TX_TYPE av1_get_tx_type(PLANE_TYPE plane_type,
 
 #if CONFIG_CB4X4
   (void)block;
-#if CONFIG_CHROMA_2X2
-  if (tx_size < TX_4X4)
-    return DCT_DCT;
-  else
-#endif  // CONFIG_CHROMA_2X2
-    return intra_mode_to_tx_type_context[get_uv_mode(mbmi->uv_mode)];
+  return intra_mode_to_tx_type_context[get_uv_mode(mbmi->uv_mode)];
 #else   // CONFIG_CB4X4
   // Sub8x8-Inter/Intra OR UV-Intra
   if (is_inter_block(mbmi)) {  // Sub8x8-Inter
@@ -1383,10 +1375,6 @@ static INLINE TX_SIZE depth_to_tx_size(int depth) {
 
 static INLINE TX_SIZE av1_get_uv_tx_size(const MB_MODE_INFO *mbmi,
                                          const struct macroblockd_plane *pd) {
-#if CONFIG_CHROMA_2X2
-  assert(mbmi->tx_size > TX_2X2);
-#endif  // CONFIG_CHROMA_2X2
-
 #if CONFIG_SUPERTX
   if (supertx_enabled(mbmi))
     return uvsupertx_size_lookup[txsize_sqr_map[mbmi->tx_size]]
