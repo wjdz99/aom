@@ -10281,7 +10281,7 @@ static void pick_filter_intra_interframe(
         filter_intra_mode_info_uv[uv_tx].filter_intra_mode[1];
   }
 
-  rate2 = rate_y + intra_mode_cost[mbmi->mode] + rate_uv +
+  rate2 = rate_y + rate_uv +
           x->intra_uv_mode_cost[mbmi->mode][mbmi->uv_mode];
   if (try_palette && mbmi->mode == DC_PRED)
     rate2 += av1_cost_bit(
@@ -10295,10 +10295,10 @@ static void pick_filter_intra_interframe(
     rate_y -= tx_size_cost(cpi, x, bsize, mbmi->tx_size);
   }
 
-  rate2 += av1_cost_bit(cm->fc->filter_intra_probs[0],
+/*  rate2 += av1_cost_bit(cm->fc->filter_intra_probs[0],
                         mbmi->filter_intra_mode_info.use_filter_intra_mode[0]);
   rate2 += write_uniform_cost(
-      FILTER_INTRA_MODES, mbmi->filter_intra_mode_info.filter_intra_mode[0]);
+      FILTER_INTRA_MODES, mbmi->filter_intra_mode_info.filter_intra_mode[0]);S
 #if CONFIG_EXT_INTRA
   if (av1_is_directional_mode(get_uv_mode(mbmi->uv_mode), bsize) &&
       av1_use_angle_delta(bsize)) {
@@ -10306,14 +10306,13 @@ static void pick_filter_intra_interframe(
                                 MAX_ANGLE_DELTA + mbmi->angle_delta[1]);
   }
 #endif  // CONFIG_EXT_INTRA
-  if (mbmi->uv_mode == DC_PRED) {
+*/
+  if (mbmi->uv_mode == UV_DC_PRED) {
     rate2 +=
         av1_cost_bit(cpi->common.fc->filter_intra_probs[1],
                      mbmi->filter_intra_mode_info.use_filter_intra_mode[1]);
     if (mbmi->filter_intra_mode_info.use_filter_intra_mode[1])
-      rate2 +=
-          write_uniform_cost(FILTER_INTRA_MODES,
-                             mbmi->filter_intra_mode_info.filter_intra_mode[1]);
+      rate2 += x->filter_intra_mode_cost[1][mbmi->filter_intra_mode_info.filter_intra_mode[1]];
   }
   distortion2 = distortion_y + distortion_uv;
   av1_encode_intra_block_plane((AV1_COMMON *)cm, x, bsize, 0, 0, mi_row,
@@ -11143,12 +11142,12 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
       }
       if (mbmi->uv_mode == UV_DC_PRED) {
         rate2 +=
-            av1_cost_bit(cpi->common.fc->filter_intra_probs[1],
+            av1_cost_bit(cm->fc->filter_intra_probs[1],
                          mbmi->filter_intra_mode_info.use_filter_intra_mode[1]);
-        if (mbmi->filter_intra_mode_info.use_filter_intra_mode[1])
-          rate2 += write_uniform_cost(
-              FILTER_INTRA_MODES,
-              mbmi->filter_intra_mode_info.filter_intra_mode[1]);
+        if (mbmi->filter_intra_mode_info.use_filter_intra_mode[1]) {
+          rate2 +=
+              x->filter_intra_mode_cost[1][mbmi->filter_intra_mode_info.filter_intra_mode[1]];
+        }
       }
 #endif  // CONFIG_FILTER_INTRA
       if (mbmi->mode != DC_PRED && mbmi->mode != PAETH_PRED)
@@ -11914,7 +11913,7 @@ PALETTE_EXIT:
   // TODO(huisu): filter-intra is turned off in lossless mode for now to
   // avoid a unit test failure
   if (!xd->lossless[mbmi->segment_id] && pmi->palette_size[0] == 0 &&
-      !dc_skipped && best_mode_index >= 0 &&
+      best_mode_index >= 0 &&
       best_intra_rd < (best_rd + (best_rd >> 3))) {
     pick_filter_intra_interframe(
         cpi, x, bsize, mi_row, mi_col, rate_uv_intra, rate_uv_tokenonly,
