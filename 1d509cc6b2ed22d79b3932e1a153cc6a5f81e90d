@@ -1,0 +1,158 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "11c914ab_cc3f2712",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 6
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-10-16T14:21:22Z",
+      "side": 1,
+      "message": "I\u0027ve started adding the AWCY url in my commit msg if you want, you can do the same.",
+      "revId": "1d509cc6b2ed22d79b3932e1a153cc6a5f81e90d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b092297a_b624786d",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 5876,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-10-16T14:21:22Z",
+      "side": 1,
+      "message": "I don\u0027t think you need this, because av1_foreach_transformed_block_in_plane calls get_plane_block_size(). av1_foreach_transformed_block_in_plane is expecting luma bsize.",
+      "revId": "1d509cc6b2ed22d79b3932e1a153cc6a5f81e90d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "20a7c756_cdf969f7",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 5886,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-10-16T14:21:22Z",
+      "side": 1,
+      "message": "I would appear this is not the right tx_size. This function expects the luma tx_size. This is the chroma tx_size. Don\u0027t worry, this variable is not used for anything other than getting the entropy coding context.",
+      "revId": "1d509cc6b2ed22d79b3932e1a153cc6a5f81e90d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "60aa5444_8cfb7ba3",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 5889,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-10-16T14:21:22Z",
+      "side": 1,
+      "message": "I would appear this is not the right tx_size. This function expects the luma tx_size. This is the chroma tx_size. Don\u0027t worry, this variable is not used for anything other than getting the entropy coding context.",
+      "range": {
+        "startLine": 5889,
+        "startChar": 39,
+        "endLine": 5889,
+        "endChar": 46
+      },
+      "revId": "1d509cc6b2ed22d79b3932e1a153cc6a5f81e90d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d2acde7f_058732a4",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 5897,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-10-16T14:21:22Z",
+      "side": 1,
+      "message": "I would appear this is not the right tx_size. This function expects the luma tx_size. This is the chroma tx_size. Don\u0027t worry, this variable is not used for anything other than getting the entropy coding context.",
+      "range": {
+        "startLine": 5897,
+        "startChar": 43,
+        "endLine": 5897,
+        "endChar": 50
+      },
+      "revId": "1d509cc6b2ed22d79b3932e1a153cc6a5f81e90d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ebf7ef1f_db6d1586",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 5899,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-10-16T14:21:22Z",
+      "side": 1,
+      "message": "I would appear this is not the right tx_size. This function expects the luma tx_size. This is the chroma tx_size. Don\u0027t worry, this variable is not used for anything other than getting the entropy coding context.",
+      "range": {
+        "startLine": 5899,
+        "startChar": 43,
+        "endLine": 5899,
+        "endChar": 50
+      },
+      "revId": "1d509cc6b2ed22d79b3932e1a153cc6a5f81e90d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "118c0e99_cb848580",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 5923,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-10-16T14:21:22Z",
+      "side": 1,
+      "message": "The terminology is confusing. Something in the lines of cfl_signaling_rate or cfl_rate would be better than cfl_cost and rate_overhead.",
+      "revId": "1d509cc6b2ed22d79b3932e1a153cc6a5f81e90d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c897b35a_d1f02515",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 5931,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-10-16T14:21:22Z",
+      "side": 1,
+      "message": "Terminology is confusing, I would expect this variable to be best_rate \u003d rate; maybe best_overhead_rate...? Not sure what would be best here.",
+      "revId": "1d509cc6b2ed22d79b3932e1a153cc6a5f81e90d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
