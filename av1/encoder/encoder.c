@@ -4650,6 +4650,7 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
   int no_loopfilter = 0;
 
   if (is_lossless_requested(&cpi->oxcf)) no_loopfilter = 1;
+  no_loopfilter = 1;
 
 #if CONFIG_EXT_TILE
   // 0 loopfilter level is only necessary if individual tile
