@@ -216,6 +216,18 @@ void av1_fill_mode_rates(AV1_COMMON *const cm, MACROBLOCK *x,
       av1_cost_tokens_from_cdf(x->tx_size_cost[i][j], fc->tx_size_cdf[i][j],
                                NULL);
 
+#if CONFIG_VAR_TX
+  for (i = 0; i < TXFM_PARTITION_CONTEXTS; ++i) {
+#if CONFIG_NEW_MULTISYMBOL
+    av1_cost_tokens_from_cdf(x->txfm_partition_cost[i],
+                             fc->txfm_partition_cdf[i], NULL);
+#else
+    x->txfm_partition_cost[i][0] = av1_cost_bit(fc->txfm_partition_prob[i], 0);
+    x->txfm_partition_cost[i][1] = av1_cost_bit(fc->txfm_partition_prob[i], 1);
+#endif
+  }
+#endif
+
 #if CONFIG_EXT_TX
 #if CONFIG_LGT_FROM_PRED
   if (LGT_FROM_PRED_INTRA) {
