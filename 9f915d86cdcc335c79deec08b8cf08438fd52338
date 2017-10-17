@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "1af74468_ca2d63d9",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1668,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2017-10-17T08:19:51Z",
+      "side": 1,
+      "message": "Above printf comes from:\n\n      printf(\"mi_row %2d, mi_col %2d, bsize \u003d %d\\n\", mi_row, mi_col, bsize);\n      write_delta_qindex(cm, xd, reduced_delta_qindex, w);",
+      "parentUuid": "08363ce4_83eedff5",
+      "revId": "9f915d86cdcc335c79deec08b8cf08438fd52338",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b02fc8a6_2d76930d",
         "filename": "av1/encoder/bitstream.c",
         "patchSetId": 3
