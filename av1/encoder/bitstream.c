@@ -639,14 +639,30 @@ static void pack_mb_tokens(aom_writer *w, const TOKENEXTRA **tp,
     const av1_extra_bit *const extra_bits = &av1_extra_bits[token];
     if (eob_val == LAST_EOB) {
       // Just code a flag indicating whether the value is >1 or 1.
+#if CONFIG_COEFF_CTX_REDUCE
       aom_write_bit(w, token != ONE_TOKEN);
+      if (token > ONE_TOKEN)
+        aom_write_bit(w, token != TWO_TOKEN);
+#else
+      aom_write_bit(w, token != ONE_TOKEN);
+#endif
     } else {
+#if CONFIG_COEFF_CTX_REDUCE
+      int comb_symb = 2 * AOMMIN(token, THREE_TOKEN) - eob_val + p->first_val;
+#else
       int comb_symb = 2 * AOMMIN(token, TWO_TOKEN) - eob_val + p->first_val;
+#endif
       aom_write_symbol(w, comb_symb, *p->head_cdf, HEAD_TOKENS + p->first_val);
     }
+#if CONFIG_COEFF_CTX_REDUCE
+    if (token > TWO_TOKEN) {
+      aom_write_symbol(w, token - THREE_TOKEN, *p->tail_cdf, TAIL_TOKENS);
+    }
+#else
     if (token > ONE_TOKEN) {
       aom_write_symbol(w, token - TWO_TOKEN, *p->tail_cdf, TAIL_TOKENS);
     }
+#endif
 
     if (extra_bits->base_val) {
       const int bit_string = p->extra;
