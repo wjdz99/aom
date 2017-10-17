@@ -496,7 +496,7 @@ static INLINE void get_base_ctx_set(const tran_low_t *tcoeffs,
   const int row = c >> bwl;
   const int col = c - (row << bwl);
   const int stride = 1 << bwl;
-  int mag[NUM_BASE_LEVELS] = { 0 };
+  int mag[NUM_BASE_LEVELS][3] = { { 0 } };
   int idx;
   tran_low_t abs_coeff;
   int i;
@@ -513,13 +513,19 @@ static INLINE void get_base_ctx_set(const tran_low_t *tcoeffs,
 
     for (i = 0; i < NUM_BASE_LEVELS; ++i) {
       ctx_set[i] += abs_coeff > i;
-      if (base_ref_offset[idx][0] >= 0 && base_ref_offset[idx][1] >= 0)
-        mag[i] |= abs_coeff > (i + 1);
+      if (base_ref_offset[idx][0] == 0 && base_ref_offset[idx][1] == 1)
+        mag[i][0] = abs_coeff;
+      if (base_ref_offset[idx][0] == 1 && base_ref_offset[idx][1] == 0)
+        mag[i][1] = abs_coeff;
+      if (base_ref_offset[idx][0] == 1 && base_ref_offset[idx][1] == 1)
+        mag[i][2] = abs_coeff;
     }
   }
 
   for (i = 0; i < NUM_BASE_LEVELS; ++i) {
-    ctx_set[i] = get_base_ctx_from_count_mag(row, col, ctx_set[i], mag[i]);
+    int mag_count = 0;
+    for (idx = 0; idx < 3; ++idx) mag_count += mag[i][idx] > (i + 1);
+    ctx_set[i] = get_base_ctx_from_count_mag(row, col, ctx_set[i], mag_count);
   }
   return;
 }
@@ -894,8 +900,11 @@ void gen_txb_cache(TxbCache *txb_cache, TxbInfo *txb_info) {
       if (!has_base(qcoeff[coeff_idx], i)) break;
       txb_cache->base_count_arr[i][coeff_idx] = count[i];
       const int level = i + 1;
+
+      int mag_count = 0;
+      for (int idx = 0; idx < 3; ++idx) mag_count += (base_mag[idx] > level);
       txb_cache->base_ctx_arr[i][coeff_idx] =
-          base_ctx_table[row != 0][col != 0][base_mag[0] > level][count[i]];
+          base_ctx_table[row != 0][col != 0][mag_count][count[i]];
     }
 
     // gen_br_count_mag_arr
@@ -905,7 +914,7 @@ void gen_txb_cache(TxbCache *txb_cache, TxbInfo *txb_info) {
     *br_count = get_br_count_mag(br_mag, qcoeff, bwl, height, row, col,
                                  NUM_BASE_LEVELS);
     txb_cache->br_ctx_arr[coeff_idx] =
-        get_br_ctx_from_count_mag(row, col, *br_count, br_mag[0]);
+        get_br_ctx_from_count_mag(row, col, *br_count, br_mag);
   }
 }
 
@@ -940,25 +949,21 @@ static INLINE tran_low_t get_lower_coeff(tran_low_t qc) {
   return qc > 0 ? qc - 1 : qc + 1;
 }
 
-static INLINE void update_mag_arr(int *mag_arr, int abs_qc) {
-  if (mag_arr[0] == abs_qc) {
-    mag_arr[1] -= 1;
-    assert(mag_arr[1] >= 0);
-  }
+static INLINE void update_mag_arr(int *mag_arr, int abs_qc,
+                                  int row, int col) {
+  if (row == 0 && col == 1)
+    mag_arr[0] = abs_qc;
+  else if (row == 1 && col == 0)
+    mag_arr[1] = abs_qc;
+  else if (row == 1 && col == 1)
+    mag_arr[2] = abs_qc;
 }
 
-static INLINE int get_mag_from_mag_arr(const int *mag_arr) {
-  int mag;
-  if (mag_arr[1] > 0) {
-    mag = mag_arr[0];
-  } else if (mag_arr[0] > 0) {
-    mag = mag_arr[0] - 1;
-  } else {
-    // no neighbor
-    assert(mag_arr[0] == 0 && mag_arr[1] == 0);
-    mag = 0;
-  }
-  return mag;
+static INLINE int get_mag_from_mag_arr(const int *mag_arr, int level) {
+  int mag_count = 0;
+  for (int idx = 0; idx < 3; ++idx) mag_count += (mag_arr[idx] > level);
+
+  return mag_count;
 }
 
 static int neighbor_level_down_update(int *new_count, int *new_mag, int count,
@@ -966,7 +971,9 @@ static int neighbor_level_down_update(int *new_count, int *new_mag, int count,
                                       tran_low_t abs_nb_coeff, int nb_coeff_idx,
                                       int level, const TxbInfo *txb_info) {
   *new_count = count;
-  *new_mag = get_mag_from_mag_arr(mag);
+  *new_mag = get_mag_from_mag_arr(mag, level);
+
+  (void)txb_info;
 
   int update = 0;
   // check if br_count changes
@@ -975,23 +982,14 @@ static int neighbor_level_down_update(int *new_count, int *new_mag, int count,
     *new_count -= 1;
     assert(*new_count >= 0);
   }
-  const int row = coeff_idx >> txb_info->bwl;
-  const int col = coeff_idx - (row << txb_info->bwl);
-  const int nb_row = nb_coeff_idx >> txb_info->bwl;
-  const int nb_col = nb_coeff_idx - (nb_row << txb_info->bwl);
 
-  // check if mag changes
-  if (nb_row >= row && nb_col >= col) {
-    if (abs_nb_coeff == mag[0]) {
-      assert(mag[1] > 0);
-      if (mag[1] == 1) {
-        // the nb is the only qc with max mag
-        *new_mag -= 1;
-        assert(*new_mag >= 0);
-        update = 1;
-      }
+  if (nb_coeff_idx > coeff_idx) {
+    if (*new_mag > 0) {
+      --*new_mag;
+      update = 1;
     }
   }
+
   return update;
 }
 
@@ -1009,9 +1007,11 @@ static int try_neighbor_level_down_br(int coeff_idx, int nb_coeff_idx,
   const int count = txb_cache->br_count_arr[coeff_idx];
   const int *mag = txb_cache->br_mag_arr[coeff_idx];
   int new_count;
-  int new_mag;
+  int new_mag[3];
+
+  // TODO(jingning): Fix this context update
   const int update =
-      neighbor_level_down_update(&new_count, &new_mag, count, mag, coeff_idx,
+      neighbor_level_down_update(&new_count, &new_mag[0], count, mag, coeff_idx,
                                  abs_nb_coeff, nb_coeff_idx, level, txb_info);
   if (update) {
     const int row = coeff_idx >> txb_info->bwl;
@@ -1061,7 +1061,7 @@ static int try_neighbor_level_down_base(int coeff_idx, int nb_coeff_idx,
           abs_qc, ctx, txb_costs->base_cost[base_idx][ctx], base_idx);
 
       const int new_ctx =
-          base_ctx_table[row != 0][col != 0][new_mag > level][new_count];
+          base_ctx_table[row != 0][col != 0][new_mag][new_count];
       const int new_cost = get_base_cost(
           abs_qc, new_ctx, txb_costs->base_cost[base_idx][new_ctx], base_idx);
       cost_diff += -org_cost + new_cost;
@@ -1507,9 +1507,10 @@ void update_level_down(int coeff_idx, TxbCache *txb_cache, TxbInfo *txb_info) {
     const int nb_scan_idx = iscan[nb_coeff_idx];
     if (nb_scan_idx < eob) {
       if (row >= nb_row && col >= nb_col)
-        update_mag_arr(txb_cache->base_mag_arr[nb_coeff_idx], abs_qc);
+        update_mag_arr(txb_cache->base_mag_arr[nb_coeff_idx], abs_qc,
+                       row - nb_row, col - nb_col);
       const int mag =
-          get_mag_from_mag_arr(txb_cache->base_mag_arr[nb_coeff_idx]);
+          get_mag_from_mag_arr(txb_cache->base_mag_arr[nb_coeff_idx], i + 1);
       for (int base_idx = 0; base_idx < NUM_BASE_LEVELS; ++base_idx) {
         if (!has_base(nb_coeff, base_idx)) continue;
         const int level = base_idx + 1;
@@ -1519,7 +1520,7 @@ void update_level_down(int coeff_idx, TxbCache *txb_cache, TxbInfo *txb_info) {
         }
         const int count = txb_cache->base_count_arr[base_idx][nb_coeff_idx];
         txb_cache->base_ctx_arr[base_idx][nb_coeff_idx] =
-            base_ctx_table[nb_row != 0][nb_col != 0][mag > level][count];
+            base_ctx_table[nb_row != 0][nb_col != 0][mag][count];
         // int ref_ctx = get_base_ctx(txb_info->qcoeff, nb_coeff_idx,
         // txb_info->bwl, level);
         // if (ref_ctx != txb_cache->base_ctx_arr[base_idx][nb_coeff_idx]) {
@@ -1549,11 +1550,12 @@ void update_level_down(int coeff_idx, TxbCache *txb_cache, TxbInfo *txb_info) {
         assert(txb_cache->br_count_arr[nb_coeff_idx] >= 0);
       }
       if (row >= nb_row && col >= nb_col)
-        update_mag_arr(txb_cache->br_mag_arr[nb_coeff_idx], abs_qc);
+        update_mag_arr(txb_cache->br_mag_arr[nb_coeff_idx], abs_qc,
+                       row - nb_row, col - nb_col);
       const int count = txb_cache->br_count_arr[nb_coeff_idx];
-      const int mag = get_mag_from_mag_arr(txb_cache->br_mag_arr[nb_coeff_idx]);
       txb_cache->br_ctx_arr[nb_coeff_idx] =
-          get_br_ctx_from_count_mag(nb_row, nb_col, count, mag);
+          get_br_ctx_from_count_mag(nb_row, nb_col, count,
+                                    txb_cache->br_mag_arr[nb_coeff_idx]);
       // int ref_ctx = get_level_ctx(txb_info->qcoeff, nb_coeff_idx,
       // txb_info->bwl);
       // if (ref_ctx != txb_cache->br_ctx_arr[nb_coeff_idx]) {

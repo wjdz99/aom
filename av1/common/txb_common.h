@@ -99,14 +99,12 @@ static INLINE void get_base_count_mag(int *mag, int *count,
       count[i] += abs_coeff > i;
     }
     // mag
-    if (base_ref_offset[idx][0] >= 0 && base_ref_offset[idx][1] >= 0) {
-      if (abs_coeff > mag[0]) {
-        mag[0] = abs_coeff;
-        mag[1] = 1;
-      } else if (abs_coeff == mag[0]) {
-        ++mag[1];
-      }
-    }
+    if (base_ref_offset[idx][0] == 0 && base_ref_offset[idx][1] == 1)
+      mag[0] = abs_coeff;
+    if (base_ref_offset[idx][0] == 1 && base_ref_offset[idx][1] == 0)
+      mag[1] = abs_coeff;
+    if (base_ref_offset[idx][0] == 1 && base_ref_offset[idx][1] == 1)
+      mag[2] = abs_coeff;
   }
 }
 
@@ -116,7 +114,7 @@ static INLINE int get_level_count_mag(int *mag, const tran_low_t *tcoeffs,
                                       int nb_num) {
   const int stride = 1 << bwl;
   int count = 0;
-  *mag = 0;
+
   for (int idx = 0; idx < nb_num; ++idx) {
     const int ref_row = row + nb_offset[idx][0];
     const int ref_col = col + nb_offset[idx][1];
@@ -125,8 +123,12 @@ static INLINE int get_level_count_mag(int *mag, const tran_low_t *tcoeffs,
     const int pos = (ref_row << bwl) + ref_col;
     tran_low_t abs_coeff = abs(tcoeffs[pos]);
     count += abs_coeff > level;
-    if (nb_offset[idx][0] >= 0 && nb_offset[idx][1] >= 0)
-      *mag = AOMMAX(*mag, abs_coeff);
+    if (nb_offset[idx][0] == 0 && nb_offset[idx][1] == 1)
+      mag[0] = abs_coeff;
+    if (nb_offset[idx][0] == 1 && nb_offset[idx][1] == 0)
+      mag[1] = abs_coeff;
+    if (nb_offset[idx][0] == 1 && nb_offset[idx][1] == 1)
+      mag[2] = abs_coeff;
   }
   return count;
 }
@@ -136,19 +138,24 @@ static INLINE int get_base_ctx_from_count_mag(int row, int col, int count,
   const int ctx = (count + 1) >> 1;
   int ctx_idx = -1;
   if (row == 0 && col == 0) {
-    ctx_idx = (ctx << 1) + sig_mag;
+    if (sig_mag == 0) ctx_idx = ctx;
+    else ctx_idx = sig_mag;
+
     // TODO(angiebird): turn this on once the optimization is finalized
-    // assert(ctx_idx < 8);
+    // assert(ctx_idx < 7);
   } else if (row == 0) {
-    ctx_idx = 8 + (ctx << 1) + sig_mag;
+    if (sig_mag == 0) ctx_idx = 7 + ctx;
+    else ctx_idx = 11 + sig_mag;
     // TODO(angiebird): turn this on once the optimization is finalized
     // assert(ctx_idx < 18);
   } else if (col == 0) {
-    ctx_idx = 8 + 10 + (ctx << 1) + sig_mag;
+    if (sig_mag == 0) ctx_idx = 15 + ctx;
+    else ctx_idx = 19 + sig_mag;
     // TODO(angiebird): turn this on once the optimization is finalized
     // assert(ctx_idx < 28);
   } else {
-    ctx_idx = 8 + 10 + 10 + (ctx << 1) + sig_mag;
+    if (sig_mag == 0) ctx_idx = 23 + ctx;
+    else ctx_idx = 29 + sig_mag;
     assert(ctx_idx < COEFF_BASE_CONTEXTS);
   }
   return ctx_idx;
@@ -161,11 +168,13 @@ static INLINE int get_base_ctx(const tran_low_t *tcoeffs,
   const int row = c >> bwl;
   const int col = c - (row << bwl);
   const int level_minus_1 = level - 1;
-  int mag;
+  int mag[3] = { 0 };
   int count =
-      get_level_count_mag(&mag, tcoeffs, bwl, height, row, col, level_minus_1,
+      get_level_count_mag(mag, tcoeffs, bwl, height, row, col, level_minus_1,
                           base_ref_offset, BASE_CONTEXT_POSITION_NUM);
-  int ctx_idx = get_base_ctx_from_count_mag(row, col, count, mag > level);
+  int mag_count = 0;
+  for (int idx = 0; idx < 3; ++idx) mag_count += (mag[idx] > level);
+  int ctx_idx = get_base_ctx_from_count_mag(row, col, count, mag_count);
   return ctx_idx;
 }
 
@@ -201,6 +210,8 @@ static INLINE int get_br_count_mag(int *mag, const tran_low_t *tcoeffs, int bwl,
                                    int height, int row, int col, int level) {
   mag[0] = 0;
   mag[1] = 0;
+  mag[2] = 0;
+
   int count = 0;
   for (int idx = 0; idx < BR_CONTEXT_POSITION_NUM; ++idx) {
     const int ref_row = row + br_ref_offset[idx][0];
@@ -211,21 +222,22 @@ static INLINE int get_br_count_mag(int *mag, const tran_low_t *tcoeffs, int bwl,
     const int pos = (ref_row << bwl) + ref_col;
     tran_low_t abs_coeff = abs(tcoeffs[pos]);
     count += abs_coeff > level;
-    if (br_ref_offset[idx][0] >= 0 && br_ref_offset[idx][1] >= 0) {
-      if (abs_coeff > mag[0]) {
-        mag[0] = abs_coeff;
-        mag[1] = 1;
-      } else if (abs_coeff == mag[0]) {
-        ++mag[1];
-      }
-    }
+
+    if (br_ref_offset[idx][0] == 0 && br_ref_offset[idx][1] == 1)
+      mag[0] = abs_coeff;
+    if (br_ref_offset[idx][0] == 1 && br_ref_offset[idx][1] == 0)
+      mag[1] = abs_coeff;
+    if (br_ref_offset[idx][0] == 1 && br_ref_offset[idx][1] == 1)
+      mag[2] = abs_coeff;
   }
   return count;
 }
 
 static INLINE int get_br_ctx_from_count_mag(int row, int col, int count,
-                                            int mag) {
+                                            int *mag_buf) {
   int offset = 0;
+  int mag = mag_buf[0];
+
   if (mag <= BR_MAG_OFFSET)
     offset = 0;
   else if (mag <= 3)
@@ -257,9 +269,9 @@ static INLINE int get_br_ctx(const tran_low_t *tcoeffs,
   const int row = c >> bwl;
   const int col = c - (row << bwl);
   const int level_minus_1 = NUM_BASE_LEVELS;
-  int mag;
+  int mag[3] = { 0 };
   const int count =
-      get_level_count_mag(&mag, tcoeffs, bwl, height, row, col, level_minus_1,
+      get_level_count_mag(mag, tcoeffs, bwl, height, row, col, level_minus_1,
                           br_ref_offset, BR_CONTEXT_POSITION_NUM);
   const int ctx = get_br_ctx_from_count_mag(row, col, count, mag);
   return ctx;
