@@ -70,6 +70,30 @@
       "revId": "9c8de4d1bff17b36b669f892356c3b8dfeeb570b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cd3ca204_57c21f2e",
+        "filename": "av1/common/pred_common.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-10-17T22:24:22Z",
+      "side": 1,
+      "message": "You are right. Let\u0027s remove it. Please refer to the upcoming CL.",
+      "parentUuid": "d669fadf_864d864a",
+      "range": {
+        "startLine": 71,
+        "startChar": 0,
+        "endLine": 77,
+        "endChar": 34
+      },
+      "revId": "9c8de4d1bff17b36b669f892356c3b8dfeeb570b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
