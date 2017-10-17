@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "08363ce4_83eedff5",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1668,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2017-10-17T08:16:00Z",
+      "side": 1,
+      "message": "Checking again, then what\u0027s happening is: delta_q is coded ONCE for each SB (128x128 now) for the TOP-LEFT block in a SB, instead of \"largest block size\" you mentioned.\n\nHere\u0027s example.\n\nmi_row  0, mi_col 32, bsize \u003d 6\nmi_row  0, mi_col 64, bsize \u003d 9\nmi_row  0, mi_col 96, bsize \u003d 9\nmi_row  0, mi_col 128, bsize \u003d 6\nmi_row 32, mi_col  0, bsize \u003d 6\nmi_row 32, mi_col 32, bsize \u003d 6\nmi_row 32, mi_col 64, bsize \u003d 9\nmi_row 32, mi_col 96, bsize \u003d 9\nmi_row 32, mi_col 128, bsize \u003d 6\nmi_row 64, mi_col  0, bsize \u003d 6\nmi_row 64, mi_col 32, bsize \u003d 6\nmi_row 64, mi_col 64, bsize \u003d 9\nmi_row 64, mi_col 96, bsize \u003d 3\nmi_row 64, mi_col 128, bsize \u003d 6",
+      "parentUuid": "b820d4bb_9c2b1f66",
+      "revId": "9f915d86cdcc335c79deec08b8cf08438fd52338",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b02fc8a6_2d76930d",
         "filename": "av1/encoder/bitstream.c",
         "patchSetId": 3
