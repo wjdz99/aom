@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e6c5da0a_946a3af9",
+        "filename": "av1/encoder/dct.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1952,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-10-17T16:53:48Z",
+      "side": 1,
+      "message": "Like the previous patch, fdct_round_shift() scales down by 16384, which seems like a mistake here.",
+      "revId": "c3310e992e3e377743765eb21f600bb1d467907e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "734813cd_ecb751eb",
+        "filename": "av1/encoder/dct.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1958,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-10-17T16:53:48Z",
+      "side": 1,
+      "message": "Same comment as 8x4/4x8 patch.",
+      "revId": "c3310e992e3e377743765eb21f600bb1d467907e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1303f56c_40d7aec3",
+        "filename": "av1/encoder/dct.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 2082,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-10-17T16:53:48Z",
+      "side": 1,
+      "message": "See above.",
+      "revId": "c3310e992e3e377743765eb21f600bb1d467907e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e14440f4_1dceb20a",
+        "filename": "av1/encoder/dct.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 2088,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-10-17T16:53:48Z",
+      "side": 1,
+      "message": "See above.",
+      "revId": "c3310e992e3e377743765eb21f600bb1d467907e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
