@@ -762,6 +762,9 @@ typedef enum {
 #define LGT_SL_INTRA 0
 #endif  // CONFIG_LGT_FROM_PRED
 
+#if CONFIG_DELTA_Q_MIN_BLK_SIZE
+#define DELTA_Q_MIN_BLK_SIZE BLOCK_16X16
+#endif  // CONFIG_DELTA_Q_MIN_BLK_SIZE
 #ifdef __cplusplus
 }  // extern "C"
 #endif

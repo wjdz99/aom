@@ -1660,7 +1660,11 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
   }
 
   skip = write_skip(cm, xd, segment_id, mi, w);
-  if (cm->delta_q_present_flag) {
+  if (cm->delta_q_present_flag
+#if CONFIG_DELTA_Q_MIN_BLK_SIZE
+      && (!cm->delta_q_limit_min_blk_size || (bsize >= DELTA_Q_MIN_BLK_SIZE))
+#endif  // CONFIG_DELTA_Q_MIN_BLK_SIZE
+          ) {
     int super_block_upper_left =
         ((mi_row & MAX_MIB_MASK) == 0) && ((mi_col & MAX_MIB_MASK) == 0);
     if ((bsize != BLOCK_LARGEST || skip == 0) && super_block_upper_left) {
@@ -2071,7 +2075,11 @@ static void write_mb_modes_kf(AV1_COMMON *cm, MACROBLOCKD *xd,
   if (seg->update_map) write_segment_id(w, seg, segp, mbmi->segment_id);
 
   const int skip = write_skip(cm, xd, mbmi->segment_id, mi, w);
-  if (cm->delta_q_present_flag) {
+  if (cm->delta_q_present_flag
+#if CONFIG_DELTA_Q_MIN_BLK_SIZE
+      && (!cm->delta_q_limit_min_blk_size || (bsize >= DELTA_Q_MIN_BLK_SIZE))
+#endif  // CONFIG_DELTA_Q_MIN_BLK_SIZE
+          ) {
     int super_block_upper_left =
         ((mi_row & MAX_MIB_MASK) == 0) && ((mi_col & MAX_MIB_MASK) == 0);
     if ((bsize != BLOCK_LARGEST || skip == 0) && super_block_upper_left) {
@@ -4508,6 +4516,9 @@ static void write_uncompressed_header_frame(AV1_COMP *cpi,
       if (cm->delta_q_present_flag) {
         aom_wb_write_literal(wb, OD_ILOG_NZ(cm->delta_q_res) - 1, 2);
         xd->prev_qindex = cm->base_qindex;
+#if CONFIG_DELTA_Q_MIN_BLK_SIZE
+        aom_wb_write_bit(wb, cm->delta_q_limit_min_blk_size);
+#endif  // CONFIG_DELTA_Q_MIN_BLK_SIZE
 #if CONFIG_EXT_DELTA_Q
         assert(cm->seg.abs_delta == SEGMENT_DELTADATA);
         aom_wb_write_bit(wb, cm->delta_lf_present_flag);
@@ -4846,6 +4857,9 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
       if (cm->delta_q_present_flag) {
         aom_wb_write_literal(wb, OD_ILOG_NZ(cm->delta_q_res) - 1, 2);
         xd->prev_qindex = cm->base_qindex;
+#if CONFIG_DELTA_Q_MIN_BLK_SIZE
+        aom_wb_write_bit(wb, cm->delta_q_limit_min_blk_size);
+#endif  // CONFIG_DELTA_Q_MIN_BLK_SIZE
 #if CONFIG_EXT_DELTA_Q
         assert(seg->abs_delta == SEGMENT_DELTADATA);
         aom_wb_write_bit(wb, cm->delta_lf_present_flag);
