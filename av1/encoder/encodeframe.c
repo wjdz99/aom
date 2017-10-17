@@ -5982,7 +5982,7 @@ static void sum_intra_stats(FRAME_COUNTS *counts, MACROBLOCKD *xd,
                  mbmi->filter_intra_mode_info.filter_intra_mode[0],
                  FILTER_INTRA_MODES);
     }
-    if (mbmi->uv_mode == UV_DC_PRED
+    if (mbmi->sb_type >= BLOCK_8X8 && mbmi->uv_mode == UV_DC_PRED
 #if CONFIG_CB4X4
         &&
         is_chroma_reference(mi_row, mi_col, bsize, xd->plane[1].subsampling_x,

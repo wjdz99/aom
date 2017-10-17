@@ -1241,7 +1241,7 @@ static void write_filter_intra_mode_info(const AV1_COMMON *const cm,
   (void)mi_col;
 #endif  // CONFIG_CB4X4
 
-  if (mbmi->uv_mode == UV_DC_PRED &&
+  if (mbmi->sb_type >= BLOCK_8X8 && mbmi->uv_mode == UV_DC_PRED &&
       mbmi->palette_mode_info.palette_size[1] == 0) {
     aom_write(w, mbmi->filter_intra_mode_info.use_filter_intra_mode[1],
               cm->fc->filter_intra_probs[1]);

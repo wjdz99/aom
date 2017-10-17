@@ -2978,8 +2978,7 @@ static int64_t intra_model_yrd(const AV1_COMP *const cpi, MACROBLOCK *const x,
     const aom_prob prob = cpi->common.fc->filter_intra_probs[0];
     if (mbmi->filter_intra_mode_info.use_filter_intra_mode[0]) {
       const int mode = mbmi->filter_intra_mode_info.filter_intra_mode[0];
-      mode_cost += (av1_cost_bit(prob, 1) +
-                    write_uniform_cost(FILTER_INTRA_MODES, mode));
+      mode_cost += av1_cost_bit(prob, 1) + x->filter_intra_mode_cost[0][mode];
     } else {
       mode_cost += av1_cost_bit(prob, 0);
     }
@@ -11135,12 +11134,13 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
             av1_cost_bit(cm->fc->filter_intra_probs[0],
                          mbmi->filter_intra_mode_info.use_filter_intra_mode[0]);
         if (mbmi->filter_intra_mode_info.use_filter_intra_mode[0]) {
+          assert(0);
           rate2 += write_uniform_cost(
               FILTER_INTRA_MODES,
               mbmi->filter_intra_mode_info.filter_intra_mode[0]);
         }
       }
-      if (mbmi->uv_mode == UV_DC_PRED) {
+      if (mbmi->sb_type >= BLOCK_8X8 && mbmi->uv_mode == UV_DC_PRED) {
         rate2 +=
             av1_cost_bit(cm->fc->filter_intra_probs[1],
                          mbmi->filter_intra_mode_info.use_filter_intra_mode[1]);

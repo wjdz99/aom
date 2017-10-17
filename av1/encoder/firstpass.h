@@ -42,6 +42,8 @@ typedef struct {
 } FIRSTPASS_MB_STATS;
 #endif
 
+#define USE_GF16_MULTI_LAYER 0
+
 #if CONFIG_EXT_REFS
 // Length of the bi-predictive frame group (BFG)
 // NOTE: Currently each BFG contains one backward ref (BWF) frame plus a certain
@@ -50,7 +52,6 @@ typedef struct {
 // The maximum number of extra ALTREF's except ALTREF_FRAME
 // NOTE: REF_FRAMES indicates the maximum number of frames that may be buffered
 //       to serve as references. Currently REF_FRAMES == 8.
-#define USE_GF16_MULTI_LAYER 0
 
 #if USE_GF16_MULTI_LAYER
 #define MAX_EXT_ARFS (REF_FRAMES - BWDREF_FRAME)
