@@ -1720,10 +1720,10 @@ static const aom_cdf_prob
         { AOM_ICDF(15912), AOM_ICDF(32768), 0 } },
       { { AOM_ICDF(30894), AOM_ICDF(32768), 0 },
         { AOM_ICDF(30639), AOM_ICDF(32768), 0 } },
-      { { AOM_ICDF(32768), AOM_ICDF(32768), 0 },
-        { AOM_ICDF(32768), AOM_ICDF(32768), 0 } },
-      { { AOM_ICDF(32768), AOM_ICDF(32768), 0 },
-        { AOM_ICDF(32768), AOM_ICDF(32768), 0 } }
+      { { AOM_ICDF(32767), AOM_ICDF(32768), 0 },
+        { AOM_ICDF(32767), AOM_ICDF(32768), 0 } },
+      { { AOM_ICDF(32767), AOM_ICDF(32768), 0 },
+        { AOM_ICDF(32767), AOM_ICDF(32768), 0 } }
     };
 #endif  // CONFIG_NEW_MULTISYMBOL
 
@@ -1756,18 +1756,18 @@ static const aom_cdf_prob
         { AOM_ICDF(21702), AOM_ICDF(32768), 0 },
         { AOM_ICDF(10365), AOM_ICDF(32768), 0 },
         { AOM_ICDF(30486), AOM_ICDF(32768), 0 } },
-      { { AOM_ICDF(32768), AOM_ICDF(32768), 0 },
-        { AOM_ICDF(32768), AOM_ICDF(32768), 0 },
+      { { AOM_ICDF(32767), AOM_ICDF(32768), 0 },
+        { AOM_ICDF(32767), AOM_ICDF(32768), 0 },
         { AOM_ICDF(24426), AOM_ICDF(32768), 0 },
         { AOM_ICDF(26972), AOM_ICDF(32768), 0 },
         { AOM_ICDF(14760), AOM_ICDF(32768), 0 },
-        { AOM_ICDF(32768), AOM_ICDF(32768), 0 } },
+        { AOM_ICDF(32767), AOM_ICDF(32768), 0 } },
       { { AOM_ICDF(28634), AOM_ICDF(32768), 0 },
-        { AOM_ICDF(32768), AOM_ICDF(32768), 0 },
+        { AOM_ICDF(32767), AOM_ICDF(32768), 0 },
         { AOM_ICDF(29425), AOM_ICDF(32768), 0 },
         { AOM_ICDF(30969), AOM_ICDF(32768), 0 },
         { AOM_ICDF(26676), AOM_ICDF(32768), 0 },
-        { AOM_ICDF(32768), AOM_ICDF(32768), 0 } }
+        { AOM_ICDF(32767), AOM_ICDF(32768), 0 } }
     };
 #endif  // CONFIG_NEW_MULTISYMBOL
 

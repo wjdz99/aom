@@ -231,6 +231,14 @@ struct macroblock {
 
   // mode costs
   int intra_inter_cost[INTRA_INTER_CONTEXTS][2];
+  int comp_inter_cost[COMP_INTER_CONTEXTS][2];
+  int single_ref_cost[REF_CONTEXTS][SINGLE_REFS - 1][2];
+  int comp_ref_cost[REF_CONTEXTS][FWD_REFS - 1][2];
+  int comp_bwdref_cost[REF_CONTEXTS][BWD_REFS - 1][2];
+#if CONFIG_EXT_COMP_REFS
+  int comp_ref_type_cost[COMP_REF_TYPE_CONTEXTS][2];
+  int uni_comp_ref_cost[UNI_COMP_REF_CONTEXTS][UNIDIR_COMP_REFS - 1][2];
+#endif  // CONFIG_EXT_COMP_REFS
 
   int mbmode_cost[BLOCK_SIZE_GROUPS][INTRA_MODES];
   int newmv_mode_cost[NEWMV_MODE_CONTEXTS][2];

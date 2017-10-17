@@ -1139,18 +1139,31 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td, int mi_row,
 #endif  // !USE_UNI_COMP_REFS
           counts->comp_ref_type[av1_get_comp_reference_type_context(xd)]
                                [comp_ref_type]++;
+#if CONFIG_NEW_MULTISYMBOL
+          update_cdf(av1_get_comp_reference_type_cdf(xd), comp_ref_type, 2);
+#endif  // CONFIG_NEW_MULTISYMBOL
 
           if (comp_ref_type == UNIDIR_COMP_REFERENCE) {
             const int bit = (ref0 == BWDREF_FRAME);
             counts->uni_comp_ref[av1_get_pred_context_uni_comp_ref_p(xd)][0]
                                 [bit]++;
+#if CONFIG_NEW_MULTISYMBOL
+            update_cdf(av1_get_pred_cdf_uni_comp_ref_p(xd), bit, 2);
+#endif  // CONFIG_NEW_MULTISYMBOL
             if (!bit) {
               const int bit1 = (ref1 == LAST3_FRAME || ref1 == GOLDEN_FRAME);
               counts->uni_comp_ref[av1_get_pred_context_uni_comp_ref_p1(xd)][1]
                                   [bit1]++;
+#if CONFIG_NEW_MULTISYMBOL
+              update_cdf(av1_get_pred_cdf_uni_comp_ref_p1(xd), bit1, 2);
+#endif  // CONFIG_NEW_MULTISYMBOL
               if (bit1) {
                 counts->uni_comp_ref[av1_get_pred_context_uni_comp_ref_p2(xd)]
                                     [2][ref1 == GOLDEN_FRAME]++;
+#if CONFIG_NEW_MULTISYMBOL
+                update_cdf(av1_get_pred_cdf_uni_comp_ref_p2(xd),
+                           (ref1 == GOLDEN_FRAME), 2);
+#endif  // CONFIG_NEW_MULTISYMBOL
               }
             }
           } else {
@@ -1158,19 +1171,39 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td, int mi_row,
             const int bit = (ref0 == GOLDEN_FRAME || ref0 == LAST3_FRAME);
 
             counts->comp_ref[av1_get_pred_context_comp_ref_p(cm, xd)][0][bit]++;
+#if CONFIG_NEW_MULTISYMBOL
+            update_cdf(av1_get_pred_cdf_comp_ref_p(cm, xd), bit, 2);
+#endif  // CONFIG_NEW_MULTISYMBOL
             if (!bit) {
               counts->comp_ref[av1_get_pred_context_comp_ref_p1(cm, xd)][1]
                               [ref0 == LAST_FRAME]++;
+#if CONFIG_NEW_MULTISYMBOL
+              update_cdf(av1_get_pred_cdf_comp_ref_p1(cm, xd),
+                         (ref0 == LAST_FRAME), 2);
+#endif  // CONFIG_NEW_MULTISYMBOL
             } else {
               counts->comp_ref[av1_get_pred_context_comp_ref_p2(cm, xd)][2]
                               [ref0 == GOLDEN_FRAME]++;
+#if CONFIG_NEW_MULTISYMBOL
+              update_cdf(av1_get_pred_cdf_comp_ref_p2(cm, xd),
+                         (ref0 == GOLDEN_FRAME), 2);
+#endif  // CONFIG_NEW_MULTISYMBOL
             }
 
             counts->comp_bwdref[av1_get_pred_context_comp_bwdref_p(cm, xd)][0]
                                [ref1 == ALTREF_FRAME]++;
-            if (ref1 != ALTREF_FRAME)
+#if CONFIG_NEW_MULTISYMBOL
+            update_cdf(av1_get_pred_cdf_comp_bwdref_p(cm, xd),
+                       (ref1 == ALTREF_FRAME), 2);
+#endif  // CONFIG_NEW_MULTISYMBOL
+            if (ref1 != ALTREF_FRAME) {
               counts->comp_bwdref[av1_get_pred_context_comp_bwdref_p1(cm, xd)]
                                  [1][ref1 == ALTREF2_FRAME]++;
+#if CONFIG_NEW_MULTISYMBOL
+              update_cdf(av1_get_pred_cdf_comp_bwdref_p1(cm, xd),
+                         (ref1 == ALTREF2_FRAME), 2);
+#endif  // CONFIG_NEW_MULTISYMBOL
+            }
 #if CONFIG_EXT_COMP_REFS
           }
 #endif  // CONFIG_EXT_COMP_REFS
@@ -1178,23 +1211,45 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td, int mi_row,
           const int bit = (ref0 >= BWDREF_FRAME);
 
           counts->single_ref[av1_get_pred_context_single_ref_p1(xd)][0][bit]++;
+#if CONFIG_NEW_MULTISYMBOL
+          update_cdf(av1_get_pred_cdf_single_ref_p1(cm, xd), bit, 2);
+#endif  // CONFIG_NEW_MULTISYMBOL
           if (bit) {
             assert(ref0 <= ALTREF_FRAME);
             counts->single_ref[av1_get_pred_context_single_ref_p2(xd)][1]
                               [ref0 == ALTREF_FRAME]++;
+#if CONFIG_NEW_MULTISYMBOL
+            update_cdf(av1_get_pred_cdf_single_ref_p2(cm, xd),
+                       (ref0 == ALTREF_FRAME), 2);
+#endif  // CONFIG_NEW_MULTISYMBOL
             if (ref0 != ALTREF_FRAME)
               counts->single_ref[av1_get_pred_context_single_ref_p6(xd)][5]
                                 [ref0 == ALTREF2_FRAME]++;
+#if CONFIG_NEW_MULTISYMBOL
+            update_cdf(av1_get_pred_cdf_single_ref_p6(cm, xd),
+                       (ref0 == ALTREF2_FRAME), 2);
+#endif  // CONFIG_NEW_MULTISYMBOL
           } else {
             const int bit1 = !(ref0 == LAST2_FRAME || ref0 == LAST_FRAME);
             counts
                 ->single_ref[av1_get_pred_context_single_ref_p3(xd)][2][bit1]++;
+#if CONFIG_NEW_MULTISYMBOL
+            update_cdf(av1_get_pred_cdf_single_ref_p3(cm, xd), bit1, 2);
+#endif  // CONFIG_NEW_MULTISYMBOL
             if (!bit1) {
               counts->single_ref[av1_get_pred_context_single_ref_p4(xd)][3]
                                 [ref0 != LAST_FRAME]++;
+#if CONFIG_NEW_MULTISYMBOL
+              update_cdf(av1_get_pred_cdf_single_ref_p4(cm, xd),
+                         (ref0 != LAST_FRAME), 2);
+#endif  // CONFIG_NEW_MULTISYMBOL
             } else {
               counts->single_ref[av1_get_pred_context_single_ref_p5(xd)][4]
                                 [ref0 != LAST3_FRAME]++;
+#if CONFIG_NEW_MULTISYMBOL
+              update_cdf(av1_get_pred_cdf_single_ref_p5(cm, xd),
+                         (ref0 != LAST3_FRAME), 2);
+#endif  // CONFIG_NEW_MULTISYMBOL
             }
           }
         }
