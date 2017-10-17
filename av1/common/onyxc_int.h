@@ -495,6 +495,9 @@ typedef struct AV1Common {
   int delta_q_present_flag;
   // Resolution of delta quant
   int delta_q_res;
+#if CONFIG_DELTA_Q_MIN_BLK_SIZE
+  int delta_q_limit_min_blk_size;  // 1: limit minumum block size
+#endif                             // CONFIG_DELTA_Q_MIN_BLK_SIZE
 #if CONFIG_EXT_DELTA_Q
   int delta_lf_present_flag;
   // Resolution of delta lf level
