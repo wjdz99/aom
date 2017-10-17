@@ -632,7 +632,7 @@ static INLINE void ensure_mv_buffer(RefCntBuffer *buf, AV1_COMMON *cm) {
 #if CONFIG_TMV
     CHECK_MEM_ERROR(cm, buf->mvs,
                     (MV_REF *)aom_calloc(
-                        ((cm->mi_rows + 1) >> 1) * ((cm->mi_cols + 1) >> 1),
+                        ((cm->mi_rows + 2) >> 2) * ((cm->mi_cols + 2) >> 2),
                         sizeof(*buf->mvs)));
 #else
     CHECK_MEM_ERROR(

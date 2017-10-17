@@ -3062,11 +3062,12 @@ static void read_inter_frame_mode_info(AV1Decoder *const pbi,
 static void av1_intra_copy_frame_mvs(AV1_COMMON *const cm, int mi_row,
                                      int mi_col, int x_mis, int y_mis) {
 #if CONFIG_TMV
-  const int frame_mvs_stride = ROUND_POWER_OF_TWO(cm->mi_cols, 1);
+  const int frame_mvs_stride = ROUND_POWER_OF_TWO(cm->mi_cols, 2);
   MV_REF *frame_mvs =
-      cm->cur_frame->mvs + (mi_row >> 1) * frame_mvs_stride + (mi_col >> 1);
-  x_mis = ROUND_POWER_OF_TWO(x_mis, 1);
-  y_mis = ROUND_POWER_OF_TWO(y_mis, 1);
+      cm->cur_frame->mvs + (mi_row >> 2) * frame_mvs_stride + (mi_col >> 2);
+  // x_mis and y_mis should be >= 1.
+  x_mis = AOMMAX(ROUND_POWER_OF_TWO(x_mis, 2), 1);
+  y_mis = AOMMAX(ROUND_POWER_OF_TWO(y_mis, 2), 1);
 #else
   const int frame_mvs_stride = cm->mi_cols;
   MV_REF *frame_mvs = cm->cur_frame->mvs +
