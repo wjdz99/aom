@@ -88,6 +88,143 @@ static const int use_inter_ext_tx_for_txsize[EXT_TX_SETS_INTER][EXT_TX_SIZES] =
     };
 #endif  // CONFIG_EXT_TX
 
+void fill_ref_frame_costs(AV1_COMMON *const cm, MACROBLOCK *x,
+                          FRAME_CONTEXT *fc) {
+  MACROBLOCKD *const xd = &x->e_mbd;
+  MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
+
+  int seg_ref_active =
+      segfeature_active(&cm->seg, mbmi->segment_id, SEG_LVL_REF_FRAME);
+  int i, j;
+
+  if (seg_ref_active) {
+    for (i = 0; i < INTRA_INTER_CONTEXTS; ++i)
+      x->intra_inter_cost[i][0] = x->intra_inter_cost[i][1] = 0;
+
+    for (i = 0; i < COMP_INTER_CONTEXTS; ++i)
+      x->comp_inter_cost[i][0] = x->comp_inter_cost[i][1] = 0;
+
+    for (i = 0; i < REF_CONTEXTS; ++i) {
+      for (j = 0; j < (SINGLE_REFS - 1); ++j)
+        x->single_ref_cost[i][j][0] = x->single_ref_cost[i][j][1] = 0;
+
+      for (j = 0; j < (FWD_REFS - 1); ++j)
+        x->comp_ref_cost[i][j][0] = x->comp_ref_cost[i][j][1] = 0;
+
+      for (j = 0; j < (BWD_REFS - 1); ++j)
+        x->comp_bwdref_cost[i][j][0] = x->comp_bwdref_cost[i][j][1] = 0;
+    }
+
+#if CONFIG_EXT_COMP_REFS
+    for (i = 0; i < COMP_REF_TYPE_CONTEXTS; ++i)
+      x->comp_ref_type_cost[i][0] = x->comp_ref_type_cost[i][1] = 0;
+
+    for (i = 0; i < UNI_COMP_REF_CONTEXTS; ++i) {
+      for (j = 0; j < (UNIDIR_COMP_REFS - 1); ++j)
+        x->uni_comp_ref_cost[i][j][0] = x->uni_comp_ref_cost[i][j][1] = 0;
+    }
+#endif  // CONFIG_EXT_COMP_REFS
+  } else {
+    for (i = 0; i < INTRA_INTER_CONTEXTS; ++i) {
+#if CONFIG_NEW_MULTISYMBOL
+      av1_cost_tokens_from_cdf(x->intra_inter_cost[i], fc->intra_inter_cdf[i],
+                               NULL);
+#else
+      x->intra_inter_cost[i][0] = av1_cost_bit(fc->intra_inter_prob[i], 0);
+      x->intra_inter_cost[i][1] = av1_cost_bit(fc->intra_inter_prob[i], 1);
+#endif  // CONFIG_NEW_MULTISYMBOL
+    }
+
+    if (cm->reference_mode == REFERENCE_MODE_SELECT &&
+        is_comp_ref_allowed(mbmi->sb_type)) {
+      for (i = 0; i < COMP_INTER_CONTEXTS; ++i) {
+#if CONFIG_NEW_MULTISYMBOL
+        av1_cost_tokens_from_cdf(x->comp_inter_cost[i], fc->comp_inter_cdf[i],
+                                 NULL);
+#else
+        x->comp_inter_cost[i][0] = av1_cost_bit(fc->comp_inter_prob[i], 0);
+        x->comp_inter_cost[i][1] = av1_cost_bit(fc->comp_inter_prob[i], 1);
+#endif  // CONFIG_NEW_MULTISYMBOL
+      }
+    } else {
+      for (i = 0; i < COMP_INTER_CONTEXTS; ++i)
+        x->comp_inter_cost[i][0] = x->comp_inter_cost[i][1] = 0;
+    }
+
+    if (cm->reference_mode != COMPOUND_REFERENCE) {
+      for (i = 0; i < REF_CONTEXTS; ++i) {
+        for (j = 0; j < (SINGLE_REFS - 1); ++j) {
+#if CONFIG_NEW_MULTISYMBOL
+          av1_cost_tokens_from_cdf(x->single_ref_cost[i][j],
+                                   fc->single_ref_cdf[i][j], NULL);
+#else
+          x->single_ref_cost[i][j][0] =
+              av1_cost_bit(fc->single_ref_prob[i][j], 0);
+          x->single_ref_cost[i][j][1] =
+              av1_cost_bit(fc->single_ref_prob[i][j], 1);
+#endif  // CONFIG_NEW_MULTISYMBOL
+        }
+      }
+    }
+
+    if (cm->reference_mode != SINGLE_REFERENCE) {
+      for (i = 0; i < REF_CONTEXTS; ++i) {
+        for (j = 0; j < (FWD_REFS - 1); ++j) {
+#if CONFIG_NEW_MULTISYMBOL
+          av1_cost_tokens_from_cdf(x->comp_ref_cost[i][j],
+                                   fc->comp_ref_cdf[i][j], NULL);
+#else
+          x->comp_ref_cost[i][j][0] = av1_cost_bit(fc->comp_ref_prob[i][j], 0);
+          x->comp_ref_cost[i][j][1] = av1_cost_bit(fc->comp_ref_prob[i][j], 1);
+#endif  // CONFIG_NEW_MULTISYMBOL
+        }
+      }
+
+      for (i = 0; i < REF_CONTEXTS; ++i) {
+        for (j = 0; j < (BWD_REFS - 1); ++j) {
+#if CONFIG_NEW_MULTISYMBOL
+          av1_cost_tokens_from_cdf(x->comp_bwdref_cost[i][j],
+                                   fc->comp_bwdref_cdf[i][j], NULL);
+#else
+          x->comp_bwdref_cost[i][j][0] =
+              av1_cost_bit(fc->comp_bwdref_prob[i][j], 0);
+          x->comp_bwdref_cost[i][j][1] =
+              av1_cost_bit(fc->comp_bwdref_prob[i][j], 1);
+#endif  // CONFIG_NEW_MULTISYMBOL
+        }
+      }
+
+#if CONFIG_EXT_COMP_REFS
+      for (i = 0; i < COMP_REF_TYPE_CONTEXTS; ++i) {
+#if CONFIG_NEW_MULTISYMBOL
+        av1_cost_tokens_from_cdf(x->comp_ref_type_cost[i],
+                                 fc->comp_ref_type_cdf[i], NULL);
+#else
+        x->comp_ref_type_cost[i][0] =
+            av1_cost_bit(fc->comp_ref_type_prob[i], 0);
+        x->comp_ref_type_cost[i][1] =
+            av1_cost_bit(fc->comp_ref_type_prob[i], 1);
+#endif  // CONFIG_NEW_MULTISYMBOL
+      }
+
+      for (i = 0; i < UNI_COMP_REF_CONTEXTS; ++i) {
+        for (j = 0; j < (UNIDIR_COMP_REFS - 1); ++j) {
+#if CONFIG_NEW_MULTISYMBOL
+          av1_cost_tokens_from_cdf(x->uni_comp_ref_cost[i][j],
+                                   fc->uni_comp_ref_cdf[i][j], NULL);
+#else
+          x->uni_comp_ref_cost[i][j][0] =
+              av1_cost_bit(fc->uni_comp_ref_prob[i][j], 0);
+          x->uni_comp_ref_cost[i][j][1] =
+              av1_cost_bit(fc->uni_comp_ref_prob[i][j], 1);
+#endif  // CONFIG_NEW_MULTISYMBOL
+        }
+      }
+#endif  // CONFIG_EXT_COMP_REFS
+    }
+  }
+}
+
 void av1_fill_mode_rates(AV1_COMMON *const cm, MACROBLOCK *x,
                          FRAME_CONTEXT *fc) {
   int i, j;
@@ -308,15 +445,7 @@ void av1_fill_mode_rates(AV1_COMMON *const cm, MACROBLOCK *x,
 #endif  // CONFIG_INTRABC
 
   if (!frame_is_intra_only(cm)) {
-    for (i = 0; i < INTRA_INTER_CONTEXTS; ++i) {
-#if CONFIG_NEW_MULTISYMBOL
-      av1_cost_tokens_from_cdf(x->intra_inter_cost[i], fc->intra_inter_cdf[i],
-                               NULL);
-#else
-      x->intra_inter_cost[i][0] = av1_cost_bit(fc->intra_inter_prob[i], 0);
-      x->intra_inter_cost[i][1] = av1_cost_bit(fc->intra_inter_prob[i], 1);
-#endif
-    }
+    fill_ref_frame_costs(cm, x, fc);
 
     for (i = 0; i < NEWMV_MODE_CONTEXTS; ++i) {
 #if CONFIG_NEW_MULTISYMBOL
