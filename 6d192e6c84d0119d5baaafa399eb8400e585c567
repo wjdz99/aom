@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "dbc300c1_63276d31",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 6
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-10-17T00:30:56Z",
+      "side": 1,
+      "message": "Okay. It may be helpful to be specific about this. \"Does not alter the bitstream\" can be tested by decoding previously-encoded files to be sure they match, while \"Does not change encoder output\" in addition can be tested by encoding the same thing to see if the encoded streams match, also.",
+      "parentUuid": "d4a743e7_67b1bb69",
+      "revId": "6d192e6c84d0119d5baaafa399eb8400e585c567",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ff9e5f8a_8b60fda7",
         "filename": "av1/common/cfl.c",
         "patchSetId": 6
@@ -177,6 +195,24 @@
     },
     {
       "key": {
+        "uuid": "b571fe0e_fdb01547",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 503,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-10-17T00:30:56Z",
+      "side": 1,
+      "message": "AFAIK, all of the chroma_sub8x8 code still runs, it\u0027s just that every chroma block is a \"chroma reference block\". I didn\u0027t see what would cause any of this code here to get skipped, but I may have missed it.\n\nIn any case, I\u0027d love to see this expressed in terms of other constructs we use elsewhere for chroma_sub8x8 code. See changes like https://aomedia-review.googlesource.com/27381 for an example of why.",
+      "parentUuid": "1fad12ee_0fcd1756",
+      "revId": "6d192e6c84d0119d5baaafa399eb8400e585c567",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "dedb041a_46d72b6b",
         "filename": "av1/common/cfl.c",
         "patchSetId": 6
@@ -206,6 +242,24 @@
       "side": 1,
       "message": "Because these are sub8x8 non-reference blocks, I need to know if the ordering is horizontal or vertical. When I traverse my storage validation buffer order this is important or else the counters don\u0027t match. A simple example of this issue is a BLOCK_4x8 with TX_4X4, this will lead to a vertical ordering whereas a BLOCK8x4 with TX_4X4 will lead to an horizontal ordering. There might be a simpler solution, I originally had two functions (one for horizontal and one for vertical) to reduced code duplication, I merged them into this complicated thing.",
       "parentUuid": "dedb041a_46d72b6b",
+      "revId": "6d192e6c84d0119d5baaafa399eb8400e585c567",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "05a6ba0c_50ea3666",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 507,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-10-17T00:30:56Z",
+      "side": 1,
+      "message": "Okay, I didn\u0027t actually understand your example until I read the comment below about \"multiple sub8x8 blocks\".\n\nWhat you actually mean is you have _two_ 4x8 luma partitions with 4x4 TX blocks in them. Which may sound obvious in retrospect, but clearly wasn\u0027t to my Friday-afternoon brain. It might be helpful to have a comment that explains \"why\" rather than just declaring \"We must do X\" with no reason.\n\nIt also somewhat bothers me that with ext_partition_types bsize will not necessarily be the same for all of the luma partitions corresponding to a single chroma reference block, meaning \"is_horizontal\" can change for different calls to sub8x8_set_val() in the same buffer. I couldn\u0027t construct a case where that broke anything, but it feels very fragile. I don\u0027t have better suggestions.",
+      "parentUuid": "56d9dc28_4841d8c0",
       "revId": "6d192e6c84d0119d5baaafa399eb8400e585c567",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
