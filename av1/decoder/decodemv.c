@@ -425,7 +425,7 @@ static void read_tx_size_vartx(AV1_COMMON *cm, MACROBLOCKD *xd,
   [MAX_MIB_SIZE] =
       (TX_SIZE(*)[MAX_MIB_SIZE]) & mbmi->inter_tx_size[tx_row][tx_col];
   if (blk_row >= max_blocks_high || blk_col >= max_blocks_wide) return;
-  assert(tx_size > TX_4X4);
+  // assert(tx_size > TX_4X4);
 
   if (depth == MAX_VARTX_DEPTH) {
     int idx, idy;
@@ -2927,12 +2927,20 @@ static void read_inter_frame_mode_info(AV1Decoder *const pbi,
                           ((mi_row & MAX_MIB_MASK) << TX_UNIT_HIGH_LOG2);
 
   if (cm->tx_mode == TX_MODE_SELECT &&
-#if CONFIG_CB4X4
-      bsize > BLOCK_4X4 &&
+#if CONFIG_CB4X4 && !CONFIG_RECT_TX
+      (bsize >= BLOCK_8X8 || (bsize > BLOCK_4X4 && inter_block)) &&
 #else
-      bsize >= BLOCK_8X8 &&
+      block_signals_txsize(bsize) &&
+#endif
+      inter_block && !mbmi->skip && !xd->lossless[mbmi->segment_id]) {
+    /*
+#if CONFIG_CB4X4
+        bsize > BLOCK_4X4 &&
+#else
+        bsize >= BLOCK_8X8 &&
 #endif
       !mbmi->skip && inter_block && !xd->lossless[mbmi->segment_id]) {
+      */
     const TX_SIZE max_tx_size = max_txsize_rect_lookup[bsize];
     const int bh = tx_size_high_unit[max_tx_size];
     const int bw = tx_size_wide_unit[max_tx_size];
