@@ -318,12 +318,22 @@ static INLINE void add_token(TOKENEXTRA **t,
   if (token == BLOCK_Z_TOKEN) {
     update_cdf(*head_cdf, 0, HEAD_TOKENS + 1);
   } else {
+#if CONFIG_COEFF_CTX_REDUCE
+    if (eob_val != LAST_EOB) {
+      const int symb = 2 * AOMMIN(token, THREE_TOKEN) - eob_val + first_val;
+      update_cdf(*head_cdf, symb, HEAD_TOKENS + first_val);
+    }
+    if (token > TWO_TOKEN)
+      update_cdf(*tail_cdf, token - THREE_TOKEN, TAIL_TOKENS);
+
+#else
     if (eob_val != LAST_EOB) {
       const int symb = 2 * AOMMIN(token, TWO_TOKEN) - eob_val + first_val;
       update_cdf(*head_cdf, symb, HEAD_TOKENS + first_val);
     }
     if (token > ONE_TOKEN)
       update_cdf(*tail_cdf, token - TWO_TOKEN, TAIL_TOKENS);
+#endif
   }
 }
 
@@ -497,23 +507,24 @@ static void tokenize_b(int plane, int block, int blk_row, int blk_col,
 #endif  // CONFIG_MRC_TX && SIGNAL_ANY_MRC_MASK
 
   if (eob == 0)
-    add_token(&t, &coef_tail_cdfs[band[c]][pt], &coef_head_cdfs[band[c]][pt], 1,
-              1, 0, BLOCK_Z_TOKEN);
+    add_token(&t, &coef_tail_cdfs[band[c]][pt * !CONFIG_COEFF_CTX_REDUCE],
+              &coef_head_cdfs[band[c]][pt], 1, 1, 0, BLOCK_Z_TOKEN);
 
   while (c < eob) {
     int v = qcoeff[scan[c]];
     first_val = (c == 0);
 
     if (!v) {
-      add_token(&t, &coef_tail_cdfs[band[c]][pt], &coef_head_cdfs[band[c]][pt],
-                0, first_val, 0, ZERO_TOKEN);
+      add_token(&t, &coef_tail_cdfs[band[c]][pt * !CONFIG_COEFF_CTX_REDUCE],
+                &coef_head_cdfs[band[c]][pt], 0, first_val, 0, ZERO_TOKEN);
       token_cache[scan[c]] = 0;
     } else {
       eob_val =
           (c + 1 == eob) ? (c + 1 == seg_eob ? LAST_EOB : EARLY_EOB) : NO_EOB;
       av1_get_token_extra(v, &token, &extra);
-      add_token(&t, &coef_tail_cdfs[band[c]][pt], &coef_head_cdfs[band[c]][pt],
-                eob_val, first_val, extra, (uint8_t)token);
+      add_token(&t, &coef_tail_cdfs[band[c]][pt * !CONFIG_COEFF_CTX_REDUCE],
+                &coef_head_cdfs[band[c]][pt], eob_val, first_val, extra,
+                (uint8_t)token);
       token_cache[scan[c]] = av1_pt_energy_class[token];
     }
     ++c;
