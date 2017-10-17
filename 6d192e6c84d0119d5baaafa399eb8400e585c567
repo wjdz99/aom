@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "6fa35636_ca96f075",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 6
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-10-17T03:46:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dbc300c1_63276d31",
+      "revId": "6d192e6c84d0119d5baaafa399eb8400e585c567",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ff9e5f8a_8b60fda7",
         "filename": "av1/common/cfl.c",
         "patchSetId": 6
@@ -207,6 +225,24 @@
       "side": 1,
       "message": "AFAIK, all of the chroma_sub8x8 code still runs, it\u0027s just that every chroma block is a \"chroma reference block\". I didn\u0027t see what would cause any of this code here to get skipped, but I may have missed it.\n\nIn any case, I\u0027d love to see this expressed in terms of other constructs we use elsewhere for chroma_sub8x8 code. See changes like https://aomedia-review.googlesource.com/27381 for an example of why.",
       "parentUuid": "1fad12ee_0fcd1756",
+      "revId": "6d192e6c84d0119d5baaafa399eb8400e585c567",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3b2c4e11_4d1170c1",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 503,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-10-17T03:46:00Z",
+      "side": 1,
+      "message": "Not sure I understand. Let me know if val_block_size_wide[BLOCK_SIZES_ALL][2] and val_block_size_high[BLOCK_SIZES_ALL][2] are what you want.",
+      "parentUuid": "b571fe0e_fdb01547",
       "revId": "6d192e6c84d0119d5baaafa399eb8400e585c567",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true

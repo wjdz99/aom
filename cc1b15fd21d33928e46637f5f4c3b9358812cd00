@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "b355864c_3da1cbb4",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 488,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-10-17T03:46:00Z",
+      "side": 1,
+      "message": "\"are you trying to describe the case of a 16x4 where we need to do intra prediction in two 8x4 sub-blocks?\"\nA very simple example is _four_ 4x4, If you compute multiple CfL predictions for the last one, you must not clear the other sub8x8",
+      "parentUuid": "3905473a_d94dfaf8",
+      "revId": "cc1b15fd21d33928e46637f5f4c3b9358812cd00",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f39466bc_e9b84a7e",
         "filename": "av1/common/cfl.c",
         "patchSetId": 8
@@ -30,6 +48,24 @@
       "writtenOn": "2017-10-17T00:30:56Z",
       "side": 1,
       "message": "It seems like with these breaks at the very end of the loop, you can just make them part of the loop conditions.",
+      "revId": "cc1b15fd21d33928e46637f5f4c3b9358812cd00",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0a24ca7a_cd86bf30",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 537,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-10-17T03:46:00Z",
+      "side": 1,
+      "message": "I can do that and more! Syntactic sugar rush",
+      "parentUuid": "f39466bc_e9b84a7e",
       "revId": "cc1b15fd21d33928e46637f5f4c3b9358812cd00",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
