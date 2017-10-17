@@ -1031,7 +1031,11 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td, int mi_row,
       ((mi_row & MAX_MIB_MASK) == 0) && ((mi_col & MAX_MIB_MASK) == 0);
 
   if (cm->delta_q_present_flag && (bsize != cm->sb_size || !mbmi->skip) &&
-      super_block_upper_left) {
+      super_block_upper_left
+#if CONFIG_DELTA_Q_MIN_BLK_SIZE
+      && (!cm->delta_q_limit_min_blk_size || (bsize >= DELTA_Q_MIN_BLK_SIZE))
+#endif  // CONFIG_DELTA_Q_MIN_BLK_SIZE
+  ) {
     const int dq = (mbmi->current_q_index - xd->prev_qindex) / cm->delta_q_res;
     const int absdq = abs(dq);
     int i;
@@ -4296,6 +4300,11 @@ static void encode_frame_internal(AV1_COMP *cpi) {
   cm->delta_q_present_flag =
       cpi->oxcf.aq_mode == DELTA_AQ && cm->base_qindex > 0;
 #endif  // CONFIG_EXT_DELTA_Q
+
+// Enable min block size for delta_q for the moment
+#if CONFIG_DELTA_Q_MIN_BLK_SIZE
+  cm->delta_q_limit_min_blk_size = 1;
+#endif  // CONFIG_DELTA_Q_MIN_BLK_SIZE
 
   av1_frame_init_quantizer(cpi);
 

@@ -1190,7 +1190,11 @@ static void read_intra_frame_mode_info(AV1_COMMON *const cm,
   mbmi->segment_id = read_intra_segment_id(cm, xd, mi_offset, x_mis, y_mis, r);
   mbmi->skip = read_skip(cm, xd, mbmi->segment_id, r);
 
-  if (cm->delta_q_present_flag) {
+  if (cm->delta_q_present_flag
+#if CONFIG_DELTA_Q_MIN_BLK_SIZE
+      && (!cm->delta_q_limit_min_blk_size || (bsize >= DELTA_Q_MIN_BLK_SIZE))
+#endif  // CONFIG_DELTA_Q_MIN_BLK_SIZE
+  ) {
     xd->current_qindex =
         xd->prev_qindex +
         read_delta_qindex(cm, xd, r, mbmi, mi_col, mi_row) * cm->delta_q_res;
@@ -2850,7 +2854,11 @@ static void read_inter_frame_mode_info(AV1Decoder *const pbi,
   mbmi->segment_id = read_inter_segment_id(cm, xd, mi_row, mi_col, r);
   mbmi->skip = read_skip(cm, xd, mbmi->segment_id, r);
 
-  if (cm->delta_q_present_flag) {
+  if (cm->delta_q_present_flag
+#if CONFIG_DELTA_Q_MIN_BLK_SIZE
+      && (!cm->delta_q_limit_min_blk_size || (bsize >= DELTA_Q_MIN_BLK_SIZE))
+#endif  // CONFIG_DELTA_Q_MIN_BLK_SIZE
+  ) {
     xd->current_qindex =
         xd->prev_qindex +
         read_delta_qindex(cm, xd, r, mbmi, mi_col, mi_row) * cm->delta_q_res;

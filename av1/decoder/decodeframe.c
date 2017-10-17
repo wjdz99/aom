@@ -4042,6 +4042,9 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
     if (cm->delta_q_present_flag) {
       xd->prev_qindex = cm->base_qindex;
       cm->delta_q_res = 1 << aom_rb_read_literal(rb, 2);
+#if CONFIG_DELTA_Q_MIN_BLK_SIZE
+      cm->delta_q_limit_min_blk_size = aom_rb_read_bit(rb);
+#endif  // CONFIG_DELTA_Q_MIN_BLK_SIZE
 #if CONFIG_EXT_DELTA_Q
       cm->delta_lf_present_flag = aom_rb_read_bit(rb);
       if (cm->delta_lf_present_flag) {
