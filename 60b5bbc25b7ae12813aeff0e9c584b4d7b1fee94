@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "c3acb2b8_e144397e",
+        "filename": "av1/encoder/dct.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1578,
+      "author": {
+        "id": 5540
+      },
+      "writtenOn": "2017-10-18T19:27:04Z",
+      "side": 1,
+      "message": "Correct, good catch.",
+      "parentUuid": "d9c62883_f7a096a0",
+      "revId": "60b5bbc25b7ae12813aeff0e9c584b4d7b1fee94",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b80d19ac_6e0c8b3e",
         "filename": "av1/encoder/dct.c",
         "patchSetId": 4
@@ -30,6 +48,24 @@
       "writtenOn": "2017-10-17T16:07:29Z",
       "side": 1,
       "message": "You mean \"Daala\" is not possible, right?",
+      "revId": "60b5bbc25b7ae12813aeff0e9c584b4d7b1fee94",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9f0304ed_4c61df89",
+        "filename": "av1/encoder/dct.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1584,
+      "author": {
+        "id": 5540
+      },
+      "writtenOn": "2017-10-18T19:27:04Z",
+      "side": 1,
+      "message": "Also correct.",
+      "parentUuid": "b80d19ac_6e0c8b3e",
       "revId": "60b5bbc25b7ae12813aeff0e9c584b4d7b1fee94",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "bce6c87b_097f41aa",
+        "filename": "av1/encoder/dct.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1699,
+      "author": {
+        "id": 5540
+      },
+      "writtenOn": "2017-10-18T19:27:04Z",
+      "side": 1,
+      "message": "Again, you\u0027re correct",
+      "parentUuid": "2d3ed224_61e7533b",
+      "revId": "60b5bbc25b7ae12813aeff0e9c584b4d7b1fee94",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "aabfb776_b4b1ae5e",
         "filename": "av1/encoder/dct.c",
         "patchSetId": 4
@@ -64,6 +118,24 @@
       "writtenOn": "2017-10-17T16:07:29Z",
       "side": 1,
       "message": "You mean \"Daala\" is not possible, right?",
+      "revId": "60b5bbc25b7ae12813aeff0e9c584b4d7b1fee94",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "de058569_e720290a",
+        "filename": "av1/encoder/dct.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1705,
+      "author": {
+        "id": 5540
+      },
+      "writtenOn": "2017-10-18T19:27:04Z",
+      "side": 1,
+      "message": "and again, correct",
+      "parentUuid": "aabfb776_b4b1ae5e",
       "revId": "60b5bbc25b7ae12813aeff0e9c584b4d7b1fee94",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
