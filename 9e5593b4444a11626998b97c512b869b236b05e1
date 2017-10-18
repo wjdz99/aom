@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1910b06f_009a6749",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1476,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2017-10-18T23:40:52Z",
+      "side": 1,
+      "message": "Add {}",
+      "range": {
+        "startLine": 1476,
+        "startChar": 24,
+        "endLine": 1476,
+        "endChar": 25
+      },
+      "revId": "9e5593b4444a11626998b97c512b869b236b05e1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bda1dc51_cd610098",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 407,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2017-10-18T23:40:52Z",
+      "side": 1,
+      "message": "Can be on by default.",
+      "range": {
+        "startLine": 407,
+        "startChar": 42,
+        "endLine": 407,
+        "endChar": 45
+      },
+      "revId": "9e5593b4444a11626998b97c512b869b236b05e1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "92971175_acb256b6",
+        "filename": "av1/encoder/speed_features.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2017-10-18T23:40:52Z",
+      "side": 1,
+      "message": "Could be more specific, e.g. Use a tx block split prediction model to speedup tx size search.",
+      "range": {
+        "startLine": 213,
+        "startChar": 5,
+        "endLine": 213,
+        "endChar": 56
+      },
+      "revId": "9e5593b4444a11626998b97c512b869b236b05e1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
