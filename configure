@@ -542,6 +542,7 @@ post_process_cmdline() {
       soft_enable ext_delta_q
       soft_enable parallel_deblocking
       soft_enable simple_bwd_adapt
+      soft_enable loopfilter_level
     fi
 
     # Enable low-bitdepth pixel pipeline by default
@@ -642,6 +643,9 @@ post_process_cmdline() {
       log_echo "striped_loop_restoration not compatible with frame_superres"
       log_echo "disabling striped_loop_restoration"
       disable_feature striped_loop_restoration
+    fi
+    if enabled loopfilter_level; then
+      disable_feature lpf_sb
     fi
 }
 
