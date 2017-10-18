@@ -54,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "d54d7008_e1b50512",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 5876,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-10-18T21:51:38Z",
+      "side": 1,
+      "message": "I just needed to remove that CONFIG_CHROMA_2X2, pretty sure scale_chroma_bsize is useless",
+      "parentUuid": "5a9a3d94_0de11947",
+      "revId": "1d509cc6b2ed22d79b3932e1a153cc6a5f81e90d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "20a7c756_cdf969f7",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 6
