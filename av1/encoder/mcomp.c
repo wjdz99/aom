@@ -2483,6 +2483,55 @@ static void add_to_sort_table(block_hash block_hashes[MAX_HASH_MV_TABLE_SIZE],
 #endif
 
 #if CONFIG_HASH_ME
+static bool IsValidIntraBCMV_defalut(int blk_pos_x, int blk_pos_y,
+                                     BLOCK_SIZE bsize, int x_pos, int y_pos) {
+  const int block_height = block_size_high[bsize];
+  const int block_width = block_size_wide[bsize];
+
+  if (blk_pos_y + block_height >=
+          ((y_pos >> MAX_SB_SIZE_LOG2) << MAX_SB_SIZE_LOG2) &&
+      blk_pos_x + block_width >=
+          ((x_pos >> MAX_SB_SIZE_LOG2) << MAX_SB_SIZE_LOG2)) {
+    return false;
+  }
+
+  if (blk_pos_y + block_height >=
+      (((y_pos >> MAX_SB_SIZE_LOG2) + 1) << MAX_SB_SIZE_LOG2)) {
+    return false;
+  }
+  return true;
+}
+
+static bool IsValidIntraBCMV_wavefront_delay(int blk_pos_x, int blk_pos_y,
+                                             BLOCK_SIZE bsize, int x_pos,
+                                             int y_pos) {
+  int ibcDELAY = 0;
+
+  if (!IsValidIntraBCMV_defalut(blk_pos_x, blk_pos_y, bsize, x_pos, y_pos)) {
+    return false;
+  }
+
+  const int block_height = block_size_high[bsize];
+  const int block_width = block_size_wide[bsize];
+
+  int deltaBlkY = (y_pos >> MAX_SB_SIZE_LOG2) -
+                  ((blk_pos_y + block_height) >> MAX_SB_SIZE_LOG2);
+
+  assert(deltaBlkY >= 0);
+  if (blk_pos_x + block_width >=
+      ((AOMMAX((x_pos >> MAX_SB_SIZE_LOG2) + deltaBlkY * 2 - ibcDELAY, 0))
+       << MAX_SB_SIZE_LOG2)) {
+    return false;
+  }
+  return true;
+}
+
+static bool IsValidIntraBCMV(int blk_pos_x, int blk_pos_y, BLOCK_SIZE bsize,
+                             int x_pos, int y_pos) {
+  return IsValidIntraBCMV_wavefront_delay(blk_pos_x, blk_pos_y, bsize, x_pos,
+                                          y_pos);
+}
+
 int av1_full_pixel_search(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
                           MV *mvp_full, int step_param, int error_per_bit,
                           int *cost_list, const MV *ref_mv, int var_max, int rd,
@@ -2610,10 +2659,8 @@ int av1_full_pixel_search(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
             // not predict from current block.
             // TODO(roger): check if the constrain is necessary
             if (intra &&
-                ref_block_hash.y + block_height >
-                    ((y_pos >> MAX_SB_SIZE_LOG2) << MAX_SB_SIZE_LOG2) &&
-                ref_block_hash.x + block_width >
-                    ((x_pos >> MAX_SB_SIZE_LOG2) << MAX_SB_SIZE_LOG2)) {
+                !IsValidIntraBCMV(ref_block_hash.x, ref_block_hash.y, bsize,
+                                  x_pos, y_pos)) {
               continue;
             }
             int refCost =
