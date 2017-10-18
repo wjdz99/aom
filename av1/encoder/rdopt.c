@@ -6218,8 +6218,6 @@ static int cfl_rd_pick_alpha(MACROBLOCK *const x, const AV1_COMP *const cpi,
                              xd->plane[1].subsampling_y);
 #endif  // CONFIG_CB4X4 && !CONFIG_CHROMA_2X2
 
-  cfl_compute_parameters(xd, tx_size);
-
   int rates[CFL_PRED_PLANES][CFL_MAGS_SIZE];
   int64_t dists[CFL_PRED_PLANES][CFL_MAGS_SIZE];
   mbmi->cfl_alpha_idx = 0;
