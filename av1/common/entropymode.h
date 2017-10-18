@@ -259,12 +259,6 @@ typedef struct frame_contexts {
   aom_cdf_prob palette_uv_color_index_cdf[PALETTE_SIZES]
                                          [PALETTE_COLOR_INDEX_CONTEXTS]
                                          [CDF_SIZE(PALETTE_COLORS)];
-#if CONFIG_MRC_TX
-  aom_cdf_prob mrc_mask_inter_cdf[PALETTE_SIZES][PALETTE_COLOR_INDEX_CONTEXTS]
-                                 [CDF_SIZE(PALETTE_COLORS)];
-  aom_cdf_prob mrc_mask_intra_cdf[PALETTE_SIZES][PALETTE_COLOR_INDEX_CONTEXTS]
-                                 [CDF_SIZE(PALETTE_COLORS)];
-#endif  // CONFIG_MRC_TX
 #if CONFIG_NEW_MULTISYMBOL
   aom_cdf_prob palette_y_mode_cdf[PALETTE_BLOCK_SIZES][PALETTE_Y_MODE_CONTEXTS]
                                  [CDF_SIZE(2)];
@@ -558,14 +552,6 @@ static const int av1_ext_tx_ind[EXT_TX_SET_TYPES][TX_TYPES] = {
   {
       1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
   },
-#if CONFIG_MRC_TX
-  {
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-  },
-  {
-      1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2,
-  },
-#endif  // CONFIG_MRC_TX
   {
       1, 3, 4, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
   },
@@ -587,14 +573,6 @@ static const int av1_ext_tx_inv[EXT_TX_SET_TYPES][TX_TYPES] = {
   {
       9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
   },
-#if CONFIG_MRC_TX
-  {
-      0, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  },
-  {
-      9, 0, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  },
-#endif  // CONFIG_MRC_TX
   {
       9, 0, 3, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
   },
@@ -609,21 +587,12 @@ static const int av1_ext_tx_inv[EXT_TX_SET_TYPES][TX_TYPES] = {
   },
 };
 #else
-#if CONFIG_MRC_TX
-static const int av1_ext_tx_ind[TX_TYPES] = {
-  0, 3, 4, 2, 1,
-};
-static const int av1_ext_tx_inv[TX_TYPES] = {
-  0, 4, 3, 1, 2,
-};
-#else
 static const int av1_ext_tx_ind[TX_TYPES] = {
   0, 2, 3, 1,
 };
 static const int av1_ext_tx_inv[TX_TYPES] = {
   0, 3, 1, 2,
 };
-#endif  // CONFIG_MRC_TX
 #endif  // CONFIG_EXT_TX
 
 #if CONFIG_INTERINTRA
