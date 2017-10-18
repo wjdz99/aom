@@ -2721,6 +2721,7 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
   }
 #endif  // CONFIG_EXT_TILE
 
+#if !CONFIG_LOOPFILTER_LEVEL
   if (cm->lf.filter_level && !cm->skip_loop_filter &&
       pbi->lf_worker.data1 == NULL) {
     CHECK_MEM_ERROR(cm, pbi->lf_worker.data1,
@@ -2739,6 +2740,7 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
     av1_loop_filter_data_reset(lf_data, get_frame_new_buffer(cm), cm,
                                pbi->mb.plane);
   }
+#endif  // CONFIG_LOOPFILTER_LEVEL
 
   assert(tile_rows <= MAX_TILE_ROWS);
   assert(tile_cols <= MAX_TILE_COLS);
