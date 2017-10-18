@@ -679,9 +679,8 @@ typedef struct cfl_ctx {
   // Chroma subsampling
   int subsampling_x, subsampling_y;
 
-  // Block level DC_PRED for each chromatic plane
-  // 16 bits are used, but it only requires the pixel bit depth.
-  int16_t dc_pred[CFL_PRED_PLANES][MAX_SB_SQUARE];
+  uint8_t *above_row;
+  uint8_t *left_col;
 
   int mi_row, mi_col;
 

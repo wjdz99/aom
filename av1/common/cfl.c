@@ -62,174 +62,6 @@ static INLINE void cfl_pad(CFL_CTX *cfl, int width, int height) {
   }
 }
 
-static void sum_above_row_lbd(const uint8_t *above_u, const uint8_t *above_v,
-                              int width, int *out_sum_u, int *out_sum_v) {
-  int sum_u = 0;
-  int sum_v = 0;
-  for (int i = 0; i < width; i++) {
-    sum_u += above_u[i];
-    sum_v += above_v[i];
-  }
-  *out_sum_u += sum_u;
-  *out_sum_v += sum_v;
-}
-#if CONFIG_HIGHBITDEPTH
-static void sum_above_row_hbd(const uint16_t *above_u, const uint16_t *above_v,
-                              int width, int *out_sum_u, int *out_sum_v) {
-  int sum_u = 0;
-  int sum_v = 0;
-  for (int i = 0; i < width; i++) {
-    sum_u += above_u[i];
-    sum_v += above_v[i];
-  }
-  *out_sum_u += sum_u;
-  *out_sum_v += sum_v;
-}
-#endif  // CONFIG_HIGHBITDEPTH
-
-static void sum_above_row(const MACROBLOCKD *xd, int offset, int width,
-                          int *out_sum_u, int *out_sum_v) {
-  const struct macroblockd_plane *const pd_u = &xd->plane[AOM_PLANE_U];
-  const struct macroblockd_plane *const pd_v = &xd->plane[AOM_PLANE_V];
-  const uint8_t *above_u = pd_u->dst.buf - pd_u->dst.stride + offset;
-  const uint8_t *above_v = pd_v->dst.buf - pd_v->dst.stride + offset;
-#if CONFIG_HIGHBITDEPTH
-  if (get_bitdepth_data_path_index(xd)) {
-    const uint16_t *above_u_16 = CONVERT_TO_SHORTPTR(above_u);
-    const uint16_t *above_v_16 = CONVERT_TO_SHORTPTR(above_v);
-    sum_above_row_hbd(above_u_16, above_v_16, width, out_sum_u, out_sum_v);
-    return;
-  }
-#endif  // CONFIG_HIGHBITDEPTH
-  sum_above_row_lbd(above_u, above_v, width, out_sum_u, out_sum_v);
-}
-
-static void sum_left_col_lbd(const uint8_t *left_u, int u_stride,
-                             const uint8_t *left_v, int v_stride, int height,
-                             int *out_sum_u, int *out_sum_v) {
-  int sum_u = 0;
-  int sum_v = 0;
-  for (int i = 0; i < height; i++) {
-    sum_u += left_u[i * u_stride];
-    sum_v += left_v[i * v_stride];
-  }
-  *out_sum_u += sum_u;
-  *out_sum_v += sum_v;
-}
-#if CONFIG_HIGHBITDEPTH
-static void sum_left_col_hbd(const uint16_t *left_u, int u_stride,
-                             const uint16_t *left_v, int v_stride, int height,
-                             int *out_sum_u, int *out_sum_v) {
-  int sum_u = 0;
-  int sum_v = 0;
-  for (int i = 0; i < height; i++) {
-    sum_u += left_u[i * u_stride];
-    sum_v += left_v[i * v_stride];
-  }
-  *out_sum_u += sum_u;
-  *out_sum_v += sum_v;
-}
-#endif  // CONFIG_HIGHBITDEPTH
-static void sum_left_col(const MACROBLOCKD *xd, int offset, int height,
-                         int *out_sum_u, int *out_sum_v) {
-  const struct macroblockd_plane *const pd_u = &xd->plane[AOM_PLANE_U];
-  const struct macroblockd_plane *const pd_v = &xd->plane[AOM_PLANE_V];
-  const uint8_t *left_u = pd_u->dst.buf - 1 + (offset * pd_u->dst.stride);
-  const uint8_t *left_v = pd_v->dst.buf - 1 + (offset * pd_v->dst.stride);
-#if CONFIG_HIGHBITDEPTH
-  if (get_bitdepth_data_path_index(xd)) {
-    const uint16_t *left_u_16 = CONVERT_TO_SHORTPTR(left_u);
-    const uint16_t *left_v_16 = CONVERT_TO_SHORTPTR(left_v);
-    sum_left_col_hbd(left_u_16, pd_u->dst.stride, left_v_16, pd_v->dst.stride,
-                     height, out_sum_u, out_sum_v);
-    return;
-  }
-#endif  // CONFIG_HIGHBITDEPTH
-  sum_left_col_lbd(left_u, pd_u->dst.stride, left_v, pd_v->dst.stride, height,
-                   out_sum_u, out_sum_v);
-}
-
-// CfL computes the DC_PRED for each transform block using neighboring pixels
-// aligned with the transform block but outside of the partition.
-static void cfl_dc_pred(MACROBLOCKD *xd, BLOCK_SIZE plane_bsize,
-                        TX_SIZE tx_size) {
-  CFL_CTX *const cfl = xd->cfl;
-
-  // Stop at frame boundary. We can't assume the neighboring partitions will be
-  // of the size.
-  const int width = max_block_wide(xd, plane_bsize, AOM_PLANE_U)
-                    << tx_size_wide_log2[0];
-  const int height = max_block_high(xd, plane_bsize, AOM_PLANE_U)
-                     << tx_size_high_log2[0];
-  const int tx_width = tx_size_wide[tx_size];
-  const int tx_height = tx_size_high[tx_size];
-
-  for (int b_j = 0; b_j < height; b_j += tx_height) {
-    // Don't use out of frame neighboring pixels.
-    const int fr_height = AOMMIN(tx_height, height - b_j);
-
-    for (int b_i = 0; b_i < width; b_i += tx_width) {
-      // Don't use out of frame neighboring pixels.
-      const int fr_width = AOMMIN(tx_width, width - b_i);
-      const int num_pel = fr_width + fr_height;
-
-      int sum_u = 0;
-      int sum_v = 0;
-
-// Match behavior of build_intra_predictors_high (reconintra.c) at superblock
-// boundaries:
-// base-1 base-1 base-1 .. base-1 base-1 base-1 base-1 base-1 base-1
-// base+1   A      B  ..     Y      Z
-// base+1   C      D  ..     W      X
-// base+1   E      F  ..     U      V
-// base+1   G      H  ..     S      T      T      T      T      T
-// ..
-
-#if CONFIG_CHROMA_SUB8X8
-      if (xd->chroma_up_available && xd->mb_to_right_edge >= 0) {
-#else
-      if (xd->up_available && xd->mb_to_right_edge >= 0) {
-#endif
-        sum_above_row(xd, b_i, fr_width, &sum_u, &sum_v);
-      } else {
-        const int base = 128 << (xd->bd - 8);
-        sum_u = fr_width * (base - 1);
-        sum_v = fr_width * (base - 1);
-      }
-
-#if CONFIG_CHROMA_SUB8X8
-      if (xd->chroma_left_available && xd->mb_to_bottom_edge >= 0) {
-#else
-      if (xd->left_available && xd->mb_to_bottom_edge >= 0) {
-#endif
-        sum_left_col(xd, b_j, fr_height, &sum_u, &sum_v);
-      } else {
-        const int base = 128 << (xd->bd - 8);
-        sum_u += fr_height * (base + 1);
-        sum_v += fr_height * (base + 1);
-      }
-
-      // TODO(ltrudeau) Because of max_block_wide and max_block_high, num_pel
-      // will not be a power of two. So these divisions will have to use a
-      // lookup table.
-      const int16_t dc_pred_u = (sum_u + (num_pel >> 1)) / num_pel;
-      const int16_t dc_pred_v = (sum_v + (num_pel >> 1)) / num_pel;
-      int16_t *p_dc_pred_u =
-          cfl->dc_pred[CFL_PRED_U] + (b_j * MAX_SB_SIZE) + b_i;
-      int16_t *p_dc_pred_v =
-          cfl->dc_pred[CFL_PRED_V] + (b_j * MAX_SB_SIZE) + b_i;
-      for (int j = 0; j < tx_height; j++) {
-        for (int i = 0; i < tx_width; i++) {
-          p_dc_pred_u[i] = dc_pred_u;
-          p_dc_pred_v[i] = dc_pred_v;
-        }
-        p_dc_pred_u += MAX_SB_SIZE;
-        p_dc_pred_v += MAX_SB_SIZE;
-      }
-    }
-  }
-}
-
 static void cfl_subtract_averages(CFL_CTX *cfl, TX_SIZE tx_size) {
   const int width = cfl->uv_width;
   const int height = cfl->uv_height;
@@ -283,51 +115,47 @@ static INLINE int cfl_idx_to_alpha(int alpha_idx, int joint_sign,
 
 static void cfl_build_prediction_lbd(const int16_t *pred_buf_q3, uint8_t *dst,
                                      int dst_stride, int width, int height,
-                                     int alpha_q3, const int16_t *dc_pred) {
+                                     int alpha_q3) {
   for (int j = 0; j < height; j++) {
     for (int i = 0; i < width; i++) {
       dst[i] =
-          clip_pixel(get_scaled_luma_q0(alpha_q3, pred_buf_q3[i]) + dc_pred[i]);
+          clip_pixel(get_scaled_luma_q0(alpha_q3, pred_buf_q3[i]) + dst[i]);
     }
     dst += dst_stride;
     pred_buf_q3 += MAX_SB_SIZE;
-    dc_pred += MAX_SB_SIZE;
   }
 }
 
 #if CONFIG_HIGHBITDEPTH
 static void cfl_build_prediction_hbd(const int16_t *pred_buf_q3, uint16_t *dst,
                                      int dst_stride, int width, int height,
-                                     int alpha_q3, const int16_t *dc_pred,
-                                     int bit_depth) {
+                                     int alpha_q3, int bit_depth) {
   for (int j = 0; j < height; j++) {
     for (int i = 0; i < width; i++) {
       dst[i] = clip_pixel_highbd(
-          get_scaled_luma_q0(alpha_q3, pred_buf_q3[i]) + dc_pred[i], bit_depth);
+          get_scaled_luma_q0(alpha_q3, pred_buf_q3[i]) + dst[i], bit_depth);
     }
     dst += dst_stride;
     pred_buf_q3 += MAX_SB_SIZE;
-    dc_pred += MAX_SB_SIZE;
   }
 }
 #endif  // CONFIG_HIGHBITDEPTH
 
 static void cfl_build_prediction(const int16_t *pred_buf_q3, uint8_t *dst,
                                  int dst_stride, int width, int height,
-                                 int alpha_q3, const int16_t *dc_pred,
-                                 int use_hbd, int bit_depth) {
+                                 int alpha_q3, int use_hbd, int bit_depth) {
 #if CONFIG_HIGHBITDEPTH
   if (use_hbd) {
     uint16_t *dst_16 = CONVERT_TO_SHORTPTR(dst);
     cfl_build_prediction_hbd(pred_buf_q3, dst_16, dst_stride, width, height,
-                             alpha_q3, dc_pred, bit_depth);
+                             alpha_q3, bit_depth);
     return;
   }
 #endif  // CONFIG_HIGHBITDEPTH
   (void)use_hbd;
   (void)bit_depth;
   cfl_build_prediction_lbd(pred_buf_q3, dst, dst_stride, width, height,
-                           alpha_q3, dc_pred);
+                           alpha_q3);
 }
 
 void cfl_predict_block(MACROBLOCKD *const xd, uint8_t *dst, int dst_stride,
@@ -340,13 +168,11 @@ void cfl_predict_block(MACROBLOCKD *const xd, uint8_t *dst, int dst_stride,
 
   const int16_t *pred_buf_q3 =
       cfl->pred_buf_q3 + ((row * MAX_SB_SIZE + col) << tx_size_wide_log2[0]);
-  const int16_t *dc_pred = cfl->dc_pred[plane - 1] +
-                           ((row * MAX_SB_SIZE + col) << tx_size_wide_log2[0]);
   const int alpha_q3 =
       cfl_idx_to_alpha(mbmi->cfl_alpha_idx, mbmi->cfl_alpha_signs, plane - 1);
 
   cfl_build_prediction(pred_buf_q3, dst, dst_stride, tx_size_wide[tx_size],
-                       tx_size_high[tx_size], alpha_q3, dc_pred,
+                       tx_size_high[tx_size], alpha_q3,
                        get_bitdepth_data_path_index(xd), xd->bd);
 }
 
@@ -590,7 +416,6 @@ void cfl_compute_parameters(MACROBLOCKD *const xd, TX_SIZE tx_size) {
   assert(cfl->buf_width <= cfl->uv_width);
   assert(cfl->buf_height <= cfl->uv_height);
 
-  cfl_dc_pred(xd, plane_bsize, tx_size);
   cfl_subtract_averages(cfl, tx_size);
   cfl->are_parameters_computed = 1;
 }
