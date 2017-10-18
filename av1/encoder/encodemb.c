@@ -498,7 +498,7 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
 
   TxfmParam txfm_param;
 
-#if CONFIG_PVQ || CONFIG_DIST_8X8 || CONFIG_LGT_FROM_PRED || CONFIG_MRC_TX
+#if CONFIG_PVQ || CONFIG_DIST_8X8 || CONFIG_LGT_FROM_PRED
   uint8_t *dst;
   const int dst_stride = pd->dst.stride;
 #if CONFIG_PVQ || CONFIG_DIST_8X8
@@ -561,7 +561,7 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
 #endif  // CONFIG_HIGHBITDEPTH
 #endif
 
-#if CONFIG_PVQ || CONFIG_DIST_8X8 || CONFIG_LGT_FROM_PRED || CONFIG_MRC_TX
+#if CONFIG_PVQ || CONFIG_DIST_8X8 || CONFIG_LGT_FROM_PRED
   dst = &pd->dst.buf[(blk_row * dst_stride + blk_col) << tx_size_wide_log2[0]];
 #endif  // CONFIG_PVQ || CONFIG_DIST_8X8 || CONFIG_LGT_FROM_PRED ||
         // CONFIG_MRC_TX
@@ -598,23 +598,17 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
   txfm_param.tx_type = tx_type;
   txfm_param.tx_size = tx_size;
   txfm_param.lossless = xd->lossless[mbmi->segment_id];
-#if CONFIG_MRC_TX || CONFIG_LGT
+#if CONFIG_LGT
   txfm_param.is_inter = is_inter_block(mbmi);
 #endif
-#if CONFIG_MRC_TX || CONFIG_LGT_FROM_PRED
+#if CONFIG_LGT_FROM_PRED
   txfm_param.dst = dst;
   txfm_param.stride = dst_stride;
-#if CONFIG_MRC_TX
-  txfm_param.valid_mask = &mbmi->valid_mrc_mask;
-#if SIGNAL_ANY_MRC_MASK
-  txfm_param.mask = BLOCK_OFFSET(xd->mrc_mask, block);
-#endif  // SIGNAL_ANY_MRC_MASK
-#endif  // CONFIG_MRC_TX
 #if CONFIG_LGT_FROM_PRED
   txfm_param.mode = mbmi->mode;
   txfm_param.use_lgt = mbmi->use_lgt;
 #endif  // CONFIG_LGT_FROM_PRED
-#endif  // CONFIG_MRC_TX || CONFIG_LGT_FROM_PRED
+#endif  // CONFIG_LGT_FROM_PRED
 
 #if !CONFIG_PVQ
   txfm_param.bd = xd->bd;
@@ -687,9 +681,6 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
   struct macroblock_plane *const p = &x->plane[plane];
   struct macroblockd_plane *const pd = &xd->plane[plane];
   tran_low_t *const dqcoeff = BLOCK_OFFSET(pd->dqcoeff, block);
-#if CONFIG_MRC_TX && SIGNAL_ANY_MRC_MASK
-  uint8_t *mrc_mask = BLOCK_OFFSET(xd->mrc_mask, block);
-#endif  // CONFIG_MRC_TX && SIGNAL_ANY_MRC_MASK
   uint8_t *dst;
 #if !CONFIG_PVQ
   ENTROPY_CONTEXT *a, *l;
@@ -753,9 +744,6 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
 #if CONFIG_LGT_FROM_PRED
                                 mode,
 #endif
-#if CONFIG_MRC_TX && SIGNAL_ANY_MRC_MASK
-                                mrc_mask,
-#endif  // CONFIG_MRC_TX && SIGNAL_ANY_MRC_MASK
                                 tx_type, tx_size, dst, pd->dst.stride,
                                 p->eobs[block]);
   }
@@ -1035,9 +1023,6 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
   struct macroblock_plane *const p = &x->plane[plane];
   struct macroblockd_plane *const pd = &xd->plane[plane];
   tran_low_t *dqcoeff = BLOCK_OFFSET(pd->dqcoeff, block);
-#if CONFIG_MRC_TX && SIGNAL_ANY_MRC_MASK
-  uint8_t *mrc_mask = BLOCK_OFFSET(xd->mrc_mask, block);
-#endif  // CONFIG_MRC_TX && SIGNAL_ANY_MRC_MASK
   PLANE_TYPE plane_type = get_plane_type(plane);
   const TX_TYPE tx_type =
       av1_get_tx_type(plane_type, xd, blk_row, blk_col, block, tx_size);
@@ -1074,9 +1059,6 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
 #if CONFIG_LGT_FROM_PRED
                               xd->mi[0]->mbmi.mode,
 #endif
-#if CONFIG_MRC_TX && SIGNAL_ANY_MRC_MASK
-                              mrc_mask,
-#endif  // CONFIG_MRC_TX && SIGNAL_ANY_MRC_MASK
                               tx_type, tx_size, dst, dst_stride, *eob);
 #if !CONFIG_PVQ
   if (*eob) *(args->skip) = 0;
