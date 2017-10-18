@@ -5229,8 +5229,8 @@ static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
     txfm_partition_update(tx_above + blk_col, tx_left + blk_row, tx_size,
                           tx_size);
     inter_tx_size[0][0] = tx_size_selected;
-    for (idy = 0; idy < tx_size_high_unit[tx_size] / 2; ++idy)
-      for (idx = 0; idx < tx_size_wide_unit[tx_size] / 2; ++idx)
+    for (idy = 0; idy < tx_size_high_unit[tx_size]; ++idy)
+      for (idx = 0; idx < tx_size_wide_unit[tx_size]; ++idx)
         inter_tx_size[idy][idx] = tx_size_selected;
     mbmi->tx_size = tx_size_selected;
 #if CONFIG_TXK_SEL
@@ -5339,8 +5339,8 @@ static int64_t select_tx_size_fix_type(const AV1_COMP *cpi, MACROBLOCK *x,
 
   if (rd_stats->rate == INT_MAX) return INT64_MAX;
 
-  for (row = 0; row < max_blocks_high / 2; ++row)
-    for (col = 0; col < max_blocks_wide / 2; ++col)
+  for (row = 0; row < max_blocks_high; ++row)
+    for (col = 0; col < max_blocks_wide; ++col)
       mbmi->min_tx_size = AOMMIN(
           mbmi->min_tx_size, get_min_tx_size(mbmi->inter_tx_size[row][col]));
 
