@@ -1401,7 +1401,7 @@ static void filter_rest_unit(const RestorationTileLimits *limits,
     remaining_stripes.v_start = i;
     int h = setup_processing_stripe_boundary(&remaining_stripes, data8, stride,
                                              rst, highbd);
-    if (tile_rtype == RESTORE_WIENER) h = ALIGN_POWER_OF_TWO(h, 1);
+    if (tile_rtype == RESTORE_WIENER) h = ALIGN_POWER_OF_TWO(h, 2);
 #else
     const int h =
         AOMMIN(rst->rsi->procunit_height, (limits->v_end - i + 15) & ~15);
