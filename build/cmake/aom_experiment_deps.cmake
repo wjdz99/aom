@@ -88,6 +88,14 @@ macro (fix_experiment_configs)
     endif ()
   endif ()
 
+  # TODO: remove once striped loop restoration works with superres
+  if (CONFIG_FRAME_SUPERRES OR CONFIG_HORZONLY_FRAME_SUPERRES)
+    if (CONFIG_STRIPED_LOOP_RESTORATION)
+      change_config_and_warn(CONFIG_STRIPED_LOOP_RESTORATION 0
+                             CONFIG_FRAME_SUPERRES)
+    endif ()
+  endif ()
+
   if (CONFIG_JNT_COMP)
     if (NOT CONFIG_FRAME_MARKER)
       change_config_and_warn(CONFIG_FRAME_MARKER 1 CONFIG_JNT_COMP)
