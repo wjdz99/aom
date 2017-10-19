@@ -4140,7 +4140,7 @@ static void write_bitdepth_colorspace_sampling(
   }
 }
 
-#if CONFIG_REFERENCE_BUFFER
+#if CONFIG_REFERENCE_BUFFER || CONFIG_OBU
 void write_sequence_header(AV1_COMMON *const cm,
                            struct aom_write_bit_buffer *wb) {
   SequenceHeader *seq_params = &cm->seq_params;
@@ -4155,13 +4155,15 @@ void write_sequence_header(AV1_COMMON *const cm,
 
   aom_wb_write_bit(wb, seq_params->frame_id_numbers_present_flag);
   if (seq_params->frame_id_numbers_present_flag) {
-    // We must always have delta_frame_id_length < frame_id_length,
+    // We must always both:
+    //   frame_id_length in [7 ; 15]
+    //   delta_frame_id_length in [2 ; frame_id_length-1]
     // in order for a frame to be referenced with a unique delta.
     // Avoid wasting bits by using a coding that enforces this restriction.
-    aom_wb_write_literal(wb, seq_params->delta_frame_id_length - 2, 4);
     aom_wb_write_literal(
         wb, seq_params->frame_id_length - seq_params->delta_frame_id_length - 1,
         3);
+    aom_wb_write_literal(wb, seq_params->delta_frame_id_length - 2, 4);
   }
 }
 #endif  // CONFIG_REFERENCE_BUFFER
@@ -5243,15 +5245,7 @@ static uint32_t write_sequence_header_obu(AV1_COMP *cpi, uint8_t *const dst) {
   seq_params->frame_id_numbers_present_flag = FRAME_ID_NUMBERS_PRESENT_FLAG;
   aom_wb_write_literal(&wb, seq_params->frame_id_numbers_present_flag, 1);
   if (seq_params->frame_id_numbers_present_flag) {
-    seq_params->frame_id_length = FRAME_ID_LENGTH_MINUS7 + 7;
-    seq_params->delta_frame_id_length = DELTA_FRAME_ID_LENGTH_MINUS2 + 2;
-    // We must always have delta_frame_id_length < frame_id_length,
-    // in order for a frame to be referenced with a unique delta.
-    // Avoid wasting bits by using a coding that enforces this restriction.
-    aom_wb_write_literal(&wb, seq_params->delta_frame_id_length - 2, 4);
-    aom_wb_write_literal(
-        &wb,
-        seq_params->frame_id_length - seq_params->delta_frame_id_length - 1, 3);
+    write_sequence_header(cm, &wb);
   }
 
   // color_config
