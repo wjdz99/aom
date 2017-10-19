@@ -303,6 +303,7 @@ typedef struct AV1EncoderConfig {
 #endif  // CONFIG_EXT_TILE
 
   unsigned int motion_vector_unit_test;
+  const file_options_t *file_cfg;
 } AV1EncoderConfig;
 
 static INLINE int is_lossless_requested(const AV1EncoderConfig *cfg) {

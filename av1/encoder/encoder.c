@@ -2481,9 +2481,10 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
     assert(cm->bit_depth > AOM_BITS_8);
 
   cpi->oxcf = *oxcf;
+  cpi->common.file_cfg = oxcf->file_cfg;
   x->e_mbd.bd = (int)cm->bit_depth;
 #if CONFIG_GLOBAL_MOTION
-  x->e_mbd.global_motion = cm->global_motion;
+  if (cpi->common.file_cfg->global_motion) x->e_mbd.global_motion = cm->global_motion;
 #endif  // CONFIG_GLOBAL_MOTION
 
   if ((oxcf->pass == 0) && (oxcf->rc_mode == AOM_Q)) {
@@ -4078,11 +4079,13 @@ static void set_mv_search_params(AV1_COMP *cpi) {
 
 static void set_size_independent_vars(AV1_COMP *cpi) {
 #if CONFIG_GLOBAL_MOTION
-  int i;
-  for (i = LAST_FRAME; i <= ALTREF_FRAME; ++i) {
-    cpi->common.global_motion[i] = default_warp_params;
+  if (cpi->common.file_cfg->global_motion) {
+    int i;
+    for (i = LAST_FRAME; i <= ALTREF_FRAME; ++i) {
+      cpi->common.global_motion[i] = default_warp_params;
+    }
+    cpi->global_motion_search_done = 0;
   }
-  cpi->global_motion_search_done = 0;
 #endif  // CONFIG_GLOBAL_MOTION
   av1_set_speed_features_framesize_independent(cpi);
   av1_set_rd_speed_thresholds(cpi);
@@ -5003,9 +5006,10 @@ static void encode_with_recode_loop(AV1_COMP *cpi, size_t *size,
       loop = 0;
 
 #if CONFIG_GLOBAL_MOTION
-    if (recode_loop_test_global_motion(cpi)) {
-      loop = 1;
-    }
+    if (cpi->common.file_cfg->global_motion)
+      if (recode_loop_test_global_motion(cpi)) {
+        loop = 1;
+      }
 #endif  // CONFIG_GLOBAL_MOTION
 
     if (loop) {
@@ -5446,7 +5450,7 @@ static void encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
 #if CONFIG_REFERENCE_BUFFER
   if (cm->seq_params.frame_id_numbers_present_flag) {
     /* Non-normative definition of current_frame_id ("frame counter" with
-    * wraparound) */
+     * wraparound) */
     const int frame_id_length = FRAME_ID_LENGTH_MINUS7 + 7;
     if (cm->current_frame_id == -1) {
       int lsb, msb;
