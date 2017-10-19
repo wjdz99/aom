@@ -185,6 +185,14 @@ void av1_free_restoration_buffers(AV1_COMMON *cm) {
     av1_free_restoration_struct(&cm->rst_info[p]);
   aom_free(cm->rst_tmpbuf);
   cm->rst_tmpbuf = NULL;
+#if CONFIG_STRIPED_LOOP_RESTORATION
+  for (p = 0; p < MAX_MB_PLANE; ++p) {
+    aom_free(cm->rst_info[p].stripe_boundary_above);
+    aom_free(cm->rst_info[p].stripe_boundary_below);
+    cm->rst_info[p].stripe_boundary_above = NULL;
+    cm->rst_info[p].stripe_boundary_below = NULL;
+  }
+#endif
 }
 #endif  // CONFIG_LOOP_RESTORATION
 
