@@ -163,7 +163,7 @@ typedef enum ATTRIBUTE_PACKED {
   BLOCK_LARGEST = (BLOCK_SIZES - 1)
 } BLOCK_SIZE;
 
-typedef enum {
+typedef enum ATTRIBUTE_PACKED {
   PARTITION_NONE,
   PARTITION_HORZ,
   PARTITION_VERT,
@@ -295,7 +295,7 @@ typedef enum {
   TX_TYPES_1D,
 } TX_TYPE_1D;
 
-typedef enum {
+typedef enum ATTRIBUTE_PACKED {
   DCT_DCT,    // DCT  in both horizontal and vertical
   ADST_DCT,   // ADST in vertical, DCT in horizontal
   DCT_ADST,   // DCT  in vertical, ADST in horizontal
@@ -348,7 +348,7 @@ typedef enum {
 #define IS_2D_TRANSFORM(tx_type) 1
 #endif
 
-typedef enum {
+typedef enum ATTRIBUTE_PACKED {
   TILE_LEFT_BOUNDARY = 1,
   TILE_RIGHT_BOUNDARY = 2,
   TILE_ABOVE_BOUNDARY = 4,
