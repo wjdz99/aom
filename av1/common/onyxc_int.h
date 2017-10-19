@@ -529,6 +529,7 @@ typedef struct AV1Common {
 #if CONFIG_MFMV
   TPL_MV_REF *tpl_mvs;
 #endif
+  const file_options_t *file_cfg;
 } AV1_COMMON;
 
 // TODO(hkuang): Don't need to lock the whole pool after implementing atomic
