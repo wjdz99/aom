@@ -168,9 +168,9 @@ static int try_filter_superblock(const YV12_BUFFER_CONFIG *sd,
   return filt_err;
 }
 
-static int search_filter_level(const YV12_BUFFER_CONFIG *sd, AV1_COMP *cpi,
-                               int partial_frame, double *best_cost_ret,
-                               int mi_row, int mi_col, int last_lvl) {
+int search_filter_level(const YV12_BUFFER_CONFIG *sd, AV1_COMP *cpi,
+                        int partial_frame, double *best_cost_ret, int mi_row,
+                        int mi_col, int last_lvl) {
   assert(partial_frame == 1);
   assert(last_lvl >= 0);
 
@@ -304,13 +304,13 @@ static int64_t try_filter_frame(const YV12_BUFFER_CONFIG *sd,
   return filt_err;
 }
 
-static int search_filter_level(const YV12_BUFFER_CONFIG *sd, AV1_COMP *cpi,
-                               int partial_frame, double *best_cost_ret
+int search_filter_level(const YV12_BUFFER_CONFIG *sd, AV1_COMP *cpi,
+                        int partial_frame, double *best_cost_ret
 #if CONFIG_LOOPFILTER_LEVEL
-                               ,
-                               int plane, int dir
+                        ,
+                        int plane, int dir
 #endif
-                               ) {
+                        ) {
   const AV1_COMMON *const cm = &cpi->common;
   const struct loopfilter *const lf = &cm->lf;
   const int min_filter_level = 0;
