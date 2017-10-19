@@ -2498,6 +2498,7 @@ void read_sequence_header(SequenceHeader *seq_params,
 
   /* Placeholder for actually reading from the bitstream */
   seq_params->frame_id_numbers_present_flag = aom_rb_read_bit(rb);
+#if CONFIG_OBU
   if (seq_params->frame_id_numbers_present_flag) {
     // We must always have delta_frame_id_length < frame_id_length,
     // in order for a frame to be referenced with a unique delta.
@@ -2506,6 +2507,10 @@ void read_sequence_header(SequenceHeader *seq_params,
     seq_params->frame_id_length =
         aom_rb_read_literal(rb, 3) + seq_params->delta_frame_id_length + 1;
   }
+#else
+  seq_params->frame_id_length = FRAME_ID_LENGTH;
+  seq_params->delta_frame_id_length = DELTA_FRAME_ID_LENGTH;
+#endif
 }
 #endif  // CONFIG_REFERENCE_BUFFER
 

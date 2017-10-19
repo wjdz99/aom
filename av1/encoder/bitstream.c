@@ -3541,6 +3541,7 @@ void write_sequence_header(AV1_COMMON *const cm,
   seq_params->delta_frame_id_length = DELTA_FRAME_ID_LENGTH;
 
   aom_wb_write_bit(wb, seq_params->frame_id_numbers_present_flag);
+#if CONFIG_OBU
   if (seq_params->frame_id_numbers_present_flag) {
     // We must always have delta_frame_id_length < frame_id_length,
     // in order for a frame to be referenced with a unique delta.
@@ -3550,6 +3551,7 @@ void write_sequence_header(AV1_COMMON *const cm,
         wb, seq_params->frame_id_length - seq_params->delta_frame_id_length - 1,
         3);
   }
+#endif
 }
 #endif  // CONFIG_REFERENCE_BUFFER
 
