@@ -4150,8 +4150,8 @@ void write_sequence_header(AV1_COMMON *const cm,
       cm->large_scale_tile ? 0 :
 #endif  // CONFIG_EXT_TILE
                            FRAME_ID_NUMBERS_PRESENT_FLAG;
-  seq_params->frame_id_length = FRAME_ID_LENGTH_MINUS7 + 7;
-  seq_params->delta_frame_id_length = DELTA_FRAME_ID_LENGTH_MINUS2 + 2;
+  seq_params->frame_id_length = FRAME_ID_LENGTH;
+  seq_params->delta_frame_id_length = DELTA_FRAME_ID_LENGTH;
 
   aom_wb_write_bit(wb, seq_params->frame_id_numbers_present_flag);
   if (seq_params->frame_id_numbers_present_flag) {
