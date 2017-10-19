@@ -108,11 +108,7 @@ typedef enum {
 } REFRESH_FRAME_CONTEXT_MODE;
 
 #if CONFIG_MFMV
-#define MFMV_STACK_SIZE INTER_REFS_PER_FRAME
-
-typedef struct {
-  int_mv mfmv[INTER_REFS_PER_FRAME][MFMV_STACK_SIZE];
-} TPL_MV_REF;
+typedef struct { int_mv mfmv[INTER_REFS_PER_FRAME]; } TPL_MV_REF;
 #endif
 
 typedef struct {

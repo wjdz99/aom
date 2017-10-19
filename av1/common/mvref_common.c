@@ -551,82 +551,74 @@ static int add_tpl_ref_mv(const AV1_COMMON *cm,
   av1_set_ref_frame(rf, ref_frame);
 
   if (rf[1] == NONE_FRAME) {
-    for (int i = 0; i < MFMV_STACK_SIZE; ++i) {
-      if (prev_frame_mvs->mfmv[ref_frame - LAST_FRAME][i].as_int !=
-          INVALID_MV) {
-        int_mv this_refmv = prev_frame_mvs->mfmv[ref_frame - LAST_FRAME][i];
-        lower_mv_precision(&this_refmv.as_mv, cm->allow_high_precision_mv);
+    if (prev_frame_mvs->mfmv[ref_frame - LAST_FRAME].as_int != INVALID_MV) {
+      int_mv this_refmv = prev_frame_mvs->mfmv[ref_frame - LAST_FRAME];
+      lower_mv_precision(&this_refmv.as_mv, cm->allow_high_precision_mv);
 
-        if (blk_row == 0 && blk_col == 0)
-          if (abs(this_refmv.as_mv.row) >= 16 ||
-              abs(this_refmv.as_mv.col) >= 16)
-            mode_context[ref_frame] |= (1 << ZEROMV_OFFSET);
+      if (blk_row == 0 && blk_col == 0)
+        if (abs(this_refmv.as_mv.row) >= 16 || abs(this_refmv.as_mv.col) >= 16)
+          mode_context[ref_frame] |= (1 << ZEROMV_OFFSET);
 
-        for (idx = 0; idx < *refmv_count; ++idx)
-          if (abs(this_refmv.as_mv.row - ref_mv_stack[idx].this_mv.as_mv.row) <
-                  4 &&
-              abs(this_refmv.as_mv.col - ref_mv_stack[idx].this_mv.as_mv.col) <
-                  4)
-            break;
+      for (idx = 0; idx < *refmv_count; ++idx)
+        if (abs(this_refmv.as_mv.row - ref_mv_stack[idx].this_mv.as_mv.row) <
+                4 &&
+            abs(this_refmv.as_mv.col - ref_mv_stack[idx].this_mv.as_mv.col) < 4)
+          break;
 
-        if (idx < *refmv_count) ref_mv_stack[idx].weight += 2 * weight_unit;
+      if (idx < *refmv_count) ref_mv_stack[idx].weight += 2 * weight_unit;
 
-        if (idx == *refmv_count && *refmv_count < MAX_REF_MV_STACK_SIZE) {
-          ref_mv_stack[idx].this_mv.as_int = this_refmv.as_int;
-          // TODO(jingning): Hard coded context number. Need to make it better
-          // sense.
-          ref_mv_stack[idx].pred_diff[0] = 1;
-          ref_mv_stack[idx].weight = 2 * weight_unit;
-          ++(*refmv_count);
-        }
-
-        ++coll_blk_count;
+      if (idx == *refmv_count && *refmv_count < MAX_REF_MV_STACK_SIZE) {
+        ref_mv_stack[idx].this_mv.as_int = this_refmv.as_int;
+        // TODO(jingning): Hard coded context number. Need to make it better
+        // sense.
+        ref_mv_stack[idx].pred_diff[0] = 1;
+        ref_mv_stack[idx].weight = 2 * weight_unit;
+        ++(*refmv_count);
       }
+
+      ++coll_blk_count;
     }
+
   } else {
     // Process compound inter mode
-    for (int i = 0; i < MFMV_STACK_SIZE; ++i) {
-      if (prev_frame_mvs->mfmv[rf[0] - LAST_FRAME][i].as_int != INVALID_MV &&
-          prev_frame_mvs->mfmv[rf[1] - LAST_FRAME][i].as_int != INVALID_MV) {
-        int_mv this_refmv = prev_frame_mvs->mfmv[rf[0] - LAST_FRAME][i];
-        int_mv comp_refmv = prev_frame_mvs->mfmv[rf[1] - LAST_FRAME][i];
-        lower_mv_precision(&this_refmv.as_mv, cm->allow_high_precision_mv);
-        lower_mv_precision(&comp_refmv.as_mv, cm->allow_high_precision_mv);
+    if (prev_frame_mvs->mfmv[rf[0] - LAST_FRAME].as_int != INVALID_MV &&
+        prev_frame_mvs->mfmv[rf[1] - LAST_FRAME].as_int != INVALID_MV) {
+      int_mv this_refmv = prev_frame_mvs->mfmv[rf[0] - LAST_FRAME];
+      int_mv comp_refmv = prev_frame_mvs->mfmv[rf[1] - LAST_FRAME];
+      lower_mv_precision(&this_refmv.as_mv, cm->allow_high_precision_mv);
+      lower_mv_precision(&comp_refmv.as_mv, cm->allow_high_precision_mv);
 
-        if (blk_row == 0 && blk_col == 0)
-          if (abs(this_refmv.as_mv.row) >= 16 ||
-              abs(this_refmv.as_mv.col) >= 16 ||
-              abs(comp_refmv.as_mv.row) >= 16 ||
-              abs(comp_refmv.as_mv.col) >= 16)
-            mode_context[ref_frame] |= (1 << ZEROMV_OFFSET);
+      if (blk_row == 0 && blk_col == 0)
+        if (abs(this_refmv.as_mv.row) >= 16 ||
+            abs(this_refmv.as_mv.col) >= 16 ||
+            abs(comp_refmv.as_mv.row) >= 16 || abs(comp_refmv.as_mv.col) >= 16)
+          mode_context[ref_frame] |= (1 << ZEROMV_OFFSET);
 
-        for (idx = 0; idx < *refmv_count; ++idx)
-          if (abs(this_refmv.as_mv.row - ref_mv_stack[idx].this_mv.as_mv.row) <
-                  4 &&
-              abs(this_refmv.as_mv.col - ref_mv_stack[idx].this_mv.as_mv.col) <
-                  4 &&
-              abs(comp_refmv.as_mv.row - ref_mv_stack[idx].comp_mv.as_mv.row) <
-                  4 &&
-              abs(comp_refmv.as_mv.col - ref_mv_stack[idx].comp_mv.as_mv.col) <
-                  4)
-            break;
+      for (idx = 0; idx < *refmv_count; ++idx)
+        if (abs(this_refmv.as_mv.row - ref_mv_stack[idx].this_mv.as_mv.row) <
+                4 &&
+            abs(this_refmv.as_mv.col - ref_mv_stack[idx].this_mv.as_mv.col) <
+                4 &&
+            abs(comp_refmv.as_mv.row - ref_mv_stack[idx].comp_mv.as_mv.row) <
+                4 &&
+            abs(comp_refmv.as_mv.col - ref_mv_stack[idx].comp_mv.as_mv.col) < 4)
+          break;
 
-        if (idx < *refmv_count) ref_mv_stack[idx].weight += 2 * weight_unit;
+      if (idx < *refmv_count) ref_mv_stack[idx].weight += 2 * weight_unit;
 
-        if (idx == *refmv_count && *refmv_count < MAX_REF_MV_STACK_SIZE) {
-          ref_mv_stack[idx].this_mv.as_int = this_refmv.as_int;
-          ref_mv_stack[idx].comp_mv.as_int = comp_refmv.as_int;
-          // TODO(jingning): Hard coded context number. Need to make it better
-          // sense.
-          ref_mv_stack[idx].pred_diff[0] = 1;
-          ref_mv_stack[idx].pred_diff[1] = 1;
-          ref_mv_stack[idx].weight = 2 * weight_unit;
-          ++(*refmv_count);
-        }
-
-        ++coll_blk_count;
+      if (idx == *refmv_count && *refmv_count < MAX_REF_MV_STACK_SIZE) {
+        ref_mv_stack[idx].this_mv.as_int = this_refmv.as_int;
+        ref_mv_stack[idx].comp_mv.as_int = comp_refmv.as_int;
+        // TODO(jingning): Hard coded context number. Need to make it better
+        // sense.
+        ref_mv_stack[idx].pred_diff[0] = 1;
+        ref_mv_stack[idx].pred_diff[1] = 1;
+        ref_mv_stack[idx].weight = 2 * weight_unit;
+        ++(*refmv_count);
       }
-    }
+
+      ++coll_blk_count;
+      }
   }
 
   return coll_blk_count;
@@ -1716,7 +1708,6 @@ static void motion_field_projection(AV1_COMMON *cm,
   int cur_to_lst3 = cur_frame_index - lst3_frame_index;
   int cur_to_bwd = bwd_frame_index - cur_frame_index;
   int cur_to_alt2 = alt2_frame_index - cur_frame_index;
-  const int ref_stamp = FWD_RF_OFFSET(ref_frame);
   // clang-format off
     const int ref_frame_offset_buffer[TOTAL_REFS_PER_FRAME] = {
         0, lst_offset, lst2_offset, lst3_offset, gld_offset,
@@ -1748,52 +1739,45 @@ static void motion_field_projection(AV1_COMMON *cm,
           if (ref_frame == ALTREF_FRAME) {
             get_mv_projection(&this_mv.as_mv, fwd_mv, cur_to_alt,
                               ref_frame_offset);
-            tpl_mvs_base[mi_offset]
-                .mfmv[FWD_RF_OFFSET(ALTREF_FRAME)][ref_stamp]
-                .as_int = mv_sign_reverse(this_mv);
+            tpl_mvs_base[mi_offset].mfmv[FWD_RF_OFFSET(ALTREF_FRAME)].as_int =
+                mv_sign_reverse(this_mv);
           }
 
           if (ref_frame >= ALTREF2_FRAME) {
             get_mv_projection(&this_mv.as_mv, fwd_mv, cur_to_alt2,
                               ref_frame_offset);
-            tpl_mvs_base[mi_offset]
-                .mfmv[FWD_RF_OFFSET(ALTREF2_FRAME)][ref_stamp]
-                .as_int = mv_sign_reverse(this_mv);
+            tpl_mvs_base[mi_offset].mfmv[FWD_RF_OFFSET(ALTREF2_FRAME)].as_int =
+                mv_sign_reverse(this_mv);
           }
 
           get_mv_projection(&this_mv.as_mv, fwd_mv, cur_to_bwd,
                             ref_frame_offset);
-          tpl_mvs_base[mi_offset]
-              .mfmv[FWD_RF_OFFSET(BWDREF_FRAME)][ref_stamp]
-              .as_int = mv_sign_reverse(this_mv);
+          tpl_mvs_base[mi_offset].mfmv[FWD_RF_OFFSET(BWDREF_FRAME)].as_int =
+              mv_sign_reverse(this_mv);
 
           get_mv_projection(&this_mv.as_mv, fwd_mv, cur_to_lst,
                             ref_frame_offset);
-          tpl_mvs_base[mi_offset]
-              .mfmv[FWD_RF_OFFSET(LAST_FRAME)][ref_stamp]
-              .as_int = this_mv.as_int;
+          tpl_mvs_base[mi_offset].mfmv[FWD_RF_OFFSET(LAST_FRAME)].as_int =
+              this_mv.as_int;
 
           if (rf[0] >= LAST2_FRAME) {
             get_mv_projection(&this_mv.as_mv, fwd_mv, cur_to_lst2,
                               ref_frame_offset);
-            tpl_mvs_base[mi_offset]
-                .mfmv[FWD_RF_OFFSET(LAST2_FRAME)][ref_stamp]
-                .as_int = this_mv.as_int;
+            tpl_mvs_base[mi_offset].mfmv[FWD_RF_OFFSET(LAST2_FRAME)].as_int =
+                this_mv.as_int;
           }
 
           if (rf[0] >= LAST3_FRAME) {
             get_mv_projection(&this_mv.as_mv, fwd_mv, cur_to_lst3,
                               ref_frame_offset);
-            tpl_mvs_base[mi_offset]
-                .mfmv[FWD_RF_OFFSET(LAST3_FRAME)][ref_stamp]
-                .as_int = this_mv.as_int;
+            tpl_mvs_base[mi_offset].mfmv[FWD_RF_OFFSET(LAST3_FRAME)].as_int =
+                this_mv.as_int;
           }
           if (rf[0] >= GOLDEN_FRAME) {
             get_mv_projection(&this_mv.as_mv, fwd_mv, cur_to_gld,
                               ref_frame_offset);
-            tpl_mvs_base[mi_offset]
-                .mfmv[FWD_RF_OFFSET(GOLDEN_FRAME)][ref_stamp]
-                .as_int = this_mv.as_int;
+            tpl_mvs_base[mi_offset].mfmv[FWD_RF_OFFSET(GOLDEN_FRAME)].as_int =
+                this_mv.as_int;
           }
         }
       }
@@ -1810,21 +1794,18 @@ static void motion_field_projection(AV1_COMMON *cm,
           int mi_offset = mi_r * (cm->mi_stride >> 1) + mi_c;
           get_mv_projection(&this_mv.as_mv, fwd_mv, cur_to_bwd,
                             abs(ref_frame_offset));
-          tpl_mvs_base[mi_offset]
-              .mfmv[FWD_RF_OFFSET(BWDREF_FRAME)][ref_stamp]
-              .as_int = this_mv.as_int;
+          tpl_mvs_base[mi_offset].mfmv[FWD_RF_OFFSET(BWDREF_FRAME)].as_int =
+              this_mv.as_int;
 
           get_mv_projection(&this_mv.as_mv, fwd_mv, cur_to_alt2,
                             abs(ref_frame_offset));
-          tpl_mvs_base[mi_offset]
-              .mfmv[FWD_RF_OFFSET(ALTREF2_FRAME)][ref_stamp]
-              .as_int = this_mv.as_int;
+          tpl_mvs_base[mi_offset].mfmv[FWD_RF_OFFSET(ALTREF2_FRAME)].as_int =
+              this_mv.as_int;
 
           get_mv_projection(&this_mv.as_mv, fwd_mv, cur_to_alt,
                             abs(ref_frame_offset));
-          tpl_mvs_base[mi_offset]
-              .mfmv[FWD_RF_OFFSET(ALTREF_FRAME)][ref_stamp]
-              .as_int = this_mv.as_int;
+          tpl_mvs_base[mi_offset].mfmv[FWD_RF_OFFSET(ALTREF_FRAME)].as_int =
+              this_mv.as_int;
         }
       }
     }
@@ -1840,10 +1821,8 @@ void av1_setup_motion_field(AV1_COMMON *cm) {
 
   for (int ref_frame = 0; ref_frame < INTER_REFS_PER_FRAME; ++ref_frame) {
     int size = ((cm->mi_rows + MAX_MIB_SIZE) >> 1) * (cm->mi_stride >> 1);
-    for (int idx = 0; idx < size; ++idx) {
-      for (int i = 0; i < MFMV_STACK_SIZE; ++i)
-        tpl_mvs_base[idx].mfmv[ref_frame][i].as_int = INVALID_MV;
-    }
+    for (int idx = 0; idx < size; ++idx)
+      tpl_mvs_base[idx].mfmv[ref_frame].as_int = INVALID_MV;
   }
 
   int alt_buf_idx = cm->frame_refs[ALTREF_FRAME - LAST_FRAME].idx;
@@ -1948,22 +1927,22 @@ void av1_setup_motion_field(AV1_COMMON *cm) {
 
           if (pos_valid) {
             int mi_offset = mi_r * (cm->mi_stride >> 1) + mi_c;
-            tpl_mvs_base[mi_offset].mfmv[FWD_RF_OFFSET(LAST_FRAME)][0].as_int =
+            tpl_mvs_base[mi_offset].mfmv[FWD_RF_OFFSET(LAST_FRAME)].as_int =
                 this_mv.as_int;
 
             get_mv_projection(&this_mv.as_mv, fwd_mv, cur_to_lst2,
                               ref_frame_offset);
-            tpl_mvs_base[mi_offset].mfmv[FWD_RF_OFFSET(LAST2_FRAME)][0].as_int =
+            tpl_mvs_base[mi_offset].mfmv[FWD_RF_OFFSET(LAST2_FRAME)].as_int =
                 this_mv.as_int;
 
             get_mv_projection(&this_mv.as_mv, fwd_mv, cur_to_lst3,
                               ref_frame_offset);
-            tpl_mvs_base[mi_offset].mfmv[FWD_RF_OFFSET(LAST3_FRAME)][0].as_int =
+            tpl_mvs_base[mi_offset].mfmv[FWD_RF_OFFSET(LAST3_FRAME)].as_int =
                 this_mv.as_int;
             get_mv_projection(&this_mv.as_mv, fwd_mv, cur_to_gld,
                               ref_frame_offset);
-            tpl_mvs_base[mi_offset].mfmv[FWD_RF_OFFSET(GOLDEN_FRAME)]
-                                        [0].as_int = this_mv.as_int;
+            tpl_mvs_base[mi_offset].mfmv[FWD_RF_OFFSET(GOLDEN_FRAME)].as_int =
+                this_mv.as_int;
           }
         }
 
@@ -1985,17 +1964,17 @@ void av1_setup_motion_field(AV1_COMMON *cm) {
             int mi_offset = mi_r * (cm->mi_stride >> 1) + mi_c;
             get_mv_projection(&this_mv.as_mv, fwd_mv, cur_to_alt,
                               ref_frame_offset);
-            tpl_mvs_base[mi_offset].mfmv[FWD_RF_OFFSET(ALTREF_FRAME)]
-                                        [0].as_int = this_mv.as_int;
+            tpl_mvs_base[mi_offset].mfmv[FWD_RF_OFFSET(ALTREF_FRAME)].as_int =
+                this_mv.as_int;
 
             get_mv_projection(&this_mv.as_mv, fwd_mv, cur_to_bwd,
                               ref_frame_offset);
-            tpl_mvs_base[mi_offset].mfmv[FWD_RF_OFFSET(BWDREF_FRAME)]
-                                        [0].as_int = this_mv.as_int;
+            tpl_mvs_base[mi_offset].mfmv[FWD_RF_OFFSET(BWDREF_FRAME)].as_int =
+                this_mv.as_int;
             get_mv_projection(&this_mv.as_mv, fwd_mv, cur_to_alt2,
                               ref_frame_offset);
-            tpl_mvs_base[mi_offset].mfmv[FWD_RF_OFFSET(ALTREF2_FRAME)]
-                                        [0].as_int = this_mv.as_int;
+            tpl_mvs_base[mi_offset].mfmv[FWD_RF_OFFSET(ALTREF2_FRAME)].as_int =
+                this_mv.as_int;
           }
         }
       }
