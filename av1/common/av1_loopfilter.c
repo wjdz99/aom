@@ -2981,13 +2981,6 @@ static void set_lpf_parameters(
         }
       }
 
-#if !CONFIG_CB4X4
-      // prepare internal edge parameters
-      if (curr_level && !curr_skipped) {
-        params->filter_length_internal = (TX_4X4 >= ts) ? (4) : (0);
-      }
-#endif
-
       // prepare common parameters
       if (params->filter_length || params->filter_length_internal) {
         const loop_filter_thresh *const limits = cm->lf_info.lfthr + level;
@@ -3474,8 +3467,7 @@ void av1_loop_filter_rows(YV12_BUFFER_CONFIG *frame_buffer, AV1_COMMON *cm,
   int mi_row, mi_col;
   int plane;
 
-#if CONFIG_VAR_TX || CONFIG_EXT_PARTITION || CONFIG_EXT_PARTITION_TYPES || \
-    CONFIG_CB4X4
+#if CONFIG_VAR_TX || CONFIG_EXT_PARTITION || CONFIG_EXT_PARTITION_TYPES
 
 #if !CONFIG_PARALLEL_DEBLOCKING
 #if CONFIG_VAR_TX
