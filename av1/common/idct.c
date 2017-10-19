@@ -2568,7 +2568,6 @@ void av1_highbd_iwht4x4_add(const tran_low_t *input, uint8_t *dest, int stride,
 }
 
 static const int32_t *cast_to_int32(const tran_low_t *input) {
-  assert(sizeof(int32_t) == sizeof(tran_low_t));
   return (const int32_t *)input;
 }
 
