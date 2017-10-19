@@ -2284,77 +2284,45 @@ static void inv_txfm_add_4x4(const tran_low_t *input, uint8_t *dest, int stride,
 
 static void inv_txfm_add_4x8(const tran_low_t *input, uint8_t *dest, int stride,
                              const TxfmParam *txfm_param) {
-#if CONFIG_LGT
-  av1_iht4x8_32_add_c(input, dest, stride, txfm_param);
-#else
   av1_iht4x8_32_add(input, dest, stride, txfm_param);
-#endif
 }
 
 static void inv_txfm_add_8x4(const tran_low_t *input, uint8_t *dest, int stride,
                              const TxfmParam *txfm_param) {
-#if CONFIG_LGT
-  av1_iht8x4_32_add_c(input, dest, stride, txfm_param);
-#else
   av1_iht8x4_32_add(input, dest, stride, txfm_param);
-#endif
 }
 
 // These will be used by the masked-tx experiment in the future.
 #if CONFIG_RECT_TX_EXT && (CONFIG_EXT_TX || CONFIG_VAR_TX)
 static void inv_txfm_add_4x16(const tran_low_t *input, uint8_t *dest,
                               int stride, const TxfmParam *txfm_param) {
-#if CONFIG_LGT
-  av1_iht4x16_64_add_c(input, dest, stride, txfm_param);
-#else
   av1_iht4x16_64_add(input, dest, stride, txfm_param);
-#endif
 }
 
 static void inv_txfm_add_16x4(const tran_low_t *input, uint8_t *dest,
                               int stride, const TxfmParam *txfm_param) {
-#if CONFIG_LGT
-  av1_iht16x4_64_add_c(input, dest, stride, txfm_param);
-#else
   av1_iht16x4_64_add(input, dest, stride, txfm_param);
-#endif
 }
 
 static void inv_txfm_add_8x32(const tran_low_t *input, uint8_t *dest,
                               int stride, const TxfmParam *txfm_param) {
-#if CONFIG_LGT
-  av1_iht8x32_256_add_c(input, dest, stride, txfm_param);
-#else
   av1_iht8x32_256_add(input, dest, stride, txfm_param);
-#endif
 }
 
 static void inv_txfm_add_32x8(const tran_low_t *input, uint8_t *dest,
                               int stride, const TxfmParam *txfm_param) {
-#if CONFIG_LGT
-  av1_iht32x8_256_add_c(input, dest, stride, txfm_param);
-#else
   av1_iht32x8_256_add(input, dest, stride, txfm_param);
-#endif
 }
 #endif
 
 static void inv_txfm_add_8x16(const tran_low_t *input, uint8_t *dest,
                               int stride, const TxfmParam *txfm_param) {
-#if CONFIG_LGT
-  av1_iht8x16_128_add_c(input, dest, stride, txfm_param);
-#else
   av1_iht8x16_128_add(input, dest, stride, txfm_param);
-#endif
 }
 
 static void inv_txfm_add_16x8(const tran_low_t *input, uint8_t *dest,
                               int stride, const TxfmParam *txfm_param) {
-#if CONFIG_LGT
-  av1_iht16x8_128_add_c(input, dest, stride, txfm_param);
-#else
   av1_iht16x8_128_add(input, dest, stride, txfm_param);
-#endif
 }
 
 static void inv_txfm_add_16x32(const tran_low_t *input, uint8_t *dest,
