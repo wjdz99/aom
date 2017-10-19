@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6d4c5190_d547b2dc",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 561,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-10-19T01:35:20Z",
+      "side": 1,
+      "message": "Additional grammar.",
+      "range": {
+        "startLine": 561,
+        "startChar": 71,
+        "endLine": 561,
+        "endChar": 78
+      },
+      "revId": "70a01efaa1df2f0efbd9ca82400bae15cd08189e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f6f755d0_8eda6a80",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 645,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-10-19T01:35:20Z",
+      "side": 1,
+      "message": "The values computed in these asserts seem much more robust than the actual way you compute the values. Is there any reason to not just compute them the robust way and drop the assert?",
+      "revId": "70a01efaa1df2f0efbd9ca82400bae15cd08189e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b451afd1_ff2aad41",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 673,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-10-19T01:35:20Z",
+      "side": 1,
+      "message": "So, instead of making yet another set of tables (one of the biggest sets of bugs I found when fixing all of the TX_2X2/BLOCK_SIZE_2X2 discrepancies was tables indexed by BLOCK_SIZES that were not properly updated when the new sizes were added), what I _think_ we want is\n\n  bsize \u003d scale_chroma_bsize(bsize, cfl-\u003esubsampling_x, cfl-\u003esubsampling_y);\n  // The size of the sub8x8 validation buffer in luma MI units\n  int val_wide \u003d mi_size_wide[bsize];\n  int val_high \u003d mi_size_high[bsize];\n\nscale_chroma_bsize() does not currently do the right thing for 4x16 or 16x4 partitions where the smaller dimension is also subsampled, but I think that will have to be fixed before we can actually start using those partition sizes (once we gain BLOCK_2X8 and BLOCK_8X2 enum values... I\u0027m still not sure what will happen to 16x4 or 4x16 block sizes when _only_ the smaller dimension is subsampled).\n\nThat way we\u0027re only using constructs which already exist, and have a high probability of being updated as people fix/change things.\n\nDoes that make sense?",
+      "revId": "70a01efaa1df2f0efbd9ca82400bae15cd08189e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
