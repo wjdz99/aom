@@ -1238,29 +1238,33 @@ void av1_find_mv_refs(const AV1_COMMON *cm, const MACROBLOCKD *xd,
                         compound_mode_context);
 
 #if CONFIG_GLOBAL_MOTION
-  if (!CONFIG_INTRABC || ref_frame != INTRA_FRAME) {
-    av1_set_ref_frame(rf, ref_frame);
-    zeromv[0].as_int = gm_get_motion_vector(&cm->global_motion[rf[0]],
-                                            cm->allow_high_precision_mv, bsize,
-                                            mi_col, mi_row, 0
+  if (cm->file_cfg->global_motion) {
+    if (!CONFIG_INTRABC || ref_frame != INTRA_FRAME) {
+      av1_set_ref_frame(rf, ref_frame);
+      zeromv[0].as_int = gm_get_motion_vector(&cm->global_motion[rf[0]],
+                                              cm->allow_high_precision_mv,
+                                              bsize, mi_col, mi_row, 0
 #if CONFIG_AMVR
-                                            ,
-                                            cm->cur_frame_mv_precision_level
+                                              ,
+                                              cm->cur_frame_mv_precision_level
 #endif
-                                            )
-                           .as_int;
-    zeromv[1].as_int =
-        (rf[1] != NONE_FRAME)
-            ? gm_get_motion_vector(&cm->global_motion[rf[1]],
-                                   cm->allow_high_precision_mv, bsize, mi_col,
-                                   mi_row, 0
+                                              )
+                             .as_int;
+      zeromv[1].as_int =
+          (rf[1] != NONE_FRAME)
+              ? gm_get_motion_vector(&cm->global_motion[rf[1]],
+                                     cm->allow_high_precision_mv, bsize, mi_col,
+                                     mi_row, 0
 #if CONFIG_AMVR
-                                   ,
-                                   cm->cur_frame_mv_precision_level
+                                     ,
+                                     cm->cur_frame_mv_precision_level
 #endif
-                                   )
-                  .as_int
-            : 0;
+                                     )
+                    .as_int
+              : 0;
+    } else {
+      zeromv[0].as_int = zeromv[1].as_int = 0;
+    }
   } else {
     zeromv[0].as_int = zeromv[1].as_int = 0;
   }
@@ -1315,7 +1319,7 @@ void av1_find_best_ref_mvs(int allow_hp, int_mv *mvlist, int_mv *nearest_mv,
                            ,
                            int is_integer
 #endif
-                           ) {
+) {
   int i;
   // Make sure all the candidates are properly clamped etc
   for (i = 0; i < MAX_MV_REF_CANDIDATES; ++i) {
@@ -1740,8 +1744,9 @@ void av1_setup_motion_field(AV1_COMMON *cm) {
                 this_mv.as_int;
             get_mv_projection(&this_mv.as_mv, fwd_mv, cur_to_gld,
                               ref_frame_offset);
-            tpl_mvs_base[mi_offset].mfmv[FWD_RF_OFFSET(GOLDEN_FRAME)]
-                                        [0].as_int = this_mv.as_int;
+            tpl_mvs_base[mi_offset]
+                .mfmv[FWD_RF_OFFSET(GOLDEN_FRAME)][0]
+                .as_int = this_mv.as_int;
           }
         }
 
@@ -1763,17 +1768,20 @@ void av1_setup_motion_field(AV1_COMMON *cm) {
             int mi_offset = mi_r * (cm->mi_stride >> 1) + mi_c;
             get_mv_projection(&this_mv.as_mv, fwd_mv, cur_to_alt,
                               ref_frame_offset);
-            tpl_mvs_base[mi_offset].mfmv[FWD_RF_OFFSET(ALTREF_FRAME)]
-                                        [0].as_int = this_mv.as_int;
+            tpl_mvs_base[mi_offset]
+                .mfmv[FWD_RF_OFFSET(ALTREF_FRAME)][0]
+                .as_int = this_mv.as_int;
 
             get_mv_projection(&this_mv.as_mv, fwd_mv, cur_to_bwd,
                               ref_frame_offset);
-            tpl_mvs_base[mi_offset].mfmv[FWD_RF_OFFSET(BWDREF_FRAME)]
-                                        [0].as_int = this_mv.as_int;
+            tpl_mvs_base[mi_offset]
+                .mfmv[FWD_RF_OFFSET(BWDREF_FRAME)][0]
+                .as_int = this_mv.as_int;
             get_mv_projection(&this_mv.as_mv, fwd_mv, cur_to_alt2,
                               ref_frame_offset);
-            tpl_mvs_base[mi_offset].mfmv[FWD_RF_OFFSET(ALTREF2_FRAME)]
-                                        [0].as_int = this_mv.as_int;
+            tpl_mvs_base[mi_offset]
+                .mfmv[FWD_RF_OFFSET(ALTREF2_FRAME)][0]
+                .as_int = this_mv.as_int;
           }
         }
       }

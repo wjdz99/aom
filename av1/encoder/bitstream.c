@@ -1792,7 +1792,8 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
     }
 
 #if CONFIG_DUAL_FILTER || CONFIG_WARPED_MOTION || CONFIG_GLOBAL_MOTION
-    write_mb_interp_filter(cpi, xd, w);
+    if (cm->file_cfg->global_motion || cm->file_cfg->warped_motion)
+      write_mb_interp_filter(cpi, xd, w);
 #endif  // CONFIG_DUAL_FILTE || CONFIG_WARPED_MOTION
   }
 
@@ -2785,9 +2786,8 @@ static void encode_restoration_mode(AV1_COMMON *cm,
   int s = AOMMIN(cm->subsampling_x, cm->subsampling_y);
   if (s && (cm->rst_info[1].frame_restoration_type != RESTORE_NONE ||
             cm->rst_info[2].frame_restoration_type != RESTORE_NONE)) {
-    aom_wb_write_bit(wb,
-                     cm->rst_info[1].restoration_tilesize !=
-                         cm->rst_info[0].restoration_tilesize);
+    aom_wb_write_bit(wb, cm->rst_info[1].restoration_tilesize !=
+                             cm->rst_info[0].restoration_tilesize);
     assert(cm->rst_info[1].restoration_tilesize ==
                cm->rst_info[0].restoration_tilesize ||
            cm->rst_info[1].restoration_tilesize ==
@@ -3100,12 +3100,14 @@ static void fix_interp_filter(AV1_COMMON *cm, FRAME_COUNTS *counts) {
         if (count[i]) {
 #if CONFIG_MOTION_VAR && (CONFIG_WARPED_MOTION || CONFIG_GLOBAL_MOTION)
 #if CONFIG_WARPED_MOTION
-          if (i == EIGHTTAP_REGULAR || WARP_WM_NEIGHBORS_WITH_OBMC)
+          if (cm->file_cfg->warped_motion)
+            if (i == EIGHTTAP_REGULAR || WARP_WM_NEIGHBORS_WITH_OBMC)
 #else
-          if (i == EIGHTTAP_REGULAR || WARP_GM_NEIGHBORS_WITH_OBMC)
+          if (cm->file_cfg->global_motion)
+            if (i == EIGHTTAP_REGULAR || WARP_GM_NEIGHBORS_WITH_OBMC)
 #endif  // CONFIG_WARPED_MOTION
 #endif  // CONFIG_MOTION_VAR && (CONFIG_WARPED_MOTION || CONFIG_GLOBAL_MOTION)
-            cm->interp_filter = i;
+              cm->interp_filter = i;
           break;
         }
       }

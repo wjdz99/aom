@@ -218,7 +218,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->tx_type_search.prune_mode = PRUNE_2D_FAST;
 #endif
 #if CONFIG_GLOBAL_MOTION
-    sf->gm_search_type = GM_DISABLE_SEARCH;
+    if (cpi->file_cfg->global_motion) sf->gm_search_type = GM_DISABLE_SEARCH;
 #endif  // CONFIG_GLOBAL_MOTION
   }
 
@@ -451,14 +451,14 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi) {
   // Set this at the appropriate speed levels
   sf->use_transform_domain_distortion = 0;
 #if CONFIG_GLOBAL_MOTION
-  sf->gm_search_type = GM_FULL_SEARCH;
+  if (cpi->file_cfg->global_motion) sf->gm_search_type = GM_FULL_SEARCH;
 #endif  // CONFIG_GLOBAL_MOTION
 
   if (oxcf->mode == GOOD
 #if CONFIG_XIPHRC
       || oxcf->pass == 1
 #endif
-      )
+  )
     set_good_speed_features_framesize_independent(cpi, sf, oxcf->speed);
 
   // sf->partition_search_breakout_dist_thr is set assuming max 64x64
