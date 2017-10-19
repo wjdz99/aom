@@ -324,6 +324,20 @@ typedef enum {
   TX_TYPES,
 } TX_TYPE;
 
+#if CONFIG_DUAL_FILTER
+typedef enum {
+	REG_REG,
+	REG_SMOOTH,
+	REG_SHARP,
+	SMOOTH_REG,
+	SMOOTH_SMOOTH,
+	SMOOTH_SHARP,
+	SHARP_REGULAR,
+	SHARP_SMOOTH,
+	SHARP_SHARP,
+} DUAL_FILTER_TYPE;
+#endif
+
 #if CONFIG_EXT_TX
 typedef enum {
   // DCT only
