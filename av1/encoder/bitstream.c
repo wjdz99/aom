@@ -2932,11 +2932,7 @@ static void write_modes_sb(AV1_COMP *const cpi, const TileInfo *const tile,
           curr_mbmi->sign = 0;
         } else {
           const unsigned int delta = abs(curr_lvl - prev_lvl) / LPF_STEP;
-          const int delta_ctx = prev_mbmi->delta;
-          curr_mbmi->delta = delta;
-          aom_write_symbol(w, delta, xd->tile_ctx->lpf_delta_cdf[delta_ctx],
-                           DELTA_RANGE);
-          cpi->td.counts->lpf_delta[delta_ctx][delta]++;
+          aom_write_literal(w, delta, LPF_DELTA_BITS);
 
           if (delta) {
             const int sign = curr_lvl > prev_lvl;
