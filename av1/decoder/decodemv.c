@@ -2926,12 +2926,7 @@ static void read_inter_frame_mode_info(AV1Decoder *const pbi,
   xd->left_txfm_context = xd->left_txfm_context_buffer +
                           ((mi_row & MAX_MIB_MASK) << TX_UNIT_HIGH_LOG2);
 
-  if (cm->tx_mode == TX_MODE_SELECT &&
-#if CONFIG_CB4X4
-      bsize > BLOCK_4X4 &&
-#else
-      bsize >= BLOCK_8X8 &&
-#endif
+  if (cm->tx_mode == TX_MODE_SELECT && block_signals_txsize(bsize) &&
       !mbmi->skip && inter_block && !xd->lossless[mbmi->segment_id]) {
     const TX_SIZE max_tx_size = max_txsize_rect_lookup[bsize];
     const int bh = tx_size_high_unit[max_tx_size];
