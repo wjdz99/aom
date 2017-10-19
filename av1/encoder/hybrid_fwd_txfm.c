@@ -24,8 +24,7 @@ static void fwd_txfm_4x4(const int16_t *src_diff, tran_low_t *coeff,
     return;
   }
 
-#if CONFIG_LGT || CONFIG_DAALA_DCT4
-  // only C version has LGTs
+#if CONFIG_DAALA_DCT4
   av1_fht4x4_c(src_diff, coeff, diff_stride, txfm_param);
 #else
   av1_fht4x4(src_diff, coeff, diff_stride, txfm_param);
@@ -34,38 +33,22 @@ static void fwd_txfm_4x4(const int16_t *src_diff, tran_low_t *coeff,
 
 static void fwd_txfm_4x8(const int16_t *src_diff, tran_low_t *coeff,
                          int diff_stride, TxfmParam *txfm_param) {
-#if CONFIG_LGT
-  av1_fht4x8_c(src_diff, coeff, diff_stride, txfm_param);
-#else
   av1_fht4x8(src_diff, coeff, diff_stride, txfm_param);
-#endif
 }
 
 static void fwd_txfm_8x4(const int16_t *src_diff, tran_low_t *coeff,
                          int diff_stride, TxfmParam *txfm_param) {
-#if CONFIG_LGT
-  av1_fht8x4_c(src_diff, coeff, diff_stride, txfm_param);
-#else
   av1_fht8x4(src_diff, coeff, diff_stride, txfm_param);
-#endif
 }
 
 static void fwd_txfm_8x16(const int16_t *src_diff, tran_low_t *coeff,
                           int diff_stride, TxfmParam *txfm_param) {
-#if CONFIG_LGT
-  av1_fht8x16_c(src_diff, coeff, diff_stride, txfm_param);
-#else
   av1_fht8x16(src_diff, coeff, diff_stride, txfm_param);
-#endif
 }
 
 static void fwd_txfm_16x8(const int16_t *src_diff, tran_low_t *coeff,
                           int diff_stride, TxfmParam *txfm_param) {
-#if CONFIG_LGT
-  av1_fht16x8_c(src_diff, coeff, diff_stride, txfm_param);
-#else
   av1_fht16x8(src_diff, coeff, diff_stride, txfm_param);
-#endif
 }
 
 static void fwd_txfm_16x32(const int16_t *src_diff, tran_low_t *coeff,
@@ -80,7 +63,7 @@ static void fwd_txfm_32x16(const int16_t *src_diff, tran_low_t *coeff,
 
 static void fwd_txfm_8x8(const int16_t *src_diff, tran_low_t *coeff,
                          int diff_stride, TxfmParam *txfm_param) {
-#if CONFIG_LGT || CONFIG_DAALA_DCT8
+#if CONFIG_DAALA_DCT8
   av1_fht8x8_c(src_diff, coeff, diff_stride, txfm_param);
 #else
   av1_fht8x8(src_diff, coeff, diff_stride, txfm_param);
@@ -143,38 +126,22 @@ static void fwd_txfm_64x32(const int16_t *src_diff, tran_low_t *coeff,
 #if CONFIG_RECT_TX_EXT && (CONFIG_EXT_TX || CONFIG_VAR_TX)
 static void fwd_txfm_16x4(const int16_t *src_diff, tran_low_t *coeff,
                           int diff_stride, TxfmParam *txfm_param) {
-#if CONFIG_LGT
-  av1_fht16x4_c(src_diff, coeff, diff_stride, txfm_param);
-#else
   av1_fht16x4(src_diff, coeff, diff_stride, txfm_param);
-#endif
 }
 
 static void fwd_txfm_4x16(const int16_t *src_diff, tran_low_t *coeff,
                           int diff_stride, TxfmParam *txfm_param) {
-#if CONFIG_LGT
-  av1_fht4x16_c(src_diff, coeff, diff_stride, txfm_param);
-#else
   av1_fht4x16(src_diff, coeff, diff_stride, txfm_param);
-#endif
 }
 
 static void fwd_txfm_32x8(const int16_t *src_diff, tran_low_t *coeff,
                           int diff_stride, TxfmParam *txfm_param) {
-#if CONFIG_LGT
-  av1_fht32x8_c(src_diff, coeff, diff_stride, txfm_param);
-#else
   av1_fht32x8(src_diff, coeff, diff_stride, txfm_param);
-#endif
 }
 
 static void fwd_txfm_8x32(const int16_t *src_diff, tran_low_t *coeff,
                           int diff_stride, TxfmParam *txfm_param) {
-#if CONFIG_LGT
-  av1_fht8x32_c(src_diff, coeff, diff_stride, txfm_param);
-#else
   av1_fht8x32(src_diff, coeff, diff_stride, txfm_param);
-#endif
 }
 #endif
 
@@ -501,14 +468,6 @@ static void highbd_fwd_txfm_64x64(const int16_t *src_diff, tran_low_t *coeff,
 void av1_fwd_txfm(const int16_t *src_diff, tran_low_t *coeff, int diff_stride,
                   TxfmParam *txfm_param) {
   const TX_SIZE tx_size = txfm_param->tx_size;
-#if CONFIG_LGT_FROM_PRED
-  if (txfm_param->use_lgt) {
-    // if use_lgt is 1, it will override tx_type
-    assert(is_lgt_allowed(txfm_param->mode, tx_size));
-    flgt2d_from_pred_c(src_diff, coeff, diff_stride, txfm_param);
-    return;
-  }
-#endif  // CONFIG_LGT_FROM_PRED
   switch (tx_size) {
 #if CONFIG_TX64X64
     case TX_64X64:
