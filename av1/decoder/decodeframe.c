@@ -3377,7 +3377,7 @@ static void read_bitdepth_colorspace_sampling(AV1_COMMON *cm,
   }
 }
 
-#if CONFIG_REFERENCE_BUFFER
+#if CONFIG_REFERENCE_BUFFER || CONFIG_OBU
 void read_sequence_header(SequenceHeader *seq_params,
                           struct aom_read_bit_buffer *rb) {
   /* Placeholder for actually reading from the bitstream */
@@ -4771,15 +4771,7 @@ static uint32_t read_sequence_header_obu(AV1Decoder *pbi,
   cm->profile = av1_read_profile(rb);
   aom_rb_read_literal(rb, 4);  // level
 
-  seq_params->frame_id_numbers_present_flag = aom_rb_read_bit(rb);
-  if (seq_params->frame_id_numbers_present_flag) {
-    // We must always have delta_frame_id_length < frame_id_length,
-    // in order for a frame to be referenced with a unique delta.
-    // Avoid wasting bits by using a coding that enforces this restriction.
-    seq_params->delta_frame_id_length = aom_rb_read_literal(rb, 4) + 2;
-    seq_params->frame_id_length =
-        aom_rb_read_literal(rb, 3) + seq_params->delta_frame_id_length + 1;
-  }
+  read_sequence_header(seq_params, rb);
 
   read_bitdepth_colorspace_sampling(cm, rb, pbi->allow_lowbitdepth);
 
