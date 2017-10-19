@@ -515,7 +515,9 @@ static int main_loop(int argc, const char **argv_) {
   int use_y4m = 1;
   int opt_yv12 = 0;
   int opt_i420 = 0;
-  aom_codec_dec_cfg_t cfg = { 0, 0, 0, CONFIG_LOWBITDEPTH };
+  aom_codec_dec_cfg_t cfg = {
+    0, 0, 0, CONFIG_LOWBITDEPTH, { CONFIG_GLOBAL_MOTION, CONFIG_WARPED_MOTION }
+  };
 #if CONFIG_HIGHBITDEPTH
   unsigned int output_bit_depth = 0;
 #endif

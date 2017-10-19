@@ -461,6 +461,7 @@ static aom_codec_err_t set_encoder_config(
   if (oxcf->init_framerate > 180) oxcf->init_framerate = 30;
 
   oxcf->mode = GOOD;
+  oxcf->file_cfg = &cfg->file_cfg;
 
   switch (cfg->g_pass) {
     case AOM_RC_ONE_PASS: oxcf->pass = 0; break;
@@ -1655,14 +1656,15 @@ static aom_codec_enc_cfg_map_t encoder_usage_cfg_map[] = {
         2000,  // rc_two_pass_vbrmax_section
 
         // keyframing settings (kf)
-        AOM_KF_AUTO,  // g_kfmode
-        0,            // kf_min_dist
-        9999,         // kf_max_dist
-        0,            // large_scale_tile
-        0,            // tile_width_count
-        0,            // tile_height_count
-        { 0 },        // tile_widths
-        { 0 },        // tile_heights
+        AOM_KF_AUTO,                                     // g_kfmode
+        0,                                               // kf_min_dist
+        9999,                                            // kf_max_dist
+        0,                                               // large_scale_tile
+        0,                                               // tile_width_count
+        0,                                               // tile_height_count
+        { 0 },                                           // tile_widths
+        { 0 },                                           // tile_heights
+        { CONFIG_GLOBAL_MOTION, CONFIG_WARPED_MOTION },  // config file
     } },
 };
 

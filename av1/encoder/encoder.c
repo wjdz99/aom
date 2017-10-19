@@ -91,12 +91,14 @@ FRAME_COUNTS aggregate_fc_per_type[FRAME_CONTEXTS];
 
 #define SHARP_FILTER_QTHRESH 0 /* Q threshold for 8-tap sharp filter */
 
-#define ALTREF_HIGH_PRECISION_MV 1     // Whether to use high precision mv
-                                       //  for altref computation.
-#define HIGH_PRECISION_MV_QTHRESH 200  // Q threshold for high precision
-                                       // mv. Choose a very high value for
-                                       // now so that HIGH_PRECISION is always
-                                       // chosen.
+#define ALTREF_HIGH_PRECISION_MV \
+  1  // Whether to use high precision mv
+     //  for altref computation.
+#define HIGH_PRECISION_MV_QTHRESH \
+  200  // Q threshold for high precision
+       // mv. Choose a very high value for
+       // now so that HIGH_PRECISION is always
+       // chosen.
 
 // #define OUTPUT_YUV_REC
 #ifdef OUTPUT_YUV_DENOISED
@@ -282,7 +284,7 @@ static void set_high_precision_mv(AV1_COMP *cpi, int allow_high_precision_mv
                                   ,
                                   int cur_frame_mv_precision_level
 #endif
-                                  ) {
+) {
   MACROBLOCK *const mb = &cpi->td.mb;
   cpi->common.allow_high_precision_mv = allow_high_precision_mv;
 
@@ -2498,9 +2500,10 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
     assert(cm->bit_depth > AOM_BITS_8);
 
   cpi->oxcf = *oxcf;
+  cpi->common.file_cfg = cpi->file_cfg = oxcf->file_cfg;
   x->e_mbd.bd = (int)cm->bit_depth;
 #if CONFIG_GLOBAL_MOTION
-  x->e_mbd.global_motion = cm->global_motion;
+  if (cpi->file_cfg->global_motion) x->e_mbd.global_motion = cm->global_motion;
 #endif  // CONFIG_GLOBAL_MOTION
 
   if ((oxcf->pass == 0) && (oxcf->rc_mode == AOM_Q)) {
@@ -2795,14 +2798,12 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
 #endif
   CHECK_MEM_ERROR(
       cm, cpi->td.mb.above_pred_buf,
-      (uint8_t *)aom_memalign(16,
-                              buf_scaler * MAX_MB_PLANE * MAX_SB_SQUARE *
-                                  sizeof(*cpi->td.mb.above_pred_buf)));
+      (uint8_t *)aom_memalign(16, buf_scaler * MAX_MB_PLANE * MAX_SB_SQUARE *
+                                      sizeof(*cpi->td.mb.above_pred_buf)));
   CHECK_MEM_ERROR(
       cm, cpi->td.mb.left_pred_buf,
-      (uint8_t *)aom_memalign(16,
-                              buf_scaler * MAX_MB_PLANE * MAX_SB_SQUARE *
-                                  sizeof(*cpi->td.mb.left_pred_buf)));
+      (uint8_t *)aom_memalign(16, buf_scaler * MAX_MB_PLANE * MAX_SB_SQUARE *
+                                      sizeof(*cpi->td.mb.left_pred_buf)));
 
   CHECK_MEM_ERROR(cm, cpi->td.mb.wsrc_buf,
                   (int32_t *)aom_memalign(
@@ -4095,11 +4096,13 @@ static void set_mv_search_params(AV1_COMP *cpi) {
 
 static void set_size_independent_vars(AV1_COMP *cpi) {
 #if CONFIG_GLOBAL_MOTION
-  int i;
-  for (i = LAST_FRAME; i <= ALTREF_FRAME; ++i) {
-    cpi->common.global_motion[i] = default_warp_params;
+  if (cpi->file_cfg->global_motion) {
+    int i;
+    for (i = LAST_FRAME; i <= ALTREF_FRAME; ++i) {
+      cpi->common.global_motion[i] = default_warp_params;
+    }
+    cpi->global_motion_search_done = 0;
   }
-  cpi->global_motion_search_done = 0;
 #endif  // CONFIG_GLOBAL_MOTION
   av1_set_speed_features_framesize_independent(cpi);
   av1_set_rd_speed_thresholds(cpi);
@@ -5030,9 +5033,10 @@ static void encode_with_recode_loop(AV1_COMP *cpi, size_t *size,
       loop = 0;
 
 #if CONFIG_GLOBAL_MOTION
-    if (recode_loop_test_global_motion(cpi)) {
-      loop = 1;
-    }
+    if (cpi->file_cfg->global_motion)
+      if (recode_loop_test_global_motion(cpi)) {
+        loop = 1;
+      }
 #endif  // CONFIG_GLOBAL_MOTION
 
     if (loop) {
@@ -5473,7 +5477,7 @@ static void encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
 #if CONFIG_REFERENCE_BUFFER
   if (cm->seq_params.frame_id_numbers_present_flag) {
     /* Non-normative definition of current_frame_id ("frame counter" with
-    * wraparound) */
+     * wraparound) */
     const int frame_id_length = FRAME_ID_LENGTH_MINUS7 + 7;
     if (cm->current_frame_id == -1) {
       int lsb, msb;

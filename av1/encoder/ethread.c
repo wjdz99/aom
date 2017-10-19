@@ -14,14 +14,15 @@
 #include "av1/encoder/ethread.h"
 #include "aom_dsp/aom_dsp_common.h"
 
-static void accumulate_rd_opt(ThreadData *td, ThreadData *td_t) {
+static void accumulate_rd_opt(AV1_COMP *cpi, ThreadData *td, ThreadData *td_t) {
   for (int i = 0; i < REFERENCE_MODES; i++)
     td->rd_counts.comp_pred_diff[i] += td_t->rd_counts.comp_pred_diff[i];
 
 #if CONFIG_GLOBAL_MOTION
-  for (int i = 0; i < TOTAL_REFS_PER_FRAME; i++)
-    td->rd_counts.global_motion_used[i] +=
-        td_t->rd_counts.global_motion_used[i];
+  if (cpi->file_cfg->global_motion)
+    for (int i = 0; i < TOTAL_REFS_PER_FRAME; i++)
+      td->rd_counts.global_motion_used[i] +=
+          td_t->rd_counts.global_motion_used[i];
 #endif  // CONFIG_GLOBAL_MOTION
 
   td->rd_counts.compound_ref_used_flag |=
@@ -96,14 +97,12 @@ void av1_encode_tiles_mt(AV1_COMP *cpi) {
 #endif
         CHECK_MEM_ERROR(cm, thread_data->td->above_pred_buf,
                         (uint8_t *)aom_memalign(
-                            16,
-                            buf_scaler * MAX_MB_PLANE * MAX_SB_SQUARE *
-                                sizeof(*thread_data->td->above_pred_buf)));
+                            16, buf_scaler * MAX_MB_PLANE * MAX_SB_SQUARE *
+                                    sizeof(*thread_data->td->above_pred_buf)));
         CHECK_MEM_ERROR(cm, thread_data->td->left_pred_buf,
                         (uint8_t *)aom_memalign(
-                            16,
-                            buf_scaler * MAX_MB_PLANE * MAX_SB_SQUARE *
-                                sizeof(*thread_data->td->left_pred_buf)));
+                            16, buf_scaler * MAX_MB_PLANE * MAX_SB_SQUARE *
+                                    sizeof(*thread_data->td->left_pred_buf)));
         CHECK_MEM_ERROR(
             cm, thread_data->td->wsrc_buf,
             (int32_t *)aom_memalign(
@@ -191,7 +190,7 @@ void av1_encode_tiles_mt(AV1_COMP *cpi) {
     // Accumulate counters.
     if (i < cpi->num_workers - 1) {
       av1_accumulate_frame_counts(&cm->counts, thread_data->td->counts);
-      accumulate_rd_opt(&cpi->td, thread_data->td);
+      accumulate_rd_opt(cpi, &cpi->td, thread_data->td);
 #if CONFIG_VAR_TX
       cpi->td.mb.txb_split_count += thread_data->td->mb.txb_split_count;
 #endif

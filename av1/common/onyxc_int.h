@@ -534,6 +534,7 @@ typedef struct AV1Common {
 #if CONFIG_MFMV
   TPL_MV_REF *tpl_mvs;
 #endif
+  const file_options_t *file_cfg;
 } AV1_COMMON;
 
 // TODO(hkuang): Don't need to lock the whole pool after implementing atomic
@@ -635,10 +636,11 @@ static INLINE void ensure_mv_buffer(RefCntBuffer *buf, AV1_COMMON *cm) {
   if (cm->tpl_mvs == NULL || buf->mi_rows < cm->mi_rows ||
       buf->mi_cols < cm->mi_cols) {
     aom_free(cm->tpl_mvs);
-    CHECK_MEM_ERROR(cm, cm->tpl_mvs, (TPL_MV_REF *)aom_calloc(
-                                         ((cm->mi_rows + MAX_MIB_SIZE) >> 1) *
-                                             (cm->mi_stride >> 1),
-                                         sizeof(*cm->tpl_mvs)));
+    CHECK_MEM_ERROR(
+        cm, cm->tpl_mvs,
+        (TPL_MV_REF *)aom_calloc(
+            ((cm->mi_rows + MAX_MIB_SIZE) >> 1) * (cm->mi_stride >> 1),
+            sizeof(*cm->tpl_mvs)));
   }
 #endif
 }

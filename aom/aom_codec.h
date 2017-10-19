@@ -480,6 +480,25 @@ aom_codec_err_t aom_codec_control_(aom_codec_ctx_t *ctx, int ctrl_id, ...);
 
 #endif
 
+/*!\brief Config File Options
+ *
+ * This type allows to enumerate and control options defined for control
+ * via config file at runtime.
+ */
+typedef struct file_options {
+  /*!\brief Reflects if global motion should be enabled
+   *
+   * If this value is non-zero it enabled the feature
+   */
+  unsigned int global_motion;
+
+  /*!\brief Reflects if warped motion should be enabled
+   *
+   * If this value is non-zero it enabled the feature
+   */
+  unsigned int warped_motion;
+} file_options_t;
+
 /*!@} - end defgroup codec*/
 #ifdef __cplusplus
 }
