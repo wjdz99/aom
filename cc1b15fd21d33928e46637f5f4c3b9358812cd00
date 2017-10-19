@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "51cfe583_022bc350",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 488,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-10-19T02:11:12Z",
+      "side": 1,
+      "message": "This happens inside the mode decision code. It can do a dry encode, followed by a real encode. In some contexts it can even re-encode one more time at the very end of the mode decision process.",
+      "parentUuid": "36648239_ab3bc4ee",
+      "revId": "cc1b15fd21d33928e46637f5f4c3b9358812cd00",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f39466bc_e9b84a7e",
         "filename": "av1/common/cfl.c",
         "patchSetId": 8
