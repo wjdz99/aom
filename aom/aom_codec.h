@@ -78,7 +78,7 @@ extern "C" {
 
 /*!\brief Decorator indicating that given struct/union/enum is packed */
 #ifndef ATTRIBUTE_PACKED
-#if defined(__GNUC__) && __GNUC__
+#if defined(__clang__) || (defined(__GNUC__) && __GNUC__)
 #define ATTRIBUTE_PACKED __attribute__((packed))
 #elif defined(_MSC_VER)
 #define ATTRIBUTE_PACKED
