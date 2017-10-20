@@ -38,8 +38,8 @@ typedef struct {
   aom_cdf_prob (*tail_cdf)[CDF_SIZE(ENTROPY_TOKENS)];
   aom_cdf_prob (*head_cdf)[CDF_SIZE(ENTROPY_TOKENS)];
   aom_cdf_prob *color_map_cdf;
-  int eob_val;
-  int first_val;
+  int8_t eob_val;
+  int8_t first_val;
   const aom_prob *context_tree;
   EXTRABIT extra;
   uint8_t token;
