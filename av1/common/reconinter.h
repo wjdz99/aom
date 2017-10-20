@@ -599,6 +599,12 @@ void av1_get_ori_blk_pred(const AV1_COMMON *cm, MACROBLOCKD *xd, int bsize,
                           int dst_stride[MAX_MB_PLANE]);
 #endif  // CONFIG_NCOBMC_ADAPT_WEIGHT
 
+#if CONFIG_JNT_COMP
+void av1_jnt_comp_weight_assign(const AV1_COMMON *cm, const MB_MODE_INFO *mbmi,
+                                int order_idx, int *fwd_offset, int *bck_offset,
+                                int is_compound);
+#endif  // CONFIG_JNT_COMP
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif
