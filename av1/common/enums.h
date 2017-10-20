@@ -314,9 +314,6 @@ typedef enum {
   V_FLIPADST,
   H_FLIPADST,
 #endif  // CONFIG_EXT_TX
-#if CONFIG_MRC_TX
-  MRC_DCT,  // DCT in both directions with mrc based bitmask
-#endif      // CONFIG_MRC_TX
   TX_TYPES,
 } TX_TYPE;
 
@@ -326,12 +323,6 @@ typedef enum {
   EXT_TX_SET_DCTONLY,
   // DCT + Identity only
   EXT_TX_SET_DCT_IDTX,
-#if CONFIG_MRC_TX
-  // DCT + MRC_DCT
-  EXT_TX_SET_MRC_DCT,
-  // DCT + MRC_DCT + IDTX
-  EXT_TX_SET_MRC_DCT_IDTX,
-#endif  // CONFIG_MRC_TX
   // Discrete Trig transforms w/o flip (4) + Identity (1)
   EXT_TX_SET_DTT4_IDTX,
   // Discrete Trig transforms w/o flip (4) + Identity (1) + 1D Hor/vert DCT (2)
@@ -360,14 +351,9 @@ typedef enum {
 } BOUNDARY_TYPE;
 
 #if CONFIG_EXT_TX
-#define EXT_TX_SIZES 4  // number of sizes that use extended transforms
-#if CONFIG_MRC_TX
-#define EXT_TX_SETS_INTER 5  // Sets of transform selections for INTER
-#define EXT_TX_SETS_INTRA 4  // Sets of transform selections for INTRA
-#else                        // CONFIG_MRC_TX
+#define EXT_TX_SIZES 4       // number of sizes that use extended transforms
 #define EXT_TX_SETS_INTER 4  // Sets of transform selections for INTER
 #define EXT_TX_SETS_INTRA 3  // Sets of transform selections for INTRA
-#endif                       // CONFIG_MRC_TX
 #else
 #define EXT_TX_SIZES 3  // number of sizes that use extended transforms
 #endif                  // CONFIG_EXT_TX
@@ -431,9 +417,6 @@ typedef enum {
 
 typedef enum {
   PALETTE_MAP,
-#if CONFIG_MRC_TX
-  MRC_MAP,
-#endif  // CONFIG_MRC_TX
   COLOR_MAP_TYPES,
 } COLOR_MAP_TYPE;
 
