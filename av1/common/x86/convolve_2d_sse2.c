@@ -180,16 +180,24 @@ void av1_convolve_2d_sse2(const uint8_t *src, int src_stride,
         const __m128i res_hi_round =
             _mm_sra_epi32(_mm_add_epi32(res_hi, round_const), round_shift);
 
-        // Accumulate values into the destination buffer
-        __m128i *const p = (__m128i *)&dst[i * dst_stride + j];
-        if (do_average) {
-          _mm_storeu_si128(p + 0,
-                           _mm_add_epi32(_mm_loadu_si128(p + 0), res_lo_round));
-          _mm_storeu_si128(p + 1,
-                           _mm_add_epi32(_mm_loadu_si128(p + 1), res_hi_round));
-        } else {
-          _mm_storeu_si128(p + 0, res_lo_round);
-          _mm_storeu_si128(p + 1, res_hi_round);
+#if CONFIG_JNT_COMP
+        if (conv_params->fwd_offset != -1 && conv_params->bck_offset != -1) {
+          // FIXME(chengchen): implement it
+          // original c function at: av1/common/convolve.c: av1_convolve_2d_c
+        } else
+#endif  // CONFIG_JNT_COMP
+        {
+          // Accumulate values into the destination buffer
+          __m128i *const p = (__m128i *)&dst[i * dst_stride + j];
+          if (do_average) {
+            _mm_storeu_si128(
+                p + 0, _mm_add_epi32(_mm_loadu_si128(p + 0), res_lo_round));
+            _mm_storeu_si128(
+                p + 1, _mm_add_epi32(_mm_loadu_si128(p + 1), res_hi_round));
+          } else {
+            _mm_storeu_si128(p + 0, res_lo_round);
+            _mm_storeu_si128(p + 1, res_hi_round);
+          }
         }
       }
     }
@@ -363,16 +371,24 @@ void av1_convolve_2d_sse2(const uint8_t *src, int src_stride,
         const __m128i res_hi_round =
             _mm_sra_epi32(_mm_add_epi32(res_hi, round_const), round_shift);
 
-        // Accumulate values into the destination buffer
-        __m128i *const p = (__m128i *)&dst[i * dst_stride + j];
-        if (do_average) {
-          _mm_storeu_si128(p + 0,
-                           _mm_add_epi32(_mm_loadu_si128(p + 0), res_lo_round));
-          _mm_storeu_si128(p + 1,
-                           _mm_add_epi32(_mm_loadu_si128(p + 1), res_hi_round));
-        } else {
-          _mm_storeu_si128(p + 0, res_lo_round);
-          _mm_storeu_si128(p + 1, res_hi_round);
+#if CONFIG_JNT_COMP
+        if (conv_params->fwd_offset != -1 && conv_params->bck_offset != -1) {
+          // FIXME(chengchen): implement it
+          // original c function at: av1/common/convolve.c: av1_convolve_2d_c
+        } else
+#endif  // CONFIG_JNT_COMP
+        {
+          // Accumulate values into the destination buffer
+          __m128i *const p = (__m128i *)&dst[i * dst_stride + j];
+          if (do_average) {
+            _mm_storeu_si128(
+                p + 0, _mm_add_epi32(_mm_loadu_si128(p + 0), res_lo_round));
+            _mm_storeu_si128(
+                p + 1, _mm_add_epi32(_mm_loadu_si128(p + 1), res_hi_round));
+          } else {
+            _mm_storeu_si128(p + 0, res_lo_round);
+            _mm_storeu_si128(p + 1, res_hi_round);
+          }
         }
       }
     }

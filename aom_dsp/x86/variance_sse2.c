@@ -697,3 +697,17 @@ void aom_comp_avg_upsampled_pred_sse2(uint8_t *comp_pred, const uint8_t *pred,
     pred += 16;
   }
 }
+
+#if CONFIG_JNT_COMP
+void aom_jnt_comp_avg_upsampled_pred_sse2(uint8_t *comp_pred,
+                                          const uint8_t *pred, int width,
+                                          int height, int subpel_x_q3,
+                                          int subpel_y_q3, const uint8_t *ref,
+                                          int ref_stride,
+                                          const JNT_COMP_PARAMS *jcp_param) {
+  // FIXME(chengchen): implement it
+  (void)jcp_param;
+  aom_comp_avg_upsampled_pred_sse2(comp_pred, pred, width, height, subpel_x_q3,
+                                   subpel_y_q3, ref, ref_stride);
+}
+#endif  // CONFIG_JNT_COMP
