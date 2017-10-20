@@ -1466,78 +1466,6 @@ static void decode_partition(AV1Decoder *const pbi, MACROBLOCKD *const xd,
     update_partition_context(xd, mi_row, mi_col, subsize, bsize);
 #endif  // CONFIG_EXT_PARTITION_TYPES
 
-#if CONFIG_LPF_SB
-  const int has_incomplte_sb_row = cm->mi_rows % MAX_MIB_SIZE;
-  const int has_incomplte_sb_col = cm->mi_cols % MAX_MIB_SIZE;
-
-  if (bsize == cm->sb_size) {
-    int filt_lvl;
-    int update_filt_lvl = 1;
-    if (mi_row == 0 && mi_col == 0) {
-      filt_lvl = aom_read_literal(r, 6, ACCT_STR);
-      cm->mi_grid_visible[0]->mbmi.reuse_sb_lvl = 0;
-      cm->mi_grid_visible[0]->mbmi.delta = 0;
-      cm->mi_grid_visible[0]->mbmi.sign = 0;
-    } else {
-      int prev_mi_row, prev_mi_col;
-      if (mi_col - MAX_MIB_SIZE < 0) {
-        prev_mi_row = mi_row - MAX_MIB_SIZE;
-        prev_mi_col = mi_col;
-      } else {
-        prev_mi_row = mi_row;
-        prev_mi_col = mi_col - MAX_MIB_SIZE;
-      }
-
-      MB_MODE_INFO *curr_mbmi =
-          &cm->mi_grid_visible[mi_row * cm->mi_stride + mi_col]->mbmi;
-      MB_MODE_INFO *prev_mbmi =
-          &cm->mi_grid_visible[prev_mi_row * cm->mi_stride + prev_mi_col]->mbmi;
-
-      if ((has_incomplte_sb_row || has_incomplte_sb_col) &&
-          ((mi_row + MAX_MIB_SIZE > cm->mi_rows) ||
-           (mi_col + MAX_MIB_SIZE > cm->mi_cols))) {
-        // if current superblock is not full of pixels
-        // its filter level is the same as the previous superblock
-        update_filt_lvl = 0;
-      } else {
-        const uint8_t prev_lvl = prev_mbmi->filt_lvl;
-
-        const int reuse_ctx = prev_mbmi->reuse_sb_lvl;
-        const int reuse_prev_lvl = aom_read_symbol(
-            r, xd->tile_ctx->lpf_reuse_cdf[reuse_ctx], 2, ACCT_STR);
-        curr_mbmi->reuse_sb_lvl = reuse_prev_lvl;
-
-        if (reuse_prev_lvl) {
-          filt_lvl = prev_lvl;
-          curr_mbmi->delta = 0;
-          curr_mbmi->sign = 0;
-        } else {
-          const int delta_ctx = prev_mbmi->delta;
-          unsigned int delta = aom_read_symbol(
-              r, xd->tile_ctx->lpf_delta_cdf[delta_ctx], DELTA_RANGE, ACCT_STR);
-          curr_mbmi->delta = delta;
-          delta *= LPF_STEP;
-
-          if (delta) {
-            const int sign_ctx = prev_mbmi->sign;
-            const int sign = aom_read_symbol(
-                r, xd->tile_ctx->lpf_sign_cdf[reuse_ctx][sign_ctx], 2,
-                ACCT_STR);
-            curr_mbmi->sign = sign;
-            filt_lvl = sign ? prev_lvl + delta : prev_lvl - delta;
-          } else {
-            filt_lvl = prev_lvl;
-            curr_mbmi->sign = 0;
-          }
-        }
-      }
-    }
-
-    if (update_filt_lvl)
-      av1_loop_filter_sb_level_init(cm, mi_row, mi_col, filt_lvl);
-  }
-#endif
-
 #if CONFIG_CDEF
   if (bsize == cm->sb_size) {
     int width_step = mi_size_wide[BLOCK_64X64];
@@ -3823,6 +3751,93 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
   return sz;
 }
 
+#if CONFIG_LPF_SB
+static void read_deblock_filter_level(AV1Decoder *pbi) {
+  aom_reader r;
+  AV1_COMMON *const cm = &pbi->common;
+  const int num_complete_sb_row = cm->mi_rows / MAX_MIB_SIZE;
+  const int num_complete_sb_col = cm->mi_cols / MAX_MIB_SIZE;
+
+  const int all_same_lvl = aom_read_literal(&r, 1, ACCT_STR);
+  int filt_lvl = aom_read_literal(&r, 6, ACCT_STR);
+  int sb_row, sb_col;
+
+  if (all_same_lvl) {
+    for (sb_row = 0; sb_row < num_complete_sb_row; ++sb_row) {
+      for (sb_col = 0; sb_col < num_complete_sb_col; ++sb_col) {
+        const int mi_row = sb_row * MAX_MIB_SIZE;
+        const int mi_col = sb_col * MAX_MIB_SIZE;
+        av1_loop_filter_sb_level_init(cm, mi_row, mi_col, filt_lvl);
+      }
+    }
+
+    return;
+  }
+
+  const int delta_bits = aom_read_literal(&r, 2, ACCT_STR);
+  const int min_lvl_diff =
+      aom_read_literal(&r, LPF_DELTA_BITS, ACCT_STR) * LPF_STEP;
+
+  for (sb_row = 0; sb_row < num_complete_sb_row; ++sb_row) {
+    for (sb_col = 0; sb_col < num_complete_sb_col; ++sb_col) {
+      const int mi_row = sb_row * MAX_MIB_SIZE;
+      const int mi_col = sb_col * MAX_MIB_SIZE;
+
+      if (sb_row == 0 && sb_col == 0) {
+        av1_loop_filter_sb_level_init(cm, mi_row, mi_col, filt_lvl);
+        cm->mi[0].mbmi.reuse_sb_lvl = 0;
+        cm->mi[0].mbmi.delta = 0;
+        cm->mi[0].mbmi.sign = 0;
+        continue;
+      }
+
+      int prev_mi_row, prev_mi_col;
+      if (mi_col - MAX_MIB_SIZE < 0) {
+        prev_mi_row = mi_row - MAX_MIB_SIZE;
+        prev_mi_col = mi_col;
+      } else {
+        prev_mi_row = mi_row;
+        prev_mi_col = mi_col - MAX_MIB_SIZE;
+      }
+
+      MB_MODE_INFO *curr_mbmi = &cm->mi[mi_row * cm->mi_stride + mi_col].mbmi;
+      MB_MODE_INFO *prev_mbmi =
+          &cm->mi[prev_mi_row * cm->mi_stride + prev_mi_col].mbmi;
+      const uint8_t prev_lvl = prev_mbmi->filt_lvl;
+
+      const int reuse_ctx = prev_mbmi->reuse_sb_lvl;
+      const int reuse_prev_lvl =
+          aom_read_symbol(&r, cm->fc->lpf_reuse_cdf[reuse_ctx], 2, ACCT_STR);
+      curr_mbmi->reuse_sb_lvl = reuse_prev_lvl;
+
+      if (reuse_prev_lvl) {
+        filt_lvl = prev_lvl;
+        curr_mbmi->delta = 0;
+        curr_mbmi->sign = 0;
+      } else {
+        int delta = 0;
+        if (delta_bits == 0) {
+          curr_mbmi->delta = 0;
+        } else {
+          delta = aom_read_literal(&r, delta_bits, ACCT_STR);
+          curr_mbmi->delta = delta;
+          delta *= LPF_STEP;
+        }
+        delta += min_lvl_diff;
+
+        const int sign_ctx = prev_mbmi->sign;
+        const int sign = aom_read_symbol(
+            &r, cm->fc->lpf_sign_cdf[reuse_ctx][sign_ctx], 2, ACCT_STR);
+        curr_mbmi->sign = sign;
+        filt_lvl = sign ? prev_lvl + delta : prev_lvl - delta;
+      }
+
+      av1_loop_filter_sb_level_init(cm, mi_row, mi_col, filt_lvl);
+    }
+  }
+}
+#endif  // CONFIG_LPF_SB
+
 static int read_compressed_header(AV1Decoder *pbi, const uint8_t *data,
                                   size_t partition_size) {
 #if CONFIG_RESTRICT_COMPRESSED_HDR
@@ -4205,6 +4220,11 @@ size_t av1_decode_frame_headers_and_setup(AV1Decoder *pbi, const uint8_t *data,
       aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
                          "Decode failed. Frame data header is corrupted.");
   }
+
+#if CONFIG_LPF_SB
+  read_deblock_filter_level(pbi);
+#endif  // CONFIG_LPF_SB
+
   return first_partition_size;
 }
 
