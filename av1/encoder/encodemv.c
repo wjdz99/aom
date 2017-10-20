@@ -381,7 +381,6 @@ void av1_update_mv_count(ThreadData *td) {
   const MODE_INFO *mi = xd->mi[0];
   const MB_MODE_INFO *const mbmi = &mi->mbmi;
   const MB_MODE_INFO_EXT *mbmi_ext = td->mb.mbmi_ext;
-  const int unify_bsize = 1;
 #if CONFIG_AMVR
   MvSubpelPrecision precision = 1;
   if (xd->cur_frame_mv_precision_level) {
@@ -389,33 +388,10 @@ void av1_update_mv_count(ThreadData *td) {
   }
 #endif
 
-  if (mbmi->sb_type < BLOCK_8X8 && !unify_bsize) {
-    const int num_4x4_w = num_4x4_blocks_wide_lookup[mbmi->sb_type];
-    const int num_4x4_h = num_4x4_blocks_high_lookup[mbmi->sb_type];
-    int idx, idy;
-
-    for (idy = 0; idy < 2; idy += num_4x4_h) {
-      for (idx = 0; idx < 2; idx += num_4x4_w) {
-        const int i = idy * 2 + idx;
-
-        if (have_newmv_in_inter_mode(mi->bmi[i].as_mode))
-
+  if (have_newmv_in_inter_mode(mbmi->mode))
 #if CONFIG_AMVR
-          inc_mvs_sub8x8(mi, i, mi->bmi[i].as_mv, mbmi_ext, td->counts->mv,
-                         precision);
+    inc_mvs(mbmi, mbmi_ext, mbmi->mv, mbmi->pred_mv, td->counts->mv, precision);
 #else
-          inc_mvs_sub8x8(mi, i, mi->bmi[i].as_mv, mbmi_ext, td->counts->mv);
+    inc_mvs(mbmi, mbmi_ext, mbmi->mv, mbmi->pred_mv, td->counts->mv);
 #endif
-      }
-    }
-  } else {
-    if (have_newmv_in_inter_mode(mbmi->mode))
-
-#if CONFIG_AMVR
-      inc_mvs(mbmi, mbmi_ext, mbmi->mv, mbmi->pred_mv, td->counts->mv,
-              precision);
-#else
-      inc_mvs(mbmi, mbmi_ext, mbmi->mv, mbmi->pred_mv, td->counts->mv);
-#endif
-  }
 }

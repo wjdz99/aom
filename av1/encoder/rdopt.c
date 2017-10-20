@@ -10017,7 +10017,6 @@ void av1_rd_pick_intra_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
   int y_skip = 0, uv_skip = 0;
   int64_t dist_y = 0, dist_uv = 0;
   TX_SIZE max_uv_tx_size;
-  const int unify_bsize = 1;
 
   (void)cm;
 
@@ -10032,14 +10031,10 @@ void av1_rd_pick_intra_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
   mbmi->use_lgt = 0;
 #endif
 
-  const int64_t intra_yrd =
-      (bsize >= BLOCK_8X8 || unify_bsize)
-          ? rd_pick_intra_sby_mode(cpi, x, &rate_y, &rate_y_tokenonly, &dist_y,
-                                   &y_skip, bsize, best_rd)
-          : rd_pick_intra_sub_8x8_y_mode(cpi, x, &rate_y, &rate_y_tokenonly,
-                                         &dist_y, &y_skip, best_rd);
+  const int64_t intra_yrd = rd_pick_intra_sby_mode(
+      cpi, x, &rate_y, &rate_y_tokenonly, &dist_y, &y_skip, bsize, best_rd)
 
-  if (intra_yrd < best_rd) {
+      if (intra_yrd < best_rd) {
 #if CONFIG_CFL
     // Only store reconstructed luma when there's chroma RDO. When there's no
     // chroma RDO, the reconstructed luma will be stored in encode_superblock().
@@ -10071,7 +10066,8 @@ void av1_rd_pick_intra_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
       rd_cost->dist = dist_y + dist_uv;
     }
     rd_cost->rdcost = RDCOST(x->rdmult, rd_cost->rate, rd_cost->dist);
-  } else {
+  }
+  else {
     rd_cost->rate = INT_MAX;
   }
 
