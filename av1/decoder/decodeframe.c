@@ -1169,7 +1169,6 @@ static void detoken_and_recon_sb(AV1Decoder *const pbi, MACROBLOCKD *const xd,
                                  BLOCK_SIZE bsize) {
   AV1_COMMON *const cm = &pbi->common;
   const int hbs = mi_size_wide[bsize] >> 1;
-  const int unify_bsize = 1;
 #if CONFIG_EXT_PARTITION_TYPES
   BLOCK_SIZE bsize2 = get_subsize(bsize, PARTITION_SPLIT);
 #endif
@@ -1183,11 +1182,7 @@ static void detoken_and_recon_sb(AV1Decoder *const pbi, MACROBLOCKD *const xd,
   partition = get_partition(cm, mi_row, mi_col, bsize);
   subsize = subsize_lookup[partition][bsize];
 
-  if (!hbs && !unify_bsize) {
-    xd->bmode_blocks_wl = 1 >> !!(partition & PARTITION_VERT);
-    xd->bmode_blocks_hl = 1 >> !!(partition & PARTITION_HORZ);
-    decode_token_and_recon_block(pbi, xd, mi_row, mi_col, r, subsize);
-  } else {
+  {
     switch (partition) {
       case PARTITION_NONE:
         decode_token_and_recon_block(pbi, xd, mi_row, mi_col, r, bsize);
@@ -1317,7 +1312,6 @@ static void decode_partition(AV1Decoder *const pbi, MACROBLOCKD *const xd,
 #if CONFIG_EXT_PARTITION_TYPES && CONFIG_EXT_PARTITION_TYPES_AB
   const int qbs = num_8x8_wh >> 2;
 #endif
-  const int unify_bsize = 1;
   PARTITION_TYPE partition;
   BLOCK_SIZE subsize;
 #if CONFIG_EXT_PARTITION_TYPES
@@ -1363,12 +1357,7 @@ static void decode_partition(AV1Decoder *const pbi, MACROBLOCKD *const xd,
 #define DEC_PARTITION(db_r, db_c, db_subsize) \
   decode_partition(pbi, xd, DEC_BLOCK_STX_ARG(db_r), (db_c), r, (db_subsize))
 
-  if (!hbs && !unify_bsize) {
-    // calculate bmode block dimensions (log 2)
-    xd->bmode_blocks_wl = 1 >> !!(partition & PARTITION_VERT);
-    xd->bmode_blocks_hl = 1 >> !!(partition & PARTITION_HORZ);
-    DEC_BLOCK(mi_row, mi_col, subsize);
-  } else {
+  {
     switch (partition) {
       case PARTITION_NONE: DEC_BLOCK(mi_row, mi_col, subsize); break;
       case PARTITION_HORZ:

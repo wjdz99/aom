@@ -1626,7 +1626,6 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
   const int is_inter = is_inter_block(mbmi);
   const int is_compound = has_second_ref(mbmi);
   int skip, ref;
-  const int unify_bsize = 1;
   (void)mi_row;
   (void)mi_col;
 
@@ -1732,7 +1731,7 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
   }
 
   if (!is_inter) {
-    if (bsize >= BLOCK_8X8 || unify_bsize) {
+    if (bsize >= BLOCK_8X8) {
       write_intra_mode(ec_ctx, bsize, mode, w);
     } else {
       int idx, idy;
@@ -1762,7 +1761,7 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
     if (av1_allow_palette(cm->allow_screen_content_tools, bsize))
       write_palette_mode_info(cm, xd, mi, w);
 #if CONFIG_FILTER_INTRA
-    if (bsize >= BLOCK_8X8 || unify_bsize)
+    if (bsize >= BLOCK_8X8)
       write_filter_intra_mode_info(cm, xd, mbmi, mi_row, mi_col, w);
 #endif  // CONFIG_FILTER_INTRA
   } else {
@@ -1791,7 +1790,7 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
 
     // If segment skip is not enabled code the mode.
     if (!segfeature_active(seg, segment_id, SEG_LVL_SKIP)) {
-      if (bsize >= BLOCK_8X8 || unify_bsize) {
+      if (bsize >= BLOCK_8X8) {
         if (is_inter_compound_mode(mode))
           write_inter_compound_mode(cm, xd, w, mode, mode_ctx);
 #if CONFIG_COMPOUND_SINGLEREF
@@ -1816,56 +1815,7 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
     write_mb_interp_filter(cpi, xd, w);
 #endif  // !CONFIG_DUAL_FILTER && !CONFIG_WARPED_MOTION
 
-    if (bsize < BLOCK_8X8 && !unify_bsize) {
-#if CONFIG_COMPOUND_SINGLEREF
-      /// NOTE: Single ref comp mode does not support sub8x8.
-      assert(is_compound || !is_inter_singleref_comp_mode(mbmi->mode));
-#endif  // CONFIG_COMPOUND_SINGLEREF
-      const int num_4x4_w = num_4x4_blocks_wide_lookup[bsize];
-      const int num_4x4_h = num_4x4_blocks_high_lookup[bsize];
-      int idx, idy;
-      for (idy = 0; idy < 2; idy += num_4x4_h) {
-        for (idx = 0; idx < 2; idx += num_4x4_w) {
-          const int j = idy * 2 + idx;
-          const PREDICTION_MODE b_mode = mi->bmi[j].as_mode;
-          if (!is_compound)
-            mode_ctx = av1_mode_context_analyzer(mbmi_ext->mode_context,
-                                                 mbmi->ref_frame, bsize, j);
-          if (is_inter_compound_mode(b_mode))
-            write_inter_compound_mode(cm, xd, w, b_mode, mode_ctx);
-          else if (is_inter_singleref_mode(b_mode))
-            write_inter_mode(w, b_mode, ec_ctx, mode_ctx);
-
-          if (b_mode == NEWMV || b_mode == NEW_NEWMV) {
-            for (ref = 0; ref < 1 + is_compound; ++ref) {
-              int8_t rf_type = av1_ref_frame_type(mbmi->ref_frame);
-              int nmv_ctx = av1_nmv_ctx(mbmi_ext->ref_mv_count[rf_type],
-                                        mbmi_ext->ref_mv_stack[rf_type], ref,
-                                        mbmi->ref_mv_idx);
-              nmv_context *nmvc = &ec_ctx->nmvc[nmv_ctx];
-              av1_encode_mv(cpi, w, &mi->bmi[j].as_mv[ref].as_mv,
-                            &mi->bmi[j].ref_mv[ref].as_mv, nmvc, allow_hp);
-            }
-          } else if (b_mode == NEAREST_NEWMV || b_mode == NEAR_NEWMV) {
-            int8_t rf_type = av1_ref_frame_type(mbmi->ref_frame);
-            int nmv_ctx = av1_nmv_ctx(mbmi_ext->ref_mv_count[rf_type],
-                                      mbmi_ext->ref_mv_stack[rf_type], 1,
-                                      mbmi->ref_mv_idx);
-            nmv_context *nmvc = &ec_ctx->nmvc[nmv_ctx];
-            av1_encode_mv(cpi, w, &mi->bmi[j].as_mv[1].as_mv,
-                          &mi->bmi[j].ref_mv[1].as_mv, nmvc, allow_hp);
-          } else if (b_mode == NEW_NEARESTMV || b_mode == NEW_NEARMV) {
-            int8_t rf_type = av1_ref_frame_type(mbmi->ref_frame);
-            int nmv_ctx = av1_nmv_ctx(mbmi_ext->ref_mv_count[rf_type],
-                                      mbmi_ext->ref_mv_stack[rf_type], 0,
-                                      mbmi->ref_mv_idx);
-            nmv_context *nmvc = &ec_ctx->nmvc[nmv_ctx];
-            av1_encode_mv(cpi, w, &mi->bmi[j].as_mv[0].as_mv,
-                          &mi->bmi[j].ref_mv[0].as_mv, nmvc, allow_hp);
-          }
-        }
-      }
-    } else {
+    {
       if (mode == NEWMV || mode == NEW_NEWMV) {
         int_mv ref_mv;
         for (ref = 0; ref < 1 + is_compound; ++ref) {
@@ -2059,7 +2009,6 @@ static void write_mb_modes_kf(AV1_COMMON *cm, MACROBLOCKD *xd,
   const MODE_INFO *const left_mi = xd->left_mi;
   const MB_MODE_INFO *const mbmi = &mi->mbmi;
   const BLOCK_SIZE bsize = mbmi->sb_type;
-  const int unify_bsize = 1;
   (void)mi_row;
   (void)mi_col;
 
@@ -2124,7 +2073,7 @@ static void write_mb_modes_kf(AV1_COMMON *cm, MACROBLOCKD *xd,
     set_txfm_ctxs(mbmi->tx_size, xd->n8_w, xd->n8_h, mbmi->skip, xd);
 #endif  // CONFIG_INTRABC && CONFIG_VAR_TX
 
-  if (bsize >= BLOCK_8X8 || unify_bsize) {
+  if (bsize >= BLOCK_8X8) {
     write_intra_mode_kf(cm, ec_ctx, mi, above_mi, left_mi, 0, mbmi->mode, w);
   } else {
     const int num_4x4_w = num_4x4_blocks_wide_lookup[bsize];
@@ -2157,7 +2106,7 @@ static void write_mb_modes_kf(AV1_COMMON *cm, MACROBLOCKD *xd,
   if (av1_allow_palette(cm->allow_screen_content_tools, bsize))
     write_palette_mode_info(cm, xd, mi, w);
 #if CONFIG_FILTER_INTRA
-  if (bsize >= BLOCK_8X8 || unify_bsize)
+  if (bsize >= BLOCK_8X8)
     write_filter_intra_mode_info(cm, xd, mbmi, mi_row, mi_col, w);
 #endif  // CONFIG_FILTER_INTRA
 
@@ -2634,16 +2583,13 @@ static void write_tokens_sb(AV1_COMP *cpi, const TileInfo *const tile,
   const int hbs = mi_size_wide[bsize] / 2;
   PARTITION_TYPE partition;
   BLOCK_SIZE subsize;
-  const int unify_bsize = 1;
 
   if (mi_row >= cm->mi_rows || mi_col >= cm->mi_cols) return;
 
   partition = get_partition(cm, mi_row, mi_col, bsize);
   subsize = get_subsize(bsize, partition);
 
-  if (subsize < BLOCK_8X8 && !unify_bsize) {
-    write_tokens_b(cpi, tile, w, tok, tok_end, mi_row, mi_col);
-  } else {
+  {
     switch (partition) {
       case PARTITION_NONE:
         write_tokens_b(cpi, tile, w, tok, tok_end, mi_row, mi_col);
@@ -2774,14 +2720,11 @@ static void write_modes_sb(AV1_COMP *const cpi, const TileInfo *const tile,
 #endif  // CONFIG_EXT_PARTITION_TYPES
   const PARTITION_TYPE partition = get_partition(cm, mi_row, mi_col, bsize);
   const BLOCK_SIZE subsize = get_subsize(bsize, partition);
-  const int unify_bsize = 1;
 
   if (mi_row >= cm->mi_rows || mi_col >= cm->mi_cols) return;
 
   write_partition(cm, xd, hbs, mi_row, mi_col, partition, bsize, w);
-  if (subsize < BLOCK_8X8 && !unify_bsize) {
-    write_modes_b(cpi, tile, w, tok, tok_end, mi_row, mi_col);
-  } else {
+  {
     switch (partition) {
       case PARTITION_NONE:
         write_modes_b(cpi, tile, w, tok, tok_end, mi_row, mi_col);

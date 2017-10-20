@@ -244,7 +244,6 @@ static INLINE int_mv gm_get_motion_vector(const WarpedMotionParams *gm,
                                           int is_integer
 #endif
                                           ) {
-  const int unify_bsize = 1;
   int_mv res;
   const int32_t *mat = gm->wmmat;
   int x, y, tx, ty;
@@ -269,7 +268,7 @@ static INLINE int_mv gm_get_motion_vector(const WarpedMotionParams *gm,
     return res;
   }
 
-  if (bsize >= BLOCK_8X8 || unify_bsize) {
+  if (bsize >= BLOCK_8X8) {
     x = block_center_x(mi_col, bsize);
     y = block_center_y(mi_row, bsize);
   } else {
