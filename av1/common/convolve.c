@@ -657,19 +657,7 @@ void av1_convolve_2d_facade(const uint8_t *src, int src_stride, uint8_t *dst,
     transpose_int32(tr_dst, tr_dst_stride, conv_params->dst,
                     conv_params->dst_stride, w, h);
 
-// horizontal and vertical parameters are swapped because of the transpose
-#if CONFIG_JNT_COMP
-    if (scaled)
-      av1_convolve_2d_scale_c(tr_src + fo_horiz * tr_src_stride + fo_vert,
-                              tr_src_stride, tr_dst, tr_dst_stride, h, w,
-                              &filter_params_y, &filter_params_x, subpel_y_q4,
-                              y_step_q4, subpel_x_q4, x_step_q4, conv_params);
-    else
-      av1_convolve_2d_c(tr_src + fo_horiz * tr_src_stride + fo_vert,
-                        tr_src_stride, tr_dst, tr_dst_stride, h, w,
-                        &filter_params_y, &filter_params_x, subpel_y_q4,
-                        subpel_x_q4, conv_params);
-#else
+    // horizontal and vertical parameters are swapped because of the transpose
     if (scaled)
       av1_convolve_2d_scale(tr_src + fo_horiz * tr_src_stride + fo_vert,
                             tr_src_stride, tr_dst, tr_dst_stride, h, w,
@@ -680,22 +668,9 @@ void av1_convolve_2d_facade(const uint8_t *src, int src_stride, uint8_t *dst,
                       tr_src_stride, tr_dst, tr_dst_stride, h, w,
                       &filter_params_y, &filter_params_x, subpel_y_q4,
                       subpel_x_q4, conv_params);
-#endif  // CONFIG_JNT_COMP
     transpose_int32(conv_params->dst, conv_params->dst_stride, tr_dst,
                     tr_dst_stride, h, w);
   } else {
-#if CONFIG_JNT_COMP
-    if (scaled)
-      av1_convolve_2d_scale_c(src, src_stride, conv_params->dst,
-                              conv_params->dst_stride, w, h, &filter_params_x,
-                              &filter_params_y, subpel_x_q4, x_step_q4,
-                              subpel_y_q4, y_step_q4, conv_params);
-    else
-      av1_convolve_2d_c(src, src_stride, conv_params->dst,
-                        conv_params->dst_stride, w, h, &filter_params_x,
-                        &filter_params_y, subpel_x_q4, subpel_y_q4,
-                        conv_params);
-#else
     if (scaled)
       av1_convolve_2d_scale(src, src_stride, conv_params->dst,
                             conv_params->dst_stride, w, h, &filter_params_x,
@@ -705,7 +680,6 @@ void av1_convolve_2d_facade(const uint8_t *src, int src_stride, uint8_t *dst,
       av1_convolve_2d(src, src_stride, conv_params->dst,
                       conv_params->dst_stride, w, h, &filter_params_x,
                       &filter_params_y, subpel_x_q4, subpel_y_q4, conv_params);
-#endif  // CONFIG_JNT_COMP
   }
 }
 
