@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f8ad45bb_5612ff33",
+        "filename": "test/test_libaom.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-10-20T19:12:30Z",
+      "side": 1,
+      "message": "this could just be a character array given the random access.",
+      "revId": "edf930c74858b040b12036323d312caaea198fc9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f641919a_887b287e",
+        "filename": "test/test_libaom.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-10-20T19:12:30Z",
+      "side": 1,
+      "message": "you can append characters strings directly",
+      "revId": "edf930c74858b040b12036323d312caaea198fc9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
