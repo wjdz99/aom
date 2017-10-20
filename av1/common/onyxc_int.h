@@ -901,7 +901,7 @@ static INLINE int is_chroma_reference(int mi_row, int mi_col, BLOCK_SIZE bsize,
   int ref_pos = !(((mi_row & 0x01) && subsampling_y) ||
                   ((mi_col & 0x01) && subsampling_x));
 
-  if (bsize >= BLOCK_8X8) ref_pos = 1;
+  if (AOMMIN(block_size_wide[bsize], block_size_high[bsize]) >= 8) ref_pos = 1;
 
   return ref_pos;
 #endif
@@ -911,6 +911,35 @@ static INLINE BLOCK_SIZE scale_chroma_bsize(BLOCK_SIZE bsize, int subsampling_x,
                                             int subsampling_y) {
   BLOCK_SIZE bs = bsize;
 
+  switch(bsize) {
+    case BLOCK_4X4:
+      if (subsampling_x == 1 && subsampling_y == 1)
+        bs = BLOCK_8X8;
+      else if (subsampling_x == 1)
+        bs = BLOCK_8X4;
+      else if (subsampling_y == 1)
+        bs = BLOCK_4X8;
+      break;
+    case BLOCK_4X8:
+      if (subsampling_x == 1 && subsampling_y == 1)
+        bs = BLOCK_8X8;
+      else if (subsampling_x == 1)
+        bs = BLOCK_8X8;
+      else if (subsampling_y == 1)
+        bs = BLOCK_4X8;
+      break;
+    case BLOCK_8X4:
+      if (subsampling_x == 1 && subsampling_y == 1)
+        bs = BLOCK_8X8;
+      else if (subsampling_x == 1)
+        bs = BLOCK_8X4;
+      else if (subsampling_y == 1)
+        bs = BLOCK_8X8;
+      break;
+    default:
+      break;
+  };
+  /*
   if (bs < BLOCK_8X8) {
     if (subsampling_x == 1 && subsampling_y == 1)
       bs = BLOCK_8X8;
@@ -919,7 +948,7 @@ static INLINE BLOCK_SIZE scale_chroma_bsize(BLOCK_SIZE bsize, int subsampling_x,
     else if (subsampling_y == 1)
       bs = BLOCK_4X8;
   }
-
+  */
   return bs;
 }
 
