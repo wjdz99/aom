@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a2c684f_322a2ee0",
+        "filename": "av1/common/common_data.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 1919,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2017-10-20T16:24:05Z",
+      "side": 1,
+      "message": "I wonder what happens if you make these table entries such that all pairs add up to 16.\n\ne.g., (1, 1) -\u003e (8, 8)\n(2, 1) -\u003e (11, 5), etc.\n\nWith that, there is no need to do the division in the computation, but simply right shift.\n\nThe question is how it affects the coding performance?",
+      "range": {
+        "startLine": 1919,
+        "startChar": 16,
+        "endLine": 1919,
+        "endChar": 20
+      },
+      "revId": "921223e4fe9075c517b088d8556d51ffc67b3d94",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
