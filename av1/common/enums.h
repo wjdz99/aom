@@ -20,6 +20,10 @@
 extern "C" {
 #endif
 
+#if defined(_MSC_VER)
+#pragma pack(push, enum_pack, 1);
+#endif
+
 #undef MAX_SB_SIZE
 
 #if CONFIG_NCOBMC_ADAPT_WEIGHT
@@ -750,6 +754,10 @@ typedef enum {
 // LGT_SL_INTRA: LGTs with a mode-dependent first self-loop and a break point
 #define LGT_SL_INTRA 0
 #endif  // CONFIG_LGT_FROM_PRED
+
+#if defined(_MSC_VER)
+#pragma pack(pop, enum_pack);
+#endif
 
 #ifdef __cplusplus
 }  // extern "C"
