@@ -1140,11 +1140,18 @@ static INLINE void build_inter_predictors(
   const BLOCK_SIZE bsize = mi->mbmi.sb_type;
   const int ss_x = pd->subsampling_x;
   const int ss_y = pd->subsampling_y;
-  int sub8x8_inter = bsize < BLOCK_8X8 && (ss_x || ss_y);
+  int sub8x8_inter =
+      AOMMIN(block_size_wide[bsize], block_size_high[bsize]) < 8 &&
+      (ss_x || ss_y);
+  // Temporarily turn off sub8x8_inter for 16x4 and 4x16 blocks based on
+  // color subsampling until 8x2 and 2x8 block sizes are properly supported.
+  if (sub8x8_inter)
+    if ((bsize == BLOCK_4X16 && ss_x) || (bsize == BLOCK_16X4 && ss_y))
+      sub8x8_inter = 0;
 
 #if CONFIG_INTRABC
   if (is_intrabc) {
-    sub8x8_inter = 0;
+      sub8x8_inter = 0;
   }
 #endif
 
@@ -1155,362 +1162,368 @@ static INLINE void build_inter_predictors(
   const int col_start = (block_size_wide[bsize] == 4) && ss_x ? -1 : 0;
 
   if (sub8x8_inter) {
-    for (int row = row_start; row <= 0 && sub8x8_inter; ++row)
-      for (int col = col_start; col <= 0; ++col)
-        if (!is_inter_block(&xd->mi[row * xd->mi_stride + col]->mbmi))
-          sub8x8_inter = 0;
+      for (int row = row_start; row <= 0 && sub8x8_inter; ++row)
+        for (int col = col_start; col <= 0; ++col)
+          if (!is_inter_block(&xd->mi[row * xd->mi_stride + col]->mbmi))
+            sub8x8_inter = 0;
   }
 
   if (sub8x8_inter) {
-    // block size
-    const int b4_w = block_size_wide[bsize] >> ss_x;
-    const int b4_h = block_size_high[bsize] >> ss_y;
-    const BLOCK_SIZE plane_bsize = scale_chroma_bsize(bsize, ss_x, ss_y);
-    const int b8_w = block_size_wide[plane_bsize] >> ss_x;
-    const int b8_h = block_size_high[plane_bsize] >> ss_y;
-    int idx, idy;
+      // block size
+      const int b4_w = block_size_wide[bsize] >> ss_x;
+      const int b4_h = block_size_high[bsize] >> ss_y;
+      const BLOCK_SIZE plane_bsize = scale_chroma_bsize(bsize, ss_x, ss_y);
+      const int b8_w = block_size_wide[plane_bsize] >> ss_x;
+      const int b8_h = block_size_high[plane_bsize] >> ss_y;
+      int idx, idy;
 
-    const int x_base = x;
-    const int y_base = y;
+      const int x_base = x;
+      const int y_base = y;
 
-    const struct buf_2d orig_pred_buf[2] = { pd->pre[0], pd->pre[1] };
+      const struct buf_2d orig_pred_buf[2] = { pd->pre[0], pd->pre[1] };
 
-    int row = row_start;
-    for (idy = 0; idy < b8_h; idy += b4_h) {
-      int col = col_start;
-      for (idx = 0; idx < b8_w; idx += b4_w) {
-        MB_MODE_INFO *this_mbmi = &xd->mi[row * xd->mi_stride + col]->mbmi;
-        is_compound = has_second_ref(this_mbmi);
+      int row = row_start;
+      for (idy = 0; idy < b8_h; idy += b4_h) {
+        int col = col_start;
+        for (idx = 0; idx < b8_w; idx += b4_w) {
+          MB_MODE_INFO *this_mbmi = &xd->mi[row * xd->mi_stride + col]->mbmi;
+          is_compound = has_second_ref(this_mbmi);
 #if CONFIG_CONVOLVE_ROUND
-        DECLARE_ALIGNED(16, int32_t, tmp_dst[8 * 8]);
-        int tmp_dst_stride = 8;
-        assert(w <= 8 && h <= 8);
+          DECLARE_ALIGNED(16, int32_t, tmp_dst[8 * 8]);
+          int tmp_dst_stride = 8;
+          assert(w <= 8 && h <= 8);
 #endif  // CONFIG_CONVOLVE_ROUND
 #if CONFIG_CONVOLVE_ROUND
-        ConvolveParams conv_params =
-            get_conv_params_no_round(0, 0, plane, tmp_dst, tmp_dst_stride);
+          ConvolveParams conv_params =
+              get_conv_params_no_round(0, 0, plane, tmp_dst, tmp_dst_stride);
 #else
-        ConvolveParams conv_params = get_conv_params(0, 0, plane);
+          ConvolveParams conv_params = get_conv_params(0, 0, plane);
 #endif
-        struct buf_2d *const dst_buf = &pd->dst;
-        x = x_base + idx;
-        y = y_base + idy;
-        uint8_t *dst = dst_buf->buf + dst_buf->stride * y + x;
+          struct buf_2d *const dst_buf = &pd->dst;
+          x = x_base + idx;
+          y = y_base + idy;
+          uint8_t *dst = dst_buf->buf + dst_buf->stride * y + x;
 
-        // TODO(zoeliu): If single ref comp modes are considered here, a
-        //               mismatch was caused. Need a further investigation.
-        for (ref = 0; ref < 1 + is_compound; ++ref) {
-          const RefBuffer *ref_buf =
-              &cm->frame_refs[this_mbmi->ref_frame[ref] - LAST_FRAME];
+          // TODO(zoeliu): If single ref comp modes are considered here, a
+          //               mismatch was caused. Need a further investigation.
+          for (ref = 0; ref < 1 + is_compound; ++ref) {
+            const RefBuffer *ref_buf =
+                &cm->frame_refs[this_mbmi->ref_frame[ref] - LAST_FRAME];
 
-          const int c_offset = (mi_x + MI_SIZE * col_start) >> ss_x;
-          const int r_offset = (mi_y + MI_SIZE * row_start) >> ss_y;
-          pd->pre[ref].buf0 =
-              (plane == 1) ? ref_buf->buf->u_buffer : ref_buf->buf->v_buffer;
-          pd->pre[ref].buf =
-              pd->pre[ref].buf0 + scaled_buffer_offset(c_offset, r_offset,
-                                                       ref_buf->buf->uv_stride,
-                                                       &ref_buf->sf);
-          pd->pre[ref].width = ref_buf->buf->uv_crop_width;
-          pd->pre[ref].height = ref_buf->buf->uv_crop_height;
-          pd->pre[ref].stride = ref_buf->buf->uv_stride;
+            const int c_offset = (mi_x + MI_SIZE * col_start) >> ss_x;
+            const int r_offset = (mi_y + MI_SIZE * row_start) >> ss_y;
+            pd->pre[ref].buf0 =
+                (plane == 1) ? ref_buf->buf->u_buffer : ref_buf->buf->v_buffer;
+            pd->pre[ref].buf =
+                pd->pre[ref].buf0 +
+                scaled_buffer_offset(c_offset, r_offset,
+                                     ref_buf->buf->uv_stride, &ref_buf->sf);
+            pd->pre[ref].width = ref_buf->buf->uv_crop_width;
+            pd->pre[ref].height = ref_buf->buf->uv_crop_height;
+            pd->pre[ref].stride = ref_buf->buf->uv_stride;
 
 #if CONFIG_INTRABC
-          const struct scale_factors *const sf =
-              is_intrabc ? &xd->sf_identity : &ref_buf->sf;
-          struct buf_2d *const pre_buf = is_intrabc ? dst_buf : &pd->pre[ref];
+            const struct scale_factors *const sf =
+                is_intrabc ? &xd->sf_identity : &ref_buf->sf;
+            struct buf_2d *const pre_buf = is_intrabc ? dst_buf : &pd->pre[ref];
 #else
-          const struct scale_factors *const sf = &ref_buf->sf;
-          struct buf_2d *const pre_buf = &pd->pre[ref];
+            const struct scale_factors *const sf = &ref_buf->sf;
+            struct buf_2d *const pre_buf = &pd->pre[ref];
 #endif  // CONFIG_INTRABC
 
-          const MV mv = this_mbmi->mv[ref].as_mv;
+            const MV mv = this_mbmi->mv[ref].as_mv;
 
-          uint8_t *pre;
-          int xs, ys, subpel_x, subpel_y;
-          const int is_scaled = av1_is_scaled(sf);
+            uint8_t *pre;
+            int xs, ys, subpel_x, subpel_y;
+            const int is_scaled = av1_is_scaled(sf);
 #if CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
-          WarpTypesAllowed warp_types;
+            WarpTypesAllowed warp_types;
 #if CONFIG_GLOBAL_MOTION
-          warp_types.global_warp_allowed = is_global[ref];
+            warp_types.global_warp_allowed = is_global[ref];
 #endif  // CONFIG_GLOBAL_MOTION
 #if CONFIG_WARPED_MOTION
-          warp_types.local_warp_allowed =
-              this_mbmi->motion_mode == WARPED_CAUSAL;
+            warp_types.local_warp_allowed =
+                this_mbmi->motion_mode == WARPED_CAUSAL;
 #endif  // CONFIG_WARPED_MOTION
 #endif  // CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
 
-          if (is_scaled) {
-            int ssx = pd->subsampling_x;
-            int ssy = pd->subsampling_y;
-            int orig_pos_y = (mi_y << (SUBPEL_BITS - ssy)) + (y << SUBPEL_BITS);
-            orig_pos_y += mv.row * (1 << (1 - ssy));
-            int orig_pos_x = (mi_x << (SUBPEL_BITS - ssx)) + (x << SUBPEL_BITS);
-            orig_pos_x += mv.col * (1 << (1 - ssx));
-            int pos_y = sf->scale_value_y(orig_pos_y, sf);
-            int pos_x = sf->scale_value_x(orig_pos_x, sf);
-            pos_x += SCALE_EXTRA_OFF;
-            pos_y += SCALE_EXTRA_OFF;
+            if (is_scaled) {
+              int ssx = pd->subsampling_x;
+              int ssy = pd->subsampling_y;
+              int orig_pos_y =
+                  (mi_y << (SUBPEL_BITS - ssy)) + (y << SUBPEL_BITS);
+              orig_pos_y += mv.row * (1 << (1 - ssy));
+              int orig_pos_x =
+                  (mi_x << (SUBPEL_BITS - ssx)) + (x << SUBPEL_BITS);
+              orig_pos_x += mv.col * (1 << (1 - ssx));
+              int pos_y = sf->scale_value_y(orig_pos_y, sf);
+              int pos_x = sf->scale_value_x(orig_pos_x, sf);
+              pos_x += SCALE_EXTRA_OFF;
+              pos_y += SCALE_EXTRA_OFF;
 
-            const int top = -AOM_LEFT_TOP_MARGIN_SCALED;
-            const int left = -AOM_LEFT_TOP_MARGIN_SCALED;
-            const int bottom = (pre_buf->height + AOM_INTERP_EXTEND)
-                               << SCALE_SUBPEL_BITS;
-            const int right = (pre_buf->width + AOM_INTERP_EXTEND)
-                              << SCALE_SUBPEL_BITS;
-            pos_y = clamp(pos_y, top, bottom);
-            pos_x = clamp(pos_x, left, right);
+              const int top = -AOM_LEFT_TOP_MARGIN_SCALED;
+              const int left = -AOM_LEFT_TOP_MARGIN_SCALED;
+              const int bottom = (pre_buf->height + AOM_INTERP_EXTEND)
+                                 << SCALE_SUBPEL_BITS;
+              const int right = (pre_buf->width + AOM_INTERP_EXTEND)
+                                << SCALE_SUBPEL_BITS;
+              pos_y = clamp(pos_y, top, bottom);
+              pos_x = clamp(pos_x, left, right);
 
-            pre = pre_buf->buf0 +
-                  (pos_y >> SCALE_SUBPEL_BITS) * pre_buf->stride +
-                  (pos_x >> SCALE_SUBPEL_BITS);
-            subpel_x = pos_x & SCALE_SUBPEL_MASK;
-            subpel_y = pos_y & SCALE_SUBPEL_MASK;
-            xs = sf->x_step_q4;
-            ys = sf->y_step_q4;
-          } else {
-            const MV mv_q4 = clamp_mv_to_umv_border_sb(
-                xd, &mv, bw, bh, pd->subsampling_x, pd->subsampling_y);
-            xs = ys = SCALE_SUBPEL_SHIFTS;
-            subpel_x = (mv_q4.col & SUBPEL_MASK) << SCALE_EXTRA_BITS;
-            subpel_y = (mv_q4.row & SUBPEL_MASK) << SCALE_EXTRA_BITS;
-            pre = pre_buf->buf +
-                  (y + (mv_q4.row >> SUBPEL_BITS)) * pre_buf->stride +
-                  (x + (mv_q4.col >> SUBPEL_BITS));
-          }
+              pre = pre_buf->buf0 +
+                    (pos_y >> SCALE_SUBPEL_BITS) * pre_buf->stride +
+                    (pos_x >> SCALE_SUBPEL_BITS);
+              subpel_x = pos_x & SCALE_SUBPEL_MASK;
+              subpel_y = pos_y & SCALE_SUBPEL_MASK;
+              xs = sf->x_step_q4;
+              ys = sf->y_step_q4;
+            } else {
+              const MV mv_q4 = clamp_mv_to_umv_border_sb(
+                  xd, &mv, bw, bh, pd->subsampling_x, pd->subsampling_y);
+              xs = ys = SCALE_SUBPEL_SHIFTS;
+              subpel_x = (mv_q4.col & SUBPEL_MASK) << SCALE_EXTRA_BITS;
+              subpel_y = (mv_q4.row & SUBPEL_MASK) << SCALE_EXTRA_BITS;
+              pre = pre_buf->buf +
+                    (y + (mv_q4.row >> SUBPEL_BITS)) * pre_buf->stride +
+                    (x + (mv_q4.col >> SUBPEL_BITS));
+            }
 
-          conv_params.ref = ref;
-          conv_params.do_average = ref;
-          if (is_masked_compound_type(mi->mbmi.interinter_compound_type)) {
-            // masked compound type has its own average mechanism
-            conv_params.do_average = 0;
-          }
-          if (ref && is_masked_compound_type(mi->mbmi.interinter_compound_type))
-            av1_make_masked_inter_predictor(
-                pre, pre_buf->stride, dst, dst_buf->stride, subpel_x, subpel_y,
-                sf, b4_w, b4_h, &conv_params, mi->mbmi.interp_filters, xs, ys,
+            conv_params.ref = ref;
+            conv_params.do_average = ref;
+            if (is_masked_compound_type(mi->mbmi.interinter_compound_type)) {
+              // masked compound type has its own average mechanism
+              conv_params.do_average = 0;
+            }
+            if (ref &&
+                is_masked_compound_type(mi->mbmi.interinter_compound_type))
+              av1_make_masked_inter_predictor(
+                  pre, pre_buf->stride, dst, dst_buf->stride, subpel_x,
+                  subpel_y, sf, b4_w, b4_h, &conv_params,
+                  mi->mbmi.interp_filters, xs, ys,
 #if CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION || CONFIG_COMPOUND_SEGMENT
-                plane,
+                  plane,
 #endif
 #if CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
-                &warp_types, (mi_x >> pd->subsampling_x) + x,
-                (mi_y >> pd->subsampling_y) + y, ref,
+                  &warp_types, (mi_x >> pd->subsampling_x) + x,
+                  (mi_y >> pd->subsampling_y) + y, ref,
 #endif  // CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
-                xd);
-          else
-            av1_make_inter_predictor(
-                pre, pre_buf->stride, dst, dst_buf->stride, subpel_x, subpel_y,
-                sf, b4_w, b4_h, &conv_params, this_mbmi->interp_filters,
+                  xd);
+            else
+              av1_make_inter_predictor(
+                  pre, pre_buf->stride, dst, dst_buf->stride, subpel_x,
+                  subpel_y, sf, b4_w, b4_h, &conv_params,
+                  this_mbmi->interp_filters,
 #if CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
-                &warp_types, (mi_x >> pd->subsampling_x) + x,
-                (mi_y >> pd->subsampling_y) + y, plane, ref,
+                  &warp_types, (mi_x >> pd->subsampling_x) + x,
+                  (mi_y >> pd->subsampling_y) + y, plane, ref,
 #endif  // CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
 #if CONFIG_MOTION_VAR
-                mi, build_for_obmc,
+                  mi, build_for_obmc,
 #endif  // CONFIG_MOTION_VAR
-                xs, ys, xd);
-        }  // for (ref = 0; ref < 1 + is_compound; ++ref)
+                  xs, ys, xd);
+          }  // for (ref = 0; ref < 1 + is_compound; ++ref)
 #if CONFIG_CONVOLVE_ROUND
-        if (conv_params.do_post_rounding) {
+          if (conv_params.do_post_rounding) {
 #if CONFIG_HIGHBITDEPTH
-          if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH)
-            av1_highbd_convolve_rounding(
-                tmp_dst, tmp_dst_stride, dst, dst_buf->stride, b4_w, b4_h,
-                FILTER_BITS * 2 + is_compound - conv_params.round_0 -
-                    conv_params.round_1,
-                xd->bd);
-          else
+            if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH)
+              av1_highbd_convolve_rounding(
+                  tmp_dst, tmp_dst_stride, dst, dst_buf->stride, b4_w, b4_h,
+                  FILTER_BITS * 2 + is_compound - conv_params.round_0 -
+                      conv_params.round_1,
+                  xd->bd);
+            else
 #endif  // CONFIG_HIGHBITDEPTH
 #if CONFIG_COMPOUND_SINGLEREF
+              av1_convolve_rounding(
+                  tmp_dst, tmp_dst_stride, dst, dst_buf->stride, b4_w, b4_h,
+                  FILTER_BITS * 2 + is_comp_mode_pred - conv_params.round_0 -
+                      conv_params.round_1);
+#else   // !(CONFIG_COMPOUND_SINGLEREF)
             av1_convolve_rounding(
                 tmp_dst, tmp_dst_stride, dst, dst_buf->stride, b4_w, b4_h,
-                FILTER_BITS * 2 + is_comp_mode_pred - conv_params.round_0 -
+                FILTER_BITS * 2 + is_compound - conv_params.round_0 -
                     conv_params.round_1);
-#else   // !(CONFIG_COMPOUND_SINGLEREF)
-          av1_convolve_rounding(tmp_dst, tmp_dst_stride, dst, dst_buf->stride,
-                                b4_w, b4_h,
-                                FILTER_BITS * 2 + is_compound -
-                                    conv_params.round_0 - conv_params.round_1);
 #endif  // CONFIG_COMPOUND_SINGLEREF
-        }
+          }
 #endif  // CONFIG_CONVOLVE_ROUND
-        ++col;
+          ++col;
+        }
+        ++row;
       }
-      ++row;
-    }
 
-    for (ref = 0; ref < 2; ++ref) pd->pre[ref] = orig_pred_buf[ref];
-    return;
+      for (ref = 0; ref < 2; ++ref) pd->pre[ref] = orig_pred_buf[ref];
+      return;
   }
 #else
   (void)cm;
 #endif  // CONFIG_CHROMA_SUB8X8
 
   {
-    struct buf_2d *const dst_buf = &pd->dst;
-    uint8_t *const dst = dst_buf->buf + dst_buf->stride * y + x;
-    uint8_t *pre[2];
-    SubpelParams subpel_params[2];
+      struct buf_2d *const dst_buf = &pd->dst;
+      uint8_t *const dst = dst_buf->buf + dst_buf->stride * y + x;
+      uint8_t *pre[2];
+      SubpelParams subpel_params[2];
 #if CONFIG_CONVOLVE_ROUND
-    DECLARE_ALIGNED(16, int32_t, tmp_dst[MAX_SB_SIZE * MAX_SB_SIZE]);
+      DECLARE_ALIGNED(16, int32_t, tmp_dst[MAX_SB_SIZE * MAX_SB_SIZE]);
 #endif  // CONFIG_CONVOLVE_ROUND
 
 #if CONFIG_COMPOUND_SINGLEREF
-    for (ref = 0; ref < 1 + is_comp_mode_pred; ++ref)
+      for (ref = 0; ref < 1 + is_comp_mode_pred; ++ref)
 #else
     for (ref = 0; ref < 1 + is_compound; ++ref)
 #endif  // CONFIG_COMPOUND_SINGLEREF
-    {
+      {
 #if CONFIG_INTRABC
-      const struct scale_factors *const sf =
-          is_intrabc ? &xd->sf_identity : &xd->block_refs[ref]->sf;
-      struct buf_2d *const pre_buf = is_intrabc ? dst_buf : &pd->pre[ref];
+        const struct scale_factors *const sf =
+            is_intrabc ? &xd->sf_identity : &xd->block_refs[ref]->sf;
+        struct buf_2d *const pre_buf = is_intrabc ? dst_buf : &pd->pre[ref];
 #else
       const struct scale_factors *const sf = &xd->block_refs[ref]->sf;
       struct buf_2d *const pre_buf = &pd->pre[ref];
 #endif  // CONFIG_INTRABC
-      const MV mv = mi->mbmi.mv[ref].as_mv;
+        const MV mv = mi->mbmi.mv[ref].as_mv;
 
-      const int is_scaled = av1_is_scaled(sf);
-      if (is_scaled) {
-        // Note: The various inputs here have different units:
-        // * mi_x/mi_y are in units of luma pixels
-        // * mv is in units of 1/8 luma pixels
-        // * x/y are in units of pixels *in the current plane*
-        // Here we unify these into a q4-format position within the current
-        // plane, then project into the reference frame
-        int ssx = pd->subsampling_x;
-        int ssy = pd->subsampling_y;
-        int orig_pos_y = (mi_y << (SUBPEL_BITS - ssy)) + (y << SUBPEL_BITS);
-        orig_pos_y += mv.row * (1 << (1 - ssy));
-        int orig_pos_x = (mi_x << (SUBPEL_BITS - ssx)) + (x << SUBPEL_BITS);
-        orig_pos_x += mv.col * (1 << (1 - ssx));
-        int pos_y = sf->scale_value_y(orig_pos_y, sf);
-        int pos_x = sf->scale_value_x(orig_pos_x, sf);
-        pos_x += SCALE_EXTRA_OFF;
-        pos_y += SCALE_EXTRA_OFF;
+        const int is_scaled = av1_is_scaled(sf);
+        if (is_scaled) {
+          // Note: The various inputs here have different units:
+          // * mi_x/mi_y are in units of luma pixels
+          // * mv is in units of 1/8 luma pixels
+          // * x/y are in units of pixels *in the current plane*
+          // Here we unify these into a q4-format position within the current
+          // plane, then project into the reference frame
+          int ssx = pd->subsampling_x;
+          int ssy = pd->subsampling_y;
+          int orig_pos_y = (mi_y << (SUBPEL_BITS - ssy)) + (y << SUBPEL_BITS);
+          orig_pos_y += mv.row * (1 << (1 - ssy));
+          int orig_pos_x = (mi_x << (SUBPEL_BITS - ssx)) + (x << SUBPEL_BITS);
+          orig_pos_x += mv.col * (1 << (1 - ssx));
+          int pos_y = sf->scale_value_y(orig_pos_y, sf);
+          int pos_x = sf->scale_value_x(orig_pos_x, sf);
+          pos_x += SCALE_EXTRA_OFF;
+          pos_y += SCALE_EXTRA_OFF;
 
-        // Clamp against the reference frame borders, with enough extension
-        // that we don't force the reference block to be partially onscreen.
-        const int top = -AOM_LEFT_TOP_MARGIN_SCALED;
-        const int left = -AOM_LEFT_TOP_MARGIN_SCALED;
-        const int bottom = (pre_buf->height + AOM_INTERP_EXTEND)
-                           << SCALE_SUBPEL_BITS;
-        const int right = (pre_buf->width + AOM_INTERP_EXTEND)
-                          << SCALE_SUBPEL_BITS;
-        pos_y = clamp(pos_y, top, bottom);
-        pos_x = clamp(pos_x, left, right);
+          // Clamp against the reference frame borders, with enough extension
+          // that we don't force the reference block to be partially onscreen.
+          const int top = -AOM_LEFT_TOP_MARGIN_SCALED;
+          const int left = -AOM_LEFT_TOP_MARGIN_SCALED;
+          const int bottom = (pre_buf->height + AOM_INTERP_EXTEND)
+                             << SCALE_SUBPEL_BITS;
+          const int right = (pre_buf->width + AOM_INTERP_EXTEND)
+                            << SCALE_SUBPEL_BITS;
+          pos_y = clamp(pos_y, top, bottom);
+          pos_x = clamp(pos_x, left, right);
 
-        pre[ref] = pre_buf->buf0 +
-                   (pos_y >> SCALE_SUBPEL_BITS) * pre_buf->stride +
-                   (pos_x >> SCALE_SUBPEL_BITS);
-        subpel_params[ref].subpel_x = pos_x & SCALE_SUBPEL_MASK;
-        subpel_params[ref].subpel_y = pos_y & SCALE_SUBPEL_MASK;
-        subpel_params[ref].xs = sf->x_step_q4;
-        subpel_params[ref].ys = sf->y_step_q4;
-      } else {
-        const MV mv_q4 = clamp_mv_to_umv_border_sb(
-            xd, &mv, bw, bh, pd->subsampling_x, pd->subsampling_y);
-        subpel_params[ref].subpel_x = (mv_q4.col & SUBPEL_MASK)
-                                      << SCALE_EXTRA_BITS;
-        subpel_params[ref].subpel_y = (mv_q4.row & SUBPEL_MASK)
-                                      << SCALE_EXTRA_BITS;
-        subpel_params[ref].xs = SCALE_SUBPEL_SHIFTS;
-        subpel_params[ref].ys = SCALE_SUBPEL_SHIFTS;
-        pre[ref] = pre_buf->buf +
-                   (y + (mv_q4.row >> SUBPEL_BITS)) * pre_buf->stride +
-                   (x + (mv_q4.col >> SUBPEL_BITS));
+          pre[ref] = pre_buf->buf0 +
+                     (pos_y >> SCALE_SUBPEL_BITS) * pre_buf->stride +
+                     (pos_x >> SCALE_SUBPEL_BITS);
+          subpel_params[ref].subpel_x = pos_x & SCALE_SUBPEL_MASK;
+          subpel_params[ref].subpel_y = pos_y & SCALE_SUBPEL_MASK;
+          subpel_params[ref].xs = sf->x_step_q4;
+          subpel_params[ref].ys = sf->y_step_q4;
+        } else {
+          const MV mv_q4 = clamp_mv_to_umv_border_sb(
+              xd, &mv, bw, bh, pd->subsampling_x, pd->subsampling_y);
+          subpel_params[ref].subpel_x = (mv_q4.col & SUBPEL_MASK)
+                                        << SCALE_EXTRA_BITS;
+          subpel_params[ref].subpel_y = (mv_q4.row & SUBPEL_MASK)
+                                        << SCALE_EXTRA_BITS;
+          subpel_params[ref].xs = SCALE_SUBPEL_SHIFTS;
+          subpel_params[ref].ys = SCALE_SUBPEL_SHIFTS;
+          pre[ref] = pre_buf->buf +
+                     (y + (mv_q4.row >> SUBPEL_BITS)) * pre_buf->stride +
+                     (x + (mv_q4.col >> SUBPEL_BITS));
+        }
       }
-    }
 
 #if CONFIG_CONVOLVE_ROUND
-    ConvolveParams conv_params =
-        get_conv_params_no_round(ref, ref, plane, tmp_dst, MAX_SB_SIZE);
+      ConvolveParams conv_params =
+          get_conv_params_no_round(ref, ref, plane, tmp_dst, MAX_SB_SIZE);
 #else
     ConvolveParams conv_params = get_conv_params(ref, ref, plane);
 #endif  // CONFIG_CONVOLVE_ROUND
 
 #if CONFIG_COMPOUND_SINGLEREF
-    for (ref = 0; ref < 1 + is_comp_mode_pred; ++ref)
+      for (ref = 0; ref < 1 + is_comp_mode_pred; ++ref)
 #else
     for (ref = 0; ref < 1 + is_compound; ++ref)
 #endif  // CONFIG_COMPOUND_SINGLEREF
-    {
+      {
 #if CONFIG_INTRABC
-      const struct scale_factors *const sf =
-          is_intrabc ? &xd->sf_identity : &xd->block_refs[ref]->sf;
-      struct buf_2d *const pre_buf = is_intrabc ? dst_buf : &pd->pre[ref];
+        const struct scale_factors *const sf =
+            is_intrabc ? &xd->sf_identity : &xd->block_refs[ref]->sf;
+        struct buf_2d *const pre_buf = is_intrabc ? dst_buf : &pd->pre[ref];
 #else
       const struct scale_factors *const sf = &xd->block_refs[ref]->sf;
       struct buf_2d *const pre_buf = &pd->pre[ref];
 #endif  // CONFIG_INTRABC
 #if CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
-      WarpTypesAllowed warp_types;
+        WarpTypesAllowed warp_types;
 #if CONFIG_GLOBAL_MOTION
-      warp_types.global_warp_allowed = is_global[ref];
+        warp_types.global_warp_allowed = is_global[ref];
 #endif  // CONFIG_GLOBAL_MOTION
 #if CONFIG_WARPED_MOTION
-      warp_types.local_warp_allowed = mi->mbmi.motion_mode == WARPED_CAUSAL;
+        warp_types.local_warp_allowed = mi->mbmi.motion_mode == WARPED_CAUSAL;
 #endif  // CONFIG_WARPED_MOTION
 #endif  // CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
-      conv_params.ref = ref;
-      conv_params.do_average = ref;
-      if (is_masked_compound_type(mi->mbmi.interinter_compound_type)) {
-        // masked compound type has its own average mechanism
-        conv_params.do_average = 0;
-      }
+        conv_params.ref = ref;
+        conv_params.do_average = ref;
+        if (is_masked_compound_type(mi->mbmi.interinter_compound_type)) {
+          // masked compound type has its own average mechanism
+          conv_params.do_average = 0;
+        }
 
-      if (ref && is_masked_compound_type(mi->mbmi.interinter_compound_type))
-        av1_make_masked_inter_predictor(
-            pre[ref], pre_buf->stride, dst, dst_buf->stride,
-            subpel_params[ref].subpel_x, subpel_params[ref].subpel_y, sf, w, h,
-            &conv_params, mi->mbmi.interp_filters, subpel_params[ref].xs,
-            subpel_params[ref].ys,
+        if (ref && is_masked_compound_type(mi->mbmi.interinter_compound_type))
+          av1_make_masked_inter_predictor(
+              pre[ref], pre_buf->stride, dst, dst_buf->stride,
+              subpel_params[ref].subpel_x, subpel_params[ref].subpel_y, sf, w,
+              h, &conv_params, mi->mbmi.interp_filters, subpel_params[ref].xs,
+              subpel_params[ref].ys,
 #if CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION || CONFIG_COMPOUND_SEGMENT
-            plane,
+              plane,
 #endif
 #if CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
-            &warp_types, (mi_x >> pd->subsampling_x) + x,
-            (mi_y >> pd->subsampling_y) + y, ref,
+              &warp_types, (mi_x >> pd->subsampling_x) + x,
+              (mi_y >> pd->subsampling_y) + y, ref,
 #endif  // CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
-            xd);
-      else
-        av1_make_inter_predictor(
-            pre[ref], pre_buf->stride, dst, dst_buf->stride,
-            subpel_params[ref].subpel_x, subpel_params[ref].subpel_y, sf, w, h,
-            &conv_params, mi->mbmi.interp_filters,
+              xd);
+        else
+          av1_make_inter_predictor(
+              pre[ref], pre_buf->stride, dst, dst_buf->stride,
+              subpel_params[ref].subpel_x, subpel_params[ref].subpel_y, sf, w,
+              h, &conv_params, mi->mbmi.interp_filters,
 #if CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
-            &warp_types, (mi_x >> pd->subsampling_x) + x,
-            (mi_y >> pd->subsampling_y) + y, plane, ref,
+              &warp_types, (mi_x >> pd->subsampling_x) + x,
+              (mi_y >> pd->subsampling_y) + y, plane, ref,
 #endif  // CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
 #if CONFIG_MOTION_VAR
-            mi, build_for_obmc,
+              mi, build_for_obmc,
 #endif  // CONFIG_MOTION_VAR
-            subpel_params[ref].xs, subpel_params[ref].ys, xd);
-    }
+              subpel_params[ref].xs, subpel_params[ref].ys, xd);
+      }
 
 #if CONFIG_CONVOLVE_ROUND
-    // TODO(angiebird): This part needs optimization
-    if (conv_params.do_post_rounding) {
+      // TODO(angiebird): This part needs optimization
+      if (conv_params.do_post_rounding) {
 #if CONFIG_HIGHBITDEPTH
-      if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH)
-        av1_highbd_convolve_rounding(
-            tmp_dst, MAX_SB_SIZE, dst, dst_buf->stride, w, h,
-            FILTER_BITS * 2 + is_compound - conv_params.round_0 -
-                conv_params.round_1,
-            xd->bd);
-      else
+        if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH)
+          av1_highbd_convolve_rounding(
+              tmp_dst, MAX_SB_SIZE, dst, dst_buf->stride, w, h,
+              FILTER_BITS * 2 + is_compound - conv_params.round_0 -
+                  conv_params.round_1,
+              xd->bd);
+        else
 #endif  // CONFIG_HIGHBITDEPTH
 #if CONFIG_COMPOUND_SINGLEREF
-        av1_convolve_rounding(tmp_dst, MAX_SB_SIZE, dst, dst_buf->stride, w, h,
-                              FILTER_BITS * 2 + is_comp_mode_pred -
-                                  conv_params.round_0 - conv_params.round_1);
+          av1_convolve_rounding(tmp_dst, MAX_SB_SIZE, dst, dst_buf->stride, w,
+                                h,
+                                FILTER_BITS * 2 + is_comp_mode_pred -
+                                    conv_params.round_0 - conv_params.round_1);
 #else   // !(CONFIG_COMPOUND_SINGLEREF)
-      av1_convolve_rounding(tmp_dst, MAX_SB_SIZE, dst, dst_buf->stride, w, h,
-                            FILTER_BITS * 2 + is_compound -
-                                conv_params.round_0 - conv_params.round_1);
+        av1_convolve_rounding(tmp_dst, MAX_SB_SIZE, dst, dst_buf->stride, w, h,
+                              FILTER_BITS * 2 + is_compound -
+                                  conv_params.round_0 - conv_params.round_1);
 #endif  // CONFIG_COMPOUND_SINGLEREF
-    }
+      }
 #endif  // CONFIG_CONVOLVE_ROUND
   }
 }
