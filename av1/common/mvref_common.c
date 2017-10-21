@@ -35,6 +35,33 @@ void av1_copy_frame_mvs(const AV1_COMMON *const cm, MODE_INFO *mi, int mi_row,
 #endif  // CONFIG_TMV
   int w, h;
 
+#if CONFIG_MFMV
+  if (mi_row == ((mi_row >> 2) << 2) &&
+      mi_col == ((mi_col >> 2) << 2)) {
+    frame_mvs->ref_frame[0] = NONE_FRAME;
+    frame_mvs->ref_frame[1] = NONE_FRAME;
+  } else {
+    if (cm->show_frame == 0) {
+      if (frame_mvs->ref_frame[0] > INTRA_FRAME &&
+          frame_mvs->ref_frame[0] < BWDREF_FRAME) {
+        if (mi->mbmi.ref_frame[0] >= BWDREF_FRAME ||
+            mi->mbmi.ref_frame[0] <= INTRA_FRAME) return;
+
+        if (abs(frame_mvs->mv[0].as_mv.row) + abs(frame_mvs->mv[0].as_mv.col) >
+            abs(mi->mbmi.mv[0].as_mv.row) + abs(mi->mbmi.mv[0].as_mv.col))
+          return;
+      }
+    } else {
+      if (frame_mvs->ref_frame[0] >= BWDREF_FRAME) {
+        if (mi->mbmi.ref_frame[0] < BWDREF_FRAME) return;
+        if (abs(frame_mvs->mv[0].as_mv.row) + abs(frame_mvs->mv[0].as_mv.col) >
+            abs(mi->mbmi.mv[0].as_mv.row) + abs(mi->mbmi.mv[0].as_mv.col))
+          return;
+      }
+    }
+  }
+#endif
+
   for (h = 0; h < y_mis; h++) {
     MV_REF *const frame_mv = frame_mvs + h * frame_mvs_stride;
     for (w = 0; w < x_mis; w++) {
