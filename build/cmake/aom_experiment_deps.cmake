@@ -149,6 +149,18 @@ macro (fix_experiment_configs)
       change_config_and_warn(CONFIG_LOOPFILTER_LEVEL 0 CONFIG_FRAME_SIGN_BIAS)
     endif ()
   endif ()
+
+  if (CONFIG_LOOPFILTER_LEVEL)
+    if (NOT CONFIG_VAR_TX)
+      change_config_and_warn(CONFIG_VAR_TX 1 CONFIG_LOOPFILTER_LEVEL)
+    endif  ()
+    if (NOT CONFIG_PARALLEL_DEBLOCKING)
+      change_config_and_warn(CONFIG_PARALLEL_DEBLOCKING 1 CONFIG_LOOPFILTER_LEVEL)
+    endif  ()
+    if (NOT CONFIG_EXT_DELTA_Q)
+      change_config_and_warn(CONFIG_EXT_DELTA_Q 1 CONFIG_LOOPFILTER_LEVEL)
+    endif  ()
+  endif ()
 endmacro ()
 
 endif ()  # AOM_BUILD_CMAKE_AOM_EXPERIMENT_DEPS_CMAKE_
