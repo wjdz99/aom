@@ -585,6 +585,8 @@ post_process_cmdline() {
     enabled ext_skip && enable_feature frame_marker
     enabled horzonly_frame_superres && enable_feature frame_superres
     enabled ext_warped_motion && enable_feature warped_motion
+    enabled loopfilter_level && soft_enable var_tx
+    enabled loopfilter_level && soft_enable parallel_deblocking
 
     if enabled rawbits && enabled ans; then
       log_echo "rawbits requires not ans, so disabling rawbits"
