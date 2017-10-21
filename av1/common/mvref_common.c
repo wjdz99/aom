@@ -21,11 +21,11 @@
 void av1_copy_frame_mvs(const AV1_COMMON *const cm, MODE_INFO *mi, int mi_row,
                         int mi_col, int x_mis, int y_mis) {
 #if CONFIG_TMV || CONFIG_MFMV
-  const int frame_mvs_stride = ROUND_POWER_OF_TWO(cm->mi_cols, 1);
+  const int frame_mvs_stride = ROUND_POWER_OF_TWO(cm->mi_cols, 2);
   MV_REF *frame_mvs =
-      cm->cur_frame->mvs + (mi_row >> 1) * frame_mvs_stride + (mi_col >> 1);
-  x_mis = ROUND_POWER_OF_TWO(x_mis, 1);
-  y_mis = ROUND_POWER_OF_TWO(y_mis, 1);
+      cm->cur_frame->mvs + (mi_row >> 2) * frame_mvs_stride + (mi_col >> 2);
+  x_mis = AOMMAX(ROUND_POWER_OF_TWO(x_mis, 2), 1);
+  y_mis = AOMMAX(ROUND_POWER_OF_TWO(y_mis, 2), 1);
 #else
   const int frame_mvs_stride = cm->mi_cols;
   MV_REF *frame_mvs = cm->cur_frame->mvs +
@@ -968,8 +968,8 @@ static void find_mv_refs_idx(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   int inside = is_inside(&xd->tile, tmi_col, tmi_row, cm->mi_rows, cm, &mi_pos);
   const MV_REF *const prev_frame_mvs =
       cm->use_prev_frame_mvs && inside
-          ? cm->prev_frame->mvs + (tmi_row >> 1) * ((cm->mi_cols + 1) >> 1) +
-                (tmi_col >> 1)
+          ? cm->prev_frame->mvs + (tmi_row >> 2) * ((cm->mi_cols + 2) >> 2) +
+                (tmi_col >> 2)
           : NULL;
 #else
 #if CONFIG_MV_COMPRESS
@@ -1503,8 +1503,10 @@ static void get_mv_projection(MV *output, MV ref, int num, int den) {
 #define MAX_OFFSET_WIDTH 64
 #define MAX_OFFSET_HEIGHT 32
 
-static int get_block_position(AV1_COMMON *cm, int *mi_r, int *mi_c, int blk_row,
-                              int blk_col, MV mv, int sign_bias) {
+static int get_block_position(AV1_COMMON *cm, int *mi_r, int *mi_c, int ref_row,
+                              int ref_col, MV mv, int sign_bias) {
+  const int blk_row = ref_row * 2;
+  const int blk_col = ref_col * 2;
   const int base_blk_row = (blk_row >> 3) << 3;
   const int base_blk_col = (blk_col >> 3) << 3;
 
@@ -1620,8 +1622,8 @@ static void motion_field_projection(AV1_COMMON *cm,
         bwd_offset, alt2_offset, 0,
     };
   // clang-format on
-  const int mvs_rows = (cm->mi_rows + 1) >> 1;
-  const int mvs_cols = (cm->mi_cols + 1) >> 1;
+  const int mvs_rows = (cm->mi_rows + 2) >> 2;
+  const int mvs_cols = (cm->mi_cols + 2) >> 2;
 
   for (int blk_row = 0; blk_row < mvs_rows; ++blk_row) {
     for (int blk_col = 0; blk_col < mvs_cols; ++blk_col) {
@@ -1791,8 +1793,8 @@ void av1_setup_motion_field(AV1_COMMON *cm) {
     };
     // clang-format on
 
-    const int mvs_rows = (cm->mi_rows + 1) >> 1;
-    const int mvs_cols = (cm->mi_cols + 1) >> 1;
+    const int mvs_rows = (cm->mi_rows + 2) >> 2;
+    const int mvs_cols = (cm->mi_cols + 2) >> 2;
 
     for (int blk_row = 0; blk_row < mvs_rows && !is_lst_overlay; ++blk_row) {
       for (int blk_col = 0; blk_col < mvs_cols; ++blk_col) {
