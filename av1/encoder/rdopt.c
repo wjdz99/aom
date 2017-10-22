@@ -4827,8 +4827,9 @@ static void select_tx_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
   int idx, idy;
   int prune = 0;
 #if CONFIG_EXT_TX
+  const TX_SIZE max_tx_size_set = max_txsize_rect_lookup[bsize];
   const TxSetType tx_set_type = get_ext_tx_set_type(
-      max_tx_size, bsize, is_inter, cm->reduced_tx_set_used);
+      max_tx_size_set, bsize, is_inter, cm->reduced_tx_set_used);
 #endif  // CONFIG_EXT_TX
   int within_border = (mi_row + mi_size_high[bsize] <= cm->mi_rows) &&
                       (mi_col + mi_size_wide[bsize] <= cm->mi_cols);
