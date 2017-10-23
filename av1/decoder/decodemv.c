@@ -898,7 +898,7 @@ static void read_filter_intra_mode_info(AV1_COMMON *const cm,
             ->filter_intra[0][filter_intra_mode_info->use_filter_intra_mode[0]];
     }
   }
-
+/*
 #if CONFIG_CB4X4
   if (!is_chroma_reference(mi_row, mi_col, mbmi->sb_type,
                            xd->plane[1].subsampling_x,
@@ -922,7 +922,7 @@ static void read_filter_intra_mode_info(AV1_COMMON *const cm,
       ++counts
             ->filter_intra[1][filter_intra_mode_info->use_filter_intra_mode[1]];
     }
-  }
+  }*/
 }
 #endif  // CONFIG_FILTER_INTRA
 

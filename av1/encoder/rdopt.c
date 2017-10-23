@@ -6340,10 +6340,12 @@ static int64_t rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
                                       MAX_ANGLE_DELTA + mbmi->angle_delta[1]);
     }
 #endif  // CONFIG_EXT_INTRA
+/*
 #if CONFIG_FILTER_INTRA
     if (mbmi->sb_type >= BLOCK_8X8 && mode == UV_DC_PRED)
       this_rate += av1_cost_bit(cpi->common.fc->filter_intra_probs[1], 0);
 #endif  // CONFIG_FILTER_INTRA
+*/
     if (try_palette && mode == UV_DC_PRED)
       this_rate += av1_cost_bit(
           av1_default_palette_uv_mode_prob[pmi->palette_size[0] > 0], 0);
@@ -6371,6 +6373,7 @@ static int64_t rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
                                rate, rate_tokenonly, distortion, skippable);
   }
 
+/*
 #if CONFIG_FILTER_INTRA
   if (mbmi->sb_type >= BLOCK_8X8) {
     if (rd_pick_filter_intra_sbuv(cpi, x, rate, rate_tokenonly, distortion,
@@ -6378,6 +6381,7 @@ static int64_t rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
       best_mbmi = *mbmi;
   }
 #endif  // CONFIG_FILTER_INTRA
+*/
 
   *mbmi = best_mbmi;
   // Make sure we actually chose a mode
@@ -10306,13 +10310,13 @@ static void pick_filter_intra_interframe(
   }
 #endif  // CONFIG_EXT_INTRA
 */
-  if (mbmi->uv_mode == UV_DC_PRED) {
+/*  if (mbmi->uv_mode == UV_DC_PRED) {
     rate2 +=
         av1_cost_bit(cpi->common.fc->filter_intra_probs[1],
                      mbmi->filter_intra_mode_info.use_filter_intra_mode[1]);
     if (mbmi->filter_intra_mode_info.use_filter_intra_mode[1])
       rate2 += x->filter_intra_mode_cost[1][mbmi->filter_intra_mode_info.filter_intra_mode[1]];
-  }
+  }*/
   distortion2 = distortion_y + distortion_uv;
   av1_encode_intra_block_plane((AV1_COMMON *)cm, x, bsize, 0, 0, mi_row,
                                mi_col);
@@ -11139,7 +11143,7 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
               FILTER_INTRA_MODES,
               mbmi->filter_intra_mode_info.filter_intra_mode[0]);
         }
-      }
+      }/*
       if (mbmi->sb_type >= BLOCK_8X8 && mbmi->uv_mode == UV_DC_PRED) {
         rate2 +=
             av1_cost_bit(cm->fc->filter_intra_probs[1],
@@ -11148,7 +11152,7 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
           rate2 +=
               x->filter_intra_mode_cost[1][mbmi->filter_intra_mode_info.filter_intra_mode[1]];
         }
-      }
+      }*/
 #endif  // CONFIG_FILTER_INTRA
       if (mbmi->mode != DC_PRED && mbmi->mode != PAETH_PRED)
         rate2 += intra_cost_penalty;

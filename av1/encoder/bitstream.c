@@ -1230,7 +1230,8 @@ static void write_filter_intra_mode_info(const AV1_COMMON *const cm,
     }
   }
 
-#if CONFIG_CB4X4
+  assert(mbmi->filter_intra_mode_info.use_filter_intra_mode[1] == 0);
+/*#if CONFIG_CB4X4
   if (!is_chroma_reference(mi_row, mi_col, mbmi->sb_type,
                            xd->plane[1].subsampling_x,
                            xd->plane[1].subsampling_y))
@@ -1251,7 +1252,7 @@ static void write_filter_intra_mode_info(const AV1_COMMON *const cm,
       aom_write_symbol(w, mode, xd->tile_ctx->filter_intra_mode_cdf[1],
                        FILTER_INTRA_MODES);
     }
-  }
+  }*/
 }
 #endif  // CONFIG_FILTER_INTRA
 
