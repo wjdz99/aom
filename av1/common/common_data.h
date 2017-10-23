@@ -28,10 +28,8 @@ extern "C" {
 
 // Log 2 conversion lookup tables for block width and height
 static const uint8_t b_width_log2_lookup[BLOCK_SIZES_ALL] = {
-#if CONFIG_CHROMA_SUB8X8
   0, 0,
   0,
-#endif
   0, 0,
   1, 1,
   1, 2,
@@ -44,10 +42,8 @@ static const uint8_t b_width_log2_lookup[BLOCK_SIZES_ALL] = {
   4, IF_EXT_PARTITION(3, 5)
 };
 static const uint8_t b_height_log2_lookup[BLOCK_SIZES_ALL] = {
-#if CONFIG_CHROMA_SUB8X8
   0, 0,
   0,
-#endif
   0, 1,
   0, 1,
   2, 1,
@@ -61,10 +57,8 @@ static const uint8_t b_height_log2_lookup[BLOCK_SIZES_ALL] = {
 };
 // Log 2 conversion lookup tables for modeinfo width and height
 static const uint8_t mi_width_log2_lookup[BLOCK_SIZES_ALL] = {
-#if CONFIG_CHROMA_SUB8X8
   0, 0,
   0,
-#endif
   0, 0,
   1, 1,
   1, 2,
@@ -77,10 +71,8 @@ static const uint8_t mi_width_log2_lookup[BLOCK_SIZES_ALL] = {
   4, IF_EXT_PARTITION(3, 5)
 };
 static const uint8_t mi_height_log2_lookup[BLOCK_SIZES_ALL] = {
-#if CONFIG_CHROMA_SUB8X8
   0, 0,
   0,
-#endif
   0, 1,
   0, 1,
   2, 1,
@@ -95,27 +87,19 @@ static const uint8_t mi_height_log2_lookup[BLOCK_SIZES_ALL] = {
 
 /* clang-format off */
 static const uint8_t mi_size_wide[BLOCK_SIZES_ALL] = {
-#if CONFIG_CHROMA_SUB8X8
-  1, 1, 1,
-#endif
-  1, 1, 2, 2, 2, 4, 4, 4, 8, 8, 8, 16, 16,
+  1, 1, 1, 1, 1, 2, 2, 2, 4, 4, 4, 8, 8, 8, 16, 16,
   IF_EXT_PARTITION(16, 32, 32)  1, 4, 2, 8, 4, 16, IF_EXT_PARTITION(8, 32)
 };
 static const uint8_t mi_size_high[BLOCK_SIZES_ALL] = {
-#if CONFIG_CHROMA_SUB8X8
-  1, 1, 1,
-#endif
-  1, 2, 1, 2, 4, 2, 4, 8, 4, 8, 16, 8, 16,
+  1, 1, 1, 1, 2, 1, 2, 4, 2, 4, 8, 4, 8, 16, 8, 16,
   IF_EXT_PARTITION(32, 16, 32)  4, 1, 8, 2, 16, 4, IF_EXT_PARTITION(32, 8)
 };
 /* clang-format on */
 
 // Width/height lookup tables in units of various block sizes
 static const uint8_t block_size_wide[BLOCK_SIZES_ALL] = {
-#if CONFIG_CHROMA_SUB8X8
   2,  2,
   4,
-#endif
   4,  4,
   8,  8,
   8,  16,
@@ -129,10 +113,8 @@ static const uint8_t block_size_wide[BLOCK_SIZES_ALL] = {
 };
 
 static const uint8_t block_size_high[BLOCK_SIZES_ALL] = {
-#if CONFIG_CHROMA_SUB8X8
   2,  4,
   2,
-#endif
   4,  8,
   4,  8,
   16, 8,
@@ -146,10 +128,8 @@ static const uint8_t block_size_high[BLOCK_SIZES_ALL] = {
 };
 
 static const uint8_t num_4x4_blocks_wide_lookup[BLOCK_SIZES_ALL] = {
-#if CONFIG_CHROMA_SUB8X8
   1,  1,
   1,
-#endif
   1,  1,
   2,  2,
   2,  4,
@@ -162,10 +142,8 @@ static const uint8_t num_4x4_blocks_wide_lookup[BLOCK_SIZES_ALL] = {
   16, IF_EXT_PARTITION(8, 32)
 };
 static const uint8_t num_4x4_blocks_high_lookup[BLOCK_SIZES_ALL] = {
-#if CONFIG_CHROMA_SUB8X8
   1,  1,
   1,
-#endif
   1,  2,
   1,  2,
   4,  2,
@@ -178,10 +156,8 @@ static const uint8_t num_4x4_blocks_high_lookup[BLOCK_SIZES_ALL] = {
   4,  IF_EXT_PARTITION(32, 8)
 };
 static const uint8_t num_8x8_blocks_wide_lookup[BLOCK_SIZES_ALL] = {
-#if CONFIG_CHROMA_SUB8X8
   1, 1,
   1,
-#endif
   1, 1,
   1, 1,
   1, 2,
@@ -194,10 +170,8 @@ static const uint8_t num_8x8_blocks_wide_lookup[BLOCK_SIZES_ALL] = {
   8, IF_EXT_PARTITION(4, 16)
 };
 static const uint8_t num_8x8_blocks_high_lookup[BLOCK_SIZES_ALL] = {
-#if CONFIG_CHROMA_SUB8X8
   1, 1,
   1,
-#endif
   1, 1,
   1, 1,
   2, 1,
@@ -210,10 +184,8 @@ static const uint8_t num_8x8_blocks_high_lookup[BLOCK_SIZES_ALL] = {
   2, IF_EXT_PARTITION(16, 4)
 };
 static const uint8_t num_16x16_blocks_wide_lookup[BLOCK_SIZES_ALL] = {
-#if CONFIG_CHROMA_SUB8X8
   1, 1,
   1,
-#endif
   1, 1,
   1, 1,
   1, 1,
@@ -226,10 +198,8 @@ static const uint8_t num_16x16_blocks_wide_lookup[BLOCK_SIZES_ALL] = {
   4, IF_EXT_PARTITION(2, 8)
 };
 static const uint8_t num_16x16_blocks_high_lookup[BLOCK_SIZES_ALL] = {
-#if CONFIG_CHROMA_SUB8X8
   1, 1,
   1,
-#endif
   1, 1,
   1, 1,
   1, 1,
@@ -244,10 +214,8 @@ static const uint8_t num_16x16_blocks_high_lookup[BLOCK_SIZES_ALL] = {
 
 // AOMMIN(3, AOMMIN(b_width_log2(bsize), b_height_log2(bsize)))
 static const uint8_t size_group_lookup[BLOCK_SIZES_ALL] = {
-#if CONFIG_CHROMA_SUB8X8
   0, 0,
   0,
-#endif
   0, 0,
   0, 1,
   1, 1,
@@ -261,10 +229,8 @@ static const uint8_t size_group_lookup[BLOCK_SIZES_ALL] = {
 };
 
 static const uint8_t num_pels_log2_lookup[BLOCK_SIZES_ALL] = {
-#if CONFIG_CHROMA_SUB8X8
   2,  3,
   3,
-#endif
   4,  5,
   5,  6,
   7,  7,
@@ -285,10 +251,8 @@ static const BLOCK_SIZE subsize_lookup[PARTITION_TYPES][BLOCK_SIZES_ALL] =
 #endif  // CONFIG_EXT_PARTITION_TYPES
 {
   {     // PARTITION_NONE
-#if CONFIG_CHROMA_SUB8X8
     // 2X2,        2X4,           4X2,
     BLOCK_2X2,     BLOCK_2X4,     BLOCK_4X2,
-#endif
     //                            4X4
                                   BLOCK_4X4,
     // 4X8,        8X4,           8X8
@@ -312,15 +276,10 @@ static const BLOCK_SIZE subsize_lookup[PARTITION_TYPES][BLOCK_SIZES_ALL] =
     BLOCK_32X128,  BLOCK_128X32
 #endif  // CONFIG_EXT_PARTITION
   }, {  // PARTITION_HORZ
-#if CONFIG_CHROMA_SUB8X8
     // 2X2,        2X4,           4X2,
     BLOCK_INVALID, BLOCK_INVALID, BLOCK_INVALID,
     //                            4X4
                                   BLOCK_4X2,
-#else
-    //                            4X4
-                                  BLOCK_INVALID,
-#endif
     // 4X8,        8X4,           8X8
     BLOCK_INVALID, BLOCK_INVALID, BLOCK_8X4,
     // 8X16,       16X8,          16X16
@@ -342,15 +301,10 @@ static const BLOCK_SIZE subsize_lookup[PARTITION_TYPES][BLOCK_SIZES_ALL] =
     BLOCK_INVALID, BLOCK_INVALID
 #endif  // CONFIG_EXT_PARTITION
   }, {  // PARTITION_VERT
-#if CONFIG_CHROMA_SUB8X8
     // 2X2,        2X4,           4X2,
     BLOCK_INVALID, BLOCK_INVALID, BLOCK_INVALID,
     //                            4X4
                                   BLOCK_2X4,
-#else
-    //                            4X4
-                                  BLOCK_INVALID,
-#endif
     // 4X8,        8X4,           8X8
     BLOCK_INVALID, BLOCK_INVALID, BLOCK_4X8,
     // 8X16,       16X8,          16X16
@@ -372,10 +326,8 @@ static const BLOCK_SIZE subsize_lookup[PARTITION_TYPES][BLOCK_SIZES_ALL] =
     BLOCK_INVALID, BLOCK_INVALID
 #endif  // CONFIG_EXT_PARTITION
   }, {  // PARTITION_SPLIT
-#if CONFIG_CHROMA_SUB8X8
     // 2X2,        2X4,           4X2,
     BLOCK_INVALID, BLOCK_INVALID, BLOCK_INVALID,
-#endif
     //                            4X4
                                   BLOCK_INVALID,
     // 4X8,        8X4,           8X8
@@ -400,10 +352,8 @@ static const BLOCK_SIZE subsize_lookup[PARTITION_TYPES][BLOCK_SIZES_ALL] =
 #endif  // CONFIG_EXT_PARTITION
 #if CONFIG_EXT_PARTITION_TYPES
   }, {  // PARTITION_HORZ_A
-#if CONFIG_CHROMA_SUB8X8
     // 2X2,        2X4,           4X2,
     BLOCK_INVALID, BLOCK_INVALID, BLOCK_INVALID,
-#endif
     //                            4X4
                                   BLOCK_INVALID,
     // 4X8,        8X4,           8X8
@@ -427,10 +377,8 @@ static const BLOCK_SIZE subsize_lookup[PARTITION_TYPES][BLOCK_SIZES_ALL] =
     BLOCK_INVALID, BLOCK_INVALID
 #endif  // CONFIG_EXT_PARTITION
   }, {  // PARTITION_HORZ_B
-#if CONFIG_CHROMA_SUB8X8
     // 2X2,        2X4,           4X2,
     BLOCK_INVALID, BLOCK_INVALID, BLOCK_INVALID,
-#endif
     //                            4X4
                                   BLOCK_INVALID,
     // 4X8,        8X4,           8X8
@@ -454,10 +402,8 @@ static const BLOCK_SIZE subsize_lookup[PARTITION_TYPES][BLOCK_SIZES_ALL] =
     BLOCK_INVALID, BLOCK_INVALID
 #endif  // CONFIG_EXT_PARTITION
   }, {  // PARTITION_VERT_A
-#if CONFIG_CHROMA_SUB8X8
     // 2X2,        2X4,           4X2,
     BLOCK_INVALID, BLOCK_INVALID, BLOCK_INVALID,
-#endif
     //                            4X4
                                   BLOCK_INVALID,
     // 4X8,        8X4,           8X8
@@ -481,10 +427,8 @@ static const BLOCK_SIZE subsize_lookup[PARTITION_TYPES][BLOCK_SIZES_ALL] =
     BLOCK_INVALID, BLOCK_INVALID
 #endif  // CONFIG_EXT_PARTITION
   }, {  // PARTITION_VERT_B
-#if CONFIG_CHROMA_SUB8X8
     // 2X2,        2X4,           4X2,
     BLOCK_INVALID, BLOCK_INVALID, BLOCK_INVALID,
-#endif
     //                            4X4
                                   BLOCK_INVALID,
     // 4X8,        8X4,           8X8
@@ -508,10 +452,8 @@ static const BLOCK_SIZE subsize_lookup[PARTITION_TYPES][BLOCK_SIZES_ALL] =
     BLOCK_INVALID, BLOCK_INVALID
 #endif  // CONFIG_EXT_PARTITION
   }, {  // PARTITION_HORZ_4
-#if CONFIG_CHROMA_SUB8X8
     // 2X2,        2X4,           4X2,
     BLOCK_INVALID, BLOCK_INVALID, BLOCK_INVALID,
-#endif
     //                            4X4
                                   BLOCK_INVALID,
     // 4X8,        8X4,           8X8
@@ -535,10 +477,8 @@ static const BLOCK_SIZE subsize_lookup[PARTITION_TYPES][BLOCK_SIZES_ALL] =
     BLOCK_INVALID, BLOCK_INVALID
 #endif  // CONFIG_EXT_PARTITION
   }, {  // PARTITION_VERT_4
-#if CONFIG_CHROMA_SUB8X8
     // 2X2,        2X4,           4X2,
     BLOCK_INVALID, BLOCK_INVALID, BLOCK_INVALID,
-#endif
     //                            4X4
                                   BLOCK_INVALID,
     // 4X8,        8X4,           8X8
@@ -567,9 +507,7 @@ static const BLOCK_SIZE subsize_lookup[PARTITION_TYPES][BLOCK_SIZES_ALL] =
 
 static const TX_SIZE max_txsize_lookup[BLOCK_SIZES_ALL] = {
   // 2X2,    2X4,      4X2,
-#if   CONFIG_CHROMA_SUB8X8
   TX_4X4,    TX_4X4,   TX_4X4,
-#endif
   //                   4X4
                        TX_4X4,
   // 4X8,    8X4,      8X8
@@ -608,9 +546,7 @@ static const TX_SIZE max_txsize_lookup[BLOCK_SIZES_ALL] = {
 #if CONFIG_RECT_TX && (CONFIG_EXT_TX || CONFIG_VAR_TX)
 static const TX_SIZE max_txsize_rect_lookup[BLOCK_SIZES_ALL] = {
   // 2X2,    2X4,      4X2,
-#if   CONFIG_CHROMA_SUB8X8
   TX_4X4,    TX_4X4,   TX_4X4,
-#endif  // CONFIG_CHROMA_SUB8X8
   //                   4X4
                        TX_4X4,
   // 4X8,    8X4,      8X8
@@ -659,10 +595,8 @@ static const TX_SIZE max_txsize_rect_lookup[BLOCK_SIZES_ALL] = {
 
 #if CONFIG_RECT_TX_EXT
 static const TX_SIZE quarter_txsize_lookup[BLOCK_SIZES_ALL] = {
-#if CONFIG_CHROMA_SUB8X8
   //     2X2,        2X4,        4X2,
   TX_INVALID, TX_INVALID, TX_INVALID,
-#endif
   //                             4x4,
                           TX_INVALID,
   //     4x8,        8x4,        8x8,
@@ -712,10 +646,8 @@ static const TX_TYPE_1D htx_tab[TX_TYPES] = {
 // block which may use a rectangular transform, in which  case it is
 // "(max_txsize_lookup[bsize] + 1) - TX_8X8", invalid for bsize < 8X8
 static const int32_t intra_tx_size_cat_lookup[BLOCK_SIZES_ALL] = {
-#if CONFIG_CHROMA_SUB8X8
   // 2X2,             2X4,                4X2,
   INT32_MIN,          INT32_MIN,          INT32_MIN,
-#endif
   //                                      4X4,
                                           INT32_MIN,
   // 4X8,             8X4,                8X8,
@@ -757,10 +689,8 @@ static const int32_t intra_tx_size_cat_lookup[BLOCK_SIZES_ALL] = {
 #else
 // Same as "max_txsize_lookup[bsize] - TX_8X8", invalid for bsize < 8X8
 static const int32_t intra_tx_size_cat_lookup[BLOCK_SIZES_ALL] = {
-#if CONFIG_CHROMA_SUB8X8
   // 2X2,             2X4,                4X2,
   INT32_MIN,          INT32_MIN,          INT32_MIN,
-#endif
   //                                      4X4
                                           INT32_MIN,
   // 4X8,             8X4,                8X8
@@ -1048,18 +978,12 @@ static const TX_SIZE tx_mode_to_biggest_tx_size[TX_MODES] = {
 static const BLOCK_SIZE ss_size_lookup[BLOCK_SIZES_ALL][2][2] = {
 //  ss_x == 0    ss_x == 0        ss_x == 1      ss_x == 1
 //  ss_y == 0    ss_y == 1        ss_y == 0      ss_y == 1
-#if CONFIG_CHROMA_SUB8X8
   { { BLOCK_2X2, BLOCK_INVALID }, { BLOCK_INVALID, BLOCK_INVALID } },
   { { BLOCK_2X4, BLOCK_INVALID }, { BLOCK_INVALID, BLOCK_INVALID } },
   { { BLOCK_4X2, BLOCK_INVALID }, { BLOCK_INVALID, BLOCK_INVALID } },
   { { BLOCK_4X4, BLOCK_4X2 }, { BLOCK_2X4, BLOCK_2X2 } },
   { { BLOCK_4X8, BLOCK_4X4 }, { BLOCK_INVALID, BLOCK_2X4 } },
   { { BLOCK_8X4, BLOCK_INVALID }, { BLOCK_4X4, BLOCK_4X2 } },
-#else
-  { { BLOCK_4X4, BLOCK_4X4 }, { BLOCK_4X4, BLOCK_4X4 } },
-  { { BLOCK_4X8, BLOCK_4X4 }, { BLOCK_INVALID, BLOCK_4X4 } },
-  { { BLOCK_8X4, BLOCK_INVALID }, { BLOCK_4X4, BLOCK_4X4 } },
-#endif  // CONFIG_CHROMA_SUB8X8
   { { BLOCK_8X8, BLOCK_8X4 }, { BLOCK_4X8, BLOCK_4X4 } },
   { { BLOCK_8X16, BLOCK_8X8 }, { BLOCK_INVALID, BLOCK_4X8 } },
   { { BLOCK_16X8, BLOCK_INVALID }, { BLOCK_8X8, BLOCK_8X4 } },
@@ -1090,7 +1014,6 @@ static const BLOCK_SIZE ss_size_lookup[BLOCK_SIZES_ALL][2][2] = {
 static const TX_SIZE uv_txsize_lookup[BLOCK_SIZES_ALL][TX_SIZES_ALL][2][2] = {
 //  ss_x == 0    ss_x == 0        ss_x == 1      ss_x == 1
 //  ss_y == 0    ss_y == 1        ss_y == 0      ss_y == 1
-#if CONFIG_CHROMA_SUB8X8
   {
       // BLOCK_2x2
       { { TX_4X4, TX_4X4 }, { TX_4X4, TX_4X4 } },
@@ -1163,7 +1086,6 @@ static const TX_SIZE uv_txsize_lookup[BLOCK_SIZES_ALL][TX_SIZES_ALL][2][2] = {
       { { TX_4X4, TX_4X4 }, { TX_4X4, TX_4X4 } },
       { { TX_4X4, TX_4X4 }, { TX_4X4, TX_4X4 } },
   },
-#endif
   {
       // BLOCK_4X4
       { { TX_4X4, TX_4X4 }, { TX_4X4, TX_4X4 } },
@@ -1747,11 +1669,9 @@ static const struct {
   PARTITION_CONTEXT left;
 } partition_context_lookup[BLOCK_SIZES_ALL] = {
 #if CONFIG_EXT_PARTITION
-#if CONFIG_CHROMA_SUB8X8
   { 31, 31 },  // 2X2   - {0b11111, 0b11111}
   { 31, 31 },  // 2X4   - {0b11111, 0b11111}
   { 31, 31 },  // 4X2   - {0b11111, 0b11111}
-#endif
   { 31, 31 },  // 4X4   - {0b11111, 0b11111}
   { 31, 30 },  // 4X8   - {0b11111, 0b11110}
   { 30, 31 },  // 8X4   - {0b11110, 0b11111}
@@ -1778,11 +1698,9 @@ static const struct {
   { 24, 0 },   // 32X128- {0b11000, 0b00000}
   { 0, 24 },   // 128X32- {0b00000, 0b11000}
 #else
-#if CONFIG_CHROMA_SUB8X8
   { 15, 15 },  // 2X2   - {0b1111, 0b1111}
   { 15, 15 },  // 2X4   - {0b1111, 0b1111}
   { 15, 15 },  // 4X2   - {0b1111, 0b1111}
-#endif
   { 15, 15 },  // 4X4   - {0b1111, 0b1111}
   { 15, 14 },  // 4X8   - {0b1111, 0b1110}
   { 14, 15 },  // 8X4   - {0b1110, 0b1111}
@@ -1820,11 +1738,9 @@ static const int intra_mode_context[INTRA_MODES] = {
 #if CONFIG_NCOBMC_ADAPT_WEIGHT
 // NCOBMC_ADAPT_INTRPL only supports block size >= BLOCK_8X8 and <= BLOCK_64X64
 static const ADAPT_OVERLAP_BLOCK adapt_overlap_block_lookup[BLOCK_SIZES_ALL] = {
-#if CONFIG_CHROMA_SUB8X8
   ADAPT_OVERLAP_BLOCK_INVALID,  // BLOCK_2X2
   ADAPT_OVERLAP_BLOCK_INVALID,  // BLOCK_2X4
   ADAPT_OVERLAP_BLOCK_INVALID,  // BLOCK_4X2
-#endif
   ADAPT_OVERLAP_BLOCK_INVALID,  // BLOCK_4X4
   ADAPT_OVERLAP_BLOCK_INVALID,  // BLOCK_4X8
   ADAPT_OVERLAP_BLOCK_INVALID,  // BLOCK_8X4
@@ -1849,9 +1765,7 @@ static const ADAPT_OVERLAP_BLOCK adapt_overlap_block_lookup[BLOCK_SIZES_ALL] = {
 };
 
 static const BLOCK_SIZE bsize_2_sqr_bsize[BLOCK_SIZES] = {
-#if CONFIG_CHROMA_SUB8X8
   BLOCK_2X2,   BLOCK_2X2,   BLOCK_2X2,
-#endif
   BLOCK_4X4,   BLOCK_4X4,   BLOCK_4X4,   BLOCK_8X8,   BLOCK_8X8,
   BLOCK_8X8,   BLOCK_16X16, BLOCK_16X16, BLOCK_16X16, BLOCK_32X32,
   BLOCK_32X32, BLOCK_32X32, BLOCK_64X64,

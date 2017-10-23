@@ -2088,9 +2088,7 @@ static void rd_use_partition(AV1_COMP *cpi, ThreadData *td,
 
 /* clang-format off */
 static const BLOCK_SIZE min_partition_size[BLOCK_SIZES_ALL] = {
-#if CONFIG_CHROMA_SUB8X8
   BLOCK_2X2,   BLOCK_2X2,   BLOCK_2X2,    //    2x2,    2x4,     4x2
-#endif
                             BLOCK_4X4,    //                     4x4
   BLOCK_4X4,   BLOCK_4X4,   BLOCK_4X4,    //    4x8,    8x4,     8x8
   BLOCK_4X4,   BLOCK_4X4,   BLOCK_8X8,    //   8x16,   16x8,   16x16
@@ -2107,9 +2105,7 @@ static const BLOCK_SIZE min_partition_size[BLOCK_SIZES_ALL] = {
 };
 
 static const BLOCK_SIZE max_partition_size[BLOCK_SIZES_ALL] = {
-#if CONFIG_CHROMA_SUB8X8
   BLOCK_4X4,     BLOCK_4X4,       BLOCK_4X4,    //    2x2,    2x4,     4x2
-#endif
                                   BLOCK_8X8,    //                     4x4
   BLOCK_16X16,   BLOCK_16X16,   BLOCK_16X16,    //    4x8,    8x4,     8x8
   BLOCK_32X32,   BLOCK_32X32,   BLOCK_32X32,    //   8x16,   16x8,   16x16
@@ -2127,9 +2123,7 @@ static const BLOCK_SIZE max_partition_size[BLOCK_SIZES_ALL] = {
 
 // Next square block size less or equal than current block size.
 static const BLOCK_SIZE next_square_size[BLOCK_SIZES_ALL] = {
-#if CONFIG_CHROMA_SUB8X8
   BLOCK_2X2,   BLOCK_2X2,     BLOCK_2X2,    //    2x2,    2x4,     4x2
-#endif
                               BLOCK_4X4,    //                     4x4
   BLOCK_4X4,   BLOCK_4X4,     BLOCK_8X8,    //    4x8,    8x4,     8x8
   BLOCK_8X8,   BLOCK_8X8,     BLOCK_16X16,  //   8x16,   16x8,   16x16
@@ -2517,13 +2511,8 @@ static int64_t dist_8x8_yuv(const AV1_COMP *const cpi, MACROBLOCK *const x,
     uint8_t *src_uv = x->plane[plane].src.buf;
     uint8_t *dst_uv = xd->plane[plane].dst.buf;
     unsigned sse;
-#if CONFIG_CHROMA_SUB8X8
     const BLOCK_SIZE plane_bsize =
         AOMMAX(BLOCK_4X4, get_plane_block_size(BLOCK_8X8, &xd->plane[plane]));
-#else
-    const BLOCK_SIZE plane_bsize =
-        get_plane_block_size(BLOCK_8X8, &xd->plane[plane]);
-#endif
     cpi->fn_ptr[plane_bsize].vf(src_uv, src_stride_uv, dst_uv, dst_stride_uv,
                                 &sse);
     dist_8x8_uv += (int64_t)sse << 4;
@@ -2826,11 +2815,11 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
 
     restore_context(x, &x_ctx, mi_row, mi_col, bsize);
 
-#if CONFIG_CFL && CONFIG_CHROMA_SUB8X8 && CONFIG_DEBUG
+#if CONFIG_CFL && CONFIG_DEBUG
     if (!x->skip_chroma_rd) {
       cfl_clear_sub8x8_val(xd->cfl);
     }
-#endif  // CONFIG_CFL && CONFIG_CHROMA_SUB8X8 && CONFIG_DEBUG
+#endif  // CONFIG_CFL && CONFIG_DEBUG
   }
 
   // store estimated motion vector
@@ -2882,10 +2871,10 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
     }
 #endif  // CONFIG_DIST_8X8
 
-#if CONFIG_CFL && CONFIG_CHROMA_SUB8X8 && CONFIG_DEBUG
+#if CONFIG_CFL && CONFIG_DEBUG
     if (!reached_last_index && sum_rdc.rdcost >= best_rdc.rdcost)
       cfl_clear_sub8x8_val(xd->cfl);
-#endif  // CONFIG_CFL && CONFIG_CHROMA_SUB8X8 && CONFIG_DEBUG
+#endif  // CONFIG_CFL && CONFIG_DEBUG
 
     if (reached_last_index && sum_rdc.rdcost < best_rdc.rdcost) {
       sum_rdc.rate += partition_cost[PARTITION_SPLIT];
@@ -2970,9 +2959,9 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
 #endif  // CONFIG_DIST_8X8
     }
 
-#if CONFIG_CFL && CONFIG_CHROMA_SUB8X8 && CONFIG_DEBUG
+#if CONFIG_CFL && CONFIG_DEBUG
     cfl_clear_sub8x8_val(xd->cfl);
-#endif  // CONFIG_CFL && CONFIG_CHROMA_SUB8X8 && CONFIG_DEBUG
+#endif  // CONFIG_CFL && CONFIG_DEBUG
     if (sum_rdc.rdcost < best_rdc.rdcost) {
       sum_rdc.rate += partition_cost[PARTITION_HORZ];
       sum_rdc.rdcost = RDCOST(x->rdmult, sum_rdc.rate, sum_rdc.dist);
@@ -3050,9 +3039,9 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
 #endif  // CONFIG_DIST_8X8
     }
 
-#if CONFIG_CFL && CONFIG_CHROMA_SUB8X8 && CONFIG_DEBUG
+#if CONFIG_CFL && CONFIG_DEBUG
     cfl_clear_sub8x8_val(xd->cfl);
-#endif  // CONFIG_CFL && CONFIG_CHROMA_SUB8X8 && CONFIG_DEBUG
+#endif  // CONFIG_CFL && CONFIG_DEBUG
 
     if (sum_rdc.rdcost < best_rdc.rdcost) {
       sum_rdc.rate += partition_cost[PARTITION_VERT];
@@ -4797,13 +4786,13 @@ static void encode_superblock(const AV1_COMP *const cpi, ThreadData *td,
     }
 #if CONFIG_CFL
     xd->cfl->store_y = 0;
-#if CONFIG_CHROMA_SUB8X8 && CONFIG_DEBUG
+#if CONFIG_DEBUG
     if (is_chroma_reference(mi_row, mi_col, bsize, xd->cfl->subsampling_x,
                             xd->cfl->subsampling_y) &&
         !xd->cfl->are_parameters_computed) {
       cfl_clear_sub8x8_val(xd->cfl);
     }
-#endif  // CONFIG_CHROMA_SUB8X8 && CONFIG_DEBUG
+#endif  // CONFIG_DEBUG
 #endif  // CONFIG_CFL
     if (!dry_run) {
       sum_intra_stats(td->counts, xd, mi, xd->above_mi, xd->left_mi,
@@ -5020,7 +5009,7 @@ static void encode_superblock(const AV1_COMP *const cpi, ThreadData *td,
     set_txfm_ctxs(tx_size, xd->n8_w, xd->n8_h, (mbmi->skip || seg_skip), xd);
   }
 #endif  // CONFIG_VAR_TX
-#if CONFIG_CFL && CONFIG_CHROMA_SUB8X8
+#if CONFIG_CFL
   CFL_CTX *const cfl = xd->cfl;
 #if CONFIG_DEBUG
   if (is_chroma_reference(mi_row, mi_col, bsize, cfl->subsampling_x,
@@ -5034,5 +5023,5 @@ static void encode_superblock(const AV1_COMP *const cpi, ThreadData *td,
                            cfl->subsampling_y)) {
     cfl_store_block(xd, mbmi->sb_type, mbmi->tx_size);
   }
-#endif  // CONFIG_CFL && CONFIG_CHROMA_SUB8X8
+#endif  // CONFIG_CFL
 }
