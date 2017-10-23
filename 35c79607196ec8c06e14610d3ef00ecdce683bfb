@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "32dfe4e2_535e409f",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-10-23T09:13:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3ed4fe5b_74e444bc",
+      "revId": "35c79607196ec8c06e14610d3ef00ecdce683bfb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "28de75d4_63e26258",
         "filename": "av1/decoder/detokenize.c",
         "patchSetId": 5
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "1c6871db_c7869de0",
+        "filename": "av1/decoder/detokenize.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-10-23T09:13:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "28de75d4_63e26258",
+      "revId": "35c79607196ec8c06e14610d3ef00ecdce683bfb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3b9f2b1d_e88e248c",
         "filename": "av1/encoder/bitstream.c",
         "patchSetId": 5
@@ -47,6 +83,24 @@
       "writtenOn": "2017-10-20T18:20:07Z",
       "side": 1,
       "message": "This comment is no longer accurate.",
+      "revId": "35c79607196ec8c06e14610d3ef00ecdce683bfb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cc56e12d_98f7f298",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 641,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-10-23T09:13:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3b9f2b1d_e88e248c",
       "revId": "35c79607196ec8c06e14610d3ef00ecdce683bfb",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
