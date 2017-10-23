@@ -2285,9 +2285,20 @@ int av1_tx_type_cost(const AV1_COMMON *cm, const MACROBLOCK *x,
         return x
             ->inter_tx_type_costs[ext_tx_set][txsize_sqr_map[tx_size]][tx_type];
     } else {
-      if (ext_tx_set > 0 && ALLOW_INTRA_EXT_TX)
+      if (ext_tx_set > 0 && ALLOW_INTRA_EXT_TX) {
+#if CONFIG_FILTER_INTRA
+        PREDICTION_MODE intra_dir;
+        if (mbmi->filter_intra_mode_info.use_filter_intra_mode[0])
+          intra_dir = fimode_to_intradir[mbmi->filter_intra_mode_info.filter_intra_mode[0]];
+        else
+          intra_dir = mbmi->mode;
+        return x->intra_tx_type_costs[ext_tx_set][txsize_sqr_map[tx_size]]
+                                     [intra_dir][tx_type];
+#else
         return x->intra_tx_type_costs[ext_tx_set][txsize_sqr_map[tx_size]]
                                      [mbmi->mode][tx_type];
+#endif
+      }
     }
   }
 #else
@@ -5258,10 +5269,22 @@ static int64_t select_tx_size_fix_type(const AV1_COMP *cpi, MACROBLOCK *x,
                                     [txsize_sqr_map[mbmi->min_tx_size]]
                                     [mbmi->tx_type];
       } else {
-        if (ext_tx_set > 0 && ALLOW_INTRA_EXT_TX)
+        if (ext_tx_set > 0 && ALLOW_INTRA_EXT_TX) {
+#if CONFIG_FILTER_INTRA
+          PREDICTION_MODE intra_dir;
+          if (mbmi->filter_intra_mode_info.use_filter_intra_mode[0])
+            intra_dir = fimode_to_intradir[mbmi->filter_intra_mode_info.filter_intra_mode[0]];
+          else
+            intra_dir = mbmi->mode;
+          rd_stats->rate +=
+                        x->intra_tx_type_costs[ext_tx_set][mbmi->min_tx_size][intra_dir]
+                                              [mbmi->tx_type];
+#else
           rd_stats->rate +=
               x->intra_tx_type_costs[ext_tx_set][mbmi->min_tx_size][mbmi->mode]
                                     [mbmi->tx_type];
+#endif
+        }
       }
     }
 #if CONFIG_LGT_FROM_PRED
