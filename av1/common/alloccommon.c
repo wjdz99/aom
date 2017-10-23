@@ -177,9 +177,14 @@ void av1_alloc_restoration_buffers(AV1_COMMON *cm) {
 }
 
 void av1_free_restoration_buffers(AV1_COMMON *cm) {
-  int p;
-  for (p = 0; p < MAX_MB_PLANE; ++p)
-    av1_free_restoration_struct(&cm->rst_info[p]);
+  for (int p = 0; p < MAX_MB_PLANE; ++p) {
+    RestorationInfo *rsi = &cm->rst_info[p];
+    av1_free_restoration_struct(rsi);
+#if CONFIG_STRIPED_LOOP_RESTORATION
+    aom_free(rsi->boundaries.stripe_boundary_above);
+    aom_free(rsi->boundaries.stripe_boundary_below);
+#endif
+  }
   aom_free(cm->rst_tmpbuf);
   cm->rst_tmpbuf = NULL;
 }
