@@ -2699,9 +2699,13 @@ static const aom_cdf_prob default_filter_intra_mode_cdf[2][CDF_SIZE(10)] = {
 static const aom_prob default_filter_intra_probs[2] = {
  103, 231 };
 
-static const aom_cdf_prob default_filter_intra_mode_cdf[2][CDF_SIZE(10)] = {
+static const aom_cdf_prob default_filter_intra_mode_cdf[2][CDF_SIZE(FILTER_INTRA_MODES)] = {
+    /*
   { AOM_ICDF(25489), AOM_ICDF(27925), AOM_ICDF(30426), AOM_ICDF(30431), AOM_ICDF(30511), AOM_ICDF(30942), AOM_ICDF(31730), AOM_ICDF(31756), AOM_ICDF(31766), AOM_ICDF(32768), 0 },
   { AOM_ICDF(31429), AOM_ICDF(31591), AOM_ICDF(31745), AOM_ICDF(31765), AOM_ICDF(31888), AOM_ICDF(32207), AOM_ICDF(32604), AOM_ICDF(32646), AOM_ICDF(32690), AOM_ICDF(32768), 0 }
+  */
+  { AOM_ICDF(24348), AOM_ICDF(27690), AOM_ICDF(30315), AOM_ICDF(30864), AOM_ICDF(31701), AOM_ICDF(32768), 0 },
+  { AOM_ICDF(31977), AOM_ICDF(32117), AOM_ICDF(32300), AOM_ICDF(32484), AOM_ICDF(32719), AOM_ICDF(32768), 0 }
 };
 #endif  // CONFIG_FILTER_INTRA
 

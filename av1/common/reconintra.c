@@ -1291,48 +1291,48 @@ static int filter_intra_taps_3[TX_SIZES_ALL][FILTER_INTRA_MODES][3] = {
       { 697, 836, -509 },
       { 993, 513, -482 },
       { 381, 984, -341 },
-      { 642, 1169, -787 },
-      { 590, 553, -119 },
+      //{ 642, 1169, -787 },
+      //{ 590, 553, -119 },
       { 762, 385, -123 },
       { 358, 687, -21 },
-      { 411, 1083, -470 },
-      { 912, 814, -702 },
+      //{ 411, 1083, -470 },
+      //{ 912, 814, -702 },
       { 883, 902, -761 },
   },
   {
       { 659, 816, -451 },
       { 980, 625, -581 },
       { 558, 962, -496 },
-      { 681, 888, -545 },
-      { 591, 613, -180 },
+      //{ 681, 888, -545 },
+      //{ 591, 613, -180 },
       { 778, 399, -153 },
       { 495, 641, -112 },
-      { 671, 937, -584 },
-      { 745, 940, -661 },
+      //{ 671, 937, -584 },
+      //{ 745, 940, -661 },
       { 839, 911, -726 },
   },
   {
       { 539, 927, -442 },
       { 1003, 714, -693 },
       { 349, 1271, -596 },
-      { 820, 764, -560 },
-      { 524, 816, -316 },
+      //{ 820, 764, -560 },
+      //{ 524, 816, -316 },
       { 780, 681, -437 },
       { 586, 795, -357 },
-      { 551, 1135, -662 },
-      { 593, 1061, -630 },
+      //{ 551, 1135, -662 },
+      //{ 593, 1061, -630 },
       { 974, 970, -920 },
   },
   {
       { 595, 919, -490 },
       { 945, 668, -589 },
       { 495, 962, -433 },
-      { 385, 1551, -912 },
-      { 455, 554, 15 },
+      //{ 385, 1551, -912 },
+      //{ 455, 554, 15 },
       { 852, 478, -306 },
       { 177, 760, 87 },
-      { -65, 1611, -522 },
-      { 815, 894, -685 },
+      //{ -65, 1611, -522 },
+      //{ 815, 894, -685 },
       { 846, 1010, -832 },
   },
 #if CONFIG_TX64X64
@@ -1353,120 +1353,120 @@ static int filter_intra_taps_3[TX_SIZES_ALL][FILTER_INTRA_MODES][3] = {
       { 697, 836, -509 },
       { 993, 513, -482 },
       { 381, 984, -341 },
-      { 642, 1169, -787 },
-      { 590, 553, -119 },
+      //{ 642, 1169, -787 },
+      //{ 590, 553, -119 },
       { 762, 385, -123 },
       { 358, 687, -21 },
-      { 411, 1083, -470 },
-      { 912, 814, -702 },
+      //{ 411, 1083, -470 },
+      //{ 912, 814, -702 },
       { 883, 902, -761 },
   },
   {
       { 697, 836, -509 },
       { 993, 513, -482 },
       { 381, 984, -341 },
-      { 642, 1169, -787 },
-      { 590, 553, -119 },
+      //{ 642, 1169, -787 },
+      //{ 590, 553, -119 },
       { 762, 385, -123 },
       { 358, 687, -21 },
-      { 411, 1083, -470 },
-      { 912, 814, -702 },
+      //{ 411, 1083, -470 },
+      //{ 912, 814, -702 },
       { 883, 902, -761 },
   },
   {
       { 659, 816, -451 },
       { 980, 625, -581 },
       { 558, 962, -496 },
-      { 681, 888, -545 },
-      { 591, 613, 180 },
+      //{ 681, 888, -545 },
+      //{ 591, 613, -180 },
       { 778, 399, -153 },
       { 495, 641, -112 },
-      { 671, 937, -584 },
-      { 745, 940, -661 },
+      //{ 671, 937, -584 },
+      //{ 745, 940, -661 },
       { 839, 911, -726 },
   },
   {
       { 659, 816, -451 },
       { 980, 625, -581 },
       { 558, 962, -496 },
-      { 681, 888, -545 },
-      { 591, 613, 180 },
+      //{ 681, 888, -545 },
+      //{ 591, 613, -180 },
       { 778, 399, -153 },
       { 495, 641, -112 },
-      { 671, 937, -584 },
-      { 745, 940, -661 },
+      //{ 671, 937, -584 },
+      //{ 745, 940, -661 },
       { 839, 911, -726 },
   },
   {
       { 539, 927, -442 },
       { 1003, 714, -693 },
       { 349, 1271, -596 },
-      { 820, 764, -560 },
-      { 524, 816, -316 },
+      //{ 820, 764, -560 },
+      //{ 524, 816, -316 },
       { 780, 681, -437 },
       { 586, 795, -357 },
-      { 551, 1135, -663 },
-      { 593, 1061, -630 },
+      //{ 551, 1135, -662 },
+      //{ 593, 1061, -630 },
       { 974, 970, -920 },
   },
   {
       { 539, 927, -442 },
       { 1003, 714, -693 },
       { 349, 1271, -596 },
-      { 820, 764, -560 },
-      { 524, 816, -316 },
+      //{ 820, 764, -560 },
+      //{ 524, 816, -316 },
       { 780, 681, -437 },
       { 586, 795, -357 },
-      { 551, 1135, -663 },
-      { 593, 1061, -630 },
+      //{ 551, 1135, -662 },
+      //{ 593, 1061, -630 },
       { 974, 970, -920 },
   },
   {
       { 697, 836, -509 },
       { 993, 513, -482 },
       { 381, 984, -341 },
-      { 642, 1169, -787 },
-      { 590, 553, -119 },
+      //{ 642, 1169, -787 },
+      //{ 590, 553, -119 },
       { 762, 385, -123 },
       { 358, 687, -21 },
-      { 411, 1083, -470 },
-      { 912, 814, -702 },
+      //{ 411, 1083, -470 },
+      //{ 912, 814, -702 },
       { 883, 902, -761 },
   },
   {
       { 697, 836, -509 },
       { 993, 513, -482 },
       { 381, 984, -341 },
-      { 642, 1169, -787 },
-      { 590, 553, -119 },
+      //{ 642, 1169, -787 },
+      //{ 590, 553, -119 },
       { 762, 385, -123 },
       { 358, 687, -21 },
-      { 411, 1083, -470 },
-      { 912, 814, -702 },
+      //{ 411, 1083, -470 },
+      //{ 912, 814, -702 },
       { 883, 902, -761 },
   },
   {
       { 659, 816, -451 },
       { 980, 625, -581 },
       { 558, 962, -496 },
-      { 681, 888, -545 },
-      { 591, 613, 180 },
+      //{ 681, 888, -545 },
+      //{ 591, 613, -180 },
       { 778, 399, -153 },
       { 495, 641, -112 },
-      { 671, 937, -584 },
-      { 745, 940, -661 },
+      //{ 671, 937, -584 },
+      //{ 745, 940, -661 },
       { 839, 911, -726 },
   },
   {
       { 659, 816, -451 },
       { 980, 625, -581 },
       { 558, 962, -496 },
-      { 681, 888, -545 },
-      { 591, 613, 180 },
+      //{ 681, 888, -545 },
+      //{ 591, 613, -180 },
       { 778, 399, -153 },
       { 495, 641, -112 },
-      { 671, 937, -584 },
-      { 745, 940, -661 },
+      //{ 671, 937, -584 },
+      //{ 745, 940, -661 },
       { 839, 911, -726 },
   }
 };
@@ -1788,7 +1788,7 @@ void av1_h_filter_predictor_c(uint8_t *dst, ptrdiff_t stride, TX_SIZE tx_size,
 #endif
 }
 
-void av1_d45_filter_predictor_c(uint8_t *dst, ptrdiff_t stride, TX_SIZE tx_size,
+/*void av1_d45_filter_predictor_c(uint8_t *dst, ptrdiff_t stride, TX_SIZE tx_size,
                                 const uint8_t *above, const uint8_t *left) {
 #if USE_3TAP_INTRA_FILTER
   filter_intra_predictors_3tap(dst, stride, tx_size, above, left,
@@ -1809,7 +1809,7 @@ void av1_d135_filter_predictor_c(uint8_t *dst, ptrdiff_t stride,
   filter_intra_predictors_4tap(dst, stride, tx_size, above, left,
                                FILTER_D135_PRED);
 #endif
-}
+}*/
 
 void av1_d117_filter_predictor_c(uint8_t *dst, ptrdiff_t stride,
                                  TX_SIZE tx_size, const uint8_t *above,
@@ -1835,7 +1835,7 @@ void av1_d153_filter_predictor_c(uint8_t *dst, ptrdiff_t stride,
 #endif
 }
 
-void av1_d207_filter_predictor_c(uint8_t *dst, ptrdiff_t stride,
+/*void av1_d207_filter_predictor_c(uint8_t *dst, ptrdiff_t stride,
                                  TX_SIZE tx_size, const uint8_t *above,
                                  const uint8_t *left) {
 #if USE_3TAP_INTRA_FILTER
@@ -1856,7 +1856,7 @@ void av1_d63_filter_predictor_c(uint8_t *dst, ptrdiff_t stride, TX_SIZE tx_size,
   filter_intra_predictors_4tap(dst, stride, tx_size, above, left,
                                FILTER_D63_PRED);
 #endif
-}
+}*/
 
 void av1_paeth_filter_predictor_c(uint8_t *dst, ptrdiff_t stride,
                                   TX_SIZE tx_size, const uint8_t *above,
@@ -1883,24 +1883,24 @@ static void filter_intra_predictors(FILTER_INTRA_MODE mode, uint8_t *dst,
     case FILTER_H_PRED:
       av1_h_filter_predictor(dst, stride, tx_size, above, left);
       break;
-    case FILTER_D45_PRED:
+/*    case FILTER_D45_PRED:
       av1_d45_filter_predictor(dst, stride, tx_size, above, left);
       break;
     case FILTER_D135_PRED:
       av1_d135_filter_predictor(dst, stride, tx_size, above, left);
-      break;
+      break;*/
     case FILTER_D117_PRED:
       av1_d117_filter_predictor(dst, stride, tx_size, above, left);
       break;
     case FILTER_D153_PRED:
       av1_d153_filter_predictor(dst, stride, tx_size, above, left);
       break;
-    case FILTER_D207_PRED:
+/*    case FILTER_D207_PRED:
       av1_d207_filter_predictor(dst, stride, tx_size, above, left);
       break;
     case FILTER_D63_PRED:
       av1_d63_filter_predictor(dst, stride, tx_size, above, left);
-      break;
+      break;*/
     case FILTER_PAETH_PRED:
       av1_paeth_filter_predictor(dst, stride, tx_size, above, left);
       break;
@@ -2041,7 +2041,7 @@ void av1_highbd_h_filter_predictor_c(uint16_t *dst, ptrdiff_t stride,
 #endif
 }
 
-void av1_highbd_d45_filter_predictor_c(uint16_t *dst, ptrdiff_t stride,
+/*void av1_highbd_d45_filter_predictor_c(uint16_t *dst, ptrdiff_t stride,
                                        TX_SIZE tx_size, const uint16_t *above,
                                        const uint16_t *left, int bd) {
 #if USE_3TAP_INTRA_FILTER
@@ -2063,7 +2063,7 @@ void av1_highbd_d135_filter_predictor_c(uint16_t *dst, ptrdiff_t stride,
   highbd_filter_intra_predictors_4tap(dst, stride, tx_size, above, left,
                                       FILTER_D135_PRED, bd);
 #endif
-}
+}*/
 
 void av1_highbd_d117_filter_predictor_c(uint16_t *dst, ptrdiff_t stride,
                                         TX_SIZE tx_size, const uint16_t *above,
@@ -2089,7 +2089,7 @@ void av1_highbd_d153_filter_predictor_c(uint16_t *dst, ptrdiff_t stride,
 #endif
 }
 
-void av1_highbd_d207_filter_predictor_c(uint16_t *dst, ptrdiff_t stride,
+/*void av1_highbd_d207_filter_predictor_c(uint16_t *dst, ptrdiff_t stride,
                                         TX_SIZE tx_size, const uint16_t *above,
                                         const uint16_t *left, int bd) {
 #if USE_3TAP_INTRA_FILTER
@@ -2111,7 +2111,7 @@ void av1_highbd_d63_filter_predictor_c(uint16_t *dst, ptrdiff_t stride,
   highbd_filter_intra_predictors_4tap(dst, stride, tx_size, above, left,
                                       FILTER_D63_PRED, bd);
 #endif
-}
+}*/
 
 void av1_highbd_paeth_filter_predictor_c(uint16_t *dst, ptrdiff_t stride,
                                          TX_SIZE tx_size, const uint16_t *above,
@@ -2140,24 +2140,24 @@ static void highbd_filter_intra_predictors(FILTER_INTRA_MODE mode,
     case FILTER_H_PRED:
       av1_highbd_h_filter_predictor(dst, stride, tx_size, above, left, bd);
       break;
-    case FILTER_D45_PRED:
+/*    case FILTER_D45_PRED:
       av1_highbd_d45_filter_predictor(dst, stride, tx_size, above, left, bd);
       break;
     case FILTER_D135_PRED:
       av1_highbd_d135_filter_predictor(dst, stride, tx_size, above, left, bd);
-      break;
+      break;*/
     case FILTER_D117_PRED:
       av1_highbd_d117_filter_predictor(dst, stride, tx_size, above, left, bd);
       break;
     case FILTER_D153_PRED:
       av1_highbd_d153_filter_predictor(dst, stride, tx_size, above, left, bd);
       break;
-    case FILTER_D207_PRED:
+/*    case FILTER_D207_PRED:
       av1_highbd_d207_filter_predictor(dst, stride, tx_size, above, left, bd);
       break;
     case FILTER_D63_PRED:
       av1_highbd_d63_filter_predictor(dst, stride, tx_size, above, left, bd);
-      break;
+      break;*/
     case FILTER_PAETH_PRED:
       av1_highbd_paeth_filter_predictor(dst, stride, tx_size, above, left, bd);
       break;
