@@ -1304,7 +1304,7 @@ static int filter_intra_taps_3[TX_SIZES_ALL][FILTER_INTRA_MODES][3] = {
       { 980, 625, -581 },
       { 558, 962, -496 },
       { 681, 888, -545 },
-      { 591, 613, 180 },
+      { 591, 613, -180 },
       { 778, 399, -153 },
       { 495, 641, -112 },
       { 671, 937, -584 },
@@ -1319,18 +1319,18 @@ static int filter_intra_taps_3[TX_SIZES_ALL][FILTER_INTRA_MODES][3] = {
       { 524, 816, -316 },
       { 780, 681, -437 },
       { 586, 795, -357 },
-      { 551, 1135, -663 },
+      { 551, 1135, -662 },
       { 593, 1061, -630 },
       { 974, 970, -920 },
   },
   {
       { 595, 919, -490 },
-      { 945, 668, -579 },
+      { 945, 668, -589 },
       { 495, 962, -433 },
       { 385, 1551, -912 },
       { 455, 554, 15 },
       { 852, 478, -306 },
-      { 177, 760, -87 },
+      { 177, 760, 87 },
       { -65, 1611, -522 },
       { 815, 894, -685 },
       { 846, 1010, -832 },
@@ -1676,7 +1676,7 @@ static void filter_intra_predictors_3tap(uint8_t *dst, ptrdiff_t stride,
                                          TX_SIZE tx_size, const uint8_t *above,
                                          const uint8_t *left, int mode) {
   int r, c;
-  int mean, ipred;
+  int ipred;
 #if CONFIG_TX64X64
   int buffer[65][65];
 #else
@@ -1688,30 +1688,21 @@ static void filter_intra_predictors_3tap(uint8_t *dst, ptrdiff_t stride,
   const int bw = tx_size_wide[tx_size];
   const int bh = tx_size_high[tx_size];
 
-  mean = 0;
-  for (r = 0; r < bh; ++r) {
-    mean += (int)left[r];
-  }
-  for (c = 0; c < bw; ++c) {
-    mean += (int)above[c];
-  }
-  mean = (mean + ((bw + bh) >> 1)) / (bw + bh);
+  for (r = 0; r < bh; ++r) buffer[r + 1][0] = (int)left[r];
 
-  for (r = 0; r < bh; ++r) buffer[r + 1][0] = (int)left[r] - mean;
-
-  for (c = 0; c < bw + 1; ++c) buffer[0][c] = (int)above[c - 1] - mean;
+  for (c = 0; c < bw + 1; ++c) buffer[0][c] = (int)above[c - 1];
 
   for (r = 1; r < bh + 1; ++r)
     for (c = 1; c < bw + 1; ++c) {
       ipred = c0 * buffer[r - 1][c] + c1 * buffer[r][c - 1] +
               c2 * buffer[r - 1][c - 1];
       buffer[r][c] = ROUND_POWER_OF_TWO_SIGNED(ipred, FILTER_INTRA_PREC_BITS);
-      buffer[r][c] = clip_pixel(buffer[r][c] + mean) - mean;
+      buffer[r][c] = clip_pixel(buffer[r][c]);
     }
 
   for (r = 0; r < bh; ++r) {
     for (c = 0; c < bw; ++c) {
-      dst[c] = clip_pixel(buffer[r + 1][c + 1] + mean);
+      dst[c] = clip_pixel(buffer[r + 1][c + 1]);
     }
     dst += stride;
   }
