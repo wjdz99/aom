@@ -4743,8 +4743,6 @@ static void encode_superblock(const AV1_COMP *const cpi, ThreadData *td,
         const int32_t tx_size_cat = is_inter ? inter_tx_size_cat_lookup[bsize]
                                              : intra_tx_size_cat_lookup[bsize];
         const TX_SIZE coded_tx_size = txsize_sqr_up_map[tx_size];
-        const int depth = tx_size_to_depth(coded_tx_size);
-        ++td->counts->tx_size[tx_size_cat][tx_size_ctx][depth];
         if (tx_size != max_txsize_rect_lookup[bsize]) ++x->txb_split_count;
       }
 
