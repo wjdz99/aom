@@ -1105,54 +1105,53 @@ typedef struct SubpelParams {
 #if CONFIG_JNT_COMP
 static void jnt_comp_weight_assign(const AV1_COMMON *cm,
                                    const MB_MODE_INFO *mbmi,
-                                   ConvolveParams *conv_params,
-                                   int is_compound) {
-  if (is_compound) {
-    int bck_idx = cm->frame_refs[mbmi->ref_frame[0] - LAST_FRAME].idx;
-    int fwd_idx = cm->frame_refs[mbmi->ref_frame[1] - LAST_FRAME].idx;
-    int bck_frame_index = 0, fwd_frame_index = 0;
-    int cur_frame_index = cm->cur_frame->cur_frame_offset;
-
-    if (bck_idx >= 0) {
-      bck_frame_index = cm->buffer_pool->frame_bufs[bck_idx].cur_frame_offset;
-    }
-
-    if (fwd_idx >= 0) {
-      fwd_frame_index = cm->buffer_pool->frame_bufs[fwd_idx].cur_frame_offset;
-    }
-
-    conv_params->bck_offset = abs(cur_frame_index - bck_frame_index);
-    conv_params->fwd_offset = abs(fwd_frame_index - cur_frame_index);
-
-    const double fwd = abs(fwd_frame_index - cur_frame_index);
-    const double bck = abs(cur_frame_index - bck_frame_index);
-    int order;
-    double ratio;
-
-    if (COMPOUND_WEIGHT_MODE == DIST) {
-      if (fwd > bck) {
-        ratio = (bck != 0) ? fwd / bck : 5.0;
-        order = 0;
-      } else {
-        ratio = (fwd != 0) ? bck / fwd : 5.0;
-        order = 1;
-      }
-      int quant_dist_idx;
-      for (quant_dist_idx = 0; quant_dist_idx < 4; ++quant_dist_idx) {
-        if (ratio < quant_dist_category[quant_dist_idx]) break;
-      }
-      conv_params->fwd_offset =
-          quant_dist_lookup_table[0][quant_dist_idx][order];
-      conv_params->bck_offset =
-          quant_dist_lookup_table[0][quant_dist_idx][1 - order];
-    } else {
-      conv_params->fwd_offset = (DIST_PRECISION >> 1);
-      conv_params->bck_offset = (DIST_PRECISION >> 1);
-    }
-
+                                   ConvolveParams *conv_params) {
+  if (is_two_sided_comp_refs(mbmi)) {
     if (mbmi->compound_idx) {
       conv_params->fwd_offset = -1;
       conv_params->bck_offset = -1;
+    } else {
+      int bck_idx = cm->frame_refs[mbmi->ref_frame[0] - LAST_FRAME].idx;
+      int fwd_idx = cm->frame_refs[mbmi->ref_frame[1] - LAST_FRAME].idx;
+      int bck_frame_index = 0, fwd_frame_index = 0;
+      int cur_frame_index = cm->cur_frame->cur_frame_offset;
+
+      if (bck_idx >= 0) {
+        bck_frame_index = cm->buffer_pool->frame_bufs[bck_idx].cur_frame_offset;
+      }
+
+      if (fwd_idx >= 0) {
+        fwd_frame_index = cm->buffer_pool->frame_bufs[fwd_idx].cur_frame_offset;
+      }
+
+      conv_params->bck_offset = abs(cur_frame_index - bck_frame_index);
+      conv_params->fwd_offset = abs(fwd_frame_index - cur_frame_index);
+
+      const double fwd = abs(fwd_frame_index - cur_frame_index);
+      const double bck = abs(cur_frame_index - bck_frame_index);
+      int order;
+      double ratio;
+
+      if (COMPOUND_WEIGHT_MODE == DIST) {
+        if (fwd > bck) {
+          ratio = (bck != 0) ? fwd / bck : 5.0;
+          order = 0;
+        } else {
+          ratio = (fwd != 0) ? bck / fwd : 5.0;
+          order = 1;
+        }
+        int quant_dist_idx;
+        for (quant_dist_idx = 0; quant_dist_idx < 4; ++quant_dist_idx) {
+          if (ratio < quant_dist_category[quant_dist_idx]) break;
+        }
+        conv_params->fwd_offset =
+            quant_dist_lookup_table[0][quant_dist_idx][order];
+        conv_params->bck_offset =
+            quant_dist_lookup_table[0][quant_dist_idx][1 - order];
+      } else {
+        conv_params->fwd_offset = (DIST_PRECISION >> 1);
+        conv_params->bck_offset = (DIST_PRECISION >> 1);
+      }
     }
   } else {
     conv_params->bck_offset = -1;
@@ -1504,7 +1503,7 @@ static INLINE void build_inter_predictors(
     ConvolveParams conv_params =
         get_conv_params_no_round(ref, ref, plane, tmp_dst, MAX_SB_SIZE);
 #if CONFIG_JNT_COMP
-    jnt_comp_weight_assign(cm, &mi->mbmi, &conv_params, is_compound);
+    jnt_comp_weight_assign(cm, &mi->mbmi, &conv_params);
 #endif  // CONFIG_JNT_COMP
 
 #else

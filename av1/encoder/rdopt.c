@@ -6749,48 +6749,53 @@ static int check_best_zero_mv(
 static void jnt_comp_weight_assign(const AV1_COMMON *cm,
                                    const MB_MODE_INFO *mbmi, int order_idx,
                                    uint8_t *second_pred) {
-  if (mbmi->compound_idx) {
+  if (is_two_sided_comp_refs(mbmi)) {
+    if (mbmi->compound_idx) {
+      second_pred[4096] = -1;
+      second_pred[4097] = -1;
+    } else {
+      int bck_idx = cm->frame_refs[mbmi->ref_frame[0] - LAST_FRAME].idx;
+      int fwd_idx = cm->frame_refs[mbmi->ref_frame[1] - LAST_FRAME].idx;
+      int bck_frame_index = 0, fwd_frame_index = 0;
+      int cur_frame_index = cm->cur_frame->cur_frame_offset;
+
+      if (bck_idx >= 0) {
+        bck_frame_index = cm->buffer_pool->frame_bufs[bck_idx].cur_frame_offset;
+      }
+
+      if (fwd_idx >= 0) {
+        fwd_frame_index = cm->buffer_pool->frame_bufs[fwd_idx].cur_frame_offset;
+      }
+
+      const double fwd = abs(fwd_frame_index - cur_frame_index);
+      const double bck = abs(cur_frame_index - bck_frame_index);
+      int order;
+      double ratio;
+
+      if (COMPOUND_WEIGHT_MODE == DIST) {
+        if (fwd > bck) {
+          ratio = (bck != 0) ? fwd / bck : 5.0;
+          order = 0;
+        } else {
+          ratio = (fwd != 0) ? bck / fwd : 5.0;
+          order = 1;
+        }
+        int quant_dist_idx;
+        for (quant_dist_idx = 0; quant_dist_idx < 4; ++quant_dist_idx) {
+          if (ratio < quant_dist_category[quant_dist_idx]) break;
+        }
+        second_pred[4096] =
+            quant_dist_lookup_table[order_idx][quant_dist_idx][order];
+        second_pred[4097] =
+            quant_dist_lookup_table[order_idx][quant_dist_idx][1 - order];
+      } else {
+        second_pred[4096] = (DIST_PRECISION >> 1);
+        second_pred[4097] = (DIST_PRECISION >> 1);
+      }
+    }
+  } else {
     second_pred[4096] = -1;
     second_pred[4097] = -1;
-  } else {
-    int bck_idx = cm->frame_refs[mbmi->ref_frame[0] - LAST_FRAME].idx;
-    int fwd_idx = cm->frame_refs[mbmi->ref_frame[1] - LAST_FRAME].idx;
-    int bck_frame_index = 0, fwd_frame_index = 0;
-    int cur_frame_index = cm->cur_frame->cur_frame_offset;
-
-    if (bck_idx >= 0) {
-      bck_frame_index = cm->buffer_pool->frame_bufs[bck_idx].cur_frame_offset;
-    }
-
-    if (fwd_idx >= 0) {
-      fwd_frame_index = cm->buffer_pool->frame_bufs[fwd_idx].cur_frame_offset;
-    }
-
-    const double fwd = abs(fwd_frame_index - cur_frame_index);
-    const double bck = abs(cur_frame_index - bck_frame_index);
-    int order;
-    double ratio;
-
-    if (COMPOUND_WEIGHT_MODE == DIST) {
-      if (fwd > bck) {
-        ratio = (bck != 0) ? fwd / bck : 5.0;
-        order = 0;
-      } else {
-        ratio = (fwd != 0) ? bck / fwd : 5.0;
-        order = 1;
-      }
-      int quant_dist_idx;
-      for (quant_dist_idx = 0; quant_dist_idx < 4; ++quant_dist_idx) {
-        if (ratio < quant_dist_category[quant_dist_idx]) break;
-      }
-      second_pred[4096] =
-          quant_dist_lookup_table[order_idx][quant_dist_idx][order];
-      second_pred[4097] =
-          quant_dist_lookup_table[order_idx][quant_dist_idx][1 - order];
-    } else {
-      second_pred[4096] = (DIST_PRECISION >> 1);
-      second_pred[4097] = (DIST_PRECISION >> 1);
-    }
   }
 }
 #endif  // CONFIG_JNT_COMP
@@ -11379,6 +11384,7 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
 #if CONFIG_JNT_COMP
       {
         int cum_rate = rate2;
+        mbmi->compound_idx = 1;
         MB_MODE_INFO backup_mbmi = *mbmi;
 
         int_mv backup_frame_mv[MB_MODE_COUNT][TOTAL_REFS_PER_FRAME];
@@ -11396,6 +11402,9 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
 
         for (int comp_idx = 0; comp_idx < 1 + has_second_ref(mbmi);
              ++comp_idx) {
+          // jnt_comp only works for two sided compound refs
+          if (!is_two_sided_comp_refs(mbmi) && comp_idx == 0) continue;
+
           RD_STATS rd_stats, rd_stats_y, rd_stats_uv;
           av1_init_rd_stats(&rd_stats);
           av1_init_rd_stats(&rd_stats_y);
@@ -11594,6 +11603,8 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
           ref_idx = sidx;
           if (has_second_ref(mbmi)) ref_idx /= 2;
           mbmi->compound_idx = sidx % 2;
+          if (!is_two_sided_comp_refs(mbmi) && mbmi->compound_idx == 0)
+            continue;
 #endif  // CONFIG_JNT_COMP
 
           av1_invalid_rd_stats(&tmp_rd_stats);

@@ -527,6 +527,21 @@ static INLINE int has_second_ref(const MB_MODE_INFO *mbmi) {
   return mbmi->ref_frame[1] > INTRA_FRAME;
 }
 
+#if CONFIG_ONE_SIDED_COMPOUND || CONFIG_EXT_COMP_REFS
+static INLINE int is_two_sided_comp_refs(const MB_MODE_INFO *mbmi) {
+  if (!has_second_ref(mbmi)) return 0;
+
+  if ((mbmi->ref_frame[0] <= GOLDEN_FRAME &&
+       mbmi->ref_frame[1] >= BWDREF_FRAME) ||
+      (mbmi->ref_frame[1] <= GOLDEN_FRAME &&
+       mbmi->ref_frame[0] >= BWDREF_FRAME))
+    return 1;
+
+  return 0;
+}
+#endif  // CONFIG_JNT_COMP && (CONFIG_ONE_SIDED_COMPOUND ||
+        // CONFIG_EXT_COMP_REFS)
+
 #if CONFIG_EXT_COMP_REFS
 static INLINE int has_uni_comp_refs(const MB_MODE_INFO *mbmi) {
   return has_second_ref(mbmi) && (!((mbmi->ref_frame[0] >= BWDREF_FRAME) ^
