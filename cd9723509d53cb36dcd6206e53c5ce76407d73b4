@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0ddab44d_4bf22d4f",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 2706,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2017-10-24T19:46:33Z",
+      "side": 1,
+      "message": "So, putting this main cfl predictor function after av1\u0027s default intra prediction means, if CFL mode is ever selected then it is based on default DC_PRED mode of av1.\nThus, inside cfl_predict_block() it does not need CfL\u0027s own dc_pred pixels anymore.",
+      "revId": "cd9723509d53cb36dcd6206e53c5ce76407d73b4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
