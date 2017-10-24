@@ -2617,14 +2617,6 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
       mbmi->num_proj_ref[0] = sortSamples(pts_mv, &mbmi->mv[0].as_mv, pts,
                                           pts_inref, mbmi->num_proj_ref[0]);
 #endif  // CONFIG_EXT_WARPED_MOTION
-
-    if (find_projection(mbmi->num_proj_ref[0], pts, pts_inref, bsize,
-                        mbmi->mv[0].as_mv.row, mbmi->mv[0].as_mv.col,
-                        &mbmi->wm_params[0], mi_row, mi_col)) {
-      // Invalid warped model, fallback to default
-      mbmi->wm_params[0] = default_warp_params;
-      mbmi->motion_mode = SIMPLE_TRANSLATION;
-    }
   }
 #endif  // CONFIG_WARPED_MOTION
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
@@ -2677,6 +2669,18 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
 #if CONFIG_DUAL_FILTER || CONFIG_WARPED_MOTION || CONFIG_GLOBAL_MOTION
   read_mb_interp_filter(cm, xd, mbmi, r);
 #endif  // CONFIG_DUAL_FILTER || CONFIG_WARPED_MOTION
+
+#if CONFIG_WARPED_MOTION
+  if (mbmi->motion_mode == WARPED_CAUSAL) {
+    if (find_projection(mbmi->num_proj_ref[0], pts, pts_inref, bsize,
+                        mbmi->mv[0].as_mv.row, mbmi->mv[0].as_mv.col,
+                        &mbmi->wm_params[0], mi_row, mi_col)) {
+      // Invalid warped model, fallback to default
+      mbmi->wm_params[0] = default_warp_params;
+      mbmi->motion_mode = SIMPLE_TRANSLATION;
+    }
+  }
+#endif  // CONFIG_WARPED_MOTION
 
 #if DEC_MISMATCH_DEBUG
   dec_dump_logs(cm, mi, mi_row, mi_col, inter_mode_ctx, mode_ctx);
