@@ -123,7 +123,7 @@ static const int plane_rd_mult[REF_TYPES][PLANE_TYPES] = {
 
 static int optimize_b_greedy(const AV1_COMMON *cm, MACROBLOCK *mb, int plane,
                              int blk_row, int blk_col, int block,
-                             TX_SIZE tx_size, int ctx) {
+                             TX_SIZE tx_size, int ctx, int fast_mode) {
   MACROBLOCKD *const xd = &mb->e_mbd;
   struct macroblock_plane *const p = &mb->plane[plane];
   struct macroblockd_plane *const pd = &xd->plane[plane];
@@ -172,6 +172,9 @@ static int optimize_b_greedy(const AV1_COMMON *cm, MACROBLOCK *mb, int plane,
   tran_low_t before_best_eob_dqc = 0;
 
   uint8_t token_cache[MAX_TX_SQUARE];
+
+  if (fast_mode) return eob;
+
   for (i = 0; i < eob; i++) {
     const int rc = scan[i];
     token_cache[rc] = av1_pt_energy_class[av1_get_token(qcoeff[rc])];
@@ -398,10 +401,9 @@ int av1_optimize_b(const AV1_COMMON *cm, MACROBLOCK *mb, int plane, int blk_row,
   (void)plane_bsize;
   (void)blk_row;
   (void)blk_col;
-  (void)fast_mode;
   int ctx = get_entropy_context(tx_size, a, l);
-  return optimize_b_greedy(cm, mb, plane, blk_row, blk_col, block, tx_size,
-                           ctx);
+  return optimize_b_greedy(cm, mb, plane, blk_row, blk_col, block, tx_size, ctx,
+                           fast_mode);
 #else   // !CONFIG_LV_MAP
   TXB_CTX txb_ctx;
   get_txb_ctx(plane_bsize, tx_size, plane, a, l, &txb_ctx);
