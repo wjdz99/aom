@@ -314,6 +314,9 @@ typedef struct MB_MODE_INFO {
   TX_SIZE min_tx_size;
   int8_t skip;
   int8_t segment_id;
+#if CONFIG_Q_SEGMENTATION
+  int8_t q_segment_id;
+#endif
   int8_t seg_id_predicted;  // valid only when temporal_update is enabled
 
 #if CONFIG_MRC_TX
