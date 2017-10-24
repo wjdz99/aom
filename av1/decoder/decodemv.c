@@ -1215,6 +1215,8 @@ static void read_intra_frame_mode_info(AV1_COMMON *const cm,
 #endif
   }
 
+  mbmi->current_q_index = xd->current_qindex;
+
   mbmi->ref_frame[0] = INTRA_FRAME;
   mbmi->ref_frame[1] = NONE_FRAME;
 
@@ -2718,6 +2720,8 @@ static void read_inter_frame_mode_info(AV1Decoder *const pbi,
     }
 #endif
   }
+
+  mbmi->current_q_index = xd->current_qindex;
 
   inter_block = read_is_inter_block(cm, xd, mbmi->segment_id, r);
 
