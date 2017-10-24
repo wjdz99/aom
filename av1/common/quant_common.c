@@ -330,12 +330,22 @@ int16_t av1_qindex_from_ac(int ac, aom_bit_depth_t bit_depth) {
 }
 
 int av1_get_qindex(const struct segmentation *seg, int segment_id,
+#if CONFIG_Q_SEGMENTATION
+                   int q_segment_id, int base_qindex) {
+#else
                    int base_qindex) {
+#endif
   if (segfeature_active(seg, segment_id, SEG_LVL_ALT_Q)) {
     const int data = get_segdata(seg, segment_id, SEG_LVL_ALT_Q);
     const int seg_qindex =
         seg->abs_delta == SEGMENT_ABSDATA ? data : base_qindex + data;
     return clamp(seg_qindex, 0, MAXQ);
+#if CONFIG_Q_SEGMENTATION
+  } if (segfeature_active(seg, q_segment_id, SEG_LVL_Q_SEG)) {
+    const int data = get_segdata(seg, q_segment_id, SEG_LVL_Q_SEG);
+    const int seg_qindex = base_qindex + data;
+    return clamp(seg_qindex, 0, MAXQ);
+#endif
   } else {
     return base_qindex;
   }
