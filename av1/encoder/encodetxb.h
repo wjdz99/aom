@@ -25,6 +25,8 @@ extern "C" {
 
 typedef struct TxbInfo {
   tran_low_t *qcoeff;
+  uint8_t *levels;  // absolute values and clamped to 255.
+  int8_t *signs;    // 1 if coefficient is negative.
   tran_low_t *dqcoeff;
   const tran_low_t *tcoeff;
   const int16_t *dequant;
