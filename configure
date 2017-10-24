@@ -540,6 +540,7 @@ post_process_cmdline() {
       soft_enable simple_bwd_adapt
       soft_enable loopfilter_level
       soft_enable deblock_13tap
+      soft_enable striped_loop_restoration
     fi
 
     # Enable low-bitdepth pixel pipeline by default
