@@ -1097,7 +1097,7 @@ static const aom_cdf_prob
 #endif  // TWO_MODEE
 #endif  // CONFIG_NCOBMC_ADAPT_WEIGHT
 // Change this section appropriately once warped motion is supported
-#if CONFIG_MOTION_VAR && !CONFIG_WARPED_MOTION
+#if !CONFIG_WARPED_MOTION
 #if CONFIG_NCOBMC_ADAPT_WEIGHT
 const aom_tree_index av1_motion_mode_tree[TREE_SIZE(MOTION_MODES)] = {
   -SIMPLE_TRANSLATION, 2, -OBMC_CAUSAL, -NCOBMC_ADAPT_WEIGHT,
@@ -1235,66 +1235,7 @@ static const aom_cdf_prob
 #endif  // CONFIG_EXT_PARTITION
     };
 #endif  // CONFIG_NCOBMC_ADAPT_WEIGHT
-#elif !CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
-
-const aom_tree_index av1_motion_mode_tree[TREE_SIZE(MOTION_MODES)] = {
-  -SIMPLE_TRANSLATION, -WARPED_CAUSAL
-};
-
-static const aom_prob
-    default_motion_mode_prob[BLOCK_SIZES_ALL][MOTION_MODES - 1] = {
-#if CONFIG_CHROMA_SUB8X8
-      { 255 }, { 255 }, { 255 },
-#endif
-      { 255 }, { 255 }, { 255 }, { 151 }, { 153 }, { 144 }, { 178 },
-      { 165 }, { 160 }, { 207 }, { 195 }, { 168 }, { 244 },
-#if CONFIG_EXT_PARTITION
-      { 252 }, { 252 }, { 252 },
-#endif  // CONFIG_EXT_PARTITION
-      { 208 }, { 208 }, { 208 }, { 208 }, { 208 }, { 208 },
-#if CONFIG_EXT_PARTITION
-      { 252 }, { 252 }
-#endif  // CONFIG_EXT_PARTITION
-    };
-
-static const aom_cdf_prob
-    default_motion_mode_cdf[BLOCK_SIZES_ALL][CDF_SIZE(MOTION_MODES)] = {
-#if CONFIG_CHROMA_SUB8X8
-      { AOM_ICDF(255 * 128), AOM_ICDF(32768), 0 },
-      { AOM_ICDF(255 * 128), AOM_ICDF(32768), 0 },
-      { AOM_ICDF(255 * 128), AOM_ICDF(32768), 0 },
-#endif
-      { AOM_ICDF(255 * 128), AOM_ICDF(32768), 0 },
-      { AOM_ICDF(255 * 128), AOM_ICDF(32768), 0 },
-      { AOM_ICDF(255 * 128), AOM_ICDF(32768), 0 },
-      { AOM_ICDF(151 * 128), AOM_ICDF(32768), 0 },
-      { AOM_ICDF(153 * 128), AOM_ICDF(32768), 0 },
-      { AOM_ICDF(144 * 128), AOM_ICDF(32768), 0 },
-      { AOM_ICDF(178 * 128), AOM_ICDF(32768), 0 },
-      { AOM_ICDF(165 * 128), AOM_ICDF(32768), 0 },
-      { AOM_ICDF(160 * 128), AOM_ICDF(32768), 0 },
-      { AOM_ICDF(207 * 128), AOM_ICDF(32768), 0 },
-      { AOM_ICDF(195 * 128), AOM_ICDF(32768), 0 },
-      { AOM_ICDF(168 * 128), AOM_ICDF(32768), 0 },
-      { AOM_ICDF(244 * 128), AOM_ICDF(32768), 0 },
-#if CONFIG_EXT_PARTITION
-      { AOM_ICDF(252 * 128), AOM_ICDF(32768), 0 },
-      { AOM_ICDF(252 * 128), AOM_ICDF(32768), 0 },
-      { AOM_ICDF(252 * 128), AOM_ICDF(32768), 0 },
-#endif  // CONFIG_EXT_PARTITION
-      { AOM_ICDF(255 * 128), AOM_ICDF(32768), 0 },
-      { AOM_ICDF(255 * 128), AOM_ICDF(32768), 0 },
-      { AOM_ICDF(255 * 128), AOM_ICDF(32768), 0 },
-      { AOM_ICDF(255 * 128), AOM_ICDF(32768), 0 },
-      { AOM_ICDF(255 * 128), AOM_ICDF(32768), 0 },
-      { AOM_ICDF(255 * 128), AOM_ICDF(32768), 0 },
-#if CONFIG_EXT_PARTITION
-      { AOM_ICDF(255 * 128), AOM_ICDF(32768), 0 },
-      { AOM_ICDF(255 * 128), AOM_ICDF(32768), 0 },
-#endif  // CONFIG_EXT_PARTITION
-    };
-
-#elif CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
+#elif CONFIG_WARPED_MOTION
 #if CONFIG_NCOBMC_ADAPT_WEIGHT
 const aom_tree_index av1_motion_mode_tree[TREE_SIZE(MOTION_MODES)] = {
   -SIMPLE_TRANSLATION, 2, -OBMC_CAUSAL, 4, -NCOBMC_ADAPT_WEIGHT, -WARPED_CAUSAL
@@ -6283,14 +6224,13 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
   av1_copy(fc->refmv_cdf, default_refmv_cdf);
   av1_copy(fc->drl_cdf, default_drl_cdf);
 #endif
-#if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
   av1_copy(fc->motion_mode_prob, default_motion_mode_prob);
   av1_copy(fc->motion_mode_cdf, default_motion_mode_cdf);
-#if CONFIG_NCOBMC_ADAPT_WEIGHT && CONFIG_MOTION_VAR
+#if CONFIG_NCOBMC_ADAPT_WEIGHT
   av1_copy(fc->ncobmc_mode_prob, default_ncobmc_mode_prob);
   av1_copy(fc->ncobmc_mode_cdf, default_ncobmc_mode_cdf);
 #endif
-#if CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
+#if CONFIG_WARPED_MOTION
   av1_copy(fc->obmc_prob, default_obmc_prob);
 #if CONFIG_NEW_MULTISYMBOL || CONFIG_NCOBMC_ADAPT_WEIGHT
   av1_copy(fc->obmc_cdf, default_obmc_cdf);
@@ -6299,8 +6239,7 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
   av1_copy(fc->ncobmc_prob, default_ncobmc_prob);
   av1_copy(fc->ncobmc_cdf, default_ncobmc_cdf);
 #endif  // CONFIG_NCOBMC_ADAPT_WEIGHT
-#endif  // CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
-#endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
+#endif  // CONFIG_WARPED_MOTION
   av1_copy(fc->inter_compound_mode_probs, default_inter_compound_mode_probs);
   av1_copy(fc->inter_compound_mode_cdf, default_inter_compound_mode_cdf);
 #if CONFIG_COMPOUND_SINGLEREF
@@ -6441,7 +6380,6 @@ void av1_adapt_inter_frame_probs(AV1_COMMON *cm) {
     fc->drl_prob[i] =
         av1_mode_mv_merge_probs(pre_fc->drl_prob[i], counts->drl_mode[i]);
 
-#if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
   for (i = BLOCK_8X8; i < BLOCK_SIZES_ALL; ++i)
     aom_tree_merge_probs(av1_motion_mode_tree, pre_fc->motion_mode_prob[i],
                          counts->motion_mode[i], fc->motion_mode_prob[i]);
@@ -6455,12 +6393,11 @@ void av1_adapt_inter_frame_probs(AV1_COMMON *cm) {
                          counts->ncobmc[i], fc->ncobmc_prob[i]);
 #endif
 #endif  // CONFIG_NCOBMC_ADAPT_WEIGHT
-#if CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
+#if CONFIG_WARPED_MOTION
   for (i = BLOCK_8X8; i < BLOCK_SIZES_ALL; ++i)
     fc->obmc_prob[i] =
         av1_mode_mv_merge_probs(pre_fc->obmc_prob[i], counts->obmc[i]);
-#endif  // CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
-#endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
+#endif  // CONFIG_WARPED_MOTION
 
   for (i = 0; i < INTER_MODE_CONTEXTS; i++)
     aom_tree_merge_probs(

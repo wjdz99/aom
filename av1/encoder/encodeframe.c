@@ -592,7 +592,7 @@ static void update_state(const AV1_COMP *const cpi, ThreadData *td,
   av1_copy_frame_mvs(cm, mi, mi_row, mi_col, x_mis, y_mis);
 }
 
-#if CONFIG_MOTION_VAR && NC_MODE_INFO
+#if NC_MODE_INFO
 static void set_mode_info_b(const AV1_COMP *const cpi,
                             const TileInfo *const tile, ThreadData *td,
                             int mi_row, int mi_col, BLOCK_SIZE bsize,
@@ -758,7 +758,7 @@ static void get_ncobmc_intrpl_pred(const AV1_COMP *const cpi, ThreadData *td,
   set_mode_info_offsets(cpi, x, xd, mi_row, mi_col);
 }
 #endif  // CONFIG_NCOBMC_ADAPT_WEIGHT
-#endif  // CONFIG_MOTION_VAR && (CONFIG_NCOBMC || CONFIG_NCOBMC_ADAPT_WEIGHT)
+#endif  // (CONFIG_NCOBMC || CONFIG_NCOBMC_ADAPT_WEIGHT)
 
 void av1_setup_src_planes(MACROBLOCK *x, const YV12_BUFFER_CONFIG *src,
                           int mi_row, int mi_col) {
@@ -1193,7 +1193,6 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td, int mi_row,
         }
 #endif  // CONFIG_INTERINTRA
 
-#if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
 #if CONFIG_WARPED_MOTION
         set_ref_ptrs(cm, xd, mbmi->ref_frame[0], mbmi->ref_frame[1]);
 #endif
@@ -1206,7 +1205,7 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td, int mi_row,
 #endif
             mi);
         if (mbmi->ref_frame[1] != INTRA_FRAME)
-#if CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
+#if CONFIG_WARPED_MOTION
         {
           if (motion_allowed == WARPED_CAUSAL) {
             counts->motion_mode[mbmi->sb_type][mbmi->motion_mode]++;
@@ -1237,7 +1236,7 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td, int mi_row,
             update_cdf(fc->motion_mode_cdf[mbmi->sb_type], mbmi->motion_mode,
                        MOTION_MODES);
           }
-#endif  // CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
+#endif  // CONFIG_WARPED_MOTION
 
 #if CONFIG_NCOBMC_ADAPT_WEIGHT
         if (mbmi->motion_mode == NCOBMC_ADAPT_WEIGHT) {
@@ -1254,8 +1253,6 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td, int mi_row,
         }
 #endif
 
-#endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
-
         if (
 #if CONFIG_COMPOUND_SINGLEREF
             is_inter_anyref_comp_mode(mbmi->mode)
@@ -1263,10 +1260,7 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td, int mi_row,
             cm->reference_mode != SINGLE_REFERENCE &&
             is_inter_compound_mode(mbmi->mode)
 #endif  // CONFIG_COMPOUND_SINGLEREF
-#if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
-            && mbmi->motion_mode == SIMPLE_TRANSLATION
-#endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
-            ) {
+            && mbmi->motion_mode == SIMPLE_TRANSLATION) {
 #if CONFIG_WEDGE || CONFIG_COMPOUND_SEGMENT
 #if CONFIG_WEDGE && CONFIG_COMPOUND_SEGMENT
           if (is_interinter_compound_used(COMPOUND_WEDGE, bsize)) {
@@ -1445,11 +1439,10 @@ static void encode_b(const AV1_COMP *const cpi, const TileInfo *const tile,
 #endif
                      PICK_MODE_CONTEXT *ctx, int *rate) {
   MACROBLOCK *const x = &td->mb;
-#if (CONFIG_MOTION_VAR && CONFIG_NCOBMC) | CONFIG_EXT_DELTA_Q | \
-    CONFIG_NCOBMC_ADAPT_WEIGHT
+#if (CONFIG_NCOBMC) | CONFIG_EXT_DELTA_Q | CONFIG_NCOBMC_ADAPT_WEIGHT
   MACROBLOCKD *xd = &x->e_mbd;
   MB_MODE_INFO *mbmi;
-#if CONFIG_MOTION_VAR && CONFIG_NCOBMC
+#if CONFIG_NCOBMC
   int check_ncobmc;
 #endif
 #endif
@@ -1459,14 +1452,14 @@ static void encode_b(const AV1_COMP *const cpi, const TileInfo *const tile,
   x->e_mbd.mi[0]->mbmi.partition = partition;
 #endif
   update_state(cpi, td, ctx, mi_row, mi_col, bsize, dry_run);
-#if CONFIG_MOTION_VAR && (CONFIG_NCOBMC || CONFIG_NCOBMC_ADAPT_WEIGHT)
+#if (CONFIG_NCOBMC || CONFIG_NCOBMC_ADAPT_WEIGHT)
   mbmi = &xd->mi[0]->mbmi;
 #if CONFIG_WARPED_MOTION
   set_ref_ptrs(&cpi->common, xd, mbmi->ref_frame[0], mbmi->ref_frame[1]);
 #endif
 #endif
 
-#if CONFIG_MOTION_VAR && (CONFIG_NCOBMC || CONFIG_NCOBMC_ADAPT_WEIGHT)
+#if (CONFIG_NCOBMC || CONFIG_NCOBMC_ADAPT_WEIGHT)
   const MOTION_MODE motion_allowed = motion_mode_allowed(
 #if CONFIG_GLOBAL_MOTION
       0, xd->global_motion,
@@ -1475,9 +1468,9 @@ static void encode_b(const AV1_COMP *const cpi, const TileInfo *const tile,
       xd,
 #endif
       xd->mi[0]);
-#endif  // CONFIG_MOTION_VAR && (CONFIG_NCOBMC || CONFIG_NCOBMC_ADAPT_WEIGHT)
+#endif  // (CONFIG_NCOBMC || CONFIG_NCOBMC_ADAPT_WEIGHT)
 
-#if CONFIG_MOTION_VAR && CONFIG_NCOBMC
+#if CONFIG_NCOBMC
   check_ncobmc = is_inter_block(mbmi) && motion_allowed >= OBMC_CAUSAL;
   if (!dry_run && check_ncobmc) {
     av1_check_ncobmc_rd(cpi, x, mi_row, mi_col);
@@ -3238,7 +3231,7 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
   if (best_rdc.rate < INT_MAX && best_rdc.dist < INT64_MAX &&
       pc_tree->index != 3) {
     if (bsize == cm->sb_size) {
-#if CONFIG_MOTION_VAR && NC_MODE_INFO
+#if NC_MODE_INFO
       set_mode_info_sb(cpi, td, tile_info, tp, mi_row, mi_col, bsize, pc_tree);
 #endif
 
@@ -4690,7 +4683,6 @@ static void encode_superblock(const AV1_COMP *const cpi, ThreadData *td,
     av1_build_inter_predictors_sb(cm, xd, mi_row, mi_col, NULL, block_size);
 
 #if !CONFIG_NCOBMC_ADAPT_WEIGHT
-#if CONFIG_MOTION_VAR
     if (mbmi->motion_mode == OBMC_CAUSAL) {
 #if CONFIG_NCOBMC
       if (dry_run == OUTPUT_ENABLED)
@@ -4699,7 +4691,6 @@ static void encode_superblock(const AV1_COMP *const cpi, ThreadData *td,
 #endif
         av1_build_obmc_inter_predictors_sb(cm, xd, mi_row, mi_col);
     }
-#endif  // CONFIG_MOTION_VAR
 #else
     if (mbmi->motion_mode == OBMC_CAUSAL) {
       av1_build_obmc_inter_predictors_sb(cm, xd, mi_row, mi_col);
