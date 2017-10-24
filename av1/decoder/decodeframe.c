@@ -247,9 +247,6 @@ static void inverse_transform_block(MACROBLOCKD *xd, int plane,
 #if CONFIG_LGT_FROM_PRED
                               mode,
 #endif
-#if CONFIG_MRC_TX && SIGNAL_ANY_MRC_MASK
-                              xd->mrc_mask,
-#endif  // CONFIG_MRC_TX && SIGNAL_ANY_MRC_MASK
                               tx_type, tx_size, dst, stride, eob);
   memset(dqcoeff, 0, (scan_line + 1) * sizeof(dqcoeff[0]));
 }
@@ -2510,9 +2507,6 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
       td->xd.tile_ctx = &td->tctx;
       td->xd.plane[0].color_index_map = td->color_index_map[0];
       td->xd.plane[1].color_index_map = td->color_index_map[1];
-#if CONFIG_MRC_TX
-      td->xd.mrc_mask = td->mrc_mask;
-#endif  // CONFIG_MRC_TX
     }
   }
 
