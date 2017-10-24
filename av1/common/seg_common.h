@@ -25,6 +25,9 @@ extern "C" {
 #define SEG_TREE_PROBS (MAX_SEGMENTS - 1)
 
 #define PREDICTION_PROBS 3
+#if CONFIG_Q_SEGMENTATION
+#define Q_SEGMENT_CDF_COUNT 3
+#endif
 
 #if CONFIG_LOOPFILTER_LEVEL
 typedef enum {
@@ -37,8 +40,14 @@ typedef enum {
   SEG_LVL_SKIP,        // Optional Segment (0,0) + skip mode
 #if CONFIG_SEGMENT_ZEROMV
   SEG_LVL_ZEROMV,
+#if CONFIG_Q_SEGMENTATION
+  SEG_LVL_Q_SEG,
+#endif
   SEG_LVL_MAX
 #else
+#if CONFIG_Q_SEGMENTATION
+  SEG_LVL_Q_SEG,
+#endif
   SEG_LVL_MAX
 #endif
 } SEG_LVL_FEATURES;
@@ -51,8 +60,17 @@ typedef enum {
   SEG_LVL_SKIP = 3,  // Optional Segment (0,0) + skip mode
 #if CONFIG_SEGMENT_ZEROMV
   SEG_LVL_ZEROMV = 4,
-  SEG_LVL_MAX = 5
+#if CONFIG_Q_SEGMENTATION
+  SEG_LVL_Q_SEG = 5,
+  SEG_LVL_MAX = 6
 #else
+  SEG_LVL_MAX = 5
+#endif
+#else
+#if CONFIG_Q_SEGMENTATION
+  SEG_LVL_Q_SEG = 4,
+  SEG_LVL_MAX = 5
+#endif
   SEG_LVL_MAX = 4
 #endif
 } SEG_LVL_FEATURES;
@@ -60,6 +78,9 @@ typedef enum {
 
 struct segmentation {
   uint8_t enabled;
+#if CONFIG_Q_SEGMENTATION
+  uint8_t q_lvls;
+#endif
   uint8_t update_map;
   uint8_t update_data;
   uint8_t abs_delta;
@@ -75,6 +96,13 @@ struct segmentation_probs {
   aom_prob pred_probs[PREDICTION_PROBS];
 #if CONFIG_NEW_MULTISYMBOL
   aom_cdf_prob pred_cdf[PREDICTION_PROBS][CDF_SIZE(2)];
+#if CONFIG_Q_SEGMENTATION
+  aom_cdf_prob q_seg_cdf[Q_SEGMENT_CDF_COUNT][CDF_SIZE(MAX_SEGMENTS)];
+#endif
+#else
+#if CONFIG_Q_SEGMENTATION
+  aom_prob q_seg_cdf[Q_SEGMENT_CDF_COUNT][CDF_SIZE(MAX_SEGMENTS)];
+#endif
 #endif
 };
 
