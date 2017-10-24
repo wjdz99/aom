@@ -200,6 +200,7 @@ void get_dist_cost_stats(LevelDownStats *stats, int scan_idx,
   const int16_t *scan = txb_info->scan_order->scan;
   const int coeff_idx = scan[scan_idx];
   const tran_low_t qc = txb_info->qcoeff[coeff_idx];
+  const uint8_t *const levels = txb_info->levels;
   stats->new_eob = -1;
   stats->update = 0;
 
@@ -232,9 +233,8 @@ void get_dist_cost_stats(LevelDownStats *stats, int scan_idx,
   stats->rate_low = low_qc_cost;
   stats->rd_low = RDCOST(txb_info->rdmult, stats->rate_low, stats->dist_low);
 
-  int coeff_ctx =
-      get_nz_map_ctx(txb_info->qcoeff, scan_idx, scan, txb_info->bwl,
-                     txb_info->height, txb_info->tx_type, 0);
+  int coeff_ctx = get_nz_map_ctx(levels, scan_idx, scan, txb_info->bwl,
+                                 txb_info->height, txb_info->tx_type, 1);
 
   if ((stats->rd_low < stats->rd) && (stats->low_qc == 0)) {
     stats->nz_rate = txb_costs->nz_map_cost[coeff_ctx][0];
@@ -255,10 +255,11 @@ static void update_coeff(const int coeff_idx, const tran_low_t qc,
 
 #endif
 
-static INLINE void write_nz_map(aom_writer *w, const tran_low_t *tcoeff,
-                                uint16_t eob, int plane, const int16_t *scan,
-                                TX_SIZE tx_size, TX_TYPE tx_type,
-                                FRAME_CONTEXT *fc) {
+static INLINE void write_nz_map(aom_writer *const w,
+                                const uint8_t *const levels, const uint16_t eob,
+                                const int plane, const int16_t *const scan,
+                                const TX_SIZE tx_size, const TX_TYPE tx_type,
+                                FRAME_CONTEXT *const fc) {
   const PLANE_TYPE plane_type = get_plane_type(plane);
   const TX_SIZE txs_ctx = get_txsize_context(tx_size);
   const int bwl = b_width_log2_lookup[txsize_to_bsize[tx_size]] + 2;
@@ -278,11 +279,10 @@ static INLINE void write_nz_map(aom_writer *w, const tran_low_t *tcoeff,
 #endif
 
   for (int c = 0; c < eob; ++c) {
-    int coeff_ctx = get_nz_map_ctx(tcoeff, c, scan, bwl, height, tx_type, 0);
+    int coeff_ctx = get_nz_map_ctx(levels, c, scan, bwl, height, tx_type, 1);
     int eob_ctx = get_eob_ctx(scan[c], txs_ctx, tx_type);
 
-    tran_low_t v = tcoeff[scan[c]];
-    int is_nz = (v != 0);
+    int is_nz = (levels[scan[c]] != 0);
 
     if (c == seg_eob - 1) break;
 
@@ -304,11 +304,11 @@ static INLINE void write_nz_map(aom_writer *w, const tran_low_t *tcoeff,
 }
 
 #if CONFIG_CTX1D
-static INLINE void write_nz_map_vert(aom_writer *w, const tran_low_t *tcoeff,
-                                     uint16_t eob, int plane,
-                                     const int16_t *scan, const int16_t *iscan,
-                                     TX_SIZE tx_size, TX_TYPE tx_type,
-                                     FRAME_CONTEXT *fc) {
+static INLINE void write_nz_map_vert(
+    aom_writer *const w, const tran_low_t *const tcoeff,
+    const uint8_t *const levels, const uint16_t eob, const int plane,
+    const int16_t *const scan, const int16_t *const iscan,
+    const TX_SIZE tx_size, const TX_TYPE tx_type, FRAME_CONTEXT *const fc) {
   (void)eob;
   const TX_SIZE txs_ctx = get_txsize_context(tx_size);
   const PLANE_TYPE plane_type = get_plane_type(plane);
@@ -337,9 +337,9 @@ static INLINE void write_nz_map_vert(aom_writer *w, const tran_low_t *tcoeff,
         if (r + 1 != height) {
           int coeff_idx = r * width + c;
           int scan_idx = iscan[coeff_idx];
-          int is_nz = tcoeff[coeff_idx] != 0;
+          int is_nz = levels[coeff_idx] != 0;
           int coeff_ctx =
-              get_nz_map_ctx(tcoeff, scan_idx, scan, bwl, height, tx_type, 0);
+              get_nz_map_ctx(levels, scan_idx, scan, bwl, height, tx_type, 1);
 #if LV_MAP_PROB
           aom_write_bin(w, is_nz,
                         fc->nz_map_cdf[txs_ctx][plane_type][coeff_ctx], 2);
@@ -363,11 +363,11 @@ static INLINE void write_nz_map_vert(aom_writer *w, const tran_low_t *tcoeff,
   }
 }
 
-static INLINE void write_nz_map_horiz(aom_writer *w, const tran_low_t *tcoeff,
-                                      uint16_t eob, int plane,
-                                      const int16_t *scan, const int16_t *iscan,
-                                      TX_SIZE tx_size, TX_TYPE tx_type,
-                                      FRAME_CONTEXT *fc) {
+static INLINE void write_nz_map_horiz(
+    aom_writer *const w, const tran_low_t *tcoeff, const uint8_t *const levels,
+    const uint16_t eob, const int plane, const int16_t *const scan,
+    const int16_t *const iscan, const TX_SIZE tx_size, const TX_TYPE tx_type,
+    FRAME_CONTEXT *const fc) {
   (void)scan;
   (void)eob;
   const TX_SIZE txs_ctx = get_txsize_context(tx_size);
@@ -396,9 +396,9 @@ static INLINE void write_nz_map_horiz(aom_writer *w, const tran_low_t *tcoeff,
         if (c + 1 != width) {
           int coeff_idx = r * width + c;
           int scan_idx = iscan[coeff_idx];
-          int is_nz = tcoeff[coeff_idx] != 0;
+          int is_nz = levels[coeff_idx] != 0;
           int coeff_ctx =
-              get_nz_map_ctx(tcoeff, scan_idx, scan, bwl, height, tx_type, 0);
+              get_nz_map_ctx(levels, scan_idx, scan, bwl, height, tx_type, 1);
 #if LV_MAP_PROB
           aom_write_bin(w, is_nz,
                         fc->nz_map_cdf[txs_ctx][plane_type][coeff_ctx], 2);
@@ -511,7 +511,7 @@ void av1_write_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
   // printf("\n");
   for (int i = 1; i < eob; ++i) {
     c = eob - 1 - i;
-    int coeff_ctx = get_nz_map_ctx(tcoeff, c, scan, bwl, height, tx_type, 0);
+    int coeff_ctx = get_nz_map_ctx(levels, c, scan, bwl, height, tx_type, 1);
 
     tran_low_t v = tcoeff[scan[c]];
     int is_nz = (v != 0);
@@ -531,7 +531,7 @@ void av1_write_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
 #if CONFIG_CTX1D
   TX_CLASS tx_class = get_tx_class(tx_type);
   if (tx_class == TX_CLASS_2D) {
-    write_nz_map(w, tcoeff, eob, plane, scan, tx_size, tx_type, ec_ctx);
+    write_nz_map(w, levels, eob, plane, scan, tx_size, tx_type, ec_ctx);
   } else {
     const int width = tx_size_wide[tx_size];
     const int eob_offset = width + height;
@@ -543,20 +543,20 @@ void av1_write_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
     aom_write(w, eob_mode, ec_ctx->eob_mode[txs_ctx][plane_type][tx_class]);
 #endif
     if (eob_mode == 0) {
-      write_nz_map(w, tcoeff, eob, plane, scan, tx_size, tx_type, ec_ctx);
+      write_nz_map(w, levels, eob, plane, scan, tx_size, tx_type, ec_ctx);
     } else {
       const int16_t *iscan = scan_order->iscan;
       assert(tx_class == TX_CLASS_VERT || tx_class == TX_CLASS_HORIZ);
       if (tx_class == TX_CLASS_VERT)
-        write_nz_map_vert(w, tcoeff, eob, plane, scan, iscan, tx_size, tx_type,
-                          ec_ctx);
+        write_nz_map_vert(w, tcoeff, levels, eob, plane, scan, iscan, tx_size,
+                          tx_type, ec_ctx);
       else
-        write_nz_map_horiz(w, tcoeff, eob, plane, scan, iscan, tx_size, tx_type,
-                           ec_ctx);
+        write_nz_map_horiz(w, tcoeff, levels, eob, plane, scan, iscan, tx_size,
+                           tx_type, ec_ctx);
     }
   }
 #else
-  write_nz_map(w, tcoeff, eob, plane, scan, tx_size, tx_type, ec_ctx);
+  write_nz_map(w, levels, eob, plane, scan, tx_size, tx_type, ec_ctx);
 #endif  // CONFIG_CTX1D
 
 #endif  // CONFIG_EOB_FIRST
