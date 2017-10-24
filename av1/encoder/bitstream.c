@@ -810,6 +810,67 @@ static void pack_txb_tokens(aom_writer *w, const TOKENEXTRA **tp,
 #endif  // CONFIG_LV_MAP
 #endif
 
+#if CONFIG_Q_SEGMENTATION
+static int neg_interleave(int x, int ref, int max) {
+  const int diff = x - ref;
+  if (!ref) return x;
+  if (ref >= (max - 1)) return -diff;
+  if (2 * ref < max) {
+    if (abs(diff) <= ref) {
+      if (diff > 0)
+        return (diff << 1) - 1;
+      else
+        return ((-diff) << 1);
+    }
+    return x;
+  } else {
+    if (abs(diff) < (max - ref)) {
+      if (diff > 0)
+        return (diff << 1) - 1;
+      else
+        return ((-diff) << 1);
+    }
+    return (max - x) - 1;
+  }
+}
+
+static void write_q_segment_id(const AV1_COMMON *cm,
+                               const MB_MODE_INFO *const mbmi, aom_writer *w,
+                               const struct segmentation *seg,
+                               struct segmentation_probs *segp,
+                               BLOCK_SIZE bsize, int mi_row, int mi_col) {
+  int prev_ul = 0; /* Top left segment_id */
+  int prev_l = 0;  /* Current left segment_id */
+  int prev_u = 0;  /* Current top segment_id */
+  const int bw = mi_size_wide[bsize];
+  const int bh = mi_size_high[bsize];
+
+  if (!seg->q_lvls) return;
+
+  if ((mi_row - MAX_MIB_SIZE) >= 0 && (mi_col - MAX_MIB_SIZE) >= 0)
+    prev_ul = get_segment_id(cm, cm->q_seg_encoding_map, bsize,
+                             mi_row - bw, mi_col - bh);
+  if ((mi_row - MAX_MIB_SIZE) >= 0)
+    prev_u = get_segment_id(cm, cm->q_seg_encoding_map, bsize,
+                            mi_row - bw, mi_col - 0);
+  if ((mi_row - MAX_MIB_SIZE) >= 0)
+    prev_l = get_segment_id(cm, cm->q_seg_encoding_map, bsize, mi_row - 0,
+                            mi_col - bh);
+
+  int cdf_num = pick_q_seg_cdf(prev_ul, prev_u, prev_l);
+  int pred = pick_q_seg_pred(prev_ul, prev_u, prev_l);
+  int coded_id = neg_interleave(mbmi->q_segment_id, pred, seg->q_lvls);
+
+#if CONFIG_NEW_MULTISYMBOL
+  aom_cdf_prob *pred_cdf = segp->q_seg_cdf[cdf_num];
+  aom_write_symbol(w, coded_id, pred_cdf, seg->q_lvls);
+#else
+  aom_prob pred_cdf = segp->q_seg_cdf[cdf_num];
+  aom_write(w, coded_id, pred_prob);
+#endif
+}
+#endif
+
 static void write_segment_id(aom_writer *w, const struct segmentation *seg,
                              struct segmentation_probs *segp, int segment_id) {
   if (seg->enabled && seg->update_map) {
@@ -1519,6 +1580,9 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
   }
 
   skip = write_skip(cm, xd, segment_id, mi, w);
+#if CONFIG_Q_SEGMENTATION
+  if (!skip) write_q_segment_id(cm, mbmi, w, seg, segp, bsize, mi_row, mi_col);
+#endif
   if (cm->delta_q_present_flag) {
     int super_block_upper_left =
         ((mi_row & MAX_MIB_MASK) == 0) && ((mi_col & MAX_MIB_MASK) == 0);
@@ -1860,6 +1924,9 @@ static void write_mb_modes_kf(AV1_COMMON *cm, MACROBLOCKD *xd,
   if (seg->update_map) write_segment_id(w, seg, segp, mbmi->segment_id);
 
   const int skip = write_skip(cm, xd, mbmi->segment_id, mi, w);
+#if CONFIG_Q_SEGMENTATION
+  if (!skip) write_q_segment_id(cm, mbmi, w, seg, segp, bsize, mi_row, mi_col);
+#endif
   if (cm->delta_q_present_flag) {
     int super_block_upper_left =
         ((mi_row & MAX_MIB_MASK) == 0) && ((mi_col & MAX_MIB_MASK) == 0);
@@ -3048,6 +3115,38 @@ static void encode_segmentation(AV1_COMMON *cm, MACROBLOCKD *xd,
   }
 }
 
+#if CONFIG_Q_SEGMENTATION
+static void encode_q_segmentation(AV1_COMMON *cm,
+                                  struct aom_write_bit_buffer *wb) {
+  int i;
+  struct segmentation *seg = &cm->seg;
+
+  if (cm->frame_type == INTER_FRAME) {
+    seg->q_lvls = 0;
+    return;
+  }
+
+  for (i = 0; i < MAX_SEGMENTS; i++) {
+    if (segfeature_active(seg, i, SEG_LVL_ALT_Q) ||
+        segfeature_active(seg, i, SEG_LVL_SKIP)) {
+      seg->q_lvls = 0;
+      return;
+    }
+  }
+
+  aom_wb_write_bit(wb, !!seg->q_lvls);
+  if (!seg->q_lvls) return;
+
+  encode_unsigned_max(wb, seg->q_lvls, MAX_SEGMENTS);
+
+  for (i = 0; i < seg->q_lvls; i++) {
+    const int val = seg->q_delta[i];
+    encode_unsigned_max(wb, abs(val), MAXQ);
+    aom_wb_write_bit(wb, val < 0);
+  }
+}
+#endif
+
 static void write_tx_mode(AV1_COMMON *cm, TX_MODE *mode,
                           struct aom_write_bit_buffer *wb) {
   if (cm->all_lossless) {
@@ -4145,6 +4244,9 @@ static void write_uncompressed_header_frame(AV1_COMP *cpi,
   encode_loopfilter(cm, wb);
   encode_quantization(cm, wb);
   encode_segmentation(cm, xd, wb);
+#if CONFIG_Q_SEGMENTATION
+  encode_q_segmentation(cm, wb);
+#endif
   {
     int delta_q_allowed = 1;
 #if !CONFIG_EXT_DELTA_Q
@@ -4483,6 +4585,9 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
   encode_loopfilter(cm, wb);
   encode_quantization(cm, wb);
   encode_segmentation(cm, xd, wb);
+#if CONFIG_Q_SEGMENTATION
+  encode_q_segmentation(cm, wb);
+#endif
   {
     int delta_q_allowed = 1;
 #if !CONFIG_EXT_DELTA_Q
