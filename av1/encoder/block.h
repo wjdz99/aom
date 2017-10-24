@@ -175,6 +175,9 @@ struct macroblock {
   int *nmvcost_hp[NMV_CONTEXTS][2];
   int **mv_cost_stack[NMV_CONTEXTS];
   int **mvcost;
+#if CONFIG_INTRABC
+  int ndv_joint_cost[MV_JOINTS];
+#endif  // CONFIG_INTRABC
 
 #if CONFIG_MOTION_VAR
   int32_t *wsrc_buf;

@@ -8596,7 +8596,6 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   if (RDCOST(x->rdmult, rd_stats->rate, 0) > ref_best_rd &&
       mbmi->mode != NEARESTMV && mbmi->mode != NEAREST_NEARESTMV)
     return INT64_MAX;
-
   int64_t ret_val = interpolation_filter_search(
       x, cpi, bsize, mi_row, mi_col, &tmp_dst, &orig_dst, args->single_filter,
       &rd, &rs, &skip_txfm_sb, &skip_sse_sb);
@@ -9011,6 +9010,7 @@ static int64_t rd_pick_intrabc_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
   MB_MODE_INFO_EXT *const mbmi_ext = x->mbmi_ext;
   MV_REFERENCE_FRAME ref_frame = INTRA_FRAME;
   int_mv *const candidates = x->mbmi_ext->ref_mvs[ref_frame];
+  //mbmi_ext->mode_context[ref_frame] = 0;
   av1_find_mv_refs(cm, xd, mi, ref_frame, &mbmi_ext->ref_mv_count[ref_frame],
                    mbmi_ext->ref_mv_stack[ref_frame],
                    mbmi_ext->compound_mode_context, candidates, mi_row, mi_col,
@@ -9025,7 +9025,16 @@ static int64_t rd_pick_intrabc_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
 
   int_mv dv_ref = nearestmv.as_int == 0 ? nearmv : nearestmv;
   if (dv_ref.as_int == 0) av1_find_ref_dv(&dv_ref, mi_row, mi_col);
+  assert((dv_ref.as_mv.row & 7) == 0 && (dv_ref.as_mv.col & 7) == 0);
   mbmi_ext->ref_mvs[INTRA_FRAME][0] = dv_ref;
+
+#if 0
+  if ((dv_ref.as_mv.row & 7) || (dv_ref.as_mv.col & 7)) {
+    printf("invalid ref dv %d %d, frame %d mi %d %d\n",
+           dv_ref.as_mv.row, dv_ref.as_mv.col,
+           cm->current_video_frame, mi_row, mi_col);
+  }
+#endif
 
   struct buf_2d yv12_mb[MAX_MB_PLANE];
   av1_setup_pred_block(xd, yv12_mb, xd->cur_buf, mi_row, mi_col, NULL, NULL);
@@ -9043,6 +9052,8 @@ static int64_t rd_pick_intrabc_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
   MB_MODE_INFO best_mbmi = *mbmi;
   RD_STATS best_rdcost = *rd_cost;
   int best_skip = x->skip;
+
+  av1_set_default_mode_info(mbmi);
 
   for (enum IntrabcMotionDirection dir = IBC_MOTION_ABOVE;
        dir < IBC_MOTION_DIRECTIONS; ++dir) {
@@ -9112,11 +9123,19 @@ static int64_t rd_pick_intrabc_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
     x->skip = 0;
     av1_build_inter_predictors_sb(cm, xd, mi_row, mi_col, NULL, bsize);
 
-    assert(x->mvcost == x->mv_cost_stack[0]);
+    //assert(x->mvcost == x->mv_cost_stack[0]);
     // TODO(aconverse@google.com): The full motion field defining discount
     // in MV_COST_WEIGHT is too large. Explore other values.
+#if 1
+    int *dvcost[2] = {
+        &cpi->ndv_cost[0][MV_MAX], &cpi->ndv_cost[1][MV_MAX]
+    };
+    int rate_mv = av1_mv_bit_cost(&dv, &dv_ref.as_mv, cpi->td.mb.ndv_joint_cost,
+                                  dvcost, MV_COST_WEIGHT_SUB);
+#else
     int rate_mv = av1_mv_bit_cost(&dv, &dv_ref.as_mv, x->nmvjointcost,
-                                  x->mvcost, MV_COST_WEIGHT_SUB);
+                                  x->mv_cost_stack[0], MV_COST_WEIGHT_SUB);
+#endif
     const int rate_mode = x->intrabc_cost[1];
     RD_STATS rd_stats, rd_stats_uv;
     av1_subtract_plane(x, bsize, 0);
@@ -9166,6 +9185,9 @@ static int64_t rd_pick_intrabc_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
       best_rdcost = rdc_skip;
     }
   }
+
+  EXIT: {}
+
   *mbmi = best_mbmi;
   *rd_cost = best_rdcost;
   x->skip = best_skip;
@@ -9948,6 +9970,9 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
     mbmi->ref_frame[1] = second_ref_frame;
     pmi->palette_size[0] = 0;
     pmi->palette_size[1] = 0;
+#if CONFIG_INTRABC
+    mbmi->use_intrabc = 0;
+#endif  // CONFIG_INTRABC
 #if CONFIG_FILTER_INTRA
     mbmi->filter_intra_mode_info.use_filter_intra_mode[0] = 0;
     mbmi->filter_intra_mode_info.use_filter_intra_mode[1] = 0;
@@ -10965,7 +10990,36 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
       best_mode_skippable = skippable;
     }
   }
-PALETTE_EXIT:
+PALETTE_EXIT:{}
+
+#if CONFIG_INTRABC1
+{
+  //printf("in rd_pick_intrabc_mode_sb\n");
+  RD_STATS intrabc_rd_cost = *rd_cost;
+  const MB_MODE_INFO mbmi_backup = *mbmi;
+  const MB_MODE_INFO_EXT ext_mbmi_backup = *mbmi_ext;
+  const int64_t intrabc_rd =
+      rd_pick_intrabc_mode_sb(cpi, x, &intrabc_rd_cost, bsize, best_rd);
+  //printf("out rd_pick_intrabc_mode_sb %10lld vs %10lld\n",
+    //     intrabc_rd, best_rd);
+  const int backup_skip = x->skip;
+  if (intrabc_rd < best_rd) {
+    assert(rd_cost->rate != INT_MAX);
+    best_mode_index = THR_DC;
+    best_mbmode = *mbmi;
+    best_rd = intrabc_rd;
+    best_mode_skippable = rd_cost->skip;
+    best_skip2 = x->skip;
+    *rd_cost = intrabc_rd_cost;
+    //printf("====ibc selected\n\n");
+  } else {
+    *mbmi = mbmi_backup;
+    *mbmi_ext = ext_mbmi_backup;
+    x->skip = backup_skip;
+  }
+ /* */
+}
+#endif
 
 // The inter modes' rate costs are not calculated precisely in some cases.
 // Therefore, sometimes, NEWMV is chosen instead of NEARESTMV, NEARMV, and

@@ -227,6 +227,19 @@ void av1_encode_dv(aom_writer *w, const MV *mv, const MV *ref,
   if (mv_joint_horizontal(j))
     encode_mv_component(w, diff.col, &mvctx->comps[1], MV_SUBPEL_NONE);
 }
+
+void av1_encode_dv_d(aom_writer *w, const MV *mv, const MV *ref,
+                     nmv_context *mvctx) {
+  const MV diff = { mv->row - ref->row, mv->col - ref->col };
+  const MV_JOINT_TYPE j = av1_get_mv_joint(&diff);
+
+  aom_write_symbol(w, j, mvctx->joint_cdf, MV_JOINTS);
+  if (mv_joint_vertical(j))
+    encode_mv_component(w, diff.row, &mvctx->comps[0], MV_SUBPEL_NONE);
+
+  if (mv_joint_horizontal(j))
+    encode_mv_component(w, diff.col, &mvctx->comps[1], MV_SUBPEL_NONE);
+}
 #endif  // CONFIG_INTRABC
 
 void av1_build_nmv_cost_table(int *mvjoint, int *mvcost[2],

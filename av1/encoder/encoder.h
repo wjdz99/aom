@@ -451,6 +451,9 @@ typedef struct AV1_COMP {
 
   int nmv_costs[NMV_CONTEXTS][2][MV_VALS];
   int nmv_costs_hp[NMV_CONTEXTS][2][MV_VALS];
+#if CONFIG_INTRABC
+  int ndv_cost[2][MV_VALS];
+#endif  // CONFIG_INTRABC
 
   int64_t last_time_stamp_seen;
   int64_t last_end_time_stamp_seen;

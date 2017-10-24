@@ -74,7 +74,9 @@ static uint8_t add_ref_mv_candidate(
   (void)subsampling_x;
   (void)subsampling_y;
 #endif  // CONFIG_EXT_WARPED_MOTION
-
+#if CONFIG_INTRABC
+   if (!is_inter_block(candidate)) return 0;
+#endif  // CONFIG_INTRABC
   if (rf[1] == NONE_FRAME) {
     // single reference frame
     for (ref = 0; ref < 2; ++ref) {
@@ -993,9 +995,6 @@ static void find_mv_refs_idx(const AV1_COMMON *cm, const MACROBLOCKD *xd,
 #endif
 #endif  // CONFIG_TMV
 
-#if CONFIG_INTRABC
-  assert(IMPLIES(ref_frame == INTRA_FRAME, cm->use_prev_frame_mvs == 0));
-#endif
   const TileInfo *const tile = &xd->tile;
   const BLOCK_SIZE bsize = mi->mbmi.sb_type;
   const int bw = block_size_wide[AOMMAX(bsize, BLOCK_8X8)];
@@ -1050,6 +1049,9 @@ static void find_mv_refs_idx(const AV1_COMMON *cm, const MACROBLOCKD *xd,
       const MODE_INFO *const candidate_mi =
           xd->mi[mv_ref->col + mv_ref->row * xd->mi_stride];
       const MB_MODE_INFO *const candidate = &candidate_mi->mbmi;
+#if CONFIG_INTRABC
+      if (ref_frame == INTRA_FRAME && !is_intrabc_block(candidate)) continue;
+#endif  // CONFIG_INTRABC
       // Keep counts for entropy encoding.
       context_counter += mode_2_counter[candidate->mode];
       different_ref_found = 1;
@@ -1074,6 +1076,9 @@ static void find_mv_refs_idx(const AV1_COMMON *cm, const MACROBLOCKD *xd,
               ? NULL
               : &xd->mi[mv_ref->col + mv_ref->row * xd->mi_stride]->mbmi;
       if (candidate == NULL) continue;
+#if CONFIG_INTRABC
+      if (ref_frame == INTRA_FRAME && !is_intrabc_block(candidate)) continue;
+#endif  // CONFIG_INTRABC
       if ((mi_row & (sb_mi_size - 1)) + mv_ref->row >= sb_mi_size ||
           (mi_col & (sb_mi_size - 1)) + mv_ref->col >= sb_mi_size)
         continue;
@@ -1099,7 +1104,7 @@ static void find_mv_refs_idx(const AV1_COMMON *cm, const MACROBLOCKD *xd,
 #endif
 
   // Check the last frame's mode and mv info.
-  if (cm->use_prev_frame_mvs) {
+  if (cm->use_prev_frame_mvs && ref_frame > INTRA_FRAME) {
     // Synchronize here for frame parallel decode if sync function is provided.
     if (cm->frame_parallel_decode && sync != NULL) {
       sync(data, mi_row);
@@ -1117,7 +1122,7 @@ static void find_mv_refs_idx(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   // Since we couldn't find 2 mvs from the same reference frame
   // go back through the neighbors and find motion vectors from
   // different reference frames.
-  if (different_ref_found) {
+  if (different_ref_found && ref_frame > INTRA_FRAME) {
     for (i = 0; i < MVREF_NEIGHBOURS; ++i) {
       const POSITION *mv_ref = &mv_ref_search[i];
       if (is_inside(tile, mi_col, mi_row, cm->mi_rows, cm, mv_ref)) {
@@ -1138,7 +1143,7 @@ static void find_mv_refs_idx(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   }
 
   // Since we still don't have a candidate we'll try the last frame.
-  if (cm->use_prev_frame_mvs) {
+  if (cm->use_prev_frame_mvs && ref_frame > INTRA_FRAME) {
     if (prev_frame_mvs->ref_frame[0] != ref_frame &&
         prev_frame_mvs->ref_frame[0] > INTRA_FRAME) {
       int_mv mv = prev_frame_mvs->mv[0];
@@ -1199,6 +1204,9 @@ void av1_update_mv_context(const AV1_COMMON *cm, const MACROBLOCKD *xd,
       const MODE_INFO *const candidate_mi =
           xd->mi[mv_ref->col + mv_ref->row * xd->mi_stride];
       const MB_MODE_INFO *const candidate = &candidate_mi->mbmi;
+#if CONFIG_INTRABC
+      if (ref_frame == INTRA_FRAME && !is_intrabc_block(candidate)) continue;
+#endif  // CONFIG_INTRABC
 
       // Keep counts for entropy encoding.
       context_counter += mode_2_counter[candidate->mode];
@@ -1237,6 +1245,15 @@ void av1_find_mv_refs(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   av1_update_mv_context(cm, xd, mi, ref_frame, mv_ref_list, -1, mi_row, mi_col,
                         compound_mode_context);
 
+#if 1
+  if (ref_frame == INTRA_FRAME) {
+    for (int i = 0; i < 2; ++i) {
+      if ((mv_ref_list[i].as_mv.row & 7) || (mv_ref_list[i].as_mv.col & 7))
+        printf("av1_update_mv_context\n");
+    }
+  }
+#endif
+
 #if CONFIG_GLOBAL_MOTION
   if (!CONFIG_INTRABC || ref_frame != INTRA_FRAME) {
     av1_set_ref_frame(rf, ref_frame);
@@ -1271,6 +1288,15 @@ void av1_find_mv_refs(const AV1_COMMON *cm, const MACROBLOCKD *xd,
     find_mv_refs_idx(cm, xd, mi, ref_frame, mv_ref_list, -1, mi_row, mi_col,
                      sync, data, mode_context, zeromv[0]);
 
+#if 1
+  if (ref_frame == INTRA_FRAME) {
+    for (int i = 0; i < 2; ++i) {
+      if ((mv_ref_list[i].as_mv.row & 7) || (mv_ref_list[i].as_mv.col & 7))
+        printf("find_mv_refs_idx\n");
+    }
+  }
+#endif
+
   setup_ref_mv_list(cm, xd, ref_frame, ref_mv_count, ref_mv_stack, mv_ref_list,
 #if CONFIG_GLOBAL_MOTION && USE_CUR_GM_REFMV
                     zeromv,
@@ -1291,6 +1317,7 @@ void av1_find_mv_refs(const AV1_COMMON *cm, const MACROBLOCKD *xd,
        zero, so sets the ALL_ZERO flag.
      * This leads to an encode/decode mismatch.
   */
+
   for (idx = 0; idx < AOMMIN(3, *ref_mv_count); ++idx) {
     if (ref_mv_stack[idx].this_mv.as_int != zeromv[0].as_int) all_zero = 0;
     if (ref_frame > ALTREF_FRAME)

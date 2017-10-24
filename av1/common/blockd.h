@@ -1615,6 +1615,26 @@ static INLINE PLANE_TYPE get_plane_type(int plane) {
   return (plane == 0) ? PLANE_TYPE_Y : PLANE_TYPE_UV;
 }
 
+static INLINE void av1_set_default_mode_info(MB_MODE_INFO *mbmi) {
+  mbmi->mode = DC_PRED;
+  mbmi->uv_mode = UV_DC_PRED;
+  mbmi->ref_frame[0] = INTRA_FRAME;
+  mbmi->ref_frame[1] = NONE_FRAME;
+  mbmi->palette_mode_info.palette_size[0] = 0;
+  mbmi->palette_mode_info.palette_size[1] = 0;
+#if CONFIG_INTRABC
+  mbmi->use_intrabc = 0;
+#endif  // CONFIG_INTRABC
+#if CONFIG_FILTER_INTRA
+  mbmi->filter_intra_mode_info.use_filter_intra_mode[0] = 0;
+  mbmi->filter_intra_mode_info.use_filter_intra_mode[1] = 0;
+#endif  // CONFIG_FILTER_INTRA
+  mbmi->motion_mode = SIMPLE_TRANSLATION;
+#if CONFIG_INTERINTRA
+  mbmi->use_wedge_interintra = 0;
+#endif  // CONFIG_INTERINTRA
+}
+
 static INLINE void transpose_uint8(uint8_t *dst, int dst_stride,
                                    const uint8_t *src, int src_stride, int w,
                                    int h) {

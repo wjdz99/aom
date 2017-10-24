@@ -1072,6 +1072,10 @@ static INLINE void read_mv(aom_reader *r, MV *mv, const MV *ref,
                            nmv_context *ctx, nmv_context_counts *counts,
                            MvSubpelPrecision precision);
 
+static INLINE void read_mv_d(aom_reader *r, MV *mv, const MV *ref,
+                           nmv_context *ctx, nmv_context_counts *counts,
+                           MvSubpelPrecision precision);
+
 static INLINE int is_mv_valid(const MV *mv);
 
 static INLINE int assign_dv(AV1_COMMON *cm, MACROBLOCKD *xd, int_mv *mv,
@@ -1081,8 +1085,21 @@ static INLINE int assign_dv(AV1_COMMON *cm, MACROBLOCKD *xd, int_mv *mv,
   (void)cm;
   FRAME_COUNTS *counts = xd->counts;
   nmv_context_counts *const dv_counts = counts ? &counts->dv : NULL;
-  read_mv(r, &mv->as_mv, &ref_mv->as_mv, &ec_ctx->ndvc, dv_counts,
-          MV_SUBPEL_NONE);
+  if (cm->current_video_frame > 0 && 0) {
+    read_mv_d(r, &mv->as_mv, &ref_mv->as_mv, &ec_ctx->ndvc, dv_counts,
+              MV_SUBPEL_NONE);
+  } else {
+    read_mv(r, &mv->as_mv, &ref_mv->as_mv, &ec_ctx->ndvc, dv_counts,
+              MV_SUBPEL_NONE);
+  }
+
+#if 0
+  if (cm->current_video_frame > 0) {
+    printf("\n dec ref %d %d, mv %d %d\n",
+           ref_mv->as_mv.row, ref_mv->as_mv.col, mv->as_mv.row, mv->as_mv.col);
+  }
+#endif
+
   int valid = is_mv_valid(&mv->as_mv) &&
               is_dv_valid(mv->as_mv, &xd->tile, mi_row, mi_col, bsize);
   return valid;
@@ -1095,6 +1112,7 @@ static void read_intrabc_info(AV1_COMMON *const cm, MACROBLOCKD *const xd,
   MODE_INFO *const mi = xd->mi[0];
   MB_MODE_INFO *const mbmi = &mi->mbmi;
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
+  av1_set_default_mode_info(mbmi);
   mbmi->use_intrabc = aom_read_symbol(r, ec_ctx->intrabc_cdf, 2, ACCT_STR);
   if (mbmi->use_intrabc) {
     const BLOCK_SIZE bsize = mbmi->sb_type;
@@ -1123,7 +1141,10 @@ static void read_intrabc_info(AV1_COMMON *const cm, MACROBLOCKD *const xd,
       mbmi->min_tx_size = get_min_tx_size(mbmi->tx_size);
       set_txfm_ctxs(mbmi->tx_size, xd->n8_w, xd->n8_h, mbmi->skip, xd);
     }
-    mbmi->mode = mbmi->uv_mode = UV_DC_PRED;
+    mbmi->mode = DC_PRED;
+    mbmi->uv_mode = UV_DC_PRED;
+    mbmi->ref_frame[0] = INTRA_FRAME;
+    mbmi->ref_frame[1] = NONE_FRAME;
     mbmi->interp_filters = av1_broadcast_interp_filter(BILINEAR);
 
     int16_t inter_mode_ctx[MODE_CTX_REF_FRAMES];
@@ -1142,11 +1163,23 @@ static void read_intrabc_info(AV1_COMMON *const cm, MACROBLOCKD *const xd,
 #endif
     int_mv dv_ref = nearestmv.as_int == 0 ? nearmv : nearestmv;
     if (dv_ref.as_int == 0) av1_find_ref_dv(&dv_ref, mi_row, mi_col);
-    xd->corrupted |=
+    dv_ref.as_mv.row = (dv_ref.as_mv.row >> 3) << 3;
+    dv_ref.as_mv.col = (dv_ref.as_mv.col >> 3) << 3;
+    const int is_corrupted =
         !assign_dv(cm, xd, &mbmi->mv[0], &dv_ref, mi_row, mi_col, bsize, r);
-#if CONFIG_EXT_TX && !CONFIG_TXK_SEL
+    if (is_corrupted) {
+      printf("is_corrupted frame %d mi %d %d\n",
+             cm->current_video_frame, mi_row, mi_col);
+    }
+    xd->corrupted |= is_corrupted;
+#if !CONFIG_TXK_SEL
     av1_read_tx_type(cm, xd, r);
 #endif  // CONFIG_EXT_TX && !CONFIG_TXK_SEL
+#if 0
+    if (!frame_is_intra_only(cm)) {
+      printf("\n intrabc\n");
+    }
+#endif
   }
 }
 #endif  // CONFIG_INTRABC
@@ -1350,6 +1383,71 @@ static int read_mv_component(aom_reader *r, nmv_component *mvcomp,
   return sign ? -mag : mag;
 }
 
+static int read_mv_component_d(aom_reader *r, nmv_component *mvcomp,
+#if CONFIG_INTRABC || CONFIG_AMVR
+                             int use_subpel,
+#endif  // CONFIG_INTRABC || CONFIG_AMVR
+                             int usehp) {
+  int mag, d, fr, hp;
+#if CONFIG_NEW_MULTISYMBOL
+  const int sign = aom_read_bit(r, ACCT_STR);
+#else
+  const int sign = aom_read(r, mvcomp->sign, ACCT_STR);
+#endif
+  const int mv_class =
+      aom_read_symbol(r, mvcomp->class_cdf, MV_CLASSES, ACCT_STR);
+  const int class0 = mv_class == MV_CLASS_0;
+
+  // Integer part
+  if (class0) {
+#if CONFIG_NEW_MULTISYMBOL
+    d = aom_read_symbol(r, mvcomp->class0_cdf, CLASS0_SIZE, ACCT_STR);
+#else
+    d = aom_read(r, mvcomp->class0[0], ACCT_STR);
+#endif
+    mag = 0;
+  } else {
+    int i;
+    const int n = mv_class + CLASS0_BITS - 1;  // number of bits
+    d = 0;
+#if CONFIG_NEW_MULTISYMBOL
+    for (i = 0; i < n; ++i)
+      d |= aom_read_symbol(r, mvcomp->bits_cdf[(i + 1) / 2], 2, ACCT_STR) << i;
+#else
+    for (i = 0; i < n; ++i) d |= aom_read(r, mvcomp->bits[i], ACCT_STR) << i;
+#endif
+    mag = CLASS0_SIZE << (mv_class + 2);
+  }
+
+#if CONFIG_INTRABC || CONFIG_AMVR
+  if (use_subpel) {
+#endif  // CONFIG_INTRABC || CONFIG_AMVR
+        // Fractional part
+    fr = aom_read_symbol(r, class0 ? mvcomp->class0_fp_cdf[d] : mvcomp->fp_cdf,
+                         MV_FP_SIZE, ACCT_STR);
+
+// High precision part (if hp is not used, the default value of the hp is 1)
+#if CONFIG_NEW_MULTISYMBOL
+    hp = usehp ? aom_read_symbol(
+                     r, class0 ? mvcomp->class0_hp_cdf : mvcomp->hp_cdf, 2,
+                     ACCT_STR)
+               : 1;
+#else
+  hp = usehp ? aom_read(r, class0 ? mvcomp->class0_hp : mvcomp->hp, ACCT_STR)
+             : 1;
+#endif
+#if CONFIG_INTRABC || CONFIG_AMVR
+  } else {
+    fr = 3;
+    hp = 1;
+  }
+#endif  // CONFIG_INTRABC || CONFIG_AMVR
+
+  // Result
+  mag += ((d << 3) | (fr << 1) | hp) + 1;
+  return sign ? -mag : mag;
+}
+
 static INLINE void read_mv(aom_reader *r, MV *mv, const MV *ref,
                            nmv_context *ctx, nmv_context_counts *counts,
                            MvSubpelPrecision precision) {
@@ -1367,6 +1465,35 @@ static INLINE void read_mv(aom_reader *r, MV *mv, const MV *ref,
 
   if (mv_joint_horizontal(joint_type))
     diff.col = read_mv_component(r, &ctx->comps[1],
+#if CONFIG_INTRABC || CONFIG_AMVR
+                                 precision > MV_SUBPEL_NONE,
+#endif  // CONFIG_INTRABC || CONFIG_AMVR
+                                 precision > MV_SUBPEL_LOW_PRECISION);
+
+  av1_inc_mv(&diff, counts, precision);
+
+  mv->row = ref->row + diff.row;
+  mv->col = ref->col + diff.col;
+}
+
+static INLINE void read_mv_d(aom_reader *r, MV *mv, const MV *ref,
+                           nmv_context *ctx, nmv_context_counts *counts,
+                           MvSubpelPrecision precision) {
+  MV_JOINT_TYPE joint_type;
+  MV diff = { 0, 0 };
+  joint_type =
+      (MV_JOINT_TYPE)aom_read_symbol(r, ctx->joint_cdf, MV_JOINTS, ACCT_STR);
+  printf("\n dec joint_type %d\n", joint_type);
+
+  if (mv_joint_vertical(joint_type))
+    diff.row = read_mv_component_d(r, &ctx->comps[0],
+#if CONFIG_INTRABC || CONFIG_AMVR
+                                 precision > MV_SUBPEL_NONE,
+#endif  // CONFIG_INTRABC || CONFIG_AMVR
+                                 precision > MV_SUBPEL_LOW_PRECISION);
+
+  if (mv_joint_horizontal(joint_type))
+    diff.col = read_mv_component_d(r, &ctx->comps[1],
 #if CONFIG_INTRABC || CONFIG_AMVR
                                  precision > MV_SUBPEL_NONE,
 #endif  // CONFIG_INTRABC || CONFIG_AMVR
@@ -2752,12 +2879,19 @@ static void read_inter_frame_mode_info(AV1Decoder *const pbi,
 
   mbmi->current_q_index = xd->current_qindex;
 
-  inter_block = read_is_inter_block(cm, xd, mbmi->segment_id, r);
-
   xd->above_txfm_context =
       cm->above_txfm_context + (mi_col << TX_UNIT_WIDE_LOG2);
   xd->left_txfm_context = xd->left_txfm_context_buffer +
                           ((mi_row & MAX_MIB_MASK) << TX_UNIT_HIGH_LOG2);
+
+#if CONFIG_INTRABC
+  if (av1_allow_intrabc(bsize, cm)) {
+    read_intrabc_info(cm, xd, mi_row, mi_col, r);
+    if (is_intrabc_block(mbmi)) return;
+  }
+#endif  // CONFIG_INTRABC
+
+  inter_block = read_is_inter_block(cm, xd, mbmi->segment_id, r);
 
   if (cm->tx_mode == TX_MODE_SELECT && block_signals_txsize(bsize) &&
       !mbmi->skip && inter_block && !xd->lossless[mbmi->segment_id]) {
@@ -2866,6 +3000,20 @@ void av1_read_mode_info(AV1Decoder *const pbi, MACROBLOCKD *xd, int mi_row,
     av1_intra_copy_frame_mvs(cm, mi_row, mi_col, x_mis, y_mis);
   } else {
     read_inter_frame_mode_info(pbi, xd, mi_row, mi_col, r);
+#if 0
+    {
+      FILE *fp = fopen("dec.txt", "a");
+      MODE_INFO *const mi = xd->mi[0];
+      MB_MODE_INFO *const mbmi = &mi->mbmi;
+      fprintf(fp, "frame %d, mi %d %d, mode %d %d, ref %d %d, is_intrabc %d\n",
+              cm->current_video_frame, mi_row, mi_col,
+              mbmi->mode, mbmi->uv_mode, mbmi->ref_frame[0], mbmi->ref_frame[0],
+              mbmi->use_intrabc);
+
+      fprintf(fp, "\n");
+      fclose(fp);
+    }
+#endif
     av1_copy_frame_mvs(cm, mi, mi_row, mi_col, x_mis, y_mis);
   }
 }

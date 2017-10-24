@@ -1461,6 +1461,52 @@ static void write_cfl_alphas(FRAME_CONTEXT *const ec_ctx, int idx,
 }
 #endif
 
+#if CONFIG_INTRABC
+static void write_intrabc_info(AV1_COMMON *cm, MACROBLOCKD *xd,
+                               const MB_MODE_INFO_EXT *mbmi_ext,
+                               int enable_tx_size, aom_writer *w) {
+  const MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
+  int use_intrabc = is_intrabc_block(mbmi);
+  FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
+  aom_write_symbol(w, use_intrabc, ec_ctx->intrabc_cdf, 2);
+  if (use_intrabc) {
+    assert(mbmi->mode == DC_PRED);
+    assert(mbmi->uv_mode == UV_DC_PRED);
+    assert(mbmi->ref_frame[0] == INTRA_FRAME);
+    assert(mbmi->ref_frame[1] == NONE_FRAME);
+    if ((enable_tx_size && !mbmi->skip)) {
+      const BLOCK_SIZE bsize = mbmi->sb_type;
+      const TX_SIZE max_tx_size = get_vartx_max_txsize(mbmi, bsize, 0);
+      const int bh = tx_size_high_unit[max_tx_size];
+      const int bw = tx_size_wide_unit[max_tx_size];
+      const int width = block_size_wide[bsize] >> tx_size_wide_log2[0];
+      const int height = block_size_high[bsize] >> tx_size_wide_log2[0];
+      int init_depth =
+          (height != width) ? RECT_VARTX_DEPTH_INIT : SQR_VARTX_DEPTH_INIT;
+      int idx, idy;
+      for (idy = 0; idy < height; idy += bh) {
+        for (idx = 0; idx < width; idx += bw) {
+          write_tx_size_vartx(cm, xd, mbmi, max_tx_size, init_depth, idy, idx,
+                              w);
+        }
+      }
+    } else {
+      set_txfm_ctxs(mbmi->tx_size, xd->n8_w, xd->n8_h, mbmi->skip, xd);
+    }
+    int_mv dv_ref = mbmi_ext->ref_mvs[INTRA_FRAME][0];
+    assert((dv_ref.as_mv.row & 7) == 0 && (dv_ref.as_mv.col & 7) == 0);
+    if (cm->current_video_frame > 0 && 0) {
+      av1_encode_dv_d(w, &mbmi->mv[0].as_mv, &dv_ref.as_mv, &ec_ctx->ndvc);
+    } else {
+      av1_encode_dv(w, &mbmi->mv[0].as_mv, &dv_ref.as_mv, &ec_ctx->ndvc);
+    }
+#if !CONFIG_TXK_SEL
+    av1_write_tx_type(cm, xd, w);
+#endif  // CONFIG_EXT_TX && !CONFIG_TXK_SEL
+  }
+}
+#endif  // CONFIG_INTRABC
+
 static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
                                 const int mi_col, aom_writer *w) {
   AV1_COMMON *const cm = &cpi->common;
@@ -1482,6 +1528,19 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
   int skip, ref;
   (void)mi_row;
   (void)mi_col;
+
+#if 0
+    {
+      FILE *fp = fopen("enc.txt", "a");
+      fprintf(fp, "frame %d, mi %d %d, mode %d %d, ref %d %d, is_intrabc %d\n",
+              cm->current_video_frame, mi_row, mi_col,
+              mbmi->mode, mbmi->uv_mode, mbmi->ref_frame[0], mbmi->ref_frame[0],
+              mbmi->use_intrabc);
+
+      fprintf(fp, "\n");
+      fclose(fp);
+    }
+#endif
 
   if (seg->update_map) {
     if (seg->temporal_update) {
@@ -1540,6 +1599,16 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
 #endif  // CONFIG_EXT_DELTA_Q
     }
   }
+
+#if CONFIG_INTRABC
+  if (av1_allow_intrabc(bsize, cm)) {
+    int enable_tx_size =
+        cm->tx_mode == TX_MODE_SELECT && block_signals_txsize(bsize) &&
+        !skip && !xd->lossless[segment_id];
+    write_intrabc_info(cm, xd, mbmi_ext, enable_tx_size, w);
+    if (is_intrabc_block(mbmi)) return;
+  }
+#endif  // CONFIG_INTRABC
 
   write_is_inter(cm, xd, mbmi->segment_id, w, is_inter);
 
@@ -1801,45 +1870,6 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
   av1_write_tx_type(cm, xd, w);
 #endif  // !CONFIG_TXK_SEL
 }
-
-#if CONFIG_INTRABC
-static void write_intrabc_info(AV1_COMMON *cm, MACROBLOCKD *xd,
-                               const MB_MODE_INFO_EXT *mbmi_ext,
-                               int enable_tx_size, aom_writer *w) {
-  const MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
-  int use_intrabc = is_intrabc_block(mbmi);
-  FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
-  aom_write_symbol(w, use_intrabc, ec_ctx->intrabc_cdf, 2);
-  if (use_intrabc) {
-    assert(mbmi->mode == DC_PRED);
-    assert(mbmi->uv_mode == UV_DC_PRED);
-    if ((enable_tx_size && !mbmi->skip)) {
-      const BLOCK_SIZE bsize = mbmi->sb_type;
-      const TX_SIZE max_tx_size = get_vartx_max_txsize(mbmi, bsize, 0);
-      const int bh = tx_size_high_unit[max_tx_size];
-      const int bw = tx_size_wide_unit[max_tx_size];
-      const int width = block_size_wide[bsize] >> tx_size_wide_log2[0];
-      const int height = block_size_high[bsize] >> tx_size_wide_log2[0];
-      int init_depth =
-          (height != width) ? RECT_VARTX_DEPTH_INIT : SQR_VARTX_DEPTH_INIT;
-      int idx, idy;
-      for (idy = 0; idy < height; idy += bh) {
-        for (idx = 0; idx < width; idx += bw) {
-          write_tx_size_vartx(cm, xd, mbmi, max_tx_size, init_depth, idy, idx,
-                              w);
-        }
-      }
-    } else {
-      set_txfm_ctxs(mbmi->tx_size, xd->n8_w, xd->n8_h, mbmi->skip, xd);
-    }
-    int_mv dv_ref = mbmi_ext->ref_mvs[INTRA_FRAME][0];
-    av1_encode_dv(w, &mbmi->mv[0].as_mv, &dv_ref.as_mv, &ec_ctx->ndvc);
-#if CONFIG_EXT_TX && !CONFIG_TXK_SEL
-    av1_write_tx_type(cm, xd, w);
-#endif  // CONFIG_EXT_TX && !CONFIG_TXK_SEL
-  }
-}
-#endif  // CONFIG_INTRABC
 
 static void write_mb_modes_kf(AV1_COMMON *cm, MACROBLOCKD *xd,
 #if CONFIG_INTRABC

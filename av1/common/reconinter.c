@@ -1220,10 +1220,18 @@ static INLINE void build_inter_predictors(
   const int col_start = (block_size_wide[bsize] == 4) && ss_x ? -1 : 0;
 
   if (sub8x8_inter) {
-    for (int row = row_start; row <= 0 && sub8x8_inter; ++row)
-      for (int col = col_start; col <= 0; ++col)
-        if (!is_inter_block(&xd->mi[row * xd->mi_stride + col]->mbmi))
+    for (int row = row_start; row <= 0 && sub8x8_inter; ++row) {
+      for (int col = col_start; col <= 0; ++col) {
+        const MB_MODE_INFO *this_mbmi =
+            &xd->mi[row * xd->mi_stride + col]->mbmi;
+#if CONFIG_INTRABC
+        if (!is_inter_block(this_mbmi) || is_intrabc_block(this_mbmi))
+#else
+        if (!is_inter_block(this_mbmi))
+#endif  // CONFIG_INTRABC
           sub8x8_inter = 0;
+      }
+    }
   }
 
   if (sub8x8_inter) {
@@ -1606,6 +1614,7 @@ static void build_inter_predictors_for_planes(const AV1_COMMON *cm,
                            xd->mi[0], 0,
 #endif  // CONFIG_MOTION_VAR
                            0, bw, bh, 0, 0, bw, bh, mi_x, mi_y);
+
   }
 }
 

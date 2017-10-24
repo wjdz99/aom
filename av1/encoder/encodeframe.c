@@ -1061,7 +1061,9 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td, int mi_row,
 #endif  // CONFIG_LOOPFILTER_LEVEL
 #endif
   }
-  if (!frame_is_intra_only(cm)) {
+  //  && !is_intrabc_block(mbmi)
+  if (!frame_is_intra_only(cm) &&
+      !(av1_allow_intrabc(bsize, cm) && is_intrabc_block(mbmi))) {
     FRAME_COUNTS *const counts = td->counts;
     RD_COUNTS *rdc = &td->rd_counts;
     const int inter_block = is_inter_block(mbmi);
@@ -1346,15 +1348,6 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td, int mi_row,
         }
       }
     }
-#if CONFIG_INTRABC
-  } else {
-    if (av1_allow_intrabc(bsize, cm)) {
-      FRAME_COUNTS *const counts = td->counts;
-      ++counts->intrabc[mbmi->use_intrabc];
-    } else {
-      assert(!mbmi->use_intrabc);
-    }
-#endif
   }
 }
 
@@ -4615,6 +4608,14 @@ static void encode_superblock(const AV1_COMP *const cpi, ThreadData *td,
   const int mi_height = mi_size_high[bsize];
   const int is_inter = is_inter_block(mbmi);
   const BLOCK_SIZE block_size = bsize;
+
+  /*
+  if (!frame_is_intra_only(cm) && mbmi->use_intrabc) {
+    int i;
+    printf(">>>>>>mi %d %d\n", mi_row, mi_col);
+    scanf("%d", &i);
+  }
+  */
 
   if (!is_inter) {
 #if CONFIG_CFL

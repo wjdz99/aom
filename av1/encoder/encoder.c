@@ -5487,7 +5487,7 @@ static void encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
 #endif  // CONFIG_LOOPFILTER_LEVEL
 #endif
 
-  if (cpi->sf.recode_loop == DISALLOW_RECODE) {
+  if (cpi->sf.recode_loop == DISALLOW_RECODE || 1) {
     encode_without_recode_loop(cpi);
   } else {
     encode_with_recode_loop(cpi, size, dest);
