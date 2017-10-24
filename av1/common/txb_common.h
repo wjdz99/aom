@@ -277,7 +277,7 @@ static const int sig_ref_offset_horiz[SIG_REF_OFFSET_NUM][2] = {
   { 0, 3 }, { 0, 4 }, { 1, 2 }, { 1, 1 }, { 1, 0 }, { 0, 2 }, { 0, 1 },
 };
 
-static INLINE int get_nz_count(const tran_low_t *tcoeffs, int bwl, int height,
+static INLINE int get_nz_count(const void *tcoeffs, int bwl, int height,
                                int row, int col, TX_CLASS tx_class,
                                const int coeff_is_byte_flag) {
   int count = 0;
