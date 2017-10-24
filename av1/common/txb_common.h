@@ -12,9 +12,6 @@
 #ifndef AV1_COMMON_TXB_COMMON_H_
 #define AV1_COMMON_TXB_COMMON_H_
 
-#define REDUCE_CONTEXT_DEPENDENCY 0
-#define MIN_SCAN_IDX_REDUCE_CONTEXT_DEPENDENCY 0
-
 extern const int16_t k_eob_group_start[12];
 extern const int16_t k_eob_offset_bits[12];
 int16_t get_eob_pos_token(int eob, int16_t *extra);
@@ -335,7 +332,7 @@ static const int sig_ref_offset_horiz[SIG_REF_OFFSET_NUM][2] = {
   { 0, 3 }, { 0, 4 }, { 1, 2 }, { 1, 1 }, { 1, 0 }, { 0, 2 }, { 0, 1 },
 };
 
-static INLINE int get_nz_count(const tran_low_t *tcoeffs, int bwl, int height,
+static INLINE int get_nz_count(const void *tcoeffs, int bwl, int height,
                                int row, int col, TX_CLASS tx_class,
                                const int coeff_is_byte_flag) {
   int count = 0;
