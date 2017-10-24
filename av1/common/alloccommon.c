@@ -48,8 +48,16 @@ void av1_set_mb_mi(AV1_COMMON *cm, int width, int height) {
   cm->MBs = cm->mb_rows * cm->mb_cols;
 }
 
-static int alloc_seg_map(AV1_COMMON *cm, int seg_map_size) {
+static int alloc_seg_map(AV1_COMMON *cm, int rows, int cols) {
   int i;
+  int seg_map_size = rows * cols;
+
+#if CONFIG_Q_SEGMENTATION
+  cm->q_seg_map_row[0] = (uint8_t *)aom_calloc(cols, 1);
+  if (!cm->q_seg_map_row[0]) return 1;
+  cm->q_seg_map_row[1] = (uint8_t *)aom_calloc(cols, 1);
+  if (!cm->q_seg_map_row[1]) return 1;
+#endif
 
   for (i = 0; i < NUM_PING_PONG_BUFFERS; ++i) {
     cm->seg_map_array[i] = (uint8_t *)aom_calloc(seg_map_size, 1);
@@ -70,6 +78,13 @@ static int alloc_seg_map(AV1_COMMON *cm, int seg_map_size) {
 
 static void free_seg_map(AV1_COMMON *cm) {
   int i;
+
+#if CONFIG_Q_SEGMENTATION
+  aom_free(cm->q_seg_map_row[0]);
+  cm->q_seg_map_row[0] = NULL;
+  aom_free(cm->q_seg_map_row[1]);
+  cm->q_seg_map_row[1] = NULL;
+#endif
 
   for (i = 0; i < NUM_PING_PONG_BUFFERS; ++i) {
     aom_free(cm->seg_map_array[i]);
@@ -223,7 +238,7 @@ int av1_alloc_context_buffers(AV1_COMMON *cm, int width, int height) {
   if (cm->seg_map_alloc_size < cm->mi_rows * cm->mi_cols) {
     // Create the segmentation map structure and set to 0.
     free_seg_map(cm);
-    if (alloc_seg_map(cm, cm->mi_rows * cm->mi_cols)) goto fail;
+    if (alloc_seg_map(cm, cm->mi_rows, cm->mi_cols)) goto fail;
   }
   if (alloc_scratch_buffers(cm)) goto fail;
 
