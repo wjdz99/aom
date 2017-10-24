@@ -10468,7 +10468,7 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
   uint8_t directional_mode_skip_mask[INTRA_MODES];
 #endif  // CONFIG_EXT_INTRA
 #if CONFIG_FILTER_INTRA
-  int8_t dc_skipped = 1;
+  //int8_t dc_skipped = 1;
   FILTER_INTRA_MODE_INFO filter_intra_mode_info_uv[TX_SIZES_ALL];
 #endif  // CONFIG_FILTER_INTRA
   const int intra_cost_penalty = av1_get_intra_cost_penalty(
@@ -11069,11 +11069,60 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
       distortion_y = rd_stats_y.dist;
       skippable = rd_stats_y.skip;
 
-      if (rate_y == INT_MAX) continue;
-
 #if CONFIG_FILTER_INTRA
-      if (mbmi->mode == DC_PRED) dc_skipped = 0;
-#endif  // CONFIG_FILTER_INTRA
+      int64_t best_rd_tmp = INT64_MAX;
+      if (rate_y != INT_MAX) {
+        best_rd_tmp = RDCOST(x->rdmult,
+          rate_y + av1_cost_bit(cpi->common.fc->filter_intra_probs[0], 0)
+          + intra_mode_cost[mbmi->mode], distortion_y);
+      }
+      if (mbmi->mode == DC_PRED) {
+        RD_STATS rd_stats_y_fi;
+        int filter_intra_selected_flag = 0;
+        TX_SIZE best_tx_size = mbmi->tx_size;
+        TX_TYPE best_tx_type = mbmi->tx_type;
+        FILTER_INTRA_MODE best_fi_mode = FILTER_DC_PRED;
+
+        mbmi->filter_intra_mode_info.use_filter_intra_mode[0] = 1;
+        for (FILTER_INTRA_MODE fi_mode = FILTER_DC_PRED; fi_mode < FILTER_INTRA_MODES; ++fi_mode) {
+          int this_rate_tmp;
+          int64_t this_rd_tmp;
+          mbmi->filter_intra_mode_info.filter_intra_mode[0] = fi_mode;
+
+          super_block_yrd(cpi, x, &rd_stats_y_fi, bsize, best_rd);
+          if (rd_stats_y_fi.rate == INT_MAX) continue;
+
+          this_rate_tmp = rd_stats_y_fi.rate +
+              av1_cost_bit(cpi->common.fc->filter_intra_probs[0], 1) +
+              x->filter_intra_mode_cost[0][fi_mode] +
+              intra_mode_cost[mbmi->mode];
+          this_rd_tmp = RDCOST(x->rdmult, this_rate_tmp, rd_stats_y_fi.dist);
+
+          if (this_rd_tmp < best_rd_tmp) {
+            best_tx_size = mbmi->tx_size;
+            best_tx_type = mbmi->tx_type;
+            best_fi_mode = fi_mode;
+            rd_stats_y = rd_stats_y_fi;
+            rate_y = rd_stats_y_fi.rate;
+            distortion_y = rd_stats_y_fi.dist;
+            skippable = rd_stats_y_fi.skip;
+            filter_intra_selected_flag = 1;
+            best_rd_tmp = this_rd_tmp;
+          }
+        }
+
+        mbmi->tx_size = best_tx_size;
+        mbmi->tx_type = best_tx_type;
+        if (filter_intra_selected_flag) {
+          mbmi->filter_intra_mode_info.use_filter_intra_mode[0] = 1;
+          mbmi->filter_intra_mode_info.filter_intra_mode[0] = best_fi_mode;
+        } else {
+          mbmi->filter_intra_mode_info.use_filter_intra_mode[0] = 0;
+        }
+      }
+#endif
+
+      if (rate_y == INT_MAX) continue;
 
       uv_tx = uv_txsize_lookup[bsize][mbmi->tx_size][pd->subsampling_x]
                               [pd->subsampling_y];
@@ -11161,13 +11210,11 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
             av1_cost_bit(cm->fc->filter_intra_probs[0],
                          mbmi->filter_intra_mode_info.use_filter_intra_mode[0]);
         if (mbmi->filter_intra_mode_info.use_filter_intra_mode[0]) {
-          assert(0);
-          rate2 += write_uniform_cost(
-              FILTER_INTRA_MODES,
-              mbmi->filter_intra_mode_info.filter_intra_mode[0]);
+          rate2 +=
+              x->filter_intra_mode_cost[0][mbmi->filter_intra_mode_info.filter_intra_mode[0]];
         }
-      }/*
-      if (mbmi->sb_type >= BLOCK_8X8 && mbmi->uv_mode == UV_DC_PRED) {
+      }
+      /*if (mbmi->sb_type >= BLOCK_8X8 && mbmi->uv_mode == UV_DC_PRED) {
         rate2 +=
             av1_cost_bit(cm->fc->filter_intra_probs[1],
                          mbmi->filter_intra_mode_info.use_filter_intra_mode[1]);
@@ -11936,6 +11983,7 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
   }
 PALETTE_EXIT:
 
+/*
 #if CONFIG_FILTER_INTRA
   // TODO(huisu): filter-intra is turned off in lossless mode for now to
   // avoid a unit test failure
@@ -11956,6 +12004,7 @@ PALETTE_EXIT:
         best_pred_rd, &best_mbmode, rd_cost);
   }
 #endif  // CONFIG_FILTER_INTRA
+*/
 
 // The inter modes' rate costs are not calculated precisely in some cases.
 // Therefore, sometimes, NEWMV is chosen instead of NEARESTMV, NEARMV, and
