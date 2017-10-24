@@ -4473,9 +4473,294 @@ static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
   }
 }
 
-static void inter_block_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
+// Finds rd cost for a y block, given the transform size partitions
+static void tx_block_yrd(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
+                         int blk_col, int plane, int block, TX_SIZE tx_size,
+                         BLOCK_SIZE plane_bsize, int depth,
+                         ENTROPY_CONTEXT *above_ctx, ENTROPY_CONTEXT *left_ctx,
+                         TXFM_CONTEXT *tx_above, TXFM_CONTEXT *tx_left,
+                         int64_t ref_best_rd, RD_STATS *rd_stats) {
+  MACROBLOCKD *const xd = &x->e_mbd;
+  MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
+  struct macroblockd_plane *const pd = &xd->plane[plane];
+  BLOCK_SIZE bsize = txsize_to_bsize[tx_size];
+  const int tx_row = blk_row >> (1 - pd->subsampling_y);
+  const int tx_col = blk_col >> (1 - pd->subsampling_x);
+  TX_SIZE plane_tx_size;
+  const int max_blocks_high = max_block_high(xd, plane_bsize, plane);
+  const int max_blocks_wide = max_block_wide(xd, plane_bsize, plane);
+
+  assert(tx_size < TX_SIZES_ALL);
+
+  if (blk_row >= max_blocks_high || blk_col >= max_blocks_wide) return;
+
+  plane_tx_size =
+      plane ? uv_txsize_lookup[bsize][mbmi->inter_tx_size[tx_row][tx_col]][0][0]
+            : mbmi->inter_tx_size[tx_row][tx_col];
+
+  int ctx = txfm_partition_context(tx_above + blk_col, tx_left + blk_row,
+                                   mbmi->sb_type, tx_size);
+
+  av1_init_rd_stats(rd_stats);
+  if (tx_size == plane_tx_size) {
+    ENTROPY_CONTEXT *ta = above_ctx + blk_col;
+    ENTROPY_CONTEXT *tl = left_ctx + blk_row;
+    const int coeff_ctx = get_entropy_context(tx_size, ta, tl);
+    const TX_SIZE tx_size_ctx = txsize_sqr_map[tx_size];
+    const int zero_blk_rate =
+        x->token_head_costs[tx_size_ctx][pd->plane_type][1][0][coeff_ctx][0];
+    rd_stats->zero_rate = zero_blk_rate;
+    rd_stats->ref_rdcost = ref_best_rd;
+    av1_tx_block_rd_b(cpi, x, tx_size, blk_row, blk_col, plane, block,
+                      plane_bsize, ta, tl, rd_stats);
+    const int mi_width = block_size_wide[plane_bsize] >> tx_size_wide_log2[0];
+    if (RDCOST(x->rdmult, rd_stats->rate, rd_stats->dist) >=
+            RDCOST(x->rdmult, zero_blk_rate, rd_stats->sse) ||
+        rd_stats->skip == 1) {
+      rd_stats->rate = zero_blk_rate;
+      rd_stats->dist = rd_stats->sse;
+      rd_stats->skip = 1;
+      x->blk_skip[plane][blk_row * mi_width + blk_col] = 1;
+      x->plane[plane].eobs[block] = 0;
+    } else {
+      rd_stats->skip = 0;
+      x->blk_skip[plane][blk_row * mi_width + blk_col] = 0;
+    }
+    if (tx_size > TX_4X4 && depth < MAX_VARTX_DEPTH)
+      rd_stats->rate += x->txfm_partition_cost[ctx][0];
+    av1_set_txb_context(x, plane, block, tx_size, ta, tl);
+    txfm_partition_update(tx_above + blk_col, tx_left + blk_row, tx_size,
+                          tx_size);
+  } else {
+    const TX_SIZE sub_txs = sub_tx_size_map[tx_size];
+    const int bsl = tx_size_wide_unit[sub_txs];
+    int step = tx_size_wide_unit[sub_txs] * tx_size_high_unit[sub_txs];
+    int i;
+    RD_STATS pn_rd_stats;
+    int64_t this_rd = 0;
+    assert(bsl > 0);
+
+    for (i = 0; i < 4; ++i) {
+      int offsetr = blk_row + (i >> 1) * bsl;
+      int offsetc = blk_col + (i & 0x01) * bsl;
+
+      if (offsetr >= max_blocks_high || offsetc >= max_blocks_wide) continue;
+
+      tx_block_yrd(cpi, x, offsetr, offsetc, plane, block, sub_txs, plane_bsize,
+                   depth + 1, above_ctx, left_ctx, tx_above, tx_left,
+                   ref_best_rd - this_rd, &pn_rd_stats);
+      if (pn_rd_stats.rate == INT_MAX) {
+        av1_invalid_rd_stats(rd_stats);
+        return;
+      }
+      av1_merge_rd_stats(rd_stats, &pn_rd_stats);
+      this_rd += RDCOST(x->rdmult, pn_rd_stats.rate, pn_rd_stats.dist);
+      block += step;
+    }
+    if (tx_size > TX_4X4 && depth < MAX_VARTX_DEPTH)
+      rd_stats->rate += x->txfm_partition_cost[ctx][1];
+  }
+}
+
+static void tx_block_rd(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
+                        int blk_col, int plane, int block, TX_SIZE tx_size,
+                        BLOCK_SIZE plane_bsize, ENTROPY_CONTEXT *above_ctx,
+                        ENTROPY_CONTEXT *left_ctx, RD_STATS *rd_stats) {
+  MACROBLOCKD *const xd = &x->e_mbd;
+  MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
+  struct macroblockd_plane *const pd = &xd->plane[plane];
+  BLOCK_SIZE bsize = txsize_to_bsize[tx_size];
+  const int tx_row = blk_row >> (1 - pd->subsampling_y);
+  const int tx_col = blk_col >> (1 - pd->subsampling_x);
+  TX_SIZE plane_tx_size;
+  const int max_blocks_high = max_block_high(xd, plane_bsize, plane);
+  const int max_blocks_wide = max_block_wide(xd, plane_bsize, plane);
+
+  assert(tx_size < TX_SIZES_ALL);
+
+  if (blk_row >= max_blocks_high || blk_col >= max_blocks_wide) return;
+
+  plane_tx_size =
+      plane ? uv_txsize_lookup[bsize][mbmi->inter_tx_size[tx_row][tx_col]][0][0]
+            : mbmi->inter_tx_size[tx_row][tx_col];
+
+  if (tx_size == plane_tx_size) {
+    ENTROPY_CONTEXT *ta = above_ctx + blk_col;
+    ENTROPY_CONTEXT *tl = left_ctx + blk_row;
+    av1_tx_block_rd_b(cpi, x, tx_size, blk_row, blk_col, plane, block,
+                      plane_bsize, ta, tl, rd_stats);
+    av1_set_txb_context(x, plane, block, tx_size, ta, tl);
+  } else {
+    const TX_SIZE sub_txs = sub_tx_size_map[tx_size];
+    const int bsl = tx_size_wide_unit[sub_txs];
+    int step = tx_size_wide_unit[sub_txs] * tx_size_high_unit[sub_txs];
+    int i;
+
+    assert(bsl > 0);
+
+    for (i = 0; i < 4; ++i) {
+      int offsetr = blk_row + (i >> 1) * bsl;
+      int offsetc = blk_col + (i & 0x01) * bsl;
+
+      if (offsetr >= max_blocks_high || offsetc >= max_blocks_wide) continue;
+
+      tx_block_rd(cpi, x, offsetr, offsetc, plane, block, sub_txs, plane_bsize,
+                  above_ctx, left_ctx, rd_stats);
+      block += step;
+    }
+  }
+}
+
+// Return value 0: early termination triggered, no valid rd cost available;
+//              1: rd cost values are valid.
+static int inter_block_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
+                           RD_STATS *rd_stats, BLOCK_SIZE bsize,
+                           int64_t ref_best_rd) {
+  MACROBLOCKD *const xd = &x->e_mbd;
+  int is_cost_valid = 1;
+  int64_t this_rd = 0;
+
+  if (ref_best_rd < 0) is_cost_valid = 0;
+
+  av1_init_rd_stats(rd_stats);
+
+  if (is_cost_valid) {
+    const struct macroblockd_plane *const pd = &xd->plane[0];
+    const BLOCK_SIZE plane_bsize = get_plane_block_size(bsize, pd);
+    const int mi_width = block_size_wide[plane_bsize] >> tx_size_wide_log2[0];
+    const int mi_height = block_size_high[plane_bsize] >> tx_size_high_log2[0];
+    const TX_SIZE max_tx_size = max_txsize_rect_lookup[plane_bsize];
+    const int bh = tx_size_high_unit[max_tx_size];
+    const int bw = tx_size_wide_unit[max_tx_size];
+    int init_depth =
+        (mi_height != mi_width) ? RECT_VARTX_DEPTH_INIT : SQR_VARTX_DEPTH_INIT;
+    int idx, idy;
+    int block = 0;
+    int step = tx_size_wide_unit[max_tx_size] * tx_size_high_unit[max_tx_size];
+    ENTROPY_CONTEXT ctxa[2 * MAX_MIB_SIZE];
+    ENTROPY_CONTEXT ctxl[2 * MAX_MIB_SIZE];
+    TXFM_CONTEXT tx_above[MAX_MIB_SIZE * 2];
+    TXFM_CONTEXT tx_left[MAX_MIB_SIZE * 2];
+
+    RD_STATS pn_rd_stats;
+
+    av1_get_entropy_contexts(bsize, 0, pd, ctxa, ctxl);
+    memcpy(tx_above, xd->above_txfm_context, sizeof(TXFM_CONTEXT) * mi_width);
+    memcpy(tx_left, xd->left_txfm_context, sizeof(TXFM_CONTEXT) * mi_height);
+
+    for (idy = 0; idy < mi_height; idy += bh) {
+      for (idx = 0; idx < mi_width; idx += bw) {
+        av1_init_rd_stats(&pn_rd_stats);
+        tx_block_yrd(cpi, x, idy, idx, 0, block, max_tx_size, plane_bsize,
+                     init_depth, ctxa, ctxl, tx_above, tx_left,
+                     ref_best_rd - this_rd, &pn_rd_stats);
+        if (pn_rd_stats.rate == INT_MAX) {
+          av1_invalid_rd_stats(rd_stats);
+          return 0;
+        }
+        av1_merge_rd_stats(rd_stats, &pn_rd_stats);
+        this_rd += AOMMIN(RDCOST(x->rdmult, pn_rd_stats.rate, pn_rd_stats.dist),
+                          RDCOST(x->rdmult, 0, pn_rd_stats.sse));
+        block += step;
+      }
+    }
+  }
+
+  this_rd = AOMMIN(RDCOST(x->rdmult, rd_stats->rate, rd_stats->dist),
+                   RDCOST(x->rdmult, 0, rd_stats->sse));
+  if (this_rd > ref_best_rd) is_cost_valid = 0;
+
+  if (!is_cost_valid) {
+    // reset cost value
+    av1_invalid_rd_stats(rd_stats);
+  }
+  return is_cost_valid;
+}
+
+static int inter_block_uvrd(const AV1_COMP *cpi, MACROBLOCK *x,
                             RD_STATS *rd_stats, BLOCK_SIZE bsize,
                             int64_t ref_best_rd) {
+  MACROBLOCKD *const xd = &x->e_mbd;
+  MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
+  int plane;
+  int is_cost_valid = 1;
+  int64_t this_rd;
+
+  if (ref_best_rd < 0) is_cost_valid = 0;
+
+  av1_init_rd_stats(rd_stats);
+
+  if (x->skip_chroma_rd) return is_cost_valid;
+  bsize = scale_chroma_bsize(mbmi->sb_type, xd->plane[1].subsampling_x,
+                             xd->plane[1].subsampling_y);
+
+#if 0   // CONFIG_EXT_TX && CONFIG_RECT_TX
+  if (is_rect_tx(mbmi->tx_size)) {
+    return super_block_uvrd(cpi, x, rd_stats, bsize, ref_best_rd);
+  }
+#endif  // CONFIG_EXT_TX && CONFIG_RECT_TX
+
+  if (is_inter_block(mbmi) && is_cost_valid) {
+    for (plane = 1; plane < MAX_MB_PLANE; ++plane)
+      av1_subtract_plane(x, bsize, plane);
+  }
+
+  if (is_cost_valid) {
+    for (plane = 1; plane < MAX_MB_PLANE; ++plane) {
+      const struct macroblockd_plane *const pd = &xd->plane[plane];
+      const BLOCK_SIZE plane_bsize = get_plane_block_size(bsize, pd);
+      const int mi_width = block_size_wide[plane_bsize] >> tx_size_wide_log2[0];
+      const int mi_height =
+          block_size_high[plane_bsize] >> tx_size_high_log2[0];
+      const TX_SIZE max_tx_size = max_txsize_rect_lookup[plane_bsize];
+      const int bh = tx_size_high_unit[max_tx_size];
+      const int bw = tx_size_wide_unit[max_tx_size];
+      int idx, idy;
+      int block = 0;
+      const int step = bh * bw;
+      ENTROPY_CONTEXT ta[2 * MAX_MIB_SIZE];
+      ENTROPY_CONTEXT tl[2 * MAX_MIB_SIZE];
+      RD_STATS pn_rd_stats;
+      av1_init_rd_stats(&pn_rd_stats);
+
+      av1_get_entropy_contexts(bsize, 0, pd, ta, tl);
+
+      for (idy = 0; idy < mi_height; idy += bh) {
+        for (idx = 0; idx < mi_width; idx += bw) {
+          tx_block_rd(cpi, x, idy, idx, plane, block, max_tx_size, plane_bsize,
+                      ta, tl, &pn_rd_stats);
+          block += step;
+        }
+      }
+
+      if (pn_rd_stats.rate == INT_MAX) {
+        is_cost_valid = 0;
+        break;
+      }
+
+      av1_merge_rd_stats(rd_stats, &pn_rd_stats);
+
+      this_rd = AOMMIN(RDCOST(x->rdmult, rd_stats->rate, rd_stats->dist),
+                       RDCOST(x->rdmult, 0, rd_stats->sse));
+
+      if (this_rd > ref_best_rd) {
+        is_cost_valid = 0;
+        break;
+      }
+    }
+  }
+
+  if (!is_cost_valid) {
+    // reset cost value
+    av1_invalid_rd_stats(rd_stats);
+  }
+
+  return is_cost_valid;
+}
+
+static void select_inter_block_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
+                                   RD_STATS *rd_stats, BLOCK_SIZE bsize,
+                                   int64_t ref_best_rd) {
   MACROBLOCKD *const xd = &x->e_mbd;
   int is_cost_valid = 1;
   int64_t this_rd = 0;
@@ -4514,7 +4799,7 @@ static void inter_block_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
         select_tx_block(cpi, x, idy, idx, 0, block, max_tx_size, init_depth,
                         plane_bsize, ctxa, ctxl, tx_above, tx_left,
                         &pn_rd_stats, ref_best_rd - this_rd, &is_cost_valid);
-        if (pn_rd_stats.rate == INT_MAX) {
+        if (!is_cost_valid /* || pn_rd_stats.rate == INT_MAX */) {
           av1_invalid_rd_stats(rd_stats);
           return;
         }
@@ -4538,6 +4823,7 @@ static void inter_block_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
 
 static int64_t select_tx_size_fix_type(const AV1_COMP *cpi, MACROBLOCK *x,
                                        RD_STATS *rd_stats, BLOCK_SIZE bsize,
+                                       int mi_row, int mi_col,
                                        int64_t ref_best_rd, TX_TYPE tx_type) {
   const AV1_COMMON *const cm = &cpi->common;
   MACROBLOCKD *const xd = &x->e_mbd;
@@ -4552,9 +4838,11 @@ static int64_t select_tx_size_fix_type(const AV1_COMP *cpi, MACROBLOCK *x,
   const int max_blocks_wide = max_block_wide(xd, bsize, 0);
 
   (void)cm;
+  (void)mi_row;
+  (void)mi_col;
 
   mbmi->tx_type = tx_type;
-  inter_block_yrd(cpi, x, rd_stats, bsize, ref_best_rd);
+  select_inter_block_yrd(cpi, x, rd_stats, bsize, ref_best_rd);
   mbmi->min_tx_size = get_min_tx_size(mbmi->inter_tx_size[0][0]);
 
   if (rd_stats->rate == INT_MAX) return INT64_MAX;
@@ -4563,6 +4851,16 @@ static int64_t select_tx_size_fix_type(const AV1_COMP *cpi, MACROBLOCK *x,
     for (col = 0; col < max_blocks_wide / 2; ++col)
       mbmi->min_tx_size = AOMMIN(
           mbmi->min_tx_size, get_min_tx_size(mbmi->inter_tx_size[row][col]));
+
+  // TODO(debargha): enable this as a speed feature where the
+  // select_inter_block_yrd() function above will use a simplified search
+  // such as not using full optimize, but the inter_block_yrd() function
+  // will use more complex search given that the transform partitions have
+  // already been decided.
+  const int use_inter_block_yrd = 0;
+  if (use_inter_block_yrd)
+    if (!inter_block_yrd(cpi, x, rd_stats, bsize, ref_best_rd))
+      return INT64_MAX;
 
 #if !CONFIG_TXK_SEL
 #if CONFIG_EXT_TX
@@ -4905,8 +5203,8 @@ static void select_tx_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
     if (xd->lossless[mbmi->segment_id])
       if (tx_type != DCT_DCT) continue;
 
-    rd = select_tx_size_fix_type(cpi, x, &this_rd_stats, bsize, ref_best_rd,
-                                 tx_type);
+    rd = select_tx_size_fix_type(cpi, x, &this_rd_stats, bsize, mi_row, mi_col,
+                                 ref_best_rd, tx_type);
     ref_best_rd = AOMMIN(rd, ref_best_rd);
     if (rd < best_rd) {
       best_rd = rd;
@@ -4933,7 +5231,8 @@ static void select_tx_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
       !cm->reduced_tx_set_used) {
     RD_STATS this_rd_stats;
     mbmi->use_lgt = 1;
-    rd = select_tx_size_fix_type(cpi, x, &this_rd_stats, bsize, ref_best_rd, 0);
+    rd = select_tx_size_fix_type(cpi, x, &this_rd_stats, bsize, mi_row, mi_col,
+                                 ref_best_rd, 0);
     if (rd < best_rd) {
       best_rd = rd;
       *rd_stats = this_rd_stats;
@@ -4972,135 +5271,6 @@ static void select_tx_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
     }
     save_tx_rd_info(n4, hash, x, rd_stats, &tx_rd_record->tx_rd_info[index]);
   }
-}
-
-static void tx_block_rd(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
-                        int blk_col, int plane, int block, TX_SIZE tx_size,
-                        BLOCK_SIZE plane_bsize, ENTROPY_CONTEXT *above_ctx,
-                        ENTROPY_CONTEXT *left_ctx, RD_STATS *rd_stats) {
-  MACROBLOCKD *const xd = &x->e_mbd;
-  MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
-  struct macroblockd_plane *const pd = &xd->plane[plane];
-  BLOCK_SIZE bsize = txsize_to_bsize[tx_size];
-  const int tx_row = blk_row >> (1 - pd->subsampling_y);
-  const int tx_col = blk_col >> (1 - pd->subsampling_x);
-  TX_SIZE plane_tx_size;
-  const int max_blocks_high = max_block_high(xd, plane_bsize, plane);
-  const int max_blocks_wide = max_block_wide(xd, plane_bsize, plane);
-
-  assert(tx_size < TX_SIZES_ALL);
-
-  if (blk_row >= max_blocks_high || blk_col >= max_blocks_wide) return;
-
-  plane_tx_size =
-      plane ? uv_txsize_lookup[bsize][mbmi->inter_tx_size[tx_row][tx_col]][0][0]
-            : mbmi->inter_tx_size[tx_row][tx_col];
-
-  if (tx_size == plane_tx_size) {
-    ENTROPY_CONTEXT *ta = above_ctx + blk_col;
-    ENTROPY_CONTEXT *tl = left_ctx + blk_row;
-    av1_tx_block_rd_b(cpi, x, tx_size, blk_row, blk_col, plane, block,
-                      plane_bsize, ta, tl, rd_stats);
-    av1_set_txb_context(x, plane, block, tx_size, ta, tl);
-  } else {
-    const TX_SIZE sub_txs = sub_tx_size_map[tx_size];
-    const int bsl = tx_size_wide_unit[sub_txs];
-    int step = tx_size_wide_unit[sub_txs] * tx_size_high_unit[sub_txs];
-    int i;
-
-    assert(bsl > 0);
-
-    for (i = 0; i < 4; ++i) {
-      int offsetr = blk_row + (i >> 1) * bsl;
-      int offsetc = blk_col + (i & 0x01) * bsl;
-
-      if (offsetr >= max_blocks_high || offsetc >= max_blocks_wide) continue;
-
-      tx_block_rd(cpi, x, offsetr, offsetc, plane, block, sub_txs, plane_bsize,
-                  above_ctx, left_ctx, rd_stats);
-      block += step;
-    }
-  }
-}
-
-// Return value 0: early termination triggered, no valid rd cost available;
-//              1: rd cost values are valid.
-static int inter_block_uvrd(const AV1_COMP *cpi, MACROBLOCK *x,
-                            RD_STATS *rd_stats, BLOCK_SIZE bsize,
-                            int64_t ref_best_rd) {
-  MACROBLOCKD *const xd = &x->e_mbd;
-  MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
-  int plane;
-  int is_cost_valid = 1;
-  int64_t this_rd;
-
-  if (ref_best_rd < 0) is_cost_valid = 0;
-
-  av1_init_rd_stats(rd_stats);
-
-  if (x->skip_chroma_rd) return is_cost_valid;
-  bsize = scale_chroma_bsize(mbmi->sb_type, xd->plane[1].subsampling_x,
-                             xd->plane[1].subsampling_y);
-
-#if CONFIG_EXT_TX && CONFIG_RECT_TX
-  if (is_rect_tx(mbmi->tx_size)) {
-    return super_block_uvrd(cpi, x, rd_stats, bsize, ref_best_rd);
-  }
-#endif  // CONFIG_EXT_TX && CONFIG_RECT_TX
-
-  if (is_inter_block(mbmi) && is_cost_valid) {
-    for (plane = 1; plane < MAX_MB_PLANE; ++plane)
-      av1_subtract_plane(x, bsize, plane);
-  }
-
-  for (plane = 1; plane < MAX_MB_PLANE; ++plane) {
-    const struct macroblockd_plane *const pd = &xd->plane[plane];
-    const BLOCK_SIZE plane_bsize = get_plane_block_size(bsize, pd);
-    const int mi_width = block_size_wide[plane_bsize] >> tx_size_wide_log2[0];
-    const int mi_height = block_size_high[plane_bsize] >> tx_size_high_log2[0];
-    const TX_SIZE max_tx_size = max_txsize_rect_lookup[plane_bsize];
-    const int bh = tx_size_high_unit[max_tx_size];
-    const int bw = tx_size_wide_unit[max_tx_size];
-    int idx, idy;
-    int block = 0;
-    const int step = bh * bw;
-    ENTROPY_CONTEXT ta[2 * MAX_MIB_SIZE];
-    ENTROPY_CONTEXT tl[2 * MAX_MIB_SIZE];
-    RD_STATS pn_rd_stats;
-    av1_init_rd_stats(&pn_rd_stats);
-
-    av1_get_entropy_contexts(bsize, 0, pd, ta, tl);
-
-    for (idy = 0; idy < mi_height; idy += bh) {
-      for (idx = 0; idx < mi_width; idx += bw) {
-        tx_block_rd(cpi, x, idy, idx, plane, block, max_tx_size, plane_bsize,
-                    ta, tl, &pn_rd_stats);
-        block += step;
-      }
-    }
-
-    if (pn_rd_stats.rate == INT_MAX) {
-      is_cost_valid = 0;
-      break;
-    }
-
-    av1_merge_rd_stats(rd_stats, &pn_rd_stats);
-
-    this_rd = AOMMIN(RDCOST(x->rdmult, rd_stats->rate, rd_stats->dist),
-                     RDCOST(x->rdmult, 0, rd_stats->sse));
-
-    if (this_rd > ref_best_rd) {
-      is_cost_valid = 0;
-      break;
-    }
-  }
-
-  if (!is_cost_valid) {
-    // reset cost value
-    av1_invalid_rd_stats(rd_stats);
-  }
-
-  return is_cost_valid;
 }
 
 static void rd_pick_palette_intra_sbuv(const AV1_COMP *const cpi, MACROBLOCK *x,
