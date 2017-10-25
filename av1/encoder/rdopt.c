@@ -6231,7 +6231,7 @@ static int cfl_rd_pick_alpha(MACROBLOCK *const x, const AV1_COMP *const cpi,
   txfm_rd_in_plane_once(x, cpi, bsize, tx_size, AOM_PLANE_V,
                         &dists[CFL_PRED_V][0], &rates[CFL_PRED_V][0]);
 
-  for (int c = 0; c < CFL_ALPHABET_SIZE; c++) {
+  for (int c = CFL_ALPHABET_SIZE - 1; c >= 0; c--) {
     mbmi->cfl_alpha_idx = (c << CFL_ALPHABET_SIZE_LOG2) + c;
     for (int sign = CFL_SIGN_NEG; sign < CFL_SIGNS; sign++) {
       const int m = c * 2 + 1 + (sign == CFL_SIGN_NEG);
