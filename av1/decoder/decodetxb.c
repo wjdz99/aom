@@ -72,7 +72,7 @@ static INLINE int read_nz_map(aom_reader *const r, uint8_t *const levels,
   int c;
   for (c = 0; c < seg_eob; ++c) {
     int is_nz;
-    int coeff_ctx = get_nz_map_ctx(levels, c, scan, bwl, height, tx_type, 1);
+    int coeff_ctx = get_nz_map_ctx(levels, c, scan, bwl, height, tx_type);
     int eob_ctx = get_eob_ctx(scan[c], txs_ctx, tx_type);
 
     if (c < seg_eob - 1) {
@@ -147,7 +147,7 @@ static INLINE int read_nz_map_vert(aom_reader *r, uint8_t *levels, int plane,
           int coeff_idx = row * width + col;
           int scan_idx = iscan[coeff_idx];
           int coeff_ctx =
-              get_nz_map_ctx(levels, scan_idx, scan, bwl, height, tx_type, 1);
+              get_nz_map_ctx(levels, scan_idx, scan, bwl, height, tx_type);
 #if LV_MAP_PROB
           int is_nz = av1_read_record_bin(
               counts, r, fc->nz_map_cdf[txs_ctx][plane_type][coeff_ctx], 2,
@@ -225,7 +225,7 @@ static INLINE int read_nz_map_horiz(aom_reader *r, uint8_t *levels, int plane,
           int coeff_idx = row * width + col;
           int scan_idx = iscan[coeff_idx];
           int coeff_ctx =
-              get_nz_map_ctx(levels, scan_idx, scan, bwl, height, tx_type, 1);
+              get_nz_map_ctx(levels, scan_idx, scan, bwl, height, tx_type);
 #if LV_MAP_PROB
           int is_nz = av1_read_record_bin(
               counts, r, fc->nz_map_cdf[txs_ctx][plane_type][coeff_ctx], 2,
@@ -394,7 +394,7 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
   for (int i = 0; i < *eob; ++i) {
     c = *eob - 1 - i;
     int is_nz;
-    int coeff_ctx = get_nz_map_ctx(levels, c, scan, bwl, height, tx_type, 1);
+    int coeff_ctx = get_nz_map_ctx(levels, c, scan, bwl, height, tx_type);
     // int eob_ctx = get_eob_ctx(tcoeffs, scan[c], txs_ctx, tx_type);
 
     if (c < *eob - 1) {

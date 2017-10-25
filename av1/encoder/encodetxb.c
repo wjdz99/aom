@@ -234,7 +234,7 @@ void get_dist_cost_stats(LevelDownStats *stats, int scan_idx,
   stats->rd_low = RDCOST(txb_info->rdmult, stats->rate_low, stats->dist_low);
 
   int coeff_ctx = get_nz_map_ctx(levels, scan_idx, scan, txb_info->bwl,
-                                 txb_info->height, txb_info->tx_type, 1);
+                                 txb_info->height, txb_info->tx_type);
 
   if ((stats->rd_low < stats->rd) && (stats->low_qc == 0)) {
     stats->nz_rate = txb_costs->nz_map_cost[coeff_ctx][0];
@@ -279,7 +279,7 @@ static INLINE void write_nz_map(aom_writer *const w,
 #endif
 
   for (int c = 0; c < eob; ++c) {
-    int coeff_ctx = get_nz_map_ctx(levels, c, scan, bwl, height, tx_type, 1);
+    int coeff_ctx = get_nz_map_ctx(levels, c, scan, bwl, height, tx_type);
     int eob_ctx = get_eob_ctx(scan[c], txs_ctx, tx_type);
 
     int is_nz = (levels[scan[c]] != 0);
@@ -339,7 +339,7 @@ static INLINE void write_nz_map_vert(
           int scan_idx = iscan[coeff_idx];
           int is_nz = levels[coeff_idx] != 0;
           int coeff_ctx =
-              get_nz_map_ctx(levels, scan_idx, scan, bwl, height, tx_type, 1);
+              get_nz_map_ctx(levels, scan_idx, scan, bwl, height, tx_type);
 #if LV_MAP_PROB
           aom_write_bin(w, is_nz,
                         fc->nz_map_cdf[txs_ctx][plane_type][coeff_ctx], 2);
@@ -398,7 +398,7 @@ static INLINE void write_nz_map_horiz(
           int scan_idx = iscan[coeff_idx];
           int is_nz = levels[coeff_idx] != 0;
           int coeff_ctx =
-              get_nz_map_ctx(levels, scan_idx, scan, bwl, height, tx_type, 1);
+              get_nz_map_ctx(levels, scan_idx, scan, bwl, height, tx_type);
 #if LV_MAP_PROB
           aom_write_bin(w, is_nz,
                         fc->nz_map_cdf[txs_ctx][plane_type][coeff_ctx], 2);
@@ -511,7 +511,7 @@ void av1_write_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
   // printf("\n");
   for (int i = 1; i < eob; ++i) {
     c = eob - 1 - i;
-    int coeff_ctx = get_nz_map_ctx(levels, c, scan, bwl, height, tx_type, 1);
+    int coeff_ctx = get_nz_map_ctx(levels, c, scan, bwl, height, tx_type);
 
     tran_low_t v = tcoeff[scan[c]];
     int is_nz = (v != 0);
@@ -805,7 +805,7 @@ static int get_nz_eob_map_cost(const LV_MAP_COEFF_COST *coeff_costs,
   for (int c = 0; c < eob; ++c) {
     int is_nz = (levels[scan[c]] != 0);
     if (c + 1 != seg_eob) {
-      int coeff_ctx = get_nz_map_ctx(levels, c, scan, bwl, height, tx_type, 1);
+      int coeff_ctx = get_nz_map_ctx(levels, c, scan, bwl, height, tx_type);
       cost += coeff_costs->nz_map_cost[coeff_ctx][is_nz];
       if (is_nz) {
         int eob_ctx = get_eob_ctx(scan[c], txs_ctx, tx_type);
@@ -845,7 +845,7 @@ static INLINE int get_nz_eob_map_cost_vert(
           int scan_idx = iscan[coeff_idx];
           int is_nz = levels[coeff_idx] != 0;
           int coeff_ctx =
-              get_nz_map_ctx(levels, scan_idx, scan, bwl, height, tx_type, 1);
+              get_nz_map_ctx(levels, scan_idx, scan, bwl, height, tx_type);
           cost += coeff_costs->nz_map_cost[coeff_ctx][is_nz];
           if (is_nz) {
             int eob_ctx = get_hv_eob_ctx(c, r, eob_ls);
@@ -886,7 +886,7 @@ static INLINE int get_nz_eob_map_cost_horiz(
           int scan_idx = iscan[coeff_idx];
           int is_nz = levels[coeff_idx] != 0;
           int coeff_ctx =
-              get_nz_map_ctx(levels, scan_idx, scan, bwl, height, tx_type, 1);
+              get_nz_map_ctx(levels, scan_idx, scan, bwl, height, tx_type);
           cost += coeff_costs->nz_map_cost[coeff_ctx][is_nz];
           if (is_nz) {
             int eob_ctx = get_hv_eob_ctx(r, c, eob_ls);
@@ -950,7 +950,7 @@ int av1_cost_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCK *x, int plane,
     int level = abs(v);
 
     if (c < eob - 1) {
-      int coeff_ctx = get_nz_map_ctx(levels, c, scan, bwl, height, tx_type, 1);
+      int coeff_ctx = get_nz_map_ctx(levels, c, scan, bwl, height, tx_type);
       cost += coeff_costs->nz_map_cost[coeff_ctx][is_nz];
     }
 
@@ -1188,7 +1188,7 @@ static void gen_txb_cache(TxbCache *const txb_cache,
       prev_col = -1;
     }
     txb_cache->nz_count_arr[coeff_idx] =
-        get_nz_count(levels, bwl, height, row, col, 1, prev_row, prev_col);
+        get_nz_count(levels, bwl, height, row, col, prev_row, prev_col);
 #else
     txb_cache->nz_count_arr[coeff_idx] =
         get_nz_count(levels, bwl, height, row, col
@@ -1196,8 +1196,7 @@ static void gen_txb_cache(TxbCache *const txb_cache,
                      ,
                      get_tx_class(txb_info->tx_type)
 #endif
-                         ,
-                     1);
+                         );
 #endif
 
     const int nz_count = txb_cache->nz_count_arr[coeff_idx];
@@ -1829,7 +1828,7 @@ void update_level_down(const int coeff_idx, TxbCache *const txb_cache,
 #endif
                                       txb_info->tx_type);
         // int ref_ctx = get_nz_map_ctx(txb_info->levels, nb_coeff_idx,
-        // txb_info->bwl, tx_type, 1);
+        // txb_info->bwl, tx_type);
         // if (ref_ctx != txb_cache->nz_ctx_arr[nb_coeff_idx])
         //   printf("nz ctx %d ref_ctx %d\n",
         //   txb_cache->nz_ctx_arr[nb_coeff_idx], ref_ctx);
@@ -1925,7 +1924,7 @@ static int get_coeff_cost(const tran_low_t qc, const int scan_idx,
 #endif
     int coeff_ctx =
         get_nz_map_ctx(txb_info->levels, scan_idx, scan, txb_info->bwl,
-                       txb_info->height, txb_info->tx_type, 1);
+                       txb_info->height, txb_info->tx_type);
     cost += txb_costs->nz_map_cost[coeff_ctx][is_nz];
   }
 
@@ -2535,7 +2534,7 @@ static INLINE void av1_update_nz_eob_counts(
       &counts->nz_map[txsize_ctx][plane_type];
   for (int c = 0; c < eob; ++c) {
     int is_nz = (levels[scan[c]] != 0);
-    int coeff_ctx = get_nz_map_ctx(levels, c, scan, bwl, height, tx_type, 1);
+    int coeff_ctx = get_nz_map_ctx(levels, c, scan, bwl, height, tx_type);
     int eob_ctx = get_eob_ctx(scan[c], txsize_ctx, tx_type);
 
     if (c == seg_eob - 1) break;
@@ -2588,7 +2587,7 @@ static INLINE void av1_update_nz_eob_counts_vert(
           int scan_idx = iscan[coeff_idx];
           int is_nz = levels[coeff_idx] != 0;
           int coeff_ctx =
-              get_nz_map_ctx(levels, scan_idx, scan, bwl, height, tx_type, 1);
+              get_nz_map_ctx(levels, scan_idx, scan, bwl, height, tx_type);
           ++(*nz_map_count)[coeff_ctx][is_nz];
 #if LV_MAP_PROB
           update_bin(fc->nz_map_cdf[txs_ctx][plane_type][coeff_ctx], is_nz, 2);
@@ -2640,7 +2639,7 @@ static INLINE void av1_update_nz_eob_counts_horiz(
           int scan_idx = iscan[coeff_idx];
           int is_nz = levels[coeff_idx] != 0;
           int coeff_ctx =
-              get_nz_map_ctx(levels, scan_idx, scan, bwl, height, tx_type, 1);
+              get_nz_map_ctx(levels, scan_idx, scan, bwl, height, tx_type);
           ++(*nz_map_count)[coeff_ctx][is_nz];
 #if LV_MAP_PROB
           update_bin(fc->nz_map_cdf[txs_ctx][plane_type][coeff_ctx], is_nz, 2);
@@ -2726,7 +2725,7 @@ void av1_update_and_record_txb_context(int plane, int block, int blk_row,
   for (c = eob - 1; c >= 0; --c) {
     tran_low_t v = qcoeff[scan[c]];
     int is_nz = (v != 0);
-    int coeff_ctx = get_nz_map_ctx(levels, c, scan, bwl, height, tx_type, 1);
+    int coeff_ctx = get_nz_map_ctx(levels, c, scan, bwl, height, tx_type);
 
     if (c == eob - 1) continue;
 
