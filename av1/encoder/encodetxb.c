@@ -784,9 +784,10 @@ static INLINE int get_base_cost(tran_low_t abs_qc, int ctx,
     return coeff_base[abs_qc == level];
 }
 
-int get_nz_eob_map_cost(const LV_MAP_COEFF_COST *coeff_costs,
-                        const tran_low_t *qcoeff, uint16_t eob, int plane,
-                        const int16_t *scan, TX_SIZE tx_size, TX_TYPE tx_type) {
+static int get_nz_eob_map_cost(const LV_MAP_COEFF_COST *coeff_costs,
+                               const uint8_t *const levels, uint16_t eob,
+                               int plane, const int16_t *scan, TX_SIZE tx_size,
+                               TX_TYPE tx_type) {
   (void)plane;
   TX_SIZE txs_ctx = get_txsize_context(tx_size);
   const int bwl = b_width_log2_lookup[txsize_to_bsize[tx_size]] + 2;
@@ -802,10 +803,9 @@ int get_nz_eob_map_cost(const LV_MAP_COEFF_COST *coeff_costs,
 #endif
   int cost = 0;
   for (int c = 0; c < eob; ++c) {
-    tran_low_t v = qcoeff[scan[c]];
-    int is_nz = (v != 0);
+    int is_nz = (levels[scan[c]] != 0);
     if (c + 1 != seg_eob) {
-      int coeff_ctx = get_nz_map_ctx(qcoeff, c, scan, bwl, height, tx_type, 0);
+      int coeff_ctx = get_nz_map_ctx(levels, c, scan, bwl, height, tx_type, 1);
       cost += coeff_costs->nz_map_cost[coeff_ctx][is_nz];
       if (is_nz) {
         int eob_ctx = get_eob_ctx(scan[c], txs_ctx, tx_type);
@@ -920,6 +920,8 @@ int av1_cost_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCK *x, int plane,
 
   const SCAN_ORDER *const scan_order = get_scan(cm, tx_size, tx_type, mbmi);
   const int16_t *scan = scan_order->scan;
+  uint8_t levels[MAX_TX_SQUARE];
+  int8_t signs[MAX_TX_SQUARE];
 
   LV_MAP_COEFF_COST *coeff_costs = &x->coeff_costs[txs_ctx][plane_type];
 
@@ -930,6 +932,8 @@ int av1_cost_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCK *x, int plane,
     return cost;
   }
   cost = coeff_costs->txb_skip_cost[txb_skip_ctx][0];
+
+  av1_txb_get_levels_and_signs(qcoeff, tx_size_2d[tx_size], levels, signs);
 
 #if CONFIG_TXK_SEL
   cost += av1_tx_type_cost(cm, x, xd, mbmi->sb_type, plane, tx_size, tx_type);
@@ -946,7 +950,7 @@ int av1_cost_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCK *x, int plane,
     int level = abs(v);
 
     if (c < eob - 1) {
-      int coeff_ctx = get_nz_map_ctx(qcoeff, c, scan, bwl, height, tx_type, 0);
+      int coeff_ctx = get_nz_map_ctx(levels, c, scan, bwl, height, tx_type, 1);
       cost += coeff_costs->nz_map_cost[coeff_ctx][is_nz];
     }
 
@@ -1020,7 +1024,7 @@ int av1_cost_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCK *x, int plane,
 #if CONFIG_CTX1D
   TX_CLASS tx_class = get_tx_class(tx_type);
   if (tx_class == TX_CLASS_2D) {
-    cost += get_nz_eob_map_cost(coeff_costs, qcoeff, eob, plane, scan, tx_size,
+    cost += get_nz_eob_map_cost(coeff_costs, levels, eob, plane, scan, tx_size,
                                 tx_type);
   } else {
     const int width = tx_size_wide[tx_size];
@@ -1028,7 +1032,7 @@ int av1_cost_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCK *x, int plane,
     const int eob_mode = eob > eob_offset;
     cost += coeff_costs->eob_mode_cost[tx_class][eob_mode];
     if (eob_mode == 0) {
-      cost += get_nz_eob_map_cost(coeff_costs, qcoeff, eob, plane, scan,
+      cost += get_nz_eob_map_cost(coeff_costs, levels, eob, plane, scan,
                                   tx_size, tx_type);
     } else {
       const int16_t *iscan = scan_order->iscan;
@@ -1042,7 +1046,7 @@ int av1_cost_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCK *x, int plane,
     }
   }
 #else   // CONFIG_CTX1D
-  cost += get_nz_eob_map_cost(coeff_costs, qcoeff, eob, plane, scan, tx_size,
+  cost += get_nz_eob_map_cost(coeff_costs, levels, eob, plane, scan, tx_size,
                               tx_type);
 #endif  // CONFIG_CTX1D
   for (c = 0; c < eob; ++c) {
