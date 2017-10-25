@@ -70,6 +70,24 @@
     },
     {
       "key": {
+        "uuid": "5ed4c646_3a74d323",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 23
+      },
+      "lineNbr": 1409,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-10-25T14:39:23Z",
+      "side": 1,
+      "message": "Actually, thinking about this further, doesn\u0027t this mean we start reading and writing regular segment_ids, too? Instead of just the q_segment_ids? Isn\u0027t that expensive?",
+      "parentUuid": "fdd6b62c_9d708373",
+      "revId": "6e1a723e5bf817f7b1cff6b8c31273f7e5abbd47",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "765c2ab8_5859e273",
         "filename": "av1/decoder/decodeframe.c",
         "patchSetId": 23
