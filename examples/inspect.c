@@ -334,7 +334,45 @@ int put_map(char *buffer, const map_entry *map) {
       *(buf++) = ',';
     }
   }
-  return buf - buffer;
+  return (int)(buf - buffer);
+}
+
+int put_reference_frame(char *buffer) {
+  const int mi_rows = frame_data.mi_rows;
+  const int mi_cols = frame_data.mi_cols;
+  char *buf = buffer;
+  int r, c, t;
+  buf += put_str(buf, "  \"referenceFrameMap\": {");
+  buf += put_map(buf, refs_map);
+  buf += put_str(buf, "},\n");
+  buf += put_str(buf, "  \"referenceFrame\": [");
+  for (r = 0; r < mi_rows; ++r) {
+    *(buf++) = '[';
+    for (c = 0; c < mi_cols; ++c) {
+      insp_mi_data *mi = &frame_data.mi_grid[r * mi_cols + c];
+      buf += put_num(buf, '[', mi->ref_frame[0], 0);
+      buf += put_num(buf, ',', mi->ref_frame[1], ']');
+      if (compress) {  // RLE
+        for (t = c + 1; t < mi_cols; ++t) {
+          insp_mi_data *next_mi = &frame_data.mi_grid[r * mi_cols + t];
+          if (mi->ref_frame[0] != next_mi->ref_frame[0] ||
+              mi->ref_frame[1] != next_mi->ref_frame[1]) {
+            break;
+          }
+        }
+        if (t - c > 1) {
+          *(buf++) = ',';
+          buf += put_num(buf, '[', t - c - 1, ']');
+          c = t - 1;
+        }
+      }
+      if (c < mi_cols - 1) *(buf++) = ',';
+    }
+    *(buf++) = ']';
+    if (r < mi_rows - 1) *(buf++) = ',';
+  }
+  buf += put_str(buf, "],\n");
+  return (int)(buf - buffer);
 }
 
 int put_reference_frame(char *buffer) {
@@ -411,7 +449,7 @@ int put_motion_vectors(char *buffer) {
     if (r < mi_rows - 1) *(buf++) = ',';
   }
   buf += put_str(buf, "],\n");
-  return buf - buffer;
+  return (int)(buf - buffer);
 }
 
 int put_block_info(char *buffer, const map_entry *map, const char *name,
@@ -451,7 +489,7 @@ int put_block_info(char *buffer, const map_entry *map, const char *name,
     if (r < mi_rows - 1) *(buf++) = ',';
   }
   buf += put_str(buf, "],\n");
-  return buf - buffer;
+  return (int)(buf - buffer);
 }
 
 #if CONFIG_ACCOUNTING
@@ -491,7 +529,7 @@ int put_accounting(char *buffer) {
     if (i < num_syms - 1) *(buf++) = ',';
   }
   buf += put_str(buf, "],\n");
-  return buf - buffer;
+  return (int)(buf - buffer);
 }
 #endif
 
