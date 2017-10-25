@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e10fd7c6_2e9a3a73",
+        "filename": "av1/common/pred_common.h",
+        "patchSetId": 23
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-10-25T14:36:56Z",
+      "side": 1,
+      "message": "This whole thing actually simplifies to\n  return (prev_ul \u003d\u003d prev_u) ? prev_u : prev_l;\n\nThough if you make that simplification, it might be a good idea to have a comment explaining why we\u0027re picking that as the predictor (the choices make sense, but might not be obvious).",
+      "revId": "6e1a723e5bf817f7b1cff6b8c31273f7e5abbd47",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a872268_7af80e5b",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 23
+      },
+      "lineNbr": 1372,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-10-25T14:36:56Z",
+      "side": 1,
+      "message": "This loop is going to read in a bit for SEG_LVL_Q_SEG and potentially a data value that then may (or may not) get overridden by setup_q_segmentation() below, right? That seems like a problem.",
+      "revId": "6e1a723e5bf817f7b1cff6b8c31273f7e5abbd47",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "761edcf0_c62d8826",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 23
+      },
+      "lineNbr": 1394,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-10-25T14:36:56Z",
+      "side": 1,
+      "message": "Help me understand why this is disabled for keyframes? Skips are likely to be pretty rare, but wouldn\u0027t we still want to benefit from good spatial prediction? Maybe we should use the q_segmentation_id coding scheme for the regular segment_id, too (at least in this case)?",
+      "revId": "6e1a723e5bf817f7b1cff6b8c31273f7e5abbd47",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fdd6b62c_9d708373",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 23
+      },
+      "lineNbr": 1409,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-10-25T14:36:56Z",
+      "side": 1,
+      "message": "This turns on segmentation without having called av1_clearall_segfeatures() (i.e., we returned early in setup_segmentation()). So we\u0027ll suddenly start using whatever values happened to be stored for all of the other features. I\u0027m not sure we can just blithely clear the data, either, because that affects what happens when segmentation is enabled but seg-\u003eupdate_data is not set in future frames.",
+      "revId": "6e1a723e5bf817f7b1cff6b8c31273f7e5abbd47",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "765c2ab8_5859e273",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 23
+      },
+      "lineNbr": 1411,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-10-25T14:36:56Z",
+      "side": 1,
+      "message": "So, you allow specifying a q_lvls that is smaller than MAX_SEGMENTS, but we can decode indices as large as MAX_SEGMENTS on any frame.\n\nIt\u0027s probably inconvenient to allow the indices we decode to vary (because that makes backwards adaptation between frames complicated), but if I\u0027m reading av1_get_qindex() correctly, this will then use whatever value was read in for the SEG_LVL_Q_SEG feature back in setup_segmentation() (which we shouldn\u0027t have read).\n\nProbably we\u0027d want all values past q_lvls to be set to the base frame quantizer (i.e., force disable SEG_LVL_Q_SEG for those segment IDs)? Maybe av1_clearall_segfeatures() managed to do that for us back in setup_segmentation(), but that only gets called when seg-\u003eupdate_data is set.",
+      "revId": "6e1a723e5bf817f7b1cff6b8c31273f7e5abbd47",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
