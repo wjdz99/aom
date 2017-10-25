@@ -1811,7 +1811,7 @@ static int optimize_txb(TxbInfo *txb_info, const LV_MAP_COEFF_COST *txb_costs,
   int64_t rd_diff = 0;
   const int max_eob = tx_size_2d[txb_info->tx_size];
 
-#if TEST_OPTIMIZE_TXB
+#if TEST_OPTIMIZE_TXB && !CONFIG_DAALA_TX
   int64_t sse;
   int64_t org_dist =
       av1_block_error_c(txb_info->tcoeff, txb_info->dqcoeff, max_eob, &sse) *
@@ -1882,7 +1882,7 @@ static int optimize_txb(TxbInfo *txb_info, const LV_MAP_COEFF_COST *txb_costs,
     if (eob_fix == 0 && txb_info->qcoeff[coeff_idx] != 0) eob_fix = 1;
     if (si > txb_info->eob) si = txb_info->eob;
   }
-#if TEST_OPTIMIZE_TXB
+#if TEST_OPTIMIZE_TXB && !CONFIG_DAALA_TX
   int64_t new_dist =
       av1_block_error_c(txb_info->tcoeff, txb_info->dqcoeff, max_eob, &sse) *
       (1 << (2 * txb_info->shift));
