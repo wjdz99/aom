@@ -591,8 +591,10 @@ extern const aom_tree_index
 void av1_setup_frame_contexts(struct AV1Common *cm);
 void av1_setup_past_independence(struct AV1Common *cm);
 
+#if !CONFIG_NEW_MULTISYMBOL
 void av1_adapt_intra_frame_probs(struct AV1Common *cm);
 void av1_adapt_inter_frame_probs(struct AV1Common *cm);
+#endif  // CONFIG_NEW_MULTISYMBOL
 
 static INLINE int av1_ceil_log2(int n) {
   int i = 1, p = 2;
