@@ -3565,6 +3565,7 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
 #endif  // CONFIG_LPF_SB
 }
 
+#if !CONFIG_NEW_MULTISYMBOL
 void av1_adapt_inter_frame_probs(AV1_COMMON *cm) {
   int i, j;
   FRAME_CONTEXT *fc = cm->fc;
@@ -3695,7 +3696,6 @@ void av1_adapt_intra_frame_probs(AV1_COMMON *cm) {
           pre_fc->txfm_partition_prob[i], counts->txfm_partition[i]);
   }
 
-#if !CONFIG_NEW_MULTISYMBOL
 #if CONFIG_EXT_SKIP
   for (i = 0; i < SKIP_MODE_CONTEXTS; ++i)
     fc->skip_mode_probs[i] = av1_mode_mv_merge_probs(pre_fc->skip_mode_probs[i],
@@ -3704,7 +3704,6 @@ void av1_adapt_intra_frame_probs(AV1_COMMON *cm) {
   for (i = 0; i < SKIP_CONTEXTS; ++i)
     fc->skip_probs[i] =
         av1_mode_mv_merge_probs(pre_fc->skip_probs[i], counts->skip[i]);
-#endif  // !CONFIG_NEW_MULTISYMBOL
 
   if (cm->seg.temporal_update) {
     for (i = 0; i < PREDICTION_PROBS; i++)
@@ -3776,6 +3775,7 @@ void av1_adapt_intra_frame_probs(AV1_COMMON *cm) {
   }
 #endif  // CONFIG_FILTER_INTRA
 }
+#endif  // CONFIG_NEW_MULTISYMBOL
 
 static void set_default_lf_deltas(struct loopfilter *lf) {
   lf->mode_ref_delta_enabled = 1;
