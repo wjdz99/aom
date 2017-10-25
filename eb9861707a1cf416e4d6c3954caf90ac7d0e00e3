@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a080e92c_38be9712",
+        "filename": "build/cmake/aom_experiment_deps.cmake",
+        "patchSetId": 4
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 5195
+      },
+      "writtenOn": "2017-10-25T15:03:14Z",
+      "side": 1,
+      "message": "Does this function add var_tx in build besides a warning?",
+      "range": {
+        "startLine": 155,
+        "startChar": 6,
+        "endLine": 155,
+        "endChar": 28
+      },
+      "revId": "eb9861707a1cf416e4d6c3954caf90ac7d0e00e3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
