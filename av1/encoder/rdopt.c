@@ -1543,6 +1543,11 @@ int64_t av1_block_error_c(const tran_low_t *coeff, const tran_low_t *dqcoeff,
   int i;
   int64_t error = 0, sqcoeff = 0;
 
+  // Daala TX with constant-shift requires > 16-bit coefficient
+  // support, even when the input is 8-bit.  We should never get here.
+#if CONFIG_DAALA_TX
+  assert(sizeof(tran_low_t) < sizeof(int32_t));
+#endif
   for (i = 0; i < block_size; i++) {
     const int diff = coeff[i] - dqcoeff[i];
     error += diff * diff;
@@ -1558,6 +1563,11 @@ int64_t av1_block_error_fp_c(const int16_t *coeff, const int16_t *dqcoeff,
   int i;
   int64_t error = 0;
 
+  // Daala TX with constant-shift requires > 16-bit coefficient
+  // support, even when the input is 8-bit.  We should never get here.
+#if CONFIG_DAALA_TX
+  assert(sizeof(tran_low_t) < sizeof(int32_t));
+#endif
   for (i = 0; i < block_size; i++) {
     const int diff = coeff[i] - dqcoeff[i];
     error += diff * diff;
@@ -1904,6 +1914,12 @@ void av1_dist_block(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
     tran_low_t *const coeff = BLOCK_OFFSET(p->coeff, block);
     tran_low_t *const dqcoeff = BLOCK_OFFSET(pd->dqcoeff, block);
 
+    // Daala TX with constant-shift requires > 16-bit coefficient
+    // support, even when the input is 8-bit.
+#if CONFIG_DAALA_TX
+    *out_dist = av1_highbd_block_error(coeff, dqcoeff, buffer_length,
+                                       &this_sse, xd->bd);
+#else
 #if CONFIG_HIGHBITDEPTH
     if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH)
       *out_dist = av1_highbd_block_error(coeff, dqcoeff, buffer_length,
@@ -1911,6 +1927,7 @@ void av1_dist_block(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
     else
 #endif
       *out_dist = av1_block_error(coeff, dqcoeff, buffer_length, &this_sse);
+#endif
 
     *out_dist = RIGHT_SIGNED_SHIFT(*out_dist, shift);
     *out_sse = RIGHT_SIGNED_SHIFT(this_sse, shift);
@@ -2087,13 +2104,21 @@ static void block_rd_txfm(int plane, int block, int blk_row, int blk_col,
   const int buffer_length = tx_size_2d[tx_size];
   int64_t tmp_dist;
   int64_t tmp;
+
+  // Daala TX with constant-shift requires > 16-bit coefficient
+  // support, even when the input is 8-bit.
+#if CONFIG_DAALA_TX
+  tmp_dist =
+    av1_highbd_block_error(coeff, dqcoeff, buffer_length, &tmp, xd->bd);
+#else
 #if CONFIG_HIGHBITDEPTH
   if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH)
     tmp_dist =
-        av1_highbd_block_error(coeff, dqcoeff, buffer_length, &tmp, xd->bd);
+      av1_highbd_block_error(coeff, dqcoeff, buffer_length, &tmp, xd->bd);
   else
 #endif
     tmp_dist = av1_block_error(coeff, dqcoeff, buffer_length, &tmp);
+#endif
   tmp_dist = RIGHT_SIGNED_SHIFT(tmp_dist, shift);
 
   if (
@@ -3973,13 +3998,20 @@ void av1_tx_block_rd_b(const AV1_COMP *cpi, MACROBLOCK *x, TX_SIZE tx_size,
       x->tune_metric != AOM_TUNE_PSNR;
 #endif  // CONFIG_DIST_8X8
 
+  // Daala TX with constant-shift requires > 16-bit coefficient
+  // support, even when the input is 8-bit.
+#if CONFIG_DAALA_TX
+  tmp_dist =
+    av1_highbd_block_error(coeff, dqcoeff, buffer_length, &tmp_sse, xd->bd);
+#else
 #if CONFIG_HIGHBITDEPTH
   if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH)
     tmp_dist =
-        av1_highbd_block_error(coeff, dqcoeff, buffer_length, &tmp_sse, xd->bd);
+      av1_highbd_block_error(coeff, dqcoeff, buffer_length, &tmp_sse, xd->bd);
   else
 #endif
     tmp_dist = av1_block_error(coeff, dqcoeff, buffer_length, &tmp_sse);
+#endif
 
   tmp_dist = RIGHT_SIGNED_SHIFT(tmp_dist, shift);
 

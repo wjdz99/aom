@@ -38,6 +38,12 @@ int64_t av1_block_error_avx2(const tran_low_t *coeff, const tran_low_t *dqcoeff,
   int i;
   const __m256i zero_reg = _mm256_setzero_si256();
 
+  // Daala TX with constant-shift requires > 16-bit coefficient
+  // support, even when the input is 8-bit.  We should never get here.
+#if CONFIG_DAALA_TX
+  assert(sizeof(tran_low_t) < sizeof(int32_t));
+#endif
+
   // init sse and ssz registerd to zero
   sse_reg = _mm256_setzero_si256();
   ssz_reg = _mm256_setzero_si256();
