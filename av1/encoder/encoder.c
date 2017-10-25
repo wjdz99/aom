@@ -5683,7 +5683,9 @@ static void encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
                               &cm->counts);
 #endif  // CONFIG_ENTROPY_STATS
   if (cm->refresh_frame_context == REFRESH_FRAME_CONTEXT_BACKWARD) {
+#if !CONFIG_NEW_MULTISYMBOL
     av1_adapt_intra_frame_probs(cm);
+#endif
 #if CONFIG_SIMPLE_BWD_ADAPT
     make_update_tile_list_enc(cpi, cm->largest_tile_id, 1, tile_ctxs);
 #else
@@ -5702,8 +5704,8 @@ static void encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
 
   if (!frame_is_intra_only(cm)) {
     if (cm->refresh_frame_context == REFRESH_FRAME_CONTEXT_BACKWARD) {
-      av1_adapt_inter_frame_probs(cm);
 #if !CONFIG_NEW_MULTISYMBOL
+      av1_adapt_inter_frame_probs(cm);
       av1_adapt_mv_probs(cm, cm->allow_high_precision_mv);
 #endif  // !CONFIG_NEW_MULTISYMBOL
       av1_average_tile_inter_cdfs(&cpi->common, cpi->common.fc, tile_ctxs,

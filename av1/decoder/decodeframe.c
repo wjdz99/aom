@@ -3851,7 +3851,9 @@ void av1_decode_tg_tiles_and_wrapup(AV1Decoder *pbi, const uint8_t *data,
 #if CONFIG_SYMBOLRATE
       av1_dump_symbol_rate(cm);
 #endif
+#if !CONFIG_NEW_MULTISYMBOL
       av1_adapt_intra_frame_probs(cm);
+#endif
       av1_average_tile_coef_cdfs(pbi->common.fc, tile_ctxs, cdf_ptrs,
                                  num_bwd_ctxs);
       av1_average_tile_intra_cdfs(pbi->common.fc, tile_ctxs, cdf_ptrs,
@@ -3863,8 +3865,8 @@ void av1_decode_tg_tiles_and_wrapup(AV1Decoder *pbi, const uint8_t *data,
 #endif  // CONFIG_ADAPT_SCAN
 
       if (!frame_is_intra_only(cm)) {
-        av1_adapt_inter_frame_probs(cm);
 #if !CONFIG_NEW_MULTISYMBOL
+        av1_adapt_inter_frame_probs(cm);
         av1_adapt_mv_probs(cm, cm->allow_high_precision_mv);
 #endif
         av1_average_tile_inter_cdfs(&pbi->common, pbi->common.fc, tile_ctxs,
