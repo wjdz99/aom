@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "963fc8b8_fc413ed6",
+        "filename": "tools/aom_entropy_optimizer.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 263,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-10-25T23:26:43Z",
+      "side": 1,
+      "message": "Hi, I think it might cause some trouble to the special case of band 1-5, which has 5 possible symbols instead of 6 (band 0). In such cases, cdfs[4] \u003d cdfs[5] \u003d CDF_PROB_TOP, which can be produced by the original function, is good to use.",
+      "range": {
+        "startLine": 259,
+        "startChar": 0,
+        "endLine": 263,
+        "endChar": 5
+      },
+      "revId": "9115949f8ef5c9c884cc196b36fa43e108dcea1a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "2c6d1dc4_f02dd6ed",
         "filename": "tools/aom_entropy_optimizer.c",
         "patchSetId": 1
