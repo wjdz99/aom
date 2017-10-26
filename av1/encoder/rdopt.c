@@ -1469,7 +1469,7 @@ static void model_rd_from_sse(const AV1_COMP *const cpi,
   // Fast approximate the modelling function.
   if (cpi->sf.simple_model_rd_from_var) {
     const int64_t square_error = sse;
-    int quantizer = (pd->dequant[1] >> dequant_shift);
+    int quantizer = (pd->dequant_Q3[1] >> dequant_shift);
 
     if (quantizer < 120)
       *rate = (int)((square_error * (280 - quantizer)) >>
@@ -1479,7 +1479,8 @@ static void model_rd_from_sse(const AV1_COMP *const cpi,
     *dist = (square_error * quantizer) >> 8;
   } else {
     av1_model_rd_from_var_lapndz(sse, num_pels_log2_lookup[bsize],
-                                 pd->dequant[1] >> dequant_shift, rate, dist);
+                                 pd->dequant_Q3[1] >> dequant_shift, rate,
+                                 dist);
   }
 
   *dist <<= 4;
