@@ -420,25 +420,23 @@ if (CONFIG_NCOBMC_ADAPT_WEIGHT)
       "${AOM_ROOT}/av1/common/ncobmc_kernels.h")
 endif ()
 
-if (CONFIG_WARPED_MOTION OR CONFIG_GLOBAL_MOTION)
-  set(AOM_AV1_COMMON_SOURCES
-      ${AOM_AV1_COMMON_SOURCES}
-      "${AOM_ROOT}/av1/common/warped_motion.c"
-      "${AOM_ROOT}/av1/common/warped_motion.h")
+set(AOM_AV1_COMMON_SOURCES
+    ${AOM_AV1_COMMON_SOURCES}
+    "${AOM_ROOT}/av1/common/warped_motion.c"
+    "${AOM_ROOT}/av1/common/warped_motion.h")
 
-  set(AOM_AV1_COMMON_INTRIN_SSE2
-      ${AOM_AV1_COMMON_INTRIN_SSE2}
-      "${AOM_ROOT}/av1/common/x86/warp_plane_sse2.c")
+set(AOM_AV1_COMMON_INTRIN_SSE2
+    ${AOM_AV1_COMMON_INTRIN_SSE2}
+    "${AOM_ROOT}/av1/common/x86/warp_plane_sse2.c")
 
+set(AOM_AV1_COMMON_INTRIN_SSSE3
+    ${AOM_AV1_COMMON_INTRIN_SSSE3}
+    "${AOM_ROOT}/av1/common/x86/warp_plane_ssse3.c")
+
+if (CONFIG_HIGHBITDEPTH)
   set(AOM_AV1_COMMON_INTRIN_SSSE3
       ${AOM_AV1_COMMON_INTRIN_SSSE3}
-      "${AOM_ROOT}/av1/common/x86/warp_plane_ssse3.c")
-
-  if (CONFIG_HIGHBITDEPTH)
-    set(AOM_AV1_COMMON_INTRIN_SSSE3
-        ${AOM_AV1_COMMON_INTRIN_SSSE3}
-        "${AOM_ROOT}/av1/common/x86/highbd_warp_plane_ssse3.c")
-  endif ()
+      "${AOM_ROOT}/av1/common/x86/highbd_warp_plane_ssse3.c")
 endif ()
 
 if (CONFIG_HASH_ME)

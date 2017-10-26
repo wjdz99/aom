@@ -37,7 +37,6 @@ typedef struct mv32 {
   int32_t col;
 } MV32;
 
-#if CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
 // Bits of precision used for the model
 #define WARPEDMODEL_PREC_BITS 16
 #define WARPEDMODEL_ROW3HOMO_PREC_BITS 16
@@ -94,9 +93,7 @@ typedef struct {
 #if CONFIG_GLOBAL_MOTION
   int global_warp_allowed;
 #endif  // CONFIG_GLOBAL_MOTION
-#if CONFIG_WARPED_MOTION
   int local_warp_allowed;
-#endif  // CONFIG_WARPED_MOTION
 } WarpTypesAllowed;
 
 // number of parameters used by each transformation in TransformationTypes
@@ -121,7 +118,6 @@ static const WarpedMotionParams default_warp_params = {
   0, 0, 0, 0
 };
 /* clang-format on */
-#endif  // CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
 
 #if CONFIG_GLOBAL_MOTION
 // The following constants describe the various precisions
