@@ -306,7 +306,7 @@ static INLINE void add_token(TOKENEXTRA **t,
                              aom_cdf_prob (*tail_cdf)[CDF_SIZE(ENTROPY_TOKENS)],
                              aom_cdf_prob (*head_cdf)[CDF_SIZE(ENTROPY_TOKENS)],
 #if CONFIG_ENTROPY_STATS
-                             unsigned int head_counts[ENTROPY_TOKENS],
+                             unsigned int head_counts[HEAD_TOKENS + 1],
 #endif  // CONFIG_ENTROPY_STATS
                              int8_t eob_val, int8_t first_val, int32_t extra,
                              uint8_t token) {
@@ -327,6 +327,7 @@ static INLINE void add_token(TOKENEXTRA **t,
     if (eob_val != LAST_EOB) {
       const int symb = 2 * AOMMIN(token, TWO_TOKEN) - eob_val + first_val;
 #if CONFIG_ENTROPY_STATS
+      assert(symb < HEAD_TOKENS + 1);
       ++head_counts[symb];
 #endif  // CONFIG_ENTROPY_STATS
       update_cdf(*head_cdf, symb, HEAD_TOKENS + first_val);
@@ -482,7 +483,7 @@ static void tokenize_b(int plane, int block, int blk_row, int blk_col,
   const int ref = is_inter_block(mbmi);
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
 #if CONFIG_ENTROPY_STATS
-  unsigned int(*const coef_head_counts)[COEFF_CONTEXTS][ENTROPY_TOKENS] =
+  unsigned int(*const coef_head_counts)[COEFF_CONTEXTS][HEAD_TOKENS + 1] =
       td->counts->coef_head[txsize_sqr_map[tx_size]][type][ref];
 #endif  // CONFIG_ENTROPY_STATS
   aom_cdf_prob(
