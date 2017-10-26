@@ -16,6 +16,24 @@
       "revId": "666914069be0e7d6b05fcce291508e924723b6f5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bb3391e6_ecb0ada1",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 5544,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2017-10-26T21:42:04Z",
+      "side": 1,
+      "message": "To clarify, \"(In other words, early-exit for cfl mode can occur right at this place.)\", early-exit here is *rough* version as in other places (ex block_rd_txfm()), which only counts coefficients and not includes the mode info such as \u0027clf_alpha_rate\u0027 or rate for intra mode.",
+      "parentUuid": "f4a78857_c5f2caf3",
+      "revId": "666914069be0e7d6b05fcce291508e924723b6f5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
