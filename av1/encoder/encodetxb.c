@@ -557,7 +557,9 @@ void av1_write_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
     update_eob = 0;
     for (c = eob - 1; c >= 0; --c) {
       const int level = levels[scan[c]];
+#if !USE_SIGN_PASS
       const int sign = signs[scan[c]];
+#endif
       int ctx;
 
       if (level <= i) continue;
@@ -571,6 +573,8 @@ void av1_write_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
 #else
         aom_write(w, 1, coeff_base[ctx]);
 #endif
+
+#if !USE_SIGN_PASS
         if (c == 0) {
 #if LV_MAP_PROB
           aom_write_bin(w, sign,
@@ -582,6 +586,7 @@ void av1_write_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
         } else {
           aom_write_bit(w, sign);
         }
+#endif  // !USE_SIGN_PASS
         continue;
       }
 
@@ -595,13 +600,11 @@ void av1_write_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
     }
   }
 
-  for (c = update_eob; c >= 0; --c) {
+#if USE_SIGN_PASS
+  for (c = 0; c < eob; ++c) {
     const int level = levels[scan[c]];
     const int sign = signs[scan[c]];
-    int idx;
-    int ctx;
-
-    if (level <= NUM_BASE_LEVELS) continue;
+    if (level == 0) continue;
 
     if (c == 0) {
 #if LV_MAP_PROB
@@ -613,6 +616,31 @@ void av1_write_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
     } else {
       aom_write_bit(w, sign);
     }
+  }
+#endif
+
+  for (c = update_eob; c >= 0; --c) {
+    const int level = levels[scan[c]];
+#if !USE_SIGN_PASS
+    const int sign = signs[scan[c]];
+#endif
+    int idx;
+    int ctx;
+
+    if (level <= NUM_BASE_LEVELS) continue;
+
+#if !USE_SIGN_PASS
+    if (c == 0) {
+#if LV_MAP_PROB
+      aom_write_bin(w, sign,
+                    ec_ctx->dc_sign_cdf[plane_type][txb_ctx->dc_sign_ctx], 2);
+#else
+      aom_write(w, sign, ec_ctx->dc_sign[plane_type][txb_ctx->dc_sign_ctx]);
+#endif
+    } else {
+      aom_write_bit(w, sign);
+    }
+#endif  // !USE_SIGN_PASS
 
     // level is above 1.
     ctx = get_br_ctx(levels, scan[c], bwl, height);
@@ -2714,7 +2742,9 @@ void av1_update_and_record_txb_context(int plane, int block, int blk_row,
     update_eob = 0;
     for (c = eob - 1; c >= 0; --c) {
       const int level = levels[scan[c]];
+#if !USE_SIGN_PASS
       const int sign = signs[scan[c]];
+#endif
       int ctx;
 
       if (level <= i) continue;
@@ -2727,6 +2757,8 @@ void av1_update_and_record_txb_context(int plane, int block, int blk_row,
         update_bin(ec_ctx->coeff_base_cdf[txsize_ctx][plane_type][i][ctx], 1,
                    2);
 #endif
+
+#if !USE_SIGN_PASS
         if (c == 0) {
           int dc_sign_ctx = txb_ctx.dc_sign_ctx;
 
@@ -2736,6 +2768,7 @@ void av1_update_and_record_txb_context(int plane, int block, int blk_row,
 #endif
           x->mbmi_ext->dc_sign_ctx[plane][block] = dc_sign_ctx;
         }
+#endif
         continue;
       }
       ++td->counts->coeff_base[txsize_ctx][plane_type][i][ctx][0];
@@ -2746,14 +2779,31 @@ void av1_update_and_record_txb_context(int plane, int block, int blk_row,
     }
   }
 
+#if USE_SIGN_PASS
+  c = 0;
+  const int sign = signs[scan[c]];
+  if (levels[scan[c]] != 0) {
+    int dc_sign_ctx = txb_ctx.dc_sign_ctx;
+
+    ++td->counts->dc_sign[plane_type][dc_sign_ctx][sign];
+#if LV_MAP_PROB
+    update_bin(ec_ctx->dc_sign_cdf[plane_type][dc_sign_ctx], sign, 2);
+#endif
+    x->mbmi_ext->dc_sign_ctx[plane][block] = dc_sign_ctx;
+  }
+#endif
+
   for (c = update_eob; c >= 0; --c) {
     const int level = levels[scan[c]];
+#if !USE_SIGN_PASS
     const int sign = signs[scan[c]];
+#endif
     int idx;
     int ctx;
 
     if (level <= NUM_BASE_LEVELS) continue;
 
+#if !USE_SIGN_PASS
     if (c == 0) {
       int dc_sign_ctx = txb_ctx.dc_sign_ctx;
 
@@ -2763,6 +2813,7 @@ void av1_update_and_record_txb_context(int plane, int block, int blk_row,
 #endif
       x->mbmi_ext->dc_sign_ctx[plane][block] = dc_sign_ctx;
     }
+#endif  // !USE_SIGN_PASS
 
     // level is above 1.
     ctx = get_br_ctx(levels, scan[c], bwl, height);
