@@ -390,12 +390,22 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
   }
   *eob = rec_eob_pos(eob_pt, eob_extra);
   // printf("=>[%d, %d], (%d, %d)\n", seg_eob, *eob, eob_pt, eob_extra);
-
+#if USE_CAUSAL_BASE_CTX
+  //printf("DEC %d:", *eob);
+  int b0 = 0, b1 = 0, b2 = 0;
+  int coeff_ctx = 0;
+#endif
+  
   for (int i = 0; i < *eob; ++i) {
     c = *eob - 1 - i;
     int is_nz;
+#if USE_CAUSAL_BASE_CTX
+    coeff_ctx = get_nz_map_ctx_b(levels, c, scan, bwl, height, tx_type, 1, 
+                                    b1+b2);
+#else
     int coeff_ctx = get_nz_map_ctx(levels, c, scan, bwl, height, tx_type, 1);
-    // int eob_ctx = get_eob_ctx(tcoeffs, scan[c], txs_ctx, tx_type);
+#endif
+   // int eob_ctx = get_eob_ctx(tcoeffs, scan[c], txs_ctx, tx_type);
 
     if (c < *eob - 1) {
 #if LV_MAP_PROB
@@ -411,10 +421,42 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
 
     // set non-zero coefficient map.
     levels[scan[c]] = is_nz;
-
     if (counts) ++(*nz_map_count)[coeff_ctx][is_nz];
+
+#if USE_CAUSAL_BASE_CTX    
+    if (is_nz) {
+      //printf("DEC %d/%d: ", c, *eob);
+      
+      int k;
+      for (k = 0; k < NUM_BASE_LEVELS; ++k) {
+        int ctx = coeff_ctx; //get_base_ctx_from_b(c, k, b0, b1, b2);
+#if 0    // USE_CAUSAL_BASE_CTX read_coeffs
+        int is_k = av1_read_record_bit(counts, r, ACCT_STR);
+#else      
+        int is_k = av1_read_record_bin(
+          counts, r, ec_ctx->coeff_base_cdf[txs_ctx][plane_type][k][ctx], 2,
+          ACCT_STR);
+#endif
+          //printf("%d(%d, %d, %d) ", ctx, b0, b1, b2);
+        if (is_k == 1) {
+          cul_level += k+1;
+          break;          
+        }
+      }
+      levels[scan[c]] = k+1;
+      //printf("=> %d\n", k+1);
+      //printf("(%d, %d|%d, %d) ", c, k+1, b0, b1);
+      b0 += (k==0);
+      b1 += (k==1);
+      b2 += (k>1);
+      
+    }
+#endif
   }
-#else
+#if USE_CAUSAL_BASE_CTX
+  //printf("\n");
+#endif
+#else // CONFIG_EOB_FIRST
 
 #if CONFIG_CTX1D
   const int16_t *iscan = scan_order->iscan;
@@ -449,9 +491,12 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
   *eob = read_nz_map(r, levels, plane, scan, tx_size, tx_type, ec_ctx, counts);
 #endif
 
-#endif
+#endif //CONFIG_EOB_FIRST
   *max_scan_line = *eob;
 
+#if USE_CAUSAL_BASE_CTX
+  update_eob = *eob - 1;
+#else
   int i;
   for (i = 0; i < NUM_BASE_LEVELS; ++i) {
 #if !LV_MAP_PROB
@@ -479,7 +524,7 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
         cul_level += i + 1;
 
         if (counts) ++counts->coeff_base[txs_ctx][plane_type][i][ctx][1];
-
+#if !USE_SIGN_PASS
         if (c == 0) {
           int dc_sign_ctx = txb_ctx->dc_sign_ctx;
 #if LV_MAP_PROB
@@ -494,6 +539,7 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
         } else {
           *sign = av1_read_record_bit(counts, r, ACCT_STR);
         }
+#endif
         continue;
       }
       *level = i + 2;
@@ -503,15 +549,20 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
       update_eob = AOMMAX(update_eob, c);
     }
   }
+#endif
 
-  for (c = update_eob; c >= 0; --c) {
-    uint8_t *const level = &levels[scan[c]];
+
+#if 0 //USE_CAUSAL_BASE_CTX
+for (c = 0; c <= update_eob; c++) {
+  printf("%d, ",  levels[scan[c]]);      
+}
+printf("\n");
+#endif
+
+#if USE_SIGN_PASS
+  for (c = 0; c < *eob; ++c) {
     int8_t *const sign = &signs[scan[c]];
-    int idx;
-    int ctx;
-
-    if (*level <= NUM_BASE_LEVELS) continue;
-
+    if (levels[scan[c]] == 0) continue;
     if (c == 0) {
       int dc_sign_ctx = txb_ctx->dc_sign_ctx;
 #if LV_MAP_PROB
@@ -524,7 +575,32 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
     } else {
       *sign = av1_read_record_bit(counts, r, ACCT_STR);
     }
+  }
+#endif
 
+
+  for (c = update_eob; c >= 0; --c) {
+    uint8_t *const level = &levels[scan[c]];
+    int idx;
+    int ctx;
+
+    if (*level <= NUM_BASE_LEVELS) continue;
+
+#if !USE_SIGN_PASS
+    int8_t *const sign = &signs[scan[c]];
+    if (c == 0) {
+      int dc_sign_ctx = txb_ctx->dc_sign_ctx;
+#if LV_MAP_PROB
+      *sign = av1_read_record_bin(
+          counts, r, ec_ctx->dc_sign_cdf[plane_type][dc_sign_ctx], 2, ACCT_STR);
+#else
+      *sign = aom_read(r, ec_ctx->dc_sign[plane_type][dc_sign_ctx], ACCT_STR);
+#endif
+      if (counts) ++counts->dc_sign[plane_type][dc_sign_ctx][*sign];
+    } else {
+      *sign = av1_read_record_bit(counts, r, ACCT_STR);
+    }
+#endif
     ctx = get_br_ctx(levels, scan[c], bwl, height);
 
 #if BR_NODE
@@ -569,7 +645,7 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
       }
       if (counts) ++counts->coeff_br[txs_ctx][plane_type][idx][ctx][0];
     }
-
+   
     if (idx < BASE_RANGE_SETS) continue;
 #else
     for (idx = 0; idx < COEFF_BASE_RANGE; ++idx) {
@@ -589,6 +665,7 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
       }
       if (counts) ++counts->coeff_lps[txs_ctx][plane_type][ctx][0];
     }
+    
     if (idx < COEFF_BASE_RANGE) continue;
 #endif
 
@@ -597,16 +674,20 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
     // Save golomb in tcoeffs because adding it to level may incur overflow
     tcoeffs[scan[c]] = read_golomb(xd, r, counts);
     cul_level += *level + tcoeffs[scan[c]];
+
   }
 
   for (c = 0; c < *eob; ++c) {
     const int16_t dqv = (c == 0) ? dequant[0] : dequant[1];
     const int level = levels[scan[c]];
     const int16_t t = ((level + tcoeffs[scan[c]]) * dqv) >> shift;
+
 #if CONFIG_SYMBOLRATE
     av1_record_coeff(counts, level);
 #endif
     tcoeffs[scan[c]] = signs[scan[c]] ? -t : t;
+
+
   }
 
   cul_level = AOMMIN(63, cul_level);

@@ -46,6 +46,29 @@ static const int base_ref_offset[BASE_CONTEXT_POSITION_NUM][2] = {
   /* clang-format on*/
 };
 
+#if USE_CAUSAL_BASE_CTX
+static INLINE int get_base_ctx_from_b(int c, int i, int b0, int b1, int b2) {
+  int offset;
+  int ctx;
+  if (i == 0) {
+    offset = (c==0)? 0: (c < 10)? 10: 20;
+    if ( (b1 + b2 == 0) ) {
+      ctx = AOMMIN(b0, 4)*2;
+    } else {
+      ctx =  AOMMIN(b0, 4)*2 + 1;
+    }
+  } else {
+    offset = (c==0)? 0: 10;
+    if (b2 == 0) {
+      ctx = AOMMIN(b1, 3)*2;
+    } else {
+      ctx =  1;
+    }
+  }
+  return (offset + ctx);
+}
+#endif
+
 // TODO(linfengz): Some functions have coeff_is_byte_flag to handle different
 // types of input coefficients. If possible, unify types to uint8_t* later.
 
@@ -169,7 +192,8 @@ static INLINE int get_base_ctx_from_count_mag(int row, int col, int count,
     ctx_idx = (ctx << 1) + sig_mag;
     // TODO(angiebird): turn this on once the optimization is finalized
     // assert(ctx_idx < 8);
-  } else if (row == 0) {
+  } 
+  else if (row == 0) {
     ctx_idx = 8 + (ctx << 1) + sig_mag;
     // TODO(angiebird): turn this on once the optimization is finalized
     // assert(ctx_idx < 18);
@@ -177,7 +201,8 @@ static INLINE int get_base_ctx_from_count_mag(int row, int col, int count,
     ctx_idx = 8 + 10 + (ctx << 1) + sig_mag;
     // TODO(angiebird): turn this on once the optimization is finalized
     // assert(ctx_idx < 28);
-  } else {
+  } 
+  else {
     ctx_idx = 8 + 10 + 10 + (ctx << 1) + sig_mag;
     assert(ctx_idx < COEFF_BASE_CONTEXTS);
   }
@@ -321,17 +346,55 @@ static INLINE int get_br_ctx_coeff(const tran_low_t *const tcoeffs,
 #define SIG_REF_OFFSET_NUM 7
 #if CONFIG_EOB_FIRST
 static const int sig_ref_offset[SIG_REF_OFFSET_NUM][2] = {
-  { 2, 1 }, { 2, 0 }, { 1, 2 }, { 1, 1 }, { 1, 0 }, { 0, 2 }, { 0, 1 },
+  { 1, 0 }, { 0, 1 }, { 1, 1 }, { 2, 0 }, { 0, 2 }, { 2, 1 },  { 1, 2 },  
 };
 
 static const int sig_ref_offset_vert[SIG_REF_OFFSET_NUM][2] = {
-  { 2, 1 }, { 2, 0 }, { 3, 0 }, { 1, 1 }, { 1, 0 }, { 4, 0 }, { 0, 1 },
+  { 1, 0 }, { 2, 0 }, { 0, 1 },{ 3, 0 }, { 4, 0 }, { 2, 1 },  { 1, 1 },  
 };
 
 static const int sig_ref_offset_horiz[SIG_REF_OFFSET_NUM][2] = {
-  { 0, 3 }, { 0, 4 }, { 1, 2 }, { 1, 1 }, { 1, 0 }, { 0, 2 }, { 0, 1 },
+  { 0, 1 }, { 0, 2 }, { 1, 0 },{ 0, 3 }, { 0, 4 }, { 1, 2 }, { 1, 1 },   
 };
 
+
+#if USE_CAUSAL_BASE_CTX
+static INLINE int get_nz_count(const tran_low_t *tcoeffs, int bwl, int height,
+                               int row, int col, TX_CLASS tx_class,
+                               const int coeff_is_byte_flag, int *mag) {
+  int count = 0;
+  *mag = 0;
+  for (int idx = 0; idx < SIG_REF_OFFSET_NUM; ++idx) {
+    const int row_offset = ((tx_class == TX_CLASS_2D)
+                                   ? sig_ref_offset[idx][0]
+                                   : ((tx_class == TX_CLASS_VERT)
+                                          ? sig_ref_offset_vert[idx][0]
+                                          : sig_ref_offset_horiz[idx][0]));
+    const int col_offset = ((tx_class == TX_CLASS_2D)
+                                   ? sig_ref_offset[idx][1]
+                                   : ((tx_class == TX_CLASS_VERT)
+                                          ? sig_ref_offset_vert[idx][1]
+                                          : sig_ref_offset_horiz[idx][1]));
+    const int ref_row = row + row_offset;
+    const int ref_col = col + col_offset;
+    if (ref_row < 0 || ref_col < 0 || ref_row >= height ||
+        ref_col >= (1 << bwl))
+      continue;
+    const int nb_pos = (ref_row << bwl) + ref_col;
+    int level = abs(coeff_is_byte_flag ? ((const uint8_t *)tcoeffs)[nb_pos]
+    : ((const tran_low_t *)tcoeffs)[nb_pos]);
+    count +=
+    ((coeff_is_byte_flag ? ((const uint8_t *)tcoeffs)[nb_pos]
+                         : ((const tran_low_t *)tcoeffs)[nb_pos]) != 0);
+#if 1
+    if (idx < 5) 
+      *mag += AOMMIN(level, 3);
+#endif
+  }
+  return count;
+}
+
+#else
 static INLINE int get_nz_count(const tran_low_t *tcoeffs, int bwl, int height,
                                int row, int col, TX_CLASS tx_class,
                                const int coeff_is_byte_flag) {
@@ -357,6 +420,7 @@ static INLINE int get_nz_count(const tran_low_t *tcoeffs, int bwl, int height,
   }
   return count;
 }
+#endif
 #else
 static const int sig_ref_offset[SIG_REF_OFFSET_NUM][2] = {
   { -2, -1 }, { -2, 0 }, { -1, -2 }, { -1, -1 },
@@ -393,11 +457,12 @@ static INLINE int get_nz_count(const void *const tcoeffs, const int bwl,
     if (ref_row < 0 || ref_col < 0 || ref_row >= height ||
         ref_col >= (1 << bwl))
       continue;
-    const int nb_pos = (ref_row << bwl) + ref_col;
+    const int nb_pos = (ref_row << bwl) + ref_col;      
     count +=
         ((coeff_is_byte_flag ? ((const uint8_t *)tcoeffs)[nb_pos]
                              : ((const tran_low_t *)tcoeffs)[nb_pos]) != 0);
   }
+  printf("\n");
   return count;
 }
 #endif
@@ -423,8 +488,8 @@ static INLINE TX_CLASS get_tx_class(TX_TYPE tx_type) {
 static INLINE int get_nz_map_ctx_from_count(int count,
                                             int coeff_idx,  // raster order
                                             int bwl,
-#if CONFIG_EOB_FIRST
-                                            int height,
+#if USE_CAUSAL_BASE_CTX
+                                            int mag,
 #endif
                                             TX_TYPE tx_type) {
   (void)tx_type;
@@ -445,9 +510,14 @@ static INLINE int get_nz_map_ctx_from_count(int count,
 #endif
 
 #if CONFIG_EOB_FIRST
-  (void)height;
-  ctx = (count + 1) >> 1;
 
+#if USE_CAUSAL_BASE_CTX
+  (void)mag;
+  ctx = AOMMIN((count + 1) >> 1, 4);
+#if 1
+  ctx = AOMMIN((mag+1)>>1, 4);
+#endif
+  //if (mag>1) offset += 16;
   if (tx_class == TX_CLASS_2D) {
     {
       if (row == 0 && col == 0) return offset + 0;
@@ -456,7 +526,7 @@ static INLINE int get_nz_map_ctx_from_count(int count,
 
       if (row + col < 4) return offset + 5 + ctx + 1;
 
-      return offset + 11 + AOMMIN(ctx, 4);
+      return offset + 11 + ctx;
     }
   } else {
     if (tx_class == TX_CLASS_VERT) {
@@ -469,6 +539,31 @@ static INLINE int get_nz_map_ctx_from_count(int count,
       return offset + 10 + ctx;
     }
   }
+#else
+ctx = AOMMIN((count + 1) >> 1, 4);
+
+if (tx_class == TX_CLASS_2D) {
+  {
+    if (row == 0 && col == 0) return offset + 0;
+
+    if (row + col < 2) return offset + ctx + 1;
+
+    if (row + col < 4) return offset + 5 + ctx + 1;
+
+    return offset + 11 + ctx;
+  }
+} else {
+  if (tx_class == TX_CLASS_VERT) {
+    if (row == 0) return offset + ctx;
+    if (row < 2) return offset + 5 + ctx;
+    return offset + 10 + ctx;
+  } else {
+    if (col == 0) return offset + ctx;
+    if (col < 2) return offset + 5 + ctx;
+    return offset + 10 + ctx;
+  }
+}
+#endif
 #else
   if (row == 0 && col == 0) return offset + 0;
 
@@ -506,6 +601,26 @@ static INLINE int get_nz_map_ctx_from_count(int count,
 #endif
 }
 
+#if USE_CAUSAL_BASE_CTX
+static INLINE int get_nz_map_ctx_b(const void *const tcoeffs, const int scan_idx,
+                                 const int16_t *const scan, const int bwl,
+                                 const int height, const TX_TYPE tx_type,
+                                 const int coeff_is_byte_flag, 
+                                 const int b_value) {
+  const int coeff_idx = scan[scan_idx];
+  const int row = coeff_idx >> bwl;
+  const int col = coeff_idx - (row << bwl);
+
+  int tx_class = get_tx_class(tx_type);
+  int mag = 0;
+  int count = get_nz_count(tcoeffs, bwl, height, row, col, tx_class,
+                           coeff_is_byte_flag, &mag);
+  return get_nz_map_ctx_from_count(count, coeff_idx, bwl,
+                                   mag,
+                                   tx_type);
+}
+#endif
+
 static INLINE int get_nz_map_ctx(const void *const tcoeffs, const int scan_idx,
                                  const int16_t *const scan, const int bwl,
                                  const int height, const TX_TYPE tx_type,
@@ -531,15 +646,20 @@ static INLINE int get_nz_map_ctx(const void *const tcoeffs, const int scan_idx,
 #else
 #if CONFIG_EOB_FIRST
   int tx_class = get_tx_class(tx_type);
+  int mag = 0;
   int count = get_nz_count(tcoeffs, bwl, height, row, col, tx_class,
-                           coeff_is_byte_flag);
+                           coeff_is_byte_flag
+#if USE_CAUSAL_BASE_CTX
+                            , &mag
+#endif
+                          );
 #else
   int count = get_nz_count(tcoeffs, bwl, height, row, col, coeff_is_byte_flag);
 #endif
 #endif
   return get_nz_map_ctx_from_count(count, coeff_idx, bwl,
-#if CONFIG_EOB_FIRST
-                                   height,
+#if USE_CAUSAL_BASE_CTX
+                                   mag,
 #endif
                                    tx_type);
 }
