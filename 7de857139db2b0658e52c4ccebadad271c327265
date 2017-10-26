@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b74d23a0_d48fb944",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 5028,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2017-10-26T20:11:27Z",
+      "side": 0,
+      "message": "Can\u0027t you not move functions but rather use function prototypes with \u0027static\u0027 removed? Since we probably want to save time not tracking simply moved blocks of code with version control.",
+      "revId": "7de857139db2b0658e52c4ccebadad271c327265",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
