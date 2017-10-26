@@ -5735,7 +5735,7 @@ static int check_best_zero_mv(
                                mi_col, mi_row, block
 #if CONFIG_AMVR
                                ,
-                               cpi->common.cur_frame_mv_precision_level
+                               cpi->common.cur_frame_force_integer_mv
 #endif
                                )
               .as_int;
@@ -6107,11 +6107,11 @@ static void joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
     x->mv_limits = tmp_mv_limits;
 
 #if CONFIG_AMVR
-    if (cpi->common.cur_frame_mv_precision_level) {
+    if (cpi->common.cur_frame_force_integer_mv) {
       x->best_mv.as_mv.row *= 8;
       x->best_mv.as_mv.col *= 8;
     }
-    if (bestsme < INT_MAX && cpi->common.cur_frame_mv_precision_level == 0)
+    if (bestsme < INT_MAX && cpi->common.cur_frame_force_integer_mv == 0)
 #else
     if (bestsme < INT_MAX)
 #endif
@@ -6461,7 +6461,7 @@ static void setup_buffer_inter(
 #if CONFIG_AMVR
   av1_find_best_ref_mvs(cm->allow_high_precision_mv, candidates,
                         &frame_nearest_mv[ref_frame], &frame_near_mv[ref_frame],
-                        cm->cur_frame_mv_precision_level);
+                        cm->cur_frame_force_integer_mv);
 #else
   av1_find_best_ref_mvs(cm->allow_high_precision_mv, candidates,
                         &frame_nearest_mv[ref_frame],
@@ -6612,11 +6612,11 @@ static void single_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,
   x->mv_limits = tmp_mv_limits;
 
 #if CONFIG_AMVR
-  if (cpi->common.cur_frame_mv_precision_level) {
+  if (cpi->common.cur_frame_force_integer_mv) {
     x->best_mv.as_mv.row *= 8;
     x->best_mv.as_mv.col *= 8;
   }
-  if (bestsme < INT_MAX && cpi->common.cur_frame_mv_precision_level == 0) {
+  if (bestsme < INT_MAX && cpi->common.cur_frame_force_integer_mv == 0) {
 #else
   if (bestsme < INT_MAX) {
 #endif
@@ -6919,11 +6919,11 @@ static void compound_single_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
   x->mv_limits = tmp_mv_limits;
 
 #if CONFIG_AMVR
-  if (cpi->common.cur_frame_mv_precision_level) {
+  if (cpi->common.cur_frame_force_integer_mv) {
     x->best_mv.as_mv.row *= 8;
     x->best_mv.as_mv.col *= 8;
   }
-  if (bestsme < INT_MAX && cpi->common.cur_frame_mv_precision_level == 0) {
+  if (bestsme < INT_MAX && cpi->common.cur_frame_force_integer_mv == 0) {
 #else
   if (bestsme < INT_MAX) {
 #endif
@@ -8487,7 +8487,7 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
 
 #if CONFIG_AMVR
       lower_mv_precision(&cur_mv[0].as_mv, cm->allow_high_precision_mv,
-                         cm->cur_frame_mv_precision_level);
+                         cm->cur_frame_force_integer_mv);
 #else
       lower_mv_precision(&cur_mv[0].as_mv, cm->allow_high_precision_mv);
 #endif
@@ -8501,7 +8501,7 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
 
 #if CONFIG_AMVR
       lower_mv_precision(&cur_mv[1].as_mv, cm->allow_high_precision_mv,
-                         cm->cur_frame_mv_precision_level);
+                         cm->cur_frame_force_integer_mv);
 #else
       lower_mv_precision(&cur_mv[1].as_mv, cm->allow_high_precision_mv);
 #endif
@@ -8522,7 +8522,7 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
 
 #if CONFIG_AMVR
       lower_mv_precision(&cur_mv[0].as_mv, cm->allow_high_precision_mv,
-                         cm->cur_frame_mv_precision_level);
+                         cm->cur_frame_force_integer_mv);
 #else
       lower_mv_precision(&cur_mv[0].as_mv, cm->allow_high_precision_mv);
 #endif
@@ -8545,7 +8545,7 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
 
 #if CONFIG_AMVR
       lower_mv_precision(&cur_mv[1].as_mv, cm->allow_high_precision_mv,
-                         cm->cur_frame_mv_precision_level);
+                         cm->cur_frame_force_integer_mv);
 #else
       lower_mv_precision(&cur_mv[1].as_mv, cm->allow_high_precision_mv);
 #endif
@@ -9005,7 +9005,11 @@ static int64_t rd_pick_intrabc_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
                    NULL, NULL, mbmi_ext->mode_context);
 
   int_mv nearestmv, nearmv;
+#if CONFIG_AMVR
+  av1_find_best_ref_mvs(0, candidates, &nearestmv, &nearmv, 0);
+#else
   av1_find_best_ref_mvs(0, candidates, &nearestmv, &nearmv);
+#endif
 
   int_mv dv_ref = nearestmv.as_int == 0 ? nearmv : nearestmv;
   if (dv_ref.as_int == 0) av1_find_ref_dv(&dv_ref, mi_row, mi_col);
@@ -9534,7 +9538,7 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
                              0
 #if CONFIG_AMVR
                              ,
-                             cm->cur_frame_mv_precision_level
+                             cm->cur_frame_force_integer_mv
 #endif
                              )
             .as_int;
@@ -9553,7 +9557,7 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
                              0
 #if CONFIG_AMVR
                              ,
-                             cm->cur_frame_mv_precision_level
+                             cm->cur_frame_force_integer_mv
 #endif
                              )
             .as_int;
@@ -9651,7 +9655,7 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
                                            mi_col, mi_row, 0
 #if CONFIG_AMVR
                                            ,
-                                           cm->cur_frame_mv_precision_level
+                                           cm->cur_frame_force_integer_mv
 #endif
                                            )
                           .as_int;
@@ -10833,7 +10837,7 @@ PALETTE_EXIT:
                                             mi_col, mi_row, 0
 #if CONFIG_AMVR
                                             ,
-                                            cm->cur_frame_mv_precision_level
+                                            cm->cur_frame_force_integer_mv
 #endif
                                             )
                            .as_int;
@@ -10844,7 +10848,7 @@ PALETTE_EXIT:
                                    mi_row, 0
 #if CONFIG_AMVR
                                    ,
-                                   cm->cur_frame_mv_precision_level
+                                   cm->cur_frame_force_integer_mv
 #endif
                                    )
                   .as_int
@@ -10945,7 +10949,7 @@ PALETTE_EXIT:
                                            mi_col, mi_row, 0
 #if CONFIG_AMVR
                                            ,
-                                           cm->cur_frame_mv_precision_level
+                                           cm->cur_frame_force_integer_mv
 #endif
                                            )
                           .as_int;
@@ -11093,7 +11097,7 @@ void av1_rd_pick_inter_mode_sb_seg_skip(const AV1_COMP *cpi,
                            cm->allow_high_precision_mv, bsize, mi_col, mi_row, 0
 #if CONFIG_AMVR
                            ,
-                           cm->cur_frame_mv_precision_level
+                           cm->cur_frame_force_integer_mv
 #endif
                            )
           .as_int;
