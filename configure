@@ -264,7 +264,6 @@ EXPERIMENT_LIST="
     interintra
     wedge
     compound_segment
-    global_motion
     new_quant
     ans
     loop_restoration
@@ -503,7 +502,6 @@ post_process_cmdline() {
     soft_enable adopted_experiments
     if enabled adopted_experiments; then
       soft_enable rect_tx
-      soft_enable global_motion
       soft_enable ext_tx
       soft_enable cdef
       soft_enable ext_intra
@@ -555,7 +553,6 @@ post_process_cmdline() {
     enabled compound_round && soft_enable convolve_round
     enabled intra_edge && enable_feature ext_intra
     enabled ncobmc_adapt_weight && enable_feature motion_var
-    enabled bgsprite && enable_feature global_motion
     enabled ext_comp_refs && enable_feature one_sided_compound
     enabled rect_tx_ext && enable_feature rect_tx
     enabled lgt_from_pred && enable_feature ext_tx
