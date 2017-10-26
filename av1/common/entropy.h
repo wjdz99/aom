@@ -24,6 +24,10 @@
 extern "C" {
 #endif
 
+#if CONFIG_LV_MAP
+#define USE_SIGN_PASS 0
+#endif
+
 #define DIFF_UPDATE_PROB 252
 #define GROUP_DIFF_UPDATE_PROB 252
 

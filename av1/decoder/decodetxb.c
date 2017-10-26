@@ -393,7 +393,9 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
     update_eob = 0;
     for (c = *eob - 1; c >= 0; --c) {
       uint8_t *const level = &levels[scan[c]];
+#if !USE_SIGN_PASS
       int8_t *const sign = &signs[scan[c]];
+#endif
       int ctx;
 
       if (*level <= i) continue;
@@ -408,6 +410,7 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
 
         if (counts) ++counts->coeff_base[txs_ctx][plane_type][i][ctx][1];
 
+#if !USE_SIGN_PASS
         if (c == 0) {
           int dc_sign_ctx = txb_ctx->dc_sign_ctx;
           *sign = av1_read_record_bin(
@@ -417,6 +420,7 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
         } else {
           *sign = av1_read_record_bit(counts, r, ACCT_STR);
         }
+#endif  // !USE_SIGN_PASS
         continue;
       }
       *level = i + 2;
@@ -427,14 +431,36 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
     }
   }
 
+#if USE_SIGN_PASS
+  for (c = 0; c < *eob; ++c) {
+    int8_t *const sign = &signs[scan[c]];
+    if (levels[scan[c]] == 0) continue;
+    if (c == 0) {
+      int dc_sign_ctx = txb_ctx->dc_sign_ctx;
+#if LV_MAP_PROB
+      *sign = av1_read_record_bin(
+          counts, r, ec_ctx->dc_sign_cdf[plane_type][dc_sign_ctx], 2, ACCT_STR);
+#else
+      *sign = aom_read(r, ec_ctx->dc_sign[plane_type][dc_sign_ctx], ACCT_STR);
+#endif
+      if (counts) ++counts->dc_sign[plane_type][dc_sign_ctx][*sign];
+    } else {
+      *sign = av1_read_record_bit(counts, r, ACCT_STR);
+    }
+  }
+#endif
+
   for (c = update_eob; c >= 0; --c) {
     uint8_t *const level = &levels[scan[c]];
+#if !USE_SIGN_PASS
     int8_t *const sign = &signs[scan[c]];
+#endif
     int idx;
     int ctx;
 
     if (*level <= NUM_BASE_LEVELS) continue;
 
+#if !USE_SIGN_PASS
     if (c == 0) {
       int dc_sign_ctx = txb_ctx->dc_sign_ctx;
       *sign = av1_read_record_bin(
@@ -443,6 +469,7 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
     } else {
       *sign = av1_read_record_bit(counts, r, ACCT_STR);
     }
+#endif  // !USE_SIGN_PASS
 
     ctx = get_br_ctx(levels, scan[c], bwl, height);
 
