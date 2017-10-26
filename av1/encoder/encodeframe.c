@@ -3387,7 +3387,8 @@ static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
 #if CONFIG_LOOPFILTER_LEVEL
             for (int lf_id = 0; lf_id < FRAME_LF_COUNT; ++lf_id) {
               cm->mi[(mi_row + j) * cm->mi_stride + (mi_col + k)]
-                  .mbmi.curr_delta_lf[lf_id] = current_delta_lf_from_base;
+                  .mbmi.curr_delta_lf[lf_id] =
+                  clamp(current_delta_lf_from_base, 0, MAX_LOOP_FILTER);
             }
 #endif  // CONFIG_LOOPFILTER_LEVEL
           }
