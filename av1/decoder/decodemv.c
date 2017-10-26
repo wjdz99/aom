@@ -239,11 +239,7 @@ static void read_drl_idx(FRAME_CONTEXT *ec_ctx, MACROBLOCKD *xd,
                          MB_MODE_INFO *mbmi, aom_reader *r) {
   uint8_t ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
   mbmi->ref_mv_idx = 0;
-  if (mbmi->mode == NEWMV || mbmi->mode == NEW_NEWMV
-#if CONFIG_COMPOUND_SINGLEREF
-      || mbmi->mode == SR_NEW_NEWMV
-#endif  // CONFIG_COMPOUND_SINGLEREF
-      ) {
+  if (mbmi->mode == NEWMV || mbmi->mode == NEW_NEWMV) {
     int idx;
     for (idx = 0; idx < 2; ++idx) {
       if (xd->ref_mv_count[ref_frame_type] > idx + 1) {
@@ -369,22 +365,6 @@ static PREDICTION_MODE read_inter_compound_mode(AV1_COMMON *cm, MACROBLOCKD *xd,
   assert(is_inter_compound_mode(NEAREST_NEARESTMV + mode));
   return NEAREST_NEARESTMV + mode;
 }
-
-#if CONFIG_COMPOUND_SINGLEREF
-static PREDICTION_MODE read_inter_singleref_comp_mode(MACROBLOCKD *xd,
-                                                      aom_reader *r,
-                                                      int16_t ctx) {
-  const int mode =
-      aom_read_symbol(r, xd->tile_ctx->inter_singleref_comp_mode_cdf[ctx],
-                      INTER_SINGLEREF_COMP_MODES, ACCT_STR);
-  FRAME_COUNTS *counts = xd->counts;
-
-  if (counts) ++counts->inter_singleref_comp_mode[ctx][mode];
-
-  assert(is_inter_singleref_comp_mode(SR_NEAREST_NEARMV + mode));
-  return SR_NEAREST_NEARMV + mode;
-}
-#endif  // CONFIG_COMPOUND_SINGLEREF
 
 static int read_segment_id(aom_reader *r, struct segmentation_probs *segp) {
   return aom_read_symbol(r, segp->tree_cdf, MAX_SEGMENTS, ACCT_STR);
@@ -1902,84 +1882,6 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
       if (is_compound) pred_mv[1].as_int = mv[1].as_int;
       break;
     }
-#if CONFIG_COMPOUND_SINGLEREF
-    case SR_NEAREST_NEARMV: {
-      assert(!is_compound);
-      mv[0].as_int = nearest_mv[0].as_int;
-      mv[1].as_int = near_mv[0].as_int;
-      break;
-    }
-    /*
-    case SR_NEAREST_NEWMV: {
-      assert(!is_compound);
-      mv[0].as_int = nearest_mv[0].as_int;
-
-      FRAME_COUNTS *counts = xd->counts;
-      int8_t rf_type = av1_ref_frame_type(mbmi->ref_frame);
-      int nmv_ctx = av1_nmv_ctx(xd->ref_mv_count[rf_type],
-                                xd->ref_mv_stack[rf_type], 0, mbmi->ref_mv_idx);
-      nmv_context *const nmvc = &ec_ctx->nmvc[nmv_ctx];
-      nmv_context_counts *const mv_counts =
-          counts ? &counts->mv[nmv_ctx] : NULL;
-      read_mv(r, &mv[1].as_mv, &ref_mv[0].as_mv, nmvc, mv_counts, allow_hp);
-      ret = ret && is_mv_valid(&mv[1].as_mv);
-      break;
-    }*/
-    case SR_NEAR_NEWMV: {
-      assert(!is_compound);
-      mv[0].as_int = near_mv[0].as_int;
-
-      FRAME_COUNTS *counts = xd->counts;
-      int8_t rf_type = av1_ref_frame_type(mbmi->ref_frame);
-      int nmv_ctx = av1_nmv_ctx(xd->ref_mv_count[rf_type],
-                                xd->ref_mv_stack[rf_type], 0, mbmi->ref_mv_idx);
-      nmv_context *const nmvc = &ec_ctx->nmvc[nmv_ctx];
-      nmv_context_counts *const mv_counts =
-          counts ? &counts->mv[nmv_ctx] : NULL;
-      read_mv(r, &mv[1].as_mv, &ref_mv[0].as_mv, nmvc, mv_counts, allow_hp);
-      ret = ret && is_mv_valid(&mv[1].as_mv);
-      break;
-    }
-    case SR_ZERO_NEWMV: {
-      assert(!is_compound);
-#if CONFIG_GLOBAL_MOTION
-      mv[0].as_int = gm_get_motion_vector(&cm->global_motion[ref_frame[0]],
-                                          cm->allow_high_precision_mv, bsize,
-                                          mi_col, mi_row, block)
-                         .as_int;
-#else
-      mv[0].as_int = 0;
-#endif  // CONFIG_GLOBAL_MOTION
-
-      FRAME_COUNTS *counts = xd->counts;
-      int8_t rf_type = av1_ref_frame_type(mbmi->ref_frame);
-      int nmv_ctx = av1_nmv_ctx(xd->ref_mv_count[rf_type],
-                                xd->ref_mv_stack[rf_type], 0, mbmi->ref_mv_idx);
-      nmv_context *const nmvc = &ec_ctx->nmvc[nmv_ctx];
-      nmv_context_counts *const mv_counts =
-          counts ? &counts->mv[nmv_ctx] : NULL;
-      read_mv(r, &mv[1].as_mv, &ref_mv[0].as_mv, nmvc, mv_counts, allow_hp);
-      ret = ret && is_mv_valid(&mv[1].as_mv);
-      break;
-    }
-    case SR_NEW_NEWMV: {
-      assert(!is_compound);
-
-      FRAME_COUNTS *counts = xd->counts;
-      for (i = 0; i < 2; ++i) {
-        int8_t rf_type = av1_ref_frame_type(mbmi->ref_frame);
-        int nmv_ctx =
-            av1_nmv_ctx(xd->ref_mv_count[rf_type], xd->ref_mv_stack[rf_type], 0,
-                        mbmi->ref_mv_idx);
-        nmv_context *const nmvc = &ec_ctx->nmvc[nmv_ctx];
-        nmv_context_counts *const mv_counts =
-            counts ? &counts->mv[nmv_ctx] : NULL;
-        read_mv(r, &mv[i].as_mv, &ref_mv[0].as_mv, nmvc, mv_counts, allow_hp);
-        ret = ret && is_mv_valid(&mv[i].as_mv);
-      }
-      break;
-    }
-#endif  // CONFIG_COMPOUND_SINGLEREF
     case NEW_NEWMV: {
       FRAME_COUNTS *counts = xd->counts;
       assert(is_compound);
@@ -2116,22 +2018,6 @@ static int read_is_inter_block(AV1_COMMON *const cm, MACROBLOCKD *const xd,
   }
 }
 
-#if CONFIG_COMPOUND_SINGLEREF
-static int read_is_inter_singleref_comp_mode(AV1_COMMON *const cm,
-                                             MACROBLOCKD *const xd,
-                                             int segment_id, aom_reader *r) {
-  if (segfeature_active(&cm->seg, segment_id, SEG_LVL_REF_FRAME)) return 0;
-
-  const int ctx = av1_get_inter_mode_context(xd);
-  const int is_singleref_comp_mode =
-      aom_read(r, cm->fc->comp_inter_mode_prob[ctx], ACCT_STR);
-  FRAME_COUNTS *counts = xd->counts;
-
-  if (counts) ++counts->comp_inter_mode[ctx][is_singleref_comp_mode];
-  return is_singleref_comp_mode;
-}
-#endif  // CONFIG_COMPOUND_SINGLEREF
-
 static void fpm_sync(void *const data, int mi_row) {
   AV1Decoder *const pbi = (AV1Decoder *)data;
   av1_frameworker_wait(pbi->frame_worker_owner, pbi->common.prev_frame,
@@ -2192,9 +2078,6 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
   int_mv nearestmv[2], nearmv[2];
   int_mv ref_mvs[MODE_CTX_REF_FRAMES][MAX_MV_REF_CANDIDATES];
   int ref, is_compound;
-#if CONFIG_COMPOUND_SINGLEREF
-  int is_singleref_comp_mode = 0;
-#endif  // CONFIG_COMPOUND_SINGLEREF
   int16_t inter_mode_ctx[MODE_CTX_REF_FRAMES];
   int16_t compound_inter_mode_ctx[MODE_CTX_REF_FRAMES];
   int mode_ctx = 0;
@@ -2225,12 +2108,6 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
            mbmi->ref_frame[1] >= BWDREF_FRAME);
 #endif  // !USE_UNI_COMP_REFS
 #endif  // CONFIG_EXT_COMP_REFS
-
-#if CONFIG_COMPOUND_SINGLEREF
-  if (!is_compound)
-    is_singleref_comp_mode =
-        read_is_inter_singleref_comp_mode(cm, xd, mbmi->segment_id, r);
-#endif  // CONFIG_COMPOUND_SINGLEREF
 
   for (ref = 0; ref < 1 + is_compound; ++ref) {
     MV_REFERENCE_FRAME frame = mbmi->ref_frame[ref];
@@ -2295,11 +2172,7 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
     }
   }
 
-#if CONFIG_COMPOUND_SINGLEREF
-  if (is_compound || is_singleref_comp_mode)
-#else   // !CONFIG_COMPOUND_SINGLEREF
   if (is_compound)
-#endif  // CONFIG_COMPOUND_SINGLEREF
     mode_ctx = compound_inter_mode_ctx[mbmi->ref_frame[0]];
   else
     mode_ctx =
@@ -2315,17 +2188,11 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
   {
     mbmi->mode = ZEROMV;
   } else {
-    if (is_compound) mbmi->mode = read_inter_compound_mode(cm, xd, r, mode_ctx);
-#if CONFIG_COMPOUND_SINGLEREF
-    else if (is_singleref_comp_mode)
-      mbmi->mode = read_inter_singleref_comp_mode(xd, r, mode_ctx);
-#endif  // CONFIG_COMPOUND_SINGLEREF
+    if (is_compound)
+      mbmi->mode = read_inter_compound_mode(cm, xd, r, mode_ctx);
     else
       mbmi->mode = read_inter_mode(ec_ctx, xd, r, mode_ctx);
     if (mbmi->mode == NEWMV || mbmi->mode == NEW_NEWMV ||
-#if CONFIG_COMPOUND_SINGLEREF
-        mbmi->mode == SR_NEW_NEWMV ||
-#endif  // CONFIG_COMPOUND_SINGLEREF
         have_nearmv_in_inter_mode(mbmi->mode))
       read_drl_idx(ec_ctx, xd, mbmi, r);
   }
@@ -2343,12 +2210,7 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
     }
   }
 
-#if CONFIG_COMPOUND_SINGLEREF
-  if ((is_compound || is_singleref_comp_mode) && mbmi->mode != ZERO_ZEROMV)
-#else  // !CONFIG_COMPOUND_SINGLEREF
-  if (is_compound && mbmi->mode != ZERO_ZEROMV)
-#endif  // CONFIG_COMPOUND_SINGLEREF
-  {
+  if (is_compound && mbmi->mode != ZERO_ZEROMV) {
     uint8_t ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
 
     if (xd->ref_mv_count[ref_frame_type] > 0) {
@@ -2364,12 +2226,7 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
         lower_mv_precision(&nearestmv[0].as_mv, allow_hp);
         lower_mv_precision(&nearestmv[1].as_mv, allow_hp);
 #endif
-      } else if (mbmi->mode == NEAREST_NEWMV
-#if CONFIG_COMPOUND_SINGLEREF
-                 || mbmi->mode == SR_NEAREST_NEARMV
-// || mbmi->mode == SR_NEAREST_NEWMV
-#endif  // CONFIG_COMPOUND_SINGLEREF
-                 ) {
+      } else if (mbmi->mode == NEAREST_NEWMV) {
         nearestmv[0] = xd->ref_mv_stack[ref_frame_type][0].this_mv;
 
 #if CONFIG_AMVR
@@ -2391,38 +2248,25 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
 
     if (xd->ref_mv_count[ref_frame_type] > 1) {
       int ref_mv_idx = 1 + mbmi->ref_mv_idx;
-#if CONFIG_COMPOUND_SINGLEREF
-      if (is_compound) {
-#endif  // CONFIG_COMPOUND_SINGLEREF
-        if (compound_ref0_mode(mbmi->mode) == NEARMV) {
-          nearmv[0] = xd->ref_mv_stack[ref_frame_type][ref_mv_idx].this_mv;
+      if (compound_ref0_mode(mbmi->mode) == NEARMV) {
+        nearmv[0] = xd->ref_mv_stack[ref_frame_type][ref_mv_idx].this_mv;
 #if CONFIG_AMVR
-          lower_mv_precision(&nearmv[0].as_mv, allow_hp,
-                             cm->cur_frame_mv_precision_level);
+        lower_mv_precision(&nearmv[0].as_mv, allow_hp,
+                           cm->cur_frame_mv_precision_level);
 #else
         lower_mv_precision(&nearmv[0].as_mv, allow_hp);
 #endif
-        }
+      }
 
-        if (compound_ref1_mode(mbmi->mode) == NEARMV) {
-          nearmv[1] = xd->ref_mv_stack[ref_frame_type][ref_mv_idx].comp_mv;
+      if (compound_ref1_mode(mbmi->mode) == NEARMV) {
+        nearmv[1] = xd->ref_mv_stack[ref_frame_type][ref_mv_idx].comp_mv;
 #if CONFIG_AMVR
-          lower_mv_precision(&nearmv[1].as_mv, allow_hp,
-                             cm->cur_frame_mv_precision_level);
+        lower_mv_precision(&nearmv[1].as_mv, allow_hp,
+                           cm->cur_frame_mv_precision_level);
 #else
         lower_mv_precision(&nearmv[1].as_mv, allow_hp);
 #endif
-        }
-#if CONFIG_COMPOUND_SINGLEREF
-      } else {
-        assert(is_singleref_comp_mode);
-        if (compound_ref0_mode(mbmi->mode) == NEARMV ||
-            compound_ref1_mode(mbmi->mode) == NEARMV) {
-          nearmv[0] = xd->ref_mv_stack[ref_frame_type][ref_mv_idx].this_mv;
-          lower_mv_precision(&nearmv[0].as_mv, allow_hp);
-        }
       }
-#endif  // CONFIG_COMPOUND_SINGLEREF
     }
   } else if (mbmi->ref_mv_idx > 0 && mbmi->mode == NEARMV) {
     int_mv cur_mv =
@@ -2464,26 +2308,6 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
       }
       nearestmv[1] = ref_mv[1];
     }
-#if CONFIG_COMPOUND_SINGLEREF
-  } else if (is_singleref_comp_mode) {
-    int ref_mv_idx = mbmi->ref_mv_idx;
-    // Special case: SR_NEAR_NEWMV use 1 + mbmi->ref_mv_idx (like NEARMV)
-    //               instead of mbmi->ref_mv_idx (like NEWMV)
-    if (mbmi->mode == SR_NEAR_NEWMV) ref_mv_idx = 1 + mbmi->ref_mv_idx;
-
-    if (compound_ref0_mode(mbmi->mode) == NEWMV ||
-        compound_ref1_mode(mbmi->mode) == NEWMV) {
-      uint8_t ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
-      if (xd->ref_mv_count[ref_frame_type] > 1) {
-        ref_mv[0] = xd->ref_mv_stack[ref_frame_type][ref_mv_idx].this_mv;
-        clamp_mv_ref(&ref_mv[0].as_mv, xd->n8_w << MI_SIZE_LOG2,
-                     xd->n8_h << MI_SIZE_LOG2, xd);
-      }
-      // TODO(zoeliu): To further investigate why this would not cause a
-      //               mismatch for the mode of SR_NEAREST_NEWMV.
-      nearestmv[0] = ref_mv[0];
-    }
-#endif  // CONFIG_COMPOUND_SINGLEREF
   } else {
     if (mbmi->mode == NEWMV) {
       for (ref = 0; ref < 1 + is_compound; ++ref) {
@@ -2584,9 +2408,6 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
   read_ncobmc_mode(xd, mi, mbmi->ncobmc_mode, r);
 #endif
 
-#if CONFIG_COMPOUND_SINGLEREF
-  if (is_singleref_comp_mode) assert(mbmi->motion_mode == SIMPLE_TRANSLATION);
-#endif  // CONFIG_COMPOUND_SINGLEREF
 #if CONFIG_WARPED_MOTION
   if (mbmi->motion_mode == WARPED_CAUSAL) {
     mbmi->wm_params[0].wmtype = DEFAULT_WMTYPE;
@@ -2607,13 +2428,8 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
 
   mbmi->interinter_compound_type = COMPOUND_AVERAGE;
-  if (
-#if CONFIG_COMPOUND_SINGLEREF
-      is_inter_anyref_comp_mode(mbmi->mode)
-#else   // !CONFIG_COMPOUND_SINGLEREF
-      cm->reference_mode != SINGLE_REFERENCE &&
+  if (cm->reference_mode != SINGLE_REFERENCE &&
       is_inter_compound_mode(mbmi->mode)
-#endif  // CONFIG_COMPOUND_SINGLEREF
 #if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
       && mbmi->motion_mode == SIMPLE_TRANSLATION
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
