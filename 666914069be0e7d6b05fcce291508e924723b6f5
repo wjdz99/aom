@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f4a78857_c5f2caf3",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 5544,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2017-10-26T21:36:40Z",
+      "side": 1,
+      "message": "Two questions here.\n\n1) txfm_rd_in_plane() is called inside this function, then if *its* rd_cost is \u003e best_rd, this mode (i.e. cfl) should be skipped but I don\u0027t think that is done?\n(In other words, early-exit for cfl mode can occur right at this place.)\n\nInstead, rd_cost from super_block_uvrd() below is used to decide skipping (i.e. early-exit) this mode.\nMaybe it is intended.\n\n2) txfm_rd_in_plane() is called twice for cfl mode, one from  cfl_rd_pick_alpha() and another from super_block_uvrd(). I think the latter one can be skipped for cfl with proper setting of rd_stats results?",
+      "revId": "666914069be0e7d6b05fcce291508e924723b6f5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
