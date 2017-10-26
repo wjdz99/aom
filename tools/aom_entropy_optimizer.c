@@ -241,12 +241,40 @@ static int parse_counts_for_cdf_opt(aom_count_type **ct_ptr,
     (*ct_ptr) += total_modes;
 
     if (tabs > 0) fprintf(probsfile, "%*c", tabs * SPACES_PER_TAB, ' ');
-    fprintf(probsfile, "AOM_CDF%d( ", total_modes);
-    for (int k = 0; k < total_modes - 1; ++k) {
-      fprintf(probsfile, "%d", cdfs[k]);
-      if (k < total_modes - 2) fprintf(probsfile, ",");
+
+    if (cdfs[0] < CDF_PROB_TOP) {
+      // Hacks to avoid:
+      // - Consecutive cdf values being equal, and
+      // - First cdf being 0.
+      assert(cdfs[total_modes - 1] == CDF_PROB_TOP);
+      const int last_idx = (cdfs[total_modes - 2] == CDF_PROB_TOP)
+                               ? total_modes - 2
+                               : total_modes - 1;
+      for (int k = last_idx - 1; k >= 0; --k) {
+        if (cdfs[k] > 0 && cdfs[k] >= cdfs[k + 1]) {
+          cdfs[k] = cdfs[k + 1] - 1;
+        }
+      }
+      if (cdfs[0] == 0) cdfs[0] = 1;
+      if (cdfs[1] <= cdfs[0]) {
+        for (int k = 0; (k < last_idx - 1) && (cdfs[k] < CDF_PROB_TOP); ++k) {
+          if (cdfs[k + 1] <= cdfs[k]) {
+            cdfs[k + 1] = cdfs[k] + 1;
+            assert(cdfs[k + 1] < CDF_PROB_TOP);
+          }
+        }
+      }
+      assert(cdfs[0] < CDF_PROB_TOP);
+
+      fprintf(probsfile, "AOM_CDF%d( ", last_idx + 1);
+      for (int k = 0; k < last_idx; ++k) {
+        fprintf(probsfile, "%d", cdfs[k]);
+        if (k < last_idx - 1) fprintf(probsfile, ",");
+      }
+      fprintf(probsfile, " )");
+    } else {  // special case: no non-zero values.
+      fprintf(probsfile, "AOM_CDF2(0)");
     }
-    fprintf(probsfile, " )");
   } else {
     for (int k = 0; k < cts_each_dim[0]; ++k) {
       int tabs_next_level;
@@ -363,6 +391,21 @@ int main(int argc, const char **argv) {
       &fc.uv_mode[0][0], probsfile, 2, cts_each_dim,
       "static const aom_cdf_prob\n"
       "default_uv_mode_cdf[INTRA_MODES][CDF_SIZE(UV_INTRA_MODES)]");
+
+#if CONFIG_Q_ADAPT_PROBS
+  /* Coefficient coding */
+  cts_each_dim[0] = TOKEN_CDF_Q_CTXS;
+  cts_each_dim[1] = TX_SIZES;
+  cts_each_dim[2] = PLANE_TYPES;
+  cts_each_dim[3] = REF_TYPES;
+  cts_each_dim[4] = COEF_BANDS;
+  cts_each_dim[5] = COEFF_CONTEXTS;
+  cts_each_dim[6] = HEAD_TOKENS + 1;
+  optimize_cdf_table(&fc.coef_head[0][0][0][0][0][0][0], probsfile, 7,
+                     cts_each_dim,
+                     "static const coeff_cdf_table av1_default_qctx_coef_cdfs"
+                     "[TOKEN_CDF_Q_CTXS]");
+#endif  // CONFIG_Q_ADAPT_PROBS
 
   /* Partition */
   cts_each_dim[0] = PARTITION_CONTEXTS;
