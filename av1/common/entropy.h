@@ -24,6 +24,8 @@
 extern "C" {
 #endif
 
+#define USE_SIGN_PASS 1
+
 #define DIFF_UPDATE_PROB 252
 #define GROUP_DIFF_UPDATE_PROB 252
 
