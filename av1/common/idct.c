@@ -23,6 +23,7 @@
     CONFIG_DAALA_TX32 || CONFIG_DAALA_TX64
 #include "av1/common/daala_tx.h"
 #endif
+#include "av1/encoder/tokenize.h"
 
 int av1_get_tx_scale(const TX_SIZE tx_size) {
   const int pels = tx_size_2d[tx_size];
@@ -3107,6 +3108,8 @@ void av1_inverse_transform_block(const MACROBLOCKD *xd,
                                  int plane, TX_TYPE tx_type, TX_SIZE tx_size,
                                  uint8_t *dst, int stride, int eob) {
   if (!eob) return;
+
+  assert(eob <= av1_get_max_eob(tx_size));
 
   TxfmParam txfm_param;
   init_txfm_param(xd, plane, tx_size, tx_type, eob, &txfm_param);
