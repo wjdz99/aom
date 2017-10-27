@@ -2048,6 +2048,11 @@ static void block_rd_txfm(int plane, int block, int blk_row, int blk_col,
   if (args->exit_early) return;
 
   if (!is_inter_block(mbmi)) {
+#if CONFIG_DEBUG
+    if (plane != AOM_PLANE_Y && mbmi->uv_mode == UV_CFL_PRED) {
+      assert(cpi->sf.recode_loop != DISALLOW_RECODE);
+    }
+#endif
     av1_predict_intra_block_facade(cm, xd, plane, block, blk_col, blk_row,
                                    tx_size);
     av1_subtract_txb(x, plane, plane_bsize, blk_col, blk_row, tx_size);
@@ -5496,6 +5501,9 @@ static int64_t rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
 #if CONFIG_CFL
     int cfl_alpha_rate = 0;
     if (mode == UV_CFL_PRED) {
+      if (cpi->sf.recode_loop == DISALLOW_RECODE) {
+        continue;
+      }
       assert(!is_directional_mode);
       const TX_SIZE uv_tx_size = av1_get_uv_tx_size(mbmi, &xd->plane[1]);
       cfl_alpha_rate = cfl_rd_pick_alpha(x, cpi, bsize, uv_tx_size);
