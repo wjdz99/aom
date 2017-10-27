@@ -375,7 +375,7 @@ void av1_write_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
       av1_get_tx_type(plane_type, xd, blk_row, blk_col, block, tx_size);
   const SCAN_ORDER *const scan_order = get_scan(cm, tx_size, tx_type, mbmi);
   const int16_t *scan = scan_order->scan;
-  const int seg_eob = tx_size_2d[tx_size];
+  const int seg_eob = av1_get_max_eob(tx_size);
   int c;
   const int bwl = b_width_log2_lookup[txsize_to_bsize[tx_size]] + 2;
   const int height = tx_size_high[tx_size];
@@ -637,7 +637,7 @@ int get_nz_eob_map_cost(const LV_MAP_COEFF_COST *coeff_costs,
   const int seg_eob =
       (tx_class == TX_CLASS_2D) ? tx_size_2d[tx_size] : eob_offset;
 #else
-  const int seg_eob = tx_size_2d[tx_size];
+  const int seg_eob = av1_get_max_eob(tx_size);
 #endif
   int cost = 0;
   for (int c = 0; c < eob; ++c) {
@@ -774,7 +774,8 @@ int av1_cost_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCK *x, int plane,
   cost += av1_tx_type_cost(cm, x, xd, mbmi->sb_type, plane, tx_size, tx_type);
 #endif
 
-  const int seg_eob = tx_size_2d[tx_size];
+  const int seg_eob = av1_get_max_eob(tx_size);
+  ;
   int eob_cost = get_eob_cost(eob, seg_eob, coeff_costs, tx_type);
 
   cost += eob_cost;
@@ -1373,7 +1374,7 @@ static int get_low_coeff_cost(int coeff_idx, const TxbCache *txb_cache,
 
 static INLINE void set_eob(TxbInfo *txb_info, int eob) {
   txb_info->eob = eob;
-  txb_info->seg_eob = tx_size_2d[txb_info->tx_size];
+  txb_info->seg_eob = av1_get_max_eob(txb_info->tx_size);
 }
 
 // TODO(angiebird): add static to this function once it's called
@@ -1767,7 +1768,7 @@ static int optimize_txb(TxbInfo *txb_info, const LV_MAP_COEFF_COST *txb_costs,
   (void)txb_cache;
   int update = 0;
   if (txb_info->eob == 0) return update;
-  const int max_eob = tx_size_2d[txb_info->tx_size];
+  const int max_eob = av1_get_max_eob(txb_info->tx_size);
 
 #if TEST_OPTIMIZE_TXB
   int64_t sse;
@@ -2018,7 +2019,7 @@ int av1_optimize_txb(const AV1_COMMON *cm, MACROBLOCK *x, int plane,
   tran_low_t *dqcoeff = BLOCK_OFFSET(pd->dqcoeff, block);
   const tran_low_t *tcoeff = BLOCK_OFFSET(p->coeff, block);
   const int16_t *dequant = pd->dequant;
-  const int seg_eob = tx_size_2d[tx_size];
+  const int seg_eob = av1_get_max_eob(tx_size);
   const int bwl = b_width_log2_lookup[txsize_to_bsize[tx_size]] + 2;
   const int stride = 1 << bwl;
   const int height = tx_size_high[tx_size];
@@ -2110,7 +2111,7 @@ static INLINE void av1_update_nz_eob_counts(FRAME_CONTEXT *fc,
   const int seg_eob =
       (tx_class == TX_CLASS_2D) ? tx_size_2d[tx_size] : eob_offset;
 #else
-  const int seg_eob = tx_size_2d[tx_size];
+  const int seg_eob = av1_get_max_eob(tx_size);
 #endif
   unsigned int(*nz_map_count)[SIG_COEF_CONTEXTS][2] =
       &counts->nz_map[txsize_ctx][plane_type];
