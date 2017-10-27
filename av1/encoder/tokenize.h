@@ -135,9 +135,19 @@ static INLINE int av1_get_token_cost(int v, int16_t *token, int cat6_bits) {
   return av1_dct_cat_lt_10_value_cost[v];
 }
 
+static INLINE int av1_get_max_eob(TX_SIZE tx_size) {
+  return
+#if CONFIG_TX64X64
+      tx_size == TX_64X64 || tx_size == TX_64X32 || tx_size == TX_32X64
+          ? 1024
+          :
+#endif  // CONFIG_TX64X64
+          tx_size_2d[tx_size];
+}
+
 static INLINE int av1_get_tx_eob(const struct segmentation *seg, int segment_id,
                                  TX_SIZE tx_size) {
-  const int eob_max = tx_size_2d[tx_size];
+  const int eob_max = av1_get_max_eob(tx_size);
   return segfeature_active(seg, segment_id, SEG_LVL_SKIP) ? 0 : eob_max;
 }
 
