@@ -33,6 +33,24 @@
       "revId": "716d10b0d3c01f47cf0701357a9c391a52f0f971",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ece8f066_6f28a41f",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 26
+      },
+      "lineNbr": 1574,
+      "author": {
+        "id": 6510
+      },
+      "writtenOn": "2017-10-27T22:32:04Z",
+      "side": 1,
+      "message": "No, q segmentation is completely separate from segmentation, they only share a name and a structure. We can\u0027t really avoid it, because we\u0027d like to avoid signalling segments on skips and if we do, we miss out on most other features segments provide.\nq segmentation is also disabled if any regular segmentation index has the ALT_Q feature enabled.",
+      "parentUuid": "a9087b11_c84eafd7",
+      "revId": "716d10b0d3c01f47cf0701357a9c391a52f0f971",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
