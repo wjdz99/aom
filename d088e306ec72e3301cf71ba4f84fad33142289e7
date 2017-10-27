@@ -1,0 +1,165 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e9ea5197_08cbb4b4",
+        "filename": "av1/common/entropymode.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 400,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2017-10-27T18:22:12Z",
+      "side": 1,
+      "message": "Only need it under CONFIG_ENTROPY_STATS",
+      "range": {
+        "startLine": 400,
+        "startChar": 15,
+        "endLine": 400,
+        "endChar": 26
+      },
+      "revId": "d088e306ec72e3301cf71ba4f84fad33142289e7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b45e3516_df9edf82",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1957,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2017-10-27T18:22:12Z",
+      "side": 1,
+      "message": "Could combine these lines.",
+      "range": {
+        "startLine": 1953,
+        "startChar": 2,
+        "endLine": 1957,
+        "endChar": 17
+      },
+      "revId": "d088e306ec72e3301cf71ba4f84fad33142289e7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e563971f_0121101b",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1960,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2017-10-27T18:22:12Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 1959,
+        "startChar": 2,
+        "endLine": 1960,
+        "endChar": 8
+      },
+      "revId": "d088e306ec72e3301cf71ba4f84fad33142289e7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ba550e9e_e9bbb62d",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1970,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2017-10-27T18:22:12Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 1970,
+        "startChar": 3,
+        "endLine": 1970,
+        "endChar": 6
+      },
+      "revId": "d088e306ec72e3301cf71ba4f84fad33142289e7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fc936716_3dd8b277",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 2122,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2017-10-27T18:22:12Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 2122,
+        "startChar": 3,
+        "endLine": 2122,
+        "endChar": 5
+      },
+      "revId": "d088e306ec72e3301cf71ba4f84fad33142289e7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ec857434_574efee6",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 2132,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2017-10-27T18:22:12Z",
+      "side": 1,
+      "message": "Could be simplified:\nif (d \u003c\u003d 0 || d \u003e\u003d 40) return 0;\nreturn type ? (blk_wh \u003c\u003d 8) : (blk_wh \u003c\u003d 16);",
+      "range": {
+        "startLine": 2123,
+        "startChar": 2,
+        "endLine": 2132,
+        "endChar": 11
+      },
+      "revId": "d088e306ec72e3301cf71ba4f84fad33142289e7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "571683f4_d0fff834",
+        "filename": "av1/encoder/rd.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 299,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2017-10-27T18:22:12Z",
+      "side": 1,
+      "message": "Add {} since there are more than 1 line in the loop.",
+      "range": {
+        "startLine": 299,
+        "startChar": 40,
+        "endLine": 299,
+        "endChar": 41
+      },
+      "revId": "d088e306ec72e3301cf71ba4f84fad33142289e7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
