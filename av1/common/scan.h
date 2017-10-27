@@ -82,8 +82,13 @@ static INLINE int get_coef_context(const int16_t *neighbors,
 static INLINE const SCAN_ORDER *get_default_scan(TX_SIZE tx_size,
                                                  TX_TYPE tx_type,
                                                  int is_inter) {
+#if CONFIG_DAALA_TX
+  (void)is_inter;
+  return &av1_inter_scan_orders[tx_size][tx_type];
+#else
   return is_inter ? &av1_inter_scan_orders[tx_size][tx_type]
                   : &av1_intra_scan_orders[tx_size][tx_type];
+#endif
 }
 
 static INLINE int do_adapt_scan(TX_SIZE tx_size, TX_TYPE tx_type) {
