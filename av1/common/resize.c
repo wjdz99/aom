@@ -358,9 +358,24 @@ static const interp_kernel *choose_interp_filter(int in_length,
 static void interpolate_core(const uint8_t *const input, int in_length,
                              uint8_t *output, int out_length,
                              const int16_t *interp_filters, int interp_taps) {
+  const int denom = (in_length * SCALE_NUMERATOR + out_length / 2) / out_length;
+  const int32_t delta =
+      (((uint32_t)denom << INTERP_PRECISION_BITS) + SCALE_NUMERATOR / 2) /
+      SCALE_NUMERATOR;
+  const int32_t offset = in_length > out_length
+                             ? (((int32_t)(denom - SCALE_NUMERATOR)
+                                 << (INTERP_PRECISION_BITS - 1)) +
+                                SCALE_NUMERATOR / 2) /
+                                   SCALE_NUMERATOR
+                             : -(((int32_t)(out_length - in_length)
+                                  << (INTERP_PRECISION_BITS - 1)) +
+                                 out_length / 2) /
+                                   out_length;
+  /*
   const int32_t delta =
       (((uint32_t)in_length << INTERP_PRECISION_BITS) + out_length / 2) /
       out_length;
+  printf("deltas: %d %d\n", delta, delta2);
   const int32_t offset = in_length > out_length
                              ? (((int32_t)(in_length - out_length)
                                  << (INTERP_PRECISION_BITS - 1)) +
@@ -370,6 +385,7 @@ static void interpolate_core(const uint8_t *const input, int in_length,
                                   << (INTERP_PRECISION_BITS - 1)) +
                                  out_length / 2) /
                                    out_length;
+      */
   uint8_t *optr = output;
   int x, x1, x2, sum, k, int_pel, sub_pel;
   int32_t y;
@@ -492,6 +508,8 @@ static void interpolate_normative_core(const uint8_t *const src, int in_length,
   const int oproc_unit = UPSCALE_PROC_UNIT_SCALE * superres_denom;
   const int32_t x_step_qn = get_upscale_convolve_step(in_length, out_length);
   const int32_t x0_qn = get_upscale_convolve_x0(in_length, out_length);
+  // const int32_t x_step_qn = get_upscale_convolve_step(SCALE_NUMERATOR, superres_denom);
+  // const int32_t x0_qn = get_upscale_convolve_x0(SCALE_NUMERATOR, superres_denom);
   int olen = oproc_unit;
   for (int op = 0; op < out_length; op += olen) {
     const int32_t off = x0_qn + op * x_step_qn;
@@ -1376,29 +1394,33 @@ YV12_BUFFER_CONFIG *av1_scale_if_required(AV1_COMMON *cm,
 // Calculates scaled dimensions given original dimensions and the scale
 // denominator. If 'scale_height' is 1, both width and height are scaled;
 // otherwise, only the width is scaled.
-static void calculate_scaled_size_helper(int *width, int *height, int denom,
-                                         int scale_height) {
+static void calculate_scaled_size_helper(int *width, int denom) {
   if (denom != SCALE_NUMERATOR) {
+    /*
     *width = (*width * SCALE_NUMERATOR + denom) / (2 * denom);
     *width <<= 1;
-    // *width += *width & 1;  // Make it even.
-    if (scale_height) {
-      *height = (*height * SCALE_NUMERATOR + denom) / (2 * denom);
-      *height <<= 1;
-      // *height += *height & 1;  // Make it even.
-    }
+    */
+    const int n = *width / denom;
+    int low_w = n * SCALE_NUMERATOR;
+    low_w += (*width - n * denom) * SCALE_NUMERATOR / denom;
+    low_w += low_w & 1;
+    *width = low_w;
   }
 }
 
 void av1_calculate_scaled_size(int *width, int *height, int resize_denom) {
-  calculate_scaled_size_helper(width, height, resize_denom, 1);
+  calculate_scaled_size_helper(width, resize_denom);
+  calculate_scaled_size_helper(height, resize_denom);
 }
 
 #if CONFIG_FRAME_SUPERRES
 void av1_calculate_scaled_superres_size(int *width, int *height,
                                         int superres_denom) {
-  calculate_scaled_size_helper(width, height, superres_denom,
-                               !CONFIG_HORZONLY_FRAME_SUPERRES);
+  (void)height;
+  calculate_scaled_size_helper(width, superres_denom);
+#if !CONFIG_HORZONLY_FRAME_SUPERRES
+  calculate_scaled_size_helper(height, superres_denom);
+#endif  // !CONFIG_HORZONLY_FRAME_SUPERRES
 }
 
 void av1_calculate_unscaled_superres_size(int *width, int *height, int denom) {
