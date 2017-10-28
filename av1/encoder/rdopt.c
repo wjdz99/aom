@@ -4058,7 +4058,6 @@ static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
   int64_t this_rd = INT64_MAX;
   ENTROPY_CONTEXT *pta = ta + blk_col;
   ENTROPY_CONTEXT *ptl = tl + blk_row;
-  int i;
   int ctx = txfm_partition_context(tx_above + blk_col, tx_left + blk_row,
                                    mbmi->sb_type, tx_size);
   int64_t sum_rd = INT64_MAX;
@@ -4270,8 +4269,9 @@ static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
 #endif  // CONFIG_MRC_TX
       ) {
     const TX_SIZE sub_txs = sub_tx_size_map[tx_size];
-    const int bsl = tx_size_wide_unit[sub_txs];
-    int sub_step = tx_size_wide_unit[sub_txs] * tx_size_high_unit[sub_txs];
+    const int bsw = tx_size_wide_unit[sub_txs];
+    const int bsh = tx_size_high_unit[sub_txs];
+    int sub_step = bsw * bsh;
     RD_STATS this_rd_stats;
     int this_cost_valid = 1;
     int64_t tmp_rd = 0;
@@ -4284,28 +4284,30 @@ static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
 
     ref_best_rd = AOMMIN(this_rd, ref_best_rd);
 
-    for (i = 0; i < 4 && this_cost_valid; ++i) {
-      int offsetr = blk_row + (i >> 1) * bsl;
-      int offsetc = blk_col + (i & 0x01) * bsl;
+    for (int r = 0; r < tx_size_high_unit[tx_size]; r += bsh) {
+      for (int c = 0; c < tx_size_wide_unit[tx_size]; c += bsw) {
+        int offsetr = blk_row + r;
+        int offsetc = blk_col + c;
 
-      if (offsetr >= max_blocks_high || offsetc >= max_blocks_wide) continue;
+        if (offsetr >= max_blocks_high || offsetc >= max_blocks_wide) continue;
 
-      select_tx_block(cpi, x, offsetr, offsetc, plane, block, sub_txs,
-                      depth + 1, plane_bsize, ta, tl, tx_above, tx_left,
-                      &this_rd_stats, ref_best_rd - tmp_rd, &this_cost_valid);
+        select_tx_block(cpi, x, offsetr, offsetc, plane, block, sub_txs,
+                        depth + 1, plane_bsize, ta, tl, tx_above, tx_left,
+                        &this_rd_stats, ref_best_rd - tmp_rd, &this_cost_valid);
 #if CONFIG_DIST_8X8
-      if (x->using_dist_8x8 && plane == 0 && tx_size == TX_8X8) {
-        sub8x8_eob[i] = p->eobs[block];
-      }
+        if (x->using_dist_8x8 && plane == 0 && tx_size == TX_8X8) {
+          sub8x8_eob[2 * (r / bsh) + (c / bsw)] = p->eobs[block];
+        }
 #endif  // CONFIG_DIST_8X8
-      av1_merge_rd_stats(&sum_rd_stats, &this_rd_stats);
+        av1_merge_rd_stats(&sum_rd_stats, &this_rd_stats);
 
-      tmp_rd = RDCOST(x->rdmult, sum_rd_stats.rate, sum_rd_stats.dist);
+        tmp_rd = RDCOST(x->rdmult, sum_rd_stats.rate, sum_rd_stats.dist);
 #if CONFIG_DIST_8X8
-      if (!x->using_dist_8x8)
+        if (!x->using_dist_8x8)
 #endif
         if (this_rd < tmp_rd) break;
-      block += sub_step;
+        block += sub_step;
+      }
     }
 #if CONFIG_DIST_8X8
     if (x->using_dist_8x8 && this_cost_valid && plane == 0 &&
@@ -4325,7 +4327,7 @@ static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
       const int pred_idx = (blk_row * pred_stride + blk_col)
                            << tx_size_wide_log2[0];
       int16_t *pred = &pd->pred[pred_idx];
-      int j;
+      int i, j;
       int row, col;
 
 #if CONFIG_HIGHBITDEPTH
@@ -4444,8 +4446,8 @@ static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
     txfm_partition_update(tx_above + blk_col, tx_left + blk_row, tx_size,
                           tx_size);
     inter_tx_size[0][0] = tx_size_selected;
-    for (idy = 0; idy < tx_size_high_unit[tx_size] / 2; ++idy)
-      for (idx = 0; idx < tx_size_wide_unit[tx_size] / 2; ++idx)
+    for (idy = 0; idy < AOMMAX(1, tx_size_high_unit[tx_size] / 2); ++idy)
+      for (idx = 0; idx < AOMMAX(1, tx_size_wide_unit[tx_size] / 2); ++idx)
         inter_tx_size[idy][idx] = tx_size_selected;
     mbmi->tx_size = tx_size_selected;
 #if CONFIG_TXK_SEL
