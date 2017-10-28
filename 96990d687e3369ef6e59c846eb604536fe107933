@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "16589b51_bea402e1",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 28
+      },
+      "lineNbr": 309,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-10-28T01:43:16Z",
+      "side": 1,
+      "message": "I\u0027m a little confused here. We\u0027re still inside the #else from an #if CONFIG_Q_SEGMENTATION, right? How can this be true?\n\nAre you sure that get_segment_id() above does the right thing when seg-\u003eenabled is false and seg-\u003eq_lvls \u003e 0?",
+      "revId": "96990d687e3369ef6e59c846eb604536fe107933",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
