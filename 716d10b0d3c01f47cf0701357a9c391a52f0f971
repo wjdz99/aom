@@ -68,6 +68,24 @@
       "revId": "716d10b0d3c01f47cf0701357a9c391a52f0f971",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "81ccd294_963e02c0",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 26
+      },
+      "lineNbr": 301,
+      "author": {
+        "id": 6510
+      },
+      "writtenOn": "2017-10-28T00:20:13Z",
+      "side": 1,
+      "message": "Fixed, mbmi-\u003eq_segment_id is only set now in case seg-\u003eq_lvls are more than 0.\nAlso, av1_init_plane_quantizers is only called in case segmentation is enabled or q_segmentation is enabled.",
+      "parentUuid": "0aef5370_1aecee7a",
+      "revId": "716d10b0d3c01f47cf0701357a9c391a52f0f971",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
