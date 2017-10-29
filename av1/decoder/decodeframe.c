@@ -2747,7 +2747,6 @@ static void read_compound_tools(AV1_COMMON *cm,
     cm->allow_interintra_compound = 0;
   }
 #endif  // CONFIG_INTERINTRA
-#if CONFIG_WEDGE || CONFIG_COMPOUND_SEGMENT
 #if CONFIG_COMPOUND_SINGLEREF
   if (!frame_is_intra_only(cm)) {
 #else   // !CONFIG_COMPOUND_SINGLEREF
@@ -2757,7 +2756,6 @@ static void read_compound_tools(AV1_COMMON *cm,
   } else {
     cm->allow_masked_compound = 0;
   }
-#endif  // CONFIG_WEDGE || CONFIG_COMPOUND_SEGMENT
 }
 
 #if CONFIG_VAR_REFS
@@ -3553,7 +3551,7 @@ static int read_compressed_header(AV1Decoder *pbi, const uint8_t *data,
         }
       }
 #endif
-#if CONFIG_WEDGE && !CONFIG_NEW_MULTISYMBOL
+#if !CONFIG_NEW_MULTISYMBOL
 #if CONFIG_EXT_PARTITION_TYPES
       int block_sizes_to_update = BLOCK_SIZES_ALL;
 #else
@@ -3564,7 +3562,6 @@ static int read_compressed_header(AV1Decoder *pbi, const uint8_t *data,
           av1_diff_update_prob(&r, &fc->wedge_interintra_prob[i], ACCT_STR);
         }
       }
-#endif  // CONFIG_WEDGE
     }
 #endif  // CONFIG_INTERINTRA
 
@@ -3601,65 +3598,63 @@ static int read_compressed_header(AV1Decoder *pbi, const uint8_t *data,
 #ifdef NDEBUG
 #define debug_check_frame_counts(cm) (void)0
 #else  // !NDEBUG
-// Counts should only be incremented when frame_parallel_decoding_mode and
-// error_resilient_mode are disabled.
-static void debug_check_frame_counts(const AV1_COMMON *const cm) {
-  FRAME_COUNTS zero_counts;
-  av1_zero(zero_counts);
-  assert(cm->refresh_frame_context != REFRESH_FRAME_CONTEXT_BACKWARD ||
-         cm->error_resilient_mode);
-  assert(!memcmp(cm->counts.partition, zero_counts.partition,
-                 sizeof(cm->counts.partition)));
-  assert(!memcmp(cm->counts.switchable_interp, zero_counts.switchable_interp,
-                 sizeof(cm->counts.switchable_interp)));
-  assert(!memcmp(cm->counts.inter_compound_mode,
-                 zero_counts.inter_compound_mode,
-                 sizeof(cm->counts.inter_compound_mode)));
+  // Counts should only be incremented when frame_parallel_decoding_mode and
+  // error_resilient_mode are disabled.
+  static void debug_check_frame_counts(const AV1_COMMON *const cm) {
+    FRAME_COUNTS zero_counts;
+    av1_zero(zero_counts);
+    assert(cm->refresh_frame_context != REFRESH_FRAME_CONTEXT_BACKWARD ||
+           cm->error_resilient_mode);
+    assert(!memcmp(cm->counts.partition, zero_counts.partition,
+                   sizeof(cm->counts.partition)));
+    assert(!memcmp(cm->counts.switchable_interp, zero_counts.switchable_interp,
+                   sizeof(cm->counts.switchable_interp)));
+    assert(!memcmp(cm->counts.inter_compound_mode,
+                   zero_counts.inter_compound_mode,
+                   sizeof(cm->counts.inter_compound_mode)));
 #if CONFIG_INTERINTRA
-  assert(!memcmp(cm->counts.interintra, zero_counts.interintra,
-                 sizeof(cm->counts.interintra)));
-#if CONFIG_WEDGE
-  assert(!memcmp(cm->counts.wedge_interintra, zero_counts.wedge_interintra,
-                 sizeof(cm->counts.wedge_interintra)));
-#endif  // CONFIG_WEDGE
+    assert(!memcmp(cm->counts.interintra, zero_counts.interintra,
+                   sizeof(cm->counts.interintra)));
+    assert(!memcmp(cm->counts.wedge_interintra, zero_counts.wedge_interintra,
+                   sizeof(cm->counts.wedge_interintra)));
 #endif  // CONFIG_INTERINTRA
-  assert(!memcmp(cm->counts.compound_interinter,
-                 zero_counts.compound_interinter,
-                 sizeof(cm->counts.compound_interinter)));
+    assert(!memcmp(cm->counts.compound_interinter,
+                   zero_counts.compound_interinter,
+                   sizeof(cm->counts.compound_interinter)));
 #if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
-  assert(!memcmp(cm->counts.motion_mode, zero_counts.motion_mode,
-                 sizeof(cm->counts.motion_mode)));
+    assert(!memcmp(cm->counts.motion_mode, zero_counts.motion_mode,
+                   sizeof(cm->counts.motion_mode)));
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
 #if CONFIG_NCOBMC_ADAPT_WEIGHT && CONFIG_MOTION_VAR
-  assert(!memcmp(cm->counts.ncobmc_mode, zero_counts.ncobmc_mode,
-                 sizeof(cm->counts.ncobmc_mode)));
+    assert(!memcmp(cm->counts.ncobmc_mode, zero_counts.ncobmc_mode,
+                   sizeof(cm->counts.ncobmc_mode)));
 #endif
-  assert(!memcmp(cm->counts.intra_inter, zero_counts.intra_inter,
-                 sizeof(cm->counts.intra_inter)));
+    assert(!memcmp(cm->counts.intra_inter, zero_counts.intra_inter,
+                   sizeof(cm->counts.intra_inter)));
 #if CONFIG_COMPOUND_SINGLEREF
-  assert(!memcmp(cm->counts.comp_inter_mode, zero_counts.comp_inter_mode,
-                 sizeof(cm->counts.comp_inter_mode)));
+    assert(!memcmp(cm->counts.comp_inter_mode, zero_counts.comp_inter_mode,
+                   sizeof(cm->counts.comp_inter_mode)));
 #endif  // CONFIG_COMPOUND_SINGLEREF
-  assert(!memcmp(cm->counts.comp_inter, zero_counts.comp_inter,
-                 sizeof(cm->counts.comp_inter)));
+    assert(!memcmp(cm->counts.comp_inter, zero_counts.comp_inter,
+                   sizeof(cm->counts.comp_inter)));
 #if CONFIG_EXT_COMP_REFS
-  assert(!memcmp(cm->counts.comp_ref_type, zero_counts.comp_ref_type,
-                 sizeof(cm->counts.comp_ref_type)));
-  assert(!memcmp(cm->counts.uni_comp_ref, zero_counts.uni_comp_ref,
-                 sizeof(cm->counts.uni_comp_ref)));
+    assert(!memcmp(cm->counts.comp_ref_type, zero_counts.comp_ref_type,
+                   sizeof(cm->counts.comp_ref_type)));
+    assert(!memcmp(cm->counts.uni_comp_ref, zero_counts.uni_comp_ref,
+                   sizeof(cm->counts.uni_comp_ref)));
 #endif  // CONFIG_EXT_COMP_REFS
-  assert(!memcmp(cm->counts.single_ref, zero_counts.single_ref,
-                 sizeof(cm->counts.single_ref)));
-  assert(!memcmp(cm->counts.comp_ref, zero_counts.comp_ref,
-                 sizeof(cm->counts.comp_ref)));
-  assert(!memcmp(cm->counts.comp_bwdref, zero_counts.comp_bwdref,
-                 sizeof(cm->counts.comp_bwdref)));
-  assert(!memcmp(cm->counts.skip, zero_counts.skip, sizeof(cm->counts.skip)));
-  assert(
-      !memcmp(&cm->counts.mv[0], &zero_counts.mv[0], sizeof(cm->counts.mv[0])));
-  assert(
-      !memcmp(&cm->counts.mv[1], &zero_counts.mv[1], sizeof(cm->counts.mv[0])));
-}
+    assert(!memcmp(cm->counts.single_ref, zero_counts.single_ref,
+                   sizeof(cm->counts.single_ref)));
+    assert(!memcmp(cm->counts.comp_ref, zero_counts.comp_ref,
+                   sizeof(cm->counts.comp_ref)));
+    assert(!memcmp(cm->counts.comp_bwdref, zero_counts.comp_bwdref,
+                   sizeof(cm->counts.comp_bwdref)));
+    assert(!memcmp(cm->counts.skip, zero_counts.skip, sizeof(cm->counts.skip)));
+    assert(!memcmp(&cm->counts.mv[0], &zero_counts.mv[0],
+                   sizeof(cm->counts.mv[0])));
+    assert(!memcmp(&cm->counts.mv[1], &zero_counts.mv[1],
+                   sizeof(cm->counts.mv[0])));
+  }
 #endif  // NDEBUG
 
 static struct aom_read_bit_buffer *init_read_bit_buffer(
@@ -3788,9 +3783,9 @@ size_t av1_decode_frame_headers_and_setup(AV1Decoder *pbi, const uint8_t *data,
       xd->cur_buf->y_crop_width, xd->cur_buf->y_crop_height,
       cm->use_highbitdepth);
 #else
-  av1_setup_scale_factors_for_frame(
-      &xd->sf_identity, xd->cur_buf->y_crop_width, xd->cur_buf->y_crop_height,
-      xd->cur_buf->y_crop_width, xd->cur_buf->y_crop_height);
+    av1_setup_scale_factors_for_frame(
+        &xd->sf_identity, xd->cur_buf->y_crop_width, xd->cur_buf->y_crop_height,
+        xd->cur_buf->y_crop_width, xd->cur_buf->y_crop_height);
 #endif  // CONFIG_HIGHBITDEPTH
 #endif  // CONFIG_INTRABC
 
@@ -3831,16 +3826,16 @@ size_t av1_decode_frame_headers_and_setup(AV1Decoder *pbi, const uint8_t *data,
                        "Frame wrongly requests previous frame MVs");
   }
 #else
-  cm->use_prev_frame_mvs = !cm->error_resilient_mode && cm->prev_frame &&
+    cm->use_prev_frame_mvs = !cm->error_resilient_mode && cm->prev_frame &&
 #if CONFIG_FRAME_SUPERRES
-                           cm->width == cm->last_width &&
-                           cm->height == cm->last_height &&
+                             cm->width == cm->last_width &&
+                             cm->height == cm->last_height &&
 #else
-                           cm->width == cm->prev_frame->buf.y_crop_width &&
-                           cm->height == cm->prev_frame->buf.y_crop_height &&
+                             cm->width == cm->prev_frame->buf.y_crop_width &&
+                             cm->height == cm->prev_frame->buf.y_crop_height &&
 #endif  // CONFIG_FRAME_SUPERRES
-                           !cm->last_intra_only && cm->last_show_frame &&
-                           (cm->last_frame_type != KEY_FRAME);
+                             !cm->last_intra_only && cm->last_show_frame &&
+                             (cm->last_frame_type != KEY_FRAME);
 #endif  // CONFIG_TEMPMV_SIGNALING
 
 #if CONFIG_MFMV
@@ -3858,8 +3853,8 @@ size_t av1_decode_frame_headers_and_setup(AV1Decoder *pbi, const uint8_t *data,
     cm->pre_fc = &cm->frame_contexts[cm->frame_refs[0].idx];
   }
 #else
-  *cm->fc = cm->frame_contexts[cm->frame_context_idx];
-  cm->pre_fc = &cm->frame_contexts[cm->frame_context_idx];
+    *cm->fc = cm->frame_contexts[cm->frame_context_idx];
+    cm->pre_fc = &cm->frame_contexts[cm->frame_context_idx];
 #endif  // CONFIG_NO_FRAME_CONTEXT_SIGNALING
   if (!cm->fc->initialized)
     aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
@@ -3910,7 +3905,7 @@ void av1_decode_tg_tiles_and_wrapup(AV1Decoder *pbi, const uint8_t *data,
 #if CONFIG_NO_FRAME_CONTEXT_SIGNALING
       cm->frame_contexts[cm->new_fb_idx] = *cm->fc;
 #else
-      cm->frame_contexts[cm->frame_context_idx] = *cm->fc;
+        cm->frame_contexts[cm->frame_context_idx] = *cm->fc;
 #endif  // CONFIG_NO_FRAME_CONTEXT_SIGNALING
     }
     av1_frameworker_lock_stats(worker);
@@ -3927,9 +3922,9 @@ void av1_decode_tg_tiles_and_wrapup(AV1Decoder *pbi, const uint8_t *data,
 #if CONFIG_OBU
   *p_data_end = decode_tiles(pbi, data, data_end, startTile, endTile);
 #else
-  *p_data_end =
-      decode_tiles(pbi, data + pbi->uncomp_hdr_size + pbi->first_partition_size,
-                   data_end, startTile, endTile);
+    *p_data_end = decode_tiles(
+        pbi, data + pbi->uncomp_hdr_size + pbi->first_partition_size, data_end,
+        startTile, endTile);
 #endif
 
   if (endTile != cm->tile_rows * cm->tile_cols - 1) {
@@ -3969,7 +3964,7 @@ void av1_decode_tg_tiles_and_wrapup(AV1Decoder *pbi, const uint8_t *data,
 #if CONFIG_SIMPLE_BWD_ADAPT
       const int num_bwd_ctxs = 1;
 #else
-      const int num_bwd_ctxs = cm->tile_rows * cm->tile_cols;
+        const int num_bwd_ctxs = cm->tile_rows * cm->tile_cols;
 #endif
       FRAME_CONTEXT **tile_ctxs =
           aom_malloc(num_bwd_ctxs * sizeof(&pbi->tile_data[0].tctx));
@@ -3979,7 +3974,7 @@ void av1_decode_tg_tiles_and_wrapup(AV1Decoder *pbi, const uint8_t *data,
       make_update_tile_list_dec(pbi, cm->largest_tile_id, num_bwd_ctxs,
                                 tile_ctxs);
 #else
-      make_update_tile_list_dec(pbi, 0, num_bwd_ctxs, tile_ctxs);
+        make_update_tile_list_dec(pbi, 0, num_bwd_ctxs, tile_ctxs);
 #endif
 #if CONFIG_SYMBOLRATE
       av1_dump_symbol_rate(cm);
@@ -4025,8 +4020,8 @@ void av1_decode_tg_tiles_and_wrapup(AV1Decoder *pbi, const uint8_t *data,
 #if CONFIG_NO_FRAME_CONTEXT_SIGNALING
   if (!context_updated) cm->frame_contexts[cm->new_fb_idx] = *cm->fc;
 #else
-  if (!cm->error_resilient_mode && !context_updated)
-    cm->frame_contexts[cm->frame_context_idx] = *cm->fc;
+    if (!cm->error_resilient_mode && !context_updated)
+      cm->frame_contexts[cm->frame_context_idx] = *cm->fc;
 #endif
 }
 
