@@ -2501,7 +2501,6 @@ static int skip_txfm_search(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bs,
   return 0;
 }
 
-#if (CONFIG_WEDGE || CONFIG_COMPOUND_SEGMENT || CONFIG_INTERINTRA)
 static int64_t estimate_yrd_for_sb(const AV1_COMP *const cpi, BLOCK_SIZE bs,
                                    MACROBLOCK *x, int *r, int64_t *d, int *s,
                                    int64_t *sse, int64_t ref_best_rd) {
@@ -2514,7 +2513,6 @@ static int64_t estimate_yrd_for_sb(const AV1_COMP *const cpi, BLOCK_SIZE bs,
   *sse = rd_stats.sse;
   return rd;
 }
-#endif  // (CONFIG_WEDGE || CONFIG_COMPOUND_SEGMENT)
 
 static void choose_largest_tx_size(const AV1_COMP *const cpi, MACROBLOCK *x,
                                    RD_STATS *rd_stats, int64_t ref_best_rd,
@@ -5676,22 +5674,16 @@ static int cost_mv_ref(const MACROBLOCK *const x, PREDICTION_MODE mode,
   }
 }
 
-#if (CONFIG_WEDGE || CONFIG_COMPOUND_SEGMENT)
 static int get_interinter_compound_type_bits(BLOCK_SIZE bsize,
                                              COMPOUND_TYPE comp_type) {
   (void)bsize;
   switch (comp_type) {
     case COMPOUND_AVERAGE: return 0;
-#if CONFIG_WEDGE
     case COMPOUND_WEDGE: return get_interinter_wedge_bits(bsize);
-#endif  // CONFIG_WEDGE
-#if CONFIG_COMPOUND_SEGMENT
     case COMPOUND_SEG: return 1;
-#endif  // CONFIG_COMPOUND_SEGMENT
     default: assert(0); return 0;
   }
 }
-#endif  // (CONFIG_WEDGE || CONFIG_COMPOUND_SEGMENT)
 
 typedef struct {
   int eobs;
@@ -7050,7 +7042,6 @@ static void compound_single_motion_search_interinter(
                                 ref_idx);
 }
 
-#if CONFIG_COMPOUND_SEGMENT || CONFIG_WEDGE
 static void do_masked_motion_search_indexed(
     const AV1_COMP *const cpi, MACROBLOCK *x, const int_mv *const cur_mv,
     const INTERINTER_COMPOUND_DATA *const comp_data, BLOCK_SIZE bsize,
@@ -7099,7 +7090,6 @@ static void do_masked_motion_search_indexed(
 #endif  // CONFIG_COMPOUND_SINGLEREF
     tmp_mv[1].as_int = frame_mv[rf[1]].as_int;
 }
-#endif  // CONFIG_COMPOUND_SEGMENT || CONFIG_WEDGE
 
 // In some situations we want to discount the apparent cost of a new motion
 // vector. Where there is a subtle motion field and especially where there is
@@ -7131,7 +7121,6 @@ static INLINE void clamp_mv2(MV *mv, const MACROBLOCKD *xd) {
            xd->mb_to_bottom_edge + RIGHT_BOTTOM_MARGIN);
 }
 
-#if CONFIG_WEDGE
 static int estimate_wedge_sign(const AV1_COMP *cpi, const MACROBLOCK *x,
                                const BLOCK_SIZE bsize, const uint8_t *pred0,
                                int stride0, const uint8_t *pred1, int stride1) {
@@ -7174,7 +7163,6 @@ static int estimate_wedge_sign(const AV1_COMP *cpi, const MACROBLOCK *x,
        (int64_t)(esq[0][3] + esq[0][1] + esq[0][2]);
   return (tl + br > 0);
 }
-#endif  // CONFIG_WEDGE
 
 #if !CONFIG_DUAL_FILTER
 static InterpFilter predict_interp_filter(
@@ -7261,7 +7249,6 @@ static InterpFilter predict_interp_filter(
 #endif  // !CONFIG_DUAL_FILTER
 
 // Choose the best wedge index and sign
-#if CONFIG_WEDGE
 static int64_t pick_wedge(const AV1_COMP *const cpi, const MACROBLOCK *const x,
                           const BLOCK_SIZE bsize, const uint8_t *const p0,
                           const uint8_t *const p1, int *const best_wedge_sign,
@@ -7434,9 +7421,7 @@ static int64_t pick_interinter_wedge(const AV1_COMP *const cpi,
   mbmi->wedge_index = wedge_index;
   return rd;
 }
-#endif  // CONFIG_WEDGE
 
-#if CONFIG_COMPOUND_SEGMENT
 static int64_t pick_interinter_seg(const AV1_COMP *const cpi,
                                    MACROBLOCK *const x, const BLOCK_SIZE bsize,
                                    const uint8_t *const p0,
@@ -7520,9 +7505,8 @@ static int64_t pick_interinter_seg(const AV1_COMP *const cpi,
 
   return best_rd;
 }
-#endif  // CONFIG_COMPOUND_SEGMENT
 
-#if CONFIG_WEDGE && CONFIG_INTERINTRA
+#if CONFIG_INTERINTRA
 static int64_t pick_interintra_wedge(const AV1_COMP *const cpi,
                                      const MACROBLOCK *const x,
                                      const BLOCK_SIZE bsize,
@@ -7543,9 +7527,8 @@ static int64_t pick_interintra_wedge(const AV1_COMP *const cpi,
   mbmi->interintra_wedge_index = wedge_index;
   return rd;
 }
-#endif  // CONFIG_WEDGE && CONFIG_INTERINTRA
+#endif  // CONFIG_INTERINTRA
 
-#if CONFIG_COMPOUND_SEGMENT || CONFIG_WEDGE
 static int64_t pick_interinter_mask(const AV1_COMP *const cpi, MACROBLOCK *x,
                                     const BLOCK_SIZE bsize,
                                     const uint8_t *const p0,
@@ -7553,12 +7536,8 @@ static int64_t pick_interinter_mask(const AV1_COMP *const cpi, MACROBLOCK *x,
   const COMPOUND_TYPE compound_type =
       x->e_mbd.mi[0]->mbmi.interinter_compound_type;
   switch (compound_type) {
-#if CONFIG_WEDGE
     case COMPOUND_WEDGE: return pick_interinter_wedge(cpi, x, bsize, p0, p1);
-#endif  // CONFIG_WEDGE
-#if CONFIG_COMPOUND_SEGMENT
     case COMPOUND_SEG: return pick_interinter_seg(cpi, x, bsize, p0, p1);
-#endif  // CONFIG_COMPOUND_SEGMENT
     default: assert(0); return 0;
   }
 }
@@ -7571,14 +7550,7 @@ static int interinter_compound_motion_search(
   int_mv tmp_mv[2];
   int tmp_rate_mv = 0;
   const INTERINTER_COMPOUND_DATA compound_data = {
-#if CONFIG_WEDGE
-    mbmi->wedge_index,
-    mbmi->wedge_sign,
-#endif  // CONFIG_WEDGE
-#if CONFIG_COMPOUND_SEGMENT
-    mbmi->mask_type,
-    xd->seg_mask,
-#endif  // CONFIG_COMPOUND_SEGMENT
+    mbmi->wedge_index, mbmi->wedge_sign, mbmi->mask_type, xd->seg_mask,
     mbmi->interinter_compound_type
   };
 #if CONFIG_COMPOUND_SINGLEREF
@@ -7666,7 +7638,6 @@ static int64_t build_and_cost_compound_type(
   }
   return best_rd_cur;
 }
-#endif  // CONFIG_COMPOUND_SEGMENT || CONFIG_WEDGE
 
 typedef struct {
 #if CONFIG_MOTION_VAR
@@ -8366,9 +8337,7 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   int_mv cur_mv[2];
   int rate_mv = 0;
   int pred_exists = 1;
-#if CONFIG_WEDGE || CONFIG_COMPOUND_SEGMENT || CONFIG_INTERINTRA
   const int bw = block_size_wide[bsize];
-#endif  // CONFIG_WEDGE || CONFIG_COMPOUND_SEGMENT
   int_mv single_newmv[TOTAL_REFS_PER_FRAME];
 #if CONFIG_INTERINTRA
   const int *const interintra_mode_cost =
@@ -8405,10 +8374,8 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   int compmode_interintra_cost = 0;
   mbmi->use_wedge_interintra = 0;
 #endif
-#if CONFIG_WEDGE || CONFIG_COMPOUND_SEGMENT
   int compmode_interinter_cost = 0;
   mbmi->interinter_compound_type = COMPOUND_AVERAGE;
-#endif
 #if CONFIG_LGT_FROM_PRED
   mbmi->use_lgt = 0;
 #endif
@@ -8638,7 +8605,6 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   rate_mv_bmc = rate_mv;
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
 
-#if CONFIG_WEDGE || CONFIG_COMPOUND_SEGMENT
 #if CONFIG_COMPOUND_SINGLEREF
   if (is_comp_pred || is_singleref_comp_mode)
 #else
@@ -8664,19 +8630,15 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
     int strides[1] = { bw };
     int tmp_rate_mv;
     int masked_compound_used = is_any_masked_compound_used(bsize);
-#if CONFIG_COMPOUND_SEGMENT || CONFIG_WEDGE
     masked_compound_used = masked_compound_used && cm->allow_masked_compound;
-#endif  // CONFIG_COMPOUND_SEGMENT || CONFIG_WEDGE
     COMPOUND_TYPE cur_type;
     int best_compmode_interinter_cost = 0;
 
     best_mv[0].as_int = cur_mv[0].as_int;
     best_mv[1].as_int = cur_mv[1].as_int;
     memset(&best_compound_data, 0, sizeof(best_compound_data));
-#if CONFIG_COMPOUND_SEGMENT
     uint8_t tmp_mask_buf[2 * MAX_SB_SQUARE];
     best_compound_data.seg_mask = tmp_mask_buf;
-#endif  // CONFIG_COMPOUND_SEGMENT
 
 #if CONFIG_COMPOUND_SINGLEREF
     // TODO(zoeliu): To further check whether the following setups are needed.
@@ -8705,11 +8667,9 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
       mbmi->interinter_compound_type = cur_type;
       int masked_type_cost = 0;
       if (masked_compound_used) {
-#if CONFIG_WEDGE && CONFIG_COMPOUND_SEGMENT
         if (!is_interinter_compound_used(COMPOUND_WEDGE, bsize))
           masked_type_cost += av1_cost_literal(1);
         else
-#endif  // CONFIG_WEDGE && CONFIG_COMPOUND_SEGMENT
           masked_type_cost +=
               x->compound_type_cost[bsize][mbmi->interinter_compound_type];
       }
@@ -8729,7 +8689,6 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
             best_rd_cur = RDCOST(x->rdmult, rs2 + rate_mv + rate_sum, dist_sum);
           best_rd_compound = best_rd_cur;
           break;
-#if CONFIG_WEDGE
         case COMPOUND_WEDGE:
           if (x->source_variance > cpi->sf.disable_wedge_search_var_thresh &&
               best_rd_compound / 3 < ref_best_rd) {
@@ -8738,8 +8697,6 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
                 &tmp_rate_mv, preds0, preds1, strides, mi_row, mi_col);
           }
           break;
-#endif  // CONFIG_WEDGE
-#if CONFIG_COMPOUND_SEGMENT
         case COMPOUND_SEG:
           if (x->source_variance > cpi->sf.disable_wedge_search_var_thresh &&
               best_rd_compound / 3 < ref_best_rd) {
@@ -8748,21 +8705,16 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
                 &tmp_rate_mv, preds0, preds1, strides, mi_row, mi_col);
           }
           break;
-#endif  // CONFIG_COMPOUND_SEGMENT
         default: assert(0); return 0;
       }
 
       if (best_rd_cur < best_rd_compound) {
         best_rd_compound = best_rd_cur;
-#if CONFIG_WEDGE
         best_compound_data.wedge_index = mbmi->wedge_index;
         best_compound_data.wedge_sign = mbmi->wedge_sign;
-#endif  // CONFIG_WEDGE
-#if CONFIG_COMPOUND_SEGMENT
         best_compound_data.mask_type = mbmi->mask_type;
         memcpy(best_compound_data.seg_mask, xd->seg_mask,
                2 * MAX_SB_SQUARE * sizeof(uint8_t));
-#endif  // CONFIG_COMPOUND_SEGMENT
         best_compound_data.interinter_compound_type =
             mbmi->interinter_compound_type;
         best_compmode_interinter_cost = rs2;
@@ -8781,15 +8733,11 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
       mbmi->mv[0].as_int = cur_mv[0].as_int;
       mbmi->mv[1].as_int = cur_mv[1].as_int;
     }
-#if CONFIG_WEDGE
     mbmi->wedge_index = best_compound_data.wedge_index;
     mbmi->wedge_sign = best_compound_data.wedge_sign;
-#endif  // CONFIG_WEDGE
-#if CONFIG_COMPOUND_SEGMENT
     mbmi->mask_type = best_compound_data.mask_type;
     memcpy(xd->seg_mask, best_compound_data.seg_mask,
            2 * MAX_SB_SQUARE * sizeof(uint8_t));
-#endif  // CONFIG_COMPOUND_SEGMENT
     mbmi->interinter_compound_type =
         best_compound_data.interinter_compound_type;
     if (have_newmv_in_inter_mode(this_mode)) {
@@ -8812,7 +8760,6 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
 
     compmode_interinter_cost = best_compmode_interinter_cost;
   }
-#endif  // CONFIG_WEDGE || CONFIG_COMPOUND_SEGMENT
 
 #if CONFIG_INTERINTRA
   if (is_comp_interintra_pred) {
@@ -8874,7 +8821,6 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
       // Don't need to call restore_dst_buf here
       return INT64_MAX;
     }
-#if CONFIG_WEDGE
     if (is_interintra_wedge_used(bsize)) {
       int64_t best_interintra_rd_nowedge = INT64_MAX;
       int64_t best_interintra_rd_wedge = INT64_MAX;
@@ -8943,7 +8889,6 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
         mbmi->use_wedge_interintra = 0;
       }
     }
-#endif  // CONFIG_WEDGE
 
     pred_exists = 0;
     compmode_interintra_cost = x->interintra_cost[size_group_lookup[bsize]][1] +
@@ -9004,9 +8949,7 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   rate2_bmc_nocoeff += compmode_interintra_cost;
 #endif
 #endif
-#if CONFIG_WEDGE || CONFIG_COMPOUND_SEGMENT
   rd_stats->rate += compmode_interinter_cost;
-#endif
 
   ret_val = motion_mode_rd(
       cpi, x, bsize, rd_stats, rd_stats_y, rd_stats_uv, disable_skip, mode_mv,
