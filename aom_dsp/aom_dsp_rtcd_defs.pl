@@ -878,6 +878,9 @@ if (aom_config("CONFIG_AV1_ENCODER") eq "yes") {
         specialize "aom_highbd_sad${w}x${h}", qw/sse2/;
         specialize "aom_highbd_sad${w}x${h}_avg", qw/sse2/;
       }
+      if (aom_config("CONFIG_JNT_COMP") eq "yes") {
+        add_proto qw/unsigned int/, "aom_highbd_jnt_sad${w}x${h}_avg", "const uint8_t *src_ptr, int src_stride, const uint8_t *ref_ptr, int ref_stride, const uint8_t *second_pred, const JNT_COMP_PARAMS* jcp_param";
+      }
     }
     specialize qw/aom_highbd_sad128x128 avx2/;
     specialize qw/aom_highbd_sad128x64  avx2/;
@@ -1112,6 +1115,7 @@ if (aom_config("CONFIG_AV1_ENCODER") eq "yes") {
 
   if (aom_config("CONFIG_JNT_COMP") eq "yes") {
     add_proto qw/void aom_jnt_comp_avg_upsampled_pred/, "uint8_t *comp_pred, const uint8_t *pred, int width, int height, int subsample_x_q3, int subsample_y_q3, const uint8_t *ref, int ref_stride, const JNT_COMP_PARAMS *jcp_param";
+    specialize qw/aom_jnt_comp_avg_upsampled_pred ssse3/;
   }
 
   if (aom_config("CONFIG_HIGHBITDEPTH") eq "yes") {
@@ -1119,6 +1123,11 @@ if (aom_config("CONFIG_AV1_ENCODER") eq "yes") {
     specialize qw/aom_highbd_upsampled_pred sse2/;
     add_proto qw/void aom_highbd_comp_avg_upsampled_pred/, "uint16_t *comp_pred, const uint8_t *pred8, int width, int height, int subsample_x_q3, int subsample_y_q3, const uint8_t *ref8, int ref_stride, int bd";
     specialize qw/aom_highbd_comp_avg_upsampled_pred sse2/;
+
+    if (aom_config("CONFIG_JNT_COMP") eq "yes") {
+      add_proto qw/void aom_highbd_jnt_comp_avg_upsampled_pred/, "uint16_t *comp_pred, const uint8_t *pred8, int width, int height, int subsample_x_q3, int subsample_y_q3, const uint8_t *ref8, int ref_stride, int bd, const JNT_COMP_PARAMS *jcp_param";
+      specialize qw/aom_highbd_jnt_comp_avg_upsampled_pred sse2/;
+    }
   }
 
   #
@@ -1241,6 +1250,10 @@ if (aom_config("CONFIG_AV1_ENCODER") eq "yes") {
           specialize "aom_highbd_${bd}_sub_pixel_variance${w}x${h}", "sse4_1";
           specialize "aom_highbd_${bd}_sub_pixel_avg_variance${w}x${h}", "sse4_1";
         }
+
+        if (aom_config("CONFIG_JNT_COMP") eq "yes") {
+          add_proto qw/uint32_t/, "aom_highbd_${bd}_jnt_sub_pixel_avg_variance${w}x${h}", "const uint8_t *src_ptr, int source_stride, int xoffset, int  yoffset, const uint8_t *ref_ptr, int ref_stride, uint32_t *sse, const uint8_t *second_pred, const JNT_COMP_PARAMS* jcp_param";
+        }
       }
     }
   }  # CONFIG_HIGHBITDEPTH
@@ -1343,6 +1356,7 @@ if (aom_config("CONFIG_AV1_ENCODER") eq "yes") {
   add_proto qw/void aom_comp_avg_pred/, "uint8_t *comp_pred, const uint8_t *pred, int width, int height, const uint8_t *ref, int ref_stride";
   if (aom_config("CONFIG_JNT_COMP") eq "yes") {
     add_proto qw/void aom_jnt_comp_avg_pred/, "uint8_t *comp_pred, const uint8_t *pred, int width, int height, const uint8_t *ref, int ref_stride, const JNT_COMP_PARAMS *jcp_param";
+    specialize qw/aom_jnt_comp_avg_pred ssse3/;
   }
   if (aom_config("CONFIG_HIGHBITDEPTH") eq "yes") {
     add_proto qw/unsigned int aom_highbd_12_variance64x64/, "const uint8_t *src_ptr, int source_stride, const uint8_t *ref_ptr, int ref_stride, unsigned int *sse";
@@ -1481,6 +1495,11 @@ if (aom_config("CONFIG_AV1_ENCODER") eq "yes") {
     specialize qw/aom_highbd_12_mse8x8 sse2/;
 
     add_proto qw/void aom_highbd_comp_avg_pred/, "uint16_t *comp_pred, const uint8_t *pred8, int width, int height, const uint8_t *ref8, int ref_stride";
+
+    if (aom_config("CONFIG_JNT_COMP") eq "yes") {
+      add_proto qw/void aom_highbd_jnt_comp_avg_pred/, "uint16_t *comp_pred, const uint8_t *pred8, int width, int height, const uint8_t *ref8, int ref_stride, const JNT_COMP_PARAMS *jcp_param";
+      specialize qw/aom_highbd_jnt_comp_avg_pred sse2/;
+    }
 
     #
     # Subpixel Variance
