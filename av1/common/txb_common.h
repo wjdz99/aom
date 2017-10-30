@@ -12,9 +12,6 @@
 #ifndef AV1_COMMON_TXB_COMMON_H_
 #define AV1_COMMON_TXB_COMMON_H_
 
-#define REDUCE_CONTEXT_DEPENDENCY 0
-#define MIN_SCAN_IDX_REDUCE_CONTEXT_DEPENDENCY 0
-
 extern const int16_t k_eob_group_start[12];
 extern const int16_t k_eob_offset_bits[12];
 int16_t get_eob_pos_token(int eob, int16_t *extra);
