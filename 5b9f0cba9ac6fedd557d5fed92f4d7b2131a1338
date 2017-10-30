@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a9cb8a2d_f3e6f91d",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 4579,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-10-30T07:19:23Z",
+      "side": 1,
+      "message": "To be accurate, it is not a search, more like \u0027Do an accurate rd calculation with trellis optimization on.\u0027",
+      "range": {
+        "startLine": 4579,
+        "startChar": 30,
+        "endLine": 4579,
+        "endChar": 36
+      },
+      "revId": "5b9f0cba9ac6fedd557d5fed92f4d7b2131a1338",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6694b813_0ba0f994",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 4580,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-10-30T07:19:23Z",
+      "side": 1,
+      "message": "0",
+      "range": {
+        "startLine": 4580,
+        "startChar": 63,
+        "endLine": 4580,
+        "endChar": 68
+      },
+      "revId": "5b9f0cba9ac6fedd557d5fed92f4d7b2131a1338",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ee7a3bb1_f8e971bc",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 5165,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-10-30T07:19:23Z",
+      "side": 1,
+      "message": "It is not used. Do you want to convey it to av1_tx_block_rd_b ?",
+      "range": {
+        "startLine": 5165,
+        "startChar": 28,
+        "endLine": 5165,
+        "endChar": 32
+      },
+      "revId": "5b9f0cba9ac6fedd557d5fed92f4d7b2131a1338",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b4b2131e_a195e90d",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 5233,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-10-30T07:19:23Z",
+      "side": 1,
+      "message": "Can we remove it? Looks like it will be covered by the recursion below.",
+      "revId": "5b9f0cba9ac6fedd557d5fed92f4d7b2131a1338",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
