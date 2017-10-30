@@ -397,13 +397,11 @@ void aom_jnt_comp_avg_pred_c(uint8_t *comp_pred, const uint8_t *pred, int width,
   int i, j;
   const int fwd_offset = jcp_param->fwd_offset;
   const int bck_offset = jcp_param->bck_offset;
-  double sum = bck_offset + fwd_offset;
 
   for (i = 0; i < height; ++i) {
     for (j = 0; j < width; ++j) {
       int tmp = pred[j] * bck_offset + ref[j] * fwd_offset;
-      tmp = (int)(0.5 + tmp / sum);
-      if (tmp > 255) tmp = 255;
+      tmp = ROUND_POWER_OF_TWO(tmp, DIST_PRECISION_BITS);
       comp_pred[j] = (uint8_t)tmp;
     }
     comp_pred += width;
@@ -420,7 +418,6 @@ void aom_jnt_comp_avg_upsampled_pred_c(uint8_t *comp_pred, const uint8_t *pred,
   int i, j;
   const int fwd_offset = jcp_param->fwd_offset;
   const int bck_offset = jcp_param->bck_offset;
-  double sum = bck_offset + fwd_offset;
 
   aom_upsampled_pred(comp_pred, width, height, subpel_x_q3, subpel_y_q3, ref,
                      ref_stride);
@@ -428,8 +425,7 @@ void aom_jnt_comp_avg_upsampled_pred_c(uint8_t *comp_pred, const uint8_t *pred,
   for (i = 0; i < height; i++) {
     for (j = 0; j < width; j++) {
       int tmp = pred[j] * bck_offset + comp_pred[j] * fwd_offset;
-      tmp = (int)(0.5 + tmp / sum);
-      if (tmp > 255) tmp = 255;
+      tmp = ROUND_POWER_OF_TWO(tmp, DIST_PRECISION_BITS);
       comp_pred[j] = (uint8_t)tmp;
     }
     comp_pred += width;
