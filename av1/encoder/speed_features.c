@@ -145,23 +145,30 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
   AV1_COMMON *const cm = &cpi->common;
   const int boosted = frame_is_boosted(cpi);
 
-  if (speed >= 1) {
+  // Transform related search.
+  if ((speed > 0 && speed != 1) || speed > 3) {
     sf->tx_type_search.fast_intra_tx_type_search = 1;
     sf->tx_type_search.fast_inter_tx_type_search = 1;
   }
 
-  if (speed >= 2) {
+  // Inter prediction related search.
+  if ((speed > 0 && speed != 2) || speed > 3) {
     sf->selective_ref_frame = 1;
+  }
 
+  // Coding block partition related search.
+  if ((speed > 0 && speed != 3) || speed > 3) {
+    sf->less_rectangular_check = 1;
+  }
+
+  if (speed >= 4) {
     if ((cpi->twopass.fr_content_type == FC_GRAPHICS_ANIMATION) ||
         av1_internal_image_edge(cpi)) {
       sf->use_square_partition_only = !frame_is_boosted(cpi);
     } else {
       sf->use_square_partition_only = !frame_is_intra_only(cm);
     }
-
-    sf->less_rectangular_check = 1;
-
+    sf->partition_search_breakout_rate_thr = 80;
     sf->use_rd_breakout = 1;
     sf->adaptive_motion_search = 1;
     sf->mv.auto_mv_step_size = 1;
@@ -193,7 +200,6 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
 #endif
 
     sf->tx_size_search_breakout = 1;
-    sf->partition_search_breakout_rate_thr = 80;
 
     // Use transform domain distortion.
     // Note var-tx expt always uses pixel domain distortion.
@@ -202,7 +208,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->fast_wedge_sign_estimate = 1;
   }
 
-  if (speed >= 3) {
+  if (speed >= 5) {
     sf->tx_size_search_method =
         frame_is_boosted(cpi) ? USE_FULL_RD : USE_LARGESTALL;
     sf->mode_search_skip_flags =
@@ -222,7 +228,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->gm_search_type = GM_DISABLE_SEARCH;
   }
 
-  if (speed >= 4) {
+  if (speed >= 6) {
     sf->use_square_partition_only = !frame_is_intra_only(cm);
     sf->tx_size_search_method =
         frame_is_intra_only(cm) ? USE_FULL_RD : USE_LARGESTALL;
@@ -252,7 +258,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->adaptive_interp_filter_search = 1;
   }
 
-  if (speed >= 5) {
+  if (speed >= 7) {
     sf->use_square_partition_only = 1;
     sf->tx_size_search_method = USE_LARGESTALL;
     sf->mv.search_method = BIGDIA;
@@ -266,7 +272,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->partition_search_breakout_rate_thr = 300;
   }
 
-  if (speed >= 6) {
+  if (speed >= 8) {
     int i;
     sf->optimize_coefficients = 0;
     sf->mv.search_method = HEX;
@@ -283,7 +289,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->mv.reduce_first_step_size = 1;
     sf->simple_model_rd_from_var = 1;
   }
-  if (speed >= 7) {
+  if (speed >= 9) {
     const int is_keyframe = cm->frame_type == KEY_FRAME;
     const int frames_since_key = is_keyframe ? 0 : cpi->rc.frames_since_key;
     sf->default_max_partition_size = BLOCK_32X32;
@@ -313,7 +319,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->coeff_prob_appx_step = 4;
     sf->mode_search_skip_flags |= FLAG_SKIP_INTRA_DIRMISMATCH;
   }
-  if (speed >= 8) {
+  if (speed >= 10) {
     sf->mv.search_method = FAST_DIAMOND;
     sf->mv.fullpel_search_step_param = 10;
     sf->mv.subpel_force_stop = 2;
