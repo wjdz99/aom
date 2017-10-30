@@ -883,51 +883,6 @@ static INLINE int get_golomb_cost(int abs_qc) {
   }
 }
 
-void gen_txb_cache(TxbCache *txb_cache, TxbInfo *txb_info) {
-  // gen_nz_count_arr
-  const int16_t *scan = txb_info->scan_order->scan;
-  const int bwl = txb_info->bwl;
-  const int height = txb_info->height;
-  const tran_low_t *const qcoeff = txb_info->qcoeff;
-  const BASE_CTX_TABLE *base_ctx_table =
-      txb_info->coeff_ctx_table->base_ctx_table;
-  for (int c = 0; c < txb_info->eob; ++c) {
-    const int coeff_idx = scan[c];  // raster order
-    const int row = coeff_idx >> bwl;
-    const int col = coeff_idx - (row << bwl);
-
-    txb_cache->nz_count_arr[coeff_idx] = get_nz_count(
-        qcoeff, bwl, height, row, col, get_tx_class(txb_info->tx_type), 0);
-
-    const int nz_count = txb_cache->nz_count_arr[coeff_idx];
-    txb_cache->nz_ctx_arr[coeff_idx] = get_nz_map_ctx_from_count(
-        nz_count, coeff_idx, bwl, height, txb_info->tx_type);
-
-    // gen_base_count_mag_arr
-    if (!has_base(qcoeff[coeff_idx], 0)) continue;
-    int *base_mag = txb_cache->base_mag_arr[coeff_idx];
-    int count[NUM_BASE_LEVELS];
-    get_base_count_mag(base_mag, count, qcoeff, bwl, height, row, col);
-
-    for (int i = 0; i < NUM_BASE_LEVELS; ++i) {
-      if (!has_base(qcoeff[coeff_idx], i)) break;
-      txb_cache->base_count_arr[i][coeff_idx] = count[i];
-      const int level = i + 1;
-      txb_cache->base_ctx_arr[i][coeff_idx] =
-          base_ctx_table[row != 0][col != 0][base_mag[0] > level][count[i]];
-    }
-
-    // gen_br_count_mag_arr
-    if (!has_br(qcoeff[coeff_idx])) continue;
-    int *br_count = txb_cache->br_count_arr + coeff_idx;
-    int *br_mag = txb_cache->br_mag_arr[coeff_idx];
-    *br_count = get_br_count_mag(br_mag, qcoeff, bwl, height, row, col,
-                                 NUM_BASE_LEVELS);
-    txb_cache->br_ctx_arr[coeff_idx] =
-        get_br_ctx_from_count_mag(row, col, *br_count, br_mag[0]);
-  }
-}
-
 static INLINE const int *get_level_prob(int level, int coeff_idx,
                                         const TxbCache *txb_cache,
                                         const LV_MAP_COEFF_COST *txb_costs) {
