@@ -1161,7 +1161,6 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td, int mi_row,
                                  [is_inter_singleref_comp_mode(mbmi->mode)]++;
 #endif  // CONFIG_COMPOUND_SINGLEREF
 
-#if CONFIG_INTERINTRA
         if (cm->reference_mode != COMPOUND_REFERENCE &&
             cm->allow_interintra_compound && is_interintra_allowed(mbmi)) {
           const int bsize_group = size_group_lookup[bsize];
@@ -1187,7 +1186,6 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td, int mi_row,
 #endif
           }
         }
-#endif  // CONFIG_INTERINTRA
 
 #if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
 #if CONFIG_WARPED_MOTION
@@ -4016,10 +4014,8 @@ static void encode_frame_internal(AV1_COMP *cpi) {
 
 static void make_consistent_compound_tools(AV1_COMMON *cm) {
   (void)cm;
-#if CONFIG_INTERINTRA
   if (frame_is_intra_only(cm) || cm->reference_mode == COMPOUND_REFERENCE)
     cm->allow_interintra_compound = 0;
-#endif  // CONFIG_INTERINTRA
 #if CONFIG_COMPOUND_SINGLEREF
   if (frame_is_intra_only(cm))
 #else   // !CONFIG_COMPOUND_SINGLEREF
