@@ -219,11 +219,9 @@ struct macroblock {
   int inter_singleref_comp_mode_cost[INTER_MODE_CONTEXTS]
                                     [INTER_SINGLEREF_COMP_MODES];
 #endif  // CONFIG_COMPOUND_SINGLEREF
-#if CONFIG_INTERINTRA
   int interintra_cost[BLOCK_SIZE_GROUPS][2];
   int wedge_interintra_cost[BLOCK_SIZES_ALL][2];
   int interintra_mode_cost[BLOCK_SIZE_GROUPS][INTERINTRA_MODES];
-#endif  // CONFIG_INTERINTRA
 #if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
   int motion_mode_cost[BLOCK_SIZES_ALL][MOTION_MODES];
 #if CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION

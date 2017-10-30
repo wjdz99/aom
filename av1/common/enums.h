@@ -589,7 +589,6 @@ typedef enum ATTRIBUTE_PACKED {
 #endif
 } MOTION_MODE;
 
-#if CONFIG_INTERINTRA
 typedef enum ATTRIBUTE_PACKED {
   II_DC_PRED,
   II_V_PRED,
@@ -597,7 +596,6 @@ typedef enum ATTRIBUTE_PACKED {
   II_SMOOTH_PRED,
   INTERINTRA_MODES
 } INTERINTRA_MODE;
-#endif
 
 typedef enum {
   COMPOUND_AVERAGE,
