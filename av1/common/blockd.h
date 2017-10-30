@@ -403,10 +403,8 @@ typedef struct MB_MODE_INFO {
   int mi_row;
   int mi_col;
 #endif
-#if CONFIG_WARPED_MOTION
   int num_proj_ref[2];
   WarpedMotionParams wm_params[2];
-#endif  // CONFIG_WARPED_MOTION
 
 #if CONFIG_CFL
   // Index of the alpha Cb and alpha Cr combination
@@ -1396,7 +1394,6 @@ static INLINE int get_vartx_max_txsize(const MB_MODE_INFO *const mbmi,
   return max_txsize;
 }
 
-#if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
 static INLINE int is_motion_variation_allowed_bsize(BLOCK_SIZE bsize) {
   return AOMMIN(block_size_wide[bsize], block_size_high[bsize]) >= 8;
 }
@@ -1435,10 +1432,7 @@ static INLINE MOTION_MODE motion_mode_allowed(
 #if CONFIG_GLOBAL_MOTION
     int block, const WarpedMotionParams *gm_params,
 #endif  // CONFIG_GLOBAL_MOTION
-#if CONFIG_WARPED_MOTION
-    const MACROBLOCKD *xd,
-#endif
-    const MODE_INFO *mi) {
+    const MACROBLOCKD *xd, const MODE_INFO *mi) {
   const MB_MODE_INFO *mbmi = &mi->mbmi;
 #if CONFIG_AMVR
   if (xd->cur_frame_force_integer_mv == 0) {
@@ -1456,7 +1450,6 @@ static INLINE MOTION_MODE motion_mode_allowed(
 #if CONFIG_MOTION_VAR
     if (!check_num_overlappable_neighbors(mbmi)) return SIMPLE_TRANSLATION;
 #endif
-#if CONFIG_WARPED_MOTION
     if (!has_second_ref(mbmi) && mbmi->num_proj_ref[0] >= 1 &&
         !av1_is_scaled(&(xd->block_refs[0]->sf))) {
 #if CONFIG_AMVR
@@ -1467,7 +1460,6 @@ static INLINE MOTION_MODE motion_mode_allowed(
       return WARPED_CAUSAL;
     }
 
-#endif  // CONFIG_WARPED_MOTION
 #if CONFIG_MOTION_VAR
 #if CONFIG_NCOBMC_ADAPT_WEIGHT
     if (ncobmc_mode_allowed_bsize(mbmi->sb_type) < NO_OVERLAP)
@@ -1488,18 +1480,13 @@ static INLINE void assert_motion_mode_valid(MOTION_MODE mode,
                                             int block,
                                             const WarpedMotionParams *gm_params,
 #endif  // CONFIG_GLOBAL_MOTION
-#if CONFIG_WARPED_MOTION
                                             const MACROBLOCKD *xd,
-#endif
                                             const MODE_INFO *mi) {
   const MOTION_MODE last_motion_mode_allowed = motion_mode_allowed(
 #if CONFIG_GLOBAL_MOTION
       block, gm_params,
 #endif  // CONFIG_GLOBAL_MOTION
-#if CONFIG_WARPED_MOTION
-      xd,
-#endif
-      mi);
+      xd, mi);
 
   // Check that the input mode is not illegal
   if (last_motion_mode_allowed < mode)
@@ -1511,7 +1498,6 @@ static INLINE int is_neighbor_overlappable(const MB_MODE_INFO *mbmi) {
   return (is_inter_block(mbmi));
 }
 #endif  // CONFIG_MOTION_VAR
-#endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
 
 static INLINE int av1_allow_palette(int allow_screen_content_tools,
                                     BLOCK_SIZE sb_type) {

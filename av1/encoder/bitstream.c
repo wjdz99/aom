@@ -404,7 +404,6 @@ static void write_is_inter(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   }
 }
 
-#if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
 static void write_motion_mode(const AV1_COMMON *cm, MACROBLOCKD *xd,
                               const MODE_INFO *mi, aom_writer *w) {
   const MB_MODE_INFO *mbmi = &mi->mbmi;
@@ -419,12 +418,9 @@ static void write_motion_mode(const AV1_COMMON *cm, MACROBLOCKD *xd,
 #if CONFIG_GLOBAL_MOTION
       0, cm->global_motion,
 #endif  // CONFIG_GLOBAL_MOTION
-#if CONFIG_WARPED_MOTION
-      xd,
-#endif
-      mi);
+      xd, mi);
   if (last_motion_mode_allowed == SIMPLE_TRANSLATION) return;
-#if CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
+#if CONFIG_MOTION_VAR
 #if CONFIG_NCOBMC_ADAPT_WEIGHT
   if (last_motion_mode_allowed == NCOBMC_ADAPT_WEIGHT) {
     aom_write_symbol(w, mbmi->motion_mode,
@@ -445,13 +441,13 @@ static void write_motion_mode(const AV1_COMMON *cm, MACROBLOCKD *xd,
 #endif
   } else {
 #endif  // CONFIG_NCOBMC_ADAPT_WEIGHT
-#endif  // CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
+#endif  // CONFIG_MOTION_VAR
     aom_write_symbol(w, mbmi->motion_mode,
                      xd->tile_ctx->motion_mode_cdf[mbmi->sb_type],
                      MOTION_MODES);
-#if CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
+#if CONFIG_MOTION_VAR
   }
-#endif  // CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
+#endif  // CONFIG_MOTION_VAR
 }
 
 #if CONFIG_NCOBMC_ADAPT_WEIGHT
@@ -469,7 +465,6 @@ static void write_ncobmc_mode(MACROBLOCKD *xd, const MODE_INFO *mi,
   }
 }
 #endif
-#endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
 
 static void write_delta_qindex(const AV1_COMMON *cm, const MACROBLOCKD *xd,
                                int delta_qindex, aom_writer *w) {
@@ -1668,10 +1663,6 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
         assert(mbmi->ref_mv_idx == 0);
     }
 
-#if !CONFIG_DUAL_FILTER && !CONFIG_WARPED_MOTION && !CONFIG_GLOBAL_MOTION
-    write_mb_interp_filter(cpi, xd, w);
-#endif  // !CONFIG_DUAL_FILTER && !CONFIG_WARPED_MOTION
-
     if (mode == NEWMV || mode == NEW_NEWMV) {
       int_mv ref_mv;
       for (ref = 0; ref < 1 + is_compound; ++ref) {
@@ -1751,12 +1742,10 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
     }
 #endif  // CONFIG_INTERINTRA
 
-#if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
     if (mbmi->ref_frame[1] != INTRA_FRAME) write_motion_mode(cm, xd, mi, w);
 #if CONFIG_NCOBMC_ADAPT_WEIGHT
     write_ncobmc_mode(xd, mi, w);
 #endif
-#endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
 
     if (
 #if CONFIG_COMPOUND_SINGLEREF
@@ -1799,9 +1788,7 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
 #endif  // CONFIG_COMPOUND_SEGMENT || CONFIG_WEDGE
     }
 
-#if CONFIG_DUAL_FILTER || CONFIG_WARPED_MOTION || CONFIG_GLOBAL_MOTION
     write_mb_interp_filter(cpi, xd, w);
-#endif  // CONFIG_DUAL_FILTE || CONFIG_WARPED_MOTION
   }
 
 #if !CONFIG_TXK_SEL
@@ -2100,7 +2087,6 @@ static void write_mbmi_b(AV1_COMP *cpi, const TileInfo *const tile,
         cm->above_txfm_context + (mi_col << TX_UNIT_WIDE_LOG2);
     xd->left_txfm_context = xd->left_txfm_context_buffer +
                             ((mi_row & MAX_MIB_MASK) << TX_UNIT_HIGH_LOG2);
-#if CONFIG_DUAL_FILTER || CONFIG_WARPED_MOTION
     // has_subpel_mv_component needs the ref frame buffers set up to look
     // up if they are scaled. has_subpel_mv_component is in turn needed by
     // write_switchable_interp_filter, which is called by pack_inter_mode_mvs.
@@ -2109,7 +2095,6 @@ static void write_mbmi_b(AV1_COMP *cpi, const TileInfo *const tile,
     if (!has_second_ref(&m->mbmi) && is_inter_singleref_comp_mode(m->mbmi.mode))
       xd->block_refs[1] = xd->block_refs[0];
 #endif  // CONFIG_COMPOUND_SINGLEREF
-#endif  // CONFIG_DUAL_FILTER || CONFIG_WARPED_MOTION
 
 #if ENC_MISMATCH_DEBUG
     enc_dump_logs(cpi, mi_row, mi_col);
@@ -3099,13 +3084,9 @@ static void fix_interp_filter(AV1_COMMON *cm, FRAME_COUNTS *counts) {
       // Only one filter is used. So set the filter at frame level
       for (i = 0; i < SWITCHABLE_FILTERS; ++i) {
         if (count[i]) {
-#if CONFIG_MOTION_VAR && (CONFIG_WARPED_MOTION || CONFIG_GLOBAL_MOTION)
-#if CONFIG_WARPED_MOTION
+#if CONFIG_MOTION_VAR
           if (i == EIGHTTAP_REGULAR || WARP_WM_NEIGHBORS_WITH_OBMC)
-#else
-          if (i == EIGHTTAP_REGULAR || WARP_GM_NEIGHBORS_WITH_OBMC)
-#endif  // CONFIG_WARPED_MOTION
-#endif  // CONFIG_MOTION_VAR && (CONFIG_WARPED_MOTION || CONFIG_GLOBAL_MOTION)
+#endif  // CONFIG_MOTION_VAR
             cm->interp_filter = i;
           break;
         }

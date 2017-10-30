@@ -42,9 +42,7 @@
 #if CONFIG_LV_MAP
 #include "av1/common/txb_common.h"
 #endif
-#if CONFIG_WARPED_MOTION
 #include "av1/common/warped_motion.h"
-#endif  // CONFIG_WARPED_MOTION
 
 #include "av1/encoder/aq_variance.h"
 #include "av1/encoder/av1_quantize.h"
@@ -5893,7 +5891,6 @@ static void joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
   int_mv ref_mv[2];
   int ite, ref;
   struct scale_factors sf;
-#if CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
   // ic and ir are the 4x4 coordinates of the sub8x8 at index "block"
   const int ic = block & 1;
   const int ir = (block - ic) >> 1;
@@ -5916,9 +5913,6 @@ static void joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
   if (!has_second_ref(mbmi)) is_global[1] = is_global[0];
 #endif  // CONFIG_COMPOUND_SINGLEREF
 #endif  // CONFIG_GLOBAL_MOTION
-#else   // CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
-  (void)block;
-#endif  // CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
 
   // Do joint motion search in compound mode to get more accurate mv.
   struct buf_2d backup_yv12[2][MAX_MB_PLANE];
@@ -6017,15 +6011,11 @@ static void joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
     conv_params.fwd_offset = -1;
     conv_params.bck_offset = -1;
 #endif
-#if CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
     WarpTypesAllowed warp_types;
 #if CONFIG_GLOBAL_MOTION
     warp_types.global_warp_allowed = is_global[!id];
 #endif  // CONFIG_GLOBAL_MOTION
-#if CONFIG_WARPED_MOTION
     warp_types.local_warp_allowed = mbmi->motion_mode == WARPED_CAUSAL;
-#endif  // CONFIG_WARPED_MOTION
-#endif  // CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
 
     // Initialized here because of compiler problem in Visual Studio.
     ref_yv12[0] = xd->plane[plane].pre[0];
@@ -6056,10 +6046,8 @@ static void joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
 #else
           &sf, pw, ph, 0, mbmi->interp_filters,
 #endif  // CONFIG_JNT_COMP
-#if CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
-          &warp_types, p_col, p_row,
-#endif  // CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
-          plane, MV_PRECISION_Q3, mi_col * MI_SIZE, mi_row * MI_SIZE, xd);
+          &warp_types, p_col, p_row, plane, MV_PRECISION_Q3, mi_col * MI_SIZE,
+          mi_row * MI_SIZE, xd);
     } else {
       second_pred = (uint8_t *)second_pred_alloc_16;
 #endif  // CONFIG_HIGHBITDEPTH
@@ -6075,10 +6063,8 @@ static void joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
 #else
         &sf, pw, ph, &conv_params, mbmi->interp_filters,
 #endif  // CONFIG_JNT_COMP
-#if CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
-          &warp_types, p_col, p_row, plane, !id,
-#endif  // CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
-          MV_PRECISION_Q3, mi_col * MI_SIZE, mi_row * MI_SIZE, xd);
+          &warp_types, p_col, p_row, plane, !id, MV_PRECISION_Q3,
+          mi_col * MI_SIZE, mi_row * MI_SIZE, xd);
 #if CONFIG_HIGHBITDEPTH
     }
 #endif  // CONFIG_HIGHBITDEPTH
@@ -6749,7 +6735,6 @@ static void build_second_inter_pred(const AV1_COMP *cpi, MACROBLOCK *x,
   const int other_ref = mbmi->ref_frame[!ref_idx];
 #endif  // CONFIG_COMPOUND_SINGLEREF
   struct scale_factors sf;
-#if CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
   struct macroblockd_plane *const pd = &xd->plane[0];
   // ic and ir are the 4x4 coordinates of the sub8x8 at index "block"
   const int ic = block & 1;
@@ -6760,9 +6745,6 @@ static void build_second_inter_pred(const AV1_COMP *cpi, MACROBLOCK *x,
   WarpedMotionParams *const wm = &xd->global_motion[other_ref];
   int is_global = is_global_mv_block(xd->mi[0], block, wm->wmtype);
 #endif  // CONFIG_GLOBAL_MOTION
-#else
-  (void)block;
-#endif  // CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
 
 // This function should only ever be called for compound modes
 #if CONFIG_COMPOUND_SINGLEREF
@@ -6799,15 +6781,11 @@ static void build_second_inter_pred(const AV1_COMP *cpi, MACROBLOCK *x,
 
   const int plane = 0;
   ConvolveParams conv_params = get_conv_params(!ref_idx, 0, plane);
-#if CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
   WarpTypesAllowed warp_types;
 #if CONFIG_GLOBAL_MOTION
   warp_types.global_warp_allowed = is_global;
 #endif  // CONFIG_GLOBAL_MOTION
-#if CONFIG_WARPED_MOTION
   warp_types.local_warp_allowed = mbmi->motion_mode == WARPED_CAUSAL;
-#endif  // CONFIG_WARPED_MOTION
-#endif  // CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
 
   // Initialized here because of compiler problem in Visual Studio.
   ref_yv12 = xd->plane[plane].pre[!ref_idx];
@@ -6817,20 +6795,14 @@ static void build_second_inter_pred(const AV1_COMP *cpi, MACROBLOCK *x,
   if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
     av1_highbd_build_inter_predictor(
         ref_yv12.buf, ref_yv12.stride, second_pred, pw, other_mv, &sf, pw, ph,
-        0, mbmi->interp_filters,
-#if CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
-        &warp_types, p_col, p_row,
-#endif  // CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
-        plane, MV_PRECISION_Q3, mi_col * MI_SIZE, mi_row * MI_SIZE, xd);
+        0, mbmi->interp_filters, &warp_types, p_col, p_row, plane,
+        MV_PRECISION_Q3, mi_col * MI_SIZE, mi_row * MI_SIZE, xd);
   } else {
 #endif  // CONFIG_HIGHBITDEPTH
     av1_build_inter_predictor(
         ref_yv12.buf, ref_yv12.stride, second_pred, pw, other_mv, &sf, pw, ph,
-        &conv_params, mbmi->interp_filters,
-#if CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
-        &warp_types, p_col, p_row, plane, !ref_idx,
-#endif  // CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
-        MV_PRECISION_Q3, mi_col * MI_SIZE, mi_row * MI_SIZE, xd);
+        &conv_params, mbmi->interp_filters, &warp_types, p_col, p_row, plane,
+        !ref_idx, MV_PRECISION_Q3, mi_col * MI_SIZE, mi_row * MI_SIZE, xd);
 #if CONFIG_HIGHBITDEPTH
   }
 #endif  // CONFIG_HIGHBITDEPTH
@@ -7920,7 +7892,6 @@ int64_t interpolation_filter_search(
   return 0;
 }
 
-#if CONFIG_WARPED_MOTION || CONFIG_MOTION_VAR
 #if CONFIG_DUAL_FILTER
 static InterpFilters condition_interp_filters_on_mv(
     InterpFilters interp_filters, const MACROBLOCKD *xd) {
@@ -7933,7 +7904,6 @@ static InterpFilters condition_interp_filters_on_mv(
   return av1_make_interp_filters(filters[0], filters[1]);
 }
 #endif
-#endif  // CONFIG_WARPED_MOTION || CONFIG_MOTION_VAR
 
 // TODO(afergs): Refactor the MBMI references in here - there's four
 // TODO(afergs): Refactor optional args - add them to a struct or remove
@@ -7943,12 +7913,10 @@ static int64_t motion_mode_rd(
     int *disable_skip, int_mv (*mode_mv)[TOTAL_REFS_PER_FRAME], int mi_row,
     int mi_col, HandleInterModeArgs *const args, const int64_t ref_best_rd,
     const int *refs, int rate_mv,
-#if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
     // only used when WARPED_MOTION is on?
     int_mv *const single_newmv, int rate2_bmc_nocoeff,
-    MB_MODE_INFO *best_bmc_mbmi, int rate_mv_bmc,
-#endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
-    int rs, int *skip_txfm_sb, int64_t *skip_sse_sb, BUFFER_SET *orig_dst) {
+    MB_MODE_INFO *best_bmc_mbmi, int rate_mv_bmc, int rs, int *skip_txfm_sb,
+    int64_t *skip_sse_sb, BUFFER_SET *orig_dst) {
   const AV1_COMMON *const cm = &cpi->common;
   MACROBLOCKD *xd = &x->e_mbd;
   MODE_INFO *mi = xd->mi[0];
@@ -7964,19 +7932,13 @@ static int64_t motion_mode_rd(
   (void)rate_mv;
   (void)is_comp_pred;
   (void)this_mode;
-#if !CONFIG_WARPED_MOTION && CONFIG_MOTION_VAR
-  (void)single_newmv;
-#endif
 
-#if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
   MOTION_MODE motion_mode, last_motion_mode_allowed;
   int rate2_nocoeff = 0, best_xskip, best_disable_skip = 0;
   RD_STATS best_rd_stats, best_rd_stats_y, best_rd_stats_uv;
   MB_MODE_INFO base_mbmi, best_mbmi;
   uint8_t best_blk_skip[MAX_MB_PLANE][MAX_MIB_SIZE * MAX_MIB_SIZE * 4];
-#endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
 
-#if CONFIG_WARPED_MOTION
 #if CONFIG_EXT_WARPED_MOTION
   int pts0[SAMPLES_ARRAY_SIZE], pts_inref0[SAMPLES_ARRAY_SIZE];
   int pts_mv0[SAMPLES_ARRAY_SIZE];
@@ -7984,14 +7946,10 @@ static int64_t motion_mode_rd(
 #else
   int pts[SAMPLES_ARRAY_SIZE], pts_inref[SAMPLES_ARRAY_SIZE];
 #endif  // CONFIG_EXT_WARPED_MOTION
-#endif  // CONFIG_WARPED_MOTION
 
-#if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
   av1_invalid_rd_stats(&best_rd_stats);
-#endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
 
   if (cm->interp_filter == SWITCHABLE) rd_stats->rate += rs;
-#if CONFIG_WARPED_MOTION
   aom_clear_system_state();
 #if CONFIG_EXT_WARPED_MOTION
   mbmi->num_proj_ref[0] =
@@ -8001,21 +7959,14 @@ static int64_t motion_mode_rd(
   mbmi->num_proj_ref[0] = findSamples(cm, xd, mi_row, mi_col, pts, pts_inref);
 #endif  // CONFIG_EXT_WARPED_MOTION
   best_bmc_mbmi->num_proj_ref[0] = mbmi->num_proj_ref[0];
-#endif  // CONFIG_WARPED_MOTION
-#if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
   rate2_nocoeff = rd_stats->rate;
   last_motion_mode_allowed = motion_mode_allowed(
 #if CONFIG_GLOBAL_MOTION
       0, xd->global_motion,
 #endif  // CONFIG_GLOBAL_MOTION
-#if CONFIG_WARPED_MOTION
-      xd,
-#endif
-      mi);
+      xd, mi);
   base_mbmi = *mbmi;
-#endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
 
-#if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
   int64_t best_rd = INT64_MAX;
   for (motion_mode = SIMPLE_TRANSLATION;
        motion_mode <= last_motion_mode_allowed; motion_mode++) {
@@ -8069,7 +8020,6 @@ static int64_t motion_mode_rd(
     }
 #endif  // CONFIG_MOTION_VAR
 
-#if CONFIG_WARPED_MOTION
     if (mbmi->motion_mode == WARPED_CAUSAL) {
 #if CONFIG_EXT_WARPED_MOTION
       int pts[SAMPLES_ARRAY_SIZE], pts_inref[SAMPLES_ARRAY_SIZE];
@@ -8153,7 +8103,6 @@ static int64_t motion_mode_rd(
         continue;
       }
     }
-#endif  // CONFIG_WARPED_MOTION
     x->skip = 0;
 
     rd_stats->dist = 0;
@@ -8161,21 +8110,18 @@ static int64_t motion_mode_rd(
     rd_stats->skip = 1;
     rd_stats->rate = tmp_rate2;
     if (last_motion_mode_allowed > SIMPLE_TRANSLATION) {
-#if CONFIG_WARPED_MOTION && CONFIG_MOTION_VAR
+#if CONFIG_MOTION_VAR
       if (last_motion_mode_allowed == WARPED_CAUSAL)
-#endif  // CONFIG_WARPED_MOTION && CONFIG_MOTION_VAR
+#endif  // CONFIG_MOTION_VAR
         rd_stats->rate += x->motion_mode_cost[bsize][mbmi->motion_mode];
-#if CONFIG_WARPED_MOTION && CONFIG_MOTION_VAR
+#if CONFIG_MOTION_VAR
       else
         rd_stats->rate += x->motion_mode_cost1[bsize][mbmi->motion_mode];
-#endif  // CONFIG_WARPED_MOTION && CONFIG_MOTION_VAR
+#endif  // CONFIG_MOTION_VAR
     }
-#if CONFIG_WARPED_MOTION
     if (mbmi->motion_mode == WARPED_CAUSAL) {
       rd_stats->rate -= rs;
     }
-#endif  // CONFIG_WARPED_MOTION
-#endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
     if (!*skip_txfm_sb) {
       int64_t rdcosty = INT64_MAX;
       int is_cost_valid_uv = 0;
@@ -8197,16 +8143,12 @@ static int64_t motion_mode_rd(
 
       if (rd_stats_y->rate == INT_MAX) {
         av1_invalid_rd_stats(rd_stats);
-#if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
         if (mbmi->motion_mode != SIMPLE_TRANSLATION) {
           continue;
         } else {
-#endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
           restore_dst_buf(xd, *orig_dst);
           return INT64_MAX;
-#if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
         }
-#endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
       }
 
       av1_merge_rd_stats(rd_stats, rd_stats_y);
@@ -8217,12 +8159,7 @@ static int64_t motion_mode_rd(
       is_cost_valid_uv =
           inter_block_uvrd(cpi, x, rd_stats_uv, bsize, ref_best_rd - rdcosty);
       if (!is_cost_valid_uv) {
-#if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
         continue;
-#else
-        restore_dst_buf(xd, *orig_dst);
-        return INT64_MAX;
-#endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
       }
       /* clang-format on */
       av1_merge_rd_stats(rd_stats, rd_stats_uv);
@@ -8234,7 +8171,6 @@ static int64_t motion_mode_rd(
       // other place when we need to compare non-coefficient cost.
       mbmi->rd_stats = *rd_stats;
 #endif  // CONFIG_RD_DEBUG
-#if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
       const int skip_ctx = av1_get_skip_context(xd);
       if (rd_stats->skip) {
         rd_stats->rate -= rd_stats_uv->rate + rd_stats_y->rate;
@@ -8261,16 +8197,13 @@ static int64_t motion_mode_rd(
         mbmi->skip = 0;
       }
       *disable_skip = 0;
-#endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
     } else {
       x->skip = 1;
       *disable_skip = 1;
       mbmi->tx_size = tx_size_from_tx_mode(bsize, cm->tx_mode, 1);
 
-// The cost of skip bit needs to be added.
-#if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
+      // The cost of skip bit needs to be added.
       mbmi->skip = 0;
-#endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
       rd_stats->rate += x->skip_cost[av1_get_skip_context(xd)][1];
 
       rd_stats->dist = *skip_sse_sb;
@@ -8290,7 +8223,6 @@ static int64_t motion_mode_rd(
     }
 #endif  // CONFIG_GLOBAL_MOTION
 
-#if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
     tmp_rd = RDCOST(x->rdmult, rd_stats->rate, rd_stats->dist);
     if (mbmi->motion_mode == SIMPLE_TRANSLATION || (tmp_rd < best_rd)) {
       best_mbmi = *mbmi;
@@ -8320,7 +8252,6 @@ static int64_t motion_mode_rd(
            sizeof(uint8_t) * xd->n8_h * xd->n8_w * 4);
   x->skip = best_xskip;
   *disable_skip = best_disable_skip;
-#endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
 
   restore_dst_buf(xd, *orig_dst);
   return 0;
@@ -8375,11 +8306,9 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
 #endif  // CONFIG_HIGHBITDEPTH
   uint8_t *tmp_buf;
 
-#if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
   int rate2_bmc_nocoeff;
   MB_MODE_INFO best_bmc_mbmi;
   int rate_mv_bmc;
-#endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
   int64_t rd = INT64_MAX;
   BUFFER_SET orig_dst, tmp_dst;
   int rs = 0;
@@ -8435,10 +8364,8 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   // to tmp_buf at the end of the last iteration
   assert(xd->plane[0].dst.buf != tmp_buf);
 
-#if CONFIG_WARPED_MOTION
   mbmi->num_proj_ref[0] = 0;
   mbmi->num_proj_ref[1] = 0;
-#endif  // CONFIG_WARPED_MOTION
 
   if (is_comp_pred) {
     if (frame_mv[refs[0]].as_int == INVALID_MV ||
@@ -8623,12 +8550,10 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
       &rd, &rs, &skip_txfm_sb, &skip_sse_sb);
   if (ret_val != 0) return ret_val;
 
-#if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
   best_bmc_mbmi = *mbmi;
   rate2_bmc_nocoeff = rd_stats->rate;
   if (cm->interp_filter == SWITCHABLE) rate2_bmc_nocoeff += rs;
   rate_mv_bmc = rate_mv;
-#endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
 
 #if CONFIG_WEDGE || CONFIG_COMPOUND_SEGMENT
 #if CONFIG_COMPOUND_SINGLEREF
@@ -8992,21 +8917,17 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
 
 #if CONFIG_INTERINTRA
   rd_stats->rate += compmode_interintra_cost;
-#if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
   rate2_bmc_nocoeff += compmode_interintra_cost;
-#endif
 #endif
 #if CONFIG_WEDGE || CONFIG_COMPOUND_SEGMENT
   rd_stats->rate += compmode_interinter_cost;
 #endif
 
-  ret_val = motion_mode_rd(
-      cpi, x, bsize, rd_stats, rd_stats_y, rd_stats_uv, disable_skip, mode_mv,
-      mi_row, mi_col, args, ref_best_rd, refs, rate_mv,
-#if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
-      single_newmv, rate2_bmc_nocoeff, &best_bmc_mbmi, rate_mv_bmc,
-#endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
-      rs, &skip_txfm_sb, &skip_sse_sb, &orig_dst);
+  ret_val = motion_mode_rd(cpi, x, bsize, rd_stats, rd_stats_y, rd_stats_uv,
+                           disable_skip, mode_mv, mi_row, mi_col, args,
+                           ref_best_rd, refs, rate_mv, single_newmv,
+                           rate2_bmc_nocoeff, &best_bmc_mbmi, rate_mv_bmc, rs,
+                           &skip_txfm_sb, &skip_sse_sb, &orig_dst);
   if (ret_val != 0) return ret_val;
 
   return 0;  // The rate-distortion cost will be re-calculated by caller.
@@ -10615,25 +10536,8 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
           }
 
           if (tmp_alt_rd < INT64_MAX) {
-#if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
             tmp_alt_rd =
                 RDCOST(x->rdmult, tmp_rd_stats.rate, tmp_rd_stats.dist);
-#else
-            if (RDCOST(x->rdmult, tmp_rd_stats_y.rate + tmp_rd_stats_uv.rate,
-                       tmp_rd_stats.dist) <
-                RDCOST(x->rdmult, 0, tmp_rd_stats.sse))
-              tmp_alt_rd = RDCOST(
-                  x->rdmult,
-                  tmp_rd_stats.rate + x->skip_cost[av1_get_skip_context(xd)][0],
-                  tmp_rd_stats.dist);
-            else
-              tmp_alt_rd =
-                  RDCOST(x->rdmult,
-                         tmp_rd_stats.rate +
-                             x->skip_cost[av1_get_skip_context(xd)][1] -
-                             tmp_rd_stats_y.rate - tmp_rd_stats_uv.rate,
-                         tmp_rd_stats.sse);
-#endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
           }
 
           if (tmp_ref_rd > tmp_alt_rd) {
@@ -10700,12 +10604,7 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
     }
 #endif  // CONFIG_COMPOUND_SINGLEREF
 
-#if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
-    if (ref_frame == INTRA_FRAME)
-#else
-    if (!disable_skip)
-#endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
-    {
+    if (ref_frame == INTRA_FRAME) {
       if (skippable) {
         // Back out the coefficient coding costs
         rate2 -= (rate_y + rate_uv);
@@ -10735,7 +10634,6 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
 
       // Calculate the final RD estimate for this mode.
       this_rd = RDCOST(x->rdmult, rate2, distortion2);
-#if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
     } else {
       this_skip2 = mbmi->skip;
       this_rd = RDCOST(x->rdmult, rate2, distortion2);
@@ -10743,7 +10641,6 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
         rate_y = 0;
         rate_uv = 0;
       }
-#endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
     }
 
     if (ref_frame == INTRA_FRAME) {
@@ -11171,17 +11068,11 @@ PALETTE_EXIT:
 // ZEROMV by the all-zero mode handling of ref-mv.
 #if CONFIG_GLOBAL_MOTION
   if (mbmi->mode == ZEROMV || mbmi->mode == ZERO_ZEROMV) {
-#if CONFIG_WARPED_MOTION || CONFIG_MOTION_VAR
     // Correct the motion mode for ZEROMV
     const MOTION_MODE last_motion_mode_allowed =
-        motion_mode_allowed(0, xd->global_motion,
-#if CONFIG_WARPED_MOTION
-                            xd,
-#endif
-                            xd->mi[0]);
+        motion_mode_allowed(0, xd->global_motion, xd, xd->mi[0]);
     if (mbmi->motion_mode > last_motion_mode_allowed)
       mbmi->motion_mode = last_motion_mode_allowed;
-#endif  // CONFIG_WARPED_MOTION || CONFIG_MOTION_VAR
 
     // Correct the interpolation filter for ZEROMV
     if (is_nontrans_global_motion(xd)) {
@@ -11297,7 +11188,6 @@ void av1_rd_pick_inter_mode_sb_seg_skip(const AV1_COMP *cpi,
 #if CONFIG_MOTION_VAR
   av1_count_overlappable_neighbors(cm, xd, mi_row, mi_col);
 #endif
-#if CONFIG_WARPED_MOTION
   if (is_motion_variation_allowed_bsize(bsize) && !has_second_ref(mbmi)) {
     int pts[SAMPLES_ARRAY_SIZE], pts_inref[SAMPLES_ARRAY_SIZE];
 #if CONFIG_EXT_WARPED_MOTION
@@ -11312,7 +11202,6 @@ void av1_rd_pick_inter_mode_sb_seg_skip(const AV1_COMP *cpi,
     mbmi->num_proj_ref[0] = findSamples(cm, xd, mi_row, mi_col, pts, pts_inref);
 #endif  // CONFIG_EXT_WARPED_MOTION
   }
-#endif
 
   set_default_interp_filters(mbmi, cm->interp_filter);
 
@@ -11731,16 +11620,13 @@ int64_t get_prediction_rd_cost(const struct AV1_COMP *cpi, struct macroblock *x,
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
   BLOCK_SIZE bsize = mbmi->sb_type;
-#if CONFIG_NCOBMC_ADAPT_WEIGHT && CONFIG_WARPED_MOTION
+#if CONFIG_NCOBMC_ADAPT_WEIGHT
   const MOTION_MODE motion_allowed = motion_mode_allowed(
 #if CONFIG_GLOBAL_MOTION
       0, xd->global_motion,
 #endif  // CONFIG_GLOBAL_MOTION
-#if CONFIG_WARPED_MOTION
-      xd,
-#endif
-      xd->mi[0]);
-#endif  // CONFIG_NCOBMC_ADAPT_WEIGHT && CONFIG_WARPED_MOTION
+      xd, xd->mi[0]);
+#endif  // CONFIG_NCOBMC_ADAPT_WEIGHT
   RD_STATS rd_stats_y, rd_stats_uv;
   const int skip_ctx = av1_get_skip_context(xd);
   int rate_skip0 = x->skip_cost[skip_ctx][0];
@@ -11823,7 +11709,7 @@ int64_t get_prediction_rd_cost(const struct AV1_COMP *cpi, struct macroblock *x,
 
   this_rd = RDCOST(x->rdmult, (rd_stats_y.rate + rd_stats_uv.rate),
                    (rd_stats_y.dist + rd_stats_uv.dist));
-#if CONFIG_NCOBMC_ADAPT_WEIGHT && CONFIG_WARPED_MOTION
+#if CONFIG_NCOBMC_ADAPT_WEIGHT
   if (motion_allowed == NCOBMC_ADAPT_WEIGHT) {
     assert(mbmi->motion_mode <= NCOBMC_ADAPT_WEIGHT);
     this_rd +=
@@ -11833,12 +11719,12 @@ int64_t get_prediction_rd_cost(const struct AV1_COMP *cpi, struct macroblock *x,
     this_rd +=
         RDCOST(x->rdmult, x->motion_mode_cost1[bsize][mbmi->motion_mode], 0);
   } else {
-#endif  // CONFIG_NCOBMC_ADAPT_WEIGHT && CONFIG_WARPED_MOTION
+#endif  // CONFIG_NCOBMC_ADAPT_WEIGHT
     this_rd +=
         RDCOST(x->rdmult, x->motion_mode_cost[bsize][mbmi->motion_mode], 0);
-#if CONFIG_NCOBMC_ADAPT_WEIGHT && CONFIG_WARPED_MOTION
+#if CONFIG_NCOBMC_ADAPT_WEIGHT
   }
-#endif  // CONFIG_NCOBMC_ADAPT_WEIGHT && CONFIG_WARPED_MOTION
+#endif  // CONFIG_NCOBMC_ADAPT_WEIGHT
   return this_rd;
 }
 
@@ -11856,38 +11742,30 @@ void av1_check_ncobmc_adapt_weight_rd(const struct AV1_COMP *cpi,
   MB_MODE_INFO st_mbmi, obmc_mbmi, ncobmc_mbmi;
   int st_skip, obmc_skip, ncobmc_skip;
   int64_t st_rd, obmc_rd, ncobmc_rd;
-#if CONFIG_WARPED_MOTION
   const AV1_COMMON *const cm = &cpi->common;
   const int is_warp_motion = mbmi->motion_mode == WARPED_CAUSAL;
   const int rs = RDCOST(x->rdmult, av1_get_switchable_rate(cm, x, xd), 0);
   MB_MODE_INFO warp_mbmi;
   int64_t warp_rd;
   int warp_skip;
-#endif
 
   // Recompute the rd for the motion mode decided in rd loop
   mbmi->motion_mode = SIMPLE_TRANSLATION;
   st_rd = get_prediction_rd_cost(cpi, x, mi_row, mi_col, &st_skip, &st_mbmi);
-#if CONFIG_WARPED_MOTION
   st_rd += rs;
-#endif
   memcpy(st_blk_skip, x->blk_skip[0], sizeof(st_blk_skip[0]) * n4);
 
   mbmi->motion_mode = OBMC_CAUSAL;
   obmc_rd =
       get_prediction_rd_cost(cpi, x, mi_row, mi_col, &obmc_skip, &obmc_mbmi);
-#if CONFIG_WARPED_MOTION
   obmc_rd += rs;
-#endif
   memcpy(obmc_blk_skip, x->blk_skip[0], sizeof(obmc_blk_skip[0]) * n4);
 
   // Compute the rd cost for ncobmc adaptive weight
   mbmi->motion_mode = NCOBMC_ADAPT_WEIGHT;
   ncobmc_rd = get_prediction_rd_cost(cpi, x, mi_row, mi_col, &ncobmc_skip,
                                      &ncobmc_mbmi);
-#if CONFIG_WARPED_MOTION
   ncobmc_rd += rs;
-#endif
   // Calculate the ncobmc mode costs
   {
     ADAPT_OVERLAP_BLOCK aob = adapt_overlap_block_lookup[bsize];
@@ -11899,7 +11777,6 @@ void av1_check_ncobmc_adapt_weight_rd(const struct AV1_COMP *cpi,
   }
   memcpy(ncobmc_blk_skip, x->blk_skip[0], sizeof(ncobmc_blk_skip[0]) * n4);
 
-#if CONFIG_WARPED_MOTION
   if (is_warp_motion) {
     mbmi->motion_mode = WARPED_CAUSAL;
     warp_rd =
@@ -11907,9 +11784,7 @@ void av1_check_ncobmc_adapt_weight_rd(const struct AV1_COMP *cpi,
   } else {
     warp_rd = INT64_MAX;
   }
-#endif
 
-#if CONFIG_WARPED_MOTION
   if (AOMMIN(ncobmc_rd, warp_rd) < AOMMIN(st_rd, obmc_rd)) {
     if (ncobmc_rd < warp_rd) {
       x->skip = ncobmc_skip;
@@ -11919,12 +11794,6 @@ void av1_check_ncobmc_adapt_weight_rd(const struct AV1_COMP *cpi,
       x->skip = warp_skip;
       *mbmi = warp_mbmi;
     }
-#else
-  if (ncobmc_rd < AOMMIN(st_rd, obmc_rd)) {
-    x->skip = ncobmc_skip;
-    *mbmi = ncobmc_mbmi;
-    memcpy(x->blk_skip[0], ncobmc_blk_skip, sizeof(ncobmc_blk_skip[0]) * n4);
-#endif  // CONFIG_WARPED_MOTION
   } else {
     if (obmc_rd < st_rd) {
       *mbmi = obmc_mbmi;
