@@ -245,6 +245,66 @@ static int raw_read_frame(FILE *infile, uint8_t **buffer, size_t *bytes_read,
   return 0;
 }
 
+#if CONFIG_OBU_NO_IVF
+static int obu_read_temporal_unit(FILE *infile, uint8_t **buffer,
+                                  size_t *bytes_read, size_t *buffer_size) {
+  size_t ret;
+  size_t obu_length_header_size = 5;
+  uint32_t obu_size = 0;
+  uint8_t *data = NULL;
+
+  if (feof(infile)) {
+    return 1;
+  }
+
+  *buffer_size = 0;
+  *bytes_read = 0;
+  while (1) {
+    // augment the buffer to just contain the next size field
+    // and the first byte of the header
+    *buffer = realloc(*buffer, (*buffer_size) + obu_length_header_size);
+    data = *buffer + (*buffer_size);
+    *buffer_size += obu_length_header_size;
+    ret = fread(data, 1, obu_length_header_size, infile);
+    if (ret == 0) {
+      fprintf(stderr, "Found end of stream, ending frame\n");
+      break;
+    }
+    if (ret != obu_length_header_size) {
+      warn("Failed to read OBU Header\n");
+      return 1;
+    }
+    *bytes_read += obu_length_header_size;
+
+    if (((data[4] >> 3) & 0xF) == 2) {
+      // Stop when a temporal delimiter is found
+      fprintf(stderr, "Found temporal delimiter, ending frame\n");
+      // prevent decoder to start decoding another frame from this buffer
+      *bytes_read -= obu_length_header_size;
+      break;
+    }
+
+    // otherwise, read the OBU payload into memory
+    obu_size = mem_get_le32(data);
+    fprintf(stderr, "Found OBU of type %d and size %d\n",
+            ((data[4] >> 3) & 0xF), obu_size);
+    obu_size--;  // removing the byte of the header already read
+    if (obu_size) {
+      *buffer = realloc(*buffer, (*buffer_size) + obu_size);
+      data = *buffer + (*buffer_size);
+      *buffer_size += obu_size;
+      ret = fread(data, 1, obu_size, infile);
+      if (ret != obu_size) {
+        warn("Failed to read OBU Payload\n");
+        return 1;
+      }
+      *bytes_read += obu_size;
+    }
+  }
+  return 0;
+}
+#endif
+
 static int read_frame(struct AvxDecInputContext *input, uint8_t **buf,
                       size_t *bytes_in_buffer, size_t *buffer_size) {
   switch (input->aom_input_ctx->file_type) {
@@ -258,6 +318,11 @@ static int read_frame(struct AvxDecInputContext *input, uint8_t **buf,
     case FILE_TYPE_IVF:
       return ivf_read_frame(input->aom_input_ctx->file, buf, bytes_in_buffer,
                             buffer_size);
+#if CONFIG_OBU_NO_IVF
+    case FILE_TYPE_OBU:
+      return obu_read_temporal_unit(input->aom_input_ctx->file, buf,
+                                    bytes_in_buffer, buffer_size);
+#endif
     default: return 1;
   }
 }
@@ -303,6 +368,34 @@ static void write_image_file(const aom_image_t *img, const int planes[3],
     }
   }
 }
+
+#if CONFIG_OBU_NO_IVF
+static int file_is_obu(struct AvxInputContext *input_ctx) {
+  uint8_t obutd[5];
+  int size;
+
+  input_ctx->fourcc = 0;  // Should be AV01
+  // The following fields should be read from the OBU SH
+  input_ctx->width = 0;
+  input_ctx->height = 0;
+  input_ctx->framerate.numerator = 1;
+  input_ctx->framerate.denominator = 0;
+
+  // Reading the first OBU TD to enable TU end detection at TD start.
+  fread(obutd, 1, 5, input_ctx->file);
+  size = mem_get_le32(obutd);
+  if (size != 1) {
+    warn("Expected first OBU size to be 1, got %d", size);
+    return 0;
+  }
+  if (((obutd[4] >> 3) & 0xF) != 2) {
+    warn("Expected OBU TD at file start, got %d\n", obutd[4]);
+    return 0;
+  }
+  fprintf(stderr, "Starting to parse OBU stream\n");
+  return 1;
+}
+#endif
 
 static int file_is_raw(struct AvxInputContext *input) {
   uint8_t buf[32];
@@ -663,6 +756,10 @@ static int main_loop(int argc, const char **argv_) {
 #if CONFIG_WEBM_IO
   else if (file_is_webm(input.webm_ctx, input.aom_input_ctx))
     input.aom_input_ctx->file_type = FILE_TYPE_WEBM;
+#endif
+#if CONFIG_OBU_NO_IVF
+  else if (file_is_obu(input.aom_input_ctx))
+    input.aom_input_ctx->file_type = FILE_TYPE_OBU;
 #endif
   else if (file_is_raw(input.aom_input_ctx))
     input.aom_input_ctx->file_type = FILE_TYPE_RAW;
