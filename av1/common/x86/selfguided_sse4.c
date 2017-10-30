@@ -681,8 +681,10 @@ void av1_selfguided_restoration_sse4_1(const uint8_t *dgd, int width,
   // We also align the stride to a multiple of 16 bytes for efficiency.
   int buf_stride = ((width_ext + 3) & ~3) + 16;
 
-  // Don't filter tiles with dimensions < 5 on any axis
-  if ((width < 5) || (height < 5)) return;
+  // We shouldn't ever be called for processing units which are 1 pixel high or
+  // wide. We can't handle them due to how we deal with processing unit edges
+  // and our caller should have detected that.
+  assert(width >= 2 && height >= 2 && "Processing unit is too small");
 
   const uint8_t *dgd0 =
       dgd - dgd_stride * SGRPROJ_BORDER_VERT - SGRPROJ_BORDER_HORZ;
@@ -1390,8 +1392,10 @@ void av1_selfguided_restoration_highbd_sse4_1(const uint16_t *dgd, int width,
   // We also align the stride to a multiple of 16 bytes for efficiency.
   int buf_stride = ((width_ext + 3) & ~3) + 16;
 
-  // Don't filter tiles with dimensions < 5 on any axis
-  if ((width < 5) || (height < 5)) return;
+  // We shouldn't ever be called for processing units which are 1 pixel high or
+  // wide. We can't handle them due to how we deal with processing unit edges
+  // and our caller should have detected that.
+  assert(width >= 2 && height >= 2 && "Processing unit is too small");
 
   const uint16_t *dgd0 =
       dgd - dgd_stride * SGRPROJ_BORDER_VERT - SGRPROJ_BORDER_HORZ;

@@ -792,8 +792,10 @@ static void av1_selfguided_restoration_internal(int32_t *dgd, int width,
   int8_t *num = num_ + SGRPROJ_BORDER_VERT * num_stride + SGRPROJ_BORDER_HORZ;
   int i, j;
 
-  // Don't filter tiles with dimensions < 5 on any axis
-  if ((width < 5) || (height < 5)) return;
+  // We shouldn't ever be called for processing units which are 1 pixel high or
+  // wide. We can't handle them due to how we deal with processing unit edges
+  // and our caller should have detected that.
+  assert(width >= 2 && height >= 2 && "Processing unit is too small");
 
   boxsum(dgd - dgd_stride * SGRPROJ_BORDER_VERT - SGRPROJ_BORDER_HORZ,
          width_ext, height_ext, dgd_stride, r, 0, B, buf_stride);
@@ -1121,8 +1123,30 @@ static void sgrproj_filter_stripe(const RestorationUnitInfo *rui,
   (void)bit_depth;
   assert(bit_depth == 8);
 
+  // The self-guided filter can't handle processing units less than 2
+  // pixels in any axis. If stripe_height < 2, this means we just do
+  // a memcpy for the single row.
+  if (stripe_height < 2) {
+    assert(stripe_height == 1);
+    memcpy(dst, src, stripe_width * sizeof(*dst));
+    return;
+  }
+
   for (int j = 0; j < stripe_width; j += procunit_width) {
     int w = AOMMIN(procunit_width, stripe_width - j);
+    // If w < 2, this must be the last processing unit and we just
+    // have a vertical line to copy
+    if (w < 2) {
+      assert(w == 1);
+      assert(j == stripe_width - 1);
+      for (int i = 0; i < stripe_height; ++i) {
+        dst[j + i * dst_stride] = src[j + i * src_stride];
+      }
+      break;
+    }
+
+    // Otherwise, this is the usual case, where we use
+    // apply_selfguided_restoration to do the work
     apply_selfguided_restoration(src + j, w, stripe_height, src_stride,
                                  rui->sgrproj_info.ep, rui->sgrproj_info.xqd,
                                  dst + j, dst_stride, tmpbuf);
@@ -1307,13 +1331,35 @@ static void sgrproj_filter_stripe_highbd(const RestorationUnitInfo *rui,
                                          const uint8_t *src8, int src_stride,
                                          uint8_t *dst8, int dst_stride,
                                          int32_t *tmpbuf, int bit_depth) {
+  const uint16_t *src = CONVERT_TO_SHORTPTR(src8);
+  uint16_t *dst = CONVERT_TO_SHORTPTR(dst8);
+
+  // The self-guided filter can't handle processing units less than 2
+  // pixels in any axis. If stripe_height < 2, this means we just do a
+  // memcpy for the single row.
+  if (stripe_height < 2) {
+    assert(stripe_height == 1);
+    memcpy(dst, src, stripe_width * sizeof(*dst));
+    return;
+  }
+
   for (int j = 0; j < stripe_width; j += procunit_width) {
     int w = AOMMIN(procunit_width, stripe_width - j);
-    const uint16_t *data_p = CONVERT_TO_SHORTPTR(src8) + j;
-    uint16_t *dst_p = CONVERT_TO_SHORTPTR(dst8) + j;
+
+    // If w < 2, this must be the last processing unit and we just
+    // have a vertical line to copy
+    if (w < 2) {
+      assert(w == 1);
+      assert(j == stripe_width - 1);
+      for (int i = 0; i < stripe_height; ++i) {
+        dst[j + i * dst_stride] = src[j + i * src_stride];
+      }
+      break;
+    }
+
     apply_selfguided_restoration_highbd(
-        data_p, w, stripe_height, src_stride, bit_depth, rui->sgrproj_info.ep,
-        rui->sgrproj_info.xqd, dst_p, dst_stride, tmpbuf);
+        src + j, w, stripe_height, src_stride, bit_depth, rui->sgrproj_info.ep,
+        rui->sgrproj_info.xqd, dst + j, dst_stride, tmpbuf);
   }
 }
 #endif  // CONFIG_HIGHBITDEPTH

@@ -324,9 +324,35 @@ static void apply_sgr(const sgr_params_type *params, const uint8_t *dat8,
     int32_t *flt2_row = flt2 + i * flt_stride;
     const uint8_t *dat8_row = dat8 + i * dat_stride;
 
-    // Iterate over the stripe in blocks of width pu_width
+    // If h < 2, this must be the last row. Don't do proper filtering and just
+    // copy the data across.
+    if (h < 2) {
+      assert(height - i == 1);
+      for (int j = 0; j < width; ++j) {
+        const uint8_t *dat_p = dat8_row + j;
+        int32_t val = use_highbd ? *CONVERT_TO_SHORTPTR(dat_p) : *dat_p;
+        flt2_row[j] = flt1_row[j] = val;
+      }
+      return;
+    }
+
+    // h is at least 2. Iterate over the stripe in blocks of width pu_width
     for (int j = 0; j < width; j += pu_width) {
       const int w = AOMMIN(pu_width, width - j);
+
+      // If w < 2, this is the last column and has width 1. Again,
+      // don't do proper filtering; just copy across.
+      if (w < 2) {
+        assert(width - j == 1);
+        for (int k = 0; k < width; ++k) {
+          const uint8_t *dat_p = dat8_row + k * dat_stride;
+          int32_t val = use_highbd ? *CONVERT_TO_SHORTPTR(dat_p) : *dat_p;
+          flt2_row[k * flt_stride] = flt1_row[k * flt_stride] = val;
+        }
+        break;
+      }
+
+      // Otherwise, do the usual filtering for the block
       sgr_filter_block(params, dat8_row + j, w, h, dat_stride, use_highbd,
                        bit_depth, flt1_row + j, flt2_row + j, flt_stride);
     }
