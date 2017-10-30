@@ -317,10 +317,24 @@ static void vfilter(const int32_t *src, int src_stride, int32_t *dst,
       CONV_BUF_TYPE sum = 1 << offset_bits;
       for (int k = 0; k < ntaps; ++k) sum += filter[k] * src_x[k];
       CONV_BUF_TYPE res = ROUND_POWER_OF_TWO(sum, conv_params->round_1) - sub32;
-      if (conv_params->do_average)
-        dst[y * dst_stride + x] += res;
-      else
-        dst[y * dst_stride + x] = res;
+#if CONFIG_JNT_COMP
+      if (conv_params->fwd_offset != -1 && conv_params->bck_offset != -1) {
+        if (conv_params->do_average) {
+          dst[y * dst_stride + x] += res * conv_params->bck_offset;
+
+          dst[y * dst_stride + x] >>= (DIST_PRECISION_BITS - 1);
+        } else {
+          dst[y * dst_stride + x] = res * conv_params->fwd_offset;
+        }
+      } else {
+#endif  // CONFIG_JNT_COMP
+        if (conv_params->do_average)
+          dst[y * dst_stride + x] += res;
+        else
+          dst[y * dst_stride + x] = res;
+#if CONFIG_JNT_COMP
+      }
+#endif  // CONFIG_JNT_COMP
     }
   }
 }
@@ -396,10 +410,24 @@ static void vfilter8(const int32_t *src, int src_stride, int32_t *dst,
       CONV_BUF_TYPE sum = 1 << offset_bits;
       for (int k = 0; k < ntaps; ++k) sum += filter[k] * src_x[k];
       CONV_BUF_TYPE res = ROUND_POWER_OF_TWO(sum, conv_params->round_1) - sub32;
-      if (conv_params->do_average)
-        dst[y * dst_stride + x] += res;
-      else
-        dst[y * dst_stride + x] = res;
+#if CONFIG_JNT_COMP
+      if (conv_params->fwd_offset != -1 && conv_params->bck_offset != -1) {
+        if (conv_params->do_average) {
+          dst[y * dst_stride + x] += res * conv_params->bck_offset;
+
+          dst[y * dst_stride + x] >>= (DIST_PRECISION_BITS - 1);
+        } else {
+          dst[y * dst_stride + x] = res * conv_params->fwd_offset;
+        }
+      } else {
+#endif  // CONFIG_JNT_COMP
+        if (conv_params->do_average)
+          dst[y * dst_stride + x] += res;
+        else
+          dst[y * dst_stride + x] = res;
+#if CONFIG_JNT_COMP
+      }
+#endif  // CONFIG_JNT_COMP
     }
   }
 }
