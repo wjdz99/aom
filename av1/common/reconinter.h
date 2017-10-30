@@ -20,13 +20,13 @@
 #endif  // CONFIG_GLOBAL_MOTION || CONFIG_WARPED_MOTION
 #include "aom/aom_integer.h"
 
-#if CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
+#if CONFIG_WARPED_MOTION
 #define WARP_WM_NEIGHBORS_WITH_OBMC 0
-#endif  // CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
+#endif  // CONFIG_WARPED_MOTION
 
-#if CONFIG_MOTION_VAR && CONFIG_GLOBAL_MOTION
+#if CONFIG_GLOBAL_MOTION
 #define WARP_GM_NEIGHBORS_WITH_OBMC 0
-#endif  // CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
+#endif  // CONFIG_GLOBAL_MOTION
 
 #define AOM_LEFT_TOP_MARGIN_SCALED \
   ((AOM_BORDER_IN_PIXELS - AOM_INTERP_EXTEND) << SCALE_SUBPEL_BITS)
@@ -499,7 +499,6 @@ static INLINE int av1_is_interp_search_needed(const MACROBLOCKD *const xd) {
   return 0;
 }
 
-#if CONFIG_MOTION_VAR
 const uint8_t *av1_get_obmc_mask(int length);
 void av1_count_overlappable_neighbors(const AV1_COMMON *cm, MACROBLOCKD *xd,
                                       int mi_row, int mi_col);
@@ -527,7 +526,6 @@ void av1_build_obmc_inter_predictors_sb(const AV1_COMMON *cm, MACROBLOCKD *xd,
 void av1_build_ncobmc_inter_predictors_sb(const AV1_COMMON *cm, MACROBLOCKD *xd,
                                           int mi_row, int mi_col);
 #endif
-#endif  // CONFIG_MOTION_VAR
 
 #define MASK_MASTER_SIZE ((MAX_WEDGE_SIZE) << 1)
 #define MASK_MASTER_STRIDE (MASK_MASTER_SIZE)

@@ -369,7 +369,6 @@ typedef struct MB_MODE_INFO {
   SEG_MASK_TYPE mask_type;
 #endif  // CONFIG_COMPOUND_SEGMENT
   MOTION_MODE motion_mode;
-#if CONFIG_MOTION_VAR
   int overlappable_neighbors[2];
 #if CONFIG_NCOBMC_ADAPT_WEIGHT
   // Applying different weighting kernels in ncobmc
@@ -378,7 +377,6 @@ typedef struct MB_MODE_INFO {
   // squared block has an interpolation mode.
   NCOBMC_MODE ncobmc_mode[2];
 #endif  // CONFIG_NCOBMC_ADAPT_WEIGHT
-#endif  // CONFIG_MOTION_VAR
   int_mv mv[2];
   int_mv pred_mv[2];
   uint8_t ref_mv_idx;
@@ -1396,7 +1394,6 @@ static INLINE int get_vartx_max_txsize(const MB_MODE_INFO *const mbmi,
   return max_txsize;
 }
 
-#if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
 static INLINE int is_motion_variation_allowed_bsize(BLOCK_SIZE bsize) {
   return AOMMIN(block_size_wide[bsize], block_size_high[bsize]) >= 8;
 }
@@ -1413,7 +1410,6 @@ static INLINE int is_motion_variation_allowed_compound(
     return 0;
 }
 
-#if CONFIG_MOTION_VAR
 // input: log2 of length, 0(4), 1(8), ...
 static const int max_neighbor_obmc[6] = { 0, 1, 2, 3, 4, 4 };
 
@@ -1429,7 +1425,6 @@ static INLINE NCOBMC_MODE ncobmc_mode_allowed_bsize(BLOCK_SIZE bsize) {
     return MAX_NCOBMC_MODES;
 }
 #endif  // CONFIG_NCOBMC_ADAPT_WEIGHT
-#endif  // CONFIG_MOTION_VAR
 
 static INLINE MOTION_MODE motion_mode_allowed(
 #if CONFIG_GLOBAL_MOTION
@@ -1453,9 +1448,7 @@ static INLINE MOTION_MODE motion_mode_allowed(
   if (is_motion_variation_allowed_bsize(mbmi->sb_type) &&
       is_inter_mode(mbmi->mode) && mbmi->ref_frame[1] != INTRA_FRAME &&
       is_motion_variation_allowed_compound(mbmi)) {
-#if CONFIG_MOTION_VAR
     if (!check_num_overlappable_neighbors(mbmi)) return SIMPLE_TRANSLATION;
-#endif
 #if CONFIG_WARPED_MOTION
     if (!has_second_ref(mbmi) && mbmi->num_proj_ref[0] >= 1 &&
         !av1_is_scaled(&(xd->block_refs[0]->sf))) {
@@ -1468,16 +1461,12 @@ static INLINE MOTION_MODE motion_mode_allowed(
     }
 
 #endif  // CONFIG_WARPED_MOTION
-#if CONFIG_MOTION_VAR
 #if CONFIG_NCOBMC_ADAPT_WEIGHT
     if (ncobmc_mode_allowed_bsize(mbmi->sb_type) < NO_OVERLAP)
       return NCOBMC_ADAPT_WEIGHT;
     else
 #endif
       return OBMC_CAUSAL;
-#else
-    return SIMPLE_TRANSLATION;
-#endif  // CONFIG_MOTION_VAR
   } else {
     return SIMPLE_TRANSLATION;
   }
@@ -1506,12 +1495,9 @@ static INLINE void assert_motion_mode_valid(MOTION_MODE mode,
     assert(0 && "Illegal motion mode selected");
 }
 
-#if CONFIG_MOTION_VAR
 static INLINE int is_neighbor_overlappable(const MB_MODE_INFO *mbmi) {
   return (is_inter_block(mbmi));
 }
-#endif  // CONFIG_MOTION_VAR
-#endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
 
 static INLINE int av1_allow_palette(int allow_screen_content_tools,
                                     BLOCK_SIZE sb_type) {
