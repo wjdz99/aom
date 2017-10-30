@@ -341,7 +341,7 @@ highbd_sadMxNx4D(64, 16)
 #endif  // CONFIG_HIGHBITDEPTH
 
 #if CONFIG_AV1 && CONFIG_EXT_INTER
-                                    static INLINE
+static INLINE
     unsigned int masked_sad(const uint8_t *src, int src_stride,
                             const uint8_t *a, int a_stride, const uint8_t *b,
                             int b_stride, const uint8_t *m, int m_stride,
@@ -351,7 +351,7 @@ highbd_sadMxNx4D(64, 16)
 
   for (y = 0; y < height; y++) {
     for (x = 0; x < width; x++) {
-      const uint8_t pred = AOM_BLEND_A64(m[x], a[x], b[x]);
+      const int pred = AOM_BLEND_A64(m[x], a[x], b[x]);
       sad += abs(pred - src[x]);
     }
 
