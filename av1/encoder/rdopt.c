@@ -55,7 +55,11 @@
 #if CONFIG_LV_MAP
 #include "av1/encoder/encodetxb.h"
 #endif
+#if CONFIG_DAALA_TX
+#include "av1/encoder/daala_fwd_txfm.h"
+#else
 #include "av1/encoder/hybrid_fwd_txfm.h"
+#endif
 #include "av1/encoder/mcomp.h"
 #include "av1/encoder/palette.h"
 #include "av1/encoder/ratectrl.h"
@@ -4718,11 +4722,15 @@ static int predict_skip_flag_8bit(const MACROBLOCK *x, BLOCK_SIZE bsize) {
   param.bd = 8;
   param.lossless = 0;
 
+#if CONFIG_DAALA_TX
+  daala_fwd_txfm(p->src_diff, DCT_coefs, bw, &param);
+#else
 #if CONFIG_TXMG
   av1_highbd_fwd_txfm(p->src_diff, DCT_coefs, bw, &param);
 #else   // CONFIG_TXMG
   av1_fwd_txfm(p->src_diff, DCT_coefs, bw, &param);
 #endif  // CONFIG_TXMG
+#endif
 
   uint32_t dc = (uint32_t)av1_dc_quant(x->qindex, 0, AOM_BITS_8);
   uint32_t ac = (uint32_t)av1_ac_quant(x->qindex, 0, AOM_BITS_8);
