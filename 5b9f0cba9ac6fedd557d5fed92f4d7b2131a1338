@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "61bb4b30_9e4972da",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 4579,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2017-10-31T00:26:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a9cb8a2d_f3e6f91d",
+      "range": {
+        "startLine": 4579,
+        "startChar": 30,
+        "endLine": 4579,
+        "endChar": 36
+      },
+      "revId": "5b9f0cba9ac6fedd557d5fed92f4d7b2131a1338",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6694b813_0ba0f994",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 8
@@ -45,6 +69,30 @@
       "revId": "5b9f0cba9ac6fedd557d5fed92f4d7b2131a1338",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "08426792_29be2d47",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 4580,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2017-10-31T00:26:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6694b813_0ba0f994",
+      "range": {
+        "startLine": 4580,
+        "startChar": 63,
+        "endLine": 4580,
+        "endChar": 68
+      },
+      "revId": "5b9f0cba9ac6fedd557d5fed92f4d7b2131a1338",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "347d0a3b_9e53e2ba",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 5165,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2017-10-31T00:26:22Z",
+      "side": 1,
+      "message": "We may want to use it eventually. I passed fast into av1_tx_block_rd_b().",
+      "parentUuid": "ee7a3bb1_f8e971bc",
+      "range": {
+        "startLine": 5165,
+        "startChar": 28,
+        "endLine": 5165,
+        "endChar": 32
+      },
+      "revId": "5b9f0cba9ac6fedd557d5fed92f4d7b2131a1338",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b4b2131e_a195e90d",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 8
@@ -82,6 +154,24 @@
       "writtenOn": "2017-10-30T07:19:23Z",
       "side": 1,
       "message": "Can we remove it? Looks like it will be covered by the recursion below.",
+      "revId": "5b9f0cba9ac6fedd557d5fed92f4d7b2131a1338",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "22b82c96_ba5663cb",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 5233,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2017-10-31T00:26:22Z",
+      "side": 1,
+      "message": "Wanted to keep it around for a while to figure out where the discrepancy is.",
+      "parentUuid": "b4b2131e_a195e90d",
       "revId": "5b9f0cba9ac6fedd557d5fed92f4d7b2131a1338",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
