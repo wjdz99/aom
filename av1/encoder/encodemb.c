@@ -18,6 +18,9 @@
 #include "aom_mem/aom_mem.h"
 #include "aom_ports/mem.h"
 
+#if CONFIG_DAALA_TX
+#include "av1/common/daala_inv_txfm.h"
+#endif
 #include "av1/common/idct.h"
 #include "av1/common/reconinter.h"
 #include "av1/common/reconintra.h"
@@ -28,8 +31,11 @@
 #if CONFIG_LV_MAP
 #include "av1/encoder/encodetxb.h"
 #endif
+#if CONFIG_DAALA_TX
 #include "av1/encoder/daala_fwd_txfm.h"
+#else
 #include "av1/encoder/hybrid_fwd_txfm.h"
+#endif
 #include "av1/encoder/rd.h"
 #include "av1/encoder/tokenize.h"
 
@@ -737,6 +743,9 @@ static void encode_block_pass1(int plane, int block, int blk_row, int blk_col,
     txfm_param.tx_set_type = get_ext_tx_set_type(
         txfm_param.tx_size, plane_bsize, is_inter_block(&xd->mi[0]->mbmi),
         cm->reduced_tx_set_used);
+#if CONFIG_DAALA_TX
+    daala_inv_txfm_add(dqcoeff, dst, pd->dst.stride, &txfm_param);
+#else
 #if CONFIG_HIGHBITDEPTH
     if (txfm_param.is_hbd) {
       av1_highbd_inv_txfm_add_4x4(dqcoeff, dst, pd->dst.stride, &txfm_param);
@@ -748,6 +757,7 @@ static void encode_block_pass1(int plane, int block, int blk_row, int blk_col,
     } else {
       av1_idct4x4_add(dqcoeff, dst, pd->dst.stride, &txfm_param);
     }
+#endif
   }
 }
 
