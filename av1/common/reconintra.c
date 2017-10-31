@@ -601,15 +601,15 @@ static int has_bottom_left(const AV1_COMMON *cm, BLOCK_SIZE bsize, int mi_row,
 typedef void (*intra_pred_fn)(uint8_t *dst, ptrdiff_t stride,
                               const uint8_t *above, const uint8_t *left);
 
-static intra_pred_fn pred[INTRA_MODES][TX_SIZES_ALL];
-static intra_pred_fn dc_pred[2][2][TX_SIZES_ALL];
+static const intra_pred_fn pred[INTRA_MODES][TX_SIZES_ALL];
+static const intra_pred_fn dc_pred[2][2][TX_SIZES_ALL];
 
 #if CONFIG_HIGHBITDEPTH
 typedef void (*intra_high_pred_fn)(uint16_t *dst, ptrdiff_t stride,
                                    const uint16_t *above, const uint16_t *left,
                                    int bd);
-static intra_high_pred_fn pred_high[INTRA_MODES][TX_SIZES_ALL];
-static intra_high_pred_fn dc_pred_high[2][2][TX_SIZES_ALL];
+static const intra_high_pred_fn pred_high[INTRA_MODES][TX_SIZES_ALL];
+static const intra_high_pred_fn dc_pred_high[2][2][TX_SIZES_ALL];
 #endif  // CONFIG_HIGHBITDEPTH
 
 static void av1_init_intra_predictors_internal(void) {
