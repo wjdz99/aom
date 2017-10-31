@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1571bd96_0bad2b63",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 378,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-10-31T16:42:34Z",
+      "side": 1,
+      "message": "Please make this const. That way it ends up in the read-only data segment and can\u0027t be overwritten by malicious code (which might allow it to hijack control flow).",
+      "revId": "92b3097c8efadbf90b5a20978cd1c69480715398",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f812b2bb_2f50cf5d",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 440,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-10-31T16:42:34Z",
+      "side": 1,
+      "message": "Same.",
+      "revId": "92b3097c8efadbf90b5a20978cd1c69480715398",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
