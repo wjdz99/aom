@@ -22,6 +22,9 @@
 #if CONFIG_DAALA_TX4 || CONFIG_DAALA_TX8 || CONFIG_DAALA_TX16 || \
     CONFIG_DAALA_TX32 || CONFIG_DAALA_TX64
 #include "av1/common/daala_tx.h"
+#if CONFIG_DAALA_TX
+#include "av1/common/daala_inv_txfm.h"
+#endif
 #endif
 
 int av1_get_tx_scale(const TX_SIZE tx_size) {
@@ -56,7 +59,7 @@ static void iidtx32_c(const tran_low_t *input, tran_low_t *output) {
   }
 }
 
-#if CONFIG_TX64X64
+#if CONFIG_TX64X64 && !CONFIG_DAALA_TX64
 static void iidtx64_c(const tran_low_t *input, tran_low_t *output) {
   for (int i = 0; i < 64; ++i) {
     output[i] = (tran_low_t)dct_const_round_shift(input[i] * 4 * Sqrt2);
@@ -78,7 +81,7 @@ static void ihalfright32_c(const tran_low_t *input, tran_low_t *output) {
   // Note overall scaling factor is 4 times orthogonal
 }
 
-#if CONFIG_TX64X64
+#if CONFIG_TX64X64 && !CONFIG_DAALA_TX64
 static void idct64_col_c(const tran_low_t *input, tran_low_t *output) {
   int32_t in[64], out[64];
 
@@ -2441,6 +2444,7 @@ static void init_txfm_param(const MACROBLOCKD *xd, int plane, TX_SIZE tx_size,
 #endif
 }
 
+#if !CONFIG_DAALA_TX
 typedef void (*InvTxfmFunc)(const tran_low_t *dqcoeff, uint8_t *dst, int stride,
                             TxfmParam *txfm_param);
 
@@ -2452,6 +2456,7 @@ static InvTxfmFunc inv_txfm_func[2] = {
 #endif
   av1_highbd_inv_txfm_add,
 };
+#endif
 
 void av1_inverse_transform_block(const MACROBLOCKD *xd,
                                  const tran_low_t *dqcoeff,
@@ -2475,7 +2480,11 @@ void av1_inverse_transform_block(const MACROBLOCKD *xd,
   txfm_param.stride = stride;
 #endif  // CONFIG_MRC_TX
   assert(av1_ext_tx_used[txfm_param.tx_set_type][txfm_param.tx_type]);
+#if CONFIG_DAALA_TX
+  daala_inv_txfm_add(dqcoeff, dst, stride, &txfm_param);
+#else
   inv_txfm_func[txfm_param.is_hbd](dqcoeff, dst, stride, &txfm_param);
+#endif
 }
 
 void av1_inverse_transform_block_facade(MACROBLOCKD *xd, int plane, int block,
