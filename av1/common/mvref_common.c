@@ -213,7 +213,7 @@ static uint8_t scan_row_mbmi(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   const int use_step_16 = (xd->n8_w >= 16);
   MODE_INFO **const candidate_mi0 = xd->mi + row_offset * xd->mi_stride;
 
-  for (i = 0; i < end_mi && *refmv_count < MAX_REF_MV_STACK_SIZE;) {
+  for (i = 0; i < end_mi;) {
     const MODE_INFO *const candidate_mi = candidate_mi0[col_offset + i];
     const MB_MODE_INFO *const candidate = &candidate_mi->mbmi;
     const int candidate_bsize = candidate->sb_type;
@@ -282,7 +282,7 @@ static uint8_t scan_col_mbmi(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   }
   const int use_step_16 = (xd->n8_h >= 16);
 
-  for (i = 0; i < end_mi && *refmv_count < MAX_REF_MV_STACK_SIZE;) {
+  for (i = 0; i < end_mi;) {
     const MODE_INFO *const candidate_mi =
         xd->mi[(row_offset + i) * xd->mi_stride + col_offset];
     const MB_MODE_INFO *const candidate = &candidate_mi->mbmi;
@@ -345,8 +345,7 @@ static uint8_t scan_blk_mbmi(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   mi_pos.row = row_offset;
   mi_pos.col = col_offset;
 
-  if (is_inside(tile, mi_col, mi_row, cm->mi_rows, cm, &mi_pos) &&
-      *refmv_count < MAX_REF_MV_STACK_SIZE) {
+  if (is_inside(tile, mi_col, mi_row, cm->mi_rows, cm, &mi_pos)) {
     const MODE_INFO *const candidate_mi =
         xd->mi[mi_pos.row * xd->mi_stride + mi_pos.col];
     const MB_MODE_INFO *const candidate = &candidate_mi->mbmi;
