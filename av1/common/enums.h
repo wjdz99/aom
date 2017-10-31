@@ -249,14 +249,18 @@ typedef enum ATTRIBUTE_PACKED {
 #define MIN_TX_SIZE (1 << MIN_TX_SIZE_LOG2)
 #define MAX_TX_SQUARE (MAX_TX_SIZE * MAX_TX_SIZE)
 
-#define MAX_TX_PAD_HOR 0
+// Pad 4 extra columns to remove horizontal availability check.
+#define MAX_TX_PAD_HOR 4
 // Pad 6 extra rows (2 on top and 4 on bottom) to remove vertical availability
 // check.
 #define MAX_TX_PAD_TOP 2
 #define MAX_TX_PAD_BOTTOM 4
 #define MAX_TX_PAD_VER (MAX_TX_PAD_TOP + MAX_TX_PAD_BOTTOM)
-#define MAX_TX_PAD_2D \
-  ((MAX_TX_SIZE + MAX_TX_PAD_HOR) * (MAX_TX_SIZE + MAX_TX_PAD_VER))
+// Pad 16 extra bytes to avoid reading overflow in SIMD optimization.
+#define MAX_TX_PAD_END 16
+#define MAX_TX_PAD_2D                                                \
+  ((MAX_TX_SIZE + MAX_TX_PAD_HOR) * (MAX_TX_SIZE + MAX_TX_PAD_VER) + \
+   MAX_TX_PAD_END)
 
 // Number of maxium size transform blocks in the maximum size superblock
 #define MAX_TX_BLOCKS_IN_MAX_SB_LOG2 ((MAX_SB_SIZE_LOG2 - MAX_TX_SIZE_LOG2) * 2)
