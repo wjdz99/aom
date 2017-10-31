@@ -267,12 +267,12 @@ void av1_fwd_txfm2d_64x64_c(const int16_t *input, int32_t *output, int stride,
   TXFM_2D_FLIP_CFG cfg = av1_get_fwd_txfm_64x64_cfg(tx_type);
   fwd_txfm2d_c(input, output, stride, &cfg, txfm_buf, bd);
 
-  // Zero out top-right 48x16 area.
-  for (int row = 0; row < 16; ++row) {
-    memset(output + row * 64 + 16, 0, 48 * sizeof(*output));
+  // Zero out top-right 40x24 area.
+  for (int row = 0; row < 24; ++row) {
+    memset(output + row * 64 + 24, 0, 40 * sizeof(*output));
   }
-  // Zero out the bottom 64x48 area.
-  memset(output + 16 * 64, 0, 48 * 64 * sizeof(*output));
+  // Zero out the bottom 64x40 area.
+  memset(output + 24 * 64, 0, 40 * 64 * sizeof(*output));
 }
 
 void av1_fwd_txfm2d_32x64_c(const int16_t *input, int32_t *output, int stride,
@@ -281,12 +281,12 @@ void av1_fwd_txfm2d_32x64_c(const int16_t *input, int32_t *output, int stride,
   TXFM_2D_FLIP_CFG cfg = av1_get_fwd_txfm_32x64_cfg(tx_type);
   fwd_txfm2d_c(input, output, stride, &cfg, txfm_buf, bd);
 
-  // Zero out right 16x16 area.
-  for (int row = 0; row < 16; ++row) {
-    memset(output + row * 32 + 16, 0, 16 * sizeof(*output));
+  // Zero out right 8x24 area.
+  for (int row = 0; row < 24; ++row) {
+    memset(output + row * 32 + 24, 0, 8 * sizeof(*output));
   }
-  // Zero out the bottom 32x48 area.
-  memset(output + 16 * 32, 0, 48 * 32 * sizeof(*output));
+  // Zero out the bottom 32x40 area.
+  memset(output + 24 * 32, 0, 40 * 32 * sizeof(*output));
 }
 
 void av1_fwd_txfm2d_64x32_c(const int16_t *input, int32_t *output, int stride,
@@ -295,12 +295,12 @@ void av1_fwd_txfm2d_64x32_c(const int16_t *input, int32_t *output, int stride,
   TXFM_2D_FLIP_CFG cfg = av1_get_fwd_txfm_64x32_cfg(tx_type);
   fwd_txfm2d_c(input, output, stride, &cfg, txfm_buf, bd);
 
-  // Zero out right 48x16 area.
-  for (int row = 0; row < 16; ++row) {
-    memset(output + row * 64 + 16, 0, 48 * sizeof(*output));
+  // Zero out right 40x24 area.
+  for (int row = 0; row < 24; ++row) {
+    memset(output + row * 64 + 24, 0, 40 * sizeof(*output));
   }
-  // Zero out the bottom 64x16 area.
-  memset(output + 16 * 64, 0, 16 * 64 * sizeof(*output));
+  // Zero out the bottom 64x8 area.
+  memset(output + 24 * 64, 0, 8 * 64 * sizeof(*output));
 }
 #endif  // CONFIG_TX64X64
 
