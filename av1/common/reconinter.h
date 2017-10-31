@@ -18,13 +18,13 @@
 #include "av1/common/warped_motion.h"
 #include "aom/aom_integer.h"
 
-#if CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
+#if CONFIG_MOTION_VAR
 #define WARP_WM_NEIGHBORS_WITH_OBMC 0
-#endif  // CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
+#endif  // CONFIG_MOTION_VAR
 
 #if CONFIG_MOTION_VAR
 #define WARP_GM_NEIGHBORS_WITH_OBMC 0
-#endif  // CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
+#endif  // CONFIG_MOTION_VAR
 
 #define AOM_LEFT_TOP_MARGIN_SCALED \
   ((AOM_BORDER_IN_PIXELS - AOM_INTERP_EXTEND) << SCALE_SUBPEL_BITS)
@@ -451,10 +451,8 @@ static INLINE void set_default_interp_filters(
 
 static INLINE int av1_is_interp_needed(const MACROBLOCKD *const xd) {
   (void)xd;
-#if CONFIG_WARPED_MOTION
   const MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
   if (mbmi->motion_mode == WARPED_CAUSAL) return 0;
-#endif  // CONFIG_WARPED_MOTION
   if (is_nontrans_global_motion(xd)) return 0;
   return 1;
 }

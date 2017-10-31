@@ -3618,10 +3618,8 @@ static void debug_check_frame_counts(const AV1_COMMON *const cm) {
   assert(!memcmp(cm->counts.compound_interinter,
                  zero_counts.compound_interinter,
                  sizeof(cm->counts.compound_interinter)));
-#if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
   assert(!memcmp(cm->counts.motion_mode, zero_counts.motion_mode,
                  sizeof(cm->counts.motion_mode)));
-#endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
 #if CONFIG_NCOBMC_ADAPT_WEIGHT && CONFIG_MOTION_VAR
   assert(!memcmp(cm->counts.ncobmc_mode, zero_counts.ncobmc_mode,
                  sizeof(cm->counts.ncobmc_mode)));
