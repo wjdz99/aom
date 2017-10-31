@@ -2609,7 +2609,7 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
 #if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
       && mbmi->motion_mode == SIMPLE_TRANSLATION
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
-      ) {
+  ) {
     if (is_any_masked_compound_used(bsize)) {
 #if CONFIG_JNT_COMP
       if (cm->allow_masked_compound && mbmi->compound_idx)

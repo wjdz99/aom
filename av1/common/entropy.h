@@ -24,6 +24,8 @@
 extern "C" {
 #endif
 
+#define USE_CAUSAL_BASE_CTX 1
+
 #define DIFF_UPDATE_PROB 252
 #define GROUP_DIFF_UPDATE_PROB 252
 
@@ -79,7 +81,12 @@ extern "C" {
 #define SIG_COEF_CONTEXTS_2D 16
 #define SIG_COEF_CONTEXTS 16
 #endif  // CONFIG_EXT_TX
+
+#if USE_CAUSAL_BASE_CTX
+#define COEFF_BASE_CONTEXTS (SIG_COEF_CONTEXTS)
+#else
 #define COEFF_BASE_CONTEXTS 42
+#endif
 #define DC_SIGN_CONTEXTS 3
 
 #define BR_TMP_OFFSET 12

@@ -9584,15 +9584,15 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
 
   HandleInterModeArgs args = {
 #if CONFIG_MOTION_VAR
-    { NULL },
-    { MAX_SB_SIZE, MAX_SB_SIZE, MAX_SB_SIZE },
-    { NULL },
-    { MAX_SB_SIZE, MAX_SB_SIZE, MAX_SB_SIZE },
+    {NULL},
+    {MAX_SB_SIZE, MAX_SB_SIZE, MAX_SB_SIZE},
+    {NULL},
+    {MAX_SB_SIZE, MAX_SB_SIZE, MAX_SB_SIZE},
 #endif  // CONFIG_MOTION_VAR
     NULL,
     NULL,
     NULL,
-    { { 0 } },
+    {{0}},
   };
 
   const int rows = block_size_high[bsize];
