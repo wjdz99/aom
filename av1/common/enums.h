@@ -315,7 +315,6 @@ typedef enum ATTRIBUTE_PACKED {
   ADST_DCT,   // ADST in vertical, DCT in horizontal
   DCT_ADST,   // DCT  in vertical, ADST in horizontal
   ADST_ADST,  // ADST in both directions
-#if CONFIG_EXT_TX
   FLIPADST_DCT,
   DCT_FLIPADST,
   FLIPADST_FLIPADST,
@@ -328,7 +327,6 @@ typedef enum ATTRIBUTE_PACKED {
   H_ADST,
   V_FLIPADST,
   H_FLIPADST,
-#endif  // CONFIG_EXT_TX
 #if CONFIG_MRC_TX
   MRC_DCT,  // DCT in both directions with mrc based bitmask
 #endif      // CONFIG_MRC_TX
@@ -349,7 +347,6 @@ typedef enum {
 } DUAL_FILTER_TYPE;
 #endif
 
-#if CONFIG_EXT_TX
 typedef enum ATTRIBUTE_PACKED {
   // DCT only
   EXT_TX_SET_DCTONLY,
@@ -373,9 +370,6 @@ typedef enum ATTRIBUTE_PACKED {
 } TxSetType;
 
 #define IS_2D_TRANSFORM(tx_type) (tx_type < IDTX)
-#else
-#define IS_2D_TRANSFORM(tx_type) 1
-#endif
 
 typedef enum ATTRIBUTE_PACKED {
   TILE_LEFT_BOUNDARY = 1,
@@ -388,7 +382,6 @@ typedef enum ATTRIBUTE_PACKED {
   FRAME_BOTTOM_BOUNDARY = 128,
 } BOUNDARY_TYPE;
 
-#if CONFIG_EXT_TX
 #define EXT_TX_SIZES 4  // number of sizes that use extended transforms
 #if CONFIG_MRC_TX
 #define EXT_TX_SETS_INTER 5  // Sets of transform selections for INTER
@@ -397,9 +390,6 @@ typedef enum ATTRIBUTE_PACKED {
 #define EXT_TX_SETS_INTER 4  // Sets of transform selections for INTER
 #define EXT_TX_SETS_INTRA 3  // Sets of transform selections for INTRA
 #endif                       // CONFIG_MRC_TX
-#else
-#define EXT_TX_SIZES 3  // number of sizes that use extended transforms
-#endif                  // CONFIG_EXT_TX
 
 typedef enum ATTRIBUTE_PACKED {
   AOM_LAST_FLAG = 1 << 0,
