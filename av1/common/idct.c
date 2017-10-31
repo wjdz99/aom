@@ -3218,7 +3218,7 @@ static void init_txfm_param(const MACROBLOCKD *xd, TX_SIZE tx_size,
 #endif
 }
 
-#if !CONFIG_TXMG
+#if !CONFIG_TXMG && !CONFIG_DAALA_TX
 typedef void (*InvTxfmFunc)(const tran_low_t *dqcoeff, uint8_t *dst, int stride,
                             TxfmParam *txfm_param);
 
@@ -3255,6 +3255,9 @@ void av1_inverse_transform_block(const MACROBLOCKD *xd,
 #endif  // CONFIG_LGT_FROM_PRED || CONFIG_MRC_TX
 
   const int is_hbd = get_bitdepth_data_path_index(xd);
+#if CONFIG_DAALA_TX
+  daala_inv_txfm_add(dqcoeff, dst, stride, &txfm_param, is_hbd);
+#else
 #if CONFIG_TXMG
   if (is_hbd) {
     av1_highbd_inv_txfm_add(dqcoeff, dst, stride, &txfm_param);
@@ -3281,6 +3284,7 @@ void av1_inverse_transform_block(const MACROBLOCKD *xd,
 #else  // CONFIG_TXMG
   inv_txfm_func[is_hbd](dqcoeff, dst, stride, &txfm_param);
 #endif  // CONFIG_TXMG
+#endif
 }
 
 void av1_inverse_transform_block_facade(MACROBLOCKD *xd, int plane, int block,
