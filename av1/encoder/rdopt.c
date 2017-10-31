@@ -5432,33 +5432,46 @@ static int cfl_rd_pick_alpha(MACROBLOCK *const x, const AV1_COMP *const cpi,
   for (int joint_sign = 0; joint_sign < CFL_JOINT_SIGNS; joint_sign++) {
     const int sign_u = CFL_SIGN_U(joint_sign);
     const int sign_v = CFL_SIGN_V(joint_sign);
-    const int size_u = (sign_u == CFL_SIGN_ZERO) ? 1 : CFL_ALPHABET_SIZE;
-    const int size_v = (sign_v == CFL_SIGN_ZERO) ? 1 : CFL_ALPHABET_SIZE;
-    for (int u = 0; u < size_u; u++) {
-      const int idx_u = ((sign_u == CFL_SIGN_ZERO) ? 0 : u * 2 + 1) +
-                        (sign_u == CFL_SIGN_NEG);
-      if (rates[CFL_PRED_U][idx_u] == INT_MAX) continue;
-      for (int v = 0; v < size_v; v++) {
-        const int idx_v = ((sign_v == CFL_SIGN_ZERO) ? 0 : v * 2 + 1) +
-                          (sign_v == CFL_SIGN_NEG);
-        if (rates[CFL_PRED_V][idx_v] == INT_MAX) continue;
-        dist = dists[CFL_PRED_U][idx_u] + dists[CFL_PRED_V][idx_v];
-        int rate_overhead = x->cfl_cost[joint_sign][CFL_PRED_U][u] +
-                            x->cfl_cost[joint_sign][CFL_PRED_V][v];
-        int rate = x->intra_uv_mode_cost[mbmi->mode][UV_CFL_PRED] +
-                   rate_overhead + rates[CFL_PRED_U][idx_u] +
-                   rates[CFL_PRED_V][idx_v];
+    int64_t best_rd_uv[CFL_PRED_PLANES] = { INT64_MAX, INT64_MAX };
+    int best_c[CFL_PRED_PLANES];
+    for (int plane = 0; plane < CFL_PRED_PLANES; plane++) {
+      const int sign = (plane == CFL_PRED_U) ? sign_u : sign_v;
+      const int size = (sign == CFL_SIGN_ZERO) ? 1 : CFL_ALPHABET_SIZE;
+      for (int c = 0; c < size; c++) {
+        const int idx =
+            ((sign == CFL_SIGN_ZERO) ? 0 : c * 2 + 1) + (sign == CFL_SIGN_NEG);
+        if (rates[plane][idx] == INT_MAX) continue;
+        int rate = x->cfl_cost[joint_sign][plane][c] + rates[plane][idx];
+        dist = dists[plane][idx];
         cost = RDCOST(x->rdmult, rate, dist);
-        if (cost < best_cost) {
-          best_cost = cost;
-          best_rate_overhead = rate_overhead;
-          ind = (u << CFL_ALPHABET_SIZE_LOG2) + v;
-          signs = joint_sign;
-#if CONFIG_DEBUG
-          best_rate = rate;
-#endif  // CONFIG_DEBUG
-        }
+        if (cost >= best_rd_uv[plane]) continue;
+        best_rd_uv[plane] = cost;
+        best_c[plane] = c;
       }
+    }
+    if (best_rd_uv[CFL_PRED_U] == INT64_MAX) continue;
+    if (best_rd_uv[CFL_PRED_V] == INT64_MAX) continue;
+    const int u = best_c[CFL_PRED_U];
+    const int v = best_c[CFL_PRED_V];
+    const int idx_u =
+        ((sign_u == CFL_SIGN_ZERO) ? 0 : u * 2 + 1) + (sign_u == CFL_SIGN_NEG);
+    const int idx_v =
+        ((sign_v == CFL_SIGN_ZERO) ? 0 : v * 2 + 1) + (sign_v == CFL_SIGN_NEG);
+    int rate_overhead = x->cfl_cost[joint_sign][CFL_PRED_U][u] +
+                        x->cfl_cost[joint_sign][CFL_PRED_V][v];
+    int rate = x->intra_uv_mode_cost[mbmi->mode][UV_CFL_PRED] +
+               rate_overhead + rates[CFL_PRED_U][idx_u] +
+               rates[CFL_PRED_V][idx_v];
+    dist = dists[CFL_PRED_U][idx_u] + dists[CFL_PRED_V][idx_v];
+    cost = RDCOST(x->rdmult, rate, dist);
+    if (cost < best_cost) {
+      best_cost = cost;
+      best_rate_overhead = rate_overhead;
+      ind = (u << CFL_ALPHABET_SIZE_LOG2) + v;
+      signs = joint_sign;
+#if CONFIG_DEBUG
+      best_rate = rate;
+#endif  // CONFIG_DEBUG
     }
   }
 
