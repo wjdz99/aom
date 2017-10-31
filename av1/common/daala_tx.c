@@ -3753,7 +3753,8 @@
 #endif
 
 /* 4-point orthonormal Type-II fDCT. */
-void od_bin_fdct4(od_coeff y[4], const od_coeff *x, int xstride) {
+void od_bin_fdct4(od_coeff y[4], int ystride, const od_coeff *x, int xstride,
+                  int preshift) {
   /* 4 "muls", 8 adds, 2 shifts */
   int q0;
   int q1;
@@ -3764,10 +3765,10 @@ void od_bin_fdct4(od_coeff y[4], const od_coeff *x, int xstride) {
   int t1;
   int t2;
   int t3;
-  q0 = x[0*xstride];
-  q1 = x[1*xstride];
-  q2 = x[2*xstride];
-  q3 = x[3*xstride];
+  q0 = x[0*xstride] << preshift;
+  q1 = x[1*xstride] << preshift;
+  q2 = x[2*xstride] << preshift;
+  q3 = x[3*xstride] << preshift;
   q3 = q0 - q3;
   q0 -= OD_DCT_RSHIFT(q3, 1);
   u1 = q1 + q2;
@@ -3784,10 +3785,10 @@ void od_bin_fdct4(od_coeff y[4], const od_coeff *x, int xstride) {
   q1 = q0 - u1;
   q2 = t3 + t2;
   q3 = t0 - t1;
-  y[0] = q0;
-  y[1] = q2;
-  y[2] = q1;
-  y[3] = q3;
+  y[0*ystride] = q0;
+  y[1*ystride] = q2;
+  y[2*ystride] = q1;
+  y[3*ystride] = q3;
 }
 
 /* 4-point orthonormal Type-II iDCT. */
@@ -3831,7 +3832,8 @@ void od_bin_idct4(od_coeff *x, int xstride, const od_coeff y[4]) {
 }
 
 /* 4-point orthonormal Type-VII fDST. */
-void od_bin_fdst4(od_coeff y[4], const od_coeff *x, int xstride) {
+void od_bin_fdst4(od_coeff y[4], int ystride, const od_coeff *x, int xstride,
+                  int preshift) {
   /* 11 adds, 5 "muls".*/
   int q0;
   int q1;
@@ -3842,10 +3844,10 @@ void od_bin_fdst4(od_coeff y[4], const od_coeff *x, int xstride) {
   int t2;
   int t3;
   int t4;
-  q0 = x[0*xstride];
-  q1 = x[1*xstride];
-  q2 = x[2*xstride];
-  q3 = x[3*xstride];
+  q0 = x[0*xstride] << preshift;
+  q1 = x[1*xstride] << preshift;
+  q2 = x[2*xstride] << preshift;
+  q3 = x[3*xstride] << preshift;
   t0 = q1 + q3;
   t1 = q0 + q1 - q3;
   t2 = q0 - q1;
@@ -3865,10 +3867,52 @@ void od_bin_fdst4(od_coeff y[4], const od_coeff *x, int xstride) {
   q1 = t1;
   q2 = t0 + t2 - t3;
   q3 = t2 + t3 - t4;
-  y[0] = (od_coeff)q0;
-  y[1] = (od_coeff)q1;
-  y[2] = (od_coeff)q2;
-  y[3] = (od_coeff)q3;
+  y[0*ystride] = (od_coeff)q0;
+  y[1*ystride] = (od_coeff)q1;
+  y[2*ystride] = (od_coeff)q2;
+  y[3*ystride] = (od_coeff)q3;
+}
+
+/* pixel-flipped 4-point orthonormal Type-VII fDST. */
+void od_bin_fdst4_flip(od_coeff y[4], int ystride, const od_coeff *x,
+                       int xstride, int preshift) {
+  /* 11 adds, 5 "muls".*/
+  int q0;
+  int q1;
+  int q2;
+  int q3;
+  int t0;
+  int t1;
+  int t2;
+  int t3;
+  int t4;
+  q0 = x[3*xstride] << preshift;
+  q1 = x[2*xstride] << preshift;
+  q2 = x[1*xstride] << preshift;
+  q3 = x[0*xstride] << preshift;
+  t0 = q1 + q3;
+  t1 = q0 + q1 - q3;
+  t2 = q0 - q1;
+  t3 = q2;
+  t4 = q0 + q3;
+  /* 7021/16384 ~= 2*Sin[2*Pi/9]/3 ~= 0.428525073124360 */
+  t0 = (t0*7021 + 8192) >> 14;
+  /* 18919/32768 ~= 2*Sin[3*Pi/9]/3 ~= 0.577350269189626 */
+  t1 = (t1*18919 + 16384) >> 15;
+  /* 21513/32768 ~= 2*Sin[4*Pi/9]/3 ~= 0.656538502008139 */
+  t2 = (t2*21513 + 16384) >> 15;
+  /* 18919/32768 ~= 2*Sin[3*Pi/9]/3 ~= 0.577350269189626 */
+  t3 = (t3*18919 + 16384) >> 15;
+  /* 467/2048 ~= 2*Sin[1*Pi/9]/3 ~= 0.228013428883779 */
+  t4 = (t4*467 + 1024) >> 11;
+  q0 = t0 + t3 + t4;
+  q1 = t1;
+  q2 = t0 + t2 - t3;
+  q3 = t2 + t3 - t4;
+  y[0*ystride] = (od_coeff)q0;
+  y[1*ystride] = (od_coeff)q1;
+  y[2*ystride] = (od_coeff)q2;
+  y[3*ystride] = (od_coeff)q3;
 }
 
 /* 4-point orthonormal Type-VII iDST. */
@@ -3912,7 +3956,8 @@ void od_bin_idst4(od_coeff *x, int xstride, const od_coeff y[4]) {
   x[3*xstride] = q3;
 }
 
-void od_bin_fdct8(od_coeff y[8], const od_coeff *x, int xstride) {
+void od_bin_fdct8(od_coeff y[8], int ystride, const od_coeff *x, int xstride,
+                  int preshift) {
   int r0;
   int r1;
   int r2;
@@ -3921,23 +3966,23 @@ void od_bin_fdct8(od_coeff y[8], const od_coeff *x, int xstride) {
   int r5;
   int r6;
   int r7;
-  r0 = x[0*xstride];
-  r4 = x[1*xstride];
-  r2 = x[2*xstride];
-  r6 = x[3*xstride];
-  r1 = x[4*xstride];
-  r5 = x[5*xstride];
-  r3 = x[6*xstride];
-  r7 = x[7*xstride];
+  r0 = x[0*xstride] << preshift;
+  r4 = x[1*xstride] << preshift;
+  r2 = x[2*xstride] << preshift;
+  r6 = x[3*xstride] << preshift;
+  r1 = x[4*xstride] << preshift;
+  r5 = x[5*xstride] << preshift;
+  r3 = x[6*xstride] << preshift;
+  r7 = x[7*xstride] << preshift;
   OD_FDCT_8(r0, r4, r2, r6, r1, r5, r3, r7);
-  y[0] = (od_coeff)r0;
-  y[1] = (od_coeff)r1;
-  y[2] = (od_coeff)r2;
-  y[3] = (od_coeff)r3;
-  y[4] = (od_coeff)r4;
-  y[5] = (od_coeff)r5;
-  y[6] = (od_coeff)r6;
-  y[7] = (od_coeff)r7;
+  y[0*ystride] = (od_coeff)r0;
+  y[1*ystride] = (od_coeff)r1;
+  y[2*ystride] = (od_coeff)r2;
+  y[3*ystride] = (od_coeff)r3;
+  y[4*ystride] = (od_coeff)r4;
+  y[5*ystride] = (od_coeff)r5;
+  y[6*ystride] = (od_coeff)r6;
+  y[7*ystride] = (od_coeff)r7;
 }
 
 void od_bin_idct8(od_coeff *x, int xstride, const od_coeff y[8]) {
@@ -4153,13 +4198,24 @@ static void od_poly_prod_8(od_coeff y[8], const od_coeff x[8]) {
   y[7] = u16 - u14 + u21 - u25;
 }
 
-void od_bin_fdst8(od_coeff y[8], const od_coeff *x, int xstride) {
+void od_bin_fdst8(od_coeff y[8], int ystride, const od_coeff *x, int xstride,
+                  int preshift) {
   int i;
   od_coeff xp[8];
   od_coeff yp[8];
-  for (i = 0; i < 8; i++) xp[i] = x[i*xstride];
+  for (i = 0; i < 8; i++) xp[i] = x[i*xstride] << preshift;
   od_poly_prod_8(yp, xp);
-  for (i = 0; i < 8; i++) y[OD_DST_8_PERM[i]] = yp[i];
+  for (i = 0; i < 8; i++) y[OD_DST_8_PERM[i]*ystride] = yp[i];
+}
+
+void od_bin_fdst8_flip(od_coeff y[8], int ystride, const od_coeff *x,
+                       int xstride, int preshift) {
+  int i;
+  od_coeff xp[8];
+  od_coeff yp[8];
+  for (i = 0; i < 8; i++) xp[7-i] = x[i*xstride] << preshift;
+  od_poly_prod_8(yp, xp);
+  for (i = 0; i < 8; i++) y[OD_DST_8_PERM[i]*ystride] = yp[i];
 }
 
 void od_bin_idst8(od_coeff *x, int xstride, const od_coeff y[8]) {
@@ -4171,7 +4227,8 @@ void od_bin_idst8(od_coeff *x, int xstride, const od_coeff y[8]) {
   for (i = 0; i < 8; i++) x[i*xstride] = xp[i];
 }
 
-void od_bin_fdct16(od_coeff y[16], const od_coeff *x, int xstride) {
+void od_bin_fdct16(od_coeff y[16], int ystride, const od_coeff *x, int xstride,
+                   int preshift) {
   int s0;
   int s1;
   int s2;
@@ -4188,39 +4245,39 @@ void od_bin_fdct16(od_coeff y[16], const od_coeff *x, int xstride) {
   int sd;
   int se;
   int sf;
-  s0 = x[0*xstride];
-  s8 = x[1*xstride];
-  s4 = x[2*xstride];
-  sc = x[3*xstride];
-  s2 = x[4*xstride];
-  sa = x[5*xstride];
-  s6 = x[6*xstride];
-  se = x[7*xstride];
-  s1 = x[8*xstride];
-  s9 = x[9*xstride];
-  s5 = x[10*xstride];
-  sd = x[11*xstride];
-  s3 = x[12*xstride];
-  sb = x[13*xstride];
-  s7 = x[14*xstride];
-  sf = x[15*xstride];
+  s0 = x[0*xstride] << preshift;
+  s8 = x[1*xstride] << preshift;
+  s4 = x[2*xstride] << preshift;
+  sc = x[3*xstride] << preshift;
+  s2 = x[4*xstride] << preshift;
+  sa = x[5*xstride] << preshift;
+  s6 = x[6*xstride] << preshift;
+  se = x[7*xstride] << preshift;
+  s1 = x[8*xstride] << preshift;
+  s9 = x[9*xstride] << preshift;
+  s5 = x[10*xstride] << preshift;
+  sd = x[11*xstride] << preshift;
+  s3 = x[12*xstride] << preshift;
+  sb = x[13*xstride] << preshift;
+  s7 = x[14*xstride] << preshift;
+  sf = x[15*xstride] << preshift;
   OD_FDCT_16(s0, s8, s4, sc, s2, sa, s6, se, s1, s9, s5, sd, s3, sb, s7, sf);
-  y[0] = (od_coeff)s0;
-  y[1] = (od_coeff)s1;
-  y[2] = (od_coeff)s2;
-  y[3] = (od_coeff)s3;
-  y[4] = (od_coeff)s4;
-  y[5] = (od_coeff)s5;
-  y[6] = (od_coeff)s6;
-  y[7] = (od_coeff)s7;
-  y[8] = (od_coeff)s8;
-  y[9] = (od_coeff)s9;
-  y[10] = (od_coeff)sa;
-  y[11] = (od_coeff)sb;
-  y[12] = (od_coeff)sc;
-  y[13] = (od_coeff)sd;
-  y[14] = (od_coeff)se;
-  y[15] = (od_coeff)sf;
+  y[0*ystride] = (od_coeff)s0;
+  y[1*ystride] = (od_coeff)s1;
+  y[2*ystride] = (od_coeff)s2;
+  y[3*ystride] = (od_coeff)s3;
+  y[4*ystride] = (od_coeff)s4;
+  y[5*ystride] = (od_coeff)s5;
+  y[6*ystride] = (od_coeff)s6;
+  y[7*ystride] = (od_coeff)s7;
+  y[8*ystride] = (od_coeff)s8;
+  y[9*ystride] = (od_coeff)s9;
+  y[10*ystride] = (od_coeff)sa;
+  y[11*ystride] = (od_coeff)sb;
+  y[12*ystride] = (od_coeff)sc;
+  y[13*ystride] = (od_coeff)sd;
+  y[14*ystride] = (od_coeff)se;
+  y[15*ystride] = (od_coeff)sf;
 }
 
 void od_bin_idct16(od_coeff *x, int xstride, const od_coeff y[16]) {
@@ -4275,7 +4332,8 @@ void od_bin_idct16(od_coeff *x, int xstride, const od_coeff y[16]) {
   x[15*xstride] = (od_coeff)sf;
 }
 
-void od_bin_fdst16(od_coeff y[16], const od_coeff *x, int xstride) {
+void od_bin_fdst16(od_coeff y[16], int ystride, const od_coeff *x, int xstride,
+                   int preshift) {
   int s0;
   int s1;
   int s2;
@@ -4292,39 +4350,92 @@ void od_bin_fdst16(od_coeff y[16], const od_coeff *x, int xstride) {
   int sd;
   int se;
   int sf;
-  s0 = x[15*xstride];
-  s8 = x[14*xstride];
-  s4 = x[13*xstride];
-  sc = x[12*xstride];
-  s2 = x[11*xstride];
-  sa = x[10*xstride];
-  s6 = x[9*xstride];
-  se = x[8*xstride];
-  s1 = x[7*xstride];
-  s9 = x[6*xstride];
-  s5 = x[5*xstride];
-  sd = x[4*xstride];
-  s3 = x[3*xstride];
-  sb = x[2*xstride];
-  s7 = x[1*xstride];
-  sf = x[0*xstride];
+  s0 = x[15*xstride] << preshift;
+  s8 = x[14*xstride] << preshift;
+  s4 = x[13*xstride] << preshift;
+  sc = x[12*xstride] << preshift;
+  s2 = x[11*xstride] << preshift;
+  sa = x[10*xstride] << preshift;
+  s6 = x[9*xstride] << preshift;
+  se = x[8*xstride] << preshift;
+  s1 = x[7*xstride] << preshift;
+  s9 = x[6*xstride] << preshift;
+  s5 = x[5*xstride] << preshift;
+  sd = x[4*xstride] << preshift;
+  s3 = x[3*xstride] << preshift;
+  sb = x[2*xstride] << preshift;
+  s7 = x[1*xstride] << preshift;
+  sf = x[0*xstride] << preshift;
   OD_FDST_16(s0, s8, s4, sc, s2, sa, s6, se, s1, s9, s5, sd, s3, sb, s7, sf);
-  y[0] = (od_coeff)sf;
-  y[1] = (od_coeff)-se;
-  y[2] = (od_coeff)sd;
-  y[3] = (od_coeff)-sc;
-  y[4] = (od_coeff)sb;
-  y[5] = (od_coeff)-sa;
-  y[6] = (od_coeff)s9;
-  y[7] = (od_coeff)-s8;
-  y[8] = (od_coeff)s7;
-  y[9] = (od_coeff)-s6;
-  y[10] = (od_coeff)s5;
-  y[11] = (od_coeff)-s4;
-  y[12] = (od_coeff)s3;
-  y[13] = (od_coeff)-s2;
-  y[14] = (od_coeff)s1;
-  y[15] = (od_coeff)-s0;
+  y[0*ystride] = (od_coeff)sf;
+  y[1*ystride] = (od_coeff)-se;
+  y[2*ystride] = (od_coeff)sd;
+  y[3*ystride] = (od_coeff)-sc;
+  y[4*ystride] = (od_coeff)sb;
+  y[5*ystride] = (od_coeff)-sa;
+  y[6*ystride] = (od_coeff)s9;
+  y[7*ystride] = (od_coeff)-s8;
+  y[8*ystride] = (od_coeff)s7;
+  y[9*ystride] = (od_coeff)-s6;
+  y[10*ystride] = (od_coeff)s5;
+  y[11*ystride] = (od_coeff)-s4;
+  y[12*ystride] = (od_coeff)s3;
+  y[13*ystride] = (od_coeff)-s2;
+  y[14*ystride] = (od_coeff)s1;
+  y[15*ystride] = (od_coeff)-s0;
+}
+
+void od_bin_fdst16_flip(od_coeff y[16], int ystride, const od_coeff *x,
+                        int xstride, int preshift) {
+  int s0;
+  int s1;
+  int s2;
+  int s3;
+  int s4;
+  int s5;
+  int s6;
+  int s7;
+  int s8;
+  int s9;
+  int sa;
+  int sb;
+  int sc;
+  int sd;
+  int se;
+  int sf;
+  s0 = x[0*xstride] << preshift;
+  s8 = x[1*xstride] << preshift;
+  s4 = x[2*xstride] << preshift;
+  sc = x[3*xstride] << preshift;
+  s2 = x[4*xstride] << preshift;
+  sa = x[5*xstride] << preshift;
+  s6 = x[6*xstride] << preshift;
+  se = x[7*xstride] << preshift;
+  s1 = x[8*xstride] << preshift;
+  s9 = x[9*xstride] << preshift;
+  s5 = x[10*xstride] << preshift;
+  sd = x[11*xstride] << preshift;
+  s3 = x[12*xstride] << preshift;
+  sb = x[13*xstride] << preshift;
+  s7 = x[14*xstride] << preshift;
+  sf = x[15*xstride] << preshift;
+  OD_FDST_16(s0, s8, s4, sc, s2, sa, s6, se, s1, s9, s5, sd, s3, sb, s7, sf);
+  y[0*ystride] = (od_coeff)sf;
+  y[1*ystride] = (od_coeff)-se;
+  y[2*ystride] = (od_coeff)sd;
+  y[3*ystride] = (od_coeff)-sc;
+  y[4*ystride] = (od_coeff)sb;
+  y[5*ystride] = (od_coeff)-sa;
+  y[6*ystride] = (od_coeff)s9;
+  y[7*ystride] = (od_coeff)-s8;
+  y[8*ystride] = (od_coeff)s7;
+  y[9*ystride] = (od_coeff)-s6;
+  y[10*ystride] = (od_coeff)s5;
+  y[11*ystride] = (od_coeff)-s4;
+  y[12*ystride] = (od_coeff)s3;
+  y[13*ystride] = (od_coeff)-s2;
+  y[14*ystride] = (od_coeff)s1;
+  y[15*ystride] = (od_coeff)-s0;
 }
 
 void od_bin_idst16(od_coeff *x, int xstride, const od_coeff y[16]) {
@@ -4379,7 +4490,8 @@ void od_bin_idst16(od_coeff *x, int xstride, const od_coeff y[16]) {
   x[15*xstride] = (od_coeff)s0;
 }
 
-void od_bin_fdct32(od_coeff y[32], const od_coeff *x, int xstride) {
+void od_bin_fdct32(od_coeff y[32], int ystride, const od_coeff *x, int xstride,
+                   int preshift) {
   /*215 adds, 38 shifts, 87 "muls".*/
   int t0;
   int t1;
@@ -4413,72 +4525,72 @@ void od_bin_fdct32(od_coeff y[32], const od_coeff *x, int xstride) {
   int tt;
   int tu;
   int tv;
-  t0 = x[0*xstride];
-  tg = x[1*xstride];
-  t8 = x[2*xstride];
-  to = x[3*xstride];
-  t4 = x[4*xstride];
-  tk = x[5*xstride];
-  tc = x[6*xstride];
-  ts = x[7*xstride];
-  t2 = x[8*xstride];
-  ti = x[9*xstride];
-  ta = x[10*xstride];
-  tq = x[11*xstride];
-  t6 = x[12*xstride];
-  tm = x[13*xstride];
-  te = x[14*xstride];
-  tu = x[15*xstride];
-  t1 = x[16*xstride];
-  th = x[17*xstride];
-  t9 = x[18*xstride];
-  tp = x[19*xstride];
-  t5 = x[20*xstride];
-  tl = x[21*xstride];
-  td = x[22*xstride];
-  tt = x[23*xstride];
-  t3 = x[24*xstride];
-  tj = x[25*xstride];
-  tb = x[26*xstride];
-  tr = x[27*xstride];
-  t7 = x[28*xstride];
-  tn = x[29*xstride];
-  tf = x[30*xstride];
-  tv = x[31*xstride];
+  t0 = x[0*xstride] << preshift;
+  tg = x[1*xstride] << preshift;
+  t8 = x[2*xstride] << preshift;
+  to = x[3*xstride] << preshift;
+  t4 = x[4*xstride] << preshift;
+  tk = x[5*xstride] << preshift;
+  tc = x[6*xstride] << preshift;
+  ts = x[7*xstride] << preshift;
+  t2 = x[8*xstride] << preshift;
+  ti = x[9*xstride] << preshift;
+  ta = x[10*xstride] << preshift;
+  tq = x[11*xstride] << preshift;
+  t6 = x[12*xstride] << preshift;
+  tm = x[13*xstride] << preshift;
+  te = x[14*xstride] << preshift;
+  tu = x[15*xstride] << preshift;
+  t1 = x[16*xstride] << preshift;
+  th = x[17*xstride] << preshift;
+  t9 = x[18*xstride] << preshift;
+  tp = x[19*xstride] << preshift;
+  t5 = x[20*xstride] << preshift;
+  tl = x[21*xstride] << preshift;
+  td = x[22*xstride] << preshift;
+  tt = x[23*xstride] << preshift;
+  t3 = x[24*xstride] << preshift;
+  tj = x[25*xstride] << preshift;
+  tb = x[26*xstride] << preshift;
+  tr = x[27*xstride] << preshift;
+  t7 = x[28*xstride] << preshift;
+  tn = x[29*xstride] << preshift;
+  tf = x[30*xstride] << preshift;
+  tv = x[31*xstride] << preshift;
   OD_FDCT_32(t0, tg, t8, to, t4, tk, tc, ts, t2, ti, ta, tq, t6, tm, te, tu,
     t1, th, t9, tp, t5, tl, td, tt, t3, tj, tb, tr, t7, tn, tf, tv);
-  y[0] = (od_coeff)t0;
-  y[1] = (od_coeff)t1;
-  y[2] = (od_coeff)t2;
-  y[3] = (od_coeff)t3;
-  y[4] = (od_coeff)t4;
-  y[5] = (od_coeff)t5;
-  y[6] = (od_coeff)t6;
-  y[7] = (od_coeff)t7;
-  y[8] = (od_coeff)t8;
-  y[9] = (od_coeff)t9;
-  y[10] = (od_coeff)ta;
-  y[11] = (od_coeff)tb;
-  y[12] = (od_coeff)tc;
-  y[13] = (od_coeff)td;
-  y[14] = (od_coeff)te;
-  y[15] = (od_coeff)tf;
-  y[16] = (od_coeff)tg;
-  y[17] = (od_coeff)th;
-  y[18] = (od_coeff)ti;
-  y[19] = (od_coeff)tj;
-  y[20] = (od_coeff)tk;
-  y[21] = (od_coeff)tl;
-  y[22] = (od_coeff)tm;
-  y[23] = (od_coeff)tn;
-  y[24] = (od_coeff)to;
-  y[25] = (od_coeff)tp;
-  y[26] = (od_coeff)tq;
-  y[27] = (od_coeff)tr;
-  y[28] = (od_coeff)ts;
-  y[29] = (od_coeff)tt;
-  y[30] = (od_coeff)tu;
-  y[31] = (od_coeff)tv;
+  y[0*ystride] = (od_coeff)t0;
+  y[1*ystride] = (od_coeff)t1;
+  y[2*ystride] = (od_coeff)t2;
+  y[3*ystride] = (od_coeff)t3;
+  y[4*ystride] = (od_coeff)t4;
+  y[5*ystride] = (od_coeff)t5;
+  y[6*ystride] = (od_coeff)t6;
+  y[7*ystride] = (od_coeff)t7;
+  y[8*ystride] = (od_coeff)t8;
+  y[9*ystride] = (od_coeff)t9;
+  y[10*ystride] = (od_coeff)ta;
+  y[11*ystride] = (od_coeff)tb;
+  y[12*ystride] = (od_coeff)tc;
+  y[13*ystride] = (od_coeff)td;
+  y[14*ystride] = (od_coeff)te;
+  y[15*ystride] = (od_coeff)tf;
+  y[16*ystride] = (od_coeff)tg;
+  y[17*ystride] = (od_coeff)th;
+  y[18*ystride] = (od_coeff)ti;
+  y[19*ystride] = (od_coeff)tj;
+  y[20*ystride] = (od_coeff)tk;
+  y[21*ystride] = (od_coeff)tl;
+  y[22*ystride] = (od_coeff)tm;
+  y[23*ystride] = (od_coeff)tn;
+  y[24*ystride] = (od_coeff)to;
+  y[25*ystride] = (od_coeff)tp;
+  y[26*ystride] = (od_coeff)tq;
+  y[27*ystride] = (od_coeff)tr;
+  y[28*ystride] = (od_coeff)ts;
+  y[29*ystride] = (od_coeff)tt;
+  y[30*ystride] = (od_coeff)tu;
+  y[31*ystride] = (od_coeff)tv;
 }
 
 void od_bin_idct32(od_coeff *x, int xstride, const od_coeff y[32]) {
@@ -4582,7 +4694,8 @@ void od_bin_idct32(od_coeff *x, int xstride, const od_coeff y[32]) {
   x[31*xstride] = (od_coeff)tv;
 }
 
-void od_bin_fdst32(od_coeff y[32], const od_coeff *x, int xstride) {
+void od_bin_fdst32(od_coeff y[32], int ystride, const od_coeff *x, int xstride,
+                   int preshift) {
   od_coeff t0;
   od_coeff t1;
   od_coeff t2;
@@ -4615,72 +4728,174 @@ void od_bin_fdst32(od_coeff y[32], const od_coeff *x, int xstride) {
   od_coeff tt;
   od_coeff tu;
   od_coeff tv;
-  t0 = x[0*xstride];
-  t1 = x[1*xstride];
-  t2 = x[2*xstride];
-  t3 = x[3*xstride];
-  t4 = x[4*xstride];
-  t5 = x[5*xstride];
-  t6 = x[6*xstride];
-  t7 = x[7*xstride];
-  t8 = x[8*xstride];
-  t9 = x[9*xstride];
-  ta = x[10*xstride];
-  tb = x[11*xstride];
-  tc = x[12*xstride];
-  td = x[13*xstride];
-  te = x[14*xstride];
-  tf = x[15*xstride];
-  tg = x[16*xstride];
-  th = x[17*xstride];
-  ti = x[18*xstride];
-  tj = x[19*xstride];
-  tk = x[20*xstride];
-  tl = x[21*xstride];
-  tm = x[22*xstride];
-  tn = x[23*xstride];
-  to = x[24*xstride];
-  tp = x[25*xstride];
-  tq = x[26*xstride];
-  tr = x[27*xstride];
-  ts = x[28*xstride];
-  tt = x[29*xstride];
-  tu = x[30*xstride];
-  tv = x[31*xstride];
+  t0 = x[0*xstride] << preshift;
+  t1 = x[1*xstride] << preshift;
+  t2 = x[2*xstride] << preshift;
+  t3 = x[3*xstride] << preshift;
+  t4 = x[4*xstride] << preshift;
+  t5 = x[5*xstride] << preshift;
+  t6 = x[6*xstride] << preshift;
+  t7 = x[7*xstride] << preshift;
+  t8 = x[8*xstride] << preshift;
+  t9 = x[9*xstride] << preshift;
+  ta = x[10*xstride] << preshift;
+  tb = x[11*xstride] << preshift;
+  tc = x[12*xstride] << preshift;
+  td = x[13*xstride] << preshift;
+  te = x[14*xstride] << preshift;
+  tf = x[15*xstride] << preshift;
+  tg = x[16*xstride] << preshift;
+  th = x[17*xstride] << preshift;
+  ti = x[18*xstride] << preshift;
+  tj = x[19*xstride] << preshift;
+  tk = x[20*xstride] << preshift;
+  tl = x[21*xstride] << preshift;
+  tm = x[22*xstride] << preshift;
+  tn = x[23*xstride] << preshift;
+  to = x[24*xstride] << preshift;
+  tp = x[25*xstride] << preshift;
+  tq = x[26*xstride] << preshift;
+  tr = x[27*xstride] << preshift;
+  ts = x[28*xstride] << preshift;
+  tt = x[29*xstride] << preshift;
+  tu = x[30*xstride] << preshift;
+  tv = x[31*xstride] << preshift;
   OD_FDST_32(t0, t1, t2, t3, t4, t5, t6, t7, t8, t9, ta, tb, tc, td, te, tf,
     tg, th, ti, tj, tk, tl, tm, tn, to, tp, tq, tr, ts, tt, tu, tv);
-  y[0] = t0;
-  y[1] = tg;
-  y[2] = t8;
-  y[3] = to;
-  y[4] = t4;
-  y[5] = tk;
-  y[6] = tc;
-  y[7] = ts;
-  y[8] = t2;
-  y[9] = ti;
-  y[10] = ta;
-  y[11] = tq;
-  y[12] = t6;
-  y[13] = tm;
-  y[14] = te;
-  y[15] = tu;
-  y[16] = t1;
-  y[17] = th;
-  y[18] = t9;
-  y[19] = tp;
-  y[20] = t5;
-  y[21] = tl;
-  y[22] = td;
-  y[23] = tt;
-  y[24] = t3;
-  y[25] = tj;
-  y[26] = tb;
-  y[27] = tr;
-  y[28] = t7;
-  y[29] = tn;
-  y[30] = tf;
-  y[31] = tv;
+  y[0*ystride] = t0;
+  y[1*ystride] = tg;
+  y[2*ystride] = t8;
+  y[3*ystride] = to;
+  y[4*ystride] = t4;
+  y[5*ystride] = tk;
+  y[6*ystride] = tc;
+  y[7*ystride] = ts;
+  y[8*ystride] = t2;
+  y[9*ystride] = ti;
+  y[10*ystride] = ta;
+  y[11*ystride] = tq;
+  y[12*ystride] = t6;
+  y[13*ystride] = tm;
+  y[14*ystride] = te;
+  y[15*ystride] = tu;
+  y[16*ystride] = t1;
+  y[17*ystride] = th;
+  y[18*ystride] = t9;
+  y[19*ystride] = tp;
+  y[20*ystride] = t5;
+  y[21*ystride] = tl;
+  y[22*ystride] = td;
+  y[23*ystride] = tt;
+  y[24*ystride] = t3;
+  y[25*ystride] = tj;
+  y[26*ystride] = tb;
+  y[27*ystride] = tr;
+  y[28*ystride] = t7;
+  y[29*ystride] = tn;
+  y[30*ystride] = tf;
+  y[31*ystride] = tv;
+}
+
+void od_bin_fdst32_flip(od_coeff y[32], int ystride, const od_coeff *x,
+                        int xstride, int preshift) {
+  od_coeff t0;
+  od_coeff t1;
+  od_coeff t2;
+  od_coeff t3;
+  od_coeff t4;
+  od_coeff t5;
+  od_coeff t6;
+  od_coeff t7;
+  od_coeff t8;
+  od_coeff t9;
+  od_coeff ta;
+  od_coeff tb;
+  od_coeff tc;
+  od_coeff td;
+  od_coeff te;
+  od_coeff tf;
+  od_coeff tg;
+  od_coeff th;
+  od_coeff ti;
+  od_coeff tj;
+  od_coeff tk;
+  od_coeff tl;
+  od_coeff tm;
+  od_coeff tn;
+  od_coeff to;
+  od_coeff tp;
+  od_coeff tq;
+  od_coeff tr;
+  od_coeff ts;
+  od_coeff tt;
+  od_coeff tu;
+  od_coeff tv;
+  t0 = x[31*xstride] << preshift;
+  t1 = x[30*xstride] << preshift;
+  t2 = x[29*xstride] << preshift;
+  t3 = x[28*xstride] << preshift;
+  t4 = x[27*xstride] << preshift;
+  t5 = x[26*xstride] << preshift;
+  t6 = x[25*xstride] << preshift;
+  t7 = x[24*xstride] << preshift;
+  t8 = x[23*xstride] << preshift;
+  t9 = x[22*xstride] << preshift;
+  ta = x[21*xstride] << preshift;
+  tb = x[20*xstride] << preshift;
+  tc = x[19*xstride] << preshift;
+  td = x[18*xstride] << preshift;
+  te = x[17*xstride] << preshift;
+  tf = x[16*xstride] << preshift;
+  tg = x[15*xstride] << preshift;
+  th = x[14*xstride] << preshift;
+  ti = x[13*xstride] << preshift;
+  tj = x[12*xstride] << preshift;
+  tk = x[11*xstride] << preshift;
+  tl = x[10*xstride] << preshift;
+  tm = x[9*xstride] << preshift;
+  tn = x[8*xstride] << preshift;
+  to = x[7*xstride] << preshift;
+  tp = x[6*xstride] << preshift;
+  tq = x[5*xstride] << preshift;
+  tr = x[4*xstride] << preshift;
+  ts = x[3*xstride] << preshift;
+  tt = x[2*xstride] << preshift;
+  tu = x[1*xstride] << preshift;
+  tv = x[0*xstride] << preshift;
+  OD_FDST_32(t0, t1, t2, t3, t4, t5, t6, t7, t8, t9, ta, tb, tc, td, te, tf,
+    tg, th, ti, tj, tk, tl, tm, tn, to, tp, tq, tr, ts, tt, tu, tv);
+  y[0*ystride] = t0;
+  y[1*ystride] = tg;
+  y[2*ystride] = t8;
+  y[3*ystride] = to;
+  y[4*ystride] = t4;
+  y[5*ystride] = tk;
+  y[6*ystride] = tc;
+  y[7*ystride] = ts;
+  y[8*ystride] = t2;
+  y[9*ystride] = ti;
+  y[10*ystride] = ta;
+  y[11*ystride] = tq;
+  y[12*ystride] = t6;
+  y[13*ystride] = tm;
+  y[14*ystride] = te;
+  y[15*ystride] = tu;
+  y[16*ystride] = t1;
+  y[17*ystride] = th;
+  y[18*ystride] = t9;
+  y[19*ystride] = tp;
+  y[20*ystride] = t5;
+  y[21*ystride] = tl;
+  y[22*ystride] = td;
+  y[23*ystride] = tt;
+  y[24*ystride] = t3;
+  y[25*ystride] = tj;
+  y[26*ystride] = tb;
+  y[27*ystride] = tr;
+  y[28*ystride] = t7;
+  y[29*ystride] = tn;
+  y[30*ystride] = tf;
+  y[31*ystride] = tv;
 }
 
 void od_bin_idst32(od_coeff *x, int xstride, const od_coeff y[32]) {
@@ -4785,7 +5000,8 @@ void od_bin_idst32(od_coeff *x, int xstride, const od_coeff y[32]) {
 }
 
 #if CONFIG_TX64X64
-void od_bin_fdct64(od_coeff y[64], const od_coeff *x, int xstride) {
+void od_bin_fdct64(od_coeff y[64], int ystride, const od_coeff *x, int xstride,
+                   int preshift) {
   int t0;
   int t1;
   int t2;
@@ -4850,139 +5066,139 @@ void od_bin_fdct64(od_coeff y[64], const od_coeff *x, int xstride) {
   int tZ;
   int t_;
   int t;
-  t0 = x[0*xstride];
-  tw = x[1*xstride];
-  tg = x[2*xstride];
-  tM = x[3*xstride];
-  t8 = x[4*xstride];
-  tE = x[5*xstride];
-  to = x[6*xstride];
-  tU = x[7*xstride];
-  t4 = x[8*xstride];
-  tA = x[9*xstride];
-  tk = x[10*xstride];
-  tQ = x[11*xstride];
-  tc = x[12*xstride];
-  tI = x[13*xstride];
-  ts = x[14*xstride];
-  tY = x[15*xstride];
-  t2 = x[16*xstride];
-  ty = x[17*xstride];
-  ti = x[18*xstride];
-  tO = x[19*xstride];
-  ta = x[20*xstride];
-  tG = x[21*xstride];
-  tq = x[22*xstride];
-  tW = x[23*xstride];
-  t6 = x[24*xstride];
-  tC = x[25*xstride];
-  tm = x[26*xstride];
-  tS = x[27*xstride];
-  te = x[28*xstride];
-  tK = x[29*xstride];
-  tu = x[30*xstride];
-  t_ = x[31*xstride];
-  t1 = x[32*xstride];
-  tx = x[33*xstride];
-  th = x[34*xstride];
-  tN = x[35*xstride];
-  t9 = x[36*xstride];
-  tF = x[37*xstride];
-  tp = x[38*xstride];
-  tV = x[39*xstride];
-  t5 = x[40*xstride];
-  tB = x[41*xstride];
-  tl = x[42*xstride];
-  tR = x[43*xstride];
-  td = x[44*xstride];
-  tJ = x[45*xstride];
-  tt = x[46*xstride];
-  tZ = x[47*xstride];
-  t3 = x[48*xstride];
-  tz = x[49*xstride];
-  tj = x[50*xstride];
-  tP = x[51*xstride];
-  tb = x[52*xstride];
-  tH = x[53*xstride];
-  tr = x[54*xstride];
-  tX = x[55*xstride];
-  t7 = x[56*xstride];
-  tD = x[57*xstride];
-  tn = x[58*xstride];
-  tT = x[59*xstride];
-  tf = x[60*xstride];
-  tL = x[61*xstride];
-  tv = x[62*xstride];
-  t = x[63*xstride];
+  t0 = x[0*xstride] << preshift;
+  tw = x[1*xstride] << preshift;
+  tg = x[2*xstride] << preshift;
+  tM = x[3*xstride] << preshift;
+  t8 = x[4*xstride] << preshift;
+  tE = x[5*xstride] << preshift;
+  to = x[6*xstride] << preshift;
+  tU = x[7*xstride] << preshift;
+  t4 = x[8*xstride] << preshift;
+  tA = x[9*xstride] << preshift;
+  tk = x[10*xstride] << preshift;
+  tQ = x[11*xstride] << preshift;
+  tc = x[12*xstride] << preshift;
+  tI = x[13*xstride] << preshift;
+  ts = x[14*xstride] << preshift;
+  tY = x[15*xstride] << preshift;
+  t2 = x[16*xstride] << preshift;
+  ty = x[17*xstride] << preshift;
+  ti = x[18*xstride] << preshift;
+  tO = x[19*xstride] << preshift;
+  ta = x[20*xstride] << preshift;
+  tG = x[21*xstride] << preshift;
+  tq = x[22*xstride] << preshift;
+  tW = x[23*xstride] << preshift;
+  t6 = x[24*xstride] << preshift;
+  tC = x[25*xstride] << preshift;
+  tm = x[26*xstride] << preshift;
+  tS = x[27*xstride] << preshift;
+  te = x[28*xstride] << preshift;
+  tK = x[29*xstride] << preshift;
+  tu = x[30*xstride] << preshift;
+  t_ = x[31*xstride] << preshift;
+  t1 = x[32*xstride] << preshift;
+  tx = x[33*xstride] << preshift;
+  th = x[34*xstride] << preshift;
+  tN = x[35*xstride] << preshift;
+  t9 = x[36*xstride] << preshift;
+  tF = x[37*xstride] << preshift;
+  tp = x[38*xstride] << preshift;
+  tV = x[39*xstride] << preshift;
+  t5 = x[40*xstride] << preshift;
+  tB = x[41*xstride] << preshift;
+  tl = x[42*xstride] << preshift;
+  tR = x[43*xstride] << preshift;
+  td = x[44*xstride] << preshift;
+  tJ = x[45*xstride] << preshift;
+  tt = x[46*xstride] << preshift;
+  tZ = x[47*xstride] << preshift;
+  t3 = x[48*xstride] << preshift;
+  tz = x[49*xstride] << preshift;
+  tj = x[50*xstride] << preshift;
+  tP = x[51*xstride] << preshift;
+  tb = x[52*xstride] << preshift;
+  tH = x[53*xstride] << preshift;
+  tr = x[54*xstride] << preshift;
+  tX = x[55*xstride] << preshift;
+  t7 = x[56*xstride] << preshift;
+  tD = x[57*xstride] << preshift;
+  tn = x[58*xstride] << preshift;
+  tT = x[59*xstride] << preshift;
+  tf = x[60*xstride] << preshift;
+  tL = x[61*xstride] << preshift;
+  tv = x[62*xstride] << preshift;
+  t = x[63*xstride] << preshift;
   OD_FDCT_64(t0, tw, tg, tM, t8, tE, to, tU, t4, tA, tk, tQ, tc, tI, ts, tY,
     t2, ty, ti, tO, ta, tG, tq, tW, t6, tC, tm, tS, te, tK, tu, t_, t1, tx,
     th, tN, t9, tF, tp, tV, t5, tB, tl, tR, td, tJ, tt, tZ, t3, tz, tj, tP,
     tb, tH, tr, tX, t7, tD, tn, tT, tf, tL, tv, t);
-  y[0] = (od_coeff)t0;
-  y[1] = (od_coeff)t1;
-  y[2] = (od_coeff)t2;
-  y[3] = (od_coeff)t3;
-  y[4] = (od_coeff)t4;
-  y[5] = (od_coeff)t5;
-  y[6] = (od_coeff)t6;
-  y[7] = (od_coeff)t7;
-  y[8] = (od_coeff)t8;
-  y[9] = (od_coeff)t9;
-  y[10] = (od_coeff)ta;
-  y[11] = (od_coeff)tb;
-  y[12] = (od_coeff)tc;
-  y[13] = (od_coeff)td;
-  y[14] = (od_coeff)te;
-  y[15] = (od_coeff)tf;
-  y[16] = (od_coeff)tg;
-  y[17] = (od_coeff)th;
-  y[18] = (od_coeff)ti;
-  y[19] = (od_coeff)tj;
-  y[20] = (od_coeff)tk;
-  y[21] = (od_coeff)tl;
-  y[22] = (od_coeff)tm;
-  y[23] = (od_coeff)tn;
-  y[24] = (od_coeff)to;
-  y[25] = (od_coeff)tp;
-  y[26] = (od_coeff)tq;
-  y[27] = (od_coeff)tr;
-  y[28] = (od_coeff)ts;
-  y[29] = (od_coeff)tt;
-  y[30] = (od_coeff)tu;
-  y[31] = (od_coeff)tv;
-  y[32] = (od_coeff)tw;
-  y[33] = (od_coeff)tx;
-  y[34] = (od_coeff)ty;
-  y[35] = (od_coeff)tz;
-  y[36] = (od_coeff)tA;
-  y[37] = (od_coeff)tB;
-  y[38] = (od_coeff)tC;
-  y[39] = (od_coeff)tD;
-  y[40] = (od_coeff)tE;
-  y[41] = (od_coeff)tF;
-  y[41] = (od_coeff)tF;
-  y[42] = (od_coeff)tG;
-  y[43] = (od_coeff)tH;
-  y[44] = (od_coeff)tI;
-  y[45] = (od_coeff)tJ;
-  y[46] = (od_coeff)tK;
-  y[47] = (od_coeff)tL;
-  y[48] = (od_coeff)tM;
-  y[49] = (od_coeff)tN;
-  y[50] = (od_coeff)tO;
-  y[51] = (od_coeff)tP;
-  y[52] = (od_coeff)tQ;
-  y[53] = (od_coeff)tR;
-  y[54] = (od_coeff)tS;
-  y[55] = (od_coeff)tT;
-  y[56] = (od_coeff)tU;
-  y[57] = (od_coeff)tV;
-  y[58] = (od_coeff)tW;
-  y[59] = (od_coeff)tX;
-  y[60] = (od_coeff)tY;
-  y[61] = (od_coeff)tZ;
-  y[62] = (od_coeff)t_;
-  y[63] = (od_coeff)t;
+  y[0*ystride] = (od_coeff)t0;
+  y[1*ystride] = (od_coeff)t1;
+  y[2*ystride] = (od_coeff)t2;
+  y[3*ystride] = (od_coeff)t3;
+  y[4*ystride] = (od_coeff)t4;
+  y[5*ystride] = (od_coeff)t5;
+  y[6*ystride] = (od_coeff)t6;
+  y[7*ystride] = (od_coeff)t7;
+  y[8*ystride] = (od_coeff)t8;
+  y[9*ystride] = (od_coeff)t9;
+  y[10*ystride] = (od_coeff)ta;
+  y[11*ystride] = (od_coeff)tb;
+  y[12*ystride] = (od_coeff)tc;
+  y[13*ystride] = (od_coeff)td;
+  y[14*ystride] = (od_coeff)te;
+  y[15*ystride] = (od_coeff)tf;
+  y[16*ystride] = (od_coeff)tg;
+  y[17*ystride] = (od_coeff)th;
+  y[18*ystride] = (od_coeff)ti;
+  y[19*ystride] = (od_coeff)tj;
+  y[20*ystride] = (od_coeff)tk;
+  y[21*ystride] = (od_coeff)tl;
+  y[22*ystride] = (od_coeff)tm;
+  y[23*ystride] = (od_coeff)tn;
+  y[24*ystride] = (od_coeff)to;
+  y[25*ystride] = (od_coeff)tp;
+  y[26*ystride] = (od_coeff)tq;
+  y[27*ystride] = (od_coeff)tr;
+  y[28*ystride] = (od_coeff)ts;
+  y[29*ystride] = (od_coeff)tt;
+  y[30*ystride] = (od_coeff)tu;
+  y[31*ystride] = (od_coeff)tv;
+  y[32*ystride] = (od_coeff)tw;
+  y[33*ystride] = (od_coeff)tx;
+  y[34*ystride] = (od_coeff)ty;
+  y[35*ystride] = (od_coeff)tz;
+  y[36*ystride] = (od_coeff)tA;
+  y[37*ystride] = (od_coeff)tB;
+  y[38*ystride] = (od_coeff)tC;
+  y[39*ystride] = (od_coeff)tD;
+  y[40*ystride] = (od_coeff)tE;
+  y[41*ystride] = (od_coeff)tF;
+  y[41*ystride] = (od_coeff)tF;
+  y[42*ystride] = (od_coeff)tG;
+  y[43*ystride] = (od_coeff)tH;
+  y[44*ystride] = (od_coeff)tI;
+  y[45*ystride] = (od_coeff)tJ;
+  y[46*ystride] = (od_coeff)tK;
+  y[47*ystride] = (od_coeff)tL;
+  y[48*ystride] = (od_coeff)tM;
+  y[49*ystride] = (od_coeff)tN;
+  y[50*ystride] = (od_coeff)tO;
+  y[51*ystride] = (od_coeff)tP;
+  y[52*ystride] = (od_coeff)tQ;
+  y[53*ystride] = (od_coeff)tR;
+  y[54*ystride] = (od_coeff)tS;
+  y[55*ystride] = (od_coeff)tT;
+  y[56*ystride] = (od_coeff)tU;
+  y[57*ystride] = (od_coeff)tV;
+  y[58*ystride] = (od_coeff)tW;
+  y[59*ystride] = (od_coeff)tX;
+  y[60*ystride] = (od_coeff)tY;
+  y[61*ystride] = (od_coeff)tZ;
+  y[62*ystride] = (od_coeff)t_;
+  y[63*ystride] = (od_coeff)t;
 }
 
 void od_bin_idct64(od_coeff *x, int xstride, const od_coeff y[64]) {
@@ -5186,12 +5402,51 @@ void od_bin_idct64(od_coeff *x, int xstride, const od_coeff y[64]) {
 }
 #endif
 
+void od_bin_fidtx4(od_coeff y[4], int ystride, const od_coeff *x, int xstride,
+                   int preshift) {
+  int i;
+  for(i=0; i<4; i++)
+    y[i*ystride] = x[i*xstride] << preshift;
+}
+
+void od_bin_fidtx8(od_coeff y[8], int ystride, const od_coeff *x, int xstride,
+                   int preshift) {
+  int i;
+  for(i=0; i<8; i++)
+    y[i*ystride] = x[i*xstride] << preshift;
+}
+
+void od_bin_fidtx16(od_coeff y[16], int ystride, const od_coeff *x, int xstride,
+                   int preshift) {
+  int i;
+  for(i=0; i<16; i++)
+    y[i*ystride] = x[i*xstride] << preshift;
+}
+
+void od_bin_fidtx32(od_coeff y[32], int ystride, const od_coeff *x, int xstride,
+                   int preshift) {
+  int i;
+  for(i=0; i<32; i++)
+    y[i*ystride] = x[i*xstride] << preshift;
+}
+
+#if CONFIG_TX64X64
+void od_bin_fidtx64(od_coeff y[64], int ystride, const od_coeff *x, int xstride,
+                   int preshift) {
+  int i;
+  for(i=0; i<64; i++)
+    y[i*ystride] = x[i*xstride] << preshift;
+}
+#endif
+
+// Below are intermediate wrappers that handle the case when
+// tran_low_t is a smaller type than od_coeff
 void daala_fdct4(const tran_low_t *input, tran_low_t *output) {
   int i;
   od_coeff x[4];
   od_coeff y[4];
   for (i = 0; i < 4; i++) x[i] = (od_coeff)input[i];
-  od_bin_fdct4(y, x, 1);
+  od_bin_fdct4(y, 1, x, 1, 0);
   for (i = 0; i < 4; i++) output[i] = (tran_low_t)y[i];
 }
 
@@ -5209,7 +5464,7 @@ void daala_fdst4(const tran_low_t *input, tran_low_t *output) {
   od_coeff x[4];
   od_coeff y[4];
   for (i = 0; i < 4; i++) x[i] = (od_coeff)input[i];
-  od_bin_fdst4(y, x, 1);
+  od_bin_fdst4(y, 1, x, 1, 0);
   for (i = 0; i < 4; i++) output[i] = (tran_low_t)y[i];
 }
 
@@ -5232,7 +5487,7 @@ void daala_fdct8(const tran_low_t *input, tran_low_t *output) {
   od_coeff x[8];
   od_coeff y[8];
   for (i = 0; i < 8; i++) x[i] = (od_coeff)input[i];
-  od_bin_fdct8(y, x, 1);
+  od_bin_fdct8(y, 1, x, 1, 0);
   for (i = 0; i < 8; i++) output[i] = (tran_low_t)y[i];
 }
 
@@ -5250,7 +5505,7 @@ void daala_fdst8(const tran_low_t *input, tran_low_t *output) {
   od_coeff x[8];
   od_coeff y[8];
   for (i = 0; i < 8; i++) x[i] = (od_coeff)input[i];
-  od_bin_fdst8(y, x, 1);
+  od_bin_fdst8(y, 1, x, 1, 0);
   for (i = 0; i < 8; i++) output[i] = (tran_low_t)y[i];
 }
 
@@ -5273,7 +5528,7 @@ void daala_fdct16(const tran_low_t *input, tran_low_t *output) {
   od_coeff x[16];
   od_coeff y[16];
   for (i = 0; i < 16; i++) x[i] = (od_coeff)input[i];
-  od_bin_fdct16(y, x, 1);
+  od_bin_fdct16(y, 1, x, 1, 0);
   for (i = 0; i < 16; i++) output[i] = (tran_low_t)y[i];
 }
 
@@ -5291,7 +5546,7 @@ void daala_fdst16(const tran_low_t *input, tran_low_t *output) {
   od_coeff x[16];
   od_coeff y[16];
   for (i = 0; i < 16; i++) x[i] = (od_coeff)input[i];
-  od_bin_fdst16(y, x, 1);
+  od_bin_fdst16(y, 1, x, 1, 0);
   for (i = 0; i < 16; i++) output[i] = (tran_low_t)y[i];
 }
 
@@ -5314,7 +5569,7 @@ void daala_fdct32(const tran_low_t *input, tran_low_t *output) {
   od_coeff x[32];
   od_coeff y[32];
   for (i = 0; i < 32; i++) x[i] = (od_coeff)input[i];
-  od_bin_fdct32(y, x, 1);
+  od_bin_fdct32(y, 1, x, 1, 0);
   for (i = 0; i < 32; i++) output[i] = (tran_low_t)y[i];
 }
 
@@ -5332,7 +5587,7 @@ void daala_fdst32(const tran_low_t *input, tran_low_t *output) {
   od_coeff x[32];
   od_coeff y[32];
   for (i = 0; i < 32; i++) x[i] = (od_coeff)input[i];
-  od_bin_fdst32(y, x, 1);
+  od_bin_fdst32(y, 1, x, 1, 0);
   for (i = 0; i < 32; i++) output[i] = (tran_low_t)y[i];
 }
 
@@ -5356,7 +5611,7 @@ void daala_fdct64(const tran_low_t *input, tran_low_t *output) {
   od_coeff x[64];
   od_coeff y[64];
   for (i = 0; i < 64; i++) x[i] = (od_coeff)input[i];
-  od_bin_fdct64(y, x, 1);
+  od_bin_fdct64(y, 1, x, 1, 0);
   for (i = 0; i < 64; i++) output[i] = (tran_low_t)y[i];
 }
 
