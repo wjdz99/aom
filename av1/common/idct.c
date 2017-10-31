@@ -28,8 +28,12 @@
 #endif
 
 int av1_get_tx_scale(const TX_SIZE tx_size) {
+#if CONFIG_DAALA_TX
+  return 0;
+#else
   const int pels = tx_size_2d[tx_size];
   return (pels > 256) + (pels > 1024) + (pels > 4096);
+#endif
 }
 
 // NOTE: The implementation of all inverses need to be aware of the fact
