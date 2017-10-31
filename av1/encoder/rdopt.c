@@ -1958,6 +1958,10 @@ void av1_dist_block(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
     tran_low_t *const coeff = BLOCK_OFFSET(p->coeff, block);
     tran_low_t *const dqcoeff = BLOCK_OFFSET(pd->dqcoeff, block);
 
+#if CONFIG_DAALA_TX
+    *out_dist = av1_highbd_block_error(coeff, dqcoeff, buffer_length, &this_sse,
+                                       xd->bd);
+#else
 #if CONFIG_HIGHBITDEPTH
     if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH)
       *out_dist = av1_highbd_block_error(coeff, dqcoeff, buffer_length,
@@ -1965,6 +1969,7 @@ void av1_dist_block(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
     else
 #endif
       *out_dist = av1_block_error(coeff, dqcoeff, buffer_length, &this_sse);
+#endif
 
     *out_dist = RIGHT_SIGNED_SHIFT(*out_dist, shift);
     *out_sse = RIGHT_SIGNED_SHIFT(this_sse, shift);
@@ -2135,6 +2140,10 @@ static void block_rd_txfm(int plane, int block, int blk_row, int blk_col,
   const int buffer_length = tx_size_2d[tx_size];
   int64_t tmp_dist;
   int64_t tmp;
+#if CONFIG_DAALA_TX
+  tmp_dist =
+      av1_highbd_block_error(coeff, dqcoeff, buffer_length, &tmp, xd->bd);
+#else
 #if CONFIG_HIGHBITDEPTH
   if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH)
     tmp_dist =
@@ -2142,6 +2151,7 @@ static void block_rd_txfm(int plane, int block, int blk_row, int blk_col,
   else
 #endif
     tmp_dist = av1_block_error(coeff, dqcoeff, buffer_length, &tmp);
+#endif
   tmp_dist = RIGHT_SIGNED_SHIFT(tmp_dist, shift);
 
   if (
@@ -3788,6 +3798,10 @@ void av1_tx_block_rd_b(const AV1_COMP *cpi, MACROBLOCK *x, TX_SIZE tx_size,
       x->tune_metric != AOM_TUNE_PSNR;
 #endif  // CONFIG_DIST_8X8
 
+#if CONFIG_DAALA_TX
+  tmp_dist =
+      av1_highbd_block_error(coeff, dqcoeff, buffer_length, &tmp_sse, xd->bd);
+#else
 #if CONFIG_HIGHBITDEPTH
   if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH)
     tmp_dist =
@@ -3795,6 +3809,7 @@ void av1_tx_block_rd_b(const AV1_COMP *cpi, MACROBLOCK *x, TX_SIZE tx_size,
   else
 #endif
     tmp_dist = av1_block_error(coeff, dqcoeff, buffer_length, &tmp_sse);
+#endif
 
   tmp_dist = RIGHT_SIGNED_SHIFT(tmp_dist, shift);
 
