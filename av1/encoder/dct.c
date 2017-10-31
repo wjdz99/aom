@@ -2934,12 +2934,12 @@ void av1_fht64x64_c(const int16_t *input, tran_low_t *output, int stride,
 #endif
   }
 
-  // Zero out top-right 32x32 area.
-  for (int row = 0; row < 32; ++row) {
+  // Zero out top-right 32x16 area.
+  for (int row = 0; row < 16; ++row) {
     memset(output + row * 64 + 32, 0, 32 * sizeof(*output));
   }
-  // Zero out the bottom 64x32 area.
-  memset(output + 32 * 64, 0, 32 * 64 * sizeof(*output));
+  // Zero out the bottom 64x48 area.
+  memset(output + 16 * 64, 0, 48 * 64 * sizeof(*output));
 }
 
 void av1_fht64x32_c(const int16_t *input, tran_low_t *output, int stride,
@@ -3000,10 +3000,12 @@ void av1_fht64x32_c(const int16_t *input, tran_low_t *output, int stride,
           (tran_low_t)ROUND_POWER_OF_TWO_SIGNED(temp_out[j], 2);
   }
 
-  // Zero out right 32x32 area.
-  for (int row = 0; row < n; ++row) {
-    memset(output + row * n2 + n, 0, n * sizeof(*output));
+  // Zero out right 32x16 area.
+  for (int row = 0; row < 16; ++row) {
+    memset(output + row * 64 + 32, 0, 32 * sizeof(*output));
   }
+  // Zero out the bottom 64x16 area.
+  memset(output + 16 * 64, 0, 16 * 64 * sizeof(*output));
 }
 
 void av1_fht32x64_c(const int16_t *input, tran_low_t *output, int stride,
@@ -3063,8 +3065,8 @@ void av1_fht32x64_c(const int16_t *input, tran_low_t *output, int stride,
       output[i + j * n] = (tran_low_t)ROUND_POWER_OF_TWO_SIGNED(temp_out[j], 2);
   }
 
-  // Zero out the bottom 32x32 area.
-  memset(output + n * n, 0, n * n * sizeof(*output));
+  // Zero out the bottom 32x48 area.
+  memset(output + 16 * 32, 0, 48 * 32 * sizeof(*output));
 }
 #endif  // CONFIG_TX64X64
 
