@@ -22,12 +22,17 @@
 #if CONFIG_DAALA_TX4 || CONFIG_DAALA_TX8 || CONFIG_DAALA_TX16 || \
     CONFIG_DAALA_TX32 || CONFIG_DAALA_TX64
 #include "av1/common/daala_tx.h"
+#if CONFIG_DAALA_TX
+#include "av1/common/daala_inv_txfm.h"
+#endif
 #endif
 
 int av1_get_tx_scale(const TX_SIZE tx_size) {
   const int pels = tx_size_2d[tx_size];
   return (pels > 256) + (pels > 1024) + (pels > 4096);
 }
+
+#if !CONFIG_DAALA_TX
 
 // NOTE: The implementation of all inverses need to be aware of the fact
 // that input and output could be the same buffer.
@@ -56,7 +61,7 @@ static void iidtx32_c(const tran_low_t *input, tran_low_t *output) {
   }
 }
 
-#if CONFIG_TX64X64
+#if CONFIG_TX64X64 && !CONFIG_DAALA_TX64
 static void iidtx64_c(const tran_low_t *input, tran_low_t *output) {
   for (int i = 0; i < 64; ++i) {
     output[i] = (tran_low_t)dct_const_round_shift(input[i] * 4 * Sqrt2);
@@ -78,7 +83,7 @@ static void ihalfright32_c(const tran_low_t *input, tran_low_t *output) {
   // Note overall scaling factor is 4 times orthogonal
 }
 
-#if CONFIG_TX64X64
+#if CONFIG_TX64X64 && !CONFIG_DAALA_TX64
 static void idct64_col_c(const tran_low_t *input, tran_low_t *output) {
   int32_t in[64], out[64];
 
@@ -2358,6 +2363,9 @@ static void highbd_inv_txfm_add_64x64(const tran_low_t *input, uint8_t *dest,
 void av1_inv_txfm_add(const tran_low_t *input, uint8_t *dest, int stride,
                       TxfmParam *txfm_param) {
   assert(av1_ext_tx_used[txfm_param->tx_set_type][txfm_param->tx_type]);
+#if CONFIG_DAALA_TX
+  daala_inv_txfm_add(dqcoeff, dst, stride, &txfm_param);
+#else
   const TX_SIZE tx_size = txfm_param->tx_size;
   switch (tx_size) {
 #if CONFIG_TX64X64
@@ -2390,6 +2398,7 @@ void av1_inv_txfm_add(const tran_low_t *input, uint8_t *dest, int stride,
 #endif
     default: assert(0 && "Invalid transform size"); break;
   }
+#endif
 }
 
 #if CONFIG_TXMG
@@ -2418,6 +2427,7 @@ void av1_inv_txfm_add_txmg(const tran_low_t *dqcoeff, uint8_t *dst, int stride,
 }
 
 #endif
+#endif  //!CONFIG_DAALA_TX
 
 static void init_txfm_param(const MACROBLOCKD *xd, int plane, TX_SIZE tx_size,
                             TX_TYPE tx_type, int eob, TxfmParam *txfm_param) {
@@ -2503,6 +2513,9 @@ void av1_highbd_inv_txfm_add(const tran_low_t *input, uint8_t *dest, int stride,
                              TxfmParam *txfm_param) {
   const TX_SIZE tx_size = txfm_param->tx_size;
   assert(av1_ext_tx_used[txfm_param->tx_set_type][txfm_param->tx_type]);
+#if CONFIG_DAALA_TX
+  daala_inv_txfm_add(dqcoeff, dst, stride, &txfm_param);
+#else
   switch (tx_size) {
 #if CONFIG_TX64X64
     case TX_64X64:
@@ -2552,4 +2565,5 @@ void av1_highbd_inv_txfm_add(const tran_low_t *input, uint8_t *dest, int stride,
       break;
     default: assert(0 && "Invalid transform size"); break;
   }
+#endif
 }

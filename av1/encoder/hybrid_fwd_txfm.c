@@ -13,9 +13,14 @@
 #include "./aom_config.h"
 #include "./aom_dsp_rtcd.h"
 
+#if !CONFIG_DAALA_TX
+#include "av1/encoder/daala_fwd_txfm.h"
+#else
 #include "av1/common/idct.h"
+#endif
 #include "av1/encoder/hybrid_fwd_txfm.h"
 
+#if !CONFIG_DAALA_TX
 static void fwd_txfm_4x4(const int16_t *src_diff, tran_low_t *coeff,
                          int diff_stride, TxfmParam *txfm_param) {
   if (txfm_param->lossless) {
@@ -457,10 +462,14 @@ static void highbd_fwd_txfm_64x64(const int16_t *src_diff, tran_low_t *coeff,
   }
 }
 #endif  // CONFIG_TX64X64
+#endif  // !CONFIG_DAALA_TX
 
 void av1_fwd_txfm(const int16_t *src_diff, tran_low_t *coeff, int diff_stride,
                   TxfmParam *txfm_param) {
   assert(av1_ext_tx_used[txfm_param->tx_set_type][txfm_param->tx_type]);
+#if CONFIG_DAALA_TX
+  daala_fwd_txfm(src_diff, coeff, diff_stride, &txfm_param);
+#else
   const TX_SIZE tx_size = txfm_param->tx_size;
   switch (tx_size) {
 #if CONFIG_TX64X64
@@ -512,11 +521,15 @@ void av1_fwd_txfm(const int16_t *src_diff, tran_low_t *coeff, int diff_stride,
 #endif
     default: assert(0); break;
   }
+#endif
 }
 
 void av1_highbd_fwd_txfm(const int16_t *src_diff, tran_low_t *coeff,
                          int diff_stride, TxfmParam *txfm_param) {
   assert(av1_ext_tx_used[txfm_param->tx_set_type][txfm_param->tx_type]);
+#if CONFIG_DAALA_TX
+  daala_fwd_txfm(src_diff, coeff, diff_stride, &txfm_param);
+#else
   const TX_SIZE tx_size = txfm_param->tx_size;
   switch (tx_size) {
 #if CONFIG_TX64X64
@@ -562,4 +575,5 @@ void av1_highbd_fwd_txfm(const int16_t *src_diff, tran_low_t *coeff,
       break;
     default: assert(0); break;
   }
+#endif
 }
