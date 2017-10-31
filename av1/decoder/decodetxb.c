@@ -180,7 +180,6 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
 
   int i;
   for (i = 0; i < NUM_BASE_LEVELS; ++i) {
-    update_eob = 0;
     for (c = *eob - 1; c >= 0; --c) {
       uint8_t *const level = &levels[scan[c]];
       int ctx;
