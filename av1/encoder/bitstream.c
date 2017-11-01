@@ -2473,6 +2473,7 @@ static void encode_restoration_mode(AV1_COMMON *cm,
   if (cm->rst_info[0].frame_restoration_type != RESTORE_NONE ||
       cm->rst_info[1].frame_restoration_type != RESTORE_NONE ||
       cm->rst_info[2].frame_restoration_type != RESTORE_NONE) {
+    rsi = &cm->rst_info[0];
     aom_wb_write_bit(
         wb, rsi->restoration_unit_size != (RESTORATION_TILESIZE_MAX >> 2));
     if (rsi->restoration_unit_size != (RESTORATION_TILESIZE_MAX >> 2)) {
