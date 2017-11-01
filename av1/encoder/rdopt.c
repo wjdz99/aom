@@ -4732,8 +4732,9 @@ static int predict_skip_flag_8bit(const MACROBLOCK *x, BLOCK_SIZE bsize) {
 #endif  // CONFIG_TXMG
 #endif
 
-  uint32_t dc = (uint32_t)av1_dc_quant(x->qindex, 0, AOM_BITS_8);
-  uint32_t ac = (uint32_t)av1_ac_quant(x->qindex, 0, AOM_BITS_8);
+  // Operating on TX domain, not pixels; we want the QTX quantizers
+  uint32_t dc = (uint32_t)av1_dc_quant_QTX(x->qindex, 0, AOM_BITS_8);
+  uint32_t ac = (uint32_t)av1_ac_quant_QTX(x->qindex, 0, AOM_BITS_8);
   uint32_t max_quantized_coef = (100 * (uint32_t)abs(DCT_coefs[0])) / dc;
   for (int i = 1; i < bw * bh; i++) {
     uint32_t cur_quantized_coef = (100 * (uint32_t)abs(DCT_coefs[i])) / ac;
