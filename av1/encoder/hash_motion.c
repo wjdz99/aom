@@ -63,6 +63,7 @@ static int hash_block_size_to_index(int block_size) {
     case 16: return 2;
     case 32: return 3;
     case 64: return 4;
+    case 128: return 5;
     default: return -1;
   }
 }
