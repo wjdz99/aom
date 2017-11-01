@@ -5432,14 +5432,14 @@ static int cfl_rd_pick_alpha(MACROBLOCK *const x, const AV1_COMP *const cpi,
   int64_t best_rd_uv[CFL_JOINT_SIGNS][CFL_PRED_PLANES];
   int best_c[CFL_JOINT_SIGNS][CFL_PRED_PLANES];
 
-  for (int joint_sign = 0; joint_sign < CFL_JOINT_SIGNS; joint_sign++) {
-    const int sign_u = CFL_SIGN_U(joint_sign);
-    const int sign_v = CFL_SIGN_V(joint_sign);
-    for (int plane = 0; plane < CFL_PRED_PLANES; plane++) {
-      const int sign = (plane == CFL_PRED_U) ? sign_u : sign_v;
-      const int size = (sign == CFL_SIGN_ZERO) ? 1 : CFL_ALPHABET_SIZE;
-      best_rd_uv[joint_sign][plane] = INT64_MAX;
-      for (int c = 0; c < size; c++) {
+  for (int c = 0; c < CFL_ALPHABET_SIZE; c++) {
+    for (int joint_sign = 0; joint_sign < CFL_JOINT_SIGNS; joint_sign++) {
+      const int sign_u = CFL_SIGN_U(joint_sign);
+      const int sign_v = CFL_SIGN_V(joint_sign);
+      for (int plane = 0; plane < CFL_PRED_PLANES; plane++) {
+        const int sign = (plane == CFL_PRED_U) ? sign_u : sign_v;
+        if (!c) best_rd_uv[joint_sign][plane] = INT64_MAX;
+        if (!c && sign == CFL_SIGN_ZERO) continue;
         const int idx =
             ((sign == CFL_SIGN_ZERO) ? 0 : c * 2 + 1) + (sign == CFL_SIGN_NEG);
         if (rates[plane][idx] == INT_MAX) continue;
