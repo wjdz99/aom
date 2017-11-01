@@ -2943,16 +2943,7 @@ static void write_tx_mode(AV1_COMMON *cm, TX_MODE *mode,
   *mode = TX_MODE_SELECT;
   return;
 #else
-#if CONFIG_TX64X64
   aom_wb_write_bit(wb, *mode == TX_MODE_SELECT);
-  if (*mode != TX_MODE_SELECT) {
-    aom_wb_write_literal(wb, AOMMIN(*mode, ALLOW_32X32), 2);
-    if (*mode >= ALLOW_32X32) aom_wb_write_bit(wb, *mode == ALLOW_64X64);
-  }
-#else
-  aom_wb_write_bit(wb, *mode == TX_MODE_SELECT);
-  if (*mode != TX_MODE_SELECT) aom_wb_write_literal(wb, *mode, 2);
-#endif  // CONFIG_TX64X64
 #endif  // CONFIG_VAR_TX_NO_TX_MODE
 }
 
