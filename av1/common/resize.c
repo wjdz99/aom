@@ -453,25 +453,6 @@ static int32_t get_upscale_convolve_x0(int in_length, int out_length,
   return (int32_t)((uint32_t)x0 & RS_SCALE_SUBPEL_MASK);
 }
 
-static void convolve_horiz_superres_c(const uint8_t *src, uint8_t *dst,
-                                      const int16_t *x_filters, int interp_taps,
-                                      int x0_qn, int x_step_qn, int w) {
-  int x;
-  src -= interp_taps / 2 - 1;
-  int x_qn = x0_qn;
-  for (x = 0; x < w; ++x) {
-    const uint8_t *const src_x = &src[x_qn >> RS_SCALE_SUBPEL_BITS];
-    const int x_filter_idx =
-        (x_qn & RS_SCALE_SUBPEL_MASK) >> RS_SCALE_EXTRA_BITS;
-    assert(x_filter_idx <= RS_SUBPEL_MASK);
-    const int16_t *const x_filter = &x_filters[x_filter_idx * interp_taps];
-    int k, sum = 0;
-    for (k = 0; k < interp_taps; ++k) sum += src_x[k] * x_filter[k];
-    dst[x] = clip_pixel(ROUND_POWER_OF_TWO(sum, FILTER_BITS));
-    x_qn += x_step_qn;
-  }
-}
-
 static void interpolate_normative_core(const uint8_t *const src, int in_length,
                                        uint8_t *dst, int out_length,
                                        int superres_denom,
@@ -489,8 +470,8 @@ static void interpolate_normative_core(const uint8_t *const src, int in_length,
     // Note since we are upscaling, the first output sample is located before
     // the first input sample. Hence srcp = src - 1 + ... below
     olen = AOMMIN(oproc_unit, out_length - op);
-    convolve_horiz_superres_c(srcp, dst + op, interp_filters, interp_taps, x0,
-                              x_step_qn, olen);
+    av1_convolve_horiz_rs(srcp, dst + op, olen, interp_filters, interp_taps, x0,
+                          x_step_qn);
     x0 += olen * x_step_qn;
     // Note srcp may advance by UPSCALE_PROC_UNIT +/- 1
     srcp += (x0 >> RS_SCALE_SUBPEL_BITS);
@@ -872,26 +853,6 @@ static void highbd_interpolate(const uint16_t *const input, int in_length,
 }
 
 #if CONFIG_FRAME_SUPERRES && CONFIG_LOOP_RESTORATION
-static void highbd_convolve_horiz_superres_c(const uint16_t *src, uint16_t *dst,
-                                             const int16_t *x_filters,
-                                             int interp_taps, int x0_qn,
-                                             int x_step_qn, int w, int bd) {
-  int x;
-  src -= interp_taps / 2 - 1;
-  int x_qn = x0_qn;
-  for (x = 0; x < w; ++x) {
-    const uint16_t *const src_x = &src[x_qn >> RS_SCALE_SUBPEL_BITS];
-    const int x_filter_idx =
-        (x_qn & RS_SCALE_SUBPEL_MASK) >> RS_SCALE_EXTRA_BITS;
-    assert(x_filter_idx <= RS_SUBPEL_MASK);
-    const int16_t *const x_filter = &x_filters[x_filter_idx * interp_taps];
-    int k, sum = 0;
-    for (k = 0; k < interp_taps; ++k) sum += src_x[k] * x_filter[k];
-    dst[x] = clip_pixel_highbd(ROUND_POWER_OF_TWO(sum, FILTER_BITS), bd);
-    x_qn += x_step_qn;
-  }
-}
-
 static void highbd_interpolate_normative_core(const uint16_t *const src,
                                               int in_length, uint16_t *dst,
                                               int out_length,
@@ -910,8 +871,8 @@ static void highbd_interpolate_normative_core(const uint16_t *const src,
     // Note since we are upscaling, the first output sample is located before
     // the first input sample. Hence srcp = src - 1 + ... below
     olen = AOMMIN(oproc_unit, out_length - op);
-    highbd_convolve_horiz_superres_c(srcp, dst + op, interp_filters,
-                                     interp_taps, x0, x_step_qn, olen, bd);
+    av1_highbd_convolve_horiz_rs(srcp, dst + op, olen, interp_filters,
+                                 interp_taps, x0, x_step_qn, bd);
     x0 += olen * x_step_qn;
     // Note srcp may advance by UPSCALE_PROC_UNIT +/- 1
     srcp += (x0 >> RS_SCALE_SUBPEL_BITS);
