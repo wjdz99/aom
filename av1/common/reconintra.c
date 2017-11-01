@@ -1866,7 +1866,7 @@ void av1_filter_intra_edge_c(uint8_t *p, int sz, int strength) {
 }
 
 #if CONFIG_EXT_INTRA_MOD
-void av1_filter_intra_edge_corner(uint8_t *p_above, uint8_t *p_left) {
+static void av1_filter_intra_edge_corner(uint8_t *p_above, uint8_t *p_left) {
   const int kernel[3] = { 5, 6, 5 };
 
   int s = (p_left[0] * kernel[0]) + (p_above[-1] * kernel[1]) +
@@ -1902,7 +1902,8 @@ void av1_filter_intra_edge_high_c(uint16_t *p, int sz, int strength) {
 }
 
 #if CONFIG_EXT_INTRA_MOD
-void av1_filter_intra_edge_corner_high(uint16_t *p_above, uint16_t *p_left) {
+static void av1_filter_intra_edge_corner_high(uint16_t *p_above,
+                                              uint16_t *p_left) {
   const int kernel[3] = { 5, 6, 5 };
 
   int s = (p_left[0] * kernel[0]) + (p_above[-1] * kernel[1]) +
