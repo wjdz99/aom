@@ -319,7 +319,6 @@ EXPERIMENT_LIST="
     lgt_from_pred
     ncobmc_adapt_weight
     bgsprite
-    var_tx_no_tx_mode
     simplify_tx_mode
     mrc_tx
     lpf_direct
