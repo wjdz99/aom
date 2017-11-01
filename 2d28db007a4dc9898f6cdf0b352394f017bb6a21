@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "c62e0b42_5853ecbf",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 27
+      },
+      "lineNbr": 1388,
+      "author": {
+        "id": 6510
+      },
+      "writtenOn": "2017-11-01T17:55:01Z",
+      "side": 1,
+      "message": "Fixed the commit message. I think signalling them on S-frames could be useful.",
+      "parentUuid": "cb4e5e9b_bf29d44d",
+      "revId": "2d28db007a4dc9898f6cdf0b352394f017bb6a21",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8ee546f8_a3cbc54f",
         "filename": "av1/decoder/decodeframe.c",
         "patchSetId": 27
@@ -53,6 +71,24 @@
     },
     {
       "key": {
+        "uuid": "f0681ba1_e23141cc",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 27
+      },
+      "lineNbr": 1394,
+      "author": {
+        "id": 6510
+      },
+      "writtenOn": "2017-11-01T17:55:01Z",
+      "side": 1,
+      "message": "No conflict, but we don\u0027t want to signal a q_segmentation index in case the block\u0027s skipped using the skip segmentation feature.",
+      "parentUuid": "8ee546f8_a3cbc54f",
+      "revId": "2d28db007a4dc9898f6cdf0b352394f017bb6a21",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cdecc598_4fda49a5",
         "filename": "av1/decoder/decodemv.c",
         "patchSetId": 27
@@ -64,6 +100,24 @@
       "writtenOn": "2017-10-28T01:38:29Z",
       "side": 1,
       "message": "I\u0027m a little confused by the values being passed to mi_row and mi_col here. It looks like what you\u0027re actually using as your predictor is the co-located block in an adjacent superblock. Except the MAX_MIB_SIZE is only the size of the *largest* allowed superblock, and may not be the size of the superblocks in the current frame (with ext_partition as currently implemented).\n\nBut either way, that means a 1024x32x3x3 \u003d 288 kbit line buffer just to determine the prediction context for this ID in 4k 4:4:4 video (plus additional column buffers). That seems a little excessive.\n\nI think we need to use no more than one row/column of adjacent segment IDs, and probably we can just look at a single mbmi value (i.e., hard-code bsize to BLOCK_4X4). For block sizes larger than 4x4, I\u0027m not sure which of the possible mbmi values would be the best to look at (my guess would be either the ones on the far right/bottom, or the mid-point of the edge).\n\nThis will also need to be fixed not to look across tile boundaries (at least not without dependent_horztiles enabled for this frame), or we will fail the ext_tile nightly tests (which are currently the only test we have for independently decodable tiles).",
+      "revId": "2d28db007a4dc9898f6cdf0b352394f017bb6a21",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "42019b2a_f7abbc8b",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 27
+      },
+      "lineNbr": 446,
+      "author": {
+        "id": 6510
+      },
+      "writtenOn": "2017-11-01T17:55:01Z",
+      "side": 1,
+      "message": "Fixed memory usage and incorrect addressing.",
+      "parentUuid": "cdecc598_4fda49a5",
       "revId": "2d28db007a4dc9898f6cdf0b352394f017bb6a21",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
