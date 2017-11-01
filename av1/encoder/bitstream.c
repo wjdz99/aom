@@ -1148,8 +1148,8 @@ static void write_palette_colors_y(const MACROBLOCKD *const xd,
                                    const PALETTE_MODE_INFO *const pmi,
                                    int bit_depth, aom_writer *w) {
   const int n = pmi->palette_size[0];
-  uint16_t color_cache[2 * PALETTE_MAX_SIZE];
-  const int n_cache = av1_get_palette_cache(xd, 0, color_cache);
+  int n_cache;
+  const uint16_t *color_cache = av1_get_palette_cache(xd, 0, &n_cache);
   int out_cache_colors[PALETTE_MAX_SIZE];
   uint8_t cache_color_found[2 * PALETTE_MAX_SIZE];
   const int n_out_cache =
@@ -1175,8 +1175,8 @@ static void write_palette_colors_uv(const MACROBLOCKD *const xd,
   const uint16_t *colors_u = pmi->palette_colors + PALETTE_MAX_SIZE;
   const uint16_t *colors_v = pmi->palette_colors + 2 * PALETTE_MAX_SIZE;
   // U channel colors.
-  uint16_t color_cache[2 * PALETTE_MAX_SIZE];
-  const int n_cache = av1_get_palette_cache(xd, 1, color_cache);
+  int n_cache;
+  const uint16_t *color_cache = av1_get_palette_cache(xd, 0, &n_cache);
   int out_cache_colors[PALETTE_MAX_SIZE];
   uint8_t cache_color_found[2 * PALETTE_MAX_SIZE];
   const int n_out_cache = av1_index_color_cache(

@@ -692,9 +692,9 @@ static void merge_colors(uint16_t *colors, uint16_t *cached_colors,
 
 static void read_palette_colors_y(MACROBLOCKD *const xd, int bit_depth,
                                   PALETTE_MODE_INFO *const pmi, aom_reader *r) {
-  uint16_t color_cache[2 * PALETTE_MAX_SIZE];
+  int n_cache;
+  const uint16_t *color_cache = av1_get_palette_cache(xd, 0, &n_cache);
   uint16_t cached_colors[PALETTE_MAX_SIZE];
-  const int n_cache = av1_get_palette_cache(xd, 0, color_cache);
   const int n = pmi->palette_size[0];
   int idx = 0;
   for (int i = 0; i < n_cache && idx < n; ++i)
@@ -726,9 +726,9 @@ static void read_palette_colors_uv(MACROBLOCKD *const xd, int bit_depth,
                                    aom_reader *r) {
   const int n = pmi->palette_size[1];
   // U channel colors.
-  uint16_t color_cache[2 * PALETTE_MAX_SIZE];
+  int n_cache;
+  const uint16_t *color_cache = av1_get_palette_cache(xd, 0, &n_cache);
   uint16_t cached_colors[PALETTE_MAX_SIZE];
-  const int n_cache = av1_get_palette_cache(xd, 1, color_cache);
   int idx = 0;
   for (int i = 0; i < n_cache && idx < n; ++i)
     if (aom_read_bit(r, ACCT_STR)) cached_colors[idx++] = color_cache[i];

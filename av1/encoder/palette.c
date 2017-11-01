@@ -120,7 +120,7 @@ int av1_get_palette_delta_bits_v(const PALETTE_MODE_INFO *const pmi,
 
 int av1_palette_color_cost_y(const PALETTE_MODE_INFO *const pmi,
 #if CONFIG_PALETTE_DELTA_ENCODING
-                             uint16_t *color_cache, int n_cache,
+                             const uint16_t *color_cache, int n_cache,
 #endif  // CONFIG_PALETTE_DELTA_ENCODING
                              int bit_depth) {
   const int n = pmi->palette_size[0];
@@ -140,7 +140,7 @@ int av1_palette_color_cost_y(const PALETTE_MODE_INFO *const pmi,
 
 int av1_palette_color_cost_uv(const PALETTE_MODE_INFO *const pmi,
 #if CONFIG_PALETTE_DELTA_ENCODING
-                              uint16_t *color_cache, int n_cache,
+                              const uint16_t *color_cache, int n_cache,
 #endif  // CONFIG_PALETTE_DELTA_ENCODING
                               int bit_depth) {
   const int n = pmi->palette_size[1];

@@ -85,14 +85,14 @@ int av1_get_palette_delta_bits_v(const PALETTE_MODE_INFO *const pmi,
 // Return the rate cost for transmitting luma palette color values.
 int av1_palette_color_cost_y(const PALETTE_MODE_INFO *const pmi,
 #if CONFIG_PALETTE_DELTA_ENCODING
-                             uint16_t *color_cache, int n_cache,
+                             const uint16_t *color_cache, int n_cache,
 #endif  // CONFIG_PALETTE_DELTA_ENCODING
                              int bit_depth);
 
 // Return the rate cost for transmitting chroma palette color values.
 int av1_palette_color_cost_uv(const PALETTE_MODE_INFO *const pmi,
 #if CONFIG_PALETTE_DELTA_ENCODING
-                              uint16_t *color_cache, int n_cache,
+                              const uint16_t *color_cache, int n_cache,
 #endif  // CONFIG_PALETTE_DELTA_ENCODING
                               int bit_depth);
 

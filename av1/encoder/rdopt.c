@@ -3071,7 +3071,7 @@ static void extend_palette_color_map(uint8_t *const color_map, int orig_width,
 #if CONFIG_PALETTE_DELTA_ENCODING
 // Bias toward using colors in the cache.
 // TODO(huisu): Try other schemes to improve compression.
-static void optimize_palette_colors(uint16_t *color_cache, int n_cache,
+static void optimize_palette_colors(const uint16_t *color_cache, int n_cache,
                                     int n_colors, int stride,
                                     float *centroids) {
   if (n_cache <= 0) return;
@@ -3177,8 +3177,8 @@ static int rd_pick_palette_intra_sby(const AV1_COMP *const cpi, MACROBLOCK *x,
     if (rows * cols > PALETTE_MAX_BLOCK_SIZE) return 0;
 
 #if CONFIG_PALETTE_DELTA_ENCODING
-    uint16_t color_cache[2 * PALETTE_MAX_SIZE];
-    const int n_cache = av1_get_palette_cache(xd, 0, color_cache);
+    int n_cache;
+    const uint16_t *color_cache = av1_get_palette_cache(xd, 0, &n_cache);
 #endif  // CONFIG_PALETTE_DELTA_ENCODING
 
     for (n = colors > PALETTE_MAX_SIZE ? PALETTE_MAX_SIZE : colors; n >= 2;
@@ -5144,8 +5144,8 @@ static void rd_pick_palette_intra_sbuv(const AV1_COMP *const cpi, MACROBLOCK *x,
 #endif  // CONFIG_HIGHBITDEPTH
 
 #if CONFIG_PALETTE_DELTA_ENCODING
-  uint16_t color_cache[2 * PALETTE_MAX_SIZE];
-  const int n_cache = av1_get_palette_cache(xd, 1, color_cache);
+  int n_cache;
+  const uint16_t *color_cache = av1_get_palette_cache(xd, 0, &n_cache);
 #endif  // CONFIG_PALETTE_DELTA_ENCODING
 
   colors = colors_u > colors_v ? colors_u : colors_v;

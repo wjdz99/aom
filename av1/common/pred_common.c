@@ -101,8 +101,9 @@ int av1_get_pred_context_switchable_interp(const MACROBLOCKD *xd) {
 #endif
 
 #if CONFIG_PALETTE_DELTA_ENCODING
-int av1_get_palette_cache(const MACROBLOCKD *const xd, int plane,
-                          uint16_t *cache) {
+const uint16_t *av1_get_palette_cache(const MACROBLOCKD *const xd, int plane,
+                                      int *n_cache) {
+  *n_cache = 0;
   const int row = -xd->mb_to_top_edge >> 3;
   // Do not refer to above SB row when on SB boundary.
   const MODE_INFO *const above_mi =
@@ -113,38 +114,15 @@ int av1_get_palette_cache(const MACROBLOCKD *const xd, int plane,
     above_n = above_mi->mbmi.palette_mode_info.palette_size[plane != 0];
   if (left_mi)
     left_n = left_mi->mbmi.palette_mode_info.palette_size[plane != 0];
-  if (above_n == 0 && left_n == 0) return 0;
-  int above_idx = plane * PALETTE_MAX_SIZE;
-  int left_idx = plane * PALETTE_MAX_SIZE;
-  int n = 0;
-  const uint16_t *above_colors =
-      above_mi ? above_mi->mbmi.palette_mode_info.palette_colors : NULL;
-  const uint16_t *left_colors =
-      left_mi ? left_mi->mbmi.palette_mode_info.palette_colors : NULL;
-  // Merge the sorted lists of base colors from above and left to get
-  // combined sorted color cache.
-  while (above_n > 0 && left_n > 0) {
-    uint16_t v_above = above_colors[above_idx];
-    uint16_t v_left = left_colors[left_idx];
-    if (v_left < v_above) {
-      if (n == 0 || v_left != cache[n - 1]) cache[n++] = v_left;
-      ++left_idx, --left_n;
-    } else {
-      if (n == 0 || v_above != cache[n - 1]) cache[n++] = v_above;
-      ++above_idx, --above_n;
-      if (v_left == v_above) ++left_idx, --left_n;
-    }
+  if (above_n == 0 && left_n == 0) return NULL;
+  const int offset  = plane * PALETTE_MAX_SIZE;
+  if (left_n > above_n) {
+    *n_cache = left_n;
+    return left_mi->mbmi.palette_mode_info.palette_colors + offset;
+  } else {
+    *n_cache = above_n;
+    return above_mi->mbmi.palette_mode_info.palette_colors + offset;
   }
-  while (above_n-- > 0) {
-    uint16_t val = above_colors[above_idx++];
-    if (n == 0 || val != cache[n - 1]) cache[n++] = val;
-  }
-  while (left_n-- > 0) {
-    uint16_t val = left_colors[left_idx++];
-    if (n == 0 || val != cache[n - 1]) cache[n++] = val;
-  }
-  assert(n <= 2 * PALETTE_MAX_SIZE);
-  return n;
 }
 #endif  // CONFIG_PALETTE_DELTA_ENCODING
 
