@@ -375,17 +375,21 @@ static INLINE int get_nz_count(const tran_low_t *tcoeffs, int bwl, int height,
                                int row, int col, TX_CLASS tx_class,
                                const int coeff_is_byte_flag) {
   int count = 0;
+  // TODO(jingning): We probably should be able to reduce the referencing
+  // region for IDTX.
   for (int idx = 0; idx < SIG_REF_OFFSET_NUM; ++idx) {
-    const int ref_row = row + ((tx_class == TX_CLASS_2D)
-                                   ? sig_ref_offset[idx][0]
-                                   : ((tx_class == TX_CLASS_VERT)
-                                          ? sig_ref_offset_vert[idx][0]
-                                          : sig_ref_offset_horiz[idx][0]));
-    const int ref_col = col + ((tx_class == TX_CLASS_2D)
-                                   ? sig_ref_offset[idx][1]
-                                   : ((tx_class == TX_CLASS_VERT)
-                                          ? sig_ref_offset_vert[idx][1]
-                                          : sig_ref_offset_horiz[idx][1]));
+    const int ref_row =
+        row +
+        ((tx_class == TX_CLASS_2D || tx_class == TX_CLASS_SKIP)
+             ? sig_ref_offset[idx][0]
+             : ((tx_class == TX_CLASS_VERT) ? sig_ref_offset_vert[idx][0]
+                                            : sig_ref_offset_horiz[idx][0]));
+    const int ref_col =
+        col +
+        ((tx_class == TX_CLASS_2D || tx_class == TX_CLASS_SKIP)
+             ? sig_ref_offset[idx][1]
+             : ((tx_class == TX_CLASS_VERT) ? sig_ref_offset_vert[idx][1]
+                                            : sig_ref_offset_horiz[idx][1]));
     if (ref_row < 0 || ref_col < 0 || ref_row >= height ||
         ref_col >= (1 << bwl))
       continue;
@@ -405,6 +409,7 @@ static INLINE TX_CLASS get_tx_class(TX_TYPE tx_type) {
     case H_DCT:
     case H_ADST:
     case H_FLIPADST: return TX_CLASS_HORIZ;
+    case IDTX: return TX_CLASS_SKIP;
     default: return TX_CLASS_2D;
   }
 }
@@ -430,11 +435,14 @@ static INLINE int get_nz_map_ctx_from_count(int count,
     offset = 0;
   else if (tx_class == TX_CLASS_VERT)
     offset = SIG_COEF_CONTEXTS_2D;
-  else
 #if USE_CAUSAL_BASE_CTX
-    offset = SIG_COEF_CONTEXTS_2D;
+  else
+    offset = SIG_COEF_CONETXTS_2D;
 #else
+  else if (tx_class == TX_CLASS_HORIZ)
     offset = SIG_COEF_CONTEXTS_2D + SIG_COEF_CONTEXTS_1D;
+  else
+    offset = SIG_COEF_CONTEXTS_2D + SIG_COEF_CONTEXTS_1D * 2;
 #endif
 
 #if USE_CAUSAL_BASE_CTX
@@ -445,30 +453,29 @@ static INLINE int get_nz_map_ctx_from_count(int count,
 #endif
 
   if (tx_class == TX_CLASS_2D) {
-    {
-      if (row == 0 && col == 0) return offset + 0;
+    if (row == 0 && col == 0) return offset + 0;
 
-      if (width < height)
-        if (row < 2) return offset + 11 + ctx;
+    if (width < height)
+      if (row < 2) return offset + 11 + ctx;
 
-      if (width > height)
-        if (col < 2) return offset + 16 + ctx;
+    if (width > height)
+      if (col < 2) return offset + 16 + ctx;
 
-      if (row + col < 2) return offset + ctx + 1;
-      if (row + col < 4) return offset + 5 + ctx + 1;
+    if (row + col < 2) return offset + ctx + 1;
+    if (row + col < 4) return offset + 5 + ctx + 1;
 
-      return offset + 21 + AOMMIN(ctx, 4);
-    }
+    return offset + 21 + AOMMIN(ctx, 4);
+  } else if (tx_class == TX_CLASS_VERT) {
+    if (row == 0) return offset + ctx;
+    if (row < 2) return offset + 5 + ctx;
+    return offset + 10 + ctx;
+  } else if (tx_class == TX_CLASS_HORIZ) {
+    if (col == 0) return offset + ctx;
+    if (col < 2) return offset + 5 + ctx;
+    return offset + 10 + ctx;
   } else {
-    if (tx_class == TX_CLASS_VERT) {
-      if (row == 0) return offset + ctx;
-      if (row < 2) return offset + 5 + ctx;
-      return offset + 10 + ctx;
-    } else {
-      if (col == 0) return offset + ctx;
-      if (col < 2) return offset + 5 + ctx;
-      return offset + 10 + ctx;
-    }
+    assert(tx_class == TX_CLASS_SKIP);
+    return offset + AOMMIN(ctx, 3);
   }
 }
 

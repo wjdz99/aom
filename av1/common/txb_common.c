@@ -241,7 +241,12 @@ const int16_t k_eob_offset_bits[12] = { 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
 int av1_get_eob_pos_ctx(TX_TYPE tx_type, int eob_token) {
   int offset = 0;
   int tx_class = get_tx_class(tx_type);
-  if (tx_class != TX_CLASS_2D) offset = 11;
+  if (tx_class != TX_CLASS_2D) {
+    if (tx_class != TX_CLASS_SKIP)
+      offset = 11;
+    else
+      offset = 22;
+  }
   return eob_token - 1 + offset;
 }
 
