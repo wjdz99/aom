@@ -3419,7 +3419,7 @@ static TX_MODE select_tx_mode(const AV1_COMP *cpi) {
   return TX_MODE_SELECT;
 #else
   if (cpi->sf.tx_size_search_method == USE_LARGESTALL)
-    return ALLOW_32X32 + CONFIG_TX64X64;
+    return TX_MODE_LARGEST;
   else if (cpi->sf.tx_size_search_method == USE_FULL_RD ||
            cpi->sf.tx_size_search_method == USE_FAST_RD)
     return TX_MODE_SELECT;
@@ -4143,7 +4143,7 @@ void av1_encode_frame(AV1_COMP *cpi) {
 #else
     if (cm->tx_mode == TX_MODE_SELECT && cpi->td.mb.txb_split_count == 0)
 #endif
-      cm->tx_mode = ALLOW_32X32 + CONFIG_TX64X64;
+      cm->tx_mode = TX_MODE_LARGEST;
   } else {
     make_consistent_compound_tools(cm);
     encode_frame_internal(cpi);

@@ -136,13 +136,7 @@ static TX_MODE read_tx_mode(AV1_COMMON *cm, struct aom_read_bit_buffer *rb) {
   (void)rb;
   return TX_MODE_SELECT;
 #else
-#if CONFIG_TX64X64
-  tx_mode = aom_rb_read_bit(rb) ? TX_MODE_SELECT : aom_rb_read_literal(rb, 2);
-  if (tx_mode == ALLOW_32X32) tx_mode += aom_rb_read_bit(rb);
-  return tx_mode;
-#else
-  return aom_rb_read_bit(rb) ? TX_MODE_SELECT : aom_rb_read_literal(rb, 2);
-#endif  // CONFIG_TX64X64
+  return aom_rb_read_bit(rb) ? TX_MODE_SELECT : TX_MODE_LARGEST;
 #endif  // CONFIG_VAR_TX_NO_TX_MODE
 }
 
