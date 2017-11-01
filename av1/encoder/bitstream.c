@@ -2938,13 +2938,7 @@ static void write_tx_mode(AV1_COMMON *cm, TX_MODE *mode,
     *mode = ONLY_4X4;
     return;
   }
-#if CONFIG_VAR_TX_NO_TX_MODE
-  (void)wb;
-  *mode = TX_MODE_SELECT;
-  return;
-#else
   aom_wb_write_bit(wb, *mode == TX_MODE_SELECT);
-#endif  // CONFIG_VAR_TX_NO_TX_MODE
 }
 
 static void write_frame_interp_filter(InterpFilter filter,
