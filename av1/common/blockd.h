@@ -802,7 +802,6 @@ static INLINE int block_signals_txsize(BLOCK_SIZE bsize) {
 #define SIGNAL_ANY_MRC_MASK (SIGNAL_MRC_MASK_INTRA || SIGNAL_MRC_MASK_INTER)
 #endif  // CONFIG_MRC_TX
 
-#if CONFIG_EXT_TX
 #define ALLOW_INTRA_EXT_TX 1
 
 // Number of transform types in each set type
@@ -1030,7 +1029,6 @@ static INLINE int is_rect_tx_allowed(const MACROBLOCKD *xd,
   return is_rect_tx_allowed_bsize(mbmi->sb_type) &&
          !xd->lossless[mbmi->segment_id];
 }
-#endif  // CONFIG_EXT_TX
 
 #if CONFIG_RECT_TX_EXT
 static INLINE int is_quarter_tx_allowed_bsize(BLOCK_SIZE bsize) {
@@ -1150,10 +1148,10 @@ static INLINE TX_TYPE av1_get_tx_type(PLANE_TYPE plane_type,
   const MB_MODE_INFO *const mbmi = &mi->mbmi;
   (void)blk_row;
   (void)blk_col;
-#if CONFIG_INTRABC && (!CONFIG_EXT_TX || CONFIG_TXK_SEL)
+#if CONFIG_INTRABC && (CONFIG_TXK_SEL)
   // TODO(aconverse@google.com): Handle INTRABC + EXT_TX + TXK_SEL
   if (is_intrabc_block(mbmi)) return DCT_DCT;
-#endif  // CONFIG_INTRABC && (!CONFIG_EXT_TX || CONFIG_TXK_SEL)
+#endif  // CONFIG_INTRABC && (CONFIG_TXK_SEL)
 
 #if CONFIG_TXK_SEL
   TX_TYPE tx_type;
@@ -1176,7 +1174,6 @@ static INLINE TX_TYPE av1_get_tx_type(PLANE_TYPE plane_type,
   return get_default_tx_type(plane_type, xd, block_raster_idx, tx_size);
 #endif  // FIXED_TX_TYPE
 
-#if CONFIG_EXT_TX
 #if CONFIG_MRC_TX
   if (mbmi->tx_type == MRC_DCT) {
     assert(((is_inter_block(mbmi) && USE_MRC_INTER) ||
@@ -1212,22 +1209,6 @@ static INLINE TX_TYPE av1_get_tx_type(PLANE_TYPE plane_type,
 
   (void)block;
   return intra_mode_to_tx_type_context[get_uv_mode(mbmi->uv_mode)];
-#else  // CONFIG_EXT_TX
-  (void)block;
-#if CONFIG_MRC_TX
-  if (mbmi->tx_type == MRC_DCT) {
-    if (plane_type == PLANE_TYPE_Y && !xd->lossless[mbmi->segment_id]) {
-      assert(tx_size == TX_32X32);
-      return mbmi->tx_type;
-    }
-    return DCT_DCT;
-  }
-#endif  // CONFIG_MRC_TX
-  if (plane_type != PLANE_TYPE_Y || xd->lossless[mbmi->segment_id] ||
-      txsize_sqr_map[tx_size] >= TX_32X32)
-    return DCT_DCT;
-  return mbmi->tx_type;
-#endif  // CONFIG_EXT_TX
 }
 
 void av1_setup_block_planes(MACROBLOCKD *xd, int ss_x, int ss_y);
