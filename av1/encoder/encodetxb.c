@@ -297,6 +297,7 @@ void av1_write_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
   uint8_t levels_buf[TX_PAD_2D];
   uint8_t *const levels = set_levels(levels_buf, width);
+  uint8_t level_counts[MAX_TX_SQUARE];
 
   (void)blk_row;
   (void)blk_col;
@@ -383,13 +384,14 @@ void av1_write_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
   }
 
   for (int i = 0; i < NUM_BASE_LEVELS; ++i) {
+    av1_get_base_level_counts(levels, i, width, height, level_counts);
     for (c = eob - 1; c >= 0; --c) {
       const tran_low_t level = abs(tcoeff[scan[c]]);
       int ctx;
 
       if (level <= i) continue;
 
-      ctx = get_base_ctx(levels, scan[c], bwl, i);
+      ctx = get_base_ctx(levels, scan[c], bwl, i, level_counts[scan[c]]);
 
       if (level == i + 1) {
         aom_write_bin(w, 1, ec_ctx->coeff_base_cdf[txs_ctx][plane_type][i][ctx],
@@ -2020,6 +2022,7 @@ void av1_update_and_record_txb_context(int plane, int block, int blk_row,
   const int height = tx_size_high[tx_size];
   uint8_t levels_buf[TX_PAD_2D];
   uint8_t *const levels = set_levels(levels_buf, width);
+  uint8_t level_counts[MAX_TX_SQUARE];
   const uint8_t allow_update_cdf = args->allow_update_cdf;
 
   TX_SIZE txsize_ctx = get_txsize_context(tx_size);
@@ -2097,13 +2100,14 @@ void av1_update_and_record_txb_context(int plane, int block, int blk_row,
 #if !USE_CAUSAL_BASE_CTX
   // Reverse process order to handle coefficient level and sign.
   for (int i = 0; i < NUM_BASE_LEVELS; ++i) {
+    av1_get_base_level_counts(levels, i, width, height, level_counts);
     for (c = eob - 1; c >= 0; --c) {
       const tran_low_t level = abs(tcoeff[scan[c]]);
       int ctx;
 
       if (level <= i) continue;
 
-      ctx = get_base_ctx(levels, scan[c], bwl, i);
+      ctx = get_base_ctx(levels, scan[c], bwl, i, level_counts[scan[c]]);
 
       if (level == i + 1) {
         ++td->counts->coeff_base[txsize_ctx][plane_type][i][ctx][1];
