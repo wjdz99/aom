@@ -266,6 +266,11 @@ int compute_global_motion_feature_based(
   unsigned char *ref_buffer = ref->y_buffer;
   RansacFunc ransac = get_ransac_type(type);
 
+  for (i = 0; i < num_motions; ++i)
+    num_inliers_by_motion[i] = 0;
+
+  return 0;
+
 #if CONFIG_HIGHBITDEPTH
   if (frm->flags & YV12_FLAG_HIGHBITDEPTH) {
     // The frame buffer is 16-bit, so we need to convert to 8 bits for the

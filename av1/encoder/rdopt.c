@@ -9996,7 +9996,9 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
 #endif  // CONFIG_INTERINTRA
 
 #if CONFIG_FRAME_MARKER
-    if (sf->selective_ref_frame) {
+    if (second_ref_frame > INTRA_FRAME) continue;
+
+    if (sf->selective_ref_frame || 1) {
       if (mbmi->ref_frame[0] == ALTREF2_FRAME ||
           mbmi->ref_frame[1] == ALTREF2_FRAME)
         if (cm->cur_frame->alt2_frame_offset < cm->frame_offset) continue;
