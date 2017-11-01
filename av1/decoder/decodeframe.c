@@ -480,14 +480,6 @@ static void decode_mbmi_block(AV1Decoder *const pbi, MACROBLOCKD *const xd,
   aom_merge_corrupted_flag(&xd->corrupted, reader_corrupted_flag);
 }
 
-// Converts a Q3 quantizer lookup from static configuration to the
-// actual TX scaling in use
-static int dequant_Q3_to_QTX(int q3, int bd) {
-  // Right now, TX scale in use is still Q3
-  (void)bd;
-  return q3;
-}
-
 static void decode_token_and_recon_block(AV1Decoder *const pbi,
                                          MACROBLOCKD *const xd, int mi_row,
                                          int mi_col, aom_reader *r,
@@ -519,12 +511,10 @@ static void decode_token_and_recon_block(AV1Decoder *const pbi,
       for (j = 0; j < MAX_MB_PLANE; ++j) {
         const int dc_delta_q = j == 0 ? cm->y_dc_delta_q : cm->uv_dc_delta_q;
         const int ac_delta_q = j == 0 ? 0 : cm->uv_ac_delta_q;
-        xd->plane[j].seg_dequant_QTX[i][0] = dequant_Q3_to_QTX(
-            av1_dc_quant(current_qindex, dc_delta_q, cm->bit_depth),
-            cm->bit_depth);
-        xd->plane[j].seg_dequant_QTX[i][1] = dequant_Q3_to_QTX(
-            av1_ac_quant(current_qindex, ac_delta_q, cm->bit_depth),
-            cm->bit_depth);
+        xd->plane[j].seg_dequant_QTX[i][0] =
+            av1_dc_quant_QTX(current_qindex, dc_delta_q, cm->bit_depth);
+        xd->plane[j].seg_dequant_QTX[i][1] =
+            av1_ac_quant_QTX(current_qindex, ac_delta_q, cm->bit_depth);
       }
     }
   }
@@ -1392,14 +1382,13 @@ static void setup_segmentation_dequant(AV1_COMMON *const cm) {
   const int max_segments = cm->seg.enabled ? MAX_SEGMENTS : 1;
   for (int i = 0; i < max_segments; ++i) {
     const int qindex = av1_get_qindex(&cm->seg, i, cm->base_qindex);
-    cm->y_dequant_QTX[i][0] = dequant_Q3_to_QTX(
-        av1_dc_quant(qindex, cm->y_dc_delta_q, cm->bit_depth), cm->bit_depth);
-    cm->y_dequant_QTX[i][1] = dequant_Q3_to_QTX(
-        av1_ac_quant(qindex, 0, cm->bit_depth), cm->bit_depth);
-    cm->uv_dequant_QTX[i][0] = dequant_Q3_to_QTX(
-        av1_dc_quant(qindex, cm->uv_dc_delta_q, cm->bit_depth), cm->bit_depth);
-    cm->uv_dequant_QTX[i][1] = dequant_Q3_to_QTX(
-        av1_ac_quant(qindex, cm->uv_ac_delta_q, cm->bit_depth), cm->bit_depth);
+    cm->y_dequant_QTX[i][0] =
+        av1_dc_quant_QTX(qindex, cm->y_dc_delta_q, cm->bit_depth);
+    cm->y_dequant_QTX[i][1] = av1_ac_quant_QTX(qindex, 0, cm->bit_depth);
+    cm->uv_dequant_QTX[i][0] =
+        av1_dc_quant_QTX(qindex, cm->uv_dc_delta_q, cm->bit_depth);
+    cm->uv_dequant_QTX[i][1] =
+        av1_ac_quant_QTX(qindex, cm->uv_ac_delta_q, cm->bit_depth);
 #if CONFIG_AOM_QM
     const int lossless = qindex == 0 && cm->y_dc_delta_q == 0 &&
                          cm->uv_dc_delta_q == 0 && cm->uv_ac_delta_q == 0;
