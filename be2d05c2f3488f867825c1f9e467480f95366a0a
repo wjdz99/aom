@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "24d9abaa_f50a8dcb",
+        "filename": "av1/common/quant_common.c",
+        "patchSetId": 31
+      },
+      "lineNbr": 334,
+      "author": {
+        "id": 6510
+      },
+      "writtenOn": "2017-11-02T18:06:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7507ee9c_407fb34c",
+      "range": {
+        "startLine": 334,
+        "startChar": 54,
+        "endLine": 334,
+        "endChar": 55
+      },
+      "revId": "be2d05c2f3488f867825c1f9e467480f95366a0a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafa2c84_56fcd7a2",
         "filename": "av1/common/quant_common.c",
         "patchSetId": 31
@@ -36,6 +60,30 @@
       "writtenOn": "2017-11-02T00:32:06Z",
       "side": 1,
       "message": "and this, then add {",
+      "range": {
+        "startLine": 336,
+        "startChar": 36,
+        "endLine": 336,
+        "endChar": 37
+      },
+      "revId": "be2d05c2f3488f867825c1f9e467480f95366a0a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d79bc31d_6f73bb3c",
+        "filename": "av1/common/quant_common.c",
+        "patchSetId": 31
+      },
+      "lineNbr": 336,
+      "author": {
+        "id": 6510
+      },
+      "writtenOn": "2017-11-02T18:06:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafa2c84_56fcd7a2",
       "range": {
         "startLine": 336,
         "startChar": 36,
@@ -65,6 +113,24 @@
     },
     {
       "key": {
+        "uuid": "cb28cfcd_3f58b809",
+        "filename": "av1/common/quant_common.c",
+        "patchSetId": 31
+      },
+      "lineNbr": 337,
+      "author": {
+        "id": 6510
+      },
+      "writtenOn": "2017-11-02T18:06:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6b222a49_81a94003",
+      "revId": "be2d05c2f3488f867825c1f9e467480f95366a0a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c2e308a3_a82c3faa",
         "filename": "av1/common/quant_common.c",
         "patchSetId": 31
@@ -88,6 +154,30 @@
     },
     {
       "key": {
+        "uuid": "4d76c53d_e5c968db",
+        "filename": "av1/common/quant_common.c",
+        "patchSetId": 31
+      },
+      "lineNbr": 344,
+      "author": {
+        "id": 6510
+      },
+      "writtenOn": "2017-11-02T18:06:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c2e308a3_a82c3faa",
+      "range": {
+        "startLine": 344,
+        "startChar": 2,
+        "endLine": 344,
+        "endChar": 3
+      },
+      "revId": "be2d05c2f3488f867825c1f9e467480f95366a0a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "aa22650a_9994e3e2",
         "filename": "av1/common/quant_common.c",
         "patchSetId": 31
@@ -99,6 +189,30 @@
       "writtenOn": "2017-11-02T00:32:06Z",
       "side": 1,
       "message": "Move this } right before #endif line.",
+      "range": {
+        "startLine": 349,
+        "startChar": 2,
+        "endLine": 349,
+        "endChar": 3
+      },
+      "revId": "be2d05c2f3488f867825c1f9e467480f95366a0a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "441777ce_88feaf0e",
+        "filename": "av1/common/quant_common.c",
+        "patchSetId": 31
+      },
+      "lineNbr": 349,
+      "author": {
+        "id": 6510
+      },
+      "writtenOn": "2017-11-02T18:06:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "aa22650a_9994e3e2",
       "range": {
         "startLine": 349,
         "startChar": 2,
