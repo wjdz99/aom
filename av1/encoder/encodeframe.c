@@ -2983,21 +2983,27 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
   // subsample to 16x2, which doesn't have an enum. Also, there's no BLOCK_8X2
   // or BLOCK_2X8, so we can't do 4:1 or 1:4 partitions for BLOCK_16X16 if there
   // is any subsampling.
-  const int horz4_partition_allowed =
-      ext_partition_allowed && partition_horz_allowed;
-  const int vert4_partition_allowed =
-      ext_partition_allowed && partition_vert_allowed;
+  int horz4_partition_allowed = ext_partition_allowed && partition_horz_allowed;
+  int vert4_partition_allowed = ext_partition_allowed && partition_vert_allowed;
 
 #if CONFIG_EXT_PARTITION_TYPES_AB
   // The alternative AB partitions are allowed iff the corresponding 4:1
   // partitions are allowed.
-  const int horzab_partition_allowed = horz4_partition_allowed;
-  const int vertab_partition_allowed = vert4_partition_allowed;
+  const int horzab_partition_allowed =
+      horz4_partition_allowed && (pc_tree->partitioning == PARTITION_HORZ ||
+                                  pc_tree->partitioning == PARTITION_SPLIT);
+  const int vertab_partition_allowed =
+      vert4_partition_allowed && (pc_tree->partitioning == PARTITION_VERT ||
+                                  pc_tree->partitioning == PARTITION_SPLIT);
 #else
   // The standard AB partitions are allowed whenever ext-partition-types are
   // allowed
-  const int horzab_partition_allowed = ext_partition_allowed;
-  const int vertab_partition_allowed = ext_partition_allowed;
+  const int horzab_partition_allowed =
+      ext_partition_allowed && (pc_tree->partitioning == PARTITION_HORZ ||
+                                pc_tree->partitioning == PARTITION_SPLIT);
+  const int vertab_partition_allowed =
+      ext_partition_allowed && (pc_tree->partitioning == PARTITION_VERT ||
+                                pc_tree->partitioning == PARTITION_SPLIT);
 #endif
 
   // PARTITION_HORZ_A
@@ -3082,6 +3088,14 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
   // * Add support for BLOCK_16X16 once we support 2x8 and 8x2 blocks for the
   //   chroma plane
   // * Add support for supertx
+  horz4_partition_allowed &= (pc_tree->partitioning == PARTITION_HORZ ||
+                              pc_tree->partitioning == PARTITION_HORZ_A ||
+                              pc_tree->partitioning == PARTITION_HORZ_B ||
+                              pc_tree->partitioning == PARTITION_SPLIT);
+  vert4_partition_allowed &= (pc_tree->partitioning == PARTITION_VERT ||
+                              pc_tree->partitioning == PARTITION_VERT_A ||
+                              pc_tree->partitioning == PARTITION_VERT_B ||
+                              pc_tree->partitioning == PARTITION_SPLIT);
   if (horz4_partition_allowed && !force_horz_split &&
       (do_rectangular_split || av1_active_h_edge(cpi, mi_row, mi_step))) {
     const int quarter_step = mi_size_high[bsize] / 4;
