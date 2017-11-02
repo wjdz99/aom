@@ -2712,7 +2712,7 @@ static int read_global_motion_params(WarpedMotionParams *params,
         params->wmmat[4] = -params->wmmat[3];
         params->wmmat[5] = params->wmmat[2];
       }
-    // fallthrough intended
+      FALLTHROUGH;
     case TRANSLATION:
       trans_bits = (type == TRANSLATION) ? GM_ABS_TRANS_ONLY_BITS - !allow_hp
                                          : GM_ABS_TRANS_BITS;
