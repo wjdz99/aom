@@ -40,13 +40,34 @@ static INLINE TX_SIZE get_txsize_context(TX_SIZE tx_size) {
 static const int base_level_count_to_index[13] = {
   0, 0, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3,
 };
-
+/* clang-format off*/
 static const int base_ref_offset[BASE_CONTEXT_POSITION_NUM][2] = {
-  /* clang-format off*/
   { -2, 0 }, { -1, -1 }, { -1, 0 }, { -1, 1 }, { 0, -2 }, { 0, -1 }, { 0, 1 },
   { 0, 2 },  { 1, -1 },  { 1, 0 },  { 1, 1 },  { 2, 0 }
-  /* clang-format on*/
 };
+
+static const int base_vert_reg[6][2] = {
+  { -2, 0 }, { -1, 0 }, { 0, -1 }, { 0, 1 }, { 1, 0 }, { 2, 0 },
+};
+
+static const int base_horz_reg[6][2] = {
+  { -1, 0 }, { 0, -2 }, { 0, -1 }, { 0, 1 }, { 0, 2 }, { 1, 0 },
+};
+
+/* clang-format on*/
+
+static INLINE TX_CLASS get_tx_class(TX_TYPE tx_type) {
+  switch (tx_type) {
+    case V_DCT:
+    case V_ADST:
+    case V_FLIPADST: return TX_CLASS_VERT;
+    case H_DCT:
+    case H_ADST:
+    case H_FLIPADST: return TX_CLASS_HORIZ;
+    case IDTX: return TX_CLASS_SKIP;
+    default: return TX_CLASS_2D;
+  }
+}
 
 // TODO(linfengz): Some functions have coeff_is_byte_flag to handle different
 // types of input coefficients. If possible, unify types to uint8_t* later.
@@ -79,6 +100,27 @@ static INLINE void get_base_count_mag(int *mag, int *count,
       }
     }
   }
+}
+
+static INLINE int get_level_count_mag_base(
+    int *const mag, const uint8_t *const levels, const int bwl,
+    const int height, const int row, const int col, const int level,
+    const int (*nb_offset)[2], const int nb_num) {
+  const int stride = 1 << bwl;
+  int count = 0;
+
+  for (int idx = 0; idx < nb_num; ++idx) {
+    const int ref_row = row + nb_offset[idx][0];
+    const int ref_col = col + nb_offset[idx][1];
+    if (ref_row < 0 || ref_col < 0 || ref_row >= height || ref_col >= stride)
+      continue;
+    const int pos = (ref_row << bwl) + ref_col;
+    count += levels[pos] > level;
+    if (nb_offset[idx][0] == 0 && nb_offset[idx][1] == 1) mag[0] = levels[pos];
+    if (nb_offset[idx][0] == 1 && nb_offset[idx][1] == 0) mag[1] = levels[pos];
+    if (nb_offset[idx][0] == 1 && nb_offset[idx][1] == 1) mag[2] = levels[pos];
+  }
+  return count;
 }
 
 static INLINE int get_level_count_mag(
@@ -125,9 +167,19 @@ static INLINE int get_level_count_mag_coeff(
 }
 
 static INLINE int get_base_ctx_from_count_mag(int row, int col, int count,
-                                              int sig_mag) {
+                                              int sig_mag, TX_CLASS tx_class) {
   const int ctx = base_level_count_to_index[count];
   int ctx_idx = -1;
+
+  (void)tx_class;
+
+  if (tx_class == TX_CLASS_VERT) {
+    if (row == 0) return 25 + ctx;
+  }
+
+  if (tx_class == TX_CLASS_HORIZ) {
+    if (col == 0) return 25 + ctx;
+  }
 
   if (row == 0 && col == 0) {
     if (sig_mag >= 2) return ctx_idx = 0;
@@ -188,7 +240,8 @@ static INLINE int get_base_ctx_from_count_mag(int row, int col, int count,
   return ctx_idx;
 }
 
-static INLINE int get_base_ctx(const uint8_t *const levels,
+static INLINE int get_base_ctx(const TX_TYPE tx_type,
+                               const uint8_t *const levels,
                                const int c,  // raster order
                                const int bwl, const int height,
                                const int level) {
@@ -197,13 +250,20 @@ static INLINE int get_base_ctx(const uint8_t *const levels,
   const int level_minus_1 = level - 1;
   int mag_count = 0;
   int nb_mag[3] = { 0 };
-  const int count =
-      get_level_count_mag(nb_mag, levels, bwl, height, row, col, level_minus_1,
-                          base_ref_offset, BASE_CONTEXT_POSITION_NUM);
+  int tx_class = get_tx_class(tx_type);
+
+  const int count = get_level_count_mag_base(
+      nb_mag, levels, bwl, height, row, col, level_minus_1,
+      (tx_class == TX_CLASS_2D || tx_class == TX_CLASS_SKIP)
+          ? base_ref_offset
+          : (tx_class == TX_CLASS_VERT) ? base_vert_reg : base_horz_reg,
+      (tx_class == TX_CLASS_2D || tx_class == TX_CLASS_SKIP)
+          ? BASE_CONTEXT_POSITION_NUM
+          : 6);
 
   for (int idx = 0; idx < 3; ++idx) mag_count += nb_mag[idx] > level;
-  const int ctx_idx =
-      get_base_ctx_from_count_mag(row, col, count, AOMMIN(2, mag_count));
+  const int ctx_idx = get_base_ctx_from_count_mag(
+      row, col, count, AOMMIN(2, mag_count), tx_class);
   return ctx_idx;
 }
 
@@ -405,19 +465,6 @@ static INLINE int get_nz_count(const tran_low_t *tcoeffs, int bwl, int height,
   return count;
 }
 
-static INLINE TX_CLASS get_tx_class(TX_TYPE tx_type) {
-  switch (tx_type) {
-    case V_DCT:
-    case V_ADST:
-    case V_FLIPADST: return TX_CLASS_VERT;
-    case H_DCT:
-    case H_ADST:
-    case H_FLIPADST: return TX_CLASS_HORIZ;
-    case IDTX: return TX_CLASS_SKIP;
-    default: return TX_CLASS_2D;
-  }
-}
-
 // TODO(angiebird): optimize this function by generate a table that maps from
 // count to ctx
 static INLINE int get_nz_map_ctx_from_count(int count,
@@ -441,7 +488,7 @@ static INLINE int get_nz_map_ctx_from_count(int count,
     offset = SIG_COEF_CONTEXTS_2D;
 #if USE_CAUSAL_BASE_CTX
   else
-    offset = SIG_COEF_CONETXTS_2D;
+    offset = SIG_COEF_CONTEXTS_2D;
 #else
   else if (tx_class == TX_CLASS_HORIZ)
     offset = SIG_COEF_CONTEXTS_2D + SIG_COEF_CONTEXTS_1D;

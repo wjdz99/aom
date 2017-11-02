@@ -227,7 +227,7 @@ void av1_init_lv_map(AV1_COMMON *cm) {
           if ((row == 0 || col == 0) && count > 8) continue;
 
           coeff_ctx_table->base_ctx_table[row][col][sig_mag][count] =
-              get_base_ctx_from_count_mag(row, col, count, sig_mag);
+              get_base_ctx_from_count_mag(row, col, 0, sig_mag, 0);
         }
       }
     }

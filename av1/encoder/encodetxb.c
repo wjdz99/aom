@@ -359,7 +359,7 @@ void av1_write_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
 
       if (level <= i) continue;
 
-      ctx = get_base_ctx(levels, scan[c], bwl, height, i + 1);
+      ctx = get_base_ctx(tx_type, levels, scan[c], bwl, height, i + 1);
 
       if (level == i + 1) {
         aom_write_bin(w, 1, ec_ctx->coeff_base_cdf[txs_ctx][plane_type][i][ctx],
@@ -474,7 +474,8 @@ void av1_write_coeffs_mb(const AV1_COMMON *const cm, MACROBLOCK *x,
 static INLINE void get_base_ctx_set(const tran_low_t *tcoeffs,
                                     int c,  // raster order
                                     const int bwl, const int height,
-                                    int ctx_set[NUM_BASE_LEVELS]) {
+                                    int ctx_set[NUM_BASE_LEVELS],
+                                    TX_TYPE tx_type) {
   const int row = c >> bwl;
   const int col = c - (row << bwl);
   const int stride = 1 << bwl;
@@ -484,9 +485,19 @@ static INLINE void get_base_ctx_set(const tran_low_t *tcoeffs,
   tran_low_t abs_coeff;
   int i;
 
-  for (idx = 0; idx < BASE_CONTEXT_POSITION_NUM; ++idx) {
-    int ref_row = row + base_ref_offset[idx][0];
-    int ref_col = col + base_ref_offset[idx][1];
+  TX_CLASS tx_class = get_tx_class(tx_type);
+  int reg_size = (tx_class == TX_CLASS_2D || tx_class == TX_CLASS_SKIP)
+                     ? BASE_CONTEXT_POSITION_NUM
+                     : 6;
+
+  const int(*ref_reg)[2] =
+      (tx_class == TX_CLASS_2D || tx_class == TX_CLASS_SKIP)
+          ? base_ref_offset
+          : (tx_class == TX_CLASS_VERT) ? base_vert_reg : base_horz_reg;
+
+  for (idx = 0; idx < reg_size; ++idx) {
+    int ref_row = row + ref_reg[idx][0];
+    int ref_col = col + ref_reg[idx][1];
     int pos = (ref_row << bwl) + ref_col;
 
     if (ref_row < 0 || ref_col < 0 || ref_row >= height || ref_col >= stride)
@@ -496,11 +507,11 @@ static INLINE void get_base_ctx_set(const tran_low_t *tcoeffs,
 
     for (i = 0; i < NUM_BASE_LEVELS; ++i) {
       ctx_set[i] += abs_coeff > i;
-      if (base_ref_offset[idx][0] == 0 && base_ref_offset[idx][1] == 1)
+      if (ref_reg[idx][0] == 0 && ref_reg[idx][1] == 1)
         nb_mag[i][0] = abs_coeff;
-      if (base_ref_offset[idx][0] == 1 && base_ref_offset[idx][1] == 0)
+      if (ref_reg[idx][0] == 1 && ref_reg[idx][1] == 0)
         nb_mag[i][1] = abs_coeff;
-      if (base_ref_offset[idx][0] == 1 && base_ref_offset[idx][1] == 1)
+      if (ref_reg[idx][0] == 1 && ref_reg[idx][1] == 1)
         nb_mag[i][2] = abs_coeff;
     }
   }
@@ -508,7 +519,7 @@ static INLINE void get_base_ctx_set(const tran_low_t *tcoeffs,
   for (i = 0; i < NUM_BASE_LEVELS; ++i) {
     for (idx = 0; idx < 3; ++idx) mag_count[i] += nb_mag[i][idx] > i + 1;
     ctx_set[i] = get_base_ctx_from_count_mag(row, col, ctx_set[i],
-                                             AOMMIN(2, mag_count[i]));
+                                             AOMMIN(2, mag_count[i]), tx_class);
   }
   return;
 }
@@ -618,7 +629,7 @@ int av1_cost_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCK *x, int plane,
         if (is_k == 0) break;
       }
 #else
-      get_base_ctx_set(qcoeff, scan[c], bwl, height, ctx_ls);
+      get_base_ctx_set(qcoeff, scan[c], bwl, height, ctx_ls, tx_type);
 
       int i;
       for (i = 0; i < NUM_BASE_LEVELS; ++i) {
@@ -1418,7 +1429,7 @@ int get_coeff_cost(tran_low_t qc, int scan_idx, TxbInfo *txb_info,
 #else
     int ctx_ls[NUM_BASE_LEVELS] = { 0 };
     get_base_ctx_set(txb_info->qcoeff, scan[scan_idx], txb_info->bwl,
-                     txb_info->height, ctx_ls);
+                     txb_info->height, ctx_ls, txb_info->tx_type);
 
     int i;
     for (i = 0; i < NUM_BASE_LEVELS; ++i) {
@@ -2054,7 +2065,7 @@ void av1_update_and_record_txb_context(int plane, int block, int blk_row,
 
       if (level <= i) continue;
 
-      ctx = get_base_ctx(levels, scan[c], bwl, height, i + 1);
+      ctx = get_base_ctx(tx_type, levels, scan[c], bwl, height, i + 1);
 
       if (level == i + 1) {
         ++td->counts->coeff_base[txsize_ctx][plane_type][i][ctx][1];

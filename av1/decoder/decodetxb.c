@@ -209,7 +209,7 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
 
       if (*level <= i) continue;
 
-      ctx = get_base_ctx(levels, scan[c], bwl, height, i + 1);
+      ctx = get_base_ctx(tx_type, levels, scan[c], bwl, height, i + 1);
 
       if (av1_read_record_bin(
               counts, r, ec_ctx->coeff_base_cdf[txs_ctx][plane_type][i][ctx], 2,

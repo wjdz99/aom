@@ -70,7 +70,7 @@ extern "C" {
 #define EOB_COEF_CONTEXTS 33
 #endif  // CONFIG_CTX1D
 
-#define USE_CAUSAL_BASE_CTX 0
+#define USE_CAUSAL_BASE_CTX 1
 
 #define SIG_COEF_CONTEXTS_2D 26
 #define SIG_COEF_CONTEXTS_1D 16
@@ -87,7 +87,7 @@ extern "C" {
 #if USE_CAUSAL_BASE_CTX
 #define COEFF_BASE_CONTEXTS (SIG_COEF_CONTEXTS)
 #else
-#define COEFF_BASE_CONTEXTS 25
+#define COEFF_BASE_CONTEXTS 27
 #endif
 #define DC_SIGN_CONTEXTS 3
 
@@ -116,7 +116,6 @@ typedef enum TX_CLASS {
   TX_CLASS_SKIP = 3,
   TX_CLASSES = 4,
 } TX_CLASS;
-
 #endif
 
 DECLARE_ALIGNED(16, extern const uint8_t, av1_pt_energy_class[ENTROPY_TOKENS]);
