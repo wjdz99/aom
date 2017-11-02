@@ -333,6 +333,12 @@ typedef struct SPEED_FEATURES {
   // Drop less likely picked reference frames in the RD search
   int selective_ref_frame;
 
+#if CONFIG_EXT_PARTITION_TYPES
+  // Conditionally prune extended partition types search in two levels:
+  // 1 and 2, where 2 is faster than 1.
+  int prune_ext_partition_types_search;
+#endif  // CONFIG_EXT_PARTITION_TYPES
+
   // Skip rectangular partition test when partition type none gives better
   // rd than partition type split.
   int less_rectangular_check;
