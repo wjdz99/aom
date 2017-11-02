@@ -43,6 +43,19 @@
 extern "C" {
 #endif
 
+/* clang-format off */
+#if defined(__clang__)
+#define FALLTHROUGH[[clang::fallthrough]]
+#elif defined(__GNUC__)
+#define FALLTHROUGH __attribute__((fallthrough))
+#else
+// force a semicolon after nop FALLTRHOUGH
+#define FALLTHROUGH \
+  do {              \
+  } while (0)
+#endif
+/* clang-format on */
+
 #define CDEF_MAX_STRENGTHS 16
 
 #define REF_FRAMES_LOG2 3
@@ -989,6 +1002,7 @@ static INLINE void update_ext_partition_context(MACROBLOCKD *xd, int mi_row,
     switch (partition) {
       case PARTITION_SPLIT:
         if (bsize != BLOCK_8X8) break;
+        FALLTHROUGH;
       case PARTITION_NONE:
       case PARTITION_HORZ:
       case PARTITION_VERT:
