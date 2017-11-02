@@ -22,6 +22,30 @@
       "revId": "873c3ebb03b956195fe00e8c92731a9cc4221197",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "81519586_5683fadf",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 5054,
+      "author": {
+        "id": 7957
+      },
+      "writtenOn": "2017-11-02T21:30:16Z",
+      "side": 1,
+      "message": "Currently if cpi-\u003esf.tx_type_search.use_tx_size_pruning is false, then tx_split_prune_flag is simply guaranteed to be 0. However, PRUNE_ONE and PRUNE_TWO modes use a different format for the prune bit vector, so we potentially might get invalid tx_split_prune_flag value for those modes. That\u0027s why we need to do the prune_mode check.",
+      "parentUuid": "81b50419_1e9ce2c7",
+      "range": {
+        "startLine": 5054,
+        "startChar": 2,
+        "endLine": 5054,
+        "endChar": 73
+      },
+      "revId": "873c3ebb03b956195fe00e8c92731a9cc4221197",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
