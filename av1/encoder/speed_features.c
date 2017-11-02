@@ -145,15 +145,24 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
   AV1_COMMON *const cm = &cpi->common;
   const int boosted = frame_is_boosted(cpi);
 
+#if CONFIG_EXT_PARTITION_TYPES
+  sf->prune_ext_partition_types_search = 2;
+#endif  // CONFIG_EXT_PARTITION_TYPES
   if (speed >= 1) {
     sf->tx_size_search_init_depth_rect = 1;
     sf->tx_size_search_init_depth_sqr = 1;
+#if CONFIG_EXT_PARTITION_TYPES
+    sf->prune_ext_partition_types_search = 1;
+#endif  // CONFIG_EXT_PARTITION_TYPES
   }
 
   if (speed >= 2) {
     sf->tx_size_search_method = USE_FAST_RD;
     sf->tx_type_search.fast_intra_tx_type_search = 1;
     sf->tx_type_search.fast_inter_tx_type_search = 1;
+#if CONFIG_EXT_PARTITION_TYPES
+    sf->prune_ext_partition_types_search = 2;
+#endif  // CONFIG_EXT_PARTITION_TYPES
 
     sf->selective_ref_frame = 1;
 
@@ -454,6 +463,9 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi) {
   sf->partition_search_breakout_dist_thr = 0;
   sf->partition_search_breakout_rate_thr = 0;
   sf->simple_model_rd_from_var = 0;
+#if CONFIG_EXT_PARTITION_TYPES
+  sf->prune_ext_partition_types_search = 0;
+#endif  // CONFIG_EXT_PARTITION_TYPES
 
   // Set this at the appropriate speed levels
   sf->use_transform_domain_distortion = 0;
