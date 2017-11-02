@@ -185,9 +185,7 @@ sadMxNxK(4, 4, 8)
 sadMxNx4D(4, 4)
 
 #if CONFIG_JNT_COMP
-#if CONFIG_EXT_PARTITION
 sadMxh(128);
-#endif
 sadMxh(64);
 sadMxh(32);
 sadMxh(16);

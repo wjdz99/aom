@@ -499,8 +499,8 @@ post_process_cmdline() {
       soft_enable aom_qm
       soft_enable dist_8x8
       soft_enable loop_restoration
-      soft_enable ext_partition
-      soft_enable ext_partition_types
+      # soft_enable ext_partition
+      # soft_enable ext_partition_types
 
       # Provisional adopted
       soft_enable q_adapt_probs
