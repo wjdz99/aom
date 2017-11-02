@@ -480,6 +480,12 @@ static INLINE int has_uni_comp_refs(const MB_MODE_INFO *mbmi) {
                                     (mbmi->ref_frame[1] >= BWDREF_FRAME)));
 }
 
+#if CONFIG_JNT_COMP
+static INLINE int has_two_sided_comp_refs(const MB_MODE_INFO *mbmi) {
+  return has_second_ref(mbmi) && !has_uni_comp_refs(mbmi);
+}
+#endif  // CONFIG_JNT_COMP
+
 static INLINE MV_REFERENCE_FRAME comp_ref0(int ref_idx) {
   static const MV_REFERENCE_FRAME lut[] = {
     LAST_FRAME,    // LAST_LAST2_FRAMES,

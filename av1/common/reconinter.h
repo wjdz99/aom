@@ -601,8 +601,8 @@ void av1_get_ori_blk_pred(const AV1_COMMON *cm, MACROBLOCKD *xd, int bsize,
 
 #if CONFIG_JNT_COMP
 void av1_jnt_comp_weight_assign(const AV1_COMMON *cm, const MB_MODE_INFO *mbmi,
-                                int order_idx, int *fwd_offset, int *bck_offset,
-                                int is_compound);
+                                int order_idx, int *fwd_offset,
+                                int *bck_offset);
 #endif  // CONFIG_JNT_COMP
 
 #ifdef __cplusplus
