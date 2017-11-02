@@ -207,6 +207,28 @@ void av1_free_context_buffers(AV1_COMMON *cm) {
     aom_free(cm->top_txfm_context[i]);
     cm->top_txfm_context[i] = NULL;
   }
+
+  aom_free(cm->lf.lfm);
+  cm->lf.lfm = NULL;
+  cm->lf.lfm_num = 0;
+  cm->lf.lfm_stride = 0;
+  cm->lf.curr_frame_offset = 0;
+}
+
+static int alloc_loop_filter(AV1_COMMON *cm) {
+  aom_free(cm->lf.lfm);
+  // Each lfm holds bit masks for all the 4x4 blocks in a max
+  // 64x64 (128x128 for ext_partitions) region.  The stride
+  // and rows are rounded up / truncated to a multiple of 16
+  // (32 for ext_partition).
+  cm->lf.lfm_stride = (cm->mi_cols + (MAX_MIB_SIZE - 1)) >> MAX_MIB_SIZE_LOG2;
+  cm->lf.lfm_num = ((cm->mi_rows + (MAX_MIB_SIZE - 1)) >> MAX_MIB_SIZE_LOG2) *
+                   cm->lf.lfm_stride;
+
+  cm->lf.lfm = (LpfMask *)aom_calloc(cm->lf.lfm_num, sizeof(*cm->lf.lfm));
+  if (!cm->lf.lfm) return 1;
+  cm->lf.curr_frame_offset = 0xbeef;
+  return 0;
 }
 
 int av1_alloc_context_buffers(AV1_COMMON *cm, int width, int height) {
@@ -263,6 +285,8 @@ int av1_alloc_context_buffers(AV1_COMMON *cm, int width, int height) {
 
     cm->above_context_alloc_cols = aligned_mi_cols;
   }
+
+  if (alloc_loop_filter(cm)) goto fail;
 
   return 0;
 
