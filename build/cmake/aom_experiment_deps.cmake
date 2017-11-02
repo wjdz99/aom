@@ -167,6 +167,15 @@ macro (fix_experiment_configs)
     endif ()
   endif ()
 
+  if (CONFIG_PARALLEL_DEBLOCKING)
+    if (CONFIG_EXT_PARTITION)
+      change_config_and_warn(CONFIG_PARALLEL_DEBLOCKING 0 CONFIG_EXT_PARTITION)
+    endif ()
+    if (CONFIG_EXT_PARTITION_TYPES)
+      change_config_and_warn(CONFIG_PARALLEL_DEBLOCKING 0 CONFIG_EXT_PARTITION_TYPES)
+    endif ()
+  endif ()
+  
 endmacro ()
 
 endif ()  # AOM_BUILD_CMAKE_AOM_EXPERIMENT_DEPS_CMAKE_

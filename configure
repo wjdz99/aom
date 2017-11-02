@@ -590,6 +590,10 @@ post_process_cmdline() {
       log_echo "disabling loopfilter_level"
       disable_feature loopfilter_level
     fi
+    if enabled parallel_deblocking; then
+      disable_feature ext_partition
+      disable_feature ext_partition_types
+    fi
 }
 
 process_targets() {
