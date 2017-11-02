@@ -52,6 +52,15 @@ extern "C" {
 #define UNLIKELY(v) (v)
 #endif
 
+#if defined(__GNUC__)
+#define FALLTHROUGH __attribute__((fallthrough))
+#else
+// force a semicolon after nop FALLTRHOUGH
+#define FALLTHROUGH \
+  do {              \
+  } while (0)
+#endif
+
 typedef uint16_t qm_val_t;
 #define AOM_QM_BITS 5
 
