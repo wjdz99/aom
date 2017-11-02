@@ -123,7 +123,7 @@ void daala_fwd_txfm(const int16_t *input_pixels, tran_low_t *output_coeffs,
     for (r = 0; r < rows; ++r)
       for (c = 0; c < cols; ++c)
         output_coeffs[r * cols + c] =
-            ROUND_POWER_OF_TWO_SIGNED(output_coeffs[r * cols + c], downshift);
+          ROUND_POWER_OF_TWO_SIGNED(output_coeffs[r * cols + c], downshift);
 #endif
   }
 }
