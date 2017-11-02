@@ -195,7 +195,6 @@ static void highbd_fwd_txfm_4x4(const int16_t *src_diff, tran_low_t *coeff,
     case ADST_DCT:
     case DCT_ADST:
     case ADST_ADST:
-      // fallthrough intended
       av1_fwd_txfm2d_4x4(src_diff, dst_coeff, diff_stride, tx_type, bd);
       break;
     case FLIPADST_DCT:
@@ -203,7 +202,6 @@ static void highbd_fwd_txfm_4x4(const int16_t *src_diff, tran_low_t *coeff,
     case FLIPADST_FLIPADST:
     case ADST_FLIPADST:
     case FLIPADST_ADST:
-      // fallthrough intended
       av1_fwd_txfm2d_4x4(src_diff, dst_coeff, diff_stride, tx_type, bd);
       break;
     // use the c version for anything including identity for now
@@ -214,7 +212,6 @@ static void highbd_fwd_txfm_4x4(const int16_t *src_diff, tran_low_t *coeff,
     case V_FLIPADST:
     case H_FLIPADST:
     case IDTX:
-      // fallthrough intended
       av1_fwd_txfm2d_4x4_c(src_diff, dst_coeff, diff_stride, tx_type, bd);
       break;
     default: assert(0);
@@ -273,7 +270,6 @@ static void highbd_fwd_txfm_8x8(const int16_t *src_diff, tran_low_t *coeff,
     case ADST_DCT:
     case DCT_ADST:
     case ADST_ADST:
-      // fallthrough intended
       av1_fwd_txfm2d_8x8(src_diff, dst_coeff, diff_stride, tx_type, bd);
       break;
     case FLIPADST_DCT:
@@ -281,7 +277,6 @@ static void highbd_fwd_txfm_8x8(const int16_t *src_diff, tran_low_t *coeff,
     case FLIPADST_FLIPADST:
     case ADST_FLIPADST:
     case FLIPADST_ADST:
-      // fallthrough intended
       av1_fwd_txfm2d_8x8(src_diff, dst_coeff, diff_stride, tx_type, bd);
       break;
     // use the c version for anything including identity for now
@@ -292,7 +287,6 @@ static void highbd_fwd_txfm_8x8(const int16_t *src_diff, tran_low_t *coeff,
     case V_FLIPADST:
     case H_FLIPADST:
     case IDTX:
-      // fallthrough intended
       av1_fwd_txfm2d_8x8_c(src_diff, dst_coeff, diff_stride, tx_type, bd);
       break;
     default: assert(0);
@@ -309,7 +303,6 @@ static void highbd_fwd_txfm_16x16(const int16_t *src_diff, tran_low_t *coeff,
     case ADST_DCT:
     case DCT_ADST:
     case ADST_ADST:
-      // fallthrough intended
       av1_fwd_txfm2d_16x16(src_diff, dst_coeff, diff_stride, tx_type, bd);
       break;
     case FLIPADST_DCT:
@@ -317,7 +310,6 @@ static void highbd_fwd_txfm_16x16(const int16_t *src_diff, tran_low_t *coeff,
     case FLIPADST_FLIPADST:
     case ADST_FLIPADST:
     case FLIPADST_ADST:
-      // fallthrough intended
       av1_fwd_txfm2d_16x16(src_diff, dst_coeff, diff_stride, tx_type, bd);
       break;
     // use the c version for anything including identity for now
@@ -328,7 +320,6 @@ static void highbd_fwd_txfm_16x16(const int16_t *src_diff, tran_low_t *coeff,
     case V_FLIPADST:
     case H_FLIPADST:
     case IDTX:
-      // fallthrough intended
       av1_fwd_txfm2d_16x16_c(src_diff, dst_coeff, diff_stride, tx_type, bd);
       break;
     default: assert(0);
@@ -345,7 +336,6 @@ static void highbd_fwd_txfm_32x32(const int16_t *src_diff, tran_low_t *coeff,
     case ADST_DCT:
     case DCT_ADST:
     case ADST_ADST:
-      // fallthrough intended
       av1_fwd_txfm2d_32x32(src_diff, dst_coeff, diff_stride, tx_type, bd);
       break;
     case FLIPADST_DCT:
@@ -353,7 +343,6 @@ static void highbd_fwd_txfm_32x32(const int16_t *src_diff, tran_low_t *coeff,
     case FLIPADST_FLIPADST:
     case ADST_FLIPADST:
     case FLIPADST_ADST:
-      // fallthrough intended
       av1_fwd_txfm2d_32x32(src_diff, dst_coeff, diff_stride, tx_type, bd);
       break;
     // use the c version for anything including identity for now
@@ -364,7 +353,6 @@ static void highbd_fwd_txfm_32x32(const int16_t *src_diff, tran_low_t *coeff,
     case V_FLIPADST:
     case H_FLIPADST:
     case IDTX:
-      // fallthrough intended
       av1_fwd_txfm2d_32x32_c(src_diff, dst_coeff, diff_stride, tx_type, bd);
       break;
     default: assert(0);
