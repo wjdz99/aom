@@ -708,9 +708,6 @@ void ilgt2d_from_pred_add(const tran_low_t *input, uint8_t *dest, int stride,
 void av1_iht4x4_16_add_c(const tran_low_t *input, uint8_t *dest, int stride,
                          const TxfmParam *txfm_param) {
   const TX_TYPE tx_type = txfm_param->tx_type;
-#if CONFIG_MRC_TX
-  assert(tx_type != MRC_DCT && "Invalid tx type for tx size");
-#endif  // CONFIG_MRC_TX
 #if !CONFIG_DAALA_TX4
   if (tx_type == DCT_DCT) {
     aom_idct4x4_16_add(input, dest, stride);
@@ -825,9 +822,6 @@ void av1_iht4x4_16_add_c(const tran_low_t *input, uint8_t *dest, int stride,
 void av1_iht4x8_32_add_c(const tran_low_t *input, uint8_t *dest, int stride,
                          const TxfmParam *txfm_param) {
   const TX_TYPE tx_type = txfm_param->tx_type;
-#if CONFIG_MRC_TX
-  assert(tx_type != MRC_DCT && "Invalid tx type for tx size");
-#endif  // CONFIG_MRC_TX
 #if CONFIG_DCT_ONLY
   assert(tx_type == DCT_DCT);
 #endif
@@ -963,9 +957,6 @@ void av1_iht4x8_32_add_c(const tran_low_t *input, uint8_t *dest, int stride,
 void av1_iht8x4_32_add_c(const tran_low_t *input, uint8_t *dest, int stride,
                          const TxfmParam *txfm_param) {
   const TX_TYPE tx_type = txfm_param->tx_type;
-#if CONFIG_MRC_TX
-  assert(tx_type != MRC_DCT && "Invalid tx type for tx size");
-#endif  // CONFIG_MRC_TX
 #if CONFIG_DCT_ONLY
   assert(tx_type == DCT_DCT);
 #endif
@@ -1102,9 +1093,6 @@ void av1_iht8x4_32_add_c(const tran_low_t *input, uint8_t *dest, int stride,
 void av1_iht4x16_64_add_c(const tran_low_t *input, uint8_t *dest, int stride,
                           const TxfmParam *txfm_param) {
   const TX_TYPE tx_type = txfm_param->tx_type;
-#if CONFIG_MRC_TX
-  assert(tx_type != MRC_DCT && "Invalid tx type for tx size");
-#endif  // CONFIG_MRC_TX
 #if CONFIG_DCT_ONLY
   assert(tx_type == DCT_DCT);
 #endif
@@ -1171,9 +1159,6 @@ void av1_iht4x16_64_add_c(const tran_low_t *input, uint8_t *dest, int stride,
 void av1_iht16x4_64_add_c(const tran_low_t *input, uint8_t *dest, int stride,
                           const TxfmParam *txfm_param) {
   const TX_TYPE tx_type = txfm_param->tx_type;
-#if CONFIG_MRC_TX
-  assert(tx_type != MRC_DCT && "Invalid tx type for tx size");
-#endif  // CONFIG_MRC_TX
 #if CONFIG_DCT_ONLY
   assert(tx_type == DCT_DCT);
 #endif
@@ -1241,9 +1226,6 @@ void av1_iht16x4_64_add_c(const tran_low_t *input, uint8_t *dest, int stride,
 void av1_iht8x16_128_add_c(const tran_low_t *input, uint8_t *dest, int stride,
                            const TxfmParam *txfm_param) {
   const TX_TYPE tx_type = txfm_param->tx_type;
-#if CONFIG_MRC_TX
-  assert(tx_type != MRC_DCT && "Invalid tx type for tx size");
-#endif  // CONFIG_MRC_TX
 #if CONFIG_DCT_ONLY
   assert(tx_type == DCT_DCT);
 #endif
@@ -1372,9 +1354,6 @@ void av1_iht8x16_128_add_c(const tran_low_t *input, uint8_t *dest, int stride,
 void av1_iht16x8_128_add_c(const tran_low_t *input, uint8_t *dest, int stride,
                            const TxfmParam *txfm_param) {
   const TX_TYPE tx_type = txfm_param->tx_type;
-#if CONFIG_MRC_TX
-  assert(tx_type != MRC_DCT && "Invalid tx type for tx size");
-#endif  // CONFIG_MRC_TX
 #if CONFIG_DCT_ONLY
   assert(tx_type == DCT_DCT);
 #endif
@@ -1503,9 +1482,6 @@ void av1_iht16x8_128_add_c(const tran_low_t *input, uint8_t *dest, int stride,
 void av1_iht8x32_256_add_c(const tran_low_t *input, uint8_t *dest, int stride,
                            const TxfmParam *txfm_param) {
   const TX_TYPE tx_type = txfm_param->tx_type;
-#if CONFIG_MRC_TX
-  assert(tx_type != MRC_DCT && "Invalid tx type for tx size");
-#endif  // CONFIG_MRC_TX
 #if CONFIG_DCT_ONLY
   assert(tx_type == DCT_DCT);
 #endif
@@ -1572,9 +1548,6 @@ void av1_iht8x32_256_add_c(const tran_low_t *input, uint8_t *dest, int stride,
 void av1_iht32x8_256_add_c(const tran_low_t *input, uint8_t *dest, int stride,
                            const TxfmParam *txfm_param) {
   const TX_TYPE tx_type = txfm_param->tx_type;
-#if CONFIG_MRC_TX
-  assert(tx_type != MRC_DCT && "Invalid tx type for tx size");
-#endif  // CONFIG_MRC_TX
 #if CONFIG_DCT_ONLY
   assert(tx_type == DCT_DCT);
 #endif
@@ -1642,9 +1615,6 @@ void av1_iht32x8_256_add_c(const tran_low_t *input, uint8_t *dest, int stride,
 void av1_iht16x32_512_add_c(const tran_low_t *input, uint8_t *dest, int stride,
                             const TxfmParam *txfm_param) {
   const TX_TYPE tx_type = txfm_param->tx_type;
-#if CONFIG_MRC_TX
-  assert(tx_type != MRC_DCT && "Invalid tx type for tx size");
-#endif  // CONFIG_MRC_TX
 #if CONFIG_DCT_ONLY
   assert(tx_type == DCT_DCT);
 #endif
@@ -1730,9 +1700,6 @@ void av1_iht16x32_512_add_c(const tran_low_t *input, uint8_t *dest, int stride,
 void av1_iht32x16_512_add_c(const tran_low_t *input, uint8_t *dest, int stride,
                             const TxfmParam *txfm_param) {
   const TX_TYPE tx_type = txfm_param->tx_type;
-#if CONFIG_MRC_TX
-  assert(tx_type != MRC_DCT && "Invalid tx type for tx size");
-#endif  // CONFIG_MRC_TX
 #if CONFIG_DCT_ONLY
   assert(tx_type == DCT_DCT);
 #endif
@@ -1818,9 +1785,6 @@ void av1_iht32x16_512_add_c(const tran_low_t *input, uint8_t *dest, int stride,
 void av1_iht8x8_64_add_c(const tran_low_t *input, uint8_t *dest, int stride,
                          const TxfmParam *txfm_param) {
   const TX_TYPE tx_type = txfm_param->tx_type;
-#if CONFIG_MRC_TX
-  assert(tx_type != MRC_DCT && "Invalid tx type for tx size");
-#endif  // CONFIG_MRC_TX
 #if CONFIG_DCT_ONLY
   assert(tx_type == DCT_DCT);
 #endif
@@ -1928,9 +1892,6 @@ void av1_iht8x8_64_add_c(const tran_low_t *input, uint8_t *dest, int stride,
 void av1_iht16x16_256_add_c(const tran_low_t *input, uint8_t *dest, int stride,
                             const TxfmParam *txfm_param) {
   const TX_TYPE tx_type = txfm_param->tx_type;
-#if CONFIG_MRC_TX
-  assert(tx_type != MRC_DCT && "Invalid tx type for tx size");
-#endif  // CONFIG_MRC_TX
 #if CONFIG_DCT_ONLY
   assert(tx_type == DCT_DCT);
 #endif
@@ -2112,9 +2073,6 @@ void av1_iht32x32_1024_add_c(const tran_low_t *input, uint8_t *dest, int stride,
 void av1_iht64x64_4096_add_c(const tran_low_t *input, uint8_t *dest, int stride,
                              const TxfmParam *txfm_param) {
   const TX_TYPE tx_type = txfm_param->tx_type;
-#if CONFIG_MRC_TX
-  assert(tx_type != MRC_DCT && "Invalid tx type for tx size");
-#endif  // CONFIG_MRC_TX
 #if CONFIG_DCT_ONLY
   assert(tx_type == DCT_DCT);
 #endif
@@ -2205,9 +2163,6 @@ void av1_iht64x64_4096_add_c(const tran_low_t *input, uint8_t *dest, int stride,
 void av1_iht64x32_2048_add_c(const tran_low_t *input, uint8_t *dest, int stride,
                              const TxfmParam *txfm_param) {
   const TX_TYPE tx_type = txfm_param->tx_type;
-#if CONFIG_MRC_TX
-  assert(tx_type != MRC_DCT && "Invalid tx type for tx size");
-#endif  // CONFIG_MRC_TX
 #if CONFIG_DCT_ONLY
   assert(tx_type == DCT_DCT);
 #endif
@@ -2263,9 +2218,6 @@ void av1_iht64x32_2048_add_c(const tran_low_t *input, uint8_t *dest, int stride,
 void av1_iht32x64_2048_add_c(const tran_low_t *input, uint8_t *dest, int stride,
                              const TxfmParam *txfm_param) {
   const TX_TYPE tx_type = txfm_param->tx_type;
-#if CONFIG_MRC_TX
-  assert(tx_type != MRC_DCT && "Invalid tx type for tx size");
-#endif  // CONFIG_MRC_TX
 #if CONFIG_DCT_ONLY
   assert(tx_type == DCT_DCT);
 #endif
@@ -2392,47 +2344,6 @@ static void idct16x16_add(const tran_low_t *input, uint8_t *dest, int stride,
     aom_idct16x16_256_add(input, dest, stride);
 }
 #endif
-
-#if CONFIG_MRC_TX
-static void imrc32x32_add_c(const tran_low_t *input, uint8_t *dest, int stride,
-                            const TxfmParam *txfm_param) {
-#if CONFIG_ADAPT_SCAN
-  const int16_t half = txfm_param->eob_threshold[0];
-  const int16_t quarter = txfm_param->eob_threshold[1];
-#else
-  const int16_t half = 135;
-  const int16_t quarter = 34;
-#endif
-
-  const int eob = txfm_param->eob;
-  int n_masked_vals = 0;
-  uint8_t *mask;
-  uint8_t mask_tmp[32 * 32];
-  if (eob == 1) {
-    aom_idct32x32_1_add_c(input, dest, stride);
-  } else {
-    if ((txfm_param->is_inter && SIGNAL_MRC_MASK_INTER) ||
-        (!txfm_param->is_inter && SIGNAL_MRC_MASK_INTRA)) {
-      mask = txfm_param->mask;
-    } else {
-      n_masked_vals =
-          get_mrc_pred_mask(txfm_param->dst, txfm_param->stride, mask_tmp, 32,
-                            32, 32, txfm_param->is_inter);
-      if (!is_valid_mrc_mask(n_masked_vals, 32, 32))
-        assert(0 && "Invalid MRC mask");
-      mask = mask_tmp;
-    }
-    if (eob <= quarter)
-      // non-zero coeff only in upper-left 8x8
-      aom_imrc32x32_34_add_c(input, dest, stride, mask);
-    else if (eob <= half)
-      // non-zero coeff only in upper-left 16x16
-      aom_imrc32x32_135_add_c(input, dest, stride, mask);
-    else
-      aom_imrc32x32_1024_add_c(input, dest, stride, mask);
-  }
-}
-#endif  // CONFIG_MRC_TX
 
 #if !CONFIG_DAALA_TX32
 static void idct32x32_add(const tran_low_t *input, uint8_t *dest, int stride,
@@ -2705,9 +2616,6 @@ static void inv_txfm_add_16x16(const tran_low_t *input, uint8_t *dest,
 #endif  // CONFIG_DAALA_TX16
       break;
     case IDTX: inv_idtx_add_c(input, dest, stride, 16, 16, tx_type); break;
-#if CONFIG_MRC_TX
-    case MRC_DCT: assert(0 && "Invalid tx type for tx size");
-#endif  // CONFIG_MRC_TX
     default: assert(0); break;
   }
 }
@@ -2740,9 +2648,6 @@ static void inv_txfm_add_32x32(const tran_low_t *input, uint8_t *dest,
       av1_iht32x32_1024_add_c(input, dest, stride, txfm_param);
       break;
     case IDTX: inv_idtx_add_c(input, dest, stride, 32, 32, tx_type); break;
-#if CONFIG_MRC_TX
-    case MRC_DCT: imrc32x32_add_c(input, dest, stride, txfm_param); break;
-#endif  // CONFIG_MRC_TX
     default: assert(0); break;
   }
 }
@@ -2775,9 +2680,6 @@ static void inv_txfm_add_64x64(const tran_low_t *input, uint8_t *dest,
       av1_iht64x64_4096_add_c(input, dest, stride, txfm_param);
       break;
     case IDTX: inv_idtx_add_c(input, dest, stride, 64, 64, tx_type); break;
-#if CONFIG_MRC_TX
-    case MRC_DCT: assert(0 && "Invalid tx type for tx size");
-#endif  // CONFIG_MRC_TX
     default: assert(0); break;
   }
 }
@@ -3134,28 +3036,22 @@ void av1_inverse_transform_block(const MACROBLOCKD *xd,
 #if CONFIG_LGT_FROM_PRED
                                  PREDICTION_MODE mode,
 #endif
-#if CONFIG_MRC_TX && SIGNAL_ANY_MRC_MASK
-                                 uint8_t *mrc_mask,
-#endif  // CONFIG_MRC_TX && SIGNAL_ANY_MRC_MASK
                                  int plane, TX_TYPE tx_type, TX_SIZE tx_size,
                                  uint8_t *dst, int stride, int eob) {
   if (!eob) return;
 
   TxfmParam txfm_param;
   init_txfm_param(xd, plane, tx_size, tx_type, eob, &txfm_param);
-#if CONFIG_LGT || CONFIG_MRC_TX
+#if CONFIG_LGT
   txfm_param.is_inter = is_inter_block(&xd->mi[0]->mbmi);
-#endif  // CONFIG_LGT || CONFIG_MRC_TX
-#if CONFIG_MRC_TX && SIGNAL_ANY_MRC_MASK
-  txfm_param.mask = mrc_mask;
-#endif  // CONFIG_MRC_TX && SIGNAL_ANY_MRC_MASK
-#if CONFIG_LGT_FROM_PRED || CONFIG_MRC_TX
+#endif  // CONFIG_LGT
+#if CONFIG_LGT_FROM_PRED
   txfm_param.dst = dst;
   txfm_param.stride = stride;
 #if CONFIG_LGT_FROM_PRED
   txfm_param.mode = mode;
 #endif  // CONFIG_LGT_FROM_PRED
-#endif  // CONFIG_LGT_FROM_PRED || CONFIG_MRC_TX
+#endif  // CONFIG_LGT_FROM_PRED
   assert(av1_ext_tx_used[txfm_param.tx_set_type][txfm_param.tx_type]);
 
   const int is_hbd = get_bitdepth_data_path_index(xd);
@@ -3191,9 +3087,6 @@ void av1_inverse_transform_block_facade(MACROBLOCKD *xd, int plane, int block,
                                         int blk_row, int blk_col, int eob) {
   struct macroblockd_plane *const pd = &xd->plane[plane];
   tran_low_t *dqcoeff = BLOCK_OFFSET(pd->dqcoeff, block);
-#if CONFIG_MRC_TX && SIGNAL_ANY_MRC_MASK
-  uint8_t *mrc_mask = BLOCK_OFFSET(xd->mrc_mask, block);
-#endif  // CONFIG_MRC_TX && SIGNAL_ANY_MRC_MASK
   const PLANE_TYPE plane_type = get_plane_type(plane);
   const TX_SIZE tx_size = av1_get_tx_size(plane, xd);
   const TX_TYPE tx_type =
@@ -3205,9 +3098,6 @@ void av1_inverse_transform_block_facade(MACROBLOCKD *xd, int plane, int block,
 #if CONFIG_LGT_FROM_PRED
                               xd->mi[0]->mbmi.mode,
 #endif  // CONFIG_LGT_FROM_PRED
-#if CONFIG_MRC_TX && SIGNAL_ANY_MRC_MASK
-                              mrc_mask,
-#endif  // CONFIG_MRC_TX && SIGNAL_ANY_MRC_MASK
                               plane, tx_type, tx_size, dst, dst_stride, eob);
 }
 
