@@ -985,6 +985,7 @@ static INLINE void update_ext_partition_context(MACROBLOCKD *xd, int mi_row,
     switch (partition) {
       case PARTITION_SPLIT:
         if (bsize != BLOCK_8X8) break;
+        FALLTHROUGH;
       case PARTITION_NONE:
       case PARTITION_HORZ:
       case PARTITION_VERT:
