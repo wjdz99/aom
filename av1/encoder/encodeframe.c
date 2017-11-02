@@ -3591,7 +3591,7 @@ static int gm_get_params_cost(const WarpedMotionParams *gm,
                 (1 << GM_ALPHA_PREC_BITS),
             (gm->wmmat[5] >> GM_ALPHA_PREC_DIFF) - (1 << GM_ALPHA_PREC_BITS));
       }
-    // Fallthrough intended
+      FALLTHROUGH;
     case TRANSLATION:
       trans_bits = (gm->wmtype == TRANSLATION)
                        ? GM_ABS_TRANS_ONLY_BITS - !allow_hp
@@ -3607,7 +3607,7 @@ static int gm_get_params_cost(const WarpedMotionParams *gm,
           (1 << trans_bits) + 1, SUBEXPFIN_K,
           (ref_gm->wmmat[1] >> trans_prec_diff),
           (gm->wmmat[1] >> trans_prec_diff));
-    // Fallthrough intended
+      FALLTHROUGH;
     case IDENTITY: break;
     default: assert(0);
   }
