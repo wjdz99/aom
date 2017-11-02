@@ -1379,6 +1379,9 @@ static int filter_intra_taps_4[TX_SIZES_ALL][FILTER_INTRA_MODES][4] = {
 #endif
 
 #if USE_3TAP_INTRA_FILTER
+#define INTRA_FILTER_FINAL_PREC 3
+#define INTRA_FILTER_PREC_SHIFT \
+  (FILTER_INTRA_PREC_BITS - INTRA_FILTER_FINAL_PREC)
 static void filter_intra_predictors_3tap(uint8_t *dst, ptrdiff_t stride,
                                          TX_SIZE tx_size, const uint8_t *above,
                                          const uint8_t *left, int mode) {
@@ -1389,9 +1392,15 @@ static void filter_intra_predictors_3tap(uint8_t *dst, ptrdiff_t stride,
 #else
   int buffer[33][33];
 #endif  // CONFIG_TX64X64
-  const int c0 = filter_intra_taps_3[tx_size][mode][0];
-  const int c1 = filter_intra_taps_3[tx_size][mode][1];
-  const int c2 = filter_intra_taps_3[tx_size][mode][2];
+  const int c0 =
+      ROUND_POWER_OF_TWO_SIGNED(filter_intra_taps_3[tx_size][mode][0],
+                                INTRA_FILTER_PREC_SHIFT)
+      << INTRA_FILTER_PREC_SHIFT;
+  const int c1 =
+      ROUND_POWER_OF_TWO_SIGNED(filter_intra_taps_3[tx_size][mode][1],
+                                INTRA_FILTER_PREC_SHIFT)
+      << INTRA_FILTER_PREC_SHIFT;
+  const int c2 = (1 << FILTER_INTRA_PREC_BITS) - c0 - c1;
   const int bw = tx_size_wide[tx_size];
   const int bh = tx_size_high[tx_size];
 

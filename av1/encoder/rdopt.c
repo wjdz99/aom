@@ -3309,7 +3309,7 @@ static int rd_pick_filter_intra_sby(const AV1_COMP *const cpi, MACROBLOCK *x,
     int this_rate;
     int64_t this_rd, this_model_rd;
     RD_STATS tokenonly_rd_stats;
-    if (skip_mask & (1 << fimode_to_intradir(mode))) continue;
+    if (skip_mask & (1 << fimode_to_intradir[mode])) continue;
     mbmi->filter_intra_mode_info.filter_intra_mode[0] = mode;
     this_model_rd = intra_model_yrd(cpi, x, bsize, mode_cost);
     if (*best_model_rd != INT64_MAX &&
