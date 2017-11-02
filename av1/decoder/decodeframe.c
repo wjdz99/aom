@@ -1312,6 +1312,7 @@ static void setup_bool_decoder(const uint8_t *data, const uint8_t *data_end,
                                const size_t read_size,
                                struct aom_internal_error_info *error_info,
                                aom_reader *r,
+                               uint8_t allow_update_cdf,
 #if CONFIG_ANS && ANS_MAX_SYMBOLS
                                int window_size,
 #endif  // CONFIG_ANS && ANS_MAX_SYMBOLS
@@ -1329,6 +1330,8 @@ static void setup_bool_decoder(const uint8_t *data, const uint8_t *data_end,
   if (aom_reader_init(r, data, read_size, decrypt_cb, decrypt_state))
     aom_internal_error(error_info, AOM_CODEC_MEM_ERROR,
                        "Failed to allocate bool decoder %d", 1);
+
+  r->allow_update_cdf = allow_update_cdf;
 }
 
 static void setup_segmentation(AV1_COMMON *const cm,
@@ -2386,6 +2389,7 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
   int inv_col_order;
   int inv_row_order;
   int tile_row, tile_col;
+  uint8_t allow_update_cdf;
 
 #if CONFIG_EXT_TILE
   if (cm->large_scale_tile) {
@@ -2395,6 +2399,7 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
     tile_cols_end = single_col ? tile_cols_start + 1 : tile_cols;
     inv_col_order = pbi->inv_tile_order && !single_col;
     inv_row_order = pbi->inv_tile_order && !single_row;
+    allow_update_cdf = 0;
   } else {
 #endif  // CONFIG_EXT_TILE
     tile_rows_start = 0;
@@ -2403,6 +2408,7 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
     tile_cols_end = tile_cols;
     inv_col_order = pbi->inv_tile_order;
     inv_row_order = pbi->inv_tile_order;
+    allow_update_cdf = 1;
 #if CONFIG_EXT_TILE
   }
 #endif  // CONFIG_EXT_TILE
@@ -2470,6 +2476,7 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
       av1_tile_init(&td->xd.tile, td->cm, tile_row, tile_col);
       setup_bool_decoder(buf->data, data_end, buf->size, &cm->error,
                          &td->bit_reader,
+                         allow_update_cdf,
 #if CONFIG_ANS && ANS_MAX_SYMBOLS
                          1 << cm->ans_window_size_log2,
 #endif  // CONFIG_ANS && ANS_MAX_SYMBOLS
