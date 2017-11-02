@@ -3093,7 +3093,7 @@ void av1_remove_compressor(AV1_COMP *cpi) {
 #if CONFIG_ENTROPY_STATS
     if (cpi->oxcf.pass != 1) {
       fprintf(stderr, "Writing counts.stt\n");
-      FILE *f = fopen("agg_counts.stt", "wb");
+      FILE *f = fopen("br_node_counts.stt", "wb");
       fwrite(&aggregate_fc, sizeof(aggregate_fc), 1, f);
       fwrite(aggregate_fc_per_type, sizeof(aggregate_fc_per_type[0]),
              FRAME_CONTEXTS, f);
