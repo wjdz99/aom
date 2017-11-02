@@ -1634,7 +1634,14 @@ void try_level_down_facade(LevelDownStats *stats, int scan_idx,
   const int64_t low_dqc_dist =
       get_coeff_dist(tqc, stats->low_dqc, txb_info->shift);
 
+#if CONFIG_DAALA_TX
+  int depth_shift = (TX_COEFF_DEPTH - 11) * 2;
+  int depth_round = depth_shift > 1 ? (1 << (depth_shift - 1)) : 0;
+
+  stats->dist_diff = (low_dqc_dist - dqc_dist + depth_round) >> depth_shift;
+#else
   stats->dist_diff = -dqc_dist + low_dqc_dist;
+#endif
   stats->cost_diff = 0;
   stats->new_eob = txb_info->eob;
   if (scan_idx == txb_info->eob - 1 && abs(qc) == 1) {
