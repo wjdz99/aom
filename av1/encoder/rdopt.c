@@ -1950,7 +1950,14 @@ void av1_dist_block(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
     // not involve an inverse transform, but it is less accurate.
     const int buffer_length = tx_size_2d[tx_size];
     int64_t this_sse;
+// TX-domain results need to shift down to Q2/D10 to match pixel
+// domain distortion values which are in Q2^2
+#if CONFIG_DAALA_TX
+    int shift = (TX_COEFF_DEPTH - 10) * 2;
+#else
+    // Note that the below breaks for TX64X64 because MAX_TX_SCALE is 1
     int shift = (MAX_TX_SCALE - av1_get_tx_scale(tx_size)) * 2;
+#endif
     tran_low_t *const coeff = BLOCK_OFFSET(p->coeff, block);
     tran_low_t *const dqcoeff = BLOCK_OFFSET(pd->dqcoeff, block);
 
@@ -2130,7 +2137,14 @@ static void block_rd_txfm(int plane, int block, int blk_row, int blk_col,
   av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize, tx_size,
                   coeff_ctx, AV1_XFORM_QUANT_FP);
 
+// TX-domain results need to shift down to Q2/D10 to match pixel
+// domain distortion values which are in Q2^2
+#if CONFIG_DAALA_TX
+  const int shift = (TX_COEFF_DEPTH - 10) * 2;
+#else
+  // Note that the below breaks for TX64X64 because MAX_TX_SCALE is 1
   const int shift = (MAX_TX_SCALE - av1_get_tx_scale(tx_size)) * 2;
+#endif
   tran_low_t *const coeff = BLOCK_OFFSET(x->plane[plane].coeff, block);
   tran_low_t *const dqcoeff = BLOCK_OFFSET(xd->plane[plane].dqcoeff, block);
   const int buffer_length = tx_size_2d[tx_size];
@@ -3741,10 +3755,13 @@ void av1_tx_block_rd_b(const AV1_COMP *cpi, MACROBLOCK *x, TX_SIZE tx_size,
 
   int coeff_ctx = get_entropy_context(tx_size, a, l);
 
+  // Note: tmp below is pixel distortion, not TX domain
   tmp = pixel_diff_dist(x, plane, diff, diff_stride, blk_row, blk_col,
                         plane_bsize, txm_bsize);
 
 #if CONFIG_HIGHBITDEPTH
+  // XXXX Worrisome--- why is pixel domain distortion being scaled by
+  // bitdepth, but AV1 TX domain distortion is not?
   if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH)
     tmp = ROUND_POWER_OF_TWO(tmp, (xd->bd - 8) * 2);
 #endif  // CONFIG_HIGHBITDEPTH
@@ -3781,7 +3798,14 @@ void av1_tx_block_rd_b(const AV1_COMP *cpi, MACROBLOCK *x, TX_SIZE tx_size,
   av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize, tx_size,
                   coeff_ctx, AV1_XFORM_QUANT_FP);
 
+// TX-domain results need to shift down to Q2/D10 to match pixel
+// domain distortion values which are in Q2^2
+#if CONFIG_DAALA_TX
+  const int shift = (TX_COEFF_DEPTH - 10) * 2;
+#else
+  // Note that the below breaks for TX64X64 because MAX_TX_SCALE is 1
   const int shift = (MAX_TX_SCALE - av1_get_tx_scale(tx_size)) * 2;
+#endif
   tran_low_t *const coeff = BLOCK_OFFSET(p->coeff, block);
   const int buffer_length = tx_size_2d[tx_size];
   int64_t tmp_dist, tmp_sse;
