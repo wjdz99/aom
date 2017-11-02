@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "df61c226_863a66f0",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 32
+      },
+      "lineNbr": 451,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-11-02T19:06:21Z",
+      "side": 1,
+      "message": "This will never work. Suppose I\u0027m in the second superblock in a superblock row. Further suppose it\u0027s a 64x64 superblock and it\u0027s split into four 32x32 blocks. Now, when I read the q_segment_id for the block in the lower-right, I want to use the q_segment_id value from the upper-right block as my predictor. But because I\u0027m in the second superblock in the superblock row, I will never decode a segment ID for a block with mi_col \u003d\u003d 0 between those two.\n\nFurthermore, I might happen to skip the block where mi_col \u003d\u003d 0, in which case I\u0027d never call this function.",
+      "revId": "52e9035b99b1d408c9ca90f8c6cd62f4c6264df4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "48a497a3_bfd649ac",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 32
+      },
+      "lineNbr": 461,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-11-02T19:06:21Z",
+      "side": 1,
+      "message": "These can\u0027t possibly be right.\n\n1) rows are the Y coordinate and columns are the X coordinate, so subtracting widths from the Y coordinate and heights from the X coordinate is almost certainly wrong (the fact that rows/columns are referred to in the opposite order from width/height is a huge trap everywhere in this codebase).\n\n2) q_seg_map_row[i] looks like it only has storage allocated for one row, but get_segment_id() and set_q_segment_id() compute mi_offset using the mi_row value you pass in here, which is non-zero, so they will access things out-of-bounds.\n\n3) Passing in bsize and subtracting the bh or bw is the wrong thing to do anyway. If your block height is greater than 4 pixels, then you\u0027ll once again access more than a single row and read out of bounds. My suggestion was to look at a *single* q_segment_id for each neighbor. That means if you want to continue to use the get_segment_id() function, bsize should always be BLOCK_4X4. You should be subtracting no more than 1 to make sure you are only ever looking at immediate neighbors. When your actual block size is larger than 4x4, you do have a choice of which q_segment_id that immediately neighbors the block edge you look at. Reasonable choices might be the midpoint (which means *adding* (bw \u003e\u003e 1) - 1 or (bh \u003e\u003e 1) - 1 for the top and left edges, respectively), or the far right/bottom neighbor (which means adding bw - 1 or bh - 1, respectively).\n\nI know the goal is to make sure that a hardware implementation only needs to buffer one row, but I actually think it\u0027s over-optimization to implement things that way in software at this point. Especially if you\u0027re going to allocate a full buffer for the encoder anyway (and stick it in a structure that is not encoder-specific). As evidence I point to how broken this is (which also indicates to me you\u0027re not testing it).",
+      "revId": "52e9035b99b1d408c9ca90f8c6cd62f4c6264df4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "98efacd7_7ac0270c",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 32
+      },
+      "lineNbr": 1274,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-11-02T19:06:21Z",
+      "side": 1,
+      "message": "Shouldn\u0027t you be storing something in the segment map to use for prediction in this case? Probably the best choice is the predictor for the current block (better than \"whatever happened to be in the buffer\", anyway).",
+      "revId": "52e9035b99b1d408c9ca90f8c6cd62f4c6264df4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}

@@ -54,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "88871f62_7cf3d175",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 27
+      },
+      "lineNbr": 1388,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-11-02T19:06:21Z",
+      "side": 1,
+      "message": "I agree that signaling them on S-frames could be useful. I also think signaling them on golden frames and altrefs is definitely useful, so disabling them completely there seems a little excessive?",
+      "parentUuid": "c62e0b42_5853ecbf",
+      "revId": "2d28db007a4dc9898f6cdf0b352394f017bb6a21",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8ee546f8_a3cbc54f",
         "filename": "av1/decoder/decodeframe.c",
         "patchSetId": 27
@@ -83,6 +101,24 @@
       "side": 1,
       "message": "No conflict, but we don\u0027t want to signal a q_segmentation index in case the block\u0027s skipped using the skip segmentation feature.",
       "parentUuid": "8ee546f8_a3cbc54f",
+      "revId": "2d28db007a4dc9898f6cdf0b352394f017bb6a21",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a6434823_9c945ae8",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 27
+      },
+      "lineNbr": 1394,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-11-02T19:06:21Z",
+      "side": 1,
+      "message": "I agree we don\u0027t. But what you\u0027re doing is ensuring that we can\u0027t signal a q_segmentation index on *any* block in a frame where some of them might be skipped using the skip segmentation feature.\n\nBut I think if you simply do nothing with SEG_LVL_SKIP, then you get the behavior you want. I.e., go read the implementation of read_skip(). It returns the segmentation skip value when it\u0027s set, which gets stored in mbmi-\u003eskip, which is what we then check immediately after to decide whether or not to read mbmi-\u003eq_segment_id.",
+      "parentUuid": "f0681ba1_e23141cc",
       "revId": "2d28db007a4dc9898f6cdf0b352394f017bb6a21",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
