@@ -100,7 +100,7 @@ static INLINE enum lf_path get_loop_filter_path(
 static INLINE void loop_filter_block_plane_ver(
     AV1_COMMON *cm, struct macroblockd_plane planes[MAX_MB_PLANE], int plane,
     MODE_INFO **mi, int mi_row, int mi_col, enum lf_path path,
-    LOOP_FILTER_MASK *lfm) {
+    LoopFilterMask *lfm) {
   if (plane == 0) {
     av1_filter_block_plane_ss00_ver(cm, &planes[0], mi_row, lfm);
   } else {
@@ -122,7 +122,7 @@ static INLINE void loop_filter_block_plane_ver(
 static INLINE void loop_filter_block_plane_hor(
     AV1_COMMON *cm, struct macroblockd_plane planes[MAX_MB_PLANE], int plane,
     MODE_INFO **mi, int mi_row, int mi_col, enum lf_path path,
-    LOOP_FILTER_MASK *lfm) {
+    LoopFilterMask *lfm) {
   if (plane == 0) {
     av1_filter_block_plane_ss00_hor(cm, &planes[0], mi_row, lfm);
   } else {
@@ -157,7 +157,7 @@ static int loop_filter_ver_row_worker(AV1LfSync *const lf_sync,
 
     for (mi_col = 0; mi_col < lf_data->cm->mi_cols;
          mi_col += lf_data->cm->mib_size) {
-      LOOP_FILTER_MASK lfm;
+      LpfMask lfm;
       int plane;
 
       av1_setup_dst_planes(lf_data->planes, lf_data->cm->sb_size,
@@ -200,7 +200,7 @@ static int loop_filter_hor_row_worker(AV1LfSync *const lf_sync,
          mi_col += lf_data->cm->mib_size) {
       const int r = mi_row >> lf_data->cm->mib_size_log2;
       const int c = mi_col >> lf_data->cm->mib_size_log2;
-      LOOP_FILTER_MASK lfm;
+      LpfMask lfm;
       int plane;
 
       // TODO(wenhao.zhang@intel.com): For better parallelization, reorder
@@ -254,7 +254,7 @@ static int loop_filter_row_worker(AV1LfSync *const lf_sync,
       const int r = mi_row >> lf_data->cm->mib_size_log2;
       const int c = mi_col >> lf_data->cm->mib_size_log2;
 #if !CONFIG_EXT_PARTITION_TYPES
-      LOOP_FILTER_MASK lfm;
+      LpfMask lfm;
 #endif
       int plane;
 
