@@ -71,9 +71,6 @@ void av1_inverse_transform_block(const MACROBLOCKD *xd,
 #if CONFIG_LGT_FROM_PRED
                                  PREDICTION_MODE mode,
 #endif
-#if CONFIG_MRC_TX && SIGNAL_ANY_MRC_MASK
-                                 uint8_t *mrc_mask,
-#endif  // CONFIG_MRC_TX && SIGNAL_ANY_MRC_MASK
 #if CONFIG_EXT_TX
                                  int plane,
 #endif  // CONFIG_EXT_TX
