@@ -91,14 +91,14 @@ extern aom_codec_iface_t *aom_codec_av1_cx(void);
  * When this flag is set, the encoder copy the contents of the current frame
  * to the golden frame buffer.
  */
-#define AOM_EFLAG_FORCE_GF (1 << 19)
+#define AOM_EFLAG_FORCE_UPD_GF (1 << 19)
 
 /*!\brief Force alternate reference frame update
  *
  * When this flag is set, the encoder copy the contents of the current frame
  * to the alternate reference frame buffer.
  */
-#define AOM_EFLAG_FORCE_ARF (1 << 24)
+#define AOM_EFLAG_FORCE_UPD_ARF (1 << 24)
 
 /*!\brief Disable entropy update
  *

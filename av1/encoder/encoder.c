@@ -6633,14 +6633,18 @@ void av1_apply_encoding_flags(AV1_COMP *cpi, aom_enc_frame_flags_t flags) {
 
     if (flags & AOM_EFLAG_NO_REF_GF) ref ^= AOM_GOLD_FLAG;
 
-    if (flags & AOM_EFLAG_NO_REF_ARF) ref ^= AOM_ALT_FLAG;
+    if (flags & AOM_EFLAG_NO_REF_ARF) {
+      ref ^= AOM_ALT_FLAG;
+      ref ^= AOM_BWD_FLAG;
+      ref ^= AOM_ALT2_FLAG;
+    }
 
     av1_use_as_reference(cpi, ref);
   }
 
   if (flags &
       (AOM_EFLAG_NO_UPD_LAST | AOM_EFLAG_NO_UPD_GF | AOM_EFLAG_NO_UPD_ARF |
-       AOM_EFLAG_FORCE_GF | AOM_EFLAG_FORCE_ARF)) {
+       AOM_EFLAG_FORCE_UPD_GF | AOM_EFLAG_FORCE_UPD_ARF)) {
     int upd = AOM_REFFRAME_ALL;
 
     if (flags & AOM_EFLAG_NO_UPD_LAST) {
@@ -6651,7 +6655,11 @@ void av1_apply_encoding_flags(AV1_COMP *cpi, aom_enc_frame_flags_t flags) {
 
     if (flags & AOM_EFLAG_NO_UPD_GF) upd ^= AOM_GOLD_FLAG;
 
-    if (flags & AOM_EFLAG_NO_UPD_ARF) upd ^= AOM_ALT_FLAG;
+    if (flags & AOM_EFLAG_NO_UPD_ARF) {
+      upd ^= AOM_ALT_FLAG;
+      upd ^= AOM_BWD_FLAG;
+      upd ^= AOM_ALT2_FLAG;
+    }
 
     av1_update_reference(cpi, upd);
   }
