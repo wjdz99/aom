@@ -402,16 +402,6 @@ static void write_motion_mode(const AV1_COMMON *cm, MACROBLOCKD *xd,
   MOTION_MODE last_motion_mode_allowed =
       motion_mode_allowed(0, cm->global_motion, xd, mi);
   if (last_motion_mode_allowed == SIMPLE_TRANSLATION) return;
-#if CONFIG_NCOBMC_ADAPT_WEIGHT
-  if (last_motion_mode_allowed == NCOBMC_ADAPT_WEIGHT) {
-    aom_write_symbol(w, mbmi->motion_mode,
-                     xd->tile_ctx->ncobmc_cdf[mbmi->sb_type],
-                     OBMC_FAMILY_MODES);
-  } else if (last_motion_mode_allowed == OBMC_CAUSAL) {
-    aom_write_symbol(w, mbmi->motion_mode == OBMC_CAUSAL,
-                     xd->tile_ctx->obmc_cdf[mbmi->sb_type], 2);
-  } else {
-#else
   if (last_motion_mode_allowed == OBMC_CAUSAL) {
 #if CONFIG_NEW_MULTISYMBOL
     aom_write_symbol(w, mbmi->motion_mode == OBMC_CAUSAL,
@@ -421,28 +411,11 @@ static void write_motion_mode(const AV1_COMMON *cm, MACROBLOCKD *xd,
               cm->fc->obmc_prob[mbmi->sb_type]);
 #endif
   } else {
-#endif  // CONFIG_NCOBMC_ADAPT_WEIGHT
     aom_write_symbol(w, mbmi->motion_mode,
                      xd->tile_ctx->motion_mode_cdf[mbmi->sb_type],
                      MOTION_MODES);
   }
 }
-
-#if CONFIG_NCOBMC_ADAPT_WEIGHT
-static void write_ncobmc_mode(MACROBLOCKD *xd, const MODE_INFO *mi,
-                              aom_writer *w) {
-  const MB_MODE_INFO *mbmi = &mi->mbmi;
-  ADAPT_OVERLAP_BLOCK ao_block = adapt_overlap_block_lookup[mbmi->sb_type];
-  if (mbmi->motion_mode != NCOBMC_ADAPT_WEIGHT) return;
-
-  aom_write_symbol(w, mbmi->ncobmc_mode[0],
-                   xd->tile_ctx->ncobmc_mode_cdf[ao_block], MAX_NCOBMC_MODES);
-  if (mi_size_wide[mbmi->sb_type] != mi_size_high[mbmi->sb_type]) {
-    aom_write_symbol(w, mbmi->ncobmc_mode[1],
-                     xd->tile_ctx->ncobmc_mode_cdf[ao_block], MAX_NCOBMC_MODES);
-  }
-}
-#endif
 
 static void write_delta_qindex(const AV1_COMMON *cm, const MACROBLOCKD *xd,
                                int delta_qindex, aom_writer *w) {
@@ -1694,9 +1667,6 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
     }
 
     if (mbmi->ref_frame[1] != INTRA_FRAME) write_motion_mode(cm, xd, mi, w);
-#if CONFIG_NCOBMC_ADAPT_WEIGHT
-    write_ncobmc_mode(xd, mi, w);
-#endif
 
     if (
 #if CONFIG_COMPOUND_SINGLEREF
