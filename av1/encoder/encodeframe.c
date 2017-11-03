@@ -3632,6 +3632,60 @@ static int is_screen_content(const uint8_t *src,
   return counts * blk_h * blk_w * 10 > width * height;
 }
 
+#if CONFIG_FRAME_MARKER
+// Enforce the number of references for each arbitrary frame limited to
+// (INTER_REFS_PER_FRAME - 1)
+static void force_num_ref_frames(AV1_COMP *cpi) {
+  AV1_COMMON *const cm = &cpi->common;
+  static const int flag_list[TOTAL_REFS_PER_FRAME] = { 0,
+                                                       AOM_LAST_FLAG,
+                                                       AOM_LAST2_FLAG,
+                                                       AOM_LAST3_FLAG,
+                                                       AOM_GOLD_FLAG,
+                                                       AOM_BWD_FLAG,
+                                                       AOM_ALT2_FLAG,
+                                                       AOM_ALT_FLAG };
+  MV_REFERENCE_FRAME ref_frame, earliest_ref_frame = ALTREF2_FRAME;
+  int total_valid_refs = 0;
+
+  (void)flag_list;
+
+  for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
+    if (cpi->ref_frame_flags & flag_list[ref_frame]) total_valid_refs++;
+  }
+
+  // When all the possible reference frames are availble, we reduce the number
+  // of reference frames for the current frame by 1, through removing the
+  // earliest reference frame except GOLDEN_FARME/ALTEF_FRAME.
+  if (total_valid_refs == INTER_REFS_PER_FRAME) {
+    unsigned int min_ref_offset = UINT_MAX;
+
+    for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
+      if (ref_frame == GOLDEN_FRAME || ref_frame == ALTREF_FRAME) continue;
+
+      const int buf_idx = cm->frame_refs[ref_frame - LAST_FRAME].idx;
+      if (buf_idx >= 0) {
+        const unsigned int ref_offset =
+            cm->buffer_pool->frame_bufs[buf_idx].cur_frame_offset;
+        if (ref_offset < min_ref_offset) {
+          min_ref_offset = ref_offset;
+          earliest_ref_frame = ref_frame;
+        }
+      }
+    }
+
+    switch (earliest_ref_frame) {
+      case LAST_FRAME: cpi->ref_frame_flags &= ~AOM_LAST_FLAG; break;
+      case LAST2_FRAME: cpi->ref_frame_flags &= ~AOM_LAST2_FLAG; break;
+      case LAST3_FRAME: cpi->ref_frame_flags &= ~AOM_LAST3_FLAG; break;
+      case BWDREF_FRAME: cpi->ref_frame_flags &= ~AOM_BWD_FLAG; break;
+      case ALTREF2_FRAME: cpi->ref_frame_flags &= ~AOM_ALT2_FLAG; break;
+      default: break;
+    }
+  }
+}
+#endif  // CONFIG_FRAME_MARKER
+
 static void encode_frame_internal(AV1_COMP *cpi) {
   ThreadData *const td = &cpi->td;
   MACROBLOCK *const x = &td->mb;
@@ -3945,6 +3999,9 @@ static void encode_frame_internal(AV1_COMP *cpi) {
   av1_setup_motion_field(cm);
 #endif  // CONFIG_MFMV
 
+#if CONFIG_FRAME_MARKER
+  force_num_ref_frames(cpi);
+#endif  // CONFIG_FRAME_MARKER
   {
     struct aom_usec_timer emr_timer;
     aom_usec_timer_start(&emr_timer);
