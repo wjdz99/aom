@@ -662,9 +662,6 @@ static void configure_static_seg_features(AV1_COMP *cpi) {
 #endif  // CONFIG_LOOPFILTER_LEVEL
 
       av1_enable_segfeature(seg, 1, SEG_LVL_ALT_Q);
-
-      // Where relevant assume segment data is delta data
-      seg->abs_delta = SEGMENT_DELTADATA;
     }
   } else if (seg->enabled) {
     // All other frames if segmentation has been enabled
@@ -675,7 +672,6 @@ static void configure_static_seg_features(AV1_COMP *cpi) {
       if (rc->source_alt_ref_active) {
         seg->update_map = 0;
         seg->update_data = 1;
-        seg->abs_delta = SEGMENT_DELTADATA;
 
         qi_delta =
             av1_compute_qdelta(rc, rc->avg_q, rc->avg_q * 1.125, cm->bit_depth);
