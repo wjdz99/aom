@@ -1878,10 +1878,6 @@ static const BLOCK_SIZE bsize_2_sqr_bsize[BLOCK_SIZES] = {
 
 #endif  // CONFIG_NCOBMC_ADAPT_WEIGHT
 
-#if CONFIG_ADAPT_SCAN
-#define EOB_THRESHOLD_NUM 2
-#endif
-
 #if CONFIG_JNT_COMP
 static const double quant_dist_category[4] = { 1.5, 2.5, 3.5, 255 };
 static const int quant_dist_lookup_table[2][4][2] = {

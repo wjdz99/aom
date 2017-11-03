@@ -44,10 +44,7 @@ typedef struct txfm_param {
   int use_lgt;
 #endif  // CONFIG_LGT_FROM_PRED
 #endif  // CONFIG_MRC_TX || CONFIG_LGT_FROM_PRED
-// for inverse transforms only
-#if CONFIG_ADAPT_SCAN
-  const int16_t *eob_threshold;
-#endif
+        // for inverse transforms only
   int eob;
 } TxfmParam;
 

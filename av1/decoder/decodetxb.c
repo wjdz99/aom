@@ -333,13 +333,6 @@ uint8_t av1_read_coeffs_txb_facade(AV1_COMMON *cm, MACROBLOCKD *xd,
   uint8_t cul_level =
       av1_read_coeffs_txb(cm, xd, r, row, col, block, plane, tcoeffs, &txb_ctx,
                           tx_size, max_scan_line, eob);
-#if CONFIG_ADAPT_SCAN
-  PLANE_TYPE plane_type = get_plane_type(plane);
-  TX_TYPE tx_type = av1_get_tx_type(plane_type, xd, row, col, block, tx_size);
-  if (xd->counts && *eob > 0)
-    av1_update_scan_count_facade(cm, xd->counts, tx_size, tx_type, pd->dqcoeff,
-                                 *eob);
-#endif
   av1_set_contexts(xd, pd, plane, tx_size, cul_level, col, row);
   return cul_level;
 }

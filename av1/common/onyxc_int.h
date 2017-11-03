@@ -531,9 +531,6 @@ typedef struct AV1Common {
 #if CONFIG_LPF_SB
   int final_lpf_encode;
 #endif
-#if CONFIG_ADAPT_SCAN
-  int use_adapt_scan;
-#endif
 #if CONFIG_MFMV
   TPL_MV_REF *tpl_mvs;
 #endif
