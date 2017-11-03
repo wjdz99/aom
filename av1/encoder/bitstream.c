@@ -3503,15 +3503,15 @@ static void write_bitdepth_colorspace_sampling(
 }
 
 #if CONFIG_REFERENCE_BUFFER || CONFIG_OBU
-void write_sequence_header(AV1_COMMON *const cm,
-                           struct aom_write_bit_buffer *wb) {
+void write_sequence_header(AV1_COMP *cpi, struct aom_write_bit_buffer *wb) {
+  AV1_COMMON *const cm = &cpi->common;
   SequenceHeader *seq_params = &cm->seq_params;
 
 #if CONFIG_FRAME_SIZE
   int num_bits_width = 16;
   int num_bits_height = 16;
-  int max_frame_width = cm->width;
-  int max_frame_height = cm->height;
+  int max_frame_width = cpi->oxcf.width;
+  int max_frame_height = cpi->oxcf.height;
 
   seq_params->num_bits_width = num_bits_width;
   seq_params->num_bits_height = num_bits_height;
@@ -3727,7 +3727,7 @@ static void write_uncompressed_header_frame(AV1_COMP *cpi,
 
   if (frame_is_intra_only(cm)) {
 #if CONFIG_REFERENCE_BUFFER
-    write_sequence_header(cm, wb);
+    write_sequence_header(cpi, wb);
 #endif  // CONFIG_REFERENCE_BUFFER
   }
 #if CONFIG_REFERENCE_BUFFER
@@ -3739,6 +3739,11 @@ static void write_uncompressed_header_frame(AV1_COMP *cpi,
 #endif  // CONFIG_REFERENCE_BUFFER
 
 #if CONFIG_FRAME_SIZE
+  if (cm->width > cm->seq_params.max_frame_width ||
+      cm->height > cm->seq_params.max_frame_height) {
+    aom_internal_error(&cm->error, AOM_CODEC_UNSUP_BITSTREAM,
+                       "Frame dimensions are larger than the maximum values");
+  }
   int frame_size_override_flag =
       (cm->width != cm->seq_params.max_frame_width ||
        cm->height != cm->seq_params.max_frame_height);
@@ -4043,6 +4048,11 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
 #endif  // CONFIG_REFERENCE_BUFFER
 
 #if CONFIG_FRAME_SIZE
+  if (cm->width > cm->seq_params.max_frame_width ||
+      cm->height > cm->seq_params.max_frame_height) {
+    aom_internal_error(&cm->error, AOM_CODEC_UNSUP_BITSTREAM,
+                       "Frame dimensions are larger than the maximum values");
+  }
   int frame_size_override_flag =
       (cm->width != cm->seq_params.max_frame_width ||
        cm->height != cm->seq_params.max_frame_height);
@@ -4628,7 +4638,40 @@ static uint32_t write_sequence_header_obu(AV1_COMP *cpi, uint8_t *const dst) {
 
   aom_wb_write_literal(&wb, 0, 4);
 
+<<<<<<< HEAD
   write_sequence_header(cm, &wb);
+=======
+#if CONFIG_FRAME_SIZE
+  int num_bits_width = 16;
+  int num_bits_height = 16;
+  int max_frame_width = cpi->oxcf.width;
+  int max_frame_height = cpi->oxcf.height;
+
+  seq_params->num_bits_width = num_bits_width;
+  seq_params->num_bits_height = num_bits_height;
+  seq_params->max_frame_width = max_frame_width;
+  seq_params->max_frame_height = max_frame_height;
+
+  aom_wb_write_literal(&wb, num_bits_width - 1, 4);
+  aom_wb_write_literal(&wb, num_bits_height - 1, 4);
+  aom_wb_write_literal(&wb, max_frame_width - 1, num_bits_width);
+  aom_wb_write_literal(&wb, max_frame_height - 1, num_bits_height);
+#endif
+
+  seq_params->frame_id_numbers_present_flag = FRAME_ID_NUMBERS_PRESENT_FLAG;
+  aom_wb_write_literal(&wb, seq_params->frame_id_numbers_present_flag, 1);
+  if (seq_params->frame_id_numbers_present_flag) {
+    seq_params->frame_id_length = FRAME_ID_LENGTH_MINUS7 + 7;
+    seq_params->delta_frame_id_length = DELTA_FRAME_ID_LENGTH_MINUS2 + 2;
+    // We must always have delta_frame_id_length < frame_id_length,
+    // in order for a frame to be referenced with a unique delta.
+    // Avoid wasting bits by using a coding that enforces this restriction.
+    aom_wb_write_literal(&wb, seq_params->delta_frame_id_length - 2, 4);
+    aom_wb_write_literal(
+        &wb,
+        seq_params->frame_id_length - seq_params->delta_frame_id_length - 1, 3);
+  }
+>>>>>>> FRAME_SIZE: Never exceed maximum frame dimensions.
 
   // color_config
   write_bitdepth_colorspace_sampling(cm, &wb);
