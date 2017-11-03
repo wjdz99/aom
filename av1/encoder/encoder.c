@@ -4631,7 +4631,7 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
 #if CONFIG_FRAME_SUPERRES && CONFIG_HORZONLY_FRAME_SUPERRES
   aom_extend_frame_borders(cm->frame_to_show);
 #endif
-  av1_loop_restoration_save_boundary_lines(cm->frame_to_show, cm);
+  av1_loop_restoration_save_boundary_lines(cm->frame_to_show, cm, 0);
 #endif
 
 #if CONFIG_CDEF
@@ -4647,6 +4647,10 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
     // Apply the filter
     av1_cdef_frame(cm->frame_to_show, cm, xd);
   }
+#endif
+
+#if CONFIG_STRIPED_LOOP_RESTORATION
+  av1_loop_restoration_save_boundary_lines(cm->frame_to_show, cm, 1);
 #endif
 
 #if CONFIG_FRAME_SUPERRES
