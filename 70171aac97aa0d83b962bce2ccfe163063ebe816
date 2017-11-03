@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "19d84634_cbf14945",
+        "filename": "av1/common/restoration.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 366,
+      "author": {
+        "id": 5975
+      },
+      "writtenOn": "2017-11-03T18:01:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "42c73a5e_6e4496a0",
+      "range": {
+        "startLine": 355,
+        "startChar": 6,
+        "endLine": 366,
+        "endChar": 7
+      },
+      "revId": "70171aac97aa0d83b962bce2ccfe163063ebe816",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c02004bd_d50adcf1",
         "filename": "av1/decoder/decodeframe.c",
         "patchSetId": 1
@@ -59,6 +83,30 @@
       "writtenOn": "2017-11-03T16:52:37Z",
       "side": 1,
       "message": "Couldn\u0027t this come after the superres upscale on the next couple of lines? Then you wouldn\u0027t have to upscale in this part of the restoration code, I think?",
+      "range": {
+        "startLine": 3858,
+        "startChar": 0,
+        "endLine": 3864,
+        "endChar": 6
+      },
+      "revId": "70171aac97aa0d83b962bce2ccfe163063ebe816",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "acdcfaaa_b3c2b18f",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 3864,
+      "author": {
+        "id": 5975
+      },
+      "writtenOn": "2017-11-03T18:01:44Z",
+      "side": 1,
+      "message": "How does it look now? I haven\u0027t had chance to properly test the interaction with superres (please could you do that on Monday?), but I think it should be correct.",
+      "parentUuid": "c02004bd_d50adcf1",
       "range": {
         "startLine": 3858,
         "startChar": 0,
