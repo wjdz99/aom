@@ -16,6 +16,24 @@
       "revId": "cd9723509d53cb36dcd6206e53c5ce76407d73b4",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "02b59004_9413d40b",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 2706,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-11-03T19:05:14Z",
+      "side": 1,
+      "message": "With this patch, CfL is applied over the DC predicted block.",
+      "parentUuid": "0ddab44d_4bf22d4f",
+      "revId": "cd9723509d53cb36dcd6206e53c5ce76407d73b4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
