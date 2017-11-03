@@ -22,6 +22,29 @@
       "revId": "2e256c9cb8ffbd5340ada9392272b4ce82c2307a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5005c780_a32cb3a4",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 3040,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-11-03T21:16:53Z",
+      "side": 1,
+      "message": "For speed up, I guess split_rd[0] and split_rd[1] in horz_a case and horz_rd[0] in horz_b case can be reused, and of course the mode selections.",
+      "range": {
+        "startLine": 3035,
+        "startChar": 31,
+        "endLine": 3040,
+        "endChar": 74
+      },
+      "revId": "2e256c9cb8ffbd5340ada9392272b4ce82c2307a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
