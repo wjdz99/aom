@@ -810,21 +810,23 @@ static const int av1_num_ext_tx_set[EXT_TX_SET_TYPES] = {
 #if CONFIG_MRC_TX
   2, 3,
 #endif  // CONFIG_MRC_TX
-  5, 7, 12, 16,
+  7, 7, 16, 16,
+//X  0  X    0
 };
 
 static const int av1_ext_tx_set_idx_to_type[2][AOMMAX(EXT_TX_SETS_INTRA,
                                                       EXT_TX_SETS_INTER)] = {
   {
       // Intra
-      EXT_TX_SET_DCTONLY, EXT_TX_SET_DTT4_IDTX_1DDCT, EXT_TX_SET_DTT4_IDTX,
+      EXT_TX_SET_DCTONLY, EXT_TX_SET_DTT4_IDTX_1DDCT,
+      EXT_TX_SET_DTT4_IDTX_1DDCT_16X16,
 #if CONFIG_MRC_TX
       EXT_TX_SET_MRC_DCT,
 #endif  // CONFIG_MRC_TX
   },
   {
       // Inter
-      EXT_TX_SET_DCTONLY, EXT_TX_SET_ALL16, EXT_TX_SET_DTT9_IDTX_1DDCT,
+      EXT_TX_SET_DCTONLY, EXT_TX_SET_ALL16, EXT_TX_SET_ALL16_16X16,
       EXT_TX_SET_DCT_IDTX,
 #if CONFIG_MRC_TX
       EXT_TX_SET_MRC_DCT_IDTX,
@@ -847,13 +849,13 @@ static const int av1_ext_tx_used[EXT_TX_SET_TYPES][TX_TYPES] = {
       1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1,
   },
   {
-      1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0,
+      1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0,
   },
   {
       1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0,
   },
   {
-      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0,
+      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
   },
   {
       1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
@@ -868,13 +870,13 @@ static const int av1_ext_tx_used[EXT_TX_SET_TYPES][TX_TYPES] = {
       1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
   },
   {
-      1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
+      1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0,
   },
   {
       1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0,
   },
   {
-      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0,
+      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
   },
   {
       1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -893,7 +895,7 @@ static INLINE TxSetType get_ext_tx_set_type(TX_SIZE tx_size, BLOCK_SIZE bs,
   if (tx_size_sqr_up > TX_32X32 || bs < BLOCK_8X8) return EXT_TX_SET_DCTONLY;
 #endif  // USE_TXTYPE_SEARCH_FOR_SUB8X8_IN_CB4X4
   if (use_reduced_set)
-    return is_inter ? EXT_TX_SET_DCT_IDTX : EXT_TX_SET_DTT4_IDTX;
+    return is_inter ? EXT_TX_SET_DCT_IDTX : EXT_TX_SET_DTT4_IDTX_1DDCT_16X16;
 #if CONFIG_MRC_TX
   if (tx_size == TX_32X32) {
     if (is_inter && USE_MRC_INTER)
@@ -906,19 +908,19 @@ static INLINE TxSetType get_ext_tx_set_type(TX_SIZE tx_size, BLOCK_SIZE bs,
   if (tx_size_sqr_up > TX_32X32)
     return is_inter ? EXT_TX_SET_DCT_IDTX : EXT_TX_SET_DCTONLY;
   if (is_inter)
-    return (tx_size_sqr >= TX_16X16 ? EXT_TX_SET_DTT9_IDTX_1DDCT
+    return (tx_size_sqr >= TX_16X16 ? EXT_TX_SET_ALL16_16X16
                                     : EXT_TX_SET_ALL16);
   else
-    return (tx_size_sqr >= TX_16X16 ? EXT_TX_SET_DTT4_IDTX
+    return (tx_size_sqr >= TX_16X16 ? EXT_TX_SET_DTT4_IDTX_1DDCT_16X16
                                     : EXT_TX_SET_DTT4_IDTX_1DDCT);
 #endif
   if (tx_size_sqr_up == TX_32X32)
     return is_inter ? EXT_TX_SET_DCT_IDTX : EXT_TX_SET_DCTONLY;
   if (is_inter)
-    return (tx_size_sqr == TX_16X16 ? EXT_TX_SET_DTT9_IDTX_1DDCT
+    return (tx_size_sqr == TX_16X16 ? EXT_TX_SET_ALL16_16X16
                                     : EXT_TX_SET_ALL16);
   else
-    return (tx_size_sqr == TX_16X16 ? EXT_TX_SET_DTT4_IDTX
+    return (tx_size_sqr == TX_16X16 ? EXT_TX_SET_DTT4_IDTX_1DDCT_16X16
                                     : EXT_TX_SET_DTT4_IDTX_1DDCT);
 }
 

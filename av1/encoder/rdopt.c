@@ -1416,16 +1416,16 @@ static int prune_tx_types(const AV1_COMP *cpi, BLOCK_SIZE bsize, MACROBLOCK *x,
     case PRUNE_2D_ACCURATE:
       if (tx_set_type == EXT_TX_SET_ALL16)
         return prune_tx_types_2D(bsize, x, tx_set_type, 6);
-      else if (tx_set_type == EXT_TX_SET_DTT9_IDTX_1DDCT)
-        return prune_tx_types_2D(bsize, x, tx_set_type, 4);
+      else if (tx_set_type == EXT_TX_SET_ALL16_16X16)
+        return prune_tx_types_2D(bsize, x, tx_set_type, 6);
       else
         return 0;
       break;
     case PRUNE_2D_FAST:
       if (tx_set_type == EXT_TX_SET_ALL16)
         return prune_tx_types_2D(bsize, x, tx_set_type, 10);
-      else if (tx_set_type == EXT_TX_SET_DTT9_IDTX_1DDCT)
-        return prune_tx_types_2D(bsize, x, tx_set_type, 7);
+      else if (tx_set_type == EXT_TX_SET_ALL16_16X16)
+        return prune_tx_types_2D(bsize, x, tx_set_type, 10);
       else
         return 0;
       break;
