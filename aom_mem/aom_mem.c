@@ -18,6 +18,18 @@
 #include "include/aom_mem_intrnl.h"
 #include "aom/aom_integer.h"
 
+#define AOM_MAX_ALLOCABLE_MEMORY 1073741824  // 1 GB
+#if defined(AOM_MAX_ALLOCABLE_MEMORY)
+// Returns 0 in case of overflow of nmemb * size.
+static int check_size_argument_overflow(uint64_t nmemb, uint64_t size) {
+  const uint64_t total_size = nmemb * size;
+  if (nmemb == 0) return 1;
+  if (size > AOM_MAX_ALLOCABLE_MEMORY / nmemb) return 0;
+  if (total_size != (size_t)total_size) return 0;
+  return 1;
+}
+#endif
+
 static size_t GetAlignedMallocSize(size_t size, size_t align) {
   return size + align - 1 + ADDRESS_STORAGE_SIZE;
 }
@@ -39,8 +51,12 @@ static void *GetActualMallocAddress(void *const mem) {
 
 void *aom_memalign(size_t align, size_t size) {
   void *x = NULL;
+  void *addr;
   const size_t aligned_size = GetAlignedMallocSize(size, align);
-  void *const addr = malloc(aligned_size);
+#if defined(AOM_MAX_ALLOCABLE_MEMORY)
+  if (!check_size_argument_overflow(1, aligned_size)) return NULL;
+#endif
+  addr = malloc(aligned_size);
   if (addr) {
     x = align_addr((unsigned char *)addr + ADDRESS_STORAGE_SIZE, align);
     SetActualMallocAddress(x, addr);
