@@ -1739,7 +1739,6 @@ static void setup_frame_size_with_refs(AV1_COMMON *cm,
   pool->frame_bufs[cm->new_fb_idx].buf.render_height = cm->render_height;
 }
 
-#if !CONFIG_OBU
 static void read_tile_group_range(AV1Decoder *pbi,
                                   struct aom_read_bit_buffer *const rb) {
   AV1_COMMON *const cm = &pbi->common;
@@ -1752,7 +1751,6 @@ static void read_tile_group_range(AV1Decoder *pbi,
     aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
                        "Tile group extends past last tile in frame");
 }
-#endif  // !CONFIG_OBU
 
 #if CONFIG_MAX_TILE
 
@@ -2144,11 +2142,13 @@ static void get_tile_buffers(AV1Decoder *pbi, const uint8_t *data,
   const int tile_rows = cm->tile_rows;
   int tc = 0;
   int first_tile_in_tg = 0;
-#if !CONFIG_OBU
   struct aom_read_bit_buffer rb_tg_hdr;
   uint8_t clear_data[MAX_AV1_HEADER_SIZE];
+#if !CONFIG_OBU
   const size_t hdr_size = pbi->uncomp_hdr_size + pbi->first_partition_size;
   const int tg_size_bit_offset = pbi->tg_size_bit_offset;
+#else
+  const int tg_size_bit_offset = 0;
 #endif
 
 #if CONFIG_DEPENDENT_HORZTILES
@@ -2177,14 +2177,6 @@ static void get_tile_buffers(AV1Decoder *pbi, const uint8_t *data,
         aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
                            "Data ended before all tiles were read.");
       buf->col = c;
-#if CONFIG_OBU
-#if CONFIG_DEPENDENT_HORZTILES
-      if (tc == startTile) {
-        tile_group_start_row = r;
-        tile_group_start_col = c;
-      }
-#endif  // CONFIG_DEPENDENT_HORZTILES
-#else   // CONFIG_OBU
       if (hdr_offset) {
         init_read_bit_buffer(pbi, &rb_tg_hdr, data, data_end, clear_data);
         rb_tg_hdr.bit_offset = tg_size_bit_offset;
@@ -2194,7 +2186,6 @@ static void get_tile_buffers(AV1Decoder *pbi, const uint8_t *data,
         tile_group_start_col = c;
 #endif
       }
-#endif  // CONFIG_OBU
       first_tile_in_tg += tc == first_tile_in_tg ? pbi->tg_size : 0;
       data += hdr_offset;
       get_tile_buffer(data_end, pbi->tile_size_bytes, is_last,
@@ -3774,9 +3765,13 @@ size_t av1_decode_frame_headers_and_setup(AV1Decoder *pbi, const uint8_t *data,
   return first_partition_size;
 }
 
-// Once-per-frame initialization
-static void setup_frame_info(AV1Decoder *pbi) {
+void av1_decode_tg_tiles_and_wrapup(AV1Decoder *pbi, const uint8_t *data,
+                                    const uint8_t *data_end,
+                                    const uint8_t **p_data_end, int startTile,
+                                    int endTile, int initialize_flag) {
   AV1_COMMON *const cm = &pbi->common;
+  MACROBLOCKD *const xd = &pbi->mb;
+  int context_updated = 0;
 
 #if CONFIG_LOOP_RESTORATION
   if (cm->rst_info[0].frame_restoration_type != RESTORE_NONE ||
@@ -3794,11 +3789,12 @@ static void setup_frame_info(AV1Decoder *pbi) {
 
   // If encoded in frame parallel mode, frame context is ready after decoding
   // the frame header.
-  if (cm->frame_parallel_decode &&
+  if (cm->frame_parallel_decode && initialize_flag &&
       cm->refresh_frame_context != REFRESH_FRAME_CONTEXT_BACKWARD) {
     AVxWorker *const worker = pbi->frame_worker_owner;
     FrameWorkerData *const frame_worker_data = worker->data1;
     if (cm->refresh_frame_context == REFRESH_FRAME_CONTEXT_FORWARD) {
+      context_updated = 1;
 #if CONFIG_NO_FRAME_CONTEXT_SIGNALING
       cm->frame_contexts[cm->new_fb_idx] = *cm->fc;
 #else
@@ -3815,16 +3811,6 @@ static void setup_frame_info(AV1Decoder *pbi) {
   }
 
   dec_setup_frame_boundary_info(cm);
-}
-
-void av1_decode_tg_tiles_and_wrapup(AV1Decoder *pbi, const uint8_t *data,
-                                    const uint8_t *data_end,
-                                    const uint8_t **p_data_end, int startTile,
-                                    int endTile, int initialize_flag) {
-  AV1_COMMON *const cm = &pbi->common;
-  MACROBLOCKD *const xd = &pbi->mb;
-
-  if (initialize_flag) setup_frame_info(pbi);
 
 #if CONFIG_OBU
   *p_data_end = decode_tiles(pbi, data, data_end, startTile, endTile);
@@ -3925,15 +3911,13 @@ void av1_decode_tg_tiles_and_wrapup(AV1Decoder *pbi, const uint8_t *data,
   }
 #endif
 
-  // Non frame parallel update frame context here.
-  if (cm->refresh_frame_context != REFRESH_FRAME_CONTEXT_FORWARD) {
+// Non frame parallel update frame context here.
 #if CONFIG_NO_FRAME_CONTEXT_SIGNALING
-    cm->frame_contexts[cm->new_fb_idx] = *cm->fc;
+  if (!context_updated) cm->frame_contexts[cm->new_fb_idx] = *cm->fc;
 #else
-    if (!cm->error_resilient_mode)
-      cm->frame_contexts[cm->frame_context_idx] = *cm->fc;
+  if (!cm->error_resilient_mode && !context_updated)
+    cm->frame_contexts[cm->frame_context_idx] = *cm->fc;
 #endif
-  }
 }
 
 #if CONFIG_OBU
@@ -4140,10 +4124,9 @@ void av1_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
         if (cm->show_existing_frame) frame_decoding_finished = 1;
         break;
       case OBU_TILE_GROUP:
-        obu_payload_size =
-            read_one_tile_group_obu(pbi, &rb, is_first_tg_obu_received, data,
-                                    data + obu_size - obu_header_size,
-                                    p_data_end, &frame_decoding_finished);
+        obu_payload_size = read_one_tile_group_obu(
+            pbi, &rb, is_first_tg_obu_received, data, data + obu_size - 1,
+            p_data_end, &frame_decoding_finished);
         is_first_tg_obu_received = 0;
         break;
       case OBU_METADATA:
