@@ -1697,9 +1697,9 @@ void av1_iht16x32_512_add_c(const tran_low_t *input, uint8_t *dest, int stride,
   for (i = 0; i < n2; ++i) {
 #if CONFIG_DAALA_TX16 && CONFIG_DAALA_TX32
     tran_low_t temp_in[16];
-    for (j = 0; j < n; j++) temp_in[j] = input[j] * 2;
+    for (j = 0; j < n; j++) temp_in[j] = input[j] * 8;
     IHT_16x32[tx_type].rows(temp_in, outtmp);
-    for (j = 0; j < n; ++j) tmp[j][i] = outtmp[j] * 4;
+    for (j = 0; j < n; ++j) tmp[j][i] = outtmp[j];
 #else
     IHT_16x32[tx_type].rows(input, outtmp);
     for (j = 0; j < n; ++j)
@@ -1785,9 +1785,9 @@ void av1_iht32x16_512_add_c(const tran_low_t *input, uint8_t *dest, int stride,
   for (i = 0; i < n; ++i) {
 #if CONFIG_DAALA_TX16 && CONFIG_DAALA_TX32
     tran_low_t temp_in[32];
-    for (j = 0; j < n2; j++) temp_in[j] = input[j] * 2;
+    for (j = 0; j < n2; j++) temp_in[j] = input[j] * 8;
     IHT_32x16[tx_type].rows(temp_in, outtmp);
-    for (j = 0; j < n2; ++j) tmp[j][i] = outtmp[j] * 4;
+    for (j = 0; j < n2; ++j) tmp[j][i] = outtmp[j];
 #else
     IHT_32x16[tx_type].rows(input, outtmp);
     for (j = 0; j < n2; ++j)
