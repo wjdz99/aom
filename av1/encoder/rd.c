@@ -289,6 +289,8 @@ void av1_fill_mode_rates(AV1_COMMON *const cm, MACROBLOCK *x,
 #endif  // CONFIG_INTRABC
 
   if (!frame_is_intra_only(cm)) {
+    for (i = 0; i < NMV_CONTEXTS; ++i)
+      av1_cost_tokens_from_cdf(x->nmv_vec_cost[i], fc->nmvc[i].joint_cdf, NULL);
     for (i = 0; i < INTRA_INTER_CONTEXTS; ++i) {
 #if CONFIG_NEW_MULTISYMBOL
       av1_cost_tokens_from_cdf(x->intra_inter_cost[i], fc->intra_inter_cdf[i],

@@ -261,12 +261,11 @@ void av1_build_nmv_cost_table(int *mvjoint, int *mvcost[2],
 
 static void inc_mvs(const MB_MODE_INFO *mbmi, const MB_MODE_INFO_EXT *mbmi_ext,
                     const int_mv mvs[2], const int_mv pred_mvs[2],
-                    nmv_context_counts *nmv_counts
+                    nmv_context_counts *nmv_counts,
 #if CONFIG_AMVR
-                    ,
                     MvSubpelPrecision precision
 #endif
-                    ) {
+                        FRAME_CONTEXT *tile_ctx) {
   int i;
   PREDICTION_MODE mode = mbmi->mode;
 
@@ -286,6 +285,8 @@ static void inc_mvs(const MB_MODE_INFO *mbmi, const MB_MODE_INFO_EXT *mbmi_ext,
 #else
       av1_inc_mv(&diff, counts, 1);
 #endif
+      const MV_JOINT_TYPE j = av1_get_mv_joint(&diff);
+      update_cdf(tile_ctx->nmvc[nmv_ctx].joint_cdf, j, MV_JOINTS);
     }
   } else if (mode == NEAREST_NEWMV || mode == NEAR_NEWMV) {
     const MV *ref = &mbmi_ext->ref_mvs[mbmi->ref_frame[1]][0].as_mv;
@@ -351,10 +352,11 @@ void av1_update_mv_count(ThreadData *td) {
   }
 #endif
 
-  if (have_newmv_in_inter_mode(mbmi->mode))
+  if (have_newmv_in_inter_mode(mbmi->mode)) {
+    inc_mvs(mbmi, mbmi_ext, mbmi->mv, mbmi->pred_mv, td->counts->mv,
 #if CONFIG_AMVR
-    inc_mvs(mbmi, mbmi_ext, mbmi->mv, mbmi->pred_mv, td->counts->mv, precision);
-#else
-    inc_mvs(mbmi, mbmi_ext, mbmi->mv, mbmi->pred_mv, td->counts->mv);
+            precision,
 #endif
+            xd->tile_ctx);
+  }
 }
