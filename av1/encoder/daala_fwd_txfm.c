@@ -59,13 +59,8 @@ void daala_fwd_txfm(const int16_t *input_pixels, tran_low_t *output_coeffs,
     av1_fwht4x4(input_pixels, output_coeffs, input_stride);
   } else {
 // General TX case
-#if 1
-    // up 4, down 1 compatability mode with av1_get_tx_scale
-    const int upshift = 4;
-#else
     // How we intend to run these transforms in the near future
     const int upshift = TX_COEFF_DEPTH - txfm_param->bd;
-#endif
 
     assert(upshift >= 0);
     assert(sizeof(tran_low_t) == sizeof(od_coeff));
@@ -115,16 +110,6 @@ void daala_fwd_txfm(const int16_t *input_pixels, tran_low_t *output_coeffs,
       else
         row_tx(output_coeffs + r * cols, output_coeffs + r * cols, 1);
     }
-
-#if 1
-    // This is temporary while we're testing against existing
-    // behavior (preshift up 3, then downshift by one)
-    int downshift = 1;
-    for (r = 0; r < rows; ++r)
-      for (c = 0; c < cols; ++c)
-        output_coeffs[r * cols + c] =
-            ROUND_POWER_OF_TWO_SIGNED(output_coeffs[r * cols + c], downshift);
-#endif
   }
 }
 
