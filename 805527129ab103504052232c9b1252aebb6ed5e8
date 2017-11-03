@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "d1055371_625fd204",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-11-03T18:04:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a562adb_5d0ee9ed",
+      "range": {
+        "startLine": 255,
+        "startChar": 18,
+        "endLine": 255,
+        "endChar": 44
+      },
+      "revId": "805527129ab103504052232c9b1252aebb6ed5e8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7dde4862_38ce564e",
         "filename": "av1/common/blockd.h",
         "patchSetId": 4
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "93bc6227_1e46c02a",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-11-03T18:04:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7dde4862_38ce564e",
+      "range": {
+        "startLine": 264,
+        "startChar": 18,
+        "endLine": 264,
+        "endChar": 45
+      },
+      "revId": "805527129ab103504052232c9b1252aebb6ed5e8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "42c4654c_721485b5",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 4
@@ -59,6 +107,30 @@
       "writtenOn": "2017-11-03T03:38:35Z",
       "side": 1,
       "message": "Is this necessary? mbmi-\u003efilter_intra_mode_info.use_filter_intra_mode[0] should be enough.",
+      "range": {
+        "startLine": 2420,
+        "startChar": 6,
+        "endLine": 2420,
+        "endChar": 27
+      },
+      "revId": "805527129ab103504052232c9b1252aebb6ed5e8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a61a501d_fb249061",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 2420,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-11-03T18:04:40Z",
+      "side": 1,
+      "message": "I am not 100% sure whether use_filter_intra_mode is completely reset for inter blocks, so this condition is added here for some assurance.",
+      "parentUuid": "42c4654c_721485b5",
       "range": {
         "startLine": 2420,
         "startChar": 6,
