@@ -354,11 +354,11 @@ typedef enum ATTRIBUTE_PACKED {
   EXT_TX_SET_MRC_DCT_IDTX,
 #endif  // CONFIG_MRC_TX
   // Discrete Trig transforms w/o flip (4) + Identity (1)
-  EXT_TX_SET_DTT4_IDTX,
+  EXT_TX_SET_DTT4_IDTX_1DDCT_16X16,
   // Discrete Trig transforms w/o flip (4) + Identity (1) + 1D Hor/vert DCT (2)
   EXT_TX_SET_DTT4_IDTX_1DDCT,
   // Discrete Trig transforms w/ flip (9) + Identity (1) + 1D Hor/Ver DCT (2)
-  EXT_TX_SET_DTT9_IDTX_1DDCT,
+  EXT_TX_SET_ALL16_16X16,
   // Discrete Trig transforms w/ flip (9) + Identity (1) + 1D Hor/Ver (6)
   EXT_TX_SET_ALL16,
   EXT_TX_SET_TYPES
