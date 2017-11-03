@@ -66,14 +66,8 @@ void daala_inv_txfm_add(const tran_low_t *input_coeffs, void *output_pixels,
       av1_highbd_iwht4x4_add(input_coeffs, output_pixels, output_stride,
                              txfm_param->eob, px_depth);
   } else {
-// General TX case
-#if 1
-    // Q3 coeff Q4 TX compatability mode
-    const int downshift = 4;
-#else
-    // How we intend to run these transforms in the near future
+    // General TX case
     const int downshift = TX_COEFF_DEPTH - px_depth;
-#endif
 
     assert(downshift >= 0);
     assert(sizeof(tran_low_t) == sizeof(od_coeff));
@@ -100,23 +94,12 @@ void daala_inv_txfm_add(const tran_low_t *input_coeffs, void *output_pixels,
     assert(col_tx);
     assert(row_tx);
 
-#if 1
-    // This is temporary while we're testing against existing
-    // behavior (preshift up one plus av1_get_tx_scale).
-    // Remove before flight
-    od_coeff tmp[MAX_TX_SQUARE];
-    int upshift = 1;
-    for (r = 0; r < rows; ++r)
-      for (c = 0; c < cols; ++c)
-        tmp[r * cols + c] = input_coeffs[r * cols + c] << upshift;
-    input_coeffs = tmp;
-#endif
-
     // Inverse-transform rows
     for (r = 0; r < rows; ++r) {
       // The output addressing transposes
       if (row_flip)
-        row_tx(tmpsq + r + (rows*cols) - rows, -rows, input_coeffs + r*cols);
+        row_tx(tmpsq + r + (rows * cols) - rows, -rows,
+               input_coeffs + r * cols);
       else
         row_tx(tmpsq + r, rows, input_coeffs + r * cols);
     }
@@ -125,9 +108,9 @@ void daala_inv_txfm_add(const tran_low_t *input_coeffs, void *output_pixels,
     for (c = 0; c < cols; ++c) {
       // Above transposed, so our cols are now rows
       if (col_flip)
-        col_tx(tmpsq + c*rows + rows - 1, -1, tmpsq);
+        col_tx(tmpsq + c * rows + rows - 1, -1, tmpsq);
       else
-        col_tx(tmpsq + c*rows, 1, tmpsq);
+        col_tx(tmpsq + c * rows, 1, tmpsq);
     }
 
     // Sum with destination according to bit depth
@@ -137,18 +120,18 @@ void daala_inv_txfm_add(const tran_low_t *input_coeffs, void *output_pixels,
       int16_t *out16 = (int16_t *)output_pixels;
       for (r = 0; r < rows; ++r)
         for (c = 0; c < cols; ++c)
-          out16[r * output_stride + c] =
-              highbd_clip_pixel_add(out16[r * output_stride + c],
-              (tmpsq[c*rows + r] + (1 << downshift >> 1)) >> downshift,
+          out16[r * output_stride + c] = highbd_clip_pixel_add(
+              out16[r * output_stride + c],
+              (tmpsq[c * rows + r] + (1 << downshift >> 1)) >> downshift,
               px_depth);
     } else {
       // Destination array is bytes
       uint8_t *out8 = (uint8_t *)output_pixels;
       for (r = 0; r < rows; ++r)
         for (c = 0; c < cols; ++c)
-          out8[r * output_stride + c] =
-              clip_pixel_add(out8[r * output_stride + c],
-              (tmpsq[c*rows + r] + (1 << downshift >> 1)) >> downshift);
+          out8[r * output_stride + c] = clip_pixel_add(
+              out8[r * output_stride + c],
+              (tmpsq[c * rows + r] + (1 << downshift >> 1)) >> downshift);
     }
   }
 }
