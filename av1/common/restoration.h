@@ -230,6 +230,16 @@ typedef struct {
   // stripe.
   uint16_t tmp_save_above[RESTORATION_BORDER][RESTORATION_LINEBUFFER_WIDTH];
   uint16_t tmp_save_below[RESTORATION_BORDER][RESTORATION_LINEBUFFER_WIDTH];
+#if CONFIG_LOOPFILTERING_ACROSS_TILES
+  // Column buffers, for storing 3 pixels at the left/right of each tile
+  // when loopfiltering across tiles is disabled.
+  //
+  // Note: These arrays only need to store the pixels immediately left/right
+  // of each processing unit; the corner pixels (top-left, etc.) are always
+  // stored into the above/below arrays.
+  uint16_t tmp_save_left[RESTORATION_BORDER][RESTORATION_PROC_UNIT_SIZE];
+  uint16_t tmp_save_right[RESTORATION_BORDER][RESTORATION_PROC_UNIT_SIZE];
+#endif
 } RestorationLineBuffers;
 
 typedef struct {
@@ -315,6 +325,9 @@ void av1_loop_restoration_filter_unit(
 #if CONFIG_STRIPED_LOOP_RESTORATION
     const RestorationStripeBoundaries *rsb, RestorationLineBuffers *rlbs,
     const AV1PixelRect *tile_rect, int tile_stripe0,
+#if CONFIG_LOOPFILTERING_ACROSS_TILES
+    int loop_filter_across_tiles_enabled,
+#endif
 #endif
     int ss_x, int ss_y, int highbd, int bit_depth, uint8_t *data8, int stride,
     uint8_t *dst8, int dst_stride, int32_t *tmpbuf);
@@ -355,7 +368,8 @@ int av1_loop_restoration_corners_in_sb(const struct AV1Common *cm, int plane,
                                        int *rrow1, int *tile_tl_idx);
 
 void av1_loop_restoration_save_boundary_lines(const YV12_BUFFER_CONFIG *frame,
-                                              struct AV1Common *cm);
+                                              struct AV1Common *cm,
+                                              int after_cdef);
 #ifdef __cplusplus
 }  // extern "C"
 #endif
