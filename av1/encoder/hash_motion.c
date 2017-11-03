@@ -63,6 +63,7 @@ static int hash_block_size_to_index(int block_size) {
     case 16: return 2;
     case 32: return 3;
     case 64: return 4;
+    case 128: return 5;
     default: return -1;
   }
 }
@@ -306,9 +307,9 @@ int av1_hash_is_vertical_perfect(const YV12_BUFFER_CONFIG *picture,
 
 // global buffer for hash value calculation of a block
 // used only in av1_get_block_hash_value()
-static uint32_t hash_value_buffer[2][2][1024];  // [first hash/second hash]
+static uint32_t hash_value_buffer[2][2][4096];  // [first hash/second hash]
                                                 // [two buffers used ping-pong]
-                                                // [num of 2x2 blocks in 64x64]
+// [num of 2x2 blocks in 128x128]
 
 void av1_get_block_hash_value(uint8_t *y_src, int stride, int block_size,
                               uint32_t *hash_value1, uint32_t *hash_value2) {
