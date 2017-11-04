@@ -6567,12 +6567,6 @@ void av1_adapt_intra_frame_probs(AV1_COMMON *cm) {
 #endif
   }
 
-  if (cm->tx_mode == TX_MODE_SELECT) {
-    for (i = 0; i < TXFM_PARTITION_CONTEXTS; ++i)
-      fc->txfm_partition_prob[i] = av1_mode_mv_merge_probs(
-          pre_fc->txfm_partition_prob[i], counts->txfm_partition[i]);
-  }
-
 #if !CONFIG_NEW_MULTISYMBOL
   for (i = 0; i < SKIP_CONTEXTS; ++i)
     fc->skip_probs[i] =
