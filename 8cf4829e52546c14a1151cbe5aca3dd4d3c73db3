@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "14ae1f55_1064fec7",
+        "filename": "test/cdef_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-11-04T03:20:27Z",
+      "side": 1,
+      "message": "could use ?: to be explicit",
+      "revId": "8cf4829e52546c14a1151cbe5aca3dd4d3c73db3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
