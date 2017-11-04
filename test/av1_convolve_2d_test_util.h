@@ -70,11 +70,20 @@ typedef void (*highbd_convolve_2d_func)(
     InterpFilterParams *filter_params_y, const int subpel_x_q4,
     const int subpel_y_q4, ConvolveParams *conv_params, int bd);
 
+#if CONFIG_JNT_COMP
+typedef std::tr1::tuple<int, int, int, highbd_convolve_2d_func,
+                        highbd_convolve_2d_func>
+    HighbdConvolve2DParam;
+
+::testing::internal::ParamGenerator<HighbdConvolve2DParam> BuildParams(
+    highbd_convolve_2d_func filter, highbd_convolve_2d_func filter2);
+#else
 typedef std::tr1::tuple<int, int, int, highbd_convolve_2d_func>
     HighbdConvolve2DParam;
 
 ::testing::internal::ParamGenerator<HighbdConvolve2DParam> BuildParams(
     highbd_convolve_2d_func filter);
+#endif  // CONFIG_JNT_COMP
 
 class AV1HighbdConvolve2DTest
     : public ::testing::TestWithParam<HighbdConvolve2DParam> {
@@ -86,6 +95,9 @@ class AV1HighbdConvolve2DTest
 
  protected:
   void RunCheckOutput(highbd_convolve_2d_func test_impl);
+#if CONFIG_JNT_COMP
+  void RunCheckOutput2(highbd_convolve_2d_func test_impl);
+#endif
 
   libaom_test::ACMRandom rnd_;
 };
