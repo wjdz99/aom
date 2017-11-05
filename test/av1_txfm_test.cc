@@ -10,6 +10,11 @@
  */
 
 #include <stdio.h>
+
+#include "aom_config.h"
+
+#if !CONFIG_DAALA_TX
+
 #include "test/av1_txfm_test.h"
 
 namespace libaom_test {
@@ -192,3 +197,5 @@ void txfm_stage_range_check(const int8_t *stage_range, int stage_num,
   }
 }
 }  // namespace libaom_test
+
+#endif  // !CONFIG_DAALA_TX

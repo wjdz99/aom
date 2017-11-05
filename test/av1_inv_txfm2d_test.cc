@@ -16,8 +16,11 @@
 #include "./av1_rtcd.h"
 #include "test/acm_random.h"
 #include "test/util.h"
-#include "test/av1_txfm_test.h"
 #include "av1/common/av1_inv_txfm1d_cfg.h"
+
+#if !CONFIG_DAALA_TX
+
+#include "test/av1_txfm_test.h"
 
 using libaom_test::ACMRandom;
 using libaom_test::input_base;
@@ -211,3 +214,5 @@ TEST(AV1InvTxfm2d, CfgTest) {
 #endif  // CONFIG_HIGHBITDEPTH
 
 }  // namespace
+
+#endif  // !CONFIG_DAALA_TX

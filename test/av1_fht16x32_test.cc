@@ -21,6 +21,8 @@
 #include "test/transform_test_base.h"
 #include "test/util.h"
 
+#if !CONFIG_DAALA_TX
+
 using libaom_test::ACMRandom;
 
 namespace {
@@ -151,3 +153,4 @@ INSTANTIATE_TEST_CASE_P(SSE2, AV1Trans16x32HT,
 #endif  // HAVE_SSE2
 
 }  // namespace
+#endif  // !CONFIG_DAALA_TX
