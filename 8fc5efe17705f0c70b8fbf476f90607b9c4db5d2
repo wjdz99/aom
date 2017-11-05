@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "11bfeed6_ae115985",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 6631,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-11-05T23:17:57Z",
+      "side": 1,
+      "message": "It is noticed that flags for BWD and ALT2 are dependent on the flag for ALT_REF. The flags for LAST2 and LAST3 may be set in a similar way, that they are also dependent on the flag for LAST. That is, if externally LAST is turned on, LAST2 and LAST3 can be allowed; Otherwise if LAST is turned off, LAST2 and LAST3 may both be off as well.",
+      "revId": "8fc5efe17705f0c70b8fbf476f90607b9c4db5d2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
