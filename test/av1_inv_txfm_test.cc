@@ -18,7 +18,6 @@
 #include "./av1_rtcd.h"
 #include "./aom_dsp_rtcd.h"
 #include "test/acm_random.h"
-#include "test/av1_txfm_test.h"
 #include "test/clear_system_state.h"
 #include "test/register_state_check.h"
 #include "test/util.h"
@@ -26,6 +25,10 @@
 #include "av1/common/scan.h"
 #include "aom/aom_integer.h"
 #include "aom_dsp/inv_txfm.h"
+
+#if !CONFIG_DAALA_TX
+
+#include "test/av1_txfm_test.h"
 
 using libaom_test::ACMRandom;
 
@@ -269,3 +272,5 @@ INSTANTIATE_TEST_CASE_P(
                                  &aom_idct4x4_1_add_c, TX_4X4, 1)));
 #endif  // CONFIG_AV1_ENCODER
 }  // namespace
+
+#endif  // !CONFIG_DAALA_TX
