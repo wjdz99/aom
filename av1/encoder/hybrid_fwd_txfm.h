@@ -18,11 +18,13 @@
 extern "C" {
 #endif
 
+#if !CONFIG_DAALA_TX
 void av1_fwd_txfm(const int16_t *src_diff, tran_low_t *coeff, int diff_stride,
                   TxfmParam *txfm_param);
 
 void av1_highbd_fwd_txfm(const int16_t *src_diff, tran_low_t *coeff,
                          int diff_stride, TxfmParam *txfm_param);
+#endif
 
 #ifdef __cplusplus
 }  // extern "C"
