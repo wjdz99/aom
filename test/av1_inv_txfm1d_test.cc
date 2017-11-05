@@ -11,10 +11,13 @@
 
 #include <math.h>
 
-#include "test/av1_txfm_test.h"
 #include "test/util.h"
 #include "av1/common/av1_fwd_txfm1d.h"
 #include "av1/common/av1_inv_txfm1d.h"
+
+#if !CONFIG_DAALA_TX
+
+#include "test/av1_txfm_test.h"
 
 using libaom_test::ACMRandom;
 using libaom_test::input_base;
@@ -148,3 +151,5 @@ TEST(av1_inv_txfm1d, round_trip) {
 }
 
 }  // namespace
+
+#endif  // !CONFIG_DAALA_TX

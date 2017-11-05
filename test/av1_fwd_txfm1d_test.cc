@@ -10,6 +10,8 @@
  */
 
 #include "av1/common/av1_fwd_txfm1d.h"
+
+#if !CONFIG_DAALA_TX
 #include "test/av1_txfm_test.h"
 
 using libaom_test::ACMRandom;
@@ -101,3 +103,5 @@ TEST(av1_fwd_txfm1d, accuracy) {
   }
 }
 }  // namespace
+
+#endif  // !CONFIG_DAALA_TX

@@ -27,6 +27,8 @@
 #include "aom/aom_integer.h"
 #include "aom_ports/mem.h"
 
+#if !CONFIG_DAALA_TX
+
 using libaom_test::ACMRandom;
 
 namespace {
@@ -288,7 +290,7 @@ INSTANTIATE_TEST_CASE_P(
                                  ADST_ADST, AOM_BITS_8, 16)));
 #endif  // HAVE_NEON && !CONFIG_HIGHBITDEPTH
 
-#if HAVE_SSE2 && !CONFIG_DAALA_TX4
+#if HAVE_SSE2
 INSTANTIATE_TEST_CASE_P(
     SSE2, Trans4x4WHT,
     ::testing::Values(make_tuple(&av1_fwht4x4_c, &aom_iwht4x4_16_add_c, DCT_DCT,
@@ -302,7 +304,6 @@ INSTANTIATE_TEST_CASE_P(SSE2, Trans4x4DCT,
                         ::testing::Values(make_tuple(&aom_fdct4x4_sse2,
                                                      &aom_idct4x4_16_add_sse2,
                                                      DCT_DCT, AOM_BITS_8, 16)));
-#if !CONFIG_DAALA_TX4
 INSTANTIATE_TEST_CASE_P(
     SSE2, Trans4x4HT,
     ::testing::Values(make_tuple(&av1_fht4x4_sse2, &av1_iht4x4_16_add_sse2,
@@ -313,10 +314,9 @@ INSTANTIATE_TEST_CASE_P(
                                  DCT_ADST, AOM_BITS_8, 16),
                       make_tuple(&av1_fht4x4_sse2, &av1_iht4x4_16_add_sse2,
                                  ADST_ADST, AOM_BITS_8, 16)));
-#endif  // !CONFIG_DAALA_TX4
 #endif  // HAVE_SSE2 && !CONFIG_HIGHBITDEPTH
 
-#if HAVE_SSE2 && CONFIG_HIGHBITDEPTH && !CONFIG_DAALA_TX4
+#if HAVE_SSE2 && CONFIG_HIGHBITDEPTH
 INSTANTIATE_TEST_CASE_P(
     SSE2, Trans4x4HT,
     ::testing::Values(make_tuple(&av1_fht4x4_sse2, &av1_iht4x4_16_add_c,
@@ -327,7 +327,7 @@ INSTANTIATE_TEST_CASE_P(
                                  DCT_ADST, AOM_BITS_8, 16),
                       make_tuple(&av1_fht4x4_sse2, &av1_iht4x4_16_add_c,
                                  ADST_ADST, AOM_BITS_8, 16)));
-#endif  // HAVE_SSE2 && CONFIG_HIGHBITDEPTH && !CONFIG_DAALA_TX4
+#endif  // HAVE_SSE2 && CONFIG_HIGHBITDEPTH
 
 #if HAVE_MSA && !CONFIG_HIGHBITDEPTH
 INSTANTIATE_TEST_CASE_P(MSA, Trans4x4DCT,
@@ -336,3 +336,5 @@ INSTANTIATE_TEST_CASE_P(MSA, Trans4x4DCT,
                                                      DCT_DCT, AOM_BITS_8, 16)));
 #endif  // HAVE_MSA && !CONFIG_HIGHBITDEPTH
 }  // namespace
+
+#endif  // !CONFIG_DAALA_TX
