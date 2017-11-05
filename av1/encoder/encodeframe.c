@@ -3669,6 +3669,100 @@ static int refs_are_one_sided(const AV1_COMMON *cm) {
     one_sided_refs = 0;
   return one_sided_refs;
 }
+
+// NOTE: When both forward reference and backward reference are available,
+//       check whether all the forward refernce frames are from the current
+//       GF group. If not, keep (1) GOLDEN frame and (2) the latest forward
+//       reference frame, and disable all the other forward references from
+//       the prevoius GF group.
+static void check_and_select_fwd_ref_frames(AV1_COMP *cpi) {
+  AV1_COMMON *const cm = &cpi->common;
+  static const int flag_list[TOTAL_REFS_PER_FRAME] = { 0,
+                                                       AOM_LAST_FLAG,
+                                                       AOM_LAST2_FLAG,
+                                                       AOM_LAST3_FLAG,
+                                                       AOM_GOLD_FLAG,
+                                                       AOM_BWD_FLAG,
+                                                       AOM_ALT2_FLAG,
+                                                       AOM_ALT_FLAG };
+  unsigned int ref_frame_offsets[TOTAL_REFS_PER_FRAME] = { 0 };
+  MV_REFERENCE_FRAME ref_frame;
+  int have_fwd_ref = 0;
+  int have_bwd_ref = 0;
+
+  (void)flag_list;
+
+  ref_frame_offsets[LAST_FRAME] = cm->cur_frame->lst_frame_offset;
+  ref_frame_offsets[LAST2_FRAME] = cm->cur_frame->lst2_frame_offset;
+  ref_frame_offsets[LAST3_FRAME] = cm->cur_frame->lst3_frame_offset;
+  ref_frame_offsets[GOLDEN_FRAME] = cm->cur_frame->gld_frame_offset;
+  ref_frame_offsets[BWDREF_FRAME] = cm->cur_frame->bwd_frame_offset;
+  ref_frame_offsets[ALTREF2_FRAME] = cm->cur_frame->alt2_frame_offset;
+  ref_frame_offsets[ALTREF_FRAME] = cm->cur_frame->alt_frame_offset;
+
+  // Check whether both forward and backward references are available.
+  for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
+    if (cpi->ref_frame_flags & flag_list[ref_frame]) {
+      if (ref_frame_offsets[ref_frame] <= cm->frame_offset)
+        have_fwd_ref = 1;
+      else
+        have_bwd_ref = 1;
+      if (have_fwd_ref && have_bwd_ref) break;
+    }
+  }
+
+  if (have_fwd_ref && have_bwd_ref) {
+    unsigned int min_fwd_offset_in_prev_gfg = UINT_MAX;
+    unsigned int max_fwd_offset = 0;
+    MV_REFERENCE_FRAME max_fwd_ref_frame = LAST_FRAME;
+
+    // Check whether there are forward reference(s), except GOLDEN_FRAME, from
+    // the previous GF group.
+    for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
+      // Retain GOLDEN/ALTERF
+      if (ref_frame == GOLDEN_FRAME || ref_frame == ALTREF_FRAME ||
+          !(cpi->ref_frame_flags & flag_list[ref_frame]))
+        continue;
+
+      const unsigned int ref_offset = ref_frame_offsets[ref_frame];
+      if (ref_offset < cm->cur_frame->gld_frame_offset &&  // in prev gf group
+          ref_offset < min_fwd_offset_in_prev_gfg) {
+        min_fwd_offset_in_prev_gfg = ref_offset;
+      }
+      if (ref_offset < cm->frame_offset && ref_offset > max_fwd_offset) {
+        max_fwd_offset = ref_offset;
+        max_fwd_ref_frame = ref_frame;
+      }
+    }
+#if 0
+    printf("===check_and_select_fwd: Frame_offset=%d, "
+           "min_fwd_offset_in_prev_gfg=%d, max_fwd_offset=%d(%d)\n",
+           cm->frame_offset, min_fwd_offset_in_prev_gfg, max_fwd_offset,
+           max_fwd_ref_frame);
+#endif  // 0
+
+    // Keep GOLDEN_FRAME and the other latest forward reference frame, and
+    // disable all the other reference frames from the previous GF group.
+    if (min_fwd_offset_in_prev_gfg < max_fwd_offset) {
+      for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
+        // Retain GOLDEN/ALTERF and the latest forward reference frame.
+        if (ref_frame == GOLDEN_FRAME || ref_frame == ALTREF_FRAME ||
+            ref_frame == max_fwd_ref_frame)
+          continue;
+
+        // Disable the earlier reference frame from the previous GF group.
+        if ((cpi->ref_frame_flags & flag_list[ref_frame]) &&
+            ref_frame_offsets[ref_frame] < cm->cur_frame->gld_frame_offset) {
+          cpi->ref_frame_flags &= ~(flag_list[ref_frame]);
+#if 0
+          printf("Frame=%d(offset=%d) gets disabled.\n", ref_frame,
+                 ref_frame_offsets[ref_frame]);
+#endif  // 0
+        }
+      }
+    }
+  }
+}
 #endif  // CONFIG_FRAME_MARKER
 
 static void encode_frame_internal(AV1_COMP *cpi) {
@@ -3980,10 +4074,6 @@ static void encode_frame_internal(AV1_COMP *cpi) {
   av1_setup_motion_field(cm);
 #endif  // CONFIG_MFMV
 
-#if CONFIG_FRAME_MARKER
-  cpi->all_one_sided_refs = refs_are_one_sided(cm);
-#endif  // CONFIG_FRAME_MARKER
-
   {
     struct aom_usec_timer emr_timer;
     aom_usec_timer_start(&emr_timer);
@@ -4053,6 +4143,12 @@ void av1_encode_frame(AV1_COMP *cpi) {
     cm->frame_offset = cm->current_video_frame;
   }
   av1_setup_frame_buf_refs(cm);
+  cpi->all_one_sided_refs = refs_are_one_sided(cm);
+
+  if (cpi->sf.selective_ref_frame && !cpi->all_one_sided_refs) {
+    check_and_select_fwd_ref_frames(cpi);
+  }
+
 #if CONFIG_FRAME_SIGN_BIAS
   av1_setup_frame_sign_bias(cm);
 #endif  // CONFIG_FRAME_SIGN_BIAS
