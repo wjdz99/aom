@@ -19,14 +19,12 @@
 #include "./aom_config.h"
 #include "aom_ports/msvc.h"
 
+#if !CONFIG_DAALA_TX
+
 #undef CONFIG_COEFFICIENT_RANGE_CHECKING
 #define CONFIG_COEFFICIENT_RANGE_CHECKING 1
 #define AV1_DCT_GTEST
 #include "av1/encoder/dct.c"
-#if CONFIG_DAALA_TX4 || CONFIG_DAALA_TX8 || CONFIG_DAALA_TX16 || \
-    CONFIG_DAALA_Tx32
-#include "av1/common/daala_tx.c"
-#endif
 
 using libaom_test::ACMRandom;
 
@@ -110,3 +108,4 @@ INSTANTIATE_TEST_CASE_P(
                       FdctParam(&fdct16, &reference_dct_1d, 16, 2),
                       FdctParam(&fdct32, &reference_dct_1d, 32, 3)));
 }  // namespace
+#endif
