@@ -53,6 +53,10 @@
 #if CONFIG_LV_MAP
 #define aom_read_bin(r, cdf, nsymbs, ACCT_STR_NAME) \
   aom_read_bin_(r, cdf, nsymbs ACCT_STR_ARG(ACCT_STR_NAME))
+#if CONFIG_LV_MAP_MULTI
+#define aom_read_symbol4(r, cdf, nsymbs, ACCT_STR_NAME) \
+  aom_read_symbol4_(r, cdf, nsymbs ACCT_STR_ARG(ACCT_STR_NAME))
+#endif
 #endif
 
 #ifdef __cplusplus

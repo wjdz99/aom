@@ -80,7 +80,6 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
       ACCT_STR);
   if (xd->counts)
     ++xd->counts->txb_skip[txs_ctx][txb_ctx->txb_skip_ctx][all_zero];
-
   *eob = 0;
   if (all_zero) {
     *max_scan_line = 0;
@@ -158,6 +157,20 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
 
   for (int i = 0; i < *eob; ++i) {
     c = *eob - 1 - i;
+#if CONFIG_LV_MAP_MULTI
+    (void)nz_map_count;
+    int coeff_ctx =
+        get_nz_map_ctx(levels, c, scan, bwl, height, tx_type, c == *eob - 1, 1);
+    levels[scan[c]] = av1_read_record_symbol(
+        counts, r, ec_ctx->level_cdf[txs_ctx][plane_type][coeff_ctx], 4,
+        ACCT_STR);
+    // printf("level_cdf: %d %d %2d : %3d %3d %3d\n", txs_ctx, plane_type,
+    // coeff_ctx,
+    //            ec_ctx->level_cdf[txs_ctx][plane_type][coeff_ctx][0]>>7,
+    //            ec_ctx->level_cdf[txs_ctx][plane_type][coeff_ctx][1]>>7,
+    //            ec_ctx->level_cdf[txs_ctx][plane_type][coeff_ctx][2]>>7);
+    if (levels[scan[c]] < 3) cul_level += levels[scan[c]];
+#else
     int is_nz;
     int coeff_ctx = get_nz_map_ctx(levels, c, scan, bwl, height, tx_type, 1);
 
@@ -192,6 +205,7 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
       }
       levels[scan[c]] = k + 1;
     }
+#endif
 #endif
   }
 
@@ -259,9 +273,10 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
     ctx = get_br_ctx(levels, scan[c], bwl, height);
 
     for (idx = 0; idx < BASE_RANGE_SETS; ++idx) {
-      if (av1_read_record_bin(
-              counts, r, ec_ctx->coeff_br_cdf[txs_ctx][plane_type][idx][ctx], 2,
-              ACCT_STR)) {
+      int br = av1_read_record_bin(
+          counts, r, ec_ctx->coeff_br_cdf[txs_ctx][plane_type][idx][ctx], 2,
+          ACCT_STR);
+      if (br) {
         int extra_bits = (1 << br_extra_bits[idx]) - 1;
         //        int br_offset = aom_read_literal(r, extra_bits, ACCT_STR);
         int br_offset = 0;
@@ -285,6 +300,7 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
         cul_level += *level;
         break;
       }
+
       if (counts) ++counts->coeff_br[txs_ctx][plane_type][idx][ctx][0];
     }
 
