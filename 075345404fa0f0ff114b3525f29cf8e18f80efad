@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6374e336_e42c8211",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 6645,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-11-06T02:09:49Z",
+      "side": 1,
+      "message": "When ARF is allowed, we may check here \non AOM_EFLAG_NO_REF_BWD to disable BWD, and\non AOM_EFLAG_NO_REF_ARF2 to disable ALT2, correct?\n\nHence it is suggested:\nif (flags \u0026 AOM_EFLAG_NO_REF_ARF) {\n  ...\n} else {\n  if (flags \u0026 AOM_EFLAG_NO_REF_BWD) ref ^\u003d AOM_BWD_FLAG;\n  if (flags \u0026 AOM_EFLAG_NO_REF_ALT2) ref ^\u003d AOM_ALT2_FLAG;\n}",
+      "revId": "075345404fa0f0ff114b3525f29cf8e18f80efad",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
