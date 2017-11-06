@@ -992,7 +992,8 @@ static INLINE int assign_dv(AV1_COMMON *cm, MACROBLOCKD *xd, int_mv *mv,
   read_mv(r, &mv->as_mv, &ref_mv->as_mv, &ec_ctx->ndvc, dv_counts,
           MV_SUBPEL_NONE);
   int valid = is_mv_valid(&mv->as_mv) &&
-              is_dv_valid(mv->as_mv, &xd->tile, mi_row, mi_col, bsize);
+              av1_is_dv_valid(mv->as_mv, &xd->tile, mi_row, mi_col, bsize,
+                              cm->mib_size_log2);
   return valid;
 }
 #endif  // CONFIG_INTRABC
