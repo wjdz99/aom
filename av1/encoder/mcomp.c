@@ -2699,6 +2699,12 @@ int av1_full_pixel_search(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
           break;
         }
 
+#if CONFIG_INTRABC
+        MACROBLOCKD *const xd = &x->e_mbd;
+        const TileInfo *tile = &xd->tile;
+        const int mi_col = x_pos / MI_SIZE;
+        const int mi_row = y_pos / MI_SIZE;
+#endif  // CONFIG_INTRABC
         Iterator iterator =
             av1_hash_get_first_iterator(ref_frame_hash, hash_value1);
         for (i = 0; i < count; i++, iterator_increment(&iterator)) {
@@ -2707,6 +2713,14 @@ int av1_full_pixel_search(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
             // for intra, make sure the prediction is from valid area
             // not predict from current block.
             // TODO(roger): check if the constrain is necessary
+#if CONFIG_INTRABC
+#if 1
+            const MV dv = {8 * (ref_block_hash.y - y_pos),
+                           8 * (ref_block_hash.x - x_pos)};
+            if (intra && !av1_is_dv_valid(dv, tile, mi_row, mi_col, bsize,
+                                          cpi->common.mib_size_log2))
+              continue;
+#else
             if (intra &&
                 ref_block_hash.y + block_height >
                     ((y_pos >> MAX_SB_SIZE_LOG2) << MAX_SB_SIZE_LOG2) &&
@@ -2714,6 +2728,8 @@ int av1_full_pixel_search(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
                     ((x_pos >> MAX_SB_SIZE_LOG2) << MAX_SB_SIZE_LOG2)) {
               continue;
             }
+#endif
+#endif  // CONFIG_INTRABC
             int refCost =
                 abs(ref_block_hash.x - x_pos) + abs(ref_block_hash.y - y_pos);
             add_to_sort_table(block_hashes, costs, &existing,
