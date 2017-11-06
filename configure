@@ -300,6 +300,7 @@ EXPERIMENT_LIST="
     palette_throughput
     ref_adapt
     lv_map
+    lv_map_multi 
     ctx1d
     txk_sel
     mv_compress
