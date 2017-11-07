@@ -4623,6 +4623,10 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
 
   if (is_lossless_requested(&cpi->oxcf)) no_loopfilter = 1;
 
+#if CONFIG_INTRABC
+  if (cm->allow_intrabc && NO_LF_FOR_IBC) no_loopfilter = 1;
+#endif  // CONFIG_INTRABC
+
 #if CONFIG_EXT_TILE
   // 0 loopfilter level is only necessary if individual tile
   // decoding is required.
@@ -4649,11 +4653,6 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
     cpi->time_pick_lpf += aom_usec_timer_elapsed(&timer);
   }
 
-#if CONFIG_INTRABC
-// When intraBC is on, do loop filtering per superblock,
-// instead of do it after the whole frame has been encoded,
-// as is in the else branch
-#else
 #if !CONFIG_LPF_SB
 #if CONFIG_LOOPFILTER_LEVEL
   if (lf->filter_level[0] || lf->filter_level[1])
@@ -4679,7 +4678,6 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
 #endif  // CONFIG_LOOPFILTER_LEVEL
 #endif  // CONFIG_LPF_SB
   }
-#endif  // CONFIG_INTRABC
 
 #if CONFIG_STRIPED_LOOP_RESTORATION
 #if CONFIG_FRAME_SUPERRES && CONFIG_HORZONLY_FRAME_SUPERRES
