@@ -406,7 +406,8 @@ typedef struct MODE_INFO {
 } MODE_INFO;
 
 #if CONFIG_INTRABC
-#define NO_LF_FOR_IBC 1  // Disable loop-filter for frame with intrabc
+#define NO_LF_FOR_IBC 1    // Disable loop-filter for frame with intrabc
+#define NO_CDEF_FOR_IBC 1  // Disable CDEF for frame with intrabc
 
 static INLINE int is_intrabc_block(const MB_MODE_INFO *mbmi) {
   return mbmi->use_intrabc;
