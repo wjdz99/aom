@@ -16,6 +16,23 @@
       "revId": "85fb9db5eb0e4c9dd42f0eaee26b89b29bcedc28",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4d3ee920_5c8cef7c",
+        "filename": "av1/common/entropymode.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1700,
+      "author": {
+        "id": 6240
+      },
+      "writtenOn": "2017-11-07T21:37:18Z",
+      "side": 1,
+      "message": "Missed one?",
+      "revId": "85fb9db5eb0e4c9dd42f0eaee26b89b29bcedc28",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
