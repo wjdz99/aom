@@ -16,6 +16,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "aom_dsp/entenc.h"
+#include "aom_dsp/prob.h"
 
 /*A range encoder.
   See entdec.c and the references for implementation details \cite{Mar79,MNW98}.
@@ -158,16 +159,16 @@ static void od_ec_encode_q15(od_ec_enc *enc, unsigned fl, unsigned fh) {
   OD_ASSERT(fh < fl);
   OD_ASSERT(fl <= 32768U);
   if (fl < 32768U) {
-    u = (r >> 8) * (uint32_t)fl >> 7;
-    v = (r >> 8) * (uint32_t)fh >> 7;
+    u = (r >> 8) * (uint32_t)fl >> (7 - CDF_SHIFT);
+    v = (r >> 8) * (uint32_t)fh >> (7 - CDF_SHIFT);
     l += r - u;
     r = u - v;
   } else {
-    r -= (r >> 8) * (uint32_t)fh >> 7;
+    r -= (r >> 8) * (uint32_t)fh >> (7 - CDF_SHIFT);
   }
   od_ec_enc_normalize(enc, l, r);
 #if OD_MEASURE_EC_OVERHEAD
-  enc->entropy -= OD_LOG2((double)(OD_ICDF(fh) - OD_ICDF(fl)) / 32768.);
+  enc->entropy -= OD_LOG2((double)(OD_ICDF(fh) - OD_ICDF(fl)) / CDF_PROB_TOP.);
   enc->nb_symbols++;
 #endif
 }
@@ -190,7 +191,7 @@ void od_ec_encode_bool_q15(od_ec_enc *enc, int val, unsigned f) {
   od_ec_enc_normalize(enc, l, r);
 #if OD_MEASURE_EC_OVERHEAD
   enc->entropy -=
-      OD_LOG2((double)(val ? 32768 - OD_ICDF(f) : OD_ICDF(f)) / 32768.);
+      OD_LOG2((double)(val ? f : OD_ICDF(f)) / CDF_PROB_TOP.);
   enc->nb_symbols++;
 #endif
 }

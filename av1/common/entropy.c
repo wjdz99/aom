@@ -1524,7 +1524,7 @@ static void build_tail_cdfs(aom_cdf_prob cdf_tail[CDF_SIZE(ENTROPY_TOKENS)],
   probNZ = CDF_PROB_TOP - phead[ZERO_TOKEN + is_dc] - (is_dc ? phead[0] : 0);
   prob1 = phead[is_dc + ONE_TOKEN_EOB] + phead[is_dc + ONE_TOKEN_NEOB];
   prob_idx =
-      AOMMIN(COEFF_PROB_MODELS - 1, AOMMAX(0, ((256 * prob1) / probNZ) - 1));
+      AOMMIN(COEFF_PROB_MODELS - 1, AOMMAX(0, ((CDF_PROB_TOP / 256 * prob1) / probNZ) - 1));
 
   sum = 0;
   for (i = 0; i < TAIL_TOKENS; ++i) {
