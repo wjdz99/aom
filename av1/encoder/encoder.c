@@ -4710,14 +4710,24 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
 #endif  // CONFIG_FRAME_SUPERRES
 
 #if CONFIG_LOOP_RESTORATION
-  av1_loop_restoration_save_boundary_lines(cm->frame_to_show, cm, 1);
-  av1_pick_filter_restoration(cpi->source, cpi);
-  if (cm->rst_info[0].frame_restoration_type != RESTORE_NONE ||
-      cm->rst_info[1].frame_restoration_type != RESTORE_NONE ||
-      cm->rst_info[2].frame_restoration_type != RESTORE_NONE) {
-    av1_loop_restoration_filter_frame(cm->frame_to_show, cm, cm->rst_info, 7,
-                                      NULL);
-  }
+  do {
+#if CONFIG_INTRABC
+    if (cm->allow_intrabc && NO_LR_FOR_IBC) {
+      cm->rst_info[0].frame_restoration_type = RESTORE_NONE;
+      cm->rst_info[1].frame_restoration_type = RESTORE_NONE;
+      cm->rst_info[2].frame_restoration_type = RESTORE_NONE;
+      break;
+    }
+#endif  // CONFIG_INTRABC
+    av1_loop_restoration_save_boundary_lines(cm->frame_to_show, cm, 1);
+    av1_pick_filter_restoration(cpi->source, cpi);
+    if (cm->rst_info[0].frame_restoration_type != RESTORE_NONE ||
+        cm->rst_info[1].frame_restoration_type != RESTORE_NONE ||
+        cm->rst_info[2].frame_restoration_type != RESTORE_NONE) {
+      av1_loop_restoration_filter_frame(cm->frame_to_show, cm, cm->rst_info, 7,
+                                        NULL);
+    }
+  } while (0);
 #endif  // CONFIG_LOOP_RESTORATION
   // TODO(debargha): Fix mv search range on encoder side
   // aom_extend_frame_inner_borders(cm->frame_to_show);
