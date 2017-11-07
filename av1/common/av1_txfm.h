@@ -228,107 +228,10 @@ static INLINE TX_TYPE av1_rotate_tx_type(TX_TYPE tx_type) {
     case H_ADST: return V_ADST;
     case V_FLIPADST: return H_FLIPADST;
     case H_FLIPADST: return V_FLIPADST;
-#if CONFIG_MRC_TX
-    case MRC_DCT: return MRC_DCT;
-#endif  // CONFIG_MRC_TX
     default: assert(0); return TX_TYPES;
   }
 }
 #endif  // CONFIG_TXMG
-
-#if CONFIG_MRC_TX
-static INLINE int get_mrc_diff_mask_inter(const int16_t *diff, int diff_stride,
-                                          uint8_t *mask, int mask_stride,
-                                          int width, int height) {
-  // placeholder mask generation function
-  assert(SIGNAL_MRC_MASK_INTER);
-  int n_masked_vals = 0;
-  for (int i = 0; i < height; ++i) {
-    for (int j = 0; j < width; ++j) {
-      mask[i * mask_stride + j] = diff[i * diff_stride + j] > 100 ? 1 : 0;
-      n_masked_vals += mask[i * mask_stride + j];
-    }
-  }
-  return n_masked_vals;
-}
-
-static INLINE int get_mrc_pred_mask_inter(const uint8_t *pred, int pred_stride,
-                                          uint8_t *mask, int mask_stride,
-                                          int width, int height) {
-  // placeholder mask generation function
-  int n_masked_vals = 0;
-  for (int i = 0; i < height; ++i) {
-    for (int j = 0; j < width; ++j) {
-      mask[i * mask_stride + j] = pred[i * pred_stride + j] > 100 ? 1 : 0;
-      n_masked_vals += mask[i * mask_stride + j];
-    }
-  }
-  return n_masked_vals;
-}
-
-static INLINE int get_mrc_diff_mask_intra(const int16_t *diff, int diff_stride,
-                                          uint8_t *mask, int mask_stride,
-                                          int width, int height) {
-  // placeholder mask generation function
-  assert(SIGNAL_MRC_MASK_INTRA);
-  int n_masked_vals = 0;
-  for (int i = 0; i < height; ++i) {
-    for (int j = 0; j < width; ++j) {
-      mask[i * mask_stride + j] = diff[i * diff_stride + j] > 100 ? 1 : 0;
-      n_masked_vals += mask[i * mask_stride + j];
-    }
-  }
-  return n_masked_vals;
-}
-
-static INLINE int get_mrc_pred_mask_intra(const uint8_t *pred, int pred_stride,
-                                          uint8_t *mask, int mask_stride,
-                                          int width, int height) {
-  // placeholder mask generation function
-  int n_masked_vals = 0;
-  for (int i = 0; i < height; ++i) {
-    for (int j = 0; j < width; ++j) {
-      mask[i * mask_stride + j] = pred[i * pred_stride + j] > 100 ? 1 : 0;
-      n_masked_vals += mask[i * mask_stride + j];
-    }
-  }
-  return n_masked_vals;
-}
-
-static INLINE int get_mrc_diff_mask(const int16_t *diff, int diff_stride,
-                                    uint8_t *mask, int mask_stride, int width,
-                                    int height, int is_inter) {
-  if (is_inter) {
-    assert(USE_MRC_INTER && "MRC invalid for inter blocks");
-    assert(SIGNAL_MRC_MASK_INTER);
-    return get_mrc_diff_mask_inter(diff, diff_stride, mask, mask_stride, width,
-                                   height);
-  } else {
-    assert(USE_MRC_INTRA && "MRC invalid for intra blocks");
-    assert(SIGNAL_MRC_MASK_INTRA);
-    return get_mrc_diff_mask_intra(diff, diff_stride, mask, mask_stride, width,
-                                   height);
-  }
-}
-
-static INLINE int get_mrc_pred_mask(const uint8_t *pred, int pred_stride,
-                                    uint8_t *mask, int mask_stride, int width,
-                                    int height, int is_inter) {
-  if (is_inter) {
-    assert(USE_MRC_INTER && "MRC invalid for inter blocks");
-    return get_mrc_pred_mask_inter(pred, pred_stride, mask, mask_stride, width,
-                                   height);
-  } else {
-    assert(USE_MRC_INTRA && "MRC invalid for intra blocks");
-    return get_mrc_pred_mask_intra(pred, pred_stride, mask, mask_stride, width,
-                                   height);
-  }
-}
-
-static INLINE int is_valid_mrc_mask(int n_masked_vals, int width, int height) {
-  return !(n_masked_vals == 0 || n_masked_vals == (width * height));
-}
-#endif  // CONFIG_MRC_TX
 
 void av1_gen_fwd_stage_range(int8_t *stage_range_col, int8_t *stage_range_row,
                              const TXFM_2D_FLIP_CFG *cfg, int bd);
