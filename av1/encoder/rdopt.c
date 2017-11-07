@@ -1783,8 +1783,8 @@ int av1_cost_coeffs(const AV1_COMP *const cpi, MACROBLOCK *x, int plane,
   const int is_inter = is_inter_block(mbmi);
   if (tx_type == MRC_DCT && ((is_inter && SIGNAL_MRC_MASK_INTER) ||
                              (!is_inter && SIGNAL_MRC_MASK_INTRA))) {
-    const int mrc_mask_cost =
-        av1_cost_color_map(x, plane, block, mbmi->sb_type, tx_size, MRC_MAP);
+    const int mrc_mask_cost = 0;
+        //av1_cost_color_map(x, plane, block, mbmi->sb_type, tx_size, MRC_MAP);
     return cost_coeffs(cm, x, plane, block, tx_size, scan_order, a, l,
                        use_fast_coef_costing) +
            mrc_mask_cost;
@@ -2656,7 +2656,7 @@ static void choose_tx_size_type_from_rd(const AV1_COMP *const cpi,
     evaluate_rect_tx = is_rect_tx(chosen_tx_size);
     assert(IMPLIES(evaluate_rect_tx, is_rect_tx_allowed(xd, mbmi)));
   }
-  if (evaluate_rect_tx) {
+  if (0) { //evaluate_rect_tx) {
     TX_TYPE tx_start = DCT_DCT;
     TX_TYPE tx_end = TX_TYPES;
 #if CONFIG_TXK_SEL
@@ -2770,6 +2770,10 @@ static void choose_tx_size_type_from_rd(const AV1_COMP *const cpi,
     TX_TYPE tx_type;
     for (tx_type = tx_start; tx_type < tx_end; ++tx_type) {
       RD_STATS this_rd_stats;
+#if CONFIG_MRC_TX
+      if (is_inter && !(tx_type == MRC_DCT && n == TX_32X32))
+        continue;
+#endif //CONFIG_MRC_TX
       if (skip_txfm_search(cpi, x, bs, tx_type, n, prune)) continue;
       rd = txfm_yrd(cpi, x, &this_rd_stats, ref_best_rd, bs, tx_type, n);
 
@@ -4101,7 +4105,7 @@ static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
 #if CONFIG_MRC_TX
       // If the tx type we are trying is MRC_DCT, we cannot partition the
       // transform into anything smaller than TX_32X32
-      && mbmi->tx_type != MRC_DCT
+      && mbmi->tx_type != MRC_DCT && tx_size > TX_32X32
 #endif  // CONFIG_MRC_TX
       ) {
     const TX_SIZE sub_txs = sub_tx_size_map[tx_size];
@@ -4869,6 +4873,8 @@ static void select_tx_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
     tx_split_prune_flag = ((prune >> TX_TYPES) & 1);
 
   for (tx_type = txk_start; tx_type < txk_end; ++tx_type) {
+    if (is_inter && tx_type != MRC_DCT)
+      continue;
     RD_STATS this_rd_stats;
     av1_init_rd_stats(&this_rd_stats);
 #if CONFIG_MRC_TX

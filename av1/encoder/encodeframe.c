@@ -2405,7 +2405,7 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
 #endif
   BLOCK_SIZE subsize;
   RD_STATS this_rdc, sum_rdc, best_rdc;
-  const int bsize_at_least_8x8 = (bsize >= BLOCK_8X8);
+  const int bsize_at_least_8x8 = (bsize >= BLOCK_64X64);
   int do_square_split = bsize_at_least_8x8;
   const int pl = bsize_at_least_8x8
                      ? partition_plane_context(xd, mi_row, mi_col,
@@ -2417,7 +2417,7 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
   const int *partition_cost =
       pl >= 0 ? x->partition_cost[pl] : x->partition_cost[0];
 
-  int do_rectangular_split = 1;
+  int do_rectangular_split = 0;
 #if CONFIG_EXT_PARTITION_TYPES
   int64_t split_rd[4] = { 0, 0, 0, 0 };
   int64_t horz_rd[4] = { 0, 0 };
@@ -2444,10 +2444,10 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
 #endif
 
   int partition_none_allowed = !force_horz_split && !force_vert_split;
-  int partition_horz_allowed =
-      !force_vert_split && yss <= xss && bsize_at_least_8x8;
-  int partition_vert_allowed =
-      !force_horz_split && xss <= yss && bsize_at_least_8x8;
+  int partition_horz_allowed = 0;
+      //!force_vert_split && yss <= xss && bsize_at_least_8x8;
+  int partition_vert_allowed = 0;
+      //!force_horz_split && xss <= yss && bsize_at_least_8x8;
 
   (void)*tp_orig;
 

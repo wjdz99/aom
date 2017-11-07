@@ -68,7 +68,7 @@ extern "C" {
 #endif
 #endif  // CONFIG_EXT_TILE
 
-#define MAX_VARTX_DEPTH 2
+#define MAX_VARTX_DEPTH 1
 
 #define MI_SIZE_64X64 (64 >> MI_SIZE_LOG2)
 
