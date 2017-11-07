@@ -1950,6 +1950,15 @@ static void idct16x16_add(const tran_low_t *input, uint8_t *dest, int stride,
 #endif
 
 #if CONFIG_MRC_TX
+static void print_mask(uint8_t *m, int stride, int w, int h) {
+    for (int i =0; i< h; i++) {
+      for (int j=0; j<w; j++) {
+        printf("%d ", m[j + i * stride]);
+      }
+      printf("\n");
+    }
+}
+
 static void imrc32x32_add_c(const tran_low_t *input, uint8_t *dest, int stride,
                             const TxfmParam *txfm_param) {
 #if CONFIG_ADAPT_SCAN
@@ -1964,21 +1973,20 @@ static void imrc32x32_add_c(const tran_low_t *input, uint8_t *dest, int stride,
   int n_masked_vals = 0;
   uint8_t *mask;
   uint8_t mask_tmp[32 * 32];
-  if (eob == 1) {
-    aom_idct32x32_1_add_c(input, dest, stride);
+  if ((txfm_param->is_inter && SIGNAL_MRC_MASK_INTER) ||
+      (!txfm_param->is_inter && SIGNAL_MRC_MASK_INTRA)) {
+    mask = txfm_param->mask;
   } else {
-    if ((txfm_param->is_inter && SIGNAL_MRC_MASK_INTER) ||
-        (!txfm_param->is_inter && SIGNAL_MRC_MASK_INTRA)) {
-      mask = txfm_param->mask;
-    } else {
-      n_masked_vals =
-          get_mrc_pred_mask(txfm_param->dst, txfm_param->stride, mask_tmp, 32,
-                            32, 32, txfm_param->is_inter);
-      if (!is_valid_mrc_mask(n_masked_vals, 32, 32))
-        assert(0 && "Invalid MRC mask");
-      mask = mask_tmp;
-    }
-    if (eob <= quarter)
+    n_masked_vals =
+        get_mrc_pred_mask(txfm_param->dst, txfm_param->stride, mask_tmp, 32,
+                          32, 32, txfm_param->is_inter);
+    if (!is_valid_mrc_mask(n_masked_vals, 32, 32))
+      assert(0 && "Invalid MRC mask");
+    mask = mask_tmp;
+  }
+  if (eob == 1)
+    aom_idct32x32_1_add_c(input, dest, stride);
+  else if (eob <= quarter)
       // non-zero coeff only in upper-left 8x8
       aom_imrc32x32_34_add_c(input, dest, stride, mask);
     else if (eob <= half)
@@ -1986,7 +1994,6 @@ static void imrc32x32_add_c(const tran_low_t *input, uint8_t *dest, int stride,
       aom_imrc32x32_135_add_c(input, dest, stride, mask);
     else
       aom_imrc32x32_1024_add_c(input, dest, stride, mask);
-  }
 }
 #endif  // CONFIG_MRC_TX
 

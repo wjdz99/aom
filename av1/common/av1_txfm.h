@@ -245,7 +245,10 @@ static INLINE int get_mrc_diff_mask_inter(const int16_t *diff, int diff_stride,
   int n_masked_vals = 1;
   for (int i = 0; i < height; ++i) {
     for (int j = 0; j < width; ++j) {
-      mask[i * mask_stride + j] = diff[i * diff_stride + j] > 100 ? 1 : 0;
+      if (i == 2 || j == 2)
+        mask[i * mask_stride + j] = 1;
+      else
+        mask[i * mask_stride + j] = 0;
       n_masked_vals += mask[i * mask_stride + j];
     }
   }
@@ -291,8 +294,8 @@ static INLINE int get_mrc_pred_mask_inter(const uint8_t *pred, int pred_stride,
   for (int i = 0; i < height; ++i) {
     for (int j = 0; j < width; ++j) {
       // 1 if x or y gradient is high, otherwise 0
-      mask[i * mask_stride + j] = 1;//(dx[i * width + j] > dx_mean ||
-                                   //dy[i * width + j] > dy_mean) ? 1 : 0;
+      mask[i * mask_stride + j] = (dx[i * width + j] > dx_mean ||
+                                  dy[i * width + j] > dy_mean) ? 1 : 0;
    //   printf("%d ",mask[i * mask_stride + j]);
       n_masked_vals += mask[i * mask_stride + j];
     }

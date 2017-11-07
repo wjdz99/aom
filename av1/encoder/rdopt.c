@@ -3800,13 +3800,13 @@ void av1_tx_block_rd_b(const AV1_COMP *cpi, MACROBLOCK *x, TX_SIZE tx_size,
     tmp_dist = av1_block_error(coeff, dqcoeff, buffer_length, &tmp_sse);
 
   tmp_dist = RIGHT_SIGNED_SHIFT(tmp_dist, shift);
-
 #if CONFIG_MRC_TX
   if (tx_type == MRC_DCT && !xd->mi[0]->mbmi.valid_mrc_mask) {
     av1_invalid_rd_stats(rd_stats);
     return;
   }
 #endif  // CONFIG_MRC_TX
+  int64_t tmprd = RDCOST(x->rdmult, 0, tmp_dist);
   if (
 #if CONFIG_DIST_8X8
       disable_early_skip ||
@@ -4827,8 +4827,12 @@ static void select_tx_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
   int prune = 0;
   const TX_SIZE sqr_up_tx_size =
       txsize_sqr_up_map[max_txsize_rect_lookup[bsize]];
+  TX_SIZE min_tx_size = 0;
   // Get the tx_size 1 level down
-  TX_SIZE min_tx_size = sub_tx_size_map[sqr_up_tx_size];
+  if (MAX_VARTX_DEPTH == 2)
+    min_tx_size = sub_tx_size_map[sqr_up_tx_size];
+  else
+    min_tx_size = max_txsize_rect_lookup[bsize];
   const TxSetType tx_set_type = get_ext_tx_set_type(
       min_tx_size, bsize, is_inter, cm->reduced_tx_set_used);
   int within_border = (mi_row + mi_size_high[bsize] <= cm->mi_rows) &&

@@ -243,13 +243,14 @@ static void read_mv_probs(nmv_context *ctx, int allow_hp, aom_reader *r) {
   }
 }
 #endif
-
 static void inverse_transform_block(MACROBLOCKD *xd, int plane,
                                     const TX_TYPE tx_type,
                                     const TX_SIZE tx_size, uint8_t *dst,
                                     int stride, int16_t scan_line, int eob) {
   struct macroblockd_plane *const pd = &xd->plane[plane];
   tran_low_t *const dqcoeff = pd->dqcoeff;
+  if (tx_type == MRC_DCT)
+    printf("here\n");
   av1_inverse_transform_block(xd, dqcoeff,
 #if CONFIG_MRC_TX && SIGNAL_ANY_MRC_MASK
                               xd->mrc_mask,
