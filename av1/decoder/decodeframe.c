@@ -1110,6 +1110,9 @@ static void setup_segmentation(AV1_COMMON *const cm,
 #if CONFIG_LOOP_RESTORATION
 static void decode_restoration_mode(AV1_COMMON *cm,
                                     struct aom_read_bit_buffer *rb) {
+#if CONFIG_INTRABC
+  if (cm->allow_intrabc && NO_LR_FOR_IBC) return;
+#endif  // CONFIG_INTRABC
   for (int p = 0; p < MAX_MB_PLANE; ++p) {
     RestorationInfo *rsi = &cm->rst_info[p];
     if (aom_rb_read_bit(rb)) {
