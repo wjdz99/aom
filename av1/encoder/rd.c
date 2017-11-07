@@ -746,7 +746,7 @@ static void get_entropy_contexts_plane(
   memcpy(t_above, above, sizeof(ENTROPY_CONTEXT) * num_4x4_w);
   memcpy(t_left, left, sizeof(ENTROPY_CONTEXT) * num_4x4_h);
   return;
-#endif  // CONFIG_LV_MAP
+  #endif  // CONFIG_LV_MAP
 
   int i;
 

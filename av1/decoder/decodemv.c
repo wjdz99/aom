@@ -884,7 +884,6 @@ static void read_intra_angle_info(MACROBLOCKD *const xd, aom_reader *r) {
   mbmi->angle_delta[0] = 0;
   mbmi->angle_delta[1] = 0;
   if (!av1_use_angle_delta(bsize)) return;
-
   if (av1_is_directional_mode(mbmi->mode, bsize)) {
 #if CONFIG_EXT_INTRA_MOD
     mbmi->angle_delta[0] =
@@ -894,7 +893,6 @@ static void read_intra_angle_info(MACROBLOCKD *const xd, aom_reader *r) {
         av1_read_uniform(r, 2 * MAX_ANGLE_DELTA + 1) - MAX_ANGLE_DELTA;
 #endif  // CONFIG_EXT_INTRA_MOD
   }
-
   if (av1_is_directional_mode(get_uv_mode(mbmi->uv_mode), bsize)) {
 #if CONFIG_EXT_INTRA_MOD
     mbmi->angle_delta[1] =
