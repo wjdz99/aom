@@ -887,7 +887,6 @@ static const int av1_ext_tx_used[EXT_TX_SET_TYPES][TX_TYPES] = {
 static INLINE TxSetType get_ext_tx_set_type(TX_SIZE tx_size, BLOCK_SIZE bs,
                                             int is_inter, int use_reduced_set) {
   const TX_SIZE tx_size_sqr_up = txsize_sqr_up_map[tx_size];
-  const TX_SIZE tx_size_sqr = txsize_sqr_map[tx_size];
 #if USE_TXTYPE_SEARCH_FOR_SUB8X8_IN_CB4X4
   (void)bs;
   if (tx_size_sqr_up > TX_32X32) return EXT_TX_SET_DCTONLY;
@@ -908,20 +907,20 @@ static INLINE TxSetType get_ext_tx_set_type(TX_SIZE tx_size, BLOCK_SIZE bs,
   if (tx_size_sqr_up > TX_32X32)
     return is_inter ? EXT_TX_SET_DCT_IDTX : EXT_TX_SET_DCTONLY;
   if (is_inter)
-    return (tx_size_sqr >= TX_16X16 ? EXT_TX_SET_DTT9_IDTX_1DDCT
-                                    : EXT_TX_SET_ALL16);
+    return (tx_size_sqr_up >= TX_16X16 ? EXT_TX_SET_DTT9_IDTX_1DDCT
+                                       : EXT_TX_SET_ALL16);
   else
-    return (tx_size_sqr >= TX_16X16 ? EXT_TX_SET_DTT4_IDTX
-                                    : EXT_TX_SET_DTT4_IDTX_1DDCT);
+    return (tx_size_sqr_up >= TX_16X16 ? EXT_TX_SET_DTT4_IDTX
+                                       : EXT_TX_SET_DTT4_IDTX_1DDCT);
 #endif
   if (tx_size_sqr_up == TX_32X32)
     return is_inter ? EXT_TX_SET_DCT_IDTX : EXT_TX_SET_DCTONLY;
   if (is_inter)
-    return (tx_size_sqr == TX_16X16 ? EXT_TX_SET_DTT9_IDTX_1DDCT
-                                    : EXT_TX_SET_ALL16);
+    return (tx_size_sqr_up == TX_16X16 ? EXT_TX_SET_DTT9_IDTX_1DDCT
+                                       : EXT_TX_SET_ALL16);
   else
-    return (tx_size_sqr == TX_16X16 ? EXT_TX_SET_DTT4_IDTX
-                                    : EXT_TX_SET_DTT4_IDTX_1DDCT);
+    return (tx_size_sqr_up == TX_16X16 ? EXT_TX_SET_DTT4_IDTX
+                                       : EXT_TX_SET_DTT4_IDTX_1DDCT);
 }
 
 // Maps tx set types to the indices.
