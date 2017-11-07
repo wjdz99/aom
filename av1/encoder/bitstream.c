@@ -2660,6 +2660,9 @@ static void encode_loopfilter(AV1_COMMON *cm, struct aom_write_bit_buffer *wb) {
 
 #if CONFIG_CDEF
 static void encode_cdef(const AV1_COMMON *cm, struct aom_write_bit_buffer *wb) {
+#if CONFIG_INTRABC
+  if (cm->allow_intrabc && NO_CDEF_FOR_IBC) return;
+#endif  // CONFIG_INTRABC
   int i;
 #if CONFIG_CDEF_SINGLEPASS
   aom_wb_write_literal(wb, cm->cdef_pri_damping - 3, 2);
