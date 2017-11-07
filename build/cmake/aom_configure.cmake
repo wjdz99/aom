@@ -65,6 +65,22 @@ if (NOT ENABLE_ADOPTED_EXPERIMENTS)
   endforeach ()
 endif ()
 
+if (NOT ENABLE_ADOPTED_EXPERIMENTS)
+  get_cmake_property(cmake_cache_vars CACHE_VARIABLES)
+  unset(var)
+  foreach (var ${cmake_cache_vars})
+    unset(var_helpstring)
+    get_property(var_helpstring CACHE ${var} PROPERTY HELPSTRING)
+    if ("${var_helpstring}" STREQUAL "AV1 experiment flag.")
+      if ("${var}" MATCHES "CONFIG_TMV")
+       # TMV is required for configure compatibility.
+      else ()
+       set(${var} 0)
+     endif ()
+    endif ()
+  endforeach ()
+endif ()
+
 # Detect target CPU.
 if (NOT AOM_TARGET_CPU)
   if ("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "AMD64" OR
