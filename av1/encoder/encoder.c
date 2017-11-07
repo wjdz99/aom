@@ -4617,6 +4617,31 @@ static void superres_post_encode(AV1_COMP *cpi) {
 #endif  // CONFIG_FRAME_SUPERRES
 
 static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
+#if CONFIG_INTRABC1
+  printf("\n enc frame %d allow_intrabc %d\n",
+         cm->current_video_frame, cm->allow_intrabc);
+  if (cm->allow_intrabc) {
+    // Set parameters corresponding to no filtering.
+    struct loopfilter *lf = &cm->lf;
+#if CONFIG_LOOPFILTER_LEVEL
+    lf->filter_level[0] = 0;
+    lf->filter_level[1] = 0;
+#else
+    lf->filter_level = 0;
+#endif
+#if CONFIG_CDEF
+    cm->cdef_bits = 0;
+    cm->cdef_strengths[0] = 0;
+    cm->nb_cdef_strengths = 1;
+#endif  // CONFIG_CDEF
+#if CONFIG_LOOP_RESTORATION
+    cm->rst_info[0].frame_restoration_type = RESTORE_NONE;
+    cm->rst_info[1].frame_restoration_type = RESTORE_NONE;
+    cm->rst_info[2].frame_restoration_type = RESTORE_NONE;
+#endif  // CONFIG_LOOP_RESTORATION
+    goto SKIP_FILTERING;
+  }
+#endif  // CONFIG_INTRABC
   MACROBLOCKD *xd = &cpi->td.mb.e_mbd;
   struct loopfilter *lf = &cm->lf;
   int no_loopfilter = 0;
@@ -4650,9 +4675,7 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
   }
 
 #if CONFIG_INTRABC
-// When intraBC is on, do loop filtering per superblock,
-// instead of do it after the whole frame has been encoded,
-// as is in the else branch
+
 #else
 #if !CONFIG_LPF_SB
 #if CONFIG_LOOPFILTER_LEVEL
@@ -4679,7 +4702,7 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
 #endif  // CONFIG_LOOPFILTER_LEVEL
 #endif  // CONFIG_LPF_SB
   }
-#endif  // CONFIG_INTRABC
+#endif
 
 #if CONFIG_STRIPED_LOOP_RESTORATION
 #if CONFIG_FRAME_SUPERRES && CONFIG_HORZONLY_FRAME_SUPERRES
@@ -4717,6 +4740,9 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
                                       NULL);
   }
 #endif  // CONFIG_LOOP_RESTORATION
+#if CONFIG_INTRABC
+  SKIP_FILTERING: {}
+#endif  // CONFIG_INTRABC
   // TODO(debargha): Fix mv search range on encoder side
   // aom_extend_frame_inner_borders(cm->frame_to_show);
   aom_extend_frame_borders(cm->frame_to_show);

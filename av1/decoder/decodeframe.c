@@ -1017,6 +1017,7 @@ static void decode_partition(AV1Decoder *const pbi, MACROBLOCKD *const xd,
     }
   }
 #endif  // CONFIG_CDEF
+
 #if CONFIG_LOOP_RESTORATION
   for (int plane = 0; plane < MAX_MB_PLANE; ++plane) {
     int rcol0, rcol1, rrow0, rrow1, tile_tl_idx;
@@ -1110,6 +1111,9 @@ static void setup_segmentation(AV1_COMMON *const cm,
 #if CONFIG_LOOP_RESTORATION
 static void decode_restoration_mode(AV1_COMMON *cm,
                                     struct aom_read_bit_buffer *rb) {
+#if CONFIG_INTRABC
+  if (cm->allow_intrabc) return;
+#endif  // CONFIG_INTRABC
   int p;
   RestorationInfo *rsi;
   for (p = 0; p < MAX_MB_PLANE; ++p) {
@@ -1277,6 +1281,9 @@ static void loop_restoration_read_sb_coeffs(const AV1_COMMON *const cm,
 
 static void setup_loopfilter(AV1_COMMON *cm, struct aom_read_bit_buffer *rb) {
   struct loopfilter *lf = &cm->lf;
+#if CONFIG_INTRABC1
+  if (cm->allow_intrabc) return;
+#endif  // CONFIG_INTRABC
 #if !CONFIG_LPF_SB
 #if CONFIG_LOOPFILTER_LEVEL
   lf->filter_level[0] = aom_rb_read_literal(rb, 6);
@@ -1314,6 +1321,9 @@ static void setup_loopfilter(AV1_COMMON *cm, struct aom_read_bit_buffer *rb) {
 
 #if CONFIG_CDEF
 static void setup_cdef(AV1_COMMON *cm, struct aom_read_bit_buffer *rb) {
+#if CONFIG_INTRABC
+  if (cm->allow_intrabc) return;
+#endif  // CONFIG_INTRABC
   int i;
 #if CONFIG_CDEF_SINGLEPASS
   cm->cdef_pri_damping = cm->cdef_sec_damping = aom_rb_read_literal(rb, 2) + 3;
@@ -2788,6 +2798,10 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
   int frame_size_override_flag = aom_rb_read_literal(rb, 1);
 #endif
 
+#if CONFIG_INTRABC
+  cm->allow_intrabc = 0;
+#endif  // CONFIG_INTRABC
+
   if (cm->frame_type == KEY_FRAME) {
     cm->current_video_frame = 0;
 #if !CONFIG_OBU
@@ -2815,6 +2829,10 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
     cm->ans_window_size_log2 = aom_rb_read_literal(rb, 4) + 8;
 #endif  // CONFIG_ANS && ANS_MAX_SYMBOLS
     cm->allow_screen_content_tools = aom_rb_read_bit(rb);
+#if CONFIG_INTRABC
+    if (cm->allow_screen_content_tools)
+      cm->allow_intrabc = aom_rb_read_bit(rb);
+#endif  // CONFIG_INTRABC
 #if CONFIG_AMVR
     if (cm->allow_screen_content_tools) {
       if (aom_rb_read_bit(rb)) {
@@ -2830,7 +2848,13 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
     cm->use_prev_frame_mvs = 0;
 #endif
   } else {
-    if (cm->intra_only) cm->allow_screen_content_tools = aom_rb_read_bit(rb);
+    if (cm->intra_only) {
+      cm->allow_screen_content_tools = aom_rb_read_bit(rb);
+#if CONFIG_INTRABC
+      if (cm->allow_screen_content_tools)
+        cm->allow_intrabc = aom_rb_read_bit(rb);
+#endif  // CONFIG_INTRABC
+    }
 #if CONFIG_TEMPMV_SIGNALING
     if (cm->intra_only || cm->error_resilient_mode) cm->use_prev_frame_mvs = 0;
 #endif
@@ -3097,6 +3121,31 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
 
   if (frame_is_intra_only(cm) || cm->error_resilient_mode)
     av1_setup_past_independence(cm);
+
+#if CONFIG_INTRABC1
+  printf("\n frame %d allow_intrabc %d\n",
+         cm->current_video_frame, cm->allow_intrabc);
+  if (cm->allow_intrabc) {
+    // Set parameters corresponding to no filtering.
+    struct loopfilter *lf = &cm->lf;
+#if CONFIG_LOOPFILTER_LEVEL
+    lf->filter_level[0] = 0;
+    lf->filter_level[1] = 0;
+#else
+    lf->filter_level = 0;
+#endif
+#if CONFIG_CDEF
+    cm->cdef_bits = 0;
+    cm->cdef_strengths[0] = 0;
+    cm->nb_cdef_strengths = 1;
+#endif  // CONFIG_CDEF
+#if CONFIG_LOOP_RESTORATION
+    cm->rst_info[0].frame_restoration_type = RESTORE_NONE;
+    cm->rst_info[1].frame_restoration_type = RESTORE_NONE;
+    cm->rst_info[2].frame_restoration_type = RESTORE_NONE;
+#endif  // CONFIG_LOOP_RESTORATION
+  }
+#endif  // CONFIG_INTRABC
 
   setup_loopfilter(cm, rb);
   setup_quantization(cm, rb);
@@ -3710,7 +3759,11 @@ void av1_decode_tg_tiles_and_wrapup(AV1Decoder *pbi, const uint8_t *data,
 #endif
 
 #if CONFIG_CDEF
-  if (!cm->skip_loop_filter && !cm->all_lossless) {
+  if (!cm->skip_loop_filter &&
+#if CONFIG_INTRABC
+      !cm->allow_intrabc &&
+#endif  // CONFIG_INTRABC
+      !cm->all_lossless) {
     av1_cdef_frame(&pbi->cur_buf->buf, cm, &pbi->mb);
   }
 #endif  // CONFIG_CDEF

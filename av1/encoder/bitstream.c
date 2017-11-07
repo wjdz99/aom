@@ -2446,6 +2446,9 @@ static void write_modes(AV1_COMP *const cpi, const TileInfo *const tile,
 #if CONFIG_LOOP_RESTORATION
 static void encode_restoration_mode(AV1_COMMON *cm,
                                     struct aom_write_bit_buffer *wb) {
+#if CONFIG_INTRABC
+  if (cm->allow_intrabc) return;
+#endif  // CONFIG_INTRABC
   int p;
   RestorationInfo *rsi;
   for (p = 0; p < MAX_MB_PLANE; ++p) {
@@ -2608,6 +2611,9 @@ static void loop_restoration_write_sb_coeffs(const AV1_COMMON *const cm,
 #endif  // CONFIG_LOOP_RESTORATION
 
 static void encode_loopfilter(AV1_COMMON *cm, struct aom_write_bit_buffer *wb) {
+#if CONFIG_INTRABC1
+  if (cm->allow_intrabc) return;
+#endif  // CONFIG_INTRABC
   int i;
   struct loopfilter *lf = &cm->lf;
 
@@ -2658,6 +2664,9 @@ static void encode_loopfilter(AV1_COMMON *cm, struct aom_write_bit_buffer *wb) {
 
 #if CONFIG_CDEF
 static void encode_cdef(const AV1_COMMON *cm, struct aom_write_bit_buffer *wb) {
+#if CONFIG_INTRABC
+  if (cm->allow_intrabc) return;
+#endif  // CONFIG_INTRABC
   int i;
 #if CONFIG_CDEF_SINGLEPASS
   aom_wb_write_literal(wb, cm->cdef_pri_damping - 3, 2);
@@ -3767,6 +3776,10 @@ static void write_uncompressed_header_frame(AV1_COMP *cpi,
     aom_wb_write_literal(wb, cpi->common.ans_window_size_log2 - 8, 4);
 #endif  // CONFIG_ANS && ANS_MAX_SYMBOLS
     aom_wb_write_bit(wb, cm->allow_screen_content_tools);
+#if CONFIG_INTRABC
+    if (cm->allow_screen_content_tools)
+      aom_wb_write_bit(wb, cm->allow_intrabc);
+#endif  // CONFIG_INTRABC
 #if CONFIG_AMVR
     if (cm->allow_screen_content_tools) {
       if (cm->seq_force_integer_mv == 2) {
@@ -3778,7 +3791,13 @@ static void write_uncompressed_header_frame(AV1_COMP *cpi,
     }
 #endif
   } else {
-    if (cm->intra_only) aom_wb_write_bit(wb, cm->allow_screen_content_tools);
+    if (cm->intra_only) {
+      aom_wb_write_bit(wb, cm->allow_screen_content_tools);
+#if CONFIG_INTRABC
+      if (cm->allow_screen_content_tools)
+        aom_wb_write_bit(wb, cm->allow_intrabc);
+#endif  // CONFIG_INTRABC
+    }
 #if !CONFIG_NO_FRAME_CONTEXT_SIGNALING
     if (!cm->error_resilient_mode) {
       if (cm->intra_only) {
