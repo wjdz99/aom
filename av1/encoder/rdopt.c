@@ -4827,8 +4827,12 @@ static void select_tx_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
   int prune = 0;
   const TX_SIZE sqr_up_tx_size =
       txsize_sqr_up_map[max_txsize_rect_lookup[bsize]];
+  TX_SIZE min_tx_size = 0;
   // Get the tx_size 1 level down
-  TX_SIZE min_tx_size = sub_tx_size_map[sqr_up_tx_size];
+  if (MAX_VARTX_DEPTH == 2)
+    min_tx_size = sub_tx_size_map[sqr_up_tx_size];
+  else
+    min_tx_size = max_txsize_rect_lookup[bsize];
   const TxSetType tx_set_type = get_ext_tx_set_type(
       min_tx_size, bsize, is_inter, cm->reduced_tx_set_used);
   int within_border = (mi_row + mi_size_high[bsize] <= cm->mi_rows) &&
@@ -4910,6 +4914,8 @@ static void select_tx_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
     if (xd->lossless[mbmi->segment_id])
       if (tx_type != DCT_DCT) continue;
 
+    if (is_inter && tx_type == DCT_DCT)
+      printf("here\n");
     rd = select_tx_size_fix_type(cpi, x, &this_rd_stats, bsize, mi_row, mi_col,
                                  ref_best_rd, tx_type, tx_split_prune_flag);
     // If the current tx_type is not included in the tx_set for the smallest

@@ -970,9 +970,8 @@ void av1_read_tx_type(const AV1_COMMON *const cm, MACROBLOCKD *xd,
       *tx_type = DCT_DCT;
     }
   }
-  if (inter_block)
-    printf("inter\n");
-    //printf("tx_size: %d, tx_type: %d\n", tx_size, *tx_type);
+  if (inter_block && !mbmi->skip)
+    printf("tx_size: %d, tx_type: %d\n", tx_size, *tx_type);
 /*
   if (*tx_type == MRC_DCT)
     printf("mrc_dct chosen!!!\n");
