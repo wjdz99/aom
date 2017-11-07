@@ -67,7 +67,6 @@ static INLINE void daala_write_symbol(daala_writer *w, int symb,
   }*/
   bitstream_queue_push(symb, cdf, nsymbs);
 #endif
-
   od_ec_encode_cdf_q15(&w->ec, symb, cdf, nsymbs);
 }
 

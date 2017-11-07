@@ -171,8 +171,8 @@ int od_ec_decode_bool_q15(od_ec_dec *dec, unsigned f) {
 
 /*Decodes a symbol given an inverse cumulative distribution function (CDF)
    table in Q15.
-  icdf: 32768 minus the CDF, such that symbol s falls in the range
-         [s > 0 ? (32768 - icdf[s - 1]) : 0, 32768 - icdf[s]).
+  icdf: CDF_PROB_TOP minus the CDF, such that symbol s falls in the range
+         [s > 0 ? (CDF_PROB_TOP - icdf[s - 1]) : 0, CDF_PROB_TOP - icdf[s]).
         The values must be monotonically non-increasing, and icdf[nsyms - 1]
          must be 0.
   nsyms: The number of symbols in the alphabet.
@@ -191,7 +191,7 @@ int od_ec_decode_cdf_q15(od_ec_dec *dec, const uint16_t *icdf, int nsyms) {
   const int N = nsyms - 1;
 
   OD_ASSERT(dif >> (OD_EC_WINDOW_SIZE - 16) < r);
-  OD_ASSERT(icdf[nsyms - 1] == OD_ICDF(32768U));
+  OD_ASSERT(icdf[nsyms - 1] == OD_ICDF(CDF_PROB_TOP));
   OD_ASSERT(32768U <= r);
   c = (unsigned)(dif >> (OD_EC_WINDOW_SIZE - 16));
   v = r;
@@ -199,7 +199,7 @@ int od_ec_decode_cdf_q15(od_ec_dec *dec, const uint16_t *icdf, int nsyms) {
   do {
     u = v;
     v = ((r >> 8) * (uint32_t)(icdf[++ret] >> EC_PROB_SHIFT) >>
-         (7 - EC_PROB_SHIFT));
+         (7 - EC_PROB_SHIFT - CDF_SHIFT));
     v += EC_MIN_PROB * (N - ret);
   } while (c < v);
   OD_ASSERT(v < u);

@@ -831,7 +831,6 @@ static void write_intra_angle_info(const MACROBLOCKD *xd,
   const MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
   const BLOCK_SIZE bsize = mbmi->sb_type;
   if (!av1_use_angle_delta(bsize)) return;
-
   if (av1_is_directional_mode(mbmi->mode, bsize)) {
 #if CONFIG_EXT_INTRA_MOD
     aom_write_symbol(w, mbmi->angle_delta[0] + MAX_ANGLE_DELTA,
@@ -843,7 +842,6 @@ static void write_intra_angle_info(const MACROBLOCKD *xd,
                   MAX_ANGLE_DELTA + mbmi->angle_delta[0]);
 #endif  // CONFIG_EXT_INTRA_MOD
   }
-
   if (av1_is_directional_mode(get_uv_mode(mbmi->uv_mode), bsize)) {
 #if CONFIG_EXT_INTRA_MOD
     aom_write_symbol(w, mbmi->angle_delta[1] + MAX_ANGLE_DELTA,
