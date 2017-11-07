@@ -1318,6 +1318,9 @@ static void setup_loopfilter(AV1_COMMON *cm, struct aom_read_bit_buffer *rb) {
 
 #if CONFIG_CDEF
 static void setup_cdef(AV1_COMMON *cm, struct aom_read_bit_buffer *rb) {
+#if CONFIG_INTRABC
+  if (cm->allow_intrabc && NO_CDEF_FOR_IBC) return;
+#endif  // CONFIG_INTRABC
   int i;
 #if CONFIG_CDEF_SINGLEPASS
   cm->cdef_pri_damping = cm->cdef_sec_damping = aom_rb_read_literal(rb, 2) + 3;
@@ -3748,7 +3751,11 @@ void av1_decode_tg_tiles_and_wrapup(AV1Decoder *pbi, const uint8_t *data,
 #endif
 
 #if CONFIG_CDEF
-  if (!cm->skip_loop_filter && !cm->all_lossless) {
+  if (!cm->skip_loop_filter &&
+#if CONFIG_INTRABC
+      !(cm->allow_intrabc && NO_CDEF_FOR_IBC) &&
+#endif  // CONFIG_INTRABC
+      !cm->all_lossless) {
     av1_cdef_frame(&pbi->cur_buf->buf, cm, &pbi->mb);
   }
 #endif  // CONFIG_CDEF
