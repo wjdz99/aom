@@ -16,9 +16,7 @@
 #include "./aom_config.h"
 
 #include "av1/common/alloccommon.h"
-#if CONFIG_CDEF
 #include "av1/common/cdef.h"
-#endif  // CONFIG_CDEF
 #include "av1/common/filter.h"
 #include "av1/common/idct.h"
 #include "av1/common/reconinter.h"
@@ -4688,7 +4686,6 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
   av1_loop_restoration_save_boundary_lines(cm->frame_to_show, cm, 0);
 #endif
 
-#if CONFIG_CDEF
   if (is_lossless_requested(&cpi->oxcf)) {
     cm->cdef_bits = 0;
     cm->cdef_strengths[0] = 0;
@@ -4701,7 +4698,6 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
     // Apply the filter
     av1_cdef_frame(cm->frame_to_show, cm, xd);
   }
-#endif
 
 #if CONFIG_FRAME_SUPERRES
   superres_post_encode(cpi);
