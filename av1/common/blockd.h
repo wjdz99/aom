@@ -1206,12 +1206,16 @@ static INLINE TX_TYPE av1_get_tx_type(PLANE_TYPE plane_type,
 
 void av1_setup_block_planes(MACROBLOCKD *xd, int ss_x, int ss_y);
 
-static INLINE int tx_size_to_depth(TX_SIZE tx_size) {
-  return (int)(tx_size - TX_SIZE_LUMA_MIN);
+static INLINE int tx_size_cat_to_max_depth(TX_SIZE tx_size_cat) {
+  return AOMMIN(tx_size_cat + 1, MAX_TX_DEPTH);
 }
 
-static INLINE TX_SIZE depth_to_tx_size(int depth) {
-  return (TX_SIZE)(depth + TX_SIZE_LUMA_MIN);
+static INLINE int tx_size_to_depth(TX_SIZE tx_size, TX_SIZE tx_size_cat) {
+  return (int)(tx_size_cat + 1 - tx_size);
+}
+
+static INLINE TX_SIZE depth_to_tx_size(int depth, TX_SIZE tx_size_cat) {
+  return (TX_SIZE)(tx_size_cat + 1 - depth);
 }
 
 static INLINE TX_SIZE av1_get_uv_tx_size(const MB_MODE_INFO *mbmi,
