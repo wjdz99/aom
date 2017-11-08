@@ -167,6 +167,10 @@ AV1_COMMON_SRCS-$(HAVE_SSSE3) += common/x86/highbd_convolve_2d_ssse3.c
 endif
 endif
 
+ifeq ($(CONFIG_LV_MAP),yes)
+AV1_COMMON_SRCS-$(HAVE_SSE2) += common/x86/txb_sse2.c
+endif
+
 ifeq ($(CONFIG_Q_ADAPT_PROBS),yes)
 AV1_COMMON_SRCS-yes += common/token_cdfs.h
 endif
