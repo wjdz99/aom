@@ -9683,7 +9683,7 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
 
 #if CONFIG_FRAME_MARKER
     if (sf->selective_ref_frame) {
-      if (sf->selective_ref_frame == 2) {
+      if (sf->selective_ref_frame >= 3) {
         if (mbmi->ref_frame[0] == ALTREF2_FRAME ||
             mbmi->ref_frame[1] == ALTREF2_FRAME)
           if (cm->cur_frame->alt2_frame_offset < cm->frame_offset) continue;
@@ -9691,29 +9691,37 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
             mbmi->ref_frame[1] == BWDREF_FRAME)
           if (cm->cur_frame->bwd_frame_offset < cm->frame_offset) continue;
       }
-      if (mbmi->ref_frame[0] == LAST3_FRAME ||
-          mbmi->ref_frame[1] == LAST3_FRAME)
-        if (cm->cur_frame->lst3_frame_offset <= cm->cur_frame->gld_frame_offset)
-          continue;
-      if (mbmi->ref_frame[0] == LAST2_FRAME ||
-          mbmi->ref_frame[1] == LAST2_FRAME)
-        if (cm->cur_frame->lst2_frame_offset <= cm->cur_frame->gld_frame_offset)
-          continue;
-    }
 
-    // One-sided compound is used only when all reference frames are one-sided.
-    if (sf->selective_ref_frame && comp_pred && !cpi->all_one_sided_refs) {
-      unsigned int ref_offsets[2];
-      for (i = 0; i < 2; ++i) {
-        const int buf_idx = cm->frame_refs[mbmi->ref_frame[i] - LAST_FRAME].idx;
-        assert(buf_idx >= 0);
-        ref_offsets[i] = cm->buffer_pool->frame_bufs[buf_idx].cur_frame_offset;
+      if (sf->selective_ref_frame >= 2) {
+        if (mbmi->ref_frame[0] == LAST3_FRAME ||
+            mbmi->ref_frame[1] == LAST3_FRAME)
+          if (cm->cur_frame->lst3_frame_offset <=
+              cm->cur_frame->gld_frame_offset)
+            continue;
+        if (mbmi->ref_frame[0] == LAST2_FRAME ||
+            mbmi->ref_frame[1] == LAST2_FRAME)
+          if (cm->cur_frame->lst2_frame_offset <=
+              cm->cur_frame->gld_frame_offset)
+            continue;
       }
-      if ((ref_offsets[0] <= cm->frame_offset &&
-           ref_offsets[1] <= cm->frame_offset) ||
-          (ref_offsets[0] > cm->frame_offset &&
-           ref_offsets[1] > cm->frame_offset))
-        continue;
+
+      // One-sided compound is used only when all reference frames are
+      // one-sided.
+      if (comp_pred && !cpi->all_one_sided_refs) {
+        unsigned int ref_offsets[2];
+        for (i = 0; i < 2; ++i) {
+          const int buf_idx =
+              cm->frame_refs[mbmi->ref_frame[i] - LAST_FRAME].idx;
+          assert(buf_idx >= 0);
+          ref_offsets[i] =
+              cm->buffer_pool->frame_bufs[buf_idx].cur_frame_offset;
+        }
+        if ((ref_offsets[0] <= cm->frame_offset &&
+             ref_offsets[1] <= cm->frame_offset) ||
+            (ref_offsets[0] > cm->frame_offset &&
+             ref_offsets[1] > cm->frame_offset))
+          continue;
+      }
     }
 #endif  // CONFIG_FRAME_MARKER
 
