@@ -473,6 +473,10 @@ static INLINE int write_uniform_cost(int n, int v) {
 #define FAST_EXT_TX_CORR_MARGIN 0.5
 #define FAST_EXT_TX_EDST_MARGIN 0.3
 
+static int64_t select_tx_size_fix_type(const AV1_COMP *cpi, MACROBLOCK *x,
+                                       RD_STATS *rd_stats, BLOCK_SIZE bsize,
+                                       int64_t ref_best_rd, TX_TYPE tx_type,
+                                       int tx_split_prune_flag);
 int inter_block_yrd(const AV1_COMP *cpi, MACROBLOCK *x, RD_STATS *rd_stats,
                     BLOCK_SIZE bsize, int64_t ref_best_rd, int fast);
 int inter_block_uvrd(const AV1_COMP *cpi, MACROBLOCK *x, RD_STATS *rd_stats,
@@ -2415,6 +2419,7 @@ int av1_tx_type_cost(const AV1_COMMON *cm, const MACROBLOCK *x,
   }
   return 0;
 }
+
 static int64_t txfm_yrd(const AV1_COMP *const cpi, MACROBLOCK *x,
                         RD_STATS *rd_stats, int64_t ref_best_rd, BLOCK_SIZE bs,
                         TX_TYPE tx_type, TX_SIZE tx_size) {
@@ -2517,8 +2522,8 @@ static int64_t estimate_yrd_for_sb(const AV1_COMP *const cpi, BLOCK_SIZE bs,
                                    MACROBLOCK *x, int *r, int64_t *d, int *s,
                                    int64_t *sse, int64_t ref_best_rd) {
   RD_STATS rd_stats;
-  int64_t rd = txfm_yrd(cpi, x, &rd_stats, ref_best_rd, bs, DCT_DCT,
-                        max_txsize_lookup[bs]);
+  int64_t rd = select_tx_size_fix_type(cpi, x, &rd_stats, bs, ref_best_rd,
+                                       DCT_DCT, 0);
   *r = rd_stats.rate;
   *d = rd_stats.dist;
   *s = rd_stats.skip;
@@ -4377,7 +4382,6 @@ static void select_inter_block_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
 
 static int64_t select_tx_size_fix_type(const AV1_COMP *cpi, MACROBLOCK *x,
                                        RD_STATS *rd_stats, BLOCK_SIZE bsize,
-                                       int mi_row, int mi_col,
                                        int64_t ref_best_rd, TX_TYPE tx_type,
                                        int tx_split_prune_flag) {
   const int fast = cpi->sf.tx_size_search_method > USE_FULL_RD;
@@ -4400,8 +4404,6 @@ static int64_t select_tx_size_fix_type(const AV1_COMP *cpi, MACROBLOCK *x,
   // already been decided.
 
   (void)cm;
-  (void)mi_row;
-  (void)mi_col;
 
   mbmi->tx_type = tx_type;
   select_inter_block_yrd(cpi, x, rd_stats, bsize, ref_best_rd, fast,
@@ -4898,8 +4900,8 @@ static void select_tx_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
     if (xd->lossless[mbmi->segment_id])
       if (tx_type != DCT_DCT) continue;
 
-    rd = select_tx_size_fix_type(cpi, x, &this_rd_stats, bsize, mi_row, mi_col,
-                                 ref_best_rd, tx_type, tx_split_prune_flag);
+    rd = select_tx_size_fix_type(cpi, x, &this_rd_stats, bsize, ref_best_rd,
+                                 tx_type, tx_split_prune_flag);
     // If the current tx_type is not included in the tx_set for the smallest
     // tx size found, then all vartx partitions were actually transformed with
     // DCT_DCT and we should avoid picking it.
@@ -8648,6 +8650,7 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
         }
         // Evaluate closer to true rd
         av1_subtract_plane(x, bsize, 0);
+        // Compound interintra
         rd =
             estimate_yrd_for_sb(cpi, bsize, x, &rate_sum, &dist_sum,
                                 &tmp_skip_txfm_sb, &tmp_skip_sse_sb, INT64_MAX);
