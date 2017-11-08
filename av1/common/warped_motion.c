@@ -927,9 +927,15 @@ static void warp_plane(WarpedMotionParams *wm, const uint8_t *const ref,
     const int16_t gamma = wm->gamma;
     const int16_t delta = wm->delta;
 
+#if CONFIG_JNT_COMP
+    av1_warp_affine_c(mat, ref, width, height, stride, pred, p_col, p_row,
+                      p_width, p_height, p_stride, subsampling_x, subsampling_y,
+                      conv_params, alpha, beta, gamma, delta);
+#else
     av1_warp_affine(mat, ref, width, height, stride, pred, p_col, p_row,
                     p_width, p_height, p_stride, subsampling_x, subsampling_y,
                     conv_params, alpha, beta, gamma, delta);
+#endif  // CONFIG_JNT_COMP
   } else {
     assert(0);
   }
