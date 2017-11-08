@@ -4679,7 +4679,7 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
 #endif
 
 #if CONFIG_CDEF
-  if (is_lossless_requested(&cpi->oxcf)) {
+  if (no_loopfilter) {
     cm->cdef_bits = 0;
     cm->cdef_strengths[0] = 0;
     cm->nb_cdef_strengths = 1;
@@ -4698,13 +4698,19 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
 #endif  // CONFIG_FRAME_SUPERRES
 
 #if CONFIG_LOOP_RESTORATION
-  av1_loop_restoration_save_boundary_lines(cm->frame_to_show, cm, 1);
-  av1_pick_filter_restoration(cpi->source, cpi);
-  if (cm->rst_info[0].frame_restoration_type != RESTORE_NONE ||
-      cm->rst_info[1].frame_restoration_type != RESTORE_NONE ||
-      cm->rst_info[2].frame_restoration_type != RESTORE_NONE) {
-    av1_loop_restoration_filter_frame(cm->frame_to_show, cm, cm->rst_info, 7,
-                                      NULL);
+  if (no_loopfilter) {
+    cm->rst_info[0].frame_restoration_type = RESTORE_NONE;
+    cm->rst_info[1].frame_restoration_type = RESTORE_NONE;
+    cm->rst_info[2].frame_restoration_type = RESTORE_NONE;
+  } else {
+    av1_loop_restoration_save_boundary_lines(cm->frame_to_show, cm, 1);
+    av1_pick_filter_restoration(cpi->source, cpi);
+    if (cm->rst_info[0].frame_restoration_type != RESTORE_NONE ||
+        cm->rst_info[1].frame_restoration_type != RESTORE_NONE ||
+        cm->rst_info[2].frame_restoration_type != RESTORE_NONE) {
+      av1_loop_restoration_filter_frame(cm->frame_to_show, cm, cm->rst_info, 7,
+                                        NULL);
+    }
   }
 #endif  // CONFIG_LOOP_RESTORATION
   // TODO(debargha): Fix mv search range on encoder side
