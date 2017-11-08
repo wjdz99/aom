@@ -934,8 +934,8 @@ static void update_stats(const AV1_COMMON *const cm, TileDataEnc *tile_data,
   const uint8_t allow_update_cdf = tile_data->allow_update_cdf;
 
   // delta quant applies to both intra and inter
-  int super_block_upper_left =
-      ((mi_row & MAX_MIB_MASK) == 0) && ((mi_col & MAX_MIB_MASK) == 0);
+  const int super_block_upper_left = ((mi_row & (cm->mib_size - 1)) == 0) &&
+                                     ((mi_col & (cm->mib_size - 1)) == 0);
 
   const int seg_ref_active =
       segfeature_active(&cm->seg, mbmi->segment_id, SEG_LVL_REF_FRAME);
@@ -950,9 +950,7 @@ static void update_stats(const AV1_COMMON *const cm, TileDataEnc *tile_data,
       update_cdf(fc->skip_mode_cdfs[skip_mode_ctx], mbmi->skip_mode, 2);
 #endif  // CONFIG_NEW_MULTISYMBOL
   }
-#endif  // CONFIG_EXT_SKIP
 
-#if CONFIG_EXT_SKIP
   if (!mbmi->skip_mode) {
 #endif  // CONFIG_EXT_SKIP
     if (!seg_ref_active) {
@@ -962,65 +960,64 @@ static void update_stats(const AV1_COMMON *const cm, TileDataEnc *tile_data,
       if (allow_update_cdf) update_cdf(fc->skip_cdfs[skip_ctx], mbmi->skip, 2);
 #endif  // CONFIG_NEW_MULTISYMBOL
     }
-
-    if (cm->delta_q_present_flag && (bsize != cm->sb_size || !mbmi->skip) &&
-        super_block_upper_left) {
-      const int dq =
-          (mbmi->current_q_index - xd->prev_qindex) / cm->delta_q_res;
-      const int absdq = abs(dq);
-      int i;
-      for (i = 0; i < AOMMIN(absdq, DELTA_Q_SMALL); ++i) {
-        td->counts->delta_q[i][1]++;
-      }
-      if (absdq < DELTA_Q_SMALL) td->counts->delta_q[absdq][0]++;
-      xd->prev_qindex = mbmi->current_q_index;
-#if CONFIG_EXT_DELTA_Q
-#if CONFIG_LOOPFILTER_LEVEL
-      if (cm->delta_lf_present_flag) {
-        if (cm->delta_lf_multi) {
-          for (int lf_id = 0; lf_id < FRAME_LF_COUNT; ++lf_id) {
-            const int delta_lf =
-                (mbmi->curr_delta_lf[lf_id] - xd->prev_delta_lf[lf_id]) /
-                cm->delta_lf_res;
-            const int abs_delta_lf = abs(delta_lf);
-            for (i = 0; i < AOMMIN(abs_delta_lf, DELTA_LF_SMALL); ++i) {
-              td->counts->delta_lf_multi[lf_id][i][1]++;
-            }
-            if (abs_delta_lf < DELTA_LF_SMALL)
-              td->counts->delta_lf_multi[lf_id][abs_delta_lf][0]++;
-            xd->prev_delta_lf[lf_id] = mbmi->curr_delta_lf[lf_id];
-          }
-        } else {
-          const int delta_lf =
-              (mbmi->current_delta_lf_from_base - xd->prev_delta_lf_from_base) /
-              cm->delta_lf_res;
-          const int abs_delta_lf = abs(delta_lf);
-          for (i = 0; i < AOMMIN(abs_delta_lf, DELTA_LF_SMALL); ++i) {
-            td->counts->delta_lf[i][1]++;
-          }
-          if (abs_delta_lf < DELTA_LF_SMALL)
-            td->counts->delta_lf[abs_delta_lf][0]++;
-          xd->prev_delta_lf_from_base = mbmi->current_delta_lf_from_base;
-        }
-      }
-#else
-      if (cm->delta_lf_present_flag) {
-        const int dlf =
-            (mbmi->current_delta_lf_from_base - xd->prev_delta_lf_from_base) /
-            cm->delta_lf_res;
-        const int absdlf = abs(dlf);
-        for (i = 0; i < AOMMIN(absdlf, DELTA_LF_SMALL); ++i) {
-          td->counts->delta_lf[i][1]++;
-        }
-        if (absdlf < DELTA_LF_SMALL) td->counts->delta_lf[absdlf][0]++;
-        xd->prev_delta_lf_from_base = mbmi->current_delta_lf_from_base;
-      }
-#endif  // CONFIG_LOOPFILTER_LEVEL
-#endif
-    }
 #if CONFIG_EXT_SKIP
   }
 #endif  // CONFIG_EXT_SKIP
+
+  if (cm->delta_q_present_flag && (bsize != cm->sb_size || !mbmi->skip) &&
+      super_block_upper_left) {
+    const int dq = (mbmi->current_q_index - xd->prev_qindex) / cm->delta_q_res;
+    const int absdq = abs(dq);
+    int i;
+    for (i = 0; i < AOMMIN(absdq, DELTA_Q_SMALL); ++i) {
+      td->counts->delta_q[i][1]++;
+    }
+    if (absdq < DELTA_Q_SMALL) td->counts->delta_q[absdq][0]++;
+    xd->prev_qindex = mbmi->current_q_index;
+#if CONFIG_EXT_DELTA_Q
+#if CONFIG_LOOPFILTER_LEVEL
+    if (cm->delta_lf_present_flag) {
+      if (cm->delta_lf_multi) {
+        for (int lf_id = 0; lf_id < FRAME_LF_COUNT; ++lf_id) {
+          const int delta_lf =
+              (mbmi->curr_delta_lf[lf_id] - xd->prev_delta_lf[lf_id]) /
+              cm->delta_lf_res;
+          const int abs_delta_lf = abs(delta_lf);
+          for (i = 0; i < AOMMIN(abs_delta_lf, DELTA_LF_SMALL); ++i) {
+            td->counts->delta_lf_multi[lf_id][i][1]++;
+          }
+          if (abs_delta_lf < DELTA_LF_SMALL)
+            td->counts->delta_lf_multi[lf_id][abs_delta_lf][0]++;
+          xd->prev_delta_lf[lf_id] = mbmi->curr_delta_lf[lf_id];
+        }
+      } else {
+        const int delta_lf =
+            (mbmi->current_delta_lf_from_base - xd->prev_delta_lf_from_base) /
+            cm->delta_lf_res;
+        const int abs_delta_lf = abs(delta_lf);
+        for (i = 0; i < AOMMIN(abs_delta_lf, DELTA_LF_SMALL); ++i) {
+          td->counts->delta_lf[i][1]++;
+        }
+        if (abs_delta_lf < DELTA_LF_SMALL)
+          td->counts->delta_lf[abs_delta_lf][0]++;
+        xd->prev_delta_lf_from_base = mbmi->current_delta_lf_from_base;
+      }
+    }
+#else
+    if (cm->delta_lf_present_flag) {
+      const int dlf =
+          (mbmi->current_delta_lf_from_base - xd->prev_delta_lf_from_base) /
+          cm->delta_lf_res;
+      const int absdlf = abs(dlf);
+      for (i = 0; i < AOMMIN(absdlf, DELTA_LF_SMALL); ++i) {
+        td->counts->delta_lf[i][1]++;
+      }
+      if (absdlf < DELTA_LF_SMALL) td->counts->delta_lf[absdlf][0]++;
+      xd->prev_delta_lf_from_base = mbmi->current_delta_lf_from_base;
+    }
+#endif  // CONFIG_LOOPFILTER_LEVEL
+#endif
+  }
 
   if (!frame_is_intra_only(cm)) {
     FRAME_COUNTS *const counts = td->counts;
@@ -1187,7 +1184,11 @@ static void update_stats(const AV1_COMMON *const cm, TileDataEnc *tile_data,
             cm->reference_mode != SINGLE_REFERENCE &&
             is_inter_compound_mode(mbmi->mode)
 #endif  // CONFIG_COMPOUND_SINGLEREF
-            && mbmi->motion_mode == SIMPLE_TRANSLATION) {
+            && mbmi->motion_mode == SIMPLE_TRANSLATION
+#if CONFIG_EXT_SKIP
+            && !mbmi->skip_mode
+#endif  // CONFIG_EXT_SKIP
+            ) {
           if (is_interinter_compound_used(COMPOUND_WEDGE, bsize)) {
             counts
                 ->compound_interinter[bsize][mbmi->interinter_compound_type]++;
@@ -3999,12 +4000,13 @@ static void encode_frame_internal(AV1_COMP *cpi) {
 #if CONFIG_EXT_SKIP
   av1_setup_skip_mode_allowed(cm);
 #if 0
-  printf("ENCODER: Frame=%d, frame_offset=%d, show_frame=%d, "
-         "show_existing_frame=%d, is_skip_mode_allowed=%d, "
-         "ref_frame_idx=(%d,%d)\n\n",
-         cm->current_video_frame, cm->frame_offset, cm->show_frame,
-         cm->show_existing_frame, cm->is_skip_mode_allowed,
-         cm->ref_frame_idx_0, cm->ref_frame_idx_1);
+  printf(
+      "ENCODER: Frame=%d, frame_offset=%d, show_frame=%d, "
+      "show_existing_frame=%d, is_skip_mode_allowed=%d, "
+      "ref_frame_idx=(%d,%d), frame_reference_mode=%d\n\n",
+      cm->current_video_frame, cm->frame_offset, cm->show_frame,
+      cm->show_existing_frame, cm->is_skip_mode_allowed, cm->ref_frame_idx_0,
+      cm->ref_frame_idx_1, cm->reference_mode);
 #endif  // 0
 #endif  // CONFIG_EXT_SKIP
 

@@ -1420,41 +1420,18 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
 
 #if CONFIG_EXT_SKIP
   write_skip_mode(cm, xd, segment_id, mi, w);
+
   if (mbmi->skip_mode) {
     assert(cm->is_skip_mode_allowed);
     assert(mbmi->skip);
-
-    if (cm->delta_q_present_flag) {
-      int super_block_upper_left =
-          ((mi_row & MAX_MIB_MASK) == 0) && ((mi_col & MAX_MIB_MASK) == 0);
-      if (bsize != BLOCK_LARGEST && super_block_upper_left) {
-        assert(mbmi->current_q_index > 0);
-        xd->prev_qindex = mbmi->current_q_index;
-#if CONFIG_EXT_DELTA_Q
-        if (cm->delta_lf_present_flag) {
-#if CONFIG_LOOPFILTER_LEVEL
-          if (cm->delta_lf_multi)
-            for (int lf_id = 0; lf_id < FRAME_LF_COUNT; ++lf_id)
-              xd->prev_delta_lf[lf_id] = mbmi->curr_delta_lf[lf_id];
-          else
-#endif  // CONFIG_LOOPFILTER_LEVEL
-            xd->prev_delta_lf_from_base = mbmi->current_delta_lf_from_base;
-        }
-#endif  // CONFIG_EXT_DELTA_Q
-      }
-    }
-
-#if CONFIG_NEW_MULTISYMBOL
-    update_intra_inter_cdf(cm, xd, segment_id, 1);
-    update_ref_frame_cdfs_for_skip_mode(cm, xd);
-#endif  // CONFIG_NEW_MULTISYMBOL
-    update_inter_compound_mode_cdf(cpi);
-
-    return;
+    skip = mbmi->skip;
+  } else {
+#endif  // CONFIG_EXT_SKIP
+    skip = write_skip(cm, xd, segment_id, mi, w);
+#if CONFIG_EXT_SKIP
   }
 #endif  // CONFIG_EXT_SKIP
 
-  skip = write_skip(cm, xd, segment_id, mi, w);
   if (cm->delta_q_present_flag) {
     int super_block_upper_left = ((mi_row & (cm->mib_size - 1)) == 0) &&
                                  ((mi_col & (cm->mib_size - 1)) == 0);
@@ -1495,6 +1472,17 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
 #endif  // CONFIG_EXT_DELTA_Q
     }
   }
+
+#if CONFIG_EXT_SKIP
+  if (mbmi->skip_mode) {
+#if CONFIG_NEW_MULTISYMBOL
+    update_intra_inter_cdf(cm, xd, segment_id, 1);
+    update_ref_frame_cdfs_for_skip_mode(cm, xd);
+#endif  // CONFIG_NEW_MULTISYMBOL
+    update_inter_compound_mode_cdf(cpi);
+    return;
+  }
+#endif  // CONFIG_EXT_SKIP
 
   write_is_inter(cm, xd, mbmi->segment_id, w, is_inter);
 
@@ -1911,7 +1899,7 @@ static void enc_dump_logs(AV1_COMP *cpi, int mi_row, int mi_col) {
   xd->mi = cm->mi_grid_visible + (mi_row * cm->mi_stride + mi_col);
   m = xd->mi[0];
   if (is_inter_block(&m->mbmi)) {
-#define FRAME_TO_CHECK 3
+#define FRAME_TO_CHECK 8
     if (cm->current_video_frame == FRAME_TO_CHECK && cm->show_frame == 1) {
       const MB_MODE_INFO *const mbmi = &m->mbmi;
       const BLOCK_SIZE bsize = mbmi->sb_type;
