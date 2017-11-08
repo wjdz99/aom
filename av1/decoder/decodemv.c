@@ -440,7 +440,8 @@ static TX_SIZE read_selected_tx_size(AV1_COMMON *cm, MACROBLOCKD *xd,
 
   const int depth = aom_read_symbol(r, ec_ctx->tx_size_cdf[tx_size_cat][ctx],
                                     tx_size_cat + 2, ACCT_STR);
-  const TX_SIZE tx_size = depth_to_tx_size(depth);
+  assert(depth >= 0 && depth <= tx_size_cat + 1);
+  const TX_SIZE tx_size = depth_to_tx_size(depth, tx_size_cat);
   assert(!is_rect_tx(tx_size));
   return tx_size;
 }
