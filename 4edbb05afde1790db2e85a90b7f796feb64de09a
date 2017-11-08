@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a030713c_87fbdfbc",
+        "filename": "av1/encoder/daala_fwd_txfm.c",
+        "patchSetId": 21
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-11-08T01:59:44Z",
+      "side": 1,
+      "message": "I\u0027m not a big fan of #if 0/#if 1 in committed code. This is what version control is for. Plus I couldn\u0027t actually find a definition of TX_COEFF_DEPTH. It\u0027s not like you could flip this #if and have things work, anyway (if you could, then it might be okay to have, but then I\u0027d want it named).",
+      "revId": "4edbb05afde1790db2e85a90b7f796feb64de09a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2982534b_3d78a7f1",
+        "filename": "av1/encoder/daala_fwd_txfm.c",
+        "patchSetId": 21
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-11-08T01:59:44Z",
+      "side": 1,
+      "message": "s/3/4/, right?",
+      "revId": "4edbb05afde1790db2e85a90b7f796feb64de09a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
