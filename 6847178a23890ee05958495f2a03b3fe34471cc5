@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "29362f47_2fc1f6e7",
+        "filename": "aom_dsp/prob.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-11-08T01:06:45Z",
+      "side": 1,
+      "message": "Just a warning that you are probably going to have to change this to a hard-coded 32768 (or make a new constant) in a future commit, as you\u0027ll want to adjust CDF_PROB_TOP so that all of the other uses in the codebase pick up the downscaled value.\n\nThere are also a lot of hard-coded AOM_ICDF(32768) values sprinkled throughout the code (e.g., in txb_common.c), and probably more that aren\u0027t wrapped in AOM_ICDF(), so fair warning before you start searching and replacing.",
+      "revId": "6847178a23890ee05958495f2a03b3fe34471cc5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
