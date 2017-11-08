@@ -4610,14 +4610,18 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
   MACROBLOCKD *xd = &cpi->td.mb.e_mbd;
   struct loopfilter *lf = &cm->lf;
   int no_loopfilter = 0;
+  int no_cdef = 0;
+  int no_restoration = 0;
 
-  if (is_lossless_requested(&cpi->oxcf)) no_loopfilter = 1;
-
+  if (is_lossless_requested(&cpi->oxcf)
 #if CONFIG_EXT_TILE
-  // 0 loopfilter level is only necessary if individual tile
-  // decoding is required.
-  if (cm->single_tile_decoding) no_loopfilter = 1;
-#endif  // CONFIG_EXT_TILE
+      || cm->single_tile_decoding
+#endif
+      ) {
+    no_loopfilter = 1;
+    no_cdef = 1;
+    no_restoration = 1;
+  }
 
   if (no_loopfilter) {
 #if CONFIG_LOOPFILTER_LEVEL
@@ -4679,7 +4683,7 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
 #endif
 
 #if CONFIG_CDEF
-  if (is_lossless_requested(&cpi->oxcf)) {
+  if (no_cdef) {
     cm->cdef_bits = 0;
     cm->cdef_strengths[0] = 0;
     cm->nb_cdef_strengths = 1;
@@ -4698,13 +4702,19 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
 #endif  // CONFIG_FRAME_SUPERRES
 
 #if CONFIG_LOOP_RESTORATION
-  av1_loop_restoration_save_boundary_lines(cm->frame_to_show, cm, 1);
-  av1_pick_filter_restoration(cpi->source, cpi);
-  if (cm->rst_info[0].frame_restoration_type != RESTORE_NONE ||
-      cm->rst_info[1].frame_restoration_type != RESTORE_NONE ||
-      cm->rst_info[2].frame_restoration_type != RESTORE_NONE) {
-    av1_loop_restoration_filter_frame(cm->frame_to_show, cm, cm->rst_info, 7,
-                                      NULL);
+  if (no_restoration) {
+    cm->rst_info[0].frame_restoration_type = RESTORE_NONE;
+    cm->rst_info[1].frame_restoration_type = RESTORE_NONE;
+    cm->rst_info[2].frame_restoration_type = RESTORE_NONE;
+  } else {
+    av1_loop_restoration_save_boundary_lines(cm->frame_to_show, cm, 1);
+    av1_pick_filter_restoration(cpi->source, cpi);
+    if (cm->rst_info[0].frame_restoration_type != RESTORE_NONE ||
+        cm->rst_info[1].frame_restoration_type != RESTORE_NONE ||
+        cm->rst_info[2].frame_restoration_type != RESTORE_NONE) {
+      av1_loop_restoration_filter_frame(cm->frame_to_show, cm, cm->rst_info, 7,
+                                        NULL);
+    }
   }
 #endif  // CONFIG_LOOP_RESTORATION
   // TODO(debargha): Fix mv search range on encoder side
