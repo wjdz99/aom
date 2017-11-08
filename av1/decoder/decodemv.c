@@ -2532,79 +2532,61 @@ static void read_inter_frame_mode_info(AV1Decoder *const pbi,
            mbmi->skip_mode);
 #endif  // 0
 
-  if (mbmi->skip_mode) {
+  if (mbmi->skip_mode)
     mbmi->skip = 1;
-
-    if (cm->delta_q_present_flag) {
-      xd->current_qindex = xd->prev_qindex;
-#if CONFIG_EXT_DELTA_Q
-      if (cm->delta_lf_present_flag) {
-#if CONFIG_LOOPFILTER_LEVEL
-        if (cm->delta_lf_multi)
-          for (int lf_id = 0; lf_id < FRAME_LF_COUNT; ++lf_id)
-            mbmi->curr_delta_lf[lf_id] = xd->curr_delta_lf[lf_id] =
-                xd->prev_delta_lf[lf_id];
-        else
-#endif  // CONFIG_LOOPFILTER_LEVEL
-          mbmi->current_delta_lf_from_base = xd->current_delta_lf_from_base =
-              xd->prev_delta_lf_from_base;
-      }
-#endif  // CONFIG_EXT_DELTA_Q
-    }
-
-    update_block_intra_inter(cm, xd, mbmi->segment_id, inter_block,
-                             r->allow_update_cdf);
-  } else {
+  else
 #endif  // CONFIG_EXT_SKIP
     mbmi->skip = read_skip(cm, xd, mbmi->segment_id, r);
 
-    if (cm->delta_q_present_flag) {
-      xd->current_qindex =
-          xd->prev_qindex +
-          read_delta_qindex(cm, xd, r, mbmi, mi_col, mi_row) * cm->delta_q_res;
-      /* Normative: Clamp to [1,MAXQ] to not interfere with lossless mode */
-      xd->current_qindex = clamp(xd->current_qindex, 1, MAXQ);
-      xd->prev_qindex = xd->current_qindex;
+  if (cm->delta_q_present_flag) {
+    xd->current_qindex =
+        xd->prev_qindex +
+        read_delta_qindex(cm, xd, r, mbmi, mi_col, mi_row) * cm->delta_q_res;
+    /* Normative: Clamp to [1,MAXQ] to not interfere with lossless mode */
+    xd->current_qindex = clamp(xd->current_qindex, 1, MAXQ);
+    xd->prev_qindex = xd->current_qindex;
 #if CONFIG_EXT_DELTA_Q
-      if (cm->delta_lf_present_flag) {
+    if (cm->delta_lf_present_flag) {
 #if CONFIG_LOOPFILTER_LEVEL
-        if (cm->delta_lf_multi) {
-          for (int lf_id = 0; lf_id < FRAME_LF_COUNT; ++lf_id) {
-            const int tmp_lvl =
-                xd->prev_delta_lf[lf_id] +
-                read_delta_lflevel(cm, xd, r, lf_id, mbmi, mi_col, mi_row) *
-                    cm->delta_lf_res;
-            mbmi->curr_delta_lf[lf_id] = xd->curr_delta_lf[lf_id] =
-                clamp(tmp_lvl, -MAX_LOOP_FILTER, MAX_LOOP_FILTER);
-            xd->prev_delta_lf[lf_id] = xd->curr_delta_lf[lf_id];
-          }
-        } else {
+      if (cm->delta_lf_multi) {
+        for (int lf_id = 0; lf_id < FRAME_LF_COUNT; ++lf_id) {
           const int tmp_lvl =
-              xd->prev_delta_lf_from_base +
-              read_delta_lflevel(cm, xd, r, -1, mbmi, mi_col, mi_row) *
+              xd->prev_delta_lf[lf_id] +
+              read_delta_lflevel(cm, xd, r, lf_id, mbmi, mi_col, mi_row) *
                   cm->delta_lf_res;
-          mbmi->current_delta_lf_from_base = xd->current_delta_lf_from_base =
+          mbmi->curr_delta_lf[lf_id] = xd->curr_delta_lf[lf_id] =
               clamp(tmp_lvl, -MAX_LOOP_FILTER, MAX_LOOP_FILTER);
-          xd->prev_delta_lf_from_base = xd->current_delta_lf_from_base;
+          xd->prev_delta_lf[lf_id] = xd->curr_delta_lf[lf_id];
         }
-#else
-        const int current_delta_lf_from_base =
+      } else {
+        const int tmp_lvl =
             xd->prev_delta_lf_from_base +
-            read_delta_lflevel(cm, xd, r, mbmi, mi_col, mi_row) *
+            read_delta_lflevel(cm, xd, r, -1, mbmi, mi_col, mi_row) *
                 cm->delta_lf_res;
         mbmi->current_delta_lf_from_base = xd->current_delta_lf_from_base =
-            clamp(current_delta_lf_from_base, -MAX_LOOP_FILTER,
-                  MAX_LOOP_FILTER);
+            clamp(tmp_lvl, -MAX_LOOP_FILTER, MAX_LOOP_FILTER);
         xd->prev_delta_lf_from_base = xd->current_delta_lf_from_base;
-#endif  // CONFIG_LOOPFILTER_LEVEL
       }
-#endif  // CONFIG_EXT_DELTA_Q
+#else
+      const int current_delta_lf_from_base =
+          xd->prev_delta_lf_from_base +
+          read_delta_lflevel(cm, xd, r, mbmi, mi_col, mi_row) *
+              cm->delta_lf_res;
+      mbmi->current_delta_lf_from_base = xd->current_delta_lf_from_base =
+          clamp(current_delta_lf_from_base, -MAX_LOOP_FILTER, MAX_LOOP_FILTER);
+      xd->prev_delta_lf_from_base = xd->current_delta_lf_from_base;
+#endif  // CONFIG_LOOPFILTER_LEVEL
     }
-
-    inter_block = read_is_inter_block(cm, xd, mbmi->segment_id, r);
-#if CONFIG_EXT_SKIP
+#endif  // CONFIG_EXT_DELTA_Q
   }
+
+#if CONFIG_EXT_SKIP
+  if (mbmi->skip_mode)
+    update_block_intra_inter(cm, xd, mbmi->segment_id, inter_block,
+                             r->allow_update_cdf);
+  else
 #endif  // CONFIG_EXT_SKIP
+    inter_block = read_is_inter_block(cm, xd, mbmi->segment_id, r);
 
   mbmi->current_q_index = xd->current_qindex;
 
@@ -2656,6 +2638,8 @@ static void read_inter_frame_mode_info(AV1Decoder *const pbi,
     mbmi->tx_size = read_tx_size(cm, xd, inter_block, !mbmi->skip, r);
 
 #if CONFIG_EXT_SKIP
+    // TODO(zoeliu): To identify why following tx setup does not apply to
+    //               mbmi->skip_mode ==1.
     if (!mbmi->skip_mode) {
 #endif  // CONFIG_EXT_SKIP
       if (inter_block) {

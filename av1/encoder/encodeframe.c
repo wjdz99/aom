@@ -3999,12 +3999,13 @@ static void encode_frame_internal(AV1_COMP *cpi) {
 #if CONFIG_EXT_SKIP
   av1_setup_skip_mode_allowed(cm);
 #if 0
-  printf("ENCODER: Frame=%d, frame_offset=%d, show_frame=%d, "
-         "show_existing_frame=%d, is_skip_mode_allowed=%d, "
-         "ref_frame_idx=(%d,%d)\n\n",
-         cm->current_video_frame, cm->frame_offset, cm->show_frame,
-         cm->show_existing_frame, cm->is_skip_mode_allowed,
-         cm->ref_frame_idx_0, cm->ref_frame_idx_1);
+  printf(
+      "ENCODER: Frame=%d, frame_offset=%d, show_frame=%d, "
+      "show_existing_frame=%d, is_skip_mode_allowed=%d, "
+      "ref_frame_idx=(%d,%d)\n\n",
+      cm->current_video_frame, cm->frame_offset, cm->show_frame,
+      cm->show_existing_frame, cm->is_skip_mode_allowed, cm->ref_frame_idx_0,
+      cm->ref_frame_idx_1);
 #endif  // 0
 #endif  // CONFIG_EXT_SKIP
 
