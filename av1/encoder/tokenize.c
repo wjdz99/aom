@@ -656,7 +656,6 @@ void av1_tokenize_sb_vartx(const AV1_COMP *cpi, ThreadData *td, TOKENEXTRA **t,
   TOKENEXTRA *t_backup = *t;
 #endif
   struct tokenize_b_args arg = { cpi, td, t, 0, allow_update_cdf };
-  int plane;
   if (mi_row >= cm->mi_rows || mi_col >= cm->mi_cols) return;
 
   if (mbmi->skip) {
@@ -672,7 +671,7 @@ void av1_tokenize_sb_vartx(const AV1_COMP *cpi, ThreadData *td, TOKENEXTRA **t,
     *t = t_backup;
 #endif
 
-  for (plane = 0; plane < MAX_MB_PLANE; ++plane) {
+  for (int plane = 0; plane < av1_num_planes(cm); ++plane) {
     if (!is_chroma_reference(mi_row, mi_col, bsize,
                              xd->plane[plane].subsampling_x,
                              xd->plane[plane].subsampling_y)) {
@@ -744,10 +743,9 @@ void av1_tokenize_sb(const AV1_COMP *cpi, ThreadData *td, TOKENEXTRA **t,
     return;
   }
 
+  const int num_planes = av1_num_planes(&cpi->common);
   if (!dry_run) {
-    int plane;
-
-    for (plane = 0; plane < MAX_MB_PLANE; ++plane) {
+    for (int plane = 0; plane < num_planes; ++plane) {
       if (!is_chroma_reference(mi_row, mi_col, bsize,
                                xd->plane[plane].subsampling_x,
                                xd->plane[plane].subsampling_y)) {
@@ -762,8 +760,7 @@ void av1_tokenize_sb(const AV1_COMP *cpi, ThreadData *td, TOKENEXTRA **t,
       (*t)++;
     }
   } else if (dry_run == DRY_RUN_NORMAL) {
-    int plane;
-    for (plane = 0; plane < MAX_MB_PLANE; ++plane) {
+    for (int plane = 0; plane < num_planes; ++plane) {
       if (!is_chroma_reference(mi_row, mi_col, bsize,
                                xd->plane[plane].subsampling_x,
                                xd->plane[plane].subsampling_y))
@@ -772,8 +769,7 @@ void av1_tokenize_sb(const AV1_COMP *cpi, ThreadData *td, TOKENEXTRA **t,
                                              set_entropy_context_b, &arg);
     }
   } else if (dry_run == DRY_RUN_COSTCOEFFS) {
-    int plane;
-    for (plane = 0; plane < MAX_MB_PLANE; ++plane) {
+    for (int plane = 0; plane < num_planes; ++plane) {
       if (!is_chroma_reference(mi_row, mi_col, bsize,
                                xd->plane[plane].subsampling_x,
                                xd->plane[plane].subsampling_y))
