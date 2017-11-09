@@ -1103,8 +1103,6 @@ static void write_palette_mode_info(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   const MODE_INFO *const left_mi = xd->left_mi;
   const BLOCK_SIZE bsize = mbmi->sb_type;
   const PALETTE_MODE_INFO *const pmi = &mbmi->palette_mode_info;
-
-  assert(bsize >= BLOCK_8X8 && bsize <= BLOCK_LARGEST);
   const int block_palette_idx = bsize - BLOCK_8X8;
 
   if (mbmi->mode == DC_PRED) {
