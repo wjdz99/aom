@@ -4678,8 +4678,9 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
   av1_loop_restoration_save_boundary_lines(cm->frame_to_show, cm, 0);
 #endif
 
+  printf("hei %d\n", cpi->oxcf.using_cdef);
 #if CONFIG_CDEF
-  if (is_lossless_requested(&cpi->oxcf)) {
+  if (cpi->oxcf.using_cdef && is_lossless_requested(&cpi->oxcf)) {
     cm->cdef_bits = 0;
     cm->cdef_strengths[0] = 0;
     cm->nb_cdef_strengths = 1;
