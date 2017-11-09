@@ -202,6 +202,9 @@ typedef struct SequenceHeader {
   int frame_id_numbers_present_flag;
   int frame_id_length;
   int delta_frame_id_length;
+#if CONFIG_MONO_VIDEO
+  int monochrome;
+#endif  // CONFIG_MONO_VIDEO
 } SequenceHeader;
 #endif  // CONFIG_REFERENCE_BUFFER
 
@@ -460,6 +463,10 @@ typedef struct AV1Common {
   unsigned int large_scale_tile;
   unsigned int single_tile_decoding;
 #endif  // CONFIG_EXT_TILE
+
+#if CONFIG_MONO_VIDEO
+  int monochrome;
+#endif  // CONFIG_MONO_VIDEO
 
 #if CONFIG_DEPENDENT_HORZTILES
   int dependent_horz_tiles;
