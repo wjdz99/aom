@@ -584,27 +584,26 @@ static void highbd_warp_plane(WarpedMotionParams *wm, const uint8_t *const ref8,
                               int subsampling_x, int subsampling_y, int x_scale,
                               int y_scale, int bd,
                               ConvolveParams *conv_params) {
+  (void)x_scale;
+  (void)y_scale;
+  assert(x_scale == SCALE_SUBPEL_SHIFTS && y_scale == SCALE_SUBPEL_SHIFTS);
   assert(wm->wmtype <= AFFINE);
   if (wm->wmtype == ROTZOOM) {
     wm->wmmat[5] = wm->wmmat[2];
     wm->wmmat[4] = -wm->wmmat[3];
   }
-  if (x_scale == SCALE_SUBPEL_SHIFTS && y_scale == SCALE_SUBPEL_SHIFTS) {
-    const int32_t *const mat = wm->wmmat;
-    const int16_t alpha = wm->alpha;
-    const int16_t beta = wm->beta;
-    const int16_t gamma = wm->gamma;
-    const int16_t delta = wm->delta;
+  const int32_t *const mat = wm->wmmat;
+  const int16_t alpha = wm->alpha;
+  const int16_t beta = wm->beta;
+  const int16_t gamma = wm->gamma;
+  const int16_t delta = wm->delta;
 
-    const uint16_t *const ref = CONVERT_TO_SHORTPTR(ref8);
-    uint16_t *pred = CONVERT_TO_SHORTPTR(pred8);
-    av1_highbd_warp_affine(mat, ref, width, height, stride, pred, p_col, p_row,
-                           p_width, p_height, p_stride, subsampling_x,
-                           subsampling_y, bd, conv_params, alpha, beta, gamma,
-                           delta);
-  } else {
-    assert(0);
-  }
+  const uint16_t *const ref = CONVERT_TO_SHORTPTR(ref8);
+  uint16_t *pred = CONVERT_TO_SHORTPTR(pred8);
+  av1_highbd_warp_affine(mat, ref, width, height, stride, pred, p_col, p_row,
+                         p_width, p_height, p_stride, subsampling_x,
+                         subsampling_y, bd, conv_params, alpha, beta, gamma,
+                         delta);
 }
 
 static int64_t highbd_frame_error(const uint16_t *const ref, int stride,
@@ -915,24 +914,23 @@ static void warp_plane(WarpedMotionParams *wm, const uint8_t *const ref,
                        int p_col, int p_row, int p_width, int p_height,
                        int p_stride, int subsampling_x, int subsampling_y,
                        int x_scale, int y_scale, ConvolveParams *conv_params) {
+  (void)x_scale;
+  (void)y_scale;
+  assert(x_scale == SCALE_SUBPEL_SHIFTS && y_scale == SCALE_SUBPEL_SHIFTS);
   assert(wm->wmtype <= AFFINE);
   if (wm->wmtype == ROTZOOM) {
     wm->wmmat[5] = wm->wmmat[2];
     wm->wmmat[4] = -wm->wmmat[3];
   }
-  if (x_scale == SCALE_SUBPEL_SHIFTS && y_scale == SCALE_SUBPEL_SHIFTS) {
-    const int32_t *const mat = wm->wmmat;
-    const int16_t alpha = wm->alpha;
-    const int16_t beta = wm->beta;
-    const int16_t gamma = wm->gamma;
-    const int16_t delta = wm->delta;
+  const int32_t *const mat = wm->wmmat;
+  const int16_t alpha = wm->alpha;
+  const int16_t beta = wm->beta;
+  const int16_t gamma = wm->gamma;
+  const int16_t delta = wm->delta;
 
-    av1_warp_affine(mat, ref, width, height, stride, pred, p_col, p_row,
-                    p_width, p_height, p_stride, subsampling_x, subsampling_y,
-                    conv_params, alpha, beta, gamma, delta);
-  } else {
-    assert(0);
-  }
+  av1_warp_affine(mat, ref, width, height, stride, pred, p_col, p_row, p_width,
+                  p_height, p_stride, subsampling_x, subsampling_y, conv_params,
+                  alpha, beta, gamma, delta);
 }
 
 static int64_t frame_error(const uint8_t *const ref, int stride,
