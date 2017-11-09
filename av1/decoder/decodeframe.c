@@ -1423,7 +1423,8 @@ static void setup_segmentation_dequant(AV1_COMMON *const cm) {
                             : aom_get_qmlevel(cm->base_qindex, minqm, maxqm);
     for (int j = 0; j < TX_SIZES_ALL; ++j) {
       cm->y_iqmatrix[i][j] = aom_iqmatrix(cm, qmlevel, 0, j);
-      cm->uv_iqmatrix[i][j] = aom_iqmatrix(cm, qmlevel, 1, j);
+      cm->u_iqmatrix[i][j] = aom_iqmatrix(cm, qmlevel, 1, j);
+      cm->v_iqmatrix[i][j] = aom_iqmatrix(cm, qmlevel, 2, j);
     }
 #endif  // CONFIG_AOM_QM
 #if CONFIG_NEW_QUANT
