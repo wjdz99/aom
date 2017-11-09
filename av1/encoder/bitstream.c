@@ -24,9 +24,7 @@
 #include "aom_util/debug_util.h"
 #endif  // CONFIG_BITSTREAM_DEBUG
 
-#if CONFIG_CDEF
 #include "av1/common/cdef.h"
-#endif  // CONFIG_CDEF
 #include "av1/common/entropy.h"
 #include "av1/common/entropymode.h"
 #include "av1/common/entropymv.h"
@@ -2357,7 +2355,6 @@ static void write_modes_sb(AV1_COMP *const cpi, const TileInfo *const tile,
   }
 #endif
 
-#if CONFIG_CDEF
   if (bsize == cm->sb_size && cm->cdef_bits != 0 && !cm->all_lossless) {
     int width_step = mi_size_wide[BLOCK_64X64];
     int height_step = mi_size_high[BLOCK_64X64];
@@ -2378,7 +2375,6 @@ static void write_modes_sb(AV1_COMP *const cpi, const TileInfo *const tile,
       }
     }
   }
-#endif
 #if CONFIG_LOOP_RESTORATION
   for (int plane = 0; plane < MAX_MB_PLANE; ++plane) {
     int rcol0, rcol1, rrow0, rrow1, tile_tl_idx;
@@ -2655,7 +2651,6 @@ static void encode_loopfilter(AV1_COMMON *cm, struct aom_write_bit_buffer *wb) {
   }
 }
 
-#if CONFIG_CDEF
 static void encode_cdef(const AV1_COMMON *cm, struct aom_write_bit_buffer *wb) {
   int i;
 #if CONFIG_CDEF_SINGLEPASS
@@ -2672,7 +2667,6 @@ static void encode_cdef(const AV1_COMMON *cm, struct aom_write_bit_buffer *wb) {
       aom_wb_write_literal(wb, cm->cdef_uv_strengths[i], CDEF_STRENGTH_BITS);
   }
 }
-#endif
 
 static void write_delta_q(struct aom_write_bit_buffer *wb, int delta_q) {
   if (delta_q != 0) {
@@ -3952,11 +3946,9 @@ static void write_uncompressed_header_frame(AV1_COMP *cpi,
       }
     }
   }
-#if CONFIG_CDEF
   if (!cm->all_lossless) {
     encode_cdef(cm, wb);
   }
-#endif
 #if CONFIG_LOOP_RESTORATION
   encode_restoration_mode(cm, wb);
 #endif  // CONFIG_LOOP_RESTORATION
@@ -4305,11 +4297,9 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
       }
     }
   }
-#if CONFIG_CDEF
   if (!cm->all_lossless) {
     encode_cdef(cm, wb);
   }
-#endif
 #if CONFIG_LOOP_RESTORATION
   encode_restoration_mode(cm, wb);
 #endif  // CONFIG_LOOP_RESTORATION
