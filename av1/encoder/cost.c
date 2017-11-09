@@ -70,8 +70,11 @@ void av1_cost_tokens_from_cdf(int *costs, const aom_cdf_prob *cdf,
                               const int *inv_map) {
   int i;
   aom_cdf_prob prev_cdf = 0;
+  const int mask = EC_PROB_SHIFT ? ~((1 << EC_PROB_SHIFT) - 1) : -1;
   for (i = 0;; ++i) {
-    const aom_cdf_prob p15 = AOM_ICDF(cdf[i]) - prev_cdf;
+    aom_cdf_prob p15 = AOM_ICDF(cdf[i]) - prev_cdf;
+    p15 = p15 & mask;
+    p15 = (p15 < (1 << EC_PROB_SHIFT) ? EC_MIN_PROB : p15);
     prev_cdf = AOM_ICDF(cdf[i]);
 
     if (inv_map)
