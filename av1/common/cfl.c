@@ -67,44 +67,13 @@ static INLINE void cfl_pad(CFL_CTX *cfl, int width, int height) {
   }
 }
 
-static void cfl_subtract_averages(CFL_CTX *cfl, TX_SIZE tx_size) {
-  const int width = cfl->uv_width;
-  const int height = cfl->uv_height;
-  const int tx_height = tx_size_high[tx_size];
-  const int tx_width = tx_size_wide[tx_size];
-  const int block_row_stride = MAX_SB_SIZE << tx_size_high_log2[tx_size];
-  const int num_pel_log2 =
-      (tx_size_high_log2[tx_size] + tx_size_wide_log2[tx_size]);
-
-  int16_t *pred_buf_q3 = cfl->pred_buf_q3;
-
-  cfl_pad(cfl, width, height);
-
-  for (int b_j = 0; b_j < height; b_j += tx_height) {
-    for (int b_i = 0; b_i < width; b_i += tx_width) {
-      int sum_q3 = 0;
-      int16_t *tx_pred_buf_q3 = pred_buf_q3;
-      for (int t_j = 0; t_j < tx_height; t_j++) {
-        for (int t_i = b_i; t_i < b_i + tx_width; t_i++) {
-          sum_q3 += tx_pred_buf_q3[t_i];
-        }
-        tx_pred_buf_q3 += MAX_SB_SIZE;
-      }
-      int avg_q3 = (sum_q3 + (1 << (num_pel_log2 - 1))) >> num_pel_log2;
-      // Loss is never more than 1/2 (in Q3)
-      assert(abs((avg_q3 * (1 << num_pel_log2)) - sum_q3) <=
-             1 << num_pel_log2 >> 1);
-
-      tx_pred_buf_q3 = pred_buf_q3;
-      for (int t_j = 0; t_j < tx_height; t_j++) {
-        for (int t_i = b_i; t_i < b_i + tx_width; t_i++) {
-          tx_pred_buf_q3[t_i] -= avg_q3;
-        }
-
-        tx_pred_buf_q3 += MAX_SB_SIZE;
-      }
+static void cfl_subtract_average(int16_t *pred_buf_q3, int16_t avg_q3,
+                                 int width, int height) {
+  for (int j = 0; j < height; j++) {
+    for (int i = 0; i < width; i++) {
+      pred_buf_q3[i] -= avg_q3;
     }
-    pred_buf_q3 += block_row_stride;
+    pred_buf_q3 += MAX_SB_SIZE;
   }
 }
 
@@ -182,7 +151,7 @@ static void cfl_compute_parameters(MACROBLOCKD *const xd, TX_SIZE tx_size) {
   cfl->uv_height =
       max_intra_block_height(xd, plane_bsize, AOM_PLANE_U, tx_size);
 
-  cfl_subtract_averages(cfl, tx_size);
+  // cfl_subtract_averages(cfl, tx_size);
   cfl->are_parameters_computed = 1;
 }
 
@@ -210,60 +179,72 @@ void cfl_predict_block(MACROBLOCKD *const xd, uint8_t *dst, int dst_stride,
                            tx_size_high[tx_size], alpha_q3);
 }
 
-static void cfl_luma_subsampling_420_lbd(const uint8_t *input, int input_stride,
-                                         int16_t *output_q3, int width,
-                                         int height) {
+static int cfl_luma_subsampling_420_lbd(const uint8_t *input, int input_stride,
+                                        int16_t *output_q3, int width,
+                                        int height) {
+  int sum = 0;
   for (int j = 0; j < height; j++) {
     for (int i = 0; i < width; i++) {
       int top = i << 1;
       int bot = top + input_stride;
       output_q3[i] = (input[top] + input[top + 1] + input[bot] + input[bot + 1])
                      << 1;
+      sum += output_q3[i];
     }
     input += input_stride << 1;
     output_q3 += MAX_SB_SIZE;
   }
+  return sum;
 }
 
-static void cfl_luma_subsampling_422_lbd(const uint8_t *input, int input_stride,
-                                         int16_t *output_q3, int width,
-                                         int height) {
+static int cfl_luma_subsampling_422_lbd(const uint8_t *input, int input_stride,
+                                        int16_t *output_q3, int width,
+                                        int height) {
+  int sum = 0;
   for (int j = 0; j < height; j++) {
     for (int i = 0; i < width; i++) {
       int left = i << 1;
       output_q3[i] = (input[left] + input[left + 1]) << 2;
+      sum += output_q3[i];
     }
     input += input_stride;
     output_q3 += MAX_SB_SIZE;
   }
+  return sum;
 }
 
-static void cfl_luma_subsampling_440_lbd(const uint8_t *input, int input_stride,
-                                         int16_t *output_q3, int width,
-                                         int height) {
+static int cfl_luma_subsampling_440_lbd(const uint8_t *input, int input_stride,
+                                        int16_t *output_q3, int width,
+                                        int height) {
+  int sum = 0;
   for (int j = 0; j < height; j++) {
     for (int i = 0; i < width; i++) {
       output_q3[i] = (input[i] + input[i + input_stride]) << 2;
+      sum += output_q3[i];
     }
     input += input_stride << 1;
     output_q3 += MAX_SB_SIZE;
   }
+  return sum;
 }
 
-static void cfl_luma_subsampling_444_lbd(const uint8_t *input, int input_stride,
-                                         int16_t *output_q3, int width,
-                                         int height) {
+static int cfl_luma_subsampling_444_lbd(const uint8_t *input, int input_stride,
+                                        int16_t *output_q3, int width,
+                                        int height) {
+  int sum = 0;
   for (int j = 0; j < height; j++) {
     for (int i = 0; i < width; i++) {
       output_q3[i] = input[i] << 3;
+      sum += output_q3[i];
     }
     input += input_stride;
     output_q3 += MAX_SB_SIZE;
   }
+  return sum;
 }
 
-typedef void (*cfl_subsample_lbd_fn)(const uint8_t *input, int input_stride,
-                                     int16_t *output_q3, int width, int height);
+typedef int (*cfl_subsample_lbd_fn)(const uint8_t *input, int input_stride,
+                                    int16_t *output_q3, int width, int height);
 
 static const cfl_subsample_lbd_fn subsample_lbd[2][2] = {
   //  (sub_y == 0, sub_x == 0)       (sub_y == 0, sub_x == 1)
@@ -273,60 +254,72 @@ static const cfl_subsample_lbd_fn subsample_lbd[2][2] = {
 };
 
 #if CONFIG_HIGHBITDEPTH
-static void cfl_luma_subsampling_420_hbd(const uint16_t *input,
-                                         int input_stride, int16_t *output_q3,
-                                         int width, int height) {
+static int cfl_luma_subsampling_420_hbd(const uint16_t *input, int input_stride,
+                                        int16_t *output_q3, int width,
+                                        int height) {
+  int sum = 0;
   for (int j = 0; j < height; j++) {
     for (int i = 0; i < width; i++) {
       int top = i << 1;
       int bot = top + input_stride;
       output_q3[i] = (input[top] + input[top + 1] + input[bot] + input[bot + 1])
                      << 1;
+      sum += output_q3[i];
     }
     input += input_stride << 1;
     output_q3 += MAX_SB_SIZE;
   }
+  return sum;
 }
 
-static void cfl_luma_subsampling_422_hbd(const uint16_t *input,
-                                         int input_stride, int16_t *output_q3,
-                                         int width, int height) {
+static int cfl_luma_subsampling_422_hbd(const uint16_t *input, int input_stride,
+                                        int16_t *output_q3, int width,
+                                        int height) {
+  int sum = 0;
   for (int j = 0; j < height; j++) {
     for (int i = 0; i < width; i++) {
       int left = i << 1;
       output_q3[i] = (input[left] + input[left + 1]) << 2;
+      sum += output_q3[i];
     }
     input += input_stride;
     output_q3 += MAX_SB_SIZE;
   }
+  return sum;
 }
 
-static void cfl_luma_subsampling_440_hbd(const uint16_t *input,
-                                         int input_stride, int16_t *output_q3,
-                                         int width, int height) {
+static int cfl_luma_subsampling_440_hbd(const uint16_t *input, int input_stride,
+                                        int16_t *output_q3, int width,
+                                        int height) {
+  int sum = 0;
   for (int j = 0; j < height; j++) {
     for (int i = 0; i < width; i++) {
       output_q3[i] = (input[i] + input[i + input_stride]) << 2;
+      sum += output_q3[i];
     }
     input += input_stride << 1;
     output_q3 += MAX_SB_SIZE;
   }
+  return sum;
 }
 
-static void cfl_luma_subsampling_444_hbd(const uint16_t *input,
-                                         int input_stride, int16_t *output_q3,
-                                         int width, int height) {
+static int cfl_luma_subsampling_444_hbd(const uint16_t *input, int input_stride,
+                                        int16_t *output_q3, int width,
+                                        int height) {
+  int sum = 0;
   for (int j = 0; j < height; j++) {
     for (int i = 0; i < width; i++) {
       output_q3[i] = input[i] << 3;
+      sum += output_q3[i];
     }
     input += input_stride;
     output_q3 += MAX_SB_SIZE;
   }
+  return sum;
 }
 
-typedef void (*cfl_subsample_hbd_fn)(const uint16_t *input, int input_stride,
-                                     int16_t *output_q3, int width, int height);
+typedef int (*cfl_subsample_hbd_fn)(const uint16_t *input, int input_stride,
+                                    int16_t *output_q3, int width, int height);
 
 static const cfl_subsample_hbd_fn subsample_hbd[2][2] = {
   //  (sub_y == 0, sub_x == 0)       (sub_y == 0, sub_x == 1)
@@ -368,21 +361,24 @@ static void cfl_store(CFL_CTX *cfl, const uint8_t *input, int input_stride,
   int16_t *pred_buf_q3 =
       cfl->pred_buf_q3 + (store_row * MAX_SB_SIZE + store_col);
 
-#if CONFIG_HIGHBITDEPTH
+  int sum = 0;
   if (use_hbd) {
+#if CONFIG_HIGHBITDEPTH
     const uint16_t *input_16 = CONVERT_TO_SHORTPTR(input);
     // AND sub_x and sub_y with 1 to ensures that an attacker won't be able to
     // index the function pointer array out of bounds.
-    subsample_hbd[sub_y & 1][sub_x & 1](input_16, input_stride, pred_buf_q3,
-                                        store_width, store_height);
-    return;
-  }
+    sum = subsample_hbd[sub_y & 1][sub_x & 1](
+        input_16, input_stride, pred_buf_q3, store_width, store_height);
 #endif  // CONFIG_HIGHBITDEPTH
-  (void)use_hbd;
-  // AND sub_x and sub_y with 1 to ensures that an attacker won't be able to
-  // index the function pointer array out of bounds.
-  subsample_lbd[sub_y & 1][sub_x & 1](input, input_stride, pred_buf_q3,
-                                      store_width, store_height);
+  } else {
+    // AND sub_x and sub_y with 1 to ensures that an attacker won't be able to
+    // index the function pointer array out of bounds.
+    sum = subsample_lbd[sub_y & 1][sub_x & 1](input, input_stride, pred_buf_q3,
+                                              store_width, store_height);
+  }
+  // TODO(ltrudeau) Remove division
+  cfl_subtract_average(pred_buf_q3, sum / (store_width * store_height),
+                       store_width, store_height);
 }
 
 // Adjust the row and column of blocks smaller than 8X8, as chroma-referenced
