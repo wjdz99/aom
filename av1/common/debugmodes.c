@@ -90,3 +90,15 @@ void av1_print_modes_and_motion_vectors(AV1_COMMON *cm, const char *file) {
 
   fclose(mvs);
 }
+
+void av1_write_frame_contexts(const FRAME_CONTEXT *fc, const char *filename) {
+  FILE * fcFile;
+  fcFile = fopen (filename, "a");
+  uint16_t *fcp = (uint16_t *)fc;
+  const unsigned int n_contexts = sizeof(FRAME_CONTEXT) / sizeof(uint16_t);
+  unsigned int i;
+
+  for (i = 0; i < n_contexts; ++i)
+    fprintf(fcFile, "%d ",  *fcp++);
+  fclose (fcFile);
+}
