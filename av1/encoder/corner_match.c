@@ -14,12 +14,16 @@
 #include <math.h>
 
 #include "./av1_rtcd.h"
+#include "./aom_dsp_rtcd.h"
+
+#include "aom_dsp/aom_dsp_common.h"
 #include "av1/encoder/corner_match.h"
 
 #define SEARCH_SZ 9
 #define SEARCH_SZ_BY2 ((SEARCH_SZ - 1) / 2)
 
 #define THRESHOLD_NCC 0.75
+#define THRESHOLD_SAD (20.0 * MATCH_SZ_SQ)
 
 /* Compute var(im) * MATCH_SZ_SQ over a MATCH_SZ by MATCH_SZ window of im,
    centered at (x, y).
@@ -67,6 +71,15 @@ double compute_cross_correlation_c(unsigned char *im1, int stride1, int x1,
   return cov / sqrt((double)var2);
 }
 
+unsigned int compute_sad(unsigned char *im1, int stride1, int x1,
+                         int y1, unsigned char *im2, int stride2,
+                         int x2, int y2) {
+  unsigned char *im1_loc = im1 + 1;//(x1 - 8 + stride1 * (y1 - 8));
+  unsigned char *im2_loc = im2 + 1;//(x2 - 8 + stride2 * (y2 - 8));
+  return aom_sad16x16(im1_loc, stride1, im2_loc, stride2);
+  //return aom_sad16x16(im1, stride1, im2, stride2);
+}
+
 static int is_eligible_point(int pointx, int pointy, int width, int height) {
   return (pointx >= MATCH_SZ_BY2 && pointy >= MATCH_SZ_BY2 &&
           pointx + MATCH_SZ_BY2 < width && pointy + MATCH_SZ_BY2 < height);
@@ -98,9 +111,15 @@ static void improve_correspondence(unsigned char *frm, unsigned char *ref,
                                   correspondences[i].rx + x,
                                   correspondences[i].ry + y, width, height))
           continue;
-        match_ncc = compute_cross_correlation(
-            frm, frm_stride, correspondences[i].x, correspondences[i].y, ref,
-            ref_stride, correspondences[i].rx + x, correspondences[i].ry + y);
+        if (USE_NCC) {
+          match_ncc = compute_cross_correlation(
+              frm, frm_stride, correspondences[i].x, correspondences[i].y, ref,
+              ref_stride, correspondences[i].rx + x, correspondences[i].ry + y);
+        } else {
+          match_ncc = compute_sad(
+              frm, frm_stride, correspondences[i].x, correspondences[i].y, ref,
+              ref_stride, correspondences[i].rx + x, correspondences[i].ry + y);
+        }
         if (match_ncc > best_match_ncc) {
           best_match_ncc = match_ncc;
           best_y = y;
@@ -124,9 +143,19 @@ static void improve_correspondence(unsigned char *frm, unsigned char *ref,
                 correspondences[i].x + x, correspondences[i].y + y,
                 correspondences[i].rx, correspondences[i].ry, width, height))
           continue;
-        match_ncc = compute_cross_correlation(
-            ref, ref_stride, correspondences[i].rx, correspondences[i].ry, frm,
-            frm_stride, correspondences[i].x + x, correspondences[i].y + y);
+        if (USE_NCC) {
+          match_ncc = compute_cross_correlation(
+              ref, ref_stride,
+              correspondences[i].rx, correspondences[i].ry,
+              frm, frm_stride,
+              correspondences[i].x + x, correspondences[i].y + y);
+        } else {
+          match_ncc = compute_sad(
+              ref, ref_stride,
+              correspondences[i].rx, correspondences[i].ry, frm,
+              frm_stride,
+              correspondences[i].x + x, correspondences[i].y + y);
+        }
         if (match_ncc > best_match_ncc) {
           best_match_ncc = match_ncc;
           best_y = y;
@@ -149,7 +178,6 @@ int determine_correspondence(unsigned char *frm, int *frm_corners,
   int num_correspondences = 0;
   for (i = 0; i < num_frm_corners; ++i) {
     double best_match_ncc = 0.0;
-    double template_norm;
     int best_match_j = -1;
     if (!is_eligible_point(frm_corners[2 * i], frm_corners[2 * i + 1], width,
                            height))
@@ -163,19 +191,29 @@ int determine_correspondence(unsigned char *frm, int *frm_corners,
                                 ref_corners[2 * j], ref_corners[2 * j + 1],
                                 width, height))
         continue;
-      match_ncc = compute_cross_correlation(
-          frm, frm_stride, frm_corners[2 * i], frm_corners[2 * i + 1], ref,
-          ref_stride, ref_corners[2 * j], ref_corners[2 * j + 1]);
+      if (USE_NCC) {
+        match_ncc = compute_cross_correlation(
+            frm, frm_stride, frm_corners[2 * i], frm_corners[2 * i + 1], ref,
+            ref_stride, ref_corners[2 * j], ref_corners[2 * j + 1]);
+      } else {
+        match_ncc = compute_sad(
+            frm, frm_stride, frm_corners[2 * i], frm_corners[2 * i + 1], ref,
+            ref_stride, ref_corners[2 * j], ref_corners[2 * j + 1]);
+      }
       if (match_ncc > best_match_ncc) {
         best_match_ncc = match_ncc;
         best_match_j = j;
       }
     }
+#if USE_NCC
     // Note: We want to test if the best correlation is >= THRESHOLD_NCC,
     // but need to account for the normalization in compute_cross_correlation.
-    template_norm = compute_variance(frm, frm_stride, frm_corners[2 * i],
-                                     frm_corners[2 * i + 1]);
+    double template_norm = compute_variance(frm, frm_stride, frm_corners[2 * i],
+                                            frm_corners[2 * i + 1]);
     if (best_match_ncc > THRESHOLD_NCC * sqrt(template_norm)) {
+#else
+    if (best_match_ncc > THRESHOLD_SAD) {
+#endif  // USE_NCC
       correspondences[num_correspondences].x = frm_corners[2 * i];
       correspondences[num_correspondences].y = frm_corners[2 * i + 1];
       correspondences[num_correspondences].rx = ref_corners[2 * best_match_j];
