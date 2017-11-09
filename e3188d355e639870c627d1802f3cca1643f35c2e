@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d76f292f_34ab74ba",
+        "filename": "av1/common/entropymode.c",
+        "patchSetId": 38
+      },
+      "lineNbr": 2075,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-11-09T00:46:39Z",
+      "side": 1,
+      "message": "Thomas landed https://aomedia-review.googlesource.com/31682 so you\u0027ll need to rebase these tables on top of that to use the new macros.",
+      "revId": "e3188d355e639870c627d1802f3cca1643f35c2e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6c974c88_0d6723be",
+        "filename": "av1/common/entropymode.c",
+        "patchSetId": 38
+      },
+      "lineNbr": 5872,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-11-09T00:46:39Z",
+      "side": 1,
+      "message": "I\u0027ll raise this issue a third time: https://aomedia-review.googlesource.com/#/c/aom/+/25381/12/av1/common/entropymode.c@5077",
+      "revId": "e3188d355e639870c627d1802f3cca1643f35c2e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "34bebb1e_8677a746",
+        "filename": "av1/common/onyxc_int.h",
+        "patchSetId": 38
+      },
+      "lineNbr": 364,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-11-09T00:46:39Z",
+      "side": 1,
+      "message": "If this is encoder-specific, it goes in AV1_COMP somewhere, right? Not in AV1_COMMON.\n\nI\u0027m not 100% sure what this is used for, or how it differs from q_seg_map. I see code to read from it in encodeframe.c, along with an assertion that it\u0027s allocated in bitstream.c, but nothing that ever allocates it or writes to it.",
+      "revId": "e3188d355e639870c627d1802f3cca1643f35c2e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "10bae2b5_1f988694",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 38
+      },
+      "lineNbr": 387,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-11-09T00:46:39Z",
+      "side": 1,
+      "message": "In the skip case, do you want to set this to 0, or to the predictor?",
+      "revId": "e3188d355e639870c627d1802f3cca1643f35c2e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6d0e4b2e_a42bd556",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 38
+      },
+      "lineNbr": 781,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-11-09T00:46:39Z",
+      "side": 1,
+      "message": "Same question as the decoder.",
+      "revId": "e3188d355e639870c627d1802f3cca1643f35c2e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
