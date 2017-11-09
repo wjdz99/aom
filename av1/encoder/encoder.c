@@ -4617,6 +4617,9 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
   int no_restoration = 0;
 #endif
   if (is_lossless_requested(&cpi->oxcf)
+#if CONFIG_CDEF
+      || !cpi->oxcf.using_cdef
+#endif
 #if CONFIG_EXT_TILE
       || cm->single_tile_decoding
 #endif
