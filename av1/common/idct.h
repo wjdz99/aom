@@ -39,6 +39,14 @@ int get_lgt8(const TxfmParam *txfm_param, int is_col,
              const tran_high_t **lgtmtx);
 #endif  // CONFIG_LGT
 
+#if CONFIG_TX64X64
+// Possible values:
+// 0: non-zero map is top left 32x32
+// 1: non-zero map is top left 32x16
+// 2: non-zero map is top left 16x16
+#define TX64X64_NZ_MAP_TYPE 0
+#endif  // CONFIG_TX64X64
+
 #if CONFIG_HIGHBITDEPTH
 typedef void (*highbd_transform_1d)(const tran_low_t *, tran_low_t *, int bd);
 

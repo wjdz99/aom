@@ -2695,12 +2695,28 @@ void av1_fht64x64_c(const int16_t *input, tran_low_t *output, int stride,
 #endif
   }
 
+#if TX64X64_NZ_MAP_TYPE == 0
   // Zero out top-right 32x32 area.
   for (int row = 0; row < 32; ++row) {
     memset(output + row * 64 + 32, 0, 32 * sizeof(*output));
   }
   // Zero out the bottom 64x32 area.
   memset(output + 32 * 64, 0, 32 * 64 * sizeof(*output));
+#elif TX64X64_NZ_MAP_TYPE == 1
+  // Zero out top-right 32x16 area.
+  for (int row = 0; row < 16; ++row) {
+    memset(output + row * 64 + 32, 0, 32 * sizeof(*output));
+  }
+  // Zero out the bottom 64x48 area.
+  memset(output + 16 * 64, 0, 48 * 64 * sizeof(*output));
+#elif TX64X64_NZ_MAP_TYPE == 2
+  // Zero out top-right 48x16 area.
+  for (int row = 0; row < 16; ++row) {
+    memset(output + row * 64 + 16, 0, 48 * sizeof(*output));
+  }
+  // Zero out the bottom 64x48 area.
+  memset(output + 16 * 64, 0, 48 * 64 * sizeof(*output));
+#endif  //  TX64X64_NZ_MAP_TYPE == 0
 }
 
 void av1_fht64x32_c(const int16_t *input, tran_low_t *output, int stride,
@@ -2757,10 +2773,19 @@ void av1_fht64x32_c(const int16_t *input, tran_low_t *output, int stride,
           (tran_low_t)ROUND_POWER_OF_TWO_SIGNED(temp_out[j], 2);
   }
 
+#if TX64X64_NZ_MAP_TYPE == 0 || TX64X64_NZ_MAP_TYPE == 1
   // Zero out right 32x32 area.
   for (int row = 0; row < n; ++row) {
     memset(output + row * n2 + n, 0, n * sizeof(*output));
   }
+#elif TX64X64_NZ_MAP_TYPE == 2
+  // Zero out top-right 48x16 area.
+  for (int row = 0; row < n / 2; ++row) {
+    memset(output + row * n2 + n / 2, 0, (n2 - n / 2) * sizeof(*output));
+  }
+  // Zero out the bottom 64x16 area.
+  memset(output + n2 *  n / 2, 0, n2 *  n / 2 * sizeof(*output));
+#endif  // TX64X64_NZ_MAP_TYPE == 0 || TX64X64_NZ_MAP_TYPE == 1
 }
 
 void av1_fht32x64_c(const int16_t *input, tran_low_t *output, int stride,
@@ -2816,8 +2841,17 @@ void av1_fht32x64_c(const int16_t *input, tran_low_t *output, int stride,
       output[i + j * n] = (tran_low_t)ROUND_POWER_OF_TWO_SIGNED(temp_out[j], 2);
   }
 
+#if TX64X64_NZ_MAP_TYPE == 0 || TX64X64_NZ_MAP_TYPE == 1
   // Zero out the bottom 32x32 area.
   memset(output + n * n, 0, n * n * sizeof(*output));
+#elif TX64X64_NZ_MAP_TYPE == 2
+  // Zero out top-right 16x16 area.
+  for (int row = 0; row <  n / 2; ++row) {
+    memset(output + row * n + n / 2, 0, n / 2 * sizeof(*output));
+  }
+  // Zero out the bottom 32x48 area.
+  memset(output + n * n / 2, 0, n * (n2 - n / 2) * sizeof(*output));
+#endif  // TX64X64_NZ_MAP_TYPE == 0
 }
 #endif  // CONFIG_TX64X64
 
