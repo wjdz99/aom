@@ -50,7 +50,10 @@ typedef struct {
       y_cuml_bins_nuq[QUANT_PROFILES][QINDEX_RANGE][COEF_BANDS][NUQ_KNOTS]);
   DECLARE_ALIGNED(
       16, tran_low_t,
-      uv_cuml_bins_nuq[QUANT_PROFILES][QINDEX_RANGE][COEF_BANDS][NUQ_KNOTS]);
+      u_cuml_bins_nuq[QUANT_PROFILES][QINDEX_RANGE][COEF_BANDS][NUQ_KNOTS]);
+  DECLARE_ALIGNED(
+      16, tran_low_t,
+      v_cuml_bins_nuq[QUANT_PROFILES][QINDEX_RANGE][COEF_BANDS][NUQ_KNOTS]);
 #endif  // CONFIG_NEW_QUANT
   // 0: dc 1: ac 2-8: ac repeated to SIMD width
   DECLARE_ALIGNED(16, int16_t, y_quant[QINDEX_RANGE][8]);
@@ -97,7 +100,10 @@ typedef struct {
       y_dequant_val_nuq_QTX[QUANT_PROFILES][QINDEX_RANGE][COEF_BANDS]);
   DECLARE_ALIGNED(
       16, dequant_val_type_nuq,
-      uv_dequant_val_nuq_QTX[QUANT_PROFILES][QINDEX_RANGE][COEF_BANDS]);
+      u_dequant_val_nuq_QTX[QUANT_PROFILES][QINDEX_RANGE][COEF_BANDS]);
+  DECLARE_ALIGNED(
+      16, dequant_val_type_nuq,
+      v_dequant_val_nuq_QTX[QUANT_PROFILES][QINDEX_RANGE][COEF_BANDS]);
 #endif  // CONFIG_NEW_QUANT
 } Dequants;
 
