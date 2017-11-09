@@ -1475,11 +1475,13 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
 
 #if CONFIG_EXT_SKIP
   if (mbmi->skip_mode) {
+#if 0
 #if CONFIG_NEW_MULTISYMBOL
     update_intra_inter_cdf(cm, xd, segment_id, 1);
     update_ref_frame_cdfs_for_skip_mode(cm, xd);
 #endif  // CONFIG_NEW_MULTISYMBOL
     update_inter_compound_mode_cdf(cpi);
+#endif  // 0
     return;
   }
 #endif  // CONFIG_EXT_SKIP
@@ -1899,7 +1901,7 @@ static void enc_dump_logs(AV1_COMP *cpi, int mi_row, int mi_col) {
   xd->mi = cm->mi_grid_visible + (mi_row * cm->mi_stride + mi_col);
   m = xd->mi[0];
   if (is_inter_block(&m->mbmi)) {
-#define FRAME_TO_CHECK 8
+#define FRAME_TO_CHECK 7
     if (cm->current_video_frame == FRAME_TO_CHECK && cm->show_frame == 1) {
       const MB_MODE_INFO *const mbmi = &m->mbmi;
       const BLOCK_SIZE bsize = mbmi->sb_type;

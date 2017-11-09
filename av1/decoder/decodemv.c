@@ -317,9 +317,11 @@ static PREDICTION_MODE read_inter_compound_mode(AV1_COMMON *cm, MACROBLOCKD *xd,
           ? (NEAREST_NEARESTMV - NEAREST_NEARESTMV)
           : aom_read_symbol(r, ec_ctx->inter_compound_mode_cdf[ctx],
                             INTER_COMPOUND_MODES, ACCT_STR);
+#if 0   // NOTE(zoeliu): For debug
   if (xd->mi[0]->mbmi.skip_mode && r->allow_update_cdf)
     update_cdf(ec_ctx->inter_compound_mode_cdf[ctx], mode,
                INTER_COMPOUND_MODES);
+#endif  // 0
 #else
   const int mode =
       aom_read_symbol(r, xd->tile_ctx->inter_compound_mode_cdf[ctx],
@@ -1381,6 +1383,8 @@ static void set_ref_frames_for_skip_mode(AV1_COMMON *const cm,
   ref_frame[0] = LAST_FRAME + cm->ref_frame_idx_0;
   ref_frame[1] = LAST_FRAME + cm->ref_frame_idx_1;
 
+#if 0  // NOTE(zoeliu): For debug
+
   const REFERENCE_MODE mode = COMPOUND_REFERENCE;
   update_block_reference_mode(cm, xd, mode, allow_update_cdf);
 
@@ -1417,6 +1421,7 @@ static void set_ref_frames_for_skip_mode(AV1_COMMON *const cm,
   if (!bit_bwd) {
     UPDATE_REF_BIT(ref_frame[1] == ALTREF2_FRAME, comp_bwdref_p1, bwdref, 1)
   }
+#endif  // 0
 }
 #endif  // CONFIG_EXT_SKIP
 
@@ -2025,7 +2030,7 @@ static void dec_dump_logs(AV1_COMMON *cm, MODE_INFO *const mi, int mi_row,
     }
   }
 
-#define FRAME_TO_CHECK 8
+#define FRAME_TO_CHECK 7
 #if CONFIG_EXT_SKIP
   if (cm->current_video_frame == FRAME_TO_CHECK && cm->show_frame == 1) {
     printf(
@@ -2582,9 +2587,11 @@ static void read_inter_frame_mode_info(AV1Decoder *const pbi,
   }
 
 #if CONFIG_EXT_SKIP
-  if (mbmi->skip_mode)
+  if (mbmi->skip_mode) inter_block = inter_block;
+#if 0   // NOTE(zoeliu): For debug
     update_block_intra_inter(cm, xd, mbmi->segment_id, inter_block,
                              r->allow_update_cdf);
+#endif  // 0
   else
 #endif  // CONFIG_EXT_SKIP
     inter_block = read_is_inter_block(cm, xd, mbmi->segment_id, r);
