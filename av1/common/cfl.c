@@ -604,19 +604,19 @@ void cfl_store_block(MACROBLOCKD *const xd, BLOCK_SIZE bsize, TX_SIZE tx_size) {
   int row = 0;
   int col = 0;
   bsize = AOMMAX(BLOCK_4X4, bsize);
+  const int width = max_intra_block_width(xd, bsize, AOM_PLANE_Y, tx_size);
+  const int height = max_intra_block_height(xd, bsize, AOM_PLANE_Y, tx_size);
   if (block_size_high[bsize] == 4 || block_size_wide[bsize] == 4) {
     sub8x8_adjust_offset(cfl, &row, &col);
 #if CONFIG_DEBUG
-    // Point to the last transform block inside the partition.
-    const int off_row =
-        row + (mi_size_high[bsize] - tx_size_high_unit[tx_size]);
-    const int off_col =
-        col + (mi_size_wide[bsize] - tx_size_wide_unit[tx_size]);
-    sub8x8_set_val(cfl, off_row, off_col, tx_size);
+    for (int i = 0; i < height; i += tx_size_high[tx_size])
+      for (int j = 0; j < width; j += tx_size_wide[tx_size]) {
+        const int tx_row = row + (i >> tx_size_high_log2[0]);
+        const int tx_col = col + (j >> tx_size_high_log2[0]);
+        sub8x8_set_val(cfl, tx_row, tx_col, tx_size);
+      }
 #endif  // CONFIG_DEBUG
   }
-  const int width = max_intra_block_width(xd, bsize, AOM_PLANE_Y, tx_size);
-  const int height = max_intra_block_height(xd, bsize, AOM_PLANE_Y, tx_size);
   cfl_store(cfl, pd->dst.buf, pd->dst.stride, row, col, width, height,
             get_bitdepth_data_path_index(xd));
 }
