@@ -329,8 +329,10 @@ typedef struct AV1Common {
 #if CONFIG_NEW_QUANT
   dequant_val_type_nuq y_dequant_nuq_QTX[MAX_SEGMENTS][QUANT_PROFILES]
                                         [COEF_BANDS];
-  dequant_val_type_nuq uv_dequant_nuq_QTX[MAX_SEGMENTS][QUANT_PROFILES]
-                                         [COEF_BANDS];
+  dequant_val_type_nuq u_dequant_nuq_QTX[MAX_SEGMENTS][QUANT_PROFILES]
+                                        [COEF_BANDS];
+  dequant_val_type_nuq v_dequant_nuq_QTX[MAX_SEGMENTS][QUANT_PROFILES]
+                                        [COEF_BANDS];
 #endif
 
   /* We allocate a MODE_INFO struct for each macroblock, together with
@@ -704,8 +706,8 @@ static INLINE void av1_init_macroblockd(AV1_COMMON *cm, MACROBLOCKD *xd,
              sizeof(cm->uv_iqmatrix));
 #endif
 #if CONFIG_NEW_QUANT
-      memcpy(xd->plane[i].seg_dequant_nuq_QTX, cm->uv_dequant_nuq_QTX,
-             sizeof(cm->uv_dequant_nuq_QTX));
+      memcpy(xd->plane[i].seg_dequant_nuq_QTX, cm->u_dequant_nuq_QTX,
+             sizeof(cm->u_dequant_nuq_QTX));
 #endif
     } else {
       memcpy(xd->plane[i].seg_dequant_QTX, cm->v_dequant_QTX, sizeof(cm->v_dequant_QTX));
@@ -714,8 +716,8 @@ static INLINE void av1_init_macroblockd(AV1_COMMON *cm, MACROBLOCKD *xd,
              sizeof(cm->uv_iqmatrix));
 #endif
 #if CONFIG_NEW_QUANT
-      memcpy(xd->plane[i].seg_dequant_nuq_QTX, cm->uv_dequant_nuq_QTX,
-             sizeof(cm->uv_dequant_nuq_QTX));
+      memcpy(xd->plane[i].seg_dequant_nuq_QTX, cm->v_dequant_nuq_QTX,
+             sizeof(cm->v_dequant_nuq_QTX));
 #endif
     }
   }

@@ -1592,13 +1592,17 @@ void av1_build_quantizer(aom_bit_depth_t bit_depth, int y_dc_delta_q,
     for (dq = 0; dq < QUANT_PROFILES; dq++) {
       for (i = 0; i < COEF_BANDS; i++) {
         const int y_quant = deq->y_dequant_QTX[q][i != 0];
-        const int uvquant = deq->uv_dequant_QTX[q][i != 0];
+        const int u_quant = deq->u_dequant_QTX[q][i != 0];
+        const int v_quant = deq->v_dequant_QTX[q][i != 0];
         av1_get_dequant_val_nuq(y_quant, i,
                                 deq->y_dequant_val_nuq_QTX[dq][q][i],
                                 quants->y_cuml_bins_nuq[dq][q][i], dq);
-        av1_get_dequant_val_nuq(uvquant, i,
-                                deq->uv_dequant_val_nuq_QTX[dq][q][i],
-                                quants->uv_cuml_bins_nuq[dq][q][i], dq);
+        av1_get_dequant_val_nuq(u_quant, i,
+                                deq->u_dequant_val_nuq_QTX[dq][q][i],
+                                quants->u_cuml_bins_nuq[dq][q][i], dq);
+        av1_get_dequant_val_nuq(v_quant, i,
+                                deq->v_dequant_val_nuq_QTX[dq][q][i],
+                                quants->v_cuml_bins_nuq[dq][q][i], dq);
       }
     }
 #endif  // CONFIG_NEW_QUANT
@@ -1716,9 +1720,9 @@ void av1_init_plane_quantizers(const AV1_COMP *cpi, MACROBLOCK *x,
     xd->plane[1].dequant_Q3 = cpi->dequants.u_dequant_Q3[qindex];
 #if CONFIG_NEW_QUANT
     for (dq = 0; dq < QUANT_PROFILES; dq++) {
-      x->plane[1].cuml_bins_nuq[dq] = quants->uv_cuml_bins_nuq[dq][qindex];
+      x->plane[1].cuml_bins_nuq[dq] = quants->u_cuml_bins_nuq[dq][qindex];
       x->plane[1].dequant_val_nuq_QTX[dq] =
-          cpi->dequants.uv_dequant_val_nuq_QTX[dq][qindex];
+          cpi->dequants.u_dequant_val_nuq_QTX[dq][qindex];
     }
 #endif  // CONFIG_NEW_QUANT
   }
@@ -1741,9 +1745,9 @@ void av1_init_plane_quantizers(const AV1_COMP *cpi, MACROBLOCK *x,
     xd->plane[2].dequant_Q3 = cpi->dequants.v_dequant_Q3[qindex];
 #if CONFIG_NEW_QUANT
     for (dq = 0; dq < QUANT_PROFILES; dq++) {
-      x->plane[2].cuml_bins_nuq[dq] = quants->uv_cuml_bins_nuq[dq][qindex];
+      x->plane[2].cuml_bins_nuq[dq] = quants->v_cuml_bins_nuq[dq][qindex];
       x->plane[2].dequant_val_nuq_QTX[dq] =
-          cpi->dequants.uv_dequant_val_nuq_QTX[dq][qindex];
+          cpi->dequants.v_dequant_val_nuq_QTX[dq][qindex];
     }
 #endif  // CONFIG_NEW_QUANT
   }
