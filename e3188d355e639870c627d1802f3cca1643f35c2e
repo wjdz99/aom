@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "a2aa5a02_e5350b65",
+        "filename": "av1/common/entropymode.c",
+        "patchSetId": 38
+      },
+      "lineNbr": 2075,
+      "author": {
+        "id": 6510
+      },
+      "writtenOn": "2017-11-09T01:54:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d76f292f_34ab74ba",
+      "revId": "e3188d355e639870c627d1802f3cca1643f35c2e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6c974c88_0d6723be",
         "filename": "av1/common/entropymode.c",
         "patchSetId": 38
@@ -30,6 +48,24 @@
       "writtenOn": "2017-11-09T00:46:39Z",
       "side": 1,
       "message": "I\u0027ll raise this issue a third time: https://aomedia-review.googlesource.com/#/c/aom/+/25381/12/av1/common/entropymode.c@5077",
+      "revId": "e3188d355e639870c627d1802f3cca1643f35c2e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cd07d689_37324d5d",
+        "filename": "av1/common/entropymode.c",
+        "patchSetId": 38
+      },
+      "lineNbr": 5872,
+      "author": {
+        "id": 6510
+      },
+      "writtenOn": "2017-11-09T01:54:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6c974c88_0d6723be",
       "revId": "e3188d355e639870c627d1802f3cca1643f35c2e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "6c9a4700_f9fd52b8",
+        "filename": "av1/common/onyxc_int.h",
+        "patchSetId": 38
+      },
+      "lineNbr": 364,
+      "author": {
+        "id": 6510
+      },
+      "writtenOn": "2017-11-09T01:54:21Z",
+      "side": 1,
+      "message": "Moved q_seg_encoding_map to AV1_COMP.\n\nq_seg_map keeps the same data in both the encoder and decoder and in case a block is skipped its changed here such that they don\u0027t lose sync.\n\nq_seg_encoding_map is what AQs allocate and where they write the segmentation indices up-front. Those indices are then copied to each block\u0027s mbmi-\u003eq_segment_id field, same as how current segmentation works.",
+      "parentUuid": "34bebb1e_8677a746",
+      "revId": "e3188d355e639870c627d1802f3cca1643f35c2e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "10bae2b5_1f988694",
         "filename": "av1/decoder/decodemv.c",
         "patchSetId": 38
@@ -70,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "8d2ba915_11f5fdb8",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 38
+      },
+      "lineNbr": 387,
+      "author": {
+        "id": 6510
+      },
+      "writtenOn": "2017-11-09T01:54:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "10bae2b5_1f988694",
+      "revId": "e3188d355e639870c627d1802f3cca1643f35c2e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6d0e4b2e_a42bd556",
         "filename": "av1/encoder/bitstream.c",
         "patchSetId": 38
@@ -81,6 +153,24 @@
       "writtenOn": "2017-11-09T00:46:39Z",
       "side": 1,
       "message": "Same question as the decoder.",
+      "revId": "e3188d355e639870c627d1802f3cca1643f35c2e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "31043f6f_18bd7440",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 38
+      },
+      "lineNbr": 781,
+      "author": {
+        "id": 6510
+      },
+      "writtenOn": "2017-11-09T01:54:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6d0e4b2e_a42bd556",
       "revId": "e3188d355e639870c627d1802f3cca1643f35c2e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
