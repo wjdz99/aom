@@ -15,7 +15,12 @@
 #include <stdlib.h>
 #include <memory.h>
 
+#define USE_NCC 0
+#if USE_NCC
 #define MATCH_SZ 13
+#else
+#define MATCH_SZ 16
+#endif  // USE_NCC
 #define MATCH_SZ_BY2 ((MATCH_SZ - 1) / 2)
 #define MATCH_SZ_SQ (MATCH_SZ * MATCH_SZ)
 
