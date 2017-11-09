@@ -10,6 +10,7 @@
  */
 #include <assert.h>
 
+//#include "aom_dsp/entcode.h"
 #include "av1/encoder/cost.h"
 #include "av1/common/entropy.h"
 
@@ -71,7 +72,7 @@ void av1_cost_tokens_from_cdf(int *costs, const aom_cdf_prob *cdf,
   int i;
   aom_cdf_prob prev_cdf = 0;
   for (i = 0;; ++i) {
-    const aom_cdf_prob p15 = AOM_ICDF(cdf[i]) - prev_cdf;
+    aom_cdf_prob p15 = AOM_ICDF(cdf[i]) - prev_cdf;
     prev_cdf = AOM_ICDF(cdf[i]);
 
     if (inv_map)
