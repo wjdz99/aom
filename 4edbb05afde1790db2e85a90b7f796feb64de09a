@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "8d723f05_3e6f5ffb",
+        "filename": "av1/encoder/daala_fwd_txfm.c",
+        "patchSetId": 21
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5540
+      },
+      "writtenOn": "2017-11-09T00:17:37Z",
+      "side": 1,
+      "message": "fair enough.",
+      "parentUuid": "a030713c_87fbdfbc",
+      "revId": "4edbb05afde1790db2e85a90b7f796feb64de09a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2982534b_3d78a7f1",
         "filename": "av1/encoder/daala_fwd_txfm.c",
         "patchSetId": 21
@@ -30,6 +48,24 @@
       "writtenOn": "2017-11-08T01:59:44Z",
       "side": 1,
       "message": "s/3/4/, right?",
+      "revId": "4edbb05afde1790db2e85a90b7f796feb64de09a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "eeae0c06_8c1fb7b7",
+        "filename": "av1/encoder/daala_fwd_txfm.c",
+        "patchSetId": 21
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 5540
+      },
+      "writtenOn": "2017-11-09T00:17:37Z",
+      "side": 1,
+      "message": "correct.",
+      "parentUuid": "2982534b_3d78a7f1",
       "revId": "4edbb05afde1790db2e85a90b7f796feb64de09a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
