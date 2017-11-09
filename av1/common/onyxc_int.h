@@ -298,10 +298,13 @@ typedef struct AV1Common {
 
   int base_qindex;
   int y_dc_delta_q;
-  int uv_dc_delta_q;
-  int uv_ac_delta_q;
+  int u_dc_delta_q;
+  int v_dc_delta_q;
+  int u_ac_delta_q;
+  int v_ac_delta_q;
   int16_t y_dequant[MAX_SEGMENTS][2];
-  int16_t uv_dequant[MAX_SEGMENTS][2];
+  int16_t u_dequant[MAX_SEGMENTS][2];
+  int16_t v_dequant[MAX_SEGMENTS][2];
 
 #if CONFIG_AOM_QM
   // Global quant matrix tables
@@ -311,6 +314,7 @@ typedef struct AV1Common {
   // Local quant matrix tables for each frame
   qm_val_t *y_iqmatrix[MAX_SEGMENTS][TX_SIZES_ALL];
   qm_val_t *uv_iqmatrix[MAX_SEGMENTS][TX_SIZES_ALL];
+
   // Encoder
   qm_val_t *y_qmatrix[MAX_SEGMENTS][TX_SIZES_ALL];
   qm_val_t *uv_qmatrix[MAX_SEGMENTS][TX_SIZES_ALL];
@@ -687,8 +691,18 @@ static INLINE void av1_init_macroblockd(AV1_COMMON *cm, MACROBLOCKD *xd,
       memcpy(xd->plane[i].seg_dequant_nuq, cm->y_dequant_nuq,
              sizeof(cm->y_dequant_nuq));
 #endif
+    } else if (xd->plane[i].plane_type == 1) {
+      memcpy(xd->plane[i].seg_dequant, cm->u_dequant, sizeof(cm->u_dequant));
+#if CONFIG_AOM_QM
+      memcpy(xd->plane[i].seg_iqmatrix, cm->uv_iqmatrix,
+             sizeof(cm->uv_iqmatrix));
+#endif
+#if CONFIG_NEW_QUANT
+      memcpy(xd->plane[i].seg_dequant_nuq, cm->uv_dequant_nuq,
+             sizeof(cm->uv_dequant_nuq));
+#endif
     } else {
-      memcpy(xd->plane[i].seg_dequant, cm->uv_dequant, sizeof(cm->uv_dequant));
+      memcpy(xd->plane[i].seg_dequant, cm->v_dequant, sizeof(cm->v_dequant));
 #if CONFIG_AOM_QM
       memcpy(xd->plane[i].seg_iqmatrix, cm->uv_iqmatrix,
              sizeof(cm->uv_iqmatrix));
