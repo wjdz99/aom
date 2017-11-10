@@ -13,6 +13,54 @@
 #include "av1/common/common_data.h"
 #include "av1/common/onyxc_int.h"
 
+static const int cfl_avg_wide_log2[TX_SIZES_ALL] = {
+  2,  // TX_4X4
+  3,  // TX_8X8
+  4,  // TX_16X16
+  4,  // TX_32X32
+#if CONFIG_TX64X64
+  4,    // TX_64X64
+#endif  // CONFIG_TX64X64
+  2,    // TX_4X8
+  3,    // TX_8X4
+  3,    // TX_8X16
+  4,    // TX_16X8
+  4,    // TX_16X32
+  4,    // TX_32X16
+#if CONFIG_TX64X64
+  4,    // TX_32X64
+  4,    // TX_64X32
+#endif  // CONFIG_TX64X64
+  2,    // TX_4X16
+  4,    // TX_16X4
+  3,    // TX_8X32
+  4     // TX_32X8
+};
+
+static const int cfl_avg_high_log2[TX_SIZES_ALL] = {
+  2,  // TX_4X4
+  3,  // TX_8X8
+  4,  // TX_16X16
+  4,  // TX_32X32
+#if CONFIG_TX64X64
+  4,    // TX_64X64
+#endif  // CONFIG_TX64X64
+  3,    // TX_4X8
+  2,    // TX_8X4
+  4,    // TX_8X16
+  3,    // TX_16X8
+  4,    // TX_16X32
+  4,    // TX_32X16
+#if CONFIG_TX64X64
+  4,    // TX_32X64
+  4,    // TX_64X32
+#endif  // CONFIG_TX64X64
+  4,    // TX_4X16
+  2,    // TX_16X4
+  4,    // TX_8X32
+  3     // TX_32X8
+};
+
 void cfl_init(CFL_CTX *cfl, AV1_COMMON *cm) {
   if ((cm->subsampling_x != 0 && cm->subsampling_x != 1) ||
       (cm->subsampling_y != 0 && cm->subsampling_y != 1)) {
@@ -70,11 +118,12 @@ static INLINE void cfl_pad(CFL_CTX *cfl, int width, int height) {
 static void cfl_subtract_averages(CFL_CTX *cfl, TX_SIZE tx_size) {
   const int width = cfl->uv_width;
   const int height = cfl->uv_height;
-  const int tx_height = tx_size_high[tx_size];
-  const int tx_width = tx_size_wide[tx_size];
-  const int block_row_stride = MAX_SB_SIZE << tx_size_high_log2[tx_size];
-  const int num_pel_log2 =
-      (tx_size_high_log2[tx_size] + tx_size_wide_log2[tx_size]);
+  const int tx_height_log2 = cfl_avg_high_log2[tx_size];
+  const int tx_width_log2 = cfl_avg_wide_log2[tx_size];
+  const int tx_height = 1 << tx_height_log2;
+  const int tx_width = 1 << tx_width_log2;
+  const int num_pel_log2 = tx_height_log2 + tx_width_log2;
+  const int block_row_stride = MAX_SB_SIZE << tx_height_log2;
 
   int16_t *pred_buf_q3 = cfl->pred_buf_q3;
 
