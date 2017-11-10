@@ -31,7 +31,7 @@
 
 #define ACCT_STR __func__
 
-#define DEC_MISMATCH_DEBUG 0
+#define DEC_MISMATCH_DEBUG 1
 
 static PREDICTION_MODE read_intra_mode(aom_reader *r, aom_cdf_prob *cdf) {
   return (PREDICTION_MODE)aom_read_symbol(r, cdf, INTRA_MODES, ACCT_STR);
@@ -2030,7 +2030,7 @@ static void dec_dump_logs(AV1_COMMON *cm, MODE_INFO *const mi, int mi_row,
     }
   }
 
-#define FRAME_TO_CHECK 7
+#define FRAME_TO_CHECK 11
 #if CONFIG_EXT_SKIP
   if (cm->current_video_frame == FRAME_TO_CHECK && cm->show_frame == 1) {
     printf(

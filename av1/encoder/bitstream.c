@@ -54,7 +54,7 @@
 #include "av1/encoder/subexp.h"
 #include "av1/encoder/tokenize.h"
 
-#define ENC_MISMATCH_DEBUG 0
+#define ENC_MISMATCH_DEBUG 1
 
 #if CONFIG_COMPOUND_SINGLEREF
 static struct av1_token
@@ -1901,7 +1901,7 @@ static void enc_dump_logs(AV1_COMP *cpi, int mi_row, int mi_col) {
   xd->mi = cm->mi_grid_visible + (mi_row * cm->mi_stride + mi_col);
   m = xd->mi[0];
   if (is_inter_block(&m->mbmi)) {
-#define FRAME_TO_CHECK 7
+#define FRAME_TO_CHECK 11
     if (cm->current_video_frame == FRAME_TO_CHECK && cm->show_frame == 1) {
       const MB_MODE_INFO *const mbmi = &m->mbmi;
       const BLOCK_SIZE bsize = mbmi->sb_type;

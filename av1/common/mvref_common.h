@@ -183,6 +183,22 @@ static INLINE int_mv scale_mv(const MB_MODE_INFO *mbmi, int ref,
     }                                                                         \
   } while (0)
 
+#if CONFIG_EXT_SKIP
+// This macro is used to add a motion vector pair to the skip mode mv list.
+#define SKIP_MODE_MV_LIST_ADD(mv, mv_list, mv_list_count, mv_list_idx, bw, bh, \
+                              xd)                                              \
+  do {                                                                         \
+    const int mv_idx = (mv_list_count)[mv_list_idx];                           \
+    (mv_list)[mv_list_idx][mv_idx][0] = (mv)[0];                               \
+    CLIP_IN_ADD(&(mv_list)[mv_list_idx][mv_idx][0].as_mv, (bw), (bh), (xd));   \
+    if (mv_list_idx == 2) {                                                    \
+      (mv_list)[mv_list_idx][mv_idx][1] = (mv)[1];                             \
+      CLIP_IN_ADD(&(mv_list)[mv_list_idx][mv_idx][1].as_mv, (bw), (bh), (xd)); \
+    }                                                                          \
+    (mv_list_count)[mv_list_idx]++;                                            \
+  } while (0)
+#endif  // CONFIG_EXT_SKIP
+
 // Checks that the given mi_row, mi_col and search point
 // are inside the borders of the tile.
 static INLINE int is_inside(const TileInfo *const tile, int mi_col, int mi_row,

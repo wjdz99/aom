@@ -10725,7 +10725,10 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
           frame_mv[this_mode][second_ref_frame].as_int == INVALID_MV)
         break;
 
-      // TODO(zoeliu): To work with JNT_COMP
+// TODO(zoeliu): To work with JNT_COMP
+#if 1
+// Identify the motion data for skip mode
+#endif  // 0
 
       mbmi->mode = this_mode;
       mbmi->uv_mode = UV_DC_PRED;
