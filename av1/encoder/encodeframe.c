@@ -1289,7 +1289,7 @@ static void update_stats(const AV1_COMMON *const cm, TileDataEnc *tile_data,
 
 #if CONFIG_JNT_COMP
 #if CONFIG_NEW_MULTISYMBOL
-      if (has_second_ref(mbmi)) {
+      if (has_two_sided_comp_refs(cm, mbmi)) {
         const int comp_index_ctx = get_comp_index_context(cm, xd);
         ++counts->compound_index[comp_index_ctx][mbmi->compound_idx];
         update_cdf(fc->compound_index_cdf[comp_index_ctx], mbmi->compound_idx,

@@ -9994,9 +9994,8 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
 
         InterpFilters backup_interp_filters = mbmi->interp_filters;
 
-        for (int comp_idx = 0; comp_idx < 1 + has_second_ref(mbmi);
+        for (int comp_idx = 0; comp_idx < 1 + has_two_sided_comp_refs(cm, mbmi);
              ++comp_idx) {
-          if (comp_idx == 0 && !has_two_sided_comp_refs(cm, mbmi)) continue;
           RD_STATS rd_stats, rd_stats_y, rd_stats_uv;
           av1_init_rd_stats(&rd_stats);
           av1_init_rd_stats(&rd_stats_y);
@@ -10017,7 +10016,7 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
           args.single_newmv = single_newmv;
           args.single_newmv_rate = single_newmv_rate;
           args.modelled_rd = modelled_rd;
-          mbmi->compound_idx = comp_idx;
+          mbmi->compound_idx = 1 - comp_idx;
 
           int64_t tmp_rd = handle_inter_mode(
               cpi, x, bsize, &rd_stats, &rd_stats_y, &rd_stats_uv,
@@ -10135,7 +10134,8 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
                  sizeof(uint8_t) * ctx->num_4x4_blk);
 
 #if CONFIG_JNT_COMP
-        for (int sidx = 0; sidx < ref_set * (1 + has_second_ref(mbmi)); ++sidx)
+        for (int sidx = 0;
+             sidx < ref_set * (1 + has_two_sided_comp_refs(cm, mbmi)); ++sidx)
 #else
         for (ref_idx = 0; ref_idx < ref_set; ++ref_idx)
 #endif  // CONFIG_JNT_COMP
@@ -10147,10 +10147,10 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
           RD_STATS tmp_rd_stats, tmp_rd_stats_y, tmp_rd_stats_uv;
 #if CONFIG_JNT_COMP
           ref_idx = sidx;
-          if (has_second_ref(mbmi)) ref_idx /= 2;
-          mbmi->compound_idx = sidx % 2;
-          if (mbmi->compound_idx == 0 && !has_two_sided_comp_refs(cm, mbmi))
-            continue;
+          if (has_two_sided_comp_refs(cm, mbmi)) {
+            ref_idx /= 2;
+            mbmi->compound_idx = sidx < ref_set ? 1 : 0;
+          }
 #endif  // CONFIG_JNT_COMP
 
           av1_invalid_rd_stats(&tmp_rd_stats);
