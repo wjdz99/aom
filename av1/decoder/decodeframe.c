@@ -3591,7 +3591,7 @@ size_t av1_decode_frame_headers_and_setup(AV1Decoder *pbi, const uint8_t *data,
 
 #if CONFIG_EXT_SKIP
   av1_setup_skip_mode_allowed(cm);
-#if 0
+#if 1
   printf(
       "DECODER: Frame=%d, frame_offset=%d, show_frame=%d, "
       "show_existing_frame=%d, is_skip_mode_allowed=%d, "

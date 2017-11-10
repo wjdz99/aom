@@ -1019,6 +1019,13 @@ static void update_stats(const AV1_COMMON *const cm, TileDataEnc *tile_data,
 #endif
   }
 
+#if CONFIG_EXT_SKIP
+  if (mbmi->skip_mode) {
+    set_ref_ptrs(cm, xd, mbmi->ref_frame[0], mbmi->ref_frame[1]);
+    return;
+  }
+#endif  // CONFIG_EXT_SKIP
+
   if (!frame_is_intra_only(cm)) {
     FRAME_COUNTS *const counts = td->counts;
     RD_COUNTS *rdc = &td->rd_counts;
@@ -1184,11 +1191,7 @@ static void update_stats(const AV1_COMMON *const cm, TileDataEnc *tile_data,
             cm->reference_mode != SINGLE_REFERENCE &&
             is_inter_compound_mode(mbmi->mode)
 #endif  // CONFIG_COMPOUND_SINGLEREF
-            && mbmi->motion_mode == SIMPLE_TRANSLATION
-#if CONFIG_EXT_SKIP
-            && !mbmi->skip_mode
-#endif  // CONFIG_EXT_SKIP
-            ) {
+            && mbmi->motion_mode == SIMPLE_TRANSLATION) {
           if (is_interinter_compound_used(COMPOUND_WEDGE, bsize)) {
             counts
                 ->compound_interinter[bsize][mbmi->interinter_compound_type]++;
@@ -3999,7 +4002,7 @@ static void encode_frame_internal(AV1_COMP *cpi) {
 
 #if CONFIG_EXT_SKIP
   av1_setup_skip_mode_allowed(cm);
-#if 0
+#if 1
   printf(
       "ENCODER: Frame=%d, frame_offset=%d, show_frame=%d, "
       "show_existing_frame=%d, is_skip_mode_allowed=%d, "
