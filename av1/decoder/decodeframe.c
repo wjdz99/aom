@@ -2661,6 +2661,9 @@ static int read_global_motion_params(WarpedMotionParams *params,
 static void read_global_motion(AV1_COMMON *cm, struct aom_read_bit_buffer *rb) {
   int frame;
   for (frame = LAST_FRAME; frame <= ALTREF_FRAME; ++frame) {
+    RefBuffer *const ref_buf = &cm->frame_refs[frame - LAST_FRAME];
+    if (av1_is_scaled(&ref_buf->sf)) continue;
+
     const WarpedMotionParams *ref_params =
         cm->error_resilient_mode ? &default_warp_params
                                  : &cm->prev_frame->global_motion[frame];
