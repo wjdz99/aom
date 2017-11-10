@@ -9994,9 +9994,8 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
 
         InterpFilters backup_interp_filters = mbmi->interp_filters;
 
-        for (int comp_idx = 0; comp_idx < 1 + has_second_ref(mbmi);
-             ++comp_idx) {
-          if (comp_idx == 0 && !has_two_sided_comp_refs(cm, mbmi)) continue;
+        for (int comp_idx = 1;
+             comp_idx >= 1 - has_two_sided_comp_refs(cm, mbmi); --comp_idx) {
           RD_STATS rd_stats, rd_stats_y, rd_stats_uv;
           av1_init_rd_stats(&rd_stats);
           av1_init_rd_stats(&rd_stats_y);
