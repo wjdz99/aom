@@ -1269,9 +1269,9 @@ static void filter_intra_predictors_3tap(uint8_t *dst, ptrdiff_t stride,
 #else
   int buffer[33][33];
 #endif  // CONFIG_TX64X64
-  const int c0 = filter_intra_taps_3[tx_size][mode][0];
-  const int c1 = filter_intra_taps_3[tx_size][mode][1];
-  const int c2 = filter_intra_taps_3[tx_size][mode][2];
+  const int c0 = filter_intra_taps_3[TX_8X8][mode][0];
+  const int c1 = filter_intra_taps_3[TX_8X8][mode][1];
+  const int c2 = filter_intra_taps_3[TX_8X8][mode][2];
   const int bw = tx_size_wide[tx_size];
   const int bh = tx_size_high[tx_size];
 
