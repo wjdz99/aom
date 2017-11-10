@@ -70,11 +70,13 @@ static INLINE void cfl_pad(CFL_CTX *cfl, int width, int height) {
 static void cfl_subtract_averages(CFL_CTX *cfl, TX_SIZE tx_size) {
   const int width = cfl->uv_width;
   const int height = cfl->uv_height;
-  const int tx_height = tx_size_high[tx_size];
-  const int tx_width = tx_size_wide[tx_size];
-  const int block_row_stride = MAX_SB_SIZE << tx_size_high_log2[tx_size];
-  const int num_pel_log2 =
-      (tx_size_high_log2[tx_size] + tx_size_wide_log2[tx_size]);
+  const int tx_height = AOMMIN(tx_size_high[tx_size], tx_size_high[TX_16X16]);
+  const int tx_width = AOMMIN(tx_size_wide[tx_size], tx_size_wide[TX_16X16]);
+  const int tx_height_log2 =
+      AOMMIN(tx_size_high_log2[tx_size], tx_size_high_log2[TX_16X16]);
+  const int num_pel_log2 = tx_height_log2 + AOMMIN(tx_size_wide_log2[tx_size],
+                                                   tx_size_wide_log2[TX_16X16]);
+  const int block_row_stride = MAX_SB_SIZE << tx_height_log2;
 
   int16_t *pred_buf_q3 = cfl->pred_buf_q3;
 
