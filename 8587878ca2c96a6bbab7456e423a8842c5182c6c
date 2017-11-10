@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d6381ba7_561971d9",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 3891,
+      "author": {
+        "id": 7465
+      },
+      "writtenOn": "2017-11-10T19:09:27Z",
+      "side": 1,
+      "message": "Sorry for reviewing late. I was busy on resolving the enc/dec mismatch.\nDo we really need a bit to enable/disable intraBC?  Comparing enabling it by default when \"allow_screen_content_tools\" is on, the bit actually allows disabling intrabc. May I know the benefit of disabling it?  how about allow it always on when \"screen tools is allowed\"?",
+      "revId": "8587878ca2c96a6bbab7456e423a8842c5182c6c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
