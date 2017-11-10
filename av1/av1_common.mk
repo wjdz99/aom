@@ -152,6 +152,7 @@ AV1_COMMON_SRCS-$(HAVE_SSSE3) += common/x86/warp_plane_ssse3.c
 AV1_COMMON_SRCS-$(HAVE_SSE4_1) += common/x86/warp_plane_sse4.c
 ifeq ($(CONFIG_HIGHBITDEPTH),yes)
 AV1_COMMON_SRCS-$(HAVE_SSSE3) += common/x86/highbd_warp_plane_ssse3.c
+AV1_COMMON_SRCS-$(HAVE_SSE4_1) += common/x86/highbd_warp_plane_sse4.c
 endif
 
 ifeq ($(CONFIG_CONVOLVE_ROUND),yes)
