@@ -220,6 +220,7 @@ static void write_inter_compound_mode(AV1_COMMON *cm, MACROBLOCKD *xd,
 }
 
 #if CONFIG_EXT_SKIP
+#if 0
 static void update_inter_compound_mode_cdf(AV1_COMP *cpi) {
   MACROBLOCK *const x = &cpi->td.mb;
   MACROBLOCKD *const xd = &x->e_mbd;
@@ -233,6 +234,7 @@ static void update_inter_compound_mode_cdf(AV1_COMP *cpi) {
   update_cdf(xd->tile_ctx->inter_compound_mode_cdf[mode_ctx],
              INTER_COMPOUND_OFFSET(mode), INTER_COMPOUND_MODES);
 }
+#endif  // 0
 #endif  // CONFIG_EXT_SKIP
 
 #if CONFIG_COMPOUND_SINGLEREF
@@ -439,6 +441,7 @@ static void write_is_inter(const AV1_COMMON *cm, const MACROBLOCKD *xd,
 }
 
 #if CONFIG_EXT_SKIP
+#if 0
 #if CONFIG_NEW_MULTISYMBOL
 static void update_intra_inter_cdf(AV1_COMMON *const cm, MACROBLOCKD *const xd,
                                    int segment_id, const int is_inter) {
@@ -449,6 +452,7 @@ static void update_intra_inter_cdf(AV1_COMMON *const cm, MACROBLOCKD *const xd,
   }
 }
 #endif  // CONFIG_NEW_MULTISYMBOL
+#endif  // 0
 #endif  // CONFIG_EXT_SKIP
 
 static void write_motion_mode(const AV1_COMMON *cm, MACROBLOCKD *xd,
@@ -938,6 +942,7 @@ static void write_ref_frames(const AV1_COMMON *cm, const MACROBLOCKD *xd,
 }
 
 #if CONFIG_EXT_SKIP
+#if 0
 #if CONFIG_NEW_MULTISYMBOL
 // This function updates the reference frame symbol cdfs for skip mode
 static void update_ref_frame_cdfs_for_skip_mode(const AV1_COMMON *cm,
@@ -981,6 +986,7 @@ static void update_ref_frame_cdfs_for_skip_mode(const AV1_COMMON *cm,
   }
 }
 #endif  // CONFIG_NEW_MULTISYMBOL
+#endif  // 0
 #endif  // CONFIG_EXT_SKIP
 
 #if CONFIG_FILTER_INTRA
@@ -1422,9 +1428,8 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
   write_skip_mode(cm, xd, segment_id, mi, w);
 
   if (mbmi->skip_mode) {
-    assert(cm->is_skip_mode_allowed);
-    assert(mbmi->skip);
     skip = mbmi->skip;
+    assert(skip);
   } else {
 #endif  // CONFIG_EXT_SKIP
     skip = write_skip(cm, xd, segment_id, mi, w);
@@ -1474,16 +1479,7 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
   }
 
 #if CONFIG_EXT_SKIP
-  if (mbmi->skip_mode) {
-#if 0
-#if CONFIG_NEW_MULTISYMBOL
-    update_intra_inter_cdf(cm, xd, segment_id, 1);
-    update_ref_frame_cdfs_for_skip_mode(cm, xd);
-#endif  // CONFIG_NEW_MULTISYMBOL
-    update_inter_compound_mode_cdf(cpi);
-#endif  // 0
-    return;
-  }
+  if (mbmi->skip_mode) return;
 #endif  // CONFIG_EXT_SKIP
 
   write_is_inter(cm, xd, mbmi->segment_id, w, is_inter);
@@ -1901,7 +1897,7 @@ static void enc_dump_logs(AV1_COMP *cpi, int mi_row, int mi_col) {
   xd->mi = cm->mi_grid_visible + (mi_row * cm->mi_stride + mi_col);
   m = xd->mi[0];
   if (is_inter_block(&m->mbmi)) {
-#define FRAME_TO_CHECK 7
+#define FRAME_TO_CHECK 11
     if (cm->current_video_frame == FRAME_TO_CHECK && cm->show_frame == 1) {
       const MB_MODE_INFO *const mbmi = &m->mbmi;
       const BLOCK_SIZE bsize = mbmi->sb_type;

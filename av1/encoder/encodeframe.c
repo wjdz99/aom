@@ -1019,6 +1019,13 @@ static void update_stats(const AV1_COMMON *const cm, TileDataEnc *tile_data,
 #endif
   }
 
+#if CONFIG_EXT_SKIP
+  if (mbmi->skip_mode) {
+    set_ref_ptrs(cm, xd, mbmi->ref_frame[0], mbmi->ref_frame[1]);
+    return;
+  }
+#endif  // CONFIG_EXT_SKIP
+
   if (!frame_is_intra_only(cm)) {
     FRAME_COUNTS *const counts = td->counts;
     RD_COUNTS *rdc = &td->rd_counts;
@@ -1184,11 +1191,7 @@ static void update_stats(const AV1_COMMON *const cm, TileDataEnc *tile_data,
             cm->reference_mode != SINGLE_REFERENCE &&
             is_inter_compound_mode(mbmi->mode)
 #endif  // CONFIG_COMPOUND_SINGLEREF
-            && mbmi->motion_mode == SIMPLE_TRANSLATION
-#if CONFIG_EXT_SKIP
-            && !mbmi->skip_mode
-#endif  // CONFIG_EXT_SKIP
-            ) {
+            && mbmi->motion_mode == SIMPLE_TRANSLATION) {
           if (is_interinter_compound_used(COMPOUND_WEDGE, bsize)) {
             counts
                 ->compound_interinter[bsize][mbmi->interinter_compound_type]++;
@@ -4003,10 +4006,11 @@ static void encode_frame_internal(AV1_COMP *cpi) {
   printf(
       "ENCODER: Frame=%d, frame_offset=%d, show_frame=%d, "
       "show_existing_frame=%d, is_skip_mode_allowed=%d, "
-      "ref_frame_idx=(%d,%d), frame_reference_mode=%d\n\n",
+      "ref_frame_idx=(%d,%d), frame_reference_mode=%d, "
+      "tpl_frame_ref0_idx=%d\n\n",
       cm->current_video_frame, cm->frame_offset, cm->show_frame,
       cm->show_existing_frame, cm->is_skip_mode_allowed, cm->ref_frame_idx_0,
-      cm->ref_frame_idx_1, cm->reference_mode);
+      cm->ref_frame_idx_1, cm->reference_mode, cm->tpl_frame_ref0_idx);
 #endif  // 0
 #endif  // CONFIG_EXT_SKIP
 

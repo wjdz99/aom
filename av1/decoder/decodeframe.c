@@ -3595,10 +3595,12 @@ size_t av1_decode_frame_headers_and_setup(AV1Decoder *pbi, const uint8_t *data,
   printf(
       "DECODER: Frame=%d, frame_offset=%d, show_frame=%d, "
       "show_existing_frame=%d, is_skip_mode_allowed=%d, "
-      "ref_frame_idx=(%d,%d), frame_reference_mode=%d\n\n",
+      "ref_frame_idx=(%d,%d), frame_reference_mode=%d, "
+      "tpl_frame_ref0_idx=%d\n\n",
       cm->current_video_frame, cm->frame_offset, cm->show_frame,
       cm->show_existing_frame, cm->is_skip_mode_allowed, cm->ref_frame_idx_0,
-      cm->ref_frame_idx_1, cm->reference_mode);
+      cm->ref_frame_idx_1, cm->reference_mode, cm->tpl_frame_ref0_idx);
+
 #endif  // 0
 #endif  // CONFIG_EXT_SKIP
 
