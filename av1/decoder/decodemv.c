@@ -31,7 +31,7 @@
 
 #define ACCT_STR __func__
 
-#define DEC_MISMATCH_DEBUG 0
+#define DEC_MISMATCH_DEBUG 1
 
 static PREDICTION_MODE read_intra_mode(aom_reader *r, aom_cdf_prob *cdf) {
   return (PREDICTION_MODE)aom_read_symbol(r, cdf, INTRA_MODES, ACCT_STR);
@@ -282,6 +282,10 @@ static MOTION_MODE read_motion_mode(AV1_COMMON *cm, MACROBLOCKD *xd,
   (void)cm;
 #endif
 
+#if CONFIG_EXT_SKIP
+  if (mbmi->skip_mode) return SIMPLE_TRANSLATION;
+#endif  // CONFIG_EXT_SKIP
+
   const MOTION_MODE last_motion_mode_allowed =
       motion_mode_allowed(0, xd->global_motion, xd, mi);
   int motion_mode;
@@ -311,25 +315,26 @@ static PREDICTION_MODE read_inter_compound_mode(AV1_COMMON *cm, MACROBLOCKD *xd,
                                                 aom_reader *r, int16_t ctx) {
   (void)cm;
 #if CONFIG_EXT_SKIP
-  FRAME_CONTEXT *const ec_ctx = xd->tile_ctx;
   const int mode =
       xd->mi[0]->mbmi.skip_mode
           ? (NEAREST_NEARESTMV - NEAREST_NEARESTMV)
-          : aom_read_symbol(r, ec_ctx->inter_compound_mode_cdf[ctx],
+          : aom_read_symbol(r, xd->tile_ctx->inter_compound_mode_cdf[ctx],
                             INTER_COMPOUND_MODES, ACCT_STR);
-#if 0   // NOTE(zoeliu): For debug
-  if (xd->mi[0]->mbmi.skip_mode && r->allow_update_cdf)
-    update_cdf(ec_ctx->inter_compound_mode_cdf[ctx], mode,
-               INTER_COMPOUND_MODES);
-#endif  // 0
 #else
   const int mode =
       aom_read_symbol(r, xd->tile_ctx->inter_compound_mode_cdf[ctx],
                       INTER_COMPOUND_MODES, ACCT_STR);
 #endif  // CONFIG_EXT_SKIP
 
-  FRAME_COUNTS *counts = xd->counts;
-  if (counts) ++counts->inter_compound_mode[ctx][mode];
+#if CONFIG_EXT_SKIP
+  if (!xd->mi[0]->mbmi.skip_mode) {
+#endif  // CONFIG_EXT_SKIP
+    FRAME_COUNTS *counts = xd->counts;
+    if (counts) ++counts->inter_compound_mode[ctx][mode];
+#if CONFIG_EXT_SKIP
+  }
+#endif  // CONFIG_EXT_SKIP
+
   assert(is_inter_compound_mode(NEAREST_NEARESTMV + mode));
   return NEAREST_NEARESTMV + mode;
 }
@@ -1308,6 +1313,7 @@ static REFERENCE_MODE read_block_reference_mode(AV1_COMMON *cm,
 }
 
 #if CONFIG_EXT_SKIP
+#if 0
 static void update_block_reference_mode(AV1_COMMON *cm, const MACROBLOCKD *xd,
                                         REFERENCE_MODE mode,
                                         uint8_t allow_update_cdf) {
@@ -1322,6 +1328,7 @@ static void update_block_reference_mode(AV1_COMMON *cm, const MACROBLOCKD *xd,
     if (counts) ++counts->comp_inter[ctx][mode];
   }
 }
+#endif  // 0
 #endif  // CONFIG_EXT_SKIP
 
 #if CONFIG_NEW_MULTISYMBOL
@@ -1357,6 +1364,7 @@ static COMP_REFERENCE_TYPE read_comp_reference_type(AV1_COMMON *cm,
 #endif  // CONFIG_EXT_COMP_REFS
 
 #if CONFIG_EXT_SKIP
+#if 0
 #if CONFIG_EXT_COMP_REFS
 static void update_comp_reference_type(AV1_COMMON *cm, const MACROBLOCKD *xd,
                                        COMP_REFERENCE_TYPE comp_ref_type,
@@ -1373,11 +1381,14 @@ static void update_comp_reference_type(AV1_COMMON *cm, const MACROBLOCKD *xd,
   if (counts) ++counts->comp_ref_type[ctx][comp_ref_type];
 }
 #endif  // CONFIG_EXT_COMP_REFS
+#endif  // 0
 
 static void set_ref_frames_for_skip_mode(AV1_COMMON *const cm,
                                          MACROBLOCKD *const xd,
                                          MV_REFERENCE_FRAME ref_frame[2],
                                          uint8_t allow_update_cdf) {
+  (void)xd;
+  (void)allow_update_cdf;
   assert(xd->mi[0]->mbmi.skip_mode);
 
   ref_frame[0] = LAST_FRAME + cm->ref_frame_idx_0;
@@ -1969,6 +1980,7 @@ static int read_is_inter_block(AV1_COMMON *const cm, MACROBLOCKD *const xd,
 }
 
 #if CONFIG_EXT_SKIP
+#if 0
 static void update_block_intra_inter(AV1_COMMON *const cm,
                                      MACROBLOCKD *const xd, int segment_id,
                                      const int is_inter,
@@ -1983,6 +1995,7 @@ static void update_block_intra_inter(AV1_COMMON *const cm,
     if (counts) ++counts->intra_inter[ctx][is_inter];
   }
 }
+#endif  // 0
 #endif  // CONFIG_EXT_SKIP
 
 #if CONFIG_COMPOUND_SINGLEREF
@@ -2030,7 +2043,7 @@ static void dec_dump_logs(AV1_COMMON *cm, MODE_INFO *const mi, int mi_row,
     }
   }
 
-#define FRAME_TO_CHECK 7
+#define FRAME_TO_CHECK 11
 #if CONFIG_EXT_SKIP
   if (cm->current_video_frame == FRAME_TO_CHECK && cm->show_frame == 1) {
     printf(
@@ -2095,6 +2108,10 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
 
   read_ref_frames(cm, xd, r, mbmi->segment_id, mbmi->ref_frame);
   is_compound = has_second_ref(mbmi);
+
+#if CONFIG_EXT_SKIP
+// TODO(zoeliu): To work with JNT_COMP
+#endif  // CONFIG_EXT_SKIP
 
 #if CONFIG_JNT_COMP
   if (is_compound) {
@@ -2373,13 +2390,36 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
     }
   }
 
-  int mv_corrupted_flag =
-      !assign_mv(cm, xd, mbmi->mode, mbmi->ref_frame, 0, mbmi->mv, ref_mv,
-                 nearestmv, nearmv, mi_row, mi_col, is_compound, allow_hp, r);
-  aom_merge_corrupted_flag(&xd->corrupted, mv_corrupted_flag);
+#if CONFIG_EXT_SKIP
+  if (mbmi->skip_mode) {
+#define USE_MV_SELECTION 1
+#if USE_MV_SELECTION
+    // NOTE: For skip mode, above reference selection has been set as compound,
+    // in order to obtain the two nearest mvs, but after the following mv setup,
+    // skip mode may choose either single reference or compound reference mode.
+    av1_setup_skip_mode_mvs(cm, xd, mbmi, mi_row, mi_col, nearestmv, NULL,
+                            NULL);
+#else   // !USE_MV_SELECTION
+    assert(is_compound);
+    mbmi->mv[0].as_int = nearestmv[0].as_int;
+    mbmi->mv[1].as_int = nearestmv[1].as_int;
+#endif  // USE_MV_SELECTION
+#undef USE_MV_SELECTION
+  } else {
+#endif  // CONFIG_EXT_SKIP
+    int mv_corrupted_flag =
+        !assign_mv(cm, xd, mbmi->mode, mbmi->ref_frame, 0, mbmi->mv, ref_mv,
+                   nearestmv, nearmv, mi_row, mi_col, is_compound, allow_hp, r);
+    aom_merge_corrupted_flag(&xd->corrupted, mv_corrupted_flag);
+#if CONFIG_EXT_SKIP
+  }
+#endif  // CONFIG_EXT_SKIP
 
   mbmi->use_wedge_interintra = 0;
   if (cm->reference_mode != COMPOUND_REFERENCE &&
+#if CONFIG_EXT_SKIP
+      !mbmi->skip_mode &&
+#endif  // CONFIG_EXT_SKIP
       cm->allow_interintra_compound && is_interintra_allowed(mbmi)) {
     const int bsize_group = size_group_lookup[bsize];
 #if CONFIG_NEW_MULTISYMBOL
@@ -2431,7 +2471,11 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
   }
 
   mbmi->motion_mode = SIMPLE_TRANSLATION;
-  if (mbmi->sb_type >= BLOCK_8X8 && !has_second_ref(mbmi))
+  if (mbmi->sb_type >= BLOCK_8X8 &&
+#if CONFIG_EXT_SKIP
+      !mbmi->skip_mode &&
+#endif  // CONFIG_EXT_SKIP
+      !has_second_ref(mbmi))
 #if CONFIG_EXT_WARPED_MOTION
     mbmi->num_proj_ref[0] =
         findSamples(cm, xd, mi_row, mi_col, pts, pts_inref, pts_mv);
@@ -2587,12 +2631,7 @@ static void read_inter_frame_mode_info(AV1Decoder *const pbi,
   }
 
 #if CONFIG_EXT_SKIP
-  if (mbmi->skip_mode) inter_block = inter_block;
-#if 0   // NOTE(zoeliu): For debug
-    update_block_intra_inter(cm, xd, mbmi->segment_id, inter_block,
-                             r->allow_update_cdf);
-#endif  // 0
-  else
+  if (!mbmi->skip_mode)
 #endif  // CONFIG_EXT_SKIP
     inter_block = read_is_inter_block(cm, xd, mbmi->segment_id, r);
 

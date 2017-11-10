@@ -202,6 +202,7 @@ struct macroblock {
   int skip_mode_rate;
   int64_t skip_mode_sse;
   int64_t skip_mode_dist;
+  MV_REFERENCE_FRAME skip_mode_ref_frame[2];
   int_mv skip_mode_mv[2];
   int16_t skip_mode_tx_size;
   int skip_mode_index_candidate;
