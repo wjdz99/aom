@@ -22,6 +22,30 @@
       "revId": "f624dd5a820a8a3209afd9adb3dcde646b5c91f2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "40a81527_511ac5dd",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 42
+      },
+      "lineNbr": 408,
+      "author": {
+        "id": 6510
+      },
+      "writtenOn": "2017-11-10T00:33:04Z",
+      "side": 1,
+      "message": "I wasn\u0027t sure its the right thing to do. If we did this we\u0027d have to modify and make the encoder also apply (not just store and use for prediction) the segment ID we decide. And that would also mean the patch would be a lot more complicated to use since the AQ algorithms themselves would need to be aware of what value would be predicted so they\u0027d change the value they store in their map.\nComplexity aside, simply changing mbmi-\u003eq_segment_id in the encoder isn\u0027t going to work since we encode segment values much later than we do RDO.",
+      "parentUuid": "350b415b_b56bad51",
+      "range": {
+        "startLine": 408,
+        "startChar": 11,
+        "endLine": 408,
+        "endChar": 12
+      },
+      "revId": "f624dd5a820a8a3209afd9adb3dcde646b5c91f2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
