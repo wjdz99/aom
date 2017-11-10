@@ -8157,10 +8157,13 @@ static int64_t skip_mode_rd(const AV1_COMP *const cpi, MACROBLOCK *const x,
   x->skip_mode_rate = 0;
   x->skip_mode_rdcost = RDCOST(x->rdmult, x->skip_mode_rate, x->skip_mode_dist);
 
-  // Save the motion vector
+  // Save the ref frames / motion vectors
+  x->skip_mode_ref_frame[0] = mbmi->ref_frame[0];
+  x->skip_mode_ref_frame[1] = mbmi->ref_frame[1];
   x->skip_mode_mv[0].as_int = mbmi->mv[0].as_int;
   x->skip_mode_mv[1].as_int = mbmi->mv[1].as_int;
 
+  // tx_size needs to setup for skip-specific loop filtering.
   x->skip_mode_tx_size = tx_size_from_tx_mode(bsize, cm->tx_mode, 1);
 
   // Save the mode index
@@ -10725,7 +10728,10 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
           frame_mv[this_mode][second_ref_frame].as_int == INVALID_MV)
         break;
 
-      // TODO(zoeliu): To work with JNT_COMP
+// TODO(zoeliu): To work with JNT_COMP
+#if 1
+// Identify the motion data for skip mode
+#endif  // 0
 
       mbmi->mode = this_mode;
       mbmi->uv_mode = UV_DC_PRED;
@@ -10763,6 +10769,17 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
 
       if (x->skip_mode_rdcost == INT64_MAX) break;
 
+#define USE_MV_SELECTION 1
+#if USE_MV_SELECTION
+      const int_mv nearest_mv[2] = { mbmi->mv[0], mbmi->mv[1] };
+      // NOTE: After following mv/ref setup for skip mode, it may not be
+      // compound reference mode any more, instead, either single reference or
+      // compound reference prediction is possible.
+      av1_setup_skip_mode_mvs(cm, xd, mbmi, mi_row, mi_col, nearest_mv, NULL,
+                              NULL);
+#endif  // USE_MV_SELECTION
+#undef USE_MV_SELECTION
+
 #if CONFIG_FILTER_INTRA
       mbmi->filter_intra_mode_info.use_filter_intra_mode[0] = 0;
       mbmi->filter_intra_mode_info.use_filter_intra_mode[1] = 0;
@@ -10776,7 +10793,8 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
       set_ref_ptrs(cm, xd, mbmi->ref_frame[0], mbmi->ref_frame[1]);
       for (i = 0; i < MAX_MB_PLANE; i++) {
         xd->plane[i].pre[0] = yv12_mb[mbmi->ref_frame[0]][i];
-        xd->plane[i].pre[1] = yv12_mb[mbmi->ref_frame[1]][i];
+        if (has_second_ref(mbmi))
+          xd->plane[i].pre[1] = yv12_mb[mbmi->ref_frame[1]][i];
       }
 
       BUFFER_SET orig_dst;
@@ -10813,13 +10831,15 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
 
       best_mbmode.skip_mode = best_mbmode.skip = 1;
       best_mbmode.mode = NEAREST_NEARESTMV;
-      best_mbmode.ref_frame[0] = LAST_FRAME + cm->ref_frame_idx_0;
-      best_mbmode.ref_frame[1] = LAST_FRAME + cm->ref_frame_idx_1;
+      best_mbmode.ref_frame[0] = x->skip_mode_ref_frame[0];
+      best_mbmode.ref_frame[1] = x->skip_mode_ref_frame[1];
       best_mbmode.mv[0].as_int = x->skip_mode_mv[0].as_int;
       best_mbmode.mv[1].as_int = x->skip_mode_mv[1].as_int;
       best_mbmode.tx_size = x->skip_mode_tx_size;
+      best_mbmode.interintra_mode = (INTERINTRA_MODE)(II_DC_PRED - 1);
       best_mbmode.interinter_compound_type = COMPOUND_AVERAGE;
       best_mbmode.motion_mode = SIMPLE_TRANSLATION;
+      best_mbmode.ref_mv_idx = 0;
 
       best_mode_index = x->skip_mode_index;
       best_skip2 = 1;
@@ -11026,7 +11046,11 @@ PALETTE_EXIT:
   }
 
   if (best_mbmode.ref_frame[0] > INTRA_FRAME &&
-      best_mbmode.ref_frame[1] <= INTRA_FRAME) {
+      best_mbmode.ref_frame[1] <= INTRA_FRAME
+#if CONFIG_EXT_SKIP
+      && !best_mbmode.skip_mode
+#endif  // CONFIG_EXT_SKIP
+      ) {
     int8_t ref_frame_type = av1_ref_frame_type(best_mbmode.ref_frame);
     int16_t mode_ctx = mbmi_ext->mode_context[ref_frame_type];
     if (mode_ctx & (1 << ALL_ZERO_FLAG_OFFSET)) {
