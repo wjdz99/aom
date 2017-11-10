@@ -29,17 +29,6 @@ typedef struct txfm_param {
   int lossless;
   int bd;
   TxSetType tx_set_type;
-#if CONFIG_MRC_TX
-  int is_inter;
-#endif  // CONFIG_MRC_TX
-#if CONFIG_MRC_TX
-  int stride;
-  uint8_t *dst;
-#if CONFIG_MRC_TX
-  int *valid_mask;
-  uint8_t *mask;
-#endif  // CONFIG_MRC_TX
-#endif  // CONFIG_MRC_TX
 // for inverse transforms only
 #if CONFIG_ADAPT_SCAN
   const int16_t *eob_threshold;
