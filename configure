@@ -502,7 +502,6 @@ post_process_cmdline() {
       soft_enable convolve_round
       soft_enable aom_qm
       soft_enable dist_8x8
-      soft_enable loop_restoration
       soft_enable ext_partition
       soft_enable ext_partition_types
       soft_enable new_multisymbol
@@ -520,7 +519,6 @@ post_process_cmdline() {
       soft_enable deblock_13tap
       soft_enable frame_marker
       soft_enable kf_ctx
-      soft_enable striped_loop_restoration
       soft_enable ext_intra_mod
       soft_enable palette_delta_encoding
       soft_enable frame_size
