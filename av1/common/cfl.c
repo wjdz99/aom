@@ -45,6 +45,7 @@ static INLINE void cfl_pad(CFL_CTX *cfl, int width, int height) {
     const int min_height = height - diff_height;
     int16_t *pred_buf_q3 = cfl->pred_buf_q3 + (width - diff_width);
     for (int j = 0; j < min_height; j++) {
+      assert(pred_buf_q3 <= cfl->pred_buf_q3 + MAX_SB_SQUARE);
       const int16_t last_pixel = pred_buf_q3[-1];
       for (int i = 0; i < diff_width; i++) {
         pred_buf_q3[i] = last_pixel;
@@ -57,6 +58,7 @@ static INLINE void cfl_pad(CFL_CTX *cfl, int width, int height) {
     int16_t *pred_buf_q3 =
         cfl->pred_buf_q3 + ((height - diff_height) * MAX_SB_SIZE);
     for (int j = 0; j < diff_height; j++) {
+      assert(pred_buf_q3 <= cfl->pred_buf_q3 + MAX_SB_SQUARE);
       const int16_t *last_row_q3 = pred_buf_q3 - MAX_SB_SIZE;
       for (int i = 0; i < width; i++) {
         pred_buf_q3[i] = last_row_q3[i];
@@ -70,37 +72,49 @@ static INLINE void cfl_pad(CFL_CTX *cfl, int width, int height) {
 static void cfl_subtract_averages(CFL_CTX *cfl, TX_SIZE tx_size) {
   const int width = cfl->uv_width;
   const int height = cfl->uv_height;
-  const int tx_height = tx_size_high[tx_size];
-  const int tx_width = tx_size_wide[tx_size];
-  const int block_row_stride = MAX_SB_SIZE << tx_size_high_log2[tx_size];
-  const int num_pel_log2 =
-      (tx_size_high_log2[tx_size] + tx_size_wide_log2[tx_size]);
+  const int avg_height_log2 =
+      AOMMIN(tx_size_high_log2[tx_size], 1 - cfl->subsampling_y + 4);
+  const int avg_width_log2 =
+      AOMMIN(tx_size_wide_log2[tx_size], 1 - cfl->subsampling_x + 4);
+  const int avg_height = 1 << avg_height_log2;
+  const int avg_width = 1 << avg_width_log2;
+  const int block_row_stride = MAX_SB_SIZE << avg_height_log2;
+  const int num_pel_log2 = avg_height_log2 + avg_width_log2;
+  const int pad_width = (width + avg_width - 1) / avg_width * avg_width;
+  const int pad_height = (height + avg_height - 1) / avg_height * avg_height;
+
+  assert(width == pad_width);
+  assert(height == pad_height);
+  cfl_pad(cfl, pad_width, pad_height);
+
   int16_t *pred_buf_q3 = cfl->pred_buf_q3;
 
-  cfl_pad(cfl, width, height);
-
-  for (int b_j = 0; b_j < height; b_j += tx_height) {
-    for (int b_i = 0; b_i < width; b_i += tx_width) {
+  for (int b_j = 0; b_j < height; b_j += avg_height) {
+    assert(pred_buf_q3 <= cfl->pred_buf_q3 + MAX_SB_SQUARE);
+    for (int b_i = 0; b_i < width; b_i += avg_width) {
+      const int b_end = b_i + avg_width;
       int sum_q3 = 0;
-      int16_t *tx_pred_buf_q3 = pred_buf_q3;
-      for (int t_j = 0; t_j < tx_height; t_j++) {
-        for (int t_i = b_i; t_i < b_i + tx_width; t_i++) {
-          sum_q3 += tx_pred_buf_q3[t_i];
+      int16_t *avg_pred_buf_q3 = pred_buf_q3;
+      int t_i;
+      for (int t_j = 0; t_j < avg_height; t_j++) {
+        assert(avg_pred_buf_q3 + b_end < cfl->pred_buf_q3 + MAX_SB_SQUARE);
+        for (t_i = b_i; t_i < b_end; t_i++) {
+          sum_q3 += avg_pred_buf_q3[t_i];
         }
-        tx_pred_buf_q3 += MAX_SB_SIZE;
+        avg_pred_buf_q3 += MAX_SB_SIZE;
       }
       int avg_q3 = (sum_q3 + (1 << (num_pel_log2 - 1))) >> num_pel_log2;
       // Loss is never more than 1/2 (in Q3)
       assert(abs((avg_q3 * (1 << num_pel_log2)) - sum_q3) <=
              1 << num_pel_log2 >> 1);
 
-      tx_pred_buf_q3 = pred_buf_q3;
-      for (int t_j = 0; t_j < tx_height; t_j++) {
-        for (int t_i = b_i; t_i < b_i + tx_width; t_i++) {
-          tx_pred_buf_q3[t_i] -= avg_q3;
+      avg_pred_buf_q3 = pred_buf_q3;
+      for (int t_j = 0; t_j < avg_height; t_j++) {
+        assert(avg_pred_buf_q3 + b_end < cfl->pred_buf_q3 + MAX_SB_SQUARE);
+        for (t_i = b_i; t_i < b_end; t_i++) {
+          avg_pred_buf_q3[t_i] -= avg_q3;
         }
-
-        tx_pred_buf_q3 += MAX_SB_SIZE;
+        avg_pred_buf_q3 += MAX_SB_SIZE;
       }
     }
     pred_buf_q3 += block_row_stride;
