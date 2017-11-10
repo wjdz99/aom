@@ -1862,7 +1862,6 @@ static void save_cdef_boundary_lines(const YV12_BUFFER_CONFIG *frame,
   const int bdry_stride = boundaries->stripe_boundary_stride << use_highbd;
   uint8_t *bdry_rows = bdry_start + RESTORATION_CTX_VERT * stripe * bdry_stride;
 
-  const int lines_to_save = AOMMIN(RESTORATION_CTX_VERT, src_height - row);
 #if CONFIG_FRAME_SUPERRES
   // At the point where this function is called, we've already applied
   // superres. So we don't need to extend the lines here, we can just
@@ -1875,14 +1874,14 @@ static void save_cdef_boundary_lines(const YV12_BUFFER_CONFIG *frame,
   const int upscaled_width = src_width;
 #endif  // CONFIG_FRAME_SUPERRES
   const int line_bytes = upscaled_width << use_highbd;
-  for (int i = 0; i < lines_to_save; i++) {
+  for (int i = 0; i < RESTORATION_CTX_VERT; i++) {
     // Copy the line at 'row' into both context lines. This is because
     // we want to (effectively) extend the outermost row of CDEF data
     // from this tile to produce a border, rather than using deblocked
     // pixels from the tile above/below.
     memcpy(bdry_rows + i * bdry_stride, src_rows, line_bytes);
   }
-  extend_lines(bdry_rows, upscaled_width, lines_to_save, bdry_stride,
+  extend_lines(bdry_rows, upscaled_width, RESTORATION_CTX_VERT, bdry_stride,
                RESTORATION_EXTRA_HORZ, use_highbd);
 }
 
