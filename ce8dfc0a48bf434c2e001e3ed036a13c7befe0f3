@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "65d81da3_18d4d4ee",
+        "filename": "build/cmake/aom_experiment_deps.cmake",
+        "patchSetId": 2
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2017-11-10T16:15:06Z",
+      "side": 1,
+      "message": "can you move this down? trying to keep these alpha sorted by CONFIG_ var in outer condition because i want to avoid creating a mess like we have in configure where we handle this.",
+      "range": {
+        "startLine": 78,
+        "startChar": 0,
+        "endLine": 83,
+        "endChar": 0
+      },
+      "revId": "ce8dfc0a48bf434c2e001e3ed036a13c7befe0f3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
