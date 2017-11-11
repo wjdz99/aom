@@ -3068,6 +3068,7 @@ static void init_txfm_param(const MACROBLOCKD *xd, int plane, TX_SIZE tx_size,
   txfm_param->eob = eob;
   txfm_param->lossless = xd->lossless[xd->mi[0]->mbmi.segment_id];
   txfm_param->bd = xd->bd;
+  txfm_param->is_hbd = get_bitdepth_data_path_index(xd);
   const struct macroblockd_plane *const pd = &xd->plane[plane];
   const BLOCK_SIZE plane_bsize =
       get_plane_block_size(xd->mi[0]->mbmi.sb_type, pd);
@@ -3125,9 +3126,8 @@ void av1_inverse_transform_block(const MACROBLOCKD *xd,
 #endif  // CONFIG_LGT_FROM_PRED || CONFIG_MRC_TX
   assert(av1_ext_tx_used[txfm_param.tx_set_type][txfm_param.tx_type]);
 
-  const int is_hbd = get_bitdepth_data_path_index(xd);
 #if CONFIG_TXMG
-  if (is_hbd) {
+  if (txfm_param.is_hbd) {
     av1_highbd_inv_txfm_add(dqcoeff, dst, stride, &txfm_param);
   } else {
     DECLARE_ALIGNED(16, uint16_t, tmp[MAX_TX_SQUARE]);
@@ -3150,7 +3150,7 @@ void av1_inverse_transform_block(const MACROBLOCKD *xd,
     }
   }
 #else  // CONFIG_TXMG
-  inv_txfm_func[is_hbd](dqcoeff, dst, stride, &txfm_param);
+  inv_txfm_func[txfm_param.is_hbd](dqcoeff, dst, stride, &txfm_param);
 #endif  // CONFIG_TXMG
 }
 
