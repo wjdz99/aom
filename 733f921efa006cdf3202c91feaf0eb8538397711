@@ -1,0 +1,107 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f6804798_b8bf43dc",
+        "filename": "av1/common/av1_txfm.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 240,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-11-11T01:14:07Z",
+      "side": 1,
+      "message": "Call it sum, as that\u0027s what it is doing?",
+      "range": {
+        "startLine": 240,
+        "startChar": 19,
+        "endLine": 240,
+        "endChar": 29
+      },
+      "revId": "733f921efa006cdf3202c91feaf0eb8538397711",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "330d59ad_cbb7953f",
+        "filename": "av1/common/av1_txfm.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-11-11T01:14:07Z",
+      "side": 1,
+      "message": "Shhouldn\u0027t right padding be copying the last input value (at index \u0027dim - 1\u0027)?\nAnd similarly left padding copy the 0th value?",
+      "revId": "733f921efa006cdf3202c91feaf0eb8538397711",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cf699293_5c35ffbd",
+        "filename": "av1/common/av1_txfm.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 247,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-11-11T01:14:07Z",
+      "side": 1,
+      "message": "I think easier to read would be:\n- padding of two on both sides\n- Before for loop, you increment \u0027input\u0027 by two\nso that you can just use input[j] here.",
+      "revId": "733f921efa006cdf3202c91feaf0eb8538397711",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "89ac4737_f956917c",
+        "filename": "av1/common/av1_txfm.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 265,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-11-11T01:14:07Z",
+      "side": 1,
+      "message": "you are taking floor implicitly: wouldn\u0027t rounding be better?\nDIVIDE_AND_ROUND(tmp_out[j], 5)\n[This macro is in encoder.c]",
+      "range": {
+        "startLine": 265,
+        "startChar": 0,
+        "endLine": 265,
+        "endChar": 63
+      },
+      "revId": "733f921efa006cdf3202c91feaf0eb8538397711",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8c6a48a9_bc9854cf",
+        "filename": "av1/common/av1_txfm.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-11-11T01:14:07Z",
+      "side": 1,
+      "message": "Pls use \u0027i\u0027 for height and \u0027j\u0027 for width in this function consistently for readability.",
+      "range": {
+        "startLine": 270,
+        "startChar": 12,
+        "endLine": 270,
+        "endChar": 13
+      },
+      "revId": "733f921efa006cdf3202c91feaf0eb8538397711",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
