@@ -42,6 +42,29 @@
     },
     {
       "key": {
+        "uuid": "b230a3ab_be841183",
+        "filename": "av1/common/av1_txfm.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 245,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-11-11T01:32:55Z",
+      "side": 1,
+      "message": "I am not sure if it is a placeholder. If not, maybe padding in a way like input[dim] \u003d input[dim + 1] \u003d input[dim - 1] will be better.",
+      "range": {
+        "startLine": 244,
+        "startChar": 0,
+        "endLine": 245,
+        "endChar": 34
+      },
+      "revId": "733f921efa006cdf3202c91feaf0eb8538397711",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "cf699293_5c35ffbd",
         "filename": "av1/common/av1_txfm.h",
         "patchSetId": 1
@@ -53,6 +76,75 @@
       "writtenOn": "2017-11-11T01:14:07Z",
       "side": 1,
       "message": "I think easier to read would be:\n- padding of two on both sides\n- Before for loop, you increment \u0027input\u0027 by two\nso that you can just use input[j] here.",
+      "revId": "733f921efa006cdf3202c91feaf0eb8538397711",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "370fa747_eaa1dcf4",
+        "filename": "av1/common/av1_txfm.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 247,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-11-11T01:32:55Z",
+      "side": 1,
+      "message": "Same comment for the other side.",
+      "range": {
+        "startLine": 247,
+        "startChar": 46,
+        "endLine": 247,
+        "endChar": 63
+      },
+      "revId": "733f921efa006cdf3202c91feaf0eb8538397711",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cce7b867_23db76a3",
+        "filename": "av1/common/av1_txfm.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 257,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-11-11T01:32:55Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 257,
+        "startChar": 2,
+        "endLine": 257,
+        "endChar": 8
+      },
+      "revId": "733f921efa006cdf3202c91feaf0eb8538397711",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "60d13501_07859f5f",
+        "filename": "av1/common/av1_txfm.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 258,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-11-11T01:32:55Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 258,
+        "startChar": 2,
+        "endLine": 258,
+        "endChar": 10
+      },
       "revId": "733f921efa006cdf3202c91feaf0eb8538397711",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
@@ -82,6 +174,29 @@
     },
     {
       "key": {
+        "uuid": "ae289c22_6cebb14b",
+        "filename": "av1/common/av1_txfm.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 265,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-11-11T01:32:55Z",
+      "side": 1,
+      "message": "will i * MAX_SB_SIZE + j be more straightforward?",
+      "range": {
+        "startLine": 265,
+        "startChar": 9,
+        "endLine": 265,
+        "endChar": 30
+      },
+      "revId": "733f921efa006cdf3202c91feaf0eb8538397711",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8c6a48a9_bc9854cf",
         "filename": "av1/common/av1_txfm.h",
         "patchSetId": 1
@@ -98,6 +213,29 @@
         "startChar": 12,
         "endLine": 270,
         "endChar": 13
+      },
+      "revId": "733f921efa006cdf3202c91feaf0eb8538397711",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d8b3c1ed_d807d881",
+        "filename": "av1/common/av1_txfm.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 271,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-11-11T01:32:55Z",
+      "side": 1,
+      "message": "ditto",
+      "range": {
+        "startLine": 271,
+        "startChar": 53,
+        "endLine": 271,
+        "endChar": 72
       },
       "revId": "733f921efa006cdf3202c91feaf0eb8538397711",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
