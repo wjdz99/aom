@@ -4610,11 +4610,10 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
   MACROBLOCKD *xd = &cpi->td.mb.e_mbd;
   struct loopfilter *lf = &cm->lf;
   int no_loopfilter = 0;
-#if CONFIG_CDEF
-  int no_cdef = 0;
-#endif
 #if CONFIG_LOOP_RESTORATION
   int no_restoration = 0;
+#endif  // CONFIG_LOOP_RESTORATION
+
   if (is_lossless_requested(&cpi->oxcf)
 #if CONFIG_INTRABC
       || (cm->allow_intrabc && NO_FILTER_FOR_IBC)
@@ -4624,19 +4623,24 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
 #endif  // CONFIG_EXT_TILE
       ) {
     no_loopfilter = 1;
+#if CONFIG_LOOP_RESTORATION
     no_restoration = 1;
+#endif  // CONFIG_LOOP_RESTORATION
   }
-#endif
 
 #if CONFIG_CDEF
+  int no_cdef = 0;
   if (is_lossless_requested(&cpi->oxcf) || !cpi->oxcf.using_cdef
+#if CONFIG_INTRABC
+      || (cm->allow_intrabc && NO_FILTER_FOR_IBC)
+#endif  // CONFIG_INTRABC
 #if CONFIG_EXT_TILE
       || cm->single_tile_decoding
 #endif
       ) {
     no_cdef = 1;
   }
-#endif
+#endif  // CONFIG_CDEF
 
   if (no_loopfilter) {
 #if CONFIG_LOOPFILTER_LEVEL
