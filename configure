@@ -322,6 +322,7 @@ EXPERIMENT_LIST="
     hash_me
     colorspace_headers
     mfmv
+    mfmv2
     frame_marker
     jnt_comp
     frame_refs
@@ -548,6 +549,7 @@ post_process_cmdline() {
     enabled intra_edge && enable_feature ext_intra
     enabled cdef_singlepass && enable_feature cdef
     enabled mfmv && enable_feature frame_marker
+    enabled mfmv2 && enable_feature mfmv
     enabled jnt_comp && enable_feature frame_marker
     enabled frame_refs && enable_feature frame_marker
     enabled frame_sign_bias && enable_feature frame_marker
