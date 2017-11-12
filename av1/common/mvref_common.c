@@ -1467,10 +1467,17 @@ static int div_mult[32] = {
 // TODO(jingning): Consider the use of lookup table for (num / den)
 // altogether.
 static void get_mv_projection(MV *output, MV ref, int num, int den) {
+#if CONFIG_MFMV2
+  output->row =
+      (int16_t)(ROUND_POWER_OF_TWO_SIGNED(ref.row * num * div_mult[den], 14));
+  output->col =
+      (int16_t)(ROUND_POWER_OF_TWO_SIGNED(ref.col * num * div_mult[den], 14));
+#else
   output->row =
       (int16_t)(ROUND_POWER_OF_TWO(ref.row * num * div_mult[den], 14));
   output->col =
       (int16_t)(ROUND_POWER_OF_TWO(ref.col * num * div_mult[den], 14));
+#endif  // CONFIG_MFMV2
 }
 
 #define MAX_OFFSET_WIDTH 64
@@ -1747,15 +1754,30 @@ void av1_setup_motion_field(AV1_COMMON *cm) {
     const int alt2_frame_idx =
         cm->buffer_pool->frame_bufs[lst_buf_idx].alt2_frame_offset;
 
+#if CONFIG_MFMV2
+    int alt_offset = alt_frame_idx - lst_frame_index;
+    alt_offset =
+        (alt_offset >= 0) ? AOMMAX(1, alt_offset) : AOMMIN(-1, alt_offset);
+#else
     int alt_offset = AOMMAX(1, alt_frame_idx - lst_frame_index);
+#endif  // CONFIG_MFMV2
     int lst_offset = AOMMAX(1, lst_frame_index - lst_frame_idx);
     int gld_offset = AOMMAX(1, lst_frame_index - gld_frame_idx);
     int cur_to_lst = cur_frame_index - lst_frame_index;
     int cur_to_alt = alt_frame_index - cur_frame_index;
     int cur_to_gld = cur_frame_index - gld_frame_index;
 
+#if CONFIG_MFMV2
+    int bwd_offset = bwd_frame_idx - lst_frame_index;
+    bwd_offset =
+        (bwd_offset >= 0) ? AOMMAX(1, bwd_offset) : AOMMIN(-1, bwd_offset);
+    int alt2_offset = alt2_frame_idx - lst_frame_index;
+    alt2_offset =
+        (alt2_offset >= 0) ? AOMMAX(1, alt2_offset) : AOMMIN(-1, alt2_offset);
+#else
     int bwd_offset = AOMMAX(1, bwd_frame_idx - lst_frame_index);
     int alt2_offset = AOMMAX(1, alt2_frame_idx - lst_frame_index);
+#endif  // CONFIG_MFMV2
     int lst2_offset = AOMMAX(1, lst_frame_index - lst2_frame_idx);
     int lst3_offset = AOMMAX(1, lst_frame_index - lst3_frame_idx);
     int cur_to_lst2 = cur_frame_index - lst2_frame_index;
@@ -1845,6 +1867,7 @@ void av1_setup_motion_field(AV1_COMMON *cm) {
             tpl_mvs_base[mi_offset]
                 .mfmv[FWD_RF_OFFSET(BWDREF_FRAME)][ref_stamp]
                 .as_int = this_mv.as_int;
+
             get_mv_projection(&this_mv.as_mv, fwd_mv, cur_to_alt2,
                               ref_frame_offset);
             tpl_mvs_base[mi_offset]
