@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fe358241_31fbb922",
+        "filename": "av1/common/daala_inv_txfm.c",
+        "patchSetId": 28
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-11-12T13:51:08Z",
+      "side": 1,
+      "message": "I missed this on the forward transform, but the actual type here should be TX_TYPE_1D (which is correct in daala_fwd_txfm.c), and the 2 should be FLIPADST_1D (which is not).",
+      "revId": "db4377d9f48bf06df627fa004f2dacb6a258ffd5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b351922f_12f72d69",
+        "filename": "av1/common/daala_inv_txfm.c",
+        "patchSetId": 28
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-11-12T13:51:08Z",
+      "side": 1,
+      "message": "It doesn\u0027t cast to short, it uses CONVERT_TO_SHORTPTR(), which is very, very different.",
+      "revId": "db4377d9f48bf06df627fa004f2dacb6a258ffd5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "417512cc_656e83ae",
+        "filename": "av1/common/daala_inv_txfm.c",
+        "patchSetId": 28
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-11-12T13:51:08Z",
+      "side": 1,
+      "message": "Same comments about #ifdefs as the forward transform (here and below).",
+      "revId": "db4377d9f48bf06df627fa004f2dacb6a258ffd5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0a077f83_9285a984",
+        "filename": "av1/common/daala_inv_txfm.c",
+        "patchSetId": 28
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-11-12T13:51:08Z",
+      "side": 1,
+      "message": "So, I\u0027m trying to match this up against the existing code, and failing. All of the av1_highbd_inv_txfm_add_NxM() functions use CONVERT_TO_SHORTPTR(dest) before calling the corresponding av1_inv_txfm2d_add_NxM() function.\n\nHave you tested this patch with HBD content?",
+      "revId": "db4377d9f48bf06df627fa004f2dacb6a258ffd5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
