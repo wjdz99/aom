@@ -8821,6 +8821,9 @@ static int64_t rd_pick_intrabc_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
   MB_MODE_INFO best_mbmi = *mbmi;
   RD_STATS best_rdcost = *rd_cost;
   int best_skip = x->skip;
+  uint8_t best_blk_skip[MAX_MIB_SIZE * MAX_MIB_SIZE * 8];
+  av1_zero(best_blk_skip);
+  const int n4 = bsize_to_num_blk(bsize);
 
   for (enum IntrabcMotionDirection dir = IBC_MOTION_ABOVE;
        dir < IBC_MOTION_DIRECTIONS; ++dir) {
@@ -8884,10 +8887,8 @@ static int64_t rd_pick_intrabc_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
     // DV should not have sub-pel.
     assert((dv.col & 7) == 0);
     assert((dv.row & 7) == 0);
-    memset(&mbmi->palette_mode_info, 0, sizeof(mbmi->palette_mode_info));
+    av1_set_default_mode_info(mbmi);
     mbmi->use_intrabc = 1;
-    mbmi->mode = DC_PRED;
-    mbmi->uv_mode = UV_DC_PRED;
     mbmi->mv[0].as_mv = dv;
     mbmi->interp_filters = av1_broadcast_interp_filter(BILINEAR);
     mbmi->skip = 0;
@@ -8904,7 +8905,6 @@ static int64_t rd_pick_intrabc_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
     RD_STATS rd_stats, rd_stats_uv;
     av1_subtract_plane(x, bsize, 0);
     if (cm->tx_mode == TX_MODE_SELECT && !xd->lossless[mbmi->segment_id]) {
-      // Intrabc
       select_tx_type_yrd(cpi, x, &rd_stats, bsize, mi_row, mi_col, INT64_MAX);
     } else {
       int idx, idy;
@@ -8916,15 +8916,15 @@ static int64_t rd_pick_intrabc_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
              sizeof(uint8_t) * xd->n8_h * xd->n8_w * 4);
     }
     super_block_uvrd(cpi, x, &rd_stats_uv, bsize, INT64_MAX);
+    if (rd_stats.rate == INT_MAX || rd_stats_uv.rate == INT_MAX) continue;
     av1_merge_rd_stats(&rd_stats, &rd_stats_uv);
+    if (rd_stats.invalid_rate) continue;
 #if CONFIG_RD_DEBUG
     mbmi->rd_stats = rd_stats;
 #endif
 
     const int skip_ctx = av1_get_skip_context(xd);
-
-    RD_STATS rdc_noskip;
-    av1_init_rd_stats(&rdc_noskip);
+    RD_STATS rdc_noskip = rd_stats;
     rdc_noskip.rate =
         rate_mode + rate_mv + rd_stats.rate + x->skip_cost[skip_ctx][0];
     rdc_noskip.dist = rd_stats.dist;
@@ -8932,27 +8932,27 @@ static int64_t rd_pick_intrabc_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
     if (rdc_noskip.rdcost < best_rd) {
       best_rd = rdc_noskip.rdcost;
       best_mbmi = *mbmi;
-      best_skip = x->skip;
+      best_skip = 0;
       best_rdcost = rdc_noskip;
+      memcpy(best_blk_skip, x->blk_skip[0], sizeof(best_blk_skip[0]) * n4);
     }
 
-    x->skip = 1;
-    mbmi->skip = 1;
-    RD_STATS rdc_skip;
-    av1_init_rd_stats(&rdc_skip);
+    RD_STATS rdc_skip = rd_stats;
     rdc_skip.rate = rate_mode + rate_mv + x->skip_cost[skip_ctx][1];
     rdc_skip.dist = rd_stats.sse;
     rdc_skip.rdcost = RDCOST(x->rdmult, rdc_skip.rate, rdc_skip.dist);
     if (rdc_skip.rdcost < best_rd) {
       best_rd = rdc_skip.rdcost;
       best_mbmi = *mbmi;
-      best_skip = x->skip;
+      best_skip = 1;
       best_rdcost = rdc_skip;
+      memcpy(best_blk_skip, x->blk_skip[0], sizeof(best_blk_skip[0]) * n4);
     }
   }
   *mbmi = best_mbmi;
   *rd_cost = best_rdcost;
   x->skip = best_skip;
+  memcpy(x->blk_skip[0], best_blk_skip, sizeof(best_blk_skip[0]) * n4);
   return best_rd;
 }
 #endif  // CONFIG_INTRABC
@@ -9672,6 +9672,9 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
     mbmi->ref_frame[1] = second_ref_frame;
     pmi->palette_size[0] = 0;
     pmi->palette_size[1] = 0;
+#if CONFIG_INTRABC
+    mbmi->use_intrabc = 0;
+#endif  // CONFIG_INTRABC
 #if CONFIG_FILTER_INTRA
     mbmi->filter_intra_mode_info.use_filter_intra_mode[0] = 0;
     mbmi->filter_intra_mode_info.use_filter_intra_mode[1] = 0;
@@ -10105,6 +10108,10 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
         rate_uv = rd_stats_uv.rate;
       }
 #endif  // CONFIG_JNT_COMP
+
+#if CONFIG_INTRABC
+      if (av1_allow_intrabc(bsize, cm)) rate2 += x->intrabc_cost[0];
+#endif  // CONFIG_INTRABC
 
 // TODO(jingning): This needs some refactoring to improve code quality
 // and reduce redundant steps.
@@ -10658,7 +10665,36 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
       best_mode_skippable = skippable;
     }
   }
-PALETTE_EXIT:
+PALETTE_EXIT : {}
+
+#if CONFIG_INTRABC
+  {
+    RD_STATS intrabc_rd_cost = *rd_cost;
+    const MB_MODE_INFO mbmi_backup = *mbmi;
+    const int backup_skip = x->skip;
+    const int64_t intrabc_rd =
+        rd_pick_intrabc_mode_sb(cpi, x, &intrabc_rd_cost, bsize, best_rd);
+    // TODO(huisu@google.com): have to leave extra margin when comparing the RD
+    // scores, otherwise there may be compression loss sometimes.
+    if (intrabc_rd < INT64_MAX && (intrabc_rd + (intrabc_rd >> 3) < best_rd)) {
+      best_mode_index = THR_DC;
+      best_mbmode = *mbmi;
+      best_rd = intrabc_rd;
+      *rd_cost = intrabc_rd_cost;
+      best_mode_skippable = intrabc_rd_cost.skip;
+      best_skip2 = x->skip;
+      x->skip = 0;
+      for (i = 0; i < MAX_MB_PLANE; ++i) {
+        memcpy(ctx->blk_skip[i], x->blk_skip[i],
+               sizeof(uint8_t) * ctx->num_4x4_blk);
+      }
+    } else {
+      *mbmi = mbmi_backup;
+      x->skip = backup_skip;
+    }
+  }
+#endif
+
 // The inter modes' rate costs are not calculated precisely in some cases.
 // Therefore, sometimes, NEWMV is chosen instead of NEARESTMV, NEARMV, and
 // GLOBALMV. Here, checks are added for those cases, and the mode decisions

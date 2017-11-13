@@ -1667,6 +1667,20 @@ void av1_average_tile_mv_cdfs(FRAME_CONTEXT *fc, FRAME_CONTEXT *ec_ctxs[],
 #endif
     }
   }
+
+#if CONFIG_INTRABC
+  for (k = 0; k < 2; ++k) {
+    AVERAGE_TILE_CDFS(ndvc.comps[k].classes_cdf)
+    AVERAGE_TILE_CDFS(ndvc.comps[k].class0_fp_cdf)
+    AVERAGE_TILE_CDFS(ndvc.comps[k].fp_cdf)
+#if CONFIG_NEW_MULTISYMBOL
+    AVERAGE_TILE_CDFS(ndvc.comps[k].hp_cdf)
+    AVERAGE_TILE_CDFS(ndvc.comps[k].class0_hp_cdf)
+    AVERAGE_TILE_CDFS(ndvc.comps[k].class0_cdf)
+    AVERAGE_TILE_CDFS(ndvc.comps[k].bits_cdf)
+#endif
+  }
+#endif  // CONFIG_INTRABC
 }
 
 void av1_average_tile_loopfilter_cdfs(FRAME_CONTEXT *fc,
@@ -1762,6 +1776,9 @@ void av1_average_tile_intra_cdfs(FRAME_CONTEXT *fc, FRAME_CONTEXT *ec_ctxs[],
   int j;
   for (j = 0; j < Q_SEGMENT_CDF_COUNT; j++) AVERAGE_TILE_CDFS(seg.q_seg_cdf[j]);
 #endif
+#if CONFIG_INTRABC
+  AVERAGE_TILE_CDFS(intrabc_cdf)
+#endif  // CONFIG_INTRABC
 }
 
 void av1_average_tile_inter_cdfs(AV1_COMMON *cm, FRAME_CONTEXT *fc,
