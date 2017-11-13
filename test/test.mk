@@ -167,9 +167,7 @@ LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += error_block_test.cc
 #LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += av1_quantize_test.cc
 LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += subtract_test.cc
 LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += arf_freq_test.cc
-ifneq ($(CONFIG_NEW_QUANT), yes)
 LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += quantize_func_test.cc
-endif
 LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += block_error_test.cc
 
 LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += av1_inv_txfm_test.cc
