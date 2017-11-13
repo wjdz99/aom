@@ -713,8 +713,7 @@ void av1_initialize_rd_consts(AV1_COMP *cpi) {
   x->nmvjointcost = x->nmv_vec_cost[0];
 
 #if CONFIG_INTRABC
-  if (frame_is_intra_only(cm) && cm->allow_screen_content_tools &&
-      cpi->oxcf.pass != 1) {
+  if (cm->allow_screen_content_tools && cpi->oxcf.pass != 1) {
     int *dvcost[2] = { &cpi->dv_cost[0][MV_MAX], &cpi->dv_cost[1][MV_MAX] };
     av1_build_nmv_cost_table(cpi->dv_joint_cost, dvcost, &cm->fc->ndvc,
                              MV_SUBPEL_NONE);

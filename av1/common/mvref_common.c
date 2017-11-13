@@ -999,10 +999,6 @@ static void find_mv_refs_idx(const AV1_COMMON *cm, const MACROBLOCKD *xd,
 #endif  // CONFIG_MV_COMPRESS
 #endif  // CONFIG_TMV
 #endif  // CONFIG_MFMV
-
-#if CONFIG_INTRABC
-  assert(IMPLIES(ref_frame == INTRA_FRAME, cm->use_prev_frame_mvs == 0));
-#endif
   const TileInfo *const tile = &xd->tile;
   const BLOCK_SIZE bsize = mi->mbmi.sb_type;
   const int bw = block_size_wide[AOMMAX(bsize, BLOCK_8X8)];
@@ -1113,7 +1109,11 @@ static void find_mv_refs_idx(const AV1_COMMON *cm, const MACROBLOCKD *xd,
 
 #if !CONFIG_MFMV
   // Check the last frame's mode and mv info.
-  if (cm->use_prev_frame_mvs) {
+  if (cm->use_prev_frame_mvs
+#if CONFIG_INTRABC
+      && ref_frame != INTRA_FRAME
+#endif  // CONFIG_INTRABC
+      ) {
     // Synchronize here for frame parallel decode if sync function is provided.
     if (cm->frame_parallel_decode && sync != NULL) {
       sync(data, mi_row);
@@ -1158,7 +1158,11 @@ static void find_mv_refs_idx(const AV1_COMMON *cm, const MACROBLOCKD *xd,
 
 #if !CONFIG_MFMV
   // Since we still don't have a candidate we'll try the last frame.
-  if (cm->use_prev_frame_mvs) {
+  if (cm->use_prev_frame_mvs
+#if CONFIG_INTRABC
+      && ref_frame != INTRA_FRAME
+#endif  // CONFIG_INTRABC
+     ) {
     if (prev_frame_mvs->ref_frame[0] != ref_frame &&
         prev_frame_mvs->ref_frame[0] > INTRA_FRAME) {
       int_mv mv = prev_frame_mvs->mv[0];

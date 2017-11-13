@@ -1104,7 +1104,11 @@ static void update_stats(const AV1_COMMON *const cm, TileDataEnc *tile_data,
 #endif  // CONFIG_LOOPFILTER_LEVEL
 #endif
   }
-  if (!frame_is_intra_only(cm)) {
+  if (!frame_is_intra_only(cm)
+#if CONFIG_INTRABC
+      &&  !(av1_allow_intrabc(bsize, cm) && is_intrabc_block(mbmi))
+#endif  //
+     ) {
     FRAME_COUNTS *const counts = td->counts;
     RD_COUNTS *rdc = &td->rd_counts;
     const int inter_block = is_inter_block(mbmi);
