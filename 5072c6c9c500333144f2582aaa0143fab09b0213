@@ -22,6 +22,30 @@
       "revId": "5072c6c9c500333144f2582aaa0143fab09b0213",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dd61c485_25cebd03",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 5560,
+      "author": {
+        "id": 6340
+      },
+      "writtenOn": "2017-11-13T12:51:58Z",
+      "side": 1,
+      "message": "I separated the termination heuristic into another change.",
+      "parentUuid": "2cd34a73_5f0f968f",
+      "range": {
+        "startLine": 5556,
+        "startChar": 0,
+        "endLine": 5560,
+        "endChar": 37
+      },
+      "revId": "5072c6c9c500333144f2582aaa0143fab09b0213",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
