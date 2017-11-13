@@ -143,10 +143,32 @@ static INLINE int_mv scale_mv(const MB_MODE_INFO *mbmi, int ref,
                               const MV_REFERENCE_FRAME this_ref_frame,
                               const int *ref_sign_bias) {
   int_mv mv = mbmi->mv[ref];
+
+#if CONFIG_SCALE_REF_MV
+  (void)ref_sign_bias;
+
+  int this_buf_idx = cm->frame_refs[this_ref_frame - LAST_FRAME].idx;
+  assert(this_buf_idx >= 0);  // ???
+  int this_ref_index =
+      cm->buffer_pool->frame_bufs[this_buf_idx].cur_frame_offset;
+  int cur_to_this_ref = this_ref_index - cm->frame_offset;
+
+  int candidate_buf_idx = cm->frame_refs[mbmi->ref_frame[ref] - LAST_FRAME].idx;
+  assert(candidate_buf_idx >= 0);  // ???
+  int candidate_ref_index =
+      cm->buffer_pool->frame_bufs[candidate_buf_idx].cur_frame_offset;
+  int cur_to_candidate = candidate_ref_index - cm->frame_offset;
+
+  int_mv this_mv;
+  get_mv_projection(&this_mv.mv, mv.as_mv, cur_to_this_ref, cur_to_candidate);
+  mv = this_mv;
+#else
   if (ref_sign_bias[mbmi->ref_frame[ref]] != ref_sign_bias[this_ref_frame]) {
     mv.as_mv.row *= -1;
     mv.as_mv.col *= -1;
   }
+#endif  // CONFIG_SCALE_REF_MV
+
   return mv;
 }
 
