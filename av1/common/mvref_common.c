@@ -474,7 +474,12 @@ static int add_tpl_ref_mv(const AV1_COMMON *cm,
       if (prev_frame_mvs->mfmv[ref_frame - LAST_FRAME][i].as_int !=
           INVALID_MV) {
         int_mv this_refmv = prev_frame_mvs->mfmv[ref_frame - LAST_FRAME][i];
+#if CONFIG_AMVR
+        lower_mv_precision(&this_refmv.as_mv, cm->allow_high_precision_mv,
+                           cm->cur_frame_force_integer_mv);
+#else  // CONFIG_AMVR
         lower_mv_precision(&this_refmv.as_mv, cm->allow_high_precision_mv);
+#endif  // CONFIG_AMVR
 
         if (blk_row == 0 && blk_col == 0)
           if (abs(this_refmv.as_mv.row) >= 16 ||
@@ -509,8 +514,15 @@ static int add_tpl_ref_mv(const AV1_COMMON *cm,
           prev_frame_mvs->mfmv[rf[1] - LAST_FRAME][i].as_int != INVALID_MV) {
         int_mv this_refmv = prev_frame_mvs->mfmv[rf[0] - LAST_FRAME][i];
         int_mv comp_refmv = prev_frame_mvs->mfmv[rf[1] - LAST_FRAME][i];
+#if CONFIG_AMVR
+        lower_mv_precision(&this_refmv.as_mv, cm->allow_high_precision_mv,
+                           cm->cur_frame_force_integer_mv);
+        lower_mv_precision(&comp_refmv.as_mv, cm->allow_high_precision_mv,
+                           cm->cur_frame_force_integer_mv);
+#else  //CONFIG_AMVR
         lower_mv_precision(&this_refmv.as_mv, cm->allow_high_precision_mv);
         lower_mv_precision(&comp_refmv.as_mv, cm->allow_high_precision_mv);
+#endif   // CONFIG_AMVR
 
         if (blk_row == 0 && blk_col == 0)
           if (abs(this_refmv.as_mv.row) >= 16 ||
