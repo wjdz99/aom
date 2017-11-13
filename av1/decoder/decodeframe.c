@@ -2900,11 +2900,10 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
   } else {
     if (cm->intra_only) {
       cm->allow_screen_content_tools = aom_rb_read_bit(rb);
-#if CONFIG_INTRABC
-      if (cm->allow_screen_content_tools)
-        cm->allow_intrabc = aom_rb_read_bit(rb);
-#endif  // CONFIG_INTRABC
     }
+#if CONFIG_INTRABC
+    if (cm->allow_screen_content_tools) cm->allow_intrabc = aom_rb_read_bit(rb);
+#endif  // CONFIG_INTRABC
 #if CONFIG_TEMPMV_SIGNALING
     if (cm->intra_only || cm->error_resilient_mode) cm->use_prev_frame_mvs = 0;
 #endif
