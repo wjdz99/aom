@@ -320,6 +320,7 @@ EXPERIMENT_LIST="
     colorspace_headers
     mfmv
     frame_marker
+    scale_refmv
     jnt_comp
     frame_refs
     frame_sign_bias
@@ -544,6 +545,7 @@ post_process_cmdline() {
     enabled ext_intra_mod && enable_feature intra_edge
     enabled intra_edge && enable_feature ext_intra
     enabled mfmv && enable_feature frame_marker
+    enabled scale_refmv && enable_feature frame_marker
     enabled jnt_comp && enable_feature frame_marker
     enabled frame_refs && enable_feature frame_marker
     enabled frame_sign_bias && enable_feature frame_marker
