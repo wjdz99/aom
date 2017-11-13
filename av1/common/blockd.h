@@ -653,7 +653,9 @@ typedef struct macroblockd {
   int chroma_up_available;
   int chroma_left_available;
 
+#if CONFIG_UNPOISON_PARTITION_CTX
   const aom_prob (*partition_probs)[PARTITION_TYPES - 1];
+#endif
 
   /* Distance of MB away from frame edges in subpixels (1/8th pixel)  */
   int mb_to_left_edge;
