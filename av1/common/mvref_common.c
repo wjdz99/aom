@@ -1149,9 +1149,14 @@ static void find_mv_refs_idx(const AV1_COMMON *cm, const MACROBLOCKD *xd,
             (mi_col & (sb_mi_size - 1)) + mv_ref->col >= sb_mi_size)
           continue;
 
-        // If the candidate is INTRA we don't want to consider its mv.
+// If the candidate is INTRA we don't want to consider its mv.
+#if CONFIG_SCALE_REFMV
+        IF_DIFF_REF_FRAME_ADD_MV(candidate, ref_frame, cm, refmv_count,
+                                 mv_ref_list, bw, bh, xd, Done);
+#else
         IF_DIFF_REF_FRAME_ADD_MV(candidate, ref_frame, ref_sign_bias,
                                  refmv_count, mv_ref_list, bw, bh, xd, Done);
+#endif  // CONFIG_SCALE_REFMV
       }
     }
   }
@@ -1456,23 +1461,6 @@ void av1_setup_skip_mode_allowed(AV1_COMMON *const cm) {
 #endif  // CONFIG_FRAME_MARKER
 
 #if CONFIG_MFMV
-// Although we assign 32 bit integers, all the values are strictly under 14
-// bits.
-static int div_mult[32] = {
-  0,    16384, 8192, 5461, 4096, 3276, 2730, 2340, 2048, 1820, 1638,
-  1489, 1365,  1260, 1170, 1092, 1024, 963,  910,  862,  819,  780,
-  744,  712,   682,  655,  630,  606,  585,  564,  546,  528,
-};
-
-// TODO(jingning): Consider the use of lookup table for (num / den)
-// altogether.
-static void get_mv_projection(MV *output, MV ref, int num, int den) {
-  output->row =
-      (int16_t)(ROUND_POWER_OF_TWO(ref.row * num * div_mult[den], 14));
-  output->col =
-      (int16_t)(ROUND_POWER_OF_TWO(ref.col * num * div_mult[den], 14));
-}
-
 #define MAX_OFFSET_WIDTH 64
 #define MAX_OFFSET_HEIGHT 0
 
