@@ -949,6 +949,80 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   }
 }
 
+#if CONFIG_MFMV || CONFIG_SCALE_REFMV
+// Although we assign 32 bit integers, all the values are strictly under 14
+// bits.
+static int div_mult[32] = {
+  0,    16384, 8192, 5461, 4096, 3276, 2730, 2340, 2048, 1820, 1638,
+  1489, 1365,  1260, 1170, 1092, 1024, 963,  910,  862,  819,  780,
+  744,  712,   682,  655,  630,  606,  585,  564,  546,  528,
+};
+
+// TODO(jingning): Consider the use of lookup table for (num / den)
+// altogether.
+static void get_mv_projection(MV *output, MV ref, int num, int den) {
+  output->row =
+      (int16_t)(ROUND_POWER_OF_TWO(ref.row * num * div_mult[den], 14));
+  output->col =
+      (int16_t)(ROUND_POWER_OF_TWO(ref.col * num * div_mult[den], 14));
+}
+#endif  // CONFIG_MFMV || CONFIG_SCALE_REFMV
+
+#if CONFIG_SCALE_REFMV
+// Performs mv projection using frame offsets.
+static int_mv scale_mv(const MB_MODE_INFO *mbmi, int ref,
+                       const MV_REFERENCE_FRAME this_ref_frame,
+                       const AV1_COMMON *const cm) {
+  int_mv mv = mbmi->mv[ref];
+  int cur_frame_index = cm->cur_frame->cur_frame_offset;
+
+  int this_buf_idx = cm->frame_refs[this_ref_frame - LAST_FRAME].idx;
+  if (this_buf_idx < 0) return mv;
+  int this_ref_index =
+      cm->buffer_pool->frame_bufs[this_buf_idx].cur_frame_offset;
+  int cur_to_this_ref = this_ref_index - cur_frame_index;
+
+  int candidate_buf_idx = cm->frame_refs[mbmi->ref_frame[ref] - LAST_FRAME].idx;
+  if (candidate_buf_idx < 0) return mv;
+  int candidate_ref_index =
+      cm->buffer_pool->frame_bufs[candidate_buf_idx].cur_frame_offset;
+  int cur_to_candidate = candidate_ref_index - cur_frame_index;
+
+  int_mv scaled_mv;
+  const int ref_sign_bias = ((cur_to_candidate < 0 && cur_to_this_ref < 0) ||
+                             (cur_to_candidate >= 0 && cur_to_this_ref >= 0))
+                                ? 0
+                                : 1;
+  cur_to_this_ref =
+      (cur_to_this_ref < 0) ? (-cur_to_this_ref) : cur_to_this_ref;
+  cur_to_candidate = AOMMAX(
+      1, (cur_to_candidate < 0) ? (-cur_to_candidate) : cur_to_candidate);
+  get_mv_projection(&scaled_mv.as_mv, mv.as_mv, cur_to_this_ref,
+                    cur_to_candidate);
+
+  if (ref_sign_bias) {
+    scaled_mv.as_mv.row *= -1;
+    scaled_mv.as_mv.col *= -1;
+  }
+  return scaled_mv;
+}
+
+// If either reference frame is different, not INTRA, and they
+// are different from each other scale and add the mv to our list.
+#define IF_DIFF_REF_FRAME_ADD_MV(mbmi, ref_frame, cm, refmv_count,       \
+                                 mv_ref_list, bw, bh, xd, Done)          \
+  do {                                                                   \
+    if (is_inter_block(mbmi)) {                                          \
+      if ((mbmi)->ref_frame[0] != ref_frame)                             \
+        ADD_MV_REF_LIST(scale_mv((mbmi), 0, ref_frame, cm), refmv_count, \
+                        mv_ref_list, bw, bh, xd, Done);                  \
+      if (has_second_ref(mbmi) && (mbmi)->ref_frame[1] != ref_frame)     \
+        ADD_MV_REF_LIST(scale_mv((mbmi), 1, ref_frame, cm), refmv_count, \
+                        mv_ref_list, bw, bh, xd, Done);                  \
+    }                                                                    \
+  } while (0)
+#endif  // CONFIG_SCALE_REFMV
+
 // This function searches the neighbourhood of a given MB/SB
 // to try and find candidate reference vectors.
 static void find_mv_refs_idx(const AV1_COMMON *cm, const MACROBLOCKD *xd,
@@ -957,7 +1031,9 @@ static void find_mv_refs_idx(const AV1_COMMON *cm, const MACROBLOCKD *xd,
                              int mi_col, find_mv_refs_sync sync,
                              void *const data, int16_t *mode_context,
                              int_mv zeromv) {
+#if !CONFIG_MFMV || !CONFIG_SCALE_REFMV
   const int *ref_sign_bias = cm->ref_frame_sign_bias;
+#endif  // !CONFIG_MFMV || !CONFIG_SCALE_REFMV
   const int sb_mi_size = mi_size_wide[cm->sb_size];
   int i, refmv_count = 0;
   int different_ref_found = 0;
@@ -1149,9 +1225,14 @@ static void find_mv_refs_idx(const AV1_COMMON *cm, const MACROBLOCKD *xd,
             (mi_col & (sb_mi_size - 1)) + mv_ref->col >= sb_mi_size)
           continue;
 
-        // If the candidate is INTRA we don't want to consider its mv.
+// If the candidate is INTRA we don't want to consider its mv.
+#if CONFIG_SCALE_REFMV
+        IF_DIFF_REF_FRAME_ADD_MV(candidate, ref_frame, cm, refmv_count,
+                                 mv_ref_list, bw, bh, xd, Done);
+#else
         IF_DIFF_REF_FRAME_ADD_MV(candidate, ref_frame, ref_sign_bias,
                                  refmv_count, mv_ref_list, bw, bh, xd, Done);
+#endif  // CONFIG_SCALE_REFMV
       }
     }
   }
@@ -1456,23 +1537,6 @@ void av1_setup_skip_mode_allowed(AV1_COMMON *const cm) {
 #endif  // CONFIG_FRAME_MARKER
 
 #if CONFIG_MFMV
-// Although we assign 32 bit integers, all the values are strictly under 14
-// bits.
-static int div_mult[32] = {
-  0,    16384, 8192, 5461, 4096, 3276, 2730, 2340, 2048, 1820, 1638,
-  1489, 1365,  1260, 1170, 1092, 1024, 963,  910,  862,  819,  780,
-  744,  712,   682,  655,  630,  606,  585,  564,  546,  528,
-};
-
-// TODO(jingning): Consider the use of lookup table for (num / den)
-// altogether.
-static void get_mv_projection(MV *output, MV ref, int num, int den) {
-  output->row =
-      (int16_t)(ROUND_POWER_OF_TWO(ref.row * num * div_mult[den], 14));
-  output->col =
-      (int16_t)(ROUND_POWER_OF_TWO(ref.col * num * div_mult[den], 14));
-}
-
 #define MAX_OFFSET_WIDTH 64
 #define MAX_OFFSET_HEIGHT 0
 
