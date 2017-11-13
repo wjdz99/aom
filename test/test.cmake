@@ -225,7 +225,7 @@ if (CONFIG_AV1_ENCODER)
         "${AOM_ROOT}/test/sum_squares_test.cc"
         "${AOM_ROOT}/test/variance_test.cc")
 
-    if (NOT CONFIG_AOM_QM AND NOT CONFIG_NEW_QUANT)
+    if (NOT CONFIG_AOM_QM)
       set(AOM_UNIT_TEST_ENCODER_SOURCES
           ${AOM_UNIT_TEST_ENCODER_SOURCES}
           "${AOM_ROOT}/test/quantize_func_test.cc")
