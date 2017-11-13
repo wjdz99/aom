@@ -1094,7 +1094,11 @@ static void update_stats(const AV1_COMMON *const cm, TileDataEnc *tile_data,
 #endif
   }
 
-  if (!frame_is_intra_only(cm)) {
+  if (!frame_is_intra_only(cm)
+#if CONFIG_INTRABC
+      && !(av1_allow_intrabc(bsize, cm) && is_intrabc_block(mbmi))
+#endif  // CONFIG_INTRABC
+          ) {
     RD_COUNTS *rdc = &td->rd_counts;
 
 #if CONFIG_EXT_SKIP

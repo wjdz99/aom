@@ -964,6 +964,7 @@ static void read_intrabc_info(AV1_COMMON *const cm, MACROBLOCKD *const xd,
   MODE_INFO *const mi = xd->mi[0];
   MB_MODE_INFO *const mbmi = &mi->mbmi;
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
+  av1_set_default_mode_info(mbmi);
   mbmi->use_intrabc = aom_read_symbol(r, ec_ctx->intrabc_cdf, 2, ACCT_STR);
   if (mbmi->use_intrabc) {
     const BLOCK_SIZE bsize = mbmi->sb_type;
@@ -990,7 +991,8 @@ static void read_intrabc_info(AV1_COMMON *const cm, MACROBLOCKD *const xd,
       mbmi->min_tx_size = get_min_tx_size(mbmi->tx_size);
       set_txfm_ctxs(mbmi->tx_size, xd->n8_w, xd->n8_h, mbmi->skip, xd);
     }
-    mbmi->mode = mbmi->uv_mode = UV_DC_PRED;
+    mbmi->mode = DC_PRED;
+    mbmi->uv_mode = UV_DC_PRED;
     mbmi->interp_filters = av1_broadcast_interp_filter(BILINEAR);
 
     int16_t inter_mode_ctx[MODE_CTX_REF_FRAMES];
@@ -2220,6 +2222,11 @@ static void read_inter_frame_mode_info(AV1Decoder *const pbi,
   mbmi->mv[1].as_int = 0;
   mbmi->segment_id = read_inter_segment_id(cm, xd, mi_row, mi_col, r);
 
+  xd->above_txfm_context =
+      cm->above_txfm_context + (mi_col << TX_UNIT_WIDE_LOG2);
+  xd->left_txfm_context = xd->left_txfm_context_buffer +
+                          ((mi_row & MAX_MIB_MASK) << TX_UNIT_HIGH_LOG2);
+
 #if CONFIG_EXT_SKIP
   mbmi->skip_mode = read_skip_mode(cm, xd, mbmi->segment_id, r);
 #if 0
@@ -2281,17 +2288,20 @@ static void read_inter_frame_mode_info(AV1Decoder *const pbi,
 #endif  // CONFIG_EXT_DELTA_Q
   }
 
+#if CONFIG_INTRABC
+    if (av1_allow_intrabc(bsize, cm)) {
+      read_intrabc_info(cm, xd, mi_row, mi_col, r);
+      if (is_intrabc_block(mbmi)) printf("mark\n");
+      if (is_intrabc_block(mbmi)) return;
+    }
+#endif  // CONFIG_INTRABC
+
 #if CONFIG_EXT_SKIP
   if (!mbmi->skip_mode)
 #endif  // CONFIG_EXT_SKIP
     inter_block = read_is_inter_block(cm, xd, mbmi->segment_id, r);
 
   mbmi->current_q_index = xd->current_qindex;
-
-  xd->above_txfm_context =
-      cm->above_txfm_context + (mi_col << TX_UNIT_WIDE_LOG2);
-  xd->left_txfm_context = xd->left_txfm_context_buffer +
-                          ((mi_row & MAX_MIB_MASK) << TX_UNIT_HIGH_LOG2);
 
   if (cm->tx_mode == TX_MODE_SELECT && block_signals_txsize(bsize) &&
       !mbmi->skip && inter_block && !xd->lossless[mbmi->segment_id]) {

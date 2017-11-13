@@ -1192,6 +1192,42 @@ static void write_cfl_alphas(FRAME_CONTEXT *const ec_ctx, int idx,
 }
 #endif
 
+#if CONFIG_INTRABC
+static void write_intrabc_info(AV1_COMMON *cm, MACROBLOCKD *xd,
+                               const MB_MODE_INFO_EXT *mbmi_ext,
+                               int enable_tx_size, aom_writer *w) {
+  const MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
+  int use_intrabc = is_intrabc_block(mbmi);
+  FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
+  aom_write_symbol(w, use_intrabc, ec_ctx->intrabc_cdf, 2);
+  if (use_intrabc) {
+    assert(mbmi->mode == DC_PRED);
+    assert(mbmi->uv_mode == UV_DC_PRED);
+    if ((enable_tx_size && !mbmi->skip)) {
+      const BLOCK_SIZE bsize = mbmi->sb_type;
+      const TX_SIZE max_tx_size = get_vartx_max_txsize(mbmi, bsize, 0);
+      const int bh = tx_size_high_unit[max_tx_size];
+      const int bw = tx_size_wide_unit[max_tx_size];
+      const int width = block_size_wide[bsize] >> tx_size_wide_log2[0];
+      const int height = block_size_high[bsize] >> tx_size_wide_log2[0];
+      int idx, idy;
+      for (idy = 0; idy < height; idy += bh) {
+        for (idx = 0; idx < width; idx += bw) {
+          write_tx_size_vartx(cm, xd, mbmi, max_tx_size, 0, idy, idx, w);
+        }
+      }
+    } else {
+      set_txfm_ctxs(mbmi->tx_size, xd->n8_w, xd->n8_h, mbmi->skip, xd);
+    }
+    int_mv dv_ref = mbmi_ext->ref_mvs[INTRA_FRAME][0];
+    av1_encode_dv(w, &mbmi->mv[0].as_mv, &dv_ref.as_mv, &ec_ctx->ndvc);
+#if !CONFIG_TXK_SEL
+    av1_write_tx_type(cm, xd, w);
+#endif  // !CONFIG_TXK_SEL
+  }
+}
+#endif  // CONFIG_INTRABC
+
 static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
                                 const int mi_col, aom_writer *w) {
   AV1_COMMON *const cm = &cpi->common;
@@ -1283,10 +1319,21 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
     }
   }
 
+#if CONFIG_INTRABC
+  if (av1_allow_intrabc(bsize, cm)) {
+    int enable_tx_size = cm->tx_mode == TX_MODE_SELECT &&
+                         block_signals_txsize(bsize) && !skip &&
+                         !xd->lossless[segment_id];
+    write_intrabc_info(cm, xd, mbmi_ext, enable_tx_size, w);
+    if (is_intrabc_block(mbmi)) return;
+  }
+#endif  // CONFIG_INTRABC
+
 #if CONFIG_EXT_SKIP
   if (!mbmi->skip_mode)
 #endif  // CONFIG_EXT_SKIP
     write_is_inter(cm, xd, mbmi->segment_id, w, is_inter);
+
 
   if (cm->tx_mode == TX_MODE_SELECT && block_signals_txsize(bsize) &&
       !(is_inter && skip) && !xd->lossless[segment_id]) {
@@ -1452,42 +1499,6 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
   av1_write_tx_type(cm, xd, w);
 #endif  // !CONFIG_TXK_SEL
 }
-
-#if CONFIG_INTRABC
-static void write_intrabc_info(AV1_COMMON *cm, MACROBLOCKD *xd,
-                               const MB_MODE_INFO_EXT *mbmi_ext,
-                               int enable_tx_size, aom_writer *w) {
-  const MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
-  int use_intrabc = is_intrabc_block(mbmi);
-  FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
-  aom_write_symbol(w, use_intrabc, ec_ctx->intrabc_cdf, 2);
-  if (use_intrabc) {
-    assert(mbmi->mode == DC_PRED);
-    assert(mbmi->uv_mode == UV_DC_PRED);
-    if ((enable_tx_size && !mbmi->skip)) {
-      const BLOCK_SIZE bsize = mbmi->sb_type;
-      const TX_SIZE max_tx_size = get_vartx_max_txsize(mbmi, bsize, 0);
-      const int bh = tx_size_high_unit[max_tx_size];
-      const int bw = tx_size_wide_unit[max_tx_size];
-      const int width = block_size_wide[bsize] >> tx_size_wide_log2[0];
-      const int height = block_size_high[bsize] >> tx_size_wide_log2[0];
-      int idx, idy;
-      for (idy = 0; idy < height; idy += bh) {
-        for (idx = 0; idx < width; idx += bw) {
-          write_tx_size_vartx(cm, xd, mbmi, max_tx_size, 0, idy, idx, w);
-        }
-      }
-    } else {
-      set_txfm_ctxs(mbmi->tx_size, xd->n8_w, xd->n8_h, mbmi->skip, xd);
-    }
-    int_mv dv_ref = mbmi_ext->ref_mvs[INTRA_FRAME][0];
-    av1_encode_dv(w, &mbmi->mv[0].as_mv, &dv_ref.as_mv, &ec_ctx->ndvc);
-#if !CONFIG_TXK_SEL
-    av1_write_tx_type(cm, xd, w);
-#endif  // !CONFIG_TXK_SEL
-  }
-}
-#endif  // CONFIG_INTRABC
 
 static void write_mb_modes_kf(AV1_COMMON *cm, MACROBLOCKD *xd,
 #if CONFIG_INTRABC
@@ -3723,11 +3734,10 @@ static void write_uncompressed_header_frame(AV1_COMP *cpi,
   } else {
     if (cm->intra_only) {
       aom_wb_write_bit(wb, cm->allow_screen_content_tools);
-#if CONFIG_INTRABC
-      if (cm->allow_screen_content_tools)
-        aom_wb_write_bit(wb, cm->allow_intrabc);
-#endif  // CONFIG_INTRABC
     }
+#if CONFIG_INTRABC
+    if (cm->allow_screen_content_tools) aom_wb_write_bit(wb, cm->allow_intrabc);
+#endif  // CONFIG_INTRABC
 #if !CONFIG_NO_FRAME_CONTEXT_SIGNALING
     if (!cm->error_resilient_mode) {
       if (cm->intra_only) {
