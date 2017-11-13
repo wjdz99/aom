@@ -116,6 +116,12 @@ macro (fix_experiment_configs)
     endif ()
   endif ()
 
+  if (CONFIG_SCALE_REFMV)
+    if (NOT CONFIG_FRAME_MARKER)
+      change_config_and_warn(CONFIG_FRAME_MARKER 1 CONFIG_SCALE_REFMV)
+    endif ()
+  endif ()
+
   if (CONFIG_LPF_SB)
     if (CONFIG_LOOPFILTER_LEVEL)
       change_config_and_warn(CONFIG_LOOPFILTER_LEVEL 0 CONFIG_LPF_SB)
