@@ -5364,7 +5364,9 @@ static int cfl_rd_pick_alpha(MACROBLOCK *const x, const AV1_COMP *const cpi,
 
   int best_joint_sign = -1;
 
+  int progress = 0;
   for (int c = 0; c < CFL_ALPHABET_SIZE; c++) {
+    int flag = 0;
     for (int plane = 0; plane < CFL_PRED_PLANES; plane++) {
       for (int sign_a = CFL_SIGN_NEG; sign_a < CFL_SIGNS; sign_a++) {
         RD_STATS rd_stats;
@@ -5391,9 +5393,12 @@ static int cfl_rd_pick_alpha(MACROBLOCK *const x, const AV1_COMP *const cpi,
           if (this_rd >= best_rd) continue;
           best_rd = this_rd;
           best_joint_sign = joint_sign;
+          flag = 2;
         }
       }
     }
+    progress += flag;
+    if (c > 2 && progress < c) break;
   }
 
   int best_rate_overhead = INT_MAX;
