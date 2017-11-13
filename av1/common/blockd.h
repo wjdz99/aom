@@ -1296,7 +1296,11 @@ static INLINE void assert_motion_mode_valid(MOTION_MODE mode, int block,
 }
 
 static INLINE int is_neighbor_overlappable(const MB_MODE_INFO *mbmi) {
-  return (is_inter_block(mbmi));
+  return (is_inter_block(mbmi)
+#if CONFIG_INTRABC  // TODO(huisu): test supporting obmc for intrabc.
+          && !is_intrabc_block(mbmi)
+#endif  // CONFIG_INTRABC
+              );
 }
 
 static INLINE int av1_allow_palette(int allow_screen_content_tools,
@@ -1405,6 +1409,25 @@ static INLINE void transpose_int32(int32_t *dst, int dst_stride,
   int r, c;
   for (r = 0; r < h; ++r)
     for (c = 0; c < w; ++c) dst[c * dst_stride + r] = src[r * src_stride + c];
+}
+
+static INLINE void av1_set_default_mode_info(MB_MODE_INFO *mbmi) {
+  mbmi->mode = DC_PRED;
+  mbmi->uv_mode = UV_DC_PRED;
+  mbmi->ref_frame[0] = INTRA_FRAME;
+  mbmi->ref_frame[1] = NONE_FRAME;
+  mbmi->palette_mode_info.palette_size[0] = 0;
+  mbmi->palette_mode_info.palette_size[1] = 0;
+#if CONFIG_INTRABC
+  mbmi->use_intrabc = 0;
+#endif  // CONFIG_INTRABC
+#if CONFIG_FILTER_INTRA
+  mbmi->filter_intra_mode_info.use_filter_intra_mode[0] = 0;
+  mbmi->filter_intra_mode_info.use_filter_intra_mode[1] = 0;
+#endif  // CONFIG_FILTER_INTRA
+  mbmi->motion_mode = SIMPLE_TRANSLATION;
+  mbmi->use_wedge_interintra = 0;
+  mbmi->ref_mv_idx = 0;
 }
 
 #ifdef __cplusplus
