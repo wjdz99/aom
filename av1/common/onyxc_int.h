@@ -1393,11 +1393,7 @@ static INLINE int all_lossless(const AV1_COMMON *cm, const MACROBLOCKD *xd) {
 
 static INLINE int use_compressed_header(const AV1_COMMON *cm) {
   (void)cm;
-#if CONFIG_NEW_MULTISYMBOL
   return 0;
-#else
-  return 1;
-#endif  // CONFIG_NEW_MULTISYMBOL
 }
 
 #if CONFIG_JNT_COMP
