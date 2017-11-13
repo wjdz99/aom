@@ -1805,8 +1805,8 @@ static void save_deblock_boundary_lines(
     int stripe, int use_highbd, int is_above,
     RestorationStripeBoundaries *boundaries) {
   const int is_uv = plane > 0;
+
   const int src_width = frame->crop_widths[is_uv];
-  const int src_height = frame->crop_heights[is_uv];
   const uint8_t *src_buf = REAL_PTR(use_highbd, frame->buffers[plane]);
   const int src_stride = frame->strides[is_uv] << use_highbd;
   const uint8_t *src_rows = src_buf + row * src_stride;
@@ -1817,7 +1817,15 @@ static void save_deblock_boundary_lines(
   const int bdry_stride = boundaries->stripe_boundary_stride << use_highbd;
   uint8_t *bdry_rows = bdry_start + RESTORATION_CTX_VERT * stripe * bdry_stride;
 
-  const int lines_to_save = AOMMIN(RESTORATION_CTX_VERT, src_height - row);
+// Because we're rounding to multiple of 8 luma pixels and this is
+// only called when row < src_height, there must be at least 2 luma
+// or chroma pixels available.
+#ifndef NDEBUG
+  const int ss_y = is_uv && cm->subsampling_y;
+  const int src_height = cm->mi_rows << (MI_SIZE_LOG2 - ss_y);
+  assert(src_height - row >= RESTORATION_CTX_VERT);
+#endif
+
 #if CONFIG_FRAME_SUPERRES
   const int ss_x = is_uv && cm->subsampling_x;
   const int upscaled_width = (cm->superres_upscaled_width + ss_x) >> ss_x;
@@ -1826,24 +1834,24 @@ static void save_deblock_boundary_lines(
   if (use_highbd)
     av1_highbd_convolve_horiz_rs(
         (uint16_t *)src_rows, src_stride >> 1, (uint16_t *)bdry_rows,
-        bdry_stride >> 1, upscaled_width, lines_to_save,
+        bdry_stride >> 1, upscaled_width, RESTORATION_CTX_VERT,
         &av1_resize_filter_normative[0][0], UPSCALE_NORMATIVE_TAPS, 0, step,
         cm->bit_depth);
   else
 #endif  // CONFIG_HIGHBITDEPTH
     av1_convolve_horiz_rs(src_rows, src_stride, bdry_rows, bdry_stride,
-                          upscaled_width, lines_to_save,
+                          upscaled_width, RESTORATION_CTX_VERT,
                           &av1_resize_filter_normative[0][0],
                           UPSCALE_NORMATIVE_TAPS, 0, step);
 #else
   (void)cm;
   const int upscaled_width = src_width;
   const int line_bytes = src_width << use_highbd;
-  for (int i = 0; i < lines_to_save; i++) {
+  for (int i = 0; i < RESTORATION_CTX_VERT; i++) {
     memcpy(bdry_rows + i * bdry_stride, src_rows + i * src_stride, line_bytes);
   }
 #endif  // CONFIG_FRAME_SUPERRES
-  extend_lines(bdry_rows, upscaled_width, lines_to_save, bdry_stride,
+  extend_lines(bdry_rows, upscaled_width, RESTORATION_CTX_VERT, bdry_stride,
                RESTORATION_EXTRA_HORZ, use_highbd);
 }
 
