@@ -131,6 +131,7 @@ static INLINE int_mv get_sub_block_pred_mv(const MODE_INFO *candidate,
   return candidate->mbmi.mv[which_mv];
 }
 
+#if !CONFIG_SCALE_REFMV
 // Performs mv sign inversion if indicated by the reference frame combination.
 static INLINE int_mv scale_mv(const MB_MODE_INFO *mbmi, int ref,
                               const MV_REFERENCE_FRAME this_ref_frame,
@@ -142,6 +143,7 @@ static INLINE int_mv scale_mv(const MB_MODE_INFO *mbmi, int ref,
   }
   return mv;
 }
+#endif  // !CONFIG_SCALE_REFMV
 
 #define CLIP_IN_ADD(mv, bw, bh, xd) clamp_mv_ref(mv, bw, bh, xd)
 
@@ -159,6 +161,7 @@ static INLINE int_mv scale_mv(const MB_MODE_INFO *mbmi, int ref,
     (refmv_count) = 1;                                                       \
   } while (0)
 
+#if !CONFIG_SCALE_REFMV
 // If either reference frame is different, not INTRA, and they
 // are different from each other scale and add the mv to our list.
 #define IF_DIFF_REF_FRAME_ADD_MV(mbmi, ref_frame, ref_sign_bias, refmv_count, \
@@ -173,6 +176,7 @@ static INLINE int_mv scale_mv(const MB_MODE_INFO *mbmi, int ref,
                         refmv_count, mv_ref_list, bw, bh, xd, Done);          \
     }                                                                         \
   } while (0)
+#endif  // !CONFIG_SCALE_REFMV
 
 // Checks that the given mi_row, mi_col and search point
 // are inside the borders of the tile.

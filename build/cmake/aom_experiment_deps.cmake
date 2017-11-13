@@ -161,6 +161,12 @@ macro (fix_experiment_configs)
     endif ()
   endif ()
 
+  if (CONFIG_SCALE_REFMV)
+    if (NOT CONFIG_FRAME_MARKER)
+      change_config_and_warn(CONFIG_FRAME_MARKER 1 CONFIG_SCALE_REFMV)
+    endif ()
+  endif ()
+
   if (CONFIG_STRIPED_LOOP_RESTORATION)
     if (NOT CONFIG_LOOP_RESTORATION)
       change_config_and_warn(CONFIG_LOOP_RESTORATION 1 CONFIG_STRIPED_LOOP_RESTORATION)
