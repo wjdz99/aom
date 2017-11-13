@@ -5412,7 +5412,9 @@ static int cfl_rd_pick_alpha(MACROBLOCK *const x, const AV1_COMP *const cpi,
 
   int signs = -1;
 
+  int progress = 0;
   for (int c = 0; c < CFL_ALPHABET_SIZE; c++) {
+    int flag = 0;
     mbmi->cfl_alpha_idx = (c << CFL_ALPHABET_SIZE_LOG2) + c;
     for (int plane = 0; plane < CFL_PRED_PLANES; plane++) {
       for (int sign_a = CFL_SIGN_NEG; sign_a < CFL_SIGNS; sign_a++) {
@@ -5434,9 +5436,12 @@ static int cfl_rd_pick_alpha(MACROBLOCK *const x, const AV1_COMP *const cpi,
           if (cost >= best_rd) continue;
           best_rd = cost;
           signs = joint_sign;
+          flag = 2;
         }
       }
     }
+    progress += flag;
+    if (c > 2 && progress < c) break;
   }
 
   int rate_overhead = INT_MAX;
