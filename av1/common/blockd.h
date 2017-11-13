@@ -1298,6 +1298,10 @@ static INLINE void assert_motion_mode_valid(MOTION_MODE mode, int block,
 }
 
 static INLINE int is_neighbor_overlappable(const MB_MODE_INFO *mbmi) {
+#if CONFIG_INTRABC
+  // TODO(huisu@google.com): test supporting obmc for intrabc.
+  if (is_intrabc_block(mbmi)) return 0;
+#endif  // CONFIG_INTRABC
   return (is_inter_block(mbmi));
 }
 
@@ -1418,6 +1422,27 @@ static INLINE int av1_get_max_eob(TX_SIZE tx_size) {
 #endif  // CONFIG_TX64X64 && !CONFIG_DAALA_TX
           tx_size_2d[tx_size];
 }
+
+#if CONFIG_INTRABC
+static INLINE void av1_set_default_mode_info(MB_MODE_INFO *mbmi) {
+  mbmi->mode = DC_PRED;
+  mbmi->uv_mode = UV_DC_PRED;
+  mbmi->ref_frame[0] = INTRA_FRAME;
+  mbmi->ref_frame[1] = NONE_FRAME;
+  mbmi->palette_mode_info.palette_size[0] = 0;
+  mbmi->palette_mode_info.palette_size[1] = 0;
+#if CONFIG_INTRABC
+  mbmi->use_intrabc = 0;
+#endif  // CONFIG_INTRABC
+#if CONFIG_FILTER_INTRA
+  mbmi->filter_intra_mode_info.use_filter_intra_mode[0] = 0;
+  mbmi->filter_intra_mode_info.use_filter_intra_mode[1] = 0;
+#endif  // CONFIG_FILTER_INTRA
+  mbmi->motion_mode = SIMPLE_TRANSLATION;
+  mbmi->use_wedge_interintra = 0;
+  mbmi->ref_mv_idx = 0;
+}
+#endif  // CONFIG_INTRABC
 
 #ifdef __cplusplus
 }  // extern "C"
