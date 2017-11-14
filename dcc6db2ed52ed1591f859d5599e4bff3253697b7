@@ -34,6 +34,24 @@
       "revId": "dcc6db2ed52ed1591f859d5599e4bff3253697b7",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a32f2f1b_970e4473",
+        "filename": "av1/decoder/detokenize.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-11-14T05:09:16Z",
+      "side": 1,
+      "message": "\u003e \"val\" can be up to 18 bits, \"dqv\" can be up to 29247 (15 bit), \"dq_shift\" is at most 1. It\u0027s close, but can\u0027t guarantee to be within 31 bits.\n\nI think we just accepted the corrupt value without a clamp in libvpx:\n\nhttps://chromium-review.googlesource.com/c/webm/libvpx/+/390505",
+      "parentUuid": "c66edab1_11d17040",
+      "revId": "dcc6db2ed52ed1591f859d5599e4bff3253697b7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
