@@ -15,50 +15,50 @@
 
 static const int cfl_avg_wide_log2[TX_SIZES_ALL] = {
   2,  // TX_4X4
-  3,  // TX_8X8
-  3,  // TX_16X16
-  3,  // TX_32X32
+  2,  // TX_8X8
+  2,  // TX_16X16
+  2,  // TX_32X32
 #if CONFIG_TX64X64
-  3,    // TX_64X64
+  2,    // TX_64X64
 #endif  // CONFIG_TX64X64
   2,    // TX_4X8
-  3,    // TX_8X4
-  3,    // TX_8X16
-  3,    // TX_16X8
-  3,    // TX_16X32
-  3,    // TX_32X16
+  2,    // TX_8X4
+  2,    // TX_8X16
+  2,    // TX_16X8
+  2,    // TX_16X32
+  2,    // TX_32X16
 #if CONFIG_TX64X64
-  3,    // TX_32X64
-  3,    // TX_64X32
+  2,    // TX_32X64
+  2,    // TX_64X32
 #endif  // CONFIG_TX64X64
   2,    // TX_4X16
-  3,    // TX_16X4
-  3,    // TX_8X32
-  3     // TX_32X8
+  2,    // TX_16X4
+  2,    // TX_8X32
+  2     // TX_32X8
 };
 
 static const int cfl_avg_high_log2[TX_SIZES_ALL] = {
   2,  // TX_4X4
-  3,  // TX_8X8
-  3,  // TX_16X16
-  3,  // TX_32X32
+  2,  // TX_8X8
+  2,  // TX_16X16
+  2,  // TX_32X32
 #if CONFIG_TX64X64
-  3,    // TX_64X64
+  2,    // TX_64X64
 #endif  // CONFIG_TX64X64
-  3,    // TX_4X8
+  2,    // TX_4X8
   2,    // TX_8X4
-  3,    // TX_8X16
-  3,    // TX_16X8
-  3,    // TX_16X32
-  3,    // TX_32X16
+  2,    // TX_8X16
+  2,    // TX_16X8
+  2,    // TX_16X32
+  2,    // TX_32X16
 #if CONFIG_TX64X64
-  3,    // TX_32X64
-  3,    // TX_64X32
+  2,    // TX_32X64
+  2,    // TX_64X32
 #endif  // CONFIG_TX64X64
-  3,    // TX_4X16
+  2,    // TX_4X16
   2,    // TX_16X4
-  3,    // TX_8X32
-  3     // TX_32X8
+  2,    // TX_8X32
+  2     // TX_32X8
 };
 
 void cfl_init(CFL_CTX *cfl, AV1_COMMON *cm) {
