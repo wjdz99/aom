@@ -2056,6 +2056,8 @@ int sortSamples(int *pts_mv, MV *mv, int *pts, int *pts_inref, int len) {
     pts_mvd[i] =
         abs(pts_mv[2 * i] - mv->col) + abs(pts_mv[2 * i + 1] - mv->row);
 
+  // TODO(yunqingwang): len is capped at 8 after this. Thus, modify this to find
+  // the best 8 samples instead of sorting all samples.
   for (i = 1; i <= len - 1; ++i) {
     for (j = 0; j < i; ++j) {
       if (pts_mvd[j] > pts_mvd[i]) {
@@ -2084,7 +2086,6 @@ int sortSamples(int *pts_mv, MV *mv, int *pts, int *pts_inref, int len) {
       }
     }
   }
-
   len = AOMMIN(len, LEAST_SQUARES_SAMPLES_MAX);
 
   for (i = len - 1; i >= 1; i--) {
@@ -2096,7 +2097,7 @@ int sortSamples(int *pts_mv, MV *mv, int *pts, int *pts_inref, int len) {
 
 // Note: Samples returned are at 1/8-pel precision
 int findSamples(const AV1_COMMON *cm, MACROBLOCKD *xd, int mi_row, int mi_col,
-                int *pts, int *pts_inref, int *pts_mv) {
+                int *pts, int *pts_inref, int *pts_mv, int *pts_wm) {
   MB_MODE_INFO *const mbmi0 = &(xd->mi[0]->mbmi);
   int ref_frame = mbmi0->ref_frame[0];
   int up_available = xd->up_available;
@@ -2126,6 +2127,10 @@ int findSamples(const AV1_COMMON *cm, MACROBLOCKD *xd, int mi_row, int mi_col,
       if (mbmi->ref_frame[0] == ref_frame && mbmi->ref_frame[1] == NONE_FRAME) {
         record_samples(mbmi, pts, pts_inref, pts_mv, global_offset_r,
                        global_offset_c, 0, -1, col_offset, 1);
+        pts_wm[0] = mi_row_offset * xd->mi_stride;
+        pts_wm[1] = (mbmi->motion_mode == WARPED_CAUSAL) ?
+            (n8_w * mi_size_high[mbmi->sb_type]) : 0;
+        pts_wm += 2;
         pts += 2;
         pts_inref += 2;
         pts_mv += 2;
@@ -2145,6 +2150,10 @@ int findSamples(const AV1_COMMON *cm, MACROBLOCKD *xd, int mi_row, int mi_col,
             mbmi->ref_frame[1] == NONE_FRAME) {
           record_samples(mbmi, pts, pts_inref, pts_mv, global_offset_r,
                          global_offset_c, 0, -1, i, 1);
+          pts_wm[0] = mi_col_offset + mi_row_offset * xd->mi_stride;
+          pts_wm[1] = (mbmi->motion_mode == WARPED_CAUSAL) ?
+              (n8_w * mi_size_high[mbmi->sb_type]) : 0;
+          pts_wm += 2;
           pts += 2;
           pts_inref += 2;
           pts_mv += 2;
@@ -2173,6 +2182,10 @@ int findSamples(const AV1_COMMON *cm, MACROBLOCKD *xd, int mi_row, int mi_col,
       if (mbmi->ref_frame[0] == ref_frame && mbmi->ref_frame[1] == NONE_FRAME) {
         record_samples(mbmi, pts, pts_inref, pts_mv, global_offset_r,
                        global_offset_c, row_offset, 1, 0, -1);
+        pts_wm[0] = mi_col_offset;
+        pts_wm[1] = (mbmi->motion_mode == WARPED_CAUSAL) ?
+            (n8_h * mi_size_wide[mbmi->sb_type]) : 0;
+        pts_wm += 2;
         pts += 2;
         pts_inref += 2;
         pts_mv += 2;
@@ -2192,6 +2205,10 @@ int findSamples(const AV1_COMMON *cm, MACROBLOCKD *xd, int mi_row, int mi_col,
             mbmi->ref_frame[1] == NONE_FRAME) {
           record_samples(mbmi, pts, pts_inref, pts_mv, global_offset_r,
                          global_offset_c, i, 1, 0, -1);
+          pts_wm[0] = mi_col_offset + mi_row_offset * xd->mi_stride;
+          pts_wm[1] = (mbmi->motion_mode == WARPED_CAUSAL) ?
+              (n8_h * mi_size_wide[mbmi->sb_type]) : 0;
+          pts_wm += 2;
           pts += 2;
           pts_inref += 2;
           pts_mv += 2;
@@ -2214,6 +2231,10 @@ int findSamples(const AV1_COMMON *cm, MACROBLOCKD *xd, int mi_row, int mi_col,
     if (mbmi->ref_frame[0] == ref_frame && mbmi->ref_frame[1] == NONE_FRAME) {
       record_samples(mbmi, pts, pts_inref, pts_mv, global_offset_r,
                      global_offset_c, 0, -1, 0, -1);
+      pts_wm[0] = mi_col_offset + mi_row_offset * xd->mi_stride;
+      pts_wm[1] = (mbmi->motion_mode == WARPED_CAUSAL) ?
+          (mi_size_wide[mbmi->sb_type] * mi_size_high[mbmi->sb_type]) : 0;
+      pts_wm += 2;
       pts += 2;
       pts_inref += 2;
       pts_mv += 2;
@@ -2238,6 +2259,9 @@ int findSamples(const AV1_COMMON *cm, MACROBLOCKD *xd, int mi_row, int mi_col,
       if (mbmi->ref_frame[0] == ref_frame && mbmi->ref_frame[1] == NONE_FRAME) {
         record_samples(mbmi, pts, pts_inref, pts_mv, global_offset_r,
                        global_offset_c, 0, -1, xd->n8_w, 1);
+        pts_wm[0] = mi_col_offset + mi_row_offset * xd->mi_stride;
+        pts_wm[1] = (mbmi->motion_mode == WARPED_CAUSAL) ?
+            (mi_size_wide[mbmi->sb_type] * mi_size_high[mbmi->sb_type]) : 0;
         np++;
         if (np >= SAMPLES_MAX) return SAMPLES_MAX;
       }
