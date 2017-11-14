@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "eba25be9_bf57b12d",
+        "filename": "build/cmake/aom_experiment_deps.cmake",
+        "patchSetId": 1
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2017-11-14T16:19:12Z",
+      "side": 1,
+      "message": "Remove the NOT-- my fault, didn\u0027t notice when I was sitting there. We want it off if it\u0027s enabled.\n\nCONFIG_MRC_TX defaults to 0. The issue you\u0027re seeing is probably something else. Probably an artifact of mixed configs from testing in a non-empty dir.",
+      "range": {
+        "startLine": 126,
+        "startChar": 4,
+        "endLine": 126,
+        "endChar": 26
+      },
+      "revId": "5677353764a58a0fd2140552ddd1c1e4f297ee04",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
