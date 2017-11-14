@@ -219,24 +219,6 @@ static void write_inter_compound_mode(AV1_COMMON *cm, MACROBLOCKD *xd,
                    INTER_COMPOUND_MODES);
 }
 
-#if CONFIG_EXT_SKIP
-#if 0
-static void update_inter_compound_mode_cdf(AV1_COMP *cpi) {
-  MACROBLOCK *const x = &cpi->td.mb;
-  MACROBLOCKD *const xd = &x->e_mbd;
-  const MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
-  const PREDICTION_MODE mode = mbmi->mode;
-
-  assert(is_inter_compound_mode(mode));
-
-  const MB_MODE_INFO_EXT *const mbmi_ext = x->mbmi_ext;
-  const int16_t mode_ctx = mbmi_ext->compound_mode_context[mbmi->ref_frame[0]];
-  update_cdf(xd->tile_ctx->inter_compound_mode_cdf[mode_ctx],
-             INTER_COMPOUND_OFFSET(mode), INTER_COMPOUND_MODES);
-}
-#endif  // 0
-#endif  // CONFIG_EXT_SKIP
-
 #if CONFIG_COMPOUND_SINGLEREF
 static void write_inter_singleref_comp_mode(MACROBLOCKD *xd, aom_writer *w,
                                             PREDICTION_MODE mode,
@@ -411,10 +393,6 @@ static int write_skip_mode(const AV1_COMMON *cm, const MACROBLOCKD *xd,
     return 0;
   } else {
     const int skip_mode = mi->mbmi.skip_mode;
-    if (!is_comp_ref_allowed(mi->mbmi.sb_type)) {
-      assert(!skip_mode);
-      return 0;
-    }
 
     const int ctx = av1_get_skip_mode_context(xd);
 #if CONFIG_NEW_MULTISYMBOL
@@ -422,6 +400,24 @@ static int write_skip_mode(const AV1_COMMON *cm, const MACROBLOCKD *xd,
 #else
     aom_write(w, skip_mode, cm->fc->skip_mode_probs[ctx]);
 #endif  // CONFIG_NEW_MULTISYMBOL
+
+    // Write skip mode ref type.
+    if (skip_mode) {
+      const int ref_type = mi->mbmi.skip_mode_ref_type;
+      assert(ref_type >= 0 && ref_type <= 2);
+
+      const int ctx0 = av1_get_skip_mode_ref_ctx0(xd);
+      const int ref_type_bit0 = (ref_type >= 1);
+      aom_write_symbol(w, ref_type_bit0,
+                       xd->tile_ctx->skip_mode_ref_cdfs[0][ctx0], 2);
+
+      if (ref_type_bit0) {
+        const int ctx1 = av1_get_skip_mode_ref_ctx1(xd);
+        aom_write_symbol(w, (ref_type - 1),
+                         xd->tile_ctx->skip_mode_ref_cdfs[1][ctx1], 2);
+      }
+    }
+
     return skip_mode;
   }
 }
@@ -439,21 +435,6 @@ static void write_is_inter(const AV1_COMMON *cm, const MACROBLOCKD *xd,
 #endif
   }
 }
-
-#if CONFIG_EXT_SKIP
-#if 0
-#if CONFIG_NEW_MULTISYMBOL
-static void update_intra_inter_cdf(AV1_COMMON *const cm, MACROBLOCKD *const xd,
-                                   int segment_id, const int is_inter) {
-  if (!segfeature_active(&cm->seg, segment_id, SEG_LVL_REF_FRAME)) {
-    FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
-    const int ctx = av1_get_intra_inter_context(xd);
-    update_cdf(ec_ctx->intra_inter_cdf[ctx], is_inter, 2);
-  }
-}
-#endif  // CONFIG_NEW_MULTISYMBOL
-#endif  // 0
-#endif  // CONFIG_EXT_SKIP
 
 static void write_motion_mode(const AV1_COMMON *cm, MACROBLOCKD *xd,
                               const MODE_INFO *mi, aom_writer *w) {
@@ -941,54 +922,6 @@ static void write_ref_frames(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   }
 }
 
-#if CONFIG_EXT_SKIP
-#if 0
-#if CONFIG_NEW_MULTISYMBOL
-// This function updates the reference frame symbol cdfs for skip mode
-static void update_ref_frame_cdfs_for_skip_mode(const AV1_COMMON *cm,
-                                                const MACROBLOCKD *xd) {
-  const MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
-  const int is_compound = has_second_ref(mbmi);
-
-  assert(mbmi->skip_mode);
-  assert(is_compound);
-  assert(cm->reference_mode == COMPOUND_REFERENCE ||
-         cm->reference_mode == REFERENCE_MODE_SELECT);
-
-  if (segfeature_active(&cm->seg, mbmi->segment_id, SEG_LVL_REF_FRAME)) return;
-
-  if (cm->reference_mode == REFERENCE_MODE_SELECT)
-    update_cdf(av1_get_reference_mode_cdf(cm, xd), is_compound, 2);
-
-#if CONFIG_EXT_COMP_REFS
-  assert(!has_uni_comp_refs(mbmi));
-  const COMP_REFERENCE_TYPE comp_ref_type = BIDIR_COMP_REFERENCE;
-  update_cdf(av1_get_comp_reference_type_cdf(xd), comp_ref_type, 2);
-#endif  // CONFIG_EXT_COMP_REFS
-
-// Update stats for both forward and backward references
-#define UPDATE_REF_BIT(bname, pname) \
-  update_cdf(av1_get_pred_cdf_##pname(cm, xd), bname, 2);
-
-  const int bit =
-      (mbmi->ref_frame[0] == GOLDEN_FRAME || mbmi->ref_frame[0] == LAST3_FRAME);
-  UPDATE_REF_BIT(bit, comp_ref_p)
-  if (!bit) {
-    UPDATE_REF_BIT((mbmi->ref_frame[0] == LAST_FRAME), comp_ref_p1)
-  } else {
-    UPDATE_REF_BIT((mbmi->ref_frame[0] == GOLDEN_FRAME), comp_ref_p2)
-  }
-
-  const int bit_bwd = mbmi->ref_frame[1] == ALTREF_FRAME;
-  UPDATE_REF_BIT(bit_bwd, comp_bwdref_p)
-  if (!bit_bwd) {
-    UPDATE_REF_BIT((mbmi->ref_frame[1] == ALTREF2_FRAME), comp_bwdref_p1)
-  }
-}
-#endif  // CONFIG_NEW_MULTISYMBOL
-#endif  // 0
-#endif  // CONFIG_EXT_SKIP
-
 #if CONFIG_FILTER_INTRA
 static void write_filter_intra_mode_info(const AV1_COMMON *const cm,
                                          const MACROBLOCKD *xd,
@@ -1430,6 +1363,7 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
   if (mbmi->skip_mode) {
     skip = mbmi->skip;
     assert(skip);
+    assert(is_inter);
   } else {
 #endif  // CONFIG_EXT_SKIP
     skip = write_skip(cm, xd, segment_id, mi, w);
@@ -1479,10 +1413,9 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
   }
 
 #if CONFIG_EXT_SKIP
-  if (mbmi->skip_mode) return;
+  if (!mbmi->skip_mode)
 #endif  // CONFIG_EXT_SKIP
-
-  write_is_inter(cm, xd, mbmi->segment_id, w, is_inter);
+    write_is_inter(cm, xd, mbmi->segment_id, w, is_inter);
 
   if (cm->tx_mode == TX_MODE_SELECT && block_signals_txsize(bsize) &&
       !(is_inter && skip) && !xd->lossless[segment_id]) {
@@ -1517,6 +1450,10 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
   } else {
     set_txfm_ctxs(mbmi->tx_size, xd->n8_w, xd->n8_h, skip, xd);
   }
+
+#if CONFIG_EXT_SKIP
+  if (mbmi->skip_mode) return;
+#endif  // CONFIG_EXT_SKIP
 
   if (!is_inter) {
     write_intra_mode(ec_ctx, bsize, mode, w);

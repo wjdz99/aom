@@ -941,8 +941,7 @@ static void update_stats(const AV1_COMMON *const cm, TileDataEnc *tile_data,
       segfeature_active(&cm->seg, mbmi->segment_id, SEG_LVL_REF_FRAME);
 
 #if CONFIG_EXT_SKIP
-  if (cm->is_skip_mode_allowed && !seg_ref_active &&
-      is_comp_ref_allowed(bsize)) {
+  if (cm->is_skip_mode_allowed && !seg_ref_active) {
     const int skip_mode_ctx = av1_get_skip_mode_context(xd);
     td->counts->skip_mode[skip_mode_ctx][mbmi->skip_mode]++;
 #if CONFIG_NEW_MULTISYMBOL
@@ -951,7 +950,25 @@ static void update_stats(const AV1_COMMON *const cm, TileDataEnc *tile_data,
 #endif  // CONFIG_NEW_MULTISYMBOL
   }
 
-  if (!mbmi->skip_mode) {
+  if (mbmi->skip_mode) {
+    // Update skip mode ref type stats.
+    const int ref_type = mbmi->skip_mode_ref_type;
+    assert(ref_type >= 0 && ref_type <= 2);
+
+    const int ctx0 = av1_get_skip_mode_ref_ctx0(xd);
+    const int ref_type_bit0 = (ref_type >= 1);
+    td->counts->skip_mode_ref[0][ctx0][ref_type_bit0]++;
+    if (allow_update_cdf)
+      update_cdf(fc->skip_mode_ref_cdfs[0][ctx0], ref_type_bit0, 2);
+
+    if (ref_type_bit0) {
+      const int ctx1 = av1_get_skip_mode_ref_ctx1(xd);
+      const int ref_type_bit1 = ref_type - 1;
+      td->counts->skip_mode_ref[1][ctx1][ref_type_bit1]++;
+      if (allow_update_cdf)
+        update_cdf(fc->skip_mode_ref_cdfs[1][ctx1], ref_type_bit1, 2);
+    }
+  } else {
 #endif  // CONFIG_EXT_SKIP
     if (!seg_ref_active) {
       const int skip_ctx = av1_get_skip_context(xd);

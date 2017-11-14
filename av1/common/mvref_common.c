@@ -946,6 +946,83 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   }
 }
 
+#if CONFIG_EXT_SKIP
+void av1_skip_mode_ref_count(const AV1_COMMON *cm, MACROBLOCKD *xd,
+                             MODE_INFO *mi, int mi_row, int mi_col) {
+  const MV_REFERENCE_FRAME skip_mode_refs[2] = {
+    LAST_FRAME + cm->ref_frame_idx_0, LAST_FRAME + cm->ref_frame_idx_1
+  };
+
+  const TileInfo *const tile = &xd->tile;
+  const int sb_mi_size = mi_size_wide[cm->sb_size];
+  const BLOCK_SIZE bsize = mi->mbmi.sb_type;
+  const int num_8x8_blocks_wide = num_8x8_blocks_wide_lookup[bsize];
+  const int num_8x8_blocks_high = num_8x8_blocks_high_lookup[bsize];
+  int i;
+
+  POSITION mv_ref_search[MVREF_NEIGHBOURS];
+  mv_ref_search[0].row = num_8x8_blocks_high - 1;
+  mv_ref_search[0].col = -1;
+  mv_ref_search[1].row = -1;
+  mv_ref_search[1].col = num_8x8_blocks_wide - 1;
+  mv_ref_search[2].row = -1;
+  mv_ref_search[2].col = (num_8x8_blocks_wide - 1) >> 1;
+  mv_ref_search[3].row = (num_8x8_blocks_high - 1) >> 1;
+  mv_ref_search[3].col = -1;
+  mv_ref_search[4].row = -1;
+  mv_ref_search[4].col = -1;
+#if CONFIG_EXT_PARTITION_TYPES
+  if (num_8x8_blocks_wide == num_8x8_blocks_high) {
+    mv_ref_search[5].row = -1;
+    mv_ref_search[5].col = 0;
+    mv_ref_search[6].row = 0;
+    mv_ref_search[6].col = -1;
+  } else {
+#endif  // CONFIG_EXT_PARTITION_TYPES
+    mv_ref_search[5].row = -1;
+    mv_ref_search[5].col = num_8x8_blocks_wide;
+    mv_ref_search[6].row = num_8x8_blocks_high;
+    mv_ref_search[6].col = -1;
+#if CONFIG_EXT_PARTITION_TYPES
+  }
+#endif  // CONFIG_EXT_PARTITION_TYPES
+  mv_ref_search[7].row = -1;
+  mv_ref_search[7].col = -3;
+  mv_ref_search[8].row = num_8x8_blocks_high - 1;
+  mv_ref_search[8].col = -3;
+
+  memset(xd->skip_mode_ref_count, 0,
+         SKIP_MODE_REFS * sizeof(xd->skip_mode_ref_count[0]));
+
+  for (i = 0; i < MVREF_NEIGHBOURS; ++i) {
+    mv_ref_search[i].row *= 2;
+    mv_ref_search[i].col *= 2;
+
+    const POSITION *const mv_ref = &mv_ref_search[i];
+    if (is_inside(tile, mi_col, mi_row, cm->mi_rows, cm, mv_ref)) {
+      const MB_MODE_INFO *const candidate =
+          !xd->mi[mv_ref->col + mv_ref->row * xd->mi_stride]
+              ? NULL
+              : &xd->mi[mv_ref->col + mv_ref->row * xd->mi_stride]->mbmi;
+      if (candidate == NULL) continue;
+      if ((mi_row & (sb_mi_size - 1)) + mv_ref->row >= sb_mi_size ||
+          (mi_col & (sb_mi_size - 1)) + mv_ref->col >= sb_mi_size)
+        continue;
+
+      if (candidate->ref_frame[0] == skip_mode_refs[0] &&
+          candidate->ref_frame[1] == skip_mode_refs[1])
+        xd->skip_mode_ref_count[0]++;
+      else if (candidate->ref_frame[0] == skip_mode_refs[0] ||
+               candidate->ref_frame[1] == skip_mode_refs[0])
+        xd->skip_mode_ref_count[1]++;
+      else if (candidate->ref_frame[0] == skip_mode_refs[1] ||
+               candidate->ref_frame[1] == skip_mode_refs[1])
+        xd->skip_mode_ref_count[2]++;
+    }
+  }
+}
+#endif  // CONFIG_EXT_SKIP
+
 // This function searches the neighbourhood of a given MB/SB
 // to try and find candidate reference vectors.
 static void find_mv_refs_idx(const AV1_COMMON *cm, const MACROBLOCKD *xd,

@@ -124,6 +124,16 @@ void av1_fill_mode_rates(AV1_COMMON *const cm, MACROBLOCK *x,
     x->skip_mode_cost[i][1] = av1_cost_bit(fc->skip_mode_probs[i], 1);
 #endif  // CONFIG_NEW_MULTISYMBOL
   }
+
+#if CONFIG_NEW_MULTISYMBOL
+  // NOTE(zoeliu): We now only focus on NEW_MULTISYMBOL.
+  for (i = 0; i < SKIP_MODE_REF_MODES; ++i) {
+    for (j = 0; j < SKIP_CONTEXTS; ++j) {
+      av1_cost_tokens_from_cdf(x->skip_mode_ref_cost[i][j],
+                               fc->skip_mode_ref_cdfs[i][j], NULL);
+    }
+  }
+#endif  // CONFIG_NEW_MULTISYMBOL
 #endif  // CONFIG_EXT_SKIP
 
   for (i = 0; i < SKIP_CONTEXTS; ++i) {

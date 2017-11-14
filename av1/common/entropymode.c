@@ -1956,6 +1956,16 @@ static const aom_cdf_prob default_skip_mode_cdfs[SKIP_MODE_CONTEXTS][CDF_SIZE(
     2)] = { { AOM_ICDF(24576), AOM_ICDF(32768), 0 },
             { AOM_ICDF(16384), AOM_ICDF(32768), 0 },
             { AOM_ICDF(8192), AOM_ICDF(32768), 0 } };
+static const aom_cdf_prob
+    default_skip_mode_ref_cdfs[SKIP_MODE_REF_MODES][SKIP_MODE_CONTEXTS]
+                              [CDF_SIZE(2)] = {
+                                { { AOM_ICDF(24576), AOM_ICDF(32768), 0 },
+                                  { AOM_ICDF(16384), AOM_ICDF(32768), 0 },
+                                  { AOM_ICDF(8192), AOM_ICDF(32768), 0 } },
+                                { { AOM_ICDF(24576), AOM_ICDF(32768), 0 },
+                                  { AOM_ICDF(16384), AOM_ICDF(32768), 0 },
+                                  { AOM_ICDF(8192), AOM_ICDF(32768), 0 } }
+                              };
 #endif  // CONFIG_EXT_SKIP
 static const aom_cdf_prob default_skip_cdfs[SKIP_CONTEXTS][CDF_SIZE(2)] = {
   { AOM_ICDF(24576), AOM_ICDF(32768), 0 },
@@ -5836,6 +5846,7 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
 #if CONFIG_NEW_MULTISYMBOL
 #if CONFIG_EXT_SKIP
   av1_copy(fc->skip_mode_cdfs, default_skip_mode_cdfs);
+  av1_copy(fc->skip_mode_ref_cdfs, default_skip_mode_ref_cdfs);
 #endif  // CONFIG_EXT_SKIP
   av1_copy(fc->skip_cdfs, default_skip_cdfs);
   av1_copy(fc->intra_inter_cdf, default_intra_inter_cdf);

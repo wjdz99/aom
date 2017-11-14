@@ -197,12 +197,15 @@ struct macroblock {
 #if CONFIG_EXT_SKIP
   int skip_mode;  // 0: off; 1: on
   int skip_mode_cost[SKIP_CONTEXTS][2];
+  int skip_mode_ref_cost[SKIP_MODE_REF_MODES][SKIP_CONTEXTS][2];
 
   int64_t skip_mode_rdcost;  // -1: Not set
   int skip_mode_rate;
   int64_t skip_mode_sse;
   int64_t skip_mode_dist;
   MV_REFERENCE_FRAME skip_mode_ref_frame[2];
+  int8_t skip_mode_ref_type;
+  PREDICTION_MODE skip_mode_pred_mode;
   int_mv skip_mode_mv[2];
   int16_t skip_mode_tx_size;
   int skip_mode_index_candidate;

@@ -419,6 +419,8 @@ void av1_setup_skip_mode_mvs(const AV1_COMMON *cm, const MACROBLOCKD *xd,
                              MB_MODE_INFO *mbmi, int mi_row, int mi_col,
                              const int_mv nearest_mv[2], find_mv_refs_sync sync,
                              void *const data);
+void av1_skip_mode_ref_count(const AV1_COMMON *cm, MACROBLOCKD *xd,
+                             MODE_INFO *mi, int mi_row, int mi_col);
 #endif  // CONFIG_EXT_SKIP
 
 // check a list of motion vectors by sad score using a number rows of pixels
