@@ -2282,7 +2282,7 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
 #if CONFIG_WARPED_MOTION
   int pts[SAMPLES_ARRAY_SIZE], pts_inref[SAMPLES_ARRAY_SIZE];
 #if CONFIG_EXT_WARPED_MOTION
-  int pts_mv[SAMPLES_ARRAY_SIZE];
+  int pts_mv[SAMPLES_ARRAY_SIZE], pts_wm[SAMPLES_ARRAY_SIZE];
 #endif  // CONFIG_EXT_WARPED_MOTION
 #endif  // CONFIG_WARPED_MOTION
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
@@ -2742,7 +2742,7 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
   if (mbmi->sb_type >= BLOCK_8X8 && !has_second_ref(mbmi))
 #if CONFIG_EXT_WARPED_MOTION
     mbmi->num_proj_ref[0] =
-        findSamples(cm, xd, mi_row, mi_col, pts, pts_inref, pts_mv);
+        findSamples(cm, xd, mi_row, mi_col, pts, pts_inref, pts_mv, pts_wm);
 #else
     mbmi->num_proj_ref[0] = findSamples(cm, xd, mi_row, mi_col, pts, pts_inref);
 #endif  // CONFIG_EXT_WARPED_MOTION
@@ -2764,18 +2764,44 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
 #if CONFIG_WARPED_MOTION
   if (mbmi->motion_mode == WARPED_CAUSAL) {
     mbmi->wm_params[0].wmtype = DEFAULT_WMTYPE;
-
 #if CONFIG_EXT_WARPED_MOTION
-    if (mbmi->num_proj_ref[0] > 1)
-      mbmi->num_proj_ref[0] = sortSamples(pts_mv, &mbmi->mv[0].as_mv, pts,
-                                          pts_inref, mbmi->num_proj_ref[0]);
+    // Find a warped neighbor.
+    int cand;
+    int best_cand = -1;
+    int best_weight = 0;
+
+    assert(mbmi->mode >= NEARESTMV && mbmi->mode <= NEWMV);
+    if (mbmi->mode == NEARESTMV || mbmi->mode == NEARMV ||
+        mbmi->mode == ZEROMV) {
+      for (cand = 0; cand < mbmi->num_proj_ref[0]; cand++) {
+        if (pts_wm[cand * 2 + 1] > best_weight) {
+          best_weight = pts_wm[cand * 2 + 1];
+          best_cand = cand;
+        }
+      }
+    }
+
+    if (best_cand != -1) {
+      MODE_INFO *best_mi = xd->mi[pts_wm[2 * best_cand]];
+      assert(best_mi->mbmi.motion_mode == WARPED_CAUSAL);
+      mbmi->wm_params[0] = best_mi->mbmi.wm_params[0];
+    } else {
 #endif  // CONFIG_EXT_WARPED_MOTION
 
-    if (find_projection(mbmi->num_proj_ref[0], pts, pts_inref, bsize,
-                        mbmi->mv[0].as_mv.row, mbmi->mv[0].as_mv.col,
-                        &mbmi->wm_params[0], mi_row, mi_col)) {
-      aom_internal_error(&cm->error, AOM_CODEC_ERROR, "Invalid Warped Model");
+#if CONFIG_EXT_WARPED_MOTION
+      if (mbmi->num_proj_ref[0] > 1)
+        mbmi->num_proj_ref[0] = sortSamples(pts_mv, &mbmi->mv[0].as_mv, pts,
+                                            pts_inref, mbmi->num_proj_ref[0]);
+#endif  // CONFIG_EXT_WARPED_MOTION
+
+      if (find_projection(mbmi->num_proj_ref[0], pts, pts_inref, bsize,
+                          mbmi->mv[0].as_mv.row, mbmi->mv[0].as_mv.col,
+                          &mbmi->wm_params[0], mi_row, mi_col)) {
+        aom_internal_error(&cm->error, AOM_CODEC_ERROR, "Invalid Warped Model");
+      }
+#if CONFIG_EXT_WARPED_MOTION
     }
+#endif  // CONFIG_EXT_WARPED_MOTION
   }
 #endif  // CONFIG_WARPED_MOTION
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
