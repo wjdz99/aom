@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "50e42f1d_1b033cc7",
+        "filename": "av1/common/quant_common.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 371,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2017-11-14T22:27:23Z",
+      "side": 1,
+      "message": "I changed to use av1_num_planes(cm), similar to other places.",
+      "parentUuid": "cda92b6f_2c4fd903",
+      "revId": "a93ccb1910aea1bcbd10ded07f6fc53c07942326",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8448c71c_3eac5009",
         "filename": "av1/decoder/decodeframe.c",
         "patchSetId": 6
@@ -48,6 +66,30 @@
       "writtenOn": "2017-11-14T21:04:38Z",
       "side": 1,
       "message": "AOM_PLANE_Y, AOM_PLANE_U, AOM_PLANE_V",
+      "range": {
+        "startLine": 1427,
+        "startChar": 61,
+        "endLine": 1427,
+        "endChar": 0
+      },
+      "revId": "a93ccb1910aea1bcbd10ded07f6fc53c07942326",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "32c5387c_8c2f4d4a",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1427,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2017-11-14T22:27:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8448c71c_3eac5009",
       "range": {
         "startLine": 1427,
         "startChar": 61,
