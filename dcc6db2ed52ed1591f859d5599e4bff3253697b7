@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d6b7d516_8887b4bb",
+        "filename": "av1/decoder/detokenize.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-11-14T01:52:07Z",
+      "side": 1,
+      "message": "what are the potential ranges here? would the shift return you to 31-bits so you can avoid the clamp?",
+      "revId": "dcc6db2ed52ed1591f859d5599e4bff3253697b7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
