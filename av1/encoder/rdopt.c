@@ -8581,7 +8581,7 @@ static int64_t motion_mode_rd(
 #if CONFIG_WARPED_MOTION
 #if CONFIG_EXT_WARPED_MOTION
   int pts0[SAMPLES_ARRAY_SIZE], pts_inref0[SAMPLES_ARRAY_SIZE];
-  int pts_mv0[SAMPLES_ARRAY_SIZE];
+  int pts_mv0[SAMPLES_ARRAY_SIZE], pts_wm[SAMPLES_ARRAY_SIZE];
   int total_samples;
 #else
   int pts[SAMPLES_ARRAY_SIZE], pts_inref[SAMPLES_ARRAY_SIZE];
@@ -8597,7 +8597,7 @@ static int64_t motion_mode_rd(
   aom_clear_system_state();
 #if CONFIG_EXT_WARPED_MOTION
   mbmi->num_proj_ref[0] =
-      findSamples(cm, xd, mi_row, mi_col, pts0, pts_inref0, pts_mv0);
+      findSamples(cm, xd, mi_row, mi_col, pts0, pts_inref0, pts_mv0, pts_wm);
   total_samples = mbmi->num_proj_ref[0];
 #else
   mbmi->num_proj_ref[0] = findSamples(cm, xd, mi_row, mi_col, pts, pts_inref);
@@ -8683,77 +8683,136 @@ static int64_t motion_mode_rd(
           av1_unswitchable_filter(cm->interp_filter));
 
 #if CONFIG_EXT_WARPED_MOTION
-      memcpy(pts, pts0, total_samples * 2 * sizeof(*pts0));
-      memcpy(pts_inref, pts_inref0, total_samples * 2 * sizeof(*pts_inref0));
-      // Rank the samples by motion vector difference
-      if (mbmi->num_proj_ref[0] > 1) {
-        mbmi->num_proj_ref[0] = sortSamples(pts_mv0, &mbmi->mv[0].as_mv, pts,
-                                            pts_inref, mbmi->num_proj_ref[0]);
-        best_bmc_mbmi->num_proj_ref[0] = mbmi->num_proj_ref[0];
-      }
-#endif  // CONFIG_EXT_WARPED_MOTION
+      // Find a warped neighbor.
+      int cand;
+      int best_cand = -1;
+      int best_weight = 0;
 
-      if (!find_projection(mbmi->num_proj_ref[0], pts, pts_inref, bsize,
-                           mbmi->mv[0].as_mv.row, mbmi->mv[0].as_mv.col,
-                           &mbmi->wm_params[0], mi_row, mi_col)) {
-        // Refine MV for NEWMV mode
-        if (!is_comp_pred && have_newmv_in_inter_mode(this_mode)) {
-          int tmp_rate_mv = 0;
-          const int_mv mv0 = mbmi->mv[0];
-          WarpedMotionParams wm_params0 = mbmi->wm_params[0];
-#if CONFIG_EXT_WARPED_MOTION
-          int num_proj_ref0 = mbmi->num_proj_ref[0];
-
-          // Refine MV in a small range.
-          av1_refine_warped_mv(cpi, x, bsize, mi_row, mi_col, pts0, pts_inref0,
-                               pts_mv0, total_samples);
-#else
-          // Refine MV in a small range.
-          av1_refine_warped_mv(cpi, x, bsize, mi_row, mi_col, pts, pts_inref);
-#endif  // CONFIG_EXT_WARPED_MOTION
-
-          // Keep the refined MV and WM parameters.
-          if (mv0.as_int != mbmi->mv[0].as_int) {
-            const int ref = refs[0];
-            const MV ref_mv = x->mbmi_ext->ref_mvs[ref][0].as_mv;
-
-            tmp_rate_mv =
-                av1_mv_bit_cost(&mbmi->mv[0].as_mv, &ref_mv, x->nmvjointcost,
-                                x->mvcost, MV_COST_WEIGHT);
-
-            if (cpi->sf.adaptive_motion_search)
-              x->pred_mv[ref] = mbmi->mv[0].as_mv;
-
-            single_newmv[ref] = mbmi->mv[0];
-
-            if (discount_newmv_test(cpi, this_mode, mbmi->mv[0], mode_mv,
-                                    refs[0])) {
-              tmp_rate_mv = AOMMAX((tmp_rate_mv / NEW_MV_DISCOUNT_FACTOR), 1);
-            }
-#if CONFIG_EXT_WARPED_MOTION
-            best_bmc_mbmi->num_proj_ref[0] = mbmi->num_proj_ref[0];
-#endif  // CONFIG_EXT_WARPED_MOTION
-            tmp_rate2 = rate2_bmc_nocoeff - rate_mv_bmc + tmp_rate_mv;
-#if CONFIG_DUAL_FILTER
-            mbmi->interp_filters =
-                condition_interp_filters_on_mv(mbmi->interp_filters, xd);
-#endif  // CONFIG_DUAL_FILTER
-          } else {
-            // Restore the old MV and WM parameters.
-            mbmi->mv[0] = mv0;
-            mbmi->wm_params[0] = wm_params0;
-#if CONFIG_EXT_WARPED_MOTION
-            mbmi->num_proj_ref[0] = num_proj_ref0;
-#endif  // CONFIG_EXT_WARPED_MOTION
+      assert(this_mode >= NEARESTMV && this_mode <= NEWMV);
+      if (this_mode == NEARESTMV || this_mode == NEARMV) {
+        for (cand = 0; cand < mbmi->num_proj_ref[0]; cand++) {
+          if (pts_wm[cand * 2 + 1] > best_weight) {
+            best_weight = pts_wm[cand * 2 + 1];
+            best_cand = cand;
           }
         }
+      }
+
+      if (best_cand != -1) {
+        MODE_INFO *best_mi = xd->mi[pts_wm[2 * best_cand]];
+        assert(best_mi->mbmi.motion_mode == 2);
+        mbmi->wm_params[0] = best_mi->mbmi.wm_params[0];
 
         av1_build_inter_predictors_sb(cm, xd, mi_row, mi_col, NULL, bsize);
         model_rd_for_sb(cpi, bsize, x, xd, 0, MAX_MB_PLANE - 1, &tmp_rate,
                         &tmp_dist, skip_txfm_sb, skip_sse_sb);
       } else {
-        continue;
+#endif  // CONFIG_EXT_WARPED_MOTION
+
+#if CONFIG_EXT_WARPED_MOTION
+        memcpy(pts, pts0, total_samples * 2 * sizeof(*pts0));
+        memcpy(pts_inref, pts_inref0, total_samples * 2 * sizeof(*pts_inref0));
+        // Rank the samples by motion vector difference
+        if (mbmi->num_proj_ref[0] > 1) {
+          mbmi->num_proj_ref[0] = sortSamples(pts_mv0, &mbmi->mv[0].as_mv, pts,
+                                              pts_inref, mbmi->num_proj_ref[0]);
+          best_bmc_mbmi->num_proj_ref[0] = mbmi->num_proj_ref[0];
+        }
+#endif  // CONFIG_EXT_WARPED_MOTION
+
+        if (!find_projection(mbmi->num_proj_ref[0], pts, pts_inref, bsize,
+                             mbmi->mv[0].as_mv.row, mbmi->mv[0].as_mv.col,
+                             &mbmi->wm_params[0], mi_row, mi_col)) {
+          // Refine MV for NEWMV mode
+          if (!is_comp_pred && have_newmv_in_inter_mode(this_mode)) {
+            int tmp_rate_mv = 0;
+            const int_mv mv0 = mbmi->mv[0];
+            WarpedMotionParams wm_params0 = mbmi->wm_params[0];
+#if CONFIG_EXT_WARPED_MOTION
+            int num_proj_ref0 = mbmi->num_proj_ref[0];
+
+            // Refine MV in a small range.
+            av1_refine_warped_mv(cpi, x, bsize, mi_row, mi_col, pts0,
+                                 pts_inref0, pts_mv0, total_samples);
+#else
+          // Refine MV in a small range.
+          av1_refine_warped_mv(cpi, x, bsize, mi_row, mi_col, pts, pts_inref);
+#endif  // CONFIG_EXT_WARPED_MOTION
+
+            // Keep the refined MV and WM parameters.
+            if (mv0.as_int != mbmi->mv[0].as_int) {
+              const int ref = refs[0];
+              const MV ref_mv = x->mbmi_ext->ref_mvs[ref][0].as_mv;
+
+              tmp_rate_mv =
+                  av1_mv_bit_cost(&mbmi->mv[0].as_mv, &ref_mv, x->nmvjointcost,
+                                  x->mvcost, MV_COST_WEIGHT);
+
+              if (cpi->sf.adaptive_motion_search)
+                x->pred_mv[ref] = mbmi->mv[0].as_mv;
+
+              single_newmv[ref] = mbmi->mv[0];
+
+              if (discount_newmv_test(cpi, this_mode, mbmi->mv[0], mode_mv,
+                                      refs[0])) {
+                tmp_rate_mv = AOMMAX((tmp_rate_mv / NEW_MV_DISCOUNT_FACTOR), 1);
+              }
+#if CONFIG_EXT_WARPED_MOTION
+              best_bmc_mbmi->num_proj_ref[0] = mbmi->num_proj_ref[0];
+#endif  // CONFIG_EXT_WARPED_MOTION
+              tmp_rate2 = rate2_bmc_nocoeff - rate_mv_bmc + tmp_rate_mv;
+#if CONFIG_DUAL_FILTER
+              mbmi->interp_filters =
+                  condition_interp_filters_on_mv(mbmi->interp_filters, xd);
+#endif  // CONFIG_DUAL_FILTER
+            } else {
+              // Restore the old MV and WM parameters.
+              mbmi->mv[0] = mv0;
+              mbmi->wm_params[0] = wm_params0;
+#if CONFIG_EXT_WARPED_MOTION
+              mbmi->num_proj_ref[0] = num_proj_ref0;
+#endif  // CONFIG_EXT_WARPED_MOTION
+            }
+          }
+
+#if CONFIG_WARPED_MOTION
+          // Consider single reference only. If NEWMV's mv is the same as the mv
+          // of NEARESTMV or NEARMV, stop.
+          if (this_mode == NEWMV) {
+            // Check NEARMV mode
+            const uint8_t rf_type = av1_ref_frame_type(mbmi->ref_frame);
+            int ref_set =
+                (x->mbmi_ext->ref_mv_count[rf_type] >= 2)
+                    ? AOMMIN(2, x->mbmi_ext->ref_mv_count[rf_type] - 2)
+                    : INT_MAX;
+            int i;
+            int is_same_mv = 0;
+
+            for (i = 0; i <= ref_set && ref_set != INT_MAX; ++i) {
+              int_mv near_mv =
+                  x->mbmi_ext->ref_mv_stack[rf_type][i + 1].this_mv;
+              if (near_mv.as_int == mbmi->mv[0].as_int) {
+                is_same_mv = 1;
+                break;
+              }
+            }
+            if (is_same_mv) continue;
+
+            // Check NEARESTMV mode
+            int_mv nearest_mv = mode_mv[NEARESTMV][refs[0]];
+            if (nearest_mv.as_int == mbmi->mv[0].as_int) continue;
+          }
+#endif  // CONFIG_WARPED_MOTION
+
+          av1_build_inter_predictors_sb(cm, xd, mi_row, mi_col, NULL, bsize);
+          model_rd_for_sb(cpi, bsize, x, xd, 0, MAX_MB_PLANE - 1, &tmp_rate,
+                          &tmp_dist, skip_txfm_sb, skip_sse_sb);
+        } else {
+          continue;
+        }
+#if CONFIG_EXT_WARPED_MOTION
       }
+#endif  // CONFIG_EXT_WARPED_MOTION
     }
 #endif  // CONFIG_WARPED_MOTION
     x->skip = 0;
@@ -11685,22 +11744,32 @@ PALETTE_EXIT:
     zeromv[0].as_int = 0;
     zeromv[1].as_int = 0;
 #endif  // CONFIG_GLOBAL_MOTION
+
     if (!comp_pred_mode) {
+#if CONFIG_WARPED_MOTION
+      int no_checking =
+          best_mbmode.mode == NEWMV && best_mbmode.motion_mode == WARPED_CAUSAL;
+#else
+      int no_checking = 0;
+#endif  // CONFIG_WARPED_MOTION
+
       int ref_set = (mbmi_ext->ref_mv_count[rf_type] >= 2)
                         ? AOMMIN(2, mbmi_ext->ref_mv_count[rf_type] - 2)
                         : INT_MAX;
 
-      for (i = 0; i <= ref_set && ref_set != INT_MAX; ++i) {
-        int_mv cur_mv = mbmi_ext->ref_mv_stack[rf_type][i + 1].this_mv;
-        if (cur_mv.as_int == best_mbmode.mv[0].as_int) {
-          best_mbmode.mode = NEARMV;
-          best_mbmode.ref_mv_idx = i;
+      if (!no_checking)
+        for (i = 0; i <= ref_set && ref_set != INT_MAX; ++i) {
+          int_mv cur_mv = mbmi_ext->ref_mv_stack[rf_type][i + 1].this_mv;
+          if (cur_mv.as_int == best_mbmode.mv[0].as_int) {
+            best_mbmode.mode = NEARMV;
+            best_mbmode.ref_mv_idx = i;
+          }
         }
-      }
 
-      if (frame_mv[NEARESTMV][refs[0]].as_int == best_mbmode.mv[0].as_int)
+      if (!no_checking &&
+          frame_mv[NEARESTMV][refs[0]].as_int == best_mbmode.mv[0].as_int) {
         best_mbmode.mode = NEARESTMV;
-      else if (best_mbmode.mv[0].as_int == zeromv[0].as_int)
+      } else if (best_mbmode.mv[0].as_int == zeromv[0].as_int)
         best_mbmode.mode = ZEROMV;
     } else {
       int_mv nearestmv[2];
@@ -11949,9 +12018,9 @@ void av1_rd_pick_inter_mode_sb_seg_skip(const AV1_COMP *cpi,
   if (is_motion_variation_allowed_bsize(bsize) && !has_second_ref(mbmi)) {
     int pts[SAMPLES_ARRAY_SIZE], pts_inref[SAMPLES_ARRAY_SIZE];
 #if CONFIG_EXT_WARPED_MOTION
-    int pts_mv[SAMPLES_ARRAY_SIZE];
+    int pts_mv[SAMPLES_ARRAY_SIZE], pts_wm[SAMPLES_ARRAY_SIZE];
     mbmi->num_proj_ref[0] =
-        findSamples(cm, xd, mi_row, mi_col, pts, pts_inref, pts_mv);
+        findSamples(cm, xd, mi_row, mi_col, pts, pts_inref, pts_mv, pts_wm);
     // Rank the samples by motion vector difference
     if (mbmi->num_proj_ref[0] > 1)
       mbmi->num_proj_ref[0] = sortSamples(pts_mv, &mbmi->mv[0].as_mv, pts,
