@@ -16,48 +16,48 @@
 static const int cfl_avg_wide_log2[TX_SIZES_ALL] = {
   2,  // TX_4X4
   3,  // TX_8X8
-  4,  // TX_16X16
-  4,  // TX_32X32
+  3,  // TX_16X16
+  3,  // TX_32X32
 #if CONFIG_TX64X64
-  4,    // TX_64X64
+  3,    // TX_64X64
 #endif  // CONFIG_TX64X64
   2,    // TX_4X8
   3,    // TX_8X4
   3,    // TX_8X16
-  4,    // TX_16X8
-  4,    // TX_16X32
-  4,    // TX_32X16
+  3,    // TX_16X8
+  3,    // TX_16X32
+  3,    // TX_32X16
 #if CONFIG_TX64X64
-  4,    // TX_32X64
-  4,    // TX_64X32
+  3,    // TX_32X64
+  3,    // TX_64X32
 #endif  // CONFIG_TX64X64
   2,    // TX_4X16
-  4,    // TX_16X4
+  3,    // TX_16X4
   3,    // TX_8X32
-  4     // TX_32X8
+  3     // TX_32X8
 };
 
 static const int cfl_avg_high_log2[TX_SIZES_ALL] = {
   2,  // TX_4X4
   3,  // TX_8X8
-  4,  // TX_16X16
-  4,  // TX_32X32
+  3,  // TX_16X16
+  3,  // TX_32X32
 #if CONFIG_TX64X64
-  4,    // TX_64X64
+  3,    // TX_64X64
 #endif  // CONFIG_TX64X64
   3,    // TX_4X8
   2,    // TX_8X4
-  4,    // TX_8X16
+  3,    // TX_8X16
   3,    // TX_16X8
-  4,    // TX_16X32
-  4,    // TX_32X16
+  3,    // TX_16X32
+  3,    // TX_32X16
 #if CONFIG_TX64X64
-  4,    // TX_32X64
-  4,    // TX_64X32
+  3,    // TX_32X64
+  3,    // TX_64X32
 #endif  // CONFIG_TX64X64
-  4,    // TX_4X16
+  3,    // TX_4X16
   2,    // TX_16X4
-  4,    // TX_8X32
+  3,    // TX_8X32
   3     // TX_32X8
 };
 
