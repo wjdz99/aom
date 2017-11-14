@@ -1147,9 +1147,9 @@ static void sgrproj_filter_stripe(const RestorationUnitInfo *rui,
 
   for (int j = 0; j < stripe_width; j += procunit_width) {
     int w = AOMMIN(procunit_width, stripe_width - j);
-    apply_selfguided_restoration(src + j, w, stripe_height, src_stride,
-                                 rui->sgrproj_info.ep, rui->sgrproj_info.xqd,
-                                 dst + j, dst_stride, tmpbuf);
+    apply_selfguided_restoration_c(src + j, w, stripe_height, src_stride,
+                                   rui->sgrproj_info.ep, rui->sgrproj_info.xqd,
+                                   dst + j, dst_stride, tmpbuf);
   }
 }
 
@@ -1335,7 +1335,7 @@ static void sgrproj_filter_stripe_highbd(const RestorationUnitInfo *rui,
     int w = AOMMIN(procunit_width, stripe_width - j);
     const uint16_t *data_p = CONVERT_TO_SHORTPTR(src8) + j;
     uint16_t *dst_p = CONVERT_TO_SHORTPTR(dst8) + j;
-    apply_selfguided_restoration_highbd(
+    apply_selfguided_restoration_highbd_c(
         data_p, w, stripe_height, src_stride, bit_depth, rui->sgrproj_info.ep,
         rui->sgrproj_info.xqd, dst_p, dst_stride, tmpbuf);
   }

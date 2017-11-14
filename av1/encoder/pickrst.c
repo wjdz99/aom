@@ -378,13 +378,13 @@ static void sgr_filter_block(const sgr_params_type *params, const uint8_t *dat8,
     av1_highpass_filter_highbd(dat, w, h, dat_stride, flt1, flt_stride,
                                params->corner, params->edge);
 #else
-    av1_selfguided_restoration_highbd(dat, width, height, dat_stride, flt1,
-                                      flt_stride, bit_depth, params->r1,
-                                      params->e1);
+    av1_selfguided_restoration_highbd_c(dat, width, height, dat_stride, flt1,
+                                        flt_stride, bit_depth, params->r1,
+                                        params->e1);
 #endif  // USE_HIGHPASS_IN_SGRPROJ
-    av1_selfguided_restoration_highbd(dat, width, height, dat_stride, flt2,
-                                      flt_stride, bit_depth, params->r2,
-                                      params->e2);
+    av1_selfguided_restoration_highbd_c(dat, width, height, dat_stride, flt2,
+                                        flt_stride, bit_depth, params->r2,
+                                        params->e2);
     return;
   }
 #else
@@ -396,11 +396,11 @@ static void sgr_filter_block(const sgr_params_type *params, const uint8_t *dat8,
   av1_highpass_filter(dat8, width, height, dat_stride, flt1, flt_stride,
                       params->corner, params->edge);
 #else
-  av1_selfguided_restoration(dat8, width, height, dat_stride, flt1, flt_stride,
-                             params->r1, params->e1);
+  av1_selfguided_restoration_c(dat8, width, height, dat_stride, flt1,
+                               flt_stride, params->r1, params->e1);
 #endif  // USE_HIGHPASS_IN_SGRPROJ
-  av1_selfguided_restoration(dat8, width, height, dat_stride, flt2, flt_stride,
-                             params->r2, params->e2);
+  av1_selfguided_restoration_c(dat8, width, height, dat_stride, flt2,
+                               flt_stride, params->r2, params->e2);
 }
 
 // Apply the self-guided filter across an entire restoration unit.
