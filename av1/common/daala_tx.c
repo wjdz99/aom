@@ -3752,6 +3752,8 @@
   } while (0)
 #endif
 
+#if CONFIG_DAALA_TX
+
 /* 4-point orthonormal Type-II fDCT. */
 void od_bin_fdct4(od_coeff y[4], const od_coeff *x, int xstride) {
   /* 4 "muls", 8 adds, 2 shifts */
@@ -5465,4 +5467,5 @@ void daala_idtx64(const tran_low_t *input, tran_low_t *output) {
   int i;
   for (i = 0; i < 64; i++) output[i] = input[i];
 }
-#endif
+#endif  // CONFIG_TX64X64
+#endif  // CONFIG_DAALA_TX
