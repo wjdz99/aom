@@ -5493,8 +5493,8 @@ static int64_t rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
     mbmi->uv_mode = mode;
 #if CONFIG_CFL
     int cfl_alpha_rate = 0;
-    if (mode == UV_CFL_PRED && tx_size_wide[mbmi->tx_size] <= 32 &&
-        tx_size_high[mbmi->tx_size] <= 32) {
+    if (mode == UV_CFL_PRED && tx_size_wide[mbmi->tx_size] <= 16 &&
+        tx_size_high[mbmi->tx_size] <= 16) {
       assert(!is_directional_mode);
       const TX_SIZE uv_tx_size = av1_get_uv_tx_size(mbmi, &xd->plane[1]);
       cfl_alpha_rate = cfl_rd_pick_alpha(x, cpi, bsize, uv_tx_size);
@@ -5524,8 +5524,8 @@ static int64_t rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
         tokenonly_rd_stats.rate + x->intra_uv_mode_cost[mbmi->mode][mode];
 
 #if CONFIG_CFL
-    if (mode == UV_CFL_PRED && tx_size_wide[mbmi->tx_size] <= 32 &&
-        tx_size_high[mbmi->tx_size] <= 32) {
+    if (mode == UV_CFL_PRED && tx_size_wide[mbmi->tx_size] <= 16 &&
+        tx_size_high[mbmi->tx_size] <= 16) {
       this_rate += cfl_alpha_rate;
 #if CONFIG_DEBUG
       assert(xd->cfl->rate == this_rate);
