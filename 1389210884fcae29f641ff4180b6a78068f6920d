@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c22d4539_43554d78",
+        "filename": "av1/decoder/decodetxb.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 6635
+      },
+      "writtenOn": "2017-11-15T07:22:49Z",
+      "side": 1,
+      "message": "when c\u003d *eob -1, the alphabet of level is {1, 2, 3}. Using {0, 1, 2, 3} might negatively impact the performance.",
+      "range": {
+        "startLine": 173,
+        "startChar": 16,
+        "endLine": 173,
+        "endChar": 39
+      },
+      "revId": "1389210884fcae29f641ff4180b6a78068f6920d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
