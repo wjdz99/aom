@@ -68,6 +68,9 @@ macro (fix_experiment_configs)
 
   if (CONFIG_DAALA_TX4 OR CONFIG_DAALA_TX8 OR CONFIG_DAALA_TX16 OR
       CONFIG_DAALA_TX32 OR CONFIG_DAALA_TX64)
+    if (NOT CONFIG_DAALA_TX)
+      change_config_and_warn(CONFIG_DAALA_TX 1 CONFIG_DAALA_TXx)
+    endif ()
     if (NOT CONFIG_LOWBITDEPTH)
       change_config_and_warn(CONFIG_LOWBITDEPTH 1 CONFIG_DAALA_TXx)
     endif ()
