@@ -241,6 +241,24 @@ static int optimize_b_greedy(const AV1_COMMON *cm, MACROBLOCK *mb, int plane,
       accu_rate += rate0;
       x_prev = 0;
       // accu_error does not change when x==0
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     } else {
       /*  Computing distortion
        */
@@ -267,7 +285,12 @@ static int optimize_b_greedy(const AV1_COMMON *cm, MACROBLOCK *mb, int plane,
       dqv = dequant_ptr[rc != 0];
 #endif
 
+#if CONFIG_NEW_QUANT
+      dx = (av1_dequant_coeff_nuq(x, dqv, dequant_val[band_cur]) -
+           coeff[rc]) * (1 << shift);
+#else
       dx = (dqcoeff[rc] - coeff[rc]) * (1 << shift);
+#endif  // CONFIG_NEW_QUANT
 #if CONFIG_HIGHBITDEPTH
       if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
         dx >>= xd->bd - 8;
@@ -279,15 +302,6 @@ static int optimize_b_greedy(const AV1_COMMON *cm, MACROBLOCK *mb, int plane,
        * x_a = x - 2 * sz + 1;
        */
       if (x_a != 0) {
-#if CONFIG_NEW_QUANT
-        dx = av1_dequant_coeff_nuq(x, dqv, dequant_val[band_translate[i]]) -
-             (coeff[rc] << shift);
-#if CONFIG_HIGHBITDEPTH
-        if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
-          dx >>= xd->bd - 8;
-        }
-#endif  // CONFIG_HIGHBITDEPTH
-#else   // CONFIG_NEW_QUANT
 #if CONFIG_HIGHBITDEPTH
         if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
           dx -= ((dqv >> (xd->bd - 8)) + sz) ^ sz;
@@ -297,7 +311,6 @@ static int optimize_b_greedy(const AV1_COMMON *cm, MACROBLOCK *mb, int plane,
 #else
         dx -= (dqv + sz) ^ sz;
 #endif  // CONFIG_HIGHBITDEPTH
-#endif  // CONFIG_NEW_QUANT
         d2_a = (int64_t)dx * dx;
       } else {
         d2_a = d0;
@@ -370,8 +383,8 @@ static int optimize_b_greedy(const AV1_COMMON *cm, MACROBLOCK *mb, int plane,
       }
 
       int dqc, dqc_a = 0;
-
       dqc = dqcoeff[rc];
+
       if (best_x + best_eob_x) {
         if (x_a != 0) {
 #if CONFIG_NEW_QUANT
@@ -430,6 +443,23 @@ static int optimize_b_greedy(const AV1_COMMON *cm, MACROBLOCK *mb, int plane,
         final_eob = i + 1;
       }
     }  // if (x==0)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   }    // for (i)
 
   assert(final_eob <= eob);
