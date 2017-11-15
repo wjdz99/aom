@@ -1720,8 +1720,8 @@ static void read_intra_block_mode_info(AV1_COMMON *const cm, const int mi_row,
     if (mbmi->uv_mode == UV_CFL_PRED) {
       mbmi->cfl_alpha_idx =
           read_cfl_alphas(xd->tile_ctx, r, &mbmi->cfl_alpha_signs);
-      assert(tx_size_wide[mbmi->tx_size] <= 16);
-      assert(tx_size_high[mbmi->tx_size] <= 16);
+      assert(tx_size_wide[mbmi->tx_size] <= 8);
+      assert(tx_size_high[mbmi->tx_size] <= 8);
       xd->cfl->store_y = 1;
     } else {
       xd->cfl->store_y = 0;
