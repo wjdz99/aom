@@ -528,9 +528,12 @@ void av1_fill_coeff_costs(MACROBLOCK *x, FRAME_CONTEXT *fc) {
                                  fc->txb_skip_cdf[tx_size][ctx], NULL);
 
 #if CONFIG_LV_MAP_MULTI
-      for (int ctx = 0; ctx < SIG_COEF_CONTEXTS; ++ctx)
+      for (int ctx = 0; ctx < SIG_COEF_CONTEXTS; ++ctx) {
         av1_cost_tokens_from_cdf(pcost->base_cost[ctx],
                                  fc->coeff_base_cdf[tx_size][plane][ctx], NULL);
+        aom_cdf_prob pnz = CDF_PROB_TOP - AOM_ICDF(fc->coeff_base_cdf[tx_size][plane][ctx][0]);
+        pcost->base_cost[ctx][4] = av1_cost_symbol(pnz);
+      }
 #else
       for (int ctx = 0; ctx < SIG_COEF_CONTEXTS; ++ctx)
         av1_cost_tokens_from_cdf(pcost->nz_map_cost[ctx],
