@@ -4824,6 +4824,21 @@ static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
         av1_build_obmc_inter_predictors_sb(cm, xd, mi_row, mi_col);
     }
 
+    if (dry_run == OUTPUT_ENABLED) {
+      if (bsize == BLOCK_32X8 || bsize == BLOCK_8X32 ||
+          bsize == BLOCK_16X4 || bsize == BLOCK_4X16) {
+#if CONFIG_RECT_TX_EXT
+        if (mbmi->inter_tx_size[0][0] == TX_16X4 || mbmi->inter_tx_size[0][0] == TX_4X16 ||
+            mbmi->inter_tx_size[0][0] == TX_32X8 || mbmi->inter_tx_size[0][0] == TX_8X32)
+#else
+        if (mbmi->inter_tx_size[0][0] == TX_8X4 || mbmi->inter_tx_size[0][0] == TX_4X8 ||
+            mbmi->inter_tx_size[0][0] == TX_16X8 || mbmi->inter_tx_size[0][0] == TX_8X16)
+#endif
+          printf("[%d %d] Hello used %d sb_size %d tx_size %d\n", mi_row, mi_col,
+                 x->skip, mbmi->sb_type, mbmi->inter_tx_size[0][0]);
+      }
+    }
+
     av1_encode_sb((AV1_COMMON *)cm, x, block_size, mi_row, mi_col);
     if (mbmi->skip) mbmi->min_tx_size = get_min_tx_size(mbmi->tx_size);
     av1_tokenize_sb_vartx(cpi, td, t, dry_run, mi_row, mi_col, block_size, rate,

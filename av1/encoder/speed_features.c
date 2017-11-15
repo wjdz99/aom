@@ -136,8 +136,8 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
 
   if (speed >= 1) {
     sf->selective_ref_frame = 1;
-    sf->tx_size_search_init_depth_rect = 1;
-    sf->tx_size_search_init_depth_sqr = 1;
+    sf->tx_size_search_init_depth_rect = 2;
+    sf->tx_size_search_init_depth_sqr = 2;
 #if CONFIG_EXT_PARTITION_TYPES
     sf->prune_ext_partition_types_search = 1;
 #endif  // CONFIG_EXT_PARTITION_TYPES

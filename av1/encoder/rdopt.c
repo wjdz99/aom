@@ -3738,6 +3738,26 @@ void av1_tx_block_rd_b(const AV1_COMP *cpi, MACROBLOCK *x, TX_SIZE tx_size,
     return;
   }
 #endif  // CONFIG_MRC_TX
+  if (tx_size == TX_8X32 && tx_type == DCT_DCT && p->eobs[block] > 0) {
+    int64_t sc = 0;
+    for (int m = 0; m < tx_size_2d[tx_size]; ++m) sc += coeff[m] * coeff[m];
+
+    if (sc - tmp * 64 > 1024)
+      printf("Gotcha sc %"PRId64"\n", sc - tmp * 64);
+
+    const int eob = p->eobs[block];
+    av1_inverse_transform_block(xd, coeff, plane, tx_type, tx_size, rec_buffer, MAX_TX_SIZE, tx_size_2d[tx_size]);
+    int64_t tmpp = pixel_dist(cpi, x, plane, src, src_stride, rec_buffer, MAX_TX_SIZE,
+                     blk_row, blk_col, plane_bsize, txm_bsize);
+    if (tmpp > 8)
+      printf("Gotcha tmpp %"PRId64"\n", tmpp);
+    /*
+    av1_inverse_transform_block(xd, dqcoeff, plane, tx_type, tx_size, rec_buffer, MAX_TX_SIZE, eob);
+    int64_t tmpq = pixel_dist(cpi, x, plane, src, src_stride, rec_buffer, MAX_TX_SIZE,
+                     blk_row, blk_col, plane_bsize, txm_bsize);
+    (void)tmpq;
+    */
+  }
   if (
 #if CONFIG_DIST_8X8
       disable_early_skip ||
@@ -3753,9 +3773,7 @@ void av1_tx_block_rd_b(const AV1_COMP *cpi, MACROBLOCK *x, TX_SIZE tx_size,
     return;
   }
 #endif  // DISABLE_TRELLISQ_SEARCH
-
   const int eob = p->eobs[block];
-
   av1_inverse_transform_block(xd, dqcoeff,
 #if CONFIG_MRC_TX && SIGNAL_ANY_MRC_MASK
                               mrc_mask,
@@ -4188,9 +4206,28 @@ static int64_t select_tx_size_fix_type(const AV1_COMP *cpi, MACROBLOCK *x,
   (void)mi_row;
   (void)mi_col;
 
+  if (bsize == BLOCK_16X4 /* || bsize == BLOCK_4X16 ||
+      bsize == BLOCK_32X8 || bsize == BLOCK_8X32 */) {
+    if (mi_row == 20 && mi_col == 36 && tx_type == DCT_DCT)
+      printf("Hello\n");
+  }
+
   mbmi->tx_type = tx_type;
   select_inter_block_yrd(cpi, x, rd_stats, bsize, ref_best_rd, fast,
                          tx_split_prune_flag);
+
+  /*
+  if (!rd_stats->skip && (mi_row >= 68 && mi_col >=32)) {
+    if (mbmi->inter_tx_size[0][0] == TX_32X8 ||
+        mbmi->inter_tx_size[0][0] == TX_8X32 ||
+        mbmi->inter_tx_size[0][0] == TX_4X16 ||
+        mbmi->inter_tx_size[0][0] == TX_16X4) {
+      printf("Hello\n");
+      select_inter_block_yrd(cpi, x, rd_stats, bsize, ref_best_rd, fast,
+                             tx_split_prune_flag);
+    }
+  }
+  */
   if (rd_stats->rate == INT_MAX) return INT64_MAX;
 
   mbmi->min_tx_size = get_min_tx_size(mbmi->inter_tx_size[0][0]);
@@ -5691,7 +5728,7 @@ static void joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
 #if CONFIG_JNT_COMP
                                 &sf, pw, ph, &conv_params, interp_filters,
 #else
-                              &sf, pw, ph, &conv_params, mbmi->interp_filters,
+                                &sf, pw, ph, &conv_params, mbmi->interp_filters,
 #endif  // CONFIG_JNT_COMP
                                 &warp_types, p_col, p_row, plane, !id,
                                 MV_PRECISION_Q3, mi_col * MI_SIZE,
