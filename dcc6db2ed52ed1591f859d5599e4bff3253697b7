@@ -52,6 +52,24 @@
       "revId": "dcc6db2ed52ed1591f859d5599e4bff3253697b7",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6e0b4694_ee6638c2",
+        "filename": "av1/decoder/detokenize.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2017-11-15T01:35:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a32f2f1b_970e4473",
+      "revId": "dcc6db2ed52ed1591f859d5599e4bff3253697b7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
