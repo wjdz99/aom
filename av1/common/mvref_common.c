@@ -1084,6 +1084,40 @@ static void find_mv_refs_idx(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   const int bw = block_size_wide[AOMMAX(bsize, BLOCK_8X8)];
   const int bh = block_size_high[AOMMAX(bsize, BLOCK_8X8)];
   POSITION mv_ref_search[MVREF_NEIGHBOURS];
+
+#if CONFIG_SCALE_REFMV
+  const int num_4x4_blocks_wide = num_4x4_blocks_wide_lookup[bsize];
+  const int num_4x4_blocks_high = num_4x4_blocks_high_lookup[bsize];
+  mv_ref_search[0].row = num_4x4_blocks_high - 1;
+  mv_ref_search[0].col = -1;
+  mv_ref_search[1].row = -1;
+  mv_ref_search[1].col = num_4x4_blocks_wide - 1;
+  mv_ref_search[2].row = -1;
+  mv_ref_search[2].col = (num_4x4_blocks_wide - 1) >> 1;
+  mv_ref_search[3].row = (num_4x4_blocks_high - 1) >> 1;
+  mv_ref_search[3].col = -1;
+  mv_ref_search[4].row = -1;
+  mv_ref_search[4].col = -1;
+#if CONFIG_EXT_PARTITION_TYPES
+  if (num_4x4_blocks_wide == num_4x4_blocks_high) {
+    mv_ref_search[5].row = -1;
+    mv_ref_search[5].col = 0;
+    mv_ref_search[6].row = 0;
+    mv_ref_search[6].col = -1;
+  } else {
+#endif  // CONFIG_EXT_PARTITION_TYPES
+    mv_ref_search[5].row = -1;
+    mv_ref_search[5].col = num_4x4_blocks_wide;
+    mv_ref_search[6].row = num_4x4_blocks_high;
+    mv_ref_search[6].col = -1;
+#if CONFIG_EXT_PARTITION_TYPES
+  }
+#endif  // CONFIG_EXT_PARTITION_TYPES
+  mv_ref_search[7].row = -1;
+  mv_ref_search[7].col = -3;
+  mv_ref_search[8].row = num_4x4_blocks_high - 1;
+  mv_ref_search[8].col = -3;
+#else  // !CONFIG_SCALE_REFMV
   const int num_8x8_blocks_wide = num_8x8_blocks_wide_lookup[bsize];
   const int num_8x8_blocks_high = num_8x8_blocks_high_lookup[bsize];
   mv_ref_search[0].row = num_8x8_blocks_high - 1;
@@ -1123,6 +1157,7 @@ static void find_mv_refs_idx(const AV1_COMMON *cm, const MACROBLOCKD *xd,
     mv_ref_search[i].row *= 2;
     mv_ref_search[i].col *= 2;
   }
+#endif  // CONFIG_SCALE_REFMV
 
   // The nearest 2 blocks are treated differently
   // if the size < 8x8 we get the mv from the bmi substructure,
