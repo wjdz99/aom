@@ -438,6 +438,7 @@ static INLINE void av1_find_ref_dv(int_mv *ref_dv, int mi_row, int mi_col) {
 
 #define INTRABC_DELAY 0   // Writing back delay in units of super-block.
 #define USE_WAVE_FRONT 0  // Use only top left area of frame for reference.
+#define ALLOW_CURR_SB_PREDICT 1 // Allow prediction from current super block.
 static INLINE int av1_is_dv_valid(const MV dv, const TileInfo *const tile,
                                   int mi_row, int mi_col, BLOCK_SIZE bsize,
                                   int mib_size_log2) {
@@ -476,11 +477,30 @@ static INLINE int av1_is_dv_valid(const MV dv, const TileInfo *const tile,
       src_sb_col >=
           active_sb_col - INTRABC_DELAY + 2 * (active_sb_row - src_sb_row))
     return 0;
+#else 
+  
+#if ALLOW_CURR_SB_PREDICT
+
+  if (src_sb_row > active_sb_row ||
+      (src_sb_row == active_sb_row &&
+          src_sb_col > active_sb_col - INTRABC_DELAY) ||
+          ((src_sb_row == active_sb_row &&
+          src_sb_col == active_sb_col - INTRABC_DELAY && 
+          (
+            ((src_right_edge >> 3) >= mi_col * MI_SIZE) ||
+            ((src_bottom_edge >> 3) >= mi_row * MI_SIZE)
+          )
+          ))) {
+      return 0;
+  }
 #else
   if (src_sb_row > active_sb_row ||
       (src_sb_row == active_sb_row &&
-       src_sb_col >= active_sb_col - INTRABC_DELAY))
-    return 0;
+          src_sb_col >= active_sb_col - INTRABC_DELAY)) {
+      return 0;
+  }
+
+#endif
 #endif
   return 1;
 }
