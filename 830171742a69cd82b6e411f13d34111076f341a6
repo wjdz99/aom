@@ -1,0 +1,123 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "07c351f2_f78b5d28",
+        "filename": "av1/common/quant_common.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 345,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-11-15T12:05:18Z",
+      "side": 1,
+      "message": "I\u0027m a little confused what the \"Q3\" in the function name refers to if the first parameter is \"QTX\". The value that\u0027s returned is just an index (and thus is not a fixed-point value at all).",
+      "revId": "830171742a69cd82b6e411f13d34111076f341a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "194663d7_ecd54f41",
+        "filename": "av1/common/quant_common.h",
+        "patchSetId": 35
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-11-15T12:05:18Z",
+      "side": 1,
+      "message": "The name of the \"ac\" parameter doesn\u0027t match the name used in the implementation.",
+      "revId": "830171742a69cd82b6e411f13d34111076f341a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b1055130_4bea50f0",
+        "filename": "av1/encoder/av1_quantize.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 1565,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-11-15T12:05:18Z",
+      "side": 1,
+      "message": "You deleted the \"right now, it\u0027s still Q3 as above\" for luma. Should it be deleted here, too?",
+      "revId": "830171742a69cd82b6e411f13d34111076f341a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ac9e324a_a5a67d81",
+        "filename": "av1/encoder/av1_quantize.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 1580,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-11-15T12:05:18Z",
+      "side": 1,
+      "message": "Same question.",
+      "revId": "830171742a69cd82b6e411f13d34111076f341a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8efcb0ae_6f36571b",
+        "filename": "av1/encoder/ratectrl_xiph.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 388,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-11-15T12:05:18Z",
+      "side": 1,
+      "message": "So, I\u0027m trying to figure out what the correct initialization is here.\n\nIn Theora, where these constants come from,\n\n  (bits/pixel) \u003d\u003d scale*((q_Q2/4)^-(exp/64))\n\nThis can be derived from looking at the update formula in od_enc_rc_update_state().\n\nI.e., we have a quantizer normalized to Q0 for 8-bit pixel values, which we exponentiate. To get the same behavior here, we need to continue normalizing the quantizer the same way. Otherwise we\u0027ll have to exponentiate any scaling baked into the quantizer as well (which seems complicated and unnecessary).\n\nIf we have normalized the quantizer before exponentiation, then the initializers for log_scale[] should not depend on bit depth or coefficient depth in any way.\n\nSo I think the previous behavior, which moved from subtracting a hard-coded OD_Q57(3) to subtracting OD_Q57(OD_COEFF_SHIFT) was wrong (these values should not depend on the coefficient shift). By subtracting OD_Q57(TX_COEFF_DEPTH - 8), you\u0027ve effectively restored the old behavior, but only by accident because TX_COEFF_DEPTH happens to be 11 at the moment.\n\nSo I *think* the hard-coded OD_Q57(3) from Theora was probably correct, and should be restored.\n\nAm I missing something?",
+      "revId": "830171742a69cd82b6e411f13d34111076f341a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9002956c_25758085",
+        "filename": "av1/encoder/ratectrl_xiph.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 814,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-11-15T12:05:18Z",
+      "side": 1,
+      "message": "I\u0027m struggling to figure out if this is correct, too.\n\nOD_COEFF_SHIFT was 4, but TX_COEFF_DEPTH - 8 in this patch is 3. But rc-\u003ebase_quantizer uses convert_to_ac_quant(), which just takes the output of av1_convert_qindex_to_q() and rounds it to the nearest integer.\n\nav1_convert_qindex_to_q() returns av1_ac_quant_q3()/4.0 for DAALA_TX. So the 4.0 seems wrong for 8-bit input (it should be 8.0 to get from Q3 to Q0). We could correct for that here, but neither OD_Q57(OD_COEFF_SHIFT) nor OD_Q57(TX_COEFF_DEPTH - 8) are the right correction (and it seems like we should just store base_quantizer in Q0 instead).\n\nBut also av1_ac_quant_q3() returns values that get progressively larger for progressively higher bit depths. Without DAALA_TX, av1_convert_qindex_to_q() divides by progressively larger values. I think that\u0027s what you want to make exponentiation of the quantizer behave the same for all bit depths. But *with* DAALA_TX, av_convert_qindex_to_q() always divides by 4.0. So it seems like this gets progressively more wrong for higher bit depths with DAALA_TX.",
+      "revId": "830171742a69cd82b6e411f13d34111076f341a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a56da7fb_2422493a",
+        "filename": "av1/encoder/ratectrl_xiph.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 1029,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-11-15T12:05:18Z",
+      "side": 1,
+      "message": "So, the store back to rc-\u003etarget_quantizer just seems wrong. target_quantizer is used as an actual linear quantizer (like base_quantizer, I think it should be scaled the same way as a Q0 quantizer for 8-bit inputs). But av1_qindex_from_ac*() returns a quantizer *index*, which is completely incomparable.\n\nI also don\u0027t think passing rc-\u003etarget_quantizer directly to av1_qindex_from_ac_Q3 is correct, either. If we move to storing a value scaled the same way as a Q0 quantizer for 8-bit inputs, then it should just be rc-\u003etarget_quantizer \u003c\u003c (TX_COEFF_DEPTH - 8) for DAALA_TX, and something depending on the bit depth for !DAALA_TX.",
+      "revId": "830171742a69cd82b6e411f13d34111076f341a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
