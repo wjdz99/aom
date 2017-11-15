@@ -64,7 +64,7 @@ typedef int av1_coeff_cost[PLANE_TYPES][REF_TYPES][COEF_BANDS][COEFF_CONTEXTS]
 typedef struct {
   int txb_skip_cost[TXB_SKIP_CONTEXTS][2];
 #if CONFIG_LV_MAP_MULTI
-  int base_cost[SIG_COEF_CONTEXTS][4];
+  int base_cost[SIG_COEF_CONTEXTS][4 + 1];
 #else
   int nz_map_cost[SIG_COEF_CONTEXTS][2];
 #endif

@@ -253,7 +253,7 @@ static void get_dist_cost_stats(LevelDownStats *stats, int scan_idx,
     stats->nz_rate = txb_costs->base_cost[coeff_ctx][0];
   } else {
     // TODO(olah): revisit what non-zero cost should be used here
-    stats->nz_rate = txb_costs->base_cost[coeff_ctx][1];
+    stats->nz_rate = txb_costs->base_cost[coeff_ctx][4];
   }
 #else
   int coeff_ctx = get_nz_map_ctx(levels, scan_idx, scan, txb_info->bwl,
