@@ -243,7 +243,7 @@ static int optimize_b_greedy(const AV1_COMMON *cm, MACROBLOCK *mb, int plane,
       int64_t d2_a;
       if (x_a != 0) {
 #if CONFIG_NEW_QUANT
-        dx = av1_dequant_coeff_nuq(x, dqv, dequant_val[band_translate[i]]) -
+        dx = av1_dequant_coeff_nuq(x_a, dqv, dequant_val[band_translate[i]]) -
              (coeff[rc] * (1 << shift));
         dx >>= xd->bd - 8;
 #else   // CONFIG_NEW_QUANT
