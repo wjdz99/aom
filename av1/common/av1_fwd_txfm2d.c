@@ -79,6 +79,15 @@ static INLINE void fwd_txfm2d_c(const int16_t *input, int32_t *output,
   // for square transforms.
   const int txfm_size_col = cfg->row_cfg->txfm_size;
   const int txfm_size_row = cfg->col_cfg->txfm_size;
+  const int rect_type = get_rect_tx_log_ratio(txfm_size_col, txfm_size_row);
+  int rect_type2_shift = 0;
+  if (rect_type == 2 || rect_type == -2) {
+    const int txfm_size_max = AOMMAX(txfm_size_col, txfm_size_row);
+    // For 64x16 / 16x64 shift 3 bits, for 32x8 / 8x32 shift 2 bits, for
+    // 16x4 / 4x16 shift by 1 bit.
+    rect_type2_shift =
+        (txfm_size_max == 64 ? 3 : (txfm_size_max == 32 ? 2 : 1));
+  }
   // Take the shift from the larger dimension in the rectangular case.
   const int8_t *shift = (txfm_size_col > txfm_size_row) ? cfg->row_cfg->shift
                                                         : cfg->col_cfg->shift;
@@ -108,10 +117,14 @@ static INLINE void fwd_txfm2d_c(const int16_t *input, int32_t *output,
     }
     round_shift_array(temp_in, txfm_size_row, -shift[0]);
     // Multiply everything by Sqrt2 on the larger dimension if the
-    // transform is rectangular
-    if (txfm_size_col > txfm_size_row) {
+    // transform is rectangular and the size difference is a factor of 2.
+    // If the size difference is a factor of 4, multiply by
+    // 2^rect_type_2_extra_shift.
+    if (rect_type == 1) {
       for (r = 0; r < txfm_size_row; ++r)
         temp_in[r] = (int32_t)fdct_round_shift(temp_in[r] * Sqrt2);
+    } else if (rect_type == 2) {
+      round_shift_array(temp_in, txfm_size_row, -rect_type2_shift);
     }
     txfm_func_col(temp_in, temp_out, cos_bit_col, stage_range_col);
     round_shift_array(temp_out, txfm_size_row, -shift[1]);
@@ -128,11 +141,16 @@ static INLINE void fwd_txfm2d_c(const int16_t *input, int32_t *output,
   // Rows
   for (r = 0; r < txfm_size_row; ++r) {
     // Multiply everything by Sqrt2 on the larger dimension if the
-    // transform is rectangular
-    if (txfm_size_row > txfm_size_col) {
+    // transform is rectangular and the size difference is a factor of 2.
+    // If the size difference is a factor of 4, multiply by 2.
+    if (rect_type == -1) {
       for (c = 0; c < txfm_size_col; ++c)
         buf[r * txfm_size_col + c] =
             (int32_t)fdct_round_shift(buf[r * txfm_size_col + c] * Sqrt2);
+    } else if (rect_type == -2) {
+      for (c = 0; c < txfm_size_col; ++c)
+        buf[r * txfm_size_col + c] =
+            buf[r * txfm_size_col + c] * (1 << rect_type2_shift);
     }
     txfm_func_row(buf + r * txfm_size_col, output + r * txfm_size_col,
                   cos_bit_row, stage_range_row);
@@ -232,7 +250,7 @@ void av1_fwd_txfm2d_32x16_c(const int16_t *input, int32_t *output, int stride,
 
 #if CONFIG_EXT_PARTITION_TYPES && CONFIG_RECT_TX_EXT
 void av1_fwd_txfm2d_4x16_c(const int16_t *input, int32_t *output, int stride,
-                          TX_TYPE tx_type, int bd) {
+                           TX_TYPE tx_type, int bd) {
 #if CONFIG_TXMG
   int32_t txfm_buf[4 * 16];
   int16_t rinput[4 * 16];
@@ -255,14 +273,14 @@ void av1_fwd_txfm2d_4x16_c(const int16_t *input, int32_t *output, int stride,
 }
 
 void av1_fwd_txfm2d_16x4_c(const int16_t *input, int32_t *output, int stride,
-                            TX_TYPE tx_type, int bd) {
+                           TX_TYPE tx_type, int bd) {
   int32_t txfm_buf[16 * 4];
   TXFM_2D_FLIP_CFG cfg = av1_get_fwd_txfm_cfg(tx_type, TX_16X4);
   fwd_txfm2d_c(input, output, stride, &cfg, txfm_buf, bd);
 }
 
 void av1_fwd_txfm2d_8x32_c(const int16_t *input, int32_t *output, int stride,
-                          TX_TYPE tx_type, int bd) {
+                           TX_TYPE tx_type, int bd) {
 #if CONFIG_TXMG
   int32_t txfm_buf[32 * 8];
   int16_t rinput[32 * 8];
@@ -285,7 +303,7 @@ void av1_fwd_txfm2d_8x32_c(const int16_t *input, int32_t *output, int stride,
 }
 
 void av1_fwd_txfm2d_32x8_c(const int16_t *input, int32_t *output, int stride,
-                            TX_TYPE tx_type, int bd) {
+                           TX_TYPE tx_type, int bd) {
   int32_t txfm_buf[32 * 8];
   TXFM_2D_FLIP_CFG cfg = av1_get_fwd_txfm_cfg(tx_type, TX_32X8);
   fwd_txfm2d_c(input, output, stride, &cfg, txfm_buf, bd);
