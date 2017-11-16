@@ -54,6 +54,27 @@ static INLINE int rec_eob_pos(int16_t eob_token, int16_t extra) {
   return eob;
 }
 
+static void av1_dequant_txb(const uint8_t *const levels,
+                            const int8_t *const signs,
+                            const int16_t *const dequant,
+                            const int16_t *const scan, const int bwl,
+                            const int height, const int eob, const int shift,
+                            tran_low_t *const tcoeffs) {
+  const int16_t dqv = dequant[1];
+  const tran_low_t t0 =
+      ((levels[get_paded_idx(0, bwl)] + tcoeffs[0]) * dequant[0]) >> shift;
+  tcoeffs[0] = signs[0] ? -t0 : t0;
+  (void)height;
+  assert(!scan[0]);
+
+  for (int c = 1; c < eob; ++c) {
+    const int pos = scan[c];
+    const int level = levels[get_paded_idx(pos, bwl)];
+    const tran_low_t t = ((level + tcoeffs[pos]) * dqv) >> shift;
+    tcoeffs[pos] = signs[pos] ? -t : t;
+  }
+}
+
 uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
                             aom_reader *const r, const int blk_row,
                             const int blk_col, const int block, const int plane,
@@ -200,7 +221,6 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
       *max_scan_line = AOMMAX(*max_scan_line, pos);
       if (level < 3) {
         cul_level += level;
-        tcoeffs[pos] = (level * dequant[!!c]) >> shift;
       } else if (update_eob < 0) {
         update_eob = c;
       }
@@ -230,7 +250,6 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
         // semantic: is_k = 1 if level > (k+1)
         if (is_k == 0) {
           cul_level += k + 1;
-          tcoeffs[pos] = ((k + 1) * dequant[!!c]) >> shift;
           break;
         }
       }
@@ -299,7 +318,6 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
     } else {
       *sign = av1_read_record_bit(counts, r, ACCT_STR);
     }
-    if (*sign) tcoeffs[pos] = -tcoeffs[pos];
   }
 
   if (update_eob >= 0) {
@@ -324,9 +342,6 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
       }
       if (*level <= NUM_BASE_LEVELS + COEFF_BASE_RANGE) {
         cul_level += *level;
-        tran_low_t t = (*level * dequant[!!c]) >> shift;
-        if (signs[pos]) t = -t;
-        tcoeffs[pos] = t;
         continue;
       }
 #else
@@ -356,9 +371,6 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
 
           *level = NUM_BASE_LEVELS + 1 + br_base + br_offset;
           cul_level += *level;
-          tran_low_t t = (*level * dequant[!!c]) >> shift;
-          if (signs[pos]) t = -t;
-          tcoeffs[pos] = t;
           break;
         }
         if (counts) ++counts->coeff_br[txs_ctx][plane_type][idx][ctx][0];
@@ -369,13 +381,26 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
       // decode 0-th order Golomb code
       *level = COEFF_BASE_RANGE + 1 + NUM_BASE_LEVELS;
       // Save golomb in tcoeffs because adding it to level may incur overflow
-      tran_low_t t = *level + read_golomb(xd, r, counts);
-      cul_level += t;
-      t = (t * dequant[!!c]) >> shift;
-      if (signs[pos]) t = -t;
+      tran_low_t t = read_golomb(xd, r, counts);
       tcoeffs[pos] = t;
+      cul_level += *level + t;
     }
   }
+
+  av1_dequant_txb(levels, signs, dequant, scan, bwl, height, *eob, shift,
+                  tcoeffs);
+
+#if CONFIG_SYMBOLRATE
+  if (counts) {
+    for (c = 0; c < *eob; ++c) {
+      const int level = levels[get_paded_idx(scan[c], bwl)];
+      // printf("level: %3d\n", level);
+      // printf("activity: %d %d %2d %3d\n", txs_ctx, plane_type,
+      // base_cul_level, level);
+      av1_record_coeff(counts, level);
+    }
+  }
+#endif
 
   cul_level = AOMMIN(63, cul_level);
 
