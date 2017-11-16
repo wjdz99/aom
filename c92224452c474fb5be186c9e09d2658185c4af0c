@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5de443de_2ff681d2",
+        "filename": "av1/common/entropy.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1670,
+      "author": {
+        "id": 7465
+      },
+      "writtenOn": "2017-11-16T19:48:25Z",
+      "side": 1,
+      "message": "For dv, seems that we never use class0_fp, fp_cdf, hp_cdf or class0_hp_cdf. Is that right? It is fine to leave them here in software, for the sake of reusing nmv_component. But in av1 spec document,it should not be required to update the four contexts. It makes the spec cleaner. Can we add a comment here?",
+      "revId": "c92224452c474fb5be186c9e09d2658185c4af0c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
