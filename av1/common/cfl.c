@@ -27,6 +27,7 @@ void cfl_init(CFL_CTX *cfl, AV1_COMMON *cm) {
   cfl->subsampling_y = cm->subsampling_y;
   cfl->are_parameters_computed = 0;
   cfl->store_y = 0;
+  cfl->build_intra = 0;
 #if CONFIG_DEBUG
   cfl_clear_sub8x8_val(cfl);
   cfl->store_counter = 0;
