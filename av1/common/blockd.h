@@ -577,6 +577,10 @@ typedef struct cfl_ctx {
 #endif  // CONFIG_DEBUG
 
   int is_chroma_reference;
+
+  int build_intra;
+  const uint8_t *above_ref;
+  const uint8_t *left_ref;
 #if CONFIG_DEBUG
   // Validation buffer is usually 2x2, except for 16x4 and 4x16 in that case it
   // is 4x2 and 2x4 respectively. To simplify accessing the buffer we use a
