@@ -2,6 +2,69 @@
   "comments": [
     {
       "key": {
+        "uuid": "193e0346_8c66f80f",
+        "filename": "av1/common/x86/mem_sse2.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-11-16T20:50:33Z",
+      "side": 1,
+      "message": "AV1_COMMON_X86_SSE2_H_ is the common form here (more correct would be \u003cPROJECT\u003e_..., but that could be a global cleanup)",
+      "range": {
+        "startLine": 12,
+        "startChar": 8,
+        "endLine": 12,
+        "endChar": 12
+      },
+      "revId": "d35c6c64c3be2b200f12c5dff676cd012bc43e68",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fd690ae5_af34820c",
+        "filename": "test/txb_test.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-11-16T20:50:33Z",
+      "side": 1,
+      "message": "move this to SetUp and check the returns with an ASSERT_TRUE(.. !\u003d NULL)",
+      "revId": "d35c6c64c3be2b200f12c5dff676cd012bc43e68",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fd1f7eef_956f592b",
+        "filename": "test/txb_test.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-11-16T20:50:33Z",
+      "side": 1,
+      "message": "sizeof(var) is generally preferred over sizeof(type)",
+      "range": {
+        "startLine": 38,
+        "startChar": 32,
+        "endLine": 38,
+        "endChar": 39
+      },
+      "revId": "d35c6c64c3be2b200f12c5dff676cd012bc43e68",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "55c93634_429ad2c3",
         "filename": "test/txb_test.cc",
         "patchSetId": 9
@@ -46,6 +109,30 @@
       "revId": "d35c6c64c3be2b200f12c5dff676cd012bc43e68",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "17506b6a_3c985c92",
+        "filename": "test/txb_test.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-11-16T20:50:33Z",
+      "side": 1,
+      "message": "\u003e This function is only called by disabled test \u0027DISABLED_Speed\u0027, so should have no screen printing by default.\n\n+1, that\u0027s the intent of the Speed functions. They can be manually run and output performance to the console.",
+      "parentUuid": "13463117_5521a7b4",
+      "range": {
+        "startLine": 91,
+        "startChar": 14,
+        "endLine": 91,
+        "endChar": 34
+      },
+      "revId": "d35c6c64c3be2b200f12c5dff676cd012bc43e68",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
