@@ -1956,6 +1956,14 @@ static void build_intra_predictors(const MACROBLOCKD *xd, const uint8_t *ref,
   int i;
   const uint8_t *above_ref = ref - ref_stride;
   const uint8_t *left_ref = ref - 1;
+#if CONFIG_CFL
+  CFL_CTX *const cfl = xd->cfl;
+  if (cfl->build_intra) {
+    above_ref = cfl->above_ref;
+    left_ref = cfl->left_ref;
+  }
+#endif  // CONFIG_CFL
+
   DECLARE_ALIGNED(16, uint8_t, left_data[MAX_TX_SIZE * 2 + 32]);
   DECLARE_ALIGNED(16, uint8_t, above_data[MAX_TX_SIZE * 2 + 32]);
   uint8_t *const above_row = above_data + 16;
@@ -2201,11 +2209,12 @@ static void predict_intra_block_helper(const AV1_COMMON *cm,
   BLOCK_SIZE bsize = mbmi->sb_type;
   const struct macroblockd_plane *const pd = &xd->plane[plane];
   const int txw = tx_size_wide_unit[tx_size];
-  const int have_top = row_off || (pd->subsampling_y ? xd->chroma_up_available
-                                                     : xd->up_available);
-  const int have_left =
-      col_off ||
-      (pd->subsampling_x ? xd->chroma_left_available : xd->left_available);
+
+  int have_top = row_off || (pd->subsampling_y ? xd->chroma_up_available
+                                               : xd->up_available);
+  int have_left = col_off || (pd->subsampling_x ? xd->chroma_left_available
+                                                : xd->left_available);
+
   const int x = col_off << tx_size_wide_log2[0];
   const int y = row_off << tx_size_high_log2[0];
   const int mi_row = -xd->mb_to_top_edge >> (3 + MI_SIZE_LOG2);
@@ -2217,6 +2226,16 @@ static void predict_intra_block_helper(const AV1_COMMON *cm,
 #endif  // !INTRA_USES_RECT_TRANSFORMS
   const int xr_chr_offset = 0;
   const int yd_chr_offset = 0;
+
+#if CONFIG_CFL
+  if (xd->cfl->build_intra) {
+    have_top = pd->subsampling_y ? xd->chroma_up_available : xd->up_available;
+    have_left =
+        pd->subsampling_x ? xd->chroma_left_available : xd->left_available;
+    xd->cfl->above_ref = ref - (ref_stride * (y + 1));
+    xd->cfl->left_ref = ref - (x + 1);
+  }
+#endif  // CONFIG_CFL
 
   // Distance between the right edge of this prediction block to
   // the frame right edge
@@ -2307,14 +2326,18 @@ void av1_predict_intra_block_facade(const AV1_COMMON *cm, MACROBLOCKD *xd,
   const PREDICTION_MODE mode = (plane == AOM_PLANE_Y)
                                    ? get_y_mode(mi, block_raster_idx)
                                    : get_uv_mode(mbmi->uv_mode);
+#if CONFIG_CFL
+  xd->cfl->build_intra = (plane != AOM_PLANE_Y && mbmi->uv_mode == UV_CFL_PRED);
+#endif  // CONFIG_CFL
 
   av1_predict_intra_block(cm, xd, pd->width, pd->height,
                           txsize_to_bsize[tx_size], mode, dst, dst_stride, dst,
                           dst_stride, blk_col, blk_row, plane);
 
 #if CONFIG_CFL
-  if (plane != AOM_PLANE_Y && mbmi->uv_mode == UV_CFL_PRED) {
+  if (xd->cfl->build_intra) {
     cfl_predict_block(xd, dst, dst_stride, blk_row, blk_col, tx_size, plane);
+    xd->cfl->build_intra = 0;
   }
 #endif
 }
