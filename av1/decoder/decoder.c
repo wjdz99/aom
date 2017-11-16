@@ -366,6 +366,13 @@ int av1_receive_compressed_data(AV1Decoder *pbi, size_t size,
   av1_decode_frame_from_obus(pbi, source, source + size, psource);
 #endif
 
+#if TXCOEFF_TIMER
+  fprintf(stderr, "txb coeff block number: %d,  processing time: %ld\n",
+          cm->txb_count, cm->txcoeff_timer);
+  cm->txcoeff_timer = 0;
+  cm->txb_count = 0;
+#endif
+
   swap_frame_buffers(pbi);
 
 #if CONFIG_EXT_TILE
