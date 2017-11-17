@@ -634,6 +634,9 @@ typedef struct jnt_comp_params {
 
 typedef struct macroblockd {
   struct macroblockd_plane plane[MAX_MB_PLANE];
+#if CONFIG_LV_MAP
+  int8_t signs[MAX_TX_SQUARE];
+#endif
   uint8_t bmode_blocks_wl;
   uint8_t bmode_blocks_hl;
 
