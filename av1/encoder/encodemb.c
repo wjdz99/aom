@@ -107,7 +107,7 @@ void av1_subtract_plane(MACROBLOCK *x, BLOCK_SIZE bsize, int plane) {
                  pd->dst.buf, pd->dst.stride);
 }
 
-#if !CONFIG_LV_MAP
+#if !CONFIG_LV_MAP || 1
 // Shifting negative values is undefined behaviour in C99,
 // and could mislead the optimizer, who might assume the shifted is positive.
 // This also avoids ubsan warnings.

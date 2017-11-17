@@ -125,8 +125,8 @@ static INLINE tran_low_t qcoeff_to_dqcoeff(tran_low_t qc, int dqv, int shift) {
 }
 
 static INLINE int64_t get_coeff_dist(tran_low_t tcoeff, tran_low_t dqcoeff,
-                                     int shift) {
-  const int64_t diff = (tcoeff - dqcoeff) * (1 << shift);
+                                     int bd, int shift) {
+  const int64_t diff = (abs(tcoeff - dqcoeff) >> (bd - 8)) * (1 << shift);
   const int64_t error = diff * diff;
   return error;
 }
@@ -214,7 +214,8 @@ static void get_dist_cost_stats(LevelDownStats *stats, int scan_idx,
   const int dqv = txb_info->dequant[coeff_idx != 0];
 
   const tran_low_t dqc = qcoeff_to_dqcoeff(qc, dqv, txb_info->shift);
-  const int64_t dqc_dist = get_coeff_dist(tqc, dqc, txb_info->shift);
+  const int64_t dqc_dist =
+      get_coeff_dist(tqc, dqc, txb_info->bd, txb_info->shift);
 #if CONFIG_LV_MAP_MULTI
   const int qc_cost = get_coeff_cost(qc, scan_idx, is_eob, txb_info, txb_costs);
 #else
@@ -223,7 +224,7 @@ static void get_dist_cost_stats(LevelDownStats *stats, int scan_idx,
 
   // distortion difference when coefficient is quantized to 0
   const tran_low_t dqc0 = qcoeff_to_dqcoeff(0, dqv, txb_info->shift);
-  stats->dist0 = get_coeff_dist(tqc, dqc0, txb_info->shift);
+  stats->dist0 = get_coeff_dist(tqc, dqc0, txb_info->bd, txb_info->shift);
   stats->dist = dqc_dist - stats->dist0;
   stats->rate = qc_cost;
 
@@ -235,7 +236,7 @@ static void get_dist_cost_stats(LevelDownStats *stats, int scan_idx,
   stats->low_qc = get_lower_coeff(qc);
   stats->low_dqc = qcoeff_to_dqcoeff(stats->low_qc, dqv, txb_info->shift);
   const int64_t low_dqc_dist =
-      get_coeff_dist(tqc, stats->low_dqc, txb_info->shift);
+      get_coeff_dist(tqc, stats->low_dqc, txb_info->bd, txb_info->shift);
 #if CONFIG_LV_MAP_MULTI
   const int low_qc_cost =
       get_coeff_cost(stats->low_qc, scan_idx, is_eob, txb_info, txb_costs);
@@ -1737,12 +1738,13 @@ void try_level_down_facade(LevelDownStats *stats, int scan_idx,
   if (scan_idx != txb_info->eob - 1)
     if (abs(dqc) < abs(tqc)) return;
 
-  const int64_t dqc_dist = get_coeff_dist(tqc, dqc, txb_info->shift);
+  const int64_t dqc_dist =
+      get_coeff_dist(tqc, dqc, txb_info->bd, txb_info->shift);
 
   stats->low_qc = get_lower_coeff(qc);
   stats->low_dqc = qcoeff_to_dqcoeff(stats->low_qc, dqv, txb_info->shift);
   const int64_t low_dqc_dist =
-      get_coeff_dist(tqc, stats->low_dqc, txb_info->shift);
+      get_coeff_dist(tqc, stats->low_dqc, txb_info->bd, txb_info->shift);
 
   stats->dist_diff = -dqc_dist + low_dqc_dist;
   stats->cost_diff = 0;
@@ -2066,11 +2068,25 @@ int av1_optimize_txb(const AV1_COMMON *cm, MACROBLOCK *x, int plane,
   uint8_t *const levels = set_levels(levels_buf, width);
 
   assert(width == (1 << bwl));
-  TxbInfo txb_info = {
-    qcoeff,  levels,  dqcoeff,    tcoeff,  dequant, shift,
-    tx_size, txs_ctx, tx_type,    bwl,     width,   height,
-    eob,     seg_eob, scan_order, txb_ctx, rdmult,  &cm->coeff_ctx_table
-  };
+  TxbInfo txb_info = { qcoeff,
+                       levels,
+                       dqcoeff,
+                       tcoeff,
+                       dequant,
+                       shift,
+                       xd->bd,
+                       tx_size,
+                       txs_ctx,
+                       tx_type,
+                       bwl,
+                       width,
+                       height,
+                       eob,
+                       seg_eob,
+                       scan_order,
+                       txb_ctx,
+                       rdmult,
+                       &cm->coeff_ctx_table };
 
   av1_txb_init_levels(qcoeff, width, height, levels);
 
