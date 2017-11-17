@@ -215,14 +215,13 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
       }
       levels[get_paded_idx(scan[c], bwl)] = k + 1;
       *max_scan_line = AOMMAX(*max_scan_line, scan[c]);
+      if (update_eob < 0 && k == NUM_BASE_LEVELS) update_eob = c;
     }
 #endif
 #endif
   }
 
-#if USE_CAUSAL_BASE_CTX
-  update_eob = *eob - 1;
-#else
+#if !USE_CAUSAL_BASE_CTX
   int i;
   for (i = 0; i < NUM_BASE_LEVELS; ++i) {
     av1_get_base_level_counts(levels, i, width, height, level_counts);
