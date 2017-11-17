@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "457d0735_3e843544",
+        "filename": "av1/encoder/encodetxb.c",
+        "patchSetId": 40
+      },
+      "lineNbr": 1742,
+      "author": {
+        "id": 5540
+      },
+      "writtenOn": "2017-11-17T11:22:06Z",
+      "side": 1,
+      "message": "Agreed. The fact I hadn\u0027t noticed the new calls is all the convincing I need.",
+      "parentUuid": "74ec9352_4b85c4e1",
+      "revId": "11e37de8514a84dc1d5bc2e14538e8857aed51d8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "398686a3_7b348db2",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 40
@@ -30,6 +48,24 @@
       "writtenOn": "2017-11-16T02:06:02Z",
       "side": 1,
       "message": "Are you sure that\u0027s true? It gets passed to RIGHT_SIGNED_SHIFT, which is\n\n#define RIGHT_SIGNED_SHIFT(value, n) \\\n  ((n) \u003c 0 ? ((value) \u003c\u003c (-(n))) : ((value) \u003e\u003e (n)))",
+      "revId": "11e37de8514a84dc1d5bc2e14538e8857aed51d8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "13c7ee87_d7b90ff7",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 40
+      },
+      "lineNbr": 1973,
+      "author": {
+        "id": 5540
+      },
+      "writtenOn": "2017-11-17T11:22:06Z",
+      "side": 1,
+      "message": "The definition of RIGHT_SIGNED_SHIFT changed since I wrote the comment.  It is indeed no longer true.",
+      "parentUuid": "398686a3_7b348db2",
       "revId": "11e37de8514a84dc1d5bc2e14538e8857aed51d8",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "7a89971b_3df208ba",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 40
+      },
+      "lineNbr": 2160,
+      "author": {
+        "id": 5540
+      },
+      "writtenOn": "2017-11-17T11:22:06Z",
+      "side": 1,
+      "message": "As above.",
+      "parentUuid": "fec72106_a1aaed8d",
+      "revId": "11e37de8514a84dc1d5bc2e14538e8857aed51d8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "51bc3762_ea5640ec",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 40
@@ -70,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "1ca05948_e3917a6b",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 40
+      },
+      "lineNbr": 3725,
+      "author": {
+        "id": 5540
+      },
+      "writtenOn": "2017-11-17T11:22:06Z",
+      "side": 1,
+      "message": "Correct, and I\u0027d since figured that out, but had not removed the comment.\n\nThat said, it\u0027s fortunate I hadn\u0027t and you saw it, because as you noticed, I never updated av1_highbd_block_error().  Corrected, and conditionally un-SIMDed...",
+      "parentUuid": "51bc3762_ea5640ec",
+      "revId": "11e37de8514a84dc1d5bc2e14538e8857aed51d8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d5253e1c_d3c3a823",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 40
@@ -81,6 +153,24 @@
       "writtenOn": "2017-11-16T02:06:02Z",
       "side": 1,
       "message": "Same here.",
+      "revId": "11e37de8514a84dc1d5bc2e14538e8857aed51d8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fd82f0f2_2c10d90d",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 40
+      },
+      "lineNbr": 3767,
+      "author": {
+        "id": 5540
+      },
+      "writtenOn": "2017-11-17T11:22:06Z",
+      "side": 1,
+      "message": "Same fixed.",
+      "parentUuid": "d5253e1c_d3c3a823",
       "revId": "11e37de8514a84dc1d5bc2e14538e8857aed51d8",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
