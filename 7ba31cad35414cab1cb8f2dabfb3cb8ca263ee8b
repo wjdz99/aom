@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8c31e58e_8c13d15b",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 4412,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-11-17T20:43:44Z",
+      "side": 1,
+      "message": "no restriction like whether the block is skipped?",
+      "range": {
+        "startLine": 4412,
+        "startChar": 6,
+        "endLine": 4412,
+        "endChar": 33
+      },
+      "revId": "7ba31cad35414cab1cb8f2dabfb3cb8ca263ee8b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
