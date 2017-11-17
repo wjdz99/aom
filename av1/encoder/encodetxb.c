@@ -294,7 +294,7 @@ static INLINE void av1_txb_init_levels(const tran_low_t *const coeff,
 
   for (int i = 0; i < height; i++) {
     for (int j = 0; j < width; j++) {
-      *ls++ = (uint8_t)clamp(abs(coeff[i * width + j]), 0, UINT8_MAX);
+      *ls++ = (uint8_t)clamp(abs(coeff[i * width + j]), 0, UINT8_MAX >> 1);
     }
     for (int j = 0; j < TX_PAD_HOR; j++) {
       *ls++ = 0;
