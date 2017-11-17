@@ -453,6 +453,7 @@ PREDICTION_MODE av1_above_block_mode(const MODE_INFO *cur_mi,
 
 static INLINE int is_global_mv_block(const MODE_INFO *mi, int block,
                                      TransformationType type) {
+  return 0;
   PREDICTION_MODE mode = get_y_mode(mi, block);
 #if GLOBAL_SUB8X8_USED
   const int block_size_allowed = 1;
