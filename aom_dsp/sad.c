@@ -50,8 +50,8 @@ static INLINE unsigned int sad(const uint8_t *a, int a_stride, const uint8_t *b,
       const uint8_t *src, int src_stride, const uint8_t *ref, int ref_stride, \
       const uint8_t *second_pred, const JNT_COMP_PARAMS *jcp_param) {         \
     uint8_t comp_pred[m * n];                                                 \
-    aom_jnt_comp_avg_pred(comp_pred, second_pred, m, n, ref, ref_stride,      \
-                          jcp_param);                                         \
+    aom_jnt_comp_avg_pred_c(comp_pred, second_pred, m, n, ref, ref_stride,    \
+                            jcp_param);                                       \
     return sad(src, src_stride, comp_pred, m, m, n);                          \
   }
 #else  // CONFIG_JNT_COMP
