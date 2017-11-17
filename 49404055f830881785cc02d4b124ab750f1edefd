@@ -16,6 +16,24 @@
       "revId": "49404055f830881785cc02d4b124ab750f1edefd",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0cef8e58_1c0b0092",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 2091,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-11-17T21:14:02Z",
+      "side": 0,
+      "message": "Thanks for the reviewing. This \"else\" corresponds to the following \"if\":\n  if (is_compound) {\n    ...\n  } else {\n  }\n\nI believe the current code is a legacy code as a result of the previous \"ext_inter\" experiment. With \"ext_inter\", NEWMV could be applied to both compound and single-ref scenarios. Now when the experiment flag \"ext_inter\" is removed, the \"else\" always indicates \"!is_compound\".",
+      "parentUuid": "3591ee50_f853376f",
+      "revId": "49404055f830881785cc02d4b124ab750f1edefd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
