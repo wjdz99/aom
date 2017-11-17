@@ -1376,20 +1376,18 @@ static InterpFilter read_frame_interp_filter(struct aom_read_bit_buffer *rb) {
                              : aom_rb_read_literal(rb, LOG_SWITCHABLE_FILTERS);
 }
 
-static void setup_render_size(AV1_COMMON *cm, struct aom_read_bit_buffer *rb) {
-#if CONFIG_FRAME_SUPERRES
-  cm->render_width = cm->superres_upscaled_width;
-  cm->render_height = cm->superres_upscaled_height;
-#else
-  cm->render_width = cm->width;
-  cm->render_height = cm->height;
-#endif  // CONFIG_FRAME_SUPERRES
-  if (aom_rb_read_bit(rb))
+static void setup_render_size(AV1_COMMON *cm, struct aom_read_bit_buffer *rb,
+                              int default_width, int default_height) {
+  if (aom_rb_read_bit(rb)) {
 #if CONFIG_FRAME_SIZE
     av1_read_frame_size(rb, 16, 16, &cm->render_width, &cm->render_height);
 #else
     av1_read_frame_size(rb, &cm->render_width, &cm->render_height);
 #endif
+  } else {
+    cm->render_width = default_width;
+    cm->render_height = default_height;
+  }
 }
 
 #if CONFIG_FRAME_SUPERRES
@@ -1470,10 +1468,10 @@ static void setup_frame_size(AV1_COMMON *cm, struct aom_read_bit_buffer *rb) {
 #else
   av1_read_frame_size(rb, &width, &height);
 #endif
+  setup_render_size(cm, rb, width, height);
 #if CONFIG_FRAME_SUPERRES
   setup_superres(cm, rb, &width, &height);
 #endif  // CONFIG_FRAME_SUPERRES
-  setup_render_size(cm, rb);
   resize_context_buffers(cm, width, height);
 
   lock_buffer_pool(pool);
@@ -1553,10 +1551,10 @@ static void setup_frame_size_with_refs(AV1_COMMON *cm,
 #else
     av1_read_frame_size(rb, &width, &height);
 #endif
+    setup_render_size(cm, rb, width, height);
 #if CONFIG_FRAME_SUPERRES
     setup_superres(cm, rb, &width, &height);
 #endif  // CONFIG_FRAME_SUPERRES
-    setup_render_size(cm, rb);
   }
 
   if (width <= 0 || height <= 0)
