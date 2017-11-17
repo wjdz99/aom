@@ -270,6 +270,7 @@ static void predict_and_reconstruct_intra_block(
 #if CONFIG_LV_MAP
     int16_t max_scan_line = 0;
     int eob;
+
     av1_read_coeffs_txb_facade(cm, xd, r, row, col, block_idx, plane,
                                pd->dqcoeff, tx_size, &max_scan_line, &eob);
     // tx_type will be read out in av1_read_coeffs_txb_facade
@@ -291,6 +292,7 @@ static void predict_and_reconstruct_intra_block(
                               max_scan_line, eob);
     }
   }
+
 #if CONFIG_CFL
   if (plane == AOM_PLANE_Y && xd->cfl->store_y) {
     cfl_store_tx(xd, row, col, tx_size, mbmi->sb_type);
