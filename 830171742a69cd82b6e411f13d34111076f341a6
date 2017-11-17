@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "205abda0_9465ed62",
+        "filename": "av1/common/quant_common.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 345,
+      "author": {
+        "id": 5540
+      },
+      "writtenOn": "2017-11-17T07:02:22Z",
+      "side": 1,
+      "message": "This was a partial retcon fail. The ac parameter is supposed to be ac_Q3.  The function returns the qi that most closely matches the passed in ac_Q3.",
+      "parentUuid": "07c351f2_f78b5d28",
+      "revId": "830171742a69cd82b6e411f13d34111076f341a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "194663d7_ecd54f41",
         "filename": "av1/common/quant_common.h",
         "patchSetId": 35
@@ -30,6 +48,24 @@
       "writtenOn": "2017-11-15T12:05:18Z",
       "side": 1,
       "message": "The name of the \"ac\" parameter doesn\u0027t match the name used in the implementation.",
+      "revId": "830171742a69cd82b6e411f13d34111076f341a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f25eed49_f2ab1bd0",
+        "filename": "av1/common/quant_common.h",
+        "patchSetId": 35
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5540
+      },
+      "writtenOn": "2017-11-17T07:02:22Z",
+      "side": 1,
+      "message": "Fixed, also see next....",
+      "parentUuid": "194663d7_ecd54f41",
       "revId": "830171742a69cd82b6e411f13d34111076f341a6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "f9d320d7_19a2a7fb",
+        "filename": "av1/encoder/av1_quantize.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 1565,
+      "author": {
+        "id": 5540
+      },
+      "writtenOn": "2017-11-17T07:02:22Z",
+      "side": 1,
+      "message": "Yes.  This is a rebase merge fail.",
+      "parentUuid": "b1055130_4bea50f0",
+      "revId": "830171742a69cd82b6e411f13d34111076f341a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ac9e324a_a5a67d81",
         "filename": "av1/encoder/av1_quantize.c",
         "patchSetId": 35
@@ -64,6 +118,24 @@
       "writtenOn": "2017-11-15T12:05:18Z",
       "side": 1,
       "message": "Same question.",
+      "revId": "830171742a69cd82b6e411f13d34111076f341a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "695e14c6_5b52a508",
+        "filename": "av1/encoder/av1_quantize.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 1580,
+      "author": {
+        "id": 5540
+      },
+      "writtenOn": "2017-11-17T07:02:22Z",
+      "side": 1,
+      "message": "Same answer.",
+      "parentUuid": "ac9e324a_a5a67d81",
       "revId": "830171742a69cd82b6e411f13d34111076f341a6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "33f0917e_a5adf429",
+        "filename": "av1/encoder/ratectrl_xiph.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 388,
+      "author": {
+        "id": 5540
+      },
+      "writtenOn": "2017-11-17T07:02:22Z",
+      "side": 1,
+      "message": "The original Theora code actually had OD_Q57(8), and neither of us can immediately remember exactly why.  I agree the code as committed now is wrong, but it was also wrong before the patch, and OD_Q57(3) is probably wrong as well.  \n\nThis, and other aspects of the Theora rate control port strike me as fundamentally broken as they currently appear.  I will comment them as such, but debugging it as part of this patch is out of scope.\n\nI think I *will* also revert this to OD_Q57(8) as in Theora, as the 8 may be wrong, but it\u0027s less wrong than tying it to bitdepth.",
+      "parentUuid": "8efcb0ae_6f36571b",
+      "revId": "830171742a69cd82b6e411f13d34111076f341a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9002956c_25758085",
         "filename": "av1/encoder/ratectrl_xiph.c",
         "patchSetId": 35
@@ -104,6 +194,24 @@
     },
     {
       "key": {
+        "uuid": "50bb2e63_c2913b99",
+        "filename": "av1/encoder/ratectrl_xiph.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 814,
+      "author": {
+        "id": 5540
+      },
+      "writtenOn": "2017-11-17T07:02:22Z",
+      "side": 1,
+      "message": "agreed, same concerns (and momentary resolution) as above.  I will comment.",
+      "parentUuid": "9002956c_25758085",
+      "revId": "830171742a69cd82b6e411f13d34111076f341a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a56da7fb_2422493a",
         "filename": "av1/encoder/ratectrl_xiph.c",
         "patchSetId": 35
@@ -115,6 +223,24 @@
       "writtenOn": "2017-11-15T12:05:18Z",
       "side": 1,
       "message": "So, the store back to rc-\u003etarget_quantizer just seems wrong. target_quantizer is used as an actual linear quantizer (like base_quantizer, I think it should be scaled the same way as a Q0 quantizer for 8-bit inputs). But av1_qindex_from_ac*() returns a quantizer *index*, which is completely incomparable.\n\nI also don\u0027t think passing rc-\u003etarget_quantizer directly to av1_qindex_from_ac_Q3 is correct, either. If we move to storing a value scaled the same way as a Q0 quantizer for 8-bit inputs, then it should just be rc-\u003etarget_quantizer \u003c\u003c (TX_COEFF_DEPTH - 8) for DAALA_TX, and something depending on the bit depth for !DAALA_TX.",
+      "revId": "830171742a69cd82b6e411f13d34111076f341a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1f709525_82ff88f6",
+        "filename": "av1/encoder/ratectrl_xiph.c",
+        "patchSetId": 35
+      },
+      "lineNbr": 1029,
+      "author": {
+        "id": 5540
+      },
+      "writtenOn": "2017-11-17T07:02:22Z",
+      "side": 1,
+      "message": "Ross wrote this; I have no idea what it supposed to do.  I maintained what looked like functional/semantic equivalence, but I doubt it worked as intended to begin with.  Will comment.",
+      "parentUuid": "a56da7fb_2422493a",
       "revId": "830171742a69cd82b6e411f13d34111076f341a6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
