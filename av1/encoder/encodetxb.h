@@ -30,6 +30,7 @@ typedef struct TxbInfo {
   const tran_low_t *tcoeff;
   const int16_t *dequant;
   int shift;
+  int bd;
   TX_SIZE tx_size;
   TX_SIZE txs_ctx;
   TX_TYPE tx_type;
