@@ -523,6 +523,7 @@ post_process_cmdline() {
       soft_enable frame_size
       soft_enable segment_globalmv
       soft_enable short_filter
+      soft_enable tx64x64
     fi
 
     # Enable low-bitdepth pixel pipeline by default
@@ -561,6 +562,13 @@ post_process_cmdline() {
       enable_feature daala_tx16
       enable_feature daala_tx32
       enable_feature daala_tx64
+    fi
+    if disabled daala_tx; then
+      disable_feature daala_tx4
+      disable_feature daala_tx8
+      disable_feature daala_tx16
+      disable_feature daala_tx32
+      disable_feature daala_tx64
     fi
     if enabled daala_tx64 && ! enabled tx64x64; then
       log_echo "daala_tx64 requires tx64x64, so disabling daala_tx64"
