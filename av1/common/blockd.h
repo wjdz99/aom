@@ -609,10 +609,6 @@ typedef struct cfl_ctx {
   // Whether the reconstructed luma pixels need to be stored
   int store_y;
 
-#if CONFIG_DEBUG
-  int rate;
-#endif  // CONFIG_DEBUG
-
   int is_chroma_reference;
 #if CONFIG_DEBUG
   // Validation buffer is usually 2x2, except for 16x4 and 4x16 in that case it
