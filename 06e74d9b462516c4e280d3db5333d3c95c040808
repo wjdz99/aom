@@ -22,6 +22,30 @@
       "revId": "06e74d9b462516c4e280d3db5333d3c95c040808",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0e67d8fe_0e1bb0d5",
+        "filename": "av1/encoder/encodetxb.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 280,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2017-11-18T17:38:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2842189e_8d524438",
+      "range": {
+        "startLine": 280,
+        "startChar": 32,
+        "endLine": 280,
+        "endChar": 47
+      },
+      "revId": "06e74d9b462516c4e280d3db5333d3c95c040808",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
