@@ -439,7 +439,7 @@ static INLINE int av1_is_dv_valid(const MV dv, const TileInfo *const tile,
   const int SCALE_PX_TO_MV = 8;
   // Disallow subpixel for now
   // SUBPEL_MASK is not the correct scale
-  if ((dv.row & (SCALE_PX_TO_MV - 1) || dv.col & (SCALE_PX_TO_MV - 1)))
+  if (((dv.row & (SCALE_PX_TO_MV - 1)) || (dv.col & (SCALE_PX_TO_MV - 1))))
     return 0;
   // Is the source top-left inside the current tile?
   const int src_top_edge = mi_row * MI_SIZE * SCALE_PX_TO_MV + dv.row;
@@ -464,6 +464,7 @@ static INLINE int av1_is_dv_valid(const MV dv, const TileInfo *const tile,
   const int sb_size = max_mib_size * MI_SIZE;
   const int src_sb_row = ((src_bottom_edge >> 3) - 1) / sb_size;
   const int src_sb_col = ((src_right_edge >> 3) - 1) / sb_size;
+
 #if USE_WAVE_FRONT
   if (src_sb_row > active_sb_row ||
       src_sb_col >=
@@ -475,6 +476,15 @@ static INLINE int av1_is_dv_valid(const MV dv, const TileInfo *const tile,
        src_sb_col >= active_sb_col - INTRABC_DELAY))
     return 0;
 #endif
+
+  const int encoded_sb_this_row =
+      (mi_row - tile->mi_row_start) >> mib_size_log2;
+  if (encoded_sb_this_row < INTRABC_DELAY &&
+      src_sb_row == active_sb_row - 1) {  // Carry delay to previous SB row
+    const int delay = INTRABC_DELAY - encoded_sb_this_row;
+    const int end_sb_col = (tile->mi_col_end - 1) >> mib_size_log2;
+    if (src_sb_col > end_sb_col - delay) return 0;
+  }
   return 1;
 }
 #endif  // CONFIG_INTRABC
