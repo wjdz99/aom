@@ -226,7 +226,11 @@ static INLINE void update_cdf(aom_cdf_prob *cdf, int val, int nsymbs) {
   int i, tmp;
   int diff;
 #if 1
+#if CONFIG_LV_MAP_MULTI
+  const int tmp0 = 0;
+#else
   const int tmp0 = 1 << rate2;
+#endif
   tmp = AOM_ICDF(tmp0);
   diff = ((CDF_PROB_TOP - (nsymbs << rate2)) >> rate) << rate;
 // Single loop (faster)
