@@ -722,22 +722,64 @@ Error:
 static void upscale_normative_plane(const uint8_t *const input, int height,
                                     int width, int in_stride, uint8_t *output,
                                     int height2, int width2, int out_stride,
+#if CONFIG_LOOPFILTERING_ACROSS_TILES
+                                    int loop_filter_across_tiles_enabled,
+#endif
                                     int superres_denom) {
   assert(width > 0);
   assert(height > 0);
   assert(width2 > 0);
   assert(height2 > 0);
 #if CONFIG_HORZONLY_FRAME_SUPERRES
+  (void)width;
   (void)height;
-  (void)height2;
-  (void)superres_denom;
   assert(height2 == height);
-  const int32_t x_step_qn = av1_get_upscale_convolve_step(width, width2);
-  const int32_t x0_qn = get_upscale_convolve_x0(width, width2, x_step_qn);
+  const int32_t x_step_qn =
+      av1_get_upscale_convolve_step(SCALE_NUMERATOR, superres_denom);
+  const int32_t x0_qn =
+      get_upscale_convolve_x0(SCALE_NUMERATOR, superres_denom, x_step_qn);
+#if CONFIG_LOOPFILTERING_ACROSS_TILES
+  // Note: Because we pass input-1 to av1_convolve_horiz_rs, we need one extra
+  // column of border pixels compared to what we'd naively think.
+  const int border_cols = UPSCALE_NORMATIVE_TAPS / 2 + 1;
+  uint8_t *tmp_left;
+  uint8_t *tmp_right;
+  uint8_t *const in_tl = (uint8_t *)(input - border_cols);  // Cast off 'const'
+  uint8_t *const in_tr = (uint8_t *)(input + width);
+  if (!loop_filter_across_tiles_enabled) {
+    // Extend the left/right pixels of the tile column, so that we don't
+    // sample pixels from other tiles.
+    // Save the overwritten pixels into tmp_left and tmp_right.
+    tmp_left = (uint8_t *)aom_malloc(sizeof(*tmp_left) * border_cols * height);
+    tmp_right =
+        (uint8_t *)aom_malloc(sizeof(*tmp_right) * border_cols * height);
+    for (int i = 0; i < height; i++) {
+      memcpy(tmp_left + i * border_cols, in_tl + i * in_stride, border_cols);
+      memcpy(tmp_right + i * border_cols, in_tr + i * in_stride, border_cols);
+      memset(in_tl + i * in_stride, input[i * in_stride], border_cols);
+      memset(in_tr + i * in_stride, input[i * in_stride + width - 1],
+             border_cols);
+    }
+  }
+#endif
   av1_convolve_horiz_rs(input - 1, in_stride, output, out_stride, width2,
                         height2, &av1_resize_filter_normative[0][0],
                         UPSCALE_NORMATIVE_TAPS, x0_qn, x_step_qn);
-#else
+#if CONFIG_LOOPFILTERING_ACROSS_TILES
+  if (!loop_filter_across_tiles_enabled) {
+    // Restore the left/right border pixels
+    for (int i = 0; i < height; i++) {
+      memcpy(in_tl + i * in_stride, tmp_left + i * border_cols, border_cols);
+      memcpy(in_tr + i * in_stride, tmp_right + i * border_cols, border_cols);
+    }
+    aom_free(tmp_left);
+    aom_free(tmp_right);
+  }
+#endif
+#else  // CONFIG_HORZONLY_FRAME_SUPERRES
+#if CONFIG_LOOPFILTERING_ACROSS_TILES
+  (void)loop_filter_across_tiles_enabled;
+#endif
   uint8_t *intbuf = (uint8_t *)aom_malloc(sizeof(uint8_t) * width2 * height);
   uint8_t *arrbuf = (uint8_t *)aom_malloc(sizeof(uint8_t) * height);
   uint8_t *arrbuf2 = (uint8_t *)aom_malloc(sizeof(uint8_t) * height2);
@@ -1109,23 +1151,67 @@ static void highbd_upscale_normative_plane(const uint8_t *const input,
                                            int height, int width, int in_stride,
                                            uint8_t *output, int height2,
                                            int width2, int out_stride,
+#if CONFIG_LOOPFILTERING_ACROSS_TILES
+                                           int loop_filter_across_tiles_enabled,
+#endif
                                            int superres_denom, int bd) {
   assert(width > 0);
   assert(height > 0);
   assert(width2 > 0);
   assert(height2 > 0);
 #if CONFIG_HORZONLY_FRAME_SUPERRES
+  (void)width;
   (void)height;
-  (void)height2;
-  (void)superres_denom;
   assert(height2 == height);
-  const int32_t x_step_qn = av1_get_upscale_convolve_step(width, width2);
-  const int32_t x0_qn = get_upscale_convolve_x0(width, width2, x_step_qn);
+  const int32_t x_step_qn =
+      av1_get_upscale_convolve_step(SCALE_NUMERATOR, superres_denom);
+  const int32_t x0_qn =
+      get_upscale_convolve_x0(SCALE_NUMERATOR, superres_denom, x_step_qn);
+#if CONFIG_LOOPFILTERING_ACROSS_TILES
+  // Note: Because we pass input-1 to av1_convolve_horiz_rs, we need one extra
+  // column of border pixels compared to what we'd naively think.
+  const int border_cols = UPSCALE_NORMATIVE_TAPS / 2 + 1;
+  const int border_size = border_cols * sizeof(uint16_t);
+  uint16_t *tmp_left;
+  uint16_t *tmp_right;
+  uint16_t *const in_tl =
+      (uint16_t *)(input - border_cols);  // Cast off 'const'
+  uint16_t *const in_tr = (uint16_t *)(input + width);
+  if (!loop_filter_across_tiles_enabled) {
+    // Extend the left/right pixels of the tile column, so that we don't
+    // sample pixels from other tiles.
+    // Save the overwritten pixels into tmp_left and tmp_right.
+    tmp_left = (uint16_t *)aom_malloc(sizeof(*tmp_left) * border_cols * height);
+    tmp_right =
+        (uint16_t *)aom_malloc(sizeof(*tmp_right) * border_cols * height);
+    for (int i = 0; i < height; i++) {
+      memcpy(tmp_left + i * border_cols, in_tl + i * in_stride, border_size);
+      memcpy(tmp_right + i * border_cols, in_tr + i * in_stride, border_size);
+      aom_memset16(in_tl + i * in_stride, input[i * in_stride], border_cols);
+      aom_memset16(in_tr + i * in_stride, input[i * in_stride + width - 1],
+                   border_cols);
+    }
+  }
+#endif
   av1_highbd_convolve_horiz_rs(CONVERT_TO_SHORTPTR(input - 1), in_stride,
                                CONVERT_TO_SHORTPTR(output), out_stride, width2,
                                height2, &av1_resize_filter_normative[0][0],
                                UPSCALE_NORMATIVE_TAPS, x0_qn, x_step_qn, bd);
+#if CONFIG_LOOPFILTERING_ACROSS_TILES
+  if (!loop_filter_across_tiles_enabled) {
+    // Restore the left/right border pixels
+    for (int i = 0; i < height; i++) {
+      memcpy(in_tl + i * in_stride, tmp_left + i * border_cols, border_size);
+      memcpy(in_tr + i * in_stride, tmp_right + i * border_cols, border_size);
+    }
+    aom_free(tmp_left);
+    aom_free(tmp_right);
+  }
+#endif
 #else
+#if CONFIG_LOOPFILTERING_ACROSS_TILES
+  (void)loop_filter_across_tiles_enabled;
+#endif
   uint16_t *intbuf = (uint16_t *)aom_malloc(sizeof(uint16_t) * width2 * height);
   uint16_t *arrbuf = (uint16_t *)aom_malloc(sizeof(uint16_t) * height);
   uint16_t *arrbuf2 = (uint16_t *)aom_malloc(sizeof(uint16_t) * height2);
@@ -1270,40 +1356,102 @@ void av1_resize_and_extend_frame(const YV12_BUFFER_CONFIG *src,
 
 #if CONFIG_FRAME_SUPERRES
 #if CONFIG_HIGHBITDEPTH
-void av1_upscale_normative_and_extend_frame(const YV12_BUFFER_CONFIG *src,
+void av1_upscale_normative_and_extend_frame(const AV1_COMMON *cm,
+                                            const YV12_BUFFER_CONFIG *src,
                                             YV12_BUFFER_CONFIG *dst,
-                                            int superres_denom, int bd) {
+                                            int superres_denom, int bd)
 #else
-void av1_upscale_normative_and_extend_frame(const YV12_BUFFER_CONFIG *src,
+void av1_upscale_normative_and_extend_frame(const AV1_COMMON *cm,
+                                            const YV12_BUFFER_CONFIG *src,
                                             YV12_BUFFER_CONFIG *dst,
-                                            int superres_denom) {
+                                            int superres_denom)
 #endif  // CONFIG_HIGHBITDEPTH
-  int i;
-  const uint8_t *const srcs[3] = { src->y_buffer, src->u_buffer,
-                                   src->v_buffer };
-  const int src_strides[3] = { src->y_stride, src->uv_stride, src->uv_stride };
-  const int src_widths[3] = { src->y_crop_width, src->uv_crop_width,
-                              src->uv_crop_width };
-  const int src_heights[3] = { src->y_crop_height, src->uv_crop_height,
-                               src->uv_crop_height };
-  uint8_t *const dsts[3] = { dst->y_buffer, dst->u_buffer, dst->v_buffer };
-  const int dst_strides[3] = { dst->y_stride, dst->uv_stride, dst->uv_stride };
-  const int dst_widths[3] = { dst->y_crop_width, dst->uv_crop_width,
-                              dst->uv_crop_width };
-  const int dst_heights[3] = { dst->y_crop_height, dst->uv_crop_height,
-                               dst->uv_crop_height };
+{
+  for (int i = 0; i < MAX_MB_PLANE; ++i) {
+    const int is_uv = (i > 0);
+    const int src_stride = src->strides[is_uv];
+    const int src_height = src->heights[is_uv];
+    const int dst_stride = dst->strides[is_uv];
+    const int dst_height = dst->heights[is_uv];
 
-  for (i = 0; i < MAX_MB_PLANE; ++i) {
+#if CONFIG_HORZONLY_FRAME_SUPERRES
+    const int ss_x = is_uv && cm->subsampling_x;
+    TileInfo tile_col;
+    // In order to respect the loop_filter_across_tiles_enabled flag, we iterate
+    // over each tile column in turn. We can do whole tile columns at once,
+    // because we aren't upscaling vertically, so each output tile row
+    // automatically only samples from the same input tile row.
+    for (int j = 0; j < cm->tile_cols; j++) {
+      av1_tile_set_col(&tile_col, cm, j);
+      const int downscaled_x0 = tile_col.mi_col_start << (MI_SIZE_LOG2 - ss_x);
+      const int downscaled_x1 = tile_col.mi_col_end << (MI_SIZE_LOG2 - ss_x);
+      const int src_width = downscaled_x1 - downscaled_x0;
+      // Note: all but the last tile are already a multiple of SCALE_NUMERATOR
+      // pixels wide (even if subsampled), but the last tile may only be a
+      // multiple of 4px wide after subsampling.
+      // So:
+      // * The start of each tile column maps to an integer pixel location
+      // * The end of each tile column *except for the rightmost column* maps
+      //   to an integer pixel location
+      // * For the last tile, we only need to generate as far as the crop border
+      //   (determined by cm->superres_upscaled_width).
+      const int upscaled_x0 =
+          (downscaled_x0 * superres_denom) / SCALE_NUMERATOR;
+      int upscaled_x1;
+      if (j == cm->tile_cols - 1) {
+        upscaled_x1 = ROUND_POWER_OF_TWO(cm->superres_upscaled_width, ss_x);
+      } else {
+        upscaled_x1 = (downscaled_x1 * superres_denom) / SCALE_NUMERATOR;
+      }
+
+      const uint8_t *const src_ptr = src->buffers[i] + downscaled_x0;
+      uint8_t *const dst_ptr = dst->buffers[i] + upscaled_x0;
+      const int dst_width = upscaled_x1 - upscaled_x0;
+
+#if CONFIG_HIGHBITDEPTH
+      if (src->flags & YV12_FLAG_HIGHBITDEPTH)
+        highbd_upscale_normative_plane(src_ptr, src_height, src_width,
+                                       src_stride, dst_ptr, dst_height,
+                                       dst_width, dst_stride,
+#if CONFIG_LOOPFILTERING_ACROSS_TILES
+                                       cm->loop_filter_across_tiles_enabled,
+#endif
+                                       superres_denom, bd);
+#endif  // CONFIG_HIGHBITDEPTH
+      upscale_normative_plane(src_ptr, src_height, src_width, src_stride,
+                              dst_ptr, dst_height, dst_width, dst_stride,
+#if CONFIG_LOOPFILTERING_ACROSS_TILES
+                              cm->loop_filter_across_tiles_enabled,
+#endif
+                              superres_denom);
+    }
+#else  // CONFIG_HORZONLY_FRAME_SUPERRES
+    (void)cm;
+    // For non-horzonly superres, upscale the frame as a whole.
+    const uint8_t *const src_ptr = src->buffers[i];
+    uint8_t *const dst_ptr = dst->buffers[i];
+    const int src_width = src->widths[is_uv];
+    const int dst_width = dst->widths[is_uv];
 #if CONFIG_HIGHBITDEPTH
     if (src->flags & YV12_FLAG_HIGHBITDEPTH)
       highbd_upscale_normative_plane(
-          srcs[i], src_heights[i], src_widths[i], src_strides[i], dsts[i],
-          dst_heights[i], dst_widths[i], dst_strides[i], superres_denom, bd);
+          src_ptr, src_height, src_width, src_stride, dst_ptr, dst_height,
+          dst_width, dst_stride,
+#if CONFIG_LOOPFILTERING_ACROSS_TILES
+          // Note: This path can't handle the loop_filter_across_tiles_enabled
+          // flag, so act as if it were set to 1.
+          1,
+#endif
+          superres_denom, bd);
     else
 #endif  // CONFIG_HIGHBITDEPTH
-      upscale_normative_plane(srcs[i], src_heights[i], src_widths[i],
-                              src_strides[i], dsts[i], dst_heights[i],
-                              dst_widths[i], dst_strides[i], superres_denom);
+      upscale_normative_plane(src_ptr, src_height, src_width, src_stride,
+                              dst_ptr, dst_height, dst_width, dst_stride,
+#if CONFIG_LOOPFILTERING_ACROSS_TILES
+                              1,
+#endif
+                              superres_denom);
+#endif  // CONFIG_HORZONLY_FRAME_SUPERRES
   }
   aom_extend_frame_borders(dst);
 }
@@ -1441,11 +1589,11 @@ void av1_superres_upscale(AV1_COMMON *cm, BufferPool *const pool) {
   assert(IMPLIES(!CONFIG_HORZONLY_FRAME_SUPERRES,
                  frame_to_show->y_crop_height != cm->height));
 #if CONFIG_HIGHBITDEPTH
-  av1_upscale_normative_and_extend_frame(&copy_buffer, frame_to_show,
+  av1_upscale_normative_and_extend_frame(cm, &copy_buffer, frame_to_show,
                                          cm->superres_scale_denominator,
                                          (int)cm->bit_depth);
 #else
-  av1_upscale_normative_and_extend_frame(&copy_buffer, frame_to_show,
+  av1_upscale_normative_and_extend_frame(cm, &copy_buffer, frame_to_show,
                                          cm->superres_scale_denominator);
 #endif  // CONFIG_HIGHBITDEPTH
 
