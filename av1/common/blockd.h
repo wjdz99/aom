@@ -772,7 +772,7 @@ static const int av1_num_ext_tx_set[EXT_TX_SET_TYPES] = {
 #if CONFIG_MRC_TX
   2, 3,
 #endif  // CONFIG_MRC_TX
-  5, 7, 12, 16,
+  5, 7, 10, 16,
 };
 
 static const int av1_ext_tx_set_idx_to_type[2][AOMMAX(EXT_TX_SETS_INTRA,
@@ -836,7 +836,7 @@ static const int av1_ext_tx_used[EXT_TX_SET_TYPES][TX_TYPES] = {
       1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0,
   },
   {
-      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0,
+      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0,
   },
   {
       1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
