@@ -42,28 +42,28 @@ static const qprofile_type nuq[QUANT_PROFILES][COEF_BANDS] = {
       { { 64, 128, 128 }, 0 },  // band 5
   },
   {
-      { { 64, 128, 128 }, 4 },   // dc, band 0
-      { { 64, 128, 128 }, 6 },   // band 1
-      { { 64, 128, 128 }, 8 },   // band 2
-      { { 64, 128, 128 }, 10 },  // band 3
-      { { 72, 128, 128 }, 12 },  // band 4
-      { { 80, 128, 128 }, 14 }   // band 5
+      { { 64, 128, 128 }, 0 },   // dc, band 0
+      { { 64, 128, 128 }, 0 },   // band 1
+      { { 64, 128, 128 }, 0 },   // band 2
+      { { 64, 128, 128 }, 0 },  // band 3
+      { { 64, 128, 128 }, 0 },  // band 4
+      { { 64, 128, 128 }, 0 }   // band 5
   },
   {
-      { { 64, 128, 128 }, 6 },   // dc, band 0
-      { { 64, 128, 128 }, 8 },   // band 1
-      { { 64, 128, 128 }, 10 },  // band 2
-      { { 64, 128, 128 }, 12 },  // band 3
-      { { 72, 128, 128 }, 14 },  // band 4
-      { { 80, 128, 128 }, 16 }   // band 5
+      { { 64, 128, 128 }, 0 },   // dc, band 0
+      { { 64, 128, 128 }, 0 },   // band 1
+      { { 64, 128, 128 }, 0 },  // band 2
+      { { 64, 128, 128 }, 0 },  // band 3
+      { { 64, 128, 128 }, 0 },  // band 4
+      { { 64, 128, 128 }, 0 }   // band 5
   },
   {
-      { { 64, 128, 128 }, 8 },   // dc, band 0
-      { { 64, 128, 128 }, 10 },  // band 1
-      { { 64, 128, 128 }, 12 },  // band 2
-      { { 72, 128, 128 }, 14 },  // band 3
-      { { 76, 128, 128 }, 16 },  // band 4
-      { { 80, 128, 128 }, 18 }   // band 5
+      { { 64, 128, 128 }, 0 },   // dc, band 0
+      { { 64, 128, 128 }, 0 },  // band 1
+      { { 64, 128, 128 }, 0 },  // band 2
+      { { 64, 128, 128 }, 0 },  // band 3
+      { { 64, 128, 128 }, 0 },  // band 4
+      { { 64, 128, 128 }, 0 }   // band 5
   }
 };
 
@@ -107,15 +107,17 @@ void av1_get_dequant_val_nuq(int q, int band, tran_low_t *dq,
       cuml_bins_ptr[NUQ_KNOTS - 1] + ROUND_POWER_OF_TWO((64 - doff) * q, 7);
 }
 
-tran_low_t av1_dequant_abscoeff_nuq(int v, int q, const tran_low_t *dq) {
+tran_low_t av1_dequant_abscoeff_nuq(int v, int q, const tran_low_t *dq, int shift) {
+  if (v == 0)
+    return ROUND_POWER_OF_TWO(dq[v], shift);
   if (v <= NUQ_KNOTS)
-    return dq[v];
+    return ROUND_POWER_OF_TWO(dq[v], shift);// - 1;//(q < 300) - (q > 1000);
   else
-    return dq[NUQ_KNOTS] + (v - NUQ_KNOTS) * q;
+    return ROUND_POWER_OF_TWO(dq[NUQ_KNOTS] + (v - NUQ_KNOTS) * q, shift);// - 1;//(q < 300) - (q > 1000 && q < 1800);
 }
 
-tran_low_t av1_dequant_coeff_nuq(int v, int q, const tran_low_t *dq) {
-  tran_low_t dqmag = av1_dequant_abscoeff_nuq(abs(v), q, dq);
+tran_low_t av1_dequant_coeff_nuq(int v, int q, const tran_low_t *dq, int shift) {
+  tran_low_t dqmag = av1_dequant_abscoeff_nuq(abs(v), q, dq, shift);
   return (v < 0 ? -dqmag : dqmag);
 }
 #endif  // CONFIG_NEW_QUANT

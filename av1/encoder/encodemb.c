@@ -243,8 +243,8 @@ static int optimize_b_greedy(const AV1_COMMON *cm, MACROBLOCK *mb, int plane,
       int64_t d2_a;
       if (x_a != 0) {
 #if CONFIG_NEW_QUANT
-        dx = av1_dequant_coeff_nuq(x, dqv, dequant_val[band_translate[i]]) -
-             (coeff[rc] * (1 << shift));
+        dx = (av1_dequant_coeff_nuq(x_a, dqv, dequant_val[band_translate[i]], shift) -
+             coeff[rc]) * (1 << shift);
         dx >>= xd->bd - 8;
 #else   // CONFIG_NEW_QUANT
         dx -= ((dqv >> (xd->bd - 8)) + sz) ^ sz;
@@ -323,8 +323,8 @@ static int optimize_b_greedy(const AV1_COMMON *cm, MACROBLOCK *mb, int plane,
         if (x_a != 0) {
 #if CONFIG_NEW_QUANT
           dqc_a = av1_dequant_abscoeff_nuq(abs(x_a), dqv,
-                                           dequant_val[band_translate[i]]);
-          dqc_a = shift ? ROUND_POWER_OF_TWO(dqc_a, shift) : dqc_a;
+                                           dequant_val[band_translate[i]], shift);
+          //dqc_a = shift ? ROUND_POWER_OF_TWO(dqc_a, shift) : dqc_a;
           if (sz) dqc_a = -dqc_a;
 #else
           if (x_a < 0)
@@ -467,7 +467,12 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
   tran_low_t *const coeff = BLOCK_OFFSET(p->coeff, block);
   tran_low_t *const qcoeff = BLOCK_OFFSET(p->qcoeff, block);
   tran_low_t *const dqcoeff = BLOCK_OFFSET(pd->dqcoeff, block);
+//////
+  tran_low_t const qcoeff2[128*128] = {0};
+  tran_low_t const dqcoeff2[128*128] = {0};
+/////
   uint16_t *const eob = &p->eobs[block];
+  uint16_t eob2 = p->eobs[block];
   const int diff_stride = block_size_wide[plane_bsize];
 #if CONFIG_AOM_QM
   int seg_id = mbmi->segment_id;
@@ -570,8 +575,30 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
 
   if (xform_quant_idx != AV1_XFORM_QUANT_SKIP_QUANT) {
     if (LIKELY(!x->skip_block)) {
+      memset(qcoeff2, 0, tx2d_size * sizeof(*qcoeff));
+      memset(qcoeff, 0, tx2d_size * sizeof(*qcoeff));
+
+      av1_quantize_fp_facade(coeff, tx2d_size, p, qcoeff2, dqcoeff2,
+                             &eob2, scan_order, &qparam);
+      for (int i = 0; i < tx2d_size; i++) {
+        int rc = scan_order->scan[i];
+        qcoeff[rc] = qcoeff2[rc];
+        }
       quant_func_list[xform_quant_idx][txfm_param.is_hbd](
           coeff, tx2d_size, p, qcoeff, dqcoeff, eob, scan_order, &qparam);
+/*
+      if (xform_quant_idx == AV1_XFORM_QUANT_FP) {
+
+      if (eob2 != *eob)
+        printf("EOB1: %d EOB2: %d~~~~~~~~~~~~~~~\n", *eob, eob2);
+
+      }
+*/
+      for (int i = 0; i < eob2; i++) {
+        int rc = scan_order->scan[i];
+        if (/*(dqcoeff[rc] != dqcoeff2[rc]) || (eob2 != *eob) ||*/ (qcoeff[rc] != qcoeff2[rc]))
+          printf("coeff: %d qcoeff1: %d qcoeff2: %d dq1: %d dq2: %d q: %d\n", coeff[rc], qcoeff[rc], qcoeff2[rc], dqcoeff[rc], dqcoeff2[rc], p->dequant_QTX[1]);
+        }
     } else {
       av1_quantize_skip(tx2d_size, qcoeff, dqcoeff, eob);
     }
