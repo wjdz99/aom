@@ -34,6 +34,24 @@
       "revId": "a9680e935f666e1d9562b6ac74218752be7a7770",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7e87b31a_55b28c58",
+        "filename": "aom_dsp/blend_a64_mask.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-11-20T20:47:54Z",
+      "side": 1,
+      "message": "\u003e AOM_BLEND_A64 does weighted average of 2 32-bit numbers, i.e. (x * w1 + y * w2) / (w1 + w2). If both inputs (x and y) are 32 bits, I don\u0027t think the output could ever overflow 32 bits.\n\nright, but you\u0027re doing 64-bit math now and there\u0027s an implicit conversion back to int. you\u0027ll need the cast to avoid conversion warnings in some builds.",
+      "parentUuid": "bcf3d95a_8abc71c6",
+      "revId": "a9680e935f666e1d9562b6ac74218752be7a7770",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
