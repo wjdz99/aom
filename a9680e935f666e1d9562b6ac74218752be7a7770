@@ -52,6 +52,24 @@
       "revId": "a9680e935f666e1d9562b6ac74218752be7a7770",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9d47d87a_d047616a",
+        "filename": "aom_dsp/blend_a64_mask.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2017-11-20T21:03:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7e87b31a_55b28c58",
+      "revId": "a9680e935f666e1d9562b6ac74218752be7a7770",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
