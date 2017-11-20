@@ -12,8 +12,13 @@
 #ifndef AV1_COMMON_TXB_COMMON_H_
 #define AV1_COMMON_TXB_COMMON_H_
 
+#if CONFIG_TX64X64
+extern const int16_t k_eob_group_start[14];
+extern const int16_t k_eob_offset_bits[14];
+#else   // CONFIG_TX64X64
 extern const int16_t k_eob_group_start[12];
 extern const int16_t k_eob_offset_bits[12];
+#endif   // CONFIG_TX64X64
 int16_t get_eob_pos_token(int eob, int16_t *extra);
 int av1_get_eob_pos_ctx(TX_TYPE tx_type, int eob_token);
 
