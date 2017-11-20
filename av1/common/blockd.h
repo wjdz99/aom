@@ -781,7 +781,7 @@ static const int av1_num_ext_tx_set[EXT_TX_SET_TYPES] = {
 #if CONFIG_MRC_TX
   2, 3,
 #endif  // CONFIG_MRC_TX
-  5, 7, 12, 16,
+  5, 7, 10, 12, 16,
 };
 
 static const int av1_ext_tx_set_idx_to_type[2][AOMMAX(EXT_TX_SETS_INTRA,
@@ -795,7 +795,12 @@ static const int av1_ext_tx_set_idx_to_type[2][AOMMAX(EXT_TX_SETS_INTRA,
   },
   {
       // Inter
-      EXT_TX_SET_DCTONLY, EXT_TX_SET_ALL16, EXT_TX_SET_DTT9_IDTX_1DDCT,
+      EXT_TX_SET_DCTONLY, EXT_TX_SET_ALL16,
+#if USE_1D_16X16
+      EXT_TX_SET_DTT9_IDTX_1DDCT,
+#else
+      EXT_TX_SET_DTT9_IDTX,
+#endif  // USE_1D_16X16
       EXT_TX_SET_DCT_IDTX,
 #if CONFIG_MRC_TX
       EXT_TX_SET_MRC_DCT_IDTX,
@@ -845,6 +850,9 @@ static const int av1_ext_tx_used[EXT_TX_SET_TYPES][TX_TYPES] = {
       1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0,
   },
   {
+      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0,
+  },
+  {
       1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0,
   },
   {
@@ -886,8 +894,13 @@ static INLINE TxSetType get_ext_tx_set_type(TX_SIZE tx_size, BLOCK_SIZE bs,
   if (tx_size_sqr_up == TX_32X32)
     return is_inter ? EXT_TX_SET_DCT_IDTX : EXT_TX_SET_DCTONLY;
   if (is_inter)
+#if USE_1D_16X16
     return (tx_size_sqr == TX_16X16 ? EXT_TX_SET_DTT9_IDTX_1DDCT
                                     : EXT_TX_SET_ALL16);
+#else
+    return (tx_size_sqr == TX_16X16 ? EXT_TX_SET_DTT9_IDTX
+                                    : EXT_TX_SET_ALL16);
+#endif  // USE_1D_16X16
   else
     return (tx_size_sqr == TX_16X16 ? EXT_TX_SET_DTT4_IDTX
                                     : EXT_TX_SET_DTT4_IDTX_1DDCT);
@@ -901,7 +914,7 @@ static const int ext_tx_set_index[2][EXT_TX_SET_TYPES] = {
 #if CONFIG_MRC_TX
       3, -1,
 #endif  // CONFIG_MRC_TX
-      2, 1, -1, -1,
+      2, 1, -1, -1, -1,
   },
   {
       // Inter
@@ -909,7 +922,13 @@ static const int ext_tx_set_index[2][EXT_TX_SET_TYPES] = {
 #if CONFIG_MRC_TX
       -1, 4,
 #endif  // CONFIG_MRC_TX
-      -1, -1, 2, 1,
+      -1, -1,
+#if USE_1D_16X16
+       -1, 2,
+#else
+       2, -1,
+#endif  // USE_1D_16X16
+       1,
   },
 };
 
