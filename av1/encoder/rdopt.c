@@ -5400,18 +5400,28 @@ static int cfl_rd_pick_alpha(MACROBLOCK *const x, const AV1_COMP *const cpi,
   const int64_t mode_cost =
       RDCOST(x->rdmult, x->intra_uv_mode_cost[mbmi->mode][UV_CFL_PRED], 0);
 
-  int progress = 0;
+  int progress_uv[CFL_PRED_PLANES] = { 0, 0 };
   for (int c = 0; c < CFL_ALPHABET_SIZE; c++) {
     mbmi->cfl_alpha_idx = (c << CFL_ALPHABET_SIZE_LOG2) + c;
     for (int sign = CFL_SIGN_NEG; sign < CFL_SIGNS; sign++) {
       const int m = c * 2 + 1 + (sign == CFL_SIGN_NEG);
       mbmi->cfl_alpha_signs = sign * CFL_SIGNS + sign - 1;
-      txfm_rd_in_plane_once(x, cpi, bsize, tx_size, AOM_PLANE_U, best_rd,
-                            &dists[CFL_PRED_U][m], &rates[CFL_PRED_U][m]);
-      txfm_rd_in_plane_once(x, cpi, bsize, tx_size, AOM_PLANE_V, best_rd,
-                            &dists[CFL_PRED_V][m], &rates[CFL_PRED_V][m]);
+      if (c <= 2 || progress_uv[CFL_PRED_U] >= c) {
+        txfm_rd_in_plane_once(x, cpi, bsize, tx_size, AOM_PLANE_U, best_rd,
+                              &dists[CFL_PRED_U][m], &rates[CFL_PRED_U][m]);
+      } else {
+        dists[CFL_PRED_U][m] = INT64_MAX;
+        rates[CFL_PRED_U][m] = INT_MAX;
+      }
+      if (c <= 2 || progress_uv[CFL_PRED_V] >= c) {
+        txfm_rd_in_plane_once(x, cpi, bsize, tx_size, AOM_PLANE_V, best_rd,
+                              &dists[CFL_PRED_V][m], &rates[CFL_PRED_V][m]);
+      } else {
+        dists[CFL_PRED_V][m] = INT64_MAX;
+        rates[CFL_PRED_V][m] = INT_MAX;
+      }
     }
-    int flag = 0;
+    int flag_uv[CFL_PRED_PLANES] = { 0, 0 };
     for (int joint_sign = 0; joint_sign < CFL_JOINT_SIGNS; joint_sign++) {
       const int sign_u = CFL_SIGN_U(joint_sign);
       const int sign_v = CFL_SIGN_V(joint_sign);
@@ -5428,6 +5438,7 @@ static int cfl_rd_pick_alpha(MACROBLOCK *const x, const AV1_COMP *const cpi,
         if (cost >= best_rd_uv[joint_sign][plane]) continue;
         best_rd_uv[joint_sign][plane] = cost;
         best_c[joint_sign][plane] = c;
+        flag_uv[plane] = 2;
       }
       if (best_rd_uv[joint_sign][CFL_PRED_U] == INT64_MAX) continue;
       if (best_rd_uv[joint_sign][CFL_PRED_V] == INT64_MAX) continue;
@@ -5441,11 +5452,12 @@ static int cfl_rd_pick_alpha(MACROBLOCK *const x, const AV1_COMP *const cpi,
         ind = (u << CFL_ALPHABET_SIZE_LOG2) + v;
         rate_overhead = x->cfl_cost[signs][CFL_PRED_U][u] +
                         x->cfl_cost[signs][CFL_PRED_V][v];
-        flag = 2;
       }
     }
-    progress += flag;
-    if (c > 2 && progress < c) break;
+    progress_uv[CFL_PRED_U] += flag_uv[CFL_PRED_U];
+    progress_uv[CFL_PRED_V] += flag_uv[CFL_PRED_V];
+    if (c > 2 && progress_uv[CFL_PRED_U] < c && progress_uv[CFL_PRED_V] < c)
+      break;
   }
 
   mbmi->cfl_alpha_idx = ind;
