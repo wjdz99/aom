@@ -4591,7 +4591,7 @@ static void select_tx_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
   TX_TYPE tx_type, best_tx_type = DCT_DCT;
   const int is_inter = is_inter_block(mbmi);
   TX_SIZE best_tx_size[MAX_MIB_SIZE][MAX_MIB_SIZE];
-  TX_SIZE best_tx = max_txsize_lookup[bsize];
+  TX_SIZE best_tx = max_txsize_rect_lookup[bsize];
   TX_SIZE best_min_tx_size = TX_SIZES_ALL;
   uint8_t best_blk_skip[MAX_MIB_SIZE * MAX_MIB_SIZE * 8];
   TX_TYPE txk_start = DCT_DCT;
@@ -4603,10 +4603,8 @@ static void select_tx_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
   const int n4 = bsize_to_num_blk(bsize);
   int idx, idy;
   int prune = 0;
-  const TX_SIZE sqr_up_tx_size =
-      txsize_sqr_up_map[max_txsize_rect_lookup[bsize]];
   // Get the tx_size 1 level down
-  TX_SIZE min_tx_size = sub_tx_size_map[sqr_up_tx_size];
+  TX_SIZE min_tx_size = sub_tx_size_map[max_txsize_rect_lookup[bsize]];
   const TxSetType tx_set_type = get_ext_tx_set_type(
       min_tx_size, bsize, is_inter, cm->reduced_tx_set_used);
   int within_border = (mi_row + mi_size_high[bsize] <= cm->mi_rows) &&
@@ -4777,21 +4775,21 @@ static void tx_block_rd(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
     av1_set_txb_context(x, plane, block, tx_size, ta, tl);
   } else {
     const TX_SIZE sub_txs = sub_tx_size_map[tx_size];
-    const int bsl = tx_size_wide_unit[sub_txs];
-    int step = tx_size_wide_unit[sub_txs] * tx_size_high_unit[sub_txs];
-    int i;
-
-    assert(bsl > 0);
-
-    for (i = 0; i < 4; ++i) {
-      int offsetr = blk_row + (i >> 1) * bsl;
-      int offsetc = blk_col + (i & 0x01) * bsl;
-
-      if (offsetr >= max_blocks_high || offsetc >= max_blocks_wide) continue;
-
-      tx_block_rd(cpi, x, offsetr, offsetc, plane, block, sub_txs, plane_bsize,
-                  above_ctx, left_ctx, rd_stats, fast);
-      block += step;
+    assert(IMPLIES(tx_size <= TX_4X4, sub_txs == tx_size));
+    assert(IMPLIES(tx_size > TX_4X4, sub_txs < tx_size));
+    const int bsw = tx_size_wide_unit[sub_txs];
+    const int bsh = tx_size_high_unit[sub_txs];
+    const int step = bsh * bsw;
+    assert(bsw > 0 && bsh > 0);
+    for (int row = 0; row < tx_size_high_unit[tx_size]; row += bsh) {
+      for (int col = 0; col < tx_size_wide_unit[tx_size]; col += bsw) {
+        const int offsetr = blk_row + row;
+        const int offsetc = blk_col + col;
+        if (offsetr >= max_blocks_high || offsetc >= max_blocks_wide) continue;
+        tx_block_rd(cpi, x, offsetr, offsetc, plane, block, sub_txs,
+                    plane_bsize, above_ctx, left_ctx, rd_stats, fast);
+        block += step;
+      }
     }
   }
 }
