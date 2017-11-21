@@ -335,7 +335,7 @@ EXPERIMENT_LIST="
     eob_first
     eighth_pel_mv_only
     mono_video
-    q_segmentation
+    spatial_segmentation
     segment_pred_last
 "
 CONFIG_LIST="
