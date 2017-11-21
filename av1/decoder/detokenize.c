@@ -100,19 +100,15 @@ static int token_to_value(FRAME_COUNTS *counts, aom_reader *const r, int token,
 
 static int decode_coefs(MACROBLOCKD *xd, PLANE_TYPE type, tran_low_t *dqcoeff,
                         TX_SIZE tx_size, TX_TYPE tx_type, const int16_t *dq,
-#if CONFIG_NEW_QUANT
-                        dequant_val_type_nuq *dq_val,
-#else
 #if CONFIG_AOM_QM
                         qm_val_t *iqm[TX_SIZES_ALL],
 #endif  // CONFIG_AOM_QM
-#endif  // CONFIG_NEW_QUANT
                         int ctx, const int16_t *scan, const int16_t *nb,
                         int16_t *max_scan_line, aom_reader *r) {
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
   const int max_eob = tx_size_2d[tx_size];
   const int ref = is_inter_block(&xd->mi[0]->mbmi);
-#if CONFIG_AOM_QM && !CONFIG_NEW_QUANT
+#if CONFIG_AOM_QM
   const qm_val_t *iqmatrix = iqm[tx_size];
 #endif  // CONFIG_AOM_QM
   (void)tx_type;
@@ -128,9 +124,6 @@ static int decode_coefs(MACROBLOCKD *xd, PLANE_TYPE type, tran_low_t *dqcoeff,
   const uint8_t *band_translate = get_band_translate(tx_size);
   int v, token;
   int32_t dqv = dq[0];
-#if CONFIG_NEW_QUANT
-  const tran_low_t *dqv_val = &dq_val[0][0];
-#endif  // CONFIG_NEW_QUANT
 
 #if !CONFIG_DAALA_TX
   int dq_shift = av1_get_tx_scale(tx_size);
@@ -143,10 +136,6 @@ static int decode_coefs(MACROBLOCKD *xd, PLANE_TYPE type, tran_low_t *dqcoeff,
     int comb_token;
     int last_pos = (c + 1 == max_eob);
     int first_pos = (c == 0);
-
-#if CONFIG_NEW_QUANT
-    dqv_val = &dq_val[band][0];
-#endif  // CONFIG_NEW_QUANT
 
     comb_token = last_pos ? 2 * av1_read_record_bit(xd->counts, r, ACCT_STR) + 2
                           : av1_read_record_symbol(
@@ -185,9 +174,6 @@ static int decode_coefs(MACROBLOCKD *xd, PLANE_TYPE type, tran_low_t *dqcoeff,
     if (token > ONE_TOKEN)
       token += av1_read_record_symbol(xd->counts, r, coef_tail_cdfs[band][ctx],
                                       TAIL_TOKENS, ACCT_STR);
-#if CONFIG_NEW_QUANT
-    dqv_val = &dq_val[band][0];
-#endif  // CONFIG_NEW_QUANT
 
     *max_scan_line = AOMMAX(*max_scan_line, scan[c]);
     token_cache[scan[c]] = av1_pt_energy_class[token];
@@ -197,12 +183,6 @@ static int decode_coefs(MACROBLOCKD *xd, PLANE_TYPE type, tran_low_t *dqcoeff,
     av1_record_coeff(xd->counts, val);
 #endif
 
-#if CONFIG_NEW_QUANT
-    v = av1_dequant_abscoeff_nuq(val, dqv, dqv_val);
-#if !CONFIG_DAALA_TX
-    v = dq_shift ? ROUND_POWER_OF_TWO(v, dq_shift) : v;
-#endif
-#else
 #if CONFIG_AOM_QM
     // Apply quant matrix only for 2D transforms
     if (IS_2D_TRANSFORM(tx_type) && iqmatrix != NULL)
@@ -213,7 +193,6 @@ static int decode_coefs(MACROBLOCKD *xd, PLANE_TYPE type, tran_low_t *dqcoeff,
     v = (val * dqv) >> dq_shift;
 #else
     v = val * dqv;
-#endif
 #endif
 
     v = (int)check_range(av1_read_record_bit(xd->counts, r, ACCT_STR) ? -v : v,
@@ -350,11 +329,6 @@ int av1_decode_block_tokens(AV1_COMMON *cm, MACROBLOCKD *const xd, int plane,
   const int16_t *const dequant = pd->seg_dequant_QTX[seg_id];
   const int ctx =
       get_entropy_context(tx_size, pd->above_context + x, pd->left_context + y);
-#if CONFIG_NEW_QUANT
-  const int ref = is_inter_block(&xd->mi[0]->mbmi);
-  int dq =
-      get_dq_profile_from_ctx(xd->qindex[seg_id], ctx, ref, pd->plane_type);
-#endif  //  CONFIG_NEW_QUANT
 
 #if CONFIG_MRC_TX && SIGNAL_ANY_MRC_MASK
   if (tx_type == MRC_DCT) decode_mrc_tokens(xd, tx_size, r);
@@ -362,13 +336,9 @@ int av1_decode_block_tokens(AV1_COMMON *cm, MACROBLOCKD *const xd, int plane,
 
   const int eob =
       decode_coefs(xd, pd->plane_type, pd->dqcoeff, tx_size, tx_type, dequant,
-#if CONFIG_NEW_QUANT
-                   pd->seg_dequant_nuq_QTX[seg_id][dq],
-#else
 #if CONFIG_AOM_QM
                    pd->seg_iqmatrix[seg_id],
 #endif  // CONFIG_AOM_QM
-#endif  // CONFIG_NEW_QUANT
                    ctx, sc->scan, sc->neighbors, max_scan_line, r);
   av1_set_contexts(xd, pd, plane, tx_size, eob > 0, x, y);
 #if CONFIG_ADAPT_SCAN
