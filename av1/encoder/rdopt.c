@@ -1339,7 +1339,7 @@ static int prune_tx_2D(BLOCK_SIZE bsize, const MACROBLOCK *x, int tx_set_type,
   const float score_thresh =
       av1_prune_2D_adaptive_thresholds[bidx]
                                       [tx_type_pruning_aggressiveness - 1];
-
+  aom_clear_system_state();
   float hfeatures[16], vfeatures[16];
   float hscores[4], vscores[4];
   float scores_2D[16];
