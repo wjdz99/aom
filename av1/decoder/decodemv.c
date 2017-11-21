@@ -291,11 +291,7 @@ static PREDICTION_MODE read_inter_compound_mode(AV1_COMMON *cm, MACROBLOCKD *xd,
   return NEAREST_NEARESTMV + mode;
 }
 
-static int read_segment_id(aom_reader *r, struct segmentation_probs *segp) {
-  return aom_read_symbol(r, segp->tree_cdf, MAX_SEGMENTS, ACCT_STR);
-}
-
-#if CONFIG_Q_SEGMENTATION
+#if CONFIG_SPATIAL_SEGMENTATION
 static int neg_deinterleave(int diff, int ref, int max) {
   if (!ref) return diff;
   if (ref >= (max - 1)) return max - diff - 1;
@@ -318,17 +314,13 @@ static int neg_deinterleave(int diff, int ref, int max) {
   }
 }
 
-static int read_q_segment_id(AV1_COMMON *const cm, MACROBLOCKD *const xd,
-                             int mi_row, int mi_col, aom_reader *r) {
-  struct segmentation *const seg = &cm->seg;
+static int read_segment_id(AV1_COMMON *const cm, MACROBLOCKD *const xd,
+                           int mi_row, int mi_col, aom_reader *r, int skip) {
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
   struct segmentation_probs *const segp = &ec_ctx->seg;
-  MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
   int prev_ul = 0; /* Top left segment_id */
   int prev_l = 0;  /* Current left segment_id */
   int prev_u = 0;  /* Current top segment_id */
-
-  if (!seg->q_lvls) return 0;
 
   MODE_INFO *const mi = cm->mi + mi_row * cm->mi_stride + mi_col;
   int tinfo = mi->mbmi.boundary_info;
@@ -336,33 +328,34 @@ static int read_q_segment_id(AV1_COMMON *const cm, MACROBLOCKD *const xd,
   int left = (!(tinfo & TILE_LEFT_BOUNDARY)) && ((mi_col - 1) >= 0);
 
   if (above && left)
-    prev_ul =
-        get_segment_id(cm, cm->q_seg_map, BLOCK_4X4, mi_row - 1, mi_col - 1);
+    prev_ul = get_segment_id(cm, cm->current_frame_seg_map, BLOCK_4X4,
+                             mi_row - 1, mi_col - 1);
 
   if (above)
-    prev_u = get_segment_id(cm, cm->q_seg_map, BLOCK_4X4, mi_row - 1, mi_col);
+    prev_u = get_segment_id(cm, cm->current_frame_seg_map, BLOCK_4X4,
+                            mi_row - 1, mi_col);
 
   if (left)
-    prev_l = get_segment_id(cm, cm->q_seg_map, BLOCK_4X4, mi_row, mi_col - 1);
+    prev_l = get_segment_id(cm, cm->current_frame_seg_map, BLOCK_4X4, mi_row,
+                            mi_col - 1);
 
-  int cdf_num = pick_q_seg_cdf(prev_ul, prev_u, prev_l);
-  int pred = pick_q_seg_pred(prev_ul, prev_u, prev_l);
+  int cdf_num = pick_spatial_seg_cdf(prev_ul, prev_u, prev_l);
+  int pred = pick_spatial_seg_pred(prev_ul, prev_u, prev_l);
 
-  if (mbmi->skip) {
-    set_q_segment_id(cm, cm->q_seg_map, mbmi->sb_type, mi_row, mi_col, pred);
-    return 0;
-  }
+  if (0 && skip) return pred;
 
-  aom_cdf_prob *pred_cdf = segp->q_seg_cdf[cdf_num];
+  aom_cdf_prob *pred_cdf = segp->spatial_pred_seg_cdf[cdf_num];
   int coded_id = aom_read_symbol(r, pred_cdf, 8, ACCT_STR);
 
-  int segment_id = neg_deinterleave(coded_id, pred, seg->q_lvls);
+  int segment_id = neg_deinterleave(coded_id, pred, MAX_SEGMENTS);
 
-  assert(segment_id >= 0 && segment_id < seg->q_lvls);
-  set_q_segment_id(cm, cm->q_seg_map, mbmi->sb_type, mi_row, mi_col,
-                   segment_id);
+  assert(segment_id >= 0 && segment_id < MAX_SEGMENTS);
 
   return segment_id;
+}
+#else
+static int read_segment_id(aom_reader *r, struct segmentation_probs *segp) {
+  return aom_read_symbol(r, segp->tree_cdf, MAX_SEGMENTS, ACCT_STR);
 }
 #endif
 
@@ -510,19 +503,36 @@ static void set_segment_id(AV1_COMMON *cm, int mi_offset, int x_mis, int y_mis,
 }
 
 static int read_intra_segment_id(AV1_COMMON *const cm, MACROBLOCKD *const xd,
-                                 int mi_offset, int x_mis, int y_mis,
+                                 MB_MODE_INFO *const mbmi, int mi_row,
+                                 int mi_col, int bsize, int preskip,
                                  aom_reader *r) {
   struct segmentation *const seg = &cm->seg;
+  const int mi_offset = mi_row * cm->mi_cols + mi_col;
+  const int bw = mi_size_wide[bsize];
+  const int bh = mi_size_high[bsize];
+  const int x_mis = AOMMIN(cm->mi_cols - mi_col, bw);
+  const int y_mis = AOMMIN(cm->mi_rows - mi_row, bh);
   FRAME_COUNTS *counts = xd->counts;
-  FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
-  struct segmentation_probs *const segp = &ec_ctx->seg;
   int segment_id;
 
   if (!seg->enabled) return 0;  // Default for disabled segmentation
 
   assert(seg->update_map && !seg->temporal_update);
 
-  segment_id = read_segment_id(r, segp);
+#if CONFIG_SPATIAL_SEGMENTATION
+  if (preskip) {
+    if (!cm->preskip_segid) return 0;
+  } else {
+    if (cm->preskip_segid) return mbmi->segment_id;
+  }
+  segment_id =
+      read_segment_id(cm, xd, mi_row, mi_col, r, preskip ? 0 : mbmi->skip);
+#else
+  FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
+  (void)preskip;
+  (void)mbmi;
+  segment_id = read_segment_id(r, &ec_ctx->seg);
+#endif
   if (counts) ++counts->seg.tree_total[segment_id];
   set_segment_id(cm, mi_offset, x_mis, y_mis, segment_id);
   return segment_id;
@@ -542,7 +552,8 @@ static void copy_segment_id(const AV1_COMMON *cm,
 }
 
 static int read_inter_segment_id(AV1_COMMON *const cm, MACROBLOCKD *const xd,
-                                 int mi_row, int mi_col, aom_reader *r) {
+                                 int mi_row, int mi_col, int preskip,
+                                 aom_reader *r) {
   struct segmentation *const seg = &cm->seg;
   FRAME_COUNTS *counts = xd->counts;
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
@@ -571,6 +582,13 @@ static int read_inter_segment_id(AV1_COMMON *const cm, MACROBLOCKD *const xd,
     return predicted_segment_id;
   }
 
+#if CONFIG_SPATIAL_SEGMENTATION
+  if (preskip) {
+    if (!cm->preskip_segid) return 0;
+  } else {
+    if (cm->preskip_segid) return mbmi->segment_id;
+  }
+#endif
   if (seg->temporal_update) {
     const int ctx = av1_get_pred_context_seg_id(xd);
     aom_cdf_prob *pred_cdf = segp->pred_cdf[ctx];
@@ -579,11 +597,21 @@ static int read_inter_segment_id(AV1_COMMON *const cm, MACROBLOCKD *const xd,
     if (mbmi->seg_id_predicted) {
       segment_id = predicted_segment_id;
     } else {
+#if CONFIG_SPATIAL_SEGMENTATION
+      segment_id =
+          read_segment_id(cm, xd, mi_row, mi_col, r, preskip ? 0 : mbmi->skip);
+#else
       segment_id = read_segment_id(r, segp);
+#endif
       if (counts) ++counts->seg.tree_mispred[segment_id];
     }
   } else {
+#if CONFIG_SPATIAL_SEGMENTATION
+    segment_id =
+        read_segment_id(cm, xd, mi_row, mi_col, r, preskip ? 0 : mbmi->skip);
+#else
     segment_id = read_segment_id(r, segp);
+#endif
     if (counts) ++counts->seg.tree_total[segment_id];
   }
   set_segment_id(cm, mi_offset, x_mis, y_mis, segment_id);
@@ -1032,19 +1060,15 @@ static void read_intra_frame_mode_info(AV1_COMMON *const cm,
   const MODE_INFO *left_mi = xd->left_mi;
   const BLOCK_SIZE bsize = mbmi->sb_type;
   int i;
-  const int mi_offset = mi_row * cm->mi_cols + mi_col;
-  const int bw = mi_size_wide[bsize];
-  const int bh = mi_size_high[bsize];
 
-  // TODO(slavarnway): move x_mis, y_mis into xd ?????
-  const int x_mis = AOMMIN(cm->mi_cols - mi_col, bw);
-  const int y_mis = AOMMIN(cm->mi_rows - mi_row, bh);
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
 
-  mbmi->segment_id = read_intra_segment_id(cm, xd, mi_offset, x_mis, y_mis, r);
+  mbmi->segment_id =
+      read_intra_segment_id(cm, xd, mbmi, mi_row, mi_col, bsize, 1, r);
   mbmi->skip = read_skip(cm, xd, mbmi->segment_id, r);
-#if CONFIG_Q_SEGMENTATION
-  mbmi->q_segment_id = read_q_segment_id(cm, xd, mi_row, mi_col, r);
+#if CONFIG_SPATIAL_SEGMENTATION
+  mbmi->segment_id =
+      read_intra_segment_id(cm, xd, mbmi, mi_row, mi_col, bsize, 0, r);
 #endif
 
   if (cm->delta_q_present_flag) {
@@ -2218,7 +2242,7 @@ static void read_inter_frame_mode_info(AV1Decoder *const pbi,
 
   mbmi->mv[0].as_int = 0;
   mbmi->mv[1].as_int = 0;
-  mbmi->segment_id = read_inter_segment_id(cm, xd, mi_row, mi_col, r);
+  mbmi->segment_id = read_inter_segment_id(cm, xd, mi_row, mi_col, 1, r);
 
 #if CONFIG_EXT_SKIP
   mbmi->skip_mode = read_skip_mode(cm, xd, mbmi->segment_id, r);
@@ -2235,9 +2259,9 @@ static void read_inter_frame_mode_info(AV1Decoder *const pbi,
 #endif  // CONFIG_EXT_SKIP
     mbmi->skip = read_skip(cm, xd, mbmi->segment_id, r);
 
-#if CONFIG_Q_SEGMENTATION
-  mbmi->q_segment_id = read_q_segment_id(cm, xd, mi_row, mi_col, r);
-#endif  // CONFIG_Q_SEGMENTATION
+#if CONFIG_SPATIAL_SEGMENTATION
+  mbmi->segment_id = read_inter_segment_id(cm, xd, mi_row, mi_col, 0, r);
+#endif
 
   if (cm->delta_q_present_flag) {
     xd->current_qindex =
