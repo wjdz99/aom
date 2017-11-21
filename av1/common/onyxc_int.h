@@ -498,6 +498,7 @@ typedef struct AV1Common {
 
   int byte_alignment;
   int skip_loop_filter;
+  int using_cdef;
 
   // Private data associated with the frame buffer callbacks.
   void *cb_priv;
