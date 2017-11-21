@@ -55,6 +55,9 @@ static void read_cdef(AV1_COMMON *cm, aom_reader *r, MB_MODE_INFO *const mbmi,
     cm->cdef_preset = -1;
 #endif
   }
+
+  // if (cm->using_cdef) ?
+
 // Read CDEF param at first a non-skip coding block
 #if CONFIG_EXT_PARTITION
   const int mask = 1 << (6 - MI_SIZE_LOG2);
