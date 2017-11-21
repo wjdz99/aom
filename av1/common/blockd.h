@@ -1213,6 +1213,18 @@ static INLINE int is_interintra_pred(const MB_MODE_INFO *mbmi) {
   return (mbmi->ref_frame[1] == INTRA_FRAME) && is_interintra_allowed(mbmi);
 }
 
+static INLINE TX_SIZE get_chroma_txsize_from_luma_depth(TX_SIZE max_l_txsize,
+                                                        TX_SIZE inter_l_txsize,
+                                                        TX_SIZE max_c_txsize) {
+  TX_SIZE lt = max_l_txsize;
+  TX_SIZE ct = max_c_txsize;
+  while (lt != inter_l_txsize && ct != TX_4X4) {
+    ct = sub_tx_size_map[ct];
+    lt = sub_tx_size_map[lt];
+  }
+  return ct;
+}
+
 static INLINE int get_vartx_max_txsize(const MB_MODE_INFO *const mbmi,
                                        BLOCK_SIZE bsize, int sx, int sy) {
   (void)mbmi;

@@ -4939,13 +4939,14 @@ static void select_tx_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
 
 static void tx_block_rd(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
                         int blk_col, int plane, int block, TX_SIZE tx_size,
-                        BLOCK_SIZE plane_bsize, ENTROPY_CONTEXT *above_ctx,
+                        BLOCK_SIZE bsize, ENTROPY_CONTEXT *above_ctx,
                         ENTROPY_CONTEXT *left_ctx, RD_STATS *rd_stats,
                         int fast) {
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
   struct macroblockd_plane *const pd = &xd->plane[plane];
-  BLOCK_SIZE bsize = txsize_to_bsize[tx_size];
+  const BLOCK_SIZE plane_bsize = get_plane_block_size(bsize, pd);
+  BLOCK_SIZE txb_bsize = txsize_to_bsize[tx_size];
   const int tx_row = blk_row >> (1 - pd->subsampling_y);
   const int tx_col = blk_col >> (1 - pd->subsampling_x);
   TX_SIZE plane_tx_size;
@@ -4957,8 +4958,19 @@ static void tx_block_rd(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
   if (blk_row >= max_blocks_high || blk_col >= max_blocks_wide) return;
 
   plane_tx_size =
-      plane ? uv_txsize_lookup[bsize][mbmi->inter_tx_size[tx_row][tx_col]][0][0]
+      plane ? uv_txsize_lookup[txb_bsize][mbmi->inter_tx_size[tx_row][tx_col]]
+                              [0][0]
             : mbmi->inter_tx_size[tx_row][tx_col];
+  /*
+  const TX_SIZE max_l_txsize = get_vartx_max_txsize(mbmi, bsize, 0, 0);
+  const TX_SIZE max_c_txsize = get_vartx_max_txsize(mbmi, plane_bsize,
+                                                    pd->subsampling_x, pd->subsampling_y);
+  plane_tx_size =
+      plane ? get_chroma_txsize_from_luma_depth(max_l_txsize,
+                                                mbmi->inter_tx_size[tx_row][tx_col],
+                                                max_c_txsize)
+            : mbmi->inter_tx_size[tx_row][tx_col];
+            */
 
   if (tx_size == plane_tx_size) {
     ENTROPY_CONTEXT *ta = above_ctx + blk_col;
@@ -4979,8 +4991,8 @@ static void tx_block_rd(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
         const int offsetr = blk_row + row;
         const int offsetc = blk_col + col;
         if (offsetr >= max_blocks_high || offsetc >= max_blocks_wide) continue;
-        tx_block_rd(cpi, x, offsetr, offsetc, plane, block, sub_txs,
-                    plane_bsize, above_ctx, left_ctx, rd_stats, fast);
+        tx_block_rd(cpi, x, offsetr, offsetc, plane, block, sub_txs, bsize,
+                    above_ctx, left_ctx, rd_stats, fast);
         block += step;
       }
     }
@@ -5005,12 +5017,6 @@ int inter_block_uvrd(const AV1_COMP *cpi, MACROBLOCK *x, RD_STATS *rd_stats,
   bsize = scale_chroma_bsize(mbmi->sb_type, xd->plane[1].subsampling_x,
                              xd->plane[1].subsampling_y);
 
-#if 0   // CONFIG_EXT_TX
-  if (is_rect_tx(mbmi->tx_size)) {
-    return super_block_uvrd(cpi, x, rd_stats, bsize, ref_best_rd);
-  }
-#endif  // CONFIG_EXT_TX
-
   if (is_inter_block(mbmi) && is_cost_valid) {
     for (plane = 1; plane < MAX_MB_PLANE; ++plane)
       av1_subtract_plane(x, bsize, plane);
@@ -5023,8 +5029,8 @@ int inter_block_uvrd(const AV1_COMP *cpi, MACROBLOCK *x, RD_STATS *rd_stats,
       const int mi_width = block_size_wide[plane_bsize] >> tx_size_wide_log2[0];
       const int mi_height =
           block_size_high[plane_bsize] >> tx_size_high_log2[0];
-      const TX_SIZE max_tx_size =
-          get_max_rect_tx_size(plane_bsize, is_inter_block(mbmi));
+      const TX_SIZE max_tx_size = get_vartx_max_txsize(
+          mbmi, plane_bsize, pd->subsampling_x, pd->subsampling_y);
       const int bh = tx_size_high_unit[max_tx_size];
       const int bw = tx_size_wide_unit[max_tx_size];
       int idx, idy;
@@ -5038,8 +5044,8 @@ int inter_block_uvrd(const AV1_COMP *cpi, MACROBLOCK *x, RD_STATS *rd_stats,
 
       for (idy = 0; idy < mi_height; idy += bh) {
         for (idx = 0; idx < mi_width; idx += bw) {
-          tx_block_rd(cpi, x, idy, idx, plane, block, max_tx_size, plane_bsize,
-                      ta, tl, &pn_rd_stats, fast);
+          tx_block_rd(cpi, x, idy, idx, plane, block, max_tx_size, bsize, ta,
+                      tl, &pn_rd_stats, fast);
           block += step;
         }
       }
