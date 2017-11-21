@@ -686,14 +686,14 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
 }
 
 static void encode_block_inter(int plane, int block, int blk_row, int blk_col,
-                               BLOCK_SIZE plane_bsize, TX_SIZE tx_size,
-                               void *arg) {
+                               BLOCK_SIZE bsize, TX_SIZE tx_size, void *arg) {
   struct encode_b_args *const args = arg;
   MACROBLOCK *const x = args->x;
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
-  const BLOCK_SIZE bsize = txsize_to_bsize[tx_size];
   const struct macroblockd_plane *const pd = &xd->plane[plane];
+  const BLOCK_SIZE plane_bsize = get_plane_block_size(bsize, pd);
+  const BLOCK_SIZE txb_bsize = txsize_to_bsize[tx_size];
   const int tx_row = blk_row >> (1 - pd->subsampling_y);
   const int tx_col = blk_col >> (1 - pd->subsampling_x);
   TX_SIZE plane_tx_size;
@@ -702,8 +702,18 @@ static void encode_block_inter(int plane, int block, int blk_row, int blk_col,
 
   if (blk_row >= max_blocks_high || blk_col >= max_blocks_wide) return;
 
+  /*
   plane_tx_size =
-      plane ? uv_txsize_lookup[bsize][mbmi->inter_tx_size[tx_row][tx_col]][0][0]
+      plane ?
+  get_chroma_txsize_from_luma_depth(get_vartx_max_txsize(mbmi, bsize, 0, 0),
+                                    mbmi->inter_tx_size[tx_row][tx_col],
+                                    get_vartx_max_txsize(mbmi, plane_bsize,
+  pd->subsampling_x, pd->subsampling_y))
+            : mbmi->inter_tx_size[tx_row][tx_col];
+            */
+  plane_tx_size =
+      plane ? uv_txsize_lookup[txb_bsize][mbmi->inter_tx_size[tx_row][tx_col]]
+                              [0][0]
             : mbmi->inter_tx_size[tx_row][tx_col];
 
   if (tx_size == plane_tx_size) {
@@ -726,8 +736,7 @@ static void encode_block_inter(int plane, int block, int blk_row, int blk_col,
 
         if (offsetr >= max_blocks_high || offsetc >= max_blocks_wide) continue;
 
-        encode_block_inter(plane, block, offsetr, offsetc, plane_bsize, sub_txs,
-                           arg);
+        encode_block_inter(plane, block, offsetr, offsetc, bsize, sub_txs, arg);
         block += step;
       }
     }
@@ -740,14 +749,15 @@ typedef struct encode_block_pass1_args {
 } encode_block_pass1_args;
 
 static void encode_block_pass1(int plane, int block, int blk_row, int blk_col,
-                               BLOCK_SIZE plane_bsize, TX_SIZE tx_size,
-                               void *arg) {
+                               BLOCK_SIZE bsize, TX_SIZE tx_size, void *arg) {
   encode_block_pass1_args *args = (encode_block_pass1_args *)arg;
   AV1_COMMON *cm = args->cm;
   MACROBLOCK *const x = args->x;
   MACROBLOCKD *const xd = &x->e_mbd;
   struct macroblock_plane *const p = &x->plane[plane];
   struct macroblockd_plane *const pd = &xd->plane[plane];
+  const BLOCK_SIZE plane_bsize = get_plane_block_size(bsize, pd);
+
   tran_low_t *const dqcoeff = BLOCK_OFFSET(pd->dqcoeff, block);
   TxfmParam txfm_param;
   uint8_t *dst;
@@ -851,7 +861,7 @@ void av1_encode_sb(AV1_COMMON *cm, MACROBLOCK *x, BLOCK_SIZE bsize, int mi_row,
         const int unit_width = AOMMIN(mu_blocks_wide + idx, mi_width);
         for (blk_row = idy; blk_row < unit_height; blk_row += bh) {
           for (blk_col = idx; blk_col < unit_width; blk_col += bw) {
-            encode_block_inter(plane, block, blk_row, blk_col, plane_bsize,
+            encode_block_inter(plane, block, blk_row, blk_col, bsize,
                                max_tx_size, &arg);
             block += step;
           }
