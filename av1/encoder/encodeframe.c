@@ -342,29 +342,15 @@ static void set_offsets(const AV1_COMP *const cpi, const TileInfo *const tile,
 #endif
 
   mbmi->segment_id = 0;
-#if CONFIG_Q_SEGMENTATION
-  mbmi->q_segment_id = 0;
-#endif
 
 // Setup segment ID.
-#if CONFIG_Q_SEGMENTATION
-  if (seg->enabled || seg->q_lvls) {
-#else
   if (seg->enabled) {
-#endif
     if (seg->enabled && !cpi->vaq_refresh) {
       const uint8_t *const map =
           seg->update_map ? cpi->segmentation_map : cm->last_frame_seg_map;
       mbmi->segment_id = get_segment_id(cm, map, bsize, mi_row, mi_col);
     }
-#if CONFIG_Q_SEGMENTATION
-    if (seg->q_lvls)
-      mbmi->q_segment_id =
-          get_segment_id(cm, cpi->q_seg_encoding_map, bsize, mi_row, mi_col);
-    av1_init_plane_quantizers(cpi, x, mbmi->segment_id, mbmi->q_segment_id);
-#else
     av1_init_plane_quantizers(cpi, x, mbmi->segment_id);
-#endif
   }
 }
 
@@ -549,20 +535,10 @@ static void update_state(const AV1_COMP *const cpi, TileDataEnc *tile_data,
 
 #if !CONFIG_EXT_DELTA_Q
   if (cpi->oxcf.aq_mode > NO_AQ && cpi->oxcf.aq_mode < DELTA_AQ)
-#if CONFIG_Q_SEGMENTATION
-    av1_init_plane_quantizers(cpi, x, xd->mi[0]->mbmi.segment_id,
-                              xd->mi[0]->mbmi.q_segment_id);
-#else
     av1_init_plane_quantizers(cpi, x, xd->mi[0]->mbmi.segment_id);
-#endif
 #else
   if (cpi->oxcf.aq_mode)
-#if CONFIG_Q_SEGMENTATION
-    av1_init_plane_quantizers(cpi, x, xd->mi[0]->mbmi.segment_id,
-                              xd->mi[0]->mbmi.q_segment_id);
-#else
     av1_init_plane_quantizers(cpi, x, xd->mi[0]->mbmi.segment_id);
-#endif
 #endif
 
   x->skip = ctx->skip;
@@ -783,25 +759,12 @@ void av1_setup_src_planes(MACROBLOCK *x, const YV12_BUFFER_CONFIG *src,
 }
 
 static int set_segment_rdmult(const AV1_COMP *const cpi, MACROBLOCK *const x,
-#if CONFIG_Q_SEGMENTATION
-                              int8_t segment_id, int8_t q_segment_id) {
-#else
                               int8_t segment_id) {
-#endif
   int segment_qindex;
   const AV1_COMMON *const cm = &cpi->common;
-#if CONFIG_Q_SEGMENTATION
-  av1_init_plane_quantizers(cpi, x, segment_id, q_segment_id);
-#else
   av1_init_plane_quantizers(cpi, x, segment_id);
-#endif
   aom_clear_system_state();
-#if CONFIG_Q_SEGMENTATION
-  segment_qindex =
-      av1_get_qindex(&cm->seg, segment_id, q_segment_id, cm->base_qindex);
-#else
   segment_qindex = av1_get_qindex(&cm->seg, segment_id, cm->base_qindex);
-#endif
   return av1_compute_rd_mult(cpi, segment_qindex + cm->y_dc_delta_q);
 }
 
@@ -916,23 +879,11 @@ static void rd_pick_sb_modes(const AV1_COMP *const cpi, TileDataEnc *tile_data,
           bsize <= BLOCK_16X16 ? x->mb_energy : av1_block_energy(cpi, x, bsize);
       mbmi->segment_id = av1_vaq_segment_id(energy);
 // Re-initialise quantiser
-#if CONFIG_Q_SEGMENTATION
-      av1_init_plane_quantizers(cpi, x, mbmi->segment_id, mbmi->q_segment_id);
-#else
       av1_init_plane_quantizers(cpi, x, mbmi->segment_id);
-#endif
     }
-#if CONFIG_Q_SEGMENTATION
-    x->rdmult =
-        set_segment_rdmult(cpi, x, mbmi->segment_id, mbmi->q_segment_id);
-  } else if (aq_mode == COMPLEXITY_AQ) {
-    x->rdmult =
-        set_segment_rdmult(cpi, x, mbmi->segment_id, mbmi->q_segment_id);
-#else
     x->rdmult = set_segment_rdmult(cpi, x, mbmi->segment_id);
   } else if (aq_mode == COMPLEXITY_AQ) {
     x->rdmult = set_segment_rdmult(cpi, x, mbmi->segment_id);
-#endif
   } else if (aq_mode == CYCLIC_REFRESH_AQ) {
     // If segment is boosted, use rdmult for that segment.
     if (cyclic_refresh_segment_id_boosted(mbmi->segment_id))
@@ -3401,16 +3352,8 @@ static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
       xd->mi[0]->mbmi.current_q_index = current_qindex;
 #if !CONFIG_EXT_DELTA_Q
       xd->mi[0]->mbmi.segment_id = 0;
-#if CONFIG_Q_SEGMENTATION
-      xd->mi[0]->mbmi.q_segment_id = 0;
-#endif
 #endif  // CONFIG_EXT_DELTA_Q
-#if CONFIG_Q_SEGMENTATION
-      av1_init_plane_quantizers(cpi, x, xd->mi[0]->mbmi.segment_id,
-                                xd->mi[0]->mbmi.q_segment_id);
-#else
       av1_init_plane_quantizers(cpi, x, xd->mi[0]->mbmi.segment_id);
-#endif
 #if CONFIG_EXT_DELTA_Q
       if (cpi->oxcf.deltaq_mode == DELTA_Q_LF) {
         int j, k;
@@ -4146,11 +4089,7 @@ static void encode_frame_internal(AV1_COMP *cpi) {
 
   for (i = 0; i < MAX_SEGMENTS; ++i) {
     const int qindex = cm->seg.enabled
-#if CONFIG_Q_SEGMENTATION
-                           ? av1_get_qindex(&cm->seg, i, i, cm->base_qindex)
-#else
                            ? av1_get_qindex(&cm->seg, i, cm->base_qindex)
-#endif
                            : cm->base_qindex;
     xd->lossless[i] = qindex == 0 && cm->y_dc_delta_q == 0 &&
                       cm->u_dc_delta_q == 0 && cm->u_ac_delta_q == 0 &&
