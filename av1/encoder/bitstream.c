@@ -1291,7 +1291,7 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
   if (cm->tx_mode == TX_MODE_SELECT && block_signals_txsize(bsize) &&
       !(is_inter && skip) && !xd->lossless[segment_id]) {
     if (is_inter) {  // This implies skip flag is 0.
-      const TX_SIZE max_tx_size = get_vartx_max_txsize(mbmi, bsize, 0);
+      const TX_SIZE max_tx_size = get_vartx_max_txsize(mbmi, bsize, 0, 0);
       const int bh = tx_size_high_unit[max_tx_size];
       const int bw = tx_size_wide_unit[max_tx_size];
       const int width = block_size_wide[bsize] >> tx_size_wide_log2[0];
@@ -1466,7 +1466,7 @@ static void write_intrabc_info(AV1_COMMON *cm, MACROBLOCKD *xd,
     assert(mbmi->uv_mode == UV_DC_PRED);
     if ((enable_tx_size && !mbmi->skip)) {
       const BLOCK_SIZE bsize = mbmi->sb_type;
-      const TX_SIZE max_tx_size = get_vartx_max_txsize(mbmi, bsize, 0);
+      const TX_SIZE max_tx_size = get_vartx_max_txsize(mbmi, bsize, 0, 0);
       const int bh = tx_size_high_unit[max_tx_size];
       const int bw = tx_size_wide_unit[max_tx_size];
       const int width = block_size_wide[bsize] >> tx_size_wide_log2[0];
@@ -1860,7 +1860,7 @@ static void write_tokens_b(AV1_COMP *cpi, const TileInfo *const tile,
 
       if (is_inter_block(mbmi)) {
         const TX_SIZE max_tx_size = get_vartx_max_txsize(
-            mbmi, plane_bsize, pd->subsampling_x || pd->subsampling_y);
+            mbmi, plane_bsize, pd->subsampling_x, pd->subsampling_y);
         int block = 0;
         const int step =
             tx_size_wide_unit[max_tx_size] * tx_size_high_unit[max_tx_size];
