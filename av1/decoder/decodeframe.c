@@ -912,7 +912,7 @@ static void decode_partition(AV1Decoder *const pbi, MACROBLOCKD *const xd,
   }
 #endif
 
-  if (bsize == cm->sb_size) {
+  if (cm->using_cdef && bsize == cm->sb_size) {
     int width_step = mi_size_wide[BLOCK_64X64];
     int height_step = mi_size_wide[BLOCK_64X64];
     int w, h;
@@ -1276,6 +1276,9 @@ static void setup_cdef(AV1_COMMON *cm, struct aom_read_bit_buffer *rb) {
                                    ? aom_rb_read_literal(rb, CDEF_STRENGTH_BITS)
                                    : 0;
   }
+
+  cm->using_cdef = !(cm->cdef_bits == 0 && cm->cdef_strengths[0] == 0 &&
+                     cm->nb_cdef_strengths == 1);
 }
 
 static INLINE int read_delta_q(struct aom_read_bit_buffer *rb) {
@@ -3654,7 +3657,7 @@ void av1_decode_tg_tiles_and_wrapup(AV1Decoder *pbi, const uint8_t *data,
   }
 #endif
 
-  if (!cm->skip_loop_filter &&
+  if (cm->using_cdef && !cm->skip_loop_filter &&
 #if CONFIG_INTRABC
       !(cm->allow_intrabc && NO_FILTER_FOR_IBC) &&
 #endif  // CONFIG_INTRABC
