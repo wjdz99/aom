@@ -1213,7 +1213,7 @@ static INLINE int is_interintra_pred(const MB_MODE_INFO *mbmi) {
 }
 
 static INLINE int get_vartx_max_txsize(const MB_MODE_INFO *const mbmi,
-                                       BLOCK_SIZE bsize, int subsampled) {
+                                       BLOCK_SIZE bsize, int sx, int sy) {
   (void)mbmi;
   TX_SIZE max_txsize = get_max_rect_tx_size(bsize, is_inter_block(mbmi));
 
@@ -1223,11 +1223,12 @@ static INLINE int get_vartx_max_txsize(const MB_MODE_INFO *const mbmi,
   // a subsampled BLOCK_128X128 then the lookup above will give TX_64X64. That
   // mustn't be used for the subsampled plane (because it would be bigger than
   // a 64x64 luma block) so we round down to TX_32X32.
-  if (subsampled && txsize_sqr_up_map[max_txsize] == TX_64X64) {
+  if ((sx || sy) && txsize_sqr_up_map[max_txsize] == TX_64X64) {
     max_txsize = TX_32X32;
   }
 #else
-  (void)subsampled;
+  (void)sx;
+  (void)sy;
 #endif
 
   return max_txsize;
