@@ -3937,6 +3937,8 @@ static INLINE void alloc_frame_mvs(AV1_COMMON *const cm, int buffer_idx) {
 #if CONFIG_SEGMENT_PRED_LAST
 static INLINE void alloc_frame_segmap(AV1_COMMON *const cm, int buffer_idx) {
   RefCntBuffer *const new_fb_ptr = &cm->buffer_pool->frame_bufs[buffer_idx];
+  ensure_segmap_buffer(new_fb_ptr, cm);
+#if 0
   if (new_fb_ptr->seg_map == NULL || new_fb_ptr->mi_rows < cm->mi_rows ||
       new_fb_ptr->mi_cols < cm->mi_cols) {
     aom_free(new_fb_ptr->seg_map);
@@ -3946,6 +3948,9 @@ static INLINE void alloc_frame_segmap(AV1_COMMON *const cm, int buffer_idx) {
     new_fb_ptr->mi_rows = cm->mi_rows;
     new_fb_ptr->mi_cols = cm->mi_cols;
   }
+#endif
+  new_fb_ptr->width = cm->width;
+  new_fb_ptr->height = cm->height;
 }
 #endif
 
