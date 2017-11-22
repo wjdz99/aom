@@ -1343,18 +1343,6 @@ static void setup_segmentation_dequant(AV1_COMMON *const cm) {
       cm->v_iqmatrix[i][j] = aom_iqmatrix(cm, qmlevel, AOM_PLANE_V, j);
     }
 #endif  // CONFIG_AOM_QM
-#if CONFIG_NEW_QUANT
-    for (int dq = 0; dq < QUANT_PROFILES; dq++) {
-      for (int b = 0; b < COEF_BANDS; ++b) {
-        av1_get_dequant_val_nuq(cm->y_dequant_QTX[i][b != 0], b,
-                                cm->y_dequant_nuq_QTX[i][dq][b], NULL, dq);
-        av1_get_dequant_val_nuq(cm->u_dequant_QTX[i][b != 0], b,
-                                cm->u_dequant_nuq_QTX[i][dq][b], NULL, dq);
-        av1_get_dequant_val_nuq(cm->v_dequant_QTX[i][b != 0], b,
-                                cm->v_dequant_nuq_QTX[i][dq][b], NULL, dq);
-      }
-    }
-#endif  //  CONFIG_NEW_QUANT
   }
 }
 
