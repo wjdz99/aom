@@ -517,7 +517,8 @@ static void tokenize_b(int plane, int block, int blk_row, int blk_col,
   const int mi_col = -xd->mb_to_left_edge >> (3 + MI_SIZE_LOG2);
 
   av1_update_scan_count_facade((AV1_COMMON *)cm, mi_row, mi_col, td->counts,
-                               tx_size, tx_type, qcoeff, c);
+                               tx_size, tx_type, is_inter_block(mbmi), qcoeff,
+                               c);
 #endif
 
   av1_set_contexts(xd, pd, plane, tx_size, c > 0, blk_col, blk_row);

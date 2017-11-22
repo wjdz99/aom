@@ -2406,7 +2406,8 @@ void av1_update_and_record_txb_context(int plane, int block, int blk_row,
   const int mi_col = -xd->mb_to_left_edge >> (3 + MI_SIZE_LOG2);
 
   av1_update_scan_count_facade((AV1_COMMON *)cm, mi_row, mi_col, td->counts,
-                               tx_size, tx_type, qcoeff, eob);
+                               tx_size, tx_type, is_inter_block(mbmi), qcoeff,
+                               eob);
 #endif
 }
 
