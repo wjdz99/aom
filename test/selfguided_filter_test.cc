@@ -43,7 +43,7 @@ class AV1SelfguidedFilterTest
     const int pu_width = RESTORATION_PROC_UNIT_SIZE;
     const int pu_height = RESTORATION_PROC_UNIT_SIZE;
     const int width = 256, height = 256, stride = 288, out_stride = 288;
-    const int NUM_ITERS = 2000;
+    const int NUM_ITERS = 10000;
     int i, j, k;
 
     uint8_t *input_ =
@@ -101,7 +101,7 @@ class AV1SelfguidedFilterTest
     // Set the maximum width/height to test here. We actually test a small
     // range of sizes *up to* this size, so that we can check, eg.,
     // the behaviour on tiles which are not a multiple of 4 wide.
-    const int max_w = 260, max_h = 260, stride = 672, out_stride = 672;
+    const int max_w = 10, max_h = 10, stride = 672, out_stride = 672;
     const int NUM_ITERS = 81;
     int i, j, k;
 
@@ -149,6 +149,12 @@ class AV1SelfguidedFilterTest
                                        output_p, out_stride, tmpbuf);
           apply_selfguided_restoration_c(input_p, w, h, stride, eps, xqd,
                                          output2_p, out_stride, tmpbuf);
+
+          for (int u = 0; u < h; ++u)
+            for (int v = 0; v < w; ++v) {
+              assert(output_p[u * out_stride + v] ==
+                     output2_p[u * out_stride + v]);
+            }
         }
       /*
       apply_selfguided_restoration(input, test_w, test_h, stride, eps, xqd,
@@ -158,7 +164,7 @@ class AV1SelfguidedFilterTest
                                      */
       for (j = 0; j < test_h; ++j)
         for (k = 0; k < test_w; ++k) {
-          ASSERT_EQ(output[j * out_stride + k], output2[j * out_stride + k]);
+          assert(output[j * out_stride + k] == output2[j * out_stride + k]);
         }
     }
 
@@ -320,7 +326,7 @@ class AV1HighbdSelfguidedFilterTest
                                             */
       for (j = 0; j < test_h; ++j)
         for (k = 0; k < test_w; ++k)
-          ASSERT_EQ(output[j * out_stride + k], output2[j * out_stride + k]);
+          assert(output[j * out_stride + k] == output2[j * out_stride + k]);
     }
 
     aom_free(input_);
