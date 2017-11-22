@@ -315,6 +315,30 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
       ctx = get_br_ctx(levels, pos, bwl, level_counts[pos]);
 
 #if CONFIG_LV_MAP_MULTI
+#if USE_BR_GROUP
+      (void)idx;
+      int br_grp_idx = av1_read_record_symbol(
+          counts, r, ec_ctx->coeff_br_grp_cdf[txs_ctx][plane_type][ctx],
+          BR_NUM_OF_GROUP, ACCT_STR);
+
+      if (br_grp_idx < BR_NUM_OF_GROUP - 1) {
+        int br_extra = av1_read_record_symbol(
+            counts, r, ec_ctx->coeff_br_extra_cdf[txs_ctx][plane_type][ctx],
+            BR_GROUP_SIZE, ACCT_STR);
+        *level += br_grp_idx * BR_GROUP_SIZE + br_extra;
+        cul_level += *level;
+
+        tran_low_t t = (*level * dequant[!!c]) >> shift;
+        if (signs[pos]) t = -t;
+        tcoeffs[pos] = t;
+        // printf("DEC %d: %d(%d,%d)\n", c, *level, br_grp_idx, br_extra);
+        continue;
+      } else {
+        *level += COEFF_BASE_RANGE;
+      }
+// printf("DEC %d: %d(%d,%d)\n", c, COEFF_BASE_RANGE + 1 + NUM_BASE_LEVELS,
+//       br_grp_idx, 0);
+#else
       for (idx = 0; idx < COEFF_BASE_RANGE / (BR_CDF_SIZE - 1); ++idx) {
         int k = av1_read_record_symbol(
             counts, r, ec_ctx->coeff_br_cdf[txs_ctx][plane_type][ctx],
@@ -329,6 +353,7 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
         tcoeffs[pos] = t;
         continue;
       }
+#endif
 #else
       for (idx = 0; idx < BASE_RANGE_SETS; ++idx) {
         // printf("br: %d %d %d %d\n", txs_ctx, plane_type, idx, ctx);

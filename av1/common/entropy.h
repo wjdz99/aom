@@ -107,8 +107,16 @@ extern "C" {
 #define NUM_BASE_LEVELS 2
 
 #if CONFIG_LV_MAP_MULTI
+#define USE_BR_GROUP 1
+#if USE_BR_GROUP
+#define BR_NUM_OF_GROUP 4
+#define BR_GROUP_SIZE 4
+#define BASE_RANGE_SETS 3
+#define COEFF_BASE_RANGE (BR_GROUP_SIZE * (BR_NUM_OF_GROUP - 1))
+#else  // USE_BR_GROUP
 #define BR_CDF_SIZE (4)
 #define COEFF_BASE_RANGE (4 * (BR_CDF_SIZE - 1))
+#endif  // USE_BR_GROUP
 #else
 #define COEFF_BASE_RANGE (16 - NUM_BASE_LEVELS)
 #define BASE_RANGE_SETS 3

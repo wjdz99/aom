@@ -194,6 +194,32 @@ void av1_init_txb_probs(FRAME_CONTEXT *fc) {
   for (tx_size = 0; tx_size < TX_SIZES; ++tx_size) {
     for (plane = 0; plane < PLANE_TYPES; ++plane) {
 #if CONFIG_LV_MAP_MULTI
+#if USE_BR_GROUP
+      for (ctx = 0; ctx < LEVEL_CONTEXTS; ++ctx) {
+        int p =
+            32768 - 128 * (aom_cdf_prob)fc->coeff_br[tx_size][plane][1][ctx];
+        int sum = p;
+        fc->coeff_br_grp_cdf[tx_size][plane][ctx][0] = AOM_ICDF(sum);
+        sum += ((32768 - sum) * p) >> 15;
+        fc->coeff_br_grp_cdf[tx_size][plane][ctx][1] = AOM_ICDF(sum);
+        sum += ((32768 - sum) * p) >> 15;
+        fc->coeff_br_grp_cdf[tx_size][plane][ctx][2] = AOM_ICDF(sum);
+        fc->coeff_br_grp_cdf[tx_size][plane][ctx][3] = AOM_ICDF(32768);
+        fc->coeff_br_grp_cdf[tx_size][plane][ctx][4] = 0;
+      }
+
+      for (ctx = 0; ctx < LEVEL_CONTEXTS; ++ctx) {
+        int p = 32768 - 128 * (aom_cdf_prob)fc->coeff_lps[tx_size][plane][ctx];
+        int sum = p;
+        fc->coeff_br_extra_cdf[tx_size][plane][ctx][0] = AOM_ICDF(sum);
+        sum += ((32768 - sum) * p) >> 15;
+        fc->coeff_br_extra_cdf[tx_size][plane][ctx][1] = AOM_ICDF(sum);
+        sum += ((32768 - sum) * p) >> 15;
+        fc->coeff_br_extra_cdf[tx_size][plane][ctx][2] = AOM_ICDF(sum);
+        fc->coeff_br_extra_cdf[tx_size][plane][ctx][3] = AOM_ICDF(32768);
+        fc->coeff_br_extra_cdf[tx_size][plane][ctx][4] = 0;
+      }
+#else
       for (ctx = 0; ctx < LEVEL_CONTEXTS; ++ctx) {
         int p = 32768 - fc->coeff_lps[tx_size][plane][ctx] * 128;
         int sum = p;
@@ -209,6 +235,7 @@ void av1_init_txb_probs(FRAME_CONTEXT *fc) {
         //        fc->coeff_br_cdf[tx_size][plane][ctx][1] >> 7,
         //        fc->coeff_br_cdf[tx_size][plane][ctx][2] >> 7);
       }
+#endif
 #else
       for (ctx = 0; ctx < LEVEL_CONTEXTS; ++ctx) {
         fc->coeff_lps_cdf[tx_size][plane][ctx][0] =
