@@ -5489,7 +5489,9 @@ static int64_t rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
     if (mode == UV_CFL_PRED) {
       if (!is_cfl_allowed(bsize)) continue;
       assert(!is_directional_mode);
-      const TX_SIZE uv_tx_size = av1_get_uv_tx_size(mbmi, &xd->plane[1]);
+      const struct macroblockd_plane *const pd = &xd->plane[AOM_PLANE_U];
+      assert(bsize == mbmi->sb_type);
+      const TX_SIZE uv_tx_size = av1_get_uv_tx_size(mbmi, pd);
       cfl_alpha_rate = cfl_rd_pick_alpha(x, cpi, bsize, uv_tx_size, best_rd);
       if (cfl_alpha_rate == INT_MAX) continue;
     }
