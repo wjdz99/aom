@@ -1713,8 +1713,6 @@ static int read_is_inter_block(AV1_COMMON *const cm, MACROBLOCKD *const xd,
     FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
     const int is_inter =
         aom_read_symbol(r, ec_ctx->intra_inter_cdf[ctx], 2, ACCT_STR);
-    FRAME_COUNTS *counts = xd->counts;
-    if (counts) ++counts->intra_inter[ctx][is_inter];
     return is_inter;
   }
 }
