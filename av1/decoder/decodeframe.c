@@ -545,6 +545,17 @@ static void decode_token_and_recon_block(AV1Decoder *const pbi,
 
         const TX_SIZE max_tx_size = get_vartx_max_txsize(
             mbmi, plane_bsize, pd->subsampling_x || pd->subsampling_y);
+#if DISABLE_VARTX_FOR_CHROMA == 2
+        // If the luma transform size is split at least one level, split the
+        // chroma
+        // by one level. Otherwise use the  largest possible trasnform size for
+        // chroma.
+        if (plane) {
+          const int is_split = (get_vartx_max_txsize(mbmi, bsize, 0) ==
+                                mbmi->inter_tx_size[0][0]);
+          if (is_split) max_tx_size = sub_tx_size_map[max_tx_size];
+        }
+#endif  // DISABLE_VARTX_FOR_CHROMA == 2
         const int bh_var_tx = tx_size_high_unit[max_tx_size];
         const int bw_var_tx = tx_size_wide_unit[max_tx_size];
         int block = 0;

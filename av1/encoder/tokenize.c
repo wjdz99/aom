@@ -663,6 +663,16 @@ void av1_tokenize_sb_vartx(const AV1_COMP *cpi, ThreadData *td, TOKENEXTRA **t,
     const int mi_height = block_size_high[plane_bsize] >> tx_size_wide_log2[0];
     const TX_SIZE max_tx_size = get_vartx_max_txsize(
         mbmi, plane_bsize, pd->subsampling_x || pd->subsampling_y);
+#if DISABLE_VARTX_FOR_CHROMA == 2
+    // If the luma transform size is split at least one level, split the chroma
+    // by one level. Otherwise use the  largest possible trasnform size for
+    // chroma.
+    if (plane) {
+      const int is_split =
+          (get_vartx_max_txsize(mbmi, bsize, 0) == mbmi->inter_tx_size[0][0]);
+      if (is_split) max_tx_size = sub_tx_size_map[max_tx_size];
+    }
+#endif  // DISABLE_VARTX_FOR_CHROMA == 2
     const BLOCK_SIZE txb_size = txsize_to_bsize[max_tx_size];
     int bw = block_size_wide[txb_size] >> tx_size_wide_log2[0];
     int bh = block_size_high[txb_size] >> tx_size_wide_log2[0];
