@@ -4211,7 +4211,7 @@ static void encode_frame_internal(AV1_COMP *cpi) {
   if (cm->prev_frame) cm->last_frame_seg_map = cm->prev_frame->seg_map;
   cm->current_frame_seg_map = cm->cur_frame->seg_map;
   if (cm->current_frame_seg_map)
-    memset(cm->current_frame_seg_map, 0, (cm->mi_rows * cm->mi_cols));
+	  memset(cm->current_frame_seg_map, 0, (cm->mi_rows * cm->mi_cols));
 #endif
 
   // Special case: set prev_mi to NULL when the previous mode info
