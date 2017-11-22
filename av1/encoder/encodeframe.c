@@ -4223,7 +4223,9 @@ static void encode_frame_internal(AV1_COMP *cpi) {
   av1_zero(x->blk_skip_drl);
 
 #if CONFIG_MFMV
-  av1_setup_motion_field(cm);
+  if (cm->use_ref_frame_mvs) {
+    av1_setup_motion_field(cm);
+  }
 #endif  // CONFIG_MFMV
 
 #if CONFIG_EXT_SKIP
