@@ -41,12 +41,14 @@ extern const SCAN_ORDER av1_inter_scan_orders[TX_SIZES_ALL][TX_TYPES];
 void av1_update_scan_count_facade(AV1_COMMON *cm, const int mi_row,
                                   const int mi_col, FRAME_COUNTS *counts,
                                   TX_SIZE tx_size, TX_TYPE tx_type,
-                                  const tran_low_t *dqcoeffs, int max_scan);
+                                  int is_inter, const tran_low_t *dqcoeffs,
+                                  int max_scan);
 
 // embed r + c and coeff_idx info with nonzero probabilities. When sorting the
 // nonzero probabilities, if there is a tie, the coefficient with smaller r + c
 // will be scanned first
-void av1_augment_prob(TX_SIZE tx_size, TX_TYPE tx_type, uint32_t *prob);
+void av1_augment_prob(TX_SIZE tx_size, TX_TYPE tx_type, int is_inter,
+                      uint32_t *prob);
 
 #if USE_TOPOLOGICAL_SORT
 // apply quick sort on nonzero probabilities to obtain a sort order
@@ -59,7 +61,7 @@ void av1_update_sort_order(TX_SIZE tx_size, TX_TYPE tx_type,
 void av1_update_scan_order(TX_SIZE tx_size, int16_t *sort_order, int16_t *scan,
                            int16_t *iscan);
 #else   // USE_TOPOLOGICAL_SORT
-void av1_update_scan_order(TX_SIZE tx_size, TX_TYPE tx_type,
+void av1_update_scan_order(TX_SIZE tx_size, TX_TYPE tx_type, int is_inter,
                            uint32_t *non_zero_prob, int16_t *scan,
                            int16_t *iscan);
 #endif  // USE_TOPOLOGICAL_SORT
@@ -118,7 +120,7 @@ static INLINE const SCAN_ORDER *get_scan(const AV1_COMMON *cm, TX_SIZE tx_size,
   if (!do_adapt_scan(tx_size, tx_type))
     return get_default_scan(tx_size, tx_type, is_inter);
   else
-    return &cm->fc->sc[tx_size][tx_type];
+    return &cm->fc->sc[is_inter][tx_size][tx_type];
 #else   // CONFIG_ADAPT_SCAN
   (void)cm;
   return get_default_scan(tx_size, tx_type, is_inter);

@@ -411,7 +411,8 @@ uint8_t av1_read_coeffs_txb_facade(AV1_COMMON *cm, MACROBLOCKD *xd,
 
   if (xd->counts && *eob > 0)
     av1_update_scan_count_facade(cm, mi_row, mi_col, xd->counts, tx_size,
-                                 tx_type, pd->dqcoeff, *eob);
+                                 tx_type, is_inter_block(mbmi), pd->dqcoeff,
+                                 *eob);
 #endif
   av1_set_contexts(xd, pd, plane, tx_size, cul_level, col, row);
   return cul_level;

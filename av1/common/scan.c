@@ -7767,86 +7767,86 @@ const SCAN_ORDER av1_inter_scan_orders[TX_SIZES_ALL][TX_TYPES] = {
 #define COEFF_IDX_MASK (COEFF_IDX_SIZE - 1)
 
 static uint32_t *get_non_zero_prob(FRAME_CONTEXT *fc, TX_SIZE tx_size,
-                                   TX_TYPE tx_type) {
+                                   TX_TYPE tx_type, int is_inter) {
   switch (tx_size) {
-    case TX_4X4: return fc->non_zero_prob_4X4[tx_type];
-    case TX_8X8: return fc->non_zero_prob_8X8[tx_type];
-    case TX_16X16: return fc->non_zero_prob_16X16[tx_type];
-    case TX_32X32: return fc->non_zero_prob_32X32[tx_type];
-    case TX_4X8: return fc->non_zero_prob_4X8[tx_type];
-    case TX_8X4: return fc->non_zero_prob_8X4[tx_type];
-    case TX_8X16: return fc->non_zero_prob_8X16[tx_type];
-    case TX_16X8: return fc->non_zero_prob_16X8[tx_type];
-    case TX_16X32: return fc->non_zero_prob_16X32[tx_type];
-    case TX_32X16: return fc->non_zero_prob_32X16[tx_type];
+    case TX_4X4: return fc->non_zero_prob_4X4[is_inter][tx_type];
+    case TX_8X8: return fc->non_zero_prob_8X8[is_inter][tx_type];
+    case TX_16X16: return fc->non_zero_prob_16X16[is_inter][tx_type];
+    case TX_32X32: return fc->non_zero_prob_32X32[is_inter][tx_type];
+    case TX_4X8: return fc->non_zero_prob_4X8[is_inter][tx_type];
+    case TX_8X4: return fc->non_zero_prob_8X4[is_inter][tx_type];
+    case TX_8X16: return fc->non_zero_prob_8X16[is_inter][tx_type];
+    case TX_16X8: return fc->non_zero_prob_16X8[is_inter][tx_type];
+    case TX_16X32: return fc->non_zero_prob_16X32[is_inter][tx_type];
+    case TX_32X16: return fc->non_zero_prob_32X16[is_inter][tx_type];
     default: assert(0); return NULL;
   }
 }
 
 static int16_t *get_adapt_scan(FRAME_CONTEXT *fc, TX_SIZE tx_size,
-                               TX_TYPE tx_type) {
+                               TX_TYPE tx_type, int is_inter) {
   switch (tx_size) {
-    case TX_4X4: return fc->scan_4X4[tx_type];
-    case TX_8X8: return fc->scan_8X8[tx_type];
-    case TX_16X16: return fc->scan_16X16[tx_type];
-    case TX_32X32: return fc->scan_32X32[tx_type];
-    case TX_4X8: return fc->scan_4X8[tx_type];
-    case TX_8X4: return fc->scan_8X4[tx_type];
-    case TX_8X16: return fc->scan_8X16[tx_type];
-    case TX_16X8: return fc->scan_16X8[tx_type];
-    case TX_16X32: return fc->scan_16X32[tx_type];
-    case TX_32X16: return fc->scan_32X16[tx_type];
+    case TX_4X4: return fc->scan_4X4[is_inter][tx_type];
+    case TX_8X8: return fc->scan_8X8[is_inter][tx_type];
+    case TX_16X16: return fc->scan_16X16[is_inter][tx_type];
+    case TX_32X32: return fc->scan_32X32[is_inter][tx_type];
+    case TX_4X8: return fc->scan_4X8[is_inter][tx_type];
+    case TX_8X4: return fc->scan_8X4[is_inter][tx_type];
+    case TX_8X16: return fc->scan_8X16[is_inter][tx_type];
+    case TX_16X8: return fc->scan_16X8[is_inter][tx_type];
+    case TX_16X32: return fc->scan_16X32[is_inter][tx_type];
+    case TX_32X16: return fc->scan_32X16[is_inter][tx_type];
     default: assert(0); return NULL;
   }
 }
 
 static int16_t *get_adapt_iscan(FRAME_CONTEXT *fc, TX_SIZE tx_size,
-                                TX_TYPE tx_type) {
+                                TX_TYPE tx_type, int is_inter) {
   switch (tx_size) {
-    case TX_4X4: return fc->iscan_4X4[tx_type];
-    case TX_8X8: return fc->iscan_8X8[tx_type];
-    case TX_16X16: return fc->iscan_16X16[tx_type];
-    case TX_32X32: return fc->iscan_32X32[tx_type];
-    case TX_4X8: return fc->iscan_4X8[tx_type];
-    case TX_8X4: return fc->iscan_8X4[tx_type];
-    case TX_8X16: return fc->iscan_8X16[tx_type];
-    case TX_16X8: return fc->iscan_16X8[tx_type];
-    case TX_16X32: return fc->iscan_16X32[tx_type];
-    case TX_32X16: return fc->iscan_32X16[tx_type];
+    case TX_4X4: return fc->iscan_4X4[is_inter][tx_type];
+    case TX_8X8: return fc->iscan_8X8[is_inter][tx_type];
+    case TX_16X16: return fc->iscan_16X16[is_inter][tx_type];
+    case TX_32X32: return fc->iscan_32X32[is_inter][tx_type];
+    case TX_4X8: return fc->iscan_4X8[is_inter][tx_type];
+    case TX_8X4: return fc->iscan_8X4[is_inter][tx_type];
+    case TX_8X16: return fc->iscan_8X16[is_inter][tx_type];
+    case TX_16X8: return fc->iscan_16X8[is_inter][tx_type];
+    case TX_16X32: return fc->iscan_16X32[is_inter][tx_type];
+    case TX_32X16: return fc->iscan_32X16[is_inter][tx_type];
     default: assert(0); return NULL;
   }
 }
 
 static int16_t *get_adapt_nb(FRAME_CONTEXT *fc, TX_SIZE tx_size,
-                             TX_TYPE tx_type) {
+                             TX_TYPE tx_type, int is_inter) {
   switch (tx_size) {
-    case TX_4X4: return fc->nb_4X4[tx_type];
-    case TX_8X8: return fc->nb_8X8[tx_type];
-    case TX_16X16: return fc->nb_16X16[tx_type];
-    case TX_32X32: return fc->nb_32X32[tx_type];
-    case TX_4X8: return fc->nb_4X8[tx_type];
-    case TX_8X4: return fc->nb_8X4[tx_type];
-    case TX_8X16: return fc->nb_8X16[tx_type];
-    case TX_16X8: return fc->nb_16X8[tx_type];
-    case TX_16X32: return fc->nb_16X32[tx_type];
-    case TX_32X16: return fc->nb_32X16[tx_type];
+    case TX_4X4: return fc->nb_4X4[is_inter][tx_type];
+    case TX_8X8: return fc->nb_8X8[is_inter][tx_type];
+    case TX_16X16: return fc->nb_16X16[is_inter][tx_type];
+    case TX_32X32: return fc->nb_32X32[is_inter][tx_type];
+    case TX_4X8: return fc->nb_4X8[is_inter][tx_type];
+    case TX_8X4: return fc->nb_8X4[is_inter][tx_type];
+    case TX_8X16: return fc->nb_8X16[is_inter][tx_type];
+    case TX_16X8: return fc->nb_16X8[is_inter][tx_type];
+    case TX_16X32: return fc->nb_16X32[is_inter][tx_type];
+    case TX_32X16: return fc->nb_32X16[is_inter][tx_type];
     default: assert(0); return NULL;
   }
 }
 
 static uint32_t *get_non_zero_counts(FRAME_COUNTS *counts, TX_SIZE tx_size,
-                                     TX_TYPE tx_type) {
+                                     TX_TYPE tx_type, int is_inter) {
   switch (tx_size) {
-    case TX_4X4: return counts->non_zero_count_4X4[tx_type];
-    case TX_8X8: return counts->non_zero_count_8X8[tx_type];
-    case TX_16X16: return counts->non_zero_count_16X16[tx_type];
-    case TX_32X32: return counts->non_zero_count_32X32[tx_type];
-    case TX_4X8: return counts->non_zero_count_4x8[tx_type];
-    case TX_8X4: return counts->non_zero_count_8x4[tx_type];
-    case TX_8X16: return counts->non_zero_count_8x16[tx_type];
-    case TX_16X8: return counts->non_zero_count_16x8[tx_type];
-    case TX_16X32: return counts->non_zero_count_16x32[tx_type];
-    case TX_32X16: return counts->non_zero_count_32x16[tx_type];
+    case TX_4X4: return counts->non_zero_count_4X4[is_inter][tx_type];
+    case TX_8X8: return counts->non_zero_count_8X8[is_inter][tx_type];
+    case TX_16X16: return counts->non_zero_count_16X16[is_inter][tx_type];
+    case TX_32X32: return counts->non_zero_count_32X32[is_inter][tx_type];
+    case TX_4X8: return counts->non_zero_count_4x8[is_inter][tx_type];
+    case TX_8X4: return counts->non_zero_count_8x4[is_inter][tx_type];
+    case TX_8X16: return counts->non_zero_count_8x16[is_inter][tx_type];
+    case TX_16X8: return counts->non_zero_count_16x8[is_inter][tx_type];
+    case TX_16X32: return counts->non_zero_count_16x32[is_inter][tx_type];
+    case TX_32X16: return counts->non_zero_count_32x16[is_inter][tx_type];
     default: assert(0); return NULL;
   }
 }
@@ -8001,13 +8001,16 @@ void av1_up_sample_scan_count(uint32_t *non_zero_count,
 #endif
 
 static void update_scan_prob(AV1_COMMON *cm, TX_SIZE tx_size, TX_TYPE tx_type,
-                             int rate) {
+                             int rate, int is_inter) {
   FRAME_CONTEXT *pre_fc = cm->pre_fc;
-  uint32_t *prev_non_zero_prob = get_non_zero_prob(pre_fc, tx_size, tx_type);
-  uint32_t *non_zero_prob = get_non_zero_prob(cm->fc, tx_size, tx_type);
-  uint32_t *non_zero_count = get_non_zero_counts(&cm->counts, tx_size, tx_type);
+  uint32_t *prev_non_zero_prob =
+      get_non_zero_prob(pre_fc, tx_size, tx_type, is_inter);
+  uint32_t *non_zero_prob =
+      get_non_zero_prob(cm->fc, tx_size, tx_type, is_inter);
+  uint32_t *non_zero_count =
+      get_non_zero_counts(&cm->counts, tx_size, tx_type, is_inter);
   const int tx2d_size = tx_size_2d[tx_size];
-  unsigned int block_num = cm->counts.txb_count[tx_size][tx_type];
+  unsigned int block_num = cm->counts.txb_count[is_inter][tx_size][tx_type];
 #if USE_2X2_PROB
 #if CONFIG_TX64X64
   DECLARE_ALIGNED(16, uint32_t, non_zero_count_ds[1024]);
@@ -8054,7 +8057,8 @@ static void update_scan_count(int16_t *scan, int max_scan,
 void av1_update_scan_count_facade(AV1_COMMON *cm, const int mi_row,
                                   const int mi_col, FRAME_COUNTS *counts,
                                   TX_SIZE tx_size, TX_TYPE tx_type,
-                                  const tran_low_t *dqcoeffs, int max_scan) {
+                                  int is_inter, const tran_low_t *dqcoeffs,
+                                  int max_scan) {
   (void)mi_row;
   (void)mi_col;
 
@@ -8064,12 +8068,13 @@ void av1_update_scan_count_facade(AV1_COMMON *cm, const int mi_row,
 
   if (cm->use_adapt_scan && do_adapt_scan(tx_size, tx_type) && max_scan) {
 #if SUB_REGION_COUNT
-    if (counts->txb_count[tx_size][tx_type] >= 256) return;
+    if (counts->txb_count[is_inter][tx_size][tx_type] >= 256) return;
 #endif
-    int16_t *scan = get_adapt_scan(cm->fc, tx_size, tx_type);
-    uint32_t *non_zero_count = get_non_zero_counts(counts, tx_size, tx_type);
+    int16_t *scan = get_adapt_scan(cm->fc, tx_size, tx_type, is_inter);
+    uint32_t *non_zero_count =
+        get_non_zero_counts(counts, tx_size, tx_type, is_inter);
     update_scan_count(scan, max_scan, dqcoeffs, non_zero_count);
-    ++counts->txb_count[tx_size][tx_type];
+    ++counts->txb_count[is_inter][tx_size][tx_type];
   }
 }
 
@@ -8077,9 +8082,10 @@ static int cmp_prob(const void *a, const void *b) {
   return *(const uint32_t *)b > *(const uint32_t *)a ? 1 : -1;
 }
 
-void av1_augment_prob(TX_SIZE tx_size, TX_TYPE tx_type, uint32_t *prob) {
+void av1_augment_prob(TX_SIZE tx_size, TX_TYPE tx_type, int is_inter,
+                      uint32_t *prob) {
   // TODO(angiebird): check if we need is_inter here
-  const SCAN_ORDER *sc = get_default_scan(tx_size, tx_type, 0);
+  const SCAN_ORDER *sc = get_default_scan(tx_size, tx_type, is_inter);
   const int tx1d_wide = tx_size_wide[tx_size];
   const int tx1d_high = tx_size_high[tx_size];
   int r, c;
@@ -8274,17 +8280,17 @@ static void filter_prob(TX_SIZE tx_size, uint32_t *prob) {
   }
 }
 
-void av1_update_scan_order(TX_SIZE tx_size, TX_TYPE tx_type,
+void av1_update_scan_order(TX_SIZE tx_size, TX_TYPE tx_type, int is_inter,
                            uint32_t *non_zero_prob, int16_t *scan,
                            int16_t *iscan) {
-  const SCAN_ORDER *sc = get_default_scan(tx_size, tx_type, 0);
+  const SCAN_ORDER *sc = get_default_scan(tx_size, tx_type, is_inter);
   uint32_t temp[COEFF_IDX_SIZE];
   const int tx2d_size = tx_size_2d[tx_size];
   int scan_idx;
   assert(tx2d_size <= COEFF_IDX_SIZE);
   memcpy(temp, non_zero_prob, tx2d_size * sizeof(*non_zero_prob));
   filter_prob(tx_size, temp);
-  av1_augment_prob(tx_size, tx_type, temp);
+  av1_augment_prob(tx_size, tx_type, is_inter, temp);
   qsort(temp, tx2d_size, sizeof(*temp), cmp_prob);
   for (scan_idx = 0; scan_idx < tx2d_size; ++scan_idx) {
     const int default_scan_idx =
@@ -8297,24 +8303,25 @@ void av1_update_scan_order(TX_SIZE tx_size, TX_TYPE tx_type,
 #endif
 
 static void update_scan_order_facade(AV1_COMMON *cm, TX_SIZE tx_size,
-                                     TX_TYPE tx_type, int use_curr_frame) {
+                                     TX_TYPE tx_type, int use_curr_frame,
+                                     int is_inter) {
 #if USE_TOPOLOGICAL_SORT
   int16_t sort_order[COEFF_IDX_SIZE];
 #endif
   uint32_t *non_zero_prob;
   if (use_curr_frame)
-    non_zero_prob = get_non_zero_prob(cm->fc, tx_size, tx_type);
+    non_zero_prob = get_non_zero_prob(cm->fc, tx_size, tx_type, is_inter);
   else
-    non_zero_prob = get_non_zero_prob(cm->pre_fc, tx_size, tx_type);
-  int16_t *scan = get_adapt_scan(cm->fc, tx_size, tx_type);
-  int16_t *iscan = get_adapt_iscan(cm->fc, tx_size, tx_type);
-  int16_t *nb = get_adapt_nb(cm->fc, tx_size, tx_type);
+    non_zero_prob = get_non_zero_prob(cm->pre_fc, tx_size, tx_type, is_inter);
+  int16_t *scan = get_adapt_scan(cm->fc, tx_size, tx_type, is_inter);
+  int16_t *iscan = get_adapt_iscan(cm->fc, tx_size, tx_type, is_inter);
+  int16_t *nb = get_adapt_nb(cm->fc, tx_size, tx_type, is_inter);
   assert(tx_size_2d[tx_size] <= COEFF_IDX_SIZE);
 #if USE_TOPOLOGICAL_SORT
   av1_update_sort_order(tx_size, tx_type, non_zero_prob, sort_order);
   av1_update_scan_order(tx_size, sort_order, scan, iscan);
 #else
-  av1_update_scan_order(tx_size, tx_type, non_zero_prob, scan, iscan);
+  av1_update_scan_order(tx_size, tx_type, is_inter, non_zero_prob, scan, iscan);
 #endif
 #if USE_LIMIT_SCAN_DISTANCE
   limit_nb_scan_distance(tx_size, scan, iscan);
@@ -8323,7 +8330,7 @@ static void update_scan_order_facade(AV1_COMMON *cm, TX_SIZE tx_size,
 }
 
 static void update_eob_threshold(AV1_COMMON *cm, TX_SIZE tx_size,
-                                 TX_TYPE tx_type) {
+                                 TX_TYPE tx_type, int is_inter) {
   int i, row, col, row_limit, col_limit, cal_idx = 0;
   const int tx_width = tx_size_wide[tx_size];
   const int tx_height = tx_size_high[tx_size];
@@ -8332,7 +8339,7 @@ static void update_eob_threshold(AV1_COMMON *cm, TX_SIZE tx_size,
   col_limit = tx_height >> 1;
 
   if (tx_width >= 8 && tx_height >= 8) {
-    SCAN_ORDER *sc = &cm->fc->sc[tx_size][tx_type];
+    SCAN_ORDER *sc = &cm->fc->sc[is_inter][tx_size][tx_type];
     int16_t *threshold = &cm->fc->eob_threshold[tx_size][tx_type][0];
     const int tx2d_size = tx_size_2d[tx_size];
 
@@ -8353,32 +8360,36 @@ static void update_eob_threshold(AV1_COMMON *cm, TX_SIZE tx_size,
 void av1_init_scan_order(AV1_COMMON *cm) {
   TX_SIZE tx_size;
   TX_TYPE tx_type;
-  for (tx_size = 0; tx_size < TX_SIZES_ALL; ++tx_size) {
-    for (tx_type = DCT_DCT; tx_type < TX_TYPES; ++tx_type) {
-      if (do_adapt_scan(tx_size, tx_type)) {
-        uint32_t *non_zero_prob = get_non_zero_prob(cm->fc, tx_size, tx_type);
-        const int tx2d_size = tx_size_2d[tx_size];
-        int i;
-        SCAN_ORDER *sc = &cm->fc->sc[tx_size][tx_type];
-        for (i = 0; i < tx2d_size; ++i) {
-          non_zero_prob[i] = (1 << ADAPT_SCAN_PROB_PRECISION) /
-                             2;  // init non_zero_prob to 0.5
-        }
+  int is_inter;
+  for (is_inter = 0; is_inter < 2; ++is_inter) {
+    for (tx_size = 0; tx_size < TX_SIZES_ALL; ++tx_size) {
+      for (tx_type = DCT_DCT; tx_type < TX_TYPES; ++tx_type) {
+        if (do_adapt_scan(tx_size, tx_type)) {
+          uint32_t *non_zero_prob =
+              get_non_zero_prob(cm->fc, tx_size, tx_type, is_inter);
+          const int tx2d_size = tx_size_2d[tx_size];
+          int i;
+          SCAN_ORDER *sc = &cm->fc->sc[is_inter][tx_size][tx_type];
+          for (i = 0; i < tx2d_size; ++i) {
+            non_zero_prob[i] = (1 << ADAPT_SCAN_PROB_PRECISION) /
+                               2;  // init non_zero_prob to 0.5
+          }
 #if SIG_REGION
-        int bw = tx_size_wide[tx_size];
-        int bh = tx_size_high[tx_size];
-        int txw_lim = (bw > 16) ? 16 : 8;
-        int txh_lim = (bh > 16) ? 16 : 8;
-        for (int idy = 0; idy < bh; ++idy)
-          for (int idx = 0; idx < bw; ++idx)
-            if (idy >= txh_lim || idx >= txw_lim)
-              non_zero_prob[idy * bw + idx] = 0;
+          int bw = tx_size_wide[tx_size];
+          int bh = tx_size_high[tx_size];
+          int txw_lim = (bw > 16) ? 16 : 8;
+          int txh_lim = (bh > 16) ? 16 : 8;
+          for (int idy = 0; idy < bh; ++idy)
+            for (int idx = 0; idx < bw; ++idx)
+              if (idy >= txh_lim || idx >= txw_lim)
+                non_zero_prob[idy * bw + idx] = 0;
 #endif
-        update_scan_order_facade(cm, tx_size, tx_type, 1);
-        sc->scan = get_adapt_scan(cm->fc, tx_size, tx_type);
-        sc->iscan = get_adapt_iscan(cm->fc, tx_size, tx_type);
-        sc->neighbors = get_adapt_nb(cm->fc, tx_size, tx_type);
-        update_eob_threshold(cm, tx_size, tx_type);
+          update_scan_order_facade(cm, tx_size, tx_type, 1, is_inter);
+          sc->scan = get_adapt_scan(cm->fc, tx_size, tx_type, is_inter);
+          sc->iscan = get_adapt_iscan(cm->fc, tx_size, tx_type, is_inter);
+          sc->neighbors = get_adapt_nb(cm->fc, tx_size, tx_type, is_inter);
+          update_eob_threshold(cm, tx_size, tx_type, is_inter);
+        }
       }
     }
   }
@@ -8393,26 +8404,30 @@ void av1_adapt_scan_order(AV1_COMMON *cm) {
     int use_curr_frame = 1;
 #endif  // CACHE_SCAN_PROB
 
-    for (tx_size = 0; tx_size < TX_SIZES_ALL; ++tx_size) {
-      TX_TYPE tx_type;
-      for (tx_type = DCT_DCT; tx_type < TX_TYPES; ++tx_type) {
-        if (do_adapt_scan(tx_size, tx_type)) {
-          update_scan_prob(cm, tx_size, tx_type, ADAPT_SCAN_UPDATE_RATE);
+    for (int is_inter = 0; is_inter < 2; ++is_inter) {
+      for (tx_size = 0; tx_size < TX_SIZES_ALL; ++tx_size) {
+        TX_TYPE tx_type;
+        for (tx_type = DCT_DCT; tx_type < TX_TYPES; ++tx_type) {
+          if (do_adapt_scan(tx_size, tx_type)) {
+            update_scan_prob(cm, tx_size, tx_type, ADAPT_SCAN_UPDATE_RATE,
+                             is_inter);
 
 #if SIG_REGION
-          uint32_t *non_zero_prob = get_non_zero_prob(cm->fc, tx_size, tx_type);
-          int bw = tx_size_wide[tx_size];
-          int bh = tx_size_high[tx_size];
-          int txw_lim = (bw > 16) ? 16 : 8;
-          int txh_lim = (bh > 16) ? 16 : 8;
-          for (int idy = 0; idy < bh; ++idy)
-            for (int idx = 0; idx < bw; ++idx)
-              if (idy >= txh_lim || idx >= txw_lim)
-                non_zero_prob[idy * bw + idx] = 0;
+            uint32_t *non_zero_prob =
+                get_non_zero_prob(cm->fc, tx_size, tx_type, is_inter);
+            int bw = tx_size_wide[tx_size];
+            int bh = tx_size_high[tx_size];
+            int txw_lim = (bw > 16) ? 16 : 8;
+            int txh_lim = (bh > 16) ? 16 : 8;
+            for (int idy = 0; idy < bh; ++idy)
+              for (int idx = 0; idx < bw; ++idx)
+                if (idy >= txh_lim || idx >= txw_lim)
+                  non_zero_prob[idy * bw + idx] = 0;
 #endif
-
-          update_scan_order_facade(cm, tx_size, tx_type, use_curr_frame);
-          update_eob_threshold(cm, tx_size, tx_type);
+            update_scan_order_facade(cm, tx_size, tx_type, use_curr_frame,
+                                     is_inter);
+            update_eob_threshold(cm, tx_size, tx_type, is_inter);
+          }
         }
       }
     }
