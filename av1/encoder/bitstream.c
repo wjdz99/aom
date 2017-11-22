@@ -1785,12 +1785,24 @@ static void write_inter_txb_coeff(AV1_COMMON *const cm, MACROBLOCK *const x,
                                   const int col, int *block, const int plane) {
   MACROBLOCKD *const xd = &x->e_mbd;
   const struct macroblockd_plane *const pd = &xd->plane[plane];
+  const BLOCK_SIZE bsize = mbmi->sb_type;
 
   const BLOCK_SIZE plane_bsize =
-      AOMMAX(BLOCK_4X4, get_plane_block_size(mbmi->sb_type, pd));
+      AOMMAX(BLOCK_4X4, get_plane_block_size(bsize, pd));
 
-  const TX_SIZE max_tx_size = get_vartx_max_txsize(
+  TX_SIZE max_tx_size = get_vartx_max_txsize(
       mbmi, plane_bsize, pd->subsampling_x || pd->subsampling_y);
+#if DISABLE_VARTX_FOR_CHROMA == 2
+  // If the luma transform size is split at least one level, split the chroma
+  // by one level. Otherwise use the  largest possible trasnform size for
+  // chroma.
+  if (plane) {
+    const int is_split =
+        (get_vartx_max_txsize(mbmi, bsize, 0) == mbmi->inter_tx_size[0][0] &&
+         txsize_to_bsize[mbmi->inter_tx_size[0][0]] == bsize);
+    if (is_split) max_tx_size = sub_tx_size_map[max_tx_size];
+  }
+#endif  // DISABLE_VARTX_FOR_CHROMA == 2
   const int step =
       tx_size_wide_unit[max_tx_size] * tx_size_high_unit[max_tx_size];
   const int bkw = tx_size_wide_unit[max_tx_size];
