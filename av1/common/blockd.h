@@ -39,6 +39,9 @@ extern "C" {
 #define COMPOUND_SEGMENT_TYPE 1
 #define MAX_SEG_MASK_BITS 1
 
+// Disables vartx transform split for chroma
+#define DISABLE_VARTX_FOR_CHROMA 1
+
 // SEG_MASK_TYPES should not surpass 1 << MAX_SEG_MASK_BITS
 typedef enum {
 #if COMPOUND_SEGMENT_TYPE == 0

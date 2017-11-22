@@ -4344,7 +4344,11 @@ static void tx_block_yrd(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
                                    mbmi->sb_type, tx_size);
 
   av1_init_rd_stats(rd_stats);
-  if (tx_size == plane_tx_size) {
+  if (tx_size == plane_tx_size
+#if DISABLE_VARTX_FOR_CHROMA
+      || pd->subsampling_x || pd->subsampling_y
+#endif  // DISABLE_VARTX_FOR_CHROMA
+      ) {
     ENTROPY_CONTEXT *ta = above_ctx + blk_col;
     ENTROPY_CONTEXT *tl = left_ctx + blk_row;
 #if CONFIG_LV_MAP
@@ -4425,6 +4429,7 @@ static void tx_block_yrd(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
 int inter_block_yrd(const AV1_COMP *cpi, MACROBLOCK *x, RD_STATS *rd_stats,
                     BLOCK_SIZE bsize, int64_t ref_best_rd, int fast) {
   MACROBLOCKD *const xd = &x->e_mbd;
+  MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
   int is_cost_valid = 1;
   int64_t this_rd = 0;
 
@@ -4437,7 +4442,8 @@ int inter_block_yrd(const AV1_COMP *cpi, MACROBLOCK *x, RD_STATS *rd_stats,
     const BLOCK_SIZE plane_bsize = get_plane_block_size(bsize, pd);
     const int mi_width = block_size_wide[plane_bsize] >> tx_size_wide_log2[0];
     const int mi_height = block_size_high[plane_bsize] >> tx_size_high_log2[0];
-    const TX_SIZE max_tx_size = max_txsize_rect_lookup[plane_bsize];
+    const TX_SIZE max_tx_size = get_vartx_max_txsize(
+        mbmi, plane_bsize, pd->subsampling_x || pd->subsampling_y);
     const int bh = tx_size_high_unit[max_tx_size];
     const int bw = tx_size_wide_unit[max_tx_size];
     const int init_depth = get_search_init_depth(mi_width, mi_height, &cpi->sf);
@@ -4448,7 +4454,6 @@ int inter_block_yrd(const AV1_COMP *cpi, MACROBLOCK *x, RD_STATS *rd_stats,
     ENTROPY_CONTEXT ctxl[2 * MAX_MIB_SIZE];
     TXFM_CONTEXT tx_above[MAX_MIB_SIZE * 2];
     TXFM_CONTEXT tx_left[MAX_MIB_SIZE * 2];
-
     RD_STATS pn_rd_stats;
 
     av1_get_entropy_contexts(bsize, 0, pd, ctxa, ctxl);
@@ -4966,7 +4971,11 @@ static void tx_block_rd(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
       plane ? uv_txsize_lookup[bsize][mbmi->inter_tx_size[tx_row][tx_col]][0][0]
             : mbmi->inter_tx_size[tx_row][tx_col];
 
-  if (tx_size == plane_tx_size) {
+  if (tx_size == plane_tx_size
+#if DISABLE_VARTX_FOR_CHROMA
+      || pd->subsampling_x || pd->subsampling_y
+#endif  // DISABLE_VARTX_FOR_CHROMA
+      ) {
     ENTROPY_CONTEXT *ta = above_ctx + blk_col;
     ENTROPY_CONTEXT *tl = left_ctx + blk_row;
     av1_tx_block_rd_b(cpi, x, tx_size, blk_row, blk_col, plane, block,
@@ -5029,8 +5038,8 @@ int inter_block_uvrd(const AV1_COMP *cpi, MACROBLOCK *x, RD_STATS *rd_stats,
       const int mi_width = block_size_wide[plane_bsize] >> tx_size_wide_log2[0];
       const int mi_height =
           block_size_high[plane_bsize] >> tx_size_high_log2[0];
-      const TX_SIZE max_tx_size =
-          get_max_rect_tx_size(plane_bsize, is_inter_block(mbmi));
+      const TX_SIZE max_tx_size = get_vartx_max_txsize(
+          mbmi, plane_bsize, pd->subsampling_x || pd->subsampling_y);
       const int bh = tx_size_high_unit[max_tx_size];
       const int bw = tx_size_wide_unit[max_tx_size];
       int idx, idy;
