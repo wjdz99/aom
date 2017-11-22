@@ -336,7 +336,6 @@ void av1_write_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
   uint8_t levels_buf[TX_PAD_2D];
   uint8_t *const levels = set_levels(levels_buf, width);
-  DECLARE_ALIGNED(16, uint8_t, level_counts[MAX_TX_SQUARE]);
 
   (void)blk_row;
   (void)blk_col;
@@ -432,6 +431,7 @@ void av1_write_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
   }
   update_eob = eob - 1;
 #else
+  DECLARE_ALIGNED(16, uint8_t, level_counts[MAX_TX_SQUARE]);
   for (int i = 1; i < eob; ++i) {
     c = eob - 1 - i;
     int coeff_ctx = get_nz_map_ctx(levels, c, scan, bwl, height, tx_type);
@@ -487,7 +487,6 @@ void av1_write_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
   }
 
   if (update_eob >= 0) {
-    av1_get_br_level_counts(levels, width, height, level_counts);
     for (c = update_eob; c >= 0; --c) {
       const tran_low_t level = abs(tcoeff[scan[c]]);
       int idx;
@@ -496,7 +495,7 @@ void av1_write_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
       if (level <= NUM_BASE_LEVELS) continue;
 
       // level is above 1.
-      ctx = get_br_ctx(levels, scan[c], bwl, level_counts[scan[c]]);
+      ctx = get_br_ctx(levels, scan[c], bwl);
 
       int base_range = level - 1 - NUM_BASE_LEVELS;
 #if CONFIG_LV_MAP_MULTI
@@ -665,7 +664,6 @@ int av1_cost_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCK *x, int plane,
   const int16_t *scan = scan_order->scan;
   uint8_t levels_buf[TX_PAD_2D];
   uint8_t *const levels = set_levels(levels_buf, width);
-  DECLARE_ALIGNED(16, uint8_t, level_counts[MAX_TX_SQUARE]);
 
   LV_MAP_COEFF_COST *coeff_costs = &x->coeff_costs[txs_ctx][plane_type];
 
@@ -686,7 +684,6 @@ int av1_cost_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCK *x, int plane,
   const int seg_eob = tx_size_2d[tx_size];
   int eob_cost = get_eob_cost(eob, seg_eob, coeff_costs, tx_type);
 
-  av1_get_br_level_counts(levels, width, height, level_counts);
   cost += eob_cost;
 #if USE_CAUSAL_BASE_CTX
   int coeff_ctx = 0;
@@ -762,7 +759,7 @@ int av1_cost_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCK *x, int plane,
 #endif  // CONFIG_LV_MAP_MULTI
       if (level > NUM_BASE_LEVELS) {
         int ctx;
-        ctx = get_br_ctx(levels, scan[c], bwl, level_counts[scan[c]]);
+        ctx = get_br_ctx(levels, scan[c], bwl);
         int base_range = level - 1 - NUM_BASE_LEVELS;
         if (base_range < COEFF_BASE_RANGE) {
           cost += coeff_costs->lps_cost[ctx][base_range];
@@ -1605,13 +1602,8 @@ static int get_coeff_cost(const tran_low_t qc, const int scan_idx,
 #endif
 #endif
     if (abs_qc > NUM_BASE_LEVELS) {
-      const int row = scan[scan_idx] >> txb_info->bwl;
-      const int col = scan[scan_idx] - (row << txb_info->bwl);
-      const int count = get_level_count(
-          txb_info->levels, (1 << txb_info->bwl) + TX_PAD_HOR, row, col,
-          NUM_BASE_LEVELS, br_ref_offset, BR_CONTEXT_POSITION_NUM);
       const int ctx =
-          get_br_ctx(txb_info->levels, scan[scan_idx], txb_info->bwl, count);
+          get_br_ctx(txb_info->levels, scan[scan_idx], txb_info->bwl);
       cost += get_br_cost(abs_qc, ctx, txb_costs->lps_cost[ctx]);
       cost += get_golomb_cost(abs_qc);
     }
@@ -2197,7 +2189,6 @@ void av1_update_and_record_txb_context(int plane, int block, int blk_row,
   const int height = tx_size_high[tx_size];
   uint8_t levels_buf[TX_PAD_2D];
   uint8_t *const levels = set_levels(levels_buf, width);
-  DECLARE_ALIGNED(16, uint8_t, level_counts[MAX_TX_SQUARE]);
   const uint8_t allow_update_cdf = args->allow_update_cdf;
 
   TX_SIZE txsize_ctx = get_txsize_context(tx_size);
@@ -2293,6 +2284,7 @@ void av1_update_and_record_txb_context(int plane, int block, int blk_row,
   }
 
 #if !USE_CAUSAL_BASE_CTX
+  DECLARE_ALIGNED(16, uint8_t, level_counts[MAX_TX_SQUARE]);
   // Reverse process order to handle coefficient level and sign.
   for (int i = 0; i < NUM_BASE_LEVELS; ++i) {
     av1_get_base_level_counts(levels, i, width, height, level_counts);
@@ -2334,7 +2326,6 @@ void av1_update_and_record_txb_context(int plane, int block, int blk_row,
   }
 
   if (update_eob >= 0) {
-    av1_get_br_level_counts(levels, width, height, level_counts);
     for (c = update_eob; c >= 0; --c) {
       const tran_low_t level = abs(tcoeff[scan[c]]);
       int idx;
@@ -2343,7 +2334,7 @@ void av1_update_and_record_txb_context(int plane, int block, int blk_row,
       if (level <= NUM_BASE_LEVELS) continue;
 
       // level is above 1.
-      ctx = get_br_ctx(levels, scan[c], bwl, level_counts[scan[c]]);
+      ctx = get_br_ctx(levels, scan[c], bwl);
 
       int base_range = level - 1 - NUM_BASE_LEVELS;
 #if CONFIG_LV_MAP_MULTI

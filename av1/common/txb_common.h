@@ -283,7 +283,7 @@ static INLINE int get_br_ctx_from_count_mag(int row, int col, int count,
 
 static INLINE int get_br_ctx(const uint8_t *const levels,
                              const int c,  // raster order
-                             const int bwl, const int count) {
+                             const int bwl) {
   const int row = c >> bwl;
   const int col = c - (row << bwl);
   const int stride = (1 << bwl) + TX_PAD_HOR;
@@ -291,6 +291,8 @@ static INLINE int get_br_ctx(const uint8_t *const levels,
   int nb_mag[3] = { 0 };
   get_level_mag(levels, stride, row, col, nb_mag);
   for (int idx = 0; idx < 3; ++idx) mag = AOMMAX(mag, nb_mag[idx]);
+  const int count = get_level_count(levels, stride, row, col, NUM_BASE_LEVELS,
+                                    br_ref_offset, BR_CONTEXT_POSITION_NUM);
   const int ctx = get_br_ctx_from_count_mag(row, col, count, mag);
   return ctx;
 }

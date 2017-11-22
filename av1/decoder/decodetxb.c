@@ -81,7 +81,6 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
   int cul_level = 0;
   uint8_t levels_buf[TX_PAD_2D];
   uint8_t *const levels = set_levels(levels_buf, width);
-  DECLARE_ALIGNED(16, uint8_t, level_counts[MAX_TX_SQUARE]);
   int8_t signs[MAX_TX_SQUARE];
 
   const int all_zero = av1_read_record_bin(
@@ -249,6 +248,7 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
   }
 
 #if !USE_CAUSAL_BASE_CTX
+  DECLARE_ALIGNED(16, uint8_t, level_counts[MAX_TX_SQUARE]);
   int i;
   for (i = 0; i < NUM_BASE_LEVELS; ++i) {
     av1_get_base_level_counts(levels, i, width, height, level_counts);
@@ -303,7 +303,6 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
   }
 
   if (update_eob >= 0) {
-    av1_get_br_level_counts(levels, width, height, level_counts);
     for (c = update_eob; c >= 0; --c) {
       const int pos = scan[c];
       uint8_t *const level = &levels[get_paded_idx(pos, bwl)];
@@ -312,7 +311,7 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
 
       if (*level <= NUM_BASE_LEVELS) continue;
 
-      ctx = get_br_ctx(levels, pos, bwl, level_counts[pos]);
+      ctx = get_br_ctx(levels, pos, bwl);
 
 #if CONFIG_LV_MAP_MULTI
       for (idx = 0; idx < COEFF_BASE_RANGE / (BR_CDF_SIZE - 1); ++idx) {
