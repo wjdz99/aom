@@ -500,6 +500,24 @@ void av1_write_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
 
       int base_range = level - 1 - NUM_BASE_LEVELS;
 #if CONFIG_LV_MAP_MULTI
+#if USE_BR_GROUP
+      (void)idx;
+      int br_grp_idx = base_range / BR_GROUP_SIZE;
+      br_grp_idx = AOMMIN(br_grp_idx, BR_NUM_OF_GROUP - 1);
+      aom_write_symbol(w, br_grp_idx,
+                       ec_ctx->coeff_br_grp_cdf[txs_ctx][plane_type][ctx],
+                       BR_NUM_OF_GROUP);
+      if (br_grp_idx < BR_NUM_OF_GROUP - 1) {
+        int br_extra = base_range - br_grp_idx * BR_GROUP_SIZE;
+        aom_write_symbol(w, br_extra,
+                         ec_ctx->coeff_br_extra_cdf[txs_ctx][plane_type][ctx],
+                         BR_GROUP_SIZE);
+        // printf("ENC %d: %d(%d,%d)\n", c, level, br_grp_idx, br_extra);
+        continue;
+      } else {
+        // printf("ENC %d: %d(%d,%d)\n", c, level, br_grp_idx, 0);
+      }
+#else
       for (idx = 0; idx < COEFF_BASE_RANGE; idx += BR_CDF_SIZE - 1) {
         int k = AOMMIN(base_range - idx, BR_CDF_SIZE - 1);
         aom_write_symbol(w, k, ec_ctx->coeff_br_cdf[txs_ctx][plane_type][ctx],
@@ -507,6 +525,7 @@ void av1_write_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
         if (k < BR_CDF_SIZE - 1) break;
       }
       if (base_range < COEFF_BASE_RANGE) continue;
+#endif
 #else
       int br_set_idx = 0;
       int br_base = 0;
@@ -2347,6 +2366,25 @@ void av1_update_and_record_txb_context(int plane, int block, int blk_row,
 
       int base_range = level - 1 - NUM_BASE_LEVELS;
 #if CONFIG_LV_MAP_MULTI
+#if USE_BR_GROUP
+      (void)idx;
+      int br_grp_idx = base_range / BR_GROUP_SIZE;
+      br_grp_idx = AOMMIN(br_grp_idx, BR_NUM_OF_GROUP - 1);
+
+      if (allow_update_cdf)
+        update_cdf(ec_ctx->coeff_br_grp_cdf[txsize_ctx][plane_type][ctx],
+                   br_grp_idx, BR_NUM_OF_GROUP);
+      if (br_grp_idx < BR_NUM_OF_GROUP - 1) {
+        int br_extra = base_range - br_grp_idx * BR_GROUP_SIZE;
+        if (allow_update_cdf)
+          update_cdf(ec_ctx->coeff_br_extra_cdf[txsize_ctx][plane_type][ctx],
+                     br_extra, BR_GROUP_SIZE);
+        // printf("UPD %d: %d(%d, %d)\n", c, level, br_grp_idx, br_extra);
+      }
+// else {
+// printf("UPD %d: %d(%d, %d)\n", c, level, br_grp_idx, 0);
+// }
+#else
       for (idx = 0; idx < COEFF_BASE_RANGE; idx += BR_CDF_SIZE - 1) {
         int k = AOMMIN(base_range - idx, BR_CDF_SIZE - 1);
         // printf("br_update: %d %d %2d : %2d %d\n", txsize_ctx, plane, ctx,
@@ -2355,6 +2393,7 @@ void av1_update_and_record_txb_context(int plane, int block, int blk_row,
                    BR_CDF_SIZE);
         if (k < BR_CDF_SIZE - 1) break;
       }
+#endif
 #else
       int br_set_idx = base_range < COEFF_BASE_RANGE
                            ? coeff_to_br_index[base_range]

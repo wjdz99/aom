@@ -500,6 +500,23 @@ void av1_fill_coeff_costs(MACROBLOCK *x, FRAME_CONTEXT *fc) {
 
       for (int ctx = 0; ctx < LEVEL_CONTEXTS; ++ctx) {
 #if CONFIG_LV_MAP_MULTI
+#if USE_BR_GROUP
+        int br_grp_rate[BR_NUM_OF_GROUP];
+        int br_extra_rate[BR_GROUP_SIZE];
+        av1_cost_tokens_from_cdf(
+            br_grp_rate, fc->coeff_br_grp_cdf[tx_size][plane][ctx], NULL);
+        av1_cost_tokens_from_cdf(
+            br_extra_rate, fc->coeff_br_extra_cdf[tx_size][plane][ctx], NULL);
+        int br_grp_idx, br_extra;
+        for (br_grp_idx = 0; br_grp_idx < BR_NUM_OF_GROUP - 1; br_grp_idx++) {
+          for (br_extra = 0; br_extra < BR_GROUP_SIZE; br_extra++) {
+            pcost->lps_cost[ctx][br_grp_idx * BR_GROUP_SIZE + br_extra] =
+                br_grp_rate[br_grp_idx] + br_extra_rate[br_extra];
+          }
+        }
+        pcost->lps_cost[ctx][COEFF_BASE_RANGE] =
+            br_grp_rate[BR_NUM_OF_GROUP - 1];
+#else
         int br_rate[BR_CDF_SIZE];
         int prev_cost = 0;
         int i, j;
@@ -520,6 +537,7 @@ void av1_fill_coeff_costs(MACROBLOCK *x, FRAME_CONTEXT *fc) {
 // for (i = 0; i <= COEFF_BASE_RANGE; i++)
 //  printf("%5d ", pcost->lps_cost[ctx][i]);
 // printf("\n");
+#endif
 #else
         int lps_rate[2];
         av1_cost_tokens_from_cdf(lps_rate,

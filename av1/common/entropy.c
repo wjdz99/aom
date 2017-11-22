@@ -1627,11 +1627,17 @@ void av1_average_tile_coef_cdfs(FRAME_CONTEXT *fc, FRAME_CONTEXT *ec_ctxs[],
 #if USE_BASE_EOB_ALPHABET
   AVERAGE_TILE_CDFS(coeff_base_eob_cdf)
 #endif
+#if USE_BR_GROUP
+  AVERAGE_TILE_CDFS(coeff_br_grp_cdf)
+  AVERAGE_TILE_CDFS(coeff_br_extra_cdf)
+#else
+  AVERAGE_TILE_CDFS(coeff_br_cdf)
+#endif
 #endif
 #if !CONFIG_LV_MAP_MULTI
   AVERAGE_TILE_CDFS(coeff_lps_cdf)
-#endif
   AVERAGE_TILE_CDFS(coeff_br_cdf)
+#endif
 #if CONFIG_CTX1D
   AVERAGE_TILE_CDFS(eob_mode_cdf)
   AVERAGE_TILE_CDFS(empty_line_cdf)
