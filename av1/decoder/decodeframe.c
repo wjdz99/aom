@@ -257,7 +257,11 @@ static void decode_reconstruct_tx(AV1_COMMON *cm, MACROBLOCKD *const xd,
 
   if (blk_row >= max_blocks_high || blk_col >= max_blocks_wide) return;
 
-  if (tx_size == plane_tx_size) {
+  if (tx_size == plane_tx_size
+#if DISABLE_VARTX_FOR_CHROMA
+      || pd->subsampling_x || pd->subsampling_y
+#endif  // DISABLE_VARTX_FOR_CHROMA
+      ) {
     PLANE_TYPE plane_type = get_plane_type(plane);
 #if TXCOEFF_TIMER
     struct aom_usec_timer timer;
@@ -270,14 +274,14 @@ static void decode_reconstruct_tx(AV1_COMMON *cm, MACROBLOCKD *const xd,
                                pd->dqcoeff, tx_size, &max_scan_line, &eob);
     // tx_type will be read out in av1_read_coeffs_txb_facade
     const TX_TYPE tx_type =
-        av1_get_tx_type(plane_type, xd, blk_row, blk_col, block, plane_tx_size);
+        av1_get_tx_type(plane_type, xd, blk_row, blk_col, block, tx_size);
 #else   // CONFIG_LV_MAP
     const TX_TYPE tx_type =
-        av1_get_tx_type(plane_type, xd, blk_row, blk_col, block, plane_tx_size);
-    const SCAN_ORDER *sc = get_scan(cm, plane_tx_size, tx_type, mbmi);
+        av1_get_tx_type(plane_type, xd, blk_row, blk_col, block, tx_size);
+    const SCAN_ORDER *sc = get_scan(cm, tx_size, tx_type, mbmi);
     int16_t max_scan_line = 0;
     const int eob = av1_decode_block_tokens(
-        cm, xd, plane, sc, blk_col, blk_row, plane_tx_size, tx_type,
+        cm, xd, plane, sc, blk_col, blk_row, tx_size, tx_type,
         &max_scan_line, r, mbmi->segment_id);
 #endif  // CONFIG_LV_MAP
 
@@ -288,7 +292,7 @@ static void decode_reconstruct_tx(AV1_COMMON *cm, MACROBLOCKD *const xd,
     ++cm->txb_count;
 #endif
 
-    inverse_transform_block(xd, plane, tx_type, plane_tx_size,
+    inverse_transform_block(xd, plane, tx_type, tx_size,
                             &pd->dst.buf[(blk_row * pd->dst.stride + blk_col)
                                          << tx_size_wide_log2[0]],
                             pd->dst.stride, max_scan_line, eob);
