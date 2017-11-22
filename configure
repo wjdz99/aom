@@ -525,6 +525,7 @@ post_process_cmdline() {
       soft_enable segment_globalmv
       soft_enable short_filter
       soft_enable tx64x64
+      soft_enable amvr
     fi
 
     # Enable low-bitdepth pixel pipeline by default
