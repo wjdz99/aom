@@ -22,6 +22,30 @@
       "revId": "7c30b39aa35e349f318450ea84b6ccdc78dc1fbc",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a49f007c_06bb5929",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1020,
+      "author": {
+        "id": 7984
+      },
+      "writtenOn": "2017-11-22T17:02:36Z",
+      "side": 1,
+      "message": "The idea we are thinking of is to have conformance tests that check decoders correctly handle bitstreams that make illegal intrabc requests (so out of current tile, or to non available area). We would like defined behavior in these cases. If we set the xd-\u003ecorrupted flag will this still enable the output to be tested for conformance purposes? (The concern was that a \"corrupt\" stream could not be conformance checked).\n\nI have also had review comments from Ola that as currently defined the patch introduces a parsing dependency of needing to know if the dv\u0027s are valid or not. I plan to redo the patch to fix this.",
+      "parentUuid": "47c2346f_294f3543",
+      "range": {
+        "startLine": 1020,
+        "startChar": 6,
+        "endLine": 1020,
+        "endChar": 10
+      },
+      "revId": "7c30b39aa35e349f318450ea84b6ccdc78dc1fbc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
