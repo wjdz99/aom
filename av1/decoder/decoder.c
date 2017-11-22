@@ -389,6 +389,13 @@ int av1_receive_compressed_data(AV1Decoder *pbi, size_t size,
 
   aom_clear_system_state();
 
+#if CONFIG_SEGMENT_PRED_LAST
+//  cm->current_frame_seg_map = cm->cur_frame->seg_map;
+  if (cm->seg.temporal_update) {
+	  cm->last_frame_seg_map = cm->prev_frame->seg_map;
+  }
+#endif
+
   if (!cm->show_existing_frame) {
     cm->last_show_frame = cm->show_frame;
 
