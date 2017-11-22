@@ -233,7 +233,7 @@ void ScaleForFrameNumber(unsigned int frame, unsigned int initial_w,
   if (flag_codec == 1) {
     // Cases that only works for AV1.
     // For AV1: Swap width and height of original.
-    if (frame < 320) {
+    if (frame < 280) {
       *w = initial_h;
       *h = initial_w;
       return;
@@ -247,7 +247,7 @@ class ResizingVideoSource : public ::libaom_test::DummyVideoSource {
  public:
   ResizingVideoSource() {
     SetSize(kInitialWidth, kInitialHeight);
-    limit_ = 350;
+    limit_ = 300;
   }
   int flag_codec_;
   virtual ~ResizingVideoSource() {}
