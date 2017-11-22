@@ -1427,6 +1427,7 @@ static void resize_context_buffers(AV1_COMMON *cm, int width, int height) {
   }
 
   ensure_mv_buffer(cm->cur_frame, cm);
+  ensure_segmap_buffer(cm->cur_frame, cm);
 #if CONFIG_SEGMENT_PRED_LAST
   if (cm->cur_frame->seg_map == NULL || cm->mi_rows > cm->cur_frame->mi_rows ||
       cm->mi_cols > cm->cur_frame->mi_cols) {
@@ -3526,8 +3527,6 @@ size_t av1_decode_frame_headers_and_setup(AV1Decoder *pbi, const uint8_t *data,
 
 #if CONFIG_SEGMENT_PRED_LAST
   cm->current_frame_seg_map = cm->cur_frame->seg_map;
-  if (cm->current_frame_seg_map)
-    memset(cm->current_frame_seg_map, 0, (cm->mi_rows * cm->mi_cols));
   if (cm->seg.temporal_update) {
     cm->last_frame_seg_map = cm->prev_frame->seg_map;
   }

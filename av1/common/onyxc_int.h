@@ -699,6 +699,18 @@ static INLINE void ensure_mv_buffer(RefCntBuffer *buf, AV1_COMMON *cm) {
 #endif
 }
 
+static INLINE void ensure_segmap_buffer(RefCntBuffer *buf, AV1_COMMON *cm) {
+	if (buf->seg_map == NULL || buf->mi_rows < cm->mi_rows ||
+		buf->mi_cols < cm->mi_cols) {
+		aom_free(buf->seg_map);
+		buf->mi_rows = cm->mi_rows;
+		buf->mi_cols = cm->mi_cols;
+		CHECK_MEM_ERROR(
+			cm, buf->seg_map,
+			(uint8_t *)aom_calloc(cm->mi_rows * cm->mi_cols, sizeof(*buf->seg_map)));
+	}
+}
+
 static INLINE int mi_cols_aligned_to_sb(const AV1_COMMON *cm) {
   return ALIGN_POWER_OF_TWO(cm->mi_cols, cm->mib_size_log2);
 }
