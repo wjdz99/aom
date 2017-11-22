@@ -1499,6 +1499,11 @@ static void motion_field_fwd_projection(AV1_COMMON *cm, int ref_stamp) {
   int bwd_buf_idx = cm->frame_refs[FWD_RF_OFFSET(BWDREF_FRAME)].idx;
   int alt2_buf_idx = cm->frame_refs[FWD_RF_OFFSET(ALTREF2_FRAME)].idx;
 
+  if (cm->buffer_pool->frame_bufs[lst_buf_idx].intra_only) return;
+  int ref_mi_rows = cm->buffer_pool->frame_bufs[lst_buf_idx].mi_rows;
+  int ref_mi_cols = cm->buffer_pool->frame_bufs[lst_buf_idx].mi_cols;
+  if (ref_mi_rows != cm->mi_rows || ref_mi_cols != cm->mi_cols) return;
+
   if (alt_buf_idx >= 0)
     alt_frame_index = cm->buffer_pool->frame_bufs[alt_buf_idx].cur_frame_offset;
 
@@ -1667,6 +1672,10 @@ static void motion_field_bwd_projection(AV1_COMMON *cm,
   int ref_frame_idx = cm->frame_refs[FWD_RF_OFFSET(ref_frame)].idx;
 
   if (ref_frame_idx < 0) return;
+  if (cm->buffer_pool->frame_bufs[ref_frame_idx].intra_only) return;
+  int ref_mi_rows = cm->buffer_pool->frame_bufs[ref_frame_idx].mi_rows;
+  int ref_mi_cols = cm->buffer_pool->frame_bufs[ref_frame_idx].mi_cols;
+  if (ref_mi_rows != cm->mi_rows || ref_mi_cols != cm->mi_cols) return;
 
   int ref_frame_index =
       cm->buffer_pool->frame_bufs[ref_frame_idx].cur_frame_offset;
@@ -1801,8 +1810,7 @@ static void motion_field_bwd_projection(AV1_COMMON *cm,
 
 void av1_setup_motion_field(AV1_COMMON *cm) {
   int cur_frame_index = cm->cur_frame->cur_frame_offset;
-  int lst_frame_index = 0, alt_frame_index = 0, gld_frame_index = 0;
-  int lst2_frame_index = 0, lst3_frame_index = 0;
+  int alt_frame_index = 0;
   int bwd_frame_index = 0, alt2_frame_index = 0;
   TPL_MV_REF *tpl_mvs_base = cm->tpl_mvs;
 
@@ -1816,28 +1824,11 @@ void av1_setup_motion_field(AV1_COMMON *cm) {
 
   int alt_buf_idx = cm->frame_refs[ALTREF_FRAME - LAST_FRAME].idx;
   int lst_buf_idx = cm->frame_refs[LAST_FRAME - LAST_FRAME].idx;
-  int gld_buf_idx = cm->frame_refs[GOLDEN_FRAME - LAST_FRAME].idx;
-  int lst2_buf_idx = cm->frame_refs[LAST2_FRAME - LAST_FRAME].idx;
-  int lst3_buf_idx = cm->frame_refs[LAST3_FRAME - LAST_FRAME].idx;
   int bwd_buf_idx = cm->frame_refs[BWDREF_FRAME - LAST_FRAME].idx;
   int alt2_buf_idx = cm->frame_refs[ALTREF2_FRAME - LAST_FRAME].idx;
 
   if (alt_buf_idx >= 0)
     alt_frame_index = cm->buffer_pool->frame_bufs[alt_buf_idx].cur_frame_offset;
-
-  if (lst_buf_idx >= 0)
-    lst_frame_index = cm->buffer_pool->frame_bufs[lst_buf_idx].cur_frame_offset;
-
-  if (gld_buf_idx >= 0)
-    gld_frame_index = cm->buffer_pool->frame_bufs[gld_buf_idx].cur_frame_offset;
-
-  if (lst2_buf_idx >= 0)
-    lst2_frame_index =
-        cm->buffer_pool->frame_bufs[lst2_buf_idx].cur_frame_offset;
-
-  if (lst3_buf_idx >= 0)
-    lst3_frame_index =
-        cm->buffer_pool->frame_bufs[lst3_buf_idx].cur_frame_offset;
 
   if (bwd_buf_idx >= 0)
     bwd_frame_index = cm->buffer_pool->frame_bufs[bwd_buf_idx].cur_frame_offset;
