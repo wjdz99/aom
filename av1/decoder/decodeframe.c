@@ -3537,7 +3537,9 @@ size_t av1_decode_frame_headers_and_setup(AV1Decoder *pbi, const uint8_t *data,
 #endif
 
 #if CONFIG_MFMV
-  av1_setup_motion_field(cm);
+  if (cm->use_ref_frame_mvs) {
+    av1_setup_motion_field(cm);
+  }
 #endif  // CONFIG_MFMV
 
   av1_setup_block_planes(xd, cm->subsampling_x, cm->subsampling_y);

@@ -1499,6 +1499,11 @@ static void motion_field_fwd_projection(AV1_COMMON *cm, int ref_stamp) {
   int bwd_buf_idx = cm->frame_refs[FWD_RF_OFFSET(BWDREF_FRAME)].idx;
   int alt2_buf_idx = cm->frame_refs[FWD_RF_OFFSET(ALTREF2_FRAME)].idx;
 
+  if (cm->buffer_pool->frame_bufs[lst_buf_idx].intra_only) return;
+  int ref_mi_rows = cm->buffer_pool->frame_bufs[lst_buf_idx].mi_rows;
+  int ref_mi_cols = cm->buffer_pool->frame_bufs[lst_buf_idx].mi_cols;
+  if (ref_mi_rows != cm->mi_rows || ref_mi_cols != cm->mi_cols) return;
+
   if (alt_buf_idx >= 0)
     alt_frame_index = cm->buffer_pool->frame_bufs[alt_buf_idx].cur_frame_offset;
 
@@ -1667,6 +1672,10 @@ static void motion_field_bwd_projection(AV1_COMMON *cm,
   int ref_frame_idx = cm->frame_refs[FWD_RF_OFFSET(ref_frame)].idx;
 
   if (ref_frame_idx < 0) return;
+  if (cm->buffer_pool->frame_bufs[ref_frame_idx].intra_only) return;
+  int ref_mi_rows = cm->buffer_pool->frame_bufs[ref_frame_idx].mi_rows;
+  int ref_mi_cols = cm->buffer_pool->frame_bufs[ref_frame_idx].mi_cols;
+  if (ref_mi_rows != cm->mi_rows || ref_mi_cols != cm->mi_cols) return;
 
   int ref_frame_index =
       cm->buffer_pool->frame_bufs[ref_frame_idx].cur_frame_offset;
