@@ -832,8 +832,21 @@ void av1_encode_sb(AV1_COMMON *cm, MACROBLOCK *x, BLOCK_SIZE bsize, int mi_row,
     const BLOCK_SIZE plane_bsize = get_plane_block_size(bsize, pd);
     const int mi_width = block_size_wide[plane_bsize] >> tx_size_wide_log2[0];
     const int mi_height = block_size_high[plane_bsize] >> tx_size_wide_log2[0];
-    const TX_SIZE max_tx_size = get_vartx_max_txsize(
+    TX_SIZE max_tx_size = get_vartx_max_txsize(
         xd, plane_bsize, pd->subsampling_x || pd->subsampling_y);
+
+#if DISABLE_VARTX_FOR_CHROMA == 2
+    // If the luma transform size is split at least one level, split the chroma
+    // by one level. Otherwise use the  largest possible trasnform size for
+    // chroma.
+    if (plane && (pd->subsampling_x || pd->subsampling_y)) {
+      const int is_split =
+          (get_vartx_max_txsize(xd, bsize, 0) != mbmi->inter_tx_size[0][0] &&
+           txsize_to_bsize[mbmi->inter_tx_size[0][0]] == bsize);
+      if (is_split) max_tx_size = sub_tx_size_map[max_tx_size];
+    }
+#endif  // DISABLE_VARTX_FOR_CHROMA == 2
+
     const BLOCK_SIZE txb_size = txsize_to_bsize[max_tx_size];
     const int bw = block_size_wide[txb_size] >> tx_size_wide_log2[0];
     const int bh = block_size_high[txb_size] >> tx_size_wide_log2[0];
