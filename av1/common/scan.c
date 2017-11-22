@@ -5505,9 +5505,17 @@ static void update_scan_count(int16_t *scan, int max_scan,
   }
 }
 
-void av1_update_scan_count_facade(AV1_COMMON *cm, FRAME_COUNTS *counts,
+void av1_update_scan_count_facade(AV1_COMMON *cm, const int mi_row,
+                                  const int mi_col, FRAME_COUNTS *counts,
                                   TX_SIZE tx_size, TX_TYPE tx_type,
                                   const tran_low_t *dqcoeffs, int max_scan) {
+  (void)mi_row;
+  (void)mi_col;
+
+#if SUB_FRAME_COUNT
+  if (((mi_row >> 5) << 5) + 32 >= cm->mi_rows) return;
+#endif
+
   if (cm->use_adapt_scan && do_adapt_scan(tx_size, tx_type) && max_scan) {
 #if SUB_REGION_COUNT
     if (counts->txb_count[tx_size][tx_type] >= 256) return;
