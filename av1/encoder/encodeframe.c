@@ -1112,7 +1112,6 @@ static void update_stats(const AV1_COMMON *const cm, TileDataEnc *tile_data,
     const int inter_block = is_inter_block(mbmi);
 
     if (!seg_ref_active) {
-      counts->intra_inter[av1_get_intra_inter_context(xd)][inter_block]++;
       if (allow_update_cdf)
         update_cdf(fc->intra_inter_cdf[av1_get_intra_inter_context(xd)],
                    inter_block, 2);
