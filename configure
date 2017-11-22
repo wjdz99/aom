@@ -248,7 +248,6 @@ HAVE_LIST="
 EXPERIMENT_LIST="
     fp_mb_stats
     cdef_singlepass
-    rect_tx_ext
     tpl_mv
     short_filter
     dual_filter
