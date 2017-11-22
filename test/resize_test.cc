@@ -94,6 +94,7 @@ struct FrameInfo {
 void ScaleForFrameNumber(unsigned int frame, unsigned int initial_w,
                          unsigned int initial_h, unsigned int *w,
                          unsigned int *h, int flag_codec) {
+  printf("Soo_frame: %d\n", frame);
   if (frame < 10) {
     *w = initial_w;
     *h = initial_h;
@@ -484,7 +485,7 @@ class ResizeRealtimeTest
     // Enable dropped frames.
     cfg_.rc_dropframe_thresh = 1;
     // Enable error_resilience mode.
-    cfg_.g_error_resilient = 1;
+    cfg_.g_error_resilient = 0;
     // Run at low bitrate.
     cfg_.rc_target_bitrate = 200;
   }
