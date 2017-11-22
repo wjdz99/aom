@@ -72,6 +72,15 @@ if (aom_config("CONFIG_HIGHBITDEPTH") eq "yes") {
 if (aom_config("CONFIG_LV_MAP") eq "yes") {
   add_proto qw/void av1_get_br_level_counts/, "const uint8_t *const levels, const int width, const int height, uint8_t *const level_counts";
   specialize qw/av1_get_br_level_counts sse2/;
+
+  if (aom_config("CONFIG_AV1_DECODER") eq "yes") {
+    add_proto qw/void av1_dequant_txb/, "const uint8_t *const levels, const int8_t *const signs, const int16_t *const dequant, const int16_t *const scan, const int bwl, const int height, const int eob, const int shift, tran_low_t *const tcoeffs";
+    if (aom_config("CONFIG_HIGHBITDEPTH") ne "yes") {
+      specialize qw/av1_dequant_txb sse2/;
+    } else {
+      specialize qw/av1_dequant_txb sse4_1/;
+    }
+  }
 }
 
 #

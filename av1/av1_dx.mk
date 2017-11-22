@@ -44,4 +44,13 @@ AV1_DX_SRCS-yes += decoder/inspection.c
 AV1_DX_SRCS-yes += decoder/inspection.h
 endif
 
+ifeq ($(CONFIG_LV_MAP),yes)
+AV1_COMMON_SRCS-$(HAVE_SSE2) += decoder/x86/decodetxb_sse2.h
+ifneq ($(CONFIG_HIGHBITDEPTH),yes)
+AV1_COMMON_SRCS-$(HAVE_SSE2) += decoder/x86/decodetxb_sse2.c
+else
+AV1_COMMON_SRCS-$(HAVE_SSE4_1) += decoder/x86/highbd_decodetxb_sse4.c
+endif
+endif
+
 AV1_DX_SRCS-yes := $(filter-out $(AV1_DX_SRCS_REMOVE-yes),$(AV1_DX_SRCS-yes))

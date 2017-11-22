@@ -54,12 +54,10 @@ static INLINE int rec_eob_pos(int16_t eob_token, int16_t extra) {
   return eob;
 }
 
-static void av1_dequant_txb(const uint8_t *const levels,
-                            const int8_t *const signs,
-                            const int16_t *const dequant,
-                            const int16_t *const scan, const int bwl,
-                            const int height, const int eob, const int shift,
-                            tran_low_t *const tcoeffs) {
+void av1_dequant_txb_c(const uint8_t *const levels, const int8_t *const signs,
+                       const int16_t *const dequant, const int16_t *const scan,
+                       const int bwl, const int height, const int eob,
+                       const int shift, tran_low_t *const tcoeffs) {
   const int16_t dqv = dequant[1];
   const tran_low_t t0 =
       ((levels[get_paded_idx(0, bwl)] + tcoeffs[0]) * dequant[0]) >> shift;
@@ -103,7 +101,7 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
   uint8_t levels_buf[TX_PAD_2D];
   uint8_t *const levels = set_levels(levels_buf, width);
   DECLARE_ALIGNED(16, uint8_t, level_counts[MAX_TX_SQUARE]);
-  int8_t signs[MAX_TX_SQUARE];
+  DECLARE_ALIGNED(16, int8_t, signs[MAX_TX_SQUARE]);
 
   const int all_zero = av1_read_record_bin(
       counts, r, ec_ctx->txb_skip_cdf[txs_ctx][txb_ctx->txb_skip_ctx], 2,
@@ -123,6 +121,11 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
   memset(levels_buf, 0,
          sizeof(*levels_buf) *
              ((width + TX_PAD_HOR) * (height + TX_PAD_VER) + TX_PAD_END));
+
+  // TODO(linfengz): The only purpose of the initialization of signs[] is to
+  // avoid uninitialized memory access warnings/errors. Find a better place to
+  // initialize only once.
+  // memset(signs, 0, sizeof(*signs) * width * height);
 
   (void)blk_row;
   (void)blk_col;

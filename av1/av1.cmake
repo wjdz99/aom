@@ -393,6 +393,20 @@ if (CONFIG_LV_MAP)
       "${AOM_ROOT}/av1/decoder/decodetxb.c"
       "${AOM_ROOT}/av1/decoder/decodetxb.h")
 
+  set(AOM_AV1_DECODER_INTRIN_SSE2
+      ${AOM_AV1_DECODER_INTRIN_SSE2}
+      "${AOM_ROOT}/av1/decoder/x86/decodetxb_sse2.h")
+
+  if (CONFIG_HIGHBITDEPTH)
+    set(AOM_AV1_DECODER_INTRIN_SSE4_1
+        ${AOM_AV1_DECODER_INTRIN_SSE4_1}
+        "${AOM_ROOT}/av1/decoder/x86/highbd_decodetxb_sse4.c")
+  else ()
+    set(AOM_AV1_DECODER_INTRIN_SSE2
+        ${AOM_AV1_DECODER_INTRIN_SSE2}
+        "${AOM_ROOT}/av1/decoder/x86/decodetxb_sse2.c")
+  endif ()
+
   set(AOM_AV1_ENCODER_SOURCES
       ${AOM_AV1_ENCODER_SOURCES}
       "${AOM_ROOT}/av1/encoder/encodetxb.c"
@@ -547,6 +561,13 @@ function (setup_av1_targets)
     require_compiler_flag_nomsvc("-msse4.1" NO)
     add_intrinsics_object_library("-msse4.1" "sse4" "aom_av1_common"
                                   "AOM_AV1_COMMON_INTRIN_SSE4_1" "aom")
+
+    if (CONFIG_AV1_DECODER)
+      if (AOM_AV1_DECODER_INTRIN_SSE4_1)
+        add_intrinsics_object_library("-msse4.1" "sse4" "aom_av1_decoder"
+                                      "AOM_AV1_DECODER_INTRIN_SSE4_1" "aom")
+      endif ()
+    endif ()
 
     if (CONFIG_AV1_ENCODER)
       if ("${AOM_TARGET_CPU}" STREQUAL "x86_64")

@@ -217,6 +217,7 @@ DSP_SRCS-yes            += x86/txfm_common_intrin.h
 DSP_SRCS-$(HAVE_AVX2)   += x86/common_avx2.h
 DSP_SRCS-$(HAVE_SSE2)   += x86/mem_sse2.h
 DSP_SRCS-$(HAVE_SSE2)   += x86/txfm_common_sse2.h
+DSP_SRCS-$(HAVE_SSE4_1) += x86/mem_sse4.h
 DSP_SRCS-$(HAVE_SSSE3)  += x86/obmc_intrinsic_ssse3.h
 DSP_SRCS-$(HAVE_MSA)    += mips/txfm_macros_msa.h
 
