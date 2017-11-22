@@ -250,7 +250,11 @@ static void read_drl_idx(FRAME_CONTEXT *ec_ctx, MACROBLOCKD *xd,
 }
 
 static MOTION_MODE read_motion_mode(AV1_COMMON *cm, MACROBLOCKD *xd,
-                                    MODE_INFO *mi, aom_reader *r) {
+                                    MODE_INFO *mi, aom_reader *r
+#if CONFIG_EXT_WARPED_MOTION
+                                    , int best
+#endif  // CONFIG_EXT_WARPED_MOTION
+                                    ) {
   MB_MODE_INFO *mbmi = &mi->mbmi;
   (void)cm;
 
@@ -271,10 +275,26 @@ static MOTION_MODE read_motion_mode(AV1_COMMON *cm, MACROBLOCKD *xd,
     if (counts) ++counts->obmc[mbmi->sb_type][motion_mode];
     return (MOTION_MODE)(SIMPLE_TRANSLATION + motion_mode);
   } else {
+#if CONFIG_EXT_WARPED_MOTION
+
+    int wm_ctx = 0;
+           if (best != -1) {
+             wm_ctx = 1;
+             if (mbmi->mode == NEARESTMV)
+               wm_ctx = 2;
+           }
+
+    motion_mode =
+        aom_read_symbol(r, xd->tile_ctx->motion_mode_cdf[wm_ctx][mbmi->sb_type],
+                        MOTION_MODES, ACCT_STR);
+    if (counts) ++counts->motion_mode[wm_ctx][mbmi->sb_type][motion_mode];
+#else
     motion_mode =
         aom_read_symbol(r, xd->tile_ctx->motion_mode_cdf[mbmi->sb_type],
                         MOTION_MODES, ACCT_STR);
     if (counts) ++counts->motion_mode[mbmi->sb_type][motion_mode];
+#endif  // CONFIG_EXT_WARPED_MOTION
+
     return (MOTION_MODE)(SIMPLE_TRANSLATION + motion_mode);
   }
 }
@@ -2103,6 +2123,9 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
     xd->block_refs[ref] = ref_buf;
   }
 
+#if CONFIG_EXT_WARPED_MOTION
+  int best_cand = -1;
+#endif  // CONFIG_EXT_WARPED_MOTION
   mbmi->motion_mode = SIMPLE_TRANSLATION;
   if (mbmi->sb_type >= BLOCK_8X8 &&
 #if CONFIG_EXT_SKIP
@@ -2110,15 +2133,39 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
 #endif  // CONFIG_EXT_SKIP
       !has_second_ref(mbmi))
 #if CONFIG_EXT_WARPED_MOTION
+  {
     mbmi->num_proj_ref[0] =
         findSamples(cm, xd, mi_row, mi_col, pts, pts_inref, pts_mv, pts_wm);
+
+    // Find a warped neighbor.
+    int cand;
+    int best_weight = 0;
+
+    //assert(mbmi->mode >= NEARESTMV && mbmi->mode <= NEWMV);
+    //if (mbmi->mode == NEARESTMV)
+      for (cand = 0; cand < mbmi->num_proj_ref[0]; cand++) {
+        if (pts_wm[cand * 2 + 1] > best_weight) {
+          best_weight = pts_wm[cand * 2 + 1];
+          best_cand = cand;
+        }
+      }
+      //
+      //  if(mi_row == 6 && mi_col == 2 && bsize == BLOCK_8X8)
+      //    printf("\n DDD: mode:%d; best_cand:%d;  pts_wm[2 * best_cand]: %d\n", mbmi->mode, best_cand,  pts_wm[2 * best_cand]);
+
+  }
+
 #else
     mbmi->num_proj_ref[0] = findSamples(cm, xd, mi_row, mi_col, pts, pts_inref);
 #endif  // CONFIG_EXT_WARPED_MOTION
   av1_count_overlappable_neighbors(cm, xd, mi_row, mi_col);
 
   if (mbmi->ref_frame[1] != INTRA_FRAME)
-    mbmi->motion_mode = read_motion_mode(cm, xd, mi, r);
+    mbmi->motion_mode = read_motion_mode(cm, xd, mi, r
+#if CONFIG_EXT_WARPED_MOTION
+                                    , best_cand
+#endif  // CONFIG_EXT_WARPED_MOTION
+                                    );
 
   mbmi->interinter_compound_type = COMPOUND_AVERAGE;
   if (cm->reference_mode != SINGLE_REFERENCE &&
@@ -2164,22 +2211,7 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
     mbmi->wm_params[0].wmtype = DEFAULT_WMTYPE;
 
 #if CONFIG_EXT_WARPED_MOTION
-    // Find a warped neighbor.
-    int cand;
-    int best_cand = -1;
-    int best_weight = 0;
-
-    assert(mbmi->mode >= NEARESTMV && mbmi->mode <= NEWMV);
-    if (mbmi->mode == NEARESTMV) {
-      for (cand = 0; cand < mbmi->num_proj_ref[0]; cand++) {
-        if (pts_wm[cand * 2 + 1] > best_weight) {
-          best_weight = pts_wm[cand * 2 + 1];
-          best_cand = cand;
-        }
-      }
-    }
-
-    if (best_cand != -1) {
+    if (mbmi->mode == NEARESTMV && best_cand != -1) {
       MODE_INFO *best_mi = xd->mi[pts_wm[2 * best_cand]];
       assert(best_mi->mbmi.motion_mode == WARPED_CAUSAL);
       mbmi->wm_params[0] = best_mi->mbmi.wm_params[0];
