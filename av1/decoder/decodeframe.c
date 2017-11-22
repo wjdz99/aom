@@ -3526,8 +3526,6 @@ size_t av1_decode_frame_headers_and_setup(AV1Decoder *pbi, const uint8_t *data,
 
 #if CONFIG_SEGMENT_PRED_LAST
   cm->current_frame_seg_map = cm->cur_frame->seg_map;
-  if (cm->current_frame_seg_map)
-    memset(cm->current_frame_seg_map, 0, (cm->mi_rows * cm->mi_cols));
   if (cm->seg.temporal_update) {
     cm->last_frame_seg_map = cm->prev_frame->seg_map;
   }
