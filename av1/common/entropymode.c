@@ -3028,10 +3028,6 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
   av1_copy(fc->compound_index_cdf, default_compound_idx_cdfs);
   av1_copy(fc->compound_index_probs, default_compound_idx_probs);
 #endif  // CONFIG_JNT_COMP
-  av1_copy(fc->newmv_prob, default_newmv_prob);
-  av1_copy(fc->zeromv_prob, default_zeromv_prob);
-  av1_copy(fc->refmv_prob, default_refmv_prob);
-  av1_copy(fc->drl_prob, default_drl_prob);
   av1_copy(fc->newmv_cdf, default_newmv_cdf);
   av1_copy(fc->zeromv_cdf, default_zeromv_cdf);
   av1_copy(fc->refmv_cdf, default_refmv_cdf);
@@ -3134,20 +3130,6 @@ void av1_adapt_inter_frame_probs(AV1_COMMON *cm) {
     for (j = 0; j < (SINGLE_REFS - 1); j++)
       fc->single_ref_prob[i][j] = av1_mode_mv_merge_probs(
           pre_fc->single_ref_prob[i][j], counts->single_ref[i][j]);
-
-  for (i = 0; i < NEWMV_MODE_CONTEXTS; ++i)
-    fc->newmv_prob[i] =
-        av1_mode_mv_merge_probs(pre_fc->newmv_prob[i], counts->newmv_mode[i]);
-  for (i = 0; i < GLOBALMV_MODE_CONTEXTS; ++i)
-    fc->zeromv_prob[i] =
-        av1_mode_mv_merge_probs(pre_fc->zeromv_prob[i], counts->zeromv_mode[i]);
-  for (i = 0; i < REFMV_MODE_CONTEXTS; ++i)
-    fc->refmv_prob[i] =
-        av1_mode_mv_merge_probs(pre_fc->refmv_prob[i], counts->refmv_mode[i]);
-
-  for (i = 0; i < DRL_MODE_CONTEXTS; ++i)
-    fc->drl_prob[i] =
-        av1_mode_mv_merge_probs(pre_fc->drl_prob[i], counts->drl_mode[i]);
 
   for (i = BLOCK_8X8; i < BLOCK_SIZES_ALL; ++i)
     aom_tree_merge_probs(av1_motion_mode_tree, pre_fc->motion_mode_prob[i],
