@@ -2983,6 +2983,11 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
       else
         cm->use_ref_frame_mvs = 0;
 
+      cm->prev_frame =
+          cm->frame_refs[LAST_FRAME - LAST_FRAME].idx != INVALID_IDX
+              ? &cm->buffer_pool
+                     ->frame_bufs[cm->frame_refs[LAST_FRAME - LAST_FRAME].idx]
+              : NULL;
       cm->use_prev_frame_mvs =
           cm->use_ref_frame_mvs && frame_can_use_prev_frame_mvs(cm);
 #endif
@@ -3243,6 +3248,7 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
   if (cm->use_adapt_scan == 0) av1_init_scan_order(cm);
 #endif  // CONFIG_ADAPT_SCAN
 
+#if !CONFIG_TEMPMV_SIGNALING
   // NOTE(zoeliu): As cm->prev_frame can take neither a frame of
   //               show_exisiting_frame=1, nor can it take a frame not used as
   //               a reference, it is probable that by the time it is being
@@ -3261,6 +3267,7 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
                    ->frame_bufs[cm->frame_refs[LAST_FRAME - LAST_FRAME].idx]
             : NULL;
   }
+#endif
 
 #if CONFIG_TEMPMV_SIGNALING
   if (cm->use_prev_frame_mvs && !frame_can_use_prev_frame_mvs(cm)) {
@@ -3439,7 +3446,9 @@ size_t av1_decode_frame_headers_and_setup(AV1Decoder *pbi, const uint8_t *data,
   uint8_t clear_data[MAX_AV1_HEADER_SIZE];
   size_t first_partition_size;
   YV12_BUFFER_CONFIG *new_fb;
+#if !CONFIG_TEMPMV_SIGNALING
   RefBuffer *last_fb_ref_buf = &cm->frame_refs[LAST_FRAME - LAST_FRAME];
+#endif
 
 #if CONFIG_ADAPT_SCAN
   av1_deliver_eob_threshold(cm, xd);
@@ -3499,6 +3508,7 @@ size_t av1_decode_frame_headers_and_setup(AV1Decoder *pbi, const uint8_t *data,
 
   cm->setup_mi(cm);
 
+#if !CONFIG_TEMPMV_SIGNALING
   // NOTE(zoeliu): As cm->prev_frame can take neither a frame of
   //               show_exisiting_frame=1, nor can it take a frame not used as
   //               a reference, it is probable that by the time it is being
@@ -3515,6 +3525,7 @@ size_t av1_decode_frame_headers_and_setup(AV1Decoder *pbi, const uint8_t *data,
                          ? &cm->buffer_pool->frame_bufs[last_fb_ref_buf->idx]
                          : NULL;
   }
+#endif
 
 #if CONFIG_TEMPMV_SIGNALING
   if (cm->use_prev_frame_mvs && !frame_can_use_prev_frame_mvs(cm)) {
