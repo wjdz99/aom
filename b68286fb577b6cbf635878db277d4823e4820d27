@@ -22,6 +22,30 @@
       "revId": "b68286fb577b6cbf635878db277d4823e4820d27",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c999d6d3_7f15c0af",
+        "filename": "av1/common/common_data.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 758,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2017-11-22T00:15:06Z",
+      "side": 1,
+      "message": "The use of INT32_MIN caused a compiler warnings as for windows platform, INT32_MIN is not defined here. \n\nTalking to Debargha, -1 can be used to indicate invalid entry here.",
+      "parentUuid": "297ed2cd_93330dd1",
+      "range": {
+        "startLine": 758,
+        "startChar": 2,
+        "endLine": 758,
+        "endChar": 20
+      },
+      "revId": "b68286fb577b6cbf635878db277d4823e4820d27",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
