@@ -211,6 +211,7 @@ static int decode_coefs(MACROBLOCKD *xd, PLANE_TYPE type, tran_low_t *dqcoeff,
 #endif
 #if !CONFIG_DAALA_TX
     v = (val * dqv) >> dq_shift;
+    v = (int)(((int64_t)val * dqv) >> dq_shift);
 #else
     v = val * dqv;
 #endif
