@@ -4338,7 +4338,11 @@ static void tx_block_yrd(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
                                    mbmi->sb_type, tx_size);
 
   av1_init_rd_stats(rd_stats);
-  if (tx_size == plane_tx_size) {
+  if (tx_size == plane_tx_size
+#if DISABLE_VARTX_FOR_CHROMA
+      || pd->subsampling_x || pd->subsampling_y
+#endif  // DISABLE_VARTX_FOR_CHROMA
+      ) {
     ENTROPY_CONTEXT *ta = above_ctx + blk_col;
     ENTROPY_CONTEXT *tl = left_ctx + blk_row;
 #if CONFIG_LV_MAP
@@ -4960,7 +4964,11 @@ static void tx_block_rd(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
       plane ? uv_txsize_lookup[bsize][mbmi->inter_tx_size[tx_row][tx_col]][0][0]
             : mbmi->inter_tx_size[tx_row][tx_col];
 
-  if (tx_size == plane_tx_size) {
+  if (tx_size == plane_tx_size
+#if DISABLE_VARTX_FOR_CHROMA
+      || pd->subsampling_x || pd->subsampling_y
+#endif  // DISABLE_VARTX_FOR_CHROMA
+      ) {
     ENTROPY_CONTEXT *ta = above_ctx + blk_col;
     ENTROPY_CONTEXT *tl = left_ctx + blk_row;
     av1_tx_block_rd_b(cpi, x, tx_size, blk_row, blk_col, plane, block,

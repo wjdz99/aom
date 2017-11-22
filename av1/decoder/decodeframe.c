@@ -257,7 +257,11 @@ static void decode_reconstruct_tx(AV1_COMMON *cm, MACROBLOCKD *const xd,
 
   if (blk_row >= max_blocks_high || blk_col >= max_blocks_wide) return;
 
-  if (tx_size == plane_tx_size) {
+  if (tx_size == plane_tx_size
+#if DISABLE_VARTX_FOR_CHROMA
+      || pd->subsampling_x || pd->subsampling_y
+#endif  // DISABLE_VARTX_FOR_CHROMA
+      ) {
     PLANE_TYPE plane_type = get_plane_type(plane);
 #if TXCOEFF_TIMER
     struct aom_usec_timer timer;

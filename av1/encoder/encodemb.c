@@ -706,7 +706,11 @@ static void encode_block_inter(int plane, int block, int blk_row, int blk_col,
       plane ? uv_txsize_lookup[bsize][mbmi->inter_tx_size[tx_row][tx_col]][0][0]
             : mbmi->inter_tx_size[tx_row][tx_col];
 
-  if (tx_size == plane_tx_size) {
+  if (tx_size == plane_tx_size
+#if DISABLE_VARTX_FOR_CHROMA
+      || pd->subsampling_x || pd->subsampling_y
+#endif  // DISABLE_VARTX_FOR_CHROMA
+      ) {
     encode_block(plane, block, blk_row, blk_col, plane_bsize, tx_size, arg);
   } else {
     assert(tx_size < TX_SIZES_ALL);
