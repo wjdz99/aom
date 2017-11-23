@@ -788,29 +788,7 @@ int main(int argc, const char **argv) {
 #endif  // CONFIG_CTX1D
 #endif  // CONFIG_LV_MAP
 
-/* lgt_from_pred experiment */
-#if CONFIG_LPF_SB
-  cts_each_dim[0] = LPF_REUSE_CONTEXT;
-  cts_each_dim[1] = 2;
-  optimize_cdf_table(&fc.lpf_reuse[0][0], probsfile, 2, cts_each_dim,
-                     "static const aom_cdf_prob "
-                     "default_lpf_reuse_cdf[LPF_REUSE_CONTEXT][CDF_SIZE(2)]");
-
-  cts_each_dim[0] = LPF_DELTA_CONTEXT;
-  cts_each_dim[1] = DELTA_RANGE;
-  optimize_cdf_table(&fc.lpf_delta[0][0], probsfile, 2, cts_each_dim,
-                     "static const aom_cdf_prob "
-                     "default_lpf_delta_cdf[LPF_DELTA_CONTEXT][CDF_SIZE(DELTA_"
-                     "RANGE)]");
-
-  cts_each_dim[0] = LPF_REUSE_CONTEXT;
-  cts_each_dim[1] = LPF_SIGN_CONTEXT;
-  cts_each_dim[2] = 2;
-  optimize_cdf_table(&fc.lpf_delta[0][0], probsfile, 3, cts_each_dim,
-                     "static const aom_cdf_prob "
-                     "default_lpf_sign_cdf[LPF_REUSE_CONTEXT][LPF_SIGN_CONTEXT]"
-                     "[CDF_SIZE(2)]");
-#endif
+  /* lgt_from_pred experiment */
 
   fclose(statsfile);
   fclose(logfile);
