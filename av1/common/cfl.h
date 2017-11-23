@@ -16,7 +16,7 @@
 
 static int is_cfl_allowed(const BLOCK_SIZE luma_bsize) {
   // Disable CfL on 4:1 blocks
-  return (luma_bsize >= BLOCK_4X4) && (luma_bsize <= BLOCK_64X64);
+  return (luma_bsize >= BLOCK_4X4) && (luma_bsize <= BLOCK_32X32);
 }
 static INLINE int get_scaled_luma_q0(int alpha_q3, int16_t pred_buf_q3) {
   int scaled_luma_q6 = alpha_q3 * pred_buf_q3;
