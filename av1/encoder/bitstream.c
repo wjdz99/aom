@@ -1320,6 +1320,7 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
 
 #if CONFIG_CFL
       if (mbmi->uv_mode == UV_CFL_PRED) {
+        assert(is_cfl_allowed(bsize));
         write_cfl_alphas(ec_ctx, mbmi->cfl_alpha_idx, mbmi->cfl_alpha_signs, w);
       }
 #endif
@@ -1578,6 +1579,7 @@ static void write_mb_modes_kf(AV1_COMMON *cm, MACROBLOCKD *xd,
 
 #if CONFIG_CFL
     if (mbmi->uv_mode == UV_CFL_PRED) {
+      assert(is_cfl_allowed(bsize));
       write_cfl_alphas(ec_ctx, mbmi->cfl_alpha_idx, mbmi->cfl_alpha_signs, w);
     }
 #endif
