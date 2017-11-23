@@ -71,6 +71,7 @@ extern "C" {
 #endif  // CONFIG_CTX1D
 
 #define USE_CAUSAL_BASE_CTX 1
+#define USE_LESS_BR_CTX 1
 
 #define SIG_COEF_CONTEXTS_2D 26
 #define SIG_COEF_CONTEXTS_1D 16
