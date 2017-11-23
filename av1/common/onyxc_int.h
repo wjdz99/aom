@@ -670,11 +670,10 @@ static INLINE int frame_can_use_prev_frame_mvs(const AV1_COMMON *cm) {
 #endif
 
 static INLINE void ensure_mv_buffer(RefCntBuffer *buf, AV1_COMMON *cm) {
-  if (buf->mvs == NULL || buf->mi_rows < cm->mi_rows ||
-      buf->mi_cols < cm->mi_cols) {
+  int larger_frame = buf->mi_rows < cm->mi_rows || buf->mi_cols < cm->mi_cols;
+  if (buf->mvs == NULL || larger_frame) {
+    assert(larger_frame);
     aom_free(buf->mvs);
-    buf->mi_rows = cm->mi_rows;
-    buf->mi_cols = cm->mi_cols;
 #if CONFIG_TMV || CONFIG_MFMV
     CHECK_MEM_ERROR(cm, buf->mvs,
                     (MV_REF *)aom_calloc(
@@ -688,8 +687,8 @@ static INLINE void ensure_mv_buffer(RefCntBuffer *buf, AV1_COMMON *cm) {
   }
 
 #if CONFIG_MFMV
-  if (cm->tpl_mvs == NULL || buf->mi_rows < cm->mi_rows ||
-      buf->mi_cols < cm->mi_cols) {
+  if (cm->tpl_mvs == NULL || larger_frame) {
+    assert(larger_frame);
     aom_free(cm->tpl_mvs);
     CHECK_MEM_ERROR(cm, cm->tpl_mvs, (TPL_MV_REF *)aom_calloc(
                                          ((cm->mi_rows + MAX_MIB_SIZE) >> 1) *
@@ -697,6 +696,11 @@ static INLINE void ensure_mv_buffer(RefCntBuffer *buf, AV1_COMMON *cm) {
                                          sizeof(*cm->tpl_mvs)));
   }
 #endif
+
+  if (larger_frame) {
+    buf->mi_rows = cm->mi_rows;
+    buf->mi_cols = cm->mi_cols;
+  }
 }
 
 static INLINE int mi_cols_aligned_to_sb(const AV1_COMMON *cm) {
