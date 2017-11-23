@@ -579,6 +579,7 @@ typedef struct AV1Common {
 #endif
 #if CONFIG_MFMV
   TPL_MV_REF *tpl_mvs;
+  size_t tpl_mvs_alloc;
 #endif
 
 #if TXCOEFF_TIMER
@@ -688,13 +689,13 @@ static INLINE void ensure_mv_buffer(RefCntBuffer *buf, AV1_COMMON *cm) {
   }
 
 #if CONFIG_MFMV
-  if (cm->tpl_mvs == NULL || buf->mi_rows < cm->mi_rows ||
-      buf->mi_cols < cm->mi_cols) {
+  size_t tpl_mvs_size =
+      ((cm->mi_rows + MAX_MIB_SIZE) >> 1) * (cm->mi_stride >> 1);
+  if (cm->tpl_mvs == NULL || cm->tpl_mvs_alloc < tpl_mvs_size) {
     aom_free(cm->tpl_mvs);
+    cm->tpl_mvs_alloc = tpl_mvs_size;
     CHECK_MEM_ERROR(cm, cm->tpl_mvs, (TPL_MV_REF *)aom_calloc(
-                                         ((cm->mi_rows + MAX_MIB_SIZE) >> 1) *
-                                             (cm->mi_stride >> 1),
-                                         sizeof(*cm->tpl_mvs)));
+                                         tpl_mvs_size, sizeof(*cm->tpl_mvs)));
   }
 #endif
 }
