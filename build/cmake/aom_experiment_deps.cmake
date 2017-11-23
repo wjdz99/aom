@@ -143,12 +143,6 @@ macro (fix_experiment_configs)
     endif ()
   endif ()
 
-  if (CONFIG_LPF_SB)
-    if (CONFIG_LOOPFILTER_LEVEL)
-      change_config_and_warn(CONFIG_LOOPFILTER_LEVEL 0 CONFIG_LPF_SB)
-    endif ()
-  endif ()
-
   if (CONFIG_LV_MAP)
     if (CONFIG_MRC_TX)
       change_config_and_warn(CONFIG_MRC_TX 0 CONFIG_LV_MAP)
