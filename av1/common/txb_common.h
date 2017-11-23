@@ -274,8 +274,13 @@ static INLINE int get_br_ctx_from_count_mag(int row, int col, int count,
   // Top row: 2 - 4
   if (row == 0) return 2 + ctx;
 
+#if USE_LESS_BR_CTX
+  // Left column: 2 - 4
+  if (col == 0) return 2 + ctx;
+#else
   // Left column: 5 - 7
   if (col == 0) return 5 + ctx;
+#endif
 
   // others: 8 - 11
   return 8 + ctx;
