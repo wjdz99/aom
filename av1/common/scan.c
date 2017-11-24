@@ -5831,12 +5831,35 @@ void av1_init_scan_order(AV1_COMMON *cm) {
 #if SIG_REGION
           int bw = tx_size_wide[tx_size];
           int bh = tx_size_high[tx_size];
-          int txw_lim = (bw > 16) ? 16 : 8;
+          if (bw >= 16 || bh >= 16) {
+            int tri_limit, v_scale, h_scale;
+            if (bw == bh) {
+              tri_limit = bw;
+              v_scale = 1;
+              h_scale = 1;
+            } else if (bw > bh) {
+              tri_limit = bw;
+              v_scale = 2;
+              h_scale = 1;
+            } else {
+              tri_limit = bh;
+              v_scale = 1;
+              h_scale = 2;
+            }
+
+            for (int idy = 0; idy < bh; ++idy)
+              for (int idx = 0; idx < bw; ++idx)
+                if (idy * v_scale + idx * h_scale >= tri_limit)
+                  non_zero_prob[idy * bw + idx] = 0;
+          }
+
+/*          int txw_lim = (bw > 16) ? 16 : 8;
           int txh_lim = (bh > 16) ? 16 : 8;
           for (int idy = 0; idy < bh; ++idy)
             for (int idx = 0; idx < bw; ++idx)
               if (idy >= txh_lim || idx >= txw_lim)
                 non_zero_prob[idy * bw + idx] = 0;
+*/
 #endif
           update_scan_order_facade(cm, tx_size, tx_type, 1, is_inter);
           sc->scan = get_adapt_scan(cm->fc, tx_size, tx_type, is_inter);
@@ -5871,12 +5894,36 @@ void av1_adapt_scan_order(AV1_COMMON *cm) {
                 get_non_zero_prob(cm->fc, tx_size, tx_type, is_inter);
             int bw = tx_size_wide[tx_size];
             int bh = tx_size_high[tx_size];
+
+            if (bw >= 16 || bh >= 16) {
+              int tri_limit, v_scale, h_scale;
+              if (bw == bh) {
+                tri_limit = bw;
+                v_scale = 1;
+                h_scale = 1;
+              } else if (bw > bh) {
+                tri_limit = bw;
+                v_scale = 2;
+                h_scale = 1;
+              } else {
+                tri_limit = bh;
+                v_scale = 1;
+                h_scale = 2;
+              }
+
+              for (int idy = 0; idy < bh; ++idy)
+                for (int idx = 0; idx < bw; ++idx)
+                  if (idy * v_scale + idx * h_scale >= tri_limit)
+                    non_zero_prob[idy * bw + idx] = 0;
+            }
+/*
             int txw_lim = (bw > 16) ? 16 : 8;
             int txh_lim = (bh > 16) ? 16 : 8;
             for (int idy = 0; idy < bh; ++idy)
               for (int idx = 0; idx < bw; ++idx)
                 if (idy >= txh_lim || idx >= txw_lim)
                   non_zero_prob[idy * bw + idx] = 0;
+*/
 #endif
             update_scan_order_facade(cm, tx_size, tx_type, use_curr_frame,
                                      is_inter);
