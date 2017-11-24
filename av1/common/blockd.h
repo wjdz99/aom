@@ -322,10 +322,6 @@ typedef struct MB_MODE_INFO {
 #if CONFIG_EXT_PARTITION_TYPES
   PARTITION_TYPE partition;
 #endif
-#if CONFIG_NEW_QUANT
-  int dq_off_index;
-  int send_dq_bit;
-#endif  // CONFIG_NEW_QUANT
   /* deringing gain *per-superblock* */
   int8_t cdef_strength;
   int current_q_index;
@@ -489,10 +485,6 @@ typedef struct macroblockd_plane {
   // dequantization process.  They have the same coefficient
   // shift/scale as TX.
   int16_t seg_dequant_QTX[MAX_SEGMENTS][2];
-#if CONFIG_NEW_QUANT
-  dequant_val_type_nuq seg_dequant_nuq_QTX[MAX_SEGMENTS][QUANT_PROFILES]
-                                          [COEF_BANDS];
-#endif
   uint8_t *color_index_map;
 
   // number of 4x4s in current block
