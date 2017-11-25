@@ -324,9 +324,16 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
 
       if (*level <= NUM_BASE_LEVELS) continue;
 
+#if !CONFIG_LV_MAP_MULTI
       ctx = get_br_ctx(levels, pos, bwl, level_counts[pos]);
+#endif
 
 #if CONFIG_LV_MAP_MULTI
+#if USE_CAUSAL_BR_CTX
+      ctx = get_br_ctx(levels, pos, bwl, level_counts[pos], tx_type);
+#else
+      ctx = get_br_ctx(levels, pos, bwl, level_counts[pos]);
+#endif
       for (idx = 0; idx < COEFF_BASE_RANGE / (BR_CDF_SIZE - 1); ++idx) {
         int k = av1_read_record_symbol(
             counts, r, ec_ctx->coeff_br_cdf[txs_ctx][plane_type][ctx],
