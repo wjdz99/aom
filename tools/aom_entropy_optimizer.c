@@ -673,7 +673,18 @@ int main(int argc, const char **argv) {
                      "static const aom_cdf_prob "
                      "default_eob_flag_cdf[TX_SIZES][PLANE_TYPES][EOB_COEF_"
                      "CONTEXTS][CDF_SIZE(2)]");
-
+#if CONFIG_LV_MAP_MULTI
+  cts_each_dim[0] = TX_SIZES;
+  cts_each_dim[1] = PLANE_TYPES;
+  cts_each_dim[2] = BR_CDF_SIZE - 1;
+  cts_each_dim[3] = LEVEL_CONTEXTS;
+  cts_each_dim[4] = 2;
+  optimize_entropy_table(&fc.coeff_lps[0][0][0][0][0], probsfile, 5,
+                         cts_each_dim, NULL, 1,
+                         "static const aom_prob "
+                         "default_coeff_lps[TX_SIZES][PLANE_TYPES][BR_CDF_SIZE-"
+                         "1][LEVEL_CONTEXTS]");
+#else
   cts_each_dim[0] = TX_SIZES;
   cts_each_dim[1] = PLANE_TYPES;
   cts_each_dim[2] = LEVEL_CONTEXTS;
@@ -686,7 +697,7 @@ int main(int argc, const char **argv) {
                      "static const aom_cdf_prob "
                      "default_coeff_lps_cdf[TX_SIZES][PLANE_TYPES][LEVEL_"
                      "CONTEXTS][CDF_SIZE(2)]");
-#if !CONFIG_LV_MAP_MULTI
+
   cts_each_dim[0] = TX_SIZES;
   cts_each_dim[1] = PLANE_TYPES;
   cts_each_dim[2] = BASE_RANGE_SETS;
