@@ -495,11 +495,18 @@ void av1_write_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
 
       if (level <= NUM_BASE_LEVELS) continue;
 
-      // level is above 1.
+// level is above 1.
+#if !CONFIG_LV_MAP_MULTI
       ctx = get_br_ctx(levels, scan[c], bwl, level_counts[scan[c]]);
-
+#endif
       int base_range = level - 1 - NUM_BASE_LEVELS;
 #if CONFIG_LV_MAP_MULTI
+#if USE_CAUSAL_BR_CTX
+      ctx = get_br_ctx(levels, scan[c], bwl, level_counts[scan[c]], tx_type);
+
+#else
+      ctx = get_br_ctx(levels, scan[c], bwl, level_counts[scan[c]]);
+#endif
       for (idx = 0; idx < COEFF_BASE_RANGE; idx += BR_CDF_SIZE - 1) {
         int k = AOMMIN(base_range - idx, BR_CDF_SIZE - 1);
         aom_write_symbol(w, k, ec_ctx->coeff_br_cdf[txs_ctx][plane_type][ctx],
@@ -762,7 +769,11 @@ int av1_cost_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCK *x, int plane,
 #endif  // CONFIG_LV_MAP_MULTI
       if (level > NUM_BASE_LEVELS) {
         int ctx;
+#if CONFIG_LV_MAP_MULTI && USE_CAUSAL_BR_CTX
+        ctx = get_br_ctx(levels, scan[c], bwl, level_counts[scan[c]], tx_type);
+#else
         ctx = get_br_ctx(levels, scan[c], bwl, level_counts[scan[c]]);
+#endif
         int base_range = level - 1 - NUM_BASE_LEVELS;
         if (base_range < COEFF_BASE_RANGE) {
           cost += coeff_costs->lps_cost[ctx][base_range];
@@ -1610,8 +1621,13 @@ static int get_coeff_cost(const tran_low_t qc, const int scan_idx,
       const int count = get_level_count(
           txb_info->levels, (1 << txb_info->bwl) + TX_PAD_HOR, row, col,
           NUM_BASE_LEVELS, br_ref_offset, BR_CONTEXT_POSITION_NUM);
+#if CONFIG_LV_MAP_MULTI && USE_CAUSAL_BR_CTX
+      const int ctx = get_br_ctx(txb_info->levels, scan[scan_idx],
+                                 txb_info->bwl, count, txb_info->tx_type);
+#else
       const int ctx =
           get_br_ctx(txb_info->levels, scan[scan_idx], txb_info->bwl, count);
+#endif
       cost += get_br_cost(abs_qc, ctx, txb_costs->lps_cost[ctx]);
       cost += get_golomb_cost(abs_qc);
     }
@@ -1812,7 +1828,7 @@ static int optimize_txb(TxbInfo *txb_info, const LV_MAP_COEFF_COST *txb_costs,
   (void)fast_mode;
   (void)txb_cache;
   int update = 0;
-  // return update;  // TODO(DKHE): training only.
+  return update;  // TODO(DKHE): training only.
   if (txb_info->eob == 0) return update;
   const int max_eob = av1_get_max_eob(txb_info->tx_size);
 
@@ -2355,19 +2371,26 @@ void av1_update_and_record_txb_context(int plane, int block, int blk_row,
 
       if (level <= NUM_BASE_LEVELS) continue;
 
-      // level is above 1.
+// level is above 1.
+#if !CONFIG_LV_MAP_MULTI
       ctx = get_br_ctx(levels, scan[c], bwl, level_counts[scan[c]]);
+#endif
 
       int base_range = level - 1 - NUM_BASE_LEVELS;
 #if CONFIG_LV_MAP_MULTI
+#if USE_CAUSAL_BR_CTX
+      ctx = get_br_ctx(levels, scan[c], bwl, level_counts[scan[c]], tx_type);
+#else
+      ctx = get_br_ctx(levels, scan[c], bwl, level_counts[scan[c]]);
+#endif
       for (idx = 0; idx < COEFF_BASE_RANGE; idx += BR_CDF_SIZE - 1) {
         int k = AOMMIN(base_range - idx, BR_CDF_SIZE - 1);
         // printf("br_update: %d %d %2d : %2d %d\n", txsize_ctx, plane, ctx,
         // base_range, k);
         update_cdf(ec_ctx->coeff_br_cdf[txsize_ctx][plane_type][ctx], k,
                    BR_CDF_SIZE);
-        for (int lps = 0; lps < BR_CDF_SIZE; lps++) {
-          ++td->counts->coeff_lps[txsize_ctx][plane_type][ctx][lps == k];
+        for (int lps = 0; lps < BR_CDF_SIZE - 1; lps++) {
+          ++td->counts->coeff_lps[txsize_ctx][plane_type][lps][ctx][lps == k];
           if (lps == k) break;
         }
 
