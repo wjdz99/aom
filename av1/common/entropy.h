@@ -71,7 +71,7 @@ extern "C" {
 #endif  // CONFIG_CTX1D
 
 #define USE_CAUSAL_BASE_CTX 1
-#define USE_LESS_BR_CTX 1
+#define USE_CAUSAL_BR_CTX 1
 
 #define SIG_COEF_CONTEXTS_2D 26
 #define SIG_COEF_CONTEXTS_1D 16
@@ -103,7 +103,11 @@ extern "C" {
 
 #define BR_TMP_OFFSET 12
 #define BR_REF_CAT 4
+#if USE_CAUSAL_BR_CTX
+#define LEVEL_CONTEXTS 21
+#else
 #define LEVEL_CONTEXTS (BR_TMP_OFFSET * BR_REF_CAT)
+#endif
 
 #define NUM_BASE_LEVELS 2
 
