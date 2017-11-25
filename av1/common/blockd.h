@@ -713,7 +713,7 @@ typedef struct macroblockd {
 #endif  // CONFIG_MRC_TX
 
 #if CONFIG_CFL
-  CFL_CTX *cfl;
+  CFL_CTX cfl;
 #endif
 
 #if CONFIG_JNT_COMP
