@@ -98,7 +98,10 @@ static INLINE int do_adapt_scan(TX_SIZE tx_size, TX_TYPE tx_type) {
   if (tx_size > TX_32X16) return 0;
 #if CONFIG_ADAPT_SCAN
 #if REDUCED_SET
-  return tx_type <= ADST_ADST;
+  const int txw = tx_size_wide[tx_size];
+  const int txh = tx_size_high[tx_size];
+
+  if (txw >= 16 || txh >= 16) return tx_type <= ADST_ADST;
 #endif
 #endif
   return tx_type < IDTX;
