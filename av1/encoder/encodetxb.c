@@ -487,7 +487,9 @@ void av1_write_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
   }
 
   if (update_eob >= 0) {
+#if !CONFIG_LV_MAP_MULTI
     av1_get_br_level_counts(levels, width, height, level_counts);
+#endif
     for (c = update_eob; c >= 0; --c) {
       const tran_low_t level = abs(tcoeff[scan[c]]);
       int idx;
@@ -692,8 +694,9 @@ int av1_cost_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCK *x, int plane,
 
   const int seg_eob = av1_get_max_eob(tx_size);
   int eob_cost = get_eob_cost(eob, seg_eob, coeff_costs, tx_type);
-
+#if !CONFIG_LV_MAP_MULTI
   av1_get_br_level_counts(levels, width, height, level_counts);
+#endif
   cost += eob_cost;
 #if USE_CAUSAL_BASE_CTX
   int coeff_ctx = 0;
@@ -2363,7 +2366,9 @@ void av1_update_and_record_txb_context(int plane, int block, int blk_row,
   }
 
   if (update_eob >= 0) {
+#if !CONFIG_LV_MAP_MULTI
     av1_get_br_level_counts(levels, width, height, level_counts);
+#endif
     for (c = update_eob; c >= 0; --c) {
       const tran_low_t level = abs(tcoeff[scan[c]]);
       int idx;

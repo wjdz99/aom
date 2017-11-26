@@ -315,7 +315,9 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
   }
 
   if (update_eob >= 0) {
+#if !CONFIG_LV_MAP_MULTI
     av1_get_br_level_counts(levels, width, height, level_counts);
+#endif
     for (c = update_eob; c >= 0; --c) {
       const int pos = scan[c];
       uint8_t *const level = &levels[get_paded_idx(pos, bwl)];
