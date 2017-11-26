@@ -5866,10 +5866,9 @@ void av1_adapt_scan_order(AV1_COMMON *cm) {
       TX_TYPE tx_type;
       for (tx_type = DCT_DCT; tx_type < TX_TYPES; ++tx_type) {
         if (do_adapt_scan(tx_size, tx_type)) {
-          update_scan_prob(cm, tx_size, tx_type, ADAPT_SCAN_UPDATE_RATE);
-
 #if SIG_REGION
-          uint32_t *non_zero_prob = get_non_zero_prob(cm->fc, tx_size, tx_type);
+          uint32_t *non_zero_count =
+              get_non_zero_counts(&cm->counts, tx_size, tx_type);
           int bw = tx_size_wide[tx_size];
           int bh = tx_size_high[tx_size];
 
@@ -5892,10 +5891,10 @@ void av1_adapt_scan_order(AV1_COMMON *cm) {
             for (int idy = 0; idy < bh; ++idy)
               for (int idx = 0; idx < bw; ++idx)
                 if (idy * v_scale + idx * h_scale >= tri_limit)
-                  non_zero_prob[idy * bw + idx] = 0;
+                  non_zero_count[idy * bw + idx] = 0;
           }
 #endif
-
+          update_scan_prob(cm, tx_size, tx_type, ADAPT_SCAN_UPDATE_RATE);
           update_scan_order_facade(cm, tx_size, tx_type, use_curr_frame);
           update_eob_threshold(cm, tx_size, tx_type);
         }
