@@ -78,6 +78,8 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
   const int bwl = tx_size_wide_log2[tx_size];
   const int width = tx_size_wide[tx_size];
   const int height = tx_size_high[tx_size];
+  int max_col = -1;
+  int max_row = -1;
   int cul_level = 0;
   uint8_t levels_buf[TX_PAD_2D];
   uint8_t *const levels = set_levels(levels_buf, width);
@@ -201,8 +203,11 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
       if (level < 3) {
         cul_level += level;
         tcoeffs[pos] = (level * dequant[!!c]) >> shift;
-      } else if (update_eob < 0) {
-        update_eob = c;
+      } else {
+        if (update_eob < 0) {
+          update_eob = c;
+        }
+        update_max_row_col(pos, bwl, &max_col, &max_row);
       }
     }
 #else
@@ -237,6 +242,7 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
       levels[get_paded_idx(pos, bwl)] = k + 1;
       *max_scan_line = AOMMAX(*max_scan_line, pos);
       if (update_eob < 0 && k == NUM_BASE_LEVELS) update_eob = c;
+      update_max_row_col(pos, bwl, &max_col, &max_row);
     }
 #else
     // set non-zero coefficient map.
@@ -276,6 +282,7 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
 
       // update the eob flag for coefficients with magnitude above 1.
       update_eob = AOMMAX(update_eob, c);
+      update_max_row_col(pos, bwl, &max_col, &max_row);
     }
   }
 #endif
@@ -303,7 +310,14 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
   }
 
   if (update_eob >= 0) {
-    av1_get_br_level_counts(levels, width, height, level_counts);
+    if (!update_eob) {
+      level_counts[0] =
+          get_level_count(levels, width + TX_PAD_HOR, 0, 0, NUM_BASE_LEVELS,
+                          br_ref_offset, BR_CONTEXT_POSITION_NUM);
+    } else {
+      av1_get_br_level_counts(levels, width, max_col + 1, max_row + 1,
+                              level_counts);
+    }
     for (c = update_eob; c >= 0; --c) {
       const int pos = scan[c];
       uint8_t *const level = &levels[get_paded_idx(pos, bwl)];

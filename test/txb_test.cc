@@ -30,7 +30,8 @@
 namespace {
 using libaom_test::ACMRandom;
 
-typedef void (*GetLevelCountsFunc)(const uint8_t *const levels, const int width,
+typedef void (*GetLevelCountsFunc)(const uint8_t *const levels,
+                                   const int stride, const int width,
                                    const int height,
                                    uint8_t *const level_counts);
 
@@ -56,27 +57,31 @@ class TxbTest : public ::testing::TestWithParam<GetLevelCountsFunc> {
   }
 
   void GetLevelCountsRun() {
-    const int kNumTests = 10000;
-    int result = 0;
+    const int kNumTests = 100;
+    bool result = false;
 
     for (int tx_size = TX_4X4; tx_size < TX_SIZES_ALL; ++tx_size) {
-      const int width = tx_size_wide[tx_size];
-      const int height = tx_size_high[tx_size];
-      levels_ = set_levels(levels_buf_, width);
+      const int stride = tx_size_wide[tx_size];
+      const int max_height = tx_size_high[tx_size];
+      levels_ = set_levels(levels_buf_, stride);
       memset(levels_buf_, 0, sizeof(*levels_buf_) * MAX_TX_SQUARE);
 
       for (int i = 0; i < kNumTests && !result; ++i) {
-        InitLevels(width, height, i);
+        for (int height = 1; height < max_height && !result; ++height) {
+          for (int width = 1; width < stride && !result; ++width) {
+            InitLevels(stride, height, i);
 
-        av1_get_br_level_counts_c(levels_, width, height, level_counts_ref_);
-        get_br_level_counts_func_(levels_, width, height, level_counts_);
+            av1_get_br_level_counts_c(levels_, stride, width, height,
+                                      level_counts_ref_);
+            get_br_level_counts_func_(levels_, stride, width, height,
+                                      level_counts_);
 
-        PrintDiff(width, height);
+            result = Compare(stride, width, height);
 
-        result = memcmp(level_counts_, level_counts_ref_,
-                        sizeof(*level_counts_ref_) * MAX_TX_SQUARE);
-
-        EXPECT_EQ(result, 0) << " width " << width << " height " << height;
+            EXPECT_EQ(result, 0) << stride << "x" << max_height << " width "
+                                 << width << " height " << height;
+          }
+        }
       }
     }
   }
@@ -94,7 +99,7 @@ class TxbTest : public ::testing::TestWithParam<GetLevelCountsFunc> {
 
       aom_usec_timer_start(&timer);
       for (int i = 0; i < kNumTests; ++i) {
-        get_br_level_counts_func_(levels_, width, height, level_counts_);
+        get_br_level_counts_func_(levels_, width, width, height, level_counts_);
       }
       aom_usec_timer_mark(&timer);
 
@@ -122,21 +127,21 @@ class TxbTest : public ::testing::TestWithParam<GetLevelCountsFunc> {
     }
   }
 
-  void PrintDiff(const int width, const int height) const {
-    if (memcmp(level_counts_, level_counts_ref_,
-               sizeof(*level_counts_ref_) * MAX_TX_SQUARE)) {
-      for (int y = 0; y < height; y++) {
-        for (int x = 0; x < width; x++) {
-          if (level_counts_ref_[y * width + x] !=
-              level_counts_[y * width + x]) {
-            printf("count[%d][%d] diff:%6d (ref),%6d (opt)\n", y, x,
-                   level_counts_ref_[y * width + x],
-                   level_counts_[y * width + x]);
-            break;
-          }
+  bool Compare(const int stride, const int width, const int height) const {
+    bool result = false;
+    for (int y = 0; y < height; y++) {
+      for (int x = 0; x < width; x++) {
+        if (level_counts_ref_[y * stride + x] !=
+            level_counts_[y * stride + x]) {
+          printf("count[%d][%d] diff:%6d (ref),%6d (opt)\n", y, x,
+                 level_counts_ref_[y * stride + x],
+                 level_counts_[y * stride + x]);
+          result = true;
+          break;
         }
       }
     }
+    return result;
   }
 
   GetLevelCountsFunc get_br_level_counts_func_;

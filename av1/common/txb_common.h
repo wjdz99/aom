@@ -573,6 +573,14 @@ static INLINE void get_txb_ctx(BLOCK_SIZE plane_bsize, TX_SIZE tx_size,
   }
 }
 
+static INLINE void update_max_row_col(const int pos, const int bwl,
+                                      int *const max_col, int *const max_row) {
+  const int row = pos >> bwl;
+  const int col = pos - (row << bwl);
+  *max_col = AOMMAX(*max_col, col);
+  *max_row = AOMMAX(*max_row, row);
+}
+
 void av1_init_txb_probs(FRAME_CONTEXT *fc);
 
 void av1_init_lv_map(AV1_COMMON *cm);

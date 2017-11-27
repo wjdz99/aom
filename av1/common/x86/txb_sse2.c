@@ -65,24 +65,25 @@ static INLINE __m128i get_level_counts_kernel_sse2(__m128i *const level) {
 }
 
 static INLINE void get_4_level_counts_sse2(const uint8_t *const levels,
-                                           const int height,
+                                           const int stride,
+                                           const int real_height,
                                            uint8_t *const level_counts) {
-  const int stride = 4 + TX_PAD_HOR;
+  const int levels_stride = stride + TX_PAD_HOR;
+  const int height = (real_height + 3) & ~3;
   const __m128i level_minus_1 = _mm_set1_epi8(NUM_BASE_LEVELS);
   __m128i count;
   __m128i level[9];
 
-  /* level_counts must be 16 byte aligned. */
-  assert(!((intptr_t)level_counts & 0xf));
-  assert(!(height % 4));
-
   if (height == 4) {
-    load_levels_4x4x3_sse2(levels - 1 * stride, levels + 0 * stride,
-                           levels + 1 * stride, levels + 2 * stride, &level[0]);
-    load_levels_4x4x3_sse2(levels + 0 * stride, levels + 1 * stride,
-                           levels + 2 * stride, levels + 3 * stride, &level[3]);
-    load_levels_4x4x3_sse2(levels + 1 * stride, levels + 2 * stride,
-                           levels + 3 * stride, levels + 4 * stride, &level[6]);
+    load_levels_4x4x3_sse2(
+        levels - 1 * levels_stride, levels + 0 * levels_stride,
+        levels + 1 * levels_stride, levels + 2 * levels_stride, &level[0]);
+    load_levels_4x4x3_sse2(
+        levels + 0 * levels_stride, levels + 1 * levels_stride,
+        levels + 2 * levels_stride, levels + 3 * levels_stride, &level[3]);
+    load_levels_4x4x3_sse2(
+        levels + 1 * levels_stride, levels + 2 * levels_stride,
+        levels + 3 * levels_stride, levels + 4 * levels_stride, &level[6]);
     level[0] = _mm_cmpgt_epi8(level[0], level_minus_1);
     level[1] = _mm_cmpgt_epi8(level[1], level_minus_1);
     level[2] = _mm_cmpgt_epi8(level[2], level_minus_1);
@@ -90,7 +91,7 @@ static INLINE void get_4_level_counts_sse2(const uint8_t *const levels,
     level[4] = _mm_cmpgt_epi8(level[4], level_minus_1);
     level[5] = _mm_cmpgt_epi8(level[5], level_minus_1);
     count = get_level_counts_kernel_sse2(level);
-    _mm_store_si128((__m128i *)level_counts, count);
+    store_8bit_4x4_from_1_reg_sse2(count, level_counts, stride);
   } else {
     const uint8_t *ls[4];
     uint8_t *lcs[4];
@@ -98,19 +99,21 @@ static INLINE void get_4_level_counts_sse2(const uint8_t *const levels,
 
     // levels[] are divided into 4 even parts. In each loop, totally 4 rows from
     // different parts are processed together.
-    ls[0] = levels + 0 * stride * height / 4;
-    ls[1] = levels + 1 * stride * height / 4;
-    ls[2] = levels + 2 * stride * height / 4;
-    ls[3] = levels + 3 * stride * height / 4;
-    lcs[0] = level_counts + 0 * 4 * height / 4;
-    lcs[1] = level_counts + 1 * 4 * height / 4;
-    lcs[2] = level_counts + 2 * 4 * height / 4;
-    lcs[3] = level_counts + 3 * 4 * height / 4;
+    ls[0] = levels + 0 * levels_stride * height / 4;
+    ls[1] = levels + 1 * levels_stride * height / 4;
+    ls[2] = levels + 2 * levels_stride * height / 4;
+    ls[3] = levels + 3 * levels_stride * height / 4;
+    lcs[0] = level_counts + 0 * stride * height / 4;
+    lcs[1] = level_counts + 1 * stride * height / 4;
+    lcs[2] = level_counts + 2 * stride * height / 4;
+    lcs[3] = level_counts + 3 * stride * height / 4;
 
-    load_levels_4x4x3_sse2(ls[0] - 1 * stride, ls[1] - 1 * stride,
-                           ls[2] - 1 * stride, ls[3] - 1 * stride, &level[0]);
-    load_levels_4x4x3_sse2(ls[0] + 0 * stride, ls[1] + 0 * stride,
-                           ls[2] + 0 * stride, ls[3] + 0 * stride, &level[3]);
+    load_levels_4x4x3_sse2(ls[0] - 1 * levels_stride, ls[1] - 1 * levels_stride,
+                           ls[2] - 1 * levels_stride, ls[3] - 1 * levels_stride,
+                           &level[0]);
+    load_levels_4x4x3_sse2(ls[0] + 0 * levels_stride, ls[1] + 0 * levels_stride,
+                           ls[2] + 0 * levels_stride, ls[3] + 0 * levels_stride,
+                           &level[3]);
     level[0] = _mm_cmpgt_epi8(level[0], level_minus_1);
     level[1] = _mm_cmpgt_epi8(level[1], level_minus_1);
     level[2] = _mm_cmpgt_epi8(level[2], level_minus_1);
@@ -119,31 +122,34 @@ static INLINE void get_4_level_counts_sse2(const uint8_t *const levels,
     level[5] = _mm_cmpgt_epi8(level[5], level_minus_1);
 
     do {
-      load_levels_4x4x3_sse2(ls[0] + 1 * stride, ls[1] + 1 * stride,
-                             ls[2] + 1 * stride, ls[3] + 1 * stride, &level[6]);
+      load_levels_4x4x3_sse2(
+          ls[0] + 1 * levels_stride, ls[1] + 1 * levels_stride,
+          ls[2] + 1 * levels_stride, ls[3] + 1 * levels_stride, &level[6]);
 
       count = get_level_counts_kernel_sse2(level);
       *(int *)(lcs[0]) = _mm_cvtsi128_si32(count);
       *(int *)(lcs[1]) = _mm_cvtsi128_si32(_mm_srli_si128(count, 4));
       *(int *)(lcs[2]) = _mm_cvtsi128_si32(_mm_srli_si128(count, 8));
       *(int *)(lcs[3]) = _mm_cvtsi128_si32(_mm_srli_si128(count, 12));
-      ls[0] += stride;
-      ls[1] += stride;
-      ls[2] += stride;
-      ls[3] += stride;
-      lcs[0] += 4;
-      lcs[1] += 4;
-      lcs[2] += 4;
-      lcs[3] += 4;
+      ls[0] += levels_stride;
+      ls[1] += levels_stride;
+      ls[2] += levels_stride;
+      ls[3] += levels_stride;
+      lcs[0] += stride;
+      lcs[1] += stride;
+      lcs[2] += stride;
+      lcs[3] += stride;
       row -= 4;
     } while (row);
   }
 }
 
 static INLINE void get_8_level_counts_sse2(const uint8_t *const levels,
-                                           const int height,
+                                           const int stride,
+                                           const int real_height,
                                            uint8_t *const level_counts) {
-  const int stride = 8 + TX_PAD_HOR;
+  const int levels_stride = stride + TX_PAD_HOR;
+  const int height = (real_height + 1) & ~1;
   const __m128i level_minus_1 = _mm_set1_epi8(NUM_BASE_LEVELS);
   int row = height;
   __m128i count;
@@ -151,27 +157,25 @@ static INLINE void get_8_level_counts_sse2(const uint8_t *const levels,
   const uint8_t *ls[2];
   uint8_t *lcs[2];
 
-  assert(!(height % 2));
-
   // levels[] are divided into 2 even parts. In each loop, totally 2 rows from
   // different parts are processed together.
   ls[0] = levels;
-  ls[1] = levels + stride * height / 2;
+  ls[1] = levels + levels_stride * height / 2;
   lcs[0] = level_counts;
-  lcs[1] = level_counts + 8 * height / 2;
+  lcs[1] = level_counts + stride * height / 2;
 
-  level[0] = _mm_loadl_epi64((__m128i *)(ls[0] - 1 * stride - 1));
-  level[1] = _mm_loadl_epi64((__m128i *)(ls[0] - 1 * stride + 0));
-  level[2] = _mm_loadl_epi64((__m128i *)(ls[0] - 1 * stride + 1));
-  level[3] = _mm_loadl_epi64((__m128i *)(ls[0] + 0 * stride - 1));
-  level[4] = _mm_loadl_epi64((__m128i *)(ls[0] + 0 * stride + 0));
-  level[5] = _mm_loadl_epi64((__m128i *)(ls[0] + 0 * stride + 1));
-  level[0] = loadh_epi64(ls[1] - 1 * stride - 1, level[0]);
-  level[1] = loadh_epi64(ls[1] - 1 * stride + 0, level[1]);
-  level[2] = loadh_epi64(ls[1] - 1 * stride + 1, level[2]);
-  level[3] = loadh_epi64(ls[1] + 0 * stride - 1, level[3]);
-  level[4] = loadh_epi64(ls[1] + 0 * stride + 0, level[4]);
-  level[5] = loadh_epi64(ls[1] + 0 * stride + 1, level[5]);
+  level[0] = _mm_loadl_epi64((__m128i *)(ls[0] - 1 * levels_stride - 1));
+  level[1] = _mm_loadl_epi64((__m128i *)(ls[0] - 1 * levels_stride + 0));
+  level[2] = _mm_loadl_epi64((__m128i *)(ls[0] - 1 * levels_stride + 1));
+  level[3] = _mm_loadl_epi64((__m128i *)(ls[0] + 0 * levels_stride - 1));
+  level[4] = _mm_loadl_epi64((__m128i *)(ls[0] + 0 * levels_stride + 0));
+  level[5] = _mm_loadl_epi64((__m128i *)(ls[0] + 0 * levels_stride + 1));
+  level[0] = loadh_epi64(ls[1] - 1 * levels_stride - 1, level[0]);
+  level[1] = loadh_epi64(ls[1] - 1 * levels_stride + 0, level[1]);
+  level[2] = loadh_epi64(ls[1] - 1 * levels_stride + 1, level[2]);
+  level[3] = loadh_epi64(ls[1] + 0 * levels_stride - 1, level[3]);
+  level[4] = loadh_epi64(ls[1] + 0 * levels_stride + 0, level[4]);
+  level[5] = loadh_epi64(ls[1] + 0 * levels_stride + 1, level[5]);
   level[0] = _mm_cmpgt_epi8(level[0], level_minus_1);
   level[1] = _mm_cmpgt_epi8(level[1], level_minus_1);
   level[2] = _mm_cmpgt_epi8(level[2], level_minus_1);
@@ -180,45 +184,47 @@ static INLINE void get_8_level_counts_sse2(const uint8_t *const levels,
   level[5] = _mm_cmpgt_epi8(level[5], level_minus_1);
 
   do {
-    level[6] = _mm_loadl_epi64((__m128i *)(ls[0] + 1 * stride - 1));
-    level[7] = _mm_loadl_epi64((__m128i *)(ls[0] + 1 * stride + 0));
-    level[8] = _mm_loadl_epi64((__m128i *)(ls[0] + 1 * stride + 1));
-    level[6] = loadh_epi64(ls[1] + 1 * stride - 1, level[6]);
-    level[7] = loadh_epi64(ls[1] + 1 * stride + 0, level[7]);
-    level[8] = loadh_epi64(ls[1] + 1 * stride + 1, level[8]);
+    level[6] = _mm_loadl_epi64((__m128i *)(ls[0] + 1 * levels_stride - 1));
+    level[7] = _mm_loadl_epi64((__m128i *)(ls[0] + 1 * levels_stride + 0));
+    level[8] = _mm_loadl_epi64((__m128i *)(ls[0] + 1 * levels_stride + 1));
+    level[6] = loadh_epi64(ls[1] + 1 * levels_stride - 1, level[6]);
+    level[7] = loadh_epi64(ls[1] + 1 * levels_stride + 0, level[7]);
+    level[8] = loadh_epi64(ls[1] + 1 * levels_stride + 1, level[8]);
 
     count = get_level_counts_kernel_sse2(level);
     _mm_storel_epi64((__m128i *)(lcs[0]), count);
     _mm_storeh_pi((__m64 *)(lcs[1]), _mm_castsi128_ps(count));
-    ls[0] += stride;
-    ls[1] += stride;
-    lcs[0] += 8;
-    lcs[1] += 8;
+    ls[0] += levels_stride;
+    ls[1] += levels_stride;
+    lcs[0] += stride;
+    lcs[1] += stride;
     row -= 2;
   } while (row);
 }
 
 static INLINE void get_16x_level_counts_sse2(const uint8_t *levels,
-                                             const int width, const int height,
+                                             const int stride,
+                                             const int real_width,
+                                             const int height,
                                              uint8_t *level_counts) {
-  const int stride = width + TX_PAD_HOR;
+  const int levels_stride = stride + TX_PAD_HOR;
+  const int width = (real_width + 15) & ~15;
   const __m128i level_minus_1 = _mm_set1_epi8(NUM_BASE_LEVELS);
   __m128i count;
   __m128i level[9];
 
   /* level_counts must be 16 byte aligned. */
   assert(!((intptr_t)level_counts & 0xf));
-  assert(!(width % 16));
 
   for (int i = 0; i < width; i += 16) {
     int row = height;
 
-    level[0] = _mm_loadu_si128((__m128i *)(levels + i - 1 * stride - 1));
-    level[1] = _mm_loadu_si128((__m128i *)(levels + i - 1 * stride + 0));
-    level[2] = _mm_loadu_si128((__m128i *)(levels + i - 1 * stride + 1));
-    level[3] = _mm_loadu_si128((__m128i *)(levels + i + 0 * stride - 1));
-    level[4] = _mm_loadu_si128((__m128i *)(levels + i + 0 * stride + 0));
-    level[5] = _mm_loadu_si128((__m128i *)(levels + i + 0 * stride + 1));
+    level[0] = _mm_loadu_si128((__m128i *)(levels + i - 1 * levels_stride - 1));
+    level[1] = _mm_loadu_si128((__m128i *)(levels + i - 1 * levels_stride + 0));
+    level[2] = _mm_loadu_si128((__m128i *)(levels + i - 1 * levels_stride + 1));
+    level[3] = _mm_loadu_si128((__m128i *)(levels + i + 0 * levels_stride - 1));
+    level[4] = _mm_loadu_si128((__m128i *)(levels + i + 0 * levels_stride + 0));
+    level[5] = _mm_loadu_si128((__m128i *)(levels + i + 0 * levels_stride + 1));
     level[0] = _mm_cmpgt_epi8(level[0], level_minus_1);
     level[1] = _mm_cmpgt_epi8(level[1], level_minus_1);
     level[2] = _mm_cmpgt_epi8(level[2], level_minus_1);
@@ -227,30 +233,33 @@ static INLINE void get_16x_level_counts_sse2(const uint8_t *levels,
     level[5] = _mm_cmpgt_epi8(level[5], level_minus_1);
 
     do {
-      level[6] = _mm_loadu_si128((__m128i *)(levels + i + 1 * stride - 1));
-      level[7] = _mm_loadu_si128((__m128i *)(levels + i + 1 * stride + 0));
-      level[8] = _mm_loadu_si128((__m128i *)(levels + i + 1 * stride + 1));
+      level[6] =
+          _mm_loadu_si128((__m128i *)(levels + i + 1 * levels_stride - 1));
+      level[7] =
+          _mm_loadu_si128((__m128i *)(levels + i + 1 * levels_stride + 0));
+      level[8] =
+          _mm_loadu_si128((__m128i *)(levels + i + 1 * levels_stride + 1));
 
       count = get_level_counts_kernel_sse2(level);
       _mm_store_si128((__m128i *)(level_counts + i), count);
-      levels += stride;
-      level_counts += width;
+      levels += levels_stride;
+      level_counts += stride;
     } while (--row);
 
-    levels -= stride * height;
-    level_counts -= width * height;
+    levels -= levels_stride * height;
+    level_counts -= stride * height;
   }
 }
 
 // Note: levels[] must be in the range [0, 127], inclusive.
-void av1_get_br_level_counts_sse2(const uint8_t *const levels, const int width,
-                                  const int height,
+void av1_get_br_level_counts_sse2(const uint8_t *const levels, const int stride,
+                                  const int width, const int height,
                                   uint8_t *const level_counts) {
-  if (width == 4) {
-    get_4_level_counts_sse2(levels, height, level_counts);
-  } else if (width == 8) {
-    get_8_level_counts_sse2(levels, height, level_counts);
+  if (width <= 4) {
+    get_4_level_counts_sse2(levels, stride, height, level_counts);
+  } else if (width <= 8) {
+    get_8_level_counts_sse2(levels, stride, height, level_counts);
   } else {
-    get_16x_level_counts_sse2(levels, width, height, level_counts);
+    get_16x_level_counts_sse2(levels, stride, width, height, level_counts);
   }
 }

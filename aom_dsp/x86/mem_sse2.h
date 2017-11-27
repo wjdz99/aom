@@ -22,4 +22,25 @@ static INLINE __m128i loadh_epi64(const void *const src, const __m128i s) {
       _mm_loadh_pi(_mm_castsi128_ps(s), (const __m64 *)src));
 }
 
+static INLINE void store_8bit_4x4_sse2(const __m128i *const src,
+                                       uint8_t *const dst,
+                                       const ptrdiff_t stride) {
+  *(int *)(dst + 0 * stride) = _mm_cvtsi128_si32(src[0]);
+  *(int *)(dst + 1 * stride) = _mm_cvtsi128_si32(src[1]);
+  *(int *)(dst + 2 * stride) = _mm_cvtsi128_si32(src[2]);
+  *(int *)(dst + 3 * stride) = _mm_cvtsi128_si32(src[3]);
+}
+
+static INLINE void store_8bit_4x4_from_1_reg_sse2(const __m128i src,
+                                                  uint8_t *const dst,
+                                                  const ptrdiff_t stride) {
+  __m128i s[4];
+
+  s[0] = src;
+  s[1] = _mm_srli_si128(src, 4);
+  s[2] = _mm_srli_si128(src, 8);
+  s[3] = _mm_srli_si128(src, 12);
+  store_8bit_4x4_sse2(s, dst, stride);
+}
+
 #endif  // AOM_DSP_X86_MEM_SSE2_H_

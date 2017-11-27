@@ -352,15 +352,16 @@ void av1_get_base_level_counts(const uint8_t *const levels,
 
 // Note: because of the SSE2 optimization, levels[] must be in the range [0,
 // 127], inclusive.
-void av1_get_br_level_counts_c(const uint8_t *const levels, const int width,
-                               const int height, uint8_t *const level_counts) {
-  const int stride = width + TX_PAD_HOR;
+void av1_get_br_level_counts_c(const uint8_t *const levels, const int stride,
+                               const int width, const int height,
+                               uint8_t *const level_counts) {
+  const int levels_stride = stride + TX_PAD_HOR;
   const int level_minus_1 = NUM_BASE_LEVELS;
 
   for (int row = 0; row < height; ++row) {
     for (int col = 0; col < width; ++col) {
-      level_counts[row * width + col] =
-          get_level_count(levels, stride, row, col, level_minus_1,
+      level_counts[row * stride + col] =
+          get_level_count(levels, levels_stride, row, col, level_minus_1,
                           br_ref_offset, BR_CONTEXT_POSITION_NUM);
     }
   }

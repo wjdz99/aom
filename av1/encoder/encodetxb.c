@@ -332,6 +332,8 @@ void av1_write_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
   const int bwl = tx_size_wide_log2[tx_size];
   const int width = tx_size_wide[tx_size];
   const int height = tx_size_high[tx_size];
+  int max_col = -1;
+  int max_row = -1;
   int update_eob = -1;
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
   uint8_t levels_buf[TX_PAD_2D];
@@ -386,11 +388,13 @@ void av1_write_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
   int coeff_ctx = 0;
   for (int i = 0; i < eob; ++i) {
     c = eob - 1 - i;
+    const int pos = scan[c];
+    update_max_row_col(pos, bwl, &max_col, &max_row);
 
 #if CONFIG_LV_MAP_MULTI
     coeff_ctx =
         get_nz_map_ctx(levels, c, scan, bwl, height, tx_type, c == eob - 1);
-    tran_low_t v = tcoeff[scan[c]];
+    tran_low_t v = tcoeff[pos];
 #if USE_BASE_EOB_ALPHABET
     if (c == eob - 1) {
       aom_write_symbol(
@@ -410,7 +414,7 @@ void av1_write_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
 #endif
 #else
     coeff_ctx = get_nz_map_ctx(levels, c, scan, bwl, height, tx_type);
-    tran_low_t v = tcoeff[scan[c]];
+    tran_low_t v = tcoeff[pos];
     int is_nz = (v != 0);
 
     if (c < eob - 1) {
@@ -446,12 +450,13 @@ void av1_write_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
   for (int i = 0; i < NUM_BASE_LEVELS; ++i) {
     av1_get_base_level_counts(levels, i, width, height, level_counts);
     for (c = eob - 1; c >= 0; --c) {
-      const tran_low_t level = abs(tcoeff[scan[c]]);
+      const int pos = scan[c];
+      const tran_low_t level = abs(tcoeff[pos]);
       int ctx;
 
       if (level <= i) continue;
 
-      ctx = get_base_ctx(levels, scan[c], bwl, i, level_counts[scan[c]]);
+      ctx = get_base_ctx(levels, pos, bwl, i, level_counts[pos]);
 
       if (level == i + 1) {
         aom_write_bin(w, 1, ec_ctx->coeff_base_cdf[txs_ctx][plane_type][i][ctx],
@@ -462,6 +467,7 @@ void av1_write_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
       aom_write_bin(w, 0, ec_ctx->coeff_base_cdf[txs_ctx][plane_type][i][ctx],
                     2);
       update_eob = AOMMAX(update_eob, c);
+      update_max_row_col(pos, bwl, &max_col, &max_row);
     }
   }
 #endif
@@ -487,7 +493,14 @@ void av1_write_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
   }
 
   if (update_eob >= 0) {
-    av1_get_br_level_counts(levels, width, height, level_counts);
+    if (!update_eob) {
+      level_counts[0] =
+          get_level_count(levels, width + TX_PAD_HOR, 0, 0, NUM_BASE_LEVELS,
+                          br_ref_offset, BR_CONTEXT_POSITION_NUM);
+    } else {
+      av1_get_br_level_counts(levels, width, max_col + 1, max_row + 1,
+                              level_counts);
+    }
     for (c = update_eob; c >= 0; --c) {
       const tran_low_t level = abs(tcoeff[scan[c]]);
       int idx;
@@ -686,7 +699,13 @@ int av1_cost_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCK *x, int plane,
   const int seg_eob = av1_get_max_eob(tx_size);
   int eob_cost = get_eob_cost(eob, seg_eob, coeff_costs, tx_type);
 
-  av1_get_br_level_counts(levels, width, height, level_counts);
+  if (eob == 1) {
+    level_counts[0] =
+        get_level_count(levels, width + TX_PAD_HOR, 0, 0, NUM_BASE_LEVELS,
+                        br_ref_offset, BR_CONTEXT_POSITION_NUM);
+  } else {
+    av1_get_br_level_counts(levels, width, width, height, level_counts);
+  }
   cost += eob_cost;
 #if USE_CAUSAL_BASE_CTX
   int coeff_ctx = 0;
@@ -2195,6 +2214,8 @@ void av1_update_and_record_txb_context(int plane, int block, int blk_row,
   const int bwl = tx_size_wide_log2[tx_size];
   const int width = tx_size_wide[tx_size];
   const int height = tx_size_high[tx_size];
+  int max_col = -1;
+  int max_row = -1;
   uint8_t levels_buf[TX_PAD_2D];
   uint8_t *const levels = set_levels(levels_buf, width);
   DECLARE_ALIGNED(16, uint8_t, level_counts[MAX_TX_SQUARE]);
@@ -2235,8 +2256,10 @@ void av1_update_and_record_txb_context(int plane, int block, int blk_row,
   update_eob = eob - 1;
 #endif
   for (c = eob - 1; c >= 0; --c) {
-    tran_low_t v = qcoeff[scan[c]];
+    const int pos = scan[c];
+    tran_low_t v = qcoeff[pos];
     int is_nz = (v != 0);
+    update_max_row_col(pos, bwl, &max_col, &max_row);
 
 #if CONFIG_LV_MAP_MULTI
     (void)is_nz;
@@ -2297,12 +2320,13 @@ void av1_update_and_record_txb_context(int plane, int block, int blk_row,
   for (int i = 0; i < NUM_BASE_LEVELS; ++i) {
     av1_get_base_level_counts(levels, i, width, height, level_counts);
     for (c = eob - 1; c >= 0; --c) {
-      const tran_low_t level = abs(tcoeff[scan[c]]);
+      const int pos = scan[c];
+      const tran_low_t level = abs(tcoeff[pos]);
       int ctx;
 
       if (level <= i) continue;
 
-      ctx = get_base_ctx(levels, scan[c], bwl, i, level_counts[scan[c]]);
+      ctx = get_base_ctx(levels, pos, bwl, i, level_counts[pos]);
 
       if (level == i + 1) {
         ++td->counts->coeff_base[txsize_ctx][plane_type][i][ctx][1];
@@ -2316,6 +2340,7 @@ void av1_update_and_record_txb_context(int plane, int block, int blk_row,
         update_bin(ec_ctx->coeff_base_cdf[txsize_ctx][plane_type][i][ctx], 0,
                    2);
       update_eob = AOMMAX(update_eob, c);
+      update_max_row_col(pos, bwl, &max_col, &max_row);
     }
   }
 #endif
@@ -2334,7 +2359,14 @@ void av1_update_and_record_txb_context(int plane, int block, int blk_row,
   }
 
   if (update_eob >= 0) {
-    av1_get_br_level_counts(levels, width, height, level_counts);
+    if (!update_eob) {
+      level_counts[0] =
+          get_level_count(levels, width + TX_PAD_HOR, 0, 0, NUM_BASE_LEVELS,
+                          br_ref_offset, BR_CONTEXT_POSITION_NUM);
+    } else {
+      av1_get_br_level_counts(levels, width, max_col + 1, max_row + 1,
+                              level_counts);
+    }
     for (c = update_eob; c >= 0; --c) {
       const tran_low_t level = abs(tcoeff[scan[c]]);
       int idx;
