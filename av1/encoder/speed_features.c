@@ -141,6 +141,9 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
 #if CONFIG_EXT_PARTITION_TYPES
     sf->prune_ext_partition_types_search = 1;
 #endif  // CONFIG_EXT_PARTITION_TYPES
+#if CONFIG_DUAL_FILTER
+    sf->use_fast_interpolation_filter_search = 1;
+#endif  // CONFIG_DUAL_FILTER
   }
 
   if (speed >= 2) {
@@ -538,4 +541,6 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi) {
     cpi->find_fractional_mv_step = av1_return_max_sub_pixel_mv;
   else if (cpi->oxcf.motion_vector_unit_test == 2)
     cpi->find_fractional_mv_step = av1_return_min_sub_pixel_mv;
+
+  sf->use_fast_interpolation_filter_search = 0;
 }
