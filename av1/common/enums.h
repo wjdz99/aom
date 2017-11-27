@@ -108,6 +108,8 @@ extern "C" {
 #define USE_LOOP_FILTER_SUPERBLOCK 1
 #endif  // CONFIG_LPF_SB
 
+#define MAX_FRAME_DISTANCE (INT16_MAX - 1)
+
 #if CONFIG_JNT_COMP
 typedef enum COMPOUND_DIST_WEIGHT_MODE {
   DIST,
@@ -251,6 +253,7 @@ typedef enum ATTRIBUTE_PACKED {
 #define MAX_TX_SQUARE (MAX_TX_SIZE * MAX_TX_SIZE)
 
 // Pad 4 extra columns to remove horizontal availability check.
+#define TX_PAD_HOR_LOG2 2
 #define TX_PAD_HOR 4
 // Pad 6 extra rows (2 on top and 4 on bottom) to remove vertical availability
 // check.
@@ -564,7 +567,6 @@ typedef enum ATTRIBUTE_PACKED {
   FILTER_DC_PRED,
   FILTER_V_PRED,
   FILTER_H_PRED,
-  FILTER_D117_PRED,
   FILTER_D153_PRED,
   FILTER_PAETH_PRED,
   FILTER_INTRA_MODES,

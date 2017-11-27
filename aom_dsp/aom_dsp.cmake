@@ -47,9 +47,10 @@ set(AOM_DSP_COMMON_INTRIN_SSE2
     "${AOM_ROOT}/aom_dsp/x86/aom_asm_stubs.c"
     "${AOM_ROOT}/aom_dsp/x86/convolve.h"
     "${AOM_ROOT}/aom_dsp/x86/intrapred_sse2.c"
-    "${AOM_ROOT}/aom_dsp/x86/txfm_common_sse2.h"
+    "${AOM_ROOT}/aom_dsp/x86/loopfilter_sse2.c"
     "${AOM_ROOT}/aom_dsp/x86/lpf_common_sse2.h"
-    "${AOM_ROOT}/aom_dsp/x86/loopfilter_sse2.c")
+    "${AOM_ROOT}/aom_dsp/x86/mem_sse2.h"
+    "${AOM_ROOT}/aom_dsp/x86/txfm_common_sse2.h")
 
 set(AOM_DSP_COMMON_ASM_SSSE3
     "${AOM_ROOT}/aom_dsp/x86/aom_subpixel_8t_ssse3.asm"
@@ -64,7 +65,11 @@ set(AOM_DSP_COMMON_INTRIN_SSSE3
 if (CONFIG_JNT_COMP)
   set(AOM_DSP_COMMON_INTRIN_SSSE3
       ${AOM_DSP_COMMON_INTRIN_SSSE3}
-      "${AOM_ROOT}/aom_dsp/x86/variance_ssse3.c")
+      "${AOM_ROOT}/aom_dsp/x86/jnt_variance_ssse3.c")
+
+  set(AOM_DSP_COMMON_INTRIN_SSSE3
+      ${AOM_DSP_COMMON_INTRIN_SSSE3}
+      "${AOM_ROOT}/aom_dsp/x86/jnt_sad_ssse3.c")
 endif ()
 
 set(AOM_DSP_COMMON_INTRIN_SSE4_1
@@ -323,6 +328,7 @@ if (CONFIG_AV1_ENCODER)
       "${AOM_ROOT}/aom_dsp/psnr.c"
       "${AOM_ROOT}/aom_dsp/psnr.h"
       "${AOM_ROOT}/aom_dsp/sad.c"
+      "${AOM_ROOT}/aom_dsp/sad_av1.c"
       "${AOM_ROOT}/aom_dsp/variance.c"
       "${AOM_ROOT}/aom_dsp/variance.h")
 

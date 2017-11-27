@@ -54,16 +54,22 @@ static INLINE int rec_eob_pos(int16_t eob_token, int16_t extra) {
   return eob;
 }
 
-uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
-                            aom_reader *r, int blk_row, int blk_col, int block,
-                            int plane, tran_low_t *tcoeffs, TXB_CTX *txb_ctx,
-                            TX_SIZE tx_size, int16_t *max_scan_line, int *eob) {
-  FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
-  FRAME_COUNTS *counts = xd->counts;
-  TX_SIZE txs_ctx = get_txsize_context(tx_size);
-  PLANE_TYPE plane_type = get_plane_type(plane);
-  MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
-  const int seg_eob = tx_size_2d[tx_size];
+uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
+                            aom_reader *const r, const int blk_row,
+                            const int blk_col, const int block, const int plane,
+                            tran_low_t *const tcoeffs,
+                            const TXB_CTX *const txb_ctx, const TX_SIZE tx_size,
+                            int16_t *const max_scan_line, int *const eob) {
+  FRAME_CONTEXT *const ec_ctx = xd->tile_ctx;
+#if TXCOEFF_TIMER
+  FRAME_COUNTS *const counts = NULL;
+#else
+  FRAME_COUNTS *const counts = xd->counts;
+#endif
+  const TX_SIZE txs_ctx = get_txsize_context(tx_size);
+  const PLANE_TYPE plane_type = get_plane_type(plane);
+  MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
+  const int seg_eob = av1_get_max_eob(tx_size);
   int c = 0;
   int update_eob = -1;
   const int16_t *const dequant =
@@ -78,7 +84,7 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
   DECLARE_ALIGNED(16, uint8_t, level_counts[MAX_TX_SQUARE]);
   int8_t signs[MAX_TX_SQUARE];
 
-  int all_zero = av1_read_record_bin(
+  const int all_zero = av1_read_record_bin(
       counts, r, ec_ctx->txb_skip_cdf[txs_ctx][txb_ctx->txb_skip_ctx], 2,
       ACCT_STR);
   // printf("txb_skip: %d %2d\n", txs_ctx, txb_ctx->txb_skip_ctx);
@@ -96,7 +102,6 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
   memset(levels_buf, 0,
          sizeof(*levels_buf) *
              ((width + TX_PAD_HOR) * (height + TX_PAD_VER) + TX_PAD_END));
-  memset(signs, 0, sizeof(*signs) * seg_eob);
 
   (void)blk_row;
   (void)blk_col;
@@ -107,19 +112,17 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
   const TX_TYPE tx_type =
       av1_get_tx_type(plane_type, xd, blk_row, blk_col, block, tx_size);
   const SCAN_ORDER *const scan_order = get_scan(cm, tx_size, tx_type, mbmi);
-  const int16_t *scan = scan_order->scan;
+  const int16_t *const scan = scan_order->scan;
 
-  unsigned int(*nz_map_count)[SIG_COEF_CONTEXTS][2] =
-      (counts) ? &counts->nz_map[txs_ctx][plane_type] : NULL;
   int16_t dummy;
-  int16_t max_eob_pt = get_eob_pos_token(seg_eob, &dummy);
+  const int16_t max_eob_pt = get_eob_pos_token(seg_eob, &dummy);
 
   int16_t eob_extra = 0;
   int16_t eob_pt = 0;
   int is_equal = 0;
 
   for (int i = 1; i < max_eob_pt; i++) {
-    int eob_pos_ctx = av1_get_eob_pos_ctx(tx_type, i);
+    const int eob_pos_ctx = av1_get_eob_pos_ctx(tx_type, i);
     is_equal = av1_read_record_bin(
         counts, r, ec_ctx->eob_flag_cdf[txs_ctx][plane_type][eob_pos_ctx], 2,
         ACCT_STR);
@@ -140,22 +143,20 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
 
   // printf("Dec: ");
   if (k_eob_offset_bits[eob_pt] > 0) {
-    int eob_shift = k_eob_offset_bits[eob_pt] - 1;
     int bit = av1_read_record_bin(
         counts, r, ec_ctx->eob_extra_cdf[txs_ctx][plane_type][eob_pt], 2,
         ACCT_STR);
     // printf("eob_extra_cdf: %d %d %2d\n", txs_ctx, plane_type, eob_pt);
     if (counts) ++counts->eob_extra[txs_ctx][plane_type][eob_pt][bit];
     if (bit) {
-      eob_extra += (1 << eob_shift);
+      eob_extra += (1 << (k_eob_offset_bits[eob_pt] - 1));
     }
 
     for (int i = 1; i < k_eob_offset_bits[eob_pt]; i++) {
-      eob_shift = k_eob_offset_bits[eob_pt] - 1 - i;
       bit = av1_read_record_bit(counts, r, ACCT_STR);
       // printf("eob_bit:\n");
       if (bit) {
-        eob_extra += (1 << eob_shift);
+        eob_extra += (1 << (k_eob_offset_bits[eob_pt] - 1 - i));
       }
       //  printf("%d ", bit);
     }
@@ -165,25 +166,48 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
 
   for (int i = 0; i < *eob; ++i) {
     c = *eob - 1 - i;
+    const int pos = scan[c];
 #if CONFIG_LV_MAP_MULTI
-    (void)nz_map_count;
-    int coeff_ctx =
+    const int coeff_ctx =
         get_nz_map_ctx(levels, c, scan, bwl, height, tx_type, c == *eob - 1);
-    int level = av1_read_record_symbol(
+#if USE_BASE_EOB_ALPHABET
+    aom_cdf_prob *cdf;
+    int nsymbs;
+    if (c == *eob - 1) {
+      cdf = ec_ctx->coeff_base_eob_cdf[txs_ctx][plane_type]
+                                      [coeff_ctx - SIG_COEF_CONTEXTS +
+                                       SIG_COEF_CONTEXTS_EOB];
+      nsymbs = 3;
+    } else {
+      cdf = ec_ctx->coeff_base_cdf[txs_ctx][plane_type][coeff_ctx];
+      nsymbs = 4;
+    }
+    const int level = av1_read_record_symbol(counts, r, cdf, nsymbs, ACCT_STR) +
+                      (c == *eob - 1);
+#else
+    const int level = av1_read_record_symbol(
         counts, r, ec_ctx->coeff_base_cdf[txs_ctx][plane_type][coeff_ctx], 4,
         ACCT_STR);
-    levels[get_paded_idx(scan[c], bwl)] = level;
-    if (level) *max_scan_line = AOMMAX(*max_scan_line, scan[c]);
+#endif
     // printf("base_cdf: %d %d %2d\n", txs_ctx, plane_type, coeff_ctx);
     // printf("base_cdf: %d %d %2d : %3d %3d %3d\n", txs_ctx, plane_type,
     // coeff_ctx,
     //            ec_ctx->coeff_base_cdf[txs_ctx][plane_type][coeff_ctx][0]>>7,
     //            ec_ctx->coeff_base_cdf[txs_ctx][plane_type][coeff_ctx][1]>>7,
     //            ec_ctx->coeff_base_cdf[txs_ctx][plane_type][coeff_ctx][2]>>7);
-    if (level < 3) cul_level += level;
+    if (level) {
+      levels[get_paded_idx(pos, bwl)] = level;
+      *max_scan_line = AOMMAX(*max_scan_line, pos);
+      if (level < 3) {
+        cul_level += level;
+        tcoeffs[pos] = (level * dequant[!!c]) >> shift;
+      } else if (update_eob < 0) {
+        update_eob = c;
+      }
+    }
 #else
     int is_nz;
-    int coeff_ctx = get_nz_map_ctx(levels, c, scan, bwl, height, tx_type);
+    const int coeff_ctx = get_nz_map_ctx(levels, c, scan, bwl, height, tx_type);
 
     if (c < *eob - 1) {
       is_nz = av1_read_record_bin(
@@ -193,17 +217,12 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
       is_nz = 1;
     }
 
-    // set non-zero coefficient map.
-    levels[get_paded_idx(scan[c], bwl)] = is_nz;
-
-    if (counts) ++(*nz_map_count)[coeff_ctx][is_nz];
-
 #if USE_CAUSAL_BASE_CTX
     if (is_nz) {
       int k;
       for (k = 0; k < NUM_BASE_LEVELS; ++k) {
-        int ctx = coeff_ctx;
-        int is_k = av1_read_record_bin(
+        const int ctx = coeff_ctx;
+        const int is_k = av1_read_record_bin(
             counts, r, ec_ctx->coeff_base_cdf[txs_ctx][plane_type][k][ctx], 2,
             ACCT_STR);
         if (counts) ++counts->coeff_base[txs_ctx][plane_type][k][ctx][is_k];
@@ -211,29 +230,36 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
         // semantic: is_k = 1 if level > (k+1)
         if (is_k == 0) {
           cul_level += k + 1;
+          tcoeffs[pos] = ((k + 1) * dequant[!!c]) >> shift;
           break;
         }
       }
-      levels[get_paded_idx(scan[c], bwl)] = k + 1;
-      *max_scan_line = AOMMAX(*max_scan_line, scan[c]);
+      levels[get_paded_idx(pos, bwl)] = k + 1;
+      *max_scan_line = AOMMAX(*max_scan_line, pos);
+      if (update_eob < 0 && k == NUM_BASE_LEVELS) update_eob = c;
     }
+#else
+    // set non-zero coefficient map.
+    unsigned int(*nz_map_count)[SIG_COEF_CONTEXTS][2] =
+        (counts) ? &counts->nz_map[txs_ctx][plane_type] : NULL;
+    levels[get_paded_idx(pos, bwl)] = is_nz;
+    if (counts) ++(*nz_map_count)[coeff_ctx][is_nz];
 #endif
 #endif
   }
 
-#if USE_CAUSAL_BASE_CTX
-  update_eob = *eob - 1;
-#else
+#if !USE_CAUSAL_BASE_CTX
   int i;
   for (i = 0; i < NUM_BASE_LEVELS; ++i) {
     av1_get_base_level_counts(levels, i, width, height, level_counts);
     for (c = *eob - 1; c >= 0; --c) {
-      uint8_t *const level = &levels[get_paded_idx(scan[c], bwl)];
+      const int pos = scan[c];
+      uint8_t *const level = &levels[get_paded_idx(pos, bwl)];
       int ctx;
 
       if (*level <= i) continue;
 
-      ctx = get_base_ctx(levels, scan[c], bwl, i, level_counts[scan[c]]);
+      ctx = get_base_ctx(levels, pos, bwl, i, level_counts[pos]);
 
       if (av1_read_record_bin(
               counts, r, ec_ctx->coeff_base_cdf[txs_ctx][plane_type][i][ctx], 2,
@@ -257,10 +283,11 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
   // Loop to decode all signs in the transform block,
   // starting with the sign of the DC (if applicable)
   for (c = 0; c < *eob; ++c) {
-    int8_t *const sign = &signs[scan[c]];
-    if (levels[get_paded_idx(scan[c], bwl)] == 0) continue;
+    const int pos = scan[c];
+    int8_t *const sign = &signs[pos];
+    if (levels[get_paded_idx(pos, bwl)] == 0) continue;
     if (c == 0) {
-      int dc_sign_ctx = txb_ctx->dc_sign_ctx;
+      const int dc_sign_ctx = txb_ctx->dc_sign_ctx;
 #if LV_MAP_PROB
       *sign = av1_read_record_bin(
           counts, r, ec_ctx->dc_sign_cdf[plane_type][dc_sign_ctx], 2, ACCT_STR);
@@ -272,18 +299,20 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
     } else {
       *sign = av1_read_record_bit(counts, r, ACCT_STR);
     }
+    if (*sign) tcoeffs[pos] = -tcoeffs[pos];
   }
 
   if (update_eob >= 0) {
     av1_get_br_level_counts(levels, width, height, level_counts);
     for (c = update_eob; c >= 0; --c) {
-      uint8_t *const level = &levels[get_paded_idx(scan[c], bwl)];
+      const int pos = scan[c];
+      uint8_t *const level = &levels[get_paded_idx(pos, bwl)];
       int idx;
       int ctx;
 
       if (*level <= NUM_BASE_LEVELS) continue;
 
-      ctx = get_br_ctx(levels, scan[c], bwl, level_counts[scan[c]]);
+      ctx = get_br_ctx(levels, pos, bwl, level_counts[pos]);
 
 #if CONFIG_LV_MAP_MULTI
       for (idx = 0; idx < COEFF_BASE_RANGE / (BR_CDF_SIZE - 1); ++idx) {
@@ -295,6 +324,9 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
       }
       if (*level <= NUM_BASE_LEVELS + COEFF_BASE_RANGE) {
         cul_level += *level;
+        tran_low_t t = (*level * dequant[!!c]) >> shift;
+        if (signs[pos]) t = -t;
+        tcoeffs[pos] = t;
         continue;
       }
 #else
@@ -303,7 +335,7 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
         if (av1_read_record_bin(
                 counts, r, ec_ctx->coeff_br_cdf[txs_ctx][plane_type][idx][ctx],
                 2, ACCT_STR)) {
-          int extra_bits = (1 << br_extra_bits[idx]) - 1;
+          const int extra_bits = (1 << br_extra_bits[idx]) - 1;
           //        int br_offset = aom_read_literal(r, extra_bits, ACCT_STR);
           int br_offset = 0;
           int tok;
@@ -320,10 +352,13 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
           }
           if (tok == extra_bits) br_offset = extra_bits;
 
-          int br_base = br_index_to_coeff[idx];
+          const int br_base = br_index_to_coeff[idx];
 
           *level = NUM_BASE_LEVELS + 1 + br_base + br_offset;
           cul_level += *level;
+          tran_low_t t = (*level * dequant[!!c]) >> shift;
+          if (signs[pos]) t = -t;
+          tcoeffs[pos] = t;
           break;
         }
         if (counts) ++counts->coeff_br[txs_ctx][plane_type][idx][ctx][0];
@@ -334,22 +369,12 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
       // decode 0-th order Golomb code
       *level = COEFF_BASE_RANGE + 1 + NUM_BASE_LEVELS;
       // Save golomb in tcoeffs because adding it to level may incur overflow
-      tcoeffs[scan[c]] = read_golomb(xd, r, counts);
-      cul_level += *level + tcoeffs[scan[c]];
+      tran_low_t t = *level + read_golomb(xd, r, counts);
+      cul_level += t;
+      t = (t * dequant[!!c]) >> shift;
+      if (signs[pos]) t = -t;
+      tcoeffs[pos] = t;
     }
-  }
-
-  for (c = 0; c < *eob; ++c) {
-    const int16_t dqv = (c == 0) ? dequant[0] : dequant[1];
-    const int level = levels[get_paded_idx(scan[c], bwl)];
-    // printf("level: %3d\n", level);
-    // printf("activity: %d %d %2d %3d\n", txs_ctx, plane_type, base_cul_level,
-    // level);
-    const tran_low_t t = ((level + tcoeffs[scan[c]]) * dqv) >> shift;
-#if CONFIG_SYMBOLRATE
-    av1_record_coeff(counts, level);
-#endif
-    tcoeffs[scan[c]] = signs[scan[c]] ? -t : t;
   }
 
   cul_level = AOMMIN(63, cul_level);

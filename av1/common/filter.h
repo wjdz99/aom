@@ -44,10 +44,6 @@ typedef enum ATTRIBUTE_PACKED {
   FILTER_SHARP_UV,
   FILTER_SMOOTH2_UV,
 #endif  // USE_EXTRA_FILTER
-#if CONFIG_SHORT_FILTER
-  FOURTAP_REGULAR,
-  FOURTAP_SMOOTH,
-#endif
   INTERP_FILTERS_ALL,
   SWITCHABLE_FILTERS = BILINEAR,
   SWITCHABLE = SWITCHABLE_FILTERS + 1, /* the last switchable one */
@@ -144,10 +140,6 @@ static INLINE int av1_is_interpolating_filter(
   const InterpFilterParams ip = av1_get_interp_filter_params(interp_filter);
   return (ip.filter_ptr[ip.taps / 2 - 1] == 128);
 }
-
-#if CONFIG_DUAL_FILTER
-InterpFilter av1_get_plane_interp_filter(InterpFilter interp_filter, int plane);
-#endif
 
 #ifdef __cplusplus
 }  // extern "C"

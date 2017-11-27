@@ -134,7 +134,7 @@ static int optimize_b_greedy(const AV1_COMMON *cm, MACROBLOCK *mb, int plane,
   const int eob = p->eobs[block];
   assert(mb->qindex > 0);
   assert((!plane_type && !plane) || (plane_type && plane));
-  assert(eob <= tx_size_2d[tx_size]);
+  assert(eob <= av1_get_max_eob(tx_size));
   const int ref = is_inter_block(&xd->mi[0]->mbmi);
   const tran_low_t *const coeff = BLOCK_OFFSET(p->coeff, block);
   tran_low_t *const qcoeff = BLOCK_OFFSET(p->qcoeff, block);
@@ -147,7 +147,14 @@ static int optimize_b_greedy(const AV1_COMMON *cm, MACROBLOCK *mb, int plane,
       get_scan(cm, tx_size, tx_type, &xd->mi[0]->mbmi);
   const int16_t *const scan = scan_order->scan;
   const int16_t *const nb = scan_order->neighbors;
+#if CONFIG_DAALA_TX
+  // This is one of the few places where RDO is done on coeffs; it
+  // expects the coeffs to be in Q3/D11, so we need to scale them.
+  int depth_shift = (TX_COEFF_DEPTH - 11) * 2;
+  int depth_round = depth_shift > 1 ? (1 << depth_shift >> 1) : 0;
+#else
   const int shift = av1_get_tx_scale(tx_size);
+#endif
 #if CONFIG_AOM_QM
   int seg_id = xd->mi[0]->mbmi.segment_id;
   // Use a flat matrix (i.e. no weighting) for 1D and Identity transforms
@@ -212,14 +219,19 @@ static int optimize_b_greedy(const AV1_COMMON *cm, MACROBLOCK *mb, int plane,
           tail_token_costs[band_cur][ctx_cur]);
       // accu_error does not change when x==0
     } else {
-      /*  Computing distortion
-       */
-      // compute the distortion for the first candidate
-      // and the distortion for quantizing to 0.
+/*  Computing distortion
+ */
+// compute the distortion for the first candidate
+// and the distortion for quantizing to 0.
+#if CONFIG_DAALA_TX
+      int dx0 = coeff[rc];
+      const int64_t d0 = ((int64_t)dx0 * dx0 + depth_round) >> depth_shift;
+#else
       int dx0 = abs(coeff[rc]) * (1 << shift);
       dx0 >>= xd->bd - 8;
 
       const int64_t d0 = (int64_t)dx0 * dx0;
+#endif
       const int x_a = x - 2 * sz - 1;
       int dqv;
 #if CONFIG_AOM_QM
@@ -233,26 +245,42 @@ static int optimize_b_greedy(const AV1_COMMON *cm, MACROBLOCK *mb, int plane,
       dqv = dequant_ptr[rc != 0];
 #endif
 
+#if CONFIG_DAALA_TX
+      int dx = dqcoeff[rc] - coeff[rc];
+      const int64_t d2 = ((int64_t)dx * dx + depth_round) >> depth_shift;
+#else
       int dx = (dqcoeff[rc] - coeff[rc]) * (1 << shift);
       dx = signed_shift_right(dx, xd->bd - 8);
       const int64_t d2 = (int64_t)dx * dx;
+#endif
 
       /* compute the distortion for the second candidate
        * x_a = x - 2 * sz + 1;
        */
       int64_t d2_a;
       if (x_a != 0) {
+#if CONFIG_DAALA_TX
 #if CONFIG_NEW_QUANT
         dx = av1_dequant_coeff_nuq(x, dqv, dequant_val[band_translate[i]]) -
+             coeff[rc];
+#else   // CONFIG_NEW_QUANT
+        dx -= (dqv + sz) ^ sz;
+#endif  // CONFIG_NEW_QUANT
+        d2_a = ((int64_t)dx * dx + depth_round) >> depth_shift;
+#else  // CONFIG_DAALA_TX
+#if CONFIG_NEW_QUANT
+        dx = av1_dequant_coeff_nuq(x_a, dqv, dequant_val[band_translate[i]]) -
              (coeff[rc] * (1 << shift));
         dx >>= xd->bd - 8;
 #else   // CONFIG_NEW_QUANT
         dx -= ((dqv >> (xd->bd - 8)) + sz) ^ sz;
 #endif  // CONFIG_NEW_QUANT
         d2_a = (int64_t)dx * dx;
+#endif  // CONFIG_DAALA_TX
       } else {
         d2_a = d0;
       }
+
       // Computing RD cost
       int64_t base_bits;
       // rate cost of x
@@ -321,6 +349,15 @@ static int optimize_b_greedy(const AV1_COMMON *cm, MACROBLOCK *mb, int plane,
       int dqc_a = 0;
       if (best_x || best_eob_x) {
         if (x_a != 0) {
+#if CONFIG_DAALA_TX
+#if CONFIG_NEW_QUANT
+          dqc_a = av1_dequant_abscoeff_nuq(abs(x_a), dqv,
+                                           dequant_val[band_translate[i]]);
+          if (sz) dqc_a = -dqc_a;
+#else
+          dqc_a = x_a * dqv;
+#endif  // CONFIG_NEW_QUANT
+#else   // CONFIG_DAALA_TX
 #if CONFIG_NEW_QUANT
           dqc_a = av1_dequant_abscoeff_nuq(abs(x_a), dqv,
                                            dequant_val[band_translate[i]]);
@@ -332,9 +369,10 @@ static int optimize_b_greedy(const AV1_COMMON *cm, MACROBLOCK *mb, int plane,
           else
             dqc_a = (x_a * dqv) >> shift;
 #endif  // CONFIG_NEW_QUANT
+#endif  // CONFIG_DAALA_TX
         } else {
           dqc_a = 0;
-        }  // if (x_a != 0)
+        }
       }
 
       // record the better quantized value
@@ -398,8 +436,8 @@ int av1_optimize_b(const AV1_COMMON *cm, MACROBLOCK *mb, int plane, int blk_row,
   struct macroblock_plane *const p = &mb->plane[plane];
   const int eob = p->eobs[block];
   assert((mb->qindex == 0) ^ (xd->lossless[xd->mi[0]->mbmi.segment_id] == 0));
-  if (eob == 0) return eob;
-  if (xd->lossless[xd->mi[0]->mbmi.segment_id]) return eob;
+  if (eob == 0 || !mb->optimize || xd->lossless[xd->mi[0]->mbmi.segment_id])
+    return eob;
 
 #if !CONFIG_LV_MAP
   (void)plane_bsize;
@@ -472,12 +510,20 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
 #if CONFIG_AOM_QM
   int seg_id = mbmi->segment_id;
   // Use a flat matrix (i.e. no weighting) for 1D and Identity transforms
-  const qm_val_t *qmatrix = IS_2D_TRANSFORM(tx_type)
-                                ? pd->seg_qmatrix[seg_id][tx_size]
-                                : cm->gqmatrix[NUM_QM_LEVELS - 1][0][tx_size];
-  const qm_val_t *iqmatrix = IS_2D_TRANSFORM(tx_type)
-                                 ? pd->seg_iqmatrix[seg_id][tx_size]
-                                 : cm->giqmatrix[NUM_QM_LEVELS - 1][0][tx_size];
+  const TX_SIZE qm_tx_size =
+#if CONFIG_TX64X64
+      tx_size == TX_64X64 || tx_size == TX_64X32 || tx_size == TX_32X64
+          ? TX_32X32
+          :
+#endif  // CONFIG_TX64X64
+          tx_size;
+  const qm_val_t *qmatrix =
+      IS_2D_TRANSFORM(tx_type) ? pd->seg_qmatrix[seg_id][qm_tx_size]
+                               : cm->gqmatrix[NUM_QM_LEVELS - 1][0][qm_tx_size];
+  const qm_val_t *iqmatrix =
+      IS_2D_TRANSFORM(tx_type)
+          ? pd->seg_iqmatrix[seg_id][qm_tx_size]
+          : cm->giqmatrix[NUM_QM_LEVELS - 1][0][qm_tx_size];
 #endif
 
   TxfmParam txfm_param;
@@ -493,13 +539,16 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
 #endif
 #endif
 
-  const int tx2d_size = tx_size_2d[tx_size];
   QUANT_PARAM qparam;
   const int16_t *src_diff;
 
   src_diff =
       &p->src_diff[(blk_row * diff_stride + blk_col) << tx_size_wide_log2[0]];
+#if CONFIG_DAALA_TX
+  qparam.log_scale = 0;
+#else
   qparam.log_scale = av1_get_tx_scale(tx_size);
+#endif
 #if CONFIG_NEW_QUANT
   qparam.tx_size = tx_size;
   qparam.dq = get_dq_profile_from_ctx(x->qindex, ctx, is_inter, plane_type);
@@ -569,16 +618,17 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
 #endif  // CONFIG_TXMG
 
   if (xform_quant_idx != AV1_XFORM_QUANT_SKIP_QUANT) {
+    const int n_coeffs = av1_get_max_eob(tx_size);
     if (LIKELY(!x->skip_block)) {
 #if CONFIG_DAALA_TX
-      quant_func_list[xform_quant_idx][1](coeff, tx2d_size, p, qcoeff, dqcoeff,
+      quant_func_list[xform_quant_idx][1](coeff, n_coeffs, p, qcoeff, dqcoeff,
                                           eob, scan_order, &qparam);
 #else
       quant_func_list[xform_quant_idx][txfm_param.is_hbd](
-          coeff, tx2d_size, p, qcoeff, dqcoeff, eob, scan_order, &qparam);
+          coeff, n_coeffs, p, qcoeff, dqcoeff, eob, scan_order, &qparam);
 #endif
     } else {
-      av1_quantize_skip(tx2d_size, qcoeff, dqcoeff, eob);
+      av1_quantize_skip(n_coeffs, qcoeff, dqcoeff, eob);
     }
   }
 #if CONFIG_LV_MAP
@@ -639,7 +689,7 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
                                 mrc_mask,
 #endif  // CONFIG_MRC_TX && SIGNAL_ANY_MRC_MASK
                                 plane, tx_type, tx_size, dst, pd->dst.stride,
-                                p->eobs[block]);
+                                p->eobs[block], cm->reduced_tx_set_used);
   }
 }
 
@@ -664,7 +714,11 @@ static void encode_block_inter(int plane, int block, int blk_row, int blk_col,
       plane ? uv_txsize_lookup[bsize][mbmi->inter_tx_size[tx_row][tx_col]][0][0]
             : mbmi->inter_tx_size[tx_row][tx_col];
 
-  if (tx_size == plane_tx_size) {
+  if (tx_size == plane_tx_size
+#if DISABLE_VARTX_FOR_CHROMA
+      || pd->subsampling_x || pd->subsampling_y
+#endif  // DISABLE_VARTX_FOR_CHROMA
+      ) {
     encode_block(plane, block, blk_row, blk_col, plane_bsize, tx_size, arg);
   } else {
     assert(tx_size < TX_SIZES_ALL);
@@ -771,24 +825,25 @@ void av1_encode_sb(AV1_COMMON *cm, MACROBLOCK *x, BLOCK_SIZE bsize, int mi_row,
                              subsampling_y))
       continue;
 
-    bsize = scale_chroma_bsize(bsize, subsampling_x, subsampling_y);
+    const BLOCK_SIZE bsizec =
+        scale_chroma_bsize(bsize, subsampling_x, subsampling_y);
 
     // TODO(jingning): Clean this up.
     const struct macroblockd_plane *const pd = &xd->plane[plane];
-    const BLOCK_SIZE plane_bsize = get_plane_block_size(bsize, pd);
+    const BLOCK_SIZE plane_bsize = get_plane_block_size(bsizec, pd);
     const int mi_width = block_size_wide[plane_bsize] >> tx_size_wide_log2[0];
     const int mi_height = block_size_high[plane_bsize] >> tx_size_wide_log2[0];
     const TX_SIZE max_tx_size = get_vartx_max_txsize(
-        mbmi, plane_bsize, pd->subsampling_x || pd->subsampling_y);
+        xd, plane_bsize, pd->subsampling_x || pd->subsampling_y);
     const BLOCK_SIZE txb_size = txsize_to_bsize[max_tx_size];
     const int bw = block_size_wide[txb_size] >> tx_size_wide_log2[0];
     const int bh = block_size_high[txb_size] >> tx_size_wide_log2[0];
     int idx, idy;
     int block = 0;
     int step = tx_size_wide_unit[max_tx_size] * tx_size_high_unit[max_tx_size];
-    av1_get_entropy_contexts(bsize, 0, pd, ctx.ta[plane], ctx.tl[plane]);
+    av1_get_entropy_contexts(bsizec, 0, pd, ctx.ta[plane], ctx.tl[plane]);
 
-    av1_subtract_plane(x, bsize, plane);
+    av1_subtract_plane(x, bsizec, plane);
 
     arg.ta = ctx.ta[plane];
     arg.tl = ctx.tl[plane];
@@ -893,7 +948,8 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
 #if CONFIG_MRC_TX && SIGNAL_ANY_MRC_MASK
                               mrc_mask,
 #endif  // CONFIG_MRC_TX && SIGNAL_ANY_MRC_MASK
-                              plane, tx_type, tx_size, dst, dst_stride, *eob);
+                              plane, tx_type, tx_size, dst, dst_stride, *eob,
+                              cm->reduced_tx_set_used);
 
   if (*eob) *(args->skip) = 0;
 

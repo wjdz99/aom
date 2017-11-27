@@ -39,6 +39,9 @@ extern "C" {
 #define COMPOUND_SEGMENT_TYPE 1
 #define MAX_SEG_MASK_BITS 1
 
+// Disables vartx transform split for chroma
+#define DISABLE_VARTX_FOR_CHROMA 1
+
 // SEG_MASK_TYPES should not surpass 1 << MAX_SEG_MASK_BITS
 typedef enum {
 #if COMPOUND_SEGMENT_TYPE == 0
@@ -195,7 +198,7 @@ typedef struct {
 } FILTER_INTRA_MODE_INFO;
 
 static const PREDICTION_MODE fimode_to_intradir[FILTER_INTRA_MODES] = {
-  DC_PRED, V_PRED, H_PRED, D117_PRED, D153_PRED, DC_PRED
+  DC_PRED, V_PRED, H_PRED, D153_PRED, DC_PRED
 };
 
 #define DISABLE_SUB8X8_FILTER_INTRA 0
@@ -591,6 +594,7 @@ typedef struct cfl_ctx {
 
 #if CONFIG_JNT_COMP
 typedef struct jnt_comp_params {
+  int use_jnt_comp_avg;
   int fwd_offset;
   int bck_offset;
 } JNT_COMP_PARAMS;
@@ -1212,10 +1216,12 @@ static INLINE int is_interintra_pred(const MB_MODE_INFO *mbmi) {
   return (mbmi->ref_frame[1] == INTRA_FRAME) && is_interintra_allowed(mbmi);
 }
 
-static INLINE int get_vartx_max_txsize(const MB_MODE_INFO *const mbmi,
-                                       BLOCK_SIZE bsize, int subsampled) {
-  (void)mbmi;
-  TX_SIZE max_txsize = get_max_rect_tx_size(bsize, is_inter_block(mbmi));
+static INLINE int get_vartx_max_txsize(const MACROBLOCKD *xd, BLOCK_SIZE bsize,
+                                       int subsampled) {
+  TX_SIZE max_txsize =
+      xd->lossless[xd->mi[0]->mbmi.segment_id]
+          ? TX_4X4
+          : get_max_rect_tx_size(bsize, is_inter_block(&xd->mi[0]->mbmi));
 
 #if CONFIG_EXT_PARTITION && CONFIG_TX64X64
   // The decoder is designed so that it can process 64x64 luma pixels at a
@@ -1406,6 +1412,16 @@ static INLINE void transpose_int32(int32_t *dst, int dst_stride,
   int r, c;
   for (r = 0; r < h; ++r)
     for (c = 0; c < w; ++c) dst[c * dst_stride + r] = src[r * src_stride + c];
+}
+
+static INLINE int av1_get_max_eob(TX_SIZE tx_size) {
+  return
+#if CONFIG_TX64X64 && !CONFIG_DAALA_TX
+      tx_size == TX_64X64 || tx_size == TX_64X32 || tx_size == TX_32X64
+          ? 1024
+          :
+#endif  // CONFIG_TX64X64 && !CONFIG_DAALA_TX
+          tx_size_2d[tx_size];
 }
 
 #ifdef __cplusplus

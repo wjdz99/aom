@@ -14,6 +14,10 @@ print <<EOF
 #include "av1/common/av1_txfm.h"
 #include "av1/common/odintrin.h"
 
+#if CONFIG_LOOP_RESTORATION
+#include "av1/common/restoration.h"
+#endif
+
 struct macroblockd;
 
 /* Encoder forward decls */
@@ -445,7 +449,9 @@ if (aom_config("CONFIG_AV1_ENCODER") eq "yes") {
     }
 
     add_proto qw/int64_t av1_highbd_block_error/, "const tran_low_t *coeff, const tran_low_t *dqcoeff, intptr_t block_size, int64_t *ssz, int bd";
-    specialize qw/av1_highbd_block_error sse2/;
+    if (aom_config("CONFIG_DAALA_TX") ne "yes") {
+      specialize qw/av1_highbd_block_error sse2/;
+    }
 
     add_proto qw/void av1_highbd_temporal_filter_apply/, "uint8_t *frame1, unsigned int stride, uint8_t *frame2, unsigned int block_width, unsigned int block_height, int strength, int filter_weight, unsigned int *accumulator, uint16_t *count";
 
@@ -549,21 +555,11 @@ if (aom_config("CONFIG_AV1_ENCODER") eq "yes") {
 # LOOP_RESTORATION functions
 
 if (aom_config("CONFIG_LOOP_RESTORATION") eq "yes") {
-  add_proto qw/void apply_selfguided_restoration/, "const uint8_t *dat, int width, int height, int stride, int eps, const int *xqd, uint8_t *dst, int dst_stride, int32_t *tmpbuf";
+  add_proto qw/void apply_selfguided_restoration/, "const uint8_t *dat, int width, int height, int stride, int eps, const int *xqd, uint8_t *dst, int dst_stride, int32_t *tmpbuf, int bit_depth, int highbd";
+  specialize qw/apply_selfguided_restoration sse4_1/;
 
-  add_proto qw/void av1_selfguided_restoration/, "const uint8_t *dgd, int width, int height, int stride, int32_t *dst, int dst_stride, int r, int eps";
-
-  add_proto qw/void av1_highpass_filter/, "const uint8_t *dgd, int width, int height, int stride, int32_t *dst, int dst_stride, int r, int eps";
-  specialize qw/av1_highpass_filter sse4_1/;
-
-  if (aom_config("CONFIG_HIGHBITDEPTH") eq "yes") {
-    add_proto qw/void apply_selfguided_restoration_highbd/, "const uint16_t *dat, int width, int height, int stride, int bit_depth, int eps, const int *xqd, uint16_t *dst, int dst_stride, int32_t *tmpbuf";
-
-    add_proto qw/void av1_selfguided_restoration_highbd/, "const uint16_t *dgd, int width, int height, int stride, int32_t *dst, int dst_stride, int bit_depth, int r, int eps";
-
-    add_proto qw/void av1_highpass_filter_highbd/, "const uint16_t *dgd, int width, int height, int stride, int32_t *dst, int dst_stride, int r, int eps";
-    specialize qw/av1_highpass_filter_highbd sse4_1/;
-  }
+  add_proto qw/void av1_selfguided_restoration/, "const uint8_t *dgd, int width, int height, int stride, int32_t *flt1, int32_t *flt2, int flt_stride, const sgr_params_type *params, int bit_depth, int highbd";
+  specialize qw/av1_selfguided_restoration sse4_1/;
 }
 
 # CONVOLVE_ROUND/COMPOUND_ROUND functions
@@ -573,6 +569,11 @@ if (aom_config("CONFIG_CONVOLVE_ROUND") eq "yes") {
   specialize qw/av1_convolve_2d sse2/;
   add_proto qw/void av1_convolve_rounding/, "const int32_t *src, int src_stride, uint8_t *dst, int dst_stride, int w, int h, int bits";
   specialize qw/av1_convolve_rounding avx2/;
+
+  if (aom_config("CONFIG_COMPOUND_ROUND") ne "yes") {
+    add_proto qw/void av1_convolve_2d_copy/, "const uint8_t *src, int src_stride, CONV_BUF_TYPE *dst, int dst_stride, int w, int h, InterpFilterParams *filter_params_x, InterpFilterParams *filter_params_y, const int subpel_x_q4, const int subpel_y_q4, ConvolveParams *conv_params";
+    specialize qw/av1_convolve_2d_copy sse2/;
+  }
 
   add_proto qw/void av1_convolve_2d_scale/, "const uint8_t *src, int src_stride, CONV_BUF_TYPE *dst, int dst_stride, int w, int h, InterpFilterParams *filter_params_x, InterpFilterParams *filter_params_y, const int subpel_x_qn, const int x_step_qn, const int subpel_y_q4, const int y_step_qn, ConvolveParams *conv_params";
   if (aom_config("CONFIG_COMPOUND_ROUND") ne "yes") {

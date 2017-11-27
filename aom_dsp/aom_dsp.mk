@@ -107,7 +107,10 @@ DSP_SRCS-$(HAVE_SSE4_1) += x86/blend_sse4.h
 DSP_SRCS-$(HAVE_SSE4_1) += x86/blend_a64_mask_sse4.c
 DSP_SRCS-$(HAVE_SSE4_1) += x86/blend_a64_hmask_sse4.c
 DSP_SRCS-$(HAVE_SSE4_1) += x86/blend_a64_vmask_sse4.c
-DSP_SRCS-$(HAVE_SSSE3)  += x86/variance_ssse3.c
+ifeq ($(CONFIG_JNT_COMP),yes)
+DSP_SRCS-$(HAVE_SSSE3)  += x86/jnt_variance_ssse3.c
+DSP_SRCS-$(HAVE_SSSE3)  += x86/jnt_sad_ssse3.c
+endif
 
 # interpolation filters
 DSP_SRCS-yes += aom_convolve.c
@@ -215,6 +218,7 @@ endif  # CONFIG_HIGHBITDEPTH
 DSP_SRCS-yes            += txfm_common.h
 DSP_SRCS-yes            += x86/txfm_common_intrin.h
 DSP_SRCS-$(HAVE_AVX2)   += x86/common_avx2.h
+DSP_SRCS-$(HAVE_SSE2)   += x86/mem_sse2.h
 DSP_SRCS-$(HAVE_SSE2)   += x86/txfm_common_sse2.h
 DSP_SRCS-$(HAVE_SSSE3)  += x86/obmc_intrinsic_ssse3.h
 DSP_SRCS-$(HAVE_MSA)    += mips/txfm_macros_msa.h
@@ -340,6 +344,7 @@ endif # CONFIG_AV1_ENCODER
 
 ifeq ($(CONFIG_AV1_ENCODER),yes)
 DSP_SRCS-yes            += sad.c
+DSP_SRCS-yes            += sad_av1.c
 DSP_SRCS-yes            += subtract.c
 
 DSP_SRCS-$(HAVE_NEON)   += arm/sad4d_neon.c

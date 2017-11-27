@@ -31,6 +31,7 @@ extern const SCAN_ORDER av1_inter_scan_orders[TX_SIZES_ALL][TX_TYPES];
 
 #if CONFIG_ADAPT_SCAN
 #define USE_2X2_PROB 1
+#define CACHE_SCAN_PROB 1
 #define USE_TOPOLOGICAL_SORT 0
 #define USE_LIMIT_SCAN_DISTANCE 0
 void av1_update_scan_count_facade(AV1_COMMON *cm, FRAME_COUNTS *counts,
@@ -89,6 +90,7 @@ static INLINE const SCAN_ORDER *get_default_scan(TX_SIZE tx_size,
 static INLINE int do_adapt_scan(TX_SIZE tx_size, TX_TYPE tx_type) {
   (void)tx_size;
   if (tx_size_2d[tx_size] >= 1024 && tx_type != DCT_DCT) return 0;
+  if (tx_size > TX_32X16) return 0;
   return tx_type < IDTX;
 }
 

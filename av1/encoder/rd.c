@@ -93,6 +93,15 @@ void av1_fill_mode_rates(AV1_COMMON *const cm, MACROBLOCK *x,
                                NULL);
   }
 
+#if CONFIG_EXT_SKIP
+  if (cm->skip_mode_flag) {
+    for (i = 0; i < SKIP_CONTEXTS; ++i) {
+      av1_cost_tokens_from_cdf(x->skip_mode_cost[i], fc->skip_mode_cdfs[i],
+                               NULL);
+    }
+  }
+#endif  // CONFIG_EXT_SKIP
+
   for (i = 0; i < SKIP_CONTEXTS; ++i) {
     av1_cost_tokens_from_cdf(x->skip_cost[i], fc->skip_cdfs[i], NULL);
   }
@@ -164,18 +173,20 @@ void av1_fill_mode_rates(AV1_COMMON *const cm, MACROBLOCK *x,
   int sign_cost[CFL_JOINT_SIGNS];
   av1_cost_tokens_from_cdf(sign_cost, fc->cfl_sign_cdf, NULL);
   for (int joint_sign = 0; joint_sign < CFL_JOINT_SIGNS; joint_sign++) {
-    const aom_cdf_prob *cdf_u = fc->cfl_alpha_cdf[CFL_CONTEXT_U(joint_sign)];
-    const aom_cdf_prob *cdf_v = fc->cfl_alpha_cdf[CFL_CONTEXT_V(joint_sign)];
     int *cost_u = x->cfl_cost[joint_sign][CFL_PRED_U];
     int *cost_v = x->cfl_cost[joint_sign][CFL_PRED_V];
-    if (CFL_SIGN_U(joint_sign) == CFL_SIGN_ZERO)
+    if (CFL_SIGN_U(joint_sign) == CFL_SIGN_ZERO) {
       memset(cost_u, 0, CFL_ALPHABET_SIZE * sizeof(*cost_u));
-    else
+    } else {
+      const aom_cdf_prob *cdf_u = fc->cfl_alpha_cdf[CFL_CONTEXT_U(joint_sign)];
       av1_cost_tokens_from_cdf(cost_u, cdf_u, NULL);
-    if (CFL_SIGN_V(joint_sign) == CFL_SIGN_ZERO)
+    }
+    if (CFL_SIGN_V(joint_sign) == CFL_SIGN_ZERO) {
       memset(cost_v, 0, CFL_ALPHABET_SIZE * sizeof(*cost_v));
-    else
+    } else {
+      const aom_cdf_prob *cdf_v = fc->cfl_alpha_cdf[CFL_CONTEXT_V(joint_sign)];
       av1_cost_tokens_from_cdf(cost_v, cdf_v, NULL);
+    }
     for (int u = 0; u < CFL_ALPHABET_SIZE; u++)
       cost_u[u] += sign_cost[joint_sign];
   }
@@ -329,7 +340,7 @@ static const int rd_frame_type_factor[FRAME_UPDATE_TYPES] = {
 };
 
 int av1_compute_rd_mult(const AV1_COMP *cpi, int qindex) {
-  const int64_t q = av1_dc_quant(qindex, 0, cpi->common.bit_depth);
+  const int64_t q = av1_dc_quant_Q3(qindex, 0, cpi->common.bit_depth);
 #if CONFIG_HIGHBITDEPTH
   int64_t rdmult = 0;
   switch (cpi->common.bit_depth) {
@@ -359,16 +370,16 @@ static int compute_rd_thresh_factor(int qindex, aom_bit_depth_t bit_depth) {
   double q;
 #if CONFIG_HIGHBITDEPTH
   switch (bit_depth) {
-    case AOM_BITS_8: q = av1_dc_quant(qindex, 0, AOM_BITS_8) / 4.0; break;
-    case AOM_BITS_10: q = av1_dc_quant(qindex, 0, AOM_BITS_10) / 16.0; break;
-    case AOM_BITS_12: q = av1_dc_quant(qindex, 0, AOM_BITS_12) / 64.0; break;
+    case AOM_BITS_8: q = av1_dc_quant_Q3(qindex, 0, AOM_BITS_8) / 4.0; break;
+    case AOM_BITS_10: q = av1_dc_quant_Q3(qindex, 0, AOM_BITS_10) / 16.0; break;
+    case AOM_BITS_12: q = av1_dc_quant_Q3(qindex, 0, AOM_BITS_12) / 64.0; break;
     default:
       assert(0 && "bit_depth should be AOM_BITS_8, AOM_BITS_10 or AOM_BITS_12");
       return -1;
   }
 #else
   (void)bit_depth;
-  q = av1_dc_quant(qindex, 0, AOM_BITS_8) / 4.0;
+  q = av1_dc_quant_Q3(qindex, 0, AOM_BITS_8) / 4.0;
 #endif  // CONFIG_HIGHBITDEPTH
   // TODO(debargha): Adjust the function below.
   return AOMMAX((int)(pow(q, RD_THRESH_POW) * 5.12), 8);
@@ -450,6 +461,12 @@ void av1_fill_coeff_costs(MACROBLOCK *x, FRAME_CONTEXT *fc) {
                                  fc->txb_skip_cdf[tx_size][ctx], NULL);
 
 #if CONFIG_LV_MAP_MULTI
+#if USE_BASE_EOB_ALPHABET
+      for (int ctx = 0; ctx < SIG_COEF_CONTEXTS_EOB; ++ctx)
+        av1_cost_tokens_from_cdf(pcost->base_eob_cost[ctx],
+                                 fc->coeff_base_eob_cdf[tx_size][plane][ctx],
+                                 NULL);
+#endif
       for (int ctx = 0; ctx < SIG_COEF_CONTEXTS; ++ctx)
         av1_cost_tokens_from_cdf(pcost->base_cost[ctx],
                                  fc->coeff_base_cdf[tx_size][plane][ctx], NULL);
@@ -1286,7 +1303,7 @@ void av1_update_rd_thresh_fact(const AV1_COMMON *const cm,
 
 int av1_get_intra_cost_penalty(int qindex, int qdelta,
                                aom_bit_depth_t bit_depth) {
-  const int q = av1_dc_quant(qindex, qdelta, bit_depth);
+  const int q = av1_dc_quant_Q3(qindex, qdelta, bit_depth);
 #if CONFIG_HIGHBITDEPTH
   switch (bit_depth) {
     case AOM_BITS_8: return 20 * q;

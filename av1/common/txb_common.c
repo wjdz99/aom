@@ -12,17 +12,17 @@
 #include "av1/common/onyxc_int.h"
 #include "av1/common/txb_common.h"
 
-const int16_t av1_coeff_band_4x4[16] = { 0, 1, 2,  3,  4,  5,  6,  7,
-                                         8, 9, 10, 11, 12, 13, 14, 15 };
+const int8_t av1_coeff_band_4x4[16] = { 0, 1, 2,  3,  4,  5,  6,  7,
+                                        8, 9, 10, 11, 12, 13, 14, 15 };
 
-const int16_t av1_coeff_band_8x8[64] = {
+const int8_t av1_coeff_band_8x8[64] = {
   0,  1,  2,  2,  3,  3,  4,  4,  5,  6,  2,  2,  3,  3,  4,  4,
   7,  7,  8,  8,  9,  9,  10, 10, 7,  7,  8,  8,  9,  9,  10, 10,
   11, 11, 12, 12, 13, 13, 14, 14, 11, 11, 12, 12, 13, 13, 14, 14,
   15, 15, 16, 16, 17, 17, 18, 18, 15, 15, 16, 16, 17, 17, 18, 18,
 };
 
-const int16_t av1_coeff_band_16x16[256] = {
+const int8_t av1_coeff_band_16x16[256] = {
   0,  1,  4,  4,  7,  7,  7,  7,  8,  8,  8,  8,  9,  9,  9,  9,  2,  3,  4,
   4,  7,  7,  7,  7,  8,  8,  8,  8,  9,  9,  9,  9,  5,  5,  6,  6,  7,  7,
   7,  7,  8,  8,  8,  8,  9,  9,  9,  9,  5,  5,  6,  6,  7,  7,  7,  7,  8,
@@ -39,7 +39,7 @@ const int16_t av1_coeff_band_16x16[256] = {
   19, 20, 20, 20, 20, 21, 21, 21, 21,
 };
 
-const int16_t av1_coeff_band_32x32[1024] = {
+const int8_t av1_coeff_band_32x32[1024] = {
   0,  1,  4,  4,  7,  7,  7,  7,  10, 10, 10, 10, 10, 10, 10, 10, 11, 11, 11,
   11, 11, 11, 11, 11, 12, 12, 12, 12, 12, 12, 12, 12, 2,  3,  4,  4,  7,  7,
   7,  7,  10, 10, 10, 10, 10, 10, 10, 10, 11, 11, 11, 11, 11, 11, 11, 11, 12,
@@ -122,6 +122,21 @@ void av1_init_txb_probs(FRAME_CONTEXT *fc) {
 #if CONFIG_LV_MAP_MULTI
   for (tx_size = 0; tx_size < TX_SIZES; ++tx_size) {
     for (plane = 0; plane < PLANE_TYPES; ++plane) {
+#if USE_BASE_EOB_ALPHABET
+      for (ctx = 0; ctx < SIG_COEF_CONTEXTS_EOB; ++ctx) {
+        int p = fc->coeff_base[tx_size][plane][0][SIG_COEF_CONTEXTS -
+                                                  SIG_COEF_CONTEXTS_EOB + ctx] *
+                128;
+        fc->coeff_base_eob_cdf[tx_size][plane][ctx][0] = AOM_ICDF(p);
+        p += ((32768 - p) *
+              fc->coeff_base[tx_size][plane][1][SIG_COEF_CONTEXTS -
+                                                SIG_COEF_CONTEXTS_EOB + ctx]) >>
+             8;
+        fc->coeff_base_eob_cdf[tx_size][plane][ctx][1] = AOM_ICDF(p);
+        fc->coeff_base_eob_cdf[tx_size][plane][ctx][2] = AOM_ICDF(32768);
+        fc->coeff_base_eob_cdf[tx_size][plane][ctx][3] = 0;
+      }
+#endif
       for (ctx = 0; ctx < COEFF_BASE_CONTEXTS; ++ctx) {
         int p = fc->nz_map[tx_size][plane][ctx] * 128;
         fc->coeff_base_cdf[tx_size][plane][ctx][0] = AOM_ICDF(p);
@@ -319,6 +334,8 @@ int16_t get_eob_pos_token(int eob, int16_t *extra) {
   return t;
 }
 
+// Note: because of the SSE2 optimization, levels[] must be in the range [0,
+// 127], inclusive.
 void av1_get_base_level_counts(const uint8_t *const levels,
                                const int level_minus_1, const int width,
                                const int height, uint8_t *const level_counts) {
@@ -333,6 +350,8 @@ void av1_get_base_level_counts(const uint8_t *const levels,
   }
 }
 
+// Note: because of the SSE2 optimization, levels[] must be in the range [0,
+// 127], inclusive.
 void av1_get_br_level_counts_c(const uint8_t *const levels, const int width,
                                const int height, uint8_t *const level_counts) {
   const int stride = width + TX_PAD_HOR;

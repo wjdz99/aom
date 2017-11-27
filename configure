@@ -308,7 +308,6 @@ EXPERIMENT_LIST="
     ext_qm
     ext_comp_refs
     bgsprite
-    var_tx_no_tx_mode
     simplify_tx_mode
     mrc_tx
     loopfilter_level
@@ -336,6 +335,7 @@ EXPERIMENT_LIST="
     eighth_pel_mv_only
     mono_video
     q_segmentation
+    segment_pred_last
 "
 CONFIG_LIST="
     dependency_tracking
@@ -506,6 +506,7 @@ post_process_cmdline() {
       # Provisional adopted
       soft_enable q_adapt_probs
       soft_enable reference_buffer
+      soft_enable loopfiltering_across_tiles
       soft_enable palette_throughput
       soft_enable tempmv_signaling
       soft_enable ext_comp_refs
@@ -522,6 +523,7 @@ post_process_cmdline() {
       soft_enable palette_delta_encoding
       soft_enable frame_size
       soft_enable segment_globalmv
+      soft_enable short_filter
     fi
 
     # Enable low-bitdepth pixel pipeline by default
@@ -583,8 +585,8 @@ post_process_cmdline() {
       soft_enable inspection
     fi
     # Enable hash_me if amvr is enabled
-    if enabled amvr; then
-      log_echo "amvr requires hash_me"
+    if enabled amvr && enabled av1_encoder; then
+      log_echo "encoder side amvr requires hash_me"
       enable_feature hash_me
     fi
     if enabled lpf_sb; then

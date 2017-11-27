@@ -286,9 +286,9 @@ DECLARE_ALIGNED(256, static const InterpKernel,
 
 static const InterpFilterParams av1_interp_4tap[2] = {
   { (const int16_t *)sub_pel_filters_4, SUBPEL_TAPS, SUBPEL_SHIFTS,
-    FOURTAP_REGULAR },
+    EIGHTTAP_REGULAR },
   { (const int16_t *)sub_pel_filters_4smooth, SUBPEL_TAPS, SUBPEL_SHIFTS,
-    FOURTAP_SMOOTH },
+    EIGHTTAP_SMOOTH },
 };
 #endif
 
@@ -327,36 +327,3 @@ const int16_t *av1_get_interp_filter_kernel(const InterpFilter interp_filter) {
   return (const int16_t *)av1_interp_filter_params_list[interp_filter]
       .filter_ptr;
 }
-
-#if CONFIG_DUAL_FILTER
-InterpFilter av1_get_plane_interp_filter(InterpFilter interp_filter,
-                                         int plane) {
-#if USE_TEMPORALFILTER_12TAP
-#if USE_EXTRA_FILTER
-  assert(interp_filter <= EIGHTTAP_SHARP ||
-         interp_filter == TEMPORALFILTER_12TAP);
-#else   // USE_EXTRA_FILTER
-  assert(interp_filter <= SWITCHABLE_FILTERS ||
-         interp_filter == TEMPORALFILTER_12TAP);
-#endif  // USE_EXTRA_FILTER
-#else
-  assert(interp_filter <= EIGHTTAP_SHARP);
-#endif
-#if USE_EXTRA_FILTER
-  if (plane == 0) {
-    return interp_filter;
-  } else {
-    switch (interp_filter) {
-      case EIGHTTAP_REGULAR: return FILTER_REGULAR_UV;
-      case EIGHTTAP_SMOOTH: return FILTER_SMOOTH_UV;
-      case MULTITAP_SHARP: return FILTER_SHARP_UV;
-      case EIGHTTAP_SMOOTH2: return FILTER_SMOOTH2_UV;
-      default: return interp_filter;
-    }
-  }
-#else   // USE_EXTRA_FILTER
-  (void)plane;
-  return interp_filter;
-#endif  // USE_EXTRA_FILTER
-}
-#endif
