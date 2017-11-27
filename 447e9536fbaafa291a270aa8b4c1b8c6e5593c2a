@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6ef7f0ea_fe49ed8b",
+        "filename": "av1/common/scan.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 5508,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2017-11-27T17:46:32Z",
+      "side": 1,
+      "message": "no \"const\" necessary for parameter passed as value.",
+      "range": {
+        "startLine": 5508,
+        "startChar": 50,
+        "endLine": 5508,
+        "endChar": 55
+      },
+      "revId": "447e9536fbaafa291a270aa8b4c1b8c6e5593c2a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "28e9f93c_58b5360c",
+        "filename": "av1/common/scan.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 5509,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2017-11-27T17:46:32Z",
+      "side": 1,
+      "message": "same here.",
+      "range": {
+        "startLine": 5509,
+        "startChar": 34,
+        "endLine": 5509,
+        "endChar": 39
+      },
+      "revId": "447e9536fbaafa291a270aa8b4c1b8c6e5593c2a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bae7ba07_4e8e7582",
+        "filename": "av1/common/scan.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 5513,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2017-11-27T17:46:32Z",
+      "side": 1,
+      "message": "mi_row is used when SUB_FRAME_COUNT is defined, so this (void)mi_row should be going to inside the #else of #if SUB_FRAME_COUNT.\n\nmi_col is not used at all, so should be removed from the parameter list..",
+      "range": {
+        "startLine": 5511,
+        "startChar": 0,
+        "endLine": 5513,
+        "endChar": 15
+      },
+      "revId": "447e9536fbaafa291a270aa8b4c1b8c6e5593c2a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
