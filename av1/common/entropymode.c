@@ -31,107 +31,107 @@ const aom_prob default_dc_sign[PLANE_TYPES][DC_SIGN_CONTEXTS] = {
   { 125, 102, 147 }, { 119, 101, 135 },
 };
 
-#if CONFIG_LV_MAP_MULTI
+#if CONFIG_LV_MAP_MULTI || TRAIN_INIT_PROB
 const aom_prob default_coeff_base
     [TX_SIZES][PLANE_TYPES][NUM_BASE_LEVELS][COEFF_BASE_CONTEXTS] = {
-      { { { 139, 242, 199, 135, 87,  51,  245, 208, 138, 89,  60,  128,
-            128, 128, 128, 128, 128, 128, 128, 128, 128, 240, 200, 108,
-            70,  56,  230, 199, 126, 66,  32,  242, 204, 128, 74,  45,
-            241, 203, 120, 62,  128, 128, 139, 180, 180, 242 },
-          { 118, 230, 197, 147, 103, 60,  228, 202, 154, 110, 72,  128,
-            128, 128, 128, 128, 128, 128, 128, 128, 128, 213, 196, 134,
-            94,  58,  199, 184, 130, 82,  40,  217, 186, 134, 86,  57,
-            204, 185, 127, 74,  128, 128, 118, 180, 180, 230 } },
-        { { 203, 248, 223, 170, 105, 58,  252, 235, 195, 125, 72,  128,
-            128, 128, 128, 128, 128, 128, 128, 128, 128, 253, 244, 209,
-            110, 85,  128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
-            128, 128, 128, 128, 128, 128, 203, 180, 180, 248 },
-          { 170, 239, 210, 163, 112, 68,  239, 219, 175, 127, 84,  128,
-            128, 128, 128, 128, 128, 128, 128, 128, 128, 246, 234, 184,
-            142, 154, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
-            128, 128, 128, 128, 128, 128, 170, 180, 180, 239 } } },
-      { { { 119, 240, 196, 136, 90,  50,  247, 214, 159, 109, 64,  241,
-            201, 137, 91,  53,  239, 199, 136, 89,  52,  251, 230, 176,
-            121, 76,  231, 202, 142, 84,  39,  246, 221, 169, 111, 61,
-            248, 221, 152, 97,  60,  128, 119, 180, 180, 240 },
-          { 98,  209, 182, 140, 100, 56,  234, 207, 166, 122, 73,  215,
-            189, 142, 103, 59,  216, 188, 140, 99,  59,  235, 216, 179,
-            137, 88,  214, 189, 141, 96,  46,  224, 200, 159, 117, 68,
-            221, 199, 152, 108, 68,  128, 98,  180, 180, 209 } },
-        { { 195, 245, 212, 159, 108, 64,  251, 231, 186, 131, 80,  250,
-            228, 175, 108, 58,  244, 213, 163, 120, 82,  254, 245, 216,
-            159, 91,  128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
-            128, 128, 128, 128, 128, 128, 195, 180, 180, 245 },
-          { 150, 207, 199, 164, 121, 76,  239, 221, 185, 142, 89,  231,
-            208, 162, 113, 69,  228, 205, 169, 136, 95,  246, 235, 204,
-            157, 110, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
-            128, 128, 128, 128, 128, 128, 150, 180, 180, 207 } } },
-      { { { 93,  232, 185, 124, 81,  38,  244, 206, 147, 98,  53,  246,
-            210, 150, 100, 54,  244, 208, 146, 94,  44,  253, 236, 189,
-            135, 82,  228, 195, 130, 76,  35,  242, 220, 170, 114, 59,
-            253, 235, 184, 122, 68,  128, 93,  180, 180, 232 },
-          { 80,  203, 169, 127, 86,  41,  228, 194, 151, 108, 58,  221,
-            195, 152, 110, 60,  220, 194, 149, 103, 48,  238, 221, 188,
-            147, 92,  205, 184, 130, 85,  41,  208, 195, 159, 120, 62,
-            233, 212, 173, 126, 76,  128, 80,  180, 180, 203 } },
-        { { 187, 239, 199, 149, 109, 66,  250, 226, 179, 130, 82,  248,
-            218, 159, 100, 63,  251, 227, 184, 135, 91,  254, 241, 202,
-            150, 99,  128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
-            128, 128, 128, 128, 128, 128, 187, 180, 180, 239 },
-          { 130, 202, 169, 146, 118, 73,  236, 217, 186, 146, 91,  215,
-            194, 154, 102, 77,  234, 216, 188, 145, 98,  245, 229, 201,
-            163, 110, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
-            128, 128, 128, 128, 128, 128, 130, 180, 180, 202 } } },
-      { { { 102, 225, 171, 113, 74,  33,  243, 201, 139, 92,  44,  244,
-            208, 146, 99,  53,  247, 214, 158, 107, 52,  253, 233, 183,
-            131, 73,  128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
-            128, 128, 128, 128, 128, 128, 102, 180, 180, 225 },
-          { 80,  190, 152, 116, 79,  34,  222, 187, 142, 101, 47,  211,
-            187, 148, 106, 56,  221, 200, 163, 118, 56,  236, 215, 181,
-            140, 78,  128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
-            128, 128, 128, 128, 128, 128, 80,  180, 180, 190 } },
-        { { 166, 237, 184, 144, 106, 62,  245, 211, 167, 129, 93,  128,
-            128, 128, 128, 128, 128, 128, 128, 128, 128, 254, 240, 205,
-            158, 112, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
-            128, 128, 128, 128, 128, 128, 166, 180, 180, 237 },
-          { 91,  185, 133, 105, 95,  60,  213, 190, 164, 131, 107, 128,
-            128, 128, 128, 128, 128, 128, 128, 128, 128, 242, 227, 203,
-            160, 127, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
-            128, 128, 128, 128, 128, 128, 91,  180, 180, 185 } } }
+      { { { 109, 232, 199, 135, 87,  52,  239, 210, 142, 92,  63,  128,
+            128, 128, 128, 128, 128, 128, 128, 128, 128, 233, 205, 112,
+            75,  62,  226, 200, 122, 60,  29,  241, 204, 126, 70,  42,
+            238, 204, 119, 57,  128, 128, 203, 244, 246, 247 },
+          { 107, 223, 197, 147, 102, 62,  227, 205, 156, 112, 74,  128,
+            128, 128, 128, 128, 128, 128, 128, 128, 128, 212, 200, 138,
+            99,  64,  198, 184, 129, 78,  38,  219, 186, 131, 84,  56,
+            204, 184, 127, 77,  128, 128, 191, 226, 222, 223 } },
+        { { 163, 241, 224, 174, 109, 58,  248, 236, 200, 130, 75,  128,
+            128, 128, 128, 128, 128, 128, 128, 128, 128, 249, 244, 213,
+            128, 51,  128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
+            128, 128, 128, 128, 128, 128, 228, 248, 252, 254 },
+          { 153, 231, 211, 165, 113, 66,  236, 221, 180, 127, 88,  128,
+            128, 128, 128, 128, 128, 128, 128, 128, 128, 243, 238, 191,
+            111, 154, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
+            128, 128, 128, 128, 128, 128, 209, 237, 239, 248 } } },
+      { { { 91,  228, 196, 134, 88,  48,  242, 213, 157, 107, 63,  239,
+            202, 139, 92,  54,  236, 201, 138, 90,  53,  248, 229, 176,
+            121, 76,  231, 202, 140, 80,  37,  246, 222, 168, 110, 61,
+            248, 221, 151, 97,  60,  128, 199, 249, 252, 252 },
+          { 85,  196, 181, 138, 98,  55,  230, 206, 164, 121, 73,  219,
+            193, 144, 104, 62,  218, 192, 143, 101, 61,  237, 218, 182,
+            140, 90,  213, 191, 140, 94,  44,  224, 200, 159, 115, 68,
+            220, 199, 151, 107, 69,  128, 183, 229, 226, 230 } },
+        { { 139, 235, 211, 159, 107, 66,  247, 231, 184, 127, 79,  246,
+            226, 170, 103, 61,  236, 212, 161, 119, 76,  253, 245, 215,
+            156, 96,  128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
+            128, 128, 128, 128, 128, 128, 227, 249, 253, 255 },
+          { 128, 195, 197, 162, 121, 73,  236, 220, 184, 138, 86,  223,
+            208, 158, 107, 64,  222, 204, 167, 132, 86,  246, 234, 205,
+            161, 108, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
+            128, 128, 128, 128, 128, 128, 198, 228, 239, 244 } } },
+      { { { 73,  224, 186, 123, 79,  39,  240, 205, 146, 98,  53,  243,
+            209, 147, 98,  52,  241, 207, 145, 93,  44,  252, 236, 188,
+            134, 82,  227, 193, 125, 72,  32,  241, 218, 168, 112, 52,
+            251, 233, 179, 114, 62,  128, 179, 250, 254, 255 },
+          { 69,  200, 171, 127, 86,  41,  224, 193, 150, 107, 58,  218,
+            194, 150, 107, 58,  220, 193, 147, 102, 47,  239, 222, 188,
+            147, 92,  204, 183, 127, 80,  36,  211, 194, 158, 114, 57,
+            231, 209, 167, 120, 70,  128, 171, 226, 235, 232 } },
+        { { 117, 225, 196, 146, 107, 68,  246, 225, 177, 128, 81,  243,
+            217, 163, 105, 60,  247, 225, 180, 131, 84,  253, 241, 202,
+            148, 97,  128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
+            128, 128, 128, 128, 128, 128, 219, 251, 255, 255 },
+          { 103, 189, 166, 141, 116, 70,  234, 216, 184, 145, 92,  208,
+            195, 155, 110, 79,  226, 214, 184, 144, 90,  245, 229, 202,
+            164, 113, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
+            128, 128, 128, 128, 128, 128, 182, 221, 236, 243 } } },
+      { { { 72,  212, 172, 113, 74,  33,  238, 200, 139, 91,  44,  240,
+            208, 147, 98,  51,  244, 214, 157, 107, 51,  253, 233, 184,
+            132, 74,  128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
+            128, 128, 128, 128, 128, 128, 201, 250, 254, 255 },
+          { 68,  187, 154, 116, 80,  34,  217, 186, 142, 101, 47,  205,
+            187, 148, 106, 56,  218, 201, 163, 118, 55,  236, 215, 181,
+            141, 79,  128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
+            128, 128, 128, 128, 128, 128, 192, 219, 246, 244 } },
+        { { 80,  217, 179, 140, 106, 60,  237, 208, 165, 129, 94,  128,
+            128, 128, 128, 128, 128, 128, 128, 128, 128, 253, 240, 205,
+            158, 111, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
+            128, 128, 128, 128, 128, 128, 205, 250, 255, 254 },
+          { 66,  175, 129, 103, 89,  57,  204, 189, 164, 133, 106, 128,
+            128, 128, 128, 128, 128, 128, 128, 128, 128, 238, 228, 202,
+            166, 124, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
+            128, 128, 128, 128, 128, 128, 154, 207, 128, 226 } } }
     };
 
 const aom_prob default_nz_map[TX_SIZES][PLANE_TYPES][SIG_COEF_CONTEXTS] = {
-  { { 59,  183, 130, 76,  48,  28,  202, 153, 84,  54,  34,  128,
-      128, 128, 128, 128, 128, 128, 128, 128, 128, 200, 163, 84,
-      61,  34,  182, 131, 71,  31,  16,  210, 156, 78,  36,  26,
-      220, 170, 73,  32,  128, 128, 1,   1,   1,   1 },
-    { 96,  209, 171, 109, 59,  28,  223, 187, 128, 71,  35,  128,
-      128, 128, 128, 128, 128, 128, 128, 128, 128, 215, 192, 135,
-      63,  73,  128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
+  { { 59,  183, 130, 76,  47,  29,  203, 154, 85,  55,  35,  128,
+      128, 128, 128, 128, 128, 128, 128, 128, 128, 202, 165, 86,
+      70,  42,  183, 132, 70,  28,  13,  212, 158, 77,  34,  22,
+      222, 172, 74,  30,  128, 128, 1,   1,   1,   1 },
+    { 97,  210, 172, 111, 61,  29,  223, 188, 131, 77,  33,  128,
+      128, 128, 128, 128, 128, 128, 128, 128, 128, 214, 192, 137,
+      63,  51,  128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
       128, 128, 128, 128, 128, 128, 1,   1,   1,   1 } },
-  { { 49,  190, 129, 74,  46,  25,  206, 150, 90,  55,  32,  205,
-      142, 79,  48,  27,  191, 137, 78,  47,  27,  223, 181, 109,
-      63,  37,  204, 136, 82,  42,  19,  226, 169, 106, 58,  30,
-      231, 180, 96,  49,  29,  128, 1,   1,   1,   1 },
-    { 86,  210, 159, 90,  56,  34,  223, 181, 114, 69,  40,  229,
-      182, 113, 59,  28,  218, 162, 96,  64,  42,  237, 207, 146,
-      92,  50,  128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
+  { { 50,  194, 130, 72,  45,  25,  208, 150, 89,  55,  32,  206,
+      142, 80,  49,  28,  191, 137, 79,  47,  27,  224, 180, 108,
+      63,  37,  206, 137, 81,  40,  18,  229, 170, 106, 58,  30,
+      233, 180, 96,  49,  29,  128, 1,   1,   1,   1 },
+    { 84,  210, 159, 89,  55,  33,  223, 181, 114, 67,  36,  227,
+      180, 112, 58,  31,  218, 161, 95,  63,  40,  237, 208, 146,
+      88,  50,  128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
       128, 128, 128, 128, 128, 128, 1,   1,   1,   1 } },
-  { { 41,  187, 119, 66,  40,  20,  212, 144, 80,  49,  26,  226,
-      151, 84,  49,  27,  214, 146, 82,  47,  22,  237, 190, 115,
-      68,  40,  206, 126, 71,  37,  17,  227, 168, 103, 61,  29,
-      237, 197, 119, 63,  32,  128, 1,   1,   1,   1 },
-    { 70,  207, 146, 82,  54,  35,  226, 167, 99,  65,  40,  238,
-      176, 96,  57,  29,  229, 171, 108, 69,  47,  244, 201, 124,
-      78,  48,  128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
+  { { 40,  187, 118, 65,  39,  20,  211, 142, 80,  49,  26,  226,
+      150, 83,  49,  26,  213, 146, 82,  47,  22,  237, 191, 116,
+      68,  39,  204, 124, 68,  35,  15,  226, 167, 104, 58,  26,
+      236, 195, 117, 59,  30,  128, 1,   1,   1,   1 },
+    { 69,  207, 145, 80,  53,  36,  226, 167, 98,  64,  38,  238,
+      174, 95,  54,  32,  228, 169, 103, 67,  41,  243, 201, 123,
+      77,  48,  128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
       128, 128, 128, 128, 128, 128, 1,   1,   1,   1 } },
-  { { 40,  176, 107, 57,  37,  16,  216, 136, 73,  44,  22,  235,
-      145, 79,  49,  26,  227, 149, 84,  52,  26,  247, 195, 107,
-      64,  35,  128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
+  { { 39,  175, 107, 58,  38,  16,  214, 135, 73,  44,  21,  235,
+      145, 80,  48,  26,  227, 149, 84,  52,  25,  247, 195, 108,
+      65,  35,  128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
       128, 128, 128, 128, 128, 128, 1,   1,   1,   1 },
-    { 49,  210, 153, 95,  58,  31,  217, 151, 93,  64,  41,  128,
-      128, 128, 128, 128, 128, 128, 128, 128, 128, 248, 197, 123,
-      79,  53,  128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
+    { 44,  206, 151, 90,  60,  30,  214, 148, 92,  62,  40,  128,
+      128, 128, 128, 128, 128, 128, 128, 128, 128, 248, 197, 125,
+      80,  52,  128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
       128, 128, 128, 128, 128, 128, 1,   1,   1,   1 } }
 };
 #else  // CONFIG_LV_MAP_MULTI
@@ -704,21 +704,6 @@ static const aom_prob
 #endif  // CONFIG_CTX1D
 #endif  // CONFIG_LV_MAP
 
-static const aom_prob default_newmv_prob[NEWMV_MODE_CONTEXTS] = {
-  155, 116, 94, 32, 96, 56, 30,
-};
-
-static const aom_prob default_zeromv_prob[GLOBALMV_MODE_CONTEXTS] = {
-  45, 13,
-};
-
-static const aom_prob default_refmv_prob[REFMV_MODE_CONTEXTS] = {
-  178, 212, 135, 244, 203, 122, 128, 128, 128,
-};
-
-static const aom_prob default_drl_prob[DRL_MODE_CONTEXTS] = {
-  119, 128, 189, 134, 128,
-};
 static const aom_cdf_prob default_newmv_cdf[NEWMV_MODE_CONTEXTS][CDF_SIZE(2)] =
     { { AOM_CDF2(128 * 155) }, { AOM_CDF2(128 * 116) }, { AOM_CDF2(128 * 94) },
       { AOM_CDF2(128 * 32) },  { AOM_CDF2(128 * 96) },  { AOM_CDF2(128 * 56) },
@@ -739,17 +724,6 @@ static const aom_cdf_prob default_drl_cdf[DRL_MODE_CONTEXTS][CDF_SIZE(2)] = {
   { AOM_CDF2(128 * 128) }
 };
 
-static const aom_prob default_inter_compound_mode_probs
-    [INTER_MODE_CONTEXTS][INTER_COMPOUND_MODES - 1] = {
-      { 154, 167, 233, 165, 143, 170, 167 },  // 0 = both zero mv
-      { 75, 168, 237, 155, 135, 176, 172 },   // 1 = 1 zero + 1 predicted
-      { 7, 173, 227, 128, 153, 188, 189 },    // 2 = two predicted mvs
-      { 8, 120, 214, 113, 154, 178, 174 },    // 3 = 1 pred/zero, 1 new
-      { 4, 85, 194, 94, 155, 173, 167 },      // 4 = two new mvs
-      { 23, 89, 180, 73, 157, 151, 155 },     // 5 = one intra neighbour
-      { 27, 49, 152, 91, 134, 153, 142 },     // 6 = two intra neighbours
-    };
-
 static const aom_cdf_prob
     default_inter_compound_mode_cdf[INTER_MODE_CONTEXTS][CDF_SIZE(
         INTER_COMPOUND_MODES)] = {
@@ -760,22 +734,6 @@ static const aom_cdf_prob
       { AOM_CDF8(512, 11222, 17217, 21445, 23473, 26133, 27550) },
       { AOM_CDF8(2944, 13313, 17214, 20751, 23211, 25500, 26992) },
       { AOM_CDF8(3456, 9067, 14069, 16907, 18817, 21214, 23139) }
-    };
-
-static const aom_prob
-    default_compound_type_probs[BLOCK_SIZES_ALL][COMPOUND_TYPES - 1] = {
-      { 128, 128 }, { 128, 128 }, { 128, 128 }, { 128, 128 },
-      { 255, 128 }, { 255, 128 }, { 66, 51 },   { 72, 35 },
-      { 79, 29 },   { 71, 18 },   { 81, 29 },   { 81, 26 },
-      { 69, 19 },   { 104, 1 },   { 99, 1 },    { 75, 1 },
-#if CONFIG_EXT_PARTITION
-      { 255, 1 },   { 255, 1 },   { 255, 1 },
-#endif  // CONFIG_EXT_PARTITION
-      { 208, 128 }, { 208, 128 }, { 208, 128 }, { 208, 128 },
-      { 208, 1 },   { 208, 1 },
-#if CONFIG_EXT_PARTITION
-      { 208, 1 },   { 208, 1 }
-#endif  // CONFIG_EXT_PARTITION
     };
 
 static const aom_cdf_prob
@@ -801,40 +759,18 @@ static const aom_cdf_prob
 #endif
     };
 
-static const aom_prob default_interintra_prob[BLOCK_SIZE_GROUPS] = {
-  128, 226, 244, 254,
-};
 static const aom_cdf_prob default_interintra_cdf[BLOCK_SIZE_GROUPS][CDF_SIZE(
     2)] = { { AOM_CDF2(128 * 128) },
             { AOM_CDF2(226 * 128) },
             { AOM_CDF2(244 * 128) },
             { AOM_CDF2(254 * 128) } };
 
-static const aom_prob
-    default_interintra_mode_prob[BLOCK_SIZE_GROUPS][INTERINTRA_MODES - 1] = {
-      { 128, 128, 128 },  // block_size < 8x8
-      { 24, 34, 119 },    // block_size < 16x16
-      { 38, 33, 95 },     // block_size < 32x32
-      { 51, 21, 110 },    // block_size >= 32x32
-    };
 static const aom_cdf_prob
     default_interintra_mode_cdf[BLOCK_SIZE_GROUPS][CDF_SIZE(INTERINTRA_MODES)] =
         { { AOM_CDF4(16384, 24576, 28672) },
           { AOM_CDF4(3072, 7016, 18987) },
           { AOM_CDF4(4864, 8461, 17481) },
           { AOM_CDF4(6528, 8681, 19031) } };
-
-static const aom_prob default_wedge_interintra_prob[BLOCK_SIZES_ALL] = {
-  128, 128, 128, 128, 128, 128, 194, 213,
-  217, 222, 224, 226, 220, 128, 128, 128,
-#if CONFIG_EXT_PARTITION
-  255, 255, 255,
-#endif  // CONFIG_EXT_PARTITION
-  208, 208, 208, 208, 255, 255,
-#if CONFIG_EXT_PARTITION
-  255, 255
-#endif  // CONFIG_EXT_PARTITION
-};
 
 static const aom_cdf_prob
     default_wedge_interintra_cdf[BLOCK_SIZES_ALL][CDF_SIZE(2)] = {
@@ -895,18 +831,6 @@ static const aom_cdf_prob
 #endif
     };
 
-// Probability for the case that only 1 additional motion mode is allowed
-static const aom_prob default_obmc_prob[BLOCK_SIZES_ALL] = {
-  128, 128, 128, 128, 128, 128, 45, 79, 75, 130, 141, 144, 208, 201, 186, 231,
-#if CONFIG_EXT_PARTITION
-  252, 252, 252,
-#endif  // CONFIG_EXT_PARTITION
-  208, 208, 208, 208, 208, 208,
-#if CONFIG_EXT_PARTITION
-  252, 252
-#endif  // CONFIG_EXT_PARTITION
-};
-
 static const aom_cdf_prob default_obmc_cdf[BLOCK_SIZES_ALL][CDF_SIZE(2)] = {
   { AOM_CDF2(128 * 128) }, { AOM_CDF2(128 * 128) }, { AOM_CDF2(128 * 128) },
   { AOM_CDF2(128 * 128) }, { AOM_CDF2(128 * 128) }, { AOM_CDF2(128 * 128) },
@@ -924,24 +848,17 @@ static const aom_cdf_prob default_obmc_cdf[BLOCK_SIZES_ALL][CDF_SIZE(2)] = {
 #endif  // CONFIG_EXT_PARTITION
 };
 
-static const aom_prob default_delta_q_probs[DELTA_Q_PROBS] = { 220, 220, 220 };
 static const aom_cdf_prob default_delta_q_cdf[CDF_SIZE(DELTA_Q_PROBS + 1)] = {
   AOM_CDF4(28160, 32120, 32677)
 };
 #if CONFIG_EXT_DELTA_Q
 #if CONFIG_LOOPFILTER_LEVEL
-static const aom_prob
-    default_delta_lf_multi_probs[FRAME_LF_COUNT][DELTA_LF_PROBS] = {
-      { 220, 220, 220 }, { 220, 220, 220 }, { 220, 220, 220 }, { 220, 220, 220 }
-    };
 static const aom_cdf_prob default_delta_lf_multi_cdf[FRAME_LF_COUNT][CDF_SIZE(
     DELTA_LF_PROBS + 1)] = { { AOM_CDF4(28160, 32120, 32677) },
                              { AOM_CDF4(28160, 32120, 32677) },
                              { AOM_CDF4(28160, 32120, 32677) },
                              { AOM_CDF4(28160, 32120, 32677) } };
 #endif  // CONFIG_LOOPFILTER_LEVEL
-static const aom_prob default_delta_lf_probs[DELTA_LF_PROBS] = { 220, 220,
-                                                                 220 };
 static const aom_cdf_prob default_delta_lf_cdf[CDF_SIZE(DELTA_LF_PROBS + 1)] = {
   AOM_CDF4(28160, 32120, 32677)
 };
@@ -970,10 +887,6 @@ const aom_tree_index av1_compound_type_tree[TREE_SIZE(COMPOUND_TYPES)] = {
   -COMPOUND_AVERAGE, 2, -COMPOUND_WEDGE, -COMPOUND_SEG
 };
 /* clang-format on */
-
-static const aom_prob default_intra_inter_p[INTRA_INTER_CONTEXTS] = {
-  6, 97, 151, 205,
-};
 
 static const aom_cdf_prob default_intra_inter_cdf[INTRA_INTER_CONTEXTS]
                                                  [CDF_SIZE(2)] = {
@@ -1128,24 +1041,6 @@ const aom_cdf_prob default_palette_uv_size_cdf[PALETTE_BLOCK_SIZES][CDF_SIZE(
 // When palette mode is enabled, following probability tables indicate the
 // probabilities to code the "is_palette" bit (i.e. the bit that indicates
 // if this block uses palette mode or DC_PRED mode).
-const aom_prob av1_default_palette_y_mode_prob[PALETTE_BLOCK_SIZES]
-                                              [PALETTE_Y_MODE_CONTEXTS] = {
-                                                { 240, 180, 100 },
-                                                { 240, 180, 100 },
-                                                { 240, 180, 100 },
-                                                { 240, 180, 100 },
-                                                { 240, 180, 100 },
-                                                { 240, 180, 100 },
-                                                { 240, 180, 100 },
-                                                { 240, 180, 100 },
-                                                { 240, 180, 100 },
-                                                { 240, 180, 100 },
-                                              };
-
-const aom_prob av1_default_palette_uv_mode_prob[PALETTE_UV_MODE_CONTEXTS] = {
-  253, 229
-};
-
 const aom_cdf_prob default_palette_y_mode_cdf[PALETTE_BLOCK_SIZES]
                                              [PALETTE_Y_MODE_CONTEXTS]
                                              [CDF_SIZE(2)] = {
@@ -1506,14 +1401,6 @@ int av1_get_palette_color_index_context(const uint8_t *color_map, int stride,
 #undef NUM_PALETTE_NEIGHBORS
 #undef MAX_COLOR_CONTEXT_HASH
 
-static const aom_prob default_txfm_partition_probs[TXFM_PARTITION_CONTEXTS] = {
-#if CONFIG_TX64X64
-  249, 240, 223, 249, 229, 177, 250, 243, 208, 226, 187,
-  145, 236, 204, 150, 183, 149, 125, 181, 146, 113, 128
-#else
-  250, 231, 212, 241, 166, 66, 241, 230, 135, 243, 154, 64, 248, 161, 63, 128
-#endif  // CONFIG_TX64X64
-};
 static const aom_cdf_prob
     default_txfm_partition_cdf[TXFM_PARTITION_CONTEXTS][CDF_SIZE(2)] = {
 #if CONFIG_TX64X64
@@ -1560,8 +1447,8 @@ static const aom_prob default_compound_idx_probs[COMP_INDEX_CONTEXTS] = {
 
 #if CONFIG_FILTER_INTRA
 static const aom_cdf_prob default_filter_intra_mode_cdf[2][CDF_SIZE(
-    FILTER_INTRA_MODES)] = { { AOM_CDF6(22207, 23158, 24144, 24278, 30434) },
-                             { AOM_CDF6(32768, 32768, 32768, 32768, 32768) } };
+    FILTER_INTRA_MODES)] = { { AOM_CDF5(14259, 17304, 20463, 29377) },
+                             { AOM_CDF5(32768, 32768, 32768, 32768) } };
 
 static const aom_cdf_prob default_filter_intra_cdfs[TX_SIZES_ALL][CDF_SIZE(2)] =
     { { AOM_CDF2(10985) }, { AOM_CDF2(10985) }, { AOM_CDF2(16645) },
@@ -1804,12 +1691,19 @@ static const aom_cdf_prob default_partition_cdf[PARTITION_CONTEXTS][CDF_SIZE(
   { AOM_CDF10(7424, 9008, 9528, 30664, 31192, 31720, 31893, 32066, 32594) },
   { AOM_CDF10(1280, 1710, 2069, 31978, 32121, 32264, 32383, 32502, 32647) },
 #if CONFIG_EXT_PARTITION
-  // 128x128 -> 64x64
+#if ALLOW_128X32_BLOCKS
   { AOM_CDF10(28416, 28705, 28926, 32258, 32354, 32450, 32523, 32596, 32693) },
   { AOM_CDF10(9216, 9952, 11849, 30134, 30379, 30624, 31256, 31888, 32134) },
   { AOM_CDF10(7424, 9008, 9528, 30664, 31192, 31720, 31893, 32066, 32594) },
   { AOM_CDF10(1280, 1710, 2069, 31978, 32121, 32264, 32383, 32502, 32647) },
-#endif
+#else
+  // 128x128 -> 64x64
+  { AOM_CDF8(28416, 28705, 28926, 32258, 32402, 32547, 32548) },
+  { AOM_CDF8(9216, 9952, 11849, 30134, 30502, 30870, 30871) },
+  { AOM_CDF8(7424, 9008, 9528, 30664, 31456, 32248, 32249) },
+  { AOM_CDF8(1280, 1710, 2069, 31978, 32193, 32409, 32410) },
+#endif  // ALLOW_128X32_BLOCKS
+#endif  // CONFIG_EXT_PARTITION
 };
 #else
 static const aom_cdf_prob
@@ -3011,7 +2905,6 @@ static const aom_cdf_prob default_angle_delta_cdf[DIRECTIONAL_MODES][CDF_SIZE(
 #endif  // CONFIG_EXT_INTRA_MOD
 
 static void init_mode_probs(FRAME_CONTEXT *fc) {
-  av1_copy(fc->intra_inter_prob, default_intra_inter_p);
   av1_copy(fc->comp_inter_prob, default_comp_inter_p);
   av1_copy(fc->palette_y_size_cdf, default_palette_y_size_cdf);
   av1_copy(fc->palette_uv_size_cdf, default_palette_uv_size_cdf);
@@ -3061,33 +2954,22 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
   av1_copy(fc->comp_bwdref_cdf, default_comp_bwdref_cdf);
   av1_copy(fc->single_ref_prob, default_single_ref_p);
   av1_copy(fc->single_ref_cdf, default_single_ref_cdf);
-  av1_copy(fc->txfm_partition_prob, default_txfm_partition_probs);
   av1_copy(fc->txfm_partition_cdf, default_txfm_partition_cdf);
 #if CONFIG_JNT_COMP
   av1_copy(fc->compound_index_cdf, default_compound_idx_cdfs);
   av1_copy(fc->compound_index_probs, default_compound_idx_probs);
 #endif  // CONFIG_JNT_COMP
-  av1_copy(fc->newmv_prob, default_newmv_prob);
-  av1_copy(fc->zeromv_prob, default_zeromv_prob);
-  av1_copy(fc->refmv_prob, default_refmv_prob);
-  av1_copy(fc->drl_prob, default_drl_prob);
   av1_copy(fc->newmv_cdf, default_newmv_cdf);
   av1_copy(fc->zeromv_cdf, default_zeromv_cdf);
   av1_copy(fc->refmv_cdf, default_refmv_cdf);
   av1_copy(fc->drl_cdf, default_drl_cdf);
   av1_copy(fc->motion_mode_prob, default_motion_mode_prob);
   av1_copy(fc->motion_mode_cdf, default_motion_mode_cdf);
-  av1_copy(fc->obmc_prob, default_obmc_prob);
   av1_copy(fc->obmc_cdf, default_obmc_cdf);
-  av1_copy(fc->inter_compound_mode_probs, default_inter_compound_mode_probs);
   av1_copy(fc->inter_compound_mode_cdf, default_inter_compound_mode_cdf);
-  av1_copy(fc->compound_type_prob, default_compound_type_probs);
   av1_copy(fc->compound_type_cdf, default_compound_type_cdf);
-  av1_copy(fc->interintra_prob, default_interintra_prob);
-  av1_copy(fc->wedge_interintra_prob, default_wedge_interintra_prob);
   av1_copy(fc->interintra_cdf, default_interintra_cdf);
   av1_copy(fc->wedge_interintra_cdf, default_wedge_interintra_cdf);
-  av1_copy(fc->interintra_mode_prob, default_interintra_mode_prob);
   av1_copy(fc->interintra_mode_cdf, default_interintra_mode_cdf);
   av1_copy(fc->seg.tree_probs, default_segment_tree_probs);
   av1_copy(fc->seg.pred_probs, default_segment_pred_probs);
@@ -3118,13 +3000,10 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
     av1_copy(fc->seg.q_seg_cdf[i], default_q_seg_tree_cdf[i]);
 #endif
   av1_copy(fc->tx_size_cdf, default_tx_size_cdf);
-  av1_copy(fc->delta_q_prob, default_delta_q_probs);
   av1_copy(fc->delta_q_cdf, default_delta_q_cdf);
 #if CONFIG_EXT_DELTA_Q
-  av1_copy(fc->delta_lf_prob, default_delta_lf_probs);
   av1_copy(fc->delta_lf_cdf, default_delta_lf_cdf);
 #if CONFIG_LOOPFILTER_LEVEL
-  av1_copy(fc->delta_lf_multi_prob, default_delta_lf_multi_probs);
   av1_copy(fc->delta_lf_multi_cdf, default_delta_lf_multi_cdf);
 #endif  // CONFIG_LOOPFILTER_LEVEL
 #endif
@@ -3147,10 +3026,6 @@ void av1_adapt_inter_frame_probs(AV1_COMMON *cm) {
   FRAME_CONTEXT *fc = cm->fc;
   const FRAME_CONTEXT *pre_fc = cm->pre_fc;
   const FRAME_COUNTS *counts = &cm->counts;
-
-  for (i = 0; i < INTRA_INTER_CONTEXTS; i++)
-    fc->intra_inter_prob[i] = av1_mode_mv_merge_probs(
-        pre_fc->intra_inter_prob[i], counts->intra_inter[i]);
 
   for (i = 0; i < COMP_INTER_CONTEXTS; i++)
     fc->comp_inter_prob[i] = av1_mode_mv_merge_probs(pre_fc->comp_inter_prob[i],
@@ -3181,56 +3056,9 @@ void av1_adapt_inter_frame_probs(AV1_COMMON *cm) {
       fc->single_ref_prob[i][j] = av1_mode_mv_merge_probs(
           pre_fc->single_ref_prob[i][j], counts->single_ref[i][j]);
 
-  for (i = 0; i < NEWMV_MODE_CONTEXTS; ++i)
-    fc->newmv_prob[i] =
-        av1_mode_mv_merge_probs(pre_fc->newmv_prob[i], counts->newmv_mode[i]);
-  for (i = 0; i < GLOBALMV_MODE_CONTEXTS; ++i)
-    fc->zeromv_prob[i] =
-        av1_mode_mv_merge_probs(pre_fc->zeromv_prob[i], counts->zeromv_mode[i]);
-  for (i = 0; i < REFMV_MODE_CONTEXTS; ++i)
-    fc->refmv_prob[i] =
-        av1_mode_mv_merge_probs(pre_fc->refmv_prob[i], counts->refmv_mode[i]);
-
-  for (i = 0; i < DRL_MODE_CONTEXTS; ++i)
-    fc->drl_prob[i] =
-        av1_mode_mv_merge_probs(pre_fc->drl_prob[i], counts->drl_mode[i]);
-
   for (i = BLOCK_8X8; i < BLOCK_SIZES_ALL; ++i)
     aom_tree_merge_probs(av1_motion_mode_tree, pre_fc->motion_mode_prob[i],
                          counts->motion_mode[i], fc->motion_mode_prob[i]);
-  for (i = BLOCK_8X8; i < BLOCK_SIZES_ALL; ++i)
-    fc->obmc_prob[i] =
-        av1_mode_mv_merge_probs(pre_fc->obmc_prob[i], counts->obmc[i]);
-
-  for (i = 0; i < INTER_MODE_CONTEXTS; i++)
-    aom_tree_merge_probs(
-        av1_inter_compound_mode_tree, pre_fc->inter_compound_mode_probs[i],
-        counts->inter_compound_mode[i], fc->inter_compound_mode_probs[i]);
-  if (cm->allow_interintra_compound) {
-    for (i = 0; i < BLOCK_SIZE_GROUPS; ++i) {
-      if (is_interintra_allowed_bsize_group(i))
-        fc->interintra_prob[i] = av1_mode_mv_merge_probs(
-            pre_fc->interintra_prob[i], counts->interintra[i]);
-    }
-    for (i = 0; i < BLOCK_SIZE_GROUPS; i++) {
-      aom_tree_merge_probs(
-          av1_interintra_mode_tree, pre_fc->interintra_mode_prob[i],
-          counts->interintra_mode[i], fc->interintra_mode_prob[i]);
-    }
-    for (i = 0; i < BLOCK_SIZES_ALL; ++i) {
-      if (is_interintra_allowed_bsize(i) && is_interintra_wedge_used(i))
-        fc->wedge_interintra_prob[i] = av1_mode_mv_merge_probs(
-            pre_fc->wedge_interintra_prob[i], counts->wedge_interintra[i]);
-    }
-  }
-
-  if (cm->allow_masked_compound) {
-    for (i = 0; i < BLOCK_SIZES_ALL; ++i) {
-      aom_tree_merge_probs(
-          av1_compound_type_tree, pre_fc->compound_type_prob[i],
-          counts->compound_interinter[i], fc->compound_type_prob[i]);
-    }
-  }
 
 #if CONFIG_JNT_COMP
   for (i = 0; i < COMP_INDEX_CONTEXTS; ++i)
@@ -3245,12 +3073,6 @@ void av1_adapt_intra_frame_probs(AV1_COMMON *cm) {
   const FRAME_CONTEXT *pre_fc = cm->pre_fc;
   const FRAME_COUNTS *counts = &cm->counts;
 
-  if (cm->tx_mode == TX_MODE_SELECT) {
-    for (i = 0; i < TXFM_PARTITION_CONTEXTS; ++i)
-      fc->txfm_partition_prob[i] = av1_mode_mv_merge_probs(
-          pre_fc->txfm_partition_prob[i], counts->txfm_partition[i]);
-  }
-
   if (cm->seg.temporal_update) {
     for (i = 0; i < PREDICTION_PROBS; i++)
       fc->seg.pred_probs[i] = av1_mode_mv_merge_probs(pre_fc->seg.pred_probs[i],
@@ -3262,21 +3084,6 @@ void av1_adapt_intra_frame_probs(AV1_COMMON *cm) {
     aom_tree_merge_probs(av1_segment_tree, pre_fc->seg.tree_probs,
                          counts->seg.tree_total, fc->seg.tree_probs);
   }
-
-  for (i = 0; i < DELTA_Q_PROBS; ++i)
-    fc->delta_q_prob[i] =
-        mode_mv_merge_probs(pre_fc->delta_q_prob[i], counts->delta_q[i]);
-#if CONFIG_EXT_DELTA_Q
-#if CONFIG_LOOPFILTER_LEVEL
-  for (i = 0; i < FRAME_LF_COUNT; ++i)
-    for (int k = 0; k < DELTA_LF_PROBS; ++k)
-      fc->delta_lf_multi_prob[i][k] = mode_mv_merge_probs(
-          pre_fc->delta_lf_multi_prob[i][k], counts->delta_lf_multi[i][k]);
-#endif  // CONFIG_LOOPFILTER_LEVEL
-  for (i = 0; i < DELTA_LF_PROBS; ++i)
-    fc->delta_lf_prob[i] =
-        mode_mv_merge_probs(pre_fc->delta_lf_prob[i], counts->delta_lf[i]);
-#endif  // CONFIG_EXT_DELTA_Q
 }
 
 static void set_default_lf_deltas(struct loopfilter *lf) {

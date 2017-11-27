@@ -17,13 +17,13 @@ extern const int16_t k_eob_offset_bits[12];
 int16_t get_eob_pos_token(int eob, int16_t *extra);
 int av1_get_eob_pos_ctx(TX_TYPE tx_type, int eob_token);
 
-extern const int16_t av1_coeff_band_4x4[16];
+extern const int8_t av1_coeff_band_4x4[16];
 
-extern const int16_t av1_coeff_band_8x8[64];
+extern const int8_t av1_coeff_band_8x8[64];
 
-extern const int16_t av1_coeff_band_16x16[256];
+extern const int8_t av1_coeff_band_16x16[256];
 
-extern const int16_t av1_coeff_band_32x32[1024];
+extern const int8_t av1_coeff_band_32x32[1024];
 
 typedef struct txb_ctx {
   int txb_skip_ctx;
@@ -295,26 +295,28 @@ static INLINE int get_br_ctx(const uint8_t *const levels,
   return ctx;
 }
 
-#define SIG_REF_OFFSET_NUM 7
+#define SIG_REF_OFFSET_NUM 5
 
 // Note: TX_PAD_2D is dependent to these offset tables.
 static const int sig_ref_offset[SIG_REF_OFFSET_NUM][2] = {
-  { 0, 1 }, { 1, 0 }, { 1, 1 }, { 0, 2 }, { 2, 0 }, { 1, 2 }, { 2, 1 },
+  { 0, 1 }, { 1, 0 }, { 1, 1 }, { 0, 2 }, { 2, 0 }
+  // , { 1, 2 }, { 2, 1 },
 };
 
 static const int sig_ref_offset_vert[SIG_REF_OFFSET_NUM][2] = {
-  { 1, 0 }, { 2, 0 }, { 0, 1 }, { 3, 0 }, { 4, 0 }, { 1, 1 }, { 2, 1 },
+  { 1, 0 }, { 2, 0 }, { 0, 1 }, { 3, 0 }, { 4, 0 }
+  // , { 1, 1 }, { 2, 1 },
 };
 
 static const int sig_ref_offset_horiz[SIG_REF_OFFSET_NUM][2] = {
-  { 0, 1 }, { 0, 2 }, { 1, 0 }, { 0, 3 }, { 0, 4 }, { 1, 1 }, { 1, 2 },
+  { 0, 1 }, { 0, 2 }, { 1, 0 }, { 0, 3 }, { 0, 4 }
+  // , { 1, 1 }, { 1, 2 },
 };
 
 #if USE_CAUSAL_BASE_CTX
 static INLINE int get_nz_count_mag(const uint8_t *const levels, const int bwl,
                                    const int row, const int col,
                                    const TX_CLASS tx_class, int *const mag) {
-  const int stride = (1 << bwl) + TX_PAD_HOR;
   int count = 0;
   *mag = 0;
   for (int idx = 0; idx < SIG_REF_OFFSET_NUM; ++idx) {
@@ -330,14 +332,11 @@ static INLINE int get_nz_count_mag(const uint8_t *const levels, const int bwl,
                                             : sig_ref_offset_horiz[idx][1]));
     const int ref_row = row + row_offset;
     const int ref_col = col + col_offset;
-    const int nb_pos = ref_row * stride + ref_col;
+    const int nb_pos =
+        (ref_row << bwl) + (ref_row << TX_PAD_HOR_LOG2) + ref_col;
     const int level = levels[nb_pos];
     count += (level != 0);
-#if 1
-    if (idx < 5) {
-      *mag += AOMMIN(level, 3);
-    }
-#endif
+    *mag += AOMMIN(level, 3);
   }
   return count;
 }

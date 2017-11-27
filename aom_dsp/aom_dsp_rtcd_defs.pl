@@ -407,16 +407,10 @@ if (aom_config("CONFIG_HIGHBITDEPTH") eq "yes") {
 
   if (aom_config("CONFIG_LOOP_RESTORATION") eq "yes") {
     add_proto qw/void aom_highbd_convolve8_add_src/, "const uint8_t *src, ptrdiff_t src_stride, uint8_t *dst, ptrdiff_t dst_stride, const int16_t *filter_x, int x_step_q4, const int16_t *filter_y, int y_step_q4, int w, int h, int bps";
-    add_proto qw/void aom_highbd_convolve8_add_src_horiz/, "const uint8_t *src, ptrdiff_t src_stride, uint8_t *dst, ptrdiff_t dst_stride, const int16_t *filter_x, int x_step_q4, const int16_t *filter_y, int y_step_q4, int w, int h, int bps";
-    add_proto qw/void aom_highbd_convolve8_add_src_vert/, "const uint8_t *src, ptrdiff_t src_stride, uint8_t *dst, ptrdiff_t dst_stride, const int16_t *filter_x, int x_step_q4, const int16_t *filter_y, int y_step_q4, int w, int h, int bps";
     add_proto qw/void aom_highbd_convolve8_add_src_hip/, "const uint8_t *src, ptrdiff_t src_stride, uint8_t *dst, ptrdiff_t dst_stride, const int16_t *filter_x, int x_step_q4, const int16_t *filter_y, int y_step_q4, int w, int h, int bps";
-    add_proto qw/void aom_highbd_convolve8_add_src_horiz_hip/, "const uint8_t *src, ptrdiff_t src_stride, uint16_t *dst, ptrdiff_t dst_stride, const int16_t *filter_x, int x_step_q4, const int16_t *filter_y, int y_step_q4, int w, int h, int bps";
-    add_proto qw/void aom_highbd_convolve8_add_src_vert_hip/, "const uint16_t *src, ptrdiff_t src_stride, uint8_t *dst, ptrdiff_t dst_stride, const int16_t *filter_x, int x_step_q4, const int16_t *filter_y, int y_step_q4, int w, int h, int bps";
 
     specialize qw/aom_highbd_convolve8_add_src/, "$sse2_x86_64";
     specialize qw/aom_highbd_convolve8_add_src_hip ssse3/;
-    # The _horiz/_vert functions are currently unused, so we don't bother
-    # specialising them.
   }  # CONFIG_LOOP_RESTORATION
 }  # CONFIG_HIGHBITDEPTH
 
@@ -866,6 +860,50 @@ if (aom_config("CONFIG_AV1_ENCODER") eq "yes") {
   specialize qw/aom_sad4x8_avg          msa sse2/;
   specialize qw/aom_sad4x4_avg          msa sse2/;
 
+  if (aom_config("CONFIG_JNT_COMP") eq "yes") {
+    specialize qw/aom_jnt_sad128x128_avg ssse3/;
+    specialize qw/aom_jnt_sad128x64_avg  ssse3/;
+    specialize qw/aom_jnt_sad64x128_avg  ssse3/;
+    specialize qw/aom_jnt_sad64x64_avg   ssse3/;
+    specialize qw/aom_jnt_sad64x32_avg   ssse3/;
+    specialize qw/aom_jnt_sad32x64_avg   ssse3/;
+    specialize qw/aom_jnt_sad32x32_avg   ssse3/;
+    specialize qw/aom_jnt_sad32x16_avg   ssse3/;
+    specialize qw/aom_jnt_sad16x32_avg   ssse3/;
+    specialize qw/aom_jnt_sad16x16_avg   ssse3/;
+    specialize qw/aom_jnt_sad16x8_avg    ssse3/;
+    specialize qw/aom_jnt_sad8x16_avg    ssse3/;
+    specialize qw/aom_jnt_sad8x8_avg     ssse3/;
+    specialize qw/aom_jnt_sad8x4_avg     ssse3/;
+    specialize qw/aom_jnt_sad4x8_avg     ssse3/;
+    specialize qw/aom_jnt_sad4x4_avg     ssse3/;
+
+    if (aom_config("CONFIG_EXT_PARTITION_TYPES") eq "yes") {
+      specialize qw/aom_jnt_sad4x16_avg     ssse3/;
+      specialize qw/aom_jnt_sad16x4_avg     ssse3/;
+      specialize qw/aom_jnt_sad8x32_avg     ssse3/;
+      specialize qw/aom_jnt_sad32x8_avg     ssse3/;
+      specialize qw/aom_jnt_sad16x64_avg     ssse3/;
+      specialize qw/aom_jnt_sad64x16_avg     ssse3/;
+      specialize qw/aom_jnt_sad32x128_avg     ssse3/;
+      specialize qw/aom_jnt_sad128x32_avg     ssse3/;
+    }
+
+    add_proto qw/unsigned int/, "aom_sad4xh", "const uint8_t *a, int a_stride, const uint8_t *b, int b_stride, int width, int height";
+    add_proto qw/unsigned int/, "aom_sad8xh", "const uint8_t *a, int a_stride, const uint8_t *b, int b_stride, int width, int height";
+    add_proto qw/unsigned int/, "aom_sad16xh", "const uint8_t *a, int a_stride, const uint8_t *b, int b_stride, int width, int height";
+    add_proto qw/unsigned int/, "aom_sad32xh", "const uint8_t *a, int a_stride, const uint8_t *b, int b_stride, int width, int height";
+    add_proto qw/unsigned int/, "aom_sad64xh", "const uint8_t *a, int a_stride, const uint8_t *b, int b_stride, int width, int height";
+    add_proto qw/unsigned int/, "aom_sad128xh", "const uint8_t *a, int a_stride, const uint8_t *b, int b_stride, int width, int height";
+
+    specialize qw/aom_sad4xh   sse2/;
+    specialize qw/aom_sad8xh   sse2/;
+    specialize qw/aom_sad16xh  sse2/;
+    specialize qw/aom_sad32xh  sse2/;
+    specialize qw/aom_sad64xh  sse2/;
+    specialize qw/aom_sad128xh sse2/;
+  }
+
   if (aom_config("CONFIG_HIGHBITDEPTH") eq "yes") {
     foreach (@block_sizes) {
       ($w, $h) = @$_;
@@ -1206,6 +1244,42 @@ if (aom_config("CONFIG_AV1_ENCODER") eq "yes") {
     specialize qw/aom_sub_pixel_avg_variance32x8 sse2 ssse3/;
     specialize qw/aom_sub_pixel_avg_variance16x64 sse2 ssse3/;
     specialize qw/aom_sub_pixel_avg_variance64x16 sse2 ssse3/;
+  }
+
+  if (aom_config("CONFIG_JNT_COMP") eq "yes") {
+    specialize qw/aom_jnt_sub_pixel_avg_variance64x64 ssse3/;
+    specialize qw/aom_jnt_sub_pixel_avg_variance64x32 ssse3/;
+    specialize qw/aom_jnt_sub_pixel_avg_variance32x64 ssse3/;
+    specialize qw/aom_jnt_sub_pixel_avg_variance32x32 ssse3/;
+    specialize qw/aom_jnt_sub_pixel_avg_variance32x16 ssse3/;
+    specialize qw/aom_jnt_sub_pixel_avg_variance16x32 ssse3/;
+    specialize qw/aom_jnt_sub_pixel_avg_variance16x16 ssse3/;
+    specialize qw/aom_jnt_sub_pixel_avg_variance16x8  ssse3/;
+    specialize qw/aom_jnt_sub_pixel_avg_variance8x16  ssse3/;
+    specialize qw/aom_jnt_sub_pixel_avg_variance8x8   ssse3/;
+    specialize qw/aom_jnt_sub_pixel_avg_variance8x4   ssse3/;
+    specialize qw/aom_jnt_sub_pixel_avg_variance4x8   ssse3/;
+    specialize qw/aom_jnt_sub_pixel_avg_variance4x4   ssse3/;
+
+    if (aom_config("CONFIG_EXT_PARTITION_TYPES") eq "yes") {
+      specialize qw/aom_jnt_sub_pixel_avg_variance4x16  ssse3/;
+      specialize qw/aom_jnt_sub_pixel_avg_variance16x4  ssse3/;
+      specialize qw/aom_jnt_sub_pixel_avg_variance8x32  ssse3/;
+      specialize qw/aom_jnt_sub_pixel_avg_variance32x8  ssse3/;
+      specialize qw/aom_jnt_sub_pixel_avg_variance16x64 ssse3/;
+      specialize qw/aom_jnt_sub_pixel_avg_variance64x16 ssse3/;
+
+      if (aom_config("CONFIG_EXT_PARTITION") eq "yes") {
+        specialize qw/aom_jnt_sub_pixel_avg_variance128x32   ssse3/;
+        specialize qw/aom_jnt_sub_pixel_avg_variance32x128   ssse3/;
+      }
+    }
+
+    if (aom_config("CONFIG_EXT_PARTITION") eq "yes") {
+      specialize qw/aom_jnt_sub_pixel_avg_variance128x128  ssse3/;
+      specialize qw/aom_jnt_sub_pixel_avg_variance128x64   ssse3/;
+      specialize qw/aom_jnt_sub_pixel_avg_variance64x128   ssse3/;
+    }
   }
 
   if (aom_config("CONFIG_HIGHBITDEPTH") eq "yes") {

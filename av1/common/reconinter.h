@@ -448,10 +448,10 @@ static INLINE void set_default_interp_filters(
 static INLINE int av1_is_interp_needed(const MACROBLOCKD *const xd) {
   (void)xd;
   const MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
-  if (mbmi->motion_mode == WARPED_CAUSAL) return 0;
 #if CONFIG_EXT_SKIP
   if (mbmi->skip_mode) return 0;
 #endif  // CONFIG_EXT_SKIP
+  if (mbmi->motion_mode == WARPED_CAUSAL) return 0;
   if (is_nontrans_global_motion(xd)) return 0;
   return 1;
 }
@@ -563,7 +563,7 @@ void av1_build_wedge_inter_predictor_from_buf(MACROBLOCKD *xd, BLOCK_SIZE bsize,
 #if CONFIG_JNT_COMP
 void av1_jnt_comp_weight_assign(const AV1_COMMON *cm, const MB_MODE_INFO *mbmi,
                                 int order_idx, int *fwd_offset, int *bck_offset,
-                                int is_compound);
+                                int *use_jnt_comp_avg, int is_compound);
 #endif  // CONFIG_JNT_COMP
 
 #ifdef __cplusplus

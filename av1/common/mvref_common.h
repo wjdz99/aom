@@ -174,6 +174,22 @@ static INLINE int_mv scale_mv(const MB_MODE_INFO *mbmi, int ref,
     }                                                                         \
   } while (0)
 
+#if CONFIG_EXT_SKIP
+// This macro is used to add a motion vector pair to the skip mode mv list.
+#define SKIP_MODE_MV_LIST_ADD(mv, mv_list, mv_list_count, mv_list_idx, bw, bh, \
+                              xd)                                              \
+  do {                                                                         \
+    const int mv_idx = (mv_list_count)[mv_list_idx];                           \
+    (mv_list)[mv_list_idx][mv_idx][0] = (mv)[0];                               \
+    CLIP_IN_ADD(&(mv_list)[mv_list_idx][mv_idx][0].as_mv, (bw), (bh), (xd));   \
+    if (mv_list_idx == 2) {                                                    \
+      (mv_list)[mv_list_idx][mv_idx][1] = (mv)[1];                             \
+      CLIP_IN_ADD(&(mv_list)[mv_list_idx][mv_idx][1].as_mv, (bw), (bh), (xd)); \
+    }                                                                          \
+    (mv_list_count)[mv_list_idx]++;                                            \
+  } while (0)
+#endif  // CONFIG_EXT_SKIP
+
 // Checks that the given mi_row, mi_col and search point
 // are inside the borders of the tile.
 static INLINE int is_inside(const TileInfo *const tile, int mi_col, int mi_row,
@@ -389,6 +405,12 @@ void av1_find_mv_refs(const AV1_COMMON *cm, const MACROBLOCKD *xd,
                       int16_t *compound_mode_context, int_mv *mv_ref_list,
                       int mi_row, int mi_col, find_mv_refs_sync sync,
                       void *const data, int16_t *mode_context);
+#if CONFIG_EXT_SKIP
+void av1_setup_skip_mode_mvs(const AV1_COMMON *cm, const MACROBLOCKD *xd,
+                             MB_MODE_INFO *mbmi, int mi_row, int mi_col,
+                             const int_mv nearest_mv[2], find_mv_refs_sync sync,
+                             void *const data);
+#endif  // CONFIG_EXT_SKIP
 
 // check a list of motion vectors by sad score using a number rows of pixels
 // above and a number cols of pixels in the left to select the one with best
@@ -429,8 +451,9 @@ static INLINE void av1_find_ref_dv(int_mv *ref_dv, int mi_row, int mi_col) {
   }
 }
 
-#define INTRABC_DELAY 0   // Writing back delay in units of super-block.
-#define USE_WAVE_FRONT 0  // Use only top left area of frame for reference.
+#define INTRABC_DELAY_PIXELS 256  //  Delay of 256 pixels
+#define INTRABC_DELAY_SB64 (INTRABC_DELAY_PIXELS / 64)
+#define USE_WAVE_FRONT 1  // Use only top left area of frame for reference.
 static INLINE int av1_is_dv_valid(const MV dv, const TileInfo *const tile,
                                   int mi_row, int mi_col, BLOCK_SIZE bsize,
                                   int mib_size_log2) {
@@ -439,7 +462,7 @@ static INLINE int av1_is_dv_valid(const MV dv, const TileInfo *const tile,
   const int SCALE_PX_TO_MV = 8;
   // Disallow subpixel for now
   // SUBPEL_MASK is not the correct scale
-  if ((dv.row & (SCALE_PX_TO_MV - 1) || dv.col & (SCALE_PX_TO_MV - 1)))
+  if (((dv.row & (SCALE_PX_TO_MV - 1)) || (dv.col & (SCALE_PX_TO_MV - 1))))
     return 0;
   // Is the source top-left inside the current tile?
   const int src_top_edge = mi_row * MI_SIZE * SCALE_PX_TO_MV + dv.row;
@@ -460,21 +483,23 @@ static INLINE int av1_is_dv_valid(const MV dv, const TileInfo *const tile,
   // constraints to facilitate HW decoder.
   const int max_mib_size = 1 << mib_size_log2;
   const int active_sb_row = mi_row >> mib_size_log2;
-  const int active_sb_col = mi_col >> mib_size_log2;
+  const int active_sb64_col = (mi_col * MI_SIZE) >> 6;
   const int sb_size = max_mib_size * MI_SIZE;
   const int src_sb_row = ((src_bottom_edge >> 3) - 1) / sb_size;
-  const int src_sb_col = ((src_right_edge >> 3) - 1) / sb_size;
+  const int src_sb64_col = ((src_right_edge >> 3) - 1) >> 6;
+  const int total_sb64_per_row =
+      ((tile->mi_col_end - tile->mi_col_start - 1) >> 4) + 1;
+  const int active_sb64 = active_sb_row * total_sb64_per_row + active_sb64_col;
+  const int src_sb64 = src_sb_row * total_sb64_per_row + src_sb64_col;
+  if (src_sb64 >= active_sb64 - INTRABC_DELAY_SB64) return 0;
 #if USE_WAVE_FRONT
+  const int gradient = 1 + INTRABC_DELAY_SB64 + (sb_size > 64);
+  const int wf_offset = gradient * (active_sb_row - src_sb_row);
   if (src_sb_row > active_sb_row ||
-      src_sb_col >=
-          active_sb_col - INTRABC_DELAY + 2 * (active_sb_row - src_sb_row))
-    return 0;
-#else
-  if (src_sb_row > active_sb_row ||
-      (src_sb_row == active_sb_row &&
-       src_sb_col >= active_sb_col - INTRABC_DELAY))
+      src_sb64_col >= active_sb64_col - INTRABC_DELAY_SB64 + wf_offset)
     return 0;
 #endif
+
   return 1;
 }
 #endif  // CONFIG_INTRABC

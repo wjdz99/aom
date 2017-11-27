@@ -751,11 +751,13 @@ static const TX_TYPE_1D htx_tab[TX_TYPES] = {
 // Same as "max_txsize_lookup[bsize] - TX_8X8", except for rectangular
 // block which may use a rectangular transform, in which  case it is
 // "(max_txsize_lookup[bsize] + 1) - TX_8X8", invalid for bsize < 8X8
+#define TXSIZE_CAT_INVALID (-1)
+
 static const int32_t intra_tx_size_cat_lookup[BLOCK_SIZES_ALL] = {
   // 2X2,             2X4,                4X2,
-  INT32_MIN,          INT32_MIN,          INT32_MIN,
+  TXSIZE_CAT_INVALID, TXSIZE_CAT_INVALID, TXSIZE_CAT_INVALID,
   //                                      4X4,
-                                          INT32_MIN,
+                                          TXSIZE_CAT_INVALID,
   // 4X8,             8X4,                8X8,
   TX_8X8 - TX_8X8,    TX_8X8 - TX_8X8,    TX_8X8 - TX_8X8,
   // 8X16,            16X8,               16X16
@@ -1815,6 +1817,9 @@ static const int intra_mode_context[INTRA_MODES] = {
 #if CONFIG_JNT_COMP
 // Note: this is also used in unit tests. So whenever one changes the table,
 // the unit tests need to be changed accordingly.
+static const int quant_dist_weight[4][2] = {
+  { 2, 3 }, { 2, 5 }, { 2, 7 }, { 1, MAX_FRAME_DISTANCE }
+};
 static const double quant_dist_category[4] = { 1.5, 2.5, 3.5, 255 };
 static const int quant_dist_lookup_table[2][4][2] = {
   { { 9, 7 }, { 11, 5 }, { 12, 4 }, { 13, 3 } },

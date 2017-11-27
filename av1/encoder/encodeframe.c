@@ -1020,11 +1020,24 @@ static void update_stats(const AV1_COMMON *const cm, TileDataEnc *tile_data,
   const int seg_ref_active =
       segfeature_active(&cm->seg, mbmi->segment_id, SEG_LVL_REF_FRAME);
 
-  if (!seg_ref_active) {
-    const int skip_ctx = av1_get_skip_context(xd);
-    td->counts->skip[skip_ctx][mbmi->skip]++;
-    if (allow_update_cdf) update_cdf(fc->skip_cdfs[skip_ctx], mbmi->skip, 2);
+#if CONFIG_EXT_SKIP
+  if (cm->skip_mode_flag && !seg_ref_active && is_comp_ref_allowed(bsize)) {
+    const int skip_mode_ctx = av1_get_skip_mode_context(xd);
+    td->counts->skip_mode[skip_mode_ctx][mbmi->skip_mode]++;
+    if (allow_update_cdf)
+      update_cdf(fc->skip_mode_cdfs[skip_mode_ctx], mbmi->skip_mode, 2);
   }
+
+  if (!mbmi->skip_mode) {
+#endif  // CONFIG_EXT_SKIP
+    if (!seg_ref_active) {
+      const int skip_ctx = av1_get_skip_context(xd);
+      td->counts->skip[skip_ctx][mbmi->skip]++;
+      if (allow_update_cdf) update_cdf(fc->skip_cdfs[skip_ctx], mbmi->skip, 2);
+    }
+#if CONFIG_EXT_SKIP
+  }
+#endif  // CONFIG_EXT_SKIP
 
   if (cm->delta_q_present_flag && (bsize != cm->sb_size || !mbmi->skip) &&
       super_block_upper_left) {
@@ -1080,10 +1093,24 @@ static void update_stats(const AV1_COMMON *const cm, TileDataEnc *tile_data,
 #endif  // CONFIG_LOOPFILTER_LEVEL
 #endif
   }
+
   if (!frame_is_intra_only(cm)) {
-    FRAME_COUNTS *const counts = td->counts;
     RD_COUNTS *rdc = &td->rd_counts;
+
+#if CONFIG_EXT_SKIP
+    if (mbmi->skip_mode) {
+      if (cm->reference_mode == REFERENCE_MODE_SELECT) {
+        assert(has_second_ref(mbmi));
+        rdc->compound_ref_used_flag = 1;
+      }
+      set_ref_ptrs(cm, xd, mbmi->ref_frame[0], mbmi->ref_frame[1]);
+      return;
+    }
+#endif  // CONFIG_EXT_SKIP
+
+    FRAME_COUNTS *const counts = td->counts;
     const int inter_block = is_inter_block(mbmi);
+
     if (!seg_ref_active) {
       counts->intra_inter[av1_get_intra_inter_context(xd)][inter_block]++;
       if (allow_update_cdf)
@@ -2526,13 +2553,13 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
     if (has_cols) {
       // At the bottom, the two possibilities are HORZ and SPLIT
       aom_cdf_prob bot_cdf[2];
-      partition_gather_vert_alike(bot_cdf, partition_cdf);
+      partition_gather_vert_alike(bot_cdf, partition_cdf, bsize);
       static const int bot_inv_map[2] = { PARTITION_HORZ, PARTITION_SPLIT };
       av1_cost_tokens_from_cdf(tmp_partition_cost, bot_cdf, bot_inv_map);
     } else if (has_rows) {
       // At the right, the two possibilities are VERT and SPLIT
       aom_cdf_prob rhs_cdf[2];
-      partition_gather_horz_alike(rhs_cdf, partition_cdf);
+      partition_gather_horz_alike(rhs_cdf, partition_cdf, bsize);
       static const int rhs_inv_map[2] = { PARTITION_VERT, PARTITION_SPLIT };
       av1_cost_tokens_from_cdf(tmp_partition_cost, rhs_cdf, rhs_inv_map);
     } else {
@@ -2987,22 +3014,22 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
   const int ext_partition_allowed =
       do_rectangular_split && bsize > BLOCK_8X8 && partition_none_allowed;
 
-  // horz4_partition_allowed and vert4_partition_allowed encode the requirement
-  // that we don't choose a block size that wouldn't be allowed by this
-  // subsampling (stored in the xss and yss variables).
-  //
-  // We definitely can't allow (say) a 16x4 block if yss > xss because it would
-  // subsample to 16x2, which doesn't have an enum. Also, there's no BLOCK_8X2
-  // or BLOCK_2X8, so we can't do 4:1 or 1:4 partitions for BLOCK_16X16 if there
-  // is any subsampling.
-  int horz4_partition_allowed = ext_partition_allowed && partition_horz_allowed;
-  int vert4_partition_allowed = ext_partition_allowed && partition_vert_allowed;
+// partition4_allowed is 1 if we can use a PARTITION_HORZ_4 or PARTITION_VERT_4
+// for this block. This is almost the same as ext_partition_allowed, except
+// that we don't allow 128x32 or 32x128 blocks if ALLOW_128X32_BLOCKS is false,
+// so we require that bsize is not BLOCK_128X128.
+#if CONFIG_EXT_PARTITION && !ALLOW_128X32_BLOCKS
+  const int partition4_allowed =
+      ext_partition_allowed && bsize != BLOCK_128X128;
+#else
+  const int partition4_allowed = ext_partition_allowed;
+#endif
 
 #if CONFIG_EXT_PARTITION_TYPES_AB
   // The alternative AB partitions are allowed iff the corresponding 4:1
   // partitions are allowed.
-  int horzab_partition_allowed = horz4_partition_allowed;
-  int vertab_partition_allowed = vert4_partition_allowed;
+  int horzab_partition_allowed = partition4_allowed;
+  int vertab_partition_allowed = partition4_allowed;
 #else
   // The standard AB partitions are allowed whenever ext-partition-types are
   // allowed
@@ -3136,17 +3163,15 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
 #endif
 
   // PARTITION_HORZ_4
-  // TODO(david.barker): For this and PARTITION_VERT_4,
-  // * Add support for BLOCK_16X16 once we support 2x8 and 8x2 blocks for the
-  //   chroma plane
+  int partition_horz4_allowed = partition4_allowed && partition_horz_allowed;
   if (cpi->sf.prune_ext_partition_types_search) {
-    horz4_partition_allowed &= (pc_tree->partitioning == PARTITION_HORZ ||
+    partition_horz4_allowed &= (pc_tree->partitioning == PARTITION_HORZ ||
                                 pc_tree->partitioning == PARTITION_HORZ_A ||
                                 pc_tree->partitioning == PARTITION_HORZ_B ||
                                 pc_tree->partitioning == PARTITION_SPLIT ||
                                 pc_tree->partitioning == PARTITION_NONE);
   }
-  if (horz4_partition_allowed && has_rows &&
+  if (partition_horz4_allowed && has_rows &&
       (do_rectangular_split || av1_active_h_edge(cpi, mi_row, mi_step))) {
     const int quarter_step = mi_size_high[bsize] / 4;
     PICK_MODE_CONTEXT *ctx_prev = ctx_none;
@@ -3178,15 +3203,17 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
     }
     restore_context(x, &x_ctx, mi_row, mi_col, bsize);
   }
+
   // PARTITION_VERT_4
+  int partition_vert4_allowed = partition4_allowed && partition_vert_allowed;
   if (cpi->sf.prune_ext_partition_types_search) {
-    vert4_partition_allowed &= (pc_tree->partitioning == PARTITION_VERT ||
+    partition_vert4_allowed &= (pc_tree->partitioning == PARTITION_VERT ||
                                 pc_tree->partitioning == PARTITION_VERT_A ||
                                 pc_tree->partitioning == PARTITION_VERT_B ||
                                 pc_tree->partitioning == PARTITION_SPLIT ||
                                 pc_tree->partitioning == PARTITION_NONE);
   }
-  if (vert4_partition_allowed && has_cols &&
+  if (partition_vert4_allowed && has_cols &&
       (do_rectangular_split || av1_active_v_edge(cpi, mi_row, mi_step))) {
     const int quarter_step = mi_size_wide[bsize] / 4;
     PICK_MODE_CONTEXT *ctx_prev = ctx_none;
@@ -3331,6 +3358,13 @@ static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
     }
 
     x->tx_rd_record.num = x->tx_rd_record.index_start = 0;
+    av1_zero(x->tx_size_rd_record_8X8);
+    av1_zero(x->tx_size_rd_record_16X16);
+    av1_zero(x->tx_size_rd_record_32X32);
+#if CONFIG_TX64X64
+    av1_zero(x->tx_size_rd_record_64X64);
+#endif
+
     av1_zero(x->pred_mv);
     pc_root->index = 0;
 
@@ -3486,9 +3520,6 @@ static MV_REFERENCE_FRAME get_frame_type(const AV1_COMP *cpi) {
 #if CONFIG_SIMPLIFY_TX_MODE
 static TX_MODE select_tx_mode(const AV1_COMP *cpi) {
   if (cpi->common.all_lossless) return ONLY_4X4;
-#if CONFIG_VAR_TX_NO_TX_MODE
-  return TX_MODE_SELECT;
-#else
   if (cpi->sf.tx_size_search_method == USE_LARGESTALL)
     return TX_MODE_LARGEST;
   else if (cpi->sf.tx_size_search_method == USE_FULL_RD ||
@@ -3496,14 +3527,10 @@ static TX_MODE select_tx_mode(const AV1_COMP *cpi) {
     return TX_MODE_SELECT;
   else
     return cpi->common.tx_mode;
-#endif  // CONFIG_VAR_TX_NO_TX_MODE
 }
 #else
 static TX_MODE select_tx_mode(const AV1_COMP *cpi) {
   if (cpi->common.all_lossless) return ONLY_4X4;
-#if CONFIG_VAR_TX_NO_TX_MODE
-  return TX_MODE_SELECT;
-#else
   if (cpi->sf.tx_size_search_method == USE_LARGESTALL)
     return ALLOW_32X32 + CONFIG_TX64X64;
   else if (cpi->sf.tx_size_search_method == USE_FULL_RD ||
@@ -3511,7 +3538,6 @@ static TX_MODE select_tx_mode(const AV1_COMP *cpi) {
     return TX_MODE_SELECT;
   else
     return cpi->common.tx_mode;
-#endif  // CONFIG_VAR_TX_NO_TX_MODE
 }
 #endif  // CONFIG_SIMPLIFY_TX_MODE
 
@@ -4181,6 +4207,12 @@ static void encode_frame_internal(AV1_COMP *cpi) {
     cm->use_prev_frame_mvs = 0;
   }
 #endif  // CONFIG_TEMPMV_SIGNALING
+#if CONFIG_SEGMENT_PRED_LAST
+  if (cm->prev_frame) cm->last_frame_seg_map = cm->prev_frame->seg_map;
+  cm->current_frame_seg_map = cm->cur_frame->seg_map;
+  if (cm->current_frame_seg_map)
+    memset(cm->current_frame_seg_map, 0, (cm->mi_rows * cm->mi_cols));
+#endif
 
   // Special case: set prev_mi to NULL when the previous mode info
   // context cannot be used.
@@ -4193,6 +4225,41 @@ static void encode_frame_internal(AV1_COMP *cpi) {
 #if CONFIG_MFMV
   av1_setup_motion_field(cm);
 #endif  // CONFIG_MFMV
+
+#if CONFIG_EXT_SKIP
+  av1_setup_skip_mode_allowed(cm);
+  cm->skip_mode_flag = cm->is_skip_mode_allowed;
+  if (cm->skip_mode_flag) {
+    if (cm->reference_mode == SINGLE_REFERENCE) {
+      cm->skip_mode_flag = 0;
+    } else {
+      static const int flag_list[TOTAL_REFS_PER_FRAME] = { 0,
+                                                           AOM_LAST_FLAG,
+                                                           AOM_LAST2_FLAG,
+                                                           AOM_LAST3_FLAG,
+                                                           AOM_GOLD_FLAG,
+                                                           AOM_BWD_FLAG,
+                                                           AOM_ALT2_FLAG,
+                                                           AOM_ALT_FLAG };
+      const int ref_frame[2] = { cm->ref_frame_idx_0 + LAST_FRAME,
+                                 cm->ref_frame_idx_1 + LAST_FRAME };
+      if (!(cpi->ref_frame_flags & flag_list[ref_frame[0]]) ||
+          !(cpi->ref_frame_flags & flag_list[ref_frame[1]]))
+        cm->skip_mode_flag = 0;
+    }
+  }
+#if 0
+  printf(
+      "\nENCODER: Frame=%d, frame_offset=%d, show_frame=%d, "
+      "show_existing_frame=%d, is_skip_mode_allowed=%d, "
+      "ref_frame_idx=(%d,%d), frame_reference_mode=%d, "
+      "tpl_frame_ref0_idx=%d, skip_mode_flag=%d\n",
+      cm->current_video_frame, cm->frame_offset, cm->show_frame,
+      cm->show_existing_frame, cm->is_skip_mode_allowed, cm->ref_frame_idx_0,
+      cm->ref_frame_idx_1, cm->reference_mode, cm->tpl_frame_ref0_idx,
+      cm->skip_mode_flag);
+#endif  // 0
+#endif  // CONFIG_EXT_SKIP
 
 #if CONFIG_FRAME_MARKER
   cpi->all_one_sided_refs = refs_are_one_sided(cm);
@@ -4407,6 +4474,19 @@ static void sum_intra_stats(FRAME_COUNTS *counts, MACROBLOCKD *xd,
   (void)counts;
   const BLOCK_SIZE bsize = mbmi->sb_type;
 
+  // Update intra tx size cdf
+  if (block_signals_txsize(bsize) && !xd->lossless[mbmi->segment_id] &&
+      allow_update_cdf) {
+    const TX_SIZE tx_size = mbmi->tx_size;
+    const int tx_size_ctx = get_tx_size_context(xd);
+    const int32_t tx_size_cat = intra_tx_size_cat_lookup[bsize];
+    const TX_SIZE coded_tx_size = txsize_sqr_up_map[tx_size];
+    const int depth = tx_size_to_depth(coded_tx_size, tx_size_cat);
+    const int max_depths = tx_size_cat_to_max_depth(tx_size_cat);
+    update_cdf(fc->tx_size_cdf[tx_size_cat][tx_size_ctx], depth,
+               max_depths + 1);
+  }
+
   if (intraonly) {
 #if CONFIG_ENTROPY_STATS
     const PREDICTION_MODE above = av1_above_block_mode(mi, above_mi, 0);
@@ -4436,14 +4516,26 @@ static void sum_intra_stats(FRAME_COUNTS *counts, MACROBLOCKD *xd,
     const int use_filter_intra_mode =
         mbmi->filter_intra_mode_info.use_filter_intra_mode[0];
 #if CONFIG_ENTROPY_STATS
-    ++counts->filter_intra_mode[0][mbmi->filter_intra_mode_info
-                                       .filter_intra_mode[0]];
+    if (use_filter_intra_mode) {
+      const PREDICTION_MODE above = av1_above_block_mode(mi, above_mi, 0);
+      const PREDICTION_MODE left = av1_left_block_mode(mi, left_mi, 0);
+#if CONFIG_KF_CTX
+      int above_ctx = intra_mode_context[above];
+      int left_ctx = intra_mode_context[left];
+#endif
+      ++counts->filter_intra_mode[0][mbmi->filter_intra_mode_info
+                                         .filter_intra_mode[0]];
+      ++counts->filter_intra_mode_ctx[above_ctx][left_ctx]
+                                     [mbmi->filter_intra_mode_info
+                                          .filter_intra_mode[0]];
+    }
     ++counts->filter_intra_tx[mbmi->tx_size][use_filter_intra_mode];
 #endif  // CONFIG_ENTROPY_STATS
     if (allow_update_cdf) {
-      update_cdf(fc->filter_intra_mode_cdf[0],
-                 mbmi->filter_intra_mode_info.filter_intra_mode[0],
-                 FILTER_INTRA_MODES);
+      if (use_filter_intra_mode)
+        update_cdf(fc->filter_intra_mode_cdf[0],
+                   mbmi->filter_intra_mode_info.filter_intra_mode[0],
+                   FILTER_INTRA_MODES);
       update_cdf(fc->filter_intra_cdfs[mbmi->tx_size], use_filter_intra_mode,
                  2);
     }
@@ -4590,7 +4682,7 @@ static void tx_partition_count_update(const AV1_COMMON *const cm, MACROBLOCK *x,
   MACROBLOCKD *xd = &x->e_mbd;
   const int mi_width = block_size_wide[plane_bsize] >> tx_size_wide_log2[0];
   const int mi_height = block_size_high[plane_bsize] >> tx_size_wide_log2[0];
-  TX_SIZE max_tx_size = get_vartx_max_txsize(&xd->mi[0]->mbmi, plane_bsize, 0);
+  TX_SIZE max_tx_size = get_vartx_max_txsize(xd, plane_bsize, 0);
   const int bh = tx_size_high_unit[max_tx_size];
   const int bw = tx_size_wide_unit[max_tx_size];
   int idx, idy;
@@ -4649,7 +4741,7 @@ static void tx_partition_set_contexts(const AV1_COMMON *const cm,
                                       int mi_row, int mi_col) {
   const int mi_width = block_size_wide[plane_bsize] >> tx_size_wide_log2[0];
   const int mi_height = block_size_high[plane_bsize] >> tx_size_high_log2[0];
-  TX_SIZE max_tx_size = get_vartx_max_txsize(&xd->mi[0]->mbmi, plane_bsize, 0);
+  TX_SIZE max_tx_size = get_vartx_max_txsize(xd, plane_bsize, 0);
   const int bh = tx_size_high_unit[max_tx_size];
   const int bw = tx_size_wide_unit[max_tx_size];
   int idx, idy;
@@ -4867,8 +4959,6 @@ static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
       } else {
         intra_tx_size = tx_size;
       }
-      ++td->counts->tx_size_implied[max_txsize_lookup[bsize]]
-                                   [txsize_sqr_up_map[tx_size]];
 
       for (j = 0; j < mi_height; j++)
         for (i = 0; i < mi_width; i++)

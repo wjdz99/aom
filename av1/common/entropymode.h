@@ -53,6 +53,11 @@ extern "C" {
 #define KF_MODE_CONTEXTS 5
 #endif
 
+// A define to configure whether 4:1 and 1:4 partitions are allowed for 128x128
+// blocks. They seem not to be giving great results (and might be expensive to
+// implement in hardware), so this is a toggle to conditionally disable them.
+#define ALLOW_128X32_BLOCKS 0
+
 struct AV1Common;
 
 typedef struct {
@@ -68,8 +73,6 @@ struct seg_counts {
 };
 
 typedef struct frame_contexts {
-  aom_prob y_mode_prob[BLOCK_SIZE_GROUPS][INTRA_MODES - 1];
-  aom_prob uv_mode_prob[INTRA_MODES][UV_INTRA_MODES - 1];
   coeff_cdf_model coef_tail_cdfs[TX_SIZES][PLANE_TYPES];
   coeff_cdf_model coef_head_cdfs[TX_SIZES][PLANE_TYPES];
 #if CONFIG_ADAPT_SCAN
@@ -156,6 +159,10 @@ typedef struct frame_contexts {
                             [CDF_SIZE(2)];
   aom_cdf_prob dc_sign_cdf[PLANE_TYPES][DC_SIGN_CONTEXTS][CDF_SIZE(2)];
 #if CONFIG_LV_MAP_MULTI
+#if USE_BASE_EOB_ALPHABET
+  aom_cdf_prob coeff_base_eob_cdf[TX_SIZES][PLANE_TYPES][SIG_COEF_CONTEXTS_EOB]
+                                 [CDF_SIZE(3)];
+#endif
   aom_cdf_prob coeff_base_cdf[TX_SIZES][PLANE_TYPES][SIG_COEF_CONTEXTS]
                              [CDF_SIZE(4)];
   aom_cdf_prob coeff_br_cdf[TX_SIZES][PLANE_TYPES][LEVEL_CONTEXTS]
@@ -177,33 +184,21 @@ typedef struct frame_contexts {
 #endif  // CONFIG_CTX1D
 #endif
 
-  aom_prob newmv_prob[NEWMV_MODE_CONTEXTS];
-  aom_prob zeromv_prob[GLOBALMV_MODE_CONTEXTS];
-  aom_prob refmv_prob[REFMV_MODE_CONTEXTS];
-  aom_prob drl_prob[DRL_MODE_CONTEXTS];
   aom_cdf_prob newmv_cdf[NEWMV_MODE_CONTEXTS][CDF_SIZE(2)];
   aom_cdf_prob zeromv_cdf[GLOBALMV_MODE_CONTEXTS][CDF_SIZE(2)];
   aom_cdf_prob refmv_cdf[REFMV_MODE_CONTEXTS][CDF_SIZE(2)];
   aom_cdf_prob drl_cdf[DRL_MODE_CONTEXTS][CDF_SIZE(2)];
 
-  aom_prob inter_compound_mode_probs[INTER_MODE_CONTEXTS]
-                                    [INTER_COMPOUND_MODES - 1];
   aom_cdf_prob inter_compound_mode_cdf[INTER_MODE_CONTEXTS]
                                       [CDF_SIZE(INTER_COMPOUND_MODES)];
-  aom_prob compound_type_prob[BLOCK_SIZES_ALL][COMPOUND_TYPES - 1];
   aom_cdf_prob compound_type_cdf[BLOCK_SIZES_ALL][CDF_SIZE(COMPOUND_TYPES)];
-  aom_prob interintra_prob[BLOCK_SIZE_GROUPS];
-  aom_prob wedge_interintra_prob[BLOCK_SIZES_ALL];
-  aom_prob interintra_mode_prob[BLOCK_SIZE_GROUPS][INTERINTRA_MODES - 1];
   aom_cdf_prob interintra_cdf[BLOCK_SIZE_GROUPS][CDF_SIZE(2)];
   aom_cdf_prob wedge_interintra_cdf[BLOCK_SIZES_ALL][CDF_SIZE(2)];
   aom_cdf_prob interintra_mode_cdf[BLOCK_SIZE_GROUPS]
                                   [CDF_SIZE(INTERINTRA_MODES)];
   aom_prob motion_mode_prob[BLOCK_SIZES_ALL][MOTION_MODES - 1];
   aom_cdf_prob motion_mode_cdf[BLOCK_SIZES_ALL][CDF_SIZE(MOTION_MODES)];
-  aom_prob obmc_prob[BLOCK_SIZES_ALL];
   aom_cdf_prob obmc_cdf[BLOCK_SIZES_ALL][CDF_SIZE(2)];
-  aom_prob intra_inter_prob[INTRA_INTER_CONTEXTS];
   aom_prob comp_inter_prob[COMP_INTER_CONTEXTS];
   aom_cdf_prob palette_y_size_cdf[PALETTE_BLOCK_SIZES][CDF_SIZE(PALETTE_SIZES)];
   aom_cdf_prob palette_uv_size_cdf[PALETTE_BLOCK_SIZES]
@@ -237,7 +232,6 @@ typedef struct frame_contexts {
   aom_prob comp_bwdref_prob[REF_CONTEXTS][BWD_REFS - 1];
   aom_cdf_prob comp_ref_cdf[REF_CONTEXTS][FWD_REFS - 1][CDF_SIZE(2)];
   aom_cdf_prob comp_bwdref_cdf[REF_CONTEXTS][BWD_REFS - 1][CDF_SIZE(2)];
-  aom_prob txfm_partition_prob[TXFM_PARTITION_CONTEXTS];
   aom_cdf_prob txfm_partition_cdf[TXFM_PARTITION_CONTEXTS][CDF_SIZE(2)];
 #if CONFIG_JNT_COMP
   aom_cdf_prob compound_index_cdf[COMP_INDEX_CONTEXTS][CDF_SIZE(2)];
@@ -302,13 +296,6 @@ typedef struct frame_contexts {
                                [CDF_SIZE(TX_TYPES)];
   aom_cdf_prob inter_ext_tx_cdf[EXT_TX_SETS_INTER][EXT_TX_SIZES]
                                [CDF_SIZE(TX_TYPES)];
-  aom_prob delta_q_prob[DELTA_Q_PROBS];
-#if CONFIG_EXT_DELTA_Q
-#if CONFIG_LOOPFILTER_LEVEL
-  aom_prob delta_lf_multi_prob[FRAME_LF_COUNT][DELTA_LF_PROBS];
-#endif  // CONFIG_LOOPFILTER_LEVEL
-  aom_prob delta_lf_prob[DELTA_LF_PROBS];
-#endif
 #if CONFIG_CFL
   aom_cdf_prob cfl_sign_cdf[CDF_SIZE(CFL_JOINT_SIGNS)];
   aom_cdf_prob cfl_alpha_cdf[CFL_ALPHA_CONTEXTS][CDF_SIZE(CFL_ALPHABET_SIZE)];
@@ -419,7 +406,6 @@ typedef struct FRAME_COUNTS {
 #endif  // CONFIG_LOOPFILTER_LEVEL
   unsigned int delta_lf[DELTA_LF_PROBS][2];
 #endif
-  unsigned int tx_size_implied[TX_SIZES][TX_SIZES];
 #if CONFIG_ENTROPY_STATS
   unsigned int inter_ext_tx[EXT_TX_SETS_INTER][EXT_TX_SIZES][TX_TYPES];
   unsigned int intra_ext_tx[EXT_TX_SETS_INTRA][EXT_TX_SIZES][INTRA_MODES]
@@ -429,6 +415,8 @@ typedef struct FRAME_COUNTS {
 #if CONFIG_FILTER_INTRA
   unsigned int filter_intra_mode[PLANE_TYPES][FILTER_INTRA_MODES];
   unsigned int filter_intra_tx[TX_SIZES_ALL][2];
+  unsigned int filter_intra_mode_ctx[KF_MODE_CONTEXTS][KF_MODE_CONTEXTS]
+                                    [FILTER_INTRA_MODES];
 #endif  // CONFIG_FILTER_INTRA
 #if CONFIG_LPF_SB
   unsigned int lpf_reuse[LPF_REUSE_CONTEXT][2];
@@ -445,11 +433,6 @@ extern const aom_cdf_prob default_kf_y_mode_cdf[KF_MODE_CONTEXTS]
 extern const aom_cdf_prob default_kf_y_mode_cdf[INTRA_MODES][INTRA_MODES]
                                                [CDF_SIZE(INTRA_MODES)];
 #endif
-
-extern const aom_prob av1_default_palette_y_mode_prob[PALETTE_BLOCK_SIZES]
-                                                     [PALETTE_Y_MODE_CONTEXTS];
-extern const aom_prob
-    av1_default_palette_uv_mode_prob[PALETTE_UV_MODE_CONTEXTS];
 
 static const int av1_ext_tx_ind[EXT_TX_SET_TYPES][TX_TYPES] = {
   {
@@ -514,17 +497,7 @@ extern const aom_tree_index
 extern const aom_tree_index
     av1_inter_compound_mode_tree[TREE_SIZE(INTER_COMPOUND_MODES)];
 extern const aom_tree_index av1_compound_type_tree[TREE_SIZE(COMPOUND_TYPES)];
-extern const aom_tree_index
-    av1_palette_color_index_tree[PALETTE_SIZES][TREE_SIZE(PALETTE_COLORS)];
-extern const aom_tree_index av1_ext_tx_tree[EXT_TX_SET_TYPES]
-                                           [TREE_SIZE(TX_TYPES)];
 extern const aom_tree_index av1_motion_mode_tree[TREE_SIZE(MOTION_MODES)];
-#if CONFIG_LOOP_RESTORATION
-#define RESTORE_NONE_SGRPROJ_PROB 64
-#define RESTORE_NONE_WIENER_PROB 64
-extern const aom_tree_index
-    av1_switchable_restore_tree[TREE_SIZE(RESTORE_SWITCHABLE_TYPES)];
-#endif  // CONFIG_LOOP_RESTORATION
 
 void av1_setup_frame_contexts(struct AV1Common *cm);
 void av1_setup_past_independence(struct AV1Common *cm);
