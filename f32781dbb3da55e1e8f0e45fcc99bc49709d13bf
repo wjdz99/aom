@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c942b209_e79c6111",
+        "filename": "av1/common/scan.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 5513,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2017-11-27T17:39:10Z",
+      "side": 1,
+      "message": "If this is going to be used as a syntax element, we probably can define this using a constant/macro.. .",
+      "range": {
+        "startLine": 5513,
+        "startChar": 47,
+        "endLine": 5513,
+        "endChar": 50
+      },
+      "revId": "f32781dbb3da55e1e8f0e45fcc99bc49709d13bf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
