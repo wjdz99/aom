@@ -586,6 +586,7 @@ typedef struct AV1Common {
   int64_t txcoeff_timer;
   int txb_count;
 #endif
+  const file_options_t *file_cfg;
 } AV1_COMMON;
 
 // TODO(hkuang): Don't need to lock the whole pool after implementing atomic
