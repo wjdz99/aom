@@ -22,6 +22,13 @@ static INLINE __m128i loadh_epi64(const void *const src, const __m128i s) {
       _mm_loadh_pi(_mm_castsi128_ps(s), (const __m64 *)src));
 }
 
+static INLINE __m128i load_8bit_4x2_to_1_sse2(const uint8_t *const src,
+                                              const ptrdiff_t stride) {
+  const __m128i s0 = _mm_cvtsi32_si128(*(const int *)(src + 0 * stride));
+  const __m128i s1 = _mm_cvtsi32_si128(*(const int *)(src + 1 * stride));
+  return _mm_unpacklo_epi32(s0, s1);
+}
+
 static INLINE void store_8bit_4x4_sse2(const __m128i *const src,
                                        uint8_t *const dst,
                                        const ptrdiff_t stride) {

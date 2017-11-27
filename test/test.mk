@@ -214,6 +214,11 @@ endif # AV1
 ifeq ($(CONFIG_AV1_ENCODER),yes)
 LIBAOM_TEST_SRCS-yes += avg_test.cc
 endif
+
+ifeq ($(CONFIG_AV1_DECODER),yes)
+LIBAOM_TEST_SRCS-$(CONFIG_LV_MAP) += decodetxb_test.cc
+endif
+
 ifeq ($(CONFIG_INTERNAL_STATS),yes)
 LIBAOM_TEST_SRCS-$(CONFIG_HIGHBITDEPTH) += hbd_metrics_test.cc
 endif
