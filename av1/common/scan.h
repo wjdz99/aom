@@ -31,7 +31,7 @@ extern const SCAN_ORDER av1_inter_scan_orders[TX_SIZES_ALL][TX_TYPES];
 
 #if CONFIG_ADAPT_SCAN
 #define USE_2X2_PROB 0
-#define CACHE_SCAN_PROB 0
+#define CACHE_SCAN_PROB 1
 #define REDUCED_SET 1
 #define SUB_REGION_COUNT 1
 #define SUB_FRAME_COUNT 1
