@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dc45ae57_a7238345",
+        "filename": "aomdec.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2017-11-28T19:46:39Z",
+      "side": 1,
+      "message": "Can be const.\n\nAlso, this depends on CONFIG_ADD_4BYTES_OBUSIZE, no?",
+      "range": {
+        "startLine": 252,
+        "startChar": 2,
+        "endLine": 252,
+        "endChar": 36
+      },
+      "revId": "7eeba65738abe9dfc7112970f2b88b745db56adf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "028066c4_5873759a",
+        "filename": "aomdec.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 306,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2017-11-28T19:46:39Z",
+      "side": 1,
+      "message": "This function and file_is_obu() should move to obudec.c, and declarations should go in obudec.h. See the existing pattern w/ivfdec and webmdec sources.",
+      "range": {
+        "startLine": 248,
+        "startChar": 0,
+        "endLine": 306,
+        "endChar": 6
+      },
+      "revId": "7eeba65738abe9dfc7112970f2b88b745db56adf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eda00183_3c1b4276",
+        "filename": "aomenc.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 1633,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2017-11-28T19:46:39Z",
+      "side": 1,
+      "message": "Shouldn\u0027t this be its own path? In other words, allow IVF files to be written if desired whether or not OBU support is enabled, and write an OBU/AVI elementary stream only when requested?",
+      "range": {
+        "startLine": 1631,
+        "startChar": 0,
+        "endLine": 1633,
+        "endChar": 6
+      },
+      "revId": "7eeba65738abe9dfc7112970f2b88b745db56adf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b20ac4ba_07a2fe18",
+        "filename": "aomenc.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 1638,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2017-11-28T19:46:39Z",
+      "side": 1,
+      "message": "Create obuenc.c and obuenc.h, dupe the stuff in ivfenc and then adjust as we move forward? Continuing to abuse the IVF support doesn\u0027t make sense here unless it\u0027s going to be dropped completely. I don\u0027t think we want to do that.",
+      "range": {
+        "startLine": 1638,
+        "startChar": 14,
+        "endLine": 1638,
+        "endChar": 79
+      },
+      "revId": "7eeba65738abe9dfc7112970f2b88b745db56adf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
