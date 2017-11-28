@@ -4644,33 +4644,33 @@ static int find_tx_size_rd_records(MACROBLOCK *x, BLOCK_SIZE bsize, int mi_row,
 
 static const uint32_t skip_pred_threshold[3][BLOCK_SIZES_ALL] = {
   {
-      0,  0,  0,  50, 50, 50, 55, 47, 47, 53, 53, 53, 0, 0, 0, 0,
+      0,  0,  0,  50, 50, 50, 55, 47, 47, 53, 53, 53, 53, 53, 53, 53,
 #if CONFIG_EXT_PARTITION
-      0,  0,  0,
+      53, 53, 53,
 #endif
       50, 50, 55, 55, 53, 53,
 #if CONFIG_EXT_PARTITION
-      0,  0,
+      53, 53,
 #endif
   },
   {
-      0,  0,  0,  69, 69, 69, 67, 68, 68, 53, 53, 53, 0, 0, 0, 0,
+      0,  0,  0,  69, 69, 69, 67, 68, 68, 53, 53, 53, 53, 53, 53, 53,
 #if CONFIG_EXT_PARTITION
-      0,  0,  0,
+      53, 53, 53,
 #endif
       69, 69, 67, 67, 53, 53,
 #if CONFIG_EXT_PARTITION
-      0,  0,
+      53, 53,
 #endif
   },
   {
-      0,  0,  0,  70, 73, 73, 70, 73, 73, 58, 58, 58, 0, 0, 0, 0,
+      0,  0,  0,  70, 73, 73, 70, 73, 73, 58, 58, 58, 58, 58, 58, 58,
 #if CONFIG_EXT_PARTITION
-      0,  0,  0,
+      58, 58, 58,
 #endif
       70, 70, 70, 70, 58, 58,
 #if CONFIG_EXT_PARTITION
-      0,  0,
+      58, 58,
 #endif
   }
 };
@@ -4678,11 +4678,16 @@ static const uint32_t skip_pred_threshold[3][BLOCK_SIZES_ALL] = {
 // Uses simple features on top of DCT coefficients to quickly predict
 // whether optimal RD decision is to skip encoding the residual.
 static int predict_skip_flag(const MACROBLOCK *x, BLOCK_SIZE bsize) {
-  const int max_tx_size =
+  int max_tx_size =
       get_max_rect_tx_size(bsize, is_inter_block(&x->e_mbd.mi[0]->mbmi));
+  if (tx_size_high[max_tx_size] > 16 || tx_size_wide[max_tx_size] > 16)
+    max_tx_size = AOMMIN(max_txsize_lookup[bsize], TX_16X16);
   const int tx_h = tx_size_high[max_tx_size];
   const int tx_w = tx_size_wide[max_tx_size];
-  if (tx_h > 16 || tx_w > 16) return 0;
+  if (tx_h > 16 || tx_w > 16) {
+    printf("\n mark\n");
+    return 0;
+  }
 
   const int bw = block_size_wide[bsize];
   const int bh = block_size_high[bsize];
@@ -4852,6 +4857,11 @@ static void select_tx_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
   // context and terminate early.
   if (is_inter && cpi->sf.tx_type_search.use_skip_flag_prediction &&
       predict_skip_flag(x, bsize)) {
+#if 0
+    if (block_size_high[bsize] > 16 || block_size_wide[bsize] > 16) {
+      printf("block %d %d\n", block_size_high[bsize], block_size_wide[bsize]);
+    }
+#endif
     set_skip_flag(cpi, x, rd_stats, bsize);
     // Save the RD search results into tx_rd_record.
     if (within_border) save_tx_rd_info(n4, hash, x, rd_stats, tx_rd_record);
