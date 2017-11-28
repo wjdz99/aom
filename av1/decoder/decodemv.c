@@ -2333,6 +2333,32 @@ static void read_inter_frame_mode_info(AV1Decoder *const pbi,
   else
     read_intra_block_mode_info(cm, mi_row, mi_col, xd, mi, r);
 
+#if CONFIG_ENTROPY_STATS
+  if (cm->is_skip_mode_allowed) {
+    if (inter_block) {  // inter
+      ++cm->counts.bidir_inter;
+
+      if (has_second_ref(mbmi)) {  // comp
+        if (mbmi->ref_frame[0] == (LAST_FRAME + cm->ref_frame_idx_0) &&
+            mbmi->ref_frame[1] == (LAST_FRAME + cm->ref_frame_idx_1)) {
+          ++cm->counts.bidir_refs[0];
+          ++cm->counts.bidir_modes[0][mbmi->mode];
+        }
+      } else {  // single
+        if (mbmi->ref_frame[0] == (LAST_FRAME + cm->ref_frame_idx_0)) {
+          ++cm->counts.bidir_refs[1];
+          ++cm->counts.bidir_modes[1][mbmi->mode];
+        } else if (mbmi->ref_frame[0] == (LAST_FRAME + cm->ref_frame_idx_1)) {
+          ++cm->counts.bidir_refs[2];
+          ++cm->counts.bidir_modes[2][mbmi->mode];
+        }
+      }
+    } else {  // intra
+      ++cm->counts.bidir_intra;
+    }
+  }
+#endif  // CONFIG_ENTROPY_STATS
+
 #if !CONFIG_TXK_SEL
 #if CONFIG_EXT_SKIP
   if (!mbmi->skip_mode)

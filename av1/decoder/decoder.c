@@ -35,6 +35,10 @@
 #include "av1/decoder/decoder.h"
 #include "av1/decoder/detokenize.h"
 
+#if CONFIG_ENTROPY_STATS
+FRAME_COUNTS aggregate_fc;
+#endif  // CONFIG_ENTROPY_STATS
+
 static void initialize_dec(void) {
   static volatile int init_done = 0;
 
@@ -78,6 +82,10 @@ AV1Decoder *av1_decoder_create(BufferPool *const pool) {
   if (!cm) return NULL;
 
   av1_zero(*pbi);
+
+#if CONFIG_ENTROPY_STATS
+  av1_zero(aggregate_fc);
+#endif  // CONFIG_ENTROPY_STATS
 
   if (setjmp(cm->error.jmp)) {
     cm->error.setjmp = 0;
@@ -137,6 +145,38 @@ void av1_decoder_remove(AV1Decoder *pbi) {
   int i;
 
   if (!pbi) return;
+
+#if CONFIG_ENTROPY_STATS
+  const double inter_blk_perc =
+      (double)aggregate_fc.bidir_inter * 100 /
+      (double)(aggregate_fc.bidir_inter + aggregate_fc.bidir_intra);
+
+  const double bidir_blk_perc_0 = (double)aggregate_fc.bidir_refs[0] * 100 /
+                                  (double)aggregate_fc.bidir_inter;
+
+#if 0
+  const double bidir_blk_perc_1 =
+      (double)aggregate_fc.bidir_refs[1] * 100 / (double)aggregate_fc.bidir_inter;
+  const double bidir_blk_perc_2 =
+      (double)aggregate_fc.bidir_refs[2] * 100 / (double)aggregate_fc.bidir_inter;
+#endif  // 0
+
+  const double bidir_nrst_blk_perc =
+      (double)aggregate_fc.bidir_modes[0][NEAREST_NEARESTMV] * 100 /
+      (double)aggregate_fc.bidir_refs[0];
+
+  const double bidir_nr_blk_perc =
+      (double)aggregate_fc.bidir_modes[0][NEAR_NEARMV] * 100 /
+      (double)aggregate_fc.bidir_refs[0];
+
+  printf(
+      "******DECODER: Frames=%d, "
+      "(inter_blk_perc, bidir_blk_perc, bidir_nrst_blk_perc, bidir_nr_blk) = "
+      "(%5.2f\t%5.2f\t%5.2f\t%5.2f)\n\n",
+      pbi->common.current_video_frame, inter_blk_perc, bidir_blk_perc_0,
+      // bidir_blk_perc_1, bidir_blk_perc_2,
+      bidir_nrst_blk_perc, bidir_nr_blk_perc);
+#endif  // CONFIG_ENTROPY_STATS
 
   aom_get_worker_interface()->end(&pbi->lf_worker);
   aom_free(pbi->lf_worker.data1);
@@ -365,6 +405,57 @@ int av1_receive_compressed_data(AV1Decoder *pbi, size_t size,
 #else
   av1_decode_frame_from_obus(pbi, source, source + size, psource);
 #endif
+
+#if CONFIG_ENTROPY_STATS
+#define STATS_PER_FRAME 0
+  if (cm->is_skip_mode_allowed) {
+#if STATS_PER_FRAME
+    const double bidir_blk_perc =
+        (double)cm->counts.bidir_refs[0] * 100 / (double)cm->counts.bidir_inter;
+    const double bidir_nrst_blk_perc =
+        (double)cm->counts.bidir_modes[0][NEAREST_NEARESTMV] * 100 /
+        (double)cm->counts.bidir_refs[0];
+    const double bidir_nr_blk_perc =
+        (double)cm->counts.bidir_modes[0][NEAR_NEARMV] * 100 /
+        (double)cm->counts.bidir_refs[0];
+
+    printf(
+        "DECODER: Frame=%d, frame_offset=%d, show_frame=%d, "
+        "show_existing_frame=%d, is_skip_mode_allowed=%d, "
+        "ref_frame_idx=(%d,%d), "
+        "intra_blk=%d, inter_blk=%d, "
+        "bidir_blks=%5.2f (%d,%d,%d), bidir_nearest=(%d,%d,%d), "
+        "bidir_nrst_blk=%5.2f, bidir_nr_blk=%5.2f, "
+        "bidir_modes=(%d,%d,%d,%d,%d,%d,%d,%d)\n\n",
+        cm->current_video_frame, cm->frame_offset, cm->show_frame,
+        cm->show_existing_frame, cm->is_skip_mode_allowed, cm->ref_frame_idx_0,
+        cm->ref_frame_idx_1, cm->counts.bidir_intra, cm->counts.bidir_inter,
+        bidir_blk_perc, cm->counts.bidir_refs[0], cm->counts.bidir_refs[1],
+        cm->counts.bidir_refs[2], cm->counts.bidir_modes[0][NEAREST_NEARESTMV],
+        cm->counts.bidir_modes[1][NEARESTMV],
+        cm->counts.bidir_modes[2][NEARESTMV], bidir_nrst_blk_perc,
+        bidir_nr_blk_perc, cm->counts.bidir_modes[0][NEAREST_NEARESTMV],
+        cm->counts.bidir_modes[0][NEAR_NEARMV],
+        cm->counts.bidir_modes[0][NEAREST_NEWMV],
+        cm->counts.bidir_modes[0][NEW_NEARESTMV],
+        cm->counts.bidir_modes[0][NEAR_NEWMV],
+        cm->counts.bidir_modes[0][NEW_NEARMV],
+        cm->counts.bidir_modes[0][GLOBAL_GLOBALMV],
+        cm->counts.bidir_modes[0][NEW_NEWMV]);
+#endif  // STATS_PER_FRAME
+
+    av1_accumulate_frame_counts(&aggregate_fc, &cm->counts);
+#if STATS_PER_FRAME
+  } else {
+    printf(
+        "DECODER: Frame=%d, frame_offset=%d, show_frame=%d, "
+        "show_existing_frame=%d, is_skip_mode_allowed=%d\n\n",
+        cm->current_video_frame, cm->frame_offset, cm->show_frame,
+        cm->show_existing_frame, cm->is_skip_mode_allowed);
+#endif  // STATS_PER_FRAME
+  }
+#undef STATS_PER_FRAME
+#endif  // CONFIG_ENTROPY_STATS
 
 #if TXCOEFF_TIMER
   cm->cum_txcoeff_timer += cm->txcoeff_timer;

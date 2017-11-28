@@ -2195,7 +2195,7 @@ int findSamples(const AV1_COMMON *cm, MACROBLOCKD *xd, int mi_row, int mi_col,
 }
 #endif  // CONFIG_EXT_WARPED_MOTION
 
-#if CONFIG_EXT_SKIP
+#if CONFIG_EXT_SKIP || CONFIG_ENTROPY_STATS
 void av1_setup_skip_mode_allowed(AV1_COMMON *const cm) {
   cm->is_skip_mode_allowed = 0;
   cm->ref_frame_idx_0 = cm->ref_frame_idx_1 = INVALID_IDX;
@@ -2238,10 +2238,8 @@ void av1_setup_skip_mode_allowed(AV1_COMMON *const cm) {
   if (ref_idx[0] != INVALID_IDX && ref_idx[1] != INVALID_IDX) {
     const int cur_to_fwd = cm->frame_offset - ref_frame_offset[0];
     const int cur_to_bwd = ref_frame_offset[1] - cm->frame_offset;
-#if 0
-    if ((ref_frame_offset[1] - ref_frame_offset[0]) <= 3)
-#endif  // 0
-    if (abs(cur_to_fwd - cur_to_bwd) <= 1) {
+    const int fwd_to_bwd = ref_frame_offset[1] - ref_frame_offset[0];
+    if (fwd_to_bwd <= 3 || (fwd_to_bwd <= 4 && cur_to_fwd == cur_to_bwd)) {
       cm->is_skip_mode_allowed = 1;
       cm->ref_frame_idx_0 = ref_idx[0];
       cm->ref_frame_idx_1 = ref_idx[1];
@@ -2271,6 +2269,7 @@ void av1_setup_skip_mode_allowed(AV1_COMMON *const cm) {
   }
 }
 
+#if CONFIG_EXT_SKIP
 // Identify mvs for skip mode in the following order:
 // (1) Search the spatial two neighboring blocks (left/top);
 // (2) Search the temporal neighboring blocks;
@@ -2462,3 +2461,4 @@ void av1_setup_skip_mode_mvs(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   }
 }
 #endif  // CONFIG_EXT_SKIP
+#endif  // CONFIG_EXT_SKIP || CONFIG_ENTROPY_STATS

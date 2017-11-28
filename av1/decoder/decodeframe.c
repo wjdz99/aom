@@ -2990,8 +2990,9 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
   }
   av1_setup_frame_buf_refs(cm);
 
-#if CONFIG_EXT_SKIP
+#if CONFIG_EXT_SKIP || CONFIG_ENTROPY_STATS
   av1_setup_skip_mode_allowed(cm);
+#if CONFIG_EXT_SKIP
   cm->skip_mode_flag = cm->is_skip_mode_allowed ? aom_rb_read_bit(rb) : 0;
 #if 0
   printf(
@@ -3005,6 +3006,7 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
       cm->skip_mode_flag);
 #endif  // 0
 #endif  // CONFIG_EXT_SKIP
+#endif  // CONFIG_EXT_SKIP || CONFIG_ENTROPY_STATS
 
 #if CONFIG_FRAME_SIGN_BIAS
 #if CONFIG_OBU
