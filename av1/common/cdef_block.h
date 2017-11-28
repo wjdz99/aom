@@ -16,7 +16,7 @@
 
 #define CDEF_BLOCKSIZE 64
 #define CDEF_BLOCKSIZE_LOG2 6
-#define CDEF_NBLOCKS (CDEF_BLOCKSIZE / 8)
+#define CDEF_NBLOCKS ((1 << MAX_SB_SIZE_LOG2) / 8)
 #if CONFIG_CDEF_SINGLEPASS
 #define CDEF_SB_SHIFT (MAX_SB_SIZE_LOG2 - CDEF_BLOCKSIZE_LOG2)
 #endif
@@ -26,10 +26,10 @@
 /* We only need to buffer three horizontal pixels too, but let's align to
    16 bytes (8 x 16 bits) to make vectorization easier. */
 #define CDEF_HBORDER (8)
-#define CDEF_BSTRIDE ALIGN_POWER_OF_TWO(CDEF_BLOCKSIZE + 2 * CDEF_HBORDER, 3)
+#define CDEF_BSTRIDE ALIGN_POWER_OF_TWO((1 << MAX_SB_SIZE_LOG2) + 2 * CDEF_HBORDER, 3)
 
 #define CDEF_VERY_LARGE (30000)
-#define CDEF_INBUF_SIZE (CDEF_BSTRIDE * (CDEF_BLOCKSIZE + 2 * CDEF_VBORDER))
+#define CDEF_INBUF_SIZE (CDEF_BSTRIDE * ((1 << MAX_SB_SIZE_LOG2) + 2 * CDEF_VBORDER))
 
 #if CONFIG_CDEF_SINGLEPASS
 // Filter configuration
