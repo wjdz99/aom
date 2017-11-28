@@ -2232,16 +2232,12 @@ void av1_setup_skip_mode_allowed(AV1_COMMON *const cm) {
   }
 
   // Flag is set when and only when both forward and backward references
-  // are available and their distance is no greater than 3, i.e. as
-  // opposed to the current frame position, the reference distance pair are
-  // either: (1, 1), (1, 2), or (2, 1).
+  // are available and their temporal distances satisfy certain criteria.
   if (ref_idx[0] != INVALID_IDX && ref_idx[1] != INVALID_IDX) {
     const int cur_to_fwd = cm->frame_offset - ref_frame_offset[0];
     const int cur_to_bwd = ref_frame_offset[1] - cm->frame_offset;
-#if 0
-    if ((ref_frame_offset[1] - ref_frame_offset[0]) <= 3)
-#endif  // 0
-    if (abs(cur_to_fwd - cur_to_bwd) <= 1) {
+    const int fwd_to_bwd = ref_frame_offset[1] - ref_frame_offset[0];
+    if (fwd_to_bwd <= 3 || (fwd_to_bwd <= 4 && cur_to_fwd == cur_to_bwd)) {
       cm->is_skip_mode_allowed = 1;
       cm->ref_frame_idx_0 = ref_idx[0];
       cm->ref_frame_idx_1 = ref_idx[1];
