@@ -22,6 +22,30 @@
       "revId": "3fd060ff1a276c1e0bd8bf183ab342986fd387b3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9ab99d1d_bbc42d91",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 7522,
+      "author": {
+        "id": 8167
+      },
+      "writtenOn": "2017-11-28T21:09:17Z",
+      "side": 1,
+      "message": "Clang format sets this indentation based on the #if above.",
+      "parentUuid": "6f37bffb_dc148d4e",
+      "range": {
+        "startLine": 7522,
+        "startChar": 8,
+        "endLine": 7522,
+        "endChar": 12
+      },
+      "revId": "3fd060ff1a276c1e0bd8bf183ab342986fd387b3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
