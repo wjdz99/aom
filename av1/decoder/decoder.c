@@ -35,6 +35,10 @@
 #include "av1/decoder/decoder.h"
 #include "av1/decoder/detokenize.h"
 
+#if CONFIG_ENTROPY_STATS
+FRAME_COUNTS aggregate_fc;
+#endif  // CONFIG_ENTROPY_STATS
+
 static void initialize_dec(void) {
   static volatile int init_done = 0;
 
@@ -78,6 +82,10 @@ AV1Decoder *av1_decoder_create(BufferPool *const pool) {
   if (!cm) return NULL;
 
   av1_zero(*pbi);
+
+#if CONFIG_ENTROPY_STATS
+  av1_zero(aggregate_fc);
+#endif  // CONFIG_ENTROPY_STATS
 
   if (setjmp(cm->error.jmp)) {
     cm->error.setjmp = 0;
@@ -137,6 +145,61 @@ void av1_decoder_remove(AV1Decoder *pbi) {
   int i;
 
   if (!pbi) return;
+
+#if CONFIG_ENTROPY_STATS
+  const double inter_blk_perc_0 =
+      (double)aggregate_fc.bidir_inter[0] * 100 /
+      (double)(aggregate_fc.bidir_inter[0] + aggregate_fc.bidir_intra[0]);
+
+  const double inter_blk_perc_1 =
+      (double)aggregate_fc.bidir_inter[1] * 100 /
+      (double)(aggregate_fc.bidir_inter[1] + aggregate_fc.bidir_intra[1]);
+
+  const double bidir_blk_perc_0 = (double)aggregate_fc.bidir_refs[0] * 100 /
+                                  (double)aggregate_fc.bidir_inter[0];
+
+  const double bidir_blk_perc_3 = (double)aggregate_fc.bidir_refs[3] * 100 /
+                                  (double)aggregate_fc.bidir_inter[1];
+
+#if 0
+  const double bidir_blk_perc_1 =
+      (double)aggregate_fc.bidir_refs[1] * 100 / (double)aggregate_fc.bidir_inter[0];
+  const double bidir_blk_perc_2 =
+      (double)aggregate_fc.bidir_refs[2] * 100 / (double)aggregate_fc.bidir_inter[0];
+#endif  // 0
+
+  const double bidir_nrst_blk_perc_0 =
+      (double)aggregate_fc.bidir_modes[0][NEAREST_NEARESTMV] * 100 /
+      (double)aggregate_fc.bidir_refs[0];
+
+  const double bidir_nr_blk_perc_0 =
+      (double)aggregate_fc.bidir_modes[0][NEAR_NEARMV] * 100 /
+      (double)aggregate_fc.bidir_refs[0];
+
+  const double bidir_nrst_blk_perc_3 =
+      (double)aggregate_fc.bidir_modes[3][NEARESTMV] * 100 /
+      (double)aggregate_fc.bidir_refs[3];
+
+  const double bidir_nr_blk_perc_3 =
+      (double)aggregate_fc.bidir_modes[3][NEARMV] * 100 /
+      (double)aggregate_fc.bidir_refs[3];
+
+  printf(
+      "******DECODER: Frames=%d, BIDIR:"
+      "(inter_blk_perc, bidir_blk_perc, bidir_nrst_blk_perc, bidir_nr_blk) = "
+      "(%5.2f\t%5.2f\t%5.2f\t%5.2f)\n",
+      pbi->common.current_video_frame, inter_blk_perc_0, bidir_blk_perc_0,
+      bidir_nrst_blk_perc_0, bidir_nr_blk_perc_0);
+  printf(
+      "******DECODER: Frames=%d, FWD:"
+      "(inter_blk_perc, bidir_blk_perc, bidir_nrst_blk_perc, bidir_nr_blk) = "
+      "(%5.2f\t%5.2f\t%5.2f\t%5.2f)\n",
+      pbi->common.current_video_frame, inter_blk_perc_1, bidir_blk_perc_3,
+      bidir_nrst_blk_perc_3, bidir_nr_blk_perc_3);
+  printf("******DECODER: Frames=%d, BIDIR=%u, FWD=%u\n\n",
+         pbi->common.current_video_frame, aggregate_fc.skip_allowed_frames[0],
+         aggregate_fc.skip_allowed_frames[1]);
+#endif  // CONFIG_ENTROPY_STATS
 
   aom_get_worker_interface()->end(&pbi->lf_worker);
   aom_free(pbi->lf_worker.data1);
@@ -365,6 +428,17 @@ int av1_receive_compressed_data(AV1Decoder *pbi, size_t size,
 #else
   av1_decode_frame_from_obus(pbi, source, source + size, psource);
 #endif
+
+#if CONFIG_ENTROPY_STATS
+  if (!cm->show_existing_frame && cm->is_skip_mode_allowed) {
+    if (pbi->common.ref_frame_idx_1 != INVALID_IDX)
+      aggregate_fc.skip_allowed_frames[0]++;
+    else
+      aggregate_fc.skip_allowed_frames[1]++;
+
+    av1_accumulate_frame_counts(&aggregate_fc, &cm->counts);
+  }
+#endif  // CONFIG_ENTROPY_STATS
 
 #if TXCOEFF_TIMER
   cm->cum_txcoeff_timer += cm->txcoeff_timer;

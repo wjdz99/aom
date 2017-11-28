@@ -413,6 +413,11 @@ typedef struct FRAME_COUNTS {
   unsigned int inter_ext_tx[EXT_TX_SETS_INTER][EXT_TX_SIZES][TX_TYPES];
   unsigned int intra_ext_tx[EXT_TX_SETS_INTRA][EXT_TX_SIZES][INTRA_MODES]
                            [TX_TYPES];
+  unsigned int bidir_intra[2];
+  unsigned int bidir_inter[2];
+  unsigned int bidir_refs[4];
+  unsigned int bidir_modes[4][MB_MODE_COUNT];
+  unsigned int skip_allowed_frames[2];
 #endif  // CONFIG_ENTROPY_STATS
   struct seg_counts seg;
 #if CONFIG_FILTER_INTRA
