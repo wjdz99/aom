@@ -1621,13 +1621,16 @@ static int get_coeff_cost(const tran_low_t qc, const int scan_idx,
     if (abs_qc > NUM_BASE_LEVELS) {
       const int row = scan[scan_idx] >> txb_info->bwl;
       const int col = scan[scan_idx] - (row << txb_info->bwl);
-      const int count = get_level_count(
-          txb_info->levels, (1 << txb_info->bwl) + TX_PAD_HOR, row, col,
-          NUM_BASE_LEVELS, br_ref_offset, BR_CONTEXT_POSITION_NUM);
+
 #if CONFIG_LV_MAP_MULTI && USE_CAUSAL_BR_CTX
+      (void)col;
+      const int count = 0;
       const int ctx = get_br_ctx(txb_info->levels, scan[scan_idx],
                                  txb_info->bwl, count, txb_info->tx_type);
 #else
+      const int count = get_level_count(
+          txb_info->levels, (1 << txb_info->bwl) + TX_PAD_HOR, row, col,
+          NUM_BASE_LEVELS, br_ref_offset, BR_CONTEXT_POSITION_NUM);
       const int ctx =
           get_br_ctx(txb_info->levels, scan[scan_idx], txb_info->bwl, count);
 #endif

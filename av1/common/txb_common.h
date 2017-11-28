@@ -338,13 +338,13 @@ static INLINE int get_br_ctx(const uint8_t *const levels,
   mag = AOMMIN((mag + 1) >> 1, 6);
   if (c == 0) return mag;
   if (tx_class == 0) {
-    if ((row < 2) && (col < 2)) return mag + 7;
+    if ((row < 2) && (col < 2)) return mag + 14;
   } else {
     if (tx_class == 1) {
-      if (col == 0) return mag + 7;
+      if (col == 0) return mag + 14;
     } else {
       if (tx_class == 2) {
-        if (row == 0) return mag + 7;
+        if (row == 0) return mag + 14;
       }
     }
   }
