@@ -56,12 +56,14 @@ static INLINE int rec_eob_pos(int16_t eob_token, int16_t extra) {
 
 void av1_dequant_txb_c(const uint8_t *const levels, const int8_t *const signs,
                        const int16_t *const dequant, const int16_t *const scan,
-                       const int bwl, const int height, const int eob,
-                       const int shift, tran_low_t *const tcoeffs) {
+                       const int bwl, const int width, const int height,
+                       const int eob, const int shift,
+                       tran_low_t *const tcoeffs) {
   const int16_t dqv = dequant[1];
   const tran_low_t t0 =
       ((levels[get_paded_idx(0, bwl)] + tcoeffs[0]) * dequant[0]) >> shift;
   tcoeffs[0] = signs[0] ? -t0 : t0;
+  (void)width;
   (void)height;
   assert(!scan[0]);
 
@@ -99,6 +101,8 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
   const int height = tx_size_high[tx_size];
   int max_col = -1;
   int max_row = -1;
+  int max_update_col = -1;
+  int max_update_row = -1;
   int cul_level = 0;
   uint8_t levels_buf[TX_PAD_2D];
   uint8_t *const levels = set_levels(levels_buf, width);
@@ -224,13 +228,14 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
     if (level) {
       levels[get_paded_idx(pos, bwl)] = level;
       *max_scan_line = AOMMAX(*max_scan_line, pos);
+      update_max_row_col(pos, bwl, &max_col, &max_row);
       if (level < 3) {
         cul_level += level;
       } else {
         if (update_eob < 0) {
           update_eob = c;
         }
-        update_max_row_col(pos, bwl, &max_col, &max_row);
+        update_max_row_col(pos, bwl, &max_update_col, &max_update_row);
       }
     }
 #else
@@ -263,7 +268,10 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
       }
       levels[get_paded_idx(pos, bwl)] = k + 1;
       *max_scan_line = AOMMAX(*max_scan_line, pos);
-      if (update_eob < 0 && k == NUM_BASE_LEVELS) update_eob = c;
+      if (k == NUM_BASE_LEVELS) {
+        if (update_eob < 0) update_eob = c;
+        update_max_row_col(pos, bwl, &max_update_col, &max_update_row);
+      }
       update_max_row_col(pos, bwl, &max_col, &max_row);
     }
 #else
@@ -272,6 +280,9 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
         (counts) ? &counts->nz_map[txs_ctx][plane_type] : NULL;
     levels[get_paded_idx(pos, bwl)] = is_nz;
     if (counts) ++(*nz_map_count)[coeff_ctx][is_nz];
+    if (is_nz) {
+      update_max_row_col(pos, bwl, &max_col, &max_row);
+    }
 #endif
 #endif
   }
@@ -304,7 +315,7 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
 
       // update the eob flag for coefficients with magnitude above 1.
       update_eob = AOMMAX(update_eob, c);
-      update_max_row_col(pos, bwl, &max_col, &max_row);
+      update_max_row_col(pos, bwl, &max_update_col, &max_update_row);
     }
   }
 #endif
@@ -336,8 +347,8 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
           get_level_count(levels, width + TX_PAD_HOR, 0, 0, NUM_BASE_LEVELS,
                           br_ref_offset, BR_CONTEXT_POSITION_NUM);
     } else {
-      av1_get_br_level_counts(levels, width, max_col + 1, max_row + 1,
-                              level_counts);
+      av1_get_br_level_counts(levels, width, max_update_col + 1,
+                              max_update_row + 1, level_counts);
     }
     for (c = update_eob; c >= 0; --c) {
       const int pos = scan[c];
@@ -404,8 +415,14 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
     }
   }
 
-  av1_dequant_txb(levels, signs, dequant, scan, bwl, height, *eob, shift,
-                  tcoeffs);
+  if (*eob == 1) {
+    const tran_low_t t0 =
+        ((levels[get_paded_idx(0, bwl)] + tcoeffs[0]) * dequant[0]) >> shift;
+    tcoeffs[0] = signs[0] ? -t0 : t0;
+  } else {
+    av1_dequant_txb(levels, signs, dequant, scan, bwl, max_col + 1, max_row + 1,
+                    *eob, shift, tcoeffs);
+  }
 
 #if CONFIG_SYMBOLRATE
   if (counts) {

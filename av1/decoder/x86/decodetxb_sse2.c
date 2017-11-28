@@ -16,16 +16,15 @@
 #include "av1/common/enums.h"
 #include "av1/decoder/x86/decodetxb_sse2.h"
 
-static INLINE void dequant_txb_kernel_sse2(
-    const __m128i level, const __m128i mask,
-    const __m128i *const dqvs /*dqvs[2]*/, const int shift,
-    tran_low_t **const tcoeffs) {
+static INLINE __m128i
+dequant_txb_kernel_sse2(const __m128i level, const __m128i mask,
+                        const __m128i *const dqvs /*dqvs[2]*/, const int shift,
+                        const __m128i tcoeff) {
   const __m128i zero = _mm_setzero_si128();
   // TODO(linfengz): Unit test is not ready to test realistic inputs. So there
   // is temporary right shifting code to handle faked saturations in unit test
   // by now.
   const __m128i left_shift = _mm_cvtsi32_si128(16 - shift);
-  const __m128i tcoeff = _mm_load_si128((__m128i *)*tcoeffs);
   __m128i t16, t32[2];
 
   t16 = _mm_add_epi16(level, tcoeff);
@@ -40,41 +39,55 @@ static INLINE void dequant_txb_kernel_sse2(
   t16 = _mm_packs_epi32(t32[0], t32[1]);
   t16 = _mm_xor_si128(t16, mask);
   t16 = _mm_sub_epi16(t16, mask);
-  _mm_store_si128((__m128i *)*tcoeffs, t16);
-  *tcoeffs += 8;
+  return t16;
+}
+
+static INLINE void dequant_txb_sse2(const __m128i level, const __m128i mask,
+                                    const __m128i *const dqvs /*dqvs[2]*/,
+                                    const int shift,
+                                    tran_low_t *const tcoeffs) {
+  const __m128i tcoeff = _mm_load_si128((__m128i *)tcoeffs);
+  const __m128i t16 = dequant_txb_kernel_sse2(level, mask, dqvs, shift, tcoeff);
+  _mm_store_si128((__m128i *)tcoeffs, t16);
 }
 
 static INLINE void dequant_txb_4_sse2(const uint8_t *levels,
                                       const int8_t *signs,
                                       const int16_t *const dequant,
-                                      const int height, const int shift,
-                                      tran_low_t *tcoeffs) {
+                                      const int stride, const int height,
+                                      const int shift, tran_low_t *tcoeffs) {
   const __m128i zero = _mm_setzero_si128();
   const __m128i const1 = _mm_set1_epi8(1);
-  int row = height;
+  int row = (height + 1) & ~1;
   __m128i dqvs[2];
 
   construct_dqvs_sse2(dequant, dqvs);
 
   do {
-    const __m128i level8 = load_8bit_4x2_to_1_sse2(levels, 4 + TX_PAD_HOR);
-    const __m128i sign8 = _mm_loadl_epi64((__m128i *)signs);
+    const __m128i level8 = load_8bit_4x2_to_1_sse2(levels, stride + TX_PAD_HOR);
+    const __m128i sign8 = load_8bit_4x2_to_1_sse2((uint8_t *)signs, stride);
     const __m128i level16 = _mm_unpacklo_epi8(level8, zero);
     const __m128i mask8 = _mm_cmpeq_epi8(sign8, const1);
     const __m128i mask16 = _mm_unpacklo_epi8(mask8, mask8);
+    __m128i tcoeff;
 
-    dequant_txb_kernel_sse2(level16, mask16, dqvs, shift, &tcoeffs);
+    tcoeff = _mm_loadl_epi64((__m128i *)(tcoeffs + 0 * stride));
+    tcoeff = loadh_epi64((__m128i *)(tcoeffs + 1 * stride), tcoeff);
+    tcoeff = dequant_txb_kernel_sse2(level16, mask16, dqvs, shift, tcoeff);
+    _mm_storel_epi64((__m128i *)(tcoeffs + 0 * stride), tcoeff);
+    storeh_epi64((__m128i *)(tcoeffs + 1 * stride), tcoeff);
     dqvs[0] = dqvs[1];
-    levels += 2 * (4 + TX_PAD_HOR);
-    signs += 8;
+    levels += 2 * (stride + TX_PAD_HOR);
+    signs += 2 * stride;
+    tcoeffs += 2 * stride;
   } while (row -= 2);
 }
 
 static INLINE void dequant_txb_8_sse2(const uint8_t *levels,
                                       const int8_t *signs,
                                       const int16_t *const dequant,
-                                      const int height, const int shift,
-                                      tran_low_t *tcoeffs) {
+                                      const int stride, const int height,
+                                      const int shift, tran_low_t *tcoeffs) {
   const __m128i zero = _mm_setzero_si128();
   const __m128i const1 = _mm_set1_epi8(1);
   int row = height;
@@ -89,18 +102,20 @@ static INLINE void dequant_txb_8_sse2(const uint8_t *levels,
     const __m128i mask8 = _mm_cmpeq_epi8(sign8, const1);
     const __m128i mask16 = _mm_unpacklo_epi8(mask8, mask8);
 
-    dequant_txb_kernel_sse2(level16, mask16, dqvs, shift, &tcoeffs);
+    dequant_txb_sse2(level16, mask16, dqvs, shift, tcoeffs);
     dqvs[0] = dqvs[1];
-    levels += 8 + TX_PAD_HOR;
-    signs += 8;
+    levels += stride + TX_PAD_HOR;
+    signs += stride;
+    tcoeffs += stride;
   } while (--row);
 }
 
-static INLINE void dequant_txb_16n_sse2(const uint8_t *levels,
+static INLINE void dequant_txb_16x_sse2(const uint8_t *levels,
                                         const int8_t *signs,
                                         const int16_t *const dequant,
-                                        const int width, const int height,
-                                        const int shift, tran_low_t *tcoeffs) {
+                                        const int stride, const int width,
+                                        const int height, const int shift,
+                                        tran_low_t *tcoeffs) {
   const __m128i zero = _mm_setzero_si128();
   const __m128i const1 = _mm_set1_epi8(1);
   int row = height;
@@ -109,10 +124,10 @@ static INLINE void dequant_txb_16n_sse2(const uint8_t *levels,
   construct_dqvs_sse2(dequant, dqvs);
 
   do {
-    int col = width;
+    int i = 0;
     do {
-      const __m128i level8 = _mm_loadu_si128((__m128i *)levels);
-      const __m128i sign8 = _mm_load_si128((__m128i *)signs);
+      const __m128i level8 = _mm_loadu_si128((__m128i *)(levels + i));
+      const __m128i sign8 = _mm_load_si128((__m128i *)(signs + i));
       const __m128i mask8 = _mm_cmpeq_epi8(sign8, const1);
 
       level16[0] = _mm_unpacklo_epi8(level8, zero);
@@ -120,13 +135,14 @@ static INLINE void dequant_txb_16n_sse2(const uint8_t *levels,
       mask16[0] = _mm_unpacklo_epi8(mask8, mask8);
       mask16[1] = _mm_unpackhi_epi8(mask8, mask8);
 
-      dequant_txb_kernel_sse2(level16[0], mask16[0], dqvs, shift, &tcoeffs);
+      dequant_txb_sse2(level16[0], mask16[0], dqvs, shift, tcoeffs + i + 0);
       dqvs[0] = dqvs[1];
-      dequant_txb_kernel_sse2(level16[1], mask16[1], dqvs, shift, &tcoeffs);
-      levels += 16;
-      signs += 16;
-    } while (col -= 16);
-    levels += TX_PAD_HOR;
+      dequant_txb_sse2(level16[1], mask16[1], dqvs, shift, tcoeffs + i + 8);
+      i += 16;
+    } while (i < width);
+    levels += stride + TX_PAD_HOR;
+    signs += stride;
+    tcoeffs += stride;
   } while (--row);
 }
 
@@ -134,17 +150,18 @@ void av1_dequant_txb_sse2(const uint8_t *const levels,
                           const int8_t *const signs,
                           const int16_t *const dequant,
                           const int16_t *const scan, const int bwl,
-                          const int height, const int eob, const int shift,
-                          tran_low_t *const tcoeffs) {
-  const int width = 1 << bwl;
+                          const int width, const int height, const int eob,
+                          const int shift, tran_low_t *const tcoeffs) {
+  const int stride = 1 << bwl;
   (void)scan;
   (void)eob;
 
-  if (width == 4) {
-    dequant_txb_4_sse2(levels, signs, dequant, height, shift, tcoeffs);
-  } else if (width == 8) {
-    dequant_txb_8_sse2(levels, signs, dequant, height, shift, tcoeffs);
+  if (width <= 4) {
+    dequant_txb_4_sse2(levels, signs, dequant, stride, height, shift, tcoeffs);
+  } else if (width <= 8) {
+    dequant_txb_8_sse2(levels, signs, dequant, stride, height, shift, tcoeffs);
   } else {
-    dequant_txb_16n_sse2(levels, signs, dequant, width, height, shift, tcoeffs);
+    dequant_txb_16x_sse2(levels, signs, dequant, stride, width, height, shift,
+                         tcoeffs);
   }
 }

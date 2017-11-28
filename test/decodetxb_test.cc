@@ -36,8 +36,20 @@ typedef void (*DequantTxbFunc)(const uint8_t *const levels,
                                const int8_t *const signs,
                                const int16_t *const dequant,
                                const int16_t *const scan, const int bwl,
-                               const int height, const int eob, const int shift,
-                               tran_low_t *const tcoeffs);
+                               const int width, const int height, const int eob,
+                               const int shift, tran_low_t *const tcoeffs);
+
+static INLINE void get_max_width_height(const int16_t *const scan,
+                                        const int eob, const int stride,
+                                        int *const width, int *const height) {
+  for (int c = 0; c < eob; ++c) {
+    const int pos = scan[c];
+    const int h = pos / stride;
+    const int w = pos - h * stride;
+    *width = AOMMAX(*width, w);
+    *height = AOMMAX(*height, h);
+  }
+}
 
 class DecodeTxbTest : public ::testing::TestWithParam<DequantTxbFunc> {
  public:
@@ -66,7 +78,7 @@ class DecodeTxbTest : public ::testing::TestWithParam<DequantTxbFunc> {
 
   void DequantTxbRun() {
     const int kNumTests = 100;
-    int result = 0;
+    bool result = false;
     int16_t dequant[2];
     const int qindex = rnd_.Rand8();
     const int delta = 0;
@@ -76,31 +88,32 @@ class DecodeTxbTest : public ::testing::TestWithParam<DequantTxbFunc> {
     dequant[1] = av1_ac_quant_QTX(qindex, delta, bit_depth);
 
     for (int tx_size = TX_4X4; tx_size < TX_SIZES_ALL; ++tx_size) {
-      const int width = tx_size_wide[tx_size];
-      const int height = tx_size_high[tx_size];
+      const int stride = tx_size_wide[tx_size];
+      const int h = tx_size_high[tx_size];
       const int bwl = tx_size_wide_log2[tx_size];
       const int shift = av1_get_tx_scale((TX_SIZE)tx_size);
       const int16_t *const scan = av1_inter_scan_orders[tx_size][DCT_DCT].scan;
+      levels_ = set_levels(levels_buf_, stride);
 
-      levels_ = set_levels(levels_buf_, width);
       for (int i = 0; i < kNumTests && !result; ++i) {
-        for (int eob = 0; eob < width * height && !result; ++eob) {
+        for (int eob = 0; eob <= stride * h && !result; ++eob) {
+          int width = 0, height = 0;
+          get_max_width_height(scan, eob, stride, &width, &height);
+          width += 1;
+          height += 1;
           InitDataWithEob(scan, bwl, eob);
 
-          av1_dequant_txb_c(levels_, signs_, dequant, scan, bwl, height, eob,
-                            shift, tcoeffs_ref_);
-          dequant_txb_func_(levels_, signs_, dequant, scan, bwl, height, eob,
-                            shift, tcoeffs_);
+          av1_dequant_txb_c(levels_, signs_, dequant, scan, bwl, width, height,
+                            eob, shift, tcoeffs_ref_);
+          dequant_txb_func_(levels_, signs_, dequant, scan, bwl, width, height,
+                            eob, shift, tcoeffs_);
 
-          PrintDiff(width, height);
+          result = Compare(1 << bwl, width, height);
 
-          result = memcmp(tcoeffs_, tcoeffs_ref_,
-                          sizeof(*tcoeffs_ref_) * MAX_TX_SQUARE);
-
-          EXPECT_EQ(result, 0)
-              << " width " << width << " height " << height << " eob " << eob
-              << " shift " << shift << " dequant[0] " << dequant[0]
-              << " dequant[1] " << dequant[1];
+          EXPECT_EQ(result, false)
+              << " stride " << stride << " width " << width << " height "
+              << height << " eob " << eob << " shift " << shift
+              << " dequant[0] " << dequant[0] << " dequant[1] " << dequant[1];
         }
       }
     }
@@ -131,8 +144,8 @@ class DecodeTxbTest : public ::testing::TestWithParam<DequantTxbFunc> {
 
       aom_usec_timer_start(&timer);
       for (int i = 0; i < kNumTests; ++i) {
-        av1_dequant_txb_c(levels_, signs_, dequant, scan, bwl, height, eob,
-                          shift, tcoeffs_);
+        av1_dequant_txb_c(levels_, signs_, dequant, scan, bwl, width, height,
+                          eob, shift, tcoeffs_);
       }
       aom_usec_timer_mark(&timer);
 
@@ -169,18 +182,19 @@ class DecodeTxbTest : public ::testing::TestWithParam<DequantTxbFunc> {
     memcpy(tcoeffs_ref_, tcoeffs_, sizeof(*tcoeffs_) * MAX_TX_SQUARE);
   }
 
-  void PrintDiff(const int width, const int height) const {
-    if (memcmp(tcoeffs_, tcoeffs_ref_, sizeof(*tcoeffs_ref_) * MAX_TX_SQUARE)) {
-      for (int y = 0; y < height; y++) {
-        for (int x = 0; x < width; x++) {
-          if (tcoeffs_ref_[y * width + x] != tcoeffs_[y * width + x]) {
-            printf("tcoeffs_[%d][%d] diff:%6d (ref),%6d (opt)\n", y, x,
-                   tcoeffs_ref_[y * width + x], tcoeffs_[y * width + x]);
-            break;
-          }
+  bool Compare(const int stride, const int width, const int height) const {
+    bool result = false;
+    for (int y = 0; y < height; y++) {
+      for (int x = 0; x < width; x++) {
+        if (tcoeffs_ref_[y * stride + x] != tcoeffs_[y * stride + x]) {
+          printf("tcoeffs[%d][%d] diff:%6d (ref),%6d (opt)\n", y, x,
+                 tcoeffs_ref_[y * stride + x], tcoeffs_[y * stride + x]);
+          result = true;
+          break;
         }
       }
     }
+    return result;
   }
 
   DequantTxbFunc dequant_txb_func_;

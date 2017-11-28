@@ -18,15 +18,12 @@
 
 static INLINE void dequant_txb_kernel_sse4_1(
     const __m128i level, const __m128i mask,
-    const __m128i *const dqvs /*dqvs[2]*/, const int shift,
-    tran_low_t **const tcoeffs) {
+    const __m128i *const dqvs /*dqvs[2]*/, const int shift, __m128i *const ts) {
   const __m128i zero = _mm_setzero_si128();
-  __m128i ls[2], ts[2], masks[2];
+  __m128i ls[2], masks[2];
 
   masks[0] = _mm_unpacklo_epi16(mask, mask);
   masks[1] = _mm_unpackhi_epi16(mask, mask);
-  ts[0] = _mm_load_si128((__m128i *)(*tcoeffs + 0));
-  ts[1] = _mm_load_si128((__m128i *)(*tcoeffs + 4));
   ls[0] = _mm_unpacklo_epi16(level, zero);
   ls[1] = _mm_unpackhi_epi16(level, zero);
   ts[0] = _mm_add_epi32(ls[0], ts[0]);
@@ -39,42 +36,59 @@ static INLINE void dequant_txb_kernel_sse4_1(
   ts[1] = _mm_xor_si128(ts[1], masks[1]);
   ts[0] = _mm_sub_epi32(ts[0], masks[0]);
   ts[1] = _mm_sub_epi32(ts[1], masks[1]);
-  _mm_store_si128((__m128i *)(*tcoeffs + 0), ts[0]);
-  _mm_store_si128((__m128i *)(*tcoeffs + 4), ts[1]);
-  *tcoeffs += 8;
+}
+
+static INLINE void dequant_txb_sse4_1(const __m128i level, const __m128i mask,
+                                      const __m128i *const dqvs /*dqvs[2]*/,
+                                      const int shift,
+                                      tran_low_t *const tcoeffs) {
+  __m128i ts[2];
+
+  ts[0] = _mm_load_si128((__m128i *)(tcoeffs + 0));
+  ts[1] = _mm_load_si128((__m128i *)(tcoeffs + 4));
+  dequant_txb_kernel_sse4_1(level, mask, dqvs, shift, ts);
+  _mm_store_si128((__m128i *)(tcoeffs + 0), ts[0]);
+  _mm_store_si128((__m128i *)(tcoeffs + 4), ts[1]);
 }
 
 static INLINE void dequant_txb_4_sse4_1(const uint8_t *levels,
                                         const int8_t *signs,
                                         const int16_t *const dequant,
-                                        const int height, const int shift,
-                                        tran_low_t *tcoeffs) {
+                                        const int stride, const int height,
+                                        const int shift, tran_low_t *tcoeffs) {
   const __m128i zero = _mm_setzero_si128();
   const __m128i const1 = _mm_set1_epi8(1);
-  int row = height;
+  int row = (height + 1) & ~1;
   __m128i dqvs[2];
 
   construct_dqvs_sse2(dequant, dqvs);
 
   do {
-    const __m128i level8 = load_8bit_4x2_to_1_sse4_1(levels, 4 + TX_PAD_HOR);
-    const __m128i sign8 = _mm_loadl_epi64((__m128i *)signs);
+    const __m128i level8 =
+        load_8bit_4x2_to_1_sse4_1(levels, stride + TX_PAD_HOR);
+    const __m128i sign8 = load_8bit_4x2_to_1_sse2((uint8_t *)signs, stride);
     const __m128i level16 = _mm_unpacklo_epi8(level8, zero);
     const __m128i mask8 = _mm_cmpeq_epi8(sign8, const1);
     const __m128i mask16 = _mm_unpacklo_epi8(mask8, mask8);
+    __m128i ts[2];
 
-    dequant_txb_kernel_sse4_1(level16, mask16, dqvs, shift, &tcoeffs);
+    ts[0] = _mm_load_si128((__m128i *)(tcoeffs + 0 * stride));
+    ts[1] = _mm_load_si128((__m128i *)(tcoeffs + 1 * stride));
+    dequant_txb_kernel_sse4_1(level16, mask16, dqvs, shift, ts);
+    _mm_store_si128((__m128i *)(tcoeffs + 0 * stride), ts[0]);
+    _mm_store_si128((__m128i *)(tcoeffs + 1 * stride), ts[1]);
     dqvs[0] = dqvs[1];
-    levels += 2 * (4 + TX_PAD_HOR);
-    signs += 8;
+    levels += 2 * (stride + TX_PAD_HOR);
+    signs += 2 * stride;
+    tcoeffs += 2 * stride;
   } while (row -= 2);
 }
 
 static INLINE void dequant_txb_8_sse4_1(const uint8_t *levels,
                                         const int8_t *signs,
                                         const int16_t *const dequant,
-                                        const int height, const int shift,
-                                        tran_low_t *tcoeffs) {
+                                        const int stride, const int height,
+                                        const int shift, tran_low_t *tcoeffs) {
   const __m128i zero = _mm_setzero_si128();
   const __m128i const1 = _mm_set1_epi8(1);
   int row = height;
@@ -89,16 +103,20 @@ static INLINE void dequant_txb_8_sse4_1(const uint8_t *levels,
     const __m128i mask8 = _mm_cmpeq_epi8(sign8, const1);
     const __m128i mask16 = _mm_unpacklo_epi8(mask8, mask8);
 
-    dequant_txb_kernel_sse4_1(level16, mask16, dqvs, shift, &tcoeffs);
+    dequant_txb_sse4_1(level16, mask16, dqvs, shift, tcoeffs);
     dqvs[0] = dqvs[1];
-    levels += 8 + TX_PAD_HOR;
-    signs += 8;
+    levels += stride + TX_PAD_HOR;
+    signs += stride;
+    tcoeffs += stride;
   } while (--row);
 }
 
-static INLINE void dequant_txb_16n_sse4_1(
-    const uint8_t *levels, const int8_t *signs, const int16_t *const dequant,
-    const int width, const int height, const int shift, tran_low_t *tcoeffs) {
+static INLINE void dequant_txb_16x_sse4_1(const uint8_t *levels,
+                                          const int8_t *signs,
+                                          const int16_t *const dequant,
+                                          const int stride, const int width,
+                                          const int height, const int shift,
+                                          tran_low_t *tcoeffs) {
   const __m128i zero = _mm_setzero_si128();
   const __m128i const1 = _mm_set1_epi8(1);
   int row = height;
@@ -107,10 +125,10 @@ static INLINE void dequant_txb_16n_sse4_1(
   construct_dqvs_sse2(dequant, dqvs);
 
   do {
-    int col = width;
+    int i = 0;
     do {
-      const __m128i level8 = _mm_loadu_si128((__m128i *)levels);
-      const __m128i sign8 = _mm_load_si128((__m128i *)signs);
+      const __m128i level8 = _mm_loadu_si128((__m128i *)(levels + i));
+      const __m128i sign8 = _mm_load_si128((__m128i *)(signs + i));
       const __m128i mask8 = _mm_cmpeq_epi8(sign8, const1);
 
       level16[0] = _mm_unpacklo_epi8(level8, zero);
@@ -118,13 +136,14 @@ static INLINE void dequant_txb_16n_sse4_1(
       mask16[0] = _mm_unpacklo_epi8(mask8, mask8);
       mask16[1] = _mm_unpackhi_epi8(mask8, mask8);
 
-      dequant_txb_kernel_sse4_1(level16[0], mask16[0], dqvs, shift, &tcoeffs);
+      dequant_txb_sse4_1(level16[0], mask16[0], dqvs, shift, tcoeffs + i + 0);
       dqvs[0] = dqvs[1];
-      dequant_txb_kernel_sse4_1(level16[1], mask16[1], dqvs, shift, &tcoeffs);
-      levels += 16;
-      signs += 16;
-    } while (col -= 16);
-    levels += TX_PAD_HOR;
+      dequant_txb_sse4_1(level16[1], mask16[1], dqvs, shift, tcoeffs + i + 8);
+      i += 16;
+    } while (i < width);
+    levels += stride + TX_PAD_HOR;
+    signs += stride;
+    tcoeffs += stride;
   } while (--row);
 }
 
@@ -132,18 +151,20 @@ void av1_dequant_txb_sse4_1(const uint8_t *const levels,
                             const int8_t *const signs,
                             const int16_t *const dequant,
                             const int16_t *const scan, const int bwl,
-                            const int height, const int eob, const int shift,
-                            tran_low_t *const tcoeffs) {
-  const int width = 1 << bwl;
+                            const int width, const int height, const int eob,
+                            const int shift, tran_low_t *const tcoeffs) {
+  const int stride = 1 << bwl;
   (void)scan;
   (void)eob;
 
-  if (width == 4) {
-    dequant_txb_4_sse4_1(levels, signs, dequant, height, shift, tcoeffs);
-  } else if (width == 8) {
-    dequant_txb_8_sse4_1(levels, signs, dequant, height, shift, tcoeffs);
+  if (width <= 4) {
+    dequant_txb_4_sse4_1(levels, signs, dequant, stride, height, shift,
+                         tcoeffs);
+  } else if (width <= 8) {
+    dequant_txb_8_sse4_1(levels, signs, dequant, stride, height, shift,
+                         tcoeffs);
   } else {
-    dequant_txb_16n_sse4_1(levels, signs, dequant, width, height, shift,
+    dequant_txb_16x_sse4_1(levels, signs, dequant, stride, width, height, shift,
                            tcoeffs);
   }
 }
