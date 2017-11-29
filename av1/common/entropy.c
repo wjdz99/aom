@@ -1802,11 +1802,6 @@ void av1_average_tile_inter_cdfs(AV1_COMMON *cm, FRAME_CONTEXT *fc,
   AVERAGE_TILE_CDFS(intra_inter_cdf)
   AVERAGE_TILE_CDFS(motion_mode_cdf)
   AVERAGE_TILE_CDFS(obmc_cdf)
-#if CONFIG_LPF_SB
-  AVERAGE_TILE_CDFS(lpf_reuse_cdf);
-  AVERAGE_TILE_CDFS(lpf_delta_cdf);
-  AVERAGE_TILE_CDFS(lpf_sign_cdf);
-#endif  // CONFIG_LPF_SB
 #if CONFIG_Q_SEGMENTATION
   int j;
   for (j = 0; j < Q_SEGMENT_CDF_COUNT; j++) AVERAGE_TILE_CDFS(seg.q_seg_cdf[j]);
