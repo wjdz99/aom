@@ -33,7 +33,8 @@ set(AOM_UNIT_TEST_COMMON_SOURCES
     "${AOM_ROOT}/test/register_state_check.h"
     "${AOM_ROOT}/test/transform_test_base.h"
     "${AOM_ROOT}/test/util.h"
-    "${AOM_ROOT}/test/video_source.h")
+    "${AOM_ROOT}/test/video_source.h"
+    "${AOM_ROOT}/test/ec_test.cc")
 
 if (NOT BUILD_SHARED_LIBS)
   set(AOM_UNIT_TEST_COMMON_SOURCES
