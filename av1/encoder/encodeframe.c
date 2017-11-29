@@ -4023,7 +4023,13 @@ static void encode_frame_internal(AV1_COMP *cpi) {
     };
     int num_refs_using_gm = 0;
 
+    const int cur_frame_offset = cm->frame_offset;
     for (frame = LAST_FRAME; frame <= ALTREF_FRAME; ++frame) {
+      const int ref_buf_idx = cm->frame_refs[frame - LAST_FRAME].idx;
+      if (ref_buf_idx == INVALID_IDX) continue;
+      const int ref_frame_offset = frame_bufs[buf_idx].cur_frame_offset;
+      const int ref_frame_dist = ref_frame_offset - cur_frame_offset;
+
       ref_buf[frame] = get_ref_frame_buffer(cpi, frame);
       int pframe;
       cm->global_motion[frame] = default_warp_params;
