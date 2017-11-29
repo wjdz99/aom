@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f56188a7_1b137701",
+        "filename": "tools/obu_parser.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2017-11-29T23:01:00Z",
+      "side": 1,
+      "message": "whitespace",
+      "range": {
+        "startLine": 108,
+        "startChar": 0,
+        "endLine": 108,
+        "endChar": 2
+      },
+      "revId": "29d6e89ed79e981ff2dc4722f7f0b8d39e13355a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b0d93b17_c3486fd7",
+        "filename": "tools/obu_parser.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2017-11-29T23:01:00Z",
+      "side": 1,
+      "message": "kObuHeaderSize",
+      "range": {
+        "startLine": 139,
+        "startChar": 62,
+        "endLine": 139,
+        "endChar": 63
+      },
+      "revId": "29d6e89ed79e981ff2dc4722f7f0b8d39e13355a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
