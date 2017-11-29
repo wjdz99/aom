@@ -868,13 +868,13 @@ void gen_txb_cache(TxbCache *txb_cache, TxbInfo *txb_info) {
     txb_cache->nz_count_arr[coeff_idx] =
         get_nz_count(levels, bwl, row, col, get_tx_class(txb_info->tx_type));
 
-    const int nz_count = txb_cache->nz_count_arr[coeff_idx];
-    txb_cache->nz_ctx_arr[coeff_idx] =
-        get_nz_map_ctx_from_count(nz_count, coeff_idx, bwl, height,
+    txb_cache->nz_ctx_arr[coeff_idx] = get_nz_map_ctx_from_stats(
 #if USE_CAUSAL_BASE_CTX
-                                  0,
+        0,
+#else
+        txb_cache->nz_count_arr[coeff_idx],
 #endif
-                                  txb_info->tx_type);
+        coeff_idx, bwl, height, txb_info->tx_type);
 
     // gen_base_count_mag_arr
     if (!has_base(qcoeff[coeff_idx], 0)) continue;
@@ -1087,14 +1087,16 @@ static int try_neighbor_level_down_nz(int coeff_idx, int nb_coeff_idx,
   const int nb_scan_idx = iscan[nb_coeff_idx];
   if (nb_scan_idx < scan_idx) {
     const int count = txb_cache->nz_count_arr[coeff_idx];
+    (void)count;
     assert(count > 0);
     update_qcoeff(nb_coeff_idx, get_lower_coeff(nb_coeff), txb_info);
-    const int new_ctx = get_nz_map_ctx_from_count(
-        count - 1, coeff_idx, txb_info->bwl, txb_info->height,
+    const int new_ctx = get_nz_map_ctx_from_stats(
 #if USE_CAUSAL_BASE_CTX
         0,
+#else
+        count - 1,
 #endif
-        txb_info->tx_type);
+        coeff_idx, txb_info->bwl, txb_info->height, txb_info->tx_type);
     update_qcoeff(nb_coeff_idx, nb_coeff, txb_info);
     const int ctx = txb_cache->nz_ctx_arr[coeff_idx];
 #if CONFIG_LV_MAP_MULTI
@@ -1468,13 +1470,13 @@ void update_level_down(const int coeff_idx, TxbCache *const txb_cache,
           txb_cache->nz_count_arr[nb_coeff_idx] -= 1;
           assert(txb_cache->nz_count_arr[nb_coeff_idx] >= 0);
         }
-        const int count = txb_cache->nz_count_arr[nb_coeff_idx];
-        txb_cache->nz_ctx_arr[nb_coeff_idx] = get_nz_map_ctx_from_count(
-            count, nb_coeff_idx, txb_info->bwl, txb_info->height,
+        txb_cache->nz_ctx_arr[nb_coeff_idx] = get_nz_map_ctx_from_stats(
 #if USE_CAUSAL_BASE_CTX
             0,
+#else
+            txb_cache->nz_count_arr[nb_coeff_idx],
 #endif
-            txb_info->tx_type);
+            nb_coeff_idx, txb_info->bwl, txb_info->height, txb_info->tx_type);
         // int ref_ctx = get_nz_map_ctx(txb_info->levels, nb_coeff_idx,
         // txb_info->bwl, tx_type);
         // if (ref_ctx != txb_cache->nz_ctx_arr[nb_coeff_idx])
