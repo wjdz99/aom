@@ -257,6 +257,89 @@ static unsigned char *downconvert_frame(YV12_BUFFER_CONFIG *frm,
 }
 #endif
 
+static INLINE int get_ref_offset(RefCntBuffer *ref, int frame) {
+  switch (frame) {
+    case LAST_FRAME: return ref->lst_frame_offset;
+    case LAST2_FRAME: return ref->lst2_frame_offset;
+    case LAST3_FRAME: return ref->lst3_frame_offset;
+    case GOLDEN_FRAME: return ref->gld_frame_offset;
+    case BWDREF_FRAME: return ref->bwd_frame_offset;
+    case ALTREF2_FRAME: return ref->alt2_frame_offset;
+    case ALTREF_FRAME: return ref->alt_frame_offset;
+    default: assert(0); return 0;
+  }
+}
+
+//////////////////////////////////////////
+// Adds some offset to a global motion parameter and handles
+// all of the necessary precision shifts, clamping, and
+// zero-centering.
+static int32_t scale_param(int param_index, int32_t param_value,
+                           int32_t scale_num, int32_t scale_denom) {
+  const int scale_vals[3] = { GM_TRANS_PREC_DIFF, GM_ALPHA_PREC_DIFF,
+                              GM_ROW3HOMO_PREC_DIFF };
+  const int clamp_vals[3] = { GM_TRANS_MAX, GM_ALPHA_MAX, GM_ROW3HOMO_MAX };
+  // type of param: 0 - translation, 1 - affine, 2 - homography
+  const int param_type = (param_index < 2 ? 0 : (param_index < 6 ? 1 : 2));
+  const int is_one_centered = (param_index == 2 || param_index == 5);
+  const int scale_sign = (scale_value >> 31);
+  const int abs_scale = (scale_value ^ scale_sign) - scale_sign;
+
+  // Make parameter zero-centered and offset the shift that was done to make
+  // it compatible with the warped model
+  param_value = (param_value - (is_one_centered << WARPEDMODEL_PREC_BITS)) >>
+                scale_vals[param_type];
+  // Add desired offset to the rescaled/zero-centered parameter
+  param_value *= abs_scale;
+  // Clamp the parameter so it does not overflow the number of bits allotted
+  // to it in the bitstream
+  param_value = (int32_t)clamp(param_value, -clamp_vals[param_type],
+                               clamp_vals[param_type]);
+  // Rescale the parameter to WARPEDMODEL_PRECISION_BITS so it is compatible
+  // with the warped motion library
+  param_value *= (1 << scale_vals[param_type]);
+
+  // Undo the zero-centering step if necessary
+  param_value += (is_one_centered << WARPEDMODEL_PREC_BITS);
+
+  return (param_value ^ scale_sign) - scale_sign;
+}
+//////////////////
+static INLINE void scale_params(WarpedMotionParams *out_model,
+                                WarpedMotionParams *in_model,
+                                int cur_to_rref, int ref_to_rref) {
+  (void)cur_to_rref;
+  (void)ref_to_rref;
+  memcpy(out_model, in_model, sizeof(*in_model));
+}
+
+void copy_and_scale_gm(WarpedMotionParams *tmp_wm_params, RefCntBuffer *const ref_buf,
+                       int cur_frame_offset, int ref_frame_offset) {
+  // get the reference's reference that is closest to the current
+  // frame. The name rref corresponds to one of the references
+  // used by the reference for the current frame.
+  int offset, offset_diff;
+  int min_cur_to_rref_dist = INT32_MAX;
+  int ref_to_rref_dist = 0;
+  int closest_rref = 0;
+  for (int rref = LAST_FRAME; rref <= ALTREF_FRAME; ++rref) {
+    // get the offset between the current frame and the rref
+    offset = get_ref_offset(ref_buf, rref);
+    offset_diff = cur_frame_offset - offset;
+    // if this is the closest rref to the current frame, select
+    // its global motion model to scale
+    if (abs(offset_diff) < min_cur_to_rref_dist) {
+      min_cur_to_rref_dist = offset_diff;
+      closest_rref = rref;
+      ref_to_rref_dist = ref_frame_offset - offset;
+    }
+  }
+  scale_params(tmp_wm_params,
+               &ref_buf->global_motion[closest_rref],
+               min_cur_to_rref_dist, ref_to_rref_dist);
+
+}
+
 int compute_global_motion_feature_based(
     TransformationType type, YV12_BUFFER_CONFIG *frm, YV12_BUFFER_CONFIG *ref,
 #if CONFIG_HIGHBITDEPTH

@@ -15,6 +15,7 @@
 #include "aom/aom_integer.h"
 #include "aom_scale/yv12config.h"
 #include "av1/common/mv.h"
+#include "av1/common/onyxc_int.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -25,6 +26,9 @@ extern "C" {
 void convert_model_to_params(const double *params, WarpedMotionParams *model);
 
 int is_enough_erroradvantage(double erroradv, int params_cost);
+
+void copy_and_scale_gm(WarpedMotionParams *tmp_wm_params, RefCntBuffer *const ref_buf,
+                       int cur_frame_offset, int ref_frame_offset);
 
 // Returns the av1_warp_error between "dst" and the result of applying the
 // motion params that result from fine-tuning "wm" to "ref". Note that "wm" is
