@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "41d27925_58db62ff",
+        "filename": "aom_dsp/inv_txfm.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2017-11-29T02:24:45Z",
+      "side": 1,
+      "message": "This is equivalent to 1828\u003c\u003c(bd-8) but avoid left shift by 0 when bd is 8.",
+      "range": {
+        "startLine": 43,
+        "startChar": 49,
+        "endLine": 43,
+        "endChar": 64
+      },
+      "revId": "03fa34ecbd2597c188d43fbda6fbd5a8756582a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
