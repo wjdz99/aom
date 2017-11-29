@@ -290,15 +290,10 @@ void av1_setup_across_tile_boundary_info(const AV1_COMMON *const cm,
     const int col_diff = tile_info->mi_col_end - tile_info->mi_col_start;
     int row, col;
 
-#if CONFIG_DEPENDENT_HORZTILES
-    if (!cm->dependent_horz_tiles || tile_info->tg_horz_boundary)
-#endif  // CONFIG_DEPENDENT_HORZTILES
-    {
-      mi = mi_start;
-      for (col = 0; col < col_diff; ++col) {
-        mi->mbmi.boundary_info |= TILE_ABOVE_BOUNDARY;
-        mi += 1;
-      }
+    mi = mi_start;
+    for (col = 0; col < col_diff; ++col) {
+      mi->mbmi.boundary_info |= TILE_ABOVE_BOUNDARY;
+      mi += 1;
     }
 
     mi = mi_start;
