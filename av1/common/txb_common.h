@@ -31,7 +31,8 @@ typedef struct txb_ctx {
 } TXB_CTX;
 
 static INLINE TX_SIZE get_txsize_context(TX_SIZE tx_size) {
-  return txsize_sqr_up_map[tx_size];
+  return (TX_SIZE)((1 + txsize_sqr_map[tx_size] + txsize_sqr_up_map[tx_size]) >>
+                   1);
 }
 
 static const int base_level_count_to_index[13] = {
