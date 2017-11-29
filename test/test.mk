@@ -129,6 +129,7 @@ LIBAOM_TEST_SRCS-yes                   += accounting_test.cc
 endif
 endif
 LIBAOM_TEST_SRCS-yes                   += divu_small_test.cc
+LIBAOM_TEST_SRCS-yes                   += ec_test.cc
 #LIBAOM_TEST_SRCS-yes                   += encoder_parms_get_to_decoder.cc
 endif
 
