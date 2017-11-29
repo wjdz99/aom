@@ -179,7 +179,13 @@ typedef struct frame_contexts {
 
   aom_cdf_prob inter_compound_mode_cdf[INTER_MODE_CONTEXTS]
                                       [CDF_SIZE(INTER_COMPOUND_MODES)];
+#if CONFIG_JNT_COMP
+  aom_prob compound_type_prob[BLOCK_SIZES_ALL][COMPOUND_TYPES - 2];
+  aom_cdf_prob compound_type_cdf[BLOCK_SIZES_ALL][CDF_SIZE(COMPOUND_TYPES - 1)];
+#else
+  aom_prob compound_type_prob[BLOCK_SIZES_ALL][COMPOUND_TYPES - 1];
   aom_cdf_prob compound_type_cdf[BLOCK_SIZES_ALL][CDF_SIZE(COMPOUND_TYPES)];
+#endif  // CONFIG_JNT_COMP
   aom_cdf_prob interintra_cdf[BLOCK_SIZE_GROUPS][CDF_SIZE(2)];
   aom_cdf_prob wedge_interintra_cdf[BLOCK_SIZES_ALL][CDF_SIZE(2)];
   aom_cdf_prob interintra_mode_cdf[BLOCK_SIZE_GROUPS]
@@ -357,7 +363,11 @@ typedef struct FRAME_COUNTS {
   unsigned int interintra[BLOCK_SIZE_GROUPS][2];
   unsigned int interintra_mode[BLOCK_SIZE_GROUPS][INTERINTRA_MODES];
   unsigned int wedge_interintra[BLOCK_SIZES_ALL][2];
+#if CONFIG_JNT_COMP
+  unsigned int compound_interinter[BLOCK_SIZES_ALL][COMPOUND_TYPES - 1];
+#else
   unsigned int compound_interinter[BLOCK_SIZES_ALL][COMPOUND_TYPES];
+#endif  // CONFIG_JNT_COMP
   unsigned int motion_mode[BLOCK_SIZES_ALL][MOTION_MODES];
   unsigned int obmc[BLOCK_SIZES_ALL][2];
   unsigned int intra_inter[INTRA_INTER_CONTEXTS][2];
@@ -459,7 +469,12 @@ extern const aom_tree_index
     av1_interintra_mode_tree[TREE_SIZE(INTERINTRA_MODES)];
 extern const aom_tree_index
     av1_inter_compound_mode_tree[TREE_SIZE(INTER_COMPOUND_MODES)];
+#if CONFIG_JNT_COMP
+extern const aom_tree_index
+    av1_compound_type_tree[TREE_SIZE(COMPOUND_TYPES - 1)];
+#else
 extern const aom_tree_index av1_compound_type_tree[TREE_SIZE(COMPOUND_TYPES)];
+#endif  // CONFIG_JNT_COMP
 extern const aom_tree_index av1_motion_mode_tree[TREE_SIZE(MOTION_MODES)];
 
 void av1_setup_frame_contexts(struct AV1Common *cm);
