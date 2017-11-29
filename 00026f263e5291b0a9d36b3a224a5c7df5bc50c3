@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "254ef275_62036514",
+        "filename": "av1/common/onyxc_int.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 490,
+      "author": {
+        "id": 5050
+      },
+      "writtenOn": "2017-11-29T03:29:48Z",
+      "side": 1,
+      "message": "I agree, but they are actually pre-existing variables so the rename should probably be in a separate patch.\n\n(also possibly this #ifdef flow could be improved to make this clearer, for example in a #if !CONFIG_MAX_TILE || CONFIG_EXT_TILE block)",
+      "parentUuid": "a976efcd_6bb87b27",
+      "range": {
+        "startLine": 490,
+        "startChar": 6,
+        "endLine": 490,
+        "endChar": 29
+      },
+      "revId": "00026f263e5291b0a9d36b3a224a5c7df5bc50c3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4e07b079_4b97fd05",
         "filename": "av1/decoder/inspection.h",
         "patchSetId": 2
