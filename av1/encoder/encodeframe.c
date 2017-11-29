@@ -3898,6 +3898,7 @@ static void encode_frame_internal(AV1_COMP *cpi) {
   int i;
   const int last_fb_buf_idx = get_ref_frame_buf_idx(cpi, LAST_FRAME);
 
+
 #if CONFIG_ADAPT_SCAN
   av1_deliver_eob_threshold(cm, xd);
 #endif
@@ -4023,7 +4024,15 @@ static void encode_frame_internal(AV1_COMP *cpi) {
     };
     int num_refs_using_gm = 0;
 
+    // get the offset between the key frame and the current frame
+    const int cur_frame_offset = cm->frame_offset;
     for (frame = LAST_FRAME; frame <= ALTREF_FRAME; ++frame) {
+      // get the offset between the key frame and the current reference
+      const int ref_buf_idx = cm->frame_refs[frame - LAST_FRAME].idx;
+      if (ref_buf_idx == INVALID_IDX) continue;
+      RefCntBuffer *const frame_bufs = cm->buffer_pool->frame_bufs;
+      const int ref_frame_offset = frame_bufs[ref_buf_idx].cur_frame_offset;
+
       ref_buf[frame] = get_ref_frame_buffer(cpi, frame);
       int pframe;
       cm->global_motion[frame] = default_warp_params;
@@ -4051,8 +4060,9 @@ static void encode_frame_internal(AV1_COMP *cpi) {
             cpi->source->y_stride);
 
         if (ref_frame_error == 0) continue;
-
         aom_clear_system_state();
+        int compute_gm_params = cm->current_video_frame <= 1;//cur_frame_offset < 2;
+              //cm->prev_frame->global_motion[frame].wmtype == IDENTITY;
         for (model = ROTZOOM; model < GLOBAL_TRANS_TYPES_ENC; ++model) {
           int64_t best_warp_error = INT64_MAX;
           // Initially set all params to identity.
@@ -4060,19 +4070,30 @@ static void encode_frame_internal(AV1_COMP *cpi) {
             memcpy(params_by_motion + (MAX_PARAMDIM - 1) * i, kIdentityParams,
                    (MAX_PARAMDIM - 1) * sizeof(*params_by_motion));
           }
-
+          if (compute_gm_params) {
           compute_global_motion_feature_based(
               model, cpi->source, ref_buf[frame],
 #if CONFIG_HIGHBITDEPTH
               cpi->common.bit_depth,
 #endif  // CONFIG_HIGHBITDEPTH
               inliers_by_motion, params_by_motion, RANSAC_NUM_MOTIONS);
+          } else {
+            copy_and_scale_gm(&tmp_wm_params, &frame_bufs[ref_buf_idx],
+                              cur_frame_offset, ref_frame_offset);
+            compute_global_motion_feature_based(
+               model, cpi->source, ref_buf[frame],
+#if CONFIG_HIGHBITDEPTH
+               cpi->common.bit_depth,
+#endif  // CONFIG_HIGHBITDEPTH
+               inliers_by_motion, params_by_motion, RANSAC_NUM_MOTIONS);
+          }
 
           for (i = 0; i < RANSAC_NUM_MOTIONS; ++i) {
             if (inliers_by_motion[i] == 0) continue;
 
             params_this_motion = params_by_motion + (MAX_PARAMDIM - 1) * i;
-            convert_model_to_params(params_this_motion, &tmp_wm_params);
+            if (compute_gm_params)
+              convert_model_to_params(params_this_motion, &tmp_wm_params);
 
             if (tmp_wm_params.wmtype != IDENTITY) {
               const int64_t warp_error = refine_integerized_param(
@@ -4083,7 +4104,7 @@ static void encode_frame_internal(AV1_COMP *cpi) {
                   ref_buf[frame]->y_buffer, ref_buf[frame]->y_width,
                   ref_buf[frame]->y_height, ref_buf[frame]->y_stride,
                   cpi->source->y_buffer, cpi->source->y_width,
-                  cpi->source->y_height, cpi->source->y_stride, 5,
+                  cpi->source->y_height, cpi->source->y_stride, 4,
                   best_warp_error);
               if (warp_error < best_warp_error) {
                 best_warp_error = warp_error;
