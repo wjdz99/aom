@@ -47,6 +47,12 @@ extern "C" {
 // chroma.
 #define DISABLE_VARTX_FOR_CHROMA 1
 
+#if CONFIG_DEPENDENT_HORZTILES && CONFIG_LOOPFILTERING_ACROSS_TILES
+// Should we loop filter across dependent edges even when the
+// loop_filter_across_tiles_enabled flag is off?
+#define LF_ACROSS_DEPENDENT_EDGES 0
+#endif
+
 // SEG_MASK_TYPES should not surpass 1 << MAX_SEG_MASK_BITS
 typedef enum {
 #if COMPOUND_SEGMENT_TYPE == 0
