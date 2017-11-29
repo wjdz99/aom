@@ -5542,7 +5542,13 @@ void av1_augment_prob(TX_SIZE tx_size, TX_TYPE tx_type, uint32_t *prob) {
       const uint32_t mask_16 = ((1 << 16) - 1);
       const uint32_t tie_breaker = ~((uint32_t)sc->iscan[idx]);
       // prob[idx]: 16 bits  dummy: 6 bits  scan_idx: 10 bits
-      prob[idx] = (prob[idx] << 16) | (mask_16 & tie_breaker);
+      // modified by yzj
+      if (tx1d_high == 32 && tx1d_wide == 32) {
+        prob[idx] = mask_16 & tie_breaker;
+      } else {
+        prob[idx] = (prob[idx] << 16) | (mask_16 & tie_breaker);
+      }
+      // ~added
     }
   }
 }
