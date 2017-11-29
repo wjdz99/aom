@@ -22,6 +22,30 @@
       "revId": "771a80abbd2c92fa823763ef73c0d49c08774f7c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2de175d0_fff7bc92",
+        "filename": "aom_dsp/loopfilter.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 5195
+      },
+      "writtenOn": "2017-11-29T00:42:49Z",
+      "side": 1,
+      "message": "Hi Ryan,\n\nNow from speed point of view, parallel_deblocking is one of the bottle neck of decoder. My plan is to restore the bit mask implementation to speed it up. These *_dual function will be used in bit mask implementation so that we can filter two rows together.\n\nSo I plan firstly to restore bit mask based on var_tx and cb4x4. This is also part of parallel_deblocking. Then I need to walk through parallel_deblocking\u0027s edge decision and integrate it to bit mask setup function.\n\nI will ask you to review the coming patches. If you have any good idea to speed up parallel_deblocking, please let me know, we can have a discussion.",
+      "parentUuid": "2bcfc040_ba17f61f",
+      "range": {
+        "startLine": 199,
+        "startChar": 5,
+        "endLine": 199,
+        "endChar": 9
+      },
+      "revId": "771a80abbd2c92fa823763ef73c0d49c08774f7c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
