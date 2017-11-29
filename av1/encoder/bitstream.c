@@ -2688,7 +2688,7 @@ static void encode_q_segmentation(AV1_COMMON *cm,
   aom_wb_write_bit(wb, !!seg->q_lvls);
   if (!seg->q_lvls) return;
 
-  encode_unsigned_max(wb, seg->q_lvls, MAX_SEGMENTS);
+  encode_unsigned_max(wb, seg->q_lvls - 1, MAX_SEGMENTS - 1);
 
   for (i = 0; i < seg->q_lvls; i++) {
     const int val = seg->q_delta[i];
