@@ -4645,9 +4645,15 @@ static int find_tx_size_rd_records(MACROBLOCK *x, BLOCK_SIZE bsize, int mi_row,
         // Update the output quadtree RD info structure.
         av1_zero(dst_rd_info[cur_rd_info_idx].children);
         if (cur_tx_depth > 0) {
+#if 0
           const int y_odd = (row / cur_tx_bh) % 2;
           const int x_odd = (col / cur_tx_bw) % 2;
           const int child_idx = y_odd ? (x_odd ? 3 : 2) : (x_odd ? 1 : 0);
+#else
+          const int child_idx =
+              (row / cur_tx_bh) * (bw / cur_tx_bw) + (col / cur_tx_bw);
+          assert(child_idx < 4);
+#endif
           dst_rd_info[parent_idx_buf[row * bw + col]].children[child_idx] =
               &dst_rd_info[cur_rd_info_idx];
         }
