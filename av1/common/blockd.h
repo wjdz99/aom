@@ -1124,16 +1124,32 @@ static INLINE TX_SIZE depth_to_tx_size(int depth, BLOCK_SIZE bsize) {
   return (TX_SIZE)(tx_size_cat + 1 - depth);
 }
 
+static INLINE int is_big_chroma(const MB_MODE_INFO *mbmi,
+                                const struct macroblockd_plane *pd) {
+  assert(pd->plane_type == PLANE_TYPE_UV);
+#if CONFIG_CFL
+  const int use_big_chroma =
+      mbmi->uv_mode == UV_CFL_PRED || CONFIG_BIG_CHROMA_TX;
+#else
+  const int use_big_chroma = CONFIG_BIG_CHROMA_TX
+#endif
+  if (use_big_chroma) {
+    const BLOCK_SIZE plane_bsize =
+        AOMMAX(BLOCK_4X4, get_plane_block_size(mbmi->sb_type, pd));
+    return plane_bsize <
+           BLOCK_32X32;  // BIG_CHROMA_TX does not apply to 1:4 and 4:1
+  }
+  return 0;
+}
+
 static INLINE TX_SIZE av1_get_uv_tx_size(const MB_MODE_INFO *mbmi,
                                          const struct macroblockd_plane *pd) {
-#if CONFIG_CFL
-  if (mbmi->uv_mode == UV_CFL_PRED) {
+  if (is_big_chroma(mbmi, pd)) {
     const BLOCK_SIZE plane_bsize =
         AOMMAX(BLOCK_4X4, get_plane_block_size(mbmi->sb_type, pd));
     assert(plane_bsize < BLOCK_SIZES_ALL);
     return max_txsize_rect_intra_lookup[plane_bsize];
   }
-#endif
   const TX_SIZE uv_txsize =
       uv_txsize_lookup[mbmi->sb_type][mbmi->tx_size][pd->subsampling_x]
                       [pd->subsampling_y];

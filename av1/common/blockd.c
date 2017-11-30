@@ -55,6 +55,13 @@ void av1_foreach_transformed_block_in_plane(
   const int step = txw_unit * txh_unit;
   int i = 0, r, c;
 
+#if CONFIG_BIG_CHROMA_TX && CONFIG_DEBUG
+  if (plane != AOM_PLANE_Y && is_big_chroma(&xd->mi[0]->mbmi, pd)) {
+    assert(block_size_wide[plane_bsize] == tx_size_wide[tx_size]);
+    assert(block_size_high[plane_bsize] == tx_size_high[tx_size]);
+  }
+#endif
+
   // If mb_to_right_edge is < 0 we are in a situation in which
   // the current block size extends into the UMV and we won't
   // visit the sub blocks that are wholly within the UMV.
