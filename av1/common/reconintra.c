@@ -2818,6 +2818,11 @@ void av1_predict_intra_block(const AV1_COMMON *cm, const MACROBLOCKD *xd,
       block_height == tx_size_high[tx_size])
     return;
 
+#if CONFIG_DEBUG
+  if (plane != AOM_PLANE_Y)
+    assert(is_big_chroma(&xd->mi[0]->mbmi, &xd->plane[plane]) == 0);
+#endif
+
   // A block should only fail to have a matching transform if it's
   // large and rectangular (such large transform sizes aren't
   // available).
