@@ -495,6 +495,13 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
   TX_TYPE tx_type =
       av1_get_tx_type(plane_type, xd, blk_row, blk_col, block, tx_size);
 
+#if CONFIG_BIG_CHROMA_TX && CONFIG_DEBUG
+  if (plane != AOM_PLANE_Y && is_big_chroma(&xd->mi[0]->mbmi, pd)) {
+    assert(block_size_wide[plane_bsize] == tx_size_wide[tx_size]);
+    assert(block_size_high[plane_bsize] == tx_size_high[tx_size]);
+  }
+#endif
+
 #if CONFIG_NEW_QUANT
   const int is_inter = is_inter_block(mbmi);
 #endif
