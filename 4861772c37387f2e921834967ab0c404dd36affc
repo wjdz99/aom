@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d38fea69_1057f275",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 5335,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-11-30T19:02:27Z",
+      "side": 1,
+      "message": "This is wrong, bsize here should be luma (mbmi-\u003esb_type) see https://aomedia-review.googlesource.com/c/aom/+/34461/9/av1/encoder/rdopt.c\n\nThe reason is that bsize is only used for the entropy context. I\u0027m just pointing this out so we don\u0027t merge over 34461",
+      "revId": "4861772c37387f2e921834967ab0c404dd36affc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d8ef689a_13e965a8",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 5350,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-11-30T19:02:27Z",
+      "side": 1,
+      "message": "Since alpha_rate is const, we could also const joint_sign.",
+      "revId": "4861772c37387f2e921834967ab0c404dd36affc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d02bb9cd_c75d1b62",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 5361,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-11-30T19:02:27Z",
+      "side": 1,
+      "message": "Why are we assigning the cost of negative 1/8 inside positive 1/8? I added this inside the previous if statement in a local test and got no changes on the bitstream (I might still be wrong).\n\nI\u0027m not sure if we need this inner loop is needed, maybe I\u0027m missing something",
+      "revId": "4861772c37387f2e921834967ab0c404dd36affc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5c1be7a5_04548545",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 5373,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-11-30T19:02:27Z",
+      "side": 1,
+      "message": "Since alpha_rate is const, we could also const joint_sign.",
+      "revId": "4861772c37387f2e921834967ab0c404dd36affc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "722c212c_5fcd7719",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 5376,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-11-30T19:02:27Z",
+      "side": 1,
+      "message": "On the first iteration, are we going to call txfm_rd_in_plane on sign_a \u003d NEG and sign_b \u003d ZERO again?",
+      "revId": "4861772c37387f2e921834967ab0c404dd36affc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "00c6edec_e9be2618",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 5377,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-11-30T19:02:27Z",
+      "side": 1,
+      "message": "This is fine here, but you could also put it at line 5368, this help explain that you are using a c,c index.",
+      "revId": "4861772c37387f2e921834967ab0c404dd36affc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
