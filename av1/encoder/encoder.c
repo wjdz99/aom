@@ -2442,6 +2442,7 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
     assert(cm->bit_depth > AOM_BITS_8);
 
   cpi->oxcf = *oxcf;
+  cpi->common.options = oxcf->cfg;
   x->e_mbd.bd = (int)cm->bit_depth;
   x->e_mbd.global_motion = cm->global_motion;
 
