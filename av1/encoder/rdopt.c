@@ -5368,10 +5368,13 @@ static int cfl_rd_pick_alpha(MACROBLOCK *const x, const AV1_COMP *const cpi,
 
   int best_joint_sign = -1;
 
+  int progress[CFL_PRED_PLANES][2] = { { 0, 0 }, { 0, 0 } };
   for (int c = 0; c < CFL_ALPHABET_SIZE; c++) {
     for (int plane = 0; plane < CFL_PRED_PLANES; plane++) {
       for (int sign_a = CFL_SIGN_NEG; sign_a < CFL_SIGNS; sign_a++) {
+        int flag = 0;
         RD_STATS rd_stats;
+        if (c > 2 && progress[plane][sign_a - 1] < c) continue;
         av1_init_rd_stats(&rd_stats);
         for (int sign_b = CFL_SIGN_ZERO; sign_b < CFL_SIGNS; sign_b++) {
           int joint_sign = plane == CFL_PRED_U
@@ -5390,14 +5393,19 @@ static int cfl_rd_pick_alpha(MACROBLOCK *const x, const AV1_COMP *const cpi,
           if (this_rd >= best_rd_uv[joint_sign][plane]) continue;
           best_rd_uv[joint_sign][plane] = this_rd;
           best_c[joint_sign][plane] = c;
+          flag = 2;
           if (best_rd_uv[joint_sign][!plane] == INT64_MAX) continue;
           this_rd += mode_rd + best_rd_uv[joint_sign][!plane];
           if (this_rd >= best_rd) continue;
           best_rd = this_rd;
           best_joint_sign = joint_sign;
         }
+        progress[plane][sign_a - 1] += flag;
       }
     }
+    if (c > 2 && progress[CFL_PRED_U][0] < c && progress[CFL_PRED_U][1] < c &&
+        progress[CFL_PRED_V][0] < c && progress[CFL_PRED_V][1] < c)
+      break;
   }
 
   int best_rate_overhead = INT_MAX;
