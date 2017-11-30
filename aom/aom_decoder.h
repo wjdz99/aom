@@ -104,7 +104,10 @@ typedef struct aom_codec_dec_cfg {
   unsigned int w;       /**< Width */
   unsigned int h;       /**< Height */
   unsigned int allow_lowbitdepth; /**< Allow use of low-bitdepth coding path */
-} aom_codec_dec_cfg_t;            /**< alias for struct aom_codec_dec_cfg */
+#if CONFIG_MONO_VIDEO
+  unsigned int monochrome; /**< Whether or not the stream is monochrome */
+#endif
+} aom_codec_dec_cfg_t; /**< alias for struct aom_codec_dec_cfg */
 
 /*!\brief Initialize a decoder instance
  *
