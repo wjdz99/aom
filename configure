@@ -334,6 +334,7 @@ EXPERIMENT_LIST="
     q_segmentation
     segment_pred_last
     obu_no_ivf
+    big_chroma_tx
 "
 CONFIG_LIST="
     dependency_tracking
