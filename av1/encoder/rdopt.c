@@ -4609,8 +4609,9 @@ static int find_tx_size_rd_records(MACROBLOCK *x, BLOCK_SIZE bsize, int mi_row,
     const int cur_tx_bh = block_size_high[cur_tx_bsize];
     if (cur_tx_bw < 8 || cur_tx_bh < 8) break;
 
+    int child_idx = 0;
     for (int row = 0; row < bh; row += cur_tx_bh) {
-      for (int col = 0; col < bw; col += cur_tx_bw) {
+      for (int col = 0; col < bw; col += cur_tx_bw, ++child_idx) {
         if (cur_tx_bw != cur_tx_bh) {
           // Use dummy nodes for all rectangular transforms within the
           // TX size search tree.
@@ -4645,9 +4646,7 @@ static int find_tx_size_rd_records(MACROBLOCK *x, BLOCK_SIZE bsize, int mi_row,
         // Update the output quadtree RD info structure.
         av1_zero(dst_rd_info[cur_rd_info_idx].children);
         if (cur_tx_depth > 0) {
-          const int y_odd = (row / cur_tx_bh) % 2;
-          const int x_odd = (col / cur_tx_bw) % 2;
-          const int child_idx = y_odd ? (x_odd ? 3 : 2) : (x_odd ? 1 : 0);
+          assert(child_idx < 4);
           dst_rd_info[parent_idx_buf[row * bw + col]].children[child_idx] =
               &dst_rd_info[cur_rd_info_idx];
         }
