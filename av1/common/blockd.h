@@ -37,7 +37,7 @@ extern "C" {
 // 0: Uniform
 // 1: Difference weighted
 #define COMPOUND_SEGMENT_TYPE 1
-#define MAX_SEG_MASK_BITS 1
+#define MAX_SEG_MASK_BITS 2
 
 // Disables vartx transform split for chroma
 // There are two possible options:
@@ -49,13 +49,10 @@ extern "C" {
 
 // SEG_MASK_TYPES should not surpass 1 << MAX_SEG_MASK_BITS
 typedef enum {
-#if COMPOUND_SEGMENT_TYPE == 0
   UNIFORM_45 = 0,
   UNIFORM_45_INV,
-#elif COMPOUND_SEGMENT_TYPE == 1
-  DIFFWTD_38 = 0,
+  DIFFWTD_38,
   DIFFWTD_38_INV,
-#endif  // COMPOUND_SEGMENT_TYPE
   SEG_MASK_TYPES,
 } SEG_MASK_TYPE;
 
@@ -365,6 +362,7 @@ typedef struct MB_MODE_INFO {
 #if CONFIG_JNT_COMP
   int compound_idx;
 #endif
+  int comp_seg_type;
 } MB_MODE_INFO;
 
 typedef struct MODE_INFO {

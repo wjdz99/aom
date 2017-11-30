@@ -5876,6 +5876,8 @@ static void joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
     }
 #endif  // CONFIG_HIGHBITDEPTH
 
+    av1_dist_weight_assign(cm, mbmi, id != 0, &conv_params.fwd_offset,
+                           &conv_params.bck_offset);
 #if CONFIG_JNT_COMP
     const int order_idx = id != 0;
     av1_jnt_comp_weight_assign(cm, mbmi, order_idx, &xd->jcp_param.fwd_offset,
@@ -6521,6 +6523,8 @@ static void build_second_inter_pred(const AV1_COMP *cpi, MACROBLOCK *x,
   }
 #endif  // CONFIG_HIGHBITDEPTH
 
+  av1_dist_weight_assign(cm, mbmi, 0, &conv_params.fwd_offset,
+                         &conv_params.bck_offset);
 #if CONFIG_JNT_COMP
   av1_jnt_comp_weight_assign(cm, mbmi, 0, &xd->jcp_param.fwd_offset,
                              &xd->jcp_param.bck_offset,
@@ -7087,6 +7091,9 @@ static int64_t pick_interinter_seg(const AV1_COMP *const cpi,
     aom_subtract_block(bh, bw, d10, bw, p1, bw, p0, bw);
   }
 
+  ConvolveParams conv_params = get_conv_params(0, 0, 0);
+  av1_dist_weight_assign(&cpi->common, mbmi, 0, &conv_params.fwd_offset,
+                         &conv_params.bck_offset);
   // try each mask type and its inverse
   for (cur_mask_type = 0; cur_mask_type < SEG_MASK_TYPES; cur_mask_type++) {
 // build mask and inverse
@@ -7097,8 +7104,8 @@ static int64_t pick_interinter_seg(const AV1_COMP *const cpi,
           CONVERT_TO_BYTEPTR(p1), bw, bsize, bh, bw, xd->bd);
     else
 #endif  // CONFIG_HIGHBITDEPTH
-      build_compound_seg_mask(xd->seg_mask, cur_mask_type, p0, bw, p1, bw,
-                              bsize, bh, bw);
+      build_compound_seg_mask_new(xd->seg_mask, cur_mask_type, p0, bw, p1, bw,
+                                  bsize, bh, bw, &conv_params);
 
     // compute rd for mask
     sse = av1_wedge_sse_from_residuals(r1, d10, xd->seg_mask, N);
@@ -7122,8 +7129,8 @@ static int64_t pick_interinter_seg(const AV1_COMP *const cpi,
         CONVERT_TO_BYTEPTR(p1), bw, bsize, bh, bw, xd->bd);
   else
 #endif  // CONFIG_HIGHBITDEPTH
-    build_compound_seg_mask(xd->seg_mask, mbmi->mask_type, p0, bw, p1, bw,
-                            bsize, bh, bw);
+    build_compound_seg_mask_new(xd->seg_mask, mbmi->mask_type, p0, bw, p1, bw,
+                                bsize, bh, bw, &conv_params);
 
   return best_rd;
 }

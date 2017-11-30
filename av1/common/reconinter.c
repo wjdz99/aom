@@ -355,7 +355,25 @@ const uint8_t *av1_get_compound_type_mask(
   }
 }
 
-#if COMPOUND_SEGMENT_TYPE == 0
+static int get_distance_mask_val(ConvolveParams *conv_params) {
+  if (conv_params && conv_params->fwd_offset > 0)
+    return conv_params->fwd_offset * 4;
+  else
+    return 0;
+}
+
+static void uniform_dist_mask(uint8_t *mask, int which_inverse,
+                              BLOCK_SIZE sb_type, int h, int w,
+                              ConvolveParams *conv_params) {
+  const int mask_val = get_distance_mask_val(conv_params);
+  int i, j;
+  int block_stride = block_size_wide[sb_type];
+  for (i = 0; i < h; ++i)
+    for (j = 0; j < w; ++j)
+      mask[i * block_stride + j] =
+          which_inverse ? AOM_BLEND_A64_MAX_ALPHA - mask_val : mask_val;
+}
+
 static void uniform_mask(uint8_t *mask, int which_inverse, BLOCK_SIZE sb_type,
                          int h, int w, int mask_val) {
   int i, j;
@@ -367,40 +385,6 @@ static void uniform_mask(uint8_t *mask, int which_inverse, BLOCK_SIZE sb_type,
     }
 }
 
-void build_compound_seg_mask(uint8_t *mask, SEG_MASK_TYPE mask_type,
-                             const uint8_t *src0, int src0_stride,
-                             const uint8_t *src1, int src1_stride,
-                             BLOCK_SIZE sb_type, int h, int w) {
-  (void)src0;
-  (void)src1;
-  (void)src0_stride;
-  (void)src1_stride;
-  switch (mask_type) {
-    case UNIFORM_45: uniform_mask(mask, 0, sb_type, h, w, 45); break;
-    case UNIFORM_45_INV: uniform_mask(mask, 1, sb_type, h, w, 45); break;
-    default: assert(0);
-  }
-}
-
-#if CONFIG_HIGHBITDEPTH
-void build_compound_seg_mask_highbd(uint8_t *mask, SEG_MASK_TYPE mask_type,
-                                    const uint8_t *src0, int src0_stride,
-                                    const uint8_t *src1, int src1_stride,
-                                    BLOCK_SIZE sb_type, int h, int w, int bd) {
-  (void)src0;
-  (void)src1;
-  (void)src0_stride;
-  (void)src1_stride;
-  (void)bd;
-  switch (mask_type) {
-    case UNIFORM_45: uniform_mask(mask, 0, sb_type, h, w, 45); break;
-    case UNIFORM_45_INV: uniform_mask(mask, 1, sb_type, h, w, 45); break;
-    default: assert(0);
-  }
-}
-#endif  // CONFIG_HIGHBITDEPTH
-
-#elif COMPOUND_SEGMENT_TYPE == 1
 #define DIFF_FACTOR 16
 
 #if CONFIG_CONVOLVE_ROUND
@@ -430,6 +414,12 @@ static void build_compound_seg_mask_d32(uint8_t *mask, SEG_MASK_TYPE mask_type,
                                         BLOCK_SIZE sb_type, int h, int w,
                                         ConvolveParams *conv_params, int bd) {
   switch (mask_type) {
+    case UNIFORM_45:
+      uniform_dist_mask(mask, 0, sb_type, h, w, conv_params);
+      break;
+    case UNIFORM_45_INV:
+      uniform_dist_mask(mask, 1, sb_type, h, w, conv_params);
+      break;
     case DIFFWTD_38:
       diffwtd_mask_d32(mask, 0, 38, src0, src0_stride, src1, src1_stride,
                        sb_type, h, w, conv_params, bd);
@@ -477,6 +467,30 @@ void build_compound_seg_mask(uint8_t *mask, SEG_MASK_TYPE mask_type,
   }
 }
 
+void build_compound_seg_mask_new(uint8_t *mask, SEG_MASK_TYPE mask_type,
+                                 const uint8_t *src0, int src0_stride,
+                                 const uint8_t *src1, int src1_stride,
+                                 BLOCK_SIZE sb_type, int h, int w,
+                                 ConvolveParams *conv_params) {
+  switch (mask_type) {
+    case UNIFORM_45:
+      uniform_dist_mask(mask, 0, sb_type, h, w, conv_params);
+      break;
+    case UNIFORM_45_INV:
+      uniform_dist_mask(mask, 1, sb_type, h, w, conv_params);
+      break;
+    case DIFFWTD_38:
+      diffwtd_mask(mask, 0, 38, src0, src0_stride, src1, src1_stride, sb_type,
+                   h, w);
+      break;
+    case DIFFWTD_38_INV:
+      diffwtd_mask(mask, 1, 38, src0, src0_stride, src1, src1_stride, sb_type,
+                   h, w);
+      break;
+    default: assert(0);
+  }
+}
+
 #if CONFIG_HIGHBITDEPTH
 static void diffwtd_mask_highbd(uint8_t *mask, int which_inverse, int mask_base,
                                 const uint16_t *src0, int src0_stride,
@@ -501,6 +515,8 @@ void build_compound_seg_mask_highbd(uint8_t *mask, SEG_MASK_TYPE mask_type,
                                     const uint8_t *src1, int src1_stride,
                                     BLOCK_SIZE sb_type, int h, int w, int bd) {
   switch (mask_type) {
+    case UNIFORM_45: uniform_mask(mask, 0, sb_type, h, w, 45); break;
+    case UNIFORM_45_INV: uniform_mask(mask, 1, sb_type, h, w, 45); break;
     case DIFFWTD_38:
       diffwtd_mask_highbd(mask, 0, 38, CONVERT_TO_SHORTPTR(src0), src0_stride,
                           CONVERT_TO_SHORTPTR(src1), src1_stride, sb_type, h, w,
@@ -515,7 +531,6 @@ void build_compound_seg_mask_highbd(uint8_t *mask, SEG_MASK_TYPE mask_type,
   }
 }
 #endif  // CONFIG_HIGHBITDEPTH
-#endif  // COMPOUND_SEGMENT_TYPE
 
 #if MASK_MASTER_SIZE == 64
 static const uint8_t wedge_master_oblique_odd[NSMOOTHERS][MASK_MASTER_SIZE] = {
@@ -814,9 +829,9 @@ void av1_make_masked_inter_predictor(
                                        mi->mbmi.sb_type, h, w, xd->bd);
       } else {
 #endif
-        build_compound_seg_mask(comp_data.seg_mask, comp_data.mask_type, dst,
-                                dst_stride, tmp_dst, MAX_SB_SIZE,
-                                mi->mbmi.sb_type, h, w);
+        build_compound_seg_mask_new(comp_data.seg_mask, comp_data.mask_type,
+                                    dst, dst_stride, tmp_dst, MAX_SB_SIZE,
+                                    mi->mbmi.sb_type, h, w, conv_params);
 #if CONFIG_HIGHBITDEPTH
       }
 #endif
@@ -920,6 +935,44 @@ typedef struct SubpelParams {
   int subpel_x;
   int subpel_y;
 } SubpelParams;
+
+void av1_dist_weight_assign(const AV1_COMMON *cm, const MB_MODE_INFO *mbmi,
+                            int order_idx, int *fwd_offset, int *bck_offset) {
+  assert(fwd_offset != NULL && bck_offset != NULL);
+
+  const int bck_idx = cm->frame_refs[mbmi->ref_frame[0] - LAST_FRAME].idx;
+  const int fwd_idx = cm->frame_refs[mbmi->ref_frame[1] - LAST_FRAME].idx;
+  const int cur_frame_index = cm->cur_frame->cur_frame_offset;
+  int bck_frame_index = 0, fwd_frame_index = 0;
+
+  if (bck_idx >= 0) {
+    bck_frame_index = cm->buffer_pool->frame_bufs[bck_idx].cur_frame_offset;
+  }
+
+  if (fwd_idx >= 0) {
+    fwd_frame_index = cm->buffer_pool->frame_bufs[fwd_idx].cur_frame_offset;
+  }
+
+  int d0 = clamp(abs(fwd_frame_index - cur_frame_index), 0, MAX_FRAME_DISTANCE);
+  int d1 = clamp(abs(cur_frame_index - bck_frame_index), 0, MAX_FRAME_DISTANCE);
+
+  const int order = d0 <= d1;
+
+  if (d0 == 0 || d1 == 0) {
+    *fwd_offset = quant_dist_lookup_table[order_idx][3][order];
+    *bck_offset = quant_dist_lookup_table[order_idx][3][1 - order];
+    return;
+  }
+
+  int i;
+  for (i = 0; i < 4; ++i) {
+    int c0 = quant_dist_weight[i][0];
+    int c1 = quant_dist_weight[i][1];
+    if (d0 * c0 < d1 * c1) break;
+  }
+  *fwd_offset = quant_dist_lookup_table[order_idx][i][order];
+  *bck_offset = quant_dist_lookup_table[order_idx][i][1 - order];
+}
 
 #if CONFIG_JNT_COMP
 void av1_jnt_comp_weight_assign(const AV1_COMMON *cm, const MB_MODE_INFO *mbmi,
@@ -1253,6 +1306,8 @@ static INLINE void build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd,
 #if CONFIG_CONVOLVE_ROUND
     ConvolveParams conv_params =
         get_conv_params_no_round(ref, ref, plane, tmp_dst, MAX_SB_SIZE);
+    av1_dist_weight_assign(cm, &mi->mbmi, 0, &conv_params.fwd_offset,
+                           &conv_params.bck_offset);
 #if CONFIG_JNT_COMP
     av1_jnt_comp_weight_assign(cm, &mi->mbmi, 0, &conv_params.fwd_offset,
                                &conv_params.bck_offset,

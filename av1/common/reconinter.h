@@ -277,6 +277,12 @@ void build_compound_seg_mask(uint8_t *mask, SEG_MASK_TYPE mask_type,
                              const uint8_t *src0, int src0_stride,
                              const uint8_t *src1, int src1_stride,
                              BLOCK_SIZE sb_type, int h, int w);
+
+void build_compound_seg_mask_new(uint8_t *mask, SEG_MASK_TYPE mask_type,
+                                 const uint8_t *src0, int src0_stride,
+                                 const uint8_t *src1, int src1_stride,
+                                 BLOCK_SIZE sb_type, int h, int w,
+                                 ConvolveParams *conv_params);
 #if CONFIG_HIGHBITDEPTH
 void build_compound_seg_mask_highbd(uint8_t *mask, SEG_MASK_TYPE mask_type,
                                     const uint8_t *src0, int src0_stride,
@@ -570,6 +576,8 @@ void av1_build_wedge_inter_predictor_from_buf(MACROBLOCKD *xd, BLOCK_SIZE bsize,
                                               uint8_t *ext_dst1[3],
                                               int ext_dst_stride1[3]);
 
+void av1_dist_weight_assign(const AV1_COMMON *cm, const MB_MODE_INFO *mbmi,
+                            int order_idx, int *fwd_offset, int *bck_offset);
 #if CONFIG_JNT_COMP
 void av1_jnt_comp_weight_assign(const AV1_COMMON *cm, const MB_MODE_INFO *mbmi,
                                 int order_idx, int *fwd_offset, int *bck_offset,

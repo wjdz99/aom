@@ -39,6 +39,9 @@ typedef struct ConvolveParams {
   int use_jnt_comp_avg;
   int fwd_offset;
   int bck_offset;
+#else
+  int fwd_offset;
+  int bck_offset;
 #endif
 } ConvolveParams;
 
