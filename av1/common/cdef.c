@@ -182,7 +182,6 @@ void av1_cdef_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
     ydec[pli] = xd->plane[pli].subsampling_y;
     mi_wide_l2[pli] = MI_SIZE_LOG2 - xd->plane[pli].subsampling_x;
     mi_high_l2[pli] = MI_SIZE_LOG2 - xd->plane[pli].subsampling_y;
-    if (xdec[pli] != ydec[pli]) nplanes = 1;
   }
   const int stride = (cm->mi_cols << MI_SIZE_LOG2) + 2 * CDEF_HBORDER;
   for (int pli = 0; pli < nplanes; pli++) {
@@ -278,10 +277,7 @@ void av1_cdef_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
         int vsize = nvb << mi_high_l2[pli];
 
         if (pli) {
-          if (chroma_cdef)
-            level = uv_level;
-          else
-            level = 0;
+          level = uv_level;
           sec_strength = uv_sec_strength;
         }
 
