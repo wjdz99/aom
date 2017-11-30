@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1d27d4c1_3b0baa64",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2017-11-30T19:03:51Z",
+      "side": 1,
+      "message": "As I see the code, the change seems moving CfL context instance from TileData to macroblockd. So, by \u0027ThreadData\u0027, we know that it keeps macroblockd but would be helpful if you rephrase that fact as well and also for possible future change that macroblockd is split from ThreadData! :)",
+      "revId": "6868b33f20bf182aa7077b1dfa04fee99b92adc7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
