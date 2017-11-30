@@ -1064,6 +1064,12 @@ static INLINE TX_SIZE depth_to_tx_size(int depth, int tx_size_cat) {
 
 static INLINE TX_SIZE av1_get_uv_tx_size(const MB_MODE_INFO *mbmi,
                                          const struct macroblockd_plane *pd) {
+// TODO(ltrudeau) Create new experiment BIG_CHROMA_TX
+#if CONFIG_CFL
+  const BLOCK_SIZE plane_bsize =
+      AOMMAX(BLOCK_4X4, get_plane_block_size(mbmi->sb_type, pd));
+  return max_txsize_rect_intra_lookup[plane_bsize];
+#endif
   const TX_SIZE uv_txsize =
       uv_txsize_lookup[mbmi->sb_type][mbmi->tx_size][pd->subsampling_x]
                       [pd->subsampling_y];
