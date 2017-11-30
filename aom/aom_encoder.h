@@ -3,7 +3,7 @@
  *
  * This source code is subject to the terms of the BSD 2 Clause License and
  * the Alliance for Open Media Patent License 1.0. If the BSD 2 Clause License
- * was not distributed with this source code in the LICENSE file, you can
+ * was not distributed with this source code in the LICENSE ile, you can
  * obtain it at www.aomedia.org/license/software. If the Alliance for Open
  * Media Patent License 1.0 was not distributed with this source code in the
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
@@ -668,6 +668,11 @@ typedef struct aom_codec_enc_cfg {
    * The number of heights specified is given by tile_height_count
    */
   int tile_heights[MAX_TILE_HEIGHTS];
+
+  /*!\brief Options defined per config file
+   *
+   */
+  cfg_options_t cfg;
 } aom_codec_enc_cfg_t; /**< alias for struct aom_codec_enc_cfg */
 
 /*!\brief Initialize an encoder instance
