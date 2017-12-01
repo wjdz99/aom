@@ -1,0 +1,186 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9b818729_d1bc0d3d",
+        "filename": "tools/dump_obu.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-12-01T07:07:02Z",
+      "side": 1,
+      "message": "could be stdlib.h to match the string.h c header usage",
+      "revId": "31d3e20b6ff00abe5f5ee0e4cd1ce23fde05d0e9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "395f4f6c_dabc6a0b",
+        "filename": "tools/dump_obu.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-12-01T07:07:02Z",
+      "side": 1,
+      "message": "could be a unique_ptr; string or vector might work in other circumstances, but with the reader api you\u0027re limited I think",
+      "revId": "31d3e20b6ff00abe5f5ee0e4cd1ce23fde05d0e9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3ce5f1e4_43c64ef5",
+        "filename": "tools/dump_obu.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-12-01T07:07:02Z",
+      "side": 1,
+      "message": "just an Init() in the struct or add to the ctor?",
+      "revId": "31d3e20b6ff00abe5f5ee0e4cd1ce23fde05d0e9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1bc677b0_950e844e",
+        "filename": "tools/dump_obu.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-12-01T07:07:02Z",
+      "side": 1,
+      "message": "else isn\u0027t strictly necessary here given all paths return",
+      "range": {
+        "startLine": 54,
+        "startChar": 2,
+        "endLine": 54,
+        "endChar": 7
+      },
+      "revId": "31d3e20b6ff00abe5f5ee0e4cd1ce23fde05d0e9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "78be089b_5a0c22fc",
+        "filename": "tools/dump_obu.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-12-01T07:07:02Z",
+      "side": 1,
+      "message": "switch with a fallthrough for the #if might avoid this NOLINT",
+      "revId": "31d3e20b6ff00abe5f5ee0e4cd1ce23fde05d0e9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d465b6c6_beb039bc",
+        "filename": "tools/dump_obu.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-12-01T07:07:02Z",
+      "side": 1,
+      "message": "direct return is OK here",
+      "revId": "31d3e20b6ff00abe5f5ee0e4cd1ce23fde05d0e9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "518d1e48_b811783d",
+        "filename": "tools/dump_obu.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-12-01T07:07:02Z",
+      "side": 1,
+      "message": "using FilePtr \u003d ... works for c++11",
+      "revId": "31d3e20b6ff00abe5f5ee0e4cd1ce23fde05d0e9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "57f3187a_37695197",
+        "filename": "tools/dump_obu.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-12-01T07:07:02Z",
+      "side": 1,
+      "message": "this is inconsistent with some of the other boolean tests as in the while() condition",
+      "range": {
+        "startLine": 145,
+        "startChar": 61,
+        "endLine": 145,
+        "endChar": 69
+      },
+      "revId": "31d3e20b6ff00abe5f5ee0e4cd1ce23fde05d0e9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cf3e3312_7b40d84f",
+        "filename": "tools/obu_parser.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-12-01T07:07:02Z",
+      "side": 1,
+      "message": "const, probably int or you might see a conversion warning in places",
+      "revId": "31d3e20b6ff00abe5f5ee0e4cd1ce23fde05d0e9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b34aa16b_ed03fff2",
+        "filename": "tools/obu_parser.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-12-01T07:07:02Z",
+      "side": 1,
+      "message": "kObu... is preferred now, but this is consistent with other areas",
+      "revId": "31d3e20b6ff00abe5f5ee0e4cd1ce23fde05d0e9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
