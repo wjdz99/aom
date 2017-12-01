@@ -2084,9 +2084,9 @@ static void build_intra_predictors_high(
 #if CONFIG_CFL
   const CFL_CTX *const cfl = &xd->cfl;
   if (cfl->build_intra) {
-    assert(mode == DC_PRED);
-    assert(xd->mi[0]->mbmi.uv_mode == UV_CFL_PRED);
-    assert(plane != AOM_PLANE_Y);
+    // assert(mode == DC_PRED);
+    // assert(xd->mi[0]->mbmi.uv_mode == UV_CFL_PRED);
+    // assert(plane != AOM_PLANE_Y);
 
     above_ref = CONVERT_TO_SHORTPTR(cfl->above_ref);
     left_ref = CONVERT_TO_SHORTPTR(cfl->left_ref);
@@ -2715,7 +2715,7 @@ void av1_predict_intra_block_facade(const AV1_COMMON *cm, MACROBLOCKD *xd,
                                    ? get_y_mode(mi, block_raster_idx)
                                    : get_uv_mode(mbmi->uv_mode);
 #if CONFIG_CFL
-  xd->cfl.build_intra = 1;
+  xd->cfl.build_intra = plane != AOM_PLANE_Y;
 //(plane != AOM_PLANE_Y && mbmi->uv_mode == UV_CFL_PRED);
 #endif  // CONFIG_CFL
 
