@@ -283,7 +283,12 @@ struct macroblock {
   int filter_intra_cost[TX_SIZES_ALL][2];
   int filter_intra_mode_cost[PLANE_TYPES][FILTER_INTRA_MODES];
 #endif
+#if CONFIG_EXT_SKIP
+  int switchable_interp_costs[NUM_FILTER_LEVELS][SWITCHABLE_FILTER_CONTEXTS]
+                             [SWITCHABLE_FILTERS];
+#else
   int switchable_interp_costs[SWITCHABLE_FILTER_CONTEXTS][SWITCHABLE_FILTERS];
+#endif  // CONFIG_EXT_SKIP
 #if CONFIG_EXT_PARTITION_TYPES
   int partition_cost[PARTITION_CONTEXTS][EXT_PARTITION_TYPES];
 #else

@@ -34,7 +34,12 @@ static InterpFilter get_ref_filter_type(const MODE_INFO *mi,
               : SWITCHABLE_FILTERS);
 }
 
-int av1_get_pred_context_switchable_interp(const MACROBLOCKD *xd, int dir) {
+int av1_get_pred_context_switchable_interp(const MACROBLOCKD *xd, int dir
+#if CONFIG_EXT_SKIP
+                                           ,
+                                           int ctx_level_idx
+#endif  // CONFIG_EXT_SKIP
+                                           ) {
   const MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
   const int ctx_offset =
       (mbmi->ref_frame[1] > INTRA_FRAME) * INTER_FILTER_COMP_OFFSET;
@@ -55,6 +60,13 @@ int av1_get_pred_context_switchable_interp(const MACROBLOCKD *xd, int dir) {
     above_type =
         get_ref_filter_type(xd->mi[-xd->mi_stride], xd, dir, ref_frame);
 
+#if CONFIG_EXT_SKIP
+  const int base_type =
+      (ctx_level_idx == 0) ? EIGHTTAP_REGULAR : EIGHTTAP_SMOOTH;
+  const int left_type_ctx = (left_type == base_type) ? 1 : 0;
+  const int above_type_ctx = (above_type == base_type) ? 1 : 0;
+  filter_type_ctx += left_type_ctx + above_type_ctx;
+#else   // !CONFIG_EXT_SKIP
   if (left_type == above_type) {
     filter_type_ctx += left_type;
   } else if (left_type == SWITCHABLE_FILTERS) {
@@ -66,6 +78,7 @@ int av1_get_pred_context_switchable_interp(const MACROBLOCKD *xd, int dir) {
   } else {
     filter_type_ctx += SWITCHABLE_FILTERS;
   }
+#endif  // CONFIG_EXT_SKIP
 
   return filter_type_ctx;
 }

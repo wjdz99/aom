@@ -9068,7 +9068,7 @@ static int check_skip_mode(const AV1_COMMON *const cm,
 
   if (!best_mbmi->skip) return 0;
 
-  if (best_mbmi->uv_mode != UV_DC_PRED ||
+  if (  // best_mbmi->uv_mode != UV_DC_PRED ||
       best_mbmi->motion_mode != SIMPLE_TRANSLATION ||
       best_mbmi->interinter_compound_type != COMPOUND_AVERAGE)
     return 0;

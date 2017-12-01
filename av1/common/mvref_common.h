@@ -382,6 +382,24 @@ static INLINE uint8_t av1_drl_ctx(const CANDIDATE_MV *ref_mv_stack,
   return 0;
 }
 
+#if CONFIG_EXT_SKIP
+static INLINE void av1_check_skip_mode_candidate(const AV1_COMMON *const cm,
+                                                 MACROBLOCKD *const xd) {
+  if (!xd->skip_mode_candidate) return;
+
+  MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
+  if (mbmi->skip && has_second_ref(mbmi) &&
+      mbmi->ref_frame[0] == (LAST_FRAME + cm->ref_frame_idx_0) &&
+      mbmi->ref_frame[1] == (LAST_FRAME + cm->ref_frame_idx_1) &&
+      mbmi->mode == NEAREST_NEARESTMV &&
+      mbmi->motion_mode == SIMPLE_TRANSLATION) {
+    xd->skip_mode_candidate = 1;
+  } else {
+    xd->skip_mode_candidate = 0;
+  }
+}
+#endif  // CONFIG_EXT_SKIP
+
 #if CONFIG_FRAME_MARKER
 void av1_setup_frame_buf_refs(AV1_COMMON *cm);
 #if CONFIG_FRAME_SIGN_BIAS

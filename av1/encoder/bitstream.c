@@ -286,10 +286,12 @@ static int write_skip(const AV1_COMMON *cm, const MACROBLOCKD *xd,
 }
 
 #if CONFIG_EXT_SKIP
-static int write_skip_mode(const AV1_COMMON *cm, const MACROBLOCKD *xd,
-                           int segment_id, const MODE_INFO *mi, aom_writer *w) {
+static int write_skip_mode(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
+                           aom_writer *w) {
+  const MODE_INFO *const mi = xd->mi[0];
+  xd->skip_mode_candidate = 0;
   if (!cm->skip_mode_flag) return 0;
-  if (segfeature_active(&cm->seg, segment_id, SEG_LVL_SKIP)) {
+  if (segfeature_active(&cm->seg, mi->mbmi.segment_id, SEG_LVL_SKIP)) {
     return 0;
   }
   const int skip_mode = mi->mbmi.skip_mode;
@@ -297,6 +299,7 @@ static int write_skip_mode(const AV1_COMMON *cm, const MACROBLOCKD *xd,
     assert(!skip_mode);
     return 0;
   }
+  xd->skip_mode_candidate = 1;
   const int ctx = av1_get_skip_mode_context(xd);
   aom_write_symbol(w, skip_mode, xd->tile_ctx->skip_mode_cdfs[ctx], 2);
   return skip_mode;
@@ -860,11 +863,34 @@ static void write_mb_interp_filter(AV1_COMP *cpi, const MACROBLOCKD *xd,
       if (has_subpel_mv_component(xd->mi[0], xd, dir) ||
           (mbmi->ref_frame[1] > INTRA_FRAME &&
            has_subpel_mv_component(xd->mi[0], xd, dir + 2))) {
-        const int ctx = av1_get_pred_context_switchable_interp(xd, dir);
         InterpFilter filter =
             av1_extract_interp_filter(mbmi->interp_filters, dir);
+#if CONFIG_EXT_SKIP
+        const int ctx0 = av1_get_pred_context_switchable_interp(xd, dir, 0);
+        const int filter_bit0 = (filter != EIGHTTAP_REGULAR);
+        if (xd->skip_mode_candidate) {
+          assert(filter_bit0);
+          if (w->allow_update_cdf) {
+            update_cdf(ec_ctx->switchable_interp_cdf[0][ctx0], filter_bit0,
+                       NUM_LEVEL_SYMBOLS);
+          }
+        } else {
+          aom_write_symbol(w, filter_bit0,
+                           ec_ctx->switchable_interp_cdf[0][ctx0],
+                           NUM_LEVEL_SYMBOLS);
+        }
+        if (filter_bit0) {
+          const int ctx1 = av1_get_pred_context_switchable_interp(xd, dir, 1);
+          const int filter_bit1 = (filter != EIGHTTAP_SMOOTH);
+          aom_write_symbol(w, filter_bit1,
+                           ec_ctx->switchable_interp_cdf[1][ctx1],
+                           NUM_LEVEL_SYMBOLS);
+        }
+#else
+        const int ctx = av1_get_pred_context_switchable_interp(xd, dir);
         aom_write_symbol(w, filter, ec_ctx->switchable_interp_cdf[ctx],
                          SWITCHABLE_FILTERS);
+#endif  // CONFIG_EXT_SKIP
         ++cpi->interp_filter_selected[0][filter];
       } else {
         assert(av1_extract_interp_filter(mbmi->interp_filters, dir) ==
@@ -1247,7 +1273,7 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
   }
 
 #if CONFIG_EXT_SKIP
-  write_skip_mode(cm, xd, segment_id, mi, w);
+  write_skip_mode(cm, xd, w);
 
   if (mbmi->skip_mode) {
     skip = mbmi->skip;
@@ -1442,6 +1468,10 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
 
     if (mbmi->ref_frame[1] != INTRA_FRAME) write_motion_mode(cm, xd, mi, w);
 
+#if CONFIG_EXT_SKIP
+    av1_check_skip_mode_candidate(cm, xd);
+#endif  // CONFIG_EXT_SKIP
+
     if (cpi->common.reference_mode != SINGLE_REFERENCE &&
         is_inter_compound_mode(mbmi->mode) &&
         mbmi->motion_mode == SIMPLE_TRANSLATION &&
@@ -1452,11 +1482,24 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
       if (cm->allow_masked_compound)
 #endif  // CONFIG_JNT_COMP
       {
-        if (!is_interinter_compound_used(COMPOUND_WEDGE, bsize))
+        if (!is_interinter_compound_used(COMPOUND_WEDGE, bsize)) {
+#if 0   // CONFIG_EXT_SKIP
+          if (xd->skip_mode_candidate &&
+              // No mb interp filter info is to write.
+              (!av1_is_interp_needed(xd) || cm->interp_filter != SWITCHABLE))
+            assert(mbmi->interinter_compound_type == COMPOUND_SEG);
+          else
+#endif  // CONFIG_EXT_SKIP
           aom_write_bit(w, mbmi->interinter_compound_type == COMPOUND_AVERAGE);
-        else
+        } else {
+#if CONFIG_EXT_SKIP
+// TODO(zoeliu): To consider redesign of coding COMPOUND_TYPES as
+//               under certain conditions COMPOUND_AVERAGE can be
+//               excluded.
+#endif  // CONFIG_EXT_SKIP
           aom_write_symbol(w, mbmi->interinter_compound_type,
                            ec_ctx->compound_type_cdf[bsize], COMPOUND_TYPES);
+        }
         if (is_interinter_compound_used(COMPOUND_WEDGE, bsize) &&
             mbmi->interinter_compound_type == COMPOUND_WEDGE) {
           aom_write_literal(w, mbmi->wedge_index, get_wedge_bits_lookup(bsize));
@@ -1468,6 +1511,11 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
       }
     }
 
+#if CONFIG_EXT_SKIP
+    xd->skip_mode_candidate =
+        (xd->skip_mode_candidate &&
+         mbmi->interinter_compound_type == COMPOUND_AVERAGE);
+#endif  // CONFIG_EXT_SKIP
     write_mb_interp_filter(cpi, xd, w);
   }
 
@@ -2721,8 +2769,14 @@ static void fix_interp_filter(AV1_COMMON *cm, FRAME_COUNTS *counts) {
     int i, j, c = 0;
     for (i = 0; i < SWITCHABLE_FILTERS; ++i) {
       count[i] = 0;
-      for (j = 0; j < SWITCHABLE_FILTER_CONTEXTS; ++j)
+      for (j = 0; j < SWITCHABLE_FILTER_CONTEXTS; ++j) {
+#if CONFIG_EXT_SKIP
+        count[i] += i ? counts->switchable_interp[1][j][i - 1]
+                      : counts->switchable_interp[0][j][0];
+#else
         count[i] += counts->switchable_interp[j][i];
+#endif  // CONFIG_EXT_SKIP
+      }
       c += (count[i] > 0);
     }
     if (c == 1) {

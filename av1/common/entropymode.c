@@ -1366,7 +1366,38 @@ static const aom_cdf_prob
       { AOM_CDF4(4608, 9620, 11050) },   { AOM_CDF4(4352, 5240, 31880) },
       { AOM_CDF4(4352, 5240, 31880) },   { AOM_CDF4(19072, 23352, 28488) },
     };
-#else   // USE_EXTRA_FILTER
+#else  // USE_EXTRA_FILTER
+#if CONFIG_EXT_SKIP
+// TODO(zoeliu): To collect stats and update following initial cdfs.
+static const aom_cdf_prob
+    default_switchable_interp_cdf[NUM_FILTER_LEVELS][SWITCHABLE_FILTER_CONTEXTS]
+                                 [CDF_SIZE(NUM_LEVEL_SYMBOLS)] = {
+                                   { { AOM_CDF2(8192) },
+                                     { AOM_CDF2(16384) },
+                                     { AOM_CDF2(24576) },
+                                     { AOM_CDF2(8192) },
+                                     { AOM_CDF2(16384) },
+                                     { AOM_CDF2(24576) },
+                                     { AOM_CDF2(8192) },
+                                     { AOM_CDF2(16384) },
+                                     { AOM_CDF2(24576) },
+                                     { AOM_CDF2(8192) },
+                                     { AOM_CDF2(16384) },
+                                     { AOM_CDF2(24576) } },
+                                   { { AOM_CDF2(8192) },
+                                     { AOM_CDF2(16384) },
+                                     { AOM_CDF2(24576) },
+                                     { AOM_CDF2(8192) },
+                                     { AOM_CDF2(16384) },
+                                     { AOM_CDF2(24576) },
+                                     { AOM_CDF2(8192) },
+                                     { AOM_CDF2(16384) },
+                                     { AOM_CDF2(24576) },
+                                     { AOM_CDF2(8192) },
+                                     { AOM_CDF2(16384) },
+                                     { AOM_CDF2(24576) } }
+                                 };
+#else   // !CONFIG_EXT_SKIP
 static const aom_cdf_prob
     default_switchable_interp_cdf[SWITCHABLE_FILTER_CONTEXTS][CDF_SIZE(
         SWITCHABLE_FILTERS)] = {
@@ -1379,6 +1410,7 @@ static const aom_cdf_prob
       { AOM_CDF3(31616, 31787) }, { AOM_CDF3(4224, 32433) },
       { AOM_CDF3(128, 256) },     { AOM_CDF3(17408, 18248) }
     };
+#endif  // CONFIG_EXT_SKIP
 #endif  // USE_EXTRA_FILTER
 #else   // CONFIG_DUAL_FILTER
 static const aom_cdf_prob
