@@ -10460,12 +10460,11 @@ PALETTE_EXIT:
       best_rd = rd_cost->rdcost;
 
       x->skip = 1;
-#if 0
-      // TODO(zoeliu): To understand what ctx->blk_skip[] for?
-      for (i = 0; i < MAX_MB_PLANE; ++i)
-        memset(ctx->blk_skip[i], 0
+      for (i = 0; i < MAX_MB_PLANE; ++i) {
+        memset(x->blk_skip[i], x->skip, sizeof(uint8_t) * ctx->num_4x4_blk);
+        memcpy(ctx->blk_skip[i], x->blk_skip[i],
                sizeof(uint8_t) * ctx->num_4x4_blk);
-#endif  // 0
+      }
     }
   }
 #endif  // CONFIG_EXT_SKIP
