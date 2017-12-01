@@ -396,13 +396,30 @@ static void update_filter_type_count(uint8_t allow_update_cdf,
     if (has_subpel_mv_component(xd->mi[0], xd, dir) ||
         (mbmi->ref_frame[1] > INTRA_FRAME &&
          has_subpel_mv_component(xd->mi[0], xd, dir + 2))) {
-      const int ctx = av1_get_pred_context_switchable_interp(xd, dir);
       InterpFilter filter =
           av1_extract_interp_filter(mbmi->interp_filters, dir);
+#if CONFIG_EXT_SKIP
+      const int ctx0 = av1_get_pred_context_switchable_interp(xd, dir, 0);
+      const int filter_bit0 = (filter != EIGHTTAP_REGULAR);
+      ++counts->switchable_interp[0][ctx0][filter_bit0];
+      if (allow_update_cdf)
+        update_cdf(xd->tile_ctx->switchable_interp_cdf[0][ctx0], filter_bit0,
+                   NUM_LEVEL_SYMBOLS);
+      if (filter_bit0) {
+        const int ctx1 = av1_get_pred_context_switchable_interp(xd, dir, 1);
+        const int filter_bit1 = (filter != EIGHTTAP_SMOOTH);
+        ++counts->switchable_interp[1][ctx1][filter_bit1];
+        if (allow_update_cdf)
+          update_cdf(xd->tile_ctx->switchable_interp_cdf[1][ctx1], filter_bit1,
+                     NUM_LEVEL_SYMBOLS);
+      }
+#else
+      const int ctx = av1_get_pred_context_switchable_interp(xd, dir);
       ++counts->switchable_interp[ctx][filter];
       if (allow_update_cdf)
         update_cdf(xd->tile_ctx->switchable_interp_cdf[ctx], filter,
                    SWITCHABLE_FILTERS);
+#endif  // CONFIG_EXT_SKIP
     }
   }
 }
@@ -4931,6 +4948,9 @@ static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
 
     av1_encode_sb((AV1_COMMON *)cm, x, block_size, mi_row, mi_col);
     if (mbmi->skip) mbmi->min_tx_size = get_min_tx_size(mbmi->tx_size);
+#if CONFIG_EXT_SKIP
+    if (av1_check_skip_mode(cm, mbmi)) mbmi->skip_mode = 1;
+#endif  // CONFIG_EXT_SKIP
     av1_tokenize_sb_vartx(cpi, td, t, dry_run, mi_row, mi_col, block_size, rate,
                           tile_data->allow_update_cdf);
   }

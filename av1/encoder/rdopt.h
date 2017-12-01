@@ -93,6 +93,11 @@ unsigned int av1_high_get_sby_perpixel_variance(const AV1_COMP *cpi,
                                                 BLOCK_SIZE bs, int bd);
 #endif
 
+#if CONFIG_EXT_SKIP
+int av1_check_skip_mode(const AV1_COMMON *const cm,
+                        const MB_MODE_INFO *const mbmi);
+#endif  // CONFIG_EXT_SKIP
+
 void av1_rd_pick_inter_mode_sb(const struct AV1_COMP *cpi,
                                struct TileDataEnc *tile_data,
                                struct macroblock *x, int mi_row, int mi_col,

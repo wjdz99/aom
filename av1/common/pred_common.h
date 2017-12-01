@@ -148,7 +148,12 @@ static INLINE int av1_get_skip_context(const MACROBLOCKD *xd) {
 }
 
 #if CONFIG_DUAL_FILTER
-int av1_get_pred_context_switchable_interp(const MACROBLOCKD *xd, int dir);
+int av1_get_pred_context_switchable_interp(const MACROBLOCKD *xd, int dir
+#if CONFIG_EXT_SKIP
+                                           ,
+                                           int ctx_level_idx
+#endif  // CONFIG_EXT_SKIP
+                                           );
 #else
 int av1_get_pred_context_switchable_interp(const MACROBLOCKD *xd);
 #endif

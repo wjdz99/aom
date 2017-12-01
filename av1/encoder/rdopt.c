@@ -9055,25 +9055,25 @@ static void estimate_skip_mode_rdcost(
   }
 }
 
-// Check whether the best RD mode satisfies the criteria of skip mode.
-static int check_skip_mode(const AV1_COMMON *const cm,
-                           const MB_MODE_INFO *const best_mbmi) {
-  if (!is_inter_mode(best_mbmi->mode)) return 0;
+// Check whether the block setup satisfies the criteria of skip mode.
+int av1_check_skip_mode(const AV1_COMMON *const cm,
+                        const MB_MODE_INFO *const mbmi) {
+  if (!is_inter_mode(mbmi->mode)) return 0;
 
-  if (!has_second_ref(best_mbmi) ||
-      best_mbmi->ref_frame[0] != (cm->ref_frame_idx_0 + LAST_FRAME) ||
-      best_mbmi->ref_frame[1] != (cm->ref_frame_idx_1 + LAST_FRAME) ||
-      best_mbmi->mode != NEAREST_NEARESTMV)
+  if (!has_second_ref(mbmi) ||
+      mbmi->ref_frame[0] != (cm->ref_frame_idx_0 + LAST_FRAME) ||
+      mbmi->ref_frame[1] != (cm->ref_frame_idx_1 + LAST_FRAME) ||
+      mbmi->mode != NEAREST_NEARESTMV)
     return 0;
 
-  if (!best_mbmi->skip) return 0;
+  if (!mbmi->skip) return 0;
 
-  if (best_mbmi->uv_mode != UV_DC_PRED ||
-      best_mbmi->motion_mode != SIMPLE_TRANSLATION ||
-      best_mbmi->interinter_compound_type != COMPOUND_AVERAGE)
+  if (  // mbmi->uv_mode != UV_DC_PRED ||
+      mbmi->motion_mode != SIMPLE_TRANSLATION ||
+      mbmi->interinter_compound_type != COMPOUND_AVERAGE)
     return 0;
 
-  if (best_mbmi->interp_filters !=
+  if (mbmi->interp_filters !=
       av1_broadcast_interp_filter(av1_unswitchable_filter(cm->interp_filter)))
     return 0;
 
@@ -10501,9 +10501,33 @@ PALETTE_EXIT:
                  rd_cost->dist);
 
       if (x->skip_mode_rdcost <= best_intra_inter_mode_cost ||
-          check_skip_mode(cm, &best_mbmode))
+          av1_check_skip_mode(cm, &best_mbmode))
         best_mbmode.skip_mode = 1;
     }
+#if 0
+    // NOTE(zoeliu): For debug
+    if (cm->frame_offset == 3 && mi_row == 34 && mi_col == 40 && bsize == 6) {
+      const InterpFilter filter[2] = {
+        av1_extract_interp_filter(best_mbmode.interp_filters, 0),
+        av1_extract_interp_filter(best_mbmode.interp_filters, 1)
+      };
+      printf(
+          "=== ***ENCODER - RDOPT ===: "
+          "Frame=%d, (mi_row,mi_col)=(%d,%d), skip_mode=%d, skip=%d, mode=%d, "
+          "bsize=%d, show_frame=%d, mv[0]=(%d,%d), mv[1]=(%d,%d), ref[0]=%d, "
+          "ref[1]=%d, motion_mode=%d, tx_size=%d, filter=(%d,%d), "
+          "interinter_compound_type=%d, best_filters=%d, skip_filters=%d\n",
+          cm->current_video_frame, mi_row, mi_col, best_mbmode.skip_mode,
+          best_mbmode.skip, best_mbmode.mode, bsize, cm->show_frame,
+          best_mbmode.mv[0].as_mv.row, best_mbmode.mv[0].as_mv.col,
+          best_mbmode.mv[1].as_mv.row, best_mbmode.mv[1].as_mv.col,
+          best_mbmode.ref_frame[0], best_mbmode.ref_frame[1],
+          best_mbmode.motion_mode, best_mbmode.tx_size, filter[0], filter[1],
+          best_mbmode.interinter_compound_type, best_mbmode.interp_filters,
+          av1_broadcast_interp_filter(
+              av1_unswitchable_filter(cm->interp_filter)));
+    }
+#endif  // 0
 
     if (best_mbmode.skip_mode) {
       best_mbmode = *mbmi;
