@@ -248,7 +248,6 @@ void av1_fwd_txfm2d_32x16_c(const int16_t *input, int32_t *output, int stride,
   fwd_txfm2d_c(input, output, stride, &cfg, txfm_buf, bd);
 }
 
-#if CONFIG_EXT_PARTITION_TYPES && CONFIG_RECT_TX_EXT
 void av1_fwd_txfm2d_4x16_c(const int16_t *input, int32_t *output, int stride,
                            TX_TYPE tx_type, int bd) {
 #if CONFIG_TXMG
@@ -308,7 +307,6 @@ void av1_fwd_txfm2d_32x8_c(const int16_t *input, int32_t *output, int stride,
   TXFM_2D_FLIP_CFG cfg = av1_get_fwd_txfm_cfg(tx_type, TX_32X8);
   fwd_txfm2d_c(input, output, stride, &cfg, txfm_buf, bd);
 }
-#endif  // CONFIG_EXT_PARTITION_TYPES && CONFIG_RECT_TX_EXT
 
 void av1_fwd_txfm2d_4x4_c(const int16_t *input, int32_t *output, int stride,
                           TX_TYPE tx_type, int bd) {
