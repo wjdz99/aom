@@ -621,16 +621,18 @@ static int read_inter_segment_id(AV1_COMMON *const cm, MACROBLOCKD *const xd,
 }
 
 #if CONFIG_EXT_SKIP
-static int read_skip_mode(AV1_COMMON *cm, const MACROBLOCKD *xd, int segment_id,
+static int read_skip_mode(AV1_COMMON *const cm, MACROBLOCKD *const xd,
                           aom_reader *r) {
-  if (!cm->skip_mode_flag) return 0;
+  xd->skip_mode_candidate = 0;
 
-  if (segfeature_active(&cm->seg, segment_id, SEG_LVL_SKIP)) {
+  if (!cm->skip_mode_flag) return 0;
+  if (segfeature_active(&cm->seg, xd->mi[0]->mbmi.segment_id, SEG_LVL_SKIP)) {
     // TODO(zoeliu): To revisit the handling of this scenario.
     return 0;
   }
-
   if (!is_comp_ref_allowed(xd->mi[0]->mbmi.sb_type)) return 0;
+
+  xd->skip_mode_candidate = 1;
 
   const int ctx = av1_get_skip_mode_context(xd);
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
@@ -1477,11 +1479,36 @@ static INLINE void read_mb_interp_filter(AV1_COMMON *const cm,
       if (has_subpel_mv_component(xd->mi[0], xd, dir) ||
           (mbmi->ref_frame[1] > INTRA_FRAME &&
            has_subpel_mv_component(xd->mi[0], xd, dir + 2))) {
+#if CONFIG_EXT_SKIP
+        const int ctx0 = av1_get_pred_context_switchable_interp(xd, dir, 0);
+        const int filter_bit0 =
+            (dir && xd->skip_mode_candidate)
+                ? 1
+                : aom_read_symbol(r, ec_ctx->switchable_interp_cdf[0][ctx0],
+                                  NUM_LEVEL_SYMBOLS, ACCT_STR);
+        if (dir && xd->skip_mode_candidate && r->allow_update_cdf) {
+          update_cdf(ec_ctx->switchable_interp_cdf[0][ctx0], filter_bit0,
+                     NUM_LEVEL_SYMBOLS);
+        }
+        xd->skip_mode_candidate = xd->skip_mode_candidate && !filter_bit0;
+        if (counts) ++counts->switchable_interp[0][ctx0][filter_bit0];
+        if (filter_bit0) {
+          const int ctx1 = av1_get_pred_context_switchable_interp(xd, dir, 1);
+          const int filter_bit1 =
+              aom_read_symbol(r, ec_ctx->switchable_interp_cdf[1][ctx1],
+                              NUM_LEVEL_SYMBOLS, ACCT_STR);
+          if (counts) ++counts->switchable_interp[1][ctx1][filter_bit1];
+          ref0_filter[dir] = filter_bit1 ? MULTITAP_SHARP : EIGHTTAP_SMOOTH;
+        } else {
+          ref0_filter[dir] = EIGHTTAP_REGULAR;
+        }
+#else
         const int ctx = av1_get_pred_context_switchable_interp(xd, dir);
         ref0_filter[dir] =
             (InterpFilter)aom_read_symbol(r, ec_ctx->switchable_interp_cdf[ctx],
                                           SWITCHABLE_FILTERS, ACCT_STR);
         if (counts) ++counts->switchable_interp[ctx][ref0_filter[dir]];
+#endif  // CONFIG_EXT_SKIP
       }
     }
     // The index system works as: (0, 1) -> (vertical, horizontal) filter types
@@ -1756,8 +1783,9 @@ static void fpm_sync(void *const data, int mi_row) {
 }
 
 #if DEC_MISMATCH_DEBUG
-static void dec_dump_logs(AV1_COMMON *cm, MODE_INFO *const mi, int mi_row,
-                          int mi_col, int16_t mode_ctx) {
+static void dec_dump_logs(AV1_COMMON *cm, MACROBLOCKD *const xd,
+                          MODE_INFO *const mi, int mi_row, int mi_col,
+                          int16_t mode_ctx) {
   int_mv mv[2] = { { 0 } };
   int ref;
   MB_MODE_INFO *const mbmi = &mi->mbmi;
@@ -1778,20 +1806,26 @@ static void dec_dump_logs(AV1_COMMON *cm, MODE_INFO *const mi, int mi_row,
     }
   }
 
-#define FRAME_TO_CHECK 11
+#define FRAME_TO_CHECK 1
 #if CONFIG_EXT_SKIP
   if (cm->current_video_frame == FRAME_TO_CHECK && cm->show_frame == 1) {
+    const InterpFilter filter[2] = {
+      av1_extract_interp_filter(mbmi->interp_filters, 0),
+      av1_extract_interp_filter(mbmi->interp_filters, 1)
+    };
     printf(
         "=== DECODER ===: "
-        "Frame=%d, (mi_row,mi_col)=(%d,%d), skip_mode=%d, mode=%d, bsize=%d, "
-        "show_frame=%d, mv[0]=(%d,%d), mv[1]=(%d,%d), ref[0]=%d, "
+        "Frame=%d, (mi_row,mi_col)=(%d,%d), skip_mode=%d, skip=%d, mode=%d, "
+        "bsize=%d, show_frame=%d, mv[0]=(%d,%d), mv[1]=(%d,%d), ref[0]=%d, "
         "ref[1]=%d, motion_mode=%d, mode_ctx=%d, "
-        "newmv_ctx=%d, zeromv_ctx=%d, refmv_ctx=%d, tx_size=%d\n",
-        cm->current_video_frame, mi_row, mi_col, mbmi->skip_mode, mbmi->mode,
-        mbmi->sb_type, cm->show_frame, mv[0].as_mv.row, mv[0].as_mv.col,
-        mv[1].as_mv.row, mv[1].as_mv.col, mbmi->ref_frame[0],
+        "newmv_ctx=%d, zeromv_ctx=%d, refmv_ctx=%d, tx_size=%d, "
+        "filter=(%d,%d), skip_mode_candidate=%d\n",
+        cm->current_video_frame, mi_row, mi_col, mbmi->skip_mode, mbmi->skip,
+        mbmi->mode, mbmi->sb_type, cm->show_frame, mv[0].as_mv.row,
+        mv[0].as_mv.col, mv[1].as_mv.row, mv[1].as_mv.col, mbmi->ref_frame[0],
         mbmi->ref_frame[1], mbmi->motion_mode, mode_ctx, newmv_ctx, zeromv_ctx,
-        refmv_ctx, mbmi->tx_size);
+        refmv_ctx, mbmi->tx_size, filter[0], filter[1],
+        xd->skip_mode_candidate);
 #else
   if (cm->current_video_frame == FRAME_TO_CHECK && cm->show_frame == 1) {
     printf(
@@ -2155,6 +2189,10 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
   if (mbmi->ref_frame[1] != INTRA_FRAME)
     mbmi->motion_mode = read_motion_mode(cm, xd, mi, r);
 
+#if CONFIG_EXT_SKIP
+  av1_check_skip_mode_candidate(cm, xd);
+#endif  // CONFIG_EXT_SKIP
+
   mbmi->interinter_compound_type = COMPOUND_AVERAGE;
   if (cm->reference_mode != SINGLE_REFERENCE &&
       is_inter_compound_mode(mbmi->mode) &&
@@ -2170,12 +2208,29 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
       if (cm->allow_masked_compound)
 #endif  // CONFIG_JNT_COMP
       {
-        if (!is_interinter_compound_used(COMPOUND_WEDGE, bsize))
+        if (!is_interinter_compound_used(COMPOUND_WEDGE, bsize)) {
+#if 0   // CONFIG_EXT_SKIP
+          // NOTE: As skip mode candidate but not skip mode, when no further
+          //       interp filter info is signalled, "interinter_compound_type"
+          //       cannot be COMPOUND_AVERAGE, otherwise it would have been set
+          //       as skip mode.
+          if (xd->skip_mode_candidate &&
+              // Interp filter info is not to signal.
+              (!av1_is_interp_needed(xd) || cm->interp_filter != SWITCHABLE))
+            mbmi->interinter_compound_type = COMPOUND_SEG;
+          else
+#endif  // CONFIG_EXT_SKIP
           mbmi->interinter_compound_type =
               aom_read_bit(r, ACCT_STR) ? COMPOUND_AVERAGE : COMPOUND_SEG;
-        else
+        } else {
+#if CONFIG_EXT_SKIP
+// TODO(zoeliu): To consider redesign of coding COMPOUND_TYPES as
+//               under certain conditions COMPOUND_AVERAGE can be
+//               excluded.
+#endif  // CONFIG_EXT_SKIP
           mbmi->interinter_compound_type = aom_read_symbol(
               r, ec_ctx->compound_type_cdf[bsize], COMPOUND_TYPES, ACCT_STR);
+        }
         if (mbmi->interinter_compound_type == COMPOUND_WEDGE) {
           assert(is_interinter_compound_used(COMPOUND_WEDGE, bsize));
           mbmi->wedge_index =
@@ -2193,6 +2248,11 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
       xd->counts->compound_interinter[bsize][mbmi->interinter_compound_type]++;
   }
 
+#if CONFIG_EXT_SKIP
+  xd->skip_mode_candidate =
+      (xd->skip_mode_candidate &&
+       mbmi->interinter_compound_type == COMPOUND_AVERAGE);
+#endif  // CONFIG_EXT_SKIP
   read_mb_interp_filter(cm, xd, mbmi, r);
 
   if (mbmi->motion_mode == WARPED_CAUSAL) {
@@ -2237,7 +2297,7 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
   }
 
 #if DEC_MISMATCH_DEBUG
-  dec_dump_logs(cm, mi, mi_row, mi_col, mode_ctx);
+  dec_dump_logs(cm, xd, mi, mi_row, mi_col, mode_ctx);
 #endif  // DEC_MISMATCH_DEBUG
 }
 
@@ -2255,7 +2315,7 @@ static void read_inter_frame_mode_info(AV1Decoder *const pbi,
   mbmi->segment_id = read_inter_segment_id(cm, xd, mi_row, mi_col, r);
 
 #if CONFIG_EXT_SKIP
-  mbmi->skip_mode = read_skip_mode(cm, xd, mbmi->segment_id, r);
+  mbmi->skip_mode = read_skip_mode(cm, xd, r);
 #if 0
   if (mbmi->skip_mode)
     printf("Frame=%d, frame_offset=%d, (mi_row,mi_col)=(%d,%d), skip_mode=%d\n",
