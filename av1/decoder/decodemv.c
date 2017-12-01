@@ -621,16 +621,18 @@ static int read_inter_segment_id(AV1_COMMON *const cm, MACROBLOCKD *const xd,
 }
 
 #if CONFIG_EXT_SKIP
-static int read_skip_mode(AV1_COMMON *cm, const MACROBLOCKD *xd, int segment_id,
+static int read_skip_mode(AV1_COMMON *const cm, MACROBLOCKD *const xd,
                           aom_reader *r) {
-  if (!cm->skip_mode_flag) return 0;
+  xd->skip_mode_candidate = 0;
 
-  if (segfeature_active(&cm->seg, segment_id, SEG_LVL_SKIP)) {
+  if (!cm->skip_mode_flag) return 0;
+  if (segfeature_active(&cm->seg, xd->mi[0]->mbmi.segment_id, SEG_LVL_SKIP)) {
     // TODO(zoeliu): To revisit the handling of this scenario.
     return 0;
   }
-
   if (!is_comp_ref_allowed(xd->mi[0]->mbmi.sb_type)) return 0;
+
+  xd->skip_mode_candidate = 1;
 
   const int ctx = av1_get_skip_mode_context(xd);
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
@@ -2155,6 +2157,10 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
   if (mbmi->ref_frame[1] != INTRA_FRAME)
     mbmi->motion_mode = read_motion_mode(cm, xd, mi, r);
 
+#if CONFIG_EXT_SKIP
+  av1_check_skip_mode_candidate(cm, xd);
+#endif  // CONFIG_EXT_SKIP
+
   mbmi->interinter_compound_type = COMPOUND_AVERAGE;
   if (cm->reference_mode != SINGLE_REFERENCE &&
       is_inter_compound_mode(mbmi->mode) &&
@@ -2170,12 +2176,29 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
       if (cm->allow_masked_compound)
 #endif  // CONFIG_JNT_COMP
       {
-        if (!is_interinter_compound_used(COMPOUND_WEDGE, bsize))
-          mbmi->interinter_compound_type =
-              aom_read_bit(r, ACCT_STR) ? COMPOUND_AVERAGE : COMPOUND_SEG;
-        else
+        if (!is_interinter_compound_used(COMPOUND_WEDGE, bsize)) {
+#if CONFIG_EXT_SKIP
+          // NOTE: As skip mode candidate but not skip mode, when no further
+          //       interp filter info is signalled, "interinter_compound_type"
+          //       cannot be COMPOUND_AVERAGE, otherwise it would have been set
+          //       as skip mode.
+          if (xd->skip_mode_candidate &&
+              // Interp filter info is not to signal.
+              (!av1_is_interp_needed(xd) || cm->interp_filter != SWITCHABLE))
+            mbmi->interinter_compound_type = COMPOUND_SEG;
+          else
+#endif  // CONFIG_EXT_SKIP
+            mbmi->interinter_compound_type =
+                aom_read_bit(r, ACCT_STR) ? COMPOUND_AVERAGE : COMPOUND_SEG;
+        } else {
+#if CONFIG_EXT_SKIP
+// TODO(zoeliu): To consider redesign of coding COMPOUND_TYPES as
+//               under certain conditions COMPOUND_AVERAGE can be
+//               excluded.
+#endif  // CONFIG_EXT_SKIP
           mbmi->interinter_compound_type = aom_read_symbol(
               r, ec_ctx->compound_type_cdf[bsize], COMPOUND_TYPES, ACCT_STR);
+        }
         if (mbmi->interinter_compound_type == COMPOUND_WEDGE) {
           assert(is_interinter_compound_used(COMPOUND_WEDGE, bsize));
           mbmi->wedge_index =
@@ -2255,7 +2278,7 @@ static void read_inter_frame_mode_info(AV1Decoder *const pbi,
   mbmi->segment_id = read_inter_segment_id(cm, xd, mi_row, mi_col, r);
 
 #if CONFIG_EXT_SKIP
-  mbmi->skip_mode = read_skip_mode(cm, xd, mbmi->segment_id, r);
+  mbmi->skip_mode = read_skip_mode(cm, xd, r);
 #if 0
   if (mbmi->skip_mode)
     printf("Frame=%d, frame_offset=%d, (mi_row,mi_col)=(%d,%d), skip_mode=%d\n",

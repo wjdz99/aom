@@ -286,10 +286,12 @@ static int write_skip(const AV1_COMMON *cm, const MACROBLOCKD *xd,
 }
 
 #if CONFIG_EXT_SKIP
-static int write_skip_mode(const AV1_COMMON *cm, const MACROBLOCKD *xd,
-                           int segment_id, const MODE_INFO *mi, aom_writer *w) {
+static int write_skip_mode(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
+                           aom_writer *w) {
+  const MODE_INFO *const mi = xd->mi[0];
+  xd->skip_mode_candidate = 0;
   if (!cm->skip_mode_flag) return 0;
-  if (segfeature_active(&cm->seg, segment_id, SEG_LVL_SKIP)) {
+  if (segfeature_active(&cm->seg, mi->mbmi.segment_id, SEG_LVL_SKIP)) {
     return 0;
   }
   const int skip_mode = mi->mbmi.skip_mode;
@@ -297,6 +299,7 @@ static int write_skip_mode(const AV1_COMMON *cm, const MACROBLOCKD *xd,
     assert(!skip_mode);
     return 0;
   }
+  xd->skip_mode_candidate = 1;
   const int ctx = av1_get_skip_mode_context(xd);
   aom_write_symbol(w, skip_mode, xd->tile_ctx->skip_mode_cdfs[ctx], 2);
   return skip_mode;
@@ -1247,7 +1250,7 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
   }
 
 #if CONFIG_EXT_SKIP
-  write_skip_mode(cm, xd, segment_id, mi, w);
+  write_skip_mode(cm, xd, w);
 
   if (mbmi->skip_mode) {
     skip = mbmi->skip;
@@ -1442,6 +1445,10 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
 
     if (mbmi->ref_frame[1] != INTRA_FRAME) write_motion_mode(cm, xd, mi, w);
 
+#if CONFIG_EXT_SKIP
+    av1_check_skip_mode_candidate(cm, xd);
+#endif  // CONFIG_EXT_SKIP
+
     if (cpi->common.reference_mode != SINGLE_REFERENCE &&
         is_inter_compound_mode(mbmi->mode) &&
         mbmi->motion_mode == SIMPLE_TRANSLATION &&
@@ -1452,11 +1459,25 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
       if (cm->allow_masked_compound)
 #endif  // CONFIG_JNT_COMP
       {
-        if (!is_interinter_compound_used(COMPOUND_WEDGE, bsize))
-          aom_write_bit(w, mbmi->interinter_compound_type == COMPOUND_AVERAGE);
-        else
+        if (!is_interinter_compound_used(COMPOUND_WEDGE, bsize)) {
+#if CONFIG_EXT_SKIP
+          if (xd->skip_mode_candidate &&
+              // No mb interp filter info is to write.
+              (!av1_is_interp_needed(xd) || cm->interp_filter != SWITCHABLE))
+            assert(mbmi->interinter_compound_type == COMPOUND_SEG);
+          else
+#endif  // CONFIG_EXT_SKIP
+            aom_write_bit(w,
+                          mbmi->interinter_compound_type == COMPOUND_AVERAGE);
+        } else {
+#if CONFIG_EXT_SKIP
+// TODO(zoeliu): To consider redesign of coding COMPOUND_TYPES as
+//               under certain conditions COMPOUND_AVERAGE can be
+//               excluded.
+#endif  // CONFIG_EXT_SKIP
           aom_write_symbol(w, mbmi->interinter_compound_type,
                            ec_ctx->compound_type_cdf[bsize], COMPOUND_TYPES);
+        }
         if (is_interinter_compound_used(COMPOUND_WEDGE, bsize) &&
             mbmi->interinter_compound_type == COMPOUND_WEDGE) {
           aom_write_literal(w, mbmi->wedge_index, get_wedge_bits_lookup(bsize));
