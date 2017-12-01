@@ -8976,6 +8976,120 @@ static void estimate_skip_mode_rdcost(
     break;
   }
 }
+
+static int check_skip_mode(
+    const AV1_COMP *const cpi, MACROBLOCK *const x, const BLOCK_SIZE bsize,
+    const MB_MODE_INFO *const best_mbmi, int mi_row, int mi_col,
+    struct buf_2d yv12_mb[TOTAL_REFS_PER_FRAME][MAX_MB_PLANE]) {
+  const AV1_COMMON *const cm = &cpi->common;
+  const struct segmentation *const seg = &cm->seg;
+  MACROBLOCKD *const xd = &x->e_mbd;
+  MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
+  const unsigned char segment_id = mbmi->segment_id;
+
+  *mbmi = *best_mbmi;
+
+  if (!is_inter_mode(mbmi->mode)) return 0;
+
+  if (!cm->skip_mode_flag ||
+      segfeature_active(seg, segment_id, SEG_LVL_REF_FRAME) ||
+      !is_comp_ref_allowed(bsize))
+    return 0;
+
+  if (!has_second_ref(mbmi) ||
+      mbmi->ref_frame[0] != (cm->ref_frame_idx_0 + LAST_FRAME) ||
+      mbmi->ref_frame[1] != (cm->ref_frame_idx_1 + LAST_FRAME) ||
+      mbmi->mode != NEAREST_NEARESTMV)
+    return 0;
+
+  if (!mbmi->skip) return 0;
+
+  if (mbmi->uv_mode != UV_DC_PRED || mbmi->motion_mode != SIMPLE_TRANSLATION ||
+      mbmi->interinter_compound_type != COMPOUND_AVERAGE)
+    return 0;
+
+  if (mbmi->interp_filters !=
+      av1_broadcast_interp_filter(av1_unswitchable_filter(cm->interp_filter)))
+    return 0;
+
+  mbmi->skip_mode = 1;
+  int i;
+
+  set_ref_ptrs(cm, xd, mbmi->ref_frame[0], mbmi->ref_frame[1]);
+  for (i = 0; i < MAX_MB_PLANE; i++) {
+    xd->plane[i].pre[0] = yv12_mb[mbmi->ref_frame[0]][i];
+    xd->plane[i].pre[1] = yv12_mb[mbmi->ref_frame[1]][i];
+  }
+
+  BUFFER_SET orig_dst;
+  for (i = 0; i < MAX_MB_PLANE; i++) {
+    orig_dst.plane[i] = xd->plane[i].dst.buf;
+    orig_dst.stride[i] = xd->plane[i].dst.stride;
+  }
+
+  // Obtain the rdcost for skip_mode.
+  skip_mode_rd(cpi, x, bsize, mi_row, mi_col, &orig_dst);
+  return 1;
+}
+
+static void set_skip_mode(const AV1_COMMON *const cm, MACROBLOCK *const x,
+                          RD_STATS *const rd_cost, const BLOCK_SIZE bsize,
+                          const MB_MODE_INFO *const mbmi,
+                          MB_MODE_INFO *const best_mbmi) {
+  MACROBLOCKD *const xd = &x->e_mbd;
+
+  *best_mbmi = *mbmi;
+
+  best_mbmi->skip_mode = best_mbmi->skip = 1;
+  best_mbmi->mode = NEAREST_NEARESTMV;
+  best_mbmi->ref_frame[0] = x->skip_mode_ref_frame[0];
+  best_mbmi->ref_frame[1] = x->skip_mode_ref_frame[1];
+  best_mbmi->mv[0].as_int = x->skip_mode_mv[0].as_int;
+  best_mbmi->mv[1].as_int = x->skip_mode_mv[1].as_int;
+  best_mbmi->ref_mv_idx = 0;
+
+  // Set up tx_size related variables for skip-specific loop filtering.
+  best_mbmi->tx_size = block_signals_txsize(bsize)
+                           ? tx_size_from_tx_mode(bsize, cm->tx_mode, 1)
+                           : max_txsize_rect_lookup[bsize];
+  {
+    const int width = block_size_wide[bsize] >> tx_size_wide_log2[0];
+    const int height = block_size_high[bsize] >> tx_size_high_log2[0];
+    for (int idy = 0; idy < height; ++idy)
+      for (int idx = 0; idx < width; ++idx)
+        best_mbmi->inter_tx_size[idy >> 1][idx >> 1] = best_mbmi->tx_size;
+  }
+  best_mbmi->min_tx_size = get_min_tx_size(best_mbmi->tx_size);
+  set_txfm_ctxs(best_mbmi->tx_size, xd->n8_w, xd->n8_h, best_mbmi->skip, xd);
+
+  // Set up color-related variables for skip mode.
+  best_mbmi->uv_mode = UV_DC_PRED;
+  best_mbmi->palette_mode_info.palette_size[0] = 0;
+  best_mbmi->palette_mode_info.palette_size[1] = 0;
+  best_mbmi->interintra_mode = (INTERINTRA_MODE)(II_DC_PRED - 1);
+  best_mbmi->interinter_compound_type = COMPOUND_AVERAGE;
+  best_mbmi->motion_mode = SIMPLE_TRANSLATION;
+#if CONFIG_FILTER_INTRA
+  best_mbmi->filter_intra_mode_info.use_filter_intra_mode[0] = 0;
+  best_mbmi->filter_intra_mode_info.use_filter_intra_mode[1] = 0;
+#endif  // CONFIG_FILTER_INTRA
+
+  set_default_interp_filters(best_mbmi, cm->interp_filter);
+
+  // Update rd_cost.
+  const int skip_mode_ctx = av1_get_skip_mode_context(xd);
+  rd_cost->rate = x->skip_mode_rate + x->skip_mode_cost[skip_mode_ctx][1];
+  rd_cost->dist = rd_cost->sse = x->skip_mode_dist;
+  rd_cost->rdcost = RDCOST(x->rdmult, rd_cost->rate, rd_cost->dist);
+
+  // Update skip flags for context setup.
+  x->skip = 1;
+#if 0
+  // TODO(zoeliu): To investigate why following cause performance drop.
+  for (int i = 0; i < MAX_MB_PLANE; ++i)
+    memset(x->blk_skip[i], x->skip, sizeof(uint8_t) * xd->n8_h * xd->n8_w * 4);
+#endif  // 0
+}
 #endif  // CONFIG_EXT_SKIP
 
 void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
@@ -10377,17 +10491,31 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
 PALETTE_EXIT:
 
 #if CONFIG_EXT_SKIP
-  // Obtain the rdcost for skip_mode if it has not been calculated yet
-  if (x->skip_mode_rdcost < 0 && cm->skip_mode_flag &&
-      !segfeature_active(seg, segment_id, SEG_LVL_REF_FRAME) &&
-      is_comp_ref_allowed(bsize)) {
+  // Check whether the best RD mode satisfies the criteria of skip mode.
+  best_mbmode.skip_mode = 0;
+  x->skip_mode_index_candidate = best_mode_index;
+  if (check_skip_mode(cpi, x, bsize, &best_mbmode, mi_row, mi_col, yv12_mb)) {
+    set_skip_mode(cm, x, rd_cost, bsize, mbmi, &best_mbmode);
+
+    best_rd = rd_cost->rdcost;
+    best_skip2 = 1;
+    best_mode_skippable = (x->skip_mode_sse == 0);
+#if 0
+    for (i = 0; i < MAX_MB_PLANE; ++i)
+      memcpy(ctx->blk_skip[i], x->blk_skip[i],
+             sizeof(uint8_t) * ctx->num_4x4_blk);
+#endif  // 0
+  } else if (x->skip_mode_rdcost < 0 && cm->skip_mode_flag &&
+             !segfeature_active(seg, segment_id, SEG_LVL_REF_FRAME) &&
+             is_comp_ref_allowed(bsize)) {
+    // Obtain the rdcost for skip_mode.
     estimate_skip_mode_rdcost(cpi, tile_data, x, bsize, mi_row, mi_col,
                               frame_mv, yv12_mb);
   }
 
   // Compare the use of skip_mode with the best intra/inter mode obtained so far
-  best_mbmode.skip_mode = 0;
-  if (x->skip_mode_rdcost >= 0 && x->skip_mode_rdcost < INT64_MAX) {
+  if (!best_mbmode.skip_mode && x->skip_mode_rdcost >= 0 &&
+      x->skip_mode_rdcost < INT64_MAX) {
     const int skip_mode_ctx = av1_get_skip_mode_context(xd);
     const int64_t best_intra_inter_mode_cost =
         RDCOST(x->rdmult, rd_cost->rate + x->skip_mode_cost[skip_mode_ctx][0],
@@ -10460,11 +10588,14 @@ PALETTE_EXIT:
       best_rd = rd_cost->rdcost;
 
       x->skip = 1;
+#if 0
+      // TODO(zoeliu): To investigate why following cause performance drop.
       for (i = 0; i < MAX_MB_PLANE; ++i) {
         memset(x->blk_skip[i], x->skip, sizeof(uint8_t) * ctx->num_4x4_blk);
         memcpy(ctx->blk_skip[i], x->blk_skip[i],
                sizeof(uint8_t) * ctx->num_4x4_blk);
       }
+#endif  // 0
     }
   }
 #endif  // CONFIG_EXT_SKIP
