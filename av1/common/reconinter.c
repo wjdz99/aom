@@ -428,8 +428,21 @@ static void build_compound_seg_mask_d32(uint8_t *mask, SEG_MASK_TYPE mask_type,
                                         const int32_t *src0, int src0_stride,
                                         const int32_t *src1, int src1_stride,
                                         BLOCK_SIZE sb_type, int h, int w,
+#if CONFIG_JNT_COMP
+                                        int base,
+#endif
                                         ConvolveParams *conv_params, int bd) {
   switch (mask_type) {
+#if CONFIG_JNT_COMP
+    case DIFFWTD_38:
+      diffwtd_mask_d32(mask, 0, base, src0, src0_stride, src1, src1_stride,
+                       sb_type, h, w, conv_params, bd);
+      break;
+    case DIFFWTD_38_INV:
+      diffwtd_mask_d32(mask, 1, base, src0, src0_stride, src1, src1_stride,
+                       sb_type, h, w, conv_params, bd);
+      break;
+#else
     case DIFFWTD_38:
       diffwtd_mask_d32(mask, 0, 38, src0, src0_stride, src1, src1_stride,
                        sb_type, h, w, conv_params, bd);
@@ -438,6 +451,7 @@ static void build_compound_seg_mask_d32(uint8_t *mask, SEG_MASK_TYPE mask_type,
       diffwtd_mask_d32(mask, 1, 38, src0, src0_stride, src1, src1_stride,
                        sb_type, h, w, conv_params, bd);
       break;
+#endif  // CONFIG_JNT_COMP
     default: assert(0);
   }
 }
@@ -463,8 +477,21 @@ static void diffwtd_mask(uint8_t *mask, int which_inverse, int mask_base,
 void build_compound_seg_mask(uint8_t *mask, SEG_MASK_TYPE mask_type,
                              const uint8_t *src0, int src0_stride,
                              const uint8_t *src1, int src1_stride,
+#if CONFIG_JNT_COMP
+                             int base,
+#endif
                              BLOCK_SIZE sb_type, int h, int w) {
   switch (mask_type) {
+#if CONFIG_JNT_COMP
+    case DIFFWTD_38:
+      diffwtd_mask(mask, 0, base, src0, src0_stride, src1, src1_stride, sb_type,
+                   h, w);
+      break;
+    case DIFFWTD_38_INV:
+      diffwtd_mask(mask, 1, base, src0, src0_stride, src1, src1_stride, sb_type,
+                   h, w);
+      break;
+#else
     case DIFFWTD_38:
       diffwtd_mask(mask, 0, 38, src0, src0_stride, src1, src1_stride, sb_type,
                    h, w);
@@ -473,6 +500,7 @@ void build_compound_seg_mask(uint8_t *mask, SEG_MASK_TYPE mask_type,
       diffwtd_mask(mask, 1, 38, src0, src0_stride, src1, src1_stride, sb_type,
                    h, w);
       break;
+#endif  // CONFIG_JNT_COMP
     default: assert(0);
   }
 }
@@ -740,6 +768,9 @@ static void build_masked_compound_highbd(
 #endif  // CONFIG_HIGHBITDEPTH
 
 void av1_make_masked_inter_predictor(
+#if CONFIG_JNT_COMP
+    const AV1_COMMON *const cm,
+#endif
     const uint8_t *pre, int pre_stride, uint8_t *dst, int dst_stride,
     const int subpel_x, const int subpel_y, const struct scale_factors *sf,
     int w, int h, ConvolveParams *conv_params, InterpFilters interp_filters,
@@ -799,11 +830,22 @@ void av1_make_masked_inter_predictor(
                            xd);
 
   if (!plane && comp_data.interinter_compound_type == COMPOUND_SEG) {
+#if CONFIG_JNT_COMP
+    int tmp;
+    int fwd_offset = 9, bck_offset = 7;
+    av1_jnt_comp_weight_assign(cm, &mi->mbmi, 0, &fwd_offset, &bck_offset, &tmp,
+                               1);
+    const int dist_weight_base = fwd_offset * 4;
+#endif  // CONFIG_JNT_COMP
+
 #if CONFIG_CONVOLVE_ROUND
     if (is_conv_no_round) {
       build_compound_seg_mask_d32(comp_data.seg_mask, comp_data.mask_type,
                                   org_dst, org_dst_stride, tmp_buf32,
                                   tmp_buf_stride, mi->mbmi.sb_type, h, w,
+#if CONFIG_JNT_COMP
+                                  dist_weight_base,
+#endif
                                   conv_params, xd->bd);
     } else {
 #endif  // CONFIG_CONVOLVE_ROUND
@@ -816,7 +858,11 @@ void av1_make_masked_inter_predictor(
 #endif
         build_compound_seg_mask(comp_data.seg_mask, comp_data.mask_type, dst,
                                 dst_stride, tmp_dst, MAX_SB_SIZE,
-                                mi->mbmi.sb_type, h, w);
+                                mi->mbmi.sb_type,
+#if CONFIG_JNT_COMP
+                                dist_weight_base,
+#endif
+                                h, w);
 #if CONFIG_HIGHBITDEPTH
       }
 #endif
@@ -1140,6 +1186,9 @@ static INLINE void build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd,
           }
           if (ref && is_masked_compound_type(mi->mbmi.interinter_compound_type))
             av1_make_masked_inter_predictor(
+#if CONFIG_JNT_COMP
+                cm,
+#endif
                 pre, pre_buf->stride, dst, dst_buf->stride, subpel_x, subpel_y,
                 sf, b4_w, b4_h, &conv_params, mi->mbmi.interp_filters, xs, ys,
                 plane, &warp_types, (mi_x >> pd->subsampling_x) + x,
@@ -1284,6 +1333,9 @@ static INLINE void build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd,
 
       if (ref && is_masked_compound_type(mi->mbmi.interinter_compound_type))
         av1_make_masked_inter_predictor(
+#if CONFIG_JNT_COMP
+            cm,
+#endif
             pre[ref], pre_buf->stride, dst, dst_buf->stride,
             subpel_params[ref].subpel_x, subpel_params[ref].subpel_y, sf, w, h,
             &conv_params, mi->mbmi.interp_filters, subpel_params[ref].xs,
@@ -2598,6 +2650,9 @@ void av1_build_inter_predictors_for_planes_single_buf(
 }
 
 static void build_wedge_inter_predictor_from_buf(
+#if CONFIG_JNT_COMP
+    const AV1_COMMON *const cm,
+#endif
     MACROBLOCKD *xd, int plane, int x, int y, int w, int h, uint8_t *ext_dst0,
     int ext_dst_stride0, uint8_t *ext_dst1, int ext_dst_stride1) {
   MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
@@ -2609,6 +2664,13 @@ static void build_wedge_inter_predictor_from_buf(
                                                mbmi->wedge_sign,
                                                mbmi->mask_type, xd->seg_mask,
                                                mbmi->interinter_compound_type };
+
+#if CONFIG_JNT_COMP
+  int tmp;
+  int fwd_offset = 9, bck_offset = 7;
+  av1_jnt_comp_weight_assign(cm, mbmi, 0, &fwd_offset, &bck_offset, &tmp, 1);
+  const int dist_weight_base = fwd_offset * 4;
+#endif  // CONFIG_JNT_COMP
 
   if (is_compound && is_masked_compound_type(mbmi->interinter_compound_type)) {
     if (!plane && comp_data.interinter_compound_type == COMPOUND_SEG) {
@@ -2623,7 +2685,11 @@ static void build_wedge_inter_predictor_from_buf(
 #endif  // CONFIG_HIGHBITDEPTH
         build_compound_seg_mask(comp_data.seg_mask, comp_data.mask_type,
                                 ext_dst0, ext_dst_stride0, ext_dst1,
-                                ext_dst_stride1, mbmi->sb_type, h, w);
+                                ext_dst_stride1, mbmi->sb_type,
+#if CONFIG_JNT_COMP
+                                dist_weight_base,
+#endif
+                                h, w);
     }
 
 #if CONFIG_HIGHBITDEPTH
@@ -2650,12 +2716,13 @@ static void build_wedge_inter_predictor_from_buf(
   }
 }
 
-void av1_build_wedge_inter_predictor_from_buf(MACROBLOCKD *xd, BLOCK_SIZE bsize,
-                                              int plane_from, int plane_to,
-                                              uint8_t *ext_dst0[3],
-                                              int ext_dst_stride0[3],
-                                              uint8_t *ext_dst1[3],
-                                              int ext_dst_stride1[3]) {
+void av1_build_wedge_inter_predictor_from_buf(
+#if CONFIG_JNT_COMP
+    const AV1_COMMON *const cm,
+#endif
+    MACROBLOCKD *xd, BLOCK_SIZE bsize, int plane_from, int plane_to,
+    uint8_t *ext_dst0[3], int ext_dst_stride0[3], uint8_t *ext_dst1[3],
+    int ext_dst_stride1[3]) {
   int plane;
   for (plane = plane_from; plane <= plane_to; ++plane) {
     const BLOCK_SIZE plane_bsize =
@@ -2663,6 +2730,9 @@ void av1_build_wedge_inter_predictor_from_buf(MACROBLOCKD *xd, BLOCK_SIZE bsize,
     const int bw = block_size_wide[plane_bsize];
     const int bh = block_size_high[plane_bsize];
     build_wedge_inter_predictor_from_buf(
+#if CONFIG_JNT_COMP
+        cm,
+#endif
         xd, plane, 0, 0, bw, bh, ext_dst0[plane], ext_dst_stride0[plane],
         ext_dst1[plane], ext_dst_stride1[plane]);
   }

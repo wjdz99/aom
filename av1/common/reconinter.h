@@ -276,6 +276,9 @@ static INLINE int get_interintra_wedge_bits(BLOCK_SIZE sb_type) {
 void build_compound_seg_mask(uint8_t *mask, SEG_MASK_TYPE mask_type,
                              const uint8_t *src0, int src0_stride,
                              const uint8_t *src1, int src1_stride,
+#if CONFIG_JNT_COMP
+                             int base,
+#endif
                              BLOCK_SIZE sb_type, int h, int w);
 #if CONFIG_HIGHBITDEPTH
 void build_compound_seg_mask_highbd(uint8_t *mask, SEG_MASK_TYPE mask_type,
@@ -285,6 +288,9 @@ void build_compound_seg_mask_highbd(uint8_t *mask, SEG_MASK_TYPE mask_type,
 #endif  // CONFIG_HIGHBITDEPTH
 
 void av1_make_masked_inter_predictor(
+#if CONFIG_JNT_COMP
+    const AV1_COMMON *const cm,
+#endif
     const uint8_t *pre, int pre_stride, uint8_t *dst, int dst_stride,
     const int subpel_x, const int subpel_y, const struct scale_factors *sf,
     int w, int h, ConvolveParams *conv_params, InterpFilters interp_filters,
@@ -563,12 +569,13 @@ void av1_combine_interintra(MACROBLOCKD *xd, BLOCK_SIZE bsize, int plane,
 void av1_build_inter_predictors_for_planes_single_buf(
     MACROBLOCKD *xd, BLOCK_SIZE bsize, int plane_from, int plane_to, int mi_row,
     int mi_col, int ref, uint8_t *ext_dst[3], int ext_dst_stride[3]);
-void av1_build_wedge_inter_predictor_from_buf(MACROBLOCKD *xd, BLOCK_SIZE bsize,
-                                              int plane_from, int plane_to,
-                                              uint8_t *ext_dst0[3],
-                                              int ext_dst_stride0[3],
-                                              uint8_t *ext_dst1[3],
-                                              int ext_dst_stride1[3]);
+void av1_build_wedge_inter_predictor_from_buf(
+#if CONFIG_JNT_COMP
+    const AV1_COMMON *const cm,
+#endif
+    MACROBLOCKD *xd, BLOCK_SIZE bsize, int plane_from, int plane_to,
+    uint8_t *ext_dst0[3], int ext_dst_stride0[3], uint8_t *ext_dst1[3],
+    int ext_dst_stride1[3]);
 
 #if CONFIG_JNT_COMP
 void av1_jnt_comp_weight_assign(const AV1_COMMON *cm, const MB_MODE_INFO *mbmi,

@@ -7088,6 +7088,14 @@ static int64_t pick_interinter_seg(const AV1_COMP *const cpi,
     aom_subtract_block(bh, bw, d10, bw, p1, bw, p0, bw);
   }
 
+#if CONFIG_JNT_COMP
+  int tmp;
+  int fwd_offset, bck_offset;
+  av1_jnt_comp_weight_assign(&cpi->common, mbmi, 0, &fwd_offset, &bck_offset,
+                             &tmp, 1);
+  const int dist_weight_base = fwd_offset * 4;
+#endif  // CONFIG_JNT_COMP
+
   // try each mask type and its inverse
   for (cur_mask_type = 0; cur_mask_type < SEG_MASK_TYPES; cur_mask_type++) {
 // build mask and inverse
@@ -7099,7 +7107,11 @@ static int64_t pick_interinter_seg(const AV1_COMP *const cpi,
     else
 #endif  // CONFIG_HIGHBITDEPTH
       build_compound_seg_mask(xd->seg_mask, cur_mask_type, p0, bw, p1, bw,
-                              bsize, bh, bw);
+                              bsize,
+#if CONFIG_JNT_COMP
+                              dist_weight_base,
+#endif
+                              bh, bw);
 
     // compute rd for mask
     sse = av1_wedge_sse_from_residuals(r1, d10, xd->seg_mask, N);
@@ -7124,7 +7136,11 @@ static int64_t pick_interinter_seg(const AV1_COMP *const cpi,
   else
 #endif  // CONFIG_HIGHBITDEPTH
     build_compound_seg_mask(xd->seg_mask, mbmi->mask_type, p0, bw, p1, bw,
-                            bsize, bh, bw);
+                            bsize,
+#if CONFIG_JNT_COMP
+                            dist_weight_base,
+#endif
+                            bh, bw);
 
   return best_rd;
 }
@@ -7223,8 +7239,13 @@ static int64_t build_and_cost_compound_type(
       mbmi->mv[0].as_int = cur_mv[0].as_int;
       mbmi->mv[1].as_int = cur_mv[1].as_int;
       *out_rate_mv = rate_mv;
+#if CONFIG_JNT_COMP
+      av1_build_wedge_inter_predictor_from_buf(
+          &cpi->common, xd, bsize, 0, 0, preds0, strides, preds1, strides);
+#else
       av1_build_wedge_inter_predictor_from_buf(xd, bsize, 0, 0, preds0, strides,
                                                preds1, strides);
+#endif
     }
     av1_subtract_plane(x, bsize, 0);
     rd = estimate_yrd_for_sb(cpi, bsize, x, &rate_sum, &dist_sum,
@@ -7234,8 +7255,13 @@ static int64_t build_and_cost_compound_type(
     best_rd_cur = rd;
 
   } else {
+#if CONFIG_JNT_COMP
+    av1_build_wedge_inter_predictor_from_buf(&cpi->common, xd, bsize, 0, 0,
+                                             preds0, strides, preds1, strides);
+#else
     av1_build_wedge_inter_predictor_from_buf(xd, bsize, 0, 0, preds0, strides,
                                              preds1, strides);
+#endif
     av1_subtract_plane(x, bsize, 0);
     rd = estimate_yrd_for_sb(cpi, bsize, x, &rate_sum, &dist_sum,
                              &tmp_skip_txfm_sb, &tmp_skip_sse_sb, INT64_MAX);
