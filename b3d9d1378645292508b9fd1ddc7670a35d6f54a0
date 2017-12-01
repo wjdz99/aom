@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d5d79f88_07d08533",
+        "filename": "tools/dump_obu.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-12-01T22:07:31Z",
+      "side": 1,
+      "message": "const",
+      "revId": "b3d9d1378645292508b9fd1ddc7670a35d6f54a0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4b368c24_1b48cef9",
+        "filename": "tools/dump_obu.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-12-01T22:07:31Z",
+      "side": 1,
+      "message": "break would go within the {}s. and there was the old rule that if one case had them then they all should\n\nhttps://google.github.io/styleguide/cppguide.html#Loops_and_Switch_Statements",
+      "revId": "b3d9d1378645292508b9fd1ddc7670a35d6f54a0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a5880a7c_accbf23a",
+        "filename": "tools/dump_obu.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-12-01T22:07:31Z",
+      "side": 1,
+      "message": "I believe fclose won\u0027t get called if the open fails, otherwise that would segfault.",
+      "revId": "b3d9d1378645292508b9fd1ddc7670a35d6f54a0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5d01aee5_e3d28748",
+        "filename": "tools/dump_obu.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-12-01T22:07:31Z",
+      "side": 1,
+      "message": "\u003d\u003d nullptr?",
+      "revId": "b3d9d1378645292508b9fd1ddc7670a35d6f54a0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c5012322_99368bad",
+        "filename": "tools/obu_parser.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-12-01T22:07:31Z",
+      "side": 1,
+      "message": "here and elsewhere might want \u0027\u0026 1\u0027 just in case the shift changes.",
+      "revId": "b3d9d1378645292508b9fd1ddc7670a35d6f54a0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4e23e657_237cf95b",
+        "filename": "tools/obu_parser.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-12-01T22:07:31Z",
+      "side": 1,
+      "message": "is there a size check for this read?",
+      "revId": "b3d9d1378645292508b9fd1ddc7670a35d6f54a0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
