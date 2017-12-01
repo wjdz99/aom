@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "8a7830d0_2aad37a8",
+        "filename": "tools/dump_obu.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2017-12-01T17:14:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9b818729_d1bc0d3d",
+      "revId": "31d3e20b6ff00abe5f5ee0e4cd1ce23fde05d0e9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "395f4f6c_dabc6a0b",
         "filename": "tools/dump_obu.cc",
         "patchSetId": 8
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "c43e8f7a_5b5e84ea",
+        "filename": "tools/dump_obu.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2017-12-01T17:14:40Z",
+      "side": 1,
+      "message": "there\u0027s a whiny comment down below about this; can\u0027t do it because of the realloc behavior in the readers.",
+      "parentUuid": "395f4f6c_dabc6a0b",
+      "revId": "31d3e20b6ff00abe5f5ee0e4cd1ce23fde05d0e9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3ce5f1e4_43c64ef5",
         "filename": "tools/dump_obu.cc",
         "patchSetId": 8
@@ -50,6 +86,24 @@
       "revId": "31d3e20b6ff00abe5f5ee0e4cd1ce23fde05d0e9",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "09690da4_834ec7db",
+        "filename": "tools/dump_obu.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2017-12-01T17:14:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3ce5f1e4_43c64ef5",
+      "revId": "31d3e20b6ff00abe5f5ee0e4cd1ce23fde05d0e9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -76,6 +130,30 @@
     },
     {
       "key": {
+        "uuid": "f4777b43_18f8d98d",
+        "filename": "tools/dump_obu.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2017-12-01T17:14:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1bc677b0_950e844e",
+      "range": {
+        "startLine": 54,
+        "startChar": 2,
+        "endLine": 54,
+        "endChar": 7
+      },
+      "revId": "31d3e20b6ff00abe5f5ee0e4cd1ce23fde05d0e9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "78be089b_5a0c22fc",
         "filename": "tools/dump_obu.cc",
         "patchSetId": 8
@@ -90,6 +168,24 @@
       "revId": "31d3e20b6ff00abe5f5ee0e4cd1ce23fde05d0e9",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3ead74ff_93676cd4",
+        "filename": "tools/dump_obu.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2017-12-01T17:14:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "78be089b_5a0c22fc",
+      "revId": "31d3e20b6ff00abe5f5ee0e4cd1ce23fde05d0e9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -110,6 +206,24 @@
     },
     {
       "key": {
+        "uuid": "95291eb6_4d5f70c3",
+        "filename": "tools/dump_obu.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2017-12-01T17:14:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d465b6c6_beb039bc",
+      "revId": "31d3e20b6ff00abe5f5ee0e4cd1ce23fde05d0e9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "518d1e48_b811783d",
         "filename": "tools/dump_obu.cc",
         "patchSetId": 8
@@ -124,6 +238,24 @@
       "revId": "31d3e20b6ff00abe5f5ee0e4cd1ce23fde05d0e9",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "106e3f04_3b48f1cd",
+        "filename": "tools/dump_obu.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2017-12-01T17:14:40Z",
+      "side": 1,
+      "message": "tmyk; thx/done",
+      "parentUuid": "518d1e48_b811783d",
+      "revId": "31d3e20b6ff00abe5f5ee0e4cd1ce23fde05d0e9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -150,6 +282,30 @@
     },
     {
       "key": {
+        "uuid": "99989a00_4ef7fce2",
+        "filename": "tools/dump_obu.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2017-12-01T17:14:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "57f3187a_37695197",
+      "range": {
+        "startLine": 145,
+        "startChar": 61,
+        "endLine": 145,
+        "endChar": 69
+      },
+      "revId": "31d3e20b6ff00abe5f5ee0e4cd1ce23fde05d0e9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cf3e3312_7b40d84f",
         "filename": "tools/obu_parser.cc",
         "patchSetId": 8
@@ -167,6 +323,24 @@
     },
     {
       "key": {
+        "uuid": "98b4dec2_e4defba3",
+        "filename": "tools/obu_parser.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2017-12-01T17:14:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cf3e3312_7b40d84f",
+      "revId": "31d3e20b6ff00abe5f5ee0e4cd1ce23fde05d0e9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b34aa16b_ed03fff2",
         "filename": "tools/obu_parser.h",
         "patchSetId": 8
@@ -178,6 +352,24 @@
       "writtenOn": "2017-12-01T07:07:02Z",
       "side": 1,
       "message": "kObu... is preferred now, but this is consistent with other areas",
+      "revId": "31d3e20b6ff00abe5f5ee0e4cd1ce23fde05d0e9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "add4e966_01cb7b37",
+        "filename": "tools/obu_parser.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2017-12-01T17:14:40Z",
+      "side": 1,
+      "message": "Yeah, I\u0027m aware the style guide is being hand-wavey and saying constant style is preferred and then going on to say the all caps style is acceptable. Aiming for consistency with the existing library, but still not quite there:\n\n- I think OBU_TD is an ambiguous name; that\u0027s why it\u0027s spelled out here.\n- The metadata types lack the OBU_ prefix, which I think is a shame.",
+      "parentUuid": "b34aa16b_ed03fff2",
       "revId": "31d3e20b6ff00abe5f5ee0e4cd1ce23fde05d0e9",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
