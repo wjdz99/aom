@@ -1810,10 +1810,9 @@ static void dec_dump_logs(AV1_COMMON *cm, MODE_INFO *const mi, int mi_row,
 }
 #endif  // DEC_MISMATCH_DEBUG
 
-static void read_inter_block_mode_info(AV1Decoder *const pbi,
-                                       MACROBLOCKD *const xd,
-                                       MODE_INFO *const mi, int mi_row,
-                                       int mi_col, aom_reader *r) {
+static void read_inter_mode_mvs(AV1Decoder *const pbi, MACROBLOCKD *const xd,
+                                MODE_INFO *const mi, int mi_row, int mi_col,
+                                aom_reader *r) {
   AV1_COMMON *const cm = &pbi->common;
   MB_MODE_INFO *const mbmi = &mi->mbmi;
   const BLOCK_SIZE bsize = mbmi->sb_type;
@@ -1823,36 +1822,11 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
   int16_t inter_mode_ctx[MODE_CTX_REF_FRAMES];
   int16_t compound_inter_mode_ctx[MODE_CTX_REF_FRAMES];
   int mode_ctx = 0;
-  int pts[SAMPLES_ARRAY_SIZE], pts_inref[SAMPLES_ARRAY_SIZE];
-#if CONFIG_EXT_WARPED_MOTION
-  int pts_mv[SAMPLES_ARRAY_SIZE], pts_wm[SAMPLES_ARRAY_SIZE];
-#endif  // CONFIG_EXT_WARPED_MOTION
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
 
-  assert(NELEMENTS(mode_2_counter) == MB_MODE_COUNT);
-
-  mbmi->uv_mode = UV_DC_PRED;
-  mbmi->palette_mode_info.palette_size[0] = 0;
-  mbmi->palette_mode_info.palette_size[1] = 0;
-
-  memset(ref_mvs, 0, sizeof(ref_mvs));
-
-  read_ref_frames(cm, xd, r, mbmi->segment_id, mbmi->ref_frame);
   const int is_compound = has_second_ref(mbmi);
 
-#if CONFIG_EXT_SKIP
-// TODO(zoeliu): To work with JNT_COMP
-#endif  // CONFIG_EXT_SKIP
-
-#if CONFIG_JNT_COMP
-  if (is_compound) {
-    const int comp_index_ctx = get_comp_index_context(cm, xd);
-    mbmi->compound_idx = aom_read_symbol(
-        r, ec_ctx->compound_index_cdf[comp_index_ctx], 2, ACCT_STR);
-    if (xd->counts)
-      ++xd->counts->compound_index[comp_index_ctx][mbmi->compound_idx];
-  }
-#endif  // CONFIG_JNT_COMP
+  memset(ref_mvs, 0, sizeof(ref_mvs));
 
   for (int ref = 0; ref < 1 + is_compound; ++ref) {
     MV_REFERENCE_FRAME frame = mbmi->ref_frame[ref];
@@ -2092,6 +2066,46 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
 #if CONFIG_EXT_SKIP
   }
 #endif  // CONFIG_EXT_SKIP
+}
+
+static void read_inter_block_mode_info(AV1Decoder *const pbi,
+                                       MACROBLOCKD *const xd,
+                                       MODE_INFO *const mi, int mi_row,
+                                       int mi_col, aom_reader *r) {
+  AV1_COMMON *const cm = &pbi->common;
+  MB_MODE_INFO *const mbmi = &mi->mbmi;
+  const BLOCK_SIZE bsize = mbmi->sb_type;
+  int pts[SAMPLES_ARRAY_SIZE], pts_inref[SAMPLES_ARRAY_SIZE];
+#if CONFIG_EXT_WARPED_MOTION
+  int pts_mv[SAMPLES_ARRAY_SIZE], pts_wm[SAMPLES_ARRAY_SIZE];
+#endif  // CONFIG_EXT_WARPED_MOTION
+  FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
+
+  assert(NELEMENTS(mode_2_counter) == MB_MODE_COUNT);
+
+  mbmi->uv_mode = UV_DC_PRED;
+  mbmi->palette_mode_info.palette_size[0] = 0;
+  mbmi->palette_mode_info.palette_size[1] = 0;
+
+  read_ref_frames(cm, xd, r, mbmi->segment_id, mbmi->ref_frame);
+
+#if CONFIG_EXT_SKIP
+// TODO(zoeliu): To work with JNT_COMP
+#endif  // CONFIG_EXT_SKIP
+
+#if CONFIG_JNT_COMP
+  const int is_compound = has_second_ref(mbmi);
+
+  if (is_compound) {
+    const int comp_index_ctx = get_comp_index_context(cm, xd);
+    mbmi->compound_idx = aom_read_symbol(
+        r, ec_ctx->compound_index_cdf[comp_index_ctx], 2, ACCT_STR);
+    if (xd->counts)
+      ++xd->counts->compound_index[comp_index_ctx][mbmi->compound_idx];
+  }
+#endif  // CONFIG_JNT_COMP
+
+  read_inter_mode_mvs(pbi, xd, mi, mi_row, mi_col, r);
 
   mbmi->use_wedge_interintra = 0;
   if (cm->reference_mode != COMPOUND_REFERENCE &&
