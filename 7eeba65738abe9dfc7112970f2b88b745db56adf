@@ -119,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "28d1d437_3df057ba",
+        "filename": "aomenc.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 1633,
+      "author": {
+        "id": 8014
+      },
+      "writtenOn": "2017-12-02T03:05:47Z",
+      "side": 1,
+      "message": "Not sure I understand. It is still possible to write IVF files. OBU support is not something you can disable.",
+      "parentUuid": "eda00183_3c1b4276",
+      "range": {
+        "startLine": 1631,
+        "startChar": 0,
+        "endLine": 1633,
+        "endChar": 6
+      },
+      "revId": "7eeba65738abe9dfc7112970f2b88b745db56adf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b20ac4ba_07a2fe18",
         "filename": "aomenc.c",
         "patchSetId": 11
@@ -130,6 +154,30 @@
       "writtenOn": "2017-11-28T19:46:39Z",
       "side": 1,
       "message": "Create obuenc.c and obuenc.h, dupe the stuff in ivfenc and then adjust as we move forward? Continuing to abuse the IVF support doesn\u0027t make sense here unless it\u0027s going to be dropped completely. I don\u0027t think we want to do that.",
+      "range": {
+        "startLine": 1638,
+        "startChar": 14,
+        "endLine": 1638,
+        "endChar": 79
+      },
+      "revId": "7eeba65738abe9dfc7112970f2b88b745db56adf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d51bee12_87ff6de8",
+        "filename": "aomenc.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 1638,
+      "author": {
+        "id": 8014
+      },
+      "writtenOn": "2017-12-02T03:05:47Z",
+      "side": 1,
+      "message": "Again, I\u0027m not sure I understand what you mean, nor how to fix it. But, indeed in my view IVF is meant to disappear.",
+      "parentUuid": "b20ac4ba_07a2fe18",
       "range": {
         "startLine": 1638,
         "startChar": 14,
