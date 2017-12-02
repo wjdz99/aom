@@ -992,8 +992,23 @@ static INLINE TX_TYPE av1_get_tx_type(PLANE_TYPE plane_type,
   // within this function.
   const TxSetType tx_set_type =
       get_ext_tx_set_type(tx_size, plane_bsize, is_inter_block(mbmi), 0);
-  if (is_inter_block(mbmi) && !av1_ext_tx_used[tx_set_type][mbmi->tx_type])
-    return DCT_DCT;
+  if (is_inter_block(mbmi) && !av1_ext_tx_used[tx_set_type][mbmi->tx_type]) {
+    const TX_TYPE_1D htx = htx_tab[mbmi->tx_type];
+    const TX_TYPE_1D vtx = vtx_tab[mbmi->tx_type];
+    // DCT_DCT is always allowed in any set
+    assert(htx != DCT_1D || vtx != DCT_1D);
+    // If any one is DCT, but the other is not, flip the other to DCT also.
+    if (htx == DCT_1D || vtx == DCT_1D) return DCT_DCT;
+    // Neither are DCT
+    // Try flipping the hor transform to DCT
+    if (av1_ext_tx_used[tx_set_type][tx2d_tab[vtx][DCT_1D]])
+      return tx2d_tab[vtx][DCT_1D];
+    // Else try flipping the ver transform to DCT
+    else if (av1_ext_tx_used[tx_set_type][tx2d_tab[DCT_1D][htx]])
+      return tx2d_tab[DCT_1D][htx];
+    else
+      return DCT_DCT;
+  }
 
 #if CONFIG_TXK_SEL
   TX_TYPE tx_type;
