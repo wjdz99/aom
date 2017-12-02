@@ -72,6 +72,24 @@
     },
     {
       "key": {
+        "uuid": "c055d73d_9c3d3398",
+        "filename": "tools/dump_obu.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-12-02T06:51:57Z",
+      "side": 1,
+      "message": "\u003e i blame clang-format and my inattentiveness :|\n\u003e done.\n\u003e and i hate the old rule; break in a default after a return makes no sense. i\u0027m a rebel.\n\nI just meant the old rule was if one case had {}s they all should for consistency. the example still has this, but it seems the wording has been relaxed.",
+      "parentUuid": "0442bc78_c686d728",
+      "revId": "b3d9d1378645292508b9fd1ddc7670a35d6f54a0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a5880a7c_accbf23a",
         "filename": "tools/dump_obu.cc",
         "patchSetId": 9
@@ -142,6 +160,24 @@
     },
     {
       "key": {
+        "uuid": "dc7ac59e_f566f029",
+        "filename": "tools/dump_obu.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-12-02T06:51:57Z",
+      "side": 1,
+      "message": "\u003e i\u0027m confused about this rule re consistency. are we not supposed to say !ptr w/nullptr? from the consistency perspective this makes sense since i use !expression everywhere else. leave this as-is or change it? I\u0027d prefer to leave it but don\u0027t care enough to argue about it.\n\nit\u0027s a matter of preference \u003d\u003d nullptr is just more explicit in what you\u0027re checking; either way",
+      "parentUuid": "d2e12628_7719e2fc",
+      "revId": "b3d9d1378645292508b9fd1ddc7670a35d6f54a0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c5012322_99368bad",
         "filename": "tools/obu_parser.cc",
         "patchSetId": 9
@@ -177,6 +213,24 @@
     },
     {
       "key": {
+        "uuid": "1cefe42a_85f905ad",
+        "filename": "tools/obu_parser.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-12-02T06:51:57Z",
+      "side": 1,
+      "message": "\u003e For the forbidden bit and the reserved bits?\n\noops I read this wrong was expecting: (byte \u003e\u003e shift) \u0026 mask and didn\u0027t see the (byte \u0026 mask) \u003e\u003e shift. the latter would be problematic if the high bit was allowed and you shifted in 1s, might be better to swap that",
+      "parentUuid": "cd71ed24_ebca5d84",
+      "revId": "b3d9d1378645292508b9fd1ddc7670a35d6f54a0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "4e23e657_237cf95b",
         "filename": "tools/obu_parser.cc",
         "patchSetId": 9
@@ -206,6 +260,24 @@
       "side": 1,
       "message": "ivfdec has a check for ridiculously huge frames\nwebmdec relies on what libwebm does (hah)\n\nthat\u0027s it-- want me to expose total available input size to the parser for some sanity checks in this loop?",
       "parentUuid": "4e23e657_237cf95b",
+      "revId": "b3d9d1378645292508b9fd1ddc7670a35d6f54a0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d9408e5b_7df8950c",
+        "filename": "tools/obu_parser.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-12-02T06:51:57Z",
+      "side": 1,
+      "message": "\u003e ivfdec has a check for ridiculously huge frames\n\u003e webmdec relies on what libwebm does (hah)\n\u003e \n\u003e that\u0027s it-- want me to expose total available input size to the parser for some sanity checks in this loop?\n\nit just wasn\u0027t clear here to me that entering this block meant you had \u0027consumed + 1\u0027 bytes. I just wanted to be sure you couldn\u0027t over read here.",
+      "parentUuid": "4528e03f_d9d12123",
       "revId": "b3d9d1378645292508b9fd1ddc7670a35d6f54a0",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
