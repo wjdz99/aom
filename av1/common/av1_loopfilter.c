@@ -933,6 +933,8 @@ static void build_masks(AV1_COMMON *const cm,
   const TX_SIZE tx_size_y = txsize_sqr_map[mbmi->tx_size];
   const TX_SIZE tx_size_y_left = txsize_horz_map[mbmi->tx_size];
   const TX_SIZE tx_size_y_above = txsize_vert_map[mbmi->tx_size];
+  const BLOCK_SIZE plane_bsize = ss_size_lookup[bsize][1][1];
+  const TX_SIZE tx_size_uv = get_vartx_max_txsize(xd, plane_bsize, 1);
   const TX_SIZE tx_size_uv =
       txsize_sqr_map[uv_txsize_lookup[block_size][mbmi->tx_size][1][1]];
   const TX_SIZE tx_size_uv_left =

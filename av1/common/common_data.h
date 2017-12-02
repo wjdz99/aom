@@ -748,6 +748,14 @@ static const TX_TYPE_1D htx_tab[TX_TYPES] = {
   IDTX_1D, DCT_1D,      IDTX_1D,     ADST_1D,     IDTX_1D, FLIPADST_1D,
 };
 
+// Gives the 2D tx_type from ver and hor 1d tx_types
+static const TX_TYPE tx2d_tab[TX_TYPES_1D][TX_TYPES_1D] = {
+  { DCT_DCT, DCT_ADST, DCT_FLIPADST, V_DCT },
+  { ADST_DCT, ADST_ADST, ADST_FLIPADST, V_ADST },
+  { FLIPADST_DCT, FLIPADST_ADST, FLIPADST_FLIPADST, V_FLIPADST },
+  { H_DCT, H_ADST, H_FLIPADST, IDTX },
+};
+
 // Same as "max_txsize_lookup[bsize] - TX_8X8", except for rectangular
 // block which may use a rectangular transform, in which  case it is
 // "(max_txsize_lookup[bsize] + 1) - TX_8X8", invalid for bsize < 8X8
