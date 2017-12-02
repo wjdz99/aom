@@ -47,6 +47,30 @@ static const int mag_ref_offset[CONTEXT_MAG_POSITION_NUM][2] = {
   { 0, 1 }, { 1, 0 }, { 1, 1 }
 };
 
+static INLINE int get_txb_bwl(TX_SIZE tx_size) {
+#if CONFIG_TX64X64
+  if (tx_size == TX_64X64 || tx_size == TX_64X32 || tx_size == TX_32X64)
+    tx_size = TX_32X32;
+#endif
+  return tx_size_wide_log2[tx_size];
+}
+
+static INLINE int get_txb_wide(TX_SIZE tx_size) {
+#if CONFIG_TX64X64
+  if (tx_size == TX_64X64 || tx_size == TX_64X32 || tx_size == TX_32X64)
+    tx_size = TX_32X32;
+#endif
+  return tx_size_wide[tx_size];
+}
+
+static INLINE int get_txb_high(TX_SIZE tx_size) {
+#if CONFIG_TX64X64
+  if (tx_size == TX_64X64 || tx_size == TX_64X32 || tx_size == TX_32X64)
+    tx_size = TX_32X32;
+#endif
+  return tx_size_high[tx_size];
+}
+
 static INLINE void get_base_count_mag(int *mag, int *count,
                                       const tran_low_t *tcoeffs, int bwl,
                                       int height, int row, int col) {
