@@ -285,6 +285,24 @@
     },
     {
       "key": {
+        "uuid": "364b6cbe_4e7a37bb",
+        "filename": "tools/obu_parser.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-12-02T21:01:02Z",
+      "side": 1,
+      "message": "\u003e Ah... I\u0027ve always preferred masking the bits in place and then shifting, but maybe I\u0027m being weird. Ok to leave this for another patch? Don\u0027t really mind doing it, but would prefer to handle updating the mask values and flipping the expressions over separately.\n\nshould be fine to change after this lands",
+      "parentUuid": "79cc8df1_a0e5dcfa",
+      "revId": "b3d9d1378645292508b9fd1ddc7670a35d6f54a0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4e23e657_237cf95b",
         "filename": "tools/obu_parser.cc",
         "patchSetId": 9
