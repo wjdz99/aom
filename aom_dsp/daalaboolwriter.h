@@ -40,14 +40,14 @@ static INLINE void aom_daala_write(daala_writer *w, int bit, int prob) {
   int p = (0x7FFFFF - (prob << 15) + prob) >> 8;
 #if CONFIG_BITSTREAM_DEBUG
   aom_cdf_prob cdf[2] = { (aom_cdf_prob)p, 32767 };
-  /*int queue_r = 0;
+  int queue_r = 29;
   int frame_idx_r = 0;
   int queue_w = bitstream_queue_get_write();
   int frame_idx_w = bitstream_queue_get_frame_write();
   if (frame_idx_w == frame_idx_r && queue_w == queue_r) {
     fprintf(stderr, "\n *** bitstream queue at frame_idx_w %d queue_w %d\n",
-    frame_idx_w, queue_w);
-  }*/
+            frame_idx_w, queue_w);
+  }
   bitstream_queue_push(bit, cdf, 2);
 #endif
 
@@ -57,14 +57,14 @@ static INLINE void aom_daala_write(daala_writer *w, int bit, int prob) {
 static INLINE void daala_write_symbol(daala_writer *w, int symb,
                                       const aom_cdf_prob *cdf, int nsymbs) {
 #if CONFIG_BITSTREAM_DEBUG
-  /*int queue_r = 0;
+  int queue_r = 29;
   int frame_idx_r = 0;
   int queue_w = bitstream_queue_get_write();
   int frame_idx_w = bitstream_queue_get_frame_write();
   if (frame_idx_w == frame_idx_r && queue_w == queue_r) {
     fprintf(stderr, "\n *** bitstream queue at frame_idx_w %d queue_w %d\n",
-    frame_idx_w, queue_w);
-  }*/
+            frame_idx_w, queue_w);
+  }
   bitstream_queue_push(symb, cdf, nsymbs);
 #endif
 
