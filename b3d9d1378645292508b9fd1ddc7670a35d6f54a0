@@ -90,6 +90,24 @@
     },
     {
       "key": {
+        "uuid": "ee414481_45ec9d20",
+        "filename": "tools/dump_obu.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2017-12-02T17:33:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c055d73d_9c3d3398",
+      "revId": "b3d9d1378645292508b9fd1ddc7670a35d6f54a0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a5880a7c_accbf23a",
         "filename": "tools/dump_obu.cc",
         "patchSetId": 9
@@ -178,6 +196,24 @@
     },
     {
       "key": {
+        "uuid": "c6bea2c5_62286788",
+        "filename": "tools/dump_obu.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2017-12-02T17:33:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dc7ac59e_f566f029",
+      "revId": "b3d9d1378645292508b9fd1ddc7670a35d6f54a0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c5012322_99368bad",
         "filename": "tools/obu_parser.cc",
         "patchSetId": 9
@@ -231,6 +267,24 @@
     },
     {
       "key": {
+        "uuid": "79cc8df1_a0e5dcfa",
+        "filename": "tools/obu_parser.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2017-12-02T17:33:54Z",
+      "side": 1,
+      "message": "Ah... I\u0027ve always preferred masking the bits in place and then shifting, but maybe I\u0027m being weird. Ok to leave this for another patch? Don\u0027t really mind doing it, but would prefer to handle updating the mask values and flipping the expressions over separately.",
+      "parentUuid": "1cefe42a_85f905ad",
+      "revId": "b3d9d1378645292508b9fd1ddc7670a35d6f54a0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "4e23e657_237cf95b",
         "filename": "tools/obu_parser.cc",
         "patchSetId": 9
@@ -278,6 +332,24 @@
       "side": 1,
       "message": "\u003e ivfdec has a check for ridiculously huge frames\n\u003e webmdec relies on what libwebm does (hah)\n\u003e \n\u003e that\u0027s it-- want me to expose total available input size to the parser for some sanity checks in this loop?\n\nit just wasn\u0027t clear here to me that entering this block meant you had \u0027consumed + 1\u0027 bytes. I just wanted to be sure you couldn\u0027t over read here.",
       "parentUuid": "4528e03f_d9d12123",
+      "revId": "b3d9d1378645292508b9fd1ddc7670a35d6f54a0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cff36042_28d92465",
+        "filename": "tools/obu_parser.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2017-12-02T17:33:54Z",
+      "side": 1,
+      "message": "Oh, I see. Yeah-- I want to use consumed + current_obu_length at the bottom of the loop unconditionally. Added constants for OBU length field and header size to help make this clearer.",
+      "parentUuid": "d9408e5b_7df8950c",
       "revId": "b3d9d1378645292508b9fd1ddc7670a35d6f54a0",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
