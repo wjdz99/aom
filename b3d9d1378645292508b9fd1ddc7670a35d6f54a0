@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "78cfa338_05930a3a",
+        "filename": "tools/dump_obu.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2017-12-02T02:29:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d5d79f88_07d08533",
+      "revId": "b3d9d1378645292508b9fd1ddc7670a35d6f54a0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4b368c24_1b48cef9",
         "filename": "tools/dump_obu.cc",
         "patchSetId": 9
@@ -33,6 +51,24 @@
       "revId": "b3d9d1378645292508b9fd1ddc7670a35d6f54a0",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0442bc78_c686d728",
+        "filename": "tools/dump_obu.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2017-12-02T02:29:40Z",
+      "side": 1,
+      "message": "i blame clang-format and my inattentiveness :|\ndone.\nand i hate the old rule; break in a default after a return makes no sense. i\u0027m a rebel.",
+      "parentUuid": "4b368c24_1b48cef9",
+      "revId": "b3d9d1378645292508b9fd1ddc7670a35d6f54a0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "ce40133b_a2e0bd77",
+        "filename": "tools/dump_obu.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2017-12-02T02:29:40Z",
+      "side": 1,
+      "message": "added release() call in failure block just in case",
+      "parentUuid": "a5880a7c_accbf23a",
+      "revId": "b3d9d1378645292508b9fd1ddc7670a35d6f54a0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5d01aee5_e3d28748",
         "filename": "tools/dump_obu.cc",
         "patchSetId": 9
@@ -64,6 +118,24 @@
       "writtenOn": "2017-12-01T22:07:31Z",
       "side": 1,
       "message": "\u003d\u003d nullptr?",
+      "revId": "b3d9d1378645292508b9fd1ddc7670a35d6f54a0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d2e12628_7719e2fc",
+        "filename": "tools/dump_obu.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2017-12-02T02:29:40Z",
+      "side": 1,
+      "message": "i\u0027m confused about this rule re consistency. are we not supposed to say !ptr w/nullptr? from the consistency perspective this makes sense since i use !expression everywhere else. leave this as-is or change it? I\u0027d prefer to leave it but don\u0027t care enough to argue about it.",
+      "parentUuid": "5d01aee5_e3d28748",
       "revId": "b3d9d1378645292508b9fd1ddc7670a35d6f54a0",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "cd71ed24_ebca5d84",
+        "filename": "tools/obu_parser.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2017-12-02T02:29:40Z",
+      "side": 1,
+      "message": "For the forbidden bit and the reserved bits?",
+      "parentUuid": "c5012322_99368bad",
+      "revId": "b3d9d1378645292508b9fd1ddc7670a35d6f54a0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "4e23e657_237cf95b",
         "filename": "tools/obu_parser.cc",
         "patchSetId": 9
@@ -98,6 +188,24 @@
       "writtenOn": "2017-12-01T22:07:31Z",
       "side": 1,
       "message": "is there a size check for this read?",
+      "revId": "b3d9d1378645292508b9fd1ddc7670a35d6f54a0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4528e03f_d9d12123",
+        "filename": "tools/obu_parser.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2017-12-02T02:29:40Z",
+      "side": 1,
+      "message": "ivfdec has a check for ridiculously huge frames\nwebmdec relies on what libwebm does (hah)\n\nthat\u0027s it-- want me to expose total available input size to the parser for some sanity checks in this loop?",
+      "parentUuid": "4e23e657_237cf95b",
       "revId": "b3d9d1378645292508b9fd1ddc7670a35d6f54a0",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
