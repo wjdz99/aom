@@ -581,6 +581,8 @@ typedef struct AV1Common {
 #endif
 #if CONFIG_MFMV
   TPL_MV_REF *tpl_mvs;
+  // TODO(jingning): This can be combined with sign_bias later.
+  uint8_t ref_frame_side[TOTAL_REFS_PER_FRAME];
 #endif
 
 #if TXCOEFF_TIMER
