@@ -493,7 +493,7 @@ void aom_qm_init(AV1_COMMON *cm) {
         } else if (size > 1024) {  // Reuse matrices for TX_32X32
           cm->gqmatrix[q][c][t] = cm->gqmatrix[q][c][TX_32X32];
           cm->giqmatrix[q][c][t] = cm->giqmatrix[q][c][TX_32X32];
-        } else {
+        } else if (t != TX_64X16 && t != TX_16X64) {
           assert(current + size <= QM_TOTAL_SIZE);
           cm->gqmatrix[q][c][t] = &wt_matrix_ref[q][c >= 1][current];
           cm->giqmatrix[q][c][t] = &iwt_matrix_ref[q][c >= 1][current];
