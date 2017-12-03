@@ -937,6 +937,25 @@ static const aom_prob default_comp_bwdref_p[REF_CONTEXTS][BWD_REFS - 1] = {
   { 22, 13 }, { 140, 124 }, { 241, 239 }, { 128, 128 }, { 128, 128 }
 };
 
+#if CONFIG_EXT_SKIP
+static const aom_cdf_prob
+    default_comp_ref_cdf[REF_CONTEXTS][FWD_REFS - 1][CDF_SIZE(2)] = {
+      { { AOM_CDF2(4029) }, { AOM_CDF2(6999) }, { AOM_CDF2(1134) } },
+      { { AOM_CDF2(10605) }, { AOM_CDF2(13191) }, { AOM_CDF2(3002) } },
+      { { AOM_CDF2(16944) }, { AOM_CDF2(19386) }, { AOM_CDF2(7383) } },
+      { { AOM_CDF2(24652) }, { AOM_CDF2(30289) }, { AOM_CDF2(19447) } },
+      { { AOM_CDF2(30022) }, { AOM_CDF2(28567) }, { AOM_CDF2(19942) } }
+    };
+
+static const aom_cdf_prob
+    default_comp_bwdref_cdf[REF_CONTEXTS][BWD_REFS - 1][CDF_SIZE(2)] = {
+      { { AOM_CDF2(2716) }, { AOM_CDF2(1685) } },
+      { { AOM_CDF2(16762) }, { AOM_CDF2(16114) } },
+      { { AOM_CDF2(30395) }, { AOM_CDF2(30452) } },
+      { { AOM_CDF2(32768) }, { AOM_CDF2(32768) } },
+      { { AOM_CDF2(32768) }, { AOM_CDF2(32768) } }
+    };
+#else
 static const aom_cdf_prob
     default_comp_ref_cdf[REF_CONTEXTS][FWD_REFS - 1][CDF_SIZE(2)] = {
       { { AOM_CDF2(3556) }, { AOM_CDF2(1217) }, { AOM_CDF2(988) } },
@@ -954,6 +973,7 @@ static const aom_cdf_prob
       { { AOM_CDF2(32768) }, { AOM_CDF2(32768) } },
       { { AOM_CDF2(32768) }, { AOM_CDF2(32768) } }
     };
+#endif  // CONFIG_EXT_SKIP
 
 static const aom_prob default_single_ref_p[REF_CONTEXTS][SINGLE_REFS - 1] = {
   { 36, 16, 32, 57, 11, 14 },
@@ -1304,11 +1324,15 @@ static const aom_cdf_prob
 
 #if CONFIG_EXT_SKIP
 static const aom_cdf_prob default_skip_mode_cdfs[SKIP_MODE_CONTEXTS][CDF_SIZE(
-    2)] = { { AOM_CDF2(24576) }, { AOM_CDF2(16384) }, { AOM_CDF2(8192) } };
-#endif  // CONFIG_EXT_SKIP
+    2)] = { { AOM_CDF2(30687) }, { AOM_CDF2(19215) }, { AOM_CDF2(9601) } };
+static const aom_cdf_prob default_skip_cdfs[SKIP_CONTEXTS][CDF_SIZE(2)] = {
+  { AOM_CDF2(29451) }, { AOM_CDF2(14887) }, { AOM_CDF2(4202) }
+};
+#else
 static const aom_cdf_prob default_skip_cdfs[SKIP_CONTEXTS][CDF_SIZE(2)] = {
   { AOM_CDF2(24576) }, { AOM_CDF2(16384) }, { AOM_CDF2(8192) }
 };
+#endif  // CONFIG_EXT_SKIP
 
 #if CONFIG_JNT_COMP
 static const aom_cdf_prob

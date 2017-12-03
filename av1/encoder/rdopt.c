@@ -9055,6 +9055,7 @@ static void estimate_skip_mode_rdcost(
   }
 }
 
+#if 0
 // Check whether the best RD mode satisfies the criteria of skip mode.
 static int check_skip_mode(const AV1_COMMON *const cm,
                            const MB_MODE_INFO *const best_mbmi) {
@@ -9079,6 +9080,7 @@ static int check_skip_mode(const AV1_COMMON *const cm,
 
   return 1;
 }
+#endif  // 0
 #endif  // CONFIG_EXT_SKIP
 
 void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
@@ -10500,8 +10502,11 @@ PALETTE_EXIT:
           RDCOST(x->rdmult, rd_cost->rate + x->skip_mode_cost[skip_mode_ctx][0],
                  rd_cost->dist);
 
-      if (x->skip_mode_rdcost <= best_intra_inter_mode_cost ||
-          check_skip_mode(cm, &best_mbmode))
+      if (x->skip_mode_rdcost <= best_intra_inter_mode_cost
+#if 0
+          || check_skip_mode(cm, &best_mbmode)
+#endif  // 0
+          )
         best_mbmode.skip_mode = 1;
     }
 
