@@ -278,7 +278,11 @@ struct macroblock {
   int motion_mode_cost[BLOCK_SIZES_ALL][MOTION_MODES];
   int motion_mode_cost1[BLOCK_SIZES_ALL][2];
   int intra_uv_mode_cost[INTRA_MODES][UV_INTRA_MODES];
+#if CONFIG_KF2
+  int y_mode_costs[KF_MODE_CONTEXTS][INTRA_MODES];
+#else
   int y_mode_costs[INTRA_MODES][INTRA_MODES][INTRA_MODES];
+#endif
 #if CONFIG_FILTER_INTRA
   int filter_intra_cost[TX_SIZES_ALL][2];
   int filter_intra_mode_cost[PLANE_TYPES][FILTER_INTRA_MODES];

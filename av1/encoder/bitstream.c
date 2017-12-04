@@ -792,7 +792,7 @@ static void write_ref_frames(const AV1_COMMON *cm, const MACROBLOCKD *xd,
 static void write_filter_intra_mode_info(const MACROBLOCKD *xd,
                                          const MB_MODE_INFO *const mbmi,
                                          aom_writer *w) {
-  if (mbmi->mode == DC_PRED && mbmi->palette_mode_info.palette_size[0] == 0 &&
+  if (mbmi->mode == FI_PRIMARY_MODE && mbmi->palette_mode_info.palette_size[0] == 0 &&
       av1_filter_intra_allowed_txsize(mbmi->tx_size)) {
     aom_write_symbol(w, mbmi->filter_intra_mode_info.use_filter_intra_mode[0],
                      xd->tile_ctx->filter_intra_cdfs[mbmi->tx_size], 2);
@@ -825,6 +825,7 @@ static void write_intra_angle_info(const MACROBLOCKD *xd,
 #endif  // CONFIG_EXT_INTRA_MOD
   }
 
+#if !INTRA_UV_TEST
   if (av1_is_directional_mode(get_uv_mode(mbmi->uv_mode), bsize)) {
 #if CONFIG_EXT_INTRA_MOD
     aom_write_symbol(w, mbmi->angle_delta[1] + MAX_ANGLE_DELTA,
@@ -835,6 +836,7 @@ static void write_intra_angle_info(const MACROBLOCKD *xd,
                   MAX_ANGLE_DELTA + mbmi->angle_delta[1]);
 #endif
   }
+#endif
 }
 #endif  // CONFIG_EXT_INTRA
 
@@ -1010,7 +1012,7 @@ static void write_palette_mode_info(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   const PALETTE_MODE_INFO *const pmi = &mbmi->palette_mode_info;
   const int block_palette_idx = bsize - BLOCK_8X8;
 
-  if (mbmi->mode == DC_PRED) {
+  if (mbmi->mode == PALETTE_PRIMARY_MODE) {
     const int n = pmi->palette_size[0];
     int palette_y_mode_ctx = 0;
     if (above_mi) {
@@ -1044,7 +1046,7 @@ static void write_palette_mode_info(const AV1_COMMON *cm, const MACROBLOCKD *xd,
 #if CONFIG_MONO_VIDEO
       !cm->seq_params.monochrome &&
 #endif
-      mbmi->uv_mode == UV_DC_PRED;
+      mbmi->uv_mode == PALETTE_UV_PRIMARY_MODE;
   if (uv_dc_pred) {
     const int n = pmi->palette_size[1];
     const int palette_uv_mode_ctx = (pmi->palette_size[0] > 0);

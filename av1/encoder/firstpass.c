@@ -555,6 +555,9 @@ void av1_first_pass(AV1_COMP *cpi, const struct lookahead_entry *source) {
 
   set_first_pass_params(cpi);
   av1_set_quantizer(cm, qindex);
+  if (1) { //test-jy
+    av1_init_quantizer(cpi);
+  }
 
   av1_setup_block_planes(&x->e_mbd, cm->subsampling_x, cm->subsampling_y);
 

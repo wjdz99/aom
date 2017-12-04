@@ -194,8 +194,23 @@ typedef struct {
   uint16_t palette_colors[3 * PALETTE_MAX_SIZE];
 } PALETTE_MODE_INFO;
 
+#if CONFIG_OPT_IMODE
+#define FI_TEST 1
+#define PALETTE_TEST 1
+#define INTRA_UV_TEST 1
+#else
+#define FI_TEST 0
+#define PALETTE_TEST 0
+#define INTRA_UV_TEST 0
+#endif
+
+#define PALETTE_PRIMARY_MODE (PALETTE_TEST ? PAETH_PRED : DC_PRED)
+#define PALETTE_UV_PRIMARY_MODE (PALETTE_TEST ? UV_PAETH_PRED : UV_DC_PRED)
+
 #if CONFIG_FILTER_INTRA
+#define FI_PRIMARY_MODE (FI_TEST ? SMOOTH_PRED : DC_PRED)
 #define USE_3TAP_INTRA_FILTER 1  // 0: 4-tap; 1: 3-tap
+
 typedef struct {
   // 1: an ext intra mode is used; 0: otherwise.
   uint8_t use_filter_intra_mode[PLANE_TYPES];
