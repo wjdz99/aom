@@ -749,7 +749,7 @@ static void read_palette_mode_info(AV1_COMMON *const cm, MACROBLOCKD *const xd,
   const int block_palette_idx = bsize - BLOCK_8X8;
   int modev;
 
-  if (mbmi->mode == DC_PRED) {
+  if (mbmi->mode == PALETTE_PRIMARY_MODE) {
     int palette_y_mode_ctx = 0;
     if (above_mi) {
       palette_y_mode_ctx +=
@@ -777,7 +777,7 @@ static void read_palette_mode_info(AV1_COMMON *const cm, MACROBLOCKD *const xd,
 #endif  // CONFIG_PALETTE_DELTA_ENCODING
     }
   }
-  if (mbmi->uv_mode == UV_DC_PRED) {
+  if (mbmi->uv_mode == PALETTE_UV_PRIMARY_MODE) {
     const int palette_uv_mode_ctx = (pmi->palette_size[0] > 0);
     modev = aom_read_symbol(
         r, xd->tile_ctx->palette_uv_mode_cdf[palette_uv_mode_ctx], 2, ACCT_STR);
@@ -808,7 +808,7 @@ static void read_filter_intra_mode_info(MACROBLOCKD *const xd, aom_reader *r) {
   FILTER_INTRA_MODE_INFO *filter_intra_mode_info =
       &mbmi->filter_intra_mode_info;
 
-  if (mbmi->mode == DC_PRED && mbmi->palette_mode_info.palette_size[0] == 0 &&
+  if (mbmi->mode == FI_PRIMARY_MODE && mbmi->palette_mode_info.palette_size[0] == 0 &&
       av1_filter_intra_allowed_txsize(mbmi->tx_size)) {
     filter_intra_mode_info->use_filter_intra_mode[0] = aom_read_symbol(
         r, xd->tile_ctx->filter_intra_cdfs[mbmi->tx_size], 2, ACCT_STR);
@@ -852,8 +852,16 @@ static void read_intra_angle_info(MACROBLOCKD *const xd, aom_reader *r) {
 
   if (av1_is_directional_mode(get_uv_mode(mbmi->uv_mode), bsize)) {
 #if CONFIG_EXT_INTRA_MOD
+#if INTRA_UV_TEST
+    if (get_uv_mode(mbmi->uv_mode) == mbmi->mode) {
+      mbmi->angle_delta[1] = mbmi->angle_delta[0];
+    } else {
+      mbmi->angle_delta[1] = 0;
+    }
+#else
     mbmi->angle_delta[1] =
         read_angle_delta(r, ec_ctx->angle_delta_cdf[mbmi->uv_mode - V_PRED]);
+#endif
 #else
     mbmi->angle_delta[1] =
         av1_read_uniform(r, 2 * MAX_ANGLE_DELTA + 1) - MAX_ANGLE_DELTA;
@@ -1158,6 +1166,57 @@ static void read_intra_frame_mode_info(AV1_COMMON *const cm,
 #if !CONFIG_TXK_SEL
   av1_read_tx_type(cm, xd, r);
 #endif  // !CONFIG_TXK_SEL
+#if CONFIG_FILTER_INTRA
+  if (0) { //test-jy
+    int get_emode(const MB_MODE_INFO *m0) {
+      int m = 0;
+      if (m0) {
+        m = m0->mode;
+        if (m0->palette_mode_info.palette_size[0]) {
+          m = 13;
+        } else if (m0->filter_intra_mode_info.use_filter_intra_mode[0]) {
+          m = 14 + m0->filter_intra_mode_info.filter_intra_mode[0];
+        }
+      }
+      return m;
+    }
+    int a = get_emode(&above_mi->mbmi);
+    int l = get_emode(&left_mi->mbmi);
+    int c = get_emode(mbmi);
+    printf("\nMD mi %d %d part %d %d tx_size %d above %d left %d cur %d\n",
+           mi_col, mi_row, bw, bh, mbmi->tx_size, a, l, c);
+  }
+  if (0) { //test-jy
+    int get_emode(const MB_MODE_INFO *m0) {
+      int m = 0;
+      if (m0) {
+        m = m0->mode;
+        if (m0->palette_mode_info.palette_size[0]) {
+          m = 13;
+        } else if (m0->filter_intra_mode_info.use_filter_intra_mode[0]) {
+          m = 14 + m0->filter_intra_mode_info.filter_intra_mode[0];
+        }
+      }
+      return m;
+    }
+    int get_emode_uv(const MB_MODE_INFO *m0) {
+      int m = 0;
+      if (m0) {
+        m = m0->uv_mode;
+        if (m0->palette_mode_info.palette_size[1]) {
+          m = 14;
+        }
+      }
+      return m;
+    }
+    int y_mode = get_emode(mbmi);
+    int uv_mode = get_emode_uv(mbmi);
+    printf("\nMD part %d %d y %d %d uv %d %d\n",
+           bw, bh,
+           y_mode, mbmi->angle_delta[0],
+           uv_mode, mbmi->angle_delta[1]);
+  }
+#endif
 }
 
 static int read_mv_component(aom_reader *r, nmv_component *mvcomp,

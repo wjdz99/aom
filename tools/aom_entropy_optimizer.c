@@ -319,7 +319,7 @@ int main(int argc, const char **argv) {
   int cts_each_dim[10];
 
 /* Intra mode (keyframe luma) */
-#if CONFIG_KF_CTX
+#if CONFIG_KF_CTX && !CONFIG_KF2
   cts_each_dim[0] = KF_MODE_CONTEXTS;
   cts_each_dim[1] = KF_MODE_CONTEXTS;
   cts_each_dim[2] = INTRA_MODES;
@@ -327,6 +327,13 @@ int main(int argc, const char **argv) {
                      "const aom_cdf_prob\n"
                      "default_kf_y_mode_cdf[KF_MODE_CONTEXTS][KF_MODE_CONTEXTS]"
                      "[CDF_SIZE(INTRA_MODES)]");
+#elif CONFIG_KF2
+  cts_each_dim[0] = KF_MODE_CONTEXTS;
+  cts_each_dim[1] = INTRA_MODES;
+  optimize_cdf_table(
+      &fc.kf_y_mode[0][0], probsfile, 2, cts_each_dim,
+      "const aom_cdf_prob\n"
+      "default_kf_y_mode_cdf[KF_MODE_CONTEXTS][CDF_SIZE(INTRA_MODES)]");
 #else
   cts_each_dim[0] = INTRA_MODES;
   cts_each_dim[1] = INTRA_MODES;

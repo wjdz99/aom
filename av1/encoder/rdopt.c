@@ -2790,7 +2790,7 @@ static int64_t intra_model_yrd(const AV1_COMP *const cpi, MACROBLOCK *const x,
   }
 #endif  // CONFIG_EXT_INTRA
 #if CONFIG_FILTER_INTRA
-  if (mbmi->mode == DC_PRED && av1_filter_intra_allowed_txsize(mbmi->tx_size)) {
+  if (mbmi->mode == FI_PRIMARY_MODE && av1_filter_intra_allowed_txsize(mbmi->tx_size)) {
     if (mbmi->filter_intra_mode_info.use_filter_intra_mode[0]) {
       const int mode = mbmi->filter_intra_mode_info.filter_intra_mode[0];
       mode_cost += x->filter_intra_cost[mbmi->tx_size][1] +
@@ -2931,7 +2931,7 @@ static int rd_pick_palette_intra_sby(const AV1_COMP *const cpi, MACROBLOCK *x,
     }
 #endif  // CONFIG_HIGHBITDEPTH
 
-    mbmi->mode = DC_PRED;
+    mbmi->mode = PALETTE_PRIMARY_MODE;
 #if CONFIG_FILTER_INTRA
     mbmi->filter_intra_mode_info.use_filter_intra_mode[0] = 0;
 #endif  // CONFIG_FILTER_INTRA
@@ -3048,7 +3048,7 @@ static int rd_pick_filter_intra_sby(const AV1_COMP *const cpi, MACROBLOCK *x,
 
   av1_zero(filter_intra_mode_info);
   mbmi->filter_intra_mode_info.use_filter_intra_mode[0] = 1;
-  mbmi->mode = DC_PRED;
+  mbmi->mode = FI_PRIMARY_MODE;
   mbmi->palette_mode_info.palette_size[0] = 0;
 
   for (mode = 0; mode < FILTER_INTRA_MODES; ++mode) {
@@ -3082,7 +3082,7 @@ static int rd_pick_filter_intra_sby(const AV1_COMP *const cpi, MACROBLOCK *x,
   }
 
   if (filter_intra_selected_flag) {
-    mbmi->mode = DC_PRED;
+    mbmi->mode = FI_PRIMARY_MODE;
     mbmi->tx_size = best_tx_size;
     mbmi->filter_intra_mode_info.use_filter_intra_mode[0] =
         filter_intra_mode_info.use_filter_intra_mode[0];
@@ -3381,9 +3381,14 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   const PREDICTION_MODE FINAL_MODE_SEARCH = PAETH_PRED + 1;
 
 #if CONFIG_KF_CTX
+#if CONFIG_KF2
+  int ctx = av1_get_intra_ctx(A, L);
+  bmode_costs = x->y_mode_costs[ctx];
+#else
   const int above_ctx = intra_mode_context[A];
   const int left_ctx = intra_mode_context[L];
   bmode_costs = x->y_mode_costs[above_ctx][left_ctx];
+#endif  // CONFIG_KF2
 #else
   bmode_costs = x->y_mode_costs[A][L];
 #endif
@@ -3476,7 +3481,7 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
           x->palette_y_mode_cost[bsize - BLOCK_8X8][palette_y_mode_ctx][0];
     }
 #if CONFIG_FILTER_INTRA
-    if (mbmi->mode == DC_PRED && av1_filter_intra_allowed_txsize(mbmi->tx_size))
+    if (mbmi->mode == FI_PRIMARY_MODE && av1_filter_intra_allowed_txsize(mbmi->tx_size))
       this_rate += x->filter_intra_cost[mbmi->tx_size][0];
 #endif  // CONFIG_FILTER_INTRA
 #if CONFIG_EXT_INTRA
@@ -3523,7 +3528,7 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   if (beat_best_rd && av1_filter_intra_allowed_bsize(bsize) &&
       !xd->lossless[mbmi->segment_id]) {
     if (rd_pick_filter_intra_sby(cpi, x, rate, rate_tokenonly, distortion,
-                                 skippable, bsize, bmode_costs[DC_PRED],
+                                 skippable, bsize, bmode_costs[FI_PRIMARY_MODE],
                                  &best_rd, &best_model_rd)) {
       best_mbmi = *mbmi;
     }
@@ -5083,7 +5088,7 @@ static void rd_pick_palette_intra_sbuv(const AV1_COMP *const cpi, MACROBLOCK *x,
                            &plane_block_height, &rows, &cols);
   if (rows * cols > MAX_PALETTE_SQUARE) return;
 
-  mbmi->uv_mode = UV_DC_PRED;
+  mbmi->uv_mode = PALETTE_UV_PRIMARY_MODE;
 #if CONFIG_FILTER_INTRA
   mbmi->filter_intra_mode_info.use_filter_intra_mode[1] = 0;
 #endif  // CONFIG_FILTER_INTRA
@@ -5452,6 +5457,8 @@ static int64_t rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
 #if CONFIG_EXT_INTRA
     const int is_directional_mode =
         av1_is_directional_mode(get_uv_mode(mode), mbmi->sb_type);
+    const int use_angle_delta = !INTRA_UV_TEST &&
+        av1_use_angle_delta(mbmi->sb_type);
 #endif  // CONFIG_EXT_INTRA
     if (!(cpi->sf.intra_uv_mode_mask[txsize_sqr_up_map[max_tx_size]] &
           (1 << mode)))
@@ -5469,7 +5476,12 @@ static int64_t rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
 #endif
 #if CONFIG_EXT_INTRA
     mbmi->angle_delta[1] = 0;
-    if (is_directional_mode && av1_use_angle_delta(mbmi->sb_type)) {
+#if INTRA_UV_TEST
+    if (get_uv_mode(mode) == mbmi->mode) {
+      mbmi->angle_delta[1] = mbmi->angle_delta[0];
+    }
+#endif
+    if (is_directional_mode && use_angle_delta) {
       const int rate_overhead = x->intra_uv_mode_cost[mbmi->mode][mode] +
 #if CONFIG_EXT_INTRA_MOD
                                 0;
@@ -5499,7 +5511,7 @@ static int64_t rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
     }
 #endif
 #if CONFIG_EXT_INTRA
-    if (is_directional_mode && av1_use_angle_delta(mbmi->sb_type)) {
+    if (is_directional_mode && use_angle_delta) {
 #if CONFIG_EXT_INTRA_MOD
       this_rate += x->angle_delta_cost[mode - V_PRED]
                                       [mbmi->angle_delta[1] + MAX_ANGLE_DELTA];
@@ -5510,7 +5522,7 @@ static int64_t rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
     }
 #endif  // CONFIG_EXT_INTRA
 
-    if (try_palette && mode == UV_DC_PRED)
+    if (try_palette && mode == PALETTE_UV_PRIMARY_MODE)
       this_rate += x->palette_uv_mode_cost[pmi->palette_size[0] > 0][0];
 
     this_rd = RDCOST(x->rdmult, this_rate, tokenonly_rd_stats.dist);
@@ -9579,7 +9591,7 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
       skippable = rd_stats_y.skip;
 
 #if CONFIG_FILTER_INTRA
-      if (mbmi->mode == DC_PRED && !xd->lossless[mbmi->segment_id] &&
+      if (mbmi->mode == FI_PRIMARY_MODE && !xd->lossless[mbmi->segment_id] &&
           av1_filter_intra_allowed_bsize(mbmi->sb_type)) {
         RD_STATS rd_stats_y_fi;
         int filter_intra_selected_flag = 0;
@@ -9692,6 +9704,7 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
 #endif  // CONFIG_EXT_INTRA_MOD
         }
       }
+#if !INTRA_UV_TEST
       if (av1_is_directional_mode(get_uv_mode(mbmi->uv_mode), bsize) &&
           av1_use_angle_delta(bsize)) {
 #if CONFIG_EXT_INTRA_MOD
@@ -9703,8 +9716,9 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
 #endif  // CONFIG_EXT_INTRA_MOD
       }
 #endif  // CONFIG_EXT_INTRA
+#endif
 #if CONFIG_FILTER_INTRA
-      if (mbmi->mode == DC_PRED &&
+      if (mbmi->mode == FI_PRIMARY_MODE &&
           av1_filter_intra_allowed_txsize(mbmi->tx_size)) {
         rate2 +=
             x->filter_intra_cost[mbmi->tx_size][mbmi->filter_intra_mode_info

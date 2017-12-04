@@ -1805,9 +1805,15 @@ static const struct {
 /* clang-format on */
 
 #if CONFIG_KF_CTX
+#if CONFIG_KF2
+static const int intra_mode_context[INTRA_MODES] = {
+  0, 1, 2, 3, 4, 4, 4, 5, 3, 6, 6, 6, 7,
+};
+#else
 static const int intra_mode_context[INTRA_MODES] = {
   0, 1, 2, 3, 4, 4, 4, 4, 3, 0, 1, 2, 0,
 };
+#endif  // CONFIG_KF2
 #endif
 
 #if CONFIG_ADAPT_SCAN

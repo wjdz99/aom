@@ -4800,6 +4800,9 @@ static void encode_without_recode_loop(AV1_COMP *cpi) {
   }
 
   av1_set_quantizer(cm, q);
+  if (1) { //test-jy
+    av1_init_quantizer(cpi);
+  }
   setup_frame(cpi);
   suppress_active_map(cpi);
 
@@ -4899,6 +4902,9 @@ static void encode_with_recode_loop(AV1_COMP *cpi, size_t *size,
       scale_references(cpi);
     }
     av1_set_quantizer(cm, q);
+    if (1) { //test-jy
+      av1_init_quantizer(cpi);
+    }
 
     if (loop_count == 0) setup_frame(cpi);
 

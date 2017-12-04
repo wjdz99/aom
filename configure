@@ -273,6 +273,7 @@ EXPERIMENT_LIST="
     inter_stats_only
     palette_delta_encoding
     kf_ctx
+    kf2
     cfl
     xiphrc
     dct_only
@@ -334,6 +335,7 @@ EXPERIMENT_LIST="
     mono_video
     q_segmentation
     segment_pred_last
+    opt_imode
 "
 CONFIG_LIST="
     dependency_tracking

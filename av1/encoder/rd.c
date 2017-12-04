@@ -103,9 +103,14 @@ void av1_fill_mode_rates(AV1_COMMON *const cm, MACROBLOCK *x,
   }
 
 #if CONFIG_KF_CTX
+#if CONFIG_KF2
+  for (i = 0; i < KF_MODE_CONTEXTS; ++i)
+    av1_cost_tokens_from_cdf(x->y_mode_costs[i], fc->kf_y_cdf[i], NULL);
+#else
   for (i = 0; i < KF_MODE_CONTEXTS; ++i)
     for (j = 0; j < KF_MODE_CONTEXTS; ++j)
       av1_cost_tokens_from_cdf(x->y_mode_costs[i][j], fc->kf_y_cdf[i][j], NULL);
+#endif
 #else
   for (i = 0; i < INTRA_MODES; ++i)
     for (j = 0; j < INTRA_MODES; ++j)

@@ -1782,15 +1782,19 @@ void av1_frame_init_quantizer(AV1_COMP *cpi) {
 #endif
 }
 
+#ifndef Q_TEST
+#define Q_TEST -6
+#endif
+
 void av1_set_quantizer(AV1_COMMON *cm, int q) {
   // quantizer has to be reinitialized with av1_init_quantizer() if any
   // delta_q changes.
   cm->base_qindex = q;
   cm->y_dc_delta_q = 0;
-  cm->u_dc_delta_q = 0;
-  cm->u_ac_delta_q = 0;
-  cm->v_dc_delta_q = 0;
-  cm->v_ac_delta_q = 0;
+  cm->u_dc_delta_q = Q_TEST;
+  cm->u_ac_delta_q = Q_TEST;
+  cm->v_dc_delta_q = Q_TEST;
+  cm->v_ac_delta_q = Q_TEST;
 }
 
 // Table that converts 0-63 Q-range values passed in outside to the Qindex
