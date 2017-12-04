@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9e6ac2b0_d1598882",
+        "filename": "av1/common/x86/daala_inv_txfm_avx2.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 5540
+      },
+      "writtenOn": "2017-12-04T22:59:39Z",
+      "side": 1,
+      "message": "Note that unlord dearly wishes to separate the clip/add out of the the actual TX.  That gets harder if it\u0027s rolled into the column inverse TX assembly.",
+      "range": {
+        "startLine": 112,
+        "startChar": 13,
+        "endLine": 112,
+        "endChar": 19
+      },
+      "revId": "d2f148e136fc36e3f59b768d99711e9502e922b3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
