@@ -2482,9 +2482,23 @@ static void write_modes(AV1_COMP *const cpi, const TileInfo *const tile,
     av1_zero_left_context(xd);
 
     for (mi_col = mi_col_start; mi_col < mi_col_end; mi_col += cm->mib_size) {
+#if CONFIG_BLOCK_ADAPT_SCAN
+      {
+        SCAN_CONTEXT *left, *above;
+        get_scan_context(xd, mi_row, mi_col, &left, &above);
+        av1_select_scan_order(xd->tile_ctx, left, above);
+        av1_clear_scan_cost(xd->tile_ctx);
+      }
+#endif
       write_modes_sb(cpi, tile, w, tok, tok_end, mi_row, mi_col, cm->sb_size);
 #if NC_MODE_INFO
       write_tokens_sb(cpi, tile, w, tok, tok_end, mi_row, mi_col, cm->sb_size);
+#endif
+#if CONFIG_BLOCK_ADAPT_SCAN
+      {
+        int scan_context = av1_evaluate_scan_costs(xd->tile_ctx);
+        set_scan_context(xd, mi_row, mi_col, scan_context);
+      }
 #endif
     }
   }
@@ -4052,7 +4066,7 @@ static void write_uncompressed_header_frame(AV1_COMP *cpi,
 
   aom_wb_write_bit(wb, cm->reduced_tx_set_used);
 
-#if CONFIG_ADAPT_SCAN
+#if CONFIG_ADAPT_SCAN || CONFIG_BLOCK_ADAPT_SCAN
 #if CONFIG_EXT_TILE
   if (cm->large_scale_tile)
     assert(cm->use_adapt_scan == 0);

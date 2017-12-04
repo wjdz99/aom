@@ -2254,6 +2254,14 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
 
         for (mi_col = tile_info.mi_col_start; mi_col < tile_info.mi_col_end;
              mi_col += cm->mib_size) {
+#if CONFIG_BLOCK_ADAPT_SCAN
+          {
+            SCAN_CONTEXT *left, *above;
+            get_scan_context(&td->xd, mi_row, mi_col, &left, &above);
+            av1_select_scan_order(td->xd.tile_ctx, left, above);
+            av1_clear_scan_cost(td->xd.tile_ctx);
+          }
+#endif
 #if CONFIG_SYMBOLRATE
           av1_record_superblock(td->xd.counts);
 #endif
@@ -2262,6 +2270,17 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
 #if NC_MODE_INFO
           detoken_and_recon_sb(pbi, &td->xd, mi_row, mi_col, &td->bit_reader,
                                cm->sb_size);
+#endif
+#if CONFIG_BLOCK_ADAPT_SCAN
+          {
+            // printf("sb-score: %2d %2d : ", mi_col/cm->mib_size,
+            // mi_row/cm->mib_size);
+            int scan_context = av1_evaluate_scan_costs(td->xd.tile_ctx);
+            // printf("\n");
+            set_scan_context(&td->xd, mi_row, mi_col, scan_context);
+            // printf("sb-score: %2d %2d : %d\n", mi_col/cm->mib_size,
+            // mi_row/cm->mib_size, scan_context);
+          }
 #endif
 #if CONFIG_LPF_SB
           if (USE_LOOP_FILTER_SUPERBLOCK) {
@@ -3174,7 +3193,7 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
 
   cm->reduced_tx_set_used = aom_rb_read_bit(rb);
 
-#if CONFIG_ADAPT_SCAN
+#if CONFIG_ADAPT_SCAN || CONFIG_BLOCK_ADAPT_SCAN
 #if CONFIG_EXT_TILE
   if (cm->large_scale_tile)
     cm->use_adapt_scan = 0;
@@ -3183,8 +3202,10 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
     cm->use_adapt_scan = aom_rb_read_bit(rb);
   // TODO(angiebird): call av1_init_scan_order only when use_adapt_scan
   // switches from 1 to 0
+#if CONFIG_ADAPT_SCAN
   if (cm->use_adapt_scan == 0) av1_init_scan_order(cm);
-#endif  // CONFIG_ADAPT_SCAN
+#endif
+#endif  // CONFIG_ADAPT_SCAN || CONFIG_BLOCK_ADAPT_SCAN
 
 #if !CONFIG_TEMPMV_SIGNALING
   // NOTE(zoeliu): As cm->prev_frame can take neither a frame of

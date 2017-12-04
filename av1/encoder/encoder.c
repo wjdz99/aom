@@ -4778,7 +4778,7 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
 static void encode_without_recode_loop(AV1_COMP *cpi) {
   AV1_COMMON *const cm = &cpi->common;
   int q = 0, bottom_index = 0, top_index = 0;  // Dummy variables.
-
+  printf("encode_without_recode_loop\n");
   aom_clear_system_state();
 
   set_size_independent_vars(cpi);
@@ -4848,7 +4848,6 @@ static void encode_with_recode_loop(AV1_COMP *cpi, size_t *size,
   int frame_over_shoot_limit;
   int frame_under_shoot_limit;
   int q = 0, q_low = 0, q_high = 0;
-
   set_size_independent_vars(cpi);
 
 #if CONFIG_HIGHBITDEPTH

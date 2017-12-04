@@ -521,6 +521,9 @@ typedef struct AV1Common {
   TXFM_CONTEXT *top_txfm_context[MAX_MB_PLANE];
   TXFM_CONTEXT left_txfm_context[MAX_MB_PLANE][2 * MAX_MIB_SIZE];
   int above_context_alloc_cols;
+#if CONFIG_BLOCK_ADAPT_SCAN
+  SCAN_CONTEXT *above_scan_context;
+#endif
 
   // scratch memory for intraonly/keyframe forward updates from default tables
   // - this is intentionally not placed in FRAME_CONTEXT since it's reset upon
@@ -572,7 +575,7 @@ typedef struct AV1Common {
 #if CONFIG_LPF_SB
   int final_lpf_encode;
 #endif
-#if CONFIG_ADAPT_SCAN
+#if CONFIG_ADAPT_SCAN || CONFIG_BLOCK_ADAPT_SCAN
   int use_adapt_scan;
 #endif
 #if CONFIG_MFMV
@@ -758,6 +761,9 @@ static INLINE void av1_init_macroblockd(AV1_COMMON *cm, MACROBLOCKD *xd,
   xd->fc = cm->fc;
   xd->above_seg_context = cm->above_seg_context;
   xd->above_txfm_context = cm->above_txfm_context;
+#if CONFIG_BLOCK_ADAPT_SCAN
+  xd->above_scan_context = cm->above_scan_context;
+#endif
   xd->mi_stride = cm->mi_stride;
   xd->error_info = &cm->error;
 #if CONFIG_CFL
@@ -884,6 +890,30 @@ static INLINE aom_cdf_prob *get_y_mode_cdf(FRAME_CONTEXT *tile_ctx,
   return tile_ctx->kf_y_cdf[above][left];
 #endif
 }
+
+#if CONFIG_BLOCK_ADAPT_SCAN
+static INLINE void set_scan_context(MACROBLOCKD *xd, int mi_row, int mi_col,
+                                    SCAN_CONTEXT scan_context) {
+  int col = mi_col >> ADAPT_SCAN_MI_SIZE_LOG2;
+  (void)mi_row;
+  // Keep track of above-above and left-left
+  // printf("set_scan_context: %2d %2d %d\n", mi_row, mi_col, scan_context);
+  xd->above_scan_context[2 * col + 1] = xd->above_scan_context[2 * col];
+  xd->above_scan_context[2 * col + 0] = scan_context;
+  xd->left_scan_context[1] = xd->left_scan_context[0];
+  xd->left_scan_context[0] = scan_context;
+}
+
+static INLINE void get_scan_context(MACROBLOCKD *xd, int mi_row, int mi_col,
+                                    SCAN_CONTEXT **left, SCAN_CONTEXT **above) {
+  int col = mi_col >> ADAPT_SCAN_MI_SIZE_LOG2;
+  (void)mi_row;
+  *above = &xd->above_scan_context[2 * col];
+  *left = &xd->left_scan_context[0];
+  // printf("get_scan_context: %2d %2d %d %d\n", mi_row, mi_col, (*left)[0],
+  // (*above)[0]);
+}
+#endif
 
 static INLINE void update_partition_context(MACROBLOCKD *xd, int mi_row,
                                             int mi_col, BLOCK_SIZE subsize,
@@ -1182,12 +1212,22 @@ static INLINE void av1_zero_above_context(AV1_COMMON *const cm,
 
   av1_zero_array(cm->above_txfm_context + (mi_col_start << TX_UNIT_WIDE_LOG2),
                  aligned_width << TX_UNIT_WIDE_LOG2);
+#if CONFIG_BLOCK_ADAPT_SCAN
+  // printf("zero: %d %d\n", mi_col_start, 2*(aligned_width >>
+  // ADAPT_SCAN_MI_SIZE_LOG2));
+  av1_zero_array(
+      cm->above_scan_context + 2 * (mi_col_start >> ADAPT_SCAN_MI_SIZE_LOG2),
+      2 * (aligned_width >> ADAPT_SCAN_MI_SIZE_LOG2));
+#endif
 }
 
 static INLINE void av1_zero_left_context(MACROBLOCKD *const xd) {
   av1_zero(xd->left_context);
   av1_zero(xd->left_seg_context);
   av1_zero(xd->left_txfm_context_buffer);
+#if CONFIG_BLOCK_ADAPT_SCAN
+  av1_zero(xd->left_scan_context);
+#endif
 }
 
 // Disable array-bounds checks as the TX_SIZE enum contains values larger than
