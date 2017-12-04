@@ -10494,13 +10494,22 @@ PALETTE_EXIT:
       // Update skip mode rdcost.
       const int skip_mode_ctx = av1_get_skip_mode_context(xd);
       x->skip_mode_rate += x->skip_mode_cost[skip_mode_ctx][1];
+#if 1
+      const int rdmult_skip_mode = x->rdmult + (x->rdmult >> 1);
+      x->skip_mode_rdcost =
+          RDCOST(rdmult_skip_mode, x->skip_mode_rate, x->skip_mode_dist);
+      // Compare the use of skip_mode with the best intra/inter mode obtained.
+      const int64_t best_intra_inter_mode_cost = RDCOST(
+          rdmult_skip_mode, rd_cost->rate + x->skip_mode_cost[skip_mode_ctx][0],
+          rd_cost->dist);
+#else
       x->skip_mode_rdcost =
           RDCOST(x->rdmult, x->skip_mode_rate, x->skip_mode_dist);
-
       // Compare the use of skip_mode with the best intra/inter mode obtained.
       const int64_t best_intra_inter_mode_cost =
           RDCOST(x->rdmult, rd_cost->rate + x->skip_mode_cost[skip_mode_ctx][0],
                  rd_cost->dist);
+#endif  // 0
 
       if (x->skip_mode_rdcost <= best_intra_inter_mode_cost
 #if 0

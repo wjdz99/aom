@@ -576,6 +576,11 @@ void av1_initialize_rd_consts(AV1_COMP *cpi) {
 
   rd->RDMULT = av1_compute_rd_mult(cpi, cm->base_qindex + cm->y_dc_delta_q);
 
+#if 0
+  // NOTE(zoeliu): For debug
+  printf("Frame=%d, RDMULT=%d\n", cm->frame_offset, rd->RDMULT);
+#endif  // 0
+
   set_error_per_bit(x, rd->RDMULT);
 
   set_block_thresholds(cm, rd);
