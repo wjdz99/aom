@@ -4514,7 +4514,7 @@ static void sum_intra_stats(FRAME_COUNTS *counts, MACROBLOCKD *xd,
   }
 
 #if CONFIG_FILTER_INTRA
-  if (mbmi->mode == DC_PRED && mbmi->palette_mode_info.palette_size[0] == 0 &&
+  if (mbmi->mode == FI_PRIMARY_MODE && mbmi->palette_mode_info.palette_size[0] == 0 &&
       av1_filter_intra_allowed_txsize(mbmi->tx_size)) {
     const int use_filter_intra_mode =
         mbmi->filter_intra_mode_info.use_filter_intra_mode[0];
@@ -4561,7 +4561,7 @@ static void sum_intra_stats(FRAME_COUNTS *counts, MACROBLOCKD *xd,
   if (!is_chroma_reference(mi_row, mi_col, bsize, xd->plane[1].subsampling_x,
                            xd->plane[1].subsampling_y))
     return;
-#if CONFIG_EXT_INTRA && CONFIG_EXT_INTRA_MOD
+#if CONFIG_EXT_INTRA && CONFIG_EXT_INTRA_MOD && !OPT_IMODE_UV
   if (av1_is_directional_mode(get_uv_mode(mbmi->uv_mode), bsize) &&
       av1_use_angle_delta(bsize)) {
 #if CONFIG_ENTROPY_STATS
@@ -4594,7 +4594,7 @@ static void update_palette_cdf(MACROBLOCKD *xd, const MODE_INFO *mi) {
   assert(bsize >= BLOCK_8X8 && bsize <= BLOCK_LARGEST);
   const int block_palette_idx = bsize - BLOCK_8X8;
 
-  if (mbmi->mode == DC_PRED) {
+  if (mbmi->mode == PALETTE_PRIMARY_MODE) {
     const int n = pmi->palette_size[0];
     int palette_y_mode_ctx = 0;
     if (above_mi) {
@@ -4609,7 +4609,7 @@ static void update_palette_cdf(MACROBLOCKD *xd, const MODE_INFO *mi) {
                n > 0, 2);
   }
 
-  if (mbmi->uv_mode == UV_DC_PRED) {
+  if (mbmi->uv_mode == PALETTE_UV_PRIMARY_MODE) {
     const int n = pmi->palette_size[1];
     const int palette_uv_mode_ctx = (pmi->palette_size[0] > 0);
     update_cdf(fc->palette_uv_mode_cdf[palette_uv_mode_ctx], n > 0, 2);
