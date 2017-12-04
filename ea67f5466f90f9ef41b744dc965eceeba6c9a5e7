@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "f76edffa_ae43b511",
+        "filename": "aomdec.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 8014
+      },
+      "writtenOn": "2017-12-04T18:50:39Z",
+      "side": 1,
+      "message": "Why? Are the include sorted in alphabetical order?",
+      "parentUuid": "91c03872_c1a579b2",
+      "range": {
+        "startLine": 50,
+        "startChar": 1,
+        "endLine": 52,
+        "endChar": 6
+      },
+      "revId": "ea67f5466f90f9ef41b744dc965eceeba6c9a5e7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fbd9b596_426f4190",
         "filename": "obudec.c",
         "patchSetId": 14
@@ -39,6 +63,24 @@
       "revId": "ea67f5466f90f9ef41b744dc965eceeba6c9a5e7",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bd9856eb_795e239a",
+        "filename": "obudec.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 8014
+      },
+      "writtenOn": "2017-12-04T18:50:39Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "fbd9b596_426f4190",
+      "revId": "ea67f5466f90f9ef41b744dc965eceeba6c9a5e7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -65,6 +107,30 @@
     },
     {
       "key": {
+        "uuid": "48c61b1b_d9b8cf83",
+        "filename": "obudec.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 8014
+      },
+      "writtenOn": "2017-12-04T18:50:39Z",
+      "side": 1,
+      "message": "Ack. I used the existing macro for that, useful to initialize arrays. Let me know if that works for you.",
+      "parentUuid": "4635ce4e_a96b72e3",
+      "range": {
+        "startLine": 24,
+        "startChar": 40,
+        "endLine": 24,
+        "endChar": 41
+      },
+      "revId": "ea67f5466f90f9ef41b744dc965eceeba6c9a5e7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8e2064eb_53623b79",
         "filename": "obudec.c",
         "patchSetId": 14
@@ -88,6 +154,30 @@
     },
     {
       "key": {
+        "uuid": "09eb9853_92e2d095",
+        "filename": "obudec.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 8014
+      },
+      "writtenOn": "2017-12-04T18:50:39Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "8e2064eb_53623b79",
+      "range": {
+        "startLine": 51,
+        "startChar": 34,
+        "endLine": 51,
+        "endChar": 35
+      },
+      "revId": "ea67f5466f90f9ef41b744dc965eceeba6c9a5e7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9d2b6fe2_7180bae6",
         "filename": "obudec.c",
         "patchSetId": 14
@@ -99,6 +189,30 @@
       "writtenOn": "2017-12-04T17:41:14Z",
       "side": 1,
       "message": "It would be nice if this were hooked up to a function that converts OBU type numbers to strings, but can ignore this if you\u0027d prefer not to do that.",
+      "range": {
+        "startLine": 61,
+        "startChar": 4,
+        "endLine": 62,
+        "endChar": 46
+      },
+      "revId": "ea67f5466f90f9ef41b744dc965eceeba6c9a5e7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "115953d5_6c20d531",
+        "filename": "obudec.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 8014
+      },
+      "writtenOn": "2017-12-04T18:50:39Z",
+      "side": 1,
+      "message": "It would be nice, maybe as a separate patch though.",
+      "parentUuid": "9d2b6fe2_7180bae6",
       "range": {
         "startLine": 61,
         "startChar": 4,
@@ -134,6 +248,30 @@
     },
     {
       "key": {
+        "uuid": "50feeb68_3bfd034b",
+        "filename": "obudec.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 8014
+      },
+      "writtenOn": "2017-12-04T18:50:39Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "295870e7_d05582c8",
+      "range": {
+        "startLine": 80,
+        "startChar": 16,
+        "endLine": 80,
+        "endChar": 17
+      },
+      "revId": "ea67f5466f90f9ef41b744dc965eceeba6c9a5e7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "461d8d27_f59ad187",
         "filename": "obudec.c",
         "patchSetId": 14
@@ -145,6 +283,30 @@
       "writtenOn": "2017-12-04T17:41:14Z",
       "side": 1,
       "message": "Add a TODO to implement SH parsing?",
+      "range": {
+        "startLine": 84,
+        "startChar": 2,
+        "endLine": 84,
+        "endChar": 56
+      },
+      "revId": "ea67f5466f90f9ef41b744dc965eceeba6c9a5e7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5a9b434e_18374aa9",
+        "filename": "obudec.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 8014
+      },
+      "writtenOn": "2017-12-04T18:50:39Z",
+      "side": 1,
+      "message": "This is a tricky question. I initially thought these fields would be needed to be read from the SH at that moment, because that\u0027s how it\u0027s done for IVF reading, but apparently decoding works fine without them being initialized now. I\u0027m removing those lines.",
+      "parentUuid": "461d8d27_f59ad187",
       "range": {
         "startLine": 84,
         "startChar": 2,
