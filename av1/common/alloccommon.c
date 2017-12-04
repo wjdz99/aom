@@ -214,6 +214,10 @@ void av1_free_context_buffers(AV1_COMMON *cm) {
     aom_free(cm->top_txfm_context[i]);
     cm->top_txfm_context[i] = NULL;
   }
+#if CONFIG_BLOCK_ADAPT_SCAN
+  aom_free(cm->above_scan_context);
+  cm->above_scan_context = NULL;
+#endif
 }
 
 int av1_alloc_context_buffers(AV1_COMMON *cm, int width, int height) {
@@ -269,6 +273,14 @@ int av1_alloc_context_buffers(AV1_COMMON *cm, int width, int height) {
     }
 
     cm->above_context_alloc_cols = aligned_mi_cols;
+#if CONFIG_BLOCK_ADAPT_SCAN
+    aom_free(cm->above_scan_context);
+    // This will over-allocate for the SB128 case
+    cm->above_scan_context = (SCAN_CONTEXT *)aom_calloc(
+        2 * (aligned_mi_cols >> b_width_log2_lookup[BLOCK_64X64]),
+        sizeof(*cm->above_scan_context));
+    if (!cm->above_scan_context) goto fail;
+#endif
   }
 
   return 0;

@@ -14,6 +14,9 @@
 #include "av1/common/common_data.h"
 #include "av1/common/scan.h"
 
+#if CONFIG_BLOCK_ADAPT_SCAN
+#include "av1/common/newscan.h"
+#else
 DECLARE_ALIGNED(16, static const int16_t, default_scan_4x4[16]) = {
   0, 4, 1, 5, 8, 2, 12, 9, 3, 6, 13, 10, 7, 14, 11, 15,
 };
@@ -3455,6 +3458,8 @@ DECLARE_ALIGNED(16, static const int16_t, av1_default_iscan_32x32[1024]) = {
   967,  973,  988,  996,  1002, 1006, 1014, 1018, 1021, 1023,
 };
 
+#endif  // USE_NEWSCAN
+
 #if CONFIG_TX64X64
 #define av1_default_iscan_32x64 av1_default_iscan_32x32
 #define av1_default_iscan_64x32 av1_default_iscan_32x32
@@ -5261,3 +5266,148 @@ void av1_deliver_eob_threshold(const AV1_COMMON *cm, MACROBLOCKD *xd) {
   xd->eob_threshold_md = (const EobThresholdMD *)cm->fc->eob_threshold;
 }
 #endif  // CONFIG_ADAPT_SCAN
+
+#if CONFIG_BLOCK_ADAPT_SCAN
+const int8_t av1_adapt_scan_class_inter[TX_SIZES_ALL][TX_TYPES] = {
+  { 0, 0, 0, 0, 0, 0, 0, -1, -1, -1, -1, -1, -1, -1, -1, -1 },  // TX_4X4
+  { 0, 0, 0, 0, 0, 0, 0, -1, -1, -1, -1, -1, -1, -1, -1, -1 },  // TX_8X8
+  { 0, 0, 0, 0, 0, 0, 0, -1, -1, -1, -1, -1, -1, -1, -1, -1 },  // TX_16X16
+  { 0, 0, 0, 0, 0, 0, 0, -1, -1, -1, -1, -1, -1, -1, -1, -1 },  // TX_32X32
+#if CONFIG_TX64X64
+  { 0, 0, 0, 0, 0, 0, 0, -1, -1, -1, -1, -1, -1, -1, -1, -1 },  // TX_64X64
+#endif  // CONFIG_TX64X64
+  { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 },  // TX_4X8
+  { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 },  // TX_8X4
+  { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+    -1 },  // TX_8X16
+  { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+    -1 },  // TX_16X8
+  { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+    -1 },  // TX_16X32
+  { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+    -1 },  // TX_32X16
+#if CONFIG_TX64X64
+  { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+    -1 },  // TX_32X64
+  { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+    -1 },  // TX_64X32
+#endif     // CONFIG_TX64X64
+};
+const int8_t av1_adapt_scan_class_intra[TX_SIZES_ALL][TX_TYPES] = {
+  { 0, -1, -1, 0, 0, 0, 0, -1, -1, -1, -1, -1, -1, -1, -1, -1 },  // TX_4X4
+  { 0, -1, -1, 0, 0, 0, 0, -1, -1, -1, -1, -1, -1, -1, -1, -1 },  // TX_8X8
+  { 0, -1, -1, 0, 0, 0, 0, -1, -1, -1, -1, -1, -1, -1, -1, -1 },  // TX_16X16
+  { 0, -1, -1, 0, 0, 0, 0, -1, -1, -1, -1, -1, -1, -1, -1, -1 },  // TX_32X32
+#if CONFIG_TX64X64
+  { 1, 2, 3, 1, 1, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1 },  // TX_64X64
+#endif  // CONFIG_TX64X64
+  { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 },  // TX_4X8
+  { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 },  // TX_8X4
+  { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+    -1 },  // TX_8X16
+  { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+    -1 },  // TX_16X8
+  { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+    -1 },  // TX_16X32
+  { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+    -1 },  // TX_32X16
+#if CONFIG_TX64X64
+  { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+    -1 },  // TX_32X64
+  { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+    -1 },  // TX_64X32
+#endif     // CONFIG_TX64X64
+};
+
+#define SCT(type, sz) \
+  { type##_scan_##sz, av1_##type##_iscan_##sz, type##_scan_##sz##_neighbors }
+#define SCT_NULL \
+  { 0, 0, 0 }
+const SCAN_ORDER av1_adapt_scan_order[TX_SIZES_ALL][ADAPT_SCAN_ORDERS] = {
+  { SCT(row3, 4x4), SCT(row2, 4x4), SCT(defaulth, 4x4), SCT(default, 4x4),
+    SCT(col2, 4x4), SCT(col3, 4x4) },
+  { SCT(row3, 8x8), SCT(row2, 8x8), SCT(defaulth, 8x8), SCT(default, 8x8),
+    SCT(col2, 8x8), SCT(col3, 8x8) },
+  { SCT(row3, 16x16), SCT(row2, 16x16), SCT(defaulth, 16x16),
+    SCT(default, 16x16), SCT(col2, 16x16), SCT(col3, 16x16) },
+  { SCT(row3, 32x32), SCT(row2, 32x32), SCT(defaulth, 32x32),
+    SCT(default, 32x32), SCT(col2, 32x32), SCT(col3, 32x32) },
+#if CONFIG_TX64X64
+  { SCT_NULL, SCT_NULL, SCT_NULL, SCT_NULL, SCT_NULL, SCT_NULL },  // TX_64X64
+#endif  // CONFIG_TX64X64
+  { SCT_NULL, SCT_NULL, SCT_NULL, SCT_NULL, SCT_NULL, SCT_NULL },  // TX_4X8
+  { SCT_NULL, SCT_NULL, SCT_NULL, SCT_NULL, SCT_NULL, SCT_NULL },  // TX_8X4
+  { SCT_NULL, SCT_NULL, SCT_NULL, SCT_NULL, SCT_NULL, SCT_NULL },  // TX_8X16
+  { SCT_NULL, SCT_NULL, SCT_NULL, SCT_NULL, SCT_NULL, SCT_NULL },  // TX_16X8
+  { SCT_NULL, SCT_NULL, SCT_NULL, SCT_NULL, SCT_NULL, SCT_NULL },  // TX_16X32
+  { SCT_NULL, SCT_NULL, SCT_NULL, SCT_NULL, SCT_NULL, SCT_NULL },  // TX_32X16
+#if CONFIG_TX64X64
+  { SCT_NULL, SCT_NULL, SCT_NULL, SCT_NULL, SCT_NULL, SCT_NULL },  // TX_32X64
+  { SCT_NULL, SCT_NULL, SCT_NULL, SCT_NULL, SCT_NULL, SCT_NULL },  // TX_64X32
+#endif  // CONFIG_TX64X64
+};
+
+// Return preferred scan order based on the accumulated scan cost
+SCAN_CONTEXT av1_evaluate_scan_costs(const FRAME_CONTEXT *ec_ctx) {
+  int dir;
+  const int *c = &ec_ctx->adapt_scan_cost[0][0];
+  if (c[0] < c[1] && c[0] < c[2]) {
+    dir = 0;
+  } else if (c[1] < c[2] && c[1] < c[3]) {
+    dir = 1;
+  } else if (c[2] < c[3]) {
+    // select preferred diagonal by comparing row vs. col cost
+    dir = c[1] < c[3] ? 2 : 3;
+  } else if (c[3] < c[4]) {
+    dir = 4;
+  } else if (c[4] < c[3]) {
+    dir = 5;
+  } else {
+    dir = -1;  // undefined
+  }
+  // printf("%4d %4d %4d %4d %4d %4d | %d %d | %2d", c[0], c[1], c[2], c[3],
+  // c[4], c[5],
+  //          best+1, ec_ctx->pred_scan[0]+1, best - ec_ctx->pred_scan[0]);
+  return dir + 1;  // offset so that 0 means undefined
+}
+
+// Select preferred scan order based on left/above neighbouring superblock
+void av1_select_scan_order(FRAME_CONTEXT *ec_ctx, SCAN_CONTEXT left[2],
+                           SCAN_CONTEXT above[2]) {
+  int l0 = left[0];
+  int a0 = above[0];
+  static const int pred_table[7][7] = { { 3, 1, 2, 2, 3, 3, 4 },    // undef
+                                        { 1, 0, 1, 2, 2, 2, 3 },    // row3
+                                        { 2, 1, 1, 2, 2, 3, 3 },    // row2
+                                        { 2, 2, 2, 2, 3, 3, 3 },    // defaulth
+                                        { 3, 2, 2, 3, 3, 3, 3 },    // default
+                                        { 3, 3, 3, 3, 3, 4, 4 },    // col2
+                                        { 4, 3, 3, 3, 3, 4, 5 } };  // col3
+  int best_scan = pred_table[l0][a0];
+  ec_ctx->pred_scan = best_scan;
+
+  // Setup scan-order lookup table
+  for (int tx_size = 0; tx_size < TX_SIZES_ALL; tx_size++) {
+    for (int tx_type = 0; tx_type < TX_TYPES; tx_type++) {
+      int scan_class = av1_adapt_scan_class_inter[tx_size][tx_type];
+      if (scan_class >= 0 && best_scan >= 0) {
+        ec_ctx->adapt_scan_order_inter[tx_size][tx_type] =
+            &av1_adapt_scan_order[tx_size][best_scan];
+      } else {
+        ec_ctx->adapt_scan_order_inter[tx_size][tx_type] = 0;
+      }
+      scan_class = av1_adapt_scan_class_intra[tx_size][tx_type];
+      if (scan_class >= 0 && best_scan >= 0) {
+        ec_ctx->adapt_scan_order_intra[tx_size][tx_type] =
+            &av1_adapt_scan_order[tx_size][best_scan];
+      } else {
+        ec_ctx->adapt_scan_order_intra[tx_size][tx_type] = 0;
+      }
+    }
+  }
+}
+
+void av1_clear_scan_cost(FRAME_CONTEXT *ec_ctx) {
+  memset(ec_ctx->adapt_scan_cost, 0, sizeof(ec_ctx->adapt_scan_cost));
+}
+#endif  // CONFIG_BLOCK_ADAPT_SCAN

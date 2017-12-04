@@ -58,6 +58,12 @@ extern "C" {
 // implement in hardware), so this is a toggle to conditionally disable them.
 #define ALLOW_128X32_BLOCKS 0
 
+#if CONFIG_BLOCK_ADAPT_SCAN
+#define ADAPT_SCAN_CLASSES 1
+#define ADAPT_SCAN_ORDERS 6
+#define ADAPT_SCAN_COSTS 5
+#endif
+
 struct AV1Common;
 
 typedef struct {
@@ -149,6 +155,13 @@ typedef struct frame_contexts {
 
   int16_t eob_threshold[TX_SIZES_ALL][TX_TYPES][EOB_THRESHOLD_NUM];
 #endif  // CONFIG_ADAPT_SCAN
+
+#if CONFIG_BLOCK_ADAPT_SCAN
+  int adapt_scan_cost[ADAPT_SCAN_CLASSES][ADAPT_SCAN_COSTS];
+  const SCAN_ORDER *adapt_scan_order_inter[TX_SIZES_ALL][TX_TYPES];
+  const SCAN_ORDER *adapt_scan_order_intra[TX_SIZES_ALL][TX_TYPES];
+  int pred_scan;
+#endif
 
 #if CONFIG_LV_MAP
   aom_prob txb_skip[TX_SIZES][TXB_SKIP_CONTEXTS];

@@ -3252,6 +3252,7 @@ static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
     PC_TREE *const pc_root = td->pc_root[cm->mib_size_log2 - MIN_MIB_SIZE_LOG2];
 
 #if CONFIG_LV_MAP
+    // printf("av1_fill_coeff_costs: row %4d col %4d\n", mi_row, mi_col);
     av1_fill_coeff_costs(&td->mb, xd->tile_ctx);
 #else
     av1_fill_token_costs_from_cdf(x->token_head_costs,
@@ -3260,7 +3261,14 @@ static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
                                   x->e_mbd.tile_ctx->coef_tail_cdfs);
 #endif
     av1_fill_mode_rates(cm, x, xd->tile_ctx);
-
+#if CONFIG_BLOCK_ADAPT_SCAN
+    {
+      SCAN_CONTEXT *left, *above;
+      get_scan_context(cm, xd, mi_row, mi_col, &left, &above);
+      av1_select_scan_order(xd->tile_ctx, left, above);
+      av1_clear_scan_cost(xd->tile_ctx);
+    }
+#endif
     if (sf->adaptive_pred_interp_filter) {
       for (i = 0; i < leaf_nodes; ++i) {
         td->pc_tree[i].vertical[0].pred_interp_filter = SWITCHABLE;
@@ -3401,6 +3409,16 @@ static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
         av1_loop_filter_sb_level_init(cm, mi_row, mi_col, filter_lvl);
     }
 #endif  // CONFIG_LPF_SB
+#if CONFIG_BLOCK_ADAPT_SCAN
+    {
+      // Evaluate the scan costs for this superblock to decide the
+      // best scan order.
+      int scan_context = av1_evaluate_scan_costs(xd->tile_ctx);
+      set_scan_context(cm, xd, mi_row, mi_col, scan_context);
+      // printf("sb-score: %2d %2d : %d\n", mi_col/cm->mib_size,
+      // mi_row/cm->mib_size, scan_context);
+    }
+#endif
   }
 }
 
@@ -3512,7 +3530,7 @@ void av1_encode_tile(AV1_COMP *cpi, ThreadData *td, int tile_row,
   const TileInfo *const tile_info = &this_tile->tile_info;
   TOKENEXTRA *tok = cpi->tile_tok[tile_row][tile_col];
   int mi_row;
-
+// printf("av1_encode_tile\n");
 #if CONFIG_DEPENDENT_HORZTILES
   if ((!cm->dependent_horz_tiles) || (tile_row == 0) ||
       tile_info->tg_horz_boundary) {
@@ -4239,7 +4257,7 @@ void av1_encode_frame(AV1_COMP *cpi) {
   // Indicates whether or not to use a default reduced set for ext-tx
   // rather than the potential full set of 16 transforms
   cm->reduced_tx_set_used = 0;
-#if CONFIG_ADAPT_SCAN
+#if CONFIG_ADAPT_SCAN || CONFIG_BLOCK_ADAPT_SCAN
 #if CONFIG_EXT_TILE
   if (cm->large_scale_tile)
     cm->use_adapt_scan = 0;
@@ -4248,7 +4266,9 @@ void av1_encode_frame(AV1_COMP *cpi) {
     cm->use_adapt_scan = 1;
   // TODO(angiebird): call av1_init_scan_order only when use_adapt_scan
   // switches from 1 to 0
+#if CONFIG_ADAPT_SCAN
   if (cm->use_adapt_scan == 0) av1_init_scan_order(cm);
+#endif
 #endif
 
 #if CONFIG_FRAME_MARKER
@@ -4764,7 +4784,8 @@ static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
   const int is_inter = is_inter_block(mbmi);
   const BLOCK_SIZE block_size = bsize;
   const int num_planes = av1_num_planes(cm);
-
+  // printf("encode_superblock: row %4d col %4d bsize %2d dry_run %d\n", mi_row,
+  // mi_col, bsize, dry_run);
   if (!is_inter) {
 #if CONFIG_CFL
     xd->cfl.store_y = 1;

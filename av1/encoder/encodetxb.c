@@ -323,7 +323,12 @@ void av1_write_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
   const TX_SIZE txs_ctx = get_txsize_entropy_ctx(tx_size);
   const TX_TYPE tx_type =
       av1_get_tx_type(plane_type, xd, blk_row, blk_col, block, tx_size);
+#if CONFIG_BLOCK_ADAPT_SCAN
+  const SCAN_ORDER *const scan_order =
+      get_scan(xd->tile_ctx, tx_size, tx_type, mbmi);
+#else
   const SCAN_ORDER *const scan_order = get_scan(cm, tx_size, tx_type, mbmi);
+#endif
   const int16_t *const scan = scan_order->scan;
   const int seg_eob = av1_get_max_eob(tx_size);
   int c;
@@ -378,6 +383,11 @@ void av1_write_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
       // printf("%d ", bit);
     }
   }
+#if CONFIG_BLOCK_ADAPT_SCAN
+  int scan_cost[ADAPT_SCAN_COSTS] = { 0 };
+  int do_adapt_scan =
+      av1_do_adapt_scan(cm, tx_size, tx_type, is_inter_block(mbmi));
+#endif
 
 #if USE_CAUSAL_BASE_CTX
   int coeff_ctx = 0;
@@ -389,6 +399,11 @@ void av1_write_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
     coeff_ctx =
         get_nz_map_ctx(levels, pos, bwl, height, c, c == eob - 1, tx_type);
     const tran_low_t v = tcoeff[pos];
+#if CONFIG_BLOCK_ADAPT_SCAN
+    if (v != 0 && do_adapt_scan) {
+      av1_update_scan_costs(pos, bwl, scan_cost);
+    }
+#endif
 #if USE_BASE_EOB_ALPHABET
     if (c == eob - 1) {
       aom_write_symbol(
@@ -428,6 +443,12 @@ void av1_write_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
     }
 #endif
   }
+#if CONFIG_BLOCK_ADAPT_SCAN
+  if (do_adapt_scan) {
+    av1_accumulate_scan_costs(ec_ctx, tx_size, tx_type, is_inter_block(mbmi),
+                              scan_cost);
+  }
+#endif
   update_eob = eob - 1;
 #else
   for (int i = 1; i < eob; ++i) {
@@ -677,7 +698,13 @@ int av1_cost_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCK *x, int plane,
   const int width = get_txb_wide(tx_size);
   const int height = get_txb_high(tx_size);
 
+#if CONFIG_BLOCK_ADAPT_SCAN
+  (void)cm;
+  const SCAN_ORDER *const scan_order =
+      get_scan(xd->tile_ctx, tx_size, tx_type, mbmi);
+#else
   const SCAN_ORDER *const scan_order = get_scan(cm, tx_size, tx_type, mbmi);
+#endif
   const int16_t *const scan = scan_order->scan;
   uint8_t levels_buf[TX_PAD_2D];
   uint8_t *const levels = set_levels(levels_buf, width);
@@ -2143,7 +2170,13 @@ int av1_optimize_txb(const AV1_COMMON *cm, MACROBLOCK *x, int plane,
   const int width = get_txb_wide(tx_size);
   const int height = get_txb_high(tx_size);
   const int is_inter = is_inter_block(mbmi);
+#if CONFIG_BLOCK_ADAPT_SCAN
+  (void)cm;
+  const SCAN_ORDER *const scan_order =
+      get_scan(xd->tile_ctx, tx_size, tx_type, mbmi);
+#else
   const SCAN_ORDER *const scan_order = get_scan(cm, tx_size, tx_type, mbmi);
+#endif
   const LV_MAP_COEFF_COST txb_costs = x->coeff_costs[txs_ctx][plane_type];
 
   const int shift = av1_get_tx_scale(tx_size);
@@ -2202,7 +2235,13 @@ void av1_update_txb_context_b(int plane, int block, int blk_row, int blk_col,
   const PLANE_TYPE plane_type = pd->plane_type;
   const TX_TYPE tx_type =
       av1_get_tx_type(plane_type, xd, blk_row, blk_col, block, tx_size);
+#if CONFIG_BLOCK_ADAPT_SCAN
+  (void)cm;
+  const SCAN_ORDER *const scan_order =
+      get_scan(xd->tile_ctx, tx_size, tx_type, mbmi);
+#else
   const SCAN_ORDER *const scan_order = get_scan(cm, tx_size, tx_type, mbmi);
+#endif
   (void)plane_bsize;
 
   int cul_level = av1_get_txb_entropy_context(qcoeff, scan_order, eob);
@@ -2228,7 +2267,13 @@ void av1_update_and_record_txb_context(int plane, int block, int blk_row,
   const int segment_id = mbmi->segment_id;
   const TX_TYPE tx_type =
       av1_get_tx_type(plane_type, xd, blk_row, blk_col, block, tx_size);
+#if CONFIG_BLOCK_ADAPT_SCAN
+  (void)cm;
+  const SCAN_ORDER *const scan_order =
+      get_scan(xd->tile_ctx, tx_size, tx_type, mbmi);
+#else
   const SCAN_ORDER *const scan_order = get_scan(cm, tx_size, tx_type, mbmi);
+#endif
   const int16_t *const scan = scan_order->scan;
   const int seg_eob = av1_get_tx_eob(&cpi->common.seg, segment_id, tx_size);
   int c;
@@ -2273,6 +2318,11 @@ void av1_update_and_record_txb_context(int plane, int block, int blk_row,
       &(td->counts->nz_map[txsize_ctx][plane_type]);
   av1_update_eob_context(eob, seg_eob, tx_size, tx_type, plane_type, ec_ctx,
                          td->counts, allow_update_cdf);
+#if CONFIG_BLOCK_ADAPT_SCAN
+  int scan_cost[ADAPT_SCAN_COSTS] = { 0 };
+  int do_adapt_scan =
+      av1_do_adapt_scan(cm, tx_size, tx_type, is_inter_block(mbmi));
+#endif
 #if USE_CAUSAL_BASE_CTX
   int coeff_ctx = 0;
   update_eob = eob - 1;
@@ -2287,6 +2337,11 @@ void av1_update_and_record_txb_context(int plane, int block, int blk_row,
     (void)nz_map_count;
     coeff_ctx =
         get_nz_map_ctx(levels, pos, bwl, height, c, c == eob - 1, tx_type);
+#if CONFIG_BLOCK_ADAPT_SCAN
+    if (v != 0 && do_adapt_scan) {
+      av1_update_scan_costs(pos, bwl, scan_cost);
+    }
+#endif
 #if USE_BASE_EOB_ALPHABET
     if (c == eob - 1) {
       update_cdf(ec_ctx->coeff_base_eob_cdf[txsize_ctx][plane_type]
@@ -2348,7 +2403,12 @@ void av1_update_and_record_txb_context(int plane, int block, int blk_row,
                  2);
 #endif
   }
-
+#if CONFIG_BLOCK_ADAPT_SCAN
+  if (do_adapt_scan) {
+    av1_accumulate_scan_costs(ec_ctx, tx_size, tx_type, is_inter_block(mbmi),
+                              scan_cost);
+  }
+#endif
 #if !USE_CAUSAL_BASE_CTX
   // Reverse process order to handle coefficient level and sign.
   for (int i = 0; i < NUM_BASE_LEVELS; ++i) {
@@ -2559,7 +2619,13 @@ int64_t av1_search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
     av1_dist_block(cpi, x, plane, plane_bsize, block, blk_row, blk_col, tx_size,
                    &this_rd_stats.dist, &this_rd_stats.sse,
                    OUTPUT_HAS_PREDICTED_PIXELS);
+#if CONFIG_BLOCK_ADAPT_SCAN
+    (void)cm;
+    const SCAN_ORDER *const scan_order =
+        get_scan(xd->tile_ctx, tx_size, tx_type, mbmi);
+#else
     const SCAN_ORDER *scan_order = get_scan(cm, tx_size, tx_type, mbmi);
+#endif
     this_rd_stats.rate =
         av1_cost_coeffs(cpi, x, plane, blk_row, blk_col, block, tx_size,
                         scan_order, a, l, use_fast_coef_costing);
