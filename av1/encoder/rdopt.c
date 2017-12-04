@@ -5375,18 +5375,18 @@ static int cfl_rd_pick_alpha(MACROBLOCK *const x, const AV1_COMP *const cpi,
 
   int best_joint_sign = -1;
 
-  int progress[CFL_PRED_PLANES][2] = { { 0, 0 }, { 0, 0 } };
-  for (int c = 0; c < CFL_ALPHABET_SIZE; c++) {
-    mbmi->cfl_alpha_idx = (c << CFL_ALPHABET_SIZE_LOG2) + c;
-    for (int plane = 0; plane < CFL_PRED_PLANES; plane++) {
-      for (int pn_sign = CFL_SIGN_NEG; pn_sign < CFL_SIGNS; pn_sign++) {
+  for (int plane = 0; plane < CFL_PRED_PLANES; plane++) {
+    for (int pn_sign = CFL_SIGN_NEG; pn_sign < CFL_SIGNS; pn_sign++) {
+      int progress = 0;
+      for (int c = 0; c < CFL_ALPHABET_SIZE; c++) {
         int flag = 0;
         RD_STATS rd_stats;
-        if (c > 2 && progress[plane][pn_sign - 1] < c) continue;
+        if (c > 2 && progress < c) break;
         av1_init_rd_stats(&rd_stats);
         for (int i = 0; i < CFL_SIGNS; i++) {
           const int joint_sign = CFL_JOINT_SIGN(plane, pn_sign, i);
           if (i == 0) {
+            mbmi->cfl_alpha_idx = (c << CFL_ALPHABET_SIZE_LOG2) + c;
             mbmi->cfl_alpha_signs = joint_sign;
             txfm_rd_in_plane(x, cpi, &rd_stats, best_rd, plane + 1, bsize,
                              tx_size, cpi->sf.use_fast_coef_costing);
@@ -5408,12 +5408,9 @@ static int cfl_rd_pick_alpha(MACROBLOCK *const x, const AV1_COMP *const cpi,
           best_rd = this_rd;
           best_joint_sign = joint_sign;
         }
-        progress[plane][pn_sign - 1] += flag;
+        progress += flag;
       }
     }
-    if (c > 2 && progress[CFL_PRED_U][0] < c && progress[CFL_PRED_U][1] < c &&
-        progress[CFL_PRED_V][0] < c && progress[CFL_PRED_V][1] < c)
-      break;
   }
 
   int best_rate_overhead = INT_MAX;
