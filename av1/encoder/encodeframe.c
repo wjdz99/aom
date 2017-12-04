@@ -4251,6 +4251,11 @@ static void encode_frame_internal(AV1_COMP *cpi) {
       if (!(cpi->ref_frame_flags & flag_list[ref_frame[0]]) ||
           !(cpi->ref_frame_flags & flag_list[ref_frame[1]]))
         cm->skip_mode_flag = 0;
+
+      if (cm->skip_mode_flag) {
+        if (av1_qindex_to_quantizer(cm->base_qindex) <= 30)
+          cm->skip_mode_flag = 0;
+      }
     }
   }
 #if 0
