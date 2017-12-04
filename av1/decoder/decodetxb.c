@@ -113,7 +113,12 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
 #endif
   const TX_TYPE tx_type =
       av1_get_tx_type(plane_type, xd, blk_row, blk_col, block, tx_size);
+#if CONFIG_BLOCK_ADAPT_SCAN
+  const SCAN_ORDER *const scan_order =
+      get_scan(xd->tile_ctx, tx_size, tx_type, mbmi);
+#else
   const SCAN_ORDER *const scan_order = get_scan(cm, tx_size, tx_type, mbmi);
+#endif
   const int16_t *const scan = scan_order->scan;
   int dummy;
   const int max_eob_pt = get_eob_pos_token(seg_eob, &dummy);
@@ -157,7 +162,14 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
     }
   }
   *eob = rec_eob_pos(eob_pt, eob_extra);
-  // printf("=>[%d, %d], (%d, %d)\n", seg_eob, *eob, eob_pt, eob_extra);
+// printf("=>[%d, %d], (%d, %d)\n", seg_eob, *eob, eob_pt, eob_extra);
+
+#if CONFIG_BLOCK_ADAPT_SCAN
+  int scan_cost[ADAPT_SCAN_COSTS] = { 0 };
+  int do_adapt_scan =
+      av1_do_adapt_scan(cm, tx_size, tx_type, is_inter_block(mbmi));
+// printf("tx: tx_size %2d tx_type %2d eob %3d\n", tx_size, tx_type, *eob);
+#endif
 
   for (int i = 0; i < *eob; ++i) {
     c = *eob - 1 - i;
@@ -211,6 +223,11 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
       } else {
         update_pos[num_updates++] = pos;
       }
+#if CONFIG_BLOCK_ADAPT_SCAN
+      if (do_adapt_scan) {
+        av1_update_scan_costs(scan[c], bwl, scan_cost);
+      }
+#endif
     }
 #else
     int is_nz;
@@ -248,7 +265,12 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
     }
 #endif
   }
-
+#if CONFIG_BLOCK_ADAPT_SCAN
+  if (do_adapt_scan) {
+    av1_accumulate_scan_costs(ec_ctx, tx_size, tx_type, is_inter_block(mbmi),
+                              scan_cost);
+  }
+#endif
   // Loop to decode all signs in the transform block,
   // starting with the sign of the DC (if applicable)
   for (c = 0; c < *eob; ++c) {
