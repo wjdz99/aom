@@ -31,6 +31,12 @@ macro (fix_experiment_configs)
       change_config_and_warn(CONFIG_INSPECTION 1 CONFIG_ANALYZER)
     endif ()
   endif ()
+  
+  if (CONFIG_BLOCK_ADAPT_SCAN)
+    if (NOT CONFIG_LV_MAP_MULTI)
+      change_config_and_warn(CONFIG_LV_MAP_MULTI 1 CONFIG_BLOCK_ADAPT_SCAN)
+    endif()
+  endif()
 
   if (CONFIG_COMPOUND_ROUND)
     if (NOT CONFIG_CONVOLVE_ROUND)

@@ -698,6 +698,10 @@ typedef enum ATTRIBUTE_PACKED {
 #define SUPERRES_SCALE_DENOMINATOR_MIN (SCALE_NUMERATOR + 1)
 #endif  // CONFIG_HORZONLY_FRAME_SUPERRES
 
+#if CONFIG_BLOCK_ADAPT_SCAN
+typedef uint8_t SCAN_CONTEXT;
+#endif
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif

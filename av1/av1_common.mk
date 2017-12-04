@@ -67,6 +67,7 @@ AV1_COMMON_SRCS-yes += common/resize.h
 AV1_COMMON_SRCS-yes += common/common_data.h
 AV1_COMMON_SRCS-yes += common/scan.c
 AV1_COMMON_SRCS-yes += common/scan.h
+AV1_COMMON_SRCS-$(CONFIG_BLOCK_ADAPT_SCAN) += common/newscan.h
 # TODO(angiebird) the forward transform belongs under encoder/
 AV1_COMMON_SRCS-yes += common/av1_txfm.h
 AV1_COMMON_SRCS-yes += common/av1_fwd_txfm1d.h

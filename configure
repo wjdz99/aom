@@ -283,6 +283,7 @@ EXPERIMENT_LIST="
     frame_size
     ext_delta_q
     adapt_scan
+    block_adapt_scan
     parallel_deblocking
     deblock_13tap
     loopfiltering_across_tiles
@@ -532,6 +533,7 @@ post_process_cmdline() {
     soft_enable tmv
 
     # Fix up experiment dependencies
+    enabled block_adapt_scan && enable_feature lv_map_multi
     enabled lv_map_multi && soft_enable lv_map
     enabled eob_first && enable_feature lv_map
     enabled txk_sel && soft_enable lv_map
