@@ -261,7 +261,13 @@ static void cost_coeffs_b(int plane, int block, int blk_row, int blk_col,
   const PLANE_TYPE type = pd->plane_type;
   const TX_TYPE tx_type =
       av1_get_tx_type(type, xd, blk_row, blk_col, block, tx_size);
+#if CONFIG_BLOCK_ADAPT_SCAN
+  (void)cm;
+  const SCAN_ORDER *const scan_order =
+      get_scan(xd->tile_ctx, tx_size, tx_type, mbmi);
+#else
   const SCAN_ORDER *const scan_order = get_scan(cm, tx_size, tx_type, mbmi);
+#endif
   const int rate = av1_cost_coeffs(
       cpi, x, plane, blk_row, blk_col, block, tx_size, scan_order,
       pd->above_context + blk_col, pd->left_context + blk_row, 0);
@@ -425,7 +431,13 @@ static void tokenize_b(int plane, int block, int blk_row, int blk_col,
   const int16_t *scan, *nb;
   const TX_TYPE tx_type =
       av1_get_tx_type(type, xd, blk_row, blk_col, block, tx_size);
+#if CONFIG_BLOCK_ADAPT_SCAN
+  (void)cm;
+  const SCAN_ORDER *const scan_order =
+      get_scan(xd->tile_ctx, tx_size, tx_type, mbmi);
+#else
   const SCAN_ORDER *const scan_order = get_scan(cm, tx_size, tx_type, mbmi);
+#endif
   const int ref = is_inter_block(mbmi);
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
   aom_cdf_prob(

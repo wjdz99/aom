@@ -143,8 +143,13 @@ static int optimize_b_greedy(const AV1_COMMON *cm, MACROBLOCK *mb, int plane,
   const uint8_t *const band_translate = get_band_translate(tx_size);
   const TX_TYPE tx_type =
       av1_get_tx_type(plane_type, xd, blk_row, blk_col, block, tx_size);
+#if CONFIG_BLOCK_ADAPT_SCAN
+  const SCAN_ORDER *const scan_order =
+      get_scan(xd->tile_ctx, tx_size, tx_type, &xd->mi[0]->mbmi);
+#else
   const SCAN_ORDER *const scan_order =
       get_scan(cm, tx_size, tx_type, &xd->mi[0]->mbmi);
+#endif
   const int16_t *const scan = scan_order->scan;
   const int16_t *const nb = scan_order->neighbors;
 #if CONFIG_DAALA_TX
@@ -505,7 +510,12 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
 #if CONFIG_NEW_QUANT
   const int is_inter = is_inter_block(mbmi);
 #endif
+#if CONFIG_BLOCK_ADAPT_SCAN
+  const SCAN_ORDER *const scan_order =
+      get_scan(xd->tile_ctx, tx_size, tx_type, mbmi);
+#else
   const SCAN_ORDER *const scan_order = get_scan(cm, tx_size, tx_type, mbmi);
+#endif
   tran_low_t *const coeff = BLOCK_OFFSET(p->coeff, block);
   tran_low_t *const qcoeff = BLOCK_OFFSET(p->qcoeff, block);
   tran_low_t *const dqcoeff = BLOCK_OFFSET(pd->dqcoeff, block);

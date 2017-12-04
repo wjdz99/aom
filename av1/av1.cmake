@@ -83,6 +83,12 @@ if (CONFIG_DAALA_TX)
       "${AOM_ROOT}/av1/common/daala_inv_txfm.h")
 endif ()
 
+if (CONFIG_BLOCK_ADAPT_SCAN)
+  set(AOM_AV1_COMMON_SOURCES
+      ${AOM_AV1_COMMON_SOURCES}
+      "${AOM_ROOT}/av1/common/newscan.h")
+endif ()
+
 set(AOM_AV1_DECODER_SOURCES
     "${AOM_ROOT}/av1/av1_dx_iface.c"
     "${AOM_ROOT}/av1/decoder/decodeframe.c"

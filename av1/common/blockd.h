@@ -651,6 +651,11 @@ typedef struct macroblockd {
   TXFM_CONTEXT *left_txfm_context;
   TXFM_CONTEXT left_txfm_context_buffer[2 * MAX_MIB_SIZE];
 
+#if CONFIG_BLOCK_ADAPT_SCAN
+  SCAN_CONTEXT *above_scan_context;
+  SCAN_CONTEXT left_scan_context[2 * 2];
+#endif
+
 #if CONFIG_LOOP_RESTORATION
   WienerInfo wiener_info[MAX_MB_PLANE];
   SgrprojInfo sgrproj_info[MAX_MB_PLANE];
