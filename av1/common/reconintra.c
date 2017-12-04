@@ -746,7 +746,7 @@ static void av1_init_intra_predictors_internal(void) {
 
 #if CONFIG_EXT_INTRA
 // Directional prediction, zone 1: 0 < angle < 90
-static void dr_prediction_z1(uint8_t *dst, ptrdiff_t stride, int bw, int bh,
+/*static*/ void dr_prediction_z1(uint8_t *dst, ptrdiff_t stride, int bw, int bh,
                              const uint8_t *above, const uint8_t *left,
 #if CONFIG_INTRA_EDGE_UPSAMPLE
                              int upsample_above,
@@ -791,7 +791,7 @@ static void dr_prediction_z1(uint8_t *dst, ptrdiff_t stride, int bw, int bh,
 }
 
 // Directional prediction, zone 2: 90 < angle < 180
-static void dr_prediction_z2(uint8_t *dst, ptrdiff_t stride, int bw, int bh,
+/*static*/ void dr_prediction_z2(uint8_t *dst, ptrdiff_t stride, int bw, int bh,
                              const uint8_t *above, const uint8_t *left,
 #if CONFIG_INTRA_EDGE_UPSAMPLE
                              int upsample_above, int upsample_left,
@@ -832,7 +832,7 @@ static void dr_prediction_z2(uint8_t *dst, ptrdiff_t stride, int bw, int bh,
 }
 
 // Directional prediction, zone 3: 180 < angle < 270
-static void dr_prediction_z3(uint8_t *dst, ptrdiff_t stride, int bw, int bh,
+/*static*/ void dr_prediction_z3(uint8_t *dst, ptrdiff_t stride, int bw, int bh,
                              const uint8_t *above, const uint8_t *left,
 #if CONFIG_INTRA_EDGE_UPSAMPLE
                              int upsample_left,

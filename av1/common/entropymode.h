@@ -50,7 +50,12 @@ extern "C" {
 #define PALETTE_UV_MODE_CONTEXTS 2
 
 #if CONFIG_KF_CTX
+#if CONFIG_KF2
+#define KF_MODE_CLASSES 8
+#define KF_MODE_CONTEXTS ((KF_MODE_CLASSES * (KF_MODE_CLASSES + 1)) / 2) /* 36 */
+#else
 #define KF_MODE_CONTEXTS 5
+#endif
 #endif
 
 // A define to configure whether 4:1 and 1:4 partitions are allowed for 128x128
@@ -274,8 +279,12 @@ typedef struct frame_contexts {
    be copied to each tile to support parallelism just like the others.
 */
 #if CONFIG_KF_CTX
+#if CONFIG_KF2
+  aom_cdf_prob kf_y_cdf[KF_MODE_CONTEXTS][CDF_SIZE(INTRA_MODES)];
+#else
   aom_cdf_prob kf_y_cdf[KF_MODE_CONTEXTS][KF_MODE_CONTEXTS]
                        [CDF_SIZE(INTRA_MODES)];
+#endif
 #else
   aom_cdf_prob kf_y_cdf[INTRA_MODES][INTRA_MODES][CDF_SIZE(INTRA_MODES)];
 #endif
@@ -313,8 +322,10 @@ typedef struct FRAME_COUNTS {
 // Note: This structure should only contain 'unsigned int' fields, or
 // aggregates built solely from 'unsigned int' fields/elements
 #if CONFIG_ENTROPY_STATS
-#if CONFIG_KF_CTX
+#if CONFIG_KF_CTX && !CONFIG_KF2
   unsigned int kf_y_mode[KF_MODE_CONTEXTS][KF_MODE_CONTEXTS][INTRA_MODES];
+#elif CONFIG_KF2
+  unsigned int kf_y_mode[KF_MODE_CONTEXTS][INTRA_MODES];
 #else
   unsigned int kf_y_mode[INTRA_MODES][INTRA_MODES][INTRA_MODES];
 #endif
@@ -407,9 +418,14 @@ typedef struct FRAME_COUNTS {
 } FRAME_COUNTS;
 
 #if CONFIG_KF_CTX
+#if CONFIG_KF2
+extern const aom_cdf_prob default_kf_y_mode_cdf[KF_MODE_CONTEXTS]
+                                               [CDF_SIZE(INTRA_MODES)];
+#else
 extern const aom_cdf_prob default_kf_y_mode_cdf[KF_MODE_CONTEXTS]
                                                [KF_MODE_CONTEXTS]
                                                [CDF_SIZE(INTRA_MODES)];
+#endif
 #else
 extern const aom_cdf_prob default_kf_y_mode_cdf[INTRA_MODES][INTRA_MODES]
                                                [CDF_SIZE(INTRA_MODES)];
