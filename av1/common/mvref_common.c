@@ -1401,10 +1401,12 @@ static int div_mult[64] = {
 // TODO(jingning): Consider the use of lookup table for (num / den)
 // altogether.
 static void get_mv_projection(MV *output, MV ref, int num, int den) {
-  output->row =
-      (int16_t)(ROUND_POWER_OF_TWO_SIGNED(ref.row * num * div_mult[den], 14));
-  output->col =
-      (int16_t)(ROUND_POWER_OF_TWO_SIGNED(ref.col * num * div_mult[den], 14));
+  output->row = (int16_t)clamp(
+      ROUND_POWER_OF_TWO_SIGNED(ref.row * num * div_mult[den], 14), -(1 << 14),
+      (1 << 14));
+  output->col = (int16_t)clamp(
+      ROUND_POWER_OF_TWO_SIGNED(ref.col * num * div_mult[den], 14), -(1 << 14),
+      (1 << 14));
 }
 #endif  // CONFIG_MFMV
 
