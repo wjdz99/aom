@@ -2569,8 +2569,12 @@ static void choose_smallest_tx_size(const AV1_COMP *const cpi, MACROBLOCK *x,
                                     BLOCK_SIZE bs) {
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
-
-  mbmi->tx_size = TX_4X4;
+  const int is_inter = is_inter_block(mbmi);
+  const TX_SIZE max_rect_tx_size = get_max_rect_tx_size(bs, is_inter);
+  mbmi->tx_size =
+      (TX_SIZE)AOMMAX((int)TX_4X4,
+                      (int)txsize_sqr_map[max_rect_tx_size] - MAX_TX_DEPTH +
+                          is_rect_tx(max_rect_tx_size));
   mbmi->tx_type = DCT_DCT;
   mbmi->min_tx_size = get_min_tx_size(TX_4X4);
 
