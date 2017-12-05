@@ -2533,6 +2533,10 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
   rc->is_last_bipred_frame = 0;
   rc->is_bipred_frame = 0;
 
+#if CONFIG_FWD_KF
+  rc->is_fwd_key_frame = 0;
+#endif  // CONFIG_FWD_KF
+
 #if 0
   // Experimental RD Code
   cpi->frame_distortion = 0;
@@ -5525,8 +5529,11 @@ static void encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
       seg->update_data = 1;
     }
 
-    // The alternate reference frame cannot be active for a key frame.
-    cpi->rc.source_alt_ref_active = 0;
+#if CONFIG_FWD_KF
+    if (!cpi->rc.is_fwd_key_frame)
+#endif  // CONFIG_FWD_KF
+      // The alternate reference frame cannot be active for a key frame.
+      cpi->rc.source_alt_ref_active = 0;
 
     cm->error_resilient_mode = oxcf->error_resilient_mode;
 
@@ -5991,9 +5998,13 @@ static int get_arf_src_index(AV1_COMP *cpi) {
   if (is_altref_enabled(cpi)) {
     if (cpi->oxcf.pass == 2) {
       const GF_GROUP *const gf_group = &cpi->twopass.gf_group;
-      if (gf_group->update_type[gf_group->index] == ARF_UPDATE) {
+#if CONFIG_FWD_KF
+      if (gf_group->update_type[gf_group->index] == ARF_UPDATE ||
+          gf_group->update_type[gf_group->index] == FWD_KF_UPDATE)
+#else
+      if (gf_group->update_type[gf_group->index] == ARF_UPDATE)
+#endif  // CONFIG_FWD_KF
         arf_src_index = gf_group->arf_src_offset[gf_group->index];
-      }
     } else if (rc->source_alt_ref_pending) {
       arf_src_index = rc->frames_till_gf_update_due;
     }
