@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "dbbb89d8_eeedf9a7",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 3067,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2017-12-05T21:01:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bc6aa28f_29255d23",
+      "revId": "8de97886db4e07fbb56e1ede6d4282ab3393dcd4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "347d5695_487c37f4",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 8
@@ -30,6 +48,30 @@
       "writtenOn": "2017-12-05T20:01:27Z",
       "side": 1,
       "message": "What is 4016?",
+      "range": {
+        "startLine": 3068,
+        "startChar": 15,
+        "endLine": 3068,
+        "endChar": 19
+      },
+      "revId": "8de97886db4e07fbb56e1ede6d4282ab3393dcd4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0bb916be_8cefdb89",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 3068,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2017-12-05T21:01:59Z",
+      "side": 1,
+      "message": "Maximum (1 \u003c\u003c 12) color levels.",
+      "parentUuid": "347d5695_487c37f4",
       "range": {
         "startLine": 3068,
         "startChar": 15,
@@ -62,6 +104,30 @@
       "revId": "8de97886db4e07fbb56e1ede6d4282ab3393dcd4",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "af5519b5_f7d99111",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 3073,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2017-12-05T21:01:59Z",
+      "side": 1,
+      "message": "Done. HBD was not handled correctly; fixed it.",
+      "parentUuid": "da76f669_b829561f",
+      "range": {
+        "startLine": 3073,
+        "startChar": 17,
+        "endLine": 3073,
+        "endChar": 40
+      },
+      "revId": "8de97886db4e07fbb56e1ede6d4282ab3393dcd4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
