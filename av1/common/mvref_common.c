@@ -85,7 +85,7 @@ static uint8_t add_ref_mv_candidate(
       if (candidate->ref_frame[ref] == rf[0]) {
         int_mv this_refmv;
 #if CONFIG_EXT_WARPED_MOTION
-        if (candidate->motion_mode == WARPED_CAUSAL) {
+        if (0 && candidate->motion_mode == WARPED_CAUSAL) {
           WarpedMotionParams wm = candidate->wm_params[0];
           const int bw = block_size_wide[bsize];
           const int bh = block_size_high[bsize];
