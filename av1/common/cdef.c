@@ -179,7 +179,7 @@ void av1_cdef_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
   int pli;
   int cdef_left;
   int coeff_shift = AOMMAX(cm->bit_depth - 8, 0);
-  int nplanes = MAX_MB_PLANE;
+  int nplanes = av1_num_planes(cm);
   nvfb = (cm->mi_rows + MI_SIZE_64X64 - 1) / MI_SIZE_64X64;
   nhfb = (cm->mi_cols + MI_SIZE_64X64 - 1) / MI_SIZE_64X64;
   av1_setup_dst_planes(xd->plane, cm->sb_size, frame, 0, 0);
