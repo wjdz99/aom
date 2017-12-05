@@ -2575,9 +2575,12 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
   }
 #endif  // CONFIG_DIST_8X8
 
+  if (bsize == BLOCK_64X64 && temp_best_rdcost != INT64_MAX)
+    goto skip_partition;
   // PARTITION_SPLIT
   // TODO(jingning): use the motion vectors given by the above search as
-  // the starting point of motion search in the following partition type check.
+  // the starting point of motion search in the following partition type
+  // check.
   if (do_square_split) {
     int reached_last_index = 0;
     subsize = get_subsize(bsize, PARTITION_SPLIT);
@@ -2810,6 +2813,8 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
 
     restore_context(x, &x_ctx, mi_row, mi_col, bsize);
   }
+
+skip_partition:;
 
 #if CONFIG_EXT_PARTITION_TYPES
   const int ext_partition_allowed =
