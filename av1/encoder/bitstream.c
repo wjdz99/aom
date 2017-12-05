@@ -1057,7 +1057,7 @@ static void write_palette_mode_info(const AV1_COMMON *cm, const MACROBLOCKD *xd,
 
   const int uv_dc_pred =
 #if CONFIG_MONO_VIDEO
-      !cm->seq_params.monochrome &&
+      !cm->monochrome &&
 #endif
       mbmi->uv_mode == UV_DC_PRED;
   if (uv_dc_pred) {
@@ -3445,6 +3445,10 @@ static void write_bitdepth_colorspace_sampling(
     assert(cm->profile == PROFILE_1 || cm->profile == PROFILE_3);
     aom_wb_write_bit(wb, 0);  // unused
   }
+
+#if CONFIG_MONO_VIDEO
+  aom_wb_write_bit(wb, cm->monochrome);
+#endif  // CONFIG_MONO_VIDEO
 }
 
 #if CONFIG_REFERENCE_BUFFER || CONFIG_OBU
@@ -3488,10 +3492,6 @@ void write_sequence_header(AV1_COMP *cpi, struct aom_write_bit_buffer *wb) {
         wb, seq_params->frame_id_length - seq_params->delta_frame_id_length - 1,
         3);
   }
-
-#if CONFIG_MONO_VIDEO
-  aom_wb_write_bit(wb, seq_params->monochrome);
-#endif  // CONFIG_MONO_VIDEO
 }
 #endif  // CONFIG_REFERENCE_BUFFER || CONFIG_OBU
 
