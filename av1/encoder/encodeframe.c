@@ -56,6 +56,9 @@
 #include "av1/encoder/rdopt.h"
 #include "av1/encoder/segmentation.h"
 #include "av1/encoder/tokenize.h"
+#if CONFIG_LPF_SB
+#include "av1/encoder/picklpf.h"
+#endif
 #if CONFIG_HIGHBITDEPTH
 #define IF_HBD(...) __VA_ARGS__
 #else
@@ -3349,6 +3352,10 @@ static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
   const int leaf_nodes = 64;
 #endif  // CONFIG_EXT_PARTITION
 
+#if CONFIG_LPF_SB
+  cm->frame_to_show = get_frame_new_buffer(cm);
+#endif
+
   // Initialize the left context for the new SB row
   av1_zero_left_context(xd);
 
@@ -3510,9 +3517,25 @@ static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
 #if CONFIG_LPF_SB
     if (USE_LOOP_FILTER_SUPERBLOCK) {
       // apply deblocking filtering right after each superblock is encoded.
-      const int guess_filter_lvl = FAKE_FILTER_LEVEL;
-      av1_loop_filter_frame(get_frame_new_buffer(cm), cm, xd, guess_filter_lvl,
-                            0, 1, mi_row, mi_col);
+      int last_lvl;
+      if (mi_row == 0 && mi_col == 0) {
+        last_lvl = 0;
+      } else {
+        if (mi_col == 0) {
+          last_lvl =
+              cm->mi[(mi_row - MAX_MIB_SIZE) * cm->mi_stride].mbmi.filt_lvl;
+        } else {
+          last_lvl = cm->mi[mi_row * cm->mi_stride + mi_col - MAX_MIB_SIZE]
+                         .mbmi.filt_lvl;
+        }
+      }
+      const int filter_lvl = search_filter_level(cpi->source, cpi, 1, NULL,
+                                                 mi_row, mi_col, last_lvl);
+      av1_loop_filter_frame(get_frame_new_buffer(cm), cm, xd, filter_lvl, 0, 1,
+                            mi_row, mi_col);
+      // if filter_lvl is 0, we still need to set mi info
+      if (filter_lvl == 0)
+        av1_loop_filter_sb_level_init(cm, mi_row, mi_col, filter_lvl);
     }
 #endif  // CONFIG_LPF_SB
   }
