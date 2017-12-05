@@ -330,13 +330,20 @@ void av1_init_me_luts(void) {
 static const int rd_boost_factor[16] = { 64, 32, 32, 32, 24, 16, 12, 12,
                                          8,  8,  4,  4,  2,  2,  1,  0 };
 static const int rd_frame_type_factor[FRAME_UPDATE_TYPES] = {
-  128, 144, 128, 128, 144,
-  // TODO(zoeliu): To adjust further following factor values.
-  128, 128, 128,
-  // TODO(weitinglin): We should investigate if the values should be the same
-  //                   as the value used by OVERLAY frame
+  128,
+  144,
+  128,
+  128,
+  144,
+  128,
+  128,
+  128,
   144,  // INTNL_OVERLAY_UPDATE
   128   // INTNL_ARF_UPDATE
+#if CONFIG_FWD_KF
+  ,
+  128   // FWD_KF_UPDATE
+#endif  // CONFIG_FWD_KF
 };
 
 int av1_compute_rd_mult(const AV1_COMP *cpi, int qindex) {

@@ -68,6 +68,12 @@
 #define NCOUNT_INTRA_FACTOR 3
 #define NCOUNT_FRAME_II_THRESH 5.0
 
+#if CONFIG_FWD_KF
+#define FWD_KF_DEBUG 1
+#else
+#define FWD_KF_DEBUG 0
+#endif  // CONFIG_FWD_KF
+
 #define DOUBLE_DIVIDE_CHECK(x) ((x) < 0 ? (x)-0.000001 : (x) + 0.000001)
 
 #if ARF_STATS_OUTPUT
@@ -2752,6 +2758,18 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
 
   // Set the interval until the next gf.
   rc->baseline_gf_interval = i - (is_key_frame || rc->source_alt_ref_pending);
+#if CONFIG_FWD_KF
+  // NOTE(zoeliu): To test out the concept of Forward Key Frame (fwd-kf).
+  if (rc->baseline_gf_interval < 4) rc->baseline_gf_interval = 4;
+#if FWD_KF_DEBUG
+  printf(
+      "\n[FWD-KEY-FRAME]***FIRSTPASS: Frame=%d, key_freq=%d, "
+      "auto_key=%d, frames_to_key=%d, baseline_gf_interval=%d\n",
+      cpi->common.current_video_frame, cpi->oxcf.key_freq, cpi->oxcf.key_freq,
+      rc->frames_to_key, rc->baseline_gf_interval);
+#endif  // FWD_KF_DEBUG
+#endif  // CONFIG_FWD_KF
+
   if (non_zero_stdev_count) avg_raw_err_stdev /= non_zero_stdev_count;
 
   // Disable extra altrefs and backward refs for "still" gf group:
@@ -3092,11 +3110,46 @@ static void find_next_key_frame(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
     rc->next_key_frame_forced = 0;
   }
 
+#if FWD_KF_DEBUG
+  printf(
+      "\n[FWD-KEY-FRAME]***FIRSTPASS: Frame=%d, key_freq=%d, "
+      "auto_key=%d, frames_to_key=%d, next_key_frame_forced=%d\n",
+      cpi->common.current_video_frame, cpi->oxcf.key_freq, cpi->oxcf.key_freq,
+      rc->frames_to_key, rc->next_key_frame_forced);
+#endif  // FWD_KF_DEBUG
+
   // Special case for the last key frame of the file.
   if (twopass->stats_in >= twopass->stats_in_end) {
     // Accumulate kf group error.
     kf_group_err += calculate_modified_err(cpi, twopass, oxcf, this_frame);
   }
+
+#if CONFIG_FWD_KF
+  int fwd_kf_mod_err = 0;
+  rc->is_fwd_kf_group = 0;
+  if (rc->next_key_frame_forced) {
+    const FIRSTPASS_STATS *const cur_position = twopass->stats_in;
+    printf("[FWD-KEY-FRAME] Next frame is a key frame.\n");
+    // Check whether the next frame is the last frame in the sequence.
+    // Load the next frame's stats.
+    last_frame = *this_frame;
+    input_stats(twopass, this_frame);
+    if (twopass->stats_in >= twopass->stats_in_end) {  // Last frame
+      // Last frame is a key frame
+      rc->is_fwd_kf_group = 1;
+      // NOTE: Include the last key frame for GF group construction and bit
+      //       allocation.
+      // Accumulate kf group error.
+      fwd_kf_mod_err = calculate_modified_err(cpi, twopass, oxcf, this_frame);
+      kf_group_err += fwd_kf_mod_err;
+      ++rc->frames_to_key;
+    } else {
+      // Reset to the previous position of the group.
+      *this_frame = last_frame;
+      reset_fpf_position(twopass, cur_position);
+    }
+  }
+#endif  // CONFIG_FWD_KF
 
   // Calculate the number of bits that should be assigned to the kf group.
   if (twopass->bits_left > 0 && twopass->modified_error_left > 0.0) {
@@ -3127,7 +3180,13 @@ static void find_next_key_frame(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   // how many bits to spend on it.
   decay_accumulator = 1.0;
   boost_score = 0.0;
-  for (i = 0; i < (rc->frames_to_key - 1); ++i) {
+#if CONFIG_FWD_KF
+  const int num_inter_frames_in_kf_group =
+      rc->is_fwd_kf_group ? (rc->frames_to_key - 2) : (rc->frames_to_key - 1);
+#else
+  const int num_inter_frames_in_kf_group = (rc->frames_to_key - 1);
+#endif  // CONFIG_FWD_KF
+  for (i = 0; i < num_inter_frames_in_kf_group; ++i) {
     if (EOF == input_stats(twopass, &next_frame)) break;
 
     // Monitor for static sections.
@@ -3170,28 +3229,38 @@ static void find_next_key_frame(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   rc->kf_boost = AOMMAX(rc->kf_boost, MIN_KF_BOOST);
 
   // Work out how many bits to allocate for the key frame itself.
-  kf_bits = calculate_boost_bits((rc->frames_to_key - 1), rc->kf_boost,
+  kf_bits = calculate_boost_bits(num_inter_frames_in_kf_group, rc->kf_boost,
                                  twopass->kf_group_bits);
 
-  // Work out the fraction of the kf group bits reserved for the inter frames
-  // within the group after discounting the bits for the kf itself.
+// Work out the fraction of the kf group bits reserved for the inter frames
+// within the group after discounting the bits for the kf itself.
+#if CONFIG_FWD_KF
+  const int num_kfs_in_kf_group = rc->is_fwd_kf_group ? 2 : 1;
+#else
+  const int num_kfs_in_kf_group = 1;
+#endif  // CONFIG_FWD_KF
   if (twopass->kf_group_bits) {
     twopass->kfgroup_inter_fraction =
-        (double)(twopass->kf_group_bits - kf_bits) /
+        (double)(twopass->kf_group_bits - num_kfs_in_kf_group * kf_bits) /
         (double)twopass->kf_group_bits;
   } else {
     twopass->kfgroup_inter_fraction = 1.0;
   }
 
-  twopass->kf_group_bits -= kf_bits;
+  twopass->kf_group_bits -= num_kfs_in_kf_group * kf_bits;
 
   // Save the bits to spend on the key frame.
   gf_group->bit_allocation[0] = kf_bits;
   gf_group->update_type[0] = KF_UPDATE;
   gf_group->rf_level[0] = KF_STD;
 
-  // Note the total error score of the kf group minus the key frame itself.
+// Note the total error score of the kf group minus the key frame itself.
+#if CONFIG_FWD_KF
+  twopass->kf_group_error_left =
+      (int)(kf_group_err - kf_mod_err - fwd_kf_mod_err);
+#else
   twopass->kf_group_error_left = (int)(kf_group_err - kf_mod_err);
+#endif  // CONFIG_FWD_KF
 
   // Adjust the count of total modified error left.
   // The count of bits left is adjusted elsewhere based on real coded frame
@@ -3559,7 +3628,13 @@ void av1_rc_get_second_pass_params(AV1_COMP *cpi) {
     twopass->fr_content_type = FC_NORMAL;
 
   // Keyframe and section processing.
-  if (rc->frames_to_key == 0 || (cpi->frame_flags & FRAMEFLAGS_KEY)) {
+  if (
+#if CONFIG_FWD_KF
+      (rc->frames_to_key == 0 && rc->frames_till_gf_update_due == 0)
+#else
+      rc->frames_to_key == 0
+#endif  // CONFIG_FWD_KF
+      || (cpi->frame_flags & FRAMEFLAGS_KEY)) {
     FIRSTPASS_STATS this_frame_copy;
     this_frame_copy = this_frame;
     // Define next KF group and assign bits to it.
