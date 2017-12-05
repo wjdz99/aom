@@ -52,6 +52,24 @@
       "revId": "8ae50a6bd67987bc77b827dc77e557c90d345d56",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ddd89ee6_9680e121",
+        "filename": "av1/common/cfl.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-12-05T21:06:01Z",
+      "side": 1,
+      "message": "Never mind, I am dumb. I was somehow thinking of the chroma prediction block size, even though I then immediately turned around and pointed out you were looking at luma.",
+      "parentUuid": "e4210706_d1d27dd4",
+      "revId": "8ae50a6bd67987bc77b827dc77e557c90d345d56",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
