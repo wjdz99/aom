@@ -144,9 +144,9 @@ static int try_filter_superblock(const YV12_BUFFER_CONFIG *sd,
   return filt_err;
 }
 
-static int search_filter_level(const YV12_BUFFER_CONFIG *sd, AV1_COMP *cpi,
-                               int partial_frame, double *best_cost_ret,
-                               int mi_row, int mi_col, int last_lvl) {
+int search_filter_level(const YV12_BUFFER_CONFIG *sd, AV1_COMP *cpi,
+                        int partial_frame, double *best_cost_ret, int mi_row,
+                        int mi_col, int last_lvl) {
   assert(partial_frame == 1);
   assert(last_lvl >= 0);
 
