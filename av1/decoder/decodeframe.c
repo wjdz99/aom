@@ -2424,6 +2424,10 @@ static void read_bitdepth_colorspace_sampling(AV1_COMMON *cm,
                          "4:4:4 color not supported in profile 0 or 2");
     }
   }
+
+#if CONFIG_MONO_VIDEO
+  cm->monochrome = aom_rb_read_bit(rb);
+#endif  // CONFIG_MONO_VIDEO
 }
 
 #if CONFIG_REFERENCE_BUFFER || CONFIG_OBU
@@ -2451,10 +2455,6 @@ void read_sequence_header(SequenceHeader *seq_params,
     seq_params->frame_id_length =
         aom_rb_read_literal(rb, 3) + seq_params->delta_frame_id_length + 1;
   }
-
-#if CONFIG_MONO_VIDEO
-  seq_params->monochrome = aom_rb_read_bit(rb);
-#endif  // CONFIG_MONO_VIDEO
 }
 #endif  // CONFIG_REFERENCE_BUFFER || CONFIG_OBU
 
@@ -3597,7 +3597,7 @@ void av1_decode_tg_tiles_and_wrapup(AV1Decoder *pbi, const uint8_t *data,
 #if CONFIG_MONO_VIDEO
   // If the bit stream is monochrome, or the decoder is set to force a
   // monochrome output, set the U and V buffers to a constant.
-  if (pbi->monochrome || cm->seq_params.monochrome) {
+  if (pbi->monochrome || cm->monochrome) {
 #if CONFIG_HIGHBITDEPTH
     const int bytes_per_sample = cm->use_highbitdepth ? 2 : 1;
 #else

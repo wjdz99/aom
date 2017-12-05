@@ -5559,7 +5559,7 @@ static void encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
 #endif  // CONFIG_EXT_TILE
 
 #if CONFIG_MONO_VIDEO
-  cm->seq_params.monochrome = oxcf->monochrome;
+  cm->monochrome = oxcf->monochrome;
 #endif  // CONFIG_MONO_VIDEO
 
 #if CONFIG_XIPHRC

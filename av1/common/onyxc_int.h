@@ -217,9 +217,6 @@ typedef struct SequenceHeader {
   int frame_id_numbers_present_flag;
   int frame_id_length;
   int delta_frame_id_length;
-#if CONFIG_MONO_VIDEO
-  int monochrome;
-#endif  // CONFIG_MONO_VIDEO
 } SequenceHeader;
 #endif  // CONFIG_REFERENCE_BUFFER
 
@@ -244,6 +241,10 @@ typedef struct AV1Common {
 #if CONFIG_SIMPLE_BWD_ADAPT
   int largest_tile_id;
 #endif
+
+#if CONFIG_MONO_VIDEO
+  int monochrome;
+#endif  // CONFIG_MONO_VIDEO
 
 #if CONFIG_HIGHBITDEPTH
   // Marks if we need to use 16bit frame buffers (1: yes, 0: no).
@@ -1161,7 +1162,7 @@ static INLINE int max_intra_block_height(const MACROBLOCKD *xd,
 
 static INLINE int av1_num_planes(const AV1_COMMON *cm) {
 #if CONFIG_MONO_VIDEO
-  return cm->seq_params.monochrome ? 1 : MAX_MB_PLANE;
+  return cm->monochrome ? 1 : MAX_MB_PLANE;
 #else
   (void)cm;
   return MAX_MB_PLANE;
