@@ -3520,21 +3520,30 @@ static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
     }
 #if CONFIG_LPF_SB
     if (USE_LOOP_FILTER_SUPERBLOCK) {
-      // apply deblocking filtering right after each superblock is encoded.
-      int last_lvl;
-      if (mi_row == 0 && mi_col == 0) {
-        last_lvl = 0;
+      int filter_lvl;
+
+      if (USE_GUESS_LEVEL) {
+        av1_pick_filter_level(cpi->source, cpi, LPF_PICK_FROM_Q);
+        struct loopfilter *lf = &cpi->common.lf;
+        filter_lvl = lf->filter_level;
       } else {
-        if (mi_col == 0) {
-          last_lvl =
-              cm->mi[(mi_row - MAX_MIB_SIZE) * cm->mi_stride].mbmi.filt_lvl;
+        // apply deblocking filtering right after each superblock is encoded.
+        int last_lvl;
+        if (mi_row == 0 && mi_col == 0) {
+          last_lvl = 0;
         } else {
-          last_lvl = cm->mi[mi_row * cm->mi_stride + mi_col - MAX_MIB_SIZE]
-                         .mbmi.filt_lvl;
+          if (mi_col == 0) {
+            last_lvl =
+                cm->mi[(mi_row - MAX_MIB_SIZE) * cm->mi_stride].mbmi.filt_lvl;
+          } else {
+            last_lvl = cm->mi[mi_row * cm->mi_stride + mi_col - MAX_MIB_SIZE]
+                           .mbmi.filt_lvl;
+          }
         }
+        filter_lvl = search_filter_level(cpi->source, cpi, 1, NULL, mi_row,
+                                         mi_col, last_lvl);
       }
-      const int filter_lvl = search_filter_level(cpi->source, cpi, 1, NULL,
-                                                 mi_row, mi_col, last_lvl);
+
       av1_loop_filter_frame(get_frame_new_buffer(cm), cm, xd, filter_lvl, 0, 1,
                             mi_row, mi_col);
       // if filter_lvl is 0, we still need to set mi info
