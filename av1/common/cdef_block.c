@@ -423,8 +423,9 @@ void cdef_filter_fb(uint8_t *dst8, uint16_t *dst16, int dstride, uint16_t *in,
   cdef_direction_func cdef_direction[] = { cdef_direction_4x4,
                                            cdef_direction_8x8 };
 #endif
-  sec_damping += coeff_shift - (pli != AOM_PLANE_Y);
-  pri_damping += coeff_shift - (pli != AOM_PLANE_Y);
+  sec_damping += coeff_shift - 2*(pli != AOM_PLANE_Y);
+  pri_damping += coeff_shift - 2*(pli != AOM_PLANE_Y);
+  if (pli != AOM_PLANE_Y) { sec_damping = pri_damping = 3 + coeff_shift; }
   bsize =
       ydec ? (xdec ? BLOCK_4X4 : BLOCK_8X4) : (xdec ? BLOCK_4X8 : BLOCK_8X8);
   bsizex = 3 - xdec;
