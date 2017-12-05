@@ -156,7 +156,7 @@ static void od_ec_encode_q15(od_ec_enc *enc, unsigned fl, unsigned fh, int s,
   l = enc->low;
   r = enc->rng;
   OD_ASSERT(32768U <= r);
-  OD_ASSERT(fh < fl);
+  OD_ASSERT(fh <= fl);
   OD_ASSERT(fl <= 32768U);
   const int N = nsyms - 1;
   if (fl < 32768U) {
