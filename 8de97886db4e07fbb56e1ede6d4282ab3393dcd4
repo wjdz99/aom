@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bc6aa28f_29255d23",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 3067,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-12-05T20:01:27Z",
+      "side": 1,
+      "message": "You can just append \" \u003d { 0 };\" at the end to avoid the \u0027av1_zero()\u0027 calls",
+      "revId": "8de97886db4e07fbb56e1ede6d4282ab3393dcd4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "347d5695_487c37f4",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 3068,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-12-05T20:01:27Z",
+      "side": 1,
+      "message": "What is 4016?",
+      "range": {
+        "startLine": 3068,
+        "startChar": 15,
+        "endLine": 3068,
+        "endChar": 19
+      },
+      "revId": "8de97886db4e07fbb56e1ede6d4282ab3393dcd4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "da76f669_b829561f",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 3073,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-12-05T20:01:27Z",
+      "side": 1,
+      "message": "Add an assert:\n\nconst int this_color \u003d src[r * src_stride + c];\nassert(this_color \u003c 4016);  // or whatever the size of \u0027counts\u0027 is.\n++counts[this_color];",
+      "range": {
+        "startLine": 3073,
+        "startChar": 17,
+        "endLine": 3073,
+        "endChar": 40
+      },
+      "revId": "8de97886db4e07fbb56e1ede6d4282ab3393dcd4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
