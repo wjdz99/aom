@@ -1516,10 +1516,39 @@ void daala_inv_txfm_add_avx2(const tran_low_t *input_coeffs,
       }
       daala_inv_txfm_add_c(input_coeffs, out_check_buf, cols, txfm_param);
 #endif
-      // Inverse-transform rows
-      row_tx(tmpsq, rows, input_coeffs);
-      // Inverse-transform columns and sum with destination
-      col_tx(output_pixels, output_stride, cols, tmpsq, txfm_param->bd);
+      if (tx_type != DCT_DCT || txfm_param->eob > 1) {
+        // Inverse-transform rows
+        row_tx(tmpsq, rows, input_coeffs);
+        // Inverse-transform columns and sum with destination
+        col_tx(output_pixels, output_stride, cols, tmpsq, txfm_param->bd);
+      }else{
+        /* DC-only shortcut */
+        /* Orthonormal de-scales by sqrt(2) per transform stage */
+        const int stages =
+          tx_size_wide_log2[tx_size] + tx_size_high_log2[tx_size];
+        const int shift = TX_COEFF_DEPTH - txfm_param->bd + (stages >> 1) + 10;
+        const int DC =
+            ((stages & 1 ? input_coeffs[0] * 724 : input_coeffs[0] * 1024) +
+             (1 << shift >> 1)) >> shift;
+        int r;
+        int c;
+        // Sum DC with destination according to bit depth
+        if (txfm_param->is_hbd) {
+          // Destination array is shorts
+          uint16_t *output_pixels16 = CONVERT_TO_SHORTPTR(output_pixels);
+          for (r = 0; r < rows; ++r)
+            for (c = 0; c < cols; ++c)
+              output_pixels16[r * output_stride + c] = highbd_clip_pixel_add(
+                  output_pixels16[r * output_stride + c], DC, txfm_param->bd);
+        } else {
+          // Destination array is bytes
+          unsigned char *output_pixels8 = (unsigned char *)output_pixels;
+          for (r = 0; r < rows; ++r)
+            for (c = 0; c < cols; ++c)
+              output_pixels8[r * output_stride + c] =
+                  clip_pixel_add(output_pixels8[r * output_stride + c], DC);
+        }
+      }
 #if defined(DAALA_TX_VERIFY_SIMD)
       {
         if (txfm_param->is_hbd) {
