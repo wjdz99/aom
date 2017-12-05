@@ -76,63 +76,92 @@ void daala_inv_txfm_add_c(const tran_low_t *input_coeffs, void *output_pixels,
     // appropriate TX functions
     const int cols = tx_size_wide[tx_size];
     const int rows = tx_size_high[tx_size];
-    const TX_SIZE col_idx = txsize_vert_map[tx_size];
-    const TX_SIZE row_idx = txsize_horz_map[tx_size];
-    assert(col_idx <= TX_SIZES);
-    assert(row_idx <= TX_SIZES);
-    assert(vtx_tab[tx_type] <= (int)TX_TYPES_1D);
-    assert(htx_tab[tx_type] <= (int)TX_TYPES_1D);
-    daala_itx col_tx = tx_map[col_idx][vtx_tab[tx_type]];
-    daala_itx row_tx = tx_map[row_idx][htx_tab[tx_type]];
     int col_flip = tx_flip(vtx_tab[tx_type]);
     int row_flip = tx_flip(htx_tab[tx_type]);
-    od_coeff tmpsq[MAX_TX_SQUARE];
     int r;
     int c;
 
-    assert(col_tx);
-    assert(row_tx);
+    if (tx_type != DCT_DCT || txfm_param->eob > 1) {
+      od_coeff tmpsq[MAX_TX_SQUARE];
+      const TX_SIZE col_idx = txsize_vert_map[tx_size];
+      const TX_SIZE row_idx = txsize_horz_map[tx_size];
+      assert(col_idx <= TX_SIZES);
+      assert(row_idx <= TX_SIZES);
+      assert(vtx_tab[tx_type] <= (int)TX_TYPES_1D);
+      assert(htx_tab[tx_type] <= (int)TX_TYPES_1D);
+      daala_itx col_tx = tx_map[col_idx][vtx_tab[tx_type]];
+      daala_itx row_tx = tx_map[row_idx][htx_tab[tx_type]];
 
-    // Inverse-transform rows
-    for (r = 0; r < rows; ++r) {
-      // The output addressing transposes
-      if (row_flip)
-        row_tx(tmpsq + r + (rows * cols) - rows, -rows,
-               input_coeffs + r * cols);
-      else
-        row_tx(tmpsq + r, rows, input_coeffs + r * cols);
-    }
+      assert(col_tx);
+      assert(row_tx);
 
-    // Inverse-transform columns
-    for (c = 0; c < cols; ++c) {
-      // Above transposed, so our cols are now rows
-      if (col_flip)
-        col_tx(tmpsq + c * rows + rows - 1, -1, tmpsq + c * rows);
-      else
-        col_tx(tmpsq + c * rows, 1, tmpsq + c * rows);
-    }
+      // Inverse-transform rows
+      for (r = 0; r < rows; ++r) {
+        // The output addressing transposes
+        if (row_flip)
+          row_tx(tmpsq + r + (rows * cols) - rows, -rows,
+                 input_coeffs + r * cols);
+        else
+          row_tx(tmpsq + r, rows, input_coeffs + r * cols);
+      }
 
-    // Sum with destination according to bit depth
-    // The tmpsq array is currently transposed relative to output
-    if (txfm_param->is_hbd) {
-      // Destination array is shorts
-      uint16_t *out16 = CONVERT_TO_SHORTPTR(output_pixels);
-      for (r = 0; r < rows; ++r)
-        for (c = 0; c < cols; ++c)
-          out16[r * output_stride + c] = highbd_clip_pixel_add(
-              out16[r * output_stride + c],
-              (tmpsq[c * rows + r] + (1 << downshift >> 1)) >> downshift,
-              px_depth);
+      // Inverse-transform columns
+      for (c = 0; c < cols; ++c) {
+        // Above transposed, so our cols are now rows
+        if (col_flip)
+          col_tx(tmpsq + c * rows + rows - 1, -1, tmpsq + c * rows);
+        else
+          col_tx(tmpsq + c * rows, 1, tmpsq + c * rows);
+      }
+
+      // Sum with destination according to bit depth
+      // The tmpsq array is currently transposed relative to output
+      if (txfm_param->is_hbd) {
+        // Destination array is shorts
+        uint16_t *out16 = CONVERT_TO_SHORTPTR(output_pixels);
+        for (r = 0; r < rows; ++r)
+          for (c = 0; c < cols; ++c)
+            out16[r * output_stride + c] = highbd_clip_pixel_add(
+                out16[r * output_stride + c],
+                (tmpsq[c * rows + r] + (1 << downshift >> 1)) >> downshift,
+                px_depth);
+      } else {
+        // Destination array is bytes
+        uint8_t *out8 = (uint8_t *)output_pixels;
+        for (r = 0; r < rows; ++r)
+          for (c = 0; c < cols; ++c)
+            out8[r * output_stride + c] = clip_pixel_add(
+                out8[r * output_stride + c],
+                (tmpsq[c * rows + r] + (1 << downshift >> 1)) >> downshift);
+      }
+
     } else {
-      // Destination array is bytes
-      uint8_t *out8 = (uint8_t *)output_pixels;
-      for (r = 0; r < rows; ++r)
-        for (c = 0; c < cols; ++c)
-          out8[r * output_stride + c] = clip_pixel_add(
-              out8[r * output_stride + c],
-              (tmpsq[c * rows + r] + (1 << downshift >> 1)) >> downshift);
+      /* DC-only shortcut */
+      /* Orthonormal de-scales by sqrt(2) per transform stage */
+      const int stages =
+          tx_size_wide_log2[tx_size] + tx_size_high_log2[tx_size];
+      const int shift = downshift + (stages >> 1) + 10;
+      const int DC =
+          ((stages & 1 ? input_coeffs[0] * 724 : input_coeffs[0] * 1024) +
+           (1 << shift >> 1)) >>
+          shift;
+      // Sum DC with destination according to bit depth
+      if (txfm_param->is_hbd) {
+        // Destination array is shorts
+        uint16_t *out16 = CONVERT_TO_SHORTPTR(output_pixels);
+        for (r = 0; r < rows; ++r)
+          for (c = 0; c < cols; ++c)
+            out16[r * output_stride + c] = highbd_clip_pixel_add(
+                out16[r * output_stride + c], DC, px_depth);
+      } else {
+        // Destination array is bytes
+        uint8_t *out8 = (uint8_t *)output_pixels;
+        for (r = 0; r < rows; ++r)
+          for (c = 0; c < cols; ++c)
+            out8[r * output_stride + c] =
+                clip_pixel_add(out8[r * output_stride + c], DC);
+      }
     }
   }
 }
-
 #endif
