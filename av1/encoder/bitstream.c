@@ -2900,6 +2900,11 @@ static int get_refresh_mask(AV1_COMP *cpi) {
   if (cpi->rc.baseline_gf_interval == 16) return get_refresh_mask_gf16(cpi);
 #endif  // USE_GF16_MULTI_LAYER
 
+#if CONFIG_FWD_KF
+  if (cpi->rc.is_fwd_key_frame)
+    return refresh_mask | (cpi->refresh_alt_ref_frame << cpi->alt_fb_idx);
+#endif  // CONFIG_FWD_KF
+
   // NOTE(zoeliu): When LAST_FRAME is to get refreshed, the decoder will be
   // notified to get LAST3_FRAME refreshed and then the virtual indexes for all
   // the 3 LAST reference frames will be updated accordingly, i.e.:
