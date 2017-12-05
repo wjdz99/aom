@@ -239,6 +239,11 @@ static INLINE void update_cdf(aom_cdf_prob *cdf, int val, int nsymbs) {
     } else {
       cdf[i] += ((tmp - cdf[i]) >> rate);
     }
+
+    if (i > 0 && cdf[i] == cdf[i - 1]) {
+      cdf[i] = cdf[i - 1] - 1;
+    }
+    cdf[i] = AOMMAX((nsymbs - 2) - i + 1, cdf[i]);
 #else
     cdf[i] += ((tmp - cdf[i]) >> rate);
 #endif
