@@ -9536,6 +9536,11 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
     second_ref_frame = av1_mode_order[mode_index].ref_frame[1];
     mbmi->ref_mv_idx = 0;
 
+    if ((!(ref_frame == LAST_FRAME || ref_frame == GOLDEN_FRAME ||
+           ref_frame == ALTREF_FRAME)) ||
+        second_ref_frame != NONE_FRAME)
+      continue;
+
     if (ref_frame > INTRA_FRAME && second_ref_frame == INTRA_FRAME) {
       // Mode must by compatible
       if (!is_interintra_allowed_mode(this_mode)) continue;
