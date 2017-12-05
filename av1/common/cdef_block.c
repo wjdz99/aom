@@ -147,8 +147,8 @@ void cdef_filter_block_c(uint8_t *dst8, uint16_t *dst16, int dstride,
 {
   int i, j, k;
   const int s = CDEF_BSTRIDE;
-  const int *pri_taps = cdef_pri_taps[(pri_strength >> coeff_shift) & 1];
-  const int *sec_taps = cdef_sec_taps[(pri_strength >> coeff_shift) & 1];
+  const int *pri_taps = cdef_pri_taps[/*((pri_strength >> coeff_shift) & 1) ||*/ bsize == BLOCK_4X4];
+  const int *sec_taps = cdef_sec_taps[/*((pri_strength >> coeff_shift) & 1) ||*/ bsize == BLOCK_4X4];
   for (i = 0; i < 4 << (bsize == BLOCK_8X8); i++) {
     for (j = 0; j < 4 << (bsize == BLOCK_8X8); j++) {
       int16_t sum = 0;
@@ -553,14 +553,14 @@ void cdef_filter_fb(uint8_t *dst8, uint16_t *dst16, int dstride, uint16_t *in,
     by = dlist[bi].by;
     bx = dlist[bi].bx;
     if (dst8)
-      cdef_filter_block(&dst8[(by << bsizey) * dstride + (bx << bsizex)], NULL,
+      cdef_filter_block_c(&dst8[(by << bsizey) * dstride + (bx << bsizex)], NULL,
                         dstride,
                         &in[(by * CDEF_BSTRIDE << bsizey) + (bx << bsizex)],
                         (pli ? t : adjust_strength(t, var[by][bx])), s,
                         t ? dir[by][bx] : 0, pri_damping, sec_damping, bsize,
                         (256 << coeff_shift) - 1, coeff_shift);
     else
-      cdef_filter_block(
+      cdef_filter_block_c(
           NULL,
           &dst16[dirinit ? bi << (bsizex + bsizey)
                          : (by << bsizey) * dstride + (bx << bsizex)],
