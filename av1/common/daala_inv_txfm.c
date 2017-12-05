@@ -76,40 +76,57 @@ void daala_inv_txfm_add(const tran_low_t *input_coeffs, void *output_pixels,
     // appropriate TX functions
     const int cols = tx_size_wide[tx_size];
     const int rows = tx_size_high[tx_size];
-    const TX_SIZE col_idx = txsize_vert_map[tx_size];
-    const TX_SIZE row_idx = txsize_horz_map[tx_size];
-    assert(col_idx <= TX_SIZES);
-    assert(row_idx <= TX_SIZES);
-    assert(vtx_tab[tx_type] <= (int)TX_TYPES_1D);
-    assert(htx_tab[tx_type] <= (int)TX_TYPES_1D);
-    daala_itx col_tx = tx_map[col_idx][vtx_tab[tx_type]];
-    daala_itx row_tx = tx_map[row_idx][htx_tab[tx_type]];
     int col_flip = tx_flip(vtx_tab[tx_type]);
     int row_flip = tx_flip(htx_tab[tx_type]);
     od_coeff tmpsq[MAX_TX_SQUARE];
     int r;
     int c;
 
-    assert(col_tx);
-    assert(row_tx);
+    if (tx_type != DCT_DCT || txfm_param->eob > 1) {
+      const TX_SIZE col_idx = txsize_vert_map[tx_size];
+      const TX_SIZE row_idx = txsize_horz_map[tx_size];
+      assert(col_idx <= TX_SIZES);
+      assert(row_idx <= TX_SIZES);
+      assert(vtx_tab[tx_type] <= (int)TX_TYPES_1D);
+      assert(htx_tab[tx_type] <= (int)TX_TYPES_1D);
+      daala_itx col_tx = tx_map[col_idx][vtx_tab[tx_type]];
+      daala_itx row_tx = tx_map[row_idx][htx_tab[tx_type]];
 
-    // Inverse-transform rows
-    for (r = 0; r < rows; ++r) {
-      // The output addressing transposes
-      if (row_flip)
-        row_tx(tmpsq + r + (rows * cols) - rows, -rows,
-               input_coeffs + r * cols);
-      else
-        row_tx(tmpsq + r, rows, input_coeffs + r * cols);
-    }
+      assert(col_tx);
+      assert(row_tx);
 
-    // Inverse-transform columns
-    for (c = 0; c < cols; ++c) {
-      // Above transposed, so our cols are now rows
-      if (col_flip)
-        col_tx(tmpsq + c * rows + rows - 1, -1, tmpsq + c * rows);
-      else
-        col_tx(tmpsq + c * rows, 1, tmpsq + c * rows);
+      // Inverse-transform rows
+      for (r = 0; r < rows; ++r) {
+        // The output addressing transposes
+        if (row_flip)
+          row_tx(tmpsq + r + (rows * cols) - rows, -rows,
+                 input_coeffs + r * cols);
+        else
+          row_tx(tmpsq + r, rows, input_coeffs + r * cols);
+      }
+
+      // Inverse-transform columns
+      for (c = 0; c < cols; ++c) {
+        // Above transposed, so our cols are now rows
+        if (col_flip)
+          col_tx(tmpsq + c * rows + rows - 1, -1, tmpsq + c * rows);
+        else
+          col_tx(tmpsq + c * rows, 1, tmpsq + c * rows);
+      }
+    } else {
+      /* DC-only shortcut */
+      /* Orthonormal de-scales by sqrt(2) per transform stage */
+      const int col_stages = tx_size_wide_log2[tx_size];
+      const int row_stages = tx_size_high_log2[tx_size];
+      const int stages = col_stages + row_stages;
+      const int shift = stages >> 1;
+      const int val =
+          stages & 1
+              ? (input_coeffs[0] * 724 + (1 << (9 + shift))) >> (10 + shift)
+              : (input_coeffs[0] + (1 << shift >> 1)) >> shift;
+      int i;
+
+      for (i = 0; i < rows * cols; i++) tmpsq[i] = val;
     }
 
     // Sum with destination according to bit depth
