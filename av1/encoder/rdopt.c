@@ -9072,8 +9072,6 @@ static void estimate_skip_mode_rdcost(
         frame_mv[this_mode][second_ref_frame].as_int == INVALID_MV)
       break;
 
-    // TODO(zoeliu): To work with JNT_COMP
-
     mbmi->mode = this_mode;
     mbmi->uv_mode = UV_DC_PRED;
     mbmi->ref_frame[0] = ref_frame;
@@ -9114,6 +9112,10 @@ static void estimate_skip_mode_rdcost(
     mbmi->filter_intra_mode_info.use_filter_intra_mode[1] = 0;
 #endif  // CONFIG_FILTER_INTRA
     mbmi->interintra_mode = (INTERINTRA_MODE)(II_DC_PRED - 1);
+#if CONFIG_JNT_COMP
+    mbmi->comp_group_idx = 0;
+    mbmi->compound_idx = 1;
+#endif  // CONFIG_JNT_COMP
     mbmi->interinter_compound_type = COMPOUND_AVERAGE;
     mbmi->motion_mode = SIMPLE_TRANSLATION;
     mbmi->ref_mv_idx = 0;
@@ -9139,6 +9141,7 @@ static void estimate_skip_mode_rdcost(
   }
 }
 
+#if 0
 // Check whether the best RD mode satisfies the criteria of skip mode.
 static int check_skip_mode(const AV1_COMMON *const cm,
                            const MB_MODE_INFO *const best_mbmi) {
@@ -9163,6 +9166,7 @@ static int check_skip_mode(const AV1_COMMON *const cm,
 
   return 1;
 }
+#endif  // 0
 #endif  // CONFIG_EXT_SKIP
 
 void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
@@ -10578,8 +10582,11 @@ PALETTE_EXIT:
           RDCOST(x->rdmult, rd_cost->rate + x->skip_mode_cost[skip_mode_ctx][0],
                  rd_cost->dist);
 
-      if (x->skip_mode_rdcost <= best_intra_inter_mode_cost ||
-          check_skip_mode(cm, &best_mbmode))
+      if (x->skip_mode_rdcost <= best_intra_inter_mode_cost
+#if 0
+          || check_skip_mode(cm, &best_mbmode)
+#endif  // 0
+          )
         best_mbmode.skip_mode = 1;
     }
 
