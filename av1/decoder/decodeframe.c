@@ -219,7 +219,7 @@ static void predict_and_reconstruct_intra_block(
     }
   }
 #if CONFIG_CFL
-  if (plane == AOM_PLANE_Y && xd->cfl.store_y) {
+  if (plane == AOM_PLANE_Y && xd->cfl.store_y && is_cfl_allowed(mbmi)) {
     cfl_store_tx(xd, row, col, tx_size, mbmi->sb_type);
   }
 #endif  // CONFIG_CFL
