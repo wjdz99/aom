@@ -288,7 +288,7 @@ static uint8_t scan_col_mbmi(const AV1_COMMON *cm, const MACROBLOCKD *xd,
     if (mi_row & 0x01 && xd->n8_h < n8_h_8) --row_offset;
   }
   const int use_step_16 = (xd->n8_h >= 16);
-  const int do_warping = (col_offset == -1);
+  const int do_warping = 0; // (col_offset == -1);
 
   for (i = 0; i < end_mi;) {
     const MODE_INFO *const candidate_mi =
