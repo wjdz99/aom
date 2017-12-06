@@ -5878,6 +5878,9 @@ static void Pass0Encode(AV1_COMP *cpi, size_t *size, uint8_t *dest,
 #if !CONFIG_XIPHRC
 static void Pass2Encode(AV1_COMP *cpi, size_t *size, uint8_t *dest,
                         unsigned int *frame_flags) {
+#if CONFIG_MISMATCH_DEBUG
+  mismatch_move_frame_idx_w();
+#endif
   encode_frame_to_data_rate(cpi, size, dest, 0, frame_flags);
 
   // Do not do post-encoding update for those frames that do not have a spot in

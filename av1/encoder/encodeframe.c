@@ -4394,6 +4394,10 @@ void av1_encode_frame(AV1_COMP *cpi) {
 #endif  // CONFIG_FRAME_SIGN_BIAS
 #endif  // CONFIG_FRAME_MARKER
 
+#if CONFIG_MISMATCH_DEBUG
+  mismatch_reset_frame();
+#endif
+
   // In the longer term the encoder should be generalized to match the
   // decoder such that we allow compound where one of the 3 buffers has a
   // different sign bias and that buffer is then the fixed ref. However, this
@@ -4968,7 +4972,23 @@ static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
       av1_build_obmc_inter_predictors_sb(cm, xd, mi_row, mi_col);
     }
 
-    av1_encode_sb((AV1_COMMON *)cm, x, block_size, mi_row, mi_col);
+#if CONFIG_MISMATCH_DEBUG
+    if (dry_run == OUTPUT_ENABLED) {
+      for (int plane = 0; plane < 3; ++plane) {
+        const struct macroblockd_plane *pd = &xd->plane[plane];
+        int pixel_c, pixel_r;
+        mi_to_pixel_loc(&pixel_c, &pixel_r, mi_col, mi_row, 0, 0,
+                        pd->subsampling_x, pd->subsampling_y);
+        if (!is_chroma_reference(mi_row, mi_col, bsize, pd->subsampling_x,
+                                 pd->subsampling_y))
+          continue;
+        mismatch_record_block_pre(pd->dst.buf, pd->dst.stride, plane, pixel_c,
+                                  pixel_r, pd->width, pd->height);
+      }
+    }
+#endif
+
+    av1_encode_sb((AV1_COMMON *)cm, x, block_size, mi_row, mi_col, dry_run);
     if (mbmi->skip) mbmi->min_tx_size = get_min_tx_size(mbmi->tx_size);
     av1_tokenize_sb_vartx(cpi, td, t, dry_run, mi_row, mi_col, block_size, rate,
                           tile_data->allow_update_cdf);
