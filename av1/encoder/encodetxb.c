@@ -270,7 +270,7 @@ static void get_dist_cost_stats(LevelDownStats *const stats, const int scan_idx,
   }
 #else
   const int coeff_ctx = get_nz_map_ctx(levels, coeff_idx, txb_info->bwl,
-                                       txb_info->height, txb_info->tx_type);
+                                       txb_info->tx_size, txb_info->tx_type);
   if ((stats->rd_low < stats->rd) && (stats->low_qc == 0)) {
     stats->nz_rate = txb_costs->nz_map_cost[coeff_ctx][0];
   } else {
@@ -386,8 +386,8 @@ void av1_write_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
     const int pos = scan[c];
 
 #if CONFIG_LV_MAP_MULTI
-    coeff_ctx =
-        get_nz_map_ctx(levels, pos, bwl, height, c, c == eob - 1, tx_type);
+    coeff_ctx = get_nz_map_ctx(levels, pos, bwl, height, c, c == eob - 1,
+                               tx_size, tx_type);
     const tran_low_t v = tcoeff[pos];
 #if USE_BASE_EOB_ALPHABET
     if (c == eob - 1) {
@@ -407,7 +407,7 @@ void av1_write_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
                      ec_ctx->coeff_base_cdf[txs_ctx][plane_type][coeff_ctx], 4);
 #endif
 #else
-    coeff_ctx = get_nz_map_ctx(levels, pos, bwl, height, tx_type);
+    coeff_ctx = get_nz_map_ctx(levels, pos, bwl, tx_size, tx_type);
     const tran_low_t v = tcoeff[pos];
     const int is_nz = (v != 0);
 
@@ -433,7 +433,7 @@ void av1_write_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
   for (int i = 1; i < eob; ++i) {
     c = eob - 1 - i;
     const int pos = scan[c];
-    const int coeff_ctx = get_nz_map_ctx(levels, pos, bwl, height, tx_type);
+    const int coeff_ctx = get_nz_map_ctx(levels, pos, bwl, tx_size, tx_type);
     const tran_low_t v = tcoeff[pos];
     const int is_nz = (v != 0);
 
@@ -714,8 +714,8 @@ int av1_cost_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCK *x, int plane,
     const int is_nz = (v != 0);
     const int level = abs(v);
 #if CONFIG_LV_MAP_MULTI
-    coeff_ctx =
-        get_nz_map_ctx(levels, pos, bwl, height, c, c == eob - 1, tx_type);
+    coeff_ctx = get_nz_map_ctx(levels, pos, bwl, height, c, c == eob - 1,
+                               tx_size, tx_type);
 #if USE_BASE_EOB_ALPHABET
     if (c == eob - 1) {
       cost += coeff_costs
@@ -729,12 +729,12 @@ int av1_cost_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCK *x, int plane,
 #endif
 #else  // CONFIG_LV_MAP_MULTI
 #if USE_CAUSAL_BASE_CTX
-    coeff_ctx = get_nz_map_ctx(levels, pos, bwl, height, tx_type);
+    coeff_ctx = get_nz_map_ctx(levels, pos, bwl, tx_size, tx_type);
 #endif
 
     if (c < eob - 1) {
 #if !USE_CAUSAL_BASE_CTX
-      const int coeff_ctx = get_nz_map_ctx(levels, pos, bwl, height, tx_type);
+      const int coeff_ctx = get_nz_map_ctx(levels, pos, bwl, tx_size, tx_type);
 #endif
       cost += coeff_costs->nz_map_cost[coeff_ctx][is_nz];
     }
@@ -876,7 +876,7 @@ void gen_txb_cache(TxbCache *txb_cache, TxbInfo *txb_info) {
 #else
         txb_cache->nz_count_arr[coeff_idx],
 #endif
-        coeff_idx, bwl, height, txb_info->tx_type);
+        coeff_idx, bwl, txb_info->tx_size, txb_info->tx_type);
 
     // gen_base_count_mag_arr
     if (!has_base(qcoeff[coeff_idx], 0)) continue;
@@ -1098,7 +1098,7 @@ static int try_neighbor_level_down_nz(int coeff_idx, int nb_coeff_idx,
 #else
         count - 1,
 #endif
-        coeff_idx, txb_info->bwl, txb_info->height, txb_info->tx_type);
+        coeff_idx, txb_info->bwl, txb_info->tx_size, txb_info->tx_type);
     update_qcoeff(nb_coeff_idx, nb_coeff, txb_info);
     const int ctx = txb_cache->nz_ctx_arr[coeff_idx];
 #if CONFIG_LV_MAP_MULTI
@@ -1490,7 +1490,7 @@ void update_level_down(const int coeff_idx, TxbCache *const txb_cache,
 #else
             txb_cache->nz_count_arr[nb_coeff_idx],
 #endif
-            nb_coeff_idx, txb_info->bwl, txb_info->height, txb_info->tx_type);
+            nb_coeff_idx, txb_info->bwl, txb_info->tx_size, txb_info->tx_type);
       }
     }
   }
@@ -1584,7 +1584,7 @@ static int get_coeff_cost(const tran_low_t qc, const int scan_idx,
 #if CONFIG_LV_MAP_MULTI
   const int coeff_ctx =
       get_nz_map_ctx(txb_info->levels, pos, txb_info->bwl, txb_info->height,
-                     scan_idx, is_eob, txb_info->tx_type);
+                     scan_idx, is_eob, txb_info->tx_size, txb_info->tx_type);
 #if USE_BASE_EOB_ALPHABET
   if (is_eob) {
     cost +=
@@ -1600,12 +1600,12 @@ static int get_coeff_cost(const tran_low_t qc, const int scan_idx,
 #else
 #if USE_CAUSAL_BASE_CTX
   const int coeff_ctx = get_nz_map_ctx(txb_info->levels, pos, txb_info->bwl,
-                                       txb_info->height, txb_info->tx_type);
+                                       txb_info->tx_size, txb_info->tx_type);
 #endif
   if (scan_idx < txb_info->eob - 1) {
 #if !USE_CAUSAL_BASE_CTX
     const int coeff_ctx = get_nz_map_ctx(txb_info->levels, pos, txb_info->bwl,
-                                         txb_info->height, txb_info->tx_type);
+                                         txb_info->tx_size, txb_info->tx_type);
 #endif
     cost += txb_costs->nz_map_cost[coeff_ctx][is_nz];
   }
@@ -2281,8 +2281,8 @@ void av1_update_and_record_txb_context(int plane, int block, int blk_row,
 #if CONFIG_LV_MAP_MULTI
     (void)is_nz;
     (void)nz_map_count;
-    coeff_ctx =
-        get_nz_map_ctx(levels, pos, bwl, height, c, c == eob - 1, tx_type);
+    coeff_ctx = get_nz_map_ctx(levels, pos, bwl, height, c, c == eob - 1,
+                               tx_size, tx_type);
 #if USE_BASE_EOB_ALPHABET
     if (c == eob - 1) {
       update_cdf(ec_ctx->coeff_base_eob_cdf[txsize_ctx][plane_type]
@@ -2311,7 +2311,7 @@ void av1_update_and_record_txb_context(int plane, int block, int blk_row,
                AOMMIN(abs(v), 3), 4);
 #endif
 #elif USE_CAUSAL_BASE_CTX
-    coeff_ctx = get_nz_map_ctx(levels, pos, bwl, height, tx_type);
+    coeff_ctx = get_nz_map_ctx(levels, pos, bwl, tx_size, tx_type);
 
     if (c < eob - 1) {
       ++(*nz_map_count)[coeff_ctx][is_nz];
@@ -2334,7 +2334,7 @@ void av1_update_and_record_txb_context(int plane, int block, int blk_row,
       }
     }
 #else
-    const int coeff_ctx = get_nz_map_ctx(levels, pos, bwl, height, tx_type);
+    const int coeff_ctx = get_nz_map_ctx(levels, pos, bwl, tx_size, tx_type);
 
     if (c == eob - 1) continue;
 
