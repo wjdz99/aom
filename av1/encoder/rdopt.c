@@ -10576,12 +10576,10 @@ PALETTE_EXIT:
       x->skip_mode_rate += x->skip_mode_cost[skip_mode_ctx][1];
       x->skip_mode_rdcost =
           RDCOST(x->rdmult, x->skip_mode_rate, x->skip_mode_dist);
-
       // Compare the use of skip_mode with the best intra/inter mode obtained.
       const int64_t best_intra_inter_mode_cost =
           RDCOST(x->rdmult, rd_cost->rate + x->skip_mode_cost[skip_mode_ctx][0],
                  rd_cost->dist);
-
       if (x->skip_mode_rdcost <= best_intra_inter_mode_cost)
         best_mbmode.skip_mode = 1;
     }
