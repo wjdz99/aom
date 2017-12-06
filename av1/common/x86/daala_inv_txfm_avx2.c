@@ -1202,46 +1202,7 @@ typedef void (*od_tx16_mm256_kernel)(__m256i *s0, __m256i *s4, __m256i *s2,
                                      __m256i *sf);
 
 static void od_row_tx16_avx2(int16_t *out, int rows, const tran_low_t *in,
-#if CONFIG_RECT_TX_EXT
-                             od_tx16_kernel8_epi16 kernel8_epi16,
-#endif
                              od_tx16_mm256_kernel kernel8_epi32) {
-#if CONFIG_RECT_TX_EXT
-  if (rows <= 4) {
-    __m128i s0;
-    __m128i s1;
-    __m128i s2;
-    __m128i s3;
-    __m128i s4;
-    __m128i s5;
-    __m128i s6;
-    __m128i s7;
-    __m128i s8;
-    __m128i s9;
-    __m128i sa;
-    __m128i sb;
-    __m128i sc;
-    __m128i sd;
-    __m128i se;
-    __m128i sf;
-    od_load_buffer_4x4_epi32(&s0, &s1, &s8, &s9, in);
-    od_load_buffer_4x4_epi32(&s2, &s3, &sa, &sb, in + 16);
-    od_load_buffer_4x4_epi32(&s4, &s5, &sc, &sd, in + 32);
-    od_load_buffer_4x4_epi32(&s6, &s7, &se, &sf, in + 48);
-    /*TODO(any): Merge this transpose with coefficient scanning.*/
-    od_transpose_pack8x4(&s0, &s1, &s2, &s3, &s4, &s5, &s6, &s7);
-    od_transpose_pack8x4(&s8, &s9, &sa, &sb, &sc, &sd, &se, &sf);
-    kernel8_epi16(&s0, &s1, &s2, &s3, &s4, &s5, &s6, &s7, &s8, &s9, &sa, &sb,
-                  &sc, &sd, &se, &sf);
-    od_transpose4x8(&s0, s8, &s4, sc, &s2, sa, &s6, se);
-    od_transpose4x8(&s1, s9, &s5, sd, &s3, sb, &s7, sf);
-    od_store_buffer_4x4_epi16(out, s0, s1);
-    od_store_buffer_4x4_epi16(out + 16, s4, s5);
-    od_store_buffer_4x4_epi16(out + 32, s2, s3);
-    od_store_buffer_4x4_epi16(out + 48, s6, s7);
-    return;
-  }
-#endif  // CONFIG_RECT_TX_EXT
   {
     int r;
     /* 8 or more rows requires 32-bit precision.
@@ -1302,25 +1263,6 @@ static void od_col_tx16_add_hbd_avx2(unsigned char *output_pixels,
   __m128i sd;
   __m128i se;
   __m128i sf;
-#if CONFIG_RECT_TX_EXT
-  if (cols <= 4) {
-    od_load_buffer_4x4_epi16(&s0, &s1, &s2, &s3, in);
-    od_load_buffer_4x4_epi16(&s4, &s5, &s6, &s7, in + 16);
-    od_load_buffer_4x4_epi16(&s8, &s9, &sa, &sb, in + 32);
-    od_load_buffer_4x4_epi16(&sc, &sd, &se, &sf, in + 48);
-    kernel8_epi16(&s0, &s1, &s2, &s3, &s4, &s5, &s6, &s7, &s8, &s9, &sa, &sb,
-                  &sc, &sd, &se, &sf);
-    od_add_store_buffer_hbd_4x4_epi16(output_pixels, output_stride, s0, s8, s4,
-                                      sc, bd);
-    od_add_store_buffer_hbd_4x4_epi16(output_pixels + 4 * output_stride,
-                                      output_stride, s2, sa, s6, se, bd);
-    od_add_store_buffer_hbd_4x4_epi16(output_pixels + 8 * output_stride,
-                                      output_stride, s1, s9, s5, sd, bd);
-    od_add_store_buffer_hbd_4x4_epi16(output_pixels + 12 * output_stride,
-                                      output_stride, s3, sb, s7, sf, bd);
-    return;
-  }
-#endif  // CONFIG_RECT_TX_EXT
   if (cols <= 8) {
     od_load_buffer_8x4_epi16(&s0, &s1, &s2, &s3, in, cols);
     od_load_buffer_8x4_epi16(&s4, &s5, &s6, &s7, in + 32, cols);
@@ -1377,11 +1319,7 @@ static void od_col_tx16_add_hbd_avx2(unsigned char *output_pixels,
 }
 
 static void od_row_idct16_avx2(int16_t *out, int rows, const tran_low_t *in) {
-  od_row_tx16_avx2(out, rows, in,
-#if CONFIG_RECT_TX_EXT
-                   od_idct16_kernel8_epi16,
-#endif
-                   od_idct16_kernel8_epi32);
+  od_row_tx16_avx2(out, rows, in, od_idct16_kernel8_epi32);
 }
 
 static void od_col_idct16_add_hbd_avx2(unsigned char *output_pixels,
