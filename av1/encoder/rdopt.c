@@ -4694,33 +4694,33 @@ static int find_tx_size_rd_records(MACROBLOCK *x, BLOCK_SIZE bsize, int mi_row,
 
 static const uint32_t skip_pred_threshold[3][BLOCK_SIZES_ALL] = {
   {
-      0,  0,  0,  50, 50, 50, 55, 47, 47, 53, 53, 53, 0, 0, 0, 0,
+      0,  0,  0,  50, 50, 50, 55, 47, 47, 53, 53, 53, 53, 53, 53, 53,
 #if CONFIG_EXT_PARTITION
-      0,  0,  0,
+      53, 53, 53,
 #endif
       50, 50, 55, 55, 53, 53,
 #if CONFIG_EXT_PARTITION
-      0,  0,
+      53, 53,
 #endif
   },
   {
-      0,  0,  0,  69, 69, 69, 67, 68, 68, 53, 53, 53, 0, 0, 0, 0,
+      0,  0,  0,  69, 69, 69, 67, 68, 68, 53, 53, 53, 53, 53, 53, 53,
 #if CONFIG_EXT_PARTITION
-      0,  0,  0,
+      53, 53, 53,
 #endif
       69, 69, 67, 67, 53, 53,
 #if CONFIG_EXT_PARTITION
-      0,  0,
+      53, 53,
 #endif
   },
   {
-      0,  0,  0,  70, 73, 73, 70, 73, 73, 58, 58, 58, 0, 0, 0, 0,
+      0,  0,  0,  70, 73, 73, 70, 73, 73, 58, 58, 58, 58, 58, 58, 58,
 #if CONFIG_EXT_PARTITION
-      0,  0,  0,
+      58, 58, 58,
 #endif
       70, 70, 70, 70, 58, 58,
 #if CONFIG_EXT_PARTITION
-      0,  0,
+      58, 58,
 #endif
   }
 };
@@ -4729,12 +4729,12 @@ static const uint32_t skip_pred_threshold[3][BLOCK_SIZES_ALL] = {
 // whether optimal RD decision is to skip encoding the residual.
 // The sse value is stored in dist.
 static int predict_skip_flag(MACROBLOCK *x, BLOCK_SIZE bsize, int64_t *dist) {
-  const int max_tx_size =
+  int max_tx_size =
       get_max_rect_tx_size(bsize, is_inter_block(&x->e_mbd.mi[0]->mbmi));
+  if (tx_size_high[max_tx_size] > 16 || tx_size_wide[max_tx_size] > 16)
+    max_tx_size = AOMMIN(max_txsize_lookup[bsize], TX_16X16);
   const int tx_h = tx_size_high[max_tx_size];
   const int tx_w = tx_size_wide[max_tx_size];
-  if (tx_h > 16 || tx_w > 16) return 0;
-
   const int bw = block_size_wide[bsize];
   const int bh = block_size_high[bsize];
   const MACROBLOCKD *xd = &x->e_mbd;
