@@ -576,10 +576,10 @@ void av1_write_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
       // level is above 1.
       const int base_range = level - 1 - NUM_BASE_LEVELS;
 #if USE_CAUSAL_BR_CTX
-      ctx = get_br_ctx(levels, pos, bwl, level_counts[pos], tx_type);
+      ctx = get_br_ctx(levels, pos, bwl, height, level_counts[pos], tx_type);
 
 #else
-      ctx = get_br_ctx(levels, pos, bwl, level_counts[pos]);
+      ctx = get_br_ctx(levels, pos, bwl, height, level_counts[pos]);
 #endif
       for (idx = 0; idx < COEFF_BASE_RANGE; idx += BR_CDF_SIZE - 1) {
         const int k = AOMMIN(base_range - idx, BR_CDF_SIZE - 1);
@@ -752,9 +752,9 @@ int av1_cost_coeffs_txb(const AV1_COMMON *const cm, const MACROBLOCK *x,
       if (level > NUM_BASE_LEVELS) {
         int ctx;
 #if USE_CAUSAL_BR_CTX
-        ctx = get_br_ctx(levels, pos, bwl, level_counts[pos], tx_type);
+        ctx = get_br_ctx(levels, pos, bwl, height, level_counts[pos], tx_type);
 #else
-        ctx = get_br_ctx(levels, pos, bwl, level_counts[pos]);
+        ctx = get_br_ctx(levels, pos, bwl, height, level_counts[pos]);
 #endif
         const int base_range = level - 1 - NUM_BASE_LEVELS;
         if (base_range < COEFF_BASE_RANGE) {
@@ -837,9 +837,8 @@ void gen_txb_cache(TxbCache *txb_cache, TxbInfo *txb_info) {
     const int row = coeff_idx >> bwl;
     const int col = coeff_idx - (row << bwl);
 
-    txb_cache->nz_count_arr[coeff_idx] =
-        get_nz_count(levels + get_padded_idx(coeff_idx, bwl), bwl,
-                     tx_type_to_class[txb_info->tx_type]);
+    txb_cache->nz_count_arr[coeff_idx] = get_nz_count(
+        levels, bwl, coeff_idx, tx_type_to_class[txb_info->tx_type]);
 
     txb_cache->nz_ctx_arr[coeff_idx] =
         get_nz_map_ctx_from_stats(0, coeff_idx, bwl, txb_info->tx_size,
@@ -1387,13 +1386,14 @@ static int get_coeff_cost(const tran_low_t qc, const int scan_idx,
 #if USE_CAUSAL_BR_CTX
       (void)col;
       const int count = 0;
-      const int ctx = get_br_ctx(txb_info->levels, pos, txb_info->bwl, count,
-                                 txb_info->tx_type);
+      const int ctx = get_br_ctx(txb_info->levels, pos, height, txb_info->bwl,
+                                 count, txb_info->tx_type);
 #else
-      const int count = get_level_count(
-          txb_info->levels, (1 << txb_info->bwl) + TX_PAD_HOR, row, col,
-          NUM_BASE_LEVELS, br_ref_offset, BR_CONTEXT_POSITION_NUM);
-      const int ctx = get_br_ctx(txb_info->levels, pos, txb_info->bwl, count);
+      const int count = get_level_count(txb_info->levels, (1 << txb_info->bwl),
+                                        height, row, col, NUM_BASE_LEVELS,
+                                        br_ref_offset, BR_CONTEXT_POSITION_NUM);
+      const int ctx =
+          get_br_ctx(txb_info->levels, pos, height, txb_info->bwl, count);
 #endif
       cost += get_br_cost(abs_qc, ctx, txb_costs->lps_cost[ctx]);
       cost += get_golomb_cost(abs_qc);
@@ -2287,9 +2287,9 @@ void av1_update_and_record_txb_context(int plane, int block, int blk_row,
 
       const int base_range = level - 1 - NUM_BASE_LEVELS;
 #if USE_CAUSAL_BR_CTX
-      ctx = get_br_ctx(levels, pos, bwl, level_counts[pos], tx_type);
+      ctx = get_br_ctx(levels, pos, bwl, height, level_counts[pos], tx_type);
 #else
-      ctx = get_br_ctx(levels, pos, bwl, level_counts[pos]);
+      ctx = get_br_ctx(levels, pos, bwl, height, level_counts[pos]);
 #endif
       for (idx = 0; idx < COEFF_BASE_RANGE; idx += BR_CDF_SIZE - 1) {
         const int k = AOMMIN(base_range - idx, BR_CDF_SIZE - 1);
