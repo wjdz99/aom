@@ -8687,8 +8687,9 @@ static int64_t motion_mode_rd(
       memcpy(pts_inref, pts_inref0, total_samples * 2 * sizeof(*pts_inref0));
       // Rank the samples by motion vector difference
       if (mbmi->num_proj_ref[0] > 1) {
-        mbmi->num_proj_ref[0] = sortSamples(pts_mv0, &mbmi->mv[0].as_mv, pts,
-                                            pts_inref, mbmi->num_proj_ref[0]);
+        mbmi->num_proj_ref[0] = selectSamples(pts_mv0, &mbmi->mv[0].as_mv, pts,
+                                              pts_inref, mbmi->num_proj_ref[0],
+                                              mi_row, mi_col, bsize);
         best_bmc_mbmi->num_proj_ref[0] = mbmi->num_proj_ref[0];
       }
 #endif  // CONFIG_EXT_WARPED_MOTION
@@ -11954,8 +11955,9 @@ void av1_rd_pick_inter_mode_sb_seg_skip(const AV1_COMP *cpi,
         findSamples(cm, xd, mi_row, mi_col, pts, pts_inref, pts_mv);
     // Rank the samples by motion vector difference
     if (mbmi->num_proj_ref[0] > 1)
-      mbmi->num_proj_ref[0] = sortSamples(pts_mv, &mbmi->mv[0].as_mv, pts,
-                                          pts_inref, mbmi->num_proj_ref[0]);
+      mbmi->num_proj_ref[0] = selectSamples(pts_mv, &mbmi->mv[0].as_mv, pts,
+                                            pts_inref, mbmi->num_proj_ref[0],
+                                            mi_row, mi_col, bsize);
 #else
     mbmi->num_proj_ref[0] = findSamples(cm, xd, mi_row, mi_col, pts, pts_inref);
 #endif  // CONFIG_EXT_WARPED_MOTION

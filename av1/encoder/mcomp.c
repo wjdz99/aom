@@ -944,7 +944,8 @@ unsigned int av1_refine_warped_mv(const AV1_COMP *cpi, MACROBLOCK *const x,
         memcpy(pts_inref, pts_inref0, total_samples * 2 * sizeof(*pts_inref0));
         if (total_samples > 1)
           mbmi->num_proj_ref[0] =
-              sortSamples(pts_mv0, &this_mv, pts, pts_inref, total_samples);
+              selectSamples(pts_mv0, &this_mv, pts, pts_inref, total_samples,
+                            mi_row, mi_col, bsize);
 #endif  // CONFIG_EXT_WARPED_MOTION
 
         if (!find_projection(mbmi->num_proj_ref[0], pts, pts_inref, bsize, *tr,
