@@ -3247,7 +3247,9 @@ void av1_setup_past_independence(AV1_COMMON *cm) {
   // To force update of the sharpness
   lf->last_sharpness_level = -1;
 
+#if !CONFIG_Q_ADAPT_PROBS
   av1_default_coef_probs(cm);
+#endif
   init_mode_probs(cm->fc);
   av1_init_mv_probs(cm);
 #if CONFIG_LV_MAP
@@ -3258,7 +3260,9 @@ void av1_setup_past_independence(AV1_COMMON *cm) {
 #endif
   av1_convolve_init(cm);
   cm->fc->initialized = 1;
+#if !CONFIG_Q_ADAPT_PROBS
   av1_setup_frame_contexts(cm);
+#endif
 
   // prev_mip will only be allocated in encoder.
   if (frame_is_intra_only(cm) && cm->prev_mip && !cm->frame_parallel_decode)
