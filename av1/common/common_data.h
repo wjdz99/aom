@@ -679,7 +679,7 @@ static const TX_SIZE max_txsize_rect_intra_lookup[BLOCK_SIZES_ALL] = {
 #endif  // CONFIG_TX64X64
 #if CONFIG_EXT_PARTITION_TYPES && CONFIG_RECT_TX_EXT_INTRA
   // 4x16,   16x4,
-  TX_4X16,   TX_16X4,
+  TX_4X8,    TX_8X4,
   // 8x32,   32x8
   TX_8X32,   TX_32X8,
 #if CONFIG_TX64X64
