@@ -345,7 +345,7 @@ void av1_get_base_level_counts(const uint8_t *const levels,
   for (int row = 0; row < height; ++row) {
     for (int col = 0; col < width; ++col) {
       level_counts[row * width + col] =
-          get_level_count(levels, stride, row, col, level_minus_1,
+          get_level_count(levels, stride, row, col, height, level_minus_1,
                           base_ref_offset, BASE_CONTEXT_POSITION_NUM);
     }
   }
@@ -361,7 +361,7 @@ void av1_get_br_level_counts_c(const uint8_t *const levels, const int width,
   for (int row = 0; row < height; ++row) {
     for (int col = 0; col < width; ++col) {
       level_counts[row * width + col] =
-          get_level_count(levels, stride, row, col, level_minus_1,
+          get_level_count(levels, stride, row, col, height, level_minus_1,
                           br_ref_offset, BR_CONTEXT_POSITION_NUM);
     }
   }
