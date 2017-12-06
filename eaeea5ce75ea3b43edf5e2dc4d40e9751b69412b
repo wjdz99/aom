@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "9a5be9fc_7cc5281c",
+        "filename": "av1/encoder/aq_complexity.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2017-12-06T23:02:13Z",
+      "side": 1,
+      "message": "converting to the rate cost",
+      "parentUuid": "9328ef50_7b90100e",
+      "range": {
+        "startLine": 127,
+        "startChar": 74,
+        "endLine": 127,
+        "endChar": 77
+      },
+      "revId": "eaeea5ce75ea3b43edf5e2dc4d40e9751b69412b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5f57510e_12055ffd",
         "filename": "av1/encoder/encodeframe.c",
         "patchSetId": 2
@@ -36,6 +60,30 @@
       "writtenOn": "2017-12-06T21:57:39Z",
       "side": 1,
       "message": "If everything is correct in RDO, mbmi-\u003etx_size should always be no smaller than min_tx_size, right? Is this the root cause of bug 1065?",
+      "range": {
+        "startLine": 437,
+        "startChar": 4,
+        "endLine": 437,
+        "endChar": 64
+      },
+      "revId": "eaeea5ce75ea3b43edf5e2dc4d40e9751b69412b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5c4b08ea_002bddcb",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 437,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2017-12-06T23:02:13Z",
+      "side": 1,
+      "message": "in aq_complexity mode, things can change after RDO. I don\u0027t know why that is the case, but it seems we can go from lossless to lossy. In that case, the reset_tx_size function makes the tx_sizes consistent with the bitstream constraints.",
+      "parentUuid": "5f57510e_12055ffd",
       "range": {
         "startLine": 437,
         "startChar": 4,
