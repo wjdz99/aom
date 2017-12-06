@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "01236fb2_befc3ad7",
+        "filename": "av1/common/warped_motion.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1054,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-12-06T19:31:05Z",
+      "side": 1,
+      "message": "I don\u0027t think this comment is always true. I mean, 4a^2 can only be guaranteed to be divided by 4. But as long as the result is good, it is a good approximation.",
+      "range": {
+        "startLine": 1053,
+        "startChar": 0,
+        "endLine": 1054,
+        "endChar": 55
+      },
+      "revId": "72f796f642a2833acabe0481c32dab0495b92f6e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
