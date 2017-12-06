@@ -2416,9 +2416,9 @@ static void write_modes(AV1_COMP *const cpi, const TileInfo *const tile,
 #if CONFIG_LOOP_RESTORATION
 static void encode_restoration_mode(AV1_COMMON *cm,
                                     struct aom_write_bit_buffer *wb) {
-#if CONFIG_INTRABC
+#if CONFIG_INTRABC && !CONFIG_LPF_SB
   if (cm->allow_intrabc && NO_FILTER_FOR_IBC) return;
-#endif  // CONFIG_INTRABC
+#endif  // CONFIG_INTRABC && !CONFIG_LPF_SB
   int all_none = 1, chroma_none = 1;
   for (int p = 0; p < av1_num_planes(cm); ++p) {
     RestorationInfo *rsi = &cm->rst_info[p];
