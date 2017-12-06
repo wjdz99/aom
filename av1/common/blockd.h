@@ -195,13 +195,13 @@ typedef struct {
 } PALETTE_MODE_INFO;
 
 #if CONFIG_OPT_IMODE
-#define FI_TEST 0
+#define FI_TEST 1
 #define PALETTE_TEST 1
-#define OPT_IMODE_UV 0
+#define INTRA_UV_TEST 1
 #else
 #define FI_TEST 0
 #define PALETTE_TEST 0
-#define OPT_IMODE_UV 0
+#define INTRA_UV_TEST 0
 #endif
 
 #define PALETTE_PRIMARY_MODE (PALETTE_TEST ? PAETH_PRED : DC_PRED)

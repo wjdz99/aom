@@ -4494,10 +4494,13 @@ static void sum_intra_stats(FRAME_COUNTS *counts, MACROBLOCKD *xd,
 #if CONFIG_ENTROPY_STATS
     const PREDICTION_MODE above = av1_above_block_mode(mi, above_mi, 0);
     const PREDICTION_MODE left = av1_left_block_mode(mi, left_mi, 0);
-#if CONFIG_KF_CTX
+#if CONFIG_KF_CTX && !CONFIG_KF2
     int above_ctx = intra_mode_context[above];
     int left_ctx = intra_mode_context[left];
     ++counts->kf_y_mode[above_ctx][left_ctx][y_mode];
+#elif CONFIG_KF2
+    int ctx = av1_get_intra_ctx(above, left);
+    ++counts->kf_y_mode[ctx][y_mode];
 #else
     ++counts->kf_y_mode[above][left][y_mode];
 #endif
@@ -4561,7 +4564,7 @@ static void sum_intra_stats(FRAME_COUNTS *counts, MACROBLOCKD *xd,
   if (!is_chroma_reference(mi_row, mi_col, bsize, xd->plane[1].subsampling_x,
                            xd->plane[1].subsampling_y))
     return;
-#if CONFIG_EXT_INTRA && CONFIG_EXT_INTRA_MOD && !OPT_IMODE_UV
+#if CONFIG_EXT_INTRA && CONFIG_EXT_INTRA_MOD && !INTRA_UV_TEST
   if (av1_is_directional_mode(get_uv_mode(mbmi->uv_mode), bsize) &&
       av1_use_angle_delta(bsize)) {
 #if CONFIG_ENTROPY_STATS

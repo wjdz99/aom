@@ -74,6 +74,7 @@ static INLINE int av1_use_angle_delta(BLOCK_SIZE bsize) {
   return bsize >= BLOCK_8X8;
 #endif
 }
+
 #endif  // CONFIG_EXT_INTRA
 
 #if CONFIG_INTRABC

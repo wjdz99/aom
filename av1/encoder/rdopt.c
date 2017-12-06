@@ -3381,9 +3381,14 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   const PREDICTION_MODE FINAL_MODE_SEARCH = PAETH_PRED + 1;
 
 #if CONFIG_KF_CTX
+#if CONFIG_KF2
+  int ctx = av1_get_intra_ctx(A, L);
+  bmode_costs = x->y_mode_costs[ctx];
+#else
   const int above_ctx = intra_mode_context[A];
   const int left_ctx = intra_mode_context[L];
   bmode_costs = x->y_mode_costs[above_ctx][left_ctx];
+#endif  // CONFIG_KF2
 #else
   bmode_costs = x->y_mode_costs[A][L];
 #endif
@@ -5452,7 +5457,7 @@ static int64_t rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
 #if CONFIG_EXT_INTRA
     const int is_directional_mode =
         av1_is_directional_mode(get_uv_mode(mode), mbmi->sb_type);
-    const int use_angle_delta = !OPT_IMODE_UV &&
+    const int use_angle_delta = !INTRA_UV_TEST &&
         av1_use_angle_delta(mbmi->sb_type);
 #endif  // CONFIG_EXT_INTRA
     if (!(cpi->sf.intra_uv_mode_mask[txsize_sqr_up_map[max_tx_size]] &
@@ -5471,7 +5476,7 @@ static int64_t rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
 #endif
 #if CONFIG_EXT_INTRA
     mbmi->angle_delta[1] = 0;
-#if OPT_IMODE_UV
+#if INTRA_UV_TEST
     if (get_uv_mode(mode) == mbmi->mode) {
       mbmi->angle_delta[1] = mbmi->angle_delta[0];
     }
@@ -9699,7 +9704,7 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
 #endif  // CONFIG_EXT_INTRA_MOD
         }
       }
-#if !OPT_IMODE_UV
+#if !INTRA_UV_TEST
       if (av1_is_directional_mode(get_uv_mode(mbmi->uv_mode), bsize) &&
           av1_use_angle_delta(bsize)) {
 #if CONFIG_EXT_INTRA_MOD

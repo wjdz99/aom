@@ -273,6 +273,7 @@ EXPERIMENT_LIST="
     inter_stats_only
     palette_delta_encoding
     kf_ctx
+    kf2
     cfl
     xiphrc
     dct_only

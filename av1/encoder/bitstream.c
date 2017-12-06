@@ -825,7 +825,7 @@ static void write_intra_angle_info(const MACROBLOCKD *xd,
 #endif  // CONFIG_EXT_INTRA_MOD
   }
 
-#if !OPT_IMODE_UV
+#if !INTRA_UV_TEST
   if (av1_is_directional_mode(get_uv_mode(mbmi->uv_mode), bsize)) {
 #if CONFIG_EXT_INTRA_MOD
     aom_write_symbol(w, mbmi->angle_delta[1] + MAX_ANGLE_DELTA,

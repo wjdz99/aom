@@ -397,6 +397,20 @@ void av1_average_tile_inter_cdfs(struct AV1Common *cm,
 void av1_average_tile_loopfilter_cdfs(struct frame_contexts *fc,
                                       struct frame_contexts *ec_ctxs[],
                                       aom_cdf_prob *cdf_ptrs[], int num_tiles);
+#if CONFIG_KF2
+static INLINE int av1_get_intra_ctx(PREDICTION_MODE above, PREDICTION_MODE left) {
+  // Note: ctx_idx[i] = (i * (i + 1)) / 2
+  const int8_t ctx_idx[8] = { 0, 1, 3, 6, 10, 15, 21, 28 };
+  const int class_above = intra_mode_context[above];
+  const int class_left = intra_mode_context[left];
+  const int lo = (class_above <= class_left) ? class_above : class_left;
+  const int hi = (class_above <= class_left) ? class_left : class_above;
+  const int ctx = ctx_idx[hi] + lo;
+
+  return ctx;
+}
+#endif  // CONFIG_KF2
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif
