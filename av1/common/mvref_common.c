@@ -2044,53 +2044,65 @@ static INLINE void record_samples(MB_MODE_INFO *mbmi, int *pts, int *pts_inref,
   pts_mv[1] = mbmi->mv[0].as_mv.row;
 }
 
-// Only sort pts and pts_inref, and pts_mv is not sorted.
-#define TRIM_THR 16
-int sortSamples(int *pts_mv, MV *mv, int *pts, int *pts_inref, int len) {
+int selectSamples(int *pts_mv, MV *mv, int *pts, int *pts_inref, int len,
+                  int mi_row, int mi_col, BLOCK_SIZE bsize) {
+  const int global_offset_c = mi_col * MI_SIZE;
+  const int global_offset_r = mi_row * MI_SIZE;
+  const int bw = block_size_wide[bsize];
+  const int bh = block_size_high[bsize];
+  const int cc_offset = bw / 2 - 1;
+  const int cr_offset = bh / 2 - 1;
+  const int x = (cc_offset + global_offset_c) << 3;
+  const int y = (cr_offset + global_offset_r) << 3;
   int pts_mvd[SAMPLES_ARRAY_SIZE] = { 0 };
-  int i, j, k;
-  int ret = len;
+  int pts_dis[SAMPLES_ARRAY_SIZE] = { 0 };
+  int i, j, k, l = len;
+  int ret = 0;
   assert(len <= SAMPLES_MAX);
 
-  for (i = 0; i < len; ++i)
+  for (i = 0; i < len; ++i) {
     pts_mvd[i] =
         abs(pts_mv[2 * i] - mv->col) + abs(pts_mv[2 * i + 1] - mv->row);
+    // Sample trimming criteria: 8 pixel distance allows 1 pixel motion vector
+    // difference.
+    // pts_dis[i] =
+    // clamp(((abs(pts[2 * i] - x) + abs(pts[2 * i + 1] - y)) >> 3), 16, 112);
+    pts_dis[i] =
+        clamp((AOMMAX(abs(pts[2 * i] - x), abs(pts[2 * i + 1] - y)) >> 3),
+              16, 112);
 
-  for (i = 1; i <= len - 1; ++i) {
-    for (j = 0; j < i; ++j) {
-      if (pts_mvd[j] > pts_mvd[i]) {
-        int temp, tempi, tempj, ptempi, ptempj;
-
-        temp = pts_mvd[i];
-        tempi = pts[2 * i];
-        tempj = pts[2 * i + 1];
-        ptempi = pts_inref[2 * i];
-        ptempj = pts_inref[2 * i + 1];
-
-        for (k = i; k > j; k--) {
-          pts_mvd[k] = pts_mvd[k - 1];
-          pts[2 * k] = pts[2 * (k - 1)];
-          pts[2 * k + 1] = pts[2 * (k - 1) + 1];
-          pts_inref[2 * k] = pts_inref[2 * (k - 1)];
-          pts_inref[2 * k + 1] = pts_inref[2 * (k - 1) + 1];
-        }
-
-        pts_mvd[j] = temp;
-        pts[2 * j] = tempi;
-        pts[2 * j + 1] = tempj;
-        pts_inref[2 * j] = ptempi;
-        pts_inref[2 * j + 1] = ptempj;
+    if (pts_mvd[i] > pts_dis[i]) {
+      pts_mvd[i] = -1;
+    } else {
+      ret++;
+      if (ret >= LEAST_SQUARES_SAMPLES_MAX) {
+        l = i + 1;
         break;
       }
     }
   }
 
-  len = AOMMIN(len, LEAST_SQUARES_SAMPLES_MAX);
+  if (!ret) return 1;
 
-  for (i = len - 1; i >= 1; i--) {
-    if ((pts_mvd[i] - pts_mvd[i - 1]) >= TRIM_THR) ret = i;
+  i = 0;
+  j = l - 1;
+  for(k = 0; k < l - ret; k++) {
+    while (pts_mvd[i] != -1) i++;
+    while (pts_mvd[j] == -1) j--;
+    assert(i != j);
+    if(i > j) break;
+
+    // Replace the discarded samples;
+    pts_mvd[i] = pts_mvd[j];
+    pts[2 * i] = pts[2 * j];
+    pts[2 * i + 1] = pts[2 * j + 1];
+    pts_inref[2 * i] = pts_inref[2 * j];
+    pts_inref[2 * i + 1] = pts_inref[2 * j + 1];
+    i++;
+    j--;
   }
 
+  assert(ret <= LEAST_SQUARES_SAMPLES_MAX);
   return ret;
 }
 

@@ -2767,8 +2767,9 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
 
 #if CONFIG_EXT_WARPED_MOTION
     if (mbmi->num_proj_ref[0] > 1)
-      mbmi->num_proj_ref[0] = sortSamples(pts_mv, &mbmi->mv[0].as_mv, pts,
-                                          pts_inref, mbmi->num_proj_ref[0]);
+      mbmi->num_proj_ref[0] = selectSamples(pts_mv, &mbmi->mv[0].as_mv, pts,
+                                            pts_inref, mbmi->num_proj_ref[0],
+                                            mi_row, mi_col, bsize);
 #endif  // CONFIG_EXT_WARPED_MOTION
 
     if (find_projection(mbmi->num_proj_ref[0], pts, pts_inref, bsize,
