@@ -2281,9 +2281,6 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
   int16_t mode_ctx = 0;
 #if CONFIG_WARPED_MOTION
   int pts[SAMPLES_ARRAY_SIZE], pts_inref[SAMPLES_ARRAY_SIZE];
-#if CONFIG_EXT_WARPED_MOTION
-  int pts_mv[SAMPLES_ARRAY_SIZE];
-#endif  // CONFIG_EXT_WARPED_MOTION
 #endif  // CONFIG_WARPED_MOTION
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
 
@@ -2742,7 +2739,7 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
   if (mbmi->sb_type >= BLOCK_8X8 && !has_second_ref(mbmi))
 #if CONFIG_EXT_WARPED_MOTION
     mbmi->num_proj_ref[0] =
-        findSamples(cm, xd, mi_row, mi_col, pts, pts_inref, pts_mv);
+        findSamples(cm, xd, mi_row, mi_col, pts, pts_inref);
 #else
     mbmi->num_proj_ref[0] = findSamples(cm, xd, mi_row, mi_col, pts, pts_inref);
 #endif  // CONFIG_EXT_WARPED_MOTION
@@ -2767,8 +2764,8 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
 
 #if CONFIG_EXT_WARPED_MOTION
     if (mbmi->num_proj_ref[0] > 1)
-      mbmi->num_proj_ref[0] = sortSamples(pts_mv, &mbmi->mv[0].as_mv, pts,
-                                          pts_inref, mbmi->num_proj_ref[0]);
+      mbmi->num_proj_ref[0] = selectSamples(&mbmi->mv[0].as_mv, pts, pts_inref,
+                                            mbmi->num_proj_ref[0], bsize);
 #endif  // CONFIG_EXT_WARPED_MOTION
 
     if (find_projection(mbmi->num_proj_ref[0], pts, pts_inref, bsize,
