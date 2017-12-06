@@ -2285,7 +2285,7 @@ static void txfm_rd_in_plane(MACROBLOCK *x, const AV1_COMP *cpi,
   av1_zero(args);
   args.x = x;
   args.cpi = cpi;
-  args.best_rd = ref_best_rd;
+  args.best_rd = INT64_MAX;
   args.use_fast_coef_costing = use_fast_coef_casting;
   av1_init_rd_stats(&args.rd_stats);
 
