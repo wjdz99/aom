@@ -1076,7 +1076,6 @@ static void read_intra_frame_mode_info(AV1_COMMON *const cm,
   const MODE_INFO *above_mi = xd->above_mi;
   const MODE_INFO *left_mi = xd->left_mi;
   const BLOCK_SIZE bsize = mbmi->sb_type;
-  int i;
   const int mi_offset = mi_row * cm->mi_cols + mi_col;
   const int bw = mi_size_wide[bsize];
   const int bh = mi_size_high[bsize];
@@ -1161,7 +1160,6 @@ static void read_intra_frame_mode_info(AV1_COMMON *const cm,
     set_txfm_ctxs(mbmi->tx_size, xd->n8_w, xd->n8_h, mbmi->skip, xd);
 #endif  // CONFIG_INTRABC
 
-  (void)i;
   mbmi->mode =
       read_intra_mode(r, get_y_mode_cdf(ec_ctx, mi, above_mi, left_mi, 0));
 
