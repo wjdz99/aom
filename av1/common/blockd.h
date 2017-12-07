@@ -47,6 +47,11 @@ extern "C" {
 // chroma.
 #define DISABLE_VARTX_FOR_CHROMA 1
 
+#if CONFIG_EXT_SKIP && CONFIG_JNT_COMP
+// NOTE(zoeliu): For debug - To explore whether jnt-comp needs to be considered.
+#define SKIP_MODE_WITH_JNT_COMP 1
+#endif  // CONFIG_EXT_SKIP && CONFIG_JNT_COMP
+
 // SEG_MASK_TYPES should not surpass 1 << MAX_SEG_MASK_BITS
 typedef enum {
 #if COMPOUND_SEGMENT_TYPE == 0
