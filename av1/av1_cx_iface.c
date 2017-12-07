@@ -393,8 +393,12 @@ static aom_codec_err_t validate_config(aom_codec_alg_priv_t *ctx,
   RANGE_CHECK(extra_cfg, color_range, 0, 1);
 
 #if CONFIG_DIST_8X8
-  if (extra_cfg->enable_dist_8x8 && extra_cfg->lossless)
-    ERROR("dist-8x8 cannot be used with lossless compression.");
+  if (extra_cfg->enable_dist_8x8 || extra_cfg->tuning != AOM_TUNE_PSNR) {
+    if (extra_cfg->lossless)
+      ERROR("dist-8x8 cannot be used with lossless compression.");
+    if (cfg->rc_resize_mode != RESIZE_NONE)
+      ERROR("dist-8x8 cannot be used with resize_mode.");
+  }
   RANGE_CHECK(extra_cfg, tuning, AOM_TUNE_PSNR, AOM_TUNE_DAALA_DIST);
 #else
   RANGE_CHECK(extra_cfg, tuning, AOM_TUNE_PSNR, AOM_TUNE_SSIM);
