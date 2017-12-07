@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "17c5c3a8_6d644644",
+        "filename": "av1/common/quant_common.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2017-12-07T00:06:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2da5ce25_bce6f321",
+      "range": {
+        "startLine": 97,
+        "startChar": 18,
+        "endLine": 97,
+        "endChar": 41
+      },
+      "revId": "7a69491a05cc3e5671c96f1be6ec2578d40fc3d9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5d614c64_15e4e0d0",
         "filename": "av1/encoder/encodemb.c",
         "patchSetId": 1
@@ -36,6 +60,30 @@
       "writtenOn": "2017-12-06T23:33:49Z",
       "side": 1,
       "message": "Is this unused now?",
+      "range": {
+        "startLine": 484,
+        "startChar": 42,
+        "endLine": 484,
+        "endChar": 45
+      },
+      "revId": "7a69491a05cc3e5671c96f1be6ec2578d40fc3d9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ad449ac5_c014b2a3",
+        "filename": "av1/encoder/encodemb.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 484,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2017-12-07T00:06:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5d614c64_15e4e0d0",
       "range": {
         "startLine": 484,
         "startChar": 42,
