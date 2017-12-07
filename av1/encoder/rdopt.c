@@ -4386,15 +4386,19 @@ int inter_block_yrd(const AV1_COMP *cpi, MACROBLOCK *x, RD_STATS *rd_stats,
           return 0;
         }
         av1_merge_rd_stats(rd_stats, &pn_rd_stats);
-        this_rd += AOMMIN(RDCOST(x->rdmult, pn_rd_stats.rate, pn_rd_stats.dist),
-                          RDCOST(x->rdmult, 0, pn_rd_stats.sse));
+        this_rd +=
+            AOMMIN(RDCOST(x->rdmult, pn_rd_stats.rate, pn_rd_stats.dist),
+                   RDCOST(x->rdmult, pn_rd_stats.zero_rate, pn_rd_stats.sse));
         block += step;
       }
     }
   }
-
-  this_rd = AOMMIN(RDCOST(x->rdmult, rd_stats->rate, rd_stats->dist),
-                   RDCOST(x->rdmult, 0, rd_stats->sse));
+  int64_t zero_rd = RDCOST(x->rdmult, rd_stats->zero_rate, rd_stats->sse);
+  this_rd = RDCOST(x->rdmult, rd_stats->rate, rd_stats->dist);
+  if (zero_rd < this_rd) {
+    this_rd = zero_rd;
+    rd_stats->skip = 1;
+  }
   if (this_rd > ref_best_rd) is_cost_valid = 0;
 
   if (!is_cost_valid) {
@@ -5030,12 +5034,20 @@ int inter_block_uvrd(const AV1_COMP *cpi, MACROBLOCK *x, RD_STATS *rd_stats,
       av1_merge_rd_stats(rd_stats, &pn_rd_stats);
 
       this_rd = AOMMIN(RDCOST(x->rdmult, rd_stats->rate, rd_stats->dist),
-                       RDCOST(x->rdmult, 0, rd_stats->sse));
+                       RDCOST(x->rdmult, rd_stats->zero_rate, rd_stats->sse));
 
       if (this_rd > ref_best_rd) {
         is_cost_valid = 0;
         break;
       }
+    }
+  }
+  if (is_cost_valid) {
+    int64_t zero_rd = RDCOST(x->rdmult, rd_stats->zero_rate, rd_stats->sse);
+    this_rd = RDCOST(x->rdmult, rd_stats->rate, rd_stats->dist);
+    if (zero_rd < this_rd) {
+      this_rd = zero_rd;
+      rd_stats->skip = 1;
     }
   }
 
