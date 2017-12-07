@@ -816,12 +816,17 @@ static const int32_t intra_tx_size_cat_lookup[BLOCK_SIZES_ALL] = {
   TX_32X32 - TX_8X8,  TX_32X32 - TX_8X8,  TX_32X32 - TX_8X8,
 #endif  // CONFIG_EXT_PARTITION
 #endif  // CONFIG_TX64X64
-  // TODO(david.barker): Change these if we support rectangular transforms
-  // for 4:1 shaped partitions
-  // 4x16,            16x4,               8x32
-  TX_8X8 - TX_8X8,    TX_8X8 - TX_8X8,    TX_16X16 - TX_8X8,
-  // 32x8,            16x64,              64x16
-  TX_16X16 - TX_8X8,  TX_32X32 - TX_8X8,  TX_32X32 - TX_8X8,
+  // 4x16,            16x4,
+  TX_16X16 - TX_8X8,  TX_16X16 - TX_8X8,
+  // 8x32,            32x8,
+  TX_32X32 - TX_8X8,  TX_32X32 - TX_8X8,
+#if CONFIG_TX64X64
+  // 16x64,           64x16
+  TX_64X64 - TX_8X8,  TX_64X64 - TX_8X8,
+#else
+  // 16x64,           64x16
+  TX_32X32 - TX_8X8,  TX_32X32 - TX_8X8,
+#endif  // CONFIG_TX64X64
 #if CONFIG_EXT_PARTITION
 #if CONFIG_TX64X64
   // 32x128,          128x32
@@ -855,13 +860,13 @@ static const TX_SIZE sub_tx_size_map[TX_SIZES_ALL] = {
   TX_32X32,  // TX_32X64
   TX_32X32,  // TX_64X32
 #endif       // CONFIG_TX64X64
-  TX_4X4,    // TX_4X16
-  TX_4X4,    // TX_16X4
-  TX_8X8,    // TX_8X32
-  TX_8X8,    // TX_32X8
+  TX_4X8,    // TX_4X16
+  TX_8X4,    // TX_16X4
+  TX_8X16,   // TX_8X32
+  TX_16X8,   // TX_32X8
 #if CONFIG_TX64X64
-  TX_16X16,  // TX_16X64
-  TX_16X16,  // TX_64X16
+  TX_16X32,  // TX_16X64
+  TX_32X16,  // TX_64X16
 #endif       // CONFIG_TX64X64
 };
 
