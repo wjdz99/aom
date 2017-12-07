@@ -230,7 +230,7 @@ static void write_tx_size_vartx(const AV1_COMMON *cm, MACROBLOCKD *xd,
                           xd->left_txfm_context + blk_row, tx_size, tx_size);
     // TODO(yuec): set correct txfm partition update for qttx
   } else {
-    const TX_SIZE sub_txs = sub_tx_size_map[tx_size];
+    const TX_SIZE sub_txs = sub_tx_size_map[1][tx_size];
     const int bsw = tx_size_wide_unit[sub_txs];
     const int bsh = tx_size_high_unit[sub_txs];
 
@@ -536,7 +536,7 @@ static void pack_txb_tokens(aom_writer *w, AV1_COMMON *cm, MACROBLOCK *const x,
     token_stats->cost += tmp_token_stats.cost;
 #endif
   } else {
-    const TX_SIZE sub_txs = sub_tx_size_map[tx_size];
+    const TX_SIZE sub_txs = sub_tx_size_map[1][tx_size];
     const int bsw = tx_size_wide_unit[sub_txs];
     const int bsh = tx_size_high_unit[sub_txs];
 
@@ -592,7 +592,7 @@ static void pack_txb_tokens(aom_writer *w, const TOKENEXTRA **tp,
     token_stats->cost += tmp_token_stats.cost;
 #endif
   } else {
-    const TX_SIZE sub_txs = sub_tx_size_map[tx_size];
+    const TX_SIZE sub_txs = sub_tx_size_map[1][tx_size];
     const int bsw = tx_size_wide_unit[sub_txs];
     const int bsh = tx_size_high_unit[sub_txs];
 
@@ -1103,7 +1103,7 @@ void av1_write_tx_type(const AV1_COMMON *const cm, const MACROBLOCKD *xd,
   const TX_SIZE mtx_size =
       get_max_rect_tx_size(xd->mi[0]->mbmi.sb_type, is_inter);
   const TX_SIZE tx_size =
-      is_inter ? AOMMAX(sub_tx_size_map[mtx_size], mbmi->min_tx_size)
+      is_inter ? AOMMAX(sub_tx_size_map[1][mtx_size], mbmi->min_tx_size)
                : mbmi->tx_size;
 #endif  // !CONFIG_TXK_SEL
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
@@ -1886,7 +1886,7 @@ static void write_inter_txb_coeff(AV1_COMMON *const cm, MACROBLOCK *const x,
     const int is_split =
         (l_max_tx_size != mbmi->inter_tx_size[0][0] && bsize == bsizec &&
          txsize_to_bsize[l_max_tx_size] == bsizec);
-    if (is_split) max_tx_size = sub_tx_size_map[max_tx_size];
+    if (is_split) max_tx_size = sub_tx_size_map[1][max_tx_size];
   }
 #endif  // DISABLE_VARTX_FOR_CHROMA == 2
   const int step =

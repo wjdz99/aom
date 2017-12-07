@@ -455,7 +455,7 @@ static void read_tx_size_vartx(AV1_COMMON *cm, MACROBLOCKD *xd,
   is_split = aom_read_symbol(r, ec_ctx->txfm_partition_cdf[ctx], 2, ACCT_STR);
 
   if (is_split) {
-    const TX_SIZE sub_txs = sub_tx_size_map[tx_size];
+    const TX_SIZE sub_txs = sub_tx_size_map[1][tx_size];
     const int bsw = tx_size_wide_unit[sub_txs];
     const int bsh = tx_size_high_unit[sub_txs];
 
@@ -919,7 +919,7 @@ void av1_read_tx_type(const AV1_COMMON *const cm, MACROBLOCKD *xd,
   const TX_SIZE mtx_size =
       get_max_rect_tx_size(xd->mi[0]->mbmi.sb_type, inter_block);
   const TX_SIZE tx_size =
-      inter_block ? AOMMAX(sub_tx_size_map[mtx_size], mbmi->min_tx_size)
+      inter_block ? AOMMAX(sub_tx_size_map[1][mtx_size], mbmi->min_tx_size)
                   : mbmi->tx_size;
 #endif  // !CONFIG_TXK_SEL
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
