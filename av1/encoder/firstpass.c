@@ -2846,6 +2846,14 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
 
   // Allocate bits to each of the frames in the GF group.
   allocate_gf_group_bits(cpi, gf_group_bits, gf_group_error_left, gf_arf_bits);
+#if 0
+  printf("\n***baseline_gf_interval=%d\n", rc->baseline_gf_interval);
+  for (i = 0; i < rc->baseline_gf_interval; i ++) {
+    printf("gf_group->update_type[%d]=%d\n",
+           twopass->gf_group.index + i,
+           twopass->gf_group.update_type[twopass->gf_group.index + i]);
+  }
+#endif  // 0
 
   // Reset the file position.
   reset_fpf_position(twopass, start_pos);
