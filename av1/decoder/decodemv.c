@@ -989,7 +989,6 @@ static INLINE int assign_dv(AV1_COMMON *cm, MACROBLOCKD *xd, int_mv *mv,
                             const int_mv *ref_mv, int mi_row, int mi_col,
                             BLOCK_SIZE bsize, aom_reader *r) {
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
-  (void)cm;
   read_mv(r, &mv->as_mv, &ref_mv->as_mv, &ec_ctx->ndvc, MV_SUBPEL_NONE);
   // DV should not have sub-pel.
   assert((mv->as_mv.col & 7) == 0);
@@ -1014,23 +1013,22 @@ static void read_intrabc_info(AV1_COMMON *const cm, MACROBLOCKD *const xd,
     const BLOCK_SIZE bsize = mbmi->sb_type;
     const int width = block_size_wide[bsize] >> tx_size_wide_log2[0];
     const int height = block_size_high[bsize] >> tx_size_high_log2[0];
-    int idx, idy;
     if ((cm->tx_mode == TX_MODE_SELECT && block_signals_txsize(bsize) &&
          !xd->lossless[mbmi->segment_id] && !mbmi->skip)) {
       const TX_SIZE max_tx_size = get_max_rect_tx_size(bsize, 0);
       const int bh = tx_size_high_unit[max_tx_size];
       const int bw = tx_size_wide_unit[max_tx_size];
       mbmi->min_tx_size = TX_SIZES_ALL;
-      for (idy = 0; idy < height; idy += bh) {
-        for (idx = 0; idx < width; idx += bw) {
+      for (int idy = 0; idy < height; idy += bh) {
+        for (int idx = 0; idx < width; idx += bw) {
           read_tx_size_vartx(cm, xd, mbmi, xd->counts, max_tx_size, 0, idy, idx,
                              r);
         }
       }
     } else {
       mbmi->tx_size = read_tx_size(cm, xd, 1, !mbmi->skip, r);
-      for (idy = 0; idy < height; ++idy)
-        for (idx = 0; idx < width; ++idx)
+      for (int idy = 0; idy < height; ++idy)
+        for (int idx = 0; idx < width; ++idx)
           mbmi->inter_tx_size[idy >> 1][idx >> 1] = mbmi->tx_size;
       mbmi->min_tx_size = get_min_tx_size(mbmi->tx_size);
       set_txfm_ctxs(mbmi->tx_size, xd->n8_w, xd->n8_h, mbmi->skip, xd);
