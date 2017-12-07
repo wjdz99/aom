@@ -1091,19 +1091,33 @@ static void update_stats(const AV1_COMMON *const cm, TileDataEnc *tile_data,
   if (!frame_is_intra_only(cm)) {
     RD_COUNTS *rdc = &td->rd_counts;
 
+    FRAME_COUNTS *const counts = td->counts;
+
 #if CONFIG_EXT_SKIP
     if (mbmi->skip_mode) {
       rdc->skip_mode_used_flag = 1;
+
       if (cm->reference_mode == REFERENCE_MODE_SELECT) {
         assert(has_second_ref(mbmi));
         rdc->compound_ref_used_flag = 1;
       }
+
+      const int cur_to_fwd = cm->frame_offset - cm->ref_frame_idx_0;
+      const int cur_to_bwd = cm->ref_frame_idx_1 - cm->frame_offset;
+      if (cur_to_fwd != cur_to_bwd) {
+        const int comp_index_ctx = get_comp_index_context(cm, xd);
+        ++counts->compound_index[comp_index_ctx][mbmi->compound_idx];
+        if (allow_update_cdf)
+          update_cdf(fc->compound_index_cdf[comp_index_ctx], mbmi->compound_idx,
+                     2);
+      }
+
       set_ref_ptrs(cm, xd, mbmi->ref_frame[0], mbmi->ref_frame[1]);
+
       return;
     }
 #endif  // CONFIG_EXT_SKIP
 
-    FRAME_COUNTS *const counts = td->counts;
     const int inter_block = is_inter_block(mbmi);
 
     if (!seg_ref_active) {
