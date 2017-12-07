@@ -632,6 +632,10 @@ void daala_inv_txfm_add_avx2(const tran_low_t *input_coeffs,
   assert(tx_size <= TX_SIZES_ALL);
   assert(tx_type <= TX_TYPES);
 
+  fprintf(stderr, "BORK BORK BORK");
+  assert(0);
+  exit(EXIT_FAILURE);
+
   if (txfm_param->lossless) {
     daala_inv_txfm_add_c(input_coeffs, output_pixels, output_stride,
                          txfm_param);
