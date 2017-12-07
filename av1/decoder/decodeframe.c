@@ -846,7 +846,7 @@ static void decode_partition(AV1Decoder *const pbi, MACROBLOCKD *const xd,
 #if CONFIG_LPF_SB
   if (bsize == cm->sb_size) {
     int filt_lvl;
-    if (USE_GUESS_LEVEL) {
+    if (USE_GUESS_LEVEL && mi_row == 0 && mi_col == 0) {
       struct loopfilter *lf = &cm->lf;
       lf->filter_level = aom_read_literal(r, 6, ACCT_STR);
       filt_lvl = lf->filter_level;
@@ -1188,9 +1188,6 @@ static void loop_restoration_read_sb_coeffs(const AV1_COMMON *const cm,
 #endif  // CONFIG_LOOP_RESTORATION
 
 static void setup_loopfilter(AV1_COMMON *cm, struct aom_read_bit_buffer *rb) {
-#if CONFIG_INTRABC
-  if (cm->allow_intrabc && NO_FILTER_FOR_IBC) return;
-#endif  // CONFIG_INTRABC
   struct loopfilter *lf = &cm->lf;
 #if !CONFIG_LPF_SB
 #if CONFIG_LOOPFILTER_LEVEL
@@ -2316,9 +2313,6 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
       av1_frameworker_broadcast(pbi->cur_buf, mi_row << cm->mib_size_log2);
   }
 
-#if CONFIG_INTRABC
-  if (!(cm->allow_intrabc && NO_FILTER_FOR_IBC))
-#endif  // CONFIG_INTRABC
   {
 // Loopfilter the whole frame.
 #if CONFIG_LPF_SB

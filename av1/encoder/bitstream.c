@@ -2294,7 +2294,7 @@ static void write_modes_sb(AV1_COMP *const cpi, const TileInfo *const tile,
 #if CONFIG_LPF_SB
   // send filter level for each superblock (64x64)
   if (bsize == cm->sb_size) {
-    if (USE_GUESS_LEVEL) {
+    if (USE_GUESS_LEVEL && mi_row == 0 && mi_col == 0) {
       aom_write_literal(w, cm->lf.filter_level, 6);
     } else {
       if (mi_row == 0 && mi_col == 0) {
@@ -2582,9 +2582,6 @@ static void loop_restoration_write_sb_coeffs(const AV1_COMMON *const cm,
 #endif  // CONFIG_LOOP_RESTORATION
 
 static void encode_loopfilter(AV1_COMMON *cm, struct aom_write_bit_buffer *wb) {
-#if CONFIG_INTRABC
-  if (cm->allow_intrabc && NO_FILTER_FOR_IBC) return;
-#endif  // CONFIG_INTRABC
   int i;
   struct loopfilter *lf = &cm->lf;
 
