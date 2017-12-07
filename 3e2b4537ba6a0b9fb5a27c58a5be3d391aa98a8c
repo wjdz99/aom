@@ -48,6 +48,54 @@
     },
     {
       "key": {
+        "uuid": "0b70a901_046978a0",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 4691,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2017-12-07T19:40:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "94ea7946_25f8161e",
+      "range": {
+        "startLine": 4691,
+        "startChar": 8,
+        "endLine": 4691,
+        "endChar": 11
+      },
+      "revId": "3e2b4537ba6a0b9fb5a27c58a5be3d391aa98a8c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "59158f9d_4e5bedbd",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 4691,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2017-12-07T19:40:04Z",
+      "side": 1,
+      "message": "Larger tx_size is not considered. See line 4680.",
+      "parentUuid": "4ed2a2e0_b4ecf885",
+      "range": {
+        "startLine": 4691,
+        "startChar": 40,
+        "endLine": 4691,
+        "endChar": 0
+      },
+      "revId": "3e2b4537ba6a0b9fb5a27c58a5be3d391aa98a8c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "49aea9d3_f851369d",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 4
@@ -59,6 +107,30 @@
       "writtenOn": "2017-12-07T19:27:54Z",
       "side": 1,
       "message": "And uint64_t here?",
+      "range": {
+        "startLine": 4692,
+        "startChar": 8,
+        "endLine": 4692,
+        "endChar": 15
+      },
+      "revId": "3e2b4537ba6a0b9fb5a27c58a5be3d391aa98a8c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a07edb70_3e204bb1",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 4692,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2017-12-07T19:40:04Z",
+      "side": 1,
+      "message": "Somehow pixel_diff_dist() returns int64, so I use int64 for all related variables.",
+      "parentUuid": "49aea9d3_f851369d",
       "range": {
         "startLine": 4692,
         "startChar": 8,
