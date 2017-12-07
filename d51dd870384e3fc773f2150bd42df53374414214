@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "095801b2_21cc4598",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 4391,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2017-12-07T20:38:26Z",
+      "side": 1,
+      "message": "If there are multiple sub-blocks that are being processed and added, this makes only a slight difference I think. Inside the loop the purpose of updating this_rd is only to update the ref_best_rd - this_rd. But outside the loop setting the skip correctly is critical. That is because if you have multiple sub-blocks, then some of them may be skipped, and some may not. So (rd_stats.rate, rd_stats.dist) will not store the case where the entire block is skipped. Fortunately, you can compute that using the (rd_stats-\u003ezero_rate, rd_stats-\u003esse), and then amke the block skip if that cose is lower than the sum.",
+      "parentUuid": "f60802e2_0fe35318",
+      "revId": "d51dd870384e3fc773f2150bd42df53374414214",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8a0a0f39_1ca3b829",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 1
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "c824a1f3_28c01cae",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 4400,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2017-12-07T20:38:26Z",
+      "side": 1,
+      "message": "On this I am on the same boat as you. But setting the skip correctly does help to skip more blocks and does improve coding efficiency.",
+      "parentUuid": "8a0a0f39_1ca3b829",
+      "revId": "d51dd870384e3fc773f2150bd42df53374414214",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "2e9820d9_fecc0050",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 1
@@ -47,6 +83,24 @@
       "writtenOn": "2017-12-07T20:12:13Z",
       "side": 1,
       "message": "I am also a bit worried about this one.\nIn this case I don\u0027t think tx_block_rd is doing the EOB optimization internally.\nMy concern is that I cannot find the place where rd_stats-\u003ezero_rate is set up for chroma.\nPerhaps the answer is to add the EOB optimization into tx_block_rd as well?\nOr have I misunderstood again?",
+      "revId": "d51dd870384e3fc773f2150bd42df53374414214",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f0ae453a_d97e315f",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 5037,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2017-12-07T20:38:26Z",
+      "side": 1,
+      "message": "Okay - need to check if it is being set up correctly. If not that still needs fixing. Or perhaps we can go back to 0 here and below. The logic below is more critical anyways.",
+      "parentUuid": "2e9820d9_fecc0050",
       "revId": "d51dd870384e3fc773f2150bd42df53374414214",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
