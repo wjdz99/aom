@@ -1263,9 +1263,8 @@ static int read_mv_component(aom_reader *r, nmv_component *mvcomp,
 
 static INLINE void read_mv(aom_reader *r, MV *mv, const MV *ref,
                            nmv_context *ctx, MvSubpelPrecision precision) {
-  MV_JOINT_TYPE joint_type;
   MV diff = { 0, 0 };
-  joint_type =
+  const MV_JOINT_TYPE joint_type =
       (MV_JOINT_TYPE)aom_read_symbol(r, ctx->joints_cdf, MV_JOINTS, ACCT_STR);
 
   if (mv_joint_vertical(joint_type))
@@ -1311,14 +1310,12 @@ static REFERENCE_MODE read_block_reference_mode(AV1_COMMON *cm,
   aom_read_symbol(r, av1_get_pred_cdf_##pname(xd), 2, ACCT_STR)
 
 #if CONFIG_EXT_COMP_REFS
-static COMP_REFERENCE_TYPE read_comp_reference_type(AV1_COMMON *cm,
-                                                    const MACROBLOCKD *xd,
+static COMP_REFERENCE_TYPE read_comp_reference_type(const MACROBLOCKD *xd,
                                                     aom_reader *r) {
   const int ctx = av1_get_comp_reference_type_context(xd);
-  COMP_REFERENCE_TYPE comp_ref_type;
-  (void)cm;
-  comp_ref_type = (COMP_REFERENCE_TYPE)aom_read_symbol(
-      r, xd->tile_ctx->comp_ref_type_cdf[ctx], 2, ACCT_STR);
+  const COMP_REFERENCE_TYPE comp_ref_type =
+      (COMP_REFERENCE_TYPE)aom_read_symbol(
+          r, xd->tile_ctx->comp_ref_type_cdf[ctx], 2, ACCT_STR);
   FRAME_COUNTS *counts = xd->counts;
   if (counts) ++counts->comp_ref_type[ctx][comp_ref_type];
   return comp_ref_type;  // UNIDIR_COMP_REFERENCE or BIDIR_COMP_REFERENCE
@@ -1366,8 +1363,7 @@ static void read_ref_frames(AV1_COMMON *const cm, MACROBLOCKD *const xd,
     // FIXME(rbultje) I'm pretty sure this breaks segmentation ref frame coding
     if (mode == COMPOUND_REFERENCE) {
 #if CONFIG_EXT_COMP_REFS
-      const COMP_REFERENCE_TYPE comp_ref_type =
-          read_comp_reference_type(cm, xd, r);
+      const COMP_REFERENCE_TYPE comp_ref_type = read_comp_reference_type(xd, r);
 
       if (comp_ref_type == UNIDIR_COMP_REFERENCE) {
         const int ctx = av1_get_pred_context_uni_comp_ref_p(xd);
