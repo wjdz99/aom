@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d2adc027_00804d5f",
+        "filename": "av1/common/seg_common.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5050
+      },
+      "writtenOn": "2017-12-07T22:17:57Z",
+      "side": 1,
+      "message": "nit: should be surrounded by a #define, but minor as this is adopted anyway",
+      "revId": "48257bcc576edd14697526588bad8f5e01671ca6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
