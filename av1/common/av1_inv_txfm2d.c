@@ -9,6 +9,7 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
+#include "./aom_dsp_rtcd.h"
 #include "./av1_rtcd.h"
 #include "aom_dsp/inv_txfm.h"
 #include "av1/common/enums.h"
@@ -185,7 +186,7 @@ static INLINE void inv_txfm2d_add_c(const int32_t *input, uint16_t *output,
   // Rows
   for (r = 0; r < txfm_size_row; ++r) {
     txfm_func_row(input, buf_ptr, cos_bit_row, stage_range_row);
-    round_shift_array(buf_ptr, txfm_size_col, -shift[0]);
+    av1_round_shift_array(buf_ptr, txfm_size_col, -shift[0]);
     // Multiply everything by Sqrt2 if the transform is rectangular with
     // log ratio being 1 or -1, if the log ratio is 2 or -2, multiply by
     // 2^rect_type2_shift.
@@ -193,7 +194,7 @@ static INLINE void inv_txfm2d_add_c(const int32_t *input, uint16_t *output,
       for (c = 0; c < txfm_size_col; ++c)
         buf_ptr[c] = (int32_t)dct_const_round_shift(buf_ptr[c] * Sqrt2);
     } else if (rect_type2_shift) {
-      round_shift_array(buf_ptr, txfm_size_col, -rect_type2_shift);
+      av1_round_shift_array(buf_ptr, txfm_size_col, -rect_type2_shift);
     }
     input += txfm_size_col;
     buf_ptr += txfm_size_col;
@@ -210,7 +211,7 @@ static INLINE void inv_txfm2d_add_c(const int32_t *input, uint16_t *output,
         temp_in[r] = buf[r * txfm_size_col + (txfm_size_col - c - 1)];
     }
     txfm_func_col(temp_in, temp_out, cos_bit_col, stage_range_col);
-    round_shift_array(temp_out, txfm_size_row, -shift[1]);
+    av1_round_shift_array(temp_out, txfm_size_row, -shift[1]);
     if (cfg->ud_flip == 0) {
       for (r = 0; r < txfm_size_row; ++r) {
         output[r * stride + c] =
@@ -239,6 +240,7 @@ static INLINE void inv_txfm2d_add_facade(const int32_t *input, uint16_t *output,
 
 void av1_inv_txfm2d_add_4x8_c(const int32_t *input, uint16_t *output,
                               int stride, TX_TYPE tx_type, int bd) {
+  // TODO(needs to be aligned).
   int txfm_buf[4 * 8 + 8 + 8];
   inv_txfm2d_add_facade(input, output, stride, txfm_buf, tx_type, TX_4X8, bd);
 }

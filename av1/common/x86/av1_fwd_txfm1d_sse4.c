@@ -1,5 +1,11 @@
 #include "av1/common/x86/av1_txfm1d_sse4.h"
 
+void av1_round_shift_array_sse4_1(int32_t *arr, int size, int bit) {
+  __m128i *const vec = (__m128i *)arr;
+  const int vec_size = size >> 2;
+  round_shift_array_32_sse4_1(vec, vec, vec_size, bit);
+}
+
 void av1_fdct32_new_sse4_1(const __m128i *input, __m128i *output,
                            const int8_t *cos_bit, const int8_t *stage_range) {
   const int txfm_size = 32;
