@@ -104,7 +104,7 @@ static INLINE int get_dq_profile(int qindex, int is_inter,
         { 3, 1 },  // UV
     },
     {
-        // inter
+        // inter2
         { 2, 1 },  // Y
         { 3, 1 },  // UV
     },
