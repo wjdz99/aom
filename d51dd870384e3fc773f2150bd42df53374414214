@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f60802e2_0fe35318",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 4391,
+      "author": {
+        "id": 5260
+      },
+      "writtenOn": "2017-12-07T20:12:13Z",
+      "side": 1,
+      "message": "I don\u0027t really understand why this isn\u0027t just:\n  this_rd +\u003d (RDCOST(x-\u003erdmult, pn_rd_stats.rate, pn_rd_stats.dist)\n\nAs far as I can make out, tx_block_yrd is already detecting cases when signalling EOB is better than coding the block, and altering the rate and dist accordingly.",
+      "revId": "d51dd870384e3fc773f2150bd42df53374414214",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8a0a0f39_1ca3b829",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 4400,
+      "author": {
+        "id": 5260
+      },
+      "writtenOn": "2017-12-07T20:12:13Z",
+      "side": 1,
+      "message": "Not a problem with this patch: but I was just wondering if there is a simple explanation of what rd_stats-\u003eskip and x-\u003eskip (used in other places) are meant to represent?  I have been trying to reconstruct a theory of the program but am struggling with these two.",
+      "revId": "d51dd870384e3fc773f2150bd42df53374414214",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2e9820d9_fecc0050",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 5037,
+      "author": {
+        "id": 5260
+      },
+      "writtenOn": "2017-12-07T20:12:13Z",
+      "side": 1,
+      "message": "I am also a bit worried about this one.\nIn this case I don\u0027t think tx_block_rd is doing the EOB optimization internally.\nMy concern is that I cannot find the place where rd_stats-\u003ezero_rate is set up for chroma.\nPerhaps the answer is to add the EOB optimization into tx_block_rd as well?\nOr have I misunderstood again?",
+      "revId": "d51dd870384e3fc773f2150bd42df53374414214",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
