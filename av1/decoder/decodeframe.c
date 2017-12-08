@@ -840,63 +840,6 @@ static void decode_partition(AV1Decoder *const pbi, MACROBLOCKD *const xd,
     update_partition_context(xd, mi_row, mi_col, subsize, bsize);
 #endif  // CONFIG_EXT_PARTITION_TYPES
 
-#if CONFIG_LPF_SB
-  if (bsize == cm->sb_size) {
-    int filt_lvl;
-    if (mi_row == 0 && mi_col == 0) {
-      filt_lvl = aom_read_literal(r, 6, ACCT_STR);
-      cm->mi_grid_visible[0]->mbmi.reuse_sb_lvl = 0;
-      cm->mi_grid_visible[0]->mbmi.delta = 0;
-      cm->mi_grid_visible[0]->mbmi.sign = 0;
-    } else {
-      int prev_mi_row, prev_mi_col;
-      if (mi_col - MAX_MIB_SIZE < 0) {
-        prev_mi_row = mi_row - MAX_MIB_SIZE;
-        prev_mi_col = mi_col;
-      } else {
-        prev_mi_row = mi_row;
-        prev_mi_col = mi_col - MAX_MIB_SIZE;
-      }
-
-      MB_MODE_INFO *curr_mbmi =
-          &cm->mi_grid_visible[mi_row * cm->mi_stride + mi_col]->mbmi;
-      MB_MODE_INFO *prev_mbmi =
-          &cm->mi_grid_visible[prev_mi_row * cm->mi_stride + prev_mi_col]->mbmi;
-      const uint8_t prev_lvl = prev_mbmi->filt_lvl;
-
-      const int reuse_ctx = prev_mbmi->reuse_sb_lvl;
-      const int reuse_prev_lvl = aom_read_symbol(
-          r, xd->tile_ctx->lpf_reuse_cdf[reuse_ctx], 2, ACCT_STR);
-      curr_mbmi->reuse_sb_lvl = reuse_prev_lvl;
-
-      if (reuse_prev_lvl) {
-        filt_lvl = prev_lvl;
-        curr_mbmi->delta = 0;
-        curr_mbmi->sign = 0;
-      } else {
-        const int delta_ctx = prev_mbmi->delta;
-        unsigned int delta = aom_read_symbol(
-            r, xd->tile_ctx->lpf_delta_cdf[delta_ctx], DELTA_RANGE, ACCT_STR);
-        curr_mbmi->delta = delta;
-        delta *= LPF_STEP;
-
-        if (delta) {
-          const int sign_ctx = prev_mbmi->sign;
-          const int sign = aom_read_symbol(
-              r, xd->tile_ctx->lpf_sign_cdf[reuse_ctx][sign_ctx], 2, ACCT_STR);
-          curr_mbmi->sign = sign;
-          filt_lvl = sign ? prev_lvl + delta : prev_lvl - delta;
-        } else {
-          filt_lvl = prev_lvl;
-          curr_mbmi->sign = 0;
-        }
-      }
-    }
-
-    av1_loop_filter_sb_level_init(cm, mi_row, mi_col, filt_lvl);
-  }
-#endif
-
 #if CONFIG_LOOP_RESTORATION
   for (int plane = 0; plane < av1_num_planes(cm); ++plane) {
     int rcol0, rcol1, rrow0, rrow1, tile_tl_idx;
@@ -1181,7 +1124,6 @@ static void setup_loopfilter(AV1_COMMON *cm, struct aom_read_bit_buffer *rb) {
   if (cm->allow_intrabc && NO_FILTER_FOR_IBC) return;
 #endif  // CONFIG_INTRABC
   struct loopfilter *lf = &cm->lf;
-#if !CONFIG_LPF_SB
 #if CONFIG_LOOPFILTER_LEVEL
   lf->filter_level[0] = aom_rb_read_literal(rb, 6);
   lf->filter_level[1] = aom_rb_read_literal(rb, 6);
@@ -1192,7 +1134,6 @@ static void setup_loopfilter(AV1_COMMON *cm, struct aom_read_bit_buffer *rb) {
 #else
   lf->filter_level = aom_rb_read_literal(rb, 6);
 #endif
-#endif  // CONFIG_LPF_SB
   lf->sharpness_level = aom_rb_read_literal(rb, 3);
 
   // Read in loop filter deltas applied at the MB level based on mode or ref
@@ -2278,14 +2219,6 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
           detoken_and_recon_sb(pbi, &td->xd, mi_row, mi_col, &td->bit_reader,
                                cm->sb_size);
 #endif
-#if CONFIG_LPF_SB
-          if (USE_LOOP_FILTER_SUPERBLOCK) {
-            // apply deblocking filtering right after each superblock is decoded
-            const int guess_filter_lvl = FAKE_FILTER_LEVEL;
-            av1_loop_filter_frame(get_frame_new_buffer(cm), cm, &pbi->mb,
-                                  guess_filter_lvl, 0, 1, mi_row, mi_col);
-          }
-#endif  // CONFIG_LPF_SB
         }
         aom_merge_corrupted_flag(&pbi->mb.corrupted, td->xd.corrupted);
         if (pbi->mb.corrupted)
@@ -2309,10 +2242,6 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
 #endif  // CONFIG_INTRABC
   {
 // Loopfilter the whole frame.
-#if CONFIG_LPF_SB
-    av1_loop_filter_frame(get_frame_new_buffer(cm), cm, &pbi->mb,
-                          cm->lf.filter_level, 0, 0, 0, 0);
-#else
 #if CONFIG_OBU
     if (endTile == cm->tile_rows * cm->tile_cols - 1)
 #endif
@@ -2332,7 +2261,6 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
     av1_loop_filter_frame(get_frame_new_buffer(cm), cm, &pbi->mb,
                           cm->lf.filter_level, 0, 0);
 #endif  // CONFIG_LOOPFILTER_LEVEL
-#endif  // CONFIG_LPF_SB
   }
   if (cm->frame_parallel_decode)
     av1_frameworker_broadcast(pbi->cur_buf, INT_MAX);

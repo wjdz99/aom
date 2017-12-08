@@ -3503,14 +3503,6 @@ static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
       rd_pick_partition(cpi, td, tile_data, tp, mi_row, mi_col, cm->sb_size,
                         &dummy_rdc, INT64_MAX, pc_root, NULL);
     }
-#if CONFIG_LPF_SB
-    if (USE_LOOP_FILTER_SUPERBLOCK) {
-      // apply deblocking filtering right after each superblock is encoded.
-      const int guess_filter_lvl = FAKE_FILTER_LEVEL;
-      av1_loop_filter_frame(get_frame_new_buffer(cm), cm, xd, guess_filter_lvl,
-                            0, 1, mi_row, mi_col);
-    }
-#endif  // CONFIG_LPF_SB
   }
 }
 

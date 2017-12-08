@@ -358,12 +358,6 @@ typedef struct MB_MODE_INFO {
 #endif
 
   BOUNDARY_TYPE boundary_info;
-#if CONFIG_LPF_SB
-  uint8_t filt_lvl;
-  int reuse_sb_lvl;
-  int sign;
-  int delta;
-#endif
 
 #if CONFIG_JNT_COMP
   int compound_idx;
