@@ -264,7 +264,7 @@ void av1_cdef_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
         cdef_left = 0;
         continue;
       }
-
+      abort();
       curr_row_cdef[fbc] = 1;
       for (int pli = 0; pli < nplanes; pli++) {
 #if !CONFIG_CDEF_SINGLEPASS
