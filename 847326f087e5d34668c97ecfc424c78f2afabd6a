@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "513eb68c_f64e0bca",
+        "filename": "av1/common/mvref_common.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-12-08T06:21:48Z",
+      "side": 1,
+      "message": "Sorry that I forgot \u0027cur_frame_offset\u0027 is unsigned. It is needed here to cast from \u0027unsigned\u0027 to \u0027signed\u0027:\n(int)(cm-\u003ebuffer_pool-\u003eframe_bufs[ref_buf_idx].cur_frame_offset)",
+      "revId": "847326f087e5d34668c97ecfc424c78f2afabd6a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
