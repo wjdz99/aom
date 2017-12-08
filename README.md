@@ -1,5 +1,17 @@
 # AV1 Codec Library
 
+## Contents
+1. [Building libaom and libaom tools](#building-the-library-and-applications)
+    - [Basics](#basic-build)
+    - [Configuration options](#configuration-options)
+    - [Dylib builds](#dylib-builds)
+    - [Debugging](#debugging)
+    - [Cross compiling](#cross-compiling)
+    - [Sanitizer support](#sanitizers)
+    - [MSVC builds](#microsoft-visual-studio-builds)
+    - [Xcode builds](#xcode-builds)
+    - [Emscripten builds](#emscripten-builds)
+
 ## Building the library and applications
 
 ### Prerequisites
