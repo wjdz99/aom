@@ -100,7 +100,9 @@ void av1_alloc_restoration_struct(AV1_COMMON *cm, RestorationInfo *rsi,
 #endif  // CONFIG_MAX_TILE
 
   const AV1PixelRect tile_rect = get_ext_tile_rect(&tile_info, cm, is_uv);
+#if !CONFIG_MAX_TILE  // for max_tile the largest tile may not be top left
   assert(tile_rect.left == 0 && tile_rect.top == 0);
+#endif
 
   const int max_tile_w = tile_rect.right;
   const int max_tile_h = tile_rect.bottom;
