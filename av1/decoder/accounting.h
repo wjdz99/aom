@@ -58,7 +58,9 @@ typedef struct {
   AccountingDictionary dictionary;
 } AccountingSymbols;
 
+#ifndef AOM_AOMDX_H_
 typedef struct Accounting Accounting;
+#endif
 
 struct Accounting {
   AccountingSymbols syms;
