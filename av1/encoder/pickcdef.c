@@ -98,7 +98,7 @@ static uint64_t search_one_dual(int *lev0, int *lev1, int nb_strengths,
         uint64_t curr = mse[0][i][j];
         curr += mse[1][i][k];
         if (curr < best) best = curr;
-        tot_mse[j][k] += best;
+        tot_mse[j][k] = (uint64_t)(tot_mse[j][k] + best);
       }
     }
   }
@@ -216,7 +216,7 @@ static INLINE uint64_t mse_8x8_16bit(uint16_t *dst, int dstride, uint16_t *src,
   int i, j;
   for (i = 0; i < 8; i++) {
     for (j = 0; j < 8; j++) {
-      int e = dst[i * dstride + j] - src[i * sstride + j];
+      int64_t e = dst[i * dstride + j] - src[i * sstride + j];
       sum += e * e;
     }
   }
@@ -229,7 +229,7 @@ static INLINE uint64_t mse_4x4_16bit(uint16_t *dst, int dstride, uint16_t *src,
   int i, j;
   for (i = 0; i < 4; i++) {
     for (j = 0; j < 4; j++) {
-      int e = dst[i * dstride + j] - src[i * sstride + j];
+      int64_t e = dst[i * dstride + j] - src[i * sstride + j];
       sum += e * e;
     }
   }
@@ -247,38 +247,45 @@ uint64_t compute_cdef_dist(uint16_t *dst, int dstride, uint16_t *src,
       by = dlist[bi].by;
       bx = dlist[bi].bx;
       if (pli == 0) {
-        sum += dist_8x8_16bit(&dst[(by << 3) * dstride + (bx << 3)], dstride,
-                              &src[bi << (3 + 3)], 8, coeff_shift);
+        sum = (uint64_t)(
+            sum + dist_8x8_16bit(&dst[(by << 3) * dstride + (bx << 3)], dstride,
+                                 &src[bi << (3 + 3)], 8, coeff_shift));
       } else {
-        sum += mse_8x8_16bit(&dst[(by << 3) * dstride + (bx << 3)], dstride,
-                             &src[bi << (3 + 3)], 8);
+        sum = (uint64_t)(sum +
+                         mse_8x8_16bit(&dst[(by << 3) * dstride + (bx << 3)],
+                                       dstride, &src[bi << (3 + 3)], 8));
       }
     }
   } else if (bsize == BLOCK_4X8) {
     for (bi = 0; bi < cdef_count; bi++) {
       by = dlist[bi].by;
       bx = dlist[bi].bx;
-      sum += mse_4x4_16bit(&dst[(by << 3) * dstride + (bx << 2)], dstride,
-                           &src[bi << (3 + 2)], 4);
-      sum += mse_4x4_16bit(&dst[((by << 3) + 4) * dstride + (bx << 2)], dstride,
-                           &src[(bi << (3 + 2)) + 4 * 4], 4);
+      sum =
+          (uint64_t)(sum + mse_4x4_16bit(&dst[(by << 3) * dstride + (bx << 2)],
+                                         dstride, &src[bi << (3 + 2)], 4));
+      sum = (uint64_t)(
+          sum + mse_4x4_16bit(&dst[((by << 3) + 4) * dstride + (bx << 2)],
+                              dstride, &src[(bi << (3 + 2)) + 4 * 4], 4));
     }
   } else if (bsize == BLOCK_8X4) {
     for (bi = 0; bi < cdef_count; bi++) {
       by = dlist[bi].by;
       bx = dlist[bi].bx;
-      sum += mse_4x4_16bit(&dst[(by << 2) * dstride + (bx << 3)], dstride,
-                           &src[bi << (2 + 3)], 8);
-      sum += mse_4x4_16bit(&dst[(by << 2) * dstride + (bx << 3) + 4], dstride,
-                           &src[(bi << (2 + 3)) + 4], 8);
+      sum =
+          (uint64_t)(sum + mse_4x4_16bit(&dst[(by << 2) * dstride + (bx << 3)],
+                                         dstride, &src[bi << (2 + 3)], 8));
+      sum = (uint64_t)(sum +
+                       mse_4x4_16bit(&dst[(by << 2) * dstride + (bx << 3) + 4],
+                                     dstride, &src[(bi << (2 + 3)) + 4], 8));
     }
   } else {
     assert(bsize == BLOCK_4X4);
     for (bi = 0; bi < cdef_count; bi++) {
       by = dlist[bi].by;
       bx = dlist[bi].bx;
-      sum += mse_4x4_16bit(&dst[(by << 2) * dstride + (bx << 2)], dstride,
-                           &src[bi << (2 + 2)], 4);
+      sum =
+          (uint64_t)(sum + mse_4x4_16bit(&dst[(by << 2) * dstride + (bx << 2)],
+                                         dstride, &src[bi << (2 + 2)], 4));
     }
   }
   return sum >> 2 * coeff_shift;
