@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "64f2f86d_dd834895",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 4391,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2017-12-08T00:32:14Z",
+      "side": 1,
+      "message": "That is right. We should eventually set the cost based on x-\u003eskip_cost[skip_ctx][?].",
+      "parentUuid": "a32f592e_7d81e3ab",
+      "revId": "d51dd870384e3fc773f2150bd42df53374414214",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8a0a0f39_1ca3b829",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 1
@@ -137,6 +155,24 @@
       "side": 1,
       "message": "Well, if zero_rate is not set, it will be 0. So this patch still works better than before by adding the check to skip outside the loop.",
       "parentUuid": "f0ae453a_d97e315f",
+      "revId": "d51dd870384e3fc773f2150bd42df53374414214",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e2247de7_90f0f926",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 5037,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2017-12-08T00:32:14Z",
+      "side": 1,
+      "message": "Actually setting skip to 1 is not the right thing to do for uv. So backing out this change.",
+      "parentUuid": "173fd304_f304c3ca",
       "revId": "d51dd870384e3fc773f2150bd42df53374414214",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
