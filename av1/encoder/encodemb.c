@@ -664,6 +664,19 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
                                 pd->dst.stride, p->eobs[block],
                                 cm->reduced_tx_set_used);
   }
+
+#if CONFIG_TXK_SEL
+  if (plane == 0 && p->eobs[block] == 0) {
+#if DISABLE_TRELLISQ_SEARCH
+    xd->mi[0]->mbmi.txk_type[(blk_row << MAX_MIB_SIZE_LOG2) + blk_col] =
+        DCT_DCT;
+#else
+    assert(xd->mi[0]->mbmi.txk_type[blk_row << MAX_MIB_SIZE_LOG2 + blk_col] ==
+           DCT_DCT);
+#endif
+  }
+#endif  // CONFIG_TXK_SEL
+
 #if CONFIG_MISMATCH_DEBUG
   if (dry_run == OUTPUT_ENABLED) {
     int pixel_c, pixel_r;
