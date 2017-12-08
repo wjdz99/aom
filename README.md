@@ -1,5 +1,9 @@
 # AV1 Codec Library
 
+## Contents
+1. [Building the libaom and the libaom tools](#Building the library and
+   applications)
+
 ## Building the library and applications
 
 ### Prerequisites
