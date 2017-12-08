@@ -3,6 +3,7 @@
 ## Contents
 1. [Building the lib and applications](#building-the-library-and-applications)
     - [Prerequisites](#prerequisites)
+    - [Get the code](#get-the-code)
     - [Basics](#basic-build)
     - [Configuration options](#configuration-options)
     - [Dylib builds](#dylib-builds)
@@ -16,8 +17,10 @@
     - [Basics](#testing-basics)
         - [Unit tests](#1_unit-tests)
         - [Example tests](#2_example-tests)
+        - [Encoder tests](#3_encoder-tests)
     - [IDE hosted tests](#ide-hosted-tests)
     - [Downloading test data](#downloading-the-test-data)
+    - [Additional test data](#additional-test-data)
     - [Sharded testing](#sharded-testing)
         - [Running tests directly](#1_running-test_libaom-directly)
         - [Running tests via CMake](#2_running-the-tests-via-the-cmake-build)
@@ -39,6 +42,17 @@
  7. Emscripten builds require the portable
    [EMSDK](https://kripken.github.io/emscripten-site/index.html).
 
+### Get the code
+
+The AV1 library source code is stored in the Alliance for Open Media Git
+repositories:
+
+~~~
+    $ git clone https://aomedia.googlesource.com/aom
+    # By default, the above command stores the source in the aom directory:
+    $ cd aom
+~~~
+
 ### Basic build
 
 CMake replaces the configure step typical of many projects. Running CMake will
@@ -46,8 +60,10 @@ produce configuration and build files for the currently selected CMake
 generator. For most systems the default generator is Unix Makefiles. The basic
 form of a makefile build is the following:
 
+~~~
     $ cmake path/to/aom
     $ make
+~~~
 
 The above will generate a makefile build that produces the AV1 library and
 applications for the current host system after the make step completes
@@ -247,7 +263,9 @@ appropriately using the emsdk\_env script.
 
 ### Testing basics
 
-Currently there are two types of tests in the AV1 codec repository.
+There are several methods of testing the AV1 codec. All of these methods require
+the presence of the AV1 source code and a working build of the AV1 library and
+applications.
 
 #### 1. Unit tests:
 
@@ -278,6 +296,56 @@ The example tests require a bash shell and can be run in the following manner:
     $ path/to/aom/test/examples.sh --bin-path examples
 ~~~
 
+#### 3. Encoder tests:
+
+When making a change to the encoder it is best to run encoder tests to confirm
+that your change has a positive or negligible impact on encode quality. When
+running these tests the build configuration should be changed to enable internal
+encoder statistics:
+
+~~~
+    $ cmake path/to/aom -DCONFIG_INTERNAL_STATS=1
+    $ make
+~~~
+
+The repository contains scripts intended to make running these tests as simple
+as possible. The following example demonstrates creating a set of baseline clips
+for comparison to results produced after making your change to Libaom:
+
+~~~
+    # This will encode all Y4M files in the current directory using the
+    # settings specified to create the encoder baseline statistical data:
+    $ cd path/to/test/inputs
+    # This command line assumes that run_encodes.sh, its helper script
+    # best_encode.sh, and the aomenc you intend to test are all within a
+    # directory in your PATH.
+    $ run_encodes.sh 200 500 50 baseline
+~~~
+
+After making your change and creating the baseline clips, you'll need to run
+encodes that include your change(s) to confirm that things are working as
+intended:
+
+~~~
+    # This will encode all Y4M files in the current directory using the
+    # settings specified to create the statistical data for your change:
+    $ cd path/to/test/inputs
+    # This command line assumes that run_encodes.sh, its helper script
+    # best_encode.sh, and the aomenc you intend to test are all within a
+    # directory in your PATH.
+    $ run_encodes.sh 200 500 50 mytweak
+~~~
+
+After creating both data sets you can use `test/visual_metrics.py` to generate a
+report that can be viewed in a web browser:
+
+~~~
+    $ visual_metrics.py metrics_template.html "*stt" baseline mytweak > mytweak.html
+~~~
+
+You can view the report by opening mytweak.html in a web browser.
+
+
 ### IDE hosted tests
 
 By default the generated projects files created by CMake will not include the
@@ -307,6 +375,13 @@ rule:
 ~~~
 
 The above make command will only download and verify the test data.
+
+### Additional test data
+
+The test data mentioned above is strictly intended for unit testing.
+
+Additional input data for testing the encoder can be obtained from:
+https://media.xiph.org/video/derf/
 
 ### Sharded testing
 
