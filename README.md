@@ -1,5 +1,11 @@
 # AV1 Codec Library
 
+## Contents
+1. [Building libaom and libaom tools](#building-the-library-and-applications)
+    - [Basics](#basic-build)
+    - [Configuration options](#configuration-options)
+    - [Dylib builds](#dylib-builds)
+
 ## Building the library and applications
 
 ### Prerequisites
