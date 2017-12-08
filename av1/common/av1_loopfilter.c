@@ -369,7 +369,6 @@ static uint8_t get_filter_level(const AV1_COMMON *cm,
     int lvl_seg = clamp(mbmi->current_delta_lf_from_base + cm->lf.filter_level,
                         0, MAX_LOOP_FILTER);
 #endif
-    const int scale = 1 << (lvl_seg >> 5);
 #if CONFIG_LOOPFILTER_LEVEL
     assert(plane >= 0 && plane <= 2);
     const int seg_lf_feature_id = seg_lvl_lf_lut[plane][dir_idx];
@@ -385,6 +384,7 @@ static uint8_t get_filter_level(const AV1_COMMON *cm,
 #endif  // CONFIG_LOOPFILTER_LEVEL
 
     if (cm->lf.mode_ref_delta_enabled) {
+      const int scale = 1 << (lvl_seg >> 5);
       lvl_seg += cm->lf.ref_deltas[mbmi->ref_frame[0]] * scale;
       if (mbmi->ref_frame[0] > INTRA_FRAME)
         lvl_seg += cm->lf.mode_deltas[mode_lf_lut[mbmi->mode]] * scale;
