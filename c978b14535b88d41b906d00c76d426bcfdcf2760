@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ce43a79f_6167a243",
+        "filename": "av1/encoder/picklpf.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 469,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2017-12-08T20:02:22Z",
+      "side": 1,
+      "message": "No need for this, already inside a #if CONFIG_LPF_SB. You can merge this patch now and fix it later.",
+      "range": {
+        "startLine": 469,
+        "startChar": 4,
+        "endLine": 469,
+        "endChar": 17
+      },
+      "revId": "c978b14535b88d41b906d00c76d426bcfdcf2760",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
