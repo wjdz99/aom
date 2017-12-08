@@ -906,6 +906,7 @@ EOF
 ##
 ## END APPLICATION SPECIFIC CONFIGURATION
 ##
+
 CONFIGURE_ARGS="$@"
 process "$@"
 print_webm_license ${BUILD_PFX}aom_config.c "/*" " */"
