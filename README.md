@@ -1,5 +1,18 @@
 # AV1 Codec Library
 
+## Contents
+1. [Building the lib and applications](#building-the-library-and-applications)
+    - [Basics](#basic-build)
+    - [Configuration options](#configuration-options)
+    - [Dylib builds](#dylib-builds)
+    - [Debugging](#debugging)
+    - [Cross compiling](#cross-compiling)
+    - [Sanitizer support](#sanitizers)
+    - [MSVC builds](#microsoft-visual-studio-builds)
+    - [Xcode builds](#xcode-builds)
+    - [Emscripten builds](#emscripten-builds)
+2. [Testing the library](#testing-the-av1-library)
+
 ## Building the library and applications
 
 ### Prerequisites
