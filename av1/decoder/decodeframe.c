@@ -574,6 +574,10 @@ static void decode_token_and_recon_block(AV1Decoder *const pbi,
   }
 #endif  // CONFIG_CFL
 
+#if CONFIG_ADAPT_SCAN
+  av1_get_sc_index(cm, xd, mbmi->tx_size, mbmi->tx_type);
+#endif
+
   int reader_corrupted_flag = aom_reader_has_error(r);
   aom_merge_corrupted_flag(&xd->corrupted, reader_corrupted_flag);
 }
