@@ -2054,6 +2054,10 @@ static void write_tokens_b(AV1_COMP *cpi, const TileInfo *const tile,
 #endif
     }
   }
+
+#if CONFIG_ADAPT_SCAN
+  av1_get_sc_index(cm, xd, mbmi->tx_size, mbmi->tx_type);
+#endif
 }
 
 #if NC_MODE_INFO
@@ -2129,7 +2133,6 @@ static void write_modes_b(AV1_COMP *cpi, const TileInfo *const tile,
                           const TOKENEXTRA *const tok_end, int mi_row,
                           int mi_col) {
   write_mbmi_b(cpi, tile, w, mi_row, mi_col);
-
 #if NC_MODE_INFO
   (void)tok;
   (void)tok_end;
