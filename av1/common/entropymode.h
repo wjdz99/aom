@@ -146,6 +146,8 @@ typedef struct frame_contexts {
   int16_t nb_32X16[TX_TYPES][(512 + 1) * 2];
 
   SCAN_ORDER sc[TX_SIZES_ALL][TX_TYPES];
+  const SCAN_ORDER *sc_ptr[TX_SIZES_ALL][TX_TYPES][3];
+  int64_t sc_counter[TX_SIZES_ALL][TX_TYPES][4];
 
   int16_t eob_threshold[TX_SIZES_ALL][TX_TYPES][EOB_THRESHOLD_NUM];
 #endif  // CONFIG_ADAPT_SCAN
