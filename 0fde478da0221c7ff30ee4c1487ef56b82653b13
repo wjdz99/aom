@@ -34,6 +34,24 @@
       "revId": "0fde478da0221c7ff30ee4c1487ef56b82653b13",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6f32ef48_510ef251",
+        "filename": "av1/common/daala_tx.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-12-09T00:38:52Z",
+      "side": 1,
+      "message": "Okay, that sounds good, and I see you pulled in the 16-point flat DSTs now (which was what motivated my comment). Should the 4-point Type VII DSTs also use OD_AVERAGE()?",
+      "parentUuid": "66546af7_4290fae5",
+      "revId": "0fde478da0221c7ff30ee4c1487ef56b82653b13",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
