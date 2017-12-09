@@ -5022,4 +5022,8 @@ static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
     cfl_store_block(xd, mbmi->sb_type, mbmi->tx_size);
   }
 #endif  // CONFIG_CFL
+
+#if CONFIG_ADAPT_SCAN
+  if (!dry_run) av1_get_sc_index(cm, xd, mbmi->tx_size, mbmi->tx_type);
+#endif
 }

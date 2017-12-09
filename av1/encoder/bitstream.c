@@ -2054,6 +2054,10 @@ static void write_tokens_b(AV1_COMP *cpi, const TileInfo *const tile,
 #endif
     }
   }
+
+#if CONFIG_ADAPT_SCAN
+  av1_get_sc_index(cm, xd, mbmi->tx_size, mbmi->tx_type);
+#endif
 }
 
 #if NC_MODE_INFO
