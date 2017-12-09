@@ -34,6 +34,24 @@
       "revId": "847326f087e5d34668c97ecfc424c78f2afabd6a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9034be0b_97334ada",
+        "filename": "av1/common/mvref_common.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-12-09T04:14:12Z",
+      "side": 1,
+      "message": "Early return is good idea.",
+      "parentUuid": "112f3a1b_1ede8871",
+      "revId": "847326f087e5d34668c97ecfc424c78f2afabd6a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
