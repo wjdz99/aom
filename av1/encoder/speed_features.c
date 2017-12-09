@@ -135,7 +135,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
   const int boosted = frame_is_boosted(cpi);
 
   if (speed >= 1) {
-    sf->selective_ref_frame = 1;
+    sf->selective_ref_frame = 2;
     sf->tx_size_search_init_depth_rect = 1;
     sf->tx_size_search_init_depth_sqr = 1;
 #if CONFIG_EXT_PARTITION_TYPES

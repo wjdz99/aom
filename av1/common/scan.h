@@ -43,10 +43,16 @@ void av1_update_scan_count_facade(const AV1_COMMON *const cm, MACROBLOCKD *xd,
                                   int mi_row, TX_SIZE tx_size, TX_TYPE tx_type,
                                   const tran_low_t *dqcoeffs, int max_scan);
 
+void av1_get_sc_index(const AV1_COMMON *const cm, MACROBLOCKD *xd,
+                      TX_SIZE tx_size, TX_TYPE tx_type);
+
 // embed r + c and coeff_idx info with nonzero probabilities. When sorting the
 // nonzero probabilities, if there is a tie, the coefficient with smaller r + c
 // will be scanned first
 void av1_augment_prob(TX_SIZE tx_size, TX_TYPE tx_type, uint32_t *prob);
+
+int64_t *av1_get_scan_count(FRAME_CONTEXT *fc, TX_SIZE tx_size,
+                            TX_TYPE tx_type);
 
 #if USE_TOPOLOGICAL_SORT
 // apply quick sort on nonzero probabilities to obtain a sort order
@@ -95,6 +101,7 @@ static INLINE const SCAN_ORDER *get_default_scan(TX_SIZE tx_size,
 
 static INLINE int do_adapt_scan(TX_SIZE tx_size, TX_TYPE tx_type) {
   (void)tx_size;
+
   if (tx_size_2d[tx_size] >= 1024 && tx_type != DCT_DCT) return 0;
   if (tx_size > TX_32X16) return 0;
 #if CONFIG_ADAPT_SCAN
@@ -114,6 +121,13 @@ static INLINE const SCAN_ORDER *get_scan(const AV1_COMMON *cm, TX_SIZE tx_size,
                                          const MB_MODE_INFO *mbmi) {
   const int is_inter = is_inter_block(mbmi);
 #if CONFIG_ADAPT_SCAN
+
+  if (do_adapt_scan(tx_size, tx_type))
+    return cm->fc
+        ->sc_ptr[tx_size][tx_type][cm->fc->sc_counter[tx_size][tx_type][3]];
+  else
+    return get_default_scan(tx_size, tx_type, is_inter);
+
   (void)mbmi;
   (void)is_inter;
   if (!do_adapt_scan(tx_size, tx_type))

@@ -5474,6 +5474,11 @@ const SCAN_ORDER av1_inter_scan_orders[TX_SIZES_ALL][TX_TYPES] = {
 #define COEFF_IDX_SIZE (1 << COEFF_IDX_BITS)
 #define COEFF_IDX_MASK (COEFF_IDX_SIZE - 1)
 
+int64_t *av1_get_scan_count(FRAME_CONTEXT *fc, TX_SIZE tx_size,
+                            TX_TYPE tx_type) {
+  return fc->sc_counter[tx_size][tx_type];
+}
+
 static uint32_t *get_non_zero_prob(FRAME_CONTEXT *fc, TX_SIZE tx_size,
                                    TX_TYPE tx_type) {
   switch (tx_size) {
@@ -5760,9 +5765,38 @@ static void update_scan_count(int16_t *scan, int max_scan,
   }
 }
 
+void av1_get_sc_index(const AV1_COMMON *const cm, MACROBLOCKD *xd,
+                      TX_SIZE tx_size, TX_TYPE tx_type) {
+  (void)xd;
+  if (do_adapt_scan(tx_size, tx_type)) {
+    int64_t *sc_counter = av1_get_scan_count(cm->fc, tx_size, tx_type);
+    int64_t min_counter = INT64_MAX;
+    for (int idx = 0; idx < 3; ++idx) {
+      if (sc_counter[idx] < min_counter) {
+        min_counter = sc_counter[idx];
+        sc_counter[3] = idx;
+      }
+    }
+  }
+}
+
 void av1_update_scan_count_facade(const AV1_COMMON *const cm, MACROBLOCKD *xd,
                                   int mi_row, TX_SIZE tx_size, TX_TYPE tx_type,
                                   const tran_low_t *dqcoeffs, int max_scan) {
+  if (do_adapt_scan(tx_size, tx_type) && max_scan) {
+    int64_t *sc_counter = av1_get_scan_count(cm->fc, tx_size, tx_type);
+    const int tx_len = tx_size_2d[tx_size];
+
+    for (int idx = 0; idx < 3; ++idx) {
+      const int16_t *scan = cm->fc->sc_ptr[tx_size][tx_type][idx]->scan;
+      int c;
+      for (c = tx_len - 1; c >= 0; --c)
+        if (dqcoeffs[scan[c]]) break;
+      int eob = c;
+      sc_counter[idx] = (eob << 4) + ((15 * sc_counter[idx]) >> 4);
+    }
+  }
+
 #if SUB_FRAME_COUNT
   if (((mi_row >> 5) << 5) + 32 >= cm->mi_rows) return;
 #else
@@ -6068,6 +6102,14 @@ void av1_init_scan_order(AV1_COMMON *cm) {
         uint32_t *non_zero_prob = get_non_zero_prob(cm->fc, tx_size, tx_type);
         const int tx2d_size = tx_size_2d[tx_size];
         int i;
+
+        // TODO(jingning,dkhe,angiebird): Properly set the default scan order
+        // sets. The current setup only works for intra modes. Needs to get
+        // inter ones in place.
+        cm->fc->sc_ptr[tx_size][tx_type][0] = get_default_scan(tx_size, 0, 0);
+        cm->fc->sc_ptr[tx_size][tx_type][1] = get_default_scan(tx_size, 1, 0);
+        cm->fc->sc_ptr[tx_size][tx_type][2] = get_default_scan(tx_size, 2, 0);
+
         SCAN_ORDER *sc = &cm->fc->sc[tx_size][tx_type];
         for (i = 0; i < tx2d_size; ++i) {
           non_zero_prob[i] = (1 << ADAPT_SCAN_PROB_PRECISION) /

@@ -574,6 +574,10 @@ static void decode_token_and_recon_block(AV1Decoder *const pbi,
   }
 #endif  // CONFIG_CFL
 
+#if CONFIG_ADAPT_SCAN
+  av1_get_sc_index(cm, xd, mbmi->tx_size, mbmi->tx_type);
+#endif
+
   int reader_corrupted_flag = aom_reader_has_error(r);
   aom_merge_corrupted_flag(&xd->corrupted, reader_corrupted_flag);
 }
@@ -661,9 +665,24 @@ static void decode_block(AV1Decoder *const pbi, MACROBLOCKD *const xd,
 #endif
                     bsize);
 
+  AV1_COMMON *cm = &pbi->common;
+  MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
+
+  FILE *pf = fopen("dec_modes.txt", "a");
+  fprintf(pf, "pos = (%d, %d), range = %d\n", mi_row, mi_col, r->ec.rng);
+  fprintf(pf, "sc_counter = %ld\n",
+                    cm->fc->sc_counter[mbmi->tx_size][mbmi->tx_type][3]);
+  fprintf(pf, "bsize = %d\n", mbmi->sb_type);
+  if (mbmi->skip == 0)
+    fprintf(pf, "tx size = %d\n", mbmi->tx_size);
+
+
 #if !(NC_MODE_INFO)
   decode_token_and_recon_block(pbi, xd, mi_row, mi_col, r, bsize);
 #endif
+
+  fprintf(pf, "ec rng = %d\n\n", r->ec.rng);
+  fclose(pf);
 }
 
 static PARTITION_TYPE read_partition(MACROBLOCKD *xd, int mi_row, int mi_col,

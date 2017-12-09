@@ -2054,6 +2054,10 @@ static void write_tokens_b(AV1_COMP *cpi, const TileInfo *const tile,
 #endif
     }
   }
+
+#if CONFIG_ADAPT_SCAN
+  av1_get_sc_index(cm, xd, mbmi->tx_size, mbmi->tx_type);
+#endif
 }
 
 #if NC_MODE_INFO
@@ -2130,12 +2134,27 @@ static void write_modes_b(AV1_COMP *cpi, const TileInfo *const tile,
                           int mi_col) {
   write_mbmi_b(cpi, tile, w, mi_row, mi_col);
 
+  MB_MODE_INFO *mbmi = &cpi->td.mb.e_mbd.mi[0]->mbmi;
+  AV1_COMMON *cm = &cpi->common;
+
+  FILE *pf = fopen("enc_modes.txt", "a");
+  fprintf(pf, "pos = (%d, %d), range = %d\n", mi_row, mi_col,
+          w->ec.rng);
+  fprintf(pf, "sc_counter = %ld\n",
+          cm->fc->sc_counter[mbmi->tx_size][mbmi->tx_type][3]);
+  fprintf(pf, "bsize = %d\n", mbmi->sb_type);
+  if (mbmi->skip == 0)
+    fprintf(pf, "tx size = %d\n", mbmi->tx_size);
+
 #if NC_MODE_INFO
   (void)tok;
   (void)tok_end;
 #else
   write_tokens_b(cpi, tile, w, tok, tok_end, mi_row, mi_col);
 #endif
+
+  fprintf(pf, "ec rng = %d\n\n", w->ec.rng);
+  fclose(pf);
 }
 
 static void write_partition(const AV1_COMMON *const cm,
