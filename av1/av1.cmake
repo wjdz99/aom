@@ -169,6 +169,9 @@ if (CONFIG_DAALA_TX)
       ${AOM_AV1_ENCODER_SOURCES}
       "${AOM_ROOT}/av1/encoder/daala_fwd_txfm.c"
       "${AOM_ROOT}/av1/encoder/daala_fwd_txfm.h")
+  set(AOM_AV1_ENCODER_INTRIN_AVX2
+      ${AOM_AV1_ENCODER_INTRIN_AVX2}
+      "${AOM_ROOT}/av1/encoder/x86/daala_fwd_txfm_avx2.c")
 endif ()
 
 set(AOM_AV1_COMMON_INTRIN_SSE2
@@ -189,6 +192,7 @@ if (CONFIG_DAALA_TX)
   set(AOM_AV1_COMMON_INTRIN_AVX2
       ${AOM_AV1_COMMON_INTRIN_AVX2}
       "${AOM_ROOT}/av1/common/x86/daala_tx_kernels.h"
+      "${AOM_ROOT}/av1/common/x86/daala_tx_avx2.h"
       "${AOM_ROOT}/av1/common/x86/daala_inv_txfm_avx2.c")
 endif ()
 
