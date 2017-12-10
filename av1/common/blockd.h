@@ -49,7 +49,7 @@ extern "C" {
 
 #if CONFIG_EXT_SKIP && CONFIG_JNT_COMP
 // NOTE(zoeliu): For debug - To explore whether jnt-comp needs to be considered.
-#define SKIP_MODE_WITH_JNT_COMP 1
+#define SKIP_MODE_WITH_JNT_COMP 0
 #endif  // CONFIG_EXT_SKIP && CONFIG_JNT_COMP
 
 // SEG_MASK_TYPES should not surpass 1 << MAX_SEG_MASK_BITS
@@ -728,6 +728,10 @@ typedef struct macroblockd {
 #if CONFIG_JNT_COMP
   JNT_COMP_PARAMS jcp_param;
 #endif
+
+#if CONFIG_EXT_SKIP
+  int all_one_sided_refs;
+#endif  // CONFIG_EXT_SKIP
 } MACROBLOCKD;
 
 static INLINE int get_bitdepth_data_path_index(const MACROBLOCKD *xd) {
