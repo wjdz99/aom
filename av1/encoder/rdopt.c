@@ -10572,7 +10572,7 @@ PALETTE_EXIT:
 #endif                    // CONFIG_JNT_COMP
 #if SKIP_MODE_WITH_JNT_COMP
     const int cur_to_fwd = cm->frame_offset - cm->ref_frame_idx_0;
-    const int cur_to_bwd = cm->ref_frame_idx_1 - cm->frame_offset;
+    const int cur_to_bwd = abs(cm->ref_frame_idx_1 - cm->frame_offset);
     if (cur_to_fwd != cur_to_bwd) {
       // Decide on the JNT_COMP mode.
       int64_t best_skip_mode_rd = INT64_MAX;

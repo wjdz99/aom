@@ -2196,10 +2196,11 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
   mbmi->compound_idx = 1;
   mbmi->interinter_compound_type = COMPOUND_AVERAGE;
 
+#if CONFIG_EXT_SKIP
 #if SKIP_MODE_WITH_JNT_COMP
   if (mbmi->skip_mode) {
     const int cur_to_fwd = cm->frame_offset - cm->ref_frame_idx_0;
-    const int cur_to_bwd = cm->ref_frame_idx_1 - cm->frame_offset;
+    const int cur_to_bwd = abs(cm->ref_frame_idx_1 - cm->frame_offset);
     if (cur_to_fwd != cur_to_bwd) {
       const int comp_index_ctx = get_comp_index_context(cm, xd);
       mbmi->compound_idx = aom_read_symbol(
@@ -2210,6 +2211,7 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
     }
   }
 #endif  // SKIP_MODE_WITH_JNT_COMP
+#endif  // CONFIG_EXT_SKIP
 
   if (has_second_ref(mbmi)
 #if CONFIG_EXT_SKIP

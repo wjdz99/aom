@@ -1351,7 +1351,7 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
   if (mbmi->skip_mode) {
 #if SKIP_MODE_WITH_JNT_COMP
     const int cur_to_fwd = cm->frame_offset - cm->ref_frame_idx_0;
-    const int cur_to_bwd = cm->ref_frame_idx_1 - cm->frame_offset;
+    const int cur_to_bwd = abs(cm->ref_frame_idx_1 - cm->frame_offset);
     if (cur_to_fwd != cur_to_bwd) {
       const int comp_index_ctx = get_comp_index_context(cm, xd);
       aom_write_symbol(w, mbmi->compound_idx,

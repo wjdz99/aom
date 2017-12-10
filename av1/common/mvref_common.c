@@ -2238,9 +2238,9 @@ void av1_setup_skip_mode_allowed(AV1_COMMON *const cm) {
   }
 
   // Flag is set when and only when both forward and backward references
-  // are available and their distance is no greater than 3, i.e. as
-  // opposed to the current frame position, the reference distance pair are
-  // either: (1, 1), (1, 2), or (2, 1).
+  // are available and the difference between their temporal distance to
+  // the current frame is no greater than 1, i.e. they may have the same
+  // temporal distance to the current frame, or the distances are off by 1.
   if (ref_idx[0] != INVALID_IDX && ref_idx[1] != INVALID_IDX) {
     const int cur_to_fwd = cm->frame_offset - ref_frame_offset[0];
     const int cur_to_bwd = ref_frame_offset[1] - cm->frame_offset;
@@ -2251,6 +2251,39 @@ void av1_setup_skip_mode_allowed(AV1_COMMON *const cm) {
       cm->is_skip_mode_allowed = 1;
       cm->ref_frame_idx_0 = ref_idx[0];
       cm->ref_frame_idx_1 = ref_idx[1];
+    }
+  }
+
+  // NOTE(zoeliu): ***Test for low delay scenario***
+  if (av1_refs_are_one_sided(cm)) {
+    assert(ref_idx[1] == INVALID_IDX);
+    assert(ref_idx[0] != INVALID_IDX);
+    // Identify the second closest forward reference frame.
+    // TODO(zoeliu): Following could be optimized and combined with the above
+    //               search for two closest fwd and bwd references.
+    ref_frame_offset[1] = -1;
+    cm->is_skip_mode_allowed = 0;
+    for (int i = 0; i < INTER_REFS_PER_FRAME; ++i) {
+      const int buf_idx = cm->frame_refs[i].idx;
+      if (buf_idx == INVALID_IDX) continue;
+
+      const int ref_offset = frame_bufs[buf_idx].cur_frame_offset;
+      if (ref_offset < ref_frame_offset[0] &&
+          ref_offset > ref_frame_offset[1]) {
+        // Second closest forward reference
+        ref_frame_offset[1] = ref_offset;
+        ref_idx[1] = i;
+        ref_buf_idx[1] = buf_idx;
+      }
+    }
+    if (ref_frame_offset[1] >= 0) {
+      const int cur_to_fwd0 = cur_frame_offset - ref_frame_offset[0];
+      const int cur_to_fwd1 = cur_frame_offset - ref_frame_offset[1];
+      if ((cur_to_fwd1 - cur_to_fwd0) <= 1) {
+        cm->is_skip_mode_allowed = 1;
+        cm->ref_frame_idx_0 = ref_idx[0];
+        cm->ref_frame_idx_1 = ref_idx[1];
+      }
     }
   }
 
