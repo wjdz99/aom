@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b8bcf9e4_2acee849",
+        "filename": "av1/common/restoration.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1370,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2017-12-11T20:07:44Z",
+      "side": 1,
+      "message": "Will this ever be true? It looks like you always have:\n\n  if (cm-\u003erst_info[0].frame_restoration_type !\u003d RESTORE_NONE ||\n      cm-\u003erst_info[1].frame_restoration_type !\u003d RESTORE_NONE ||\n      cm-\u003erst_info[2].frame_restoration_type !\u003d RESTORE_NONE) { } \n\nbefore this function is called.",
+      "range": {
+        "startLine": 1365,
+        "startChar": 0,
+        "endLine": 1370,
+        "endChar": 3
+      },
+      "revId": "1c8e37e0c6a6d28d8c5334de82bb0c7ea79d6775",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "57f32932_3aa22332",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 4768,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2017-12-11T20:07:44Z",
+      "side": 1,
+      "message": "Is there a reason this is passed individually when the entire cm struct is also being passed?",
+      "range": {
+        "startLine": 4768,
+        "startChar": 63,
+        "endLine": 4768,
+        "endChar": 75
+      },
+      "revId": "1c8e37e0c6a6d28d8c5334de82bb0c7ea79d6775",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
