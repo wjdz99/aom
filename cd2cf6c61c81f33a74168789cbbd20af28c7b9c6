@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "58deb2db_fc5ebf31",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-12-11T09:55:48Z",
+      "side": 1,
+      "message": "It\u0027s also not clear what a \"gain\" to MSE is.\n\n\"But have not been done\" is not grammatical. Maybe you should just start a new sentence.",
+      "revId": "cd2cf6c61c81f33a74168789cbbd20af28c7b9c6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
