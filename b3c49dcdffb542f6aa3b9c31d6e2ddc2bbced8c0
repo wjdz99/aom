@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "d460b0c2_73011a1b",
+        "filename": "av1/common/mvref_common.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 528,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2017-12-11T05:56:33Z",
+      "side": 1,
+      "message": "Right. Thank you.",
+      "parentUuid": "f14c80e1_4533a5a3",
+      "range": {
+        "startLine": 528,
+        "startChar": 32,
+        "endLine": 528,
+        "endChar": 51
+      },
+      "revId": "b3c49dcdffb542f6aa3b9c31d6e2ddc2bbced8c0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "2df03bcc_ab3ea26e",
         "filename": "av1/common/mvref_common.h",
         "patchSetId": 5
@@ -36,6 +60,30 @@
       "writtenOn": "2017-12-11T04:26:26Z",
       "side": 1,
       "message": "should be (mi_col \u003e\u003e mib_size_log2) * sb_size.",
+      "range": {
+        "startLine": 529,
+        "startChar": 31,
+        "endLine": 529,
+        "endChar": 47
+      },
+      "revId": "b3c49dcdffb542f6aa3b9c31d6e2ddc2bbced8c0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b8a345c9_aade0736",
+        "filename": "av1/common/mvref_common.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 529,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2017-12-11T05:56:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2df03bcc_ab3ea26e",
       "range": {
         "startLine": 529,
         "startChar": 31,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "105db7aa_bfa76a51",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1161,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2017-12-11T05:56:33Z",
+      "side": 1,
+      "message": "NO. I will have future patches to let it work.",
+      "parentUuid": "a15d0066_c220d846",
+      "range": {
+        "startLine": 1161,
+        "startChar": 4,
+        "endLine": 1161,
+        "endChar": 27
+      },
+      "revId": "b3c49dcdffb542f6aa3b9c31d6e2ddc2bbced8c0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "4d7072c3_ce918b12",
         "filename": "av1/decoder/decodeframe.c",
         "patchSetId": 5
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "f77d2742_b9da9c8e",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2293,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2017-12-11T05:56:33Z",
+      "side": 1,
+      "message": "No. It should not. Current parameters (..., 0,0,0,0) will not let loop filter be applied.",
+      "parentUuid": "4d7072c3_ce918b12",
+      "range": {
+        "startLine": 2293,
+        "startChar": 19,
+        "endLine": 2293,
+        "endChar": 36
+      },
+      "revId": "b3c49dcdffb542f6aa3b9c31d6e2ddc2bbced8c0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a4222406_07ab1d65",
         "filename": "av1/encoder/bitstream.c",
         "patchSetId": 5
@@ -105,6 +201,30 @@
       "writtenOn": "2017-12-11T04:26:26Z",
       "side": 1,
       "message": "loop-restoration should be off regardless of lpf-sb",
+      "range": {
+        "startLine": 2496,
+        "startChar": 23,
+        "endLine": 2496,
+        "endChar": 36
+      },
+      "revId": "b3c49dcdffb542f6aa3b9c31d6e2ddc2bbced8c0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3558be22_a8cf6133",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2496,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2017-12-11T05:56:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a4222406_07ab1d65",
       "range": {
         "startLine": 2496,
         "startChar": 23,
