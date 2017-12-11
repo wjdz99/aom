@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "2da6fd0e_591709fd",
+        "filename": "av1/encoder/pickcdef.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2017-12-11T07:54:09Z",
+      "side": 1,
+      "message": "I haven\u0027t been able to verify that it silences the warning, since I can\u0027t reproduce the warning.  The warning is that both tot[j][k] and best can become larger than (1 \u003c\u003c 63), and then the addition overflows.",
+      "parentUuid": "45e75339_056182ec",
+      "revId": "fa541ef025f18c61b025e6d9c2d81ffc7ec73548",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f14f5dbd_02e40be3",
         "filename": "av1/encoder/pickcdef.c",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2017-12-11T00:27:03Z",
       "side": 1,
       "message": "The difference should fit in 16 bits",
+      "revId": "fa541ef025f18c61b025e6d9c2d81ffc7ec73548",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1e9017cb_3e1c16a7",
+        "filename": "av1/encoder/pickcdef.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2017-12-11T07:54:09Z",
+      "side": 1,
+      "message": "The point is to upgrade it to 64 bit, because sum is 64 bit.  The warning is for e * e when e is int:\nsigned integer overflow: -63488 * -63488 cannot be represented in type\u0027int\u0027\n\nI don\u0027t think there is a realistic case for such values for e (isn\u0027t the maximum supported bit depth 12?), but perhaps the unit tests disrespect this.",
+      "parentUuid": "f14f5dbd_02e40be3",
       "revId": "fa541ef025f18c61b025e6d9c2d81ffc7ec73548",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "c03be042_f6f032a1",
+        "filename": "av1/encoder/pickcdef.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2017-12-11T07:54:09Z",
+      "side": 1,
+      "message": "Ditto.",
+      "parentUuid": "2c408b2e_d4fb9df4",
+      "revId": "fa541ef025f18c61b025e6d9c2d81ffc7ec73548",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "72272a68_b15caf92",
         "filename": "av1/encoder/pickcdef.c",
         "patchSetId": 1
@@ -64,6 +118,24 @@
       "writtenOn": "2017-12-11T00:27:03Z",
       "side": 1,
       "message": "I don\u0027t understand what this is supposed to change.",
+      "revId": "fa541ef025f18c61b025e6d9c2d81ffc7ec73548",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "57bde541_6578e19c",
+        "filename": "av1/encoder/pickcdef.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 250,
+      "author": {
+        "id": 5111
+      },
+      "writtenOn": "2017-12-11T07:54:09Z",
+      "side": 1,
+      "message": "It\u0027s not supposed to change the behaviour at all, just an attempt silence the warning. \n\nunsigned integer overflow: 18446744073445310464 + 18446744073445310464\ncannot be represented in type \u0027unsigned long\u0027\n\nAgain, I don\u0027t think this is likely in real life.",
+      "parentUuid": "72272a68_b15caf92",
       "revId": "fa541ef025f18c61b025e6d9c2d81ffc7ec73548",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
