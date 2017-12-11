@@ -2819,6 +2819,12 @@ static void palette_rd_y(const AV1_COMP *const cpi, MACROBLOCK *x,
                          int64_t *best_model_rd, int *rate, int *rate_tokenonly,
                          int *rate_overhead, int64_t *distortion,
                          int *skippable) {
+  aom_clear_system_state();
+#ifndef NDEBUG
+  for (int i = 0; i < n; ++i) {
+    assert(!isnan(centroids[i]));
+  }
+#endif  // NDEBUG
 #if CONFIG_PALETTE_DELTA_ENCODING
   optimize_palette_colors(color_cache, n_cache, n, 1, centroids);
 #endif  // CONFIG_PALETTE_DELTA_ENCODING
@@ -3005,6 +3011,7 @@ static int rd_pick_palette_intra_sby(const AV1_COMP *const cpi, MACROBLOCK *x,
 
     // K-means clustering.
     for (n = AOMMIN(colors, PALETTE_MAX_SIZE); n >= 2; --n) {
+      aom_clear_system_state();
       if (colors == PALETTE_MIN_SIZE) {
         // Special case: These colors automatically become the centroids.
         assert(colors == n);
@@ -3017,7 +3024,6 @@ static int rd_pick_palette_intra_sby(const AV1_COMP *const cpi, MACROBLOCK *x,
         }
         av1_k_means(data, centroids, color_map, rows * cols, n, 1, max_itr);
       }
-
       palette_rd_y(cpi, x, mbmi, bsize, palette_ctx, dc_mode_cost, data,
                    centroids, n,
 #if CONFIG_PALETTE_DELTA_ENCODING
