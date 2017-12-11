@@ -16,6 +16,24 @@
       "revId": "b45de5e9c53e19545741e1637ae087a457d9f181",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "63740d9a_32395e4a",
+        "filename": "av1/common/daala_tx_kernels.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 940,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-12-11T17:21:08Z",
+      "side": 1,
+      "message": "That does seem like a reasonable idea.  The od_rotate_add() kernel is always done on the result of od_sub() and vice versa.\n\nI intentionally didn\u0027t do this because the asymmetric fdst functions do the addition on a halved input and I didn\u0027t want to have extra 3 input rotate kernels just for that case.  \n\nSee line 1220 for the equivalent asymmetrict version of line 940:\n\nod_rotate_sub(s0, sf, od_add(*sf, s0h), 1073, 11, 62241, 15, 201, 11, 1);",
+      "parentUuid": "5a007106_75116b0e",
+      "revId": "b45de5e9c53e19545741e1637ae087a457d9f181",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
