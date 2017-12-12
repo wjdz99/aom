@@ -352,6 +352,9 @@ struct macroblock {
   int comp_idx_cost[COMP_INDEX_CONTEXTS][2];
   int comp_group_idx_cost[COMP_GROUP_IDX_CONTEXTS][2];
 #endif  // CONFIG_JNT_COMP
+#if CONFIG_INTRABC
+  int dv_joint_cost[MV_JOINTS];
+#endif
 };
 
 #ifdef __cplusplus

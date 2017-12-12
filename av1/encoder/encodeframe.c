@@ -4741,8 +4741,19 @@ static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
 
   if (!dry_run) {
 #if CONFIG_INTRABC
-    if (av1_allow_intrabc(bsize, cm))
-      if (is_intrabc_block(mbmi)) td->intrabc_used_this_tile = 1;
+    if (av1_allow_intrabc(bsize, cm)) {
+      if (is_intrabc_block(mbmi)) {
+        td->intrabc_used_this_tile = 1;
+        if (tile_data->allow_update_cdf) {
+          FRAME_CONTEXT *fc = xd->tile_ctx;
+          const MV ref = cpi->td.mb.mbmi_ext->ref_mvs[INTRA_FRAME][0].as_mv;
+          const MV dv = mbmi->mv[0].as_mv;
+          const MV diff = { dv.row - ref.row, dv.col - ref.col };
+          const MV_JOINT_TYPE joint_type = av1_get_mv_joint(&diff);
+          update_cdf(fc->ndvc.joints_cdf, joint_type, MV_JOINTS);
+        }
+      }
+    }
 #endif  // CONFIG_INTRABC
     TX_SIZE tx_size =
         is_inter && !mbmi->skip ? mbmi->min_tx_size : mbmi->tx_size;

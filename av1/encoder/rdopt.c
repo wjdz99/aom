@@ -8779,7 +8779,7 @@ static int64_t rd_pick_intrabc_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
                        (int *)&cpi->dv_cost[1][MV_MAX] };
     // TODO(aconverse@google.com): The full motion field defining discount
     // in MV_COST_WEIGHT is too large. Explore other values.
-    int rate_mv = av1_mv_bit_cost(&dv, &dv_ref.as_mv, cpi->dv_joint_cost,
+    int rate_mv = av1_mv_bit_cost(&dv, &dv_ref.as_mv, x->dv_joint_cost,
                                   dvcost, MV_COST_WEIGHT_SUB);
     const int rate_mode = x->intrabc_cost[1];
     RD_STATS rd_stats, rd_stats_uv;

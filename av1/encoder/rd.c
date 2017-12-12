@@ -290,6 +290,11 @@ void av1_fill_mode_rates(AV1_COMMON *const cm, MACROBLOCK *x,
     }
 #endif  // CONFIG_JNT_COMP
   }
+
+#if CONFIG_INTRABC
+  if (frame_is_intra_only(cm))
+    av1_cost_tokens_from_cdf(x->dv_joint_cost, fc->ndvc.joints_cdf, NULL);
+#endif  //
 }
 
 // Values are now correlated to quantizer.
@@ -617,7 +622,7 @@ void av1_initialize_rd_consts(AV1_COMP *cpi) {
   if (frame_is_intra_only(cm) && cm->allow_screen_content_tools &&
       cpi->oxcf.pass != 1) {
     int *dvcost[2] = { &cpi->dv_cost[0][MV_MAX], &cpi->dv_cost[1][MV_MAX] };
-    av1_build_nmv_cost_table(cpi->dv_joint_cost, dvcost, &cm->fc->ndvc,
+    av1_build_nmv_cost_table(x->dv_joint_cost, dvcost, &cm->fc->ndvc,
                              MV_SUBPEL_NONE);
   }
 #endif
