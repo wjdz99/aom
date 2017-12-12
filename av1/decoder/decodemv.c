@@ -2242,26 +2242,40 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
       assert(masked_compound_used);
 
       // compound_segment, wedge
-      if (is_interinter_compound_used(COMPOUND_WEDGE, bsize))
-        mbmi->interinter_compound_type =
-            1 + aom_read_symbol(r, ec_ctx->compound_type_cdf[bsize],
-                                COMPOUND_TYPES - 1, ACCT_STR);
-      else
-        mbmi->interinter_compound_type = COMPOUND_SEG;
+      mbmi->interinter_compound_type = COMPOUND_AVERAGE;
+      if (cm->reference_mode != SINGLE_REFERENCE &&
+          is_inter_compound_mode(mbmi->mode) &&
+          mbmi->motion_mode == SIMPLE_TRANSLATION
+#if CONFIG_EXT_SKIP
+          && !mbmi->skip_mode
+#endif  // CONFIG_EXT_SKIP
+          && mbmi->comp_group_idx) {
+        if (is_any_masked_compound_used(bsize)) {
+          if (cm->allow_masked_compound) {
+            if (is_interinter_compound_used(COMPOUND_WEDGE, bsize))
+              mbmi->interinter_compound_type =
+                  aom_read_symbol(r, ec_ctx->compound_type_cdf[bsize],
+                                  COMPOUND_TYPES, ACCT_STR);
+            else
+              mbmi->interinter_compound_type = COMPOUND_SEG;
 
-      if (mbmi->interinter_compound_type == COMPOUND_WEDGE) {
-        assert(is_interinter_compound_used(COMPOUND_WEDGE, bsize));
-        mbmi->wedge_index =
-            aom_read_literal(r, get_wedge_bits_lookup(bsize), ACCT_STR);
-        mbmi->wedge_sign = aom_read_bit(r, ACCT_STR);
-      } else {
-        assert(mbmi->interinter_compound_type == COMPOUND_SEG);
-        mbmi->mask_type = aom_read_literal(r, MAX_SEG_MASK_BITS, ACCT_STR);
+            if (mbmi->interinter_compound_type == COMPOUND_WEDGE) {
+              assert(is_interinter_compound_used(COMPOUND_WEDGE, bsize));
+              mbmi->wedge_index =
+                  aom_read_literal(r, get_wedge_bits_lookup(bsize), ACCT_STR);
+              mbmi->wedge_sign = aom_read_bit(r, ACCT_STR);
+            }
+            if (mbmi->interinter_compound_type == COMPOUND_SEG) {
+              mbmi->mask_type =
+                  aom_read_literal(r, MAX_SEG_MASK_BITS, ACCT_STR);
+            }
+          }
+        }
+
+        if (xd->counts)
+          xd->counts
+              ->compound_interinter[bsize][mbmi->interinter_compound_type]++;
       }
-
-      if (xd->counts)
-        xd->counts
-            ->compound_interinter[bsize][mbmi->interinter_compound_type - 1]++;
     }
   }
 #else  // CONFIG_JNT_COMP

@@ -1089,22 +1089,16 @@ static void update_stats(const AV1_COMMON *const cm, TileDataEnc *tile_data,
             if (allow_update_cdf)
               update_cdf(fc->compound_index_cdf[comp_index_ctx],
                          mbmi->compound_idx, 2);
-          } else {
-            assert(masked_compound_used);
-            if (is_interinter_compound_used(COMPOUND_WEDGE, bsize)) {
-              counts->compound_interinter[bsize]
-                                         [mbmi->interinter_compound_type - 1]++;
-              if (allow_update_cdf)
-                update_cdf(fc->compound_type_cdf[bsize],
-                           mbmi->interinter_compound_type - 1,
-                           COMPOUND_TYPES - 1);
-            }
           }
         }
-#else   // CONFIG_JNT_COMP
+#endif  // CONFIG_JNT_COMP
+
         if (cm->reference_mode != SINGLE_REFERENCE &&
-            is_inter_compound_mode(mbmi->mode) &&
-            mbmi->motion_mode == SIMPLE_TRANSLATION) {
+            is_inter_compound_mode(mbmi->mode)
+#if CONFIG_JNT_COMP
+            && mbmi->comp_group_idx
+#endif  // CONFIG_JNT_COMP
+            && mbmi->motion_mode == SIMPLE_TRANSLATION) {
           if (is_interinter_compound_used(COMPOUND_WEDGE, bsize)) {
             counts
                 ->compound_interinter[bsize][mbmi->interinter_compound_type]++;
@@ -1113,7 +1107,6 @@ static void update_stats(const AV1_COMMON *const cm, TileDataEnc *tile_data,
                          mbmi->interinter_compound_type, COMPOUND_TYPES);
           }
         }
-#endif  // CONFIG_JNT_COMP
       }
     }
 
