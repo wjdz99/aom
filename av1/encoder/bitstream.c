@@ -3279,7 +3279,7 @@ static uint32_t write_tiles(AV1_COMP *const cpi, uint8_t *const dst,
         av1_tile_set_col(&tile_info, cm, tile_col);
 
 #if CONFIG_DEPENDENT_HORZTILES
-        av1_tile_set_tg_boundary(&tile_info, cm, tile_row, tile_col);
+        av1_tile_set_tg_boundary(&tile_info, cm, tile_row);
 #endif
         buf->data = dst + total_size;
 
@@ -4748,7 +4748,7 @@ static uint32_t write_tiles_in_tg_obus(AV1_COMP *const cpi, uint8_t *const dst,
         }
 
 #if CONFIG_DEPENDENT_HORZTILES
-        av1_tile_set_tg_boundary(&tile_info, cm, tile_row, tile_col);
+        av1_tile_set_tg_boundary(&tile_info, cm, tile_row);
 #endif
         buf->data = dst + total_size;
 

@@ -912,10 +912,6 @@ static void set_tile_info_max_tile(AV1_COMP *cpi) {
 static void set_tile_info(AV1_COMP *cpi) {
   AV1_COMMON *const cm = &cpi->common;
   (void)cm;
-#if CONFIG_DEPENDENT_HORZTILES
-  int tile_row, tile_col, num_tiles_in_tg;
-  int tg_row_start, tg_col_start;
-#endif
 #if CONFIG_EXT_TILE
   if (cpi->oxcf.large_scale_tile) {
 #if CONFIG_EXT_PARTITION
@@ -1005,20 +1001,6 @@ static void set_tile_info(AV1_COMP *cpi) {
       // Use a default value for the purposes of weighting costs in probability
       // updates
       cm->num_tg = DEFAULT_MAX_NUM_TG;
-    }
-    num_tiles_in_tg =
-        (cm->tile_cols * cm->tile_rows + cm->num_tg - 1) / cm->num_tg;
-    tg_row_start = 0;
-    tg_col_start = 0;
-    for (tile_row = 0; tile_row < cm->tile_rows; ++tile_row) {
-      for (tile_col = 0; tile_col < cm->tile_cols; ++tile_col) {
-        if ((tile_row * cm->tile_cols + tile_col) % num_tiles_in_tg == 0) {
-          tg_row_start = tile_row;
-          tg_col_start = tile_col;
-        }
-        cm->tile_group_start_row[tile_row][tile_col] = tg_row_start;
-        cm->tile_group_start_col[tile_row][tile_col] = tg_col_start;
-      }
     }
 #if CONFIG_EXT_TILE
   }
