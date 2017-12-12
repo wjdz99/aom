@@ -65,8 +65,11 @@ static INLINE void OD_KERNEL_FUNC(od_rotate_addh)(OD_REG *q0, OD_REG *q1,
   u_ = OD_MUL(*q1, c0, r0);
   *q1 = OD_MUL(*q0, c1, r1);
   t_ = OD_MUL(t_, c2, r2);
-  *q0 = OD_SUB(u_, t_);
-  if (s)
+  if (s == 2)
+    *q0 = OD_SUB(u_, OD_RSHIFT1(t_));
+  else
+    *q0 = OD_SUB(u_, t_);
+  if (s == 1)
     *q1 = OD_ADD(*q1, OD_RSHIFT1(t_));
   else
     *q1 = OD_ADD(*q1, t_);
@@ -118,8 +121,11 @@ static INLINE void OD_KERNEL_FUNC(od_rotate_subh)(OD_REG *q0, OD_REG *q1,
   u_ = OD_MUL(*q1, c0, r0);
   *q1 = OD_MUL(*q0, c1, r1);
   t_ = OD_MUL(t_, c2, r2);
-  *q0 = OD_ADD(u_, t_);
-  if (s)
+  if (s == 2)
+    *q0 = OD_ADD(u_, OD_RSHIFT1(t_));
+  else
+    *q0 = OD_ADD(u_, t_);
+  if (s == 1)
     *q1 = OD_ADD(*q1, OD_RSHIFT1(t_));
   else
     *q1 = OD_ADD(*q1, t_);
@@ -466,6 +472,24 @@ static INLINE void OD_KERNEL_FUNC(od_idct16)(OD_REG *s0, OD_REG *s8, OD_REG *s4,
   OD_KERNEL_FUNC(od_butterfly_add)(s0, sf);
 }
 
+static INLINE void OD_KERNEL_FUNC(od_idct16_asym)(
+    OD_REG *t0, OD_REG *t8, OD_REG *t4, OD_REG *tc, OD_REG *t2, OD_REG *ta,
+    OD_REG *t6, OD_REG *te, OD_REG *t1, OD_REG *t1h, OD_REG *t9, OD_REG *t9h,
+    OD_REG *t5, OD_REG *t5h, OD_REG *td, OD_REG *tdh, OD_REG *t3, OD_REG *t3h,
+    OD_REG *tb, OD_REG *tbh, OD_REG *t7, OD_REG *t7h, OD_REG *tf, OD_REG *tfh) {
+  OD_KERNEL_FUNC(od_idst8)(tf, tb, td, t9, te, ta, tc, t8);
+  OD_KERNEL_FUNC(od_idct8)(t0, t4, t2, t6, t1, t5, t3, t7);
+
+  OD_KERNEL_FUNC(od_butterfly_v2)(te, t1, t1h);
+  OD_KERNEL_FUNC(od_butterfly_v1)(t6, t9, t9h);
+  OD_KERNEL_FUNC(od_butterfly_v2)(ta, t5, t5h);
+  OD_KERNEL_FUNC(od_butterfly_v1)(t2, td, tdh);
+  OD_KERNEL_FUNC(od_butterfly_v2)(tc, t3, t3h);
+  OD_KERNEL_FUNC(od_butterfly_v1)(t4, tb, tbh);
+  OD_KERNEL_FUNC(od_butterfly_v2)(t8, t7, t7h);
+  OD_KERNEL_FUNC(od_butterfly_v1)(t0, tf, tfh);
+}
+
 static INLINE void OD_KERNEL_FUNC(od_idst16)(OD_REG *s0, OD_REG *s1, OD_REG *s2,
                                              OD_REG *s3, OD_REG *s4, OD_REG *s5,
                                              OD_REG *s6, OD_REG *s7, OD_REG *s8,
@@ -588,4 +612,104 @@ static INLINE void OD_KERNEL_FUNC(od_flip_idst16)(
   OD_SWAP(s5, sa);
   OD_SWAP(s6, s9);
   OD_SWAP(s7, s8);
+}
+
+static INLINE void OD_KERNEL_FUNC(od_idst16_asym)(
+    OD_REG *s0, OD_REG *s1, OD_REG *s2, OD_REG *s3, OD_REG *s4, OD_REG *s5,
+    OD_REG *s6, OD_REG *s7, OD_REG *s8, OD_REG *s9, OD_REG *sa, OD_REG *sb,
+    OD_REG *sc, OD_REG *sd, OD_REG *se, OD_REG *sf) {
+  OD_REG s0h;
+  OD_REG s1h;
+  OD_REG s2h;
+  OD_REG s3h;
+  OD_REG s4h;
+  OD_REG s5h;
+  OD_REG s6h;
+  OD_REG s7h;
+  OD_REG sah;
+  OD_REG sbh;
+  OD_REG seh;
+  OD_REG sfh;
+  OD_KERNEL_FUNC(od_rotate45)(s9, s6, 0);
+  OD_KERNEL_FUNC(od_rotate45)(sa, s5, 0);
+  OD_KERNEL_FUNC(od_rotate45)(s8, s7, 0);
+  OD_KERNEL_FUNC(od_rotate_sub)(s3, sc, 10703, 13, 8867, 14, 3135, 13, 0);
+  OD_KERNEL_FUNC(od_rotate_sub2)(s4, sb, 10703, 13, 8867, 14, 3135, 13, 0);
+  OD_KERNEL_FUNC(od_butterfly_v3)(s2, sa, &sah);
+  OD_KERNEL_FUNC(od_butterfly_v2)(sd, s5, &s5h);
+  OD_KERNEL_FUNC(od_butterfly_v2)(s9, s1, &s1h);
+  OD_KERNEL_FUNC(od_butterfly_v3)(s6, se, &seh);
+  OD_KERNEL_FUNC(od_butterfly_v3)(sc, sb, &sbh);
+  OD_KERNEL_FUNC(od_butterfly_v3)(s7, sf, &sfh);
+  OD_KERNEL_FUNC(od_butterfly_v2)(s8, s0, &s0h);
+  OD_KERNEL_FUNC(od_butterfly_v3)(s3, s4, &s4h);
+  OD_KERNEL_FUNC(od_rotate_sub2)(s2, sd, 9633, 13, 12873, 14, 6393, 15, 0);
+  OD_KERNEL_FUNC(od_rotate_sub2)(sa, s5, 11363, 13, 9041, 15, 4551, 13, 0);
+  OD_KERNEL_FUNC(od_rotate_add)(s6, s9, 22725, 14, 9041, 15, 18205, 15, 0, 0);
+  OD_KERNEL_FUNC(od_rotate_add)(se, s1, 9633, 13, 12873, 14, 6393, 15, 0, 0);
+  OD_KERNEL_FUNC(od_butterfly_subh)(s8, s4, &s4h);
+  OD_KERNEL_FUNC(od_butterfly_addh)(s7, sb, &sbh);
+  OD_KERNEL_FUNC(od_butterfly_subh)(s3, sf, &sfh);
+  OD_KERNEL_FUNC(od_butterfly_addh)(sc, s0, &s0h);
+  OD_KERNEL_FUNC(od_butterfly_add2)(sd, se);
+  OD_KERNEL_FUNC(od_butterfly_add2)(s2, s1);
+  OD_KERNEL_FUNC(od_butterfly_sub2)(s6, s5);
+  OD_KERNEL_FUNC(od_butterfly_sub2)(s9, sa);
+  OD_KERNEL_FUNC(od_butterfly_v2)(se, s0, &s0h);
+  OD_KERNEL_FUNC(od_butterfly_v2)(sf, s1, &s1h);
+  OD_KERNEL_FUNC(od_butterfly_v3)(sc, s2, &s2h);
+  OD_KERNEL_FUNC(od_butterfly_v3)(sd, s3, &s3h);
+  OD_KERNEL_FUNC(od_butterfly_v2)(sa, s4, &s4h);
+  OD_KERNEL_FUNC(od_butterfly_v2)(sb, s5, &s5h);
+  OD_KERNEL_FUNC(od_butterfly_v3)(s8, s6, &s6h);
+  OD_KERNEL_FUNC(od_butterfly_v3)(s9, s7, &s7h);
+  OD_KERNEL_FUNC(od_rotate_subh)
+  (se, s1, &s1h, 23143, 15, 1137, 13, 44011, 15, 2);
+  OD_KERNEL_FUNC(od_rotate_addh)(s9, s6, &s6h, 2865, 12, 13599, 15, 305, 8, 2);
+  OD_KERNEL_FUNC(od_rotate_subh)(sa, s5, &s5h, 5619, 13, 2815, 12, 8423, 13, 2);
+  OD_KERNEL_FUNC(od_rotate_addh)(sd, s2, &s2h, 2727, 12, 3903, 12, 7005, 13, 2);
+  OD_KERNEL_FUNC(od_rotate_subh)
+  (sc, s3, &s3h, 10473, 14, 39627, 15, 11039, 14, 2);
+  OD_KERNEL_FUNC(od_rotate_addh)(sb, s4, &s4h, 9937, 14, 1489, 10, 3981, 13, 2);
+  OD_KERNEL_FUNC(od_rotate_subh)
+  (s8, s7, &s7h, 18611, 15, 55211, 15, 601, 11, 2);
+  OD_KERNEL_FUNC(od_rotate_addh)(sf, s0, &s0h, 1073, 11, 62241, 15, 201, 11, 2);
+}
+
+static INLINE void OD_KERNEL_FUNC(od_idct32)(
+    OD_REG *t0, OD_REG *tg, OD_REG *t8, OD_REG *to, OD_REG *t4, OD_REG *tk,
+    OD_REG *tc, OD_REG *ts, OD_REG *t2, OD_REG *ti, OD_REG *ta, OD_REG *tq,
+    OD_REG *t6, OD_REG *tm, OD_REG *te, OD_REG *tu, OD_REG *t1, OD_REG *th,
+    OD_REG *t9, OD_REG *tp, OD_REG *t5, OD_REG *tl, OD_REG *td, OD_REG *tt,
+    OD_REG *t3, OD_REG *tj, OD_REG *tb, OD_REG *tr, OD_REG *t7, OD_REG *tn,
+    OD_REG *tf, OD_REG *tv) {
+  OD_REG t1h;
+  OD_REG t3h;
+  OD_REG t5h;
+  OD_REG t7h;
+  OD_REG t9h;
+  OD_REG tbh;
+  OD_REG tdh;
+  OD_REG tfh;
+  OD_KERNEL_FUNC(od_idst16_asym)
+  (tv, tn, tr, tj, tt, tl, tp, th, tu, tm, tq, ti, ts, tk, to, tg);
+  OD_KERNEL_FUNC(od_idct16_asym)
+  (t0, t8, t4, tc, t2, ta, t6, te, t1, &t1h, t9, &t9h, t5, &t5h, td, &tdh, t3,
+   &t3h, tb, &tbh, t7, &t7h, tf, &tfh);
+  OD_KERNEL_FUNC(od_butterfly_addh)(tu, t1, &t1h);
+  OD_KERNEL_FUNC(od_butterfly_add)(te, th);
+  OD_KERNEL_FUNC(od_butterfly_addh)(tm, t9, &t9h);
+  OD_KERNEL_FUNC(od_butterfly_add)(t6, tp);
+  OD_KERNEL_FUNC(od_butterfly_addh)(tq, t5, &t5h);
+  OD_KERNEL_FUNC(od_butterfly_add)(ta, tl);
+  OD_KERNEL_FUNC(od_butterfly_addh)(ti, td, &tdh);
+  OD_KERNEL_FUNC(od_butterfly_add)(t2, tt);
+  OD_KERNEL_FUNC(od_butterfly_addh)(ts, t3, &t3h);
+  OD_KERNEL_FUNC(od_butterfly_add)(tc, tj);
+  OD_KERNEL_FUNC(od_butterfly_addh)(tk, tb, &tbh);
+  OD_KERNEL_FUNC(od_butterfly_add)(t4, tr);
+  OD_KERNEL_FUNC(od_butterfly_addh)(to, t7, &t7h);
+  OD_KERNEL_FUNC(od_butterfly_add)(t8, tn);
+  OD_KERNEL_FUNC(od_butterfly_addh)(tg, tf, &tfh);
+  OD_KERNEL_FUNC(od_butterfly_add)(t0, tv);
 }
