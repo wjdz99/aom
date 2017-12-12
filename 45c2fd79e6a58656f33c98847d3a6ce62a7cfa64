@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0ce630a8_b3920fb9",
+        "filename": "av1/common/daala_tx_kernels.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 8487
+      },
+      "writtenOn": "2017-12-12T12:42:03Z",
+      "side": 1,
+      "message": "It might be better to keep the od_avg_add and od_avg_sub functions since in the SIMD implementation they can\u0027t be split into od_add/od_avg and od_sub/od_avg. Looking ahead this would enable having a single set of kernel definitions that can be used for both plain C and SIMD",
+      "revId": "45c2fd79e6a58656f33c98847d3a6ce62a7cfa64",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
