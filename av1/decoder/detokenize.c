@@ -144,10 +144,6 @@ static int decode_coefs(MACROBLOCKD *xd, PLANE_TYPE type, tran_low_t *dqcoeff,
     int last_pos = (c + 1 == max_eob);
     int first_pos = (c == 0);
 
-#if CONFIG_NEW_QUANT
-    dqv_val = &dq_val[band != 0][0];
-#endif  // CONFIG_NEW_QUANT
-
     comb_token = last_pos ? 2 * av1_read_record_bit(xd->counts, r, ACCT_STR) + 2
                           : av1_read_record_symbol(
                                 xd->counts, r, coef_head_cdfs[band][ctx],
@@ -185,10 +181,6 @@ static int decode_coefs(MACROBLOCKD *xd, PLANE_TYPE type, tran_low_t *dqcoeff,
     if (token > ONE_TOKEN)
       token += av1_read_record_symbol(xd->counts, r, coef_tail_cdfs[band][ctx],
                                       TAIL_TOKENS, ACCT_STR);
-#if CONFIG_NEW_QUANT
-    dqv_val = &dq_val[band != 0][0];
-#endif  // CONFIG_NEW_QUANT
-
     *max_scan_line = AOMMAX(*max_scan_line, scan[c]);
     token_cache[scan[c]] = av1_pt_energy_class[token];
 
@@ -198,6 +190,7 @@ static int decode_coefs(MACROBLOCKD *xd, PLANE_TYPE type, tran_low_t *dqcoeff,
 #endif
 
 #if CONFIG_NEW_QUANT
+    dqv_val = &dq_val[band != 0][0];
     v = av1_dequant_abscoeff_nuq(val, dqv, dqv_val);
 #if !CONFIG_DAALA_TX
     v = dq_shift ? ROUND_POWER_OF_TWO(v, dq_shift) : v;
