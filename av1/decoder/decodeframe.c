@@ -1954,11 +1954,6 @@ static void get_tile_buffers(AV1Decoder *pbi, const uint8_t *data,
   const int tg_size_bit_offset = pbi->tg_size_bit_offset;
 #endif
 
-#if CONFIG_DEPENDENT_HORZTILES
-  int tile_group_start_col = 0;
-  int tile_group_start_row = 0;
-#endif
-
 #if CONFIG_SIMPLE_BWD_ADAPT
   size_t max_tile_size = 0;
   cm->largest_tile_id = 0;
@@ -1981,21 +1976,11 @@ static void get_tile_buffers(AV1Decoder *pbi, const uint8_t *data,
                            "Data ended before all tiles were read.");
       buf->col = c;
 #if CONFIG_OBU
-#if CONFIG_DEPENDENT_HORZTILES
-      if (tc == startTile) {
-        tile_group_start_row = r;
-        tile_group_start_col = c;
-      }
-#endif  // CONFIG_DEPENDENT_HORZTILES
 #else   // CONFIG_OBU
       if (hdr_offset) {
         init_read_bit_buffer(pbi, &rb_tg_hdr, data, data_end, clear_data);
         rb_tg_hdr.bit_offset = tg_size_bit_offset;
         read_tile_group_range(pbi, &rb_tg_hdr);
-#if CONFIG_DEPENDENT_HORZTILES
-        tile_group_start_row = r;
-        tile_group_start_col = c;
-#endif
       }
 #endif  // CONFIG_OBU
       first_tile_in_tg += tc == first_tile_in_tg ? pbi->tg_size : 0;
@@ -2003,10 +1988,6 @@ static void get_tile_buffers(AV1Decoder *pbi, const uint8_t *data,
       get_tile_buffer(data_end, pbi->tile_size_bytes, is_last,
                       &pbi->common.error, &data, pbi->decrypt_cb,
                       pbi->decrypt_state, buf);
-#if CONFIG_DEPENDENT_HORZTILES
-      cm->tile_group_start_row[r][c] = tile_group_start_row;
-      cm->tile_group_start_col[r][c] = tile_group_start_col;
-#endif
 #if CONFIG_SIMPLE_BWD_ADAPT
       if (buf->size > max_tile_size) {
         max_tile_size = buf->size;
@@ -2184,7 +2165,7 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
       av1_tile_set_col(&tile_info, cm, col);
 
 #if CONFIG_DEPENDENT_HORZTILES
-      av1_tile_set_tg_boundary(&tile_info, cm, tile_row, tile_col);
+      av1_tile_set_tg_boundary(&tile_info, cm, tile_row);
       if (!cm->dependent_horz_tiles || tile_row == 0 ||
           tile_info.tg_horz_boundary) {
         av1_zero_above_context(cm, tile_info.mi_col_start,

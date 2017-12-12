@@ -494,8 +494,6 @@ typedef struct AV1Common {
 
 #if CONFIG_DEPENDENT_HORZTILES
   int dependent_horz_tiles;
-  int tile_group_start_row[MAX_TILE_ROWS][MAX_TILE_COLS];
-  int tile_group_start_col[MAX_TILE_ROWS][MAX_TILE_COLS];
 #endif
 #if CONFIG_LOOPFILTERING_ACROSS_TILES
   int loop_filter_across_tiles_enabled;

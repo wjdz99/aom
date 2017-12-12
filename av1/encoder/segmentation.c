@@ -326,7 +326,7 @@ void av1_choose_segmap_coding_method(AV1_COMMON *cm, MACROBLOCKD *xd) {
       MODE_INFO **mi_ptr;
       av1_tile_set_col(&tile_info, cm, tile_col);
 #if CONFIG_DEPENDENT_HORZTILES
-      av1_tile_set_tg_boundary(&tile_info, cm, tile_row, tile_col);
+      av1_tile_set_tg_boundary(&tile_info, cm, tile_row);
 #endif
       mi_ptr = cm->mi_grid_visible + tile_info.mi_row_start * cm->mi_stride +
                tile_info.mi_col_start;
