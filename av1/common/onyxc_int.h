@@ -527,6 +527,8 @@ typedef struct AV1Common {
   // each keyframe and not used afterwards
   aom_prob kf_y_prob[INTRA_MODES][INTRA_MODES][INTRA_MODES - 1];
   WarpedMotionParams global_motion[TOTAL_REFS_PER_FRAME];
+  WarpedMotionParams global_motion_refs[TOTAL_GM_REFS];
+  int num_gm_refs;
 
   BLOCK_SIZE sb_size;  // Size of the superblock used for this frame
   int mib_size;        // Size of the superblock in units of MI blocks

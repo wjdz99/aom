@@ -2152,11 +2152,13 @@ int main(int argc, const char **argv_) {
                          frames_in);
           }
         }
+        printf("encode finished~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
 #else
         aom_usec_timer_start(&timer);
         FOREACH_STREAM(stream, streams) {
           encode_frame(stream, &global, frame_avail ? &raw : NULL, frames_in);
         }
+        printf("encode finished~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
 #endif
         aom_usec_timer_mark(&timer);
         cx_time += aom_usec_timer_elapsed(&timer);
@@ -2167,6 +2169,7 @@ int main(int argc, const char **argv_) {
         FOREACH_STREAM(stream, streams) {
           get_cx_data(stream, &global, &got_data);
         }
+        printf("decode finished~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
 
         if (!got_data && input.length && streams != NULL &&
             !streams->frames_out) {

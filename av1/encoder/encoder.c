@@ -5099,6 +5099,13 @@ static void encode_with_recode_loop(AV1_COMP *cpi, size_t *size,
 #endif
     }
   } while (loop);
+  // Update global references
+  for (int frame = LAST_FRAME; frame <= ALTREF_FRAME; ++frame) {
+    // If a set of parameters was used, save it in the gm reference list
+    if (cm->global_motion[frame].wmtype != IDENTITY && cpi->oxcf.pass != 1)
+      add_gm_ref(cm->global_motion_refs, cm->global_motion[frame],
+                 &cm->num_gm_refs);
+  }
 }
 
 static int get_ref_frame_flags(const AV1_COMP *cpi) {

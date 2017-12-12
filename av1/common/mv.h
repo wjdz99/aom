@@ -12,6 +12,8 @@
 #ifndef AV1_COMMON_MV_H_
 #define AV1_COMMON_MV_H_
 
+#include <limits.h>
+
 #include "av1/common/common.h"
 #include "av1/common/common_data.h"
 #include "aom_dsp/aom_filter.h"
@@ -89,6 +91,8 @@ typedef enum {
 #define GLOBAL_TYPE_BITS (get_msb(2 * GLOBAL_TRANS_TYPES - 3))
 #endif  // GLOBAL_TRANS_TYPES > 4
 
+#define MAX_OFFSET_DIFF 10
+
 typedef struct {
   int global_warp_allowed;
   int local_warp_allowed;
@@ -106,6 +110,7 @@ typedef struct {
   TransformationType wmtype;
   int32_t wmmat[8];
   int16_t alpha, beta, gamma, delta;
+  int8_t ref_dist;
   int8_t invalid;
 } WarpedMotionParams;
 
@@ -115,6 +120,7 @@ static const WarpedMotionParams default_warp_params = {
   { 0, 0, (1 << WARPEDMODEL_PREC_BITS), 0, 0, (1 << WARPEDMODEL_PREC_BITS), 0,
     0 },
   0, 0, 0, 0,
+  0,
   0,
 };
 /* clang-format on */
@@ -177,6 +183,103 @@ static const WarpedMotionParams default_warp_params = {
 
 // Use global motion parameters for sub8x8 blocks
 #define GLOBAL_SUB8X8_USED 0
+
+static INLINE void add_gm_ref(WarpedMotionParams *gm_refs, WarpedMotionParams gm,
+                              int *num_refs) {
+  // TODO(sarahparker) there should be a better way to decide what to do when the list
+  // is full
+  if (*num_refs == (TOTAL_GM_REFS - 1))
+    return;
+  // TODO(sarahparker) this should add to the list based on ref dist
+  for (int i = 0; i <= *num_refs; i++) {
+    if (gm_refs[i].ref_dist == gm.ref_dist) {
+      gm_refs[i] = gm;
+      return;
+    }
+  }
+  gm_refs[(*num_refs)++] = gm;
+}
+
+// cur_dist is the absolute value distance from the current frame and the ref
+// ref_dist is the absolute value distance from the ref frame to its ref
+static void scale_params(WarpedMotionParams *gm_ref, WarpedMotionParams *gm,
+                         int direction, int cur_dist, int ref_dist) {
+  static const int max_trans_model_params[TRANS_TYPES] = { 0, 2, 4, 6 };
+  int n_params = max_trans_model_params[gm_ref->wmtype];
+  const int scale_vals[3] = { GM_TRANS_PREC_DIFF, GM_ALPHA_PREC_DIFF,
+                              GM_ROW3HOMO_PREC_DIFF };
+  const int clamp_vals[3] = { GM_TRANS_MAX, GM_ALPHA_MAX, GM_ROW3HOMO_MAX };
+  // TODO(sarahparker) should we approx the error here?
+  const double scale = (double)(cur_dist - ref_dist) / ref_dist;
+  const int scale_sign = (cur_dist < ref_dist) * -1;
+  memcpy(gm, gm_ref, sizeof(*gm));
+
+  for (int param_index = 0; param_index < n_params; param_index++) {
+    // type of param: 0 - translation, 1 - affine, 2 - homography
+    const int param_type = (param_index < 2 ? 0 : (param_index < 6 ? 1 : 2));
+    const int is_one_centered = (param_index == 2 || param_index == 5);
+    int param_value = gm_ref->wmmat[param_index];
+    const int round_sign = -1 * ((param_value * scale_sign) < 0);
+    // Make parameter zero-centered and offset the shift that was done to make
+    // it compatible with the warped model
+    param_value = (param_value - (is_one_centered << WARPEDMODEL_PREC_BITS)) >>
+                  scale_vals[param_type];
+    // Add desired offset to the rescaled/zero-centered parameter
+    //TODO
+    param_value += (int32_t)(param_value * scale + round_sign * 0.5);
+    // Clamp the parameter so it does not overflow the number of bits allotted
+    // to it in the bitstream
+    param_value = (int32_t)clamp(param_value, -clamp_vals[param_type],
+                                 clamp_vals[param_type]);
+    // Rescale the parameter to WARPEDMODEL_PRECISION_BITS so it is compatible
+    // with the warped motion library
+    param_value *= (1 << scale_vals[param_type]);
+
+    // Undo the zero-centering step if necessary
+    param_value += (is_one_centered << WARPEDMODEL_PREC_BITS);
+
+    gm->wmmat[param_index] = (param_value ^ direction) - direction;
+  }
+  gm->ref_dist = cur_dist;
+}
+
+static INLINE int get_gm_ref(WarpedMotionParams *gm_refs,
+                             WarpedMotionParams *gm,
+                             int error_resilient, int num_gm_refs,
+                             int cur_ref_dist) {
+  if (error_resilient || cur_ref_dist == INT_MAX || !num_gm_refs) {
+    memcpy(gm, &default_warp_params, sizeof(*gm));
+    return 0;
+  }
+  // get the reference's reference that is closest to the current
+  // frame. The name rref corresponds to one of the references
+  // used by the reference for the current frame.
+  int offset_diff;
+  int min_offset_diff = INT32_MAX;
+  int closest_ref = 0;
+  for (int ref = 0; ref < num_gm_refs; ref++) {
+    // get the offset between the current frame and the rref
+    offset_diff = abs(cur_ref_dist - gm_refs[ref].ref_dist);
+    // if this is the closest rref to the current frame, select
+    // its global motion model to scale
+    if (offset_diff < min_offset_diff) {
+      min_offset_diff = offset_diff;
+      closest_ref = ref;
+    }
+  }
+  // Return early if we found a reference set of params with the same dist as
+  // the current frame
+  if (min_offset_diff == 0) {
+    memcpy(gm, &gm_refs[closest_ref], sizeof(*gm));
+    return 1;
+  }
+  if (abs(min_offset_diff) > MAX_OFFSET_DIFF) return 0;
+  const int ref_ref_dist = gm_refs[closest_ref].ref_dist;
+  const int flip_dir = (cur_ref_dist ^ ref_ref_dist) < 0;
+  scale_params(&gm_refs[closest_ref], gm, -1 * flip_dir,
+               cur_ref_dist, ref_ref_dist);
+  return 1;
+}
 
 static INLINE int block_center_x(int mi_col, BLOCK_SIZE bs) {
   const int bw = block_size_wide[bs];
