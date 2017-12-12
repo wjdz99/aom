@@ -2509,8 +2509,13 @@ static void read_global_motion(AV1_COMMON *cm, struct aom_read_bit_buffer *rb) {
            cm->global_motion[frame].wmmat[3]);
            */
   }
-  memcpy(cm->cur_frame->global_motion, cm->global_motion,
-         TOTAL_REFS_PER_FRAME * sizeof(WarpedMotionParams));
+  // Update global references
+  for (frame = LAST_FRAME; frame <= ALTREF_FRAME; ++frame) {
+    // If a set of parameters was used, save it in the gm reference list
+    if (cm->global_motion[frame].wmtype != IDENTITY)
+      add_gm_ref(cm->global_motion_refs, cm->global_motion[frame],
+                 &cm->num_gm_refs);
+  }
 }
 
 static size_t read_uncompressed_header(AV1Decoder *pbi,
