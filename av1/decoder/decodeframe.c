@@ -2473,12 +2473,13 @@ static int read_global_motion_params(WarpedMotionParams *params,
 
 static void read_global_motion(AV1_COMMON *cm, struct aom_read_bit_buffer *rb) {
   int frame;
+  WarpedMotionParams ref_params;
   for (frame = LAST_FRAME; frame <= ALTREF_FRAME; ++frame) {
-    const WarpedMotionParams *ref_params =
-        cm->error_resilient_mode ? &default_warp_params
-                                 : &cm->prev_frame->global_motion[frame];
+    int cur_ref_dist = get_ref_frame_dist(cm, frame);
+    get_gm_ref(cm->global_motion_refs, ref_params,
+               cm->error_resilient_mode, cm->num_gm_refs, cur_ref_dist);
     int good_params = read_global_motion_params(
-        &cm->global_motion[frame], ref_params, rb, cm->allow_high_precision_mv);
+        &cm->global_motion[frame], &ref_params, rb, cm->allow_high_precision_mv);
     if (!good_params) {
 #if WARPED_MOTION_DEBUG
       printf("Warning: unexpected global motion shear params from aomenc\n");
@@ -2509,8 +2510,13 @@ static void read_global_motion(AV1_COMMON *cm, struct aom_read_bit_buffer *rb) {
            cm->global_motion[frame].wmmat[3]);
            */
   }
-  memcpy(cm->cur_frame->global_motion, cm->global_motion,
-         TOTAL_REFS_PER_FRAME * sizeof(WarpedMotionParams));
+  // Update global references
+  for (frame = LAST_FRAME; frame <= ALTREF_FRAME; ++frame) {
+    // If a set of parameters was used, save it in the gm reference list
+    if (cm->global_motion[frame].wmtype != IDENTITY)
+      add_gm_ref(cm->global_motion_refs, cm->global_motion[frame],
+                 &cm->num_gm_refs);
+  }
 }
 
 static size_t read_uncompressed_header(AV1Decoder *pbi,

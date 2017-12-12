@@ -623,6 +623,8 @@ typedef enum ATTRIBUTE_PACKED {
 #define DELTA_LF_PROBS (DELTA_LF_SMALL)
 #define DEFAULT_DELTA_LF_RES 2
 #endif
+//TODO(sarahparker) this should not be so high
+#define TOTAL_GM_REFS 40
 
 /* Segment Feature Masks */
 #define MAX_MV_REF_CANDIDATES 2

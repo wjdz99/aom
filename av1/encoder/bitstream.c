@@ -3635,11 +3635,12 @@ static void write_global_motion(AV1_COMP *cpi,
                                 struct aom_write_bit_buffer *wb) {
   AV1_COMMON *const cm = &cpi->common;
   int frame;
+  WarpedMotionParams ref_params;
   for (frame = LAST_FRAME; frame <= ALTREF_FRAME; ++frame) {
-    const WarpedMotionParams *ref_params =
-        cm->error_resilient_mode ? &default_warp_params
-                                 : &cm->prev_frame->global_motion[frame];
-    write_global_motion_params(&cm->global_motion[frame], ref_params, wb,
+    int cur_ref_dist = get_ref_frame_dist(cm, frame);
+    get_gm_ref(cm->global_motion_refs, ref_params,
+               cm->error_resilient_mode, cm->num_gm_refs, cur_ref_dist);
+    write_global_motion_params(&cm->global_motion[frame], &ref_params, wb,
                                cm->allow_high_precision_mv);
     // TODO(sarahparker, debargha): The logic in the commented out code below
     // does not work currently and causes mismatches when resize is on.
@@ -3663,6 +3664,13 @@ static void write_global_motion(AV1_COMP *cpi,
            cm->global_motion[frame].wmmat[1], cm->global_motion[frame].wmmat[2],
            cm->global_motion[frame].wmmat[3]);
            */
+  }
+  // Update global references
+  for (frame = LAST_FRAME; frame <= ALTREF_FRAME; ++frame) {
+    // If a set of parameters was used, save it in the gm reference list
+    if (cm->global_motion[frame].wmtype != IDENTITY)
+      add_gm_ref(cm->global_motion_refs, cm->global_motion[frame],
+                 &cm->num_gm_refs);
   }
 }
 
