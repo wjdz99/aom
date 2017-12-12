@@ -3664,6 +3664,13 @@ static void write_global_motion(AV1_COMP *cpi,
            cm->global_motion[frame].wmmat[3]);
            */
   }
+  // Update global references
+  for (frame = LAST_FRAME; frame <= ALTREF_FRAME; ++frame) {
+    // If a set of parameters was used, save it in the gm reference list
+    if (cm->global_motion[frame].wmtype != IDENTITY)
+      add_gm_ref(cm->global_motion_refs, cm->global_motion[frame],
+                 &cm->num_gm_refs);
+  }
 }
 
 #if !CONFIG_OBU

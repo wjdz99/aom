@@ -89,6 +89,8 @@ typedef enum {
 #define GLOBAL_TYPE_BITS (get_msb(2 * GLOBAL_TRANS_TYPES - 3))
 #endif  // GLOBAL_TRANS_TYPES > 4
 
+#define MAX_OFFSET_DIFF 10
+
 typedef struct {
   int global_warp_allowed;
   int local_warp_allowed;
@@ -106,6 +108,7 @@ typedef struct {
   TransformationType wmtype;
   int32_t wmmat[8];
   int16_t alpha, beta, gamma, delta;
+  int8_t ref_dist;
   int8_t invalid;
 } WarpedMotionParams;
 
@@ -116,8 +119,42 @@ static const WarpedMotionParams default_warp_params = {
     0 },
   0, 0, 0, 0,
   0,
+  0,
 };
 /* clang-format on */
+
+static INLINE void add_gm_ref(WarpedMotionParams *gm_refs, WarpedMotionParams gm,
+                              int *num_refs) {
+  // TODO(sarahparker) this should add to the list based on ref dist
+  if (*num_refs == (TOTAL_GM_REFS - 1))
+    gm_refs[TOTAL_GM_REFS - 1] = gm;
+  else
+    gm_refs[*num_refs++] = gm;
+}
+
+static INLINE int get_gm_ref(WarpedMotionParams *gm_refs, WarpedMotionParams gm,
+                             int num_gm_refs, int cur_ref_dist) {
+// get the reference's reference that is closest to the current
+  // frame. The name rref corresponds to one of the references
+  // used by the reference for the current frame.
+  int offset_diff;
+  int min_offset_diff = INT32_MAX;
+  int closest_ref = 0;
+  for (int ref = 0; i < num_gm_refs; i++) {
+    // get the offset between the current frame and the rref
+    offset_diff = cur_ref_dist - gm_refs[ref].ref_dist;
+    // if this is the closest rref to the current frame, select
+    // its global motion model to scale
+    if (abs(offset_diff) < min_offset_diff) {
+      min_offset_diff = offset_diff;
+      closest_ref = ref;
+    }
+  }
+  gm.ref_dist = cur_ref_dist;
+  if (abs(min_offset_diff) > MAX_OFFSET_DIFF) return 0;
+  //return scale_params(gm, gm_refs[closest_ref], offset_diff); // TODO(sarahparker) implement
+  return 1;
+}
 
 // The following constants describe the various precisions
 // of different parameters in the global motion experiment.
