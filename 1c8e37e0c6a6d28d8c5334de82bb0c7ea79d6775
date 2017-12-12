@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "1b60164f_b21b693f",
+        "filename": "av1/common/restoration.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1370,
+      "author": {
+        "id": 7560
+      },
+      "writtenOn": "2017-12-12T09:40:42Z",
+      "side": 1,
+      "message": "You\u0027re right, it won\u0027t. There\u0027s a follow-up patch (https://aomedia-review.googlesource.com/c/aom/+/37581) that removes it.",
+      "parentUuid": "b8bcf9e4_2acee849",
+      "range": {
+        "startLine": 1365,
+        "startChar": 0,
+        "endLine": 1370,
+        "endChar": 3
+      },
+      "revId": "1c8e37e0c6a6d28d8c5334de82bb0c7ea79d6775",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "57f32932_3aa22332",
         "filename": "av1/encoder/encoder.c",
         "patchSetId": 1
@@ -36,6 +60,30 @@
       "writtenOn": "2017-12-11T20:07:44Z",
       "side": 1,
       "message": "Is there a reason this is passed individually when the entire cm struct is also being passed?",
+      "range": {
+        "startLine": 4768,
+        "startChar": 63,
+        "endLine": 4768,
+        "endChar": 75
+      },
+      "revId": "1c8e37e0c6a6d28d8c5334de82bb0c7ea79d6775",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "de375db4_ab480c9a",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 4768,
+      "author": {
+        "id": 7560
+      },
+      "writtenOn": "2017-12-12T09:40:42Z",
+      "side": 1,
+      "message": "Probably only a historical one. I\u0027ll post a follow-up patch to remove that.",
+      "parentUuid": "57f32932_3aa22332",
       "range": {
         "startLine": 4768,
         "startChar": 63,
