@@ -1653,7 +1653,6 @@ static void save_deblock_boundary_lines(
     int stripe, int use_highbd, int is_above,
     RestorationStripeBoundaries *boundaries) {
   const int is_uv = plane > 0;
-  const int src_width = frame->crop_widths[is_uv];
   const uint8_t *src_buf = REAL_PTR(use_highbd, frame->buffers[plane]);
   const int src_stride = frame->strides[is_uv] << use_highbd;
   const uint8_t *src_rows = src_buf + row * src_stride;
@@ -1676,28 +1675,35 @@ static void save_deblock_boundary_lines(
 #if CONFIG_HORZONLY_FRAME_SUPERRES
   const int ss_x = is_uv && cm->subsampling_x;
   const int upscaled_width = (cm->superres_upscaled_width + ss_x) >> ss_x;
-  const int step = av1_get_upscale_convolve_step(src_width, upscaled_width);
-#if CONFIG_HIGHBITDEPTH
-  if (use_highbd)
-    av1_highbd_convolve_horiz_rs(
-        (uint16_t *)src_rows, src_stride >> 1, (uint16_t *)bdry_rows,
-        bdry_stride >> 1, upscaled_width, RESTORATION_CTX_VERT,
-        &av1_resize_filter_normative[0][0], UPSCALE_NORMATIVE_TAPS, 0, step,
-        cm->bit_depth);
-  else
-#endif  // CONFIG_HIGHBITDEPTH
-    av1_convolve_horiz_rs(src_rows, src_stride, bdry_rows, bdry_stride,
-                          upscaled_width, RESTORATION_CTX_VERT,
-                          &av1_resize_filter_normative[0][0],
-                          UPSCALE_NORMATIVE_TAPS, 0, step);
 #else
+  const int upscaled_width = frame->crop_widths[is_uv];
   (void)cm;
-  const int upscaled_width = src_width;
-  const int line_bytes = src_width << use_highbd;
-  for (int i = 0; i < RESTORATION_CTX_VERT; i++) {
-    memcpy(bdry_rows + i * bdry_stride, src_rows + i * src_stride, line_bytes);
+#endif
+
+#if CONFIG_HORZONLY_FRAME_SUPERRES
+  if (cm->superres_scale_denominator > SCALE_NUMERATOR) {
+#if CONFIG_HIGHBITDEPTH
+    if (use_highbd)
+      av1_upscale_normative_rows(
+          cm, CONVERT_TO_BYTEPTR(src_rows), frame->strides[is_uv],
+          CONVERT_TO_BYTEPTR(bdry_rows), boundaries->stripe_boundary_stride,
+          plane, RESTORATION_CTX_VERT);
+    else
+#endif
+      av1_upscale_normative_rows(cm, src_rows, frame->strides[is_uv], bdry_rows,
+                                 boundaries->stripe_boundary_stride, plane,
+                                 RESTORATION_CTX_VERT);
+  } else {
+#endif  // CONFIG_HORZONLY_FRAME_SUPERRES
+    const int line_bytes = upscaled_width << use_highbd;
+    for (int i = 0; i < RESTORATION_CTX_VERT; i++) {
+      memcpy(bdry_rows + i * bdry_stride, src_rows + i * src_stride,
+             line_bytes);
+    }
+#if CONFIG_HORZONLY_FRAME_SUPERRES
   }
 #endif  // CONFIG_HORZONLY_FRAME_SUPERRES
+
   extend_lines(bdry_rows, upscaled_width, RESTORATION_CTX_VERT, bdry_stride,
                RESTORATION_EXTRA_HORZ, use_highbd);
 }
@@ -1725,8 +1731,7 @@ static void save_cdef_boundary_lines(const YV12_BUFFER_CONFIG *frame,
   const int upscaled_width = (cm->superres_upscaled_width + ss_x) >> ss_x;
 #else
   (void)cm;
-  const int src_width = frame->crop_widths[is_uv];
-  const int upscaled_width = src_width;
+  const int upscaled_width = frame->crop_widths[is_uv];
 #endif  // CONFIG_HORZONLY_FRAME_SUPERRES
   const int line_bytes = upscaled_width << use_highbd;
   for (int i = 0; i < RESTORATION_CTX_VERT; i++) {
