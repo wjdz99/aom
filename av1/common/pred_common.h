@@ -103,7 +103,9 @@ static INLINE int get_comp_index_context(const AV1_COMMON *cm,
   const MODE_INFO *const left_mi = xd->left_mi;
 
   int above_ctx = 0, left_ctx = 0;
-  const int offset = (fwd == bck);
+  int offset = (fwd > bck) ? 0 : 1;
+
+  if (fwd < (bck >> 1) + bck && bck < (fwd >> 1) + fwd) offset = 2;
 
   if (above_mi) {
     const MB_MODE_INFO *above_mbmi = &above_mi->mbmi;

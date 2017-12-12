@@ -1879,6 +1879,7 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
   const int is_compound = has_second_ref(mbmi);
 
 #if CONFIG_JNT_COMP
+  mbmi->compound_idx = 1;
   if (is_compound) {
     const int comp_index_ctx = get_comp_index_context(cm, xd);
     mbmi->compound_idx = aom_read_symbol(
@@ -2222,7 +2223,12 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
       && !mbmi->skip_mode
 #endif  // CONFIG_EXT_SKIP
       ) {
-    if (is_any_masked_compound_used(bsize)) {
+#if CONFIG_JNT_COMP
+    if (is_any_masked_compound_used(bsize) && mbmi->compound_idx)
+#else
+    if (is_any_masked_compound_used(bsize))
+#endif
+    {
       if (cm->allow_masked_compound) {
         if (!is_interinter_compound_used(COMPOUND_WEDGE, bsize))
           mbmi->interinter_compound_type =
