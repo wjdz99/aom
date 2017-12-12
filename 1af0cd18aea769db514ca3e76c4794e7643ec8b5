@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7f506e25_2d8738ab",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2823,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-12-12T00:59:59Z",
+      "side": 1,
+      "message": "So, this block was moved to a different function now?\nCan you explain why you need this check here and not in the other function?",
+      "revId": "1af0cd18aea769db514ca3e76c4794e7643ec8b5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
