@@ -566,15 +566,6 @@ int main(int argc, const char **argv) {
 /* Compound single ref inter mode */
 
 /* Transform size */
-#if CONFIG_RECT_TX_EXT
-  cts_each_dim[0] = 2;
-  optimize_entropy_table(&fc.quarter_tx_size[0], probsfile, 1, cts_each_dim,
-                         NULL, 1,
-                         "static const aom_prob default_quarter_tx_size_prob");
-  optimize_cdf_table(
-      &fc.quarter_tx_size[0], probsfile, 1, cts_each_dim,
-      "static const aom_cdf_prob default_quarter_tx_size_cdf[CDF_SIZE(2)]");
-#endif
   cts_each_dim[0] = TXFM_PARTITION_CONTEXTS;
   cts_each_dim[1] = 2;
   optimize_cdf_table(
