@@ -72,15 +72,12 @@ void av1_resize_and_extend_frame(const YV12_BUFFER_CONFIG *src,
 #endif  // CONFIG_HIGHBITDEPTH
 
 #if CONFIG_HORZONLY_FRAME_SUPERRES
-#if CONFIG_HIGHBITDEPTH
-void av1_upscale_normative_and_extend_frame(const YV12_BUFFER_CONFIG *src,
-                                            YV12_BUFFER_CONFIG *dst,
-                                            int superres_denom, int bd);
-#else
-void av1_upscale_normative_and_extend_frame(const YV12_BUFFER_CONFIG *src,
-                                            YV12_BUFFER_CONFIG *dst,
-                                            int superres_denom);
-#endif  // CONFIG_HIGHBITDEPTH
+void av1_upscale_normative_rows(const AV1_COMMON *cm, const uint8_t *src,
+                                int src_stride, uint8_t *dst, int dst_stride,
+                                int plane, int rows);
+void av1_upscale_normative_and_extend_frame(const AV1_COMMON *cm,
+                                            const YV12_BUFFER_CONFIG *src,
+                                            YV12_BUFFER_CONFIG *dst);
 #endif  // CONFIG_HORZONLY_FRAME_SUPERRES
 
 YV12_BUFFER_CONFIG *av1_scale_if_required(AV1_COMMON *cm,
@@ -110,14 +107,14 @@ static INLINE int av1_superres_unscaled(const AV1_COMMON *cm) {
 }
 #endif  // CONFIG_HORZONLY_FRAME_SUPERRES
 
-#if CONFIG_HORZONLY_FRAME_SUPERRES && CONFIG_LOOP_RESTORATION
+#if CONFIG_HORZONLY_FRAME_SUPERRES
 #define UPSCALE_NORMATIVE_TAPS 8
 
 extern const int16_t av1_resize_filter_normative[1 << RS_SUBPEL_BITS]
                                                 [UPSCALE_NORMATIVE_TAPS];
 
 int32_t av1_get_upscale_convolve_step(int in_length, int out_length);
-#endif  // CONFIG_HORZONLY_FRAME_SUPERRES && CONFIG_LOOP_RESTORATION
+#endif  // CONFIG_HORZONLY_FRAME_SUPERRES
 
 #ifdef __cplusplus
 }  // extern "C"
