@@ -516,19 +516,6 @@ static INLINE int av1_is_dv_valid(const MV dv, const TileInfo *const tile,
   const int src_sb64 = src_sb_row * total_sb64_per_row + src_sb64_col;
   if (src_sb64 >= active_sb64 - INTRABC_DELAY_SB64) return 0;
 
-#if CONFIG_LPF_SB
-  // Because of loop filter, the last 8 rows of current superblock row can't be
-  // used as intrabc search area.
-  if ((src_bottom_edge >> 3) >=
-      (active_sb_row + 1) * sb_size - INTRABC_ROW_DELAY)
-    return 0;
-
-  // The last 8 rows of the above superblock is invalid
-  if ((src_bottom_edge >> 3) >= active_sb_row * sb_size - INTRABC_ROW_DELAY &&
-      (src_right_edge >> 3) >= (mi_col >> mib_size_log2) * sb_size)
-    return 0;
-#endif  // CONFIG_LPF_SB
-
 #if USE_WAVE_FRONT
   const int gradient = 1 + INTRABC_DELAY_SB64 + (sb_size > 64);
   const int wf_offset = gradient * (active_sb_row - src_sb_row);

@@ -4657,11 +4657,7 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
       || cm->single_tile_decoding
 #endif  // CONFIG_EXT_TILE
       ) {
-#if CONFIG_LPF_SB
-    if (!USE_LOOP_FILTER_SUPERBLOCK) no_loopfilter = 1;
-#else
     no_loopfilter = 1;
-#endif  // CONFIG_LPF_SB
 #if CONFIG_LOOP_RESTORATION
     no_restoration = 1;
 #endif  // CONFIG_LOOP_RESTORATION
@@ -4693,26 +4689,18 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
 
     aom_usec_timer_start(&timer);
 
-#if !CONFIG_LPF_SB
     av1_pick_filter_level(cpi->source, cpi, cpi->sf.lpf_pick);
-#endif
 
     aom_usec_timer_mark(&timer);
     cpi->time_pick_lpf += aom_usec_timer_elapsed(&timer);
   }
 
-#if !CONFIG_LPF_SB
 #if CONFIG_LOOPFILTER_LEVEL
   if (lf->filter_level[0] || lf->filter_level[1])
 #else
   if (lf->filter_level > 0)
 #endif
-#endif  // CONFIG_LPF_SB
   {
-#if CONFIG_LPF_SB
-    av1_loop_filter_frame(cm->frame_to_show, cm, xd, lf->filter_level, 0, 0, 0,
-                          0);
-#else
 #if CONFIG_LOOPFILTER_LEVEL
     av1_loop_filter_frame(cm->frame_to_show, cm, xd, lf->filter_level[0],
                           lf->filter_level[1], 0, 0);
@@ -4724,7 +4712,6 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
 #else
     av1_loop_filter_frame(cm->frame_to_show, cm, xd, lf->filter_level, 0, 0);
 #endif  // CONFIG_LOOPFILTER_LEVEL
-#endif  // CONFIG_LPF_SB
   }
 
 #if CONFIG_STRIPED_LOOP_RESTORATION
