@@ -107,6 +107,24 @@
     },
     {
       "key": {
+        "uuid": "8e71964e_9c9f6573",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 5361,
+      "author": {
+        "id": 6340
+      },
+      "writtenOn": "2017-12-12T15:31:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7080bd2c_493716fd",
+      "revId": "4861772c37387f2e921834967ab0c404dd36affc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5c1be7a5_04548545",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 13
