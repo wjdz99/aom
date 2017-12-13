@@ -9544,6 +9544,14 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
   x->skip_mode_index = -1;
 #endif  // CONFIG_EXT_SKIP
 
+#if CONFIG_SKIP_REF
+  int64_t dist_refs[TOTAL_REFS_PER_FRAME];
+  int dist_order_refs[TOTAL_REFS_PER_FRAME];
+  int num_available_refs = 0;
+  memset(dist_refs, -1, sizeof(dist_refs));
+  memset(dist_order_refs, -1, sizeof(dist_order_refs));
+#endif
+
   for (midx = 0; midx < MAX_MODES; ++midx) {
     int mode_index;
     int mode_excluded = 0;
@@ -9565,6 +9573,18 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
     ref_frame = av1_mode_order[mode_index].ref_frame[0];
     second_ref_frame = av1_mode_order[mode_index].ref_frame[1];
     mbmi->ref_mv_idx = 0;
+
+#if CONFIG_SKIP_REF
+    if (ref_frame > INTRA_FRAME && second_ref_frame > INTRA_FRAME) {
+      if (num_available_refs > 2) {
+        if ((ref_frame == dist_order_refs[0] &&
+             second_ref_frame == dist_order_refs[1]) ||
+            (ref_frame == dist_order_refs[1] &&
+             second_ref_frame == dist_order_refs[0]))
+          continue;
+      }
+    }
+#endif
 
     if (ref_frame > INTRA_FRAME && second_ref_frame == INTRA_FRAME) {
       // Mode must by compatible
@@ -10371,6 +10391,33 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
         best_single_inter_rd = this_rd;
         best_single_inter_ref = mbmi->ref_frame[0];
       }
+#if CONFIG_SKIP_REF
+      dist_refs[ref_frame - LAST_FRAME] = distortion2;
+      dist_order_refs[ref_frame - LAST_FRAME] = ref_frame;
+
+      if (ref_frame == ALTREF_FRAME && this_mode == GLOBALMV) {
+        // bubble sort dist_refs and the order index
+        for (i = 0; i < TOTAL_REFS_PER_FRAME; ++i) {
+          for (k = i + 1; k < TOTAL_REFS_PER_FRAME; ++k) {
+            if (dist_refs[i] < dist_refs[k]) {
+              int64_t tmp_dist = dist_refs[i];
+              dist_refs[i] = dist_refs[k];
+              dist_refs[k] = tmp_dist;
+
+              int tmp_idx = dist_order_refs[i];
+              dist_order_refs[i] = dist_order_refs[k];
+              dist_order_refs[k] = tmp_idx;
+            }
+          }
+        }
+
+        for (i = 0; i < TOTAL_REFS_PER_FRAME; ++i) {
+          if (dist_refs[i] == -1) break;
+          num_available_refs = i;
+        }
+        num_available_refs++;
+      }
+#endif
     }
 
     if (!disable_skip && ref_frame == INTRA_FRAME) {
