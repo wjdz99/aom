@@ -97,6 +97,11 @@ typedef struct {
   int is_bipred_frame;
   int is_src_frame_ext_arf;
 
+#if CONFIG_FWD_KF
+  int is_fwd_kf_group;
+  int is_fwd_key_frame;
+#endif  // CONFIG_FWD_KF
+
   int avg_frame_bandwidth;  // Average frame size target for clip
   int min_frame_bandwidth;  // Minimum allocation used for any frame
   int max_frame_bandwidth;  // Maximum burst rate allowed for a frame.

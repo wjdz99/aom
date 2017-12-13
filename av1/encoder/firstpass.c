@@ -68,6 +68,12 @@
 #define NCOUNT_INTRA_FACTOR 3
 #define NCOUNT_FRAME_II_THRESH 5.0
 
+#if CONFIG_FWD_KF
+#define FWD_KF_DEBUG 1
+#else
+#define FWD_KF_DEBUG 0
+#endif  // CONFIG_FWD_KF
+
 #define DOUBLE_DIVIDE_CHECK(x) ((x) < 0 ? (x)-0.000001 : (x) + 0.000001)
 
 #if ARF_STATS_OUTPUT
@@ -1550,9 +1556,20 @@ static int64_t calculate_total_gf_group_bits(AV1_COMP *cpi,
                                ? twopass->kf_group_bits
                                : total_group_bits;
 
-  // Clip based on user supplied data rate variability limit.
-  if (total_group_bits > (int64_t)max_bits * rc->baseline_gf_interval)
-    total_group_bits = (int64_t)max_bits * rc->baseline_gf_interval;
+// Clip based on user supplied data rate variability limit.
+#if CONFIG_FWD_KF
+  // NOTE: When rc->is_fwd_kf_group is true, the value of
+  //       rc->baseline_gf_interval includes the extra fwd key-frame used as
+  //       ALTREF. For bit allocation, this fwd key-frame should be excluded
+  //       as it consumes the allocated bits from the next GF group, not the
+  //       current one.
+  const int frames_for_bit_alloc =
+      rc->baseline_gf_interval - rc->is_fwd_kf_group;
+#else
+  const int frames_for_bit_alloc = rc->baseline_gf_interval;
+#endif  // CONFIG_FWD_KF
+  if (total_group_bits > (int64_t)max_bits * frames_for_bit_alloc)
+    total_group_bits = (int64_t)max_bits * frames_for_bit_alloc;
 
   return total_group_bits;
 }
@@ -2211,8 +2228,19 @@ static void define_gf_group_structure(AV1_COMP *cpi) {
 
   // === [frame_index == 1] ===
   if (rc->source_alt_ref_pending) {
-    gf_group->update_type[frame_index] = ARF_UPDATE;
-    gf_group->rf_level[frame_index] = GF_ARF_STD;
+#if CONFIG_FWD_KF
+    // NOTE: If forward key-frame is used as ALTREF, update_type and rf_level
+    //       has been specified already.
+    if (rc->is_fwd_kf_group) {
+      assert(gf_group->update_type[frame_index] == FWD_KF_UPDATE);
+      assert(gf_group->rf_level[frame_index] == KF_STD);
+    } else {
+#endif  // CONFIG_FWD_KF
+      gf_group->update_type[frame_index] = ARF_UPDATE;
+      gf_group->rf_level[frame_index] = GF_ARF_STD;
+#if CONFIG_FWD_KF
+    }
+#endif  // CONFIG_FWD_KF
     gf_group->arf_src_offset[frame_index] =
         (unsigned char)(rc->baseline_gf_interval - 1);
 
@@ -2349,7 +2377,13 @@ static void define_gf_group_structure(AV1_COMP *cpi) {
   gf_group->arf_ref_idx[frame_index] = 0;
 
   if (rc->source_alt_ref_pending) {
-    gf_group->update_type[frame_index] = OVERLAY_UPDATE;
+#if CONFIG_FWD_KF
+    if (rc->is_fwd_kf_group)
+      gf_group->update_type[frame_index] = FWD_KF_OVERLAY_UPDATE;
+    else
+#endif  // CONFIG_FWD_KF
+      gf_group->update_type[frame_index] = OVERLAY_UPDATE;
+
     gf_group->rf_level[frame_index] = INTER_NORMAL;
 
     cpi->arf_pos_in_gf[0] = 1;
@@ -2410,16 +2444,30 @@ static void allocate_gf_group_bits(AV1_COMP *cpi, int64_t gf_group_bits,
     if (EOF == input_stats(twopass, &frame_stats)) return;
   }
 
-  // Deduct the boost bits for arf (or gf if it is not a key frame)
-  // from the group total.
-  if (rc->source_alt_ref_pending || !key_frame) total_group_bits -= gf_arf_bits;
+// Deduct the boost bits for arf (or gf if it is not a key frame)
+// from the group total.
+#if CONFIG_FWD_KF
+  // NOTE: If the current GF group uses forward key-frame, all the current
+  //       remaining bits are dedicated to the remaining frames of the group.
+  if ((rc->source_alt_ref_pending || !key_frame) && !rc->is_fwd_kf_group)
+#else
+  if (rc->source_alt_ref_pending || !key_frame)
+#endif  // CONFIG_FWD_KF
+    total_group_bits -= gf_arf_bits;
 
   frame_index++;
 
   // Store the bits to spend on the ARF if there is one.
   // === [frame_index == 1] ===
   if (rc->source_alt_ref_pending) {
-    gf_group->bit_allocation[frame_index] = gf_arf_bits;
+#if CONFIG_FWD_KF
+    // NOTE: If the current GF group uses forward key-frame, the bit allocation
+    //       has already been done for the current key frame.
+    if (rc->is_fwd_kf_group)
+      assert(gf_group->update_type[frame_index] == FWD_KF_UPDATE);
+    else
+#endif  // CONFIG_FWD_KF
+      gf_group->bit_allocation[frame_index] = gf_arf_bits;
 
     ++frame_index;
 
@@ -2722,7 +2770,15 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
 
   // Should we use the alternate reference frame.
   if (allow_alt_ref && (i < cpi->oxcf.lag_in_frames) &&
-      (i >= rc->min_gf_interval)) {
+#if CONFIG_FWD_KF
+      // TODO(zoeliu): For any forward key frame to be used as ALTREF, no
+      //               temporal filtering is applied, hence
+      //               cpi->oxcf.lags_in_frames could be set bigger.
+      (i >= rc->min_gf_interval || rc->is_fwd_kf_group)
+#else
+      (i >= rc->min_gf_interval)
+#endif  // CONFIG_FWD_KF
+          ) {
     // Calculate the boost for alt ref.
     rc->gfu_boost =
         calc_arf_boost(cpi, 0, (i - 1), (i - 1), &f_boost, &b_boost);
@@ -2752,6 +2808,22 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
 
   // Set the interval until the next gf.
   rc->baseline_gf_interval = i - (is_key_frame || rc->source_alt_ref_pending);
+#if CONFIG_FWD_KF
+  // NOTE(zoeliu): To test out the concept of Forward Key Frame (fwd-kf).
+  // if (rc->baseline_gf_interval < 4) rc->baseline_gf_interval = 4;
+
+  // NOTE: If fwd key-frame is used for the current GF group as ALTREF, the GF
+  //       interval should count it.
+  rc->baseline_gf_interval += rc->is_fwd_kf_group;
+#if FWD_KF_DEBUG
+  printf(
+      "\n[FWD-KEY-FRAME]***FIRSTPASS: Frame=%d, key_freq=%d, "
+      "auto_key=%d, frames_to_key=%d, baseline_gf_interval=%d\n",
+      cpi->common.current_video_frame, cpi->oxcf.key_freq, cpi->oxcf.auto_key,
+      rc->frames_to_key, rc->baseline_gf_interval);
+#endif  // FWD_KF_DEBUG
+#endif  // CONFIG_FWD_KF
+
   if (non_zero_stdev_count) avg_raw_err_stdev /= non_zero_stdev_count;
 
   // Disable extra altrefs and backward refs for "still" gf group:
@@ -2790,20 +2862,25 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   gf_group_bits = calculate_total_gf_group_bits(cpi, gf_group_err);
 
 #if GROUP_ADAPTIVE_MAXQ
-  // Calculate an estimate of the maxq needed for the group.
-  // We are more agressive about correcting for sections
-  // where there could be significant overshoot than for easier
-  // sections where we do not wish to risk creating an overshoot
-  // of the allocated bit budget.
-  if ((cpi->oxcf.rc_mode != AOM_Q) && (rc->baseline_gf_interval > 1)) {
+// Calculate an estimate of the maxq needed for the group.
+// We are more agressive about correcting for sections
+// where there could be significant overshoot than for easier
+// sections where we do not wish to risk creating an overshoot
+// of the allocated bit budget.
+#if CONFIG_FWD_KF
+  const int frames_for_bit_alloc =
+      rc->baseline_gf_interval - rc->is_fwd_kf_group;
+#else  // !CONFIG_FWD_KF
+  const int frames_for_bit_alloc = rc->baseline_gf_interval;
+#endif  // CONFIG_FWD_KF
+  if ((cpi->oxcf.rc_mode != AOM_Q) && (frames_for_bit_alloc > 1)) {
     const int vbr_group_bits_per_frame =
-        (int)(gf_group_bits / rc->baseline_gf_interval);
-    const double group_av_err = gf_group_raw_error / rc->baseline_gf_interval;
-    const double group_av_skip_pct =
-        gf_group_skip_pct / rc->baseline_gf_interval;
+        (int)(gf_group_bits / frames_for_bit_alloc);
+    const double group_av_err = gf_group_raw_error / frames_for_bit_alloc;
+    const double group_av_skip_pct = gf_group_skip_pct / frames_for_bit_alloc;
     const double group_av_inactive_zone =
         ((gf_group_inactive_zone_rows * 2) /
-         (rc->baseline_gf_interval * (double)cm->mb_rows));
+         (frames_for_bit_alloc * (double)cm->mb_rows));
 
     int tmp_q;
     // rc factor is a weight factor that corrects for local rate control drift.
@@ -2824,8 +2901,8 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
 #endif
 
   // Calculate the extra bits to be used for boosted frame(s)
-  gf_arf_bits = calculate_boost_bits(rc->baseline_gf_interval, rc->gfu_boost,
-                                     gf_group_bits);
+  gf_arf_bits =
+      calculate_boost_bits(frames_for_bit_alloc, rc->gfu_boost, gf_group_bits);
 
   // Adjust KF group bits and error remaining.
   twopass->kf_group_error_left -= (int64_t)gf_group_err;
@@ -2853,7 +2930,7 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   // Calculate a section intra ratio used in setting max loop filter.
   if (cpi->common.frame_type != KEY_FRAME) {
     twopass->section_intra_rating = calculate_section_intra_ratio(
-        start_pos, twopass->stats_in_end, rc->baseline_gf_interval);
+        start_pos, twopass->stats_in_end, frames_for_bit_alloc);
   }
 }
 
@@ -3094,6 +3171,28 @@ static void find_next_key_frame(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
     rc->next_key_frame_forced = 0;
   }
 
+#if FWD_KF_DEBUG
+  printf(
+      "\n[FWD-KEY-FRAME]***FIRSTPASS: Frame=%d, key_freq=%d, "
+      "auto_key=%d, frames_to_key=%d, next_key_frame_forced=%d\n",
+      cpi->common.current_video_frame, cpi->oxcf.key_freq, cpi->oxcf.key_freq,
+      rc->frames_to_key, rc->next_key_frame_forced);
+#endif  // FWD_KF_DEBUG
+
+#if CONFIG_FWD_KF
+  rc->is_fwd_kf_group = 0;
+  if (rc->next_key_frame_forced) {
+    // Check whether the next frame is the last frame in the sequence.
+    if ((twopass->stats_in + 1) >= twopass->stats_in_end &&  // end of sequence
+        rc->frames_to_key <= 4) {                            // NOTE: For debug
+      // NOTE: When the very last frame of the sequence is a key frame, it is
+      //       included within the current GF group, assuming the key frame
+      //       group is no greather than certain value.
+      rc->is_fwd_kf_group = 1;
+    }
+  }
+#endif  // CONFIG_FWD_KF
+
   // Calculate the number of bits that should be assigned to the kf group.
   if (twopass->bits_left > 0 && twopass->modified_error_left > 0.0) {
     // Maximum number of bits for a single normal frame (not key frame).
@@ -3185,6 +3284,16 @@ static void find_next_key_frame(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   gf_group->bit_allocation[0] = kf_bits;
   gf_group->update_type[0] = KF_UPDATE;
   gf_group->rf_level[0] = KF_STD;
+
+#if CONFIG_FWD_KF
+  // Save the bits to spend on the forward key frame.
+  if (rc->is_fwd_kf_group) {
+    // === FWD_KF ===
+    gf_group->bit_allocation[1] = kf_bits;
+    gf_group->update_type[1] = FWD_KF_UPDATE;
+    gf_group->rf_level[1] = KF_STD;
+  }
+#endif  // CONFIG_FWD_KF
 
   // Note the total error score of the kf group minus the key frame itself.
   twopass->kf_group_error_left = (int)(kf_group_err - kf_mod_err);
