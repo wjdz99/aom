@@ -5430,6 +5430,8 @@ static int cfl_rd_pick_alpha(MACROBLOCK *const x, const AV1_COMP *const cpi,
   assert(block_size_high[plane_bsize] == tx_size_high[tx_size]);
 #endif
 
+  xd->cfl.use_dc_pred_cache = 1;
+
   int rates[CFL_PRED_PLANES][CFL_MAGS_SIZE];
   int64_t dists[CFL_PRED_PLANES][CFL_MAGS_SIZE];
   mbmi->cfl_alpha_idx = 0;
@@ -5501,6 +5503,9 @@ static int cfl_rd_pick_alpha(MACROBLOCK *const x, const AV1_COMP *const cpi,
 #if CONFIG_DEBUG
   xd->cfl.rate = best_rate;
 #endif  // CONFIG_DEBUG
+  xd->cfl.use_dc_pred_cache = 0;
+  xd->cfl.dc_pred_is_cached[0] = 0;
+  xd->cfl.dc_pred_is_cached[1] = 0;
   return best_rate_overhead;
 }
 #endif  // CONFIG_CFL
