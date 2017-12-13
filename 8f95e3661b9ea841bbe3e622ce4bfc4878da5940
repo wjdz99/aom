@@ -19,6 +19,42 @@
     },
     {
       "key": {
+        "uuid": "7f5a25aa_aaa971c1",
+        "filename": "av1/common/daala_tx.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 3985,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-12-13T11:03:13Z",
+      "side": 1,
+      "message": "Yes, that was on the presentation from December 1st and unfortunately that conclusion was reached based on work to do the conversion to this new design only up to the 8-point DCT.  One of the problems I ran into was that (unlike the lifting based rotations) I needed to add these averaging steps to keep smaller 2-D transforms up to 64 coefficients fitting into 16-bits.  With the 4-point DST there was only 1 AVG step (see line 352 of daala_tx_kernels.h) and it didn\u0027t have a huge impact on round trip accuracy, but for the 16-point DST this required 7 AVG steps and was significant enough that I realized the transform reuse in this way would not work.\n\nSimilarly, I found that putting the Pi/4 rotation first in 4-point fDST (so it is last in the 4-point iDST) also made round trip transform accuracy worse since the larger rotation introduced error earlier on in the forward transform which was propagated through the other rotations.\n\nA little later I found that having Pi/4 rotations at the end of the fDST (and thus the beginning of the iDST) meant that I could change the DST designs so that the orthonormal and asymmetric N-point DST designs are exactly the same up to the constants used in those N/2 rotations.  This should hopefully reduce hardware design time and gate area, and partially make up for my bogus claim in the December 1st presentation.  I plan to present this in more detail on Friday.",
+      "parentUuid": "ac2e7b32_ba8cd589",
+      "revId": "8f95e3661b9ea841bbe3e622ce4bfc4878da5940",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2e4612e0_e6cb4031",
+        "filename": "av1/common/daala_tx.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 3985,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-12-13T11:03:13Z",
+      "side": 1,
+      "message": "Yes, that was on the presentation from December 1st and unfortunately that conclusion was reached based on work to do the conversion to this new design only up to the 8-point DCT.  One of the problems I ran into was that (unlike the lifting based rotations) I needed to add these averaging steps to keep smaller 2-D transforms up to 64 coefficients fitting into 16-bits.  With the 4-point DST there was only 1 AVG step and it didn\u0027t have a huge impact on round trip accuracy, but for the 16-point DST this required 7 AVG steps and was a significant enough problem that I realized the transform reuse in this way would not work.\n\nSimilarly, I found that putting the Pi/4 rotation first in 4-point fDST (so it is last in the 4-point iDST) also reduced round trip transform accuracy since the larger rotation introduced error earlier on in the forward transform that was propagated through the other rotations.\n\nLater I found that having Pi/4 rotations at the end of the fDST (and thus the beginning of the iDST) meant that I could change the DST designs so that the orthonormal and asymmetric N-point designs are exactly the same up to the constants used in those N/2 rotations.  This should hopefully reduce the design time, and gate area and partially make up for my bogus claim in the last presentation.  I plan to present this in more detail on Friday.",
+      "parentUuid": "ac2e7b32_ba8cd589",
+      "revId": "8f95e3661b9ea841bbe3e622ce4bfc4878da5940",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b73213fb_ac8cf5ea",
         "filename": "av1/common/daala_tx_kernels.h",
         "patchSetId": 12
@@ -36,6 +72,24 @@
     },
     {
       "key": {
+        "uuid": "6d3e68f9_5639efb8",
+        "filename": "av1/common/daala_tx_kernels.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-12-13T11:03:13Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "b73213fb_ac8cf5ea",
+      "revId": "8f95e3661b9ea841bbe3e622ce4bfc4878da5940",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "98ec78b8_9e5507e6",
         "filename": "av1/common/daala_tx_kernels.h",
         "patchSetId": 12
@@ -47,6 +101,24 @@
       "writtenOn": "2017-12-13T10:20:11Z",
       "side": 1,
       "message": "The breakdown of idct8 into idst4 and idct4 is really clear with this new code and very helpful for the analysis. I was just starting to analyze for implementation and notice that the idst4 is implemented with the rotation by pi/4 at the start and the fdst4 with the rotation by pi/4 at the end. As I understand it, dst4 type IV is self inverse and so the two could be swapped - so idst4 do the rotation by pi/4 at the end and fdst4 do the rotation by pi/4 at the start.\n\nThe reason I ask is that the VP9 transforms are all sequenced so that the inverse transforms all have the rotation by pi/4 at the end (in IDST or breakdown of IDCT). Thus I think we can save time on scheduling design if the fdst4 and idst4 are swapped. \n\nSo, is there a particular reason that the idst/fdst are this way around - rotation by pi/4 in idst at start, rotation by pi/4 in fdst at the end or could they be swapped?",
+      "revId": "8f95e3661b9ea841bbe3e622ce4bfc4878da5940",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "49b2d021_1c3f8ec2",
+        "filename": "av1/common/daala_tx_kernels.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 485,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-12-13T11:03:13Z",
+      "side": 1,
+      "message": "Yes, I answered this earlier in my other comment but ultimately the reason I chose this design was so that the N/2 rotations which span the entire set of transform inputs in the very first step of the N-point asymmetric DST could absorb the asymmetric scaling introduced in the parent 2*N-point DCT.\n\nYou are right that the DST is its own inverse so we could just swap the two implementations, but I would need to redo my analysis to see if this causes any problems with keeping the smaller 2-D transforms fitting in 16-bits.  I would also need to take a close look at how we unified the orthonormal and asymmetric transforms to make sure they would still be the same up to multiplication constants in those N/2 rotations.\n\nCan you give me an idea of how important this change is?  I can try to reproduce some of my experiments and show why I put the Pi/4 rotations at the end of the fDST.",
+      "parentUuid": "98ec78b8_9e5507e6",
       "revId": "8f95e3661b9ea841bbe3e622ce4bfc4878da5940",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
