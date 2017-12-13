@@ -47,6 +47,8 @@ extern "C" {
 // chroma.
 #define DISABLE_VARTX_FOR_CHROMA 1
 
+#define FAST_INTERINTRA_RDO 1
+
 // SEG_MASK_TYPES should not surpass 1 << MAX_SEG_MASK_BITS
 typedef enum {
 #if COMPOUND_SEGMENT_TYPE == 0
