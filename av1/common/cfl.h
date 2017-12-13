@@ -33,4 +33,10 @@ void cfl_store_block(MACROBLOCKD *const xd, BLOCK_SIZE bsize, TX_SIZE tx_size);
 
 void cfl_store_tx(MACROBLOCKD *const xd, int row, int col, TX_SIZE tx_size,
                   BLOCK_SIZE bsize);
+
+void cfl_store_dc_pred(MACROBLOCKD *const xd, TX_SIZE tx_size,
+                       const uint8_t *input, int input_stride, int plane);
+
+void cfl_load_dc_pred(MACROBLOCKD *const xd, TX_SIZE tx_size, uint8_t *dst,
+                      int dst_stride, int plane);
 #endif  // AV1_COMMON_CFL_H_
