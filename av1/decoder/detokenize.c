@@ -34,17 +34,9 @@
 #define CAT_THREE_CONTEXT_NODE 6
 #define CAT_FIVE_CONTEXT_NODE 7
 
-#define INCREMENT_COUNT(token)                   \
-  do {                                           \
-    if (counts) ++coef_counts[band][ctx][token]; \
-  } while (0)
-
 static INLINE int read_coeff(FRAME_COUNTS *counts,
                              const aom_cdf_prob *const *cdf, int n,
                              aom_reader *r) {
-#if !CONFIG_SYMBOLRATE
-  (void)counts;
-#endif
   int val = 0;
   int i = 0;
   int count = 0;
