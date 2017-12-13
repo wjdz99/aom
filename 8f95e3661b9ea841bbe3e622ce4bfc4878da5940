@@ -90,6 +90,24 @@
     },
     {
       "key": {
+        "uuid": "9f30c436_b1880b14",
+        "filename": "av1/common/daala_tx_kernels.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 7984
+      },
+      "writtenOn": "2017-12-13T11:54:16Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "6d3e68f9_5639efb8",
+      "revId": "8f95e3661b9ea841bbe3e622ce4bfc4878da5940",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "98ec78b8_9e5507e6",
         "filename": "av1/common/daala_tx_kernels.h",
         "patchSetId": 12
@@ -119,6 +137,24 @@
       "side": 1,
       "message": "Yes, I answered this earlier in my other comment but ultimately the reason I chose this design was so that the N/2 rotations which span the entire set of transform inputs in the very first step of the N-point asymmetric DST could absorb the asymmetric scaling introduced in the parent 2*N-point DCT.\n\nYou are right that the DST is its own inverse so we could just swap the two implementations, but I would need to redo my analysis to see if this causes any problems with keeping the smaller 2-D transforms fitting in 16-bits.  I would also need to take a close look at how we unified the orthonormal and asymmetric transforms to make sure they would still be the same up to multiplication constants in those N/2 rotations.\n\nCan you give me an idea of how important this change is?  I can try to reproduce some of my experiments and show why I put the Pi/4 rotations at the end of the fDST.",
       "parentUuid": "98ec78b8_9e5507e6",
+      "revId": "8f95e3661b9ea841bbe3e622ce4bfc4878da5940",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4d495ea3_efb608ce",
+        "filename": "av1/common/daala_tx_kernels.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 485,
+      "author": {
+        "id": 7984
+      },
+      "writtenOn": "2017-12-13T11:54:16Z",
+      "side": 1,
+      "message": "If there are definite reasons why the pi/4 rotation is at the start of the idst\u0027s then we can probably work around it - I will try to analyze further. I mainly want to check that there was some significant advantage to have it this way round. I think the two advantages you list of having pi/4 end of fdst and start of idst are:\n\n- better round trip accuracy (is it possible to quantify?)\n- simpler asym rotations - that asym and non-asym are the same up to constants (could this also be possible though with the other order?)\n\nThat second property is a nice feature which will certainly help with implementation as you say.  It may well be that the second feature is more important than having the pi/4 order match VP9. I will try to think more about the implementation cost of the different order.",
+      "parentUuid": "49b2d021_1c3f8ec2",
       "revId": "8f95e3661b9ea841bbe3e622ce4bfc4878da5940",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
