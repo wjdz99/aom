@@ -991,6 +991,7 @@ static void update_stats(const AV1_COMMON *const cm, TileDataEnc *tile_data,
           }
 #endif  // CONFIG_EXT_COMP_REFS
         } else {
+#if 0
           if (allow_update_cdf) {
             const int bit1 = (mbmi->ref_frame[0] <= ALTREF_FRAME &&
                               mbmi->ref_frame[0] >= BWDREF_FRAME);
@@ -1018,6 +1019,7 @@ static void update_stats(const AV1_COMMON *const cm, TileDataEnc *tile_data,
               }
             }
           }
+#endif
         }
 
         if (cm->allow_interintra_compound &&
