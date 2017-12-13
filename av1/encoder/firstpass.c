@@ -3012,6 +3012,8 @@ static void find_next_key_frame(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   twopass->kf_group_error_left = 0;  // Group modified error score.
 
   kf_mod_err = calculate_modified_err(cpi, twopass, oxcf, this_frame);
+  // Accumulate kf group error.
+  kf_group_err += kf_mod_err;
 
   // Initialize the decay rates for the recent frames to check
   for (j = 0; j < FRAMES_TO_CHECK_DECAY; ++j) recent_loop_decay[j] = 1.0;
@@ -3020,12 +3022,12 @@ static void find_next_key_frame(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   i = 0;
   while (twopass->stats_in < twopass->stats_in_end &&
          rc->frames_to_key < cpi->oxcf.key_freq) {
-    // Accumulate kf group error.
-    kf_group_err += calculate_modified_err(cpi, twopass, oxcf, this_frame);
-
     // Load the next frame's stats.
     last_frame = *this_frame;
     input_stats(twopass, this_frame);
+
+    // Accumulate kf group error.
+    kf_group_err += calculate_modified_err(cpi, twopass, oxcf, this_frame);
 
     // Provided that we are not at the end of the file...
     if (cpi->oxcf.auto_key && twopass->stats_in < twopass->stats_in_end) {
@@ -3090,12 +3092,6 @@ static void find_next_key_frame(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
     rc->next_key_frame_forced = 1;
   } else {
     rc->next_key_frame_forced = 0;
-  }
-
-  // Special case for the last key frame of the file.
-  if (twopass->stats_in >= twopass->stats_in_end) {
-    // Accumulate kf group error.
-    kf_group_err += calculate_modified_err(cpi, twopass, oxcf, this_frame);
   }
 
   // Calculate the number of bits that should be assigned to the kf group.
