@@ -1124,7 +1124,8 @@ static INLINE int is_interintra_allowed_bsize_group(int group) {
 }
 
 static INLINE int is_interintra_pred(const MB_MODE_INFO *mbmi) {
-  return (mbmi->ref_frame[1] == INTRA_FRAME) && is_interintra_allowed(mbmi);
+  return mbmi->ref_frame[0] > INTRA_FRAME &&
+         mbmi->ref_frame[1] == INTRA_FRAME && is_interintra_allowed(mbmi);
 }
 
 static INLINE int get_vartx_max_txsize(const MACROBLOCKD *xd, BLOCK_SIZE bsize,
