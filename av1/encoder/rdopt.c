@@ -6069,43 +6069,45 @@ static void estimate_ref_frame_costs(
 #if !CONFIG_REF_ADAPT
     if (cm->reference_mode != COMPOUND_REFERENCE) {
 #endif  // !CONFIG_REF_ADAPT
-      aom_prob ref_single_p1 = av1_get_pred_prob_single_ref_p1(cm, xd);
-      aom_prob ref_single_p2 = av1_get_pred_prob_single_ref_p2(cm, xd);
-      aom_prob ref_single_p3 = av1_get_pred_prob_single_ref_p3(cm, xd);
-      aom_prob ref_single_p4 = av1_get_pred_prob_single_ref_p4(cm, xd);
-      aom_prob ref_single_p5 = av1_get_pred_prob_single_ref_p5(cm, xd);
-      aom_prob ref_single_p6 = av1_get_pred_prob_single_ref_p6(cm, xd);
+      int bit_costs[6][2];
+      for (int i = 0; i < 6; ++i) {
+        const aom_cdf_prob *cdf = av1_get_pred_cdf_single_ref(xd, i + 1);
+        const aom_cdf_prob p15_0 = AOM_ICDF(cdf[0]);
+        const aom_cdf_prob p15_1 = 32768 - p15_0;
+        bit_costs[i][0] = av1_cost_symbol(p15_0);
+        bit_costs[i][1] = av1_cost_symbol(p15_1);
+      }
 
       ref_costs_single[LAST_FRAME] = ref_costs_single[LAST2_FRAME] =
           ref_costs_single[LAST3_FRAME] = ref_costs_single[BWDREF_FRAME] =
               ref_costs_single[ALTREF2_FRAME] = ref_costs_single[GOLDEN_FRAME] =
                   ref_costs_single[ALTREF_FRAME] = base_cost;
 
-      ref_costs_single[LAST_FRAME] += av1_cost_bit(ref_single_p1, 0);
-      ref_costs_single[LAST2_FRAME] += av1_cost_bit(ref_single_p1, 0);
-      ref_costs_single[LAST3_FRAME] += av1_cost_bit(ref_single_p1, 0);
-      ref_costs_single[GOLDEN_FRAME] += av1_cost_bit(ref_single_p1, 0);
-      ref_costs_single[BWDREF_FRAME] += av1_cost_bit(ref_single_p1, 1);
-      ref_costs_single[ALTREF2_FRAME] += av1_cost_bit(ref_single_p1, 1);
-      ref_costs_single[ALTREF_FRAME] += av1_cost_bit(ref_single_p1, 1);
+      ref_costs_single[LAST_FRAME] += bit_costs[0][0];
+      ref_costs_single[LAST2_FRAME] += bit_costs[0][0];
+      ref_costs_single[LAST3_FRAME] += bit_costs[0][0];
+      ref_costs_single[GOLDEN_FRAME] += bit_costs[0][0];
+      ref_costs_single[BWDREF_FRAME] += bit_costs[0][1];
+      ref_costs_single[ALTREF2_FRAME] += bit_costs[0][1];
+      ref_costs_single[ALTREF_FRAME] += bit_costs[0][1];
 
-      ref_costs_single[LAST_FRAME] += av1_cost_bit(ref_single_p3, 0);
-      ref_costs_single[LAST2_FRAME] += av1_cost_bit(ref_single_p3, 0);
-      ref_costs_single[LAST3_FRAME] += av1_cost_bit(ref_single_p3, 1);
-      ref_costs_single[GOLDEN_FRAME] += av1_cost_bit(ref_single_p3, 1);
+      ref_costs_single[LAST_FRAME] += bit_costs[2][0];
+      ref_costs_single[LAST2_FRAME] += bit_costs[2][0];
+      ref_costs_single[LAST3_FRAME] += bit_costs[2][1];
+      ref_costs_single[GOLDEN_FRAME] += bit_costs[2][1];
 
-      ref_costs_single[BWDREF_FRAME] += av1_cost_bit(ref_single_p2, 0);
-      ref_costs_single[ALTREF2_FRAME] += av1_cost_bit(ref_single_p2, 0);
-      ref_costs_single[ALTREF_FRAME] += av1_cost_bit(ref_single_p2, 1);
+      ref_costs_single[BWDREF_FRAME] += bit_costs[1][0];
+      ref_costs_single[ALTREF2_FRAME] += bit_costs[1][0];
+      ref_costs_single[ALTREF_FRAME] += bit_costs[1][1];
 
-      ref_costs_single[LAST_FRAME] += av1_cost_bit(ref_single_p4, 0);
-      ref_costs_single[LAST2_FRAME] += av1_cost_bit(ref_single_p4, 1);
+      ref_costs_single[LAST_FRAME] += bit_costs[3][0];
+      ref_costs_single[LAST2_FRAME] += bit_costs[3][1];
 
-      ref_costs_single[LAST3_FRAME] += av1_cost_bit(ref_single_p5, 0);
-      ref_costs_single[GOLDEN_FRAME] += av1_cost_bit(ref_single_p5, 1);
+      ref_costs_single[LAST3_FRAME] += bit_costs[4][0];
+      ref_costs_single[GOLDEN_FRAME] += bit_costs[4][1];
 
-      ref_costs_single[BWDREF_FRAME] += av1_cost_bit(ref_single_p6, 0);
-      ref_costs_single[ALTREF2_FRAME] += av1_cost_bit(ref_single_p6, 1);
+      ref_costs_single[BWDREF_FRAME] += bit_costs[5][0];
+      ref_costs_single[ALTREF2_FRAME] += bit_costs[5][1];
 #if !CONFIG_REF_ADAPT
     } else {
       ref_costs_single[LAST_FRAME] = 512;

@@ -880,7 +880,7 @@ int av1_get_pred_context_comp_bwdref_p1(const AV1_COMMON *cm,
 
 // For the bit to signal whether the single reference is a forward reference
 // frame or a backward reference frame.
-int av1_get_pred_context_single_ref_p1(const MACROBLOCKD *xd) {
+static int get_pred_context_single_ref_p1(const MACROBLOCKD *xd) {
   int pred_context;
   const MB_MODE_INFO *const above_mbmi = xd->above_mbmi;
   const MB_MODE_INFO *const left_mbmi = xd->left_mbmi;
@@ -943,13 +943,13 @@ int av1_get_pred_context_single_ref_p1(const MACROBLOCKD *xd) {
 // For the bit to signal whether the single reference is ALTREF_FRAME or
 // non-ALTREF backward reference frame, knowing that it shall be either of
 // these 2 choices.
-int av1_get_pred_context_single_ref_p2(const MACROBLOCKD *xd) {
+static int get_pred_context_single_ref_p2(const MACROBLOCKD *xd) {
   return av1_get_pred_context_brfarf2_or_arf(xd);
 }
 
 // For the bit to signal whether the single reference is LAST3/GOLDEN or
 // LAST2/LAST, knowing that it shall be either of these 2 choices.
-int av1_get_pred_context_single_ref_p3(const MACROBLOCKD *xd) {
+static int get_pred_context_single_ref_p3(const MACROBLOCKD *xd) {
   int pred_context;
   const MB_MODE_INFO *const above_mbmi = xd->above_mbmi;
   const MB_MODE_INFO *const left_mbmi = xd->left_mbmi;
@@ -1045,7 +1045,7 @@ int av1_get_pred_context_single_ref_p3(const MACROBLOCKD *xd) {
 //
 // NOTE(zoeliu): The probability of ref_frame[0] is LAST2_FRAME, conditioning
 // on it is either LAST2_FRAME/LAST_FRAME.
-int av1_get_pred_context_single_ref_p4(const MACROBLOCKD *xd) {
+static int get_pred_context_single_ref_p4(const MACROBLOCKD *xd) {
   int pred_context;
   const MB_MODE_INFO *const above_mbmi = xd->above_mbmi;
   const MB_MODE_INFO *const left_mbmi = xd->left_mbmi;
@@ -1137,7 +1137,7 @@ int av1_get_pred_context_single_ref_p4(const MACROBLOCKD *xd) {
 //
 // NOTE(zoeliu): The probability of ref_frame[0] is GOLDEN_FRAME, conditioning
 // on it is either GOLDEN_FRAME/LAST3_FRAME.
-int av1_get_pred_context_single_ref_p5(const MACROBLOCKD *xd) {
+static int get_pred_context_single_ref_p5(const MACROBLOCKD *xd) {
   int pred_context;
   const MB_MODE_INFO *const above_mbmi = xd->above_mbmi;
   const MB_MODE_INFO *const left_mbmi = xd->left_mbmi;
@@ -1227,6 +1227,24 @@ int av1_get_pred_context_single_ref_p5(const MACROBLOCKD *xd) {
 
 // For the bit to signal whether the single reference is ALTREF2_FRAME or
 // BWDREF_FRAME, knowing that it shall be either of these 2 choices.
-int av1_get_pred_context_single_ref_p6(const MACROBLOCKD *xd) {
+static int get_pred_context_single_ref_p6(const MACROBLOCKD *xd) {
   return av1_get_pred_context_brf_or_arf2(xd);
+}
+
+static int get_pred_context_single_ref(const MACROBLOCKD *xd, int p) {
+  switch (p) {
+    case 1: return get_pred_context_single_ref_p1(xd);
+    case 2: return get_pred_context_single_ref_p2(xd);
+    case 3: return get_pred_context_single_ref_p3(xd);
+    case 4: return get_pred_context_single_ref_p4(xd);
+    case 5: return get_pred_context_single_ref_p5(xd);
+    case 6: return get_pred_context_single_ref_p6(xd);
+    default: assert(0);
+  }
+  return -1;  // This line is never reached
+}
+
+aom_cdf_prob *av1_get_pred_cdf_single_ref(const MACROBLOCKD *xd, int p) {
+  const int ctx = get_pred_context_single_ref(xd, p);
+  return xd->tile_ctx->single_ref_cdf[ctx][p - 1];
 }
