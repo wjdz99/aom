@@ -176,6 +176,24 @@
       "revId": "8f95e3661b9ea841bbe3e622ce4bfc4878da5940",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "83d1c2d5_83c7029c",
+        "filename": "av1/common/daala_tx_kernels.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 485,
+      "author": {
+        "id": 7984
+      },
+      "writtenOn": "2017-12-13T14:01:48Z",
+      "side": 1,
+      "message": "Thanks for considering. I think this will make the design easier. Just to confirm also that we\u0027d like this generically for all idst sizes in kernels.",
+      "parentUuid": "1f445955_f64022fa",
+      "revId": "8f95e3661b9ea841bbe3e622ce4bfc4878da5940",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
