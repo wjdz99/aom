@@ -42,6 +42,8 @@
 #include "av1/encoder/firstpass.h"
 #if CONFIG_HASH_ME
 #include "av1/encoder/hash_motion.h"
+// TODO(mfo): decouple txb_hash from hash_me.
+#include "av1/encoder/encodetxb.h"
 #endif
 #include "av1/encoder/mbgraph.h"
 #include "av1/encoder/picklpf.h"
