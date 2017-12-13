@@ -552,8 +552,8 @@ static void av1_write_coeffs_txb_wrap(int plane, int block, int blk_row,
   uint16_t eob = x->mbmi_ext->eobs[plane][block];
   TXB_CTX txb_ctx = { x->mbmi_ext->txb_skip_ctx[plane][block],
                       x->mbmi_ext->dc_sign_ctx[plane][block] };
-  av1_write_coeffs_txb(cm, xd, w, blk_row, blk_col, block, plane, tx_size,
-                       tcoeff, eob, &txb_ctx);
+  av1_write_coeffs_txb(cm, xd, w, blk_row, blk_col, plane, tx_size, tcoeff, eob,
+                       &txb_ctx);
 }
 
 void av1_write_coeffs_mb(const AV1_COMMON *const cm, MACROBLOCK *x,
