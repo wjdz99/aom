@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e6f6b84e_73a6ace9",
+        "filename": "av1/common/x86/convolve_sse2.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-12-13T02:52:22Z",
+      "side": 1,
+      "message": "this is going away I think, but it\u0027s not good to have an empty module. best to limit the use in the .mk or provide stubs.",
+      "revId": "f2cfa6858f90f9d7bdc1e4e69ace434149686a24",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d6b28241_2be45be3",
+        "filename": "av1/common/x86/convolve_sse2.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-12-13T02:52:22Z",
+      "side": 1,
+      "message": "you have c99 here, you can scope these to the loop",
+      "revId": "f2cfa6858f90f9d7bdc1e4e69ace434149686a24",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "007f58e0_cef5397e",
+        "filename": "av1/common/x86/convolve_sse2.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-12-13T02:52:22Z",
+      "side": 1,
+      "message": "seems like this would be worth a separate signature.",
+      "revId": "f2cfa6858f90f9d7bdc1e4e69ace434149686a24",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
