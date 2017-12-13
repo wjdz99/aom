@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ac2e7b32_ba8cd589",
+        "filename": "av1/common/daala_tx.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 3985,
+      "author": {
+        "id": 7984
+      },
+      "writtenOn": "2017-12-13T10:20:11Z",
+      "side": 1,
+      "message": "Slide 7 of the presentation from Friday December 1st stated that all the DSTs are their own inverse and that this saves multiplies. The fdst and idst functions here seems to call different versions (with respect to the positions of the pi/4 rotation). Of course fdst is not normative and so idst could be used instead - is that the meaning of the slide? Or is the intention that actually in this file idst and fdst will use the same code?\n\nRelated to the question in the other file, we prefer the idst with the rotation by pi/4 at the end as this matches the VP9 order and so simplifies implementation.",
+      "revId": "8f95e3661b9ea841bbe3e622ce4bfc4878da5940",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b73213fb_ac8cf5ea",
+        "filename": "av1/common/daala_tx_kernels.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 7984
+      },
+      "writtenOn": "2017-12-13T10:20:11Z",
+      "side": 1,
+      "message": "Just to help readability I think it would help to add brackets (1\u003c\u003cq)\u003e\u003e1 rather than 1\u003c\u003cq\u003e\u003e1. (Or possibly 1\u003c\u003c(q-1) if q is never 0)",
+      "revId": "8f95e3661b9ea841bbe3e622ce4bfc4878da5940",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "98ec78b8_9e5507e6",
+        "filename": "av1/common/daala_tx_kernels.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 485,
+      "author": {
+        "id": 7984
+      },
+      "writtenOn": "2017-12-13T10:20:11Z",
+      "side": 1,
+      "message": "The breakdown of idct8 into idst4 and idct4 is really clear with this new code and very helpful for the analysis. I was just starting to analyze for implementation and notice that the idst4 is implemented with the rotation by pi/4 at the start and the fdst4 with the rotation by pi/4 at the end. As I understand it, dst4 type IV is self inverse and so the two could be swapped - so idst4 do the rotation by pi/4 at the end and fdst4 do the rotation by pi/4 at the start.\n\nThe reason I ask is that the VP9 transforms are all sequenced so that the inverse transforms all have the rotation by pi/4 at the end (in IDST or breakdown of IDCT). Thus I think we can save time on scheduling design if the fdst4 and idst4 are swapped. \n\nSo, is there a particular reason that the idst/fdst are this way around - rotation by pi/4 in idst at start, rotation by pi/4 in fdst at the end or could they be swapped?",
+      "revId": "8f95e3661b9ea841bbe3e622ce4bfc4878da5940",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
