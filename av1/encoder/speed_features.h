@@ -284,7 +284,10 @@ typedef struct SPEED_FEATURES {
 
   RECODE_LOOP_TYPE recode_loop;
 
-  // Trellis (dynamic programming) optimization of quantized values (+1, 0).
+  // Trellis (dynamic programming) optimization of quantized values
+  // 0: No trellis optimization
+  // 1: Trellis optimization in all stages
+  // 2: Trellis optimization in only the final encode pass
   int optimize_coefficients;
 
   // Always set to 0. If on it enables 0 cost background transmission
