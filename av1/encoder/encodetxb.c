@@ -1818,7 +1818,7 @@ static int optimize_txb(TxbInfo *txb_info, const LV_MAP_COEFF_COST *txb_costs,
 
       int bUpdCoeff = 0;
       if (stats.rd_low < stats.rd) {
-        if ((stats.low_qc != 0) || (si < txb_info->eob - 1)) {
+        if (si < txb_info->eob - 1) {
           bUpdCoeff = 1;
           update = 1;
         }
@@ -1834,6 +1834,7 @@ static int optimize_txb(TxbInfo *txb_info, const LV_MAP_COEFF_COST *txb_costs,
       }
     }
   }  // for (si)
+
   int non_zero_blk_rate =
       txb_costs->txb_skip_cost[txb_info->txb_ctx->txb_skip_ctx][0];
   prev_eob_rd_cost =
