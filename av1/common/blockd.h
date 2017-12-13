@@ -38,6 +38,7 @@ extern "C" {
 // 1: Difference weighted
 #define COMPOUND_SEGMENT_TYPE 1
 #define MAX_SEG_MASK_BITS 1
+#define FAST_INTERINTRA_RDO 1
 
 // SEG_MASK_TYPES should not surpass 1 << MAX_SEG_MASK_BITS
 typedef enum {
