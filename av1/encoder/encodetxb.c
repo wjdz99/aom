@@ -2037,10 +2037,27 @@ int av1_optimize_txb(const AV1_COMMON *cm, MACROBLOCK *x, int plane,
     tx_size, txs_ctx, tx_type,    bwl,     width,   height,
     eob,     seg_eob, scan_order, txb_ctx, rdmult,  &cm->coeff_ctx_table
   };
+  int update = 0;
 
-  av1_txb_init_levels(qcoeff, width, height, levels);
-
-  const int update = optimize_txb(&txb_info, &txb_costs, NULL, 0, fast_mode);
+  if (eob <= 16 && eob > 0) {
+    int new_eob = 0;
+    const int16_t *scan = scan_order->scan;
+    for (int i = 0; i < eob; i++) {
+      // try turning 1 into zero
+      // consider only doing it randomly
+      if (txb_info.qcoeff[scan[i]] == 1) {
+        txb_info.qcoeff[scan[i]] = 0;
+        update = 1;
+        update_coeff(scan[i], txb_info.qcoeff[scan[i]], &txb_info);
+      }
+      if (txb_info.qcoeff[scan[i]])
+        new_eob = i + 1;
+    }
+    if (update) txb_info.eob = new_eob;
+  } else {
+    av1_txb_init_levels(qcoeff, width, height, levels);
+    update = optimize_txb(&txb_info, &txb_costs, NULL, 0, fast_mode);
+  }
 
   if (update) {
     p->eobs[block] = txb_info.eob;
