@@ -570,6 +570,10 @@ typedef struct cfl_ctx {
   //   2. Stores Q3 AC contributions (step1 - tx block avg)
   int16_t pred_buf_q3[CFL_PRED_BUF_SQUARE];
 
+  int dc_pred_is_cached[2];
+  int use_dc_pred_cache;
+  int16_t dc_pred_cache[2][CFL_PRED_BUF_SQUARE];
+
   // Height and width currently used in the CfL prediction buffer.
   int buf_height, buf_width;
 

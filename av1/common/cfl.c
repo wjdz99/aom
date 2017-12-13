@@ -29,11 +29,82 @@ void cfl_init(CFL_CTX *cfl, AV1_COMMON *cm) {
   cfl->subsampling_y = cm->subsampling_y;
   cfl->are_parameters_computed = 0;
   cfl->store_y = 0;
+  cfl->use_dc_pred_cache = 0;
+  cfl->dc_pred_is_cached[0] = 0;
+  cfl->dc_pred_is_cached[1] = 0;
 #if CONFIG_DEBUG
   cfl_clear_sub8x8_val(cfl);
   cfl->store_counter = 0;
   cfl->last_compute_counter = 0;
 #endif  // CONFIG_DEBUG
+}
+
+static void cfl_store_dc_pred_lbd(int16_t *dc_pred_cache, const uint8_t *input,
+                                  int input_stride, int width, int height) {
+  for (int j = 0; j < height; j++) {
+    memcpy(dc_pred_cache, input, width);
+    dc_pred_cache += CFL_PRED_BUF_LINE;
+    input += input_stride;
+  }
+}
+
+static void cfl_store_dc_pred_hbd(int16_t *dc_pred_cache, const uint16_t *input,
+                                  int input_stride, int width, int height) {
+  const size_t num_bytes = width << 1;
+  for (int j = 0; j < height; j++) {
+    memcpy(dc_pred_cache, input, num_bytes);
+    dc_pred_cache += CFL_PRED_BUF_LINE;
+    input += input_stride;
+  }
+}
+
+void cfl_store_dc_pred(MACROBLOCKD *const xd, TX_SIZE tx_size,
+                       const uint8_t *input, int input_stride, int plane) {
+  CFL_CTX *const cfl = &xd->cfl;
+#if CONFIG_HIGHBITDEPTH
+  if (get_bitdepth_data_path_index(xd)) {
+    uint16_t *input_16 = CONVERT_TO_SHORTPTR(input);
+    cfl_store_dc_pred_hbd(cfl->dc_pred_cache[plane], input_16, input_stride,
+                          tx_size_wide[tx_size], tx_size_high[tx_size]);
+    return;
+  }
+#endif  // CONFIG_HIGHBITDEPTH
+  cfl_store_dc_pred_lbd(cfl->dc_pred_cache[plane], input, input_stride,
+                        tx_size_wide[tx_size], tx_size_high[tx_size]);
+}
+
+static void cfl_load_dc_pred_lbd(const int16_t *dc_pred_cache, uint8_t *dst,
+                                 int dst_stride, int width, int height) {
+  for (int j = 0; j < height; j++) {
+    memcpy(dst, dc_pred_cache, width);
+    dc_pred_cache += CFL_PRED_BUF_LINE;
+    dst += dst_stride;
+  }
+}
+
+static void cfl_load_dc_pred_hbd(const int16_t *dc_pred_cache, uint16_t *dst,
+                                 int dst_stride, int width, int height) {
+  const size_t num_bytes = width << 1;
+  for (int j = 0; j < height; j++) {
+    memcpy(dst, dc_pred_cache, num_bytes);
+    dc_pred_cache += CFL_PRED_BUF_LINE;
+    dst += dst_stride;
+  }
+}
+
+void cfl_load_dc_pred(MACROBLOCKD *const xd, TX_SIZE tx_size, uint8_t *dst,
+                      int dst_stride, int plane) {
+  CFL_CTX *const cfl = &xd->cfl;
+#if CONFIG_HIGHBITDEPTH
+  if (get_bitdepth_data_path_index(xd)) {
+    uint16_t *dst_16 = CONVERT_TO_SHORTPTR(dst);
+    cfl_load_dc_pred_hbd(cfl->dc_pred_cache[plane], dst_16, dst_stride,
+                         tx_size_wide[tx_size], tx_size_high[tx_size]);
+    return;
+  }
+#endif  // CONFIG_HIGHBITDEPTH
+  cfl_load_dc_pred_lbd(cfl->dc_pred_cache[plane], dst, dst_stride,
+                       tx_size_wide[tx_size], tx_size_high[tx_size]);
 }
 
 // Due to frame boundary issues, it is possible that the total area covered by
