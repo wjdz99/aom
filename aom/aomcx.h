@@ -553,6 +553,23 @@ enum aome_enc_control_id {
   */
   AV1E_SET_DISABLE_TEMPMV,
 
+#if CONFIG_LOOPFILTERING_ACROSS_TILES
+#if CONFIG_LOOPFILTERING_ACROSS_TILES_EXT
+    /*!\brief Codec control function to set loop_filter_across_tiles_v_enabled
+    * and loop_filter_across_tiles_h_enabled.
+    * In encoding and decoding, AV1 allows disabling loop filter across tile
+    * boundary The parameter for this control describes the value of this flag,
+    * which has a valid range [0, 1]:
+    *            0 = disable loop filter across tile boundary
+    *            1 = enable loop filter across tile boundary
+    *
+    * By default, the value is 1, i.e. enable loop filter across tile boundary.
+    *
+    * Experiment: LOOPFILTERING_ACROSS_TILES_EXT
+    */
+    AV1E_SET_TILE_LOOPFILTER_V,
+    AV1E_SET_TILE_LOOPFILTER_H,
+#else
   /*!\brief Codec control function to set loop_filter_across_tiles_enabled.
    *
    * In encoding and decoding, AV1 allows disabling loop filter across tile
@@ -566,6 +583,8 @@ enum aome_enc_control_id {
    * Experiment: LOOPFILTERING_ACROSS_TILES
    */
   AV1E_SET_TILE_LOOPFILTER,
+#endif
+#endif
 
   /*!\brief Codec control function to set the delta q mode
   *
@@ -726,8 +745,17 @@ AOM_CTRL_USE_TYPE(AV1E_SET_TILE_ROWS, int)
 AOM_CTRL_USE_TYPE(AV1E_SET_TILE_DEPENDENT_ROWS, int)
 #define AOM_CTRL_AV1E_SET_TILE_DEPENDENT_ROWS
 
+#if CONFIG_LOOPFILTERING_ACROSS_TILES
+#if CONFIG_LOOPFILTERING_ACROSS_TILES_EXT
+AOM_CTRL_USE_TYPE(AV1E_SET_TILE_LOOPFILTER_V, int)
+#define AOM_CTRL_AV1E_SET_TILE_LOOPFILTER_V
+AOM_CTRL_USE_TYPE(AV1E_SET_TILE_LOOPFILTER_H, int)
+#define AOM_CTRL_AV1E_SET_TILE_LOOPFILTER_H
+#else
 AOM_CTRL_USE_TYPE(AV1E_SET_TILE_LOOPFILTER, int)
 #define AOM_CTRL_AV1E_SET_TILE_LOOPFILTER
+#endif
+#endif
 
 AOM_CTRL_USE_TYPE(AOME_GET_LAST_QUANTIZER, int *)
 #define AOM_CTRL_AOME_GET_LAST_QUANTIZER
