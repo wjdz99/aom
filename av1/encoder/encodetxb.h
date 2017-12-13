@@ -107,7 +107,8 @@ int64_t av1_search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
                             const ENTROPY_CONTEXT *a, const ENTROPY_CONTEXT *l,
                             int use_fast_coef_costing, RD_STATS *rd_stats);
 #endif
-int av1_optimize_txb(const AV1_COMMON *cm, MACROBLOCK *x, int plane,
+
+int av1_optimize_txb(const struct AV1_COMP *cpi, MACROBLOCK *x, int plane,
                      int blk_row, int blk_col, int block, TX_SIZE tx_size,
                      TXB_CTX *txb_ctx, int fast_mode);
 #ifdef __cplusplus

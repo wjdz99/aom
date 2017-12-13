@@ -1908,7 +1908,7 @@ static void block_rd_txfm(int plane, int block, int blk_row, int blk_col,
     av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize, tx_size,
                     AV1_XFORM_QUANT_FP);
 
-// TX-domain results need to shift down to Q2/D10 to match pixel
+/// TX-domain results need to shift down to Q2/D10 to match pixel
 // domain distortion values which are in Q2^2
 #if CONFIG_DAALA_TX
     const int shift = (TX_COEFF_DEPTH - 10) * 2;
@@ -1937,7 +1937,7 @@ static void block_rd_txfm(int plane, int block, int blk_row, int blk_col,
         disable_early_skip ||
 #endif
         RDCOST(x->rdmult, 0, tmp_dist) + args->this_rd < args->best_rd) {
-      av1_optimize_b(cm, x, plane, blk_row, blk_col, block, plane_bsize,
+      av1_optimize_b(cpi, x, plane, blk_row, blk_col, block, plane_bsize,
                      tx_size, a, l, CONFIG_LV_MAP);
     } else {
       args->exit_early = 1;
@@ -3564,7 +3564,7 @@ void av1_tx_block_rd_b(const AV1_COMP *cpi, MACROBLOCK *x, TX_SIZE tx_size,
         disable_early_skip ||
 #endif
         RDCOST(x->rdmult, 0, tmp_dist) < rd_stats->ref_rdcost) {
-      av1_optimize_b(cm, x, plane, blk_row, blk_col, block, plane_bsize,
+      av1_optimize_b(cpi, x, plane, blk_row, blk_col, block, plane_bsize,
                      tx_size, a, l, fast);
     } else {
       rd_stats->rate += rd_stats->zero_rate;
