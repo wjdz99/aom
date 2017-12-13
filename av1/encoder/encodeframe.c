@@ -949,26 +949,31 @@ static void update_stats(const AV1_COMMON *const cm, TileDataEnc *tile_data,
           }
 #endif  // CONFIG_EXT_COMP_REFS
         } else {
-          const int bit = (ref0 >= BWDREF_FRAME);
+          if (allow_update_cdf) {
+            const int bit1 = (mbmi->ref_frame[0] <= ALTREF_FRAME &&
+                              mbmi->ref_frame[0] >= BWDREF_FRAME);
+            update_cdf(av1_get_pred_cdf_single_ref(xd, 1), bit1, 2);
 
-          counts->single_ref[av1_get_pred_context_single_ref_p1(xd)][0][bit]++;
-          if (bit) {
-            assert(ref0 <= ALTREF_FRAME);
-            counts->single_ref[av1_get_pred_context_single_ref_p2(xd)][1]
-                              [ref0 == ALTREF_FRAME]++;
-            if (ref0 != ALTREF_FRAME)
-              counts->single_ref[av1_get_pred_context_single_ref_p6(xd)][5]
-                                [ref0 == ALTREF2_FRAME]++;
-          } else {
-            const int bit1 = !(ref0 == LAST2_FRAME || ref0 == LAST_FRAME);
-            counts
-                ->single_ref[av1_get_pred_context_single_ref_p3(xd)][2][bit1]++;
-            if (!bit1) {
-              counts->single_ref[av1_get_pred_context_single_ref_p4(xd)][3]
-                                [ref0 != LAST_FRAME]++;
+            if (bit1) {
+              const int bit2 = mbmi->ref_frame[0] == ALTREF_FRAME;
+              update_cdf(av1_get_pred_cdf_single_ref(xd, 2), bit2, 2);
+
+              if (!bit2) {
+                const int bit6 = mbmi->ref_frame[0] == ALTREF2_FRAME;
+                update_cdf(av1_get_pred_cdf_single_ref(xd, 6), bit6, 2);
+              }
             } else {
-              counts->single_ref[av1_get_pred_context_single_ref_p5(xd)][4]
-                                [ref0 != LAST3_FRAME]++;
+              const int bit3 = (mbmi->ref_frame[0] == LAST3_FRAME ||
+                                mbmi->ref_frame[0] == GOLDEN_FRAME);
+              update_cdf(av1_get_pred_cdf_single_ref(xd, 3), bit3, 2);
+
+              if (!bit3) {
+                const int bit4 = mbmi->ref_frame[0] != LAST_FRAME;
+                update_cdf(av1_get_pred_cdf_single_ref(xd, 4), bit4, 2);
+              } else {
+                const int bit5 = mbmi->ref_frame[0] != LAST3_FRAME;
+                update_cdf(av1_get_pred_cdf_single_ref(xd, 5), bit5, 2);
+              }
             }
           }
         }
