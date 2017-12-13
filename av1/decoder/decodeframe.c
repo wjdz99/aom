@@ -177,8 +177,7 @@ static void predict_and_reconstruct_intra_block(
     AV1_COMMON *cm, MACROBLOCKD *const xd, aom_reader *const r,
     MB_MODE_INFO *const mbmi, int plane, int row, int col, TX_SIZE tx_size) {
   PLANE_TYPE plane_type = get_plane_type(plane);
-  const int block_idx = get_block_idx(xd, plane, row, col);
-  av1_predict_intra_block_facade(cm, xd, plane, block_idx, col, row, tx_size);
+  av1_predict_intra_block_facade(cm, xd, plane, col, row, tx_size);
 
   if (!mbmi->skip) {
     struct macroblockd_plane *const pd = &xd->plane[plane];
@@ -189,14 +188,13 @@ static void predict_and_reconstruct_intra_block(
 #if CONFIG_LV_MAP
     int16_t max_scan_line = 0;
     int eob;
+    const int block_idx = get_block_idx(xd, plane, row, col);
     av1_read_coeffs_txb_facade(cm, xd, r, row, col, block_idx, plane, tx_size,
                                &max_scan_line, &eob);
     // tx_type will be read out in av1_read_coeffs_txb_facade
-    const TX_TYPE tx_type =
-        av1_get_tx_type(plane_type, xd, row, col, block_idx, tx_size);
+    const TX_TYPE tx_type = av1_get_tx_type(plane_type, xd, row, col, tx_size);
 #else   // CONFIG_LV_MAP
-    const TX_TYPE tx_type =
-        av1_get_tx_type(plane_type, xd, row, col, block_idx, tx_size);
+    const TX_TYPE tx_type = av1_get_tx_type(plane_type, xd, row, col, tx_size);
     const SCAN_ORDER *scan_order = get_scan(cm, tx_size, tx_type, mbmi);
     int16_t max_scan_line = 0;
     const int eob =
@@ -262,10 +260,10 @@ static void decode_reconstruct_tx(AV1_COMMON *cm, MACROBLOCKD *const xd,
                                tx_size, &max_scan_line, &eob);
     // tx_type will be read out in av1_read_coeffs_txb_facade
     const TX_TYPE tx_type =
-        av1_get_tx_type(plane_type, xd, blk_row, blk_col, block, tx_size);
+        av1_get_tx_type(plane_type, xd, blk_row, blk_col, tx_size);
 #else   // CONFIG_LV_MAP
     const TX_TYPE tx_type =
-        av1_get_tx_type(plane_type, xd, blk_row, blk_col, block, tx_size);
+        av1_get_tx_type(plane_type, xd, blk_row, blk_col, tx_size);
     const SCAN_ORDER *sc = get_scan(cm, tx_size, tx_type, mbmi);
     int16_t max_scan_line = 0;
     const int eob =

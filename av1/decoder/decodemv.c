@@ -295,7 +295,7 @@ static MOTION_MODE read_motion_mode(MACROBLOCKD *xd, MODE_INFO *mi,
 #endif  // CONFIG_EXT_SKIP
 
   const MOTION_MODE last_motion_mode_allowed =
-      motion_mode_allowed(0, xd->global_motion, xd, mi);
+      motion_mode_allowed(xd->global_motion, xd, mi);
   int motion_mode;
   FRAME_COUNTS *counts = xd->counts;
 
