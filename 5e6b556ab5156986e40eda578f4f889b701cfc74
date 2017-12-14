@@ -36,6 +36,52 @@
     },
     {
       "key": {
+        "uuid": "da80d7aa_8fc02a24",
+        "filename": "av1/common/scan.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 5397,
+      "author": {
+        "id": 5540
+      },
+      "writtenOn": "2017-12-14T21:35:34Z",
+      "side": 1,
+      "message": "Why is the default row order 0?  If I\u0027m correct, this selects the row3 order, which would be an extreme default...",
+      "range": {
+        "startLine": 5397,
+        "startChar": 0,
+        "endLine": 5397,
+        "endChar": 3
+      },
+      "revId": "5e6b556ab5156986e40eda578f4f889b701cfc74",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4b6390b1_054427a1",
+        "filename": "av1/common/scan.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 5404,
+      "author": {
+        "id": 5540
+      },
+      "writtenOn": "2017-12-14T21:35:34Z",
+      "side": 1,
+      "message": "Same question as above",
+      "range": {
+        "startLine": 5404,
+        "startChar": 0,
+        "endLine": 5404,
+        "endChar": 3
+      },
+      "revId": "5e6b556ab5156986e40eda578f4f889b701cfc74",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "bde37aeb_44ad22e0",
         "filename": "av1/common/scan.h",
         "patchSetId": 5
