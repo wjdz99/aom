@@ -1276,6 +1276,9 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
     unsigned int lib_flags = 0;
     int is_frame_visible = 0;
     int index_size = 0;
+#if TXCOEFF_COST_TIMER
+    cpi->common.cum_txcoeff_cost_timer = 0;
+#endif
     // invisible frames get packed with the next visible frame
     while (cx_data_sz - index_size >= ctx->cx_data_sz / 2 &&
            !is_frame_visible &&
