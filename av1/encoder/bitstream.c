@@ -1160,6 +1160,12 @@ void av1_write_tx_type(const AV1_COMMON *const cm, const MACROBLOCKD *xd,
 #endif
       }
     }
+#if CONFIG_EXT_LOSSLESS
+    if (((!cm->seg.enabled && cm->base_qindex == 0) ||
+        (cm->seg.enabled && xd->qindex[mbmi->segment_id] == 0))) {
+      aom_write(w, mbmi->tx_type == IDTX, LL_IDTX_PROB);
+    }
+#endif  // CONFIG_EXT_LOSSLESS
   }
 }
 
