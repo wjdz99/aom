@@ -1588,11 +1588,16 @@ static void filter_intra_predictors_3tap(uint8_t *dst, ptrdiff_t stride,
                                          TX_SIZE tx_size, const uint8_t *above,
                                          const uint8_t *left, int mode) {
   int r, c;
-  int buffer[33][33];
   const int bw = tx_size_wide[tx_size];
   const int bh = tx_size_high[tx_size];
 
+#if CONFIG_TX64X64
+  int buffer[65][65];
+  assert(bw <= 64 && bh <= 64);
+#else
+  int buffer[33][33];
   assert(bw <= 32 && bh <= 32);
+#endif  // CONFIG_TX64X64
 
   for (r = 0; r < bh; ++r) buffer[r + 1][0] = (int)left[r];
 
