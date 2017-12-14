@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "51101cc5_8a900e14",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 10394,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-12-14T18:50:16Z",
+      "side": 1,
+      "message": "It is a great idea to track the distortion of single reference frames and then use the sum of the distortions of the reference frame pair to decide on whether a comp ref mode may be skipped, without having a noticeable impact on the coding performance. Thanks for the effort.\n\nHere for the same single reference, it looks like only the distortion of the last mode (GLOBALMV) for the same single reference is considered. It may be worth to track the distortion of different prediction modes of the same single reference to make the decision.",
+      "revId": "053f20fdcf23e15fcc2985443a5d522b56de78fa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
