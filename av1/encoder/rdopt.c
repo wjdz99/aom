@@ -2565,8 +2565,48 @@ static void choose_smallest_tx_size(const AV1_COMP *const cpi, MACROBLOCK *x,
   mbmi->tx_type = DCT_DCT;
   mbmi->min_tx_size = get_min_tx_size(TX_4X4);
 
+#if CONFIG_EXT_LOSSLESS
+  av1_invalid_rd_stats(rd_stats);
+  RD_STATS this_rd_stats;
+  int64_t best_rd_cost = INT64_MAX, this_rd_cost;
+  TX_TYPE best_tx_type = DCT_DCT;
+  TX_SIZE best_tx_size = TX_4X4;
+  mbmi->tx_type = DCT_DCT;
+  txfm_rd_in_plane(x, cpi, &this_rd_stats, ref_best_rd, 0, bs, mbmi->tx_size,
+                   cpi->sf.use_fast_coef_costing);
+  if (this_rd_stats.rate != INT_MAX) {
+    this_rd_cost = RDCOST(x->rdmult, this_rd_stats.rate, this_rd_stats.dist);
+    if (this_rd_cost < best_rd_cost) {
+      best_rd_cost = this_rd_cost;
+      best_tx_type = mbmi->tx_type;
+      *rd_stats = this_rd_stats;
+    }
+  }
+
+  mbmi->tx_type = IDTX;
+  // TODO(huisu@google.com): allow larger tx sizes for idtx.
+  // e.g. const TX_SIZE max_ts = AOMMIN(TX_16X16, max_txsize_lookup[bs]);
+  const TX_SIZE max_ts = TX_4X4;
+  for (TX_SIZE ts = TX_4X4; ts <= max_ts; ++ts) {
+    txfm_rd_in_plane(x, cpi, &this_rd_stats, ref_best_rd, 0, bs, ts,
+                     cpi->sf.use_fast_coef_costing);
+    if (this_rd_stats.rate != INT_MAX) {
+      this_rd_cost = RDCOST(x->rdmult, this_rd_stats.rate, this_rd_stats.dist);
+      if (this_rd_cost < best_rd_cost) {
+        best_rd_cost = this_rd_cost;
+        best_tx_type = mbmi->tx_type;
+        best_tx_size = mbmi->tx_size;
+        *rd_stats = this_rd_stats;
+      }
+    }
+  }
+  mbmi->tx_type = best_tx_type;
+  mbmi->tx_size = best_tx_size;
+  mbmi->min_tx_size = get_min_tx_size(mbmi->tx_size);
+#else
   txfm_rd_in_plane(x, cpi, rd_stats, ref_best_rd, 0, bs, mbmi->tx_size,
                    cpi->sf.use_fast_coef_costing);
+#endif  // CONFIG_EXT_LOSSLESS
 }
 
 static INLINE int bsize_to_num_blk(BLOCK_SIZE bsize) {
