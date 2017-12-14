@@ -4521,6 +4521,9 @@ static void save_tx_rd_info(int n4, uint32_t hash, const MACROBLOCK *const x,
   tx_rd_info->rd_stats = *rd_stats;
 }
 
+#define HASH_TX 0
+
+#if HASH_TX
 static void fetch_tx_rd_info(int n4, const TX_RD_INFO *const tx_rd_info,
                              RD_STATS *const rd_stats, MACROBLOCK *const x) {
   MACROBLOCKD *const xd = &x->e_mbd;
@@ -4681,6 +4684,7 @@ static int find_tx_size_rd_records(MACROBLOCK *x, BLOCK_SIZE bsize, int mi_row,
   }
   return 1;
 }
+#endif  // HASH_TX
 
 static const uint32_t skip_pred_threshold[3][BLOCK_SIZES_ALL] = {
   {
@@ -4887,6 +4891,7 @@ static void select_tx_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
   const uint32_t hash = get_block_residue_hash(x, bsize);
   TX_RD_RECORD *tx_rd_record = &x->tx_rd_record;
 
+#if HASH_TX
   if (ref_best_rd != INT64_MAX && within_border) {
     for (int i = 0; i < tx_rd_record->num; ++i) {
       const int index = (tx_rd_record->index_start + i) % RD_RECORD_BUFFER_LEN;
@@ -4899,6 +4904,7 @@ static void select_tx_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
       }
     }
   }
+#endif
 
   // If we predict that skip is the optimal RD decision - set the respective
   // context and terminate early.
@@ -4911,6 +4917,7 @@ static void select_tx_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
     return;
   }
 
+#if HASH_TX
   // Precompute residual hashes and find existing or add new RD records to
   // store and reuse rate and distortion values to speed up TX size search.
   TX_SIZE_RD_INFO_NODE matched_rd_info[16 + 64 + 256];
@@ -4919,6 +4926,7 @@ static void select_tx_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
     found_rd_info =
         find_tx_size_rd_records(x, bsize, mi_row, mi_col, matched_rd_info);
   }
+#endif
 
   if (is_inter && cpi->sf.tx_type_search.prune_mode > NO_PRUNE &&
       !x->use_default_inter_tx_type && !xd->lossless[mbmi->segment_id]) {
@@ -4961,9 +4969,15 @@ static void select_tx_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
     if (xd->lossless[mbmi->segment_id])
       if (tx_type != DCT_DCT) continue;
 
+#if HASH_TX
     rd = select_tx_size_fix_type(cpi, x, &this_rd_stats, bsize, mi_row, mi_col,
                                  ref_best_rd, tx_type, tx_split_prune_flag,
                                  found_rd_info ? matched_rd_info : NULL);
+#else
+    rd = select_tx_size_fix_type(cpi, x, &this_rd_stats, bsize, mi_row, mi_col,
+                                 ref_best_rd, tx_type, tx_split_prune_flag,
+                                 NULL);
+#endif
     // If the current tx_type is not included in the tx_set for the smallest
     // tx size found, then all vartx partitions were actually transformed with
     // DCT_DCT and we should avoid picking it.
