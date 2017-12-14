@@ -22,6 +22,30 @@
       "revId": "b3b22a36901d37562fbfe3cead489631fc4907a0",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ecf166c8_c89c2ea5",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 5890,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2017-12-14T17:50:03Z",
+      "side": 1,
+      "message": "when cm struct is created, this is automatically inited to be 0.\n\nAssume it didn\u0027t run out of bound (64 bit int), it should be ok.",
+      "parentUuid": "27ba2949_6dbadc91",
+      "range": {
+        "startLine": 5890,
+        "startChar": 2,
+        "endLine": 5890,
+        "endChar": 28
+      },
+      "revId": "b3b22a36901d37562fbfe3cead489631fc4907a0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
