@@ -34,6 +34,23 @@
       "revId": "eaa6d2b98e3c83c3298a695f1c24c6e7bd6b7c45",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2f4ccce1_77f1cb41",
+        "filename": "av1/common/daala_tx_kernels.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 7984
+      },
+      "writtenOn": "2017-12-14T17:45:42Z",
+      "side": 1,
+      "message": "Hi Nathan,\n\nI\u0027m looking further at the hardware implementation complexity and I am wondering about this special halving operation. I can see that it is symmetric about 0 and is designed to remove bias but it does mean that you have to resolve the sign before knowing the round term which makes implementation more difficult. I assume there is also a software cost? So I was wondering what happens if this is replaced by fixed rounds which are chosen to cancel bias. \n\nI performed the following experiment:\n\nod_rshift1() code changed to (v+1)\u003e\u003e1\nod_rshift0() function added which does (v+0)\u003e\u003e1\nod_butterfly_add() changed to use od_rshift0 rather than od_rshift1\nod_butterfly_neg() changed to use od_rshift0 rather than od_rshift1\nod_idct_4() changed to use od_rshift0() for the shift of *q3\n\nWith these changes I seemed to get a smaller reconstruction error on fdct_4+idct_4 compared to the original code. (I haven\u0027t looked at other transforms apart from dct4 but assume a similar approach could be used). I was wondering if with the changes above you see a smaller error on your test bench as well?",
+      "revId": "eaa6d2b98e3c83c3298a695f1c24c6e7bd6b7c45",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
