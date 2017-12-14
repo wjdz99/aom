@@ -678,8 +678,8 @@ static void upscale_normative_plane(const uint8_t *const input, int height,
   // Note: Because we pass input-1 to av1_convolve_horiz_rs, we need one extra
   // column of border pixels compared to what we'd naively think.
   const int border_cols = UPSCALE_NORMATIVE_TAPS / 2 + 1;
-  uint8_t *tmp_left;
-  uint8_t *tmp_right;
+  uint8_t *tmp_left = NULL; // Silence spurious "may be used uninitialized" warnings
+  uint8_t *tmp_right = NULL;
   uint8_t *const in_tl = (uint8_t *)(input - border_cols);  // Cast off 'const'
   uint8_t *const in_tr = (uint8_t *)(input + width);
   if (pad_left) {
@@ -1027,8 +1027,8 @@ static void highbd_upscale_normative_plane(
   // column of border pixels compared to what we'd naively think.
   const int border_cols = UPSCALE_NORMATIVE_TAPS / 2 + 1;
   const int border_size = border_cols * sizeof(uint16_t);
-  uint16_t *tmp_left;
-  uint16_t *tmp_right;
+  uint16_t *tmp_left = NULL; // Silence spurious "may be used uninitialized" warnings
+  uint16_t *tmp_right = NULL;
   uint16_t *const input16 = CONVERT_TO_SHORTPTR(input);
   uint16_t *const in_tl = input16 - border_cols;
   uint16_t *const in_tr = input16 + width;
