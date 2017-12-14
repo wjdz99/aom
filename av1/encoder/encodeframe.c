@@ -4324,8 +4324,7 @@ static void sum_intra_stats(FRAME_COUNTS *counts, MACROBLOCKD *xd,
 #endif
 #endif  // CONFIG_ENTROPY_STATS
     if (allow_update_cdf)
-      update_cdf(get_y_mode_cdf(fc, mi, above_mi, left_mi, 0), y_mode,
-                 INTRA_MODES);
+      update_cdf(get_y_mode_cdf(fc, above_mi, left_mi), y_mode, INTRA_MODES);
   } else {
 #if CONFIG_ENTROPY_STATS
     ++counts->y_mode[size_group_lookup[bsize]][y_mode];
