@@ -22,9 +22,17 @@
 static void fwd_txfm_4x4(const int16_t *src_diff, tran_low_t *coeff,
                          int diff_stride, TxfmParam *txfm_param) {
   if (txfm_param->lossless) {
+#if CONFIG_EXT_LOSSLESS
+    assert(txfm_param->tx_type == DCT_DCT || txfm_param->tx_type == IDTX);
+    if (txfm_param->tx_type == DCT_DCT) {
+      av1_fwht4x4(src_diff, coeff, diff_stride);
+      return;
+    }
+#else
     assert(txfm_param->tx_type == DCT_DCT);
     av1_fwht4x4(src_diff, coeff, diff_stride);
     return;
+#endif  // CONFIG_EXT_LOSSLESS
   }
 
 #if CONFIG_DAALA_TX4
@@ -180,9 +188,17 @@ static void highbd_fwd_txfm_4x4(const int16_t *src_diff, tran_low_t *coeff,
   const TX_TYPE tx_type = txfm_param->tx_type;
   const int bd = txfm_param->bd;
   if (txfm_param->lossless) {
+#if CONFIG_EXT_LOSSLESS
+    assert(tx_type == DCT_DCT || tx_type == IDTX);
+    if (tx_type == DCT_DCT) {
+      av1_highbd_fwht4x4(src_diff, coeff, diff_stride);
+      return;
+    }
+#else
     assert(tx_type == DCT_DCT);
     av1_highbd_fwht4x4(src_diff, coeff, diff_stride);
     return;
+#endif  // CONFIG_EXT_LOSSLESS
   }
   switch (tx_type) {
     case DCT_DCT:

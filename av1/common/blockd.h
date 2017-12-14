@@ -1077,6 +1077,13 @@ static INLINE TX_TYPE av1_get_tx_type(PLANE_TYPE plane_type,
   return get_default_tx_type(plane_type, xd, tx_size);
 #endif  // FIXED_TX_TYPE
 
+#if CONFIG_EXT_LOSSLESS
+  if (xd->lossless[mbmi->segment_id]) {
+    assert(mbmi->tx_type == DCT_DCT || mbmi->tx_type == IDTX);
+    return mbmi->tx_type;
+  }
+#endif  // CONFIG_EXT_LOSSLESS
+
 #if CONFIG_DAALA_TX_DST32
   if (xd->lossless[mbmi->segment_id] || txsize_sqr_map[tx_size] > TX_32X32)
 #else

@@ -1003,6 +1003,12 @@ void av1_read_tx_type(const AV1_COMMON *const cm, MACROBLOCKD *xd,
       }
     } else {
       *tx_type = DCT_DCT;
+#if CONFIG_EXT_LOSSLESS
+      if (((!cm->seg.enabled && cm->base_qindex == 0) ||
+          (cm->seg.enabled && xd->qindex[mbmi->segment_id] == 0))) {
+        if (aom_read(r, LL_IDTX_PROB, ACCT_STR)) *tx_type = IDTX;
+      }
+#endif  // CONFIG_EXT_LOSSLESS
     }
   }
 #if FIXED_TX_TYPE
