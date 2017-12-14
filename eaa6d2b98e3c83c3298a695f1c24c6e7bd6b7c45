@@ -51,6 +51,24 @@
       "revId": "eaa6d2b98e3c83c3298a695f1c24c6e7bd6b7c45",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "28ee084d_68d64e24",
+        "filename": "av1/common/daala_tx_kernels.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2017-12-14T23:04:43Z",
+      "side": 1,
+      "message": "Hi Dominic,\n\nThanks for looking into this.  It was always our hope to come back at the end of this process and see if we could remove the (v \u003c 0) and replace it with fixed rounds as you suggest.  This would also make things easier in software.\n\nMaking the changes you suggest and running them through my test harness gives the following round trip values:\n\nBefore:\n\n1-D Forward Bias:\n-0.003180900000000, -0.010129612500000,  0.062512300000000,  0.006675037500000\n1-D Round-Trip Bias:\n 0.016486000000000,  0.015012900000000,  0.026461600000000,  0.025898500000000\n1-D Q\u003d8 Bias:\n 0.031504600000000,  0.032371100000000,  0.030985800000000,  0.030796400000000\n1-D Q\u003d7 Bias:\n 0.031216500000000,  0.031625700000000,  0.031865400000000,  0.031434700000000\n\nAfter:\n\n1-D Forward Bias:\n-0.003180900000000, -0.010129612500000,  0.062512300000000,  0.006675037500000\n1-D Round-Trip Bias:\n 0.006904700000000,  0.025079700000000,  0.016280000000000,  0.019508900000000\n1-D Q\u003d8 Bias:\n 0.015692400000000,  0.049328800000000,  0.013389100000000,  0.015271000000000\n1-D Q\u003d7 Bias:\n 0.015560800000000,  0.046854600000000,  0.016466100000000,  0.015841100000000\n\nIt looks like those changes might be an improvement overall, though some of the error seems to be shifted into y[1].  Note that all of our transforms are run at Q4 and 1/2^4 \u003d 0.0625.",
+      "parentUuid": "2f4ccce1_77f1cb41",
+      "revId": "eaa6d2b98e3c83c3298a695f1c24c6e7bd6b7c45",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
