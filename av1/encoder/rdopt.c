@@ -2337,7 +2337,7 @@ int av1_tx_type_cost(const AV1_COMMON *cm, const MACROBLOCK *x,
                      TX_SIZE tx_size, TX_TYPE tx_type) {
   if (plane > 0) return 0;
 
-  const TX_SIZE square_tx_size = get_min_tx_size(tx_size);
+  const TX_SIZE square_tx_size = txsize_sqr_map[tx_size];
 
   const MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
   const int is_inter = is_inter_block(mbmi);
@@ -2491,7 +2491,7 @@ static void choose_largest_tx_size(const AV1_COMP *const cpi, MACROBLOCK *x,
   av1_invalid_rd_stats(rd_stats);
 
   mbmi->tx_size = tx_size_from_tx_mode(bs, cm->tx_mode, is_inter);
-  mbmi->min_tx_size = get_min_tx_size(mbmi->tx_size);
+  mbmi->min_tx_size = mbmi->tx_size;
   const TxSetType tx_set_type =
       get_ext_tx_set_type(mbmi->tx_size, bs, is_inter, cm->reduced_tx_set_used);
 
@@ -2529,7 +2529,8 @@ static void choose_largest_tx_size(const AV1_COMP *const cpi, MACROBLOCK *x,
                        mbmi->tx_size, cpi->sf.use_fast_coef_costing);
 
       if (this_rd_stats.rate == INT_MAX) continue;
-      av1_tx_type_cost(cm, x, xd, bs, plane, mbmi->tx_size, tx_type);
+      this_rd_stats.rate +=
+          av1_tx_type_cost(cm, x, xd, bs, plane, mbmi->tx_size, tx_type);
 
       if (this_rd_stats.skip)
         this_rd = RDCOST(x->rdmult, s1, this_rd_stats.sse);
@@ -2563,7 +2564,7 @@ static void choose_smallest_tx_size(const AV1_COMP *const cpi, MACROBLOCK *x,
 
   mbmi->tx_size = TX_4X4;
   mbmi->tx_type = DCT_DCT;
-  mbmi->min_tx_size = get_min_tx_size(TX_4X4);
+  mbmi->min_tx_size = TX_4X4;
 
   txfm_rd_in_plane(x, cpi, rd_stats, ref_best_rd, 0, bs, mbmi->tx_size,
                    cpi->sf.use_fast_coef_costing);
@@ -2663,7 +2664,7 @@ static void choose_tx_size_type_from_rd(const AV1_COMP *const cpi,
              (TX_SIZE_W_MIN * TX_SIZE_H_MIN));
 #endif
 
-  mbmi->min_tx_size = get_min_tx_size(mbmi->tx_size);
+  mbmi->min_tx_size = mbmi->tx_size;
 }
 
 static void super_block_yrd(const AV1_COMP *const cpi, MACROBLOCK *x,
@@ -4240,11 +4241,11 @@ static int64_t select_tx_size_fix_type(const AV1_COMP *cpi, MACROBLOCK *x,
                          tx_split_prune_flag, rd_info_tree);
   if (rd_stats->rate == INT_MAX) return INT64_MAX;
 
-  mbmi->min_tx_size = get_min_tx_size(mbmi->inter_tx_size[0][0]);
+  mbmi->min_tx_size = mbmi->inter_tx_size[0][0];
   for (row = 0; row < max_blocks_high / 2; ++row)
     for (col = 0; col < max_blocks_wide / 2; ++col)
-      mbmi->min_tx_size = AOMMIN(
-          mbmi->min_tx_size, get_min_tx_size(mbmi->inter_tx_size[row][col]));
+      mbmi->min_tx_size =
+          TXSIZEMIN(mbmi->min_tx_size, mbmi->inter_tx_size[row][col]);
 
   if (fast) {
     // Do a better (non-fast) search with tx sizes already decided.
@@ -4784,7 +4785,7 @@ static void set_skip_flag(const AV1_COMP *cpi, MACROBLOCK *x,
     for (int idx = 0; idx < xd->n8_w; ++idx)
       mbmi->inter_tx_size[idy][idx] = tx_size;
   mbmi->tx_size = tx_size;
-  mbmi->min_tx_size = get_min_tx_size(tx_size);
+  mbmi->min_tx_size = tx_size;
   memset(x->blk_skip[0], 1, sizeof(uint8_t) * n4);
   rd_stats->skip = 1;
 
@@ -4812,8 +4813,8 @@ static void set_skip_flag(const AV1_COMP *cpi, MACROBLOCK *x,
   }
 #if !CONFIG_TXK_SEL
   const AV1_COMMON *cm = &cpi->common;
-  const int ext_tx_set = get_ext_tx_set(max_txsize_lookup[bsize], bsize, 1,
-                                        cm->reduced_tx_set_used);
+  const int ext_tx_set =
+      get_ext_tx_set(mbmi->min_tx_size, bsize, 1, cm->reduced_tx_set_used);
   if (get_ext_tx_types(mbmi->min_tx_size, bsize, 1, cm->reduced_tx_set_used) >
           1 &&
       !xd->lossless[xd->mi[0]->mbmi.segment_id]) {
@@ -10644,7 +10645,7 @@ PALETTE_EXIT:
           for (int idx = 0; idx < width; ++idx)
             best_mbmode.inter_tx_size[idy >> 1][idx >> 1] = best_mbmode.tx_size;
       }
-      best_mbmode.min_tx_size = get_min_tx_size(best_mbmode.tx_size);
+      best_mbmode.min_tx_size = best_mbmode.tx_size;
       set_txfm_ctxs(best_mbmode.tx_size, xd->n8_w, xd->n8_h, best_mbmode.skip,
                     xd);
 
