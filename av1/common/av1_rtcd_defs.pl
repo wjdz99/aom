@@ -628,4 +628,10 @@ if (aom_config("CONFIG_DAALA_TX") eq "yes") {
   specialize qw/daala_inv_txfm_add avx2/;
 }
 
+# CFL
+if (aom_config("CONFIG_CFL") eq "yes") {
+  add_proto qw/void av1_subtract_average/, "int16_t *pred_buf_q3, int width, int height, int16_t avg_q3";
+  specialize qw/av1_subtract_average sse2 avx2/;
+}
+
 1;
