@@ -13,6 +13,9 @@
 #include "av1/common/common_data.h"
 #include "av1/common/onyxc_int.h"
 
+#include "./av1_rtcd.h"
+#include "aom_ports/aom_timer.h"
+
 void cfl_init(CFL_CTX *cfl, AV1_COMMON *cm) {
   assert(block_size_wide[CFL_MAX_BLOCK_SIZE] == CFL_BUF_LINE);
   assert(block_size_high[CFL_MAX_BLOCK_SIZE] == CFL_BUF_LINE);
@@ -149,13 +152,7 @@ static void cfl_subtract_average(CFL_CTX *cfl, TX_SIZE tx_size) {
   assert(abs((avg_q3 * (1 << num_pel_log2)) - sum_q3) <= 1 << num_pel_log2 >>
          1);
   pred_buf_q3 = cfl->pred_buf_q3;
-  for (int j = 0; j < tx_height; j++) {
-    assert(pred_buf_q3 + tx_width <= cfl->pred_buf_q3 + CFL_BUF_SQUARE);
-    for (int i = 0; i < tx_width; i++) {
-      pred_buf_q3[i] -= avg_q3;
-    }
-    pred_buf_q3 += CFL_BUF_LINE;
-  }
+  subtract_average(cfl->pred_buf_q3, tx_width, tx_height, avg_q3);
 }
 
 static INLINE int cfl_idx_to_alpha(int alpha_idx, int joint_sign,
