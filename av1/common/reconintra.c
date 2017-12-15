@@ -2774,7 +2774,7 @@ void av1_predict_intra_block_facade(const AV1_COMMON *cm, MACROBLOCKD *xd,
     assert(block_size_high[plane_bsize] == tx_size_high[tx_size]);
 #endif
     CFL_CTX *const cfl = &xd->cfl;
-    CFL_PRED_TYPE pred_plane = get_cfl_pred_type(plane);
+    const CFL_PRED_TYPE pred_plane = get_cfl_pred_type(plane);
     if (cfl->dc_pred_is_cached[pred_plane] == 0) {
       av1_predict_intra_block(cm, xd, pd->width, pd->height,
                               txsize_to_bsize[tx_size], mode, dst, dst_stride,
