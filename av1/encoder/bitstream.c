@@ -2977,6 +2977,11 @@ static void write_tile_info(const AV1_COMMON *const cm,
   if (cm->tile_cols * cm->tile_rows > 1)
     aom_wb_write_bit(wb, cm->loop_filter_across_tiles_enabled);
 #endif  // CONFIG_LOOPFILTERING_ACROSS_TILES
+
+#if CONFIG_TILE_INFO_FIRST
+  // write the tile length code  (Always 4 bytes for now)
+  aom_wb_write_literal(wb, 3, 2);
+#endif
 }
 
 #if USE_GF16_MULTI_LAYER
@@ -3969,6 +3974,11 @@ static void write_uncompressed_header_frame(AV1_COMP *cpi,
 #if !CONFIG_NO_FRAME_CONTEXT_SIGNALING
   aom_wb_write_literal(wb, cm->frame_context_idx, FRAME_CONTEXTS_LOG2);
 #endif
+
+#if CONFIG_TILE_INFO_FIRST
+  write_tile_info(cm, wb);
+#endif
+
   encode_loopfilter(cm, wb);
   encode_quantization(cm, wb);
   encode_segmentation(cm, xd, wb);
@@ -4042,7 +4052,9 @@ static void write_uncompressed_header_frame(AV1_COMP *cpi,
 
   if (!frame_is_intra_only(cm)) write_global_motion(cpi, wb);
 
+#if !CONFIG_TILE_INFO_FIRST
   write_tile_info(cm, wb);
+#endif
 }
 
 #else
@@ -4321,6 +4333,9 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
 #if !CONFIG_NO_FRAME_CONTEXT_SIGNALING
   aom_wb_write_literal(wb, cm->frame_context_idx, FRAME_CONTEXTS_LOG2);
 #endif
+#if CONFIG_TILE_INFO_FIRST
+  write_tile_info(cm, wb);
+#endif
   encode_loopfilter(cm, wb);
   encode_quantization(cm, wb);
   encode_segmentation(cm, xd, wb);
@@ -4385,7 +4400,9 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
 
   if (!frame_is_intra_only(cm)) write_global_motion(cpi, wb);
 
+#if !CONFIG_TILE_INFO_FIRST
   write_tile_info(cm, wb);
+#endif
 }
 #endif  // CONFIG_OBU
 
@@ -4604,8 +4621,10 @@ static uint32_t write_frame_header_obu(AV1_COMP *cpi, uint8_t *const dst) {
     return total_size;
   }
 
+#if !CONFIG_TILE_INFO_FIRST
   // write the tile length code  (Always 4 bytes for now)
   aom_wb_write_literal(&wb, 3, 2);
+#endif
 
   if (!use_compressed_header(cm)) {
     uncompressed_hdr_size = aom_wb_bytes_written(&wb);
