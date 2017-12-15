@@ -590,6 +590,7 @@ static INLINE int get_br_cost(tran_low_t abs_qc, int ctx,
   }
 }
 
+#if !CONFIG_LV_MAP_MULTI
 static INLINE int get_base_cost(tran_low_t abs_qc, int ctx,
                                 const int coeff_base[2], int base_idx) {
   const int level = base_idx + 1;
@@ -599,6 +600,7 @@ static INLINE int get_base_cost(tran_low_t abs_qc, int ctx,
   else
     return coeff_base[abs_qc == level];
 }
+#endif
 
 // Note: don't call this function when eob is 0.
 int av1_cost_coeffs_txb(const AV1_COMMON *const cm, const MACROBLOCK *x,
