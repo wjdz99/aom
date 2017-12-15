@@ -62,7 +62,6 @@ typedef struct {
   FRAME_CONTEXT fc;
 } CODING_CONTEXT;
 
-#if !CONFIG_NO_FRAME_CONTEXT_SIGNALING
 typedef enum {
   // regular inter frame
   REGULAR_FRAME = 0,
@@ -77,7 +76,6 @@ typedef enum {
   // extra alternate reference frame
   EXT_ARF_FRAME = 5
 } FRAME_CONTEXT_INDEX;
-#endif
 
 typedef enum {
   NORMAL = 0,
