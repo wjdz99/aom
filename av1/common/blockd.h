@@ -378,7 +378,6 @@ typedef struct MB_MODE_INFO {
 
 typedef struct MODE_INFO {
   MB_MODE_INFO mbmi;
-  b_mode_info bmi[4];
 } MODE_INFO;
 
 #if CONFIG_INTRABC
