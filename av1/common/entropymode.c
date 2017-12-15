@@ -1383,7 +1383,7 @@ void av1_setup_frame_contexts(AV1_COMMON *cm) {
     // Reset only the frame context specified in the frame header.
     cm->frame_contexts[cm->frame_context_idx] = *cm->fc;
   }
-#endif  // CONFIG_NO_FRAME_CONTEXT_SIGNALING
+#endif  // !CONFIG_NO_FRAME_CONTEXT_SIGNALING
 }
 
 void av1_setup_past_independence(AV1_COMMON *cm) {
@@ -1419,6 +1419,7 @@ void av1_setup_past_independence(AV1_COMMON *cm) {
 #if CONFIG_LV_MAP
   av1_init_lv_map(cm);
 #endif
+
   cm->fc->initialized = 1;
   av1_setup_frame_contexts(cm);
 
