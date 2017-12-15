@@ -3042,51 +3042,55 @@ void av1_setup_frame_contexts(AV1_COMMON *cm) {
     // Reset all frame contexts.
     for (i = 0; i < FRAME_CONTEXTS; ++i) cm->frame_contexts[i] = *cm->fc;
   } else if (cm->reset_frame_context == RESET_FRAME_CONTEXT_CURRENT) {
+#if CONFIG_NO_FRAME_CONTEXT_SIGNALING
+    // Reset the frame context of the first specified ref frame.
+    if (cm->frame_refs[0].idx >= 0) {
+      cm->frame_contexts[cm->frame_refs[cm->primary_ref_frame].idx] = *cm->fc;
+    }
+#else
     // Reset only the frame context specified in the frame header.
     cm->frame_contexts[cm->frame_context_idx] = *cm->fc;
   }
 #endif  // CONFIG_NO_FRAME_CONTEXT_SIGNALING
-}
+  }
 
-void av1_setup_past_independence(AV1_COMMON *cm) {
-  // Reset the segment feature data to the default stats:
-  // Features disabled, 0, with delta coding (Default state).
-  struct loopfilter *const lf = &cm->lf;
+  void av1_setup_past_independence(AV1_COMMON * cm) {
+    // Reset the segment feature data to the default stats:
+    // Features disabled, 0, with delta coding (Default state).
+    struct loopfilter *const lf = &cm->lf;
 
-  av1_clearall_segfeatures(&cm->seg);
+    av1_clearall_segfeatures(&cm->seg);
 
-  if (cm->last_frame_seg_map && !cm->frame_parallel_decode)
-    memset(cm->last_frame_seg_map, 0, (cm->mi_rows * cm->mi_cols));
+    if (cm->last_frame_seg_map && !cm->frame_parallel_decode)
+      memset(cm->last_frame_seg_map, 0, (cm->mi_rows * cm->mi_cols));
 
-  if (cm->current_frame_seg_map)
-    memset(cm->current_frame_seg_map, 0, (cm->mi_rows * cm->mi_cols));
+    if (cm->current_frame_seg_map)
+      memset(cm->current_frame_seg_map, 0, (cm->mi_rows * cm->mi_cols));
 
-  // Reset the mode ref deltas for loop filter
-  av1_zero(lf->last_ref_deltas);
-  av1_zero(lf->last_mode_deltas);
-  set_default_lf_deltas(lf);
+    // Reset the mode ref deltas for loop filter
+    av1_zero(lf->last_ref_deltas);
+    av1_zero(lf->last_mode_deltas);
+    set_default_lf_deltas(lf);
 
-  // To force update of the sharpness
-  lf->last_sharpness_level = -1;
+    // To force update of the sharpness
+    lf->last_sharpness_level = -1;
 
-  av1_default_coef_probs(cm);
-  init_mode_probs(cm->fc);
-  av1_init_mv_probs(cm);
+    av1_default_coef_probs(cm);
+    init_mode_probs(cm->fc);
+    av1_init_mv_probs(cm);
 #if CONFIG_LV_MAP
-  av1_init_lv_map(cm);
+    av1_init_lv_map(cm);
 #endif
 #if CONFIG_ADAPT_SCAN
-  av1_init_scan_order(cm);
+    av1_init_scan_order(cm);
 #endif
-  av1_convolve_init(cm);
-  cm->fc->initialized = 1;
-  av1_setup_frame_contexts(cm);
+    av1_convolve_init(cm);
+    cm->fc->initialized = 1;
+    av1_setup_frame_contexts(cm);
 
-  // prev_mip will only be allocated in encoder.
-  if (frame_is_intra_only(cm) && cm->prev_mip && !cm->frame_parallel_decode)
-    memset(cm->prev_mip, 0,
-           cm->mi_stride * (cm->mi_rows + 1) * sizeof(*cm->prev_mip));
-#if !CONFIG_NO_FRAME_CONTEXT_SIGNALING
-  cm->frame_context_idx = 0;
-#endif  // !CONFIG_NO_FRAME_CONTEXT_SIGNALING
-}
+    // prev_mip will only be allocated in encoder.
+    if (frame_is_intra_only(cm) && cm->prev_mip && !cm->frame_parallel_decode)
+      memset(cm->prev_mip, 0,
+             cm->mi_stride * (cm->mi_rows + 1) * sizeof(*cm->prev_mip));
+    cm->frame_context_idx = 0;
+  }

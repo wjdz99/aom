@@ -3710,7 +3710,14 @@ static void write_uncompressed_header_frame(AV1_COMP *cpi,
     }
 #endif
     cpi->refresh_frame_mask = get_refresh_mask(cpi);
-
+#if CONFIG_NO_FRAME_CONTEXT_SIGNALING
+    int updated_fb = -1;
+    for (int i = 0; i < 8; i++) {
+      if (cpi->refresh_frame_mask & (1 << i)) updated_fb = i;
+    }
+    assert(updated_fb >= 0);
+    cm->fb_of_context_type[cm->frame_context_idx] = updated_fb;
+#endif
     if (cm->intra_only) {
       write_bitdepth_colorspace_sampling(cm, wb);
 
@@ -3828,6 +3835,8 @@ static void write_uncompressed_header_frame(AV1_COMP *cpi,
   }
 #if !CONFIG_NO_FRAME_CONTEXT_SIGNALING
   aom_wb_write_literal(wb, cm->frame_context_idx, FRAME_CONTEXTS_LOG2);
+#else
+  aom_wb_write_literal(wb, cm->primary_ref_frame, PRIMARY_REF_BITS);
 #endif
   encode_loopfilter(cm, wb);
   encode_quantization(cm, wb);
