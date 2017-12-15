@@ -118,6 +118,7 @@ AV1_COMMON_SRCS-yes += common/odintrin.h
 ifeq ($(CONFIG_CFL),yes)
 AV1_COMMON_SRCS-yes += common/cfl.h
 AV1_COMMON_SRCS-yes += common/cfl.c
+AV1_COMMON_SRCS-$(HAVE_SSE2) += common/cfl_sse2.c
 endif
 
 AV1_COMMON_SRCS-yes += common/obmc.h
