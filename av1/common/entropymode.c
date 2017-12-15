@@ -1379,11 +1379,19 @@ void av1_setup_frame_contexts(AV1_COMMON *cm) {
       cm->reset_frame_context == RESET_FRAME_CONTEXT_ALL) {
     // Reset all frame contexts.
     for (i = 0; i < FRAME_CONTEXTS; ++i) cm->frame_contexts[i] = *cm->fc;
-  } else if (cm->reset_frame_context == RESET_FRAME_CONTEXT_CURRENT) {
+#endif
+}
+else if (cm->reset_frame_context == RESET_FRAME_CONTEXT_CURRENT) {
+#if CONFIG_NO_FRAME_CONTEXT_SIGNALING
+  // Reset the frame context of the first specified ref frame.
+  if (cm->frame_refs[0].idx >= 0) {
+    cm->frame_contexts[cm->frame_refs[cm->primary_ref_frame].idx] = *cm->fc;
+  }
+#else
     // Reset only the frame context specified in the frame header.
     cm->frame_contexts[cm->frame_context_idx] = *cm->fc;
-  }
 #endif  // CONFIG_NO_FRAME_CONTEXT_SIGNALING
+}
 }
 
 void av1_setup_past_independence(AV1_COMMON *cm) {
@@ -1419,6 +1427,7 @@ void av1_setup_past_independence(AV1_COMMON *cm) {
 #if CONFIG_LV_MAP
   av1_init_lv_map(cm);
 #endif
+
   cm->fc->initialized = 1;
   av1_setup_frame_contexts(cm);
 
