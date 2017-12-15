@@ -239,13 +239,9 @@ static void copy_tile(int width, int height, const uint8_t *src, int src_stride,
 // Helper function: Save one column of left/right context to the appropriate
 // column buffers, then extend the edge of the current tile into that column.
 //
-// Note: The code to deal with above/below boundaries may have filled out
-// the corners of the border with data from the tiles to our left or right,
-// which isn't allowed. To fix that up, we need to include the top and
-// bottom context regions in the area which we extend.
-// But note that we don't need to store the pixels we overwrite in the
-// corners of the context area - those have already been overwritten once,
-// so their original values are already in rlbs->tmp_save_{above,below}.
+// Note: The height passed in should be the height of this processing unit,
+// but we actually save/restore an extra RESTORATION_BORDER pixels above and
+// below the stripe.
 #if CONFIG_LOOPFILTERING_ACROSS_TILES
 static void setup_boundary_column(const uint8_t *src8, int src_stride,
                                   uint8_t *dst8, int dst_stride, uint16_t *buf,
@@ -253,23 +249,15 @@ static void setup_boundary_column(const uint8_t *src8, int src_stride,
   if (use_highbd) {
     const uint16_t *src16 = CONVERT_TO_SHORTPTR(src8);
     uint16_t *dst16 = CONVERT_TO_SHORTPTR(dst8);
-    for (int i = -RESTORATION_BORDER; i < 0; i++)
-      dst16[i * dst_stride] = src16[i * src_stride];
-    for (int i = 0; i < h; i++) {
-      buf[i] = dst16[i * dst_stride];
+    for (int i = -RESTORATION_BORDER; i < h + RESTORATION_BORDER; i++) {
+      buf[i + RESTORATION_BORDER] = dst16[i * dst_stride];
       dst16[i * dst_stride] = src16[i * src_stride];
     }
-    for (int i = h; i < h + RESTORATION_BORDER; i++)
-      dst16[i * dst_stride] = src16[i * src_stride];
   } else {
-    for (int i = -RESTORATION_BORDER; i < 0; i++)
-      dst8[i * dst_stride] = src8[i * src_stride];
-    for (int i = 0; i < h; i++) {
-      buf[i] = dst8[i * dst_stride];
+    for (int i = -RESTORATION_BORDER; i < h + RESTORATION_BORDER; i++) {
+      buf[i + RESTORATION_BORDER] = dst8[i * dst_stride];
       dst8[i * dst_stride] = src8[i * src_stride];
     }
-    for (int i = h; i < h + RESTORATION_BORDER; i++)
-      dst8[i * dst_stride] = src8[i * src_stride];
   }
 }
 
@@ -278,9 +266,11 @@ static void restore_boundary_column(uint8_t *dst8, int dst_stride,
                                     int use_highbd) {
   if (use_highbd) {
     uint16_t *dst16 = CONVERT_TO_SHORTPTR(dst8);
-    for (int i = 0; i < h; i++) dst16[i * dst_stride] = buf[i];
+    for (int i = -RESTORATION_BORDER; i < h + RESTORATION_BORDER; i++)
+      dst16[i * dst_stride] = buf[i + RESTORATION_BORDER];
   } else {
-    for (int i = 0; i < h; i++) dst8[i * dst_stride] = buf[i];
+    for (int i = -RESTORATION_BORDER; i < h + RESTORATION_BORDER; i++)
+      dst8[i * dst_stride] = buf[i + RESTORATION_BORDER];
   }
 }
 #endif  // CONFIG_LOOPFILTERING_ACROSS_TILES
@@ -428,12 +418,9 @@ static void setup_processing_stripe_boundary(
 
 #if CONFIG_LOOPFILTERING_ACROSS_TILES
   if (!loop_filter_across_tiles_enabled) {
-    // If loopfiltering across tiles is disabled, we need to check if we're at
-    // the edge of the current tile column. If we are, we need to extend the
-    // leftmost/rightmost column within the tile by 3 pixels, so that the output
-    // doesn't depend on pixels from the next column over.
-    // This applies to the top and bottom borders too, since those may have
-    // been filled out with data from the tile to the top-left (etc.) of us.
+    // If loopfiltering across tiles is disabled, we need to extend tile edges
+    // by 3 pixels, to ensure that we don't sample from the tiles to our left
+    // or right.
     const int at_tile_left_border = (limits->h_start == tile_rect->left);
     const int at_tile_right_border = (limits->h_end == tile_rect->right);
 
@@ -457,6 +444,17 @@ static void setup_processing_stripe_boundary(
 
 // This function restores the boundary lines modified by
 // setup_processing_stripe_boundary.
+//
+// Note: We need to be careful when handling the corners of the processing
+// unit, because (eg.) the top-left corner is considered to be part of
+// both the left and top borders. This means that, depending on the
+// loop_filter_across_tiles_enabled flag, the corner pixels might get
+// overwritten twice, once as part of the "top" border and once as part
+// of the "left" border (or similar for other corners).
+//
+// Everything works out fine as long as we make sure to reverse the order
+// when restoring, ie. we need to restore the left/right borders followed
+// by the top/bottom borders.
 static void restore_processing_stripe_boundary(
     const RestorationTileLimits *limits, const RestorationLineBuffers *rlbs,
     int use_highbd, int h,
@@ -471,6 +469,30 @@ static void restore_processing_stripe_boundary(
   const int line_size = line_width << use_highbd;
 
   const int data_x0 = limits->h_start - RESTORATION_EXTRA_HORZ;
+
+#if CONFIG_LOOPFILTERING_ACROSS_TILES
+  if (!loop_filter_across_tiles_enabled) {
+    // Restore any pixels we overwrote at the left/right edge of this
+    // processing unit.
+    const int at_tile_left_border = (limits->h_start == tile_rect->left);
+    const int at_tile_right_border = (limits->h_end == tile_rect->right);
+
+    if (at_tile_left_border) {
+      uint8_t *dst8 = data8 + limits->h_start + limits->v_start * data_stride;
+      for (int j = -RESTORATION_BORDER; j < 0; j++)
+        restore_boundary_column(dst8 + j, data_stride,
+                                rlbs->tmp_save_left[j + RESTORATION_BORDER], h,
+                                use_highbd);
+    }
+
+    if (at_tile_right_border) {
+      uint8_t *dst8 = data8 + limits->h_end + limits->v_start * data_stride;
+      for (int j = 0; j < RESTORATION_BORDER; j++)
+        restore_boundary_column(dst8 + j, data_stride, rlbs->tmp_save_right[j],
+                                h, use_highbd);
+    }
+  }
+#endif  // CONFIG_LOOPFILTERING_ACROSS_TILES
 
   if (copy_above) {
     uint8_t *data8_tl = data8 + data_x0 + limits->v_start * data_stride;
@@ -492,34 +514,6 @@ static void restore_processing_stripe_boundary(
       memcpy(REAL_PTR(use_highbd, dst8), rlbs->tmp_save_below[i], line_size);
     }
   }
-
-#if CONFIG_LOOPFILTERING_ACROSS_TILES
-  if (!loop_filter_across_tiles_enabled) {
-    // Restore any pixels we overwrote at the left/right edge of this
-    // processing unit
-    // Note: We don't need to restore the corner pixels, even if we overwrote
-    // them in the equivalent place in setup_processing_stripe_boundary:
-    // Because !loop_filter_across_tiles_enabled => copy_above = copy_below = 1,
-    // the corner pixels will already have been restored before we get here.
-    const int at_tile_left_border = (limits->h_start == tile_rect->left);
-    const int at_tile_right_border = (limits->h_end == tile_rect->right);
-
-    if (at_tile_left_border) {
-      uint8_t *dst8 = data8 + limits->h_start + limits->v_start * data_stride;
-      for (int j = -RESTORATION_BORDER; j < 0; j++)
-        restore_boundary_column(dst8 + j, data_stride,
-                                rlbs->tmp_save_left[j + RESTORATION_BORDER], h,
-                                use_highbd);
-    }
-
-    if (at_tile_right_border) {
-      uint8_t *dst8 = data8 + limits->h_end + limits->v_start * data_stride;
-      for (int j = 0; j < RESTORATION_BORDER; j++)
-        restore_boundary_column(dst8 + j, data_stride, rlbs->tmp_save_right[j],
-                                h, use_highbd);
-    }
-  }
-#endif  // CONFIG_LOOPFILTERING_ACROSS_TILES
 }
 #endif
 

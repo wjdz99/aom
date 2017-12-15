@@ -213,6 +213,12 @@ typedef struct {
 #define RESTORATION_LINEBUFFER_WIDTH \
   (RESTORATION_TILESIZE_MAX * 3 / 2 + 2 * RESTORATION_EXTRA_HORZ)
 
+// Similarly, the column buffers (used when we're at a vertical tile edge
+// that we can't filter across) need space for one processing unit's worth
+// of pixels, plus the top/bottom border width
+#define RESTORATION_COLBUFFER_HEIGHT \
+  (RESTORATION_PROC_UNIT_SIZE + 2 * RESTORATION_BORDER)
+
 typedef struct {
   // Temporary buffers to save/restore 3 lines above/below the restoration
   // stripe.
@@ -225,8 +231,8 @@ typedef struct {
   // Note: These arrays only need to store the pixels immediately left/right
   // of each processing unit; the corner pixels (top-left, etc.) are always
   // stored into the above/below arrays.
-  uint16_t tmp_save_left[RESTORATION_BORDER][RESTORATION_PROC_UNIT_SIZE];
-  uint16_t tmp_save_right[RESTORATION_BORDER][RESTORATION_PROC_UNIT_SIZE];
+  uint16_t tmp_save_left[RESTORATION_BORDER][RESTORATION_COLBUFFER_HEIGHT];
+  uint16_t tmp_save_right[RESTORATION_BORDER][RESTORATION_COLBUFFER_HEIGHT];
 #endif  // CONFIG_LOOPFILTERING_ACROSS_TILES
 } RestorationLineBuffers;
 
