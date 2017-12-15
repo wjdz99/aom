@@ -69,6 +69,24 @@
       "revId": "eaa6d2b98e3c83c3298a695f1c24c6e7bd6b7c45",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ad56ed85_f6052bc2",
+        "filename": "av1/common/daala_tx_kernels.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 7984
+      },
+      "writtenOn": "2017-12-15T15:32:00Z",
+      "side": 1,
+      "message": "Hi Nathan,\n\nThanks for sharing your results. It looks like bias has reduced on elements y[0,2,3] but increased a bit on y[1]. I didn\u0027t try all fixed rounding patterns so there may be better ones. Even if not, I think the win in implementation simplicity and better accuracy of the other terms is worth the slight additional bias on y[1].",
+      "parentUuid": "28ee084d_68d64e24",
+      "revId": "eaa6d2b98e3c83c3298a695f1c24c6e7bd6b7c45",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
