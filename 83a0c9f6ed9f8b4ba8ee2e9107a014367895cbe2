@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "ef4e82f0_1c54e171",
+        "filename": "av1/common/cdef.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 247,
+      "author": {
+        "id": 5975
+      },
+      "writtenOn": "2017-12-15T15:33:00Z",
+      "side": 1,
+      "message": "This change turns out to affect the behaviour of CDEF even without loopfiltering-across-tiles-ext enabled.\n\nFor example, the current 64x64 pixel region might cross the right-hand edge of the frame but not the bottom edge. In that case, \u0027mi_br\u0027 (and what would logically be \u0027mi_tr\u0027) are NULL, but (what would logically be) \u0027mi_bl\u0027 is non-NULL. In that case, this code turns off filtering across the bottom edge of this 64x64 unit, even if we aren\u0027t at the bottom of a tile.\n\nI\u0027ve worked out a fix, so I\u0027ll push that up in a moment, to save you having to re-implement it.",
+      "range": {
+        "startLine": 222,
+        "startChar": 0,
+        "endLine": 247,
+        "endChar": 69
+      },
+      "revId": "83a0c9f6ed9f8b4ba8ee2e9107a014367895cbe2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "176e5b74_6ea73174",
         "filename": "av1/decoder/decodeframe.c",
         "patchSetId": 4
