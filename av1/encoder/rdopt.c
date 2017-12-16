@@ -8905,8 +8905,7 @@ void av1_rd_pick_intra_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
       xd->cfl.store_y = 0;
     }
 #endif  // CONFIG_CFL
-    max_uv_tx_size = uv_txsize_lookup[bsize][mbmi->tx_size][pd[1].subsampling_x]
-                                     [pd[1].subsampling_y];
+    max_uv_tx_size = av1_get_uv_tx_size(mbmi, &pd[1]);
     init_sbuv_mode(mbmi);
     if (!x->skip_chroma_rd)
       rd_pick_intra_sbuv_mode(cpi, x, &rate_uv, &rate_uv_tokenonly, &dist_uv,
@@ -9867,8 +9866,7 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
 
       if (rate_y == INT_MAX) continue;
 
-      uv_tx = uv_txsize_lookup[bsize][mbmi->tx_size][pd->subsampling_x]
-                              [pd->subsampling_y];
+      uv_tx = av1_get_uv_tx_size(mbmi, pd);
       if (rate_uv_intra[uv_tx] == INT_MAX) {
         choose_intra_uv_mode(cpi, x, bsize, uv_tx, &rate_uv_intra[uv_tx],
                              &rate_uv_tokenonly[uv_tx], &dist_uvs[uv_tx],
@@ -10586,8 +10584,7 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
            rows * cols * sizeof(best_palette_color_map[0]));
     super_block_yrd(cpi, x, &rd_stats_y, bsize, best_rd);
     if (rd_stats_y.rate == INT_MAX) goto PALETTE_EXIT;
-    uv_tx = uv_txsize_lookup[bsize][mbmi->tx_size][xd->plane[1].subsampling_x]
-                            [xd->plane[1].subsampling_y];
+    uv_tx = av1_get_uv_tx_size(mbmi, &xd->plane[1]);
     if (rate_uv_intra[uv_tx] == INT_MAX) {
       choose_intra_uv_mode(cpi, x, bsize, uv_tx, &rate_uv_intra[uv_tx],
                            &rate_uv_tokenonly[uv_tx], &dist_uvs[uv_tx],
