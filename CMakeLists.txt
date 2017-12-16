@@ -484,6 +484,7 @@ if (CONFIG_UNIT_TESTS OR ENABLE_EXAMPLES OR ENABLE_TOOLS)
     target_compile_definitions(webm PRIVATE __STDC_LIMIT_MACROS)
 
     if (NOT MSVC)
+      target_compile_options(webm PUBLIC -Wno-deprecated-declarations)
       target_compile_options(webm PRIVATE -Wno-shadow)
     endif ()
 
