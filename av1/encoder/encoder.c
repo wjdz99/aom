@@ -5312,7 +5312,7 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
       ) {
     no_cdef = 1;
   }
-
+  no_loopfilter = no_cdef = no_restoration = 1;
   if (no_loopfilter) {
 #if CONFIG_LOOPFILTER_LEVEL
     lf->filter_level[0] = 0;

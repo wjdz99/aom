@@ -47,6 +47,8 @@ extern "C" {
 // chroma.
 #define DISABLE_VARTX_FOR_CHROMA 1
 
+#define DISABLE_SMLTX_FOR_CHROMA_INTRA 1
+
 // SEG_MASK_TYPES should not surpass 1 << MAX_SEG_MASK_BITS
 typedef enum {
 #if COMPOUND_SEGMENT_TYPE == 0
@@ -1144,15 +1146,45 @@ static INLINE TX_SIZE depth_to_tx_size(int depth, BLOCK_SIZE bsize,
   return tx_size;
 }
 
+static INLINE TX_SIZE av1_get_max_uv_txsize(
+    BLOCK_SIZE bsize, int is_inter, const struct macroblockd_plane *pd) {
+  const BLOCK_SIZE plane_bsize = get_plane_block_size(bsize, pd);
+  assert(plane_bsize < BLOCK_SIZES_ALL);
+  TX_SIZE uv_tx =  max_txsize_rect_lookup[is_inter][plane_bsize];
+#if CONFIG_TX64X64
+  switch (uv_tx) {
+    case TX_64X64:
+    case TX_64X32:
+    case TX_32X64:
+      return TX_32X32;
+    case TX_64X16:
+      return TX_32X16;
+    case TX_16X64:
+      return TX_16X32;
+    default:
+      break;
+  }
+#endif  // CONFIG_TX64X64
+  return uv_tx;
+}
+
 static INLINE TX_SIZE av1_get_uv_tx_size(const MB_MODE_INFO *mbmi,
                                          const struct macroblockd_plane *pd) {
+  if (is_inter_block(mbmi)) {
+#if DISABLE_VARTX_FOR_CHROMA
+    if (pd->subsampling_x || pd->subsampling_y)
+      return av1_get_max_uv_txsize(mbmi->sb_type, 1, pd);
+#endif  // DISABLE_VARTX_FOR_CHROMA
+  } else {
+#if DISABLE_SMLTX_FOR_CHROMA_INTRA
+    if (pd->subsampling_x || pd->subsampling_y)
+      return av1_get_max_uv_txsize(mbmi->sb_type, 0, pd);
+#endif  // DISABLE_SMLTX_FOR_CHROMA_INTRA
 #if CONFIG_CFL
-  if (!is_inter_block(mbmi) && mbmi->uv_mode == UV_CFL_PRED) {
-    const BLOCK_SIZE plane_bsize = get_plane_block_size(mbmi->sb_type, pd);
-    assert(plane_bsize < BLOCK_SIZES_ALL);
-    return max_txsize_rect_lookup[0][plane_bsize];
-  }
+    if (mbmi->uv_mode == UV_CFL_PRED)
+      return av1_get_max_uv_txsize(mbmi->sb_type, 0, pd);
 #endif
+  }
   const TX_SIZE uv_txsize =
       uv_txsize_lookup[mbmi->sb_type][mbmi->tx_size][pd->subsampling_x]
                       [pd->subsampling_y];

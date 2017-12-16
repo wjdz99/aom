@@ -4524,6 +4524,8 @@ static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
         }
       }
     }
+    if (dry_run == OUTPUT_ENABLED && mi_row == 8 && mi_col == 12 && cm->current_video_frame == 0)
+      printf("Enc Debug %d %d -> %d\n", mi_row, mi_col, mbmi->sb_type);
 
     mbmi->min_tx_size = get_min_tx_size(mbmi->tx_size);
 #if CONFIG_LV_MAP

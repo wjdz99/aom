@@ -159,7 +159,8 @@ static void inverse_transform_block(MACROBLOCKD *xd, int plane,
 
 static void predict_and_reconstruct_intra_block(
     AV1_COMMON *cm, MACROBLOCKD *const xd, aom_reader *const r,
-    MB_MODE_INFO *const mbmi, int plane, int row, int col, TX_SIZE tx_size) {
+    MB_MODE_INFO *const mbmi, int plane, int row, int col,
+    int mi_row, int mi_col, TX_SIZE tx_size) {
   PLANE_TYPE plane_type = get_plane_type(plane);
   av1_predict_intra_block_facade(cm, xd, plane, col, row, tx_size);
 
@@ -425,6 +426,9 @@ static void decode_token_and_recon_block(AV1Decoder *const pbi,
         av1_decode_palette_tokens(xd, plane, r);
     }
 
+    if (mi_row == 8 && mi_col == 12 && cm->current_video_frame == 0)
+      printf("Dec Debug %d %d -> %d\n", mi_row, mi_col, mbmi->sb_type);
+
     for (int plane = 0; plane < num_planes; ++plane) {
       const struct macroblockd_plane *const pd = &xd->plane[plane];
       const TX_SIZE tx_size = av1_get_tx_size(plane, xd);
@@ -454,9 +458,11 @@ static void decode_token_and_recon_block(AV1Decoder *const pbi,
           for (blk_row = row; blk_row < unit_height; blk_row += stepr)
             for (blk_col = col; blk_col < unit_width; blk_col += stepc)
               predict_and_reconstruct_intra_block(cm, xd, r, mbmi, plane,
+                                                  mi_row, mi_col,
                                                   blk_row, blk_col, tx_size);
         }
       }
+
     }
   } else {
     for (int ref = 0; ref < 1 + has_second_ref(mbmi); ++ref) {
