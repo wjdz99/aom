@@ -1,0 +1,123 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b994ca4a_981d6ffa",
+        "filename": "av1/av1_common.mk",
+        "patchSetId": 1
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 6240
+      },
+      "writtenOn": "2017-12-16T00:25:03Z",
+      "side": 1,
+      "message": "I don\u0027t like this name since it\u0027s inconsistent other files that hold c versions of simd code. You can also put the function in cfl.c. If you have a large number of functions that you plan simd, that might not be the best idea either.",
+      "revId": "85d611e03ccd96ce6bb15f8967b04ab753c76cc3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2456bd51_00bd7043",
+        "filename": "av1/av1_common.mk",
+        "patchSetId": 1
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 6240
+      },
+      "writtenOn": "2017-12-16T00:25:03Z",
+      "side": 1,
+      "message": "These should also be in the cmake file.",
+      "revId": "85d611e03ccd96ce6bb15f8967b04ab753c76cc3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5b1240ec_fa3481de",
+        "filename": "av1/common/av1_rtcd_defs.pl",
+        "patchSetId": 1
+      },
+      "lineNbr": 633,
+      "author": {
+        "id": 6240
+      },
+      "writtenOn": "2017-12-16T00:25:03Z",
+      "side": 1,
+      "message": "av1_subtract_average",
+      "revId": "85d611e03ccd96ce6bb15f8967b04ab753c76cc3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "77b95287_d589d4ee",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 6240
+      },
+      "writtenOn": "2017-12-16T00:25:03Z",
+      "side": 1,
+      "message": "Unused include.",
+      "revId": "85d611e03ccd96ce6bb15f8967b04ab753c76cc3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1897a68f_2ce01fa7",
+        "filename": "av1/common/cfl_c.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 6240
+      },
+      "writtenOn": "2017-12-16T00:25:03Z",
+      "side": 1,
+      "message": "Wrong year.",
+      "revId": "85d611e03ccd96ce6bb15f8967b04ab753c76cc3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8e37a52d_db791f5e",
+        "filename": "av1/common/cfl_sse2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 6240
+      },
+      "writtenOn": "2017-12-16T00:25:03Z",
+      "side": 1,
+      "message": "What happens if width is 4?",
+      "revId": "85d611e03ccd96ce6bb15f8967b04ab753c76cc3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0b376b6b_e399b51d",
+        "filename": "av1/common/cfl_sse2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 6240
+      },
+      "writtenOn": "2017-12-16T00:25:03Z",
+      "side": 1,
+      "message": "Since subtract_average_c doesn\u0027t saturate, you should just use the regular _mm_sub_epi16().\n\nThe memory ops to computation op ratio here is slightly disturbing. Not much that can be done about that, I suppose.",
+      "revId": "85d611e03ccd96ce6bb15f8967b04ab753c76cc3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
