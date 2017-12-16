@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "52ac4e00_927dbb33",
+        "filename": "av1/av1_common.mk",
+        "patchSetId": 1
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-12-16T01:00:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b994ca4a_981d6ffa",
+      "revId": "85d611e03ccd96ce6bb15f8967b04ab753c76cc3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2456bd51_00bd7043",
         "filename": "av1/av1_common.mk",
         "patchSetId": 1
@@ -33,6 +51,24 @@
       "revId": "85d611e03ccd96ce6bb15f8967b04ab753c76cc3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "851b164b_a0ad1334",
+        "filename": "av1/av1_common.mk",
+        "patchSetId": 1
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-12-16T01:00:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2456bd51_00bd7043",
+      "revId": "85d611e03ccd96ce6bb15f8967b04ab753c76cc3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "bcbc6f71_33b111db",
+        "filename": "av1/common/av1_rtcd_defs.pl",
+        "patchSetId": 1
+      },
+      "lineNbr": 633,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-12-16T01:00:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5b1240ec_fa3481de",
+      "revId": "85d611e03ccd96ce6bb15f8967b04ab753c76cc3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "77b95287_d589d4ee",
         "filename": "av1/common/cfl.c",
         "patchSetId": 1
@@ -67,6 +121,24 @@
       "revId": "85d611e03ccd96ce6bb15f8967b04ab753c76cc3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f79e3cdc_b1e95a56",
+        "filename": "av1/common/cfl.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-12-16T01:00:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "77b95287_d589d4ee",
+      "revId": "85d611e03ccd96ce6bb15f8967b04ab753c76cc3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "54e3a93a_42466d3f",
+        "filename": "av1/common/cfl_c.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-12-16T01:00:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1897a68f_2ce01fa7",
+      "revId": "85d611e03ccd96ce6bb15f8967b04ab753c76cc3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8e37a52d_db791f5e",
         "filename": "av1/common/cfl_sse2.c",
         "patchSetId": 1
@@ -104,6 +194,24 @@
     },
     {
       "key": {
+        "uuid": "af5cbb96_c590f3a3",
+        "filename": "av1/common/cfl_sse2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-12-16T01:00:07Z",
+      "side": 1,
+      "message": "We will just subtract an unused part of the CfL Prediction Buffer, which is always 32x32.",
+      "parentUuid": "8e37a52d_db791f5e",
+      "revId": "85d611e03ccd96ce6bb15f8967b04ab753c76cc3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0b376b6b_e399b51d",
         "filename": "av1/common/cfl_sse2.c",
         "patchSetId": 1
@@ -118,6 +226,24 @@
       "revId": "85d611e03ccd96ce6bb15f8967b04ab753c76cc3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "41ec0d34_b7575a82",
+        "filename": "av1/common/cfl_sse2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-12-16T01:00:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0b376b6b_e399b51d",
+      "revId": "85d611e03ccd96ce6bb15f8967b04ab753c76cc3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
