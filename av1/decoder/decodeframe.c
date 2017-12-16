@@ -1991,7 +1991,7 @@ static void get_tile_buffer(const uint8_t *const data_end,
       aom_internal_error(error_info, AOM_CODEC_CORRUPT_FRAME,
                          "Truncated packet or corrupt tile size");
   } else {
-#if !CONFIG_OBU || CONFIG_ADD_4BYTES_OBUSIZE
+#if CONFIG_OBU
     size = data_end - *data;
 #else
     size = mem_get_varsize(*data, tile_size_bytes);
@@ -3901,14 +3901,10 @@ void av1_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
     init_read_bit_buffer(pbi, &rb, data + PRE_OBU_SIZE_BYTES, data_end,
                          clear_data);
 
-// every obu is preceded by PRE_OBU_SIZE_BYTES-byte size of obu (obu header +
-// payload size)
-// The obu size is only needed for tile group OBUs
-#if CONFIG_ADD_4BYTES_OBUSIZE
+    // every obu is preceded by PRE_OBU_SIZE_BYTES-byte size of obu
+    // (obu header + payload size)
+    // The obu size is only needed for tile group OBUs
     obu_size = mem_get_le32(data);
-#else
-    obu_size = (size_t)(data_end - data);
-#endif
     obu_type = read_obu_header(&rb, &obu_header_size);
     data += (PRE_OBU_SIZE_BYTES + obu_header_size);
 
