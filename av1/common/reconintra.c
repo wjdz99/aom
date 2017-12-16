@@ -2318,8 +2318,10 @@ void av1_predict_intra_block_facade(const AV1_COMMON *cm, MACROBLOCKD *xd,
     assert(is_cfl_allowed(mbmi));
     const BLOCK_SIZE plane_bsize = get_plane_block_size(mbmi->sb_type, pd);
     assert(plane_bsize < BLOCK_SIZES_ALL);
-    assert(block_size_wide[plane_bsize] == tx_size_wide[tx_size]);
-    assert(block_size_high[plane_bsize] == tx_size_high[tx_size]);
+    if (!xd->lossless[mbmi->segment_id]) {
+      assert(block_size_wide[plane_bsize] == tx_size_wide[tx_size]);
+      assert(block_size_high[plane_bsize] == tx_size_high[tx_size]);
+    }
 #endif
     CFL_CTX *const cfl = &xd->cfl;
     CFL_PRED_TYPE pred_plane = get_cfl_pred_type(plane);
