@@ -87,6 +87,24 @@
       "revId": "eaa6d2b98e3c83c3298a695f1c24c6e7bd6b7c45",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e61f9c32_70738fc2",
+        "filename": "av1/common/daala_tx_kernels.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-12-17T21:17:04Z",
+      "side": 1,
+      "message": "I think we\u0027ll want to look a little closer at this on the larger sizes before deciding what to do.\n\nThe cost for computing the unbiased version is not much more than the biased version, (x + 1) \u003e\u003e 1, on x86. By itself it\u0027s the same cost, actually, but you can amortize generating the \"+ 1\" constant across multiple shifts for the biased version. The straight right shift, (x \u003e\u003e 1), *is* cheaper, of course.\n\nOn ARM, even the biased version is substantially cheaper, since there is a VRSRA instruction (vector shift right with rounding and add) that combines in just one instruction the right shift, the rounding bias, and potentially a subsequent addition (there\u0027s also VSRA that does the right shift and an addition without the rounding bias).\n\nSo let\u0027s land this and explore the biased shifts in a follow-up patch.",
+      "parentUuid": "ad56ed85_f6052bc2",
+      "revId": "eaa6d2b98e3c83c3298a695f1c24c6e7bd6b7c45",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
