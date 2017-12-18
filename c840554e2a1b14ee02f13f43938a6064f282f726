@@ -16,6 +16,24 @@
       "revId": "c840554e2a1b14ee02f13f43938a6064f282f726",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3513153e_0fbaef8a",
+        "filename": "test/test_runner.cmake",
+        "patchSetId": 2
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2017-12-18T21:35:50Z",
+      "side": 1,
+      "message": "Already done on line 22",
+      "parentUuid": "63c81088_6cf66dcc",
+      "revId": "c840554e2a1b14ee02f13f43938a6064f282f726",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
