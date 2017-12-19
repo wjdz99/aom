@@ -5292,7 +5292,7 @@ static void superres_post_encode(AV1_COMP *cpi) {
 static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
   MACROBLOCKD *xd = &cpi->td.mb.e_mbd;
   struct loopfilter *lf = &cm->lf;
-  int no_loopfilter = 0;
+  int frame_loopfilter = 1;
 #if CONFIG_LOOP_RESTORATION
   int no_restoration = 0;
 #endif  // CONFIG_LOOP_RESTORATION
@@ -5305,11 +5305,7 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
       || cm->single_tile_decoding
 #endif  // CONFIG_EXT_TILE
       ) {
-#if CONFIG_LPF_SB
-    if (!cm->allow_screen_content_tools) no_loopfilter = 1;
-#else
-    no_loopfilter = 1;
-#endif  // CONFIG_LPF_SB
+    frame_loopfilter = 0;
 #if CONFIG_LOOP_RESTORATION
     no_restoration = 1;
 #endif  // CONFIG_LOOP_RESTORATION
@@ -5327,52 +5323,37 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
     no_cdef = 1;
   }
 
-  if (no_loopfilter) {
-#if CONFIG_LOOPFILTER_LEVEL
-    lf->filter_level[0] = 0;
-    lf->filter_level[1] = 0;
-#else
-    lf->filter_level = 0;
-#endif
-  } else {
+  if (frame_loopfilter) {
     struct aom_usec_timer timer;
 
     aom_clear_system_state();
 
     aom_usec_timer_start(&timer);
 
-#if !CONFIG_LPF_SB
     av1_pick_filter_level(cpi->source, cpi, cpi->sf.lpf_pick);
-#endif
 
     aom_usec_timer_mark(&timer);
     cpi->time_pick_lpf += aom_usec_timer_elapsed(&timer);
-  }
 
-#if !CONFIG_LPF_SB
 #if CONFIG_LOOPFILTER_LEVEL
-  if (lf->filter_level[0] || lf->filter_level[1])
+    if (lf->filter_level[0] || lf->filter_level[1])
 #else
-  if (lf->filter_level > 0)
+    if (lf->filter_level > 0)
 #endif
-#endif  // CONFIG_LPF_SB
-  {
-#if CONFIG_LPF_SB && !CONFIG_LOOPFILTER_LEVEL
-    av1_loop_filter_frame(cm->frame_to_show, cm, xd, lf->filter_level, 0, 0, 0,
-                          0);
-#elif !CONFIG_LPF_SB
+    {
 #if CONFIG_LOOPFILTER_LEVEL
-    av1_loop_filter_frame(cm->frame_to_show, cm, xd, lf->filter_level[0],
-                          lf->filter_level[1], 0, 0);
-    av1_loop_filter_frame(cm->frame_to_show, cm, xd, lf->filter_level_u,
-                          lf->filter_level_u, 1, 0);
-    av1_loop_filter_frame(cm->frame_to_show, cm, xd, lf->filter_level_v,
-                          lf->filter_level_v, 2, 0);
+      av1_loop_filter_frame(cm->frame_to_show, cm, xd, lf->filter_level[0],
+                            lf->filter_level[1], 0, 0, 0, 0);
+      av1_loop_filter_frame(cm->frame_to_show, cm, xd, lf->filter_level_u,
+                            lf->filter_level_u, 1, 0, 0, 0);
+      av1_loop_filter_frame(cm->frame_to_show, cm, xd, lf->filter_level_v,
+                            lf->filter_level_v, 2, 0, 0, 0);
 
 #else
-    av1_loop_filter_frame(cm->frame_to_show, cm, xd, lf->filter_level, 0, 0);
+      av1_loop_filter_frame(cm->frame_to_show, cm, xd, lf->filter_level, 0, 0,
+                            0, 0);
 #endif  // CONFIG_LOOPFILTER_LEVEL
-#endif  // CONFIG_LPF_SB
+    }
   }
 
 #if CONFIG_STRIPED_LOOP_RESTORATION
