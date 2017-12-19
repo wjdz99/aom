@@ -109,8 +109,11 @@ TEST(av1_inv_txfm1d, InvAccuracyCheck) {
     int32_t ref_output[64];
     reference_idct_1d_int(input, ref_output, tx_size_pix);
 
+    TXFM_2D_FLIP_CFG cfg;
+    av1_get_inv_txfm_cfg(static_cast<TX_TYPE>(0), tx_size, &cfg);
+    const TXFM_1D_CFG *direction = rnd.Rand8() % 2 ? cfg.col_cfg : cfg.row_cfg;
     int32_t output[64];
-    inv_txfm_func(input, output, cos_bit, range_bit);
+    inv_txfm_func(input, output, direction->cos_bit, direction->stage_range);
 
     for (int i = 0; i < tx_size_pix; ++i) {
       EXPECT_LE(abs(output[i] - ref_output[i]), max_error[tx_size])
