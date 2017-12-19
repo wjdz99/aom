@@ -22,6 +22,30 @@
       "revId": "7197411d64a73317a69120841d3cdd054214483a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f7078be7_260b8b28",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 4236,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-12-19T18:38:20Z",
+      "side": 0,
+      "message": "Ah, the 2nd line probably got left over by mistake after CONFIG_REF_MV flag was removed.\nSo, removing that 2nd line instead.",
+      "parentUuid": "4cac849a_3c1ee11d",
+      "range": {
+        "startLine": 4236,
+        "startChar": 0,
+        "endLine": 4236,
+        "endChar": 17
+      },
+      "revId": "7197411d64a73317a69120841d3cdd054214483a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
