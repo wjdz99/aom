@@ -4234,7 +4234,6 @@ static int recode_loop_test_global_motion(AV1_COMP *cpi) {
       assert(cm->global_motion[i].wmtype == IDENTITY);
       cpi->gmparams_cost[i] = 0;
       recode = 1;
-      recode |= (rdc->global_motion_used[i] > 0);
     }
   }
   return recode;
