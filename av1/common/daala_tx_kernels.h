@@ -1626,4 +1626,1640 @@ static INLINE void od_idct_32(od_coeff *t0, od_coeff *tg,
   od_butterfly_neg_asym(t0, tv, od_rshift1(*tv));
 }
 
+/**
+ * 32-point asymmetric Type-II fDCT
+ */
+static INLINE void od_fdct_32_asym(od_coeff *t0, od_coeff *t1, od_coeff t1h,
+                                   od_coeff *t2, od_coeff *t3, od_coeff t3h,
+                                   od_coeff *t4, od_coeff *t5, od_coeff t5h,
+                                   od_coeff *t6, od_coeff *t7, od_coeff t7h,
+                                   od_coeff *t8, od_coeff *t9, od_coeff t9h,
+                                   od_coeff *ta, od_coeff *tb, od_coeff tbh,
+                                   od_coeff *tc, od_coeff *td, od_coeff tdh,
+                                   od_coeff *te, od_coeff *tf, od_coeff tfh,
+                                   od_coeff *tg, od_coeff *th, od_coeff thh,
+                                   od_coeff *ti, od_coeff *tj, od_coeff tjh,
+                                   od_coeff *tk, od_coeff *tl, od_coeff tlh,
+                                   od_coeff *tm, od_coeff *tn, od_coeff tnh,
+                                   od_coeff *to, od_coeff *tp, od_coeff tph,
+                                   od_coeff *tq, od_coeff *tr, od_coeff trh,
+                                   od_coeff *ts, od_coeff *tt, od_coeff tth,
+                                   od_coeff *tu, od_coeff *tv, od_coeff tvh) {
+
+  /* +/- Butterflies with asymmetric input. */
+  od_butterfly_neg_asym(t0, tv, tvh);
+  od_butterfly_sub_asym(t1, t1h, tu);
+  od_butterfly_neg_asym(t2, tt, tth);
+  od_butterfly_sub_asym(t3, t3h, ts);
+  od_butterfly_neg_asym(t4, tr, trh);
+  od_butterfly_sub_asym(t5, t5h, tq);
+  od_butterfly_neg_asym(t6, tp, tph);
+  od_butterfly_sub_asym(t7, t7h, to);
+  od_butterfly_neg_asym(t8, tn, tnh);
+  od_butterfly_sub_asym(t9, t9h, tm);
+  od_butterfly_neg_asym(ta, tl, tlh);
+  od_butterfly_sub_asym(tb, tbh, tk);
+  od_butterfly_neg_asym(tc, tj, tjh);
+  od_butterfly_sub_asym(td, tdh, ti);
+  od_butterfly_neg_asym(te, th, thh);
+  od_butterfly_sub_asym(tf, tfh, tg);
+
+  /* Embedded 16-point orthonormal transforms. */
+  od_fdct_16(t0, t1, t2, t3, t4, t5, t6, t7, t8, t9, ta, tb, tc, td, te, tf);
+  od_fdst_16(tv, tu, tt, ts, tr, tq, tp, to, tn, tm, tl, tk, tj, ti, th, tg);
+}
+
+/**
+ * 32-point asymmetric Type-II iDCT
+ */
+static INLINE void od_idct_32_asym(od_coeff *t0, od_coeff *tg,
+                                   od_coeff *t8, od_coeff *to,
+                                   od_coeff *t4, od_coeff *tk,
+                                   od_coeff *tc, od_coeff *ts,
+                                   od_coeff *t2, od_coeff *ti,
+                                   od_coeff *ta, od_coeff *tq,
+                                   od_coeff *t6, od_coeff *tm,
+                                   od_coeff *te, od_coeff *tu,
+                                   od_coeff *t1, od_coeff *t1h,
+                                   od_coeff *th, od_coeff *thh,
+                                   od_coeff *t9, od_coeff *t9h,
+                                   od_coeff *tp, od_coeff *tph,
+                                   od_coeff *t5, od_coeff *t5h,
+                                   od_coeff *tl, od_coeff *tlh,
+                                   od_coeff *td, od_coeff *tdh,
+                                   od_coeff *tt, od_coeff *tth,
+                                   od_coeff *t3, od_coeff *t3h,
+                                   od_coeff *tj, od_coeff *tjh,
+                                   od_coeff *tb, od_coeff *tbh,
+                                   od_coeff *tr, od_coeff *trh,
+                                   od_coeff *t7, od_coeff *t7h,
+                                   od_coeff *tn, od_coeff *tnh,
+                                   od_coeff *tf, od_coeff *tfh,
+                                   od_coeff *tv, od_coeff *tvh) {
+
+  /* Embedded 16-point orthonormal transforms. */
+  od_idst_16(tv, tn, tr, tj, tt, tl, tp, th, tu, tm, tq, ti, ts, tk, to, tg);
+  od_idct_16(t0, t8, t4, tc, t2, ta, t6, te, t1, t9, t5, td, t3, tb, t7, tf);
+
+  /* +/- Butterflies with asymmetric output. */
+  od_butterfly_sub(tf, tfh, tg);
+  od_butterfly_neg(te, th, thh);
+  od_butterfly_sub(td, tdh, ti);
+  od_butterfly_neg(tc, tj, tjh);
+  od_butterfly_sub(tb, tbh, tk);
+  od_butterfly_neg(ta, tl, tlh);
+  od_butterfly_sub(t9, t9h, tm);
+  od_butterfly_neg(t8, tn, tnh);
+  od_butterfly_sub(t7, t7h, to);
+  od_butterfly_neg(t6, tp, tph);
+  od_butterfly_sub(t5, t5h, tq);
+  od_butterfly_neg(t4, tr, trh);
+  od_butterfly_sub(t3, t3h, ts);
+  od_butterfly_neg(t2, tt, tth);
+  od_butterfly_sub(t1, t1h, tu);
+  od_butterfly_neg(t0, tv, tvh);
+}
+
+/**
+ * 32-point orthonormal Type-IV fDST
+ */
+static INLINE void od_fdst_32(od_coeff *t0, od_coeff *t1,
+                              od_coeff *t2, od_coeff *t3,
+                              od_coeff *t4, od_coeff *t5,
+                              od_coeff *t6, od_coeff *t7,
+                              od_coeff *t8, od_coeff *t9,
+                              od_coeff *ta, od_coeff *tb,
+                              od_coeff *tc, od_coeff *td,
+                              od_coeff *te, od_coeff *tf,
+                              od_coeff *tg, od_coeff *th,
+                              od_coeff *ti, od_coeff *tj,
+                              od_coeff *tk, od_coeff *tl,
+                              od_coeff *tm, od_coeff *tn,
+                              od_coeff *to, od_coeff *tp,
+                              od_coeff *tq, od_coeff *tr,
+                              od_coeff *ts, od_coeff *tt,
+                              od_coeff *tu, od_coeff *tv) {
+  od_coeff t0h;
+  od_coeff t1h;
+  od_coeff t2h;
+  od_coeff t3h;
+  od_coeff t4h;
+  od_coeff t6h;
+  od_coeff t8h;
+  od_coeff t9h;
+  od_coeff tah;
+  od_coeff tbh;
+  od_coeff tch;
+  od_coeff tdh;
+  od_coeff teh;
+  od_coeff tfh;
+  od_coeff tgh;
+  od_coeff thh;
+  od_coeff tih;
+  od_coeff tjh;
+  od_coeff tkh;
+  od_coeff tlh;
+  od_coeff tmh;
+  od_coeff tnh;
+  od_coeff tph;
+  od_coeff trh;
+  od_coeff tsh;
+  od_coeff tth;
+  od_coeff tuh;
+  od_coeff tvh;
+
+  /* Stage 0 */
+
+  /* Sin[63*Pi/128] + Cos[63*Pi/128] = 1.0242400472191164 */
+  /* Sin[63*Pi/128] - Cos[63*Pi/128] = 0.9751575901732919 */
+  /* Cos[63*Pi/128]                  = 0.0245412285229123 */
+  od_rotate_add(t0, tv, 16781, 14, 15977, 14, 201, 13, NONE);
+
+  /* Sin[61*Pi/128] + Cos[61*Pi/128] = 1.0708550202783576 */
+  /* Sin[61*Pi/128] - Cos[61*Pi/128] = 0.9237258930790228 */
+  /* Cos[61*Pi/128]                  = 0.0735645635996674 */
+  od_rotate_sub(tu, t1, 17545, 14, 30269, 15, 2411, 15, NONE);
+
+  /* Sin[59*Pi/128] + Cos[59*Pi/128] = 1.1148902097979262 */
+  /* Sin[59*Pi/128] - Cos[59*Pi/128] = 0.8700688593994937 */
+  /* Cos[59*Pi/128]                  = 0.1224106751992162 */
+  od_rotate_add(t2, tt, 36533, 15, 14255, 14, 4011, 15, NONE);
+
+  /* Sin[57*Pi/128] + Cos[57*Pi/128] = 1.1562395311492424 */
+  /* Sin[57*Pi/128] - Cos[57*Pi/128] = 0.8143157536286401 */
+  /* Cos[57*Pi/128]                  = 0.1709618887603012 */
+  od_rotate_sub(ts, t3, 37, 5, 26683, 15, 2801, 14, NONE);
+
+  /* Sin[55*Pi/128] + Cos[55*Pi/128] = 1.1948033701953984 */
+  /* Sin[55*Pi/128] - Cos[55*Pi/128] = 0.7566008898816587 */
+  /* Cos[55*Pi/128]                  = 0.2191012401568698 */
+  od_rotate_add(t4, tr, 39151, 15, 3099, 12, 1795, 13, NONE);
+
+  /* Sin[53*Pi/128] + Cos[53*Pi/128] = 1.2304888232703382 */
+  /* Sin[53*Pi/128] - Cos[53*Pi/128] = 0.6970633083205415 */
+  /* Cos[53*Pi/128]                  = 0.2667127574748984 */
+  od_rotate_sub(tq, t5, 40321, 15, 22841, 15, 2185, 13, NONE);
+
+  /* Sin[51*Pi/128] + Cos[51*Pi/128] = 1.2632099209919283 */
+  /* Sin[51*Pi/128] - Cos[51*Pi/128] = 0.6358464401941452 */
+  /* Cos[51*Pi/128]                  = 0.3136817403988915 */
+  od_rotate_add(t6, tp, 41393, 15, 20835, 15, 10279, 15, NONE);
+
+  /* Sin[49*Pi/128] + Cos[49*Pi/128] = 1.2928878353697270 */
+  /* Sin[49*Pi/128] - Cos[49*Pi/128] = 0.5730977622997508 */
+  /* Cos[49*Pi/128]                  = 0.3598950365349881 */
+  od_rotate_sub(to, t7, 42365, 15, 18778, 15, 11793, 15, NONE);
+
+  /* Sin[47*Pi/128] + Cos[47*Pi/128] = 1.3194510697085207 */
+  /* Sin[47*Pi/128] - Cos[47*Pi/128] = 0.5089684416985408 */
+  /* Cos[47*Pi/128]                  = 0.4052413140049899 */
+  od_rotate_add(t8, tn, 10809, 13, 8339, 14, 13279, 15, NONE);
+
+  /* Sin[45*Pi/128] + Cos[45*Pi/128] = 1.3428356308501219 */
+  /* Sin[45*Pi/128] - Cos[45*Pi/128] = 0.4436129715409088 */
+  /* Cos[45*Pi/128]                  = 0.4496113296546065 */
+  od_rotate_sub(tm, t9, 22001, 14, 1817, 12, 14733, 15, NONE);
+
+  /* Sin[43*Pi/128] + Cos[43*Pi/128] = 1.3629851833384956 */
+  /* Sin[43*Pi/128] - Cos[43*Pi/128] = 0.3771887988789274 */
+  /* Cos[43*Pi/128]                  = 0.4928981922297840 */
+  od_rotate_add(ta, tl, 22331, 14, 1545, 12, 16151, 15, NONE);
+
+  /* Sin[41*Pi/128] + Cos[41*Pi/128] = 1.3798511851368043 */
+  /* Sin[41*Pi/128] - Cos[41*Pi/128] = 0.3098559453626100 */
+  /* Cos[41*Pi/128]                  = 0.5349976198870972 */
+  od_rotate_sub(tk, tb, 45215, 15, 10153, 15, 17531, 15, NONE);
+
+  /* Sin[39*Pi/128] + Cos[39*Pi/128] = 1.3933930045694290 */
+  /* Sin[39*Pi/128] - Cos[39*Pi/128] = 0.2417766217337384 */
+  /* Cos[39*Pi/128]                  = 0.5758081914178453 */
+  od_rotate_add(tc, tj, 45659, 15, 7923, 15, 4717, 13, NONE);
+
+  /* Sin[37*Pi/128] + Cos[37*Pi/128] = 1.4035780182072331 */
+  /* Sin[37*Pi/128] - Cos[37*Pi/128] = 0.1731148370459795 */
+  /* Cos[37*Pi/128]                  = 0.6152315905806268 */
+  od_rotate_sub(ti, td, 5749, 12, 5673, 15, 315, 9, NONE);
+
+  /* Sin[35*Pi/128] + Cos[35*Pi/128] = 1.4103816894602614 */
+  /* Sin[35*Pi/128] - Cos[35*Pi/128] = 0.1040360035527078 */
+  /* Cos[35*Pi/128]                  = 0.6531728429537768 */
+  od_rotate_add(te, th, 46215, 15, 3409, 15, 21403, 15, NONE);
+
+  /* Sin[33*Pi/128] + Cos[33*Pi/128] = 1.4137876276885337 */
+  /* Sin[33*Pi/128] - Cos[33*Pi/128] = 0.0347065382144002 */
+  /* Cos[33*Pi/128]                  = 0.6895405447370668 */
+  od_rotate_sub(tg, tf, 46327, 15, 1137, 15, 22595, 15, NONE);
+
+  /* Stage 1 */
+
+  od_butterfly_add(t0, &t0h, tf);
+  od_butterfly_sub(tv, &tvh, tg);
+  od_butterfly_add(th, &thh, tu);
+  od_butterfly_sub(te, &teh, t1);
+
+  od_butterfly_add(t2, &t2h, td);
+  od_butterfly_sub(tt, &tth, ti);
+  od_butterfly_add(tj, &tjh, ts);
+  od_butterfly_sub(tc, &tch, t3);
+
+  od_butterfly_add(t4, &t4h, tb);
+  od_butterfly_sub(tr, &trh, tk);
+  od_butterfly_add(tl, &tlh, tq);
+  od_butterfly_sub(ta, &tah, t5);
+
+  od_butterfly_add(t6, &t6h, t9);
+  od_butterfly_sub(tp, &tph, tm);
+  od_butterfly_add(tn, &tnh, to);
+  od_butterfly_sub(t8, &t8h, t7);
+
+  /* Stage 2 */
+
+  od_butterfly_sub_asym(t0, t0h, t7);
+  od_butterfly_add_asym(tv, tvh, to);
+  od_butterfly_sub_asym(tp, tph, tu);
+  od_butterfly_add_asym(t6, t6h, t1);
+
+  od_butterfly_sub_asym(t2, t2h, t5);
+  od_butterfly_add_asym(tt, tth, tq);
+  od_butterfly_sub_asym(tr, trh, ts);
+  od_butterfly_add_asym(t4, t4h, t3);
+
+  od_butterfly_add_asym(t8, t8h, tg);
+  od_butterfly_sub_asym(te, teh, tm);
+  od_butterfly_add_asym(tn, tnh, tf);
+  od_butterfly_sub_asym(th, thh, t9);
+
+  od_butterfly_add_asym(ta, tah, ti);
+  od_butterfly_sub_asym(tc, tch, tk);
+  od_butterfly_add_asym(tl, tlh, td);
+  od_butterfly_sub_asym(tj, tjh, tb);
+
+  /* Stage 3 */
+
+  /* Sin[15*Pi/32] + Cos[15*Pi/32] = 1.0932018670017576 */
+  /* Sin[15*Pi/32] - Cos[15*Pi/32] = 0.8971675863426363 */
+  /* Cos[15*Pi/32]                 = 0.0980171403295606 */
+  od_rotate_sub(tf, tg, 17911, 14, 14699, 14, 803, 13, NONE);
+
+  /* Sin[13*Pi/32] + Cos[13*Pi/32] = 1.2472250129866712 */
+  /* Sin[13*Pi/32] - Cos[13*Pi/32] = 0.6666556584777465 */
+  /* Cos[13*Pi/32]                 = 0.2902846772544623 */
+  od_rotate_add(th, te, 20435, 14, 21845, 15, 1189, 12, NONE);
+
+  /* Sin[11*Pi/32] + Cos[11*Pi/32] = 1.3533180011743526 */
+  /* Sin[11*Pi/32] - Cos[11*Pi/32] = 0.4105245275223574 */
+  /* Cos[11*Pi/32]                 = 0.4713967368259976 */
+  od_rotate_add(ti, td, 22173, 14, 3363, 13, 15447, 15, NONE);
+
+  /* Sin[9*Pi/32] + Cos[9*Pi/32] = 1.4074037375263826 */
+  /* Sin[9*Pi/32] - Cos[9*Pi/32] = 0.1386171691990915 */
+  /* Cos[9*Pi/32]                = 0.6343932841636455 */
+  od_rotate_sub(tc, tj, 23059, 14, 2271, 14, 5197, 13, NONE);
+
+  /* Sin[9*Pi/32] + Cos[9*Pi/32] = 1.4074037375263826 */
+  /* Sin[9*Pi/32] - Cos[9*Pi/32] = 0.1386171691990915 */
+  /* Cos[9*Pi/32]                = 0.6343932841636455 */
+  od_rotate_neg(tb, tk, 23059, 14, 2271, 14, 5197, 13);
+
+  /* Sin[11*Pi/32] + Cos[11*Pi/32] = 1.3533180011743526 */
+  /* Sin[11*Pi/32] - Cos[11*Pi/32] = 0.4105245275223574 */
+  /* Cos[11*Pi/32]                 = 0.4713967368259976 */
+  od_rotate_neg(ta, tl, 22173, 14, 3363, 13, 15447, 15);
+
+  /* Sin[13*Pi/32] + Cos[13*Pi/32] = 1.2472250129866712 */
+  /* Sin[13*Pi/32] - Cos[13*Pi/32] = 0.6666556584777465 */
+  /* Cos[13*Pi/32]                 = 0.2902846772544623 */
+  od_rotate_neg(t9, tm, 20435, 14, 21845, 15, 1189, 12);
+
+  /* Sin[15*Pi/32] + Cos[15*Pi/32] = 1.0932018670017576 */
+  /* Sin[15*Pi/32] - Cos[15*Pi/32] = 0.8971675863426363 */
+  /* Cos[15*Pi/32]                 = 0.0980171403295606 */
+  od_rotate_neg(t8, tn, 17911, 14, 14699, 14, 803, 13);
+
+  /* Stage 4 */
+
+  od_butterfly_sub(t3, &t3h, t0);
+  od_butterfly_add(ts, &tsh, tv);
+  od_butterfly_sub(tu, &tuh, tt);
+  od_butterfly_add(t1, &t1h, t2);
+
+  od_butterfly_add(to, NULL, t4);
+  od_butterfly_sub(tq, NULL, t6);
+  od_butterfly_add(t7, NULL, tr);
+  od_butterfly_sub(t5, NULL, tp);
+
+  od_butterfly_sub(tb, &tbh, t8);
+  od_butterfly_add(tk, &tkh, tn);
+  od_butterfly_sub(tm, &tmh, tl);
+  od_butterfly_add(t9, &t9h, ta);
+
+  od_butterfly_sub(tf, &tfh, tc);
+  od_butterfly_add(tg, &tgh, tj);
+  od_butterfly_sub(ti, &tih, th);
+  od_butterfly_add(td, &tdh, te);
+
+  /* Stage 5 */
+
+  /* Sin[7*Pi/16] + Cos[7*Pi/16] = 1.1758756024193586 */
+  /* Sin[7*Pi/16] - Cos[7*Pi/16] = 0.7856949583871022 */
+  /* Cos[7*Pi/16]                = 0.1950903220161283 */
+  od_rotate_add(to, t7, 9633, 13, 12873, 14, 6393, 15, NONE);
+
+  /* Sin[5*Pi/16] + Cos[5*Pi/16] = 1.3870398453221475 */
+  /* Sin[5*Pi/16] - Cos[5*Pi/16] = 0.2758993792829431 */
+  /* Cos[5*Pi/16]                = 0.5555702330196022 */
+  od_rotate_add(tp, t6, 22725, 14, 9041, 15, 18205, 15, NONE);
+
+  /* Sin[5*Pi/16] + Cos[5*Pi/16] = 1.3870398453221475 */
+  /* Sin[5*Pi/16] - Cos[5*Pi/16] = 0.2758993792829431 */
+  /* Cos[5*Pi/16]                = 0.5555702330196022 */
+  od_rotate_neg(t5, tq, 11363, 13, 9041, 15, 4551, 13);
+
+  /* Sin[7*Pi/16] + Cos[7*Pi/16] = 1.1758756024193586 */
+  /* Sin[7*Pi/16] - Cos[7*Pi/16] = 0.7856949583871022 */
+  /* Cos[7*Pi/16]                = 0.1950903220161283 */
+  od_rotate_neg(t4, tr, 9633, 13, 12873, 14, 6393, 15);
+
+  /* Stage 6 */
+
+  od_butterfly_add_asym(t1, t1h, t0);
+  od_butterfly_sub_asym(tu, tuh, tv);
+  od_butterfly_sub_asym(ts, tsh, t2);
+  od_butterfly_sub_asym(t3, t3h, tt);
+
+  od_butterfly_add_asym(t5, od_rshift1(*t5), t4);
+  od_butterfly_sub_asym(tq, od_rshift1(*tq), tr);
+  od_butterfly_add_asym(t7, od_rshift1(*t7), t6);
+  od_butterfly_sub_asym(to, od_rshift1(*to), tp);
+
+  od_butterfly_add_asym(t9, t9h, t8);
+  od_butterfly_sub_asym(tm, tmh, tn);
+  od_butterfly_sub_asym(tk, tkh, ta);
+  od_butterfly_sub_asym(tb, tbh, tl);
+
+  od_butterfly_add_asym(ti, tih, tc);
+  od_butterfly_add_asym(td, tdh, tj);
+  od_butterfly_add_asym(tf, tfh, te);
+  od_butterfly_sub_asym(tg, tgh, th);
+
+  /* Stage 7 */
+
+  /* Sin[3*Pi/8] + Cos[3*Pi/8] = 1.3065629648763766 */
+  /* Sin[3*Pi/8] - Cos[3*Pi/8] = 0.5411961001461969 */
+  /* Cos[3*Pi/8]               = 0.3826834323650898 */
+  od_rotate_neg(t2, tt, 10703, 13, 8867, 14, 3135, 13);
+
+  /* Sin[3*Pi/8] + Cos[3*Pi/8] = 1.3065629648763766 */
+  /* Sin[3*Pi/8] - Cos[3*Pi/8] = 0.5411961001461969 */
+  /* Cos[3*Pi/8]               = 0.3826834323650898 */
+  od_rotate_add(ts, t3, 10703, 13, 8867, 14, 3135, 13, NONE);
+
+  /* Sin[3*Pi/8] + Cos[3*Pi/8] = 1.3065629648763766 */
+  /* Sin[3*Pi/8] - Cos[3*Pi/8] = 0.5411961001461969 */
+  /* Cos[3*Pi/8]               = 0.3826834323650898 */
+  od_rotate_neg(ta, tl, 10703, 13, 8867, 14, 3135, 13);
+
+  /* Sin[3*Pi/8] + Cos[3*Pi/8] = 1.3065629648763766 */
+  /* Sin[3*Pi/8] - Cos[3*Pi/8] = 0.5411961001461969 */
+  /* Cos[3*Pi/8]               = 0.3826834323650898 */
+  od_rotate_add(tk, tb, 10703, 13, 8867, 14, 3135, 13, NONE);
+
+  /* Sin[3*Pi/8] + Cos[3*Pi/8] = 1.3065629648763766 */
+  /* Sin[3*Pi/8] - Cos[3*Pi/8] = 0.5411961001461969 */
+  /* Cos[3*Pi/8]               = 0.3826834323650898 */
+  od_rotate_add(tc, tj, 10703, 13, 8867, 14, 3135, 13, NONE);
+
+  /* Sin[3*Pi/8] + Cos[3*Pi/8] = 1.3065629648763766 */
+  /* Sin[3*Pi/8] - Cos[3*Pi/8] = 0.5411961001461969 */
+  /* Cos[3*Pi/8]               = 0.3826834323650898 */
+  od_rotate_neg(ti, td, 10703, 13, 8867, 14, 3135, 13);
+
+  /* Sin[Pi/4] + Cos[Pi/4] = 1.4142135623730951 */
+  /* Cos[Pi/4]             = 0.7071067811865475 */
+  od_rotate_pi4_add(tu, t1, 11585, 13, 11585, 14);
+
+  /* Sin[Pi/4] + Cos[Pi/4] = 1.4142135623730951 */
+  /* Cos[Pi/4]             = 0.7071067811865475 */
+  od_rotate_pi4_add(tq, t5, 11585, 13, 11585, 14);
+
+  /* Sin[Pi/4] + Cos[Pi/4] = 1.4142135623730951 */
+  /* Cos[Pi/4]             = 0.7071067811865475 */
+  od_rotate_pi4_sub(tp, t6,  11585, 13, 11585, 14);
+
+  /* Sin[Pi/4] + Cos[Pi/4] = 1.4142135623730951 */
+  /* Cos[Pi/4]             = 0.7071067811865475 */
+  od_rotate_pi4_add(tm, t9, 11585, 13, 11585, 14);
+
+  /* Sin[Pi/4] + Cos[Pi/4] = 1.4142135623730951 */
+  /* Cos[Pi/4]             = 0.7071067811865475 */
+  od_rotate_pi4_add(te, th, 11585, 13, 11585, 14);
+}
+
+/**
+ * 32-point orthonormal Type-IV fDST
+ */
+static INLINE void od_idst_32(od_coeff *t0, od_coeff *tg,
+                              od_coeff *t8, od_coeff *to,
+                              od_coeff *t4, od_coeff *tk,
+                              od_coeff *tc, od_coeff *ts,
+                              od_coeff *t2, od_coeff *ti,
+                              od_coeff *ta, od_coeff *tq,
+                              od_coeff *t6, od_coeff *tm,
+                              od_coeff *te, od_coeff *tu,
+                              od_coeff *t1, od_coeff *th,
+                              od_coeff *t9, od_coeff *tp,
+                              od_coeff *t5, od_coeff *tl,
+                              od_coeff *td, od_coeff *tt,
+                              od_coeff *t3, od_coeff *tj,
+                              od_coeff *tb, od_coeff *tr,
+                              od_coeff *t7, od_coeff *tn,
+                              od_coeff *tf, od_coeff *tv) {
+  od_coeff t0h;
+  od_coeff t1h;
+  od_coeff t2h;
+  od_coeff t3h;
+  od_coeff t4h;
+  od_coeff t6h;
+  od_coeff t8h;
+  od_coeff t9h;
+  od_coeff tah;
+  od_coeff tbh;
+  od_coeff tch;
+  od_coeff tdh;
+  od_coeff teh;
+  od_coeff tfh;
+  od_coeff tgh;
+  od_coeff thh;
+  od_coeff tih;
+  od_coeff tjh;
+  od_coeff tkh;
+  od_coeff tlh;
+  od_coeff tmh;
+  od_coeff tnh;
+  od_coeff tph;
+  od_coeff trh;
+  od_coeff tsh;
+  od_coeff tth;
+  od_coeff tuh;
+  od_coeff tvh;
+
+  /* Stage 7 */
+
+  /* Sin[Pi/4] + Cos[Pi/4] = 1.4142135623730951 */
+  /* Cos[Pi/4]             = 0.7071067811865475 */
+  od_rotate_pi4_add(te, th, 11585, 13, 11585, 14);
+
+  /* Sin[Pi/4] + Cos[Pi/4] = 1.4142135623730951 */
+  /* Cos[Pi/4]             = 0.7071067811865475 */
+  od_rotate_pi4_add(tm, t9, 11585, 13, 11585, 14);
+
+  /* Sin[Pi/4] + Cos[Pi/4] = 1.4142135623730951 */
+  /* Cos[Pi/4]             = 0.7071067811865475 */
+  od_rotate_pi4_sub(tp, t6, 11585, 13, 11585, 14);
+
+  /* Sin[Pi/4] + Cos[Pi/4] = 1.4142135623730951 */
+  /* Cos[Pi/4]             = 0.7071067811865475 */
+  od_rotate_pi4_add(tq, t5, 11585, 13, 11585, 14);
+
+  /* Sin[Pi/4] + Cos[Pi/4] = 1.4142135623730951 */
+  /* Cos[Pi/4]             = 0.7071067811865475 */
+  od_rotate_pi4_add(tu, t1, 11585, 13, 11585, 14);
+
+  /* Sin[3*Pi/8] + Cos[3*Pi/8] = 1.3065629648763766 */
+  /* Sin[3*Pi/8] - Cos[3*Pi/8] = 0.5411961001461969 */
+  /* Cos[3*Pi/8]               = 0.3826834323650898 */
+  od_rotate_neg(td, ti, 10703, 13, 8867, 14, 3135, 13);
+
+  /* Sin[3*Pi/8] + Cos[3*Pi/8] = 1.3065629648763766 */
+  /* Sin[3*Pi/8] - Cos[3*Pi/8] = 0.5411961001461969 */
+  /* Cos[3*Pi/8]               = 0.3826834323650898 */
+  od_rotate_add(tc, tj, 10703, 13, 8867, 14, 3135, 13, NONE);
+
+  /* Sin[3*Pi/8] + Cos[3*Pi/8] = 1.3065629648763766 */
+  /* Sin[3*Pi/8] - Cos[3*Pi/8] = 0.5411961001461969 */
+  /* Cos[3*Pi/8]               = 0.3826834323650898 */
+  od_rotate_add(tk, tb, 10703, 13, 8867, 14, 3135, 13, NONE);
+
+  /* Sin[3*Pi/8] + Cos[3*Pi/8] = 1.3065629648763766 */
+  /* Sin[3*Pi/8] - Cos[3*Pi/8] = 0.5411961001461969 */
+  /* Cos[3*Pi/8]               = 0.3826834323650898 */
+  od_rotate_neg(tl, ta, 10703, 13, 8867, 14, 3135, 13);
+
+  /* Sin[3*Pi/8] + Cos[3*Pi/8] = 1.3065629648763766 */
+  /* Sin[3*Pi/8] - Cos[3*Pi/8] = 0.5411961001461969 */
+  /* Cos[3*Pi/8]               = 0.3826834323650898 */
+  od_rotate_add(ts, t3, 10703, 13, 8867, 14, 3135, 13, NONE);
+
+  /* Sin[3*Pi/8] + Cos[3*Pi/8] = 1.3065629648763766 */
+  /* Sin[3*Pi/8] - Cos[3*Pi/8] = 0.5411961001461969 */
+  /* Cos[3*Pi/8]               = 0.3826834323650898 */
+  od_rotate_neg(tt, t2, 10703, 13, 8867, 14, 3135, 13);
+
+  /* Stage 6 */
+
+  od_butterfly_sub(tg, &tgh, th);
+  od_butterfly_add(tf, &tfh, te);
+  od_butterfly_add(td, &tdh, tj);
+  od_butterfly_add(ti, &tih, tc);
+
+  od_butterfly_sub(tb, &tbh, tl);
+  od_butterfly_sub(tk, &tkh, ta);
+  od_butterfly_sub(tm, &tmh, tn);
+  od_butterfly_add(t9, &t9h, t8);
+
+  od_butterfly_sub(to, NULL, tp);
+  od_butterfly_add(t7, NULL, t6);
+  od_butterfly_sub(tq, NULL, tr);
+  od_butterfly_add(t5, NULL, t4);
+
+  od_butterfly_sub(t3, &t3h, tt);
+  od_butterfly_sub(ts, &tsh, t2);
+  od_butterfly_sub(tu, &tuh, tv);
+  od_butterfly_add(t1, &t1h, t0);
+
+  /* Stage 5 */
+
+  /* Sin[7*Pi/16] + Cos[7*Pi/16] = 1.1758756024193586 */
+  /* Sin[7*Pi/16] - Cos[7*Pi/16] = 0.7856949583871022 */
+  /* Cos[7*Pi/16]                = 0.1950903220161283 */
+  od_rotate_neg(tr, t4, 9633, 13, 12873, 14, 6393, 15);
+
+  /* Sin[5*Pi/16] + Cos[5*Pi/16] = 1.3870398453221475 */
+  /* Sin[5*Pi/16] - Cos[5*Pi/16] = 0.2758993792829431 */
+  /* Cos[5*Pi/16]                = 0.5555702330196022 */
+  od_rotate_neg(tq, t5, 11363, 13, 9041, 15, 4551, 13);
+
+  /* Sin[5*Pi/16] + Cos[5*Pi/16] = 1.3870398453221475 */
+  /* Sin[5*Pi/16] - Cos[5*Pi/16] = 0.2758993792829431 */
+  /* Cos[5*Pi/16]                = 0.5555702330196022 */
+  od_rotate_add(tp, t6, 22725, 14, 9041, 15, 18205, 15, NONE);
+
+  /* Sin[7*Pi/16] + Cos[7*Pi/16] = 1.1758756024193586 */
+  /* Sin[7*Pi/16] - Cos[7*Pi/16] = 0.7856949583871022 */
+  /* Cos[7*Pi/16]                = 0.1950903220161283 */
+  od_rotate_add(to, t7, 9633, 13, 12873, 14, 6393, 15, NONE);
+
+  /* Stage 4 */
+
+  od_butterfly_add_asym(td, tdh, te);
+  od_butterfly_sub_asym(ti, tih, th);
+  od_butterfly_add_asym(tg, tgh, tj);
+  od_butterfly_sub_asym(tf, tfh, tc);
+
+  od_butterfly_add_asym(t9, t9h, ta);
+  od_butterfly_sub_asym(tm, tmh, tl);
+  od_butterfly_add_asym(tk, tkh, tn);
+  od_butterfly_sub_asym(tb, tbh, t8);
+
+  od_butterfly_sub_asym(t5, od_rshift1(*t5), tp);
+  od_butterfly_add_asym(t7, od_rshift1(*t7), tr);
+  od_butterfly_sub_asym(tq, od_rshift1(*tq), t6);
+  od_butterfly_add_asym(to, od_rshift1(*to), t4);
+
+  od_butterfly_add_asym(t1, t1h, t2);
+  od_butterfly_sub_asym(tu, tuh, tt);
+  od_butterfly_add_asym(ts, tsh, tv);
+  od_butterfly_sub_asym(t3, t3h, t0);
+
+  /* Stage 3 */
+
+  /* Sin[15*Pi/32] + Cos[15*Pi/32] = 1.0932018670017576 */
+  /* Sin[15*Pi/32] - Cos[15*Pi/32] = 0.8971675863426363 */
+  /* Cos[15*Pi/32]                 = 0.0980171403295606 */
+  od_rotate_neg(tn, t8, 17911, 14, 14699, 14, 803, 13);
+
+  /* Sin[13*Pi/32] + Cos[13*Pi/32] = 1.2472250129866712 */
+  /* Sin[13*Pi/32] - Cos[13*Pi/32] = 0.6666556584777465 */
+  /* Cos[13*Pi/32]                 = 0.2902846772544623 */
+  od_rotate_neg(tm, t9, 20435, 14, 21845, 15, 1189, 12);
+
+  /* Sin[11*Pi/32] + Cos[11*Pi/32] = 1.3533180011743526 */
+  /* Sin[11*Pi/32] - Cos[11*Pi/32] = 0.4105245275223574 */
+  /* Cos[11*Pi/32]                 = 0.4713967368259976 */
+  od_rotate_neg(tl, ta, 22173, 14, 3363, 13, 15447, 15);
+
+  /* Sin[9*Pi/32] + Cos[9*Pi/32] = 1.4074037375263826 */
+  /* Sin[9*Pi/32] - Cos[9*Pi/32] = 0.1386171691990915 */
+  /* Cos[9*Pi/32]                = 0.6343932841636455 */
+  od_rotate_neg(tk, tb, 23059, 14, 2271, 14, 5197, 13);
+
+  /* Sin[9*Pi/32] + Cos[9*Pi/32] = 1.4074037375263826 */
+  /* Sin[9*Pi/32] - Cos[9*Pi/32] = 0.1386171691990915 */
+  /* Cos[9*Pi/32]                = 0.6343932841636455 */
+  od_rotate_sub(tc, tj, 23059, 14, 2271, 14, 5197, 13, NONE);
+
+  /* Sin[11*Pi/32] + Cos[11*Pi/32] = 1.3533180011743526 */
+  /* Sin[11*Pi/32] - Cos[11*Pi/32] = 0.4105245275223574 */
+  /* Cos[11*Pi/32]                 = 0.4713967368259976 */
+  od_rotate_add(ti, td, 22173, 14, 3363, 13, 15447, 15, NONE);
+
+  /* Sin[13*Pi/32] + Cos[13*Pi/32] = 1.2472250129866712 */
+  /* Sin[13*Pi/32] - Cos[13*Pi/32] = 0.6666556584777465 */
+  /* Cos[13*Pi/32]                 = 0.2902846772544623 */
+  od_rotate_add(th, te, 20435, 14, 21845, 15, 1189, 12, NONE);
+
+  /* Sin[15*Pi/32] + Cos[15*Pi/32] = 1.0932018670017576 */
+  /* Sin[15*Pi/32] - Cos[15*Pi/32] = 0.8971675863426363 */
+  /* Cos[15*Pi/32]                 = 0.0980171403295606 */
+  od_rotate_sub(tf, tg, 17911, 14, 14699, 14, 803, 13, NONE);
+
+  /* Stage 2 */
+
+  od_butterfly_sub(tj, &tjh, tb);
+  od_butterfly_add(tl, &tlh, td);
+  od_butterfly_sub(tc, &tch, tk);
+  od_butterfly_add(ta, &tah, ti);
+
+  od_butterfly_sub(th, &thh, t9);
+  od_butterfly_add(tn, &tnh, tf);
+  od_butterfly_sub(te, &teh, tm);
+  od_butterfly_add(t8, &t8h, tg);
+
+  od_butterfly_add(t4, &t4h, t3);
+  od_butterfly_sub(tr, &trh, ts);
+  od_butterfly_add(tt, &tth, tq);
+  od_butterfly_sub(t2, &t2h, t5);
+
+  od_butterfly_add(t6, &t6h, t1);
+  od_butterfly_sub(tp, &tph, tu);
+  od_butterfly_add(tv, &tvh, to);
+  od_butterfly_sub(t0, &t0h, t7);
+
+  /* Stage 1 */
+
+  od_butterfly_sub_asym(t8, t8h, t7);
+  od_butterfly_add_asym(tn, tnh, to);
+  od_butterfly_sub_asym(tp, tph, tm);
+  od_butterfly_add_asym(t6, t6h, t9);
+
+  od_butterfly_sub_asym(ta, tah, t5);
+  od_butterfly_add_asym(tl, tlh, tq);
+  od_butterfly_sub_asym(tr, trh, tk);
+  od_butterfly_add_asym(t4, t4h, tb);
+
+  od_butterfly_sub_asym(tc, tch, t3);
+  od_butterfly_add_asym(tj, tjh, ts);
+  od_butterfly_sub_asym(tt, tth, ti);
+  od_butterfly_add_asym(t2, t2h, td);
+
+  od_butterfly_sub_asym(te, teh, t1);
+  od_butterfly_add_asym(th, thh, tu);
+  od_butterfly_sub_asym(tv, tvh, tg);
+  od_butterfly_add_asym(t0, t0h, tf);
+
+  /* Stage 0 */
+
+  /* Sin[33*Pi/128] + Cos[33*Pi/128] = 1.4137876276885337 */
+  /* Sin[33*Pi/128] - Cos[33*Pi/128] = 0.0347065382144002 */
+  /* Cos[33*Pi/128]                  = 0.6895405447370668 */
+  od_rotate_sub(tg, tf, 46327, 15, 1137, 15, 22595, 15, NONE);
+
+  /* Sin[35*Pi/128] + Cos[35*Pi/128] = 1.4103816894602614 */
+  /* Sin[35*Pi/128] - Cos[35*Pi/128] = 0.1040360035527078 */
+  /* Cos[35*Pi/128]                  = 0.6531728429537768 */
+  od_rotate_add(te, th, 46215, 15, 3409, 15, 21403, 15, NONE);
+
+  /* Sin[37*Pi/128] + Cos[37*Pi/128] = 1.4035780182072331 */
+  /* Sin[37*Pi/128] - Cos[37*Pi/128] = 0.1731148370459795 */
+  /* Cos[37*Pi/128]                  = 0.6152315905806268 */
+  od_rotate_sub(ti, td, 5749, 12, 5673, 15, 315, 9, NONE);
+
+  /* Sin[39*Pi/128] + Cos[39*Pi/128] = 1.3933930045694290 */
+  /* Sin[39*Pi/128] - Cos[39*Pi/128] = 0.2417766217337384 */
+  /* Cos[39*Pi/128]                  = 0.5758081914178453 */
+  od_rotate_add(tc, tj, 45659, 15, 7923, 15, 4717, 13, NONE);
+
+  /* Sin[41*Pi/128] + Cos[41*Pi/128] = 1.3798511851368043 */
+  /* Sin[41*Pi/128] - Cos[41*Pi/128] = 0.3098559453626100 */
+  /* Cos[41*Pi/128]                  = 0.5349976198870972 */
+  od_rotate_sub(tk, tb, 45215, 15, 10153, 15, 17531, 15, NONE);
+
+  /* Sin[43*Pi/128] + Cos[43*Pi/128] = 1.3629851833384956 */
+  /* Sin[43*Pi/128] - Cos[43*Pi/128] = 0.3771887988789274 */
+  /* Cos[43*Pi/128]                  = 0.4928981922297840 */
+  od_rotate_add(ta, tl, 22331, 14, 1545, 12, 16151, 15, NONE);
+
+  /* Sin[45*Pi/128] + Cos[45*Pi/128] = 1.3428356308501219 */
+  /* Sin[45*Pi/128] - Cos[45*Pi/128] = 0.4436129715409088 */
+  /* Cos[45*Pi/128]                  = 0.4496113296546065 */
+  od_rotate_sub(tm, t9, 22001, 14, 1817, 12, 14733, 15, NONE);
+
+  /* Sin[47*Pi/128] + Cos[47*Pi/128] = 1.3194510697085207 */
+  /* Sin[47*Pi/128] - Cos[47*Pi/128] = 0.5089684416985408 */
+  /* Cos[47*Pi/128]                  = 0.4052413140049899 */
+  od_rotate_add(t8, tn, 10809, 13, 8339, 14, 13279, 15, NONE);
+
+  /* Sin[49*Pi/128] + Cos[49*Pi/128] = 1.2928878353697270 */
+  /* Sin[49*Pi/128] - Cos[49*Pi/128] = 0.5730977622997508 */
+  /* Cos[49*Pi/128]                  = 0.3598950365349881 */
+  od_rotate_sub(to, t7, 42365, 15, 18779, 15, 11793, 15, NONE);
+
+  /* Sin[51*Pi/128] + Cos[51*Pi/128] = 1.2632099209919283 */
+  /* Sin[51*Pi/128] - Cos[51*Pi/128] = 0.6358464401941452 */
+  /* Cos[51*Pi/128]                  = 0.3136817403988915 */
+  od_rotate_add(t6, tp, 41393, 15, 20835, 15, 10279, 15, NONE);
+
+  /* Sin[53*Pi/128] + Cos[53*Pi/128] = 1.2304888232703382 */
+  /* Sin[53*Pi/128] - Cos[53*Pi/128] = 0.6970633083205415 */
+  /* Cos[53*Pi/128]                  = 0.2667127574748984 */
+  od_rotate_sub(tq, t5, 40321, 15, 22841, 15, 2185, 13, NONE);
+
+  /* Sin[55*Pi/128] + Cos[55*Pi/128] = 1.1948033701953984 */
+  /* Sin[55*Pi/128] - Cos[55*Pi/128] = 0.7566008898816587 */
+  /* Cos[55*Pi/128]                  = 0.2191012401568698 */
+  od_rotate_add(t4, tr, 39151, 15, 3099, 12, 1795, 13, NONE);
+
+  /* Sin[57*Pi/128] + Cos[57*Pi/128] = 1.1562395311492424 */
+  /* Sin[57*Pi/128] - Cos[57*Pi/128] = 0.8143157536286401 */
+  /* Cos[57*Pi/128]                  = 0.1709618887603012 */
+  od_rotate_sub(ts, t3, 37, 5, 26683, 15, 2801, 14, NONE);
+
+  /* Sin[59*Pi/128] + Cos[59*Pi/128] = 1.1148902097979262 */
+  /* Sin[59*Pi/128] - Cos[59*Pi/128] = 0.8700688593994937 */
+  /* Cos[59*Pi/128]                  = 0.1224106751992162 */
+  od_rotate_add(t2, tt, 36533, 15, 14255, 14, 4011, 15, NONE);
+
+  /* Sin[61*Pi/128] + Cos[61*Pi/128] = 1.0708550202783576 */
+  /* Sin[61*Pi/128] - Cos[61*Pi/128] = 0.9237258930790228 */
+  /* Cos[61*Pi/128]                  = 0.0735645635996674 */
+  od_rotate_sub(tu, t1, 17545, 14, 30269, 15, 2411, 15, NONE);
+
+  /* Sin[63*Pi/128] + Cos[63*Pi/128] = 1.0242400472191164 */
+  /* Sin[63*Pi/128] - Cos[63*Pi/128] = 0.9751575901732919 */
+  /* Cos[63*Pi/128]                  = 0.0245412285229123 */
+  od_rotate_add(t0, tv, 16781, 14, 15977, 14, 201, 13, NONE);
+}
+
+/**
+ * 32-point orthonormal Type-IV fDST
+ */
+static INLINE void od_fdst_32_asym(od_coeff *t0, od_coeff t0h, od_coeff *t1,
+                                   od_coeff *t2, od_coeff t2h, od_coeff *t3,
+                                   od_coeff *t4, od_coeff t4h, od_coeff *t5,
+                                   od_coeff *t6, od_coeff t6h, od_coeff *t7,
+                                   od_coeff *t8, od_coeff t8h, od_coeff *t9,
+                                   od_coeff *ta, od_coeff tah, od_coeff *tb,
+                                   od_coeff *tc, od_coeff tch, od_coeff *td,
+                                   od_coeff *te, od_coeff teh, od_coeff *tf,
+                                   od_coeff *tg, od_coeff tgh, od_coeff *th,
+                                   od_coeff *ti, od_coeff tih, od_coeff *tj,
+                                   od_coeff *tk, od_coeff tkh, od_coeff *tl,
+                                   od_coeff *tm, od_coeff tmh, od_coeff *tn,
+                                   od_coeff *to, od_coeff toh, od_coeff *tp,
+                                   od_coeff *tq, od_coeff tqh, od_coeff *tr,
+                                   od_coeff *ts, od_coeff tsh, od_coeff *tt,
+                                   od_coeff *tu, od_coeff tuh, od_coeff *tv) {
+  od_coeff t1h;
+  od_coeff t3h;
+  od_coeff t9h;
+  od_coeff tbh;
+  od_coeff tdh;
+  od_coeff tfh;
+  od_coeff thh;
+  od_coeff tjh;
+  od_coeff tlh;
+  od_coeff tnh;
+  od_coeff tph;
+  od_coeff trh;
+  od_coeff tth;
+  od_coeff tvh;
+
+  /* Stage 0 */
+
+  /* Sin[63*Pi/128] + Cos[63*Pi/128] = 1.0242400472191164 */
+  /* Sin[63*Pi/128] - Cos[63*Pi/128] = 0.9751575901732919 */
+  /* Cos[63*Pi/128]                  = 0.0245412285229123 */
+  od_rotate_add_half(t0, tv, t0h, 5933, 13, 22595, 14, 1137, 15, NONE);
+
+  /* Sin[61*Pi/128] + Cos[61*Pi/128] = 1.0708550202783576 */
+  /* Sin[61*Pi/128] - Cos[61*Pi/128] = 0.9237258930790228 */
+  /* Cos[61*Pi/128]                  = 0.0735645635996674 */
+  od_rotate_sub_half(tu, t1, tuh, 6203, 13, 21403, 14, 3409, 15, NONE);
+
+  /* Sin[59*Pi/128] + Cos[59*Pi/128] = 1.1148902097979262 */
+  /* Sin[59*Pi/128] - Cos[59*Pi/128] = 0.8700688593994937 */
+  /* Cos[59*Pi/128]                  = 0.1224106751992162 */
+  od_rotate_add_half(t2, tt, t2h, 25833, 15, 315, 8, 5673, 15, NONE);
+
+  /* Sin[57*Pi/128] + Cos[57*Pi/128] = 1.1562395311492424 */
+  /* Sin[57*Pi/128] - Cos[57*Pi/128] = 0.8143157536286401 */
+  /* Cos[57*Pi/128]                  = 0.1709618887603012 */
+  od_rotate_sub_half(ts, t3, tsh, 26791, 15, 4717, 12, 7923, 15, NONE);
+
+  /* Sin[55*Pi/128] + Cos[55*Pi/128] = 1.1948033701953984 */
+  /* Sin[55*Pi/128] - Cos[55*Pi/128] = 0.7566008898816587 */
+  /* Cos[55*Pi/128]                  = 0.2191012401568698 */
+  od_rotate_add_half(t4, tr, t4h, 6921, 13, 17531, 14, 10153, 15, NONE);
+
+  /* Sin[53*Pi/128] + Cos[53*Pi/128] = 1.2304888232703382 */
+  /* Sin[53*Pi/128] - Cos[53*Pi/128] = 0.6970633083205415 */
+  /* Cos[53*Pi/128]                  = 0.2667127574748984 */
+  od_rotate_sub_half(tq, t5, tqh, 28511, 15, 32303, 15, 1545, 12, NONE);
+
+  /* Sin[51*Pi/128] + Cos[51*Pi/128] = 1.2632099209919283 */
+  /* Sin[51*Pi/128] - Cos[51*Pi/128] = 0.6358464401941452 */
+  /* Cos[51*Pi/128]                  = 0.3136817403988915 */
+  od_rotate_add_half(t6, tp, t6h, 29269, 15, 14733, 14, 1817, 12, NONE);
+
+  /* Sin[49*Pi/128] + Cos[49*Pi/128] = 1.2928878353697270 */
+  /* Sin[49*Pi/128] - Cos[49*Pi/128] = 0.5730977622997508 */
+  /* Cos[49*Pi/128]                  = 0.3598950365349881 */
+  od_rotate_sub_half(to, t7, toh, 29957, 15, 13279, 14, 8339, 14, NONE);
+
+  /* Sin[47*Pi/128] + Cos[47*Pi/128] = 1.3194510697085207 */
+  /* Sin[47*Pi/128] - Cos[47*Pi/128] = 0.5089684416985408 */
+  /* Cos[47*Pi/128]                  = 0.4052413140049899 */
+  od_rotate_add_half(t8, tn, t8h, 7643, 13, 11793, 14, 18779, 15, NONE);
+
+  /* Sin[45*Pi/128] + Cos[45*Pi/128] = 1.3428356308501219 */
+  /* Sin[45*Pi/128] - Cos[45*Pi/128] = 0.4436129715409088 */
+  /* Cos[45*Pi/128]                  = 0.4496113296546065 */
+  od_rotate_sub_half(tm, t9, tmh, 15557, 14, 20557, 15, 20835, 15, NONE);
+
+  /* Sin[43*Pi/128] + Cos[43*Pi/128] = 1.3629851833384956 */
+  /* Sin[43*Pi/128] - Cos[43*Pi/128] = 0.3771887988789274 */
+  /* Cos[43*Pi/128]                  = 0.4928981922297840 */
+  od_rotate_add_half(ta, tl, tah, 31581, 15, 17479, 15, 22841, 15, NONE);
+
+  /* Sin[41*Pi/128] + Cos[41*Pi/128] = 1.3798511851368043 */
+  /* Sin[41*Pi/128] - Cos[41*Pi/128] = 0.3098559453626100 */
+  /* Cos[41*Pi/128]                  = 0.5349976198870972 */
+  od_rotate_sub_half(tk, tb, tkh, 7993, 13, 14359, 15, 3099, 12, NONE);
+
+  /* Sin[39*Pi/128] + Cos[39*Pi/128] = 1.3933930045694290 */
+  /* Sin[39*Pi/128] - Cos[39*Pi/128] = 0.2417766217337384 */
+  /* Cos[39*Pi/128]                  = 0.5758081914178453 */
+  od_rotate_add_half(tc, tj, tch, 16143, 14, 2801, 13, 26683, 15, NONE);
+
+  /* Sin[37*Pi/128] + Cos[37*Pi/128] = 1.4035780182072331 */
+  /* Sin[37*Pi/128] - Cos[37*Pi/128] = 0.1731148370459795 */
+  /* Cos[37*Pi/128]                  = 0.6152315905806268 */
+  od_rotate_sub_half(ti, td, tih, 16261, 14, 4011, 14, 14255, 14, NONE);
+
+  /* Sin[35*Pi/128] + Cos[35*Pi/128] = 1.4103816894602614 */
+  /* Sin[35*Pi/128] - Cos[35*Pi/128] = 0.1040360035527078 */
+  /* Cos[35*Pi/128]                  = 0.6531728429537768 */
+  od_rotate_add_half(te, th, teh, 32679, 15, 4821, 15, 30269, 15, NONE);
+
+  /* Sin[33*Pi/128] + Cos[33*Pi/128] = 1.4137876276885337 */
+  /* Sin[33*Pi/128] - Cos[33*Pi/128] = 0.0347065382144002 */
+  /* Cos[33*Pi/128]                  = 0.6895405447370668 */
+  od_rotate_sub_half(tg, tf, tgh, 16379, 14, 201, 12, 15977, 14, NONE);
+
+  /* Stage 1 */
+
+  od_butterfly_add(t0, &t0h, tf);
+  od_butterfly_sub(tv, &tvh, tg);
+  od_butterfly_add(th, &thh, tu);
+  od_butterfly_sub(te, &teh, t1);
+
+  od_butterfly_add(t2, &t2h, td);
+  od_butterfly_sub(tt, &tth, ti);
+  od_butterfly_add(tj, &tjh, ts);
+  od_butterfly_sub(tc, &tch, t3);
+
+  od_butterfly_add(t4, &t4h, tb);
+  od_butterfly_sub(tr, &trh, tk);
+  od_butterfly_add(tl, &tlh, tq);
+  od_butterfly_sub(ta, &tah, t5);
+
+  od_butterfly_add(t6, &t6h, t9);
+  od_butterfly_sub(tp, &tph, tm);
+  od_butterfly_add(tn, &tnh, to);
+  od_butterfly_sub(t8, &t8h, t7);
+
+  /* Stage 2 */
+
+  od_butterfly_sub_asym(t0, t0h, t7);
+  od_butterfly_add_asym(tv, tvh, to);
+  od_butterfly_sub_asym(tp, tph, tu);
+  od_butterfly_add_asym(t6, t6h, t1);
+
+  od_butterfly_sub_asym(t2, t2h, t5);
+  od_butterfly_add_asym(tt, tth, tq);
+  od_butterfly_sub_asym(tr, trh, ts);
+  od_butterfly_add_asym(t4, t4h, t3);
+
+  od_butterfly_add_asym(t8, t8h, tg);
+  od_butterfly_sub_asym(te, teh, tm);
+  od_butterfly_add_asym(tn, tnh, tf);
+  od_butterfly_sub_asym(th, thh, t9);
+
+  od_butterfly_add_asym(ta, tah, ti);
+  od_butterfly_sub_asym(tc, tch, tk);
+  od_butterfly_add_asym(tl, tlh, td);
+  od_butterfly_sub_asym(tj, tjh, tb);
+
+  /* Stage 3 */
+
+  /* Sin[15*Pi/32] + Cos[15*Pi/32] = 1.0932018670017576 */
+  /* Sin[15*Pi/32] - Cos[15*Pi/32] = 0.8971675863426363 */
+  /* Cos[15*Pi/32]                 = 0.0980171403295606 */
+  od_rotate_sub(tf, tg, 17911, 14, 14699, 14, 803, 13, NONE);
+
+  /* Sin[13*Pi/32] + Cos[13*Pi/32] = 1.2472250129866712 */
+  /* Sin[13*Pi/32] - Cos[13*Pi/32] = 0.6666556584777465 */
+  /* Cos[13*Pi/32]                 = 0.2902846772544623 */
+  od_rotate_add(th, te, 20435, 14, 21845, 15, 1189, 12, NONE);
+
+  /* Sin[11*Pi/32] + Cos[11*Pi/32] = 1.3533180011743526 */
+  /* Sin[11*Pi/32] - Cos[11*Pi/32] = 0.4105245275223574 */
+  /* Cos[11*Pi/32]                 = 0.4713967368259976 */
+  od_rotate_add(ti, td, 22173, 14, 3363, 13, 15447, 15, NONE);
+
+  /* Sin[9*Pi/32] + Cos[9*Pi/32] = 1.4074037375263826 */
+  /* Sin[9*Pi/32] - Cos[9*Pi/32] = 0.1386171691990915 */
+  /* Cos[9*Pi/32]                = 0.6343932841636455 */
+  od_rotate_sub(tc, tj, 23059, 14, 2271, 14, 5197, 13, NONE);
+
+  /* Sin[9*Pi/32] + Cos[9*Pi/32] = 1.4074037375263826 */
+  /* Sin[9*Pi/32] - Cos[9*Pi/32] = 0.1386171691990915 */
+  /* Cos[9*Pi/32]                = 0.6343932841636455 */
+  od_rotate_neg(tb, tk, 23059, 14, 2271, 14, 5197, 13);
+
+  /* Sin[11*Pi/32] + Cos[11*Pi/32] = 1.3533180011743526 */
+  /* Sin[11*Pi/32] - Cos[11*Pi/32] = 0.4105245275223574 */
+  /* Cos[11*Pi/32]                 = 0.4713967368259976 */
+  od_rotate_neg(ta, tl, 22173, 14, 3363, 13, 15447, 15);
+
+  /* Sin[13*Pi/32] + Cos[13*Pi/32] = 1.2472250129866712 */
+  /* Sin[13*Pi/32] - Cos[13*Pi/32] = 0.6666556584777465 */
+  /* Cos[13*Pi/32]                 = 0.2902846772544623 */
+  od_rotate_neg(t9, tm, 20435, 14, 21845, 15, 1189, 12);
+
+  /* Sin[15*Pi/32] + Cos[15*Pi/32] = 1.0932018670017576 */
+  /* Sin[15*Pi/32] - Cos[15*Pi/32] = 0.8971675863426363 */
+  /* Cos[15*Pi/32]                 = 0.0980171403295606 */
+  od_rotate_neg(t8, tn, 17911, 14, 14699, 14, 803, 13);
+
+  /* Stage 4 */
+
+  od_butterfly_sub(t3, &t3h, t0);
+  od_butterfly_add(ts, &tsh, tv);
+  od_butterfly_sub(tu, &tuh, tt);
+  od_butterfly_add(t1, &t1h, t2);
+
+  od_butterfly_add(to, NULL, t4);
+  od_butterfly_sub(tq, NULL, t6);
+  od_butterfly_add(t7, NULL, tr);
+  od_butterfly_sub(t5, NULL, tp);
+
+  od_butterfly_sub(tb, &tbh, t8);
+  od_butterfly_add(tk, &tkh, tn);
+  od_butterfly_sub(tm, &tmh, tl);
+  od_butterfly_add(t9, &t9h, ta);
+
+  od_butterfly_sub(tf, &tfh, tc);
+  od_butterfly_add(tg, &tgh, tj);
+  od_butterfly_sub(ti, &tih, th);
+  od_butterfly_add(td, &tdh, te);
+
+  /* Stage 5 */
+
+  /* Sin[7*Pi/16] + Cos[7*Pi/16] = 1.1758756024193586 */
+  /* Sin[7*Pi/16] - Cos[7*Pi/16] = 0.7856949583871022 */
+  /* Cos[7*Pi/16]                = 0.1950903220161283 */
+  od_rotate_add(to, t7, 9633, 13, 12873, 14, 6393, 15, NONE);
+
+  /* Sin[5*Pi/16] + Cos[5*Pi/16] = 1.3870398453221475 */
+  /* Sin[5*Pi/16] - Cos[5*Pi/16] = 0.2758993792829431 */
+  /* Cos[5*Pi/16]                = 0.5555702330196022 */
+  od_rotate_add(tp, t6, 22725, 14, 9041, 15, 18205, 15, NONE);
+
+  /* Sin[5*Pi/16] + Cos[5*Pi/16] = 1.3870398453221475 */
+  /* Sin[5*Pi/16] - Cos[5*Pi/16] = 0.2758993792829431 */
+  /* Cos[5*Pi/16]                = 0.5555702330196022 */
+  od_rotate_neg(t5, tq, 11363, 13, 9041, 15, 4551, 13);
+
+  /* Sin[7*Pi/16] + Cos[7*Pi/16] = 1.1758756024193586 */
+  /* Sin[7*Pi/16] - Cos[7*Pi/16] = 0.7856949583871022 */
+  /* Cos[7*Pi/16]                = 0.1950903220161283 */
+  od_rotate_neg(t4, tr, 9633, 13, 12873, 14, 6393, 15);
+
+  /* Stage 6 */
+
+  od_butterfly_add_asym(t1, t1h, t0);
+  od_butterfly_sub_asym(tu, tuh, tv);
+  od_butterfly_sub_asym(ts, tsh, t2);
+  od_butterfly_sub_asym(t3, t3h, tt);
+
+  od_butterfly_add_asym(t5, od_rshift1(*t5), t4);
+  od_butterfly_sub_asym(tq, od_rshift1(*tq), tr);
+  od_butterfly_add_asym(t7, od_rshift1(*t7), t6);
+  od_butterfly_sub_asym(to, od_rshift1(*to), tp);
+
+  od_butterfly_add_asym(t9, t9h, t8);
+  od_butterfly_sub_asym(tm, tmh, tn);
+  od_butterfly_sub_asym(tk, tkh, ta);
+  od_butterfly_sub_asym(tb, tbh, tl);
+
+  od_butterfly_add_asym(ti, tih, tc);
+  od_butterfly_add_asym(td, tdh, tj);
+  od_butterfly_add_asym(tf, tfh, te);
+  od_butterfly_sub_asym(tg, tgh, th);
+
+  /* Stage 7 */
+
+  /* Sin[3*Pi/8] + Cos[3*Pi/8] = 1.3065629648763766 */
+  /* Sin[3*Pi/8] - Cos[3*Pi/8] = 0.5411961001461969 */
+  /* Cos[3*Pi/8]               = 0.3826834323650898 */
+  od_rotate_neg(t2, tt, 10703, 13, 8867, 14, 3135, 13);
+
+  /* Sin[3*Pi/8] + Cos[3*Pi/8] = 1.3065629648763766 */
+  /* Sin[3*Pi/8] - Cos[3*Pi/8] = 0.5411961001461969 */
+  /* Cos[3*Pi/8]               = 0.3826834323650898 */
+  od_rotate_add(ts, t3, 10703, 13, 8867, 14, 3135, 13, NONE);
+
+  /* Sin[3*Pi/8] + Cos[3*Pi/8] = 1.3065629648763766 */
+  /* Sin[3*Pi/8] - Cos[3*Pi/8] = 0.5411961001461969 */
+  /* Cos[3*Pi/8]               = 0.3826834323650898 */
+  od_rotate_neg(ta, tl, 10703, 13, 8867, 14, 3135, 13);
+
+  /* Sin[3*Pi/8] + Cos[3*Pi/8] = 1.3065629648763766 */
+  /* Sin[3*Pi/8] - Cos[3*Pi/8] = 0.5411961001461969 */
+  /* Cos[3*Pi/8]               = 0.3826834323650898 */
+  od_rotate_add(tk, tb, 10703, 13, 8867, 14, 3135, 13, NONE);
+
+  /* Sin[3*Pi/8] + Cos[3*Pi/8] = 1.3065629648763766 */
+  /* Sin[3*Pi/8] - Cos[3*Pi/8] = 0.5411961001461969 */
+  /* Cos[3*Pi/8]               = 0.3826834323650898 */
+  od_rotate_add(tc, tj, 10703, 13, 8867, 14, 3135, 13, NONE);
+
+  /* Sin[3*Pi/8] + Cos[3*Pi/8] = 1.3065629648763766 */
+  /* Sin[3*Pi/8] - Cos[3*Pi/8] = 0.5411961001461969 */
+  /* Cos[3*Pi/8]               = 0.3826834323650898 */
+  od_rotate_neg(ti, td, 10703, 13, 8867, 14, 3135, 13);
+
+  /* Sin[Pi/4] + Cos[Pi/4] = 1.4142135623730951 */
+  /* Cos[Pi/4]             = 0.7071067811865475 */
+  od_rotate_pi4_add(tu, t1, 11585, 13, 11585, 14);
+
+  /* Sin[Pi/4] + Cos[Pi/4] = 1.4142135623730951 */
+  /* Cos[Pi/4]             = 0.7071067811865475 */
+  od_rotate_pi4_add(tq, t5, 11585, 13, 11585, 14);
+
+  /* Sin[Pi/4] + Cos[Pi/4] = 1.4142135623730951 */
+  /* Cos[Pi/4]             = 0.7071067811865475 */
+  od_rotate_pi4_sub(tp, t6,  11585, 13, 11585, 14);
+
+  /* Sin[Pi/4] + Cos[Pi/4] = 1.4142135623730951 */
+  /* Cos[Pi/4]             = 0.7071067811865475 */
+  od_rotate_pi4_add(tm, t9, 11585, 13, 11585, 14);
+
+  /* Sin[Pi/4] + Cos[Pi/4] = 1.4142135623730951 */
+  /* Cos[Pi/4]             = 0.7071067811865475 */
+  od_rotate_pi4_add(te, th, 11585, 13, 11585, 14);
+}
+
+/**
+ * 32-point asymmetric Type-IV iDST
+ */
+static INLINE void od_idst_32_asym(od_coeff *t0, od_coeff *tg,
+                                   od_coeff *t8, od_coeff *to,
+                                   od_coeff *t4, od_coeff *tk,
+                                   od_coeff *tc, od_coeff *ts,
+                                   od_coeff *t2, od_coeff *ti,
+                                   od_coeff *ta, od_coeff *tq,
+                                   od_coeff *t6, od_coeff *tm,
+                                   od_coeff *te, od_coeff *tu,
+                                   od_coeff *t1, od_coeff *th,
+                                   od_coeff *t9, od_coeff *tp,
+                                   od_coeff *t5, od_coeff *tl,
+                                   od_coeff *td, od_coeff *tt,
+                                   od_coeff *t3, od_coeff *tj,
+                                   od_coeff *tb, od_coeff *tr,
+                                   od_coeff *t7, od_coeff *tn,
+                                   od_coeff *tf, od_coeff *tv) {
+  od_coeff t0h;
+  od_coeff t1h;
+  od_coeff t2h;
+  od_coeff t3h;
+  od_coeff t4h;
+  od_coeff t6h;
+  od_coeff t8h;
+  od_coeff t9h;
+  od_coeff tah;
+  od_coeff tbh;
+  od_coeff tch;
+  od_coeff tdh;
+  od_coeff teh;
+  od_coeff tfh;
+  od_coeff tgh;
+  od_coeff thh;
+  od_coeff tih;
+  od_coeff tjh;
+  od_coeff tkh;
+  od_coeff tlh;
+  od_coeff tmh;
+  od_coeff tnh;
+  od_coeff tph;
+  od_coeff trh;
+  od_coeff tsh;
+  od_coeff tth;
+  od_coeff tuh;
+  od_coeff tvh;
+
+  /* Stage 7 */
+
+  /* Sin[Pi/4] + Cos[Pi/4] = 1.4142135623730951 */
+  /* Cos[Pi/4]             = 0.7071067811865475 */
+  od_rotate_pi4_add(te, th, 11585, 13, 11585, 14);
+
+  /* Sin[Pi/4] + Cos[Pi/4] = 1.4142135623730951 */
+  /* Cos[Pi/4]             = 0.7071067811865475 */
+  od_rotate_pi4_add(tm, t9, 11585, 13, 11585, 14);
+
+  /* Sin[Pi/4] + Cos[Pi/4] = 1.4142135623730951 */
+  /* Cos[Pi/4]             = 0.7071067811865475 */
+  od_rotate_pi4_sub(tp, t6, 11585, 13, 11585, 14);
+
+  /* Sin[Pi/4] + Cos[Pi/4] = 1.4142135623730951 */
+  /* Cos[Pi/4]             = 0.7071067811865475 */
+  od_rotate_pi4_add(tq, t5, 11585, 13, 11585, 14);
+
+  /* Sin[Pi/4] + Cos[Pi/4] = 1.4142135623730951 */
+  /* Cos[Pi/4]             = 0.7071067811865475 */
+  od_rotate_pi4_add(tu, t1, 11585, 13, 11585, 14);
+
+  /* Sin[3*Pi/8] + Cos[3*Pi/8] = 1.3065629648763766 */
+  /* Sin[3*Pi/8] - Cos[3*Pi/8] = 0.5411961001461969 */
+  /* Cos[3*Pi/8]               = 0.3826834323650898 */
+  od_rotate_neg(td, ti, 10703, 13, 8867, 14, 3135, 13);
+
+  /* Sin[3*Pi/8] + Cos[3*Pi/8] = 1.3065629648763766 */
+  /* Sin[3*Pi/8] - Cos[3*Pi/8] = 0.5411961001461969 */
+  /* Cos[3*Pi/8]               = 0.3826834323650898 */
+  od_rotate_add(tc, tj, 10703, 13, 8867, 14, 3135, 13, NONE);
+
+  /* Sin[3*Pi/8] + Cos[3*Pi/8] = 1.3065629648763766 */
+  /* Sin[3*Pi/8] - Cos[3*Pi/8] = 0.5411961001461969 */
+  /* Cos[3*Pi/8]               = 0.3826834323650898 */
+  od_rotate_add(tk, tb, 10703, 13, 8867, 14, 3135, 13, NONE);
+
+  /* Sin[3*Pi/8] + Cos[3*Pi/8] = 1.3065629648763766 */
+  /* Sin[3*Pi/8] - Cos[3*Pi/8] = 0.5411961001461969 */
+  /* Cos[3*Pi/8]               = 0.3826834323650898 */
+  od_rotate_neg(tl, ta, 10703, 13, 8867, 14, 3135, 13);
+
+  /* Sin[3*Pi/8] + Cos[3*Pi/8] = 1.3065629648763766 */
+  /* Sin[3*Pi/8] - Cos[3*Pi/8] = 0.5411961001461969 */
+  /* Cos[3*Pi/8]               = 0.3826834323650898 */
+  od_rotate_add(ts, t3, 10703, 13, 8867, 14, 3135, 13, NONE);
+
+  /* Sin[3*Pi/8] + Cos[3*Pi/8] = 1.3065629648763766 */
+  /* Sin[3*Pi/8] - Cos[3*Pi/8] = 0.5411961001461969 */
+  /* Cos[3*Pi/8]               = 0.3826834323650898 */
+  od_rotate_neg(tt, t2, 10703, 13, 8867, 14, 3135, 13);
+
+  /* Stage 6 */
+
+  od_butterfly_sub(tg, &tgh, th);
+  od_butterfly_add(tf, &tfh, te);
+  od_butterfly_add(td, &tdh, tj);
+  od_butterfly_add(ti, &tih, tc);
+
+  od_butterfly_sub(tb, &tbh, tl);
+  od_butterfly_sub(tk, &tkh, ta);
+  od_butterfly_sub(tm, &tmh, tn);
+  od_butterfly_add(t9, &t9h, t8);
+
+  od_butterfly_sub(to, NULL, tp);
+  od_butterfly_add(t7, NULL, t6);
+  od_butterfly_sub(tq, NULL, tr);
+  od_butterfly_add(t5, NULL, t4);
+
+  od_butterfly_sub(t3, &t3h, tt);
+  od_butterfly_sub(ts, &tsh, t2);
+  od_butterfly_sub(tu, &tuh, tv);
+  od_butterfly_add(t1, &t1h, t0);
+
+  /* Stage 5 */
+
+  /* Sin[7*Pi/16] + Cos[7*Pi/16] = 1.1758756024193586 */
+  /* Sin[7*Pi/16] - Cos[7*Pi/16] = 0.7856949583871022 */
+  /* Cos[7*Pi/16]                = 0.1950903220161283 */
+  od_rotate_neg(tr, t4, 9633, 13, 12873, 14, 6393, 15);
+
+  /* Sin[5*Pi/16] + Cos[5*Pi/16] = 1.3870398453221475 */
+  /* Sin[5*Pi/16] - Cos[5*Pi/16] = 0.2758993792829431 */
+  /* Cos[5*Pi/16]                = 0.5555702330196022 */
+  od_rotate_neg(tq, t5, 11363, 13, 9041, 15, 4551, 13);
+
+  /* Sin[5*Pi/16] + Cos[5*Pi/16] = 1.3870398453221475 */
+  /* Sin[5*Pi/16] - Cos[5*Pi/16] = 0.2758993792829431 */
+  /* Cos[5*Pi/16]                = 0.5555702330196022 */
+  od_rotate_add(tp, t6, 22725, 14, 9041, 15, 18205, 15, NONE);
+
+  /* Sin[7*Pi/16] + Cos[7*Pi/16] = 1.1758756024193586 */
+  /* Sin[7*Pi/16] - Cos[7*Pi/16] = 0.7856949583871022 */
+  /* Cos[7*Pi/16]                = 0.1950903220161283 */
+  od_rotate_add(to, t7, 9633, 13, 12873, 14, 6393, 15, NONE);
+
+  /* Stage 4 */
+
+  od_butterfly_add_asym(td, tdh, te);
+  od_butterfly_sub_asym(ti, tih, th);
+  od_butterfly_add_asym(tg, tgh, tj);
+  od_butterfly_sub_asym(tf, tfh, tc);
+
+  od_butterfly_add_asym(t9, t9h, ta);
+  od_butterfly_sub_asym(tm, tmh, tl);
+  od_butterfly_add_asym(tk, tkh, tn);
+  od_butterfly_sub_asym(tb, tbh, t8);
+
+  od_butterfly_sub_asym(t5, od_rshift1(*t5), tp);
+  od_butterfly_add_asym(t7, od_rshift1(*t7), tr);
+  od_butterfly_sub_asym(tq, od_rshift1(*tq), t6);
+  od_butterfly_add_asym(to, od_rshift1(*to), t4);
+
+  od_butterfly_add_asym(t1, t1h, t2);
+  od_butterfly_sub_asym(tu, tuh, tt);
+  od_butterfly_add_asym(ts, tsh, tv);
+  od_butterfly_sub_asym(t3, t3h, t0);
+
+  /* Stage 3 */
+
+  /* Sin[15*Pi/32] + Cos[15*Pi/32] = 1.0932018670017576 */
+  /* Sin[15*Pi/32] - Cos[15*Pi/32] = 0.8971675863426363 */
+  /* Cos[15*Pi/32]                 = 0.0980171403295606 */
+  od_rotate_neg(tn, t8, 17911, 14, 14699, 14, 803, 13);
+
+  /* Sin[13*Pi/32] + Cos[13*Pi/32] = 1.2472250129866712 */
+  /* Sin[13*Pi/32] - Cos[13*Pi/32] = 0.6666556584777465 */
+  /* Cos[13*Pi/32]                 = 0.2902846772544623 */
+  od_rotate_neg(tm, t9, 20435, 14, 21845, 15, 1189, 12);
+
+  /* Sin[11*Pi/32] + Cos[11*Pi/32] = 1.3533180011743526 */
+  /* Sin[11*Pi/32] - Cos[11*Pi/32] = 0.4105245275223574 */
+  /* Cos[11*Pi/32]                 = 0.4713967368259976 */
+  od_rotate_neg(tl, ta, 22173, 14, 3363, 13, 15447, 15);
+
+  /* Sin[9*Pi/32] + Cos[9*Pi/32] = 1.4074037375263826 */
+  /* Sin[9*Pi/32] - Cos[9*Pi/32] = 0.1386171691990915 */
+  /* Cos[9*Pi/32]                = 0.6343932841636455 */
+  od_rotate_neg(tk, tb, 23059, 14, 2271, 14, 5197, 13);
+
+  /* Sin[9*Pi/32] + Cos[9*Pi/32] = 1.4074037375263826 */
+  /* Sin[9*Pi/32] - Cos[9*Pi/32] = 0.1386171691990915 */
+  /* Cos[9*Pi/32]                = 0.6343932841636455 */
+  od_rotate_sub(tc, tj, 23059, 14, 2271, 14, 5197, 13, NONE);
+
+  /* Sin[11*Pi/32] + Cos[11*Pi/32] = 1.3533180011743526 */
+  /* Sin[11*Pi/32] - Cos[11*Pi/32] = 0.4105245275223574 */
+  /* Cos[11*Pi/32]                 = 0.4713967368259976 */
+  od_rotate_add(ti, td, 22173, 14, 3363, 13, 15447, 15, NONE);
+
+  /* Sin[13*Pi/32] + Cos[13*Pi/32] = 1.2472250129866712 */
+  /* Sin[13*Pi/32] - Cos[13*Pi/32] = 0.6666556584777465 */
+  /* Cos[13*Pi/32]                 = 0.2902846772544623 */
+  od_rotate_add(th, te, 20435, 14, 21845, 15, 1189, 12, NONE);
+
+  /* Sin[15*Pi/32] + Cos[15*Pi/32] = 1.0932018670017576 */
+  /* Sin[15*Pi/32] - Cos[15*Pi/32] = 0.8971675863426363 */
+  /* Cos[15*Pi/32]                 = 0.0980171403295606 */
+  od_rotate_sub(tf, tg, 17911, 14, 14699, 14, 803, 13, NONE);
+
+  /* Stage 2 */
+
+  od_butterfly_sub(tj, &tjh, tb);
+  od_butterfly_add(tl, &tlh, td);
+  od_butterfly_sub(tc, &tch, tk);
+  od_butterfly_add(ta, &tah, ti);
+
+  od_butterfly_sub(th, &thh, t9);
+  od_butterfly_add(tn, &tnh, tf);
+  od_butterfly_sub(te, &teh, tm);
+  od_butterfly_add(t8, &t8h, tg);
+
+  od_butterfly_add(t4, &t4h, t3);
+  od_butterfly_sub(tr, &trh, ts);
+  od_butterfly_add(tt, &tth, tq);
+  od_butterfly_sub(t2, &t2h, t5);
+
+  od_butterfly_add(t6, &t6h, t1);
+  od_butterfly_sub(tp, &tph, tu);
+  od_butterfly_add(tv, &tvh, to);
+  od_butterfly_sub(t0, &t0h, t7);
+
+  /* Stage 1 */
+
+  od_butterfly_sub_asym(t8, t8h, t7);
+  od_butterfly_add_asym(tn, tnh, to);
+  od_butterfly_sub_asym(tp, tph, tm);
+  od_butterfly_add_asym(t6, t6h, t9);
+
+  od_butterfly_sub_asym(ta, tah, t5);
+  od_butterfly_add_asym(tl, tlh, tq);
+  od_butterfly_sub_asym(tr, trh, tk);
+  od_butterfly_add_asym(t4, t4h, tb);
+
+  od_butterfly_sub_asym(tc, tch, t3);
+  od_butterfly_add_asym(tj, tjh, ts);
+  od_butterfly_sub_asym(tt, tth, ti);
+  od_butterfly_add_asym(t2, t2h, td);
+
+  od_butterfly_sub_asym(te, teh, t1);
+  od_butterfly_add_asym(th, thh, tu);
+  od_butterfly_sub_asym(tv, tvh, tg);
+  od_butterfly_add_asym(t0, t0h, tf);
+
+  /* Stage 0 */
+
+  /* Sin[33*Pi/128] + Cos[33*Pi/128] = 1.4137876276885337 */
+  /* Sin[33*Pi/128] - Cos[33*Pi/128] = 0.0347065382144002 */
+  /* Cos[33*Pi/128]                  = 0.6895405447370668 */
+  od_rotate_sub(tg, tf, 16379, 14, 201, 12, 15977, 14, SHIFT);
+
+  /* Sin[35*Pi/128] + Cos[35*Pi/128] = 1.4103816894602614 */
+  /* Sin[35*Pi/128] - Cos[35*Pi/128] = 0.1040360035527078 */
+  /* Cos[35*Pi/128]                  = 0.6531728429537768 */
+  od_rotate_add(te, th, 32679, 15, 4821, 15, 30269, 15, SHIFT);
+
+  /* Sin[37*Pi/128] + Cos[37*Pi/128] = 1.4035780182072331 */
+  /* Sin[37*Pi/128] - Cos[37*Pi/128] = 0.1731148370459795 */
+  /* Cos[37*Pi/128]                  = 0.6152315905806268 */
+  od_rotate_sub(ti, td, 16261, 14, 4011, 14, 14255, 14, SHIFT);
+
+  /* Sin[39*Pi/128] + Cos[39*Pi/128] = 1.3933930045694290 */
+  /* Sin[39*Pi/128] - Cos[39*Pi/128] = 0.2417766217337384 */
+  /* Cos[39*Pi/128]                  = 0.5758081914178453 */
+  od_rotate_add(tc, tj, 16143, 14, 2801, 13, 26683, 15, SHIFT);
+
+  /* Sin[41*Pi/128] + Cos[41*Pi/128] = 1.3798511851368043 */
+  /* Sin[41*Pi/128] - Cos[41*Pi/128] = 0.3098559453626100 */
+  /* Cos[41*Pi/128]                  = 0.5349976198870972 */
+  od_rotate_sub(tk, tb, 7993, 13, 14359, 15, 3099, 12, SHIFT);
+
+  /* Sin[43*Pi/128] + Cos[43*Pi/128] = 1.3629851833384956 */
+  /* Sin[43*Pi/128] - Cos[43*Pi/128] = 0.3771887988789274 */
+  /* Cos[43*Pi/128]                  = 0.4928981922297840 */
+  od_rotate_add(ta, tl, 31581, 15, 17479, 15, 22841, 15, SHIFT);
+
+  /* Sin[45*Pi/128] + Cos[45*Pi/128] = 1.3428356308501219 */
+  /* Sin[45*Pi/128] - Cos[45*Pi/128] = 0.4436129715409088 */
+  /* Cos[45*Pi/128]                  = 0.4496113296546065 */
+  od_rotate_sub(tm, t9, 15557, 14, 20557, 15, 20835, 15, SHIFT);
+
+  /* Sin[47*Pi/128] + Cos[47*Pi/128] = 1.3194510697085207 */
+  /* Sin[47*Pi/128] - Cos[47*Pi/128] = 0.5089684416985408 */
+  /* Cos[47*Pi/128]                  = 0.4052413140049899 */
+  od_rotate_add(t8, tn, 7643, 13, 11793, 14, 18779, 15, SHIFT);
+
+  /* Sin[49*Pi/128] + Cos[49*Pi/128] = 1.2928878353697270 */
+  /* Sin[49*Pi/128] - Cos[49*Pi/128] = 0.5730977622997508 */
+  /* Cos[49*Pi/128]                  = 0.3598950365349881 */
+  od_rotate_sub(to, t7, 29957, 15, 13279, 14, 8339, 14, SHIFT);
+
+  /* Sin[51*Pi/128] + Cos[51*Pi/128] = 1.2632099209919283 */
+  /* Sin[51*Pi/128] - Cos[51*Pi/128] = 0.6358464401941452 */
+  /* Cos[51*Pi/128]                  = 0.3136817403988915 */
+  od_rotate_add(t6, tp, 29269, 15, 14733, 14, 1817, 12, SHIFT);
+
+  /* Sin[53*Pi/128] + Cos[53*Pi/128] = 1.2304888232703382 */
+  /* Sin[53*Pi/128] - Cos[53*Pi/128] = 0.6970633083205415 */
+  /* Cos[53*Pi/128]                  = 0.2667127574748984 */
+  od_rotate_sub(tq, t5, 28511, 15, 32303, 15, 1545, 12, SHIFT);
+
+  /* Sin[55*Pi/128] + Cos[55*Pi/128] = 1.1948033701953984 */
+  /* Sin[55*Pi/128] - Cos[55*Pi/128] = 0.7566008898816587 */
+  /* Cos[55*Pi/128]                  = 0.2191012401568698 */
+  od_rotate_add(t4, tr, 6921, 13, 17531, 14, 10153, 15, SHIFT);
+
+  /* Sin[57*Pi/128] + Cos[57*Pi/128] = 1.1562395311492424 */
+  /* Sin[57*Pi/128] - Cos[57*Pi/128] = 0.8143157536286401 */
+  /* Cos[57*Pi/128]                  = 0.1709618887603012 */
+  od_rotate_sub(ts, t3, 26791, 15, 4717, 12, 7923, 15, SHIFT);
+
+  /* Sin[59*Pi/128] + Cos[59*Pi/128] = 1.1148902097979262 */
+  /* Sin[59*Pi/128] - Cos[59*Pi/128] = 0.8700688593994937 */
+  /* Cos[59*Pi/128]                  = 0.1224106751992162 */
+  od_rotate_add(t2, tt, 25833, 15, 315, 8, 5673, 15, SHIFT);
+
+  /* Sin[61*Pi/128] + Cos[61*Pi/128] = 1.0708550202783576 */
+  /* Sin[61*Pi/128] - Cos[61*Pi/128] = 0.9237258930790228 */
+  /* Cos[61*Pi/128]                  = 0.0735645635996674 */
+  od_rotate_sub(tu, t1, 6203, 13, 21403, 14, 3409, 15, SHIFT);
+
+  /* Sin[63*Pi/128] + Cos[63*Pi/128] = 1.0242400472191164 */
+  /* Sin[63*Pi/128] - Cos[63*Pi/128] = 0.9751575901732919 */
+  /* Cos[63*Pi/128]                  = 0.0245412285229123 */
+  od_rotate_add(t0, tv, 5933, 13, 22595, 14, 1137, 15, SHIFT);
+}
+
+/* --- 64-point Transforms --- */
+
+/**
+ * 64-point orthonormal Type-II fDCT
+ */
+static INLINE void od_fdct_64(od_coeff *u0, od_coeff *u1,
+                              od_coeff *u2, od_coeff *u3,
+                              od_coeff *u4, od_coeff *u5,
+                              od_coeff *u6, od_coeff *u7,
+                              od_coeff *u8, od_coeff *u9,
+                              od_coeff *ua, od_coeff *ub,
+                              od_coeff *uc, od_coeff *ud,
+                              od_coeff *ue, od_coeff *uf,
+                              od_coeff *ug, od_coeff *uh,
+                              od_coeff *ui, od_coeff *uj,
+                              od_coeff *uk, od_coeff *ul,
+                              od_coeff *um, od_coeff *un,
+                              od_coeff *uo, od_coeff *up,
+                              od_coeff *uq, od_coeff *ur,
+                              od_coeff *us, od_coeff *ut,
+                              od_coeff *uu, od_coeff *uv,
+                              od_coeff *uw, od_coeff *ux,
+                              od_coeff *uy, od_coeff *uz,
+                              od_coeff *uA, od_coeff *uB,
+                              od_coeff *uC, od_coeff *uD,
+                              od_coeff *uE, od_coeff *uF,
+                              od_coeff *uG, od_coeff *uH,
+                              od_coeff *uI, od_coeff *uJ,
+                              od_coeff *uK, od_coeff *uL,
+                              od_coeff *uM, od_coeff *uN,
+                              od_coeff *uO, od_coeff *uP,
+                              od_coeff *uQ, od_coeff *uR,
+                              od_coeff *uS, od_coeff *uT,
+                              od_coeff *uU, od_coeff *uV,
+                              od_coeff *uW, od_coeff *uX,
+                              od_coeff *uY, od_coeff *uZ,
+                              od_coeff *u_, od_coeff *u) {
+  od_coeff u1h;
+  od_coeff u3h;
+  od_coeff u5h;
+  od_coeff u7h;
+  od_coeff u9h;
+  od_coeff ubh;
+  od_coeff udh;
+  od_coeff ufh;
+  od_coeff uhh;
+  od_coeff ujh;
+  od_coeff ulh;
+  od_coeff unh;
+  od_coeff uph;
+  od_coeff urh;
+  od_coeff uth;
+  od_coeff uvh;
+  od_coeff uxh;
+  od_coeff uzh;
+  od_coeff uBh;
+  od_coeff uDh;
+  od_coeff uFh;
+  od_coeff uHh;
+  od_coeff uJh;
+  od_coeff uLh;
+  od_coeff uNh;
+  od_coeff uPh;
+  od_coeff uRh;
+  od_coeff uTh;
+  od_coeff uVh;
+  od_coeff uXh;
+  od_coeff uZh;
+  od_coeff uh_;
+
+  /* +/- Butterflies with asymmetric output. */
+  od_butterfly_neg(u0, u , &uh_);
+  od_butterfly_add(u1, &u1h, u_);
+  od_butterfly_neg(u2, uZ, &uZh);
+  od_butterfly_add(u3, &u3h, uY);
+  od_butterfly_neg(u4, uX, &uXh);
+  od_butterfly_add(u5, &u5h, uW);
+  od_butterfly_neg(u6, uV, &uVh);
+  od_butterfly_add(u7, &u7h, uU);
+  od_butterfly_neg(u8, uT, &uTh);
+  od_butterfly_add(u9, &u9h, uS);
+  od_butterfly_neg(ua, uR, &uRh);
+  od_butterfly_add(ub, &ubh, uQ);
+  od_butterfly_neg(uc, uP, &uPh);
+  od_butterfly_add(ud, &udh, uO);
+  od_butterfly_neg(ue, uN, &uNh);
+  od_butterfly_add(uf, &ufh, uM);
+  od_butterfly_neg(ug, uL, &uLh);
+  od_butterfly_add(uh, &uhh, uK);
+  od_butterfly_neg(ui, uJ, &uJh);
+  od_butterfly_add(uj, &ujh, uI);
+  od_butterfly_neg(uk, uH, &uHh);
+  od_butterfly_add(ul, &ulh, uG);
+  od_butterfly_neg(um, uF, &uFh);
+  od_butterfly_add(un, &unh, uE);
+  od_butterfly_neg(uo, uD, &uDh);
+  od_butterfly_add(up, &uph, uC);
+  od_butterfly_neg(uq, uB, &uBh);
+  od_butterfly_add(ur, &urh, uA);
+  od_butterfly_neg(us, uz, &uzh);
+  od_butterfly_add(ut, &uth, uy);
+  od_butterfly_neg(uu, ux, &uxh);
+  od_butterfly_add(uv, &uvh, uw);
+
+  /* Embedded 16-point transforms with asymmetric input. */
+  od_fdct_32_asym(
+   u0, u1, u1h, u2, u3, u3h, u4, u5, u5h, u6, u7, u7h,
+   u8, u9, u9h, ua, ub, ubh, uc, ud, udh, ue, uf, ufh,
+   ug, uh, uhh, ui, uj, ujh, uk, ul, ulh, um, un, unh,
+   uo, up, uph, uq, ur, urh, us, ut, uth, uu, uv, uvh);
+
+  od_fdst_32_asym(
+   u , uh_, u_, uZ, uZh, uY, uX, uXh, uW, uV, uVh, uU,
+   uT, uTh, uS, uR, uRh, uQ, uP, uPh, uO, uN, uNh, uM,
+   uL, uLh, uK, uJ, uJh, uI, uH, uHh, uG, uF, uFh, uE,
+   uD, uDh, uC, uB, uBh, uA, uz, uzh, uy, ux, uxh, uw);
+}
+
+/**
+ * 64-point orthonormal Type-II iDCT
+ */
+static INLINE void od_idct_64(od_coeff *u0, od_coeff *uw,
+                              od_coeff *ug, od_coeff *uM,
+                              od_coeff *u8, od_coeff *uE,
+                              od_coeff *uo, od_coeff *uU,
+                              od_coeff *u4, od_coeff *uA,
+                              od_coeff *uk, od_coeff *uQ,
+                              od_coeff *uc, od_coeff *uI,
+                              od_coeff *us, od_coeff *uY,
+                              od_coeff *u2, od_coeff *uy,
+                              od_coeff *ui, od_coeff *uO,
+                              od_coeff *ua, od_coeff *uG,
+                              od_coeff *uq, od_coeff *uW,
+                              od_coeff *u6, od_coeff *uC,
+                              od_coeff *um, od_coeff *uS,
+                              od_coeff *ue, od_coeff *uK,
+                              od_coeff *uu, od_coeff *u_,
+                              od_coeff *u1, od_coeff *ux,
+                              od_coeff *uh, od_coeff *uN,
+                              od_coeff *u9, od_coeff *uF,
+                              od_coeff *up, od_coeff *uV,
+                              od_coeff *u5, od_coeff *uB,
+                              od_coeff *ul, od_coeff *uR,
+                              od_coeff *ud, od_coeff *uJ,
+                              od_coeff *ut, od_coeff *uZ,
+                              od_coeff *u3, od_coeff *uz,
+                              od_coeff *uj, od_coeff *uP,
+                              od_coeff *ub, od_coeff *uH,
+                              od_coeff *ur, od_coeff *uX,
+                              od_coeff *u7, od_coeff *uD,
+                              od_coeff *un, od_coeff *uT,
+                              od_coeff *uf, od_coeff *uL,
+                              od_coeff *uv, od_coeff *u ) {
+  od_coeff u1h;
+  od_coeff u3h;
+  od_coeff u5h;
+  od_coeff u7h;
+  od_coeff u9h;
+  od_coeff ubh;
+  od_coeff udh;
+  od_coeff ufh;
+  od_coeff uhh;
+  od_coeff ujh;
+  od_coeff ulh;
+  od_coeff unh;
+  od_coeff uph;
+  od_coeff urh;
+  od_coeff uth;
+  od_coeff uvh;
+
+  /* Embedded 32-point transforms with asymmetric output. */
+  od_idst_32_asym(
+   u , uL, uT, uD, uX, uH, uP, uz, uZ, uJ, uR, uB, uV, uF, uN, ux,
+   u_, uK, uS, uC, uW, uG, uO, uy, uY, uI, uQ, uA, uU, uE, uM, uw);
+  od_idct_32_asym(
+   u0, ug, u8, uo, u4, uk, uc, us, u2, ui, ua, uq, u6, um, ue, uu,
+   u1, &u1h, uh, &uhh, u9, &u9h, up, &uph,
+   u5, &u5h, ul, &ulh, ud, &udh, ut, &uth,
+   u3, &u3h, uj, &ujh, ub, &ubh, ur, &urh,
+   u7, &u7h, un, &unh, uf, &ufh, uv, &uvh);
+
+  /* +/- Butterflies with asymmetric input. */
+  od_butterfly_neg_asym(u0, u , od_rshift1(*u));
+  od_butterfly_add_asym(u1, u1h, u_);
+  od_butterfly_neg_asym(u2, uZ, od_rshift1(*uZ));
+  od_butterfly_add_asym(u3, u3h, uY);
+  od_butterfly_neg_asym(u4, uX, od_rshift1(*uX));
+  od_butterfly_add_asym(u5, u5h, uW);
+  od_butterfly_neg_asym(u6, uV, od_rshift1(*uV));
+  od_butterfly_add_asym(u7, u7h, uU);
+  od_butterfly_neg_asym(u8, uT, od_rshift1(*uT));
+  od_butterfly_add_asym(u9, u9h, uS);
+  od_butterfly_neg_asym(ua, uR, od_rshift1(*uR));
+  od_butterfly_add_asym(ub, ubh, uQ);
+  od_butterfly_neg_asym(uc, uP, od_rshift1(*uP));
+  od_butterfly_add_asym(ud, udh, uO);
+  od_butterfly_neg_asym(ue, uN, od_rshift1(*uN));
+  od_butterfly_add_asym(uf, ufh, uM);
+  od_butterfly_neg_asym(ug, uL, od_rshift1(*uL));
+  od_butterfly_add_asym(uh, uhh, uK);
+  od_butterfly_neg_asym(ui, uJ, od_rshift1(*uJ));
+  od_butterfly_add_asym(uj, ujh, uI);
+  od_butterfly_neg_asym(uk, uH, od_rshift1(*uH));
+  od_butterfly_add_asym(ul, ulh, uG);
+  od_butterfly_neg_asym(um, uF, od_rshift1(*uF));
+  od_butterfly_add_asym(un, unh, uE);
+  od_butterfly_neg_asym(uo, uD, od_rshift1(*uD));
+  od_butterfly_add_asym(up, uph, uC);
+  od_butterfly_neg_asym(uq, uB, od_rshift1(*uB));
+  od_butterfly_add_asym(ur, urh, uA);
+  od_butterfly_neg_asym(us, uz, od_rshift1(*uz));
+  od_butterfly_add_asym(ut, uth, uy);
+  od_butterfly_neg_asym(uu, ux, od_rshift1(*ux));
+  od_butterfly_add_asym(uv, uvh, uw);
+}
+
 #endif
