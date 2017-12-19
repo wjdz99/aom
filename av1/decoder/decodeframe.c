@@ -3752,7 +3752,8 @@ void av1_decode_tg_tiles_and_wrapup(AV1Decoder *pbi, const uint8_t *data,
 #if CONFIG_OBU
 
 static OBU_TYPE read_obu_header(struct aom_read_bit_buffer *rb,
-                                size_t *header_size) {
+                                size_t *header_size,
+                                uint8_t *obu_extension_header) {
   *header_size = 1;
 
   // first bit is obu_forbidden_bit (0) according to R19
@@ -3761,12 +3762,17 @@ static OBU_TYPE read_obu_header(struct aom_read_bit_buffer *rb,
   const OBU_TYPE obu_type = (OBU_TYPE)aom_rb_read_literal(rb, 4);
   aom_rb_read_literal(rb, 2);  // reserved
   const int obu_extension_flag = aom_rb_read_bit(rb);
+  if (obu_extension_header) *obu_extension_header = 0;
   if (obu_extension_flag) {
     *header_size += 1;
+#if !CONFIG_SCALABILITY
     aom_rb_read_literal(rb, 3);  // temporal_id
     aom_rb_read_literal(rb, 2);
     aom_rb_read_literal(rb, 2);
     aom_rb_read_literal(rb, 1);  // reserved
+#else
+    *obu_extension_header = (uint8_t)aom_rb_read_literal(rb, 8);
+#endif
   }
 
   return obu_type;
@@ -3778,9 +3784,19 @@ static uint32_t read_sequence_header_obu(AV1Decoder *pbi,
                                          struct aom_read_bit_buffer *rb) {
   AV1_COMMON *const cm = &pbi->common;
   uint32_t saved_bit_offset = rb->bit_offset;
+#if CONFIG_SCALABILITY
+  int i;
+#endif
 
   cm->profile = av1_read_profile(rb);
   aom_rb_read_literal(rb, 4);  // level
+
+#if CONFIG_SCALABILITY
+  pbi->common.enhancement_layers_cnt = aom_rb_read_literal(rb, 2);
+  for (i = 1; i <= pbi->common.enhancement_layers_cnt; i++) {
+    aom_rb_read_literal(rb, 4);  // level for each enhancement layer
+  }
+#endif
 
   read_sequence_header(&cm->seq_params, rb);
 
@@ -3887,6 +3903,9 @@ void av1_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
   int is_first_tg_obu_received = 1;
   int frame_header_received = 0;
   int frame_header_size = 0;
+#if CONFIG_SCALABILITY
+  uint8_t obu_extension_header = 0;
+#endif
 
   // decode frame as a series of OBUs
   while (!frame_decoding_finished && !cm->error.error_code) {
@@ -3906,8 +3925,17 @@ void av1_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
 #else
     obu_size = (size_t)(data_end - data);
 #endif
-    obu_type = read_obu_header(&rb, &obu_header_size);
+#if !CONFIG_SCALABILITY
+    obu_type = read_obu_header(&rb, &obu_header_size, NULL);
+#else
+    obu_type = read_obu_header(&rb, &obu_header_size, &obu_extension_header);
+#endif
     data += (PRE_OBU_SIZE_BYTES + obu_header_size);
+
+#if CONFIG_SCALABILITY
+    cm->temporal_layer_id = (obu_extension_header & 0xE0) >> 5;
+    cm->enhancement_layer_id = (obu_extension_header & 0x18) >> 3;
+#endif
 
     switch (obu_type) {
       case OBU_TEMPORAL_DELIMITER:
