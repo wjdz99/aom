@@ -325,6 +325,10 @@ if (CONFIG_AV1_DECODER AND ENABLE_EXAMPLES)
                  "${AOM_ROOT}/examples/simple_decoder.c"
                  $<TARGET_OBJECTS:aom_common_app_util>
                  $<TARGET_OBJECTS:aom_decoder_app_util>)
+  add_executable(scalable_decoder
+                 "${AOM_ROOT}/examples/scalable_decoder.c"
+                 $<TARGET_OBJECTS:aom_common_app_util>
+                 $<TARGET_OBJECTS:aom_decoder_app_util>)
 
   if (CONFIG_ANALYZER)
     add_executable(analyzer
@@ -363,7 +367,7 @@ if (CONFIG_AV1_DECODER AND ENABLE_EXAMPLES)
 
   # Maintain a list of decoder example targets.
   set(AOM_DECODER_EXAMPLE_TARGETS ${AOM_DECODER_EXAMPLE_TARGETS}
-      aomdec decode_to_md5 decode_with_drops simple_decoder)
+      aomdec decode_to_md5 decode_with_drops simple_decoder scalable_decoder)
 
   # Add decoder examples to the app targets list.
   set(AOM_APP_TARGETS ${AOM_APP_TARGETS} ${AOM_DECODER_EXAMPLE_TARGETS})
@@ -388,6 +392,10 @@ if (CONFIG_AV1_ENCODER)
                    "${AOM_ROOT}/examples/simple_encoder.c"
                    $<TARGET_OBJECTS:aom_common_app_util>
                    $<TARGET_OBJECTS:aom_encoder_app_util>)
+    add_executable(scalable_encoder
+                   "${AOM_ROOT}/examples/scalable_encoder.c"
+                   $<TARGET_OBJECTS:aom_common_app_util>
+                   $<TARGET_OBJECTS:aom_encoder_app_util>)
     add_executable(twopass_encoder
                    "${AOM_ROOT}/examples/twopass_encoder.c"
                    $<TARGET_OBJECTS:aom_common_app_util>
@@ -395,7 +403,7 @@ if (CONFIG_AV1_ENCODER)
 
     # Maintain a list of encoder example targets.
     set(AOM_ENCODER_EXAMPLE_TARGETS
-        aomenc lossless_encoder set_maps simple_encoder twopass_encoder)
+        aomenc lossless_encoder set_maps simple_encoder scalable_encoder twopass_encoder)
   endif ()
 
   if (ENABLE_TOOLS)
