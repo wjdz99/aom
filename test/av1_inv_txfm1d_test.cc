@@ -94,9 +94,10 @@ TEST(av1_inv_txfm1d, InvAccuracyCheck) {
   ASSERT_EQ(NELEMENTS(inv_txfm_func_ls), TX_SIZES);
   for (int k = 0; k < count_test_block; ++k) {
     // choose a random transform to test
+    const int tx_type = rnd.Rand8() % txfm_type_num;
     const TX_SIZE tx_size = static_cast<TX_SIZE>(rnd.Rand8() % TX_SIZES);
     const int tx_size_pix = txfm_size_ls[tx_size];
-    const TxfmFunc inv_txfm_func = inv_txfm_func_ls[tx_size][0];
+    const TxfmFunc inv_txfm_func = inv_txfm_func_ls[tx_size][tx_type];
 
     int32_t input[64];
     random_matrix(input, tx_size_pix, &rnd);
@@ -110,7 +111,7 @@ TEST(av1_inv_txfm1d, InvAccuracyCheck) {
     reference_idct_1d_int(input, ref_output, tx_size_pix);
 
     TXFM_2D_FLIP_CFG cfg;
-    av1_get_inv_txfm_cfg(static_cast<TX_TYPE>(0), tx_size, &cfg);
+    av1_get_inv_txfm_cfg(static_cast<TX_TYPE>(tx_type), tx_size, &cfg);
     const TXFM_1D_CFG *direction = rnd.Rand8() % 2 ? cfg.col_cfg : cfg.row_cfg;
     int32_t output[64];
     inv_txfm_func(input, output, direction->cos_bit, direction->stage_range);
