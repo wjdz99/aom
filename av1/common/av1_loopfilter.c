@@ -2214,18 +2214,18 @@ static void av1_filter_block_plane_vert(
   const uint32_t scale_vert = plane_ptr->subsampling_y;
   uint8_t *const dst_ptr = plane_ptr->dst.buf;
   const int dst_stride = plane_ptr->dst.stride;
-#if CONFIG_LPF_SB
-  int y_range = mi_row ? MAX_MIB_SIZE : MAX_MIB_SIZE - FILT_BOUNDARY_MI_OFFSET;
+  int y_range = (MAX_MIB_SIZE >> scale_vert);
+  int x_range = (MAX_MIB_SIZE >> scale_horz);
+#if CONFIG_INTRABC
+  y_range = mi_row ? MAX_MIB_SIZE : MAX_MIB_SIZE - FILT_BOUNDARY_MI_OFFSET;
   y_range = AOMMIN(y_range, cm->mi_rows);
   y_range >>= scale_vert;
 
-  int x_range = mi_col ? MAX_MIB_SIZE : MAX_MIB_SIZE - FILT_BOUNDARY_MI_OFFSET;
+  x_range = mi_col ? MAX_MIB_SIZE : MAX_MIB_SIZE - FILT_BOUNDARY_MI_OFFSET;
   x_range = AOMMIN(x_range, cm->mi_cols);
   x_range >>= scale_horz;
-#else
-  const int y_range = (MAX_MIB_SIZE >> scale_vert);
-  const int x_range = (MAX_MIB_SIZE >> scale_horz);
-#endif  // CONFIG_LPF_SB
+#endif
+
   for (int y = 0; y < y_range; y += row_step) {
     uint8_t *p = dst_ptr + y * MI_SIZE * dst_stride;
     for (int x = 0; x < x_range; x += col_step) {
@@ -2335,18 +2335,17 @@ static void av1_filter_block_plane_horz(
   const uint32_t scale_vert = plane_ptr->subsampling_y;
   uint8_t *const dst_ptr = plane_ptr->dst.buf;
   const int dst_stride = plane_ptr->dst.stride;
-#if CONFIG_LPF_SB
-  int y_range = mi_row ? MAX_MIB_SIZE : MAX_MIB_SIZE - FILT_BOUNDARY_MI_OFFSET;
+  int y_range = (MAX_MIB_SIZE >> scale_vert);
+  int x_range = (MAX_MIB_SIZE >> scale_horz);
+#if CONFIG_INTRABC
+  y_range = mi_row ? MAX_MIB_SIZE : MAX_MIB_SIZE - FILT_BOUNDARY_MI_OFFSET;
   y_range = AOMMIN(y_range, cm->mi_rows);
   y_range >>= scale_vert;
 
-  int x_range = mi_col ? MAX_MIB_SIZE : MAX_MIB_SIZE - FILT_BOUNDARY_MI_OFFSET;
+  x_range = mi_col ? MAX_MIB_SIZE : MAX_MIB_SIZE - FILT_BOUNDARY_MI_OFFSET;
   x_range = AOMMIN(x_range, cm->mi_cols);
   x_range >>= scale_horz;
-#else
-  const int y_range = (MAX_MIB_SIZE >> scale_vert);
-  const int x_range = (MAX_MIB_SIZE >> scale_horz);
-#endif  // CONFIG_LPF_SB
+#endif
   for (int y = 0; y < y_range; y += row_step) {
     uint8_t *p = dst_ptr + y * MI_SIZE * dst_stride;
     for (int x = 0; x < x_range; x += col_step) {
@@ -2449,10 +2448,7 @@ static void av1_filter_block_plane_horz(
 
 void av1_loop_filter_rows(YV12_BUFFER_CONFIG *frame_buffer, AV1_COMMON *cm,
                           struct macroblockd_plane *planes, int start, int stop,
-#if CONFIG_LPF_SB
-                          int col_start, int col_end,
-#endif
-                          int y_only) {
+                          int col_start, int col_end, int y_only) {
 #if CONFIG_LOOPFILTER_LEVEL
   // y_only no longer has its original meaning.
   // Here it means which plane to filter
@@ -2465,16 +2461,12 @@ void av1_loop_filter_rows(YV12_BUFFER_CONFIG *frame_buffer, AV1_COMMON *cm,
   const int plane_start = 0;
   const int plane_end = num_planes;
 #endif  // CONFIG_LOOPFILTER_LEVEL
-#if !CONFIG_LPF_SB
-#if CONFIG_PARALLEL_DEBLOCKING
-  const int col_start = 0;
-  const int col_end = cm->mi_cols;
-#endif
-#endif  // CONFIG_LPF_SB
   int mi_row, mi_col;
   int plane;
 
 #if !CONFIG_PARALLEL_DEBLOCKING
+  (void)col_start;
+  (void)col_end;
   for (int i = 0; i < MAX_MB_PLANE; ++i)
     memset(cm->top_txfm_context[i], TX_32X32, cm->mi_cols << TX_UNIT_WIDE_LOG2);
   for (mi_row = start; mi_row < stop; mi_row += cm->mib_size) {
@@ -2522,12 +2514,10 @@ void av1_loop_filter_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
 #if CONFIG_LOOPFILTER_LEVEL
                            int frame_filter_level_r,
 #endif
-                           int y_only, int partial_frame
-#if CONFIG_LPF_SB
-                           ,
-                           int mi_row, int mi_col
-#endif
-                           ) {
+                           int y_only, int partial_frame, int mi_row,
+                           int mi_col) {
+  (void)mi_row;
+  (void)mi_col;
   int start_mi_row, end_mi_row, mi_rows_to_filter;
 #if CONFIG_EXT_DELTA_Q
 #if CONFIG_LOOPFILTER_LEVEL
@@ -2542,7 +2532,6 @@ void av1_loop_filter_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
 #else
   if (!frame_filter_level) return;
 #endif
-#if CONFIG_LPF_SB
   int start_mi_col;
   int end_mi_col;
 
@@ -2565,7 +2554,10 @@ void av1_loop_filter_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
     start_mi_col = 0;
     end_mi_col = cm->mi_cols;
   }
-#else
+// This is old partial frame filtering logic.
+// Keep it for now in case any usage or corner cases would appear.
+/*
+{
   start_mi_row = 0;
   mi_rows_to_filter = cm->mi_rows;
   if (partial_frame && cm->mi_rows > 8) {
@@ -2574,6 +2566,8 @@ void av1_loop_filter_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
     mi_rows_to_filter = AOMMAX(cm->mi_rows / 8, 8);
   }
   end_mi_row = start_mi_row + mi_rows_to_filter;
+}
+*/
 #if CONFIG_LOOPFILTER_LEVEL
   // TODO(chengchen): refactor the code such that y_only has its matching
   // meaning. Now it means the plane to be filtered in this experiment.
@@ -2582,7 +2576,6 @@ void av1_loop_filter_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
 #else
   av1_loop_filter_frame_init(cm, frame_filter_level, frame_filter_level);
 #endif
-#endif  // CONFIG_LPF_SB
 
 #if CONFIG_EXT_DELTA_Q
 #if CONFIG_LOOPFILTER_LEVEL
@@ -2593,12 +2586,8 @@ void av1_loop_filter_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
 #endif
 #endif
 
-#if CONFIG_LPF_SB
   av1_loop_filter_rows(frame, cm, xd->plane, start_mi_row, end_mi_row,
                        start_mi_col, end_mi_col, y_only);
-#else
-  av1_loop_filter_rows(frame, cm, xd->plane, start_mi_row, end_mi_row, y_only);
-#endif  // CONFIG_LPF_SB
 
 #if CONFIG_EXT_DELTA_Q
 #if CONFIG_LOOPFILTER_LEVEL
@@ -2622,13 +2611,11 @@ void av1_loop_filter_data_reset(LFWorkerData *lf_data,
   memcpy(lf_data->planes, planes, sizeof(lf_data->planes));
 }
 
+#if !CONFIG_LOOPFILTER_LEVEL
 int av1_loop_filter_worker(LFWorkerData *const lf_data, void *unused) {
   (void)unused;
-#if !CONFIG_LPF_SB
   av1_loop_filter_rows(lf_data->frame_buffer, lf_data->cm, lf_data->planes,
                        lf_data->start, lf_data->stop, lf_data->y_only);
-#else
-  (void)lf_data;
-#endif  // CONFIG_LPF_SB
   return 1;
 }
+#endif
