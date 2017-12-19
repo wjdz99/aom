@@ -48,10 +48,6 @@ const TxfmFunc inv_txfm_func_ls[][2] = {
 #endif
 };
 
-// the maximum stage number of fwd/inv 1d dct/adst txfm is 12
-const int8_t cos_bit[12] = { 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13 };
-const int8_t range_bit[12] = { 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32 };
-
 void reference_idct_1d_int(const int32_t *in, int32_t *out, int size) {
   double input[64];
   for (int i = 0; i < size; ++i) input[i] = in[i];
@@ -138,6 +134,10 @@ TEST(av1_inv_txfm1d, get_max_bit) {
   int max_bit = get_max_bit(8);
   EXPECT_EQ(max_bit, 3);
 }
+
+// the maximum stage number of fwd/inv 1d dct/adst txfm is 12
+const int8_t cos_bit[12] = { 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13 };
+const int8_t range_bit[12] = { 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32 };
 
 TEST(av1_inv_txfm1d, round_trip) {
   ACMRandom rnd(ACMRandom::DeterministicSeed());
