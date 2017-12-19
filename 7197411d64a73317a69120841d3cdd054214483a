@@ -46,6 +46,29 @@
       "revId": "7197411d64a73317a69120841d3cdd054214483a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "32d5cf71_9d927183",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 4237,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2017-12-19T18:42:34Z",
+      "side": 0,
+      "message": "Can we replace this line with a TODO assigned to me to revisit this? Ideally, the recode loop will not be triggered every single time, it is part of the reason global motion is so slow.",
+      "range": {
+        "startLine": 4237,
+        "startChar": 6,
+        "endLine": 4237,
+        "endChar": 49
+      },
+      "revId": "7197411d64a73317a69120841d3cdd054214483a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
