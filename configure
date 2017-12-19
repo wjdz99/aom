@@ -322,6 +322,7 @@ EXPERIMENT_LIST="
     fwd_kf
     mono_video
     spatial_segmentation
+    scalability
     segment_pred_last
     obu_no_ivf
     tile_info_first
@@ -590,6 +591,10 @@ post_process_cmdline() {
       log_echo "encoder side amvr requires hash_me"
       enable_feature hash_me
     fi
+    if enabled scalability; then
+      enable_feature obu_no_ivf
+    fi
+
 }
 
 process_targets() {
