@@ -9156,8 +9156,7 @@ static void estimate_skip_mode_rdcost(
     }
 
 #if CONFIG_FILTER_INTRA
-    mbmi->filter_intra_mode_info.use_filter_intra_mode[0] = 0;
-    mbmi->filter_intra_mode_info.use_filter_intra_mode[1] = 0;
+    mbmi->filter_intra_mode_info.use_filter_intra = 0;
 #endif  // CONFIG_FILTER_INTRA
     mbmi->interintra_mode = (INTERINTRA_MODE)(II_DC_PRED - 1);
 #if CONFIG_JNT_COMP
@@ -10748,8 +10747,7 @@ PALETTE_EXIT:
 
       best_mbmode.interintra_mode = (INTERINTRA_MODE)(II_DC_PRED - 1);
 #if CONFIG_FILTER_INTRA
-      best_mbmode.filter_intra_mode_info.use_filter_intra_mode[0] = 0;
-      best_mbmode.filter_intra_mode_info.use_filter_intra_mode[1] = 0;
+      best_mbmode.filter_intra_mode_info.use_filter_intra = 0;
 #endif  // CONFIG_FILTER_INTRA
 
       set_default_interp_filters(&best_mbmode, cm->interp_filter);

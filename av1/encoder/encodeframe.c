@@ -4295,10 +4295,10 @@ static void sum_intra_stats(FRAME_COUNTS *counts, MACROBLOCKD *xd,
       int left_ctx = intra_mode_context[left];
 #endif
       ++counts->filter_intra_mode[0][mbmi->filter_intra_mode_info
-                                         .filter_intra_mode[0]];
+                                         .filter_intra_mode];
       ++counts->filter_intra_mode_ctx[above_ctx][left_ctx]
                                      [mbmi->filter_intra_mode_info
-                                          .filter_intra_mode[0]];
+                                          .filter_intra_mode];
     }
     ++counts->filter_intra_tx[mbmi->tx_size][use_filter_intra_mode];
 #endif  // CONFIG_ENTROPY_STATS
