@@ -30,6 +30,7 @@ AV1_DX_SRCS-yes += decoder/dthread.c
 AV1_DX_SRCS-yes += decoder/dthread.h
 AV1_DX_SRCS-yes += decoder/decoder.c
 AV1_DX_SRCS-yes += decoder/decoder.h
+AV1_DX_SRCS-yes += decoder/obu.c
 AV1_DX_SRCS-yes += decoder/symbolrate.h
 
 ifeq ($(CONFIG_ACCOUNTING),yes)

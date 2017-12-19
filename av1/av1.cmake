@@ -92,6 +92,7 @@ set(AOM_AV1_DECODER_SOURCES
     "${AOM_ROOT}/av1/decoder/detokenize.h"
     "${AOM_ROOT}/av1/decoder/dthread.c"
     "${AOM_ROOT}/av1/decoder/dthread.h"
+    "${AOM_ROOT}/av1/decoder/obu.c"
     "${AOM_ROOT}/av1/decoder/symbolrate.h")
 
 set(AOM_AV1_ENCODER_SOURCES
