@@ -143,6 +143,10 @@ enum aome_enc_control_id {
    */
   AOME_SET_SCALEMODE = 11,
 
+  /*!\brief Codec control function to set encoder enhancement layer id.
+  */
+  AOME_SET_ENHANCEMENT_LAYER_ID = 12,
+
   /*!\brief Codec control function to set encoder internal speed settings.
    *
    * Changes in this value influences, among others, the encoder's selection
@@ -708,6 +712,9 @@ AOM_CTRL_USE_TYPE(AOME_SET_ACTIVEMAP, aom_active_map_t *)
 #define AOM_CTRL_AOME_SET_ACTIVEMAP
 AOM_CTRL_USE_TYPE(AOME_SET_SCALEMODE, aom_scaling_mode_t *)
 #define AOM_CTRL_AOME_SET_SCALEMODE
+
+AOM_CTRL_USE_TYPE(AOME_SET_ENHANCEMENT_LAYER_ID, int)
+#define AOM_CTRL_AOME_SET_ENHANCEMENT_LAYER_ID
 
 AOM_CTRL_USE_TYPE(AOME_SET_CPUUSED, int)
 #define AOM_CTRL_AOME_SET_CPUUSED
