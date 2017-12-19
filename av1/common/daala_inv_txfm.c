@@ -87,11 +87,33 @@ void daala_inv_txfm_add_c(const tran_low_t *input_coeffs, void *output_pixels,
     int col_flip = tx_flip(vtx_tab[tx_type]);
     int row_flip = tx_flip(htx_tab[tx_type]);
     od_coeff tmpsq[MAX_TX_SQUARE];
+    tran_low_t pad_input[MAX_TX_SQUARE];
     int r;
     int c;
 
     assert(col_tx);
     assert(row_tx);
+
+    if (rows > 32 || cols > 32) {
+      // TODO(urvang): Can the same array be reused, instead of using a new
+      // array?
+      // Remap 32x32 input into a modified input by:
+      // - Copying over these values in top-left 32x32 locations.
+      // - Setting the rest of the locations to 0.
+      for (r = 0; r < 32; r++) {
+        memcpy(pad_input + r * cols, input_coeffs + r * 32,
+               32 * sizeof(*pad_input));
+        if (cols > 32) {
+          memset(pad_input + r * cols + 32, 0,
+                 (cols - 32) * sizeof(*pad_input));
+        }
+      }
+      if (rows > 32) {
+        memset(pad_input + 32 * cols, 0,
+               (rows - 32) * cols * sizeof(*pad_input));
+      }
+      input_coeffs = pad_input;
+   }
 
     // Inverse-transform rows
     for (r = 0; r < rows; ++r) {
