@@ -2362,9 +2362,9 @@ int av1_tx_type_cost(const AV1_COMMON *cm, const MACROBLOCK *x,
       if (ext_tx_set > 0 && ALLOW_INTRA_EXT_TX) {
 #if CONFIG_FILTER_INTRA
         PREDICTION_MODE intra_dir;
-        if (mbmi->filter_intra_mode_info.use_filter_intra_mode[0])
+        if (mbmi->filter_intra_mode_info.use_filter_intra)
           intra_dir = fimode_to_intradir[mbmi->filter_intra_mode_info
-                                             .filter_intra_mode[0]];
+                                             .filter_intra_mode];
         else
           intra_dir = mbmi->mode;
         return x->intra_tx_type_costs[ext_tx_set][square_tx_size][intra_dir]
@@ -2401,8 +2401,7 @@ static int64_t txfm_yrd(const AV1_COMP *const cpi, MACROBLOCK *x,
   mbmi->tx_type = tx_type;
   mbmi->tx_size = tx_size;
 #if CONFIG_FILTER_INTRA
-  if (!is_inter_block(mbmi) &&
-      mbmi->filter_intra_mode_info.use_filter_intra_mode[0] &&
+  if (!is_inter_block(mbmi) && mbmi->filter_intra_mode_info.use_filter_intra &&
       !av1_filter_intra_allowed_txsize(tx_size)) {
     rd_stats->rate = INT_MAX;
     // Note: Initialize following to avoid uninitialied warnings.
@@ -2722,7 +2721,7 @@ static int64_t intra_model_yrd(const AV1_COMP *const cpi, MACROBLOCK *const x,
   int64_t temp_sse, this_rd;
   TX_SIZE tx_size = tx_size_from_tx_mode(bsize, cm->tx_mode, 0);
 #if CONFIG_FILTER_INTRA
-  if (mbmi->filter_intra_mode_info.use_filter_intra_mode[0]) {
+  if (mbmi->filter_intra_mode_info.use_filter_intra) {
     tx_size = av1_max_tx_size_for_filter_intra(bsize, cm->tx_mode);
     if (!av1_filter_intra_allowed_txsize(tx_size)) return INT64_MAX;
   }
@@ -2755,8 +2754,8 @@ static int64_t intra_model_yrd(const AV1_COMP *const cpi, MACROBLOCK *const x,
 #endif  // CONFIG_EXT_INTRA
 #if CONFIG_FILTER_INTRA
   if (mbmi->mode == DC_PRED && av1_filter_intra_allowed_txsize(mbmi->tx_size)) {
-    if (mbmi->filter_intra_mode_info.use_filter_intra_mode[0]) {
-      const int mode = mbmi->filter_intra_mode_info.filter_intra_mode[0];
+    if (mbmi->filter_intra_mode_info.use_filter_intra) {
+      const int mode = mbmi->filter_intra_mode_info.filter_intra_mode;
       mode_cost += x->filter_intra_cost[mbmi->tx_size][1] +
                    x->filter_intra_mode_cost[0][mode];
     } else {
@@ -2923,7 +2922,7 @@ static int rd_pick_palette_intra_sby(const AV1_COMP *const cpi, MACROBLOCK *x,
 #endif  // CONFIG_HIGHBITDEPTH
     colors = av1_count_colors(src, src_stride, rows, cols, count_buf);
 #if CONFIG_FILTER_INTRA
-  mbmi->filter_intra_mode_info.use_filter_intra_mode[0] = 0;
+  mbmi->filter_intra_mode_info.use_filter_intra = 0;
 #endif  // CONFIG_FILTER_INTRA
 
   if (colors > 1 && colors <= 64) {
@@ -2971,7 +2970,7 @@ static int rd_pick_palette_intra_sby(const AV1_COMP *const cpi, MACROBLOCK *x,
 
     mbmi->mode = DC_PRED;
 #if CONFIG_FILTER_INTRA
-    mbmi->filter_intra_mode_info.use_filter_intra_mode[0] = 0;
+    mbmi->filter_intra_mode_info.use_filter_intra = 0;
 #endif  // CONFIG_FILTER_INTRA
 
     if (rows * cols > MAX_PALETTE_SQUARE) return 0;
@@ -3052,7 +3051,7 @@ static int rd_pick_filter_intra_sby(const AV1_COMP *const cpi, MACROBLOCK *x,
   TX_TYPE best_tx_type;
 
   av1_zero(filter_intra_mode_info);
-  mbmi->filter_intra_mode_info.use_filter_intra_mode[0] = 1;
+  mbmi->filter_intra_mode_info.use_filter_intra = 1;
   mbmi->mode = DC_PRED;
   mbmi->palette_mode_info.palette_size[0] = 0;
 
@@ -3060,7 +3059,7 @@ static int rd_pick_filter_intra_sby(const AV1_COMP *const cpi, MACROBLOCK *x,
     int this_rate;
     int64_t this_rd, this_model_rd;
     RD_STATS tokenonly_rd_stats;
-    mbmi->filter_intra_mode_info.filter_intra_mode[0] = mode;
+    mbmi->filter_intra_mode_info.filter_intra_mode = mode;
     this_model_rd = intra_model_yrd(cpi, x, bsize, mode_cost);
     if (*best_model_rd != INT64_MAX &&
         this_model_rd > *best_model_rd + (*best_model_rd >> 1))
@@ -3089,10 +3088,11 @@ static int rd_pick_filter_intra_sby(const AV1_COMP *const cpi, MACROBLOCK *x,
   if (filter_intra_selected_flag) {
     mbmi->mode = DC_PRED;
     mbmi->tx_size = best_tx_size;
-    mbmi->filter_intra_mode_info.use_filter_intra_mode[0] =
-        filter_intra_mode_info.use_filter_intra_mode[0];
-    mbmi->filter_intra_mode_info.filter_intra_mode[0] =
-        filter_intra_mode_info.filter_intra_mode[0];
+    //mbmi->filter_intra_mode_info = filter_intra_mode_info;
+    mbmi->filter_intra_mode_info.use_filter_intra =
+        filter_intra_mode_info.use_filter_intra;
+    mbmi->filter_intra_mode_info.filter_intra_mode =
+        filter_intra_mode_info.filter_intra_mode;
     mbmi->tx_type = best_tx_type;
     return 1;
   } else {
@@ -3425,7 +3425,7 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
                      directional_mode_skip_mask);
 #endif  // CONFIG_EXT_INTRA
 #if CONFIG_FILTER_INTRA
-  mbmi->filter_intra_mode_info.use_filter_intra_mode[0] = 0;
+  mbmi->filter_intra_mode_info.use_filter_intra = 0;
 #endif  // CONFIG_FILTER_INTRA
   pmi->palette_size[0] = 0;
   if (try_palette) {
@@ -5156,7 +5156,7 @@ static void rd_pick_palette_intra_sbuv(const AV1_COMP *const cpi, MACROBLOCK *x,
 
   mbmi->uv_mode = UV_DC_PRED;
 #if CONFIG_FILTER_INTRA
-  mbmi->filter_intra_mode_info.use_filter_intra_mode[1] = 0;
+  mbmi->filter_intra_mode_info.use_filter_intra = 0;
 #endif  // CONFIG_FILTER_INTRA
 
   int count_buf[1 << 12];  // Maximum (1 << 12) color levels.
@@ -5514,7 +5514,7 @@ static void init_sbuv_mode(MB_MODE_INFO *const mbmi) {
   mbmi->uv_mode = UV_DC_PRED;
   mbmi->palette_mode_info.palette_size[1] = 0;
 #if CONFIG_FILTER_INTRA
-  mbmi->filter_intra_mode_info.use_filter_intra_mode[1] = 0;
+  mbmi->filter_intra_mode_info.use_filter_intra = 0;
 #endif  // CONFIG_FILTER_INTRA
 }
 
@@ -9715,8 +9715,7 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
     pmi->palette_size[0] = 0;
     pmi->palette_size[1] = 0;
 #if CONFIG_FILTER_INTRA
-    mbmi->filter_intra_mode_info.use_filter_intra_mode[0] = 0;
-    mbmi->filter_intra_mode_info.use_filter_intra_mode[1] = 0;
+    mbmi->filter_intra_mode_info.use_filter_intra = 0;
 #endif  // CONFIG_FILTER_INTRA
         // Evaluate all sub-pel filters irrespective of whether we can use
         // them for this frame.
@@ -9828,12 +9827,12 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
                                distortion_y);
         }
 
-        mbmi->filter_intra_mode_info.use_filter_intra_mode[0] = 1;
+        mbmi->filter_intra_mode_info.use_filter_intra = 1;
         for (FILTER_INTRA_MODE fi_mode = FILTER_DC_PRED;
              fi_mode < FILTER_INTRA_MODES; ++fi_mode) {
           int this_rate_tmp;
           int64_t this_rd_tmp;
-          mbmi->filter_intra_mode_info.filter_intra_mode[0] = fi_mode;
+          mbmi->filter_intra_mode_info.filter_intra_mode = fi_mode;
 
           super_block_yrd(cpi, x, &rd_stats_y_fi, bsize, best_rd);
           if (rd_stats_y_fi.rate == INT_MAX) continue;
@@ -9860,10 +9859,10 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
         mbmi->tx_size = best_tx_size;
         mbmi->tx_type = best_tx_type;
         if (filter_intra_selected_flag) {
-          mbmi->filter_intra_mode_info.use_filter_intra_mode[0] = 1;
-          mbmi->filter_intra_mode_info.filter_intra_mode[0] = best_fi_mode;
+          mbmi->filter_intra_mode_info.use_filter_intra = 1;
+          mbmi->filter_intra_mode_info.filter_intra_mode = best_fi_mode;
         } else {
-          mbmi->filter_intra_mode_info.use_filter_intra_mode[0] = 0;
+          mbmi->filter_intra_mode_info.use_filter_intra = 0;
         }
       }
 #endif
@@ -9940,11 +9939,11 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
       if (mbmi->mode == DC_PRED &&
           av1_filter_intra_allowed_txsize(mbmi->tx_size)) {
         rate2 +=
-            x->filter_intra_cost[mbmi->tx_size][mbmi->filter_intra_mode_info
-                                                    .use_filter_intra_mode[0]];
-        if (mbmi->filter_intra_mode_info.use_filter_intra_mode[0]) {
+            x->filter_intra_cost[mbmi->tx_size]
+                                [mbmi->filter_intra_mode_info.use_filter_intra];
+        if (mbmi->filter_intra_mode_info.use_filter_intra) {
           rate2 += x->filter_intra_mode_cost[0][mbmi->filter_intra_mode_info
-                                                    .filter_intra_mode[0]];
+                                                    .filter_intra_mode];
         }
       }
 #endif  // CONFIG_FILTER_INTRA
@@ -9969,8 +9968,7 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
         mbmi->angle_delta[1] = 0;
 #endif  // CONFIG_EXT_INTRA
 #if CONFIG_FILTER_INTRA
-        mbmi->filter_intra_mode_info.use_filter_intra_mode[0] = 0;
-        mbmi->filter_intra_mode_info.use_filter_intra_mode[1] = 0;
+        mbmi->filter_intra_mode_info.use_filter_intra = 0;
 #endif  // CONFIG_FILTER_INTRA
       }
       mbmi->ref_mv_idx = 0;
@@ -11027,8 +11025,7 @@ void av1_rd_pick_inter_mode_sb_seg_skip(const AV1_COMP *cpi,
   mbmi->palette_mode_info.palette_size[1] = 0;
 
 #if CONFIG_FILTER_INTRA
-  mbmi->filter_intra_mode_info.use_filter_intra_mode[0] = 0;
-  mbmi->filter_intra_mode_info.use_filter_intra_mode[1] = 0;
+  mbmi->filter_intra_mode_info.use_filter_intra = 0;
 #endif  // CONFIG_FILTER_INTRA
   mbmi->mode = GLOBALMV;
   mbmi->motion_mode = SIMPLE_TRANSLATION;
