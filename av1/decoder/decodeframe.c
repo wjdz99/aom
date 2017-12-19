@@ -1037,9 +1037,10 @@ static void loop_restoration_read_sb_coeffs(const AV1_COMMON *const cm,
 #endif  // CONFIG_LOOP_RESTORATION
 
 static void setup_loopfilter(AV1_COMMON *cm, struct aom_read_bit_buffer *rb) {
-#if CONFIG_INTRABC && !CONFIG_LPF_SB
-  if (cm->allow_intrabc && NO_FILTER_FOR_IBC) return;
-#endif  // CONFIG_INTRABC && !CONFIG_LPF_SB
+#if CONFIG_INTRABC
+  if (cm->allow_intrabc && NO_FILTER_FOR_IBC && !USE_LOOPFILTER_SUPERBLOCK)
+    return;
+#endif  // CONFIG_INTRABC
   struct loopfilter *lf = &cm->lf;
 #if CONFIG_LOOPFILTER_LEVEL
   lf->filter_level[0] = aom_rb_read_literal(rb, 6);
@@ -1545,9 +1546,9 @@ static void read_tile_info(AV1Decoder *const pbi,
 
 // Figure out single_tile_decoding by loopfilter_level.
 #if CONFIG_LOOPFILTER_LEVEL
-    const int no_loopfilter = !(lf->filter_level[0] || lf->filter_level[1]);
+    const int frame_loopfilter = lf->filter_level[0] || lf->filter_level[1];
 #else
-    const int no_loopfilter = !lf->filter_level;
+    const int frame_loopfilter = lf->filter_level;
 #endif
     const int no_cdef = cm->cdef_bits == 0 && cm->cdef_strengths[0] == 0 &&
                         cm->cdef_uv_strengths[0] == 0;
@@ -1557,7 +1558,7 @@ static void read_tile_info(AV1Decoder *const pbi,
         cm->rst_info[1].frame_restoration_type == RESTORE_NONE &&
         cm->rst_info[2].frame_restoration_type == RESTORE_NONE;
 #endif
-    cm->single_tile_decoding = no_loopfilter && no_cdef
+    cm->single_tile_decoding = !frame_loopfilter && no_cdef
 #if CONFIG_LOOP_RESTORATION
                                && no_restoration
 #endif
@@ -2087,6 +2088,7 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
     }
   }
 
+  int frame_loopfilter = 1;
   for (tile_row = tile_rows_start; tile_row < tile_rows_end; ++tile_row) {
     const int row = inv_row_order ? tile_rows - 1 - tile_row : tile_row;
     int mi_row = 0;
@@ -2140,8 +2142,9 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
 #endif
           decode_partition(pbi, &td->xd, mi_row, mi_col, &td->bit_reader,
                            cm->sb_size);
-#if CONFIG_LPF_SB
-          if (cm->allow_screen_content_tools) {
+#if CONFIG_INTRABC
+          if (USE_LOOPFILTER_SUPERBLOCK && cm->allow_screen_content_tools &&
+              cm->intra_only) {
 #if CONFIG_LOOPFILTER_LEVEL
             if (cm->lf.filter_level[0] || cm->lf.filter_level[1]) {
               av1_loop_filter_frame(get_frame_new_buffer(cm), cm, &pbi->mb,
@@ -2154,13 +2157,14 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
               av1_loop_filter_frame(
                   get_frame_new_buffer(cm), cm, &pbi->mb, cm->lf.filter_level_v,
                   cm->lf.filter_level_v, 2, 1, mi_row, mi_col);
+              frame_loopfilter = 0;
             }
 #else
             av1_loop_filter_frame(get_frame_new_buffer(cm), cm, &pbi->mb,
                                   cm->lf.filter_level, 0, 1, mi_row, mi_col);
 #endif  // CONFIG_LOOPFILTER_LEVEL
           }
-#endif  // CONFIG_LPF_SB
+#endif  // CONFIG_INTRABC
         }
         aom_merge_corrupted_flag(&pbi->mb.corrupted, td->xd.corrupted);
         if (pbi->mb.corrupted)
@@ -2179,32 +2183,31 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
       av1_frameworker_broadcast(pbi->cur_buf, mi_row << cm->mib_size_log2);
   }
 
-#if CONFIG_INTRABC && !CONFIG_LPF_SB
+#if CONFIG_INTRABC
   if (!(cm->allow_intrabc && NO_FILTER_FOR_IBC))
-#endif  // CONFIG_INTRABC && !CONFIG_LPF_SB
+#endif  // CONFIG_INTRABC
   {
 // Loopfilter the whole frame.
-#if !CONFIG_LPF_SB
 #if CONFIG_OBU
     if (endTile == cm->tile_rows * cm->tile_cols - 1)
 #endif
 #if CONFIG_LOOPFILTER_LEVEL
-      if (cm->lf.filter_level[0] || cm->lf.filter_level[1]) {
+      if (frame_loopfilter &&
+          (cm->lf.filter_level[0] || cm->lf.filter_level[1])) {
         av1_loop_filter_frame(get_frame_new_buffer(cm), cm, &pbi->mb,
                               cm->lf.filter_level[0], cm->lf.filter_level[1], 0,
-                              0);
+                              0, 0, 0);
         av1_loop_filter_frame(get_frame_new_buffer(cm), cm, &pbi->mb,
                               cm->lf.filter_level_u, cm->lf.filter_level_u, 1,
-                              0);
+                              0, 0, 0);
         av1_loop_filter_frame(get_frame_new_buffer(cm), cm, &pbi->mb,
                               cm->lf.filter_level_v, cm->lf.filter_level_v, 2,
-                              0);
+                              0, 0, 0);
       }
 #else
     av1_loop_filter_frame(get_frame_new_buffer(cm), cm, &pbi->mb,
-                          cm->lf.filter_level, 0, 0);
+                          cm->lf.filter_level, 0, 0, 0, 0);
 #endif  // CONFIG_LOOPFILTER_LEVEL
-#endif  // CONFIG_LPF_SB
   }
   if (cm->frame_parallel_decode)
     av1_frameworker_broadcast(pbi->cur_buf, INT_MAX);
