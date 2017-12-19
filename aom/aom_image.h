@@ -16,6 +16,8 @@
 #ifndef AOM_AOM_IMAGE_H_
 #define AOM_AOM_IMAGE_H_
 
+#include "./aom_config.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -141,6 +143,11 @@ typedef struct aom_image {
   int stride[4];            /**< stride between rows for each plane */
 
   int bps; /**< bits per sample (for packed formats) */
+
+#if CONFIG_SCALABILITY
+  int temporal_id;    /**< Temporal layer Id of image */
+  int enhancement_id; /**< Spatial layer Id of image */
+#endif
 
   /*!\brief The following member may be set by the application to associate
    * data with this image.
