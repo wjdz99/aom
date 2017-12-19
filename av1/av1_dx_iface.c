@@ -893,6 +893,10 @@ static aom_image_t *decoder_get_frame(aom_codec_alg_priv_t *ctx,
 
           ctx->img.fb_priv = frame_bufs[cm->new_fb_idx].raw_frame_buffer.priv;
           img = &ctx->img;
+#if CONFIG_SCALABILITY
+          img->temporal_id = cm->temporal_layer_id;
+          img->enhancement_id = cm->enhancement_layer_id;
+#endif
           return img;
         }
       } else {
