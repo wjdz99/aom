@@ -29,10 +29,30 @@ static int float_comparer(const void *a, const void *b) {
   return (fa > fb) - (fa < fb);
 }
 
+static int int_comparer(const void *a, const void *b) {
+  const int va = *(const int *)a;
+  const int vb = *(const int *)b;
+  return (va > vb) - (va < vb);
+}
+
 int av1_remove_duplicates(float *centroids, int num_centroids) {
   int num_unique;  // number of unique centroids
   int i;
   qsort(centroids, num_centroids, sizeof(*centroids), float_comparer);
+  // Remove duplicates.
+  num_unique = 1;
+  for (i = 1; i < num_centroids; ++i) {
+    if (centroids[i] != centroids[i - 1]) {  // found a new unique centroid
+      centroids[num_unique++] = centroids[i];
+    }
+  }
+  return num_unique;
+}
+
+int av1_remove_duplicates2(int *centroids, int num_centroids) {
+  int num_unique;  // number of unique centroids
+  int i;
+  qsort(centroids, num_centroids, sizeof(*centroids), int_comparer);
   // Remove duplicates.
   num_unique = 1;
   for (i = 1; i < num_centroids; ++i) {

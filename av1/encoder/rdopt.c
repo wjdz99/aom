@@ -2813,6 +2813,28 @@ static void optimize_palette_colors(uint16_t *color_cache, int n_cache,
   }
 }
 
+static void optimize_palette_colors2(uint16_t *color_cache, int n_cache,
+                                     int n_colors, int stride,
+                                     int *centroids) {
+  if (n_cache <= 0) return;
+  for (int i = 0; i < n_colors * stride; i += stride) {
+    int min_diff =
+        (centroids[i] > color_cache[0]) ?
+            (centroids[i] - color_cache[0]) : (color_cache[0] - centroids[i]);
+    int idx = 0;
+    for (int j = 1; j < n_cache; ++j) {
+      const int this_diff =
+          (centroids[i] > color_cache[j]) ?
+              (centroids[i] - color_cache[j]) : (color_cache[j] - centroids[i]);
+      if (this_diff < min_diff) {
+        min_diff = this_diff;
+        idx = j;
+      }
+    }
+    if (2 * min_diff < 3) centroids[i] = color_cache[idx];
+  }
+}
+
 // Given the base colors as specified in centroids[], calculate the RD cost
 // of palette mode.
 static void palette_rd_y(const AV1_COMP *const cpi, MACROBLOCK *x,
@@ -2854,6 +2876,82 @@ static void palette_rd_y(const AV1_COMP *const cpi, MACROBLOCK *x,
   av1_get_block_dimensions(bsize, 0, xd, &block_width, &block_height, &rows,
                            &cols);
   av1_calc_indices(data, centroids, color_map, rows * cols, k, 1);
+  extend_palette_color_map(color_map, cols, rows, block_width, block_height);
+  int palette_mode_cost =
+      dc_mode_cost +
+      x->palette_y_size_cost[bsize - BLOCK_8X8][k - PALETTE_MIN_SIZE] +
+      write_uniform_cost(k, color_map[0]) +
+      x->palette_y_mode_cost[bsize - BLOCK_8X8][palette_ctx][1];
+  palette_mode_cost += av1_palette_color_cost_y(pmi, color_cache, n_cache,
+                                                cpi->common.bit_depth);
+  palette_mode_cost +=
+      av1_cost_color_map(x, 0, bsize, mbmi->tx_size, PALETTE_MAP);
+  int64_t this_model_rd = intra_model_yrd(cpi, x, bsize, palette_mode_cost);
+  if (*best_model_rd != INT64_MAX &&
+      this_model_rd > *best_model_rd + (*best_model_rd >> 1))
+    return;
+  if (this_model_rd < *best_model_rd) *best_model_rd = this_model_rd;
+  RD_STATS tokenonly_rd_stats;
+  super_block_yrd(cpi, x, &tokenonly_rd_stats, bsize, *best_rd);
+  if (tokenonly_rd_stats.rate == INT_MAX) return;
+  int this_rate = tokenonly_rd_stats.rate + palette_mode_cost;
+  int64_t this_rd = RDCOST(x->rdmult, this_rate, tokenonly_rd_stats.dist);
+  if (!xd->lossless[mbmi->segment_id] && block_signals_txsize(mbmi->sb_type)) {
+    tokenonly_rd_stats.rate -=
+        tx_size_cost(&cpi->common, x, bsize, mbmi->tx_size);
+  }
+  if (this_rd < *best_rd) {
+    *best_rd = this_rd;
+    memcpy(best_palette_color_map, color_map,
+           block_width * block_height * sizeof(color_map[0]));
+    *best_mbmi = *mbmi;
+    *rate_overhead = this_rate - tokenonly_rd_stats.rate;
+    if (rate) *rate = this_rate;
+    if (rate_tokenonly) *rate_tokenonly = tokenonly_rd_stats.rate;
+    if (distortion) *distortion = tokenonly_rd_stats.dist;
+    if (skippable) *skippable = tokenonly_rd_stats.skip;
+  }
+}
+
+static void palette_rd_y2(const AV1_COMP *const cpi, MACROBLOCK *x,
+                          MB_MODE_INFO *mbmi, BLOCK_SIZE bsize, int palette_ctx,
+                          int dc_mode_cost, const int *data, int *centroids,
+                          int n, uint16_t *color_cache, int n_cache,
+                          MB_MODE_INFO *best_mbmi,
+                          uint8_t *best_palette_color_map, int64_t *best_rd,
+                          int64_t *best_model_rd, int *rate, int *rate_tokenonly,
+                          int *rate_overhead, int64_t *distortion,
+                          int *skippable) {
+  aom_clear_system_state();
+#ifndef NDEBUG
+  for (int i = 0; i < n; ++i) {
+    assert(!isnan(centroids[i]));
+  }
+#endif  // NDEBUG
+  optimize_palette_colors2(color_cache, n_cache, n, 1, centroids);
+  int k = av1_remove_duplicates2(centroids, n);
+  if (k < PALETTE_MIN_SIZE) {
+    // Too few unique colors to create a palette. And DC_PRED will work
+    // well for that case anyway. So skip.
+    return;
+  }
+  PALETTE_MODE_INFO *const pmi = &mbmi->palette_mode_info;
+#if CONFIG_HIGHBITDEPTH
+  if (cpi->common.use_highbitdepth)
+    for (int i = 0; i < k; ++i)
+      pmi->palette_colors[i] =
+          clip_pixel_highbd((int)centroids[i], cpi->common.bit_depth);
+  else
+#endif  // CONFIG_HIGHBITDEPTH
+    for (int i = 0; i < k; ++i)
+      pmi->palette_colors[i] = clip_pixel(centroids[i]);
+  pmi->palette_size[0] = k;
+  MACROBLOCKD *const xd = &x->e_mbd;
+  uint8_t *const color_map = xd->plane[0].color_index_map;
+  int block_width, block_height, rows, cols;
+  av1_get_block_dimensions(bsize, 0, xd, &block_width, &block_height, &rows,
+                           &cols);
+  av1_calc_indices2(data, centroids, color_map, rows * cols, k, 1);
   extend_palette_color_map(color_map, cols, rows, block_width, block_height);
   int palette_mode_cost =
       dc_mode_cost +
@@ -3021,6 +3119,150 @@ static int rd_pick_palette_intra_sby(const AV1_COMP *const cpi, MACROBLOCK *x,
         av1_k_means(data, centroids, color_map, rows * cols, n, 1, max_itr);
       }
       palette_rd_y(cpi, x, mbmi, bsize, palette_ctx, dc_mode_cost, data,
+                   centroids, n, color_cache, n_cache, best_mbmi,
+                   best_palette_color_map, best_rd, best_model_rd, rate,
+                   rate_tokenonly, &rate_overhead, distortion, skippable);
+    }
+  }
+
+  if (best_mbmi->palette_mode_info.palette_size[0] > 0) {
+    memcpy(color_map, best_palette_color_map,
+           block_width * block_height * sizeof(best_palette_color_map[0]));
+  }
+  *mbmi = *best_mbmi;
+  return rate_overhead;
+}
+
+static int rd_pick_palette_intra_sby2(const AV1_COMP *const cpi, MACROBLOCK *x,
+                                     BLOCK_SIZE bsize, int palette_ctx,
+                                     int dc_mode_cost, MB_MODE_INFO *best_mbmi,
+                                     uint8_t *best_palette_color_map,
+                                     int64_t *best_rd, int64_t *best_model_rd,
+                                     int *rate, int *rate_tokenonly,
+                                     int64_t *distortion, int *skippable) {
+  int rate_overhead = 0;
+  MACROBLOCKD *const xd = &x->e_mbd;
+  MODE_INFO *const mic = xd->mi[0];
+  MB_MODE_INFO *const mbmi = &mic->mbmi;
+  assert(!is_inter_block(mbmi));
+  assert(bsize >= BLOCK_8X8);
+  int colors, n;
+  const int src_stride = x->plane[0].src.stride;
+  const uint8_t *const src = x->plane[0].src.buf;
+  uint8_t *const color_map = xd->plane[0].color_index_map;
+  int block_width, block_height, rows, cols;
+  av1_get_block_dimensions(bsize, 0, xd, &block_width, &block_height, &rows,
+                           &cols);
+
+  assert(cpi->common.allow_screen_content_tools);
+
+  int count_buf[1 << 12];  // Maximum (1 << 12) color levels.
+#if CONFIG_HIGHBITDEPTH
+  if (cpi->common.use_highbitdepth)
+    colors = av1_count_colors_highbd(src, src_stride, rows, cols,
+                                     cpi->common.bit_depth, count_buf);
+  else
+#endif  // CONFIG_HIGHBITDEPTH
+    colors = av1_count_colors(src, src_stride, rows, cols, count_buf);
+#if CONFIG_FILTER_INTRA
+  mbmi->filter_intra_mode_info.use_filter_intra_mode[0] = 0;
+#endif  // CONFIG_FILTER_INTRA
+
+  if (colors > 1 && colors <= 64) {
+    aom_clear_system_state();
+    int r, c, i;
+    const int max_itr = 50;
+    int *const data = x->palette_buffer->kmeans_data_buf2;
+    int centroids[PALETTE_MAX_SIZE];
+    int lb, ub, val;
+#if CONFIG_HIGHBITDEPTH
+    uint16_t *src16 = CONVERT_TO_SHORTPTR(src);
+    if (cpi->common.use_highbitdepth)
+      lb = ub = src16[0];
+    else
+#endif  // CONFIG_HIGHBITDEPTH
+      lb = ub = src[0];
+
+#if CONFIG_HIGHBITDEPTH
+    if (cpi->common.use_highbitdepth) {
+      for (r = 0; r < rows; ++r) {
+        for (c = 0; c < cols; ++c) {
+          val = src16[r * src_stride + c];
+          data[r * cols + c] = val;
+          if (val < lb)
+            lb = val;
+          else if (val > ub)
+            ub = val;
+        }
+      }
+    } else {
+#endif  // CONFIG_HIGHBITDEPTH
+      for (r = 0; r < rows; ++r) {
+        for (c = 0; c < cols; ++c) {
+          val = src[r * src_stride + c];
+          data[r * cols + c] = val;
+          if (val < lb)
+            lb = val;
+          else if (val > ub)
+            ub = val;
+        }
+      }
+#if CONFIG_HIGHBITDEPTH
+    }
+#endif  // CONFIG_HIGHBITDEPTH
+
+    mbmi->mode = DC_PRED;
+#if CONFIG_FILTER_INTRA
+    mbmi->filter_intra_mode_info.use_filter_intra_mode[0] = 0;
+#endif  // CONFIG_FILTER_INTRA
+
+    if (rows * cols > MAX_PALETTE_SQUARE) return 0;
+
+    uint16_t color_cache[2 * PALETTE_MAX_SIZE];
+    const int n_cache = av1_get_palette_cache(xd, 0, color_cache);
+
+    // Find the dominant colors, stored in top_colors[].
+    int top_colors[PALETTE_MAX_SIZE] = { 0 };
+    for (i = 0; i < AOMMIN(colors, PALETTE_MAX_SIZE); ++i) {
+      int max_count = 0;
+      for (int j = 0; j < (1 << cpi->common.bit_depth); ++j) {
+        if (count_buf[j] > max_count) {
+          max_count = count_buf[j];
+          top_colors[i] = j;
+        }
+      }
+      assert(max_count > 0);
+      count_buf[top_colors[i]] = 0;
+    }
+
+    // Try the dominant colors directly.
+    // TODO(huisu@google.com): Try to avoid duplicate computation in cases
+    // where the dominant colors and the k-means results are similar.
+    for (n = AOMMIN(colors, PALETTE_MAX_SIZE); n >= 2; --n) {
+      aom_clear_system_state();
+      for (i = 0; i < n; ++i) centroids[i] = top_colors[i];
+      palette_rd_y2(cpi, x, mbmi, bsize, palette_ctx, dc_mode_cost, data,
+                   centroids, n, color_cache, n_cache, best_mbmi,
+                   best_palette_color_map, best_rd, best_model_rd, rate,
+                   rate_tokenonly, &rate_overhead, distortion, skippable);
+    }
+
+    // K-means clustering.
+    for (n = AOMMIN(colors, PALETTE_MAX_SIZE); n >= 2; --n) {
+      aom_clear_system_state();
+      if (colors == PALETTE_MIN_SIZE) {
+        // Special case: These colors automatically become the centroids.
+        assert(colors == n);
+        assert(colors == 2);
+        centroids[0] = lb;
+        centroids[1] = ub;
+      } else {
+        for (i = 0; i < n; ++i) {
+          centroids[i] = lb + (2 * i + 1) * (ub - lb) / n / 2;
+        }
+        av1_k_means2(data, centroids, color_map, rows * cols, n, 1, max_itr);
+      }
+      palette_rd_y2(cpi, x, mbmi, bsize, palette_ctx, dc_mode_cost, data,
                    centroids, n, color_cache, n_cache, best_mbmi,
                    best_palette_color_map, best_rd, best_model_rd, rate,
                    rate_tokenonly, &rate_overhead, distortion, skippable);
@@ -3538,10 +3780,17 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   }
 
   if (try_palette) {
+#if 1
+    rd_pick_palette_intra_sby2(cpi, x, bsize, palette_y_mode_ctx,
+                              bmode_costs[DC_PRED], &best_mbmi,
+                              best_palette_color_map, &best_rd, &best_model_rd,
+                              rate, rate_tokenonly, distortion, skippable);
+#else
     rd_pick_palette_intra_sby(cpi, x, bsize, palette_y_mode_ctx,
                               bmode_costs[DC_PRED], &best_mbmi,
                               best_palette_color_map, &best_rd, &best_model_rd,
                               rate, rate_tokenonly, distortion, skippable);
+#endif
   }
 
 #if CONFIG_FILTER_INTRA
@@ -10581,10 +10830,17 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
     mbmi->uv_mode = UV_DC_PRED;
     mbmi->ref_frame[0] = INTRA_FRAME;
     mbmi->ref_frame[1] = NONE_FRAME;
+#if 1
+    rate_overhead_palette = rd_pick_palette_intra_sby2(
+        cpi, x, bsize, palette_ctx, intra_mode_cost[DC_PRED],
+        &best_mbmi_palette, best_palette_color_map, &best_rd_palette,
+        &best_model_rd_palette, NULL, NULL, NULL, NULL);
+#else
     rate_overhead_palette = rd_pick_palette_intra_sby(
         cpi, x, bsize, palette_ctx, intra_mode_cost[DC_PRED],
         &best_mbmi_palette, best_palette_color_map, &best_rd_palette,
         &best_model_rd_palette, NULL, NULL, NULL, NULL);
+#endif
     if (pmi->palette_size[0] == 0) goto PALETTE_EXIT;
     memcpy(color_map, best_palette_color_map,
            rows * cols * sizeof(best_palette_color_map[0]));
