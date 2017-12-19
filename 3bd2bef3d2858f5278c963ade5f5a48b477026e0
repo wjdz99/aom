@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "59e5c192_cbeedd5d",
+        "filename": "av1/encoder/k_means_template.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-12-19T23:08:23Z",
+      "side": 1,
+      "message": "You can use \"DIVIDE_AND_ROUND\" macro.\n(Feel free to move that to a more common location)",
+      "revId": "3bd2bef3d2858f5278c963ade5f5a48b477026e0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "68476fec_0ab4706b",
+        "filename": "av1/encoder/palette.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-12-19T23:08:23Z",
+      "side": 1,
+      "message": "This complicated function is not needed for integer now (float needed that due to possible floating point errors).\n\nYou can just do \"return (a \u003c b);\"",
+      "revId": "3bd2bef3d2858f5278c963ade5f5a48b477026e0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
