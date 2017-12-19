@@ -2849,11 +2849,12 @@ static void palette_rd_y(const AV1_COMP *const cpi, MACROBLOCK *x,
                            &cols);
   av1_calc_indices(data, centroids, color_map, rows * cols, k, 1);
   extend_palette_color_map(color_map, cols, rows, block_width, block_height);
+  const int bsize_ctx = av1_get_palette_bsize_ctx(bsize);
   int palette_mode_cost =
       dc_mode_cost +
-      x->palette_y_size_cost[bsize - BLOCK_8X8][k - PALETTE_MIN_SIZE] +
+      x->palette_y_size_cost[bsize_ctx][k - PALETTE_MIN_SIZE] +
       write_uniform_cost(k, color_map[0]) +
-      x->palette_y_mode_cost[bsize - BLOCK_8X8][palette_ctx][1];
+      x->palette_y_mode_cost[bsize_ctx][palette_ctx][1];
   palette_mode_cost += av1_palette_color_cost_y(pmi, color_cache, n_cache,
                                                 cpi->common.bit_depth);
   palette_mode_cost +=
@@ -3485,8 +3486,9 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
           tx_size_cost(&cpi->common, x, bsize, mbmi->tx_size);
     }
     if (try_palette && mbmi->mode == DC_PRED) {
+      const int bsize_ctx = av1_get_palette_bsize_ctx(bsize);
       this_rate +=
-          x->palette_y_mode_cost[bsize - BLOCK_8X8][palette_y_mode_ctx][0];
+          x->palette_y_mode_cost[bsize_ctx][palette_y_mode_ctx][0];
     }
 #if CONFIG_FILTER_INTRA
     if (mbmi->mode == DC_PRED && av1_filter_intra_allowed_txsize(mbmi->tx_size))
@@ -5257,9 +5259,10 @@ static void rd_pick_palette_intra_sbuv(const AV1_COMP *const cpi, MACROBLOCK *x,
 
       super_block_uvrd(cpi, x, &tokenonly_rd_stats, bsize, *best_rd);
       if (tokenonly_rd_stats.rate == INT_MAX) continue;
+      const int bsize_ctx = av1_get_palette_bsize_ctx(bsize);
       this_rate =
           tokenonly_rd_stats.rate + dc_mode_cost +
-          x->palette_uv_size_cost[bsize - BLOCK_8X8][n - PALETTE_MIN_SIZE] +
+          x->palette_uv_size_cost[bsize_ctx][n - PALETTE_MIN_SIZE] +
           write_uniform_cost(n, color_map[0]) +
           x->palette_uv_mode_cost[pmi->palette_size[0] > 0][1];
       this_rate += av1_palette_color_cost_uv(pmi, color_cache, n_cache,
@@ -9894,7 +9897,8 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
         rate2 += rate_uv + x->intra_uv_mode_cost[mbmi->mode][mbmi->uv_mode];
 
       if (try_palette && mbmi->mode == DC_PRED) {
-        rate2 += x->palette_y_mode_cost[bsize - BLOCK_8X8][palette_ctx][0];
+        const int bsize_ctx = av1_get_palette_bsize_ctx(bsize);
+        rate2 += x->palette_y_mode_cost[bsize_ctx][palette_ctx][0];
       }
 
       if (!xd->lossless[mbmi->segment_id] && block_signals_txsize(bsize)) {
