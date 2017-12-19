@@ -4671,6 +4671,28 @@ static uint32_t write_tiles_in_tg_obus(AV1_COMP *const cpi, uint8_t *const dst,
 
 #if CONFIG_EXT_TILE
   if (cm->large_scale_tile) {
+    uint32_t compressed_hdr_size = 0;
+    uint32_t uncompressed_hdr_size;
+    struct aom_write_bit_buffer saved_wb;
+    struct aom_write_bit_buffer wb = { data, 0 };
+    const int have_tiles = cm->tile_cols * cm->tile_rows > 1;
+    int tile_size_bytes;
+    int tile_col_size_bytes;
+
+    // We do not know these in advance. Output placeholder bit.
+    saved_wb = wb;
+
+    // Write tile size magnitudes
+    if (have_tiles) {
+      // Note that the last item in the uncompressed header is the data
+      // describing tile configuration.
+      // Number of bytes in tile column size - 1
+      aom_wb_write_literal(&wb, 0, 2);
+
+      // Number of bytes in tile size - 1
+      aom_wb_write_literal(&wb, 0, 2);
+    }
+
     for (tile_col = 0; tile_col < tile_cols; tile_col++) {
       TileInfo tile_info;
       const int is_last_col = (tile_col == tile_cols - 1);
@@ -4868,27 +4890,15 @@ static uint32_t write_tiles_in_tg_obus(AV1_COMP *const cpi, uint8_t *const dst,
 void av1_pack_bitstream(AV1_COMP *const cpi, uint8_t *dst, size_t *size) {
   uint8_t *data = dst;
   uint32_t data_size;
-#if CONFIG_EXT_TILE
-  AV1_COMMON *const cm = &cpi->common;
-  uint32_t compressed_hdr_size = 0;
-  uint32_t uncompressed_hdr_size;
-  struct aom_write_bit_buffer saved_wb;
-  struct aom_write_bit_buffer wb = { data, 0 };
-  const int have_tiles = cm->tile_cols * cm->tile_rows > 1;
-  int tile_size_bytes;
-  int tile_col_size_bytes;
-#endif  // CONFIG_EXT_TILE
   unsigned int max_tile_size;
   unsigned int max_tile_col_size;
-#if CONFIG_OBU
-#if !CONFIG_EXT_TILE
   AV1_COMMON *const cm = &cpi->common;
-#endif
+#if CONFIG_OBU
   uint32_t obu_size;
   uint8_t *frame_header_location;
   uint32_t frame_header_size;
 #endif
-
+  (void)cm;
 #if CONFIG_BITSTREAM_DEBUG
   bitstream_queue_reset_write();
 #endif
@@ -4932,7 +4942,15 @@ void av1_pack_bitstream(AV1_COMP *const cpi, uint8_t *dst, size_t *size) {
 
 #endif
 
-#if CONFIG_EXT_TILE
+#if CONFIG_EXT_TILE && !CONFIG_OBU
+  uint32_t compressed_hdr_size = 0;
+  uint32_t uncompressed_hdr_size;
+  struct aom_write_bit_buffer saved_wb;
+  struct aom_write_bit_buffer wb = { data, 0 };
+  const int have_tiles = cm->tile_cols * cm->tile_rows > 1;
+  int tile_size_bytes;
+  int tile_col_size_bytes;
+
   if (cm->large_scale_tile) {
 #if !CONFIG_OBU
     write_uncompressed_header_frame(cpi, &wb);
@@ -4995,10 +5013,10 @@ void av1_pack_bitstream(AV1_COMP *const cpi, uint8_t *dst, size_t *size) {
 #if !CONFIG_OBU
     data_size = write_tiles(cpi, data, &max_tile_size, &max_tile_col_size);
 #endif
-#if CONFIG_EXT_TILE
+#if CONFIG_EXT_TILE && !CONFIG_OBU
   }
 #endif  // CONFIG_EXT_TILE
-#if CONFIG_EXT_TILE
+#if CONFIG_EXT_TILE && !CONFIG_OBU
   if (cm->large_scale_tile) {
     if (have_tiles) {
       data_size =
@@ -5025,7 +5043,7 @@ void av1_pack_bitstream(AV1_COMP *const cpi, uint8_t *dst, size_t *size) {
   } else {
 #endif  // CONFIG_EXT_TILE
     data += data_size;
-#if CONFIG_EXT_TILE
+#if CONFIG_EXT_TILE && !CONFIG_OBU
   }
 #endif  // CONFIG_EXT_TILE
   *size = data - dst;
