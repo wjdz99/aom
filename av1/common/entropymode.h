@@ -266,6 +266,11 @@ typedef struct FRAME_COUNTS {
   unsigned int switchable_interp[SWITCHABLE_FILTER_CONTEXTS]
                                 [SWITCHABLE_FILTERS];
 
+#if CONFIG_Q_ADAPT_PROBS && CONFIG_ENTROPY_STATS
+  unsigned int coef_head[TOKEN_CDF_Q_CTXS][TX_SIZES][PLANE_TYPES][REF_TYPES]
+                        [COEF_BANDS][COEFF_CONTEXTS][HEAD_TOKENS + 1];
+#endif  // CONFIG_Q_ADAPT_PROBS && CONFIG_ENTROPY_STATS
+
 #if CONFIG_LV_MAP
   unsigned int txb_skip[TX_SIZES][TXB_SKIP_CONTEXTS][2];
   unsigned int nz_map[TX_SIZES][PLANE_TYPES][SIG_COEF_CONTEXTS][2];
