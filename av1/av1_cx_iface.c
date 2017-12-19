@@ -679,6 +679,7 @@ static aom_codec_err_t encoder_set_config(aom_codec_alg_priv_t *ctx,
   aom_codec_err_t res;
   int force_key = 0;
 
+#if CONFIG_SCALABILITY
   if (cfg->g_w != ctx->cfg.g_w || cfg->g_h != ctx->cfg.g_h) {
     if (cfg->g_lag_in_frames > 1 || cfg->g_pass != AOM_RC_ONE_PASS)
       ERROR("Cannot change width or height after initialization");
@@ -687,7 +688,7 @@ static aom_codec_err_t encoder_set_config(aom_codec_alg_priv_t *ctx,
         (ctx->cpi->initial_height && (int)cfg->g_h > ctx->cpi->initial_height))
       force_key = 1;
   }
-
+#endif
   // Prevent increasing lag_in_frames. This check is stricter than it needs
   // to be -- the limit is not increasing past the first lag_in_frames
   // value, but we don't track the initial config, only the last successful
@@ -1507,6 +1508,19 @@ static aom_codec_err_t ctrl_set_scale_mode(aom_codec_alg_priv_t *ctx,
   }
 }
 
+static aom_codec_err_t ctrl_set_enhancement_layer_id(aom_codec_alg_priv_t *ctx,
+                                                     va_list args) {
+#if CONFIG_SCALABILITY
+  const int enhancement_layer_id = va_arg(args, int);
+  ctx->cpi->common.enhancement_layer_id = enhancement_layer_id;
+  return AOM_CODEC_OK;
+#else
+  (void)ctx;
+  (void)args;
+  return AOM_CODEC_UNSUP_FEATURE;
+#endif
+}
+
 static aom_codec_err_t ctrl_set_tune_content(aom_codec_alg_priv_t *ctx,
                                              va_list args) {
   struct av1_extracfg extra_cfg = ctx->extra_cfg;
@@ -1581,6 +1595,7 @@ static aom_codec_ctrl_fn_map_t encoder_ctrl_maps[] = {
   { AOME_SET_ROI_MAP, ctrl_set_roi_map },
   { AOME_SET_ACTIVEMAP, ctrl_set_active_map },
   { AOME_SET_SCALEMODE, ctrl_set_scale_mode },
+  { AOME_SET_ENHANCEMENT_LAYER_ID, ctrl_set_enhancement_layer_id },
   { AOME_SET_CPUUSED, ctrl_set_cpuused },
   { AOME_SET_DEVSF, ctrl_set_devsf },
   { AOME_SET_ENABLEAUTOALTREF, ctrl_set_enable_auto_alt_ref },
