@@ -578,6 +578,12 @@ typedef struct AV1Common {
   int8_t ref_frame_side[TOTAL_REFS_PER_FRAME];
 #endif
 
+#if CONFIG_SCALABILITY
+  int temporal_layer_id;
+  int enhancement_layer_id;
+  int enhancement_layers_cnt;
+#endif
+
 #if TXCOEFF_TIMER
   int64_t cum_txcoeff_timer;
   int64_t txcoeff_timer;
