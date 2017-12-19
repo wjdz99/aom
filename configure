@@ -332,6 +332,7 @@ EXPERIMENT_LIST="
     fwd_kf
     mono_video
     spatial_segmentation
+	scalability
     segment_pred_last
     obu_no_ivf
 "
