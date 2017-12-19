@@ -1357,21 +1357,28 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
       pkt.data.frame.partition_id = -1;
 
 #if CONFIG_OBU
-      // move data PRE_OBU_SIZE_BYTES + 1 bytes and insert OBU_TD preceded by
-      // optional 4 byte size
-      uint32_t obu_size = 1;
-      if (ctx->pending_cx_data) {
-        const size_t index_sz = PRE_OBU_SIZE_BYTES + 1;
-        memmove(ctx->pending_cx_data + index_sz, ctx->pending_cx_data,
-                ctx->pending_cx_data_sz);
+      int write_temporal_delimiter = 1;
+#if CONFIG_SCALABILITY
+      // only write OBU_TD if base layer
+      write_temporal_delimiter = !cpi->common.enhancement_layer_id;
+#endif  // CONFIG_SCALABILITY
+      if (write_temporal_delimiter) {
+        // move data PRE_OBU_SIZE_BYTES + 1 bytes and insert OBU_TD preceded by
+        // optional 4 byte size
+        uint32_t obu_size = 1;
+        if (ctx->pending_cx_data) {
+          const size_t index_sz = PRE_OBU_SIZE_BYTES + 1;
+          memmove(ctx->pending_cx_data + index_sz, ctx->pending_cx_data,
+                  ctx->pending_cx_data_sz);
+        }
+        obu_size = write_obu_header(
+            OBU_TEMPORAL_DELIMITER, 0,
+            (uint8_t *)(ctx->pending_cx_data + PRE_OBU_SIZE_BYTES));
+        obu_size += write_temporal_delimiter_obu();
+        mem_put_le32(ctx->pending_cx_data, obu_size);
+        pkt.data.frame.sz += (obu_size + PRE_OBU_SIZE_BYTES);
       }
-      obu_size = write_obu_header(
-          OBU_TEMPORAL_DELIMITER, 0,
-          (uint8_t *)(ctx->pending_cx_data + PRE_OBU_SIZE_BYTES));
-      obu_size += write_temporal_delimiter_obu();
-      mem_put_le32(ctx->pending_cx_data, obu_size);
-      pkt.data.frame.sz += (obu_size + PRE_OBU_SIZE_BYTES);
-#endif
+#endif  // CONFIG_OBU
 
       pkt.data.frame.pts = ticks_to_timebase_units(timebase, dst_time_stamp);
       pkt.data.frame.flags = get_frame_pkt_flags(cpi, lib_flags);
@@ -1537,6 +1544,19 @@ static aom_codec_err_t ctrl_set_scale_mode(aom_codec_alg_priv_t *ctx,
   }
 }
 
+static aom_codec_err_t ctrl_set_enhancement_layer_id(aom_codec_alg_priv_t *ctx,
+                                                     va_list args) {
+#if CONFIG_SCALABILITY
+  const int enhancement_layer_id = va_arg(args, int);
+  ctx->cpi->common.enhancement_layer_id = enhancement_layer_id;
+  return AOM_CODEC_OK;
+#else
+  (void)ctx;
+  (void)args;
+  return AOM_CODEC_UNSUP_FEATURE;
+#endif
+}
+
 static aom_codec_err_t ctrl_set_tune_content(aom_codec_alg_priv_t *ctx,
                                              va_list args) {
   struct av1_extracfg extra_cfg = ctx->extra_cfg;
@@ -1611,6 +1631,7 @@ static aom_codec_ctrl_fn_map_t encoder_ctrl_maps[] = {
   { AOME_SET_ROI_MAP, ctrl_set_roi_map },
   { AOME_SET_ACTIVEMAP, ctrl_set_active_map },
   { AOME_SET_SCALEMODE, ctrl_set_scale_mode },
+  { AOME_SET_ENHANCEMENT_LAYER_ID, ctrl_set_enhancement_layer_id },
   { AOME_SET_CPUUSED, ctrl_set_cpuused },
   { AOME_SET_DEVSF, ctrl_set_devsf },
   { AOME_SET_ENABLEAUTOALTREF, ctrl_set_enable_auto_alt_ref },
