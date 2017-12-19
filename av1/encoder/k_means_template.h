@@ -23,24 +23,22 @@
 #define RENAME_(x, y) AV1_K_MEANS_RENAME(x, y)
 #define RENAME(x) RENAME_(x, AV1_K_MEANS_DIM)
 
-static float RENAME(calc_dist)(const float *p1, const float *p2) {
-  float dist = 0;
-  int i;
-  for (i = 0; i < AV1_K_MEANS_DIM; ++i) {
-    const float diff = p1[i] - p2[i];
+static int RENAME(calc_dist2)(const int *p1, const int *p2) {
+  int dist = 0;
+  for (int i = 0; i < AV1_K_MEANS_DIM; ++i) {
+    const int diff = p1[i] - p2[i];
     dist += diff * diff;
   }
   return dist;
 }
 
-void RENAME(av1_calc_indices)(const float *data, const float *centroids,
-                              uint8_t *indices, int n, int k) {
-  int i, j;
-  for (i = 0; i < n; ++i) {
-    float min_dist = RENAME(calc_dist)(data + i * AV1_K_MEANS_DIM, centroids);
+void RENAME(av1_calc_indices)(const int *data, const int *centroids,
+                               uint8_t *indices, int n, int k) {
+  for (int i = 0; i < n; ++i) {
+    int min_dist = RENAME(calc_dist2)(data + i * AV1_K_MEANS_DIM, centroids);
     indices[i] = 0;
-    for (j = 1; j < k; ++j) {
-      const float this_dist = RENAME(calc_dist)(
+    for (int j = 1; j < k; ++j) {
+      const int this_dist = RENAME(calc_dist2)(
           data + i * AV1_K_MEANS_DIM, centroids + j * AV1_K_MEANS_DIM);
       if (this_dist < min_dist) {
         min_dist = this_dist;
@@ -50,19 +48,17 @@ void RENAME(av1_calc_indices)(const float *data, const float *centroids,
   }
 }
 
-static void RENAME(calc_centroids)(const float *data, float *centroids,
-                                   const uint8_t *indices, int n, int k) {
-  int i, j, index;
-  int count[PALETTE_MAX_SIZE];
+static void RENAME(calc_centroids2)(const int *data, int *centroids,
+                                    const uint8_t *indices, int n, int k) {
+  int i, j;
+  int count[PALETTE_MAX_SIZE] = {0};
   unsigned int rand_state = (unsigned int)data[0];
-
   assert(n <= 32768);
-
-  memset(count, 0, sizeof(count[0]) * k);
   memset(centroids, 0, sizeof(centroids[0]) * k * AV1_K_MEANS_DIM);
+  memset(count, 0, sizeof(count[0]) * k);
 
   for (i = 0; i < n; ++i) {
-    index = indices[i];
+    const int index = indices[i];
     assert(index < k);
     ++count[index];
     for (j = 0; j < AV1_K_MEANS_DIM; ++j) {
@@ -76,50 +72,42 @@ static void RENAME(calc_centroids)(const float *data, float *centroids,
              data + (lcg_rand16(&rand_state) % n) * AV1_K_MEANS_DIM,
              sizeof(centroids[0]) * AV1_K_MEANS_DIM);
     } else {
-      const float norm = 1.0f / count[i];
-      for (j = 0; j < AV1_K_MEANS_DIM; ++j)
-        centroids[i * AV1_K_MEANS_DIM + j] *= norm;
+      for (j = 0; j < AV1_K_MEANS_DIM; ++j) {
+        centroids[i * AV1_K_MEANS_DIM + j] =
+            (centroids[i * AV1_K_MEANS_DIM + j] + count[i] / 2) / count[i];
+      }
     }
-  }
-
-  // Round to nearest integers.
-  for (i = 0; i < k * AV1_K_MEANS_DIM; ++i) {
-    centroids[i] = roundf(centroids[i]);
   }
 }
 
-static float RENAME(calc_total_dist)(const float *data, const float *centroids,
-                                     const uint8_t *indices, int n, int k) {
-  float dist = 0;
-  int i;
+static int64_t RENAME(calc_total_dist2)(const int *data, const int *centroids,
+                                    const uint8_t *indices, int n, int k) {
+  int64_t dist = 0;
   (void)k;
-
-  for (i = 0; i < n; ++i)
-    dist += RENAME(calc_dist)(data + i * AV1_K_MEANS_DIM,
-                              centroids + indices[i] * AV1_K_MEANS_DIM);
-
+  for (int i = 0; i < n; ++i) {
+    dist += RENAME(calc_dist2)(data + i * AV1_K_MEANS_DIM,
+                               centroids + indices[i] * AV1_K_MEANS_DIM);
+  }
   return dist;
 }
 
-void RENAME(av1_k_means)(const float *data, float *centroids, uint8_t *indices,
-                         int n, int k, int max_itr) {
-  int i;
-  float this_dist;
-  float pre_centroids[2 * PALETTE_MAX_SIZE];
+void RENAME(av1_k_means)(const int *data, int *centroids, uint8_t *indices,
+                          int n, int k, int max_itr) {
+  int pre_centroids[2 * PALETTE_MAX_SIZE];
   uint8_t pre_indices[MAX_SB_SQUARE];
 
   RENAME(av1_calc_indices)(data, centroids, indices, n, k);
-  this_dist = RENAME(calc_total_dist)(data, centroids, indices, n, k);
+  int64_t this_dist = RENAME(calc_total_dist2)(data, centroids, indices, n, k);
 
-  for (i = 0; i < max_itr; ++i) {
-    const float pre_dist = this_dist;
+  for (int i = 0; i < max_itr; ++i) {
+    const int64_t pre_dist = this_dist;
     memcpy(pre_centroids, centroids,
            sizeof(pre_centroids[0]) * k * AV1_K_MEANS_DIM);
     memcpy(pre_indices, indices, sizeof(pre_indices[0]) * n);
 
-    RENAME(calc_centroids)(data, centroids, indices, n, k);
+    RENAME(calc_centroids2)(data, centroids, indices, n, k);
     RENAME(av1_calc_indices)(data, centroids, indices, n, k);
-    this_dist = RENAME(calc_total_dist)(data, centroids, indices, n, k);
+    this_dist = RENAME(calc_total_dist2)(data, centroids, indices, n, k);
 
     if (this_dist > pre_dist) {
       memcpy(centroids, pre_centroids,
@@ -132,6 +120,5 @@ void RENAME(av1_k_means)(const float *data, float *centroids, uint8_t *indices,
       break;
   }
 }
-
 #undef RENAME_
 #undef RENAME
