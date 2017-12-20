@@ -258,10 +258,10 @@ void cfl_predict_block(MACROBLOCKD *const xd, uint8_t *dst, int dst_stride,
                            alpha_q3);
 }
 
-static void cfl_luma_subsampling_420_lbd(const uint8_t *input, int input_stride,
-                                         int16_t *output_q3, int width,
-                                         int height) {
-  assert((height - 1) * CFL_BUF_LINE + width <= CFL_BUF_SQUARE);
+void av1_cfl_luma_subsampling_420_lbd_c(const uint8_t *input, int input_stride,
+                                        int16_t *output_q3, int width,
+                                        int height) {
+  // assert((height - 1) * CFL_BUF_LINE + width <= CFL_BUF_SQUARE);
   for (int j = 0; j < height; j++) {
     for (int i = 0; i < width; i++) {
       int top = i << 1;
@@ -321,7 +321,7 @@ static const cfl_subsample_lbd_fn subsample_lbd[2][2] = {
   //  (sub_y == 0, sub_x == 0)       (sub_y == 0, sub_x == 1)
   //  (sub_y == 1, sub_x == 0)       (sub_y == 1, sub_x == 1)
   { cfl_luma_subsampling_444_lbd, cfl_luma_subsampling_422_lbd },
-  { cfl_luma_subsampling_440_lbd, cfl_luma_subsampling_420_lbd },
+  { cfl_luma_subsampling_440_lbd, av1_cfl_luma_subsampling_420_lbd },
 };
 
 #if CONFIG_HIGHBITDEPTH
