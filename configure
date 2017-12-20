@@ -580,7 +580,6 @@ post_process_cmdline() {
     fi
     if enabled daala_tx4 || enabled daala_tx8 || enabled daala_tx16 ||
         enabled daala_tx32 || enabled daala_tx64; then
-      disable_feature txmg
       enable_feature lowbitdepth
     fi
     if enabled ext_partition_types; then

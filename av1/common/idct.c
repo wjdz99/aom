@@ -2502,6 +2502,10 @@ void av1_inv_txfm_add(const tran_low_t *input, uint8_t *dest, int stride,
 
 void av1_inv_txfm_add_txmg(const tran_low_t *dqcoeff, uint8_t *dst, int stride,
                            TxfmParam *txfm_param) {
+#if CONFIG_DAALA_TX
+  assert(!txfm_param->is_hbd);
+  daala_inv_txfm_add(dqcoeff, dst, stride, txfm_param);
+#else
   const TX_SIZE tx_size = txfm_param->tx_size;
   DECLARE_ALIGNED(16, uint16_t, tmp[MAX_TX_SQUARE]);
   int tmp_stride = MAX_TX_SIZE;
@@ -2521,6 +2525,7 @@ void av1_inv_txfm_add_txmg(const tran_low_t *dqcoeff, uint8_t *dst, int stride,
       dst[r * stride + c] = (uint8_t)tmp[r * tmp_stride + c];
     }
   }
+#endif
 }
 
 #endif
