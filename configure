@@ -306,7 +306,6 @@ EXPERIMENT_LIST="
     simplify_tx_mode
     loopfilter_level
     no_frame_context_signaling
-    txmg
     max_tile
     hash_me
     colorspace_headers
@@ -532,9 +531,6 @@ post_process_cmdline() {
     # Enable low-bitdepth pixel pipeline by default
     soft_enable lowbitdepth
 
-    # Enable LBD/HBD txfm consistency tool
-    soft_enable txmg
-
     # Enable using 8x8 TMV to realize the decoder speedup.
     soft_enable tmv
 
@@ -548,7 +544,6 @@ post_process_cmdline() {
     enabled jnt_comp && enable_feature frame_marker
     enabled frame_refs && enable_feature frame_marker
     enabled frame_sign_bias && enable_feature frame_marker
-    enabled txmg && enable_feature highbitdepth
     enabled ext_skip && enable_feature frame_marker
     enabled loopfilter_level && enable_feature parallel_deblocking
     enabled loopfilter_level && enable_feature ext_delta_q
