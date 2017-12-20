@@ -132,12 +132,12 @@ void av1_gen_inv_stage_range(int8_t *stage_range_col, int8_t *stage_range_row,
                                                         : cfg->col_cfg->shift;
   // i < MAX_TXFM_STAGE_NUM will mute above array bounds warning
   for (int i = 0; i < cfg->row_cfg->stage_num && i < MAX_TXFM_STAGE_NUM; ++i) {
-    stage_range_row[i] = cfg->row_cfg->stage_range[i] + fwd_shift + bd + 1;
+    stage_range_row[i] = cfg->row_cfg->stage_range[i] + fwd_shift + bd + 5;
   }
   // i < MAX_TXFM_STAGE_NUM will mute above array bounds warning
   for (int i = 0; i < cfg->col_cfg->stage_num && i < MAX_TXFM_STAGE_NUM; ++i) {
     stage_range_col[i] =
-        cfg->col_cfg->stage_range[i] + fwd_shift + shift[0] + bd + 1;
+        cfg->col_cfg->stage_range[i] + fwd_shift + shift[0] + bd + 2;
   }
 }
 
