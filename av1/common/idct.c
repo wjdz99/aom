@@ -2461,6 +2461,12 @@ static void highbd_inv_txfm_add_64x64(const tran_low_t *input, uint8_t *dest,
 void av1_inv_txfm_add(const tran_low_t *input, uint8_t *dest, int stride,
                       TxfmParam *txfm_param) {
   assert(av1_ext_tx_used[txfm_param->tx_set_type][txfm_param->tx_type]);
+
+  if (txfm_param->lossless) {
+    assert(txfm_param->tx_type == DCT_DCT);
+    assert(txfm_param->tx_size == TX_4X4);
+  }
+
 #if CONFIG_DAALA_TX
   assert(!txfm_param->is_hbd);
   daala_inv_txfm_add(input, dest, stride, txfm_param);
@@ -2572,6 +2578,12 @@ void av1_inverse_transform_block(const MACROBLOCKD *xd,
 void av1_highbd_inv_txfm_add(const tran_low_t *input, uint8_t *dest, int stride,
                              TxfmParam *txfm_param) {
   assert(av1_ext_tx_used[txfm_param->tx_set_type][txfm_param->tx_type]);
+
+  if (txfm_param->lossless) {
+    assert(txfm_param->tx_type == DCT_DCT);
+    assert(txfm_param->tx_size == TX_4X4);
+  }
+
 #if CONFIG_DAALA_TX
   daala_inv_txfm_add(input, dest, stride, txfm_param);
 #else
