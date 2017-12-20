@@ -4279,7 +4279,6 @@ static void tx_block_yrd(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
   BLOCK_SIZE bsize = txsize_to_bsize[tx_size];
   const int tx_row = blk_row >> (1 - pd->subsampling_y);
   const int tx_col = blk_col >> (1 - pd->subsampling_x);
-  TX_SIZE plane_tx_size;
   const int max_blocks_high = max_block_high(xd, plane_bsize, plane);
   const int max_blocks_wide = max_block_wide(xd, plane_bsize, plane);
 
@@ -4287,8 +4286,8 @@ static void tx_block_yrd(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
 
   if (blk_row >= max_blocks_high || blk_col >= max_blocks_wide) return;
 
-  plane_tx_size =
-      plane ? uv_txsize_lookup[bsize][mbmi->inter_tx_size[tx_row][tx_col]][0][0]
+  const TX_SIZE plane_tx_size =
+      plane ? av1_get_uv_tx_size_vartx(mbmi, pd, bsize, tx_row, tx_col)
             : mbmi->inter_tx_size[tx_row][tx_col];
 
   int ctx = txfm_partition_context(tx_above + blk_col, tx_left + blk_row,
@@ -4297,7 +4296,7 @@ static void tx_block_yrd(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
   av1_init_rd_stats(rd_stats);
   if (tx_size == plane_tx_size
 #if DISABLE_VARTX_FOR_CHROMA
-      || pd->subsampling_x || pd->subsampling_y
+      || plane
 #endif  // DISABLE_VARTX_FOR_CHROMA
       ) {
     ENTROPY_CONTEXT *ta = above_ctx + blk_col;
@@ -4985,7 +4984,6 @@ static void tx_block_rd(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
   BLOCK_SIZE bsize = txsize_to_bsize[tx_size];
   const int tx_row = blk_row >> (1 - pd->subsampling_y);
   const int tx_col = blk_col >> (1 - pd->subsampling_x);
-  TX_SIZE plane_tx_size;
   const int max_blocks_high = max_block_high(xd, plane_bsize, plane);
   const int max_blocks_wide = max_block_wide(xd, plane_bsize, plane);
 
@@ -4993,13 +4991,13 @@ static void tx_block_rd(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
 
   if (blk_row >= max_blocks_high || blk_col >= max_blocks_wide) return;
 
-  plane_tx_size =
-      plane ? uv_txsize_lookup[bsize][mbmi->inter_tx_size[tx_row][tx_col]][0][0]
+  const TX_SIZE plane_tx_size =
+      plane ? av1_get_uv_tx_size_vartx(mbmi, pd, bsize, tx_row, tx_col)
             : mbmi->inter_tx_size[tx_row][tx_col];
 
   if (tx_size == plane_tx_size
 #if DISABLE_VARTX_FOR_CHROMA
-      || pd->subsampling_x || pd->subsampling_y
+      || plane
 #endif  // DISABLE_VARTX_FOR_CHROMA
       ) {
     ENTROPY_CONTEXT *ta = above_ctx + blk_col;
