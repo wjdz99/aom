@@ -520,8 +520,9 @@ typedef struct SPEED_FEATURES {
   // usually includes EIGHTTAP_REGULAR.
   int use_fast_interpolation_filter_search;
 
-  // flag to drop some ref frames in compound motion search
+  // flag to drop some ref frames/modes in compound motion search
   int drop_ref;
+  int drop_mode;
 } SPEED_FEATURES;
 
 struct AV1_COMP;

@@ -9278,6 +9278,11 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
   memset(dist_refs, -1, sizeof(dist_refs));
   memset(dist_order_refs, -1, sizeof(dist_order_refs));
 
+  int64_t dist_modes[TOTAL_COMP_MV_MODES];
+  int dist_order_modes[TOTAL_COMP_MV_MODES];
+  memset(dist_modes, -1, sizeof(dist_modes));
+  memset(dist_order_modes, -1, sizeof(dist_order_modes));
+
 #if CONFIG_HIGHBITDEPTH
   if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
     int len = sizeof(uint16_t);
@@ -9555,6 +9560,18 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
                second_ref_frame == dist_order_refs[1]) ||
               (ref_frame == dist_order_refs[1] &&
                second_ref_frame == dist_order_refs[0]))
+            continue;
+        }
+      }
+    }
+    if (sf->drop_mode) {
+      if (ref_frame > INTRA_FRAME && second_ref_frame > INTRA_FRAME) {
+        if (num_available_refs > 2) {
+          const PREDICTION_MODE m1 = compound_ref0_mode(this_mode);
+          const PREDICTION_MODE m2 = compound_ref1_mode(this_mode);
+
+          if ((m1 == dist_order_modes[0] && m2 == dist_order_modes[1]) ||
+              (m1 == dist_order_modes[1] && m2 == dist_order_modes[0]))
             continue;
         }
       }
@@ -10425,7 +10442,7 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
         best_pred_rd[REFERENCE_MODE_SELECT] = hybrid_rd;
     }
 
-    if (sf->drop_ref) {
+    if (sf->drop_ref || sf->drop_mode) {
       if (second_ref_frame == NONE_FRAME) {
         const int idx = ref_frame - LAST_FRAME;
         if (idx && distortion2 > dist_refs[idx]) {
@@ -10455,6 +10472,31 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
             num_available_refs = i;
           }
           num_available_refs++;
+        }
+
+        const PREDICTION_MODE cur_mode = compound_ref0_mode(this_mode);
+        const int mode_idx = cur_mode - NEARESTMV;
+        if (distortion2 > dist_modes[mode_idx]) {
+          dist_modes[mode_idx] = distortion2;
+          dist_order_modes[mode_idx] = cur_mode;
+        }
+
+        // Reach the last single ref prediction mode
+        if (ref_frame == ALTREF_FRAME && this_mode == GLOBALMV) {
+          // bubble sort dist_modes and the order index
+          for (i = 0; i < TOTAL_SINGLE_MV_MODES; ++i) {
+            for (k = i + 1; k < TOTAL_SINGLE_MV_MODES; ++k) {
+              if (dist_modes[i] < dist_modes[k]) {
+                int64_t tmp_dist = dist_modes[i];
+                dist_modes[i] = dist_modes[k];
+                dist_modes[k] = tmp_dist;
+
+                int tmp_idx = dist_order_modes[i];
+                dist_order_modes[i] = dist_order_modes[k];
+                dist_order_modes[k] = tmp_idx;
+              }
+            }
+          }
         }
       }
     }
