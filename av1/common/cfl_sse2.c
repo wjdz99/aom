@@ -113,3 +113,27 @@ void av1_cfl_luma_subsampling_420_lbd_sse2(const uint8_t *input,
     } while (output_q3 < row_end);
   }
 }
+
+#include <tmmintrin.h>
+
+void av1_cfl_build_prediction_lbd_sse2(const int16_t *pred_buf_q3, uint8_t *dst,
+                                       int dst_stride, int width, int height,
+                                       int alpha_q3) {
+  const __m128i zeros = _mm_setzero_si128();
+  const __m128i alpha_q12 = _mm_set1_epi16(alpha_q3 * (1 << 9));
+  const __m128i dc_packed = _mm_loadu_si128((__m128i *)(dst));
+  const __m128i dc_q0 = _mm_unpacklo_epi8(dc_packed, zeros);
+
+  uint8_t *row_end = dst + height * dst_stride;
+  do {
+    for (int m = 0; m < width; m += 8) {
+        const __m128i ac_q3 = _mm_loadu_si128((__m128i *)(pred_buf_q3 + m));
+        const __m128i scaled_luma_q0 = _mm_mulhrs_epi16(ac_q3, alpha_q12);
+        const __m128i tmp = _mm_add_epi16(scaled_luma_q0, dc_q0);
+        const __m128i res = _mm_packus_epi16(tmp, tmp /* "don't care" value */);
+        _mm_storel_epi64((__m128i *)(dst + m), res);
+    }
+    dst += dst_stride;
+    pred_buf_q3 += CFL_BUF_LINE;
+  } while (dst < row_end);
+}

@@ -645,6 +645,9 @@ if (aom_config("CONFIG_CFL") eq "yes") {
 
   add_proto qw/void av1_cfl_luma_subsampling_420_lbd/, "const uint8_t *input, int input_stride, int16_t *output_q3, int width, int height";
   specialize qw/av1_cfl_luma_subsampling_420_lbd sse2/;
+
+  add_proto qw/void av1_cfl_build_prediction_lbd/, "const int16_t *pred_buf_q3, uint8_t *dst, int dst_stride, int width, int height, int alpha_q3";
+  specialize qw/av1_cfl_build_prediction_lbd sse2/;
 }
 
 1;
