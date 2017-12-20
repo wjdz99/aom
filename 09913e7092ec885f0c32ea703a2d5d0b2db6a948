@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "e522d59e_b29e55ba",
+        "filename": "av1/common/onyxc_int.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 443,
+      "author": {
+        "id": 5050
+      },
+      "writtenOn": "2017-12-20T22:42:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "67eee120_60c4fe9b",
+      "revId": "09913e7092ec885f0c32ea703a2d5d0b2db6a948",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c3ade9a7_94050551",
         "filename": "av1/common/onyxc_int.h",
         "patchSetId": 3
@@ -30,6 +48,24 @@
       "writtenOn": "2017-12-19T02:27:01Z",
       "side": 1,
       "message": "You can move frame_context_idx out of #if and the #else.",
+      "revId": "09913e7092ec885f0c32ea703a2d5d0b2db6a948",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "60c6dfe3_74268322",
+        "filename": "av1/common/onyxc_int.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 445,
+      "author": {
+        "id": 5050
+      },
+      "writtenOn": "2017-12-20T22:42:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c3ade9a7_94050551",
       "revId": "09913e7092ec885f0c32ea703a2d5d0b2db6a948",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "e25d73b9_c1b584ca",
+        "filename": "av1/common/onyxc_int.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 446,
+      "author": {
+        "id": 5050
+      },
+      "writtenOn": "2017-12-20T22:42:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1d099a47_194116a2",
+      "revId": "09913e7092ec885f0c32ea703a2d5d0b2db6a948",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a85beaa4_b30e35ed",
         "filename": "av1/decoder/decodeframe.c",
         "patchSetId": 3
@@ -64,6 +118,24 @@
       "writtenOn": "2017-12-19T02:27:01Z",
       "side": 1,
       "message": "Where does the 3 come from?",
+      "revId": "09913e7092ec885f0c32ea703a2d5d0b2db6a948",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "543dcc07_9596e94d",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2911,
+      "author": {
+        "id": 5050
+      },
+      "writtenOn": "2017-12-20T22:42:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a85beaa4_b30e35ed",
       "revId": "09913e7092ec885f0c32ea703a2d5d0b2db6a948",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "98fbea4e_ee3821da",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 3393,
+      "author": {
+        "id": 5050
+      },
+      "writtenOn": "2017-12-20T22:42:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b146707e_935ac2ad",
+      "revId": "09913e7092ec885f0c32ea703a2d5d0b2db6a948",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b8401f61_8b745ba0",
         "filename": "av1/encoder/bitstream.c",
         "patchSetId": 3
@@ -98,6 +188,24 @@
       "writtenOn": "2017-12-19T02:27:01Z",
       "side": 1,
       "message": "Should this code throw an error to indicate that the bit stream is invalid? In production, asserts are disabled, so this assert only helps you debug (this might be your intent).",
+      "revId": "09913e7092ec885f0c32ea703a2d5d0b2db6a948",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "59765041_c4284949",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 3718,
+      "author": {
+        "id": 5050
+      },
+      "writtenOn": "2017-12-20T22:42:45Z",
+      "side": 1,
+      "message": "No, this is on the writer, this only asserts if we have changed the behavior somewhere else so that we fail to refresh *any* frame slots.",
+      "parentUuid": "b8401f61_8b745ba0",
       "revId": "09913e7092ec885f0c32ea703a2d5d0b2db6a948",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
@@ -121,6 +229,24 @@
     },
     {
       "key": {
+        "uuid": "2573cdc4_b5892aa1",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 3839,
+      "author": {
+        "id": 5050
+      },
+      "writtenOn": "2017-12-20T22:42:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bf5f8d2b_7cc91ed3",
+      "revId": "09913e7092ec885f0c32ea703a2d5d0b2db6a948",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "2a08ab70_d879dea5",
         "filename": "av1/encoder/encoder.c",
         "patchSetId": 3
@@ -132,6 +258,24 @@
       "writtenOn": "2017-12-19T02:27:01Z",
       "side": 1,
       "message": "from my understanding REGULAR_FRAME \u003d 0, so you could start this loop with i\u003d1, and put if after line 329.",
+      "revId": "09913e7092ec885f0c32ea703a2d5d0b2db6a948",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "acf3bfbb_8f766032",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 326,
+      "author": {
+        "id": 5050
+      },
+      "writtenOn": "2017-12-20T22:42:45Z",
+      "side": 1,
+      "message": "I don\u0027t want to do that because I actually want to specially set more of these in a later patch here, I think this way is less error prone.",
+      "parentUuid": "2a08ab70_d879dea5",
       "revId": "09913e7092ec885f0c32ea703a2d5d0b2db6a948",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
@@ -155,6 +299,24 @@
     },
     {
       "key": {
+        "uuid": "a4716276_ffac9c8c",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 329,
+      "author": {
+        "id": 5050
+      },
+      "writtenOn": "2017-12-20T22:42:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "55e77930_1e55cde7",
+      "revId": "09913e7092ec885f0c32ea703a2d5d0b2db6a948",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "00153cfe_c6f8542d",
         "filename": "av1/encoder/encoder.c",
         "patchSetId": 3
@@ -172,6 +334,24 @@
     },
     {
       "key": {
+        "uuid": "0664ed2d_e499b593",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 357,
+      "author": {
+        "id": 5050
+      },
+      "writtenOn": "2017-12-20T22:42:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "00153cfe_c6f8542d",
+      "revId": "09913e7092ec885f0c32ea703a2d5d0b2db6a948",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "95052ad8_ef8dff21",
         "filename": "av1/encoder/encoder.c",
         "patchSetId": 3
@@ -183,6 +363,24 @@
       "writtenOn": "2017-12-19T02:27:01Z",
       "side": 1,
       "message": "This is the else statement of cm-\u003eframe_type \u003d\u003d KEY_FRAME, frame_is_intra_only(cm) should always be false (or maybe I\u0027m missing something).",
+      "revId": "09913e7092ec885f0c32ea703a2d5d0b2db6a948",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "37e5ea8c_7d0c7b41",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 377,
+      "author": {
+        "id": 5050
+      },
+      "writtenOn": "2017-12-20T22:42:45Z",
+      "side": 1,
+      "message": "You can have non-keyframe intra-only-frames.",
+      "parentUuid": "95052ad8_ef8dff21",
       "revId": "09913e7092ec885f0c32ea703a2d5d0b2db6a948",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
