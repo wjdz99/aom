@@ -144,6 +144,8 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
 #if CONFIG_DUAL_FILTER
     sf->use_fast_interpolation_filter_search = 1;
 #endif  // CONFIG_DUAL_FILTER
+    sf->drop_ref = 1;
+    sf->drop_mode = 1;
   }
 
   if (speed >= 2) {
@@ -465,7 +467,6 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi) {
   sf->use_upsampled_references = 1;
   sf->disable_wedge_search_var_thresh = 0;
   sf->fast_wedge_sign_estimate = 0;
-  sf->drop_ref = 0;
 
   for (i = 0; i < TX_SIZES; i++) {
     sf->intra_y_mode_mask[i] = INTRA_ALL;
