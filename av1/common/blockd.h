@@ -1198,6 +1198,23 @@ static INLINE TX_SIZE av1_get_tx_size(int plane, const MACROBLOCKD *xd) {
   return av1_get_uv_tx_size(mbmi, pd->subsampling_x, pd->subsampling_y);
 }
 
+// Temporary function to facilitate removal of uv_txsize_lookup
+// TODO(debargha): Clean this up
+static INLINE TX_SIZE av1_get_uv_tx_size_vartx(
+    const MB_MODE_INFO *mbmi, const struct macroblockd_plane *pd,
+    BLOCK_SIZE bsize, int tx_row, int tx_col) {
+#if DISABLE_VARTX_FOR_CHROMA
+  (void)bsize;
+  if (pd->subsampling_x || pd->subsampling_y)
+    return av1_get_max_uv_txsize(mbmi->sb_type, 1, pd);
+  else
+    return mbmi->inter_tx_size[tx_row][tx_col];
+#else
+  (void)pd;
+  return uv_txsize_lookup[bsize][mbmi->inter_tx_size[tx_row][tx_col]][0][0];
+#endif  // DISABLE_VARTX_FOR_CHROMA
+}
+
 void av1_reset_skip_context(MACROBLOCKD *xd, int mi_row, int mi_col,
                             BLOCK_SIZE bsize);
 
