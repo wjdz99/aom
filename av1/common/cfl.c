@@ -175,9 +175,9 @@ static INLINE int cfl_idx_to_alpha(int alpha_idx, int joint_sign,
   return (alpha_sign == CFL_SIGN_POS) ? abs_alpha_q3 + 1 : -abs_alpha_q3 - 1;
 }
 
-static void cfl_build_prediction_lbd(const int16_t *pred_buf_q3, uint8_t *dst,
-                                     int dst_stride, int width, int height,
-                                     int alpha_q3) {
+void av1_cfl_build_prediction_lbd_c(const int16_t *pred_buf_q3, uint8_t *dst,
+                                    int dst_stride, int width, int height,
+                                    int alpha_q3) {
   assert((height - 1) * CFL_BUF_LINE + width <= CFL_BUF_SQUARE);
   for (int j = 0; j < height; j++) {
     for (int i = 0; i < width; i++) {
@@ -255,9 +255,9 @@ void cfl_predict_block(MACROBLOCKD *const xd, uint8_t *dst, int dst_stride,
     return;
   }
 #endif  // CONFIG_HIGHBITDEPTH
-  cfl_build_prediction_lbd(cfl->pred_buf_q3, dst, dst_stride,
-                           tx_size_wide[tx_size], tx_size_high[tx_size],
-                           alpha_q3);
+  av1_cfl_build_prediction_lbd(cfl->pred_buf_q3, dst, dst_stride,
+                               tx_size_wide[tx_size], tx_size_high[tx_size],
+                               alpha_q3);
 }
 
 static void cfl_luma_subsampling_420_lbd(const uint8_t *input, int input_stride,
