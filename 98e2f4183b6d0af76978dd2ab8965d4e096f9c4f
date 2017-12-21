@@ -1,0 +1,244 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2c6a9948_842fbd0f",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-12-21T15:55:02Z",
+      "side": 1,
+      "message": "If you have AWCY results, you could add the text report here",
+      "revId": "98e2f4183b6d0af76978dd2ab8965d4e096f9c4f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ebe77e93_58007c2c",
+        "filename": "av1/common/entropymode.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 3056,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-12-21T15:55:02Z",
+      "side": 1,
+      "message": "You are missing a closing bracket for this function. I don\u0027t see a difference with the previous version, could this be a rebase issue?",
+      "revId": "98e2f4183b6d0af76978dd2ab8965d4e096f9c4f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b9315548_93197559",
+        "filename": "av1/common/onyxc_int.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 446,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-12-21T15:55:02Z",
+      "side": 1,
+      "message": "I\u0027m confused, FRAME_CONTEXT_INDEXES is 6, and in the previous patch the magic number was 8.",
+      "revId": "98e2f4183b6d0af76978dd2ab8965d4e096f9c4f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b83d9f98_2c987558",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2911,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-12-21T15:55:02Z",
+      "side": 1,
+      "message": "Should this not be signalled when cm-\u003eerror_resilient_mode || frame_is_intra_only(cm)) ?",
+      "revId": "98e2f4183b6d0af76978dd2ab8965d4e096f9c4f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "58f05361_35165162",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2911,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-12-21T15:55:02Z",
+      "side": 1,
+      "message": "If I understand correctly:\n\nprimary_ref_frame  frame_context_index\n       0               REGULAR_FRAME\n       1               ARF_FRAME\n       2               OVERLAY_FRAME\n       3               GLD_FRAME\n       4               BRF_FRAME\n       5               EXT_ARF_FRAME\n       6               INVALID\n       7               PRIMARY_REF_NONE\n\nIf this is the case we should throw an error if \nprimary_ref_frame \u003d\u003d 6 or is 6 ALTREF2_FRAME?\n\nI would be tempted to add these to frame context enum.",
+      "range": {
+        "startLine": 2911,
+        "startChar": 2,
+        "endLine": 2911,
+        "endChar": 23
+      },
+      "revId": "98e2f4183b6d0af76978dd2ab8965d4e096f9c4f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "52a6b996_d4b9a2fd",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 3715,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-12-21T15:55:02Z",
+      "side": 1,
+      "message": "Is this suppose to be FRAME_CONTEXT_INDEXES (which is now 6) ?",
+      "range": {
+        "startLine": 3715,
+        "startChar": 24,
+        "endLine": 3715,
+        "endChar": 25
+      },
+      "revId": "98e2f4183b6d0af76978dd2ab8965d4e096f9c4f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "659f9d82_c5c1114b",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 3839,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-12-21T15:55:02Z",
+      "side": 1,
+      "message": "Should this not be signalled when cm-\u003eerror_resilient_mode || frame_is_intra_only(cm)) ?",
+      "revId": "98e2f4183b6d0af76978dd2ab8965d4e096f9c4f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d8d6598d_3cdebab1",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 326,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-12-21T15:55:02Z",
+      "side": 1,
+      "message": "Previous loop went to 8, now it goes to 6. Bringing it up just in case.",
+      "revId": "98e2f4183b6d0af76978dd2ab8965d4e096f9c4f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8e9d79fc_cb5fd45f",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 379,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-12-21T15:55:02Z",
+      "side": 1,
+      "message": "Can this be replaced with PRIMARY_REF_NONE",
+      "range": {
+        "startLine": 379,
+        "startChar": 33,
+        "endLine": 379,
+        "endChar": 34
+      },
+      "revId": "98e2f4183b6d0af76978dd2ab8965d4e096f9c4f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "29702a94_7a0b1b36",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 400,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-12-21T15:55:02Z",
+      "side": 1,
+      "message": "Can this be replace with PRIMARY_REF_NONE",
+      "range": {
+        "startLine": 400,
+        "startChar": 31,
+        "endLine": 400,
+        "endChar": 32
+      },
+      "revId": "98e2f4183b6d0af76978dd2ab8965d4e096f9c4f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8523d79d_795336fc",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 400,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-12-21T15:55:02Z",
+      "side": 1,
+      "message": "This patterns comes up a few times, It might be worth it to extract it inside a static inline function.",
+      "range": {
+        "startLine": 398,
+        "startChar": 6,
+        "endLine": 400,
+        "endChar": 27
+      },
+      "revId": "98e2f4183b6d0af76978dd2ab8965d4e096f9c4f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "39e5dce5_9ad3467f",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-12-21T15:55:02Z",
+      "side": 1,
+      "message": "oh wow, GLD_FRAME \u003d\u003d 3 and GOLDEN_FRAME \u003d\u003d 4, not your fault",
+      "range": {
+        "startLine": 73,
+        "startChar": 2,
+        "endLine": 73,
+        "endChar": 11
+      },
+      "revId": "98e2f4183b6d0af76978dd2ab8965d4e096f9c4f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
