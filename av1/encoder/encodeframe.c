@@ -1051,6 +1051,16 @@ static void update_stats(const AV1_COMMON *const cm, TileDataEnc *tile_data,
           }
         }
 #endif  // CONFIG_JNT_COMP
+#if WEDGE_IDX_ENTROPY_CODING
+        if (mbmi->interinter_compound_type == COMPOUND_WEDGE) {
+          if (is_interinter_compound_used(COMPOUND_WEDGE, bsize)) {
+            counts->wedge_idx[bsize][mbmi->wedge_index]++;
+            if (allow_update_cdf) {
+              update_cdf(fc->wedge_idx_cdf[bsize], mbmi->wedge_index, 16);
+            }
+          }
+        }
+#endif
       }
     }
 
