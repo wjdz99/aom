@@ -16,6 +16,24 @@
       "revId": "b71ac6903e44bb0a61c6e431b8bd6646d1c8fdae",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "48cdafd5_0fef2586",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 13
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2017-12-21T20:22:02Z",
+      "side": 1,
+      "message": "But in a way it makes sense in this particular case because Luma is largely neutral, not worse. Isn\u0027t it? Feel free to trust only the CIEDE metric.",
+      "parentUuid": "072ee170_eee02b4c",
+      "revId": "b71ac6903e44bb0a61c6e431b8bd6646d1c8fdae",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
