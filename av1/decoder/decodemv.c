@@ -1638,8 +1638,13 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
         mbmi->use_wedge_interintra = aom_read_symbol(
             r, ec_ctx->wedge_interintra_cdf[bsize], 2, ACCT_STR);
         if (mbmi->use_wedge_interintra) {
+#if II_WEDGE_IDX_ENTROPY_CODING
+          mbmi->interintra_wedge_index =
+              aom_read_symbol(r, ec_ctx->wedge_idx_cdf[bsize], 16, ACCT_STR);
+#else
           mbmi->interintra_wedge_index =
               aom_read_literal(r, get_wedge_bits_lookup(bsize), ACCT_STR);
+#endif
           mbmi->interintra_wedge_sign = 0;
         }
       }
@@ -1703,8 +1708,13 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
 
       if (mbmi->interinter_compound_type == COMPOUND_WEDGE) {
         assert(is_interinter_compound_used(COMPOUND_WEDGE, bsize));
+#if WEDGE_IDX_ENTROPY_CODING
+        mbmi->wedge_index =
+            aom_read_symbol(r, ec_ctx->wedge_idx_cdf[bsize], 16, ACCT_STR);
+#else
         mbmi->wedge_index =
             aom_read_literal(r, get_wedge_bits_lookup(bsize), ACCT_STR);
+#endif
         mbmi->wedge_sign = aom_read_bit(r, ACCT_STR);
       } else {
         assert(mbmi->interinter_compound_type == COMPOUND_SEG);
@@ -1712,7 +1722,7 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
       }
     }
   }
-#else   // CONFIG_JNT_COMP
+#else  // CONFIG_JNT_COMP
   mbmi->interinter_compound_type = COMPOUND_AVERAGE;
   if (cm->reference_mode != SINGLE_REFERENCE &&
       is_inter_compound_mode(mbmi->mode) &&
@@ -1727,8 +1737,13 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
               r, ec_ctx->compound_type_cdf[bsize], COMPOUND_TYPES, ACCT_STR);
         if (mbmi->interinter_compound_type == COMPOUND_WEDGE) {
           assert(is_interinter_compound_used(COMPOUND_WEDGE, bsize));
+#if WEDGE_IDX_ENTROPY_CODING
+          mbmi->wedge_index =
+              aom_read_symbol(r, ec_ctx->wedge_idx_cdf[bsize], 16, ACCT_STR);
+#else
           mbmi->wedge_index =
               aom_read_literal(r, get_wedge_bits_lookup(bsize), ACCT_STR);
+#endif
           mbmi->wedge_sign = aom_read_bit(r, ACCT_STR);
         }
         if (mbmi->interinter_compound_type == COMPOUND_SEG) {
