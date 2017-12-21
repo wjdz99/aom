@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8aa2544d_2e4ce8fb",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 1154,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-12-21T04:15:54Z",
+      "side": 1,
+      "message": "You don\u0027t need to add ss_x and ss_y you already have them in macroblockd_plane, and you can get both is_inter and the block_size from MB_MODE_INFO. I don\u0027t think you need to change the parameters. This will reduce the footprint of this patch.",
+      "revId": "be66f7a29ed0014b66281959ac4a85f754d5f511",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f2ea8b4c_13354237",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 1155,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-12-21T04:15:54Z",
+      "side": 1,
+      "message": "We could use get_plane_block_size() here instead, to remain uniform with the coding style.",
+      "revId": "be66f7a29ed0014b66281959ac4a85f754d5f511",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5709304f_68eb05d4",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 1173,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-12-21T04:15:54Z",
+      "side": 1,
+      "message": "Not sure this if statement is useful, both call the same function, and only change the is_inter flag.",
+      "revId": "be66f7a29ed0014b66281959ac4a85f754d5f511",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a80d2e85_4f025505",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 1175,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-12-21T04:15:54Z",
+      "side": 1,
+      "message": "From my understanding, this will use the same tx_size for 4:4:4. Did someone measure a loss when growing the tx_size on 4:4:4? We can still get gains by growing the tx_size on 4:4:4. Not sure we need this.",
+      "revId": "be66f7a29ed0014b66281959ac4a85f754d5f511",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "db2980b7_3e60e867",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 8907,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-12-21T04:15:54Z",
+      "side": 1,
+      "message": "Please replace 1 with AOM_PLANE_U",
+      "revId": "be66f7a29ed0014b66281959ac4a85f754d5f511",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f687813e_9dc8188b",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 10584,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-12-21T04:15:54Z",
+      "side": 1,
+      "message": "Please replace 1 with AOM_PLANE_U",
+      "revId": "be66f7a29ed0014b66281959ac4a85f754d5f511",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
