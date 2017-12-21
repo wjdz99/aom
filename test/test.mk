@@ -193,6 +193,8 @@ LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += av1_wedge_utils_test.cc
 LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += obmc_sad_test.cc
 LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += obmc_variance_test.cc
 
+LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += noise_model_test.cc
+
 ifeq ($(CONFIG_AV1_ENCODER),yes)
 LIBAOM_TEST_SRCS-$(HAVE_SSE4_1) += av1_quantize_test.cc
 LIBAOM_TEST_SRCS-$(HAVE_SSE4_1) += av1_highbd_iht_test.cc
