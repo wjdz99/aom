@@ -434,7 +434,6 @@ INSTANTIATE_TEST_CASE_P(
                        ::testing::ValuesIn(kNTaps), ::testing::ValuesIn(kNTaps),
                        ::testing::Bool()));
 
-#if CONFIG_HIGHBITDEPTH
 typedef void (*HighbdConvolveFunc)(const uint16_t *src, int src_stride,
                                    int32_t *dst, int dst_stride, int w, int h,
                                    InterpFilterParams *filter_params_x,
@@ -500,5 +499,4 @@ INSTANTIATE_TEST_CASE_P(
                        ::testing::ValuesIn(kNTaps), ::testing::ValuesIn(kNTaps),
                        ::testing::Bool(), ::testing::ValuesIn(kBDs)));
 
-#endif  // CONFIG_HIGHBITDEPTH
 }  // namespace
