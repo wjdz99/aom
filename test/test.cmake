@@ -223,7 +223,8 @@ if (CONFIG_AV1_ENCODER)
         "${AOM_ROOT}/test/minmax_test.cc"
         "${AOM_ROOT}/test/subtract_test.cc"
         "${AOM_ROOT}/test/sum_squares_test.cc"
-        "${AOM_ROOT}/test/variance_test.cc")
+        "${AOM_ROOT}/test/variance_test.cc"
+        "${AOM_ROOT}/test/noise_model_test.cc")
 
     if (NOT CONFIG_AOM_QM AND NOT CONFIG_NEW_QUANT)
       set(AOM_UNIT_TEST_ENCODER_SOURCES
