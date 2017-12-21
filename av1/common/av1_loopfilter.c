@@ -1434,11 +1434,9 @@ static void get_filter_level_and_masks_non420(
           (blk_row * mi_size_high[BLOCK_8X8] << TX_UNIT_HIGH_LOG2) >> 1;
       const int tx_col_idx =
           (blk_col * mi_size_wide[BLOCK_8X8] << TX_UNIT_WIDE_LOG2) >> 1;
-      const BLOCK_SIZE bsize = get_plane_block_size(mbmi->sb_type, plane);
       const TX_SIZE mb_tx_size = mbmi->inter_tx_size[tx_row_idx][tx_col_idx];
       tx_size = (plane->plane_type == PLANE_TYPE_UV)
-                    ? av1_get_uv_tx_size_vartx(mbmi, plane, bsize, tx_row_idx,
-                                               tx_col_idx)
+                    ? av1_get_uv_tx_size(mbmi, ss_x, ss_y)
                     : mb_tx_size;
     }
 
@@ -2034,14 +2032,14 @@ static TX_SIZE av1_get_transform_size(const MODE_INFO *const mi,
         (blk_row * mi_size_high[BLOCK_8X8] << TX_UNIT_HIGH_LOG2) >> 1;
     const int tx_col_idx =
         (blk_col * mi_size_wide[BLOCK_8X8] << TX_UNIT_WIDE_LOG2) >> 1;
-    const BLOCK_SIZE bsize = ss_size_lookup[sb_type][scale_horz][scale_vert];
     const TX_SIZE mb_tx_size = mbmi->inter_tx_size[tx_row_idx][tx_col_idx];
 
     assert(mb_tx_size < TX_SIZES_ALL);
 
-    tx_size = (plane == AOM_PLANE_Y) ? mb_tx_size : av1_get_uv_tx_size_vartx(
-                                                        mbmi, plane_ptr, bsize,
-                                                        tx_row_idx, tx_col_idx);
+    tx_size = (plane == AOM_PLANE_Y)
+                  ? mb_tx_size
+                  : av1_get_uv_tx_size(mbmi, plane_ptr->subsampling_x,
+                                       plane_ptr->subsampling_y);
     assert(tx_size < TX_SIZES_ALL);
   }
 

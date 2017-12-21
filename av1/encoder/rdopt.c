@@ -4288,18 +4288,14 @@ static void tx_block_yrd(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
   if (blk_row >= max_blocks_high || blk_col >= max_blocks_wide) return;
 
   const TX_SIZE plane_tx_size =
-      plane ? av1_get_uv_tx_size_vartx(mbmi, pd, bsize, tx_row, tx_col)
+      plane ? av1_get_uv_tx_size(mbmi, pd->subsampling_x, pd->subsampling_y)
             : mbmi->inter_tx_size[tx_row][tx_col];
 
   int ctx = txfm_partition_context(tx_above + blk_col, tx_left + blk_row,
                                    mbmi->sb_type, tx_size);
 
   av1_init_rd_stats(rd_stats);
-  if (tx_size == plane_tx_size
-#if DISABLE_VARTX_FOR_CHROMA
-      || plane
-#endif  // DISABLE_VARTX_FOR_CHROMA
-      ) {
+  if (tx_size == plane_tx_size || plane) {
     ENTROPY_CONTEXT *ta = above_ctx + blk_col;
     ENTROPY_CONTEXT *tl = left_ctx + blk_row;
 #if CONFIG_LV_MAP
@@ -4993,14 +4989,10 @@ static void tx_block_rd(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
   if (blk_row >= max_blocks_high || blk_col >= max_blocks_wide) return;
 
   const TX_SIZE plane_tx_size =
-      plane ? av1_get_uv_tx_size_vartx(mbmi, pd, bsize, tx_row, tx_col)
+      plane ? av1_get_uv_tx_size(mbmi, pd->subsampling_x, pd->subsampling_y)
             : mbmi->inter_tx_size[tx_row][tx_col];
 
-  if (tx_size == plane_tx_size
-#if DISABLE_VARTX_FOR_CHROMA
-      || plane
-#endif  // DISABLE_VARTX_FOR_CHROMA
-      ) {
+  if (tx_size == plane_tx_size || plane) {
     ENTROPY_CONTEXT *ta = above_ctx + blk_col;
     ENTROPY_CONTEXT *tl = left_ctx + blk_row;
     av1_tx_block_rd_b(cpi, x, tx_size, blk_row, blk_col, plane, block,
