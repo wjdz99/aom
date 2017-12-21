@@ -1626,12 +1626,19 @@ void av1_average_tile_coef_cdfs(FRAME_CONTEXT *fc, FRAME_CONTEXT *ec_ctxs[],
   AVERAGE_TILE_CDFS(txb_skip_cdf)
 #if !CONFIG_LV_MAP_MULTI
   AVERAGE_TILE_CDFS(nz_map_cdf)
-#endif
   AVERAGE_TILE_CDFS(eob_flag_cdf)
+#endif
   AVERAGE_TILE_CDFS(eob_extra_cdf)
   AVERAGE_TILE_CDFS(dc_sign_cdf)
   AVERAGE_TILE_CDFS(coeff_base_cdf)
 #if CONFIG_LV_MAP_MULTI
+  AVERAGE_TILE_CDFS(eob_flag_cdf16)
+  AVERAGE_TILE_CDFS(eob_flag_cdf32)
+  AVERAGE_TILE_CDFS(eob_flag_cdf64)
+  AVERAGE_TILE_CDFS(eob_flag_cdf128)
+  AVERAGE_TILE_CDFS(eob_flag_cdf256)
+  AVERAGE_TILE_CDFS(eob_flag_cdf512)
+  AVERAGE_TILE_CDFS(eob_flag_cdf1024)
   AVERAGE_TILE_CDFS(coeff_base_eob_cdf)
 #else  // CONFIG_LV_MAP_MULTI
   AVERAGE_TILE_CDFS(coeff_lps_cdf)
@@ -1640,47 +1647,6 @@ void av1_average_tile_coef_cdfs(FRAME_CONTEXT *fc, FRAME_CONTEXT *ec_ctxs[],
 #else  // CONFI_LV_MAP
   AVERAGE_TILE_CDFS(coef_head_cdfs)
   AVERAGE_TILE_CDFS(coef_tail_cdfs)
-#endif
-
-#if 0
-  TX_SIZE tx_size;
-  int plane, ctx;
-  int j;
-  aom_cdf_prob p, lastp;
-  for (tx_size = 0; tx_size < TX_SIZES; ++tx_size) {
-    for (plane = 0; plane < PLANE_TYPES; ++plane) {
-      for (ctx = 0; ctx < SIG_COEF_CONTEXTS_EOB; ++ctx) {
-        lastp = 0;
-        // printf("base_eob [%d,%d,%d]: ", tx_size, plane, ctx);
-        for (j = 0; j < 3; j++) {
-          p = AOM_ICDF(fc->coeff_base_eob_cdf[tx_size][plane][ctx][j]);
-          // printf("(%u =>", p);
-
-          p = AOMMIN(p, CDF_PROB_TOP - 2 + j);
-          p = AOMMAX(p, lastp + 1);
-          fc->coeff_base_eob_cdf[tx_size][plane][ctx][j] = AOM_ICDF(p);
-          // printf(" %u) ", p);
-          lastp = p;
-        }
-        // printf("\n");
-      }
-      // printf("base [%d,%d,%d]: ", tx_size, plane, ctx);
-      for (ctx = 0; ctx < SIG_COEF_CONTEXTS; ++ctx) {
-        lastp = 0;
-        for (j = 0; j < 4; j++) {
-          // printf("(%u =>", p);
-          p = AOM_ICDF(fc->coeff_base_cdf[tx_size][plane][ctx][j]);
-          p = AOMMIN(p, CDF_PROB_TOP - 3 + j);
-          p = AOMMAX(p, lastp + 1);
-          fc->coeff_base_cdf[tx_size][plane][ctx][j] = AOM_ICDF(p);
-          //          printf(" %u) ", p);
-
-          lastp = p;
-        }
-        //        printf("\n");
-      }
-    }
-  }
 #endif
 }
 
