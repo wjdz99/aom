@@ -375,6 +375,8 @@ static int optimize_b_greedy(const AV1_COMMON *cm, MACROBLOCK *mb, int plane,
         accu_error += d2_a - d0;
         token_cache[rc] = av1_pt_energy_class[t1];
       } else {
+        if (d2 > d0)
+          printf("here");
         assert(d2 <= d0);
         accu_rate += rate0;
         accu_error += d2 - d0;
