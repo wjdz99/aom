@@ -39,7 +39,8 @@ if (NOT BUILD_SHARED_LIBS)
   set(AOM_UNIT_TEST_COMMON_SOURCES
       ${AOM_UNIT_TEST_COMMON_SOURCES}
       "${AOM_ROOT}/test/convolve_test.cc"
-      "${AOM_ROOT}/test/simd_impl.h")
+      "${AOM_ROOT}/test/simd_impl.h"
+      "${AOM_ROOT}/test/noise_model_test.cc")
 
   if (HAVE_NEON)
     set(AOM_UNIT_TEST_COMMON_SOURCES
