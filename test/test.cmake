@@ -299,7 +299,6 @@ if (NOT BUILD_SHARED_LIBS)
   endif ()
 endif ()
 
-if (CONFIG_HIGHBITDEPTH)
   if (CONFIG_AV1_ENCODER AND NOT BUILD_SHARED_LIBS)
     set(AOM_UNIT_TEST_COMMON_INTRIN_SSE4_1
         ${AOM_UNIT_TEST_COMMON_INTRIN_SSE4_1}
@@ -312,7 +311,6 @@ if (CONFIG_HIGHBITDEPTH)
         ${AOM_UNIT_TEST_COMMON_SOURCES}
         "${AOM_ROOT}/test/hbd_metrics_test.cc")
   endif ()
-endif ()
 
 if (CONFIG_UNIT_TESTS)
   find_package(PythonInterp)
