@@ -37,6 +37,25 @@ static const int8_t inv_cos_bit_row_dct_4[4] = { 13, 13, 13, 13 };
 static const int8_t inv_cos_bit_col_adst_4[6] = { 13, 13, 13, 13, 13, 13 };
 static const int8_t inv_cos_bit_row_adst_4[6] = { 13, 13, 13, 13, 13, 13 };
 
+// shift
+static const int8_t inv_shift_4x8[2] = { 0, -5 };  // same as 8x8
+
+// stage range
+static const int8_t inv_stage_range_col_dct_4x8[6] = { 3, 3, 3, 3, 3, 3 };
+static const int8_t inv_stage_range_row_dct_4x8[4] = { 3, 3, 3, 3 };
+static const int8_t inv_stage_range_col_adst_4x8[8] = {
+  3, 3, 3, 3, 3, 3, 3, 3
+};
+static const int8_t inv_stage_range_row_adst_4x8[6] = { 3, 3, 3, 3, 3, 3 };
+static const int8_t inv_stage_range_idx_4x8[1] = { 0 };
+
+// cos bit
+static const int8_t inv_cos_bit_col_dct_4x8[6] = { 13, 13, 13, 13, 13, 13 };
+static const int8_t inv_cos_bit_row_dct_4x8[4] = { 13, 13, 13, 13 };
+static const int8_t inv_cos_bit_col_adst_4x8[8] = { 13, 13, 13, 13,
+                                                    13, 13, 13, 13 };
+static const int8_t inv_cos_bit_row_adst_4x8[6] = { 13, 13, 13, 13, 13, 13 };
+
 //  ---------------- 8x8 1D constants -----------------------
 // shift
 static const int8_t inv_shift_8[2] = { 0, -5 };
@@ -358,4 +377,41 @@ static const TXFM_1D_CFG inv_txfm_1d_cfg_identity_64 = {
   TXFM_TYPE_IDENTITY64,    // .txfm_type
 };
 #endif  // CONFIG_TX64X64
+
+static const TXFM_1D_CFG inv_txfm_1d_row_cfg_dct_4x8 = {
+  4,                            // .txfm_size
+  4,                            // .stage_num
+  inv_shift_4x8,                // .shift
+  inv_stage_range_row_dct_4x8,  // .stage_range
+  inv_cos_bit_row_dct_4x8,      // .cos_bit
+  TXFM_TYPE_DCT4                // .txfm_type
+};
+
+static const TXFM_1D_CFG inv_txfm_1d_row_cfg_adst_4x8 = {
+  4,                             // .txfm_size
+  6,                             // .stage_num
+  inv_shift_4x8,                 // .shift
+  inv_stage_range_row_adst_4x8,  // .stage_range
+  inv_cos_bit_row_adst_4x8,      // .cos_bit
+  TXFM_TYPE_ADST4                // .txfm_type
+};
+
+static const TXFM_1D_CFG inv_txfm_1d_col_cfg_dct_4x8 = {
+  8,                            // .txfm_size
+  6,                            // .stage_num
+  inv_shift_4x8,                // .shift
+  inv_stage_range_col_dct_4x8,  // .stage_range
+  inv_cos_bit_col_dct_4x8,      // .cos_bit
+  TXFM_TYPE_DCT8                // .txfm_type
+};
+
+static const TXFM_1D_CFG inv_txfm_1d_col_cfg_adst_4x8 = {
+  8,                             // .txfm_size
+  8,                             // .stage_num
+  inv_shift_4x8,                 // .shift
+  inv_stage_range_col_adst_4x8,  // .stage_range
+  inv_cos_bit_col_adst_4x8,      // .cos_bit
+  TXFM_TYPE_ADST8                // .txfm_type
+};
+
 #endif  // AV1_INV_TXFM2D_CFG_H_
