@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "23feb90f_620a7aed",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 389,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-12-21T20:22:46Z",
+      "side": 1,
+      "message": "This function overlaps with the following existing function in common/blockd.h:\n\nstatic INLINE PREDICTION_MODE compound_ref0_mode(PREDICTION_MODE mode);",
+      "revId": "7c159390a0a8089e3527c8e186a8c67aae2a8183",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "797a08d1_97b1c2bc",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 406,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-12-21T20:22:46Z",
+      "side": 1,
+      "message": "This function overlaps with the following existing function in common/blockd.h:\n\nstatic INLINE PREDICTION_MODE compound_ref1_mode(PREDICTION_MODE mode);",
+      "revId": "7c159390a0a8089e3527c8e186a8c67aae2a8183",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
