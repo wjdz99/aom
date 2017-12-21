@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "3fb88abc_2c3d41ad",
+        "filename": "av1/common/reconinter.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1868,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-12-21T01:17:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8f3327b9_f6415518",
+      "range": {
+        "startLine": 1868,
+        "startChar": 8,
+        "endLine": 1868,
+        "endChar": 71
+      },
+      "revId": "6439485ef8479bcc49b748a1458db054201fb10c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "56d750da_d9f861dc",
         "filename": "av1/common/reconinter.c",
         "patchSetId": 5
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "f162020a_c803ecb8",
+        "filename": "av1/common/reconinter.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1875,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-12-21T01:17:36Z",
+      "side": 1,
+      "message": "Thanks. So I made ii_weights1d a uint8_t array in the new patch.",
+      "parentUuid": "56d750da_d9f861dc",
+      "range": {
+        "startLine": 1875,
+        "startChar": 43,
+        "endLine": 1875,
+        "endChar": 55
+      },
+      "revId": "6439485ef8479bcc49b748a1458db054201fb10c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c4e9a9cc_512190b2",
         "filename": "av1/common/reconinter.c",
         "patchSetId": 5
@@ -59,6 +107,30 @@
       "writtenOn": "2017-12-21T00:58:21Z",
       "side": 1,
       "message": "ditto",
+      "range": {
+        "startLine": 1883,
+        "startChar": 20,
+        "endLine": 1883,
+        "endChar": 32
+      },
+      "revId": "6439485ef8479bcc49b748a1458db054201fb10c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c14a44af_b1797bc7",
+        "filename": "av1/common/reconinter.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1883,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2017-12-21T01:17:36Z",
+      "side": 1,
+      "message": "Ditto",
+      "parentUuid": "c4e9a9cc_512190b2",
       "range": {
         "startLine": 1883,
         "startChar": 20,
