@@ -130,9 +130,7 @@ static void force_wmtype(WarpedMotionParams *wm, TransformationType wmtype) {
 
 int64_t refine_integerized_param(WarpedMotionParams *wm,
                                  TransformationType wmtype,
-#if CONFIG_HIGHBITDEPTH
                                  int use_hbd, int bd,
-#endif  // CONFIG_HIGHBITDEPTH
                                  uint8_t *ref, int r_width, int r_height,
                                  int r_stride, uint8_t *dst, int d_width,
                                  int d_height, int d_stride, int n_refinements,
@@ -152,9 +150,7 @@ int64_t refine_integerized_param(WarpedMotionParams *wm,
 
   force_wmtype(wm, wmtype);
   best_error = av1_warp_error(wm,
-#if CONFIG_HIGHBITDEPTH
                               use_hbd, bd,
-#endif  // CONFIG_HIGHBITDEPTH
                               ref, r_width, r_height, r_stride,
                               dst + border * d_stride + border, border, border,
                               d_width - 2 * border, d_height - 2 * border,
@@ -172,9 +168,7 @@ int64_t refine_integerized_param(WarpedMotionParams *wm,
       *param = add_param_offset(p, curr_param, -step);
       step_error = av1_warp_error(
           wm,
-#if CONFIG_HIGHBITDEPTH
           use_hbd, bd,
-#endif  // CONFIG_HIGHBITDEPTH
           ref, r_width, r_height, r_stride, dst + border * d_stride + border,
           border, border, d_width - 2 * border, d_height - 2 * border, d_stride,
           0, 0, best_error);
@@ -188,9 +182,7 @@ int64_t refine_integerized_param(WarpedMotionParams *wm,
       *param = add_param_offset(p, curr_param, step);
       step_error = av1_warp_error(
           wm,
-#if CONFIG_HIGHBITDEPTH
           use_hbd, bd,
-#endif  // CONFIG_HIGHBITDEPTH
           ref, r_width, r_height, r_stride, dst + border * d_stride + border,
           border, border, d_width - 2 * border, d_height - 2 * border, d_stride,
           0, 0, best_error);
@@ -207,9 +199,7 @@ int64_t refine_integerized_param(WarpedMotionParams *wm,
         *param = add_param_offset(p, best_param, step * step_dir);
         step_error = av1_warp_error(
             wm,
-#if CONFIG_HIGHBITDEPTH
             use_hbd, bd,
-#endif  // CONFIG_HIGHBITDEPTH
             ref, r_width, r_height, r_stride, dst + border * d_stride + border,
             border, border, d_width - 2 * border, d_height - 2 * border,
             d_stride, 0, 0, best_error);
@@ -237,7 +227,6 @@ static INLINE RansacFunc get_ransac_type(TransformationType type) {
   }
 }
 
-#if CONFIG_HIGHBITDEPTH
 static unsigned char *downconvert_frame(YV12_BUFFER_CONFIG *frm,
                                         int bit_depth) {
   int i, j;
@@ -255,13 +244,10 @@ static unsigned char *downconvert_frame(YV12_BUFFER_CONFIG *frm,
   }
   return buf_8bit;
 }
-#endif
 
 int compute_global_motion_feature_based(
     TransformationType type, YV12_BUFFER_CONFIG *frm, YV12_BUFFER_CONFIG *ref,
-#if CONFIG_HIGHBITDEPTH
     int bit_depth,
-#endif
     int *num_inliers_by_motion, double *params_by_motion, int num_motions) {
   int i;
   int num_frm_corners, num_ref_corners;
@@ -272,7 +258,6 @@ int compute_global_motion_feature_based(
   unsigned char *ref_buffer = ref->y_buffer;
   RansacFunc ransac = get_ransac_type(type);
 
-#if CONFIG_HIGHBITDEPTH
   if (frm->flags & YV12_FLAG_HIGHBITDEPTH) {
     // The frame buffer is 16-bit, so we need to convert to 8 bits for the
     // following code. We cache the result until the frame is released.
@@ -281,7 +266,6 @@ int compute_global_motion_feature_based(
   if (ref->flags & YV12_FLAG_HIGHBITDEPTH) {
     ref_buffer = downconvert_frame(ref, bit_depth);
   }
-#endif
 
   // compute interest points in images using FAST features
   num_frm_corners = fast_corner_detect(frm_buffer, frm->y_width, frm->y_height,

@@ -46,9 +46,7 @@ struct lookahead_ctx *av1_lookahead_init(unsigned int width,
                                          unsigned int height,
                                          unsigned int subsampling_x,
                                          unsigned int subsampling_y,
-#if CONFIG_HIGHBITDEPTH
                                          int use_highbitdepth,
-#endif
                                          unsigned int depth) {
   struct lookahead_ctx *ctx = NULL;
 
@@ -69,9 +67,7 @@ struct lookahead_ctx *av1_lookahead_init(unsigned int width,
     for (i = 0; i < depth; i++)
       if (aom_alloc_frame_buffer(&ctx->buf[i].img, width, height, subsampling_x,
                                  subsampling_y,
-#if CONFIG_HIGHBITDEPTH
                                  use_highbitdepth,
-#endif
                                  AOM_BORDER_IN_PIXELS, legacy_byte_alignment))
         goto bail;
   }
@@ -85,9 +81,7 @@ bail:
 
 int av1_lookahead_push(struct lookahead_ctx *ctx, YV12_BUFFER_CONFIG *src,
                        int64_t ts_start, int64_t ts_end,
-#if CONFIG_HIGHBITDEPTH
                        int use_highbitdepth,
-#endif
                        aom_enc_frame_flags_t flags) {
   struct lookahead_entry *buf;
 #if USE_PARTIAL_COPY
@@ -161,9 +155,7 @@ int av1_lookahead_push(struct lookahead_ctx *ctx, YV12_BUFFER_CONFIG *src,
       memset(&new_img, 0, sizeof(new_img));
       if (aom_alloc_frame_buffer(&new_img, width, height, subsampling_x,
                                  subsampling_y,
-#if CONFIG_HIGHBITDEPTH
                                  use_highbitdepth,
-#endif
                                  AOM_BORDER_IN_PIXELS, 0))
         return 1;
       aom_free_frame_buffer(&buf->img);

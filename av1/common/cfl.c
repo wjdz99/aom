@@ -45,13 +45,13 @@ void cfl_store_dc_pred(MACROBLOCKD *const xd, const uint8_t *input,
                        CFL_PRED_TYPE pred_plane, int width) {
   assert(pred_plane < CFL_PRED_PLANES);
   assert(width <= CFL_BUF_LINE);
-#if CONFIG_HIGHBITDEPTH
+
   if (get_bitdepth_data_path_index(xd)) {
     uint16_t *const input_16 = CONVERT_TO_SHORTPTR(input);
     memcpy(xd->cfl.dc_pred_cache[pred_plane], input_16, width << 1);
     return;
   }
-#endif  // CONFIG_HIGHBITDEPTH
+
   memcpy(xd->cfl.dc_pred_cache[pred_plane], input, width);
 }
 
@@ -79,14 +79,12 @@ void cfl_load_dc_pred(MACROBLOCKD *const xd, uint8_t *dst, int dst_stride,
   assert(pred_plane < CFL_PRED_PLANES);
   assert(width <= CFL_BUF_LINE);
   assert(height <= CFL_BUF_LINE);
-#if CONFIG_HIGHBITDEPTH
   if (get_bitdepth_data_path_index(xd)) {
     uint16_t *dst_16 = CONVERT_TO_SHORTPTR(dst);
     cfl_load_dc_pred_hbd(xd->cfl.dc_pred_cache[pred_plane], dst_16, dst_stride,
                          width, height);
     return;
   }
-#endif  // CONFIG_HIGHBITDEPTH
   cfl_load_dc_pred_lbd(xd->cfl.dc_pred_cache[pred_plane], dst, dst_stride,
                        width, height);
 }
@@ -182,7 +180,6 @@ static void cfl_build_prediction_lbd(const int16_t *pred_buf_q3, uint8_t *dst,
   }
 }
 
-#if CONFIG_HIGHBITDEPTH
 static void cfl_build_prediction_hbd(const int16_t *pred_buf_q3, uint16_t *dst,
                                      int dst_stride, int width, int height,
                                      int alpha_q3, int bit_depth) {
@@ -196,7 +193,6 @@ static void cfl_build_prediction_hbd(const int16_t *pred_buf_q3, uint16_t *dst,
     pred_buf_q3 += CFL_BUF_LINE;
   }
 }
-#endif  // CONFIG_HIGHBITDEPTH
 
 static void cfl_compute_parameters(MACROBLOCKD *const xd, TX_SIZE tx_size) {
   CFL_CTX *const cfl = &xd->cfl;
@@ -239,7 +235,6 @@ void cfl_predict_block(MACROBLOCKD *const xd, uint8_t *dst, int dst_stride,
 
   const int alpha_q3 =
       cfl_idx_to_alpha(mbmi->cfl_alpha_idx, mbmi->cfl_alpha_signs, plane - 1);
-#if CONFIG_HIGHBITDEPTH
   if (get_bitdepth_data_path_index(xd)) {
     uint16_t *dst_16 = CONVERT_TO_SHORTPTR(dst);
     cfl_build_prediction_hbd(cfl->pred_buf_q3, dst_16, dst_stride,
@@ -247,7 +242,6 @@ void cfl_predict_block(MACROBLOCKD *const xd, uint8_t *dst, int dst_stride,
                              alpha_q3, xd->bd);
     return;
   }
-#endif  // CONFIG_HIGHBITDEPTH
   cfl_build_prediction_lbd(cfl->pred_buf_q3, dst, dst_stride,
                            tx_size_wide[tx_size], tx_size_high[tx_size],
                            alpha_q3);
@@ -319,7 +313,6 @@ static const cfl_subsample_lbd_fn subsample_lbd[2][2] = {
   { cfl_luma_subsampling_440_lbd, cfl_luma_subsampling_420_lbd },
 };
 
-#if CONFIG_HIGHBITDEPTH
 static void cfl_luma_subsampling_420_hbd(const uint16_t *input,
                                          int input_stride, int16_t *output_q3,
                                          int width, int height) {
@@ -385,7 +378,6 @@ static const cfl_subsample_hbd_fn subsample_hbd[2][2] = {
   { cfl_luma_subsampling_444_hbd, cfl_luma_subsampling_422_hbd },
   { cfl_luma_subsampling_440_hbd, cfl_luma_subsampling_420_hbd },
 };
-#endif  // CONFIG_HIGHBITDEPTH
 
 static void cfl_store(CFL_CTX *cfl, const uint8_t *input, int input_stride,
                       int row, int col, int width, int height, int use_hbd) {
@@ -419,7 +411,6 @@ static void cfl_store(CFL_CTX *cfl, const uint8_t *input, int input_stride,
   int16_t *pred_buf_q3 =
       cfl->pred_buf_q3 + (store_row * CFL_BUF_LINE + store_col);
 
-#if CONFIG_HIGHBITDEPTH
   if (use_hbd) {
     const uint16_t *input_16 = CONVERT_TO_SHORTPTR(input);
     // AND sub_x and sub_y with 1 to ensures that an attacker won't be able to
@@ -428,7 +419,6 @@ static void cfl_store(CFL_CTX *cfl, const uint8_t *input, int input_stride,
                                         store_width, store_height);
     return;
   }
-#endif  // CONFIG_HIGHBITDEPTH
   (void)use_hbd;
   // AND sub_x and sub_y with 1 to ensures that an attacker won't be able to
   // index the function pointer array out of bounds.
