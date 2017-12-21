@@ -52,6 +52,7 @@ LIBAOM_TEST_SRCS-yes                   += decode_test_driver.cc
 LIBAOM_TEST_SRCS-yes                   += decode_test_driver.h
 LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER)    += encode_test_driver.cc
 LIBAOM_TEST_SRCS-yes                   += encode_test_driver.h
+LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += noise_model_test.cc
 
 ## IVF writing.
 LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER)    += ../ivfenc.c ../ivfenc.h

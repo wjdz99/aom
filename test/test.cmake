@@ -195,7 +195,8 @@ if (CONFIG_AV1_ENCODER)
       "${AOM_ROOT}/test/cpu_speed_test.cc"
       "${AOM_ROOT}/test/end_to_end_test.cc"
       "${AOM_ROOT}/test/frame_size_tests.cc"
-      "${AOM_ROOT}/test/lossless_test.cc")
+      "${AOM_ROOT}/test/lossless_test.cc"
+      "${AOM_ROOT}/test/noise_model_test.cc")
 
   if (NOT BUILD_SHARED_LIBS)
     set(AOM_UNIT_TEST_ENCODER_SOURCES
