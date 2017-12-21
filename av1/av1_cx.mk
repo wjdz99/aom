@@ -152,9 +152,6 @@ AV1_CX_SRCS-$(HAVE_SSE2) += encoder/x86/wedge_utils_sse2.c
 
 AV1_CX_SRCS-$(HAVE_AVX2) += encoder/x86/error_intrin_avx2.c
 
-ifneq ($(CONFIG_HIGHBITDEPTH),yes)
-AV1_CX_SRCS-$(HAVE_NEON) += encoder/arm/neon/error_neon.c
-endif
 AV1_CX_SRCS-$(HAVE_NEON) += encoder/arm/neon/quantize_neon.c
 
 AV1_CX_SRCS-$(HAVE_MSA) += encoder/mips/msa/error_msa.c
