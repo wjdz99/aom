@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "661174d4_94dd40e3",
+        "filename": "aom/aomdx.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 6000
+      },
+      "writtenOn": "2017-12-21T14:34:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3c8341c5_9d0052d7",
+      "revId": "a9f5490b2cbed8cbd56acc1f55f378fcf878cd27",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cfabcf34_b9b218e6",
         "filename": "av1/decoder/decoder.h",
         "patchSetId": 2
@@ -33,6 +51,24 @@
       "revId": "a9f5490b2cbed8cbd56acc1f55f378fcf878cd27",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2f30bda8_4d6f2857",
+        "filename": "av1/decoder/decoder.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 6000
+      },
+      "writtenOn": "2017-12-21T14:34:22Z",
+      "side": 1,
+      "message": "actually, it does (see child CL)",
+      "parentUuid": "cfabcf34_b9b218e6",
+      "revId": "a9f5490b2cbed8cbd56acc1f55f378fcf878cd27",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
