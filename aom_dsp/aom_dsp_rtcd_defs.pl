@@ -89,7 +89,7 @@ foreach (@tx_sizes) {
   foreach $pred_name (@pred_names) {
     add_proto "void", "aom_${pred_name}_predictor_${w}x${h}",
               "uint8_t *dst, ptrdiff_t y_stride, const uint8_t *above, const uint8_t *left";
-    if (aom_config("CONFIG_HIGHBITDEPTH") eq "yes") {
+    if ("yes" eq "yes") {
       add_proto "void", "aom_highbd_${pred_name}_predictor_${w}x${h}",
                 "uint16_t *dst, ptrdiff_t y_stride, const uint16_t *above, const uint16_t *left, int bd";
     }
@@ -221,7 +221,7 @@ specialize qw/aom_d45e_predictor_16x32 ssse3/;
 specialize qw/aom_d45e_predictor_32x16 ssse3/;
 specialize qw/aom_d45e_predictor_32x32 ssse3/;
 
-if (aom_config("CONFIG_HIGHBITDEPTH") eq "yes") {
+if ("yes" eq "yes") {
   specialize qw/aom_highbd_v_predictor_4x4 sse2/;
   specialize qw/aom_highbd_v_predictor_4x8 sse2/;
   specialize qw/aom_highbd_v_predictor_8x4 sse2/;
@@ -391,7 +391,7 @@ if (!(aom_config("CONFIG_AV1") eq "yes" && aom_config("CONFIG_EXT_PARTITION") eq
   specialize qw/aom_convolve8_avg_vert  neon dspr2 msa/;
 }
 
-if (aom_config("CONFIG_HIGHBITDEPTH") eq "yes") {
+if ("yes" eq "yes") {
   add_proto qw/void aom_highbd_convolve_copy/, "const uint8_t *src, ptrdiff_t src_stride, uint8_t *dst, ptrdiff_t dst_stride, const int16_t *filter_x, int x_step_q4, const int16_t *filter_y, int y_step_q4, int w, int h, int bps";
   specialize qw/aom_highbd_convolve_copy sse2 avx2/;
 
@@ -508,7 +508,7 @@ if (aom_config("CONFIG_PARALLEL_DEBLOCKING") ne "yes") {
   specialize qw/aom_lpf_horizontal_4_dual sse2 neon dspr2 msa/;
 }
 
-if (aom_config("CONFIG_HIGHBITDEPTH") eq "yes") {
+if ("yes" eq "yes") {
   add_proto qw/void aom_highbd_lpf_vertical_16/, "uint16_t *s, int pitch, const uint8_t *blimit, const uint8_t *limit, const uint8_t *thresh, int bd";
   specialize qw/aom_highbd_lpf_vertical_16 sse2/;
 
@@ -558,7 +558,7 @@ specialize "av1_round_shift_array", qw/sse4_1/;
 # Forward transform
 #
 if (aom_config("CONFIG_AV1_ENCODER") eq "yes"){
-  if (aom_config("CONFIG_HIGHBITDEPTH") eq "yes") {
+  if ("yes" eq "yes") {
     add_proto qw/void aom_fdct4x4/, "const int16_t *input, tran_low_t *output, int stride";
     specialize qw/aom_fdct4x4 sse2/;
 
@@ -666,7 +666,7 @@ if (aom_config("CONFIG_AV1") eq "yes") {
 
   add_proto qw/void aom_idct32x32_1_add/, "const tran_low_t *input, uint8_t *dest, int dest_stride";
   specialize qw/aom_idct32x32_1_add sse2 avx2/;
-  if (aom_config("CONFIG_HIGHBITDEPTH") eq "yes") {
+  if ("yes" eq "yes") {
   } else {
     add_proto qw/void aom_idct4x4_1_add/, "const tran_low_t *input, uint8_t *dest, int dest_stride";
     specialize qw/aom_idct4x4_1_add sse2 neon dspr2 msa/;
@@ -757,7 +757,7 @@ if (aom_config("CONFIG_AV1") eq "yes") {
   specialize "aom_blend_a64_hmask", qw/sse4_1/;
   specialize "aom_blend_a64_vmask", qw/sse4_1/;
 
-  if (aom_config("CONFIG_HIGHBITDEPTH") eq "yes") {
+  if ("yes" eq "yes") {
     add_proto qw/void aom_highbd_blend_a64_mask/, "uint8_t *dst, uint32_t dst_stride, const uint8_t *src0, uint32_t src0_stride, const uint8_t *src1, uint32_t src1_stride, const uint8_t *mask, uint32_t mask_stride, int h, int w, int suby, int subx, int bd";
     add_proto qw/void aom_highbd_blend_a64_hmask/, "uint8_t *dst, uint32_t dst_stride, const uint8_t *src0, uint32_t src0_stride, const uint8_t *src1, uint32_t src1_stride, const uint8_t *mask, int h, int w, int bd";
     add_proto qw/void aom_highbd_blend_a64_vmask/, "uint8_t *dst, uint32_t dst_stride, const uint8_t *src0, uint32_t src0_stride, const uint8_t *src1, uint32_t src1_stride, const uint8_t *mask, int h, int w, int bd";
@@ -794,7 +794,7 @@ if (aom_config("CONFIG_AV1_ENCODER") eq "yes") {
     # Avg
     #
     specialize qw/aom_avg_8x8 sse2 neon msa/;
-    if (aom_config("CONFIG_HIGHBITDEPTH") eq "yes") {
+    if ("yes" eq "yes") {
       add_proto qw/void aom_highbd_subtract_block/, "int rows, int cols, int16_t *diff_ptr, ptrdiff_t diff_stride, const uint8_t *src_ptr, ptrdiff_t src_stride, const uint8_t *pred_ptr, ptrdiff_t pred_stride, int bd";
       specialize qw/aom_highbd_subtract_block sse2/;
     }
@@ -804,7 +804,7 @@ if (aom_config("CONFIG_AV1_ENCODER") eq "yes") {
     #
     add_proto qw/void aom_minmax_8x8/, "const uint8_t *s, int p, const uint8_t *d, int dp, int *min, int *max";
     specialize qw/aom_minmax_8x8 sse2 neon/;
-    if (aom_config("CONFIG_HIGHBITDEPTH") eq "yes") {
+    if ("yes" eq "yes") {
       add_proto qw/void aom_highbd_minmax_8x8/, "const uint8_t *s, int p, const uint8_t *d, int dp, int *min, int *max";
     }
 
@@ -917,7 +917,7 @@ if (aom_config("CONFIG_AV1_ENCODER") eq "yes") {
     specialize qw/aom_sad128xh sse2/;
   }
 
-  if (aom_config("CONFIG_HIGHBITDEPTH") eq "yes") {
+  if ("yes" eq "yes") {
     foreach (@block_sizes) {
       ($w, $h) = @$_;
       add_proto qw/unsigned int/, "aom_highbd_sad${w}x${h}", "const uint8_t *src_ptr, int src_stride, const uint8_t *ref_ptr, int ref_stride";
@@ -964,7 +964,7 @@ if (aom_config("CONFIG_AV1_ENCODER") eq "yes") {
     specialize "aom_masked_sad${w}x${h}", qw/ssse3/;
   }
 
-  if (aom_config("CONFIG_HIGHBITDEPTH") eq "yes") {
+  if ("yes" eq "yes") {
     foreach (@block_sizes) {
       ($w, $h) = @$_;
       add_proto qw/unsigned int/, "aom_highbd_masked_sad${w}x${h}", "const uint8_t *src8, int src_stride, const uint8_t *ref8, int ref_stride, const uint8_t *second_pred8, const uint8_t *msk, int msk_stride, int invert_mask";
@@ -983,7 +983,7 @@ if (aom_config("CONFIG_AV1_ENCODER") eq "yes") {
     }
   }
 
-  if (aom_config("CONFIG_HIGHBITDEPTH") eq "yes") {
+  if ("yes" eq "yes") {
     foreach (@block_sizes) {
       ($w, $h) = @$_;
       add_proto qw/unsigned int/, "aom_highbd_obmc_sad${w}x${h}", "const uint8_t *pre, int pre_stride, const int32_t *wsrc, const int32_t *mask";
@@ -1030,7 +1030,7 @@ if (aom_config("CONFIG_AV1_ENCODER") eq "yes") {
   add_proto qw/void/, "aom_sad4x8x8", "const uint8_t *src_ptr, int src_stride, const uint8_t *ref_ptr, int ref_stride, uint32_t *sad_array";
   specialize qw/aom_sad4x8x8 msa/;
 
-  if (aom_config("CONFIG_HIGHBITDEPTH") eq "yes") {
+  if ("yes" eq "yes") {
     foreach $s (@block_widths) {
       # Blocks of 3
       add_proto qw/void/, "aom_highbd_sad${s}x${s}x3", "const uint8_t *src_ptr, int src_stride, const uint8_t *ref_ptr, int ref_stride, uint32_t *sad_array";
@@ -1072,7 +1072,7 @@ if (aom_config("CONFIG_AV1_ENCODER") eq "yes") {
   specialize qw/aom_sad4x8x4d               msa sse2/;
   specialize qw/aom_sad4x4x4d               msa sse2/;
 
-  if (aom_config("CONFIG_HIGHBITDEPTH") eq "yes") {
+  if ("yes" eq "yes") {
     #
     # Multi-block SAD, comparing a reference to N independent blocks
     #
@@ -1106,7 +1106,7 @@ if (aom_config("CONFIG_AV1_ENCODER") eq "yes") {
     add_proto qw/void aom_ssim_parms_16x16/, "const uint8_t *s, int sp, const uint8_t *r, int rp, uint32_t *sum_s, uint32_t *sum_r, uint32_t *sum_sq_s, uint32_t *sum_sq_r, uint32_t *sum_sxr";
     specialize qw/aom_ssim_parms_16x16/, "$sse2_x86_64";
 
-    if (aom_config("CONFIG_HIGHBITDEPTH") eq "yes") {
+    if ("yes" eq "yes") {
       add_proto qw/void aom_highbd_ssim_parms_8x8/, "const uint16_t *s, int sp, const uint16_t *r, int rp, uint32_t *sum_s, uint32_t *sum_r, uint32_t *sum_sq_s, uint32_t *sum_sq_r, uint32_t *sum_sxr";
     }
   }
@@ -1135,7 +1135,7 @@ if (aom_config("CONFIG_AV1_ENCODER") eq "yes") {
   specialize qw/aom_mse8x16           sse2           msa/;
   specialize qw/aom_mse8x8            sse2           msa/;
 
-  if (aom_config("CONFIG_HIGHBITDEPTH") eq "yes") {
+  if ("yes" eq "yes") {
     foreach $bd (8, 10, 12) {
       add_proto qw/void/, "aom_highbd_${bd}_get16x16var", "const uint8_t *src_ptr, int source_stride, const uint8_t *ref_ptr, int ref_stride, unsigned int *sse, int *sum";
       add_proto qw/void/, "aom_highbd_${bd}_get8x8var", "const uint8_t *src_ptr, int source_stride, const uint8_t *ref_ptr, int ref_stride, unsigned int *sse, int *sum";
@@ -1164,7 +1164,7 @@ if (aom_config("CONFIG_AV1_ENCODER") eq "yes") {
     specialize qw/aom_jnt_comp_avg_upsampled_pred ssse3/;
   }
 
-  if (aom_config("CONFIG_HIGHBITDEPTH") eq "yes") {
+  if ("yes" eq "yes") {
     add_proto qw/void aom_highbd_upsampled_pred/, "uint16_t *comp_pred, int width, int height, int subsample_x_q3, int subsample_y_q3, const uint8_t *ref8, int ref_stride, int bd";
     specialize qw/aom_highbd_upsampled_pred sse2/;
     add_proto qw/void aom_highbd_comp_avg_upsampled_pred/, "uint16_t *comp_pred, const uint8_t *pred8, int width, int height, int subsample_x_q3, int subsample_y_q3, const uint8_t *ref8, int ref_stride, int bd";
@@ -1303,7 +1303,7 @@ if (aom_config("CONFIG_AV1_ENCODER") eq "yes") {
     }
   }
 
-  if (aom_config("CONFIG_HIGHBITDEPTH") eq "yes") {
+  if ("yes" eq "yes") {
     foreach $bd (8, 10, 12) {
       add_proto qw/unsigned int/, "aom_highbd_${bd}_variance2x2", "const uint8_t *src_ptr, int source_stride, const uint8_t *ref_ptr, int ref_stride, unsigned int *sse";
 
@@ -1349,7 +1349,7 @@ if (aom_config("CONFIG_AV1_ENCODER") eq "yes") {
     specialize "aom_masked_sub_pixel_variance${w}x${h}", qw/ssse3/;
   }
 
-  if (aom_config("CONFIG_HIGHBITDEPTH") eq "yes") {
+  if ("yes" eq "yes") {
     foreach $bd ("_8_", "_10_", "_12_") {
       foreach (@block_sizes) {
         ($w, $h) = @$_;
@@ -1369,7 +1369,7 @@ if (aom_config("CONFIG_AV1_ENCODER") eq "yes") {
     specialize "aom_obmc_variance${w}x${h}", q/sse4_1/;
   }
 
-  if (aom_config("CONFIG_HIGHBITDEPTH") eq "yes") {
+  if ("yes" eq "yes") {
     foreach $bd ("_", "_10_", "_12_") {
       foreach (@block_sizes) {
         ($w, $h) = @$_;
@@ -1438,7 +1438,7 @@ if (aom_config("CONFIG_AV1_ENCODER") eq "yes") {
     add_proto qw/void aom_jnt_comp_avg_pred/, "uint8_t *comp_pred, const uint8_t *pred, int width, int height, const uint8_t *ref, int ref_stride, const JNT_COMP_PARAMS *jcp_param";
     specialize qw/aom_jnt_comp_avg_pred ssse3/;
   }
-  if (aom_config("CONFIG_HIGHBITDEPTH") eq "yes") {
+  if ("yes" eq "yes") {
     add_proto qw/unsigned int aom_highbd_12_variance64x64/, "const uint8_t *src_ptr, int source_stride, const uint8_t *ref_ptr, int ref_stride, unsigned int *sse";
     specialize qw/aom_highbd_12_variance64x64 sse2/;
 
@@ -1804,7 +1804,7 @@ if (aom_config("CONFIG_AV1_ENCODER") eq "yes") {
 
   add_proto qw/void aom_comp_mask_pred/, "uint8_t *comp_pred, const uint8_t *pred, int width, int height, const uint8_t *ref, int ref_stride, const uint8_t *mask, int mask_stride, int invert_mask";
   add_proto qw/void aom_comp_mask_upsampled_pred/, "uint8_t *comp_pred, const uint8_t *pred, int width, int height, int subsample_x_q3, int subsample_y_q3, const uint8_t *ref, int ref_stride, const uint8_t *mask, int mask_stride, int invert_mask";
-  if (aom_config("CONFIG_HIGHBITDEPTH") eq "yes") {
+  if ("yes" eq "yes") {
     add_proto qw/void aom_highbd_comp_mask_pred/, "uint16_t *comp_pred, const uint8_t *pred8, int width, int height, const uint8_t *ref8, int ref_stride, const uint8_t *mask, int mask_stride, int invert_mask";
     add_proto qw/void aom_highbd_comp_mask_upsampled_pred/, "uint16_t *comp_pred, const uint8_t *pred8, int width, int height, int subsample_x_q3, int subsample_y_q3, const uint8_t *ref8, int ref_stride, const uint8_t *mask, int mask_stride, int invert_mask, int bd";
   }
