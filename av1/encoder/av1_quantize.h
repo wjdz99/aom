@@ -45,12 +45,12 @@ typedef void (*AV1_QUANT_FACADE)(const tran_low_t *coeff_ptr, intptr_t n_coeffs,
 // All of its fields use the same coefficient shift/scaling at TX.
 typedef struct {
 #if CONFIG_NEW_QUANT
-  DECLARE_ALIGNED(16, tran_low_t,
-                  y_cuml_bins_nuq[QUANT_PROFILES][QINDEX_RANGE][2][NUQ_KNOTS]);
-  DECLARE_ALIGNED(16, tran_low_t,
-                  u_cuml_bins_nuq[QUANT_PROFILES][QINDEX_RANGE][2][NUQ_KNOTS]);
-  DECLARE_ALIGNED(16, tran_low_t,
-                  v_cuml_bins_nuq[QUANT_PROFILES][QINDEX_RANGE][2][NUQ_KNOTS]);
+  DECLARE_ALIGNED(16, cuml_bins_type_nuq,
+                  y_cuml_bins_nuq[QUANT_PROFILES][QINDEX_RANGE][2]);
+  DECLARE_ALIGNED(16, cuml_bins_type_nuq,
+                  u_cuml_bins_nuq[QUANT_PROFILES][QINDEX_RANGE][2]);
+  DECLARE_ALIGNED(16, cuml_bins_type_nuq,
+                  v_cuml_bins_nuq[QUANT_PROFILES][QINDEX_RANGE][2]);
 #endif  // CONFIG_NEW_QUANT
   // 0: dc 1: ac 2-8: ac repeated to SIMD width
   DECLARE_ALIGNED(16, int16_t, y_quant[QINDEX_RANGE][8]);
