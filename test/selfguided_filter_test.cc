@@ -179,7 +179,6 @@ INSTANTIATE_TEST_CASE_P(SSE4_1, AV1SelfguidedFilterTest,
                         ::testing::ValuesIn(params));
 #endif
 
-#if CONFIG_HIGHBITDEPTH
 
 typedef tuple<int> HighbdFilterTestParam;
 
@@ -340,7 +339,6 @@ const HighbdFilterTestParam highbd_params[] = { make_tuple(8), make_tuple(10),
                                                 make_tuple(12) };
 INSTANTIATE_TEST_CASE_P(SSE4_1, AV1HighbdSelfguidedFilterTest,
                         ::testing::ValuesIn(highbd_params));
-#endif
 #endif
 
 }  // namespace

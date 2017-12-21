@@ -19,11 +19,9 @@ using libaom_test::AV1Convolve2D::AV1Convolve2DTest;
 #if CONFIG_JNT_COMP
 using libaom_test::AV1Convolve2D::AV1JntConvolve2DTest;
 #endif
-#if CONFIG_HIGHBITDEPTH
 using libaom_test::AV1HighbdConvolve2D::AV1HighbdConvolve2DTest;
 #if CONFIG_JNT_COMP
 using libaom_test::AV1HighbdConvolve2D::AV1HighbdJntConvolve2DTest;
-#endif
 #endif
 
 namespace {
@@ -47,7 +45,7 @@ INSTANTIATE_TEST_CASE_P(
     libaom_test::AV1Convolve2D::BuildParams(av1_jnt_convolve_2d_sse4_1));
 #endif
 
-#if CONFIG_HIGHBITDEPTH && HAVE_SSSE3
+#if HAVE_SSSE3
 TEST_P(AV1HighbdConvolve2DTest, CheckOutput) { RunCheckOutput(GET_PARAM(3)); }
 
 INSTANTIATE_TEST_CASE_P(SSSE3, AV1HighbdConvolve2DTest,
