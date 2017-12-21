@@ -427,4 +427,9 @@ DSP_SRCS-$(HAVE_NEON) += simd/v64_intrinsics_arm.h
 DSP_SRCS-$(HAVE_NEON) += simd/v128_intrinsics_arm.h
 DSP_SRCS-$(HAVE_NEON) += simd/v256_intrinsics_arm.h
 
+DSP_SRCS-yes += noise_model.c
+DSP_SRCS-yes += noise_model.h
+DSP_SRCS-yes += noise_util.c
+DSP_SRCS-yes += noise_util.h
+
 $(eval $(call rtcd_h_template,aom_dsp_rtcd,aom_dsp/aom_dsp_rtcd_defs.pl))
