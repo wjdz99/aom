@@ -10771,9 +10771,12 @@ PALETTE_EXIT:
         }
       }
 
+      const MOTION_MODE last_motion_mode_allowed =
+          motion_mode_allowed(xd->global_motion, xd, xd->mi[0]);
       if (frame_mv[NEARESTMV][refs[0]].as_int == best_mbmode.mv[0].as_int)
         best_mbmode.mode = NEARESTMV;
-      else if (best_mbmode.mv[0].as_int == zeromv[0].as_int)
+      else if (best_mbmode.mv[0].as_int == zeromv[0].as_int &&
+               best_mbmode.motion_mode <= last_motion_mode_allowed)
         best_mbmode.mode = GLOBALMV;
     } else {
       int_mv nearestmv[2];
@@ -10814,9 +10817,12 @@ PALETTE_EXIT:
           }
         }
 
+        const MOTION_MODE last_motion_mode_allowed =
+            motion_mode_allowed(xd->global_motion, xd, xd->mi[0]);
         if (best_mbmode.mode == NEW_NEWMV &&
             best_mbmode.mv[0].as_int == zeromv[0].as_int &&
-            best_mbmode.mv[1].as_int == zeromv[1].as_int)
+            best_mbmode.mv[1].as_int == zeromv[1].as_int &&
+            best_mbmode.motion_mode <= last_motion_mode_allowed)
           best_mbmode.mode = GLOBAL_GLOBALMV;
       }
     }
@@ -10853,7 +10859,10 @@ PALETTE_EXIT:
 #endif
                                            )
                           .as_int;
-      if (best_mbmode.mv[0].as_int == zeromv.as_int) {
+      const MOTION_MODE last_motion_mode_allowed =
+          motion_mode_allowed(xd->global_motion, xd, xd->mi[0]);
+      if (best_mbmode.mv[0].as_int == zeromv.as_int &&
+          best_mbmode.motion_mode <= last_motion_mode_allowed) {
         best_mbmode.mode = GLOBALMV;
       }
     }
@@ -10890,13 +10899,13 @@ PALETTE_EXIT:
     // Correct the motion mode for GLOBALMV
     const MOTION_MODE last_motion_mode_allowed =
         motion_mode_allowed(xd->global_motion, xd, xd->mi[0]);
-    if (mbmi->motion_mode > last_motion_mode_allowed)
-      mbmi->motion_mode = last_motion_mode_allowed;
+    if (mbmi->motion_mode > last_motion_mode_allowed) assert(0);
 
     // Correct the interpolation filter for GLOBALMV
     if (is_nontrans_global_motion(xd)) {
-      mbmi->interp_filters = av1_broadcast_interp_filter(
-          av1_unswitchable_filter(cm->interp_filter));
+      assert(mbmi->interp_filters ==
+             av1_broadcast_interp_filter(
+                 av1_unswitchable_filter(cm->interp_filter)));
     }
   }
 
