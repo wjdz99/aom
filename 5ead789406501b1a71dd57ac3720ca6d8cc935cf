@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "46b5e8fa_9853f9b2",
+        "filename": "av1/common/cfl_avx2.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2017-12-21T16:52:08Z",
+      "side": 1,
+      "message": "Wow, mind blown! done!",
+      "parentUuid": "b2298e41_1f181920",
+      "revId": "5ead789406501b1a71dd57ac3720ca6d8cc935cf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1d6ac670_fcfe4e27",
         "filename": "av1/common/cfl_sse2.c",
         "patchSetId": 4
