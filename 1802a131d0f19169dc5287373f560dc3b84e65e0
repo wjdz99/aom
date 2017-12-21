@@ -51,6 +51,24 @@
       "revId": "1802a131d0f19169dc5287373f560dc3b84e65e0",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c3988da2_a450c725",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2017-12-21T17:04:44Z",
+      "side": 1,
+      "message": "I just wanted it to be consistent with the DISABLE_VARTX_FOR_CHROMA flag above. I don\u0027t think it matters either way, since we would like to bake this in quickly.",
+      "parentUuid": "68964ed1_ff5c73db",
+      "revId": "1802a131d0f19169dc5287373f560dc3b84e65e0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
