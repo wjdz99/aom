@@ -10787,6 +10787,14 @@ PALETTE_EXIT:
                                                   )
                                  .as_int
                            : 0;
+
+    // Check if the global motion mode is non-translational.
+    int is_nontran_gm = cm->global_motion[refs[0]].wmtype <= TRANSLATION;
+    if (comp_pred_mode)
+      is_nontran_gm &= cm->global_motion[refs[1]].wmtype <= TRANSLATION;
+    if (AOMMIN(block_size_wide[bsize], block_size_high[bsize]) < 8)
+      is_nontran_gm = 1;
+
     if (!comp_pred_mode) {
       int ref_set = (mbmi_ext->ref_mv_count[rf_type] >= 2)
                         ? AOMMIN(2, mbmi_ext->ref_mv_count[rf_type] - 2)
@@ -10802,7 +10810,7 @@ PALETTE_EXIT:
 
       if (frame_mv[NEARESTMV][refs[0]].as_int == best_mbmode.mv[0].as_int)
         best_mbmode.mode = NEARESTMV;
-      else if (best_mbmode.mv[0].as_int == zeromv[0].as_int)
+      else if (best_mbmode.mv[0].as_int == zeromv[0].as_int && is_nontran_gm)
         best_mbmode.mode = GLOBALMV;
     } else {
       int_mv nearestmv[2];
@@ -10845,7 +10853,7 @@ PALETTE_EXIT:
 
         if (best_mbmode.mode == NEW_NEWMV &&
             best_mbmode.mv[0].as_int == zeromv[0].as_int &&
-            best_mbmode.mv[1].as_int == zeromv[1].as_int)
+            best_mbmode.mv[1].as_int == zeromv[1].as_int && is_nontran_gm)
           best_mbmode.mode = GLOBAL_GLOBALMV;
       }
     }
@@ -10919,13 +10927,11 @@ PALETTE_EXIT:
     // Correct the motion mode for GLOBALMV
     const MOTION_MODE last_motion_mode_allowed =
         motion_mode_allowed(xd->global_motion, xd, xd->mi[0]);
-    if (mbmi->motion_mode > last_motion_mode_allowed)
-      mbmi->motion_mode = last_motion_mode_allowed;
-
-    // Correct the interpolation filter for GLOBALMV
+    if (mbmi->motion_mode > last_motion_mode_allowed) assert(0);
     if (is_nontrans_global_motion(xd)) {
-      mbmi->interp_filters = av1_broadcast_interp_filter(
-          av1_unswitchable_filter(cm->interp_filter));
+      assert(mbmi->interp_filters ==
+             av1_broadcast_interp_filter(
+                 av1_unswitchable_filter(cm->interp_filter)));
     }
   }
 
