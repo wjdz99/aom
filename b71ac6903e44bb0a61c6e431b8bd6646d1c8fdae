@@ -52,6 +52,24 @@
       "revId": "b71ac6903e44bb0a61c6e431b8bd6646d1c8fdae",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b8d8753e_36b219dd",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 13
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2017-12-21T20:54:28Z",
+      "side": 1,
+      "message": "Removed.\n[even though that is always the case for any average metric]",
+      "parentUuid": "1a9d37fa_cffce248",
+      "revId": "b71ac6903e44bb0a61c6e431b8bd6646d1c8fdae",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
