@@ -22,6 +22,30 @@
       "revId": "2411b72893dc4a867c1ea1849656a429e829c2cb",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "99757f25_6ba0999d",
+        "filename": "av1/encoder/x86/highbd_fwd_txfm_sse4.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2017-12-21T06:50:32Z",
+      "side": 1,
+      "message": "bit needs to set to 14 because sinpi_#_9 is using 14 bits.\nTo change bit, we need to change the precision of sinpi_#_9 as well.",
+      "parentUuid": "676cc05c_26215118",
+      "range": {
+        "startLine": 124,
+        "startChar": 11,
+        "endLine": 124,
+        "endChar": 0
+      },
+      "revId": "2411b72893dc4a867c1ea1849656a429e829c2cb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
