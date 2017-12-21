@@ -48,7 +48,7 @@ extern "C" {
 #define DISABLE_VARTX_FOR_CHROMA 1
 
 // Disables small transform split for intra modes.
-#define DISABLE_SMLTX_FOR_CHROMA_INTRA 0
+#define DISABLE_SMLTX_FOR_CHROMA_INTRA 1
 
 // SEG_MASK_TYPES should not surpass 1 << MAX_SEG_MASK_BITS
 typedef enum {
