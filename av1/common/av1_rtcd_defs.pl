@@ -143,17 +143,10 @@ if (aom_config("CONFIG_DAALA_TX") ne "yes") {
   add_proto qw/void av1_iht16x16_256_add/, "const tran_low_t *input, uint8_t *output, int pitch, const struct txfm_param *param";
 
   if (aom_config("CONFIG_DAALA_TX16") ne "yes") {
-    if (aom_config("CONFIG_HIGHBITDEPTH") eq "yes") {
-      specialize qw/av1_iht16x16_256_add sse2 avx2/;
-    } else {
-      specialize qw/av1_iht16x16_256_add sse2 avx2/;
-    }
+    specialize qw/av1_iht16x16_256_add sse2 avx2/;
   }
 
   add_proto qw/void av1_iht32x32_1024_add/, "const tran_low_t *input, uint8_t *output, int pitch, const struct txfm_param *param";
-
-  if (aom_config("CONFIG_HIGHBITDEPTH") ne "yes") {
-  }
 
   add_proto qw/void av1_iht32x32_1024_add/, "const tran_low_t *input, uint8_t *output, int pitch, const struct txfm_param *param";
 
