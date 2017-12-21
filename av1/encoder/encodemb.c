@@ -221,46 +221,22 @@ static int optimize_b_greedy(const AV1_COMMON *cm, MACROBLOCK *mb, int plane,
  */
 // compute the distortion for the first candidate
 // and the distortion for quantizing to 0.
-#if CONFIG_DAALA_TX
-      int dx0 = coeff[rc];
-      const int64_t d0 = ((int64_t)dx0 * dx0 + depth_round) >> depth_shift;
-#else
+////////////////////////////
       int dx0 = abs(coeff[rc]) * (1 << shift);
       dx0 >>= xd->bd - 8;
 
       const int64_t d0 = (int64_t)dx0 * dx0;
-#endif
       const int x_a = x - 2 * sz - 1;
       int dqv = dequant_ptr[rc != 0];
-#if CONFIG_AOM_QM
-      if (iqmatrix != NULL) {
-        const qm_val_t iwt = iqmatrix[rc];
-        dqv = ((iwt * (int)dqv) + (1 << (AOM_QM_BITS - 1))) >> AOM_QM_BITS;
-      }
-#endif  // CONFIG_AOM_QM
-
-#if CONFIG_DAALA_TX
-      int dx = dqcoeff[rc] - coeff[rc];
-      const int64_t d2 = ((int64_t)dx * dx + depth_round) >> depth_shift;
-#else
       int dx = (dqcoeff[rc] - coeff[rc]) * (1 << shift);
       dx = signed_shift_right(dx, xd->bd - 8);
       const int64_t d2 = (int64_t)dx * dx;
-#endif
 
       /* compute the distortion for the second candidate
        * x_a = x - 2 * sz + 1;
        */
       int64_t d2_a;
       if (x_a != 0) {
-#if CONFIG_DAALA_TX
-#if CONFIG_NEW_QUANT
-        dx = av1_dequant_coeff_nuq(x_a, dqv, dequant_val[rc != 0]) - coeff[rc];
-#else   // CONFIG_NEW_QUANT
-        dx -= (dqv + sz) ^ sz;
-#endif  // CONFIG_NEW_QUANT
-        d2_a = ((int64_t)dx * dx + depth_round) >> depth_shift;
-#else  // CONFIG_DAALA_TX
 #if CONFIG_NEW_QUANT
         dx = av1_dequant_coeff_nuq(x_a, dqv, dequant_val[rc != 0]) -
              (coeff[rc] * (1 << shift));
@@ -269,7 +245,6 @@ static int optimize_b_greedy(const AV1_COMMON *cm, MACROBLOCK *mb, int plane,
         dx -= ((dqv >> (xd->bd - 8)) + sz) ^ sz;
 #endif  // CONFIG_NEW_QUANT
         d2_a = (int64_t)dx * dx;
-#endif  // CONFIG_DAALA_TX
       } else {
         d2_a = d0;
       }
@@ -342,14 +317,6 @@ static int optimize_b_greedy(const AV1_COMMON *cm, MACROBLOCK *mb, int plane,
       int dqc_a = 0;
       if (best_x || best_eob_x) {
         if (x_a != 0) {
-#if CONFIG_DAALA_TX
-#if CONFIG_NEW_QUANT
-          dqc_a = av1_dequant_abscoeff_nuq(abs(x_a), dqv, dequant_val[rc != 0]);
-          if (sz) dqc_a = -dqc_a;
-#else
-          dqc_a = x_a * dqv;
-#endif  // CONFIG_NEW_QUANT
-#else   // CONFIG_DAALA_TX
 #if CONFIG_NEW_QUANT
           dqc_a = av1_dequant_abscoeff_nuq(abs(x_a), dqv, dequant_val[rc != 0]);
           dqc_a = shift ? ROUND_POWER_OF_TWO(dqc_a, shift) : dqc_a;
@@ -360,7 +327,6 @@ static int optimize_b_greedy(const AV1_COMMON *cm, MACROBLOCK *mb, int plane,
           else
             dqc_a = (x_a * dqv) >> shift;
 #endif  // CONFIG_NEW_QUANT
-#endif  // CONFIG_DAALA_TX
         } else {
           dqc_a = 0;
         }
@@ -375,6 +341,8 @@ static int optimize_b_greedy(const AV1_COMMON *cm, MACROBLOCK *mb, int plane,
         accu_error += d2_a - d0;
         token_cache[rc] = av1_pt_energy_class[t1];
       } else {
+        if (d2 > d0)
+          printf("debug");
         assert(d2 <= d0);
         accu_rate += rate0;
         accu_error += d2 - d0;
