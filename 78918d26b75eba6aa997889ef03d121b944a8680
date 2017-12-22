@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "27d01a2a_54f65635",
+        "filename": "av1/encoder/av1_fwd_txfm1d_cfg.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-12-22T19:05:51Z",
+      "side": 1,
+      "message": "What about the col_dct_xxx? Maybe you can define it?\n#define fwd_stage_range_col_dct_4x8 fwd_stage_range_col_dct_8",
+      "revId": "78918d26b75eba6aa997889ef03d121b944a8680",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b9baf70b_9c5672b2",
+        "filename": "av1/encoder/av1_fwd_txfm1d_cfg.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-12-22T19:05:51Z",
+      "side": 1,
+      "message": "I wonder if you somehow pass \u0027fwd_stage_range_col_dct_4\u0027 directly to the macro:\nARRAYOFFSET4(3, fwd_stage_range_col_dct_4); and modify the macro accordingly.\nNot sure if it will work, but will be much clearer if it does work.",
+      "range": {
+        "startLine": 126,
+        "startChar": 19,
+        "endLine": 126,
+        "endChar": 30
+      },
+      "revId": "78918d26b75eba6aa997889ef03d121b944a8680",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
