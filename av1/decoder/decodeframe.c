@@ -1806,7 +1806,7 @@ static void get_tile_buffer(const uint8_t *const data_end,
       aom_internal_error(error_info, AOM_CODEC_CORRUPT_FRAME,
                          "Truncated packet or corrupt tile size");
   } else {
-#if !CONFIG_OBU || CONFIG_ADD_4BYTES_OBUSIZE
+#if !CONFIG_OBU
     size = data_end - *data;
 #else
     size = mem_get_varsize(*data, tile_size_bytes);
