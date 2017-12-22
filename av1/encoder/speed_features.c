@@ -424,7 +424,13 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi) {
   sf->mv.subpel_search_method = SUBPEL_TREE;
   sf->mv.subpel_iters_per_step = 2;
   sf->mv.subpel_force_stop = 0;
+#if DISABLE_TRELLISQ_SEARCH
+  sf->optimize_coefficients = !is_lossless_requested(&cpi->oxcf)
+                                  ? FINAL_PASS_TRELLIS_OPT
+                                  : NO_TRELLIS_OPT;
+#else
   sf->optimize_coefficients = !is_lossless_requested(&cpi->oxcf);
+#endif  // DISABLE_TRELLISQ_SEARCH
   sf->mv.reduce_first_step_size = 0;
   sf->coeff_prob_appx_step = 1;
   sf->mv.auto_mv_step_size = 0;
