@@ -70,6 +70,24 @@
       "revId": "0ac2df6b5d3f29a19bedb45913ddd1b0a4acb58d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "499adb94_5133067d",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 1855,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2017-12-22T23:20:56Z",
+      "side": 1,
+      "message": "Ah, misunderstood initially. Thanks for clarifying. Done.",
+      "parentUuid": "cdd1eb2c_606fef16",
+      "revId": "0ac2df6b5d3f29a19bedb45913ddd1b0a4acb58d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
