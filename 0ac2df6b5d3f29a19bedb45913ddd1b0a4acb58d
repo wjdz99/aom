@@ -34,6 +34,24 @@
       "revId": "0ac2df6b5d3f29a19bedb45913ddd1b0a4acb58d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a5a117d2_370a562d",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 1855,
+      "author": {
+        "id": 7963
+      },
+      "writtenOn": "2017-12-22T20:17:05Z",
+      "side": 1,
+      "message": "The #else part of code should be removed altogether.  Since you are always adding the 4 bytes, the encoder would NOT have explicitly written the size of the last tile of the tile group.\n\nTo truly test this is working, we need to run with multiple tiles and tile-groups.  I usually run it with 8 tiles (4 horizontal, 2 vertical) and 3 tile groups.",
+      "parentUuid": "4575cbd6_b3eaf7a5",
+      "revId": "0ac2df6b5d3f29a19bedb45913ddd1b0a4acb58d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
