@@ -429,8 +429,8 @@ if (ENABLE_EXAMPLES)
 endif ()
 
 if (ENABLE_TOOLS)
-  if (CONFIG_OBU AND CONFIG_ADD_4BYTES_OBUSIZE)
-    require_cxx_flag_nomsvc("-std=c++11" YES)
+  if (CONFIG_AV1_DECODER AND CONFIG_OBU)
+    require_cxx_flag_nomsvc("-std=c++11" NO)
     add_executable(dump_obu
                    "${AOM_CONFIG_DIR}/usage_exit.c"
                    "${AOM_ROOT}/tools/dump_obu.cc"
@@ -438,15 +438,23 @@ if (ENABLE_TOOLS)
                    "${AOM_ROOT}/tools/obu_parser.h"
                    $<TARGET_OBJECTS:aom_common_app_util>
                    $<TARGET_OBJECTS:aom_decoder_app_util>)
+
     list(APPEND AOM_TOOL_TARGETS dump_obu)
     list(APPEND AOM_APP_TARGETS dump_obu)
-  endif ()
 
-  # Maintain a separate variable listing only the examples to facilitate
-  # installation of example programs into an tools sub directory of
-  # $AOM_DIST_DIR/bin when building the dist target.
-  list(APPEND AOM_TOOL_TARGETS
-       ${AOM_DECODER_TOOL_TARGETS} ${AOM_ENCODER_TOOL_TARGETS})
+    if (NOT MSVC)
+      target_compile_options(dump_obu PUBLIC -std=c++11)
+      # TODO(tomfinegan): This can go once the GCC pragma in libwebm is updated
+      # to silence the auto_ptr warnings for GCC >= v4.
+      target_compile_options(dump_obu PUBLIC -Wno-deprecated-declarations)
+    endif ()
+
+    # Maintain a separate variable listing only the examples to facilitate
+    # installation of example programs into an tools sub directory of
+    # $AOM_DIST_DIR/bin when building the dist target.
+    list(APPEND AOM_TOOL_TARGETS
+         ${AOM_DECODER_TOOL_TARGETS} ${AOM_ENCODER_TOOL_TARGETS})
+  endif ()
 endif ()
 
 if (ENABLE_EXAMPLES AND CONFIG_AV1_DECODER AND CONFIG_AV1_ENCODER)
