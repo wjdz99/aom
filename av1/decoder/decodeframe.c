@@ -1473,10 +1473,20 @@ static void setup_frame_size(AV1_COMMON *cm, struct aom_read_bit_buffer *rb) {
   pool->frame_bufs[cm->new_fb_idx].buf.subsampling_x = cm->subsampling_x;
   pool->frame_bufs[cm->new_fb_idx].buf.subsampling_y = cm->subsampling_y;
   pool->frame_bufs[cm->new_fb_idx].buf.bit_depth = (unsigned int)cm->bit_depth;
+#if CONFIG_CICP
+  pool->frame_bufs[cm->new_fb_idx].buf.color_primaries = cm->color_primaries;
+  pool->frame_bufs[cm->new_fb_idx].buf.transfer_characteristics =
+      cm->transfer_characteristics;
+  pool->frame_bufs[cm->new_fb_idx].buf.matrix_coefficients =
+      cm->matrix_coefficients;
+#else
   pool->frame_bufs[cm->new_fb_idx].buf.color_space = cm->color_space;
+#endif
 #if CONFIG_COLORSPACE_HEADERS
+#if !CONFIG_CICP
   pool->frame_bufs[cm->new_fb_idx].buf.transfer_function =
       cm->transfer_function;
+#endif
   pool->frame_bufs[cm->new_fb_idx].buf.chroma_sample_position =
       cm->chroma_sample_position;
 #endif
@@ -1583,10 +1593,20 @@ static void setup_frame_size_with_refs(AV1_COMMON *cm,
   pool->frame_bufs[cm->new_fb_idx].buf.subsampling_x = cm->subsampling_x;
   pool->frame_bufs[cm->new_fb_idx].buf.subsampling_y = cm->subsampling_y;
   pool->frame_bufs[cm->new_fb_idx].buf.bit_depth = (unsigned int)cm->bit_depth;
+#if CONFIG_CICP
+  pool->frame_bufs[cm->new_fb_idx].buf.color_primaries = cm->color_primaries;
+  pool->frame_bufs[cm->new_fb_idx].buf.transfer_characteristics =
+      cm->transfer_characteristics;
+  pool->frame_bufs[cm->new_fb_idx].buf.matrix_coefficients =
+      cm->matrix_coefficients;
+#else
   pool->frame_bufs[cm->new_fb_idx].buf.color_space = cm->color_space;
+#endif
 #if CONFIG_COLORSPACE_HEADERS
+#if !CONFIG_CICP
   pool->frame_bufs[cm->new_fb_idx].buf.transfer_function =
       cm->transfer_function;
+#endif
   pool->frame_bufs[cm->new_fb_idx].buf.chroma_sample_position =
       cm->chroma_sample_position;
 #endif
@@ -2416,13 +2436,27 @@ static void read_bitdepth_colorspace_sampling(AV1_COMMON *cm,
 #else
   (void)allow_lowbitdepth;
 #endif
+#if CONFIG_CICP
+  cm->color_primaries = aom_rb_read_literal(rb, 8);
+  cm->transfer_characteristics = aom_rb_read_literal(rb, 8);
+  cm->matrix_coefficients = aom_rb_read_literal(rb, 8);
+#else
 #if CONFIG_COLORSPACE_HEADERS
   cm->color_space = aom_rb_read_literal(rb, 5);
   cm->transfer_function = aom_rb_read_literal(rb, 5);
 #else
   cm->color_space = aom_rb_read_literal(rb, 3 + CONFIG_MONO_VIDEO);
 #endif
+#endif
+#if CONFIG_CICP
+  if (cm->color_primaries == AOM_CICP_CP_BT_709 &&
+      cm->transfer_characteristics == AOM_CICP_TC_SRGB &&
+      cm->matrix_coefficients == AOM_CICP_MC_IDENTITY) {  // it would be better
+                                                          // to remove this
+                                                          // dependency too
+#else
   if (cm->color_space == AOM_CS_SRGB) {
+#endif
     if (cm->profile == PROFILE_1 || cm->profile == PROFILE_3) {
       // Note if colorspace is SRGB then 4:4:4 chroma sampling is assumed.
       // 4:2:2 or 4:4:0 chroma sampling is not allowed.
@@ -3054,9 +3088,18 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
 #endif  // CONFIG_REFERENCE_BUFFER
 
   get_frame_new_buffer(cm)->bit_depth = cm->bit_depth;
+#if CONFIG_CICP
+  get_frame_new_buffer(cm)->color_primaries = cm->color_primaries;
+  get_frame_new_buffer(cm)->transfer_characteristics =
+      cm->transfer_characteristics;
+  get_frame_new_buffer(cm)->matrix_coefficients = cm->matrix_coefficients;
+#else
   get_frame_new_buffer(cm)->color_space = cm->color_space;
+#endif
 #if CONFIG_COLORSPACE_HEADERS
+#if !CONFIG_CICP
   get_frame_new_buffer(cm)->transfer_function = cm->transfer_function;
+#endif
   get_frame_new_buffer(cm)->chroma_sample_position = cm->chroma_sample_position;
 #endif
   get_frame_new_buffer(cm)->color_range = cm->color_range;
