@@ -429,7 +429,7 @@ if (ENABLE_EXAMPLES)
 endif ()
 
 if (ENABLE_TOOLS)
-  if (CONFIG_OBU AND CONFIG_ADD_4BYTES_OBUSIZE)
+  if (CONFIG_OBU)
     require_cxx_flag_nomsvc("-std=c++11" YES)
     add_executable(dump_obu
                    "${AOM_CONFIG_DIR}/usage_exit.c"
