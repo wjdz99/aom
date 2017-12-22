@@ -54,7 +54,7 @@
 // This table is used to correct for block size.
 // The factors here are << 2 (2 = x0.5, 32 = x8 etc).
 static const uint8_t rd_thresh_block_size_factor[BLOCK_SIZES_ALL] = {
-  2,  2,  2,  2, 3,  3,  4, 6, 6, 8, 12, 12, 16, 24, 24, 32,
+  2,  3,  3,  4, 6,  6,  8, 12, 12, 16, 24, 24, 32,
 #if CONFIG_EXT_PARTITION
   48, 48, 64,
 #endif  // CONFIG_EXT_PARTITION
@@ -119,8 +119,8 @@ void av1_fill_mode_rates(AV1_COMMON *const cm, MACROBLOCK *x,
                              NULL);
 
 #if CONFIG_FILTER_INTRA
-  av1_cost_tokens_from_cdf(x->filter_intra_mode_cost[0],
-                           fc->filter_intra_mode_cdf[0], NULL);
+  av1_cost_tokens_from_cdf(x->filter_intra_mode_cost, fc->filter_intra_mode_cdf,
+                           NULL);
   for (i = 0; i < TX_SIZES_ALL; ++i)
     av1_cost_tokens_from_cdf(x->filter_intra_cost[i], fc->filter_intra_cdfs[i],
                              NULL);
@@ -130,7 +130,7 @@ void av1_fill_mode_rates(AV1_COMMON *const cm, MACROBLOCK *x,
     av1_cost_tokens_from_cdf(x->switchable_interp_costs[i],
                              fc->switchable_interp_cdf[i], NULL);
 
-  for (i = 0; i < PALETTE_BLOCK_SIZES; ++i) {
+  for (i = 0; i < PALATTE_BSIZE_CTXS; ++i) {
     av1_cost_tokens_from_cdf(x->palette_y_size_cost[i],
                              fc->palette_y_size_cdf[i], NULL);
     av1_cost_tokens_from_cdf(x->palette_uv_size_cost[i],
@@ -870,8 +870,7 @@ void av1_get_entropy_contexts(BLOCK_SIZE bsize, TX_SIZE tx_size,
                               const struct macroblockd_plane *pd,
                               ENTROPY_CONTEXT t_above[2 * MAX_MIB_SIZE],
                               ENTROPY_CONTEXT t_left[2 * MAX_MIB_SIZE]) {
-  const BLOCK_SIZE plane_bsize =
-      AOMMAX(BLOCK_4X4, get_plane_block_size(bsize, pd));
+  const BLOCK_SIZE plane_bsize = get_plane_block_size(bsize, pd);
   get_entropy_contexts_plane(plane_bsize, tx_size, pd, t_above, t_left);
 }
 

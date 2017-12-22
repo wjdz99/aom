@@ -12,6 +12,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <vector>
 
 #include "./av1_rtcd.h"
 #include "test/acm_random.h"
@@ -25,6 +26,8 @@ using libaom_test::bd;
 using libaom_test::compute_avg_abs_error;
 using libaom_test::Fwd_Txfm2d_Func;
 using libaom_test::Inv_Txfm2d_Func;
+
+using std::vector;
 
 namespace {
 
@@ -56,155 +59,148 @@ class AV1InvTxfm2d : public ::testing::TestWithParam<AV1InvTxfm2dParam> {
     const int count = 500;
 
     for (int ci = 0; ci < count; ci++) {
-      int16_t expected[64 * 64] = { 0 };
-      ASSERT_LE(txfm2d_size, NELEMENTS(expected));
+      DECLARE_ALIGNED(16, int16_t, input[64 * 64]) = { 0 };
+      ASSERT_LE(txfm2d_size, NELEMENTS(input));
 
       for (int ni = 0; ni < txfm2d_size; ++ni) {
         if (ci == 0) {
           int extreme_input = input_base - 1;
-          expected[ni] = extreme_input;  // extreme case
+          input[ni] = extreme_input;  // extreme case
         } else {
-          expected[ni] = rnd.Rand16() % input_base;
+          input[ni] = rnd.Rand16() % input_base;
         }
       }
 
-      int32_t coeffs[64 * 64] = { 0 };
-      ASSERT_LE(txfm2d_size, NELEMENTS(coeffs));
-      fwd_txfm_func(expected, coeffs, tx_w, tx_type_, bd);
+      DECLARE_ALIGNED(16, uint16_t, expected[64 * 64]) = { 0 };
+      ASSERT_LE(txfm2d_size, NELEMENTS(expected));
+      if (TxfmUsesApproximation()) {
+        // Compare reference forward HT + inverse HT vs forward HT + inverse HT.
+        double ref_input[64 * 64];
+        ASSERT_LE(txfm2d_size, NELEMENTS(ref_input));
+        for (int ni = 0; ni < txfm2d_size; ++ni) {
+          ref_input[ni] = input[ni];
+        }
+        double ref_coeffs[64 * 64] = { 0 };
+        ASSERT_LE(txfm2d_size, NELEMENTS(ref_coeffs));
+        ASSERT_EQ(tx_type_, DCT_DCT);
+        libaom_test::reference_hybrid_2d(ref_input, ref_coeffs, tx_type_,
+                                         tx_size_);
+        DECLARE_ALIGNED(16, int32_t, ref_coeffs_int[64 * 64]) = { 0 };
+        ASSERT_LE(txfm2d_size, NELEMENTS(ref_coeffs_int));
+        for (int ni = 0; ni < txfm2d_size; ++ni) {
+          ref_coeffs_int[ni] = (int32_t)round(ref_coeffs[ni]);
+        }
+        inv_txfm_func(ref_coeffs_int, expected, tx_w, tx_type_, bd);
+      } else {
+        // Compare original input vs forward HT + inverse HT.
+        for (int ni = 0; ni < txfm2d_size; ++ni) {
+          expected[ni] = input[ni];
+        }
+      }
 
-      uint16_t actual[64 * 64] = { 0 };
+      DECLARE_ALIGNED(16, int32_t, coeffs[64 * 64]) = { 0 };
+      ASSERT_LE(txfm2d_size, NELEMENTS(coeffs));
+      fwd_txfm_func(input, coeffs, tx_w, tx_type_, bd);
+
+      DECLARE_ALIGNED(16, uint16_t, actual[64 * 64]) = { 0 };
       ASSERT_LE(txfm2d_size, NELEMENTS(actual));
       inv_txfm_func(coeffs, actual, tx_w, tx_type_, bd);
 
+      double actual_max_error = 0;
       for (int ni = 0; ni < txfm2d_size; ++ni) {
-        EXPECT_GE(max_error_, abs(expected[ni] - actual[ni]));
+        const double this_error = abs(expected[ni] - actual[ni]);
+        actual_max_error = AOMMAX(actual_max_error, this_error);
       }
-      avg_abs_error += compute_avg_abs_error<int16_t, uint16_t>(
+      EXPECT_GE(max_error_, actual_max_error)
+          << " tx_w: " << tx_w << " tx_h " << tx_h << " tx_type: " << tx_type_;
+      if (actual_max_error > max_error_) {  // exit early.
+        break;
+      }
+      avg_abs_error += compute_avg_abs_error<uint16_t, uint16_t>(
           expected, actual, txfm2d_size);
     }
 
     avg_abs_error /= count;
-    // max_abs_avg_error comes from upper bound of
-    // printf("txfm1d_size: %d accuracy_avg_abs_error: %f\n",
-    // txfm1d_size_, avg_abs_error);
     EXPECT_GE(max_avg_error_, avg_abs_error)
         << " tx_w: " << tx_w << " tx_h " << tx_h << " tx_type: " << tx_type_;
   }
 
  private:
+  bool TxfmUsesApproximation() {
+#if CONFIG_TX64X64
+    if (tx_size_wide[tx_size_] == 64 || tx_size_high[tx_size_] == 64) {
+      return true;
+    }
+#endif  // CONFIG_TX64X64
+    return false;
+  }
+
   int max_error_;
   double max_avg_error_;
   TX_TYPE tx_type_;
   TX_SIZE tx_size_;
 };
 
-TEST_P(AV1InvTxfm2d, RunRoundtripCheck) { RunRoundtripCheck(); }
+vector<AV1InvTxfm2dParam> GetInvTxfm2dParamList() {
+  vector<AV1InvTxfm2dParam> param_list;
+  for (int t = 0; t <= FLIPADST_ADST; ++t) {
+    const TX_TYPE tx_type = static_cast<TX_TYPE>(t);
+    param_list.push_back(AV1InvTxfm2dParam(tx_type, TX_4X4, 2, 0.002));
+    param_list.push_back(AV1InvTxfm2dParam(tx_type, TX_8X8, 2, 0.025));
+    param_list.push_back(AV1InvTxfm2dParam(tx_type, TX_16X16, 2, 0.04));
+    param_list.push_back(AV1InvTxfm2dParam(tx_type, TX_32X32, 4, 0.4));
 
-const AV1InvTxfm2dParam av1_inv_txfm2d_param[] = {
-  AV1InvTxfm2dParam(DCT_DCT, TX_4X8, 2, 0.007),
-  AV1InvTxfm2dParam(ADST_DCT, TX_4X8, 2, 0.012),
-  AV1InvTxfm2dParam(DCT_ADST, TX_4X8, 2, 0.012),
-  AV1InvTxfm2dParam(ADST_ADST, TX_4X8, 2, 0.012),
-  AV1InvTxfm2dParam(FLIPADST_DCT, TX_4X8, 2, 0.012),
-  AV1InvTxfm2dParam(DCT_FLIPADST, TX_4X8, 2, 0.012),
-  AV1InvTxfm2dParam(FLIPADST_FLIPADST, TX_4X8, 2, 0.012),
-  AV1InvTxfm2dParam(ADST_FLIPADST, TX_4X8, 2, 0.012),
-  AV1InvTxfm2dParam(FLIPADST_ADST, TX_4X8, 2, 0.012),
+    param_list.push_back(AV1InvTxfm2dParam(tx_type, TX_4X8, 2, 0.016));
+    param_list.push_back(AV1InvTxfm2dParam(tx_type, TX_8X4, 2, 0.016));
+    param_list.push_back(AV1InvTxfm2dParam(tx_type, TX_8X16, 2, 0.033));
+    param_list.push_back(AV1InvTxfm2dParam(tx_type, TX_16X8, 2, 0.033));
+    param_list.push_back(AV1InvTxfm2dParam(tx_type, TX_16X32, 2, 0.4));
+    param_list.push_back(AV1InvTxfm2dParam(tx_type, TX_32X16, 2, 0.4));
 
-  AV1InvTxfm2dParam(DCT_DCT, TX_8X4, 2, 0.007),
-  AV1InvTxfm2dParam(ADST_DCT, TX_8X4, 2, 0.012),
-  AV1InvTxfm2dParam(DCT_ADST, TX_8X4, 2, 0.012),
-  AV1InvTxfm2dParam(ADST_ADST, TX_8X4, 2, 0.012),
-  AV1InvTxfm2dParam(FLIPADST_DCT, TX_8X4, 2, 0.007),
-  AV1InvTxfm2dParam(DCT_FLIPADST, TX_8X4, 2, 0.012),
-  AV1InvTxfm2dParam(FLIPADST_FLIPADST, TX_8X4, 2, 0.012),
-  AV1InvTxfm2dParam(ADST_FLIPADST, TX_8X4, 2, 0.012),
-  AV1InvTxfm2dParam(FLIPADST_ADST, TX_8X4, 2, 0.012),
+    param_list.push_back(AV1InvTxfm2dParam(tx_type, TX_4X16, 2, 0.1));
+    param_list.push_back(AV1InvTxfm2dParam(tx_type, TX_16X4, 2, 0.1));
+    param_list.push_back(AV1InvTxfm2dParam(tx_type, TX_8X32, 2, 0.2));
+    param_list.push_back(AV1InvTxfm2dParam(tx_type, TX_32X8, 2, 0.1));
 
-  AV1InvTxfm2dParam(DCT_DCT, TX_8X16, 2, 0.025),
-  AV1InvTxfm2dParam(ADST_DCT, TX_8X16, 2, 0.020),
-  AV1InvTxfm2dParam(DCT_ADST, TX_8X16, 2, 0.027),
-  AV1InvTxfm2dParam(ADST_ADST, TX_8X16, 2, 0.023),
-  AV1InvTxfm2dParam(FLIPADST_DCT, TX_8X16, 2, 0.020),
-  AV1InvTxfm2dParam(DCT_FLIPADST, TX_8X16, 2, 0.027),
-  AV1InvTxfm2dParam(FLIPADST_FLIPADST, TX_8X16, 2, 0.032),
-  AV1InvTxfm2dParam(ADST_FLIPADST, TX_8X16, 2, 0.023),
-  AV1InvTxfm2dParam(FLIPADST_ADST, TX_8X16, 2, 0.023),
-
-  AV1InvTxfm2dParam(DCT_DCT, TX_16X8, 2, 0.007),
-  AV1InvTxfm2dParam(ADST_DCT, TX_16X8, 2, 0.012),
-  AV1InvTxfm2dParam(DCT_ADST, TX_16X8, 2, 0.024),
-  AV1InvTxfm2dParam(ADST_ADST, TX_16X8, 2, 0.033),
-  AV1InvTxfm2dParam(FLIPADST_DCT, TX_16X8, 2, 0.015),
-  AV1InvTxfm2dParam(DCT_FLIPADST, TX_16X8, 2, 0.032),
-  AV1InvTxfm2dParam(FLIPADST_FLIPADST, TX_16X8, 2, 0.032),
-  AV1InvTxfm2dParam(ADST_FLIPADST, TX_16X8, 2, 0.033),
-  AV1InvTxfm2dParam(FLIPADST_ADST, TX_16X8, 2, 0.032),
-
-  AV1InvTxfm2dParam(FLIPADST_DCT, TX_4X4, 2, 0.002),
-  AV1InvTxfm2dParam(DCT_FLIPADST, TX_4X4, 2, 0.002),
-  AV1InvTxfm2dParam(FLIPADST_FLIPADST, TX_4X4, 2, 0.002),
-  AV1InvTxfm2dParam(ADST_FLIPADST, TX_4X4, 2, 0.002),
-  AV1InvTxfm2dParam(FLIPADST_ADST, TX_4X4, 2, 0.002),
-  AV1InvTxfm2dParam(FLIPADST_DCT, TX_8X8, 2, 0.02),
-  AV1InvTxfm2dParam(DCT_FLIPADST, TX_8X8, 2, 0.02),
-  AV1InvTxfm2dParam(FLIPADST_FLIPADST, TX_8X8, 2, 0.02),
-  AV1InvTxfm2dParam(ADST_FLIPADST, TX_8X8, 2, 0.02),
-  AV1InvTxfm2dParam(FLIPADST_ADST, TX_8X8, 2, 0.02),
-  AV1InvTxfm2dParam(FLIPADST_DCT, TX_16X16, 2, 0.04),
-  AV1InvTxfm2dParam(DCT_FLIPADST, TX_16X16, 2, 0.04),
-  AV1InvTxfm2dParam(FLIPADST_FLIPADST, TX_16X16, 11, 0.04),
-  AV1InvTxfm2dParam(ADST_FLIPADST, TX_16X16, 2, 0.04),
-  AV1InvTxfm2dParam(FLIPADST_ADST, TX_16X16, 2, 0.04),
-  AV1InvTxfm2dParam(FLIPADST_DCT, TX_32X32, 4, 0.4),
-  AV1InvTxfm2dParam(DCT_FLIPADST, TX_32X32, 4, 0.4),
-  AV1InvTxfm2dParam(FLIPADST_FLIPADST, TX_32X32, 4, 0.4),
-  AV1InvTxfm2dParam(ADST_FLIPADST, TX_32X32, 4, 0.4),
-  AV1InvTxfm2dParam(FLIPADST_ADST, TX_32X32, 4, 0.4),
-  AV1InvTxfm2dParam(DCT_DCT, TX_4X4, 2, 0.002),
-  AV1InvTxfm2dParam(ADST_DCT, TX_4X4, 2, 0.002),
-  AV1InvTxfm2dParam(DCT_ADST, TX_4X4, 2, 0.002),
-  AV1InvTxfm2dParam(ADST_ADST, TX_4X4, 2, 0.002),
-  AV1InvTxfm2dParam(DCT_DCT, TX_8X8, 2, 0.02),
-  AV1InvTxfm2dParam(ADST_DCT, TX_8X8, 2, 0.02),
-  AV1InvTxfm2dParam(DCT_ADST, TX_8X8, 2, 0.02),
-  AV1InvTxfm2dParam(ADST_ADST, TX_8X8, 2, 0.02),
-  AV1InvTxfm2dParam(DCT_DCT, TX_16X16, 2, 0.04),
-  AV1InvTxfm2dParam(ADST_DCT, TX_16X16, 2, 0.04),
-  AV1InvTxfm2dParam(DCT_ADST, TX_16X16, 2, 0.04),
-  AV1InvTxfm2dParam(ADST_ADST, TX_16X16, 2, 0.04),
-  AV1InvTxfm2dParam(DCT_DCT, TX_32X32, 4, 0.4),
-  AV1InvTxfm2dParam(ADST_DCT, TX_32X32, 4, 0.4),
-  AV1InvTxfm2dParam(DCT_ADST, TX_32X32, 4, 0.4),
-  AV1InvTxfm2dParam(ADST_ADST, TX_32X32, 4, 0.4),
 #if CONFIG_TX64X64
-  // Large round trip error expected, because of inherent approximation in the
-  // transform.
-  AV1InvTxfm2dParam(DCT_DCT, TX_64X64, 900, 214),
+    if (tx_type == DCT_DCT) {  // Other types not supported by these tx sizes.
+      param_list.push_back(AV1InvTxfm2dParam(tx_type, TX_64X64, 3, 0.2));
+      param_list.push_back(AV1InvTxfm2dParam(tx_type, TX_32X64, 3, 0.3));
+      param_list.push_back(AV1InvTxfm2dParam(tx_type, TX_64X32, 3, 0.31));
+      param_list.push_back(AV1InvTxfm2dParam(tx_type, TX_16X64, 2, 0.16));
+      param_list.push_back(AV1InvTxfm2dParam(tx_type, TX_64X16, 2, 0.16));
+    }
 #endif  // CONFIG_TX64X64
-};
+  }
+  return param_list;
+}
 
 INSTANTIATE_TEST_CASE_P(C, AV1InvTxfm2d,
-                        ::testing::ValuesIn(av1_inv_txfm2d_param));
+                        ::testing::ValuesIn(GetInvTxfm2dParamList()));
+
+TEST_P(AV1InvTxfm2d, RunRoundtripCheck) { RunRoundtripCheck(); }
 
 TEST(AV1InvTxfm2d, CfgTest) {
   for (int bd_idx = 0; bd_idx < BD_NUM; ++bd_idx) {
     int bd = libaom_test::bd_arr[bd_idx];
     int8_t low_range = libaom_test::low_range_arr[bd_idx];
     int8_t high_range = libaom_test::high_range_arr[bd_idx];
-    // TODO(angiebird): include rect txfm in this test
-    for (int tx_size = 0; tx_size < TX_SIZES; ++tx_size) {
+    for (int tx_size = 0; tx_size < TX_SIZES_ALL; ++tx_size) {
       for (int tx_type = 0; tx_type < TX_TYPES; ++tx_type) {
 #if CONFIG_TX64X64
-        if (tx_size == TX_64X64 && tx_type != DCT_DCT) continue;
+        if ((tx_size_wide[tx_size] == 64 || tx_size_high[tx_size] == 64) &&
+            tx_type != DCT_DCT) {
+          continue;
+        }
 #endif  // CONFIG_TX64X64
         TXFM_2D_FLIP_CFG cfg;
         av1_get_inv_txfm_cfg(static_cast<TX_TYPE>(tx_type),
                              static_cast<TX_SIZE>(tx_size), &cfg);
         int8_t stage_range_col[MAX_TXFM_STAGE_NUM];
         int8_t stage_range_row[MAX_TXFM_STAGE_NUM];
+        const TX_SIZE tx_size_sqr_up = txsize_sqr_up_map[tx_size];
         av1_gen_inv_stage_range(stage_range_col, stage_range_row, &cfg,
-                                fwd_shift_sum[tx_size], bd);
+                                fwd_shift_sum[tx_size_sqr_up], bd);
         const TXFM_1D_CFG *col_cfg = cfg.col_cfg;
         const TXFM_1D_CFG *row_cfg = cfg.row_cfg;
         libaom_test::txfm_stage_range_check(stage_range_col, col_cfg->stage_num,

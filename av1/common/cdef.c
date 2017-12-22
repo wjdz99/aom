@@ -167,9 +167,7 @@ void av1_cdef_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
   int xdec[3];
   int ydec[3];
   int coeff_shift = AOMMAX(cm->bit_depth - 8, 0);
-  int nplanes = MAX_MB_PLANE;
-  int chroma_cdef = xd->plane[1].subsampling_x == xd->plane[1].subsampling_y &&
-                    xd->plane[2].subsampling_x == xd->plane[2].subsampling_y;
+  int nplanes = av1_num_planes(cm);
   const int nvfb = (cm->mi_rows + MI_SIZE_64X64 - 1) / MI_SIZE_64X64;
   const int nhfb = (cm->mi_cols + MI_SIZE_64X64 - 1) / MI_SIZE_64X64;
   av1_setup_dst_planes(xd->plane, cm->sb_size, frame, 0, 0);
@@ -182,7 +180,6 @@ void av1_cdef_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
     ydec[pli] = xd->plane[pli].subsampling_y;
     mi_wide_l2[pli] = MI_SIZE_LOG2 - xd->plane[pli].subsampling_x;
     mi_high_l2[pli] = MI_SIZE_LOG2 - xd->plane[pli].subsampling_y;
-    if (xdec[pli] != ydec[pli]) nplanes = 1;
   }
   const int stride = (cm->mi_cols << MI_SIZE_LOG2) + 2 * CDEF_HBORDER;
   for (int pli = 0; pli < nplanes; pli++) {
@@ -218,23 +215,40 @@ void av1_cdef_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
       nhb = AOMMIN(MI_SIZE_64X64, cm->mi_cols - MI_SIZE_64X64 * fbc);
       nvb = AOMMIN(MI_SIZE_64X64, cm->mi_rows - MI_SIZE_64X64 * fbr);
       int tile_top, tile_left, tile_bottom, tile_right;
-      int mi_idx = MI_SIZE_64X64 * fbr * cm->mi_stride + MI_SIZE_64X64 * fbc;
-      MODE_INFO *const mi_tl = cm->mi + mi_idx;
+
+      int mi_row = MI_SIZE_64X64 * fbr;
+      int mi_col = MI_SIZE_64X64 * fbc;
+      int mi_idx_tl = mi_row * cm->mi_stride + mi_col;
+      int mi_idx_tr = mi_row * cm->mi_stride + (mi_col + MI_SIZE_64X64 - 1);
+      int mi_idx_bl = (mi_row + MI_SIZE_64X64 - 1) * cm->mi_stride + mi_col;
+      // for the current filter block, it's top left corner mi structure (mi_tl)
+      // is first accessed to check whether the top and left boundaries are
+      // tile boundaries. Then bottom-left and top-right mi structures are
+      // accessed to check whether the bottom and right boundaries
+      // (respectively) are tile boundaries.
+      //
+      // Note that we can't just check the bottom-right mi structure - eg. if
+      // we're at the right-hand edge of the frame but not the bottom, then
+      // the bottom-right mi is NULL but the bottom-left is not.
+      //
+      // We assume the boundary information is set correctly based on the
+      // loop_filter_across_tiles_enabled flag, i.e, if this flag is set to 1,
+      // then boundary_info should not be treated as tile boundaries. Also
+      // assume CDEF filter block size is 64x64.
+      MODE_INFO *const mi_tl = cm->mi + mi_idx_tl;
+      MODE_INFO *const mi_tr = cm->mi + mi_idx_tr;
+      MODE_INFO *const mi_bl = cm->mi + mi_idx_bl;
       BOUNDARY_TYPE boundary_tl = mi_tl->mbmi.boundary_info;
       tile_top = boundary_tl & TILE_ABOVE_BOUNDARY;
       tile_left = boundary_tl & TILE_LEFT_BOUNDARY;
 
-      if (fbr != nvfb - 1 &&
-          (&cm->mi[mi_idx + (MI_SIZE_64X64 - 1) * cm->mi_stride]))
-        tile_bottom = cm->mi[mi_idx + (MI_SIZE_64X64 - 1) * cm->mi_stride]
-                          .mbmi.boundary_info &
-                      TILE_BOTTOM_BOUNDARY;
+      if (fbr != nvfb - 1 && mi_bl)
+        tile_bottom = mi_bl->mbmi.boundary_info & TILE_BOTTOM_BOUNDARY;
       else
         tile_bottom = 1;
 
-      if (fbc != nhfb - 1 && (&cm->mi[mi_idx + MI_SIZE_64X64 - 1]))
-        tile_right = cm->mi[mi_idx + MI_SIZE_64X64 - 1].mbmi.boundary_info &
-                     TILE_RIGHT_BOUNDARY;
+      if (fbc != nhfb - 1 && mi_tr)
+        tile_right = mi_tr->mbmi.boundary_info & TILE_RIGHT_BOUNDARY;
       else
         tile_right = 1;
 
@@ -267,9 +281,6 @@ void av1_cdef_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
 
       curr_row_cdef[fbc] = 1;
       for (int pli = 0; pli < nplanes; pli++) {
-#if !CONFIG_CDEF_SINGLEPASS
-        DECLARE_ALIGNED(16, uint16_t, dst[CDEF_BLOCKSIZE * CDEF_BLOCKSIZE]);
-#endif
         int coffset;
         int rend, cend;
         int pri_damping = cm->cdef_pri_damping;
@@ -278,10 +289,7 @@ void av1_cdef_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
         int vsize = nvb << mi_high_l2[pli];
 
         if (pli) {
-          if (chroma_cdef)
-            level = uv_level;
-          else
-            level = 0;
+          level = uv_level;
           sec_strength = uv_sec_strength;
         }
 
@@ -388,27 +396,16 @@ void av1_cdef_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
 #if CONFIG_HIGHBITDEPTH
         if (cm->use_highbitdepth) {
           cdef_filter_fb(
-#if CONFIG_CDEF_SINGLEPASS
               NULL,
-              &CONVERT_TO_SHORTPTR(xd->plane[pli].dst.buf)
-#else
-              (uint8_t *)&CONVERT_TO_SHORTPTR(xd->plane[pli].dst.buf)
-#endif
-                  [xd->plane[pli].dst.stride *
-                       (MI_SIZE_64X64 * fbr << mi_high_l2[pli]) +
-                   (fbc * MI_SIZE_64X64 << mi_wide_l2[pli])],
-#if CONFIG_CDEF_SINGLEPASS
+              &CONVERT_TO_SHORTPTR(
+                  xd->plane[pli]
+                      .dst.buf)[xd->plane[pli].dst.stride *
+                                    (MI_SIZE_64X64 * fbr << mi_high_l2[pli]) +
+                                (fbc * MI_SIZE_64X64 << mi_wide_l2[pli])],
               xd->plane[pli].dst.stride,
-#else
-              xd->plane[pli].dst.stride, dst,
-#endif
               &src[CDEF_VBORDER * CDEF_BSTRIDE + CDEF_HBORDER], xdec[pli],
               ydec[pli], dir, NULL, var, pli, dlist, cdef_count, level,
-#if CONFIG_CDEF_SINGLEPASS
               sec_strength, pri_damping, sec_damping, coeff_shift);
-#else
-              sec_strength, sec_damping, pri_damping, coeff_shift, 0, 1);
-#endif
         } else {
 #endif
           cdef_filter_fb(
@@ -416,18 +413,10 @@ void av1_cdef_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
                    .dst.buf[xd->plane[pli].dst.stride *
                                 (MI_SIZE_64X64 * fbr << mi_high_l2[pli]) +
                             (fbc * MI_SIZE_64X64 << mi_wide_l2[pli])],
-#if CONFIG_CDEF_SINGLEPASS
               NULL, xd->plane[pli].dst.stride,
-#else
-            xd->plane[pli].dst.stride, dst,
-#endif
               &src[CDEF_VBORDER * CDEF_BSTRIDE + CDEF_HBORDER], xdec[pli],
               ydec[pli], dir, NULL, var, pli, dlist, cdef_count, level,
-#if CONFIG_CDEF_SINGLEPASS
               sec_strength, pri_damping, sec_damping, coeff_shift);
-#else
-            sec_strength, sec_damping, pri_damping, coeff_shift, 0, 0);
-#endif
 
 #if CONFIG_HIGHBITDEPTH
         }

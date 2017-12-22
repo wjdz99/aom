@@ -72,83 +72,9 @@ struct seg_counts {
   unsigned int pred[PREDICTION_PROBS][2];
 };
 
-#if CONFIG_ADAPT_SCAN
-typedef struct NON_ZERO_COUNT {
-  unsigned int non_zero_count_4X4[TX_TYPES][16];
-  unsigned int non_zero_count_8X8[TX_TYPES][64];
-  unsigned int non_zero_count_16X16[TX_TYPES][256];
-  unsigned int non_zero_count_32X32[TX_TYPES][1024];
-
-  unsigned int non_zero_count_4x8[TX_TYPES][32];
-  unsigned int non_zero_count_8x4[TX_TYPES][32];
-  unsigned int non_zero_count_8x16[TX_TYPES][128];
-  unsigned int non_zero_count_16x8[TX_TYPES][128];
-  unsigned int non_zero_count_16x32[TX_TYPES][512];
-  unsigned int non_zero_count_32x16[TX_TYPES][512];
-
-  unsigned int txb_count[TX_SIZES_ALL][TX_TYPES];
-} NON_ZERO_COUNT;
-#endif
-
 typedef struct frame_contexts {
   coeff_cdf_model coef_tail_cdfs[TX_SIZES][PLANE_TYPES];
   coeff_cdf_model coef_head_cdfs[TX_SIZES][PLANE_TYPES];
-#if CONFIG_ADAPT_SCAN
-  struct NON_ZERO_COUNT non_zero_count;
-
-  // TODO(angiebird): try aom_prob
-  uint32_t non_zero_prob_4X4[TX_TYPES][16];
-  uint32_t non_zero_prob_8X8[TX_TYPES][64];
-  uint32_t non_zero_prob_16X16[TX_TYPES][256];
-  uint32_t non_zero_prob_32X32[TX_TYPES][1024];
-
-  uint32_t non_zero_prob_4X8[TX_TYPES][32];
-  uint32_t non_zero_prob_8X4[TX_TYPES][32];
-  uint32_t non_zero_prob_16X8[TX_TYPES][128];
-  uint32_t non_zero_prob_8X16[TX_TYPES][128];
-  uint32_t non_zero_prob_32X16[TX_TYPES][512];
-  uint32_t non_zero_prob_16X32[TX_TYPES][512];
-
-  DECLARE_ALIGNED(16, int16_t, scan_4X4[TX_TYPES][16]);
-  DECLARE_ALIGNED(16, int16_t, scan_8X8[TX_TYPES][64]);
-  DECLARE_ALIGNED(16, int16_t, scan_16X16[TX_TYPES][256]);
-  DECLARE_ALIGNED(16, int16_t, scan_32X32[TX_TYPES][1024]);
-
-  DECLARE_ALIGNED(16, int16_t, scan_4X8[TX_TYPES][32]);
-  DECLARE_ALIGNED(16, int16_t, scan_8X4[TX_TYPES][32]);
-  DECLARE_ALIGNED(16, int16_t, scan_8X16[TX_TYPES][128]);
-  DECLARE_ALIGNED(16, int16_t, scan_16X8[TX_TYPES][128]);
-  DECLARE_ALIGNED(16, int16_t, scan_16X32[TX_TYPES][512]);
-  DECLARE_ALIGNED(16, int16_t, scan_32X16[TX_TYPES][512]);
-
-  DECLARE_ALIGNED(16, int16_t, iscan_4X4[TX_TYPES][16]);
-  DECLARE_ALIGNED(16, int16_t, iscan_8X8[TX_TYPES][64]);
-  DECLARE_ALIGNED(16, int16_t, iscan_16X16[TX_TYPES][256]);
-  DECLARE_ALIGNED(16, int16_t, iscan_32X32[TX_TYPES][1024]);
-
-  DECLARE_ALIGNED(16, int16_t, iscan_4X8[TX_TYPES][32]);
-  DECLARE_ALIGNED(16, int16_t, iscan_8X4[TX_TYPES][32]);
-  DECLARE_ALIGNED(16, int16_t, iscan_8X16[TX_TYPES][128]);
-  DECLARE_ALIGNED(16, int16_t, iscan_16X8[TX_TYPES][128]);
-  DECLARE_ALIGNED(16, int16_t, iscan_16X32[TX_TYPES][512]);
-  DECLARE_ALIGNED(16, int16_t, iscan_32X16[TX_TYPES][512]);
-
-  int16_t nb_4X4[TX_TYPES][(16 + 1) * 2];
-  int16_t nb_8X8[TX_TYPES][(64 + 1) * 2];
-  int16_t nb_16X16[TX_TYPES][(256 + 1) * 2];
-  int16_t nb_32X32[TX_TYPES][(1024 + 1) * 2];
-
-  int16_t nb_4X8[TX_TYPES][(32 + 1) * 2];
-  int16_t nb_8X4[TX_TYPES][(32 + 1) * 2];
-  int16_t nb_8X16[TX_TYPES][(128 + 1) * 2];
-  int16_t nb_16X8[TX_TYPES][(128 + 1) * 2];
-  int16_t nb_16X32[TX_TYPES][(512 + 1) * 2];
-  int16_t nb_32X16[TX_TYPES][(512 + 1) * 2];
-
-  SCAN_ORDER sc[TX_SIZES_ALL][TX_TYPES];
-
-  int16_t eob_threshold[TX_SIZES_ALL][TX_TYPES][EOB_THRESHOLD_NUM];
-#endif  // CONFIG_ADAPT_SCAN
 
 #if CONFIG_LV_MAP
   aom_prob txb_skip[TX_SIZES][TXB_SKIP_CONTEXTS];
@@ -222,16 +148,15 @@ typedef struct frame_contexts {
 #endif  // CONFIG_EXT_WARPED_MOTION
   aom_cdf_prob obmc_cdf[BLOCK_SIZES_ALL][CDF_SIZE(2)];
   aom_prob comp_inter_prob[COMP_INTER_CONTEXTS];
-  aom_cdf_prob palette_y_size_cdf[PALETTE_BLOCK_SIZES][CDF_SIZE(PALETTE_SIZES)];
-  aom_cdf_prob palette_uv_size_cdf[PALETTE_BLOCK_SIZES]
-                                  [CDF_SIZE(PALETTE_SIZES)];
+  aom_cdf_prob palette_y_size_cdf[PALATTE_BSIZE_CTXS][CDF_SIZE(PALETTE_SIZES)];
+  aom_cdf_prob palette_uv_size_cdf[PALATTE_BSIZE_CTXS][CDF_SIZE(PALETTE_SIZES)];
   aom_cdf_prob palette_y_color_index_cdf[PALETTE_SIZES]
                                         [PALETTE_COLOR_INDEX_CONTEXTS]
                                         [CDF_SIZE(PALETTE_COLORS)];
   aom_cdf_prob palette_uv_color_index_cdf[PALETTE_SIZES]
                                          [PALETTE_COLOR_INDEX_CONTEXTS]
                                          [CDF_SIZE(PALETTE_COLORS)];
-  aom_cdf_prob palette_y_mode_cdf[PALETTE_BLOCK_SIZES][PALETTE_Y_MODE_CONTEXTS]
+  aom_cdf_prob palette_y_mode_cdf[PALATTE_BSIZE_CTXS][PALETTE_Y_MODE_CONTEXTS]
                                  [CDF_SIZE(2)];
   aom_cdf_prob palette_uv_mode_cdf[PALETTE_UV_MODE_CONTEXTS][CDF_SIZE(2)];
   aom_cdf_prob comp_inter_cdf[COMP_INTER_CONTEXTS][CDF_SIZE(2)];
@@ -269,7 +194,7 @@ typedef struct frame_contexts {
   struct segmentation_probs seg;
 #if CONFIG_FILTER_INTRA
   aom_cdf_prob filter_intra_cdfs[TX_SIZES_ALL][CDF_SIZE(2)];
-  aom_cdf_prob filter_intra_mode_cdf[PLANE_TYPES][CDF_SIZE(FILTER_INTRA_MODES)];
+  aom_cdf_prob filter_intra_mode_cdf[CDF_SIZE(FILTER_INTRA_MODES)];
 #endif  // CONFIG_FILTER_INTRA
 #if CONFIG_LOOP_RESTORATION
   aom_cdf_prob switchable_restore_cdf[CDF_SIZE(RESTORE_SWITCHABLE_TYPES)];
@@ -318,18 +243,6 @@ typedef struct frame_contexts {
   aom_cdf_prob cfl_sign_cdf[CDF_SIZE(CFL_JOINT_SIGNS)];
   aom_cdf_prob cfl_alpha_cdf[CFL_ALPHA_CONTEXTS][CDF_SIZE(CFL_ALPHABET_SIZE)];
 #endif
-#if CONFIG_LPF_SB
-#if CONFIG_LOOPFILTER_LEVEL
-  aom_cdf_prob lpf_reuse_cdf[4][LPF_REUSE_CONTEXT][CDF_SIZE(2)];
-  aom_cdf_prob lpf_delta_cdf[4][LPF_DELTA_CONTEXT][CDF_SIZE(DELTA_RANGE)];
-  aom_cdf_prob lpf_sign_cdf[4][LPF_REUSE_CONTEXT][LPF_SIGN_CONTEXT]
-                           [CDF_SIZE(2)];
-#else
-  aom_cdf_prob lpf_reuse_cdf[LPF_REUSE_CONTEXT][CDF_SIZE(2)];
-  aom_cdf_prob lpf_delta_cdf[LPF_DELTA_CONTEXT][CDF_SIZE(DELTA_RANGE)];
-  aom_cdf_prob lpf_sign_cdf[LPF_REUSE_CONTEXT][LPF_SIGN_CONTEXT][CDF_SIZE(2)];
-#endif
-#endif  // CONFIG_LPF_SB
 } FRAME_CONTEXT;
 
 typedef struct FRAME_COUNTS {
@@ -368,6 +281,8 @@ typedef struct FRAME_COUNTS {
 #else
   unsigned int coeff_lps[TX_SIZES][PLANE_TYPES][BR_CDF_SIZE - 1][LEVEL_CONTEXTS]
                         [2];
+  unsigned int coeff_lps_multi[TX_SIZES][PLANE_TYPES][LEVEL_CONTEXTS]
+                              [BR_CDF_SIZE];
 #endif
 #endif  // CONFIG_LV_MAP
 
@@ -430,22 +345,9 @@ typedef struct FRAME_COUNTS {
 #endif  // CONFIG_ENTROPY_STATS
   struct seg_counts seg;
 #if CONFIG_FILTER_INTRA
-  unsigned int filter_intra_mode[PLANE_TYPES][FILTER_INTRA_MODES];
+  unsigned int filter_intra_mode[FILTER_INTRA_MODES];
   unsigned int filter_intra_tx[TX_SIZES_ALL][2];
-  unsigned int filter_intra_mode_ctx[KF_MODE_CONTEXTS][KF_MODE_CONTEXTS]
-                                    [FILTER_INTRA_MODES];
 #endif  // CONFIG_FILTER_INTRA
-#if CONFIG_LPF_SB
-#if CONFIG_LOOPFILTER_LEVEL
-  unsigned int lpf_reuse[4][LPF_REUSE_CONTEXT][2];
-  unsigned int lpf_delta[4][LPF_DELTA_CONTEXT][DELTA_RANGE];
-  unsigned int lpf_sign[4][LPF_REUSE_CONTEXT][LPF_SIGN_CONTEXT][2];
-#else
-  unsigned int lpf_reuse[LPF_REUSE_CONTEXT][2];
-  unsigned int lpf_delta[LPF_DELTA_CONTEXT][DELTA_RANGE];
-  unsigned int lpf_sign[LPF_REUSE_CONTEXT][LPF_SIGN_CONTEXT][2];
-#endif  // CONFIG_LOOPFILTER_LEVEL
-#endif  // CONFIG_LPF_SB
 } FRAME_COUNTS;
 
 #if CONFIG_KF_CTX

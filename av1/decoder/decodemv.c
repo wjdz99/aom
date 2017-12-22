@@ -227,7 +227,6 @@ static PREDICTION_MODE read_inter_mode(FRAME_CONTEXT *ec_ctx, MACROBLOCKD *xd,
     return NEWMV;
   }
   if (counts) ++counts->newmv_mode[mode_ctx][1];
-  if (ctx & (1 << ALL_ZERO_FLAG_OFFSET)) return GLOBALMV;
   mode_ctx = (ctx >> GLOBALMV_OFFSET) & GLOBALMV_CTX_MASK;
   is_zeromv =
       aom_read_symbol(r, ec_ctx->zeromv_cdf[mode_ctx], 2, ACCT_STR) == 0;
@@ -255,8 +254,7 @@ static void read_drl_idx(FRAME_CONTEXT *ec_ctx, MACROBLOCKD *xd,
   uint8_t ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
   mbmi->ref_mv_idx = 0;
   if (mbmi->mode == NEWMV || mbmi->mode == NEW_NEWMV) {
-    int idx;
-    for (idx = 0; idx < 2; ++idx) {
+    for (int idx = 0; idx < 2; ++idx) {
       if (xd->ref_mv_count[ref_frame_type] > idx + 1 || CONFIG_OPT_REF_MV) {
         uint8_t drl_ctx = av1_drl_ctx(xd->ref_mv_stack[ref_frame_type], idx);
         int drl_idx = aom_read_symbol(r, ec_ctx->drl_cdf[drl_ctx], 2, ACCT_STR);
@@ -267,11 +265,10 @@ static void read_drl_idx(FRAME_CONTEXT *ec_ctx, MACROBLOCKD *xd,
     }
   }
   if (have_nearmv_in_inter_mode(mbmi->mode)) {
-    int idx;
     // Offset the NEARESTMV mode.
     // TODO(jingning): Unify the two syntax decoding loops after the NEARESTMV
     // mode is factored in.
-    for (idx = 1; idx < 3; ++idx) {
+    for (int idx = 1; idx < 3; ++idx) {
       if (xd->ref_mv_count[ref_frame_type] > idx + 1 || CONFIG_OPT_REF_MV) {
         uint8_t drl_ctx = av1_drl_ctx(xd->ref_mv_stack[ref_frame_type], idx);
         int drl_idx = aom_read_symbol(r, ec_ctx->drl_cdf[drl_ctx], 2, ACCT_STR);
@@ -284,21 +281,20 @@ static void read_drl_idx(FRAME_CONTEXT *ec_ctx, MACROBLOCKD *xd,
 }
 
 #if CONFIG_EXT_WARPED_MOTION
-static MOTION_MODE read_motion_mode(AV1_COMMON *cm, MACROBLOCKD *xd,
-                                    MODE_INFO *mi, aom_reader *r, int best) {
+static MOTION_MODE read_motion_mode(MACROBLOCKD *xd, MODE_INFO *mi,
+                                    aom_reader *r, int best) {
 #else
-static MOTION_MODE read_motion_mode(AV1_COMMON *cm, MACROBLOCKD *xd,
-                                    MODE_INFO *mi, aom_reader *r) {
+static MOTION_MODE read_motion_mode(MACROBLOCKD *xd, MODE_INFO *mi,
+                                    aom_reader *r) {
 #endif  // CONFIG_EXT_WARPED_MOTION
   MB_MODE_INFO *mbmi = &mi->mbmi;
-  (void)cm;
 
 #if CONFIG_EXT_SKIP
   if (mbmi->skip_mode) return SIMPLE_TRANSLATION;
 #endif  // CONFIG_EXT_SKIP
 
   const MOTION_MODE last_motion_mode_allowed =
-      motion_mode_allowed(0, xd->global_motion, xd, mi);
+      motion_mode_allowed(xd->global_motion, xd, mi);
   int motion_mode;
   FRAME_COUNTS *counts = xd->counts;
 
@@ -439,7 +435,7 @@ static void read_tx_size_vartx(AV1_COMMON *cm, MACROBLOCKD *xd,
       for (idx = 0; idx < AOMMAX(1, tx_size_wide_unit[tx_size] / 2); ++idx)
         inter_tx_size[idy][idx] = tx_size;
     mbmi->tx_size = tx_size;
-    mbmi->min_tx_size = AOMMIN(mbmi->min_tx_size, get_min_tx_size(tx_size));
+    mbmi->min_tx_size = TXSIZEMIN(mbmi->min_tx_size, tx_size);
     txfm_partition_update(xd->above_txfm_context + blk_col,
                           xd->left_txfm_context + blk_row, tx_size, tx_size);
     return;
@@ -461,7 +457,7 @@ static void read_tx_size_vartx(AV1_COMMON *cm, MACROBLOCKD *xd,
         for (idx = 0; idx < AOMMAX(1, tx_size_wide_unit[tx_size] / 2); ++idx)
           inter_tx_size[idy][idx] = inter_tx_size[0][0];
       mbmi->tx_size = sub_txs;
-      mbmi->min_tx_size = get_min_tx_size(mbmi->tx_size);
+      mbmi->min_tx_size = mbmi->tx_size;
       txfm_partition_update(xd->above_txfm_context + blk_col,
                             xd->left_txfm_context + blk_row, sub_txs, tx_size);
       return;
@@ -483,7 +479,7 @@ static void read_tx_size_vartx(AV1_COMMON *cm, MACROBLOCKD *xd,
       for (idx = 0; idx < AOMMAX(1, tx_size_wide_unit[tx_size] / 2); ++idx)
         inter_tx_size[idy][idx] = tx_size;
     mbmi->tx_size = tx_size;
-    mbmi->min_tx_size = AOMMIN(mbmi->min_tx_size, get_min_tx_size(tx_size));
+    mbmi->min_tx_size = TXSIZEMIN(mbmi->min_tx_size, tx_size);
     if (counts) ++counts->txfm_partition[ctx][0];
     txfm_partition_update(xd->above_txfm_context + blk_col,
                           xd->left_txfm_context + blk_row, tx_size, tx_size);
@@ -559,8 +555,6 @@ static int read_intra_segment_id(AV1_COMMON *const cm, MACROBLOCKD *const xd,
   const int bh = mi_size_high[bsize];
   const int x_mis = AOMMIN(cm->mi_cols - mi_col, bw);
   const int y_mis = AOMMIN(cm->mi_rows - mi_row, bh);
-  FRAME_COUNTS *counts = xd->counts;
-  int segment_id;
 
   if (!seg->enabled) return 0;  // Default for disabled segmentation
 
@@ -572,14 +566,15 @@ static int read_intra_segment_id(AV1_COMMON *const cm, MACROBLOCKD *const xd,
   } else {
     if (cm->preskip_segid) return mbmi->segment_id;
   }
-  segment_id =
+  const int segment_id =
       read_segment_id(cm, xd, mi_row, mi_col, r, preskip ? 0 : mbmi->skip);
 #else
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
   (void)preskip;
   (void)mbmi;
-  segment_id = read_segment_id(r, &ec_ctx->seg);
+  const int segment_id = read_segment_id(r, &ec_ctx->seg);
 #endif
+  FRAME_COUNTS *counts = xd->counts;
   if (counts) ++counts->seg.tree_total[segment_id];
   set_segment_id(cm, mi_offset, x_mis, y_mis, segment_id);
   return segment_id;
@@ -710,7 +705,6 @@ static int read_skip(AV1_COMMON *cm, const MACROBLOCKD *xd, int segment_id,
   }
 }
 
-#if CONFIG_PALETTE_DELTA_ENCODING
 // Merge the sorted list of cached colors(cached_colors[0...n_cached_colors-1])
 // and the sorted list of transmitted colors(colors[n_cached_colors...n-1]) into
 // one single sorted list(colors[...]).
@@ -818,7 +812,6 @@ static void read_palette_colors_uv(MACROBLOCKD *const xd, int bit_depth,
     }
   }
 }
-#endif  // CONFIG_PALETTE_DELTA_ENCODING
 
 static void read_palette_mode_info(AV1_COMMON *const cm, MACROBLOCKD *const xd,
                                    aom_reader *r) {
@@ -829,7 +822,7 @@ static void read_palette_mode_info(AV1_COMMON *const cm, MACROBLOCKD *const xd,
   const BLOCK_SIZE bsize = mbmi->sb_type;
   assert(av1_allow_palette(cm->allow_screen_content_tools, bsize));
   PALETTE_MODE_INFO *const pmi = &mbmi->palette_mode_info;
-  const int block_palette_idx = bsize - BLOCK_8X8;
+  const int bsize_ctx = av1_get_palette_bsize_ctx(bsize);
 
   if (mbmi->mode == DC_PRED) {
     int palette_y_mode_ctx = 0;
@@ -842,21 +835,14 @@ static void read_palette_mode_info(AV1_COMMON *const cm, MACROBLOCKD *const xd,
           (left_mi->mbmi.palette_mode_info.palette_size[0] > 0);
     }
     const int modev = aom_read_symbol(
-        r,
-        xd->tile_ctx->palette_y_mode_cdf[block_palette_idx][palette_y_mode_ctx],
-        2, ACCT_STR);
+        r, xd->tile_ctx->palette_y_mode_cdf[bsize_ctx][palette_y_mode_ctx], 2,
+        ACCT_STR);
     if (modev) {
       pmi->palette_size[0] =
-          aom_read_symbol(r,
-                          xd->tile_ctx->palette_y_size_cdf[block_palette_idx],
+          aom_read_symbol(r, xd->tile_ctx->palette_y_size_cdf[bsize_ctx],
                           PALETTE_SIZES, ACCT_STR) +
           2;
-#if CONFIG_PALETTE_DELTA_ENCODING
       read_palette_colors_y(xd, cm->bit_depth, pmi, r);
-#else
-      for (int i = 0; i < pmi->palette_size[0]; ++i)
-        pmi->palette_colors[i] = aom_read_literal(r, cm->bit_depth, ACCT_STR);
-#endif  // CONFIG_PALETTE_DELTA_ENCODING
     }
   }
   if (mbmi->uv_mode == UV_DC_PRED) {
@@ -865,20 +851,10 @@ static void read_palette_mode_info(AV1_COMMON *const cm, MACROBLOCKD *const xd,
         r, xd->tile_ctx->palette_uv_mode_cdf[palette_uv_mode_ctx], 2, ACCT_STR);
     if (modev) {
       pmi->palette_size[1] =
-          aom_read_symbol(r,
-                          xd->tile_ctx->palette_uv_size_cdf[block_palette_idx],
+          aom_read_symbol(r, xd->tile_ctx->palette_uv_size_cdf[bsize_ctx],
                           PALETTE_SIZES, ACCT_STR) +
           2;
-#if CONFIG_PALETTE_DELTA_ENCODING
       read_palette_colors_uv(xd, cm->bit_depth, pmi, r);
-#else
-      for (int i = 0; i < pmi->palette_size[1]; ++i) {
-        pmi->palette_colors[PALETTE_MAX_SIZE + i] =
-            aom_read_literal(r, cm->bit_depth, ACCT_STR);
-        pmi->palette_colors[2 * PALETTE_MAX_SIZE + i] =
-            aom_read_literal(r, cm->bit_depth, ACCT_STR);
-      }
-#endif  // CONFIG_PALETTE_DELTA_ENCODING
     }
   }
 }
@@ -892,12 +868,11 @@ static void read_filter_intra_mode_info(MACROBLOCKD *const xd, aom_reader *r) {
 
   if (mbmi->mode == DC_PRED && mbmi->palette_mode_info.palette_size[0] == 0 &&
       av1_filter_intra_allowed_txsize(mbmi->tx_size)) {
-    filter_intra_mode_info->use_filter_intra_mode[0] = aom_read_symbol(
+    filter_intra_mode_info->use_filter_intra = aom_read_symbol(
         r, xd->tile_ctx->filter_intra_cdfs[mbmi->tx_size], 2, ACCT_STR);
-    if (filter_intra_mode_info->use_filter_intra_mode[0]) {
-      filter_intra_mode_info->filter_intra_mode[0] =
-          aom_read_symbol(r, xd->tile_ctx->filter_intra_mode_cdf[0],
-                          FILTER_INTRA_MODES, ACCT_STR);
+    if (filter_intra_mode_info->use_filter_intra) {
+      filter_intra_mode_info->filter_intra_mode = aom_read_symbol(
+          r, xd->tile_ctx->filter_intra_mode_cdf, FILTER_INTRA_MODES, ACCT_STR);
     }
   }
 }
@@ -946,8 +921,7 @@ static void read_intra_angle_info(MACROBLOCKD *const xd, aom_reader *r) {
 
 void av1_read_tx_type(const AV1_COMMON *const cm, MACROBLOCKD *xd,
 #if CONFIG_TXK_SEL
-                      int blk_row, int blk_col, int block, int plane,
-                      TX_SIZE tx_size,
+                      int blk_row, int blk_col, int plane, TX_SIZE tx_size,
 #endif
                       aom_reader *r) {
   MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
@@ -966,7 +940,6 @@ void av1_read_tx_type(const AV1_COMMON *const cm, MACROBLOCKD *xd,
 #else
   // only y plane's tx_type is transmitted
   if (plane > 0) return;
-  (void)block;
   TX_TYPE *tx_type = &mbmi->txk_type[(blk_row << MAX_MIB_SIZE_LOG2) + blk_col];
 #endif
 
@@ -993,9 +966,9 @@ void av1_read_tx_type(const AV1_COMMON *const cm, MACROBLOCKD *xd,
       } else if (ALLOW_INTRA_EXT_TX) {
 #if CONFIG_FILTER_INTRA
         PREDICTION_MODE intra_dir;
-        if (mbmi->filter_intra_mode_info.use_filter_intra_mode[0])
+        if (mbmi->filter_intra_mode_info.use_filter_intra)
           intra_dir = fimode_to_intradir[mbmi->filter_intra_mode_info
-                                             .filter_intra_mode[0]];
+                                             .filter_intra_mode];
         else
           intra_dir = mbmi->mode;
         *tx_type = av1_ext_tx_inv[tx_set_type][aom_read_symbol(
@@ -1026,7 +999,6 @@ static INLINE int assign_dv(AV1_COMMON *cm, MACROBLOCKD *xd, int_mv *mv,
                             const int_mv *ref_mv, int mi_row, int mi_col,
                             BLOCK_SIZE bsize, aom_reader *r) {
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
-  (void)cm;
   read_mv(r, &mv->as_mv, &ref_mv->as_mv, &ec_ctx->ndvc, MV_SUBPEL_NONE);
   // DV should not have sub-pel.
   assert((mv->as_mv.col & 7) == 0);
@@ -1051,25 +1023,24 @@ static void read_intrabc_info(AV1_COMMON *const cm, MACROBLOCKD *const xd,
     const BLOCK_SIZE bsize = mbmi->sb_type;
     const int width = block_size_wide[bsize] >> tx_size_wide_log2[0];
     const int height = block_size_high[bsize] >> tx_size_high_log2[0];
-    int idx, idy;
     if ((cm->tx_mode == TX_MODE_SELECT && block_signals_txsize(bsize) &&
          !xd->lossless[mbmi->segment_id] && !mbmi->skip)) {
       const TX_SIZE max_tx_size = get_max_rect_tx_size(bsize, 0);
       const int bh = tx_size_high_unit[max_tx_size];
       const int bw = tx_size_wide_unit[max_tx_size];
       mbmi->min_tx_size = TX_SIZES_ALL;
-      for (idy = 0; idy < height; idy += bh) {
-        for (idx = 0; idx < width; idx += bw) {
+      for (int idy = 0; idy < height; idy += bh) {
+        for (int idx = 0; idx < width; idx += bw) {
           read_tx_size_vartx(cm, xd, mbmi, xd->counts, max_tx_size, 0, idy, idx,
                              r);
         }
       }
     } else {
       mbmi->tx_size = read_tx_size(cm, xd, 1, !mbmi->skip, r);
-      for (idy = 0; idy < height; ++idy)
-        for (idx = 0; idx < width; ++idx)
+      for (int idy = 0; idy < height; ++idy)
+        for (int idx = 0; idx < width; ++idx)
           mbmi->inter_tx_size[idy >> 1][idx >> 1] = mbmi->tx_size;
-      mbmi->min_tx_size = get_min_tx_size(mbmi->tx_size);
+      mbmi->min_tx_size = mbmi->tx_size;
       set_txfm_ctxs(mbmi->tx_size, xd->n8_w, xd->n8_h, mbmi->skip, xd);
     }
     mbmi->mode = mbmi->uv_mode = UV_DC_PRED;
@@ -1090,7 +1061,8 @@ static void read_intrabc_info(AV1_COMMON *const cm, MACROBLOCKD *const xd,
     av1_find_best_ref_mvs(0, ref_mvs, &nearestmv, &nearmv);
 #endif
     int_mv dv_ref = nearestmv.as_int == 0 ? nearmv : nearestmv;
-    if (dv_ref.as_int == 0) av1_find_ref_dv(&dv_ref, mi_row, mi_col);
+    if (dv_ref.as_int == 0)
+      av1_find_ref_dv(&dv_ref, &xd->tile, cm->mib_size, mi_row, mi_col);
     // Ref DV should not have sub-pel.
     assert((dv_ref.as_mv.col & 7) == 0);
     assert((dv_ref.as_mv.row & 7) == 0);
@@ -1113,7 +1085,6 @@ static void read_intra_frame_mode_info(AV1_COMMON *const cm,
   const MODE_INFO *above_mi = xd->above_mi;
   const MODE_INFO *left_mi = xd->left_mi;
   const BLOCK_SIZE bsize = mbmi->sb_type;
-  int i;
 
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
 
@@ -1182,7 +1153,7 @@ static void read_intra_frame_mode_info(AV1_COMMON *const cm,
     xd->left_txfm_context = xd->left_txfm_context_buffer +
                             ((mi_row & MAX_MIB_MASK) << TX_UNIT_HIGH_LOG2);
   }
-  if (av1_allow_intrabc(bsize, cm)) {
+  if (av1_allow_intrabc(cm)) {
     read_intrabc_info(cm, xd, mi_row, mi_col, r);
     if (is_intrabc_block(mbmi)) return;
   }
@@ -1194,9 +1165,7 @@ static void read_intra_frame_mode_info(AV1_COMMON *const cm,
     set_txfm_ctxs(mbmi->tx_size, xd->n8_w, xd->n8_h, mbmi->skip, xd);
 #endif  // CONFIG_INTRABC
 
-  (void)i;
-  mbmi->mode =
-      read_intra_mode(r, get_y_mode_cdf(ec_ctx, mi, above_mi, left_mi, 0));
+  mbmi->mode = read_intra_mode(r, get_y_mode_cdf(ec_ctx, above_mi, left_mi));
 
   if (is_chroma_reference(mi_row, mi_col, bsize, xd->plane[1].subsampling_x,
                           xd->plane[1].subsampling_y)) {
@@ -1237,8 +1206,7 @@ static void read_intra_frame_mode_info(AV1_COMMON *const cm,
   if (av1_allow_palette(cm->allow_screen_content_tools, bsize))
     read_palette_mode_info(cm, xd, r);
 #if CONFIG_FILTER_INTRA
-  mbmi->filter_intra_mode_info.use_filter_intra_mode[0] = 0;
-  mbmi->filter_intra_mode_info.use_filter_intra_mode[1] = 0;
+  mbmi->filter_intra_mode_info.use_filter_intra = 0;
   read_filter_intra_mode_info(xd, r);
 #endif  // CONFIG_FILTER_INTRA
 
@@ -1296,9 +1264,8 @@ static int read_mv_component(aom_reader *r, nmv_component *mvcomp,
 
 static INLINE void read_mv(aom_reader *r, MV *mv, const MV *ref,
                            nmv_context *ctx, MvSubpelPrecision precision) {
-  MV_JOINT_TYPE joint_type;
   MV diff = { 0, 0 };
-  joint_type =
+  const MV_JOINT_TYPE joint_type =
       (MV_JOINT_TYPE)aom_read_symbol(r, ctx->joints_cdf, MV_JOINTS, ACCT_STR);
 
   if (mv_joint_vertical(joint_type))
@@ -1344,14 +1311,12 @@ static REFERENCE_MODE read_block_reference_mode(AV1_COMMON *cm,
   aom_read_symbol(r, av1_get_pred_cdf_##pname(xd), 2, ACCT_STR)
 
 #if CONFIG_EXT_COMP_REFS
-static COMP_REFERENCE_TYPE read_comp_reference_type(AV1_COMMON *cm,
-                                                    const MACROBLOCKD *xd,
+static COMP_REFERENCE_TYPE read_comp_reference_type(const MACROBLOCKD *xd,
                                                     aom_reader *r) {
   const int ctx = av1_get_comp_reference_type_context(xd);
-  COMP_REFERENCE_TYPE comp_ref_type;
-  (void)cm;
-  comp_ref_type = (COMP_REFERENCE_TYPE)aom_read_symbol(
-      r, xd->tile_ctx->comp_ref_type_cdf[ctx], 2, ACCT_STR);
+  const COMP_REFERENCE_TYPE comp_ref_type =
+      (COMP_REFERENCE_TYPE)aom_read_symbol(
+          r, xd->tile_ctx->comp_ref_type_cdf[ctx], 2, ACCT_STR);
   FRAME_COUNTS *counts = xd->counts;
   if (counts) ++counts->comp_ref_type[ctx][comp_ref_type];
   return comp_ref_type;  // UNIDIR_COMP_REFERENCE or BIDIR_COMP_REFERENCE
@@ -1399,13 +1364,11 @@ static void read_ref_frames(AV1_COMMON *const cm, MACROBLOCKD *const xd,
     // FIXME(rbultje) I'm pretty sure this breaks segmentation ref frame coding
     if (mode == COMPOUND_REFERENCE) {
 #if CONFIG_EXT_COMP_REFS
-      const COMP_REFERENCE_TYPE comp_ref_type =
-          read_comp_reference_type(cm, xd, r);
+      const COMP_REFERENCE_TYPE comp_ref_type = read_comp_reference_type(xd, r);
 
       if (comp_ref_type == UNIDIR_COMP_REFERENCE) {
         const int ctx = av1_get_pred_context_uni_comp_ref_p(xd);
-        int bit;
-        bit = READ_REF_BIT2(uni_comp_ref_p);
+        const int bit = READ_REF_BIT2(uni_comp_ref_p);
         if (counts) ++counts->uni_comp_ref[ctx][0][bit];
 
         if (bit) {
@@ -1413,14 +1376,12 @@ static void read_ref_frames(AV1_COMMON *const cm, MACROBLOCKD *const xd,
           ref_frame[1] = ALTREF_FRAME;
         } else {
           const int ctx1 = av1_get_pred_context_uni_comp_ref_p1(xd);
-          int bit1;
-          bit1 = READ_REF_BIT2(uni_comp_ref_p1);
+          const int bit1 = READ_REF_BIT2(uni_comp_ref_p1);
           if (counts) ++counts->uni_comp_ref[ctx1][1][bit1];
 
           if (bit1) {
             const int ctx2 = av1_get_pred_context_uni_comp_ref_p2(xd);
-            int bit2;
-            bit2 = READ_REF_BIT2(uni_comp_ref_p2);
+            const int bit2 = READ_REF_BIT2(uni_comp_ref_p2);
             if (counts) ++counts->uni_comp_ref[ctx2][2][bit2];
 
             if (bit2) {
@@ -1560,14 +1521,12 @@ static void read_intra_block_mode_info(AV1_COMMON *const cm, const int mi_row,
                                        MODE_INFO *mi, aom_reader *r) {
   MB_MODE_INFO *const mbmi = &mi->mbmi;
   const BLOCK_SIZE bsize = mi->mbmi.sb_type;
-  int i;
 
   mbmi->ref_frame[0] = INTRA_FRAME;
   mbmi->ref_frame[1] = NONE_FRAME;
 
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
 
-  (void)i;
   mbmi->mode = read_intra_mode(r, ec_ctx->y_mode_cdf[size_group_lookup[bsize]]);
 
   if (is_chroma_reference(mi_row, mi_col, bsize, xd->plane[1].subsampling_x,
@@ -1611,8 +1570,7 @@ static void read_intra_block_mode_info(AV1_COMMON *const cm, const int mi_row,
   if (av1_allow_palette(cm->allow_screen_content_tools, bsize))
     read_palette_mode_info(cm, xd, r);
 #if CONFIG_FILTER_INTRA
-  mbmi->filter_intra_mode_info.use_filter_intra_mode[0] = 0;
-  mbmi->filter_intra_mode_info.use_filter_intra_mode[1] = 0;
+  mbmi->filter_intra_mode_info.use_filter_intra = 0;
   read_filter_intra_mode_info(xd, r);
 #endif  // CONFIG_FILTER_INTRA
 }
@@ -1624,17 +1582,15 @@ static INLINE int is_mv_valid(const MV *mv) {
 
 static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
                             PREDICTION_MODE mode,
-                            MV_REFERENCE_FRAME ref_frame[2], int block,
-                            int_mv mv[2], int_mv ref_mv[2],
-                            int_mv nearest_mv[2], int_mv near_mv[2], int mi_row,
-                            int mi_col, int is_compound, int allow_hp,
-                            aom_reader *r) {
+                            MV_REFERENCE_FRAME ref_frame[2], int_mv mv[2],
+                            int_mv ref_mv[2], int_mv nearest_mv[2],
+                            int_mv near_mv[2], int mi_row, int mi_col,
+                            int is_compound, int allow_hp, aom_reader *r) {
   int ret = 1;
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
   BLOCK_SIZE bsize = xd->mi[0]->mbmi.sb_type;
   MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
   int_mv *pred_mv = mbmi->pred_mv;
-  (void)block;
   (void)ref_frame;
   (void)cm;
   (void)mi_row;
@@ -1679,7 +1635,7 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
     case GLOBALMV: {
       mv[0].as_int = gm_get_motion_vector(&cm->global_motion[ref_frame[0]],
                                           cm->allow_high_precision_mv, bsize,
-                                          mi_col, mi_row, block
+                                          mi_col, mi_row
 #if CONFIG_AMVR
                                           ,
                                           cm->cur_frame_force_integer_mv
@@ -1689,7 +1645,7 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
       if (is_compound)
         mv[1].as_int = gm_get_motion_vector(&cm->global_motion[ref_frame[1]],
                                             cm->allow_high_precision_mv, bsize,
-                                            mi_col, mi_row, block
+                                            mi_col, mi_row
 #if CONFIG_AMVR
                                             ,
                                             cm->cur_frame_force_integer_mv
@@ -1750,8 +1706,9 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
     }
     case NEAR_NEWMV: {
       int8_t rf_type = av1_ref_frame_type(mbmi->ref_frame);
-      int nmv_ctx = av1_nmv_ctx(xd->ref_mv_count[rf_type],
-                                xd->ref_mv_stack[rf_type], 1, mbmi->ref_mv_idx);
+      int nmv_ctx =
+          av1_nmv_ctx(xd->ref_mv_count[rf_type], xd->ref_mv_stack[rf_type], 1,
+                      mbmi->ref_mv_idx + 1);
       nmv_context *const nmvc = &ec_ctx->nmvc[nmv_ctx];
       mv[0].as_int = near_mv[0].as_int;
       read_mv(r, &mv[1].as_mv, &ref_mv[1].as_mv, nmvc, allow_hp);
@@ -1762,8 +1719,9 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
     }
     case NEW_NEARMV: {
       int8_t rf_type = av1_ref_frame_type(mbmi->ref_frame);
-      int nmv_ctx = av1_nmv_ctx(xd->ref_mv_count[rf_type],
-                                xd->ref_mv_stack[rf_type], 0, mbmi->ref_mv_idx);
+      int nmv_ctx =
+          av1_nmv_ctx(xd->ref_mv_count[rf_type], xd->ref_mv_stack[rf_type], 0,
+                      mbmi->ref_mv_idx + 1);
       nmv_context *const nmvc = &ec_ctx->nmvc[nmv_ctx];
       read_mv(r, &mv[0].as_mv, &ref_mv[0].as_mv, nmvc, allow_hp);
       assert(is_compound);
@@ -1775,7 +1733,7 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
       assert(is_compound);
       mv[0].as_int = gm_get_motion_vector(&cm->global_motion[ref_frame[0]],
                                           cm->allow_high_precision_mv, bsize,
-                                          mi_col, mi_row, block
+                                          mi_col, mi_row
 #if CONFIG_AMVR
                                           ,
                                           cm->cur_frame_force_integer_mv
@@ -1784,7 +1742,7 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
                          .as_int;
       mv[1].as_int = gm_get_motion_vector(&cm->global_motion[ref_frame[1]],
                                           cm->allow_high_precision_mv, bsize,
-                                          mi_col, mi_row, block
+                                          mi_col, mi_row
 #if CONFIG_AMVR
                                           ,
                                           cm->cur_frame_force_integer_mv
@@ -1822,9 +1780,8 @@ static void fpm_sync(void *const data, int mi_row) {
 static void dec_dump_logs(AV1_COMMON *cm, MODE_INFO *const mi, int mi_row,
                           int mi_col, int16_t mode_ctx) {
   int_mv mv[2] = { { 0 } };
-  int ref;
   MB_MODE_INFO *const mbmi = &mi->mbmi;
-  for (ref = 0; ref < 1 + has_second_ref(mbmi); ++ref)
+  for (int ref = 0; ref < 1 + has_second_ref(mbmi); ++ref)
     mv[ref].as_mv = mbmi->mv[ref].as_mv;
 
   const int16_t newmv_ctx = mode_ctx & NEWMV_CTX_MASK;
@@ -1922,7 +1879,7 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
       av1_set_ref_frame(rf, ref_frame);
       zeromv[0].as_int = gm_get_motion_vector(&cm->global_motion[rf[0]],
                                               cm->allow_high_precision_mv,
-                                              bsize, mi_col, mi_row, 0
+                                              bsize, mi_col, mi_row
 #if CONFIG_AMVR
                                               ,
                                               cm->cur_frame_force_integer_mv
@@ -1933,7 +1890,7 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
           (rf[1] != NONE_FRAME)
               ? gm_get_motion_vector(&cm->global_motion[rf[1]],
                                      cm->allow_high_precision_mv, bsize, mi_col,
-                                     mi_row, 0
+                                     mi_row
 #if CONFIG_AMVR
                                      ,
                                      cm->cur_frame_force_integer_mv
@@ -1964,8 +1921,7 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
   if (is_compound)
     mode_ctx = compound_inter_mode_ctx[mbmi->ref_frame[0]];
   else
-    mode_ctx =
-        av1_mode_context_analyzer(inter_mode_ctx, mbmi->ref_frame, bsize, -1);
+    mode_ctx = av1_mode_context_analyzer(inter_mode_ctx, mbmi->ref_frame);
   mbmi->ref_mv_idx = 0;
 
 #if CONFIG_SEGMENT_GLOBALMV
@@ -2118,23 +2074,13 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
 
 #if CONFIG_EXT_SKIP
   if (mbmi->skip_mode) {
-#define USE_MV_SELECTION 0
-#if USE_MV_SELECTION
-    // NOTE: For skip mode, above reference selection has been set as compound,
-    // in order to obtain the two nearest mvs, but after the following mv setup,
-    // skip mode may choose either single reference or compound reference mode.
-    av1_setup_skip_mode_mvs(cm, xd, mbmi, mi_row, mi_col, nearestmv, NULL,
-                            NULL);
-#else   // !USE_MV_SELECTION
     assert(mbmi->mode == NEAREST_NEARESTMV);
     mbmi->mv[0].as_int = nearestmv[0].as_int;
     mbmi->mv[1].as_int = nearestmv[1].as_int;
-#endif  // USE_MV_SELECTION
-#undef USE_MV_SELECTION
   } else {
 #endif  // CONFIG_EXT_SKIP
     int mv_corrupted_flag =
-        !assign_mv(cm, xd, mbmi->mode, mbmi->ref_frame, 0, mbmi->mv, ref_mv,
+        !assign_mv(cm, xd, mbmi->mode, mbmi->ref_frame, mbmi->mv, ref_mv,
                    nearestmv, nearmv, mi_row, mi_col, is_compound, allow_hp, r);
     aom_merge_corrupted_flag(&xd->corrupted, mv_corrupted_flag);
 #if CONFIG_EXT_SKIP
@@ -2165,8 +2111,7 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
       mbmi->angle_delta[1] = 0;
 #endif  // CONFIG_EXT_INTRA
 #if CONFIG_FILTER_INTRA
-      mbmi->filter_intra_mode_info.use_filter_intra_mode[0] = 0;
-      mbmi->filter_intra_mode_info.use_filter_intra_mode[1] = 0;
+      mbmi->filter_intra_mode_info.use_filter_intra = 0;
 #endif  // CONFIG_FILTER_INTRA
       if (is_interintra_wedge_used(bsize)) {
         mbmi->use_wedge_interintra = aom_read_symbol(
@@ -2204,11 +2149,10 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
         findSamples(cm, xd, mi_row, mi_col, pts, pts_inref, pts_mv, pts_wm);
 
     // Find a warped neighbor.
-    int cand;
     int best_weight = 0;
 
     // if (mbmi->mode == NEARESTMV)
-    for (cand = 0; cand < mbmi->num_proj_ref[0]; cand++) {
+    for (int cand = 0; cand < mbmi->num_proj_ref[0]; cand++) {
       if (pts_wm[cand * 2 + 1] > best_weight) {
         best_weight = pts_wm[cand * 2 + 1];
         best_cand = cand;
@@ -2222,9 +2166,9 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
 
   if (mbmi->ref_frame[1] != INTRA_FRAME)
 #if CONFIG_EXT_WARPED_MOTION
-    mbmi->motion_mode = read_motion_mode(cm, xd, mi, r, best_cand);
+    mbmi->motion_mode = read_motion_mode(xd, mi, r, best_cand);
 #else
-    mbmi->motion_mode = read_motion_mode(cm, xd, mi, r);
+    mbmi->motion_mode = read_motion_mode(xd, mi, r);
 #endif  // CONFIG_EXT_WARPED_MOTION
 
 #if CONFIG_JNT_COMP
@@ -2370,12 +2314,6 @@ static void read_inter_frame_mode_info(AV1Decoder *const pbi,
 
 #if CONFIG_EXT_SKIP
   mbmi->skip_mode = read_skip_mode(cm, xd, mbmi->segment_id, r);
-#if 0
-  if (mbmi->skip_mode)
-    printf("Frame=%d, frame_offset=%d, (mi_row,mi_col)=(%d,%d), skip_mode=%d\n",
-           cm->current_video_frame, cm->frame_offset, mi_row, mi_col,
-           mbmi->skip_mode);
-#endif  // 0
 
   if (mbmi->skip_mode)
     mbmi->skip = 1;
@@ -2466,7 +2404,7 @@ static void read_inter_frame_mode_info(AV1Decoder *const pbi,
         for (int idx = 0; idx < width; ++idx)
           mbmi->inter_tx_size[idy >> 1][idx >> 1] = mbmi->tx_size;
     }
-    mbmi->min_tx_size = get_min_tx_size(mbmi->tx_size);
+    mbmi->min_tx_size = mbmi->tx_size;
     set_txfm_ctxs(mbmi->tx_size, xd->n8_w, xd->n8_h, mbmi->skip, xd);
   }
 

@@ -201,6 +201,7 @@ enable_feature spatial_resampling
 enable_feature multithread
 enable_feature os_support
 enable_feature highbitdepth
+enable_feature pic
 
 CODECS="
     av1_encoder
@@ -247,29 +248,25 @@ HAVE_LIST="
 "
 EXPERIMENT_LIST="
     fp_mb_stats
-    cdef_singlepass
     rect_tx_ext
     rect_tx_ext_intra
     short_filter
     dual_filter
-    convolve_round
-    compound_round
     tx64x64
     ext_intra
     filter_intra
     intra_edge
     ext_intra_mod
+    ext_intra_mod2
     intrabc
     new_quant
     loop_restoration
     striped_loop_restoration
     ext_partition
     ext_partition_types
-    ext_partition_types_ab
     ext_tile
     q_adapt_probs
     inter_stats_only
-    palette_delta_encoding
     kf_ctx
     cfl
     xiphrc
@@ -280,18 +277,20 @@ EXPERIMENT_LIST="
     daala_tx16
     daala_tx32
     daala_tx64
+    daala_tx_dst8
+    daala_tx_dst32
     frame_size
     ext_delta_q
-    adapt_scan
     parallel_deblocking
     deblock_13tap
     loopfiltering_across_tiles
+    loopfiltering_across_tiles_ext
     tempmv_signaling
     rd_debug
     reference_buffer
     entropy_stats
-    masked_tx
     dependent_horztiles
+    dependent_horztilegroups
     dist_8x8
     palette_throughput
     ref_adapt
@@ -334,6 +333,7 @@ EXPERIMENT_LIST="
     spatial_segmentation
     segment_pred_last
     obu_no_ivf
+    tile_info_first
 "
 CONFIG_LIST="
     dependency_tracking
@@ -492,12 +492,10 @@ post_process_cmdline() {
     # Enable adopted experiments by default
     soft_enable adopted_experiments
     if enabled adopted_experiments; then
-      soft_enable cdef_singlepass
       soft_enable ext_intra
       soft_enable intra_edge
       soft_enable mv_compress
       soft_enable dual_filter
-      soft_enable convolve_round
       soft_enable aom_qm
       soft_enable dist_8x8
       soft_enable loop_restoration
@@ -513,19 +511,24 @@ post_process_cmdline() {
       soft_enable ext_comp_refs
       soft_enable ext_delta_q
       soft_enable parallel_deblocking
+      #soft_enable obu
       soft_enable simple_bwd_adapt
       soft_enable loopfilter_level
       soft_enable cfl
       soft_enable deblock_13tap
+      soft_enable max_tile
       soft_enable frame_marker
       soft_enable kf_ctx
       soft_enable striped_loop_restoration
       soft_enable ext_intra_mod
-      soft_enable palette_delta_encoding
       soft_enable frame_size
       soft_enable segment_globalmv
       soft_enable short_filter
       soft_enable simplify_tx_mode
+      soft_enable tx64x64
+      soft_enable rect_tx_ext
+      soft_enable rect_tx_ext_intra
+      soft_enable filter_intra
     fi
 
     # Enable low-bitdepth pixel pipeline by default
@@ -541,7 +544,6 @@ post_process_cmdline() {
     enabled lv_map_multi && soft_enable lv_map
     enabled eob_first && enable_feature lv_map
     enabled txk_sel && soft_enable lv_map
-    enabled compound_round && soft_enable convolve_round
     enabled ext_intra_mod && enable_feature intra_edge
     enabled intra_edge && enable_feature ext_intra
     enabled mfmv && enable_feature frame_marker
@@ -554,6 +556,9 @@ post_process_cmdline() {
     enabled loopfilter_level && enable_feature ext_delta_q
     enabled striped_loop_restoration && enable_feature loop_restoration
     enabled adapt_scan && enable_feature lv_map
+    enabled loopfiltering_across_tiles_ext && enable_feature loopfiltering_across_tiles
+
+    soft_enable daala_tx_dst32
 
     if enabled daala_tx; then
       enable_feature highbitdepth
@@ -566,6 +571,14 @@ post_process_cmdline() {
     if enabled daala_tx64 && ! enabled tx64x64; then
       log_echo "daala_tx64 requires tx64x64, so disabling daala_tx64"
       disable_feature daala_tx64
+    fi
+    if enabled daala_tx_dst8 && ! enabled daala_tx8; then
+      log_echo "daala_tx_dst8 requires daala_tx8, so disabling daala_tx_dst8"
+      disable_feature daala_tx_dst8
+    fi
+    if enabled daala_tx_dst32 && ! enabled daala_tx32; then
+      log_echo "daala_tx_dst32 requires daala_tx32, so disabling daala_tx_dst32"
+      disable_feature daala_tx_dst32
     fi
     if enabled daala_tx4 || enabled daala_tx8 || enabled daala_tx16 ||
         enabled daala_tx32 || enabled daala_tx64; then

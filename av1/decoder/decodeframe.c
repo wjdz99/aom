@@ -62,7 +62,6 @@
 #include "av1/decoder/decodetxb.h"
 #endif
 #include "av1/decoder/detokenize.h"
-#include "av1/decoder/dsubexp.h"
 #include "av1/decoder/symbolrate.h"
 
 #include "av1/common/warped_motion.h"
@@ -87,7 +86,7 @@ static void loop_restoration_read_sb_coeffs(const AV1_COMMON *const cm,
 
 static struct aom_read_bit_buffer *init_read_bit_buffer(
     AV1Decoder *pbi, struct aom_read_bit_buffer *rb, const uint8_t *data,
-    const uint8_t *data_end, uint8_t clear_data[MAX_AV1_HEADER_SIZE]);
+    const uint8_t *data_end);
 static int read_compressed_header(AV1Decoder *pbi, const uint8_t *data,
                                   size_t partition_size);
 static size_t read_uncompressed_header(AV1Decoder *pbi,
@@ -110,11 +109,6 @@ static void setup_compound_reference_mode(AV1_COMMON *cm) {
 
 static int read_is_valid(const uint8_t *start, size_t len, const uint8_t *end) {
   return len != 0 && len <= (size_t)(end - start);
-}
-
-static int decode_unsigned_max(struct aom_read_bit_buffer *rb, int max) {
-  const int data = aom_rb_read_literal(rb, get_unsigned_bits(max));
-  return data > max ? max : data;
 }
 
 #if CONFIG_SIMPLIFY_TX_MODE
@@ -163,23 +157,11 @@ static void inverse_transform_block(MACROBLOCKD *xd, int plane,
   memset(dqcoeff, 0, (scan_line + 1) * sizeof(dqcoeff[0]));
 }
 
-static int get_block_idx(const MACROBLOCKD *xd, int plane, int row, int col) {
-  const int bsize = xd->mi[0]->mbmi.sb_type;
-  const struct macroblockd_plane *pd = &xd->plane[plane];
-  const BLOCK_SIZE plane_bsize =
-      AOMMAX(BLOCK_4X4, get_plane_block_size(bsize, pd));
-  const int max_blocks_wide = max_block_wide(xd, plane_bsize, plane);
-  const TX_SIZE tx_size = av1_get_tx_size(plane, xd);
-  const uint8_t txh_unit = tx_size_high_unit[tx_size];
-  return row * max_blocks_wide + col * txh_unit;
-}
-
 static void predict_and_reconstruct_intra_block(
     AV1_COMMON *cm, MACROBLOCKD *const xd, aom_reader *const r,
     MB_MODE_INFO *const mbmi, int plane, int row, int col, TX_SIZE tx_size) {
   PLANE_TYPE plane_type = get_plane_type(plane);
-  const int block_idx = get_block_idx(xd, plane, row, col);
-  av1_predict_intra_block_facade(cm, xd, plane, block_idx, col, row, tx_size);
+  av1_predict_intra_block_facade(cm, xd, plane, col, row, tx_size);
 
   if (!mbmi->skip) {
     struct macroblockd_plane *const pd = &xd->plane[plane];
@@ -190,14 +172,12 @@ static void predict_and_reconstruct_intra_block(
 #if CONFIG_LV_MAP
     int16_t max_scan_line = 0;
     int eob;
-    av1_read_coeffs_txb_facade(cm, xd, r, row, col, block_idx, plane, tx_size,
+    av1_read_coeffs_txb_facade(cm, xd, r, row, col, plane, tx_size,
                                &max_scan_line, &eob);
     // tx_type will be read out in av1_read_coeffs_txb_facade
-    const TX_TYPE tx_type =
-        av1_get_tx_type(plane_type, xd, row, col, block_idx, tx_size);
+    const TX_TYPE tx_type = av1_get_tx_type(plane_type, xd, row, col, tx_size);
 #else   // CONFIG_LV_MAP
-    const TX_TYPE tx_type =
-        av1_get_tx_type(plane_type, xd, row, col, block_idx, tx_size);
+    const TX_TYPE tx_type = av1_get_tx_type(plane_type, xd, row, col, tx_size);
     const SCAN_ORDER *scan_order = get_scan(cm, tx_size, tx_type, mbmi);
     int16_t max_scan_line = 0;
     const int eob =
@@ -259,14 +239,14 @@ static void decode_reconstruct_tx(AV1_COMMON *cm, MACROBLOCKD *const xd,
 #if CONFIG_LV_MAP
     int16_t max_scan_line = 0;
     int eob;
-    av1_read_coeffs_txb_facade(cm, xd, r, blk_row, blk_col, block, plane,
-                               tx_size, &max_scan_line, &eob);
+    av1_read_coeffs_txb_facade(cm, xd, r, blk_row, blk_col, plane, tx_size,
+                               &max_scan_line, &eob);
     // tx_type will be read out in av1_read_coeffs_txb_facade
     const TX_TYPE tx_type =
-        av1_get_tx_type(plane_type, xd, blk_row, blk_col, block, tx_size);
+        av1_get_tx_type(plane_type, xd, blk_row, blk_col, tx_size);
 #else   // CONFIG_LV_MAP
     const TX_TYPE tx_type =
-        av1_get_tx_type(plane_type, xd, blk_row, blk_col, block, tx_size);
+        av1_get_tx_type(plane_type, xd, blk_row, blk_col, tx_size);
     const SCAN_ORDER *sc = get_scan(cm, tx_size, tx_type, mbmi);
     int16_t max_scan_line = 0;
     const int eob =
@@ -288,8 +268,8 @@ static void decode_reconstruct_tx(AV1_COMMON *cm, MACROBLOCKD *const xd,
                             max_scan_line, eob, cm->reduced_tx_set_used);
 #if CONFIG_MISMATCH_DEBUG
     int pixel_c, pixel_r;
-    int blk_w = block_size_wide[plane_bsize];
-    int blk_h = block_size_high[plane_bsize];
+    int blk_w = block_size_wide[bsize];
+    int blk_h = block_size_high[bsize];
     mi_to_pixel_loc(&pixel_c, &pixel_r, mi_col, mi_row, blk_col, blk_row,
                     pd->subsampling_x, pd->subsampling_y);
     mismatch_check_block_tx(dst, pd->dst.stride, plane, pixel_c, pixel_r, blk_w,
@@ -450,8 +430,7 @@ static void decode_token_and_recon_block(AV1Decoder *const pbi,
       const TX_SIZE tx_size = av1_get_tx_size(plane, xd);
       const int stepr = tx_size_high_unit[tx_size];
       const int stepc = tx_size_wide_unit[tx_size];
-      const BLOCK_SIZE plane_bsize =
-          AOMMAX(BLOCK_4X4, get_plane_block_size(bsize, pd));
+      const BLOCK_SIZE plane_bsize = get_plane_block_size(bsize, pd);
       int row, col;
       const int max_blocks_wide = max_block_wide(xd, plane_bsize, plane);
       const int max_blocks_high = max_block_high(xd, plane_bsize, plane);
@@ -480,9 +459,7 @@ static void decode_token_and_recon_block(AV1Decoder *const pbi,
       }
     }
   } else {
-    int ref;
-
-    for (ref = 0; ref < 1 + has_second_ref(mbmi); ++ref) {
+    for (int ref = 0; ref < 1 + has_second_ref(mbmi); ++ref) {
       const MV_REFERENCE_FRAME frame = mbmi->ref_frame[ref];
       if (frame < LAST_FRAME) {
 #if CONFIG_INTRABC
@@ -534,8 +511,7 @@ static void decode_token_and_recon_block(AV1Decoder *const pbi,
           continue;
         const BLOCK_SIZE bsizec =
             scale_chroma_bsize(bsize, pd->subsampling_x, pd->subsampling_y);
-        const BLOCK_SIZE plane_bsize =
-            AOMMAX(BLOCK_4X4, get_plane_block_size(bsizec, pd));
+        const BLOCK_SIZE plane_bsize = get_plane_block_size(bsizec, pd);
         const int max_blocks_wide = max_block_wide(xd, plane_bsize, plane);
         const int max_blocks_high = max_block_high(xd, plane_bsize, plane);
         int row, col;
@@ -551,18 +527,6 @@ static void decode_token_and_recon_block(AV1Decoder *const pbi,
 
         TX_SIZE max_tx_size = get_vartx_max_txsize(
             xd, plane_bsize, pd->subsampling_x || pd->subsampling_y);
-#if DISABLE_VARTX_FOR_CHROMA == 2
-        // If the luma transform size is split at least one level, split the
-        // chroma by one level. Otherwise use the  largest possible trasnform
-        // size for chroma.
-        if (plane && (pd->subsampling_x || pd->subsampling_y)) {
-          const TX_SIZE l_max_tx_size = get_vartx_max_txsize(xd, bsizec, 0);
-          const int is_split =
-              (l_max_tx_size != mbmi->inter_tx_size[0][0] && bsize == bsizec &&
-               txsize_to_bsize[l_max_tx_size] == bsizec);
-          if (is_split) max_tx_size = sub_tx_size_map[1][max_tx_size];
-        }
-#endif  // DISABLE_VARTX_FOR_CHROMA == 2
         const int bh_var_tx = tx_size_high_unit[max_tx_size];
         const int bw_var_tx = tx_size_wide_unit[max_tx_size];
         int block = 0;
@@ -653,16 +617,11 @@ static void decode_partition(AV1Decoder *const pbi, MACROBLOCKD *const xd,
   AV1_COMMON *const cm = &pbi->common;
   const int num_8x8_wh = mi_size_wide[bsize];
   const int hbs = num_8x8_wh >> 1;
-#if CONFIG_EXT_PARTITION_TYPES && CONFIG_EXT_PARTITION_TYPES_AB
-  const int qbs = num_8x8_wh >> 2;
-#endif
   PARTITION_TYPE partition;
   BLOCK_SIZE subsize;
 #if CONFIG_EXT_PARTITION_TYPES
   const int quarter_step = num_8x8_wh / 4;
-#if !CONFIG_EXT_PARTITION_TYPES_AB
   BLOCK_SIZE bsize2 = get_subsize(bsize, PARTITION_SPLIT);
-#endif
 #endif
   const int has_rows = (mi_row + hbs) < cm->mi_rows;
   const int has_cols = (mi_col + hbs) < cm->mi_cols;
@@ -712,32 +671,6 @@ static void decode_partition(AV1Decoder *const pbi, MACROBLOCKD *const xd,
       DEC_PARTITION(mi_row + hbs, mi_col + hbs, subsize);
       break;
 #if CONFIG_EXT_PARTITION_TYPES
-#if CONFIG_EXT_PARTITION_TYPES_AB
-    case PARTITION_HORZ_A:
-      DEC_BLOCK(mi_row, mi_col, get_subsize(bsize, PARTITION_HORZ_4));
-      DEC_BLOCK(mi_row + qbs, mi_col, get_subsize(bsize, PARTITION_HORZ_4));
-      DEC_BLOCK(mi_row + hbs, mi_col, subsize);
-      break;
-    case PARTITION_HORZ_B:
-      DEC_BLOCK(mi_row, mi_col, subsize);
-      DEC_BLOCK(mi_row + hbs, mi_col, get_subsize(bsize, PARTITION_HORZ_4));
-      if (mi_row + 3 * qbs < cm->mi_rows)
-        DEC_BLOCK(mi_row + 3 * qbs, mi_col,
-                  get_subsize(bsize, PARTITION_HORZ_4));
-      break;
-    case PARTITION_VERT_A:
-      DEC_BLOCK(mi_row, mi_col, get_subsize(bsize, PARTITION_VERT_4));
-      DEC_BLOCK(mi_row, mi_col + qbs, get_subsize(bsize, PARTITION_VERT_4));
-      DEC_BLOCK(mi_row, mi_col + hbs, subsize);
-      break;
-    case PARTITION_VERT_B:
-      DEC_BLOCK(mi_row, mi_col, subsize);
-      DEC_BLOCK(mi_row, mi_col + hbs, get_subsize(bsize, PARTITION_VERT_4));
-      if (mi_col + 3 * qbs < cm->mi_cols)
-        DEC_BLOCK(mi_row, mi_col + 3 * qbs,
-                  get_subsize(bsize, PARTITION_VERT_4));
-      break;
-#else
     case PARTITION_HORZ_A:
       DEC_BLOCK(mi_row, mi_col, bsize2);
       DEC_BLOCK(mi_row, mi_col + hbs, bsize2);
@@ -758,7 +691,6 @@ static void decode_partition(AV1Decoder *const pbi, MACROBLOCKD *const xd,
       DEC_BLOCK(mi_row, mi_col + hbs, bsize2);
       DEC_BLOCK(mi_row + hbs, mi_col + hbs, bsize2);
       break;
-#endif
     case PARTITION_HORZ_4:
       for (int i = 0; i < 4; ++i) {
         int this_mi_row = mi_row + i * quarter_step;
@@ -791,135 +723,6 @@ static void decode_partition(AV1Decoder *const pbi, MACROBLOCKD *const xd,
     update_partition_context(xd, mi_row, mi_col, subsize, bsize);
 #endif  // CONFIG_EXT_PARTITION_TYPES
 
-#if CONFIG_LPF_SB
-#if CONFIG_LOOPFILTER_LEVEL
-  if (bsize == cm->sb_size && !USE_GUESS_LEVEL) {
-    int lvl_idx;
-    int filt_lvl[4];
-    if (mi_row == 0 && mi_col == 0) {
-      filt_lvl[0] = aom_read_literal(r, 6, ACCT_STR);
-      filt_lvl[1] = aom_read_literal(r, 6, ACCT_STR);
-      if (filt_lvl[0] || filt_lvl[1]) {
-        filt_lvl[2] = aom_read_literal(r, 6, ACCT_STR);
-        filt_lvl[3] = aom_read_literal(r, 6, ACCT_STR);
-      }
-      for (lvl_idx = 0; lvl_idx < 4; ++lvl_idx) {
-        cm->mi_grid_visible[0]->mbmi.reuse_sb_lvl[lvl_idx] = 0;
-        cm->mi_grid_visible[0]->mbmi.delta[lvl_idx] = 0;
-        cm->mi_grid_visible[0]->mbmi.sign[lvl_idx] = 0;
-      }
-    } else {
-      int prev_mi_row, prev_mi_col;
-      if (mi_col - MAX_MIB_SIZE < 0) {
-        prev_mi_row = mi_row - MAX_MIB_SIZE;
-        prev_mi_col = mi_col;
-      } else {
-        prev_mi_row = mi_row;
-        prev_mi_col = mi_col - MAX_MIB_SIZE;
-      }
-
-      MB_MODE_INFO *curr_mbmi =
-          &cm->mi_grid_visible[mi_row * cm->mi_stride + mi_col]->mbmi;
-      MB_MODE_INFO *prev_mbmi =
-          &cm->mi_grid_visible[prev_mi_row * cm->mi_stride + prev_mi_col]->mbmi;
-      for (lvl_idx = 0; lvl_idx < 4; ++lvl_idx) {
-        const uint8_t prev_lvl = prev_mbmi->filt_lvl[lvl_idx];
-
-        const int reuse_ctx = prev_mbmi->reuse_sb_lvl[lvl_idx];
-        const int reuse_prev_lvl = aom_read_symbol(
-            r, xd->tile_ctx->lpf_reuse_cdf[lvl_idx][reuse_ctx], 2, ACCT_STR);
-        curr_mbmi->reuse_sb_lvl[lvl_idx] = reuse_prev_lvl;
-
-        if (reuse_prev_lvl) {
-          filt_lvl[lvl_idx] = prev_lvl;
-          curr_mbmi->delta[lvl_idx] = 0;
-          curr_mbmi->sign[lvl_idx] = 0;
-        } else {
-          const int delta_ctx = prev_mbmi->delta[lvl_idx];
-          unsigned int delta = aom_read_symbol(
-              r, xd->tile_ctx->lpf_delta_cdf[lvl_idx][delta_ctx], DELTA_RANGE,
-              ACCT_STR);
-          curr_mbmi->delta[lvl_idx] = delta;
-          delta *= LPF_STEP;
-
-          if (delta) {
-            const int sign_ctx = prev_mbmi->sign[lvl_idx];
-            const int sign = aom_read_symbol(
-                r, xd->tile_ctx->lpf_sign_cdf[lvl_idx][reuse_ctx][sign_ctx], 2,
-                ACCT_STR);
-            curr_mbmi->sign[lvl_idx] = sign;
-            filt_lvl[lvl_idx] = sign ? prev_lvl + delta : prev_lvl - delta;
-          } else {
-            filt_lvl[lvl_idx] = prev_lvl;
-            curr_mbmi->sign[lvl_idx] = 0;
-          }
-        }
-      }
-    }
-
-    av1_loop_filter_sb_level_init(cm, mi_row, mi_col, 0, 0, filt_lvl[0]);
-    av1_loop_filter_sb_level_init(cm, mi_row, mi_col, 0, 1, filt_lvl[1]);
-    av1_loop_filter_sb_level_init(cm, mi_row, mi_col, 1, 0, filt_lvl[2]);
-    av1_loop_filter_sb_level_init(cm, mi_row, mi_col, 2, 0, filt_lvl[3]);
-  }
-#else
-  if (bsize == cm->sb_size && !USE_GUESS_LEVEL) {
-    int filt_lvl;
-    if (mi_row == 0 && mi_col == 0) {
-      filt_lvl = aom_read_literal(r, 6, ACCT_STR);
-      cm->mi_grid_visible[0]->mbmi.reuse_sb_lvl = 0;
-      cm->mi_grid_visible[0]->mbmi.delta = 0;
-      cm->mi_grid_visible[0]->mbmi.sign = 0;
-    } else {
-      int prev_mi_row, prev_mi_col;
-      if (mi_col - MAX_MIB_SIZE < 0) {
-        prev_mi_row = mi_row - MAX_MIB_SIZE;
-        prev_mi_col = mi_col;
-      } else {
-        prev_mi_row = mi_row;
-        prev_mi_col = mi_col - MAX_MIB_SIZE;
-      }
-
-      MB_MODE_INFO *curr_mbmi =
-          &cm->mi_grid_visible[mi_row * cm->mi_stride + mi_col]->mbmi;
-      MB_MODE_INFO *prev_mbmi =
-          &cm->mi_grid_visible[prev_mi_row * cm->mi_stride + prev_mi_col]->mbmi;
-      const uint8_t prev_lvl = prev_mbmi->filt_lvl;
-
-      const int reuse_ctx = prev_mbmi->reuse_sb_lvl;
-      const int reuse_prev_lvl = aom_read_symbol(
-          r, xd->tile_ctx->lpf_reuse_cdf[reuse_ctx], 2, ACCT_STR);
-      curr_mbmi->reuse_sb_lvl = reuse_prev_lvl;
-
-      if (reuse_prev_lvl) {
-        filt_lvl = prev_lvl;
-        curr_mbmi->delta = 0;
-        curr_mbmi->sign = 0;
-      } else {
-        const int delta_ctx = prev_mbmi->delta;
-        unsigned int delta = aom_read_symbol(
-            r, xd->tile_ctx->lpf_delta_cdf[delta_ctx], DELTA_RANGE, ACCT_STR);
-        curr_mbmi->delta = delta;
-        delta *= LPF_STEP;
-
-        if (delta) {
-          const int sign_ctx = prev_mbmi->sign;
-          const int sign = aom_read_symbol(
-              r, xd->tile_ctx->lpf_sign_cdf[reuse_ctx][sign_ctx], 2, ACCT_STR);
-          curr_mbmi->sign = sign;
-          filt_lvl = sign ? prev_lvl + delta : prev_lvl - delta;
-        } else {
-          filt_lvl = prev_lvl;
-          curr_mbmi->sign = 0;
-        }
-      }
-    }
-
-    av1_loop_filter_sb_level_init(cm, mi_row, mi_col, filt_lvl);
-  }
-#endif  // CONFIG_LOOPFILTER_LEVEL
-#endif  // CONFIG_LPF_SB
-
 #if CONFIG_LOOP_RESTORATION
   for (int plane = 0; plane < av1_num_planes(cm); ++plane) {
     int rcol0, rcol1, rrow0, rrow1, tile_tl_idx;
@@ -941,8 +744,7 @@ static void decode_partition(AV1Decoder *const pbi, MACROBLOCKD *const xd,
 static void setup_bool_decoder(const uint8_t *data, const uint8_t *data_end,
                                const size_t read_size,
                                struct aom_internal_error_info *error_info,
-                               aom_reader *r, uint8_t allow_update_cdf,
-                               aom_decrypt_cb decrypt_cb, void *decrypt_state) {
+                               aom_reader *r, uint8_t allow_update_cdf) {
   // Validate the calculated partition length. If the buffer
   // described by the partition can't be fully read, then restrict
   // it to the portion that can be (for EC mode) or throw an error.
@@ -950,7 +752,7 @@ static void setup_bool_decoder(const uint8_t *data, const uint8_t *data_end,
     aom_internal_error(error_info, AOM_CODEC_CORRUPT_FRAME,
                        "Truncated packet or corrupt tile length");
 
-  if (aom_reader_init(r, data, read_size, decrypt_cb, decrypt_state))
+  if (aom_reader_init(r, data, read_size))
     aom_internal_error(error_info, AOM_CODEC_MEM_ERROR,
                        "Failed to allocate bool decoder %d", 1);
 
@@ -1001,9 +803,18 @@ static void setup_segmentation(AV1_COMMON *const cm,
           cm->last_active_segid = i;
 #endif
           av1_enable_segfeature(seg, i, j);
-          data = decode_unsigned_max(rb, av1_seg_feature_data_max(j));
-          if (av1_is_segfeature_signed(j))
-            data = aom_rb_read_bit(rb) ? -data : data;
+
+          const int data_max = av1_seg_feature_data_max(j);
+          const int data_min = -data_max;
+          const int ubits = get_unsigned_bits(data_max);
+
+          if (av1_is_segfeature_signed(j)) {
+            data = aom_rb_read_inv_signed_literal(rb, ubits);
+          } else {
+            data = aom_rb_read_literal(rb, ubits);
+          }
+
+          data = clamp(data, data_min, data_max);
         }
         av1_set_segdata(seg, i, j, data);
       }
@@ -1186,24 +997,16 @@ static void setup_loopfilter(AV1_COMMON *cm, struct aom_read_bit_buffer *rb) {
 #endif  // CONFIG_INTRABC && !CONFIG_LPF_SB
   struct loopfilter *lf = &cm->lf;
 #if CONFIG_LOOPFILTER_LEVEL
-#if CONFIG_LPF_SB
-  if (USE_GUESS_LEVEL) {
-#endif  // CONFIG_LPF_SB
-    lf->filter_level[0] = aom_rb_read_literal(rb, 6);
-    lf->filter_level[1] = aom_rb_read_literal(rb, 6);
+  lf->filter_level[0] = aom_rb_read_literal(rb, 6);
+  lf->filter_level[1] = aom_rb_read_literal(rb, 6);
+  if (av1_num_planes(cm) > 1) {
     if (lf->filter_level[0] || lf->filter_level[1]) {
       lf->filter_level_u = aom_rb_read_literal(rb, 6);
       lf->filter_level_v = aom_rb_read_literal(rb, 6);
     }
-#if CONFIG_LPF_SB
   }
-#endif  // CONFIG_LPF_SB
-#else
-#if CONFIG_LPF_SB
-  if (USE_GUESS_LEVEL) lf->filter_level = aom_rb_read_literal(rb, 6);
 #else
   lf->filter_level = aom_rb_read_literal(rb, 6);
-#endif  // CONFIG_LPF_SB
 #endif
   lf->sharpness_level = aom_rb_read_literal(rb, 3);
 
@@ -1230,17 +1033,12 @@ static void setup_cdef(AV1_COMMON *cm, struct aom_read_bit_buffer *rb) {
 #if CONFIG_INTRABC
   if (cm->allow_intrabc && NO_FILTER_FOR_IBC) return;
 #endif  // CONFIG_INTRABC
-#if CONFIG_CDEF_SINGLEPASS
   cm->cdef_pri_damping = cm->cdef_sec_damping = aom_rb_read_literal(rb, 2) + 3;
-#else
-  cm->cdef_pri_damping = aom_rb_read_literal(rb, 1) + 5;
-  cm->cdef_sec_damping = aom_rb_read_literal(rb, 2) + 3;
-#endif
   cm->cdef_bits = aom_rb_read_literal(rb, 2);
   cm->nb_cdef_strengths = 1 << cm->cdef_bits;
   for (int i = 0; i < cm->nb_cdef_strengths; i++) {
     cm->cdef_strengths[i] = aom_rb_read_literal(rb, CDEF_STRENGTH_BITS);
-    cm->cdef_uv_strengths[i] = cm->subsampling_x == cm->subsampling_y
+    cm->cdef_uv_strengths[i] = av1_num_planes(cm) > 1
                                    ? aom_rb_read_literal(rb, CDEF_STRENGTH_BITS)
                                    : 0;
   }
@@ -1254,18 +1052,20 @@ static void setup_quantization(AV1_COMMON *const cm,
                                struct aom_read_bit_buffer *rb) {
   cm->base_qindex = aom_rb_read_literal(rb, QINDEX_BITS);
   cm->y_dc_delta_q = read_delta_q(rb);
-  int diff_uv_delta = 0;
+  if (av1_num_planes(cm) > 1) {
+    int diff_uv_delta = 0;
 #if CONFIG_EXT_QM
-  if (cm->separate_uv_delta_q) diff_uv_delta = aom_rb_read_bit(rb);
+    if (cm->separate_uv_delta_q) diff_uv_delta = aom_rb_read_bit(rb);
 #endif
-  cm->u_dc_delta_q = read_delta_q(rb);
-  cm->u_ac_delta_q = read_delta_q(rb);
-  if (diff_uv_delta) {
-    cm->v_dc_delta_q = read_delta_q(rb);
-    cm->v_ac_delta_q = read_delta_q(rb);
-  } else {
-    cm->v_dc_delta_q = cm->u_dc_delta_q;
-    cm->v_ac_delta_q = cm->u_ac_delta_q;
+    cm->u_dc_delta_q = read_delta_q(rb);
+    cm->u_ac_delta_q = read_delta_q(rb);
+    if (diff_uv_delta) {
+      cm->v_dc_delta_q = read_delta_q(rb);
+      cm->v_ac_delta_q = read_delta_q(rb);
+    } else {
+      cm->v_dc_delta_q = cm->u_dc_delta_q;
+      cm->v_ac_delta_q = cm->u_ac_delta_q;
+    }
   }
   cm->dequant_bit_depth = cm->bit_depth;
 #if CONFIG_AOM_QM
@@ -1761,10 +1561,23 @@ static void read_tile_info(AV1Decoder *const pbi,
     cm->dependent_horz_tiles = 0;
 #endif
 #if CONFIG_LOOPFILTERING_ACROSS_TILES
+#if CONFIG_LOOPFILTERING_ACROSS_TILES_EXT
+    if (cm->tile_cols > 1) {
+      cm->loop_filter_across_tiles_v_enabled = aom_rb_read_bit(rb);
+    } else {
+      cm->loop_filter_across_tiles_v_enabled = 1;
+    }
+    if (cm->tile_rows > 1) {
+      cm->loop_filter_across_tiles_h_enabled = aom_rb_read_bit(rb);
+    } else {
+      cm->loop_filter_across_tiles_h_enabled = 1;
+    }
+#else
     if (cm->tile_cols * cm->tile_rows > 1)
       cm->loop_filter_across_tiles_enabled = aom_rb_read_bit(rb);
     else
       cm->loop_filter_across_tiles_enabled = 1;
+#endif  // CONFIG_LOOPFILTERING_ACROSS_TILES_EXT
 #endif  // CONFIG_LOOPFILTERING_ACROSS_TILES
 
     if (cm->tile_cols * cm->tile_rows > 1) {
@@ -1773,12 +1586,11 @@ static void read_tile_info(AV1Decoder *const pbi,
       pbi->tile_size_bytes = aom_rb_read_literal(rb, 2) + 1;
     }
 #if CONFIG_MAX_TILE
-    int i;
-    for (i = 0; i <= cm->tile_cols; i++) {
+    for (int i = 0; i <= cm->tile_cols; i++) {
       cm->tile_col_start_sb[i] =
           ((i * cm->tile_width - 1) >> cm->mib_size_log2) + 1;
     }
-    for (i = 0; i <= cm->tile_rows; i++) {
+    for (int i = 0; i <= cm->tile_rows; i++) {
       cm->tile_row_start_sb[i] =
           ((i * cm->tile_height - 1) >> cm->mib_size_log2) + 1;
     }
@@ -1818,10 +1630,23 @@ static void read_tile_info(AV1Decoder *const pbi,
       cm->dependent_horz_tiles = 0;
 #endif
 #if CONFIG_LOOPFILTERING_ACROSS_TILES
+#if CONFIG_LOOPFILTERING_ACROSS_TILES_EXT
+    if (cm->tile_cols > 1) {
+      cm->loop_filter_across_tiles_v_enabled = aom_rb_read_bit(rb);
+    } else {
+      cm->loop_filter_across_tiles_v_enabled = 1;
+    }
+    if (cm->tile_rows > 1) {
+      cm->loop_filter_across_tiles_h_enabled = aom_rb_read_bit(rb);
+    } else {
+      cm->loop_filter_across_tiles_h_enabled = 1;
+    }
+#else
     if (cm->tile_cols * cm->tile_rows > 1)
       cm->loop_filter_across_tiles_enabled = aom_rb_read_bit(rb);
     else
       cm->loop_filter_across_tiles_enabled = 1;
+#endif  // CONFIG_LOOPFILTERING_ACROSS_TILES_EXT
 #endif  // CONFIG_LOOPFILTERING_ACROSS_TILES
 
     // tile size magnitude
@@ -1853,9 +1678,8 @@ static int mem_get_varsize(const uint8_t *src, int sz) {
 // based on 'is_last'.
 static void get_ls_tile_buffer(
     const uint8_t *const data_end, struct aom_internal_error_info *error_info,
-    const uint8_t **data, aom_decrypt_cb decrypt_cb, void *decrypt_state,
-    TileBufferDec (*const tile_buffers)[MAX_TILE_COLS], int tile_size_bytes,
-    int col, int row, int tile_copy_mode) {
+    const uint8_t **data, TileBufferDec (*const tile_buffers)[MAX_TILE_COLS],
+    int tile_size_bytes, int col, int row, int tile_copy_mode) {
   size_t size;
 
   size_t copy_size = 0;
@@ -1864,15 +1688,7 @@ static void get_ls_tile_buffer(
   if (!read_is_valid(*data, tile_size_bytes, data_end))
     aom_internal_error(error_info, AOM_CODEC_CORRUPT_FRAME,
                        "Truncated packet or corrupt tile length");
-  if (decrypt_cb) {
-    uint8_t be_data[4];
-    decrypt_cb(decrypt_state, *data, be_data, tile_size_bytes);
-
-    // Only read number of bytes in cm->tile_size_bytes.
-    size = mem_get_varsize(be_data, tile_size_bytes);
-  } else {
-    size = mem_get_varsize(*data, tile_size_bytes);
-  }
+  size = mem_get_varsize(*data, tile_size_bytes);
 
   // If tile_copy_mode = 1, then the top bit of the tile header indicates copy
   // mode.
@@ -1972,8 +1788,7 @@ static void get_ls_tile_buffers(
         tile_buffers[r][c].col = c;
 
         get_ls_tile_buffer(tile_col_data_end[c], &pbi->common.error, &data,
-                           pbi->decrypt_cb, pbi->decrypt_state, tile_buffers,
-                           tile_size_bytes, c, r, tile_copy_mode);
+                           tile_buffers, tile_size_bytes, c, r, tile_copy_mode);
       }
     }
 
@@ -1987,8 +1802,7 @@ static void get_ls_tile_buffers(
         tile_buffers[r][c].col = c;
 
         get_ls_tile_buffer(tile_col_data_end[c], &pbi->common.error, &data,
-                           pbi->decrypt_cb, pbi->decrypt_state, tile_buffers,
-                           tile_size_bytes, c, r, tile_copy_mode);
+                           tile_buffers, tile_size_bytes, c, r, tile_copy_mode);
       }
     }
   }
@@ -2000,8 +1814,7 @@ static void get_ls_tile_buffers(
 static void get_tile_buffer(const uint8_t *const data_end,
                             const int tile_size_bytes, int is_last,
                             struct aom_internal_error_info *error_info,
-                            const uint8_t **data, aom_decrypt_cb decrypt_cb,
-                            void *decrypt_state, TileBufferDec *const buf) {
+                            const uint8_t **data, TileBufferDec *const buf) {
   size_t size;
 
   if (!is_last) {
@@ -2009,13 +1822,7 @@ static void get_tile_buffer(const uint8_t *const data_end,
       aom_internal_error(error_info, AOM_CODEC_CORRUPT_FRAME,
                          "Truncated packet or corrupt tile length");
 
-    if (decrypt_cb) {
-      uint8_t be_data[4];
-      decrypt_cb(decrypt_state, *data, be_data, tile_size_bytes);
-      size = mem_get_varsize(be_data, tile_size_bytes);
-    } else {
-      size = mem_get_varsize(*data, tile_size_bytes);
-    }
+    size = mem_get_varsize(*data, tile_size_bytes);
     *data += tile_size_bytes;
 
     if (size > (size_t)(data_end - *data))
@@ -2047,7 +1854,6 @@ static void get_tile_buffers(AV1Decoder *pbi, const uint8_t *data,
   int first_tile_in_tg = 0;
 #if !CONFIG_OBU
   struct aom_read_bit_buffer rb_tg_hdr;
-  uint8_t clear_data[MAX_AV1_HEADER_SIZE];
   const size_t hdr_size = pbi->uncomp_hdr_size + pbi->first_partition_size;
   const int tg_size_bit_offset = pbi->tg_size_bit_offset;
 #endif
@@ -2087,7 +1893,7 @@ static void get_tile_buffers(AV1Decoder *pbi, const uint8_t *data,
 #endif  // CONFIG_DEPENDENT_HORZTILES
 #else   // CONFIG_OBU
       if (hdr_offset) {
-        init_read_bit_buffer(pbi, &rb_tg_hdr, data, data_end, clear_data);
+        init_read_bit_buffer(pbi, &rb_tg_hdr, data, data_end);
         rb_tg_hdr.bit_offset = tg_size_bit_offset;
         read_tile_group_range(pbi, &rb_tg_hdr);
 #if CONFIG_DEPENDENT_HORZTILES
@@ -2099,8 +1905,7 @@ static void get_tile_buffers(AV1Decoder *pbi, const uint8_t *data,
       first_tile_in_tg += tc == first_tile_in_tg ? pbi->tg_size : 0;
       data += hdr_offset;
       get_tile_buffer(data_end, pbi->tile_size_bytes, is_last,
-                      &pbi->common.error, &data, pbi->decrypt_cb,
-                      pbi->decrypt_state, buf);
+                      &pbi->common.error, &data, buf);
 #if CONFIG_DEPENDENT_HORZTILES
       cm->tile_group_start_row[r][c] = tile_group_start_row;
       cm->tile_group_start_col[r][c] = tile_group_start_col;
@@ -2115,14 +1920,18 @@ static void get_tile_buffers(AV1Decoder *pbi, const uint8_t *data,
   }
 }
 
-#if CONFIG_LOOPFILTERING_ACROSS_TILES
+#if CONFIG_LOOPFILTERING_ACROSS_TILES || CONFIG_LOOPFILTERING_ACROSS_TILES_EXT
 static void dec_setup_across_tile_boundary_info(
     const AV1_COMMON *const cm, const TileInfo *const tile_info) {
   if (tile_info->mi_row_start >= tile_info->mi_row_end ||
       tile_info->mi_col_start >= tile_info->mi_col_end)
     return;
-
+#if CONFIG_LOOPFILTERING_ACROSS_TILES_EXT
+  if (!cm->loop_filter_across_tiles_v_enabled ||
+      !cm->loop_filter_across_tiles_h_enabled) {
+#else
   if (!cm->loop_filter_across_tiles_enabled) {
+#endif
     av1_setup_across_tile_boundary_info(cm, tile_info);
   }
 }
@@ -2238,8 +2047,7 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
       av1_zero(td->dqcoeff);
       av1_tile_init(&td->xd.tile, td->cm, tile_row, tile_col);
       setup_bool_decoder(buf->data, data_end, buf->size, &cm->error,
-                         &td->bit_reader, allow_update_cdf, pbi->decrypt_cb,
-                         pbi->decrypt_state);
+                         &td->bit_reader, allow_update_cdf);
 #if CONFIG_ACCOUNTING
       if (pbi->acct_enabled) {
         td->bit_reader.accounting = &pbi->accounting;
@@ -2295,17 +2103,15 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
       av1_reset_loop_restoration(&td->xd);
 #endif  // CONFIG_LOOP_RESTORATION
 
-#if CONFIG_LOOPFILTERING_ACROSS_TILES
+#if CONFIG_LOOPFILTERING_ACROSS_TILES || CONFIG_LOOPFILTERING_ACROSS_TILES_EXT
       dec_setup_across_tile_boundary_info(cm, &tile_info);
 #endif  // CONFIG_LOOPFILTERING_ACROSS_TILES
 
       for (mi_row = tile_info.mi_row_start; mi_row < tile_info.mi_row_end;
            mi_row += cm->mib_size) {
-        int mi_col;
-
         av1_zero_left_context(&td->xd);
 
-        for (mi_col = tile_info.mi_col_start; mi_col < tile_info.mi_col_end;
+        for (int mi_col = tile_info.mi_col_start; mi_col < tile_info.mi_col_end;
              mi_col += cm->mib_size) {
 #if CONFIG_SYMBOLRATE
           av1_record_superblock(td->xd.counts);
@@ -2313,30 +2119,23 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
           decode_partition(pbi, &td->xd, mi_row, mi_col, &td->bit_reader,
                            cm->sb_size);
 #if CONFIG_LPF_SB
-          if (USE_LOOP_FILTER_SUPERBLOCK) {
+          if (cm->allow_screen_content_tools) {
 #if CONFIG_LOOPFILTER_LEVEL
-            if (USE_GUESS_LEVEL) {
-              if (cm->lf.filter_level[0] || cm->lf.filter_level[1]) {
-                av1_loop_filter_frame(get_frame_new_buffer(cm), cm, &pbi->mb,
-                                      cm->lf.filter_level[0],
-                                      cm->lf.filter_level[1], 0, 1, mi_row,
-                                      mi_col);
-                av1_loop_filter_frame(get_frame_new_buffer(cm), cm, &pbi->mb,
-                                      cm->lf.filter_level_u,
-                                      cm->lf.filter_level_u, 1, 1, mi_row,
-                                      mi_col);
-                av1_loop_filter_frame(get_frame_new_buffer(cm), cm, &pbi->mb,
-                                      cm->lf.filter_level_v,
-                                      cm->lf.filter_level_v, 2, 1, mi_row,
-                                      mi_col);
-              }
+            if (cm->lf.filter_level[0] || cm->lf.filter_level[1]) {
+              av1_loop_filter_frame(get_frame_new_buffer(cm), cm, &pbi->mb,
+                                    cm->lf.filter_level[0],
+                                    cm->lf.filter_level[1], 0, 1, mi_row,
+                                    mi_col);
+              av1_loop_filter_frame(
+                  get_frame_new_buffer(cm), cm, &pbi->mb, cm->lf.filter_level_u,
+                  cm->lf.filter_level_u, 1, 1, mi_row, mi_col);
+              av1_loop_filter_frame(
+                  get_frame_new_buffer(cm), cm, &pbi->mb, cm->lf.filter_level_v,
+                  cm->lf.filter_level_v, 2, 1, mi_row, mi_col);
             }
 #else
-            // apply deblocking filtering right after each superblock is decoded
-            const int filter_lvl =
-                cm->mi[mi_row * cm->mi_stride + mi_col].mbmi.filt_lvl;
             av1_loop_filter_frame(get_frame_new_buffer(cm), cm, &pbi->mb,
-                                  filter_lvl, 0, 1, mi_row, mi_col);
+                                  cm->lf.filter_level, 0, 1, mi_row, mi_col);
 #endif  // CONFIG_LOOPFILTER_LEVEL
           }
 #endif  // CONFIG_LPF_SB
@@ -2363,14 +2162,11 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
 #endif  // CONFIG_INTRABC && !CONFIG_LPF_SB
   {
 // Loopfilter the whole frame.
-#if CONFIG_LPF_SB
-    av1_loop_filter_frame(get_frame_new_buffer(cm), cm, &pbi->mb,
-                          cm->lf.filter_level, 0, 0, 0, 0);
-#else
+#if !CONFIG_LPF_SB
 #if CONFIG_OBU
     if (endTile == cm->tile_rows * cm->tile_cols - 1)
 #endif
-#if CONFIG_LOOPFILTER_LEVEL && !CONFIG_LPF_SB
+#if CONFIG_LOOPFILTER_LEVEL
       if (cm->lf.filter_level[0] || cm->lf.filter_level[1]) {
         av1_loop_filter_frame(get_frame_new_buffer(cm), cm, &pbi->mb,
                               cm->lf.filter_level[0], cm->lf.filter_level[1], 0,
@@ -2382,7 +2178,7 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
                               cm->lf.filter_level_v, cm->lf.filter_level_v, 2,
                               0);
       }
-#elif !CONFIG_LPF_SB
+#else
     av1_loop_filter_frame(get_frame_new_buffer(cm), cm, &pbi->mb,
                           cm->lf.filter_level, 0, 0);
 #endif  // CONFIG_LOOPFILTER_LEVEL
@@ -2631,8 +2427,7 @@ static int read_global_motion_params(WarpedMotionParams *params,
 }
 
 static void read_global_motion(AV1_COMMON *cm, struct aom_read_bit_buffer *rb) {
-  int frame;
-  for (frame = LAST_FRAME; frame <= ALTREF_FRAME; ++frame) {
+  for (int frame = LAST_FRAME; frame <= ALTREF_FRAME; ++frame) {
     const WarpedMotionParams *ref_params =
         cm->error_resilient_mode ? &default_warp_params
                                  : &cm->prev_frame->global_motion[frame];
@@ -3044,22 +2839,6 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
   }
   av1_setup_frame_buf_refs(cm);
 
-#if CONFIG_EXT_SKIP
-  av1_setup_skip_mode_allowed(cm);
-  cm->skip_mode_flag = cm->is_skip_mode_allowed ? aom_rb_read_bit(rb) : 0;
-#if 0
-  printf(
-      "DECODER: Frame=%d, frame_offset=%d, show_frame=%d, "
-      "show_existing_frame=%d, is_skip_mode_allowed=%d, "
-      "ref_frame_idx=(%d,%d), frame_reference_mode=%d, "
-      "tpl_frame_ref0_idx=%d, skip_mode_flag=%d\n\n",
-      cm->current_video_frame, cm->frame_offset, cm->show_frame,
-      cm->show_existing_frame, cm->is_skip_mode_allowed, cm->ref_frame_idx_0,
-      cm->ref_frame_idx_1, cm->reference_mode, cm->tpl_frame_ref0_idx,
-      cm->skip_mode_flag);
-#endif  // 0
-#endif  // CONFIG_EXT_SKIP
-
 #if CONFIG_FRAME_SIGN_BIAS
 #if CONFIG_OBU
   if (cm->frame_type != S_FRAME)
@@ -3076,8 +2855,7 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
   if (cm->seq_params.frame_id_numbers_present_flag) {
     /* If bitmask is set, update reference frame id values and
        mark frames as valid for reference */
-    int refresh_frame_flags =
-        cm->frame_type == KEY_FRAME ? 0xFF : pbi->refresh_frame_flags;
+    int refresh_frame_flags = pbi->refresh_frame_flags;
     for (int i = 0; i < REF_FRAMES; i++) {
       if ((refresh_frame_flags >> i) & 1) {
         cm->ref_frame_id[i] = cm->current_frame_id;
@@ -3182,6 +2960,10 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
   }
 #endif  // CONFIG_INTRABC
 
+#if CONFIG_TILE_INFO_FIRST
+  read_tile_info(pbi, rb);
+#endif
+
   setup_loopfilter(cm, rb);
   setup_quantization(cm, rb);
   xd->bd = (int)cm->bit_depth;
@@ -3262,21 +3044,27 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
   cm->tx_mode = read_tx_mode(cm, rb);
   cm->reference_mode = read_frame_reference_mode(cm, rb);
   if (cm->reference_mode != SINGLE_REFERENCE) setup_compound_reference_mode(cm);
+
+#if CONFIG_EXT_SKIP
+  av1_setup_skip_mode_allowed(cm);
+  cm->skip_mode_flag = cm->is_skip_mode_allowed ? aom_rb_read_bit(rb) : 0;
+  xd->all_one_sided_refs =
+      frame_is_intra_only(cm) ? 0 : av1_refs_are_one_sided(cm);
+#if 0
+  printf(
+      "DECODER: Frame=%d, frame_offset=%d, show_frame=%d, "
+      "show_existing_frame=%d, is_skip_mode_allowed=%d, "
+      "ref_frame_idx=(%d,%d), reference_mode=%d, "
+      "skip_mode_flag=%d\n\n",
+      cm->current_video_frame, cm->frame_offset, cm->show_frame,
+      cm->show_existing_frame, cm->is_skip_mode_allowed, cm->ref_frame_idx_0,
+      cm->ref_frame_idx_1, cm->reference_mode, cm->skip_mode_flag);
+#endif  // 0
+#endif  // CONFIG_EXT_SKIP
+
   read_compound_tools(cm, rb);
 
   cm->reduced_tx_set_used = aom_rb_read_bit(rb);
-
-#if CONFIG_ADAPT_SCAN
-#if CONFIG_EXT_TILE
-  if (cm->large_scale_tile)
-    cm->use_adapt_scan = 0;
-  else
-#endif  // CONFIG_EXT_TILE
-    cm->use_adapt_scan = aom_rb_read_bit(rb);
-  // TODO(angiebird): call av1_init_scan_order only when use_adapt_scan
-  // switches from 1 to 0
-  if (cm->use_adapt_scan == 0) av1_init_scan_order(cm);
-#endif  // CONFIG_ADAPT_SCAN
 
 #if !CONFIG_TEMPMV_SIGNALING
   // NOTE(zoeliu): As cm->prev_frame can take neither a frame of
@@ -3319,7 +3107,9 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
 
   if (!frame_is_intra_only(cm)) read_global_motion(cm, rb);
 
+#if !CONFIG_TILE_INFO_FIRST
   read_tile_info(pbi, rb);
+#endif
 
   size_t sz;
   if (use_compressed_header(cm)) {
@@ -3389,19 +3179,12 @@ static void debug_check_frame_counts(const AV1_COMMON *const cm) {
 
 static struct aom_read_bit_buffer *init_read_bit_buffer(
     AV1Decoder *pbi, struct aom_read_bit_buffer *rb, const uint8_t *data,
-    const uint8_t *data_end, uint8_t clear_data[MAX_AV1_HEADER_SIZE]) {
+    const uint8_t *data_end) {
   rb->bit_offset = 0;
   rb->error_handler = error_handler;
   rb->error_handler_data = &pbi->common;
-  if (pbi->decrypt_cb) {
-    const int n = (int)AOMMIN(MAX_AV1_HEADER_SIZE, data_end - data);
-    pbi->decrypt_cb(pbi->decrypt_state, data, clear_data, n);
-    rb->bit_buffer = clear_data;
-    rb->bit_buffer_end = clear_data + n;
-  } else {
-    rb->bit_buffer = data;
-    rb->bit_buffer_end = data_end;
-  }
+  rb->bit_buffer = data;
+  rb->bit_buffer_end = data_end;
   return rb;
 }
 
@@ -3452,7 +3235,7 @@ static void dec_setup_frame_boundary_info(AV1_COMMON *const cm) {
 // change every frame (particularly when dependent-horztiles is also
 // enabled); when it is disabled, the only information stored is the frame
 // boundaries, which only depend on the frame size.
-#if !CONFIG_LOOPFILTERING_ACROSS_TILES
+#if !CONFIG_LOOPFILTERING_ACROSS_TILES && !CONFIG_LOOPFILTERING_ACROSS_TILES_EXT
   if (cm->width != cm->last_width || cm->height != cm->last_height)
 #endif  // CONFIG_LOOPFILTERING_ACROSS_TILES
   {
@@ -3477,9 +3260,6 @@ size_t av1_decode_frame_headers_and_setup(AV1Decoder *pbi, const uint8_t *data,
   RefBuffer *last_fb_ref_buf = &cm->frame_refs[LAST_FRAME - LAST_FRAME];
 #endif
 
-#if CONFIG_ADAPT_SCAN
-  av1_deliver_eob_threshold(cm, xd);
-#endif
 #if CONFIG_BITSTREAM_DEBUG
   bitstream_queue_set_frame_read(cm->current_video_frame * 2 + cm->show_frame);
 #endif
@@ -3493,10 +3273,9 @@ size_t av1_decode_frame_headers_and_setup(AV1Decoder *pbi, const uint8_t *data,
   }
   xd->global_motion = cm->global_motion;
 
-  uint8_t clear_data[MAX_AV1_HEADER_SIZE];
   struct aom_read_bit_buffer rb;
   const size_t first_partition_size = read_uncompressed_header(
-      pbi, init_read_bit_buffer(pbi, &rb, data, data_end, clear_data));
+      pbi, init_read_bit_buffer(pbi, &rb, data, data_end));
 
 #if CONFIG_EXT_TILE
   // If cm->single_tile_decoding = 0, the independent decoding of a single tile
@@ -3765,9 +3544,6 @@ void av1_decode_tg_tiles_and_wrapup(AV1Decoder *pbi, const uint8_t *data,
                                   num_bwd_ctxs);
       av1_average_tile_loopfilter_cdfs(pbi->common.fc, tile_ctxs, cdf_ptrs,
                                        num_bwd_ctxs);
-#if CONFIG_ADAPT_SCAN
-      av1_adapt_scan_order(cm, tile_ctxs, num_bwd_ctxs);
-#endif  // CONFIG_ADAPT_SCAN
 
       if (!frame_is_intra_only(cm)) {
         av1_adapt_inter_frame_probs(cm);
@@ -3816,17 +3592,14 @@ void av1_decode_tg_tiles_and_wrapup(AV1Decoder *pbi, const uint8_t *data,
 
 static OBU_TYPE read_obu_header(struct aom_read_bit_buffer *rb,
                                 size_t *header_size) {
-  OBU_TYPE obu_type;
-  int obu_extension_flag;
-
   *header_size = 1;
 
   // first bit is obu_forbidden_bit (0) according to R19
   aom_rb_read_bit(rb);
 
-  obu_type = (OBU_TYPE)aom_rb_read_literal(rb, 4);
+  const OBU_TYPE obu_type = (OBU_TYPE)aom_rb_read_literal(rb, 4);
   aom_rb_read_literal(rb, 2);  // reserved
-  obu_extension_flag = aom_rb_read_bit(rb);
+  const int obu_extension_flag = aom_rb_read_bit(rb);
   if (obu_extension_flag) {
     *header_size += 1;
     aom_rb_read_literal(rb, 3);  // temporal_id
@@ -3858,9 +3631,7 @@ static uint32_t read_sequence_header_obu(AV1Decoder *pbi,
 static uint32_t read_frame_header_obu(AV1Decoder *pbi, const uint8_t *data,
                                       const uint8_t *data_end,
                                       const uint8_t **p_data_end) {
-  size_t header_size;
-
-  header_size =
+  const size_t header_size =
       av1_decode_frame_headers_and_setup(pbi, data, data_end, p_data_end);
   return (uint32_t)(pbi->uncomp_hdr_size + header_size);
 }
@@ -3870,6 +3641,14 @@ static uint32_t read_tile_group_header(AV1Decoder *pbi,
                                        int *startTile, int *endTile) {
   AV1_COMMON *const cm = &pbi->common;
   uint32_t saved_bit_offset = rb->bit_offset;
+
+#if CONFIG_EXT_TILE
+  if (pbi->common.large_scale_tile) {
+    *startTile = 0;
+    *endTile = pbi->common.tile_rows * pbi->common.tile_cols - 1;
+    return ((rb->bit_offset - saved_bit_offset + 7) >> 3);
+  }
+#endif
 
   *startTile = aom_rb_read_literal(rb, cm->log2_tile_rows + cm->log2_tile_cols);
   *endTile = aom_rb_read_literal(rb, cm->log2_tile_rows + cm->log2_tile_cols);
@@ -3929,10 +3708,8 @@ static void read_metadata_hdr_mdcv(const uint8_t *data) {
 }
 
 static size_t read_metadata(const uint8_t *data, size_t sz) {
-  OBU_METADATA_TYPE metadata_type;
-
   assert(sz >= 2);
-  metadata_type = (OBU_METADATA_TYPE)mem_get_le16(data);
+  const OBU_METADATA_TYPE metadata_type = (OBU_METADATA_TYPE)mem_get_le16(data);
 
   if (metadata_type == OBU_METADATA_TYPE_PRIVATE_DATA) {
     read_metadata_private_data(data + 2, sz - 2);
@@ -3957,22 +3734,19 @@ void av1_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
   // decode frame as a series of OBUs
   while (!frame_decoding_finished && !cm->error.error_code) {
     struct aom_read_bit_buffer rb;
-    uint8_t clear_data[80];
-    size_t obu_size, obu_header_size, obu_payload_size = 0;
-    OBU_TYPE obu_type;
+    size_t obu_header_size, obu_payload_size = 0;
 
-    init_read_bit_buffer(pbi, &rb, data + PRE_OBU_SIZE_BYTES, data_end,
-                         clear_data);
+    init_read_bit_buffer(pbi, &rb, data + PRE_OBU_SIZE_BYTES, data_end);
 
 // every obu is preceded by PRE_OBU_SIZE_BYTES-byte size of obu (obu header +
 // payload size)
 // The obu size is only needed for tile group OBUs
 #if CONFIG_ADD_4BYTES_OBUSIZE
-    obu_size = mem_get_le32(data);
+    const size_t obu_size = mem_get_le32(data);
 #else
-    obu_size = data_end - data;
+    const size_t obu_size = (size_t)(data_end - data);
 #endif
-    obu_type = read_obu_header(&rb, &obu_header_size);
+    const OBU_TYPE obu_type = read_obu_header(&rb, &obu_header_size);
     data += (PRE_OBU_SIZE_BYTES + obu_header_size);
 
     switch (obu_type) {

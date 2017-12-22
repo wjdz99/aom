@@ -35,8 +35,6 @@ static const int delta_lf_id_lut[MAX_MB_PLANE][2] = {
 #endif  // CONFIG_EXT_DELTA_Q
 #endif  // CONFIG_LOOPFILTER_LEVEL
 
-#define PARALLEL_DEBLOCKING_15TAPLUMAONLY 1
-#define PARALLEL_DEBLOCKING_DISABLE_15TAP 0
 #if CONFIG_DEBLOCK_13TAP
 #define PARALLEL_DEBLOCKING_5_TAP_CHROMA 1
 #else
@@ -131,9 +129,6 @@ static const uint64_t above_64x64_txform_mask[TX_SIZES] = {
 //  00000000
 //  00000000
 static const uint64_t left_prediction_mask[BLOCK_SIZES_ALL] = {
-  0x0000000000000001ULL,  // BLOCK_2X2,
-  0x0000000000000001ULL,  // BLOCK_2X4,
-  0x0000000000000001ULL,  // BLOCK_4X2,
   0x0000000000000001ULL,  // BLOCK_4X4,
   0x0000000000000001ULL,  // BLOCK_4X8,
   0x0000000000000001ULL,  // BLOCK_8X4,
@@ -157,9 +152,6 @@ static const uint64_t left_prediction_mask[BLOCK_SIZES_ALL] = {
 
 // 64 bit mask to shift and set for each prediction size.
 static const uint64_t above_prediction_mask[BLOCK_SIZES_ALL] = {
-  0x0000000000000001ULL,  // BLOCK_2X2
-  0x0000000000000001ULL,  // BLOCK_2X4
-  0x0000000000000001ULL,  // BLOCK_4X2
   0x0000000000000001ULL,  // BLOCK_4X4
   0x0000000000000001ULL,  // BLOCK_4X8
   0x0000000000000001ULL,  // BLOCK_8X4
@@ -184,9 +176,6 @@ static const uint64_t above_prediction_mask[BLOCK_SIZES_ALL] = {
 // each 8x8 block that would be in the top left most block of the given block
 // size in the 64x64 block.
 static const uint64_t size_mask[BLOCK_SIZES_ALL] = {
-  0x0000000000000001ULL,  // BLOCK_2X2
-  0x0000000000000001ULL,  // BLOCK_2X4
-  0x0000000000000001ULL,  // BLOCK_4X2
   0x0000000000000001ULL,  // BLOCK_4X4
   0x0000000000000001ULL,  // BLOCK_4X8
   0x0000000000000001ULL,  // BLOCK_8X4
@@ -235,9 +224,6 @@ static const uint16_t above_64x64_txform_mask_uv[TX_SIZES] = {
 
 // 16 bit left mask to shift and set for each uv prediction size.
 static const uint16_t left_prediction_mask_uv[BLOCK_SIZES_ALL] = {
-  0x0001,  // BLOCK_2X2,
-  0x0001,  // BLOCK_2X4,
-  0x0001,  // BLOCK_4X2,
   0x0001,  // BLOCK_4X4,
   0x0001,  // BLOCK_4X8,
   0x0001,  // BLOCK_8X4,
@@ -261,9 +247,6 @@ static const uint16_t left_prediction_mask_uv[BLOCK_SIZES_ALL] = {
 
 // 16 bit above mask to shift and set for uv each prediction size.
 static const uint16_t above_prediction_mask_uv[BLOCK_SIZES_ALL] = {
-  0x0001,  // BLOCK_2X2
-  0x0001,  // BLOCK_2X4
-  0x0001,  // BLOCK_4X2
   0x0001,  // BLOCK_4X4
   0x0001,  // BLOCK_4X8
   0x0001,  // BLOCK_8X4
@@ -287,9 +270,6 @@ static const uint16_t above_prediction_mask_uv[BLOCK_SIZES_ALL] = {
 
 // 64 bit mask to shift and set for each uv prediction size
 static const uint16_t size_mask_uv[BLOCK_SIZES_ALL] = {
-  0x0001,  // BLOCK_2X2
-  0x0001,  // BLOCK_2X4
-  0x0001,  // BLOCK_4X2
   0x0001,  // BLOCK_4X4
   0x0001,  // BLOCK_4X8
   0x0001,  // BLOCK_8X4
@@ -345,19 +325,7 @@ static uint8_t get_filter_level(const AV1_COMMON *cm,
 #if CONFIG_LOOPFILTER_LEVEL
                                 const int dir_idx, int plane,
 #endif
-#if CONFIG_LPF_SB
-                                int mi_row, int mi_col,
-#endif
                                 const MB_MODE_INFO *mbmi) {
-#if CONFIG_LPF_SB
-#if CONFIG_LOOPFILTER_LEVEL
-  const int lvl_idx = plane == 0 ? dir_idx : plane + 1;
-  return cm->mi[mi_row * cm->mi_stride + mi_col].mbmi.filt_lvl[lvl_idx];
-#else
-  return cm->mi[mi_row * cm->mi_stride + mi_col].mbmi.filt_lvl;
-#endif
-#endif
-
   const int segment_id = mbmi->segment_id;
   if (cm->delta_lf_present_flag) {
 #if CONFIG_LOOPFILTER_LEVEL
@@ -408,10 +376,6 @@ static uint8_t get_filter_level(const AV1_COMMON *cm,
 #else
 static uint8_t get_filter_level(const loop_filter_info_n *lfi_n,
                                 const MB_MODE_INFO *mbmi) {
-#if CONFIG_LPF_SB
-  return mbmi->filt_lvl;
-#endif
-
   const int segment_id = mbmi->segment_id;
   return lfi_n->lvl[segment_id][mbmi->ref_frame[0]][mode_lf_lut[mbmi->mode]];
 }
@@ -431,35 +395,6 @@ void av1_loop_filter_init(AV1_COMMON *cm) {
   for (lvl = 0; lvl <= MAX_LOOP_FILTER; lvl++)
     memset(lfi->lfthr[lvl].hev_thr, (lvl >> 4), SIMD_WIDTH);
 }
-
-#if CONFIG_LPF_SB
-void av1_loop_filter_sb_level_init(AV1_COMMON *cm, int mi_row, int mi_col,
-#if CONFIG_LOOPFILTER_LEVEL
-                                   int plane, int dir,
-#endif
-                                   int lvl) {
-  const int mi_row_start = AOMMAX(0, mi_row - FILT_BOUNDARY_MI_OFFSET);
-  const int mi_col_start = AOMMAX(0, mi_col - FILT_BOUNDARY_MI_OFFSET);
-  const int mi_row_range = mi_row - FILT_BOUNDARY_MI_OFFSET + MAX_MIB_SIZE;
-  const int mi_col_range = mi_col - FILT_BOUNDARY_MI_OFFSET + MAX_MIB_SIZE;
-  const int mi_row_end = AOMMIN(mi_row_range, cm->mi_rows);
-  const int mi_col_end = AOMMIN(mi_col_range, cm->mi_cols);
-
-  int row, col;
-  for (row = mi_row_start; row < mi_row_end; ++row) {
-    for (col = mi_col_start; col < mi_col_end; ++col) {
-// Note: can't use cm->mi_grid_visible. Because for each partition,
-// all visible pointers will point to the first of the partition.
-#if CONFIG_LOOPFILTER_LEVEL
-      const int lvl_idx = plane == 0 ? dir : plane + 1;
-      cm->mi[row * cm->mi_stride + col].mbmi.filt_lvl[lvl_idx] = lvl;
-#else
-      cm->mi[row * cm->mi_stride + col].mbmi.filt_lvl = lvl;
-#endif  // CONFIG_LOOPFILTER_LEVEL
-    }
-  }
-}
-#endif  // CONFIG_LPF_SB
 
 void av1_loop_filter_frame_init(AV1_COMMON *cm, int default_filt_lvl,
                                 int default_filt_lvl_r
@@ -952,17 +887,9 @@ static void build_masks(AV1_COMMON *const cm,
       txsize_vert_map[uv_txsize_lookup[block_size][mbmi->tx_size][1][1]];
 #if CONFIG_EXT_DELTA_Q
 #if CONFIG_LOOPFILTER_LEVEL
-#if CONFIG_LPF_SB
-  const int filter_level = get_filter_level(cm, lfi_n, 0, 0, 0, 0, mbmi);
-#else
-  const int filter_level = get_filter_level(cm, lfi_n, 0, 0, mbmi);
-#endif
-#else
-#if CONFIG_LPF_SB
   const int filter_level = get_filter_level(cm, lfi_n, 0, 0, mbmi);
 #else
   const int filter_level = get_filter_level(cm, lfi_n, mbmi);
-#endif  // CONFIG_LPF_SB
 #endif
 #else
   const int filter_level = get_filter_level(lfi_n, mbmi);
@@ -1050,17 +977,9 @@ static void build_y_mask(AV1_COMMON *const cm,
   const BLOCK_SIZE block_size = mbmi->sb_type;
 #if CONFIG_EXT_DELTA_Q
 #if CONFIG_LOOPFILTER_LEVEL
-#if CONFIG_LPF_SB
-  const int filter_level = get_filter_level(cm, lfi_n, 0, 0, 0, 0, mbmi);
-#else
-  const int filter_level = get_filter_level(cm, lfi_n, 0, 0, mbmi);
-#endif
-#else
-#if CONFIG_LPF_SB
   const int filter_level = get_filter_level(cm, lfi_n, 0, 0, mbmi);
 #else
   const int filter_level = get_filter_level(cm, lfi_n, mbmi);
-#endif  // CONFIG_LPF_SB
 #endif
 #else
   const int filter_level = get_filter_level(lfi_n, mbmi);
@@ -1097,7 +1016,7 @@ static void build_y_mask(AV1_COMMON *const cm,
     *int_4x4_y |= (size_mask[block_size] & 0xffffffffffffffffULL) << shift_y;
 }
 
-#if CONFIG_LOOPFILTERING_ACROSS_TILES
+#if CONFIG_LOOPFILTERING_ACROSS_TILES || CONFIG_LOOPFILTERING_ACROSS_TILES_EXT
 // This function update the bit masks for the entire 64x64 region represented
 // by mi_row, mi_col. In case one of the edge is a tile boundary, loop filtering
 // for that edge is disabled. This function only check the tile boundary info
@@ -1360,7 +1279,7 @@ void av1_setup_mask(AV1_COMMON *const cm, const int mi_row, const int mi_col,
     }
   }
 
-#if CONFIG_LOOPFILTERING_ACROSS_TILES
+#if CONFIG_LOOPFILTERING_ACROSS_TILES || CONFIG_LOOPFILTERING_ACROSS_TILES_EXT
   if (av1_disable_loopfilter_on_tile_boundary(cm)) {
     update_tile_boundary_filter_mask(cm, mi_row, mi_col, lfm);
   }
@@ -1517,8 +1436,7 @@ static void get_filter_level_and_masks_non420(
           (blk_row * mi_size_high[BLOCK_8X8] << TX_UNIT_HIGH_LOG2) >> 1;
       const int tx_col_idx =
           (blk_col * mi_size_wide[BLOCK_8X8] << TX_UNIT_WIDE_LOG2) >> 1;
-      const BLOCK_SIZE bsize =
-          AOMMAX(BLOCK_4X4, get_plane_block_size(mbmi->sb_type, plane));
+      const BLOCK_SIZE bsize = get_plane_block_size(mbmi->sb_type, plane);
       const TX_SIZE mb_tx_size = mbmi->inter_tx_size[tx_row_idx][tx_col_idx];
       tx_size = (plane->plane_type == PLANE_TYPE_UV)
                     ? uv_txsize_lookup[bsize][mb_tx_size][0][0]
@@ -1528,21 +1446,10 @@ static void get_filter_level_and_masks_non420(
 // Filter level can vary per MI
 #if CONFIG_EXT_DELTA_Q
 #if CONFIG_LOOPFILTER_LEVEL
-#if CONFIG_LPF_SB
-    if (!(lfl_r[c_step] = get_filter_level(cm, &cm->lf_info, 0, 0, 0, 0, mbmi)))
-      continue;
-#else
     if (!(lfl_r[c_step] = get_filter_level(cm, &cm->lf_info, 0, 0, mbmi)))
-      continue;
-#endif
-#else
-#if CONFIG_LPF_SB
-    if (!(lfl_r[c_step] =
-              get_filter_level(cm, &cm->lf_info, mi_row, mi_col, mbmi)))
       continue;
 #else
     if (!(lfl_r[c_step] = get_filter_level(cm, &cm->lf_info, mbmi))) continue;
-#endif  // CONFIG_LPF_SB
 #endif
 #else
     if (!(lfl_r[c_step] = get_filter_level(&cm->lf_info, mbmi))) continue;
@@ -1686,7 +1593,7 @@ void av1_filter_block_plane_non420_ver(AV1_COMMON *const cm,
 
     // Disable filtering on the leftmost column or tile boundary
     unsigned int border_mask = ~(mi_col == 0 ? 1 : 0);
-#if CONFIG_LOOPFILTERING_ACROSS_TILES
+#if CONFIG_LOOPFILTERING_ACROSS_TILES || CONFIG_LOOPFILTERING_ACROSS_TILES_EXT
     MODE_INFO *const mi = cm->mi + (mi_row + idx_r) * cm->mi_stride + mi_col;
     if (av1_disable_loopfilter_on_tile_boundary(cm) &&
         ((mi->mbmi.boundary_info & TILE_LEFT_BOUNDARY) != 0)) {
@@ -1734,7 +1641,7 @@ void av1_filter_block_plane_non420_hor(AV1_COMMON *const cm,
                                       &lfl[r][0], &mask_4x4_int, NULL,
                                       &row_masks, NULL);
 
-#if CONFIG_LOOPFILTERING_ACROSS_TILES
+#if CONFIG_LOOPFILTERING_ACROSS_TILES || CONFIG_LOOPFILTERING_ACROSS_TILES_EXT
     // Disable filtering on the abovemost row or tile boundary
     const MODE_INFO *mi = cm->mi + (mi_row + idx_r) * cm->mi_stride + mi_col;
     if ((av1_disable_loopfilter_on_tile_boundary(cm) &&
@@ -1978,9 +1885,6 @@ typedef enum EDGE_DIR { VERT_EDGE = 0, HORZ_EDGE = 1, NUM_EDGE_DIRS } EDGE_DIR;
 static const uint32_t av1_prediction_masks[NUM_EDGE_DIRS][BLOCK_SIZES_ALL] = {
   // mask for vertical edges filtering
   {
-      2 - 1,   // BLOCK_2X2
-      2 - 1,   // BLOCK_2X4
-      4 - 1,   // BLOCK_4X2
       4 - 1,   // BLOCK_4X4
       4 - 1,   // BLOCK_4X8
       8 - 1,   // BLOCK_8X4
@@ -2012,9 +1916,6 @@ static const uint32_t av1_prediction_masks[NUM_EDGE_DIRS][BLOCK_SIZES_ALL] = {
   },
   // mask for horizontal edges filtering
   {
-      2 - 1,   // BLOCK_2X2
-      4 - 1,   // BLOCK_2X4
-      2 - 1,   // BLOCK_4X2
       4 - 1,   // BLOCK_4X4
       8 - 1,   // BLOCK_4X8
       4 - 1,   // BLOCK_8X4
@@ -2133,8 +2034,7 @@ static TX_SIZE av1_get_transform_size(const MODE_INFO *const mi,
         (blk_row * mi_size_high[BLOCK_8X8] << TX_UNIT_HIGH_LOG2) >> 1;
     const int tx_col_idx =
         (blk_col * mi_size_wide[BLOCK_8X8] << TX_UNIT_WIDE_LOG2) >> 1;
-    const BLOCK_SIZE bsize =
-        AOMMAX(BLOCK_4X4, ss_size_lookup[sb_type][scale_horz][scale_vert]);
+    const BLOCK_SIZE bsize = ss_size_lookup[sb_type][scale_horz][scale_vert];
     const TX_SIZE mb_tx_size = mbmi->inter_tx_size[tx_row_idx][tx_col_idx];
 
     assert(mb_tx_size < TX_SIZES_ALL);
@@ -2195,20 +2095,10 @@ static void set_lpf_parameters(
 
 #if CONFIG_EXT_DELTA_Q
 #if CONFIG_LOOPFILTER_LEVEL
-#if CONFIG_LPF_SB
-    const uint32_t curr_level = get_filter_level(cm, &cm->lf_info, edge_dir,
-                                                 plane, mi_row, mi_col, mbmi);
-#else
     const uint32_t curr_level =
         get_filter_level(cm, &cm->lf_info, edge_dir, plane, mbmi);
-#endif
-#else
-#if CONFIG_LPF_SB
-    const uint32_t curr_level =
-        get_filter_level(cm, &cm->lf_info, mi_row, mi_col, mbmi);
 #else
     const uint32_t curr_level = get_filter_level(cm, &cm->lf_info, mbmi);
-#endif  // CONFIG_LPF_SB
 #endif
 #else
     const uint32_t curr_level = get_filter_level(&cm->lf_info, mbmi);
@@ -2219,13 +2109,15 @@ static void set_lpf_parameters(
     uint32_t level = curr_level;
     // prepare outer edge parameters. deblock the edge if it's an edge of a TU
     if (coord) {
-#if CONFIG_LOOPFILTERING_ACROSS_TILES
+#if CONFIG_LOOPFILTERING_ACROSS_TILES || CONFIG_LOOPFILTERING_ACROSS_TILES_EXT
       MODE_INFO *const mi_bound = cm->mi + mi_row * cm->mi_stride + mi_col;
-      if (!av1_disable_loopfilter_on_tile_boundary(cm) ||
-          ((VERT_EDGE == edge_dir) &&
-           (0 == (mi_bound->mbmi.boundary_info & TILE_LEFT_BOUNDARY))) ||
-          ((HORZ_EDGE == edge_dir) &&
-           (0 == (mi_bound->mbmi.boundary_info & TILE_ABOVE_BOUNDARY))))
+      // here, assuming bounfary_info is set correctly based on the
+      // loop_filter_across_tiles_enabled flag, i.e, tile boundary should
+      // only be set to true when this flag is set to 0.
+      int left_boundary = (mi_bound->mbmi.boundary_info & TILE_LEFT_BOUNDARY);
+      int top_boundary = (mi_bound->mbmi.boundary_info & TILE_ABOVE_BOUNDARY);
+      if (((VERT_EDGE == edge_dir) && (0 == left_boundary)) ||
+          ((HORZ_EDGE == edge_dir) && (0 == top_boundary)))
 #endif  // CONFIG_LOOPFILTERING_ACROSS_TILES
       {
         const int32_t tu_edge =
@@ -2242,22 +2134,11 @@ static void set_lpf_parameters(
 
 #if CONFIG_EXT_DELTA_Q
 #if CONFIG_LOOPFILTER_LEVEL
-#if CONFIG_LPF_SB
-          const uint32_t pv_lvl =
-              get_filter_level(cm, &cm->lf_info, edge_dir, plane, mi_row,
-                               mi_col, &mi_prev->mbmi);
-#else
           const uint32_t pv_lvl = get_filter_level(cm, &cm->lf_info, edge_dir,
                                                    plane, &mi_prev->mbmi);
-#endif
-#else
-#if CONFIG_LPF_SB
-          const uint32_t pv_lvl = get_filter_level(cm, &cm->lf_info, pv_row,
-                                                   pv_col, &mi_prev->mbmi);
 #else
           const uint32_t pv_lvl =
               get_filter_level(cm, &cm->lf_info, &mi_prev->mbmi);
-#endif  // CONFIG_LPF_SB
 #endif
 #else
           const uint32_t pv_lvl =
@@ -2289,7 +2170,6 @@ static void set_lpf_parameters(
                 params->filter_length = 8;
             } else {
               params->filter_length = 16;
-#if PARALLEL_DEBLOCKING_15TAPLUMAONLY
               // No wide filtering for chroma plane
               if (plane != 0) {
 #if PARALLEL_DEBLOCKING_5_TAP_CHROMA
@@ -2298,12 +2178,7 @@ static void set_lpf_parameters(
                 params->filter_length = 8;
 #endif
               }
-#endif
             }
-
-#if PARALLEL_DEBLOCKING_DISABLE_15TAP
-            params->filter_length = (TX_4X4 >= AOMMIN(ts, pv_ts)) ? (4) : (8);
-#endif  // PARALLEL_DEBLOCKING_DISABLE_15TAP
 
             // update the level if the current block is skipped,
             // but the previous one is not
@@ -2656,19 +2531,11 @@ void av1_loop_filter_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
 #endif
 #endif
 
-#if CONFIG_LPF_SB
-#if CONFIG_LOOPFILTER_LEVEL
-  if (partial_frame && !frame_filter_level && !frame_filter_level_r) return;
-#else
-  if (partial_frame && !frame_filter_level) return;
-#endif  // CONFIG_LOOPFILTER_LEVEL
-#else   // !CONFIG_LPF_SB
 #if CONFIG_LOOPFILTER_LEVEL
   if (!frame_filter_level && !frame_filter_level_r) return;
 #else
   if (!frame_filter_level) return;
 #endif
-#endif  // CONFIG_LPF_SB
 #if CONFIG_LPF_SB
   int start_mi_col;
   int end_mi_col;
@@ -2685,15 +2552,6 @@ void av1_loop_filter_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
     const int mi_col_range = mi_col - FILT_BOUNDARY_MI_OFFSET + MAX_MIB_SIZE;
     end_mi_row = AOMMIN(mi_row_range, cm->mi_rows);
     end_mi_col = AOMMIN(mi_col_range, cm->mi_cols);
-
-#if CONFIG_LOOPFILTER_LEVEL
-    av1_loop_filter_sb_level_init(cm, mi_row, mi_col, y_only, 0,
-                                  frame_filter_level);
-    av1_loop_filter_sb_level_init(cm, mi_row, mi_col, y_only, 1,
-                                  frame_filter_level_r);
-#else
-    av1_loop_filter_sb_level_init(cm, mi_row, mi_col, frame_filter_level);
-#endif
   } else {
     start_mi_row = 0;
     mi_rows_to_filter = cm->mi_rows;

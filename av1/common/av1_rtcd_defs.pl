@@ -1,3 +1,13 @@
+##
+## Copyright (c) 2017, Alliance for Open Media. All rights reserved
+##
+## This source code is subject to the terms of the BSD 2 Clause License and
+## the Alliance for Open Media Patent License 1.0. If the BSD 2 Clause License
+## was not distributed with this source code in the LICENSE file, you can
+## obtain it at www.aomedia.org/license/software. If the Alliance for Open
+## Media Patent License 1.0 was not distributed with this source code in the
+## PATENTS file, you can obtain it at www.aomedia.org/license/patent.
+##
 sub av1_common_forward_decls() {
 print <<EOF
 /*
@@ -489,20 +499,7 @@ if (aom_config("CONFIG_AV1_ENCODER") eq "yes") {
 # Deringing Functions
 
 add_proto qw/int cdef_find_dir/, "const uint16_t *img, int stride, int32_t *var, int coeff_shift";
-if (aom_config("CONFIG_CDEF_SINGLEPASS") ne "yes") {
-  add_proto qw/void aom_clpf_block_hbd/, "uint16_t *dst, const uint16_t *src, int dstride, int sstride, int sizex, int sizey, unsigned int strength, unsigned int bd";
-  add_proto qw/void aom_clpf_hblock_hbd/, "uint16_t *dst, const uint16_t *src, int dstride, int sstride, int sizex, int sizey, unsigned int strength, unsigned int bd";
-  add_proto qw/void aom_clpf_block/, "uint8_t *dst, const uint16_t *src, int dstride, int sstride, int sizex, int sizey, unsigned int strength, unsigned int bd";
-  add_proto qw/void aom_clpf_hblock/, "uint8_t *dst, const uint16_t *src, int dstride, int sstride, int sizex, int sizey, unsigned int strength, unsigned int bd";
-  add_proto qw/void cdef_direction_4x4/, "uint16_t *y, int ystride, const uint16_t *in, int threshold, int dir, int damping";
-  add_proto qw/void cdef_direction_8x8/, "uint16_t *y, int ystride, const uint16_t *in, int threshold, int dir, int damping";
-  add_proto qw/void copy_8x8_16bit_to_8bit/, "uint8_t *dst, int dstride, const uint16_t *src, int sstride";
-  add_proto qw/void copy_4x4_16bit_to_8bit/, "uint8_t *dst, int dstride, const uint16_t *src, int sstride";
-  add_proto qw/void copy_8x8_16bit_to_16bit/, "uint16_t *dst, int dstride, const uint16_t *src, int sstride";
-  add_proto qw/void copy_4x4_16bit_to_16bit/, "uint16_t *dst, int dstride, const uint16_t *src, int sstride";
-} else {
-  add_proto qw/void cdef_filter_block/, "uint8_t *dst8, uint16_t *dst16, int dstride, const uint16_t *in, int pri_strength, int sec_strength, int dir, int pri_damping, int sec_damping, int bsize, int max, int coeff_shift";
-}
+add_proto qw/void cdef_filter_block/, "uint8_t *dst8, uint16_t *dst16, int dstride, const uint16_t *in, int pri_strength, int sec_strength, int dir, int pri_damping, int sec_damping, int bsize, int max, int coeff_shift";
 
 add_proto qw/void copy_rect8_8bit_to_16bit/, "uint16_t *dst, int dstride, const uint8_t *src, int sstride, int v, int h";
 add_proto qw/void copy_rect8_16bit_to_16bit/, "uint16_t *dst, int dstride, const uint16_t *src, int sstride, int v, int h";
@@ -511,28 +508,10 @@ add_proto qw/void copy_rect8_16bit_to_16bit/, "uint16_t *dst, int dstride, const
 # structs as arguments, which makes the v256 type of the intrinsics
 # hard to support, so optimizations for this target are disabled.
 if ($opts{config} !~ /libs-x86-win32-vs.*/) {
-  if (aom_config("CONFIG_CDEF_SINGLEPASS") eq "yes") {
-    specialize qw/cdef_find_dir sse2 ssse3 sse4_1 avx2 neon/;
-    specialize qw/cdef_filter_block sse2 ssse3 sse4_1 avx2 neon/;
-    specialize qw/copy_rect8_8bit_to_16bit sse2 ssse3 sse4_1 avx2 neon/;
-    specialize qw/copy_rect8_16bit_to_16bit sse2 ssse3 sse4_1 avx2 neon/;
-  } else {
-    specialize qw/cdef_find_dir sse2 ssse3 sse4_1 neon/;
-    specialize qw/aom_clpf_block_hbd sse2 ssse3 sse4_1 neon/;
-    specialize qw/aom_clpf_hblock_hbd sse2 ssse3 sse4_1 neon/;
-    specialize qw/aom_clpf_block sse2 ssse3 sse4_1 neon/;
-    specialize qw/aom_clpf_hblock sse2 ssse3 sse4_1 neon/;
-    specialize qw/cdef_find_dir sse2 ssse3 sse4_1 neon/;
-    specialize qw/cdef_direction_4x4 sse2 ssse3 sse4_1 neon/;
-    specialize qw/cdef_direction_8x8 sse2 ssse3 sse4_1 neon/;
-
-    specialize qw/copy_8x8_16bit_to_8bit sse2 ssse3 sse4_1 neon/;
-    specialize qw/copy_4x4_16bit_to_8bit sse2 ssse3 sse4_1 neon/;
-    specialize qw/copy_8x8_16bit_to_16bit sse2 ssse3 sse4_1 neon/;
-    specialize qw/copy_4x4_16bit_to_16bit sse2 ssse3 sse4_1 neon/;
-    specialize qw/copy_rect8_8bit_to_16bit sse2 ssse3 sse4_1 neon/;
-    specialize qw/copy_rect8_16bit_to_16bit sse2 ssse3 sse4_1 neon/;
-  }
+  specialize qw/cdef_find_dir sse2 ssse3 sse4_1 avx2 neon/;
+  specialize qw/cdef_filter_block sse2 ssse3 sse4_1 avx2 neon/;
+  specialize qw/copy_rect8_8bit_to_16bit sse2 ssse3 sse4_1 avx2 neon/;
+  specialize qw/copy_rect8_16bit_to_16bit sse2 ssse3 sse4_1 avx2 neon/;
 }
 
 # WARPED_MOTION / GLOBAL_MOTION functions
@@ -575,47 +554,41 @@ if (aom_config("CONFIG_LOOP_RESTORATION") eq "yes") {
 }
 
 # CONVOLVE_ROUND/COMPOUND_ROUND functions
+add_proto qw/void av1_convolve_2d/, "const uint8_t *src, int src_stride, const uint8_t *dst, int dst_stride, int w, int h, InterpFilterParams *filter_params_x, InterpFilterParams *filter_params_y, const int subpel_x_q4, const int subpel_y_q4, ConvolveParams *conv_params";
+specialize qw/av1_convolve_2d sse2 avx2/;
+add_proto qw/void av1_convolve_rounding/, "const int32_t *src, int src_stride, uint8_t *dst, int dst_stride, int w, int h, int bits";
+specialize qw/av1_convolve_rounding avx2/;
 
-if (aom_config("CONFIG_CONVOLVE_ROUND") eq "yes") {
-  add_proto qw/void av1_convolve_2d/, "const uint8_t *src, int src_stride, CONV_BUF_TYPE *dst, int dst_stride, int w, int h, InterpFilterParams *filter_params_x, InterpFilterParams *filter_params_y, const int subpel_x_q4, const int subpel_y_q4, ConvolveParams *conv_params";
-  specialize qw/av1_convolve_2d sse2 avx2/;
-  add_proto qw/void av1_convolve_rounding/, "const int32_t *src, int src_stride, uint8_t *dst, int dst_stride, int w, int h, int bits";
-  specialize qw/av1_convolve_rounding avx2/;
+add_proto qw/void av1_convolve_2d_copy/, "const uint8_t *src, int src_stride, const uint8_t *dst, int dst_stride, int w, int h, InterpFilterParams *filter_params_x, InterpFilterParams *filter_params_y, const int subpel_x_q4, const int subpel_y_q4, ConvolveParams *conv_params";
+specialize qw/av1_convolve_2d_copy sse2/;
+add_proto qw/void av1_convolve_x/, "const uint8_t *src, int src_stride, const uint8_t *dst, int dst_stride, int w, int h, InterpFilterParams *filter_params_x, InterpFilterParams *filter_params_y, const int subpel_x_q4, const int subpel_y_q4, ConvolveParams *conv_params";
+specialize qw/av1_convolve_x sse2/;
+add_proto qw/void av1_convolve_y/, "const uint8_t *src, int src_stride, const uint8_t *dst, int dst_stride, int w, int h, InterpFilterParams *filter_params_x, InterpFilterParams *filter_params_y, const int subpel_x_q4, const int subpel_y_q4, ConvolveParams *conv_params";
+specialize qw/av1_convolve_y sse2/;
 
-  if (aom_config("CONFIG_COMPOUND_ROUND") ne "yes") {
-    add_proto qw/void av1_convolve_2d_copy/, "const uint8_t *src, int src_stride, CONV_BUF_TYPE *dst, int dst_stride, int w, int h, InterpFilterParams *filter_params_x, InterpFilterParams *filter_params_y, const int subpel_x_q4, const int subpel_y_q4, ConvolveParams *conv_params";
-    specialize qw/av1_convolve_2d_copy sse2/;
-    add_proto qw/void av1_convolve_x/, "const uint8_t *src, int src_stride, CONV_BUF_TYPE *dst, int dst_stride, int w, int h, InterpFilterParams *filter_params_x, InterpFilterParams *filter_params_y, const int subpel_x_q4, const int subpel_y_q4, ConvolveParams *conv_params";
-    specialize qw/av1_convolve_x c/;
-    add_proto qw/void av1_convolve_y/, "const uint8_t *src, int src_stride, CONV_BUF_TYPE *dst, int dst_stride, int w, int h, InterpFilterParams *filter_params_x, InterpFilterParams *filter_params_y, const int subpel_x_q4, const int subpel_y_q4, ConvolveParams *conv_params";
-    specialize qw/av1_convolve_y c/;
-  }
+add_proto qw/void av1_convolve_2d_scale/, "const uint8_t *src, int src_stride, CONV_BUF_TYPE *dst, int dst_stride, int w, int h, InterpFilterParams *filter_params_x, InterpFilterParams *filter_params_y, const int subpel_x_qn, const int x_step_qn, const int subpel_y_q4, const int y_step_qn, ConvolveParams *conv_params";
+specialize qw/av1_convolve_2d_scale sse4_1/;
 
-  add_proto qw/void av1_convolve_2d_scale/, "const uint8_t *src, int src_stride, CONV_BUF_TYPE *dst, int dst_stride, int w, int h, InterpFilterParams *filter_params_x, InterpFilterParams *filter_params_y, const int subpel_x_qn, const int x_step_qn, const int subpel_y_q4, const int y_step_qn, ConvolveParams *conv_params";
-  if (aom_config("CONFIG_COMPOUND_ROUND") ne "yes") {
-    specialize qw/av1_convolve_2d_scale sse4_1/;
-  }
+if (aom_config("CONFIG_JNT_COMP") eq "yes") {
+  add_proto qw/void av1_jnt_convolve_2d/, "const uint8_t *src, int src_stride, const uint8_t *dst, int dst_stride, int w, int h, InterpFilterParams *filter_params_x, InterpFilterParams *filter_params_y, const int subpel_x_q4, const int subpel_y_q4, ConvolveParams *conv_params";
+  specialize qw/av1_jnt_convolve_2d sse4_1/;
+
+  add_proto qw/void av1_jnt_convolve_2d_copy/, "const uint8_t *src, int src_stride, const uint8_t *dst, int dst_stride, int w, int h, InterpFilterParams *filter_params_x, InterpFilterParams *filter_params_y, const int subpel_x_q4, const int subpel_y_q4, ConvolveParams *conv_params";
+  specialize qw/av1_jnt_convolve_2d_copy sse2/;
+}
+
+if (aom_config("CONFIG_HIGHBITDEPTH") eq "yes") {
+  add_proto qw/void av1_highbd_convolve_2d/, "const uint16_t *src, int src_stride, CONV_BUF_TYPE *dst, int dst_stride, int w, int h, InterpFilterParams *filter_params_x, InterpFilterParams *filter_params_y, const int subpel_x_q4, const int subpel_y_q4, ConvolveParams *conv_params, int bd";
+  specialize qw/av1_highbd_convolve_2d ssse3 avx2/;
+  add_proto qw/void av1_highbd_convolve_rounding/, "const int32_t *src, int src_stride, uint8_t *dst, int dst_stride, int w, int h, int bits, int bd";
+  specialize qw/av1_highbd_convolve_rounding avx2/;
+
+  add_proto qw/void av1_highbd_convolve_2d_scale/, "const uint16_t *src, int src_stride, CONV_BUF_TYPE *dst, int dst_stride, int w, int h, InterpFilterParams *filter_params_x, InterpFilterParams *filter_params_y, const int subpel_x_q4, const int x_step_qn, const int subpel_y_q4, const int y_step_qn, ConvolveParams *conv_params, int bd";
+  specialize qw/av1_highbd_convolve_2d_scale sse4_1/;
 
   if (aom_config("CONFIG_JNT_COMP") eq "yes") {
-    add_proto qw/void av1_jnt_convolve_2d/, "const uint8_t *src, int src_stride, CONV_BUF_TYPE *dst, int dst_stride, int w, int h, InterpFilterParams *filter_params_x, InterpFilterParams *filter_params_y, const int subpel_x_q4, const int subpel_y_q4, ConvolveParams *conv_params";
-    specialize qw/av1_jnt_convolve_2d sse4_1/;
-
-    if (aom_config("CONFIG_COMPOUND_ROUND") ne "yes") {
-      add_proto qw/void av1_jnt_convolve_2d_copy/, "const uint8_t *src, int src_stride, CONV_BUF_TYPE *dst, int dst_stride, int w, int h, InterpFilterParams *filter_params_x, InterpFilterParams *filter_params_y, const int subpel_x_q4, const int subpel_y_q4, ConvolveParams *conv_params";
-      specialize qw/av1_jnt_convolve_2d_copy sse2/;
-    }
-  }
-
-  if (aom_config("CONFIG_HIGHBITDEPTH") eq "yes") {
-    add_proto qw/void av1_highbd_convolve_2d/, "const uint16_t *src, int src_stride, CONV_BUF_TYPE *dst, int dst_stride, int w, int h, InterpFilterParams *filter_params_x, InterpFilterParams *filter_params_y, const int subpel_x_q4, const int subpel_y_q4, ConvolveParams *conv_params, int bd";
-    specialize qw/av1_highbd_convolve_2d ssse3 avx2/;
-    add_proto qw/void av1_highbd_convolve_rounding/, "const int32_t *src, int src_stride, uint8_t *dst, int dst_stride, int w, int h, int bits, int bd";
-    specialize qw/av1_highbd_convolve_rounding avx2/;
-
-    add_proto qw/void av1_highbd_convolve_2d_scale/, "const uint16_t *src, int src_stride, CONV_BUF_TYPE *dst, int dst_stride, int w, int h, InterpFilterParams *filter_params_x, InterpFilterParams *filter_params_y, const int subpel_x_q4, const int x_step_qn, const int subpel_y_q4, const int y_step_qn, ConvolveParams *conv_params, int bd";
-    if (aom_config("CONFIG_COMPOUND_ROUND") ne "yes") {
-        specialize qw/av1_highbd_convolve_2d_scale sse4_1/;
-    }
+    add_proto qw/void av1_highbd_jnt_convolve_2d/, "const uint16_t *src, int src_stride, CONV_BUF_TYPE *dst, int dst_stride, int w, int h, InterpFilterParams *filter_params_x, InterpFilterParams *filter_params_y, const int subpel_x_q4, const int subpel_y_q4, ConvolveParams *conv_params, int bd";
+    specialize qw/av1_highbd_jnt_convolve_2d sse4_1/;
   }
 }
 
@@ -637,6 +610,13 @@ if (aom_config("CONFIG_INTRA_EDGE") eq "yes") {
 if (aom_config("CONFIG_DAALA_TX") eq "yes") {
   add_proto qw/void daala_inv_txfm_add/, "const tran_low_t *input_coeffs, void *output_pixels, int output_stride, TxfmParam *txfm_param";
   specialize qw/daala_inv_txfm_add avx2/;
+}
+
+# CFL
+if (aom_config("CONFIG_CFL") eq "yes") {
+  add_proto qw/void av1_cfl_subtract/, "int16_t *pred_buf_q3, int width, int height, int16_t avg_q3";
+  specialize qw/av1_cfl_subtract sse2 avx2/;
+
 }
 
 1;

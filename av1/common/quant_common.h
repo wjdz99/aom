@@ -56,26 +56,11 @@ qm_val_t *aom_iqmatrix(struct AV1Common *cm, int qindex, int comp,
                        TX_SIZE tx_size);
 qm_val_t *aom_qmatrix(struct AV1Common *cm, int qindex, int comp,
                       TX_SIZE tx_size);
-
-static inline TX_SIZE get_qm_tx_size(TX_SIZE tx_size) {
-#if CONFIG_TX64X64
-  if (tx_size == TX_64X64 || tx_size == TX_64X32 || tx_size == TX_32X64) {
-    return TX_32X32;
-  }
-  if (tx_size == TX_16X64) {
-    return TX_16X32;
-  }
-  if (tx_size == TX_64X16) {
-    return TX_32X16;
-  }
-#endif  // CONFIG_TX64X64
-  return tx_size;
-}
 #endif  // CONFIG_AOM_QM
 
 #if CONFIG_NEW_QUANT
 
-#define QUANT_PROFILES 4
+#define QUANT_PROFILES 5
 #define QUANT_RANGES 2
 #define NUQ_KNOTS 3
 
@@ -97,12 +82,12 @@ static INLINE int get_dq_profile(int qindex, int is_inter,
     {
         // intra
         { 2, 1 },  // Y
-        { 3, 1 },  // UV
+        { 2, 1 },  // UV
     },
     {
         // inter
-        { 2, 1 },  // Y
-        { 3, 1 },  // UV
+        { 4, 3 },  // Y
+        { 4, 3 },  // UV
     },
   };
   if (!qindex) return 0;  // lossless

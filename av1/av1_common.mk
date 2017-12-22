@@ -26,6 +26,7 @@ AV1_COMMON_SRCS-yes += common/blockd.h
 AV1_COMMON_SRCS-yes += common/common.h
 AV1_COMMON_SRCS-yes += common/daala_tx.c
 AV1_COMMON_SRCS-yes += common/daala_tx.h
+AV1_COMMON_SRCS-yes += common/daala_tx_kernels.h
 AV1_COMMON_SRCS-yes += common/daala_inv_txfm.c
 AV1_COMMON_SRCS-yes += common/daala_inv_txfm.h
 AV1_COMMON_SRCS-$(HAVE_AVX2) += common/x86/daala_tx_kernels.h
@@ -67,21 +68,17 @@ AV1_COMMON_SRCS-yes += common/resize.h
 AV1_COMMON_SRCS-yes += common/common_data.h
 AV1_COMMON_SRCS-yes += common/scan.c
 AV1_COMMON_SRCS-yes += common/scan.h
-# TODO(angiebird) the forward transform belongs under encoder/
 AV1_COMMON_SRCS-yes += common/av1_txfm.h
-AV1_COMMON_SRCS-yes += common/av1_fwd_txfm1d.h
-AV1_COMMON_SRCS-yes += common/av1_fwd_txfm1d.c
+AV1_COMMON_SRCS-yes += common/av1_txfm.c
+AV1_COMMON_SRCS-$(HAVE_SSE4_1) += common/x86/av1_txfm_sse4.h
+AV1_COMMON_SRCS-$(HAVE_SSE4_1) += common/x86/av1_txfm_sse4.c
 AV1_COMMON_SRCS-yes += common/av1_inv_txfm1d.h
 AV1_COMMON_SRCS-yes += common/av1_inv_txfm1d.c
-AV1_COMMON_SRCS-yes += common/av1_fwd_txfm2d.c
-AV1_COMMON_SRCS-yes += common/av1_fwd_txfm1d_cfg.h
 AV1_COMMON_SRCS-yes += common/av1_inv_txfm2d.c
 AV1_COMMON_SRCS-yes += common/av1_inv_txfm1d_cfg.h
 AV1_COMMON_SRCS-$(HAVE_AVX2) += common/x86/convolve_avx2.c
 AV1_COMMON_SRCS-$(HAVE_SSSE3) += common/x86/av1_convolve_ssse3.c
-ifeq ($(CONFIG_CONVOLVE_ROUND)x$(CONFIG_COMPOUND_ROUND),yesx)
 AV1_COMMON_SRCS-$(HAVE_SSE4_1) += common/x86/av1_convolve_scale_sse4.c
-endif
 ifeq ($(CONFIG_HIGHBITDEPTH),yes)
 AV1_COMMON_SRCS-$(HAVE_SSE4_1) += common/x86/av1_highbd_convolve_sse4.c
 endif
@@ -97,16 +94,7 @@ AV1_COMMON_SRCS-$(HAVE_SSE4_1) += common/x86/intra_edge_sse4.c
 endif
 AV1_COMMON_SRCS-yes += common/warped_motion.h
 AV1_COMMON_SRCS-yes += common/warped_motion.c
-ifeq ($(CONFIG_CDEF_SINGLEPASS),yes)
 AV1_COMMON_SRCS-$(HAVE_AVX2) += common/cdef_block_avx2.c
-else
-AV1_COMMON_SRCS-yes += common/clpf.c
-AV1_COMMON_SRCS-yes += common/clpf_simd.h
-AV1_COMMON_SRCS-$(HAVE_SSE2) += common/clpf_sse2.c
-AV1_COMMON_SRCS-$(HAVE_SSSE3) += common/clpf_ssse3.c
-AV1_COMMON_SRCS-$(HAVE_SSE4_1) += common/clpf_sse4.c
-AV1_COMMON_SRCS-$(HAVE_NEON) += common/clpf_neon.c
-endif
 AV1_COMMON_SRCS-$(HAVE_SSE2) += common/cdef_block_sse2.c
 AV1_COMMON_SRCS-$(HAVE_SSSE3) += common/cdef_block_ssse3.c
 AV1_COMMON_SRCS-$(HAVE_SSE4_1) += common/cdef_block_sse4.c
@@ -122,6 +110,8 @@ AV1_COMMON_SRCS-yes += common/odintrin.h
 ifeq ($(CONFIG_CFL),yes)
 AV1_COMMON_SRCS-yes += common/cfl.h
 AV1_COMMON_SRCS-yes += common/cfl.c
+AV1_COMMON_SRCS-$(HAVE_SSE2) += common/cfl_sse2.c
+AV1_COMMON_SRCS-$(HAVE_AVX2) += common/cfl_avx2.c
 endif
 
 AV1_COMMON_SRCS-yes += common/obmc.h
@@ -133,12 +123,6 @@ AV1_COMMON_SRCS-$(HAVE_MSA) += common/mips/msa/av1_idct16x16_msa.c
 
 AV1_COMMON_SRCS-$(HAVE_SSE2) += common/x86/idct_intrin_sse2.c
 AV1_COMMON_SRCS-$(HAVE_AVX2) += common/x86/hybrid_inv_txfm_avx2.c
-
-ifeq ($(CONFIG_AV1_ENCODER),yes)
-AV1_COMMON_SRCS-$(HAVE_SSE4_1) += common/x86/av1_txfm1d_sse4.h
-AV1_COMMON_SRCS-$(HAVE_SSE4_1) += common/x86/av1_fwd_txfm1d_sse4.c
-AV1_COMMON_SRCS-$(HAVE_SSE4_1) += common/x86/av1_fwd_txfm2d_sse4.c
-endif
 
 AV1_COMMON_SRCS-$(HAVE_SSE4_1) += common/x86/highbd_txfm_utility_sse4.h
 AV1_COMMON_SRCS-$(HAVE_SSE4_1) += common/x86/highbd_inv_txfm_sse4.c
@@ -161,13 +145,17 @@ AV1_COMMON_SRCS-$(HAVE_SSE4_1) += common/x86/highbd_warp_plane_sse4.c
 endif
 endif
 
-ifeq ($(CONFIG_CONVOLVE_ROUND),yes)
+AV1_COMMON_SRCS-$(HAVE_SSE2) += common/x86/convolve_sse2.c
 AV1_COMMON_SRCS-$(HAVE_SSE2) += common/x86/convolve_2d_sse2.c
+ifeq ($(CONFIG_JNT_COMP), yes)
 AV1_COMMON_SRCS-$(HAVE_SSE4_1) += common/x86/convolve_2d_sse4.c
+endif
 AV1_COMMON_SRCS-$(HAVE_AVX2) += common/x86/convolve_2d_avx2.c
 ifeq ($(CONFIG_HIGHBITDEPTH),yes)
 AV1_COMMON_SRCS-$(HAVE_SSSE3) += common/x86/highbd_convolve_2d_ssse3.c
 AV1_COMMON_SRCS-$(HAVE_AVX2) += common/x86/highbd_convolve_2d_avx2.c
+ifeq ($(CONFIG_JNT_COMP), yes)
+AV1_COMMON_SRCS-$(HAVE_SSE4_1) += common/x86/highbd_convolve_2d_sse4.c
 endif
 endif
 

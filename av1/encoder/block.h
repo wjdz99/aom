@@ -117,7 +117,7 @@ typedef struct {
 
 typedef struct {
   uint8_t best_palette_color_map[MAX_PALETTE_SQUARE];
-  float kmeans_data_buf[2 * MAX_PALETTE_SQUARE];
+  int kmeans_data_buf[2 * MAX_PALETTE_SQUARE];
 } PALETTE_BUFFER;
 
 typedef struct {
@@ -147,6 +147,7 @@ typedef struct {
   uint16_t eob;
 #if CONFIG_LV_MAP
   uint16_t entropy_context;
+  uint8_t txb_entropy_ctx;
 #else
   uint8_t entropy_context;
 #endif
@@ -253,6 +254,9 @@ struct macroblock {
   int64_t skip_mode_dist;
   MV_REFERENCE_FRAME skip_mode_ref_frame[2];
   int_mv skip_mode_mv[2];
+#if CONFIG_JNT_COMP
+  int compound_idx;
+#endif  // CONFIG_JNT_COMP
   int skip_mode_index_candidate;
   int skip_mode_index;
 #endif  // CONFIG_EXT_SKIP
@@ -293,7 +297,7 @@ struct macroblock {
   int y_mode_costs[INTRA_MODES][INTRA_MODES][INTRA_MODES];
 #if CONFIG_FILTER_INTRA
   int filter_intra_cost[TX_SIZES_ALL][2];
-  int filter_intra_mode_cost[PLANE_TYPES][FILTER_INTRA_MODES];
+  int filter_intra_mode_cost[FILTER_INTRA_MODES];
 #endif
   int switchable_interp_costs[SWITCHABLE_FILTER_CONTEXTS][SWITCHABLE_FILTERS];
 #if CONFIG_EXT_PARTITION_TYPES
@@ -301,13 +305,13 @@ struct macroblock {
 #else
   int partition_cost[PARTITION_CONTEXTS][PARTITION_TYPES];
 #endif  // CONFIG_EXT_PARTITION_TYPES
-  int palette_y_size_cost[PALETTE_BLOCK_SIZES][PALETTE_SIZES];
-  int palette_uv_size_cost[PALETTE_BLOCK_SIZES][PALETTE_SIZES];
+  int palette_y_size_cost[PALATTE_BSIZE_CTXS][PALETTE_SIZES];
+  int palette_uv_size_cost[PALATTE_BSIZE_CTXS][PALETTE_SIZES];
   int palette_y_color_cost[PALETTE_SIZES][PALETTE_COLOR_INDEX_CONTEXTS]
                           [PALETTE_COLORS];
   int palette_uv_color_cost[PALETTE_SIZES][PALETTE_COLOR_INDEX_CONTEXTS]
                            [PALETTE_COLORS];
-  int palette_y_mode_cost[PALETTE_BLOCK_SIZES][PALETTE_Y_MODE_CONTEXTS][2];
+  int palette_y_mode_cost[PALATTE_BSIZE_CTXS][PALETTE_Y_MODE_CONTEXTS][2];
   int palette_uv_mode_cost[PALETTE_UV_MODE_CONTEXTS][2];
 #if CONFIG_CFL
   // The rate associated with each alpha codeword

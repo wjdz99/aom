@@ -73,12 +73,6 @@ if (NOT BUILD_SHARED_LIBS)
         "${AOM_ROOT}/test/accounting_test.cc")
   endif ()
 
-  if (CONFIG_ADAPT_SCAN)
-    set(AOM_UNIT_TEST_COMMON_SOURCES
-        ${AOM_UNIT_TEST_COMMON_SOURCES}
-        "${AOM_ROOT}/test/scan_test.cc")
-  endif ()
-
   if (HAVE_SSE2)
     set(AOM_UNIT_TEST_COMMON_SOURCES
         ${AOM_UNIT_TEST_COMMON_SOURCES}
@@ -128,8 +122,6 @@ if (NOT BUILD_SHARED_LIBS)
         ${AOM_UNIT_TEST_COMMON_SOURCES}
         "${AOM_ROOT}/test/av1_convolve_optimz_test.cc"
         "${AOM_ROOT}/test/av1_convolve_test.cc"
-        "${AOM_ROOT}/test/av1_txfm_test.cc"
-        "${AOM_ROOT}/test/av1_txfm_test.h"
         "${AOM_ROOT}/test/intrapred_test.cc"
         "${AOM_ROOT}/test/lpf_test.cc"
         "${AOM_ROOT}/test/simd_cmp_impl.h")
@@ -138,21 +130,20 @@ if (NOT BUILD_SHARED_LIBS)
         ${AOM_UNIT_TEST_ENCODER_SOURCES}
         "${AOM_ROOT}/test/motion_vector_test.cc")
 
-    if (CONFIG_CDEF_SINGLEPASS)
-      set(AOM_UNIT_TEST_COMMON_SOURCES
-          ${AOM_UNIT_TEST_COMMON_SOURCES}
-          "${AOM_ROOT}/test/cdef_test.cc")
-    else ()
-      set(AOM_UNIT_TEST_COMMON_SOURCES
-          ${AOM_UNIT_TEST_COMMON_SOURCES}
-          "${AOM_ROOT}/test/clpf_test.cc"
-          "${AOM_ROOT}/test/dering_test.cc")
-    endif ()
+    set(AOM_UNIT_TEST_COMMON_SOURCES
+        ${AOM_UNIT_TEST_COMMON_SOURCES}
+        "${AOM_ROOT}/test/cdef_test.cc")
 
     if (CONFIG_INTRABC)
         set(AOM_UNIT_TEST_COMMON_SOURCES
             ${AOM_UNIT_TEST_COMMON_SOURCES}
             "${AOM_ROOT}/test/intrabc_test.cc")
+    endif ()
+
+    if (CONFIG_CFL)
+      set(AOM_UNIT_TEST_COMMON_SOURCES
+        ${AOM_UNIT_TEST_COMMON_SOURCES}
+        "${AOM_ROOT}/test/cfl_test.cc")
     endif ()
 
     if (CONFIG_LOOP_RESTORATION)
@@ -197,6 +188,8 @@ if (CONFIG_AV1_ENCODER)
   set(AOM_UNIT_TEST_ENCODER_SOURCES
       ${AOM_UNIT_TEST_ENCODER_SOURCES}
       "${AOM_ROOT}/test/active_map_test.cc"
+      "${AOM_ROOT}/test/av1_txfm_test.cc"
+      "${AOM_ROOT}/test/av1_txfm_test.h"
       "${AOM_ROOT}/test/borders_test.cc"
       "${AOM_ROOT}/test/cpu_speed_test.cc"
       "${AOM_ROOT}/test/end_to_end_test.cc"
@@ -237,24 +230,21 @@ if (CONFIG_AV1_ENCODER)
           "${AOM_ROOT}/test/quantize_func_test.cc")
     endif ()
 
-    if (CONFIG_CONVOLVE_ROUND)
+    set(AOM_UNIT_TEST_ENCODER_SOURCES
+        ${AOM_UNIT_TEST_ENCODER_SOURCES}
+        "${AOM_ROOT}/test/convolve_round_test.cc")
+    if (HAVE_SSE2)
       set(AOM_UNIT_TEST_ENCODER_SOURCES
           ${AOM_UNIT_TEST_ENCODER_SOURCES}
-          "${AOM_ROOT}/test/convolve_round_test.cc")
-      if (HAVE_SSE2)
-        set(AOM_UNIT_TEST_ENCODER_SOURCES
-            ${AOM_UNIT_TEST_ENCODER_SOURCES}
-            "${AOM_ROOT}/test/av1_convolve_2d_test.cc"
-            "${AOM_ROOT}/test/av1_convolve_2d_test_util.cc"
-            "${AOM_ROOT}/test/av1_convolve_2d_test_util.h")
-      endif ()
-      if (NOT CONFIG_COMPOUND_ROUND)
-        if (HAVE_SSE4_1)
-          set(AOM_UNIT_TEST_ENCODER_SOURCES
-              ${AOM_UNIT_TEST_ENCODER_SOURCES}
-              "${AOM_ROOT}/test/av1_convolve_scale_test.cc")
-        endif ()
-      endif ()
+          "${AOM_ROOT}/test/av1_convolve_2d_test.cc"
+          "${AOM_ROOT}/test/av1_convolve_2d_test_util.cc"
+          "${AOM_ROOT}/test/av1_convolve_2d_test_util.h")
+    endif ()
+
+    if (HAVE_SSE4_1)
+      set(AOM_UNIT_TEST_ENCODER_SOURCES
+          ${AOM_UNIT_TEST_ENCODER_SOURCES}
+          "${AOM_ROOT}/test/av1_convolve_scale_test.cc")
     endif ()
 
     set(AOM_UNIT_TEST_ENCODER_SOURCES
