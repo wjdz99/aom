@@ -548,7 +548,6 @@ void aom_scaled_avg_2d_c(const uint8_t *src, ptrdiff_t src_stride, uint8_t *dst,
                       filter_y, y_step_q4, w, h);
 }
 
-#if CONFIG_HIGHBITDEPTH || CONFIG_LOOP_RESTORATION
 static INLINE int highbd_vert_scalar_product(const uint16_t *a,
                                              ptrdiff_t a_stride,
                                              const int16_t *b) {
@@ -556,7 +555,6 @@ static INLINE int highbd_vert_scalar_product(const uint16_t *a,
   for (int k = 0; k < SUBPEL_TAPS; ++k) sum += a[k * a_stride] * b[k];
   return sum;
 }
-#endif
 
 // TODO(afergs): Make sure this works too
 #if CONFIG_LOOP_RESTORATION
@@ -791,7 +789,6 @@ void aom_convolve8_add_src_hip_c(const uint8_t *src, ptrdiff_t src_stride,
 #endif  // CONFIG_LOOP_RESTORATION
 
 // TODO(afergs): Make sure this works too
-#if CONFIG_HIGHBITDEPTH
 
 static INLINE int highbd_horz_scalar_product(const uint16_t *a,
                                              const int16_t *b) {
@@ -1260,4 +1257,3 @@ void aom_highbd_convolve8_add_src_hip_c(const uint8_t *src,
 }
 
 #endif  // CONFIG_LOOP_RESTORATION
-#endif  // CONFIG_HIGHBITDEPTH
