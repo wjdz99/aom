@@ -6037,13 +6037,11 @@ static void encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
   set_arf_sign_bias(cpi);
 #endif  // !CONFIG_FRAME_SIGN_BIAS
 
-#if CONFIG_TEMPMV_SIGNALING
   // frame type has been decided outside of this function call
   cm->cur_frame->intra_only = cm->frame_type == KEY_FRAME || cm->intra_only;
   cm->use_ref_frame_mvs =
       !cpi->oxcf.disable_tempmv && !cm->cur_frame->intra_only;
   cm->use_prev_frame_mvs = cm->use_ref_frame_mvs;
-#endif
 
   // Reset the frame packet stamp index.
   if (cm->frame_type == KEY_FRAME) cm->current_video_frame = 0;
