@@ -179,7 +179,6 @@ static void maybe_flip_strides(uint8_t **dst, int *dstride, tran_low_t **src,
   }
 }
 
-#if CONFIG_HIGHBITDEPTH
 #if CONFIG_TX64X64
 static void highbd_inv_idtx_add_c(const tran_low_t *input, uint8_t *dest8,
                                   int stride, int bsx, int bsy, TX_TYPE tx_type,
@@ -198,7 +197,6 @@ static void highbd_inv_idtx_add_c(const tran_low_t *input, uint8_t *dest8,
   }
 }
 #endif  // CONFIG_TX64X64
-#endif  // CONFIG_HIGHBITDEPTH
 
 void av1_iht4x4_16_add_c(const tran_low_t *input, uint8_t *dest, int stride,
                          const TxfmParam *txfm_param) {
@@ -1407,6 +1405,18 @@ void av1_iht64x64_4096_add_c(const tran_low_t *input, uint8_t *dest, int stride,
 #endif
   };
 
+  // TODO(urvang): Can the same array be reused, instead of using a new array?
+  // Remap 32x32 input into a modified 64x64 input by:
+  // - Copying over these values in top-left 32x32 locations.
+  // - Setting the rest of the locations to 0.
+  DECLARE_ALIGNED(32, tran_low_t, mod_input[64 * 64]);
+  for (int row = 0; row < 32; ++row) {
+    memcpy(mod_input + row * 64, input + row * 32, 32 * sizeof(*mod_input));
+    memset(mod_input + row * 64 + 32, 0, 32 * sizeof(*mod_input));
+  }
+  memset(mod_input + 32 * 64, 0, 32 * 64 * sizeof(*mod_input));
+  const tran_low_t *mod_input_ptr = mod_input;
+
   tran_low_t tmp[64][64];
   tran_low_t out[64][64];
   tran_low_t *outp = &out[0][0];
@@ -1416,13 +1426,13 @@ void av1_iht64x64_4096_add_c(const tran_low_t *input, uint8_t *dest, int stride,
   for (int i = 0; i < 64; ++i) {
 #if CONFIG_DAALA_TX64
     tran_low_t temp_in[64];
-    for (int j = 0; j < 64; j++) temp_in[j] = input[j] * 8;
+    for (int j = 0; j < 64; j++) temp_in[j] = mod_input_ptr[j] * 8;
     IHT_64[tx_type].rows(temp_in, out[i]);
 #else
-    IHT_64[tx_type].rows(input, out[i]);
+    IHT_64[tx_type].rows(mod_input_ptr, out[i]);
     for (int j = 0; j < 64; ++j) out[i][j] = ROUND_POWER_OF_TWO(out[i][j], 1);
 #endif
-    input += 64;
+    mod_input_ptr += 64;
   }
 
   // transpose
@@ -1494,6 +1504,17 @@ void av1_iht64x32_2048_add_c(const tran_low_t *input, uint8_t *dest, int stride,
     { iidtx32_c, ihalfright64_c },       // H_FLIPADST
 #endif
   };
+
+  // Remap 32x32 input into a modified 64x32 input by:
+  // - Copying over these values in top-left 32x32 locations.
+  // - Setting the rest of the locations to 0.
+  DECLARE_ALIGNED(32, tran_low_t, mod_input[64 * 32]);
+  for (int row = 0; row < 32; ++row) {
+    memcpy(mod_input + row * 64, input + row * 32, 32 * sizeof(*mod_input));
+    memset(mod_input + row * 64 + 32, 0, 32 * sizeof(*mod_input));
+  }
+  const tran_low_t *mod_input_ptr = mod_input;
+
   const int n = 32;
   const int n2 = 64;
 
@@ -1505,15 +1526,15 @@ void av1_iht64x32_2048_add_c(const tran_low_t *input, uint8_t *dest, int stride,
   for (int i = 0; i < n; ++i) {
 #if CONFIG_DAALA_TX32 && CONFIG_DAALA_TX64
     tran_low_t temp_in[64];
-    for (int j = 0; j < n2; j++) temp_in[j] = input[j] * 8;
+    for (int j = 0; j < n2; j++) temp_in[j] = mod_input_ptr[j] * 8;
     IHT_64x32[tx_type].rows(temp_in, outtmp);
     for (int j = 0; j < n2; ++j) tmp[j][i] = outtmp[j];
 #else
-    IHT_64x32[tx_type].rows(input, outtmp);
+    IHT_64x32[tx_type].rows(mod_input_ptr, outtmp);
     for (int j = 0; j < n2; ++j)
       tmp[j][i] = (tran_low_t)dct_const_round_shift(outtmp[j] * InvSqrt2);
 #endif
-    input += n2;
+    mod_input_ptr += n2;
   }
 
   // inverse transform column vectors
@@ -1579,6 +1600,14 @@ void av1_iht32x64_2048_add_c(const tran_low_t *input, uint8_t *dest, int stride,
 #endif
   };
 
+  // Remap 32x32 input into a modified 32x64 input by:
+  // - Copying over these values in top-left 32x32 locations.
+  // - Setting the rest of the locations to 0.
+  DECLARE_ALIGNED(32, tran_low_t, mod_input[32 * 64]);
+  memcpy(mod_input, input, 32 * 32 * sizeof(*mod_input));
+  memset(mod_input + 32 * 32, 0, 32 * 32 * sizeof(*mod_input));
+  const tran_low_t *mod_input_ptr = mod_input;
+
   const int n = 32;
   const int n2 = 64;
 
@@ -1590,15 +1619,15 @@ void av1_iht32x64_2048_add_c(const tran_low_t *input, uint8_t *dest, int stride,
   for (int i = 0; i < n2; ++i) {
 #if CONFIG_DAALA_TX32 && CONFIG_DAALA_TX64
     tran_low_t temp_in[32];
-    for (int j = 0; j < n; j++) temp_in[j] = input[j] * 8;
+    for (int j = 0; j < n; j++) temp_in[j] = mod_input_ptr[j] * 8;
     IHT_32x64[tx_type].rows(temp_in, outtmp);
     for (int j = 0; j < n; ++j) tmp[j][i] = outtmp[j];
 #else
-    IHT_32x64[tx_type].rows(input, outtmp);
+    IHT_32x64[tx_type].rows(mod_input_ptr, outtmp);
     for (int j = 0; j < n; ++j)
       tmp[j][i] = (tran_low_t)dct_const_round_shift(outtmp[j] * InvSqrt2);
 #endif
-    input += n;
+    mod_input_ptr += n;
   }
 
   // inverse transform column vectors
@@ -1645,6 +1674,14 @@ void av1_iht16x64_1024_add_c(const tran_low_t *input, uint8_t *dest, int stride,
     { iidtx64_c, aom_iadst16_c },       // H_FLIPADST
   };
 
+  // Remap 16x32 input into a modified 16x64 input by:
+  // - Copying over these values in top-left 16x32 locations.
+  // - Setting the rest of the locations to 0.
+  DECLARE_ALIGNED(32, tran_low_t, mod_input[16 * 64]);
+  memcpy(mod_input, input, 16 * 32 * sizeof(*mod_input));
+  memset(mod_input + 16 * 32, 0, 16 * 32 * sizeof(*mod_input));
+  const tran_low_t *mod_input_ptr = mod_input;
+
   const int n = 16;
   const int n4 = 64;
 
@@ -1654,9 +1691,9 @@ void av1_iht16x64_1024_add_c(const tran_low_t *input, uint8_t *dest, int stride,
 
   // inverse transform row vectors and transpose
   for (int i = 0; i < n4; ++i) {
-    IHT_16x64[tx_type].rows(input, outtmp);
+    IHT_16x64[tx_type].rows(mod_input_ptr, outtmp);
     for (int j = 0; j < n; ++j) tmp[j][i] = outtmp[j];
-    input += n;
+    mod_input_ptr += n;
   }
 
   // inverse transform column vectors
@@ -1701,6 +1738,16 @@ void av1_iht64x16_1024_add_c(const tran_low_t *input, uint8_t *dest, int stride,
     { iidtx16_c, ihalfright64_c },      // H_FLIPADST
   };
 
+  // Remap 32x16 input into a modified 64x16 input by:
+  // - Copying over these values in top-left 32x16 locations.
+  // - Setting the rest of the locations to 0.
+  DECLARE_ALIGNED(32, tran_low_t, mod_input[64 * 16]);
+  for (int row = 0; row < 16; ++row) {
+    memcpy(mod_input + row * 64, input + row * 32, 32 * sizeof(*mod_input));
+    memset(mod_input + row * 64 + 32, 0, 32 * sizeof(*mod_input));
+  }
+  const tran_low_t *mod_input_ptr = mod_input;
+
   const int n = 16;
   const int n4 = 64;
 
@@ -1710,9 +1757,9 @@ void av1_iht64x16_1024_add_c(const tran_low_t *input, uint8_t *dest, int stride,
 
   // inverse transform row vectors and transpose
   for (int i = 0; i < n; ++i) {
-    IHT_64x16[tx_type].rows(input, outtmp);
+    IHT_64x16[tx_type].rows(mod_input_ptr, outtmp);
     for (int j = 0; j < n4; ++j) tmp[j][i] = outtmp[j];
-    input += n4;
+    mod_input_ptr += n4;
   }
 
   // inverse transform column vectors
@@ -1759,18 +1806,14 @@ void av1_iwht4x4_add(const tran_low_t *input, uint8_t *dest, int stride,
 #if !CONFIG_DAALA_TX8
 static void idct8x8_add(const tran_low_t *input, uint8_t *dest, int stride,
                         const TxfmParam *txfm_param) {
-// If dc is 1, then input[0] is the reconstructed value, do not need
-// dequantization. Also, when dc is 1, dc is counted in eobs, namely eobs >=1.
+  // If dc is 1, then input[0] is the reconstructed value, do not need
+  // dequantization. Also, when dc is 1, dc is counted in eobs, namely eobs >=1.
 
-// The calculation can be simplified if there are not many non-zero dct
-// coefficients. Use eobs to decide what to do.
-// TODO(yunqingwang): "eobs = 1" case is also handled in av1_short_idct8x8_c.
-// Combine that with code here.
-#if CONFIG_ADAPT_SCAN
-  const int16_t half = txfm_param->eob_threshold[0];
-#else
+  // The calculation can be simplified if there are not many non-zero dct
+  // coefficients. Use eobs to decide what to do.
+  // TODO(yunqingwang): "eobs = 1" case is also handled in av1_short_idct8x8_c.
+  // Combine that with code here.
   const int16_t half = 12;
-#endif
 
   const int eob = txfm_param->eob;
   if (eob == 1)
@@ -1786,15 +1829,10 @@ static void idct8x8_add(const tran_low_t *input, uint8_t *dest, int stride,
 #if !CONFIG_DAALA_TX16
 static void idct16x16_add(const tran_low_t *input, uint8_t *dest, int stride,
                           const TxfmParam *txfm_param) {
-// The calculation can be simplified if there are not many non-zero dct
-// coefficients. Use eobs to separate different cases.
-#if CONFIG_ADAPT_SCAN
-  const int16_t half = txfm_param->eob_threshold[0];
-  const int16_t quarter = txfm_param->eob_threshold[1];
-#else
+  // The calculation can be simplified if there are not many non-zero dct
+  // coefficients. Use eobs to separate different cases.
   const int16_t half = 38;
   const int16_t quarter = 10;
-#endif
 
   const int eob = txfm_param->eob;
   if (eob == 1) /* DC only DCT coefficient. */
@@ -1811,13 +1849,8 @@ static void idct16x16_add(const tran_low_t *input, uint8_t *dest, int stride,
 #if !CONFIG_DAALA_TX32
 static void idct32x32_add(const tran_low_t *input, uint8_t *dest, int stride,
                           const TxfmParam *txfm_param) {
-#if CONFIG_ADAPT_SCAN
-  const int16_t half = txfm_param->eob_threshold[0];
-  const int16_t quarter = txfm_param->eob_threshold[1];
-#else
   const int16_t half = 135;
   const int16_t quarter = 34;
-#endif
 
   const int eob = txfm_param->eob;
   if (eob == 1)
@@ -2507,10 +2540,6 @@ static void init_txfm_param(const MACROBLOCKD *xd, int plane, TX_SIZE tx_size,
   txfm_param->tx_set_type =
       get_ext_tx_set_type(txfm_param->tx_size, plane_bsize,
                           is_inter_block(&xd->mi[0]->mbmi), reduced_tx_set);
-#if CONFIG_ADAPT_SCAN
-  txfm_param->eob_threshold =
-      (const int16_t *)&xd->eob_threshold_md[tx_size][tx_type][0];
-#endif
 }
 
 typedef void (*InvTxfmFunc)(const tran_low_t *dqcoeff, uint8_t *dst, int stride,

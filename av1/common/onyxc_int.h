@@ -87,6 +87,7 @@ extern "C" {
 // TODO(jingning): Turning this on to set up transform coefficient
 // processing timer.
 #define TXCOEFF_TIMER 0
+#define TXCOEFF_COST_TIMER 0
 
 typedef enum {
   SINGLE_REFERENCE = 0,
@@ -274,7 +275,6 @@ typedef struct AV1Common {
   int skip_mode_flag;
   int ref_frame_idx_0;
   int ref_frame_idx_1;
-  int tpl_frame_ref0_idx;
 #endif  // CONFIG_EXT_SKIP
 
   int new_fb_idx;
@@ -350,10 +350,6 @@ typedef struct AV1Common {
   qm_val_t *v_iqmatrix[MAX_SEGMENTS][TX_SIZES_ALL];
 
   // Encoder
-  qm_val_t *y_qmatrix[MAX_SEGMENTS][TX_SIZES_ALL];
-  qm_val_t *u_qmatrix[MAX_SEGMENTS][TX_SIZES_ALL];
-  qm_val_t *v_qmatrix[MAX_SEGMENTS][TX_SIZES_ALL];
-
   int using_qmatrix;
   int min_qmlevel;
   int max_qmlevel;
@@ -504,7 +500,12 @@ typedef struct AV1Common {
   int tile_group_start_col[MAX_TILE_ROWS][MAX_TILE_COLS];
 #endif
 #if CONFIG_LOOPFILTERING_ACROSS_TILES
+#if CONFIG_LOOPFILTERING_ACROSS_TILES_EXT
+  int loop_filter_across_tiles_v_enabled;
+  int loop_filter_across_tiles_h_enabled;
+#else
   int loop_filter_across_tiles_enabled;
+#endif  // CONFIG_LOOPFILTERING_ACROSS_TILES_EXT
 #endif  // CONFIG_LOOPFILTERING_ACROSS_TILES
 
   int byte_alignment;
@@ -575,12 +576,6 @@ typedef struct AV1Common {
 #if CONFIG_LV_MAP
   LV_MAP_CTX_TABLE coeff_ctx_table;
 #endif
-#if CONFIG_LPF_SB
-  int final_lpf_encode;
-#endif
-#if CONFIG_ADAPT_SCAN
-  int use_adapt_scan;
-#endif
 #if CONFIG_MFMV
   TPL_MV_REF *tpl_mvs;
   // TODO(jingning): This can be combined with sign_bias later.
@@ -591,6 +586,12 @@ typedef struct AV1Common {
   int64_t cum_txcoeff_timer;
   int64_t txcoeff_timer;
   int txb_count;
+#endif
+
+#if TXCOEFF_COST_TIMER
+  int64_t cum_txcoeff_cost_timer;
+  int64_t txcoeff_cost_timer;
+  int64_t txcoeff_cost_count;
 #endif
 } AV1_COMMON;
 
@@ -866,23 +867,11 @@ static INLINE void set_mi_row_col(MACROBLOCKD *xd, const TileInfo *const tile,
     if (mi_row & (xd->n8_w - 1)) xd->is_sec_rect = 1;
 }
 
-static INLINE const aom_prob *get_y_mode_probs(const AV1_COMMON *cm,
-                                               const MODE_INFO *mi,
-                                               const MODE_INFO *above_mi,
-                                               const MODE_INFO *left_mi,
-                                               int block) {
-  const PREDICTION_MODE above = av1_above_block_mode(mi, above_mi, block);
-  const PREDICTION_MODE left = av1_left_block_mode(mi, left_mi, block);
-  return cm->kf_y_prob[above][left];
-}
-
 static INLINE aom_cdf_prob *get_y_mode_cdf(FRAME_CONTEXT *tile_ctx,
-                                           const MODE_INFO *mi,
                                            const MODE_INFO *above_mi,
-                                           const MODE_INFO *left_mi,
-                                           int block) {
-  const PREDICTION_MODE above = av1_above_block_mode(mi, above_mi, block);
-  const PREDICTION_MODE left = av1_left_block_mode(mi, left_mi, block);
+                                           const MODE_INFO *left_mi) {
+  const PREDICTION_MODE above = av1_above_block_mode(above_mi);
+  const PREDICTION_MODE left = av1_left_block_mode(left_mi);
 
 #if CONFIG_KF_CTX
   int above_ctx = intra_mode_context[above];
@@ -1027,10 +1016,8 @@ static INLINE void update_ext_partition_context(MACROBLOCKD *xd, int mi_row,
                                                 BLOCK_SIZE bsize,
                                                 PARTITION_TYPE partition) {
   if (bsize >= BLOCK_8X8) {
-#if !CONFIG_EXT_PARTITION_TYPES_AB
     const int hbs = mi_size_wide[bsize] / 2;
     BLOCK_SIZE bsize2 = get_subsize(bsize, PARTITION_SPLIT);
-#endif
     switch (partition) {
       case PARTITION_SPLIT:
         if (bsize != BLOCK_8X8) break;
@@ -1042,30 +1029,6 @@ static INLINE void update_ext_partition_context(MACROBLOCKD *xd, int mi_row,
       case PARTITION_VERT_4:
         update_partition_context(xd, mi_row, mi_col, subsize, bsize);
         break;
-#if CONFIG_EXT_PARTITION_TYPES_AB
-      case PARTITION_HORZ_A:
-        update_partition_context(xd, mi_row, mi_col,
-                                 get_subsize(bsize, PARTITION_HORZ_4), subsize);
-        update_partition_context(xd, mi_row + mi_size_high[bsize] / 2, mi_col,
-                                 subsize, subsize);
-        break;
-      case PARTITION_HORZ_B:
-        update_partition_context(xd, mi_row, mi_col, subsize, subsize);
-        update_partition_context(xd, mi_row + mi_size_high[bsize] / 2, mi_col,
-                                 get_subsize(bsize, PARTITION_HORZ_4), subsize);
-        break;
-      case PARTITION_VERT_A:
-        update_partition_context(xd, mi_row, mi_col,
-                                 get_subsize(bsize, PARTITION_VERT_4), subsize);
-        update_partition_context(xd, mi_row, mi_col + mi_size_wide[bsize] / 2,
-                                 subsize, subsize);
-        break;
-      case PARTITION_VERT_B:
-        update_partition_context(xd, mi_row, mi_col, subsize, subsize);
-        update_partition_context(xd, mi_row, mi_col + mi_size_wide[bsize] / 2,
-                                 get_subsize(bsize, PARTITION_VERT_4), subsize);
-        break;
-#else
       case PARTITION_HORZ_A:
         update_partition_context(xd, mi_row, mi_col, bsize2, subsize);
         update_partition_context(xd, mi_row + hbs, mi_col, subsize, subsize);
@@ -1082,7 +1045,6 @@ static INLINE void update_ext_partition_context(MACROBLOCKD *xd, int mi_row,
         update_partition_context(xd, mi_row, mi_col, subsize, subsize);
         update_partition_context(xd, mi_row, mi_col + hbs, bsize2, subsize);
         break;
-#endif
       default: assert(0 && "Invalid partition type");
     }
   }
@@ -1205,10 +1167,7 @@ static INLINE void av1_zero_left_context(MACROBLOCKD *const xd) {
 #if defined(__GNUC__) && __GNUC__ >= 4
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
-static INLINE TX_SIZE get_min_tx_size(TX_SIZE tx_size) {
-  assert(tx_size < TX_SIZES_ALL);
-  return txsize_sqr_map[tx_size];
-}
+
 #if defined(__GNUC__) && __GNUC__ >= 4
 #pragma GCC diagnostic warning "-Warray-bounds"
 #endif
@@ -1314,16 +1273,6 @@ static INLINE PARTITION_TYPE get_partition(const AV1_COMMON *const cm,
     const MB_MODE_INFO *const mbmi_below = &mi[bhigh / 2 * cm->mi_stride]->mbmi;
 
     if (sswide == bwide) {
-#if CONFIG_EXT_PARTITION_TYPES_AB
-      // Smaller height but same width. Is PARTITION_HORZ, PARTITION_HORZ_4,
-      // PARTITION_HORZ_A or PARTITION_HORZ_B.
-      if (sshigh * 2 == bhigh)
-        return (mbmi_below->sb_type == subsize) ? PARTITION_HORZ
-                                                : PARTITION_HORZ_B;
-      assert(sshigh * 4 == bhigh);
-      return (mbmi_below->sb_type == subsize) ? PARTITION_HORZ_4
-                                              : PARTITION_HORZ_A;
-#else
       // Smaller height but same width. Is PARTITION_HORZ_4, PARTITION_HORZ or
       // PARTITION_HORZ_B. To distinguish the latter two, check if the lower
       // half was split.
@@ -1334,18 +1283,7 @@ static INLINE PARTITION_TYPE get_partition(const AV1_COMMON *const cm,
         return PARTITION_HORZ;
       else
         return PARTITION_HORZ_B;
-#endif
     } else if (sshigh == bhigh) {
-#if CONFIG_EXT_PARTITION_TYPES_AB
-      // Smaller width but same height. Is PARTITION_VERT, PARTITION_VERT_4,
-      // PARTITION_VERT_A or PARTITION_VERT_B.
-      if (sswide * 2 == bwide)
-        return (mbmi_right->sb_type == subsize) ? PARTITION_VERT
-                                                : PARTITION_VERT_B;
-      assert(sswide * 4 == bwide);
-      return (mbmi_right->sb_type == subsize) ? PARTITION_VERT_4
-                                              : PARTITION_VERT_A;
-#else
       // Smaller width but same height. Is PARTITION_VERT_4, PARTITION_VERT or
       // PARTITION_VERT_B. To distinguish the latter two, check if the right
       // half was split.
@@ -1356,9 +1294,7 @@ static INLINE PARTITION_TYPE get_partition(const AV1_COMMON *const cm,
         return PARTITION_VERT;
       else
         return PARTITION_VERT_B;
-#endif
     } else {
-#if !CONFIG_EXT_PARTITION_TYPES_AB
       // Smaller width and smaller height. Might be PARTITION_SPLIT or could be
       // PARTITION_HORZ_A or PARTITION_VERT_A. If subsize isn't halved in both
       // dimensions, we immediately know this is a split (which will recurse to
@@ -1370,7 +1306,6 @@ static INLINE PARTITION_TYPE get_partition(const AV1_COMMON *const cm,
 
       if (mi_size_wide[mbmi_below->sb_type] == bwide) return PARTITION_HORZ_A;
       if (mi_size_high[mbmi_right->sb_type] == bhigh) return PARTITION_VERT_A;
-#endif
 
       return PARTITION_SPLIT;
     }

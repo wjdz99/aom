@@ -106,35 +106,71 @@ void reference_hybrid_1d(double *in, double *out, int size, int type) {
     reference_adst_1d(in, out, size);
 }
 
-void reference_hybrid_2d(double *in, double *out, int size, int type0,
-                         int type1) {
-  double *tempOut = new double[size * size];
+double get_amplification_factor(TX_TYPE tx_type, TX_SIZE tx_size) {
+  TXFM_2D_FLIP_CFG fwd_txfm_flip_cfg;
+  av1_get_fwd_txfm_cfg(tx_type, tx_size, &fwd_txfm_flip_cfg);
+  const int tx_width = fwd_txfm_flip_cfg.row_cfg->txfm_size;
+  const int tx_height = fwd_txfm_flip_cfg.col_cfg->txfm_size;
+  const int8_t *shift = (tx_width > tx_height)
+                            ? fwd_txfm_flip_cfg.row_cfg->shift
+                            : fwd_txfm_flip_cfg.col_cfg->shift;
+  const int amplify_bit = shift[0] + shift[1] + shift[2];
+  double amplify_factor =
+      amplify_bit >= 0 ? (1 << amplify_bit) : (1.0 / (1 << -amplify_bit));
 
-  for (int r = 0; r < size; r++) {
-    // out ->tempOut
-    for (int c = 0; c < size; c++) {
-      tempOut[r * size + c] = in[c * size + r];
+  // For rectangular transforms, we need to multiply by an extra factor.
+  const int rect_type = get_rect_tx_log_ratio(tx_width, tx_height);
+  if (abs(rect_type) == 1) {
+    amplify_factor *= pow(2, 0.5);
+  } else if (abs(rect_type) == 2) {
+    const int tx_max_dim = AOMMAX(tx_width, tx_height);
+    const int rect_type2_shift = (tx_max_dim >= 32) ? 2 : 1;
+    amplify_factor *= pow(2, rect_type2_shift);
+  }
+  return amplify_factor;
+}
+
+void reference_hybrid_2d(double *in, double *out, TX_TYPE tx_type,
+                         TX_SIZE tx_size) {
+  // Get transform type and size of each dimension.
+  TYPE_TXFM type0;
+  TYPE_TXFM type1;
+  get_txfm1d_type(tx_type, &type0, &type1);
+  const int tx_width = tx_size_wide[tx_size];
+  const int tx_height = tx_size_high[tx_size];
+
+  double *const temp_in = new double[AOMMAX(tx_width, tx_height)];
+  double *const temp_out = new double[AOMMAX(tx_width, tx_height)];
+  double *const out_interm = new double[tx_width * tx_height];
+  const int stride = tx_width;
+
+  // Transform columns.
+  for (int c = 0; c < tx_width; ++c) {
+    for (int r = 0; r < tx_height; ++r) {
+      temp_in[r] = in[r * stride + c];
+    }
+    reference_hybrid_1d(temp_in, temp_out, tx_height, type0);
+    for (int r = 0; r < tx_height; ++r) {
+      out_interm[r * stride + c] = temp_out[r];
     }
   }
 
-  // dct each row: in -> out
-  for (int r = 0; r < size; r++) {
-    reference_hybrid_1d(tempOut + r * size, out + r * size, size, type0);
+  // Transform rows.
+  for (int r = 0; r < tx_height; ++r) {
+    reference_hybrid_1d(out_interm + r * stride, out + r * stride, tx_width,
+                        type1);
   }
 
-  for (int r = 0; r < size; r++) {
-    // out ->tempOut
-    for (int c = 0; c < size; c++) {
-      tempOut[r * size + c] = out[c * size + r];
-    }
-  }
-
-  for (int r = 0; r < size; r++) {
-    reference_hybrid_1d(tempOut + r * size, out + r * size, size, type1);
-  }
+  delete[] temp_in;
+  delete[] temp_out;
+  delete[] out_interm;
 
 #if CONFIG_TX64X64
-  if (size == 64) {  // tx_size == TX64X64
+  // These transforms use an approximate 2D DCT transform, by only keeping the
+  // top-left quarter of the coefficients, and repacking them in the first
+  // quarter indices.
+  // TODO(urvang): Refactor this code.
+  if (tx_width == 64 && tx_height == 64) {  // tx_size == TX_64X64
     // Zero out top-right 32x32 area.
     for (int row = 0; row < 32; ++row) {
       memset(out + row * 64 + 32, 0, 32 * sizeof(*out));
@@ -145,50 +181,80 @@ void reference_hybrid_2d(double *in, double *out, int size, int type0,
     for (int row = 1; row < 32; ++row) {
       memcpy(out + row * 32, out + row * 64, 32 * sizeof(*out));
     }
+  } else if (tx_width == 32 && tx_height == 64) {  // tx_size == TX_32X64
+    // Zero out the bottom 32x32 area.
+    memset(out + 32 * 32, 0, 32 * 32 * sizeof(*out));
+    // Note: no repacking needed here.
+  } else if (tx_width == 64 && tx_height == 32) {  // tx_size == TX_64X32
+    // Zero out right 32x32 area.
+    for (int row = 0; row < 32; ++row) {
+      memset(out + row * 64 + 32, 0, 32 * sizeof(*out));
+    }
+    // Re-pack non-zero coeffs in the first 32x32 indices.
+    for (int row = 1; row < 32; ++row) {
+      memcpy(out + row * 32, out + row * 64, 32 * sizeof(*out));
+    }
+  } else if (tx_width == 16 && tx_height == 64) {  // tx_size == TX_16X64
+    // Zero out the bottom 16x32 area.
+    memset(out + 16 * 32, 0, 16 * 32 * sizeof(*out));
+    // Note: no repacking needed here.
+  } else if (tx_width == 64 && tx_height == 16) {  // tx_size == TX_64X16
+    // Zero out right 32x16 area.
+    for (int row = 0; row < 16; ++row) {
+      memset(out + row * 64 + 32, 0, 32 * sizeof(*out));
+    }
+    // Re-pack non-zero coeffs in the first 32x16 indices.
+    for (int row = 1; row < 16; ++row) {
+      memcpy(out + row * 32, out + row * 64, 32 * sizeof(*out));
+    }
   }
 #endif  // CONFIG_TX_64X64
-  delete[] tempOut;
-}
 
-template <typename Type>
-void fliplr(Type *dest, int stride, int length) {
-  int i, j;
-  for (i = 0; i < length; ++i) {
-    for (j = 0; j < length / 2; ++j) {
-      const Type tmp = dest[i * stride + j];
-      dest[i * stride + j] = dest[i * stride + length - 1 - j];
-      dest[i * stride + length - 1 - j] = tmp;
+  // Apply appropriate scale.
+  const double amplify_factor = get_amplification_factor(tx_type, tx_size);
+  for (int c = 0; c < tx_width; ++c) {
+    for (int r = 0; r < tx_height; ++r) {
+      out[r * stride + c] *= amplify_factor;
     }
   }
 }
 
 template <typename Type>
-void flipud(Type *dest, int stride, int length) {
-  int i, j;
-  for (j = 0; j < length; ++j) {
-    for (i = 0; i < length / 2; ++i) {
-      const Type tmp = dest[i * stride + j];
-      dest[i * stride + j] = dest[(length - 1 - i) * stride + j];
-      dest[(length - 1 - i) * stride + j] = tmp;
+void fliplr(Type *dest, int width, int height, int stride) {
+  for (int r = 0; r < height; ++r) {
+    for (int c = 0; c < width / 2; ++c) {
+      const Type tmp = dest[r * stride + c];
+      dest[r * stride + c] = dest[r * stride + width - 1 - c];
+      dest[r * stride + width - 1 - c] = tmp;
     }
   }
 }
 
 template <typename Type>
-void fliplrud(Type *dest, int stride, int length) {
-  int i, j;
-  for (i = 0; i < length / 2; ++i) {
-    for (j = 0; j < length; ++j) {
-      const Type tmp = dest[i * stride + j];
-      dest[i * stride + j] = dest[(length - 1 - i) * stride + length - 1 - j];
-      dest[(length - 1 - i) * stride + length - 1 - j] = tmp;
+void flipud(Type *dest, int width, int height, int stride) {
+  for (int c = 0; c < width; ++c) {
+    for (int r = 0; r < height / 2; ++r) {
+      const Type tmp = dest[r * stride + c];
+      dest[r * stride + c] = dest[(height - 1 - r) * stride + c];
+      dest[(height - 1 - r) * stride + c] = tmp;
     }
   }
 }
 
-template void fliplr<double>(double *dest, int stride, int length);
-template void flipud<double>(double *dest, int stride, int length);
-template void fliplrud<double>(double *dest, int stride, int length);
+template <typename Type>
+void fliplrud(Type *dest, int width, int height, int stride) {
+  for (int r = 0; r < height / 2; ++r) {
+    for (int c = 0; c < width; ++c) {
+      const Type tmp = dest[r * stride + c];
+      dest[r * stride + c] = dest[(height - 1 - r) * stride + width - 1 - c];
+      dest[(height - 1 - r) * stride + width - 1 - c] = tmp;
+    }
+  }
+}
+
+template void fliplr<double>(double *dest, int width, int height, int stride);
+template void flipud<double>(double *dest, int width, int height, int stride);
+template void fliplrud<double>(double *dest, int width, int height, int stride);
 
 int bd_arr[BD_NUM] = { 8, 10, 12 };
 

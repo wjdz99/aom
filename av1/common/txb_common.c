@@ -125,8 +125,8 @@ const int8_t av1_nz_map_ctx_offset[TX_SIZES_ALL][5][5] = {
     { 21, 21, 21, 21, 21 } },
 #if CONFIG_TX64X64
   // TX_64X64
-  { { 0, 11, 11, 11, 11 },
-    { 11, 11, 11, 11, 11 },
+  { { 0, 1, 6, 6, 21 },
+    { 1, 6, 6, 21, 21 },
     { 6, 6, 21, 21, 21 },
     { 6, 21, 21, 21, 21 },
     { 21, 21, 21, 21, 21 } },
@@ -175,11 +175,11 @@ const int8_t av1_nz_map_ctx_offset[TX_SIZES_ALL][5][5] = {
     { 6, 21, 21, 21, 21 },
     { 21, 21, 21, 21, 21 } },
   // TX_64X32
-  { { 0, 1, 6, 6, 21 },
-    { 1, 6, 6, 21, 21 },
-    { 6, 6, 21, 21, 21 },
-    { 6, 21, 21, 21, 21 },
-    { 21, 21, 21, 21, 21 } },
+  { { 0, 16, 6, 6, 21 },
+    { 16, 16, 6, 21, 21 },
+    { 16, 16, 21, 21, 21 },
+    { 16, 16, 21, 21, 21 },
+    { 16, 16, 21, 21, 21 } },
 #endif  // CONFIG_TX64X64
   // TX_4X16
   { { 0, 11, 11, 11, 0 },
@@ -320,6 +320,7 @@ void av1_init_txb_probs(FRAME_CONTEXT *fc) {
     for (plane = 0; plane < PLANE_TYPES; ++plane) {
 #if CONFIG_LV_MAP_MULTI
       for (ctx = 0; ctx < LEVEL_CONTEXTS; ++ctx) {
+#if 0
         int p = 32768 - fc->coeff_lps[tx_size][plane][0][ctx] * 128;
         int sum = p;
         fc->coeff_br_cdf[tx_size][plane][ctx][0] = AOM_ICDF(sum);
@@ -335,6 +336,9 @@ void av1_init_txb_probs(FRAME_CONTEXT *fc) {
         //        fc->coeff_br_cdf[tx_size][plane][ctx][0] >> 7,
         //        fc->coeff_br_cdf[tx_size][plane][ctx][1] >> 7,
         //        fc->coeff_br_cdf[tx_size][plane][ctx][2] >> 7);
+#else
+        (void)ctx;  // coeff_br_cdf is initialized in init_mode_probs
+#endif
       }
 #else
       for (ctx = 0; ctx < LEVEL_CONTEXTS; ++ctx) {

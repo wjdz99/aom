@@ -146,7 +146,7 @@ static int optimize_b_greedy(const AV1_COMMON *cm, MACROBLOCK *mb, int plane,
   const int16_t *const dequant_ptr = p->dequant_QTX;
   const uint8_t *const band_translate = get_band_translate(tx_size);
   const TX_TYPE tx_type =
-      av1_get_tx_type(plane_type, xd, blk_row, blk_col, block, tx_size);
+      av1_get_tx_type(plane_type, xd, blk_row, blk_col, tx_size);
   const SCAN_ORDER *const scan_order =
       get_scan(cm, tx_size, tx_type, &xd->mi[0]->mbmi);
   const int16_t *const scan = scan_order->scan;
@@ -161,7 +161,7 @@ static int optimize_b_greedy(const AV1_COMMON *cm, MACROBLOCK *mb, int plane,
 #endif
 #if CONFIG_AOM_QM
   int seg_id = xd->mi[0]->mbmi.segment_id;
-  const TX_SIZE qm_tx_size = get_qm_tx_size(tx_size);
+  const TX_SIZE qm_tx_size = av1_get_adjusted_tx_size(tx_size);
   // Use a flat matrix (i.e. no weighting) for 1D and Identity transforms
   const qm_val_t *iqmatrix =
       IS_2D_TRANSFORM(tx_type)
@@ -472,28 +472,26 @@ static AV1_QUANT_FACADE
       { NULL, NULL }
     };
 
-#if !CONFIG_TXMG
 typedef void (*fwdTxfmFunc)(const int16_t *diff, tran_low_t *coeff, int stride,
                             TxfmParam *txfm_param);
-static const fwdTxfmFunc fwd_txfm_func[2] = { av1_fwd_txfm,
-                                              av1_highbd_fwd_txfm };
+static const fwdTxfmFunc fwd_txfm_func[2] = {
+#if CONFIG_TXMG
+  av1_highbd_fwd_txfm,
+#else
+  av1_fwd_txfm,
 #endif
+  av1_highbd_fwd_txfm,
+};
 
 void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
                      int blk_row, int blk_col, BLOCK_SIZE plane_bsize,
                      TX_SIZE tx_size, AV1_XFORM_QUANT xform_quant_idx) {
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
-#if !CONFIG_DIST_8X8
   const struct macroblock_plane *const p = &x->plane[plane];
   const struct macroblockd_plane *const pd = &xd->plane[plane];
-#else
-  struct macroblock_plane *const p = &x->plane[plane];
-  struct macroblockd_plane *const pd = &xd->plane[plane];
-#endif
   PLANE_TYPE plane_type = get_plane_type(plane);
-  TX_TYPE tx_type =
-      av1_get_tx_type(plane_type, xd, blk_row, blk_col, block, tx_size);
+  TX_TYPE tx_type = av1_get_tx_type(plane_type, xd, blk_row, blk_col, tx_size);
 
 #if CONFIG_NEW_QUANT
   const int is_inter = is_inter_block(mbmi);
@@ -506,7 +504,7 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
   const int diff_stride = block_size_wide[plane_bsize];
 #if CONFIG_AOM_QM
   int seg_id = mbmi->segment_id;
-  const TX_SIZE qm_tx_size = get_qm_tx_size(tx_size);
+  const TX_SIZE qm_tx_size = av1_get_adjusted_tx_size(tx_size);
   // Use a flat matrix (i.e. no weighting) for 1D and Identity transforms
   const qm_val_t *qmatrix =
       IS_2D_TRANSFORM(tx_type) ? pd->seg_qmatrix[seg_id][qm_tx_size]
@@ -518,18 +516,6 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
 #endif  // CONFIG_AOM_QM
 
   TxfmParam txfm_param;
-
-#if CONFIG_DIST_8X8
-  uint8_t *dst;
-  const int dst_stride = pd->dst.stride;
-#if CONFIG_DIST_8X8
-  int16_t *pred;
-  const int txw = tx_size_wide[tx_size];
-  const int txh = tx_size_high[tx_size];
-  int i, j;
-#endif
-#endif
-
   QUANT_PARAM qparam;
   const int16_t *src_diff;
 
@@ -549,33 +535,6 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
   qparam.iqmatrix = iqmatrix;
 #endif  // CONFIG_AOM_QM
 
-#if CONFIG_DIST_8X8
-  dst = &pd->dst.buf[(blk_row * dst_stride + blk_col) << tx_size_wide_log2[0]];
-#endif  // CONFIG_DIST_8X8
-
-#if CONFIG_DIST_8X8
-  if (x->using_dist_8x8) {
-    pred = &pd->pred[(blk_row * diff_stride + blk_col) << tx_size_wide_log2[0]];
-
-// copy uint8 orig and predicted block to int16 buffer
-// in order to use existing VP10 transform functions
-#if CONFIG_HIGHBITDEPTH
-    if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
-      for (j = 0; j < txh; j++)
-        for (i = 0; i < txw; i++)
-          pred[diff_stride * j + i] =
-              CONVERT_TO_SHORTPTR(dst)[dst_stride * j + i];
-    } else {
-#endif  // CONFIG_HIGHBITDEPTH
-      for (j = 0; j < txh; j++)
-        for (i = 0; i < txw; i++)
-          pred[diff_stride * j + i] = dst[dst_stride * j + i];
-#if CONFIG_HIGHBITDEPTH
-    }
-#endif  // CONFIG_HIGHBITDEPTH
-  }
-#endif  // CONFIG_DIST_8X8
-
   txfm_param.tx_type = tx_type;
   txfm_param.tx_size = tx_size;
   txfm_param.lossless = xd->lossless[mbmi->segment_id];
@@ -586,11 +545,7 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
   txfm_param.bd = xd->bd;
   txfm_param.is_hbd = get_bitdepth_data_path_index(xd);
 
-#if CONFIG_TXMG
-  av1_highbd_fwd_txfm(src_diff, coeff, diff_stride, &txfm_param);
-#else   // CONFIG_TXMG
   fwd_txfm_func[txfm_param.is_hbd](src_diff, coeff, diff_stride, &txfm_param);
-#endif  // CONFIG_TXMG
 
   if (xform_quant_idx != AV1_XFORM_QUANT_SKIP_QUANT) {
     const int n_coeffs = av1_get_max_eob(tx_size);
@@ -657,7 +612,7 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
 
   {
     TX_TYPE tx_type =
-        av1_get_tx_type(pd->plane_type, xd, blk_row, blk_col, block, tx_size);
+        av1_get_tx_type(pd->plane_type, xd, blk_row, blk_col, tx_size);
     av1_inverse_transform_block(xd, dqcoeff, plane, tx_type, tx_size, dst,
                                 pd->dst.stride, p->eobs[block],
                                 cm->reduced_tx_set_used);
@@ -669,7 +624,7 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
     xd->mi[0]->mbmi.txk_type[(blk_row << MAX_MIB_SIZE_LOG2) + blk_col] =
         DCT_DCT;
 #else
-    assert(xd->mi[0]->mbmi.txk_type[blk_row << MAX_MIB_SIZE_LOG2 + blk_col] ==
+    assert(xd->mi[0]->mbmi.txk_type[(blk_row << MAX_MIB_SIZE_LOG2) + blk_col] ==
            DCT_DCT);
 #endif
   }
@@ -678,8 +633,9 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
 #if CONFIG_MISMATCH_DEBUG
   if (dry_run == OUTPUT_ENABLED) {
     int pixel_c, pixel_r;
-    int blk_w = block_size_wide[plane_bsize];
-    int blk_h = block_size_high[plane_bsize];
+    BLOCK_SIZE bsize = txsize_to_bsize[tx_size];
+    int blk_w = block_size_wide[bsize];
+    int blk_h = block_size_high[bsize];
     mi_to_pixel_loc(&pixel_c, &pixel_r, mi_col, mi_row, blk_col, blk_row,
                     pd->subsampling_x, pd->subsampling_y);
     mismatch_record_block_tx(dst, pd->dst.stride, plane, pixel_c, pixel_r,
@@ -835,19 +791,6 @@ void av1_encode_sb(AV1_COMMON *cm, MACROBLOCK *x, BLOCK_SIZE bsize, int mi_row,
     TX_SIZE max_tx_size = get_vartx_max_txsize(
         xd, plane_bsize, pd->subsampling_x || pd->subsampling_y);
 
-#if DISABLE_VARTX_FOR_CHROMA == 2
-    // If the luma transform size is split at least one level, split the chroma
-    // by one level. Otherwise use the  largest possible trasnform size for
-    // chroma.
-    if (plane && (pd->subsampling_x || pd->subsampling_y)) {
-      const TX_SIZE l_max_tx_size = get_vartx_max_txsize(xd, bsizec, 0);
-      const int is_split =
-          (l_max_tx_size != mbmi->inter_tx_size[0][0] && bsize == bsizec &&
-           txsize_to_bsize[l_max_tx_size] == bsizec);
-      if (is_split) max_tx_size = sub_tx_size_map[1][max_tx_size];
-    }
-#endif  // DISABLE_VARTX_FOR_CHROMA == 2
-
     const BLOCK_SIZE txb_size = txsize_to_bsize[max_tx_size];
     const int bw = block_size_wide[txb_size] >> tx_size_wide_log2[0];
     const int bh = block_size_high[txb_size] >> tx_size_wide_log2[0];
@@ -930,14 +873,13 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
   tran_low_t *dqcoeff = BLOCK_OFFSET(pd->dqcoeff, block);
   PLANE_TYPE plane_type = get_plane_type(plane);
   const TX_TYPE tx_type =
-      av1_get_tx_type(plane_type, xd, blk_row, blk_col, block, tx_size);
+      av1_get_tx_type(plane_type, xd, blk_row, blk_col, tx_size);
   uint16_t *eob = &p->eobs[block];
   const int dst_stride = pd->dst.stride;
   uint8_t *dst =
       &pd->dst.buf[(blk_row * dst_stride + blk_col) << tx_size_wide_log2[0]];
 
-  av1_predict_intra_block_facade(cm, xd, plane, block, blk_col, blk_row,
-                                 tx_size);
+  av1_predict_intra_block_facade(cm, xd, plane, blk_col, blk_row, tx_size);
 
   av1_subtract_txb(x, plane, plane_bsize, blk_col, blk_row, tx_size);
 
@@ -955,8 +897,9 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
       xd->mi[0]->mbmi.txk_type[(blk_row << MAX_MIB_SIZE_LOG2) + blk_col] =
           DCT_DCT;
 #else
-      assert(xd->mi[0]->mbmi.txk_type[blk_row << MAX_MIB_SIZE_LOG2 + blk_col] ==
-             DCT_DCT);
+      assert(
+          xd->mi[0]->mbmi.txk_type[(blk_row << MAX_MIB_SIZE_LOG2) + blk_col] ==
+          DCT_DCT);
 #endif
     }
 #endif  // CONFIG_TXK_SEL

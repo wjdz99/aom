@@ -22,8 +22,8 @@ extern "C" {
 
 void av1_init_intra_predictors(void);
 void av1_predict_intra_block_facade(const AV1_COMMON *cm, MACROBLOCKD *xd,
-                                    int plane, int block_idx, int blk_col,
-                                    int blk_row, TX_SIZE tx_size);
+                                    int plane, int blk_col, int blk_row,
+                                    TX_SIZE tx_size);
 void av1_predict_intra_block(const AV1_COMMON *cm, const MACROBLOCKD *xd,
                              int bw, int bh, BLOCK_SIZE bsize,
                              PREDICTION_MODE mode, const uint8_t *ref,
@@ -42,14 +42,7 @@ static const INTERINTRA_MODE intra_to_interintra_mode[INTRA_MODES] = {
 };
 
 #if CONFIG_FILTER_INTRA
-#define FILTER_INTRA_PROC_UNIT_SIZE 42  // ij means a i(cols)xj(rows) unit
-#if FILTER_INTRA_PROC_UNIT_SIZE == 44
-#define FILTER_INTRA_SCALE_BITS 5
-#elif FILTER_INTRA_PROC_UNIT_SIZE == 42
 #define FILTER_INTRA_SCALE_BITS 4
-#else
-#define FILTER_INTRA_SCALE_BITS 3
-#endif
 #endif  // CONFIG_FILTER_INTRA
 
 #define CONFIG_INTRA_EDGE_UPSAMPLE CONFIG_INTRA_EDGE
@@ -77,12 +70,8 @@ static INLINE int av1_use_angle_delta(BLOCK_SIZE bsize) {
 #endif  // CONFIG_EXT_INTRA
 
 #if CONFIG_INTRABC
-static INLINE int av1_allow_intrabc(BLOCK_SIZE bsize,
-                                    const AV1_COMMON *const cm) {
-  // TODO(huisu@google.com): intrabc is disabled for BLOCK_4X16 and
-  // BLOCK_16X4 because of onflict between cfl.
-  return bsize != BLOCK_4X16 && bsize != BLOCK_16X4 &&
-         cm->allow_screen_content_tools && cm->allow_intrabc;
+static INLINE int av1_allow_intrabc(const AV1_COMMON *const cm) {
+  return cm->allow_screen_content_tools && cm->allow_intrabc;
 }
 #endif  // CONFIG_INTRABC
 

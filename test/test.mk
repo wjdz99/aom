@@ -124,16 +124,13 @@ endif
 LIBAOM_TEST_SRCS-yes                   += divu_small_test.cc
 #LIBAOM_TEST_SRCS-yes                   += encoder_parms_get_to_decoder.cc
 endif
+ifeq ($(CONFIG_CFL),yes)
+  LIBAOM_TEST_SRCS-yes                 += cfl_test.cc
+endif
 
-LIBAOM_TEST_SRCS-$(CONFIG_ADAPT_SCAN)  += scan_test.cc
 LIBAOM_TEST_SRCS-yes                   += convolve_test.cc
 LIBAOM_TEST_SRCS-yes                   += lpf_test.cc
-ifeq ($(CONFIG_CDEF_SINGLEPASS),yes)
 LIBAOM_TEST_SRCS-yes                   += cdef_test.cc
-else
-LIBAOM_TEST_SRCS-yes                   += dering_test.cc
-LIBAOM_TEST_SRCS-yes                   += clpf_test.cc
-endif
 LIBAOM_TEST_SRCS-yes                   += simd_cmp_impl.h
 LIBAOM_TEST_SRCS-$(HAVE_SSE2)          += simd_cmp_sse2.cc
 LIBAOM_TEST_SRCS-$(HAVE_SSSE3)         += simd_cmp_ssse3.cc
@@ -211,8 +208,8 @@ ifeq ($(CONFIG_INTERNAL_STATS),yes)
 LIBAOM_TEST_SRCS-$(CONFIG_HIGHBITDEPTH) += hbd_metrics_test.cc
 endif
 LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += sad_test.cc
-LIBAOM_TEST_SRCS-$(CONFIG_AV1) += av1_txfm_test.h
-LIBAOM_TEST_SRCS-$(CONFIG_AV1) += av1_txfm_test.cc
+LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += av1_txfm_test.h
+LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += av1_txfm_test.cc
 LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += av1_fwd_txfm1d_test.cc
 LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += av1_inv_txfm1d_test.cc
 LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += av1_fwd_txfm2d_test.cc
@@ -227,16 +224,11 @@ LIBAOM_TEST_SRCS-$(HAVE_SSE2) += hiprec_convolve_test.cc
 LIBAOM_TEST_SRCS-$(HAVE_SSE2) += hiprec_convolve_test_util.cc
 LIBAOM_TEST_SRCS-$(HAVE_SSE4_1) += selfguided_filter_test.cc
 endif
-ifeq ($(CONFIG_CONVOLVE_ROUND),yes)
 LIBAOM_TEST_SRCS-$(HAVE_SSE2) += av1_convolve_2d_test_util.h
 LIBAOM_TEST_SRCS-$(HAVE_SSE2) += av1_convolve_2d_test.cc
 LIBAOM_TEST_SRCS-$(HAVE_SSE2) += av1_convolve_2d_test_util.cc
 LIBAOM_TEST_SRCS-yes          += convolve_round_test.cc
-endif
-
-ifeq (yesx,$(CONFIG_CONVOLVE_ROUND)x$(CONFIG_COMPOUND_ROUND))
 LIBAOM_TEST_SRCS-$(HAVE_SSE4_1) += av1_convolve_scale_test.cc
-endif
 
 ifeq ($(CONFIG_AV1_ENCODER),yes)
 LIBAOM_TEST_SRCS-$(HAVE_SSE4_1) += corner_match_test.cc

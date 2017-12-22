@@ -16,28 +16,14 @@
 #include "av1/common/blockd.h"
 #include "av1/common/onyxc_int.h"
 
-PREDICTION_MODE av1_left_block_mode(const MODE_INFO *cur_mi,
-                                    const MODE_INFO *left_mi, int b) {
-  if (b == 0 || b == 2) {
-    if (!left_mi || is_inter_block(&left_mi->mbmi)) return DC_PRED;
-
-    return get_y_mode(left_mi, b + 1);
-  } else {
-    assert(b == 1 || b == 3);
-    return cur_mi->bmi[b - 1].as_mode;
-  }
+PREDICTION_MODE av1_left_block_mode(const MODE_INFO *left_mi) {
+  if (!left_mi || is_inter_block(&left_mi->mbmi)) return DC_PRED;
+  return left_mi->mbmi.mode;
 }
 
-PREDICTION_MODE av1_above_block_mode(const MODE_INFO *cur_mi,
-                                     const MODE_INFO *above_mi, int b) {
-  if (b == 0 || b == 1) {
-    if (!above_mi || is_inter_block(&above_mi->mbmi)) return DC_PRED;
-
-    return get_y_mode(above_mi, b + 2);
-  } else {
-    assert(b == 2 || b == 3);
-    return cur_mi->bmi[b - 2].as_mode;
-  }
+PREDICTION_MODE av1_above_block_mode(const MODE_INFO *above_mi) {
+  if (!above_mi || is_inter_block(&above_mi->mbmi)) return DC_PRED;
+  return above_mi->mbmi.mode;
 }
 
 void av1_foreach_transformed_block_in_plane(
@@ -48,8 +34,7 @@ void av1_foreach_transformed_block_in_plane(
   // 4x4=0, 8x8=2, 16x16=4, 32x32=6, 64x64=8
   // transform size varies per plane, look it up in a common way.
   const TX_SIZE tx_size = av1_get_tx_size(plane, xd);
-  const BLOCK_SIZE plane_bsize =
-      AOMMAX(BLOCK_4X4, get_plane_block_size(bsize, pd));
+  const BLOCK_SIZE plane_bsize = get_plane_block_size(bsize, pd);
   const uint8_t txw_unit = tx_size_wide_unit[tx_size];
   const uint8_t txh_unit = tx_size_high_unit[tx_size];
   const int step = txw_unit * txh_unit;
@@ -151,8 +136,7 @@ void av1_reset_skip_context(MACROBLOCKD *xd, int mi_row, int mi_col,
   nplanes = 1 + (MAX_MB_PLANE - 1) * chroma_ref;
   for (i = 0; i < nplanes; i++) {
     struct macroblockd_plane *const pd = &xd->plane[i];
-    const BLOCK_SIZE plane_bsize =
-        AOMMAX(BLOCK_4X4, get_plane_block_size(bsize, pd));
+    const BLOCK_SIZE plane_bsize = get_plane_block_size(bsize, pd);
     const int txs_wide = block_size_wide[plane_bsize] >> tx_size_wide_log2[0];
     const int txs_high = block_size_high[plane_bsize] >> tx_size_high_log2[0];
     memset(pd->above_context, 0, sizeof(ENTROPY_CONTEXT) * txs_wide);
@@ -180,6 +164,41 @@ void av1_setup_block_planes(MACROBLOCKD *xd, int ss_x, int ss_y) {
 }
 
 #if CONFIG_EXT_INTRA
+#if CONFIG_EXT_INTRA_MOD2
+const int16_t dr_intra_derivative[90] = {
+  // More evenly spread out angles and limited to 10-bit
+  // Values that are 0 will never be used
+  //                    Approx angle
+  0,    0, 0,        //
+  1023, 0, 0,        // 3, ...
+  547,  0, 0,        // 6, ...
+  372,  0, 0, 0, 0,  // 9, ...
+  273,  0, 0,        // 14, ...
+  215,  0, 0,        // 17, ...
+  178,  0, 0,        // 20, ...
+  151,  0, 0,        // 23, ... (113 & 203 are base angles)
+  132,  0, 0,        // 26, ...
+  116,  0, 0,        // 29, ...
+  102,  0, 0, 0,     // 32, ...
+  90,   0, 0,        // 36, ...
+  80,   0, 0,        // 39, ...
+  71,   0, 0,        // 42, ...
+  64,   0, 0,        // 45, ... (45 & 135 are base angles)
+  57,   0, 0,        // 48, ...
+  51,   0, 0,        // 51, ...
+  45,   0, 0, 0,     // 54, ...
+  40,   0, 0,        // 58, ...
+  35,   0, 0,        // 61, ...
+  31,   0, 0,        // 64, ...
+  27,   0, 0,        // 67, ... (67 & 157 are base angles)
+  23,   0, 0,        // 70, ...
+  19,   0, 0,        // 73, ...
+  15,   0, 0, 0, 0,  // 76, ...
+  11,   0, 0,        // 81, ...
+  7,    0, 0,        // 84, ...
+  3,    0, 0,        // 87, ...
+};
+#else
 const int16_t dr_intra_derivative[90] = {
   1,    14666, 7330, 4884, 3660, 2926, 2435, 2084, 1821, 1616, 1451, 1317, 1204,
   1108, 1026,  955,  892,  837,  787,  743,  703,  666,  633,  603,  574,  548,
@@ -189,4 +208,5 @@ const int16_t dr_intra_derivative[90] = {
   119,  113,   108,  103,  98,   93,   88,   83,   78,   73,   68,   63,   59,
   54,   49,    45,   40,   35,   31,   26,   22,   17,   13,   8,    4,
 };
+#endif  // CONFIG_EXT_INTRA_MOD2
 #endif  // CONFIG_EXT_INTRA

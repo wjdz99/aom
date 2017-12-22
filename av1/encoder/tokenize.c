@@ -259,8 +259,7 @@ static void cost_coeffs_b(int plane, int block, int blk_row, int blk_col,
   struct macroblock_plane *p = &x->plane[plane];
   struct macroblockd_plane *pd = &xd->plane[plane];
   const PLANE_TYPE type = pd->plane_type;
-  const TX_TYPE tx_type =
-      av1_get_tx_type(type, xd, blk_row, blk_col, block, tx_size);
+  const TX_TYPE tx_type = av1_get_tx_type(type, xd, blk_row, blk_col, tx_size);
   const SCAN_ORDER *const scan_order = get_scan(cm, tx_size, tx_type, mbmi);
   const int rate = av1_cost_coeffs(
       cpi, x, plane, blk_row, blk_col, block, tx_size, scan_order,
@@ -366,10 +365,9 @@ static void get_palette_params(const MACROBLOCK *const x, int plane,
 }
 
 static void get_color_map_params(const MACROBLOCK *const x, int plane,
-                                 int block, BLOCK_SIZE bsize, TX_SIZE tx_size,
+                                 BLOCK_SIZE bsize, TX_SIZE tx_size,
                                  COLOR_MAP_TYPE type,
                                  Av1ColorMapParam *params) {
-  (void)block;
   (void)tx_size;
   memset(params, 0, sizeof(*params));
   switch (type) {
@@ -378,22 +376,20 @@ static void get_color_map_params(const MACROBLOCK *const x, int plane,
   }
 }
 
-int av1_cost_color_map(const MACROBLOCK *const x, int plane, int block,
-                       BLOCK_SIZE bsize, TX_SIZE tx_size, COLOR_MAP_TYPE type) {
+int av1_cost_color_map(const MACROBLOCK *const x, int plane, BLOCK_SIZE bsize,
+                       TX_SIZE tx_size, COLOR_MAP_TYPE type) {
   assert(plane == 0 || plane == 1);
   Av1ColorMapParam color_map_params;
-  get_color_map_params(x, plane, block, bsize, tx_size, type,
-                       &color_map_params);
+  get_color_map_params(x, plane, bsize, tx_size, type, &color_map_params);
   return cost_and_tokenize_map(&color_map_params, NULL, 1);
 }
 
-void av1_tokenize_color_map(const MACROBLOCK *const x, int plane, int block,
+void av1_tokenize_color_map(const MACROBLOCK *const x, int plane,
                             TOKENEXTRA **t, BLOCK_SIZE bsize, TX_SIZE tx_size,
                             COLOR_MAP_TYPE type) {
   assert(plane == 0 || plane == 1);
   Av1ColorMapParam color_map_params;
-  get_color_map_params(x, plane, block, bsize, tx_size, type,
-                       &color_map_params);
+  get_color_map_params(x, plane, bsize, tx_size, type, &color_map_params);
   // The first color index does not use context or entropy.
   (*t)->token = color_map_params.color_map[0];
   (*t)->color_map_cdf = NULL;
@@ -423,8 +419,7 @@ static void tokenize_b(int plane, int block, int blk_row, int blk_col,
   const tran_low_t *qcoeff = BLOCK_OFFSET(p->qcoeff, block);
   const int segment_id = mbmi->segment_id;
   const int16_t *scan, *nb;
-  const TX_TYPE tx_type =
-      av1_get_tx_type(type, xd, blk_row, blk_col, block, tx_size);
+  const TX_TYPE tx_type = av1_get_tx_type(type, xd, blk_row, blk_col, tx_size);
   const SCAN_ORDER *const scan_order = get_scan(cm, tx_size, tx_type, mbmi);
   const int ref = is_inter_block(mbmi);
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
@@ -472,16 +467,6 @@ static void tokenize_b(int plane, int block, int blk_row, int blk_col,
   }
 
   *tp = t;
-
-#if CONFIG_ADAPT_SCAN
-  // Since dqcoeff is not available here, we pass qcoeff into
-  // av1_update_scan_count_facade(). The update behavior should be the same
-  // because av1_update_scan_count_facade() only cares if coefficients are zero
-  // or not.
-  const int mi_row = -xd->mb_to_top_edge >> (3 + MI_SIZE_LOG2);
-  av1_update_scan_count_facade((AV1_COMMON *)cm, xd, mi_row, tx_size, tx_type,
-                               qcoeff, c);
-#endif
 
   av1_set_contexts(xd, pd, plane, tx_size, c > 0, blk_col, blk_row);
 }
@@ -625,24 +610,11 @@ void av1_tokenize_sb_vartx(const AV1_COMP *cpi, ThreadData *td, TOKENEXTRA **t,
     const struct macroblockd_plane *const pd = &xd->plane[plane];
     const BLOCK_SIZE bsizec =
         scale_chroma_bsize(bsize, pd->subsampling_x, pd->subsampling_y);
-    const BLOCK_SIZE plane_bsize =
-        AOMMAX(BLOCK_4X4, get_plane_block_size(bsizec, pd));
+    const BLOCK_SIZE plane_bsize = get_plane_block_size(bsizec, pd);
     const int mi_width = block_size_wide[plane_bsize] >> tx_size_wide_log2[0];
     const int mi_height = block_size_high[plane_bsize] >> tx_size_wide_log2[0];
     TX_SIZE max_tx_size = get_vartx_max_txsize(
         xd, plane_bsize, pd->subsampling_x || pd->subsampling_y);
-#if DISABLE_VARTX_FOR_CHROMA == 2
-    // If the luma transform size is split at least one level, split the chroma
-    // by one level. Otherwise use the  largest possible trasnform size for
-    // chroma.
-    if (plane && (pd->subsampling_x || pd->subsampling_y)) {
-      const TX_SIZE l_max_tx_size = get_vartx_max_txsize(xd, bsizec, 0);
-      const int is_split =
-          (l_max_tx_size != mbmi->inter_tx_size[0][0] && bsize == bsizec &&
-           txsize_to_bsize[l_max_tx_size] == bsizec);
-      if (is_split) max_tx_size = sub_tx_size_map[1][max_tx_size];
-    }
-#endif  // DISABLE_VARTX_FOR_CHROMA == 2
     const BLOCK_SIZE txb_size = txsize_to_bsize[max_tx_size];
     int bw = block_size_wide[txb_size] >> tx_size_wide_log2[0];
     int bh = block_size_high[txb_size] >> tx_size_wide_log2[0];

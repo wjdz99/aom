@@ -26,7 +26,6 @@ extern "C" {
 #endif
 
 #define MAX_TXFM_STAGE_NUM 12
-#define DIVIDE_AND_ROUND(x, y) (((x) + ((y) >> 1)) / (y))
 
 static const int cos_bit_min = 10;
 static const int cos_bit_max = 16;
@@ -83,23 +82,6 @@ static INLINE const int32_t *cospi_arr(int n) {
 static INLINE int32_t round_shift(int32_t value, int bit) {
   assert(bit >= 1);
   return (int32_t)(((int64_t)value + (1ll << (bit - 1))) >> bit);
-}
-
-static INLINE void round_shift_array(int32_t *arr, int size, int bit) {
-  int i;
-  if (bit == 0) {
-    return;
-  } else {
-    if (bit > 0) {
-      for (i = 0; i < size; i++) {
-        arr[i] = round_shift(arr[i], bit);
-      }
-    } else {
-      for (i = 0; i < size; i++) {
-        arr[i] = arr[i] * (1 << (-bit));
-      }
-    }
-  }
 }
 
 static INLINE int32_t half_btf(int32_t w0, int32_t in0, int32_t w1, int32_t in1,
@@ -186,7 +168,6 @@ static INLINE void set_flip_cfg(TX_TYPE tx_type, TXFM_2D_FLIP_CFG *cfg) {
   }
 }
 
-#if CONFIG_TXMG
 static INLINE TX_SIZE av1_rotate_tx_size(TX_SIZE tx_size) {
   switch (tx_size) {
     case TX_4X4: return TX_4X4;
@@ -237,7 +218,6 @@ static INLINE TX_TYPE av1_rotate_tx_type(TX_TYPE tx_type) {
     default: assert(0); return TX_TYPES;
   }
 }
-#endif  // CONFIG_TXMG
 
 // Utility function that returns the log of the ratio of the col and row
 // sizes.

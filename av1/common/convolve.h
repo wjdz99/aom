@@ -35,12 +35,20 @@ typedef struct ConvolveParams {
   int round_1;
   int plane;
   int do_post_rounding;
+  int is_compound;
 #if CONFIG_JNT_COMP
   int use_jnt_comp_avg;
   int fwd_offset;
   int bck_offset;
 #endif
 } ConvolveParams;
+
+typedef void (*aom_convolve_fn_t)(const uint8_t *src, int src_stride,
+                                  const uint8_t *dst, int dst_stride, int w,
+                                  int h, InterpFilterParams *filter_params_x,
+                                  InterpFilterParams *filter_params_y,
+                                  const int subpel_x_q4, const int subpel_y_q4,
+                                  ConvolveParams *conv_params);
 
 static INLINE ConvolveParams get_conv_params(int ref, int do_average,
                                              int plane) {
@@ -98,27 +106,27 @@ static INLINE void av1_get_convolve_filter_params(InterpFilters interp_filters,
 
 struct AV1Common;
 void av1_convolve_init(struct AV1Common *cm);
-
-#if CONFIG_CONVOLVE_ROUND
+struct scale_factors;
 void av1_convolve_2d_facade(const uint8_t *src, int src_stride, uint8_t *dst,
                             int dst_stride, int w, int h,
                             InterpFilters interp_filters, const int subpel_x_q4,
                             int x_step_q4, const int subpel_y_q4, int y_step_q4,
-                            int scaled, ConvolveParams *conv_params);
+                            int scaled, ConvolveParams *conv_params,
+                            const struct scale_factors *sf);
 
 static INLINE ConvolveParams get_conv_params_no_round(int ref, int do_average,
                                                       int plane, int32_t *dst,
-                                                      int dst_stride) {
+                                                      int dst_stride,
+                                                      int is_compound) {
   ConvolveParams conv_params;
   conv_params.ref = ref;
   conv_params.do_average = do_average;
   conv_params.round = CONVOLVE_OPT_NO_ROUND;
-#if CONFIG_COMPOUND_ROUND
-  conv_params.round_0 = FILTER_BITS;
-#else
   conv_params.round_0 = 5;
-#endif
   conv_params.round_1 = 0;
+  conv_params.is_compound = is_compound;
+  // TODO(yunqing): The following dst should only be valid while
+  // is_compound = 1;
   conv_params.dst = dst;
   conv_params.dst_stride = dst_stride;
   conv_params.plane = plane;
@@ -135,7 +143,6 @@ void av1_highbd_convolve_2d_facade(const uint8_t *src8, int src_stride,
                                    int scaled, ConvolveParams *conv_params,
                                    int bd);
 #endif
-#endif  // CONFIG_CONVOLVE_ROUND
 
 void av1_convolve(const uint8_t *src, int src_stride, uint8_t *dst,
                   int dst_stride, int w, int h, InterpFilters interp_filters,

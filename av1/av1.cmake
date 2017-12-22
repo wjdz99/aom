@@ -15,17 +15,13 @@ set(AOM_AV1_COMMON_SOURCES
     "${AOM_ROOT}/av1/av1_iface_common.h"
     "${AOM_ROOT}/av1/common/alloccommon.c"
     "${AOM_ROOT}/av1/common/alloccommon.h"
-    # TODO(tomfinegan): Foward transform belongs in encoder.
-    "${AOM_ROOT}/av1/common/av1_fwd_txfm1d.c"
-    "${AOM_ROOT}/av1/common/av1_fwd_txfm1d.h"
-    "${AOM_ROOT}/av1/common/av1_fwd_txfm2d.c"
-    "${AOM_ROOT}/av1/common/av1_fwd_txfm1d_cfg.h"
     "${AOM_ROOT}/av1/common/av1_inv_txfm1d.c"
     "${AOM_ROOT}/av1/common/av1_inv_txfm1d.h"
     "${AOM_ROOT}/av1/common/av1_inv_txfm2d.c"
     "${AOM_ROOT}/av1/common/av1_inv_txfm1d_cfg.h"
     "${AOM_ROOT}/av1/common/av1_loopfilter.c"
     "${AOM_ROOT}/av1/common/av1_loopfilter.h"
+    "${AOM_ROOT}/av1/common/av1_txfm.c"
     "${AOM_ROOT}/av1/common/av1_txfm.h"
     "${AOM_ROOT}/av1/common/blockd.c"
     "${AOM_ROOT}/av1/common/blockd.h"
@@ -35,6 +31,7 @@ set(AOM_AV1_COMMON_SOURCES
     "${AOM_ROOT}/av1/common/convolve.h"
     "${AOM_ROOT}/av1/common/daala_tx.c"
     "${AOM_ROOT}/av1/common/daala_tx.h"
+    "${AOM_ROOT}/av1/common/daala_tx_kernels.h"
     "${AOM_ROOT}/av1/common/debugmodes.c"
     "${AOM_ROOT}/av1/common/entropy.c"
     "${AOM_ROOT}/av1/common/entropy.h"
@@ -93,8 +90,6 @@ set(AOM_AV1_DECODER_SOURCES
     "${AOM_ROOT}/av1/decoder/decoder.h"
     "${AOM_ROOT}/av1/decoder/detokenize.c"
     "${AOM_ROOT}/av1/decoder/detokenize.h"
-    "${AOM_ROOT}/av1/decoder/dsubexp.c"
-    "${AOM_ROOT}/av1/decoder/dsubexp.h"
     "${AOM_ROOT}/av1/decoder/dthread.c"
     "${AOM_ROOT}/av1/decoder/dthread.h"
     "${AOM_ROOT}/av1/decoder/symbolrate.h")
@@ -107,6 +102,10 @@ set(AOM_AV1_ENCODER_SOURCES
     "${AOM_ROOT}/av1/encoder/aq_cyclicrefresh.h"
     "${AOM_ROOT}/av1/encoder/aq_variance.c"
     "${AOM_ROOT}/av1/encoder/aq_variance.h"
+    "${AOM_ROOT}/av1/encoder/av1_fwd_txfm1d.c"
+    "${AOM_ROOT}/av1/encoder/av1_fwd_txfm1d.h"
+    "${AOM_ROOT}/av1/encoder/av1_fwd_txfm1d_cfg.h"
+    "${AOM_ROOT}/av1/encoder/av1_fwd_txfm2d.c"
     "${AOM_ROOT}/av1/encoder/av1_quantize.c"
     "${AOM_ROOT}/av1/encoder/av1_quantize.h"
     "${AOM_ROOT}/av1/encoder/bitstream.c"
@@ -178,8 +177,8 @@ set(AOM_AV1_COMMON_INTRIN_SSSE3
     "${AOM_ROOT}/av1/common/x86/av1_convolve_ssse3.c")
 
 set(AOM_AV1_COMMON_INTRIN_SSE4_1
-    "${AOM_ROOT}/av1/common/x86/av1_fwd_txfm1d_sse4.c"
-    "${AOM_ROOT}/av1/common/x86/av1_fwd_txfm2d_sse4.c"
+    "${AOM_ROOT}/av1/common/x86/av1_txfm_sse4.c"
+    "${AOM_ROOT}/av1/common/x86/av1_txfm_sse4.h"
     "${AOM_ROOT}/av1/common/x86/highbd_inv_txfm_sse4.c")
 
 set(AOM_AV1_COMMON_INTRIN_AVX2
@@ -212,6 +211,8 @@ set(AOM_AV1_ENCODER_ASM_SSSE3_X86_64
 
 set(AOM_AV1_ENCODER_INTRIN_SSE4_1
     ${AOM_AV1_ENCODER_INTRIN_SSE4_1}
+    "${AOM_ROOT}/av1/encoder/x86/av1_fwd_txfm1d_sse4.c"
+    "${AOM_ROOT}/av1/encoder/x86/av1_fwd_txfm2d_sse4.c"
     "${AOM_ROOT}/av1/encoder/x86/av1_highbd_quantize_sse4.c"
     "${AOM_ROOT}/av1/encoder/x86/highbd_fwd_txfm_sse4.c")
 
@@ -278,73 +279,55 @@ set(AOM_AV1_COMMON_INTRIN_NEON
     ${AOM_AV1_COMMON_INTRIN_NEON}
     "${AOM_ROOT}/av1/common/cdef_block_neon.c")
 
-if (NOT CONFIG_CDEF_SINGLEPASS)
-  set(AOM_AV1_COMMON_SOURCES
-      ${AOM_AV1_COMMON_SOURCES}
-      "${AOM_ROOT}/av1/common/clpf.c"
-      "${AOM_ROOT}/av1/common/clpf_simd.h"
-      "${AOM_ROOT}/av1/common/cdef_block_simd.h")
+set(AOM_AV1_COMMON_INTRIN_SSE2
+    ${AOM_AV1_COMMON_INTRIN_SSE2}
+    "${AOM_ROOT}/av1/common/x86/convolve_2d_sse2.c")
 
-  set(AOM_AV1_COMMON_INTRIN_SSE2
-      ${AOM_AV1_COMMON_INTRIN_SSE2}
-      "${AOM_ROOT}/av1/common/clpf_sse2.c")
+set(AOM_AV1_COMMON_INTRIN_AVX2
+    ${AOM_AV1_COMMON_INTRIN_AVX2}
+    "${AOM_ROOT}/av1/common/x86/convolve_2d_avx2.c")
+
+if (CONFIG_HIGHBITDEPTH)
+  set(AOM_AV1_COMMON_INTRIN_AVX2
+      ${AOM_AV1_COMMON_INTRIN_AVX2}
+      "${AOM_ROOT}/av1/common/x86/highbd_convolve_2d_avx2.c")
 
   set(AOM_AV1_COMMON_INTRIN_SSSE3
       ${AOM_AV1_COMMON_INTRIN_SSSE3}
-      "${AOM_ROOT}/av1/common/clpf_ssse3.c")
-
-  set(AOM_AV1_COMMON_INTRIN_SSE4_1
-      ${AOM_AV1_COMMON_INTRIN_SSE4_1}
-      "${AOM_ROOT}/av1/common/clpf_sse4.c")
-
-  set(AOM_AV1_COMMON_INTRIN_NEON
-      ${AOM_AV1_COMMON_INTRIN_NEON}
-      "${AOM_ROOT}/av1/common/clpf_neon.c")
-endif ()
-
-if (CONFIG_CONVOLVE_ROUND)
-  set(AOM_AV1_COMMON_INTRIN_SSE2
-      ${AOM_AV1_COMMON_INTRIN_SSE2}
-      "${AOM_ROOT}/av1/common/x86/convolve_2d_sse2.c")
-
-  set(AOM_AV1_COMMON_INTRIN_AVX2
-      ${AOM_AV1_COMMON_INTRIN_AVX2}
-      "${AOM_ROOT}/av1/common/x86/convolve_2d_avx2.c")
-
-  if (CONFIG_HIGHBITDEPTH)
-    set(AOM_AV1_COMMON_INTRIN_AVX2
-        ${AOM_AV1_COMMON_INTRIN_AVX2}
-        "${AOM_ROOT}/av1/common/x86/highbd_convolve_2d_avx2.c")
-
-    set(AOM_AV1_COMMON_INTRIN_SSSE3
-        ${AOM_AV1_COMMON_INTRIN_SSSE3}
-        "${AOM_ROOT}/av1/common/x86/highbd_convolve_2d_ssse3.c")
-  endif ()
+      "${AOM_ROOT}/av1/common/x86/highbd_convolve_2d_ssse3.c")
 
   if (CONFIG_JNT_COMP)
     set(AOM_AV1_COMMON_INTRIN_SSE4_1
         ${AOM_AV1_COMMON_INTRIN_SSE4_1}
-        "${AOM_ROOT}/av1/common/x86/convolve_2d_sse4.c")
+        "${AOM_ROOT}/av1/common/x86/highbd_convolve_2d_sse4.c")
   endif ()
-
-  if(NOT CONFIG_COMPOUND_ROUND)
-    set(AOM_AV1_COMMON_INTRIN_SSE4_1
-        ${AOM_AV1_COMMON_INTRIN_SSE4_1}
-        "${AOM_ROOT}/av1/common/x86/av1_convolve_scale_sse4.c")
-  endif()
-
-  set(AOM_AV1_COMMON_INTRIN_AVX2
-      ${AOM_AV1_COMMON_INTRIN_AVX2}
-      "${AOM_ROOT}/av1/common/x86/convolve_avx2.c")
 endif ()
 
-  set(AOM_AV1_ENCODER_SOURCES
-      ${AOM_AV1_ENCODER_SOURCES}
-      "${AOM_ROOT}/av1/encoder/wedge_utils.c")
+if (CONFIG_JNT_COMP)
+  set(AOM_AV1_COMMON_INTRIN_SSE4_1
+      ${AOM_AV1_COMMON_INTRIN_SSE4_1}
+      "${AOM_ROOT}/av1/common/x86/convolve_2d_sse4.c")
+endif ()
 
-  set(AOM_AV1_ENCODER_INTRIN_SSE2
-      ${AOM_AV1_ENCODER_INTRIN_SSE2}
-      "${AOM_ROOT}/av1/encoder/x86/wedge_utils_sse2.c")
+set(AOM_AV1_COMMON_INTRIN_SSE4_1
+    ${AOM_AV1_COMMON_INTRIN_SSE4_1}
+    "${AOM_ROOT}/av1/common/x86/av1_convolve_scale_sse4.c")
+
+  set(AOM_AV1_COMMON_INTRIN_SSE2
+      ${AOM_AV1_COMMON_INTRIN_SSE2}
+      "${AOM_ROOT}/av1/common/x86/convolve_sse2.c")
+
+set(AOM_AV1_COMMON_INTRIN_AVX2
+    ${AOM_AV1_COMMON_INTRIN_AVX2}
+    "${AOM_ROOT}/av1/common/x86/convolve_avx2.c")
+
+set(AOM_AV1_ENCODER_SOURCES
+    ${AOM_AV1_ENCODER_SOURCES}
+    "${AOM_ROOT}/av1/encoder/wedge_utils.c")
+
+set(AOM_AV1_ENCODER_INTRIN_SSE2
+    ${AOM_AV1_ENCODER_INTRIN_SSE2}
+    "${AOM_ROOT}/av1/encoder/x86/wedge_utils_sse2.c")
 
 if (CONFIG_ACCOUNTING)
   set(AOM_AV1_DECODER_SOURCES
@@ -418,6 +401,14 @@ if (CONFIG_CFL)
       ${AOM_AV1_COMMON_SOURCES}
     "${AOM_ROOT}/av1/common/cfl.c"
     "${AOM_ROOT}/av1/common/cfl.h")
+
+  set(AOM_AV1_COMMON_INTRIN_SSE2
+    ${AOM_AV1_COMMON_INTRIN_SSE2}
+    "${AOM_ROOT}/av1/common/cfl_sse2.c")
+
+  set(AOM_AV1_COMMON_INTRIN_AVX2
+    ${AOM_AV1_COMMON_INTRIN_AVX2}
+    "${AOM_ROOT}/av1/common/cfl_avx2.c")
 endif ()
 
 if (CONFIG_LOOP_RESTORATION)

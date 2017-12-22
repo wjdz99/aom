@@ -22,25 +22,6 @@
 #include "av1/common/idct.h"
 #include "av1/decoder/symbolrate.h"
 
-#define EOB_CONTEXT_NODE 0
-#define ZERO_CONTEXT_NODE 1
-#define ONE_CONTEXT_NODE 2
-#define LOW_VAL_CONTEXT_NODE 0
-#define TWO_CONTEXT_NODE 1
-#define THREE_CONTEXT_NODE 2
-#define HIGH_LOW_CONTEXT_NODE 3
-#define CAT_ONE_CONTEXT_NODE 4
-#define CAT_THREEFOUR_CONTEXT_NODE 5
-#define CAT_THREE_CONTEXT_NODE 6
-#define CAT_FIVE_CONTEXT_NODE 7
-
-#define INCREMENT_COUNT(token)                   \
-  do {                                           \
-    if (counts) ++coef_counts[band][ctx][token]; \
-  } while (0)
-
-#define READ_COEFF(counts, prob_name, cdf_name, num, r) \
-  read_coeff(counts, cdf_name, num, r);
 static INLINE int read_coeff(FRAME_COUNTS *counts,
                              const aom_cdf_prob *const *cdf, int n,
                              aom_reader *r) {
@@ -72,25 +53,19 @@ static int token_to_value(FRAME_COUNTS *counts, aom_reader *const r, int token,
     case THREE_TOKEN:
     case FOUR_TOKEN: return token;
     case CATEGORY1_TOKEN:
-      return CAT1_MIN_VAL +
-             READ_COEFF(counts, av1_cat1_prob, av1_cat1_cdf, 1, r);
+      return CAT1_MIN_VAL + read_coeff(counts, av1_cat1_cdf, 1, r);
     case CATEGORY2_TOKEN:
-      return CAT2_MIN_VAL +
-             READ_COEFF(counts, av1_cat2_prob, av1_cat2_cdf, 2, r);
+      return CAT2_MIN_VAL + read_coeff(counts, av1_cat2_cdf, 2, r);
     case CATEGORY3_TOKEN:
-      return CAT3_MIN_VAL +
-             READ_COEFF(counts, av1_cat3_prob, av1_cat3_cdf, 3, r);
+      return CAT3_MIN_VAL + read_coeff(counts, av1_cat3_cdf, 3, r);
     case CATEGORY4_TOKEN:
-      return CAT4_MIN_VAL +
-             READ_COEFF(counts, av1_cat4_prob, av1_cat4_cdf, 4, r);
+      return CAT4_MIN_VAL + read_coeff(counts, av1_cat4_cdf, 4, r);
     case CATEGORY5_TOKEN:
-      return CAT5_MIN_VAL +
-             READ_COEFF(counts, av1_cat5_prob, av1_cat5_cdf, 5, r);
+      return CAT5_MIN_VAL + read_coeff(counts, av1_cat5_cdf, 5, r);
     case CATEGORY6_TOKEN: {
       const int skip_bits = (int)sizeof(av1_cat6_prob) -
                             av1_get_cat6_extrabits_size(tx_size, bit_depth);
-      return CAT6_MIN_VAL + READ_COEFF(counts, av1_cat6_prob + skip_bits,
-                                       av1_cat6_cdf, 18 - skip_bits, r);
+      return CAT6_MIN_VAL + read_coeff(counts, av1_cat6_cdf, 18 - skip_bits, r);
     }
     default:
       assert(0);  // Invalid token.
@@ -336,14 +311,6 @@ int av1_decode_block_tokens(AV1_COMMON *cm, MACROBLOCKD *const xd, int plane,
 #endif  // CONFIG_NEW_QUANT
                    ctx, sc->scan, sc->neighbors, max_scan_line, r);
   av1_set_contexts(xd, pd, plane, tx_size, eob > 0, x, y);
-#if CONFIG_ADAPT_SCAN
-  const int mi_row = -xd->mb_to_top_edge >> (3 + MI_SIZE_LOG2);
-
-  if (xd->counts)
-    av1_update_scan_count_facade(cm, xd, mi_row, tx_size, tx_type, pd->dqcoeff,
-                                 eob);
-#else
   (void)cm;
-#endif
   return eob;
 }

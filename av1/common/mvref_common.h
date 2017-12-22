@@ -132,17 +132,14 @@ static INLINE void clamp_mv_ref(MV *mv, int bw, int bh, const MACROBLOCKD *xd) {
 // This function returns either the appropriate sub block or block's mv
 // on whether the block_size < 8x8 and we have check_sub_blocks set.
 static INLINE int_mv get_sub_block_mv(const MODE_INFO *candidate, int which_mv,
-                                      int search_col, int block_idx) {
+                                      int search_col) {
   (void)search_col;
-  (void)block_idx;
   return candidate->mbmi.mv[which_mv];
 }
 
 static INLINE int_mv get_sub_block_pred_mv(const MODE_INFO *candidate,
-                                           int which_mv, int search_col,
-                                           int block_idx) {
+                                           int which_mv, int search_col) {
   (void)search_col;
-  (void)block_idx;
   return candidate->mbmi.mv[which_mv];
 }
 
@@ -188,22 +185,6 @@ static INLINE int_mv scale_mv(const MB_MODE_INFO *mbmi, int ref,
                         refmv_count, mv_ref_list, bw, bh, xd, Done);          \
     }                                                                         \
   } while (0)
-
-#if CONFIG_EXT_SKIP
-// This macro is used to add a motion vector pair to the skip mode mv list.
-#define SKIP_MODE_MV_LIST_ADD(mv, mv_list, mv_list_count, mv_list_idx, bw, bh, \
-                              xd)                                              \
-  do {                                                                         \
-    const int mv_idx = (mv_list_count)[mv_list_idx];                           \
-    (mv_list)[mv_list_idx][mv_idx][0] = (mv)[0];                               \
-    CLIP_IN_ADD(&(mv_list)[mv_list_idx][mv_idx][0].as_mv, (bw), (bh), (xd));   \
-    if (mv_list_idx == 2) {                                                    \
-      (mv_list)[mv_list_idx][mv_idx][1] = (mv)[1];                             \
-      CLIP_IN_ADD(&(mv_list)[mv_list_idx][mv_idx][1].as_mv, (bw), (bh), (xd)); \
-    }                                                                          \
-    (mv_list_count)[mv_list_idx]++;                                            \
-  } while (0)
-#endif  // CONFIG_EXT_SKIP
 
 // Checks that the given mi_row, mi_col and search point
 // are inside the borders of the tile.
@@ -283,7 +264,8 @@ static INLINE uint8_t av1_get_pred_diff_ctx(const int_mv pred_mv,
 static INLINE int av1_nmv_ctx(const uint8_t ref_mv_count,
                               const CANDIDATE_MV *ref_mv_stack, int ref,
                               int ref_mv_idx) {
-  if (ref_mv_stack[ref_mv_idx].weight >= REF_CAT_LEVEL && ref_mv_count > 0)
+  if (ref_mv_stack[ref_mv_idx].weight >= REF_CAT_LEVEL &&
+      ref_mv_idx < ref_mv_count)
     return ref_mv_stack[ref_mv_idx].pred_diff[ref];
 
   return 0;
@@ -364,20 +346,8 @@ static INLINE void av1_set_ref_frame(MV_REFERENCE_FRAME *rf,
 }
 
 static INLINE int16_t av1_mode_context_analyzer(
-    const int16_t *const mode_context, const MV_REFERENCE_FRAME *const rf,
-    BLOCK_SIZE bsize, int block) {
-  int16_t mode_ctx = 0;
-  int8_t ref_frame_type = av1_ref_frame_type(rf);
-
-  if (block >= 0) {
-    mode_ctx = mode_context[rf[0]] & 0x00ff;
-    (void)block;
-    (void)bsize;
-
-    return mode_ctx;
-  }
-
-  return mode_context[ref_frame_type];
+    const int16_t *const mode_context, const MV_REFERENCE_FRAME *const rf) {
+  return mode_context[av1_ref_frame_type(rf)];
 }
 
 static INLINE uint8_t av1_drl_ctx(const CANDIDATE_MV *ref_mv_stack,
@@ -405,6 +375,39 @@ static INLINE uint8_t av1_drl_ctx(const CANDIDATE_MV *ref_mv_stack,
 }
 
 #if CONFIG_FRAME_MARKER
+static INLINE int av1_refs_are_one_sided(const AV1_COMMON *cm) {
+  assert(!frame_is_intra_only(cm));
+
+  int one_sided_refs = 1;
+  for (int ref = 0; ref < INTER_REFS_PER_FRAME; ++ref) {
+    const int buf_idx = cm->frame_refs[ref].idx;
+    if (buf_idx == INVALID_IDX) continue;
+
+    const int ref_offset =
+        cm->buffer_pool->frame_bufs[buf_idx].cur_frame_offset;
+    if (ref_offset > (int)cm->frame_offset) {
+      one_sided_refs = 0;  // bwd reference
+      break;
+    }
+  }
+  return one_sided_refs;
+}
+
+#if CONFIG_EXT_SKIP
+static INLINE void get_skip_mode_ref_offsets(const AV1_COMMON *cm,
+                                             int ref_offset[2]) {
+  ref_offset[0] = ref_offset[1] = 0;
+  if (!cm->is_skip_mode_allowed) return;
+
+  const int buf_idx_0 = cm->frame_refs[cm->ref_frame_idx_0].idx;
+  const int buf_idx_1 = cm->frame_refs[cm->ref_frame_idx_1].idx;
+  assert(buf_idx_0 != INVALID_IDX && buf_idx_1 != INVALID_IDX);
+
+  ref_offset[0] = cm->buffer_pool->frame_bufs[buf_idx_0].cur_frame_offset;
+  ref_offset[1] = cm->buffer_pool->frame_bufs[buf_idx_1].cur_frame_offset;
+}
+#endif  // CONFIG_EXT_SKIP
+
 void av1_setup_frame_buf_refs(AV1_COMMON *cm);
 #if CONFIG_FRAME_SIGN_BIAS
 void av1_setup_frame_sign_bias(AV1_COMMON *cm);
@@ -427,12 +430,6 @@ void av1_find_mv_refs(const AV1_COMMON *cm, const MACROBLOCKD *xd,
                       int16_t *compound_mode_context, int_mv *mv_ref_list,
                       int mi_row, int mi_col, find_mv_refs_sync sync,
                       void *const data, int16_t *mode_context);
-#if CONFIG_EXT_SKIP
-void av1_setup_skip_mode_mvs(const AV1_COMMON *cm, const MACROBLOCKD *xd,
-                             MB_MODE_INFO *mbmi, int mi_row, int mi_col,
-                             const int_mv nearest_mv[2], find_mv_refs_sync sync,
-                             void *const data);
-#endif  // CONFIG_EXT_SKIP
 
 // check a list of motion vectors by sad score using a number rows of pixels
 // above and a number cols of pixels in the left to select the one with best
@@ -448,8 +445,8 @@ void av1_find_best_ref_mvs(int allow_hp, int_mv *mvlist, int_mv *nearest_mv,
 // This function keeps a mode count for a given MB/SB
 void av1_update_mv_context(const AV1_COMMON *cm, const MACROBLOCKD *xd,
                            MODE_INFO *mi, MV_REFERENCE_FRAME ref_frame,
-                           int_mv *mv_ref_list, int block, int mi_row,
-                           int mi_col, int16_t *mode_context);
+                           int_mv *mv_ref_list, int mi_row, int mi_col,
+                           int16_t *mode_context);
 
 #if CONFIG_EXT_WARPED_MOTION
 int sortSamples(int *pts_mv, MV *mv, int *pts, int *pts_inref, int len);
@@ -461,22 +458,27 @@ int findSamples(const AV1_COMMON *cm, MACROBLOCKD *xd, int mi_row, int mi_col,
 #endif  // CONFIG_EXT_WARPED_MOTION
 
 #if CONFIG_INTRABC
-static INLINE void av1_find_ref_dv(int_mv *ref_dv, int mi_row, int mi_col) {
-  // TODO(aconverse@google.com): Handle tiles and such
-  (void)mi_col;
-  if (mi_row < MAX_MIB_SIZE) {
-    ref_dv->as_mv.row = 0;
-    ref_dv->as_mv.col = -MI_SIZE * MAX_MIB_SIZE;
-  } else {
-    ref_dv->as_mv.row = -MI_SIZE * MAX_MIB_SIZE;
-    ref_dv->as_mv.col = 0;
-  }
-}
-
 #define INTRABC_DELAY_PIXELS 256  //  Delay of 256 pixels
 #define INTRABC_DELAY_SB64 (INTRABC_DELAY_PIXELS / 64)
 #define USE_WAVE_FRONT 1  // Use only top left area of frame for reference.
-#define INTRABC_ROW_DELAY 8
+#if CONFIG_LPF_SB
+#define INTRABC_FILTER_DELAY 8  // Delay of 8 pixels
+#endif                          // CONFIG_LPF_SB
+
+static INLINE void av1_find_ref_dv(int_mv *ref_dv, const TileInfo *const tile,
+                                   int mib_size, int mi_row, int mi_col) {
+  (void)mi_col;
+  if (mi_row - mib_size < tile->mi_row_start) {
+    ref_dv->as_mv.row = 0;
+    ref_dv->as_mv.col = -MI_SIZE * mib_size - INTRABC_DELAY_PIXELS;
+  } else {
+    ref_dv->as_mv.row = -MI_SIZE * mib_size;
+    ref_dv->as_mv.col = 0;
+  }
+  ref_dv->as_mv.row *= 8;
+  ref_dv->as_mv.col *= 8;
+}
+
 static INLINE int av1_is_dv_valid(const MV dv, const TileInfo *const tile,
                                   int mi_row, int mi_col, BLOCK_SIZE bsize,
                                   int mib_size_log2) {
@@ -487,6 +489,7 @@ static INLINE int av1_is_dv_valid(const MV dv, const TileInfo *const tile,
   // SUBPEL_MASK is not the correct scale
   if (((dv.row & (SCALE_PX_TO_MV - 1)) || (dv.col & (SCALE_PX_TO_MV - 1))))
     return 0;
+
   // Is the source top-left inside the current tile?
   const int src_top_edge = mi_row * MI_SIZE * SCALE_PX_TO_MV + dv.row;
   const int tile_top_edge = tile->mi_row_start * MI_SIZE * SCALE_PX_TO_MV;
@@ -494,11 +497,24 @@ static INLINE int av1_is_dv_valid(const MV dv, const TileInfo *const tile,
   const int src_left_edge = mi_col * MI_SIZE * SCALE_PX_TO_MV + dv.col;
   const int tile_left_edge = tile->mi_col_start * MI_SIZE * SCALE_PX_TO_MV;
   if (src_left_edge < tile_left_edge) return 0;
-  // Is the bottom right inside the current tile?
+// Is the bottom right inside the current tile?
+#if CONFIG_LPF_SB
+  // Because of loop filter, the bottom 8 rows and the rightmost 8 cols of
+  // IntraBC area now is invalid. It is equal to let the valid region add an
+  // offset of the filter delay
+  const int src_bottom_edge =
+      (mi_row * MI_SIZE + bh + INTRABC_FILTER_DELAY) * SCALE_PX_TO_MV + dv.row;
+#else
   const int src_bottom_edge = (mi_row * MI_SIZE + bh) * SCALE_PX_TO_MV + dv.row;
+#endif  // CONFIG_LPF_SB
   const int tile_bottom_edge = tile->mi_row_end * MI_SIZE * SCALE_PX_TO_MV;
   if (src_bottom_edge > tile_bottom_edge) return 0;
+#if CONFIG_LPF_SB
+  const int src_right_edge =
+      (mi_col * MI_SIZE + bw + INTRABC_FILTER_DELAY) * SCALE_PX_TO_MV + dv.col;
+#else
   const int src_right_edge = (mi_col * MI_SIZE + bw) * SCALE_PX_TO_MV + dv.col;
+#endif  // CONFIG_LPF_SB
   const int tile_right_edge = tile->mi_col_end * MI_SIZE * SCALE_PX_TO_MV;
   if (src_right_edge > tile_right_edge) return 0;
 
@@ -515,19 +531,6 @@ static INLINE int av1_is_dv_valid(const MV dv, const TileInfo *const tile,
   const int active_sb64 = active_sb_row * total_sb64_per_row + active_sb64_col;
   const int src_sb64 = src_sb_row * total_sb64_per_row + src_sb64_col;
   if (src_sb64 >= active_sb64 - INTRABC_DELAY_SB64) return 0;
-
-#if CONFIG_LPF_SB
-  // Because of loop filter, the last 8 rows of current superblock row can't be
-  // used as intrabc search area.
-  if ((src_bottom_edge >> 3) >=
-      (active_sb_row + 1) * sb_size - INTRABC_ROW_DELAY)
-    return 0;
-
-  // The last 8 rows of the above superblock is invalid
-  if ((src_bottom_edge >> 3) >= active_sb_row * sb_size - INTRABC_ROW_DELAY &&
-      (src_right_edge >> 3) >= (mi_col >> mib_size_log2) * sb_size)
-    return 0;
-#endif  // CONFIG_LPF_SB
 
 #if USE_WAVE_FRONT
   const int gradient = 1 + INTRABC_DELAY_SB64 + (sb_size > 64);

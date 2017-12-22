@@ -434,8 +434,17 @@ static const arg_def_t tile_dependent_rows =
     ARG_DEF(NULL, "tile-dependent-rows", 1, "Enable dependent Tile rows");
 #endif
 #if CONFIG_LOOPFILTERING_ACROSS_TILES
+#if CONFIG_LOOPFILTERING_ACROSS_TILES_EXT
+static const arg_def_t tile_loopfilter_v =
+    ARG_DEF(NULL, "tile-loopfilter-v", 1,
+            "Enable loop filter across vertical tile boundary");
+static const arg_def_t tile_loopfilter_h =
+    ARG_DEF(NULL, "tile-loopfilter-h", 1,
+            "Enable loop filter across horizontal tile boundary");
+#else
 static const arg_def_t tile_loopfilter = ARG_DEF(
     NULL, "tile-loopfilter", 1, "Enable loop filter across tile boundary");
+#endif  // CONFIG_LOOPFILTERING_ACROSS_TILES_EXT
 #endif  // CONFIG_LOOPFILTERING_ACROSS_TILES
 static const arg_def_t lossless =
     ARG_DEF(NULL, "lossless", 1, "Lossless mode (0: false (default), 1: true)");
@@ -650,7 +659,12 @@ static const arg_def_t *av1_args[] = { &cpu_used_av1,
                                        &tile_dependent_rows,
 #endif
 #if CONFIG_LOOPFILTERING_ACROSS_TILES
+#if CONFIG_LOOPFILTERING_ACROSS_TILES_EXT
+                                       &tile_loopfilter_v,
+                                       &tile_loopfilter_h,
+#else
                                        &tile_loopfilter,
+#endif  // CONFIG_LOOPFILTERING_ACROSS_TILES_EXT
 #endif  // CONFIG_LOOPFILTERING_ACROSS_TILES
                                        &arnr_maxframes,
                                        &arnr_strength,
@@ -715,7 +729,12 @@ static const int av1_arg_ctrl_map[] = { AOME_SET_CPUUSED,
                                         AV1E_SET_TILE_DEPENDENT_ROWS,
 #endif
 #if CONFIG_LOOPFILTERING_ACROSS_TILES
+#if CONFIG_LOOPFILTERING_ACROSS_TILES_EXT
+                                        AV1E_SET_TILE_LOOPFILTER_V,
+                                        AV1E_SET_TILE_LOOPFILTER_H,
+#else
                                         AV1E_SET_TILE_LOOPFILTER,
+#endif  // CONFIG_LOOPFILTERING_ACROSS_TILES_EXT
 #endif  // CONFIG_LOOPFILTERING_ACROSS_TILES
                                         AOME_SET_ARNR_MAXFRAMES,
                                         AOME_SET_ARNR_STRENGTH,
@@ -1088,6 +1107,22 @@ static struct stream_state *new_stream(struct AvxEncoderConfig *global,
   return stream;
 }
 
+static void set_config_arg_ctrls(struct stream_config *config, int key,
+                                 const struct arg *arg) {
+  int j;
+  /* Point either to the next free element or the first instance of this
+   * control.
+   */
+  for (j = 0; j < config->arg_ctrl_cnt; j++)
+    if (config->arg_ctrls[j][0] == key) break;
+
+  /* Update/insert */
+  assert(j < (int)ARG_CTRL_CNT_MAX);
+  config->arg_ctrls[j][0] = key;
+  config->arg_ctrls[j][1] = arg_parse_enum_or_int(arg);
+  if (j == config->arg_ctrl_cnt) config->arg_ctrl_cnt++;
+}
+
 static int parse_stream_params(struct AvxEncoderConfig *global,
                                struct stream_state *stream, char **argv) {
   char **argi, **argj;
@@ -1264,23 +1299,9 @@ static int parse_stream_params(struct AvxEncoderConfig *global,
       int i, match = 0;
       for (i = 0; ctrl_args[i]; i++) {
         if (arg_match(&arg, ctrl_args[i], argi)) {
-          int j;
           match = 1;
-
-          /* Point either to the next free element or the first
-           * instance of this control.
-           */
-          for (j = 0; j < config->arg_ctrl_cnt; j++)
-            if (ctrl_args_map != NULL &&
-                config->arg_ctrls[j][0] == ctrl_args_map[i])
-              break;
-
-          /* Update/insert */
-          assert(j < (int)ARG_CTRL_CNT_MAX);
-          if (ctrl_args_map != NULL && j < (int)ARG_CTRL_CNT_MAX) {
-            config->arg_ctrls[j][0] = ctrl_args_map[i];
-            config->arg_ctrls[j][1] = arg_parse_enum_or_int(&arg);
-            if (j == config->arg_ctrl_cnt) config->arg_ctrl_cnt++;
+          if (ctrl_args_map) {
+            set_config_arg_ctrls(config, ctrl_args_map[i], &arg);
           }
         }
       }
@@ -1581,7 +1602,7 @@ static void initialize_encoder(struct stream_state *stream,
 #if CONFIG_AV1_DECODER
   if (global->test_decode != TEST_DECODE_OFF) {
     const AvxInterface *decoder = get_aom_decoder_by_name(global->codec->name);
-    aom_codec_dec_cfg_t cfg = { 0, 0, 0, CONFIG_LOWBITDEPTH, 0 };
+    aom_codec_dec_cfg_t cfg = { 0, 0, 0, CONFIG_LOWBITDEPTH };
     aom_codec_dec_init(&stream->decoder, decoder->codec_interface(), &cfg, 0);
 
 #if CONFIG_EXT_TILE
@@ -1820,7 +1841,7 @@ static float usec_to_fps(uint64_t usec, unsigned int frames) {
 }
 
 static void test_decode(struct stream_state *stream,
-                        enum TestDecodeFatality fatal, int is_mono) {
+                        enum TestDecodeFatality fatal) {
   aom_image_t enc_img, dec_img;
 
   if (stream->mismatch_seen) return;
@@ -1852,7 +1873,7 @@ static void test_decode(struct stream_state *stream,
   ctx_exit_on_error(&stream->encoder, "Failed to get encoder reference frame");
   ctx_exit_on_error(&stream->decoder, "Failed to get decoder reference frame");
 
-  if (!aom_compare_img(&enc_img, &dec_img, is_mono ? 1 : 3)) {
+  if (!aom_compare_img(&enc_img, &dec_img)) {
     int y[4], u[4], v[4];
 #if CONFIG_HIGHBITDEPTH
     if (enc_img.fmt & AOM_IMG_FMT_HIGHBITDEPTH) {
@@ -2280,8 +2301,7 @@ int main(int argc, const char **argv_) {
 
         if (got_data && global.test_decode != TEST_DECODE_OFF) {
           FOREACH_STREAM(stream, streams) {
-            test_decode(stream, global.test_decode,
-                        stream->config.cfg.monochrome);
+            test_decode(stream, global.test_decode);
           }
         }
       }
