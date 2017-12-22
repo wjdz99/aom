@@ -309,6 +309,7 @@ EXPERIMENT_LIST="
     max_tile
     hash_me
     colorspace_headers
+    cicp
     mfmv
     frame_marker
     jnt_comp
@@ -439,6 +440,7 @@ CMDLINE_SELECT="
     experimental
     adopted_experiments
     colorspace_headers
+    cicp
 "
 
 process_cmdline() {
