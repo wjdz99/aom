@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9863594a_e400edd2",
+        "filename": "av1/common/mvref_common.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2017-12-22T17:14:44Z",
+      "side": 1,
+      "message": "It would be nice to have a bit documentation in the code to clarify the rationale on this.\n\nWhat about define this constant with a name and comment to describe why 1\u003c\u003c12 was chosen?",
+      "range": {
+        "startLine": 48,
+        "startChar": 49,
+        "endLine": 48,
+        "endChar": 59
+      },
+      "revId": "256adaa6f99de140b3e62cbcc2cd714c9fa0391e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
