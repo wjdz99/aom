@@ -435,7 +435,7 @@ TEST_F(NoiseModelUpdateTest, UpdateSuccessForScaledWhiteNoise) {
         const int avg = (y < kHeight / 2) ? 4 : 245;
         const double std = (y < kHeight / 2) ? kLowStd : kHighStd;
         data_ptr_[c][y * kWidth + x] =
-            std::min(255, (uint8_t)(2 + avg + aom_rand(std)));
+            std::min(255, (uint8_t)(2 + avg + aom_randn(std)));
         denoised_ptr_[c][y * kWidth + x] = 2 + avg;
       }
     }
