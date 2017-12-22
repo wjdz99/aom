@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e400d6f3_8832304b",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 9574,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2017-12-22T01:25:57Z",
+      "side": 1,
+      "message": "For NEAREST_NEARESTMV, NEAR_NEARMV, NEW_NEWMV, and GLOBAL_GLOBALMV, we have m1\u003d\u003dm2, so they may be either both ranked as No. 1 or both as No. 2 in terms of the single mode distortion.\n\nFurther, we have total 8 compound modes for RD evaluation: besides above 4, we have NEW_NEARESTMV, NEAREST_NEWMV, NEW_NEARMV, and NEAR_NEWMV. If the top 2 single modes are skipped, we may skip up to 50% compound modes. It may be worth further exploring the trade-off between coding performance and speed for various strategies to skip the compound modes.",
+      "revId": "6dcf4f2b3de1d078bb315c68097d498ad5dc7634",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
