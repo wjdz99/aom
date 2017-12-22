@@ -2514,6 +2514,16 @@ static void choose_largest_tx_size(const AV1_COMP *const cpi, MACROBLOCK *x,
       !x->use_default_inter_tx_type) {
     prune = prune_tx(cpi, bs, x, xd, tx_set_type, 0);
   }
+#if CONFIG_FILTER_INTRA
+  if (!is_inter && mbmi->filter_intra_mode_info.use_filter_intra &&
+      !av1_filter_intra_allowed_txsize(mbmi->tx_size)) {
+    rd_stats->rate = INT_MAX;
+    rd_stats->dist = INT64_MAX;
+    rd_stats->skip = 0;
+    rd_stats->sse = INT64_MAX;
+    return;
+  }
+#endif
   if (get_ext_tx_types(mbmi->tx_size, bs, is_inter, cm->reduced_tx_set_used) >
           1 &&
       !xd->lossless[mbmi->segment_id]) {
