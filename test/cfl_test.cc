@@ -14,6 +14,7 @@
 #include "./av1_rtcd.h"
 #include "test/util.h"
 #include "test/acm_random.h"
+#include "av1/common/cfl.h"
 
 using std::tr1::make_tuple;
 
@@ -35,15 +36,24 @@ using libaom_test::ACMRandom;
       make_tuple(16, 8, &function), make_tuple(8, 16, &function), \
       make_tuple(16, 16, &function)
 
+#define CFL_BLOCK_SUM_SIZES(function) \
+  make_tuple(TX_4X4, &function), make_tuple(TX_8X8, &function)
+
 namespace {
 typedef void (*subtract_fn)(int16_t *pred_buf_q3, int width, int height,
                             int16_t avg_q3);
 
+typedef int (*cfl_sum_block_fn)(int16_t *pred_buf_q3);
+
 typedef cfl_subsample_lbd_fn (*get_subsample_fn)(int width, int height);
+
+typedef cfl_sum_block_fn (*sum_block_fn)(TX_SIZE tx_size);
 
 typedef std::tr1::tuple<int, int, subtract_fn> subtract_param;
 
 typedef std::tr1::tuple<int, int, get_subsample_fn> subsample_param;
+
+typedef std::tr1::tuple<TX_SIZE, sum_block_fn> sum_block_param;
 
 static void assertFaster(int ref_elapsed_time, int elapsed_time) {
   EXPECT_GT(ref_elapsed_time, elapsed_time)
@@ -104,6 +114,32 @@ class CFLSubsampleTest : public ::testing::TestWithParam<subsample_param> {
         const int val = rnd.Rand8();
         luma_pels[j * CFL_BUF_LINE + i] = val;
         luma_pels_ref[j * CFL_BUF_LINE + i] = val;
+      }
+    }
+  }
+};
+
+class CFLSumBlockTest : public ::testing::TestWithParam<sum_block_param> {
+ public:
+  virtual ~CFLSumBlockTest() {}
+  virtual void SetUp() { sum_block = GET_PARAM(1); }
+
+ protected:
+  int Width() const { return tx_size_wide[GET_PARAM(0)]; }
+  int Height() const { return tx_size_wide[GET_PARAM(0)]; }
+  TX_SIZE Tx_size() const { return GET_PARAM(0); }
+  sum_block_fn sum_block;
+  int16_t data[CFL_BUF_SQUARE];
+  int16_t data_ref[CFL_BUF_SQUARE];
+  void init() {
+    const int width = Width();
+    const int height = Height();
+    ACMRandom rnd(ACMRandom::DeterministicSeed());
+    for (int j = 0; j < height; j++) {
+      for (int i = 0; i < width; i++) {
+        const int16_t d = rnd.Rand15Signed();
+        data[j * CFL_BUF_LINE + i] = d;
+        data_ref[j * CFL_BUF_LINE + i] = d;
       }
     }
   }
@@ -203,6 +239,42 @@ TEST_P(CFLSubsampleTest, DISABLED_SubsampleSpeedTest) {
   assertFaster(ref_elapsed_time, elapsed_time);
 }
 
+TEST_P(CFLSumBlockTest, SumBlockTest) {
+  const TX_SIZE tx_size = Tx_size();
+
+  for (int it = 0; it < NUM_ITERATIONS; it++) {
+    init();
+    ASSERT_EQ(sum_block(tx_size)(data), get_sum_block_fn_c(tx_size)(data_ref));
+  }
+}
+
+TEST_P(CFLSumBlockTest, DISABLED_SumBlockSpeedTest) {
+  const int width = Width();
+  const int height = Height();
+  const TX_SIZE tx_size = Tx_size();
+
+  aom_usec_timer ref_timer;
+  aom_usec_timer timer;
+
+  init();
+  aom_usec_timer_start(&ref_timer);
+  for (int k = 0; k < NUM_ITERATIONS_SPEED; k++) {
+    get_sum_block_fn_c(tx_size)(data_ref);
+  }
+  aom_usec_timer_mark(&ref_timer);
+  int ref_elapsed_time = (int)aom_usec_timer_elapsed(&ref_timer);
+
+  aom_usec_timer_start(&timer);
+  for (int k = 0; k < NUM_ITERATIONS_SPEED; k++) {
+    sum_block(tx_size)(data);
+  }
+  aom_usec_timer_mark(&timer);
+  int elapsed_time = (int)aom_usec_timer_elapsed(&timer);
+
+  printSpeed(ref_elapsed_time, elapsed_time, width, height);
+  assertFaster(ref_elapsed_time, elapsed_time);
+}
+
 #if HAVE_SSE2
 const subtract_param subtract_sizes_sse2[] = { ALL_CFL_SIZES(
     av1_cfl_subtract_sse2) };
@@ -216,8 +288,14 @@ INSTANTIATE_TEST_CASE_P(SSE2, CFLSubtractTest,
 const subsample_param subsample_sizes_ssse3[] = { CHROMA_420_CFL_SIZES(
     get_subsample_lbd_fn_ssse3) };
 
+const sum_block_param block_sum_sizes_ssse3[] = { CFL_BLOCK_SUM_SIZES(
+    get_sum_block_fn_ssse3) };
+
 INSTANTIATE_TEST_CASE_P(SSSE3, CFLSubsampleTest,
                         ::testing::ValuesIn(subsample_sizes_ssse3));
+
+INSTANTIATE_TEST_CASE_P(SSSE3, CFLSumBlockTest,
+                        ::testing::ValuesIn(block_sum_sizes_ssse3));
 #endif
 #if HAVE_AVX2
 const subtract_param subtract_sizes_avx2[] = { ALL_CFL_SIZES(
