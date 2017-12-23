@@ -15,6 +15,8 @@
 
 #include "av1/common/cfl.h"
 
+#define CFL_BUF_LINE_I128 (CFL_BUF_LINE >> 3)
+
 /**
  * Adds 4 pixels (in a 2x2 grid) and multiplies them by 2. Resulting in a more
  * precise version of a box filter 4:2:0 pixel subsampling in Q3.
@@ -223,4 +225,122 @@ cfl_predict_hbd_fn get_predict_hbd_fn_ssse3(TX_SIZE tx_size) {
     cfl_predict_hbd_4, cfl_predict_hbd_8, cfl_predict_hbd_16, cfl_predict_hbd_32
   };
   return predict_hbd[(tx_size_wide_log2[tx_size] - tx_size_wide_log2[0]) & 3];
+}
+
+static INLINE __m128i fill_sum_epi32(__m128i l0) {
+  l0 = _mm_add_epi32(l0, _mm_shuffle_epi32(l0, _MM_SHUFFLE(1, 0, 3, 2)));
+  return _mm_add_epi32(l0, _mm_shuffle_epi32(l0, _MM_SHUFFLE(2, 3, 0, 1)));
+}
+
+static INLINE void subtract_average_x(int16_t *pred_buf, int width, int height,
+                                      int num_pel_log2) {
+  const __m128i zeros = _mm_setzero_si128();
+  const __m128i round_offset = _mm_set1_epi32(1 << (num_pel_log2 - 1));
+  __m128i *pred_buf_i128 = (__m128i *)pred_buf;
+
+  __m128i sum = zeros;
+  int i = 0;
+  while (i < height) {
+    __m128i *const row = pred_buf_i128 + i * CFL_BUF_LINE_I128;
+    if (width == 4) {
+      __m128i l0 = _mm_add_epi16(_mm_loadl_epi64(row),
+                                 _mm_loadl_epi64(row + CFL_BUF_LINE_I128));
+      __m128i l1 = _mm_add_epi16(_mm_loadl_epi64(row + 2 * CFL_BUF_LINE_I128),
+                                 _mm_loadl_epi64(row + 3 * CFL_BUF_LINE_I128));
+      sum = _mm_add_epi32(sum, _mm_add_epi32(_mm_unpacklo_epi16(l0, zeros),
+                                             _mm_unpacklo_epi16(l1, zeros)));
+      i += 4;
+    } else {
+      __m128i l0;
+      if (width == 8) {
+        l0 = _mm_add_epi16(_mm_loadu_si128(row),
+                           _mm_loadu_si128(row + CFL_BUF_LINE_I128));
+        i += 2;
+      } else {
+        l0 = _mm_add_epi16(_mm_loadu_si128(row), _mm_loadu_si128(row + 1));
+        i++;
+      }
+      sum = _mm_add_epi32(sum, _mm_add_epi32(_mm_unpacklo_epi16(l0, zeros),
+                                             _mm_unpackhi_epi16(l0, zeros)));
+      if (width == 32) {
+        l0 = _mm_add_epi16(_mm_loadu_si128(row + 2), _mm_loadu_si128(row + 3));
+        sum = _mm_add_epi32(sum, _mm_add_epi32(_mm_unpacklo_epi16(l0, zeros),
+                                               _mm_unpackhi_epi16(l0, zeros)));
+      }
+    }
+  }
+  sum = fill_sum_epi32(sum);
+
+  __m128i avg_x16 =
+      _mm_srli_epi32(_mm_add_epi32(sum, round_offset), num_pel_log2);
+  avg_x16 = _mm_packs_epi32(avg_x16, avg_x16);
+
+  for (i = 0; i < height; i++) {
+    __m128i *const row = pred_buf_i128 + i * CFL_BUF_LINE_I128;
+    if (width == 4) {
+      _mm_storel_epi64(row, _mm_sub_epi16(_mm_loadl_epi64(row), avg_x16));
+    } else {
+      _mm_storeu_si128(row, _mm_sub_epi16(_mm_loadu_si128(row), avg_x16));
+      if (width > 8) {
+        _mm_storeu_si128(row + 1,
+                         _mm_sub_epi16(_mm_loadu_si128(row + 1), avg_x16));
+        if (width == 32) {
+          _mm_storeu_si128(row + 2,
+                           _mm_sub_epi16(_mm_loadu_si128(row + 2), avg_x16));
+          _mm_storeu_si128(row + 3,
+                           _mm_sub_epi16(_mm_loadu_si128(row + 3), avg_x16));
+        }
+      }
+    }
+  }
+}
+
+#define CFL_SUB_AVG_X(width, height, num_pel_log2)                \
+  static void subtract_average_##width##x##height##_ssse3(        \
+      int16_t *pred_buf_q3) {                                     \
+    subtract_average_x(pred_buf_q3, width, height, num_pel_log2); \
+  }
+
+CFL_SUB_AVG_X(4, 4, 4)
+CFL_SUB_AVG_X(4, 8, 5)
+CFL_SUB_AVG_X(8, 4, 5)
+CFL_SUB_AVG_X(8, 8, 6)
+CFL_SUB_AVG_X(8, 16, 7)
+CFL_SUB_AVG_X(16, 8, 7)
+CFL_SUB_AVG_X(16, 16, 8)
+CFL_SUB_AVG_X(16, 32, 9)
+CFL_SUB_AVG_X(32, 16, 9)
+CFL_SUB_AVG_X(32, 32, 10)
+
+cfl_subtract_average_fn get_subtract_average_fn_ssse3(TX_SIZE tx_size) {
+  static const cfl_subtract_average_fn sub_avg[TX_SIZES_ALL] = {
+    subtract_average_4x4_ssse3,    // 4x4
+    subtract_average_8x8_ssse3,    // 8x8
+    subtract_average_16x16_ssse3,  // 16x16
+    subtract_average_32x32_ssse3,  // 32x32
+#if CONFIG_TX64X64
+    cfl_subtract_average_null,     // 64x64 (invalid CFL size)
+#endif                             // CONFIG_TX64X64
+    subtract_average_4x8_ssse3,    // 4x8
+    subtract_average_8x4_ssse3,    // 8x4
+    subtract_average_8x16_ssse3,   // 8x16
+    subtract_average_16x8_ssse3,   // 16x8
+    subtract_average_16x32_ssse3,  // 16x32
+    subtract_average_32x16_ssse3,  // 32x16
+#if CONFIG_TX64X64
+    cfl_subtract_average_null,  // 32x64 (invalid CFL size)
+    cfl_subtract_average_null,  // 64x32 (invalid CFL size)
+#endif                          // CONFIG_TX64X64
+    cfl_subtract_average_null,  // 4x16 (invalid CFL size)
+    cfl_subtract_average_null,  // 16x4 (invalid CFL size)
+    cfl_subtract_average_null,  // 8x32 (invalid CFL size)
+    cfl_subtract_average_null,  // 32x8 (invalid CFL size)
+#if CONFIG_TX64X64
+    cfl_subtract_average_null,  // 16x64 (invalid CFL size)
+    cfl_subtract_average_null,  // 64x16 (invalid CFL size)
+#endif                          // CONFIG_TX64X64
+  };
+  // Modulo TX_SIZES_ALL to ensure that an attacker won't be able to
+  // index the function pointer array out of bounds.
+  return sub_avg[tx_size % TX_SIZES_ALL];
 }

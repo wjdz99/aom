@@ -125,6 +125,18 @@ static INLINE void cfl_pad(CFL_CTX *cfl, int width, int height) {
   }
 }
 
+static int sum_block_c(const int16_t *pred_buf_q3, int width, int height) {
+  int sum_q3 = 0;
+  for (int j = 0; j < height; j++) {
+    // assert(pred_buf_q3 + tx_width <= cfl->pred_buf_q3 + CFL_BUF_SQUARE);
+    for (int i = 0; i < width; i++) {
+      sum_q3 += pred_buf_q3[i];
+    }
+    pred_buf_q3 += CFL_BUF_LINE;
+  }
+  return sum_q3;
+}
+
 void av1_cfl_subtract_c(int16_t *pred_buf_q3, int width, int height,
                         int16_t avg_q3) {
   for (int j = 0; j < height; j++) {
@@ -135,31 +147,88 @@ void av1_cfl_subtract_c(int16_t *pred_buf_q3, int width, int height,
   }
 }
 
-static void cfl_subtract_average(CFL_CTX *cfl, TX_SIZE tx_size) {
-  const int tx_height = tx_size_high[tx_size];
-  const int tx_width = tx_size_wide[tx_size];
-  const int num_pel_log2 =
-      tx_size_high_log2[tx_size] + tx_size_wide_log2[tx_size];
-
-  int16_t *pred_buf_q3 = cfl->pred_buf_q3;
-  int sum_q3 = 0;
-
-  cfl_pad(cfl, tx_width, tx_height);
-
-  for (int j = 0; j < tx_height; j++) {
-    assert(pred_buf_q3 + tx_width <= cfl->pred_buf_q3 + CFL_BUF_SQUARE);
-    for (int i = 0; i < tx_width; i++) {
-      sum_q3 += pred_buf_q3[i];
-    }
-    pred_buf_q3 += CFL_BUF_LINE;
-  }
+static void cfl_subtract_average_c(int16_t *pred_buf_q3, int width, int height,
+                                   int num_pel_log2) {
+  const int sum_q3 = sum_block_c(pred_buf_q3, width, height);
   const int avg_q3 = (sum_q3 + (1 << (num_pel_log2 - 1))) >> num_pel_log2;
   // Loss is never more than 1/2 (in Q3)
-  assert(abs((avg_q3 * (1 << num_pel_log2)) - sum_q3) <= 1 << num_pel_log2 >>
-         1);
-  av1_cfl_subtract(cfl->pred_buf_q3, tx_width, tx_height, avg_q3);
+  // assert(abs((avg_q3 * (1 << num_pel_log2)) - sum_q3) <= 1 << num_pel_log2 >>
+  //       1);
+  av1_cfl_subtract_c(pred_buf_q3, width, height, avg_q3);
 }
 
+static INLINE void subtract_average_4x4(int16_t *pred_buf_q3) {
+  cfl_subtract_average_c(pred_buf_q3, 4, 4, 4);
+}
+
+static INLINE void subtract_average_4x8(int16_t *pred_buf_q3) {
+  cfl_subtract_average_c(pred_buf_q3, 4, 8, 5);
+}
+
+static INLINE void subtract_average_8x4(int16_t *pred_buf_q3) {
+  cfl_subtract_average_c(pred_buf_q3, 8, 4, 5);
+}
+
+static INLINE void subtract_average_8x8(int16_t *pred_buf_q3) {
+  cfl_subtract_average_c(pred_buf_q3, 8, 8, 6);
+}
+
+static INLINE void subtract_average_8x16(int16_t *pred_buf_q3) {
+  cfl_subtract_average_c(pred_buf_q3, 8, 16, 7);
+}
+
+static INLINE void subtract_average_16x8(int16_t *pred_buf_q3) {
+  cfl_subtract_average_c(pred_buf_q3, 16, 8, 7);
+}
+
+static INLINE void subtract_average_16x16(int16_t *pred_buf_q3) {
+  cfl_subtract_average_c(pred_buf_q3, 16, 16, 8);
+}
+
+static INLINE void subtract_average_32x16(int16_t *pred_buf_q3) {
+  cfl_subtract_average_c(pred_buf_q3, 32, 16, 9);
+}
+
+static INLINE void subtract_average_16x32(int16_t *pred_buf_q3) {
+  cfl_subtract_average_c(pred_buf_q3, 16, 32, 9);
+}
+
+static INLINE void subtract_average_32x32(int16_t *pred_buf_q3) {
+  cfl_subtract_average_c(pred_buf_q3, 32, 32, 10);
+}
+
+cfl_subtract_average_fn get_subtract_average_fn_c(TX_SIZE tx_size) {
+  static const cfl_subtract_average_fn sub_avg[TX_SIZES_ALL] = {
+    subtract_average_4x4,    // 4x4
+    subtract_average_8x8,    // 8x8
+    subtract_average_16x16,  // 16x16
+    subtract_average_32x32,  // 32x32
+#if CONFIG_TX64X64
+    cfl_subtract_average_null,  // 64x64 (invalid CFL size)
+#endif                          // CONFIG_TX64X64
+    subtract_average_4x8,       // 4x8
+    subtract_average_8x4,       // 8x4
+    subtract_average_8x16,      // 8x16
+    subtract_average_16x8,      // 16x8
+    subtract_average_16x32,     // 16x32
+    subtract_average_32x16,     // 32x16
+#if CONFIG_TX64X64
+    cfl_subtract_average_null,  // 32x64 (invalid CFL size)
+    cfl_subtract_average_null,  // 64x32 (invalid CFL size)
+#endif                          // CONFIG_TX64X64
+    cfl_subtract_average_null,  // 4x16 (invalid CFL size)
+    cfl_subtract_average_null,  // 16x4 (invalid CFL size)
+    cfl_subtract_average_null,  // 8x32 (invalid CFL size)
+    cfl_subtract_average_null,  // 32x8 (invalid CFL size)
+#if CONFIG_TX64X64
+    cfl_subtract_average_null,  // 16x64 (invalid CFL size)
+    cfl_subtract_average_null,  // 64x16 (invalid CFL size)
+#endif                          // CONFIG_TX64X64
+  };
+  // Modulo TX_SIZES_ALL to ensure that an attacker won't be able to
+  // index the function pointer array out of bounds.
+  return sub_avg[tx_size % TX_SIZES_ALL];
+}
 static INLINE int cfl_idx_to_alpha(int alpha_idx, int joint_sign,
                                    CFL_PRED_TYPE pred_type) {
   const int alpha_sign = (pred_type == CFL_PRED_U) ? CFL_SIGN_U(joint_sign)
@@ -227,7 +296,8 @@ static void cfl_compute_parameters(MACROBLOCKD *const xd, TX_SIZE tx_size) {
   }
 #endif  // CONFIG_DEBUG && !CONFIG_RECT_TX_EXT_INTRA
 
-  cfl_subtract_average(cfl, tx_size);
+  cfl_pad(cfl, tx_size_wide[tx_size], tx_size_high[tx_size]);
+  get_subtract_average_fn(tx_size)(cfl->pred_buf_q3);
   cfl->are_parameters_computed = 1;
 }
 
