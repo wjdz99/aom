@@ -15,6 +15,8 @@
 
 #include "av1/common/cfl.h"
 
+#define CFL_BUF_LINE_I128 (CFL_BUF_LINE >> 3)
+
 /**
  * Adds 4 pixels (in a 2x2 grid) and multiplies them by 2. Resulting in a more
  * precise version of a box filter 4:2:0 pixel subsampling in Q3.
@@ -221,4 +223,178 @@ cfl_predict_hbd_fn get_predict_hbd_fn_ssse3(TX_SIZE tx_size) {
     cfl_predict_hbd_4, cfl_predict_hbd_8, cfl_predict_hbd_16, cfl_predict_hbd_32
   };
   return predict_hbd[(tx_size_wide_log2[tx_size] - tx_size_wide_log2[0]) & 3];
+}
+
+static INLINE int sum_epi32(__m128i l0) {
+  l0 = _mm_add_epi32(l0, _mm_shuffle_epi32(l0, _MM_SHUFFLE(1, 0, 3, 2)));
+  return _mm_cvtsi128_si32(
+      _mm_add_epi32(l0, _mm_shuffle_epi32(l0, _MM_SHUFFLE(2, 3, 0, 1))));
+}
+
+static __m128i load_add_4x4_to_8x1_epi32(const __m128i *pred_buf_i128) {
+  const __m128i zeros = _mm_setzero_si128();
+  const __m128i l0 =
+      _mm_add_epi16(_mm_loadl_epi64(pred_buf_i128),
+                    _mm_loadl_epi64(pred_buf_i128 + CFL_BUF_LINE_I128));
+  const __m128i l1 =
+      _mm_add_epi16(_mm_loadl_epi64(pred_buf_i128 + 2 * CFL_BUF_LINE_I128),
+                    _mm_loadl_epi64(pred_buf_i128 + 3 * CFL_BUF_LINE_I128));
+  return _mm_add_epi32(_mm_unpacklo_epi16(l0, zeros),
+                       _mm_unpacklo_epi16(l1, zeros));
+}
+
+static __m128i load_epi16_add_epi32(const __m128i *pred_buf,
+                                    ptrdiff_t offset_i128) {
+  const __m128i zeros = _mm_setzero_si128();
+  const __m128i res = _mm_add_epi16(_mm_loadu_si128(pred_buf),
+                                    _mm_loadu_si128(pred_buf + offset_i128));
+
+  return _mm_add_epi32(_mm_unpacklo_epi16(res, zeros),
+                       _mm_unpackhi_epi16(res, zeros));
+}
+
+static __m128i load_add_8x4_to_8x1_epi32(const __m128i *pred_buf_si128) {
+  return _mm_add_epi32(
+      load_epi16_add_epi32(pred_buf_si128, CFL_BUF_LINE_I128),
+      load_epi16_add_epi32(pred_buf_si128 + 2 * CFL_BUF_LINE_I128,
+                           CFL_BUF_LINE_I128));
+}
+
+static __m128i load_add_8x8_to_8x1_epi32(const __m128i *pred_buf_si128) {
+  return _mm_add_epi32(
+      load_add_8x4_to_8x1_epi32(pred_buf_si128),
+      load_add_8x4_to_8x1_epi32(pred_buf_si128 + 4 * CFL_BUF_LINE_I128));
+}
+
+static __m128i load_add_16x4_to_8x1_epi32(const __m128i *pred_buf_i128) {
+  const __m128i l0 =
+      _mm_add_epi32(load_epi16_add_epi32(pred_buf_i128, 1),
+                    load_epi16_add_epi32(pred_buf_i128 + CFL_BUF_LINE_I128, 1));
+  const __m128i l1 = _mm_add_epi32(
+      load_epi16_add_epi32(pred_buf_i128 + 2 * CFL_BUF_LINE_I128, 1),
+      load_epi16_add_epi32(pred_buf_i128 + 3 * CFL_BUF_LINE_I128, 1));
+  return _mm_add_epi32(l0, l1);
+}
+
+static __m128i load_add_16x8_to_8x1_epi32(const __m128i *pred_buf_i128) {
+  return _mm_add_epi32(
+      load_add_16x4_to_8x1_epi32(pred_buf_i128),
+      load_add_16x4_to_8x1_epi32(pred_buf_i128 + 4 * CFL_BUF_LINE_I128));
+}
+
+static __m128i load_add_16x16_to_8x1_epi32(const __m128i *pred_buf_i128) {
+  return _mm_add_epi32(
+      load_add_16x8_to_8x1_epi32(pred_buf_i128),
+      load_add_16x8_to_8x1_epi32(pred_buf_i128 + 8 * CFL_BUF_LINE_I128));
+}
+
+static __m128i load_add_32x2_to_8x1_epi32(const __m128i *pred_buf_i128) {
+  __m128i l0 = _mm_add_epi32(load_epi16_add_epi32(pred_buf_i128, 1),
+                             load_epi16_add_epi32(pred_buf_i128 + 2, 1));
+  __m128i l1 = _mm_add_epi32(
+      load_epi16_add_epi32(pred_buf_i128 + CFL_BUF_LINE_I128, 1),
+      load_epi16_add_epi32(pred_buf_i128 + CFL_BUF_LINE_I128 + 2, 1));
+  return _mm_add_epi32(l0, l1);
+}
+
+static __m128i load_add_32x8_to_8x1_epi32(const __m128i *pred_buf_i128) {
+  __m128i l0 = _mm_add_epi32(
+      load_add_32x2_to_8x1_epi32(pred_buf_i128),
+      load_add_32x2_to_8x1_epi32(pred_buf_i128 + 2 * CFL_BUF_LINE_I128));
+  __m128i l1 = _mm_add_epi32(
+      load_add_32x2_to_8x1_epi32(pred_buf_i128 + 4 * CFL_BUF_LINE_I128),
+      load_add_32x2_to_8x1_epi32(pred_buf_i128 + 6 * CFL_BUF_LINE_I128));
+  return _mm_add_epi32(l0, l1);
+}
+
+static __m128i load_add_32x16_to_8x1_epi32(const __m128i *pred_buf_i128) {
+  return _mm_add_epi32(
+      load_add_32x8_to_8x1_epi32(pred_buf_i128),
+      load_add_32x8_to_8x1_epi32(pred_buf_i128 + 8 * CFL_BUF_LINE_I128));
+}
+
+int sum_block_4x4_ssse3(const int16_t *pred_buf) {
+  return sum_epi32(load_add_4x4_to_8x1_epi32((__m128i *)pred_buf));
+}
+
+int sum_block_4x8_ssse3(const int16_t *pred_buf) {
+  const __m128i *pred_buf_i128 = (__m128i *)pred_buf;
+  const __m128i l0 = load_add_4x4_to_8x1_epi32(pred_buf_i128);
+  const __m128i l1 =
+      load_add_4x4_to_8x1_epi32(pred_buf_i128 + 4 * CFL_BUF_LINE_I128);
+  return sum_epi32(_mm_add_epi32(l0, l1));
+}
+
+int sum_block_8x4_ssse3(const int16_t *pred_buf) {
+  return sum_epi32(load_add_8x4_to_8x1_epi32((__m128i *)pred_buf));
+}
+
+int sum_block_8x8_ssse3(const int16_t *pred_buf) {
+  return sum_epi32(load_add_8x8_to_8x1_epi32((__m128i *)pred_buf));
+}
+
+int sum_block_8x16_ssse3(const int16_t *pred_buf) {
+  const __m128i *pred_buf_i128 = (__m128i *)pred_buf;
+  return sum_epi32(_mm_add_epi32(
+      load_add_8x8_to_8x1_epi32(pred_buf_i128),
+      load_add_8x8_to_8x1_epi32(pred_buf_i128 + 8 * CFL_BUF_LINE_I128)));
+}
+
+int sum_block_16x8_ssse3(const int16_t *pred_buf) {
+  return sum_epi32(load_add_16x8_to_8x1_epi32((__m128i *)pred_buf));
+}
+
+int sum_block_16x16_ssse3(const int16_t *pred_buf) {
+  return sum_epi32(load_add_16x16_to_8x1_epi32((__m128i *)pred_buf));
+}
+
+int sum_block_16x32_ssse3(const int16_t *pred_buf) {
+  const __m128i *pred_buf_i128 = (__m128i *)pred_buf;
+  return sum_epi32(_mm_add_epi32(
+      load_add_16x16_to_8x1_epi32(pred_buf_i128),
+      load_add_16x16_to_8x1_epi32(pred_buf_i128 + 16 * CFL_BUF_LINE_I128)));
+}
+
+int sum_block_32x16_ssse3(const int16_t *pred_buf) {
+  return sum_epi32(load_add_32x16_to_8x1_epi32((__m128i *)pred_buf));
+}
+
+int sum_block_32x32_ssse3(const int16_t *pred_buf) {
+  const __m128i *pred_buf_i128 = (__m128i *)pred_buf;
+  return sum_epi32(_mm_add_epi32(
+      load_add_32x16_to_8x1_epi32(pred_buf_i128),
+      load_add_32x16_to_8x1_epi32(pred_buf_i128 + 16 * CFL_BUF_LINE_I128)));
+}
+
+cfl_sum_block_fn get_sum_block_fn_ssse3(TX_SIZE tx_size) {
+  static const cfl_sum_block_fn sum_block[TX_SIZES_ALL] = {
+    sum_block_4x4_ssse3,    // 4x4
+    sum_block_8x8_ssse3,    // 8x8
+    sum_block_16x16_ssse3,  // 16x16
+    sum_block_32x32_ssse3,  // 32x32
+#if CONFIG_TX64X64
+    cfl_sum_block_null,     // 64x64 (invalid CFL size)
+#endif                      // CONFIG_TX64X64
+    sum_block_4x8_ssse3,    // 4x8
+    sum_block_8x4_ssse3,    // 8x4
+    sum_block_8x16_ssse3,   // 8x16
+    sum_block_16x8_ssse3,   // 16x8
+    sum_block_16x32_ssse3,  // 16x32
+    sum_block_32x16_ssse3,  // 32x16
+#if CONFIG_TX64X64
+    cfl_sum_block_null,  // 32x64 (invalid CFL size)
+    cfl_sum_block_null,  // 64x32 (invalid CFL size)
+#endif                   // CONFIG_TX64X64
+    cfl_sum_block_null,  // 4x16 (invalid CFL size)
+    cfl_sum_block_null,  // 16x4 (invalid CFL size)
+    cfl_sum_block_null,  // 8x32 (invalid CFL size)
+    cfl_sum_block_null,  // 32x8 (invalid CFL size)
+#if CONFIG_TX64X64
+    cfl_sum_block_null,  // 16x64 (invalid CFL size)
+    cfl_sum_block_null,  // 64x16 (invalid CFL size)
+#endif                   // CONFIG_TX64X64
+  };
+  // Modulo TX_SIZES_ALL to ensure that an attacker won't be able to
+  // index the function pointer array out of bounds.
+  return sum_block[tx_size % TX_SIZES_ALL];
 }
