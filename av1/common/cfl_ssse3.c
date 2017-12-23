@@ -222,3 +222,144 @@ cfl_predict_hbd_fn get_predict_hbd_fn_ssse3(TX_SIZE tx_size) {
   };
   return predict_hbd[(tx_size_wide_log2[tx_size] - tx_size_wide_log2[0]) & 3];
 }
+
+static INLINE int sum_epi32(__m128i l0) {
+  l0 = _mm_add_epi32(l0, _mm_shuffle_epi32(l0, _MM_SHUFFLE(1, 0, 3, 2)));
+  return _mm_cvtsi128_si32(
+      _mm_add_epi32(l0, _mm_shuffle_epi32(l0, _MM_SHUFFLE(2, 3, 0, 1))));
+}
+
+int sum_block_4x4_ssse3(int16_t *pred_buf) {
+  const __m128i zeros = _mm_setzero_si128();
+  const __m128i *pred_buf_i128 = (__m128i *)pred_buf;
+  const int stride_i128 = CFL_BUF_LINE >> 3;
+
+  // At this stage in CfL, the maximum value in the CfL prediction buffer can
+  // only reach 15 bit, so it is safe to do one addition inside 16 bit.
+  // r0 = r0_0 + r1_0, r2_0 + r3_0, ..., r0_3 + r1_3, r2_3 + r3_3
+  __m128i l0 = _mm_add_epi16(_mm_loadl_epi64(pred_buf_i128),
+                             _mm_loadl_epi64(pred_buf_i128 + stride_i128));
+  __m128i l1 = _mm_add_epi16(_mm_loadl_epi64(pred_buf_i128 + 2 * stride_i128),
+                             _mm_loadl_epi64(pred_buf_i128 + 3 * stride_i128));
+
+  // For the other additions, we need to convert to 32 bits.
+  // To do so, we add the low part with the high part.
+  // r0 = r0_0 + r0_4, r0_1 + r0_5, r0_2 + r0_6, r0_3 + r0_7
+  l0 = _mm_add_epi32(_mm_unpacklo_epi16(l0, zeros),
+                     _mm_unpacklo_epi16(l1, zeros));
+
+  return sum_epi32(l0);
+}
+
+static __m128i load_epi16_add_epi32(const __m128i *pred_buf, int inc_si128) {
+  const __m128i zeros = _mm_setzero_si128();
+  const __m128i r0 = _mm_add_epi16(_mm_loadu_si128(pred_buf),
+                                   _mm_loadu_si128(pred_buf + inc_si128));
+  return _mm_add_epi32(_mm_unpacklo_epi16(r0, zeros),
+                       _mm_unpackhi_epi16(r0, zeros));
+}
+
+// TODO(ltrudeau) const pred_buf
+int sum_block_8x8_ssse3(int16_t *pred_buf) {
+  const int stride_si128 = CFL_BUF_LINE >> 3;
+  __m128i *pred_buf_si128 = (__m128i *)pred_buf;
+
+  // (Row0 + Row1) + (Row2 + Row3)
+  __m128i l0 = _mm_add_epi32(
+      load_epi16_add_epi32(pred_buf_si128, stride_si128),
+      load_epi16_add_epi32(pred_buf_si128 + 2 * stride_si128, stride_si128));
+
+  // (Row4 + Row5) + (Row6 + Row7)
+  __m128i l1 = _mm_add_epi32(
+      load_epi16_add_epi32(pred_buf_si128 + 4 * stride_si128, stride_si128),
+      load_epi16_add_epi32(pred_buf_si128 + 6 * stride_si128, stride_si128));
+
+  // ((Row0 + Row1) + (Row2 + Row3)) + ((Row4 + Row5) + (Row6 + Row7))
+  return sum_epi32(_mm_add_epi32(l0, l1));
+}
+
+int sum_block_16x16_ssse3(int16_t *pred_buf) {
+  const __m128i *pred_buf_i128 = (__m128i *)pred_buf;
+  const int stride_i128 = CFL_BUF_LINE >> 3;
+
+  // At this stage in CfL, the maximum value in the CfL prediction buffer
+  // can only reach 15 bit, so it is safe to do one addition inside 16 bit.
+  // r0 = r0_0 + r1_0, r0_1 + r1_1, ..., r0_7 + r1_7
+  __m128i l0 = load_epi16_add_epi32(pred_buf_i128, 1);
+  __m128i l1 = load_epi16_add_epi32(pred_buf_i128 + stride_i128, 1);
+  l0 = _mm_add_epi32(l0, l1);  // Row0 + Row1
+
+  l1 = load_epi16_add_epi32(pred_buf_i128 + 2 * stride_i128, 1);
+  __m128i l2 = load_epi16_add_epi32(pred_buf_i128 + 3 * stride_i128, 1);
+  l1 = _mm_add_epi32(l1, l2);  // Row2 + Row3
+  l0 = _mm_add_epi32(l0, l1);  // (Row0 + Row1) + (Row2 + Row3)
+
+  l1 = load_epi16_add_epi32(pred_buf_i128 + 4 * stride_i128, 1);
+  l2 = load_epi16_add_epi32(pred_buf_i128 + 5 * stride_i128, 1);
+  l1 = _mm_add_epi32(l1, l2);  // Row4 + Row5
+
+  l2 = load_epi16_add_epi32(pred_buf_i128 + 6 * stride_i128, 1);
+  __m128i l3 = load_epi16_add_epi32(pred_buf_i128 + 7 * stride_i128, 1);
+  l2 = _mm_add_epi32(l2, l3);  // Row6 + Row7
+  l1 = _mm_add_epi32(l1, l2);  // (Row4 + Row5) + (Row6 + Row7)
+  // ((Row0 + Row1) + (Row2 + Row3)) + ((Row4 + Row5) + (Row6 + Row7))
+  l0 = _mm_add_epi32(l0, l1);
+
+  l1 = load_epi16_add_epi32(pred_buf_i128 + 8 * stride_i128, 1);
+  l2 = load_epi16_add_epi32(pred_buf_i128 + 9 * stride_i128, 1);
+  l1 = _mm_add_epi32(l1, l2);  // Row8 + Row9
+
+  l2 = load_epi16_add_epi32(pred_buf_i128 + 10 * stride_i128, 1);
+  l3 = load_epi16_add_epi32(pred_buf_i128 + 11 * stride_i128, 1);
+  l2 = _mm_add_epi32(l2, l3);  // Row10 + Row11
+  l1 = _mm_add_epi32(l1, l2);  // (Row8 + Row9) + (Row10 + Row11)
+
+  l2 = load_epi16_add_epi32(pred_buf_i128 + 12 * stride_i128, 1);
+  l3 = load_epi16_add_epi32(pred_buf_i128 + 13 * stride_i128, 1);
+  l2 = _mm_add_epi32(l2, l3);  // Row12 + Row13
+
+  l3 = load_epi16_add_epi32(pred_buf_i128 + 14 * stride_i128, 1);
+  __m128i l4 = load_epi16_add_epi32(pred_buf_i128 + 15 * stride_i128, 1);
+  l3 = _mm_add_epi32(l3, l4);  // Row14 + Row15
+  l2 = _mm_add_epi32(l2, l3);  // (Row12 + Row13) + (Row14 + Row15)
+  // ((Row8 + Row9) + (Row10 + Row11)) + ((Row12 + Row13) + (Row14 + Row15))
+  l1 = _mm_add_epi32(l1, l2);
+
+  l0 = _mm_add_epi32(l0, l1);
+
+  // r0 = r0_0 + r0_1, ...
+  return sum_epi32(l0);
+}
+
+cfl_sum_block_fn get_sum_block_fn_ssse3(TX_SIZE tx_size) {
+  static const cfl_sum_block_fn sum_block[TX_SIZES_ALL] = {
+    sum_block_4x4_ssse3,    // 4x4
+    sum_block_8x8_ssse3,    // 8x8
+    sum_block_16x16_ssse3,  // 16x16
+    cfl_sum_block_null,     // 32x32
+#if CONFIG_TX64X64
+    cfl_sum_block_null,  // 64x64 (invalid CFL size)
+#endif                   // CONFIG_TX64X64
+    cfl_sum_block_null,  // 4x8
+    cfl_sum_block_null,  // 8x4
+    cfl_sum_block_null,  // 8x16
+    cfl_sum_block_null,  // 16x8
+    cfl_sum_block_null,  // 16x32
+    cfl_sum_block_null,  // 32x16
+#if CONFIG_TX64X64
+    cfl_sum_block_null,  // 32x64 (invalid CFL size)
+    cfl_sum_block_null,  // 64x32 (invalid CFL size)
+#endif                   // CONFIG_TX64X64
+    cfl_sum_block_null,  // 4x16 (invalid CFL size)
+    cfl_sum_block_null,  // 16x4 (invalid CFL size)
+    cfl_sum_block_null,  // 8x32 (invalid CFL size)
+    cfl_sum_block_null,  // 32x8 (invalid CFL size)
+#if CONFIG_TX64X64
+    cfl_sum_block_null,  // 16x64 (invalid CFL size)
+    cfl_sum_block_null,  // 64x16 (invalid CFL size)
+#endif                   // CONFIG_TX64X64
+  };
+  // Modulo TX_SIZES_ALL to ensure that an attacker won't be able to
+  // index the function pointer array out of bounds.
+  return sum_block[tx_size % TX_SIZES_ALL];
+}
