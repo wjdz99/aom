@@ -2609,12 +2609,16 @@ int64_t av1_search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
 
     RD_STATS this_rd_stats;
     av1_invalid_rd_stats(&this_rd_stats);
-    if (cpi->sf.optimize_coefficients != FULL_TRELLIS_OPT) {
-      av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize,
-                      tx_size, AV1_XFORM_QUANT_B);
-    } else {
-      av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize,
-                      tx_size, AV1_XFORM_QUANT_FP);
+#if CONFIG_NEW_QUANT
+    const AV1_XFORM_QUANT xform_quant = AV1_XFORM_QUANT_FP;
+#else
+    const AV1_XFORM_QUANT xform_quant =
+        cpi->sf.optimize_coefficients == FULL_TRELLIS_OPT ? AV1_XFORM_QUANT_FP
+                                                          : AV1_XFORM_QUANT_B;
+#endif  // CONFIG_NEW_QUANT
+    av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize, tx_size,
+                    xform_quant);
+    if (cpi->sf.optimize_coefficients == FULL_TRELLIS_OPT) {
       av1_optimize_b(cm, x, plane, blk_row, blk_col, block, plane_bsize,
                      tx_size, a, l, 1);
     }
@@ -2646,14 +2650,18 @@ int64_t av1_search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
   x->plane[plane].eobs[block] = best_eob;
 
   if (!is_inter_block(mbmi)) {
-    // intra mode needs decoded result such that the next transform block
-    // can use it for prediction.
-    if (cpi->sf.optimize_coefficients != FULL_TRELLIS_OPT) {
-      av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize,
-                      tx_size, AV1_XFORM_QUANT_B);
-    } else {
-      av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize,
-                      tx_size, AV1_XFORM_QUANT_FP);
+// intra mode needs decoded result such that the next transform block
+// can use it for prediction.
+#if CONFIG_NEW_QUANT
+    const AV1_XFORM_QUANT xform_quant = AV1_XFORM_QUANT_FP;
+#else
+    const AV1_XFORM_QUANT xform_quant =
+        cpi->sf.optimize_coefficients == FULL_TRELLIS_OPT ? AV1_XFORM_QUANT_FP
+                                                          : AV1_XFORM_QUANT_B;
+#endif  // CONFIG_NEW_QUANT
+    av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize, tx_size,
+                    xform_quant);
+    if (cpi->sf.optimize_coefficients == FULL_TRELLIS_OPT) {
       av1_optimize_b(cm, x, plane, blk_row, blk_col, block, plane_bsize,
                      tx_size, a, l, 1);
     }
