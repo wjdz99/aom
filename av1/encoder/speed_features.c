@@ -17,6 +17,13 @@
 
 #include "aom_dsp/aom_dsp_common.h"
 
+// Setting this to 1 will disable trellis optimization within the
+// transform search. Trellis optimization will still be applied
+// in the final encode.
+#ifndef DISABLE_TRELLISQ_SEARCH
+#define DISABLE_TRELLISQ_SEARCH 0
+#endif
+
 #define MAX_MESH_SPEED 5  // Max speed setting for mesh motion method
 static MESH_PATTERN
     good_quality_mesh_patterns[MAX_MESH_SPEED + 1][MAX_MESH_STEP] = {
@@ -578,7 +585,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi) {
     cpi->find_fractional_mv_step = av1_find_best_sub_pixel_tree_pruned_evenmore;
   }
 
-  x->optimize = sf->optimize_coefficients && oxcf->pass != 1;
+  x->optimize = oxcf->pass != 1 ? sf->optimize_coefficients : NO_TRELLIS_OPT;
 #if CONFIG_AOM_QM
   // FIXME: trellis not very efficient for quantisation matrices
   if (cm->using_qmatrix) x->optimize = 0;
