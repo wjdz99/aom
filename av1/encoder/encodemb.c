@@ -587,13 +587,14 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
   assert(x->blk_skip[plane][blk_row * bw + blk_col] != 234);
 
   if (x->blk_skip[plane][blk_row * bw + blk_col] == 0) {
-    if (args->enable_optimize_b) {
-      av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize,
-                      tx_size, AV1_XFORM_QUANT_FP);
-    } else {
-      av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize,
-                      tx_size, AV1_XFORM_QUANT_B);
-    }
+#if CONFIG_NEW_QUANT
+    const AV1_XFORM_QUANT xform_quant = AV1_XFORM_QUANT_FP;
+#else
+    const AV1_XFORM_QUANT xform_quant =
+        args->enable_optimize_b ? AV1_XFORM_QUANT_FP : AV1_XFORM_QUANT_B;
+#endif  // CONFIG_NEW_QUANT
+    av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize, tx_size,
+                    xform_quant);
   } else {
     p->eobs[block] = 0;
   }
@@ -875,9 +876,15 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
 
   const ENTROPY_CONTEXT *a = &args->ta[blk_col];
   const ENTROPY_CONTEXT *l = &args->tl[blk_row];
+#if CONFIG_NEW_QUANT
+  const AV1_XFORM_QUANT xform_quant = AV1_XFORM_QUANT_FP;
+#else
+  const AV1_XFORM_QUANT xform_quant =
+      args->enable_optimize_b ? AV1_XFORM_QUANT_FP : AV1_XFORM_QUANT_B;
+#endif  // CONFIG_NEW_QUANT
+  av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize, tx_size,
+                  xform_quant);
   if (args->enable_optimize_b) {
-    av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize, tx_size,
-                    AV1_XFORM_QUANT_FP);
     av1_optimize_b(cm, x, plane, blk_row, blk_col, block, plane_bsize, tx_size,
                    a, l, CONFIG_LV_MAP);
 
@@ -888,9 +895,6 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
           DCT_DCT);
     }
 #endif  // CONFIG_TXK_SEL
-  } else {
-    av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize, tx_size,
-                    AV1_XFORM_QUANT_B);
   }
 
   av1_inverse_transform_block(xd, dqcoeff, plane, tx_type, tx_size, dst,
