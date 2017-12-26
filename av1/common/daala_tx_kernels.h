@@ -41,14 +41,14 @@
 /* clang-format off */
 
 /* Two multiply rotation primative (used when rotating by Pi/4). */
-static INLINE void OD_KERNEL_FUNC(od_rot2)(OD_COEFF *p0, OD_COEFF *p1,
+OD_SIMD_INLINE void OD_KERNEL_FUNC(od_rot2)(OD_COEFF *p0, OD_COEFF *p1,
  OD_COEFF t, int c0, int q0, int c1, int q1) {
   *p1 = OD_MUL(*p0, c0, q0);
   *p0 = OD_MUL(t, c1, q1);
 }
 
 /* Three multiply rotation primative. */
-static INLINE void OD_KERNEL_FUNC(od_rot3)(OD_COEFF *p0, OD_COEFF *p1,
+OD_SIMD_INLINE void OD_KERNEL_FUNC(od_rot3)(OD_COEFF *p0, OD_COEFF *p1,
  OD_COEFF *t, OD_COEFF *u, int c0, int q0, int c1, int q1, int c2, int q2) {
   *u = OD_MUL(*p0, c0, q0);
   *p0 = OD_MUL(*p1, c1, q1);
@@ -56,7 +56,7 @@ static INLINE void OD_KERNEL_FUNC(od_rot3)(OD_COEFF *p0, OD_COEFF *p1,
 }
 
 /* Rotate by Pi/4 and add. */
-static INLINE void OD_KERNEL_FUNC(od_rotate_pi4_kernel)(OD_COEFF *p0,
+OD_SIMD_INLINE void OD_KERNEL_FUNC(od_rotate_pi4_kernel)(OD_COEFF *p0,
  OD_COEFF *p1, int c0, int q0, int c1, int q1, int type, int avg) {
   OD_COEFF t;
   t = type == TX_ADD ?
@@ -81,7 +81,7 @@ static INLINE void OD_KERNEL_FUNC(od_rotate_pi4_kernel)(OD_COEFF *p0,
  OD_KERNEL_FUNC(od_rotate_pi4_kernel)(p0, p1, c0, q0, c1, q1, TX_SUB, TX_AVG)
 
 /* Rotate and add. */
-static INLINE void OD_KERNEL_FUNC(od_rotate_kernel)(OD_COEFF *p0, OD_COEFF *p1,
+OD_SIMD_INLINE void OD_KERNEL_FUNC(od_rotate_kernel)(OD_COEFF *p0, OD_COEFF *p1,
  OD_COEFF v, int c0, int q0, int c1, int q1, int c2, int q2,
  int type, int avg, int shift) {
   OD_COEFF u;
@@ -123,7 +123,7 @@ static INLINE void OD_KERNEL_FUNC(od_rotate_kernel)(OD_COEFF *p0, OD_COEFF *p1,
                                   TX_SUB, TX_NONE, shift)
 
 /* Rotate and subtract with negation. */
-static INLINE void OD_KERNEL_FUNC(od_rotate_neg_kernel)(OD_COEFF *p0,
+OD_SIMD_INLINE void OD_KERNEL_FUNC(od_rotate_neg_kernel)(OD_COEFF *p0,
  OD_COEFF *p1, int c0, int q0, int c1, int q1, int c2, int q2, int avg) {
   OD_COEFF u;
   OD_COEFF t;
@@ -145,7 +145,7 @@ static INLINE void OD_KERNEL_FUNC(od_rotate_neg_kernel)(OD_COEFF *p0,
 
     p0 = p0 + p1;
     p1 = p1 - p0/2; */
-static INLINE void OD_KERNEL_FUNC(od_butterfly_add)(OD_COEFF *p0,
+OD_SIMD_INLINE void OD_KERNEL_FUNC(od_butterfly_add)(OD_COEFF *p0,
  OD_COEFF *p0h, OD_COEFF *p1) {
   OD_COEFF p0h_;
   *p0 = OD_ADD(*p0, *p1);
@@ -159,7 +159,7 @@ static INLINE void OD_KERNEL_FUNC(od_butterfly_add)(OD_COEFF *p0,
 
     p1 = p1 + p0/2;
     p0 = p0 - p1; */
-static INLINE void OD_KERNEL_FUNC(od_butterfly_add_asym)(OD_COEFF *p0,
+OD_SIMD_INLINE void OD_KERNEL_FUNC(od_butterfly_add_asym)(OD_COEFF *p0,
  OD_COEFF p0h, OD_COEFF *p1) {
   *p1 = OD_ADD(*p1, p0h);
   *p0 = OD_SUB(*p0, *p1);
@@ -170,7 +170,7 @@ static INLINE void OD_KERNEL_FUNC(od_butterfly_add_asym)(OD_COEFF *p0,
 
     p0 = p0 - p1;
     p1 = p1 + p0/2; */
-static INLINE void OD_KERNEL_FUNC(od_butterfly_sub)(OD_COEFF *p0,
+OD_SIMD_INLINE void OD_KERNEL_FUNC(od_butterfly_sub)(OD_COEFF *p0,
  OD_COEFF *p0h, OD_COEFF *p1) {
   OD_COEFF p0h_;
   *p0 = OD_SUB(*p0, *p1);
@@ -184,7 +184,7 @@ static INLINE void OD_KERNEL_FUNC(od_butterfly_sub)(OD_COEFF *p0,
 
     p1 = p1 - p0/2;
     p0 = p0 + p1; */
-static INLINE void OD_KERNEL_FUNC(od_butterfly_sub_asym)(OD_COEFF *p0,
+OD_SIMD_INLINE void OD_KERNEL_FUNC(od_butterfly_sub_asym)(OD_COEFF *p0,
  OD_COEFF p0h, OD_COEFF *p1) {
   *p1 = OD_SUB(*p1, p0h);
   *p0 = OD_ADD(*p0, *p1);
@@ -196,7 +196,8 @@ static INLINE void OD_KERNEL_FUNC(od_butterfly_sub_asym)(OD_COEFF *p0,
     p1 = p1 - p0;
     p0 = p0 + p1/2;
     p1 = -p1; */
-static INLINE void OD_KERNEL_FUNC(od_butterfly_neg)(OD_COEFF *p0, OD_COEFF *p1, OD_COEFF *p1h) {
+OD_SIMD_INLINE void OD_KERNEL_FUNC(od_butterfly_neg)(OD_COEFF *p0,
+ OD_COEFF *p1, OD_COEFF *p1h) {
   *p1 = OD_SUB(*p0, *p1);
   *p1h = OD_RSHIFT1(*p1);
   *p0 = OD_SUB(*p0, *p1h);
@@ -208,7 +209,7 @@ static INLINE void OD_KERNEL_FUNC(od_butterfly_neg)(OD_COEFF *p0, OD_COEFF *p1, 
     p1 = -p1;
     p0 = p0 - p1/2;
     p1 = p1 + p0; */
-static INLINE void OD_KERNEL_FUNC(od_butterfly_neg_asym)(OD_COEFF *p0,
+OD_SIMD_INLINE void OD_KERNEL_FUNC(od_butterfly_neg_asym)(OD_COEFF *p0,
  OD_COEFF *p1, OD_COEFF p1h) {
   *p0 = OD_ADD(*p0, p1h);
   *p1 = OD_SUB(*p0, *p1);
@@ -219,7 +220,7 @@ static INLINE void OD_KERNEL_FUNC(od_butterfly_neg_asym)(OD_COEFF *p0,
 /**
  * 2-point orthonormal Type-II fDCT
  */
-static INLINE void OD_KERNEL_FUNC(od_fdct_2)(OD_COEFF *p0, OD_COEFF *p1) {
+OD_SIMD_INLINE void OD_KERNEL_FUNC(od_fdct_2)(OD_COEFF *p0, OD_COEFF *p1) {
   /* 11585/8192 = Sin[Pi/4] + Cos[Pi/4]  = 1.4142135623730951 */
   /* 11585/8192 = 2*Cos[Pi/4]            = 1.4142135623730951 */
   od_rotate_pi4_sub_avg(p1, p0, 11585, 13, 11585, 13);
@@ -228,7 +229,7 @@ static INLINE void OD_KERNEL_FUNC(od_fdct_2)(OD_COEFF *p0, OD_COEFF *p1) {
 /**
  * 2-point orthonormal Type-II iDCT
  */
-static INLINE void OD_KERNEL_FUNC(od_idct_2)(OD_COEFF *p0, OD_COEFF *p1) {
+OD_SIMD_INLINE void OD_KERNEL_FUNC(od_idct_2)(OD_COEFF *p0, OD_COEFF *p1) {
   /*  11585/8192 = Sin[Pi/4] + Cos[Pi/4] = 1.4142135623730951 */
   /* 11585/16384 = Cos[Pi/4]             = 0.7071067811865475 */
   od_rotate_pi4_add(p0, p1, 11585, 13, 11585, 14);
@@ -237,7 +238,7 @@ static INLINE void OD_KERNEL_FUNC(od_idct_2)(OD_COEFF *p0, OD_COEFF *p1) {
 /**
  * 2-point asymmetric Type-II fDCT
  */
-static INLINE void OD_KERNEL_FUNC(od_fdct_2_asym)(OD_COEFF *p0, OD_COEFF *p1,
+OD_SIMD_INLINE void OD_KERNEL_FUNC(od_fdct_2_asym)(OD_COEFF *p0, OD_COEFF *p1,
  OD_COEFF p1h) {
   OD_KERNEL_FUNC(od_butterfly_neg_asym)(p0, p1, p1h);
 }
@@ -245,7 +246,7 @@ static INLINE void OD_KERNEL_FUNC(od_fdct_2_asym)(OD_COEFF *p0, OD_COEFF *p1,
 /**
  * 2-point asymmetric Type-II iDCT
  */
-static INLINE void OD_KERNEL_FUNC(od_idct_2_asym)(OD_COEFF *p0, OD_COEFF *p1,
+OD_SIMD_INLINE void OD_KERNEL_FUNC(od_idct_2_asym)(OD_COEFF *p0, OD_COEFF *p1,
  OD_COEFF *p1h) {
   OD_KERNEL_FUNC(od_butterfly_neg)(p0, p1, p1h);
 }
@@ -253,7 +254,7 @@ static INLINE void OD_KERNEL_FUNC(od_idct_2_asym)(OD_COEFF *p0, OD_COEFF *p1,
 /**
  * 2-point orthonormal Type-IV fDCT
  */
-static INLINE void OD_KERNEL_FUNC(od_fdst_2)(OD_COEFF *p0, OD_COEFF *p1) {
+OD_SIMD_INLINE void OD_KERNEL_FUNC(od_fdst_2)(OD_COEFF *p0, OD_COEFF *p1) {
 
   /* Stage 0 */
 
@@ -266,14 +267,14 @@ static INLINE void OD_KERNEL_FUNC(od_fdst_2)(OD_COEFF *p0, OD_COEFF *p1) {
 /**
  * 2-point orthonormal Type-IV iDCT
  */
-static INLINE void OD_KERNEL_FUNC(od_idst_2)(OD_COEFF *p0, OD_COEFF *p1) {
+OD_SIMD_INLINE void OD_KERNEL_FUNC(od_idst_2)(OD_COEFF *p0, OD_COEFF *p1) {
   OD_KERNEL_FUNC(od_fdst_2)(p0, p1);
 }
 
 /**
  * 2-point asymmetric Type-IV fDCT
  */
-static INLINE void OD_KERNEL_FUNC(od_fdst_2_asym)(OD_COEFF *p0, OD_COEFF p0h,
+OD_SIMD_INLINE void OD_KERNEL_FUNC(od_fdst_2_asym)(OD_COEFF *p0, OD_COEFF p0h,
  OD_COEFF *p1) {
 
   /* Stage 0 */
@@ -287,7 +288,7 @@ static INLINE void OD_KERNEL_FUNC(od_fdst_2_asym)(OD_COEFF *p0, OD_COEFF p0h,
 /**
  * 2-point asymmetric Type-IV iDCT
  */
-static INLINE void OD_KERNEL_FUNC(od_idst_2_asym)(OD_COEFF *p0, OD_COEFF *p1) {
+OD_SIMD_INLINE void OD_KERNEL_FUNC(od_idst_2_asym)(OD_COEFF *p0, OD_COEFF *p1) {
 
   /* Stage 0 */
 
@@ -302,7 +303,7 @@ static INLINE void OD_KERNEL_FUNC(od_idst_2_asym)(OD_COEFF *p0, OD_COEFF *p1) {
 /**
  * 4-point orthonormal Type-II fDCT
  */
-static INLINE void OD_KERNEL_FUNC(od_fdct_4)(OD_COEFF *q0, OD_COEFF *q1,
+OD_SIMD_INLINE void OD_KERNEL_FUNC(od_fdct_4)(OD_COEFF *q0, OD_COEFF *q1,
  OD_COEFF *q2, OD_COEFF *q3) {
   OD_COEFF q1h;
   OD_COEFF q3h;
@@ -319,8 +320,8 @@ static INLINE void OD_KERNEL_FUNC(od_fdct_4)(OD_COEFF *q0, OD_COEFF *q1,
 /**
  * 4-point orthonormal Type-II iDCT
  */
-static INLINE void OD_KERNEL_FUNC(od_idct_4)(OD_COEFF *q0, OD_COEFF *q2,
-                                             OD_COEFF *q1, OD_COEFF *q3)  {
+OD_SIMD_INLINE void OD_KERNEL_FUNC(od_idct_4)(OD_COEFF *q0, OD_COEFF *q2,
+                                              OD_COEFF *q1, OD_COEFF *q3) {
   OD_COEFF q1h;
 
   /* Embedded 2-point transforms with asymmetric output. */
@@ -335,7 +336,7 @@ static INLINE void OD_KERNEL_FUNC(od_idct_4)(OD_COEFF *q0, OD_COEFF *q2,
 /**
  * 4-point asymmetric Type-II fDCT
  */
-static INLINE void OD_KERNEL_FUNC(od_fdct_4_asym)(OD_COEFF *q0, OD_COEFF *q1,
+OD_SIMD_INLINE void OD_KERNEL_FUNC(od_fdct_4_asym)(OD_COEFF *q0, OD_COEFF *q1,
  OD_COEFF q1h, OD_COEFF *q2, OD_COEFF *q3, OD_COEFF q3h) {
 
   /* +/- Butterflies with asymmetric input. */
@@ -350,8 +351,8 @@ static INLINE void OD_KERNEL_FUNC(od_fdct_4_asym)(OD_COEFF *q0, OD_COEFF *q1,
 /**
  * 4-point asymmetric Type-II iDCT
  */
-static INLINE void OD_KERNEL_FUNC(od_idct_4_asym)(OD_COEFF *q0, OD_COEFF *q2,
- OD_COEFF *q1, OD_COEFF *q1h, OD_COEFF *q3, OD_COEFF *q3h)  {
+OD_SIMD_INLINE void OD_KERNEL_FUNC(od_idct_4_asym)(OD_COEFF *q0, OD_COEFF *q2,
+ OD_COEFF *q1, OD_COEFF *q1h, OD_COEFF *q3, OD_COEFF *q3h) {
 
   /* Embedded 2-point orthonormal transforms. */
   OD_KERNEL_FUNC(od_idst_2)(q3, q2);
@@ -365,8 +366,8 @@ static INLINE void OD_KERNEL_FUNC(od_idct_4_asym)(OD_COEFF *q0, OD_COEFF *q2,
 /**
  * 4-point orthonormal Type-IV fDST
  */
-static INLINE void OD_KERNEL_FUNC(od_fdst_4)(OD_COEFF *q0, OD_COEFF *q1,
-                                             OD_COEFF *q2, OD_COEFF *q3) {
+OD_SIMD_INLINE void OD_KERNEL_FUNC(od_fdst_4)(OD_COEFF *q0, OD_COEFF *q1,
+                                              OD_COEFF *q2, OD_COEFF *q3) {
 
   /* Stage 0 */
 
@@ -395,8 +396,8 @@ static INLINE void OD_KERNEL_FUNC(od_fdst_4)(OD_COEFF *q0, OD_COEFF *q1,
 /**
  * 4-point orthonormal Type-IV iDST
  */
-static INLINE void OD_KERNEL_FUNC(od_idst_4)(OD_COEFF *q0, OD_COEFF *q2,
-                                             OD_COEFF *q1, OD_COEFF *q3) {
+OD_SIMD_INLINE void OD_KERNEL_FUNC(od_idst_4)(OD_COEFF *q0, OD_COEFF *q2,
+                                              OD_COEFF *q1, OD_COEFF *q3) {
   OD_COEFF q0h;
   OD_COEFF q2h;
 
@@ -427,7 +428,7 @@ static INLINE void OD_KERNEL_FUNC(od_idst_4)(OD_COEFF *q0, OD_COEFF *q2,
 /**
  * 4-point asymmetric Type-IV fDST
  */
-static INLINE void OD_KERNEL_FUNC(od_fdst_4_asym)(OD_COEFF *q0, OD_COEFF q0h,
+OD_SIMD_INLINE void OD_KERNEL_FUNC(od_fdst_4_asym)(OD_COEFF *q0, OD_COEFF q0h,
  OD_COEFF *q1, OD_COEFF *q2, OD_COEFF q2h, OD_COEFF *q3) {
 
   /* Stage 0 */
@@ -457,8 +458,8 @@ static INLINE void OD_KERNEL_FUNC(od_fdst_4_asym)(OD_COEFF *q0, OD_COEFF q0h,
 /**
  * 4-point asymmetric Type-IV iDST
  */
-static INLINE void OD_KERNEL_FUNC(od_idst_4_asym)(OD_COEFF *q0, OD_COEFF *q2,
-                                                  OD_COEFF *q1, OD_COEFF *q3) {
+OD_SIMD_INLINE void OD_KERNEL_FUNC(od_idst_4_asym)(OD_COEFF *q0, OD_COEFF *q2,
+                                                   OD_COEFF *q1, OD_COEFF *q3) {
   OD_COEFF q0h;
   OD_COEFF q2h;
 
@@ -489,8 +490,8 @@ static INLINE void OD_KERNEL_FUNC(od_idst_4_asym)(OD_COEFF *q0, OD_COEFF *q2,
 /**
  * 4-point asymmetric Type-VII fDST
  */
-static INLINE void OD_KERNEL_FUNC(od_fdst_vii_4)(OD_COEFF *q0, OD_COEFF *q1,
-                                                 OD_COEFF *q2, OD_COEFF *q3) {
+OD_SIMD_INLINE void OD_KERNEL_FUNC(od_fdst_vii_4)(OD_COEFF *q0, OD_COEFF *q1,
+                                                  OD_COEFF *q2, OD_COEFF *q3) {
   /* 11 adds, 5 "muls", 2 shifts.*/
   OD_COEFF t0;
   OD_COEFF t1;
@@ -525,8 +526,8 @@ static INLINE void OD_KERNEL_FUNC(od_fdst_vii_4)(OD_COEFF *q0, OD_COEFF *q1,
 /**
  * 4-point asymmetric Type-VII iDST
  */
-static INLINE void OD_KERNEL_FUNC(od_idst_vii_4)(OD_COEFF *q0, OD_COEFF *q2,
-                                                 OD_COEFF *q1, OD_COEFF *q3) {
+OD_SIMD_INLINE void OD_KERNEL_FUNC(od_idst_vii_4)(OD_COEFF *q0, OD_COEFF *q2,
+                                                  OD_COEFF *q1, OD_COEFF *q3) {
   /* 11 adds, 5 "muls", 2 shifts.*/
   OD_COEFF t0;
   OD_COEFF t1;
@@ -558,7 +559,7 @@ static INLINE void OD_KERNEL_FUNC(od_idst_vii_4)(OD_COEFF *q0, OD_COEFF *q2,
   *q3 = OD_ADD(t0, OD_SUB(t1, t3h));
 }
 
-static INLINE void OD_KERNEL_FUNC(od_flip_idst_vii_4)(OD_COEFF *q0,
+OD_SIMD_INLINE void OD_KERNEL_FUNC(od_flip_idst_vii_4)(OD_COEFF *q0,
  OD_COEFF *q2, OD_COEFF *q1, OD_COEFF *q3) {
   OD_KERNEL_FUNC(od_idst_vii_4)(q0, q2, q1, q3);
   OD_SWAP(q0, q3);
@@ -570,10 +571,10 @@ static INLINE void OD_KERNEL_FUNC(od_flip_idst_vii_4)(OD_COEFF *q0,
 /**
  * 8-point orthonormal Type-II fDCT
  */
-static INLINE void OD_KERNEL_FUNC(od_fdct_8)(OD_COEFF *r0, OD_COEFF *r1,
-                                             OD_COEFF *r2, OD_COEFF *r3,
-                                             OD_COEFF *r4, OD_COEFF *r5,
-                                             OD_COEFF *r6, OD_COEFF *r7) {
+OD_SIMD_INLINE void OD_KERNEL_FUNC(od_fdct_8)(OD_COEFF *r0, OD_COEFF *r1,
+                                              OD_COEFF *r2, OD_COEFF *r3,
+                                              OD_COEFF *r4, OD_COEFF *r5,
+                                              OD_COEFF *r6, OD_COEFF *r7) {
   OD_COEFF r1h;
   OD_COEFF r3h;
   OD_COEFF r5h;
@@ -593,10 +594,10 @@ static INLINE void OD_KERNEL_FUNC(od_fdct_8)(OD_COEFF *r0, OD_COEFF *r1,
 /**
  * 8-point orthonormal Type-II iDCT
  */
-static INLINE void OD_KERNEL_FUNC(od_idct_8)(OD_COEFF *r0, OD_COEFF *r4,
-                                             OD_COEFF *r2, OD_COEFF *r6,
-                                             OD_COEFF *r1, OD_COEFF *r5,
-                                             OD_COEFF *r3, OD_COEFF *r7) {
+OD_SIMD_INLINE void OD_KERNEL_FUNC(od_idct_8)(OD_COEFF *r0, OD_COEFF *r4,
+                                              OD_COEFF *r2, OD_COEFF *r6,
+                                              OD_COEFF *r1, OD_COEFF *r5,
+                                              OD_COEFF *r3, OD_COEFF *r7) {
   OD_COEFF r1h;
   OD_COEFF r3h;
 
@@ -614,7 +615,7 @@ static INLINE void OD_KERNEL_FUNC(od_idct_8)(OD_COEFF *r0, OD_COEFF *r4,
 /**
  * 8-point asymmetric Type-II fDCT
  */
-static INLINE void OD_KERNEL_FUNC(od_fdct_8_asym)(OD_COEFF *r0, OD_COEFF *r1,
+OD_SIMD_INLINE void OD_KERNEL_FUNC(od_fdct_8_asym)(OD_COEFF *r0, OD_COEFF *r1,
  OD_COEFF r1h, OD_COEFF *r2, OD_COEFF *r3, OD_COEFF r3h, OD_COEFF *r4,
  OD_COEFF *r5, OD_COEFF r5h, OD_COEFF *r6, OD_COEFF *r7, OD_COEFF r7h) {
 
@@ -632,9 +633,9 @@ static INLINE void OD_KERNEL_FUNC(od_fdct_8_asym)(OD_COEFF *r0, OD_COEFF *r1,
 /**
  * 8-point asymmetric Type-II iDCT
  */
-static INLINE void OD_KERNEL_FUNC(od_idct_8_asym)(OD_COEFF *r0, OD_COEFF *r4,
+OD_SIMD_INLINE void OD_KERNEL_FUNC(od_idct_8_asym)(OD_COEFF *r0, OD_COEFF *r4,
  OD_COEFF *r2, OD_COEFF *r6, OD_COEFF *r1, OD_COEFF *r1h, OD_COEFF *r5,
- OD_COEFF *r5h, OD_COEFF *r3, OD_COEFF *r3h, OD_COEFF *r7, OD_COEFF *r7h)  {
+ OD_COEFF *r5h, OD_COEFF *r3, OD_COEFF *r3h, OD_COEFF *r7, OD_COEFF *r7h) {
 
   /* Embedded 4-point inverse orthonormal transforms. */
   OD_KERNEL_FUNC(od_idst_4)(r7, r5, r6, r4);
@@ -650,10 +651,10 @@ static INLINE void OD_KERNEL_FUNC(od_idct_8_asym)(OD_COEFF *r0, OD_COEFF *r4,
 /**
  * 8-point orthonormal Type-IV fDST
  */
-static INLINE void OD_KERNEL_FUNC(od_fdst_8)(OD_COEFF *r0, OD_COEFF *r1,
-                                             OD_COEFF *r2, OD_COEFF *r3,
-                                             OD_COEFF *r4, OD_COEFF *r5,
-                                             OD_COEFF *r6, OD_COEFF *r7) {
+OD_SIMD_INLINE void OD_KERNEL_FUNC(od_fdst_8)(OD_COEFF *r0, OD_COEFF *r1,
+                                              OD_COEFF *r2, OD_COEFF *r3,
+                                              OD_COEFF *r4, OD_COEFF *r5,
+                                              OD_COEFF *r6, OD_COEFF *r7) {
   OD_COEFF r0h;
   OD_COEFF r2h;
   OD_COEFF r5h;
@@ -715,10 +716,10 @@ static INLINE void OD_KERNEL_FUNC(od_fdst_8)(OD_COEFF *r0, OD_COEFF *r1,
 /**
  * 8-point orthonormal Type-IV iDST
  */
-static INLINE void OD_KERNEL_FUNC(od_idst_8)(OD_COEFF *r0, OD_COEFF *r4,
-                                             OD_COEFF *r2, OD_COEFF *r6,
-                                             OD_COEFF *r1, OD_COEFF *r5,
-                                             OD_COEFF *r3, OD_COEFF *r7) {
+OD_SIMD_INLINE void OD_KERNEL_FUNC(od_idst_8)(OD_COEFF *r0, OD_COEFF *r4,
+                                              OD_COEFF *r2, OD_COEFF *r6,
+                                              OD_COEFF *r1, OD_COEFF *r5,
+                                              OD_COEFF *r3, OD_COEFF *r7) {
   OD_COEFF r0h;
   OD_COEFF r2h;
   OD_COEFF r5h;
@@ -777,10 +778,9 @@ static INLINE void OD_KERNEL_FUNC(od_idst_8)(OD_COEFF *r0, OD_COEFF *r4,
   od_rotate_add(r0, r7, 17911, 14, 14699, 14, 803, 13, TX_NONE);
 }
 
-static INLINE void OD_KERNEL_FUNC(od_flip_idst_8)(OD_COEFF *r0, OD_COEFF *r4,
-                                                  OD_COEFF *r2, OD_COEFF *r6,
-                                                  OD_COEFF *r1, OD_COEFF *r5,
-                                                  OD_COEFF *r3, OD_COEFF *r7) {
+OD_SIMD_INLINE void OD_KERNEL_FUNC(od_flip_idst_8)(OD_COEFF *r0,
+ OD_COEFF *r4, OD_COEFF *r2, OD_COEFF *r6, OD_COEFF *r1, OD_COEFF *r5,
+ OD_COEFF *r3, OD_COEFF *r7) {
   OD_KERNEL_FUNC(od_idst_8)(r0, r4, r2, r6, r1, r5, r3, r7);
   OD_SWAP(r0, r7);
   OD_SWAP(r4, r3);
@@ -791,7 +791,7 @@ static INLINE void OD_KERNEL_FUNC(od_flip_idst_8)(OD_COEFF *r0, OD_COEFF *r4,
 /**
  * 8-point asymmetric Type-IV fDST
  */
-static INLINE void OD_KERNEL_FUNC(od_fdst_8_asym)(OD_COEFF *r0, OD_COEFF r0h,
+OD_SIMD_INLINE void OD_KERNEL_FUNC(od_fdst_8_asym)(OD_COEFF *r0, OD_COEFF r0h,
  OD_COEFF *r1, OD_COEFF *r2, OD_COEFF r2h, OD_COEFF *r3, OD_COEFF *r4,
  OD_COEFF r4h, OD_COEFF *r5, OD_COEFF *r6, OD_COEFF r6h, OD_COEFF *r7) {
   OD_COEFF r5h;
@@ -853,10 +853,9 @@ static INLINE void OD_KERNEL_FUNC(od_fdst_8_asym)(OD_COEFF *r0, OD_COEFF r0h,
 /**
  * 8-point asymmetric Type-IV iDST
  */
-static INLINE void OD_KERNEL_FUNC(od_idst_8_asym)(OD_COEFF *r0, OD_COEFF *r4,
-                                                  OD_COEFF *r2, OD_COEFF *r6,
-                                                  OD_COEFF *r1, OD_COEFF *r5,
-                                                  OD_COEFF *r3, OD_COEFF *r7) {
+OD_SIMD_INLINE void OD_KERNEL_FUNC(od_idst_8_asym)(OD_COEFF *r0,
+ OD_COEFF *r4, OD_COEFF *r2, OD_COEFF *r6, OD_COEFF *r1, OD_COEFF *r5,
+ OD_COEFF *r3, OD_COEFF *r7) {
   OD_COEFF r0h;
   OD_COEFF r2h;
   OD_COEFF r5h;
@@ -920,14 +919,14 @@ static INLINE void OD_KERNEL_FUNC(od_idst_8_asym)(OD_COEFF *r0, OD_COEFF *r4,
 /**
  * 16-point orthonormal Type-II fDCT
  */
-static INLINE void OD_KERNEL_FUNC(od_fdct_16)(OD_COEFF *s0, OD_COEFF *s1,
-                                              OD_COEFF *s2, OD_COEFF *s3,
-                                              OD_COEFF *s4, OD_COEFF *s5,
-                                              OD_COEFF *s6, OD_COEFF *s7,
-                                              OD_COEFF *s8, OD_COEFF *s9,
-                                              OD_COEFF *sa, OD_COEFF *sb,
-                                              OD_COEFF *sc, OD_COEFF *sd,
-                                              OD_COEFF *se, OD_COEFF *sf) {
+OD_SIMD_INLINE void OD_KERNEL_FUNC(od_fdct_16)(OD_COEFF *s0, OD_COEFF *s1,
+                                               OD_COEFF *s2, OD_COEFF *s3,
+                                               OD_COEFF *s4, OD_COEFF *s5,
+                                               OD_COEFF *s6, OD_COEFF *s7,
+                                               OD_COEFF *s8, OD_COEFF *s9,
+                                               OD_COEFF *sa, OD_COEFF *sb,
+                                               OD_COEFF *sc, OD_COEFF *sd,
+                                               OD_COEFF *se, OD_COEFF *sf) {
   OD_COEFF s1h;
   OD_COEFF s3h;
   OD_COEFF s5h;
@@ -955,14 +954,14 @@ static INLINE void OD_KERNEL_FUNC(od_fdct_16)(OD_COEFF *s0, OD_COEFF *s1,
 /**
  * 16-point orthonormal Type-II iDCT
  */
-static INLINE void OD_KERNEL_FUNC(od_idct_16)(OD_COEFF *s0, OD_COEFF *s8,
-                                              OD_COEFF *s4, OD_COEFF *sc,
-                                              OD_COEFF *s2, OD_COEFF *sa,
-                                              OD_COEFF *s6, OD_COEFF *se,
-                                              OD_COEFF *s1, OD_COEFF *s9,
-                                              OD_COEFF *s5, OD_COEFF *sd,
-                                              OD_COEFF *s3, OD_COEFF *sb,
-                                              OD_COEFF *s7, OD_COEFF *sf) {
+OD_SIMD_INLINE void OD_KERNEL_FUNC(od_idct_16)(OD_COEFF *s0, OD_COEFF *s8,
+                                               OD_COEFF *s4, OD_COEFF *sc,
+                                               OD_COEFF *s2, OD_COEFF *sa,
+                                               OD_COEFF *s6, OD_COEFF *se,
+                                               OD_COEFF *s1, OD_COEFF *s9,
+                                               OD_COEFF *s5, OD_COEFF *sd,
+                                               OD_COEFF *s3, OD_COEFF *sb,
+                                               OD_COEFF *s7, OD_COEFF *sf) {
   OD_COEFF s1h;
   OD_COEFF s3h;
   OD_COEFF s5h;
@@ -986,7 +985,7 @@ static INLINE void OD_KERNEL_FUNC(od_idct_16)(OD_COEFF *s0, OD_COEFF *s8,
 /**
  * 16-point asymmetric Type-II fDCT
  */
-static INLINE void OD_KERNEL_FUNC(od_fdct_16_asym)(OD_COEFF *s0, OD_COEFF *s1,
+OD_SIMD_INLINE void OD_KERNEL_FUNC(od_fdct_16_asym)(OD_COEFF *s0, OD_COEFF *s1,
  OD_COEFF s1h, OD_COEFF *s2, OD_COEFF *s3, OD_COEFF s3h, OD_COEFF *s4,
  OD_COEFF *s5, OD_COEFF s5h, OD_COEFF *s6, OD_COEFF *s7, OD_COEFF s7h,
  OD_COEFF *s8, OD_COEFF *s9, OD_COEFF s9h, OD_COEFF *sa, OD_COEFF *sb,
@@ -1011,7 +1010,7 @@ static INLINE void OD_KERNEL_FUNC(od_fdct_16_asym)(OD_COEFF *s0, OD_COEFF *s1,
 /**
  * 16-point asymmetric Type-II iDCT
  */
-static INLINE void OD_KERNEL_FUNC(od_idct_16_asym)(OD_COEFF *s0, OD_COEFF *s8,
+OD_SIMD_INLINE void OD_KERNEL_FUNC(od_idct_16_asym)(OD_COEFF *s0, OD_COEFF *s8,
  OD_COEFF *s4, OD_COEFF *sc, OD_COEFF *s2, OD_COEFF *sa, OD_COEFF *s6,
  OD_COEFF *se, OD_COEFF *s1, OD_COEFF *s1h, OD_COEFF *s9, OD_COEFF *s9h,
  OD_COEFF *s5, OD_COEFF *s5h, OD_COEFF *sd, OD_COEFF *sdh, OD_COEFF *s3,
@@ -1036,14 +1035,14 @@ static INLINE void OD_KERNEL_FUNC(od_idct_16_asym)(OD_COEFF *s0, OD_COEFF *s8,
 /**
  * 16-point orthonormal Type-IV fDST
  */
-static INLINE void OD_KERNEL_FUNC(od_fdst_16)(OD_COEFF *s0, OD_COEFF *s1,
-                                              OD_COEFF *s2, OD_COEFF *s3,
-                                              OD_COEFF *s4, OD_COEFF *s5,
-                                              OD_COEFF *s6, OD_COEFF *s7,
-                                              OD_COEFF *s8, OD_COEFF *s9,
-                                              OD_COEFF *sa, OD_COEFF *sb,
-                                              OD_COEFF *sc, OD_COEFF *sd,
-                                              OD_COEFF *se, OD_COEFF *sf) {
+OD_SIMD_INLINE void OD_KERNEL_FUNC(od_fdst_16)(OD_COEFF *s0, OD_COEFF *s1,
+                                               OD_COEFF *s2, OD_COEFF *s3,
+                                               OD_COEFF *s4, OD_COEFF *s5,
+                                               OD_COEFF *s6, OD_COEFF *s7,
+                                               OD_COEFF *s8, OD_COEFF *s9,
+                                               OD_COEFF *sa, OD_COEFF *sb,
+                                               OD_COEFF *sc, OD_COEFF *sd,
+                                               OD_COEFF *se, OD_COEFF *sf) {
   OD_COEFF s0h;
   OD_COEFF s2h;
   OD_COEFF sdh;
@@ -1174,14 +1173,14 @@ static INLINE void OD_KERNEL_FUNC(od_fdst_16)(OD_COEFF *s0, OD_COEFF *s1,
 /**
  * 16-point orthonormal Type-IV iDST
  */
-static INLINE void OD_KERNEL_FUNC(od_idst_16)(OD_COEFF *s0, OD_COEFF *s8,
-                                              OD_COEFF *s4, OD_COEFF *sc,
-                                              OD_COEFF *s2, OD_COEFF *sa,
-                                              OD_COEFF *s6, OD_COEFF *se,
-                                              OD_COEFF *s1, OD_COEFF *s9,
-                                              OD_COEFF *s5, OD_COEFF *sd,
-                                              OD_COEFF *s3, OD_COEFF *sb,
-                                              OD_COEFF *s7, OD_COEFF *sf) {
+OD_SIMD_INLINE void OD_KERNEL_FUNC(od_idst_16)(OD_COEFF *s0, OD_COEFF *s8,
+                                               OD_COEFF *s4, OD_COEFF *sc,
+                                               OD_COEFF *s2, OD_COEFF *sa,
+                                               OD_COEFF *s6, OD_COEFF *se,
+                                               OD_COEFF *s1, OD_COEFF *s9,
+                                               OD_COEFF *s5, OD_COEFF *sd,
+                                               OD_COEFF *s3, OD_COEFF *sb,
+                                               OD_COEFF *s7, OD_COEFF *sf) {
   OD_COEFF s0h;
   OD_COEFF s2h;
   OD_COEFF s4h;
@@ -1315,7 +1314,7 @@ static INLINE void OD_KERNEL_FUNC(od_idst_16)(OD_COEFF *s0, OD_COEFF *s8,
   od_rotate_add_half(s0, sf, s0h, 3035, 12, 44011, 15, 1137, 14, TX_NONE);
 }
 
-static INLINE void OD_KERNEL_FUNC(od_flip_idst_16)(OD_COEFF *s0, OD_COEFF *s8,
+OD_SIMD_INLINE void OD_KERNEL_FUNC(od_flip_idst_16)(OD_COEFF *s0, OD_COEFF *s8,
  OD_COEFF *s4, OD_COEFF *sc, OD_COEFF *s2, OD_COEFF *sa, OD_COEFF *s6,
  OD_COEFF *se, OD_COEFF *s1, OD_COEFF *s9, OD_COEFF *s5, OD_COEFF *sd,
  OD_COEFF *s3, OD_COEFF *sb, OD_COEFF *s7, OD_COEFF *sf) {
@@ -1334,7 +1333,7 @@ static INLINE void OD_KERNEL_FUNC(od_flip_idst_16)(OD_COEFF *s0, OD_COEFF *s8,
 /**
  * 16-point asymmetric Type-IV fDST
  */
-static INLINE void OD_KERNEL_FUNC(od_fdst_16_asym)(OD_COEFF *s0, OD_COEFF s0h,
+OD_SIMD_INLINE void OD_KERNEL_FUNC(od_fdst_16_asym)(OD_COEFF *s0, OD_COEFF s0h,
  OD_COEFF *s1, OD_COEFF *s2, OD_COEFF s2h, OD_COEFF *s3, OD_COEFF *s4,
  OD_COEFF s4h, OD_COEFF *s5, OD_COEFF *s6, OD_COEFF s6h, OD_COEFF *s7,
  OD_COEFF *s8, OD_COEFF s8h, OD_COEFF *s9, OD_COEFF *sa, OD_COEFF sah,
@@ -1468,7 +1467,7 @@ static INLINE void OD_KERNEL_FUNC(od_fdst_16_asym)(OD_COEFF *s0, OD_COEFF s0h,
 /**
  * 16-point asymmetric Type-IV iDST
  */
-static INLINE void OD_KERNEL_FUNC(od_idst_16_asym)(OD_COEFF *s0, OD_COEFF *s8,
+OD_SIMD_INLINE void OD_KERNEL_FUNC(od_idst_16_asym)(OD_COEFF *s0, OD_COEFF *s8,
  OD_COEFF *s4, OD_COEFF *sc, OD_COEFF *s2, OD_COEFF *sa, OD_COEFF *s6,
  OD_COEFF *se, OD_COEFF *s1, OD_COEFF *s9, OD_COEFF *s5, OD_COEFF *sd,
  OD_COEFF *s3, OD_COEFF *sb, OD_COEFF *s7, OD_COEFF *sf) {
@@ -1610,22 +1609,22 @@ static INLINE void OD_KERNEL_FUNC(od_idst_16_asym)(OD_COEFF *s0, OD_COEFF *s8,
 /**
  * 32-point orthonormal Type-II fDCT
  */
-static INLINE void OD_KERNEL_FUNC(od_fdct_32)(OD_COEFF *t0, OD_COEFF *t1,
-                                              OD_COEFF *t2, OD_COEFF *t3,
-                                              OD_COEFF *t4, OD_COEFF *t5,
-                                              OD_COEFF *t6, OD_COEFF *t7,
-                                              OD_COEFF *t8, OD_COEFF *t9,
-                                              OD_COEFF *ta, OD_COEFF *tb,
-                                              OD_COEFF *tc, OD_COEFF *td,
-                                              OD_COEFF *te, OD_COEFF *tf,
-                                              OD_COEFF *tg, OD_COEFF *th,
-                                              OD_COEFF *ti, OD_COEFF *tj,
-                                              OD_COEFF *tk, OD_COEFF *tl,
-                                              OD_COEFF *tm, OD_COEFF *tn,
-                                              OD_COEFF *to, OD_COEFF *tp,
-                                              OD_COEFF *tq, OD_COEFF *tr,
-                                              OD_COEFF *ts, OD_COEFF *tt,
-                                              OD_COEFF *tu, OD_COEFF *tv) {
+OD_SIMD_INLINE void OD_KERNEL_FUNC(od_fdct_32)(OD_COEFF *t0, OD_COEFF *t1,
+                                               OD_COEFF *t2, OD_COEFF *t3,
+                                               OD_COEFF *t4, OD_COEFF *t5,
+                                               OD_COEFF *t6, OD_COEFF *t7,
+                                               OD_COEFF *t8, OD_COEFF *t9,
+                                               OD_COEFF *ta, OD_COEFF *tb,
+                                               OD_COEFF *tc, OD_COEFF *td,
+                                               OD_COEFF *te, OD_COEFF *tf,
+                                               OD_COEFF *tg, OD_COEFF *th,
+                                               OD_COEFF *ti, OD_COEFF *tj,
+                                               OD_COEFF *tk, OD_COEFF *tl,
+                                               OD_COEFF *tm, OD_COEFF *tn,
+                                               OD_COEFF *to, OD_COEFF *tp,
+                                               OD_COEFF *tq, OD_COEFF *tr,
+                                               OD_COEFF *ts, OD_COEFF *tt,
+                                               OD_COEFF *tu, OD_COEFF *tv) {
   OD_COEFF t1h;
   OD_COEFF t3h;
   OD_COEFF t5h;
@@ -1673,22 +1672,22 @@ static INLINE void OD_KERNEL_FUNC(od_fdct_32)(OD_COEFF *t0, OD_COEFF *t1,
 /**
  * 32-point orthonormal Type-II iDCT
  */
-static INLINE void OD_KERNEL_FUNC(od_idct_32)(OD_COEFF *t0, OD_COEFF *tg,
-                                              OD_COEFF *t8, OD_COEFF *to,
-                                              OD_COEFF *t4, OD_COEFF *tk,
-                                              OD_COEFF *tc, OD_COEFF *ts,
-                                              OD_COEFF *t2, OD_COEFF *ti,
-                                              OD_COEFF *ta, OD_COEFF *tq,
-                                              OD_COEFF *t6, OD_COEFF *tm,
-                                              OD_COEFF *te, OD_COEFF *tu,
-                                              OD_COEFF *t1, OD_COEFF *th,
-                                              OD_COEFF *t9, OD_COEFF *tp,
-                                              OD_COEFF *t5, OD_COEFF *tl,
-                                              OD_COEFF *td, OD_COEFF *tt,
-                                              OD_COEFF *t3, OD_COEFF *tj,
-                                              OD_COEFF *tb, OD_COEFF *tr,
-                                              OD_COEFF *t7, OD_COEFF *tn,
-                                              OD_COEFF *tf, OD_COEFF *tv) {
+OD_SIMD_INLINE void OD_KERNEL_FUNC(od_idct_32)(OD_COEFF *t0, OD_COEFF *tg,
+                                               OD_COEFF *t8, OD_COEFF *to,
+                                               OD_COEFF *t4, OD_COEFF *tk,
+                                               OD_COEFF *tc, OD_COEFF *ts,
+                                               OD_COEFF *t2, OD_COEFF *ti,
+                                               OD_COEFF *ta, OD_COEFF *tq,
+                                               OD_COEFF *t6, OD_COEFF *tm,
+                                               OD_COEFF *te, OD_COEFF *tu,
+                                               OD_COEFF *t1, OD_COEFF *th,
+                                               OD_COEFF *t9, OD_COEFF *tp,
+                                               OD_COEFF *t5, OD_COEFF *tl,
+                                               OD_COEFF *td, OD_COEFF *tt,
+                                               OD_COEFF *t3, OD_COEFF *tj,
+                                               OD_COEFF *tb, OD_COEFF *tr,
+                                               OD_COEFF *t7, OD_COEFF *tn,
+                                               OD_COEFF *tf, OD_COEFF *tv) {
   OD_COEFF t1h;
   OD_COEFF t3h;
   OD_COEFF t5h;
@@ -1728,7 +1727,7 @@ static INLINE void OD_KERNEL_FUNC(od_idct_32)(OD_COEFF *t0, OD_COEFF *tg,
 /**
  * 32-point asymmetric Type-II fDCT
  */
-static INLINE void OD_KERNEL_FUNC(od_fdct_32_asym)(OD_COEFF *t0, OD_COEFF *t1,
+OD_SIMD_INLINE void OD_KERNEL_FUNC(od_fdct_32_asym)(OD_COEFF *t0, OD_COEFF *t1,
  OD_COEFF t1h, OD_COEFF *t2, OD_COEFF *t3, OD_COEFF t3h, OD_COEFF *t4,
  OD_COEFF *t5, OD_COEFF t5h, OD_COEFF *t6, OD_COEFF *t7, OD_COEFF t7h,
  OD_COEFF *t8, OD_COEFF *t9, OD_COEFF t9h, OD_COEFF *ta, OD_COEFF *tb,
@@ -1768,7 +1767,7 @@ static INLINE void OD_KERNEL_FUNC(od_fdct_32_asym)(OD_COEFF *t0, OD_COEFF *t1,
 /**
  * 32-point asymmetric Type-II iDCT
  */
-static INLINE void OD_KERNEL_FUNC(od_idct_32_asym)(OD_COEFF *t0, OD_COEFF *tg,
+OD_SIMD_INLINE void OD_KERNEL_FUNC(od_idct_32_asym)(OD_COEFF *t0, OD_COEFF *tg,
  OD_COEFF *t8, OD_COEFF *to, OD_COEFF *t4, OD_COEFF *tk, OD_COEFF *tc,
  OD_COEFF *ts, OD_COEFF *t2, OD_COEFF *ti, OD_COEFF *ta, OD_COEFF *tq,
  OD_COEFF *t6, OD_COEFF *tm, OD_COEFF *te, OD_COEFF *tu, OD_COEFF *t1,
@@ -1808,22 +1807,22 @@ static INLINE void OD_KERNEL_FUNC(od_idct_32_asym)(OD_COEFF *t0, OD_COEFF *tg,
 /**
  * 32-point orthonormal Type-IV fDST
  */
-static INLINE void OD_KERNEL_FUNC(od_fdst_32)(OD_COEFF *t0, OD_COEFF *t1,
-                                              OD_COEFF *t2, OD_COEFF *t3,
-                                              OD_COEFF *t4, OD_COEFF *t5,
-                                              OD_COEFF *t6, OD_COEFF *t7,
-                                              OD_COEFF *t8, OD_COEFF *t9,
-                                              OD_COEFF *ta, OD_COEFF *tb,
-                                              OD_COEFF *tc, OD_COEFF *td,
-                                              OD_COEFF *te, OD_COEFF *tf,
-                                              OD_COEFF *tg, OD_COEFF *th,
-                                              OD_COEFF *ti, OD_COEFF *tj,
-                                              OD_COEFF *tk, OD_COEFF *tl,
-                                              OD_COEFF *tm, OD_COEFF *tn,
-                                              OD_COEFF *to, OD_COEFF *tp,
-                                              OD_COEFF *tq, OD_COEFF *tr,
-                                              OD_COEFF *ts, OD_COEFF *tt,
-                                              OD_COEFF *tu, OD_COEFF *tv) {
+OD_SIMD_INLINE void OD_KERNEL_FUNC(od_fdst_32)(OD_COEFF *t0, OD_COEFF *t1,
+                                               OD_COEFF *t2, OD_COEFF *t3,
+                                               OD_COEFF *t4, OD_COEFF *t5,
+                                               OD_COEFF *t6, OD_COEFF *t7,
+                                               OD_COEFF *t8, OD_COEFF *t9,
+                                               OD_COEFF *ta, OD_COEFF *tb,
+                                               OD_COEFF *tc, OD_COEFF *td,
+                                               OD_COEFF *te, OD_COEFF *tf,
+                                               OD_COEFF *tg, OD_COEFF *th,
+                                               OD_COEFF *ti, OD_COEFF *tj,
+                                               OD_COEFF *tk, OD_COEFF *tl,
+                                               OD_COEFF *tm, OD_COEFF *tn,
+                                               OD_COEFF *to, OD_COEFF *tp,
+                                               OD_COEFF *tq, OD_COEFF *tr,
+                                               OD_COEFF *ts, OD_COEFF *tt,
+                                               OD_COEFF *tu, OD_COEFF *tv) {
   OD_COEFF t0h;
   OD_COEFF t1h;
   OD_COEFF t2h;
@@ -2143,22 +2142,22 @@ static INLINE void OD_KERNEL_FUNC(od_fdst_32)(OD_COEFF *t0, OD_COEFF *t1,
 /**
  * 32-point orthonormal Type-IV fDST
  */
-static INLINE void OD_KERNEL_FUNC(od_idst_32)(OD_COEFF *t0, OD_COEFF *tg,
-                                              OD_COEFF *t8, OD_COEFF *to,
-                                              OD_COEFF *t4, OD_COEFF *tk,
-                                              OD_COEFF *tc, OD_COEFF *ts,
-                                              OD_COEFF *t2, OD_COEFF *ti,
-                                              OD_COEFF *ta, OD_COEFF *tq,
-                                              OD_COEFF *t6, OD_COEFF *tm,
-                                              OD_COEFF *te, OD_COEFF *tu,
-                                              OD_COEFF *t1, OD_COEFF *th,
-                                              OD_COEFF *t9, OD_COEFF *tp,
-                                              OD_COEFF *t5, OD_COEFF *tl,
-                                              OD_COEFF *td, OD_COEFF *tt,
-                                              OD_COEFF *t3, OD_COEFF *tj,
-                                              OD_COEFF *tb, OD_COEFF *tr,
-                                              OD_COEFF *t7, OD_COEFF *tn,
-                                              OD_COEFF *tf, OD_COEFF *tv) {
+OD_SIMD_INLINE void OD_KERNEL_FUNC(od_idst_32)(OD_COEFF *t0, OD_COEFF *tg,
+                                               OD_COEFF *t8, OD_COEFF *to,
+                                               OD_COEFF *t4, OD_COEFF *tk,
+                                               OD_COEFF *tc, OD_COEFF *ts,
+                                               OD_COEFF *t2, OD_COEFF *ti,
+                                               OD_COEFF *ta, OD_COEFF *tq,
+                                               OD_COEFF *t6, OD_COEFF *tm,
+                                               OD_COEFF *te, OD_COEFF *tu,
+                                               OD_COEFF *t1, OD_COEFF *th,
+                                               OD_COEFF *t9, OD_COEFF *tp,
+                                               OD_COEFF *t5, OD_COEFF *tl,
+                                               OD_COEFF *td, OD_COEFF *tt,
+                                               OD_COEFF *t3, OD_COEFF *tj,
+                                               OD_COEFF *tb, OD_COEFF *tr,
+                                               OD_COEFF *t7, OD_COEFF *tn,
+                                               OD_COEFF *tf, OD_COEFF *tv) {
   OD_COEFF t0h;
   OD_COEFF t1h;
   OD_COEFF t2h;
@@ -2475,7 +2474,7 @@ static INLINE void OD_KERNEL_FUNC(od_idst_32)(OD_COEFF *t0, OD_COEFF *tg,
   od_rotate_add(t0, tv, 16781, 14, 15977, 14, 201, 13, TX_NONE);
 }
 
-static INLINE void OD_KERNEL_FUNC(od_flip_idst_32)(OD_COEFF *t0,
+OD_SIMD_INLINE void OD_KERNEL_FUNC(od_flip_idst_32)(OD_COEFF *t0,
  OD_COEFF *tg, OD_COEFF *t8, OD_COEFF *to, OD_COEFF *t4, OD_COEFF *tk,
  OD_COEFF *tc, OD_COEFF *ts, OD_COEFF *t2, OD_COEFF *ti, OD_COEFF *ta,
  OD_COEFF *tq, OD_COEFF *t6, OD_COEFF *tm, OD_COEFF *te, OD_COEFF *tu,
@@ -2507,7 +2506,7 @@ static INLINE void OD_KERNEL_FUNC(od_flip_idst_32)(OD_COEFF *t0,
 /**
  * 32-point orthonormal Type-IV fDST
  */
-static INLINE void OD_KERNEL_FUNC(od_fdst_32_asym)(OD_COEFF *t0, OD_COEFF t0h,
+OD_SIMD_INLINE void OD_KERNEL_FUNC(od_fdst_32_asym)(OD_COEFF *t0, OD_COEFF t0h,
  OD_COEFF *t1, OD_COEFF *t2, OD_COEFF t2h, OD_COEFF *t3, OD_COEFF *t4,
  OD_COEFF t4h, OD_COEFF *t5, OD_COEFF *t6, OD_COEFF t6h, OD_COEFF *t7,
  OD_COEFF *t8, OD_COEFF t8h, OD_COEFF *t9, OD_COEFF *ta, OD_COEFF tah,
@@ -2823,7 +2822,7 @@ static INLINE void OD_KERNEL_FUNC(od_fdst_32_asym)(OD_COEFF *t0, OD_COEFF t0h,
 /**
  * 32-point asymmetric Type-IV iDST
  */
-static INLINE void OD_KERNEL_FUNC(od_idst_32_asym)(OD_COEFF *t0, OD_COEFF *tg,
+OD_SIMD_INLINE void OD_KERNEL_FUNC(od_idst_32_asym)(OD_COEFF *t0, OD_COEFF *tg,
  OD_COEFF *t8, OD_COEFF *to, OD_COEFF *t4, OD_COEFF *tk, OD_COEFF *tc,
  OD_COEFF *ts, OD_COEFF *t2, OD_COEFF *ti, OD_COEFF *ta, OD_COEFF *tq,
  OD_COEFF *t6, OD_COEFF *tm, OD_COEFF *te, OD_COEFF *tu, OD_COEFF *t1,
@@ -3151,38 +3150,38 @@ static INLINE void OD_KERNEL_FUNC(od_idst_32_asym)(OD_COEFF *t0, OD_COEFF *tg,
 /**
  * 64-point orthonormal Type-II fDCT
  */
-static INLINE void OD_KERNEL_FUNC(od_fdct_64)(OD_COEFF *u0, OD_COEFF *u1,
-                                              OD_COEFF *u2, OD_COEFF *u3,
-                                              OD_COEFF *u4, OD_COEFF *u5,
-                                              OD_COEFF *u6, OD_COEFF *u7,
-                                              OD_COEFF *u8, OD_COEFF *u9,
-                                              OD_COEFF *ua, OD_COEFF *ub,
-                                              OD_COEFF *uc, OD_COEFF *ud,
-                                              OD_COEFF *ue, OD_COEFF *uf,
-                                              OD_COEFF *ug, OD_COEFF *uh,
-                                              OD_COEFF *ui, OD_COEFF *uj,
-                                              OD_COEFF *uk, OD_COEFF *ul,
-                                              OD_COEFF *um, OD_COEFF *un,
-                                              OD_COEFF *uo, OD_COEFF *up,
-                                              OD_COEFF *uq, OD_COEFF *ur,
-                                              OD_COEFF *us, OD_COEFF *ut,
-                                              OD_COEFF *uu, OD_COEFF *uv,
-                                              OD_COEFF *uw, OD_COEFF *ux,
-                                              OD_COEFF *uy, OD_COEFF *uz,
-                                              OD_COEFF *uA, OD_COEFF *uB,
-                                              OD_COEFF *uC, OD_COEFF *uD,
-                                              OD_COEFF *uE, OD_COEFF *uF,
-                                              OD_COEFF *uG, OD_COEFF *uH,
-                                              OD_COEFF *uI, OD_COEFF *uJ,
-                                              OD_COEFF *uK, OD_COEFF *uL,
-                                              OD_COEFF *uM, OD_COEFF *uN,
-                                              OD_COEFF *uO, OD_COEFF *uP,
-                                              OD_COEFF *uQ, OD_COEFF *uR,
-                                              OD_COEFF *uS, OD_COEFF *uT,
-                                              OD_COEFF *uU, OD_COEFF *uV,
-                                              OD_COEFF *uW, OD_COEFF *uX,
-                                              OD_COEFF *uY, OD_COEFF *uZ,
-                                              OD_COEFF *u_, OD_COEFF *u) {
+OD_SIMD_INLINE void OD_KERNEL_FUNC(od_fdct_64)(OD_COEFF *u0, OD_COEFF *u1,
+                                               OD_COEFF *u2, OD_COEFF *u3,
+                                               OD_COEFF *u4, OD_COEFF *u5,
+                                               OD_COEFF *u6, OD_COEFF *u7,
+                                               OD_COEFF *u8, OD_COEFF *u9,
+                                               OD_COEFF *ua, OD_COEFF *ub,
+                                               OD_COEFF *uc, OD_COEFF *ud,
+                                               OD_COEFF *ue, OD_COEFF *uf,
+                                               OD_COEFF *ug, OD_COEFF *uh,
+                                               OD_COEFF *ui, OD_COEFF *uj,
+                                               OD_COEFF *uk, OD_COEFF *ul,
+                                               OD_COEFF *um, OD_COEFF *un,
+                                               OD_COEFF *uo, OD_COEFF *up,
+                                               OD_COEFF *uq, OD_COEFF *ur,
+                                               OD_COEFF *us, OD_COEFF *ut,
+                                               OD_COEFF *uu, OD_COEFF *uv,
+                                               OD_COEFF *uw, OD_COEFF *ux,
+                                               OD_COEFF *uy, OD_COEFF *uz,
+                                               OD_COEFF *uA, OD_COEFF *uB,
+                                               OD_COEFF *uC, OD_COEFF *uD,
+                                               OD_COEFF *uE, OD_COEFF *uF,
+                                               OD_COEFF *uG, OD_COEFF *uH,
+                                               OD_COEFF *uI, OD_COEFF *uJ,
+                                               OD_COEFF *uK, OD_COEFF *uL,
+                                               OD_COEFF *uM, OD_COEFF *uN,
+                                               OD_COEFF *uO, OD_COEFF *uP,
+                                               OD_COEFF *uQ, OD_COEFF *uR,
+                                               OD_COEFF *uS, OD_COEFF *uT,
+                                               OD_COEFF *uU, OD_COEFF *uV,
+                                               OD_COEFF *uW, OD_COEFF *uX,
+                                               OD_COEFF *uY, OD_COEFF *uZ,
+                                               OD_COEFF *u_, OD_COEFF *u) {
   OD_COEFF u1h;
   OD_COEFF u3h;
   OD_COEFF u5h;
@@ -3267,38 +3266,38 @@ static INLINE void OD_KERNEL_FUNC(od_fdct_64)(OD_COEFF *u0, OD_COEFF *u1,
 /**
  * 64-point orthonormal Type-II iDCT
  */
-static INLINE void OD_KERNEL_FUNC(od_idct_64)(OD_COEFF *u0, OD_COEFF *uw,
-                                              OD_COEFF *ug, OD_COEFF *uM,
-                                              OD_COEFF *u8, OD_COEFF *uE,
-                                              OD_COEFF *uo, OD_COEFF *uU,
-                                              OD_COEFF *u4, OD_COEFF *uA,
-                                              OD_COEFF *uk, OD_COEFF *uQ,
-                                              OD_COEFF *uc, OD_COEFF *uI,
-                                              OD_COEFF *us, OD_COEFF *uY,
-                                              OD_COEFF *u2, OD_COEFF *uy,
-                                              OD_COEFF *ui, OD_COEFF *uO,
-                                              OD_COEFF *ua, OD_COEFF *uG,
-                                              OD_COEFF *uq, OD_COEFF *uW,
-                                              OD_COEFF *u6, OD_COEFF *uC,
-                                              OD_COEFF *um, OD_COEFF *uS,
-                                              OD_COEFF *ue, OD_COEFF *uK,
-                                              OD_COEFF *uu, OD_COEFF *u_,
-                                              OD_COEFF *u1, OD_COEFF *ux,
-                                              OD_COEFF *uh, OD_COEFF *uN,
-                                              OD_COEFF *u9, OD_COEFF *uF,
-                                              OD_COEFF *up, OD_COEFF *uV,
-                                              OD_COEFF *u5, OD_COEFF *uB,
-                                              OD_COEFF *ul, OD_COEFF *uR,
-                                              OD_COEFF *ud, OD_COEFF *uJ,
-                                              OD_COEFF *ut, OD_COEFF *uZ,
-                                              OD_COEFF *u3, OD_COEFF *uz,
-                                              OD_COEFF *uj, OD_COEFF *uP,
-                                              OD_COEFF *ub, OD_COEFF *uH,
-                                              OD_COEFF *ur, OD_COEFF *uX,
-                                              OD_COEFF *u7, OD_COEFF *uD,
-                                              OD_COEFF *un, OD_COEFF *uT,
-                                              OD_COEFF *uf, OD_COEFF *uL,
-                                              OD_COEFF *uv, OD_COEFF *u ) {
+OD_SIMD_INLINE void OD_KERNEL_FUNC(od_idct_64)(OD_COEFF *u0, OD_COEFF *uw,
+                                               OD_COEFF *ug, OD_COEFF *uM,
+                                               OD_COEFF *u8, OD_COEFF *uE,
+                                               OD_COEFF *uo, OD_COEFF *uU,
+                                               OD_COEFF *u4, OD_COEFF *uA,
+                                               OD_COEFF *uk, OD_COEFF *uQ,
+                                               OD_COEFF *uc, OD_COEFF *uI,
+                                               OD_COEFF *us, OD_COEFF *uY,
+                                               OD_COEFF *u2, OD_COEFF *uy,
+                                               OD_COEFF *ui, OD_COEFF *uO,
+                                               OD_COEFF *ua, OD_COEFF *uG,
+                                               OD_COEFF *uq, OD_COEFF *uW,
+                                               OD_COEFF *u6, OD_COEFF *uC,
+                                               OD_COEFF *um, OD_COEFF *uS,
+                                               OD_COEFF *ue, OD_COEFF *uK,
+                                               OD_COEFF *uu, OD_COEFF *u_,
+                                               OD_COEFF *u1, OD_COEFF *ux,
+                                               OD_COEFF *uh, OD_COEFF *uN,
+                                               OD_COEFF *u9, OD_COEFF *uF,
+                                               OD_COEFF *up, OD_COEFF *uV,
+                                               OD_COEFF *u5, OD_COEFF *uB,
+                                               OD_COEFF *ul, OD_COEFF *uR,
+                                               OD_COEFF *ud, OD_COEFF *uJ,
+                                               OD_COEFF *ut, OD_COEFF *uZ,
+                                               OD_COEFF *u3, OD_COEFF *uz,
+                                               OD_COEFF *uj, OD_COEFF *uP,
+                                               OD_COEFF *ub, OD_COEFF *uH,
+                                               OD_COEFF *ur, OD_COEFF *uX,
+                                               OD_COEFF *u7, OD_COEFF *uD,
+                                               OD_COEFF *un, OD_COEFF *uT,
+                                               OD_COEFF *uf, OD_COEFF *uL,
+                                               OD_COEFF *uv, OD_COEFF *u) {
   OD_COEFF u1h;
   OD_COEFF u3h;
   OD_COEFF u5h;
