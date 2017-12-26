@@ -20,19 +20,19 @@
 
 #if CONFIG_DAALA_TX
 
-static INLINE __m128i od_unbiased_rshift1_epi16(__m128i a) {
+OD_SIMD_INLINE __m128i od_unbiased_rshift1_epi16(__m128i a) {
   return _mm_srai_epi16(_mm_add_epi16(_mm_srli_epi16(a, 15), a), 1);
 }
 
-static INLINE __m256i od_mm256_unbiased_rshift1_epi16(__m256i a) {
+OD_SIMD_INLINE __m256i od_mm256_unbiased_rshift1_epi16(__m256i a) {
   return _mm256_srai_epi16(_mm256_add_epi16(_mm256_srli_epi16(a, 15), a), 1);
 }
 
-static INLINE __m256i od_mm256_unbiased_rshift1_epi32(__m256i a) {
+OD_SIMD_INLINE __m256i od_mm256_unbiased_rshift1_epi32(__m256i a) {
   return _mm256_srai_epi32(_mm256_add_epi32(_mm256_srli_epi32(a, 31), a), 1);
 }
 
-static INLINE __m128i od_add_avg_epi16(__m128i a, __m128i b) {
+OD_SIMD_INLINE __m128i od_add_avg_epi16(__m128i a, __m128i b) {
   __m128i sign_mask;
   /*x86 only provides an unsigned PAVGW with a bias (ARM is better here).
     We emulate a signed one by adding an offset to convert to unsigned and
@@ -44,7 +44,7 @@ static INLINE __m128i od_add_avg_epi16(__m128i a, __m128i b) {
       sign_mask);
 }
 
-static INLINE __m256i od_mm256_add_avg_epi16(__m256i a, __m256i b) {
+OD_SIMD_INLINE __m256i od_mm256_add_avg_epi16(__m256i a, __m256i b) {
   __m256i sign_mask;
   sign_mask = _mm256_set1_epi16(0x7FFF + TX_AVG_BIAS);
   return _mm256_xor_si256(_mm256_avg_epu16(_mm256_xor_si256(a, sign_mask),
@@ -52,7 +52,7 @@ static INLINE __m256i od_mm256_add_avg_epi16(__m256i a, __m256i b) {
                           sign_mask);
 }
 
-static INLINE __m256i od_mm256_add_avg_epi32(__m256i a, __m256i b) {
+OD_SIMD_INLINE __m256i od_mm256_add_avg_epi32(__m256i a, __m256i b) {
 /* There is no corresponding PAVGD, but we are not in danger of overflowing
    a 32-bit register. */
 #if TX_AVG_BIAS
@@ -66,7 +66,7 @@ static INLINE __m256i od_mm256_add_avg_epi32(__m256i a, __m256i b) {
 }
 
 /*Like the above, but does (a - b + 1) >> 1 instead.*/
-static INLINE __m128i od_sub_avg_epi16(__m128i a, __m128i b) {
+OD_SIMD_INLINE __m128i od_sub_avg_epi16(__m128i a, __m128i b) {
 #if TX_AVG_BIAS
   __m128i sign_bit;
   sign_bit = _mm_set1_epi16(0x8000);
@@ -88,7 +88,7 @@ static INLINE __m128i od_sub_avg_epi16(__m128i a, __m128i b) {
 #endif
 }
 
-static INLINE __m256i od_mm256_sub_avg_epi16(__m256i a, __m256i b) {
+OD_SIMD_INLINE __m256i od_mm256_sub_avg_epi16(__m256i a, __m256i b) {
 #if TX_AVG_BIAS
   __m256i sign_bit;
   sign_bit = _mm256_set1_epi16(0x8000);
@@ -106,7 +106,7 @@ static INLINE __m256i od_mm256_sub_avg_epi16(__m256i a, __m256i b) {
 #endif
 }
 
-static INLINE __m256i od_mm256_sub_avg_epi32(__m256i a, __m256i b) {
+OD_SIMD_INLINE __m256i od_mm256_sub_avg_epi32(__m256i a, __m256i b) {
 /* There is no corresponding PAVGD, but we are not in danger of overflowing
    a 32-bit register. */
 #if TX_AVG_BIAS
@@ -119,25 +119,25 @@ static INLINE __m256i od_mm256_sub_avg_epi32(__m256i a, __m256i b) {
 #endif
 }
 
-static INLINE void od_swap_si128(__m128i *q0, __m128i *q1) {
+OD_SIMD_INLINE void od_swap_si128(__m128i *q0, __m128i *q1) {
   __m128i t;
   t = *q0;
   *q0 = *q1;
   *q1 = t;
 }
 
-static INLINE void od_mm256_swap_si256(__m256i *q0, __m256i *q1) {
+OD_SIMD_INLINE void od_mm256_swap_si256(__m256i *q0, __m256i *q1) {
   __m256i t;
   t = *q0;
   *q0 = *q1;
   *q1 = t;
 }
 
-static INLINE __m128i od_mulhrs_epi16(__m128i a, int16_t b) {
+OD_SIMD_INLINE __m128i od_mulhrs_epi16(__m128i a, int16_t b) {
   return _mm_mulhrs_epi16(a, _mm_set1_epi16(b));
 }
 
-static INLINE __m128i od_mul_epi16(__m128i a, int32_t b, int r) {
+OD_SIMD_INLINE __m128i od_mul_epi16(__m128i a, int32_t b, int r) {
   int32_t b_q15;
   b_q15 = b << (15 - r);
   /* b and r are in all cases compile-time constants, so these branches
@@ -151,11 +151,11 @@ static INLINE __m128i od_mul_epi16(__m128i a, int32_t b, int r) {
   }
 }
 
-static INLINE __m256i od_mm256_mulhrs_epi16(__m256i a, int16_t b) {
+OD_SIMD_INLINE __m256i od_mm256_mulhrs_epi16(__m256i a, int16_t b) {
   return _mm256_mulhrs_epi16(a, _mm256_set1_epi16(b));
 }
 
-static INLINE __m256i od_mm256_mul_epi16(__m256i a, int32_t b, int r) {
+OD_SIMD_INLINE __m256i od_mm256_mul_epi16(__m256i a, int32_t b, int r) {
   int32_t b_q15;
   b_q15 = b << (15 - r);
   /* b and r are in all cases compile-time constants, so these branches
@@ -171,7 +171,7 @@ static INLINE __m256i od_mm256_mul_epi16(__m256i a, int32_t b, int r) {
   }
 }
 
-static INLINE __m256i od_mm256_mul_epi32(__m256i a, int32_t b, int r) {
+OD_SIMD_INLINE __m256i od_mm256_mul_epi32(__m256i a, int32_t b, int r) {
   __m256i neg1;
   /* It's cheaper to generate -1's than 1's. */
   neg1 = _mm256_set1_epi64x(-1);
@@ -182,26 +182,26 @@ static INLINE __m256i od_mm256_mul_epi32(__m256i a, int32_t b, int r) {
   return _mm256_srai_epi32(a, 1);
 }
 
-static INLINE __m128i od_hbd_max_epi16(int bd) {
+OD_SIMD_INLINE __m128i od_hbd_max_epi16(int bd) {
   return _mm_set1_epi16((1 << bd) - 1);
 }
 
-static INLINE __m256i od_mm256_hbd_max_epi16(int bd) {
+OD_SIMD_INLINE __m256i od_mm256_hbd_max_epi16(int bd) {
   return _mm256_set1_epi16((1 << bd) - 1);
 }
 
-static INLINE __m128i od_hbd_clamp_epi16(__m128i a, __m128i max) {
+OD_SIMD_INLINE __m128i od_hbd_clamp_epi16(__m128i a, __m128i max) {
   return _mm_max_epi16(_mm_setzero_si128(), _mm_min_epi16(a, max));
 }
 
-static INLINE __m256i od_mm256_hbd_clamp_epi16(__m256i a, __m256i max) {
+OD_SIMD_INLINE __m256i od_mm256_hbd_clamp_epi16(__m256i a, __m256i max) {
   return _mm256_max_epi16(_mm256_setzero_si256(), _mm256_min_epi16(a, max));
 }
 
 /* Loads a 4x4 buffer of 32-bit values into four SSE registers. */
-static INLINE void od_load_buffer_4x4_epi32(__m128i *q0, __m128i *q1,
-                                            __m128i *q2, __m128i *q3,
-                                            const tran_low_t *in) {
+OD_SIMD_INLINE void od_load_buffer_4x4_epi32(__m128i *q0, __m128i *q1,
+                                             __m128i *q2, __m128i *q3,
+                                             const tran_low_t *in) {
   *q0 = _mm_loadu_si128((const __m128i *)in + 0);
   *q1 = _mm_loadu_si128((const __m128i *)in + 1);
   *q2 = _mm_loadu_si128((const __m128i *)in + 2);
@@ -209,9 +209,9 @@ static INLINE void od_load_buffer_4x4_epi32(__m128i *q0, __m128i *q1,
 }
 
 /* Loads a 4x4 buffer of 16-bit values into four SSE registers. */
-static INLINE void od_load_buffer_4x4_epi16(__m128i *q0, __m128i *q1,
-                                            __m128i *q2, __m128i *q3,
-                                            const int16_t *in) {
+OD_SIMD_INLINE void od_load_buffer_4x4_epi16(__m128i *q0, __m128i *q1,
+                                             __m128i *q2, __m128i *q3,
+                                             const int16_t *in) {
   *q0 = _mm_loadu_si128((const __m128i *)in + 0);
   *q1 = _mm_unpackhi_epi64(*q0, *q0);
   *q2 = _mm_loadu_si128((const __m128i *)in + 1);
@@ -219,9 +219,9 @@ static INLINE void od_load_buffer_4x4_epi16(__m128i *q0, __m128i *q1,
 }
 
 /* Loads an 8x4 buffer of 16-bit values into four SSE registers. */
-static INLINE void od_load_buffer_8x4_epi16(__m128i *q0, __m128i *q1,
-                                            __m128i *q2, __m128i *q3,
-                                            const int16_t *in, int in_stride) {
+OD_SIMD_INLINE void od_load_buffer_8x4_epi16(__m128i *q0, __m128i *q1,
+                                             __m128i *q2, __m128i *q3,
+                                             const int16_t *in, int in_stride) {
   *q0 = _mm_loadu_si128((const __m128i *)(in + 0 * in_stride));
   *q1 = _mm_loadu_si128((const __m128i *)(in + 1 * in_stride));
   *q2 = _mm_loadu_si128((const __m128i *)(in + 2 * in_stride));
@@ -230,9 +230,9 @@ static INLINE void od_load_buffer_8x4_epi16(__m128i *q0, __m128i *q1,
 
 /* Loads an 8x4 buffer of 32-bit values and packs them into 16-bit values in
    four SSE registers. */
-static INLINE void od_load_pack_buffer_8x4_epi32(__m128i *r0, __m128i *r1,
-                                                 __m128i *r2, __m128i *r3,
-                                                 const tran_low_t *in) {
+OD_SIMD_INLINE void od_load_pack_buffer_8x4_epi32(__m128i *r0, __m128i *r1,
+                                                  __m128i *r2, __m128i *r3,
+                                                  const tran_low_t *in) {
   __m128i r4;
   __m128i r5;
   __m128i r6;
@@ -253,9 +253,10 @@ static INLINE void od_load_pack_buffer_8x4_epi32(__m128i *r0, __m128i *r1,
 
 /* Loads an 8x4 buffer of 32-bit values into four AVX registers with a stride
    between rows. */
-static INLINE void od_load_rows_8x4_epi32(__m256i *r0, __m256i *r1, __m256i *r2,
-                                          __m256i *r3, const tran_low_t *in,
-                                          int in_stride) {
+OD_SIMD_INLINE void od_load_rows_8x4_epi32(__m256i *r0, __m256i *r1,
+                                           __m256i *r2, __m256i *r3,
+                                           const tran_low_t *in,
+                                           int in_stride) {
   *r0 = _mm256_loadu_si256((const __m256i *)(in + 0 * in_stride));
   *r1 = _mm256_loadu_si256((const __m256i *)(in + 1 * in_stride));
   *r2 = _mm256_loadu_si256((const __m256i *)(in + 2 * in_stride));
@@ -263,16 +264,17 @@ static INLINE void od_load_rows_8x4_epi32(__m256i *r0, __m256i *r1, __m256i *r2,
 }
 
 /* Loads a contiguous 8x4 buffer of 32-bit values into four AVX registers. */
-static INLINE void od_load_buffer_8x4_epi32(__m256i *r0, __m256i *r1,
-                                            __m256i *r2, __m256i *r3,
-                                            const tran_low_t *in) {
+OD_SIMD_INLINE void od_load_buffer_8x4_epi32(__m256i *r0, __m256i *r1,
+                                             __m256i *r2, __m256i *r3,
+                                             const tran_low_t *in) {
   od_load_rows_8x4_epi32(r0, r1, r2, r3, in, 8);
 }
 
 /* Loads a 16x4 buffer of 16-bit values into four AVX registers. */
-static INLINE void od_load_buffer_16x4_epi16(__m256i *r0, __m256i *r1,
-                                             __m256i *r2, __m256i *r3,
-                                             const int16_t *in, int in_stride) {
+OD_SIMD_INLINE void od_load_buffer_16x4_epi16(__m256i *r0, __m256i *r1,
+                                              __m256i *r2, __m256i *r3,
+                                              const int16_t *in,
+                                              int in_stride) {
   *r0 = _mm256_loadu_si256((const __m256i *)(in + 0 * in_stride));
   *r1 = _mm256_loadu_si256((const __m256i *)(in + 1 * in_stride));
   *r2 = _mm256_loadu_si256((const __m256i *)(in + 2 * in_stride));
@@ -281,41 +283,41 @@ static INLINE void od_load_buffer_16x4_epi16(__m256i *r0, __m256i *r1,
 
 /* Stores a 4x4 buffer of 16-bit values from two SSE registers.
    Each register holds two rows of values. */
-static INLINE void od_store_buffer_4x4_epi16(int16_t *out, __m128i q0,
-                                             __m128i q1) {
+OD_SIMD_INLINE void od_store_buffer_4x4_epi16(int16_t *out, __m128i q0,
+                                              __m128i q1) {
   _mm_storeu_si128((__m128i *)out + 0, q0);
   _mm_storeu_si128((__m128i *)out + 1, q1);
 }
 
 /* Stores a 4x8 buffer of 16-bit values from four SSE registers.
    Each register holds two rows of values. */
-static INLINE void od_store_buffer_4x8_epi16(int16_t *out, __m128i q0,
-                                             __m128i q1, __m128i q2,
-                                             __m128i q3) {
+OD_SIMD_INLINE void od_store_buffer_4x8_epi16(int16_t *out, __m128i q0,
+                                              __m128i q1, __m128i q2,
+                                              __m128i q3) {
   _mm_storeu_si128((__m128i *)out + 0, q0);
   _mm_storeu_si128((__m128i *)out + 1, q1);
   _mm_storeu_si128((__m128i *)out + 2, q2);
   _mm_storeu_si128((__m128i *)out + 3, q3);
 }
 
-static INLINE void od_store_rows_2x16_epi16(int16_t *out, int out_stride,
-                                            __m256i r0, __m256i r1) {
+OD_SIMD_INLINE void od_store_rows_2x16_epi16(int16_t *out, int out_stride,
+                                             __m256i r0, __m256i r1) {
   _mm256_storeu_si256((__m256i *)(out + 0 * out_stride), r0);
   _mm256_storeu_si256((__m256i *)(out + 1 * out_stride), r1);
 }
 
-static INLINE void od_store_buffer_2x16_epi16(int16_t *out, __m256i r0,
-                                              __m256i r1) {
+OD_SIMD_INLINE void od_store_buffer_2x16_epi16(int16_t *out, __m256i r0,
+                                               __m256i r1) {
   od_store_rows_2x16_epi16(out, 16, r0, r1);
 }
 
 /* Loads a 4x4 buffer of 16-bit values, adds a 4x4 block of 16-bit values to
    them, clamps to high bit depth, and stores the sum back. */
-static INLINE void od_add_store_buffer_hbd_4x4_epi16(void *output_pixels,
-                                                     int output_stride,
-                                                     __m128i q0, __m128i q1,
-                                                     __m128i q2, __m128i q3,
-                                                     int bd) {
+OD_SIMD_INLINE void od_add_store_buffer_hbd_4x4_epi16(void *output_pixels,
+                                                      int output_stride,
+                                                      __m128i q0, __m128i q1,
+                                                      __m128i q2, __m128i q3,
+                                                      int bd) {
   uint16_t *output_pixels16;
   __m128i p0;
   __m128i p1;
@@ -348,11 +350,11 @@ static INLINE void od_add_store_buffer_hbd_4x4_epi16(void *output_pixels,
 
 /* Loads an 8x4 buffer of 16-bit values, adds a 8x4 block of 16-bit values to
    them, clamps to the high bit depth max, and stores the sum back. */
-static INLINE void od_add_store_buffer_hbd_8x4_epi16(void *output_pixels,
-                                                     int output_stride,
-                                                     __m128i q0, __m128i q1,
-                                                     __m128i q2, __m128i q3,
-                                                     int bd) {
+OD_SIMD_INLINE void od_add_store_buffer_hbd_8x4_epi16(void *output_pixels,
+                                                      int output_stride,
+                                                      __m128i q0, __m128i q1,
+                                                      __m128i q2, __m128i q3,
+                                                      int bd) {
   uint16_t *output_pixels16;
   __m128i p0;
   __m128i p1;
@@ -383,11 +385,11 @@ static INLINE void od_add_store_buffer_hbd_8x4_epi16(void *output_pixels,
   _mm_storeu_si128((__m128i *)(output_pixels16 + 3 * output_stride), p3);
 }
 
-static INLINE void od_add_store_buffer_hbd_16x4_epi16(void *output_pixels,
-                                                      int output_stride,
-                                                      __m256i r0, __m256i r1,
-                                                      __m256i r2, __m256i r3,
-                                                      int bd) {
+OD_SIMD_INLINE void od_add_store_buffer_hbd_16x4_epi16(void *output_pixels,
+                                                       int output_stride,
+                                                       __m256i r0, __m256i r1,
+                                                       __m256i r2, __m256i r3,
+                                                       int bd) {
   uint16_t *output_pixels16;
   __m256i p0;
   __m256i p1;
@@ -422,8 +424,8 @@ static INLINE void od_add_store_buffer_hbd_16x4_epi16(void *output_pixels,
   _mm256_storeu_si256((__m256i *)(output_pixels16 + 3 * output_stride), p3);
 }
 
-static INLINE void od_transpose_pack4x4(__m128i *q0, __m128i *q1, __m128i *q2,
-                                        __m128i *q3) {
+OD_SIMD_INLINE void od_transpose_pack4x4(__m128i *q0, __m128i *q1, __m128i *q2,
+                                         __m128i *q3) {
   __m128i a;
   __m128i b;
   __m128i c;
@@ -453,8 +455,8 @@ static INLINE void od_transpose_pack4x4(__m128i *q0, __m128i *q1, __m128i *q2,
   *q3 = _mm_unpackhi_epi64(*q2, *q2);
 }
 
-static INLINE void od_transpose4x4(__m128i *q0, __m128i q1, __m128i *q2,
-                                   __m128i q3) {
+OD_SIMD_INLINE void od_transpose4x4(__m128i *q0, __m128i q1, __m128i *q2,
+                                    __m128i q3) {
   __m128i a;
   __m128i b;
   /* Input:
@@ -506,8 +508,8 @@ static inline void od_transpose4x8(__m128i *r0, __m128i r1, __m128i *r2,
   *r6 = _mm_unpackhi_epi64(b, *r6);
 }
 
-static INLINE void od_transpose8x4(__m128i *q0, __m128i *q1, __m128i *q2,
-                                   __m128i *q3) {
+OD_SIMD_INLINE void od_transpose8x4(__m128i *q0, __m128i *q1, __m128i *q2,
+                                    __m128i *q3) {
   __m128i a;
   __m128i b;
   __m128i c;
@@ -536,9 +538,9 @@ static INLINE void od_transpose8x4(__m128i *q0, __m128i *q1, __m128i *q2,
   *q3 = _mm_unpackhi_epi32(b, d);
 }
 
-static INLINE void od_transpose_pack4x8(__m128i *q0, __m128i *q1, __m128i *q2,
-                                        __m128i *q3, __m128i q4, __m128i q5,
-                                        __m128i q6, __m128i q7) {
+OD_SIMD_INLINE void od_transpose_pack4x8(__m128i *q0, __m128i *q1, __m128i *q2,
+                                         __m128i *q3, __m128i q4, __m128i q5,
+                                         __m128i q6, __m128i q7) {
   __m128i a;
   __m128i b;
   __m128i c;
@@ -576,9 +578,9 @@ static INLINE void od_transpose_pack4x8(__m128i *q0, __m128i *q1, __m128i *q2,
   *q3 = _mm_unpackhi_epi64(b, d);
 }
 
-static INLINE void od_transpose_pack8x4(__m128i *r0, __m128i *r1, __m128i *r2,
-                                        __m128i *r3, __m128i *r4, __m128i *r5,
-                                        __m128i *r6, __m128i *r7) {
+OD_SIMD_INLINE void od_transpose_pack8x4(__m128i *r0, __m128i *r1, __m128i *r2,
+                                         __m128i *r3, __m128i *r4, __m128i *r5,
+                                         __m128i *r6, __m128i *r7) {
   /* Input:
      r1: r07 r06 r05 r04  r0: r03 r02 r01 r00
      r3: r17 r16 r15 r14  r2: r13 r12 r11 r10
@@ -609,9 +611,9 @@ static INLINE void od_transpose_pack8x4(__m128i *r0, __m128i *r1, __m128i *r2,
   *r7 = _mm_unpackhi_epi64(*r6, *r6);
 }
 
-static INLINE void od_transpose8x8_epi16(__m128i *r0, __m128i *r1, __m128i *r2,
-                                         __m128i *r3, __m128i *r4, __m128i *r5,
-                                         __m128i *r6, __m128i *r7) {
+OD_SIMD_INLINE void od_transpose8x8_epi16(__m128i *r0, __m128i *r1, __m128i *r2,
+                                          __m128i *r3, __m128i *r4, __m128i *r5,
+                                          __m128i *r6, __m128i *r7) {
   __m128i r8;
   /*8x8 transpose with only 1 temporary register that takes the rows in order
     and returns the columns in order. The compiler's own register allocator
@@ -656,9 +658,9 @@ static INLINE void od_transpose8x8_epi16(__m128i *r0, __m128i *r1, __m128i *r2,
   *r6 = _mm_unpacklo_epi64(*r6, r8);
 }
 
-static INLINE void od_transpose8x8_epi32(__m256i *r0, __m256i *r1, __m256i *r2,
-                                         __m256i *r3, __m256i *r4, __m256i *r5,
-                                         __m256i *r6, __m256i *r7) {
+OD_SIMD_INLINE void od_transpose8x8_epi32(__m256i *r0, __m256i *r1, __m256i *r2,
+                                          __m256i *r3, __m256i *r4, __m256i *r5,
+                                          __m256i *r6, __m256i *r7) {
   __m256i a;
   __m256i b;
   __m256i c;
@@ -697,12 +699,12 @@ static INLINE void od_transpose8x8_epi32(__m256i *r0, __m256i *r1, __m256i *r2,
 
 /* Packs two blocks of 4x8 32-bit words into 16-bit words and returns the
    transpose of each packed into the high and low halves of each register. */
-static INLINE void od_transpose_pack4x8x2_epi32(__m256i *out0, __m256i *out1,
-                                                __m256i *out2, __m256i *out3,
-                                                __m256i rr0, __m256i rr1,
-                                                __m256i rr2, __m256i rr3,
-                                                __m256i rr4, __m256i rr5,
-                                                __m256i rr6, __m256i rr7) {
+OD_SIMD_INLINE void od_transpose_pack4x8x2_epi32(__m256i *out0, __m256i *out1,
+                                                 __m256i *out2, __m256i *out3,
+                                                 __m256i rr0, __m256i rr1,
+                                                 __m256i rr2, __m256i rr3,
+                                                 __m256i rr4, __m256i rr5,
+                                                 __m256i rr6, __m256i rr7) {
   __m256i a;
   __m256i b;
   __m256i c;
@@ -745,10 +747,10 @@ static INLINE void od_transpose_pack4x8x2_epi32(__m256i *out0, __m256i *out1,
   *out3 = _mm256_unpackhi_epi64(b, d);
 }
 
-static INLINE void od_transpose_pack8x8_epi32(__m256i *rr0, __m256i *rr1,
-                                              __m256i *rr2, __m256i *rr3,
-                                              __m256i rr4, __m256i rr5,
-                                              __m256i rr6, __m256i rr7) {
+OD_SIMD_INLINE void od_transpose_pack8x8_epi32(__m256i *rr0, __m256i *rr1,
+                                               __m256i *rr2, __m256i *rr3,
+                                               __m256i rr4, __m256i rr5,
+                                               __m256i rr6, __m256i rr7) {
   __m256i w;
   __m256i x;
   __m256i y;
@@ -769,7 +771,7 @@ static INLINE void od_transpose_pack8x8_epi32(__m256i *rr0, __m256i *rr1,
   *rr3 = _mm256_permute2x128_si256(y, z, 1 | (3 << 4));
 }
 
-static INLINE void od_transpose_pack8x16_epi32(
+OD_SIMD_INLINE void od_transpose_pack8x16_epi32(
     __m256i *ss0, __m256i *ss1, __m256i *ss2, __m256i *ss3, __m256i *ss4,
     __m256i *ss5, __m256i *ss6, __m256i *ss7, __m256i ss8, __m256i ss9,
     __m256i ssa, __m256i ssb, __m256i ssc, __m256i ssd, __m256i sse,
