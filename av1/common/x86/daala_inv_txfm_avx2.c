@@ -32,59 +32,91 @@ static INLINE __m256i od_mm256_unbiased_rshift1_epi32(__m256i a) {
   return _mm256_srai_epi32(_mm256_add_epi32(_mm256_srli_epi32(a, 31), a), 1);
 }
 
-static INLINE __m128i od_avg_epi16(__m128i a, __m128i b) {
-  __m128i sign_bit;
+static INLINE __m128i od_add_avg_epi16(__m128i a, __m128i b) {
+  __m128i sign_mask;
   /*x86 only provides an unsigned PAVGW with a bias (ARM is better here).
     We emulate a signed one by adding an offset to convert to unsigned and
     back. We use XOR instead of addition/subtraction because it dispatches
     better on older processors.*/
-  sign_bit = _mm_set1_epi16(0x8000);
+  sign_mask = _mm_set1_epi16(0x7FFF + TX_AVG_BIAS);
   return _mm_xor_si128(
-      _mm_avg_epu16(_mm_xor_si128(a, sign_bit), _mm_xor_si128(b, sign_bit)),
-      sign_bit);
+      _mm_avg_epu16(_mm_xor_si128(a, sign_mask), _mm_xor_si128(b, sign_mask)),
+      sign_mask);
 }
 
-static INLINE __m256i od_mm256_avg_epi16(__m256i a, __m256i b) {
-  __m256i sign_bit;
-  sign_bit = _mm256_set1_epi16(0x8000);
-  return _mm256_xor_si256(_mm256_avg_epu16(_mm256_xor_si256(a, sign_bit),
-                                           _mm256_xor_si256(b, sign_bit)),
-                          sign_bit);
+static INLINE __m256i od_mm256_add_avg_epi16(__m256i a, __m256i b) {
+  __m256i sign_mask;
+  sign_mask = _mm256_set1_epi16(0x7FFF + TX_AVG_BIAS);
+  return _mm256_xor_si256(_mm256_avg_epu16(_mm256_xor_si256(a, sign_mask),
+                                           _mm256_xor_si256(b, sign_mask)),
+                          sign_mask);
 }
 
-static INLINE __m256i od_mm256_avg_epi32(__m256i a, __m256i b) {
+static INLINE __m256i od_mm256_add_avg_epi32(__m256i a, __m256i b) {
+  /* There is no corresponding PAVGD, but we are not in danger of overflowing
+     a 32-bit register. */
+#if TX_AVG_BIAS
   __m256i neg1;
   /* It's cheaper to generate -1's than 1's. */
   neg1 = _mm256_set1_epi64x(-1);
-  /* There is no corresponding PAVGD, but we are not in danger of overflowing
-     a 32-bit register. */
   return _mm256_srai_epi32(_mm256_add_epi32(a, _mm256_sub_epi32(b, neg1)), 1);
+#else
+  return _mm256_srai_epi32(_mm256_add_epi32(a, b), 1);
+#endif
 }
 
 /*Like the above, but does (a - b + 1) >> 1 instead.*/
-static INLINE __m128i od_hrsub_epi16(__m128i a, __m128i b) {
+static INLINE __m128i od_sub_avg_epi16(__m128i a, __m128i b) {
+#if TX_AVG_BIAS
   __m128i sign_bit;
   sign_bit = _mm_set1_epi16(0x8000);
   return _mm_xor_si128(
       _mm_avg_epu16(_mm_xor_si128(a, sign_bit), _mm_sub_epi16(sign_bit, b)),
       sign_bit);
+#else
+  __m128i sign_bit;
+  __m128i sign_mask;
+  /*This version works for all possible values of a and b.
+    If we're willing to allow things to be undefined for -32768, we can save
+    one register by using pavgw(a ^ 0x7FFF, b + 0x7FFF) ^ 0x7FFF (i.e., by
+    using just one constant value).*/
+  sign_bit = _mm_set1_epi16(0x8000);
+  sign_mask = _mm_set1_epi16(0x7FFF);
+  return _mm_xor_si128(
+      _mm_avg_epu16(_mm_xor_si128(a, sign_bit), _mm_xor_si128(b, sign_mask)),
+      sign_bit);
+#endif
 }
 
-static INLINE __m256i od_mm256_hrsub_epi16(__m256i a, __m256i b) {
+static INLINE __m256i od_mm256_sub_avg_epi16(__m256i a, __m256i b) {
+#if TX_AVG_BIAS
   __m256i sign_bit;
   sign_bit = _mm256_set1_epi16(0x8000);
   return _mm256_xor_si256(_mm256_avg_epu16(_mm256_xor_si256(a, sign_bit),
                                            _mm256_sub_epi16(sign_bit, b)),
                           sign_bit);
+#else
+  __m256i sign_bit;
+  __m256i sign_mask;
+  sign_bit = _mm256_set1_epi16(0x8000);
+  sign_mask = _mm256_set1_epi16(0x7FFF);
+  return _mm256_xor_si256(_mm256_avg_epu16(_mm256_xor_si256(a, sign_bit),
+                                           _mm256_xor_si256(b, sign_mask)),
+                          sign_bit);
+#endif
 }
 
-static INLINE __m256i od_mm256_hrsub_epi32(__m256i a, __m256i b) {
+static INLINE __m256i od_mm256_sub_avg_epi32(__m256i a, __m256i b) {
+  /* There is no corresponding PAVGD, but we are not in danger of overflowing
+     a 32-bit register. */
+#if TX_AVG_BIAS
   __m256i neg1;
   /* It's cheaper to generate -1's than 1's. */
   neg1 = _mm256_set1_epi64x(-1);
-  /* There is no corresponding PAVGD, but we are not in danger of overflowing
-     a 32-bit register. */
   return _mm256_srai_epi32(_mm256_sub_epi32(a, _mm256_add_epi32(b, neg1)), 1);
+#else
+  return _mm256_srai_epi32(_mm256_sub_epi32(a, b), 1);
+#endif
 }
 
 static INLINE void od_swap_si128(__m128i *q0, __m128i *q1) {
@@ -768,76 +800,72 @@ static INLINE void od_transpose_pack8x16_epi32(
 }
 
 #undef OD_KERNEL
-#undef OD_WORD
-#undef OD_REG
+#undef OD_COEFF
 #undef OD_ADD
 #undef OD_SUB
 #undef OD_RSHIFT1
-#undef OD_AVG
-#undef OD_HRSUB
+#undef OD_ADD_AVG
+#undef OD_SUB_AVG
 #undef OD_MUL
 #undef OD_SWAP
 
 /* Define 8-wide 16-bit SSSE3 kernels. */
 
-#define OD_KERNEL kernel8
-#define OD_WORD epi16
-#define OD_REG __m128i
+#define OD_KERNEL kernel8_epi16
+#define OD_COEFF __m128i
 #define OD_ADD _mm_add_epi16
 #define OD_SUB _mm_sub_epi16
 #define OD_RSHIFT1 od_unbiased_rshift1_epi16
-#define OD_AVG od_avg_epi16
-#define OD_HRSUB od_hrsub_epi16
+#define OD_ADD_AVG od_add_avg_epi16
+#define OD_SUB_AVG od_sub_avg_epi16
 #define OD_MUL od_mul_epi16
 #define OD_SWAP od_swap_si128
 
-#include "av1/common/x86/daala_tx_kernels.h"
+#include "av1/common/daala_tx_kernels.h"
 
 #undef OD_KERNEL
-#undef OD_REG
+#undef OD_COEFF
 #undef OD_ADD
 #undef OD_SUB
 #undef OD_RSHIFT1
-#undef OD_AVG
-#undef OD_HRSUB
+#undef OD_ADD_AVG
+#undef OD_SUB_AVG
 #undef OD_MUL
 #undef OD_SWAP
 
 /* Define 16-wide 16-bit AVX2 kernels. */
 
-#define OD_KERNEL kernel16
-#define OD_REG __m256i
+#define OD_KERNEL kernel16_epi16
+#define OD_COEFF __m256i
 #define OD_ADD _mm256_add_epi16
 #define OD_SUB _mm256_sub_epi16
 #define OD_RSHIFT1 od_mm256_unbiased_rshift1_epi16
-#define OD_AVG od_mm256_avg_epi16
-#define OD_HRSUB od_mm256_hrsub_epi16
+#define OD_ADD_AVG od_mm256_add_avg_epi16
+#define OD_SUB_AVG od_mm256_sub_avg_epi16
 #define OD_MUL od_mm256_mul_epi16
 #define OD_SWAP od_mm256_swap_si256
 
-#include "av1/common/x86/daala_tx_kernels.h"  // NOLINT
+#include "av1/common/daala_tx_kernels.h"  // NOLINT
 
 /* Define 8-wide 32-bit AVX2 kernels. */
 
 #undef OD_KERNEL
-#undef OD_WORD
 #undef OD_ADD
 #undef OD_SUB
 #undef OD_RSHIFT1
-#undef OD_AVG
-#undef OD_HRSUB
+#undef OD_ADD_AVG
+#undef OD_SUB_AVG
 #undef OD_MUL
 
-#define OD_KERNEL kernel8
-#define OD_WORD epi32
+#define OD_KERNEL kernel8_epi32
 #define OD_ADD _mm256_add_epi32
 #define OD_SUB _mm256_sub_epi32
 #define OD_RSHIFT1 od_mm256_unbiased_rshift1_epi32
-#define OD_AVG od_mm256_avg_epi32
-#define OD_HRSUB od_mm256_hrsub_epi32
+#define OD_ADD_AVG od_mm256_add_avg_epi32
+#define OD_SUB_AVG od_mm256_sub_avg_epi32
 #define OD_MUL od_mm256_mul_epi32
 
-#include "av1/common/x86/daala_tx_kernels.h"  // NOLINT
+#include "av1/common/daala_tx_kernels.h"  // NOLINT
 
 static void od_row_iidtx_avx2(int16_t *out, int coeffs, const tran_low_t *in) {
   int c;
@@ -982,40 +1010,38 @@ static void od_col_tx4_add_hbd_avx2(unsigned char *output_pixels,
   }
 }
 
-#if 0
 static void od_row_idct4_avx2(int16_t *out, int rows, const tran_low_t *in) {
-  od_row_tx4_avx2(out, rows, in, od_idct4_kernel8_epi16);
+  od_row_tx4_avx2(out, rows, in, od_idct_4_kernel8_epi16);
 }
 
 static void od_col_idct4_add_hbd_avx2(unsigned char *output_pixels,
                                       int output_stride, int cols,
                                       const int16_t *in, int bd) {
   od_col_tx4_add_hbd_avx2(output_pixels, output_stride, cols, in, bd,
-                          od_idct4_kernel8_epi16);
+                          od_idct_4_kernel8_epi16);
 }
-#endif
 
 static void od_row_idst4_avx2(int16_t *out, int rows, const tran_low_t *in) {
-  od_row_tx4_avx2(out, rows, in, od_idst_vii4_kernel8_epi16);
+  od_row_tx4_avx2(out, rows, in, od_idst_vii_4_kernel8_epi16);
 }
 
 static void od_col_idst4_add_hbd_avx2(unsigned char *output_pixels,
                                       int output_stride, int cols,
                                       const int16_t *in, int bd) {
   od_col_tx4_add_hbd_avx2(output_pixels, output_stride, cols, in, bd,
-                          od_idst_vii4_kernel8_epi16);
+                          od_idst_vii_4_kernel8_epi16);
 }
 
 static void od_row_flip_idst4_avx2(int16_t *out, int rows,
                                    const tran_low_t *in) {
-  od_row_tx4_avx2(out, rows, in, od_flip_idst_vii4_kernel8_epi16);
+  od_row_tx4_avx2(out, rows, in, od_flip_idst_vii_4_kernel8_epi16);
 }
 
 static void od_col_flip_idst4_add_hbd_avx2(unsigned char *output_pixels,
                                            int output_stride, int cols,
                                            const int16_t *in, int bd) {
   od_col_tx4_add_hbd_avx2(output_pixels, output_stride, cols, in, bd,
-                          od_flip_idst_vii4_kernel8_epi16);
+                          od_flip_idst_vii_4_kernel8_epi16);
 }
 
 static void od_row_iidtx4_avx2(int16_t *out, int rows, const tran_low_t *in) {
@@ -1036,7 +1062,6 @@ typedef void (*od_tx8_mm256_kernel)(__m256i *r0, __m256i *r4, __m256i *r2,
                                     __m256i *r6, __m256i *r1, __m256i *r5,
                                     __m256i *r3, __m256i *r7);
 
-#if 0
 static void od_row_tx8_avx2(int16_t *out, int rows, const tran_low_t *in,
                             od_tx8_kernel8_epi16 kernel8_epi16,
                             od_tx8_mm256_kernel kernel8_epi32) {
@@ -1143,43 +1168,42 @@ static void od_col_tx8_add_hbd_avx2(unsigned char *output_pixels,
 }
 
 static void od_row_idct8_avx2(int16_t *out, int rows, const tran_low_t *in) {
-  od_row_tx8_avx2(out, rows, in, od_idct8_kernel8_epi16,
-                  od_idct8_kernel8_epi32);
+  od_row_tx8_avx2(out, rows, in, od_idct_8_kernel8_epi16,
+                  od_idct_8_kernel8_epi32);
 }
 
 static void od_col_idct8_add_hbd_avx2(unsigned char *output_pixels,
                                       int output_stride, int cols,
                                       const int16_t *in, int bd) {
   od_col_tx8_add_hbd_avx2(output_pixels, output_stride, cols, in, bd,
-                          od_idct8_kernel8_epi16, od_idct8_kernel16_epi16);
+                          od_idct_8_kernel8_epi16, od_idct_8_kernel16_epi16);
 }
 
 static void od_row_idst8_avx2(int16_t *out, int rows, const tran_low_t *in) {
-  od_row_tx8_avx2(out, rows, in, od_idst8_kernel8_epi16,
-                  od_idst8_kernel8_epi32);
+  od_row_tx8_avx2(out, rows, in, od_idst_8_kernel8_epi16,
+                  od_idst_8_kernel8_epi32);
 }
 
 static void od_col_idst8_add_hbd_avx2(unsigned char *output_pixels,
                                       int output_stride, int cols,
                                       const int16_t *in, int bd) {
   od_col_tx8_add_hbd_avx2(output_pixels, output_stride, cols, in, bd,
-                          od_idst8_kernel8_epi16, od_idst8_kernel16_epi16);
+                          od_idst_8_kernel8_epi16, od_idst_8_kernel16_epi16);
 }
 
 static void od_row_flip_idst8_avx2(int16_t *out, int rows,
                                    const tran_low_t *in) {
-  od_row_tx8_avx2(out, rows, in, od_flip_idst8_kernel8_epi16,
-                  od_flip_idst8_kernel8_epi32);
+  od_row_tx8_avx2(out, rows, in, od_flip_idst_8_kernel8_epi16,
+                  od_flip_idst_8_kernel8_epi32);
 }
 
 static void od_col_flip_idst8_add_hbd_avx2(unsigned char *output_pixels,
                                            int output_stride, int cols,
                                            const int16_t *in, int bd) {
   od_col_tx8_add_hbd_avx2(output_pixels, output_stride, cols, in, bd,
-                          od_flip_idst8_kernel8_epi16,
-                          od_flip_idst8_kernel16_epi16);
+                          od_flip_idst_8_kernel8_epi16,
+                          od_flip_idst_8_kernel16_epi16);
 }
-#endif
 
 static void od_row_iidtx8_avx2(int16_t *out, int rows, const tran_low_t *in) {
   od_row_iidtx_avx2(out, rows * 8, in);
@@ -1205,7 +1229,6 @@ typedef void (*od_tx16_mm256_kernel)(__m256i *s0, __m256i *s4, __m256i *s2,
                                      __m256i *sc, __m256i *sd, __m256i *se,
                                      __m256i *sf);
 
-#if 0
 static void od_row_tx16_avx2(int16_t *out, int rows, const tran_low_t *in,
 #if CONFIG_RECT_TX_EXT
                              od_tx16_kernel8_epi16 kernel8_epi16,
@@ -1384,50 +1407,49 @@ static void od_col_tx16_add_hbd_avx2(unsigned char *output_pixels,
 static void od_row_idct16_avx2(int16_t *out, int rows, const tran_low_t *in) {
   od_row_tx16_avx2(out, rows, in,
 #if CONFIG_RECT_TX_EXT
-                   od_idct16_kernel8_epi16,
+                   od_idct_16_kernel8_epi16,
 #endif
-                   od_idct16_kernel8_epi32);
+                   od_idct_16_kernel8_epi32);
 }
 
 static void od_col_idct16_add_hbd_avx2(unsigned char *output_pixels,
                                        int output_stride, int cols,
                                        const int16_t *in, int bd) {
   od_col_tx16_add_hbd_avx2(output_pixels, output_stride, cols, in, bd,
-                           od_idct16_kernel8_epi16, od_idct16_kernel16_epi16);
+                           od_idct_16_kernel8_epi16, od_idct_16_kernel16_epi16);
 }
 
 static void od_row_idst16_avx2(int16_t *out, int rows, const tran_low_t *in) {
   od_row_tx16_avx2(out, rows, in,
 #if CONFIG_RECT_TX_EXT
-                   od_idst16_kernel8_epi16,
+                   od_idst_16_kernel8_epi16,
 #endif
-                   od_idst16_kernel8_epi32);
+                   od_idst_16_kernel8_epi32);
 }
 
 static void od_col_idst16_add_hbd_avx2(unsigned char *output_pixels,
                                        int output_stride, int cols,
                                        const int16_t *in, int bd) {
   od_col_tx16_add_hbd_avx2(output_pixels, output_stride, cols, in, bd,
-                           od_idst16_kernel8_epi16, od_idst16_kernel16_epi16);
+                           od_idst_16_kernel8_epi16, od_idst_16_kernel16_epi16);
 }
 
 static void od_row_flip_idst16_avx2(int16_t *out, int rows,
                                     const tran_low_t *in) {
   od_row_tx16_avx2(out, rows, in,
 #if CONFIG_RECT_TX_EXT
-                   od_flip_idst16_kernel8_epi16,
+                   od_flip_idst_16_kernel8_epi16,
 #endif
-                   od_flip_idst16_kernel8_epi32);
+                   od_flip_idst_16_kernel8_epi32);
 }
 
 static void od_col_flip_idst16_add_hbd_avx2(unsigned char *output_pixels,
                                             int output_stride, int cols,
                                             const int16_t *in, int bd) {
   od_col_tx16_add_hbd_avx2(output_pixels, output_stride, cols, in, bd,
-                           od_flip_idst16_kernel8_epi16,
-                           od_flip_idst16_kernel16_epi16);
+                           od_flip_idst_16_kernel8_epi16,
+                           od_flip_idst_16_kernel16_epi16);
 }
-#endif
 
 static void od_row_iidtx16_avx2(int16_t *out, int rows, const tran_low_t *in) {
   od_row_iidtx_avx2(out, rows * 16, in);
@@ -1446,11 +1468,14 @@ typedef void (*daala_col_itx_add)(unsigned char *output_pixels,
 
 static const daala_row_itx TX_ROW_MAP[TX_SIZES][TX_TYPES] = {
   // 4-point transforms
-  { NULL, od_row_idst4_avx2, od_row_flip_idst4_avx2, od_row_iidtx4_avx2 },
+  { od_row_idct4_avx2, od_row_idst4_avx2, od_row_flip_idst4_avx2,
+    od_row_iidtx4_avx2 },
   // 8-point transforms
-  { NULL, NULL, NULL, od_row_iidtx8_avx2 },
+  { od_row_idct8_avx2, od_row_idst8_avx2, od_row_flip_idst8_avx2,
+    od_row_iidtx8_avx2 },
   // 16-point transforms
-  { NULL, NULL, NULL, od_row_iidtx16_avx2 },
+  { od_row_idct16_avx2, od_row_idst16_avx2, od_row_flip_idst16_avx2,
+    od_row_iidtx16_avx2 },
   // 32-point transforms
   { NULL, NULL, NULL, NULL },
 #if CONFIG_TX64X64
@@ -1478,12 +1503,14 @@ static const daala_col_itx_add TX_COL_MAP[2][TX_SIZES][TX_TYPES] = {
   // High bit depth output
   {
       // 4-point transforms
-      { NULL, od_col_idst4_add_hbd_avx2, od_col_flip_idst4_add_hbd_avx2,
-        od_col_iidtx4_add_hbd_avx2 },
+      { od_col_idct4_add_hbd_avx2, od_col_idst4_add_hbd_avx2,
+        od_col_flip_idst4_add_hbd_avx2, od_col_iidtx4_add_hbd_avx2 },
       // 8-point transforms
-      { NULL, NULL, NULL, od_col_iidtx8_add_hbd_avx2 },
+      { od_col_idct8_add_hbd_avx2, od_col_idst8_add_hbd_avx2,
+        od_col_flip_idst8_add_hbd_avx2, od_col_iidtx8_add_hbd_avx2 },
       // 16-point transforms
-      { NULL, NULL, NULL, od_col_iidtx16_add_hbd_avx2 },
+      { od_col_idct16_add_hbd_avx2, od_col_idst16_add_hbd_avx2,
+        od_col_flip_idst16_add_hbd_avx2, od_col_iidtx16_add_hbd_avx2 },
       // 32-point transforms
       { NULL, NULL, NULL, NULL },
 #if CONFIG_TX64X64
