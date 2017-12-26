@@ -1900,14 +1900,17 @@ static void block_rd_txfm(int plane, int block, int blk_row, int blk_col,
   }
 
 #if !CONFIG_TXK_SEL
-  // full forward transform and quantization
-  if (cpi->sf.optimize_coefficients == FINAL_PASS_TRELLIS_OPT) {
-    av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize, tx_size,
-                    AV1_XFORM_QUANT_B);
-  } else {
-    av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize, tx_size,
-                    AV1_XFORM_QUANT_FP);
-
+// full forward transform and quantization
+#if CONFIG_NEW_QUANT
+  const AV1_XFORM_QUANT xform_quant = AV1_XFORM_QUANT_FP;
+#else
+  const AV1_XFORM_QUANT xform_quant =
+      cpi->sf.optimize_coefficients == FULL_TRELLIS_OPT ? AV1_XFORM_QUANT_FP
+                                                        : AV1_XFORM_QUANT_B;
+#endif  // CONFIG_NEW_QUANT
+  av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize, tx_size,
+                  xform_quant);
+  if (cpi->sf.optimize_coefficients == FULL_TRELLIS_OPT) {
 // TX-domain results need to shift down to Q2/D10 to match pixel
 // domain distortion values which are in Q2^2
 #if CONFIG_DAALA_TX
@@ -3507,11 +3510,16 @@ void av1_tx_block_rd_b(const AV1_COMP *cpi, MACROBLOCK *x, TX_SIZE tx_size,
                       NULL, 0, bw, bh);
   }
 
-  if (cpi->sf.optimize_coefficients == FINAL_PASS_TRELLIS_OPT) {
-    av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize, tx_size,
-                    AV1_XFORM_QUANT_B);
-
-  } else {
+#if CONFIG_NEW_QUANT
+  const AV1_XFORM_QUANT xform_quant = AV1_XFORM_QUANT_FP;
+#else
+  const AV1_XFORM_QUANT xform_quant =
+      cpi->sf.optimize_coefficients == FULL_TRELLIS_OPT ? AV1_XFORM_QUANT_FP
+                                                        : AV1_XFORM_QUANT_B;
+#endif  // CONFIG_NEW_QUANT
+  av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize, tx_size,
+                  xform_quant);
+  if (cpi->sf.optimize_coefficients == FULL_TRELLIS_OPT) {
     av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize, tx_size,
                     AV1_XFORM_QUANT_FP);
 
