@@ -430,9 +430,14 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi) {
   sf->mv.subpel_iters_per_step = 2;
   sf->mv.subpel_force_stop = 0;
 #if DISABLE_TRELLISQ_SEARCH
+#if CONFIG_NEW_QUANT
+  // With new-quant disable trellis optimization completely
+  sf->optimize_coefficients = NO_TRELLIS_OPT;
+#else
   sf->optimize_coefficients = !is_lossless_requested(&cpi->oxcf)
                                   ? FINAL_PASS_TRELLIS_OPT
                                   : NO_TRELLIS_OPT;
+#endif  // CONFIG_NEW_QUANT
 #else
   sf->optimize_coefficients = !is_lossless_requested(&cpi->oxcf);
 #endif  // DISABLE_TRELLISQ_SEARCH
