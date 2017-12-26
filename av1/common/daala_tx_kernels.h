@@ -474,6 +474,77 @@ static INLINE void od_idst_4_asym(od_coeff *q0, od_coeff *q2,
   od_rotate_add_half(q0, q3, q0h, 9633, 14, 12873, 13, 12785, 15, SHIFT);
 }
 
+/**
+ * 4-point asymmetric Type-VII fDST
+ */
+static INLINE void od_fdst_vii_4(od_coeff *q0, od_coeff *q1,
+                                 od_coeff *q2, od_coeff *q3) {
+  od_coeff t0;
+  od_coeff t1;
+  od_coeff t2;
+  od_coeff t3;
+  od_coeff t3h;
+  od_coeff t4;
+  od_coeff u4;
+  t0 = od_add(*q1, *q3);
+  t1 = od_add(*q1, od_sub_avg(*q0, t0));
+  t2 = od_sub(*q0, *q1);
+  t3 = *q2;
+  t4 = od_add(*q0, *q3);
+  /* 7021/16384 ~= 2*Sin[2*Pi/9]/3 ~= 0.428525073124360 */
+  t0 = od_mul(t0, 7021, 14);
+  /* 37837/32768 ~= 4*Sin[3*Pi/9]/3 ~= 1.154700538379252 */
+  t1 = od_mul(t1, 37837, 15);
+  /* 21513/32768 ~= 2*Sin[4*Pi/9]/3 ~= 0.656538502008139 */
+  t2 = od_mul(t2, 21513, 15);
+  /* 37837/32768 ~= 4*Sin[3*Pi/9]/3 ~= 1.154700538379252 */
+  t3 = od_mul(t3, 37837, 15);
+  /* 467/2048 ~= 2*Sin[1*Pi/9]/3 ~= 0.228013428883779 */
+  t4 = od_mul(t4, 467, 11);
+  t3h = od_rshift1(t3);
+  u4 = od_add(t4, t3h);
+  *q0 = od_add(t0, u4);
+  *q2 = t1;
+  *q1 = od_add(t0, od_sub(t2, t3h));
+  *q3 = od_add(t2, od_sub(t3, u4));
+}
+
+/**
+ * 4-point asymmetric Type-VII iDST
+ */
+static INLINE void od_idst_vii_4(od_coeff *q0, od_coeff *q2,
+                                 od_coeff *q1, od_coeff *q3) {
+  // Note: special case
+  od_coeff t0;
+  od_coeff t1;
+  od_coeff t2;
+  od_coeff t3;
+  od_coeff t3h;
+  od_coeff t4;
+  od_coeff u4;
+  t0 = od_sub(*q0, *q3);
+  t1 = od_add(*q0, *q1);
+  t2 = od_add(*q3, od_sub_avg(t0, *q1));
+  t3 = *q2;
+  t4 = od_add(*q1, *q3);
+  /* 467/2048 ~= 2*Sin[1*Pi/9]/3 ~= 0.228013428883779 */
+  t0 = od_mul(t0, 467, 11);
+  /* 7021/16384 ~= 2*Sin[2*Pi/9]/3 ~= 0.428525073124360 */
+  t1 = od_mul(t1, 7021, 14);
+  /* 37837/32768 ~= 4*Sin[3*Pi/9]/3 ~= 1.154700538379252 */
+  t2 = od_mul(t2, 37837, 15);
+  /* 37837/32768 ~= 4*Sin[3*Pi/9]/3 ~= 1.154700538379252 */
+  t3 = od_mul(t3, 37837, 15);
+  /* 21513/32768 ~= 2*Sin[4*Pi/9]/3 ~= 0.656538502008139 */
+  t4 = od_mul(t4, 21513, 15);
+  t3h = od_rshift1(t3);
+  u4 = od_add(t4, t3h);
+  *q0 = od_add(t0, u4);
+  *q2 = t2;
+  *q1 = od_add(t1, od_sub(t3, u4));
+  *q3 = od_add(t0, od_sub(t1, t3h));
+}
+
 /* --- 8-point Transforms --- */
 
 /**
