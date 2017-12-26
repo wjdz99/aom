@@ -1,27 +1,27 @@
 #include "av1/common/daala_tx.h"
 #include "av1/common/odintrin.h"
 
-static INLINE od_coeff od_add(od_coeff p0, od_coeff p1) { return p0 + p1; }
+OD_SIMD_INLINE od_coeff od_add(od_coeff p0, od_coeff p1) { return p0 + p1; }
 
-static INLINE od_coeff od_sub(od_coeff p0, od_coeff p1) { return p0 - p1; }
+OD_SIMD_INLINE od_coeff od_sub(od_coeff p0, od_coeff p1) { return p0 - p1; }
 
-static INLINE od_coeff od_add_avg(od_coeff p0, od_coeff p1) {
+OD_SIMD_INLINE od_coeff od_add_avg(od_coeff p0, od_coeff p1) {
   return (od_add(p0, p1) + TX_AVG_BIAS) >> 1;
 }
 
-static INLINE od_coeff od_sub_avg(od_coeff p0, od_coeff p1) {
+OD_SIMD_INLINE od_coeff od_sub_avg(od_coeff p0, od_coeff p1) {
   return (od_sub(p0, p1) + TX_AVG_BIAS) >> 1;
 }
 
-static INLINE od_coeff od_rshift1(od_coeff v) { return (v + (v < 0)) >> 1; }
+OD_SIMD_INLINE od_coeff od_rshift1(od_coeff v) { return (v + (v < 0)) >> 1; }
 
 /* Fixed point multiply. */
-static INLINE od_coeff od_mul(od_coeff n, int c, int q) {
+OD_SIMD_INLINE od_coeff od_mul(od_coeff n, int c, int q) {
   return (n * c + ((1 << q) >> 1)) >> q;
 }
 
 /* Swap coefficient values. */
-static INLINE void od_swap(od_coeff *q0, od_coeff *q1) {
+OD_SIMD_INLINE void od_swap(od_coeff *q0, od_coeff *q1) {
   od_coeff t;
   t = *q0;
   *q0 = *q1;

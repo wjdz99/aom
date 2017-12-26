@@ -134,6 +134,14 @@ extern uint32_t OD_DIVU_SMALL_CONSTS[OD_DIVU_DMAX][2];
 #define OD_ARG_NONNULL(x)
 #endif
 
+#if OD_GNUC_PREREQ(3, 4, 0)
+#define OD_SIMD_INLINE static INLINE __attribute__((always_inline))
+#elif defined(_MSC_VER)
+#define OD_SIMD_INLINE static __forceinline
+#else
+#define OD_SIMD_INLINE static INLINE
+#endif
+
 #if defined(OD_ENABLE_ASSERTIONS)
 #if OD_GNUC_PREREQ(2, 5, 0)
 __attribute__((noreturn))
