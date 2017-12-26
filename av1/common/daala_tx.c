@@ -1,11 +1,61 @@
 #include "av1/common/daala_tx.h"
 #include "av1/common/odintrin.h"
+
+static INLINE od_coeff od_add(od_coeff p0, od_coeff p1) {
+  return p0 + p1;
+}
+
+static INLINE od_coeff od_sub(od_coeff p0, od_coeff p1) {
+  return p0 - p1;
+}
+
+static INLINE od_coeff od_add_avg(od_coeff p0, od_coeff p1) {
+  return (od_add(p0, p1) + TX_AVG_BIAS) >> 1;
+}
+
+static INLINE od_coeff od_sub_avg(od_coeff p0, od_coeff p1) {
+  return (od_sub(p0, p1) + TX_AVG_BIAS) >> 1;
+}
+
+static INLINE od_coeff od_rshift1(od_coeff v) {
+  return (v + (v < 0)) >> 1;
+}
+
+/* Fixed point multiply. */
+static INLINE od_coeff od_mul(od_coeff n, int c, int q) {
+  return (n*c + ((1 << q) >> 1)) >> q;
+}
+
+/* Swap coefficient values. */
+static INLINE void od_swap(od_coeff *q0, od_coeff *q1) {
+  od_coeff t;
+  t = *q0;
+  *q0 = *q1;
+  *q1 = t;
+}
+
+#undef OD_KERNEL
+#undef OD_COEFF
+#undef OD_ADD
+#undef OD_SUB
+#undef OD_RSHIFT1
+#undef OD_ADD_AVG
+#undef OD_SUB_AVG
+#undef OD_MUL
+#undef OD_SWAP
+#define OD_KERNEL c
+#define OD_COEFF od_coeff
+#define OD_ADD od_add
+#define OD_SUB od_sub
+#define OD_RSHIFT1 od_rshift1
+#define OD_ADD_AVG od_add_avg
+#define OD_SUB_AVG od_sub_avg
+#define OD_MUL od_mul
+#define OD_SWAP od_swap
+
 #include "av1/common/daala_tx_kernels.h"
 
 /* clang-format off */
-
-#define OD_RSHIFT1(_a) (((_a) + ((_a) < 0)) >> 1)
-#define OD_PAVG(_a, _b) (((_a) + (_b) + 1) >> 1)
 
 /* 4-point orthonormal Type-II fDCT. */
 void od_bin_fdct4(od_coeff y[4], const od_coeff *x, int xstride) {
@@ -17,7 +67,7 @@ void od_bin_fdct4(od_coeff y[4], const od_coeff *x, int xstride) {
   q1 = x[1*xstride];
   q2 = x[2*xstride];
   q3 = x[3*xstride];
-  od_fdct_4(&q0, &q1, &q2, &q3);
+  od_fdct_4_c(&q0, &q1, &q2, &q3);
   y[0] = (od_coeff)q0;
   y[1] = (od_coeff)q2;
   y[2] = (od_coeff)q1;
@@ -34,7 +84,7 @@ void od_bin_idct4(od_coeff *x, int xstride, const od_coeff y[4]) {
   q2 = y[1];
   q1 = y[2];
   q3 = y[3];
-  od_idct_4(&q0, &q2, &q1, &q3);
+  od_idct_4_c(&q0, &q2, &q1, &q3);
   x[0*xstride] = (od_coeff)q0;
   x[1*xstride] = (od_coeff)q1;
   x[2*xstride] = (od_coeff)q2;
@@ -51,7 +101,7 @@ void od_bin_fdst4(od_coeff y[4], const od_coeff *x, int xstride) {
   q1 = x[1*xstride];
   q2 = x[2*xstride];
   q3 = x[3*xstride];
-  od_fdst_vii_4(&q0, &q1, &q2, &q3);
+  od_fdst_vii_4_c(&q0, &q1, &q2, &q3);
   y[0] = (od_coeff)q0;
   y[1] = (od_coeff)q2;
   y[2] = (od_coeff)q1;
@@ -68,7 +118,7 @@ void od_bin_idst4(od_coeff *x, int xstride, const od_coeff y[4]) {
   q2 = y[1];
   q1 = y[2];
   q3 = y[3];
-  od_idst_vii_4(&q0, &q2, &q1, &q3);
+  od_idst_vii_4_c(&q0, &q2, &q1, &q3);
   x[0*xstride] = q0;
   x[1*xstride] = q1;
   x[2*xstride] = q2;
@@ -92,7 +142,7 @@ void od_bin_fdct8(od_coeff y[8], const od_coeff *x, int xstride) {
   r5 = x[5*xstride];
   r6 = x[6*xstride];
   r7 = x[7*xstride];
-  od_fdct_8(&r0, &r1, &r2, &r3, &r4, &r5, &r6, &r7);
+  od_fdct_8_c(&r0, &r1, &r2, &r3, &r4, &r5, &r6, &r7);
   y[0] = (od_coeff)r0;
   y[1] = (od_coeff)r4;
   y[2] = (od_coeff)r2;
@@ -120,7 +170,7 @@ void od_bin_idct8(od_coeff *x, int xstride, const od_coeff y[8]) {
   r5 = y[5];
   r3 = y[6];
   r7 = y[7];
-  od_idct_8(&r0, &r4, &r2, &r6, &r1, &r5, &r3, &r7);
+  od_idct_8_c(&r0, &r4, &r2, &r6, &r1, &r5, &r3, &r7);
   x[0*xstride] = (od_coeff)r0;
   x[1*xstride] = (od_coeff)r1;
   x[2*xstride] = (od_coeff)r2;
@@ -132,6 +182,9 @@ void od_bin_idct8(od_coeff *x, int xstride, const od_coeff y[8]) {
 }
 
 #if !CONFIG_DAALA_TX_DST8
+
+#define OD_PAVG(_a, _b) (((_a) + (_b) + 1) >> 1)
+
 void od_bin_fdst8(od_coeff y[8], const od_coeff *x, int xstride) {
   int r0;
   int r1;
@@ -149,7 +202,7 @@ void od_bin_fdst8(od_coeff y[8], const od_coeff *x, int xstride) {
   r5 = x[5*xstride];
   r6 = x[6*xstride];
   r7 = x[7*xstride];
-  od_fdst_8(&r0, &r1, &r2, &r3, &r4, &r5, &r6, &r7);
+  od_fdst_8_c(&r0, &r1, &r2, &r3, &r4, &r5, &r6, &r7);
   y[0] = (od_coeff)r0;
   y[1] = (od_coeff)r4;
   y[2] = (od_coeff)r2;
@@ -177,7 +230,7 @@ void od_bin_idst8(od_coeff *x, int xstride, const od_coeff y[8]) {
   r5 = y[5];
   r3 = y[6];
   r7 = y[7];
-  od_idst_8(&r0, &r4, &r2, &r6, &r1, &r5, &r3, &r7);
+  od_idst_8_c(&r0, &r4, &r2, &r6, &r1, &r5, &r3, &r7);
   x[0*xstride] = (od_coeff)r0;
   x[1*xstride] = (od_coeff)r1;
   x[2*xstride] = (od_coeff)r2;
@@ -444,7 +497,7 @@ void od_bin_fdct16(od_coeff y[16], const od_coeff *x, int xstride) {
   sd = x[13*xstride];
   se = x[14*xstride];
   sf = x[15*xstride];
-  od_fdct_16(&s0, &s1, &s2, &s3, &s4, &s5, &s6, &s7,
+  od_fdct_16_c(&s0, &s1, &s2, &s3, &s4, &s5, &s6, &s7,
     &s8, &s9, &sa, &sb, &sc, &sd, &se, &sf);
   y[0] = (od_coeff)s0;
   y[1] = (od_coeff)s8;
@@ -497,7 +550,7 @@ void od_bin_idct16(od_coeff *x, int xstride, const od_coeff y[16]) {
   sb = y[13];
   s7 = y[14];
   sf = y[15];
-  od_idct_16(&s0, &s8, &s4, &sc, &s2, &sa, &s6, &se,
+  od_idct_16_c(&s0, &s8, &s4, &sc, &s2, &sa, &s6, &se,
     &s1, &s9, &s5, &sd, &s3, &sb, &s7, &sf);
   x[0*xstride] = (od_coeff)s0;
   x[1*xstride] = (od_coeff)s1;
@@ -550,7 +603,7 @@ void od_bin_fdst16(od_coeff y[16], const od_coeff *x, int xstride) {
   sd = x[13*xstride];
   se = x[14*xstride];
   sf = x[15*xstride];
-  od_fdst_16(&s0, &s1, &s2, &s3, &s4, &s5, &s6, &s7,
+  od_fdst_16_c(&s0, &s1, &s2, &s3, &s4, &s5, &s6, &s7,
     &s8, &s9, &sa, &sb, &sc, &sd, &se, &sf);
   y[0] = (od_coeff)s0;
   y[1] = (od_coeff)s8;
@@ -603,7 +656,7 @@ void od_bin_idst16(od_coeff *x, int xstride, const od_coeff y[16]) {
   sb = y[13];
   s7 = y[14];
   sf = y[15];
-  od_idst_16(&s0, &s8, &s4, &sc, &s2, &sa, &s6, &se,
+  od_idst_16_c(&s0, &s8, &s4, &sc, &s2, &sa, &s6, &se,
     &s1, &s9, &s5, &sd, &s3, &sb, &s7, &sf);
   x[0*xstride] = (od_coeff)s0;
   x[1*xstride] = (od_coeff)s1;
@@ -689,7 +742,7 @@ void od_bin_fdct32(od_coeff y[32], const od_coeff *x, int xstride) {
   tn = x[29*xstride];
   tf = x[30*xstride];
   tv = x[31*xstride];
-  od_fdct_32(
+  od_fdct_32_c(
     &t0, &tg, &t8, &to, &t4, &tk, &tc, &ts, &t2, &ti, &ta, &tq, &t6, &tm, &te,
     &tu, &t1, &th, &t9, &tp, &t5, &tl, &td, &tt, &t3, &tj, &tb, &tr, &t7, &tn,
     &tf, &tv);
@@ -792,7 +845,7 @@ void od_bin_idct32(od_coeff *x, int xstride, const od_coeff y[32]) {
   tn = y[29];
   tf = y[30];
   tv = y[31];
-  od_idct_32(
+  od_idct_32_c(
     &t0, &tg, &t8, &to, &t4, &tk, &tc, &ts, &t2, &ti, &ta, &tq, &t6, &tm, &te,
     &tu, &t1, &th, &t9, &tp, &t5, &tl, &td, &tt, &t3, &tj, &tb, &tr, &t7, &tn,
     &tf, &tv);
@@ -898,7 +951,7 @@ void od_bin_fdst32(od_coeff y[32], const od_coeff *x, int xstride) {
   tt = x[29*xstride];
   tu = x[30*xstride];
   tv = x[31*xstride];
-  od_fdst_32(
+  od_fdst_32_c(
     &t0, &t1, &t2, &t3, &t4, &t5, &t6, &t7, &t8, &t9, &ta, &tb, &tc, &td, &te,
     &tf, &tg, &th, &ti, &tj, &tk, &tl, &tm, &tn, &to, &tp, &tq, &tr, &ts, &tt,
     &tu, &tv);
@@ -1004,7 +1057,7 @@ void od_bin_idst32(od_coeff *x, int xstride, const od_coeff y[32]) {
   tn = y[29];
   tf = y[30];
   tv = y[31];
-  od_idst_32(
+  od_idst_32_c(
     &t0, &tg, &t8, &to, &t4, &tk, &tc, &ts, &t2, &ti, &ta, &tq, &t6, &tm, &te,
     &tu, &t1, &th, &t9, &tp, &t5, &tl, &td, &tt, &t3, &tj, &tb, &tr, &t7, &tn,
     &tf, &tv);
@@ -1172,7 +1225,7 @@ void od_bin_fdct64(od_coeff y[64], const od_coeff *x, int xstride) {
   uL = x[61*xstride];
   uv = x[62*xstride];
   u  = x[63*xstride];
-  od_fdct_64(
+  od_fdct_64_c(
     &u0, &uw, &ug, &uM, &u8, &uE, &uo, &uU, &u4, &uA, &uk, &uQ, &uc, &uI, &us,
     &uY, &u2, &uy, &ui, &uO, &ua, &uG, &uq, &uW, &u6, &uC, &um, &uS, &ue, &uK,
     &uu, &u_, &u1, &ux, &uh, &uN, &u9, &uF, &up, &uV, &u5, &uB, &ul, &uR, &ud,
@@ -1374,7 +1427,7 @@ void od_bin_idct64(od_coeff *x, int xstride, const od_coeff y[64]) {
   uL = y[61];
   uv = y[62];
   u  = y[63];
-  od_idct_64(
+  od_idct_64_c(
     &u0, &uw, &ug, &uM, &u8, &uE, &uo, &uU, &u4, &uA, &uk, &uQ, &uc, &uI, &us,
     &uY, &u2, &uy, &ui, &uO, &ua, &uG, &uq, &uW, &u6, &uC, &um, &uS, &ue, &uK,
     &uu, &u_, &u1, &ux, &uh, &uN, &u9, &uF, &up, &uV, &u5, &uB, &ul, &uR, &ud,
