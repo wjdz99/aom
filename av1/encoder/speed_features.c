@@ -20,9 +20,7 @@
 // Setting this to 1 will disable trellis optimization within the
 // transform search. Trellis optimization will still be applied
 // in the final encode.
-#ifndef DISABLE_TRELLISQ_SEARCH
-#define DISABLE_TRELLISQ_SEARCH 0
-#endif
+#define DISABLE_TRELLISQ_SEARCH 1
 
 #define MAX_MESH_SPEED 5  // Max speed setting for mesh motion method
 static MESH_PATTERN
