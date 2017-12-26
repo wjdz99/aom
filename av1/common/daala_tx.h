@@ -4,6 +4,18 @@
 #include "aom_dsp/aom_dsp_common.h"
 #include "av1/common/odintrin.h"
 
+/*Controls the biasing of average operations.
+  Must be either 0 or 1.*/
+#define TX_AVG_BIAS (0)
+
+/*Parameterizes the variations of the transform kernels.
+  See daala_tx_kernels.h for usage.*/
+#define TX_NONE (0)
+#define TX_AVG (!TX_NONE)
+#define TX_SHIFT (!TX_NONE)
+#define TX_ADD (0)
+#define TX_SUB (1)
+
 void daala_fdct4(const tran_low_t *input, tran_low_t *output);
 void daala_idct4(const tran_low_t *input, tran_low_t *output);
 void daala_fdst4(const tran_low_t *input, tran_low_t *output);
