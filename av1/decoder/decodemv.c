@@ -280,13 +280,8 @@ static void read_drl_idx(FRAME_CONTEXT *ec_ctx, MACROBLOCKD *xd,
   }
 }
 
-#if CONFIG_EXT_WARPED_MOTION
-static MOTION_MODE read_motion_mode(MACROBLOCKD *xd, MODE_INFO *mi,
-                                    aom_reader *r, int best) {
-#else
 static MOTION_MODE read_motion_mode(MACROBLOCKD *xd, MODE_INFO *mi,
                                     aom_reader *r) {
-#endif  // CONFIG_EXT_WARPED_MOTION
   MB_MODE_INFO *mbmi = &mi->mbmi;
 
 #if CONFIG_EXT_SKIP
@@ -306,24 +301,10 @@ static MOTION_MODE read_motion_mode(MACROBLOCKD *xd, MODE_INFO *mi,
     if (counts) ++counts->obmc[mbmi->sb_type][motion_mode];
     return (MOTION_MODE)(SIMPLE_TRANSLATION + motion_mode);
   } else {
-#if CONFIG_EXT_WARPED_MOTION
-    int wm_ctx = 0;
-    if (best != -1) {
-      wm_ctx = 1;
-      if (mbmi->mode == NEARESTMV) wm_ctx = 2;
-    }
-
-    motion_mode =
-        aom_read_symbol(r, xd->tile_ctx->motion_mode_cdf[wm_ctx][mbmi->sb_type],
-                        MOTION_MODES, ACCT_STR);
-    if (counts) ++counts->motion_mode[wm_ctx][mbmi->sb_type][motion_mode];
-#else
     motion_mode =
         aom_read_symbol(r, xd->tile_ctx->motion_mode_cdf[mbmi->sb_type],
                         MOTION_MODES, ACCT_STR);
     if (counts) ++counts->motion_mode[mbmi->sb_type][motion_mode];
-#endif  // CONFIG_EXT_WARPED_MOTION
-
     return (MOTION_MODE)(SIMPLE_TRANSLATION + motion_mode);
   }
 }
@@ -814,7 +795,7 @@ static void read_palette_colors_uv(MACROBLOCKD *const xd, int bit_depth,
 }
 
 static void read_palette_mode_info(AV1_COMMON *const cm, MACROBLOCKD *const xd,
-                                   aom_reader *r) {
+                                   int mi_row, int mi_col, aom_reader *r) {
   MODE_INFO *const mi = xd->mi[0];
   MB_MODE_INFO *const mbmi = &mi->mbmi;
   const MODE_INFO *const above_mi = xd->above_mi;
@@ -845,7 +826,9 @@ static void read_palette_mode_info(AV1_COMMON *const cm, MACROBLOCKD *const xd,
       read_palette_colors_y(xd, cm->bit_depth, pmi, r);
     }
   }
-  if (mbmi->uv_mode == UV_DC_PRED) {
+  if (mbmi->uv_mode == UV_DC_PRED &&
+      is_chroma_reference(mi_row, mi_col, bsize, xd->plane[1].subsampling_x,
+                          xd->plane[1].subsampling_y)) {
     const int palette_uv_mode_ctx = (pmi->palette_size[0] > 0);
     const int modev = aom_read_symbol(
         r, xd->tile_ctx->palette_uv_mode_cdf[palette_uv_mode_ctx], 2, ACCT_STR);
@@ -1204,7 +1187,7 @@ static void read_intra_frame_mode_info(AV1_COMMON *const cm,
   mbmi->palette_mode_info.palette_size[0] = 0;
   mbmi->palette_mode_info.palette_size[1] = 0;
   if (av1_allow_palette(cm->allow_screen_content_tools, bsize))
-    read_palette_mode_info(cm, xd, r);
+    read_palette_mode_info(cm, xd, mi_row, mi_col, r);
 #if CONFIG_FILTER_INTRA
   mbmi->filter_intra_mode_info.use_filter_intra = 0;
   read_filter_intra_mode_info(xd, r);
@@ -1568,7 +1551,7 @@ static void read_intra_block_mode_info(AV1_COMMON *const cm, const int mi_row,
   mbmi->palette_mode_info.palette_size[0] = 0;
   mbmi->palette_mode_info.palette_size[1] = 0;
   if (av1_allow_palette(cm->allow_screen_content_tools, bsize))
-    read_palette_mode_info(cm, xd, r);
+    read_palette_mode_info(cm, xd, mi_row, mi_col, r);
 #if CONFIG_FILTER_INTRA
   mbmi->filter_intra_mode_info.use_filter_intra = 0;
   read_filter_intra_mode_info(xd, r);
@@ -1844,7 +1827,7 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
   int16_t compound_inter_mode_ctx[MODE_CTX_REF_FRAMES];
   int pts[SAMPLES_ARRAY_SIZE], pts_inref[SAMPLES_ARRAY_SIZE];
 #if CONFIG_EXT_WARPED_MOTION
-  int pts_mv[SAMPLES_ARRAY_SIZE], pts_wm[SAMPLES_ARRAY_SIZE];
+  int pts_mv[SAMPLES_ARRAY_SIZE];
 #endif  // CONFIG_EXT_WARPED_MOTION
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
 
@@ -2134,9 +2117,6 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
     xd->block_refs[ref] = ref_buf;
   }
 
-#if CONFIG_EXT_WARPED_MOTION
-  int best_cand = -1;
-#endif  // CONFIG_EXT_WARPED_MOTION
   mbmi->motion_mode = SIMPLE_TRANSLATION;
   if (mbmi->sb_type >= BLOCK_8X8 &&
 #if CONFIG_EXT_SKIP
@@ -2144,32 +2124,15 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
 #endif  // CONFIG_EXT_SKIP
       !has_second_ref(mbmi))
 #if CONFIG_EXT_WARPED_MOTION
-  {
     mbmi->num_proj_ref[0] =
-        findSamples(cm, xd, mi_row, mi_col, pts, pts_inref, pts_mv, pts_wm);
-
-    // Find a warped neighbor.
-    int best_weight = 0;
-
-    // if (mbmi->mode == NEARESTMV)
-    for (int cand = 0; cand < mbmi->num_proj_ref[0]; cand++) {
-      if (pts_wm[cand * 2 + 1] > best_weight) {
-        best_weight = pts_wm[cand * 2 + 1];
-        best_cand = cand;
-      }
-    }
-  }
+        findSamples(cm, xd, mi_row, mi_col, pts, pts_inref, pts_mv);
 #else
     mbmi->num_proj_ref[0] = findSamples(cm, xd, mi_row, mi_col, pts, pts_inref);
 #endif  // CONFIG_EXT_WARPED_MOTION
   av1_count_overlappable_neighbors(cm, xd, mi_row, mi_col);
 
   if (mbmi->ref_frame[1] != INTRA_FRAME)
-#if CONFIG_EXT_WARPED_MOTION
-    mbmi->motion_mode = read_motion_mode(xd, mi, r, best_cand);
-#else
     mbmi->motion_mode = read_motion_mode(xd, mi, r);
-#endif  // CONFIG_EXT_WARPED_MOTION
 
 #if CONFIG_JNT_COMP
   // init
@@ -2271,27 +2234,19 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
     mbmi->wm_params[0].wmtype = DEFAULT_WMTYPE;
 
 #if CONFIG_EXT_WARPED_MOTION
-    if (mbmi->mode == NEARESTMV && best_cand != -1) {
-      MODE_INFO *best_mi = xd->mi[pts_wm[2 * best_cand]];
-      assert(best_mi->mbmi.motion_mode == WARPED_CAUSAL);
-      mbmi->wm_params[0] = best_mi->mbmi.wm_params[0];
-    } else {
-      if (mbmi->num_proj_ref[0] > 1)
-        mbmi->num_proj_ref[0] = sortSamples(pts_mv, &mbmi->mv[0].as_mv, pts,
-                                            pts_inref, mbmi->num_proj_ref[0]);
+    if (mbmi->num_proj_ref[0] > 1)
+      mbmi->num_proj_ref[0] = sortSamples(pts_mv, &mbmi->mv[0].as_mv, pts,
+                                          pts_inref, mbmi->num_proj_ref[0]);
 #endif  // CONFIG_EXT_WARPED_MOTION
 
-      if (find_projection(mbmi->num_proj_ref[0], pts, pts_inref, bsize,
-                          mbmi->mv[0].as_mv.row, mbmi->mv[0].as_mv.col,
-                          &mbmi->wm_params[0], mi_row, mi_col)) {
+    if (find_projection(mbmi->num_proj_ref[0], pts, pts_inref, bsize,
+                        mbmi->mv[0].as_mv.row, mbmi->mv[0].as_mv.col,
+                        &mbmi->wm_params[0], mi_row, mi_col)) {
 #if WARPED_MOTION_DEBUG
-        printf("Warning: unexpected warped model from aomenc\n");
+      printf("Warning: unexpected warped model from aomenc\n");
 #endif
-        mbmi->wm_params[0].invalid = 1;
-      }
-#if CONFIG_EXT_WARPED_MOTION
+      mbmi->wm_params[0].invalid = 1;
     }
-#endif  // CONFIG_EXT_WARPED_MOTION
   }
 
 #if DEC_MISMATCH_DEBUG

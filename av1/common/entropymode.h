@@ -49,6 +49,14 @@ extern "C" {
 // 1 if this block uses palette for Y plane (i.e. Y palette size > 0).
 #define PALETTE_UV_MODE_CONTEXTS 2
 
+// Map the number of pixels in a block size to a context
+//   16(BLOCK_4X4)                          -> 0
+//   32(BLOCK_4X8, BLOCK_8X4)               -> 1
+//   64(BLOCK_8X8, BLOCK_4x16, BLOCK_16X4)  -> 2
+//   ...
+// 4096(BLOCK_64X64)                        -> 8
+#define PALATTE_BSIZE_CTXS 9
+
 #if CONFIG_KF_CTX
 #define KF_MODE_CONTEXTS 5
 #endif
@@ -128,24 +136,15 @@ typedef struct frame_contexts {
   aom_cdf_prob inter_compound_mode_cdf[INTER_MODE_CONTEXTS]
                                       [CDF_SIZE(INTER_COMPOUND_MODES)];
 #if CONFIG_JNT_COMP
-  aom_prob compound_type_prob[BLOCK_SIZES_ALL][COMPOUND_TYPES - 2];
   aom_cdf_prob compound_type_cdf[BLOCK_SIZES_ALL][CDF_SIZE(COMPOUND_TYPES - 1)];
 #else
-  aom_prob compound_type_prob[BLOCK_SIZES_ALL][COMPOUND_TYPES - 1];
   aom_cdf_prob compound_type_cdf[BLOCK_SIZES_ALL][CDF_SIZE(COMPOUND_TYPES)];
 #endif  // CONFIG_JNT_COMP
   aom_cdf_prob interintra_cdf[BLOCK_SIZE_GROUPS][CDF_SIZE(2)];
   aom_cdf_prob wedge_interintra_cdf[BLOCK_SIZES_ALL][CDF_SIZE(2)];
   aom_cdf_prob interintra_mode_cdf[BLOCK_SIZE_GROUPS]
                                   [CDF_SIZE(INTERINTRA_MODES)];
-#if CONFIG_EXT_WARPED_MOTION
-  aom_prob motion_mode_prob[MOTION_MODE_CTX][BLOCK_SIZES_ALL][MOTION_MODES - 1];
-  aom_cdf_prob motion_mode_cdf[MOTION_MODE_CTX][BLOCK_SIZES_ALL]
-                              [CDF_SIZE(MOTION_MODES)];
-#else
-  aom_prob motion_mode_prob[BLOCK_SIZES_ALL][MOTION_MODES - 1];
   aom_cdf_prob motion_mode_cdf[BLOCK_SIZES_ALL][CDF_SIZE(MOTION_MODES)];
-#endif  // CONFIG_EXT_WARPED_MOTION
   aom_cdf_prob obmc_cdf[BLOCK_SIZES_ALL][CDF_SIZE(2)];
   aom_prob comp_inter_prob[COMP_INTER_CONTEXTS];
   aom_cdf_prob palette_y_size_cdf[PALATTE_BSIZE_CTXS][CDF_SIZE(PALETTE_SIZES)];
@@ -177,8 +176,6 @@ typedef struct frame_contexts {
 #if CONFIG_JNT_COMP
   aom_cdf_prob compound_index_cdf[COMP_INDEX_CONTEXTS][CDF_SIZE(2)];
   aom_cdf_prob comp_group_idx_cdf[COMP_GROUP_IDX_CONTEXTS][CDF_SIZE(2)];
-  aom_prob compound_index_probs[COMP_INDEX_CONTEXTS];
-  aom_prob comp_group_idx_probs[COMP_GROUP_IDX_CONTEXTS];
 #endif  // CONFIG_JNT_COMP
 #if CONFIG_EXT_SKIP
   aom_cdf_prob skip_mode_cdfs[SKIP_CONTEXTS][CDF_SIZE(2)];
@@ -306,12 +303,7 @@ typedef struct FRAME_COUNTS {
 #else
   unsigned int compound_interinter[BLOCK_SIZES_ALL][COMPOUND_TYPES];
 #endif  // CONFIG_JNT_COMP
-#if CONFIG_EXT_WARPED_MOTION
-  unsigned int motion_mode[MOTION_MODE_CTX][BLOCK_SIZES_ALL][MOTION_MODES];
-#else
   unsigned int motion_mode[BLOCK_SIZES_ALL][MOTION_MODES];
-#endif  // CONFIG_EXT_WARPED_MOTION
-
   unsigned int obmc[BLOCK_SIZES_ALL][2];
   unsigned int intra_inter[INTRA_INTER_CONTEXTS][2];
   unsigned int comp_inter[COMP_INTER_CONTEXTS][2];
@@ -431,18 +423,6 @@ static const int av1_ext_tx_inv[EXT_TX_SET_TYPES][TX_TYPES] = {
       9, 10, 11, 12, 13, 14, 15, 0, 1, 2, 4, 5, 3, 6, 7, 8,
   },
 };
-
-extern const aom_tree_index
-    av1_interintra_mode_tree[TREE_SIZE(INTERINTRA_MODES)];
-extern const aom_tree_index
-    av1_inter_compound_mode_tree[TREE_SIZE(INTER_COMPOUND_MODES)];
-#if CONFIG_JNT_COMP
-extern const aom_tree_index
-    av1_compound_type_tree[TREE_SIZE(COMPOUND_TYPES - 1)];
-#else
-extern const aom_tree_index av1_compound_type_tree[TREE_SIZE(COMPOUND_TYPES)];
-#endif  // CONFIG_JNT_COMP
-extern const aom_tree_index av1_motion_mode_tree[TREE_SIZE(MOTION_MODES)];
 
 void av1_setup_frame_contexts(struct AV1Common *cm);
 void av1_setup_past_independence(struct AV1Common *cm);

@@ -67,12 +67,6 @@ static INLINE void write_uniform(aom_writer *w, int n, int v) {
   }
 }
 
-static struct av1_token interintra_mode_encodings[INTERINTRA_MODES];
-#if CONFIG_JNT_COMP
-static struct av1_token compound_type_encodings[COMPOUND_TYPES - 1];
-#else
-static struct av1_token compound_type_encodings[COMPOUND_TYPES];
-#endif  // CONFIG_JNT_COMP
 #if CONFIG_LOOP_RESTORATION
 static void loop_restoration_write_sb_coeffs(const AV1_COMMON *const cm,
                                              MACROBLOCKD *xd,
@@ -99,10 +93,6 @@ static int remux_tiles(const AV1_COMMON *const cm, uint8_t *dst,
                        int *const tile_size_bytes,
                        int *const tile_col_size_bytes);
 #endif
-void av1_encode_token_init(void) {
-  av1_tokens_from_tree(interintra_mode_encodings, av1_interintra_mode_tree);
-  av1_tokens_from_tree(compound_type_encodings, av1_compound_type_tree);
-}
 
 static void write_intra_mode_kf(FRAME_CONTEXT *frame_ctx, const MODE_INFO *mi,
                                 const MODE_INFO *above_mi,
@@ -316,22 +306,9 @@ static void write_motion_mode(const AV1_COMMON *cm, MACROBLOCKD *xd,
                        xd->tile_ctx->obmc_cdf[mbmi->sb_type], 2);
       break;
     default:
-#if CONFIG_EXT_WARPED_MOTION
-    {
-      int wm_ctx = 0;
-      if (mbmi->wm_ctx != -1) {
-        wm_ctx = 1;
-        if (mbmi->mode == NEARESTMV) wm_ctx = 2;
-      }
-      aom_write_symbol(w, mbmi->motion_mode,
-                       xd->tile_ctx->motion_mode_cdf[wm_ctx][mbmi->sb_type],
-                       MOTION_MODES);
-    }
-#else
       aom_write_symbol(w, mbmi->motion_mode,
                        xd->tile_ctx->motion_mode_cdf[mbmi->sb_type],
                        MOTION_MODES);
-#endif  // CONFIG_EXT_WARPED_MOTION
   }
 }
 
@@ -492,7 +469,6 @@ static void pack_txb_tokens(aom_writer *w, AV1_COMMON *cm, MACROBLOCK *const x,
                             int block, int blk_row, int blk_col,
                             TX_SIZE tx_size, TOKEN_STATS *token_stats) {
   const struct macroblockd_plane *const pd = &xd->plane[plane];
-  const BLOCK_SIZE bsize = txsize_to_bsize[tx_size];
   const int tx_row = blk_row >> (1 - pd->subsampling_y);
   const int tx_col = blk_col >> (1 - pd->subsampling_x);
   const int max_blocks_high = max_block_high(xd, plane_bsize, plane);
@@ -501,14 +477,10 @@ static void pack_txb_tokens(aom_writer *w, AV1_COMMON *cm, MACROBLOCK *const x,
   if (blk_row >= max_blocks_high || blk_col >= max_blocks_wide) return;
 
   const TX_SIZE plane_tx_size =
-      plane ? av1_get_uv_tx_size_vartx(mbmi, pd, bsize, tx_row, tx_col)
+      plane ? av1_get_uv_tx_size(mbmi, pd->subsampling_x, pd->subsampling_y)
             : mbmi->inter_tx_size[tx_row][tx_col];
 
-  if (tx_size == plane_tx_size
-#if DISABLE_VARTX_FOR_CHROMA
-      || plane
-#endif  // DISABLE_VARTX_FOR_CHROMA
-      ) {
+  if (tx_size == plane_tx_size || plane) {
     TOKEN_STATS tmp_token_stats;
     init_token_stats(&tmp_token_stats);
 
@@ -553,7 +525,6 @@ static void pack_txb_tokens(aom_writer *w, const TOKENEXTRA **tp,
                             int block, int blk_row, int blk_col,
                             TX_SIZE tx_size, TOKEN_STATS *token_stats) {
   const struct macroblockd_plane *const pd = &xd->plane[plane];
-  const BLOCK_SIZE bsize = txsize_to_bsize[tx_size];
   const int tx_row = blk_row >> (1 - pd->subsampling_y);
   const int tx_col = blk_col >> (1 - pd->subsampling_x);
   const int max_blocks_high = max_block_high(xd, plane_bsize, plane);
@@ -562,14 +533,10 @@ static void pack_txb_tokens(aom_writer *w, const TOKENEXTRA **tp,
   if (blk_row >= max_blocks_high || blk_col >= max_blocks_wide) return;
 
   const TX_SIZE plane_tx_size =
-      plane ? av1_get_uv_tx_size_vartx(mbmi, pd, bsize, tx_row, tx_col)
+      plane ? av1_get_uv_tx_size(mbmi, pd->subsampling_x, pd->subsampling_y)
             : mbmi->inter_tx_size[tx_row][tx_col];
 
-  if (tx_size == plane_tx_size
-#if DISABLE_VARTX_FOR_CHROMA
-      || plane
-#endif  // DISABLE_VARTX_FOR_CHROMA
-      ) {
+  if (tx_size == plane_tx_size || plane) {
     TOKEN_STATS tmp_token_stats;
     init_token_stats(&tmp_token_stats);
     pack_mb_tokens(w, tp, tok_end, bit_depth, tx_size, &tmp_token_stats);
@@ -1012,7 +979,8 @@ static void write_palette_colors_uv(const MACROBLOCKD *const xd,
 }
 
 static void write_palette_mode_info(const AV1_COMMON *cm, const MACROBLOCKD *xd,
-                                    const MODE_INFO *const mi, aom_writer *w) {
+                                    const MODE_INFO *const mi, int mi_row,
+                                    int mi_col, aom_writer *w) {
   const MB_MODE_INFO *const mbmi = &mi->mbmi;
   const MODE_INFO *const above_mi = xd->above_mi;
   const MODE_INFO *const left_mi = xd->left_mi;
@@ -1047,7 +1015,9 @@ static void write_palette_mode_info(const AV1_COMMON *cm, const MACROBLOCKD *xd,
 #if CONFIG_MONO_VIDEO
       av1_num_planes(cm) > 1 &&
 #endif
-      mbmi->uv_mode == UV_DC_PRED;
+      mbmi->uv_mode == UV_DC_PRED &&
+      is_chroma_reference(mi_row, mi_col, bsize, xd->plane[1].subsampling_x,
+                          xd->plane[1].subsampling_y);
   if (uv_dc_pred) {
     const int n = pmi->palette_size[1];
     const int palette_uv_mode_ctx = (pmi->palette_size[0] > 0);
@@ -1405,7 +1375,7 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
     write_intra_angle_info(xd, ec_ctx, w);
 #endif  // CONFIG_EXT_INTRA
     if (av1_allow_palette(cm->allow_screen_content_tools, bsize))
-      write_palette_mode_info(cm, xd, mi, w);
+      write_palette_mode_info(cm, xd, mi, mi_row, mi_col, w);
 #if CONFIG_FILTER_INTRA
     write_filter_intra_mode_info(xd, mbmi, w);
 #endif  // CONFIG_FILTER_INTRA
@@ -1716,7 +1686,7 @@ static void write_mb_modes_kf(AV1_COMP *cpi, MACROBLOCKD *xd,
   write_intra_angle_info(xd, ec_ctx, w);
 #endif  // CONFIG_EXT_INTRA
   if (av1_allow_palette(cm->allow_screen_content_tools, bsize))
-    write_palette_mode_info(cm, xd, mi, w);
+    write_palette_mode_info(cm, xd, mi, mi_row, mi_col, w);
 #if CONFIG_FILTER_INTRA
   write_filter_intra_mode_info(xd, mbmi, w);
 #endif  // CONFIG_FILTER_INTRA
@@ -1981,8 +1951,8 @@ static void write_tokens_b(AV1_COMP *cpi, const TileInfo *const tile,
 #if CONFIG_INTRABC
       assert(mbmi->use_intrabc == 0);
 #endif
+      assert(av1_allow_palette(cm->allow_screen_content_tools, mbmi->sb_type));
       int rows, cols;
-      assert(mbmi->sb_type >= BLOCK_8X8);
       av1_get_block_dimensions(mbmi->sb_type, plane, xd, NULL, NULL, &rows,
                                &cols);
       assert(*tok < tok_end);
@@ -3590,6 +3560,15 @@ static void write_uncompressed_header_frame(AV1_COMP *cpi,
     }
 #endif  // CONFIG_REFERENCE_BUFFER
 
+#if CONFIG_FWD_KF
+    if (cm->reset_decoder_state && !frame_bufs[frame_to_show].intra_only) {
+      aom_internal_error(
+          &cm->error, AOM_CODEC_UNSUP_BITSTREAM,
+          "show_existing_frame to reset state on non-intra_only");
+    }
+    aom_wb_write_bit(wb, cm->reset_decoder_state);
+#endif  // CONFIG_FWD_KF
+
     return;
   } else {
     aom_wb_write_bit(wb, 0);  // show_existing_frame
@@ -3912,6 +3891,15 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
       aom_wb_write_literal(wb, 0, 8);
     }
 #endif  // CONFIG_REFERENCE_BUFFER
+
+#if CONFIG_FWD_KF
+    if (cm->reset_decoder_state && !frame_bufs[frame_to_show].intra_only) {
+      aom_internal_error(
+          &cm->error, AOM_CODEC_UNSUP_BITSTREAM,
+          "show_existing_frame to reset state on non-intra_only");
+    }
+    aom_wb_write_bit(wb, cm->reset_decoder_state);
+#endif  // CONFIG_FWD_KF
 
     return;
   } else {

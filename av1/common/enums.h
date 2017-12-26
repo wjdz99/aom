@@ -69,20 +69,11 @@ extern "C" {
 #define MI_SIZE_128X128 (128 >> MI_SIZE_LOG2)
 #endif
 
-#define MIN_PALETTE_BSIZE BLOCK_8X8
 #define MAX_PALETTE_SQUARE (64 * 64)
-
 // Maximum number of colors in a palette.
 #define PALETTE_MAX_SIZE 8
 // Minimum number of colors in a palette.
 #define PALETTE_MIN_SIZE 2
-// Map the number of pixels in a block size to a context
-//   64(BLOCK_8X8)              -> 0
-//  128(BLOCK_16X8, BLOCK_16X8) -> 1
-//  256(BLOCK_16X16)            -> 2
-//  ...
-// 4096(BLOCK_64X64)            -> 6
-#define PALATTE_BSIZE_CTXS 7
 
 #if CONFIG_FRAME_MARKER
 #define FRAME_OFFSET_BITS 5
@@ -523,10 +514,6 @@ typedef enum ATTRIBUTE_PACKED {
   WARPED_CAUSAL,  // 2-sided WARPED
   MOTION_MODES
 } MOTION_MODE;
-
-#if CONFIG_EXT_WARPED_MOTION
-#define MOTION_MODE_CTX 3
-#endif  // CONFIG_EXT_WARPED_MOTION
 
 typedef enum ATTRIBUTE_PACKED {
   II_DC_PRED,
