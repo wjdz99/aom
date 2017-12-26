@@ -1002,23 +1002,10 @@ static void update_stats(const AV1_COMMON *const cm, TileDataEnc *tile_data,
             motion_mode_allowed(xd->global_motion, xd, mi);
         if (mbmi->ref_frame[1] != INTRA_FRAME) {
           if (motion_allowed == WARPED_CAUSAL) {
-#if CONFIG_EXT_WARPED_MOTION
-            int wm_ctx = 0;
-            if (mbmi->wm_ctx != -1) {
-              wm_ctx = 1;
-              if (mbmi->mode == NEARESTMV) wm_ctx = 2;
-            }
-
-            counts->motion_mode[wm_ctx][bsize][mbmi->motion_mode]++;
-            if (allow_update_cdf)
-              update_cdf(fc->motion_mode_cdf[wm_ctx][bsize], mbmi->motion_mode,
-                         MOTION_MODES);
-#else
             counts->motion_mode[bsize][mbmi->motion_mode]++;
             if (allow_update_cdf)
               update_cdf(fc->motion_mode_cdf[bsize], mbmi->motion_mode,
                          MOTION_MODES);
-#endif  // CONFIG_EXT_WARPED_MOTION
           } else if (motion_allowed == OBMC_CAUSAL) {
             counts->obmc[bsize][mbmi->motion_mode == OBMC_CAUSAL]++;
             if (allow_update_cdf)
@@ -3953,14 +3940,8 @@ void av1_encode_frame(AV1_COMP *cpi) {
   mismatch_reset_frame();
 #endif
 
-  // In the longer term the encoder should be generalized to match the
-  // decoder such that we allow compound where one of the 3 buffers has a
-  // different sign bias and that buffer is then the fixed ref. However, this
-  // requires further work in the rd loop. For now the only supported encoder
-  // side behavior is where the ALT ref buffer has opposite sign bias to
-  // the other two.
-  if (!frame_is_intra_only(cm)) {
-    cpi->allow_comp_inter_inter = 1;
+  cpi->allow_comp_inter_inter = av1_is_compound_reference_allowed(cm);
+  if (cpi->allow_comp_inter_inter) {
     cm->comp_fwd_ref[0] = LAST_FRAME;
     cm->comp_fwd_ref[1] = LAST2_FRAME;
     cm->comp_fwd_ref[2] = LAST3_FRAME;
@@ -3968,8 +3949,6 @@ void av1_encode_frame(AV1_COMP *cpi) {
     cm->comp_bwd_ref[0] = BWDREF_FRAME;
     cm->comp_bwd_ref[1] = ALTREF2_FRAME;
     cm->comp_bwd_ref[2] = ALTREF_FRAME;
-  } else {
-    cpi->allow_comp_inter_inter = 0;
   }
 
   if (cpi->sf.frame_parameter_update) {
@@ -4182,8 +4161,6 @@ static void update_palette_cdf(MACROBLOCKD *xd, const MODE_INFO *mi) {
   const MODE_INFO *const left_mi = xd->left_mi;
   const BLOCK_SIZE bsize = mbmi->sb_type;
   const PALETTE_MODE_INFO *const pmi = &mbmi->palette_mode_info;
-
-  assert(bsize >= BLOCK_8X8 && bsize <= BLOCK_LARGEST);
   const int bsize_ctx = av1_get_palette_bsize_ctx(bsize);
 
   if (mbmi->mode == DC_PRED) {
@@ -4439,10 +4416,6 @@ static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
   const BLOCK_SIZE block_size = bsize;
   const int num_planes = av1_num_planes(cm);
 
-  // Only optimize coefficients in the final encode
-  if (cpi->sf.optimize_coefficients == FINAL_PASS_TRELLIS_OPT)
-    x->optimize = (dry_run == OUTPUT_ENABLED);
-
   if (!is_inter) {
 #if CONFIG_CFL
     xd->cfl.store_y = 1;
@@ -4464,15 +4437,16 @@ static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
         update_palette_cdf(xd, mi);
     }
 
-    if (bsize >= BLOCK_8X8) {
+    if (av1_allow_palette(cm->allow_screen_content_tools, bsize)) {
       for (int plane = 0; plane < AOMMIN(2, num_planes); ++plane) {
         if (mbmi->palette_mode_info.palette_size[plane] > 0) {
-          if (!dry_run)
+          if (!dry_run) {
             av1_tokenize_color_map(x, plane, t, bsize, mbmi->tx_size,
                                    PALETTE_MAP);
-          else if (dry_run == DRY_RUN_COSTCOEFFS)
+          } else if (dry_run == DRY_RUN_COSTCOEFFS) {
             rate +=
                 av1_cost_color_map(x, plane, bsize, mbmi->tx_size, PALETTE_MAP);
+          }
         }
       }
     }
@@ -4603,6 +4577,4 @@ static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
     cfl_store_block(xd, mbmi->sb_type, mbmi->tx_size);
   }
 #endif  // CONFIG_CFL
-  // Turn optimize back off for next block
-  if (cpi->sf.optimize_coefficients == FINAL_PASS_TRELLIS_OPT) x->optimize = 0;
 }

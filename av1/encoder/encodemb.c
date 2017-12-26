@@ -595,8 +595,13 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
   assert(x->blk_skip[plane][blk_row * bw + blk_col] != 234);
 
   if (x->blk_skip[plane][blk_row * bw + blk_col] == 0) {
-    av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize, tx_size,
-                    AV1_XFORM_QUANT_FP);
+    if (args->enable_optimize_b) {
+      av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize,
+                      tx_size, AV1_XFORM_QUANT_FP);
+    } else {
+      av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize,
+                      tx_size, AV1_XFORM_QUANT_B);
+    }
   } else {
     p->eobs[block] = 0;
   }
@@ -620,13 +625,14 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
 
 #if CONFIG_TXK_SEL
   if (plane == 0 && p->eobs[block] == 0) {
-#if DISABLE_TRELLISQ_SEARCH
-    xd->mi[0]->mbmi.txk_type[(blk_row << MAX_MIB_SIZE_LOG2) + blk_col] =
-        DCT_DCT;
-#else
-    assert(xd->mi[0]->mbmi.txk_type[(blk_row << MAX_MIB_SIZE_LOG2) + blk_col] ==
-           DCT_DCT);
-#endif
+    if (args->enable_optimize_b) {
+      xd->mi[0]->mbmi.txk_type[(blk_row << MAX_MIB_SIZE_LOG2) + blk_col] =
+          DCT_DCT;
+    } else {
+      assert(
+          xd->mi[0]->mbmi.txk_type[(blk_row << MAX_MIB_SIZE_LOG2) + blk_col] ==
+          DCT_DCT);
+    }
   }
 #endif  // CONFIG_TXK_SEL
 
@@ -654,7 +660,6 @@ static void encode_block_inter(int plane, int block, int blk_row, int blk_col,
   MACROBLOCK *const x = args->x;
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
-  const BLOCK_SIZE bsize = txsize_to_bsize[tx_size];
   const struct macroblockd_plane *const pd = &xd->plane[plane];
   const int tx_row = blk_row >> (1 - pd->subsampling_y);
   const int tx_col = blk_col >> (1 - pd->subsampling_x);
@@ -664,14 +669,10 @@ static void encode_block_inter(int plane, int block, int blk_row, int blk_col,
   if (blk_row >= max_blocks_high || blk_col >= max_blocks_wide) return;
 
   const TX_SIZE plane_tx_size =
-      plane ? av1_get_uv_tx_size_vartx(mbmi, pd, bsize, tx_row, tx_col)
+      plane ? av1_get_uv_tx_size(mbmi, pd->subsampling_x, pd->subsampling_y)
             : mbmi->inter_tx_size[tx_row][tx_col];
 
-  if (tx_size == plane_tx_size
-#if DISABLE_VARTX_FOR_CHROMA
-      || plane
-#endif  // DISABLE_VARTX_FOR_CHROMA
-      ) {
+  if (tx_size == plane_tx_size || plane) {
     encode_block(plane, block, blk_row, blk_col, plane_bsize, tx_size, arg,
                  mi_row, mi_col, dry_run);
   } else {
@@ -892,14 +893,9 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
 
 #if CONFIG_TXK_SEL
     if (plane == 0 && p->eobs[block] == 0) {
-#if DISABLE_TRELLISQ_SEARCH
-      xd->mi[0]->mbmi.txk_type[(blk_row << MAX_MIB_SIZE_LOG2) + blk_col] =
-          DCT_DCT;
-#else
       assert(
           xd->mi[0]->mbmi.txk_type[(blk_row << MAX_MIB_SIZE_LOG2) + blk_col] ==
           DCT_DCT);
-#endif
     }
 #endif  // CONFIG_TXK_SEL
   } else {

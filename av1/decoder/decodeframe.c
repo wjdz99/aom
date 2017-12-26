@@ -89,10 +89,6 @@ static int read_compressed_header(AV1Decoder *pbi, const uint8_t *data,
 static size_t read_uncompressed_header(AV1Decoder *pbi,
                                        struct aom_read_bit_buffer *rb);
 
-static int is_compound_reference_allowed(const AV1_COMMON *cm) {
-  return !frame_is_intra_only(cm);
-}
-
 static void setup_compound_reference_mode(AV1_COMMON *cm) {
   cm->comp_fwd_ref[0] = LAST_FRAME;
   cm->comp_fwd_ref[1] = LAST2_FRAME;
@@ -129,7 +125,7 @@ static TX_MODE read_tx_mode(AV1_COMMON *cm, struct aom_read_bit_buffer *rb) {
 
 static REFERENCE_MODE read_frame_reference_mode(
     const AV1_COMMON *cm, struct aom_read_bit_buffer *rb) {
-  if (is_compound_reference_allowed(cm)) {
+  if (av1_is_compound_reference_allowed(cm)) {
 #if CONFIG_REF_ADAPT
     return aom_rb_read_bit(rb) ? REFERENCE_MODE_SELECT : SINGLE_REFERENCE;
 #else
@@ -211,11 +207,10 @@ static void decode_reconstruct_tx(AV1_COMMON *cm, MACROBLOCKD *const xd,
   (void)mi_row;
   (void)mi_col;
   const struct macroblockd_plane *const pd = &xd->plane[plane];
-  const BLOCK_SIZE bsize = txsize_to_bsize[tx_size];
   const int tx_row = blk_row >> (1 - pd->subsampling_y);
   const int tx_col = blk_col >> (1 - pd->subsampling_x);
   const TX_SIZE plane_tx_size =
-      plane ? av1_get_uv_tx_size_vartx(mbmi, pd, bsize, tx_row, tx_col)
+      plane ? av1_get_uv_tx_size(mbmi, pd->subsampling_x, pd->subsampling_y)
             : mbmi->inter_tx_size[tx_row][tx_col];
   // Scale to match transform block unit.
   const int max_blocks_high = max_block_high(xd, plane_bsize, plane);
@@ -223,11 +218,7 @@ static void decode_reconstruct_tx(AV1_COMMON *cm, MACROBLOCKD *const xd,
 
   if (blk_row >= max_blocks_high || blk_col >= max_blocks_wide) return;
 
-  if (tx_size == plane_tx_size
-#if DISABLE_VARTX_FOR_CHROMA
-      || plane
-#endif  // DISABLE_VARTX_FOR_CHROMA
-      ) {
+  if (tx_size == plane_tx_size || plane) {
     PLANE_TYPE plane_type = get_plane_type(plane);
 #if TXCOEFF_TIMER
     struct aom_usec_timer timer;

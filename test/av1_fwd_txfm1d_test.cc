@@ -23,8 +23,17 @@ namespace {
 const int txfm_type_num = 2;
 const TYPE_TXFM txfm_type_ls[2] = { TYPE_DCT, TYPE_ADST };
 
+#if CONFIG_TX64X64
 const int txfm_size_num = 5;
-const int txfm_size_ls[5] = { 4, 8, 16, 32, 64 };
+#else
+const int txfm_size_num = 4;
+#endif  // CONFIG_TX64X64
+
+const int txfm_size_ls[] = { 4, 8, 16, 32,
+#if CONFIG_TX64X64
+                             64
+#endif  // CONFIG_TX64X64
+};
 
 const TxfmFunc fwd_txfm_func_ls[][2] = {
   { av1_fdct4_new, av1_fadst4_new },
@@ -86,9 +95,10 @@ TEST(av1_fwd_txfm1d, accuracy) {
           reference_hybrid_1d(ref_input, ref_output, txfm_size, txfm_type);
 
           for (int ni = 0; ni < txfm_size; ++ni) {
-            EXPECT_LE(
+            ASSERT_LE(
                 abs(output[ni] - static_cast<int32_t>(round(ref_output[ni]))),
-                max_error);
+                max_error)
+                << "tx size = " << txfm_size << ", tx type = " << txfm_type;
           }
         }
       }

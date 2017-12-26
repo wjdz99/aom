@@ -76,23 +76,6 @@ const int *av1_dct_cat_lt_10_value_cost =
     dct_cat_lt_10_value_cost +
     (sizeof(dct_cat_lt_10_value_cost) / sizeof(*dct_cat_lt_10_value_cost)) / 2;
 
-// Array indices are identical to previously-existing CONTEXT_NODE indices
-/* clang-format off */
-const aom_tree_index av1_coef_tree[TREE_SIZE(ENTROPY_TOKENS)] = {
-  -EOB_TOKEN, 2,                       // 0  = EOB
-  -ZERO_TOKEN, 4,                      // 1  = ZERO
-  -ONE_TOKEN, 6,                       // 2  = ONE
-  8, 12,                               // 3  = LOW_VAL
-  -TWO_TOKEN, 10,                      // 4  = TWO
-  -THREE_TOKEN, -FOUR_TOKEN,           // 5  = THREE
-  14, 16,                              // 6  = HIGH_LOW
-  -CATEGORY1_TOKEN, -CATEGORY2_TOKEN,  // 7  = CAT_ONE
-  18, 20,                              // 8  = CAT_THREEFOUR
-  -CATEGORY3_TOKEN, -CATEGORY4_TOKEN,  // 9  = CAT_THREE
-  -CATEGORY5_TOKEN, -CATEGORY6_TOKEN   // 10 = CAT_FIVE
-};
-/* clang-format on */
-
 static const int16_t zero_cost[] = { 0 };
 static const int16_t sign_cost[1] = { 512 };
 static const int16_t cat1_cost[1 << 1] = { 864, 1229 };
@@ -503,7 +486,6 @@ void tokenize_vartx(ThreadData *td, TOKENEXTRA **t, RUN_TYPE dry_run,
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
   const struct macroblockd_plane *const pd = &xd->plane[plane];
-  const BLOCK_SIZE bsize = txsize_to_bsize[tx_size];
   const int tx_row = blk_row >> (1 - pd->subsampling_y);
   const int tx_col = blk_col >> (1 - pd->subsampling_x);
   const int max_blocks_high = max_block_high(xd, plane_bsize, plane);
@@ -512,14 +494,10 @@ void tokenize_vartx(ThreadData *td, TOKENEXTRA **t, RUN_TYPE dry_run,
   if (blk_row >= max_blocks_high || blk_col >= max_blocks_wide) return;
 
   const TX_SIZE plane_tx_size =
-      plane ? av1_get_uv_tx_size_vartx(mbmi, pd, bsize, tx_row, tx_col)
+      plane ? av1_get_uv_tx_size(mbmi, pd->subsampling_x, pd->subsampling_y)
             : mbmi->inter_tx_size[tx_row][tx_col];
 
-  if (tx_size == plane_tx_size
-#if DISABLE_VARTX_FOR_CHROMA
-      || plane
-#endif  // DISABLE_VARTX_FOR_CHROMA
-      ) {
+  if (tx_size == plane_tx_size || plane) {
     plane_bsize = get_plane_block_size(mbmi->sb_type, pd);
 #if CONFIG_LV_MAP
     if (!dry_run) {

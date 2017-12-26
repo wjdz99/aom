@@ -39,12 +39,6 @@ extern "C" {
 #define COMPOUND_SEGMENT_TYPE 1
 #define MAX_SEG_MASK_BITS 1
 
-// Disables vartx transform split for chroma
-#define DISABLE_VARTX_FOR_CHROMA 1
-
-// Disables small transform split for intra modes.
-#define DISABLE_SMLTX_FOR_CHROMA_INTRA 1
-
 // SEG_MASK_TYPES should not surpass 1 << MAX_SEG_MASK_BITS
 typedef enum {
 #if COMPOUND_SEGMENT_TYPE == 0
@@ -284,9 +278,6 @@ typedef struct MB_MODE_INFO {
   int wedge_sign;
   SEG_MASK_TYPE mask_type;
   MOTION_MODE motion_mode;
-#if CONFIG_EXT_WARPED_MOTION
-  int wm_ctx;
-#endif  // CONFIG_EXT_WARPED_MOTION
   int overlappable_neighbors[2];
   int_mv mv[2];
   int_mv pred_mv[2];
@@ -1151,23 +1142,7 @@ static INLINE TX_SIZE av1_get_max_uv_txsize(BLOCK_SIZE bsize, int is_inter,
 
 static INLINE TX_SIZE av1_get_uv_tx_size(const MB_MODE_INFO *mbmi, int ss_x,
                                          int ss_y) {
-  if (is_inter_block(mbmi)) {
-#if DISABLE_VARTX_FOR_CHROMA
-    return av1_get_max_uv_txsize(mbmi->sb_type, 1, ss_x, ss_y);
-#endif  // DISABLE_VARTX_FOR_CHROMA
-  } else {
-#if DISABLE_SMLTX_FOR_CHROMA_INTRA
-    return av1_get_max_uv_txsize(mbmi->sb_type, 0, ss_x, ss_y);
-#endif  // DISABLE_SMLTX_FOR_CHROMA_INTRA
-#if CONFIG_CFL
-    if (mbmi->uv_mode == UV_CFL_PRED)
-      return av1_get_max_uv_txsize(mbmi->sb_type, 0, ss_x, ss_y);
-#endif
-  }
-  const TX_SIZE uv_txsize =
-      uv_txsize_lookup[mbmi->sb_type][mbmi->tx_size][ss_x][ss_y];
-  assert(uv_txsize != TX_INVALID);
-  return uv_txsize;
+  return av1_get_max_uv_txsize(mbmi->sb_type, is_inter_block(mbmi), ss_x, ss_y);
 }
 
 static INLINE TX_SIZE av1_get_tx_size(int plane, const MACROBLOCKD *xd) {
@@ -1176,24 +1151,6 @@ static INLINE TX_SIZE av1_get_tx_size(int plane, const MACROBLOCKD *xd) {
   if (plane == 0) return mbmi->tx_size;
   const MACROBLOCKD_PLANE *pd = &xd->plane[plane];
   return av1_get_uv_tx_size(mbmi, pd->subsampling_x, pd->subsampling_y);
-}
-
-// Temporary function to facilitate removal of uv_txsize_lookup if we
-// decide to go with DISABLE_SMLTX_FOR_CHROMA_INTRA = 1
-// TODO(debargha): Clean this up
-static INLINE TX_SIZE av1_get_uv_tx_size_vartx(
-    const MB_MODE_INFO *mbmi, const struct macroblockd_plane *pd,
-    BLOCK_SIZE bsize, int tx_row, int tx_col) {
-#if DISABLE_VARTX_FOR_CHROMA
-  (void)bsize;
-  (void)tx_row;
-  (void)tx_col;
-  return av1_get_max_uv_txsize(mbmi->sb_type, 1, pd->subsampling_x,
-                               pd->subsampling_y);
-#else
-  (void)pd;
-  return uv_txsize_lookup[bsize][mbmi->inter_tx_size[tx_row][tx_col]][0][0];
-#endif  // DISABLE_VARTX_FOR_CHROMA
 }
 
 void av1_reset_skip_context(MACROBLOCKD *xd, int mi_row, int mi_col,
@@ -1354,8 +1311,8 @@ static INLINE int is_neighbor_overlappable(const MB_MODE_INFO *mbmi) {
 
 static INLINE int av1_allow_palette(int allow_screen_content_tools,
                                     BLOCK_SIZE sb_type) {
-  return allow_screen_content_tools && sb_type >= BLOCK_8X8 &&
-         sb_type <= BLOCK_64X64;
+  return allow_screen_content_tools && block_size_wide[sb_type] <= 64 &&
+         block_size_high[sb_type] <= 64;
 }
 
 // Returns sub-sampled dimensions of the given block.
@@ -1381,10 +1338,21 @@ static INLINE void av1_get_block_dimensions(BLOCK_SIZE bsize, int plane,
   assert(IMPLIES(plane == PLANE_TYPE_Y, pd->subsampling_y == 0));
   assert(block_width >= block_cols);
   assert(block_height >= block_rows);
-  if (width) *width = block_width >> pd->subsampling_x;
-  if (height) *height = block_height >> pd->subsampling_y;
-  if (rows_within_bounds) *rows_within_bounds = block_rows >> pd->subsampling_y;
-  if (cols_within_bounds) *cols_within_bounds = block_cols >> pd->subsampling_x;
+  const int plane_block_width = block_width >> pd->subsampling_x;
+  const int plane_block_height = block_height >> pd->subsampling_y;
+  // Special handling for chroma sub8x8.
+  const int is_chroma_sub8_x = plane > 0 && plane_block_width < 4;
+  const int is_chroma_sub8_y = plane > 0 && plane_block_height < 4;
+  if (width) *width = plane_block_width + 2 * is_chroma_sub8_x;
+  if (height) *height = plane_block_height + 2 * is_chroma_sub8_y;
+  if (rows_within_bounds) {
+    *rows_within_bounds =
+        (block_rows >> pd->subsampling_y) + 2 * is_chroma_sub8_y;
+  }
+  if (cols_within_bounds) {
+    *cols_within_bounds =
+        (block_cols >> pd->subsampling_x) + 2 * is_chroma_sub8_x;
+  }
 }
 
 /* clang-format off */
@@ -1414,7 +1382,8 @@ static INLINE int is_nontrans_global_motion(const MACROBLOCKD *xd) {
   if (mbmi->mode != GLOBALMV && mbmi->mode != GLOBAL_GLOBALMV) return 0;
 
 #if !GLOBAL_SUB8X8_USED
-  if (mbmi->sb_type < BLOCK_8X8) return 0;
+  if (AOMMIN(mi_size_wide[mbmi->sb_type], mi_size_high[mbmi->sb_type]) < 8)
+    return 0;
 #endif
 
   // Now check if all global motion is non translational
