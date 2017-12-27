@@ -324,14 +324,10 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
       ctx = get_br_ctx(levels, pos, bwl, level_counts[pos]);
 #endif
       for (idx = 0; idx < COEFF_BASE_RANGE / (BR_CDF_SIZE - 1); ++idx) {
-        int k = av1_read_record_symbol(counts, r,
-#if 0
-            ec_ctx->coeff_br_cdf[AOMMIN(txs_ctx, TX_16X16)][plane_type][ctx],
-#else
-                                       ec_ctx->coeff_br_cdf[AOMMIN(
-                                           txs_ctx, TX_32X32)][plane_type][ctx],
-#endif
-                                       BR_CDF_SIZE, ACCT_STR);
+        int k = av1_read_record_symbol(
+            counts, r,
+            ec_ctx->coeff_br_cdf[AOMMIN(txs_ctx, TX_32X32)][plane_type][ctx],
+            BR_CDF_SIZE, ACCT_STR);
         *level += k;
         if (counts) {
           for (int lps = 0; lps < BR_CDF_SIZE - 1; lps++) {
