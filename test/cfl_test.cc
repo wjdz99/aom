@@ -320,10 +320,16 @@ const subtract_param subtract_sizes_avx2[] = { ALL_CFL_SIZES(
 const subsample_param subsample_sizes_avx2[] = { CHROMA_420_CFL_SIZES(
     get_subsample_lbd_fn_avx2) };
 
+const predict_param predict_sizes_avx2[] = { ALL_CFL_SIZES(
+    get_predict_lbd_fn_avx2) };
+
 INSTANTIATE_TEST_CASE_P(AVX2, CFLSubtractTest,
                         ::testing::ValuesIn(subtract_sizes_avx2));
 
 INSTANTIATE_TEST_CASE_P(AVX2, CFLSubsampleTest,
                         ::testing::ValuesIn(subsample_sizes_avx2));
+
+INSTANTIATE_TEST_CASE_P(AVX2, CFLPredictTest,
+                        ::testing::ValuesIn(predict_sizes_avx2));
 #endif
 }  // namespace
