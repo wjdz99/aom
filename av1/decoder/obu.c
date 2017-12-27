@@ -190,7 +190,7 @@ void av1_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
       case OBU_FRAME_HEADER:
         // Only decode first frame header received
         if (!frame_header_received) {
-          frame_header_size = obu_payload_size =
+          frame_header_size = (int)obu_payload_size =
               read_frame_header_obu(pbi, data, data_end, p_data_end);
           frame_header_received = 1;
         } else {
