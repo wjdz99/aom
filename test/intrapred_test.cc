@@ -7,7 +7,7 @@
  * obtain it at www.aomedia.org/license/software. If the Alliance for Open
  * Media Patent License 1.0 was not distributed with this source code in the
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
-*/
+ */
 
 #include <string>
 
@@ -171,13 +171,14 @@ TEST_P(LowbdIntraPredTest, Bitexact) {
       bd)
 
 /*
-#define highbd_intrapred(type, opt, bd)                                       \
-  highbd_entry(type, 4, 4, opt, bd), highbd_entry(type, 4, 8, opt, bd),       \
-      highbd_entry(type, 8, 4, opt, bd), highbd_entry(type, 8, 8, opt, bd),   \
-      highbd_entry(type, 8, 16, opt, bd), highbd_entry(type, 16, 8, opt, bd), \
-      highbd_entry(type, 16, 16, opt, bd),                                    \
-      highbd_entry(type, 16, 32, opt, bd),                                    \
-      highbd_entry(type, 32, 16, opt, bd), highbd_entry(type, 32, 32, opt, bd)
+#define highbd_intrapred(type, opt, bd) \
+  highbd_entry(type, 4, 4, opt, bd), highbd_entry(type, 4, 8, opt, bd), \
+      highbd_entry(type, 8, 4, opt, bd), highbd_entry(type, 8, 8, opt, bd), \
+      highbd_entry(type, 8, 16, opt, bd), highbd_entry(type, 16, 8, opt, bd),
+\
+      highbd_entry(type, 16, 16, opt, bd), \
+      highbd_entry(type, 16, 32, opt, bd), \ highbd_entry(type, 32, 16, opt,
+bd), highbd_entry(type, 32, 32, opt, bd)
 */
 
 #if HAVE_SSE2

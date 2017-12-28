@@ -14,8 +14,8 @@
 #include "av1/common/convolve.h"
 #include "av1/common/common_data.h"
 
-using std::tr1::tuple;
 using std::tr1::make_tuple;
+using std::tr1::tuple;
 
 namespace libaom_test {
 

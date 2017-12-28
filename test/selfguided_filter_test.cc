@@ -25,9 +25,9 @@
 
 namespace {
 
-using std::tr1::tuple;
-using std::tr1::make_tuple;
 using libaom_test::ACMRandom;
+using std::tr1::make_tuple;
+using std::tr1::tuple;
 
 typedef tuple<> FilterTestParam;
 
