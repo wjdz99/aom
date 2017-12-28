@@ -24,6 +24,10 @@
 
 namespace libaom_test {
 
+void generate_warped_model(libaom_test::ACMRandom &rnd,
+                           int32_t *mat, int16_t *alpha, int16_t *beta,
+                           int16_t *gamma, int16_t *delta);
+
 namespace AV1WarpFilter {
 
 typedef void (*warp_affine_func)(const int32_t *mat, const uint8_t *ref,
@@ -47,9 +51,6 @@ class AV1WarpFilterTest : public ::testing::TestWithParam<WarpTestParam> {
   virtual void TearDown();
 
  protected:
-  int32_t random_param(int bits);
-  void generate_model(int32_t *mat, int16_t *alpha, int16_t *beta,
-                      int16_t *gamma, int16_t *delta);
 
   void RunCheckOutput(warp_affine_func test_impl);
 
@@ -79,9 +80,6 @@ class AV1HighbdWarpFilterTest
   virtual void TearDown();
 
  protected:
-  int32_t random_param(int bits);
-  void generate_model(int32_t *mat, int16_t *alpha, int16_t *beta,
-                      int16_t *gamma, int16_t *delta);
 
   void RunCheckOutput(highbd_warp_affine_func test_impl);
 
