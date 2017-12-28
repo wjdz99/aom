@@ -1,0 +1,191 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d6dbf68a_87783615",
+        "filename": "aom_dsp/entdec.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-12-28T14:22:14Z",
+      "side": 1,
+      "message": "What\u0027s the reason you aren\u0027t updating this one, also?\n\nI know that hardware in the past has expressed a desire to have a single entropy coding engine for bools and CDFs, and while the difference here is not large, it is different.",
+      "revId": "9aa52d509ba694f1a9c96f799dc7fd41e79bb2b3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1e37cb08_d429985d",
+        "filename": "aom_dsp/entdec.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-12-28T14:22:14Z",
+      "side": 1,
+      "message": "This would probably be an excellent place to assert that 7 - EC_PROB_SHIFT - CDF_SHIFT \u003e\u003d 0.",
+      "revId": "9aa52d509ba694f1a9c96f799dc7fd41e79bb2b3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "400e2f36_370a9d11",
+        "filename": "aom_dsp/entdec.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-12-28T14:22:14Z",
+      "side": 1,
+      "message": "On the decoder side, you #include this in the header, but on the encoder side, you #include it in the .c file. It seems like these should be consistent.",
+      "revId": "9aa52d509ba694f1a9c96f799dc7fd41e79bb2b3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1d6dc44b_64464ebe",
+        "filename": "aom_dsp/entenc.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-12-28T14:22:14Z",
+      "side": 1,
+      "message": "Likewise, an assert here seems like a good idea.",
+      "revId": "9aa52d509ba694f1a9c96f799dc7fd41e79bb2b3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f9bb0216_14ce1f34",
+        "filename": "aom_dsp/prob.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-12-28T14:22:14Z",
+      "side": 1,
+      "message": "Is this code even used anymore?\n\nMaybe we should just delete it (that can be in a separate patch).",
+      "revId": "9aa52d509ba694f1a9c96f799dc7fd41e79bb2b3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "70e879f0_0429ab1d",
+        "filename": "aom_dsp/prob.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-12-28T14:22:14Z",
+      "side": 1,
+      "message": "It would be nice if we could preserve the explanatory comment that used to be in entcode.h (even if the 32768 in it needs to change).",
+      "revId": "9aa52d509ba694f1a9c96f799dc7fd41e79bb2b3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "77424a3c_e65b7fb9",
+        "filename": "aom_dsp/prob.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 735,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-12-28T14:22:14Z",
+      "side": 1,
+      "message": "Please don\u0027t leave in commented-out debugging code like this (if you really think it\u0027s worth keeping, it should be behind a named #ifdef).",
+      "revId": "9aa52d509ba694f1a9c96f799dc7fd41e79bb2b3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d981adcd_6b18f389",
+        "filename": "aom_dsp/prob.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 795,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-12-28T14:22:14Z",
+      "side": 1,
+      "message": "Same.",
+      "revId": "9aa52d509ba694f1a9c96f799dc7fd41e79bb2b3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a5ac2155_c272d679",
+        "filename": "av1/common/entropy.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1544,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-12-28T14:22:14Z",
+      "side": 1,
+      "message": "You probably didn\u0027t actually want all of these printfs in here.",
+      "revId": "9aa52d509ba694f1a9c96f799dc7fd41e79bb2b3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d3cb9e30_5f4b370c",
+        "filename": "av1/common/entropy.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1564,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-12-28T14:22:14Z",
+      "side": 1,
+      "message": "Or this one.",
+      "revId": "9aa52d509ba694f1a9c96f799dc7fd41e79bb2b3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b35ee869_49a95b15",
+        "filename": "test/ec_test.cc",
+        "patchSetId": 7
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2017-12-28T14:22:14Z",
+      "side": 1,
+      "message": "Seems a little weird to test if CDF_SHIFT is 0 and then use it in a bunch of places.",
+      "revId": "9aa52d509ba694f1a9c96f799dc7fd41e79bb2b3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
