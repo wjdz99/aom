@@ -895,8 +895,10 @@ static void update_stats(const AV1_COMMON *const cm, TileDataEnc *tile_data,
             rdc->single_ref_used_flag = 1;
 #endif  // !CONFIG_REF_ADAPT
           if (is_comp_ref_allowed(bsize)) {
+#if CONFIG_ENTROPY_STATS
             counts->comp_inter[av1_get_reference_mode_context(cm, xd)]
                               [has_second_ref(mbmi)]++;
+#endif  // CONFIG_ENTROPY_STATS
             if (allow_update_cdf)
               update_cdf(av1_get_reference_mode_cdf(cm, xd),
                          has_second_ref(mbmi), 2);
@@ -4000,12 +4002,16 @@ void av1_encode_frame(AV1_COMP *cpi) {
       // Use a flag that includes 4x4 blocks
       if (rdc->compound_ref_used_flag == 0) {
         cm->reference_mode = SINGLE_REFERENCE;
+#if CONFIG_ENTROPY_STATS
         av1_zero(counts->comp_inter);
+#endif  // CONFIG_ENTROPY_STATS
 #if !CONFIG_REF_ADAPT
         // Use a flag that includes 4x4 blocks
       } else if (rdc->single_ref_used_flag == 0) {
         cm->reference_mode = COMPOUND_REFERENCE;
+#if CONFIG_ENTROPY_STATS
         av1_zero(counts->comp_inter);
+#endif  // CONFIG_ENTROPY_STATS
 #endif  // !CONFIG_REF_ADAPT
       }
     }
