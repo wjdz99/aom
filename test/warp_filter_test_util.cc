@@ -11,8 +11,8 @@
 
 #include "test/warp_filter_test_util.h"
 
-using std::tr1::tuple;
 using std::tr1::make_tuple;
+using std::tr1::tuple;
 
 namespace libaom_test {
 
