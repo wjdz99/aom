@@ -16,6 +16,24 @@
       "revId": "9abda5913d31f92c5658afc38424a341a11faaef",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "19f02521_5c823610",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1280,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2017-12-28T18:38:56Z",
+      "side": 0,
+      "message": "On the encoder side, the entropy-stats experiment can use the counts to tune the default CDF values; but I don\u0027t think decoder needs it.",
+      "parentUuid": "8c545346_0936f9a7",
+      "revId": "9abda5913d31f92c5658afc38424a341a11faaef",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
