@@ -6055,11 +6055,11 @@ static void estimate_ref_frame_costs(
     const AV1_COMMON *cm, const MACROBLOCKD *xd, const MACROBLOCK *x,
     int segment_id, unsigned int *ref_costs_single,
 #if CONFIG_EXT_COMP_REFS
-    unsigned int (*ref_costs_comp)[TOTAL_REFS_PER_FRAME],
+    unsigned int (*ref_costs_comp)[TOTAL_REFS_PER_FRAME]
 #else
-    unsigned int *ref_costs_comp,
+    unsigned int *ref_costs_comp
 #endif  // CONFIG_EXT_COMP_REFS
-    aom_prob *comp_mode_p) {
+    ) {
   int seg_ref_active =
       segfeature_active(&cm->seg, segment_id, SEG_LVL_REF_FRAME);
   if (seg_ref_active) {
@@ -6073,19 +6073,9 @@ static void estimate_ref_frame_costs(
 #else
     memset(ref_costs_comp, 0, TOTAL_REFS_PER_FRAME * sizeof(*ref_costs_comp));
 #endif  // CONFIG_EXT_COMP_REFS
-
-    *comp_mode_p = 128;
   } else {
     int intra_inter_ctx = av1_get_intra_inter_context(xd);
-
-    if (cm->reference_mode == REFERENCE_MODE_SELECT) {
-      *comp_mode_p = av1_get_reference_mode_prob(cm, xd);
-    } else {
-      *comp_mode_p = 128;
-    }
-
     ref_costs_single[INTRA_FRAME] = x->intra_inter_cost[intra_inter_ctx][0];
-
     unsigned int base_cost = x->intra_inter_cost[intra_inter_ctx][1];
 
 #if !CONFIG_REF_ADAPT
@@ -9167,7 +9157,8 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
 #else
   unsigned int ref_costs_comp[TOTAL_REFS_PER_FRAME];
 #endif  // CONFIG_EXT_COMP_REFS
-  aom_prob comp_mode_p;
+  int *comp_inter_cost =
+      x->comp_inter_cost[av1_get_reference_mode_context(cm, xd)];
   int64_t best_intra_rd = INT64_MAX;
   unsigned int best_pred_sse = UINT_MAX;
   PREDICTION_MODE best_intra_mode = DC_PRED;
@@ -9255,7 +9246,7 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
   }
 
   estimate_ref_frame_costs(cm, xd, x, segment_id, ref_costs_single,
-                           ref_costs_comp, &comp_mode_p);
+                           ref_costs_comp);
 
   for (i = 0; i < REFERENCE_MODES; ++i) best_pred_rd[i] = INT64_MAX;
   for (i = 0; i < TX_SIZES_ALL; i++) rate_uv_intra[i] = INT_MAX;
@@ -10233,7 +10224,7 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
       if (this_rd == INT64_MAX) continue;
 
       if (is_comp_ref_allowed(mbmi->sb_type))
-        compmode_cost = av1_cost_bit(comp_mode_p, comp_pred);
+        compmode_cost = comp_inter_cost[comp_pred];
 
       if (cm->reference_mode == REFERENCE_MODE_SELECT) rate2 += compmode_cost;
     }
@@ -10878,7 +10869,8 @@ void av1_rd_pick_inter_mode_sb_seg_skip(const AV1_COMP *cpi,
 #else
   unsigned int ref_costs_comp[TOTAL_REFS_PER_FRAME];
 #endif  // CONFIG_EXT_COMP_REFS
-  aom_prob comp_mode_p;
+  int *comp_inter_cost =
+      x->comp_inter_cost[av1_get_reference_mode_context(cm, xd)];
   InterpFilter best_filter = SWITCHABLE;
   int64_t this_rd = INT64_MAX;
   int rate2 = 0;
@@ -10887,7 +10879,7 @@ void av1_rd_pick_inter_mode_sb_seg_skip(const AV1_COMP *cpi,
   (void)mi_col;
 
   estimate_ref_frame_costs(cm, xd, x, segment_id, ref_costs_single,
-                           ref_costs_comp, &comp_mode_p);
+                           ref_costs_comp);
 
   for (i = 0; i < TOTAL_REFS_PER_FRAME; ++i) x->pred_sse[i] = INT_MAX;
   for (i = LAST_FRAME; i < TOTAL_REFS_PER_FRAME; ++i)
@@ -10968,7 +10960,7 @@ void av1_rd_pick_inter_mode_sb_seg_skip(const AV1_COMP *cpi,
   rate2 += av1_get_switchable_rate(cm, x, xd);
 
   if (cm->reference_mode == REFERENCE_MODE_SELECT)
-    rate2 += av1_cost_bit(comp_mode_p, comp_pred);
+    rate2 += comp_inter_cost[comp_pred];
 
   // Estimate the reference frame signaling cost and add it
   // to the rolling cost variable.
