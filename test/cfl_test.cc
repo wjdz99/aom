@@ -36,8 +36,12 @@ using libaom_test::ACMRandom;
       make_tuple(16, 8, &function), make_tuple(8, 16, &function), \
       make_tuple(16, 16, &function)
 
-#define CFL_BLOCK_SUM_SIZES(function) \
-  make_tuple(TX_4X4, &function), make_tuple(TX_8X8, &function)
+#define CFL_BLOCK_SUM_SIZES(function)                                   \
+  make_tuple(TX_4X4, &function), make_tuple(TX_4X8, &function),         \
+      make_tuple(TX_8X4, &function), make_tuple(TX_8X8, &function),     \
+      make_tuple(TX_8X16, &function), make_tuple(TX_16X8, &function),   \
+      make_tuple(TX_16X16, &function), make_tuple(TX_16X32, &function), \
+      make_tuple(TX_32X16, &function), make_tuple(TX_32X32, &function)
 
 namespace {
 typedef void (*subtract_fn)(int16_t *pred_buf_q3, int width, int height,
@@ -126,7 +130,7 @@ class CFLSumBlockTest : public ::testing::TestWithParam<sum_block_param> {
 
  protected:
   int Width() const { return tx_size_wide[GET_PARAM(0)]; }
-  int Height() const { return tx_size_wide[GET_PARAM(0)]; }
+  int Height() const { return tx_size_high[GET_PARAM(0)]; }
   TX_SIZE Tx_size() const { return GET_PARAM(0); }
   get_sum_block_fn sum_block;
   int16_t data[CFL_BUF_SQUARE];
