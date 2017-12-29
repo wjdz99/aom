@@ -231,18 +231,9 @@ static void cfl_subtract_average(CFL_CTX *cfl, TX_SIZE tx_size) {
   const int num_pel_log2 =
       tx_size_high_log2[tx_size] + tx_size_wide_log2[tx_size];
 
-  int16_t *pred_buf_q3 = cfl->pred_buf_q3;
-  int sum_q3 = 0;
-
   cfl_pad(cfl, tx_width, tx_height);
 
-  for (int j = 0; j < tx_height; j++) {
-    assert(pred_buf_q3 + tx_width <= cfl->pred_buf_q3 + CFL_BUF_SQUARE);
-    for (int i = 0; i < tx_width; i++) {
-      sum_q3 += pred_buf_q3[i];
-    }
-    pred_buf_q3 += CFL_BUF_LINE;
-  }
+  const int sum_q3 = get_sum_block_fn(tx_size)(cfl->pred_buf_q3);
   const int avg_q3 = (sum_q3 + (1 << (num_pel_log2 - 1))) >> num_pel_log2;
   // Loss is never more than 1/2 (in Q3)
   assert(abs((avg_q3 * (1 << num_pel_log2)) - sum_q3) <= 1 << num_pel_log2 >>

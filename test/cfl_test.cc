@@ -36,8 +36,12 @@ using libaom_test::ACMRandom;
       make_tuple(16, 8, &function), make_tuple(8, 16, &function), \
       make_tuple(16, 16, &function)
 
-#define CFL_BLOCK_SUM_SIZES(function) \
-  make_tuple(TX_4X4, &function), make_tuple(TX_8X8, &function)
+#define CFL_BLOCK_SUM_SIZES(function)                                   \
+  make_tuple(TX_4X4, &function), make_tuple(TX_4X8, &function),         \
+      make_tuple(TX_8X4, &function), make_tuple(TX_8X8, &function),     \
+      make_tuple(TX_8X16, &function), make_tuple(TX_16X8, &function),   \
+      make_tuple(TX_16X16, &function), make_tuple(TX_16X32, &function), \
+      make_tuple(TX_32X16, &function), make_tuple(TX_32X32, &function)
 
 namespace {
 typedef void (*subtract_fn)(int16_t *pred_buf_q3, int width, int height,
@@ -47,13 +51,13 @@ typedef int (*sum_block_fn)(int16_t *pred_buf_q3);
 
 typedef cfl_subsample_lbd_fn (*get_subsample_fn)(int width, int height);
 
-typedef cfl_sum_block_fn (*get_sum_block_fn)(TX_SIZE tx_size);
+typedef cfl_sum_block_fn (*get_sum_fn)(TX_SIZE tx_size);
 
 typedef std::tr1::tuple<int, int, subtract_fn> subtract_param;
 
 typedef std::tr1::tuple<int, int, get_subsample_fn> subsample_param;
 
-typedef std::tr1::tuple<TX_SIZE, get_sum_block_fn> sum_block_param;
+typedef std::tr1::tuple<TX_SIZE, get_sum_fn> sum_block_param;
 
 static void assertFaster(int ref_elapsed_time, int elapsed_time) {
   EXPECT_GT(ref_elapsed_time, elapsed_time)
@@ -126,9 +130,9 @@ class CFLSumBlockTest : public ::testing::TestWithParam<sum_block_param> {
 
  protected:
   int Width() const { return tx_size_wide[GET_PARAM(0)]; }
-  int Height() const { return tx_size_wide[GET_PARAM(0)]; }
+  int Height() const { return tx_size_high[GET_PARAM(0)]; }
   TX_SIZE Tx_size() const { return GET_PARAM(0); }
-  get_sum_block_fn sum_block;
+  get_sum_fn sum_block;
   int16_t data[CFL_BUF_SQUARE];
   int16_t data_ref[CFL_BUF_SQUARE];
   void init() {
