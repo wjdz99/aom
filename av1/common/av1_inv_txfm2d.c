@@ -256,17 +256,22 @@ void av1_gen_inv_stage_range(int8_t *stage_range_col, int8_t *stage_range_row,
   // for square transforms.
   const int txfm_size_col = cfg->row_cfg->txfm_size;
   const int txfm_size_row = cfg->col_cfg->txfm_size;
+  const int rect_type = get_rect_tx_log_ratio(txfm_size_col, txfm_size_row);
+  if (txfm_size_col == txfm_size_row)
+    assert(rect_type == 0);
   // Take the shift from the larger dimension in the rectangular case.
   const int8_t *shift = (txfm_size_col > txfm_size_row) ? cfg->row_cfg->shift
                                                         : cfg->col_cfg->shift;
   // i < MAX_TXFM_STAGE_NUM will mute above array bounds warning
   for (int i = 0; i < cfg->row_cfg->stage_num && i < MAX_TXFM_STAGE_NUM; ++i) {
-    stage_range_row[i] = cfg->row_cfg->stage_range[i] + fwd_shift + bd + 1;
+    stage_range_row[i] = cfg->row_cfg->stage_range[i] + fwd_shift + bd + 1 +
+        (rect_type < 0);
   }
   // i < MAX_TXFM_STAGE_NUM will mute above array bounds warning
   for (int i = 0; i < cfg->col_cfg->stage_num && i < MAX_TXFM_STAGE_NUM; ++i) {
     stage_range_col[i] =
-        cfg->col_cfg->stage_range[i] + fwd_shift + shift[0] + bd + 1;
+        cfg->col_cfg->stage_range[i] + fwd_shift + shift[0] + bd + 1 +
+        (rect_type < 0);
   }
 }
 

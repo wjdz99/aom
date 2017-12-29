@@ -16,8 +16,14 @@
 // sum of fwd_shift_##
 #if CONFIG_TX64X64
 static const int8_t fwd_shift_sum[TX_SIZES] = { 2, 1, 0, -2, -4 };
+static const int8_t fwd_shift_sum_t[TX_SIZES_ALL] = {
+  2, 1, 0, -2, -4, 2, 2, 1, 1, -2, -2, -4, -4, 1, 1, 0, 0, -2, -2
+};
 #else  // CONFIG_TX64X64
 static const int8_t fwd_shift_sum[TX_SIZES] = { 2, 1, 0, -2 };
+static const int8_t fwd_shift_sum_t[TX_SIZES_ALL] = {
+  2, 1, 0, -2, 2, 2, 1, 1, -2, -2, 1, 1, 0, 0
+};
 #endif  // CONFIG_TX64X64
 
 //  ---------------- 4x4 1D config -----------------------
@@ -25,7 +31,7 @@ static const int8_t fwd_shift_sum[TX_SIZES] = { 2, 1, 0, -2 };
 static const int8_t inv_shift_4[2] = { 0, -4 };
 
 // stage range
-static const int8_t inv_stage_range_col_dct_4[4] = { 3, 3, 2, 2 };
+static const int8_t inv_stage_range_col_dct_4[4] = { 3, 3, 3, 3 };
 static const int8_t inv_stage_range_row_dct_4[4] = { 3, 3, 3, 3 };
 static const int8_t inv_stage_range_col_adst_4[6] = { 3, 3, 3, 3, 2, 2 };
 static const int8_t inv_stage_range_row_adst_4[6] = { 3, 3, 3, 3, 3, 3 };
