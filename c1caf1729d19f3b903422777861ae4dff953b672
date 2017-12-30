@@ -16,6 +16,29 @@
       "revId": "c1caf1729d19f3b903422777861ae4dff953b672",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "25ee2539_63f4f539",
+        "filename": "test/cfl_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 6340
+      },
+      "writtenOn": "2017-12-30T15:09:50Z",
+      "side": 1,
+      "message": "With --target\u003dgeneric-gnu, this identifier is #define\u0027d to get_sum_block_fn_c.\nChoose a different name to the actual function to fix the build.",
+      "range": {
+        "startLine": 50,
+        "startChar": 27,
+        "endLine": 50,
+        "endChar": 43
+      },
+      "revId": "c1caf1729d19f3b903422777861ae4dff953b672",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
