@@ -558,6 +558,13 @@ OD_SIMD_INLINE void OD_KERNEL_FUNC(od_idst_vii_4)(OD_COEFF *q0, OD_COEFF *q2,
   *q3 = OD_ADD(t0, OD_SUB(t1, t3h));
 }
 
+OD_SIMD_INLINE void OD_KERNEL_FUNC(od_flip_fdst_vii_4)(OD_COEFF *q0,
+ OD_COEFF *q1, OD_COEFF *q2, OD_COEFF *q3) {
+  OD_SWAP(q0, q3);
+  OD_SWAP(q1, q2);
+  OD_KERNEL_FUNC(od_fdst_vii_4)(q0, q1, q2, q3);
+}
+
 OD_SIMD_INLINE void OD_KERNEL_FUNC(od_flip_idst_vii_4)(OD_COEFF *q0,
  OD_COEFF *q2, OD_COEFF *q1, OD_COEFF *q3) {
   OD_KERNEL_FUNC(od_idst_vii_4)(q0, q2, q1, q3);
@@ -775,6 +782,16 @@ OD_SIMD_INLINE void OD_KERNEL_FUNC(od_idst_8)(OD_COEFF *r0, OD_COEFF *r4,
   /* 14699/16384 = Sin[15*Pi/32] - Cos[15*Pi/32] = 0.8971675863426363 */
   /*    803/8192 = Cos[15*Pi/32]                 = 0.0980171403295606 */
   od_rotate_add(r0, r7, 17911, 14, 14699, 14, 803, 13, TX_NONE);
+}
+
+OD_SIMD_INLINE void OD_KERNEL_FUNC(od_flip_fdst_8)(OD_COEFF *r0,
+ OD_COEFF *r1, OD_COEFF *r2, OD_COEFF *r3, OD_COEFF *r4, OD_COEFF *r5,
+ OD_COEFF *r6, OD_COEFF *r7) {
+  OD_SWAP(r0, r7);
+  OD_SWAP(r1, r6);
+  OD_SWAP(r2, r5);
+  OD_SWAP(r3, r4);
+  OD_KERNEL_FUNC(od_fdst_8)(r0, r1, r2, r3, r4, r5, r6, r7);
 }
 
 OD_SIMD_INLINE void OD_KERNEL_FUNC(od_flip_idst_8)(OD_COEFF *r0,
