@@ -80,6 +80,16 @@ static void od_row_fdst4_avx2(tran_low_t *output_coeffs, int rows,
   od_row_tx4_avx2(output_coeffs, rows, in, od_fdst_vii_4_kernel8_epi16);
 }
 
+static void od_col_flip_fdst4_avx2(int16_t *out, int cols, const int16_t *in,
+                                   int input_stride, int bd) {
+  od_col_tx4_avx2(out, cols, in, input_stride, bd, od_flip_fdst_vii_4_kernel8_epi16);
+}
+
+static void od_row_flip_fdst4_avx2(tran_low_t *output_coeffs, int rows,
+                                   const int16_t *in) {
+  od_row_tx4_avx2(output_coeffs, rows, in, od_flip_fdst_vii_4_kernel8_epi16);
+}
+
 typedef void (*od_tx8_kernel8_epi16)(__m128i *r0, __m128i *r4, __m128i *r2,
                                      __m128i *r6, __m128i *r1, __m128i *r5,
                                      __m128i *r3, __m128i *r7);
@@ -172,6 +182,16 @@ static void od_row_fdst8_avx2(tran_low_t *output_coeffs, int rows,
   od_row_tx8_avx2(output_coeffs, rows, in, od_fdst_8_kernel8_epi16);
 }
 
+static void od_col_flip_fdst8_avx2(int16_t *out, int cols, const int16_t *in,
+                                   int input_stride, int bd) {
+  od_col_tx8_avx2(out, cols, in, input_stride, bd, od_flip_fdst_8_kernel8_epi16);
+}
+
+static void od_row_flip_fdst8_avx2(tran_low_t *output_coeffs, int rows,
+                                   const int16_t *in) {
+  od_row_tx8_avx2(output_coeffs, rows, in, od_flip_fdst_8_kernel8_epi16);
+}
+
 typedef void (*daala_col_ftx)(int16_t *out, int cols, const int16_t *in,
                               int input_stride, int bd);
 typedef void (*daala_row_ftx)(tran_low_t *output_coeffs, int rows,
@@ -179,9 +199,9 @@ typedef void (*daala_row_ftx)(tran_low_t *output_coeffs, int rows,
 
 static const daala_col_ftx TX_COL_MAP[TX_SIZES][TX_TYPES] = {
   // 4-point transforms
-  { od_col_fdct4_avx2, od_col_fdst4_avx2, NULL, NULL },
+  { od_col_fdct4_avx2, od_col_fdst4_avx2, od_col_flip_fdst4_avx2, NULL },
   // 8-point transforms
-  { od_col_fdct8_avx2, od_col_fdst8_avx2, NULL, NULL },
+  { od_col_fdct8_avx2, od_col_fdst8_avx2, od_col_flip_fdst8_avx2, NULL },
   // 16-point transforms
   { NULL, NULL, NULL, NULL },
   // 32-point transforms
@@ -194,9 +214,9 @@ static const daala_col_ftx TX_COL_MAP[TX_SIZES][TX_TYPES] = {
 
 static const daala_row_ftx TX_ROW_MAP[TX_SIZES][TX_TYPES] = {
   // 4-point transforms
-  { od_row_fdct4_avx2, od_row_fdst4_avx2, NULL, NULL },
+  { od_row_fdct4_avx2, od_row_fdst4_avx2, od_row_flip_fdst4_avx2, NULL },
   // 8-point transforms
-  { od_row_fdct8_avx2, od_row_fdst8_avx2, NULL, NULL },
+  { od_row_fdct8_avx2, od_row_fdst8_avx2, od_row_flip_fdst8_avx2, NULL },
   // 16-point transforms
   { NULL, NULL, NULL, NULL },
   // 32-point transforms
