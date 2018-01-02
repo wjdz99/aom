@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "53415264_06aeac13",
+        "filename": "av1/common/av1_inv_txfm1d_cfg.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2018-01-02T19:23:35Z",
+      "side": 1,
+      "message": "well the inv_cos_bit_row_dct_8x16 is different from inv_cos_bit_row_dct_8",
+      "parentUuid": "ce8be502_98b15cc3",
+      "range": {
+        "startLine": 119,
+        "startChar": 0,
+        "endLine": 119,
+        "endChar": 75
+      },
+      "revId": "8b6bc11e31a1727ad6d79c5f7509cd0a684c98f5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0db28da5_0503e16a",
         "filename": "av1/common/av1_inv_txfm1d_cfg.h",
         "patchSetId": 1
@@ -36,6 +60,24 @@
       "writtenOn": "2018-01-02T18:14:52Z",
       "side": 1,
       "message": "ditto",
+      "revId": "8b6bc11e31a1727ad6d79c5f7509cd0a684c98f5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ac5f3bdb_66f37e70",
+        "filename": "av1/common/av1_inv_txfm1d_cfg.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2018-01-02T19:23:35Z",
+      "side": 1,
+      "message": "ditto",
+      "parentUuid": "0db28da5_0503e16a",
       "revId": "8b6bc11e31a1727ad6d79c5f7509cd0a684c98f5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
@@ -65,6 +107,30 @@
     },
     {
       "key": {
+        "uuid": "410188b4_50a62dd1",
+        "filename": "av1/common/av1_inv_txfm2d.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2018-01-02T19:23:35Z",
+      "side": 1,
+      "message": "it is cleaned up in the subsequent patch.",
+      "parentUuid": "80fa6596_5fe562b8",
+      "range": {
+        "startLine": 259,
+        "startChar": 2,
+        "endLine": 259,
+        "endChar": 69
+      },
+      "revId": "8b6bc11e31a1727ad6d79c5f7509cd0a684c98f5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "15783666_0f01a152",
         "filename": "av1/encoder/av1_fwd_txfm1d_cfg.h",
         "patchSetId": 1
@@ -76,6 +142,30 @@
       "writtenOn": "2018-01-02T19:05:08Z",
       "side": 1,
       "message": "I guess the original one is correct because we apply a 2x multiplier",
+      "range": {
+        "startLine": 44,
+        "startChar": 0,
+        "endLine": 45,
+        "endChar": 57
+      },
+      "revId": "8b6bc11e31a1727ad6d79c5f7509cd0a684c98f5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a30f6338_47cc7982",
+        "filename": "av1/encoder/av1_fwd_txfm1d_cfg.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2018-01-02T19:23:35Z",
+      "side": 1,
+      "message": "I believe the stage multipliers [0] are for the start of the stage. SO they should be the same for all transforms - i.e. 0 for col, and 3 for row.",
+      "parentUuid": "15783666_0f01a152",
       "range": {
         "startLine": 44,
         "startChar": 0,
