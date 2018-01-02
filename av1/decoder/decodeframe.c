@@ -3399,13 +3399,7 @@ void av1_decode_tg_tiles_and_wrapup(AV1Decoder *pbi, const uint8_t *data,
 
   if (initialize_flag) setup_frame_info(pbi);
 
-#if CONFIG_OBU
   *p_data_end = decode_tiles(pbi, data, data_end, startTile, endTile);
-#else
-  *p_data_end =
-      decode_tiles(pbi, data + pbi->uncomp_hdr_size + pbi->first_partition_size,
-                   data_end, startTile, endTile);
-#endif
 
 #if CONFIG_MONO_VIDEO
   // If the bit stream is monochrome, set the U and V buffers to a constant.
