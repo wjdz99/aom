@@ -42,6 +42,29 @@
     },
     {
       "key": {
+        "uuid": "80fa6596_5fe562b8",
+        "filename": "av1/common/av1_inv_txfm2d.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2018-01-02T19:21:40Z",
+      "side": 1,
+      "message": "delete",
+      "range": {
+        "startLine": 259,
+        "startChar": 2,
+        "endLine": 259,
+        "endChar": 69
+      },
+      "revId": "8b6bc11e31a1727ad6d79c5f7509cd0a684c98f5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "15783666_0f01a152",
         "filename": "av1/encoder/av1_fwd_txfm1d_cfg.h",
         "patchSetId": 1
