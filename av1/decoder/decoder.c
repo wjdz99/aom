@@ -451,18 +451,16 @@ int av1_receive_compressed_data(AV1Decoder *pbi, size_t size,
 
 int av1_get_raw_frame(AV1Decoder *pbi, YV12_BUFFER_CONFIG *sd) {
   AV1_COMMON *const cm = &pbi->common;
-  int ret = -1;
-  if (pbi->ready_for_new_data == 1) return ret;
+  if (pbi->ready_for_new_data == 1) return -1;
 
   pbi->ready_for_new_data = 1;
 
   /* no raw frame to show!!! */
-  if (!cm->show_frame) return ret;
+  if (!cm->show_frame) return -1;
 
   *sd = *cm->frame_to_show;
-  ret = 0;
   aom_clear_system_state();
-  return ret;
+  return 0;
 }
 
 int av1_get_frame_to_show(AV1Decoder *pbi, YV12_BUFFER_CONFIG *frame) {
