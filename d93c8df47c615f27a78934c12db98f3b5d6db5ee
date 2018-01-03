@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a92c2a48_f5389d3c",
+        "filename": "aom_dsp/intrapred_common.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-01-03T15:37:26Z",
+      "side": 1,
+      "message": "I\u0027m not sure how you got this table, as it doesn\u0027t match the one in the doc currently:\nhttps://docs.google.com/document/d/15yTKyOi_JuwCw-7DEMtmwxqT90IiddiqW8O80IOoxq0/edit#heading\u003dh.dt51dxv7pvvx\n\nBut you are right that the table in the design doc doesn\u0027t match the one in code. That was because, the table in code was updated later so that:\n- All block sizes use the same scale\n- First index uses 255, instead of 256 to stay within 8 bits.\n\nI\u0027m going to update the table in the design doc to match the code right now.",
+      "revId": "d93c8df47c615f27a78934c12db98f3b5d6db5ee",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
