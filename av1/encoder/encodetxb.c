@@ -2611,7 +2611,8 @@ int64_t av1_search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
     av1_invalid_rd_stats(&this_rd_stats);
     if (cpi->sf.optimize_coefficients != FULL_TRELLIS_OPT) {
       av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize,
-                      tx_size, AV1_XFORM_QUANT_B);
+                      tx_size,
+                      CONFIG_NEW_QUANT ? AV1_XFORM_QUANT_FP : AV1_XFORM_QUANT_B);
     } else {
       av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize,
                       tx_size, AV1_XFORM_QUANT_FP);
@@ -2650,7 +2651,7 @@ int64_t av1_search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
     // can use it for prediction.
     if (cpi->sf.optimize_coefficients != FULL_TRELLIS_OPT) {
       av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize,
-                      tx_size, AV1_XFORM_QUANT_B);
+                      CONFIG_NEW_QUANT ? AV1_XFORM_QUANT_FP : AV1_XFORM_QUANT_B);
     } else {
       av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize,
                       tx_size, AV1_XFORM_QUANT_FP);
