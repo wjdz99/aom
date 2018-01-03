@@ -760,7 +760,7 @@ void av1_encode_sb(AV1_COMMON *cm, MACROBLOCK *x, BLOCK_SIZE bsize, int mi_row,
 
   mbmi->skip = 1;
 
-  if (x->skip) return;
+  if (x->skip && !xd->lossless[mbmi->segment_id]) return;
 
   for (plane = 0; plane < MAX_MB_PLANE; ++plane) {
     const int subsampling_x = xd->plane[plane].subsampling_x;
