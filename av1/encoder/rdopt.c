@@ -7359,7 +7359,6 @@ static int64_t motion_mode_rd(
 
 #if CONFIG_EXT_WARPED_MOTION
   int pts0[SAMPLES_ARRAY_SIZE], pts_inref0[SAMPLES_ARRAY_SIZE];
-  int pts_mv0[SAMPLES_ARRAY_SIZE];
   int total_samples;
 #else
   int pts[SAMPLES_ARRAY_SIZE], pts_inref[SAMPLES_ARRAY_SIZE];
@@ -7371,7 +7370,7 @@ static int64_t motion_mode_rd(
   aom_clear_system_state();
 #if CONFIG_EXT_WARPED_MOTION
   mbmi->num_proj_ref[0] =
-      findSamples(cm, xd, mi_row, mi_col, pts0, pts_inref0, pts_mv0);
+      findSamples(cm, xd, mi_row, mi_col, pts0, pts_inref0);
   total_samples = mbmi->num_proj_ref[0];
 #else
   mbmi->num_proj_ref[0] = findSamples(cm, xd, mi_row, mi_col, pts, pts_inref);
@@ -7435,8 +7434,9 @@ static int64_t motion_mode_rd(
       memcpy(pts_inref, pts_inref0, total_samples * 2 * sizeof(*pts_inref0));
       // Rank the samples by motion vector difference
       if (mbmi->num_proj_ref[0] > 1) {
-        mbmi->num_proj_ref[0] = sortSamples(pts_mv0, &mbmi->mv[0].as_mv, pts,
-                                            pts_inref, mbmi->num_proj_ref[0]);
+        mbmi->num_proj_ref[0] = selectSamples(&mbmi->mv[0].as_mv, pts,
+                                              pts_inref, mbmi->num_proj_ref[0],
+                                              bsize);
         best_bmc_mbmi->num_proj_ref[0] = mbmi->num_proj_ref[0];
       }
 #endif  // CONFIG_EXT_WARPED_MOTION
@@ -7454,7 +7454,7 @@ static int64_t motion_mode_rd(
 
           // Refine MV in a small range.
           av1_refine_warped_mv(cpi, x, bsize, mi_row, mi_col, pts0, pts_inref0,
-                               pts_mv0, total_samples);
+                               total_samples);
 #else
           // Refine MV in a small range.
           av1_refine_warped_mv(cpi, x, bsize, mi_row, mi_col, pts, pts_inref);
@@ -10592,13 +10592,13 @@ void av1_rd_pick_inter_mode_sb_seg_skip(const AV1_COMP *cpi,
   if (is_motion_variation_allowed_bsize(bsize) && !has_second_ref(mbmi)) {
     int pts[SAMPLES_ARRAY_SIZE], pts_inref[SAMPLES_ARRAY_SIZE];
 #if CONFIG_EXT_WARPED_MOTION
-    int pts_mv[SAMPLES_ARRAY_SIZE];
     mbmi->num_proj_ref[0] =
-        findSamples(cm, xd, mi_row, mi_col, pts, pts_inref, pts_mv);
-    // Rank the samples by motion vector difference
+        findSamples(cm, xd, mi_row, mi_col, pts, pts_inref);
+    // Select the samples by motion vector difference
     if (mbmi->num_proj_ref[0] > 1)
-      mbmi->num_proj_ref[0] = sortSamples(pts_mv, &mbmi->mv[0].as_mv, pts,
-                                          pts_inref, mbmi->num_proj_ref[0]);
+      mbmi->num_proj_ref[0] = selectSamples(&mbmi->mv[0].as_mv, pts,
+                                            pts_inref, mbmi->num_proj_ref[0],
+                                            bsize);
 #else
     mbmi->num_proj_ref[0] = findSamples(cm, xd, mi_row, mi_col, pts, pts_inref);
 #endif  // CONFIG_EXT_WARPED_MOTION
