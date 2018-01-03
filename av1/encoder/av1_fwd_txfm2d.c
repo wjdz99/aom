@@ -64,22 +64,28 @@ void av1_gen_fwd_stage_range(int8_t *stage_range_col, int8_t *stage_range_row,
   }
 
   const int rect_type = get_rect_tx_log_ratio(txfm_size_col, txfm_size_row);
-  int rect_shift = 0;
-  int shift2 = shift[2];
-  if (rect_type == 2 || rect_type == -2) {
+  int rect_type_shift = 0;
+
+  if (rect_type == 1 || rect_type == -1) {
+    rect_type_shift = 1;
+  } else if (rect_type == 2 || rect_type == -2) {
     const int txfm_size_max = AOMMAX(txfm_size_col, txfm_size_row);
+    int shift2 = shift[2];
+
     // For 64x16 / 16x64 / 32x8 / 8x32 shift 2 bits, and
     // For 16x4 / 4x16 shift by 1 bit.
-    rect_shift = (txfm_size_max >= 32) ? 2 : 1;
+    rect_type_shift = (txfm_size_max >= 32) ? 2 : 1;
+
+    while (rect_type_shift > 0 && shift2 < 0) {
+      shift2++;
+      rect_type_shift--;
+    }
   }
-  while (rect_shift > 0 && shift2 < 0) {
-    shift2++;
-    rect_shift--;
-  }
+
   // i < MAX_TXFM_STAGE_NUM will mute above array bounds warning
   for (int i = 0; i < cfg->row_cfg->stage_num && i < MAX_TXFM_STAGE_NUM; ++i) {
     stage_range_row[i] = cfg->row_cfg->stage_range[i] + shift[0] + shift[1] +
-                         bd + 1 + rect_shift;
+                         bd + 1 + rect_type_shift;
   }
 }
 
