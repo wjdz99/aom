@@ -740,28 +740,29 @@ static void write_ref_frames(const AV1_COMMON *cm, const MACROBLOCKD *xd,
       }
 
     } else {
-      const int bit0 = (mbmi->ref_frame[0] <= ALTREF_FRAME &&
+      const int bit1 = (mbmi->ref_frame[0] <= ALTREF_FRAME &&
                         mbmi->ref_frame[0] >= BWDREF_FRAME);
-      WRITE_REF_BIT(bit0, single_ref_p1);
+      aom_write_symbol(w, bit1, av1_get_pred_cdf_single_ref(xd, 1), 2);
 
-      if (bit0) {
-        const int bit1 = mbmi->ref_frame[0] == ALTREF_FRAME;
-        WRITE_REF_BIT(bit1, single_ref_p2);
-
-        if (!bit1) {
-          WRITE_REF_BIT(mbmi->ref_frame[0] == ALTREF2_FRAME, single_ref_p6);
-        }
-      } else {
-        const int bit2 = (mbmi->ref_frame[0] == LAST3_FRAME ||
-                          mbmi->ref_frame[0] == GOLDEN_FRAME);
-        WRITE_REF_BIT(bit2, single_ref_p3);
+      if (bit1) {
+        const int bit2 = mbmi->ref_frame[0] == ALTREF_FRAME;
+        aom_write_symbol(w, bit2, av1_get_pred_cdf_single_ref(xd, 2), 2);
 
         if (!bit2) {
-          const int bit3 = mbmi->ref_frame[0] != LAST_FRAME;
-          WRITE_REF_BIT(bit3, single_ref_p4);
+          const int bit6 = mbmi->ref_frame[0] == ALTREF2_FRAME;
+          aom_write_symbol(w, bit6, av1_get_pred_cdf_single_ref(xd, 6), 2);
+        }
+      } else {
+        const int bit3 = (mbmi->ref_frame[0] == LAST3_FRAME ||
+                          mbmi->ref_frame[0] == GOLDEN_FRAME);
+        aom_write_symbol(w, bit3, av1_get_pred_cdf_single_ref(xd, 3), 2);
+
+        if (!bit3) {
+          const int bit4 = mbmi->ref_frame[0] != LAST_FRAME;
+          aom_write_symbol(w, bit4, av1_get_pred_cdf_single_ref(xd, 4), 2);
         } else {
-          const int bit4 = mbmi->ref_frame[0] != LAST3_FRAME;
-          WRITE_REF_BIT(bit4, single_ref_p5);
+          const int bit5 = mbmi->ref_frame[0] != LAST3_FRAME;
+          aom_write_symbol(w, bit5, av1_get_pred_cdf_single_ref(xd, 5), 2);
         }
       }
     }

@@ -507,15 +507,6 @@ int main(int argc, const char **argv) {
                      "COMP_REFS - 1][CDF_SIZE(2)]");
 #endif
 
-  /* Reference frame (single ref) */
-  cts_each_dim[0] = REF_CONTEXTS;
-  cts_each_dim[1] = SINGLE_REFS - 1;
-  cts_each_dim[2] = 2;
-  optimize_cdf_table(
-      &fc.single_ref[0][0][0], probsfile, 3, cts_each_dim,
-      "static const aom_cdf_prob\n"
-      "default_single_ref_cdf[REF_CONTEXTS][SINGLE_REFS - 1][CDF_SIZE(2)]");
-
   /* ext_refs experiment */
   cts_each_dim[0] = REF_CONTEXTS;
   cts_each_dim[1] = FWD_REFS - 1;
