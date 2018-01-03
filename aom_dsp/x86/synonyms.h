@@ -38,8 +38,16 @@ static INLINE __m128i xx_load_128(const void *a) {
   return _mm_load_si128((const __m128i *)a);
 }
 
+static INLINE __m256i yy_load_256(const void *a) {
+  return _mm256_load_si256((const __m256i *)a);
+}
+
 static INLINE __m128i xx_loadu_128(const void *a) {
   return _mm_loadu_si128((const __m128i *)a);
+}
+
+static INLINE __m256i yy_loadu_256(const void *a) {
+  return _mm256_loadu_si256((const __m256i *)a);
 }
 
 static INLINE void xx_storel_32(void *const a, const __m128i v) {
@@ -54,8 +62,16 @@ static INLINE void xx_store_128(void *const a, const __m128i v) {
   _mm_store_si128((__m128i *)a, v);
 }
 
+static INLINE void yy_store_256(void *const a, const __m256i v) {
+  _mm256_store_si256((__m256i *)a, v);
+}
+
 static INLINE void xx_storeu_128(void *const a, const __m128i v) {
   _mm_storeu_si128((__m128i *)a, v);
+}
+
+static INLINE void yy_storeu_256(void *const a, const __m256i v) {
+  _mm256_storeu_si256((__m256i *)a, v);
 }
 
 static INLINE __m128i xx_round_epu16(__m128i v_val_w) {
