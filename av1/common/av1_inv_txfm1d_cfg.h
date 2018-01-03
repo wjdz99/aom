@@ -70,9 +70,9 @@ static const int8_t inv_stage_range_col_adst_4x8[8] = {
   0, 0, 0, 0, 0, 0, 0, 0
 };
 // cos bit
-static const int8_t inv_cos_bit_col_dct_4x8[6] = { 13, 13, 13, 13, 13, 13 };
-static const int8_t inv_cos_bit_col_adst_4x8[8] = { 13, 13, 13, 13,
-                                                    13, 13, 13, 13 };
+static const int8_t inv_cos_bit_col_dct_4x8[6] = { 12, 12, 12, 12, 12, 12 };
+static const int8_t inv_cos_bit_col_adst_4x8[8] = { 12, 12, 12, 12,
+                                                    12, 12, 12, 12 };
 
 //  ---------------- 8x4 1D constants -----------------------
 #define inv_shift_8x4 inv_shift_8
@@ -80,8 +80,8 @@ static const int8_t inv_cos_bit_col_adst_4x8[8] = { 13, 13, 13, 13,
 static const int8_t inv_stage_range_col_dct_8x4[4] = { 0, 0, 0, 0 };
 static const int8_t inv_stage_range_col_adst_8x4[6] = { 0, 0, 0, 0, 0, 0 };
 // cos bit
-static const int8_t inv_cos_bit_col_dct_8x4[4] = { 13, 13, 13, 13 };
-static const int8_t inv_cos_bit_col_adst_8x4[6] = { 13, 13, 13, 13, 13, 13 };
+static const int8_t inv_cos_bit_col_dct_8x4[4] = { 12, 12, 12, 12 };
+static const int8_t inv_cos_bit_col_adst_8x4[6] = { 12, 12, 12, 12, 12, 12 };
 
 //  ---------------- 16x16 1D constants -----------------------
 // shift
@@ -125,10 +125,10 @@ static const int8_t inv_stage_range_col_adst_8x16[10] = { 0, 0, 0, 0, 0,
 static const int8_t inv_cos_bit_row_dct_8x16[6] = { 12, 12, 12, 12, 12, 12 };
 static const int8_t inv_cos_bit_row_adst_8x16[8] = { 12, 12, 12, 12,
                                                      12, 12, 12, 12 };
-static const int8_t inv_cos_bit_col_dct_8x16[8] = { 13, 13, 13, 13,
-                                                    13, 13, 13, 13 };
-static const int8_t inv_cos_bit_col_adst_8x16[10] = { 13, 13, 13, 13, 13,
-                                                      13, 13, 13, 13, 13 };
+static const int8_t inv_cos_bit_col_dct_8x16[8] = { 12, 12, 12, 12,
+                                                    12, 12, 12, 12 };
+static const int8_t inv_cos_bit_col_adst_8x16[10] = { 12, 12, 12, 12, 12,
+                                                      12, 12, 12, 12, 12 };
 
 //  ---------------- 16x8 1D constants -----------------------
 #define inv_shift_16x8 inv_shift_16
@@ -138,9 +138,9 @@ static const int8_t inv_stage_range_col_adst_16x8[8] = {
   0, 0, 0, 0, 0, 0, 0, 0
 };
 // cos bit
-static const int8_t inv_cos_bit_col_dct_16x8[6] = { 13, 13, 13, 13, 13, 13 };
-static const int8_t inv_cos_bit_col_adst_16x8[8] = { 13, 13, 13, 13,
-                                                     13, 13, 13, 13 };
+static const int8_t inv_cos_bit_col_dct_16x8[6] = { 12, 12, 12, 12, 12, 12 };
+static const int8_t inv_cos_bit_col_adst_16x8[8] = { 12, 12, 12, 12,
+                                                     12, 12, 12, 12 };
 
 //  ---------------- 32x32 1D constants -----------------------
 // shift
@@ -176,10 +176,10 @@ static const int8_t inv_stage_range_col_dct_16x32[10] = { 0, 0, 0, 0, 0,
 static const int8_t inv_stage_range_col_adst_16x32[12] = { 0, 0, 0, 0, 0, 0,
                                                            0, 0, 0, 0, 0, 0 };
 // cos bit
-static const int8_t inv_cos_bit_col_dct_16x32[10] = { 13, 13, 13, 13, 13,
-                                                      13, 13, 13, 13, 13 };
-static const int8_t inv_cos_bit_col_adst_16x32[12] = { 13, 13, 13, 13, 13, 13,
-                                                       13, 13, 13, 13, 13, 13 };
+static const int8_t inv_cos_bit_col_dct_16x32[10] = { 12, 12, 12, 12, 12,
+                                                      12, 12, 12, 12, 12 };
+static const int8_t inv_cos_bit_col_adst_16x32[12] = { 12, 12, 12, 12, 12, 12,
+                                                       12, 12, 12, 12, 12, 12 };
 
 //  ---------------- 32x16 1D constants -----------------------
 #define inv_shift_32x16 inv_shift_32
@@ -190,10 +190,10 @@ static const int8_t inv_stage_range_col_dct_32x16[8] = {
 static const int8_t inv_stage_range_col_adst_32x16[10] = { 0, 0, 0, 0, 0,
                                                            0, 0, 0, 0, 0 };
 // cos bit
-static const int8_t inv_cos_bit_col_dct_32x16[8] = { 13, 13, 13, 13,
-                                                     13, 13, 13, 13 };
-static const int8_t inv_cos_bit_col_adst_32x16[10] = { 13, 13, 13, 13, 13,
-                                                       13, 13, 13, 13, 13 };
+static const int8_t inv_cos_bit_col_dct_32x16[8] = { 12, 12, 12, 12,
+                                                     12, 12, 12, 12 };
+static const int8_t inv_cos_bit_col_adst_32x16[10] = { 12, 12, 12, 12, 12,
+                                                       12, 12, 12, 12, 12 };
 
 //  ---------------- 64x64 1D constants -----------------------
 // shift
@@ -220,8 +220,8 @@ static const int8_t inv_cos_bit_row_dct_64[12] = { 12, 12, 12, 12, 12, 12,
 static const int8_t inv_stage_range_col_dct_32x64[12] = { 0, 0, 0, 0, 0, 0,
                                                           0, 0, 0, 0, 0, 0 };
 // cos bit
-static const int8_t inv_cos_bit_col_dct_32x64[12] = { 13, 13, 13, 13, 13, 13,
-                                                      13, 13, 13, 13, 13, 13 };
+static const int8_t inv_cos_bit_col_dct_32x64[12] = { 12, 12, 12, 12, 12, 12,
+                                                      12, 12, 12, 12, 12, 12 };
 
 //  ---------------- 64x32 1D constants -----------------------
 #define inv_shift_64x32 inv_shift_64
@@ -229,8 +229,8 @@ static const int8_t inv_cos_bit_col_dct_32x64[12] = { 13, 13, 13, 13, 13, 13,
 static const int8_t inv_stage_range_col_dct_64x32[10] = { 0, 0, 0, 0, 0,
                                                           0, 0, 0, 0, 0 };
 // cos bit
-static const int8_t inv_cos_bit_col_dct_64x32[10] = { 13, 13, 13, 13, 13,
-                                                      13, 13, 13, 13, 13 };
+static const int8_t inv_cos_bit_col_dct_64x32[10] = { 12, 12, 12, 12, 12,
+                                                      12, 12, 12, 12, 12 };
 
 //  ---------------- 4x16 1D constants -----------------------
 #define inv_shift_4x16 inv_shift_16
