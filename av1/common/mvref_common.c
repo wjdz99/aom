@@ -1601,15 +1601,12 @@ void av1_setup_motion_field(AV1_COMMON *cm) {
 
 #if CONFIG_EXT_WARPED_MOTION
 static INLINE void record_samples(MB_MODE_INFO *mbmi, int *pts, int *pts_inref,
-                                  int *pts_mv, int global_offset_r,
-                                  int global_offset_c, int row_offset,
-                                  int sign_r, int col_offset, int sign_c) {
+                                  int *pts_mv, int row_offset, int sign_r,
+                                  int col_offset, int sign_c) {
   int bw = block_size_wide[mbmi->sb_type];
   int bh = block_size_high[mbmi->sb_type];
-  int cr_offset = row_offset * MI_SIZE + sign_r * AOMMAX(bh, MI_SIZE) / 2 - 1;
-  int cc_offset = col_offset * MI_SIZE + sign_c * AOMMAX(bw, MI_SIZE) / 2 - 1;
-  int x = cc_offset + global_offset_c;
-  int y = cr_offset + global_offset_r;
+  int x = col_offset * MI_SIZE + sign_c * AOMMAX(bw, MI_SIZE) / 2 - 1;
+  int y = row_offset * MI_SIZE + sign_r * AOMMAX(bh, MI_SIZE) / 2 - 1;
 
   pts[0] = (x * 8);
   pts[1] = (y * 8);
@@ -1671,6 +1668,8 @@ int sortSamples(int *pts_mv, MV *mv, int *pts, int *pts_inref, int len) {
 }
 
 // Note: Samples returned are at 1/8-pel precision
+// Sample are the neighbor block center point's coordinates relative to the
+// left-top pixel of current block.
 int findSamples(const AV1_COMMON *cm, MACROBLOCKD *xd, int mi_row, int mi_col,
                 int *pts, int *pts_inref, int *pts_mv) {
   MB_MODE_INFO *const mbmi0 = &(xd->mi[0]->mbmi);
@@ -1678,8 +1677,6 @@ int findSamples(const AV1_COMMON *cm, MACROBLOCKD *xd, int mi_row, int mi_col,
   int up_available = xd->up_available;
   int left_available = xd->left_available;
   int i, mi_step = 1, np = 0;
-  int global_offset_c = mi_col * MI_SIZE;
-  int global_offset_r = mi_row * MI_SIZE;
 
   const TileInfo *const tile = &xd->tile;
   int do_tl = 1;
@@ -1700,8 +1697,7 @@ int findSamples(const AV1_COMMON *cm, MACROBLOCKD *xd, int mi_row, int mi_col,
       if (col_offset + n8_w > xd->n8_w) do_tr = 0;
 
       if (mbmi->ref_frame[0] == ref_frame && mbmi->ref_frame[1] == NONE_FRAME) {
-        record_samples(mbmi, pts, pts_inref, pts_mv, global_offset_r,
-                       global_offset_c, 0, -1, col_offset, 1);
+        record_samples(mbmi, pts, pts_inref, pts_mv, 0, -1, col_offset, 1);
         pts += 2;
         pts_inref += 2;
         pts_mv += 2;
@@ -1719,8 +1715,7 @@ int findSamples(const AV1_COMMON *cm, MACROBLOCKD *xd, int mi_row, int mi_col,
 
         if (mbmi->ref_frame[0] == ref_frame &&
             mbmi->ref_frame[1] == NONE_FRAME) {
-          record_samples(mbmi, pts, pts_inref, pts_mv, global_offset_r,
-                         global_offset_c, 0, -1, i, 1);
+          record_samples(mbmi, pts, pts_inref, pts_mv, 0, -1, i, 1);
           pts += 2;
           pts_inref += 2;
           pts_mv += 2;
@@ -1747,8 +1742,7 @@ int findSamples(const AV1_COMMON *cm, MACROBLOCKD *xd, int mi_row, int mi_col,
       if (row_offset < 0) do_tl = 0;
 
       if (mbmi->ref_frame[0] == ref_frame && mbmi->ref_frame[1] == NONE_FRAME) {
-        record_samples(mbmi, pts, pts_inref, pts_mv, global_offset_r,
-                       global_offset_c, row_offset, 1, 0, -1);
+        record_samples(mbmi, pts, pts_inref, pts_mv, row_offset, 1, 0, -1);
         pts += 2;
         pts_inref += 2;
         pts_mv += 2;
@@ -1766,8 +1760,7 @@ int findSamples(const AV1_COMMON *cm, MACROBLOCKD *xd, int mi_row, int mi_col,
 
         if (mbmi->ref_frame[0] == ref_frame &&
             mbmi->ref_frame[1] == NONE_FRAME) {
-          record_samples(mbmi, pts, pts_inref, pts_mv, global_offset_r,
-                         global_offset_c, i, 1, 0, -1);
+          record_samples(mbmi, pts, pts_inref, pts_mv, i, 1, 0, -1);
           pts += 2;
           pts_inref += 2;
           pts_mv += 2;
@@ -1788,8 +1781,7 @@ int findSamples(const AV1_COMMON *cm, MACROBLOCKD *xd, int mi_row, int mi_col,
     MB_MODE_INFO *mbmi = &mi->mbmi;
 
     if (mbmi->ref_frame[0] == ref_frame && mbmi->ref_frame[1] == NONE_FRAME) {
-      record_samples(mbmi, pts, pts_inref, pts_mv, global_offset_r,
-                     global_offset_c, 0, -1, 0, -1);
+      record_samples(mbmi, pts, pts_inref, pts_mv, 0, -1, 0, -1);
       pts += 2;
       pts_inref += 2;
       pts_mv += 2;
@@ -1812,8 +1804,7 @@ int findSamples(const AV1_COMMON *cm, MACROBLOCKD *xd, int mi_row, int mi_col,
       MB_MODE_INFO *mbmi = &mi->mbmi;
 
       if (mbmi->ref_frame[0] == ref_frame && mbmi->ref_frame[1] == NONE_FRAME) {
-        record_samples(mbmi, pts, pts_inref, pts_mv, global_offset_r,
-                       global_offset_c, 0, -1, xd->n8_w, 1);
+        record_samples(mbmi, pts, pts_inref, pts_mv, 0, -1, xd->n8_w, 1);
         np++;
         if (np >= SAMPLES_MAX) return SAMPLES_MAX;
       }
@@ -1831,6 +1822,8 @@ void calc_projection_samples(MB_MODE_INFO *const mbmi, int x, int y,
 }
 
 // Note: Samples returned are at 1/8-pel precision
+// Sample are the neighbor block center point's coordinates relative to the
+// left-top pixel of current block.
 int findSamples(const AV1_COMMON *cm, MACROBLOCKD *xd, int mi_row, int mi_col,
                 int *pts, int *pts_inref) {
   MB_MODE_INFO *const mbmi0 = &(xd->mi[0]->mbmi);
@@ -1838,8 +1831,6 @@ int findSamples(const AV1_COMMON *cm, MACROBLOCKD *xd, int mi_row, int mi_col,
   int up_available = xd->up_available;
   int left_available = xd->left_available;
   int i, mi_step, np = 0;
-  int global_offset_c = mi_col * MI_SIZE;
-  int global_offset_r = mi_row * MI_SIZE;
 
   // scan the above row
   if (up_available) {
@@ -1855,10 +1846,8 @@ int findSamples(const AV1_COMMON *cm, MACROBLOCKD *xd, int mi_row, int mi_col,
       if (mbmi->ref_frame[0] == ref_frame && mbmi->ref_frame[1] == NONE_FRAME) {
         int bw = block_size_wide[mbmi->sb_type];
         int bh = block_size_high[mbmi->sb_type];
-        int cr_offset = -AOMMAX(bh, MI_SIZE) / 2 - 1;
-        int cc_offset = i * MI_SIZE + AOMMAX(bw, MI_SIZE) / 2 - 1;
-        int x = cc_offset + global_offset_c;
-        int y = cr_offset + global_offset_r;
+        int x = i * MI_SIZE + AOMMAX(bw, MI_SIZE) / 2 - 1;
+        int y = -AOMMAX(bh, MI_SIZE) / 2 - 1;
 
         pts[0] = (x * 8);
         pts[1] = (y * 8);
@@ -1886,10 +1875,8 @@ int findSamples(const AV1_COMMON *cm, MACROBLOCKD *xd, int mi_row, int mi_col,
       if (mbmi->ref_frame[0] == ref_frame && mbmi->ref_frame[1] == NONE_FRAME) {
         int bw = block_size_wide[mbmi->sb_type];
         int bh = block_size_high[mbmi->sb_type];
-        int cr_offset = i * MI_SIZE + AOMMAX(bh, MI_SIZE) / 2 - 1;
-        int cc_offset = -AOMMAX(bw, MI_SIZE) / 2 - 1;
-        int x = cc_offset + global_offset_c;
-        int y = cr_offset + global_offset_r;
+        int x = -AOMMAX(bw, MI_SIZE) / 2 - 1;
+        int y = i * MI_SIZE + AOMMAX(bh, MI_SIZE) / 2 - 1;
 
         pts[0] = (x * 8);
         pts[1] = (y * 8);
@@ -1913,10 +1900,8 @@ int findSamples(const AV1_COMMON *cm, MACROBLOCKD *xd, int mi_row, int mi_col,
     if (mbmi->ref_frame[0] == ref_frame && mbmi->ref_frame[1] == NONE_FRAME) {
       int bw = block_size_wide[mbmi->sb_type];
       int bh = block_size_high[mbmi->sb_type];
-      int cr_offset = -AOMMAX(bh, MI_SIZE) / 2 - 1;
-      int cc_offset = -AOMMAX(bw, MI_SIZE) / 2 - 1;
-      int x = cc_offset + global_offset_c;
-      int y = cr_offset + global_offset_r;
+      int x = -AOMMAX(bw, MI_SIZE) / 2 - 1;
+      int y = -AOMMAX(bh, MI_SIZE) / 2 - 1;
 
       pts[0] = (x * 8);
       pts[1] = (y * 8);
