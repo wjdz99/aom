@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "8d4bb8d2_b0f08c17",
+        "filename": "aom_dsp/entdec.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5050
+      },
+      "writtenOn": "2018-01-04T22:15:55Z",
+      "side": 1,
+      "message": "It felt \"better\" that EC_PROB_SHIFT changes it inside the function, and CDF_SHIFT changes it from outside. I can certainly change it - obviously the normal issues with scaling down aren\u0027t present here. Also, at this point I think this function is only hit for 50/50 bits.",
+      "parentUuid": "d6dbf68a_87783615",
+      "revId": "9aa52d509ba694f1a9c96f799dc7fd41e79bb2b3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1e37cb08_d429985d",
         "filename": "aom_dsp/entdec.c",
         "patchSetId": 7
@@ -30,6 +48,24 @@
       "writtenOn": "2017-12-28T14:22:14Z",
       "side": 1,
       "message": "This would probably be an excellent place to assert that 7 - EC_PROB_SHIFT - CDF_SHIFT \u003e\u003d 0.",
+      "revId": "9aa52d509ba694f1a9c96f799dc7fd41e79bb2b3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "84fa16be_c95c143a",
+        "filename": "aom_dsp/entdec.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 5050
+      },
+      "writtenOn": "2018-01-04T22:15:55Z",
+      "side": 1,
+      "message": "Done. I could move it to a preprocessor check too, but then it\u0027s far away from the actual constraint.",
+      "parentUuid": "1e37cb08_d429985d",
       "revId": "9aa52d509ba694f1a9c96f799dc7fd41e79bb2b3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "e2254c07_0fdf2b54",
+        "filename": "aom_dsp/entdec.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5050
+      },
+      "writtenOn": "2018-01-04T22:15:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "400e2f36_370a9d11",
+      "revId": "9aa52d509ba694f1a9c96f799dc7fd41e79bb2b3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1d6dc44b_64464ebe",
         "filename": "aom_dsp/entenc.c",
         "patchSetId": 7
@@ -64,6 +118,24 @@
       "writtenOn": "2017-12-28T14:22:14Z",
       "side": 1,
       "message": "Likewise, an assert here seems like a good idea.",
+      "revId": "9aa52d509ba694f1a9c96f799dc7fd41e79bb2b3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9c0ede6b_9e8f7dfb",
+        "filename": "aom_dsp/entenc.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 5050
+      },
+      "writtenOn": "2018-01-04T22:15:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1d6dc44b_64464ebe",
       "revId": "9aa52d509ba694f1a9c96f799dc7fd41e79bb2b3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "fecb074d_c557e92c",
+        "filename": "aom_dsp/prob.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 5050
+      },
+      "writtenOn": "2018-01-04T22:15:55Z",
+      "side": 1,
+      "message": "It\u0027s unused, I\u0027ll make a patch to delete (I have some similar incoming reviews so I should check those first)",
+      "parentUuid": "f9bb0216_14ce1f34",
+      "revId": "9aa52d509ba694f1a9c96f799dc7fd41e79bb2b3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "70e879f0_0429ab1d",
         "filename": "aom_dsp/prob.h",
         "patchSetId": 7
@@ -98,6 +188,24 @@
       "writtenOn": "2017-12-28T14:22:14Z",
       "side": 1,
       "message": "It would be nice if we could preserve the explanatory comment that used to be in entcode.h (even if the 32768 in it needs to change).",
+      "revId": "9aa52d509ba694f1a9c96f799dc7fd41e79bb2b3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7b058afb_cd0300f2",
+        "filename": "aom_dsp/prob.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5050
+      },
+      "writtenOn": "2018-01-04T22:15:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "70e879f0_0429ab1d",
       "revId": "9aa52d509ba694f1a9c96f799dc7fd41e79bb2b3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -121,6 +229,24 @@
     },
     {
       "key": {
+        "uuid": "189f3222_34c557a4",
+        "filename": "aom_dsp/prob.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 735,
+      "author": {
+        "id": 5050
+      },
+      "writtenOn": "2018-01-04T22:15:55Z",
+      "side": 1,
+      "message": "It was not intentional.",
+      "parentUuid": "77424a3c_e65b7fb9",
+      "revId": "9aa52d509ba694f1a9c96f799dc7fd41e79bb2b3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d981adcd_6b18f389",
         "filename": "aom_dsp/prob.h",
         "patchSetId": 7
@@ -132,6 +258,24 @@
       "writtenOn": "2017-12-28T14:22:14Z",
       "side": 1,
       "message": "Same.",
+      "revId": "9aa52d509ba694f1a9c96f799dc7fd41e79bb2b3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8716eafe_cbe42f4b",
+        "filename": "aom_dsp/prob.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 795,
+      "author": {
+        "id": 5050
+      },
+      "writtenOn": "2018-01-04T22:15:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d981adcd_6b18f389",
       "revId": "9aa52d509ba694f1a9c96f799dc7fd41e79bb2b3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -155,6 +299,24 @@
     },
     {
       "key": {
+        "uuid": "2f817a9c_311c4677",
+        "filename": "av1/common/entropy.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1544,
+      "author": {
+        "id": 5050
+      },
+      "writtenOn": "2018-01-04T22:15:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a5ac2155_c272d679",
+      "revId": "9aa52d509ba694f1a9c96f799dc7fd41e79bb2b3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d3cb9e30_5f4b370c",
         "filename": "av1/common/entropy.c",
         "patchSetId": 7
@@ -172,6 +334,24 @@
     },
     {
       "key": {
+        "uuid": "9772599e_7f640f03",
+        "filename": "av1/common/entropy.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1564,
+      "author": {
+        "id": 5050
+      },
+      "writtenOn": "2018-01-04T22:15:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d3cb9e30_5f4b370c",
+      "revId": "9aa52d509ba694f1a9c96f799dc7fd41e79bb2b3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b35ee869_49a95b15",
         "filename": "test/ec_test.cc",
         "patchSetId": 7
@@ -183,6 +363,24 @@
       "writtenOn": "2017-12-28T14:22:14Z",
       "side": 1,
       "message": "Seems a little weird to test if CDF_SHIFT is 0 and then use it in a bunch of places.",
+      "revId": "9aa52d509ba694f1a9c96f799dc7fd41e79bb2b3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1f325fc3_6d190e88",
+        "filename": "test/ec_test.cc",
+        "patchSetId": 7
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5050
+      },
+      "writtenOn": "2018-01-04T22:15:55Z",
+      "side": 1,
+      "message": "Dropped. In theory I could get this test to work with CDF_SHIFT !\u003d 0 but actually I\u0027m just going to delete patch_initial_bits in a future patch.",
+      "parentUuid": "b35ee869_49a95b15",
       "revId": "9aa52d509ba694f1a9c96f799dc7fd41e79bb2b3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
