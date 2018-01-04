@@ -52,6 +52,8 @@ typedef struct {
   // scope of refactoring.
   int rate;
   int64_t dist;
+  int64_t rdcost;
+  int rd_mode_is_ready;
 
   // motion vector cache for adaptive motion search control in partition
   // search loop
@@ -82,6 +84,11 @@ typedef struct PC_TREE {
 
 void av1_setup_pc_tree(struct AV1Common *cm, struct ThreadData *td);
 void av1_free_pc_tree(struct ThreadData *td);
+#if CONFIG_EXT_PARTITION_TYPES
+void av1_copy_tree_context(const AV1_COMMON *const cm,
+                           PICK_MODE_CONTEXT *dst_ctx,
+                           PICK_MODE_CONTEXT *src_ctx);
+#endif  // CONFIG_EXT_PARTITON_TYPES
 
 #ifdef __cplusplus
 }  // extern "C"
