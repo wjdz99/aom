@@ -2487,12 +2487,7 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
 #if CONFIG_DIST_8X8
     if (x->using_dist_8x8 && reached_last_index &&
         sum_rdc.rdcost != INT64_MAX && bsize == BLOCK_8X8) {
-      int64_t dist_8x8;
-      dist_8x8 = dist_8x8_yuv(cpi, x, src_plane_8x8, dst_plane_8x8);
-      // TODO(anyone): Fix dist-8x8 assert failure here when CFL is enabled
-      if (x->tune_metric == AOM_TUNE_PSNR && xd->bd == 8 && !CONFIG_CFL)
-        assert(sum_rdc.dist == dist_8x8);
-      sum_rdc.dist = dist_8x8;
+      sum_rdc.dist = dist_8x8_yuv(cpi, x, src_plane_8x8, dst_plane_8x8);
       sum_rdc.rdcost = RDCOST(x->rdmult, sum_rdc.rate, sum_rdc.dist);
     }
 #endif  // CONFIG_DIST_8X8
@@ -2576,12 +2571,7 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
 #if CONFIG_DIST_8X8
       if (x->using_dist_8x8 && sum_rdc.rdcost != INT64_MAX &&
           bsize == BLOCK_8X8) {
-        int64_t dist_8x8;
-        dist_8x8 = dist_8x8_yuv(cpi, x, src_plane_8x8, dst_plane_8x8);
-        // TODO(anyone): Fix dist-8x8 assert failure here when CFL is enabled
-        if (x->tune_metric == AOM_TUNE_PSNR && xd->bd == 8 && !CONFIG_CFL)
-          assert(sum_rdc.dist == dist_8x8);
-        sum_rdc.dist = dist_8x8;
+        sum_rdc.dist = dist_8x8_yuv(cpi, x, src_plane_8x8, dst_plane_8x8);
         sum_rdc.rdcost = RDCOST(x->rdmult, sum_rdc.rate, sum_rdc.dist);
       }
 #endif  // CONFIG_DIST_8X8
@@ -2662,12 +2652,7 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
 #if CONFIG_DIST_8X8
       if (x->using_dist_8x8 && sum_rdc.rdcost != INT64_MAX &&
           bsize == BLOCK_8X8) {
-        int64_t dist_8x8;
-        dist_8x8 = dist_8x8_yuv(cpi, x, src_plane_8x8, dst_plane_8x8);
-        // TODO(anyone): Fix dist-8x8 assert failure here when CFL is enabled
-        if (x->tune_metric == AOM_TUNE_PSNR && xd->bd == 8 && !CONFIG_CFL)
-          assert(sum_rdc.dist == dist_8x8);
-        sum_rdc.dist = dist_8x8;
+        sum_rdc.dist = dist_8x8_yuv(cpi, x, src_plane_8x8, dst_plane_8x8);
         sum_rdc.rdcost = RDCOST(x->rdmult, sum_rdc.rate, sum_rdc.dist);
       }
 #endif  // CONFIG_DIST_8X8
