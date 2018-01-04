@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa3e1138_8db4834c",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2169,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-01-04T14:20:34Z",
+      "side": 1,
+      "message": "can you keep this function below \"av1_predict_intra_block()\" function? Then the diff would be easier to see.",
+      "range": {
+        "startLine": 2169,
+        "startChar": 5,
+        "endLine": 2169,
+        "endChar": 35
+      },
+      "revId": "e160b4c0f174a31beb685301f493fc088f206080",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
