@@ -52,6 +52,8 @@ typedef struct {
   // scope of refactoring.
   int rate;
   int64_t dist;
+  int64_t rdcost;
+  int rd_mode_is_ready;
 
   // motion vector cache for adaptive motion search control in partition
   // search loop
