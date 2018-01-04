@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a4822a1d_4a85340f",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 942,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2018-01-04T19:44:52Z",
+      "side": 1,
+      "message": "I guess \u0027if (allow_update_cdf)\u0027 is needed",
+      "range": {
+        "startLine": 942,
+        "startChar": 10,
+        "endLine": 942,
+        "endChar": 20
+      },
+      "revId": "334bdc8e1fc8c3c99825ae88bf3fa3579dd1ca60",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0e9a2999_552d40d4",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 948,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2018-01-04T19:44:52Z",
+      "side": 1,
+      "message": "ditto, and for all following update_cdf()",
+      "range": {
+        "startLine": 948,
+        "startChar": 12,
+        "endLine": 948,
+        "endChar": 22
+      },
+      "revId": "334bdc8e1fc8c3c99825ae88bf3fa3579dd1ca60",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
