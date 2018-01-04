@@ -16,6 +16,24 @@
       "revId": "c4789b85cd5808fec6788bc815853a7705ca7809",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6edafea2_095b6d1d",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2420,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2018-01-04T19:36:11Z",
+      "side": 0,
+      "message": "Yes, the code below is not reachable. The new interface takes the tx_size as input, instead of the bsize.",
+      "parentUuid": "08aee93a_c8572a0d",
+      "revId": "c4789b85cd5808fec6788bc815853a7705ca7809",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
