@@ -32,7 +32,7 @@ extern "C" {
 // transform search. Trellis optimization will still be applied
 // in the final encode.
 #ifndef DISABLE_TRELLISQ_SEARCH
-#define DISABLE_TRELLISQ_SEARCH 0
+#define DISABLE_TRELLISQ_SEARCH 1
 #endif
 
 struct TileInfo;
