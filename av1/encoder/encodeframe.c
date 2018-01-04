@@ -2233,7 +2233,8 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
                               TileDataEnc *tile_data, TOKENEXTRA **tp,
                               int mi_row, int mi_col, BLOCK_SIZE bsize,
                               RD_STATS *rd_cost, int64_t best_rd,
-                              PC_TREE *pc_tree, int64_t *none_rd) {
+                              PC_TREE *pc_tree, int64_t *none_rd,
+                              MB_MODE_INFO *none_mbmi) {
   const AV1_COMMON *const cm = &cpi->common;
   TileInfo *const tile_info = &tile_data->tile_info;
   MACROBLOCK *const x = &td->mb;
@@ -2258,6 +2259,11 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
   int64_t split_rd[4] = { 0, 0, 0, 0 };
   int64_t horz_rd[2] = { 0, 0 };
   int64_t vert_rd[2] = { 0, 0 };
+  MB_MODE_INFO split_mbmi[4];
+  // TODO(zoeliu): "horz_mbmi" should be identical to pc_tree->horizontal, and
+  //               "vert_mbmi" should be identical to pc_tree->vertical.
+  MB_MODE_INFO horz_mbmi[2];
+  MB_MODE_INFO vert_mbmi[2];
 #endif  // CONFIG_EXT_PARTITION_TYPES
 #if CONFIG_EXT_PARTITION_TYPES
   BLOCK_SIZE bsize2 = get_subsize(bsize, PARTITION_SPLIT);
@@ -2427,6 +2433,7 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
 #endif
                      bsize, ctx_none, best_rdc.rdcost);
     if (none_rd) *none_rd = this_rdc.rdcost;
+    if (none_mbmi) *none_mbmi = xd->mi[0]->mbmi;
     if (this_rdc.rate != INT_MAX) {
       if (bsize_at_least_8x8) {
         const int pt_cost = partition_cost[PARTITION_NONE] < INT_MAX
@@ -2546,12 +2553,14 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
       pc_tree->split[idx]->index = idx;
 #if CONFIG_EXT_PARTITION_TYPES
       int64_t *p_split_rd = &split_rd[idx];
+      MB_MODE_INFO *p_split_mbmi = &split_mbmi[idx];
 #else
       int64_t *p_split_rd = NULL;
+      MB_MODE_INFO *p_split_mbmi = NULL;
 #endif  // CONFIG_EXT_PARTITION_TYPES
       rd_pick_partition(cpi, td, tile_data, tp, mi_row + y_idx, mi_col + x_idx,
                         subsize, &this_rdc, temp_best_rdcost - sum_rdc.rdcost,
-                        pc_tree->split[idx], p_split_rd);
+                        pc_tree->split[idx], p_split_rd, p_split_mbmi);
 
       if (this_rdc.rate == INT_MAX) {
         sum_rdc.rdcost = INT64_MAX;
@@ -2607,6 +2616,7 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
                      subsize, &pc_tree->horizontal[0], best_rdc.rdcost);
 #if CONFIG_EXT_PARTITION_TYPES
     horz_rd[0] = sum_rdc.rdcost;
+    horz_mbmi[0] = xd->mi[0]->mbmi;
 #endif  // CONFIG_EXT_PARTITION_TYPES
 
     if (sum_rdc.rdcost < temp_best_rdcost && has_rows) {
@@ -2630,6 +2640,7 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
                        best_rdc.rdcost - sum_rdc.rdcost);
 #if CONFIG_EXT_PARTITION_TYPES
       horz_rd[1] = this_rdc.rdcost;
+      horz_mbmi[1] = xd->mi[0]->mbmi;
 #endif  // CONFIG_EXT_PARTITION_TYPES
 
 #if CONFIG_DIST_8X8
@@ -2688,6 +2699,7 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
                      subsize, &pc_tree->vertical[0], best_rdc.rdcost);
 #if CONFIG_EXT_PARTITION_TYPES
     vert_rd[0] = sum_rdc.rdcost;
+    vert_mbmi[0] = xd->mi[0]->mbmi;
 #endif  // CONFIG_EXT_PARTITION_TYPES
     const int64_t vert_max_rdcost = best_rdc.rdcost;
     if (sum_rdc.rdcost < vert_max_rdcost && has_cols) {
@@ -2711,6 +2723,7 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
                        best_rdc.rdcost - sum_rdc.rdcost);
 #if CONFIG_EXT_PARTITION_TYPES
       vert_rd[1] = this_rdc.rdcost;
+      vert_mbmi[1] = xd->mi[0]->mbmi;
 #endif  // CONFIG_EXT_PARTITION_TYPES
 
 #if CONFIG_DIST_8X8
@@ -2796,6 +2809,11 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
   // PARTITION_HORZ_A
   if (partition_horz_allowed && horza_partition_allowed) {
     subsize = get_subsize(bsize, PARTITION_HORZ_A);
+    if (cpi->sf.prune_ext_partition_types_search) {
+      pc_tree->horizontala[0].mic.mbmi = split_mbmi[0];
+      pc_tree->horizontala[1].mic.mbmi = split_mbmi[1];
+      pc_tree->horizontala[2].mic.mbmi = horz_mbmi[1];
+    }
     rd_test_partition3(cpi, td, tile_data, tp, pc_tree, &best_rdc,
                        pc_tree->horizontala, ctx_none, mi_row, mi_col, bsize,
                        PARTITION_HORZ_A, mi_row, mi_col, bsize2, mi_row,
@@ -2806,6 +2824,11 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
   // PARTITION_HORZ_B
   if (partition_horz_allowed && horzb_partition_allowed) {
     subsize = get_subsize(bsize, PARTITION_HORZ_B);
+    if (cpi->sf.prune_ext_partition_types_search) {
+      pc_tree->horizontalb[0].mic.mbmi = horz_mbmi[0];
+      pc_tree->horizontalb[1].mic.mbmi = split_mbmi[2];
+      pc_tree->horizontalb[2].mic.mbmi = split_mbmi[3];
+    }
     rd_test_partition3(cpi, td, tile_data, tp, pc_tree, &best_rdc,
                        pc_tree->horizontalb, ctx_none, mi_row, mi_col, bsize,
                        PARTITION_HORZ_B, mi_row, mi_col, subsize,
@@ -2826,6 +2849,11 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
   // PARTITION_VERT_A
   if (partition_vert_allowed && verta_partition_allowed) {
     subsize = get_subsize(bsize, PARTITION_VERT_A);
+    if (cpi->sf.prune_ext_partition_types_search) {
+      pc_tree->verticala[0].mic.mbmi = split_mbmi[0];
+      pc_tree->verticala[1].mic.mbmi = split_mbmi[2];
+      pc_tree->verticala[2].mic.mbmi = vert_mbmi[1];
+    }
     rd_test_partition3(cpi, td, tile_data, tp, pc_tree, &best_rdc,
                        pc_tree->verticala, ctx_none, mi_row, mi_col, bsize,
                        PARTITION_VERT_A, mi_row, mi_col, bsize2,
@@ -2836,6 +2864,11 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
   // PARTITION_VERT_B
   if (partition_vert_allowed && vertb_partition_allowed) {
     subsize = get_subsize(bsize, PARTITION_VERT_B);
+    if (cpi->sf.prune_ext_partition_types_search) {
+      pc_tree->verticalb[0].mic.mbmi = vert_mbmi[0];
+      pc_tree->verticalb[1].mic.mbmi = split_mbmi[1];
+      pc_tree->verticalb[2].mic.mbmi = split_mbmi[3];
+    }
     rd_test_partition3(cpi, td, tile_data, tp, pc_tree, &best_rdc,
                        pc_tree->verticalb, ctx_none, mi_row, mi_col, bsize,
                        PARTITION_VERT_B, mi_row, mi_col, subsize, mi_row,
@@ -3133,7 +3166,7 @@ static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
                                 &x->min_partition_size, &x->max_partition_size);
       }
       rd_pick_partition(cpi, td, tile_data, tp, mi_row, mi_col, cm->sb_size,
-                        &dummy_rdc, INT64_MAX, pc_root, NULL);
+                        &dummy_rdc, INT64_MAX, pc_root, NULL, NULL);
     }
   }
 }
