@@ -1868,22 +1868,6 @@ static const aom_cdf_prob
     };
 
 #if CONFIG_DUAL_FILTER
-#if USE_EXTRA_FILTER
-static const aom_cdf_prob
-    default_switchable_interp_cdf[SWITCHABLE_FILTER_CONTEXTS][CDF_SIZE(
-        SWITCHABLE_FILTERS)] = {
-      { AOM_CDF4(30080, 31088, 31760) }, { AOM_CDF4(4608, 9620, 11050) },
-      { AOM_CDF4(4352, 5240, 31880) },   { AOM_CDF4(4352, 5240, 31880) },
-      { AOM_CDF4(19072, 23352, 28488) }, { AOM_CDF4(30080, 31088, 31760) },
-      { AOM_CDF4(4608, 9620, 11050) },   { AOM_CDF4(4352, 5240, 31880) },
-      { AOM_CDF4(4352, 5240, 31880) },   { AOM_CDF4(19072, 23352, 28488) },
-      { AOM_CDF4(30080, 31088, 31760) }, { AOM_CDF4(4608, 9620, 11050) },
-      { AOM_CDF4(4352, 5240, 31880) },   { AOM_CDF4(4352, 5240, 31880) },
-      { AOM_CDF4(19072, 23352, 28488) }, { AOM_CDF4(30080, 31088, 31760) },
-      { AOM_CDF4(4608, 9620, 11050) },   { AOM_CDF4(4352, 5240, 31880) },
-      { AOM_CDF4(4352, 5240, 31880) },   { AOM_CDF4(19072, 23352, 28488) },
-    };
-#else   // USE_EXTRA_FILTER
 static const aom_cdf_prob
     default_switchable_interp_cdf[SWITCHABLE_FILTER_CONTEXTS][CDF_SIZE(
         SWITCHABLE_FILTERS)] = {
@@ -1896,7 +1880,6 @@ static const aom_cdf_prob
       { AOM_CDF3(31616, 31787) }, { AOM_CDF3(4224, 32433) },
       { AOM_CDF3(128, 256) },     { AOM_CDF3(17408, 18248) }
     };
-#endif  // USE_EXTRA_FILTER
 #else   // CONFIG_DUAL_FILTER
 static const aom_cdf_prob
     default_switchable_interp_cdf[SWITCHABLE_FILTER_CONTEXTS]
