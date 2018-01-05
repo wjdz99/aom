@@ -151,6 +151,7 @@ class PartialIDctTest : public ::testing::TestWithParam<PartialInvTxfmParam> {
   ACMRandom rnd_;
 };
 
+#if !CONFIG_LV_MAP
 TEST_P(PartialIDctTest, RunQuantCheck) {
   DECLARE_ALIGNED(16, int16_t, input_extreme_block[kMaxNumCoeffs]);
   DECLARE_ALIGNED(16, tran_low_t, output_ref_block[kMaxNumCoeffs]);
@@ -383,5 +384,6 @@ const PartialInvTxfmParam avx2_partial_idct_tests[] = {
 INSTANTIATE_TEST_CASE_P(AVX2, PartialIDctTest,
                         ::testing::ValuesIn(avx2_partial_idct_tests));
 #endif  // HAVE_AVX2
+#endif  // !CONFIG_LV_MAP
 
 }  // namespace
