@@ -346,18 +346,6 @@ static INLINE int get_entropy_context(TX_SIZE tx_size, const ENTROPY_CONTEXT *a,
 #define COEF_COUNT_SAT_AFTER_KEY 24
 #define COEF_MAX_UPDATE_FACTOR_AFTER_KEY 128
 
-static INLINE aom_prob av1_merge_probs(aom_prob pre_prob,
-                                       const unsigned int ct[2],
-                                       unsigned int count_sat,
-                                       unsigned int max_update_factor) {
-  return merge_probs(pre_prob, ct, count_sat, max_update_factor);
-}
-
-static INLINE aom_prob av1_mode_mv_merge_probs(aom_prob pre_prob,
-                                               const unsigned int ct[2]) {
-  return mode_mv_merge_probs(pre_prob, ct);
-}
-
 static INLINE TX_SIZE get_txsize_entropy_ctx(TX_SIZE txsize) {
   return (TX_SIZE)((txsize_sqr_map[txsize] + txsize_sqr_up_map[txsize] + 1) >>
                    1);
