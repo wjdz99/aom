@@ -62,11 +62,6 @@ const aom_cdf_prob *av1_cat6_cdf[] = {
   av1_cat6_cdf0, av1_cat6_cdf1, av1_cat6_cdf2, av1_cat6_cdf3, av1_cat6_cdf4
 };
 /* Extra bits coded from MSB to LSB */
-const aom_prob av1_cat1_prob[] = { 159 };
-const aom_prob av1_cat2_prob[] = { 165, 145 };
-const aom_prob av1_cat3_prob[] = { 173, 148, 140 };
-const aom_prob av1_cat4_prob[] = { 176, 155, 140, 135 };
-const aom_prob av1_cat5_prob[] = { 180, 157, 141, 134, 130 };
 const aom_prob av1_cat6_prob[] = {
   255, 255, 255, 255, 254, 254, 254, 252, 249,
   243, 230, 196, 177, 153, 140, 133, 130, 129
