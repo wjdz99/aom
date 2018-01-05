@@ -325,6 +325,7 @@ EXPERIMENT_LIST="
     segment_pred_last
     obu_no_ivf
     tile_info_first
+    dcpred_tweak
 "
 CONFIG_LIST="
     dependency_tracking

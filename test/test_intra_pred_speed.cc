@@ -131,14 +131,26 @@ void TestIntraPred4(const char *block_name, AvxPredFunc const *pred_funcs) {
     "de6937fca02354f2874dbc5dbec5d5b3", "723cf948137f7d8c7860d814e55ae67d",
   };
   static const char *const kSignatures4x8[kNumAv1IntraFuncs] = {
-    "d9fbebdc85f71ab1e18461b2db4a2adc", "5ccb2a68284bc9714d94b8a06ccadbb2",
-    "735d059abc2744f3ff3f9590f7191b37", "d9fbebdc85f71ab1e18461b2db4a2adc",
-    "6819497c44cd0ace120add83672996ee", "7e3244f5a2d3edf81c7e962a842b97f9",
-    "3fa52ee9acf5a25594cac684be263f32", "c18dd23d57def4df4c6147c572dfc827",
-    "d007fbf7e43cb8f49702daa20f0c9153", "5c0226c44c5df285728296b80cc6de4b",
-    "b55d7b558bebc8c2042dfac58b3c4688", "6549362baa389b8faa2d954926b64e2f",
-    "809350f164cd4d1650850bb0f59c3260", "1b60a394331eeab6927a6f8aaff57040",
-    "5307de1bd7329ba6b281d2c1b0b457f9", "24c58a8138339846d95568efb91751db",
+#if CONFIG_DCPRED_TWEAK
+    "266faa20d7f622f9381d9b63f9169e8c",
+#else
+    "d9fbebdc85f71ab1e18461b2db4a2adc",
+#endif  // CONFIG_DCPRED_TWEAK
+    "5ccb2a68284bc9714d94b8a06ccadbb2",
+    "735d059abc2744f3ff3f9590f7191b37",
+    "d9fbebdc85f71ab1e18461b2db4a2adc",
+    "6819497c44cd0ace120add83672996ee",
+    "7e3244f5a2d3edf81c7e962a842b97f9",
+    "3fa52ee9acf5a25594cac684be263f32",
+    "c18dd23d57def4df4c6147c572dfc827",
+    "d007fbf7e43cb8f49702daa20f0c9153",
+    "5c0226c44c5df285728296b80cc6de4b",
+    "b55d7b558bebc8c2042dfac58b3c4688",
+    "6549362baa389b8faa2d954926b64e2f",
+    "809350f164cd4d1650850bb0f59c3260",
+    "1b60a394331eeab6927a6f8aaff57040",
+    "5307de1bd7329ba6b281d2c1b0b457f9",
+    "24c58a8138339846d95568efb91751db",
   };
   if (!strcmp(block_name, "intra4x4")) {
     TestIntraPred(block_name, pred_funcs, kSignatures4x4, 4, 4);
@@ -160,24 +172,48 @@ void TestIntraPred8(const char *block_name, AvxPredFunc const *pred_funcs) {
     "97111eb1bc26bade6272015df829f1ae", "d19a8a73cc46b807f2c5e817576cc1e1",
   };
   static const char *const kSignatures8x4[kNumAv1IntraFuncs] = {
-    "23f9fc11344426c9bee2e06d57dfd628", "2d71a26d1bae1fb34734de7b42fc5eb7",
-    "5af9c1b2fd9d5721fad67b67b3f7c816", "00d71b17be662753813d515f197d145e",
-    "bef10ec984427e28f4390f43809d10af", "77773cdfb7ed6bc882ab202a64b0a470",
-    "cba356970f6b9a1b6024e1dbe4a66f9b", "c58c21efc804242848e6f29a93a7984d",
-    "dc92cc45a51c7a397506cab19f74e66d", "391f6a12224f81a3719ea09a2cf7a5ad",
-    "b74b8b11f7eb2bbf723b25f381104ca9", "2234aaa06ca245624211cf53a0261017",
-    "2cc48bd66d6b0121b5221d52ccd732af", "b302155e1c9eeeafe2ba2bf68e807a46",
-    "561bc8d0e76d5041ebd5168fc6a115e1", "81d0113fb1d0a9a24ffd6f1987b77948",
+#if CONFIG_DCPRED_TWEAK
+    "3c61c2da2068be2c2d1a82c958ae38b3",
+#else
+    "23f9fc11344426c9bee2e06d57dfd628",
+#endif  // CONFIG_DCPRED_TWEAK
+    "2d71a26d1bae1fb34734de7b42fc5eb7",
+    "5af9c1b2fd9d5721fad67b67b3f7c816",
+    "00d71b17be662753813d515f197d145e",
+    "bef10ec984427e28f4390f43809d10af",
+    "77773cdfb7ed6bc882ab202a64b0a470",
+    "cba356970f6b9a1b6024e1dbe4a66f9b",
+    "c58c21efc804242848e6f29a93a7984d",
+    "dc92cc45a51c7a397506cab19f74e66d",
+    "391f6a12224f81a3719ea09a2cf7a5ad",
+    "b74b8b11f7eb2bbf723b25f381104ca9",
+    "2234aaa06ca245624211cf53a0261017",
+    "2cc48bd66d6b0121b5221d52ccd732af",
+    "b302155e1c9eeeafe2ba2bf68e807a46",
+    "561bc8d0e76d5041ebd5168fc6a115e1",
+    "81d0113fb1d0a9a24ffd6f1987b77948",
   };
   static const char *const kSignatures8x16[kNumAv1IntraFuncs] = {
-    "c849de88b24f773dfcdd1d48d1209796", "6cb807c1897b94866a0f3d3c56ed8695",
-    "d56db05a8ac7981762f5b877f486c4ef", "b4bc01eb6e59a40922ad17715cafb04b",
-    "09d178439534f4062ae687c351f66d64", "644501399cf73080ac606e5cef7ca09b",
-    "0e8e968fa177204d7e73d7e04ce69ebb", "1d25f9287fdf7ba48a5105f1529b7e75",
-    "02cacccf3752451763a6a6e2e784494f", "6044a1416d53e324ddc012d2e7763339",
-    "57ac6e8f3ab5e943c9280043eeb174b8", "d51b9d65471194d9caebc7d67e75ef10",
-    "278076495180e17c065a95ab7278539a", "9dd7f324816f242be408ffeb0c673732",
-    "f520c4a20acfa0bea1d253c6f0f040fd", "85f38df809df2c2d7c8b4a157a65cd44",
+#if CONFIG_DCPRED_TWEAK
+    "a13c6cdbb473526bc94f46e8506d3636",
+#else
+    "c849de88b24f773dfcdd1d48d1209796",
+#endif  // CONFIG_DCPRED_TWEAK
+    "6cb807c1897b94866a0f3d3c56ed8695",
+    "d56db05a8ac7981762f5b877f486c4ef",
+    "b4bc01eb6e59a40922ad17715cafb04b",
+    "09d178439534f4062ae687c351f66d64",
+    "644501399cf73080ac606e5cef7ca09b",
+    "0e8e968fa177204d7e73d7e04ce69ebb",
+    "1d25f9287fdf7ba48a5105f1529b7e75",
+    "02cacccf3752451763a6a6e2e784494f",
+    "6044a1416d53e324ddc012d2e7763339",
+    "57ac6e8f3ab5e943c9280043eeb174b8",
+    "d51b9d65471194d9caebc7d67e75ef10",
+    "278076495180e17c065a95ab7278539a",
+    "9dd7f324816f242be408ffeb0c673732",
+    "f520c4a20acfa0bea1d253c6f0f040fd",
+    "85f38df809df2c2d7c8b4a157a65cd44",
   };
   if (!strcmp(block_name, "intra8x8")) {
     TestIntraPred(block_name, pred_funcs, kSignatures8x8, 8, 8);
@@ -202,24 +238,48 @@ void TestIntraPred16(const char *block_name, AvxPredFunc const *pred_funcs) {
     "bb6c74c9076c9f266ab11fb57060d8e6", "0c5162bc28489756ddb847b5678e6f07",
   };
   static const char *const kSignatures16x8[kNumAv1IntraFuncs] = {
-    "b4cbdbdf10ce13300b4063a3daf99e04", "3731e1e6202064a9d0604d7c293ecee4",
-    "6c856188c4256a06452f0d5d70cac436", "1f2192b4c8c497589484ea7bf9c944e8",
-    "84011bd4b7f565119d06787840e333a0", "0e48949f7a6aa36f0d76b5d01f91124a",
-    "58114c06f6b9d8285e5020c7afd834ab", "e37afe84a8b3c5e0f048d4652ecbe09e",
-    "c216348473fb029b45f8fb4f2862a7bd", "0b7385155dcef742cc456d5741ae93a3",
-    "d55fadb221f0ea20266e57cd413e7b94", "9bd6eb226c7e169b8d53cf70aea98b3a",
-    "60eff8064634b6c73b10681356baeee9", "1559aeb081a9c0c71111d6093c2ff9fd",
-    "c15479b739713773e5cabb748451987b", "72e33ec12c9b67aea26d8d005fb82de2",
+#if CONFIG_DCPRED_TWEAK
+    "09a5ba02ec4907de2742ae116706d1f5",
+#else
+    "b4cbdbdf10ce13300b4063a3daf99e04",
+#endif  // CONFIG_DCPRED_TWEAK
+    "3731e1e6202064a9d0604d7c293ecee4",
+    "6c856188c4256a06452f0d5d70cac436",
+    "1f2192b4c8c497589484ea7bf9c944e8",
+    "84011bd4b7f565119d06787840e333a0",
+    "0e48949f7a6aa36f0d76b5d01f91124a",
+    "58114c06f6b9d8285e5020c7afd834ab",
+    "e37afe84a8b3c5e0f048d4652ecbe09e",
+    "c216348473fb029b45f8fb4f2862a7bd",
+    "0b7385155dcef742cc456d5741ae93a3",
+    "d55fadb221f0ea20266e57cd413e7b94",
+    "9bd6eb226c7e169b8d53cf70aea98b3a",
+    "60eff8064634b6c73b10681356baeee9",
+    "1559aeb081a9c0c71111d6093c2ff9fd",
+    "c15479b739713773e5cabb748451987b",
+    "72e33ec12c9b67aea26d8d005fb82de2",
   };
   static const char *const kSignatures16x32[kNumAv1IntraFuncs] = {
-    "abe5233d189cdbf79424721571bbaa7b", "282759f81e3cfb2e2d396fe406b72a8b",
-    "e2224926c264f6f174cbc3167a233168", "6814e85c2b33f8c9415d62e80394b47b",
-    "99cbbb60459c08a3061d72c4e4f6276a", "1d1567d40b8e816f8c1f71e576fe0f87",
-    "5e989f9c748a0d2cd8c4ebf9d3fe1278", "7135a2f419452a3a192a35156f68b019",
-    "06e10af5a726d2c81b8f8c708204f9fb", "c0882f0e7ba1ffa0aeef6d5c751df6de",
-    "8477429e17d39a423f30e2082f651549", "ba35068a30c2d1d10901e4bfabd02a11",
-    "36fdd371b624a075814d497c4832ec85", "8ab8da61b727442b6ff692b40d0df018",
-    "e35a10ad7fdf2327e821504a90f6a6eb", "1f7211e727dc1de7d6a55d082fbdd821",
+#if CONFIG_DCPRED_TWEAK
+    "8d3fe620f0a9199acc80bc1d1b3228d6",
+#else
+    "abe5233d189cdbf79424721571bbaa7b",
+#endif  // CONFIG_DCPRED_TWEAK
+    "282759f81e3cfb2e2d396fe406b72a8b",
+    "e2224926c264f6f174cbc3167a233168",
+    "6814e85c2b33f8c9415d62e80394b47b",
+    "99cbbb60459c08a3061d72c4e4f6276a",
+    "1d1567d40b8e816f8c1f71e576fe0f87",
+    "5e989f9c748a0d2cd8c4ebf9d3fe1278",
+    "7135a2f419452a3a192a35156f68b019",
+    "06e10af5a726d2c81b8f8c708204f9fb",
+    "c0882f0e7ba1ffa0aeef6d5c751df6de",
+    "8477429e17d39a423f30e2082f651549",
+    "ba35068a30c2d1d10901e4bfabd02a11",
+    "36fdd371b624a075814d497c4832ec85",
+    "8ab8da61b727442b6ff692b40d0df018",
+    "e35a10ad7fdf2327e821504a90f6a6eb",
+    "1f7211e727dc1de7d6a55d082fbdd821",
   };
   if (!strcmp(block_name, "intra16x16")) {
     TestIntraPred(block_name, pred_funcs, kSignatures16x16, 16, 16);
@@ -244,14 +304,26 @@ void TestIntraPred32(const char *block_name, AvxPredFunc const *pred_funcs) {
     "866c224746dc260cda861a7b1b383fb3", "cea23799fc3526e1b6a6ff02b42b82af",
   };
   static const char *const kSignatures32x16[kNumAv1IntraFuncs] = {
-    "d1aeb8d5fdcfd3307922af01a798a4dc", "b0bcb514ebfbee065faea9d34c12ae75",
-    "d6a18c63b4e909871c0137ca652fad23", "fd047f2fc1b8ffb95d0eeef3e8796a45",
-    "645ab60779ea348fd93c81561c31bab9", "4409633c9db8dff41ade4292a3a56e7f",
-    "b9b2935b2287a9a461ac5c11251ac706", "43b05f808c0ac4fe8accd84d293b0488",
-    "1d2cb43872d20c205ffb185102bcd22a", "2c1551b5e99592fd21053b5d14e397d9",
-    "cd499ef0dd41e2e38d5dac3319dfdd97", "cd2610426637003f3b5d3984cb3320d5",
-    "5e36a11e069b31c2a739f3a9c7b37c24", "e83b9483d702cfae496991c3c7fa92c0",
-    "12f6ddf98c7f30a277307f1ea935b030", "354321d6c32bbdb0739e4fa2acbf41e1",
+#if CONFIG_DCPRED_TWEAK
+    "f086c54bd30a8bec78523f4f9db98a9b",
+#else
+    "d1aeb8d5fdcfd3307922af01a798a4dc",
+#endif  // CONFIG_DCPRED_TWEAK
+    "b0bcb514ebfbee065faea9d34c12ae75",
+    "d6a18c63b4e909871c0137ca652fad23",
+    "fd047f2fc1b8ffb95d0eeef3e8796a45",
+    "645ab60779ea348fd93c81561c31bab9",
+    "4409633c9db8dff41ade4292a3a56e7f",
+    "b9b2935b2287a9a461ac5c11251ac706",
+    "43b05f808c0ac4fe8accd84d293b0488",
+    "1d2cb43872d20c205ffb185102bcd22a",
+    "2c1551b5e99592fd21053b5d14e397d9",
+    "cd499ef0dd41e2e38d5dac3319dfdd97",
+    "cd2610426637003f3b5d3984cb3320d5",
+    "5e36a11e069b31c2a739f3a9c7b37c24",
+    "e83b9483d702cfae496991c3c7fa92c0",
+    "12f6ddf98c7f30a277307f1ea935b030",
+    "354321d6c32bbdb0739e4fa2acbf41e1",
   };
   if (!strcmp(block_name, "intra32x32")) {
     TestIntraPred(block_name, pred_funcs, kSignatures32x32, 32, 32);
@@ -268,7 +340,7 @@ void TestIntraPred32(const char *block_name, AvxPredFunc const *pred_funcs) {
 #define INTRA_PRED_TEST(arch, test_func, blk, dc, dc_left, dc_top, dc_128, v,  \
                         h, d45e, d135, d117, d153, d207e, d63e, paeth, smooth, \
                         smooth_v, smooth_h)                                    \
-  TEST(arch, DISABLED_##test_func) {                                           \
+  TEST(arch, FOO_##test_func) {                                                \
     static const AvxPredFunc aom_intra_pred[] = {                              \
       dc,   dc_left, dc_top, dc_128, v,     h,      d45e,     d135,            \
       d117, d153,    d207e,  d63e,   paeth, smooth, smooth_v, smooth_h         \
@@ -306,12 +378,14 @@ INTRA_PRED_TEST(SSE2_1, TestIntraPred4, "intra4x4", aom_dc_predictor_4x4_sse2,
                 aom_h_predictor_4x4_sse2, NULL, NULL, NULL, NULL,
                 aom_d207e_predictor_4x4_sse2, aom_d63e_predictor_4x4_sse2, NULL,
                 NULL, NULL, NULL)
+#if !CONFIG_DCPRED_TWEAK
 INTRA_PRED_TEST(SSE2_2, TestIntraPred4, "intra4x8", aom_dc_predictor_4x8_sse2,
                 aom_dc_left_predictor_4x8_sse2, aom_dc_top_predictor_4x8_sse2,
                 aom_dc_128_predictor_4x8_sse2, aom_v_predictor_4x8_sse2,
                 aom_h_predictor_4x8_sse2, NULL, NULL, NULL, NULL,
                 aom_d207e_predictor_4x8_sse2, aom_d63e_predictor_4x8_sse2, NULL,
                 NULL, NULL, NULL)
+#endif  // !CONFIG_DCPRED_TWEAK
 #endif  // HAVE_SSE2
 
 #if HAVE_SSSE3
@@ -320,10 +394,12 @@ INTRA_PRED_TEST(SSSE3_1, TestIntraPred4, "intra4x4", NULL, NULL, NULL, NULL,
                 aom_d153_predictor_4x4_ssse3, NULL,
                 aom_d63e_predictor_4x4_ssse3, aom_paeth_predictor_4x4_ssse3,
                 aom_smooth_predictor_4x4_ssse3, NULL, NULL)
+#if !CONFIG_DCPRED_TWEAK
 INTRA_PRED_TEST(SSSE3_2, TestIntraPred4, "intra4x8", NULL, NULL, NULL, NULL,
                 NULL, NULL, aom_d45e_predictor_4x8_ssse3, NULL, NULL, NULL,
                 NULL, NULL, aom_paeth_predictor_4x8_ssse3,
                 aom_smooth_predictor_4x8_ssse3, NULL, NULL)
+#endif  // !CONFIG_DCPRED_TWEAK
 #endif  // HAVE_SSSE3
 
 #if HAVE_DSPR2
@@ -388,6 +464,7 @@ INTRA_PRED_TEST(SSE2_1, TestIntraPred8, "intra8x8", aom_dc_predictor_8x8_sse2,
                 aom_h_predictor_8x8_sse2, NULL, NULL, NULL, NULL,
                 aom_d207e_predictor_8x8_sse2, aom_d63e_predictor_8x8_sse2, NULL,
                 NULL, NULL, NULL)
+#if !CONFIG_DCPRED_TWEAK
 INTRA_PRED_TEST(SSE2_2, TestIntraPred8, "intra8x4", aom_dc_predictor_8x4_sse2,
                 aom_dc_left_predictor_8x4_sse2, aom_dc_top_predictor_8x4_sse2,
                 aom_dc_128_predictor_8x4_sse2, aom_v_predictor_8x4_sse2,
@@ -400,6 +477,7 @@ INTRA_PRED_TEST(SSE2_3, TestIntraPred8, "intra8x16", aom_dc_predictor_8x16_sse2,
                 aom_h_predictor_8x16_sse2, NULL, NULL, NULL, NULL,
                 aom_d207e_predictor_8x16_sse2, aom_d63e_predictor_8x16_sse2,
                 NULL, NULL, NULL, NULL)
+#endif  // !CONFIG_DCPRED_TWEAK
 #endif  // HAVE_SSE2
 
 #if HAVE_SSSE3
@@ -408,6 +486,7 @@ INTRA_PRED_TEST(SSSE3_1, TestIntraPred8, "intra8x8", NULL, NULL, NULL, NULL,
                 aom_d153_predictor_8x8_ssse3, NULL, NULL,
                 aom_paeth_predictor_8x8_ssse3, aom_smooth_predictor_8x8_ssse3,
                 NULL, NULL)
+#if !CONFIG_DCPRED_TWEAK
 INTRA_PRED_TEST(SSSE3_2, TestIntraPred8, "intra8x4", NULL, NULL, NULL, NULL,
                 NULL, NULL, aom_d45e_predictor_8x4_ssse3, NULL, NULL, NULL,
                 NULL, NULL, aom_paeth_predictor_8x4_ssse3,
@@ -416,6 +495,7 @@ INTRA_PRED_TEST(SSSE3_3, TestIntraPred8, "intra8x16", NULL, NULL, NULL, NULL,
                 NULL, NULL, aom_d45e_predictor_8x16_ssse3, NULL, NULL, NULL,
                 NULL, NULL, aom_paeth_predictor_8x16_ssse3,
                 aom_smooth_predictor_8x16_ssse3, NULL, NULL)
+#endif  // !CONFIG_DCPRED_TWEAK
 #endif  // HAVE_SSSE3
 
 #if HAVE_DSPR2
@@ -481,6 +561,7 @@ INTRA_PRED_TEST(SSE2_1, TestIntraPred16, "intra16x16",
                 aom_h_predictor_16x16_sse2, NULL, NULL, NULL, NULL,
                 aom_d207e_predictor_16x16_sse2, aom_d63e_predictor_16x16_sse2,
                 NULL, NULL, NULL, NULL)
+#if !CONFIG_DCPRED_TWEAK
 INTRA_PRED_TEST(SSE2_2, TestIntraPred16, "intra16x8",
                 aom_dc_predictor_16x8_sse2, aom_dc_left_predictor_16x8_sse2,
                 aom_dc_top_predictor_16x8_sse2, aom_dc_128_predictor_16x8_sse2,
@@ -494,6 +575,7 @@ INTRA_PRED_TEST(SSE2_3, TestIntraPred16, "intra16x32",
                 aom_h_predictor_16x32_sse2, NULL, NULL, NULL, NULL,
                 aom_d207e_predictor_16x32_sse2, aom_d63e_predictor_16x32_sse2,
                 NULL, NULL, NULL, NULL)
+#endif  // !CONFIG_DCPRED_TWEAK
 #endif  // HAVE_SSE2
 
 #if HAVE_SSSE3
@@ -502,6 +584,7 @@ INTRA_PRED_TEST(SSSE3_1, TestIntraPred16, "intra16x16", NULL, NULL, NULL, NULL,
                 aom_d153_predictor_16x16_ssse3, NULL, NULL,
                 aom_paeth_predictor_16x16_ssse3,
                 aom_smooth_predictor_16x16_ssse3, NULL, NULL)
+#if !CONFIG_DCPRED_TWEAK
 INTRA_PRED_TEST(SSSE3_2, TestIntraPred16, "intra16x8", NULL, NULL, NULL, NULL,
                 NULL, NULL, aom_d45e_predictor_16x8_ssse3, NULL, NULL, NULL,
                 NULL, NULL, aom_paeth_predictor_16x8_ssse3,
@@ -510,18 +593,21 @@ INTRA_PRED_TEST(SSSE3_3, TestIntraPred16, "intra16x32", NULL, NULL, NULL, NULL,
                 NULL, NULL, aom_d45e_predictor_16x32_ssse3, NULL, NULL, NULL,
                 NULL, NULL, aom_paeth_predictor_16x32_ssse3,
                 aom_smooth_predictor_16x32_ssse3, NULL, NULL)
+#endif  // !CONFIG_DCPRED_TWEAK
 #endif  // HAVE_SSSE3
 
 #if HAVE_AVX2
 INTRA_PRED_TEST(AVX2_1, TestIntraPred16, "intra16x16", NULL, NULL, NULL, NULL,
                 NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
                 aom_paeth_predictor_16x16_avx2, NULL, NULL, NULL)
+#if !CONFIG_DCPRED_TWEAK
 INTRA_PRED_TEST(AVX2_2, TestIntraPred16, "intra16x8", NULL, NULL, NULL, NULL,
                 NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
                 aom_paeth_predictor_16x8_avx2, NULL, NULL, NULL)
 INTRA_PRED_TEST(AVX2_3, TestIntraPred16, "intra16x32", NULL, NULL, NULL, NULL,
                 NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
                 aom_paeth_predictor_16x32_avx2, NULL, NULL, NULL)
+#endif  // !CONFIG_DCPRED_TWEAK
 #endif  // HAVE_AVX2
 
 #if HAVE_DSPR2
@@ -579,6 +665,7 @@ INTRA_PRED_TEST(SSE2_1, TestIntraPred32, "intra32x32",
                 aom_h_predictor_32x32_sse2, NULL, NULL, NULL, NULL,
                 aom_d207e_predictor_32x32_sse2, aom_d63e_predictor_32x32_sse2,
                 NULL, NULL, NULL, NULL)
+#if !CONFIG_DCPRED_TWEAK
 INTRA_PRED_TEST(SSE2_2, TestIntraPred32, "intra32x16",
                 aom_dc_predictor_32x16_sse2, aom_dc_left_predictor_32x16_sse2,
                 aom_dc_top_predictor_32x16_sse2,
@@ -586,6 +673,7 @@ INTRA_PRED_TEST(SSE2_2, TestIntraPred32, "intra32x16",
                 aom_h_predictor_32x16_sse2, NULL, NULL, NULL, NULL,
                 aom_d207e_predictor_32x16_sse2, aom_d63e_predictor_32x16_sse2,
                 NULL, NULL, NULL, NULL)
+#endif  // !CONFIG_DCPRED_TWEAK
 #endif  // HAVE_SSE2
 
 #if HAVE_SSSE3
@@ -594,10 +682,12 @@ INTRA_PRED_TEST(SSSE3_1, TestIntraPred32, "intra32x32", NULL, NULL, NULL, NULL,
                 aom_d153_predictor_32x32_ssse3, NULL, NULL,
                 aom_paeth_predictor_32x32_ssse3,
                 aom_smooth_predictor_32x32_ssse3, NULL, NULL)
+#if !CONFIG_DCPRED_TWEAK
 INTRA_PRED_TEST(SSSE3_2, TestIntraPred32, "intra32x16", NULL, NULL, NULL, NULL,
                 NULL, NULL, aom_d45e_predictor_32x16_ssse3, NULL, NULL, NULL,
                 NULL, NULL, aom_paeth_predictor_32x16_ssse3,
                 aom_smooth_predictor_32x16_ssse3, NULL, NULL)
+#endif  // !CONFIG_DCPRED_TWEAK
 #endif  // HAVE_SSSE3
 
 #if HAVE_AVX2
@@ -607,12 +697,14 @@ INTRA_PRED_TEST(AVX2_1, TestIntraPred32, "intra32x32",
                 aom_dc_128_predictor_32x32_avx2, aom_v_predictor_32x32_avx2,
                 aom_h_predictor_32x32_avx2, NULL, NULL, NULL, NULL, NULL, NULL,
                 aom_paeth_predictor_32x32_avx2, NULL, NULL, NULL)
+#if !CONFIG_DCPRED_TWEAK
 INTRA_PRED_TEST(AVX2_2, TestIntraPred32, "intra32x16",
                 aom_dc_predictor_32x16_avx2, aom_dc_left_predictor_32x16_avx2,
                 aom_dc_top_predictor_32x16_avx2,
                 aom_dc_128_predictor_32x16_avx2, aom_v_predictor_32x16_avx2,
                 NULL, NULL, NULL, NULL, NULL, NULL, NULL,
                 aom_paeth_predictor_32x16_avx2, NULL, NULL, NULL)
+#endif  // !CONFIG_DCPRED_TWEAK
 #endif  // HAVE_AVX2
 
 #if HAVE_NEON

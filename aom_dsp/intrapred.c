@@ -351,6 +351,28 @@ static INLINE void dc_top_predictor(uint8_t *dst, ptrdiff_t stride, int bw,
   }
 }
 
+#if CONFIG_DCPRED_TWEAK
+static INLINE void dc_predictor(uint8_t *dst, ptrdiff_t stride, int bw, int bh,
+                                const uint8_t *above, const uint8_t *left) {
+  int sum_above = 0;
+  for (int i = 0; i < bw; i++) {
+    sum_above += above[i];
+  }
+  const int expected_above = (sum_above + (bw >> 1)) / bw;
+
+  int sum_left = 0;
+  for (int i = 0; i < bh; i++) {
+    sum_left += left[i];
+  }
+  const int expected_left = (sum_left + (bh >> 1)) / bh;
+
+  const int expected_dc = divide_round(expected_above + expected_left, 1);
+  for (int r = 0; r < bh; r++) {
+    memset(dst, expected_dc, bw);
+    dst += stride;
+  }
+}
+#else
 static INLINE void dc_predictor(uint8_t *dst, ptrdiff_t stride, int bw, int bh,
                                 const uint8_t *above, const uint8_t *left) {
   int i, r, expected_dc, sum = 0;
@@ -370,6 +392,7 @@ static INLINE void dc_predictor(uint8_t *dst, ptrdiff_t stride, int bw, int bh,
     dst += stride;
   }
 }
+#endif  // CONFIG_DCPRED_TWEAK
 
 void aom_d45e_predictor_2x2_c(uint8_t *dst, ptrdiff_t stride,
                               const uint8_t *above, const uint8_t *left) {
@@ -896,6 +919,30 @@ static INLINE void highbd_dc_top_predictor(uint16_t *dst, ptrdiff_t stride,
   }
 }
 
+#if CONFIG_DCPRED_TWEAK
+static INLINE void highbd_dc_predictor(uint16_t *dst, ptrdiff_t stride, int bw,
+                                       int bh, const uint16_t *above,
+                                       const uint16_t *left, int bd) {
+  (void)bd;
+  int sum_above = 0;
+  for (int i = 0; i < bw; i++) {
+    sum_above += above[i];
+  }
+  const int expected_above = (sum_above + (bw >> 1)) / bw;
+
+  int sum_left = 0;
+  for (int i = 0; i < bh; i++) {
+    sum_left += left[i];
+  }
+  const int expected_left = (sum_left + (bh >> 1)) / bh;
+
+  const int expected_dc = divide_round(expected_above + expected_left, 1);
+  for (int r = 0; r < bh; r++) {
+    aom_memset16(dst, expected_dc, bw);
+    dst += stride;
+  }
+}
+#else
 static INLINE void highbd_dc_predictor(uint16_t *dst, ptrdiff_t stride, int bw,
                                        int bh, const uint16_t *above,
                                        const uint16_t *left, int bd) {
@@ -917,6 +964,7 @@ static INLINE void highbd_dc_predictor(uint16_t *dst, ptrdiff_t stride, int bw,
     dst += stride;
   }
 }
+#endif  // CONFIG_DCPRED_TWEAK
 
 // This serves as a wrapper function, so that all the prediction functions
 // can be unified and accessed as a pointer array. Note that the boundary
