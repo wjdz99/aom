@@ -19,40 +19,6 @@
 #define WIDTH_BOUND (16)
 #define HEIGHT_BOUND (16)
 
-#if USE_TEMPORALFILTER_12TAP
-DECLARE_ALIGNED(16, static int8_t,
-                sub_pel_filters_temporalfilter_12_signal_dir[15][2][16]);
-
-DECLARE_ALIGNED(16, static int8_t,
-                sub_pel_filters_temporalfilter_12_ver_signal_dir[15][6][16]);
-#endif
-
-typedef int8_t (*SubpelFilterCoeffs)[16];
-
-static INLINE SubpelFilterCoeffs
-get_subpel_filter_signal_dir(const InterpFilterParams p, int index) {
-#if USE_TEMPORALFILTER_12TAP
-  if (p.interp_filter == TEMPORALFILTER_12TAP) {
-    return &sub_pel_filters_temporalfilter_12_signal_dir[index][0];
-  }
-#endif
-  (void)p;
-  (void)index;
-  return NULL;
-}
-
-static INLINE SubpelFilterCoeffs
-get_subpel_filter_ver_signal_dir(const InterpFilterParams p, int index) {
-#if USE_TEMPORALFILTER_12TAP
-  if (p.interp_filter == TEMPORALFILTER_12TAP) {
-    return &sub_pel_filters_temporalfilter_12_ver_signal_dir[index][0];
-  }
-#endif
-  (void)p;
-  (void)index;
-  return NULL;
-}
-
 static INLINE void transpose_4x8(const __m128i *in, __m128i *out) {
   __m128i t0, t1;
 
@@ -101,9 +67,6 @@ static INLINE void accumulate_store_2_pixel(const __m128i *x, uint8_t *dst) {
   *(uint16_t *)dst = (uint16_t)temp;
 }
 
-static store_pixel_t store2pixelTab[2] = { store_2_pixel_only,
-                                           accumulate_store_2_pixel };
-
 static INLINE void store_4_pixel_only(const __m128i *x, uint8_t *dst) {
   __m128i u = _mm_packus_epi16(*x, *x);
   *(int *)dst = _mm_cvtsi128_si32(u);
@@ -112,113 +75,6 @@ static INLINE void store_4_pixel_only(const __m128i *x, uint8_t *dst) {
 static INLINE void accumulate_store_4_pixel(const __m128i *x, uint8_t *dst) {
   __m128i y = accumulate_store(x, dst);
   *(int *)dst = _mm_cvtsi128_si32(y);
-}
-
-static store_pixel_t store4pixelTab[2] = { store_4_pixel_only,
-                                           accumulate_store_4_pixel };
-
-static void horiz_w4_ssse3(const uint8_t *src, const __m128i *f, int tapsNum,
-                           store_pixel_t store_func, uint8_t *dst) {
-  __m128i sumPairRow[4];
-  __m128i sumPairCol[8];
-  __m128i pixel;
-  const __m128i k_256 = _mm_set1_epi16(1 << 8);
-  const __m128i zero = _mm_setzero_si128();
-
-  assert(tapsNum == 10 || tapsNum == 12);
-  if (10 == tapsNum) {
-    src -= 1;
-  }
-
-  pixel = _mm_loadu_si128((__m128i const *)src);
-  sumPairRow[0] = _mm_maddubs_epi16(pixel, f[0]);
-  sumPairRow[2] = _mm_maddubs_epi16(pixel, f[1]);
-  sumPairRow[2] = _mm_srli_si128(sumPairRow[2], 2);
-
-  pixel = _mm_loadu_si128((__m128i const *)(src + 1));
-  sumPairRow[1] = _mm_maddubs_epi16(pixel, f[0]);
-  sumPairRow[3] = _mm_maddubs_epi16(pixel, f[1]);
-  sumPairRow[3] = _mm_srli_si128(sumPairRow[3], 2);
-
-  transpose_4x8(sumPairRow, sumPairCol);
-
-  sumPairRow[0] = _mm_adds_epi16(sumPairCol[0], sumPairCol[1]);
-  sumPairRow[1] = _mm_adds_epi16(sumPairCol[4], sumPairCol[5]);
-
-  sumPairRow[2] = _mm_min_epi16(sumPairCol[2], sumPairCol[3]);
-  sumPairRow[3] = _mm_max_epi16(sumPairCol[2], sumPairCol[3]);
-
-  sumPairRow[0] = _mm_adds_epi16(sumPairRow[0], sumPairRow[1]);
-  sumPairRow[0] = _mm_adds_epi16(sumPairRow[0], sumPairRow[2]);
-  sumPairRow[0] = _mm_adds_epi16(sumPairRow[0], sumPairRow[3]);
-
-  sumPairRow[1] = _mm_mulhrs_epi16(sumPairRow[0], k_256);
-  sumPairRow[1] = _mm_packus_epi16(sumPairRow[1], sumPairRow[1]);
-  sumPairRow[1] = _mm_unpacklo_epi8(sumPairRow[1], zero);
-
-  store_func(&sumPairRow[1], dst);
-}
-
-static void horiz_w8_ssse3(const uint8_t *src, const __m128i *f, int tapsNum,
-                           store_pixel_t store, uint8_t *buf) {
-  horiz_w4_ssse3(src, f, tapsNum, store, buf);
-  src += 4;
-  buf += 4;
-  horiz_w4_ssse3(src, f, tapsNum, store, buf);
-}
-
-static void horiz_w16_ssse3(const uint8_t *src, const __m128i *f, int tapsNum,
-                            store_pixel_t store, uint8_t *buf) {
-  horiz_w8_ssse3(src, f, tapsNum, store, buf);
-  src += 8;
-  buf += 8;
-  horiz_w8_ssse3(src, f, tapsNum, store, buf);
-}
-
-static void horiz_w32_ssse3(const uint8_t *src, const __m128i *f, int tapsNum,
-                            store_pixel_t store, uint8_t *buf) {
-  horiz_w16_ssse3(src, f, tapsNum, store, buf);
-  src += 16;
-  buf += 16;
-  horiz_w16_ssse3(src, f, tapsNum, store, buf);
-}
-
-static void horiz_w64_ssse3(const uint8_t *src, const __m128i *f, int tapsNum,
-                            store_pixel_t store, uint8_t *buf) {
-  horiz_w32_ssse3(src, f, tapsNum, store, buf);
-  src += 32;
-  buf += 32;
-  horiz_w32_ssse3(src, f, tapsNum, store, buf);
-}
-
-static void horiz_w128_ssse3(const uint8_t *src, const __m128i *f, int tapsNum,
-                             store_pixel_t store, uint8_t *buf) {
-  horiz_w64_ssse3(src, f, tapsNum, store, buf);
-  src += 64;
-  buf += 64;
-  horiz_w64_ssse3(src, f, tapsNum, store, buf);
-}
-
-static void (*horizTab[6])(const uint8_t *, const __m128i *, int, store_pixel_t,
-                           uint8_t *) = {
-  horiz_w4_ssse3,  horiz_w8_ssse3,  horiz_w16_ssse3,
-  horiz_w32_ssse3, horiz_w64_ssse3, horiz_w128_ssse3,
-};
-
-static void filter_horiz_ssse3(const uint8_t *src, __m128i *f, int tapsNum,
-                               int width, store_pixel_t store, uint8_t *dst) {
-  switch (width) {
-    // Note:
-    // For width=2 and 4, store function must be different
-    case 2:
-    case 4: horizTab[0](src, f, tapsNum, store, dst); break;
-    case 8: horizTab[1](src, f, tapsNum, store, dst); break;
-    case 16: horizTab[2](src, f, tapsNum, store, dst); break;
-    case 32: horizTab[3](src, f, tapsNum, store, dst); break;
-    case 64: horizTab[4](src, f, tapsNum, store, dst); break;
-    case 128: horizTab[5](src, f, tapsNum, store, dst); break;
-    default: assert(0);
-  }
 }
 
 // Vertical 8-pixel parallel
@@ -409,9 +265,6 @@ static INLINE void transpose8x8_accumu_to_dst(const uint16_t *src,
   _mm_storel_epi64((__m128i *)(dst + dst_stride * 7), u7);
 }
 
-static transpose_to_dst_t trans8x8Tab[2] = { transpose8x8_direct_to_dst,
-                                             transpose8x8_accumu_to_dst };
-
 static INLINE void transpose_8x16(const __m128i *in, __m128i *out) {
   __m128i t0, t1, t2, t3, u0, u1;
 
@@ -445,50 +298,6 @@ static INLINE void transpose_8x16(const __m128i *in, __m128i *out) {
 
   // Ignore out[6] and out[7]
   // they're zero vectors.
-}
-
-static void filter_horiz_v8p_ssse3(const uint8_t *src_ptr, ptrdiff_t src_pitch,
-                                   __m128i *f, int tapsNum, uint16_t *buf) {
-  __m128i s[8], t[6];
-  __m128i min_x2x3, max_x2x3;
-  __m128i temp;
-
-  assert(tapsNum == 10 || tapsNum == 12);
-  if (tapsNum == 10) {
-    src_ptr -= 1;
-  }
-  s[0] = _mm_loadu_si128((const __m128i *)src_ptr);
-  s[1] = _mm_loadu_si128((const __m128i *)(src_ptr + src_pitch));
-  s[2] = _mm_loadu_si128((const __m128i *)(src_ptr + src_pitch * 2));
-  s[3] = _mm_loadu_si128((const __m128i *)(src_ptr + src_pitch * 3));
-  s[4] = _mm_loadu_si128((const __m128i *)(src_ptr + src_pitch * 4));
-  s[5] = _mm_loadu_si128((const __m128i *)(src_ptr + src_pitch * 5));
-  s[6] = _mm_loadu_si128((const __m128i *)(src_ptr + src_pitch * 6));
-  s[7] = _mm_loadu_si128((const __m128i *)(src_ptr + src_pitch * 7));
-
-  // TRANSPOSE...
-  // Vecotor represents column pixel pairs instead of a row
-  transpose_8x16(s, t);
-
-  // multiply 2 adjacent elements with the filter and add the result
-  s[0] = _mm_maddubs_epi16(t[0], f[0]);
-  s[1] = _mm_maddubs_epi16(t[1], f[1]);
-  s[2] = _mm_maddubs_epi16(t[2], f[2]);
-  s[3] = _mm_maddubs_epi16(t[3], f[3]);
-  s[4] = _mm_maddubs_epi16(t[4], f[4]);
-  s[5] = _mm_maddubs_epi16(t[5], f[5]);
-
-  // add and saturate the results together
-  min_x2x3 = _mm_min_epi16(s[2], s[3]);
-  max_x2x3 = _mm_max_epi16(s[2], s[3]);
-  temp = _mm_adds_epi16(s[0], s[1]);
-  temp = _mm_adds_epi16(temp, s[5]);
-  temp = _mm_adds_epi16(temp, s[4]);
-
-  temp = _mm_adds_epi16(temp, min_x2x3);
-  temp = _mm_adds_epi16(temp, max_x2x3);
-
-  _mm_storeu_si128((__m128i *)buf, temp);
 }
 
 // Vertical 4-pixel parallel
@@ -586,64 +395,6 @@ static INLINE void transpose4x4_accumu_to_dst(const uint16_t *src,
   *(int *)(dst + dst_stride * 3) = _mm_cvtsi128_si32(u3);
 }
 
-static transpose_to_dst_t trans4x4Tab[2] = { transpose4x4_direct_to_dst,
-                                             transpose4x4_accumu_to_dst };
-
-static void filter_horiz_v4p_ssse3(const uint8_t *src_ptr, ptrdiff_t src_pitch,
-                                   __m128i *f, int tapsNum, uint16_t *buf) {
-  __m128i A, B, C, D;
-  __m128i tr0_0, tr0_1, s1s0, s3s2, s5s4, s7s6, s9s8, sbsa;
-  __m128i x0, x1, x2, x3, x4, x5;
-  __m128i min_x2x3, max_x2x3, temp;
-
-  assert(tapsNum == 10 || tapsNum == 12);
-  if (tapsNum == 10) {
-    src_ptr -= 1;
-  }
-  A = _mm_loadu_si128((const __m128i *)src_ptr);
-  B = _mm_loadu_si128((const __m128i *)(src_ptr + src_pitch));
-  C = _mm_loadu_si128((const __m128i *)(src_ptr + src_pitch * 2));
-  D = _mm_loadu_si128((const __m128i *)(src_ptr + src_pitch * 3));
-
-  // TRANSPOSE...
-  // Vecotor represents column pixel pairs instead of a row
-  // 00 01 10 11 02 03 12 13 04 05 14 15 06 07 16 17
-  tr0_0 = _mm_unpacklo_epi16(A, B);
-  // 20 21 30 31 22 23 32 33 24 25 34 35 26 27 36 37
-  tr0_1 = _mm_unpacklo_epi16(C, D);
-  // 00 01 10 11 20 21 30 31 02 03 12 13 22 23 32 33
-  s1s0 = _mm_unpacklo_epi32(tr0_0, tr0_1);
-  // 04 05 14 15 24 25 34 35 06 07 16 17 26 27 36 37
-  s5s4 = _mm_unpackhi_epi32(tr0_0, tr0_1);
-  // 02 03 12 13 22 23 32 33
-  s3s2 = _mm_srli_si128(s1s0, 8);
-  // 06 07 16 17 26 27 36 37
-  s7s6 = _mm_srli_si128(s5s4, 8);
-
-  tr0_0 = _mm_unpackhi_epi16(A, B);
-  tr0_1 = _mm_unpackhi_epi16(C, D);
-  s9s8 = _mm_unpacklo_epi32(tr0_0, tr0_1);
-  sbsa = _mm_srli_si128(s9s8, 8);
-
-  // multiply 2 adjacent elements with the filter and add the result
-  x0 = _mm_maddubs_epi16(s1s0, f[0]);
-  x1 = _mm_maddubs_epi16(s3s2, f[1]);
-  x2 = _mm_maddubs_epi16(s5s4, f[2]);
-  x3 = _mm_maddubs_epi16(s7s6, f[3]);
-  x4 = _mm_maddubs_epi16(s9s8, f[4]);
-  x5 = _mm_maddubs_epi16(sbsa, f[5]);
-  // add and saturate the results together
-  min_x2x3 = _mm_min_epi16(x2, x3);
-  max_x2x3 = _mm_max_epi16(x2, x3);
-  temp = _mm_adds_epi16(x0, x1);
-  temp = _mm_adds_epi16(temp, x5);
-  temp = _mm_adds_epi16(temp, x4);
-
-  temp = _mm_adds_epi16(temp, min_x2x3);
-  temp = _mm_adds_epi16(temp, max_x2x3);
-  _mm_storel_epi64((__m128i *)buf, temp);
-}
-
 // Note:
 //  This function assumes:
 // (1) 10/12-taps filters
@@ -654,20 +405,7 @@ void av1_convolve_horiz_ssse3(const uint8_t *src, int src_stride, uint8_t *dst,
                               const InterpFilterParams filter_params,
                               const int subpel_x_q4, int x_step_q4,
                               ConvolveParams *conv_params) {
-  DECLARE_ALIGNED(16, uint16_t, temp[8 * 8]);
-  __m128i verf[6];
-  __m128i horf[2];
-  SubpelFilterCoeffs hCoeffs, vCoeffs;
   assert(conv_params->do_average == 0 || conv_params->do_average == 1);
-  const uint8_t *src_ptr;
-  store_pixel_t store2p = store2pixelTab[conv_params->do_average];
-  store_pixel_t store4p = store4pixelTab[conv_params->do_average];
-  transpose_to_dst_t transpose_4x4 = trans4x4Tab[conv_params->do_average];
-  transpose_to_dst_t transpose_8x8 = trans8x8Tab[conv_params->do_average];
-
-  const int tapsNum = filter_params.taps;
-  int block_height, block_residu;
-  int i, col, count;
   (void)x_step_q4;
 
   if (0 == subpel_x_q4 || 16 != x_step_q4) {
@@ -676,87 +414,8 @@ void av1_convolve_horiz_ssse3(const uint8_t *src, int src_stride, uint8_t *dst,
     return;
   }
 
-  hCoeffs = get_subpel_filter_signal_dir(filter_params, subpel_x_q4 - 1);
-  vCoeffs = get_subpel_filter_ver_signal_dir(filter_params, subpel_x_q4 - 1);
-
-  if (!hCoeffs || !vCoeffs) {
-    av1_convolve_horiz_c(src, src_stride, dst, dst_stride, w, h, filter_params,
-                         subpel_x_q4, x_step_q4, conv_params);
-    return;
-  }
-
-  verf[0] = *((const __m128i *)(vCoeffs));
-  verf[1] = *((const __m128i *)(vCoeffs + 1));
-  verf[2] = *((const __m128i *)(vCoeffs + 2));
-  verf[3] = *((const __m128i *)(vCoeffs + 3));
-  verf[4] = *((const __m128i *)(vCoeffs + 4));
-  verf[5] = *((const __m128i *)(vCoeffs + 5));
-
-  horf[0] = *((const __m128i *)(hCoeffs));
-  horf[1] = *((const __m128i *)(hCoeffs + 1));
-
-  count = 0;
-
-  // here tapsNum is filter size
-  src -= (tapsNum >> 1) - 1;
-  src_ptr = src;
-  if (w > WIDTH_BOUND && h > HEIGHT_BOUND) {
-    // 8-pixels parallel
-    block_height = h >> 3;
-    block_residu = h & 7;
-
-    do {
-      for (col = 0; col < w; col += 8) {
-        for (i = 0; i < 8; ++i) {
-          filter_horiz_v8p_ssse3(src_ptr, src_stride, verf, tapsNum,
-                                 temp + (i * 8));
-          src_ptr += 1;
-        }
-        transpose_8x8(temp, 8, dst + col, dst_stride);
-      }
-      count++;
-      src_ptr = src + count * src_stride * 8;
-      dst += dst_stride * 8;
-    } while (count < block_height);
-
-    for (i = 0; i < block_residu; ++i) {
-      filter_horiz_ssse3(src_ptr, horf, tapsNum, w, store4p, dst);
-      src_ptr += src_stride;
-      dst += dst_stride;
-    }
-  } else {
-    if (w > 2) {
-      // 4-pixels parallel
-      block_height = h >> 2;
-      block_residu = h & 3;
-
-      do {
-        for (col = 0; col < w; col += 4) {
-          for (i = 0; i < 4; ++i) {
-            filter_horiz_v4p_ssse3(src_ptr, src_stride, verf, tapsNum,
-                                   temp + (i * 4));
-            src_ptr += 1;
-          }
-          transpose_4x4(temp, 4, dst + col, dst_stride);
-        }
-        count++;
-        src_ptr = src + count * src_stride * 4;
-        dst += dst_stride * 4;
-      } while (count < block_height);
-
-      for (i = 0; i < block_residu; ++i) {
-        filter_horiz_ssse3(src_ptr, horf, tapsNum, w, store4p, dst);
-        src_ptr += src_stride;
-        dst += dst_stride;
-      }
-    } else {
-      for (i = 0; i < h; i++) {
-        filter_horiz_ssse3(src_ptr, horf, tapsNum, w, store2p, dst);
-        src_ptr += src_stride;
-        dst += dst_stride;
-      }
-    }
-  }
+  av1_convolve_horiz_c(src, src_stride, dst, dst_stride, w, h, filter_params,
+                       subpel_x_q4, x_step_q4, conv_params);
 }
 
 // Vertical convolution filtering
@@ -770,115 +429,12 @@ static INLINE void accumulate_store_8_pixel(const __m128i *x, uint8_t *dst) {
   _mm_storel_epi64((__m128i *)dst, y);
 }
 
-static store_pixel_t store8pixelTab[2] = { store_8_pixel_only,
-                                           accumulate_store_8_pixel };
-
-static __m128i filter_vert_ssse3(const uint8_t *src, int src_stride,
-                                 int tapsNum, __m128i *f) {
-  __m128i s[12];
-  const __m128i k_256 = _mm_set1_epi16(1 << 8);
-  const __m128i zero = _mm_setzero_si128();
-  __m128i min_x2x3, max_x2x3, sum;
-  int i = 0;
-  int r = 0;
-
-  if (10 == tapsNum) {
-    i += 1;
-    s[0] = zero;
-  }
-  while (i < 12) {
-    s[i] = _mm_loadu_si128((__m128i const *)(src + r * src_stride));
-    i += 1;
-    r += 1;
-  }
-
-  s[0] = _mm_unpacklo_epi8(s[0], s[1]);
-  s[2] = _mm_unpacklo_epi8(s[2], s[3]);
-  s[4] = _mm_unpacklo_epi8(s[4], s[5]);
-  s[6] = _mm_unpacklo_epi8(s[6], s[7]);
-  s[8] = _mm_unpacklo_epi8(s[8], s[9]);
-  s[10] = _mm_unpacklo_epi8(s[10], s[11]);
-
-  s[0] = _mm_maddubs_epi16(s[0], f[0]);
-  s[2] = _mm_maddubs_epi16(s[2], f[1]);
-  s[4] = _mm_maddubs_epi16(s[4], f[2]);
-  s[6] = _mm_maddubs_epi16(s[6], f[3]);
-  s[8] = _mm_maddubs_epi16(s[8], f[4]);
-  s[10] = _mm_maddubs_epi16(s[10], f[5]);
-
-  min_x2x3 = _mm_min_epi16(s[4], s[6]);
-  max_x2x3 = _mm_max_epi16(s[4], s[6]);
-  sum = _mm_adds_epi16(s[0], s[2]);
-  sum = _mm_adds_epi16(sum, s[10]);
-  sum = _mm_adds_epi16(sum, s[8]);
-
-  sum = _mm_adds_epi16(sum, min_x2x3);
-  sum = _mm_adds_epi16(sum, max_x2x3);
-
-  sum = _mm_mulhrs_epi16(sum, k_256);
-  sum = _mm_packus_epi16(sum, sum);
-  sum = _mm_unpacklo_epi8(sum, zero);
-  return sum;
-}
-
-static void filter_vert_horiz_parallel_ssse3(const uint8_t *src, int src_stride,
-                                             __m128i *f, int tapsNum,
-                                             store_pixel_t store_func,
-                                             uint8_t *dst) {
-  __m128i sum = filter_vert_ssse3(src, src_stride, tapsNum, f);
-  store_func(&sum, dst);
-}
-
-static void filter_vert_compute_small(const uint8_t *src, int src_stride,
-                                      __m128i *f, int tapsNum,
-                                      store_pixel_t store_func, int h,
-                                      uint8_t *dst, int dst_stride) {
-  int rowIndex = 0;
-  do {
-    filter_vert_horiz_parallel_ssse3(src, src_stride, f, tapsNum, store_func,
-                                     dst);
-    rowIndex++;
-    src += src_stride;
-    dst += dst_stride;
-  } while (rowIndex < h);
-}
-
-static void filter_vert_compute_large(const uint8_t *src, int src_stride,
-                                      __m128i *f, int tapsNum,
-                                      store_pixel_t store_func, int w, int h,
-                                      uint8_t *dst, int dst_stride) {
-  int col;
-  int rowIndex = 0;
-  const uint8_t *src_ptr = src;
-  uint8_t *dst_ptr = dst;
-
-  do {
-    for (col = 0; col < w; col += 8) {
-      filter_vert_horiz_parallel_ssse3(src_ptr, src_stride, f, tapsNum,
-                                       store_func, dst_ptr);
-      src_ptr += 8;
-      dst_ptr += 8;
-    }
-    rowIndex++;
-    src_ptr = src + rowIndex * src_stride;
-    dst_ptr = dst + rowIndex * dst_stride;
-  } while (rowIndex < h);
-}
-
 void av1_convolve_vert_ssse3(const uint8_t *src, int src_stride, uint8_t *dst,
                              int dst_stride, int w, int h,
                              const InterpFilterParams filter_params,
                              const int subpel_y_q4, int y_step_q4,
                              ConvolveParams *conv_params) {
-  __m128i verf[6];
-  SubpelFilterCoeffs vCoeffs;
-  const uint8_t *src_ptr;
   assert(conv_params->do_average == 0 || conv_params->do_average == 1);
-  uint8_t *dst_ptr = dst;
-  store_pixel_t store2p = store2pixelTab[conv_params->do_average];
-  store_pixel_t store4p = store4pixelTab[conv_params->do_average];
-  store_pixel_t store8p = store8pixelTab[conv_params->do_average];
-  const int tapsNum = filter_params.taps;
 
   if (0 == subpel_y_q4 || 16 != y_step_q4) {
     av1_convolve_vert_c(src, src_stride, dst, dst_stride, w, h, filter_params,
@@ -886,81 +442,8 @@ void av1_convolve_vert_ssse3(const uint8_t *src, int src_stride, uint8_t *dst,
     return;
   }
 
-  vCoeffs = get_subpel_filter_ver_signal_dir(filter_params, subpel_y_q4 - 1);
-
-  if (!vCoeffs) {
-    av1_convolve_vert_c(src, src_stride, dst, dst_stride, w, h, filter_params,
-                        subpel_y_q4, y_step_q4, conv_params);
-    return;
-  }
-
-  verf[0] = *((const __m128i *)(vCoeffs));
-  verf[1] = *((const __m128i *)(vCoeffs + 1));
-  verf[2] = *((const __m128i *)(vCoeffs + 2));
-  verf[3] = *((const __m128i *)(vCoeffs + 3));
-  verf[4] = *((const __m128i *)(vCoeffs + 4));
-  verf[5] = *((const __m128i *)(vCoeffs + 5));
-
-  src -= src_stride * ((tapsNum >> 1) - 1);
-  src_ptr = src;
-
-  if (w > 4) {
-    filter_vert_compute_large(src_ptr, src_stride, verf, tapsNum, store8p, w, h,
-                              dst_ptr, dst_stride);
-  } else if (4 == w) {
-    filter_vert_compute_small(src_ptr, src_stride, verf, tapsNum, store4p, h,
-                              dst_ptr, dst_stride);
-  } else if (2 == w) {
-    filter_vert_compute_small(src_ptr, src_stride, verf, tapsNum, store2p, h,
-                              dst_ptr, dst_stride);
-  } else {
-    assert(0);
-  }
-}
-
-static void init_simd_horiz_filter(const int16_t *filter_ptr, int taps,
-                                   int8_t (*simd_horiz_filter)[2][16]) {
-  int shift;
-  int offset = (12 - taps) / 2;
-  const int16_t *filter_row;
-  for (shift = 1; shift < SUBPEL_SHIFTS; ++shift) {
-    int i;
-    filter_row = filter_ptr + shift * taps;
-    for (i = 0; i < offset; ++i) simd_horiz_filter[shift - 1][0][i] = 0;
-
-    for (i = 0; i < offset + 2; ++i) simd_horiz_filter[shift - 1][1][i] = 0;
-
-    for (i = 0; i < taps; ++i) {
-      simd_horiz_filter[shift - 1][0][i + offset] = (int8_t)filter_row[i];
-      simd_horiz_filter[shift - 1][1][i + offset + 2] = (int8_t)filter_row[i];
-    }
-
-    for (i = offset + taps; i < 16; ++i) simd_horiz_filter[shift - 1][0][i] = 0;
-
-    for (i = offset + 2 + taps; i < 16; ++i)
-      simd_horiz_filter[shift - 1][1][i] = 0;
-  }
-}
-
-static void init_simd_vert_filter(const int16_t *filter_ptr, int taps,
-                                  int8_t (*simd_vert_filter)[6][16]) {
-  int shift;
-  int offset = (12 - taps) / 2;
-  const int16_t *filter_row;
-  for (shift = 1; shift < SUBPEL_SHIFTS; ++shift) {
-    int i;
-    filter_row = filter_ptr + shift * taps;
-    for (i = 0; i < 6; ++i) {
-      int j;
-      for (j = 0; j < 16; ++j) {
-        int c = i * 2 + (j % 2) - offset;
-        if (c >= 0 && c < taps)
-          simd_vert_filter[shift - 1][i][j] = (int8_t)filter_row[c];
-        else
-          simd_vert_filter[shift - 1][i][j] = 0;
-      }
-    }
-  }
+  av1_convolve_vert_c(src, src_stride, dst, dst_stride, w, h, filter_params,
+                      subpel_y_q4, y_step_q4, conv_params);
 }
 
 typedef struct SimdFilter {
@@ -968,26 +451,3 @@ typedef struct SimdFilter {
   int8_t (*simd_horiz_filter)[2][16];
   int8_t (*simd_vert_filter)[6][16];
 } SimdFilter;
-
-#if USE_TEMPORALFILTER_12TAP
-SimdFilter temporal_simd_filter = {
-  TEMPORALFILTER_12TAP, &sub_pel_filters_temporalfilter_12_signal_dir[0],
-  &sub_pel_filters_temporalfilter_12_ver_signal_dir[0]
-};
-#endif
-
-void av1_lowbd_convolve_init_ssse3(void) {
-#if USE_TEMPORALFILTER_12TAP
-  {
-    InterpFilterParams filter_params =
-        av1_get_interp_filter_params(temporal_simd_filter.interp_filter);
-    int taps = filter_params.taps;
-    const int16_t *filter_ptr = filter_params.filter_ptr;
-    init_simd_horiz_filter(filter_ptr, taps,
-                           temporal_simd_filter.simd_horiz_filter);
-    init_simd_vert_filter(filter_ptr, taps,
-                          temporal_simd_filter.simd_vert_filter);
-  }
-#endif
-  return;
-}
