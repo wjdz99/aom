@@ -1426,14 +1426,6 @@ static const aom_cdf_prob
                                                 { AOM_CDF2(196 * 128) } } };
 #endif  // CONFIG_EXT_COMP_REFS
 
-static const aom_prob default_comp_ref_p[REF_CONTEXTS][FWD_REFS - 1] = {
-  { 28, 10, 8 },
-  { 77, 27, 26 },
-  { 127, 62, 56 },
-  { 186, 126, 160 },
-  { 236, 143, 172 }
-};
-
 static const aom_prob default_comp_bwdref_p[REF_CONTEXTS][BWD_REFS - 1] = {
   { 22, 13 }, { 140, 124 }, { 241, 239 }, { 128, 128 }, { 128, 128 }
 };
@@ -3295,7 +3287,6 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
   av1_copy(fc->comp_ref_type_cdf, default_comp_ref_type_cdf);
   av1_copy(fc->uni_comp_ref_cdf, default_uni_comp_ref_cdf);
 #endif  // CONFIG_EXT_COMP_REFS
-  av1_copy(fc->comp_ref_prob, default_comp_ref_p);
   av1_copy(fc->palette_y_mode_cdf, default_palette_y_mode_cdf);
   av1_copy(fc->palette_uv_mode_cdf, default_palette_uv_mode_cdf);
   av1_copy(fc->comp_ref_cdf, default_comp_ref_cdf);
@@ -3385,22 +3376,6 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
 #if CONFIG_INTRABC
   av1_copy(fc->intrabc_cdf, default_intrabc_cdf);
 #endif
-}
-
-void av1_adapt_inter_frame_probs(AV1_COMMON *cm) {
-  int i, j;
-  FRAME_CONTEXT *fc = cm->fc;
-  const FRAME_CONTEXT *pre_fc = cm->pre_fc;
-  const FRAME_COUNTS *counts = &cm->counts;
-
-  for (i = 0; i < REF_CONTEXTS; i++)
-    for (j = 0; j < (FWD_REFS - 1); j++)
-      fc->comp_ref_prob[i][j] = mode_mv_merge_probs(pre_fc->comp_ref_prob[i][j],
-                                                    counts->comp_ref[i][j]);
-  for (i = 0; i < REF_CONTEXTS; i++)
-    for (j = 0; j < (BWD_REFS - 1); j++)
-      fc->comp_bwdref_prob[i][j] = mode_mv_merge_probs(
-          pre_fc->comp_bwdref_prob[i][j], counts->comp_bwdref[i][j]);
 }
 
 static void set_default_lf_deltas(struct loopfilter *lf) {
