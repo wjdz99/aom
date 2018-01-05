@@ -1946,7 +1946,7 @@ static int optimize_txb(TxbInfo *txb_info, const LV_MAP_COEFF_COST *txb_costs,
     const int coeff_idx = scan[si];
     tran_low_t qc = txb_info->qcoeff[coeff_idx];
 
-    LevelDownStats stats;
+    LevelDownStats stats = { 0 };
     get_dist_cost_stats(&stats, si,
 #if CONFIG_LV_MAP_MULTI
                         si == init_eob - 1,
