@@ -438,7 +438,7 @@ static void pack_mb_tokens(aom_writer *w, const TOKENEXTRA **tp,
       // be written excluding
       // the sign bit.
       int skip_bits = is_cat6
-                          ? (int)sizeof(av1_cat6_prob) -
+                          ? CAT6_BIT_SIZE -
                                 av1_get_cat6_extrabits_size(tx_size, bit_depth)
                           : 0;
 
