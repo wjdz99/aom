@@ -322,11 +322,9 @@ typedef struct FRAME_COUNTS {
   unsigned int comp_ref_type[COMP_REF_TYPE_CONTEXTS][2];
   unsigned int uni_comp_ref[UNI_COMP_REF_CONTEXTS][UNIDIR_COMP_REFS - 1][2];
 #endif  // CONFIG_EXT_COMP_REFS
-#endif  // CONFIG_ENTROPY_STATS
-#if CONFIG_ENTROPY_STATS
   unsigned int single_ref[REF_CONTEXTS][SINGLE_REFS - 1][2];
-#endif  // CONFIG_ENTROPY_STATS
   unsigned int comp_ref[REF_CONTEXTS][FWD_REFS - 1][2];
+#endif  // CONFIG_ENTROPY_STATS
   unsigned int comp_bwdref[REF_CONTEXTS][BWD_REFS - 1][2];
   unsigned int txfm_partition[TXFM_PARTITION_CONTEXTS][2];
 #if CONFIG_EXT_SKIP
