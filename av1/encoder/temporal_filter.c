@@ -42,15 +42,7 @@ static void temporal_filter_predictors_mb_c(
   int uv_stride;
   // TODO(angiebird): change plane setting accordingly
   ConvolveParams conv_params = get_conv_params(which_mv, which_mv, 0);
-
-#if USE_TEMPORALFILTER_12TAP
-  const InterpFilters interp_filters =
-      av1_broadcast_interp_filter(TEMPORALFILTER_12TAP);
-  (void)xd;
-#else
   const InterpFilters interp_filters = xd->mi[0]->mbmi.interp_filters;
-#endif  // USE_TEMPORALFILTER_12TAP
-
   WarpTypesAllowed warp_types;
   memset(&warp_types, 0, sizeof(WarpTypesAllowed));
 
