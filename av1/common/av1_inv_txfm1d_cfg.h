@@ -47,8 +47,8 @@ static const int8_t inv_shift_8[2] = { 0, -5 };
 // stage range
 static const int8_t inv_stage_range_col_dct_8[6] = { 0, 0, 0, 0, 0, 0 };
 static const int8_t inv_stage_range_row_dct_8[6] = { 0, 0, 0, 0, 0, 0 };
-static const int8_t inv_stage_range_col_adst_8[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
-static const int8_t inv_stage_range_row_adst_8[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+static const int8_t inv_stage_range_col_adst_8[8] = { 0, 0, 0, 0, 0, 1, 0, 0 };
+static const int8_t inv_stage_range_row_adst_8[8] = { 0, 0, 0, 0, 0, 1, 0, 0 };
 static const int8_t inv_stage_range_row_idx_8[1] = { 0 };
 static const int8_t inv_stage_range_col_idx_8[1] = { 0 };
 
