@@ -47,8 +47,8 @@ static const int8_t inv_shift_8[2] = { 0, -5 };
 // stage range
 static const int8_t inv_stage_range_col_dct_8[6] = { 0, 0, 0, 0, 0, 0 };
 static const int8_t inv_stage_range_row_dct_8[6] = { 0, 0, 0, 0, 0, 0 };
-static const int8_t inv_stage_range_col_adst_8[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
-static const int8_t inv_stage_range_row_adst_8[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+static const int8_t inv_stage_range_col_adst_8[8] = { 0, 0, 0, 0, 0, 1, 1, 1 };
+static const int8_t inv_stage_range_row_adst_8[8] = { 0, 0, 0, 0, 0, 1, 1, 1 };
 static const int8_t inv_stage_range_row_idx_8[1] = { 0 };
 static const int8_t inv_stage_range_col_idx_8[1] = { 0 };
 
@@ -56,10 +56,10 @@ static const int8_t inv_stage_range_col_idx_8[1] = { 0 };
 static const int8_t inv_cos_bit_col_dct_8[6] = { 13, 13, 13, 13, 13, 13 };
 static const int8_t inv_cos_bit_row_dct_8[6] = { 13, 13, 13, 13, 13, 13 };
 static const int8_t inv_cos_bit_col_adst_8[8] = {
-  13, 13, 13, 13, 13, 13, 13, 13
+  13, 13, 13, 13, 12, 12, 12, 12
 };
 static const int8_t inv_cos_bit_row_adst_8[8] = {
-  13, 13, 13, 13, 13, 13, 13, 13
+  13, 13, 13, 13, 12, 12, 12, 12
 };
 
 //  ---------------- 4x8 1D constants -----------------------
