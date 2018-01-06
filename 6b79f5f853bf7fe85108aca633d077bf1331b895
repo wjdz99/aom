@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6a924dd8_047f5a81",
+        "filename": "av1/encoder/av1_fwd_txfm1d_cfg.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2018-01-06T02:49:01Z",
+      "side": 1,
+      "message": "If possible, would you please teach me how it is calculated? I thought the way to compute the row range is add 3 to (0 0 1 2 2 2) and limit the elements at some sort of maximum(in this case, possibly 4), but looks like I am wrong",
+      "range": {
+        "startLine": 133,
+        "startChar": 62,
+        "endLine": 133,
+        "endChar": 63
+      },
+      "revId": "6b79f5f853bf7fe85108aca633d077bf1331b895",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
