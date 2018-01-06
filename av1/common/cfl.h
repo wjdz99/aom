@@ -17,10 +17,10 @@
 typedef void (*cfl_subsample_lbd_fn)(const uint8_t *input, int input_stride,
                                      int16_t *output_q3, int width, int height);
 
-static INLINE int is_cfl_allowed(const MB_MODE_INFO *mbmi) {
+static INLINE CFL_ALLOWED_TYPE is_cfl_allowed(const MB_MODE_INFO *mbmi) {
   const BLOCK_SIZE bsize = mbmi->sb_type;
   assert(bsize < BLOCK_SIZES_ALL);
-  return bsize <= CFL_MAX_BLOCK_SIZE;
+  return (CFL_ALLOWED_TYPE)(bsize <= CFL_MAX_BLOCK_SIZE);
 }
 
 static INLINE int get_scaled_luma_q0(int alpha_q3, int16_t pred_buf_q3) {
