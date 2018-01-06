@@ -175,12 +175,15 @@ static int read_delta_lflevel(AV1_COMMON *cm, MACROBLOCKD *xd, aom_reader *r,
 
 static UV_PREDICTION_MODE read_intra_mode_uv(FRAME_CONTEXT *ec_ctx,
                                              aom_reader *r,
-                                             PREDICTION_MODE y_mode) {
+                                             PREDICTION_MODE y_mode,
+                                             int cfl_allowed) {
   const UV_PREDICTION_MODE uv_mode =
 #if CONFIG_CFL
-      aom_read_symbol(r, ec_ctx->uv_mode_cdf[y_mode], UV_INTRA_MODES, ACCT_STR);
+      aom_read_symbol(r, ec_ctx->uv_mode_cdf[cfl_allowed][y_mode],
+                      UV_INTRA_MODES - !cfl_allowed, ACCT_STR);
 #else
       read_intra_mode(r, ec_ctx->uv_mode_cdf[y_mode]);
+  (void)cfl_allowed;
 #endif  // CONFIG_CFL
   return uv_mode;
 }
@@ -1143,26 +1146,19 @@ static void read_intra_frame_mode_info(AV1_COMMON *const cm,
 
   if (is_chroma_reference(mi_row, mi_col, bsize, xd->plane[1].subsampling_x,
                           xd->plane[1].subsampling_y)) {
-#if CONFIG_CFL
+#if !CONFIG_CFL
+    mbmi->uv_mode = read_intra_mode_uv(ec_ctx, r, mbmi->mode, 0);
+#else
     xd->cfl.is_chroma_reference = 1;
-#endif  // CONFIG_CFL
-    mbmi->uv_mode = read_intra_mode_uv(ec_ctx, r, mbmi->mode);
-
-#if CONFIG_CFL
+    mbmi->uv_mode =
+        read_intra_mode_uv(ec_ctx, r, mbmi->mode, is_cfl_allowed(mbmi));
     if (mbmi->uv_mode == UV_CFL_PRED) {
-      if (!is_cfl_allowed(mbmi)) {
-        aom_internal_error(
-            &cm->error, AOM_CODEC_UNSUP_BITSTREAM,
-            "Chroma from Luma (CfL) cannot be signaled for a %dx%d block.",
-            block_size_wide[bsize], block_size_high[bsize]);
-      }
       mbmi->cfl_alpha_idx = read_cfl_alphas(ec_ctx, r, &mbmi->cfl_alpha_signs);
       xd->cfl.store_y = 1;
     } else {
       xd->cfl.store_y = 0;
     }
-#endif  // CONFIG_CFL
-
+#endif  // !CONFIG_CFL
   } else {
     // Avoid decoding angle_info if there is is no chroma prediction
     mbmi->uv_mode = UV_DC_PRED;
@@ -1489,24 +1485,19 @@ static void read_intra_block_mode_info(AV1_COMMON *const cm, const int mi_row,
 
   if (is_chroma_reference(mi_row, mi_col, bsize, xd->plane[1].subsampling_x,
                           xd->plane[1].subsampling_y)) {
-    mbmi->uv_mode = read_intra_mode_uv(ec_ctx, r, mbmi->mode);
-
-#if CONFIG_CFL
+#if !CONFIG_CFL
+    mbmi->uv_mode = read_intra_mode_uv(ec_ctx, r, mbmi->mode, 0);
+#else
+    mbmi->uv_mode =
+        read_intra_mode_uv(ec_ctx, r, mbmi->mode, is_cfl_allowed(mbmi));
     if (mbmi->uv_mode == UV_CFL_PRED) {
-      if (!is_cfl_allowed(mbmi)) {
-        aom_internal_error(
-            &cm->error, AOM_CODEC_UNSUP_BITSTREAM,
-            "Chroma from Luma (CfL) cannot be signaled for a %dx%d block.",
-            block_size_wide[bsize], block_size_high[bsize]);
-      }
       mbmi->cfl_alpha_idx =
           read_cfl_alphas(xd->tile_ctx, r, &mbmi->cfl_alpha_signs);
       xd->cfl.store_y = 1;
     } else {
       xd->cfl.store_y = 0;
     }
-#endif  // CONFIG_CFL
-
+#endif  // !CONFIG_CFL
   } else {
     // Avoid decoding angle_info if there is is no chroma prediction
     mbmi->uv_mode = UV_DC_PRED;
