@@ -197,7 +197,11 @@ typedef struct frame_contexts {
   aom_cdf_prob sgrproj_restore_cdf[CDF_SIZE(2)];
 #endif  // CONFIG_LOOP_RESTORATION
   aom_cdf_prob y_mode_cdf[BLOCK_SIZE_GROUPS][CDF_SIZE(INTRA_MODES)];
+#if CONFIG_CFL
+  aom_cdf_prob uv_mode_cdf[2][INTRA_MODES][CDF_SIZE(UV_INTRA_MODES)];
+#else
   aom_cdf_prob uv_mode_cdf[INTRA_MODES][CDF_SIZE(UV_INTRA_MODES)];
+#endif
 #if CONFIG_EXT_PARTITION_TYPES
   aom_cdf_prob partition_cdf[PARTITION_CONTEXTS][CDF_SIZE(EXT_PARTITION_TYPES)];
 #else
