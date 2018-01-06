@@ -1108,11 +1108,16 @@ static void write_intra_mode(FRAME_CONTEXT *frame_ctx, BLOCK_SIZE bsize,
 
 static void write_intra_uv_mode(FRAME_CONTEXT *frame_ctx,
                                 UV_PREDICTION_MODE uv_mode,
-                                PREDICTION_MODE y_mode, aom_writer *w) {
-#if !CONFIG_CFL
+                                PREDICTION_MODE y_mode, int cfl_allowed,
+                                aom_writer *w) {
+#if CONFIG_CFL
+  aom_write_symbol(w, uv_mode, frame_ctx->uv_mode_cdf[cfl_allowed][y_mode],
+                   UV_INTRA_MODES - !cfl_allowed);
+#else
+  (void)cfl_allowed;
   uv_mode = get_uv_mode(uv_mode);
-#endif
   aom_write_symbol(w, uv_mode, frame_ctx->uv_mode_cdf[y_mode], UV_INTRA_MODES);
+#endif
 }
 
 #if CONFIG_CFL
@@ -1341,18 +1346,12 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
     write_intra_mode(ec_ctx, bsize, mode, w);
     if (is_chroma_reference(mi_row, mi_col, bsize, xd->plane[1].subsampling_x,
                             xd->plane[1].subsampling_y)) {
-      write_intra_uv_mode(ec_ctx, mbmi->uv_mode, mode, w);
-
-#if CONFIG_CFL
-      if (mbmi->uv_mode == UV_CFL_PRED) {
-        if (!is_cfl_allowed(mbmi)) {
-          aom_internal_error(
-              &cm->error, AOM_CODEC_UNSUP_BITSTREAM,
-              "Chroma from Luma (CfL) cannot be signaled for a %dx%d block.",
-              block_size_wide[bsize], block_size_high[bsize]);
-        }
+#if !CONFIG_CFL
+      write_intra_uv_mode(ec_ctx, mbmi->uv_mode, mode, 0, w);
+#else
+      write_intra_uv_mode(ec_ctx, mbmi->uv_mode, mode, is_cfl_allowed(mbmi), w);
+      if (mbmi->uv_mode == UV_CFL_PRED)
         write_cfl_alphas(ec_ctx, mbmi->cfl_alpha_idx, mbmi->cfl_alpha_signs, w);
-      }
 #endif
     }
 
@@ -1652,18 +1651,13 @@ static void write_mb_modes_kf(AV1_COMP *cpi, MACROBLOCKD *xd,
 
   if (is_chroma_reference(mi_row, mi_col, bsize, xd->plane[1].subsampling_x,
                           xd->plane[1].subsampling_y)) {
-    write_intra_uv_mode(ec_ctx, mbmi->uv_mode, mbmi->mode, w);
-
-#if CONFIG_CFL
-    if (mbmi->uv_mode == UV_CFL_PRED) {
-      if (!is_cfl_allowed(mbmi)) {
-        aom_internal_error(
-            &cm->error, AOM_CODEC_UNSUP_BITSTREAM,
-            "Chroma from Luma (CfL) cannot be signaled for a %dx%d block.",
-            block_size_wide[bsize], block_size_high[bsize]);
-      }
+#if !CONFIG_CFL
+    write_intra_uv_mode(ec_ctx, mbmi->uv_mode, mbmi->mode, 0, w);
+#else
+    write_intra_uv_mode(ec_ctx, mbmi->uv_mode, mbmi->mode, is_cfl_allowed(mbmi),
+                        w);
+    if (mbmi->uv_mode == UV_CFL_PRED)
       write_cfl_alphas(ec_ctx, mbmi->cfl_alpha_idx, mbmi->cfl_alpha_signs, w);
-    }
 #endif
   }
 
