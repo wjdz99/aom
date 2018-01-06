@@ -175,24 +175,26 @@ const IHbdHtParam kArrayIhtParam[] = {
 #endif
 // 8x8
 #if !CONFIG_DAALA_TX8
-  make_tuple(PARAM_LIST_8X8, DCT_DCT, 10),
-  make_tuple(PARAM_LIST_8X8, DCT_DCT, 12),
-  make_tuple(PARAM_LIST_8X8, ADST_DCT, 10),
-  make_tuple(PARAM_LIST_8X8, ADST_DCT, 12),
-  make_tuple(PARAM_LIST_8X8, DCT_ADST, 10),
-  make_tuple(PARAM_LIST_8X8, DCT_ADST, 12),
-  make_tuple(PARAM_LIST_8X8, ADST_ADST, 10),
-  make_tuple(PARAM_LIST_8X8, ADST_ADST, 12),
-  make_tuple(PARAM_LIST_8X8, FLIPADST_DCT, 10),
-  make_tuple(PARAM_LIST_8X8, FLIPADST_DCT, 12),
-  make_tuple(PARAM_LIST_8X8, DCT_FLIPADST, 10),
-  make_tuple(PARAM_LIST_8X8, DCT_FLIPADST, 12),
-  make_tuple(PARAM_LIST_8X8, FLIPADST_FLIPADST, 10),
-  make_tuple(PARAM_LIST_8X8, FLIPADST_FLIPADST, 12),
-  make_tuple(PARAM_LIST_8X8, ADST_FLIPADST, 10),
-  make_tuple(PARAM_LIST_8X8, ADST_FLIPADST, 12),
-  make_tuple(PARAM_LIST_8X8, FLIPADST_ADST, 10),
-  make_tuple(PARAM_LIST_8X8, FLIPADST_ADST, 12),
+/*
+make_tuple(PARAM_LIST_8X8, DCT_DCT, 10),
+make_tuple(PARAM_LIST_8X8, DCT_DCT, 12),
+make_tuple(PARAM_LIST_8X8, ADST_DCT, 10),
+make_tuple(PARAM_LIST_8X8, ADST_DCT, 12),
+make_tuple(PARAM_LIST_8X8, DCT_ADST, 10),
+make_tuple(PARAM_LIST_8X8, DCT_ADST, 12),
+make_tuple(PARAM_LIST_8X8, ADST_ADST, 10),
+make_tuple(PARAM_LIST_8X8, ADST_ADST, 12),
+make_tuple(PARAM_LIST_8X8, FLIPADST_DCT, 10),
+make_tuple(PARAM_LIST_8X8, FLIPADST_DCT, 12),
+make_tuple(PARAM_LIST_8X8, DCT_FLIPADST, 10),
+make_tuple(PARAM_LIST_8X8, DCT_FLIPADST, 12),
+make_tuple(PARAM_LIST_8X8, FLIPADST_FLIPADST, 10),
+make_tuple(PARAM_LIST_8X8, FLIPADST_FLIPADST, 12),
+make_tuple(PARAM_LIST_8X8, ADST_FLIPADST, 10),
+make_tuple(PARAM_LIST_8X8, ADST_FLIPADST, 12),
+make_tuple(PARAM_LIST_8X8, FLIPADST_ADST, 10),
+make_tuple(PARAM_LIST_8X8, FLIPADST_ADST, 12),
+*/
 #endif
 // 4x4
 #if !CONFIG_DAALA_TX4
