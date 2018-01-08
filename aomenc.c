@@ -466,6 +466,16 @@ static const arg_def_t mtu_size =
     ARG_DEF(NULL, "mtu-size", 1,
             "MTU size for a tile group, default is 0 (no MTU targeting), "
             "overrides maximum number of tile groups");
+#if CONFIG_TIMING_HEADERS
+static const struct arg_enum_list timing_info_enum[] = {
+  { "unspecified", AOM_TIMING_UNSPECIFIED },
+  { "constant", AOM_TIMING_EQUAL },
+  { NULL, 0 }
+};
+static const arg_def_t timing_info =
+    ARG_DEF_ENUM(NULL, "timing-info", 1,
+                 "Signal timing info in the bitstream:", timing_info_enum);
+#endif
 #if CONFIG_TEMPMV_SIGNALING
 static const arg_def_t disable_tempmv = ARG_DEF(
     NULL, "disable-tempmv", 1, "Disable temporal mv prediction (default is 0)");
@@ -624,6 +634,9 @@ static const arg_def_t *av1_args[] = { &cpu_used_av1,
 #endif  // CONFIG_EXT_PARTITION
                                        &num_tg,
                                        &mtu_size,
+#if CONFIG_TIMING_HEADERS
+                                       &timing_info,
+#endif
 #if CONFIG_TEMPMV_SIGNALING
                                        &disable_tempmv,
 #endif
@@ -686,6 +699,9 @@ static const int av1_arg_ctrl_map[] = { AOME_SET_CPUUSED,
 #endif  // CONFIG_EXT_PARTITION
                                         AV1E_SET_NUM_TG,
                                         AV1E_SET_MTU,
+#if CONFIG_TIMING_HEADERS
+                                        AV1E_SET_TIMING_INFO,
+#endif
 #if CONFIG_TEMPMV_SIGNALING
                                         AV1E_SET_DISABLE_TEMPMV,
 #endif
@@ -2026,34 +2042,38 @@ int main(int argc, const char **argv_) {
     if (!global.have_framerate) {
       global.framerate.num = input.framerate.numerator;
       global.framerate.den = input.framerate.denominator;
-      FOREACH_STREAM(stream, streams) {
-        stream->config.cfg.g_timebase.den = global.framerate.num;
-        stream->config.cfg.g_timebase.num = global.framerate.den;
-      }
+#if CONFIG_TIMING_HEADERS
     }
-
-    /* Show configuration */
-    if (global.verbose && pass == 0) {
-      FOREACH_STREAM(stream, streams) {
-        show_stream_config(stream, &global, &input);
-      }
+#endif
+    FOREACH_STREAM(stream, streams) {
+      stream->config.cfg.g_timebase.den = global.framerate.num;
+      stream->config.cfg.g_timebase.num = global.framerate.den;
+#if !CONFIG_TIMING_HEADERS
     }
+#endif
+  }
 
-    if (pass == (global.pass ? global.pass - 1 : 0)) {
-      if (input.file_type == FILE_TYPE_Y4M)
-        /*The Y4M reader does its own allocation.
-          Just initialize this here to avoid problems if we never read any
-          frames.*/
-        memset(&raw, 0, sizeof(raw));
-      else
-        aom_img_alloc(&raw, input.fmt, input.width, input.height, 32);
-
-      FOREACH_STREAM(stream, streams) {
-        stream->rate_hist =
-            init_rate_histogram(&stream->config.cfg, &global.framerate);
-      }
+  /* Show configuration */
+  if (global.verbose && pass == 0) {
+    FOREACH_STREAM(stream, streams) {
+      show_stream_config(stream, &global, &input);
     }
+  }
 
+  if (pass == (global.pass ? global.pass - 1 : 0)) {
+    if (input.file_type == FILE_TYPE_Y4M)
+      /*The Y4M reader does its own allocation.
+        Just initialize this here to avoid problems if we never read any
+        frames.*/
+      memset(&raw, 0, sizeof(raw));
+    else
+      aom_img_alloc(&raw, input.fmt, input.width, input.height, 32);
+
+    FOREACH_STREAM(stream, streams) {
+      stream->rate_hist =
+          init_rate_histogram(&stream->config.cfg, &global.framerate);
+    }
+    }
     FOREACH_STREAM(stream, streams) { setup_pass(stream, &global, pass); }
     FOREACH_STREAM(stream, streams) {
       open_output_file(stream, &global, &input.pixel_aspect_ratio);
