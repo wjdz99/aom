@@ -315,6 +315,7 @@ EXPERIMENT_LIST="
     obu
     amvr
     opt_ref_mv
+    timing_headers
     tmv
     ext_warped_motion
     horzonly_frame_superres
@@ -431,6 +432,7 @@ CMDLINE_SELECT="
     symbolrate
     lowbitdepth
     experimental
+    timing_headers
     adopted_experiments
     colorspace_headers
 "

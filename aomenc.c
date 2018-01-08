@@ -466,6 +466,16 @@ static const arg_def_t mtu_size =
     ARG_DEF(NULL, "mtu-size", 1,
             "MTU size for a tile group, default is 0 (no MTU targeting), "
             "overrides maximum number of tile groups");
+#if CONFIG_TIMING_HEADERS
+static const struct arg_enum_list timing_info_enum[] = {
+  { "unspecified", AOM_TIMING_UNSPECIFIED },
+  { "constant", AOM_TIMING_EQUAL },
+  { NULL, 0 }
+};
+static const arg_def_t timing_info =
+    ARG_DEF_ENUM(NULL, "timing-info", 1,
+                 "Signal timing info in the bitstream:", timing_info_enum);
+#endif
 #if CONFIG_TEMPMV_SIGNALING
 static const arg_def_t disable_tempmv = ARG_DEF(
     NULL, "disable-tempmv", 1, "Disable temporal mv prediction (default is 0)");
@@ -624,6 +634,9 @@ static const arg_def_t *av1_args[] = { &cpu_used_av1,
 #endif  // CONFIG_EXT_PARTITION
                                        &num_tg,
                                        &mtu_size,
+#if CONFIG_TIMING_HEADERS
+                                       &timing_info,
+#endif
 #if CONFIG_TEMPMV_SIGNALING
                                        &disable_tempmv,
 #endif
@@ -686,6 +699,9 @@ static const int av1_arg_ctrl_map[] = { AOME_SET_CPUUSED,
 #endif  // CONFIG_EXT_PARTITION
                                         AV1E_SET_NUM_TG,
                                         AV1E_SET_MTU,
+#if CONFIG_TIMING_HEADERS
+                                        AV1E_SET_TIMING_INFO,
+#endif
 #if CONFIG_TEMPMV_SIGNALING
                                         AV1E_SET_DISABLE_TEMPMV,
 #endif
@@ -2026,10 +2042,15 @@ int main(int argc, const char **argv_) {
     if (!global.have_framerate) {
       global.framerate.num = input.framerate.numerator;
       global.framerate.den = input.framerate.denominator;
+#if CONFIG_TIMING_HEADERS
+    }
+#endif
       FOREACH_STREAM(stream, streams) {
         stream->config.cfg.g_timebase.den = global.framerate.num;
         stream->config.cfg.g_timebase.num = global.framerate.den;
+#if !CONFIG_TIMING_HEADERS
       }
+#endif
     }
 
     /* Show configuration */
@@ -2038,22 +2059,19 @@ int main(int argc, const char **argv_) {
         show_stream_config(stream, &global, &input);
       }
     }
-
     if (pass == (global.pass ? global.pass - 1 : 0)) {
       if (input.file_type == FILE_TYPE_Y4M)
-        /*The Y4M reader does its own allocation.
-          Just initialize this here to avoid problems if we never read any
-          frames.*/
+      /*The Y4M reader does its own allocation.
+       Just initialize this here to avoid problems if we never read any
+       frames.*/
         memset(&raw, 0, sizeof(raw));
       else
         aom_img_alloc(&raw, input.fmt, input.width, input.height, 32);
-
       FOREACH_STREAM(stream, streams) {
         stream->rate_hist =
-            init_rate_histogram(&stream->config.cfg, &global.framerate);
+        init_rate_histogram(&stream->config.cfg, &global.framerate);
       }
     }
-
     FOREACH_STREAM(stream, streams) { setup_pass(stream, &global, pass); }
     FOREACH_STREAM(stream, streams) {
       open_output_file(stream, &global, &input.pixel_aspect_ratio);
@@ -2072,45 +2090,36 @@ int main(int argc, const char **argv_) {
           input_shift = 0;
         } else {
           input_shift = (int)stream->config.cfg.g_bit_depth -
-                        stream->config.cfg.g_input_bit_depth;
+          stream->config.cfg.g_input_bit_depth;
         }
       };
     }
-
     frame_avail = 1;
     got_data = 0;
-
     while (frame_avail || got_data) {
       struct aom_usec_timer timer;
-
       if (!global.limit || frames_in < global.limit) {
         frame_avail = read_frame(&input, &raw);
-
         if (frame_avail) frames_in++;
         seen_frames =
-            frames_in > global.skip_frames ? frames_in - global.skip_frames : 0;
-
+        frames_in > global.skip_frames ? frames_in - global.skip_frames : 0;
         if (!global.quiet) {
           float fps = usec_to_fps(cx_time, seen_frames);
           fprintf(stderr, "\rPass %d/%d ", pass + 1, global.passes);
-
           if (stream_cnt == 1)
             fprintf(stderr, "frame %4d/%-4d %7" PRId64 "B ", frames_in,
                     streams->frames_out, (int64_t)streams->nbytes);
           else
             fprintf(stderr, "frame %4d ", frames_in);
-
           fprintf(stderr, "%7" PRId64 " %s %.2f %s ",
                   cx_time > 9999999 ? cx_time / 1000 : cx_time,
                   cx_time > 9999999 ? "ms" : "us", fps >= 1.0 ? fps : fps * 60,
                   fps >= 1.0 ? "fps" : "fpm");
           print_time("ETA", estimated_time_left);
         }
-
       } else {
         frame_avail = 0;
       }
-
       if (frames_in > global.skip_frames) {
         aom_image_t *frame_to_encode;
         if (input_shift || (use_16bit_internal && input.bit_depth == 8)) {
@@ -2146,24 +2155,19 @@ int main(int argc, const char **argv_) {
         }
         aom_usec_timer_mark(&timer);
         cx_time += aom_usec_timer_elapsed(&timer);
-
         FOREACH_STREAM(stream, streams) { update_quantizer_histogram(stream); }
-
         got_data = 0;
         FOREACH_STREAM(stream, streams) {
           get_cx_data(stream, &global, &got_data);
         }
-
         if (!got_data && input.length && streams != NULL &&
             !streams->frames_out) {
           lagged_count = global.limit ? seen_frames : ftello(input.file);
         } else if (input.length) {
           int64_t remaining;
           int64_t rate;
-
           if (global.limit) {
             const int64_t frame_in_lagged = (seen_frames - lagged_count) * 1000;
-
             rate = cx_time ? frame_in_lagged * (int64_t)1000000 / cx_time : 0;
             remaining = 1000 * (global.limit - global.skip_frames -
                                 seen_frames + lagged_count);
@@ -2171,50 +2175,43 @@ int main(int argc, const char **argv_) {
             const int64_t input_pos = ftello(input.file);
             const int64_t input_pos_lagged = input_pos - lagged_count;
             const int64_t input_limit = input.length;
-
             rate = cx_time ? input_pos_lagged * (int64_t)1000000 / cx_time : 0;
             remaining = input_limit - input_pos + lagged_count;
           }
-
           average_rate =
-              (average_rate <= 0) ? rate : (average_rate * 7 + rate) / 8;
+          (average_rate <= 0) ? rate : (average_rate * 7 + rate) / 8;
           estimated_time_left = average_rate ? remaining / average_rate : -1;
         }
-
         if (got_data && global.test_decode != TEST_DECODE_OFF) {
           FOREACH_STREAM(stream, streams) {
             test_decode(stream, global.test_decode);
           }
         }
       }
-
       fflush(stdout);
       if (!global.quiet) fprintf(stderr, "\033[K");
     }
-
     if (stream_cnt > 1) fprintf(stderr, "\n");
-
     if (!global.quiet) {
       FOREACH_STREAM(stream, streams) {
         fprintf(stderr, "\rPass %d/%d frame %4d/%-4d %7" PRId64 "B %7" PRId64
-                        "b/f %7" PRId64
-                        "b/s"
-                        " %7" PRId64 " %s (%.2f fps)\033[K\n",
+                "b/f %7" PRId64
+                "b/s"
+                " %7" PRId64 " %s (%.2f fps)\033[K\n",
                 pass + 1, global.passes, frames_in, stream->frames_out,
                 (int64_t)stream->nbytes,
                 seen_frames ? (int64_t)(stream->nbytes * 8 / seen_frames) : 0,
                 seen_frames
-                    ? (int64_t)stream->nbytes * 8 *
-                          (int64_t)global.framerate.num / global.framerate.den /
-                          seen_frames
-                    : 0,
+                ? (int64_t)stream->nbytes * 8 *
+                (int64_t)global.framerate.num / global.framerate.den /
+                seen_frames
+                : 0,
                 stream->cx_time > 9999999 ? stream->cx_time / 1000
-                                          : stream->cx_time,
+                : stream->cx_time,
                 stream->cx_time > 9999999 ? "ms" : "us",
                 usec_to_fps(stream->cx_time, seen_frames));
       }
     }
-
     if (global.show_psnr) {
       if (global.codec->fourcc == AV1_FOURCC) {
         FOREACH_STREAM(stream, streams) {
@@ -2224,41 +2221,32 @@ int main(int argc, const char **argv_) {
         FOREACH_STREAM(stream, streams) { show_psnr(stream, 255.0); }
       }
     }
-
     FOREACH_STREAM(stream, streams) { aom_codec_destroy(&stream->encoder); }
-
     if (global.test_decode != TEST_DECODE_OFF) {
       FOREACH_STREAM(stream, streams) { aom_codec_destroy(&stream->decoder); }
     }
-
     close_input_file(&input);
-
     if (global.test_decode == TEST_DECODE_FATAL) {
       FOREACH_STREAM(stream, streams) { res |= stream->mismatch_seen; }
     }
     FOREACH_STREAM(stream, streams) {
       close_output_file(stream, global.codec->fourcc);
     }
-
     FOREACH_STREAM(stream, streams) {
       stats_close(&stream->stats, global.passes - 1);
     }
-
 #if CONFIG_FP_MB_STATS
     FOREACH_STREAM(stream, streams) {
       stats_close(&stream->fpmb_stats, global.passes - 1);
     }
 #endif
-
     if (global.pass) break;
   }
-
   if (global.show_q_hist_buckets) {
     FOREACH_STREAM(stream, streams) {
       show_q_histogram(stream->counts, global.show_q_hist_buckets);
     }
   }
-
   if (global.show_rate_hist_buckets) {
     FOREACH_STREAM(stream, streams) {
       show_rate_histogram(stream->rate_hist, &stream->config.cfg,
@@ -2266,7 +2254,6 @@ int main(int argc, const char **argv_) {
     }
   }
   FOREACH_STREAM(stream, streams) { destroy_rate_histogram(stream->rate_hist); }
-
 #if CONFIG_INTERNAL_STATS
   /* TODO(jkoleszar): This doesn't belong in this executable. Do it for now,
    * to match some existing utilities.
@@ -2284,7 +2271,6 @@ int main(int argc, const char **argv_) {
     }
   }
 #endif
-
   if (allocated_raw_shift) aom_img_free(&raw_shift);
   aom_img_free(&raw);
   free(argv);
