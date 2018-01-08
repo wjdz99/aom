@@ -520,6 +520,7 @@ post_process_cmdline() {
     soft_enable frame_sign_bias
     soft_enable ext_warped_motion
     soft_enable horzonly_frame_superres
+    soft_enable intrabc
 
     # Enable low-bitdepth pixel pipeline by default
     soft_enable lowbitdepth
