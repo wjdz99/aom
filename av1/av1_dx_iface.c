@@ -156,6 +156,26 @@ static aom_codec_err_t decoder_destroy(aom_codec_alg_priv_t *ctx) {
 }
 
 #if !CONFIG_OBU
+#if CONFIG_TIMING_HEADERS
+static void parse_timing_info_header(struct aom_read_bit_buffer *rb) {
+  int timing_info_present;
+  int equal_picture_interval;
+  uint32_t num_ticks_per_picture;
+
+  timing_info_present = aom_rb_read_bit(rb);  // timing info present flag
+
+  if (timing_info_present) {
+    rb->bit_offset += 32;  // Number of units in tick
+    rb->bit_offset += 32;  // Time scale
+
+    equal_picture_interval = aom_rb_read_bit(rb);  // Equal picture interval bit
+    if (equal_picture_interval) {
+      num_ticks_per_picture = aom_rb_read_uvlc(rb) - 1;  // ticks per picture
+    }
+  }
+}
+#endif  // CONFIG_TIMING_HEADERS
+
 static int parse_bitdepth_colorspace_sampling(BITSTREAM_PROFILE profile,
                                               struct aom_read_bit_buffer *rb) {
   aom_color_space_t color_space;
@@ -181,6 +201,9 @@ static int parse_bitdepth_colorspace_sampling(BITSTREAM_PROFILE profile,
     }
 #if CONFIG_MONO_VIDEO
   } else if (color_space == AOM_CS_MONOCHROME) {
+#if CONFIG_TIMING_HEADERS
+    parse_timing_info_header(rb);
+#endif
     return 1;
 #endif  // CONFIG_MONO_VIDEO
   } else {
@@ -206,6 +229,9 @@ static int parse_bitdepth_colorspace_sampling(BITSTREAM_PROFILE profile,
     }
 #endif
   }
+#if CONFIG_TIMING_HEADERS
+  parse_timing_info_header(rb);
+#endif
   return 1;
 }
 #endif
