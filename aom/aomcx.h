@@ -685,12 +685,7 @@ typedef enum {
  * Changes the encoder to tune for certain types of input material.
  *
  */
-typedef enum {
-  AOM_TUNE_PSNR,
-  AOM_TUNE_SSIM,
-  AOM_TUNE_CDEF_DIST,
-  AOM_TUNE_DAALA_DIST
-} aom_tune_metric;
+typedef enum { AOM_TUNE_PSNR, AOM_TUNE_SSIM } aom_tune_metric;
 
 /*!\cond */
 /*!\brief Encoder control function parameter type

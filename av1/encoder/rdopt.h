@@ -73,13 +73,6 @@ void av1_dist_block(const struct AV1_COMP *cpi, MACROBLOCK *x, int plane,
                     TX_SIZE tx_size, int64_t *out_dist, int64_t *out_sse,
                     OUTPUT_STATUS output_status);
 
-#if CONFIG_DIST_8X8
-int64_t av1_dist_8x8(const struct AV1_COMP *const cpi, const MACROBLOCK *x,
-                     const uint8_t *src, int src_stride, const uint8_t *dst,
-                     int dst_stride, const BLOCK_SIZE tx_bsize, int bsw,
-                     int bsh, int visible_w, int visible_h, int qindex);
-#endif
-
 #if !CONFIG_LV_MAP
 static INLINE int cost_coeffs(const AV1_COMMON *const cm, MACROBLOCK *x,
                               int plane, int block, TX_SIZE tx_size,

@@ -387,13 +387,7 @@ static const arg_def_t arnr_maxframes =
 static const arg_def_t arnr_strength =
     ARG_DEF(NULL, "arnr-strength", 1, "AltRef filter strength (0..6)");
 static const struct arg_enum_list tuning_enum[] = {
-  { "psnr", AOM_TUNE_PSNR },
-  { "ssim", AOM_TUNE_SSIM },
-#ifdef CONFIG_DIST_8X8
-  { "cdef-dist", AOM_TUNE_CDEF_DIST },
-  { "daala-dist", AOM_TUNE_DAALA_DIST },
-#endif
-  { NULL, 0 }
+  { "psnr", AOM_TUNE_PSNR }, { "ssim", AOM_TUNE_SSIM }, { NULL, 0 }
 };
 static const arg_def_t tune_metric =
     ARG_DEF_ENUM(NULL, "tune", 1, "Distortion metric tuned with", tuning_enum);
@@ -455,11 +449,6 @@ static const arg_def_t qm_min = ARG_DEF(
 static const arg_def_t qm_max = ARG_DEF(
     NULL, "qm-max", 1, "Max quant matrix flatness (0..15), default is 16");
 #endif
-#if CONFIG_DIST_8X8
-static const arg_def_t enable_dist_8x8 =
-    ARG_DEF(NULL, "enable-dist-8x8", 1,
-            "Enable dist-8x8 (0: false (default), 1: true)");
-#endif  // CONFIG_DIST_8X8
 static const arg_def_t num_tg = ARG_DEF(
     NULL, "num-tile-groups", 1, "Maximum number of tile groups, default is 1");
 static const arg_def_t mtu_size =
@@ -603,9 +592,6 @@ static const arg_def_t *av1_args[] = { &cpu_used_av1,
                                        &qm_min,
                                        &qm_max,
 #endif
-#if CONFIG_DIST_8X8
-                                       &enable_dist_8x8,
-#endif
                                        &frame_parallel_decoding,
                                        &aq_mode,
 #if CONFIG_EXT_DELTA_Q
@@ -664,9 +650,6 @@ static const int av1_arg_ctrl_map[] = { AOME_SET_CPUUSED,
                                         AV1E_SET_ENABLE_QM,
                                         AV1E_SET_QM_MIN,
                                         AV1E_SET_QM_MAX,
-#endif
-#if CONFIG_DIST_8X8
-                                        AV1E_SET_ENABLE_DIST_8X8,
 #endif
                                         AV1E_SET_FRAME_PARALLEL_DECODING,
                                         AV1E_SET_AQ_MODE,
