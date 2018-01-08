@@ -288,7 +288,6 @@ EXPERIMENT_LIST="
     entropy_stats
     dependent_horztiles
     dependent_horztilegroups
-    dist_8x8
     palette_throughput
     ref_adapt
     lv_map
@@ -485,7 +484,6 @@ post_process_cmdline() {
       soft_enable mv_compress
       soft_enable dual_filter
       soft_enable aom_qm
-      soft_enable dist_8x8
       soft_enable loop_restoration
       soft_enable ext_partition
       soft_enable ext_partition_types
