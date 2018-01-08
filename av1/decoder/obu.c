@@ -164,18 +164,23 @@ void av1_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
 
   // decode frame as a series of OBUs
   while (!frame_decoding_finished && !cm->error.error_code) {
+    if (data_end <= data) {
+      cm->error.error_code = AOM_CODEC_CORRUPT_FRAME;
+      return;
+    }
     struct aom_read_bit_buffer rb;
     size_t obu_header_size, obu_payload_size = 0;
-
     av1_init_read_bit_buffer(pbi, &rb, data + PRE_OBU_SIZE_BYTES, data_end);
-
     // every obu is preceded by PRE_OBU_SIZE_BYTES-byte size of obu (obu header
     // + payload size)
     // The obu size is only needed for tile group OBUs
     const size_t obu_size = mem_get_le32(data);
     const OBU_TYPE obu_type = read_obu_header(&rb, &obu_header_size);
     data += (PRE_OBU_SIZE_BYTES + obu_header_size);
-
+    if (data_end <= data) {
+      cm->error.error_code = AOM_CODEC_CORRUPT_FRAME;
+      return;
+    }
     switch (obu_type) {
       case OBU_TEMPORAL_DELIMITER:
         obu_payload_size = read_temporal_delimiter_obu();
@@ -206,5 +211,9 @@ void av1_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
       default: break;
     }
     data += obu_payload_size;
+    if (data_end <= data) {
+      cm->error.error_code = AOM_CODEC_CORRUPT_FRAME;
+      return;
+    }
   }
 }
