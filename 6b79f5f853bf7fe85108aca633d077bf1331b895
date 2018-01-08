@@ -22,6 +22,30 @@
       "revId": "6b79f5f853bf7fe85108aca633d077bf1331b895",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "24531653_bb585146",
+        "filename": "av1/encoder/av1_fwd_txfm1d_cfg.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2018-01-08T18:32:21Z",
+      "side": 1,
+      "message": "The range computation is based on the impulse response analysis in the following link.\nhttps://drive.google.com/file/d/0B2Hu2Zp0PDtCcVZud0Ffa0FWV0tqU0JsQ2ZTeHR4Ry1MY0o0/view?usp\u003dsharing\nI use a software to construct the graph and do the analysis.\nThe code is in our internal codebase.\nIf you are interested to the code, pin me and I can point you to the location.",
+      "parentUuid": "6a924dd8_047f5a81",
+      "range": {
+        "startLine": 133,
+        "startChar": 62,
+        "endLine": 133,
+        "endChar": 63
+      },
+      "revId": "6b79f5f853bf7fe85108aca633d077bf1331b895",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
