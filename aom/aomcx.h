@@ -18,6 +18,7 @@
  */
 #include "./aom.h"
 #include "./aom_encoder.h"
+#include "./aom_config.h"
 
 /*!\file
  * \brief Provides definitions for using AOM or AV1 encoder algorithm within the
@@ -521,15 +522,15 @@ enum aome_enc_control_id {
   AV1E_SET_MTU,
 
   /*!\brief Codec control function to set dependent_horz_tiles.
-  *
-  * In encoding and decoding, AV1 allows enabling dependent horizontal tile
-  * The parameter for this control describes the value of this flag,
-  * which has a valid range [0, 1]:
-  *            0 = disable dependent horizontal tile
-  *            1 = enable dependent horizontal tile,
-  *
-  * By default, the value is 0, i.e. disable dependent horizontal tile.
-  */
+   *
+   * In encoding and decoding, AV1 allows enabling dependent horizontal tile
+   * The parameter for this control describes the value of this flag,
+   * which has a valid range [0, 1]:
+   *            0 = disable dependent horizontal tile
+   *            1 = enable dependent horizontal tile,
+   *
+   * By default, the value is 0, i.e. disable dependent horizontal tile.
+   */
   AV1E_SET_TILE_DEPENDENT_ROWS,
 
   /*!\brief Codec control function to set the number of symbols in an ANS data
@@ -545,12 +546,12 @@ enum aome_enc_control_id {
   AV1E_SET_ANS_WINDOW_SIZE_LOG2,
 
   /*!\brief Codec control function to set temporal mv prediction
-  * enabling/disabling.
-  *
-  * This will enable or disable temporal mv predicton. The default value is 0.
-  *
-  * Experiment: TEMPMV_SIGNALING
-  */
+   * enabling/disabling.
+   *
+   * This will enable or disable temporal mv predicton. The default value is 0.
+   *
+   * Experiment: TEMPMV_SIGNALING
+   */
   AV1E_SET_DISABLE_TEMPMV,
 
   /*!\brief Codec control function to set loop_filter_across_tiles_v_enabled
@@ -583,15 +584,15 @@ enum aome_enc_control_id {
   AV1E_SET_TILE_LOOPFILTER,
 
   /*!\brief Codec control function to set the delta q mode
-  *
-  * AV1 has a segment based feature that allows encoder to adaptively change
-  * quantization parameter for each segment within a frame to improve the
-  * subjective quality. the delta q mode is added on top of segment based
-  * feature, and allows control per 64x64 q and lf delta.This control makes
-  * encoder operate in one of the several DELTA_Q_modes supported.
-  *
-  * By default, encoder operates with DELTAQ_Mode 0(deltaq signaling off).
-  */
+   *
+   * AV1 has a segment based feature that allows encoder to adaptively change
+   * quantization parameter for each segment within a frame to improve the
+   * subjective quality. the delta q mode is added on top of segment based
+   * feature, and allows control per 64x64 q and lf delta.This control makes
+   * encoder operate in one of the several DELTA_Q_modes supported.
+   *
+   * By default, encoder operates with DELTAQ_Mode 0(deltaq signaling off).
+   */
   AV1E_SET_DELTAQ_MODE,
 
   /*!\brief Codec control function to set the single tile decoding mode to 0 or
@@ -610,6 +611,14 @@ enum aome_enc_control_id {
    * 0 : off, 1 : MAX_EXTREME_MV, 2 : MIN_EXTREME_MV
    */
   AV1E_ENABLE_MOTION_VECTOR_UNIT_TEST,
+
+#if CONFIG_TIMING_HEADERS
+  /*!\brief Codec control function to signal picture timing info in the
+   * bitstream. \note Valid ranges: 0..1, default is "UNKNOWN". 0 = UNKNOWN, 1 =
+   * EQUAL
+   */
+  AV1E_SET_TIMING_INFO,
+#endif
 };
 
 /*!\brief aom 1-D scaling mode
@@ -679,6 +688,11 @@ typedef enum {
   AOM_CONTENT_SCREEN,
   AOM_CONTENT_INVALID
 } aom_tune_content;
+
+#if CONFIG_TIMING_HEADERS
+/*!brief AV1 encoder timing info signaling */
+typedef enum { AOM_TIMING_UNSPECIFIED, AOM_TIMING_EQUAL } aom_timing_info_t;
+#endif
 
 /*!\brief Model tuning parameters
  *
@@ -783,6 +797,11 @@ AOM_CTRL_USE_TYPE(AV1E_SET_NUM_TG, unsigned int)
 #define AOM_CTRL_AV1E_SET_NUM_TG
 AOM_CTRL_USE_TYPE(AV1E_SET_MTU, unsigned int)
 #define AOM_CTRL_AV1E_SET_MTU
+
+#if CONFIG_TIMING_HEADERS
+AOM_CTRL_USE_TYPE(AV1E_SET_TIMING_INFO, aom_timing_info_t)
+#define AOM_CTRL_AV1E_SET_TIMING_INFO
+#endif
 
 AOM_CTRL_USE_TYPE(AV1E_SET_DISABLE_TEMPMV, unsigned int)
 #define AOM_CTRL_AV1E_SET_DISABLE_TEMPMV
