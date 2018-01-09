@@ -12,6 +12,7 @@
 #include <immintrin.h>
 #include "./aom_dsp_rtcd.h"
 
+#if CONFIG_EXT_PARTITION
 static unsigned int sad32x32(const uint8_t *src_ptr, int src_stride,
                              const uint8_t *ref_ptr, int ref_stride) {
   __m256i s1, s2, r1, r2;
@@ -231,3 +232,4 @@ unsigned int aom_sad128x128_avg_avx2(const uint8_t *src_ptr, int src_stride,
                                 second_pred);
   return sum;
 }
+#endif

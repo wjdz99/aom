@@ -154,6 +154,10 @@ cglobal highbd_sad%1x%2_avg, 5, ARCH_X86_64 + %3, 7, src, src_stride, \
 %endmacro
 
 INIT_XMM sse2
+%if CONFIG_EXT_PARTITION
+HIGH_SAD64XN 128    ; highbd_sad64x128_sse2
+HIGH_SAD64XN 128, 1 ; highbd_sad64x128_avg_sse2
+%endif
 HIGH_SAD64XN 64 ; highbd_sad64x64_sse2
 HIGH_SAD64XN 32 ; highbd_sad64x32_sse2
 HIGH_SAD64XN 64, 1 ; highbd_sad64x64_avg_sse2
@@ -231,6 +235,10 @@ HIGH_SAD32XN 64, 1 ; highbd_sad32x64_avg_sse2
 HIGH_SAD32XN 32, 1 ; highbd_sad32x32_avg_sse2
 HIGH_SAD32XN 16, 1 ; highbd_sad32x16_avg_sse2
 %if CONFIG_EXT_PARTITION_TYPES
+%if CONFIG_EXT_PARTITION
+HIGH_SAD32XN 128 ; highbd_sad_32x128_sse2
+HIGH_SAD32XN 128, 1 ; highbd_sad_32x128_avg_sse2
+%endif
 HIGH_SAD32XN 8 ; highbd_sad_32x8_sse2
 HIGH_SAD32XN 8, 1 ; highbd_sad_32x8_avg_sse2
 %endif
