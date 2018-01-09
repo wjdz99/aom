@@ -520,6 +520,7 @@ post_process_cmdline() {
     soft_enable ref_adapt
     soft_enable ext_warped_motion
     soft_enable horzonly_frame_superres
+    soft_enable spatial_segmentation
 
     # Enable low-bitdepth pixel pipeline by default
     soft_enable lowbitdepth
