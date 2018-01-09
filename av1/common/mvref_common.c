@@ -1493,6 +1493,10 @@ static int motion_field_projection(AV1_COMMON *cm, MV_REFERENCE_FRAME ref_frame,
 
   if (dir == 2) ref_to_cur = -ref_to_cur;
 
+  if (cm->buffer_pool->frame_bufs[ref_frame_idx].mi_rows != cm->mi_rows ||
+      cm->buffer_pool->frame_bufs[ref_frame_idx].mi_cols != cm->mi_cols)
+    return 0;
+
   MV_REF *mv_ref_base = cm->buffer_pool->frame_bufs[ref_frame_idx].mvs;
   const int mvs_rows = (cm->mi_rows + 1) >> 1;
   const int mvs_cols = (cm->mi_cols + 1) >> 1;
