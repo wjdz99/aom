@@ -262,7 +262,9 @@ static BLOCK_SIZE select_sb_size(const AV1_COMP *const cpi) {
   if (cpi->common.options && !cpi->common.options->ext_partition)
     return BLOCK_64X64;
 #endif
-  return BLOCK_128X128;
+
+  return (cpi->common.width >= 480 && cpi->common.height >= 360) ? BLOCK_128X128
+                                                                 : BLOCK_64X64;
 }
 
 static void setup_frame(AV1_COMP *cpi) {
