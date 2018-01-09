@@ -87,15 +87,12 @@ FRAME_COUNTS aggregate_fc_per_type[FRAME_CONTEXTS];
                                        // mv. Choose a very high value for
                                        // now so that HIGH_PRECISION is always
                                        // chosen.
-
-// #define OUTPUT_YUV_REC
 #ifdef OUTPUT_YUV_SKINMAP
 FILE *yuv_skinmap_file = NULL;
 #endif
-#ifdef OUTPUT_YUV_REC
-FILE *yuv_rec_file;
-#define FILE_NAME_LEN 100
-#endif
+
+static FILE *yuv_rec_file = NULL;
+const char* reconfile_name = NULL;
 
 #if 0
 FILE *framepsnr;
@@ -3276,6 +3273,8 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
   cpi->multi_arf_last_grp_enabled = 0;
 
   cpi->b_calculate_psnr = CONFIG_INTERNAL_STATS;
+  cpi->b_output_recon = CONFIG_INTERNAL_STATS;
+
 #if CONFIG_INTERNAL_STATS
   cpi->b_calculate_blockiness = 1;
   cpi->b_calculate_consistency = 1;
@@ -3325,9 +3324,6 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
 
 #ifdef OUTPUT_YUV_SKINMAP
   yuv_skinmap_file = fopen("skinmap.yuv", "ab");
-#endif
-#ifdef OUTPUT_YUV_REC
-  yuv_rec_file = fopen("rec.yuv", "wb");
 #endif
 
 #if 0
@@ -3938,9 +3934,9 @@ void av1_remove_compressor(AV1_COMP *cpi) {
 #ifdef OUTPUT_YUV_SKINMAP
   fclose(yuv_skinmap_file);
 #endif
-#ifdef OUTPUT_YUV_REC
-  fclose(yuv_rec_file);
-#endif
+
+  if (yuv_rec_file) fclose(yuv_rec_file);
+
 #if 0
 
   if (keyfile)
@@ -4126,35 +4122,75 @@ static void check_show_existing_frame(AV1_COMP *cpi) {
 }
 #endif  // !CONFIG_XIPHRC
 
-#ifdef OUTPUT_YUV_REC
 void aom_write_one_yuv_frame(AV1_COMMON *cm, YV12_BUFFER_CONFIG *s) {
   uint8_t *src = s->y_buffer;
   int h = cm->height;
-  if (yuv_rec_file == NULL) return;
+  int w = cm->width;
+
+  if (!yuv_rec_file) yuv_rec_file = fopen(reconfile_name, "wb");
+
   if (s->flags & YV12_FLAG_HIGHBITDEPTH) {
-    uint16_t *src16 = CONVERT_TO_SHORTPTR(s->y_buffer);
+    if (cm->bit_depth == AOM_BITS_8) {
+      uint16_t *src16 = CONVERT_TO_SHORTPTR(s->y_buffer);
 
-    do {
-      fwrite(src16, s->y_width, 2, yuv_rec_file);
-      src16 += s->y_stride;
-    } while (--h);
+      for (int row = 0; row < h; ++row) {
+        uint16_t *src = src16;
+        for (int col = 0; col < w; ++col) {
+          uint8_t pix = (uint8_t)((*src) & 0xFF);
+          fwrite(&pix, 1, sizeof(uint8_t), yuv_rec_file);
+          src++;
+        }
+        src16 += s->y_stride;
+      }
 
-    src16 = CONVERT_TO_SHORTPTR(s->u_buffer);
-    h = s->uv_height;
+      src16 = CONVERT_TO_SHORTPTR(s->u_buffer);
+      h = s->uv_height;
+      w = s->uv_width;
 
-    do {
-      fwrite(src16, s->uv_width, 2, yuv_rec_file);
-      src16 += s->uv_stride;
-    } while (--h);
+      for (int row = 0; row < h; ++row) {
+        uint16_t *src = src16;
+        for (int col = 0; col < w; ++col) {
+          uint8_t pix = (uint8_t)((*src) & 0xFF);
+          fwrite(&pix, 1, sizeof(uint8_t), yuv_rec_file);
+          src++;
+        }
+        src16 += s->uv_stride;
+      }
 
-    src16 = CONVERT_TO_SHORTPTR(s->v_buffer);
-    h = s->uv_height;
+      src16 = CONVERT_TO_SHORTPTR(s->v_buffer);
+      for (int row = 0; row < h; ++row) {
+        uint16_t *src = src16;
+        for (int col = 0; col < w; ++col) {
+          uint8_t pix = (uint8_t)((*src) & 0xFF);
+          fwrite(&pix, 1, sizeof(uint8_t), yuv_rec_file);
+          src++;
+        }
+        src16 += s->uv_stride;
+      }
+    } else {
+      uint16_t *src16 = CONVERT_TO_SHORTPTR(s->y_buffer);
 
-    do {
-      fwrite(src16, s->uv_width, 2, yuv_rec_file);
-      src16 += s->uv_stride;
-    } while (--h);
+      do {
+        fwrite(src16, s->y_width, 2, yuv_rec_file);
+        src16 += s->y_stride;
+      } while (--h);
 
+      src16 = CONVERT_TO_SHORTPTR(s->u_buffer);
+      h = s->uv_height;
+
+      do {
+        fwrite(src16, s->uv_width, 2, yuv_rec_file);
+        src16 += s->uv_stride;
+      } while (--h);
+
+      src16 = CONVERT_TO_SHORTPTR(s->v_buffer);
+      h = s->uv_height;
+
+      do {
+        fwrite(src16, s->uv_width, 2, yuv_rec_file);
+        src16 += s->uv_stride;
+      } while (--h);
+    }
     fflush(yuv_rec_file);
     return;
   }
@@ -4182,7 +4218,7 @@ void aom_write_one_yuv_frame(AV1_COMMON *cm, YV12_BUFFER_CONFIG *s) {
 
   fflush(yuv_rec_file);
 }
-#endif  // OUTPUT_YUV_REC
+
 
 #define GM_RECODE_LOOP_NUM4X4_FACTOR 192
 static int recode_loop_test_global_motion(AV1_COMP *cpi) {
@@ -6902,6 +6938,9 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
 
     if (cpi->b_calculate_psnr) generate_psnr_packet(cpi);
 
+    if (cpi->b_output_recon)
+      aom_write_one_yuv_frame(cm, cpi->common.frame_to_show);
+
 #if CONFIG_INTERNAL_STATS
     compute_internal_stats(cpi, (int)(*size));
 #endif  // CONFIG_INTERNAL_STATS
@@ -7239,6 +7278,9 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
 
   if (cpi->b_calculate_psnr && oxcf->pass != 1 && cm->show_frame)
     generate_psnr_packet(cpi);
+
+  if (cpi->b_output_recon && oxcf->pass != 1 && cm->show_frame)
+    aom_write_one_yuv_frame(cm, cpi->common.frame_to_show);
 
 #if CONFIG_INTERNAL_STATS
   if (oxcf->pass != 1) {
