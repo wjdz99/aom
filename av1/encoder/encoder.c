@@ -247,10 +247,12 @@ static void set_high_precision_mv(AV1_COMP *cpi, int allow_high_precision_mv,
 }
 
 static BLOCK_SIZE select_sb_size(const AV1_COMP *const cpi) {
+  const AV1_COMMON *const cm = &cpi->common;
+
   if (cpi->oxcf.superblock_size == AOM_SUPERBLOCK_SIZE_64X64)
     return BLOCK_64X64;
 #if CONFIG_FILEOPTIONS
-  if (cpi->common.options && cpi->common.options->ext_partition)
+  if (cm->options && cm->options->ext_partition)
 #endif
     if (cpi->oxcf.superblock_size == AOM_SUPERBLOCK_SIZE_128X128)
       return BLOCK_128X128;
@@ -259,9 +261,17 @@ static BLOCK_SIZE select_sb_size(const AV1_COMP *const cpi) {
 
 // TODO(any): Possibly could improve this with a heuristic.
 #if CONFIG_FILEOPTIONS
-  if (cpi->common.options && !cpi->common.options->ext_partition)
-    return BLOCK_64X64;
+  if (cm->options && !cm->options->ext_partition) return BLOCK_64X64;
 #endif
+
+  // When superres is on 'cm->width / height' can change between calls, so we
+  // don't apply this heuristic there.
+  // Also, this heuristic gives compression gain for speed >= 2 only.
+  if (cpi->oxcf.superres_mode == SUPERRES_NONE && cpi->oxcf.speed >= 2) {
+    return (cm->width >= 480 && cm->height >= 360) ? BLOCK_128X128
+                                                   : BLOCK_64X64;
+  }
+
   return BLOCK_128X128;
 }
 
