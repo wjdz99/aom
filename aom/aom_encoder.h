@@ -64,6 +64,9 @@ extern "C" {
 /*! Can support input images at greater than 8 bitdepth.
  */
 #define AOM_CODEC_CAP_HIGHBITDEPTH 0x40000
+/*! Can support output recon video.
+ */
+#define AOM_CODEC_CAP_RECON 0x80000
 
 /*! \brief Initialization-time Feature Enabling
  *
@@ -76,6 +79,8 @@ extern "C" {
 /*!\brief Make the encoder output one  partition at a time. */
 #define AOM_CODEC_USE_OUTPUT_PARTITION 0x20000
 #define AOM_CODEC_USE_HIGHBITDEPTH 0x40000 /**< Use high bitdepth */
+/*!\brief Make the encoder output recon frame. */
+#define AOM_CODEC_USE_RECON 0x80000 /**< Output recon frame */
 
 /*!\brief Generic fixed size buffer structure
  *
