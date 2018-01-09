@@ -2268,6 +2268,27 @@ int av1_optimize_txb(const AV1_COMMON *cm, MACROBLOCK *x, int plane,
 
   av1_txb_init_levels(qcoeff, width, height, levels);
 
+  // count number of non zero coeff
+  int nz_coeff = 0;
+  int dc = 0;
+  for (int i = 0; i < eob; ++i) {
+    const int coeff_idx = scan_order->scan[i];
+    const tran_low_t qc = qcoeff[coeff_idx];
+    if (qc != 0) nz_coeff++;
+    if (i == 0) dc = qc;
+  }
+
+  // skip trellis if only a few non zero coeffs
+  // while eob is large
+  if (eob > 48 && nz_coeff < 5 && dc == 0) {
+    for (int j = 0; j < eob; j++) {
+      const int coeff_pos_j = scan_order->scan[j];
+      update_coeff(coeff_pos_j, 0, &txb_info);
+    }
+    txb_info.eob = 0;
+    return 0;
+  }
+
   const int update = optimize_txb(&txb_info, &txb_costs,
 #if CONFIG_LV_MAP_MULTI
                                   &txb_eob_costs,
