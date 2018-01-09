@@ -53,6 +53,8 @@
 #endif
 #include "./y4minput.h"
 
+extern const char *reconfile_name;
+
 /* Swallow warnings about unused results of fread/fwrite */
 static size_t wrap_fread(void *ptr, size_t size, size_t nmemb, FILE *stream) {
   return fread(ptr, size, nmemb, stream);
@@ -167,6 +169,7 @@ static const arg_def_t verbosearg =
     ARG_DEF("v", "verbose", 0, "Show encoder parameters");
 static const arg_def_t psnrarg =
     ARG_DEF(NULL, "psnr", 0, "Show PSNR in status line");
+static const arg_def_t reconarg = ARG_DEF("r", "recon", 1, "Recon output file");
 
 static const struct arg_enum_list test_decode_enum[] = {
   { "off", TEST_DECODE_OFF },
@@ -210,6 +213,7 @@ static const arg_def_t inbitdeptharg =
 static const arg_def_t *main_args[] = { &help,
                                         &debugmode,
                                         &outputfile,
+                                        &reconarg,
                                         &codecarg,
                                         &passes,
                                         &pass_arg,
@@ -867,9 +871,12 @@ static void parse_global_config(struct AvxEncoderConfig *global, char **argv) {
       global->skip_frames = arg_parse_uint(&arg);
     else if (arg_match(&arg, &psnrarg, argi))
       global->show_psnr = 1;
-    else if (arg_match(&arg, &recontest, argi))
+    else if (arg_match(&arg, &reconarg, argi)) {
+      global->enable_recon = 1;
+      reconfile_name = arg.val;
+    } else if (arg_match(&arg, &recontest, argi)) {
       global->test_decode = arg_parse_enum_or_int(&arg);
-    else if (arg_match(&arg, &framerate, argi)) {
+    } else if (arg_match(&arg, &framerate, argi)) {
       global->framerate = arg_parse_rational(&arg);
       validate_positive_rational(arg.name, &global->framerate);
       global->have_framerate = 1;
@@ -1483,6 +1490,7 @@ static void initialize_encoder(struct stream_state *stream,
   flags |= global->show_psnr ? AOM_CODEC_USE_PSNR : 0;
   flags |= global->out_part ? AOM_CODEC_USE_OUTPUT_PARTITION : 0;
   flags |= stream->config.use_16bit_internal ? AOM_CODEC_USE_HIGHBITDEPTH : 0;
+  flags |= global->enable_recon ? AOM_CODEC_USE_RECON : 0;
 
   /* Construct Encoder Context */
   aom_codec_enc_init(&stream->encoder, global->codec->codec_interface(),
@@ -1706,6 +1714,7 @@ static void get_cx_data(struct stream_state *stream,
 
           stream->psnr_sse_total += pkt->data.psnr.sse[0];
           stream->psnr_samples_total += pkt->data.psnr.samples[0];
+          fprintf(stderr, "\n");
           for (i = 0; i < 4; i++) {
             if (!global->quiet)
               fprintf(stderr, "%.3f ", pkt->data.psnr.psnr[i]);
@@ -1726,7 +1735,7 @@ static void show_psnr(struct stream_state *stream, double peak) {
 
   if (!stream->psnr_count) return;
 
-  fprintf(stderr, "Stream %d PSNR (Overall/Avg/Y/U/V)", stream->index);
+  fprintf(stderr, "\nStream %d PSNR (Overall/Avg/Y/U/V)", stream->index);
   ovpsnr = sse_to_psnr((double)stream->psnr_samples_total, peak,
                        (double)stream->psnr_sse_total);
   fprintf(stderr, " %.3f", ovpsnr);
@@ -2092,7 +2101,7 @@ int main(int argc, const char **argv_) {
 
         if (!global.quiet) {
           float fps = usec_to_fps(cx_time, seen_frames);
-          fprintf(stderr, "\rPass %d/%d ", pass + 1, global.passes);
+          fprintf(stderr, "\nPass %d/%d ", pass + 1, global.passes);
 
           if (stream_cnt == 1)
             fprintf(stderr, "frame %4d/%-4d %7" PRId64 "B ", frames_in,
@@ -2196,7 +2205,7 @@ int main(int argc, const char **argv_) {
 
     if (!global.quiet) {
       FOREACH_STREAM(stream, streams) {
-        fprintf(stderr, "\rPass %d/%d frame %4d/%-4d %7" PRId64 "B %7" PRId64
+        fprintf(stderr, "\nPass %d/%d frame %4d/%-4d %7" PRId64 "B %7" PRId64
                         "b/f %7" PRId64
                         "b/s"
                         " %7" PRId64 " %s (%.2f fps)\033[K\n",
