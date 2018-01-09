@@ -142,6 +142,139 @@ void AV1Convolve2DTest::RunSpeedTest(convolve_2d_func test_impl) {
   }
 }
 
+AV1Convolve2DSrTest::~AV1Convolve2DSrTest() {}
+void AV1Convolve2DSrTest::SetUp() {
+  rnd_.Reset(ACMRandom::DeterministicSeed());
+}
+
+void AV1Convolve2DSrTest::TearDown() { libaom_test::ClearSystemState(); }
+
+void AV1Convolve2DSrTest::RunCheckOutput(convolve_2d_func test_impl) {
+  const int w = kMaxSize, h = kMaxSize;
+  const int has_subx = GET_PARAM(1);
+  const int has_suby = GET_PARAM(2);
+  const int is_compound = GET_PARAM(3);
+  int i, j;
+  int hfilter, vfilter, subx, suby;
+  uint8_t input[kMaxSize * kMaxSize];
+  DECLARE_ALIGNED(32, uint8_t, output[MAX_SB_SQUARE]);
+  DECLARE_ALIGNED(32, uint8_t, output2[MAX_SB_SQUARE]);
+
+  (void)is_compound;
+
+  for (i = 0; i < h; ++i)
+    for (j = 0; j < w; ++j) input[i * w + j] = rnd_.Rand8();
+  for (i = 0; i < MAX_SB_SQUARE; ++i) output[i] = output2[i] = rnd_.Rand31();
+
+  for (int block_idx = BLOCK_4X4; block_idx < BLOCK_SIZES_ALL; ++block_idx) {
+    // Make sure that sizes 2xN and Nx2 are also tested for chroma.
+    const int num_sizes =
+        (block_size_wide[block_idx] == 4 || block_size_high[block_idx] == 4)
+            ? 2
+            : 1;
+    for (int shift = 0; shift < num_sizes; ++shift) {  // luma and chroma
+      const int out_w = block_size_wide[block_idx] >> shift;
+      const int out_h = block_size_high[block_idx] >> shift;
+      for (hfilter = EIGHTTAP_REGULAR; hfilter < INTERP_FILTERS_ALL;
+           ++hfilter) {
+        for (vfilter = EIGHTTAP_REGULAR; vfilter < INTERP_FILTERS_ALL;
+             ++vfilter) {
+          InterpFilterParams filter_params_x =
+              av1_get_interp_filter_params((InterpFilter)hfilter);
+          InterpFilterParams filter_params_y =
+              av1_get_interp_filter_params((InterpFilter)vfilter);
+          for (int do_average = 0; do_average <= 1; ++do_average) {
+            ConvolveParams conv_params1 =
+                get_conv_params_no_round(0, do_average, 0, NULL, 0, 1);
+            ConvolveParams conv_params2 =
+                get_conv_params_no_round(0, do_average, 0, NULL, 0, 1);
+
+            const int subx_range = has_subx ? 16 : 1;
+            const int suby_range = has_suby ? 16 : 1;
+            for (subx = 0; subx < subx_range; ++subx) {
+              for (suby = 0; suby < suby_range; ++suby) {
+                // Choose random locations within the source block
+                const int offset_r = 3 + rnd_.PseudoUniform(h - out_h - 7);
+                const int offset_c = 3 + rnd_.PseudoUniform(w - out_w - 7);
+                av1_convolve_2d_sr_c(input + offset_r * w + offset_c, w, output,
+                                     MAX_SB_SIZE, out_w, out_h,
+                                     &filter_params_x, &filter_params_y, subx,
+                                     suby, &conv_params1);
+                test_impl(input + offset_r * w + offset_c, w, output2,
+                          MAX_SB_SIZE, out_w, out_h, &filter_params_x,
+                          &filter_params_y, subx, suby, &conv_params2);
+
+                if (memcmp(output, output2, sizeof(output))) {
+                  for (i = 0; i < MAX_SB_SIZE; ++i) {
+                    for (j = 0; j < MAX_SB_SIZE; ++j) {
+                      int idx = i * MAX_SB_SIZE + j;
+                      ASSERT_EQ(output[idx], output2[idx])
+                          << out_w << "x" << out_h
+                          << " Pixel mismatch at index " << idx << " = (" << i
+                          << ", " << j << "), sub pixel offset = (" << suby
+                          << ", " << subx << ")";
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+void AV1Convolve2DSrTest::RunSpeedTest(convolve_2d_func test_impl) {
+  const int w = kMaxSize, h = kMaxSize;
+  int i, j;
+  const int has_subx = GET_PARAM(1);
+  const int has_suby = GET_PARAM(2);
+  const int is_compound = GET_PARAM(3);
+  (void)is_compound;
+
+  uint8_t input[kMaxSize * kMaxSize];
+  DECLARE_ALIGNED(32, uint8_t, output[MAX_SB_SQUARE]);
+
+  for (i = 0; i < h; ++i)
+    for (j = 0; j < w; ++j) input[i * w + j] = rnd_.Rand8();
+
+  int hfilter = EIGHTTAP_REGULAR, vfilter = EIGHTTAP_REGULAR;
+  int subx = 0, suby = 0;
+
+  InterpFilterParams filter_params_x =
+      av1_get_interp_filter_params((InterpFilter)hfilter);
+  InterpFilterParams filter_params_y =
+      av1_get_interp_filter_params((InterpFilter)vfilter);
+  const int do_average = 0;
+  ConvolveParams conv_params2 =
+      get_conv_params_no_round(0, do_average, 0, NULL, 0, 1);
+
+  for (int block_idx = BLOCK_4X4; block_idx < BLOCK_SIZES_ALL; ++block_idx) {
+    // Make sure that sizes 2xN and Nx2 are also tested for chroma.
+    const int num_sizes =
+        (block_size_wide[block_idx] == 4 || block_size_high[block_idx] == 4)
+            ? 2
+            : 1;
+    for (int shift = 0; shift < num_sizes; ++shift) {  // luma and chroma
+      const int out_w = block_size_wide[block_idx] >> shift;
+      const int out_h = block_size_high[block_idx] >> shift;
+      const int num_loops = 1000000000 / (out_w + out_h);
+      aom_usec_timer timer;
+      aom_usec_timer_start(&timer);
+
+      for (i = 0; i < num_loops; ++i)
+        test_impl(input, w, output, MAX_SB_SIZE, out_w, out_h, &filter_params_x,
+                  &filter_params_y, subx, suby, &conv_params2);
+
+      aom_usec_timer_mark(&timer);
+      const int elapsed_time = static_cast<int>(aom_usec_timer_elapsed(&timer));
+      printf("%d,%d convolve %3dx%-3d: %7.2f ns\n", has_subx, has_suby, out_w,
+             out_h, 1000.0 * elapsed_time / num_loops);
+    }
+  }
+}
+
 #if CONFIG_JNT_COMP
 AV1JntConvolve2DTest::~AV1JntConvolve2DTest() {}
 void AV1JntConvolve2DTest::SetUp() {
