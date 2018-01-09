@@ -161,9 +161,7 @@ typedef struct {
 #if CONFIG_HASH_ME
   hash_table hash_table;
 #endif
-#if CONFIG_TEMPMV_SIGNALING || CONFIG_FWD_KF
   uint8_t intra_only;
-#endif  // CONFIG_TEMPMV_SIGNALING || CONFIG_FWD_KF
   // The Following variables will only be used in frame parallel decode.
 
   // frame_worker_owner indicates which FrameWorker owns this buffer. NULL means
@@ -646,7 +644,6 @@ static INLINE void ref_cnt_fb(RefCntBuffer *bufs, int *idx, int new_idx) {
   bufs[new_idx].ref_count++;
 }
 
-#if CONFIG_TEMPMV_SIGNALING
 // Returns 1 if this frame might use mvs from some previous frame. This
 // function doesn't consider whether prev_frame is actually suitable (see
 // frame_can_use_prev_frame_mvs for that)
@@ -664,7 +661,6 @@ static INLINE int frame_can_use_prev_frame_mvs(const AV1_COMMON *cm) {
           !cm->prev_frame->intra_only && cm->width == cm->prev_frame->width &&
           cm->height == cm->prev_frame->height);
 }
-#endif
 
 static INLINE void ensure_mv_buffer(RefCntBuffer *buf, AV1_COMMON *cm) {
   if (buf->mvs == NULL || buf->mi_rows < cm->mi_rows ||
