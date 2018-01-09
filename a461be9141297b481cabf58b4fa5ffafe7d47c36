@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "6257f2d0_63ab0bc9",
+        "filename": "av1/common/cfl_avx2.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 6340
+      },
+      "writtenOn": "2018-01-09T09:23:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cd327833_29c17ff4",
+      "revId": "a461be9141297b481cabf58b4fa5ffafe7d47c36",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "296b48cc_a64a3ec4",
         "filename": "av1/common/cfl_ssse3.c",
         "patchSetId": 14
@@ -33,6 +51,24 @@
       "revId": "a461be9141297b481cabf58b4fa5ffafe7d47c36",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7b0df42c_ba72e8a7",
+        "filename": "av1/common/cfl_ssse3.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 6340
+      },
+      "writtenOn": "2018-01-09T09:23:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "296b48cc_a64a3ec4",
+      "revId": "a461be9141297b481cabf58b4fa5ffafe7d47c36",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "5672ef03_dcfaebc0",
+        "filename": "test/cfl_test.cc",
+        "patchSetId": 14
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 6340
+      },
+      "writtenOn": "2018-01-09T09:23:25Z",
+      "side": 1,
+      "message": "Made this less confusing by parameterizing the test with tx_size.",
+      "parentUuid": "11a25b02_8434ca28",
+      "revId": "a461be9141297b481cabf58b4fa5ffafe7d47c36",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "dcb97d18_5a5d8af7",
         "filename": "test/cfl_test.cc",
         "patchSetId": 14
@@ -64,6 +118,24 @@
       "writtenOn": "2018-01-08T21:05:34Z",
       "side": 1,
       "message": "How about we go for an exhaustive test instead (We can test the whole range of alpha values, for each transform size, with a certain number of iterations of DC values.",
+      "revId": "a461be9141297b481cabf58b4fa5ffafe7d47c36",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "33e2ebe4_9e759546",
+        "filename": "test/cfl_test.cc",
+        "patchSetId": 14
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 6340
+      },
+      "writtenOn": "2018-01-09T09:23:25Z",
+      "side": 1,
+      "message": "Sure, I\u0027ll need to restructure the test a little.",
+      "parentUuid": "dcb97d18_5a5d8af7",
       "revId": "a461be9141297b481cabf58b4fa5ffafe7d47c36",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
