@@ -4979,9 +4979,8 @@ static uint8_t calculate_next_superres_scale(AV1_COMP *cpi) {
       const GF_GROUP *const gf_group = &cpi->twopass.gf_group;
       const RATE_FACTOR_LEVEL rf_level = gf_group->rf_level[gf_group->index];
       const double rate_factor_delta = rate_factor_deltas[rf_level];
-      qthresh = (rate_factor_delta <= 1.0)  // TODO(now): Try <= 1.25 also
-                    ? oxcf->superres_qthresh
-                    : oxcf->superres_kf_qthresh;
+      qthresh = (rate_factor_delta <= 1.25) ? oxcf->superres_qthresh
+                                            : oxcf->superres_kf_qthresh;
       av1_set_target_rate(cpi, cpi->oxcf.width, cpi->oxcf.height);
       q = av1_rc_pick_q_and_bounds(cpi, cpi->oxcf.width, cpi->oxcf.height,
                                    &bottom_index, &top_index);
