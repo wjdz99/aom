@@ -510,6 +510,7 @@ post_process_cmdline() {
       soft_enable ext_intra_mod
       soft_enable frame_size
       soft_enable segment_globalmv
+      soft_enable segment_pred_last
       soft_enable short_filter
       soft_enable simplify_tx_mode
       soft_enable tx64x64
