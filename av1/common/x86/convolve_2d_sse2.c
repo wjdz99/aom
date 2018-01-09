@@ -320,6 +320,110 @@ void av1_convolve_2d_copy_sse2(const uint8_t *src, int src_stride,
   }
 }
 
+static INLINE void copy_8(const uint8_t *src, uint8_t *dst) {
+  const __m128i s = _mm_loadl_epi64((__m128i *)src);
+  _mm_storel_epi64((__m128i *)dst, s);
+}
+
+static INLINE void copy_16(const uint8_t *src, uint8_t *dst) {
+  const __m128i s = _mm_loadu_si128((__m128i *)src);
+  _mm_store_si128((__m128i *)dst, s);
+}
+
+static INLINE void copy_32(const uint8_t *src, uint8_t *dst) {
+  copy_16(src + 0 * 16, dst + 0 * 16);
+  copy_16(src + 1 * 16, dst + 1 * 16);
+}
+
+static INLINE void copy_64(const uint8_t *src, uint8_t *dst) {
+  copy_32(src + 0 * 32, dst + 0 * 32);
+  copy_32(src + 1 * 32, dst + 1 * 32);
+}
+
+void av1_convolve_2d_copy_sr_sse2(const uint8_t *src, int src_stride,
+                                  uint8_t *dst, int dst_stride, int w, int h,
+                                  InterpFilterParams *filter_params_x,
+                                  InterpFilterParams *filter_params_y,
+                                  const int subpel_x_q4, const int subpel_y_q4,
+                                  ConvolveParams *conv_params) {
+  (void)filter_params_x;
+  (void)filter_params_y;
+  (void)subpel_x_q4;
+  (void)subpel_y_q4;
+  (void)conv_params;
+
+  if (w >= 16) {
+    assert(!((intptr_t)dst % 16));
+  }
+
+  if (w == 2) {
+    do {
+      *(uint16_t *)dst = *(uint16_t *)src;
+      src += src_stride;
+      dst += dst_stride;
+      *(uint16_t *)dst = *(uint16_t *)src;
+      src += src_stride;
+      dst += dst_stride;
+      h -= 2;
+    } while (h);
+  } else if (w == 4) {
+    do {
+      *(uint32_t *)dst = *(uint32_t *)src;
+      src += src_stride;
+      dst += dst_stride;
+      *(uint32_t *)dst = *(uint32_t *)src;
+      src += src_stride;
+      dst += dst_stride;
+      h -= 2;
+    } while (h);
+  } else if (w == 8) {
+    do {
+      copy_8(src, dst);
+      src += src_stride;
+      dst += dst_stride;
+      copy_8(src, dst);
+      src += src_stride;
+      dst += dst_stride;
+      h -= 2;
+    } while (h);
+  } else if (w == 16) {
+    do {
+      copy_16(src, dst);
+      src += src_stride;
+      dst += dst_stride;
+      copy_16(src, dst);
+      src += src_stride;
+      dst += dst_stride;
+      h -= 2;
+    } while (h);
+  } else if (w == 32) {
+    do {
+      copy_32(src, dst);
+      src += src_stride;
+      dst += dst_stride;
+      copy_32(src, dst);
+      src += src_stride;
+      dst += dst_stride;
+      h -= 2;
+    } while (h);
+  } else if (w == 64) {
+    do {
+      copy_64(src, dst);
+      src += src_stride;
+      dst += dst_stride;
+    } while (--h);
+#if CONFIG_EXT_PARTITION
+  } else {
+    do {
+      copy_64(src + 0 * 64, dst + 0 * 64);
+      copy_64(src + 1 * 64, dst + 1 * 64);
+      src += src_stride;
+      dst += dst_stride;
+    } while (--h);
+#endif  // CONFIG_EXT_PARTITION
+  }
+}
+
 #if CONFIG_JNT_COMP
 void av1_jnt_convolve_2d_copy_sse2(const uint8_t *src, int src_stride,
                                    uint8_t *dst0, int dst_stride0, int w, int h,
