@@ -114,6 +114,10 @@ SAD128XN 128     ; sad128x128_sse2
 SAD128XN 128, 1  ; sad128x128_avg_sse2
 SAD128XN 64      ; sad128x64_sse2
 SAD128XN 64, 1   ; sad128x64_avg_sse2
+%if CONFIG_EXT_PARTITION_TYPES
+SAD128XN 32       ; sad128x32_sse2
+SAD128XN 32, 1    ; sad128x32_avg_sse2
+%endif
 %endif
 
 
@@ -213,6 +217,10 @@ SAD32XN 64, 1 ; sad32x64_avg_sse2
 SAD32XN 32, 1 ; sad32x32_avg_sse2
 SAD32XN 16, 1 ; sad32x16_avg_sse2
 %if CONFIG_EXT_PARTITION_TYPES
+%if CONFIG_EXT_PARTITION
+SAD32XN 128 ; sad_32x128_sse2
+SAD32XN 128, 1 ; sad_32x128_avg_sse2
+%endif
 SAD32XN 8 ; sad_32x8_sse2
 SAD32XN 8, 1 ; sad_32x8_avg_sse2
 %endif

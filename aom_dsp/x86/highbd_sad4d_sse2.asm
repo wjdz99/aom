@@ -275,6 +275,12 @@ cglobal highbd_sad%1x%2x4d, 4, 7, 8, src, src_stride, ref1, ref_stride, \
 
 
 INIT_XMM sse2
+%if CONFIG_EXT_PARTITION
+HIGH_SADNXN4D 64,  128
+%if CONFIG_EXT_PARTITION_TYPES
+HIGH_SADNXN4D 32,  128
+%endif
+%endif
 HIGH_SADNXN4D 64, 64
 HIGH_SADNXN4D 64, 32
 HIGH_SADNXN4D 32, 64
