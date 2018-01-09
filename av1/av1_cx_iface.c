@@ -1277,6 +1277,7 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
 
     // Set up internal flags
     if (ctx->base.init_flags & AOM_CODEC_USE_PSNR) cpi->b_calculate_psnr = 1;
+    if (ctx->base.init_flags & AOM_CODEC_USE_RECON) cpi->b_output_recon = 1;
 
     if (img != NULL) {
       YV12_BUFFER_CONFIG sd;
@@ -1757,11 +1758,11 @@ static aom_codec_enc_cfg_map_t encoder_usage_cfg_map[] = {
 CODEC_INTERFACE(aom_codec_av1_cx) = {
   "AOMedia Project AV1 Encoder" VERSION_STRING,
   AOM_CODEC_INTERNAL_ABI_VERSION,
-  AOM_CODEC_CAP_HIGHBITDEPTH | AOM_CODEC_CAP_ENCODER |
-      AOM_CODEC_CAP_PSNR,  // aom_codec_caps_t
-  encoder_init,            // aom_codec_init_fn_t
-  encoder_destroy,         // aom_codec_destroy_fn_t
-  encoder_ctrl_maps,       // aom_codec_ctrl_fn_map_t
+  AOM_CODEC_CAP_HIGHBITDEPTH | AOM_CODEC_CAP_ENCODER | AOM_CODEC_CAP_PSNR |
+      AOM_CODEC_CAP_RECON,  // aom_codec_caps_t
+  encoder_init,             // aom_codec_init_fn_t
+  encoder_destroy,          // aom_codec_destroy_fn_t
+  encoder_ctrl_maps,        // aom_codec_ctrl_fn_map_t
   {
       // NOLINT
       NULL,  // aom_codec_peek_si_fn_t
