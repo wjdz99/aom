@@ -84,17 +84,37 @@ static void set_good_speed_feature_framesize_dependent(AV1_COMP *cpi,
                                                        int speed) {
   AV1_COMMON *const cm = &cpi->common;
 
+  // sf->partition_search_breakout_thr.dist is set for a superblock, that needs
+  // to be adjusted based on actual superblock size. Scale up the value for
+  // 128x128 superblock.
+  int scf = 2 * (MAX_SB_SIZE_LOG2 - 6);
+
+  // Speed 0 features
+  sf->partition_search_breakout_thr.dist = (1 << (20 + scf));
+  sf->partition_search_breakout_thr.rate = 80;
+
+  if (speed >= 1) {
+    if (AOMMIN(cm->width, cm->height) >= 720) {
+      sf->disable_split_mask =
+          cm->show_frame ? DISABLE_ALL_SPLIT : DISABLE_ALL_INTER_SPLIT;
+      sf->partition_search_breakout_thr.dist = (1 << (23 + scf));
+    } else {
+      sf->disable_split_mask = DISABLE_COMPOUND_SPLIT;
+      sf->partition_search_breakout_thr.dist = (1 << (21 + scf));
+    }
+  }
+
   if (speed >= 2) {
     if (AOMMIN(cm->width, cm->height) >= 720) {
       sf->disable_split_mask =
           cm->show_frame ? DISABLE_ALL_SPLIT : DISABLE_ALL_INTER_SPLIT;
       sf->adaptive_pred_interp_filter = 0;
-      sf->partition_search_breakout_dist_thr = (1 << 24);
-      sf->partition_search_breakout_rate_thr = 120;
+      sf->partition_search_breakout_thr.dist = (1 << (24 + scf));
+      sf->partition_search_breakout_thr.rate = 120;
     } else {
       sf->disable_split_mask = LAST_AND_INTRA_SPLIT_ONLY;
-      sf->partition_search_breakout_dist_thr = (1 << 22);
-      sf->partition_search_breakout_rate_thr = 100;
+      sf->partition_search_breakout_thr.dist = (1 << (22 + scf));
+      sf->partition_search_breakout_thr.rate = 100;
     }
     sf->rd_auto_partition_min_limit = set_partition_min_limit(cm);
   }
@@ -103,14 +123,14 @@ static void set_good_speed_feature_framesize_dependent(AV1_COMP *cpi,
     if (AOMMIN(cm->width, cm->height) >= 720) {
       sf->disable_split_mask = DISABLE_ALL_SPLIT;
       sf->schedule_mode_search = cm->base_qindex < 220 ? 1 : 0;
-      sf->partition_search_breakout_dist_thr = (1 << 25);
-      sf->partition_search_breakout_rate_thr = 200;
+      sf->partition_search_breakout_thr.dist = (1 << (25 + scf));
+      sf->partition_search_breakout_thr.rate = 200;
     } else {
       sf->max_intra_bsize = BLOCK_32X32;
       sf->disable_split_mask = DISABLE_ALL_INTER_SPLIT;
       sf->schedule_mode_search = cm->base_qindex < 175 ? 1 : 0;
-      sf->partition_search_breakout_dist_thr = (1 << 23);
-      sf->partition_search_breakout_rate_thr = 120;
+      sf->partition_search_breakout_thr.dist = (1 << (23 + scf));
+      sf->partition_search_breakout_thr.rate = 120;
     }
   }
 
@@ -124,10 +144,11 @@ static void set_good_speed_feature_framesize_dependent(AV1_COMP *cpi,
   }
 
   if (speed >= 4) {
+    sf->partition_search_breakout_thr.rate = 300;
     if (AOMMIN(cm->width, cm->height) >= 720) {
-      sf->partition_search_breakout_dist_thr = (1 << 26);
+      sf->partition_search_breakout_thr.dist = (1 << (26 + scf));
     } else {
-      sf->partition_search_breakout_dist_thr = (1 << 24);
+      sf->partition_search_breakout_thr.dist = (1 << (24 + scf));
     }
     sf->disable_split_mask = DISABLE_ALL_SPLIT;
   }
@@ -199,7 +220,6 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
 #endif
 
     sf->tx_size_search_breakout = 1;
-    sf->partition_search_breakout_rate_thr = 80;
 
     // Use transform domain distortion.
     // Note var-tx expt always uses pixel domain distortion.
@@ -269,7 +289,6 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->disable_filter_search_var_thresh = 200;
     sf->use_fast_coef_updates = ONE_LOOP_REDUCED;
     sf->use_fast_coef_costing = 1;
-    sf->partition_search_breakout_rate_thr = 300;
   }
 
   if (speed >= 6) {
@@ -285,7 +304,6 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
       sf->intra_uv_mode_mask[i] = INTRA_DC;
 #endif  // CONFIG_CFL
     }
-    sf->partition_search_breakout_rate_thr = 500;
     sf->mv.reduce_first_step_size = 1;
     sf->simple_model_rd_from_var = 1;
   }
@@ -333,6 +351,15 @@ void av1_set_speed_features_framesize_dependent(AV1_COMP *cpi) {
   AV1_COMMON *const cm = &cpi->common;
   RD_OPT *const rd = &cpi->rd;
   int i;
+
+  // best quality defaults
+  // (yunqing): need to test to see if the following setting would hurt best
+  // quality mode coding performance.
+  // sf->partition_search_breakout_thr.dist =
+  //    (1 << (19 + 2 * (MAX_SB_SIZE_LOG2 - 6)));
+  // sf->partition_search_breakout_thr.rate = 80;
+  sf->partition_search_breakout_thr.dist = 0;
+  sf->partition_search_breakout_thr.rate = 0;
 
   // Limit memory usage for high resolutions
   // TODO(zoeliu): Temporary solution to resolve the insufficient RAM issue for
@@ -503,8 +530,6 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi) {
   sf->recode_tolerance = 25;
   sf->default_interp_filter = SWITCHABLE;
   sf->tx_size_search_breakout = 0;
-  sf->partition_search_breakout_dist_thr = 0;
-  sf->partition_search_breakout_rate_thr = 0;
   sf->simple_model_rd_from_var = 0;
 #if CONFIG_EXT_PARTITION_TYPES
   sf->prune_ext_partition_types_search = 0;
@@ -524,12 +549,6 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi) {
 #endif
       )
     set_good_speed_features_framesize_independent(cpi, sf, oxcf->speed);
-
-  // sf->partition_search_breakout_dist_thr is set assuming max 64x64
-  // blocks. Normalise this if the blocks are bigger.
-  if (MAX_SB_SIZE_LOG2 > 6) {
-    sf->partition_search_breakout_dist_thr <<= 2 * (MAX_SB_SIZE_LOG2 - 6);
-  }
 
   cpi->full_search_sad = av1_full_search_sad;
   cpi->diamond_search_sad = av1_diamond_search_sad;

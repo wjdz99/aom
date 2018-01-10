@@ -2439,11 +2439,11 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
       if (this_rdc.rdcost < best_rdc.rdcost) {
         // Adjust dist breakout threshold according to the partition size.
         const int64_t dist_breakout_thr =
-            cpi->sf.partition_search_breakout_dist_thr >>
+            cpi->sf.partition_search_breakout_thr.dist >>
             ((2 * (MAX_SB_SIZE_LOG2 - 2)) -
              (b_width_log2_lookup[bsize] + b_height_log2_lookup[bsize]));
         const int rate_breakout_thr =
-            cpi->sf.partition_search_breakout_rate_thr *
+            cpi->sf.partition_search_breakout_thr.rate *
             num_pels_log2_lookup[bsize];
 
         best_rdc = this_rdc;
