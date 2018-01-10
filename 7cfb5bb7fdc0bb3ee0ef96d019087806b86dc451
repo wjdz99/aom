@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "3b55c73b_9746d19b",
+        "filename": "av1/common/cfl_avx2.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 8439
+      },
+      "writtenOn": "2018-01-10T15:03:11Z",
+      "side": 1,
+      "message": "I was just chatting with Maxym about this. On KBL, the extract is faster because it has a lower latency than the cast + store (1 cycle (extract) versus 1 cycle (cast) + .5 cycle (movq) \u003d 1.5 cycles). Maxym and I prefer the extract for readability as used for the 4 width case. Note that mileage will vary slightly according to the processor being run on.",
+      "parentUuid": "d87e2267_66ba5736",
+      "range": {
+        "startLine": 135,
+        "startChar": 6,
+        "endLine": 135,
+        "endChar": 68
+      },
+      "revId": "7cfb5bb7fdc0bb3ee0ef96d019087806b86dc451",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "6a029a57_2b8b1257",
         "filename": "av1/common/cfl_ssse3.c",
         "patchSetId": 16
