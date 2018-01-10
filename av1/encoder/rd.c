@@ -461,10 +461,18 @@ static void set_block_thresholds(const AV1_COMMON *cm, RD_OPT *rd) {
       const int t = q * rd_thresh_block_size_factor[bsize];
       const int thresh_max = INT_MAX / t;
 
-      for (i = 0; i < MAX_MODES; ++i)
-        rd->threshes[segment_id][bsize][i] = rd->thresh_mult[i] < thresh_max
-                                                 ? rd->thresh_mult[i] * t / 4
-                                                 : INT_MAX;
+      if (bsize >= BLOCK_8X8) {
+        for (i = 0; i < MAX_MODES; ++i)
+          rd->threshes[segment_id][bsize][i] = rd->thresh_mult[i] < thresh_max
+                                                   ? rd->thresh_mult[i] * t / 4
+                                                   : INT_MAX;
+      } else {
+        for (i = 0; i < MAX_REFS; ++i)
+          rd->threshes[segment_id][bsize][i] =
+              rd->thresh_mult_sub8x8[i] < thresh_max
+                  ? rd->thresh_mult_sub8x8[i] * t / 4
+                  : INT_MAX;
+      }
     }
   }
 }

@@ -83,15 +83,16 @@ enum {
 };
 
 enum {
-  DISABLE_ALL_INTER_SPLIT = (1 << THR_COMP_GA) | (1 << THR_COMP_LA) |
-                            (1 << THR_ALTR) | (1 << THR_GOLD) | (1 << THR_LAST),
-
+  DISABLE_COMPOUND_SPLIT =
+      (1 << THR_COMP_LA) | (1 << THR_COMP_L2A) | (1 << THR_COMP_L3A) |
+      (1 << THR_COMP_GA) | (1 << THR_COMP_LB) | (1 << THR_COMP_L2B) |
+      (1 << THR_COMP_L3B) | (1 << THR_COMP_GB) | (1 << THR_COMP_LA2) |
+      (1 << THR_COMP_L2A2) | (1 << THR_COMP_L3A2) | (1 << THR_COMP_GA2),
+  LAST_AND_INTRA_SPLIT_ONLY =
+      (1 << THR_LAST2) | (1 << THR_LAST3) | (1 << THR_BWDR) | (1 << THR_ALTR2) |
+      (1 << THR_GOLD) | (1 << THR_ALTR) | DISABLE_COMPOUND_SPLIT,
+  DISABLE_ALL_INTER_SPLIT = (1 << THR_LAST) | LAST_AND_INTRA_SPLIT_ONLY,
   DISABLE_ALL_SPLIT = (1 << THR_INTRA) | DISABLE_ALL_INTER_SPLIT,
-
-  DISABLE_COMPOUND_SPLIT = (1 << THR_COMP_GA) | (1 << THR_COMP_LA),
-
-  LAST_AND_INTRA_SPLIT_ONLY = (1 << THR_COMP_GA) | (1 << THR_COMP_LA) |
-                              (1 << THR_ALTR) | (1 << THR_GOLD)
 };
 
 typedef enum {
