@@ -2439,11 +2439,11 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
       if (this_rdc.rdcost < best_rdc.rdcost) {
         // Adjust dist breakout threshold according to the partition size.
         const int64_t dist_breakout_thr =
-            cpi->sf.partition_search_breakout_dist_thr >>
+            cpi->sf.partition_search_breakout_thr.dist >>
             ((2 * (MAX_SB_SIZE_LOG2 - 2)) -
              (b_width_log2_lookup[bsize] + b_height_log2_lookup[bsize]));
         const int rate_breakout_thr =
-            cpi->sf.partition_search_breakout_rate_thr *
+            cpi->sf.partition_search_breakout_thr.rate *
             num_pels_log2_lookup[bsize];
 
         best_rdc = this_rdc;
@@ -2455,8 +2455,10 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
         // The dist & rate thresholds are set to 0 at speed 0 to disable the
         // early termination at that speed.
         if (!x->e_mbd.lossless[xd->mi[0]->mbmi.segment_id] &&
-            (ctx_none->skippable && best_rdc.dist < dist_breakout_thr &&
-             best_rdc.rate < rate_breakout_thr)) {
+            ctx_none->skippable &&
+            ((best_rdc.dist < (dist_breakout_thr >> 2)) ||
+             (best_rdc.dist < dist_breakout_thr &&
+              best_rdc.rate < rate_breakout_thr))) {
           do_square_split = 0;
           do_rectangular_split = 0;
         }
