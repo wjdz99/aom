@@ -580,6 +580,8 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
     if (args->enable_optimize_b) {
       av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize,
                       tx_size, AV1_XFORM_QUANT_FP);
+      av1_optimize_b(args->cpi, x, plane, blk_row, blk_col, block, plane_bsize,
+                     tx_size, a, l, CONFIG_LV_MAP);
     } else {
       av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize,
                       tx_size, AV1_XFORM_QUANT_B);
@@ -587,9 +589,6 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
   } else {
     p->eobs[block] = 0;
   }
-
-  av1_optimize_b(args->cpi, x, plane, blk_row, blk_col, block, plane_bsize,
-                 tx_size, a, l, CONFIG_LV_MAP);
 
   av1_set_txb_context(x, plane, block, tx_size, a, l);
 
