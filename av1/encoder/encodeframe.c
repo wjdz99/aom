@@ -610,6 +610,144 @@ static int set_segment_rdmult(const AV1_COMP *const cpi, MACROBLOCK *const x,
   return av1_compute_rd_mult(cpi, segment_qindex + cm->y_dc_delta_q);
 }
 
+// NOTE(zoeliu): For partitions HorzA, HorzB, VertA, and VerB, skip the
+static void rd_use_sb_modes(const AV1_COMP *const cpi, TileDataEnc *tile_data,
+                            MACROBLOCK *const x, int mi_row, int mi_col,
+                            RD_STATS *rd_cost,
+#if CONFIG_EXT_PARTITION_TYPES
+                            PARTITION_TYPE partition,
+#endif
+                            BLOCK_SIZE bsize, PICK_MODE_CONTEXT *ctx,
+                            int64_t best_rd) {
+  const AV1_COMMON *const cm = &cpi->common;
+  TileInfo *const tile_info = &tile_data->tile_info;
+  MACROBLOCKD *const xd = &x->e_mbd;
+  MB_MODE_INFO *mbmi;
+#if 0
+  struct macroblock_plane *const p = x->plane;
+  struct macroblockd_plane *const pd = xd->plane;
+  int i;
+#endif  // 0
+  const AQ_MODE aq_mode = cpi->oxcf.aq_mode;
+  int orig_rdmult;
+
+  aom_clear_system_state();
+  (void)best_rd;
+
+  set_offsets(cpi, tile_info, x, mi_row, mi_col, bsize);
+
+  // Copy over the mbmi
+  MODE_INFO *mi = xd->mi[0];
+  *mi = ctx->mic;
+  mbmi = &mi->mbmi;
+
+  // Sanity check
+  assert(mbmi->sb_type == bsize);
+
+#if CONFIG_RD_DEBUG
+  mbmi->mi_row = mi_row;
+  mbmi->mi_col = mi_col;
+#endif  // CONFIG_RD_DEBUG
+  // Set up partition
+  mbmi->partition = partition;
+
+// TODO(zoeliu): To re-evaluate whether following is needed. Duplicate
+//               assignments may occur in update_state().
+#if 0
+  for (i = 0; i < MAX_MB_PLANE; ++i) {
+    p[i].coeff = ctx->coeff[i];
+    p[i].qcoeff = ctx->qcoeff[i];
+    pd[i].dqcoeff = ctx->dqcoeff[i];
+    p[i].eobs = ctx->eobs[i];
+#if CONFIG_LV_MAP
+    p[i].txb_entropy_ctx = ctx->txb_entropy_ctx[i];
+#endif
+  }
+
+  for (i = 0; i < 2; ++i) pd[i].color_index_map = ctx->color_index_map[i];
+#endif  // 0
+
+// TODO(zoeliu): To collect ctx->skippable when the rd_mode was firstly
+//               evaluated and stored.
+#if 1
+  ctx->skippable = 0;
+#endif  // 1
+
+// NOTE(zoeliu): Not to overwrite the assigned mbmi->skip.
+#if 0
+  // Set to zero to make sure we do not use the previous encoded frame stats
+  mbmi->skip = 0;
+#endif  // 0
+
+  x->skip_chroma_rd =
+      !is_chroma_reference(mi_row, mi_col, bsize, xd->plane[1].subsampling_x,
+                           xd->plane[1].subsampling_y);
+
+  if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
+    x->source_variance = av1_high_get_sby_perpixel_variance(
+        cpi, &x->plane[0].src, bsize, xd->bd);
+  } else {
+    x->source_variance =
+        av1_get_sby_perpixel_variance(cpi, &x->plane[0].src, bsize);
+  }
+
+  // Save rdmult before it might be changed, so it can be restored later.
+  orig_rdmult = x->rdmult;
+
+  if (aq_mode == VARIANCE_AQ) {
+    if (cpi->vaq_refresh) {
+      const int energy =
+          bsize <= BLOCK_16X16 ? x->mb_energy : av1_block_energy(cpi, x, bsize);
+      mbmi->segment_id = av1_vaq_segment_id(energy);
+      // Re-initialise quantiser
+      av1_init_plane_quantizers(cpi, x, mbmi->segment_id);
+    }
+    x->rdmult = set_segment_rdmult(cpi, x, mbmi->segment_id);
+  } else if (aq_mode == COMPLEXITY_AQ) {
+    x->rdmult = set_segment_rdmult(cpi, x, mbmi->segment_id);
+  } else if (aq_mode == CYCLIC_REFRESH_AQ) {
+    // If segment is boosted, use rdmult for that segment.
+    if (cyclic_refresh_segment_id_boosted(mbmi->segment_id))
+      x->rdmult = av1_cyclic_refresh_get_rdmult(cpi->cyclic_refresh);
+  }
+
+// NOTE(zoeliu): Skip the rd pick stage and use the pre-set modes. But the rd
+//               cost needs to be re-calculated: rd_cost->rate, rd_cost->dist.
+#if 0
+  // Find best coding mode & reconstruct the MB so it is available
+  // as a predictor for MBs that follow in the SB
+  if (frame_is_intra_only(cm)) {
+    av1_rd_pick_intra_mode_sb(cpi, x, rd_cost, bsize, ctx, best_rd);
+  } else {
+    if (segfeature_active(&cm->seg, mbmi->segment_id, SEG_LVL_SKIP)) {
+      av1_rd_pick_inter_mode_sb_seg_skip(cpi, tile_data, x, mi_row, mi_col,
+                                         rd_cost, bsize, ctx, best_rd);
+    } else {
+      av1_rd_pick_inter_mode_sb(cpi, tile_data, x, mi_row, mi_col, rd_cost,
+                                bsize, ctx, best_rd);
+    }
+  }
+#endif  // 0
+
+  // Examine the resulting rate and for AQ mode 2 make a segment choice.
+  if ((rd_cost->rate != INT_MAX) && (aq_mode == COMPLEXITY_AQ) &&
+      (bsize >= BLOCK_16X16) &&
+      (cm->frame_type == KEY_FRAME || cpi->refresh_alt_ref_frame ||
+       cpi->refresh_alt2_ref_frame ||
+       (cpi->refresh_golden_frame && !cpi->rc.is_src_frame_alt_ref))) {
+    av1_caq_select_segment(cpi, x, bsize, mi_row, mi_col, rd_cost->rate);
+  }
+
+  x->rdmult = orig_rdmult;
+
+  // TODO(jingning) The rate-distortion optimization flow needs to be
+  // refactored to provide proper exit/return handle.
+  if (rd_cost->rate == INT_MAX) rd_cost->rdcost = INT64_MAX;
+
+  ctx->rate = rd_cost->rate;
+  ctx->dist = rd_cost->dist;
+}
+
 static void rd_pick_sb_modes(const AV1_COMP *const cpi, TileDataEnc *tile_data,
                              MACROBLOCK *const x, int mi_row, int mi_col,
                              RD_STATS *rd_cost,
