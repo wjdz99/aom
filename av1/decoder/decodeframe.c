@@ -2789,12 +2789,12 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
         cm->use_ref_frame_mvs = aom_rb_read_bit(rb);
       else
         cm->use_ref_frame_mvs = 0;
-
       cm->prev_frame =
           cm->frame_refs[LAST_FRAME - LAST_FRAME].idx != INVALID_IDX
               ? &cm->buffer_pool
                      ->frame_bufs[cm->frame_refs[LAST_FRAME - LAST_FRAME].idx]
               : NULL;
+
       cm->use_prev_frame_mvs =
           cm->use_ref_frame_mvs && frame_can_use_prev_frame_mvs(cm);
 #if CONFIG_SEGMENT_PRED_LAST
