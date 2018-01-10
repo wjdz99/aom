@@ -2789,7 +2789,6 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
         cm->use_ref_frame_mvs = aom_rb_read_bit(rb);
       else
         cm->use_ref_frame_mvs = 0;
-
       cm->prev_frame =
           cm->frame_refs[LAST_FRAME - LAST_FRAME].idx != INVALID_IDX
               ? &cm->buffer_pool
