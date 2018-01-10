@@ -34,6 +34,24 @@
       "revId": "b4d6b1c1535c8ca308160fdc6c9e23764e55cbab",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b3149fa3_4886f80c",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-01-10T20:39:56Z",
+      "side": 1,
+      "message": "assume 8-bit addresses for simplicity:\n\nstart:\ndata \u003d 0xfc\ndata_end \u003d 0xfe\ndata \u003c data_end \u003d\u003d true\nsize \u003d 4\ndata +\u003d 4\ndata \u003c data_end \u003d\u003d true",
+      "parentUuid": "8b92da77_e359a44b",
+      "revId": "b4d6b1c1535c8ca308160fdc6c9e23764e55cbab",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
