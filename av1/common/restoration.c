@@ -1779,13 +1779,11 @@ static void save_deblock_boundary_lines(
       av1_highbd_convolve_horiz_rs(
           (uint16_t *)src_rows, src_stride >> 1, (uint16_t *)bdry_rows,
           bdry_stride >> 1, upscaled_width, RESTORATION_CTX_VERT,
-          &av1_resize_filter_normative[0][0], UPSCALE_NORMATIVE_TAPS, 0, step,
-          cm->bit_depth);
+          &av1_resize_filter_normative[0][0], 0, step, cm->bit_depth);
     else
       av1_convolve_horiz_rs(src_rows, src_stride, bdry_rows, bdry_stride,
                             upscaled_width, RESTORATION_CTX_VERT,
-                            &av1_resize_filter_normative[0][0],
-                            UPSCALE_NORMATIVE_TAPS, 0, step);
+                            &av1_resize_filter_normative[0][0], 0, step);
   } else {
 #endif  // CONFIG_HORZONLY_FRAME_SUPERRES
     upscaled_width = src_width;
