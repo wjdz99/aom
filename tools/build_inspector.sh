@@ -22,6 +22,7 @@ EOF
   exit 1
 fi
 
+# TODO(tomfinegan@google.com): Update with cmake commands.
 echo 'Building JS Inspector'
 if [ ! -d ".inspect" ]; then
   mkdir .inspect
