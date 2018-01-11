@@ -189,6 +189,7 @@ typedef struct aom_image {
   aom_color_space_t cs;       /**< Color Space */
   aom_transfer_function_t tf; /**< transfer function */
 #endif
+  int monochrome;             /**< Whether image is monochrome */
   aom_chroma_sample_position_t csp; /**< chroma sample position */
   aom_color_range_t range;          /**< Color Range */
 
