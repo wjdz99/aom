@@ -2690,68 +2690,6 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
   }
 #endif  // CONFIG_DIST_8X8
 
-  // PARTITION_SPLIT
-  if (do_square_split) {
-    av1_init_rd_stats(&sum_rdc);
-    int reached_last_index = 0;
-    subsize = get_subsize(bsize, PARTITION_SPLIT);
-    int idx;
-
-    for (idx = 0; idx < 4 && sum_rdc.rdcost < best_rdc.rdcost; ++idx) {
-      const int x_idx = (idx & 1) * mi_step;
-      const int y_idx = (idx >> 1) * mi_step;
-
-      if (mi_row + y_idx >= cm->mi_rows || mi_col + x_idx >= cm->mi_cols)
-        continue;
-
-      if (cpi->sf.adaptive_motion_search) load_pred_mv(x, ctx_none);
-
-      pc_tree->split[idx]->index = idx;
-#if CONFIG_EXT_PARTITION_TYPES
-      int64_t *p_split_rd = &split_rd[idx];
-#else
-      int64_t *p_split_rd = NULL;
-#endif  // CONFIG_EXT_PARTITION_TYPES
-      rd_pick_partition(cpi, td, tile_data, tp, mi_row + y_idx, mi_col + x_idx,
-                        subsize, &this_rdc, best_rdc.rdcost - sum_rdc.rdcost,
-                        pc_tree->split[idx], p_split_rd);
-
-      if (this_rdc.rate == INT_MAX) {
-        sum_rdc.rdcost = INT64_MAX;
-        break;
-      } else {
-        sum_rdc.rate += this_rdc.rate;
-        sum_rdc.dist += this_rdc.dist;
-        sum_rdc.rdcost += this_rdc.rdcost;
-      }
-    }
-    reached_last_index = (idx == 4);
-
-#if CONFIG_DIST_8X8
-    if (x->using_dist_8x8 && reached_last_index &&
-        sum_rdc.rdcost != INT64_MAX && bsize == BLOCK_8X8) {
-      sum_rdc.dist = dist_8x8_yuv(cpi, x, src_plane_8x8, dst_plane_8x8);
-      sum_rdc.rdcost = RDCOST(x->rdmult, sum_rdc.rate, sum_rdc.dist);
-    }
-#endif  // CONFIG_DIST_8X8
-
-    if (reached_last_index && sum_rdc.rdcost < best_rdc.rdcost) {
-      sum_rdc.rate += partition_cost[PARTITION_SPLIT];
-      sum_rdc.rdcost = RDCOST(x->rdmult, sum_rdc.rate, sum_rdc.dist);
-
-      if (sum_rdc.rdcost < best_rdc.rdcost) {
-        best_rdc = sum_rdc;
-        pc_tree->partitioning = PARTITION_SPLIT;
-      }
-    } else if (cpi->sf.less_rectangular_check) {
-      // skip rectangular partition test when larger block size
-      // gives better rd cost
-      do_rectangular_split &= !partition_none_allowed;
-    }
-
-    restore_context(x, &x_ctx, mi_row, mi_col, bsize);
-  }  // if (do_split)
-
   // PARTITION_HORZ
   if (partition_horz_allowed &&
       (do_rectangular_split || av1_active_h_edge(cpi, mi_row, mi_step))) {
@@ -2913,6 +2851,68 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
 
     restore_context(x, &x_ctx, mi_row, mi_col, bsize);
   }
+
+  // PARTITION_SPLIT
+  if (do_square_split) {
+    av1_init_rd_stats(&sum_rdc);
+    int reached_last_index = 0;
+    subsize = get_subsize(bsize, PARTITION_SPLIT);
+    int idx;
+
+    for (idx = 0; idx < 4 && sum_rdc.rdcost < best_rdc.rdcost; ++idx) {
+      const int x_idx = (idx & 1) * mi_step;
+      const int y_idx = (idx >> 1) * mi_step;
+
+      if (mi_row + y_idx >= cm->mi_rows || mi_col + x_idx >= cm->mi_cols)
+        continue;
+
+      if (cpi->sf.adaptive_motion_search) load_pred_mv(x, ctx_none);
+
+      pc_tree->split[idx]->index = idx;
+#if CONFIG_EXT_PARTITION_TYPES
+      int64_t *p_split_rd = &split_rd[idx];
+#else
+      int64_t *p_split_rd = NULL;
+#endif  // CONFIG_EXT_PARTITION_TYPES
+      rd_pick_partition(cpi, td, tile_data, tp, mi_row + y_idx, mi_col + x_idx,
+                        subsize, &this_rdc, best_rdc.rdcost - sum_rdc.rdcost,
+                        pc_tree->split[idx], p_split_rd);
+
+      if (this_rdc.rate == INT_MAX) {
+        sum_rdc.rdcost = INT64_MAX;
+        break;
+      } else {
+        sum_rdc.rate += this_rdc.rate;
+        sum_rdc.dist += this_rdc.dist;
+        sum_rdc.rdcost += this_rdc.rdcost;
+      }
+    }
+    reached_last_index = (idx == 4);
+
+#if CONFIG_DIST_8X8
+    if (x->using_dist_8x8 && reached_last_index &&
+        sum_rdc.rdcost != INT64_MAX && bsize == BLOCK_8X8) {
+      sum_rdc.dist = dist_8x8_yuv(cpi, x, src_plane_8x8, dst_plane_8x8);
+      sum_rdc.rdcost = RDCOST(x->rdmult, sum_rdc.rate, sum_rdc.dist);
+    }
+#endif  // CONFIG_DIST_8X8
+
+    if (reached_last_index && sum_rdc.rdcost < best_rdc.rdcost) {
+      sum_rdc.rate += partition_cost[PARTITION_SPLIT];
+      sum_rdc.rdcost = RDCOST(x->rdmult, sum_rdc.rate, sum_rdc.dist);
+
+      if (sum_rdc.rdcost < best_rdc.rdcost) {
+        best_rdc = sum_rdc;
+        pc_tree->partitioning = PARTITION_SPLIT;
+      }
+    } else if (cpi->sf.less_rectangular_check) {
+      // skip rectangular partition test when larger block size
+      // gives better rd cost
+      do_rectangular_split &= !partition_none_allowed;
+    }
+
+    restore_context(x, &x_ctx, mi_row, mi_col, bsize);
+  }  // if (do_split)
 
 #if CONFIG_EXT_PARTITION_TYPES
   const int ext_partition_allowed =
