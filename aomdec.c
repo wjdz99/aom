@@ -909,8 +909,8 @@ static int main_loop(int argc, const char **argv_) {
       aom_input_ctx.height = img->d_h;
 #endif  // CONFIG_EXT_TILE
 
-#if CONFIG_MONO_VIDEO && !CONFIG_CICP
-      int num_planes = (!use_y4m && img->cs == AOM_CS_MONOCHROME) ? 1 : 3;
+#if CONFIG_MONO_VIDEO
+      int num_planes = (!use_y4m && img->monochrome) ? 1 : 3;
 #else
       int num_planes = 3;
 #endif
