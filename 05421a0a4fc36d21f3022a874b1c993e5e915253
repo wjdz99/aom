@@ -237,6 +237,30 @@
     },
     {
       "key": {
+        "uuid": "202d3c4c_3e866c66",
+        "filename": "av1/common/x86/selfguided_avx2.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 209,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2018-01-11T20:43:28Z",
+      "side": 1,
+      "message": "Which variable is the uninitialized one? Is it possible that you can declare and initialize the variables outside the for loop and use them here to reduce overhead? If the uninitialized issue can be handled, it is better.",
+      "parentUuid": "3960e871_db8189aa",
+      "range": {
+        "startLine": 209,
+        "startChar": 4,
+        "endLine": 209,
+        "endChar": 16
+      },
+      "revId": "05421a0a4fc36d21f3022a874b1c993e5e915253",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "23595443_9884d3bc",
         "filename": "av1/common/x86/selfguided_avx2.c",
         "patchSetId": 3
@@ -272,6 +296,30 @@
       "side": 1,
       "message": "When I profiled the SSE version, this test wasn\u0027t a significant fraction of cycles.\n\nThe branch gets predicted perfectly (since highbd is constant across the function call and the loop runs lots of times) so this basically just adds two instructions of front-end work and costs a single general-purpose register (there are lots free). This is cheap enough that the work seems to get lost in the noise.",
       "parentUuid": "23595443_9884d3bc",
+      "range": {
+        "startLine": 422,
+        "startChar": 6,
+        "endLine": 422,
+        "endChar": 19
+      },
+      "revId": "05421a0a4fc36d21f3022a874b1c993e5e915253",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ebfadf3e_2f352005",
+        "filename": "av1/common/x86/selfguided_avx2.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 422,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2018-01-11T20:43:28Z",
+      "side": 1,
+      "message": "Sorry that I didn\u0027t state it clearly. I was thinking we could have a separate lbd version of av1_selfguided_restoration. Currently, it seems you always unpack the pixel data to 32 bits. If we know the pixel is 1 byte(lbd case), in selfguided function (or at least part of the function), 16 bits might be enough for the calculation result. Namely, processing more in 1 simd instruction. Do you think if it is possible?",
+      "parentUuid": "ef6683cc_0eedac13",
       "range": {
         "startLine": 422,
         "startChar": 6,
