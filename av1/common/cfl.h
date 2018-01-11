@@ -20,7 +20,12 @@ typedef void (*cfl_subsample_lbd_fn)(const uint8_t *input, int input_stride,
 static INLINE CFL_ALLOWED_TYPE is_cfl_allowed(const MB_MODE_INFO *mbmi) {
   const BLOCK_SIZE bsize = mbmi->sb_type;
   assert(bsize < BLOCK_SIZES_ALL);
+#if CONFIG_EXT_PARTITION_TYPES && CONFIG_RECT_TX_EXT_INTRA
+  return (CFL_ALLOWED_TYPE)(block_size_wide[bsize] <= 32 &&
+                            block_size_high[bsize] <= 32);
+#else
   return (CFL_ALLOWED_TYPE)(bsize <= CFL_MAX_BLOCK_SIZE);
+#endif  // CONFIG_EXT_PARTITION_TYPES && CONFIG_RECT_TX_EXT_INTRA
 }
 
 static INLINE int get_scaled_luma_q0(int alpha_q3, int16_t pred_buf_q3) {
