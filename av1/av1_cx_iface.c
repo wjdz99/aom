@@ -535,7 +535,9 @@ static aom_codec_err_t set_encoder_config(
   oxcf->gf_cbr_boost_pct = extra_cfg->gf_cbr_boost_pct;
 
   oxcf->best_allowed_q =
-      extra_cfg->lossless ? 0 : av1_quantizer_to_qindex(cfg->rc_min_quantizer);
+      extra_cfg->lossless
+          ? 0
+          : AOMMAX(av1_quantizer_to_qindex(cfg->rc_min_quantizer), 1);
   oxcf->worst_allowed_q =
       extra_cfg->lossless ? 0 : av1_quantizer_to_qindex(cfg->rc_max_quantizer);
   oxcf->cq_level = av1_quantizer_to_qindex(extra_cfg->cq_level);
