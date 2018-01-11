@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e112e7d4_3b3255ba",
+        "filename": "av1/common/pred_common.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 353,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2018-01-11T20:26:51Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 353,
+        "startChar": 6,
+        "endLine": 353,
+        "endChar": 9
+      },
+      "revId": "805ff39d6fc95e758dd846e3254dbcb3f4e553f2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
