@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e4ad951f_1d700402",
+        "filename": "av1/common/pred_common.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 348,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-01-11T19:39:34Z",
+      "side": 0,
+      "message": "Looks like you removed \u0027TX_SIZE_LUMA_MIN\u0027 from the calculations? Should be OK though, as it\u0027s always 0.",
+      "revId": "9e69463febe0ee8525cb5a99ee5f9f11286581f1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
