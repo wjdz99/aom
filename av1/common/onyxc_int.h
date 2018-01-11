@@ -740,7 +740,7 @@ void cfl_init(CFL_CTX *cfl, AV1_COMMON *cm);
 
 static INLINE void av1_init_macroblockd(AV1_COMMON *cm, MACROBLOCKD *xd,
                                         tran_low_t *dqcoeff) {
-  for (int i = 0; i < MAX_MB_PLANE; ++i) {
+  for (int i = 0; i < av1_num_planes(cm); ++i) {
     xd->plane[i].dqcoeff = dqcoeff;
     xd->above_context[i] = cm->above_context[i];
     if (xd->plane[i].plane_type == PLANE_TYPE_Y) {
@@ -754,26 +754,30 @@ static INLINE void av1_init_macroblockd(AV1_COMMON *cm, MACROBLOCKD *xd,
       memcpy(xd->plane[i].seg_dequant_nuq_QTX, cm->y_dequant_nuq_QTX,
              sizeof(cm->y_dequant_nuq_QTX));
 #endif
-    } else if (xd->plane[i].plane_type == 1) {
-      memcpy(xd->plane[i].seg_dequant_QTX, cm->u_dequant_QTX,
-             sizeof(cm->u_dequant_QTX));
-#if CONFIG_AOM_QM
-      memcpy(xd->plane[i].seg_iqmatrix, cm->u_iqmatrix, sizeof(cm->u_iqmatrix));
-#endif
-#if CONFIG_NEW_QUANT
-      memcpy(xd->plane[i].seg_dequant_nuq_QTX, cm->u_dequant_nuq_QTX,
-             sizeof(cm->u_dequant_nuq_QTX));
-#endif
     } else {
-      memcpy(xd->plane[i].seg_dequant_QTX, cm->v_dequant_QTX,
-             sizeof(cm->v_dequant_QTX));
+      if (i == AOM_PLANE_U) {
+        memcpy(xd->plane[i].seg_dequant_QTX, cm->u_dequant_QTX,
+               sizeof(cm->u_dequant_QTX));
 #if CONFIG_AOM_QM
-      memcpy(xd->plane[i].seg_iqmatrix, cm->v_iqmatrix, sizeof(cm->v_iqmatrix));
+        memcpy(xd->plane[i].seg_iqmatrix, cm->u_iqmatrix,
+               sizeof(cm->u_iqmatrix));
 #endif
 #if CONFIG_NEW_QUANT
-      memcpy(xd->plane[i].seg_dequant_nuq_QTX, cm->v_dequant_nuq_QTX,
-             sizeof(cm->v_dequant_nuq_QTX));
+        memcpy(xd->plane[i].seg_dequant_nuq_QTX, cm->u_dequant_nuq_QTX,
+               sizeof(cm->u_dequant_nuq_QTX));
 #endif
+      } else {
+        memcpy(xd->plane[i].seg_dequant_QTX, cm->v_dequant_QTX,
+               sizeof(cm->v_dequant_QTX));
+#if CONFIG_AOM_QM
+        memcpy(xd->plane[i].seg_iqmatrix, cm->v_iqmatrix,
+               sizeof(cm->v_iqmatrix));
+#endif
+#if CONFIG_NEW_QUANT
+        memcpy(xd->plane[i].seg_dequant_nuq_QTX, cm->v_dequant_nuq_QTX,
+               sizeof(cm->v_dequant_nuq_QTX));
+#endif
+      }
     }
   }
   xd->fc = cm->fc;
