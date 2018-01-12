@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "61a7c0b1_3cce2c81",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2018-01-12T01:13:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "52aed6c2_0145c165",
+      "revId": "57cff023e11189ed26f1a63075fe88cc2e8d9e7b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "67c1c403_8e87cb7f",
         "filename": "av1/common/reconintra.c",
         "patchSetId": 5
@@ -30,6 +48,30 @@
       "writtenOn": "2018-01-11T22:54:39Z",
       "side": 1,
       "message": "You can write this as follows to avoid some duplication:\n\nstatic const uint8_t *const has_tr_tables[BLOCK_SIZES_ALL] \u003d {\n.....\n\t\n#if CONFIG_EXT_PARTITION\n....\n#endif\n\n....\n}",
+      "range": {
+        "startLine": 138,
+        "startChar": 0,
+        "endLine": 138,
+        "endChar": 24
+      },
+      "revId": "57cff023e11189ed26f1a63075fe88cc2e8d9e7b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d63b91b8_c4f3e588",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2018-01-12T01:13:22Z",
+      "side": 1,
+      "message": "I think it\u0027s easier to read this way; plus the ext_partition flag will be removed soon.",
+      "parentUuid": "67c1c403_8e87cb7f",
       "range": {
         "startLine": 138,
         "startChar": 0,
