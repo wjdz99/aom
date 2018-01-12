@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "a1c814b0_b1965d05",
+        "filename": "av1/decoder/decodetxb.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 354,
+      "author": {
+        "id": 6000
+      },
+      "writtenOn": "2018-01-12T05:32:37Z",
+      "side": 1,
+      "message": "That\u0027s what I did with the previous patchset, but it was refused by Jenkins.\nAs \u0027t\u0027 is a \u0027tran_high_t\u0027 (64 bits), and \u0027clamp\u0027 takes an int32. Clang sees this and emits a warning.\n\nMaybe \u0027t\u0027 shouldn\u0027t be a tran_high_t ; however let\u0027s keep this for another change list (better not to mix changes that modify behavior with those who aren\u0027t supposed to).",
+      "parentUuid": "1dd9f085_078f650e",
+      "range": {
+        "startLine": 354,
+        "startChar": 35,
+        "endLine": 354,
+        "endChar": 42
+      },
+      "revId": "51aa9788eb504870e648e592ec5c8f231fe8e431",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e947ef72_1151cf4b",
         "filename": "av1/decoder/decodetxb.c",
         "patchSetId": 3
