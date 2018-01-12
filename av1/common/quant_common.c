@@ -173,8 +173,8 @@ static INLINE uint8_t quant_to_doff_fixed(int is_ac_coeff, int q_profile) {
 }
 
 // get zero bin width
-static INLINE void get_cuml_bins_nuq(int q, int is_ac_coeff,
-                                     tran_low_t *zbin_width, int q_profile) {
+void get_cuml_bins_nuq(int q, int is_ac_coeff, tran_low_t *zbin_width,
+                       int q_profile) {
   const uint8_t zbin = get_nuq_zbin(is_ac_coeff, q_profile);
   zbin_width[0] = ROUND_POWER_OF_TWO(zbin * q, 7);
 }
@@ -196,15 +196,37 @@ void av1_get_dequant_val_nuq(int q, int is_ac_coeff, tran_low_t *dq,
   dq[2] = ROUND_POWER_OF_TWO((zbin - 64 - doff) * q, 9);
 }
 
-tran_low_t av1_dequant_abscoeff_nuq(int v, int q, const tran_low_t *dq,
+tran_low_t av1_dequant_abscoeff_nuq(int v, int q,
+#if CONFIG_AOM_QM
+                                    int q_profile, int is_ac_coeff,
+#else
+                                    const tran_low_t *dq,
+#endif  // CONFIG_AOM_QM
                                     int shift) {
   if (v == 0) return 0;
+#if CONFIG_AOM_QM
+  const uint8_t zbin = get_nuq_zbin(is_ac_coeff, q_profile);
+  const uint8_t doff = quant_to_doff_fixed(is_ac_coeff, q_profile);
+  return ((q * v) >> shift) +
+         ROUND_POWER_OF_TWO((zbin - 64 - doff) * q, 7 + shift);
+#else
   return ((q * v) >> shift) + dq[shift];
+#endif
 }
 
-tran_low_t av1_dequant_coeff_nuq(int v, int q, const tran_low_t *dq,
+tran_low_t av1_dequant_coeff_nuq(int v, int q,
+#if CONFIG_AOM_QM
+                                 int q_profile, int is_ac_coeff,
+#else
+                                 const tran_low_t *dq,
+#endif  // CONFIG_AOM_QM
                                  int shift) {
+#if CONFIG_AOM_QM
+  tran_low_t dqmag =
+      av1_dequant_abscoeff_nuq(abs(v), q, q_profile, is_ac_coeff, shift);
+#else
   tran_low_t dqmag = av1_dequant_abscoeff_nuq(abs(v), q, dq, shift);
+#endif  // CONFIG_AOM_QM
   return (v < 0 ? -dqmag : dqmag);
 }
 #endif  // CONFIG_NEW_QUANT
