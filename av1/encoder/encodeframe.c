@@ -5009,6 +5009,7 @@ static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
     if (cm->tx_mode == TX_MODE_SELECT && !xd->lossless[mbmi->segment_id] &&
         mbmi->sb_type > BLOCK_4X4 && !(is_inter && (mbmi->skip || seg_skip))) {
       if (is_inter) {
+        // TODO(now): Call for intra also?
         tx_partition_count_update(cm, x, bsize, mi_row, mi_col, td->counts,
                                   tile_data->allow_update_cdf);
       } else {

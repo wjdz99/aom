@@ -352,15 +352,21 @@ static INLINE int get_tx_size_context(const MACROBLOCKD *xd, int is_inter) {
     if (!has_left || left_mbmi->skip) {
       return 1;
     } else {
-      return 2 * tx_size_high[left_mbmi->tx_size] > max_tx_high;
+      assert(xd->left_txfm_context != NULL);
+      const TXFM_CONTEXT left_txfm_ctx = xd->left_txfm_context[0];
+      return 2 * left_txfm_ctx > max_tx_high;
     }
   } else {
     if (!has_left || left_mbmi->skip) {
-      return 2 * tx_size_wide[above_mbmi->tx_size] > max_tx_wide;
+      assert(xd->above_txfm_context != NULL);
+      const TXFM_CONTEXT above_txfm_ctx = xd->above_txfm_context[0];
+      return 2 * above_txfm_ctx > max_tx_wide;
     } else {
-      const int above_ctx = (int)tx_size_wide[above_mbmi->tx_size];
-      const int left_ctx = (int)tx_size_high[left_mbmi->tx_size];
-      return 2 * (above_ctx + left_ctx) > max_tx_wide + max_tx_high;
+      assert(xd->above_txfm_context != NULL);
+      assert(xd->left_txfm_context != NULL);
+      const TXFM_CONTEXT above_txfm_ctx = xd->above_txfm_context[0];
+      const TXFM_CONTEXT left_txfm_ctx = xd->left_txfm_context[0];
+      return 2 * (above_txfm_ctx + left_txfm_ctx) > max_tx_wide + max_tx_high;
     }
   }
 }

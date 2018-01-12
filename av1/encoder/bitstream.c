@@ -1805,25 +1805,18 @@ static void write_mbmi_b(AV1_COMP *cpi, const TileInfo *const tile,
 #endif  // CONFIG_DEPENDENT_HORZTILES
                  cm->mi_rows, cm->mi_cols);
 
+  xd->above_txfm_context =
+      cm->above_txfm_context + (mi_col << TX_UNIT_WIDE_LOG2);
+  xd->left_txfm_context = xd->left_txfm_context_buffer +
+                          ((mi_row & MAX_MIB_MASK) << TX_UNIT_HIGH_LOG2);
+
   if (frame_is_intra_only(cm)) {
-#if CONFIG_INTRABC
-    if (cm->allow_screen_content_tools) {
-      xd->above_txfm_context =
-          cm->above_txfm_context + (mi_col << TX_UNIT_WIDE_LOG2);
-      xd->left_txfm_context = xd->left_txfm_context_buffer +
-                              ((mi_row & MAX_MIB_MASK) << TX_UNIT_HIGH_LOG2);
-    }
-#endif  // CONFIG_INTRABC
     write_mb_modes_kf(cpi, xd,
 #if CONFIG_INTRABC
                       cpi->td.mb.mbmi_ext,
 #endif  // CONFIG_INTRABC
                       mi_row, mi_col, w);
   } else {
-    xd->above_txfm_context =
-        cm->above_txfm_context + (mi_col << TX_UNIT_WIDE_LOG2);
-    xd->left_txfm_context = xd->left_txfm_context_buffer +
-                            ((mi_row & MAX_MIB_MASK) << TX_UNIT_HIGH_LOG2);
     // has_subpel_mv_component needs the ref frame buffers set up to look
     // up if they are scaled. has_subpel_mv_component is in turn needed by
     // write_switchable_interp_filter, which is called by pack_inter_mode_mvs.
