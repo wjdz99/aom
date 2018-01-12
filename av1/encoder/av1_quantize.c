@@ -30,6 +30,7 @@ static INLINE int quantize_coeff_nuq(
     const int zbin, const int16_t dequant, const tran_low_t *cuml_bins_ptr,
     const tran_low_t *dequant_val, tran_low_t *qcoeff_ptr,
     tran_low_t *dqcoeff_ptr) {
+  assert(0);
   const int coeff = coeffv;
   const int coeff_sign = (coeff >> 31);
   const int abs_coeff = (coeff ^ coeff_sign) - coeff_sign;
@@ -54,6 +55,7 @@ static INLINE int quantize_coeff_bigtx_nuq(
     const int zbin, const int16_t dequant, const tran_low_t *cuml_bins_ptr,
     const tran_low_t *dequant_val, tran_low_t *qcoeff_ptr,
     tran_low_t *dqcoeff_ptr, int logsizeby16) {
+  assert(0);
   const int zbin_val = ROUND_POWER_OF_TWO(zbin, logsizeby16);
   const int coeff = coeffv;
   const int coeff_sign = (coeff >> 31);
@@ -970,6 +972,7 @@ static INLINE int highbd_quantize_coeff_nuq(
     const int zbin, const int16_t dequant, const tran_low_t *cuml_bins_ptr,
     const tran_low_t *dequant_val, tran_low_t *qcoeff_ptr,
     tran_low_t *dqcoeff_ptr) {
+  assert(0);
   const int coeff = coeffv;
   const int coeff_sign = (coeff >> 31);
   const int abs_coeff = (coeff ^ coeff_sign) - coeff_sign;
