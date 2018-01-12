@@ -250,10 +250,6 @@ void av1_iht4x4_16_add_c(const tran_low_t *input, uint8_t *dest, int stride,
   tran_low_t *outp = &out[0][0];
   int outstride = 4;
 
-#if CONFIG_DCT_ONLY
-  assert(tx_type == DCT_DCT);
-#endif
-
   // inverse transform row vectors
   for (int i = 0; i < 4; ++i) {
 #if CONFIG_DAALA_TX4
@@ -297,9 +293,6 @@ void av1_iht4x4_16_add_c(const tran_low_t *input, uint8_t *dest, int stride,
 void av1_iht4x8_32_add_c(const tran_low_t *input, uint8_t *dest, int stride,
                          const TxfmParam *txfm_param) {
   const TX_TYPE tx_type = txfm_param->tx_type;
-#if CONFIG_DCT_ONLY
-  assert(tx_type == DCT_DCT);
-#endif
   static const transform_2d IHT_4x8[] = {
 #if CONFIG_DAALA_TX4 && CONFIG_DAALA_TX8
     { daala_idct8, daala_idct4 },  // DCT_DCT  = 0
@@ -400,9 +393,6 @@ void av1_iht4x8_32_add_c(const tran_low_t *input, uint8_t *dest, int stride,
 void av1_iht8x4_32_add_c(const tran_low_t *input, uint8_t *dest, int stride,
                          const TxfmParam *txfm_param) {
   const TX_TYPE tx_type = txfm_param->tx_type;
-#if CONFIG_DCT_ONLY
-  assert(tx_type == DCT_DCT);
-#endif
   static const transform_2d IHT_8x4[] = {
 #if CONFIG_DAALA_TX4 && CONFIG_DAALA_TX8
     { daala_idct4, daala_idct8 },  // DCT_DCT  = 0
@@ -503,9 +493,6 @@ void av1_iht8x4_32_add_c(const tran_low_t *input, uint8_t *dest, int stride,
 void av1_iht4x16_64_add_c(const tran_low_t *input, uint8_t *dest, int stride,
                           const TxfmParam *txfm_param) {
   const TX_TYPE tx_type = txfm_param->tx_type;
-#if CONFIG_DCT_ONLY
-  assert(tx_type == DCT_DCT);
-#endif
   static const transform_2d IHT_4x16[] = {
     { aom_idct16_c, aom_idct4_c },    // DCT_DCT
     { aom_iadst16_c, aom_idct4_c },   // ADST_DCT
@@ -559,9 +546,6 @@ void av1_iht4x16_64_add_c(const tran_low_t *input, uint8_t *dest, int stride,
 void av1_iht16x4_64_add_c(const tran_low_t *input, uint8_t *dest, int stride,
                           const TxfmParam *txfm_param) {
   const TX_TYPE tx_type = txfm_param->tx_type;
-#if CONFIG_DCT_ONLY
-  assert(tx_type == DCT_DCT);
-#endif
   static const transform_2d IHT_16x4[] = {
     { aom_idct4_c, aom_idct16_c },    // DCT_DCT
     { aom_iadst4_c, aom_idct16_c },   // ADST_DCT
@@ -615,9 +599,6 @@ void av1_iht16x4_64_add_c(const tran_low_t *input, uint8_t *dest, int stride,
 void av1_iht8x16_128_add_c(const tran_low_t *input, uint8_t *dest, int stride,
                            const TxfmParam *txfm_param) {
   const TX_TYPE tx_type = txfm_param->tx_type;
-#if CONFIG_DCT_ONLY
-  assert(tx_type == DCT_DCT);
-#endif
   static const transform_2d IHT_8x16[] = {
 #if CONFIG_DAALA_TX8 && CONFIG_DAALA_TX16
     { daala_idct16, daala_idct8 },  // DCT_DCT  = 0
@@ -717,9 +698,6 @@ void av1_iht8x16_128_add_c(const tran_low_t *input, uint8_t *dest, int stride,
 void av1_iht16x8_128_add_c(const tran_low_t *input, uint8_t *dest, int stride,
                            const TxfmParam *txfm_param) {
   const TX_TYPE tx_type = txfm_param->tx_type;
-#if CONFIG_DCT_ONLY
-  assert(tx_type == DCT_DCT);
-#endif
   static const transform_2d IHT_16x8[] = {
 #if CONFIG_DAALA_TX8 && CONFIG_DAALA_TX16
     { daala_idct8, daala_idct16 },  // DCT_DCT  = 0
@@ -822,9 +800,6 @@ void av1_iht16x8_128_add_c(const tran_low_t *input, uint8_t *dest, int stride,
 void av1_iht8x32_256_add_c(const tran_low_t *input, uint8_t *dest, int stride,
                            const TxfmParam *txfm_param) {
   const TX_TYPE tx_type = txfm_param->tx_type;
-#if CONFIG_DCT_ONLY
-  assert(tx_type == DCT_DCT);
-#endif
   static const transform_2d IHT_8x32[] = {
     { aom_idct32_c, aom_idct8_c },     // DCT_DCT
     { ihalfright32_c, aom_idct8_c },   // ADST_DCT
@@ -878,9 +853,6 @@ void av1_iht8x32_256_add_c(const tran_low_t *input, uint8_t *dest, int stride,
 void av1_iht32x8_256_add_c(const tran_low_t *input, uint8_t *dest, int stride,
                            const TxfmParam *txfm_param) {
   const TX_TYPE tx_type = txfm_param->tx_type;
-#if CONFIG_DCT_ONLY
-  assert(tx_type == DCT_DCT);
-#endif
   static const transform_2d IHT_32x8[] = {
     { aom_idct8_c, aom_idct32_c },     // DCT_DCT
     { aom_iadst8_c, aom_idct32_c },    // ADST_DCT
@@ -934,9 +906,6 @@ void av1_iht32x8_256_add_c(const tran_low_t *input, uint8_t *dest, int stride,
 void av1_iht16x32_512_add_c(const tran_low_t *input, uint8_t *dest, int stride,
                             const TxfmParam *txfm_param) {
   const TX_TYPE tx_type = txfm_param->tx_type;
-#if CONFIG_DCT_ONLY
-  assert(tx_type == DCT_DCT);
-#endif
   static const transform_2d IHT_16x32[] = {
 #if CONFIG_DAALA_TX16 && CONFIG_DAALA_TX32
     { daala_idct32, daala_idct16 },  // DCT_DCT  = 0
@@ -1019,9 +988,6 @@ void av1_iht16x32_512_add_c(const tran_low_t *input, uint8_t *dest, int stride,
 void av1_iht32x16_512_add_c(const tran_low_t *input, uint8_t *dest, int stride,
                             const TxfmParam *txfm_param) {
   const TX_TYPE tx_type = txfm_param->tx_type;
-#if CONFIG_DCT_ONLY
-  assert(tx_type == DCT_DCT);
-#endif
   static const transform_2d IHT_32x16[] = {
 #if CONFIG_DAALA_TX16 && CONFIG_DAALA_TX32
     { daala_idct16, daala_idct32 },  // DCT_DCT  = 0
@@ -1103,9 +1069,6 @@ void av1_iht32x16_512_add_c(const tran_low_t *input, uint8_t *dest, int stride,
 void av1_iht8x8_64_add_c(const tran_low_t *input, uint8_t *dest, int stride,
                          const TxfmParam *txfm_param) {
   const TX_TYPE tx_type = txfm_param->tx_type;
-#if CONFIG_DCT_ONLY
-  assert(tx_type == DCT_DCT);
-#endif
   static const transform_2d IHT_8[] = {
 #if CONFIG_DAALA_TX8
     { daala_idct8, daala_idct8 },  // DCT_DCT  = 0
@@ -1192,9 +1155,6 @@ void av1_iht8x8_64_add_c(const tran_low_t *input, uint8_t *dest, int stride,
 void av1_iht16x16_256_add_c(const tran_low_t *input, uint8_t *dest, int stride,
                             const TxfmParam *txfm_param) {
   const TX_TYPE tx_type = txfm_param->tx_type;
-#if CONFIG_DCT_ONLY
-  assert(tx_type == DCT_DCT);
-#endif
   static const transform_2d IHT_16[] = {
 #if CONFIG_DAALA_TX16
     { daala_idct16, daala_idct16 },  // DCT_DCT  = 0
@@ -1279,9 +1239,6 @@ void av1_iht16x16_256_add_c(const tran_low_t *input, uint8_t *dest, int stride,
 void av1_iht32x32_1024_add_c(const tran_low_t *input, uint8_t *dest, int stride,
                              const TxfmParam *txfm_param) {
   const TX_TYPE tx_type = txfm_param->tx_type;
-#if CONFIG_DCT_ONLY
-  assert(tx_type == DCT_DCT);
-#endif
   static const transform_2d IHT_32[] = {
 #if CONFIG_DAALA_TX32
     { daala_idct32, daala_idct32 },  // DCT_DCT
@@ -1364,9 +1321,6 @@ void av1_iht32x32_1024_add_c(const tran_low_t *input, uint8_t *dest, int stride,
 void av1_iht64x64_4096_add_c(const tran_low_t *input, uint8_t *dest, int stride,
                              const TxfmParam *txfm_param) {
   const TX_TYPE tx_type = txfm_param->tx_type;
-#if CONFIG_DCT_ONLY
-  assert(tx_type == DCT_DCT);
-#endif
   static const transform_2d IHT_64[] = {
 #if CONFIG_DAALA_TX64
     { daala_idct64, daala_idct64 },  // DCT_DCT
@@ -1464,9 +1418,6 @@ void av1_iht64x64_4096_add_c(const tran_low_t *input, uint8_t *dest, int stride,
 void av1_iht64x32_2048_add_c(const tran_low_t *input, uint8_t *dest, int stride,
                              const TxfmParam *txfm_param) {
   const TX_TYPE tx_type = txfm_param->tx_type;
-#if CONFIG_DCT_ONLY
-  assert(tx_type == DCT_DCT);
-#endif
   static const transform_2d IHT_64x32[] = {
 #if CONFIG_DAALA_TX32 && CONFIG_DAALA_TX64
     { daala_idct32, daala_idct64 },  // DCT_DCT
@@ -1559,9 +1510,6 @@ void av1_iht64x32_2048_add_c(const tran_low_t *input, uint8_t *dest, int stride,
 void av1_iht32x64_2048_add_c(const tran_low_t *input, uint8_t *dest, int stride,
                              const TxfmParam *txfm_param) {
   const TX_TYPE tx_type = txfm_param->tx_type;
-#if CONFIG_DCT_ONLY
-  assert(tx_type == DCT_DCT);
-#endif
   static const transform_2d IHT_32x64[] = {
 #if CONFIG_DAALA_TX32 && CONFIG_DAALA_TX64
     { daala_idct64, daala_idct32 },  // DCT_DCT
@@ -1652,9 +1600,6 @@ void av1_iht32x64_2048_add_c(const tran_low_t *input, uint8_t *dest, int stride,
 void av1_iht16x64_1024_add_c(const tran_low_t *input, uint8_t *dest, int stride,
                              const TxfmParam *txfm_param) {
   const TX_TYPE tx_type = txfm_param->tx_type;
-#if CONFIG_DCT_ONLY
-  assert(tx_type == DCT_DCT);
-#endif
   static const transform_2d IHT_16x64[] = {
     { idct64_col_c, aom_idct16_c },     // DCT_DCT
     { ihalfright64_c, aom_idct16_c },   // ADST_DCT
@@ -1716,9 +1661,6 @@ void av1_iht16x64_1024_add_c(const tran_low_t *input, uint8_t *dest, int stride,
 void av1_iht64x16_1024_add_c(const tran_low_t *input, uint8_t *dest, int stride,
                              const TxfmParam *txfm_param) {
   const TX_TYPE tx_type = txfm_param->tx_type;
-#if CONFIG_DCT_ONLY
-  assert(tx_type == DCT_DCT);
-#endif
   static const transform_2d IHT_64x16[] = {
     { aom_idct16_c, idct64_row_c },     // DCT_DCT
     { aom_iadst16_c, idct64_row_c },    // ADST_DCT
