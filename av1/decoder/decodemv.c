@@ -916,7 +916,6 @@ void av1_read_tx_type(const AV1_COMMON *const cm, MACROBLOCKD *xd,
   TX_TYPE *tx_type = &mbmi->txk_type[(blk_row << MAX_MIB_SIZE_LOG2) + blk_col];
 #endif
 
-  if (!FIXED_TX_TYPE) {
     const TX_SIZE square_tx_size = txsize_sqr_map[tx_size];
     if (get_ext_tx_types(tx_size, mbmi->sb_type, inter_block,
                          cm->reduced_tx_set_used) > 1 &&
@@ -938,28 +937,24 @@ void av1_read_tx_type(const AV1_COMMON *const cm, MACROBLOCKD *xd,
             av1_num_ext_tx_set[tx_set_type], ACCT_STR)];
       } else {
 #if CONFIG_FILTER_INTRA
-        PREDICTION_MODE intra_dir;
-        if (mbmi->filter_intra_mode_info.use_filter_intra)
-          intra_dir = fimode_to_intradir[mbmi->filter_intra_mode_info
-                                             .filter_intra_mode];
-        else
-          intra_dir = mbmi->mode;
-        *tx_type = av1_ext_tx_inv[tx_set_type][aom_read_symbol(
-            r, ec_ctx->intra_ext_tx_cdf[eset][square_tx_size][intra_dir],
-            av1_num_ext_tx_set[tx_set_type], ACCT_STR)];
+      PREDICTION_MODE intra_dir;
+      if (mbmi->filter_intra_mode_info.use_filter_intra)
+        intra_dir =
+            fimode_to_intradir[mbmi->filter_intra_mode_info.filter_intra_mode];
+      else
+        intra_dir = mbmi->mode;
+      *tx_type = av1_ext_tx_inv[tx_set_type][aom_read_symbol(
+          r, ec_ctx->intra_ext_tx_cdf[eset][square_tx_size][intra_dir],
+          av1_num_ext_tx_set[tx_set_type], ACCT_STR)];
 #else
-        *tx_type = av1_ext_tx_inv[tx_set_type][aom_read_symbol(
-            r, ec_ctx->intra_ext_tx_cdf[eset][square_tx_size][mbmi->mode],
-            av1_num_ext_tx_set[tx_set_type], ACCT_STR)];
+      *tx_type = av1_ext_tx_inv[tx_set_type][aom_read_symbol(
+          r, ec_ctx->intra_ext_tx_cdf[eset][square_tx_size][mbmi->mode],
+          av1_num_ext_tx_set[tx_set_type], ACCT_STR)];
 #endif
-      }
-    } else {
-      *tx_type = DCT_DCT;
     }
+  } else {
+    *tx_type = DCT_DCT;
   }
-#if FIXED_TX_TYPE
-  assert(mbmi->tx_type == DCT_DCT);
-#endif
 }
 
 #if CONFIG_INTRABC
