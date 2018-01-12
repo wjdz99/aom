@@ -33,6 +33,8 @@ namespace {
 // tx_type_, tx_size_, max_error_, max_avg_error_
 typedef std::tr1::tuple<TX_TYPE, TX_SIZE, double, double> AV1FwdTxfm2dParam;
 
+static double txfm_error[TX_SIZES_ALL][2] = { 0 };
+
 class AV1FwdTxfm2d : public ::testing::TestWithParam<AV1FwdTxfm2dParam> {
  public:
   virtual void SetUp() {
@@ -64,6 +66,7 @@ class AV1FwdTxfm2d : public ::testing::TestWithParam<AV1FwdTxfm2dParam> {
   void RunFwdAccuracyCheck() {
     ACMRandom rnd(ACMRandom::DeterministicSeed());
     double avg_abs_error = 0;
+    double actual_max_error = 0;
     for (int ci = 0; ci < count_; ci++) {
       for (int ni = 0; ni < txfm2d_size_; ++ni) {
         input_[ni] = rnd.Rand16() % input_base;
@@ -85,7 +88,6 @@ class AV1FwdTxfm2d : public ::testing::TestWithParam<AV1FwdTxfm2dParam> {
       libaom_test::reference_hybrid_2d(ref_input_, ref_output_, tx_type_,
                                        tx_size_);
 
-      double actual_max_error = 0;
       for (int ni = 0; ni < txfm2d_size_; ++ni) {
         ref_output_[ni] = round(ref_output_[ni]);
         const double this_error =
@@ -106,6 +108,12 @@ class AV1FwdTxfm2d : public ::testing::TestWithParam<AV1FwdTxfm2dParam> {
     avg_abs_error /= count_;
     EXPECT_GE(max_avg_error_, avg_abs_error)
         << "tx_size = " << tx_size_ << ", tx_type = " << tx_type_;
+    txfm_error[tx_size_][0] = AOMMAX(avg_abs_error, txfm_error[tx_size_][0]);
+    txfm_error[tx_size_][1] = AOMMAX(actual_max_error, txfm_error[tx_size_][1]);
+    for (int i = 0; i < TX_SIZES_ALL; ++i) {
+      printf("tx_w %d tx_h %d avg_error %f max_error %f\n", tx_size_wide[i],
+             tx_size_high[i], txfm_error[i][0], txfm_error[i][1]);
+    }
   }
 
   virtual void TearDown() {

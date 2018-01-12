@@ -31,6 +31,8 @@ using std::vector;
 
 namespace {
 
+static double txfm_error[TX_SIZES_ALL][2] = { 0 };
+
 // AV1InvTxfm2dParam argument list:
 // tx_type_, tx_size_, max_error_, max_avg_error_
 typedef std::tr1::tuple<TX_TYPE, TX_SIZE, int, double> AV1InvTxfm2dParam;
@@ -57,6 +59,7 @@ class AV1InvTxfm2d : public ::testing::TestWithParam<AV1InvTxfm2dParam> {
 
     const int count = 500;
 
+    double actual_max_error = 0;
     for (int ci = 0; ci < count; ci++) {
       DECLARE_ALIGNED(16, int16_t, input[64 * 64]) = { 0 };
       ASSERT_LE(txfm2d_size, NELEMENTS(input));
@@ -105,7 +108,6 @@ class AV1InvTxfm2d : public ::testing::TestWithParam<AV1InvTxfm2dParam> {
       ASSERT_LE(txfm2d_size, NELEMENTS(actual));
       inv_txfm_func(coeffs, actual, tx_w, tx_type_, bd);
 
-      double actual_max_error = 0;
       for (int ni = 0; ni < txfm2d_size; ++ni) {
         const double this_error = abs(expected[ni] - actual[ni]);
         actual_max_error = AOMMAX(actual_max_error, this_error);
@@ -122,6 +124,12 @@ class AV1InvTxfm2d : public ::testing::TestWithParam<AV1InvTxfm2dParam> {
     avg_abs_error /= count;
     EXPECT_GE(max_avg_error_, avg_abs_error)
         << " tx_w: " << tx_w << " tx_h " << tx_h << " tx_type: " << tx_type_;
+    txfm_error[tx_size_][0] = AOMMAX(avg_abs_error, txfm_error[tx_size_][0]);
+    txfm_error[tx_size_][1] = AOMMAX(actual_max_error, txfm_error[tx_size_][1]);
+    for (int i = 0; i < TX_SIZES_ALL; ++i) {
+      printf("tx_w %d tx_h %d avg_error %f max_error %f\n", tx_size_wide[i],
+             tx_size_high[i], txfm_error[i][0], txfm_error[i][1]);
+    }
   }
 
  private:
