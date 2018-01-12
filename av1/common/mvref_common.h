@@ -486,9 +486,9 @@ int findSamples(const AV1_COMMON *cm, MACROBLOCKD *xd, int mi_row, int mi_col,
                 int *pts, int *pts_inref);
 
 #if CONFIG_INTRABC
-#define INTRABC_DELAY_PIXELS 256  //  Delay of 256 pixels
+#define INTRABC_DELAY_PIXELS 0  //  Delay of 256 pixels
 #define INTRABC_DELAY_SB64 (INTRABC_DELAY_PIXELS / 64)
-#define USE_WAVE_FRONT 1  // Use only top left area of frame for reference.
+#define USE_WAVE_FRONT 0  // Use only top left area of frame for reference.
 
 static INLINE void av1_find_ref_dv(int_mv *ref_dv, const TileInfo *const tile,
                                    int mib_size, int mi_row, int mi_col) {
