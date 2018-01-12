@@ -2441,7 +2441,7 @@ static void choose_tx_size_type_from_rd(const AV1_COMP *const cpi,
 
   if (tx_select) {
     start_tx = max_rect_tx_size;
-    depth = 0;
+    depth = get_search_init_depth(mi_size_wide[bs], mi_size_high[bs], &cpi->sf);
   } else {
     const TX_SIZE chosen_tx_size =
         tx_size_from_tx_mode(bs, cm->tx_mode, is_inter);
