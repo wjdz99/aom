@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0ab2994d_8200f0ae",
+        "filename": "av1/common/av1_inv_txfm2d.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-01-12T23:02:38Z",
+      "side": 1,
+      "message": "fwd_shift_4x8 is same as fwd_shift_8x8.\nSo, why is inv_shift_4x8 NOT the same as inv_shift_8x8?\n\nI think you only need to change the shifts for 1:4 transforms (and not 1:2 transforms)",
+      "range": {
+        "startLine": 255,
+        "startChar": 49,
+        "endLine": 255,
+        "endChar": 0
+      },
+      "revId": "f33564af9324788d2e0cf09d5d18f97a1760ee93",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
