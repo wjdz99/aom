@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "4fae037b_c201a838",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 6240
+      },
+      "writtenOn": "2018-01-12T16:16:02Z",
+      "side": 1,
+      "message": "I\u0027ll make this more clear and reference the offending commit.",
+      "parentUuid": "0325d1f1_9d6384be",
+      "revId": "9af75996e515f2a90f4ed4423561212f79794174",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7c1a7d3f_1732ab07",
         "filename": "/COMMIT_MSG",
         "patchSetId": 3
@@ -30,6 +48,24 @@
       "writtenOn": "2018-01-11T20:13:41Z",
       "side": 1,
       "message": "can you split this to its own change? that will make the intent of this one clearer.",
+      "revId": "9af75996e515f2a90f4ed4423561212f79794174",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f46ced48_3a60455b",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 6240
+      },
+      "writtenOn": "2018-01-12T16:16:02Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "7c1a7d3f_1732ab07",
       "revId": "9af75996e515f2a90f4ed4423561212f79794174",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
