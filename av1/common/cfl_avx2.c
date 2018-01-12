@@ -100,9 +100,8 @@ cfl_subsample_lbd_fn get_subsample_lbd_fn_avx2(int sub_x, int sub_y) {
   return subsample_lbd[sub_y & 1][sub_x & 1];
 }
 
-static INLINE __m256i predict_lbd_unclipped(const __m256i *input,
-                                            __m256i alpha_q12,
-                                            __m256i alpha_sign, __m256i dc_q0) {
+static INLINE __m256i predict_unclipped(const __m256i *input, __m256i alpha_q12,
+                                        __m256i alpha_sign, __m256i dc_q0) {
   __m256i ac_q3 = _mm256_loadu_si256(input);
   __m256i ac_sign = _mm256_sign_epi16(alpha_sign, ac_q3);
   __m256i scaled_luma_q0 =
@@ -119,12 +118,12 @@ static INLINE void cfl_predict_lbd_x(const int16_t *pred_buf_q3, uint8_t *dst,
   const __m256i alpha_q12 = _mm256_slli_epi16(_mm256_abs_epi16(alpha_sign), 9);
   const __m256i dc_q0 = _mm256_set1_epi16(*dst);
   do {
-    __m256i res = predict_lbd_unclipped((__m256i *)pred_buf_q3, alpha_q12,
-                                        alpha_sign, dc_q0);
+    __m256i res =
+        predict_unclipped((__m256i *)pred_buf_q3, alpha_q12, alpha_sign, dc_q0);
     __m256i next = res;
     if (width == 32)
-      next = predict_lbd_unclipped((__m256i *)(pred_buf_q3 + 16), alpha_q12,
-                                   alpha_sign, dc_q0);
+      next = predict_unclipped((__m256i *)(pred_buf_q3 + 16), alpha_q12,
+                               alpha_sign, dc_q0);
     res = _mm256_packus_epi16(res, next);
     if (width == 4) {
       *(int32_t *)dst = _mm256_extract_epi32(res, 0);
