@@ -1895,8 +1895,10 @@ static void block_rd_txfm(int plane, int block, int blk_row, int blk_col,
   // full forward transform and quantization
   if (cpi->sf.optimize_coefficients == FINAL_PASS_TRELLIS_OPT ||
       cpi->sf.optimize_coefficients == NO_TRELLIS_OPT) {
+    const AV1_XFORM_QUANT xform_quant = CONFIG_NEW_QUANT ?
+      AV1_XFORM_QUANT_FP : AV1_XFORM_QUANT_B;
     av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize, tx_size,
-                    AV1_XFORM_QUANT_B);
+                    xform_quant);
   } else {
     av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize, tx_size,
                     AV1_XFORM_QUANT_FP);
@@ -3540,8 +3542,10 @@ void av1_tx_block_rd_b(const AV1_COMP *cpi, MACROBLOCK *x, TX_SIZE tx_size,
 
   if (cpi->sf.optimize_coefficients == FINAL_PASS_TRELLIS_OPT ||
       cpi->sf.optimize_coefficients == NO_TRELLIS_OPT) {
+    const AV1_XFORM_QUANT xform_quant = CONFIG_NEW_QUANT ?
+      AV1_XFORM_QUANT_FP : AV1_XFORM_QUANT_B;
     av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize, tx_size,
-                    AV1_XFORM_QUANT_B);
+                    xform_quant);
 
   } else {
     av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize, tx_size,

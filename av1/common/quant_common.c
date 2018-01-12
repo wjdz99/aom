@@ -33,134 +33,134 @@ typedef struct {
 static const qprofile_type nuq[QUANT_PROFILES][2] = {
   {
       // lossless
-      { 64, 0 },  // dc
-      { 64, 0 },  // ac
+      { 64, 0},  // dc
+      { 64, 0},  // ac
   },
 
-  // dq_type = 1
+  // dq_80pe16 1
   {
-      // Y/intra, dq_type 1, low quality
-      { 66, 12 },  // dc
-      { 66, 12 },  // ac
+      //80/i16ra, dq_type 1, low quality
+      { 80, 16 },  // dc
+      { 80, 16 },  // ac
   },
   {
-      // Y/intra, dq_type 1, high quality
-      { 66, 6 },  // dc
-      { 66, 6 },  // ac
+      //80/i16ra, dq_type 1, high quality
+      { 80, 16},  // dc
+      { 80, 16},  // ac
   },
   {
-      // UV/intra, dq_type 1, low quality
-      { 66, 12 },  // dc
-      { 66, 12 },  // ac
+      //80V/16tra, dq_type 1, low quality
+      { 80, 16 },  // dc
+      { 80, 16 },  // ac
   },
   {
-      // UV/intra, dq_type 1, high quality
-      { 66, 6 },  // dc
-      { 66, 6 },  // ac
+      //80V/16tra, dq_type 1, high quality
+      { 80, 16},  // dc
+      { 80, 16},  // ac
   },
   {
-      // Y/inter, dq_type 1, low quality
-      { 66, 12 },  // dc
-      { 66, 12 },  // ac
+      //80/i16er, dq_type 1, low quality
+      { 80, 16 },  // dc
+      { 80, 16 },  // ac
   },
   {
-      // Y/inter, dq_type 1, high quality
-      { 66, 6 },  // dc
-      { 66, 6 },  // ac
+      //80/i16er, dq_type 1, high quality
+      { 80, 16},  // dc
+      { 80, 16},  // ac
   },
   {
-      // UV/inter, dq_type 1, low quality
-      { 66, 12 },  // dc
-      { 66, 12 },  // ac
+      //80V/16ter, dq_type 1, low quality
+      { 80, 16 },  // dc
+      { 80, 16 },  // ac
   },
   {
-      // UV/inter, dq_type 1, high quality
-      { 66, 6 },  // dc
-      { 66, 6 },  // ac
-  },
-
-  // dq_type = 2
-  {
-      // Y/intra, dq_type 2, low quality
-      { 72, 12 },  // dc
-      { 72, 12 },  // ac
-  },
-  {
-      // Y/intra, dq_type 2, high quality
-      { 72, 6 },  // dc
-      { 72, 6 },  // ac
-  },
-  {
-      // UV/intra, dq_type 2, low quality
-      { 72, 12 },  // dc
-      { 72, 12 },  // ac
-  },
-  {
-      // UV/intra, dq_type 2, high quality
-      { 72, 6 },  // dc
-      { 72, 6 },  // ac
-  },
-  {
-      // Y/inter, dq_type 2, low quality
-      { 72, 12 },  // dc
-      { 72, 12 },  // ac
-  },
-  {
-      // Y/inter, dq_type 2, high quality
-      { 72, 6 },  // dc
-      { 72, 6 },  // ac
-  },
-  {
-      // UV/inter, dq_type 2, low quality
-      { 72, 12 },  // dc
-      { 72, 12 },  // ac
-  },
-  {
-      // UV/inter, dq_type 2, high quality
-      { 72, 6 },  // dc
-      { 72, 6 },  // ac
+      //80V/16ter, dq_type 1, high quality
+      { 80, 16},  // dc
+      { 80, 16},  // ac
   },
 
-  // dq_type = 3
+  // dq_80pe16 2
   {
-      // Y/intra, dq_type 3, low quality
-      { 80, 12 },  // dc
-      { 80, 12 },  // ac
+      //80/i16ra, dq_type 2, low quality
+      { 80, 16 },  // dc
+      { 80, 16 },  // ac
   },
   {
-      // Y/intra, dq_type 3, high quality
-      { 82, 6 },  // dc
-      { 82, 6 },  // ac
+      //80/i16ra, dq_type 2, high quality
+      { 80, 16},  // dc
+      { 80, 16},  // ac
   },
   {
-      // UV/intra, dq_type 3, low quality
-      { 80, 12 },  // dc
-      { 80, 12 },  // ac
+      //80V/16tra, dq_type 2, low quality
+      { 80, 16 },  // dc
+      { 80, 16 },  // ac
   },
   {
-      // UV/intra, dq_type 3, high quality
-      { 82, 6 },  // dc
-      { 82, 6 },  // ac
+      //80V/16tra, dq_type 2, high quality
+      { 80, 16},  // dc
+      { 80, 16},  // ac
   },
   {
-      // Y/inter, dq_type 3, low quality
-      { 80, 12 },  // dc
-      { 80, 12 },  // ac
+      //80/i16er, dq_type 2, low quality
+      { 80, 16 },  // dc
+      { 80, 16 },  // ac
   },
   {
-      // Y/inter, dq_type 3, high quality
-      { 82, 6 },  // dc
-      { 82, 6 },  // ac
+      //80/i16er, dq_type 2, high quality
+      { 80, 16},  // dc
+      { 80, 16},  // ac
   },
   {
-      // UV/inter, dq_type 3, low quality
-      { 80, 12 },  // dc
-      { 80, 12 },  // ac
+      //80V/16ter, dq_type 2, low quality
+      { 80, 16 },  // dc
+      { 80, 16 },  // ac
   },
   {
-      // UV/inter, dq_type 3, high quality
-      { 82, 6 },  // dc
-      { 82, 6 },  // ac
+      //80V/16ter, dq_type 2, high quality
+      { 80, 16},  // dc
+      { 80, 16},  // ac
+  },
+
+  // dq_80pe16 3
+  {
+      //80/i16ra, dq_type 3, low quality
+      { 80, 16 },  // dc
+      { 80, 16 },  // ac
+  },
+  {
+      //80/i16ra, dq_type 3, high quality
+      { 80, 16},  // dc
+      { 80, 16},  // ac
+  },
+  {
+      //80V/16tra, dq_type 3, low quality
+      { 80, 16 },  // dc
+      { 80, 16 },  // ac
+  },
+  {
+      //80V/16tra, dq_type 3, high quality
+      { 80, 16},  // dc
+      { 80, 16},  // ac
+  },
+  {
+      //80/i16er, dq_type 3, low quality
+      { 80, 16 },  // dc
+      { 80, 16 },  // ac
+  },
+  {
+      //80/i16er, dq_type 3, high quality
+      { 80, 16},  // dc
+      { 80, 16},  // ac
+  },
+  {
+      //80V/16ter, dq_type 3, low quality
+      { 80, 16 },  // dc
+      { 80, 16 },  // ac
+  },
+  {
+      //80V/16ter, dq_type 3, high quality
+      { 80, 16},  // dc
+      { 80, 16},  // ac
   },
 };
 

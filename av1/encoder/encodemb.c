@@ -585,8 +585,10 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
       av1_optimize_b(args->cpi, x, plane, blk_row, blk_col, block, plane_bsize,
                      tx_size, a, l, CONFIG_LV_MAP);
     } else {
+      const AV1_XFORM_QUANT xform_quant = CONFIG_NEW_QUANT ?
+        AV1_XFORM_QUANT_FP : AV1_XFORM_QUANT_B;
       av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize,
-                      tx_size, AV1_XFORM_QUANT_B);
+                      tx_size, xform_quant);
     }
   } else {
     p->eobs[block] = 0;
@@ -901,8 +903,10 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
     }
 #endif  // CONFIG_TXK_SEL
   } else {
+    const AV1_XFORM_QUANT xform_quant = CONFIG_NEW_QUANT ?
+      AV1_XFORM_QUANT_FP : AV1_XFORM_QUANT_B;
     av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize, tx_size,
-                    AV1_XFORM_QUANT_B);
+                    xform_quant);
   }
 
   av1_inverse_transform_block(xd, dqcoeff, plane, tx_type, tx_size, dst,
