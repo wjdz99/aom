@@ -199,7 +199,11 @@ void av1_get_dequant_val_nuq(int q, int is_ac_coeff, tran_low_t *dq,
 tran_low_t av1_dequant_abscoeff_nuq(int v, int q, const tran_low_t *dq,
                                     int shift) {
   if (v == 0) return 0;
+//#if CONFIG_AOM_QM
+
+//#else
   return ((q * v) >> shift) + dq[shift];
+//#endif
 }
 
 tran_low_t av1_dequant_coeff_nuq(int v, int q, const tran_low_t *dq,
