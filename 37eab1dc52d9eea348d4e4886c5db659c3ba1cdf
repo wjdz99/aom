@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "14d5239c_2e481dd6",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1042,
+      "author": {
+        "id": 6390
+      },
+      "writtenOn": "2018-01-12T16:11:50Z",
+      "side": 1,
+      "message": "It used to be impossible for the decode to produce subpel vectors, that\u0027s why this was written as an assert. Are you sure the appearance of these vectors isn\u0027t a decoder bug? If the decoder really can produce vectors like this now, why not change how the vectors are coded to not spend bits in illegal bit streams.",
+      "range": {
+        "startLine": 1042,
+        "startChar": 0,
+        "endLine": 1042,
+        "endChar": 78
+      },
+      "revId": "37eab1dc52d9eea348d4e4886c5db659c3ba1cdf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
