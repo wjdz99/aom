@@ -1471,8 +1471,8 @@ static int calc_arf_boost(AV1_COMP *cpi, int offset, int f_frames, int b_frames,
   *b_boost = (int)boost_score;
 
   arf_boost = (*f_boost + *b_boost);
-  if (arf_boost < ((b_frames + f_frames) * 20))
-    arf_boost = ((b_frames + f_frames) * 20);
+  if (arf_boost < ((b_frames + f_frames) * 40))
+    arf_boost = ((b_frames + f_frames) * 40);
   arf_boost = AOMMAX(arf_boost, MIN_ARF_GF_BOOST);
 
   return arf_boost;
