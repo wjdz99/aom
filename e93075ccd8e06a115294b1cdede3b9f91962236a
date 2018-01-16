@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e49a9e52_00cc6fa8",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 7
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2018-01-16T04:06:23Z",
+      "side": 1,
+      "message": "Wonder what happened here, maybe it\u0027s just noise in the measures",
+      "range": {
+        "startLine": 14,
+        "startChar": 49,
+        "endLine": 14,
+        "endChar": 50
+      },
+      "revId": "e93075ccd8e06a115294b1cdede3b9f91962236a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "048c591c_30f440b2",
+        "filename": "av1/common/cfl_ssse3.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2018-01-16T04:06:23Z",
+      "side": 1,
+      "message": "My first reflex would be to make this static but when I do I get an error \n\n../av1/common/cfl_ssse3.c:138:34: error: initializer element is not constant\n   static const __m128i neg_one \u003d _mm_set1_epi16(-1);",
+      "revId": "e93075ccd8e06a115294b1cdede3b9f91962236a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
