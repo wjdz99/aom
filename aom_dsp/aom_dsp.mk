@@ -49,6 +49,8 @@ DSP_SRCS-yes += bitreader_buffer.c
 DSP_SRCS-yes += bitreader_buffer.h
 DSP_SRCS-yes += binary_codes_reader.c
 DSP_SRCS-yes += binary_codes_reader.h
+DSP_SRCS-yes += grain_synthesis.c
+DSP_SRCS-yes += grain_synthesis.h
 endif
 
 # intra predictions
