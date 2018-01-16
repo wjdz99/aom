@@ -998,6 +998,8 @@ static INLINE void build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd,
         x = x_base + idx;
         y = y_base + idy;
         uint8_t *dst = dst_buf->buf + dst_buf->stride * y + x;
+        conv_params.dst_sr = dst;
+        conv_params.dst_stride_sr = dst_buf->stride;
 
         // TODO(zoeliu): If single ref comp modes are considered here, a
         //               mismatch was caused. Need a further investigation.
@@ -1207,6 +1209,8 @@ static INLINE void build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd,
       WarpTypesAllowed warp_types;
       warp_types.global_warp_allowed = is_global[ref];
       warp_types.local_warp_allowed = mi->mbmi.motion_mode == WARPED_CAUSAL;
+      conv_params.dst_sr = dst;
+      conv_params.dst_stride_sr = dst_buf->stride;
       conv_params.ref = ref;
       conv_params.do_average = ref;
       if (is_masked_compound_type(mi->mbmi.interinter_compound_type)) {
