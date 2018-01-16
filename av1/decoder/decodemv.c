@@ -352,8 +352,8 @@ static int read_segment_id(AV1_COMMON *const cm, MACROBLOCKD *const xd,
   int prev_l = 0;  /* Current left segment_id */
   int prev_u = 0;  /* Current top segment_id */
 
-  MODE_INFO *const mi = cm->mi + mi_row * cm->mi_stride + mi_col;
-  int tinfo = mi->mbmi.boundary_info;
+  BOUNDARY_TYPE *const bi = cm->boundary_info + mi_row * cm->mi_stride + mi_col;
+  int tinfo = *bi;
   int above = (!(tinfo & TILE_ABOVE_BOUNDARY)) && ((mi_row - 1) >= 0);
   int left = (!(tinfo & TILE_LEFT_BOUNDARY)) && ((mi_col - 1) >= 0);
 

@@ -602,8 +602,8 @@ static void write_segment_id(AV1_COMP *cpi, const MB_MODE_INFO *const mbmi,
 
   if (!seg->enabled || !seg->update_map) return;
 
-  MODE_INFO *const mi = cm->mi + mi_row * cm->mi_stride + mi_col;
-  int tinfo = mi->mbmi.boundary_info;
+  BOUNDARY_TYPE *const bi = cm->boundary_info + mi_row * cm->mi_stride + mi_col;
+  int tinfo = *bi;
   int above = (!(tinfo & TILE_ABOVE_BOUNDARY)) && ((mi_row - 1) >= 0);
   int left = (!(tinfo & TILE_LEFT_BOUNDARY)) && ((mi_col - 1) >= 0);
 
