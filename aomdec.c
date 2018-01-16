@@ -47,6 +47,10 @@
 #include "./obudec.h"
 #endif
 
+#if CONFIG_FILM_GRAIN
+#include "./aom_dsp/grain_synthesis.h"
+#endif
+
 #include "./tools_common.h"
 #if CONFIG_WEBM_IO
 #include "./webmdec.h"
@@ -488,6 +492,11 @@ static int img_shifted_realloc_required(const aom_image_t *img,
 static int main_loop(int argc, const char **argv_) {
   aom_codec_ctx_t decoder;
   char *fn = NULL;
+#if CONFIG_FILM_GRAIN
+  aom_film_grain_t grain_params;
+  assign_default(&grain_params);
+  aom_image_t *grain_img = NULL;
+#endif
   int i;
   int ret = EXIT_FAILURE;
   uint8_t *buf = NULL;
@@ -833,6 +842,30 @@ static int main_loop(int argc, const char **argv_) {
       ++frame_out;
       got_data = 1;
     }
+#if CONFIG_FILM_GRAIN
+    if (got_data &&
+        grain_params.apply_grain)  // will depend on a flag from the bistream
+    {
+      if (grain_img &&
+          (img->d_w != grain_img->d_w || img->d_h != grain_img->d_h ||
+           img->fmt != grain_img->fmt)) {
+        aom_img_free(grain_img);
+        grain_img = NULL;
+      }
+      if (!grain_img) {
+        grain_img = aom_img_alloc(NULL, img->fmt, img->d_w, img->d_h, 16);
+        grain_img->bit_depth = img->bit_depth;
+      }
+
+      add_film_grain(&grain_params, img, grain_img);
+
+      // Will be removed when random seed
+      // is initialized per frame
+      grain_params.random_seed += 3245;
+
+      img = grain_img;
+    }
+#endif
 
     aom_usec_timer_mark(&timer);
     dx_time += (unsigned int)aom_usec_timer_elapsed(&timer);
@@ -1046,6 +1079,9 @@ fail2:
 
   if (scaled_img) aom_img_free(scaled_img);
   if (img_shifted) aom_img_free(img_shifted);
+#if CONFIG_FILM_GRAIN
+  if (grain_img) aom_img_free(grain_img);
+#endif
 
   for (i = 0; i < ext_fb_list.num_external_frame_buffers; ++i) {
     free(ext_fb_list.ext_fb[i].data);
