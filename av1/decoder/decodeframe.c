@@ -3050,6 +3050,9 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
       xd->prev_qindex = cm->base_qindex;
       cm->delta_q_res = 1 << aom_rb_read_literal(rb, 2);
 #if CONFIG_EXT_DELTA_Q
+#if CONFIG_INTRABC
+      if (!cm->allow_intrabc || !NO_FILTER_FOR_IBC)
+#endif  // CONFIG_INTRABC
       cm->delta_lf_present_flag = aom_rb_read_bit(rb);
       if (cm->delta_lf_present_flag) {
         xd->prev_delta_lf_from_base = 0;
