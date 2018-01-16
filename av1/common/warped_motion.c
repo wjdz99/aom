@@ -505,9 +505,9 @@ void av1_highbd_warp_affine_c(const int32_t *mat, const uint16_t *ref,
 
           if (use_conv_params) {
             CONV_BUF_TYPE *p =
-                &conv_params
-                     ->dst[(i - p_row + k + 4) * conv_params->dst_stride +
-                           (j - p_col + l + 4)];
+                &conv_params->temp_dst[(i - p_row + k + 4) *
+                                           conv_params->temp_dst_stride +
+                                       (j - p_col + l + 4)];
             sum = ROUND_POWER_OF_TWO(sum, conv_params->round_1) -
                   (1 << (offset_bits_horiz + FILTER_BITS -
                          conv_params->round_0 - conv_params->round_1)) -
@@ -809,9 +809,9 @@ void av1_warp_affine_c(const int32_t *mat, const uint8_t *ref, int width,
 
           if (use_conv_params) {
             CONV_BUF_TYPE *p =
-                &conv_params
-                     ->dst[(i - p_row + k + 4) * conv_params->dst_stride +
-                           (j - p_col + l + 4)];
+                &conv_params->temp_dst[(i - p_row + k + 4) *
+                                           conv_params->temp_dst_stride +
+                                       (j - p_col + l + 4)];
             sum = ROUND_POWER_OF_TWO(sum, conv_params->round_1) -
                   (1 << (offset_bits_horiz + FILTER_BITS -
                          conv_params->round_0 - conv_params->round_1)) -

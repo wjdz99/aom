@@ -29,8 +29,10 @@ typedef struct ConvolveParams {
   int ref;
   int do_average;
   CONVOLVE_OPT round;
-  CONV_BUF_TYPE *dst;
+  uint8_t *dst;
   int dst_stride;
+  CONV_BUF_TYPE *temp_dst;
+  int temp_dst_stride;
   int round_0;
   int round_1;
   int plane;
@@ -107,8 +109,8 @@ static INLINE ConvolveParams get_conv_params_no_round(int ref, int do_average,
   conv_params.is_compound = is_compound;
   // TODO(yunqing): The following dst should only be valid while
   // is_compound = 1;
-  conv_params.dst = dst;
-  conv_params.dst_stride = dst_stride;
+  conv_params.temp_dst = dst;
+  conv_params.temp_dst_stride = dst_stride;
   conv_params.plane = plane;
   conv_params.do_post_rounding = 0;
   return conv_params;

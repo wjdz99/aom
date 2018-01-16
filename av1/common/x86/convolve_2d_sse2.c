@@ -23,8 +23,8 @@ void av1_convolve_2d_sse2(const uint8_t *src, int src_stride, uint8_t *dst0,
                           InterpFilterParams *filter_params_y,
                           const int subpel_x_q4, const int subpel_y_q4,
                           ConvolveParams *conv_params) {
-  CONV_BUF_TYPE *dst = conv_params->dst;
-  int dst_stride = conv_params->dst_stride;
+  CONV_BUF_TYPE *dst = conv_params->temp_dst;
+  int dst_stride = conv_params->temp_dst_stride;
   const int bd = 8;
   (void)dst0;
   (void)dst_stride0;
@@ -210,8 +210,8 @@ void av1_convolve_2d_copy_sse2(const uint8_t *src, int src_stride,
                                InterpFilterParams *filter_params_y,
                                const int subpel_x_q4, const int subpel_y_q4,
                                ConvolveParams *conv_params) {
-  CONV_BUF_TYPE *dst = conv_params->dst;
-  int dst_stride = conv_params->dst_stride;
+  CONV_BUF_TYPE *dst = conv_params->temp_dst;
+  int dst_stride = conv_params->temp_dst_stride;
   (void)filter_params_x;
   (void)filter_params_y;
   (void)subpel_x_q4;
@@ -354,6 +354,9 @@ void av1_convolve_2d_copy_sr_sse2(const uint8_t *src, int src_stride,
   (void)subpel_y_q4;
   (void)conv_params;
 
+  assert(dst == conv_params->dst);
+  assert(dst_stride == conv_params->dst_stride);
+
   if (w >= 16) {
     assert(!((intptr_t)dst % 16));
     assert(!(dst_stride % 16));
@@ -469,8 +472,8 @@ void av1_jnt_convolve_2d_copy_sse2(const uint8_t *src, int src_stride,
                                    InterpFilterParams *filter_params_y,
                                    const int subpel_x_q4, const int subpel_y_q4,
                                    ConvolveParams *conv_params) {
-  CONV_BUF_TYPE *dst = conv_params->dst;
-  int dst_stride = conv_params->dst_stride;
+  CONV_BUF_TYPE *dst = conv_params->temp_dst;
+  int dst_stride = conv_params->temp_dst_stride;
   (void)filter_params_x;
   (void)filter_params_y;
   (void)subpel_x_q4;

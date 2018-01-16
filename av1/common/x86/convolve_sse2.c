@@ -89,8 +89,8 @@ void av1_convolve_y_sse2(const uint8_t *src, int src_stride,
                          InterpFilterParams *filter_params_y,
                          const int subpel_x_q4, const int subpel_y_q4,
                          ConvolveParams *conv_params) {
-  CONV_BUF_TYPE *dst = conv_params->dst;
-  const int dst_stride = conv_params->dst_stride;
+  CONV_BUF_TYPE *dst = conv_params->temp_dst;
+  const int dst_stride = conv_params->temp_dst_stride;
   const int fo_vert = filter_params_y->taps / 2 - 1;
   const uint8_t *src_ptr = src - fo_vert * src_stride;
   const int bits = FILTER_BITS - conv_params->round_0 - conv_params->round_1;
@@ -222,8 +222,8 @@ void av1_convolve_x_sse2(const uint8_t *src, int src_stride,
                          InterpFilterParams *filter_params_y,
                          const int subpel_x_q4, const int subpel_y_q4,
                          ConvolveParams *conv_params) {
-  CONV_BUF_TYPE *dst = conv_params->dst;
-  const int dst_stride = conv_params->dst_stride;
+  CONV_BUF_TYPE *dst = conv_params->temp_dst;
+  const int dst_stride = conv_params->temp_dst_stride;
   const int fo_horiz = filter_params_x->taps / 2 - 1;
   const uint8_t *src_ptr = src - fo_horiz;
   const int bits = FILTER_BITS - conv_params->round_1;

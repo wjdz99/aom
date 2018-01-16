@@ -25,8 +25,8 @@ void av1_jnt_convolve_2d_sse4_1(const uint8_t *src, int src_stride,
                                 InterpFilterParams *filter_params_y,
                                 const int subpel_x_q4, const int subpel_y_q4,
                                 ConvolveParams *conv_params) {
-  CONV_BUF_TYPE *dst = conv_params->dst;
-  int dst_stride = conv_params->dst_stride;
+  CONV_BUF_TYPE *dst = conv_params->temp_dst;
+  int dst_stride = conv_params->temp_dst_stride;
   const int bd = 8;
   (void)dst0;
   (void)dst_stride0;

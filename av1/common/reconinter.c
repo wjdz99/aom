@@ -750,12 +750,12 @@ void av1_make_masked_inter_predictor(
 
   const int tmp_buf_stride = MAX_SB_SIZE;
   const int is_conv_no_round = conv_params->round == CONVOLVE_OPT_NO_ROUND;
-  CONV_BUF_TYPE *org_dst = conv_params->dst;
-  int org_dst_stride = conv_params->dst_stride;
+  CONV_BUF_TYPE *org_dst = conv_params->temp_dst;
+  int org_dst_stride = conv_params->temp_dst_stride;
   CONV_BUF_TYPE *tmp_buf32 = (CONV_BUF_TYPE *)tmp_buf;
   if (is_conv_no_round) {
-    conv_params->dst = tmp_buf32;
-    conv_params->dst_stride = tmp_buf_stride;
+    conv_params->temp_dst = tmp_buf32;
+    conv_params->temp_dst_stride = tmp_buf_stride;
     assert(conv_params->do_average == 0);
   }
 
@@ -998,6 +998,8 @@ static INLINE void build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd,
         x = x_base + idx;
         y = y_base + idy;
         uint8_t *dst = dst_buf->buf + dst_buf->stride * y + x;
+        conv_params.dst = dst;
+        conv_params.dst_stride = dst_buf->stride;
 
         // TODO(zoeliu): If single ref comp modes are considered here, a
         //               mismatch was caused. Need a further investigation.
@@ -1207,6 +1209,8 @@ static INLINE void build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd,
       WarpTypesAllowed warp_types;
       warp_types.global_warp_allowed = is_global[ref];
       warp_types.local_warp_allowed = mi->mbmi.motion_mode == WARPED_CAUSAL;
+      conv_params.dst = dst;
+      conv_params.dst_stride = dst_buf->stride;
       conv_params.ref = ref;
       conv_params.do_average = ref;
       if (is_masked_compound_type(mi->mbmi.interinter_compound_type)) {

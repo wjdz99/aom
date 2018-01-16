@@ -355,8 +355,8 @@ void av1_convolve_y_avx2(const uint8_t *src, int src_stride, uint8_t *dst0,
     return;
   }
   {
-    CONV_BUF_TYPE *dst = conv_params->dst;
-    int dst_stride = conv_params->dst_stride;
+    CONV_BUF_TYPE *dst = conv_params->temp_dst;
+    int dst_stride = conv_params->temp_dst_stride;
     int i, j;
     const int fo_vert = filter_params_y->taps / 2 - 1;
     const int do_average = conv_params->do_average;
@@ -496,8 +496,8 @@ void av1_convolve_x_avx2(const uint8_t *src, int src_stride, uint8_t *dst0,
     return;
   }
   {
-    CONV_BUF_TYPE *dst = conv_params->dst;
-    int dst_stride = conv_params->dst_stride;
+    CONV_BUF_TYPE *dst = conv_params->temp_dst;
+    int dst_stride = conv_params->temp_dst_stride;
     int i, j;
     const int fo_horiz = filter_params_x->taps / 2 - 1;
     const int do_average = conv_params->do_average;

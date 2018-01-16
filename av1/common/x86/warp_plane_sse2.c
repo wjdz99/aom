@@ -296,7 +296,7 @@ void av1_warp_affine_sse2(const int32_t *mat, const uint8_t *ref, int width,
         if (use_conv_params) {
           __m128i *const p =
               (__m128i *)&conv_params
-                  ->dst[(i + k + 4) * conv_params->dst_stride + j];
+                  ->temp_dst[(i + k + 4) * conv_params->temp_dst_stride + j];
           const __m128i round_const = _mm_set1_epi32(
               -(1 << (bd + 2 * FILTER_BITS - conv_params->round_0 - 1)) +
               ((1 << (conv_params->round_1)) >> 1));
