@@ -3177,6 +3177,7 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
     }
   }
   update_frame_size(cpi);
+  x->e_mbd.max_mib_mask = cm->max_mib_mask;
 
   cpi->alt_ref_source = NULL;
   rc->is_src_frame_alt_ref = 0;

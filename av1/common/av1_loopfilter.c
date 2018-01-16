@@ -1454,8 +1454,9 @@ static void get_filter_level_and_masks_non420(
     // transform block sizes on the left and right (current block) side of edge
     const int filt_len_vert_edge = AOMMIN(
         tx_size_wide[tx_size],
-        tx_size_wide[cm->left_txfm_context[pl][((mi_row + idx_r) & MAX_MIB_MASK)
-                                               << TX_UNIT_HIGH_LOG2]]);
+        tx_size_wide[cm->left_txfm_context[pl]
+                                          [((mi_row + idx_r) & cm->max_mib_mask)
+                                           << TX_UNIT_HIGH_LOG2]]);
 
     // filt_len_horz_edge is the len of deblocking filter for a horizontal edge
     // The filter direction of a horizontal edge is vertical.
@@ -1479,7 +1480,7 @@ static void get_filter_level_and_masks_non420(
     memset(cm->top_txfm_context[pl] + ((mi_col + idx_c) << TX_UNIT_WIDE_LOG2),
            tx_size, mi_size_wide[BLOCK_8X8] << TX_UNIT_WIDE_LOG2);
     memset(cm->left_txfm_context[pl] +
-               (((mi_row + idx_r) & MAX_MIB_MASK) << TX_UNIT_HIGH_LOG2),
+               (((mi_row + idx_r) & cm->max_mib_mask) << TX_UNIT_HIGH_LOG2),
            tx_size, mi_size_high[BLOCK_8X8] << TX_UNIT_HIGH_LOG2);
 
     if (tx_size_vert_edge == TX_32X32)
@@ -1984,9 +1985,10 @@ static const uint32_t av1_transform_masks[NUM_EDGE_DIRS][TX_SIZES_ALL] = {
 };
 
 static TX_SIZE av1_get_transform_size(
-    const MODE_INFO *const mi, const EDGE_DIR edge_dir, const int mi_row,
-    const int mi_col, const int plane,
-    const struct macroblockd_plane *plane_ptr) {
+    const AV1_COMMON *const cm, const MODE_INFO *const mi,
+    const EDGE_DIR edge_dir, const int mi_row, const int mi_col,
+    const int plane, const struct macroblockd_plane *plane_ptr) {
+  (void)cm;
   const MB_MODE_INFO *mbmi = &mi->mbmi;
   TX_SIZE tx_size = (plane == AOM_PLANE_Y)
                         ? mbmi->tx_size
@@ -1999,8 +2001,8 @@ static TX_SIZE av1_get_transform_size(
   // c and r is the relative offset of the 8x8 block within the supert block
   // blk_row and block_col is the relative offset of the current 8x8 block
   // within the current partition.
-  const int idx_c = mi_col & MAX_MIB_MASK;
-  const int idx_r = mi_row & MAX_MIB_MASK;
+  const int idx_c = mi_col & cm->max_mib_mask;
+  const int idx_r = mi_row & cm->max_mib_mask;
   const int c = idx_c >> mi_width_log2_lookup[BLOCK_8X8];
   const int r = idx_r >> mi_height_log2_lookup[BLOCK_8X8];
   const BLOCK_SIZE sb_type = mi->mbmi.sb_type;
@@ -2071,8 +2073,8 @@ static void set_lpf_parameters(
   const MB_MODE_INFO *mbmi = &mi[0]->mbmi;
 
   {
-    const TX_SIZE ts = av1_get_transform_size(mi[0], edge_dir, mi_row, mi_col,
-                                              plane, plane_ptr);
+    const TX_SIZE ts = av1_get_transform_size(cm, mi[0], edge_dir, mi_row,
+                                              mi_col, plane, plane_ptr);
 
 #if CONFIG_EXT_DELTA_Q
 #if CONFIG_LOOPFILTER_LEVEL
@@ -2116,7 +2118,7 @@ static void set_lpf_parameters(
           const int pv_col =
               (VERT_EDGE == edge_dir) ? (mi_col - (1 << scale_horz)) : (mi_col);
           const TX_SIZE pv_ts = av1_get_transform_size(
-              mi_prev, edge_dir, pv_row, pv_col, plane, plane_ptr);
+              cm, mi_prev, edge_dir, pv_row, pv_col, plane, plane_ptr);
 
 #if CONFIG_EXT_DELTA_Q
 #if CONFIG_LOOPFILTER_LEVEL

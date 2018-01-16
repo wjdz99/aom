@@ -3012,6 +3012,7 @@ static size_t read_uncompressed_header(AV1Decoder *pbi,
   setup_loopfilter(cm, rb);
   setup_quantization(cm, rb);
   xd->bd = (int)cm->bit_depth;
+  xd->max_mib_mask = cm->max_mib_mask;
 
   if (frame_is_intra_only(cm) || cm->error_resilient_mode) {
     av1_default_coef_probs(cm);

@@ -1130,7 +1130,7 @@ static void read_intra_frame_mode_info(AV1_COMMON *const cm,
     xd->above_txfm_context =
         cm->above_txfm_context + (mi_col << TX_UNIT_WIDE_LOG2);
     xd->left_txfm_context = xd->left_txfm_context_buffer +
-                            ((mi_row & MAX_MIB_MASK) << TX_UNIT_HIGH_LOG2);
+                            ((mi_row & xd->max_mib_mask) << TX_UNIT_HIGH_LOG2);
   }
   if (av1_allow_intrabc(cm)) {
     read_intrabc_info(cm, xd, mi_row, mi_col, r);
@@ -2276,7 +2276,7 @@ static void read_inter_frame_mode_info(AV1Decoder *const pbi,
   xd->above_txfm_context =
       cm->above_txfm_context + (mi_col << TX_UNIT_WIDE_LOG2);
   xd->left_txfm_context = xd->left_txfm_context_buffer +
-                          ((mi_row & MAX_MIB_MASK) << TX_UNIT_HIGH_LOG2);
+                          ((mi_row & xd->max_mib_mask) << TX_UNIT_HIGH_LOG2);
 
   if (cm->tx_mode == TX_MODE_SELECT && block_signals_txsize(bsize) &&
       !mbmi->skip && inter_block && !xd->lossless[mbmi->segment_id]) {

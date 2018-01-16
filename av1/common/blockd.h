@@ -616,6 +616,8 @@ typedef struct macroblockd {
   FRAME_CONTEXT *tile_ctx;
   /* Bit depth: 8, 10, 12 */
   int bd;
+  /* max_mib_mask */
+  int max_mib_mask;
 
   int qindex[MAX_SEGMENTS];
   int lossless[MAX_SEGMENTS];

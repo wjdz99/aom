@@ -539,6 +539,7 @@ typedef struct AV1Common {
   BLOCK_SIZE sb_size;  // Size of the superblock used for this frame
   int mib_size;        // Size of the superblock in units of MI blocks
   int mib_size_log2;   // Log 2 of above.
+  int max_mib_mask;
   int cdef_pri_damping;
   int cdef_sec_damping;
   int nb_cdef_strengths;
@@ -815,7 +816,7 @@ static INLINE void set_skip_context(MACROBLOCKD *xd, int mi_row, int mi_col) {
     if (pd->subsampling_x && (mi_col & 0x01) && (mi_size_wide[bsize] == 1))
       col_offset = mi_col - 1;
     int above_idx = col_offset << (MI_SIZE_LOG2 - tx_size_wide_log2[0]);
-    int left_idx = (row_offset & MAX_MIB_MASK)
+    int left_idx = (row_offset & xd->max_mib_mask)
                    << (MI_SIZE_LOG2 - tx_size_high_log2[0]);
     pd->above_context = &xd->above_context[i][above_idx >> pd->subsampling_x];
     pd->left_context = &xd->left_context[i][left_idx >> pd->subsampling_y];
@@ -915,7 +916,7 @@ static INLINE void update_partition_context(MACROBLOCKD *xd, int mi_row,
                                             BLOCK_SIZE bsize) {
   PARTITION_CONTEXT *const above_ctx = xd->above_seg_context + mi_col;
   PARTITION_CONTEXT *const left_ctx =
-      xd->left_seg_context + (mi_row & MAX_MIB_MASK);
+      xd->left_seg_context + (mi_row & xd->max_mib_mask);
 
 #if CONFIG_EXT_PARTITION_TYPES
   const int bw = mi_size_wide[bsize];
@@ -1083,7 +1084,7 @@ static INLINE int partition_plane_context(const MACROBLOCKD *xd, int mi_row,
                                           int mi_col, BLOCK_SIZE bsize) {
   const PARTITION_CONTEXT *above_ctx = xd->above_seg_context + mi_col;
   const PARTITION_CONTEXT *left_ctx =
-      xd->left_seg_context + (mi_row & MAX_MIB_MASK);
+      xd->left_seg_context + (mi_row & xd->max_mib_mask);
   // Minimum partition point is 8x8. Offset the bsl accordingly.
   const int bsl = mi_width_log2_lookup[bsize] - mi_width_log2_lookup[BLOCK_8X8];
   int above = (*above_ctx >> bsl) & 1, left = (*left_ctx >> bsl) & 1;
@@ -1355,6 +1356,7 @@ static INLINE void set_sb_size(AV1_COMMON *const cm, BLOCK_SIZE sb_size) {
   cm->sb_size = sb_size;
   cm->mib_size = mi_size_wide[cm->sb_size];
   cm->mib_size_log2 = b_width_log2_lookup[cm->sb_size];
+  cm->max_mib_mask = cm->mib_size - 1;
 }
 
 static INLINE int all_lossless(const AV1_COMMON *cm, const MACROBLOCKD *xd) {
