@@ -187,6 +187,10 @@ void AV1Convolve2DSrTest::RunCheckOutput(convolve_2d_func test_impl) {
                 get_conv_params_no_round(0, do_average, 0, NULL, 0, 1);
             ConvolveParams conv_params2 =
                 get_conv_params_no_round(0, do_average, 0, NULL, 0, 1);
+            conv_params1.dst_sr = output;
+            conv_params1.dst_stride_sr = MAX_SB_SIZE;
+            conv_params2.dst_sr = output2;
+            conv_params2.dst_stride_sr = MAX_SB_SIZE;
 
             const int subx_range = has_subx ? 16 : 1;
             const int suby_range = has_suby ? 16 : 1;

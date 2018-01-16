@@ -538,6 +538,9 @@ void av1_convolve_2d_sr_c(const uint8_t *src, int src_stride, uint8_t *dst,
   const int bits =
       FILTER_BITS * 2 - conv_params->round_0 - conv_params->round_1;
 
+  assert(dst == conv_params->dst_sr);
+  assert(dst_stride == conv_params->dst_stride_sr);
+
   // horizontal filter
   const uint8_t *src_horiz = src - fo_vert * src_stride;
   const int16_t *x_filter = av1_get_interp_filter_subpel_kernel(
@@ -585,6 +588,9 @@ void av1_convolve_y_sr_c(const uint8_t *src, int src_stride, uint8_t *dst,
   (void)subpel_x_q4;
   (void)conv_params;
 
+  assert(dst == conv_params->dst_sr);
+  assert(dst_stride == conv_params->dst_stride_sr);
+
   // vertical filter
   const int16_t *y_filter = av1_get_interp_filter_subpel_kernel(
       *filter_params_y, subpel_y_q4 & SUBPEL_MASK);
@@ -612,6 +618,9 @@ void av1_convolve_x_sr_c(const uint8_t *src, int src_stride, uint8_t *dst,
   (void)subpel_y_q4;
   (void)conv_params;
 
+  assert(dst == conv_params->dst_sr);
+  assert(dst_stride == conv_params->dst_stride_sr);
+
   // horizontal filter
   const int16_t *x_filter = av1_get_interp_filter_subpel_kernel(
       *filter_params_x, subpel_x_q4 & SUBPEL_MASK);
@@ -638,6 +647,9 @@ void av1_convolve_2d_copy_sr_c(const uint8_t *src, int src_stride, uint8_t *dst,
   (void)subpel_x_q4;
   (void)subpel_y_q4;
   (void)conv_params;
+
+  assert(dst == conv_params->dst_sr);
+  assert(dst_stride == conv_params->dst_stride_sr);
 
   for (int y = 0; y < h; ++y) {
     for (int x = 0; x < w; ++x) {

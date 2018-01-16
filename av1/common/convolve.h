@@ -31,6 +31,8 @@ typedef struct ConvolveParams {
   CONVOLVE_OPT round;
   CONV_BUF_TYPE *dst;
   int dst_stride;
+  uint8_t *dst_sr;
+  int dst_stride_sr;
   int round_0;
   int round_1;
   int plane;
