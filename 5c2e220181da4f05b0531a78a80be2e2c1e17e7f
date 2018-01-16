@@ -39,6 +39,30 @@
       "revId": "5c2e220181da4f05b0531a78a80be2e2c1e17e7f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f9a563f3_ce1a97ed",
+        "filename": "test/av1_convolve_2d_test_util.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-16T17:27:07Z",
+      "side": 1,
+      "message": "Yes setting to 0 works. But I prefer to set them to random numbers in the beginning, so someone else later won\u0027t doubt it and speed time to figure out why it works.",
+      "parentUuid": "772fa37a_1298a293",
+      "range": {
+        "startLine": 52,
+        "startChar": 2,
+        "endLine": 52,
+        "endChar": 77
+      },
+      "revId": "5c2e220181da4f05b0531a78a80be2e2c1e17e7f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
