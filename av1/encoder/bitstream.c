@@ -4153,7 +4153,14 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
         aom_wb_write_literal(wb, OD_ILOG_NZ(cm->delta_q_res) - 1, 2);
         xd->prev_qindex = cm->base_qindex;
 #if CONFIG_EXT_DELTA_Q
+#if CONFIG_INTRABC
+        if (cm->allow_intrabc && NO_FILTER_FOR_IBC)
+          assert(cm->delta_lf_present_flag == 0);
+        else
+          aom_wb_write_bit(wb, cm->delta_lf_present_flag);
+#else
         aom_wb_write_bit(wb, cm->delta_lf_present_flag);
+#endif  // CONFIG_INTRABC
         if (cm->delta_lf_present_flag) {
           aom_wb_write_literal(wb, OD_ILOG_NZ(cm->delta_lf_res) - 1, 2);
           xd->prev_delta_lf_from_base = 0;
