@@ -190,6 +190,11 @@ void av1_free_restoration_buffers(AV1_COMMON *cm) {
 void av1_free_context_buffers(AV1_COMMON *cm) {
   int i;
   cm->free_mi(cm);
+
+  aom_free(cm->boundary_info);
+  cm->boundary_info_alloc_size = 0;
+  cm->boundary_info = NULL;
+
 #if !CONFIG_SEGMENT_PRED_LAST
   free_seg_map(cm);
 #endif
@@ -217,6 +222,16 @@ int av1_alloc_context_buffers(AV1_COMMON *cm, int width, int height) {
   if (cm->mi_alloc_size < new_mi_size) {
     cm->free_mi(cm);
     if (cm->alloc_mi(cm, new_mi_size)) goto fail;
+  }
+
+  int new_bi_size = cm->mi_rows * cm->mi_stride;
+  if (cm->boundary_info_alloc_size < new_bi_size) {
+    aom_free(cm->boundary_info);
+    cm->boundary_info =
+        (BOUNDARY_TYPE *)aom_calloc(new_bi_size, sizeof(BOUNDARY_TYPE));
+    cm->boundary_info_alloc_size = 0;
+    if (!cm->boundary_info) goto fail;
+    cm->boundary_info_alloc_size = new_bi_size;
   }
 
 #if !CONFIG_SEGMENT_PRED_LAST
