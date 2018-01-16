@@ -16,6 +16,24 @@
       "revId": "c10487e7fc655b3b2df7dd8c305da1c675afc86b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "35de72b8_028a4eb3",
+        "filename": "av1/common/x86/convolve_2d_sse2.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 334,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-16T17:27:29Z",
+      "side": 1,
+      "message": "Yes. And I added assert(!((intptr_t)dst % 16)) to catch exceptions. Forgot to add check to dst_stride % 16. Will add later.",
+      "parentUuid": "d5752444_5e83614f",
+      "revId": "c10487e7fc655b3b2df7dd8c305da1c675afc86b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
