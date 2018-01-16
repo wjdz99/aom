@@ -46,6 +46,30 @@
       "revId": "f33564af9324788d2e0cf09d5d18f97a1760ee93",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f5f22135_7ddf24b2",
+        "filename": "av1/common/av1_inv_txfm2d.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2018-01-16T23:45:07Z",
+      "side": 1,
+      "message": "This is because the 8x8 and 4x8 transforms scaling are different.\nThis is a lossless change.\nThe shift is infered from the code.",
+      "parentUuid": "9d817172_b62cf754",
+      "range": {
+        "startLine": 255,
+        "startChar": 49,
+        "endLine": 255,
+        "endChar": 0
+      },
+      "revId": "f33564af9324788d2e0cf09d5d18f97a1760ee93",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
