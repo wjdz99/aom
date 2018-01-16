@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a50e4643_77de033d",
+        "filename": "av1/common/alloccommon.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2018-01-16T17:58:42Z",
+      "side": 1,
+      "message": "new_bi_size is read-only could be const.",
+      "range": {
+        "startLine": 227,
+        "startChar": 2,
+        "endLine": 227,
+        "endChar": 17
+      },
+      "revId": "6d686ff28efb31fcdca55198ab50f67a04bdf411",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c978f552_5b55cef1",
+        "filename": "av1/common/av1_loopfilter.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1023,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2018-01-16T17:58:42Z",
+      "side": 1,
+      "message": "bi is read-only could be const (const BOUNDARY_TYPE *const bi)",
+      "range": {
+        "startLine": 1023,
+        "startChar": 23,
+        "endLine": 1023,
+        "endChar": 25
+      },
+      "revId": "6d686ff28efb31fcdca55198ab50f67a04bdf411",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1ea723ff_e81e069e",
+        "filename": "av1/common/av1_loopfilter.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1588,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2018-01-16T17:58:42Z",
+      "side": 1,
+      "message": "bi is read-only could be const (const BOUNDARY_TYPE *const bi)",
+      "range": {
+        "startLine": 1588,
+        "startChar": 4,
+        "endLine": 1588,
+        "endChar": 27
+      },
+      "revId": "6d686ff28efb31fcdca55198ab50f67a04bdf411",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7e9f6771_e1d5c773",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 3266,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2018-01-16T17:58:42Z",
+      "side": 1,
+      "message": "is \"+ row *\" missing here?\n\nAdding it in does not change the output (at least not in the sequence I tried)",
+      "range": {
+        "startLine": 3266,
+        "startChar": 26,
+        "endLine": 3266,
+        "endChar": 45
+      },
+      "revId": "6d686ff28efb31fcdca55198ab50f67a04bdf411",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
