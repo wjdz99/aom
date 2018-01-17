@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c7c4a18d_e1075c91",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 797,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2018-01-17T21:38:46Z",
+      "side": 1,
+      "message": "With this way of representing 1 bit for one segment, the max value of segment id, i.e. 8 * sizeof(int) \u003d 32 different segment ids, can be 32-1 \u003d 31. \nIf so, you may want to add assert(sizeof(cm-\u003eskippable_seg_id) * 8 \u003e\u003d MAX_SEGMENTS) somewhere in the init of encoder and decoder?",
+      "range": {
+        "startLine": 797,
+        "startChar": 10,
+        "endLine": 797,
+        "endChar": 32
+      },
+      "revId": "aeca0b5550d3b91defda7fbcff9f68abdba5aa7a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
