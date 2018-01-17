@@ -46,7 +46,8 @@ static INLINE int has_scale(int xs, int ys) {
 static INLINE void inter_predictor(const uint8_t *src, int src_stride,
                                    uint8_t *dst, int dst_stride, int subpel_x,
                                    int subpel_y, const struct scale_factors *sf,
-                                   int w, int h, ConvolveParams *conv_params,
+                                   int w, int h,
+                                   ConvolveParams *const conv_params,
                                    InterpFilters interp_filters, int xs,
                                    int ys) {
   assert(conv_params->do_average == 0 || conv_params->do_average == 1);
@@ -114,13 +115,11 @@ static INLINE void inter_predictor(const uint8_t *src, int src_stride,
   }
 }
 
-static INLINE void highbd_inter_predictor(const uint8_t *src, int src_stride,
-                                          uint8_t *dst, int dst_stride,
-                                          int subpel_x, int subpel_y,
-                                          const struct scale_factors *sf, int w,
-                                          int h, ConvolveParams *conv_params,
-                                          InterpFilters interp_filters, int xs,
-                                          int ys, int bd) {
+static INLINE void highbd_inter_predictor(
+    const uint8_t *src, int src_stride, uint8_t *dst, int dst_stride,
+    int subpel_x, int subpel_y, const struct scale_factors *sf, int w, int h,
+    ConvolveParams *const conv_params, InterpFilters interp_filters, int xs,
+    int ys, int bd) {
   const int avg = conv_params->do_average;
   assert(avg == 0 || avg == 1);
 
@@ -271,9 +270,10 @@ void build_compound_seg_mask_highbd(uint8_t *mask, SEG_MASK_TYPE mask_type,
 void av1_make_masked_inter_predictor(
     const uint8_t *pre, int pre_stride, uint8_t *dst, int dst_stride,
     const int subpel_x, const int subpel_y, const struct scale_factors *sf,
-    int w, int h, ConvolveParams *conv_params, InterpFilters interp_filters,
-    int xs, int ys, int plane, const WarpTypesAllowed *warp_types, int p_col,
-    int p_row, int ref, MACROBLOCKD *xd);
+    int w, int h, ConvolveParams *const conv_params,
+    InterpFilters interp_filters, int xs, int ys, int plane,
+    const WarpTypesAllowed *warp_types, int p_col, int p_row, int ref,
+    MACROBLOCKD *xd);
 
 // TODO(jkoleszar): yet another mv clamping function :-(
 static INLINE MV clamp_mv_to_umv_border_sb(const MACROBLOCKD *xd,
@@ -314,7 +314,7 @@ void av1_build_inter_predictors_sb(const AV1_COMMON *cm, MACROBLOCKD *xd,
 void av1_build_inter_predictor(
     const uint8_t *src, int src_stride, uint8_t *dst, int dst_stride,
     const MV *src_mv, const struct scale_factors *sf, int w, int h,
-    ConvolveParams *conv_params, InterpFilters interp_filters,
+    ConvolveParams *const conv_params, InterpFilters interp_filters,
     const WarpTypesAllowed *warp_types, int p_col, int p_row, int plane,
     int ref, enum mv_precision precision, int x, int y, const MACROBLOCKD *xd);
 

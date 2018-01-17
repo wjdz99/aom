@@ -419,7 +419,7 @@ void av1_highbd_warp_affine_c(const int32_t *mat, const uint16_t *ref,
                               int p_col, int p_row, int p_width, int p_height,
                               int p_stride, int subsampling_x,
                               int subsampling_y, int bd,
-                              ConvolveParams *conv_params, int16_t alpha,
+                              ConvolveParams *const conv_params, int16_t alpha,
                               int16_t beta, int16_t gamma, int16_t delta) {
   int32_t tmp[15 * 8];
   const int use_conv_params = conv_params->round == CONVOLVE_OPT_NO_ROUND;
@@ -556,7 +556,7 @@ static void highbd_warp_plane(WarpedMotionParams *wm, const uint8_t *const ref8,
                               const uint8_t *const pred8, int p_col, int p_row,
                               int p_width, int p_height, int p_stride,
                               int subsampling_x, int subsampling_y, int bd,
-                              ConvolveParams *conv_params) {
+                              ConvolveParams *const conv_params) {
   assert(wm->wmtype <= AFFINE);
   if (wm->wmtype == ROTZOOM) {
     wm->wmmat[5] = wm->wmmat[2];
@@ -716,8 +716,8 @@ void av1_warp_affine_c(const int32_t *mat, const uint8_t *ref, int width,
                        int height, int stride, uint8_t *pred, int p_col,
                        int p_row, int p_width, int p_height, int p_stride,
                        int subsampling_x, int subsampling_y,
-                       ConvolveParams *conv_params, int16_t alpha, int16_t beta,
-                       int16_t gamma, int16_t delta) {
+                       ConvolveParams *const conv_params, int16_t alpha,
+                       int16_t beta, int16_t gamma, int16_t delta) {
   int32_t tmp[15 * 8];
   const int bd = 8;
   const int use_conv_params = conv_params->round == CONVOLVE_OPT_NO_ROUND;
@@ -858,7 +858,7 @@ static void warp_plane(WarpedMotionParams *wm, const uint8_t *const ref,
                        int width, int height, int stride, uint8_t *pred,
                        int p_col, int p_row, int p_width, int p_height,
                        int p_stride, int subsampling_x, int subsampling_y,
-                       ConvolveParams *conv_params) {
+                       ConvolveParams *const conv_params) {
   assert(wm->wmtype <= AFFINE);
   if (wm->wmtype == ROTZOOM) {
     wm->wmmat[5] = wm->wmmat[2];
@@ -951,7 +951,7 @@ void av1_warp_plane(WarpedMotionParams *wm, int use_hbd, int bd,
                     const uint8_t *ref, int width, int height, int stride,
                     uint8_t *pred, int p_col, int p_row, int p_width,
                     int p_height, int p_stride, int subsampling_x,
-                    int subsampling_y, ConvolveParams *conv_params) {
+                    int subsampling_y, ConvolveParams *const conv_params) {
   if (use_hbd)
     highbd_warp_plane(wm, ref, width, height, stride, pred, p_col, p_row,
                       p_width, p_height, p_stride, subsampling_x, subsampling_y,

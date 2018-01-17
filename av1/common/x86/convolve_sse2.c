@@ -83,12 +83,11 @@ static INLINE void add_store(CONV_BUF_TYPE *const dst, const __m128i *const res,
   _mm_store_si128((__m128i *)dst, d);
 }
 
-void av1_convolve_y_sse2(const uint8_t *src, int src_stride,
-                         const uint8_t *dst0, int dst_stride0, int w, int h,
+void av1_convolve_y_sse2(const uint8_t *src, int src_stride, int w, int h,
                          InterpFilterParams *filter_params_x,
                          InterpFilterParams *filter_params_y,
                          const int subpel_x_q4, const int subpel_y_q4,
-                         ConvolveParams *conv_params) {
+                         const ConvolveParams *const conv_params) {
   CONV_BUF_TYPE *dst = conv_params->dst;
   const int dst_stride = conv_params->dst_stride;
   const int fo_vert = filter_params_y->taps / 2 - 1;
@@ -100,8 +99,6 @@ void av1_convolve_y_sse2(const uint8_t *src, int src_stride,
 
   (void)filter_params_x;
   (void)subpel_x_q4;
-  (void)dst0;
-  (void)dst_stride0;
 
   prepare_coeffs(filter_params_y, subpel_y_q4, coeffs);
 
@@ -216,12 +213,11 @@ void av1_convolve_y_sse2(const uint8_t *src, int src_stride,
   }
 }
 
-void av1_convolve_x_sse2(const uint8_t *src, int src_stride,
-                         const uint8_t *dst0, int dst_stride0, int w, int h,
+void av1_convolve_x_sse2(const uint8_t *src, int src_stride, int w, int h,
                          InterpFilterParams *filter_params_x,
                          InterpFilterParams *filter_params_y,
                          const int subpel_x_q4, const int subpel_y_q4,
-                         ConvolveParams *conv_params) {
+                         const ConvolveParams *const conv_params) {
   CONV_BUF_TYPE *dst = conv_params->dst;
   const int dst_stride = conv_params->dst_stride;
   const int fo_horiz = filter_params_x->taps / 2 - 1;
@@ -235,8 +231,6 @@ void av1_convolve_x_sse2(const uint8_t *src, int src_stride,
 
   (void)filter_params_y;
   (void)subpel_y_q4;
-  (void)dst0;
-  (void)dst_stride0;
 
   prepare_coeffs(filter_params_x, subpel_x_q4, coeffs);
 

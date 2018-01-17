@@ -24,7 +24,7 @@ using libaom_test::ACMRandom;
 
 typedef void (*conv_filter_t)(const uint8_t *, int, uint8_t *, int, int, int,
                               const InterpFilterParams, int, int,
-                              ConvolveParams *);
+                              const ConvolveParams *);
 typedef void (*hbd_conv_filter_t)(const uint16_t *, int, uint16_t *, int, int,
                                   int, const InterpFilterParams, int, int, int,
                                   int);

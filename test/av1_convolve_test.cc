@@ -77,7 +77,7 @@ typedef void (*ConvolveFunc)(const uint8_t *src, int src_stride, uint8_t *dst,
                              int dst_stride, int w, int h,
                              const InterpFilterParams filter_params,
                              const int subpel_q4, int step_q4,
-                             ConvolveParams *conv_params);
+                             const ConvolveParams *const conv_params);
 
 struct ConvolveFunctions {
   ConvolveFunctions(ConvolveFunc hf, ConvolveFunc vf) : hf_(hf), vf_(vf) {}

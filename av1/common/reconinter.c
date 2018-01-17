@@ -60,10 +60,10 @@ static INLINE int allow_warp(const MODE_INFO *const mi,
 static INLINE void av1_make_inter_predictor(
     const uint8_t *src, int src_stride, uint8_t *dst, int dst_stride,
     const int subpel_x, const int subpel_y, const struct scale_factors *sf,
-    int w, int h, ConvolveParams *conv_params, InterpFilters interp_filters,
-    const WarpTypesAllowed *warp_types, int p_col, int p_row, int plane,
-    int ref, const MODE_INFO *mi, int build_for_obmc, int xs, int ys,
-    const MACROBLOCKD *xd) {
+    int w, int h, ConvolveParams *const conv_params,
+    InterpFilters interp_filters, const WarpTypesAllowed *warp_types, int p_col,
+    int p_row, int plane, int ref, const MODE_INFO *mi, int build_for_obmc,
+    int xs, int ys, const MACROBLOCKD *xd) {
   (void)xd;
 
   // Make sure the selected motion mode is valid for this configuration
@@ -392,7 +392,7 @@ static void diffwtd_mask_d32(uint8_t *mask, int which_inverse, int mask_base,
                              const int32_t *src0, int src0_stride,
                              const int32_t *src1, int src1_stride,
                              BLOCK_SIZE sb_type, int h, int w,
-                             ConvolveParams *conv_params, int bd) {
+                             const ConvolveParams *const conv_params, int bd) {
   int round =
       2 * FILTER_BITS - conv_params->round_0 - conv_params->round_1 + (bd - 8);
   int i, j, m, diff;
@@ -412,7 +412,8 @@ static void build_compound_seg_mask_d32(uint8_t *mask, SEG_MASK_TYPE mask_type,
                                         const int32_t *src0, int src0_stride,
                                         const int32_t *src1, int src1_stride,
                                         BLOCK_SIZE sb_type, int h, int w,
-                                        ConvolveParams *conv_params, int bd) {
+                                        const ConvolveParams *const conv_params,
+                                        int bd) {
   switch (mask_type) {
     case DIFFWTD_38:
       diffwtd_mask_d32(mask, 0, 38, src0, src0_stride, src1, src1_stride,
@@ -720,9 +721,10 @@ static void build_masked_compound_highbd(
 void av1_make_masked_inter_predictor(
     const uint8_t *pre, int pre_stride, uint8_t *dst, int dst_stride,
     const int subpel_x, const int subpel_y, const struct scale_factors *sf,
-    int w, int h, ConvolveParams *conv_params, InterpFilters interp_filters,
-    int xs, int ys, int plane, const WarpTypesAllowed *warp_types, int p_col,
-    int p_row, int ref, MACROBLOCKD *xd) {
+    int w, int h, ConvolveParams *const conv_params,
+    InterpFilters interp_filters, int xs, int ys, int plane,
+    const WarpTypesAllowed *warp_types, int p_col, int p_row, int ref,
+    MACROBLOCKD *xd) {
   const MODE_INFO *mi = xd->mi[0];
 
   const INTERINTER_COMPOUND_DATA comp_data = {
@@ -841,7 +843,7 @@ void av1_highbd_build_inter_predictor(
 void av1_build_inter_predictor(
     const uint8_t *src, int src_stride, uint8_t *dst, int dst_stride,
     const MV *src_mv, const struct scale_factors *sf, int w, int h,
-    ConvolveParams *conv_params, InterpFilters interp_filters,
+    ConvolveParams *const conv_params, InterpFilters interp_filters,
     const WarpTypesAllowed *warp_types, int p_col, int p_row, int plane,
     int ref, enum mv_precision precision, int x, int y, const MACROBLOCKD *xd) {
   const int is_q4 = precision == MV_PRECISION_Q4;

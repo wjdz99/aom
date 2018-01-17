@@ -342,16 +342,14 @@ DECLARE_ALIGNED(32, static const uint8_t, g_shuf1[32]) = {
   0, 8, 1, 9, 2, 10, 3, 11, 4, 12, 5, 13, 6, 14, 7, 15
 };
 
-void av1_convolve_y_avx2(const uint8_t *src, int src_stride, uint8_t *dst0,
-                         int dst_stride0, int w, int h,
+void av1_convolve_y_avx2(const uint8_t *src, int src_stride, int w, int h,
                          InterpFilterParams *filter_params_x,
                          InterpFilterParams *filter_params_y,
                          const int subpel_x_q4, const int subpel_y_q4,
-                         ConvolveParams *conv_params) {
+                         const ConvolveParams *const conv_params) {
   if (w < 16) {
-    av1_convolve_y_sse2(src, src_stride, dst0, dst_stride0, w, h,
-                        filter_params_x, filter_params_y, subpel_x_q4,
-                        subpel_y_q4, conv_params);
+    av1_convolve_y_sse2(src, src_stride, w, h, filter_params_x, filter_params_y,
+                        subpel_x_q4, subpel_y_q4, conv_params);
     return;
   }
   {
@@ -387,8 +385,6 @@ void av1_convolve_y_avx2(const uint8_t *src, int src_stride, uint8_t *dst0,
 
     (void)filter_params_x;
     (void)subpel_x_q4;
-    (void)dst0;
-    (void)dst_stride0;
 
     for (i = 0; i < h; ++i) {
       for (j = 0; j < w; j += 16) {
@@ -483,16 +479,14 @@ void av1_convolve_y_avx2(const uint8_t *src, int src_stride, uint8_t *dst0,
   }
 }
 
-void av1_convolve_x_avx2(const uint8_t *src, int src_stride, uint8_t *dst0,
-                         int dst_stride0, int w, int h,
+void av1_convolve_x_avx2(const uint8_t *src, int src_stride, int w, int h,
                          InterpFilterParams *filter_params_x,
                          InterpFilterParams *filter_params_y,
                          const int subpel_x_q4, const int subpel_y_q4,
-                         ConvolveParams *conv_params) {
+                         const ConvolveParams *const conv_params) {
   if (w < 16) {
-    av1_convolve_x_sse2(src, src_stride, dst0, dst_stride0, w, h,
-                        filter_params_x, filter_params_y, subpel_x_q4,
-                        subpel_y_q4, conv_params);
+    av1_convolve_x_sse2(src, src_stride, w, h, filter_params_x, filter_params_y,
+                        subpel_x_q4, subpel_y_q4, conv_params);
     return;
   }
   {
@@ -533,8 +527,6 @@ void av1_convolve_x_avx2(const uint8_t *src, int src_stride, uint8_t *dst0,
 
     (void)filter_params_y;
     (void)subpel_y_q4;
-    (void)dst0;
-    (void)dst_stride0;
 
     for (i = 0; i < h; ++i) {
       for (j = 0; j < w; j += 16) {

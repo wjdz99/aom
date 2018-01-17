@@ -17,17 +17,14 @@
 #include "aom_dsp/aom_filter.h"
 #include "av1/common/convolve.h"
 
-void av1_convolve_2d_sse2(const uint8_t *src, int src_stride, uint8_t *dst0,
-                          int dst_stride0, int w, int h,
+void av1_convolve_2d_sse2(const uint8_t *src, int src_stride, int w, int h,
                           InterpFilterParams *filter_params_x,
                           InterpFilterParams *filter_params_y,
                           const int subpel_x_q4, const int subpel_y_q4,
-                          ConvolveParams *conv_params) {
+                          const ConvolveParams *const conv_params) {
   CONV_BUF_TYPE *dst = conv_params->dst;
   int dst_stride = conv_params->dst_stride;
   const int bd = 8;
-  (void)dst0;
-  (void)dst_stride0;
 
   DECLARE_ALIGNED(16, int16_t,
                   im_block[(MAX_SB_SIZE + MAX_FILTER_TAP - 1) * MAX_SB_SIZE]);
@@ -204,20 +201,17 @@ void av1_convolve_2d_sse2(const uint8_t *src, int src_stride, uint8_t *dst0,
   }
 }
 
-void av1_convolve_2d_copy_sse2(const uint8_t *src, int src_stride,
-                               uint8_t *dst0, int dst_stride0, int w, int h,
+void av1_convolve_2d_copy_sse2(const uint8_t *src, int src_stride, int w, int h,
                                InterpFilterParams *filter_params_x,
                                InterpFilterParams *filter_params_y,
                                const int subpel_x_q4, const int subpel_y_q4,
-                               ConvolveParams *conv_params) {
+                               const ConvolveParams *const conv_params) {
   CONV_BUF_TYPE *dst = conv_params->dst;
   int dst_stride = conv_params->dst_stride;
   (void)filter_params_x;
   (void)filter_params_y;
   (void)subpel_x_q4;
   (void)subpel_y_q4;
-  (void)dst0;
-  (void)dst_stride0;
 
   const int bits =
       FILTER_BITS * 2 - conv_params->round_1 - conv_params->round_0;
@@ -342,20 +336,17 @@ static INLINE void copy_128(const uint8_t *src, uint8_t *dst) {
 }
 #endif
 
-void av1_convolve_2d_copy_sr_sse2(const uint8_t *src, int src_stride,
-                                  uint8_t *dst, int dst_stride, int w, int h,
-                                  InterpFilterParams *filter_params_x,
+void av1_convolve_2d_copy_sr_sse2(const uint8_t *src, int src_stride, int w,
+                                  int h, InterpFilterParams *filter_params_x,
                                   InterpFilterParams *filter_params_y,
                                   const int subpel_x_q4, const int subpel_y_q4,
-                                  ConvolveParams *conv_params) {
+                                  const ConvolveParams *const conv_params) {
+  uint8_t *dst = conv_params->dst_sr;
+  const int dst_stride = conv_params->dst_stride_sr;
   (void)filter_params_x;
   (void)filter_params_y;
   (void)subpel_x_q4;
   (void)subpel_y_q4;
-  (void)conv_params;
-
-  assert(dst == conv_params->dst_sr);
-  assert(dst_stride == conv_params->dst_stride_sr);
 
   if (w >= 16) {
     assert(!((intptr_t)dst % 16));
@@ -466,20 +457,17 @@ void av1_convolve_2d_copy_sr_sse2(const uint8_t *src, int src_stride,
 }
 
 #if CONFIG_JNT_COMP
-void av1_jnt_convolve_2d_copy_sse2(const uint8_t *src, int src_stride,
-                                   uint8_t *dst0, int dst_stride0, int w, int h,
-                                   InterpFilterParams *filter_params_x,
+void av1_jnt_convolve_2d_copy_sse2(const uint8_t *src, int src_stride, int w,
+                                   int h, InterpFilterParams *filter_params_x,
                                    InterpFilterParams *filter_params_y,
                                    const int subpel_x_q4, const int subpel_y_q4,
-                                   ConvolveParams *conv_params) {
+                                   const ConvolveParams *const conv_params) {
   CONV_BUF_TYPE *dst = conv_params->dst;
   int dst_stride = conv_params->dst_stride;
   (void)filter_params_x;
   (void)filter_params_y;
   (void)subpel_x_q4;
   (void)subpel_y_q4;
-  (void)dst0;
-  (void)dst_stride0;
 
   const int bits =
       FILTER_BITS * 2 - conv_params->round_1 - conv_params->round_0;

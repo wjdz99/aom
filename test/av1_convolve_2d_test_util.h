@@ -24,12 +24,11 @@ namespace libaom_test {
 
 namespace AV1Convolve2D {
 
-typedef void (*convolve_2d_func)(const uint8_t *src, int src_stride,
-                                 uint8_t *dst, int dst_stride, int w, int h,
-                                 InterpFilterParams *filter_params_x,
+typedef void (*convolve_2d_func)(const uint8_t *src, int src_stride, int w,
+                                 int h, InterpFilterParams *filter_params_x,
                                  InterpFilterParams *filter_params_y,
                                  const int subpel_x_q4, const int subpel_y_q4,
-                                 ConvolveParams *conv_params);
+                                 const ConvolveParams *const conv_params);
 
 typedef std::tr1::tuple<convolve_2d_func, int, int, int> Convolve2DParam;
 
@@ -86,7 +85,7 @@ typedef void (*highbd_convolve_2d_func)(
     const uint16_t *src, int src_stride, CONV_BUF_TYPE *dst, int dst_stride,
     int w, int h, InterpFilterParams *filter_params_x,
     InterpFilterParams *filter_params_y, const int subpel_x_q4,
-    const int subpel_y_q4, ConvolveParams *conv_params, int bd);
+    const int subpel_y_q4, const ConvolveParams *const conv_params, int bd);
 
 typedef std::tr1::tuple<int, highbd_convolve_2d_func> HighbdConvolve2DParam;
 
