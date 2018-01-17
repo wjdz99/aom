@@ -133,10 +133,10 @@ class CFLPredictTest : public ::testing::TestWithParam<predict_param> {
   int Width() const { return tx_size_wide[GET_PARAM(0)]; }
   int Height() const { return tx_size_high[GET_PARAM(0)]; }
   TX_SIZE Tx_size() const { return GET_PARAM(0); }
-  DECLARE_ALIGNED(32, uint8_t, chroma_pels_ref[CFL_BUF_SQUARE]);
-  DECLARE_ALIGNED(32, int16_t, sub_luma_pels_ref[CFL_BUF_SQUARE]);
-  DECLARE_ALIGNED(32, uint8_t, chroma_pels[CFL_BUF_SQUARE]);
-  DECLARE_ALIGNED(32, int16_t, sub_luma_pels[CFL_BUF_SQUARE]);
+  uint8_t chroma_pels_ref[CFL_BUF_SQUARE];
+  int16_t sub_luma_pels_ref[CFL_BUF_SQUARE];
+  uint8_t chroma_pels[CFL_BUF_SQUARE];
+  int16_t sub_luma_pels[CFL_BUF_SQUARE];
   get_predict_fn predict;
   int alpha_q3;
   uint8_t dc;
@@ -164,10 +164,10 @@ class CFLPredictHBDTest : public ::testing::TestWithParam<predict_param_hbd> {
   int Width() const { return tx_size_wide[GET_PARAM(0)]; }
   int Height() const { return tx_size_high[GET_PARAM(0)]; }
   TX_SIZE Tx_size() const { return GET_PARAM(0); }
-  DECLARE_ALIGNED(32, uint16_t, chroma_pels_ref[CFL_BUF_SQUARE]);
-  DECLARE_ALIGNED(32, int16_t, sub_luma_pels_ref[CFL_BUF_SQUARE]);
-  DECLARE_ALIGNED(32, uint16_t, chroma_pels[CFL_BUF_SQUARE]);
-  DECLARE_ALIGNED(32, int16_t, sub_luma_pels[CFL_BUF_SQUARE]);
+  uint16_t chroma_pels_ref[CFL_BUF_SQUARE];
+  int16_t sub_luma_pels_ref[CFL_BUF_SQUARE];
+  uint16_t chroma_pels[CFL_BUF_SQUARE];
+  int16_t sub_luma_pels[CFL_BUF_SQUARE];
   get_predict_fn_hbd predict;
   int bd;
   int alpha_q3;
