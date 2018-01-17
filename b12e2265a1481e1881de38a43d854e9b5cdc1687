@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a75a99f_5645d697",
+        "filename": "aom/aom_codec.h",
+        "patchSetId": 28
+      },
+      "lineNbr": 501,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-01-17T15:36:05Z",
+      "side": 1,
+      "message": "This include is part of the public API. Any changes here cannot rely on aom_config.h. This file only compiles because aom_image.h is currently breaking this rule.\n\nHere\u0027s the existing bug for CONFIG_CICP (the aom_image.h breakage): aomedia:1218 \n\nAnd my earlier change cleaning up CONFIG_COLORSPACE_HEADERS: https://aomedia.googlesource.com/aom/+/01d43e1f713c0474e8f66598e9172a5218568d1d",
+      "range": {
+        "startLine": 499,
+        "startChar": 0,
+        "endLine": 501,
+        "endChar": 6
+      },
+      "revId": "b12e2265a1481e1881de38a43d854e9b5cdc1687",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "57fb5882_37e65cbf",
+        "filename": "aom/aom_image.h",
+        "patchSetId": 28
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-01-17T15:36:05Z",
+      "side": 1,
+      "message": "ditto earlier comment about aom_config.h and the public API.",
+      "range": {
+        "startLine": 18,
+        "startChar": 0,
+        "endLine": 20,
+        "endChar": 0
+      },
+      "revId": "b12e2265a1481e1881de38a43d854e9b5cdc1687",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
