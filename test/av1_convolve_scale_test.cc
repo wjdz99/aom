@@ -367,7 +367,7 @@ typedef void (*LowbdConvolveFunc)(const uint8_t *src, int src_stride,
                                   InterpFilterParams *filter_params_y,
                                   const int subpel_x_qn, const int x_step_qn,
                                   const int subpel_y_qn, const int y_step_qn,
-                                  ConvolveParams *conv_params);
+                                  const ConvolveParams *const conv_params);
 
 // Test parameter list:
 //  <tst_fun, dims, ntaps_x, ntaps_y, avg>
@@ -440,7 +440,8 @@ typedef void (*HighbdConvolveFunc)(const uint16_t *src, int src_stride,
                                    InterpFilterParams *filter_params_y,
                                    const int subpel_x_qn, const int x_step_qn,
                                    const int subpel_y_qn, const int y_step_qn,
-                                   ConvolveParams *conv_params, int bd);
+                                   const ConvolveParams *const conv_params,
+                                   int bd);
 
 // Test parameter list:
 //  <tst_fun, dims, ntaps_x, ntaps_y, avg, bd>
