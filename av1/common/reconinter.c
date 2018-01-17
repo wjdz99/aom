@@ -905,10 +905,18 @@ void av1_jnt_comp_weight_assign(const AV1_COMMON *cm, const MB_MODE_INFO *mbmi,
   }
 
   int i;
-  for (i = 0; i < 4; ++i) {
-    int c0 = quant_dist_weight[i][order];
-    int c1 = quant_dist_weight[i][!order];
-    if (d0 * c0 < d1 * c1) break;
+  if (d0 > d1) {
+    for (i = 0; i < 3; ++i) {
+      int c0 = quant_dist_weight[i][order];
+      int c1 = quant_dist_weight[i][!order];
+      if (d0 * c0 < d1 * c1) break;
+    }
+  } else {
+    for (i = 0; i < 3; ++i) {
+      int c0 = quant_dist_weight[i][order];
+      int c1 = quant_dist_weight[i][!order];
+      if (d1 * c1 < d0 * c0) break;
+    }
   }
 
   *fwd_offset = quant_dist_lookup_table[order_idx][i][order];
