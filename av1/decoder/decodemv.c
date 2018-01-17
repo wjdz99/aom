@@ -527,8 +527,7 @@ static void set_segment_id(AV1_COMMON *cm, int mi_offset, int x_mis, int y_mis,
 
 static int read_intra_segment_id(AV1_COMMON *const cm, MACROBLOCKD *const xd,
                                  MB_MODE_INFO *const mbmi, int mi_row,
-                                 int mi_col, int bsize, int preskip,
-                                 aom_reader *r) {
+                                 int mi_col, int bsize, aom_reader *r) {
   struct segmentation *const seg = &cm->seg;
   const int mi_offset = mi_row * cm->mi_cols + mi_col;
   const int bw = mi_size_wide[bsize];
@@ -541,16 +540,10 @@ static int read_intra_segment_id(AV1_COMMON *const cm, MACROBLOCKD *const xd,
   assert(seg->update_map && !seg->temporal_update);
 
 #if CONFIG_SPATIAL_SEGMENTATION
-  if (preskip) {
-    if (!cm->preskip_segid) return 0;
-  } else {
-    if (cm->preskip_segid) return mbmi->segment_id;
-  }
-  const int segment_id =
-      read_segment_id(cm, xd, mi_row, mi_col, r, preskip ? 0 : mbmi->skip);
+  const int segment_id = read_segment_id(cm, xd, mi_row, mi_col, r,
+                                         cm->skippable_segid && mbmi->skip);
 #else
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
-  (void)preskip;
   (void)mbmi;
   const int segment_id = read_segment_id(r, &ec_ctx->seg);
 #endif
@@ -570,8 +563,7 @@ static void copy_segment_id(const AV1_COMMON *cm,
 }
 
 static int read_inter_segment_id(AV1_COMMON *const cm, MACROBLOCKD *const xd,
-                                 int mi_row, int mi_col, int preskip,
-                                 aom_reader *r) {
+                                 int mi_row, int mi_col, aom_reader *r) {
   struct segmentation *const seg = &cm->seg;
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
   struct segmentation_probs *const segp = &ec_ctx->seg;
@@ -600,21 +592,13 @@ static int read_inter_segment_id(AV1_COMMON *const cm, MACROBLOCKD *const xd,
   }
 
 #if CONFIG_SPATIAL_SEGMENTATION
-  if (preskip) {
-    if (!cm->preskip_segid) return 0;
-  } else {
-    if (cm->preskip_segid) return mbmi->segment_id;
-    if (mbmi->skip) {
-      if (seg->temporal_update) {
-        mbmi->seg_id_predicted = 0;
-      }
-      segment_id = read_segment_id(cm, xd, mi_row, mi_col, r, 1);
-      set_segment_id(cm, mi_offset, x_mis, y_mis, segment_id);
-      return segment_id;
-    }
+  if (cm->skippable_segid && mbmi->skip) {
+    if (seg->temporal_update) mbmi->seg_id_predicted = 0;
+    segment_id = read_segment_id(cm, xd, mi_row, mi_col, r, 1);
+    set_segment_id(cm, mi_offset, x_mis, y_mis, segment_id);
+    return segment_id;
   }
 #endif
-  (void)preskip;
   if (seg->temporal_update) {
     const int ctx = av1_get_pred_context_seg_id(xd);
     aom_cdf_prob *pred_cdf = segp->pred_cdf[ctx];
@@ -1066,13 +1050,16 @@ static void read_intra_frame_mode_info(AV1_COMMON *const cm,
 
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
 
+#if !CONFIG_SPATIAL_SEGMENTATION
   mbmi->segment_id =
-      read_intra_segment_id(cm, xd, mbmi, mi_row, mi_col, bsize, 1, r);
+      read_intra_segment_id(cm, xd, mbmi, mi_row, mi_col, bsize, r);
+#endif
+
   mbmi->skip = read_skip(cm, xd, mbmi->segment_id, r);
 
 #if CONFIG_SPATIAL_SEGMENTATION
   mbmi->segment_id =
-      read_intra_segment_id(cm, xd, mbmi, mi_row, mi_col, bsize, 0, r);
+      read_intra_segment_id(cm, xd, mbmi, mi_row, mi_col, bsize, r);
 #endif
 
   read_cdef(cm, r, mbmi, mi_col, mi_row);
@@ -2194,7 +2181,9 @@ static void read_inter_frame_mode_info(AV1Decoder *const pbi,
 
   mbmi->mv[0].as_int = 0;
   mbmi->mv[1].as_int = 0;
-  mbmi->segment_id = read_inter_segment_id(cm, xd, mi_row, mi_col, 1, r);
+#if !CONFIG_SPATIAL_SEGMENTATION
+  mbmi->segment_id = read_inter_segment_id(cm, xd, mi_row, mi_col, r);
+#endif
 
 #if CONFIG_EXT_SKIP
   mbmi->skip_mode = read_skip_mode(cm, xd, mbmi->segment_id, r);
@@ -2206,7 +2195,7 @@ static void read_inter_frame_mode_info(AV1Decoder *const pbi,
     mbmi->skip = read_skip(cm, xd, mbmi->segment_id, r);
 
 #if CONFIG_SPATIAL_SEGMENTATION
-  mbmi->segment_id = read_inter_segment_id(cm, xd, mi_row, mi_col, 0, r);
+  mbmi->segment_id = read_inter_segment_id(cm, xd, mi_row, mi_col, r);
 #endif
 
   read_cdef(cm, r, mbmi, mi_col, mi_row);

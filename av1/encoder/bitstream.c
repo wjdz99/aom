@@ -1170,8 +1170,7 @@ static void write_cdef(AV1_COMMON *cm, aom_writer *w, int skip, int mi_col,
 static void write_inter_segment_id(AV1_COMP *cpi, aom_writer *w,
                                    const struct segmentation *const seg,
                                    struct segmentation_probs *const segp,
-                                   int mi_row, int mi_col, int skip,
-                                   int preskip) {
+                                   int mi_row, int mi_col, int skip) {
   MACROBLOCKD *const xd = &cpi->td.mb.e_mbd;
   const MODE_INFO *mi = xd->mi[0];
   const MB_MODE_INFO *const mbmi = &mi->mbmi;
@@ -1181,20 +1180,14 @@ static void write_inter_segment_id(AV1_COMP *cpi, aom_writer *w,
   (void)mi_row;
   (void)mi_col;
   (void)skip;
-  (void)preskip;
 #endif
 
   if (seg->update_map) {
 #if CONFIG_SPATIAL_SEGMENTATION
-    if (preskip) {
-      if (!cm->preskip_segid) return;
-    } else {
-      if (cm->preskip_segid) return;
-      if (skip) {
-        write_segment_id(cpi, mbmi, w, seg, segp, mi_row, mi_col, 1);
-        if (seg->temporal_update) ((MB_MODE_INFO *)mbmi)->seg_id_predicted = 0;
-        return;
-      }
+    if (cm->skippable_segid && skip) {
+      write_segment_id(cpi, mbmi, w, seg, segp, mi_row, mi_col, 1);
+      if (seg->temporal_update) ((MB_MODE_INFO *)mbmi)->seg_id_predicted = 0;
+      return;
     }
 #endif
     if (seg->temporal_update) {
@@ -1246,7 +1239,9 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
   (void)mi_row;
   (void)mi_col;
 
-  write_inter_segment_id(cpi, w, seg, segp, mi_row, mi_col, 0, 1);
+#if !CONFIG_SPATIAL_SEGMENTATION
+  write_inter_segment_id(cpi, w, seg, segp, mi_row, mi_col, 0);
+#endif
 
 #if CONFIG_EXT_SKIP
   write_skip_mode(cm, xd, segment_id, mi, w);
@@ -1262,7 +1257,7 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
 #endif  // CONFIG_EXT_SKIP
 
 #if CONFIG_SPATIAL_SEGMENTATION
-  write_inter_segment_id(cpi, w, seg, segp, mi_row, mi_col, skip, 0);
+  write_inter_segment_id(cpi, w, seg, segp, mi_row, mi_col, skip);
 #endif
 
   write_cdef(cm, w, skip, mi_col, mi_row);
@@ -1568,18 +1563,16 @@ static void write_mb_modes_kf(AV1_COMP *cpi, MACROBLOCKD *xd,
   (void)mi_row;
   (void)mi_col;
 
-#if CONFIG_SPATIAL_SEGMENTATION
-  if (cm->preskip_segid && seg->update_map)
-    write_segment_id(cpi, mbmi, w, seg, segp, mi_row, mi_col, 0);
-#else
+#if !CONFIG_SPATIAL_SEGMENTATION
   if (seg->update_map) write_segment_id(w, seg, segp, mbmi->segment_id);
 #endif
 
   const int skip = write_skip(cm, xd, mbmi->segment_id, mi, w);
 
 #if CONFIG_SPATIAL_SEGMENTATION
-  if (!cm->preskip_segid && seg->update_map)
-    write_segment_id(cpi, mbmi, w, seg, segp, mi_row, mi_col, skip);
+  if (seg->update_map)
+    write_segment_id(cpi, mbmi, w, seg, segp, mi_row, mi_col,
+                     cm->skippable_segid && skip);
 #endif
 
   write_cdef(cm, w, skip, mi_col, mi_row);
@@ -2486,7 +2479,7 @@ static void encode_segmentation(AV1_COMMON *cm, MACROBLOCKD *xd,
   }
 
 #if CONFIG_SPATIAL_SEGMENTATION
-  cm->preskip_segid = 0;
+  cm->skippable_segid = 0;
 #endif
 
   // Segmentation data
@@ -2498,7 +2491,7 @@ static void encode_segmentation(AV1_COMMON *cm, MACROBLOCKD *xd,
         aom_wb_write_bit(wb, active);
         if (active) {
 #if CONFIG_SPATIAL_SEGMENTATION
-          cm->preskip_segid |= j >= SEG_LVL_REF_FRAME;
+          cm->skippable_segid |= j >= SEG_LVL_REF_FRAME;
           cm->last_active_segid = i;
 #endif
           const int data_max = av1_seg_feature_data_max(j);

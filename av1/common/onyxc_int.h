@@ -407,7 +407,7 @@ typedef struct AV1Common {
   int seg_map_alloc_size;
 #if CONFIG_SPATIAL_SEGMENTATION
   int last_active_segid;
-  int preskip_segid;
+  int skippable_segid;
 #endif
 
   InterpFilter interp_filter;
