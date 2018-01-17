@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f364747f_d885393e",
+        "filename": "test/av1_txfm_test.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 376,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-01-17T19:00:11Z",
+      "side": 1,
+      "message": "You can rewrite these lines in a single line:\nASSERT_LE(stage_range[i] + cos_bit[i], high_range) \u003c\u003c \"stage \u003d \" \u003c\u003c i;",
+      "range": {
+        "startLine": 371,
+        "startChar": 1,
+        "endLine": 376,
+        "endChar": 5
+      },
+      "revId": "595f38e12e95b661f82132cb87933a7bff2807b8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ea30536b_4427fbbb",
+        "filename": "test/av1_txfm_test.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 385,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-01-17T19:00:11Z",
+      "side": 1,
+      "message": "same here",
+      "range": {
+        "startLine": 381,
+        "startChar": 0,
+        "endLine": 385,
+        "endChar": 7
+      },
+      "revId": "595f38e12e95b661f82132cb87933a7bff2807b8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
