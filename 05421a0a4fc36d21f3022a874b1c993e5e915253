@@ -261,6 +261,30 @@
     },
     {
       "key": {
+        "uuid": "fc0d9a0f_60ed224f",
+        "filename": "av1/common/x86/selfguided_avx2.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 209,
+      "author": {
+        "id": 8213
+      },
+      "writtenOn": "2018-01-17T17:14:48Z",
+      "side": 1,
+      "message": "pre_sum1 and pre_sum2 can contain some uninitialised data if j is close to width, as the boxsum_from_ii function may read off the edge of the image.\n\nI have implemented a new version where the possible masks are all calculated before the for loop so that recalculation does not occur, and the CONFIG_DEBUG\u003d0 section has been removed (https://aomedia-review.googlesource.com/c/aom/+/42341). This increases the speed by ~3%-5% (compared to the current CONFIG_DEBUG\u003d1 section), at the expense of a little extra register pressure.",
+      "parentUuid": "202d3c4c_3e866c66",
+      "range": {
+        "startLine": 209,
+        "startChar": 4,
+        "endLine": 209,
+        "endChar": 16
+      },
+      "revId": "05421a0a4fc36d21f3022a874b1c993e5e915253",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "23595443_9884d3bc",
         "filename": "av1/common/x86/selfguided_avx2.c",
         "patchSetId": 3
@@ -320,6 +344,30 @@
       "side": 1,
       "message": "Sorry that I didn\u0027t state it clearly. I was thinking we could have a separate lbd version of av1_selfguided_restoration. Currently, it seems you always unpack the pixel data to 32 bits. If we know the pixel is 1 byte(lbd case), in selfguided function (or at least part of the function), 16 bits might be enough for the calculation result. Namely, processing more in 1 simd instruction. Do you think if it is possible?",
       "parentUuid": "ef6683cc_0eedac13",
+      "range": {
+        "startLine": 422,
+        "startChar": 6,
+        "endLine": 422,
+        "endChar": 19
+      },
+      "revId": "05421a0a4fc36d21f3022a874b1c993e5e915253",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1460051e_c27e81ed",
+        "filename": "av1/common/x86/selfguided_avx2.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 422,
+      "author": {
+        "id": 8213
+      },
+      "writtenOn": "2018-01-17T17:14:48Z",
+      "side": 1,
+      "message": "Thanks for explaining! I\u0027ve gone through it all in detail, and I don\u0027t think that anything can be improved for lowbd. A few of my notes are below:\n\n- integral_images already has a low and a high bd version\n- boxsum_from_ii can generate values as high as 2^20 in the lowbd version, and so needs 32 bits\n- This, therefore, means that almost all of calc_ab needs to be done with 32 bits.\n- In calc_ab, a_res and b_res can be stored in 8 bits, but would have to be unpacked again to deal with all the calculations in final_filter, in which v can be as much as 2^22. I think all of the packing (which actually can\u0027t be done in the SSE4.1 version) and unpacking will ultimately slow the algorithm down.\n- In apply_selfguided_restoration_sse4_1 there\u0027s lots of left shifting for extra accuracy that brings values up to around 2^20 even in the lowbd version.\n\nAll in all, I\u0027m afraid I don\u0027t think the lowbd version can be optimised any further!",
+      "parentUuid": "ebfadf3e_2f352005",
       "range": {
         "startLine": 422,
         "startChar": 6,
