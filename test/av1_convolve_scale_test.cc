@@ -361,13 +361,12 @@ class ConvolveScaleTestBase : public ::testing::Test {
 
 typedef tuple<int, int> BlockDimension;
 
-typedef void (*LowbdConvolveFunc)(const uint8_t *src, int src_stride,
-                                  int32_t *dst, int dst_stride, int w, int h,
-                                  InterpFilterParams *filter_params_x,
+typedef void (*LowbdConvolveFunc)(const uint8_t *src, int src_stride, int w,
+                                  int h, InterpFilterParams *filter_params_x,
                                   InterpFilterParams *filter_params_y,
                                   const int subpel_x_qn, const int x_step_qn,
                                   const int subpel_y_qn, const int y_step_qn,
-                                  ConvolveParams *conv_params);
+                                  const ConvolveParams *const conv_params);
 
 // Test parameter list:
 //  <tst_fun, dims, ntaps_x, ntaps_y, avg>
@@ -394,18 +393,18 @@ class LowBDConvolveScaleTest
 
   void RunOne(bool ref) {
     const uint8_t *src = image_->GetSrcData(ref, false);
-    CONV_BUF_TYPE *dst = image_->GetDstData(ref, false);
+    convolve_params_.temp_dst = image_->GetDstData(ref, false);
     const int src_stride = image_->src_stride();
-    const int dst_stride = image_->dst_stride();
+    convolve_params_.temp_dst_stride = image_->dst_stride();
 
     if (ref) {
-      av1_convolve_2d_scale_c(src, src_stride, dst, dst_stride, width_, height_,
+      av1_convolve_2d_scale_c(src, src_stride, width_, height_,
                               &filter_x_.params_, &filter_y_.params_, subpel_x_,
                               kXStepQn, subpel_y_, kYStepQn, &convolve_params_);
     } else {
-      tst_fun_(src, src_stride, dst, dst_stride, width_, height_,
-               &filter_x_.params_, &filter_y_.params_, subpel_x_, kXStepQn,
-               subpel_y_, kYStepQn, &convolve_params_);
+      tst_fun_(src, src_stride, width_, height_, &filter_x_.params_,
+               &filter_y_.params_, subpel_x_, kXStepQn, subpel_y_, kYStepQn,
+               &convolve_params_);
     }
   }
 
@@ -440,7 +439,8 @@ typedef void (*HighbdConvolveFunc)(const uint16_t *src, int src_stride,
                                    InterpFilterParams *filter_params_y,
                                    const int subpel_x_qn, const int x_step_qn,
                                    const int subpel_y_qn, const int y_step_qn,
-                                   ConvolveParams *conv_params, int bd);
+                                   const ConvolveParams *const conv_params,
+                                   int bd);
 
 // Test parameter list:
 //  <tst_fun, dims, ntaps_x, ntaps_y, avg, bd>

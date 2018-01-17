@@ -45,12 +45,11 @@ typedef struct ConvolveParams {
 #endif
 } ConvolveParams;
 
-typedef void (*aom_convolve_fn_t)(const uint8_t *src, int src_stride,
-                                  uint8_t *dst, int dst_stride, int w, int h,
-                                  InterpFilterParams *filter_params_x,
+typedef void (*aom_convolve_fn_t)(const uint8_t *src, int src_stride, int w,
+                                  int h, InterpFilterParams *filter_params_x,
                                   InterpFilterParams *filter_params_y,
                                   const int subpel_x_q4, const int subpel_y_q4,
-                                  ConvolveParams *conv_params);
+                                  const ConvolveParams *const conv_params);
 
 static INLINE ConvolveParams get_conv_params(int ref, int do_average,
                                              int plane) {
@@ -89,11 +88,10 @@ static INLINE void av1_get_convolve_filter_params(InterpFilters interp_filters,
 
 struct AV1Common;
 struct scale_factors;
-void av1_convolve_2d_facade(const uint8_t *src, int src_stride, uint8_t *dst,
-                            int dst_stride, int w, int h,
+void av1_convolve_2d_facade(const uint8_t *src, int src_stride, int w, int h,
                             InterpFilters interp_filters, const int subpel_x_q4,
                             int x_step_q4, const int subpel_y_q4, int y_step_q4,
-                            int scaled, ConvolveParams *conv_params,
+                            int scaled, const ConvolveParams *const conv_params,
                             const struct scale_factors *sf);
 
 static INLINE ConvolveParams get_conv_params_no_round(int ref, int do_average,
@@ -116,29 +114,29 @@ static INLINE ConvolveParams get_conv_params_no_round(int ref, int do_average,
   return conv_params;
 }
 
-void av1_highbd_convolve_2d_facade(const uint8_t *src8, int src_stride,
-                                   uint8_t *dst, int dst_stride, int w, int h,
-                                   InterpFilters interp_filters,
+void av1_highbd_convolve_2d_facade(const uint8_t *src8, int src_stride, int w,
+                                   int h, InterpFilters interp_filters,
                                    const int subpel_x_q4, int x_step_q4,
                                    const int subpel_y_q4, int y_step_q4,
-                                   int scaled, ConvolveParams *conv_params,
+                                   int scaled,
+                                   const ConvolveParams *const conv_params,
                                    int bd);
 
 void av1_convolve(const uint8_t *src, int src_stride, uint8_t *dst,
                   int dst_stride, int w, int h, InterpFilters interp_filters,
-                  const int subpel_x, int xstep, const int subpel_y, int ystep,
-                  ConvolveParams *conv_params);
+                  const int subpel_x_q4, int x_step_q4, const int subpel_y_q4,
+                  int y_step_q4, const ConvolveParams *const conv_params);
 
 void av1_convolve_c(const uint8_t *src, int src_stride, uint8_t *dst,
                     int dst_stride, int w, int h, InterpFilters interp_filters,
-                    const int subpel_x, int xstep, const int subpel_y,
-                    int ystep, ConvolveParams *conv_params);
+                    const int subpel_x_q4, int x_step_q4, const int subpel_y_q4,
+                    int y_step_q4, const ConvolveParams *const conv_params);
 
 void av1_convolve_scale(const uint8_t *src, int src_stride, uint8_t *dst,
                         int dst_stride, int w, int h,
-                        InterpFilters interp_filters, const int subpel_x,
-                        int xstep, const int subpel_y, int ystep,
-                        ConvolveParams *conv_params);
+                        InterpFilters interp_filters, const int subpel_x_qn,
+                        int x_step_qn, const int subpel_y_qn, int y_step_qn,
+                        const ConvolveParams *const conv_params);
 
 void av1_highbd_convolve(const uint8_t *src, int src_stride, uint8_t *dst,
                          int dst_stride, int w, int h,

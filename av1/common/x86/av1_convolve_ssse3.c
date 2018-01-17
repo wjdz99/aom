@@ -28,7 +28,7 @@ void av1_convolve_horiz_ssse3(const uint8_t *src, int src_stride, uint8_t *dst,
                               int dst_stride, int w, int h,
                               const InterpFilterParams filter_params,
                               const int subpel_x_q4, int x_step_q4,
-                              ConvolveParams *conv_params) {
+                              const ConvolveParams *const conv_params) {
   assert(conv_params->do_average == 0 || conv_params->do_average == 1);
   (void)x_step_q4;
 
@@ -46,7 +46,7 @@ void av1_convolve_vert_ssse3(const uint8_t *src, int src_stride, uint8_t *dst,
                              int dst_stride, int w, int h,
                              const InterpFilterParams filter_params,
                              const int subpel_y_q4, int y_step_q4,
-                             ConvolveParams *conv_params) {
+                             const ConvolveParams *const conv_params) {
   assert(conv_params->do_average == 0 || conv_params->do_average == 1);
 
   if (0 == subpel_y_q4 || 16 != y_step_q4) {

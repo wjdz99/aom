@@ -74,11 +74,11 @@ void AV1Convolve2DTest::RunCheckOutput(convolve_2d_func test_impl) {
               // Choose random locations within the source block
               const int offset_r = 3 + rnd_.PseudoUniform(h - out_h - 7);
               const int offset_c = 3 + rnd_.PseudoUniform(w - out_w - 7);
-              av1_convolve_2d_c(input + offset_r * w + offset_c, w, NULL, 0,
-                                out_w, out_h, &filter_params_x,
-                                &filter_params_y, subx, suby, &conv_params1);
-              test_impl(input + offset_r * w + offset_c, w, NULL, 0, out_w,
-                        out_h, &filter_params_x, &filter_params_y, subx, suby,
+              av1_convolve_2d_c(input + offset_r * w + offset_c, w, out_w,
+                                out_h, &filter_params_x, &filter_params_y, subx,
+                                suby, &conv_params1);
+              test_impl(input + offset_r * w + offset_c, w, out_w, out_h,
+                        &filter_params_x, &filter_params_y, subx, suby,
                         &conv_params2);
 
               for (int i = 0; i < out_h; ++i) {
@@ -131,8 +131,8 @@ void AV1Convolve2DTest::RunSpeedTest(convolve_2d_func test_impl) {
     aom_usec_timer_start(&timer);
 
     for (int i = 0; i < num_loops; ++i)
-      test_impl(input, w, NULL, 0, out_w, out_h, &filter_params_x,
-                &filter_params_y, subx, suby, &conv_params2);
+      test_impl(input, w, out_w, out_h, &filter_params_x, &filter_params_y,
+                subx, suby, &conv_params2);
 
     aom_usec_timer_mark(&timer);
     const int elapsed_time = static_cast<int>(aom_usec_timer_elapsed(&timer));
@@ -199,13 +199,12 @@ void AV1Convolve2DSrTest::RunCheckOutput(convolve_2d_func test_impl) {
                 // Choose random locations within the source block
                 const int offset_r = 3 + rnd_.PseudoUniform(h - out_h - 7);
                 const int offset_c = 3 + rnd_.PseudoUniform(w - out_w - 7);
-                av1_convolve_2d_sr_c(input + offset_r * w + offset_c, w, output,
-                                     MAX_SB_SIZE, out_w, out_h,
-                                     &filter_params_x, &filter_params_y, subx,
-                                     suby, &conv_params1);
-                test_impl(input + offset_r * w + offset_c, w, output2,
-                          MAX_SB_SIZE, out_w, out_h, &filter_params_x,
-                          &filter_params_y, subx, suby, &conv_params2);
+                av1_convolve_2d_sr_c(input + offset_r * w + offset_c, w, out_w,
+                                     out_h, &filter_params_x, &filter_params_y,
+                                     subx, suby, &conv_params1);
+                test_impl(input + offset_r * w + offset_c, w, out_w, out_h,
+                          &filter_params_x, &filter_params_y, subx, suby,
+                          &conv_params2);
 
                 if (memcmp(output, output2, sizeof(output))) {
                   for (int i = 0; i < MAX_SB_SIZE; ++i) {
@@ -268,8 +267,8 @@ void AV1Convolve2DSrTest::RunSpeedTest(convolve_2d_func test_impl) {
       aom_usec_timer_start(&timer);
 
       for (int i = 0; i < num_loops; ++i)
-        test_impl(input, w, output, MAX_SB_SIZE, out_w, out_h, &filter_params_x,
-                  &filter_params_y, subx, suby, &conv_params2);
+        test_impl(input, w, out_w, out_h, &filter_params_x, &filter_params_y,
+                  subx, suby, &conv_params2);
 
       aom_usec_timer_mark(&timer);
       const int elapsed_time = static_cast<int>(aom_usec_timer_elapsed(&timer));
@@ -331,12 +330,11 @@ void AV1JntConvolve2DTest::RunCheckOutput(convolve_2d_func test_impl) {
               // Choose random locations within the source block
               const int offset_r = 3 + rnd_.PseudoUniform(h - out_h - 7);
               const int offset_c = 3 + rnd_.PseudoUniform(w - out_w - 7);
-              av1_jnt_convolve_2d_c(input + offset_r * w + offset_c, w, NULL, 0,
-                                    out_w, out_h, &filter_params_x,
-                                    &filter_params_y, subx, suby,
-                                    &conv_params1);
-              test_impl(input + offset_r * w + offset_c, w, NULL, 0, out_w,
-                        out_h, &filter_params_x, &filter_params_y, subx, suby,
+              av1_jnt_convolve_2d_c(input + offset_r * w + offset_c, w, out_w,
+                                    out_h, &filter_params_x, &filter_params_y,
+                                    subx, suby, &conv_params1);
+              test_impl(input + offset_r * w + offset_c, w, out_w, out_h,
+                        &filter_params_x, &filter_params_y, subx, suby,
                         &conv_params2);
 
               for (int i = 0; i < out_h; ++i) {
@@ -369,12 +367,12 @@ void AV1JntConvolve2DTest::RunCheckOutput(convolve_2d_func test_impl) {
                   const int offset_r = 3 + rnd_.PseudoUniform(h - out_h - 7);
                   const int offset_c = 3 + rnd_.PseudoUniform(w - out_w - 7);
                   av1_jnt_convolve_2d_c(input + offset_r * w + offset_c, w,
-                                        NULL, 0, out_w, out_h, &filter_params_x,
+                                        out_w, out_h, &filter_params_x,
                                         &filter_params_y, subx, suby,
                                         &conv_params1);
-                  test_impl(input + offset_r * w + offset_c, w, NULL, 0, out_w,
-                            out_h, &filter_params_x, &filter_params_y, subx,
-                            suby, &conv_params2);
+                  test_impl(input + offset_r * w + offset_c, w, out_w, out_h,
+                            &filter_params_x, &filter_params_y, subx, suby,
+                            &conv_params2);
 
                   for (int i = 0; i < out_h; ++i) {
                     for (int j = 0; j < out_w; ++j) {

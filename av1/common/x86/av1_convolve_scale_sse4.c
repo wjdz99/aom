@@ -484,13 +484,14 @@ static void vfilter8(const int32_t *src, int src_stride, int32_t *dst,
   }
 }
 
-void av1_convolve_2d_scale_sse4_1(const uint8_t *src, int src_stride,
-                                  CONV_BUF_TYPE *dst, int dst_stride, int w,
+void av1_convolve_2d_scale_sse4_1(const uint8_t *src, int src_stride, int w,
                                   int h, InterpFilterParams *filter_params_x,
                                   InterpFilterParams *filter_params_y,
                                   const int subpel_x_qn, const int x_step_qn,
                                   const int subpel_y_qn, const int y_step_qn,
-                                  ConvolveParams *conv_params) {
+                                  const ConvolveParams *const conv_params) {
+  CONV_BUF_TYPE *const dst = conv_params->temp_dst;
+  const int dst_stride = conv_params->temp_dst_stride;
   int32_t tmp[(2 * MAX_SB_SIZE + MAX_FILTER_TAP) * MAX_SB_SIZE];
   int im_h = (((h - 1) * y_step_qn + subpel_y_qn) >> SCALE_SUBPEL_BITS) +
              filter_params_y->taps;
@@ -694,7 +695,7 @@ void av1_highbd_convolve_2d_scale_sse4_1(
     int w, int h, InterpFilterParams *filter_params_x,
     InterpFilterParams *filter_params_y, const int subpel_x_qn,
     const int x_step_qn, const int subpel_y_qn, const int y_step_qn,
-    ConvolveParams *conv_params, int bd) {
+    const ConvolveParams *const conv_params, int bd) {
   // TODO(yaowu): Move this out of stack
   DECLARE_ALIGNED(16, int32_t,
                   tmp[(2 * MAX_SB_SIZE + MAX_FILTER_TAP) * MAX_SB_SIZE]);
