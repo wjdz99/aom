@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9308468c_1ab60194",
+        "filename": "aom_dsp/entdec.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2018-01-17T18:57:35Z",
+      "side": 1,
+      "message": "I\u0027m okay with you landing the changes for this part as a separate patch as long as you update the commit message to indicate that you cannot actually change CDF_SHIFT without causing the binary and CDF coders to diverge.",
+      "revId": "ca8b10d1285f0521c9b3e1329a895098223411eb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
