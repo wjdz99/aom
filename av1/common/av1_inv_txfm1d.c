@@ -742,6 +742,7 @@ void av1_iadst4_new(const int32_t *input, int32_t *output,
   (void)cos_bit;
   const int32_t size = 4;
   int32_t stage = 0;
+  const int32_t *sinpi = sinpi_arr(cos_bit[0]);
   int64_t s0, s1, s2, s3, s4, s5, s6, s7;
   // stage 0;
   apply_range(stage, input, input, size, stage_range[stage]);
@@ -756,19 +757,19 @@ void av1_iadst4_new(const int32_t *input, int32_t *output,
     return;
   }
 
-  s0 = sinpi_1_9 * x0;
-  s1 = sinpi_2_9 * x0;
-  s2 = sinpi_3_9 * x1;
-  s3 = sinpi_4_9 * x2;
-  s4 = sinpi_1_9 * x2;
-  s5 = sinpi_2_9 * x3;
-  s6 = sinpi_4_9 * x3;
+  s0 = sinpi[1] * x0;
+  s1 = sinpi[2] * x0;
+  s2 = sinpi[3] * x1;
+  s3 = sinpi[4] * x2;
+  s4 = sinpi[1] * x2;
+  s5 = sinpi[2] * x3;
+  s6 = sinpi[4] * x3;
   s7 = x0 - x2 + x3;
 
   s0 = s0 + s3 + s5;
   s1 = s1 - s4 - s6;
   s3 = s2;
-  s2 = sinpi_3_9 * s7;
+  s2 = sinpi[3] * s7;
 
   // 1-D transform scaling factor is sqrt(2).
   // The overall dynamic range is 14b (input) + 14b (multiplication scaling)
