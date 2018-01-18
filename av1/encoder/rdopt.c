@@ -1831,6 +1831,7 @@ static void block_rd_txfm(int plane, int block, int blk_row, int blk_col,
   const AV1_COMMON *cm = &cpi->common;
   int64_t rd1, rd2, rd;
   RD_STATS this_rd_stats;
+  int dummy_rate_cost = 0;
 
 #if CONFIG_DIST_8X8
   // If sub8x8 tx, 8x8 or larger partition, and luma channel,
@@ -1896,7 +1897,7 @@ static void block_rd_txfm(int plane, int block, int blk_row, int blk_col,
 #endif
         RDCOST(x->rdmult, 0, tmp_dist) + args->this_rd < args->best_rd) {
       av1_optimize_b(cpi, x, plane, blk_row, blk_col, block, plane_bsize,
-                     tx_size, a, l, CONFIG_LV_MAP);
+                     tx_size, a, l, CONFIG_LV_MAP, &dummy_rate_cost);
     } else {
       args->exit_early = 1;
       return;
@@ -1928,6 +1929,7 @@ static void block_rd_txfm(int plane, int block, int blk_row, int blk_col,
       av1_cost_coeffs(cpi, x, plane, blk_row, blk_col, block, tx_size,
                       scan_order, a, l, args->use_fast_coef_costing);
 #else   // !CONFIG_TXK_SEL
+  (void)dummy_rate_cost;
   av1_search_txk_type(cpi, x, plane, block, blk_row, blk_col, plane_bsize,
                       tx_size, a, l, args->use_fast_coef_costing,
                       &this_rd_stats);
@@ -3534,6 +3536,7 @@ void av1_tx_block_rd_b(const AV1_COMP *cpi, MACROBLOCK *x, TX_SIZE tx_size,
   const int16_t *diff =
       &p->src_diff[(blk_row * diff_stride + blk_col) << tx_size_wide_log2[0]];
   int txb_coeff_cost;
+  int dummy_rate_cost = 0;
 
   assert(tx_size < TX_SIZES_ALL);
 
@@ -3640,7 +3643,7 @@ void av1_tx_block_rd_b(const AV1_COMP *cpi, MACROBLOCK *x, TX_SIZE tx_size,
 #endif
         RDCOST(x->rdmult, 0, tmp_dist) < rd_stats->ref_rdcost) {
       av1_optimize_b(cpi, x, plane, blk_row, blk_col, block, plane_bsize,
-                     tx_size, a, l, fast);
+                     tx_size, a, l, fast, &dummy_rate_cost);
     } else {
       rd_stats->rate += rd_stats->zero_rate;
       rd_stats->dist += tmp << 4;
