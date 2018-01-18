@@ -1512,7 +1512,8 @@ void test_try_change_eob(TxbInfo *txb_info, const LV_MAP_COEFF_COST *txb_costs,
 #if 1
 static int optimize_txb(TxbInfo *txb_info, const LV_MAP_COEFF_COST *txb_costs,
                         const LV_MAP_EOB_COST *txb_eob_costs,
-                        TxbCache *txb_cache, int dry_run, int fast_mode) {
+                        TxbCache *txb_cache, int dry_run, int fast_mode,
+                        int *rate_cost) {
   (void)fast_mode;
   (void)txb_cache;
   int update = 0;
@@ -1647,6 +1648,11 @@ static int optimize_txb(TxbInfo *txb_info, const LV_MAP_COEFF_COST *txb_costs,
     txb_info->eob = 0;
   }
 
+  // record total rate cost
+  *rate_cost = zero_blk_rd_cost <= prev_eob_rd_cost
+                   ? zero_blk_rate
+                   : accu_rate + non_zero_blk_rate;
+
 #if TEST_OPTIMIZE_TXB
   int cost_diff = 0;
   int64_t dist_diff = 0;
@@ -1675,7 +1681,8 @@ static int optimize_txb(TxbInfo *txb_info, const LV_MAP_COEFF_COST *txb_costs,
 
 #else
 static int optimize_txb(TxbInfo *txb_info, const LV_MAP_COEFF_COST *txb_costs,
-                        TxbCache *txb_cache, int dry_run, int fast_mode) {
+                        TxbCache *txb_cache, int dry_run, int fast_mode,
+                        int *rate_cost) {
   int update = 0;
   if (txb_info->eob == 0) return update;
   int cost_diff = 0;
@@ -1806,12 +1813,13 @@ int hbt_hash_miss(int found_index, uint16_t hbt_hash_index,
                   const LV_MAP_EOB_COST *txb_eob_costs,
                   const struct macroblock_plane *p, int block, int fast_mode) {
   const int16_t *scan = txb_info->scan_order->scan;
+  int dummy_rate_cost;
 
   av1_txb_init_levels(txb_info->qcoeff, txb_info->width, txb_info->height,
                       txb_info->levels);
   // The hash_based_trellis speed feature requires lv_map_multi, so always true.
-  const int update =
-      optimize_txb(txb_info, txb_costs, txb_eob_costs, NULL, 0, fast_mode);
+  const int update = optimize_txb(txb_info, txb_costs, txb_eob_costs, NULL, 0,
+                                  fast_mode, &dummy_rate_cost);
 
   if (update) {
     // Overwrite old lowest entry
@@ -1983,7 +1991,7 @@ int hash_based_trellis_mode(TxbInfo *txb_info,
 
 int av1_optimize_txb(const struct AV1_COMP *cpi, MACROBLOCK *x, int plane,
                      int blk_row, int blk_col, int block, TX_SIZE tx_size,
-                     TXB_CTX *txb_ctx, int fast_mode) {
+                     TXB_CTX *txb_ctx, int fast_mode, int *rate_cost) {
   const AV1_COMMON *cm = &cpi->common;
   MACROBLOCKD *const xd = &x->e_mbd;
   const PLANE_TYPE plane_type = get_plane_type(plane);
@@ -2060,8 +2068,8 @@ int av1_optimize_txb(const struct AV1_COMP *cpi, MACROBLOCK *x, int plane,
 
   av1_txb_init_levels(qcoeff, width, height, levels);
 
-  const int update =
-      optimize_txb(&txb_info, &txb_costs, &txb_eob_costs, NULL, 0, fast_mode);
+  const int update = optimize_txb(&txb_info, &txb_costs, &txb_eob_costs, NULL,
+                                  0, fast_mode, rate_cost);
 
   if (update) {
     p->eobs[block] = txb_info.eob;
@@ -2315,6 +2323,7 @@ int64_t av1_search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
   uint16_t best_eob = 0;
   RD_STATS best_rd_stats;
   TX_TYPE tx_type;
+  int rate_cost = 0;
 
   av1_invalid_rd_stats(&best_rd_stats);
 
@@ -2328,6 +2337,10 @@ int64_t av1_search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
       // mode if it's not, we skip it here.
       continue;
     }
+#if CONFIG_TXK_SEL
+    rate_cost =
+        av1_tx_type_cost(cm, x, xd, mbmi->sb_type, plane, tx_size, tx_type);
+#endif
 
     const int is_inter = is_inter_block(mbmi);
     const TxSetType tx_set_type = get_ext_tx_set_type(
@@ -2344,15 +2357,13 @@ int64_t av1_search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
       av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize,
                       tx_size, AV1_XFORM_QUANT_FP);
       av1_optimize_b(cpi, x, plane, blk_row, blk_col, block, plane_bsize,
-                     tx_size, a, l, 1);
+                     tx_size, a, l, 1, &rate_cost);
     }
     av1_dist_block(cpi, x, plane, plane_bsize, block, blk_row, blk_col, tx_size,
                    &this_rd_stats.dist, &this_rd_stats.sse,
                    OUTPUT_HAS_PREDICTED_PIXELS);
     const SCAN_ORDER *scan_order = get_scan(cm, tx_size, tx_type, mbmi);
-    this_rd_stats.rate =
-        av1_cost_coeffs(cpi, x, plane, blk_row, blk_col, block, tx_size,
-                        scan_order, a, l, use_fast_coef_costing);
+    this_rd_stats.rate = rate_cost;
     int64_t rd = RDCOST(x->rdmult, this_rd_stats.rate, this_rd_stats.dist);
 
     if (rd < best_rd) {
@@ -2384,7 +2395,7 @@ int64_t av1_search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
       av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize,
                       tx_size, AV1_XFORM_QUANT_FP);
       av1_optimize_b(cpi, x, plane, blk_row, blk_col, block, plane_bsize,
-                     tx_size, a, l, 1);
+                     tx_size, a, l, 1, &rate_cost);
     }
 
     av1_inverse_transform_block_facade(xd, plane, block, blk_row, blk_col,
