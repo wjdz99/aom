@@ -109,9 +109,7 @@ static const int filter_sets[DUAL_FILTER_SET_SIZE][2] = {
 
 #define NEW_MV_DISCOUNT_FACTOR 8
 
-#if CONFIG_EXT_INTRA
 #define ANGLE_SKIP_THRESH 10
-#endif  // CONFIG_EXT_INTRA
 
 static const double ADST_FLIP_SVM[8] = {
   /* vertical */
@@ -2549,7 +2547,6 @@ static int intra_mode_info_cost_y(const AV1_COMP *cpi, const MACROBLOCK *x,
     }
   }
 #endif  // CONFIG_FILTER_INTRA
-#if CONFIG_EXT_INTRA
   if (av1_is_directional_mode(mbmi->mode, bsize)) {
     if (av1_use_angle_delta(bsize)) {
 #if CONFIG_EXT_INTRA_MOD
@@ -2561,11 +2558,63 @@ static int intra_mode_info_cost_y(const AV1_COMP *cpi, const MACROBLOCK *x,
 #endif  // CONFIG_EXT_INTRA_MOD
     }
   }
-#endif  // CONFIG_EXT_INTRA
 #if CONFIG_INTRABC
   if (av1_allow_intrabc(&cpi->common))
     total_rate += x->intrabc_cost[use_intrabc];
 #endif  // CONFIG_INTRABC
+  return total_rate;
+}
+
+// Return the rate cost for chroma prediction mode info. of intra blocks.
+static int intra_mode_info_cost_uv(const AV1_COMP *cpi, const MACROBLOCK *x,
+                                   const MB_MODE_INFO *mbmi, BLOCK_SIZE bsize,
+                                   int mode_cost) {
+  int total_rate = mode_cost;
+  const int use_palette = mbmi->palette_mode_info.palette_size[1] > 0;
+#if CONFIG_INTRABC
+  const int use_intrabc = mbmi->use_intrabc;
+#endif  // CONFIG_INTRABC
+  const UV_PREDICTION_MODE mode = mbmi->uv_mode;
+// Can only activate one mode.
+#if CONFIG_INTRABC
+  assert(((mode != UV_DC_PRED) + use_palette + use_intrabc) <= 1);
+#else
+  assert((mode != UV_DC_PRED) + use_palette <= 1);
+#endif  // CONFIG_INTRABC
+  const int try_palette =
+      av1_allow_palette(cpi->common.allow_screen_content_tools, mbmi->sb_type);
+  if (try_palette && mode == UV_DC_PRED) {
+    const PALETTE_MODE_INFO *pmi = &mbmi->palette_mode_info;
+    total_rate +=
+        x->palette_uv_mode_cost[pmi->palette_size[0] > 0][use_palette];
+    if (use_palette) {
+      const int bsize_ctx = av1_get_palette_bsize_ctx(bsize);
+      const int plt_size = pmi->palette_size[1];
+      const MACROBLOCKD *xd = &x->e_mbd;
+      const uint8_t *const color_map = xd->plane[1].color_index_map;
+      int palette_mode_cost =
+          x->palette_uv_size_cost[bsize_ctx][plt_size - PALETTE_MIN_SIZE] +
+          write_uniform_cost(plt_size, color_map[0]);
+      uint16_t color_cache[2 * PALETTE_MAX_SIZE];
+      const int n_cache = av1_get_palette_cache(xd, 1, color_cache);
+      palette_mode_cost += av1_palette_color_cost_uv(pmi, color_cache, n_cache,
+                                                     cpi->common.bit_depth);
+      palette_mode_cost +=
+          av1_cost_color_map(x, 1, bsize, mbmi->tx_size, PALETTE_MAP);
+      total_rate += palette_mode_cost;
+    }
+  }
+  if (av1_is_directional_mode(get_uv_mode(mode), mbmi->sb_type)) {
+    if (av1_use_angle_delta(bsize)) {
+#if CONFIG_EXT_INTRA_MOD
+      total_rate += x->angle_delta_cost[mode - V_PRED]
+                                       [mbmi->angle_delta[1] + MAX_ANGLE_DELTA];
+#else
+      total_rate += write_uniform_cost(2 * MAX_ANGLE_DELTA + 1,
+                                       MAX_ANGLE_DELTA + mbmi->angle_delta[1]);
+#endif  // CONFIG_EXT_INTRA_MOD
+    }
+  }
   return total_rate;
 }
 
@@ -2617,7 +2666,6 @@ static int64_t intra_model_yrd(const AV1_COMP *const cpi, MACROBLOCK *const x,
   // RD estimation.
   model_rd_for_sb(cpi, bsize, x, xd, 0, 0, &this_rd_stats.rate,
                   &this_rd_stats.dist, &this_rd_stats.skip, &temp_sse);
-#if CONFIG_EXT_INTRA
   if (av1_is_directional_mode(mbmi->mode, bsize) &&
       av1_use_angle_delta(bsize)) {
 #if CONFIG_EXT_INTRA_MOD
@@ -2628,7 +2676,6 @@ static int64_t intra_model_yrd(const AV1_COMP *const cpi, MACROBLOCK *const x,
                                     MAX_ANGLE_DELTA + mbmi->angle_delta[0]);
 #endif  // CONFIG_EXT_INTRA_MOD
   }
-#endif  // CONFIG_EXT_INTRA
 #if CONFIG_FILTER_INTRA
   if (mbmi->mode == DC_PRED && av1_filter_intra_allowed_txsize(mbmi->tx_size)) {
     if (mbmi->filter_intra_mode_info.use_filter_intra) {
@@ -2956,7 +3003,6 @@ static int rd_pick_filter_intra_sby(const AV1_COMP *const cpi, MACROBLOCK *x,
 }
 #endif  // CONFIG_FILTER_INTRA
 
-#if CONFIG_EXT_INTRA
 // Run RD calculation with given luma intra prediction angle., and return
 // the RD cost. Update the best mode info. if the RD cost is the best so far.
 static int64_t calc_rd_given_intra_angle(
@@ -3227,7 +3273,6 @@ static void highbd_angle_estimation(const uint8_t *src8, int src_stride,
     }
   }
 }
-#endif  // CONFIG_EXT_INTRA
 
 // Given selected prediction mode, search for the best tx type and size.
 static void intra_block_yrd(const AV1_COMP *const cpi, MACROBLOCK *x,
@@ -3275,14 +3320,12 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   MB_MODE_INFO *const mbmi = &mic->mbmi;
   assert(!is_inter_block(mbmi));
   int64_t best_model_rd = INT64_MAX;
-#if CONFIG_EXT_INTRA
   const int rows = block_size_high[bsize];
   const int cols = block_size_wide[bsize];
   int is_directional_mode;
   uint8_t directional_mode_skip_mask[INTRA_MODES];
   const int src_stride = x->plane[0].src.stride;
   const uint8_t *src = x->plane[0].src.buf;
-#endif  // CONFIG_EXT_INTRA
 #if CONFIG_FILTER_INTRA
   int beat_best_rd = 0;
 #endif  // CONFIG_FILTER_INTRA
@@ -3305,7 +3348,6 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   bmode_costs = x->y_mode_costs[A][L];
 #endif
 
-#if CONFIG_EXT_INTRA
   mbmi->angle_delta[0] = 0;
   if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH)
     highbd_angle_estimation(src, src_stride, rows, cols, bsize,
@@ -3313,7 +3355,6 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   else
     angle_estimation(src, src_stride, rows, cols, bsize,
                      directional_mode_skip_mask);
-#endif  // CONFIG_EXT_INTRA
 #if CONFIG_FILTER_INTRA
   mbmi->filter_intra_mode_info.use_filter_intra = 0;
 #endif  // CONFIG_FILTER_INTRA
@@ -3331,15 +3372,12 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
     int this_rate, this_rate_tokenonly, s;
     int64_t this_distortion, this_rd, this_model_rd;
     mbmi->mode = intra_rd_search_mode_order[mode_idx];
-#if CONFIG_EXT_INTRA
     mbmi->angle_delta[0] = 0;
-#endif  // CONFIG_EXT_INTRA
     this_model_rd = intra_model_yrd(cpi, x, bsize, bmode_costs[mbmi->mode]);
     if (best_model_rd != INT64_MAX &&
         this_model_rd > best_model_rd + (best_model_rd >> 1))
       continue;
     if (this_model_rd < best_model_rd) best_model_rd = this_model_rd;
-#if CONFIG_EXT_INTRA
     is_directional_mode = av1_is_directional_mode(mbmi->mode, bsize);
     if (is_directional_mode && directional_mode_skip_mask[mbmi->mode]) continue;
     if (is_directional_mode && av1_use_angle_delta(bsize)) {
@@ -3349,9 +3387,6 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
     } else {
       super_block_yrd(cpi, x, &this_rd_stats, bsize, best_rd);
     }
-#else
-    super_block_yrd(cpi, x, &this_rd_stats, bsize, best_rd);
-#endif  // CONFIG_EXT_INTRA
     this_rate_tokenonly = this_rd_stats.rate;
     this_distortion = this_rd_stats.dist;
     s = this_rd_stats.skip;
@@ -5047,14 +5082,8 @@ static void rd_pick_palette_intra_sbuv(const AV1_COMP *const cpi, MACROBLOCK *x,
 
       super_block_uvrd(cpi, x, &tokenonly_rd_stats, bsize, *best_rd);
       if (tokenonly_rd_stats.rate == INT_MAX) continue;
-      const int bsize_ctx = av1_get_palette_bsize_ctx(bsize);
-      this_rate = tokenonly_rd_stats.rate + dc_mode_cost +
-                  x->palette_uv_size_cost[bsize_ctx][n - PALETTE_MIN_SIZE] +
-                  write_uniform_cost(n, color_map[0]) +
-                  x->palette_uv_mode_cost[pmi->palette_size[0] > 0][1];
-      this_rate += av1_palette_color_cost_uv(pmi, color_cache, n_cache,
-                                             cpi->common.bit_depth);
-      this_rate += av1_cost_color_map(x, 1, bsize, mbmi->tx_size, PALETTE_MAP);
+      this_rate = tokenonly_rd_stats.rate +
+                  intra_mode_info_cost_uv(cpi, x, mbmi, bsize, dc_mode_cost);
       this_rd = RDCOST(x->rdmult, this_rate, tokenonly_rd_stats.dist);
       if (this_rd < *best_rd) {
         *best_rd = this_rd;
@@ -5076,7 +5105,6 @@ static void rd_pick_palette_intra_sbuv(const AV1_COMP *const cpi, MACROBLOCK *x,
   }
 }
 
-#if CONFIG_EXT_INTRA
 // Run RD calculation with given chroma intra prediction angle., and return
 // the RD cost. Update the best mode info. if the RD cost is the best so far.
 static int64_t pick_intra_angle_routine_sbuv(
@@ -5091,11 +5119,8 @@ static int64_t pick_intra_angle_routine_sbuv(
 
   if (!super_block_uvrd(cpi, x, &tokenonly_rd_stats, bsize, best_rd_in))
     return INT64_MAX;
-  this_rate = tokenonly_rd_stats.rate + rate_overhead;
-#if CONFIG_EXT_INTRA_MOD
-  this_rate += x->angle_delta_cost[mbmi->uv_mode - V_PRED]
-                                  [mbmi->angle_delta[1] + MAX_ANGLE_DELTA];
-#endif  // CONFIG_EXT_INTRA_MOD
+  this_rate = tokenonly_rd_stats.rate +
+              intra_mode_info_cost_uv(cpi, x, mbmi, bsize, rate_overhead);
   this_rd = RDCOST(x->rdmult, this_rate, tokenonly_rd_stats.dist);
   if (this_rd < *best_rd) {
     *best_rd = this_rd;
@@ -5164,7 +5189,6 @@ static int rd_pick_intra_angle_sbuv(const AV1_COMP *const cpi, MACROBLOCK *x,
   mbmi->angle_delta[1] = best_angle_delta;
   return rd_stats->rate != INT_MAX;
 }
-#endif  // CONFIG_EXT_INTRA
 
 #if CONFIG_CFL
 #define PLANE_SIGN_TO_JOINT_SIGN(plane, a, b) \
@@ -5299,18 +5323,13 @@ static int64_t rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   assert(!is_inter_block(mbmi));
   MB_MODE_INFO best_mbmi = *mbmi;
   int64_t best_rd = INT64_MAX, this_rd;
-  PALETTE_MODE_INFO *const pmi = &mbmi->palette_mode_info;
-  const int try_palette =
-      av1_allow_palette(cpi->common.allow_screen_content_tools, mbmi->sb_type);
 
   for (int mode_idx = 0; mode_idx < UV_INTRA_MODES; ++mode_idx) {
     int this_rate;
     RD_STATS tokenonly_rd_stats;
     UV_PREDICTION_MODE mode = uv_rd_search_mode_order[mode_idx];
-#if CONFIG_EXT_INTRA
     const int is_directional_mode =
         av1_is_directional_mode(get_uv_mode(mode), mbmi->sb_type);
-#endif  // CONFIG_EXT_INTRA
     if (!(cpi->sf.intra_uv_mode_mask[txsize_sqr_up_map[max_tx_size]] &
           (1 << mode)))
       continue;
@@ -5326,7 +5345,6 @@ static int64_t rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
       if (cfl_alpha_rate == INT_MAX) continue;
     }
 #endif
-#if CONFIG_EXT_INTRA
     mbmi->angle_delta[1] = 0;
     if (is_directional_mode && av1_use_angle_delta(mbmi->sb_type)) {
 #if CONFIG_CFL
@@ -5344,44 +5362,28 @@ static int64_t rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
                                     &this_rate, &tokenonly_rd_stats))
         continue;
     } else {
-#endif  // CONFIG_EXT_INTRA
       if (!super_block_uvrd(cpi, x, &tokenonly_rd_stats, bsize, best_rd)) {
         continue;
       }
-#if CONFIG_EXT_INTRA
     }
-#endif  // CONFIG_EXT_INTRA
-    this_rate = tokenonly_rd_stats.rate +
+    const int mode_cost =
 #if CONFIG_CFL
-                x->intra_uv_mode_cost[is_cfl_allowed(mbmi)][mbmi->mode][mode] +
-                cfl_alpha_rate;
+        x->intra_uv_mode_cost[is_cfl_allowed(mbmi)][mbmi->mode][mode] +
+        cfl_alpha_rate;
 #else
-                x->intra_uv_mode_cost[mbmi->mode][mode];
+        x->intra_uv_mode_cost[mbmi->mode][mode];
 #endif
-
+    this_rate = tokenonly_rd_stats.rate +
+                intra_mode_info_cost_uv(cpi, x, mbmi, bsize, mode_cost);
 #if CONFIG_CFL
     if (mode == UV_CFL_PRED) {
       assert(is_cfl_allowed(mbmi));
 #if CONFIG_DEBUG
-      if (!xd->lossless[mbmi->segment_id]) assert(xd->cfl.rate == this_rate);
+      if (!xd->lossless[mbmi->segment_id])
+        assert(xd->cfl.rate == tokenonly_rd_stats.rate + mode_cost);
 #endif  // CONFIG_DEBUG
     }
 #endif
-#if CONFIG_EXT_INTRA
-    if (is_directional_mode && av1_use_angle_delta(mbmi->sb_type)) {
-#if CONFIG_EXT_INTRA_MOD
-      this_rate += x->angle_delta_cost[mode - V_PRED]
-                                      [mbmi->angle_delta[1] + MAX_ANGLE_DELTA];
-#else
-      this_rate += write_uniform_cost(2 * MAX_ANGLE_DELTA + 1,
-                                      MAX_ANGLE_DELTA + mbmi->angle_delta[1]);
-#endif  // CONFIG_EXT_INTRA_MOD
-    }
-#endif  // CONFIG_EXT_INTRA
-
-    if (try_palette && mode == UV_DC_PRED)
-      this_rate += x->palette_uv_mode_cost[pmi->palette_size[0] > 0][0];
-
     this_rd = RDCOST(x->rdmult, this_rate, tokenonly_rd_stats.dist);
 
     if (this_rd < best_rd) {
@@ -5394,6 +5396,8 @@ static int64_t rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
     }
   }
 
+  const int try_palette =
+      av1_allow_palette(cpi->common.allow_screen_content_tools, mbmi->sb_type);
   if (try_palette) {
     uint8_t *best_palette_color_map = x->palette_buffer->best_palette_color_map;
     rd_pick_palette_intra_sbuv(
@@ -9083,11 +9087,9 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
   int skip_uvs[TX_SIZES_ALL];
   UV_PREDICTION_MODE mode_uv[TX_SIZES_ALL];
   PALETTE_MODE_INFO pmi_uv[TX_SIZES_ALL];
-#if CONFIG_EXT_INTRA
   int8_t uv_angle_delta[TX_SIZES_ALL];
   int is_directional_mode, angle_stats_ready = 0;
   uint8_t directional_mode_skip_mask[INTRA_MODES];
-#endif  // CONFIG_EXT_INTRA
   const int intra_cost_penalty = av1_get_intra_cost_penalty(
       cm->base_qindex, cm->y_dc_delta_q, cm->bit_depth);
   const int *const intra_mode_cost = x->mbmode_cost[size_group_lookup[bsize]];
@@ -9591,7 +9593,6 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
     if (ref_frame == INTRA_FRAME) {
       RD_STATS rd_stats_y;
       TX_SIZE uv_tx;
-#if CONFIG_EXT_INTRA
       is_directional_mode = av1_is_directional_mode(mbmi->mode, bsize);
       if (is_directional_mode && av1_use_angle_delta(bsize)) {
         int rate_dummy;
@@ -9616,9 +9617,6 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
         mbmi->angle_delta[0] = 0;
         super_block_yrd(cpi, x, &rd_stats_y, bsize, best_rd);
       }
-#else
-      super_block_yrd(cpi, x, &rd_stats_y, bsize, best_rd);
-#endif  // CONFIG_EXT_INTRA
       rate_y = rd_stats_y.rate;
       distortion_y = rd_stats_y.dist;
       skippable = rd_stats_y.skip;
@@ -9710,10 +9708,7 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
                              &rate_uv_tokenonly[uv_tx], &dist_uvs[uv_tx],
                              &skip_uvs[uv_tx], &mode_uv[uv_tx]);
         if (try_palette) pmi_uv[uv_tx] = *pmi;
-
-#if CONFIG_EXT_INTRA
         uv_angle_delta[uv_tx] = mbmi->angle_delta[1];
-#endif  // CONFIG_EXT_INTRA
       }
 
       rate_uv = rate_uv_tokenonly[uv_tx];
@@ -9726,9 +9721,7 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
                pmi_uv[uv_tx].palette_colors + PALETTE_MAX_SIZE,
                2 * PALETTE_MAX_SIZE * sizeof(pmi->palette_colors[0]));
       }
-#if CONFIG_EXT_INTRA
       mbmi->angle_delta[1] = uv_angle_delta[uv_tx];
-#endif  // CONFIG_EXT_INTRA
 
       rate2 = rate_y + intra_mode_info_cost_y(cpi, x, mbmi, bsize,
                                               intra_mode_cost[mbmi->mode]);
@@ -9740,26 +9733,16 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
         rate_y -= tx_size_cost(cm, x, bsize, mbmi->tx_size);
       }
       if (!x->skip_chroma_rd) {
-        rate2 += rate_uv +
+        const int uv_mode_cost =
 #if CONFIG_CFL
-                 x->intra_uv_mode_cost[is_cfl_allowed(mbmi)][mbmi->mode]
-                                      [mbmi->uv_mode];
+            x->intra_uv_mode_cost[is_cfl_allowed(mbmi)][mbmi->mode]
+                                 [mbmi->uv_mode];
 #else
-                 x->intra_uv_mode_cost[mbmi->mode][mbmi->uv_mode];
+            x->intra_uv_mode_cost[mbmi->mode][mbmi->uv_mode];
 #endif
+        rate2 += rate_uv +
+                 intra_mode_info_cost_uv(cpi, x, mbmi, bsize, uv_mode_cost);
       }
-#if CONFIG_EXT_INTRA
-      if (av1_is_directional_mode(get_uv_mode(mbmi->uv_mode), bsize) &&
-          av1_use_angle_delta(bsize)) {
-#if CONFIG_EXT_INTRA_MOD
-        rate2 += x->angle_delta_cost[mbmi->uv_mode - V_PRED]
-                                    [mbmi->angle_delta[1] + MAX_ANGLE_DELTA];
-#else
-        rate2 += write_uniform_cost(2 * MAX_ANGLE_DELTA + 1,
-                                    MAX_ANGLE_DELTA + mbmi->angle_delta[1]);
-#endif  // CONFIG_EXT_INTRA_MOD
-      }
-#endif  // CONFIG_EXT_INTRA
       if (mbmi->mode != DC_PRED && mbmi->mode != PAETH_PRED)
         rate2 += intra_cost_penalty;
       distortion2 = distortion_y + distortion_uv;
@@ -9771,10 +9754,8 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
 
       backup_ref_mv[0] = mbmi_ext->ref_mvs[ref_frame][0];
       if (comp_pred) backup_ref_mv[1] = mbmi_ext->ref_mvs[second_ref_frame][0];
-#if CONFIG_EXT_INTRA
       mbmi->angle_delta[0] = 0;
       mbmi->angle_delta[1] = 0;
-#endif  // CONFIG_EXT_INTRA
 #if CONFIG_FILTER_INTRA
       mbmi->filter_intra_mode_info.use_filter_intra = 0;
 #endif  // CONFIG_FILTER_INTRA
@@ -10309,9 +10290,7 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
                            &rate_uv_tokenonly[uv_tx], &dist_uvs[uv_tx],
                            &skip_uvs[uv_tx], &mode_uv[uv_tx]);
       pmi_uv[uv_tx] = *pmi;
-#if CONFIG_EXT_INTRA
       uv_angle_delta[uv_tx] = mbmi->angle_delta[1];
-#endif  // CONFIG_EXT_INTRA
     }
     mbmi->uv_mode = mode_uv[uv_tx];
     pmi->palette_size[1] = pmi_uv[uv_tx].palette_size[1];
@@ -10320,9 +10299,7 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
              pmi_uv[uv_tx].palette_colors + PALETTE_MAX_SIZE,
              2 * PALETTE_MAX_SIZE * sizeof(pmi->palette_colors[0]));
     }
-#if CONFIG_EXT_INTRA
     mbmi->angle_delta[1] = uv_angle_delta[uv_tx];
-#endif  // CONFIG_EXT_INTRA
     skippable = rd_stats_y.skip && skip_uvs[uv_tx];
     distortion2 = rd_stats_y.dist + dist_uvs[uv_tx];
     rate2 = rd_stats_y.rate + rate_overhead_palette + rate_uv_intra[uv_tx];
