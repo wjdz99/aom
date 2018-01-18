@@ -103,41 +103,6 @@ static const int8_t doff_nuq[QUANT_PROFILES][2] = {
       // lossless
       0, 0,  // dc, ac
   },
-
-  // dq_type = 1
-  {
-      // Y/intra, dq_type 1, low quality
-      -4, -6,  // dc, ac
-  },
-  {
-      // Y/intra, dq_type 1, high quality
-      -2, -3,  // dc, ac
-  },
-  {
-      // UV/intra, dq_type 1, low quality
-      -4, -6,  // dc, ac
-  },
-  {
-      // UV/intra, dq_type 1, high quality
-      -2, -3,  // dc, ac
-  },
-  {
-      // Y/inter, dq_type 1, low quality
-      -4, -6,  // dc, ac
-  },
-  {
-      // Y/inter, dq_type 1, high quality
-      -3, -4,  // dc, ac
-  },
-  {
-      // UV/inter, dq_type 1, low quality
-      -4, -6,  // dc, ac
-  },
-  {
-      // UV/inter, dq_type 1, high quality
-      -3, -4,  // dc, ac
-  },
-
   // dq_type = 2
   {
       // Y/intra, dq_type 2, low quality
@@ -172,38 +137,74 @@ static const int8_t doff_nuq[QUANT_PROFILES][2] = {
       1, 0,  // dc, ac
   },
 
-  // dq_type = 3
+  // dq_type = 1
   {
-      // Y/intra, dq_type 3, low quality
-      4, 2,  // dc, ac
+      // Y/intra, dq_type 1, low quality
+      -128, -128,  // dc, ac
   },
   {
-      // Y/intra, dq_type 3, high quality
-      12, 10,  // dc, ac
+      // -128/intra, dq_type 1, high quality
+      -128, -128,  // dc, ac
   },
   {
-      // UV/intra, dq_type 3, low quality
-      2, 0,  // dc, ac
+      // -128/intra, dq_type 1, low quality
+      -128, -128,  // dc, ac
   },
   {
-      // UV/intra, dq_type 3, high quality
-      10, 8,  // dc, ac
+      // -128/intra, dq_type 1, high quality
+      -128, -128,  // dc, ac
   },
   {
-      // Y/inter, dq_type 3, low quality
-      0, -2,  // dc, ac
+      // -128inter, dq_type 1, low quality
+      -128, -128,  // dc, ac
   },
   {
-      // Y/inter, dq_type 3, high quality
-      8, 6,  // dc, ac
+      // -128inter, dq_type 1, high quality
+      -128, -128,  // dc, ac
   },
   {
-      // UV/inter, dq_type 3, low quality
-      -2, -4,  // dc, ac
+      // -128/inter, dq_type 1, low quality
+      -128, -128,  // dc, ac
   },
   {
-      // UV/inter, dq_type 3, high quality
-      6, 4,  // dc, ac
+      // -128/inter, dq_type 1, high quality
+      -128, -128,  // dc, ac
+  },
+
+
+
+  // d-128_t-128pe = 3
+  {
+      // -128/intra, dq_type 3, low quality
+      -128, -128,  // dc, ac
+  },
+  {
+      // -128/intra, dq_type 3, high quality
+      -128, -128,  // dc, ac
+  },
+  {
+      // -128V/intra, dq_type 3, low quality
+      -128, -128,  // dc, ac
+  },
+  {
+      // -128V/intra, dq_type 3, high quality
+      -128, -128,  // dc, ac
+  },
+  {
+      // -128/inter, dq_type 3, low quality
+      -128, -128,  // dc, ac
+  },
+  {
+      // -128/inter, dq_type 3, high quality
+      -128, -128,  // dc, ac
+  },
+  {
+      // -128V/inter, dq_type 3, low quality
+      -128, -128,  // dc, ac
+  },
+  {
+      // -128V/inter, dq_type 3, high quality
+      -128, -128,  // dc, ac
   },
 };
 
