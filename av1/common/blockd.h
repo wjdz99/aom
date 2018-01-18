@@ -32,6 +32,7 @@ extern "C" {
 #endif
 
 #if CONFIG_NEW_QUANT
+#define SEARCH_NEW_QUANT 1
 #define USE_B_QUANT_NO_TRELLIS 0
 #else
 #define USE_B_QUANT_NO_TRELLIS 1

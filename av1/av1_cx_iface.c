@@ -1351,6 +1351,7 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
     int is_frame_visible = 0;
     int index_size = 0;
     // invisible frames get packed with the next visible frame
+    printf("data size: %zu\n", ctx->cx_data_sz);
     while (cx_data_sz - index_size >= ctx->cx_data_sz / 2 &&
            !is_frame_visible &&
            -1 != av1_get_compressed_data(cpi, &lib_flags, &frame_size, cx_data,
