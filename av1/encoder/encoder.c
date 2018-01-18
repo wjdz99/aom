@@ -12,6 +12,7 @@
 #include <limits.h>
 #include <math.h>
 #include <stdio.h>
+#include <float.h>
 
 #include "./aom_config.h"
 
@@ -5265,7 +5266,6 @@ static void encode_without_recode_loop(AV1_COMP *cpi) {
   av1_set_quantizer(cm, q);
   setup_frame(cpi);
   suppress_active_map(cpi);
-
   // Variance adaptive and in frame q adjustment experiments are mutually
   // exclusive.
   if (cpi->oxcf.aq_mode == VARIANCE_AQ) {
@@ -5276,16 +5276,13 @@ static void encode_without_recode_loop(AV1_COMP *cpi) {
     av1_cyclic_refresh_setup(cpi);
   }
   apply_active_map(cpi);
-
   // transform / motion compensation build reconstruction frame
   av1_encode_frame(cpi);
-
   // Update some stats from cyclic refresh, and check if we should not update
   // golden reference, for 1 pass CBR.
   if (cpi->oxcf.aq_mode == CYCLIC_REFRESH_AQ && cm->frame_type != KEY_FRAME &&
       (cpi->oxcf.pass == 0 && cpi->oxcf.rc_mode == AOM_CBR))
     av1_cyclic_refresh_check_golden_update(cpi);
-
   // Update the skip mb flag probabilities based on the distribution
   // seen in the last encoder iteration.
   // update_base_skip_probs(cpi);
@@ -5293,8 +5290,19 @@ static void encode_without_recode_loop(AV1_COMP *cpi) {
 }
 
 static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
-  AV1_COMMON *const cm = &cpi->common;
-  RATE_CONTROL *const rc = &cpi->rc;
+  AV1_COMMON *cm = &cpi->common;
+  RATE_CONTROL *rc = &cpi->rc;
+#if CONFIG_NEW_QUANT && SEARCH_NEW_QUANT
+  BufferPool bpool_0;
+  memcpy(&bpool_0, cm->buffer_pool, sizeof(bpool_0));
+  uint32_t in_bit_depth = 8;
+  uint32_t bit_depth = 8;
+  const YV12_BUFFER_CONFIG *orig = cpi->source;
+  if (cm->use_highbitdepth) {
+    in_bit_depth = cpi->oxcf.input_bit_depth;
+    bit_depth = cm->bit_depth;
+  }
+#endif  // CONFIG_NEW_QUANT && SEARCH_NEW_QUANT
   int bottom_index, top_index;
   int loop_count = 0;
   int loop_at_this_size = 0;
@@ -5313,73 +5321,80 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
   setup_frame_size(cpi);
   set_size_dependent_vars(cpi, &q, &bottom_index, &top_index);
 
-  do {
-    aom_clear_system_state();
+#if CONFIG_NEW_QUANT && SEARCH_NEW_QUANT
+  int best_dq_type = 0;
+  double best_dq_rd = DBL_MAX;
+  for (int dq_type = 3; dq_type <= DQ_TYPES; dq_type++) {
+    cm->dq_type = dq_type == DQ_TYPES ? 3 : 2; //best_dq_type : dq_type;
+#endif  // CONFIG_NEW_QUANT && SEARCH_NEW_QUANT
+    do {
+      aom_clear_system_state();
 
-    if (loop_count == 0) {
-      // TODO(agrange) Scale cpi->max_mv_magnitude if frame-size has changed.
-      set_mv_search_params(cpi);
+      if (loop_count == 0) {
+        // TODO(agrange) Scale cpi->max_mv_magnitude if frame-size has changed.
+        set_mv_search_params(cpi);
 
-      // Reset the loop state for new frame size.
-      overshoot_seen = 0;
-      undershoot_seen = 0;
+        // Reset the loop state for new frame size.
+        overshoot_seen = 0;
+        undershoot_seen = 0;
 
-      q_low = bottom_index;
-      q_high = top_index;
+        q_low = bottom_index;
+        q_high = top_index;
 
-      loop_at_this_size = 0;
+        loop_at_this_size = 0;
 
-      // Decide frame size bounds first time through.
-      av1_rc_compute_frame_size_bounds(cpi, rc->this_frame_target,
-                                       &frame_under_shoot_limit,
-                                       &frame_over_shoot_limit);
-    }
-
-    // if frame was scaled calculate global_motion_search again if already done
-    if (loop_count > 0 && cpi->source && cpi->global_motion_search_done)
-      if (cpi->source->y_crop_width != cm->width ||
-          cpi->source->y_crop_height != cm->height)
-        cpi->global_motion_search_done = 0;
-    cpi->source =
-        av1_scale_if_required(cm, cpi->unscaled_source, &cpi->scaled_source);
-    if (cpi->unscaled_last_source != NULL)
-      cpi->last_source = av1_scale_if_required(cm, cpi->unscaled_last_source,
-                                               &cpi->scaled_last_source);
-
-    if (frame_is_intra_only(cm) == 0) {
-      if (loop_count > 0) {
-        release_scaled_references(cpi);
+        // Decide frame size bounds first time through.
+        av1_rc_compute_frame_size_bounds(cpi, rc->this_frame_target,
+                                         &frame_under_shoot_limit,
+                                         &frame_over_shoot_limit);
       }
-      scale_references(cpi);
-    }
-    av1_set_quantizer(cm, q);
 
-    if (loop_count == 0) setup_frame(cpi);
+      // if frame was scaled calculate global_motion_search again if already
+      // done
+      if (loop_count > 0 && cpi->source && cpi->global_motion_search_done)
+        if (cpi->source->y_crop_width != cm->width ||
+            cpi->source->y_crop_height != cm->height)
+          cpi->global_motion_search_done = 0;
+      cpi->source =
+          av1_scale_if_required(cm, cpi->unscaled_source, &cpi->scaled_source);
+      if (cpi->unscaled_last_source != NULL)
+        cpi->last_source = av1_scale_if_required(cm, cpi->unscaled_last_source,
+                                                 &cpi->scaled_last_source);
 
-    // Base q-index may have changed, so we need to assign proper default coef
-    // probs before every iteration.
-    if (frame_is_intra_only(cm) || cm->error_resilient_mode) {
-      av1_default_coef_probs(cm);
-      av1_setup_frame_contexts(cm);
-    }
+      if (frame_is_intra_only(cm) == 0) {
+        if (loop_count > 0) {
+          release_scaled_references(cpi);
+        }
+        scale_references(cpi);
+      }
+      av1_set_quantizer(cm, q);
 
-    // Variance adaptive and in frame q adjustment experiments are mutually
-    // exclusive.
-    if (cpi->oxcf.aq_mode == VARIANCE_AQ) {
-      av1_vaq_frame_setup(cpi);
-    } else if (cpi->oxcf.aq_mode == COMPLEXITY_AQ) {
-      av1_setup_in_frame_q_adj(cpi);
-    }
+      if (loop_count == 0) setup_frame(cpi);
 
-    // transform / motion compensation build reconstruction frame
-    save_coding_context(cpi);
-    av1_encode_frame(cpi);
+      // Base q-index may have changed, so we need to assign proper default coef
+      // probs before every iteration.
+      if (frame_is_intra_only(cm) || cm->error_resilient_mode) {
+        av1_default_coef_probs(cm);
+        av1_setup_frame_contexts(cm);
+      }
 
-    // Update the skip mb flag probabilities based on the distribution
-    // seen in the last encoder iteration.
-    // update_base_skip_probs(cpi);
+      // Variance adaptive and in frame q adjustment experiments are mutually
+      // exclusive.
+      if (cpi->oxcf.aq_mode == VARIANCE_AQ) {
+        av1_vaq_frame_setup(cpi);
+      } else if (cpi->oxcf.aq_mode == COMPLEXITY_AQ) {
+        av1_setup_in_frame_q_adj(cpi);
+      }
 
-    aom_clear_system_state();
+      // transform / motion compensation build reconstruction frame
+      save_coding_context(cpi);
+      av1_encode_frame(cpi);
+
+      // Update the skip mb flag probabilities based on the distribution
+      // seen in the last encoder iteration.
+      // update_base_skip_probs(cpi);
+      aom_clear_system_state();
+
 
     // Dummy pack of the bitstream using up to date stats to get an
     // accurate estimate of output frame size to determine if we need
@@ -5390,158 +5405,199 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
       if (av1_pack_bitstream(cpi, dest, size) != AOM_CODEC_OK)
         return AOM_CODEC_ERROR;
 
-      rc->projected_frame_size = (int)(*size) << 3;
-      restore_coding_context(cpi);
+        rc->projected_frame_size = (int)(*size) << 3;
+        restore_coding_context(cpi);
 
-      if (frame_over_shoot_limit == 0) frame_over_shoot_limit = 1;
-    }
+        if (frame_over_shoot_limit == 0) frame_over_shoot_limit = 1;
+      }
 
-    if (cpi->oxcf.rc_mode == AOM_Q) {
-      loop = 0;
-    } else {
-      if ((cm->frame_type == KEY_FRAME) && rc->this_key_frame_forced &&
-          (rc->projected_frame_size < rc->max_frame_bandwidth)) {
-        int last_q = q;
-        int64_t kf_err;
+      if (cpi->oxcf.rc_mode == AOM_Q) {
+        loop = 0;
+      } else {
+        if ((cm->frame_type == KEY_FRAME) && rc->this_key_frame_forced &&
+            (rc->projected_frame_size < rc->max_frame_bandwidth)) {
+          int last_q = q;
+          int64_t kf_err;
 
-        int64_t high_err_target = cpi->ambient_err;
-        int64_t low_err_target = cpi->ambient_err >> 1;
+          int64_t high_err_target = cpi->ambient_err;
+          int64_t low_err_target = cpi->ambient_err >> 1;
 
-        if (cm->use_highbitdepth) {
-          kf_err = aom_highbd_get_y_sse(cpi->source, get_frame_new_buffer(cm));
-        } else {
-          kf_err = aom_get_y_sse(cpi->source, get_frame_new_buffer(cm));
-        }
-        // Prevent possible divide by zero error below for perfect KF
-        kf_err += !kf_err;
-
-        // The key frame is not good enough or we can afford
-        // to make it better without undue risk of popping.
-        if ((kf_err > high_err_target &&
-             rc->projected_frame_size <= frame_over_shoot_limit) ||
-            (kf_err > low_err_target &&
-             rc->projected_frame_size <= frame_under_shoot_limit)) {
-          // Lower q_high
-          q_high = q > q_low ? q - 1 : q_low;
-
-          // Adjust Q
-          q = (int)((q * high_err_target) / kf_err);
-          q = AOMMIN(q, (q_high + q_low) >> 1);
-        } else if (kf_err < low_err_target &&
-                   rc->projected_frame_size >= frame_under_shoot_limit) {
-          // The key frame is much better than the previous frame
-          // Raise q_low
-          q_low = q < q_high ? q + 1 : q_high;
-
-          // Adjust Q
-          q = (int)((q * low_err_target) / kf_err);
-          q = AOMMIN(q, (q_high + q_low + 1) >> 1);
-        }
-
-        // Clamp Q to upper and lower limits:
-        q = clamp(q, q_low, q_high);
-
-        loop = q != last_q;
-      } else if (recode_loop_test(cpi, frame_over_shoot_limit,
-                                  frame_under_shoot_limit, q,
-                                  AOMMAX(q_high, top_index), bottom_index)) {
-        // Is the projected frame size out of range and are we allowed
-        // to attempt to recode.
-        int last_q = q;
-        int retries = 0;
-
-        // Frame size out of permitted range:
-        // Update correction factor & compute new Q to try...
-        // Frame is too large
-        if (rc->projected_frame_size > rc->this_frame_target) {
-          // Special case if the projected size is > the max allowed.
-          if (rc->projected_frame_size >= rc->max_frame_bandwidth)
-            q_high = rc->worst_quality;
-
-          // Raise Qlow as to at least the current value
-          q_low = q < q_high ? q + 1 : q_high;
-
-          if (undershoot_seen || loop_at_this_size > 1) {
-            // Update rate_correction_factor unless
-            av1_rc_update_rate_correction_factors(cpi, cm->width, cm->height);
-
-            q = (q_high + q_low + 1) / 2;
+          if (cm->use_highbitdepth) {
+            kf_err =
+                aom_highbd_get_y_sse(cpi->source, get_frame_new_buffer(cm));
           } else {
-            // Update rate_correction_factor unless
-            av1_rc_update_rate_correction_factors(cpi, cm->width, cm->height);
+            kf_err = aom_get_y_sse(cpi->source, get_frame_new_buffer(cm));
+          }
+          // Prevent possible divide by zero error below for perfect KF
+          kf_err += !kf_err;
 
-            q = av1_rc_regulate_q(cpi, rc->this_frame_target, bottom_index,
-                                  AOMMAX(q_high, top_index), cm->width,
-                                  cm->height);
+          // The key frame is not good enough or we can afford
+          // to make it better without undue risk of popping.
+          if ((kf_err > high_err_target &&
+               rc->projected_frame_size <= frame_over_shoot_limit) ||
+              (kf_err > low_err_target &&
+               rc->projected_frame_size <= frame_under_shoot_limit)) {
+            // Lower q_high
+            q_high = q > q_low ? q - 1 : q_low;
 
-            while (q < q_low && retries < 10) {
+            // Adjust Q
+            q = (int)((q * high_err_target) / kf_err);
+            q = AOMMIN(q, (q_high + q_low) >> 1);
+          } else if (kf_err < low_err_target &&
+                     rc->projected_frame_size >= frame_under_shoot_limit) {
+            // The key frame is much better than the previous frame
+            // Raise q_low
+            q_low = q < q_high ? q + 1 : q_high;
+
+            // Adjust Q
+            q = (int)((q * low_err_target) / kf_err);
+            q = AOMMIN(q, (q_high + q_low + 1) >> 1);
+          }
+
+          // Clamp Q to upper and lower limits:
+          q = clamp(q, q_low, q_high);
+
+          loop = q != last_q;
+        } else if (recode_loop_test(cpi, frame_over_shoot_limit,
+                                    frame_under_shoot_limit, q,
+                                    AOMMAX(q_high, top_index), bottom_index)) {
+          // Is the projected frame size out of range and are we allowed
+          // to attempt to recode.
+          int last_q = q;
+          int retries = 0;
+
+          // Frame size out of permitted range:
+          // Update correction factor & compute new Q to try...
+          // Frame is too large
+          if (rc->projected_frame_size > rc->this_frame_target) {
+            // Special case if the projected size is > the max allowed.
+            if (rc->projected_frame_size >= rc->max_frame_bandwidth)
+              q_high = rc->worst_quality;
+
+            // Raise Qlow as to at least the current value
+            q_low = q < q_high ? q + 1 : q_high;
+
+            if (undershoot_seen || loop_at_this_size > 1) {
+              // Update rate_correction_factor unless
               av1_rc_update_rate_correction_factors(cpi, cm->width, cm->height);
+
+              q = (q_high + q_low + 1) / 2;
+            } else {
+              // Update rate_correction_factor unless
+              av1_rc_update_rate_correction_factors(cpi, cm->width, cm->height);
+
               q = av1_rc_regulate_q(cpi, rc->this_frame_target, bottom_index,
                                     AOMMAX(q_high, top_index), cm->width,
                                     cm->height);
-              retries++;
+
+              while (q < q_low && retries < 10) {
+                av1_rc_update_rate_correction_factors(cpi, cm->width,
+                                                      cm->height);
+                q = av1_rc_regulate_q(cpi, rc->this_frame_target, bottom_index,
+                                      AOMMAX(q_high, top_index), cm->width,
+                                      cm->height);
+                retries++;
+              }
             }
-          }
 
-          overshoot_seen = 1;
-        } else {
-          // Frame is too small
-          q_high = q > q_low ? q - 1 : q_low;
-
-          if (overshoot_seen || loop_at_this_size > 1) {
-            av1_rc_update_rate_correction_factors(cpi, cm->width, cm->height);
-            q = (q_high + q_low) / 2;
+            overshoot_seen = 1;
           } else {
-            av1_rc_update_rate_correction_factors(cpi, cm->width, cm->height);
-            q = av1_rc_regulate_q(cpi, rc->this_frame_target, bottom_index,
-                                  top_index, cm->width, cm->height);
-            // Special case reset for qlow for constrained quality.
-            // This should only trigger where there is very substantial
-            // undershoot on a frame and the auto cq level is above
-            // the user passsed in value.
-            if (cpi->oxcf.rc_mode == AOM_CQ && q < q_low) {
-              q_low = q;
-            }
+            // Frame is too small
+            q_high = q > q_low ? q - 1 : q_low;
 
-            while (q > q_high && retries < 10) {
+            if (overshoot_seen || loop_at_this_size > 1) {
+              av1_rc_update_rate_correction_factors(cpi, cm->width, cm->height);
+              q = (q_high + q_low) / 2;
+            } else {
               av1_rc_update_rate_correction_factors(cpi, cm->width, cm->height);
               q = av1_rc_regulate_q(cpi, rc->this_frame_target, bottom_index,
                                     top_index, cm->width, cm->height);
-              retries++;
+              // Special case reset for qlow for constrained quality.
+              // This should only trigger where there is very substantial
+              // undershoot on a frame and the auto cq level is above
+              // the user passsed in value.
+              if (cpi->oxcf.rc_mode == AOM_CQ && q < q_low) {
+                q_low = q;
+              }
+
+              while (q > q_high && retries < 10) {
+                av1_rc_update_rate_correction_factors(cpi, cm->width,
+                                                      cm->height);
+                q = av1_rc_regulate_q(cpi, rc->this_frame_target, bottom_index,
+                                      top_index, cm->width, cm->height);
+                retries++;
+              }
             }
+
+            undershoot_seen = 1;
           }
 
-          undershoot_seen = 1;
+          // Clamp Q to upper and lower limits:
+          q = clamp(q, q_low, q_high);
+
+          loop = (q != last_q);
+        } else {
+          loop = 0;
         }
-
-        // Clamp Q to upper and lower limits:
-        q = clamp(q, q_low, q_high);
-
-        loop = (q != last_q);
-      } else {
-        loop = 0;
       }
-    }
 
-    // Special case for overlay frame.
-    if (rc->is_src_frame_alt_ref &&
-        rc->projected_frame_size < rc->max_frame_bandwidth)
-      loop = 0;
+      // Special case for overlay frame.
+      if (rc->is_src_frame_alt_ref &&
+          rc->projected_frame_size < rc->max_frame_bandwidth)
+        loop = 0;
 
-    if (recode_loop_test_global_motion(cpi)) {
-      loop = 1;
-    }
+      if (recode_loop_test_global_motion(cpi)) {
+        loop = 1;
+      }
 
-    if (loop) {
-      ++loop_count;
-      ++loop_at_this_size;
+      if (loop) {
+        ++loop_count;
+        ++loop_at_this_size;
 
 #if CONFIG_INTERNAL_STATS
-      ++cpi->tot_recode_hits;
+        ++cpi->tot_recode_hits;
 #endif
-    }
-  } while (loop);
+      }
+    } while (loop);
+#if CONFIG_NEW_QUANT && SEARCH_NEW_QUANT
+      PSNR_STATS psnr;
+      aom_calc_highbd_psnr(orig, get_frame_new_buffer(cm), &psnr, bit_depth, in_bit_depth);
+      double dq_rd =
+          RDCOST_DBL(cpi->td.mb.rdmult,
+                     rc->projected_frame_size << (AV1_PROB_COST_SHIFT - 4),
+                     psnr.sse[0] + psnr.sse[1] + psnr.sse[2]);
 
+      if (dq_type < DQ_TYPES) {
+        if (dq_rd < best_dq_rd) {
+          best_dq_rd = dq_rd;
+          best_dq_type = dq_type;
+        }
+      bottom_index = 0, top_index = 0;
+      loop_count = 0;
+      loop_at_this_size = 0;
+      loop = 0;
+      overshoot_seen = 0;
+      undershoot_seen = 0;
+      frame_over_shoot_limit = 0;
+      frame_under_shoot_limit = 0;
+      q = 0, q_low = 0, q_high = 0;
+    /*
+       if (frame_is_intra_only(cm) == 0) {
+           release_scaled_references(cpi);
+       }
+    */
+      memcpy(cm->buffer_pool, &bpool_0, sizeof(bpool_0));
+
+      set_size_independent_vars(cpi);
+
+
+      aom_clear_system_state();
+      setup_frame_size(cpi);
+      set_size_dependent_vars(cpi, &q, &bottom_index, &top_index);
+          *size = 0;
+    }
+  }
+#endif  // CONFIG_NEW_QUANT && SEARCH_NEW_QUANT
   return AOM_CODEC_OK;
 }
 
