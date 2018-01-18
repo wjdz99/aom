@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "98ea3207_8ba2fea9",
+        "filename": "aom_dsp/prob.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2018-01-18T00:57:23Z",
+      "side": 1,
+      "message": "So, this additional mult whenever AOM_ICDF() is called when CDF_SHIFT is not zero is only overhead that occurs once for initializing aom_cdf_prob cdf arrays, correct?",
+      "range": {
+        "startLine": 111,
+        "startChar": 21,
+        "endLine": 111,
+        "endChar": 22
+      },
+      "revId": "314f3b4e5caa985daf7850491900d99406f58cad",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7cee2b45_4ebfd8ce",
+        "filename": "aom_dsp/prob.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2018-01-18T00:57:23Z",
+      "side": 1,
+      "message": "Is this what clang-format enforces?\nWhile \u0027,\u0027 is put after the last letter at line 124 below?",
+      "range": {
+        "startLine": 115,
+        "startChar": 2,
+        "endLine": 115,
+        "endChar": 3
+      },
+      "revId": "314f3b4e5caa985daf7850491900d99406f58cad",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
