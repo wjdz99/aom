@@ -105,7 +105,10 @@ static INLINE int get_dq_profile(DqType dqtype, int qindex, int is_inter,
             { { 21, 22 }, { 23, 24 } },  // inter: Y, UV
         },
       };
-  if (!qindex) return 0;  // lossless
+  if (!qindex) {
+    printf("qind0\n");
+    return 0;  // lossless
+  }
   if (!dqtype) return 0;  // DQ_MULT
   return dq_profile_lookup[dqtype][is_inter][plane_type]
                           [qindex_to_qrange(qindex)];
