@@ -5825,8 +5825,7 @@ static void joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
           x, &ref_mv[id].as_mv, cpi->common.allow_high_precision_mv,
           x->errorperbit, &cpi->fn_ptr[bsize], 0,
           cpi->sf.mv.subpel_iters_per_step, NULL, x->nmvjointcost, x->mvcost,
-          &dis, &sse, second_pred, mask, mask_stride, id, pw, ph,
-          cpi->sf.use_upsampled_references);
+          &dis, &sse, second_pred, mask, mask_stride, id, pw, ph);
     }
 
     // Restore the pointer to the first (possibly scaled) prediction buffer.
@@ -6253,63 +6252,55 @@ static void single_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,
   if (use_fractional_mv) {
     int dis; /* TODO: use dis in distortion calculation later. */
     switch (mbmi->motion_mode) {
-      case SIMPLE_TRANSLATION:
-        if (cpi->sf.use_upsampled_references) {
-          int best_mv_var;
-          const int try_second = x->second_best_mv.as_int != INVALID_MV &&
-                                 x->second_best_mv.as_int != x->best_mv.as_int;
-          const int pw = block_size_wide[bsize];
-          const int ph = block_size_high[bsize];
+      case SIMPLE_TRANSLATION: {
+        int best_mv_var;
+        const int try_second = x->second_best_mv.as_int != INVALID_MV &&
+                               x->second_best_mv.as_int != x->best_mv.as_int;
+        const int pw = block_size_wide[bsize];
+        const int ph = block_size_high[bsize];
 
-          best_mv_var = cpi->find_fractional_mv_step(
-              x, &ref_mv, cm->allow_high_precision_mv, x->errorperbit,
-              &cpi->fn_ptr[bsize], cpi->sf.mv.subpel_force_stop,
-              cpi->sf.mv.subpel_iters_per_step, cond_cost_list(cpi, cost_list),
-              x->nmvjointcost, x->mvcost, &dis, &x->pred_sse[ref], NULL, NULL,
-              0, 0, pw, ph, 1);
+        best_mv_var = cpi->find_fractional_mv_step(
+            x, &ref_mv, cm->allow_high_precision_mv, x->errorperbit,
+            &cpi->fn_ptr[bsize], cpi->sf.mv.subpel_force_stop,
+            cpi->sf.mv.subpel_iters_per_step, cond_cost_list(cpi, cost_list),
+            x->nmvjointcost, x->mvcost, &dis, &x->pred_sse[ref], NULL, NULL, 0,
+            0, pw, ph);
 
-          if (try_second) {
-            const int minc =
-                AOMMAX(x->mv_limits.col_min * 8, ref_mv.col - MV_MAX);
-            const int maxc =
-                AOMMIN(x->mv_limits.col_max * 8, ref_mv.col + MV_MAX);
-            const int minr =
-                AOMMAX(x->mv_limits.row_min * 8, ref_mv.row - MV_MAX);
-            const int maxr =
-                AOMMIN(x->mv_limits.row_max * 8, ref_mv.row + MV_MAX);
-            int this_var;
-            MV best_mv = x->best_mv.as_mv;
+        if (try_second) {
+          const int minc =
+              AOMMAX(x->mv_limits.col_min * 8, ref_mv.col - MV_MAX);
+          const int maxc =
+              AOMMIN(x->mv_limits.col_max * 8, ref_mv.col + MV_MAX);
+          const int minr =
+              AOMMAX(x->mv_limits.row_min * 8, ref_mv.row - MV_MAX);
+          const int maxr =
+              AOMMIN(x->mv_limits.row_max * 8, ref_mv.row + MV_MAX);
+          int this_var;
+          MV best_mv = x->best_mv.as_mv;
 
-            x->best_mv = x->second_best_mv;
-            if (x->best_mv.as_mv.row * 8 <= maxr &&
-                x->best_mv.as_mv.row * 8 >= minr &&
-                x->best_mv.as_mv.col * 8 <= maxc &&
-                x->best_mv.as_mv.col * 8 >= minc) {
-              this_var = cpi->find_fractional_mv_step(
-                  x, &ref_mv, cm->allow_high_precision_mv, x->errorperbit,
-                  &cpi->fn_ptr[bsize], cpi->sf.mv.subpel_force_stop,
-                  cpi->sf.mv.subpel_iters_per_step,
-                  cond_cost_list(cpi, cost_list), x->nmvjointcost, x->mvcost,
-                  &dis, &x->pred_sse[ref], NULL, NULL, 0, 0, pw, ph, 1);
-              if (this_var < best_mv_var) best_mv = x->best_mv.as_mv;
-              x->best_mv.as_mv = best_mv;
-            }
+          x->best_mv = x->second_best_mv;
+          if (x->best_mv.as_mv.row * 8 <= maxr &&
+              x->best_mv.as_mv.row * 8 >= minr &&
+              x->best_mv.as_mv.col * 8 <= maxc &&
+              x->best_mv.as_mv.col * 8 >= minc) {
+            this_var = cpi->find_fractional_mv_step(
+                x, &ref_mv, cm->allow_high_precision_mv, x->errorperbit,
+                &cpi->fn_ptr[bsize], cpi->sf.mv.subpel_force_stop,
+                cpi->sf.mv.subpel_iters_per_step,
+                cond_cost_list(cpi, cost_list), x->nmvjointcost, x->mvcost,
+                &dis, &x->pred_sse[ref], NULL, NULL, 0, 0, pw, ph);
+            if (this_var < best_mv_var) best_mv = x->best_mv.as_mv;
+            x->best_mv.as_mv = best_mv;
           }
-        } else {
-          cpi->find_fractional_mv_step(
-              x, &ref_mv, cm->allow_high_precision_mv, x->errorperbit,
-              &cpi->fn_ptr[bsize], cpi->sf.mv.subpel_force_stop,
-              cpi->sf.mv.subpel_iters_per_step, cond_cost_list(cpi, cost_list),
-              x->nmvjointcost, x->mvcost, &dis, &x->pred_sse[ref], NULL, NULL,
-              0, 0, 0, 0, 0);
         }
         break;
+      }
       case OBMC_CAUSAL:
         av1_find_best_obmc_sub_pixel_tree_up(
             x, &x->best_mv.as_mv, &ref_mv, cm->allow_high_precision_mv,
             x->errorperbit, &cpi->fn_ptr[bsize], cpi->sf.mv.subpel_force_stop,
             cpi->sf.mv.subpel_iters_per_step, x->nmvjointcost, x->mvcost, &dis,
-            &x->pred_sse[ref], 0, cpi->sf.use_upsampled_references);
+            &x->pred_sse[ref], 0);
         break;
       default: assert(0 && "Invalid motion mode!\n");
     }
@@ -6509,7 +6500,7 @@ static void compound_single_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
         x, &ref_mv.as_mv, cpi->common.allow_high_precision_mv, x->errorperbit,
         &cpi->fn_ptr[bsize], 0, cpi->sf.mv.subpel_iters_per_step, NULL,
         x->nmvjointcost, x->mvcost, &dis, &sse, second_pred, mask, mask_stride,
-        ref_idx, pw, ph, cpi->sf.use_upsampled_references);
+        ref_idx, pw, ph);
   }
 
   // Restore the pointer to the first (possibly scaled) prediction buffer.
