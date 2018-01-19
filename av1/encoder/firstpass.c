@@ -63,10 +63,18 @@
 #define DEFAULT_GRP_WEIGHT 1.0
 #define RC_FACTOR_MIN 0.75
 #define RC_FACTOR_MAX 1.75
+#define ARF_ABS_ZOOM_THRESH 4.0
 
 #define NCOUNT_INTRA_THRESH 8192
 #define NCOUNT_INTRA_FACTOR 3
 #define NCOUNT_FRAME_II_THRESH 5.0
+
+#define FRAMES_TO_CHECK_DECAY 8
+#define MIN_KF_TOT_BOOST 300
+#define KF_BOOST_SCAN_MAX_FRAMES 32
+#define KF_ABS_ZOOM_THRESH 6.0
+#define KF_MAX_FRAME_BOOST 80.0
+#define MAX_KF_TOT_BOOST 4800
 
 #define DOUBLE_DIVIDE_CHECK(x) ((x) < 0 ? (x)-0.000001 : (x) + 0.000001)
 
@@ -1362,36 +1370,57 @@ static void accumulate_frame_motion_stats(const FIRSTPASS_STATS *stats,
 
 #define BASELINE_ERR_PER_MB 1000.0
 static double calc_frame_boost(AV1_COMP *cpi, const FIRSTPASS_STATS *this_frame,
-                               double this_frame_mv_in_out, double max_boost) {
+                               double this_frame_mv_in_out) {
   double frame_boost;
   const double lq = av1_convert_qindex_to_q(
       cpi->rc.avg_frame_qindex[INTER_FRAME], cpi->common.bit_depth);
   const double boost_q_correction = AOMMIN((0.5 + (lq * 0.015)), 1.5);
-  int num_mbs = (cpi->oxcf.resize_mode != RESIZE_NONE) ? cpi->initial_mbs
-                                                       : cpi->common.MBs;
-
-  // Correct for any inactive region in the image
-  num_mbs = (int)AOMMAX(1, num_mbs * calculate_active_area(cpi, this_frame));
+  const double active_area = calculate_active_area(cpi, this_frame);
 
   // Underlying boost factor is based on inter error ratio.
-  frame_boost = (BASELINE_ERR_PER_MB * num_mbs) /
+  frame_boost = (BASELINE_ERR_PER_MB * active_area) /
                 DOUBLE_DIVIDE_CHECK(this_frame->coded_error);
-  frame_boost = frame_boost * BOOST_FACTOR * boost_q_correction;
 
-  // Increase boost for frames where new data coming into frame (e.g. zoom out).
-  // Slightly reduce boost if there is a net balance of motion out of the frame
-  // (zoom in). The range for this_frame_mv_in_out is -1.0 to +1.0.
   if (this_frame_mv_in_out > 0.0)
     frame_boost += frame_boost * (this_frame_mv_in_out * 2.0);
-  // In the extreme case the boost is halved.
-  else
-    frame_boost += frame_boost * (this_frame_mv_in_out / 2.0);
+
+  // Q correction and scalling
+  frame_boost = frame_boost * boost_q_correction;
+
+  return AOMMIN(frame_boost, GF_MAX_BOOST * boost_q_correction);
+}
+
+#define KF_BASELINE_ERR_PER_MB 12500.0
+static double calc_kf_frame_boost(AV1_COMP *cpi,
+                                  const FIRSTPASS_STATS *this_frame,
+                                  double *sr_accumulator,
+                                  double this_frame_mv_in_out,
+                                  double max_boost) {
+  double frame_boost;
+  const double lq = av1_convert_qindex_to_q(
+      cpi->rc.avg_frame_qindex[INTER_FRAME], cpi->common.bit_depth);
+  const double boost_q_correction = AOMMIN((0.50 + (lq * 0.015)), 2.00);
+  const double active_area = calculate_active_area(cpi, this_frame);
+
+  // Underlying boost factor is based on inter error ratio.
+  frame_boost = (KF_BASELINE_ERR_PER_MB * active_area) /
+                DOUBLE_DIVIDE_CHECK(this_frame->coded_error + *sr_accumulator);
+  // Update the accumulator for second ref error difference.
+  // This is intended to give an indication of how much the coded error is
+  // increasing over time.
+  *sr_accumulator += (this_frame->sr_coded_error - this_frame->coded_error);
+  *sr_accumulator = AOMMAX(0.0, *sr_accumulator);
+
+  // Small adjustment for cases where there is a zoom out
+  if (this_frame_mv_in_out > 0.0)
+    frame_boost += frame_boost * (this_frame_mv_in_out * 2.0);
+  // Q correction and scalling
+  frame_boost = frame_boost * boost_q_correction;
 
   return AOMMIN(frame_boost, max_boost * boost_q_correction);
 }
 
-static int calc_arf_boost(AV1_COMP *cpi, int offset, int f_frames, int b_frames,
-                          int *f_boost, int *b_boost) {
+static int calc_arf_boost(AV1_COMP *cpi, int f_frames, int b_frames) {
   TWO_PASS *const twopass = &cpi->twopass;
   int i;
   double boost_score = 0.0;
@@ -1405,7 +1434,7 @@ static int calc_arf_boost(AV1_COMP *cpi, int offset, int f_frames, int b_frames,
 
   // Search forward from the proposed arf/next gf position.
   for (i = 0; i < f_frames; ++i) {
-    const FIRSTPASS_STATS *this_frame = read_frame_stats(twopass, i + offset);
+    const FIRSTPASS_STATS *this_frame = read_frame_stats(twopass, i);
     if (this_frame == NULL) break;
 
     // Update the motion related elements to the boost calculation.
@@ -1415,8 +1444,7 @@ static int calc_arf_boost(AV1_COMP *cpi, int offset, int f_frames, int b_frames,
 
     // We want to discount the flash frame itself and the recovery
     // frame that follows as both will have poor scores.
-    flash_detected = detect_flash(twopass, i + offset) ||
-                     detect_flash(twopass, i + offset + 1);
+    flash_detected = detect_flash(twopass, i) || detect_flash(twopass, i + 1);
 
     // Accumulate the effect of prediction quality decay.
     if (!flash_detected) {
@@ -1426,12 +1454,11 @@ static int calc_arf_boost(AV1_COMP *cpi, int offset, int f_frames, int b_frames,
                               : decay_accumulator;
     }
 
-    boost_score +=
-        decay_accumulator *
-        calc_frame_boost(cpi, this_frame, this_frame_mv_in_out, GF_MAX_BOOST);
+    boost_score += decay_accumulator *
+                   calc_frame_boost(cpi, this_frame, this_frame_mv_in_out);
   }
 
-  *f_boost = (int)boost_score;
+  arf_boost = (int)boost_score;
 
   // Reset for backward looking loop.
   boost_score = 0.0;
@@ -1443,7 +1470,7 @@ static int calc_arf_boost(AV1_COMP *cpi, int offset, int f_frames, int b_frames,
 
   // Search backward towards last gf position.
   for (i = -1; i >= -b_frames; --i) {
-    const FIRSTPASS_STATS *this_frame = read_frame_stats(twopass, i + offset);
+    const FIRSTPASS_STATS *this_frame = read_frame_stats(twopass, i);
     if (this_frame == NULL) break;
 
     // Update the motion related elements to the boost calculation.
@@ -1453,8 +1480,7 @@ static int calc_arf_boost(AV1_COMP *cpi, int offset, int f_frames, int b_frames,
 
     // We want to discount the the flash frame itself and the recovery
     // frame that follows as both will have poor scores.
-    flash_detected = detect_flash(twopass, i + offset) ||
-                     detect_flash(twopass, i + offset + 1);
+    flash_detected = detect_flash(twopass, i) || detect_flash(twopass, i + 1);
 
     // Cumulative effect of prediction quality decay.
     if (!flash_detected) {
@@ -1464,13 +1490,11 @@ static int calc_arf_boost(AV1_COMP *cpi, int offset, int f_frames, int b_frames,
                               : decay_accumulator;
     }
 
-    boost_score +=
-        decay_accumulator *
-        calc_frame_boost(cpi, this_frame, this_frame_mv_in_out, GF_MAX_BOOST);
+    boost_score += decay_accumulator *
+                   calc_frame_boost(cpi, this_frame, this_frame_mv_in_out);
   }
-  *b_boost = (int)boost_score;
+  arf_boost += (int)boost_score;
 
-  arf_boost = (*f_boost + *b_boost);
   if (arf_boost < ((b_frames + f_frames) * 40))
     arf_boost = ((b_frames + f_frames) * 40);
   arf_boost = AOMMAX(arf_boost, MIN_ARF_GF_BOOST);
@@ -2487,8 +2511,6 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   const FIRSTPASS_STATS *const start_pos = twopass->stats_in;
   int i;
 
-  double boost_score = 0.0;
-  double old_boost_score = 0.0;
   double gf_group_err = 0.0;
 #if GROUP_ADAPTIVE_MAXQ
   double gf_group_raw_error = 0.0;
@@ -2509,10 +2531,9 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   double mv_in_out_accumulator = 0.0;
   double abs_mv_in_out_accumulator = 0.0;
   double mv_ratio_accumulator_thresh;
+  double sr_accumulator = 0.0;
   unsigned int allow_alt_ref = is_altref_enabled(cpi);
 
-  int f_boost = 0;
-  int b_boost = 0;
   int flash_detected;
   int active_max_gf_interval;
   int active_min_gf_interval;
@@ -2647,38 +2668,40 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
         allow_alt_ref = 0;
         break;
       }
-    }
 
-    // Calculate a boost number for this frame.
-    boost_score +=
-        decay_accumulator *
-        calc_frame_boost(cpi, &next_frame, this_frame_mv_in_out, GF_MAX_BOOST);
+      // Update the accumulator for second ref error difference.
+      // This is intended to give an indication of how much the coded error is
+      // increasing over time.
+      if (i == 1) {
+        sr_accumulator += next_frame.coded_error;
+      } else {
+        sr_accumulator += (next_frame.sr_coded_error - next_frame.coded_error);
+      }
+    }
 
     // Break out conditions.
     if (
         // Break at active_max_gf_interval unless almost totally static.
-        (i >= (active_max_gf_interval + arf_active_or_kf) &&
+        (i >= active_max_gf_interval + arf_active_or_kf &&
          zero_motion_accumulator < 0.995) ||
         (
             // Don't break out with a very short interval.
             (i >= active_min_gf_interval + arf_active_or_kf) &&
+            ((rc->frames_to_key - i) >= rc->min_gf_interval) &&
             (!flash_detected) &&
             ((mv_ratio_accumulator > mv_ratio_accumulator_thresh) ||
-             (abs_mv_in_out_accumulator > 3.0) ||
-             (mv_in_out_accumulator < -2.0) ||
-             ((boost_score - old_boost_score) < BOOST_BREAKOUT)))) {
+             (abs_mv_in_out_accumulator > ARF_ABS_ZOOM_THRESH) ||
+             (sr_accumulator > next_frame.intra_error)))) {
       // If GF group interval is < 12, we force it to be 8. Otherwise,
       // if it is >= 12, we keep it as is.
       // NOTE: 'i' is 1 more than the GF group interval candidate that is being
       //       checked.
       if (i == (8 + 1) || i >= (12 + 1)) {
-        boost_score = old_boost_score;
         break;
       }
     }
 
     *this_frame = next_frame;
-    old_boost_score = boost_score;
   }
   twopass->gf_zeromotion_pct = (int)(zero_motion_accumulator * 1000.0);
 
@@ -2687,15 +2710,15 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
 
   const int num_mbs = (cpi->oxcf.resize_mode != RESIZE_NONE) ? cpi->initial_mbs
                                                              : cpi->common.MBs;
-  assert(num_mbs > 0);
-  if (i) avg_sr_coded_error /= i;
 
   // Should we use the alternate reference frame.
   if (allow_alt_ref && (i < cpi->oxcf.lag_in_frames) &&
       (i >= rc->min_gf_interval)) {
+    const int forward_frames = (rc->frames_to_key - i >= i - 1)
+                                   ? i - 1
+                                   : AOMMAX(0, rc->frames_to_key - i);
     // Calculate the boost for alt ref.
-    rc->gfu_boost =
-        calc_arf_boost(cpi, 0, (i - 1), (i - 1), &f_boost, &b_boost);
+    rc->gfu_boost = calc_arf_boost(cpi, forward_frames, (i - 1));
     rc->source_alt_ref_pending = 1;
 
     // Test to see if multi arf is appropriate.
@@ -2705,6 +2728,8 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
             ? 1
             : 0;
 #if CONFIG_BGSPRITE
+    if (i) avg_sr_coded_error /= i;
+
     if (non_zero_pcnt_second_ref_count) {
       avg_pcnt_second_ref /= non_zero_pcnt_second_ref_count;
     }
@@ -2716,12 +2741,15 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
     }
 #endif  // CONFIG_BGSPRITE
   } else {
-    rc->gfu_boost = AOMMAX((int)boost_score, MIN_ARF_GF_BOOST);
+    rc->gfu_boost = calc_arf_boost(cpi, 0, (i - 1));
     rc->source_alt_ref_pending = 0;
   }
 
+  rc->gfu_boost = AOMMIN((int)rc->gfu_boost, i * 200);
+
   // Set the interval until the next gf.
   rc->baseline_gf_interval = i - (is_key_frame || rc->source_alt_ref_pending);
+
   if (non_zero_stdev_count) avg_raw_err_stdev /= non_zero_stdev_count;
 
   // Disable extra altrefs and backward refs for "still" gf group:
@@ -2852,6 +2880,9 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
 // ratio in the next frame.
 #define II_IMPROVEMENT_THRESHOLD 3.5
 #define KF_II_MAX 128.0
+#define II_FACTOR 12.5
+// Test for very low intra complexity which could cause false key frames
+#define V_LOW_INTRA 0.5
 
 static int test_candidate_kf(TWO_PASS *twopass,
                              const FIRSTPASS_STATS *last_frame,
@@ -2891,7 +2922,7 @@ static int test_candidate_kf(TWO_PASS *twopass,
 
     // Examine how well the key frame predicts subsequent frames.
     for (i = 0; i < 16; ++i) {
-      double next_iiratio = (BOOST_FACTOR * local_next_frame.intra_error /
+      double next_iiratio = (II_FACTOR * local_next_frame.intra_error /
                              DOUBLE_DIVIDE_CHECK(local_next_frame.coded_error));
 
       if (next_iiratio > KF_II_MAX) next_iiratio = KF_II_MAX;
@@ -2911,7 +2942,7 @@ static int test_candidate_kf(TWO_PASS *twopass,
             0.20) &&
            (next_iiratio < 3.0)) ||
           ((boost_score - old_boost_score) < 3.0) ||
-          (local_next_frame.intra_error < 200)) {
+          (local_next_frame.intra_error < V_LOW_INTRA)) {
         break;
       }
 
@@ -2949,7 +2980,6 @@ static void find_next_key_frame(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   FIRSTPASS_STATS next_frame;
   FIRSTPASS_STATS last_frame;
   int kf_bits = 0;
-  int loop_decay_counter = 0;
   double decay_accumulator = 1.0;
   double av_decay_accumulator = 0.0;
   double zero_motion_accumulator = 1.0;
@@ -2957,6 +2987,8 @@ static void find_next_key_frame(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   double kf_mod_err = 0.0;
   double kf_group_err = 0.0;
   double recent_loop_decay[FRAMES_TO_CHECK_DECAY];
+  double sr_accumulator = 0.0;
+  double abs_mv_in_out_accumulator = 0.0;
 
   av1_zero(next_frame);
 
@@ -3097,33 +3129,41 @@ static void find_next_key_frame(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   // how many bits to spend on it.
   decay_accumulator = 1.0;
   boost_score = 0.0;
+
   for (i = 0; i < (rc->frames_to_key - 1); ++i) {
     if (EOF == input_stats(twopass, &next_frame)) break;
 
-    // Monitor for static sections.
-    zero_motion_accumulator = AOMMIN(zero_motion_accumulator,
-                                     get_zero_motion_factor(cpi, &next_frame));
+    if (i <= KF_BOOST_SCAN_MAX_FRAMES) {
+      double frame_boost;
+      double zm_factor;
 
-    // Not all frames in the group are necessarily used in calculating boost.
-    if ((i <= rc->max_gf_interval) ||
-        ((i <= (rc->max_gf_interval * 4)) && (decay_accumulator > 0.5))) {
-      const double frame_boost =
-          calc_frame_boost(cpi, this_frame, 0, KF_MAX_BOOST);
+      // Monitor for static sections.
+      zero_motion_accumulator = AOMMIN(
+          zero_motion_accumulator, get_zero_motion_factor(cpi, &next_frame));
 
-      // How fast is prediction quality decaying.
-      if (!detect_flash(twopass, 0)) {
-        const double loop_decay_rate =
-            get_prediction_decay_rate(cpi, &next_frame);
-        decay_accumulator *= loop_decay_rate;
-        decay_accumulator = AOMMAX(decay_accumulator, MIN_DECAY_FACTOR);
-        av_decay_accumulator += decay_accumulator;
-        ++loop_decay_counter;
-      }
-      boost_score += (decay_accumulator * frame_boost);
+      // Factor 0.75-1.25 based on how much of frame is static.
+      zm_factor = (0.75 + (zero_motion_accumulator / 2.0));
+
+      // The second (lagging) ref error is not valid immediately after
+      // a key frame because either the lag has not built up (in the
+      // case of the first key frame or it points to a refernce before
+      // the new key frame.
+      if (i < 2) sr_accumulator = 0.0;
+      frame_boost = calc_kf_frame_boost(cpi, &next_frame, &sr_accumulator, 0,
+                                        KF_MAX_FRAME_BOOST * zm_factor);
+
+      boost_score += frame_boost;
+      // Measure of zoom. Large zoom tends to indicate reduced boost.
+      abs_mv_in_out_accumulator +=
+          fabs(next_frame.mv_in_out_count * next_frame.pcnt_motion);
+
+      if ((frame_boost < 25.00) ||
+          (abs_mv_in_out_accumulator > KF_ABS_ZOOM_THRESH))
+        break;
+    } else {
+      break;
     }
   }
-  if (loop_decay_counter > 0)
-    av_decay_accumulator /= (double)loop_decay_counter;
 
   reset_fpf_position(twopass, start_position);
 
