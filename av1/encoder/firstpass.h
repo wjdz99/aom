@@ -72,6 +72,7 @@ typedef struct {
   double intra_error;
   double coded_error;
   double sr_coded_error;
+  double frame_noise_energy;
   double pcnt_inter;
   double pcnt_motion;
   double pcnt_second_ref;
@@ -161,6 +162,10 @@ typedef struct {
   // The fraction for a kf groups total bits allocated to the inter frames
   double kfgroup_inter_fraction;
 
+  double bpm_factor;
+  int rolling_arf_group_target_bits;
+  int rolling_arf_group_actual_bits;
+
   int sr_update_lag;
 
   int kf_zeromotion_pct;
@@ -171,6 +176,7 @@ typedef struct {
   int extend_minq;
   int extend_maxq;
   int extend_minq_fast;
+  int arnr_strength_adjustment;
 
   GF_GROUP gf_group;
 } TWO_PASS;
