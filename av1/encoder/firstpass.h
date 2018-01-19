@@ -72,11 +72,15 @@ typedef struct {
   double intra_error;
   double coded_error;
   double sr_coded_error;
+  double frame_noise_energy;
   double pcnt_inter;
   double pcnt_motion;
   double pcnt_second_ref;
   double pcnt_neutral;
+  double pcnt_intra_low;   // Coded intra but low variance
+  double pcnt_intra_high;  // Coded intra high variance
   double intra_skip_pct;
+  double intra_smooth_pct;    // % of blocks that are smooth
   double inactive_zone_rows;  // Image mask rows top and bottom.
   double inactive_zone_cols;  // Image mask columns at left and right edges.
   double MVr;
@@ -142,6 +146,8 @@ typedef struct {
   double modified_error_min;
   double modified_error_max;
   double modified_error_left;
+  double mean_mod_score;
+  double normalized_score_left;
   double mb_av_energy;
 
 #if CONFIG_FP_MB_STATS
@@ -158,8 +164,9 @@ typedef struct {
   // Error score of frames still to be coded in kf group
   int64_t kf_group_error_left;
 
-  // The fraction for a kf groups total bits allocated to the inter frames
-  double kfgroup_inter_fraction;
+  double bpm_factor;
+  int rolling_arf_group_target_bits;
+  int rolling_arf_group_actual_bits;
 
   int sr_update_lag;
 
@@ -171,6 +178,7 @@ typedef struct {
   int extend_minq;
   int extend_maxq;
   int extend_minq_fast;
+  int arnr_strength_adjustment;
 
   GF_GROUP gf_group;
 } TWO_PASS;
