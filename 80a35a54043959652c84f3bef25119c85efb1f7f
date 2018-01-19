@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4b3440d4_d73ce411",
+        "filename": "av1/common/x86/convolve_2d_sse2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 254,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2018-01-19T23:24:12Z",
+      "side": 1,
+      "message": "Would it make more sense for this to be the outer loop? Then you could do the horizontal and vertical filter in the same iteration, and would only need an 8-pixel wide temporary buffer. The total cache footprint should be smaller, but I don\u0027t know if the access pattern would confuse the hardware prefetch for the source (this may be a lost cause for large blocks either way).\n\nYou could even use a circular buffer in the vertical direction, and reduce the temporary buffer to round_up_to_power_of_2(max_taps)x8, but that may be overkill (you have to merge the two loops over i with a lag for the vertical filter).",
+      "revId": "80a35a54043959652c84f3bef25119c85efb1f7f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
