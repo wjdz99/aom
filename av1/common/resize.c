@@ -1080,7 +1080,8 @@ void av1_highbd_resize_frame444(const uint8_t *const y, int y_stride,
 }
 
 void av1_resize_and_extend_frame(const YV12_BUFFER_CONFIG *src,
-                                 YV12_BUFFER_CONFIG *dst, int bd) {
+                                 YV12_BUFFER_CONFIG *dst, int bd,
+                                 const int num_planes) {
   // TODO(dkovalev): replace YV12_BUFFER_CONFIG with aom_image_t
   int i;
   const uint8_t *const srcs[3] = { src->y_buffer, src->u_buffer,
@@ -1097,7 +1098,7 @@ void av1_resize_and_extend_frame(const YV12_BUFFER_CONFIG *src,
   const int dst_heights[3] = { dst->y_crop_height, dst->uv_crop_height,
                                dst->uv_crop_height };
 
-  for (i = 0; i < MAX_MB_PLANE; ++i) {
+  for (i = 0; i < num_planes; ++i) {
     if (src->flags & YV12_FLAG_HIGHBITDEPTH)
       highbd_resize_plane(srcs[i], src_heights[i], src_widths[i],
                           src_strides[i], dsts[i], dst_heights[i],
@@ -1106,7 +1107,7 @@ void av1_resize_and_extend_frame(const YV12_BUFFER_CONFIG *src,
       resize_plane(srcs[i], src_heights[i], src_widths[i], src_strides[i],
                    dsts[i], dst_heights[i], dst_widths[i], dst_strides[i]);
   }
-  aom_extend_frame_borders(dst);
+  aom_extend_frame_borders(dst, num_planes);
 }
 
 #if CONFIG_HORZONLY_FRAME_SUPERRES
@@ -1183,23 +1184,26 @@ void av1_upscale_normative_rows(const AV1_COMMON *cm, const uint8_t *src,
 void av1_upscale_normative_and_extend_frame(const AV1_COMMON *cm,
                                             const YV12_BUFFER_CONFIG *src,
                                             YV12_BUFFER_CONFIG *dst) {
-  for (int i = 0; i < MAX_MB_PLANE; ++i) {
+  const int num_planes = av1_num_planes(cm);
+  for (int i = 0; i < num_planes; ++i) {
     const int is_uv = (i > 0);
     av1_upscale_normative_rows(cm, src->buffers[i], src->strides[is_uv],
                                dst->buffers[i], dst->strides[is_uv], i,
                                src->crop_heights[is_uv]);
   }
 
-  aom_extend_frame_borders(dst);
+  aom_extend_frame_borders(dst, num_planes);
 }
 #endif  // CONFIG_HORZONLY_FRAME_SUPERRES
 
 YV12_BUFFER_CONFIG *av1_scale_if_required(AV1_COMMON *cm,
                                           YV12_BUFFER_CONFIG *unscaled,
                                           YV12_BUFFER_CONFIG *scaled) {
+  const int num_planes = av1_num_planes(cm);
   if (cm->width != unscaled->y_crop_width ||
       cm->height != unscaled->y_crop_height) {
-    av1_resize_and_extend_frame(unscaled, scaled, (int)cm->bit_depth);
+    av1_resize_and_extend_frame(unscaled, scaled, (int)cm->bit_depth,
+                                num_planes);
     return scaled;
   } else {
     return unscaled;
@@ -1243,6 +1247,7 @@ void av1_calculate_unscaled_superres_size(int *width, int *height, int denom) {
 // TODO(afergs): aom_ vs av1_ functions? Which can I use?
 // Upscale decoded image.
 void av1_superres_upscale(AV1_COMMON *cm, BufferPool *const pool) {
+  const int num_planes = av1_num_planes(cm);
   if (av1_superres_unscaled(cm)) return;
 
   YV12_BUFFER_CONFIG copy_buffer;
@@ -1258,7 +1263,7 @@ void av1_superres_upscale(AV1_COMMON *cm, BufferPool *const pool) {
                        "Failed to allocate copy buffer for superres upscaling");
 
   // Copy function assumes the frames are the same size, doesn't copy bit_depth.
-  aom_yv12_copy_frame(frame_to_show, &copy_buffer);
+  aom_yv12_copy_frame(frame_to_show, &copy_buffer, num_planes);
   copy_buffer.bit_depth = frame_to_show->bit_depth;
   assert(copy_buffer.y_crop_width == cm->width);
   assert(copy_buffer.y_crop_height == cm->height);
