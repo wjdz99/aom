@@ -3010,7 +3010,7 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
   int horzab_partition_allowed = ext_partition_allowed;
   int vertab_partition_allowed = ext_partition_allowed;
 
-  if (cpi->sf.prune_ext_partition_types_search) {
+  /*if (cpi->sf.prune_ext_partition_types_search) {
     horzab_partition_allowed &= (pc_tree->partitioning == PARTITION_HORZ ||
                                  pc_tree->partitioning == PARTITION_SPLIT);
     vertab_partition_allowed &= (pc_tree->partitioning == PARTITION_VERT ||
@@ -3023,15 +3023,15 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
     split_rd[1] = (split_rd[1] < INT64_MAX ? split_rd[1] : 0);
     split_rd[2] = (split_rd[2] < INT64_MAX ? split_rd[2] : 0);
     split_rd[3] = (split_rd[3] < INT64_MAX ? split_rd[3] : 0);
-  }
+  }*/
   int horza_partition_allowed = horzab_partition_allowed;
   int horzb_partition_allowed = horzab_partition_allowed;
-  if (cpi->sf.prune_ext_partition_types_search) {
+  /*if (cpi->sf.prune_ext_partition_types_search) {
     const int64_t horz_a_rd = horz_rd[1] + split_rd[0] + split_rd[1];
     const int64_t horz_b_rd = horz_rd[0] + split_rd[2] + split_rd[3];
     horza_partition_allowed &= (horz_a_rd / 16 * 15 < best_rdc.rdcost);
     horzb_partition_allowed &= (horz_b_rd / 16 * 15 < best_rdc.rdcost);
-  }
+  }*/
 
   // PARTITION_HORZ_A
   if (partition_horz_allowed && horza_partition_allowed) {
@@ -3080,12 +3080,12 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
 
   int verta_partition_allowed = vertab_partition_allowed;
   int vertb_partition_allowed = vertab_partition_allowed;
-  if (cpi->sf.prune_ext_partition_types_search) {
+  /*if (cpi->sf.prune_ext_partition_types_search) {
     const int64_t vert_a_rd = vert_rd[1] + split_rd[0] + split_rd[2];
     const int64_t vert_b_rd = vert_rd[0] + split_rd[1] + split_rd[3];
     verta_partition_allowed &= (vert_a_rd / 16 * 15 < best_rdc.rdcost);
     vertb_partition_allowed &= (vert_b_rd / 16 * 15 < best_rdc.rdcost);
-  }
+  }*/
 
   // PARTITION_VERT_A
   if (partition_vert_allowed && verta_partition_allowed) {
