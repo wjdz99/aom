@@ -46,13 +46,15 @@ void AV1Convolve2DTest::RunCheckOutput(convolve_2d_func test_impl) {
   const int has_subx = GET_PARAM(3);
   const int has_suby = GET_PARAM(4);
   const int is_compound = GET_PARAM(5);
-  (void)is_compound;
 
   uint8_t *input = new uint8_t[h * w];
 
   int output_n = out_h * MAX_SB_SIZE;
   CONV_BUF_TYPE *output = new CONV_BUF_TYPE[output_n];
   CONV_BUF_TYPE *output2 = new CONV_BUF_TYPE[output_n];
+
+  uint8_t *dst = new uint8_t[output_n];
+  uint8_t *dst2 = new uint8_t[output_n];
 
   for (i = 0; i < h; ++i)
     for (j = 0; j < w; ++j) input[i * w + j] = rnd_.Rand8();
@@ -80,25 +82,46 @@ void AV1Convolve2DTest::RunCheckOutput(convolve_2d_func test_impl) {
           const int num_iters = 2;
           memset(output, 0, output_n * sizeof(*output));
           memset(output2, 0, output_n * sizeof(*output2));
+          memset(dst, 0, output_n * sizeof(*dst));
+          memset(dst2, 0, output_n * sizeof(*dst2));
           for (i = 0; i < num_iters; ++i) {
             // Choose random locations within the source block
             int offset_r = 3 + rnd_.PseudoUniform(h - out_h - 7);
             int offset_c = 3 + rnd_.PseudoUniform(w - out_w - 7);
-            av1_convolve_2d_c(input + offset_r * w + offset_c, w, NULL, 0,
-                              out_w, out_h, &filter_params_x, &filter_params_y,
-                              subx, suby, &conv_params1);
-            test_impl(input + offset_r * w + offset_c, w, NULL, 0, out_w, out_h,
-                      &filter_params_x, &filter_params_y, subx, suby,
-                      &conv_params2);
+            // compound ref
+            if (is_compound) {
+              av1_convolve_2d_c(input + offset_r * w + offset_c, w, NULL, 0,
+                                out_w, out_h, &filter_params_x,
+                                &filter_params_y, subx, suby, &conv_params1);
+              test_impl(input + offset_r * w + offset_c, w, NULL, 0, out_w,
+                        out_h, &filter_params_x, &filter_params_y, subx, suby,
+                        &conv_params2);
 
-            for (j = 0; j < out_h; ++j)
-              for (k = 0; k < out_w; ++k) {
-                int idx = j * MAX_SB_SIZE + k;
-                ASSERT_EQ(output[idx], output2[idx])
-                    << "Pixel mismatch at index " << idx << " = (" << j << ", "
-                    << k << "), sub pixel offset = (" << suby << ", " << subx
-                    << ")";
-              }
+              for (j = 0; j < out_h; ++j)
+                for (k = 0; k < out_w; ++k) {
+                  int idx = j * MAX_SB_SIZE + k;
+                  ASSERT_EQ(output[idx], output2[idx])
+                      << "Pixel mismatch at index " << idx << " = (" << j
+                      << ", " << k << "), sub pixel offset = (" << suby << ", "
+                      << subx << ")";
+                }
+            } else {  // single ref
+              av1_convolve_2d_sr_c(input + offset_r * w + offset_c, w, dst,
+                                   MAX_SB_SIZE, out_w, out_h, &filter_params_x,
+                                   &filter_params_y, subx, suby, &conv_params1);
+              test_impl(input + offset_r * w + offset_c, w, dst2, MAX_SB_SIZE,
+                        out_w, out_h, &filter_params_x, &filter_params_y, subx,
+                        suby, &conv_params2);
+
+              for (j = 0; j < out_h; ++j)
+                for (k = 0; k < out_w; ++k) {
+                  int idx = j * MAX_SB_SIZE + k;
+                  ASSERT_EQ(dst[idx], dst2[idx])
+                      << "Pixel mismatch at index " << idx << " = (" << j
+                      << ", " << k << "), sub pixel offset = (" << suby << ", "
+                      << subx << ")";
+                }
+            }  // end if-else
           }
         }
     }
@@ -106,6 +129,8 @@ void AV1Convolve2DTest::RunCheckOutput(convolve_2d_func test_impl) {
   delete[] input;
   delete[] output;
   delete[] output2;
+  delete[] dst;
+  delete[] dst2;
 }
 
 void AV1Convolve2DTest::RunSpeedTest(convolve_2d_func test_impl) {
@@ -121,6 +146,7 @@ void AV1Convolve2DTest::RunSpeedTest(convolve_2d_func test_impl) {
 
   int output_n = out_h * MAX_SB_SIZE;
   CONV_BUF_TYPE *output2 = new CONV_BUF_TYPE[output_n];
+  uint8_t *dst2 = new uint8_t[output_n];
 
   for (i = 0; i < h; ++i)
     for (j = 0; j < w; ++j) input[i * w + j] = rnd_.Rand8();
@@ -136,13 +162,16 @@ void AV1Convolve2DTest::RunSpeedTest(convolve_2d_func test_impl) {
   ConvolveParams conv_params2 =
       get_conv_params_no_round(0, do_average, 0, output2, MAX_SB_SIZE, 1);
   int x;
+  int offset_r = 3 + rnd_.PseudoUniform(h - out_h - 7);
+  int offset_c = 3 + rnd_.PseudoUniform(w - out_w - 7);
 
   aom_usec_timer timer;
   aom_usec_timer_start(&timer);
 
   for (x = 0; x < 100000; ++x)
-    test_impl(input, w, NULL, 0, out_w, out_h, &filter_params_x,
-              &filter_params_y, subx, suby, &conv_params2);
+    test_impl(input + offset_r * w + offset_c, w, dst2, MAX_SB_SIZE, out_w,
+              out_h, &filter_params_x, &filter_params_y, subx, suby,
+              &conv_params2);
 
   aom_usec_timer_mark(&timer);
   const int elapsed_time = static_cast<int>(aom_usec_timer_elapsed(&timer));
@@ -151,6 +180,7 @@ void AV1Convolve2DTest::RunSpeedTest(convolve_2d_func test_impl) {
 
   delete[] input;
   delete[] output2;
+  delete[] dst2;
 }
 
 #if CONFIG_JNT_COMP
