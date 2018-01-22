@@ -3128,13 +3128,13 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
 
   // PARTITION_HORZ_4
   int partition_horz4_allowed = partition4_allowed && partition_horz_allowed;
-  if (cpi->sf.prune_ext_partition_types_search) {
+  /*if (cpi->sf.prune_ext_partition_types_search) {
     partition_horz4_allowed &= (pc_tree->partitioning == PARTITION_HORZ ||
                                 pc_tree->partitioning == PARTITION_HORZ_A ||
                                 pc_tree->partitioning == PARTITION_HORZ_B ||
                                 pc_tree->partitioning == PARTITION_SPLIT ||
                                 pc_tree->partitioning == PARTITION_NONE);
-  }
+  }*/
   if (partition_horz4_allowed && has_rows &&
       (do_rectangular_split || av1_active_h_edge(cpi, mi_row, mi_step))) {
     const int quarter_step = mi_size_high[bsize] / 4;
@@ -3171,13 +3171,13 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
 
   // PARTITION_VERT_4
   int partition_vert4_allowed = partition4_allowed && partition_vert_allowed;
-  if (cpi->sf.prune_ext_partition_types_search) {
+  /*if (cpi->sf.prune_ext_partition_types_search) {
     partition_vert4_allowed &= (pc_tree->partitioning == PARTITION_VERT ||
                                 pc_tree->partitioning == PARTITION_VERT_A ||
                                 pc_tree->partitioning == PARTITION_VERT_B ||
                                 pc_tree->partitioning == PARTITION_SPLIT ||
                                 pc_tree->partitioning == PARTITION_NONE);
-  }
+  }*/
   if (partition_vert4_allowed && has_cols &&
       (do_rectangular_split || av1_active_v_edge(cpi, mi_row, mi_step))) {
     const int quarter_step = mi_size_wide[bsize] / 4;
