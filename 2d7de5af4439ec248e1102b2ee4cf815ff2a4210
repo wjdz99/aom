@@ -16,6 +16,24 @@
       "revId": "2d7de5af4439ec248e1102b2ee4cf815ff2a4210",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3c209fa1_b8ebe824",
+        "filename": "av1/common/x86/convolve_2d_sse2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2018-01-22T20:40:55Z",
+      "side": 1,
+      "message": "Do you think we can one more step here to have the following: \nconst __m128i round_const \u003d _mm_set1_epi32(\n        ((((1 \u003c\u003c bits) + 1) \u003c\u003c conv_params-\u003eround_1) - (1 \u003c\u003c offset_bits)) \u003e\u003e\n        1);",
+      "parentUuid": "934325ad_1c5e20b1",
+      "revId": "2d7de5af4439ec248e1102b2ee4cf815ff2a4210",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
