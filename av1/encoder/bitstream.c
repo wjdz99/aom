@@ -719,14 +719,14 @@ static void write_ref_frames(const AV1_COMMON *cm, const MACROBLOCKD *xd,
 
       const int bit = (mbmi->ref_frame[0] == GOLDEN_FRAME ||
                        mbmi->ref_frame[0] == LAST3_FRAME);
-      WRITE_REF_BIT(bit, comp_ref_p);
+      WRITE_REF_BIT2(bit, comp_ref_p);
 
       if (!bit) {
         const int bit1 = mbmi->ref_frame[0] == LAST2_FRAME;
-        WRITE_REF_BIT(bit1, comp_ref_p1);
+        WRITE_REF_BIT2(bit1, comp_ref_p1);
       } else {
         const int bit2 = mbmi->ref_frame[0] == GOLDEN_FRAME;
-        WRITE_REF_BIT(bit2, comp_ref_p2);
+        WRITE_REF_BIT2(bit2, comp_ref_p2);
       }
 
       const int bit_bwd = mbmi->ref_frame[1] == ALTREF_FRAME;
