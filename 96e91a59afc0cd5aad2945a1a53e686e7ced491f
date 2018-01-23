@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c5462cc3_b939c8f2",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-01-23T22:35:30Z",
+      "side": 1,
+      "message": "Encoder in default configuration doesn\u0027t check the ranges, right? Not sure why the encoder gets faster.",
+      "range": {
+        "startLine": 12,
+        "startChar": 0,
+        "endLine": 12,
+        "endChar": 56
+      },
+      "revId": "96e91a59afc0cd5aad2945a1a53e686e7ced491f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6fda5b5e_17fec3e0",
+        "filename": "av1/common/av1_inv_txfm2d.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 311,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-01-23T22:35:30Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 311,
+        "startChar": 2,
+        "endLine": 311,
+        "endChar": 5
+      },
+      "revId": "96e91a59afc0cd5aad2945a1a53e686e7ced491f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cadf9f24_affa6bc3",
+        "filename": "av1/common/x86/highbd_inv_txfm_sse4.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-01-23T22:35:30Z",
+      "side": 1,
+      "message": "These two lines are used a lot throughout the code: it should be a function",
+      "range": {
+        "startLine": 226,
+        "startChar": 0,
+        "endLine": 227,
+        "endChar": 71
+      },
+      "revId": "96e91a59afc0cd5aad2945a1a53e686e7ced491f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
