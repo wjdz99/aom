@@ -2286,7 +2286,7 @@ static void fdct64_col(const tran_low_t *input, tran_low_t *output) {
   int32_t in[64], out[64];
   int i;
   for (i = 0; i < 64; ++i) in[i] = (int32_t)input[i];
-  av1_fdct64_new(in, out, fwd_cos_bit_col_dct_64, fwd_stage_range_col_dct_64);
+  av1_fdct64_new(in, out, fwd_cos_bit_col[4][4], fwd_stage_range_col_dct_64);
   for (i = 0; i < 64; ++i) output[i] = (tran_low_t)out[i];
 }
 
@@ -2294,7 +2294,7 @@ static void fdct64_row(const tran_low_t *input, tran_low_t *output) {
   int32_t in[64], out[64];
   int i;
   for (i = 0; i < 64; ++i) in[i] = (int32_t)input[i];
-  av1_fdct64_new(in, out, fwd_cos_bit_row_dct_64, fwd_stage_range_row_dct_64);
+  av1_fdct64_new(in, out, fwd_cos_bit_row[4][4], fwd_stage_range_row_dct_64);
   for (i = 0; i < 64; ++i) output[i] = (tran_low_t)out[i];
 }
 
