@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fe506262_0fa101af",
+        "filename": "aom_dsp/x86/aom_subpixel_8t_intrin_avx2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2018-01-23T17:52:29Z",
+      "side": 1,
+      "message": "It might be better to add this new header under aom_dsp/x86 instead of av1/common/x86.",
+      "range": {
+        "startLine": 17,
+        "startChar": 25,
+        "endLine": 17,
+        "endChar": 40
+      },
+      "revId": "e09538afd76f58cf3fa346f29ed7265119fed3ea",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "67c6ea54_f64283be",
+        "filename": "av1/common/x86/convolve_avx2.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2018-01-23T17:52:29Z",
+      "side": 1,
+      "message": "2018",
+      "range": {
+        "startLine": 2,
+        "startChar": 16,
+        "endLine": 2,
+        "endChar": 20
+      },
+      "revId": "e09538afd76f58cf3fa346f29ed7265119fed3ea",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "361d1ea6_a4848577",
+        "filename": "test/av1_convolve_2d_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2018-01-23T17:52:29Z",
+      "side": 1,
+      "message": "Run speed test locally. Changing to DISABLED_Speed while checking in the patch.",
+      "range": {
+        "startLine": 29,
+        "startChar": 26,
+        "endLine": 29,
+        "endChar": 31
+      },
+      "revId": "e09538afd76f58cf3fa346f29ed7265119fed3ea",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
