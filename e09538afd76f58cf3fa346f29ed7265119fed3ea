@@ -25,6 +25,29 @@
     },
     {
       "key": {
+        "uuid": "40e6f044_d27ef38b",
+        "filename": "av1/common/x86/convolve_avx2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 369,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-23T19:05:56Z",
+      "side": 1,
+      "message": "I think all the right shifts could be saved as what convolve8_8_ssse3() etc. did in VP9. The filter coefficient \"128\" case is the special *convolve_*_copy*() case and would never happen here. (If it happends, then the C code must be fixed.) So all filter coefficients should be with in (-128, 127] and no shift needed.",
+      "range": {
+        "startLine": 369,
+        "startChar": 5,
+        "endLine": 369,
+        "endChar": 74
+      },
+      "revId": "e09538afd76f58cf3fa346f29ed7265119fed3ea",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "67c6ea54_f64283be",
         "filename": "av1/common/x86/convolve_avx2.h",
         "patchSetId": 1
