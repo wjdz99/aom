@@ -4642,7 +4642,7 @@ static uint32_t write_tiles_in_tg_obus(AV1_COMP *const cpi, uint8_t *const dst,
 
 #endif
 
-void av1_pack_bitstream(AV1_COMP *const cpi, uint8_t *dst, size_t *size) {
+int av1_pack_bitstream(AV1_COMP *const cpi, uint8_t *dst, size_t *size) {
   uint8_t *data = dst;
   uint32_t data_size;
   unsigned int max_tile_size;
@@ -4784,6 +4784,9 @@ void av1_pack_bitstream(AV1_COMP *const cpi, uint8_t *dst, size_t *size) {
       assert(tile_size_bytes >= 1 && tile_size_bytes <= 4);
       aom_wb_write_literal(&saved_wb, tile_size_bytes - 1, 2);
     }
+    // TODO(jbb): Figure out what to do if compressed_hdr_size > 16 bits.
+    if (compressed_hdr_size > 0xffff) return AOM_CODEC_ERROR;
+
   } else {
 #endif  // CONFIG_EXT_TILE
     data += data_size;
@@ -4791,4 +4794,5 @@ void av1_pack_bitstream(AV1_COMP *const cpi, uint8_t *dst, size_t *size) {
   }
 #endif  // CONFIG_EXT_TILE
   *size = data - dst;
+  return AOM_CODEC_OK;
 }
