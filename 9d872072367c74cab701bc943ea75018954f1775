@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b9ad4372_b03e401e",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 34
+      },
+      "lineNbr": 408,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2018-01-23T17:07:12Z",
+      "side": 1,
+      "message": "Can this line be changed to  limit within 80 characters? consistent with the rest of the file.",
+      "range": {
+        "startLine": 408,
+        "startChar": 73,
+        "endLine": 408,
+        "endChar": 89
+      },
+      "revId": "9d872072367c74cab701bc943ea75018954f1775",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1718b2b0_decce365",
+        "filename": "aom/aom_decoder.h",
+        "patchSetId": 34
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2018-01-23T17:07:12Z",
+      "side": 1,
+      "message": "aom_decoder.h defines the apis for libaom decoder, there should not be a dependency on a config flag used in building the library..",
+      "range": {
+        "startLine": 89,
+        "startChar": 0,
+        "endLine": 91,
+        "endChar": 6
+      },
+      "revId": "9d872072367c74cab701bc943ea75018954f1775",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9cd89a8c_a91a8bbc",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 34
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2018-01-23T17:07:12Z",
+      "side": 1,
+      "message": "includes are sorted alphabetically, so this line should be moved above between aom_dsp/ ... and aom_utils/..",
+      "range": {
+        "startLine": 34,
+        "startChar": 0,
+        "endLine": 36,
+        "endChar": 6
+      },
+      "revId": "9d872072367c74cab701bc943ea75018954f1775",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c873ea8a_133af5fc",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 34
+      },
+      "lineNbr": 4413,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2018-01-23T17:07:12Z",
+      "side": 1,
+      "message": "\"int i\" can be moved down into where it is used, since libaom supports \"c99\" now.",
+      "range": {
+        "startLine": 4411,
+        "startChar": 0,
+        "endLine": 4413,
+        "endChar": 6
+      },
+      "revId": "9d872072367c74cab701bc943ea75018954f1775",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
