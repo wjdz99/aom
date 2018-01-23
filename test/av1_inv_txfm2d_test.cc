@@ -215,4 +215,39 @@ TEST(AV1InvTxfm2d, CfgTest) {
     }
   }
 }
+
+TEST(AV1InvTxfm2d, CfgShow) {
+  TXFM_2D_FLIP_CFG cfg;
+  for (int tx_size = 0; tx_size < TX_SIZES_ALL; ++tx_size) {
+    for (int tx_type = 0; tx_type < TX_TYPES; ++tx_type) {
+      av1_get_inv_txfm_cfg((TX_TYPE)tx_type, (TX_SIZE)tx_size, &cfg);
+      printf("ud_flip %d lr_flip %d\n", cfg.ud_flip, cfg.lr_flip);
+      printf("shift %d %d\n", cfg.shift[0], cfg.shift[1]);
+      if (cfg.col_cfg) {
+        printf("col\n");
+        printf("txfm_size %d stage_num %d txfm_type %d\n",
+               cfg.col_cfg->txfm_size, cfg.col_cfg->stage_num,
+               cfg.col_cfg->txfm_type);
+        if (cfg.col_cfg->stage_num > 1) printf("cos_bit %d\n", cfg.cos_bit_col);
+        printf("stage_range ");
+        for (int i = 0; i < cfg.col_cfg->stage_num; ++i) {
+          printf("%d ", cfg.col_cfg->stage_range[i]);
+        }
+        printf("\n");
+      }
+      if (cfg.row_cfg) {
+        printf("row\n");
+        printf("txfm_size %d stage_num %d txfm_type %d\n",
+               cfg.row_cfg->txfm_size, cfg.row_cfg->stage_num,
+               cfg.row_cfg->txfm_type);
+        if (cfg.row_cfg->stage_num > 1) printf("cos_bit %d\n", cfg.cos_bit_row);
+        printf("stage_range ");
+        for (int i = 0; i < cfg.row_cfg->stage_num; ++i) {
+          printf("%d ", cfg.row_cfg->stage_range[i]);
+        }
+        printf("\n");
+      }
+    }
+  }
+}
 }  // namespace
