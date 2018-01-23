@@ -5441,7 +5441,9 @@ static void encode_with_recode_loop(AV1_COMP *cpi, size_t *size,
     // to recode.
     if (cpi->sf.recode_loop >= ALLOW_RECODE_KFARFGF) {
       restore_coding_context(cpi);
-      av1_pack_bitstream(cpi, dest, size);
+
+      if (av1_pack_bitstream(cpi, dest, size) != AOM_CODEC_OK)
+        return AOM_CODEC_ERROR;
 
       rc->projected_frame_size = (int)(*size) << 3;
       restore_coding_context(cpi);
@@ -5939,7 +5941,8 @@ static void encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
     restore_coding_context(cpi);
 
     // Build the bitstream
-    av1_pack_bitstream(cpi, dest, size);
+    if (av1_pack_bitstream(cpi, dest, size) != AOM_CODEC_OK)
+      return AOM_CODEC_ERROR;
 
     // Set up frame to show to get ready for stats collection.
     cm->frame_to_show = get_frame_new_buffer(cm);
@@ -6156,7 +6159,8 @@ static void encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
 #endif
 
   // Build the bitstream
-  av1_pack_bitstream(cpi, dest, size);
+  if (av1_pack_bitstream(cpi, dest, size) != AOM_CODEC_OK)
+    return AOM_CODEC_ERROR;
 
   if (skip_adapt) {
     aom_free(tile_ctxs);
