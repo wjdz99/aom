@@ -137,6 +137,11 @@ struct rdcost_block_args {
   int use_fast_coef_costing;
 };
 
+struct tx_block_skip_args {
+  int skip;
+  MACROBLOCK *x;
+};
+
 #define LAST_NEW_MV_INDEX 6
 static const MODE_DEFINITION av1_mode_order[MAX_MODES] = {
   { NEARESTMV, { LAST_FRAME, NONE_FRAME } },
@@ -2379,6 +2384,17 @@ static int get_search_init_depth(int mi_width, int mi_height,
                                  : sf->tx_size_search_init_depth_sqr;
 }
 
+static void tx_block_all_skip(int plane, int block, int blk_row, int blk_col,
+                              BLOCK_SIZE plane_bsize, TX_SIZE tx_size,
+                              void *arg) {
+  (void)block;
+  (void)tx_size;
+  struct tx_block_skip_args *args = arg;
+  const int bw = block_size_wide[plane_bsize] >> tx_size_wide_log2[0];
+  const int skip = args->x->blk_skip[plane][blk_row * bw + blk_col];
+  args->skip &= skip;
+}
+
 static void choose_tx_size_type_from_rd(const AV1_COMP *const cpi,
                                         MACROBLOCK *x, RD_STATS *rd_stats,
                                         int64_t ref_best_rd, BLOCK_SIZE bs) {
@@ -2461,6 +2477,14 @@ static void choose_tx_size_type_from_rd(const AV1_COMP *const cpi,
       const int is_inter = is_inter_block(mbmi);
       if (mbmi->sb_type < BLOCK_8X8 && is_inter) break;
 #endif  // !USE_TXTYPE_SEARCH_FOR_SUB8X8_IN_CB4X4
+
+#if !CONFIG_TXK_SEL
+      // stop searching other tx types if skip has better rdcost than DCT for
+      // all tx blocks. My intuition is that it can only work for inter block.
+      // But this function is for intra only. Try whether it has impact or
+      // remove it later.
+      if (!is_inter && rd_stats->skip) break;
+#endif
     }
     if (n == TX_4X4) break;
   }
@@ -4804,6 +4828,18 @@ static void select_tx_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
         for (idx = 0; idx < xd->n8_w; ++idx)
           best_tx_size[idy][idx] = mbmi->inter_tx_size[idy][idx];
     }
+
+#if !CONFIG_TXK_SEL
+    // stop searching other tx types if skip has better rdcost than DCT for
+    // all tx blocks. Only apply for inter block.
+    // only work when TXK_SEL is off
+    struct tx_block_skip_args args;
+    args.skip = 1;
+    args.x = x;
+    av1_foreach_transformed_block_in_plane(xd, bsize, 0, tx_block_all_skip,
+                                           &args);
+    if (is_inter && args.skip) break;
+#endif
   }
 
   // We should always find at least one candidate unless ref_best_rd is less
