@@ -1294,13 +1294,13 @@ static void read_ref_frames(AV1_COMMON *const cm, MACROBLOCKD *const xd,
 #endif  // CONFIG_EXT_COMP_REFS
 
       const int idx = 1;
-      const int bit = READ_REF_BIT(comp_ref_p);
+      const int bit = READ_REF_BIT2(comp_ref_p);
       // Decode forward references.
       if (!bit) {
-        const int bit1 = READ_REF_BIT(comp_ref_p1);
+        const int bit1 = READ_REF_BIT2(comp_ref_p1);
         ref_frame[!idx] = cm->comp_fwd_ref[bit1 ? 1 : 0];
       } else {
-        const int bit2 = READ_REF_BIT(comp_ref_p2);
+        const int bit2 = READ_REF_BIT2(comp_ref_p2);
         ref_frame[!idx] = cm->comp_fwd_ref[bit2 ? 3 : 2];
       }
 
