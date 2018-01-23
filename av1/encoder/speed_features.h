@@ -529,6 +529,10 @@ typedef struct SPEED_FEATURES {
 
   // flag to drop some ref frames in compound motion search
   int drop_ref;
+
+  // skip remaining transform type search when we found the rdcost of skip is
+  // better than applying transform
+  int skip_tx_search;
 } SPEED_FEATURES;
 
 struct AV1_COMP;

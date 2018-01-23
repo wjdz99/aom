@@ -2431,6 +2431,10 @@ int64_t av1_search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
       best_txb_ctx = x->plane[plane].txb_entropy_ctx[block];
       best_eob = x->plane[plane].eobs[block];
     }
+
+    // Skip transform type search when we found the block has been quantized to
+    // all zero and at the same time, it has better rdcost than doing transform.
+    if (cpi->sf.skip_tx_search && !best_eob) break;
   }
 
   av1_merge_rd_stats(rd_stats, &best_rd_stats);
