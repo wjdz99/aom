@@ -16,6 +16,23 @@
       "revId": "8a03efd127e341ad0c5a574c2391bfe132ef49ed",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a0e8906b_9cd061e6",
+        "filename": "av1/common/x86/convolve_2d_avx2.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 345,
+      "author": {
+        "id": 8487
+      },
+      "writtenOn": "2018-01-23T21:43:11Z",
+      "side": 1,
+      "message": "These appear to lead to unit test failure. The following seems to work:\n    const int offset_bits \u003d bd + 2 * FILTER_BITS - conv_params-\u003eround_0;\n    const int bits \u003d\n    FILTER_BITS * 2 - conv_params-\u003eround_0 - conv_params-\u003eround_1;\n    const __m256i round_const \u003d _mm256_set1_epi32(\n                                               ((((1 \u003c\u003c bits) + 1) \u003c\u003c conv_params-\u003eround_1) - (1 \u003c\u003c offset_bits)) \u003e\u003e\n                                               1);\n    const __m128i round_shift \u003d _mm_cvtsi32_si128(bits + conv_params-\u003eround_1);",
+      "revId": "8a03efd127e341ad0c5a574c2391bfe132ef49ed",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
