@@ -214,6 +214,15 @@ static const aom_cdf_prob
                                                 { AOM_CDF2(196 * 128) } } };
 #endif  // CONFIG_EXT_COMP_REFS
 
+#if 1
+// TODO(zoeliu): To collect stats to update the default values.
+static const aom_cdf_prob
+    default_comp_ref_cdf[COMP_REF_CONTEXTS][FWD_REFS - 1][CDF_SIZE(2)] = {
+      { { AOM_CDF2(3556) }, { AOM_CDF2(1217) }, { AOM_CDF2(988) } },
+      { { AOM_CDF2(16237) }, { AOM_CDF2(7946) }, { AOM_CDF2(7195) } },
+      { { AOM_CDF2(30195) }, { AOM_CDF2(18344) }, { AOM_CDF2(21980) } }
+    };
+#else
 static const aom_cdf_prob
     default_comp_ref_cdf[REF_CONTEXTS][FWD_REFS - 1][CDF_SIZE(2)] = {
       { { AOM_CDF2(3556) }, { AOM_CDF2(1217) }, { AOM_CDF2(988) } },
@@ -222,9 +231,10 @@ static const aom_cdf_prob
       { { AOM_CDF2(23826) }, { AOM_CDF2(16124) }, { AOM_CDF2(20536) } },
       { { AOM_CDF2(30195) }, { AOM_CDF2(18344) }, { AOM_CDF2(21980) } }
     };
+#endif  // 0
 
 static const aom_cdf_prob
-    default_comp_bwdref_cdf[COMP_BWDREF_CONTEXTS][BWD_REFS - 1][CDF_SIZE(2)] = {
+    default_comp_bwdref_cdf[COMP_REF_CONTEXTS][BWD_REFS - 1][CDF_SIZE(2)] = {
       { { AOM_CDF2(2762) }, { AOM_CDF2(1614) } },
       { { AOM_CDF2(17976) }, { AOM_CDF2(15912) } },
       { { AOM_CDF2(30894) }, { AOM_CDF2(30639) } },

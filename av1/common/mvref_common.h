@@ -452,6 +452,35 @@ static INLINE void av1_collect_neighbors_ref_counts(MACROBLOCKD *const xd) {
   }
 }
 
+static INLINE void av1_collect_neighbors_ref_counts(MACROBLOCKD *const xd) {
+  uint8_t *const ref_counts = xd->neighbors_ref_counts;
+
+  for (int ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
+    ref_counts[ref_frame] = 0;
+  }
+
+  const MB_MODE_INFO *const above_mbmi = xd->above_mbmi;
+  const MB_MODE_INFO *const left_mbmi = xd->left_mbmi;
+  const int above_in_image = xd->up_available;
+  const int left_in_image = xd->left_available;
+
+  // Above neighbor
+  if (above_in_image && is_inter_block(above_mbmi)) {
+    ref_counts[above_mbmi->ref_frame[0]]++;
+    if (has_second_ref(above_mbmi)) {
+      ref_counts[above_mbmi->ref_frame[1]]++;
+    }
+  }
+
+  // Left neighbor
+  if (left_in_image && is_inter_block(left_mbmi)) {
+    ref_counts[left_mbmi->ref_frame[0]]++;
+    if (has_second_ref(left_mbmi)) {
+      ref_counts[left_mbmi->ref_frame[1]]++;
+    }
+  }
+}
+
 void av1_copy_frame_mvs(const AV1_COMMON *const cm, MODE_INFO *mi, int mi_row,
                         int mi_col, int x_mis, int y_mis);
 
