@@ -34,6 +34,24 @@
       "revId": "f1115ad0a8c1948885d173f603a69df4e1823b3c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "94f9f69f_371b6c0d",
+        "filename": "av1/common/x86/convolve_2d_avx2.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 415,
+      "author": {
+        "id": 8487
+      },
+      "writtenOn": "2018-01-23T19:15:55Z",
+      "side": 1,
+      "message": "My suggested code isn\u0027t quite right. Anyway, should make sure you store data from the right subset of a 256-bit ymm register.",
+      "parentUuid": "330c726d_cc4b91fe",
+      "revId": "f1115ad0a8c1948885d173f603a69df4e1823b3c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
