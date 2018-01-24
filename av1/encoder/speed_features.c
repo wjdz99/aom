@@ -147,6 +147,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->selective_ref_frame = 1;
     sf->tx_size_search_init_depth_rect = 1;
     sf->tx_size_search_init_depth_sqr = 1;
+    sf->two_pass_partition_search = 1;
 #if CONFIG_EXT_PARTITION_TYPES
     sf->prune_ext_partition_types_search = 1;
 #endif  // CONFIG_EXT_PARTITION_TYPES
@@ -493,6 +494,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi) {
   sf->disable_wedge_search_var_thresh = 0;
   sf->fast_wedge_sign_estimate = 0;
   sf->drop_ref = 0;
+  sf->two_pass_partition_search = 0;
 
   for (i = 0; i < TX_SIZES; i++) {
     sf->intra_y_mode_mask[i] = INTRA_ALL;
