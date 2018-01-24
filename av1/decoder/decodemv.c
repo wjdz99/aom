@@ -1276,6 +1276,13 @@ static void set_ref_frames_for_skip_mode(AV1_COMMON *const cm,
 static void read_ref_frames(AV1_COMMON *const cm, MACROBLOCKD *const xd,
                             aom_reader *r, int segment_id,
                             MV_REFERENCE_FRAME ref_frame[2]) {
+#if CONFIG_EXT_SKIP
+  if (xd->mi[0]->mbmi.skip_mode) {
+    set_ref_frames_for_skip_mode(cm, ref_frame);
+    return;
+  }
+#endif  // CONFIG_EXT_SKIP
+
   if (segfeature_active(&cm->seg, segment_id, SEG_LVL_REF_FRAME)) {
     ref_frame[0] = (MV_REFERENCE_FRAME)get_segdata(&cm->seg, segment_id,
                                                    SEG_LVL_REF_FRAME);
@@ -1291,13 +1298,6 @@ static void read_ref_frames(AV1_COMMON *const cm, MACROBLOCKD *const xd,
     ref_frame[0] = LAST_FRAME;
     ref_frame[1] = NONE_FRAME;
   } else {
-#if CONFIG_EXT_SKIP
-    if (xd->mi[0]->mbmi.skip_mode) {
-      set_ref_frames_for_skip_mode(cm, ref_frame);
-      return;
-    }
-#endif  // CONFIG_EXT_SKIP
-
     const REFERENCE_MODE mode = read_block_reference_mode(cm, xd, r);
 
     if (mode == COMPOUND_REFERENCE) {
