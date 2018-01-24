@@ -566,7 +566,6 @@ static void decode_block(AV1Decoder *const pbi, MACROBLOCKD *const xd,
                     partition,
 #endif
                     bsize);
-
   decode_token_and_recon_block(pbi, xd, mi_row, mi_col, r, bsize);
 }
 
