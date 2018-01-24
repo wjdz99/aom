@@ -232,8 +232,10 @@ static INLINE int is_interinter_compound_used(COMPOUND_TYPE type,
 
 static INLINE int is_any_masked_compound_used(BLOCK_SIZE sb_type) {
   COMPOUND_TYPE comp_type;
+  int i;
   if (!is_comp_ref_allowed(sb_type)) return 0;
-  for (comp_type = 0; comp_type < COMPOUND_TYPES; comp_type++) {
+  for (i = 0; i < COMPOUND_TYPES; i++) {
+    comp_type = (COMPOUND_TYPE)i;
     if (is_masked_compound_type(comp_type) &&
         is_interinter_compound_used(comp_type, sb_type))
       return 1;
