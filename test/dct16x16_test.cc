@@ -30,7 +30,6 @@
 
 using libaom_test::ACMRandom;
 
-#if !CONFIG_DAALA_TX
 namespace {
 
 const int kNumCoeffs = 256;
@@ -767,4 +766,3 @@ INSTANTIATE_TEST_CASE_P(
 #endif
 #endif  // HAVE_SSE2
 }  // namespace
-#endif  // !CONFIG_DAALA_TX

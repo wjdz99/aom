@@ -29,7 +29,6 @@
 
 using libaom_test::ACMRandom;
 
-#if !CONFIG_DAALA_TX
 namespace {
 
 const int kNumCoeffs = 64;
@@ -617,4 +616,3 @@ INSTANTIATE_TEST_CASE_P(SSSE3, FwdTrans8x8DCT,
 #endif
 
 }  // namespace
-#endif  // !CONFIG_DAALA_TX
