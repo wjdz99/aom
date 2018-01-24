@@ -1968,7 +1968,6 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
 
 #if CONFIG_EXT_SKIP
   if (mbmi->skip_mode) {
-    assert(mbmi->mode == NEAREST_NEARESTMV);
     mbmi->mv[0].as_int = nearestmv[0].as_int;
     mbmi->mv[1].as_int = nearestmv[1].as_int;
   } else {
