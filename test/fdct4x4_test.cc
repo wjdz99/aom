@@ -29,7 +29,6 @@
 
 using libaom_test::ACMRandom;
 
-#if !CONFIG_DAALA_TX
 namespace {
 typedef void (*FdctFunc)(const int16_t *in, tran_low_t *out, int stride);
 typedef void (*IdctFunc)(const tran_low_t *in, uint8_t *out, int stride);
@@ -268,4 +267,3 @@ INSTANTIATE_TEST_CASE_P(
 #endif  // HAVE_SSE2 && !CONFIG_DAALA_TX4
 
 }  // namespace
-#endif  // !CONFIG_DAALA_TX

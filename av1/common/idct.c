@@ -22,19 +22,12 @@
 #if CONFIG_DAALA_TX4 || CONFIG_DAALA_TX8 || CONFIG_DAALA_TX16 || \
     CONFIG_DAALA_TX32 || CONFIG_DAALA_TX64
 #include "av1/common/daala_tx.h"
-#if CONFIG_DAALA_TX
-#include "av1/common/daala_inv_txfm.h"
-#endif
 #endif
 
-#if !CONFIG_DAALA_TX
 int av1_get_tx_scale(const TX_SIZE tx_size) {
   const int pels = tx_size_2d[tx_size];
   return (pels > 256) + (pels > 1024) + (pels > 4096);
 }
-#endif
-
-#if !CONFIG_DAALA_TX
 
 // NOTE: The implementation of all inverses need to be aware of the fact
 // that input and output could be the same buffer.
@@ -1718,7 +1711,6 @@ void av1_idct4x4_add(const tran_low_t *input, uint8_t *dest, int stride,
   else
     aom_idct4x4_1_add(input, dest, stride);
 }
-#endif  // !CONFIG_DAALA_TX
 
 void av1_iwht4x4_add(const tran_low_t *input, uint8_t *dest, int stride,
                      const TxfmParam *txfm_param) {
@@ -1738,7 +1730,6 @@ void av1_highbd_iwht4x4_add(const tran_low_t *input, uint8_t *dest, int stride,
     aom_highbd_iwht4x4_1_add(input, dest, stride, bd);
 }
 
-#if !CONFIG_DAALA_TX
 static const int32_t *cast_to_int32(const tran_low_t *input) {
   assert(sizeof(int32_t) == sizeof(tran_low_t));
   return (const int32_t *)input;
@@ -2041,7 +2032,6 @@ static void highbd_inv_txfm_add_64x64(const tran_low_t *input, uint8_t *dest,
   }
 }
 #endif  // CONFIG_TX64X64
-#endif  // !CONFIG_DAALA_TX
 
 static void init_txfm_param(const MACROBLOCKD *xd, int plane, TX_SIZE tx_size,
                             TX_TYPE tx_type, int eob, int reduced_tx_set,
@@ -2063,9 +2053,6 @@ static void init_txfm_param(const MACROBLOCKD *xd, int plane, TX_SIZE tx_size,
 static void av1_highbd_inv_txfm_add(const tran_low_t *input, uint8_t *dest,
                                     int stride, TxfmParam *txfm_param) {
   assert(av1_ext_tx_used[txfm_param->tx_set_type][txfm_param->tx_type]);
-#if CONFIG_DAALA_TX
-  daala_inv_txfm_add(input, dest, stride, txfm_param);
-#else
   const TX_SIZE tx_size = txfm_param->tx_size;
   switch (tx_size) {
     case TX_32X32:
@@ -2132,7 +2119,6 @@ static void av1_highbd_inv_txfm_add(const tran_low_t *input, uint8_t *dest,
       break;
     default: assert(0 && "Invalid transform size"); break;
   }
-#endif  // CONFIG_DAALA_TX
 }
 
 static void av1_inv_txfm_add(const tran_low_t *dqcoeff, uint8_t *dst,

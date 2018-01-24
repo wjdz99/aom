@@ -1341,7 +1341,7 @@ static INLINE int av1_get_max_eob(TX_SIZE tx_size) {
   if (tx_size == TX_16X64 || tx_size == TX_64X16) {
     return 512;
   }
-#endif  // CONFIG_TX64X64 && !CONFIG_DAALA_TX
+#endif  // CONFIG_TX64X64
   return tx_size_2d[tx_size];
 }
 
