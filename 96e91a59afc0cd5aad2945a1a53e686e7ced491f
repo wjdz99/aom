@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "bf15e794_97ce3c4e",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2018-01-24T04:24:38Z",
+      "side": 1,
+      "message": "I think it\u0027s because of the loading of cos_bit.",
+      "parentUuid": "c5462cc3_b939c8f2",
+      "range": {
+        "startLine": 12,
+        "startChar": 0,
+        "endLine": 12,
+        "endChar": 56
+      },
+      "revId": "96e91a59afc0cd5aad2945a1a53e686e7ced491f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "6fda5b5e_17fec3e0",
         "filename": "av1/common/av1_inv_txfm2d.c",
         "patchSetId": 3
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "eebd35a1_d8c676de",
+        "filename": "av1/common/av1_inv_txfm2d.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 311,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2018-01-24T04:24:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6fda5b5e_17fec3e0",
+      "range": {
+        "startLine": 311,
+        "startChar": 2,
+        "endLine": 311,
+        "endChar": 5
+      },
+      "revId": "96e91a59afc0cd5aad2945a1a53e686e7ced491f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cadf9f24_affa6bc3",
         "filename": "av1/common/x86/highbd_inv_txfm_sse4.c",
         "patchSetId": 3
@@ -59,6 +107,30 @@
       "writtenOn": "2018-01-23T22:35:30Z",
       "side": 1,
       "message": "These two lines are used a lot throughout the code: it should be a function",
+      "range": {
+        "startLine": 226,
+        "startChar": 0,
+        "endLine": 227,
+        "endChar": 71
+      },
+      "revId": "96e91a59afc0cd5aad2945a1a53e686e7ced491f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "26262299_dbce5a3a",
+        "filename": "av1/common/x86/highbd_inv_txfm_sse4.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2018-01-24T04:24:38Z",
+      "side": 1,
+      "message": "I will refactor this later.",
+      "parentUuid": "cadf9f24_affa6bc3",
       "range": {
         "startLine": 226,
         "startChar": 0,
