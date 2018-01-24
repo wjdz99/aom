@@ -5323,6 +5323,15 @@ static void encode_with_recode_loop(AV1_COMP *cpi, size_t *size,
                                     uint8_t *dest) {
   AV1_COMMON *const cm = &cpi->common;
   RATE_CONTROL *const rc = &cpi->rc;
+#if CONFIG_NEW_QUANT && SEARCH_NEW_QUANT
+  uint32_t in_bit_depth = 8;
+  uint32_t bit_depth = 8;
+  const YV12_BUFFER_CONFIG *orig = cpi->source;
+  if (cm->use_highbitdepth) {
+    in_bit_depth = cpi->oxcf.input_bit_depth;
+    bit_depth = cm->bit_depth;
+  }
+#endif  // CONFIG_NEW_QUANT && SEARCH_NEW_QUANT
   int bottom_index, top_index;
   int loop_count = 0;
   int loop_at_this_size = 0;
@@ -5340,7 +5349,14 @@ static void encode_with_recode_loop(AV1_COMP *cpi, size_t *size,
   aom_clear_system_state();
   setup_frame_size(cpi);
   set_size_dependent_vars(cpi, &q, &bottom_index, &top_index);
-
+#if CONFIG_NEW_QUANT && SEARCH_NEW_QUANT
+  int best_dq_type = 0;
+  double best_dq_rd = DBL_MAX;
+  for (int dq_type = DQ_TYPES; dq_type <= DQ_TYPES; dq_type++) {
+    //cm->dq_type = dq_type == DQ_TYPES ? best_dq_type : dq_type;
+    printf("dq: %d, show: %d\n", dq_type, cm->show_frame);
+    cm->dq_type = 3;//dq_type == DQ_TYPES ? 3/*best_dq_type*/ : dq_type;
+#endif  // CONFIG_NEW_QUANT && SEARCH_NEW_QUANT
   do {
     aom_clear_system_state();
 
@@ -5567,6 +5583,37 @@ static void encode_with_recode_loop(AV1_COMP *cpi, size_t *size,
 #endif
     }
   } while (loop);
+#if CONFIG_NEW_QUANT && SEARCH_NEW_QUANT
+    if (dq_type < DQ_TYPES) {
+      PSNR_STATS psnr;
+      aom_calc_highbd_psnr(orig, get_frame_new_buffer(cm), &psnr, bit_depth, in_bit_depth);
+      double dq_rd =
+          RDCOST_DBL(cpi->td.mb.rdmult,
+                     rc->projected_frame_size << (AV1_PROB_COST_SHIFT - 4),
+                     psnr.sse[0] + psnr.sse[1] + psnr.sse[2]);
+      printf("rd: %f, best rd: %f\n", dq_rd, best_dq_rd);
+      if (dq_rd < best_dq_rd) {
+        best_dq_rd = dq_rd;
+        best_dq_type = dq_type;
+        printf("new best dq: %d\n", best_dq_type);
+      }
+      //reset
+      *size = 0;
+      loop_count = 0;
+      loop_at_this_size = 0;
+      loop = 0;
+      overshoot_seen = 0;
+      undershoot_seen = 0;
+      q = 0, q_low = 0, q_high = 0;
+      set_size_independent_vars(cpi);
+
+      cpi->source->buf_8bit_valid = 0;
+      aom_clear_system_state();
+      set_size_dependent_vars(cpi, &q, &bottom_index, &top_index);
+
+    }
+  }
+#endif  // CONFIG_NEW_QUANT && SEARCH_NEW_QUANT
 }
 
 static int get_ref_frame_flags(const AV1_COMP *cpi) {
