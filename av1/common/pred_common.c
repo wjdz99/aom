@@ -379,9 +379,27 @@ int av1_get_pred_context_uni_comp_ref_p2(const MACROBLOCKD *xd) {
 // Returns a context number for the given MB prediction signal
 // Signal the first reference frame for a compound mode be either
 // GOLDEN/LAST3, or LAST/LAST2.
-//
-// NOTE(zoeliu): The probability of ref_frame[0] is either
-//               GOLDEN_FRAME or LAST3_FRAME.
+#if 1
+int av1_get_pred_context_comp_ref_p(const AV1_COMMON *cm,
+                                    const MACROBLOCKD *xd) {
+  (void)cm;
+
+  const uint8_t *const ref_counts = &xd->neighbors_ref_counts[0];
+
+  // Count of LAST + LAST2
+  const int last_last2_count = ref_counts[LAST_FRAME] + ref_counts[LAST2_FRAME];
+  // Count of LAST3 + GOLDEN
+  const int last3_gld_count =
+      ref_counts[LAST3_FRAME] + ref_counts[GOLDEN_FRAME];
+
+  const int pred_context = (last_last2_count == last3_gld_count)
+                               ? 1
+                               : ((last_last2_count < last3_gld_count) ? 0 : 2);
+
+  assert(pred_context >= 0 && pred_context < COMP_REF_CONTEXTS);
+  return pred_context;
+}
+#else
 int av1_get_pred_context_comp_ref_p(const AV1_COMMON *cm,
                                     const MACROBLOCKD *xd) {
   int pred_context;
@@ -475,13 +493,30 @@ int av1_get_pred_context_comp_ref_p(const AV1_COMMON *cm,
 
   return pred_context;
 }
+#endif  // 0
 
 // Returns a context number for the given MB prediction signal
 // Signal the first reference frame for a compound mode be LAST,
 // conditioning on that it is known either LAST/LAST2.
-//
-// NOTE(zoeliu): The probability of ref_frame[0] is LAST_FRAME,
-// conditioning on it is either LAST_FRAME or LAST2_FRAME.
+#if 1
+int av1_get_pred_context_comp_ref_p1(const AV1_COMMON *cm,
+                                     const MACROBLOCKD *xd) {
+  (void)cm;
+
+  const uint8_t *const ref_counts = &xd->neighbors_ref_counts[0];
+
+  // Count of LAST
+  const int last_count = ref_counts[LAST_FRAME];
+  // Count of LAST2
+  const int last2_count = ref_counts[LAST2_FRAME];
+
+  const int pred_context =
+      (last_count == last2_count) ? 1 : ((last_count < last2_count) ? 0 : 2);
+
+  assert(pred_context >= 0 && pred_context < COMP_REF_CONTEXTS);
+  return pred_context;
+}
+#else
 int av1_get_pred_context_comp_ref_p1(const AV1_COMMON *cm,
                                      const MACROBLOCKD *xd) {
   int pred_context;
@@ -577,13 +612,30 @@ int av1_get_pred_context_comp_ref_p1(const AV1_COMMON *cm,
 
   return pred_context;
 }
+#endif  // 0
 
 // Returns a context number for the given MB prediction signal
 // Signal the first reference frame for a compound mode be GOLDEN,
 // conditioning on that it is known either GOLDEN or LAST3.
-//
-// NOTE(zoeliu): The probability of ref_frame[0] is GOLDEN_FRAME,
-// conditioning on it is either GOLDEN or LAST3.
+#if 1
+int av1_get_pred_context_comp_ref_p2(const AV1_COMMON *cm,
+                                     const MACROBLOCKD *xd) {
+  (void)cm;
+
+  const uint8_t *const ref_counts = &xd->neighbors_ref_counts[0];
+
+  // Count of LAST3
+  const int last3_count = ref_counts[LAST3_FRAME];
+  // Count of GOLDEN
+  const int gld_count = ref_counts[GOLDEN_FRAME];
+
+  const int pred_context =
+      (last3_count == gld_count) ? 1 : ((last3_count < gld_count) ? 0 : 2);
+
+  assert(pred_context >= 0 && pred_context < COMP_REF_CONTEXTS);
+  return pred_context;
+}
+#else
 int av1_get_pred_context_comp_ref_p2(const AV1_COMMON *cm,
                                      const MACROBLOCKD *xd) {
   int pred_context;
@@ -679,6 +731,7 @@ int av1_get_pred_context_comp_ref_p2(const AV1_COMMON *cm,
 
   return pred_context;
 }
+#endif  // 0
 
 // Obtain contexts to signal a reference frame be either BWDREF/ALTREF2, or
 // ALTREF.
@@ -693,7 +746,7 @@ int av1_get_pred_context_brfarf2_or_arf(const MACROBLOCKD *xd) {
   const int pred_context =
       (brfarf2_count == arf_count) ? 1 : ((brfarf2_count < arf_count) ? 0 : 2);
 
-  assert(pred_context >= 0 && pred_context < COMP_BWDREF_CONTEXTS);
+  assert(pred_context >= 0 && pred_context < COMP_REF_CONTEXTS);
   return pred_context;
 }
 
@@ -709,7 +762,7 @@ int av1_get_pred_context_brf_or_arf2(const MACROBLOCKD *xd) {
   const int pred_context =
       (brf_count == arf2_count) ? 1 : ((brf_count < arf2_count) ? 0 : 2);
 
-  assert(pred_context >= 0 && pred_context < COMP_BWDREF_CONTEXTS);
+  assert(pred_context >= 0 && pred_context < COMP_REF_CONTEXTS);
   return pred_context;
 }
 
