@@ -4888,19 +4888,16 @@ static void select_tx_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
     RD_STATS this_rd_stats;
     av1_init_rd_stats(&this_rd_stats);
     if (!av1_ext_tx_used[tx_set_type][tx_type]) continue;
-    (void)prune;
-    // TODO(sarahparker) This speed feature has been temporarily disabled
-    // with ext-tx because it is not compatible with the current
-    // search method. It will be fixed in a followup.
-    /*
-        if (is_inter) {
-          if (cpi->sf.tx_type_search.prune_mode > NO_PRUNE) {
-            if (!do_tx_type_search(tx_type, prune,
-                                   cpi->sf.tx_type_search.prune_mode))
-              continue;
-          }
-        }
-    */
+    if (is_inter) {
+      // Do not skip DCT_DCT to make sure we don't end up with no valid
+      // tx type candidate(because of the discrepancy between tx_set_type and
+      // min_tx_set_type below).
+      if (tx_type != DCT_DCT && cpi->sf.tx_type_search.prune_mode > NO_PRUNE) {
+        if (!do_tx_type_search(tx_type, prune,
+                               cpi->sf.tx_type_search.prune_mode))
+          continue;
+      }
+    }
     if (is_inter && x->use_default_inter_tx_type &&
         tx_type != get_default_tx_type(0, xd, max_tx_size))
       continue;
