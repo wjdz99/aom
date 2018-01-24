@@ -376,6 +376,7 @@ static INLINE int has_uni_comp_refs(const MB_MODE_INFO *mbmi) {
   return has_second_ref(mbmi) && (!((mbmi->ref_frame[0] >= BWDREF_FRAME) ^
                                     (mbmi->ref_frame[1] >= BWDREF_FRAME)));
 }
+#endif  // CONFIG_EXT_COMP_REFS
 
 static INLINE MV_REFERENCE_FRAME comp_ref0(int ref_idx) {
   static const MV_REFERENCE_FRAME lut[] = {
@@ -398,7 +399,6 @@ static INLINE MV_REFERENCE_FRAME comp_ref1(int ref_idx) {
   assert(NELEMENTS(lut) == UNIDIR_COMP_REFS);
   return lut[ref_idx];
 }
-#endif  // CONFIG_EXT_COMP_REFS
 
 PREDICTION_MODE av1_left_block_mode(const MODE_INFO *left_mi);
 
