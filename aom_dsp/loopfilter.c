@@ -62,7 +62,7 @@ static INLINE int8_t filter_mask(uint8_t limit, uint8_t blimit, uint8_t p3,
 }
 
 #if PARALLEL_DEBLOCKING_5_TAP_CHROMA
-static INLINE int8_t filter_mask3_chroma(uint8_t limit, uint8_t blimit,
+static INLINE int8_t  filter_mask3_chroma(uint8_t limit, uint8_t blimit,
                                          uint8_t p2, uint8_t p1, uint8_t p0,
                                          uint8_t q0, uint8_t q1, uint8_t q2) {
   int8_t mask = 0;
