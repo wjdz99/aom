@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c976deb4_520cd1d2",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 4895,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2018-01-25T18:51:14Z",
+      "side": 1,
+      "message": "This is fine but there will be many cases where you could actually have pruned out DCT_DCT and you search it anyway. The issue is that there is a case where the pruning function prunes out everything except for illegal types for the final tx_size, in which case you are actually using DCT_DCT but the loop thinks it is something other than DCT_DCT. Currently, there is a continue statement in that case, but it should actually probably do this check after the entire search and revert the tx_type to DCT_DCT if the found type is not legal. You can check this patch in for the time being, but maybe add a TODO to make this fix so you get all of the benefit from the pruning.",
+      "range": {
+        "startLine": 4895,
+        "startChar": 6,
+        "endLine": 4895,
+        "endChar": 31
+      },
+      "revId": "9038e50159029299d94d7495649e71ddbfd2d2e2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
