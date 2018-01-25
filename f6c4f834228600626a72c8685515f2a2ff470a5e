@@ -1,0 +1,441 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "48ad265b_bf66239b",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 9
+      },
+      "lineNbr": 381,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-01-25T16:25:22Z",
+      "side": 1,
+      "message": "white space at EoL and tab need to go",
+      "range": {
+        "startLine": 380,
+        "startChar": 0,
+        "endLine": 381,
+        "endChar": 22
+      },
+      "revId": "f6c4f834228600626a72c8685515f2a2ff470a5e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8850b044_43258c12",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 9
+      },
+      "lineNbr": 426,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-01-25T16:25:22Z",
+      "side": 1,
+      "message": "Remove tabs and trailing whitespace.",
+      "range": {
+        "startLine": 416,
+        "startChar": 0,
+        "endLine": 426,
+        "endChar": 0
+      },
+      "revId": "f6c4f834228600626a72c8685515f2a2ff470a5e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "72933de3_9955f82a",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 1593,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-01-25T16:25:22Z",
+      "side": 1,
+      "message": "Could use a range check here, or am I misreading the proposal? Seems like this must fit within 2 bits.",
+      "range": {
+        "startLine": 1593,
+        "startChar": 2,
+        "endLine": 1593,
+        "endChar": 63
+      },
+      "revId": "f6c4f834228600626a72c8685515f2a2ff470a5e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a5b81195_24568cca",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 1606,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-01-25T16:25:22Z",
+      "side": 1,
+      "message": "And here. Same comment, with the caveat that perhaps I\u0027m misreading the proposal.",
+      "range": {
+        "startLine": 1606,
+        "startChar": 2,
+        "endLine": 1606,
+        "endChar": 70
+      },
+      "revId": "f6c4f834228600626a72c8685515f2a2ff470a5e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dab51c4f_30092af5",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-01-25T16:25:22Z",
+      "side": 1,
+      "message": "A brief comment describing what these names mean would be nice.",
+      "range": {
+        "startLine": 26,
+        "startChar": 0,
+        "endLine": 39,
+        "endChar": 21
+      },
+      "revId": "f6c4f834228600626a72c8685515f2a2ff470a5e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c37ad92f_ca8c4f5f",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-01-25T16:25:22Z",
+      "side": 1,
+      "message": "present",
+      "range": {
+        "startLine": 183,
+        "startChar": 36,
+        "endLine": 183,
+        "endChar": 44
+      },
+      "revId": "f6c4f834228600626a72c8685515f2a2ff470a5e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e4302291_145b8c74",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 285,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-01-25T16:25:22Z",
+      "side": 1,
+      "message": "Many find it more readable to shift then mask, but that can stay since I\u0027m ambivalent on it.\n\nConstants for the mask values would be nice. There are some extremely verbose examples in ${AOM_REPO}/tools/obu_parser.cc (where constants are used for the shifts as well).",
+      "range": {
+        "startLine": 284,
+        "startChar": 0,
+        "endLine": 285,
+        "endChar": 66
+      },
+      "revId": "f6c4f834228600626a72c8685515f2a2ff470a5e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "27dfaa33_af798d2a",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 4714,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-01-25T16:25:22Z",
+      "side": 1,
+      "message": "I think these can all be const.",
+      "range": {
+        "startLine": 4710,
+        "startChar": 0,
+        "endLine": 4714,
+        "endChar": 35
+      },
+      "revId": "f6c4f834228600626a72c8685515f2a2ff470a5e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "740984b8_4cf0d8a5",
+        "filename": "docs.cmake",
+        "patchSetId": 9
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-01-25T16:25:22Z",
+      "side": 1,
+      "message": "tabs",
+      "range": {
+        "startLine": 93,
+        "startChar": 0,
+        "endLine": 101,
+        "endChar": 0
+      },
+      "revId": "f6c4f834228600626a72c8685515f2a2ff470a5e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "96d59663_4d9a5a86",
+        "filename": "examples/scalable_decoder.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-01-25T16:25:22Z",
+      "side": 1,
+      "message": "2018",
+      "range": {
+        "startLine": 2,
+        "startChar": 20,
+        "endLine": 2,
+        "endChar": 21
+      },
+      "revId": "f6c4f834228600626a72c8685515f2a2ff470a5e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7aba842d_6ecfed4c",
+        "filename": "examples/scalable_decoder.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-01-25T16:25:22Z",
+      "side": 1,
+      "message": "AV1",
+      "range": {
+        "startLine": 26,
+        "startChar": 3,
+        "endLine": 26,
+        "endChar": 6
+      },
+      "revId": "f6c4f834228600626a72c8685515f2a2ff470a5e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6fd04759_28bac40f",
+        "filename": "examples/scalable_decoder.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-01-25T16:25:22Z",
+      "side": 1,
+      "message": "I don\u0027t think you need this now that the build is guarded properly in the cmake files.",
+      "range": {
+        "startLine": 100,
+        "startChar": 0,
+        "endLine": 104,
+        "endChar": 5
+      },
+      "revId": "f6c4f834228600626a72c8685515f2a2ff470a5e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5c2fc546_6663974b",
+        "filename": "examples/scalable_decoder.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-01-25T16:25:22Z",
+      "side": 1,
+      "message": "nit: The build system requires C99; you can defer var definition until initial usage (no action needed here; just sayin\u0027)",
+      "range": {
+        "startLine": 106,
+        "startChar": 0,
+        "endLine": 121,
+        "endChar": 17
+      },
+      "revId": "f6c4f834228600626a72c8685515f2a2ff470a5e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "274c4154_432ea152",
+        "filename": "examples/scalable_encoder.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-01-25T16:25:22Z",
+      "side": 1,
+      "message": "2018",
+      "range": {
+        "startLine": 2,
+        "startChar": 20,
+        "endLine": 2,
+        "endChar": 21
+      },
+      "revId": "f6c4f834228600626a72c8685515f2a2ff470a5e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "14e3ec0d_6fd5bfb0",
+        "filename": "examples/scalable_encoder.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-01-25T16:25:22Z",
+      "side": 1,
+      "message": "Which code?",
+      "range": {
+        "startLine": 39,
+        "startChar": 0,
+        "endLine": 39,
+        "endChar": 52
+      },
+      "revId": "f6c4f834228600626a72c8685515f2a2ff470a5e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f4b60e15_70b38fc1",
+        "filename": "examples/scalable_encoder.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-01-25T16:25:22Z",
+      "side": 1,
+      "message": "I think you\u0027re missing an \u0027\u003d\u0027",
+      "range": {
+        "startLine": 43,
+        "startChar": 44,
+        "endLine": 43,
+        "endChar": 49
+      },
+      "revId": "f6c4f834228600626a72c8685515f2a2ff470a5e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "39627a2c_ce3ddbd0",
+        "filename": "examples/scalable_encoder.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-01-25T16:25:22Z",
+      "side": 1,
+      "message": "Seems like this should be dropped.",
+      "range": {
+        "startLine": 76,
+        "startChar": 0,
+        "endLine": 81,
+        "endChar": 56
+      },
+      "revId": "f6c4f834228600626a72c8685515f2a2ff470a5e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3b41939a_56cace3e",
+        "filename": "examples/scalable_encoder.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-01-25T16:25:22Z",
+      "side": 1,
+      "message": "Can be removed now that CMake won\u0027t include this target w/o CONFIG_SCALABILITY.",
+      "range": {
+        "startLine": 155,
+        "startChar": 0,
+        "endLine": 159,
+        "endChar": 6
+      },
+      "revId": "f6c4f834228600626a72c8685515f2a2ff470a5e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8843ece4_6fd13176",
+        "filename": "obudec.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-01-25T16:25:22Z",
+      "side": 1,
+      "message": "This isn\u0027t being used.",
+      "range": {
+        "startLine": 24,
+        "startChar": 0,
+        "endLine": 24,
+        "endChar": 36
+      },
+      "revId": "f6c4f834228600626a72c8685515f2a2ff470a5e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
