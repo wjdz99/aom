@@ -354,11 +354,6 @@ static INLINE void av1_set_ref_frame(MV_REFERENCE_FRAME *rf,
   }
 }
 
-static INLINE int16_t av1_mode_context_analyzer(
-    const int16_t *const mode_context, const MV_REFERENCE_FRAME *const rf) {
-  return mode_context[av1_ref_frame_type(rf)];
-}
-
 static INLINE uint8_t av1_drl_ctx(const CANDIDATE_MV *ref_mv_stack,
                                   int ref_idx) {
   if (ref_mv_stack[ref_idx].weight >= REF_CAT_LEVEL &&
