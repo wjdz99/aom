@@ -743,14 +743,14 @@ void av1_iadst4_new(const int32_t *input, int32_t *output, int8_t cos_bit,
   int32_t stage = 0;
   int bit = cos_bit;
   const int32_t *sinpi = sinpi_arr(bit);
-  int32_t s0, s1, s2, s3, s4, s5, s6, s7;
+  int64_t s0, s1, s2, s3, s4, s5, s6, s7;
   // stage 0;
   apply_range(stage, input, input, size, stage_range[stage]);
 
-  int32_t x0 = input[0];
-  int32_t x1 = input[1];
-  int32_t x2 = input[2];
-  int32_t x3 = input[3];
+  int64_t x0 = input[0];
+  int64_t x1 = input[1];
+  int64_t x2 = input[2];
+  int64_t x3 = input[3];
 
   if (!(x0 | x1 | x2 | x3)) {
     output[0] = output[1] = output[2] = output[3] = 0;
@@ -776,10 +776,10 @@ void av1_iadst4_new(const int32_t *input, int32_t *output, int8_t cos_bit,
   // + 1b (addition) = 29b.
   // Hence the output bit depth is 15b.
   stage = 3;
-  output[0] = round_shift(s0 + s3, bit);
-  output[1] = round_shift(s1 + s3, bit);
-  output[2] = round_shift(s2, bit);
-  output[3] = round_shift(s0 + s1 - s3, bit);
+  output[0] = (int32_t)ROUND_POWER_OF_TWO_64(s0 + s3, bit);
+  output[1] = (int32_t)ROUND_POWER_OF_TWO_64(s1 + s3, bit);
+  output[2] = (int32_t)ROUND_POWER_OF_TWO_64(s2, bit);
+  output[3] = (int32_t)ROUND_POWER_OF_TWO_64(s0 + s1 - s3, bit);
   apply_range(stage, input, output, size, stage_range[stage]);
 }
 
