@@ -1,0 +1,123 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6544c6cc_90a3c813",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 8
+      },
+      "lineNbr": 336,
+      "author": {
+        "id": 7963
+      },
+      "writtenOn": "2018-01-25T07:58:45Z",
+      "side": 1,
+      "message": "Guard with CONFIG_SCALABILITY",
+      "revId": "719bca57632c79a7993787545ee348a71026e139",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "95fa0677_ddbf5bf4",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 8
+      },
+      "lineNbr": 403,
+      "author": {
+        "id": 7963
+      },
+      "writtenOn": "2018-01-25T07:58:45Z",
+      "side": 1,
+      "message": "guard with CONFIG_SCALABILITY",
+      "revId": "719bca57632c79a7993787545ee348a71026e139",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "00065b70_c29a3986",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 8
+      },
+      "lineNbr": 411,
+      "author": {
+        "id": 7963
+      },
+      "writtenOn": "2018-01-25T07:58:45Z",
+      "side": 1,
+      "message": "modify to fit 80-characters limit",
+      "revId": "719bca57632c79a7993787545ee348a71026e139",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "635a6540_e8969868",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 7963
+      },
+      "writtenOn": "2018-01-25T07:58:45Z",
+      "side": 1,
+      "message": "Needs to be put in alphabetical order",
+      "revId": "719bca57632c79a7993787545ee348a71026e139",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cf3a027a_4fc347a7",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 4378,
+      "author": {
+        "id": 7963
+      },
+      "writtenOn": "2018-01-25T07:58:45Z",
+      "side": 1,
+      "message": "should be moved down where it\u0027s used",
+      "revId": "719bca57632c79a7993787545ee348a71026e139",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "699a84ff_25c1f986",
+        "filename": "docs.cmake",
+        "patchSetId": 8
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 7963
+      },
+      "writtenOn": "2018-01-25T07:58:45Z",
+      "side": 1,
+      "message": "guard with CONFIG_SCALABILITY",
+      "revId": "719bca57632c79a7993787545ee348a71026e139",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "05ce957e_42daf7b3",
+        "filename": "docs.cmake",
+        "patchSetId": 8
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 7963
+      },
+      "writtenOn": "2018-01-25T07:58:45Z",
+      "side": 1,
+      "message": "guard with CONFIG_SCALABILITY",
+      "revId": "719bca57632c79a7993787545ee348a71026e139",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
