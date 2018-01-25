@@ -1812,12 +1812,8 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
     }
   }
 
-  int mode_ctx = 0;
-
-  if (is_compound)
-    mode_ctx = compound_inter_mode_ctx[mbmi->ref_frame[0]];
-  else
-    mode_ctx = av1_mode_context_analyzer(inter_mode_ctx, mbmi->ref_frame);
+  int mode_ctx = (is_compound) ? compound_inter_mode_ctx[mbmi->ref_frame[0]]
+                               : inter_mode_ctx[mbmi->ref_frame[0]];
   mbmi->ref_mv_idx = 0;
 
 #if CONFIG_EXT_SKIP

@@ -5708,7 +5708,7 @@ static int check_best_zero_mv(
       frame_mv[this_mode][ref_frames[0]].as_int == zeromv[0].as_int &&
       (ref_frames[1] <= INTRA_FRAME ||
        frame_mv[this_mode][ref_frames[1]].as_int == zeromv[1].as_int)) {
-    int16_t rfc = av1_mode_context_analyzer(mode_context, ref_frames);
+    int16_t rfc = mode_context[ref_frames[0]];
     int c1 = cost_mv_ref(x, NEARMV, rfc);
     int c2 = cost_mv_ref(x, NEARESTMV, rfc);
     int c3 = cost_mv_ref(x, GLOBALMV, rfc);
@@ -8094,11 +8094,8 @@ static int64_t handle_inter_mode(
 #endif
   if (mbmi->ref_frame[1] == INTRA_FRAME) mbmi->ref_frame[1] = NONE_FRAME;
 
-  if (is_comp_pred)
-    mode_ctx = mbmi_ext->compound_mode_context[refs[0]];
-  else
-    mode_ctx =
-        av1_mode_context_analyzer(mbmi_ext->mode_context, mbmi->ref_frame);
+  mode_ctx = (is_comp_pred) ? mbmi_ext->compound_mode_context[refs[0]]
+                            : mbmi_ext->mode_context[mbmi->ref_frame[0]];
 
   if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH)
     tmp_buf = CONVERT_TO_BYTEPTR(tmp_buf_);

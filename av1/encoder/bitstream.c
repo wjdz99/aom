@@ -1346,10 +1346,9 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
     write_ref_frames(cm, xd, w);
 
     if (is_compound)
-      mode_ctx = mbmi_ext->compound_mode_context[mbmi->ref_frame[0]];
-    else
-      mode_ctx =
-          av1_mode_context_analyzer(mbmi_ext->mode_context, mbmi->ref_frame);
+      mode_ctx = (is_compound)
+                     ? mbmi_ext->compound_mode_context[mbmi->ref_frame[0]]
+                     : mbmi_ext->mode_context[mbmi->ref_frame[0]];
 
     // If segment skip is not enabled code the mode.
     if (!segfeature_active(seg, segment_id, SEG_LVL_SKIP)) {
@@ -1714,8 +1713,7 @@ static void enc_dump_logs(AV1_COMP *cpi, int mi_row, int mi_col) {
       const MB_MODE_INFO_EXT *const mbmi_ext = x->mbmi_ext;
       const int16_t mode_ctx =
           is_comp_ref ? mbmi_ext->compound_mode_context[mbmi->ref_frame[0]]
-                      : av1_mode_context_analyzer(mbmi_ext->mode_context,
-                                                  mbmi->ref_frame);
+                      : mbmi_ext->mode_context[mbmi->ref_frame[0]];
 
       const int16_t newmv_ctx = mode_ctx & NEWMV_CTX_MASK;
       int16_t zeromv_ctx = -1;
