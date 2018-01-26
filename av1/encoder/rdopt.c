@@ -3822,7 +3822,6 @@ static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
                             TXFM_CONTEXT *tx_above, TXFM_CONTEXT *tx_left,
                             RD_STATS *rd_stats, int64_t ref_best_rd,
                             int *is_cost_valid, int fast,
-                            int tx_split_prune_flag,
                             TX_SIZE_RD_INFO_NODE *rd_info_node) {
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
@@ -3922,6 +3921,9 @@ static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
 #endif
   }
 
+  int tx_split_prune_flag = 0;
+  if (cpi->sf.tx_type_search.prune_mode >= PRUNE_2D_ACCURATE)
+    tx_split_prune_flag = ((x->tx_search_prune >> TX_TYPES) & 1);
   if (tx_size > TX_4X4 && depth < MAX_VARTX_DEPTH && tx_split_prune_flag == 0) {
     const TX_SIZE sub_txs = sub_tx_size_map[1][tx_size];
     const int bsw = tx_size_wide_unit[sub_txs];
@@ -3949,7 +3951,7 @@ static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
         select_tx_block(
             cpi, x, offsetr, offsetc, plane, block, sub_txs, depth + 1,
             plane_bsize, ta, tl, tx_above, tx_left, &this_rd_stats,
-            ref_best_rd - tmp_rd, &this_cost_valid, fast, 0,
+            ref_best_rd - tmp_rd, &this_cost_valid, fast,
             (rd_info_node != NULL) ? rd_info_node->children[blk_idx] : NULL);
 
 #if CONFIG_DIST_8X8
@@ -4101,7 +4103,6 @@ static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
 static void select_inter_block_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
                                    RD_STATS *rd_stats, BLOCK_SIZE bsize,
                                    int64_t ref_best_rd, int fast,
-                                   int tx_split_prune_flag,
                                    TX_SIZE_RD_INFO_NODE *rd_info_tree) {
   MACROBLOCKD *const xd = &x->e_mbd;
   int is_cost_valid = 1;
@@ -4140,7 +4141,7 @@ static void select_inter_block_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
         select_tx_block(cpi, x, idy, idx, 0, block, max_tx_size, init_depth,
                         plane_bsize, ctxa, ctxl, tx_above, tx_left,
                         &pn_rd_stats, ref_best_rd - this_rd, &is_cost_valid,
-                        fast, tx_split_prune_flag, rd_info_tree);
+                        fast, rd_info_tree);
         if (!is_cost_valid || pn_rd_stats.rate == INT_MAX) {
           av1_invalid_rd_stats(rd_stats);
           return;
@@ -4174,7 +4175,6 @@ static int64_t select_tx_size_fix_type(const AV1_COMP *cpi, MACROBLOCK *x,
                                        RD_STATS *rd_stats, BLOCK_SIZE bsize,
                                        int mi_row, int mi_col,
                                        int64_t ref_best_rd, TX_TYPE tx_type,
-                                       int tx_split_prune_flag,
                                        TX_SIZE_RD_INFO_NODE *rd_info_tree) {
   const int fast = cpi->sf.tx_size_search_method > USE_FULL_RD;
   const AV1_COMMON *const cm = &cpi->common;
@@ -4201,7 +4201,7 @@ static int64_t select_tx_size_fix_type(const AV1_COMP *cpi, MACROBLOCK *x,
 
   mbmi->tx_type = tx_type;
   select_inter_block_yrd(cpi, x, rd_stats, bsize, ref_best_rd, fast,
-                         tx_split_prune_flag, rd_info_tree);
+                         rd_info_tree);
   if (rd_stats->rate == INT_MAX) return INT64_MAX;
 
   mbmi->min_tx_size = mbmi->inter_tx_size[0][0];
@@ -4860,9 +4860,8 @@ static void select_tx_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
 
   int found = 0;
 
-  int tx_split_prune_flag = 0;
-  if (is_inter && cpi->sf.tx_type_search.prune_mode >= PRUNE_2D_ACCURATE)
-    tx_split_prune_flag = ((prune >> TX_TYPES) & 1);
+  x->tx_search_prune = prune;
+  //printf("\n tx_search_prune %d\n", x->tx_search_prune);
 
   for (tx_type = txk_start; tx_type < txk_end; ++tx_type) {
     RD_STATS this_rd_stats;
@@ -4885,7 +4884,7 @@ static void select_tx_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
       if (tx_type != DCT_DCT) continue;
 
     rd = select_tx_size_fix_type(cpi, x, &this_rd_stats, bsize, mi_row, mi_col,
-                                 ref_best_rd, tx_type, tx_split_prune_flag,
+                                 ref_best_rd, tx_type,
                                  found_rd_info ? matched_rd_info : NULL);
 #if !CONFIG_TXK_SEL
     // If the current tx_type is not included in the tx_set for the smallest
@@ -4928,6 +4927,9 @@ static void select_tx_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
       break;
 #endif
   }
+
+  // Reset.
+  x->tx_search_prune = 0;
 
   // We should always find at least one candidate unless ref_best_rd is less
   // than INT64_MAX (in which case, all the calls to select_tx_size_fix_type
