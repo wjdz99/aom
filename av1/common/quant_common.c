@@ -107,35 +107,35 @@ static const int8_t doff_nuq[QUANT_PROFILES][2] = {
   // dq_type = 1
   {
       // Y/intra, dq_type 1, low quality
-      -4, -6,  // dc, ac
+      -12, -12,  // dc, ac
   },
   {
       // Y/intra, dq_type 1, high quality
-      -2, -3,  // dc, ac
+      -6, -6,  // dc, ac
   },
   {
       // UV/intra, dq_type 1, low quality
-      -4, -6,  // dc, ac
+      -12, -12,  // dc, ac
   },
   {
       // UV/intra, dq_type 1, high quality
-      -2, -3,  // dc, ac
+      -6, -6,  // dc, ac
   },
   {
       // Y/inter, dq_type 1, low quality
-      -4, -6,  // dc, ac
+      -12, -12,  // dc, ac
   },
   {
       // Y/inter, dq_type 1, high quality
-      -3, -4,  // dc, ac
+      -6, -6,  // dc, ac
   },
   {
       // UV/inter, dq_type 1, low quality
-      -4, -6,  // dc, ac
+      -12, -12,  // dc, ac
   },
   {
       // UV/inter, dq_type 1, high quality
-      -3, -4,  // dc, ac
+      -6, -6,  // dc, ac
   },
 
   // dq_type = 2
