@@ -116,12 +116,28 @@ void AV1HighbdInvHTNxN::RunBitexactCheck() {
 
   for (int i = 0; i < num_tests; ++i) {
     for (int j = 0; j < num_coeffs_; ++j) {
-      input_[j] = (rnd.Rand16() & mask) - (rnd.Rand16() & mask);
-      output_ref_[j] = rnd.Rand16() & mask;
+      if (i < stride) {
+        // Test vectors that look like transform basis vectors
+        int u = ((2 * (j % stride) + 1) * i / stride) % 4;
+        int v = (u == 0 || u == 3) ? 0 : 1;
+        input_[j] = v ? -mask : mask;
+        output_ref_[j] = v ? mask : 0;
+      } else {
+        input_[j] = (rnd.Rand16() & mask) - (rnd.Rand16() & mask);
+        output_ref_[j] = rnd.Rand16() & mask;
+      }
       output_[j] = output_ref_[j];
     }
 
     txfm_ref_(input_, coeffs_, stride, tx_type_, bit_depth_);
+
+    for (int j = 0; j < num_coeffs_; ++j) {
+      EXPECT_GE(coeffs_[j], -(1 << (bit_depth_ + 7)))
+          << "Coeff too small at index: " << j << " At test block: " << i;
+      EXPECT_LT(coeffs_[j], (1 << (bit_depth_ + 7)))
+          << "Coeff too large at index: " << j << " At test block: " << i;
+    }
+
     inv_txfm_ref_(coeffs_, output_ref_, stride, tx_type_, bit_depth_);
     ASM_REGISTER_STATE_CHECK(
         inv_txfm_(coeffs_, output_, stride, tx_type_, bit_depth_));

@@ -82,11 +82,31 @@ static INLINE __m128i half_btf_sse4_1(const __m128i *w0, const __m128i *n0,
                                       const __m128i *rounding, int bit) {
   __m128i x, y;
 
+#if 1
   x = _mm_mullo_epi32(*w0, *n0);
   y = _mm_mullo_epi32(*w1, *n1);
   x = _mm_add_epi32(x, y);
   x = _mm_add_epi32(x, *rounding);
   x = _mm_srai_epi32(x, bit);
+#else
+  // The following deals with possible 64-bit overflow
+  // and replicates the behaviour of the half_btf() function
+  x = _mm_mullo_epi32(_mm_srai_epi32(*n0, bit - 1), *w0);
+  y = _mm_mullo_epi32(_mm_srai_epi32(*n1, bit - 1), *w1);
+  x = _mm_add_epi32(x, y);
+
+  __m128i xl, yl;
+  __m128i mask = _mm_sub_epi32(*rounding, _mm_set1_epi32(1));
+  xl = _mm_mullo_epi32(_mm_and_si128(*n0, mask), *w0);
+  yl = _mm_mullo_epi32(_mm_and_si128(*n1, mask), *w1);
+  xl = _mm_add_epi32(xl, yl);
+  xl = _mm_srai_epi32(xl, bit - 1);
+  x = _mm_add_epi32(x, xl);
+  x = _mm_min_epi32(x, _mm_set1_epi32((1 << (32 - bit)) - 1));
+  x = _mm_max_epi32(x, _mm_set1_epi32(-(1 << (32 - bit))));
+  x = _mm_add_epi32(x, _mm_set1_epi32(1));
+  x = _mm_srai_epi32(x, 1);
+#endif
   return x;
 }
 
