@@ -171,6 +171,9 @@ struct macroblock {
 
   int cb_partition_scan;
 
+  // Activate constrained coding block partition search range.
+  int use_cb_search_range;
+
   // Also save RD info on the TX size search level for square TX sizes.
   TX_SIZE_RD_RECORD
   tx_size_rd_record_8X8[(MAX_MIB_SIZE >> 1) * (MAX_MIB_SIZE >> 1)];
