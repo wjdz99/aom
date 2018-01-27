@@ -3167,8 +3167,10 @@ static void debug_check_frame_counts(const AV1_COMMON *const cm) {
          cm->error_resilient_mode);
   assert(!memcmp(cm->counts.partition, zero_counts.partition,
                  sizeof(cm->counts.partition)));
-  assert(!memcmp(cm->counts.switchable_interp, zero_counts.switchable_interp,
-                 sizeof(cm->counts.switchable_interp)));
+  assert(!memcmp(cm->counts.switchable_interp_df_on, zero_counts.switchable_interp_df_on,
+                 sizeof(cm->counts.switchable_interp_df_on)));
+  assert(!memcmp(cm->counts.switchable_interp_df_off, zero_counts.switchable_interp_df_off,
+    sizeof(cm->counts.switchable_interp_df_off)));
   assert(!memcmp(cm->counts.inter_compound_mode,
                  zero_counts.inter_compound_mode,
                  sizeof(cm->counts.inter_compound_mode)));

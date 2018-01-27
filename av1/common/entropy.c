@@ -768,7 +768,12 @@ void av1_average_tile_inter_cdfs(AV1_COMMON *cm, FRAME_CONTEXT *fc,
   AVERAGE_TILE_CDFS(y_mode_cdf)
 
   if (cm->interp_filter == SWITCHABLE) {
-    AVERAGE_TILE_CDFS(switchable_interp_cdf)
+    if (g_dualFilter){
+      AVERAGE_TILE_CDFS(switchable_interp_cdf_df_on)
+    }     
+    else {
+      AVERAGE_TILE_CDFS(switchable_interp_cdf_df_off)
+    }
   }
   AVERAGE_TILE_CDFS(intra_inter_cdf)
   AVERAGE_TILE_CDFS(motion_mode_cdf)

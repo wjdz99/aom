@@ -15,8 +15,9 @@
 #include "av1/common/reconintra.h"
 #include "av1/common/seg_common.h"
 
+int g_dualFilter = 1;
 // Returns a context number for the given MB prediction signal
-#if CONFIG_DUAL_FILTER
+
 static InterpFilter get_ref_filter_type(const MODE_INFO *mi,
                                         const MACROBLOCKD *xd, int dir,
                                         MV_REFERENCE_FRAME ref_frame) {
@@ -33,70 +34,76 @@ static InterpFilter get_ref_filter_type(const MODE_INFO *mi,
 }
 
 int av1_get_pred_context_switchable_interp(const MACROBLOCKD *xd, int dir) {
-  const MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
-  const int ctx_offset =
-      (mbmi->ref_frame[1] > INTRA_FRAME) * INTER_FILTER_COMP_OFFSET;
-  MV_REFERENCE_FRAME ref_frame =
-      (dir < 2) ? mbmi->ref_frame[0] : mbmi->ref_frame[1];
-  // Note:
-  // The mode info data structure has a one element border above and to the
-  // left of the entries corresponding to real macroblocks.
-  // The prediction flags in these dummy entries are initialized to 0.
-  int filter_type_ctx = ctx_offset + (dir & 0x01) * INTER_FILTER_DIR_OFFSET;
-  int left_type = SWITCHABLE_FILTERS;
-  int above_type = SWITCHABLE_FILTERS;
+  if (g_dualFilter)
+  {
+    const MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
+    const int ctx_offset =
+        (mbmi->ref_frame[1] > INTRA_FRAME) * INTER_FILTER_COMP_OFFSET;
+    MV_REFERENCE_FRAME ref_frame =
+        (dir < 2) ? mbmi->ref_frame[0] : mbmi->ref_frame[1];
+    // Note:
+    // The mode info data structure has a one element border above and to the
+    // left of the entries corresponding to real macroblocks.
+    // The prediction flags in these dummy entries are initialized to 0.
+    int filter_type_ctx = ctx_offset + (dir & 0x01) * INTER_FILTER_DIR_OFFSET;
+    int left_type = SWITCHABLE_FILTERS;
+    int above_type = SWITCHABLE_FILTERS;
+  
+    if (xd->left_available)
+      left_type = get_ref_filter_type(xd->mi[-1], xd, dir, ref_frame);
 
-  if (xd->left_available)
-    left_type = get_ref_filter_type(xd->mi[-1], xd, dir, ref_frame);
+    if (xd->up_available)
+      above_type =
+          get_ref_filter_type(xd->mi[-xd->mi_stride], xd, dir, ref_frame);
 
-  if (xd->up_available)
-    above_type =
-        get_ref_filter_type(xd->mi[-xd->mi_stride], xd, dir, ref_frame);
+    if (left_type == above_type) {
+      filter_type_ctx += left_type;
+    } else if (left_type == SWITCHABLE_FILTERS) {
+      assert(above_type != SWITCHABLE_FILTERS);
+      filter_type_ctx += above_type;
+    } else if (above_type == SWITCHABLE_FILTERS) {
+      assert(left_type != SWITCHABLE_FILTERS);
+      filter_type_ctx += left_type;
+    } else {
+      filter_type_ctx += SWITCHABLE_FILTERS;
+    }
 
-  if (left_type == above_type) {
-    filter_type_ctx += left_type;
-  } else if (left_type == SWITCHABLE_FILTERS) {
-    assert(above_type != SWITCHABLE_FILTERS);
-    filter_type_ctx += above_type;
-  } else if (above_type == SWITCHABLE_FILTERS) {
-    assert(left_type != SWITCHABLE_FILTERS);
-    filter_type_ctx += left_type;
-  } else {
-    filter_type_ctx += SWITCHABLE_FILTERS;
+    return filter_type_ctx;
   }
-
-  return filter_type_ctx;
-}
-#else
-int av1_get_pred_context_switchable_interp(const MACROBLOCKD *xd) {
-  // Note:
-  // The mode info data structure has a one element border above and to the
-  // left of the entries corresponding to real macroblocks.
-  // The prediction flags in these dummy entries are initialized to 0.
-  const MB_MODE_INFO *const left_mbmi = xd->left_mbmi;
-  const int left_type =
+  else
+  {
+    // Note:
+    // The mode info data structure has a one element border above and to the
+    // left of the entries corresponding to real macroblocks.
+    // The prediction flags in these dummy entries are initialized to 0.
+    const MB_MODE_INFO *const left_mbmi = xd->left_mbmi;
+    const int left_type =
       xd->left_available && is_inter_block(left_mbmi)
-          ? av1_extract_interp_filter(left_mbmi->interp_filters, 0)
-          : SWITCHABLE_FILTERS;
-  const MB_MODE_INFO *const above_mbmi = xd->above_mbmi;
-  const int above_type =
+      ? av1_extract_interp_filter(left_mbmi->interp_filters, 0)
+      : SWITCHABLE_FILTERS;
+    const MB_MODE_INFO *const above_mbmi = xd->above_mbmi;
+    const int above_type =
       xd->up_available && is_inter_block(above_mbmi)
-          ? av1_extract_interp_filter(above_mbmi->interp_filters, 0)
-          : SWITCHABLE_FILTERS;
+      ? av1_extract_interp_filter(above_mbmi->interp_filters, 0)
+      : SWITCHABLE_FILTERS;
 
-  if (left_type == above_type) {
-    return left_type;
-  } else if (left_type == SWITCHABLE_FILTERS) {
-    assert(above_type != SWITCHABLE_FILTERS);
-    return above_type;
-  } else if (above_type == SWITCHABLE_FILTERS) {
-    assert(left_type != SWITCHABLE_FILTERS);
-    return left_type;
-  } else {
-    return SWITCHABLE_FILTERS;
+    if (left_type == above_type) {
+      return left_type;
+    }
+    else if (left_type == SWITCHABLE_FILTERS) {
+      assert(above_type != SWITCHABLE_FILTERS);
+      return above_type;
+    }
+    else if (above_type == SWITCHABLE_FILTERS) {
+      assert(left_type != SWITCHABLE_FILTERS);
+      return left_type;
+    }
+    else {
+      return SWITCHABLE_FILTERS;
+    }
   }
 }
-#endif
+
 
 static void palette_add_to_cache(uint16_t *cache, int *n, uint16_t val) {
   // Do not add an already existing value

@@ -60,7 +60,7 @@ static INLINE ConvolveParams get_conv_params(int ref, int do_average,
   conv_params.do_post_rounding = 0;
   return conv_params;
 }
-
+extern int g_dualFilter;
 static INLINE void av1_get_convolve_filter_params(InterpFilters interp_filters,
                                                   InterpFilterParams *params_x,
                                                   InterpFilterParams *params_y
@@ -69,13 +69,17 @@ static INLINE void av1_get_convolve_filter_params(InterpFilters interp_filters,
                                                   int w, int h
 #endif
                                                   ) {
-#if CONFIG_DUAL_FILTER
-  InterpFilter filter_x = av1_extract_interp_filter(interp_filters, 1);
-  InterpFilter filter_y = av1_extract_interp_filter(interp_filters, 0);
-#else
-  InterpFilter filter_x = av1_extract_interp_filter(interp_filters, 0);
-  InterpFilter filter_y = av1_extract_interp_filter(interp_filters, 0);
-#endif
+  InterpFilter filter_x;
+  InterpFilter filter_y;  
+  if (g_dualFilter){
+    filter_x = av1_extract_interp_filter(interp_filters, 1);
+    filter_y = av1_extract_interp_filter(interp_filters, 0);
+  }
+  else{
+    filter_x = av1_extract_interp_filter(interp_filters, 0);
+    filter_y = av1_extract_interp_filter(interp_filters, 0);
+  }
+
 #if CONFIG_SHORT_FILTER
   *params_x = av1_get_interp_filter_params_with_block_size(filter_x, w);
   *params_y = av1_get_interp_filter_params_with_block_size(filter_y, h);

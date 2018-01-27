@@ -303,7 +303,8 @@ struct macroblock {
   int filter_intra_cost[TX_SIZES_ALL][2];
   int filter_intra_mode_cost[FILTER_INTRA_MODES];
 #endif
-  int switchable_interp_costs[SWITCHABLE_FILTER_CONTEXTS][SWITCHABLE_FILTERS];
+  int switchable_interp_costs_df_on[SWITCHABLE_FILTER_CONTEXTS_DF_ON][SWITCHABLE_FILTERS];
+  int switchable_interp_costs_df_off[SWITCHABLE_FILTER_CONTEXTS_DF_OFF][SWITCHABLE_FILTERS];
 #if CONFIG_EXT_PARTITION_TYPES
   int partition_cost[PARTITION_CONTEXTS][EXT_PARTITION_TYPES];
 #else

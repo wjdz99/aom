@@ -157,11 +157,17 @@ void av1_fill_mode_rates(AV1_COMMON *const cm, MACROBLOCK *x,
     av1_cost_tokens_from_cdf(x->filter_intra_cost[i], fc->filter_intra_cdfs[i],
                              NULL);
 #endif
-
-  for (i = 0; i < SWITCHABLE_FILTER_CONTEXTS; ++i)
-    av1_cost_tokens_from_cdf(x->switchable_interp_costs[i],
-                             fc->switchable_interp_cdf[i], NULL);
-
+  if (g_dualFilter)
+  {
+    for (i = 0; i < SWITCHABLE_FILTER_CONTEXTS_DF_ON; ++i)
+      av1_cost_tokens_from_cdf(x->switchable_interp_costs_df_on[i],
+                             fc->switchable_interp_cdf_df_on[i], NULL);
+  }
+  else{
+    for (i = 0; i < SWITCHABLE_FILTER_CONTEXTS_DF_OFF; ++i)
+      av1_cost_tokens_from_cdf(x->switchable_interp_costs_df_off[i],
+        fc->switchable_interp_cdf_df_off[i], NULL);
+  }
   for (i = 0; i < PALATTE_BSIZE_CTXS; ++i) {
     av1_cost_tokens_from_cdf(x->palette_y_size_cost[i],
                              fc->palette_y_size_cdf[i], NULL);
@@ -979,43 +985,46 @@ YV12_BUFFER_CONFIG *av1_get_scaled_ref_frame(const AV1_COMP *cpi,
              : NULL;
 }
 
-#if CONFIG_DUAL_FILTER
+
 int av1_get_switchable_rate(const AV1_COMMON *const cm, MACROBLOCK *x,
                             const MACROBLOCKD *xd) {
-  if (cm->interp_filter == SWITCHABLE) {
-    const MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
-    int inter_filter_cost = 0;
-    int dir;
+  if (g_dualFilter)
+  {
+    if (cm->interp_filter == SWITCHABLE) {
+      const MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
+      int inter_filter_cost = 0;
+      int dir;
 
-    for (dir = 0; dir < 2; ++dir) {
-      if (has_subpel_mv_component(xd->mi[0], xd, dir) ||
-          (mbmi->ref_frame[1] > INTRA_FRAME &&
-           has_subpel_mv_component(xd->mi[0], xd, dir + 2))) {
-        const int ctx = av1_get_pred_context_switchable_interp(xd, dir);
-        const InterpFilter filter =
-            av1_extract_interp_filter(mbmi->interp_filters, dir);
-        inter_filter_cost += x->switchable_interp_costs[ctx][filter];
+      for (dir = 0; dir < 2; ++dir) {
+        if (has_subpel_mv_component(xd->mi[0], xd, dir) ||
+            (mbmi->ref_frame[1] > INTRA_FRAME &&
+             has_subpel_mv_component(xd->mi[0], xd, dir + 2))) {
+          const int ctx = av1_get_pred_context_switchable_interp(xd, dir);
+          const InterpFilter filter =
+              av1_extract_interp_filter(mbmi->interp_filters, dir);
+          inter_filter_cost += x->switchable_interp_costs_df_on[ctx][filter];
+        }
       }
+      return SWITCHABLE_INTERP_RATE_FACTOR * inter_filter_cost;
+    } else {
+      return 0;
     }
-    return SWITCHABLE_INTERP_RATE_FACTOR * inter_filter_cost;
-  } else {
+  }
+  else
+  {
+    if (cm->interp_filter == SWITCHABLE) {
+      const MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
+      const int ctx = av1_get_pred_context_switchable_interp(xd,0);
+      const InterpFilter filter =
+        av1_extract_interp_filter(mbmi->interp_filters, 0);
+      return SWITCHABLE_INTERP_RATE_FACTOR *
+        x->switchable_interp_costs_df_off[ctx][filter];
+    }
     return 0;
   }
 }
-#else
-int av1_get_switchable_rate(const AV1_COMMON *const cm, MACROBLOCK *x,
-                            const MACROBLOCKD *xd) {
-  if (cm->interp_filter == SWITCHABLE) {
-    const MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
-    const int ctx = av1_get_pred_context_switchable_interp(xd);
-    const InterpFilter filter =
-        av1_extract_interp_filter(mbmi->interp_filters, 0);
-    return SWITCHABLE_INTERP_RATE_FACTOR *
-           x->switchable_interp_costs[ctx][filter];
-  }
-  return 0;
-}
-#endif
+
+
 
 void av1_set_rd_speed_thresholds(AV1_COMP *cpi) {
   int i;

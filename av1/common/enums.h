@@ -301,7 +301,7 @@ typedef enum ATTRIBUTE_PACKED {
   TX_TYPES,
 } TX_TYPE;
 
-#if CONFIG_DUAL_FILTER
+
 typedef enum {
   REG_REG,
   REG_SMOOTH,
@@ -313,7 +313,7 @@ typedef enum {
   SHARP_SMOOTH,
   SHARP_SHARP,
 } DUAL_FILTER_TYPE;
-#endif
+
 
 typedef enum ATTRIBUTE_PACKED {
   // DCT only

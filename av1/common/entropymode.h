@@ -181,8 +181,10 @@ typedef struct frame_contexts {
 #else
   aom_cdf_prob partition_cdf[PARTITION_CONTEXTS][CDF_SIZE(PARTITION_TYPES)];
 #endif
-  aom_cdf_prob switchable_interp_cdf[SWITCHABLE_FILTER_CONTEXTS]
-                                    [CDF_SIZE(SWITCHABLE_FILTERS)];
+  aom_cdf_prob switchable_interp_cdf_df_on[SWITCHABLE_FILTER_CONTEXTS_DF_ON]
+                                          [CDF_SIZE(SWITCHABLE_FILTERS)];
+  aom_cdf_prob switchable_interp_cdf_df_off[SWITCHABLE_FILTER_CONTEXTS_DF_OFF]
+                                           [CDF_SIZE(SWITCHABLE_FILTERS)];
 /* kf_y_cdf is discarded after use, so does not require persistent storage.
    However, we keep it with the other CDFs in this struct since it needs to
    be copied to each tile to support parallelism just like the others.
@@ -240,8 +242,10 @@ typedef struct FRAME_COUNTS {
 #else
   unsigned int partition[PARTITION_CONTEXTS][PARTITION_TYPES];
 #endif
-  unsigned int switchable_interp[SWITCHABLE_FILTER_CONTEXTS]
-                                [SWITCHABLE_FILTERS];
+  unsigned int switchable_interp_df_on[SWITCHABLE_FILTER_CONTEXTS_DF_ON]
+                                      [SWITCHABLE_FILTERS];
+  unsigned int switchable_interp_df_off[SWITCHABLE_FILTER_CONTEXTS_DF_OFF]
+                                      [SWITCHABLE_FILTERS];
 
 #if CONFIG_LV_MAP
   unsigned int txb_skip[TX_SIZES][TXB_SKIP_CONTEXTS][2];

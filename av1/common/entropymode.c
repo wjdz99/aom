@@ -1520,9 +1520,9 @@ static const aom_cdf_prob
       { AOM_CDF2(128 * 128) }, { AOM_CDF2(128 * 128) }, { AOM_CDF2(128 * 128) }
     };
 
-#if CONFIG_DUAL_FILTER
+
 static const aom_cdf_prob
-    default_switchable_interp_cdf[SWITCHABLE_FILTER_CONTEXTS][CDF_SIZE(
+    default_switchable_interp_cdf_df_on[SWITCHABLE_FILTER_CONTEXTS_DF_ON][CDF_SIZE(
         SWITCHABLE_FILTERS)] = {
       { AOM_CDF3(32256, 32654) }, { AOM_CDF3(2816, 32651) },
       { AOM_CDF3(512, 764) },     { AOM_CDF3(30464, 31778) },
@@ -1533,16 +1533,16 @@ static const aom_cdf_prob
       { AOM_CDF3(31616, 31787) }, { AOM_CDF3(4224, 32433) },
       { AOM_CDF3(128, 256) },     { AOM_CDF3(17408, 18248) }
     };
-#else   // CONFIG_DUAL_FILTER
+
 static const aom_cdf_prob
-    default_switchable_interp_cdf[SWITCHABLE_FILTER_CONTEXTS]
+    default_switchable_interp_cdf_df_off[SWITCHABLE_FILTER_CONTEXTS_DF_OFF]
                                  [CDF_SIZE(SWITCHABLE_FILTERS)] = {
                                    { AOM_CDF3(30080, 31781) },
                                    { AOM_CDF3(4608, 32658) },
                                    { AOM_CDF3(4352, 4685) },
                                    { AOM_CDF3(19072, 26776) },
                                  };
-#endif  // CONFIG_DUAL_FILTER
+
 
 #if CONFIG_SPATIAL_SEGMENTATION
 static const aom_cdf_prob
@@ -2992,7 +2992,12 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
 #endif  // CONFIG_LOOP_RESTORATION
   av1_copy(fc->y_mode_cdf, default_if_y_mode_cdf);
   av1_copy(fc->uv_mode_cdf, default_uv_mode_cdf);
-  av1_copy(fc->switchable_interp_cdf, default_switchable_interp_cdf);
+  if (g_dualFilter){
+    av1_copy(fc->switchable_interp_cdf_df_on, default_switchable_interp_cdf_df_on);
+  }
+  else{
+    av1_copy(fc->switchable_interp_cdf_df_off, default_switchable_interp_cdf_df_off);
+  }
   av1_copy(fc->partition_cdf, default_partition_cdf);
   av1_copy(fc->intra_ext_tx_cdf, default_intra_ext_tx_cdf);
   av1_copy(fc->inter_ext_tx_cdf, default_inter_ext_tx_cdf);

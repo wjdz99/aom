@@ -326,7 +326,7 @@ static void set_offsets(const AV1_COMP *const cpi, const TileInfo *const tile,
   }
 }
 
-#if CONFIG_DUAL_FILTER
+
 static void reset_intmv_filter_type(const AV1_COMMON *const cm, MACROBLOCKD *xd,
                                     MB_MODE_INFO *mbmi) {
   InterpFilter filters[2];
@@ -354,14 +354,14 @@ static void update_filter_type_count(uint8_t allow_update_cdf,
       const int ctx = av1_get_pred_context_switchable_interp(xd, dir);
       InterpFilter filter =
           av1_extract_interp_filter(mbmi->interp_filters, dir);
-      ++counts->switchable_interp[ctx][filter];
+      ++counts->switchable_interp_df_on[ctx][filter];
       if (allow_update_cdf)
-        update_cdf(xd->tile_ctx->switchable_interp_cdf[ctx], filter,
+        update_cdf(xd->tile_ctx->switchable_interp_cdf_df_on[ctx], filter,
                    SWITCHABLE_FILTERS);
     }
   }
 }
-#endif
+
 static void update_global_motion_used(PREDICTION_MODE mode, BLOCK_SIZE bsize,
                                       const MB_MODE_INFO *mbmi,
                                       RD_COUNTS *rdc) {
@@ -467,9 +467,9 @@ static void update_state(const AV1_COMP *const cpi, TileDataEnc *tile_data,
   *mi_addr = *mi;
   *x->mbmi_ext = ctx->mbmi_ext;
 
-#if CONFIG_DUAL_FILTER
-  reset_intmv_filter_type(cm, xd, mbmi);
-#endif
+  if(g_dualFilter){
+    reset_intmv_filter_type(cm, xd, mbmi);
+  }
 
   rf_type = av1_ref_frame_type(mbmi->ref_frame);
   if (x->mbmi_ext->ref_mv_count[rf_type] > 1) {
@@ -564,16 +564,18 @@ static void update_state(const AV1_COMP *const cpi, TileDataEnc *tile_data,
 
     if (cm->interp_filter == SWITCHABLE && mbmi->motion_mode != WARPED_CAUSAL &&
         !is_nontrans_global_motion(xd)) {
-#if CONFIG_DUAL_FILTER
-      update_filter_type_count(tile_data->allow_update_cdf, td->counts, xd,
+      if (g_dualFilter) {
+        update_filter_type_count(tile_data->allow_update_cdf, td->counts, xd,
                                mbmi);
-#else
-      (void)tile_data;
-      const int switchable_ctx = av1_get_pred_context_switchable_interp(xd);
-      const InterpFilter filter =
-          av1_extract_interp_filter(mbmi->interp_filters, 0);
-      ++td->counts->switchable_interp[switchable_ctx][filter];
-#endif
+      }
+      else
+      {
+        (void)tile_data;
+        const int switchable_ctx = av1_get_pred_context_switchable_interp(xd,0);
+        const InterpFilter filter =
+            av1_extract_interp_filter(mbmi->interp_filters, 0);
+        ++td->counts->switchable_interp_df_off[switchable_ctx][filter];
+      }
     }
 
     rdc->comp_pred_diff[SINGLE_REFERENCE] += ctx->single_pred_diff;
@@ -4166,9 +4168,9 @@ void av1_encode_frame(AV1_COMP *cpi) {
     else
       cm->reference_mode = REFERENCE_MODE_SELECT;
 
-#if CONFIG_DUAL_FILTER
-    cm->interp_filter = SWITCHABLE;
-#endif
+    if(g_dualFilter)
+      cm->interp_filter = SWITCHABLE;
+
 #if CONFIG_EXT_TILE
     if (cm->large_scale_tile) cm->interp_filter = EIGHTTAP_REGULAR;
 #endif  // CONFIG_EXT_TILE

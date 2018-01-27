@@ -21,7 +21,7 @@
 // Setting this to 2 will disable trellis optimization within the
 // transform search. Trellis optimization will still be applied
 // in the final encode.
-#define DISABLE_TRELLISQ_SEARCH 0
+#define DISABLE_TRELLISQ_SEARCH 1
 
 #define MAX_MESH_SPEED 5  // Max speed setting for mesh motion method
 static MESH_PATTERN
@@ -147,9 +147,9 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
 #if CONFIG_EXT_PARTITION_TYPES
     sf->prune_ext_partition_types_search = 1;
 #endif  // CONFIG_EXT_PARTITION_TYPES
-#if CONFIG_DUAL_FILTER
-    sf->use_fast_interpolation_filter_search = 1;
-#endif  // CONFIG_DUAL_FILTER
+    if (g_dualFilter) {
+      sf->use_fast_interpolation_filter_search = 1;
+    }
 #if 0   // CONFIG_HASH_ME && CONFIG_LV_MAP
     // TODO(mfo): Activate feature once it gives positive results.
     sf->use_hash_based_trellis = 1;
