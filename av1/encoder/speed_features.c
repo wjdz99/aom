@@ -143,13 +143,13 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
   // Speed 0 for all speed features that give neutral coding performance change.
   sf->reduce_inter_modes = 1;
 
-  sf->selective_ref_frame = 2;
+  sf->selective_ref_frame = 1;
 
   sf->tx_size_search_init_depth_rect = 1;
   sf->tx_size_search_init_depth_sqr = 1;
 
-  sf->tx_type_search.fast_intra_tx_type_search = 1;
-  sf->tx_type_search.fast_inter_tx_type_search = 1;
+//  sf->tx_type_search.fast_intra_tx_type_search = 1;
+//  sf->tx_type_search.fast_inter_tx_type_search = 1;
 
   if (speed >= 1) {
     sf->selective_ref_frame = 1;
