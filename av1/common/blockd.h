@@ -939,10 +939,8 @@ static INLINE TX_TYPE av1_get_tx_type(PLANE_TYPE plane_type,
     if (plane_type == PLANE_TYPE_Y) {
       tx_type = mbmi->txk_type[(blk_row << MAX_MIB_SIZE_LOG2) + blk_col];
     } else if (is_inter_block(mbmi)) {
-      // scale back to y plane's coordinate
-      blk_row <<= pd->subsampling_y;
-      blk_col <<= pd->subsampling_x;
-      tx_type = mbmi->txk_type[(blk_row << MAX_MIB_SIZE_LOG2) + blk_col];
+      // As VP9 did, default inter/chroma to DCT_DCT
+      tx_type = DCT_DCT;
     } else {
       // In intra mode, uv planes don't share the same prediction mode as y
       // plane, so the tx_type should not be shared
