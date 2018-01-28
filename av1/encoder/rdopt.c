@@ -4899,6 +4899,8 @@ static void select_tx_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
         const int ext_tx_set = get_ext_tx_set(
             mbmi->min_tx_size, bsize, is_inter, cm->reduced_tx_set_used);
         const TX_SIZE square_tx_size = txsize_sqr_map[mbmi->min_tx_size];
+        // For TX_64X64, use TX_32X32 to lookup cost
+        if (sqare_tx_size == TX_64X64) sqare_tx_size = TX_32X32;
         this_rd_stats.rate +=
             x->inter_tx_type_costs[ext_tx_set][square_tx_size][mbmi->tx_type];
         this_rd_stats.rate -=
