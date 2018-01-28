@@ -776,10 +776,14 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
     const int allow_extension = (xd->n8_h >= mi_size_high[BLOCK_8X8]) &&
                                 (xd->n8_w >= mi_size_wide[BLOCK_8X8]);
 
+    const BLOCK_SIZE scan_unit =
+        (xd->n8_h >= mi_size_high[BLOCK_32X32] &&
+         xd->n8_w >= mi_size_wide[BLOCK_32X32]) ? BLOCK_16X16 : BLOCK_8X8;
+
     for (int blk_row = 0; blk_row < xd->n8_h;
-         blk_row += mi_size_high[BLOCK_8X8]) {
+         blk_row += mi_size_high[scan_unit]) {
       for (int blk_col = 0; blk_col < xd->n8_w;
-           blk_col += mi_size_wide[BLOCK_8X8]) {
+           blk_col += mi_size_wide[scan_unit]) {
         // (TODO: yunqing) prev_frame_mvs_base is not used here, tpl_mvs is
         // used.
         // Can be modified the same way.

@@ -20,7 +20,7 @@ extern "C" {
 
 #define MVREF_NEIGHBOURS 9
 #define MVREF_ROWS 3
-#define MVREF_COLS 4
+#define MVREF_COLS 3
 
 // Set the upper limit of the motion vector component magnitude.
 // This would make a motion vector fit in 26 bits. Plus 3 bits for the
