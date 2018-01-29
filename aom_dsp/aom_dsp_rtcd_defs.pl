@@ -624,20 +624,6 @@ if (aom_config("CONFIG_AV1") eq "yes") {
 
   add_proto qw/void aom_idct8x8_1_add/, "const tran_low_t *input, uint8_t *dest, int dest_stride";
   specialize qw/aom_idct8x8_1_add sse2/;
-
-  add_proto qw/void aom_idct32x32_1024_add/, "const tran_low_t *input, uint8_t *dest, int dest_stride";
-  specialize qw/aom_idct32x32_1024_add sse2 ssse3 avx2/;
-
-  add_proto qw/void aom_idct32x32_135_add/, "const tran_low_t *input, uint8_t *dest, int dest_stride";
-  specialize qw/aom_idct32x32_135_add sse2 ssse3 avx2/;
-  # Need to add 135 eob idct32x32 implementations.
-  $aom_idct32x32_135_add_sse2=aom_idct32x32_1024_add_sse2;
-
-  add_proto qw/void aom_idct32x32_34_add/, "const tran_low_t *input, uint8_t *dest, int dest_stride";
-  specialize qw/aom_idct32x32_34_add sse2 ssse3 avx2/;
-
-  add_proto qw/void aom_idct32x32_1_add/, "const tran_low_t *input, uint8_t *dest, int dest_stride";
-  specialize qw/aom_idct32x32_1_add sse2 avx2/;
 }  # CONFIG_AV1
 
 #
