@@ -577,9 +577,6 @@ if (aom_config("CONFIG_AV1_ENCODER") eq "yes"){
     add_proto qw/void aom_fdct8x8/, "const int16_t *input, tran_low_t *output, int stride";
     specialize qw/aom_fdct8x8 sse2/, "$ssse3_x86_64";
 
-    add_proto qw/void aom_fdct16x16/, "const int16_t *input, tran_low_t *output, int stride";
-    specialize qw/aom_fdct16x16 sse2/;
-
     add_proto qw/void aom_fdct32x32/, "const int16_t *input, tran_low_t *output, int stride";
     specialize qw/aom_fdct32x32 sse2 avx2/;
 
@@ -592,9 +589,6 @@ if (aom_config("CONFIG_AV1_ENCODER") eq "yes"){
 
     add_proto qw/void aom_highbd_fdct8x8/, "const int16_t *input, tran_low_t *output, int stride";
     specialize qw/aom_highbd_fdct8x8 sse2/;
-
-    add_proto qw/void aom_highbd_fdct16x16/, "const int16_t *input, tran_low_t *output, int stride";
-    specialize qw/aom_highbd_fdct16x16 sse2/;
 
     add_proto qw/void aom_highbd_fdct32x32/, "const int16_t *input, tran_low_t *output, int stride";
     specialize qw/aom_highbd_fdct32x32 sse2/;
@@ -630,9 +624,6 @@ if (aom_config("CONFIG_AV1") eq "yes") {
 
   add_proto qw/void aom_idct8x8_1_add/, "const tran_low_t *input, uint8_t *dest, int dest_stride";
   specialize qw/aom_idct8x8_1_add sse2/;
-
-  add_proto qw/void aom_idct16x16_256_add/, "const tran_low_t *input, uint8_t *dest, int dest_stride";
-  specialize qw/aom_idct16x16_256_add sse2 avx2/;
 
   add_proto qw/void aom_idct16x16_38_add/, "const tran_low_t *input, uint8_t *dest, int dest_stride";
   specialize qw/aom_idct16x16_38_add avx2/;

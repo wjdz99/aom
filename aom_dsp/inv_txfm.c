@@ -551,31 +551,6 @@ void aom_idct16_c(const tran_low_t *input, tran_low_t *output) {
   output[15] = WRAPLOW(step2[0] - step2[15]);
 }
 
-void aom_idct16x16_256_add_c(const tran_low_t *input, uint8_t *dest,
-                             int stride) {
-  tran_low_t out[16 * 16];
-  tran_low_t *outptr = out;
-  int i, j;
-  tran_low_t temp_in[16], temp_out[16];
-
-  // First transform rows
-  for (i = 0; i < 16; ++i) {
-    aom_idct16_c(input, outptr);
-    input += 16;
-    outptr += 16;
-  }
-
-  // Then transform columns
-  for (i = 0; i < 16; ++i) {
-    for (j = 0; j < 16; ++j) temp_in[j] = out[j * 16 + i];
-    aom_idct16_c(temp_in, temp_out);
-    for (j = 0; j < 16; ++j) {
-      dest[j * stride + i] = clip_pixel_add(dest[j * stride + i],
-                                            ROUND_POWER_OF_TWO(temp_out[j], 6));
-    }
-  }
-}
-
 void aom_iadst16_c(const tran_low_t *input, tran_low_t *output) {
   tran_high_t s0, s1, s2, s3, s4, s5, s6, s7, s8;
   tran_high_t s9, s10, s11, s12, s13, s14, s15;
