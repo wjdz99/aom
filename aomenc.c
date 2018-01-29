@@ -2211,6 +2211,7 @@ int main(int argc, const char **argv_) {
 
     frame_avail = 1;
     got_data = 0;
+    int frm_num_count = 0;
 
     while (frame_avail || got_data) {
       struct aom_usec_timer timer;
@@ -2243,6 +2244,7 @@ int main(int argc, const char **argv_) {
         frame_avail = 0;
       }
 
+      //sarahparker only matters from here on, does this for each frame
       if (frames_in > global.skip_frames) {
         aom_image_t *frame_to_encode;
         if (input_shift || (use_16bit_internal && input.bit_depth == 8)) {
@@ -2257,6 +2259,7 @@ int main(int argc, const char **argv_) {
           aom_img_upshift(&raw_shift, &raw, input_shift);
           frame_to_encode = &raw_shift;
         } else {
+          //sarahparker here
           frame_to_encode = &raw;
         }
         aom_usec_timer_start(&timer);
@@ -2270,6 +2273,7 @@ int main(int argc, const char **argv_) {
               assert(0);
           };
         } else {
+          //sarahparker here
           assert((frame_to_encode->fmt & AOM_IMG_FMT_HIGHBITDEPTH) == 0);
           FOREACH_STREAM(stream, streams) {
             encode_frame(stream, &global, frame_avail ? frame_to_encode : NULL,
@@ -2283,7 +2287,9 @@ int main(int argc, const char **argv_) {
 
         got_data = 0;
         FOREACH_STREAM(stream, streams) {
+          printf("before got data: %d\n", got_data);
           get_cx_data(stream, &global, &got_data);
+          printf("after got data: %d\n", got_data);
         }
 
         if (!got_data && input.length && streams != NULL &&
@@ -2322,29 +2328,30 @@ int main(int argc, const char **argv_) {
 
       fflush(stdout);
       if (!global.quiet) fprintf(stderr, "\033[K");
-    }
+      frm_num_count++;
+    } //sarahparker end of while
 
     if (stream_cnt > 1) fprintf(stderr, "\n");
 
     if (!global.quiet) {
-      FOREACH_STREAM(stream, streams) {
-        fprintf(stderr, "\rPass %d/%d frame %4d/%-4d %7" PRId64 "B %7" PRId64
-                        "b/f %7" PRId64
-                        "b/s"
-                        " %7" PRId64 " %s (%.2f fps)\033[K\n",
-                pass + 1, global.passes, frames_in, stream->frames_out,
-                (int64_t)stream->nbytes,
-                seen_frames ? (int64_t)(stream->nbytes * 8 / seen_frames) : 0,
-                seen_frames
-                    ? (int64_t)stream->nbytes * 8 *
-                          (int64_t)global.framerate.num / global.framerate.den /
-                          seen_frames
-                    : 0,
-                stream->cx_time > 9999999 ? stream->cx_time / 1000
-                                          : stream->cx_time,
-                stream->cx_time > 9999999 ? "ms" : "us",
-                usec_to_fps(stream->cx_time, seen_frames));
-      }
+//    FOREACH_STREAM(stream, streams) {
+//      fprintf(stderr, "\rPass %d/%d frame %4d/%-4d %7" PRId64 "B %7" PRId64
+//                      "b/f %7" PRId64
+//                      "b/s"
+//                      " %7" PRId64 " %s (%.2f fps)\033[K\n",
+//              pass + 1, global.passes, frames_in, stream->frames_out,
+//              (int64_t)stream->nbytes,
+//              seen_frames ? (int64_t)(stream->nbytes * 8 / seen_frames) : 0,
+//              seen_frames
+//                  ? (int64_t)stream->nbytes * 8 *
+//                        (int64_t)global.framerate.num / global.framerate.den /
+//                        seen_frames
+//                  : 0,
+//              stream->cx_time > 9999999 ? stream->cx_time / 1000
+//                                        : stream->cx_time,
+//              stream->cx_time > 9999999 ? "ms" : "us",
+//              usec_to_fps(stream->cx_time, seen_frames));
+//    }
     }
 
     if (global.show_psnr) {

@@ -1243,7 +1243,7 @@ static aom_codec_frame_flags_t get_frame_pkt_flags(const AV1_COMP *cpi,
 static uint32_t write_temporal_delimiter_obu() { return 0; }
 #endif
 
-static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
+static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx, //stream->encoder
                                       const aom_image_t *img,
                                       aom_codec_pts_t pts,
                                       unsigned long duration,

@@ -5304,6 +5304,31 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
   int frame_over_shoot_limit;
   int frame_under_shoot_limit;
   int q = 0, q_low = 0, q_high = 0;
+/////////
+  uint32_t in_bit_depth = 8;
+  uint32_t bit_depth = 8;
+  const YV12_BUFFER_CONFIG *orig = cpi->source;
+  if (cm->use_highbitdepth) {
+    in_bit_depth = cpi->oxcf.input_bit_depth;
+    bit_depth = cm->bit_depth;
+  }
+    MV_REFERENCE_FRAME frame_type = 0;//get_frame_type(cpi);
+  if (frame_is_intra_only(&cpi->common)) frame_type = INTRA_FRAME;
+  // We will not update the golden frame with an internal overlay frame
+  else if ((cpi->rc.is_src_frame_alt_ref && cpi->refresh_golden_frame) ||
+           cpi->rc.is_src_frame_ext_arf)
+    frame_type = ALTREF_FRAME;
+  else if (cpi->refresh_golden_frame || cpi->refresh_alt2_ref_frame ||
+           cpi->refresh_alt_ref_frame)
+    frame_type = GOLDEN_FRAME;
+  else
+    // TODO(zoeliu): To investigate whether a frame_type other than
+    // INTRA/ALTREF/GOLDEN/LAST needs to be specified seperately.
+    frame_type = LAST_FRAME;
+///////
+    const int is_alt_ref = frame_type == ALTREF_FRAME;
+  printf("recode loop, frame type: %d is altref: %d\n\n", frame_type, is_alt_ref);
+////////
 
   set_size_independent_vars(cpi);
 
@@ -5541,6 +5566,15 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
 #endif
     }
   } while (loop);
+      PSNR_STATS psnr;
+      aom_calc_highbd_psnr(orig, get_frame_new_buffer(cm), &psnr, bit_depth, in_bit_depth);
+      double dq_rd =
+          RDCOST_DBL(cpi->td.mb.rdmult,
+                     rc->projected_frame_size << (AV1_PROB_COST_SHIFT - 4),
+                     psnr.sse[0] + psnr.sse[1] + psnr.sse[2]);
+
+  //printf("rd_cost: %d, cur vid frame: %d, dist: %d\n", (int)dq_rd, cm->current_video_frame,cm->frame_offset);
+
 
   return AOM_CODEC_OK;
 }
