@@ -242,11 +242,7 @@ using std::tr1::make_tuple;
 
 INSTANTIATE_TEST_CASE_P(
     C, AV1PartialIDctTest,
-    ::testing::Values(make_tuple(&aom_fdct32x32_c, &aom_idct32x32_1024_add_c,
-                                 &aom_idct32x32_34_add_c, TX_32X32, 34),
-                      make_tuple(&aom_fdct32x32_c, &aom_idct32x32_1024_add_c,
-                                 &aom_idct32x32_1_add_c, TX_32X32, 1),
-                      make_tuple(&aom_fdct8x8_c, &aom_idct8x8_64_add_c,
+    ::testing::Values(make_tuple(&aom_fdct8x8_c, &aom_idct8x8_64_add_c,
                                  &aom_idct8x8_12_add_c, TX_8X8, 12),
                       make_tuple(&aom_fdct8x8_c, &aom_idct8x8_64_add_c,
                                  &aom_idct8x8_1_add_c, TX_8X8, 1),
