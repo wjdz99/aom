@@ -278,14 +278,6 @@ TEST_P(PartialIDctTest, DISABLED_Speed) {
 using std::tr1::make_tuple;
 
 const PartialInvTxfmParam c_partial_idct_tests[] = {
-  make_tuple(&aom_fdct32x32_c, &wrapper<aom_idct32x32_1024_add_c>,
-             &wrapper<aom_idct32x32_1024_add_c>, TX_32X32, 1024, 8, 1),
-  make_tuple(&aom_fdct32x32_c, &wrapper<aom_idct32x32_1024_add_c>,
-             &wrapper<aom_idct32x32_135_add_c>, TX_32X32, 135, 8, 1),
-  make_tuple(&aom_fdct32x32_c, &wrapper<aom_idct32x32_1024_add_c>,
-             &wrapper<aom_idct32x32_34_add_c>, TX_32X32, 34, 8, 1),
-  make_tuple(&aom_fdct32x32_c, &wrapper<aom_idct32x32_1024_add_c>,
-             &wrapper<aom_idct32x32_1_add_c>, TX_32X32, 1, 8, 1),
   make_tuple(&aom_fdct8x8_c, &wrapper<aom_idct8x8_64_add_c>,
              &wrapper<aom_idct8x8_64_add_c>, TX_8X8, 64, 8, 1),
   make_tuple(&aom_fdct8x8_c, &wrapper<aom_idct8x8_64_add_c>,
@@ -303,14 +295,6 @@ INSTANTIATE_TEST_CASE_P(C, PartialIDctTest,
 
 #if HAVE_SSE2
 const PartialInvTxfmParam sse2_partial_idct_tests[] = {
-  make_tuple(&aom_fdct32x32_c, &wrapper<aom_idct32x32_1024_add_c>,
-             &wrapper<aom_idct32x32_1024_add_sse2>, TX_32X32, 1024, 8, 1),
-  make_tuple(&aom_fdct32x32_c, &wrapper<aom_idct32x32_1024_add_c>,
-             &wrapper<aom_idct32x32_1024_add_sse2>, TX_32X32, 135, 8, 1),
-  make_tuple(&aom_fdct32x32_c, &wrapper<aom_idct32x32_1024_add_c>,
-             &wrapper<aom_idct32x32_34_add_sse2>, TX_32X32, 34, 8, 1),
-  make_tuple(&aom_fdct32x32_c, &wrapper<aom_idct32x32_1024_add_c>,
-             &wrapper<aom_idct32x32_1_add_sse2>, TX_32X32, 1, 8, 1),
   make_tuple(&aom_fdct8x8_c, &wrapper<aom_idct8x8_64_add_c>,
              &wrapper<aom_idct8x8_64_add_sse2>, TX_8X8, 64, 8, 1),
   make_tuple(&aom_fdct8x8_c, &wrapper<aom_idct8x8_64_add_c>,
@@ -330,12 +314,6 @@ INSTANTIATE_TEST_CASE_P(SSE2, PartialIDctTest,
 
 #if HAVE_SSSE3
 const PartialInvTxfmParam ssse3_partial_idct_tests[] = {
-  make_tuple(&aom_fdct32x32_c, &wrapper<aom_idct32x32_1024_add_c>,
-             &wrapper<aom_idct32x32_1024_add_ssse3>, TX_32X32, 1024, 8, 1),
-  make_tuple(&aom_fdct32x32_c, &wrapper<aom_idct32x32_1024_add_c>,
-             &wrapper<aom_idct32x32_135_add_ssse3>, TX_32X32, 135, 8, 1),
-  make_tuple(&aom_fdct32x32_c, &wrapper<aom_idct32x32_1024_add_c>,
-             &wrapper<aom_idct32x32_34_add_ssse3>, TX_32X32, 34, 8, 1),
   make_tuple(&aom_fdct8x8_c, &wrapper<aom_idct8x8_64_add_c>,
              &wrapper<aom_idct8x8_64_add_ssse3>, TX_8X8, 64, 8, 1),
   make_tuple(&aom_fdct8x8_c, &wrapper<aom_idct8x8_64_add_c>,
@@ -345,21 +323,5 @@ const PartialInvTxfmParam ssse3_partial_idct_tests[] = {
 INSTANTIATE_TEST_CASE_P(SSSE3, PartialIDctTest,
                         ::testing::ValuesIn(ssse3_partial_idct_tests));
 #endif  // HAVE_SSSE3
-
-#if HAVE_AVX2
-const PartialInvTxfmParam avx2_partial_idct_tests[] = {
-  make_tuple(&aom_fdct32x32_c, &wrapper<aom_idct32x32_1024_add_c>,
-             &wrapper<aom_idct32x32_1024_add_avx2>, TX_32X32, 1024, 8, 1),
-  make_tuple(&aom_fdct32x32_c, &wrapper<aom_idct32x32_1024_add_c>,
-             &wrapper<aom_idct32x32_135_add_avx2>, TX_32X32, 135, 8, 1),
-  make_tuple(&aom_fdct32x32_c, &wrapper<aom_idct32x32_1024_add_c>,
-             &wrapper<aom_idct32x32_34_add_avx2>, TX_32X32, 34, 8, 1),
-  make_tuple(&aom_fdct32x32_c, &wrapper<aom_idct32x32_1024_add_c>,
-             &wrapper<aom_idct32x32_1_add_avx2>, TX_32X32, 1, 8, 1),
-};
-
-INSTANTIATE_TEST_CASE_P(AVX2, PartialIDctTest,
-                        ::testing::ValuesIn(avx2_partial_idct_tests));
-#endif  // HAVE_AVX2
 
 }  // namespace
