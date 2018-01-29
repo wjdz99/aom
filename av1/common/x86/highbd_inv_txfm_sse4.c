@@ -1173,6 +1173,7 @@ static void iadst16x16_sse4_1(__m128i *in, __m128i *out, int bit) {
   const __m128i cospi16 = _mm_set1_epi32(cospi[16]);
   const __m128i cospim48 = _mm_set1_epi32(-cospi[48]);
   const __m128i cospi32 = _mm_set1_epi32(cospi[32]);
+  const __m128i cospim32 = _mm_set1_epi32(-cospi[32]);
   const __m128i rnding = _mm_set1_epi32(1 << (bit - 1));
   __m128i u[16], v[16], x, y;
   const int col_num = 4;
@@ -1454,13 +1455,13 @@ static void iadst16x16_sse4_1(__m128i *in, __m128i *out, int bit) {
     v[0] = u[0];
     v[1] = u[1];
 
-    y = _mm_mullo_epi32(u[2], cospi32);
-    x = _mm_mullo_epi32(u[3], cospi32);
+    y = _mm_mullo_epi32(u[2], cospim32);
+    x = _mm_mullo_epi32(u[3], cospim32);
     v[2] = _mm_add_epi32(y, x);
     v[2] = _mm_add_epi32(v[2], rnding);
     v[2] = _mm_srai_epi32(v[2], bit);
 
-    v[3] = _mm_sub_epi32(y, x);
+    v[3] = _mm_sub_epi32(x, y);
     v[3] = _mm_add_epi32(v[3], rnding);
     v[3] = _mm_srai_epi32(v[3], bit);
 
@@ -1473,7 +1474,7 @@ static void iadst16x16_sse4_1(__m128i *in, __m128i *out, int bit) {
     v[6] = _mm_add_epi32(v[6], rnding);
     v[6] = _mm_srai_epi32(v[6], bit);
 
-    v[7] = _mm_sub_epi32(y, x);
+    v[7] = _mm_sub_epi32(x, y);
     v[7] = _mm_add_epi32(v[7], rnding);
     v[7] = _mm_srai_epi32(v[7], bit);
 
@@ -1486,20 +1487,20 @@ static void iadst16x16_sse4_1(__m128i *in, __m128i *out, int bit) {
     v[10] = _mm_add_epi32(v[10], rnding);
     v[10] = _mm_srai_epi32(v[10], bit);
 
-    v[11] = _mm_sub_epi32(y, x);
+    v[11] = _mm_sub_epi32(x, y);
     v[11] = _mm_add_epi32(v[11], rnding);
     v[11] = _mm_srai_epi32(v[11], bit);
 
     v[12] = u[12];
     v[13] = u[13];
 
-    y = _mm_mullo_epi32(u[14], cospi32);
-    x = _mm_mullo_epi32(u[15], cospi32);
+    y = _mm_mullo_epi32(u[14], cospim32);
+    x = _mm_mullo_epi32(u[15], cospim32);
     v[14] = _mm_add_epi32(y, x);
     v[14] = _mm_add_epi32(v[14], rnding);
     v[14] = _mm_srai_epi32(v[14], bit);
 
-    v[15] = _mm_sub_epi32(y, x);
+    v[15] = _mm_sub_epi32(x, y);
     v[15] = _mm_add_epi32(v[15], rnding);
     v[15] = _mm_srai_epi32(v[15], bit);
 
@@ -1509,13 +1510,13 @@ static void iadst16x16_sse4_1(__m128i *in, __m128i *out, int bit) {
     out[2 * col_num + col] = v[12];
     out[3 * col_num + col] = _mm_sub_epi32(_mm_set1_epi32(0), v[4]);
     out[4 * col_num + col] = v[6];
-    out[5 * col_num + col] = _mm_sub_epi32(_mm_set1_epi32(0), v[14]);
+    out[5 * col_num + col] = v[14];
     out[6 * col_num + col] = v[10];
-    out[7 * col_num + col] = _mm_sub_epi32(_mm_set1_epi32(0), v[2]);
+    out[7 * col_num + col] = v[2];
     out[8 * col_num + col] = v[3];
-    out[9 * col_num + col] = _mm_sub_epi32(_mm_set1_epi32(0), v[11]);
+    out[9 * col_num + col] = v[11];
     out[10 * col_num + col] = v[15];
-    out[11 * col_num + col] = _mm_sub_epi32(_mm_set1_epi32(0), v[7]);
+    out[11 * col_num + col] = v[7];
     out[12 * col_num + col] = v[5];
     out[13 * col_num + col] = _mm_sub_epi32(_mm_set1_epi32(0), v[13]);
     out[14 * col_num + col] = v[9];
