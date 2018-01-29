@@ -88,11 +88,9 @@ void aom_fdct8x8_1_sse2(const int16_t *input, tran_low_t *output, int stride) {
 #define DCT_HIGH_BIT_DEPTH 0
 #define FDCT4x4_2D aom_fdct4x4_sse2
 #define FDCT8x8_2D aom_fdct8x8_sse2
-#define FDCT16x16_2D aom_fdct16x16_sse2
 #include "aom_dsp/x86/fwd_txfm_impl_sse2.h"
 #undef FDCT4x4_2D
 #undef FDCT8x8_2D
-#undef FDCT16x16_2D
 
 #define FDCT32x32_2D aom_fdct32x32_rd_sse2
 #define FDCT32x32_HIGH_PRECISION 0
@@ -110,11 +108,9 @@ void aom_fdct8x8_1_sse2(const int16_t *input, tran_low_t *output, int stride) {
 #define DCT_HIGH_BIT_DEPTH 1
 #define FDCT4x4_2D aom_highbd_fdct4x4_sse2
 #define FDCT8x8_2D aom_highbd_fdct8x8_sse2
-#define FDCT16x16_2D aom_highbd_fdct16x16_sse2
 #include "aom_dsp/x86/fwd_txfm_impl_sse2.h"  // NOLINT
 #undef FDCT4x4_2D
 #undef FDCT8x8_2D
-#undef FDCT16x16_2D
 
 #define FDCT32x32_2D aom_highbd_fdct32x32_rd_sse2
 #define FDCT32x32_HIGH_PRECISION 0
