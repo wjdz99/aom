@@ -242,11 +242,7 @@ using std::tr1::make_tuple;
 
 INSTANTIATE_TEST_CASE_P(
     C, AV1PartialIDctTest,
-    ::testing::Values(make_tuple(&aom_fdct8x8_c, &aom_idct8x8_64_add_c,
-                                 &aom_idct8x8_12_add_c, TX_8X8, 12),
-                      make_tuple(&aom_fdct8x8_c, &aom_idct8x8_64_add_c,
-                                 &aom_idct8x8_1_add_c, TX_8X8, 1),
-                      make_tuple(&aom_fdct4x4_c, &aom_idct4x4_16_add_c,
+    ::testing::Values(make_tuple(&aom_fdct4x4_c, &aom_idct4x4_16_add_c,
                                  &aom_idct4x4_1_add_c, TX_4X4, 1)));
 #endif  // CONFIG_AV1_ENCODER
 }  // namespace
