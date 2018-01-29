@@ -604,15 +604,6 @@ if (aom_config("CONFIG_AV1") eq "yes") {
 
   add_proto qw/void aom_idct4x4_1_add/, "const tran_low_t *input, uint8_t *dest, int dest_stride";
   specialize qw/aom_idct4x4_1_add sse2/;
-
-  add_proto qw/void aom_idct8x8_64_add/, "const tran_low_t *input, uint8_t *dest, int dest_stride";
-  specialize qw/aom_idct8x8_64_add sse2 ssse3/;
-
-  add_proto qw/void aom_idct8x8_12_add/, "const tran_low_t *input, uint8_t *dest, int dest_stride";
-  specialize qw/aom_idct8x8_12_add sse2 ssse3/;
-
-  add_proto qw/void aom_idct8x8_1_add/, "const tran_low_t *input, uint8_t *dest, int dest_stride";
-  specialize qw/aom_idct8x8_1_add sse2/;
 }  # CONFIG_AV1
 
 #

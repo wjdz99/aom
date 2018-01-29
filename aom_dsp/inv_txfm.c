@@ -210,43 +210,6 @@ void aom_idct8_c(const tran_low_t *input, tran_low_t *output) {
   output[7] = WRAPLOW(step1[0] - step1[7]);
 }
 
-void aom_idct8x8_64_add_c(const tran_low_t *input, uint8_t *dest, int stride) {
-  tran_low_t out[8 * 8];
-  tran_low_t *outptr = out;
-  int i, j;
-  tran_low_t temp_in[8], temp_out[8];
-
-  // First transform rows
-  for (i = 0; i < 8; ++i) {
-    aom_idct8_c(input, outptr);
-    input += 8;
-    outptr += 8;
-  }
-
-  // Then transform columns
-  for (i = 0; i < 8; ++i) {
-    for (j = 0; j < 8; ++j) temp_in[j] = out[j * 8 + i];
-    aom_idct8_c(temp_in, temp_out);
-    for (j = 0; j < 8; ++j) {
-      dest[j * stride + i] = clip_pixel_add(dest[j * stride + i],
-                                            ROUND_POWER_OF_TWO(temp_out[j], 5));
-    }
-  }
-}
-
-void aom_idct8x8_1_add_c(const tran_low_t *input, uint8_t *dest, int stride) {
-  int i, j;
-  tran_high_t a1;
-  tran_low_t out = WRAPLOW(dct_const_round_shift(input[0] * cospi_16_64));
-  out = WRAPLOW(dct_const_round_shift(out * cospi_16_64));
-  a1 = ROUND_POWER_OF_TWO(out, 5);
-  if (a1 == 0) return;
-  for (j = 0; j < 8; ++j) {
-    for (i = 0; i < 8; ++i) dest[i] = clip_pixel_add(dest[i], a1);
-    dest += stride;
-  }
-}
-
 void aom_iadst4_c(const tran_low_t *input, tran_low_t *output) {
   tran_high_t s0, s1, s2, s3, s4, s5, s6, s7;
 
@@ -359,31 +322,6 @@ void aom_iadst8_c(const tran_low_t *input, tran_low_t *output) {
   output[5] = WRAPLOW(-x7);
   output[6] = WRAPLOW(x5);
   output[7] = WRAPLOW(-x1);
-}
-
-void aom_idct8x8_12_add_c(const tran_low_t *input, uint8_t *dest, int stride) {
-  tran_low_t out[8 * 8] = { 0 };
-  tran_low_t *outptr = out;
-  int i, j;
-  tran_low_t temp_in[8], temp_out[8];
-
-  // First transform rows
-  // only first 4 row has non-zero coefs
-  for (i = 0; i < 4; ++i) {
-    aom_idct8_c(input, outptr);
-    input += 8;
-    outptr += 8;
-  }
-
-  // Then transform columns
-  for (i = 0; i < 8; ++i) {
-    for (j = 0; j < 8; ++j) temp_in[j] = out[j * 8 + i];
-    aom_idct8_c(temp_in, temp_out);
-    for (j = 0; j < 8; ++j) {
-      dest[j * stride + i] = clip_pixel_add(dest[j * stride + i],
-                                            ROUND_POWER_OF_TWO(temp_out[j], 5));
-    }
-  }
 }
 
 void aom_idct16_c(const tran_low_t *input, tran_low_t *output) {

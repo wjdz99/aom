@@ -278,12 +278,6 @@ TEST_P(PartialIDctTest, DISABLED_Speed) {
 using std::tr1::make_tuple;
 
 const PartialInvTxfmParam c_partial_idct_tests[] = {
-  make_tuple(&aom_fdct8x8_c, &wrapper<aom_idct8x8_64_add_c>,
-             &wrapper<aom_idct8x8_64_add_c>, TX_8X8, 64, 8, 1),
-  make_tuple(&aom_fdct8x8_c, &wrapper<aom_idct8x8_64_add_c>,
-             &wrapper<aom_idct8x8_12_add_c>, TX_8X8, 12, 8, 1),
-  make_tuple(&aom_fdct8x8_c, &wrapper<aom_idct8x8_64_add_c>,
-             &wrapper<aom_idct8x8_1_add_c>, TX_8X8, 1, 8, 1),
   make_tuple(&aom_fdct4x4_c, &wrapper<aom_idct4x4_16_add_c>,
              &wrapper<aom_idct4x4_16_add_c>, TX_4X4, 16, 8, 1),
   make_tuple(&aom_fdct4x4_c, &wrapper<aom_idct4x4_16_add_c>,
@@ -295,12 +289,6 @@ INSTANTIATE_TEST_CASE_P(C, PartialIDctTest,
 
 #if HAVE_SSE2
 const PartialInvTxfmParam sse2_partial_idct_tests[] = {
-  make_tuple(&aom_fdct8x8_c, &wrapper<aom_idct8x8_64_add_c>,
-             &wrapper<aom_idct8x8_64_add_sse2>, TX_8X8, 64, 8, 1),
-  make_tuple(&aom_fdct8x8_c, &wrapper<aom_idct8x8_64_add_c>,
-             &wrapper<aom_idct8x8_12_add_sse2>, TX_8X8, 12, 8, 1),
-  make_tuple(&aom_fdct8x8_c, &wrapper<aom_idct8x8_64_add_c>,
-             &wrapper<aom_idct8x8_1_add_sse2>, TX_8X8, 1, 8, 1),
   make_tuple(&aom_fdct4x4_c, &wrapper<aom_idct4x4_16_add_c>,
              &wrapper<aom_idct4x4_16_add_sse2>, TX_4X4, 16, 8, 1),
   make_tuple(&aom_fdct4x4_c, &wrapper<aom_idct4x4_16_add_c>,
@@ -311,17 +299,5 @@ INSTANTIATE_TEST_CASE_P(SSE2, PartialIDctTest,
                         ::testing::ValuesIn(sse2_partial_idct_tests));
 
 #endif  // HAVE_SSE2
-
-#if HAVE_SSSE3
-const PartialInvTxfmParam ssse3_partial_idct_tests[] = {
-  make_tuple(&aom_fdct8x8_c, &wrapper<aom_idct8x8_64_add_c>,
-             &wrapper<aom_idct8x8_64_add_ssse3>, TX_8X8, 64, 8, 1),
-  make_tuple(&aom_fdct8x8_c, &wrapper<aom_idct8x8_64_add_c>,
-             &wrapper<aom_idct8x8_12_add_ssse3>, TX_8X8, 12, 8, 1)
-};
-
-INSTANTIATE_TEST_CASE_P(SSSE3, PartialIDctTest,
-                        ::testing::ValuesIn(ssse3_partial_idct_tests));
-#endif  // HAVE_SSSE3
 
 }  // namespace
