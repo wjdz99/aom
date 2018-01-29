@@ -313,33 +313,4 @@ TEST_P(PartialTrans32x32Test, Random) {
   EXPECT_EQ(sum >> 3, output[0]);
 }
 
-using std::tr1::make_tuple;
-
-INSTANTIATE_TEST_CASE_P(
-    C, Trans32x32Test,
-    ::testing::Values(make_tuple(&aom_fdct32x32_c, &aom_idct32x32_1024_add_c, 0,
-                                 AOM_BITS_8),
-                      make_tuple(&aom_fdct32x32_rd_c, &aom_idct32x32_1024_add_c,
-                                 1, AOM_BITS_8)));
-
-#if HAVE_SSE2
-INSTANTIATE_TEST_CASE_P(SSE2, Trans32x32Test,
-                        ::testing::Values(make_tuple(&aom_fdct32x32_sse2,
-                                                     &aom_idct32x32_1024_add_c,
-                                                     DCT_DCT, AOM_BITS_8),
-                                          make_tuple(&aom_fdct32x32_rd_sse2,
-                                                     &aom_idct32x32_1024_add_c,
-                                                     ADST_DCT, AOM_BITS_8)));
-#endif  // HAVE_SSE2
-
-#if HAVE_AVX2
-INSTANTIATE_TEST_CASE_P(
-    AVX2, Trans32x32Test,
-    ::testing::Values(make_tuple(&aom_fdct32x32_avx2,
-                                 &aom_idct32x32_1024_add_sse2, DCT_DCT,
-                                 AOM_BITS_8),
-                      make_tuple(&aom_fdct32x32_rd_avx2,
-                                 &aom_idct32x32_1024_add_sse2, ADST_DCT,
-                                 AOM_BITS_8)));
-#endif  // HAVE_AVX2
 }  // namespace
