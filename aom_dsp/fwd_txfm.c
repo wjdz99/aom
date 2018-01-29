@@ -532,34 +532,6 @@ void aom_fdct32x32_c(const int16_t *input, tran_low_t *out, int stride) {
   }
 }
 
-// Note that although we use dct_32_round in dct32 computation flow,
-// this 2d fdct32x32 for rate-distortion optimization loop is operating
-// within 16 bits precision.
-void aom_fdct32x32_rd_c(const int16_t *input, tran_low_t *out, int stride) {
-  int i, j;
-  tran_high_t output[32 * 32];
-
-  // Columns
-  for (i = 0; i < 32; ++i) {
-    tran_high_t temp_in[32], temp_out[32];
-    for (j = 0; j < 32; ++j) temp_in[j] = input[j * stride + i] * 4;
-    aom_fdct32(temp_in, temp_out, 0);
-    for (j = 0; j < 32; ++j)
-      // TODO(cd): see quality impact of only doing
-      //           output[j * 32 + i] = (temp_out[j] + 1) >> 2;
-      //           PS: also change code in aom_dsp/x86/aom_dct_sse2.c
-      output[j * 32 + i] = (temp_out[j] + 1 + (temp_out[j] > 0)) >> 2;
-  }
-
-  // Rows
-  for (i = 0; i < 32; ++i) {
-    tran_high_t temp_in[32], temp_out[32];
-    for (j = 0; j < 32; ++j) temp_in[j] = output[j + i * 32];
-    aom_fdct32(temp_in, temp_out, 1);
-    for (j = 0; j < 32; ++j) out[j + i * 32] = (tran_low_t)temp_out[j];
-  }
-}
-
 void aom_highbd_fdct4x4_c(const int16_t *input, tran_low_t *output,
                           int stride) {
   aom_fdct4x4_c(input, output, stride);
@@ -572,8 +544,4 @@ void aom_highbd_fdct8x8_c(const int16_t *input, tran_low_t *final_output,
 
 void aom_highbd_fdct32x32_c(const int16_t *input, tran_low_t *out, int stride) {
   aom_fdct32x32_c(input, out, stride);
-}
-void aom_highbd_fdct32x32_rd_c(const int16_t *input, tran_low_t *out,
-                               int stride) {
-  aom_fdct32x32_rd_c(input, out, stride);
 }
