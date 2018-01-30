@@ -2,6 +2,190 @@
   "comments": [
     {
       "key": {
+        "uuid": "2f268797_cf802752",
+        "filename": "aom_dsp/x86/masked_variance_intrin_ssse3.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1054,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-30T18:13:39Z",
+      "side": 1,
+      "message": "Change to _mm_set1_epi8(AOM_BLEND_A64_MAX_ALPHA)",
+      "range": {
+        "startLine": 1054,
+        "startChar": 27,
+        "endLine": 1054,
+        "endChar": 41
+      },
+      "revId": "42ca16ee1f3f55d270951772ff7fc82c5a1665db",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b39c0908_0916b093",
+        "filename": "aom_dsp/x86/masked_variance_intrin_ssse3.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1055,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-30T18:13:39Z",
+      "side": 1,
+      "message": "Change to _mm_set1_epi16(1 \u003c\u003c (15 - AOM_BLEND_A64_ROUND_BITS))",
+      "range": {
+        "startLine": 1055,
+        "startChar": 30,
+        "endLine": 1055,
+        "endChar": 44
+      },
+      "revId": "42ca16ee1f3f55d270951772ff7fc82c5a1665db",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "80a63243_40b32e3a",
+        "filename": "aom_dsp/x86/masked_variance_intrin_ssse3.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1056,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-30T18:13:39Z",
+      "side": 1,
+      "message": "Please use this naming style: alpha_max, round_offset",
+      "range": {
+        "startLine": 1054,
+        "startChar": 0,
+        "endLine": 1056,
+        "endChar": 0
+      },
+      "revId": "42ca16ee1f3f55d270951772ff7fc82c5a1665db",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "be6c1c37_dd83dfbb",
+        "filename": "aom_dsp/x86/masked_variance_intrin_ssse3.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1058,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-30T18:13:39Z",
+      "side": 1,
+      "message": "Using do {} while () may save a jump if height and width are always positive.",
+      "range": {
+        "startLine": 1058,
+        "startChar": 0,
+        "endLine": 1058,
+        "endChar": 35
+      },
+      "revId": "42ca16ee1f3f55d270951772ff7fc82c5a1665db",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f80feee4_43e57fe3",
+        "filename": "aom_dsp/x86/masked_variance_intrin_ssse3.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1062,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-30T18:13:39Z",
+      "side": 1,
+      "message": "Call loadh_epi64() to load all data of 2nd rows into high 64-bit xmm, then it could save a _mm_sub_epi8().",
+      "range": {
+        "startLine": 1062,
+        "startChar": 0,
+        "endLine": 1062,
+        "endChar": 71
+      },
+      "revId": "42ca16ee1f3f55d270951772ff7fc82c5a1665db",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5f32d16f_4b5028c4",
+        "filename": "aom_dsp/x86/masked_variance_intrin_ssse3.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1086,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-30T18:13:39Z",
+      "side": 1,
+      "message": "Please add the VP9 function storeh_epi64() to aom_dsp/x86/mem_sse2.h and call it. roundA and roundB can then be packed together.\n\nstatic INLINE void storeh_epi64(__m128i *const d, const __m128i s) {\n  _mm_storeh_pi((__m64 *)d, _mm_castsi128_ps(s));\n}",
+      "range": {
+        "startLine": 1086,
+        "startChar": 0,
+        "endLine": 1086,
+        "endChar": 58
+      },
+      "revId": "42ca16ee1f3f55d270951772ff7fc82c5a1665db",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "19ab6ecb_49f9fec9",
+        "filename": "aom_dsp/x86/masked_variance_intrin_ssse3.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1096,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-30T18:13:39Z",
+      "side": 1,
+      "message": "I recommend that we don\u0027t add optimized version of aom_comp_mask_upsampled_pred_c(). Just rename it to aom_comp_mask_upsampled_pred(), remove from aom_dsp_rtcd_defs.pl, and call aom_comp_mask_pred() directly.",
+      "range": {
+        "startLine": 1096,
+        "startChar": 5,
+        "endLine": 1096,
+        "endChar": 39
+      },
+      "revId": "42ca16ee1f3f55d270951772ff7fc82c5a1665db",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1094ee30_787323b5",
+        "filename": "aom_dsp/x86/masked_variance_intrin_ssse3.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1107,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-30T18:13:39Z",
+      "side": 1,
+      "message": "aom_comp_mask_pred() can be extracted out of if... else... by passing in different arguments.",
+      "range": {
+        "startLine": 1107,
+        "startChar": 4,
+        "endLine": 1107,
+        "endChar": 28
+      },
+      "revId": "42ca16ee1f3f55d270951772ff7fc82c5a1665db",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b008c176_78b3285d",
         "filename": "test/comp_mask_variance_test.cc",
         "patchSetId": 6
