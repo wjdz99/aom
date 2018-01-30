@@ -1317,6 +1317,8 @@ void aom_lpf_horizontal_6_sse2(unsigned char *s, int p,
     } else {
       flat_p1p0 = _mm_setzero_si128();
       flat_q0q1 = _mm_setzero_si128();
+      op2 = _mm_setzero_si128();
+      oq2 = _mm_setzero_si128();
     }
     if ((flatmmask & maskmmask) != 0xffff) {
       // lp filter
