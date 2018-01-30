@@ -16,6 +16,24 @@
       "revId": "31091554854cf02410ad2d7eab78dff5ba10f0a5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "06ad84ce_05827a28",
+        "filename": "av1/common/cfl_avx2.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 257,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2018-01-30T17:58:18Z",
+      "side": 1,
+      "message": "Yeah, I also measured a slowdown doing that.\n\nI\u0027ve changed to use a union, not sure if that\u0027s any better for all targets. There\u0027s a small performance impact but smaller than the vector version",
+      "parentUuid": "ebf347e5_167c605e",
+      "revId": "31091554854cf02410ad2d7eab78dff5ba10f0a5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
