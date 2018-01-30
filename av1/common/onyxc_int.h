@@ -759,11 +759,11 @@ static INLINE int frame_is_intra_only(const AV1_COMMON *const cm) {
 }
 
 #if CONFIG_CFL
-#if CONFIG_DEBUG && !CONFIG_RECT_TX_EXT_INTRA
+#if CONFIG_DEBUG
 static INLINE void cfl_clear_sub8x8_val(CFL_CTX *cfl) {
   memset(cfl->sub8x8_val, 0, sizeof(cfl->sub8x8_val));
 }
-#endif  // CONFIG_DEBUG && !CONFIG_RECT_TX_EXT_INTRA
+#endif  // CONFIG_DEBUG
 void cfl_init(CFL_CTX *cfl, AV1_COMMON *cm);
 #endif  // CONFIG_CFL
 
