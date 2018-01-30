@@ -1,0 +1,222 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7d90e824_91591c82",
+        "filename": "av1/common/x86/convolve_2d_avx2.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 397,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-30T19:24:17Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 397,
+        "startChar": 8,
+        "endLine": 397,
+        "endChar": 25
+      },
+      "revId": "ae78b94a79f0769d0b116952ca2905e7378ab6c2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d81adbbd_3b45c8a4",
+        "filename": "av1/common/x86/convolve_2d_avx2.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 402,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-30T19:24:17Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 402,
+        "startChar": 8,
+        "endLine": 402,
+        "endChar": 19
+      },
+      "revId": "ae78b94a79f0769d0b116952ca2905e7378ab6c2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7e4c7e62_060b7328",
+        "filename": "av1/common/x86/convolve_avx2.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 402,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-30T19:24:17Z",
+      "side": 1,
+      "message": "Using do {} while () may save a jump if h and w are always positive.",
+      "range": {
+        "startLine": 402,
+        "startChar": 0,
+        "endLine": 402,
+        "endChar": 29
+      },
+      "revId": "ae78b94a79f0769d0b116952ca2905e7378ab6c2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ea6e7038_421ae855",
+        "filename": "av1/common/x86/convolve_avx2.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 442,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-30T19:24:17Z",
+      "side": 1,
+      "message": "Please extract the shared code of this function and av1_convolve_x_avx2() into an inline function.",
+      "revId": "ae78b94a79f0769d0b116952ca2905e7378ab6c2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a2d1d96e_46a83916",
+        "filename": "av1/common/x86/convolve_avx2.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 449,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-30T19:24:17Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 449,
+        "startChar": 8,
+        "endLine": 449,
+        "endChar": 19
+      },
+      "revId": "ae78b94a79f0769d0b116952ca2905e7378ab6c2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2c1a7b2f_b982b14d",
+        "filename": "av1/common/x86/convolve_avx2.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 464,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-30T19:24:17Z",
+      "side": 1,
+      "message": "Though compiler will do this, please move dst_hi and res_hi calculations into the if statement.",
+      "range": {
+        "startLine": 464,
+        "startChar": 24,
+        "endLine": 464,
+        "endChar": 30
+      },
+      "revId": "ae78b94a79f0769d0b116952ca2905e7378ab6c2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "64b360e9_a219acb9",
+        "filename": "av1/common/x86/convolve_avx2.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 575,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-30T19:24:17Z",
+      "side": 1,
+      "message": "Please extract the shared code of this function and av1_convolve_x_sr_avx2() into an inline function.",
+      "revId": "ae78b94a79f0769d0b116952ca2905e7378ab6c2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b5c2212e_c6954c11",
+        "filename": "av1/common/x86/convolve_avx2.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 582,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-30T19:24:17Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 582,
+        "startChar": 8,
+        "endLine": 582,
+        "endChar": 23
+      },
+      "revId": "ae78b94a79f0769d0b116952ca2905e7378ab6c2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8635ba73_eff94b1d",
+        "filename": "av1/common/x86/convolve_avx2.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 587,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-30T19:24:17Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 587,
+        "startChar": 8,
+        "endLine": 587,
+        "endChar": 29
+      },
+      "revId": "ae78b94a79f0769d0b116952ca2905e7378ab6c2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "53e76e99_59242df2",
+        "filename": "av1/common/x86/convolve_avx2.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 593,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-30T19:24:17Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 593,
+        "startChar": 8,
+        "endLine": 593,
+        "endChar": 19
+      },
+      "revId": "ae78b94a79f0769d0b116952ca2905e7378ab6c2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
