@@ -160,7 +160,7 @@ void TestIntraPred8(const char *block_name, AvxPredFunc const *pred_funcs) {
     "97111eb1bc26bade6272015df829f1ae", "d19a8a73cc46b807f2c5e817576cc1e1",
   };
   static const char *const kSignatures8x4[kNumAv1IntraFuncs] = {
-    "8ab62c3d363a05bb72ffdc4ccd0fe2c6", "2d71a26d1bae1fb34734de7b42fc5eb7",
+    "23f9fc11344426c9bee2e06d57dfd628", "2d71a26d1bae1fb34734de7b42fc5eb7",
     "5af9c1b2fd9d5721fad67b67b3f7c816", "00d71b17be662753813d515f197d145e",
     "bef10ec984427e28f4390f43809d10af", "77773cdfb7ed6bc882ab202a64b0a470",
     "cba356970f6b9a1b6024e1dbe4a66f9b", "c58c21efc804242848e6f29a93a7984d",
@@ -202,7 +202,7 @@ void TestIntraPred16(const char *block_name, AvxPredFunc const *pred_funcs) {
     "bb6c74c9076c9f266ab11fb57060d8e6", "0c5162bc28489756ddb847b5678e6f07",
   };
   static const char *const kSignatures16x8[kNumAv1IntraFuncs] = {
-    "cbfc8f0593f199629d2453128f4748fe", "3731e1e6202064a9d0604d7c293ecee4",
+    "b4cbdbdf10ce13300b4063a3daf99e04", "3731e1e6202064a9d0604d7c293ecee4",
     "6c856188c4256a06452f0d5d70cac436", "1f2192b4c8c497589484ea7bf9c944e8",
     "84011bd4b7f565119d06787840e333a0", "0e48949f7a6aa36f0d76b5d01f91124a",
     "58114c06f6b9d8285e5020c7afd834ab", "e37afe84a8b3c5e0f048d4652ecbe09e",
@@ -244,7 +244,7 @@ void TestIntraPred32(const char *block_name, AvxPredFunc const *pred_funcs) {
     "866c224746dc260cda861a7b1b383fb3", "cea23799fc3526e1b6a6ff02b42b82af",
   };
   static const char *const kSignatures32x16[kNumAv1IntraFuncs] = {
-    "431bafa0817b17f8aec0bef13e72bbf7", "b0bcb514ebfbee065faea9d34c12ae75",
+    "d1aeb8d5fdcfd3307922af01a798a4dc", "b0bcb514ebfbee065faea9d34c12ae75",
     "d6a18c63b4e909871c0137ca652fad23", "fd047f2fc1b8ffb95d0eeef3e8796a45",
     "645ab60779ea348fd93c81561c31bab9", "4409633c9db8dff41ade4292a3a56e7f",
     "b9b2935b2287a9a461ac5c11251ac706", "43b05f808c0ac4fe8accd84d293b0488",
@@ -687,7 +687,7 @@ void TestHighbdIntraPred4(const char *block_name,
     "55a6c37f39afcbbf5abca4a985b96459", "a623d45b37dafec1f8a75c4c5218913d",
   };
   static const char *const kSignatures4x8[kNumAv1IntraFuncs] = {
-    "22d519b796d59644043466320e4ccd14", "09513a738c49b3f9542d27f34abbe1d5",
+    "1ef26220ff76de938d7bc70db1b83d43", "09513a738c49b3f9542d27f34abbe1d5",
     "807ae5e8813443ff01e71be6efacfb69", "cbfa18d0293430b6e9708b0be1fd2394",
     "346c354c34ec7fa780b576db355dab88", "f97dae85c35359632380b09ca98d611e",
     "aed1beef71de33856c814ff7d63dd9db", "49c47c04dd3d23d6fc5cc32bf9d40ae4",
@@ -718,7 +718,7 @@ void TestHighbdIntraPred8(const char *block_name,
     "0edc415b5dd7299f7a34fb9f71d31d78", "2bc8ec19e9f4b77a64b8a0a1f6aec7e7",
   };
   static const char *const kSignatures8x4[kNumAv1IntraFuncs] = {
-    "d4fd8840e17077cfe3031e747d687699", "6e572c35aa782d00cafcb99e9ea047ea",
+    "d58cd4c4bf3b7bbaa5db5e1a5622ec78", "6e572c35aa782d00cafcb99e9ea047ea",
     "e8c22a3702b416dc9ab974505afbed09", "aaa4e4762a795aad7ad74de0c662c4e4",
     "a19f9101967383c3dcbd516dc317a291", "9ab8cb91f1a595b9ebe3fe8de58031aa",
     "c6c7d65264397d4d31e378e1f1cfd921", "5804158e463ff794b6b8a623f5d2c10d",
@@ -761,7 +761,7 @@ void TestHighbdIntraPred16(const char *block_name,
     "f277f6ef8e4d717f1f0dfe2706ac197d", "e8014d3f41256976c02e0f1e622ba2b9",
   };
   static const char *const kSignatures16x8[kNumAv1IntraFuncs] = {
-    "a57d6b5a9bfd30c29591d8717ace9c51", "f5907ba97ee6c53e339e953fc8d845ee",
+    "0c9e921ba9ae7aaef3d027ccd285a8f2", "f5907ba97ee6c53e339e953fc8d845ee",
     "ea3aa727913ce45af06f89dd1808db5f", "408af4f23e48d14b48ee35ae094fcd18",
     "85c41cbcb5d744f7961e8950026fbffe", "8a4e588a837638887ba671f8d4910485",
     "caae3cc3d419bbd28aa389dbe4febee1", "ea67fb80d71b6471467c79662af1186c",
@@ -771,7 +771,7 @@ void TestHighbdIntraPred16(const char *block_name,
     "688c6660a6dc6fa61fa1aa38e708c209", "0cdf641b4f81d69509c92ae0b93ef5ff",
   };
   static const char *const kSignatures16x32[kNumAv1IntraFuncs] = {
-    "663490212042a4e6936d780c425bf10a", "8baef2b2e789f79c8df9d90ad10f34a4",
+    "dd6d2338dc18181c0b15eb78d3d76ed8", "8baef2b2e789f79c8df9d90ad10f34a4",
     "038c38ee3c4f090bb8d736eab136aafc", "1a3de2aaeaffd68a9fd6c7f6557b83f3",
     "385c6e0ea29421dd81011a2934641e26", "6cf96c285d1a2d4787f955dad715b08c",
     "21f82421fda1c3afca8baca0dc048a52", "eac3734852c99a051f6d15a921d9e7b9",
@@ -804,7 +804,7 @@ void TestHighbdIntraPred32(const char *block_name,
     "b073a70d3672f1282236994f5d12e94b", "c51607aebad5dcb3c1e3b58ef9e5b84e",
   };
   static const char *const kSignatures32x16[kNumAv1IntraFuncs] = {
-    "0c072d478d63466c676daf207a0e4ae5", "701e7b82593c66da5052fc4b6afd79ce",
+    "bb71275d338a1c7a453eb21dd7974afe", "701e7b82593c66da5052fc4b6afd79ce",
     "4da828c5455cd246735a663fbb204989", "e3fbeaf234efece8dbd752b77226200c",
     "4d1d8c969f05155a7e7e84cf7aad021b", "c22e4877c2c946d5bdc0d542e29e70cf",
     "ffd86b234d65c2e1386a5b5b5c188a69", "50aaaa7d90e300b635ab18cdd73e189b",
