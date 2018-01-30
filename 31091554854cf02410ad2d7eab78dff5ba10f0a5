@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ebf347e5_167c605e",
+        "filename": "av1/common/cfl_avx2.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 257,
+      "author": {
+        "id": 6340
+      },
+      "writtenOn": "2018-01-30T16:25:16Z",
+      "side": 1,
+      "message": "_mm256_cvtsi256_si32 seems not to be defined in all targets.\nThe following was functionally equivalent but slower for me:\n  __m256i avg_x16 \u003d _mm256_srli_epi32(\n      _mm256_add_epi32(sum, _mm256_set1_epi32(round_offset)), num_pel_log2);\n  avg_x16 \u003d _mm256_packus_epi32(avg_x16, avg_x16);",
+      "revId": "31091554854cf02410ad2d7eab78dff5ba10f0a5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
