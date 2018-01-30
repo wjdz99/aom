@@ -1237,9 +1237,9 @@ void av1_selfguided_restoration_c(const uint8_t *dgd8, int width, int height,
   av1_selfguided_restoration_fast2_internal(dgd32, width, height, dgd32_stride,
                                             flt1, flt_stride, bit_depth,
                                             params->r1, params->e1);
-  av1_selfguided_restoration_fast2_internal(dgd32, width, height, dgd32_stride,
-                                            flt2, flt_stride, bit_depth,
-                                            params->r2, params->e2);
+  av1_selfguided_restoration_internal(dgd32, width, height, dgd32_stride,
+                                      flt2, flt_stride, bit_depth,
+                                      params->r2, params->e2);
 #elif CONFIG_FAST_SGR == 1
   av1_selfguided_restoration_fast_internal(dgd32, width, height, dgd32_stride,
                                            flt1, flt_stride, bit_depth,
