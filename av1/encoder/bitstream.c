@@ -3593,7 +3593,7 @@ static void write_uncompressed_header_frame(AV1_COMP *cpi,
     }
 #endif  // CONFIG_REFERENCE_BUFFER
 
-#if CONFIG_FILM_GRAIN
+#if CONFIG_FILM_GRAIN && !CONFIG_FILM_GRAIN_SHOWEX
     if (cm->film_grain_params_present) write_film_grain_params(cm, wb);
 #endif
 
@@ -3889,8 +3889,17 @@ static void write_uncompressed_header_frame(AV1_COMP *cpi,
   if (!frame_is_intra_only(cm)) write_global_motion(cpi, wb);
 
 #if CONFIG_FILM_GRAIN
+#if CONFIG_FILM_GRAIN_SHOWEX
+  if (!cm->show_frame) {
+    aom_wb_write_bit(wb, cm->show_in_future);
+  }
+  if (cm->film_grain_params_present && (cm->show_frame || cm->show_in_future)) {
+    write_film_grain_params(cm, wb);
+  }
+#else
   if (cm->film_grain_params_present && cm->show_frame)
     write_film_grain_params(cm, wb);
+#endif
 #endif
 
 #if !CONFIG_TILE_INFO_FIRST
@@ -3937,7 +3946,7 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
     }
 #endif  // CONFIG_REFERENCE_BUFFER
 
-#if CONFIG_FILM_GRAIN
+#if CONFIG_FILM_GRAIN && !CONFIG_FILM_GRAIN_SHOWEX
     if (cm->film_grain_params_present && cm->show_frame) {
       int flip_back_update_parameters_flag = 0;
       if (cm->frame_type == KEY_FRAME &&
@@ -4285,7 +4294,14 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
   if (!frame_is_intra_only(cm)) write_global_motion(cpi, wb);
 
 #if CONFIG_FILM_GRAIN
+#if CONFIG_FILM_GRAIN_SHOWEX
+  if (!cm->show_frame) {
+    aom_wb_write_bit(wb, cm->show_in_future);
+  }
+  if (cm->film_grain_params_present && (cm->show_frame || cm->show_in_future)) {
+#else
   if (cm->film_grain_params_present && cm->show_frame) {
+#endif
     int flip_back_update_parameters_flag = 0;
     if (cm->frame_type == KEY_FRAME &&
         cm->film_grain_params.update_parameters == 0) {
