@@ -193,8 +193,14 @@ typedef struct AV1EncoderConfig {
   int using_cdef;
 #if CONFIG_AOM_QM
   int using_qm;
+#if CONFIG_AOM_QM_EXT
+  int qm_y;
+  int qm_u;
+  int qm_v;
+#else
   int qm_minlevel;
   int qm_maxlevel;
+#endif
 #endif
 #if CONFIG_DIST_8X8
   int using_dist_8x8;

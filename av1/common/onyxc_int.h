@@ -372,8 +372,14 @@ typedef struct AV1Common {
 
   // Encoder
   int using_qmatrix;
+#if CONFIG_AOM_QM_EXT
+  int qm_y;
+  int qm_u;
+  int qm_v;
+#else
   int min_qmlevel;
   int max_qmlevel;
+#endif  // CONFIG_AOM_QM_EXT
 #endif
 #if CONFIG_NEW_QUANT
   dequant_val_type_nuq y_dequant_nuq_QTX[MAX_SEGMENTS][QUANT_PROFILES][2];

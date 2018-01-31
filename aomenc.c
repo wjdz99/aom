@@ -454,10 +454,19 @@ static const arg_def_t enable_cdef =
 static const arg_def_t enable_qm =
     ARG_DEF(NULL, "enable-qm", 1,
             "Enable quantisation matrices (0: false (default), 1: true)");
+#if CONFIG_AOM_QM_EXT
+static const arg_def_t qm_y =
+    ARG_DEF(NULL, "qm-y", 1, "Y quant matrix flatness (0..15), default is 15");
+static const arg_def_t qm_u =
+    ARG_DEF(NULL, "qm-u", 1, "U quant matrix flatness (0..15), default is 15");
+static const arg_def_t qm_v =
+    ARG_DEF(NULL, "qm-v", 1, "V quant matrix flatness (0..15), default is 15");
+#else
 static const arg_def_t qm_min = ARG_DEF(
     NULL, "qm-min", 1, "Min quant matrix flatness (0..15), default is 8");
 static const arg_def_t qm_max = ARG_DEF(
     NULL, "qm-max", 1, "Max quant matrix flatness (0..15), default is 15");
+#endif  // CONFIG_AOM_QM_EXT
 #endif
 #if CONFIG_DIST_8X8
 static const arg_def_t enable_dist_8x8 =
@@ -685,8 +694,14 @@ static const arg_def_t *av1_args[] = { &cpu_used_av1,
                                        &enable_cdef,
 #if CONFIG_AOM_QM
                                        &enable_qm,
+#if CONFIG_AOM_QM_EXT
+                                       &qm_y,
+                                       &qm_u,
+                                       &qm_v,
+#else
                                        &qm_min,
                                        &qm_max,
+#endif  // CONFIG_AOM_QM_EXT
 #endif
 #if CONFIG_DIST_8X8
                                        &enable_dist_8x8,
@@ -759,8 +774,14 @@ static const int av1_arg_ctrl_map[] = { AOME_SET_CPUUSED,
                                         AV1E_SET_ENABLE_CDEF,
 #if CONFIG_AOM_QM
                                         AV1E_SET_ENABLE_QM,
+#if CONFIG_AOM_QM_EXT
+                                        AV1E_SET_QM_Y,
+                                        AV1E_SET_QM_U,
+                                        AV1E_SET_QM_V,
+#else
                                         AV1E_SET_QM_MIN,
                                         AV1E_SET_QM_MAX,
+#endif  // CONFIG_AOM_QM_EXT
 #endif
 #if CONFIG_DIST_8X8
                                         AV1E_SET_ENABLE_DIST_8X8,

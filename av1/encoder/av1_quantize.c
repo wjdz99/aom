@@ -2065,12 +2065,18 @@ void av1_init_plane_quantizers(const AV1_COMP *cpi, MACROBLOCK *x,
   const int qindex = av1_get_qindex(&cm->seg, segment_id, current_q_index);
   const int rdmult = av1_compute_rd_mult(cpi, qindex + cm->y_dc_delta_q);
 #if CONFIG_AOM_QM
+#if CONFIG_AOM_QM_EXT
+  int qmlevel = (xd->lossless[segment_id] || cm->using_qmatrix == 0)
+                    ? NUM_QM_LEVELS - 1
+                    : cm->qm_y;
+#else
   int minqm = cm->min_qmlevel;
   int maxqm = cm->max_qmlevel;
   // Quant matrix only depends on the base QP so there is only one set per frame
   int qmlevel = (xd->lossless[segment_id] || cm->using_qmatrix == 0)
                     ? NUM_QM_LEVELS - 1
                     : aom_get_qmlevel(cm->base_qindex, minqm, maxqm);
+#endif
 #endif
 
   // Y
@@ -2101,6 +2107,13 @@ void av1_init_plane_quantizers(const AV1_COMP *cpi, MACROBLOCK *x,
 #endif  // CONFIG_NEW_QUANT
 
   // U
+#if CONFIG_AOM_QM
+#if CONFIG_AOM_QM_EXT
+  qmlevel = (xd->lossless[segment_id] || cm->using_qmatrix == 0)
+                ? NUM_QM_LEVELS - 1
+                : cm->qm_u;
+#endif
+#endif
   {
     x->plane[1].quant_QTX = quants->u_quant[qindex];
     x->plane[1].quant_fp_QTX = quants->u_quant_fp[qindex];
@@ -2130,6 +2143,13 @@ void av1_init_plane_quantizers(const AV1_COMP *cpi, MACROBLOCK *x,
 #endif  // CONFIG_NEW_QUANT
   }
   // V
+#if CONFIG_AOM_QM
+#if CONFIG_AOM_QM_EXT
+  qmlevel = (xd->lossless[segment_id] || cm->using_qmatrix == 0)
+                ? NUM_QM_LEVELS - 1
+                : cm->qm_v;
+#endif
+#endif
   {
     x->plane[2].quant_QTX = quants->v_quant[qindex];
     x->plane[2].quant_fp_QTX = quants->v_quant_fp[qindex];
