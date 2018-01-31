@@ -2252,8 +2252,13 @@ static void av1_filter_block_plane_vert(
                                        cm->bit_depth);
 #endif
           else
+#if CONFIG_DEBLOCK_13TAP
             aom_lpf_vertical_16(p, dst_stride, params.mblim, params.lim,
                                 params.hev_thr);
+#else
+            aom_lpf_vertical_16(p, dst_stride, params.mblim, params.lim,
+                                params.hev_thr);
+#endif
           break;
         // no filtering
         default: break;
@@ -2340,8 +2345,8 @@ static void av1_filter_block_plane_horz(
 #endif
           else
 #if CONFIG_DEBLOCK_13TAP
-            aom_lpf_horizontal_16_c(p, dst_stride, params.mblim, params.lim,
-                                    params.hev_thr);
+            aom_lpf_horizontal_16(p, dst_stride, params.mblim, params.lim,
+                                  params.hev_thr);
 #else
             aom_lpf_horizontal_16(p, dst_stride, params.mblim, params.lim,
                                   params.hev_thr);
