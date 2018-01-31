@@ -67,9 +67,15 @@ struct av1_extracfg {
   unsigned int enable_cdef;
 #if CONFIG_AOM_QM
   unsigned int enable_qm;
+#if CONFIG_AOM_QM_EXT
+  unsigned int qm_y;
+  unsigned int qm_u;
+  unsigned int qm_v;
+#else
   unsigned int qm_min;
   unsigned int qm_max;
-#endif
+#endif  // CONFIG_AOM_QM_EXT
+#endif  // CONFIG_AOM_QM
 #if CONFIG_DIST_8X8
   unsigned int enable_dist_8x8;
 #endif
@@ -130,7 +136,7 @@ static struct av1_extracfg default_extra_cfg = {
   1,  // loop_filter_across_tiles_v_enabled
   1,  // loop_filter_across_tiles_h_enabled
 #else
-  1,  // loop_filter_across_tiles_enabled
+  1,                 // loop_filter_across_tiles_enabled
 #endif            // CONFIG_LOOPFILTERING_ACROSS_TILES_EXT
 #endif            // CONFIG_LOOPFILTERING_ACROSS_TILES
   7,              // arnr_max_frames
@@ -145,9 +151,15 @@ static struct av1_extracfg default_extra_cfg = {
   0,              // lossless
   1,              // enable_cdef
 #if CONFIG_AOM_QM
-  0,                 // enable_qm
+  0,  // enable_qm
+#if CONFIG_AOM_QM_EXT
+  DEFAULT_QM_Y,  // qm_y
+  DEFAULT_QM_U,  // qm_u
+  DEFAULT_QM_V,  // qm_v
+#else
   DEFAULT_QM_FIRST,  // qm_min
   DEFAULT_QM_LAST,   // qm_max
+#endif  // CONFIG_AOM_QM_EXT
 #endif
 #if CONFIG_DIST_8X8
   0,
@@ -567,8 +579,14 @@ static aom_codec_err_t set_encoder_config(
   oxcf->using_cdef = extra_cfg->enable_cdef;
 #if CONFIG_AOM_QM
   oxcf->using_qm = extra_cfg->enable_qm;
+#if CONFIG_AOM_QM_EXT
+  oxcf->qm_y = extra_cfg->qm_y;
+  oxcf->qm_u = extra_cfg->qm_u;
+  oxcf->qm_v = extra_cfg->qm_v;
+#else
   oxcf->qm_minlevel = extra_cfg->qm_min;
   oxcf->qm_maxlevel = extra_cfg->qm_max;
+#endif  // CONFIG_AOM_QM_EXT
 #endif
 #if CONFIG_DIST_8X8
   oxcf->using_dist_8x8 = extra_cfg->enable_dist_8x8;
@@ -991,7 +1009,23 @@ static aom_codec_err_t ctrl_set_enable_qm(aom_codec_alg_priv_t *ctx,
   extra_cfg.enable_qm = CAST(AV1E_SET_ENABLE_QM, args);
   return update_extra_cfg(ctx, &extra_cfg);
 }
-
+#if CONFIG_AOM_QM_EXT
+static aom_codec_err_t ctrl_set_qm_y(aom_codec_alg_priv_t *ctx, va_list args) {
+  struct av1_extracfg extra_cfg = ctx->extra_cfg;
+  extra_cfg.qm_y = CAST(AV1E_SET_QM_Y, args);
+  return update_extra_cfg(ctx, &extra_cfg);
+}
+static aom_codec_err_t ctrl_set_qm_u(aom_codec_alg_priv_t *ctx, va_list args) {
+  struct av1_extracfg extra_cfg = ctx->extra_cfg;
+  extra_cfg.qm_u = CAST(AV1E_SET_QM_U, args);
+  return update_extra_cfg(ctx, &extra_cfg);
+}
+static aom_codec_err_t ctrl_set_qm_v(aom_codec_alg_priv_t *ctx, va_list args) {
+  struct av1_extracfg extra_cfg = ctx->extra_cfg;
+  extra_cfg.qm_v = CAST(AV1E_SET_QM_V, args);
+  return update_extra_cfg(ctx, &extra_cfg);
+}
+#else
 static aom_codec_err_t ctrl_set_qm_min(aom_codec_alg_priv_t *ctx,
                                        va_list args) {
   struct av1_extracfg extra_cfg = ctx->extra_cfg;
@@ -1005,6 +1039,7 @@ static aom_codec_err_t ctrl_set_qm_max(aom_codec_alg_priv_t *ctx,
   extra_cfg.qm_max = CAST(AV1E_SET_QM_MAX, args);
   return update_extra_cfg(ctx, &extra_cfg);
 }
+#endif  // CONFIG_AOM_QM_EXT
 #endif
 #if CONFIG_DIST_8X8
 static aom_codec_err_t ctrl_set_enable_dist_8x8(aom_codec_alg_priv_t *ctx,
@@ -1781,8 +1816,14 @@ static aom_codec_ctrl_fn_map_t encoder_ctrl_maps[] = {
   { AV1E_SET_ENABLE_CDEF, ctrl_set_enable_cdef },
 #if CONFIG_AOM_QM
   { AV1E_SET_ENABLE_QM, ctrl_set_enable_qm },
+#if CONFIG_AOM_QM_EXT
+  { AV1E_SET_QM_Y, ctrl_set_qm_y },
+  { AV1E_SET_QM_U, ctrl_set_qm_u },
+  { AV1E_SET_QM_V, ctrl_set_qm_v },
+#else
   { AV1E_SET_QM_MIN, ctrl_set_qm_min },
   { AV1E_SET_QM_MAX, ctrl_set_qm_max },
+#endif  // CONFIG_AOM_QM_EXT
 #endif
 #if CONFIG_DIST_8X8
   { AV1E_SET_ENABLE_DIST_8X8, ctrl_set_enable_dist_8x8 },

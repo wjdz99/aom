@@ -7035,8 +7035,14 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
 
 #if CONFIG_AOM_QM
   cm->using_qmatrix = cpi->oxcf.using_qm;
+#if CONFIG_AOM_QM_EXT
+  cm->qm_y = cpi->oxcf.qm_y;
+  cm->qm_u = cpi->oxcf.qm_u;
+  cm->qm_v = cpi->oxcf.qm_v;
+#else
   cm->min_qmlevel = cpi->oxcf.qm_minlevel;
   cm->max_qmlevel = cpi->oxcf.qm_maxlevel;
+#endif  // CONFIG_AOM_QM_EXT
 #endif
 
 #if CONFIG_REFERENCE_BUFFER
