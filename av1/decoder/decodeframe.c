@@ -2207,7 +2207,16 @@ void av1_read_film_grain_params(AV1_COMMON *cm,
   pars->random_seed = aom_rb_read_literal(rb, 16);
 
   pars->update_parameters = aom_rb_read_bit(rb);
+#if CONFIG_FILM_GRAIN_SHOWEX
+  if (!pars->update_parameters) {
+    RefCntBuffer *const frame_bufs = cm->buffer_pool->frame_bufs;
+    int existing_film_grain_idx = aom_rb_read_literal(rb, 3);
+    *pars = frame_bufs[existing_film_grain_idx].film_grain_params;
+    return;
+  }
+#else
   if (!pars->update_parameters) return;
+#endif
 
   // Scaling functions parameters
 
@@ -2706,8 +2715,18 @@ static int read_uncompressed_header(AV1Decoder *pbi,
 #endif
     cm->show_frame = 1;
 
+#if CONFIG_FILM_GRAIN_SHOWEX
+    if (!frame_bufs[frame_to_show].show_in_future) {
+      aom_merge_corrupted_flag(&xd->corrupted, 1);
+    }
+    frame_bufs[frame_to_show].show_in_future = 0;
+#endif
 #if CONFIG_FILM_GRAIN
+#if CONFIG_FILM_GRAIN_SHOWEX
+    cm->film_grain_params = frame_bufs[frame_to_show].film_grain_params;
+#else
     av1_read_film_grain(cm, rb);
+#endif
 #endif
 
 #if CONFIG_FWD_KF
@@ -3255,10 +3274,24 @@ static int read_uncompressed_header(AV1Decoder *pbi,
 
   if (!frame_is_intra_only(cm)) read_global_motion(cm, rb);
 
+#if CONFIG_FILM_GRAIN_SHOWEX
+  cm->show_in_future = 0;
+  if (!cm->show_frame) {
+    // See if this frame will be used as show_existing_frame in future
+    cm->show_in_future = aom_rb_read_bit(rb);
+  }
+  cm->cur_frame->show_in_future = cm->show_in_future;
+#endif
 #if CONFIG_FILM_GRAIN
+#if CONFIG_FILM_GRAIN_SHOWEX
+  if (cm->show_frame || cm->show_in_future) {
+    av1_read_film_grain(cm, rb);
+  }
+#else
   if (cm->show_frame) {
     av1_read_film_grain(cm, rb);
   }
+#endif
 #endif
 
 #if !CONFIG_TILE_INFO_FIRST

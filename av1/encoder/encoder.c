@@ -6704,6 +6704,9 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
   bitstream_queue_set_frame_write(cm->current_video_frame * 2 + cm->show_frame);
 #endif
 
+#if CONFIG_FILM_GRAIN_SHOWEX
+  cm->show_in_future = 0;
+#endif
   aom_usec_timer_start(&cmptimer);
 
 #if CONFIG_AMVR
@@ -6822,6 +6825,9 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
     assert(arf_src_index <= rc->frames_to_key);
 
     if ((source = av1_lookahead_peek(cpi->lookahead, arf_src_index)) != NULL) {
+#if CONFIG_FILM_GRAIN_SHOWEX
+      cm->show_in_future = 1;
+#endif
       cpi->alt_ref_source = source;
 
       if (oxcf->arnr_max_frames > 0) {
@@ -6872,6 +6878,9 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
     assert(arf_src_index <= rc->frames_to_key);
 
     if ((source = av1_lookahead_peek(cpi->lookahead, arf_src_index)) != NULL) {
+#if CONFIG_FILM_GRAIN_SHOWEX
+      cm->show_in_future = 1;
+#endif
       cpi->alt_ref_source = source;
 
       if (oxcf->arnr_max_frames > 0) {
@@ -6903,6 +6912,9 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
   if (brf_src_index) {
     assert(brf_src_index <= rc->frames_to_key);
     if ((source = av1_lookahead_peek(cpi->lookahead, brf_src_index)) != NULL) {
+#if CONFIG_FILM_GRAIN_SHOWEX
+      cm->show_in_future = 1;
+#endif
       cm->show_frame = 0;
       cm->intra_only = 0;
 
@@ -7085,6 +7097,9 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
 #endif  // EXT_TILE_DEBUG
 #undef EXT_TILE_DEBUG
 #endif  // CONFIG_EXT_TILE
+#if CONFIG_FILM_GRAIN_SHOWEX
+  cm->show_in_future = !cm->show_frame && cm->show_in_future;
+#endif
 
   // No frame encoded, or frame was dropped, release scaled references.
   if ((*size == 0) && (frame_is_intra_only(cm) == 0)) {
