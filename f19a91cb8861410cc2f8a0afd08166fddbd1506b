@@ -22,6 +22,30 @@
       "revId": "f19a91cb8861410cc2f8a0afd08166fddbd1506b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f0b75f63_2e5a5aa1",
+        "filename": "av1/common/av1_loopfilter.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2343,
+      "author": {
+        "id": 7888
+      },
+      "writtenOn": "2018-01-31T23:09:52Z",
+      "side": 0,
+      "message": "just up to your decision, see patchset 2 to address this.\nCONFIG_DEBLOCK_13TAP should be removed soon, WIP for highbd and dual changes",
+      "parentUuid": "9e94bde2_bc82ddb2",
+      "range": {
+        "startLine": 2343,
+        "startChar": 12,
+        "endLine": 2343,
+        "endChar": 35
+      },
+      "revId": "f19a91cb8861410cc2f8a0afd08166fddbd1506b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
