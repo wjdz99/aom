@@ -3598,10 +3598,6 @@ static void write_uncompressed_header_frame(AV1_COMP *cpi,
     }
 #endif  // CONFIG_REFERENCE_BUFFER
 
-#if CONFIG_FILM_GRAIN
-    if (cm->film_grain_params_present) write_film_grain_params(cm, wb);
-#endif
-
 #if CONFIG_FWD_KF
     if (cm->reset_decoder_state && !frame_bufs[frame_to_show].intra_only) {
       aom_internal_error(
@@ -3899,8 +3895,12 @@ static void write_uncompressed_header_frame(AV1_COMP *cpi,
   if (!frame_is_intra_only(cm)) write_global_motion(cpi, wb);
 
 #if CONFIG_FILM_GRAIN
-  if (cm->film_grain_params_present && cm->show_frame)
+  if (!cm->show_frame) {
+    aom_wb_write_bit(wb, cm->show_in_future);
+  }
+  if (cm->film_grain_params_present && (cm->show_frame || cm->show_in_future)) {
     write_film_grain_params(cm, wb);
+  }
 #endif
 
 #if !CONFIG_TILE_INFO_FIRST
@@ -3946,21 +3946,6 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
       aom_wb_write_literal(wb, 0, 8);
     }
 #endif  // CONFIG_REFERENCE_BUFFER
-
-#if CONFIG_FILM_GRAIN
-    if (cm->film_grain_params_present && cm->show_frame) {
-      int flip_back_update_parameters_flag = 0;
-      if (cm->frame_type == KEY_FRAME &&
-          cm->film_grain_params.update_parameters == 0) {
-        cm->film_grain_params.update_parameters = 1;
-        flip_back_update_parameters_flag = 1;
-      }
-      write_film_grain_params(cm, wb);
-
-      if (flip_back_update_parameters_flag)
-        cm->film_grain_params.update_parameters = 0;
-    }
-#endif
 
 #if CONFIG_FWD_KF
     if (cm->reset_decoder_state && !frame_bufs[frame_to_show].intra_only) {
@@ -4300,7 +4285,10 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
   if (!frame_is_intra_only(cm)) write_global_motion(cpi, wb);
 
 #if CONFIG_FILM_GRAIN
-  if (cm->film_grain_params_present && cm->show_frame) {
+  if (!cm->show_frame) {
+    aom_wb_write_bit(wb, cm->show_in_future);
+  }
+  if (cm->film_grain_params_present && (cm->show_frame || cm->show_in_future)) {
     int flip_back_update_parameters_flag = 0;
     if (cm->frame_type == KEY_FRAME &&
         cm->film_grain_params.update_parameters == 0) {

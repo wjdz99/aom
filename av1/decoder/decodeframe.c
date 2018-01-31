@@ -2675,7 +2675,11 @@ static int read_uncompressed_header(AV1Decoder *pbi,
     cm->show_frame = 1;
 
 #if CONFIG_FILM_GRAIN
-    av1_read_film_grain(cm, rb);
+    if (!frame_bufs[frame_to_show].show_in_future) {
+      aom_merge_corrupted_flag(&xd->corrupted, 1);
+    }
+    cm->film_grain_params = frame_bufs[frame_to_show].film_grain_params;
+    frame_bufs[frame_to_show].show_in_future = 0;
 #endif
 
 #if CONFIG_FWD_KF
@@ -3272,9 +3276,15 @@ static int read_uncompressed_header(AV1Decoder *pbi,
   if (!frame_is_intra_only(cm)) read_global_motion(cm, rb);
 
 #if CONFIG_FILM_GRAIN
-  if (cm->show_frame) {
+  cm->show_in_future = 0;
+  if (!cm->show_frame) {
+    // See if this frame will be used as show_existing_frame in future
+    cm->show_in_future = aom_rb_read_bit(rb);
+  }
+  if (cm->show_frame || cm->show_in_future) {
     av1_read_film_grain(cm, rb);
   }
+  cm->cur_frame->show_in_future = cm->show_in_future;
 #endif
 
 #if !CONFIG_TILE_INFO_FIRST
