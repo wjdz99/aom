@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "d247009a_c2adb2ba",
+        "filename": "aom_dsp/variance.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1051,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-01-31T20:39:05Z",
+      "side": 1,
+      "message": "using bitwise | here may help or at least not hurt; in the convolve dispatch in vp9 we got a boost in a 3 or 4 way check. that could be brought in separately if you\u0027d like.",
+      "revId": "7ff25dc81bd43765c814f353f6bf54102d7366a0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "bf003687_1a42b092",
         "filename": "test/comp_mask_variance_test.cc",
         "patchSetId": 6
