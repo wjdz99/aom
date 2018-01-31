@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "c47ff1d7_58ab51b7",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 9
+      },
+      "lineNbr": 381,
+      "author": {
+        "id": 7963
+      },
+      "writtenOn": "2018-01-31T00:20:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "48ad265b_bf66239b",
+      "range": {
+        "startLine": 380,
+        "startChar": 0,
+        "endLine": 381,
+        "endChar": 22
+      },
+      "revId": "f6c4f834228600626a72c8685515f2a2ff470a5e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8850b044_43258c12",
         "filename": "CMakeLists.txt",
         "patchSetId": 9
@@ -45,6 +69,30 @@
       "revId": "f6c4f834228600626a72c8685515f2a2ff470a5e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "66a2018f_077d5036",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 9
+      },
+      "lineNbr": 426,
+      "author": {
+        "id": 7963
+      },
+      "writtenOn": "2018-01-31T00:20:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8850b044_43258c12",
+      "range": {
+        "startLine": 416,
+        "startChar": 0,
+        "endLine": 426,
+        "endChar": 0
+      },
+      "revId": "f6c4f834228600626a72c8685515f2a2ff470a5e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "753cd40f_4bb95a60",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 1593,
+      "author": {
+        "id": 7963
+      },
+      "writtenOn": "2018-01-31T00:20:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "72933de3_9955f82a",
+      "range": {
+        "startLine": 1593,
+        "startChar": 2,
+        "endLine": 1593,
+        "endChar": 63
+      },
+      "revId": "f6c4f834228600626a72c8685515f2a2ff470a5e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a5b81195_24568cca",
         "filename": "av1/av1_cx_iface.c",
         "patchSetId": 9
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "acf0caa4_671d5712",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 1606,
+      "author": {
+        "id": 7963
+      },
+      "writtenOn": "2018-01-31T00:20:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a5b81195_24568cca",
+      "range": {
+        "startLine": 1606,
+        "startChar": 2,
+        "endLine": 1606,
+        "endChar": 70
+      },
+      "revId": "f6c4f834228600626a72c8685515f2a2ff470a5e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "dab51c4f_30092af5",
         "filename": "av1/decoder/obu.c",
         "patchSetId": 9
@@ -105,6 +201,30 @@
       "writtenOn": "2018-01-25T16:25:22Z",
       "side": 1,
       "message": "A brief comment describing what these names mean would be nice.",
+      "range": {
+        "startLine": 26,
+        "startChar": 0,
+        "endLine": 39,
+        "endChar": 21
+      },
+      "revId": "f6c4f834228600626a72c8685515f2a2ff470a5e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bf27e358_601e3541",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 7963
+      },
+      "writtenOn": "2018-01-31T00:20:32Z",
+      "side": 1,
+      "message": "Added a comment on what they are.  Details are in the spec",
+      "parentUuid": "dab51c4f_30092af5",
       "range": {
         "startLine": 26,
         "startChar": 0,
@@ -140,6 +260,30 @@
     },
     {
       "key": {
+        "uuid": "63647882_b9256637",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 7963
+      },
+      "writtenOn": "2018-01-31T00:20:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c37ad92f_ca8c4f5f",
+      "range": {
+        "startLine": 183,
+        "startChar": 36,
+        "endLine": 183,
+        "endChar": 44
+      },
+      "revId": "f6c4f834228600626a72c8685515f2a2ff470a5e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e4302291_145b8c74",
         "filename": "av1/decoder/obu.c",
         "patchSetId": 9
@@ -151,6 +295,30 @@
       "writtenOn": "2018-01-25T16:25:22Z",
       "side": 1,
       "message": "Many find it more readable to shift then mask, but that can stay since I\u0027m ambivalent on it.\n\nConstants for the mask values would be nice. There are some extremely verbose examples in ${AOM_REPO}/tools/obu_parser.cc (where constants are used for the shifts as well).",
+      "range": {
+        "startLine": 284,
+        "startChar": 0,
+        "endLine": 285,
+        "endChar": 66
+      },
+      "revId": "f6c4f834228600626a72c8685515f2a2ff470a5e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "56334b2c_858cc89e",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 285,
+      "author": {
+        "id": 7963
+      },
+      "writtenOn": "2018-01-31T00:20:32Z",
+      "side": 1,
+      "message": "Did it the way it was done in obu_parser.cc",
+      "parentUuid": "e4302291_145b8c74",
       "range": {
         "startLine": 284,
         "startChar": 0,
@@ -186,6 +354,30 @@
     },
     {
       "key": {
+        "uuid": "833a0255_953e9220",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 4714,
+      "author": {
+        "id": 7963
+      },
+      "writtenOn": "2018-01-31T00:20:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "27dfaa33_af798d2a",
+      "range": {
+        "startLine": 4710,
+        "startChar": 0,
+        "endLine": 4714,
+        "endChar": 35
+      },
+      "revId": "f6c4f834228600626a72c8685515f2a2ff470a5e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "740984b8_4cf0d8a5",
         "filename": "docs.cmake",
         "patchSetId": 9
@@ -197,6 +389,30 @@
       "writtenOn": "2018-01-25T16:25:22Z",
       "side": 1,
       "message": "tabs",
+      "range": {
+        "startLine": 93,
+        "startChar": 0,
+        "endLine": 101,
+        "endChar": 0
+      },
+      "revId": "f6c4f834228600626a72c8685515f2a2ff470a5e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8d7bd8e8_b7e5f57f",
+        "filename": "docs.cmake",
+        "patchSetId": 9
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 7963
+      },
+      "writtenOn": "2018-01-31T00:20:32Z",
+      "side": 1,
+      "message": "removed",
+      "parentUuid": "740984b8_4cf0d8a5",
       "range": {
         "startLine": 93,
         "startChar": 0,
@@ -232,6 +448,30 @@
     },
     {
       "key": {
+        "uuid": "2d3e810b_1e886cbd",
+        "filename": "examples/scalable_decoder.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 7963
+      },
+      "writtenOn": "2018-01-31T00:20:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "96d59663_4d9a5a86",
+      "range": {
+        "startLine": 2,
+        "startChar": 20,
+        "endLine": 2,
+        "endChar": 21
+      },
+      "revId": "f6c4f834228600626a72c8685515f2a2ff470a5e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7aba842d_6ecfed4c",
         "filename": "examples/scalable_decoder.c",
         "patchSetId": 9
@@ -255,6 +495,30 @@
     },
     {
       "key": {
+        "uuid": "6955eaee_6254f1a6",
+        "filename": "examples/scalable_decoder.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 7963
+      },
+      "writtenOn": "2018-01-31T00:20:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7aba842d_6ecfed4c",
+      "range": {
+        "startLine": 26,
+        "startChar": 3,
+        "endLine": 26,
+        "endChar": 6
+      },
+      "revId": "f6c4f834228600626a72c8685515f2a2ff470a5e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6fd04759_28bac40f",
         "filename": "examples/scalable_decoder.c",
         "patchSetId": 9
@@ -266,6 +530,30 @@
       "writtenOn": "2018-01-25T16:25:22Z",
       "side": 1,
       "message": "I don\u0027t think you need this now that the build is guarded properly in the cmake files.",
+      "range": {
+        "startLine": 100,
+        "startChar": 0,
+        "endLine": 104,
+        "endChar": 5
+      },
+      "revId": "f6c4f834228600626a72c8685515f2a2ff470a5e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9706a83e_388004fb",
+        "filename": "examples/scalable_decoder.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 7963
+      },
+      "writtenOn": "2018-01-31T00:20:32Z",
+      "side": 1,
+      "message": "Removed",
+      "parentUuid": "6fd04759_28bac40f",
       "range": {
         "startLine": 100,
         "startChar": 0,
@@ -301,6 +589,30 @@
     },
     {
       "key": {
+        "uuid": "549dd3d6_20deeaa4",
+        "filename": "examples/scalable_decoder.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 7963
+      },
+      "writtenOn": "2018-01-31T00:20:32Z",
+      "side": 1,
+      "message": "Point taken.  I will keep as is",
+      "parentUuid": "5c2fc546_6663974b",
+      "range": {
+        "startLine": 106,
+        "startChar": 0,
+        "endLine": 121,
+        "endChar": 17
+      },
+      "revId": "f6c4f834228600626a72c8685515f2a2ff470a5e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "274c4154_432ea152",
         "filename": "examples/scalable_encoder.c",
         "patchSetId": 9
@@ -324,6 +636,30 @@
     },
     {
       "key": {
+        "uuid": "6cf0556d_c2d7d7df",
+        "filename": "examples/scalable_encoder.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 7963
+      },
+      "writtenOn": "2018-01-31T00:20:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "274c4154_432ea152",
+      "range": {
+        "startLine": 2,
+        "startChar": 20,
+        "endLine": 2,
+        "endChar": 21
+      },
+      "revId": "f6c4f834228600626a72c8685515f2a2ff470a5e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "14e3ec0d_6fd5bfb0",
         "filename": "examples/scalable_encoder.c",
         "patchSetId": 9
@@ -335,6 +671,30 @@
       "writtenOn": "2018-01-25T16:25:22Z",
       "side": 1,
       "message": "Which code?",
+      "range": {
+        "startLine": 39,
+        "startChar": 0,
+        "endLine": 39,
+        "endChar": 52
+      },
+      "revId": "f6c4f834228600626a72c8685515f2a2ff470a5e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "72d80118_5e0f61d1",
+        "filename": "examples/scalable_encoder.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 7963
+      },
+      "writtenOn": "2018-01-31T00:20:32Z",
+      "side": 1,
+      "message": "Removed",
+      "parentUuid": "14e3ec0d_6fd5bfb0",
       "range": {
         "startLine": 39,
         "startChar": 0,
@@ -370,6 +730,30 @@
     },
     {
       "key": {
+        "uuid": "564b63c5_a7ea8222",
+        "filename": "examples/scalable_encoder.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 7963
+      },
+      "writtenOn": "2018-01-31T00:20:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f4b60e15_70b38fc1",
+      "range": {
+        "startLine": 43,
+        "startChar": 44,
+        "endLine": 43,
+        "endChar": 49
+      },
+      "revId": "f6c4f834228600626a72c8685515f2a2ff470a5e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "39627a2c_ce3ddbd0",
         "filename": "examples/scalable_encoder.c",
         "patchSetId": 9
@@ -393,6 +777,30 @@
     },
     {
       "key": {
+        "uuid": "4e450fa9_ad64343d",
+        "filename": "examples/scalable_encoder.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 7963
+      },
+      "writtenOn": "2018-01-31T00:20:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "39627a2c_ce3ddbd0",
+      "range": {
+        "startLine": 76,
+        "startChar": 0,
+        "endLine": 81,
+        "endChar": 56
+      },
+      "revId": "f6c4f834228600626a72c8685515f2a2ff470a5e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3b41939a_56cace3e",
         "filename": "examples/scalable_encoder.c",
         "patchSetId": 9
@@ -404,6 +812,30 @@
       "writtenOn": "2018-01-25T16:25:22Z",
       "side": 1,
       "message": "Can be removed now that CMake won\u0027t include this target w/o CONFIG_SCALABILITY.",
+      "range": {
+        "startLine": 155,
+        "startChar": 0,
+        "endLine": 159,
+        "endChar": 6
+      },
+      "revId": "f6c4f834228600626a72c8685515f2a2ff470a5e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4b11cd9c_a5fbc9e8",
+        "filename": "examples/scalable_encoder.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 7963
+      },
+      "writtenOn": "2018-01-31T00:20:32Z",
+      "side": 1,
+      "message": "Removed",
+      "parentUuid": "3b41939a_56cace3e",
       "range": {
         "startLine": 155,
         "startChar": 0,
@@ -436,6 +868,30 @@
       "revId": "f6c4f834228600626a72c8685515f2a2ff470a5e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9af81dd1_3cc977f8",
+        "filename": "obudec.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 7963
+      },
+      "writtenOn": "2018-01-31T00:20:32Z",
+      "side": 1,
+      "message": "Removed",
+      "parentUuid": "8843ece4_6fd13176",
+      "range": {
+        "startLine": 24,
+        "startChar": 0,
+        "endLine": 24,
+        "endChar": 36
+      },
+      "revId": "f6c4f834228600626a72c8685515f2a2ff470a5e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
