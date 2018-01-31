@@ -3197,9 +3197,12 @@ static void write_timing_info_header(AV1_COMMON *const cm,
 #endif  // CONFIG_TIMING_INFO_IN_SEQ_HEADERS
 
 #if CONFIG_FILM_GRAIN
-static void write_film_grain_params(AV1_COMMON *const cm,
+static void write_film_grain_params(AV1_COMP *cpi,
                                     struct aom_write_bit_buffer *wb) {
+  AV1_COMMON *const cm = &cpi->common;
   aom_film_grain_t *pars = &cm->film_grain_params;
+
+  cm->cur_frame->film_grain_params = *pars;
 
   aom_wb_write_bit(wb, pars->apply_grain);
   if (!pars->apply_grain) return;
@@ -3211,7 +3214,27 @@ static void write_film_grain_params(AV1_COMMON *const cm,
     pars->random_seed += 1735;
 
   aom_wb_write_bit(wb, pars->update_parameters);
+#if CONFIG_FILM_GRAIN_SHOWEX
+  if (!pars->update_parameters) {
+    RefCntBuffer *const frame_bufs = cm->buffer_pool->frame_bufs;
+    int ref_frame, ref_idx, buf_idx;
+    for (ref_frame = LAST_FRAME; ref_frame < TOTAL_REFS_PER_FRAME;
+         ref_frame++) {
+      ref_idx = get_ref_frame_map_idx(cpi, ref_frame);
+      assert(idx != INVALID_IDX);
+      buf_idx = cm->ref_frame_map[ref_idx];
+      if (frame_bufs[buf_idx].film_grain_params_present &&
+          memcmp(pars, &frame_bufs[buf_idx].film_grain_params, sizeof(*pars))) {
+        break;
+      }
+    }
+    assert(ref_frame < TOTAL_REFS_PER_FRAME);
+    aom_wb_write_literal(wb, ref_idx, 3);
+    return;
+  }
+#else
   if (!pars->update_parameters) return;
+#endif
 
   // Scaling functions parameters
 
@@ -3514,8 +3537,8 @@ static void write_uncompressed_header_frame(AV1_COMP *cpi,
     }
 #endif  // CONFIG_REFERENCE_BUFFER
 
-#if CONFIG_FILM_GRAIN
-    if (cm->film_grain_params_present) write_film_grain_params(cm, wb);
+#if CONFIG_FILM_GRAIN && !CONFIG_FILM_GRAIN_SHOWEX
+    if (cm->film_grain_params_present) write_film_grain_params(cpi, wb);
 #endif
 
 #if CONFIG_FWD_KF
@@ -3855,9 +3878,20 @@ static void write_uncompressed_header_frame(AV1_COMP *cpi,
 
   if (!frame_is_intra_only(cm)) write_global_motion(cpi, wb);
 
+#if CONFIG_FILM_GRAIN_SHOWEX
+  if (!cm->show_frame) {
+    aom_wb_write_bit(wb, cm->showable_frame);
+  }
+#endif
 #if CONFIG_FILM_GRAIN
+#if CONFIG_FILM_GRAIN_SHOWEX
+  if (cm->film_grain_params_present && (cm->show_frame || cm->showable_frame)) {
+    write_film_grain_params(cpi, wb);
+  }
+#else
   if (cm->film_grain_params_present && cm->show_frame)
-    write_film_grain_params(cm, wb);
+    write_film_grain_params(cpi, wb);
+#endif
 #endif
 
 #if !CONFIG_TILE_INFO_FIRST
@@ -3905,7 +3939,7 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
     }
 #endif  // CONFIG_REFERENCE_BUFFER
 
-#if CONFIG_FILM_GRAIN
+#if CONFIG_FILM_GRAIN && !CONFIG_FILM_GRAIN_SHOWEX
     if (cm->film_grain_params_present && cm->show_frame) {
       int flip_back_update_parameters_flag = 0;
       if (cm->frame_type == KEY_FRAME &&
@@ -3913,7 +3947,7 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
         cm->film_grain_params.update_parameters = 1;
         flip_back_update_parameters_flag = 1;
       }
-      write_film_grain_params(cm, wb);
+      write_film_grain_params(cpi, wb);
 
       if (flip_back_update_parameters_flag)
         cm->film_grain_params.update_parameters = 0;
@@ -4223,15 +4257,24 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
 
   if (!frame_is_intra_only(cm)) write_global_motion(cpi, wb);
 
+#if CONFIG_FILM_GRAIN_SHOWEX
+  if (!cm->show_frame) {
+    aom_wb_write_bit(wb, cm->showable_frame);
+  }
+#endif
 #if CONFIG_FILM_GRAIN
+#if CONFIG_FILM_GRAIN_SHOWEX
+  if (cm->film_grain_params_present && (cm->show_frame || cm->showable_frame)) {
+#else
   if (cm->film_grain_params_present && cm->show_frame) {
+#endif
     int flip_back_update_parameters_flag = 0;
     if (cm->frame_type == KEY_FRAME &&
         cm->film_grain_params.update_parameters == 0) {
       cm->film_grain_params.update_parameters = 1;
       flip_back_update_parameters_flag = 1;
     }
-    write_film_grain_params(cm, wb);
+    write_film_grain_params(cpi, wb);
 
     if (flip_back_update_parameters_flag)
       cm->film_grain_params.update_parameters = 0;
