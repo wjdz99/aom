@@ -350,8 +350,12 @@ void av1_convolve_y_avx2(const uint8_t *src, int src_stride, uint8_t *dst0,
   int i, j;
   const int fo_vert = filter_params_y->taps / 2 - 1;
   const uint8_t *const src_ptr = src - fo_vert * src_stride;
-  const int bits =
-      FILTER_BITS - conv_params->round_0 - (conv_params->round_1 - 1);
+  // +1 to compensate for dividing the filter coeffs by 2
+  const int left_shift = FILTER_BITS - conv_params->round_0 + 1;
+  const __m256i round_const =
+      _mm256_set1_epi32((1 << conv_params->round_1) >> 1);
+  const __m128i round_shift = _mm_cvtsi32_si128(conv_params->round_1);
+
   const __m256i avg_mask = _mm256_set1_epi32(conv_params->do_average ? -1 : 0);
   __m256i coeffs[4], s[8];
 
@@ -439,16 +443,22 @@ void av1_convolve_y_avx2(const uint8_t *src, int src_stride, uint8_t *dst0,
 
       const __m256i res_lo_0_32b =
           _mm256_cvtepi16_epi32(_mm256_castsi256_si128(res_lo));
-      const __m256i res_lo_0_shift = _mm256_slli_epi32(res_lo_0_32b, bits);
+      const __m256i res_lo_0_shift =
+          _mm256_slli_epi32(res_lo_0_32b, left_shift);
+      const __m256i res_lo_0_round = _mm256_sra_epi32(
+          _mm256_add_epi32(res_lo_0_shift, round_const), round_shift);
 
       // Accumulate values into the destination buffer
-      add_store_aligned(&dst[i * dst_stride + j], &res_lo_0_shift, &avg_mask);
+      add_store_aligned(&dst[i * dst_stride + j], &res_lo_0_round, &avg_mask);
 
       const __m256i res_lo_1_32b =
           _mm256_cvtepi16_epi32(_mm256_extracti128_si256(res_lo, 1));
-      const __m256i res_lo_1_shift = _mm256_slli_epi32(res_lo_1_32b, bits);
+      const __m256i res_lo_1_shift =
+          _mm256_slli_epi32(res_lo_1_32b, left_shift);
+      const __m256i res_lo_1_round = _mm256_sra_epi32(
+          _mm256_add_epi32(res_lo_1_shift, round_const), round_shift);
 
-      add_store_aligned(&dst[i * dst_stride + j + dst_stride], &res_lo_1_shift,
+      add_store_aligned(&dst[i * dst_stride + j + dst_stride], &res_lo_1_round,
                         &avg_mask);
 
       if (w - j > 8) {
@@ -456,17 +466,23 @@ void av1_convolve_y_avx2(const uint8_t *src, int src_stride, uint8_t *dst0,
 
         const __m256i res_hi_0_32b =
             _mm256_cvtepi16_epi32(_mm256_castsi256_si128(res_hi));
-        const __m256i res_hi_0_shift = _mm256_slli_epi32(res_hi_0_32b, bits);
+        const __m256i res_hi_0_shift =
+            _mm256_slli_epi32(res_hi_0_32b, left_shift);
+        const __m256i res_hi_0_round = _mm256_sra_epi32(
+            _mm256_add_epi32(res_hi_0_shift, round_const), round_shift);
 
-        add_store_aligned(&dst[i * dst_stride + j + 8], &res_hi_0_shift,
+        add_store_aligned(&dst[i * dst_stride + j + 8], &res_hi_0_round,
                           &avg_mask);
 
         const __m256i res_hi_1_32b =
             _mm256_cvtepi16_epi32(_mm256_extracti128_si256(res_hi, 1));
-        const __m256i res_hi_1_shift = _mm256_slli_epi32(res_hi_1_32b, bits);
+        const __m256i res_hi_1_shift =
+            _mm256_slli_epi32(res_hi_1_32b, left_shift);
+        const __m256i res_hi_1_round = _mm256_sra_epi32(
+            _mm256_add_epi32(res_hi_1_shift, round_const), round_shift);
 
         add_store_aligned(&dst[i * dst_stride + j + 8 + dst_stride],
-                          &res_hi_1_shift, &avg_mask);
+                          &res_hi_1_round, &avg_mask);
       }
       s[0] = s[1];
       s[1] = s[2];
@@ -491,7 +507,13 @@ void av1_convolve_y_sr_avx2(const uint8_t *src, int src_stride, uint8_t *dst,
 
   // right shift is F-1 because we are already dividing
   // filter co-efficients by 2
-  const int right_shift_bits = (FILTER_BITS - 1);
+  // Shift in two steps to make rounding correct in case round_1 != 0
+  const int right_shift_bits_1 = AOMMAX(
+      0, conv_params->round_1 - 1 - (FILTER_BITS - conv_params->round_0));
+  const __m128i right_shift_1 = _mm_cvtsi32_si128(right_shift_bits_1);
+  const __m256i right_shift_const_1 =
+      _mm256_set1_epi16((1 << right_shift_bits_1) >> 1);
+  const int right_shift_bits = (FILTER_BITS - 1) - right_shift_bits_1;
   const __m128i right_shift = _mm_cvtsi32_si128(right_shift_bits);
   const __m256i right_shift_const =
       _mm256_set1_epi16((1 << right_shift_bits) >> 1);
@@ -578,9 +600,13 @@ void av1_convolve_y_sr_avx2(const uint8_t *src, int src_stride, uint8_t *dst,
       const __m256i res_lo = convolve(s, coeffs);
 
       /* rounding code */
-      // shift by F - 1
+      // round_1 related
+      const __m256i res_16b_lo_pre = _mm256_sra_epi16(
+          _mm256_add_epi16(res_lo, right_shift_const_1), right_shift_1);
+      // remaining shift to make the total shift F - 1
       const __m256i res_16b_lo = _mm256_sra_epi16(
-          _mm256_add_epi16(res_lo, right_shift_const), right_shift);
+          _mm256_add_epi16(res_16b_lo_pre, right_shift_const), right_shift);
+
       // 8 bit conversion and saturation to uint8
       __m256i res_8b_lo = _mm256_packus_epi16(res_16b_lo, res_16b_lo);
 
@@ -589,8 +615,10 @@ void av1_convolve_y_sr_avx2(const uint8_t *src, int src_stride, uint8_t *dst,
 
         /* rounding code */
         // shift by F - 1
+        const __m256i res_16b_hi_pre = _mm256_sra_epi16(
+            _mm256_add_epi16(res_hi, right_shift_const_1), right_shift_1);
         const __m256i res_16b_hi = _mm256_sra_epi16(
-            _mm256_add_epi16(res_hi, right_shift_const), right_shift);
+            _mm256_add_epi16(res_16b_hi_pre, right_shift_const), right_shift);
         // 8 bit conversion and saturation to uint8
         __m256i res_8b_hi = _mm256_packus_epi16(res_16b_hi, res_16b_hi);
 
