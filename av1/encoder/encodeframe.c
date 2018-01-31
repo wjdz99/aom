@@ -44,7 +44,6 @@
 #include "av1/common/tile_common.h"
 
 #include "av1/encoder/aq_complexity.h"
-#include "av1/encoder/aq_cyclicrefresh.h"
 #include "av1/encoder/aq_variance.h"
 #include "av1/common/warped_motion.h"
 #include "av1/encoder/global_motion.h"
@@ -488,13 +487,6 @@ static void update_state(const AV1_COMP *const cpi, TileDataEnc *tile_data,
       mbmi->segment_id = get_segment_id(cm, map, bsize, mi_row, mi_col);
       reset_tx_size(xd, mbmi, cm->tx_mode);
     }
-    // Else for cyclic refresh mode update the segment map, set the segment id
-    // and then update the quantizer.
-    if (cpi->oxcf.aq_mode == CYCLIC_REFRESH_AQ) {
-      av1_cyclic_refresh_update_segment(cpi, mbmi, mi_row, mi_col, bsize,
-                                        ctx->rate, ctx->dist, x->skip);
-      reset_tx_size(xd, mbmi, cm->tx_mode);
-    }
   }
 
   for (i = 0; i < num_planes; ++i) {
@@ -717,10 +709,6 @@ static void rd_pick_sb_modes(const AV1_COMP *const cpi, TileDataEnc *tile_data,
     x->rdmult = set_segment_rdmult(cpi, x, mbmi->segment_id);
   } else if (aq_mode == COMPLEXITY_AQ) {
     x->rdmult = set_segment_rdmult(cpi, x, mbmi->segment_id);
-  } else if (aq_mode == CYCLIC_REFRESH_AQ) {
-    // If segment is boosted, use rdmult for that segment.
-    if (cyclic_refresh_segment_id_boosted(mbmi->segment_id))
-      x->rdmult = av1_cyclic_refresh_get_rdmult(cpi->cyclic_refresh);
   }
 
   // Find best coding mode & reconstruct the MB so it is available

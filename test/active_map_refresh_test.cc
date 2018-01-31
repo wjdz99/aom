@@ -56,7 +56,7 @@ void GenerateMap(int mb_rows, int mb_cols, const aom_image_t &current,
   }
 }
 
-const int kAqModeCyclicRefresh = 3;
+const int kAqModeComplexity= 2;
 
 class ActiveMapRefreshTest
     : public ::libaom_test::CodecTestWith2Params<libaom_test::TestMode, int>,
@@ -77,7 +77,7 @@ class ActiveMapRefreshTest
         static_cast<libaom_test::Y4mVideoSource *>(video);
     if (video->frame() == 1) {
       encoder->Control(AOME_SET_CPUUSED, cpu_used_);
-      encoder->Control(AV1E_SET_AQ_MODE, kAqModeCyclicRefresh);
+      encoder->Control(AV1E_SET_AQ_MODE, kAqModeComplexity);
     } else if (video->frame() >= 2 && video->img()) {
       aom_image_t *current = video->img();
       aom_image_t *previous = y4m_holder_->img();
