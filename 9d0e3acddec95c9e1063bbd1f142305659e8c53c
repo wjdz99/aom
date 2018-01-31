@@ -22,6 +22,30 @@
       "revId": "9d0e3acddec95c9e1063bbd1f142305659e8c53c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1a3f51c7_e010fce2",
+        "filename": "README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 277,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-01-31T19:31:51Z",
+      "side": 1,
+      "message": "not in this context: this variable contains linker flags for all executable targets created by cmake",
+      "parentUuid": "194f86e2_237e8494",
+      "range": {
+        "startLine": 277,
+        "startChar": 13,
+        "endLine": 277,
+        "endChar": 17
+      },
+      "revId": "9d0e3acddec95c9e1063bbd1f142305659e8c53c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
