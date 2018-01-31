@@ -78,24 +78,18 @@ TEST_P(AqSegmentTest, TestNoMisMatchAQ1) { DoTest(1); }
 // encodes and decodes without a mismatch.
 TEST_P(AqSegmentTest, TestNoMisMatchAQ2) { DoTest(2); }
 
-// Validate that this AQ segmentation mode (AQ=3, cyclic_refresh_aq)
-// encodes and decodes without a mismatch.
-TEST_P(AqSegmentTest, TestNoMisMatchAQ3) { DoTest(3); }
-
 class AqSegmentTestLarge : public AqSegmentTest {};
 
 TEST_P(AqSegmentTestLarge, TestNoMisMatchAQ1) { DoTest(1); }
 
 TEST_P(AqSegmentTestLarge, TestNoMisMatchAQ2) { DoTest(2); }
 
-TEST_P(AqSegmentTestLarge, TestNoMisMatchAQ3) { DoTest(3); }
-
 #if !CONFIG_EXT_DELTA_Q
 // Validate that this AQ mode (AQ=4, delta q)
 // encodes and decodes without a mismatch.
-TEST_P(AqSegmentTest, TestNoMisMatchAQ4) {
+TEST_P(AqSegmentTest, TestNoMisMatchAQ3) {
   cfg_.rc_end_usage = AOM_CQ;
-  aq_mode_ = 4;
+  aq_mode_ = 3;
 
   ::libaom_test::I420VideoSource video("hantro_collage_w352h288.yuv", 352, 288,
                                        30, 1, 0, 15);
