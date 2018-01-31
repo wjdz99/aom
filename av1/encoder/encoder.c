@@ -25,7 +25,6 @@
 #include "av1/common/tile_common.h"
 
 #include "av1/encoder/aq_complexity.h"
-#include "av1/encoder/aq_cyclicrefresh.h"
 #include "av1/encoder/aq_variance.h"
 #include "av1/encoder/bitstream.h"
 #if CONFIG_BGSPRITE
@@ -519,9 +518,6 @@ static void dealloc_compressor_data(AV1_COMP *cpi) {
   // Delete sementation map
   aom_free(cpi->segmentation_map);
   cpi->segmentation_map = NULL;
-
-  av1_cyclic_refresh_free(cpi->cyclic_refresh);
-  cpi->cyclic_refresh = NULL;
 
   aom_free(cpi->active_map.map);
   cpi->active_map.map = NULL;
@@ -3096,11 +3092,6 @@ static void realloc_segmentation_maps(AV1_COMP *cpi) {
   CHECK_MEM_ERROR(cm, cpi->segmentation_map,
                   aom_calloc(cm->mi_rows * cm->mi_cols, 1));
 
-  // Create a map used for cyclic background refresh.
-  if (cpi->cyclic_refresh) av1_cyclic_refresh_free(cpi->cyclic_refresh);
-  CHECK_MEM_ERROR(cm, cpi->cyclic_refresh,
-                  av1_cyclic_refresh_alloc(cm->mi_rows, cm->mi_cols));
-
   // Create a map used to mark inactive areas.
   aom_free(cpi->active_map.map);
   CHECK_MEM_ERROR(cm, cpi->active_map.map,
@@ -5303,19 +5294,11 @@ static void encode_without_recode_loop(AV1_COMP *cpi) {
     av1_vaq_frame_setup(cpi);
   } else if (cpi->oxcf.aq_mode == COMPLEXITY_AQ) {
     av1_setup_in_frame_q_adj(cpi);
-  } else if (cpi->oxcf.aq_mode == CYCLIC_REFRESH_AQ) {
-    av1_cyclic_refresh_setup(cpi);
   }
   apply_active_map(cpi);
 
   // transform / motion compensation build reconstruction frame
   av1_encode_frame(cpi);
-
-  // Update some stats from cyclic refresh, and check if we should not update
-  // golden reference, for 1 pass CBR.
-  if (cpi->oxcf.aq_mode == CYCLIC_REFRESH_AQ && cm->frame_type != KEY_FRAME &&
-      (cpi->oxcf.pass == 0 && cpi->oxcf.rc_mode == AOM_CBR))
-    av1_cyclic_refresh_check_golden_update(cpi);
 
   // Update the skip mb flag probabilities based on the distribution
   // seen in the last encoder iteration.
