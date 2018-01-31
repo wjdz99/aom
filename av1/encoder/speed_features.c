@@ -159,6 +159,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->use_hash_based_trellis = 1;
 #endif  // CONFIG_HASH_ME && CONFIG_LV_MAP
     sf->tx_type_search.skip_tx_search = 1;
+    sf->drop_ref = 1;
   }
 
   if (speed >= 2) {
