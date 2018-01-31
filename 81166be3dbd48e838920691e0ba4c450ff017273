@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ca61b964_5b01b2a5",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 13
+      },
+      "lineNbr": 419,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-01-31T18:56:55Z",
+      "side": 1,
+      "message": "nit: whitespace at end of line",
+      "range": {
+        "startLine": 419,
+        "startChar": 35,
+        "endLine": 419,
+        "endChar": 36
+      },
+      "revId": "81166be3dbd48e838920691e0ba4c450ff017273",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
