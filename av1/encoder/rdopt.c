@@ -1825,8 +1825,15 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
   RD_STATS best_rd_stats;
   av1_invalid_rd_stats(&best_rd_stats);
   for (TX_TYPE tx_type = txk_start; tx_type <= txk_end; ++tx_type) {
-    if (plane == 0)
+    if (plane == 0) {
       mbmi->txk_type[(blk_row << MAX_MIB_SIZE_LOG2) + blk_col] = tx_type;
+      if (!is_inter && x->use_default_intra_tx_type &&
+          tx_type != get_default_tx_type(0, xd, tx_size))
+        continue;
+      if (is_inter && x->use_default_inter_tx_type &&
+          tx_type != get_default_tx_type(0, xd, tx_size))
+        continue;
+    }
     TX_TYPE ref_tx_type =
         av1_get_tx_type(get_plane_type(plane), xd, blk_row, blk_col, tx_size,
                         cm->reduced_tx_set_used);
