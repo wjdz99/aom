@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a096bc55_c91e13ab",
+        "filename": "test/comp_mask_variance_test.cc",
+        "patchSetId": 7
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-02-01T04:25:04Z",
+      "side": 1,
+      "message": "functions in C++ are named with upper-camelcase; in C it\u0027s lower with \u0027_\u0027\n\nhttps://google.github.io/styleguide/cppguide.html#Function_Names",
+      "range": {
+        "startLine": 125,
+        "startChar": 14,
+        "endLine": 125,
+        "endChar": 25
+      },
+      "revId": "5ede122aa9922e151bb611d318d5034f1c23628c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ecd49f48_4342932a",
+        "filename": "test/comp_mask_variance_test.cc",
+        "patchSetId": 7
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-02-01T04:25:04Z",
+      "side": 1,
+      "message": "since this test is already relying on a tuple you might be able to use Combine with Values/ValuesIn:\n\nhttps://github.com/google/googletest/blob/master/googletest/docs/AdvancedGuide.md#how-to-write-value-parameterized-tests",
+      "range": {
+        "startLine": 171,
+        "startChar": 24,
+        "endLine": 171,
+        "endChar": 45
+      },
+      "revId": "5ede122aa9922e151bb611d318d5034f1c23628c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5c05922e_23885aab",
+        "filename": "test/comp_mask_variance_test.cc",
+        "patchSetId": 7
+      },
+      "lineNbr": 248,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-02-01T04:25:04Z",
+      "side": 1,
+      "message": "not sure why these casts are needed if the type of the param is the same",
+      "range": {
+        "startLine": 248,
+        "startChar": 17,
+        "endLine": 248,
+        "endChar": 38
+      },
+      "revId": "5ede122aa9922e151bb611d318d5034f1c23628c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
