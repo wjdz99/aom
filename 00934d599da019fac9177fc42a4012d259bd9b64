@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "a43d34fa_096ac1e9",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2018-02-01T00:50:01Z",
+      "side": 1,
+      "message": "Need it at encodeframe.c:2838 to control if the constrained search is activated.\n\nAdded a comment here.",
+      "parentUuid": "3d89d161_e0dcf1fd",
+      "range": {
+        "startLine": 174,
+        "startChar": 6,
+        "endLine": 174,
+        "endChar": 21
+      },
+      "revId": "00934d599da019fac9177fc42a4012d259bd9b64",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f5f48401_7dd2e1bf",
         "filename": "av1/encoder/context_tree.h",
         "patchSetId": 5
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "9d73eca5_6c3e2b87",
+        "filename": "av1/encoder/context_tree.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2018-02-01T00:50:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f5f48401_7dd2e1bf",
+      "range": {
+        "startLine": 27,
+        "startChar": 2,
+        "endLine": 30,
+        "endChar": 18
+      },
+      "revId": "00934d599da019fac9177fc42a4012d259bd9b64",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a8bbf5db_df4b5654",
         "filename": "av1/encoder/context_tree.h",
         "patchSetId": 5
@@ -68,6 +116,30 @@
       "revId": "00934d599da019fac9177fc42a4012d259bd9b64",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ebf63d67_70b2a384",
+        "filename": "av1/encoder/context_tree.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2018-02-01T00:50:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a8bbf5db_df4b5654",
+      "range": {
+        "startLine": 90,
+        "startChar": 2,
+        "endLine": 90,
+        "endChar": 5
+      },
+      "revId": "00934d599da019fac9177fc42a4012d259bd9b64",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
