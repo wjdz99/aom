@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "aae84c8d_361d2460",
+        "filename": "aom_dsp/variance.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1051,
+      "author": {
+        "id": 8900
+      },
+      "writtenOn": "2018-02-01T02:45:24Z",
+      "side": 1,
+      "message": "Using bitwise | is done.\n\nDoes \"3 or 4 way check\" means check subpel_x_q3 and subpel_y_q3 separately like the pseudocode below?\n\nif (!subpel_x_q3 \u0026\u0026 !subpel_y_q3) {\n  // memcpy\n}\nelse {\n  if (!subpel_y_q3) {\n    // only horiz\n  }\n  else if ( !subpel_x_q3 ){\n    // only vert\n  }\n  else {\n    // horiz\n    // vert\n  }\n}\n\nIf it is, then the other checks are done inside aom_upsampled_pred.\nThe check extracted here is just trying to skip the memcpy branch. \nIt seems no need to add more check here.",
+      "parentUuid": "d247009a_c2adb2ba",
+      "revId": "7ff25dc81bd43765c814f353f6bf54102d7366a0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "bf003687_1a42b092",
         "filename": "test/comp_mask_variance_test.cc",
         "patchSetId": 6
@@ -39,6 +57,30 @@
       "revId": "7ff25dc81bd43765c814f353f6bf54102d7366a0",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "187700f4_27ef8b33",
+        "filename": "test/comp_mask_variance_test.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 8900
+      },
+      "writtenOn": "2018-02-01T02:45:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bf003687_1a42b092",
+      "range": {
+        "startLine": 22,
+        "startChar": 10,
+        "endLine": 22,
+        "endChar": 28
+      },
+      "revId": "7ff25dc81bd43765c814f353f6bf54102d7366a0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
