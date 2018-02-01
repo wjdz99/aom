@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "95795677_858068e1",
+        "filename": "test/comp_mask_variance_test.cc",
+        "patchSetId": 7
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 8900
+      },
+      "writtenOn": "2018-02-01T05:54:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a096bc55_c91e13ab",
+      "range": {
+        "startLine": 125,
+        "startChar": 14,
+        "endLine": 125,
+        "endChar": 25
+      },
+      "revId": "5ede122aa9922e151bb611d318d5034f1c23628c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ecd49f48_4342932a",
         "filename": "test/comp_mask_variance_test.cc",
         "patchSetId": 7
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "ba4eeff4_31e9ef46",
+        "filename": "test/comp_mask_variance_test.cc",
+        "patchSetId": 7
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 8900
+      },
+      "writtenOn": "2018-02-01T05:54:55Z",
+      "side": 1,
+      "message": "Done.\nGetCompMaskPredParams produces the combinations manually, have been replaced by the build in Combine.",
+      "parentUuid": "ecd49f48_4342932a",
+      "range": {
+        "startLine": 171,
+        "startChar": 24,
+        "endLine": 171,
+        "endChar": 45
+      },
+      "revId": "5ede122aa9922e151bb611d318d5034f1c23628c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5c05922e_23885aab",
         "filename": "test/comp_mask_variance_test.cc",
         "patchSetId": 7
@@ -68,6 +116,30 @@
       "revId": "5ede122aa9922e151bb611d318d5034f1c23628c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8c8cb9de_5ff9f537",
+        "filename": "test/comp_mask_variance_test.cc",
+        "patchSetId": 7
+      },
+      "lineNbr": 248,
+      "author": {
+        "id": 8900
+      },
+      "writtenOn": "2018-02-01T05:54:55Z",
+      "side": 1,
+      "message": "Sorry, forget to remove these casts.\nDone.",
+      "parentUuid": "5c05922e_23885aab",
+      "range": {
+        "startLine": 248,
+        "startChar": 17,
+        "endLine": 248,
+        "endChar": 38
+      },
+      "revId": "5ede122aa9922e151bb611d318d5034f1c23628c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
