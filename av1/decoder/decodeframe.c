@@ -2981,7 +2981,6 @@ static int read_uncompressed_header(AV1Decoder *pbi,
     }
   }
 
-#if CONFIG_FRAME_MARKER
   if (cm->show_frame == 0) {
     cm->frame_offset =
         cm->current_video_frame + aom_rb_read_literal(rb, FRAME_OFFSET_BITS);
@@ -2996,7 +2995,6 @@ static int read_uncompressed_header(AV1Decoder *pbi,
 #endif  // CONFIG_OBU
     av1_setup_frame_sign_bias(cm);
 #endif  // CONFIG_FRAME_SIGN_BIAS
-#endif  // CONFIG_FRAME_MARKER
 
 #if CONFIG_TEMPMV_SIGNALING
   cm->cur_frame->intra_only = cm->frame_type == KEY_FRAME || cm->intra_only;

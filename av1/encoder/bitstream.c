@@ -3779,7 +3779,6 @@ static void write_uncompressed_header_frame(AV1_COMP *cpi,
     }
   }
 
-#if CONFIG_FRAME_MARKER
   if (cm->show_frame == 0) {
     int arf_offset = AOMMIN(
         (MAX_GF_INTERVAL - 1),
@@ -3790,7 +3789,6 @@ static void write_uncompressed_header_frame(AV1_COMP *cpi,
     arf_offset = AOMMIN((MAX_GF_INTERVAL - 1), arf_offset + brf_offset);
     aom_wb_write_literal(wb, arf_offset, FRAME_OFFSET_BITS);
   }
-#endif  // CONFIG_FRAME_MARKER
 
 #if CONFIG_REFERENCE_BUFFER
   if (cm->seq_params.frame_id_numbers_present_flag) {
@@ -4172,7 +4170,6 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
 #endif
   }
 
-#if CONFIG_FRAME_MARKER
   if (cm->show_frame == 0) {
     int arf_offset = AOMMIN(
         (MAX_GF_INTERVAL - 1),
@@ -4183,7 +4180,6 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
     arf_offset = AOMMIN((MAX_GF_INTERVAL - 1), arf_offset + brf_offset);
     aom_wb_write_literal(wb, arf_offset, FRAME_OFFSET_BITS);
   }
-#endif  // CONFIG_FRAME_MARKER
 
 #if CONFIG_REFERENCE_BUFFER
   if (cm->seq_params.frame_id_numbers_present_flag) {
