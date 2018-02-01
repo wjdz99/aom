@@ -116,7 +116,7 @@ static uint8_t add_ref_mv_candidate(
       if (candidate->ref_frame[ref] == rf[0]) {
         int_mv this_refmv;
 #if USE_CUR_GM_REFMV
-        if (is_global_mv_block(candidate_mi, gm_params[rf[0]].wmtype))
+        if (is_global_mv_block_nosize(candidate_mi, gm_params[rf[0]].wmtype))
           this_refmv = gm_mv_candidates[0];
         else
 #endif  // USE_CUR_GM_REFMV
@@ -157,7 +157,7 @@ static uint8_t add_ref_mv_candidate(
 
       for (ref = 0; ref < 2; ++ref) {
 #if USE_CUR_GM_REFMV
-        if (is_global_mv_block(candidate_mi, gm_params[rf[ref]].wmtype))
+        if (is_global_mv_block_nosize(candidate_mi, gm_params[rf[ref]].wmtype))
           this_refmv[ref] = gm_mv_candidates[ref];
         else
 #endif  // USE_CUR_GM_REFMV

@@ -407,6 +407,16 @@ PREDICTION_MODE av1_left_block_mode(const MODE_INFO *left_mi);
 
 PREDICTION_MODE av1_above_block_mode(const MODE_INFO *above_mi);
 
+static INLINE int is_global_mv_block_nosize(const MODE_INFO *mi,
+                                            TransformationType type) {
+  const MB_MODE_INFO *const mbmi = &mi->mbmi;
+  const PREDICTION_MODE mode = mbmi->mode;
+
+  const int block_size_allowed = 1;
+  return (mode == GLOBALMV || mode == GLOBAL_GLOBALMV) && type > TRANSLATION &&
+         block_size_allowed;
+}
+
 static INLINE int is_global_mv_block(const MODE_INFO *mi,
                                      TransformationType type) {
   const MB_MODE_INFO *const mbmi = &mi->mbmi;
