@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c523c2e4_ca290602",
+        "filename": "aom_dsp/x86/masked_variance_intrin_ssse3.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1043,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2018-02-02T00:21:35Z",
+      "side": 1,
+      "message": "Is there a specific reason for us to have #if CONFIG_AV1 here? If not, we can remove.",
+      "range": {
+        "startLine": 1043,
+        "startChar": 0,
+        "endLine": 1043,
+        "endChar": 14
+      },
+      "revId": "42989e13e463e177641f15dd43310c4b58c38690",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
