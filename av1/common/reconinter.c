@@ -29,14 +29,6 @@
 #include "av1/common/onyxc_int.h"
 #include "av1/common/obmc.h"
 
-#if !CONFIG_LOWPRECISION_BLEND
-static INLINE int get_compound_post_rounding_bits(
-    const ConvolveParams *conv_params) {
-  assert(conv_params->is_compound);
-  return 2 * FILTER_BITS - conv_params->round_0 - conv_params->round_1;
-}
-#endif
-
 // This function will determine whether or not to create a warped
 // prediction.
 static INLINE int allow_warp(const MODE_INFO *const mi,
@@ -68,7 +60,7 @@ static INLINE int allow_warp(const MODE_INFO *const mi,
   return 0;
 }
 
-static INLINE void av1_make_inter_predictor(
+void av1_make_inter_predictor(
     const uint8_t *src, int src_stride, uint8_t *dst, int dst_stride,
     const int subpel_x, const int subpel_y, const struct scale_factors *sf,
     int w, int h, ConvolveParams *conv_params, InterpFilters interp_filters,
