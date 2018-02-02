@@ -185,6 +185,14 @@ void build_compound_seg_mask_highbd(uint8_t *mask, SEG_MASK_TYPE mask_type,
                                     const uint8_t *src1, int src1_stride,
                                     BLOCK_SIZE sb_type, int h, int w, int bd);
 
+void av1_make_inter_predictor(
+    const uint8_t *src, int src_stride, uint8_t *dst, int dst_stride,
+    const int subpel_x, const int subpel_y, const struct scale_factors *sf,
+    int w, int h, ConvolveParams *conv_params, InterpFilters interp_filters,
+    const WarpTypesAllowed *warp_types, int p_col, int p_row, int plane,
+    int ref, const MODE_INFO *mi, int build_for_obmc, int xs, int ys,
+    const MACROBLOCKD *xd, int can_use_previous);
+
 void av1_make_masked_inter_predictor(
     const uint8_t *pre, int pre_stride, uint8_t *dst, int dst_stride,
     const int subpel_x, const int subpel_y, const struct scale_factors *sf,
@@ -424,6 +432,14 @@ void av1_build_wedge_inter_predictor_from_buf(MACROBLOCKD *xd, BLOCK_SIZE bsize,
 void av1_jnt_comp_weight_assign(const AV1_COMMON *cm, const MB_MODE_INFO *mbmi,
                                 int order_idx, int *fwd_offset, int *bck_offset,
                                 int *use_jnt_comp_avg, int is_compound);
+
+#if !CONFIG_LOWPRECISION_BLEND
+static INLINE int get_compound_post_rounding_bits(
+    const ConvolveParams *conv_params) {
+  assert(conv_params->is_compound);
+  return 2 * FILTER_BITS - conv_params->round_0 - conv_params->round_1;
+}
+#endif  // !CONFIG_LOWPRECISION_BLEND
 
 #ifdef __cplusplus
 }  // extern "C"
