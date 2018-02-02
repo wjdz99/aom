@@ -580,7 +580,8 @@ static const aom_cdf_prob
 
 static const aom_cdf_prob av1_default_coeff_base_multi_cdfs
     [TOKEN_CDF_Q_CTXS][TX_SIZES][PLANE_TYPES][SIG_COEF_CONTEXTS]
-    [CDF_SIZE(NUM_BASE_LEVELS + 2)] = {
+    [CDF_SIZE(NUM_BASE_LEVELS + 2)] =
+        {
           { { { { AOM_CDF4(7183, 17717, 24002) },
                 { AOM_CDF4(23451, 31870, 32641) },
                 { AOM_CDF4(16322, 29159, 31933) },
@@ -2454,8 +2455,8 @@ static const aom_cdf_prob
                                          };
 
 static const aom_cdf_prob av1_default_eob_extra_cdfs
-    [TOKEN_CDF_Q_CTXS][TX_SIZES][PLANE_TYPES][EOB_COEF_CONTEXTS]
-                                             [CDF_SIZE(2)] = {
+    [TOKEN_CDF_Q_CTXS][TX_SIZES][PLANE_TYPES][EOB_COEF_CONTEXTS][CDF_SIZE(2)] =
+        {
           {
               {
                   {
