@@ -6215,7 +6215,7 @@ static void setup_buffer_inter(
   av1_find_mv_refs(cm, xd, mi, ref_frame, &mbmi_ext->ref_mv_count[ref_frame],
                    mbmi_ext->ref_mv_stack[ref_frame],
                    mbmi_ext->compound_mode_context, candidates, mi_row, mi_col,
-                   NULL, NULL, mbmi_ext->mode_context);
+                   mbmi_ext->mode_context);
 
 // Candidate refinement carried out at encoder and decoder
 #if CONFIG_AMVR
@@ -8667,7 +8667,7 @@ static int64_t rd_pick_intrabc_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
   av1_find_mv_refs(cm, xd, mi, ref_frame, &mbmi_ext->ref_mv_count[ref_frame],
                    mbmi_ext->ref_mv_stack[ref_frame],
                    mbmi_ext->compound_mode_context, candidates, mi_row, mi_col,
-                   NULL, NULL, mbmi_ext->mode_context);
+                   mbmi_ext->mode_context);
 
   int_mv nearestmv, nearmv;
 #if CONFIG_AMVR
@@ -9344,7 +9344,7 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
     av1_find_mv_refs(cm, xd, mi, ref_frame, &mbmi_ext->ref_mv_count[ref_frame],
                      mbmi_ext->ref_mv_stack[ref_frame],
                      mbmi_ext->compound_mode_context, candidates, mi_row,
-                     mi_col, NULL, NULL, mbmi_ext->mode_context);
+                     mi_col, mbmi_ext->mode_context);
     if (mbmi_ext->ref_mv_count[ref_frame] < 2) {
       MV_REFERENCE_FRAME rf[2];
       av1_set_ref_frame(rf, ref_frame);

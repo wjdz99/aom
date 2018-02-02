@@ -948,7 +948,7 @@ static void read_intrabc_info(AV1_COMMON *const cm, MACROBLOCKD *const xd,
 
     av1_find_mv_refs(cm, xd, mi, INTRA_FRAME, &xd->ref_mv_count[INTRA_FRAME],
                      xd->ref_mv_stack[INTRA_FRAME], NULL, ref_mvs, mi_row,
-                     mi_col, NULL, NULL, inter_mode_ctx);
+                     mi_col, inter_mode_ctx);
 
     int_mv nearestmv, nearmv;
 
@@ -1613,12 +1613,6 @@ static int read_is_inter_block(AV1_COMMON *const cm, MACROBLOCKD *const xd,
   return is_inter;
 }
 
-static void fpm_sync(void *const data, int mi_row) {
-  AV1Decoder *const pbi = (AV1Decoder *)data;
-  av1_frameworker_wait(pbi->frame_worker_owner, pbi->common.prev_frame,
-                       mi_row << pbi->common.mib_size_log2);
-}
-
 #if DEC_MISMATCH_DEBUG
 static void dec_dump_logs(AV1_COMMON *cm, MODE_INFO *const mi, int mi_row,
                           int mi_col, int16_t mode_ctx) {
@@ -1704,16 +1698,14 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
 
     av1_find_mv_refs(cm, xd, mi, frame, &xd->ref_mv_count[frame],
                      xd->ref_mv_stack[frame], compound_inter_mode_ctx,
-                     ref_mvs[frame], mi_row, mi_col, fpm_sync, (void *)pbi,
-                     inter_mode_ctx);
+                     ref_mvs[frame], mi_row, mi_col, inter_mode_ctx);
   }
 
   if (is_compound) {
     MV_REFERENCE_FRAME ref_frame = av1_ref_frame_type(mbmi->ref_frame);
     av1_find_mv_refs(cm, xd, mi, ref_frame, &xd->ref_mv_count[ref_frame],
                      xd->ref_mv_stack[ref_frame], compound_inter_mode_ctx,
-                     ref_mvs[ref_frame], mi_row, mi_col, fpm_sync, (void *)pbi,
-                     inter_mode_ctx);
+                     ref_mvs[ref_frame], mi_row, mi_col, inter_mode_ctx);
 
     if (xd->ref_mv_count[ref_frame] < 2) {
       MV_REFERENCE_FRAME rf[2];
