@@ -46,6 +46,30 @@
       "revId": "42989e13e463e177641f15dd43310c4b58c38690",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0d7e53a9_ac66dc90",
+        "filename": "aom_dsp/x86/masked_variance_intrin_ssse3.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1043,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-02-02T03:33:49Z",
+      "side": 1,
+      "message": "\u003e I add it because c version aom_comp_mask_pred_c is wrapped in #if CONFIG_AV1.\n\u003e Not sure if this is necessary.\n\nit\u0027s not currently, this is some legacy code from the fork of vp8/9.",
+      "parentUuid": "60a5c605_c85027a9",
+      "range": {
+        "startLine": 1043,
+        "startChar": 0,
+        "endLine": 1043,
+        "endChar": 14
+      },
+      "revId": "42989e13e463e177641f15dd43310c4b58c38690",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
