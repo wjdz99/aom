@@ -450,17 +450,33 @@ void av1_convolve_y_c(const uint8_t *src, int src_stride, uint8_t *dst0,
   // vertical filter
   const int16_t *y_filter = av1_get_interp_filter_subpel_kernel(
       *filter_params_y, subpel_y_q4 & SUBPEL_MASK);
-  for (int y = 0; y < h; ++y) {
-    for (int x = 0; x < w; ++x) {
-      CONV_BUF_TYPE res = 0;
-      for (int k = 0; k < filter_params_y->taps; ++k) {
-        res += y_filter[k] * src[(y - fo_vert + k) * src_stride + x];
+  if (bits >= 0) {
+    for (int y = 0; y < h; ++y) {
+      for (int x = 0; x < w; ++x) {
+        CONV_BUF_TYPE res = 0;
+        for (int k = 0; k < filter_params_y->taps; ++k) {
+          res += y_filter[k] * src[(y - fo_vert + k) * src_stride + x];
+        }
+        res *= (1 << bits);
+        if (conv_params->do_average)
+          dst[y * dst_stride + x] += res;
+        else
+          dst[y * dst_stride + x] = res;
       }
-      res *= (1 << bits);
-      if (conv_params->do_average)
-        dst[y * dst_stride + x] += res;
-      else
-        dst[y * dst_stride + x] = res;
+    }
+  } else {
+    for (int y = 0; y < h; ++y) {
+      for (int x = 0; x < w; ++x) {
+        CONV_BUF_TYPE res = 0;
+        for (int k = 0; k < filter_params_y->taps; ++k) {
+          res += y_filter[k] * src[(y - fo_vert + k) * src_stride + x];
+        }
+        res = ROUND_POWER_OF_TWO(res, bits);
+        if (conv_params->do_average)
+          dst[y * dst_stride + x] += res;
+        else
+          dst[y * dst_stride + x] = res;
+      }
     }
   }
 }
