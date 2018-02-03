@@ -457,7 +457,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi) {
   sf->mv.fullpel_search_step_param = 6;
   sf->comp_inter_joint_search_thresh = BLOCK_4X4;
   sf->adaptive_rd_thresh = 0;
-  sf->tx_size_search_method = USE_FULL_RD;
+  sf->tx_size_search_method = USE_FAST_RD;
   sf->tx_size_search_init_depth_sqr = 0;
   sf->tx_size_search_init_depth_rect = 0;
   sf->reduce_inter_modes = 0;
