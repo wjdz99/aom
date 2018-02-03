@@ -682,8 +682,8 @@ static void build_masked_compound_no_round(
   const int subh = (2 << b_height_log2_lookup[sb_type]) == h;
   const int subw = (2 << b_width_log2_lookup[sb_type]) == w;
   const uint8_t *mask = av1_get_compound_type_mask(comp_data, sb_type);
-  aom_blend_a64_d32_mask(dst, dst_stride, src0, src0_stride, src1, src1_stride,
-                         mask, block_size_wide[sb_type], h, w, subh, subw);
+  aom_blend_a64_d32r4_mask(dst, dst_stride, src0, src0_stride, src1, src1_stride,
+                           mask, block_size_wide[sb_type], h, w, subh, subw);
 }
 
 static void build_masked_compound(
@@ -790,7 +790,7 @@ void av1_make_masked_inter_predictor(
                                    &comp_data, mi->mbmi.sb_type, h, w);
 
     const int convolve_rounding_bits =
-        FILTER_BITS * 2 - conv_params->round_0 - conv_params->round_1;
+        FILTER_BITS * 2 - conv_params->round_0 - conv_params->round_1 - 4;
     if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH)
       av1_highbd_convolve_rounding(org_dst, org_dst_stride, dst, dst_stride, w,
                                    h, convolve_rounding_bits, xd->bd);
