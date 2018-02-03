@@ -26,6 +26,10 @@
 #include "av1/common/onyxc_int.h"
 #include "av1/common/obmc.h"
 
+#if CONFIG_LOWPRECISION_BLEND
+#define LOWPRECISION_BLEND_BITS 4  // reduction in precision bits
+#endif                             // CONFIG_LOWPRECISION_BLEND
+
 // This function will determine whether or not to create a warped
 // prediction.
 static INLINE int allow_warp(const MODE_INFO *const mi,
@@ -69,6 +73,11 @@ static INLINE void av1_make_inter_predictor(
   // Make sure the selected motion mode is valid for this configuration
   assert_motion_mode_valid(mi->mbmi.motion_mode, xd->global_motion, xd, mi);
 
+#if CONFIG_LOWPRECISION_BLEND
+  const int is_conv_no_round = conv_params->round == CONVOLVE_OPT_NO_ROUND;
+  int round_1 = conv_params->round_1;
+  conv_params->round_1 = 0;
+#endif  // CONFIG_LOWPRECISION_BLEND
   WarpedMotionParams final_warp_params;
   const int do_warp =
       (w >= 8 && h >= 8 &&
@@ -86,16 +95,24 @@ static INLINE void av1_make_inter_predictor(
                    pre_buf->buf0, pre_buf->width, pre_buf->height,
                    pre_buf->stride, dst, p_col, p_row, w, h, dst_stride,
                    pd->subsampling_x, pd->subsampling_y, conv_params);
-    return;
-  }
-  if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
+  } else if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
     highbd_inter_predictor(src, src_stride, dst, dst_stride, subpel_x, subpel_y,
                            sf, w, h, conv_params, interp_filters, xs, ys,
                            xd->bd);
-    return;
+  } else {
+    inter_predictor(src, src_stride, dst, dst_stride, subpel_x, subpel_y, sf, w,
+                    h, conv_params, interp_filters, xs, ys);
   }
-  inter_predictor(src, src_stride, dst, dst_stride, subpel_x, subpel_y, sf, w,
-                  h, conv_params, interp_filters, xs, ys);
+#if CONFIG_LOWPRECISION_BLEND
+  conv_params->round_1 = round_1;
+  if (round_1 && is_conv_no_round) {
+    CONV_BUF_TYPE *dst2 = (CONV_BUF_TYPE *)conv_params->dst;
+    for (int i = 0; i < h; ++i)
+      for (int j = 0; j < w; ++j)
+        dst2[i * conv_params->dst_stride + j] =
+            ROUND_POWER_OF_TWO(dst2[i * conv_params->dst_stride + j], round_1);
+  }
+#endif  // CONFIG_LOWPRECISION_BLEND
 }
 
 #define NSMOOTHERS 1
@@ -993,6 +1010,10 @@ static INLINE void build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd,
         assert(w <= 8 && h <= 8);
         ConvolveParams conv_params = get_conv_params_no_round(
             0, 0, plane, tmp_dst, tmp_dst_stride, is_compound);
+#if CONFIG_LOWPRECISION_BLEND
+        if (is_masked_compound_type(mi->mbmi.interinter_compound_type))
+          conv_params.round_1 = LOWPRECISION_BLEND_BITS;
+#endif  // CONFIG_LOWPRECISION_BLEND
 #if CONFIG_JNT_COMP
         conv_params.use_jnt_comp_avg = 0;
 #endif  // CONFIG_JNT_COMP
@@ -1191,6 +1212,10 @@ static INLINE void build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd,
 
     ConvolveParams conv_params = get_conv_params_no_round(
         ref, ref, plane, tmp_dst, MAX_SB_SIZE, is_compound);
+#if CONFIG_LOWPRECISION_BLEND
+    if (is_masked_compound_type(mi->mbmi.interinter_compound_type))
+      conv_params.round_1 = LOWPRECISION_BLEND_BITS;
+#endif  // CONFIG_LOWPRECISION_BLEND
 #if CONFIG_JNT_COMP
     av1_jnt_comp_weight_assign(cm, &mi->mbmi, 0, &conv_params.fwd_offset,
                                &conv_params.bck_offset,
