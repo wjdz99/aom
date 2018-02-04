@@ -2860,6 +2860,8 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   const int is_key_frame = frame_is_intra_only(cm);
   const int arf_active_or_kf = is_key_frame || rc->source_alt_ref_active;
 
+  (void)mv_ratio_accumulator_thresh;
+
   cpi->extra_arf_allowed = 1;
   cpi->bwd_ref_allowed = 1;
 
@@ -3013,6 +3015,9 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
       }
     }
 
+// NOTE(zoeliu@google.com): Temporarily turn off the enforcement on the GF
+//                          group length.
+#if 0
     // Break out conditions.
     if (
         // Break at active_max_gf_interval unless almost totally static.
@@ -3031,6 +3036,7 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
       //       checked.
       if (i == (8 + 1) || i >= (12 + 1)) break;
     }
+#endif  // 0
 
     *this_frame = next_frame;
   }
@@ -3039,6 +3045,7 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
 
   const int num_mbs = (cpi->oxcf.resize_mode != RESIZE_NONE) ? cpi->initial_mbs
                                                              : cpi->common.MBs;
+  (void)num_mbs;
 
   // Should we use the alternate reference frame.
   if (allow_alt_ref && (i < cpi->oxcf.lag_in_frames) &&
@@ -3087,10 +3094,16 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   //   avg_raw_err_stdev:       average of the standard deviation of (0,0)
   //                            motion error per block of each frame.
   assert(num_mbs > 0);
+#if 1
+  // NOTE(zoeliu@google.com): Temporarily turn off the use of the hierarchical
+  //                          structure in GF groups.
+  const int disable_bwd_extarf = 1;
+#else
   const int disable_bwd_extarf =
       (zero_motion_accumulator > MIN_ZERO_MOTION &&
        avg_sr_coded_error / num_mbs < MAX_SR_CODED_ERROR &&
        avg_raw_err_stdev < MAX_RAW_ERR_VAR);
+#endif  // 0
 
   if (disable_bwd_extarf) cpi->extra_arf_allowed = cpi->bwd_ref_allowed = 0;
 
