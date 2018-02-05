@@ -5589,7 +5589,7 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
           RDCOST_DBL(cpi->td.mb.rdmult,
                      rc->projected_frame_size << (AV1_PROB_COST_SHIFT - 4),
                      psnr.sse[0] + psnr.sse[1] + psnr.sse[2]);
-  printf("rd_cost: %d\n", (int)dq_rd);
+  //printf("rd_cost: %d, cur vid frame: %d, dist: %d\n", (int)dq_rd, cm->current_video_frame,cm->frame_offset);
 
     if (dq_type < DQ_TYPES) {
       if (dq_rd < best_dq_rd) {
@@ -5597,7 +5597,7 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
         best_dq_type = dq_type;
       }
       //reset
-      printf("reset\n");
+     // printf("reset\n");
 ///   memcpy(cpi, cpi_0, sizeof(*cpi));
 ///   memcpy(dest, dest_0, 368640);
 ///   cm = &cpi->common;
@@ -5618,13 +5618,13 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
    frame_under_shoot_limit = 0;
    q = 0, q_low = 0, q_high = 0;
 
-  set_size_independent_vars(cpi);
+    set_size_independent_vars(cpi);
 
-//  cpi->source->buf_8bit_valid = 0;
+    cpi->source->buf_8bit_valid = 0;
 
-//  aom_clear_system_state();
-  setup_frame_size(cpi);
-  set_size_dependent_vars(cpi, &q, &bottom_index, &top_index);
+    aom_clear_system_state();
+    setup_frame_size(cpi);
+    set_size_dependent_vars(cpi, &q, &bottom_index, &top_index);
       *size = 0;
 
 /////////////////////

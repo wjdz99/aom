@@ -1733,6 +1733,7 @@ static void get_cx_data(struct stream_state *stream,
 
     switch (pkt->kind) {
       case AOM_CODEC_CX_FRAME_PKT:
+        printf("pkt 1\n");
         if (!(pkt->data.frame.flags & AOM_FRAME_IS_FRAGMENT)) {
           stream->frames_out++;
         }
@@ -1789,6 +1790,7 @@ static void get_cx_data(struct stream_state *stream,
 #endif
         break;
       case AOM_CODEC_STATS_PKT:
+        printf("pkt 2\n");
         stream->frames_out++;
         stats_write(&stream->stats, pkt->data.twopass_stats.buf,
                     pkt->data.twopass_stats.sz);
@@ -1796,12 +1798,14 @@ static void get_cx_data(struct stream_state *stream,
         break;
 #if CONFIG_FP_MB_STATS
       case AOM_CODEC_FPMB_STATS_PKT:
+        printf("pkt 3\n");
         stats_write(&stream->fpmb_stats, pkt->data.firstpass_mb_stats.buf,
                     pkt->data.firstpass_mb_stats.sz);
         stream->nbytes += pkt->data.raw.sz;
         break;
 #endif
       case AOM_CODEC_PSNR_PKT:
+        printf("pkt 4\n");
 
         if (global->show_psnr) {
           int i;
@@ -1817,7 +1821,9 @@ static void get_cx_data(struct stream_state *stream,
         }
 
         break;
-      default: break;
+      default:
+        printf("pkt d\n");
+        break;
     }
   }
 }
@@ -2214,7 +2220,6 @@ int main(int argc, const char **argv_) {
 
     while (frame_avail || got_data) {
       struct aom_usec_timer timer;
-
       if (!global.limit || frames_in < global.limit) {
         frame_avail = read_frame(&input, &raw);
 
@@ -2284,6 +2289,7 @@ int main(int argc, const char **argv_) {
         got_data = 0;
         FOREACH_STREAM(stream, streams) {
           get_cx_data(stream, &global, &got_data);
+          printf("\n\n\n------------------frames in: %d got data: %d\n\n\n", frames_in, got_data);
         }
 
         if (!got_data && input.length && streams != NULL &&
@@ -2323,6 +2329,7 @@ int main(int argc, const char **argv_) {
       fflush(stdout);
       if (!global.quiet) fprintf(stderr, "\033[K");
     }
+///////////////////////////
 
     if (stream_cnt > 1) fprintf(stderr, "\n");
 
