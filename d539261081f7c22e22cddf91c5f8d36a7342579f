@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6bb17141_6b5b7eef",
+        "filename": "av1/common/x86/av1_txfm_sse2.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-02-05T23:53:59Z",
+      "side": 1,
+      "message": "Remove this declaration and specialize in av1_rtcd_defs.pl",
+      "range": {
+        "startLine": 117,
+        "startChar": 5,
+        "endLine": 117,
+        "endChar": 28
+      },
+      "revId": "d539261081f7c22e22cddf91c5f8d36a7342579f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
