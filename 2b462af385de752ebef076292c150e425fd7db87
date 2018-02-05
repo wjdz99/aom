@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "3c3f5125_d02293f8",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-02-05T22:53:14Z",
+      "side": 1,
+      "message": "you could attach this one to BUG\u003daomedia:488",
+      "revId": "2b462af385de752ebef076292c150e425fd7db87",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "56c8e5ba_9fa2bda8",
         "filename": "av1/common/x86/transpose_sse2.h",
         "patchSetId": 3
