@@ -8144,6 +8144,7 @@ static int64_t handle_inter_mode(
 
   int comp_idx;
   for (comp_idx = 0; comp_idx < 1 + is_comp_pred; ++comp_idx) {
+    compmode_interinter_cost = 0;
     early_terminate = 0;
     *rd_stats = backup_rd_stats;
     *rd_stats_y = backup_rd_stats_y;
