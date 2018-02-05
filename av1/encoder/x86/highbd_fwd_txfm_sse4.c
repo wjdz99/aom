@@ -780,7 +780,7 @@ void av1_fwd_txfm2d_8x8_sse4_1(const int16_t *input, int32_t *coeff, int stride,
     case DCT_DCT:
       load_buffer_8x8(input, in, stride, 0, 0, shift[0]);
       fdct8x8_sse4_1(in, out, fwd_cos_bit_col[txw_idx][txh_idx]);
-      col_txfm_8x8_rounding(out, -shift[1]);
+      // col_txfm_8x8_rounding(out, -shift[1]);
       transpose_8x8(out, in);
       fdct8x8_sse4_1(in, out, fwd_cos_bit_row[txw_idx][txh_idx]);
       transpose_8x8(out, in);
