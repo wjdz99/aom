@@ -207,4 +207,31 @@ TEST(AV1FwdTxfm2d, CfgTest) {
   }
 }
 
+#include "av1/common/x86/av1_txfm_sse2.h"
+TEST(av1_fwd_txfm2d_8x8_sse2, test) {
+  int16_t input[8 * 8] = { 0 };
+  int32_t output[8 * 8] = { 0 };
+  int rows = 8;
+  int cols = 8;
+  for (int i = 0; i < rows * cols; ++i) {
+    input[i] = i;
+  }
+  for (int j = 0; j < 1000000; ++j)
+    av1_fwd_txfm2d_8x8_sse2(input, output, 8, ADST_DCT, 8);
+  for (int r = 0; r < rows; ++r) {
+    for (int c = 0; c < cols; ++c) {
+      printf("%d ", output[r * cols + c]);
+    }
+    printf("\n");
+  }
+
+  av1_fwd_txfm2d_8x8_c(input, output, 8, ADST_DCT, 8);
+  for (int r = 0; r < rows; ++r) {
+    for (int c = 0; c < cols; ++c) {
+      printf("%d ", output[r * cols + c]);
+    }
+    printf("\n");
+  }
+}
+
 }  // namespace
