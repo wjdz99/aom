@@ -655,10 +655,10 @@ static INLINE void update_cdf(aom_cdf_prob *cdf, int val, int nsymbs) {
   int i, tmp;
 
   static const int nsymbs2speed[17] = { 0, 0, 1, 1, 2, 2, 2, 2, 2,
-                                        2, 2, 2, 2, 2, 2, 2, 2 };
+      2, 2, 2, 2, 2, 2, 2, 2 };
   assert(nsymbs < 17);
   rate = 3 + (cdf[nsymbs] > 15) + (cdf[nsymbs] > 31) +
-         nsymbs2speed[nsymbs];  // + get_msb(nsymbs);
+      nsymbs2speed[nsymbs];  // + get_msb(nsymbs);
   tmp = AOM_ICDF(0);
 
   // Single loop (faster)
