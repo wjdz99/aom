@@ -2223,8 +2223,7 @@ static void av1_filter_block_plane_vert(
         case 16:
           if (cm->use_highbitdepth)
 #if CONFIG_DEBLOCK_13TAP
-            // TODO(olah): Remove _c once SIMD for 13-tap is available
-            aom_highbd_lpf_vertical_16_c(CONVERT_TO_SHORTPTR(p), dst_stride,
+            aom_highbd_lpf_vertical_16(CONVERT_TO_SHORTPTR(p), dst_stride,
                                          params.mblim, params.lim,
                                          params.hev_thr, cm->bit_depth);
 #else
@@ -2315,8 +2314,7 @@ static void av1_filter_block_plane_horz(
         case 16:
           if (cm->use_highbitdepth)
 #if CONFIG_DEBLOCK_13TAP
-            // TODO(olah): Remove _c once SIMD for 13-tap is available
-            aom_highbd_lpf_horizontal_16_c(CONVERT_TO_SHORTPTR(p), dst_stride,
+            aom_highbd_lpf_horizontal_16(CONVERT_TO_SHORTPTR(p), dst_stride,
                                            params.mblim, params.lim,
                                            params.hev_thr, cm->bit_depth);
 #else
