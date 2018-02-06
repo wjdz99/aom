@@ -276,8 +276,8 @@ void av1_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
 #if CONFIG_OBU_SIZING
     // OBUs are preceded by an unsigned leb128 coded unsigned integer padded to
     // PRE_OBU_SIZE_BYTES bytes.
-    uint32_t u_obu_size = 0;
-    aom_uleb_decode(data, sizeof(uint32_t), &u_obu_size);
+    uint64_t u_obu_size = 0;
+    aom_uleb_decode(data, sizeof(uint64_t), &u_obu_size);
     const size_t obu_size = (size_t)u_obu_size;
     const size_t length_field_size = aom_uleb_size_in_bytes(u_obu_size);
 #else
