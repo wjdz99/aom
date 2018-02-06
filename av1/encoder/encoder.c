@@ -4258,6 +4258,10 @@ static int recode_loop_test_global_motion(AV1_COMP *cpi) {
       // TODO(sarahparker): The earlier condition for recoding here was:
       // "recode |= (rdc->global_motion_used[i] > 0);". Can we bring something
       // similar to that back to speed up global motion?
+    } else {
+      // add this gm set to the list if it was used
+      add_gm_ref(cpi->global_motion_refs, cm->global_motion[i],
+                 &cpi->num_gm_refs);
     }
   }
   return recode;

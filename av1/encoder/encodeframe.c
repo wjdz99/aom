@@ -4382,16 +4382,25 @@ static void encode_frame_internal(AV1_COMP *cpi) {
             memcpy(params_by_motion + (MAX_PARAMDIM - 1) * i, kIdentityParams,
                    (MAX_PARAMDIM - 1) * sizeof(*params_by_motion));
           }
+          int n_refinements = 0;
+          int cur_ref_dist = get_ref_frame_dist(cm, frame);
+          int reuse_gm = get_gm_ref(cpi->global_motion_refs, &tmp_wm_params,
+                                      &n_refinements,
+                                      cm->error_resilient_mode,
+                                      cpi->num_gm_refs, cur_ref_dist);
 
-          compute_global_motion_feature_based(
+          if (!reuse_gm)
+            compute_global_motion_feature_based(
               model, cpi->source, ref_buf[frame], cpi->common.bit_depth,
               inliers_by_motion, params_by_motion, RANSAC_NUM_MOTIONS);
 
           for (i = 0; i < RANSAC_NUM_MOTIONS; ++i) {
             if (inliers_by_motion[i] == 0) continue;
 
-            params_this_motion = params_by_motion + (MAX_PARAMDIM - 1) * i;
-            convert_model_to_params(params_this_motion, &tmp_wm_params);
+            if (!reuse_gm) {
+              params_this_motion = params_by_motion + (MAX_PARAMDIM - 1) * i;
+              convert_model_to_params(params_this_motion, &tmp_wm_params);
+            }
 
             if (tmp_wm_params.wmtype != IDENTITY) {
               const int64_t warp_error = refine_integerized_param(
@@ -4400,8 +4409,8 @@ static void encode_frame_internal(AV1_COMP *cpi) {
                   ref_buf[frame]->y_buffer, ref_buf[frame]->y_width,
                   ref_buf[frame]->y_height, ref_buf[frame]->y_stride,
                   cpi->source->y_buffer, cpi->source->y_width,
-                  cpi->source->y_height, cpi->source->y_stride, 5,
-                  best_warp_error);
+                  cpi->source->y_height, cpi->source->y_stride,
+                  5 + n_refinements, best_warp_error);
               if (warp_error < best_warp_error) {
                 best_warp_error = warp_error;
                 // Save the wm_params modified by refine_integerized_param()
