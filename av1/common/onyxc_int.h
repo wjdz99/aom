@@ -313,6 +313,9 @@ typedef struct AV1Common {
   // Flag signaling that the frame is encoded using only INTRA modes.
   uint8_t intra_only;
   uint8_t last_intra_only;
+#if CONFIG_CDF_UPDATE_RATE
+  uint8_t cdf_update_rate;
+#endif  // CONFIG_CDF_UPDATE_RATE
 
   int allow_high_precision_mv;
 #if CONFIG_AMVR
@@ -328,7 +331,6 @@ typedef struct AV1Common {
 #endif  // CONFIG_INTRABC
   int allow_interintra_compound;
   int allow_masked_compound;
-
 #if !CONFIG_NO_FRAME_CONTEXT_SIGNALING
   // Flag signaling which frame contexts should be reset to default values.
   RESET_FRAME_CONTEXT_MODE reset_frame_context;

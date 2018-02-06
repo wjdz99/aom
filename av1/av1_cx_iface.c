@@ -89,6 +89,9 @@ struct av1_extracfg {
   unsigned int frame_periodic_boost;
   aom_bit_depth_t bit_depth;
   aom_tune_content content;
+#if CONFIG_CDF_UPDATE_RATE
+  int cdf_update_rate;
+#endif  // CONFIG_CDF_UPDATE_RATE
 #if CONFIG_CICP
   aom_color_primaries_t color_primaries;
   aom_transfer_characteristics_t transfer_characteristics;
@@ -168,6 +171,9 @@ static struct av1_extracfg default_extra_cfg = {
   0,                    // frame_periodic_delta_q
   AOM_BITS_8,           // Bit depth
   AOM_CONTENT_DEFAULT,  // content
+#if CONFIG_CDF_UPDATE_RATE
+  1,    // CDF update rate
+#endif  // CONFIG_CDF_UPDATE_RATE
 #if CONFIG_CICP
   AOM_CICP_CP_UNSPECIFIED,  // CICP color space
   AOM_CICP_TC_UNSPECIFIED,  // CICP transfer characteristics
@@ -300,6 +306,9 @@ static aom_codec_err_t validate_config(aom_codec_alg_priv_t *ctx,
   RANGE_CHECK(cfg, rc_superres_qthresh, 1, 63);
   RANGE_CHECK(cfg, rc_superres_kf_qthresh, 1, 63);
 #endif  // CONFIG_HORZONLY_FRAME_SUPERRES
+#if CONFIG_CDF_UPDATE_RATE
+  RANGE_CHECK(extra_cfg, cdf_update_rate, 0, 3);
+#endif  // CONFIG_CDF_UPDATE_RATE
 
   // AV1 does not support a lower bound on the keyframe interval in
   // automatic keyframe placement mode.
@@ -681,6 +690,10 @@ static aom_codec_err_t set_encoder_config(
 
   oxcf->tuning = extra_cfg->tuning;
   oxcf->content = extra_cfg->content;
+
+#if CONFIG_CDF_UPDATE_RATE
+  oxcf->cdf_update_rate = (uint8_t)extra_cfg->cdf_update_rate;
+#endif  // CONFIG_CDF_UPDATE_RATE
 
 #if CONFIG_EXT_PARTITION
   oxcf->superblock_size = extra_cfg->superblock_size;
@@ -1658,6 +1671,15 @@ static aom_codec_err_t ctrl_set_tune_content(aom_codec_alg_priv_t *ctx,
   return update_extra_cfg(ctx, &extra_cfg);
 }
 
+#if CONFIG_CDF_UPDATE_RATE
+static aom_codec_err_t ctrl_set_cdf_update_rate(aom_codec_alg_priv_t *ctx,
+                                                va_list args) {
+  struct av1_extracfg extra_cfg = ctx->extra_cfg;
+  extra_cfg.cdf_update_rate = CAST(AV1E_SET_CDF_UPDATE_RATE, args);
+  return update_extra_cfg(ctx, &extra_cfg);
+}
+#endif  // CONFIG_CDF_UPDATE_RATE
+
 #if CONFIG_CICP
 static aom_codec_err_t ctrl_set_color_primaries(aom_codec_alg_priv_t *ctx,
                                                 va_list args) {
@@ -1803,6 +1825,9 @@ static aom_codec_ctrl_fn_map_t encoder_ctrl_maps[] = {
 #endif
   { AV1E_SET_FRAME_PERIODIC_BOOST, ctrl_set_frame_periodic_boost },
   { AV1E_SET_TUNE_CONTENT, ctrl_set_tune_content },
+#if CONFIG_CDF_UPDATE_RATE
+  { AV1E_SET_CDF_UPDATE_RATE, ctrl_set_cdf_update_rate },
+#endif  // CONFIG_CDF_UPDATE_RATE
 #if CONFIG_CICP
   { AV1E_SET_COLOR_PRIMARIES, ctrl_set_color_primaries },
   { AV1E_SET_TRANSFER_CHARACTERISTICS, ctrl_set_transfer_characteristics },
