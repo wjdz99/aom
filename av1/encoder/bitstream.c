@@ -2882,7 +2882,15 @@ static uint32_t write_tiles(AV1_COMP *const cpi, uint8_t *const dst,
         // Initialise tile context from the frame context
         this_tile->tctx = *cm->fc;
         cpi->td.mb.e_mbd.tile_ctx = &this_tile->tctx;
-        mode_bc.allow_update_cdf = !cm->large_scale_tile;
+        if (cm->large_scale_tile) {
+          mode_bc.allow_update_cdf = 0;
+        } else {
+#if CONFIG_CDF_UPDATE_RATE
+          mode_bc.allow_update_cdf = cm->cdf_update_rate;
+#else
+          mode_bc.allow_update_cdf = 1;
+#endif  // CONFIG_CDF_UPDATE_RATE
+        }
 #if CONFIG_LOOP_RESTORATION
         av1_reset_loop_restoration(&cpi->td.mb.e_mbd, num_planes);
 #endif  // CONFIG_LOOP_RESTORATION
@@ -3039,7 +3047,11 @@ static uint32_t write_tiles(AV1_COMP *const cpi, uint8_t *const dst,
         // Initialise tile context from the frame context
         this_tile->tctx = *cm->fc;
         cpi->td.mb.e_mbd.tile_ctx = &this_tile->tctx;
-        mode_bc.allow_update_cdf = 1;
+#if CONFIG_CDF_UPDATE_RATE
+        mode_bc.allow_update_cdf = cm->cdf_update_rate;
+#else
+      mode_bc.allow_update_cdf = 1;
+#endif  // CONFIG_CDF_UPDATE_RATE
 #if CONFIG_LOOP_RESTORATION
         av1_reset_loop_restoration(&cpi->td.mb.e_mbd, num_planes);
 #endif  // CONFIG_LOOP_RESTORATION
@@ -3677,6 +3689,9 @@ static void write_uncompressed_header_frame(AV1_COMP *cpi,
 #if CONFIG_INTRABC
     if (cm->allow_screen_content_tools) aom_wb_write_bit(wb, cm->allow_intrabc);
 #endif  // CONFIG_INTRABC
+#if CONFIG_CDF_UPDATE_RATE
+    aom_wb_write_literal(wb, cm->cdf_update_rate, 2);
+#endif  // CONFIG_CDF_UPDATE_RATE
 #if CONFIG_AMVR
     if (cm->allow_screen_content_tools) {
       if (cm->seq_force_integer_mv == 2) {
@@ -3724,6 +3739,9 @@ static void write_uncompressed_header_frame(AV1_COMP *cpi,
       if (cm->allow_screen_content_tools)
         aom_wb_write_bit(wb, cm->allow_intrabc);
 #endif  // CONFIG_INTRABC
+#if CONFIG_CDF_UPDATE_RATE
+      aom_wb_write_literal(wb, cm->cdf_update_rate, 2);
+#endif  // CONFIG_CDF_UPDATE_RATE
     } else {
       aom_wb_write_literal(wb, cpi->refresh_frame_mask, REF_FRAMES);
 
@@ -4011,6 +4029,9 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
 #if CONFIG_INTRABC
     if (cm->allow_screen_content_tools) aom_wb_write_bit(wb, cm->allow_intrabc);
 #endif  // CONFIG_INTRABC
+#if CONFIG_CDF_UPDATE_RATE
+    aom_wb_write_literal(wb, cm->cdf_update_rate, 2);
+#endif  // CONFIG_CDF_UPDATE_RATE
 #if CONFIG_AMVR
     if (cm->allow_screen_content_tools) {
       if (cm->seq_force_integer_mv == 2) {
@@ -4044,6 +4065,9 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
       if (cm->allow_screen_content_tools)
         aom_wb_write_bit(wb, cm->allow_intrabc);
 #endif  // CONFIG_INTRABC
+#if CONFIG_CDF_UPDATE_RATE
+      aom_wb_write_literal(wb, cm->cdf_update_rate, 2);
+#endif  // CONFIG_CDF_UPDATE_RATE
     }
   } else if (cm->frame_type == INTER_FRAME) {
     MV_REFERENCE_FRAME ref_frame;
@@ -4666,7 +4690,15 @@ static uint32_t write_tiles_in_tg_obus(AV1_COMP *const cpi, uint8_t *const dst,
         // Initialise tile context from the frame context
         this_tile->tctx = *cm->fc;
         cpi->td.mb.e_mbd.tile_ctx = &this_tile->tctx;
-        mode_bc.allow_update_cdf = !cm->large_scale_tile;
+        if (cm->large_scale_tile) {
+          mode_bc.allow_update_cdf = 0;
+        } else {
+#if CONFIG_CDF_UPDATE_RATE
+          mode_bc.allow_update_cdf = cm->cdf_update_rate;
+#else
+          mode_bc.allow_update_cdf = 1;
+#endif  // CONFIG_CDF_UPDATE_RATE
+        }
         aom_start_encode(&mode_bc, buf->data + data_offset);
         write_modes(cpi, &tile_info, &mode_bc, &tok, tok_end);
         assert(tok == tok_end);
@@ -4795,7 +4827,11 @@ static uint32_t write_tiles_in_tg_obus(AV1_COMP *const cpi, uint8_t *const dst,
         // Initialise tile context from the frame context
         this_tile->tctx = *cm->fc;
         cpi->td.mb.e_mbd.tile_ctx = &this_tile->tctx;
-        mode_bc.allow_update_cdf = 1;
+#if CONFIG_CDF_UPDATE_RATE
+        mode_bc.allow_update_cdf = cm->cdf_update_rate;
+#else
+      mode_bc.allow_update_cdf = 1;
+#endif  // CONFIG_CDF_UPDATE_RATE
 #if CONFIG_LOOP_RESTORATION
         const int num_planes = av1_num_planes(cm);
         av1_reset_loop_restoration(&cpi->td.mb.e_mbd, num_planes);
