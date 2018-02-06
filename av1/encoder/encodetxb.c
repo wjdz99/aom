@@ -187,43 +187,52 @@ void av1_update_eob_context(int eob, int seg_eob, TX_SIZE tx_size,
   switch (eob_multi_size) {
     case 0:
       ++counts->eob_multi16[plane][eob_multi_ctx][eob_pt - 1];
-      if (allow_update_cdf)
-        update_cdf(ec_ctx->eob_flag_cdf16[plane][eob_multi_ctx], eob_pt - 1, 5);
+      if (allow_update_cdf) {
+        update_cdf(ec_ctx->eob_flag_cdf16[plane][eob_multi_ctx],
+                   eob_pt - 1, 5);
+      }
       break;
     case 1:
       ++counts->eob_multi32[plane][eob_multi_ctx][eob_pt - 1];
-      if (allow_update_cdf)
-        update_cdf(ec_ctx->eob_flag_cdf32[plane][eob_multi_ctx], eob_pt - 1, 6);
+      if (allow_update_cdf) {
+        update_cdf(ec_ctx->eob_flag_cdf32[plane][eob_multi_ctx],
+                   eob_pt - 1, 6);
+      }
       break;
     case 2:
       ++counts->eob_multi64[plane][eob_multi_ctx][eob_pt - 1];
-      if (allow_update_cdf)
-        update_cdf(ec_ctx->eob_flag_cdf64[plane][eob_multi_ctx], eob_pt - 1, 7);
+      if (allow_update_cdf) {
+        update_cdf(ec_ctx->eob_flag_cdf64[plane][eob_multi_ctx],
+                   eob_pt - 1, 7);
+      }
       break;
     case 3:
       ++counts->eob_multi128[plane][eob_multi_ctx][eob_pt - 1];
-      if (allow_update_cdf)
-        update_cdf(ec_ctx->eob_flag_cdf128[plane][eob_multi_ctx], eob_pt - 1,
-                   8);
+      if (allow_update_cdf) {
+        update_cdf(ec_ctx->eob_flag_cdf128[plane][eob_multi_ctx],
+                   eob_pt - 1, 8);
+      }
       break;
     case 4:
       ++counts->eob_multi256[plane][eob_multi_ctx][eob_pt - 1];
-      if (allow_update_cdf)
-        update_cdf(ec_ctx->eob_flag_cdf256[plane][eob_multi_ctx], eob_pt - 1,
-                   9);
+      if (allow_update_cdf) {
+        update_cdf(ec_ctx->eob_flag_cdf256[plane][eob_multi_ctx],
+                   eob_pt - 1, 9);
+      }
       break;
     case 5:
       ++counts->eob_multi512[plane][eob_multi_ctx][eob_pt - 1];
       if (allow_update_cdf)
-        update_cdf(ec_ctx->eob_flag_cdf512[plane][eob_multi_ctx], eob_pt - 1,
-                   10);
+        update_cdf(ec_ctx->eob_flag_cdf512[plane][eob_multi_ctx],
+                   eob_pt - 1, 10);
       break;
     case 6:
     default:
       ++counts->eob_multi1024[plane][eob_multi_ctx][eob_pt - 1];
-      if (allow_update_cdf)
-        update_cdf(ec_ctx->eob_flag_cdf1024[plane][eob_multi_ctx], eob_pt - 1,
-                   11);
+      if (allow_update_cdf) {
+        update_cdf(ec_ctx->eob_flag_cdf1024[plane][eob_multi_ctx],
+                   eob_pt - 1, 11);
+      }
       break;
   }
 
@@ -233,8 +242,10 @@ void av1_update_eob_context(int eob, int seg_eob, TX_SIZE tx_size,
 #if CONFIG_ENTROPY_STATS
     counts->eob_extra[txs_ctx][plane][eob_pt][bit]++;
 #endif  // CONFIG_ENTROPY_STATS
-    if (allow_update_cdf)
-      update_cdf(ec_ctx->eob_extra_cdf[txs_ctx][plane][eob_pt], bit, 2);
+    if (allow_update_cdf) {
+      update_cdf(ec_ctx->eob_extra_cdf[txs_ctx][plane][eob_pt],
+                 bit, 2);
+    }
   }
 }
 
@@ -2223,8 +2234,8 @@ void av1_update_and_record_txb_context(int plane, int block, int blk_row,
   ++td->counts->txb_skip[txsize_ctx][txb_ctx.txb_skip_ctx][eob == 0];
 #endif  // CONFIG_ENTROPY_STATS
   if (allow_update_cdf) {
-    update_cdf(ec_ctx->txb_skip_cdf[txsize_ctx][txb_ctx.txb_skip_ctx], eob == 0,
-               2);
+    update_cdf(ec_ctx->txb_skip_cdf[txsize_ctx][txb_ctx.txb_skip_ctx],
+               eob == 0, 2);
   }
   x->mbmi_ext->txb_skip_ctx[plane][block] = txb_ctx.txb_skip_ctx;
 
@@ -2285,8 +2296,10 @@ void av1_update_and_record_txb_context(int plane, int block, int blk_row,
 #if CONFIG_ENTROPY_STATS
     ++td->counts->dc_sign[plane_type][dc_sign_ctx][sign];
 #endif  // CONFIG_ENTROPY_STATS
-    if (allow_update_cdf)
-      update_cdf(ec_ctx->dc_sign_cdf[plane_type][dc_sign_ctx], sign, 2);
+    if (allow_update_cdf) {
+      update_cdf(ec_ctx->dc_sign_cdf[plane_type][dc_sign_ctx],
+                 sign, 2);
+    }
     x->mbmi_ext->dc_sign_ctx[plane][block] = dc_sign_ctx;
   }
 

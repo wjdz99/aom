@@ -281,14 +281,18 @@ static INLINE void add_token(TOKENEXTRA **t,
 
   if (allow_update_cdf) {
     if (token == BLOCK_Z_TOKEN) {
-      update_cdf(*head_cdf, 0, HEAD_TOKENS + 1);
+      update_cdf(*head_cdf,
+                 0, HEAD_TOKENS + 1);
     } else {
       if (eob_val != LAST_EOB) {
         const int symb = 2 * AOMMIN(token, TWO_TOKEN) - eob_val + first_val;
-        update_cdf(*head_cdf, symb, HEAD_TOKENS + first_val);
+        update_cdf(*head_cdf,
+                   symb, HEAD_TOKENS + first_val);
       }
-      if (token > ONE_TOKEN)
-        update_cdf(*tail_cdf, token - TWO_TOKEN, TAIL_TOKENS);
+      if (token > ONE_TOKEN) {
+        update_cdf(*tail_cdf,
+                   token - TWO_TOKEN, TAIL_TOKENS);
+      }
     }
   }
 }

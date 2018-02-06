@@ -2111,10 +2111,36 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
       dec_setup_across_tile_boundary_info(cm, &tile_info);
 #endif  // CONFIG_LOOPFILTERING_ACROSS_TILES
 
+#if CONFIG_CDF_UPDATE_RATE
+      int allow_cdf_update_limit = tile_info.mi_row_start;
+      if (cm->cdf_update_rate) {
+        const int mi_rows = tile_info.mi_row_end - tile_info.mi_row_start;
+        allow_cdf_update_limit =
+            tile_info.mi_row_start + (mi_rows >> (cm->cdf_update_rate - 1));
+      }
+#endif  // CONFIG_CDF_UPDATE_RATE
       for (mi_row = tile_info.mi_row_start; mi_row < tile_info.mi_row_end;
            mi_row += cm->seq_params.mib_size) {
         av1_zero_left_context(&td->xd);
-
+#if CONFIG_CDF_UPDATE_RATE && 0
+        if (td->bit_reader.allow_update_cdf) {
+          if (cm->cdf_update_rate) {
+            const int mi_rows = tile_info.mi_row_end - tile_info.mi_row_start;
+            const int allow_update_limit =
+                tile_info.mi_row_start + (mi_rows >> (cm->cdf_update_rate - 1));
+            if (mi_row >= allow_update_limit)
+              td->bit_reader.allow_update_cdf = 0;
+          } else {
+            td->bit_reader.allow_update_cdf = 0;
+          }
+        }
+#endif  // CONFIG_CDF_UPDATE_RATE
+#if CONFIG_CDF_UPDATE_RATE
+      if (td->bit_reader.allow_update_cdf) {
+        if (mi_row >= allow_cdf_update_limit)
+          td->bit_reader.allow_update_cdf = 0;
+      }
+#endif  // CONFIG_CDF_UPDATE_RATE
         for (int mi_col = tile_info.mi_col_start; mi_col < tile_info.mi_col_end;
              mi_col += cm->seq_params.mib_size) {
           decode_partition(pbi, &td->xd, mi_row, mi_col, &td->bit_reader,
@@ -2831,6 +2857,9 @@ static int read_uncompressed_header(AV1Decoder *pbi,
 #if CONFIG_INTRABC
     if (cm->allow_screen_content_tools) cm->allow_intrabc = aom_rb_read_bit(rb);
 #endif  // CONFIG_INTRABC
+#if CONFIG_CDF_UPDATE_RATE
+    cm->cdf_update_rate = aom_rb_read_literal(rb, 2);
+#endif  // CONFIG_CDF_UPDATE_RATE
 #if CONFIG_AMVR
     if (cm->allow_screen_content_tools) {
       if (aom_rb_read_bit(rb)) {
@@ -2893,7 +2922,10 @@ static int read_uncompressed_header(AV1Decoder *pbi,
 #if CONFIG_INTRABC
       if (cm->allow_screen_content_tools)
         cm->allow_intrabc = aom_rb_read_bit(rb);
-#endif                                  // CONFIG_INTRABC
+#endif  // CONFIG_INTRABC
+#if CONFIG_CDF_UPDATE_RATE
+      cm->cdf_update_rate = aom_rb_read_literal(rb, 2);
+#endif  // CONFIG_CDF_UPDATE_RATE
     } else if (pbi->need_resync != 1) { /* Skip if need resync */
 #if CONFIG_OBU
       pbi->refresh_frame_flags = (cm->frame_type == S_FRAME)
