@@ -45,6 +45,9 @@ extern "C" {
 // MI-units per min superblock
 #define MIN_MIB_SIZE_LOG2 (MIN_SB_SIZE_LOG2 - MI_SIZE_LOG2)
 
+//TODO(sarahparker) this should not be so high
+#define TOTAL_GM_REFS 40
+
 // Mask to extract MI offset within max MIB
 #define MAX_MIB_MASK (MAX_MIB_SIZE - 1)
 

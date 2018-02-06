@@ -393,6 +393,8 @@ typedef struct TileBufferEnc {
 } TileBufferEnc;
 
 typedef struct AV1_COMP {
+  WarpedMotionParams global_motion_refs[TOTAL_GM_REFS];
+  int num_gm_refs;
   QUANTS quants;
   ThreadData td;
   MB_MODE_INFO_EXT *mbmi_ext_base;
