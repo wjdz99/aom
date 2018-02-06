@@ -104,73 +104,9 @@ static const int8_t doff_nuq[QUANT_PROFILES][2] = {
       0, 0,  // dc, ac
   },
 
-  // dq_type = 1
-  {
-      // Y/intra, dq_type 1, low quality
-      -4, -6,  // dc, ac
-  },
-  {
-      // Y/intra, dq_type 1, high quality
-      -2, -3,  // dc, ac
-  },
-  {
-      // UV/intra, dq_type 1, low quality
-      -4, -6,  // dc, ac
-  },
-  {
-      // UV/intra, dq_type 1, high quality
-      -2, -3,  // dc, ac
-  },
-  {
-      // Y/inter, dq_type 1, low quality
-      -4, -6,  // dc, ac
-  },
-  {
-      // Y/inter, dq_type 1, high quality
-      -3, -4,  // dc, ac
-  },
-  {
-      // UV/inter, dq_type 1, low quality
-      -4, -6,  // dc, ac
-  },
-  {
-      // UV/inter, dq_type 1, high quality
-      -3, -4,  // dc, ac
-  },
 
-  // dq_type = 2
-  {
-      // Y/intra, dq_type 2, low quality
-      0, -2,  // dc, ac
-  },
-  {
-      // Y/intra, dq_type 2, high quality
-      5, 3,  // dc, ac
-  },
-  {
-      // UV/intra, dq_type 2, low quality
-      -1, -3,  // dc, ac
-  },
-  {
-      // UV/intra, dq_type 2, high quality
-      4, 2,  // dc, ac
-  },
-  {
-      // Y/inter, dq_type 2, low quality
-      -2, -4,  // dc, ac
-  },
-  {
-      // Y/inter, dq_type 2, high quality
-      2, 1,  // dc, ac
-  },
-  {
-      // UV/inter, dq_type 2, low quality
-      -3, -5,  // dc, ac
-  },
-  {
-      // UV/inter, dq_type 2, high quality
-      1, 0,  // dc, ac
-  },
+
+
 
   // dq_type = 3
   {
@@ -205,7 +141,75 @@ static const int8_t doff_nuq[QUANT_PROFILES][2] = {
       // UV/inter, dq_type 3, high quality
       6, 4,  // dc, ac
   },
+  // dq_type = 2
+  {
+      // Y/intra, dq_type 3, low quality
+      7, 7,  // dc, ac
+  },
+  {
+      // Y/intra, dq_type 3, high quality
+      7, 7,  // dc, ac
+  },
+  {
+      // UV/intra, dq_type 3, low quality
+      7, 7,  // dc, ac
+  },
+  {
+      // UV/intra, dq_type 3, high quality
+      7, 7,  // dc, ac
+  },
+  {
+      // Y/inter, dq_type 3, low quality
+      3, 3,  // dc, ac
+  },
+  {
+      // Y/inter, dq_type 3, high quality
+      3, 3,  // dc, ac
+  },
+  {
+      // UV/inter, dq_type 3, low quality
+      3, 3,  // dc, ac
+  },
+  {
+      // UV/inter, dq_type 3, high quality
+      3, 3,  // dc, ac
+  },
+  // dq_type = 3
+  {
+      // Y/intra, dq_type 3, low quality
+      8, 8,  // dc, ac
+  },
+  {
+      // Y/intra, dq_type 3, high quality
+      8, 8,  // dc, ac
+  },
+  {
+      // UV/intra, dq_type 3, low quality
+      8, 8,  // dc, ac
+  },
+  {
+      // UV/intra, dq_type 3, high quality
+      8, 8,  // dc, ac
+  },
+  {
+      // Y/inter, dq_type 3, low quality
+      4, 4,  // dc, ac
+  },
+  {
+      // Y/inter, dq_type 3, high quality
+      4, 4,  // dc, ac
+  },
+  {
+      // UV/inter, dq_type 3, low quality
+      4, 4,  // dc, ac
+  },
+  {
+      // UV/inter, dq_type 3, high quality
+      4, 4,  // dc, ac
+  },
 };
+
+// Encoder only
 
 // Encoder only
 static INLINE uint8_t get_nuq_zbin(int is_ac_coeff, int x0_profile) {
