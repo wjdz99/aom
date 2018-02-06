@@ -3755,6 +3755,9 @@ static void write_uncompressed_header_frame(AV1_COMP *cpi,
 #endif
       aom_wb_write_bit(wb, cm->allow_intrabc);
 #endif  // CONFIG_INTRABC
+#if CONFIG_CDF_UPDATE_MODE
+    aom_wb_write_literal(wb, cm->cdf_update_mode, 2);
+#endif  // CONFIG_CDF_UPDATE_MODE
   } else {
 #if !CONFIG_NO_FRAME_CONTEXT_SIGNALING
     if (!cm->error_resilient_mode) {
@@ -3798,6 +3801,9 @@ static void write_uncompressed_header_frame(AV1_COMP *cpi,
 #endif
         aom_wb_write_bit(wb, cm->allow_intrabc);
 #endif  // CONFIG_INTRABC
+#if CONFIG_CDF_UPDATE_MODE
+      aom_wb_write_literal(wb, cm->cdf_update_mode, 2);
+#endif  // CONFIG_CDF_UPDATE_MODE
     } else {
       aom_wb_write_literal(wb, cpi->refresh_frame_mask, REF_FRAMES);
 
@@ -4106,6 +4112,9 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
 #endif
       aom_wb_write_bit(wb, cm->allow_intrabc);
 #endif  // CONFIG_INTRABC
+#if CONFIG_CDF_UPDATE_MODE
+    aom_wb_write_literal(wb, cm->cdf_update_mode, 2);
+#endif  // CONFIG_CDF_UPDATE_MODE
   } else if (cm->frame_type == INTRA_ONLY_FRAME) {
 #if !CONFIG_NO_FRAME_CONTEXT_SIGNALING
     if (!cm->error_resilient_mode) {
@@ -4135,6 +4144,9 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
 #endif
         aom_wb_write_bit(wb, cm->allow_intrabc);
 #endif  // CONFIG_INTRABC
+#if CONFIG_CDF_UPDATE_MODE
+      aom_wb_write_literal(wb, cm->cdf_update_mode, 2);
+#endif  // CONFIG_CDF_UPDATE_MODE
     }
   } else if (cm->frame_type == INTER_FRAME) {
     MV_REFERENCE_FRAME ref_frame;
