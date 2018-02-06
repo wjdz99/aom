@@ -636,39 +636,48 @@ static INLINE uint8_t get_prob(unsigned int num, unsigned int den) {
   }
 }
 
-static INLINE void update_cdf(aom_cdf_prob *cdf, int val, int nsymbs) {
-  int rate;
-  const int rate2 = 5;
-  int i, tmp;
-  int diff;
-
-#if 1
-  // static const int nsymbs2speed[17] = { 0, 0, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3,
-  // 3, 3, 3, 3, 4 };
-  // static const int nsymbs2speed[17] = { 0, 0, 1, 1, 2, 2, 2, 2, 2,
-  //                                       2, 2, 2, 3, 3, 3, 3, 3 };
-  static const int nsymbs2speed[17] = { 0, 0, 1, 1, 2, 2, 2, 2, 2,
-                                        2, 2, 2, 2, 2, 2, 2, 2 };
+static INLINE void update_cdf(aom_cdf_prob *cdf,
+#if CONFIG_CDF_UPDATE_RATE
+                              int update_rate,
+#endif  // CONFIG_CDF_UPDATE_RATE
+                              int val, int nsymbs) {
   assert(nsymbs < 17);
-  rate = 3 + (cdf[nsymbs] > 15) + (cdf[nsymbs] > 31) +
-         nsymbs2speed[nsymbs];  // + get_msb(nsymbs);
-  tmp = AOM_ICDF(0);
-  (void)rate2;
-  (void)diff;
+#if CONFIG_CDF_UPDATE_RATE
+  assert(update_rate > 0 && update_rate < 4);
+  // Do update on every 1/2/4 symbols, depending on update_rate.
+  if (cdf[nsymbs] % (1 << (update_rate - 1)) == 0) {
+#endif  // CONFIG_CDF_UPDATE_RATE
+    int rate;
+    const int rate2 = 5;
+    int i, tmp;
+    int diff;
 
-  // Single loop (faster)
-  for (i = 0; i < nsymbs - 1; ++i) {
-    tmp = (i == val) ? 0 : tmp;
 #if 1
-    if (tmp < cdf[i]) {
-      cdf[i] -= ((cdf[i] - tmp) >> rate);
-    } else {
-      cdf[i] += ((tmp - cdf[i]) >> rate);
-    }
+    // static const int nsymbs2speed[17] = { 0, 0, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3,
+    // 3, 3, 3, 3, 4 };
+    // static const int nsymbs2speed[17] = { 0, 0, 1, 1, 2, 2, 2, 2, 2,
+    //                                       2, 2, 2, 3, 3, 3, 3, 3 };
+    static const int nsymbs2speed[17] = { 0, 0, 1, 1, 2, 2, 2, 2, 2,
+                                          2, 2, 2, 2, 2, 2, 2, 2 };
+    rate = 3 + (cdf[nsymbs] > 15) + (cdf[nsymbs] > 31) +
+           nsymbs2speed[nsymbs];  // + get_msb(nsymbs);
+    tmp = AOM_ICDF(0);
+    (void)rate2;
+    (void)diff;
+
+    // Single loop (faster)
+    for (i = 0; i < nsymbs - 1; ++i) {
+      tmp = (i == val) ? 0 : tmp;
+#if 1
+      if (tmp < cdf[i]) {
+        cdf[i] -= ((cdf[i] - tmp) >> rate);
+      } else {
+        cdf[i] += ((tmp - cdf[i]) >> rate);
+      }
 #else
-    cdf[i] += ((tmp - cdf[i]) >> rate);
+      cdf[i] += ((tmp - cdf[i]) >> rate);
 #endif
-  }
+    }
 
 #else
   for (i = 0; i < nsymbs; ++i) {
@@ -681,7 +690,13 @@ static INLINE void update_cdf(aom_cdf_prob *cdf, int val, int nsymbs) {
     cdf[i] += diff;
   }
 #endif
+#if CONFIG_CDF_UPDATE_RATE
+  }
+  ++cdf[nsymbs];
+  if (cdf[nsymbs] >= 64) cdf[nsymbs] = 32;
+#else
   cdf[nsymbs] += (cdf[nsymbs] < 32);
+#endif  // CONFIG_CDF_UPDATE_RATE
 }
 
 #ifdef __cplusplus
