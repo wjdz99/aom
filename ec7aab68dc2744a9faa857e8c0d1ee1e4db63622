@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7ee28e4b_197890bb",
+        "filename": "aom_dsp/x86/highbd_loopfilter_sse2.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 339,
+      "author": {
+        "id": 5300
+      },
+      "writtenOn": "2018-02-06T18:50:58Z",
+      "side": 1,
+      "message": "With such a short loop count, does it make sense to unroll here? I know most compilers should do this with O1 thrown, but, GCC currently disables loop unrolling when O2 is thrown (space-speed trade off) but not for O3. Given AV1 builds with O2 for release builds with symbols and O3 for release builds manually unrolling here would create a consistent code path and performance for O2/O3 builds.",
+      "range": {
+        "startLine": 339,
+        "startChar": 4,
+        "endLine": 339,
+        "endChar": 29
+      },
+      "revId": "ec7aab68dc2744a9faa857e8c0d1ee1e4db63622",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
