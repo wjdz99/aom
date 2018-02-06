@@ -31,7 +31,7 @@ using std::tr1::tuple;
 const int kBitrate = 40;
 
 // PSNR thresholds found by experiment
-const double kPSNRThresholds[] = { 27.45, 29.89, 21.7 };
+const double kPSNRThresholds[] = { 27.0, 29.0, 21.0 };
 
 typedef struct {
   const char *filename;
