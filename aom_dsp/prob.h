@@ -651,10 +651,13 @@ static INLINE uint8_t get_prob(unsigned int num, unsigned int den) {
 }
 
 static INLINE void update_cdf(aom_cdf_prob *cdf, int val, int nsymbs) {
+  assert(nsymbs < 17);
   int rate;
   const int rate2 = 5;
   int i, tmp;
   int diff;
+
+  // printf("\n mark\n");
 
 #if 1
   // static const int nsymbs2speed[17] = { 0, 0, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3,
@@ -663,7 +666,6 @@ static INLINE void update_cdf(aom_cdf_prob *cdf, int val, int nsymbs) {
   //                                       2, 2, 2, 3, 3, 3, 3, 3 };
   static const int nsymbs2speed[17] = { 0, 0, 1, 1, 2, 2, 2, 2, 2,
                                         2, 2, 2, 2, 2, 2, 2, 2 };
-  assert(nsymbs < 17);
   rate = 3 + (cdf[nsymbs] > 15) + (cdf[nsymbs] > 31) +
          nsymbs2speed[nsymbs];  // + get_msb(nsymbs);
   tmp = AOM_ICDF(0);
@@ -695,6 +697,7 @@ static INLINE void update_cdf(aom_cdf_prob *cdf, int val, int nsymbs) {
     cdf[i] += diff;
   }
 #endif
+
   cdf[nsymbs] += (cdf[nsymbs] < 32);
 }
 

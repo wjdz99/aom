@@ -287,8 +287,9 @@ static INLINE void add_token(TOKENEXTRA **t,
         const int symb = 2 * AOMMIN(token, TWO_TOKEN) - eob_val + first_val;
         update_cdf(*head_cdf, symb, HEAD_TOKENS + first_val);
       }
-      if (token > ONE_TOKEN)
+      if (token > ONE_TOKEN) {
         update_cdf(*tail_cdf, token - TWO_TOKEN, TAIL_TOKENS);
+      }
     }
   }
 }
