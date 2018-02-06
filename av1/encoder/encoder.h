@@ -306,6 +306,9 @@ typedef struct AV1EncoderConfig {
   int film_grain_test_vector;
 #endif
 
+#if CONFIG_CDF_UPDATE_RATE
+  int cdf_update_rate;
+#endif  // CONFIG_CDF_UPDATE_RATE
 #if CONFIG_EXT_PARTITION
   aom_superblock_size_t superblock_size;
 #endif  // CONFIG_EXT_PARTITION

@@ -328,7 +328,9 @@ typedef struct AV1Common {
 #endif  // CONFIG_INTRABC
   int allow_interintra_compound;
   int allow_masked_compound;
-
+#if CONFIG_CDF_UPDATE_RATE
+  int cdf_update_rate;
+#endif  // CONFIG_CDF_UPDATE_RATE
 #if !CONFIG_NO_FRAME_CONTEXT_SIGNALING
   // Flag signaling which frame contexts should be reset to default values.
   RESET_FRAME_CONTEXT_MODE reset_frame_context;
