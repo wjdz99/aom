@@ -3023,7 +3023,7 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
 #endif  // CONFIG_DIST_8X8
 
   // PARTITION_SPLIT
-  if (do_square_split) {
+  if (do_square_split && !partition_none_allowed) {
     av1_init_rd_stats(&sum_rdc);
     int reached_last_index = 0;
     subsize = get_subsize(bsize, PARTITION_SPLIT);
@@ -3108,7 +3108,8 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
 
   // PARTITION_HORZ
   if (partition_horz_allowed &&
-      (do_rectangular_split || av1_active_h_edge(cpi, mi_row, mi_step))) {
+      (do_rectangular_split || av1_active_h_edge(cpi, mi_row, mi_step)) &&
+      !partition_none_allowed) {
     av1_init_rd_stats(&sum_rdc);
     subsize = get_subsize(bsize, PARTITION_HORZ);
     if (cpi->sf.adaptive_motion_search) load_pred_mv(x, ctx_none);
@@ -3206,7 +3207,8 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
 
   // PARTITION_VERT
   if (partition_vert_allowed &&
-      (do_rectangular_split || av1_active_v_edge(cpi, mi_col, mi_step))) {
+      (do_rectangular_split || av1_active_v_edge(cpi, mi_col, mi_step)) &&
+      !partition_none_allowed) {
     av1_init_rd_stats(&sum_rdc);
     subsize = get_subsize(bsize, PARTITION_VERT);
 
@@ -3348,7 +3350,8 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
   }
 
   // PARTITION_HORZ_A
-  if (partition_horz_allowed && horza_partition_allowed) {
+  if (partition_horz_allowed && horza_partition_allowed &&
+      !partition_none_allowed) {
     subsize = get_subsize(bsize, PARTITION_HORZ_A);
     pc_tree->horizontala[0].rd_mode_is_ready = 0;
     pc_tree->horizontala[1].rd_mode_is_ready = 0;
@@ -3373,7 +3376,8 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
     restore_context(x, &x_ctx, mi_row, mi_col, bsize, num_planes);
   }
   // PARTITION_HORZ_B
-  if (partition_horz_allowed && horzb_partition_allowed) {
+  if (partition_horz_allowed && horzb_partition_allowed &&
+      !partition_none_allowed) {
     subsize = get_subsize(bsize, PARTITION_HORZ_B);
     pc_tree->horizontalb[0].rd_mode_is_ready = 0;
     pc_tree->horizontalb[1].rd_mode_is_ready = 0;
@@ -3402,7 +3406,8 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
   }
 
   // PARTITION_VERT_A
-  if (partition_vert_allowed && verta_partition_allowed) {
+  if (partition_vert_allowed && verta_partition_allowed &&
+      !partition_none_allowed) {
     subsize = get_subsize(bsize, PARTITION_VERT_A);
     pc_tree->verticala[0].rd_mode_is_ready = 0;
     pc_tree->verticala[1].rd_mode_is_ready = 0;
@@ -3421,7 +3426,8 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
     restore_context(x, &x_ctx, mi_row, mi_col, bsize, num_planes);
   }
   // PARTITION_VERT_B
-  if (partition_vert_allowed && vertb_partition_allowed) {
+  if (partition_vert_allowed && vertb_partition_allowed &&
+      !partition_none_allowed) {
     subsize = get_subsize(bsize, PARTITION_VERT_B);
     pc_tree->verticalb[0].rd_mode_is_ready = 0;
     pc_tree->verticalb[1].rd_mode_is_ready = 0;
@@ -3441,7 +3447,8 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
   }
 
   // PARTITION_HORZ_4
-  int partition_horz4_allowed = partition4_allowed && partition_horz_allowed;
+  int partition_horz4_allowed =
+      partition4_allowed && partition_horz_allowed && !partition_none_allowed;
   if (cpi->sf.prune_ext_partition_types_search) {
     partition_horz4_allowed &= (pc_tree->partitioning == PARTITION_HORZ ||
                                 pc_tree->partitioning == PARTITION_HORZ_A ||
@@ -3450,7 +3457,8 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
                                 pc_tree->partitioning == PARTITION_NONE);
   }
   if (partition_horz4_allowed && has_rows &&
-      (do_rectangular_split || av1_active_h_edge(cpi, mi_row, mi_step))) {
+      (do_rectangular_split || av1_active_h_edge(cpi, mi_row, mi_step)) &&
+      !partition_none_allowed) {
     av1_init_rd_stats(&sum_rdc);
     const int quarter_step = mi_size_high[bsize] / 4;
     PICK_MODE_CONTEXT *ctx_prev = ctx_none;
@@ -3494,7 +3502,8 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
                                 pc_tree->partitioning == PARTITION_NONE);
   }
   if (partition_vert4_allowed && has_cols &&
-      (do_rectangular_split || av1_active_v_edge(cpi, mi_row, mi_step))) {
+      (do_rectangular_split || av1_active_v_edge(cpi, mi_row, mi_step)) &&
+      !partition_none_allowed) {
     av1_init_rd_stats(&sum_rdc);
     const int quarter_step = mi_size_wide[bsize] / 4;
     PICK_MODE_CONTEXT *ctx_prev = ctx_none;
@@ -3742,6 +3751,7 @@ static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
 
       reset_partition(pc_root, cm->seq_params.sb_size);
       x->use_cb_search_range = 0;
+#if 0
       if (cpi->sf.two_pass_partition_search &&
           mi_row + mi_size_high[cm->seq_params.sb_size] < cm->mi_rows &&
           mi_col + mi_size_wide[cm->seq_params.sb_size] < cm->mi_cols &&
@@ -3788,6 +3798,11 @@ static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
                           cm->seq_params.sb_size, &dummy_rdc, INT64_MAX,
                           pc_root, NULL);
       }
+#else
+      rd_pick_partition(cpi, td, tile_data, tp, mi_row, mi_col,
+                        cm->seq_params.sb_size, &dummy_rdc, INT64_MAX, pc_root,
+                        NULL);
+#endif
     }
   }
 }
