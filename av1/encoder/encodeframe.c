@@ -356,9 +356,10 @@ static void update_filter_type_count(uint8_t allow_update_cdf,
       InterpFilter filter =
           av1_extract_interp_filter(mbmi->interp_filters, dir);
       ++counts->switchable_interp[ctx][filter];
-      if (allow_update_cdf)
+      if (allow_update_cdf) {
         update_cdf(xd->tile_ctx->switchable_interp_cdf[ctx], filter,
                    SWITCHABLE_FILTERS);
+      }
     }
   }
 }
@@ -829,10 +830,11 @@ static void sum_intra_stats(FRAME_COUNTS *counts, MACROBLOCKD *xd,
     }
 #endif  // CONFIG_ENTROPY_STATS
     if (allow_update_cdf) {
-      if (use_filter_intra_mode)
+      if (use_filter_intra_mode) {
         update_cdf(fc->filter_intra_mode_cdf,
                    mbmi->filter_intra_mode_info.filter_intra_mode,
                    FILTER_INTRA_MODES);
+      }
       update_cdf(fc->filter_intra_cdfs[mbmi->tx_size], use_filter_intra_mode,
                  2);
     }
@@ -845,10 +847,11 @@ static void sum_intra_stats(FRAME_COUNTS *counts, MACROBLOCKD *xd,
     ++counts->angle_delta[mbmi->mode - V_PRED]
                          [mbmi->angle_delta[PLANE_TYPE_Y] + MAX_ANGLE_DELTA];
 #endif
-    if (allow_update_cdf)
+    if (allow_update_cdf) {
       update_cdf(fc->angle_delta_cdf[mbmi->mode - V_PRED],
                  mbmi->angle_delta[PLANE_TYPE_Y] + MAX_ANGLE_DELTA,
                  2 * MAX_ANGLE_DELTA + 1);
+    }
   }
 #endif  // CONFIG_EXT_INTRA_MOD
 
@@ -863,10 +866,11 @@ static void sum_intra_stats(FRAME_COUNTS *counts, MACROBLOCKD *xd,
     ++counts->angle_delta[mbmi->uv_mode - V_PRED]
                          [mbmi->angle_delta[PLANE_TYPE_UV] + MAX_ANGLE_DELTA];
 #endif
-    if (allow_update_cdf)
+    if (allow_update_cdf) {
       update_cdf(fc->angle_delta_cdf[mbmi->uv_mode - V_PRED],
                  mbmi->angle_delta[PLANE_TYPE_UV] + MAX_ANGLE_DELTA,
                  2 * MAX_ANGLE_DELTA + 1);
+    }
   }
 #endif  // CONFIG_EXT_INTRA_MOD
 #if CONFIG_ENTROPY_STATS
@@ -943,7 +947,8 @@ static void update_stats(const AV1_COMMON *const cm, TileDataEnc *tile_data,
     if (!seg_ref_active) {
       const int skip_ctx = av1_get_skip_context(xd);
       td->counts->skip[skip_ctx][mbmi->skip]++;
-      if (allow_update_cdf) update_cdf(fc->skip_cdfs[skip_ctx], mbmi->skip, 2);
+      if (allow_update_cdf)
+        update_cdf(fc->skip_cdfs[skip_ctx], mbmi->skip, 2);
     }
 #if CONFIG_EXT_SKIP
   }
@@ -1010,13 +1015,13 @@ static void update_stats(const AV1_COMMON *const cm, TileDataEnc *tile_data,
                     frame_is_intra_only(cm), mi_row, mi_col,
                     tile_data->allow_update_cdf);
     if (av1_allow_palette(cm->allow_screen_content_tools, bsize) &&
-        tile_data->allow_update_cdf)
+        allow_update_cdf)
       update_palette_cdf(xd, mi);
   }
 
 #if CONFIG_INTRABC
   if (frame_is_intra_only(cm) && av1_allow_intrabc(cm)) {
-    if (tile_data->allow_update_cdf)
+    if (allow_update_cdf)
       update_cdf(fc->intrabc_cdf, is_intrabc_block(mbmi), 2);
 #if CONFIG_ENTROPY_STATS
     ++td->counts->intrabc[is_intrabc_block(mbmi)];
@@ -1045,9 +1050,10 @@ static void update_stats(const AV1_COMMON *const cm, TileDataEnc *tile_data,
 
     if (!seg_ref_active) {
       counts->intra_inter[av1_get_intra_inter_context(xd)][inter_block]++;
-      if (allow_update_cdf)
+      if (allow_update_cdf) {
         update_cdf(fc->intra_inter_cdf[av1_get_intra_inter_context(xd)],
                    inter_block, 2);
+      }
       // If the segment reference feature is enabled we have only a single
       // reference frame allowed for the segment so exclude it from
       // the reference frame counts used to work out probabilities.
@@ -1066,9 +1072,10 @@ static void update_stats(const AV1_COMMON *const cm, TileDataEnc *tile_data,
             counts->comp_inter[av1_get_reference_mode_context(cm, xd)]
                               [has_second_ref(mbmi)]++;
 #endif  // CONFIG_ENTROPY_STATS
-            if (allow_update_cdf)
+            if (allow_update_cdf) {
               update_cdf(av1_get_reference_mode_cdf(cm, xd),
                          has_second_ref(mbmi), 2);
+            }
           }
         }
 
@@ -1225,14 +1232,16 @@ static void update_stats(const AV1_COMMON *const cm, TileDataEnc *tile_data,
             if (allow_update_cdf)
               update_cdf(fc->interintra_cdf[bsize_group], 1, 2);
             counts->interintra_mode[bsize_group][mbmi->interintra_mode]++;
-            if (allow_update_cdf)
+            if (allow_update_cdf) {
               update_cdf(fc->interintra_mode_cdf[bsize_group],
                          mbmi->interintra_mode, INTERINTRA_MODES);
+            }
             if (is_interintra_wedge_used(bsize)) {
               counts->wedge_interintra[bsize][mbmi->use_wedge_interintra]++;
-              if (allow_update_cdf)
+              if (allow_update_cdf) {
                 update_cdf(fc->wedge_interintra_cdf[bsize],
                            mbmi->use_wedge_interintra, 2);
+              }
             }
           } else {
             counts->interintra[bsize_group][0]++;
@@ -1247,14 +1256,16 @@ static void update_stats(const AV1_COMMON *const cm, TileDataEnc *tile_data,
         if (mbmi->ref_frame[1] != INTRA_FRAME) {
           if (motion_allowed == WARPED_CAUSAL) {
             counts->motion_mode[bsize][mbmi->motion_mode]++;
-            if (allow_update_cdf)
+            if (allow_update_cdf) {
               update_cdf(fc->motion_mode_cdf[bsize], mbmi->motion_mode,
                          MOTION_MODES);
+            }
           } else if (motion_allowed == OBMC_CAUSAL) {
             counts->obmc[bsize][mbmi->motion_mode == OBMC_CAUSAL]++;
-            if (allow_update_cdf)
+            if (allow_update_cdf) {
               update_cdf(fc->obmc_cdf[bsize], mbmi->motion_mode == OBMC_CAUSAL,
                          2);
+            }
           }
         }
 
@@ -1269,26 +1280,29 @@ static void update_stats(const AV1_COMMON *const cm, TileDataEnc *tile_data,
           if (masked_compound_used) {
             const int comp_group_idx_ctx = get_comp_group_idx_context(xd);
             ++counts->comp_group_idx[comp_group_idx_ctx][mbmi->comp_group_idx];
-            if (allow_update_cdf)
+            if (allow_update_cdf) {
               update_cdf(fc->comp_group_idx_cdf[comp_group_idx_ctx],
                          mbmi->comp_group_idx, 2);
+            }
           }
 
           if (mbmi->comp_group_idx == 0) {
             const int comp_index_ctx = get_comp_index_context(cm, xd);
             ++counts->compound_index[comp_index_ctx][mbmi->compound_idx];
-            if (allow_update_cdf)
+            if (allow_update_cdf) {
               update_cdf(fc->compound_index_cdf[comp_index_ctx],
                          mbmi->compound_idx, 2);
+            }
           } else {
             assert(masked_compound_used);
             if (is_interinter_compound_used(COMPOUND_WEDGE, bsize)) {
               counts->compound_interinter[bsize]
                                          [mbmi->interinter_compound_type - 1]++;
-              if (allow_update_cdf)
+              if (allow_update_cdf) {
                 update_cdf(fc->compound_type_cdf[bsize],
                            mbmi->interinter_compound_type - 1,
                            COMPOUND_TYPES - 1);
+              }
             }
           }
         }
@@ -1299,9 +1313,10 @@ static void update_stats(const AV1_COMMON *const cm, TileDataEnc *tile_data,
           if (is_interinter_compound_used(COMPOUND_WEDGE, bsize)) {
             counts
                 ->compound_interinter[bsize][mbmi->interinter_compound_type]++;
-            if (allow_update_cdf)
+            if (allow_update_cdf) {
               update_cdf(fc->compound_type_cdf[bsize],
                          mbmi->interinter_compound_type, COMPOUND_TYPES);
+            }
           }
         }
 #endif  // CONFIG_JNT_COMP
@@ -1328,9 +1343,10 @@ static void update_stats(const AV1_COMMON *const cm, TileDataEnc *tile_data,
       if (has_second_ref(mbmi)) {
         mode_ctx = mbmi_ext->compound_mode_context[mbmi->ref_frame[0]];
         ++counts->inter_compound_mode[mode_ctx][INTER_COMPOUND_OFFSET(mode)];
-        if (allow_update_cdf)
+        if (allow_update_cdf) {
           update_cdf(fc->inter_compound_mode_cdf[mode_ctx],
                      INTER_COMPOUND_OFFSET(mode), INTER_COMPOUND_MODES);
+        }
       } else {
         mode_ctx =
             av1_mode_context_analyzer(mbmi_ext->mode_context, mbmi->ref_frame);
@@ -3877,7 +3893,6 @@ void av1_init_tile_data(AV1_COMP *cpi) {
       pre_tok = cpi->tile_tok[tile_row][tile_col];
       tile_tok = allocated_tokens(
           *tile_info, cm->seq_params.mib_size_log2 + MI_SIZE_LOG2, num_planes);
-
 #if CONFIG_EXT_TILE
       tile_data->allow_update_cdf = !cm->large_scale_tile;
 #else
@@ -3934,8 +3949,21 @@ void av1_encode_tile(AV1_COMP *cpi, ThreadData *td, int tile_row,
   td->intrabc_used_this_tile = 0;
 #endif  // CONFIG_INTRABC
 
+#if CONFIG_CDF_UPDATE_RATE
+  int allow_cdf_update_limit = tile_info->mi_row_start;
+  if (cm->cdf_update_rate) {
+    const int mi_rows = tile_info->mi_row_end - tile_info->mi_row_start;
+    allow_cdf_update_limit =
+        tile_info->mi_row_start + (mi_rows >> (cm->cdf_update_rate - 1));
+  }
+#endif  // CONFIG_CDF_UPDATE_RATE
   for (mi_row = tile_info->mi_row_start; mi_row < tile_info->mi_row_end;
        mi_row += cm->seq_params.mib_size) {
+#if CONFIG_CDF_UPDATE_RATE
+    if (this_tile->allow_update_cdf) {
+      if (mi_row >= allow_cdf_update_limit) this_tile->allow_update_cdf = 0;
+    }
+#endif  // CONFIG_CDF_UPDATE_RATE
     encode_rd_sb_row(cpi, td, this_tile, mi_row, &tok);
   }
 
@@ -4255,6 +4283,9 @@ static void encode_frame_internal(AV1_COMP *cpi) {
                           cpi->source->flags & YV12_FLAG_HIGHBITDEPTH, xd->bd,
                           cpi->source->y_stride, cpi->source->y_width,
                           cpi->source->y_height);
+#if CONFIG_CDF_UPDATE_RATE
+    cm->cdf_update_rate = cpi->oxcf.cdf_update_rate;
+#endif  // CONFIG_CDF_UPDATE_RATE
   }
 
 #if CONFIG_INTRABC
@@ -4859,10 +4890,11 @@ void av1_update_tx_type_count(const AV1_COMMON *cm, MACROBLOCKD *xd,
       const TxSetType tx_set_type = get_ext_tx_set_type(
           tx_size, bsize, is_inter, cm->reduced_tx_set_used);
       if (is_inter) {
-        if (allow_update_cdf)
+        if (allow_update_cdf) {
           update_cdf(fc->inter_ext_tx_cdf[eset][txsize_sqr_map[tx_size]],
                      av1_ext_tx_ind[tx_set_type][tx_type],
                      av1_num_ext_tx_set[tx_set_type]);
+        }
 #if CONFIG_ENTROPY_STATS
         ++counts->inter_ext_tx[eset][txsize_sqr_map[tx_size]][tx_type];
 #endif  // CONFIG_ENTROPY_STATS
@@ -4878,21 +4910,23 @@ void av1_update_tx_type_count(const AV1_COMMON *cm, MACROBLOCKD *xd,
         ++counts
               ->intra_ext_tx[eset][txsize_sqr_map[tx_size]][intra_dir][tx_type];
 #endif  // CONFIG_ENTROPY_STATS
-        if (allow_update_cdf)
+        if (allow_update_cdf) {
           update_cdf(
               fc->intra_ext_tx_cdf[eset][txsize_sqr_map[tx_size]][intra_dir],
               av1_ext_tx_ind[tx_set_type][tx_type],
               av1_num_ext_tx_set[tx_set_type]);
+        }
 #else
 #if CONFIG_ENTROPY_STATS
         ++counts->intra_ext_tx[eset][txsize_sqr_map[tx_size]][mbmi->mode]
                               [tx_type];
 #endif  // CONFIG_ENTROPY_STATS
-        if (allow_update_cdf)
+        if (allow_update_cdf) {
           update_cdf(
               fc->intra_ext_tx_cdf[eset][txsize_sqr_map[tx_size]][mbmi->mode],
               av1_ext_tx_ind[tx_set_type][tx_type],
               av1_num_ext_tx_set[tx_set_type]);
+        }
 #endif
       }
     }

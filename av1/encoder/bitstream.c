@@ -2181,10 +2181,22 @@ static void write_modes(AV1_COMP *const cpi, const TileInfo *const tile,
 #endif  // CONFIG_EXT_DELTA_Q
   }
 
+#if CONFIG_CDF_UPDATE_RATE
+  int allow_cdf_update_limit = mi_row_start;
+  if (cm->cdf_update_rate) {
+    const int mi_rows = mi_row_end - mi_row_start;
+    allow_cdf_update_limit =
+        mi_row_start + (mi_rows >> (cm->cdf_update_rate - 1));
+  }
+#endif  // CONFIG_CDF_UPDATE_RATE
   for (mi_row = mi_row_start; mi_row < mi_row_end;
        mi_row += cm->seq_params.mib_size) {
     av1_zero_left_context(xd);
-
+#if CONFIG_CDF_UPDATE_RATE
+    if (w->allow_update_cdf) {
+      if (mi_row >= allow_cdf_update_limit) w->allow_update_cdf = 0;
+    }
+#endif  // CONFIG_CDF_UPDATE_RATE
     for (mi_col = mi_col_start; mi_col < mi_col_end;
          mi_col += cm->seq_params.mib_size) {
       write_modes_sb(cpi, tile, w, tok, tok_end, mi_row, mi_col,
@@ -3692,6 +3704,9 @@ static void write_uncompressed_header_frame(AV1_COMP *cpi,
 #if CONFIG_INTRABC
     if (cm->allow_screen_content_tools) aom_wb_write_bit(wb, cm->allow_intrabc);
 #endif  // CONFIG_INTRABC
+#if CONFIG_CDF_UPDATE_RATE
+    aom_wb_write_literal(wb, cm->cdf_update_rate, 2);
+#endif  // CONFIG_CDF_UPDATE_RATE
 #if CONFIG_AMVR
     if (cm->allow_screen_content_tools) {
       if (cm->seq_force_integer_mv == 2) {
@@ -3739,6 +3754,9 @@ static void write_uncompressed_header_frame(AV1_COMP *cpi,
       if (cm->allow_screen_content_tools)
         aom_wb_write_bit(wb, cm->allow_intrabc);
 #endif  // CONFIG_INTRABC
+#if CONFIG_CDF_UPDATE_RATE
+      aom_wb_write_literal(wb, cm->cdf_update_rate, 2);
+#endif  // CONFIG_CDF_UPDATE_RATE
     } else {
       aom_wb_write_literal(wb, cpi->refresh_frame_mask, REF_FRAMES);
 
@@ -4031,6 +4049,9 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
 #if CONFIG_INTRABC
     if (cm->allow_screen_content_tools) aom_wb_write_bit(wb, cm->allow_intrabc);
 #endif  // CONFIG_INTRABC
+#if CONFIG_CDF_UPDATE_RATE
+    aom_wb_write_literal(wb, cm->cdf_update_rate, 2);
+#endif  // CONFIG_CDF_UPDATE_RATE
 #if CONFIG_AMVR
     if (cm->allow_screen_content_tools) {
       if (cm->seq_force_integer_mv == 2) {
@@ -4064,6 +4085,9 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
       if (cm->allow_screen_content_tools)
         aom_wb_write_bit(wb, cm->allow_intrabc);
 #endif  // CONFIG_INTRABC
+#if CONFIG_CDF_UPDATE_RATE
+      aom_wb_write_literal(wb, cm->cdf_update_rate, 2);
+#endif  // CONFIG_CDF_UPDATE_RATE
     }
   } else if (cm->frame_type == INTER_FRAME) {
     MV_REFERENCE_FRAME ref_frame;
