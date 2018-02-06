@@ -2125,7 +2125,6 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
       for (mi_row = tile_info.mi_row_start; mi_row < tile_info.mi_row_end;
            mi_row += cm->seq_params.mib_size) {
         av1_zero_left_context(&td->xd);
-
         for (int mi_col = tile_info.mi_col_start; mi_col < tile_info.mi_col_end;
              mi_col += cm->seq_params.mib_size) {
           decode_partition(pbi, &td->xd, mi_row, mi_col, &td->bit_reader,
@@ -2885,6 +2884,9 @@ static int read_uncompressed_header(AV1Decoder *pbi,
 #endif  // CONFIG_HORZONLY_FRAME_SUPERRES
       cm->allow_intrabc = aom_rb_read_bit(rb);
 #endif  // CONFIG_INTRABC
+#if CONFIG_CDF_UPDATE_MODE
+    cm->cdf_update_mode = aom_rb_read_literal(rb, 2);
+#endif  // CONFIG_CDF_UPDATE_MODE
     cm->use_prev_frame_mvs = 0;
   } else {
     if (cm->intra_only || cm->error_resilient_mode) cm->use_prev_frame_mvs = 0;
@@ -2941,6 +2943,9 @@ static int read_uncompressed_header(AV1Decoder *pbi,
 #endif  // CONFIG_HORZONLY_FRAME_SUPERRES
         cm->allow_intrabc = aom_rb_read_bit(rb);
 #endif  // CONFIG_INTRABC                               // CONFIG_INTRABC
+#if CONFIG_CDF_UPDATE_MODE
+      cm->cdf_update_mode = aom_rb_read_literal(rb, 2);
+#endif                                  // CONFIG_CDF_UPDATE_MODE
     } else if (pbi->need_resync != 1) { /* Skip if need resync */
 #if CONFIG_OBU
       pbi->refresh_frame_flags = (cm->frame_type == S_FRAME)
@@ -3430,6 +3435,8 @@ int av1_decode_frame_headers_and_setup(AV1Decoder *pbi, const uint8_t *data,
   struct aom_read_bit_buffer rb;
   read_uncompressed_header(pbi,
                            av1_init_read_bit_buffer(pbi, &rb, data, data_end));
+
+  printf("\n cm->cdf_update_mode %d\n", cm->cdf_update_mode);
 
 #if CONFIG_EXT_TILE
   // If cm->single_tile_decoding = 0, the independent decoding of a single tile

@@ -2186,7 +2186,6 @@ static void write_modes(AV1_COMP *const cpi, const TileInfo *const tile,
   for (mi_row = mi_row_start; mi_row < mi_row_end;
        mi_row += cm->seq_params.mib_size) {
     av1_zero_left_context(xd);
-
     for (mi_col = mi_col_start; mi_col < mi_col_end;
          mi_col += cm->seq_params.mib_size) {
       write_modes_sb(cpi, tile, w, tok, tok_end, mi_row, mi_col,
@@ -3755,6 +3754,9 @@ static void write_uncompressed_header_frame(AV1_COMP *cpi,
 #endif
       aom_wb_write_bit(wb, cm->allow_intrabc);
 #endif  // CONFIG_INTRABC
+#if CONFIG_CDF_UPDATE_RATE
+    aom_wb_write_literal(wb, cm->cdf_update_rate, 2);
+#endif  // CONFIG_CDF_UPDATE_RATE
   } else {
 #if !CONFIG_NO_FRAME_CONTEXT_SIGNALING
     if (!cm->error_resilient_mode) {
@@ -3798,6 +3800,9 @@ static void write_uncompressed_header_frame(AV1_COMP *cpi,
 #endif
         aom_wb_write_bit(wb, cm->allow_intrabc);
 #endif  // CONFIG_INTRABC
+#if CONFIG_CDF_UPDATE_RATE
+      aom_wb_write_literal(wb, cm->cdf_update_rate, 2);
+#endif  // CONFIG_CDF_UPDATE_RATE
     } else {
       aom_wb_write_literal(wb, cpi->refresh_frame_mask, REF_FRAMES);
 
@@ -4106,6 +4111,9 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
 #endif
       aom_wb_write_bit(wb, cm->allow_intrabc);
 #endif  // CONFIG_INTRABC
+#if CONFIG_CDF_UPDATE_MODE
+    aom_wb_write_literal(wb, cm->cdf_update_mode, 2);
+#endif  // CONFIG_CDF_UPDATE_MODE
   } else if (cm->frame_type == INTRA_ONLY_FRAME) {
 #if !CONFIG_NO_FRAME_CONTEXT_SIGNALING
     if (!cm->error_resilient_mode) {
@@ -4135,6 +4143,9 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
 #endif
         aom_wb_write_bit(wb, cm->allow_intrabc);
 #endif  // CONFIG_INTRABC
+#if CONFIG_CDF_UPDATE_MODE
+      aom_wb_write_literal(wb, cm->cdf_update_mode, 2);
+#endif  // CONFIG_CDF_UPDATE_MODE
     }
   } else if (cm->frame_type == INTER_FRAME) {
     MV_REFERENCE_FRAME ref_frame;
