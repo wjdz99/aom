@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6f8ff4d9_3549d7b3",
+        "filename": "av1/common/x86/av1_txfm_sse2.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-02-06T19:31:50Z",
+      "side": 1,
+      "message": "for this, the next function and the stores are the inputs and outputs 16-byte aligned?",
+      "revId": "de735774fe2cd8677eb3e9a03e025798e302a41f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
