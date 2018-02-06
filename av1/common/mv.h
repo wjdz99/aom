@@ -12,6 +12,7 @@
 #ifndef AV1_COMMON_MV_H_
 #define AV1_COMMON_MV_H_
 
+#include <limits.h>
 #include "av1/common/common.h"
 #include "av1/common/common_data.h"
 #include "aom_dsp/aom_filter.h"
@@ -89,6 +90,8 @@ typedef enum {
 #define GLOBAL_TYPE_BITS (get_msb(2 * GLOBAL_TRANS_TYPES - 3))
 #endif  // GLOBAL_TRANS_TYPES > 4
 
+#define MAX_OFFSET_DIFF 5
+
 typedef struct {
   int global_warp_allowed;
   int local_warp_allowed;
@@ -106,6 +109,7 @@ typedef struct {
   TransformationType wmtype;
   int32_t wmmat[8];
   int16_t alpha, beta, gamma, delta;
+  int8_t ref_dist;
   int8_t invalid;
 } WarpedMotionParams;
 
@@ -115,6 +119,7 @@ static const WarpedMotionParams default_warp_params = {
   { 0, 0, (1 << WARPEDMODEL_PREC_BITS), 0, 0, (1 << WARPEDMODEL_PREC_BITS), 0,
     0 },
   0, 0, 0, 0,
+  0,
   0,
 };
 /* clang-format on */
@@ -177,6 +182,79 @@ static const WarpedMotionParams default_warp_params = {
 
 // Use global motion parameters for sub8x8 blocks
 #define GLOBAL_SUB8X8_USED 0
+
+static INLINE void add_gm_ref(WarpedMotionParams *gm_refs, WarpedMotionParams gm,
+                              int *num_refs) {
+  // TODO(sarahparker) there should be a better way to decide what to do when the list
+  // is full
+  if (*num_refs == (TOTAL_GM_REFS - 1))
+    return;
+  // TODO(sarahparker) this should add to the list based on ref dist
+  for (int i = 0; i <= *num_refs; i++) {
+    if (gm_refs[i].ref_dist == gm.ref_dist) {
+      gm_refs[i] = gm;
+      return;
+    }
+  }
+  gm_refs[(*num_refs)++] = gm;
+}
+
+static INLINE int refinements_from_ref_dist(int ref_dist) {
+  // TODO(sarahparker) tune this
+  return ref_dist >> 1;
+}
+
+static INLINE void reverse_gm_params(WarpedMotionParams *gm,
+                                     WarpedMotionParams *gm_ref) {
+  memcpy(gm, gm_ref, sizeof(*gm));
+  int32_t *wmmat_ref = gm_ref->wmmat;
+  // reverse translational parameters
+  wmmat_ref[0] *= -1;
+  wmmat_ref[1] *= -1;
+
+  // reverse transformation matrix
+  wmmat_ref[3] *= -1;
+  wmmat_ref[5] *= -1;
+}
+
+static INLINE int get_gm_ref(WarpedMotionParams *gm_refs,
+                             WarpedMotionParams *gm,
+                             int *n_refinements,
+                             int error_resilient, int num_gm_refs,
+                             int cur_ref_dist) {
+  *n_refinements = 0;
+  if (error_resilient || cur_ref_dist == INT_MAX || !num_gm_refs) {
+    memcpy(gm, &default_warp_params, sizeof(*gm));
+    return 0;
+  }
+  // get the reference's reference that is closest to the current
+  // frame. The name rref corresponds to one of the references
+  // used by the reference for the current frame.
+  int offset_diff;
+  int min_offset_diff = INT32_MAX;
+  int closest_ref = 0;
+  int same_sign_best = 0;
+  for (int ref = 0; ref < num_gm_refs; ref++) {
+    // get the offset between the current frame and the rref
+    offset_diff = abs(cur_ref_dist - gm_refs[ref].ref_dist);
+    int same_sign = (cur_ref_dist < 0) == (gm_refs[ref].ref_dist < 0);
+    // if this is the closest rref to the current frame, select
+    // its global motion model to scale
+    if ((offset_diff == min_offset_diff && same_sign) ||
+        (offset_diff < min_offset_diff)) {
+      min_offset_diff = offset_diff;
+      closest_ref = ref;
+      same_sign_best = same_sign;
+    }
+  }
+  if (abs(min_offset_diff) > MAX_OFFSET_DIFF) return 0;
+  // Return early if we found a reference set of params with the same dist as
+  // the current frame
+  *n_refinements = refinements_from_ref_dist(abs(min_offset_diff));
+  if (!same_sign_best) reverse_gm_params(gm, &gm_refs[closest_ref]);
+  else memcpy(gm, &gm_refs[closest_ref], sizeof(*gm));
+  return 1;
+}
 
 static INLINE int block_center_x(int mi_col, BLOCK_SIZE bs) {
   const int bw = block_size_wide[bs];
