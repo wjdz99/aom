@@ -4650,7 +4650,7 @@ static int find_tx_size_rd_info(TX_SIZE_RD_RECORD *cur_record,
 // the form of a quadtree for easier access in actual TX size search.
 static int find_tx_size_rd_records(MACROBLOCK *x, BLOCK_SIZE bsize, int mi_row,
                                    int mi_col,
-                                   TX_SIZE_RD_INFO_NODE *dst_rd_info) {
+                                   TX_SIZE_RD_INFO_NODE *dst_rd_info, int bd) {
 #if CONFIG_TX64X64
   TX_SIZE_RD_RECORD *rd_records_table[4] = { x->tx_size_rd_record_8X8,
                                              x->tx_size_rd_record_16X16,
@@ -4681,6 +4681,7 @@ static int find_tx_size_rd_records(MACROBLOCK *x, BLOCK_SIZE bsize, int mi_row,
   int cur_tx_depth = 0;
   uint8_t parent_idx_buf[MAX_MIB_SIZE * MAX_MIB_SIZE] = { 0 };
   uint8_t child_idx_buf[MAX_MIB_SIZE * MAX_MIB_SIZE] = { 0 };
+  const int hash_dc_level = 1 << bd;
 
   TX_SIZE cur_tx_size = max_txsize_rect_lookup[1][bsize];
   while (cur_tx_depth <= MAX_VARTX_DEPTH) {
@@ -4705,7 +4706,7 @@ static int find_tx_size_rd_records(MACROBLOCK *x, BLOCK_SIZE bsize, int mi_row,
           for (int i = 0; i < cur_tx_bh; i++) {
             const int16_t *cur_diff_row = diff + (row + i) * diff_stride + col;
             for (int j = 0; j < cur_tx_bw; j++) {
-              hash = hash ^ clip_pixel(cur_diff_row[j] + 128);
+              hash = hash ^ (cur_diff_row[j] + hash_dc_level);
               hash = (uint32_t)((int64_t)hash * 16777619);
             }
           }
@@ -4987,8 +4988,8 @@ static void select_tx_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
   TX_SIZE_RD_INFO_NODE matched_rd_info[16 + 64 + 256];
   int found_rd_info = 0;
   if (ref_best_rd != INT64_MAX && within_border) {
-    found_rd_info =
-        find_tx_size_rd_records(x, bsize, mi_row, mi_col, matched_rd_info);
+    found_rd_info = find_tx_size_rd_records(x, bsize, mi_row, mi_col,
+                                            matched_rd_info, xd->bd);
   }
 
   prune_tx(cpi, bsize, x, xd, tx_set_type,
