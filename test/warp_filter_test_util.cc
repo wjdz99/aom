@@ -140,7 +140,8 @@ void AV1WarpFilterTest::RunCheckOutput(warp_affine_func test_impl) {
                 dsta[j] = v;
                 dstb[j] = v;
               }
-              conv_params = get_conv_params_no_round(0, 0, 0, dsta, out_w, 1);
+              conv_params =
+                  get_conv_params_no_round(0, 0, 0, dsta, out_w, 1, 8);
             } else {
               conv_params = get_conv_params(0, 0, 0);
             }
@@ -158,7 +159,8 @@ void AV1WarpFilterTest::RunCheckOutput(warp_affine_func test_impl) {
                               out_h, out_w, sub_x, sub_y, &conv_params, alpha,
                               beta, gamma, delta);
             if (use_no_round) {
-              conv_params = get_conv_params_no_round(0, 0, 0, dstb, out_w, 1);
+              conv_params =
+                  get_conv_params_no_round(0, 0, 0, dstb, out_w, 1, 8);
             }
 #if CONFIG_JNT_COMP
             if (jj >= 4) {
@@ -270,7 +272,8 @@ void AV1HighbdWarpFilterTest::RunCheckOutput(
                 dsta[j] = v;
                 dstb[j] = v;
               }
-              conv_params = get_conv_params_no_round(0, 0, 0, dsta, out_w, 1);
+              conv_params =
+                  get_conv_params_no_round(0, 0, 0, dsta, out_w, 1, bd);
             } else {
               conv_params = get_conv_params(0, 0, 0);
             }
@@ -289,7 +292,8 @@ void AV1HighbdWarpFilterTest::RunCheckOutput(
             if (use_no_round) {
               // TODO(angiebird): Change this to test_impl once we have SIMD
               // implementation
-              conv_params = get_conv_params_no_round(0, 0, 0, dstb, out_w, 1);
+              conv_params =
+                  get_conv_params_no_round(0, 0, 0, dstb, out_w, 1, bd);
             }
 #if CONFIG_JNT_COMP
             if (jj >= 4) {

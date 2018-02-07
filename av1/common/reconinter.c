@@ -992,7 +992,7 @@ static INLINE void build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd,
         int tmp_dst_stride = 8;
         assert(w <= 8 && h <= 8);
         ConvolveParams conv_params = get_conv_params_no_round(
-            0, 0, plane, tmp_dst, tmp_dst_stride, is_compound);
+            0, 0, plane, tmp_dst, tmp_dst_stride, is_compound, xd->bd);
 #if CONFIG_JNT_COMP
         conv_params.use_jnt_comp_avg = 0;
 #endif  // CONFIG_JNT_COMP
@@ -1190,7 +1190,7 @@ static INLINE void build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd,
     }
 
     ConvolveParams conv_params = get_conv_params_no_round(
-        ref, ref, plane, tmp_dst, MAX_SB_SIZE, is_compound);
+        ref, ref, plane, tmp_dst, MAX_SB_SIZE, is_compound, xd->bd);
 #if CONFIG_JNT_COMP
     av1_jnt_comp_weight_assign(cm, &mi->mbmi, 0, &conv_params.fwd_offset,
                                &conv_params.bck_offset,

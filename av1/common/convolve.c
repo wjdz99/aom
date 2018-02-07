@@ -420,6 +420,7 @@ void av1_convolve_2d_c(const uint8_t *src, int src_stride, uint8_t *dst0,
       for (int k = 0; k < filter_params_y->taps; ++k) {
         sum += y_filter[k] * src_vert[(y - fo_vert + k) * im_stride + x];
       }
+
       assert(0 <= sum && sum < (1 << (offset_bits + 2)));
       CONV_BUF_TYPE res = ROUND_POWER_OF_TWO(sum, conv_params->round_1) -
                           ((1 << (offset_bits - conv_params->round_1)) +
@@ -998,16 +999,26 @@ void av1_highbd_convolve_2d_c(const uint16_t *src, int src_stride,
   const int offset_bits = bd + 2 * FILTER_BITS - conv_params->round_0;
   const int16_t *y_filter = av1_get_interp_filter_subpel_kernel(
       *filter_params_y, subpel_y_q4 & SUBPEL_MASK);
+#if CONFIG_CONVOLVE_REBALANCE_ROUNDING
+  // Clip to 16bit range. 50% overshoot margin above and below
+  const int clip_low = 0x0000 - 0x4000;
+  const int clip_high = 0x8000 + 0x4000;
+#endif
   for (int y = 0; y < h; ++y) {
     for (int x = 0; x < w; ++x) {
       CONV_BUF_TYPE sum = 1 << offset_bits;
       for (int k = 0; k < filter_params_y->taps; ++k) {
         sum += y_filter[k] * src_vert[(y - fo_vert + k) * im_stride + x];
       }
+
       assert(0 <= sum && sum < (1 << (offset_bits + 2)));
       CONV_BUF_TYPE res = ROUND_POWER_OF_TWO(sum, conv_params->round_1) -
                           ((1 << (offset_bits - conv_params->round_1)) +
                            (1 << (offset_bits - conv_params->round_1 - 1)));
+#if CONFIG_CONVOLVE_REBALANCE_ROUNDING
+      if (res < clip_low) res = clip_low;
+      if (res > clip_high) res = clip_high;
+#endif
       if (conv_params->do_average)
         dst[y * dst_stride + x] += res;
       else
