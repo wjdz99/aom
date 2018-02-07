@@ -36,7 +36,7 @@ void av1_highbd_convolve_2d_ssse3(const uint16_t *src, int src_stride,
 
   // Check that, even with 12-bit input, the intermediate values will fit
   // into an unsigned 15-bit intermediate array.
-  assert(conv_params->round_0 >= 5);
+  assert(bd + FILTER_BITS + 1 - conv_params->round_0 <= 15);
 
   /* Horizontal filter */
   {
@@ -130,6 +130,10 @@ void av1_highbd_convolve_2d_ssse3(const uint16_t *src, int src_stride,
         (1 << (bd + 2 * FILTER_BITS - conv_params->round_0 - 1)));
     const __m128i round_shift = _mm_cvtsi32_si128(conv_params->round_1);
 
+    // Clip to 16bit range. 50% overshoot margin above and below
+    const __m128i clip_low = _mm_set1_epi32(0x0000 - 0x4000);
+    const __m128i clip_high = _mm_set1_epi32(0x8000 + 0x4000);
+
     for (i = 0; i < h; ++i) {
       for (j = 0; j < w; j += 8) {
         // Filter even-index pixels
@@ -186,16 +190,37 @@ void av1_highbd_convolve_2d_ssse3(const uint16_t *src, int src_stride,
         const __m128i res_hi_round =
             _mm_sra_epi32(_mm_add_epi32(res_hi, round_const), round_shift);
 
+        // Clip to 16bit range
+        // _mm_min_epi32/_mm_max_epi32 are not available in SSSE3
+        const __m128i res_lo_clip_high =
+            _mm_cmpgt_epi32(res_lo_round, clip_high);
+        const __m128i res_lo_clip_low = _mm_cmplt_epi32(res_lo_round, clip_low);
+        const __m128i res_lo_clip_sat =
+            _mm_or_si128(res_lo_clip_high, res_lo_clip_low);
+        const __m128i res_lo_clamp = _mm_or_si128(
+            _mm_or_si128(_mm_andnot_si128(res_lo_clip_sat, res_lo_round),
+                         _mm_and_si128(clip_high, res_lo_clip_high)),
+            _mm_and_si128(clip_low, res_lo_clip_low));
+        const __m128i res_hi_clip_high =
+            _mm_cmpgt_epi32(res_hi_round, clip_high);
+        const __m128i res_hi_clip_low = _mm_cmplt_epi32(res_hi_round, clip_low);
+        const __m128i res_hi_clip_sat =
+            _mm_or_si128(res_hi_clip_high, res_hi_clip_low);
+        const __m128i res_hi_clamp = _mm_or_si128(
+            _mm_or_si128(_mm_andnot_si128(res_hi_clip_sat, res_hi_round),
+                         _mm_and_si128(clip_high, res_hi_clip_high)),
+            _mm_and_si128(clip_low, res_hi_clip_low));
+
         // Accumulate values into the destination buffer
         __m128i *const p = (__m128i *)&dst[i * dst_stride + j];
         if (do_average) {
           _mm_storeu_si128(p + 0,
-                           _mm_add_epi32(_mm_loadu_si128(p + 0), res_lo_round));
+                           _mm_add_epi32(_mm_loadu_si128(p + 0), res_lo_clamp));
           _mm_storeu_si128(p + 1,
-                           _mm_add_epi32(_mm_loadu_si128(p + 1), res_hi_round));
+                           _mm_add_epi32(_mm_loadu_si128(p + 1), res_hi_clamp));
         } else {
-          _mm_storeu_si128(p + 0, res_lo_round);
-          _mm_storeu_si128(p + 1, res_hi_round);
+          _mm_storeu_si128(p + 0, res_lo_clamp);
+          _mm_storeu_si128(p + 1, res_hi_clamp);
         }
       }
     }
