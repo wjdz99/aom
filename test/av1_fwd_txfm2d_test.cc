@@ -186,7 +186,8 @@ TEST(AV1FwdTxfm2d, CfgTest) {
       for (int tx_type = 0; tx_type < TX_TYPES; ++tx_type) {
 #if CONFIG_TX64X64
         if ((tx_size_wide[tx_size] == 64 || tx_size_high[tx_size] == 64) &&
-            tx_type != DCT_DCT) {
+            (tx_type != DCT_DCT && tx_type != IDTX && tx_type != V_DCT &&
+             tx_type != H_DCT)) {
           continue;
         }
 #endif  // CONFIG_TX64X64
