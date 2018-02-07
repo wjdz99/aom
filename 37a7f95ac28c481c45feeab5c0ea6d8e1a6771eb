@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "856232cc_82d18090",
+        "filename": "av1/common/x86/av1_txfm_sse2.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-02-07T19:21:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0eb8c42e_4dc71979",
+      "revId": "37a7f95ac28c481c45feeab5c0ea6d8e1a6771eb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "218cd6b1_3c1be90b",
         "filename": "av1/common/x86/av1_txfm_sse2.h",
         "patchSetId": 4
@@ -30,6 +48,24 @@
       "writtenOn": "2018-02-07T19:04:14Z",
       "side": 1,
       "message": "Couldn\u0027t we use _mm_mulhrs_epi16() here?",
+      "revId": "37a7f95ac28c481c45feeab5c0ea6d8e1a6771eb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8c773b67_9373a12e",
+        "filename": "av1/common/x86/av1_txfm_sse2.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-02-07T19:21:04Z",
+      "side": 1,
+      "message": "It\u0027s an SSSE3 instruction. NewSqrt2 \u003d 5793 and NewSqrt2Bits \u003d 12, maybe out of _mm_mulhrs_epi16\u0027s range.",
+      "parentUuid": "218cd6b1_3c1be90b",
       "revId": "37a7f95ac28c481c45feeab5c0ea6d8e1a6771eb",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
