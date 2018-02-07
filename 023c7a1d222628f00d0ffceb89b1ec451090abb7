@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "03071b39_705ad774",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 278,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-02-07T15:59:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "889c4b7f_3a10d31b",
+      "revId": "023c7a1d222628f00d0ffceb89b1ec451090abb7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7e3d896c_dedf6be3",
         "filename": "av1/decoder/obu.c",
         "patchSetId": 6
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "12898c2a_2f6ea7c0",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 280,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-02-07T15:59:29Z",
+      "side": 1,
+      "message": "hah, not at all. added a bytes_available check, and using bytes_available for the available arg in the aom_uleb_decode() call.",
+      "parentUuid": "7e3d896c_dedf6be3",
+      "revId": "023c7a1d222628f00d0ffceb89b1ec451090abb7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5f4dc832_89acd5ea",
         "filename": "tools/obu_parser.cc",
         "patchSetId": 6
@@ -50,6 +86,24 @@
       "revId": "023c7a1d222628f00d0ffceb89b1ec451090abb7",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "71604f28_3c62ac43",
+        "filename": "tools/obu_parser.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-02-07T15:59:29Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "5f4dc832_89acd5ea",
+      "revId": "023c7a1d222628f00d0ffceb89b1ec451090abb7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
