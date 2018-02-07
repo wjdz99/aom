@@ -549,6 +549,14 @@ typedef struct SPEED_FEATURES {
 
   // flag to allow skipping intra mode for inter frame prediction
   int skip_intra_in_interframe;
+
+#if CONFIG_JNT_COMP
+  // flag to use model rd instead of transform search in jnt_comp
+  int jnt_comp_fast_tx_search;
+
+  // flag to skip or use fast mv search in jnt_comp
+  int jnt_comp_fast_mv_search;
+#endif
 } SPEED_FEATURES;
 
 struct AV1_COMP;
