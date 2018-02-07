@@ -1392,17 +1392,23 @@ static void highbd_filter_intra_predictors(FILTER_INTRA_MODE mode,
 #endif  // CONFIG_FILTER_INTRA
 
 #if CONFIG_INTRA_EDGE
-static int is_smooth(MB_MODE_INFO *mbmi) {
-  return (mbmi->mode == SMOOTH_PRED || mbmi->mode == SMOOTH_V_PRED ||
-          mbmi->mode == SMOOTH_H_PRED);
+static int is_smooth(PREDICTION_MODE mode) {
+  return (mode == SMOOTH_PRED || mode == SMOOTH_V_PRED ||
+          mode == SMOOTH_H_PRED);
 }
 
-static int get_filt_type(const MACROBLOCKD *xd) {
+static int get_filt_type(const MACROBLOCKD *xd, int plane) {
   MB_MODE_INFO *ab = xd->up_available ? &xd->mi[-xd->mi_stride]->mbmi : 0;
   MB_MODE_INFO *le = xd->left_available ? &xd->mi[-1]->mbmi : 0;
 
-  const int ab_sm = ab ? is_smooth(ab) : 0;
-  const int le_sm = le ? is_smooth(le) : 0;
+  int ab_sm, le_sm;
+  if (plane) {
+    ab_sm = ab ? is_smooth(get_uv_mode(ab->uv_mode)) : 0;
+    le_sm = le ? is_smooth(get_uv_mode(le->uv_mode)) : 0;
+  } else {
+    ab_sm = ab ? is_smooth(ab->mode) : 0;
+    le_sm = le ? is_smooth(le->mode) : 0;
+  }
 
   return (ab_sm || le_sm) ? 1 : 0;
 }
@@ -1786,7 +1792,7 @@ static void build_intra_predictors_high(
 #if CONFIG_INTRA_EDGE
     const int need_right = p_angle < 90;
     const int need_bottom = p_angle > 180;
-    const int filt_type = get_filt_type(xd);
+    const int filt_type = get_filt_type(xd, plane);
     if (p_angle != 90 && p_angle != 180) {
       const int ab_le = need_above_left ? 1 : 0;
 #if CONFIG_EXT_INTRA_MOD
@@ -2004,7 +2010,7 @@ static void build_intra_predictors(const MACROBLOCKD *xd, const uint8_t *ref,
 #if CONFIG_INTRA_EDGE
     const int need_right = p_angle < 90;
     const int need_bottom = p_angle > 180;
-    const int filt_type = get_filt_type(xd);
+    const int filt_type = get_filt_type(xd, plane);
     if (p_angle != 90 && p_angle != 180) {
       const int ab_le = need_above_left ? 1 : 0;
 #if CONFIG_EXT_INTRA_MOD
