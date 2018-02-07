@@ -102,13 +102,25 @@ void av1_convolve_2d_facade(const uint8_t *src, int src_stride, uint8_t *dst,
 static INLINE ConvolveParams get_conv_params_no_round(int ref, int do_average,
                                                       int plane, int32_t *dst,
                                                       int dst_stride,
-                                                      int is_compound) {
+                                                      int is_compound, int bd) {
   ConvolveParams conv_params;
   conv_params.ref = ref;
   conv_params.do_average = do_average;
   conv_params.round = CONVOLVE_OPT_NO_ROUND;
+#if CONFIG_CONVOLVE_REBALANCE_ROUNDING
+  // Make 12bit content fit in 16bit after first filter pass
+  conv_params.round_0 = AOMMAX(3, bd - 7);
+  if (is_compound) {
+    conv_params.round_1 = 6;
+  } else {
+    // Round all the way to bitdepth if not compound
+    conv_params.round_1 = FILTER_BITS * 2 - conv_params.round_0;
+  }
+#else
+  (void)bd;
   conv_params.round_0 = 5;
   conv_params.round_1 = 0;
+#endif
   conv_params.is_compound = is_compound;
   // TODO(yunqing): The following dst should only be valid while
   // is_compound = 1;

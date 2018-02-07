@@ -36,7 +36,7 @@ void av1_highbd_convolve_2d_avx2(const uint16_t *src, int src_stride,
 
   // Check that, even with 12-bit input, the intermediate values will fit
   // into an unsigned 15-bit intermediate array.
-  assert(conv_params->round_0 >= 5);
+  assert(bd + FILTER_BITS + 1 - conv_params->round_0 <= 15);
 
   /* Horizontal filter */
   {
@@ -152,6 +152,12 @@ void av1_highbd_convolve_2d_avx2(const uint16_t *src, int src_stride,
         (1 << (bd + 2 * FILTER_BITS - conv_params->round_0 - 1)));
     const __m128i round_shift = _mm_cvtsi32_si128(conv_params->round_1);
 
+#if CONFIG_CONVOLVE_REBALANCE_ROUNDING
+    // Clip to 16bit range. 50% overshoot margin above and below
+    const __m256i clip_low = _mm256_set1_epi32(0x0000 - 0x4000);
+    const __m256i clip_high = _mm256_set1_epi32(0x8000 + 0x4000);
+#endif
+
     for (i = 0; i < h; ++i) {
       for (j = 0; j < w; j += 16) {
         // Filter even-index pixels
@@ -203,11 +209,18 @@ void av1_highbd_convolve_2d_avx2(const uint16_t *src, int src_stride,
         const __m256i res_lo = _mm256_unpacklo_epi32(res_even, res_odd);
         const __m256i res_hi = _mm256_unpackhi_epi32(res_even, res_odd);
 
-        const __m256i res_lo_round = _mm256_sra_epi32(
+        __m256i res_lo_round = _mm256_sra_epi32(
             _mm256_add_epi32(res_lo, round_const), round_shift);
-        const __m256i res_hi_round = _mm256_sra_epi32(
+        __m256i res_hi_round = _mm256_sra_epi32(
             _mm256_add_epi32(res_hi, round_const), round_shift);
 
+#if CONFIG_CONVOLVE_REBALANCE_ROUNDING
+        // Clip to 16bit range
+        res_lo_round = _mm256_min_epi32(
+            _mm256_max_epi32(res_lo_round, clip_low), clip_high);
+        res_hi_round = _mm256_min_epi32(
+            _mm256_max_epi32(res_hi_round, clip_low), clip_high);
+#endif
         // Accumulate values into the destination buffer
         __m128i *const p = (__m128i *)&dst[i * dst_stride + j];
         if (do_average) {

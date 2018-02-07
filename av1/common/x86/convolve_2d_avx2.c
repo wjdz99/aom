@@ -183,12 +183,11 @@ void av1_convolve_2d_sr_avx2(const uint8_t *src, int src_stride, uint8_t *dst,
       ((1 << (conv_params->round_0 - 1)) >> 1) + (1 << (bd + FILTER_BITS - 2)));
   const __m128i round_shift_h = _mm_cvtsi32_si128(conv_params->round_0 - 1);
 
+  const int round = 2 * FILTER_BITS - conv_params->round_0;
   const __m256i round_const_v = _mm256_set1_epi32(
-      ((1 << conv_params->round_1) >> 1) -
-      (1 << (bd + 2 * FILTER_BITS - conv_params->round_0 - 1)) +
-      ((1 << (2 * FILTER_BITS - conv_params->round_0)) >> 1));
-  const __m128i round_shift_v =
-      _mm_cvtsi32_si128(2 * FILTER_BITS - conv_params->round_0);
+      ((1 << round) >> 1) -
+      (1 << (bd + 2 * FILTER_BITS - conv_params->round_0 - 1)));
+  const __m128i round_shift_v = _mm_cvtsi32_si128(round);
 
   for (j = 0; j < w; j += 8) {
     for (i = 0; i < im_h; i += 2) {

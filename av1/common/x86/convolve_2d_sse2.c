@@ -210,8 +210,6 @@ void av1_convolve_2d_sr_sse2(const uint8_t *src, int src_stride, uint8_t *dst,
                              InterpFilterParams *filter_params_y,
                              const int subpel_x_q4, const int subpel_y_q4,
                              ConvolveParams *conv_params) {
-  const int bd = 8;
-
   DECLARE_ALIGNED(16, int16_t,
                   im_block[(MAX_SB_SIZE + MAX_FILTER_TAP - 1) * MAX_SB_SIZE]);
   int im_h = h + filter_params_y->taps - 1;
@@ -222,9 +220,6 @@ void av1_convolve_2d_sr_sse2(const uint8_t *src, int src_stride, uint8_t *dst,
   const uint8_t *const src_ptr = src - fo_vert * src_stride - fo_horiz;
 
   const __m128i zero = _mm_setzero_si128();
-  const int bits =
-      FILTER_BITS * 2 - conv_params->round_0 - conv_params->round_1;
-  const int offset_bits = bd + 2 * FILTER_BITS - conv_params->round_0;
 
   /* Horizontal filter */
   {
@@ -246,8 +241,8 @@ void av1_convolve_2d_sr_sse2(const uint8_t *src, int src_stride, uint8_t *dst,
     // coeffs 6 7 6 7 6 7 6 7
     const __m128i coeff_67 = _mm_unpackhi_epi64(tmp_1, tmp_1);
 
-    const __m128i round_const = _mm_set1_epi32(
-        ((1 << conv_params->round_0) >> 1) + (1 << (bd + FILTER_BITS - 1)));
+    const __m128i round_const =
+        _mm_set1_epi32(((1 << conv_params->round_0) >> 1));
     const __m128i round_shift = _mm_cvtsi32_si128(conv_params->round_0);
 
     for (i = 0; i < im_h; ++i) {
@@ -312,10 +307,9 @@ void av1_convolve_2d_sr_sse2(const uint8_t *src, int src_stride, uint8_t *dst,
     // coeffs 6 7 6 7 6 7 6 7
     const __m128i coeff_67 = _mm_unpackhi_epi64(tmp_1, tmp_1);
 
-    const __m128i round_const = _mm_set1_epi32(
-        ((((1 << bits) + 1) << conv_params->round_1) - (1 << offset_bits)) >>
-        1);
-    const __m128i round_shift = _mm_cvtsi32_si128(bits + conv_params->round_1);
+    const int round = 2 * FILTER_BITS - conv_params->round_0;
+    const __m128i round_const = _mm_set1_epi32((1 << round) >> 1);
+    const __m128i round_shift = _mm_cvtsi32_si128(round);
 
     for (i = 0; i < h; ++i) {
       for (j = 0; j < w; j += 8) {
