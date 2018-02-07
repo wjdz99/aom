@@ -484,6 +484,11 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi) {
   sf->skip_intra_in_interframe = 1;
   sf->txb_split_cap = 1;
   sf->two_pass_partition_search = 0;
+#if CONFIG_JNT_COMP
+  sf->jnt_comp_fast_tx_search = 1;
+  sf->jnt_comp_fast_mv_search = 1;
+#endif
+
 
   for (i = 0; i < TX_SIZES; i++) {
     sf->intra_y_mode_mask[i] = INTRA_ALL;
