@@ -1301,7 +1301,6 @@ void av1_superres_upscale(AV1_COMMON *cm, BufferPool *const pool) {
   assert(frame_to_show->y_crop_height == cm->superres_upscaled_height);
 
   // Scale up and back into frame_to_show.
-  assert(frame_to_show->y_crop_width != cm->width);
   av1_upscale_normative_and_extend_frame(cm, &copy_buffer, frame_to_show);
 
   // Free the copy buffer
