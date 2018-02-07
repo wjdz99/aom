@@ -92,6 +92,13 @@ static INLINE void load_buffer_32bit_to_16bit(const int32_t *in, int stride,
     out[i] = load_32bit_to_16bit(in + i * stride);
   }
 }
+static INLINE void load_buffer_32bit_to_16bit_flip(const int32_t *in,
+                                                   int stride, __m128i *out,
+                                                   int out_size) {
+  for (int i = 0; i < out_size; ++i) {
+    out[out_size - i - 1] = load_32bit_to_16bit(in + i * stride);
+  }
+}
 
 static INLINE void store_buffer_16bit_to_32bit_8x8(const __m128i *const in,
                                                    int32_t *const out,
@@ -102,19 +109,29 @@ static INLINE void store_buffer_16bit_to_32bit_8x8(const __m128i *const in,
 }
 
 static INLINE void store_buffer_16bit_to_16bit_8x8(const __m128i *in,
-                                                   int16_t *out) {
+                                                   uint16_t *out,
+                                                   const int stride) {
   for (int i = 0; i < 8; ++i) {
-    _mm_store_si128((__m128i *)(out + i * 8), in[i]);
+    _mm_store_si128((__m128i *)(out + i * stride), in[i]);
   }
 }
 
 static INLINE void round_shift_16bit(__m128i *in, int size, int bit) {
   if (bit < 0) {
     bit = -bit;
-    __m128i rounding = _mm_set1_epi16(1 << (bit - 1));
+    __m128i rounding = _mm_set1_epi32(1 << (bit - 1));
     for (int i = 0; i < size; ++i) {
-      in[i] = _mm_adds_epi16(in[i], rounding);
-      in[i] = _mm_srai_epi16(in[i], bit);
+      __m128i in_lo = _mm_unpacklo_epi16(in[i], in[i]);
+      __m128i in_hi = _mm_unpackhi_epi16(in[i], in[i]);
+      in_lo = _mm_slli_epi32(in_lo, 16);
+      in_hi = _mm_slli_epi32(in_hi, 16);
+      in_lo = _mm_srai_epi32(in_lo, 16);
+      in_hi = _mm_srai_epi32(in_hi, 16);
+      in_lo = _mm_add_epi32(in_lo, rounding);
+      in_hi = _mm_add_epi32(in_hi, rounding);
+      in_lo = _mm_srai_epi32(in_lo, bit);
+      in_hi = _mm_srai_epi32(in_hi, bit);
+      in[i] = _mm_packs_epi32(in_lo, in_hi);
     }
   } else if (bit > 0) {
     for (int i = 0; i < size; ++i) {
@@ -144,6 +161,10 @@ typedef void (*transform_1d_sse2)(const __m128i *input, __m128i *output,
 typedef struct {
   transform_1d_sse2 col, row;  // vertical and horizontal
 } transform_2d_sse2;
+
+void av1_lowbd_inv_txfm2d_add_8x8_sse2(const int32_t *input, uint8_t *output,
+                                       int stride, TX_TYPE tx_type, int bd);
+
 #ifdef __cplusplus
 }
 #endif  // __cplusplus
