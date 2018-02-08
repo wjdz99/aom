@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0b9affb4_767e505a",
+        "filename": "av1/common/x86/av1_inv_txfm_sse2.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1737,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-02-08T04:49:38Z",
+      "side": 1,
+      "message": "unrelated to this change, but should these be const?",
+      "range": {
+        "startLine": 1737,
+        "startChar": 27,
+        "endLine": 1737,
+        "endChar": 48
+      },
+      "revId": "e229428f0292b9b19ff5a3b352e7e972a55d895b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "03f36fb1_6442be87",
+        "filename": "av1/common/x86/av1_inv_txfm_sse2.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1738,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-02-08T04:49:38Z",
+      "side": 1,
+      "message": "could be const",
+      "revId": "e229428f0292b9b19ff5a3b352e7e972a55d895b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "93432161_9e55a489",
+        "filename": "av1/common/x86/av1_inv_txfm_sse2.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1740,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-02-08T04:49:38Z",
+      "side": 1,
+      "message": "{}s are preferable on conditionals that continue to the next line even if it\u0027s only one line",
+      "revId": "e229428f0292b9b19ff5a3b352e7e972a55d895b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
