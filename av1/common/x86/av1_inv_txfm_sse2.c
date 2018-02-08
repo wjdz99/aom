@@ -1660,3 +1660,44 @@ void av1_lowbd_inv_txfm2d_add_8x8_sse2(const int32_t *input, uint8_t *output,
   round_shift_16bit(buf, 8, shift[1]);
   lowbd_write_buffer_8x8_sse2(buf, output, stride, ud_flip);
 }
+
+typedef void (*inv_txfm_func)(const int32_t *input, uint8_t *output, int stride,
+                              TX_TYPE tx_type, int bd);
+
+inv_txfm_func inv_txfm_func_ls[TX_SIZES_ALL] = {
+  NULL,                               // 4x4 transform
+  av1_lowbd_inv_txfm2d_add_8x8_sse2,  // 8x8 transform
+  NULL,                               // 16x16 transform
+  NULL,                               // 32x32 transform
+#if CONFIG_TX64X64
+  NULL,  // 64x64 transform
+#endif   // CONFIG_TX64X64
+  NULL,  // 4x8 transform
+  NULL,  // 8x4 transform
+  NULL,  // 8x16 transform
+  NULL,  // 16x8 transform
+  NULL,  // 16x32 transform
+  NULL,  // 32x16 transform
+#if CONFIG_TX64X64
+  NULL,  // 32x64 transform
+  NULL,  // 64x32 transform
+#endif   // CONFIG_TX64X64
+  NULL,  // 4x16 transform
+  NULL,  // 16x4 transform
+  NULL,  // 8x32 transform
+  NULL,  // 32x8 transform
+#if CONFIG_TX64X64
+  NULL,  // 16x64 transform
+  NULL,  // 64x16 transform
+#endif   // CONFIG_TX64X64
+};
+
+void av1_inv_txfm_add_sse2(const tran_low_t *dqcoeff, uint8_t *dst, int stride,
+                           TxfmParam *txfm_param) {
+  TX_TYPE tx_type = txfm_param->tx_type;
+  inv_txfm_func inv_func = inv_txfm_func_ls[tx_type];
+  if (inv_func != NULL)
+    inv_func(dqcoeff, dst, stride, tx_type, txfm_param->bd);
+  else
+    av1_inv_txfm_add_c(dqcoeff, dst, stride, txfm_param);
+}
