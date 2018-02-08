@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "976c05b2_7f114256",
+        "filename": "av1/common/x86/av1_inv_txfm_sse2.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1602,
+      "author": {
+        "id": 8900
+      },
+      "writtenOn": "2018-02-08T02:47:13Z",
+      "side": 1,
+      "message": "Done.\nBut functions like idct4_new_sse2 are not static and not inlined too. Should these function be treated in the same way?\n\nRename this one to iidentity8_new_sse2.",
+      "parentUuid": "63ebf360_16e097dc",
+      "range": {
+        "startLine": 1602,
+        "startChar": 5,
+        "endLine": 1602,
+        "endChar": 20
+      },
+      "revId": "09a8ebb4470dfed7bfbc1c976d2ef5935285d300",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "36254172_4f971440",
         "filename": "av1/common/x86/av1_inv_txfm_sse2.c",
         "patchSetId": 5
@@ -36,6 +60,30 @@
       "writtenOn": "2018-02-07T21:23:39Z",
       "side": 1,
       "message": "Shuffle is usually expensive for low-end CPUs. An alternative way is to transpose twice (in different diagonals) with flipped readding (if necessary). But this could be a separate change or a TODO.",
+      "range": {
+        "startLine": 1620,
+        "startChar": 10,
+        "endLine": 1620,
+        "endChar": 29
+      },
+      "revId": "09a8ebb4470dfed7bfbc1c976d2ef5935285d300",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fb3a7700_2846a2a5",
+        "filename": "av1/common/x86/av1_inv_txfm_sse2.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1620,
+      "author": {
+        "id": 8900
+      },
+      "writtenOn": "2018-02-08T02:47:13Z",
+      "side": 1,
+      "message": "TODO added.",
+      "parentUuid": "36254172_4f971440",
       "range": {
         "startLine": 1620,
         "startChar": 10,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "c0f3a794_82c70393",
+        "filename": "av1/common/x86/av1_txfm_sse2.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 8900
+      },
+      "writtenOn": "2018-02-08T02:47:13Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "fbed5b79_137d5146",
+      "range": {
+        "startLine": 119,
+        "startChar": 0,
+        "endLine": 123,
+        "endChar": 71
+      },
+      "revId": "09a8ebb4470dfed7bfbc1c976d2ef5935285d300",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "437ab114_c3e6d5b9",
         "filename": "av1/common/x86/av1_txfm_sse2.h",
         "patchSetId": 5
@@ -82,6 +154,30 @@
       "writtenOn": "2018-02-07T21:23:39Z",
       "side": 1,
       "message": "I think this original function works fine for forward transform. If it doesn\u0027t work for inverse transform, then a separate new function for inverse transform should be created, and only be used in the row transform step.",
+      "range": {
+        "startLine": 124,
+        "startChar": 19,
+        "endLine": 124,
+        "endChar": 36
+      },
+      "revId": "09a8ebb4470dfed7bfbc1c976d2ef5935285d300",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f2482c38_14d8ad57",
+        "filename": "av1/common/x86/av1_txfm_sse2.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 8900
+      },
+      "writtenOn": "2018-02-08T02:47:13Z",
+      "side": 1,
+      "message": "Change reverted.",
+      "parentUuid": "437ab114_c3e6d5b9",
       "range": {
         "startLine": 124,
         "startChar": 19,
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "4c81afe0_eeae7473",
+        "filename": "av1/common/x86/av1_txfm_sse2.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 8900
+      },
+      "writtenOn": "2018-02-08T02:47:13Z",
+      "side": 1,
+      "message": "How to remove these? \nI got a problem with the sign bit. Input type is 16bit signed integer.",
+      "parentUuid": "f791a343_73ff566a",
+      "range": {
+        "startLine": 131,
+        "startChar": 0,
+        "endLine": 132,
+        "endChar": 40
+      },
+      "revId": "09a8ebb4470dfed7bfbc1c976d2ef5935285d300",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b226923c_1c903366",
         "filename": "test/av1_inv_txfm2d_test.cc",
         "patchSetId": 5
@@ -140,6 +260,30 @@
     },
     {
       "key": {
+        "uuid": "42d64212_802a907f",
+        "filename": "test/av1_inv_txfm2d_test.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 8900
+      },
+      "writtenOn": "2018-02-08T02:47:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b226923c_1c903366",
+      "range": {
+        "startLine": 228,
+        "startChar": 16,
+        "endLine": 228,
+        "endChar": 21
+      },
+      "revId": "09a8ebb4470dfed7bfbc1c976d2ef5935285d300",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "12bf7cdf_9eb9b889",
         "filename": "test/av1_inv_txfm2d_test.cc",
         "patchSetId": 5
@@ -151,6 +295,30 @@
       "writtenOn": "2018-02-07T21:23:39Z",
       "side": 1,
       "message": "Better not print anything when no errors found in unit test.",
+      "range": {
+        "startLine": 268,
+        "startChar": 12,
+        "endLine": 268,
+        "endChar": 18
+      },
+      "revId": "09a8ebb4470dfed7bfbc1c976d2ef5935285d300",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7a813e23_c60cd39f",
+        "filename": "test/av1_inv_txfm2d_test.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 268,
+      "author": {
+        "id": 8900
+      },
+      "writtenOn": "2018-02-08T02:47:13Z",
+      "side": 1,
+      "message": "This print is for speed comparing, will only print out when running DISABLED_Speed test.\n\nThe one below is left over debugging. Removed.",
+      "parentUuid": "12bf7cdf_9eb9b889",
       "range": {
         "startLine": 268,
         "startChar": 12,
