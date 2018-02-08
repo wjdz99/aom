@@ -169,6 +169,8 @@ static const arg_def_t psnrarg =
 static const arg_def_t use_cfg = ARG_DEF("c", "cfg", 1, "Config file to use");
 static const arg_def_t ext_partition =
     ARG_DEF(NULL, "ext-partition", 1, "corresponds to CONFIG_EXT_PARTITION");
+static const arg_def_t loop_restoration =
+     ARG_DEF(NULL, "loop-restoration", 1, "corresponds to CONFIG_LOOP_RESTORATION");
 #endif
 
 static const struct arg_enum_list test_decode_enum[] = {
@@ -1344,6 +1346,8 @@ static int parse_stream_params(struct AvxEncoderConfig *global,
 #if CONFIG_FILEOPTIONS
     } else if (arg_match(&arg, &ext_partition, argi)) {
       config->cfg.cfg.ext_partition = !!arg_parse_uint(&arg) > 0;
+    } else if (arg_match(&arg, &loop_restoration, argi)) {
+      config->cfg.cfg.loop_restoration = !!arg_parse_uint(&arg) > 0;
 #endif
     } else {
       int i, match = 0;
@@ -1649,7 +1653,7 @@ static void initialize_encoder(struct stream_state *stream,
   if (global->test_decode != TEST_DECODE_OFF) {
     const AvxInterface *decoder = get_aom_decoder_by_name(global->codec->name);
     aom_codec_dec_cfg_t cfg = {
-      0, 0, 0, CONFIG_LOWBITDEPTH, { CONFIG_EXT_PARTITION }
+      0, 0, 0, CONFIG_LOWBITDEPTH, { CONFIG_EXT_PARTITION, CONFIG_LOOP_RESTORATION }
     };
     aom_codec_dec_init(&stream->decoder, decoder->codec_interface(), &cfg, 0);
 

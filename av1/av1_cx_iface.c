@@ -1896,7 +1896,7 @@ static aom_codec_enc_cfg_map_t encoder_usage_cfg_map[] = {
         0,                         // tile_height_count
         { 0 },                     // tile_widths
         { 0 },                     // tile_heights
-        { CONFIG_EXT_PARTITION },  // config file
+        { CONFIG_EXT_PARTITION, CONFIG_LOOP_RESTORATION },  // config file
     } },
 };
 

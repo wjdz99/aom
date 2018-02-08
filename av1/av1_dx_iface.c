@@ -121,6 +121,7 @@ static aom_codec_err_t decoder_init(aom_codec_ctx_t *ctx,
       ctx->config.dec = &priv->cfg;
       // default values
       priv->cfg.cfg.ext_partition = CONFIG_EXT_PARTITION;
+      priv->cfg.cfg.loop_restoration = CONFIG_LOOP_RESTORATION;
     }
 #if CONFIG_FILM_GRAIN
     priv->image_with_grain = NULL;
