@@ -1673,7 +1673,7 @@ static void lowbd_write_buffer_8x8_sse2(__m128i *in, uint8_t *output,
 }
 
 static const transform_1d_sse2 lowbd_txfm8_1d_arr[TX_TYPES_1D] = {
-  idct8_new_sse2, iadst8_new_sse2, iadst8_new_sse2, iidentity8_new_sse2,
+  idct8_new_sse2, iadst8_new_sse2, iadst8_new_sse2, iidentity8_new_sse2
 };
 
 void av1_lowbd_inv_txfm2d_add_8x8_sse2(const int32_t *input, uint8_t *output,
