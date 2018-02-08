@@ -510,6 +510,12 @@ typedef struct cfg_options {
    * If this value is non-zero it enabled the feature
    */
   unsigned int ext_partition;
+
+  /*!\brief Reflects if loop_restoration should be enabled
+   *
+   * If this value is non-zero it enabled the feature
+   */
+  unsigned int loop_restoration;
 } cfg_options_t;
 
 /*!@} - end defgroup codec*/
