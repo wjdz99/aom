@@ -8741,6 +8741,11 @@ static int64_t handle_inter_mode(
       }
     }
   }
+
+  if (is_comp_pred && best_ret_val == INT64_MAX) return INT64_MAX;
+  if (!is_comp_pred && (early_terminate == INT64_MAX || ret_val == INT64_MAX))
+    return INT64_MAX;
+
   // re-instate status of the best choice
   if (is_comp_pred && best_ret_val != INT64_MAX) {
     *rd_stats = best_rd_stats;
@@ -8753,9 +8758,9 @@ static int64_t handle_inter_mode(
       memcpy(x->blk_skip[i], best_blk_skip[i],
              sizeof(uint8_t) * xd->n8_h * xd->n8_w * 4);
   }
-  if (early_terminate == INT64_MAX) return INT64_MAX;
-#endif  // CONFIG_JNT_COMP
+#else
   if (ret_val != 0) return ret_val;
+#endif  // CONFIG_JNT_COMP
 
   return 0;  // The rate-distortion cost will be re-calculated by caller.
 }
