@@ -202,7 +202,11 @@ static INLINE void inv_txfm2d_add_c(const int32_t *input, uint16_t *output,
     } else {
       txfm_func_row(input, buf_ptr, cos_bit_row, stage_range_row);
     }
-    av1_round_shift_array(buf_ptr, txfm_size_col, -shift[0]);
+    if (bd == 8)
+      av1_sat16_round_shift_array(buf_ptr, txfm_size_col, -shift[0]);
+    else
+      av1_round_shift_array(buf_ptr, txfm_size_col, -shift[0]);
+
     clamp_buf(buf_ptr, txfm_size_col, AOMMAX(bd + 6, 16));
     input += txfm_size_col;
     buf_ptr += txfm_size_col;
@@ -219,7 +223,10 @@ static INLINE void inv_txfm2d_add_c(const int32_t *input, uint16_t *output,
         temp_in[r] = buf[r * txfm_size_col + (txfm_size_col - c - 1)];
     }
     txfm_func_col(temp_in, temp_out, cos_bit_col, stage_range_col);
-    av1_round_shift_array(temp_out, txfm_size_row, -shift[1]);
+    if (bd == 8 || bd == 10)
+      av1_sat16_round_shift_array(temp_out, txfm_size_row, -shift[1]);
+    else
+      av1_round_shift_array(temp_out, txfm_size_row, -shift[1]);
     clamp_buf(temp_out, txfm_size_row, bd + 1);
     if (cfg->ud_flip == 0) {
       for (r = 0; r < txfm_size_row; ++r) {
