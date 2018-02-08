@@ -29,6 +29,28 @@ void av1_round_shift_array_c(int32_t *arr, int size, int bit) {
   }
 }
 
+static INLINE int32_t sat16_round_shift(int32_t value, int bit) {
+  int rounding = 1ll << (bit - 1);
+  return (int32_t)(clamp(value + rounding, INT16_MIN, INT16_MAX) >> bit);
+}
+
+void av1_sat16_round_shift_array(int32_t *arr, int size, int bit) {
+  int i;
+  if (bit == 0) {
+    return;
+  } else {
+    if (bit > 0) {
+      for (i = 0; i < size; i++) {
+        arr[i] = sat16_round_shift(arr[i], bit);
+      }
+    } else {
+      for (i = 0; i < size; i++) {
+        arr[i] = arr[i] * (1 << (-bit));
+      }
+    }
+  }
+}
+
 const TXFM_TYPE av1_txfm_type_ls[5][TX_TYPES_1D] = {
   { TXFM_TYPE_DCT4, TXFM_TYPE_ADST4, TXFM_TYPE_ADST4, TXFM_TYPE_IDENTITY4 },
   { TXFM_TYPE_DCT8, TXFM_TYPE_ADST8, TXFM_TYPE_ADST8, TXFM_TYPE_IDENTITY8 },
