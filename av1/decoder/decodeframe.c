@@ -2807,7 +2807,7 @@ static int read_uncompressed_header(AV1Decoder *pbi,
         cm->seq_force_integer_mv = aom_rb_read_bit(rb);
       }
     } else {
-      cm->seq_force_integer_mv = 0;
+      cm->seq_force_integer_mv = 2;
     }
 #endif
 #if CONFIG_TEMPMV_SIGNALING
@@ -2933,10 +2933,14 @@ static int read_uncompressed_header(AV1Decoder *pbi,
 #endif
 
 #if CONFIG_AMVR
-      if (cm->seq_force_integer_mv == 2) {
-        cm->cur_frame_force_integer_mv = aom_rb_read_bit(rb);
+      if (cm->allow_screen_content_tools) {
+        if (cm->seq_force_integer_mv == 2) {
+          cm->cur_frame_force_integer_mv = aom_rb_read_bit(rb);
+        } else {
+          cm->cur_frame_force_integer_mv = cm->seq_force_integer_mv;
+        }
       } else {
-        cm->cur_frame_force_integer_mv = cm->seq_force_integer_mv;
+        cm->cur_frame_force_integer_mv = 0;
       }
 
       if (cm->cur_frame_force_integer_mv) {
