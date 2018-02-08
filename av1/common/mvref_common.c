@@ -1115,7 +1115,11 @@ static void find_mv_refs_idx(const AV1_COMMON *cm, const MACROBLOCKD *xd,
     }
   }
 
-  if (refmv_count >= MAX_MV_REF_CANDIDATES) goto Done;
+  // If the current block's width or height is smaller than 4, do not search
+  // different frame MV, and just use zeromv.
+  const int max_block_length =
+      AOMMIN(block_size_wide[bsize], block_size_high[bsize]);
+  if (refmv_count >= MAX_MV_REF_CANDIDATES || max_block_length <= 4) goto Done;
 
 // TODO(hkuang): Remove this sync after fixing pthread_cond_broadcast
 // on windows platform. The sync here is unncessary if use_perv_frame_mvs
