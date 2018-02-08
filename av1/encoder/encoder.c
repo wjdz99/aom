@@ -806,19 +806,21 @@ static void alloc_util_frame_buffers(AV1_COMP *cpi) {
                                cm->byte_alignment, NULL, NULL, NULL))
     aom_internal_error(&cm->error, AOM_CODEC_MEM_ERROR,
                        "Failed to allocate last frame buffer");
-
+#if CONFIG_FILEOPTIONS
+  if (cpi->common.options->loop_restoration)
+#endif
 #if CONFIG_LOOP_RESTORATION
-  if (aom_realloc_frame_buffer(
-          &cpi->trial_frame_rst,
+    if (aom_realloc_frame_buffer(
+            &cpi->trial_frame_rst,
 #if CONFIG_HORZONLY_FRAME_SUPERRES
-          cm->superres_upscaled_width, cm->superres_upscaled_height,
+            cm->superres_upscaled_width, cm->superres_upscaled_height,
 #else
-          cm->width, cm->height,
+            cm->width, cm->height,
 #endif  // CONFIG_HORZONLY_FRAME_SUPERRES
-          cm->subsampling_x, cm->subsampling_y, cm->use_highbitdepth,
-          AOM_BORDER_IN_PIXELS, cm->byte_alignment, NULL, NULL, NULL))
-    aom_internal_error(&cm->error, AOM_CODEC_MEM_ERROR,
-                       "Failed to allocate trial restored frame buffer");
+            cm->subsampling_x, cm->subsampling_y, cm->use_highbitdepth,
+            AOM_BORDER_IN_PIXELS, cm->byte_alignment, NULL, NULL, NULL))
+      aom_internal_error(&cm->error, AOM_CODEC_MEM_ERROR,
+                         "Failed to allocate trial restored frame buffer");
 #endif  // CONFIG_LOOP_RESTORATION
 
   if (aom_realloc_frame_buffer(&cpi->scaled_source, cm->width, cm->height,
@@ -3829,7 +3831,10 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
   cm->superres_upscaled_height = oxcf->height;
 #endif  // CONFIG_HORZONLY_FRAME_SUPERRES
 #if CONFIG_LOOP_RESTORATION
-  av1_loop_restoration_precal();
+#if CONFIG_FILEOPTIONS
+  if (cpi->common.options->loop_restoration)
+#endif
+    av1_loop_restoration_precal();
 #endif  // CONFIG_LOOP_RESTORATION
 
   cm->error.setjmp = 0;
@@ -5181,6 +5186,11 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
     no_restoration = 1;
 #endif  // CONFIG_LOOP_RESTORATION
   }
+#if CONFIG_FILEOPTIONS
+  else {
+    no_restoration = !cpi->common.options->loop_restoration;
+  }
+#endif
 
   int no_cdef = 0;
   if (is_lossless_requested(&cpi->oxcf) || !cpi->oxcf.using_cdef
