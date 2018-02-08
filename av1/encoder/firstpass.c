@@ -2690,6 +2690,7 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
     rc->gfu_boost = AOMMAX((int)boost_score, MIN_ARF_GF_BOOST);
     rc->source_alt_ref_pending = 0;
   }
+  printf("gfu_boost = %d\n", rc->gfu_boost);
 
   // Set the interval until the next gf.
   rc->baseline_gf_interval = i - (is_key_frame || rc->source_alt_ref_pending);
@@ -3112,6 +3113,8 @@ static void find_next_key_frame(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   // Work out how many bits to allocate for the key frame itself.
   kf_bits = calculate_boost_bits((rc->frames_to_key - 1), rc->kf_boost,
                                  twopass->kf_group_bits);
+  printf("kf boost = %d kf_bits = %d zeromotion_pct = %d\n",
+         rc->kf_boost, kf_bits, twopass->kf_zeromotion_pct);
 
   // Work out the fraction of the kf group bits reserved for the inter frames
   // within the group after discounting the bits for the kf itself.
