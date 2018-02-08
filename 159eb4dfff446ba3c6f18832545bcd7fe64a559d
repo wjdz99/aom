@@ -1,0 +1,147 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "46f82781_8d84cbf8",
+        "filename": "av1/common/x86/av1_inv_txfm_sse2.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 1602,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-02-08T05:00:29Z",
+      "side": 1,
+      "message": "inline will have no affect with something stored as a function pointer in an array",
+      "range": {
+        "startLine": 1602,
+        "startChar": 7,
+        "endLine": 1602,
+        "endChar": 14
+      },
+      "revId": "159eb4dfff446ba3c6f18832545bcd7fe64a559d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7fe83a26_4cfcb974",
+        "filename": "av1/common/x86/av1_inv_txfm_sse2.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 1623,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-02-08T05:00:29Z",
+      "side": 1,
+      "message": "reading;\n\nwe might have some of these transpose variants in vp9",
+      "range": {
+        "startLine": 1623,
+        "startChar": 20,
+        "endLine": 1623,
+        "endChar": 28
+      },
+      "revId": "159eb4dfff446ba3c6f18832545bcd7fe64a559d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e85f83d9_469e8fa0",
+        "filename": "av1/common/x86/av1_inv_txfm_sse2.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 1635,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-02-08T05:00:29Z",
+      "side": 1,
+      "message": "elsewhere, especially in vp9, we\u0027ve adopted arrays which historically compilers had trouble with, but modern compilers should produce equivalent code.",
+      "revId": "159eb4dfff446ba3c6f18832545bcd7fe64a559d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "036c734d_f40e9d66",
+        "filename": "av1/common/x86/av1_txfm_sse2.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-02-08T05:00:29Z",
+      "side": 1,
+      "message": "add a newline here",
+      "revId": "159eb4dfff446ba3c6f18832545bcd7fe64a559d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d0ea2206_25905be9",
+        "filename": "test/av1_inv_txfm2d_test.cc",
+        "patchSetId": 13
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-02-08T05:00:29Z",
+      "side": 1,
+      "message": "variables are named lower + \u0027_\u0027\n\nhttps://engdoc.corp.google.com/eng/doc/devguide/cpp/styleguide.shtml?cl\u003dhead#Variable_Names",
+      "range": {
+        "startLine": 220,
+        "startChar": 42,
+        "endLine": 220,
+        "endChar": 49
+      },
+      "revId": "159eb4dfff446ba3c6f18832545bcd7fe64a559d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a804cb05_ca8eee4f",
+        "filename": "test/av1_inv_txfm2d_test.cc",
+        "patchSetId": 13
+      },
+      "lineNbr": 377,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-02-08T05:00:29Z",
+      "side": 1,
+      "message": "sse2 functions use SSE2 as the first param to let them easily be run or disabled with --gtest_filter\u003dSSE2/*:SSE2.*",
+      "revId": "159eb4dfff446ba3c6f18832545bcd7fe64a559d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "13f38b71_93ec1c3d",
+        "filename": "test/av1_txfm_test.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-02-08T05:00:29Z",
+      "side": 1,
+      "message": "this matches the existing ones, but typenames in c++ should be upper camel case no \u0027_\u0027s except with an architecture suffix for profiling, e.g., FunctionName_SSE2",
+      "range": {
+        "startLine": 79,
+        "startChar": 15,
+        "endLine": 79,
+        "endChar": 34
+      },
+      "revId": "159eb4dfff446ba3c6f18832545bcd7fe64a559d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
