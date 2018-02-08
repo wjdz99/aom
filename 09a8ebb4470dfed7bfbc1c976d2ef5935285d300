@@ -237,6 +237,30 @@
     },
     {
       "key": {
+        "uuid": "48053193_ba8af6f4",
+        "filename": "av1/common/x86/av1_txfm_sse2.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 8900
+      },
+      "writtenOn": "2018-02-08T06:42:40Z",
+      "side": 1,
+      "message": "Done, you are right, slli can be removed.",
+      "parentUuid": "4c81afe0_eeae7473",
+      "range": {
+        "startLine": 131,
+        "startChar": 0,
+        "endLine": 132,
+        "endChar": 40
+      },
+      "revId": "09a8ebb4470dfed7bfbc1c976d2ef5935285d300",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b226923c_1c903366",
         "filename": "test/av1_inv_txfm2d_test.cc",
         "patchSetId": 5

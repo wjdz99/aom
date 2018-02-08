@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "e0fc7fe5_70a18dbd",
+        "filename": "av1/common/x86/av1_inv_txfm_sse2.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 1602,
+      "author": {
+        "id": 8900
+      },
+      "writtenOn": "2018-02-08T06:42:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "46f82781_8d84cbf8",
+      "range": {
+        "startLine": 1602,
+        "startChar": 7,
+        "endLine": 1602,
+        "endChar": 14
+      },
+      "revId": "159eb4dfff446ba3c6f18832545bcd7fe64a559d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7fe83a26_4cfcb974",
         "filename": "av1/common/x86/av1_inv_txfm_sse2.c",
         "patchSetId": 13
@@ -36,6 +60,30 @@
       "writtenOn": "2018-02-08T05:00:29Z",
       "side": 1,
       "message": "reading;\n\nwe might have some of these transpose variants in vp9",
+      "range": {
+        "startLine": 1623,
+        "startChar": 20,
+        "endLine": 1623,
+        "endChar": 28
+      },
+      "revId": "159eb4dfff446ba3c6f18832545bcd7fe64a559d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ade71f37_947b6f1f",
+        "filename": "av1/common/x86/av1_inv_txfm_sse2.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 1623,
+      "author": {
+        "id": 8900
+      },
+      "writtenOn": "2018-02-08T06:42:40Z",
+      "side": 1,
+      "message": "Done. \n\nBTW, we are working on this \"TODO\", will remove this very soon.",
+      "parentUuid": "7fe83a26_4cfcb974",
       "range": {
         "startLine": 1623,
         "startChar": 20,
@@ -65,6 +113,24 @@
     },
     {
       "key": {
+        "uuid": "2e0f5c54_89d5d407",
+        "filename": "av1/common/x86/av1_inv_txfm_sse2.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 1635,
+      "author": {
+        "id": 8900
+      },
+      "writtenOn": "2018-02-08T06:42:40Z",
+      "side": 1,
+      "message": "So, should we replace this with __m128i u[8], v[8]; ?\n\nIf it should, we\u0027ll update this in next CL, together with \"TODO\" above (https://aomedia-review.googlesource.com/c/aom/+/45621/13/av1/common/x86/av1_inv_txfm_sse2.c#1621).",
+      "parentUuid": "e85f83d9_469e8fa0",
+      "revId": "159eb4dfff446ba3c6f18832545bcd7fe64a559d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "036c734d_f40e9d66",
         "filename": "av1/common/x86/av1_txfm_sse2.h",
         "patchSetId": 13
@@ -79,6 +145,24 @@
       "revId": "159eb4dfff446ba3c6f18832545bcd7fe64a559d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aa03cc6b_438039fb",
+        "filename": "av1/common/x86/av1_txfm_sse2.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 8900
+      },
+      "writtenOn": "2018-02-08T06:42:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "036c734d_f40e9d66",
+      "revId": "159eb4dfff446ba3c6f18832545bcd7fe64a559d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -105,6 +189,30 @@
     },
     {
       "key": {
+        "uuid": "284c915a_898b1d8a",
+        "filename": "test/av1_inv_txfm2d_test.cc",
+        "patchSetId": 13
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 8900
+      },
+      "writtenOn": "2018-02-08T06:42:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d0ea2206_25905be9",
+      "range": {
+        "startLine": 220,
+        "startChar": 42,
+        "endLine": 220,
+        "endChar": 49
+      },
+      "revId": "159eb4dfff446ba3c6f18832545bcd7fe64a559d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a804cb05_ca8eee4f",
         "filename": "test/av1_inv_txfm2d_test.cc",
         "patchSetId": 13
@@ -119,6 +227,24 @@
       "revId": "159eb4dfff446ba3c6f18832545bcd7fe64a559d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aeb61e3f_2725cc16",
+        "filename": "test/av1_inv_txfm2d_test.cc",
+        "patchSetId": 13
+      },
+      "lineNbr": 377,
+      "author": {
+        "id": 8900
+      },
+      "writtenOn": "2018-02-08T06:42:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a804cb05_ca8eee4f",
+      "revId": "159eb4dfff446ba3c6f18832545bcd7fe64a559d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -142,6 +268,30 @@
       "revId": "159eb4dfff446ba3c6f18832545bcd7fe64a559d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ba6c1505_401f20ee",
+        "filename": "test/av1_txfm_test.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 8900
+      },
+      "writtenOn": "2018-02-08T06:42:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "13f38b71_93ec1c3d",
+      "range": {
+        "startLine": 79,
+        "startChar": 15,
+        "endLine": 79,
+        "endChar": 34
+      },
+      "revId": "159eb4dfff446ba3c6f18832545bcd7fe64a559d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
