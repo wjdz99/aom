@@ -145,7 +145,7 @@ static uint8_t add_ref_mv_candidate(
 #endif
         }
 #if CONFIG_OPT_REF_MV
-        if (candidate->mode == NEWMV) ++newmv_count;
+        if (have_newmv_in_inter_mode(candidate->mode)) ++newmv_count;
         ++*ref_match_count;
 #endif
       }
@@ -192,7 +192,7 @@ static uint8_t add_ref_mv_candidate(
 #endif
       }
 #if CONFIG_OPT_REF_MV
-      if (candidate->mode == NEW_NEWMV) ++newmv_count;
+      if (have_newmv_in_inter_mode(candidate->mode)) ++newmv_count;
       ++*ref_match_count;
 #endif
     }
