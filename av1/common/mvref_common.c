@@ -434,7 +434,7 @@ static int has_top_right(const AV1_COMMON *cm, const MACROBLOCKD *xd,
 static int check_sb_border(const AV1_COMMON *cm, const int mi_row,
                            const int mi_col, const int row_offset,
                            const int col_offset) {
-  const int sb_mi_size = mi_size_wide[cm->seq_params.sb_size];
+  const int sb_mi_size = mi_size_wide[BLOCK_64X64];
   const int row = mi_row & (sb_mi_size - 1);
   const int col = mi_col & (sb_mi_size - 1);
 
