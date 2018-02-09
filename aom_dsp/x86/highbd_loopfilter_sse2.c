@@ -535,6 +535,7 @@ void aom_highbd_lpf_horizontal_16_dual_sse2(uint16_t *s, int p,
                                             const uint8_t *_thresh, int bd) {
 #if CONFIG_PARALLEL_DEBLOCKING
   highbd_lpf_horz_edge_8_4p(s, p, _blimit, _limit, _thresh, bd);
+  highbd_lpf_horz_edge_8_4p(s + 4, p, _blimit, _limit, _thresh, bd);
 #else
   highbd_lpf_horz_edge_8_8p(s, p, _blimit, _limit, _thresh, bd);
   highbd_lpf_horz_edge_8_8p(s + 8, p, _blimit, _limit, _thresh, bd);

@@ -440,7 +440,9 @@ if (aom_config("CONFIG_PARALLEL_DEBLOCKING") eq "yes") {
 }
 
 add_proto qw/void aom_lpf_vertical_16_dual/, "uint8_t *s, int pitch, const uint8_t *blimit, const uint8_t *limit, const uint8_t *thresh";
-if (aom_config("CONFIG_PARALLEL_DEBLOCKING") ne "yes") {
+if (aom_config("CONFIG_PARALLEL_DEBLOCKING") eq "yes") {
+  specialize qw/aom_lpf_vertical_16_dual sse2/;
+} else {
   specialize qw/aom_lpf_vertical_16_dual sse2 neon_asm dspr2 msa/;
   $aom_lpf_vertical_16_dual_neon_asm=aom_lpf_vertical_16_dual_neon;
 }

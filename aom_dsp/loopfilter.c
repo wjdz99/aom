@@ -1183,11 +1183,7 @@ void aom_highbd_lpf_horizontal_16_dual_c(uint16_t *s, int p,
                                          const uint8_t *blimit,
                                          const uint8_t *limit,
                                          const uint8_t *thresh, int bd) {
-#if CONFIG_PARALLEL_DEBLOCKING
-  highbd_mb_lpf_horizontal_edge_w(s, p, blimit, limit, thresh, 1, bd);
-#else
   highbd_mb_lpf_horizontal_edge_w(s, p, blimit, limit, thresh, 2, bd);
-#endif
 }
 
 static void highbd_mb_lpf_vertical_edge_w(uint16_t *s, int p,
