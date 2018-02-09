@@ -3480,6 +3480,26 @@ void write_sequence_header(AV1_COMP *cpi, struct aom_write_bit_buffer *wb) {
   }
 
   write_sb_size(seq_params, wb);
+
+  if (seq_params->force_screen_content_tools == 2) {
+    aom_wb_write_bit(wb, 1);
+  } else {
+    aom_wb_write_bit(wb, 0);
+    aom_wb_write_bit(wb, seq_params->force_screen_content_tools);
+  }
+
+#if CONFIG_AMVR
+  if (seq_params->force_screen_content_tools > 0) {
+    if (seq_params->force_integer_mv == 2) {
+      aom_wb_write_bit(wb, 1);
+    } else {
+      aom_wb_write_bit(wb, 0);
+      aom_wb_write_bit(wb, seq_params->force_integer_mv);
+    }
+  } else {
+    assert(seq_params->force_integer_mv == 2);
+  }
+#endif
 }
 #endif  // CONFIG_REFERENCE_BUFFER || CONFIG_OBU
 
@@ -3658,6 +3678,26 @@ static void write_uncompressed_header_frame(AV1_COMP *cpi,
     write_sequence_header(cpi, wb);
 #endif  // CONFIG_REFERENCE_BUFFER
   }
+
+  if (cm->seq_params.force_screen_content_tools == 2) {
+    aom_wb_write_bit(wb, cm->allow_screen_content_tools);
+  } else {
+    assert(cm->allow_screen_content_tools ==
+           cm->seq_params.force_screen_content_tools);
+  }
+
+#if CONFIG_AMVR
+  if (cm->allow_screen_content_tools) {
+    if (cm->seq_params.force_integer_mv == 2) {
+      aom_wb_write_bit(wb, cm->cur_frame_force_integer_mv);
+    } else {
+      assert(cm->cur_frame_force_integer_mv == cm->seq_params.force_integer_mv);
+    }
+  } else {
+    assert(cm->cur_frame_force_integer_mv == 0);
+  }
+#endif  // CONFIG_AMVR
+
 #if CONFIG_REFERENCE_BUFFER
   cm->invalid_delta_frame_id_minus1 = 0;
   if (cm->seq_params.frame_id_numbers_present_flag) {
@@ -3699,20 +3739,9 @@ static void write_uncompressed_header_frame(AV1_COMP *cpi,
 #else
     write_frame_size(cm, wb);
 #endif
-    aom_wb_write_bit(wb, cm->allow_screen_content_tools);
 #if CONFIG_INTRABC
     if (cm->allow_screen_content_tools) aom_wb_write_bit(wb, cm->allow_intrabc);
 #endif  // CONFIG_INTRABC
-#if CONFIG_AMVR
-    if (cm->allow_screen_content_tools) {
-      if (cm->seq_force_integer_mv == 2) {
-        aom_wb_write_bit(wb, 1);
-      } else {
-        aom_wb_write_bit(wb, 0);
-        aom_wb_write_bit(wb, cm->seq_force_integer_mv);
-      }
-    }
-#endif
   } else {
 #if !CONFIG_NO_FRAME_CONTEXT_SIGNALING
     if (!cm->error_resilient_mode) {
@@ -3745,7 +3774,6 @@ static void write_uncompressed_header_frame(AV1_COMP *cpi,
 #else
       write_frame_size(cm, wb);
 #endif
-      aom_wb_write_bit(wb, cm->allow_screen_content_tools);
 #if CONFIG_INTRABC
       if (cm->allow_screen_content_tools)
         aom_wb_write_bit(wb, cm->allow_intrabc);
@@ -3793,16 +3821,6 @@ static void write_uncompressed_header_frame(AV1_COMP *cpi,
 #endif
 
 #if CONFIG_AMVR
-      if (cm->allow_screen_content_tools) {
-        if (cm->seq_force_integer_mv == 2) {
-          aom_wb_write_bit(wb, cm->cur_frame_force_integer_mv);
-        } else {
-          assert(cm->cur_frame_force_integer_mv == cm->seq_force_integer_mv);
-        }
-      } else {
-        assert(cm->cur_frame_force_integer_mv == 0);
-      }
-
       if (cm->cur_frame_force_integer_mv) {
         cm->allow_high_precision_mv = 0;
       } else {
@@ -4012,6 +4030,25 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
   aom_wb_write_bit(wb, cm->show_frame);
   aom_wb_write_bit(wb, cm->error_resilient_mode);
 
+  if (cm->seq_params.force_screen_content_tools == 2) {
+    aom_wb_write_bit(wb, cm->allow_screen_content_tools);
+  } else {
+    assert(cm->allow_screen_content_tools ==
+           cm->seq_params.force_screen_content_tools);
+  }
+
+#if CONFIG_AMVR
+  if (cm->allow_screen_content_tools) {
+    if (cm->seq_params.force_integer_mv == 2) {
+      aom_wb_write_bit(wb, cm->cur_frame_force_integer_mv);
+    } else {
+      assert(cm->cur_frame_force_integer_mv == cm->seq_params.force_integer_mv);
+    }
+  } else {
+    assert(cm->cur_frame_force_integer_mv == 0);
+  }
+#endif  // CONFIG_AMVR
+
 #if CONFIG_REFERENCE_BUFFER
   cm->invalid_delta_frame_id_minus1 = 0;
   if (cm->seq_params.frame_id_numbers_present_flag) {
@@ -4038,20 +4075,9 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
 #else
     write_frame_size(cm, wb);
 #endif
-    aom_wb_write_bit(wb, cm->allow_screen_content_tools);
 #if CONFIG_INTRABC
     if (cm->allow_screen_content_tools) aom_wb_write_bit(wb, cm->allow_intrabc);
 #endif  // CONFIG_INTRABC
-#if CONFIG_AMVR
-    if (cm->allow_screen_content_tools) {
-      if (cm->seq_force_integer_mv == 2) {
-        aom_wb_write_bit(wb, 1);
-      } else {
-        aom_wb_write_bit(wb, 0);
-        aom_wb_write_bit(wb, cm->seq_force_integer_mv == 0);
-      }
-    }
-#endif
   } else if (cm->frame_type == INTRA_ONLY_FRAME) {
 #if !CONFIG_NO_FRAME_CONTEXT_SIGNALING
     if (!cm->error_resilient_mode) {
@@ -4070,7 +4096,6 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
 #else
       write_frame_size(cm, wb);
 #endif
-      aom_wb_write_bit(wb, cm->allow_screen_content_tools);
 #if CONFIG_INTRABC
       if (cm->allow_screen_content_tools)
         aom_wb_write_bit(wb, cm->allow_intrabc);
@@ -4129,16 +4154,6 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
 #endif
 
 #if CONFIG_AMVR
-    if (cm->allow_screen_content_tools) {
-      if (cm->seq_force_integer_mv == 2) {
-        aom_wb_write_bit(wb, cm->cur_frame_force_integer_mv);
-      } else {
-        assert(cm->cur_frame_force_integer_mv == cm->seq_force_integer_mv);
-      }
-    } else {
-      assert(cm->cur_frame_force_integer_mv == 0);
-    }
-
     if (cm->cur_frame_force_integer_mv) {
       cm->allow_high_precision_mv = 0;
     } else {
