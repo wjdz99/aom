@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "6cfc37b5_80fefa9e",
+        "filename": "test/intra_edge_test.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5550
+      },
+      "writtenOn": "2018-02-09T17:12:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "26940b18_c2ff8c58",
+      "revId": "07ed135a5cc11e998202ae36d789041e5ca96260",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d5d7192c_6ae107f6",
         "filename": "test/intra_edge_test.cc",
         "patchSetId": 10
@@ -33,6 +51,24 @@
       "revId": "07ed135a5cc11e998202ae36d789041e5ca96260",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "27ea20a6_ceea6a5a",
+        "filename": "test/intra_edge_test.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5550
+      },
+      "writtenOn": "2018-02-09T17:12:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d5d7192c_6ae107f6",
+      "revId": "07ed135a5cc11e998202ae36d789041e5ca96260",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
