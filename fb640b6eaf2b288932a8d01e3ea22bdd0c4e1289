@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "21d1c321_3cc0c08f",
+        "filename": "av1/common/idct.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 1736,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-02-09T07:24:34Z",
+      "side": 1,
+      "message": "prefer {}s on conditionals continued to another line",
+      "revId": "fb640b6eaf2b288932a8d01e3ea22bdd0c4e1289",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bc3bc400_f31fd7a1",
+        "filename": "av1/common/x86/av1_inv_txfm_sse2.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 1862,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-02-09T07:24:34Z",
+      "side": 1,
+      "message": "given the context and the name of the array \u0027transform\u0027 is redundant here",
+      "range": {
+        "startLine": 1862,
+        "startChar": 18,
+        "endLine": 1862,
+        "endChar": 27
+      },
+      "revId": "fb640b6eaf2b288932a8d01e3ea22bdd0c4e1289",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
