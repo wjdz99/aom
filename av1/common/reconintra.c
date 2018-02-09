@@ -510,16 +510,28 @@ static const uint8_t *get_has_bl_table(PARTITION_TYPE partition,
 static int has_bottom_left(const AV1_COMMON *cm, BLOCK_SIZE bsize, int mi_row,
                            int mi_col, int bottom_available, int left_available,
                            PARTITION_TYPE partition, TX_SIZE txsz, int row_off,
-                           int col_off, int ss_y) {
+                           int col_off, int ss_x, int ss_y) {
   if (!bottom_available || !left_available) return 0;
-
-  if (col_off > 0) {
+  const int plane_bw_unit_64 = mi_size_wide[BLOCK_64X64] >> ss_x;
+  const int col_off_64 = col_off % plane_bw_unit_64;
+  if (col_off_64 > 0) {
     // Bottom-left pixels are in the bottom-left block, which is not available.
     return 0;
   } else {
+    const int bottom_left_count_unit = tx_size_high_unit[txsz];
+#if CONFIG_EXT_PARTITION
+    // For the top-right 64x64 of a 128X128 block, the bottom-left 64x64 is not
+    // available yet.
+    const int plane_bh_unit_64 = mi_size_high[BLOCK_64X64] >> ss_y;
+    if (block_size_high[bsize] > block_size_high[BLOCK_64X64] &&
+        col_off > 0 && row_off < plane_bh_unit_64) {
+      assert(bsize == BLOCK_128X128);
+      if (row_off + bottom_left_count_unit >= plane_bh_unit_64) return 0;
+    }
+#endif  // CONFIG_EXT_PARTITION
+
     const int bh_unit = block_size_high[bsize] >> tx_size_high_log2[0];
     const int plane_bh_unit = AOMMAX(bh_unit >> ss_y, 1);
-    const int bottom_left_count_unit = tx_size_high_unit[txsz];
 
     // All bottom-left pixels are in the left block, which is already available.
     if (row_off + bottom_left_count_unit < plane_bh_unit) return 1;
@@ -2110,7 +2122,8 @@ void av1_predict_intra_block(const AV1_COMMON *cm, const MACROBLOCKD *xd,
                     partition, tx_size, row_off, col_off, pd->subsampling_x);
   const int have_bottom_left =
       has_bottom_left(cm, bsize, mi_row, mi_col, bottom_available, have_left,
-                      partition, tx_size, row_off, col_off, pd->subsampling_y);
+                      partition, tx_size, row_off, col_off,
+                      pd->subsampling_x, pd->subsampling_y);
 
   if (mbmi->palette_mode_info.palette_size[plane != 0] > 0) {
     const int stride = wpx;
