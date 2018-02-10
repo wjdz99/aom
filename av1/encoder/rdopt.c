@@ -1009,6 +1009,403 @@ static int prune_one_for_sby(const AV1_COMP *cpi, BLOCK_SIZE bsize,
                           pd->dst.stride);
 }
 
+#if CONFIG_TXPRUNE_LAPLACIAN
+#define PRINT_XLX 0       // print the costs (for debug only)
+#define USE_3_OPERATORS 1 // with m=3
+#define PRUNE1 0
+#define PRUNETHR 0.32     // threshold of all cost for !PRUNE1
+#define PRUNE1THR 0.35    // threshold of max cost for PRUNE1
+
+// the following Laplacians are the original ones scaled by those numbers
+static const int sc[4][4] = {
+#if USE_3_OPERATORS
+  { 23, 12, 24, 48 },  // DCT
+#else
+  { 26, 9, 18, 36 },   // DCT
+#endif
+  { 1, 1, 1, 1 },      // ADST
+  { 1, 1, 1, 1 },      // FLIPADST
+  { 13, 26, 46, 41 },  // IDTX
+};
+
+static const int nedges[4][4] = {
+#if USE_3_OPERATORS
+  { 9, 21, 45, 93 },   // DCT
+#else
+  { 6, 13, 29, 61 },   // DCT
+#endif
+  { 4, 8, 16, 32 },    // ADST
+  { 4, 8, 16, 32 },    // FLIPADST
+  { 4, 8, 16, 32 },    // IDTX
+};
+
+// Laf = La - Lf
+// It is for faster computation of x'*Lf*x aftering knowing x'*La*x
+// (nedges=2, scale=1)
+static const int Laf4[2][3] = {
+  { 0, 0, 2 }, { 3, 3, -2 },
+};
+
+static const int Laf8[2][3] = {
+  { 0, 0, 2 }, { 7, 7, -2 },
+};
+
+static const int Laf16[2][3] = {
+  { 0, 0, 2 }, { 15, 15, -2 },
+};
+
+static const int Laf32[2][3] = {
+  { 0, 0, 2 }, { 31, 31, -2 },
+};
+
+// Ld, La, Lf, and Li
+#if USE_3_OPERATORS
+static const int Ld4[9][3] = {
+  { 0, 0, 5 }, { 1, 1, 5 }, { 2, 2, 5 }, { 3, 3, 5 },
+  { 0, 1, 26 }, { 1, 2, 22 }, { 2, 3, 26 } , { 0, 2, 4 },
+	{ 1, 3, 4 },
+};
+
+static const int Ld8[21][3] = {
+  { 0, 0, 1 }, { 1, 1, 1 }, { 2, 2, 1 }, { 3, 3, 1 },
+	{ 4, 4, 1 }, { 5, 5, 1 }, { 6, 6, 1 }, { 7, 7, 1 },
+  { 0, 1, 13 }, { 1, 2, 12 }, { 2, 3, 12 }, { 3, 4, 12 },
+	{ 4, 5, 12 }, { 5, 6, 12 }, { 6, 7, 12 }, { 0, 2, 1 }, 
+	{ 1, 3, 1 }, { 2, 4, 1 }, { 3, 5, 1 }, { 4, 6, 1 },
+	{ 5, 7, 1 }, 
+};
+
+static const int Ld16[45][3] = {
+  { 0, 0, 1 }, { 1, 1, 1 }, { 2, 2, 1 }, { 3, 3, 1 },
+	{ 4, 4, 1 }, { 5, 5, 1 }, { 6, 6, 1 }, { 7, 7, 1 },
+  { 8, 8, 1 }, { 9, 9, 1 }, { 10, 10, 1 }, { 11, 11, 1 },
+	{ 12, 12, 1 }, { 13, 13, 1 }, { 14, 14, 1 }, { 15, 15, 1 },
+  { 0, 1, 25 }, { 1, 2, 24 }, { 2, 3, 24 }, { 3, 4, 24 },
+	{ 4, 5, 24 }, { 5, 6, 24 }, { 6, 7, 24 }, { 7, 8, 24 },
+	{ 8, 9, 24 }, { 9, 10, 24 }, { 10, 11, 24 }, { 11, 12, 24 },
+	{ 12, 13, 24 }, { 13, 14, 24 }, { 14, 15, 25 },	{ 0, 2, 1 }, 
+	{ 1, 3, 1 }, { 2, 4, 1 }, { 3, 5, 1 }, { 4, 6, 1 },
+	{ 5, 7, 1 }, { 6, 8, 1 }, { 7, 9, 1 }, { 8, 10, 1 },
+	{ 9, 11, 1 }, { 10, 12, 1 }, { 11, 13, 1 }, { 12, 14, 1 },
+	{ 13, 15, 1 },
+};
+
+static const int Ld32[93][3] = {
+  { 0, 0, 1 }, { 1, 1, 1 }, { 2, 2, 1 }, { 3, 3, 1 },
+	{ 4, 4, 1 }, { 5, 5, 1 }, { 6, 6, 1 }, { 7, 7, 1 },
+  { 8, 8, 1 }, { 9, 9, 1 }, { 10, 10, 1 }, { 11, 11, 1 },
+	{ 12, 12, 1 }, { 13, 13, 1 }, { 14, 14, 1 }, { 15, 15, 1 },
+  { 16, 16, 1 }, { 17, 17, 1 }, { 18, 18, 1 }, { 19, 19, 1 },
+	{ 20, 20, 1 }, { 21, 21, 1 }, { 22, 22, 1 }, { 23, 23, 1 },
+  { 24, 24, 1 }, { 25, 25, 1 }, { 26, 26, 1 }, { 27, 27, 1 },
+	{ 28, 28, 1 }, { 29, 29, 1 }, { 30, 30, 1 }, { 31, 31, 1 },
+  { 0, 1, 49 }, { 1, 2, 48 }, { 2, 3, 48 }, { 3, 4, 48 },
+	{ 4, 5, 48 }, { 5, 6, 48 }, { 6, 7, 48 }, { 7, 8, 48 },
+	{ 8, 9, 48 }, { 9, 10, 48 }, { 10, 11, 48 }, { 11, 12, 48 },
+	{ 12, 13, 48 }, { 13, 14, 48 }, { 14, 15, 48 },	{ 15, 16, 48 },
+	{ 16, 17, 48 }, { 17, 18, 48 }, { 18, 19, 48 },	{ 19, 20, 48 },
+	{ 20, 21, 48 }, { 21, 22, 48 }, { 22, 23, 48 },	{ 23, 24, 48 },
+	{ 24, 25, 48 }, { 25, 26, 48 }, { 26, 27, 48 },	{ 27, 28, 48 },
+	{ 28, 29, 48 }, { 29, 30, 48 }, { 30, 31, 49 },	{ 0, 2, 1 }, 
+	{ 1, 3, 1 }, { 2, 4, 1 }, { 3, 5, 1 }, { 4, 6, 1 },
+	{ 5, 7, 1 }, { 6, 8, 1 }, { 7, 9, 1 }, { 8, 10, 1 },
+	{ 9, 11, 1 }, { 10, 12, 1 }, { 11, 13, 1 }, { 12, 14, 1 },
+	{ 13, 15, 1 }, { 14, 16, 1 }, { 15, 17, 1 }, { 16, 18, 1 }, 
+	{ 17, 19, 1 }, { 18, 20, 1 }, { 19, 21, 1 }, { 20, 22, 1 }, 
+	{ 21, 23, 1 }, { 22, 24, 1 }, { 23, 25, 1 }, { 24, 26, 1 }, 
+	{ 25, 27, 1 }, { 26, 28, 1 }, { 27, 29, 1 }, { 28, 30, 1 }, 
+	{ 29, 31, 1 }, 
+};
+#else
+static const int Ld4[6][3] = {
+  { 0, 1, 29 }, { 1, 2, 29 }, { 2, 3, 29 } , { 0, 2, 5 },
+	{ 1, 3, 5 }, { 0, 3, 5 },
+};
+
+static const int Ld8[13][3] = {
+  { 0, 1, 10 }, { 1, 2, 9 }, { 2, 3, 9 }, { 3, 4, 9 },
+	{ 4, 5, 9 }, { 5, 6, 9 }, { 6, 7, 10 }, { 0, 2, 1 }, 
+	{ 1, 3, 1 }, { 2, 4, 1 }, { 3, 5, 1 }, { 4, 6, 1 },
+	{ 5, 7, 1 }, 
+};
+
+static const int Ld16[29][3] = {
+  { 0, 1, 19 }, { 1, 2, 18 }, { 2, 3, 18 }, { 3, 4, 18 },
+	{ 4, 5, 18 }, { 5, 6, 18 }, { 6, 7, 18 }, { 7, 8, 18 },
+	{ 8, 9, 18 }, { 9, 10, 18 }, { 10, 11, 18 }, { 11, 12, 18 },
+	{ 12, 13, 18 }, { 13, 14, 18 }, { 14, 15, 19 },	{ 0, 2, 1 }, 
+	{ 1, 3, 1 }, { 2, 4, 1 }, { 3, 5, 1 }, { 4, 6, 1 },
+	{ 5, 7, 1 }, { 6, 8, 1 }, { 7, 9, 1 }, { 8, 10, 1 },
+	{ 9, 11, 1 }, { 10, 12, 1 }, { 11, 13, 1 }, { 12, 14, 1 },
+	{ 13, 15, 1 },
+};
+
+static const int Ld32[61][3] = {
+  { 0, 1, 37 }, { 1, 2, 36 }, { 2, 3, 36 }, { 3, 4, 36 },
+	{ 4, 5, 36 }, { 5, 6, 36 }, { 6, 7, 36 }, { 7, 8, 36 },
+	{ 8, 9, 36 }, { 9, 10, 36 }, { 10, 11, 36 }, { 11, 12, 36 },
+	{ 12, 13, 36 }, { 13, 14, 36 }, { 14, 15, 36 },	{ 15, 16, 36 },
+	{ 16, 17, 36 }, { 17, 18, 36 }, { 18, 19, 36 },	{ 19, 20, 36 },
+	{ 20, 21, 36 }, { 21, 22, 36 }, { 22, 23, 36 },	{ 23, 24, 36 },
+	{ 24, 25, 36 }, { 25, 26, 36 }, { 26, 27, 36 },	{ 27, 28, 36 },
+	{ 28, 29, 36 }, { 29, 30, 36 }, { 30, 31, 37 },	{ 0, 2, 1 }, 
+	{ 1, 3, 1 }, { 2, 4, 1 }, { 3, 5, 1 }, { 4, 6, 1 },
+	{ 5, 7, 1 }, { 6, 8, 1 }, { 7, 9, 1 }, { 8, 10, 1 },
+	{ 9, 11, 1 }, { 10, 12, 1 }, { 11, 13, 1 }, { 12, 14, 1 },
+	{ 13, 15, 1 }, { 14, 16, 1 }, { 15, 17, 1 }, { 16, 18, 1 }, 
+	{ 17, 19, 1 }, { 18, 20, 1 }, { 19, 21, 1 }, { 20, 22, 1 }, 
+	{ 21, 23, 1 }, { 22, 24, 1 }, { 23, 25, 1 }, { 24, 26, 1 }, 
+	{ 25, 27, 1 }, { 26, 28, 1 }, { 27, 29, 1 }, { 28, 30, 1 }, 
+	{ 29, 31, 1 }, 
+};
+#endif
+
+static const int La4[4][3] = {
+  { 0, 0, 2 }, { 0, 1, 1 }, { 1, 2, 1 }, { 2, 3, 1 },
+};
+
+static const int La8[8][3] = {
+  { 0, 0, 2 }, { 0, 1, 1 }, { 1, 2, 1 }, { 2, 3, 1 },
+	{ 3, 4, 1 }, { 4, 5, 1 }, { 5, 6, 1 }, { 6, 7, 1 },
+};
+
+static const int La16[16][3] = {
+  { 0, 0, 2 }, { 0, 1, 1 }, { 1, 2, 1 }, { 2, 3, 1 },
+	{ 3, 4, 1 }, { 4, 5, 1 }, { 5, 6, 1 }, { 6, 7, 1 },
+	{ 7, 8, 1 }, { 8, 9, 1 }, { 9, 10, 1 }, { 10, 11, 1 },
+	{ 11, 12, 1 }, { 12, 13, 1 }, { 13, 14, 1 }, { 14, 15, 1 },
+};
+
+static const int La32[32][3] = {
+  { 0, 0, 2 }, { 0, 1, 1 }, { 1, 2, 1 }, { 2, 3, 1 },
+	{ 3, 4, 1 }, { 4, 5, 1 }, { 5, 6, 1 }, { 6, 7, 1 },
+	{ 7, 8, 1 }, { 8, 9, 1 }, { 9, 10, 1 }, { 10, 11, 1 },
+	{ 11, 12, 1 }, { 12, 13, 1 }, { 13, 14, 1 }, { 14, 15, 1 },
+	{ 15, 16, 1 }, { 16, 17, 1 }, { 17, 18, 1 }, { 18, 19, 1 },
+	{ 19, 20, 1 }, { 20, 21, 1 }, { 21, 22, 1 }, { 22, 23, 1 },
+	{ 23, 24, 1 }, { 24, 25, 1 }, { 25, 26, 1 }, { 26, 27, 1 },
+	{ 27, 28, 1 }, { 28, 29, 1 }, { 29, 30, 1 }, { 30, 31, 1 },
+};
+
+/*
+static const int Lf4[4][3] = {
+  { 3, 3, 2 }, { 0, 1, 1 }, { 1, 2, 1 }, { 2, 3, 1 },
+};
+
+static const int Lf8[8][3] = {
+  { 7, 7, 2 }, { 0, 1, 1 }, { 1, 2, 1 }, { 2, 3, 1 },
+	{ 3, 4, 1 }, { 4, 5, 1 }, { 5, 6, 1 }, { 6, 7, 1 },
+};
+
+static const int Lf16[16][3] = {
+  { 15, 15, 2 }, { 0, 1, 1 }, { 1, 2, 1 }, { 2, 3, 1 },
+	{ 3, 4, 1 }, { 4, 5, 1 }, { 5, 6, 1 }, { 6, 7, 1 },
+	{ 7, 8, 1 }, { 8, 9, 1 }, { 9, 10, 1 }, { 10, 11, 1 },
+	{ 11, 12, 1 }, { 12, 13, 1 }, { 13, 14, 1 }, { 14, 15, 1 },
+};
+
+static const int Lf32[32][3] = {
+  { 31, 31, 2 }, { 0, 1, 1 }, { 1, 2, 1 }, { 2, 3, 1 },
+	{ 3, 4, 1 }, { 4, 5, 1 }, { 5, 6, 1 }, { 6, 7, 1 },
+	{ 7, 8, 1 }, { 8, 9, 1 }, { 9, 10, 1 }, { 10, 11, 1 },
+	{ 11, 12, 1 }, { 12, 13, 1 }, { 13, 14, 1 }, { 14, 15, 1 },
+	{ 15, 16, 1 }, { 16, 17, 1 }, { 17, 18, 1 }, { 18, 19, 1 },
+	{ 19, 20, 1 }, { 20, 21, 1 }, { 21, 22, 1 }, { 22, 23, 1 },
+	{ 23, 24, 1 }, { 24, 25, 1 }, { 25, 26, 1 }, { 26, 27, 1 },
+	{ 27, 28, 1 }, { 28, 29, 1 }, { 29, 30, 1 }, { 30, 31, 1 },
+};
+*/
+
+static const int Li4[4][3] = {
+  { 0, 0, 2 }, { 1, 1, 16 }, { 2, 2, 36 }, { 3, 3, 50 },
+};
+
+static const int Li8[8][3] = {
+  { 0, 0, 1 }, { 1, 1, 9 }, { 2, 2, 23 }, { 3, 3, 42 },
+	{ 4, 4, 62 }, { 5, 5, 81 }, { 6, 6, 95 }, { 7, 7, 103 },
+};
+
+static const int Li16[16][3] = {
+  { 0, 0, 1 }, { 1, 1, 1 }, { 2, 2, 1 }, { 3, 3, 1 },
+	{ 4, 4, 1 }, { 5, 5, 1 }, { 6, 6, 1 }, { 7, 7, 1 },
+  { 8, 8, 1 }, { 9, 9, 1 }, { 10, 10, 1 }, { 11, 11, 1 },
+	{ 12, 12, 1 }, { 13, 13, 1 }, { 14, 14, 1 }, { 15, 15, 1 },
+};
+
+static const int Li32[32][3] = {
+  { 0, 0, 1 }, { 1, 1, 1 }, { 2, 2, 1 }, { 3, 3, 1 },
+	{ 4, 4, 1 }, { 5, 5, 1 }, { 6, 6, 1 }, { 7, 7, 1 },
+  { 8, 8, 1 }, { 9, 9, 1 }, { 10, 10, 1 }, { 11, 11, 1 },
+	{ 12, 12, 1 }, { 13, 13, 1 }, { 14, 14, 1 }, { 15, 15, 1 },
+	{ 16, 16, 1 }, { 17, 17, 1 }, { 18, 18, 1 }, { 19, 19, 1 },
+	{ 20, 20, 1 }, { 21, 21, 1 }, { 22, 22, 1 }, { 23, 23, 1 },
+	{ 24, 24, 1 }, { 25, 25, 1 }, { 26, 26, 1 }, { 27, 27, 1 },
+	{ 28, 28, 1 }, { 29, 29, 1 }, { 30, 30, 1 }, { 31, 31, 1 },
+};
+
+// Get quadratic value x'*L*x and take the mean over all rows or columns
+void get_xlx(const int16_t *diff, int stride, int num_to_average,
+             const int laplacian[][3], int *xlx, int ne, int sc_fac,
+						 int is_col_tx) {
+  *xlx = 0;
+	int src, dst;
+	for (int j = 0; j < num_to_average; j++) {
+		for (int i = 0; i < ne; i++) {
+		  // src: laplacian[i][0]
+			// dst: laplacian[i][1]
+			// weight: laplacian[i][2]
+			if (is_col_tx) {
+				src = diff[laplacian[i][0] * stride + j];
+				dst = diff[laplacian[i][1] * stride + j];
+			} else {
+			  src = diff[j * stride + laplacian[i][0]];
+				dst = diff[j * stride + laplacian[i][1]];
+			}
+			if (laplacian[i][0] == laplacian[i][1])  // self-loop
+				*xlx += src * src * laplacian[i][2];
+			else  // edge
+				*xlx += (src - dst) * (src - dst) * laplacian[i][2];
+		}
+	}
+	*xlx /= (num_to_average * sc_fac);
+}
+
+static int prune_laplacian(BLOCK_SIZE bsize, MACROBLOCK *x) {
+	int prune = 0;
+	av1_subtract_plane(x, bsize, 0);
+
+	const struct macroblock_plane *const p = &x->plane[0];
+	const int bw = 4 << (b_width_log2_lookup[bsize]);
+	const int bh = 4 << (b_height_log2_lookup[bsize]);
+
+	int xlx_d, xlx_a, xlx_f, xlx_i;
+	int sum_xlx = 0, max_thr = 0;
+
+	// prune horizontal
+	if (bw == 4) {
+		get_xlx(p->src_diff, bw, bh, Ld4, &xlx_d, nedges[0][0], sc[0][0], 0);
+		get_xlx(p->src_diff, bw, bh, La4, &xlx_a, nedges[1][0], sc[1][0], 0);
+		//get_xlx(p->src_diff, bw, bh, Lf4, &xlx_f, nedges[2][0], sc[2][0], 0);
+		// The following quantity is actually (xlx_a - xlx_f)
+		get_xlx(p->src_diff, bw, bh, Laf4, &xlx_f, 2, 1, 0);
+		xlx_f = xlx_a - xlx_f;
+		get_xlx(p->src_diff, bw, bh, Li4, &xlx_i, nedges[3][0], sc[3][0], 0);
+  } else if (bw == 8) {
+		get_xlx(p->src_diff, bw, bh, Ld8, &xlx_d, nedges[0][1], sc[0][1], 0);
+		get_xlx(p->src_diff, bw, bh, La8, &xlx_a, nedges[1][1], sc[1][1], 0);
+		//get_xlx(p->src_diff, bw, bh, Lf8, &xlx_f, nedges[2][1], sc[2][1], 0);
+		get_xlx(p->src_diff, bw, bh, Laf8, &xlx_f, 2, 1, 0);
+		xlx_f = xlx_a - xlx_f;
+		get_xlx(p->src_diff, bw, bh, Li8, &xlx_i, nedges[3][1], sc[3][1], 0);
+	} else if (bw == 16) {
+		get_xlx(p->src_diff, bw, bh, Ld16, &xlx_d, nedges[0][2], sc[0][2], 0);
+		get_xlx(p->src_diff, bw, bh, La16, &xlx_a, nedges[1][2], sc[1][2], 0);
+		//get_xlx(p->src_diff, bw, bh, Lf16, &xlx_f, nedges[2][2], sc[2][2], 0);
+		get_xlx(p->src_diff, bw, bh, Laf16, &xlx_f, 2, 1, 0);
+		xlx_f = xlx_a - xlx_f;
+		get_xlx(p->src_diff, bw, bh, Li16, &xlx_i, nedges[3][2], sc[3][2], 0);
+	} else {
+		get_xlx(p->src_diff, bw, bh, Ld32, &xlx_d, nedges[0][3], sc[0][3], 0);
+		get_xlx(p->src_diff, bw, bh, La32, &xlx_a, nedges[1][3], sc[1][3], 0);
+		//get_xlx(p->src_diff, bw, bh, Lf32, &xlx_f, nedges[2][3], sc[2][3], 0);
+		get_xlx(p->src_diff, bw, bh, Laf32, &xlx_f, 2, 1, 0);
+		xlx_f = xlx_a - xlx_f;
+		get_xlx(p->src_diff, bw, bh, Li32, &xlx_i, nedges[3][3], sc[3][3], 0);
+	}
+	sum_xlx = xlx_d + xlx_a + xlx_f + xlx_i;
+
+#if PRUNE1
+	max_thr = (int) ((double) sum_xlx * PRUNE1THR);
+  // prune the transform with the max cost
+	if (xlx_d > xlx_a && xlx_d > xlx_f && xlx_d > xlx_i && xlx_d > max_thr)
+	  prune |= 1 << (DCT_1D + 8);
+	else if (xlx_a > xlx_d && xlx_a > xlx_f && xlx_a > xlx_i && xlx_a > max_thr)
+	  prune |= 1 << (ADST_1D + 8);
+	else if (xlx_f > xlx_d && xlx_f > xlx_a && xlx_f > xlx_i && xlx_f > max_thr)
+	  prune |= 1 << (FLIPADST_1D + 8);
+	else if (xlx_i > xlx_d && xlx_i > xlx_a && xlx_i > xlx_f && xlx_i > max_thr)
+	  prune |= 1 << (IDTX_1D + 8);
+#else
+  max_thr = (int) ((double) sum_xlx * PRUNETHR); 
+  if (xlx_d > max_thr)
+	  prune |= 1 << (DCT_1D + 8);
+	if (xlx_a > max_thr)
+	  prune |= 1 << (ADST_1D + 8);
+  if (xlx_f > max_thr)
+	  prune |= 1 << (FLIPADST_1D + 8);
+	if (xlx_i > max_thr)
+	  prune |= 1 << (IDTX + 8);
+#endif
+
+#if PRINT_XLX
+	fprintf(stderr, "[H %d, %d, %d, %d, %d]", bw, xlx_d, xlx_a, xlx_f, xlx_i);
+	fprintf(stderr, "(%d, %d)", sum_xlx, max_thr);
+#endif
+
+  // prune vertical
+	if (bh == 4) {
+		get_xlx(p->src_diff, bw, bw, Ld4, &xlx_d, nedges[0][0], sc[0][0], 1);
+		get_xlx(p->src_diff, bw, bw, La4, &xlx_a, nedges[1][0], sc[1][0], 1);
+		//get_xlx(p->src_diff, bw, bw, Lf4, &xlx_f, nedges[2][0], sc[2][0], 1);
+		get_xlx(p->src_diff, bw, bw, Laf4, &xlx_f, 2, 1, 1);
+		xlx_f = xlx_a - xlx_f;
+		get_xlx(p->src_diff, bw, bw, Li4, &xlx_i, nedges[3][0], sc[3][0], 1);
+  } else if (bh == 8) {
+		get_xlx(p->src_diff, bw, bw, Ld8, &xlx_d, nedges[0][1], sc[0][2], 1);
+		get_xlx(p->src_diff, bw, bw, La8, &xlx_a, nedges[1][1], sc[1][2], 1);
+		//get_xlx(p->src_diff, bw, bw, Lf8, &xlx_f, nedges[2][1], sc[2][2], 1);
+		get_xlx(p->src_diff, bw, bw, Laf8, &xlx_f, 2, 1, 1);
+		xlx_f = xlx_a - xlx_f;
+		get_xlx(p->src_diff, bw, bw, Li8, &xlx_i, nedges[3][1], sc[3][2], 1);
+	} else if (bh == 16) {
+		get_xlx(p->src_diff, bw, bw, Ld16, &xlx_d, nedges[0][2], sc[0][2], 1);
+		get_xlx(p->src_diff, bw, bw, La16, &xlx_a, nedges[1][2], sc[1][2], 1);
+		//get_xlx(p->src_diff, bw, bw, Lf16, &xlx_f, nedges[2][2], sc[2][2], 1);
+		get_xlx(p->src_diff, bw, bw, Laf16, &xlx_f, 2, 1, 1);
+		xlx_f = xlx_a - xlx_f;
+		get_xlx(p->src_diff, bw, bw, Li16, &xlx_i, nedges[3][2], sc[3][2], 1);
+	} else {
+		get_xlx(p->src_diff, bw, bw, Ld32, &xlx_d, nedges[0][3], sc[0][3], 1);
+		get_xlx(p->src_diff, bw, bw, La32, &xlx_a, nedges[1][3], sc[1][3], 1);
+		//get_xlx(p->src_diff, bw, bw, Lf32, &xlx_f, nedges[2][3], sc[2][3], 1);
+		get_xlx(p->src_diff, bw, bw, Laf32, &xlx_f, 2, 1, 1);
+		xlx_f = xlx_a - xlx_f;
+		get_xlx(p->src_diff, bw, bw, Li32, &xlx_i, nedges[3][3], sc[3][3], 1);
+	}
+	sum_xlx = xlx_d + xlx_a + xlx_f + xlx_i;
+
+#if PRUNE1
+	max_thr = (int) ((double) sum_xlx * PRUNE1THR);
+  // prune the transform with the max cost
+	if (xlx_d > xlx_a && xlx_d > xlx_f && xlx_d > xlx_i && xlx_d > max_thr)
+	  prune |= 1 << DCT_1D;
+	else if (xlx_a > xlx_d && xlx_a > xlx_f && xlx_a > xlx_i && xlx_a > max_thr)
+	  prune |= 1 << ADST_1D;
+	else if (xlx_f > xlx_d && xlx_f > xlx_a && xlx_f > xlx_i && xlx_f > max_thr)
+	  prune |= 1 << FLIPADST_1D;
+	else if (xlx_i > xlx_d && xlx_i > xlx_a && xlx_i > xlx_f && xlx_i > max_thr)
+	  prune |= 1 << IDTX_1D;
+#else
+  max_thr = (int) ((double) sum_xlx * PRUNETHR); 
+  if (xlx_d > max_thr)
+	  prune |= 1 << DCT_1D;
+	if (xlx_a > max_thr)
+	  prune |= 1 << ADST_1D;
+  if (xlx_f > max_thr)
+	  prune |= 1 << FLIPADST_1D;
+	if (xlx_i > max_thr)
+	  prune |= 1 << IDTX;
+#endif
+
+#if PRINT_XLX
+	fprintf(stderr, "[H %d, %d, %d, %d, %d]", bw, xlx_d, xlx_a, xlx_f, xlx_i);
+	fprintf(stderr, "(%d, %d)", sum_xlx, max_thr);
+#endif
+
+  return prune;
+}
+#endif  // CONFIG_TXPRUNE_LAPLACIAN
+
 // 1D Transforms used in inter set, this needs to be changed if
 // ext_tx_used_inter is changed
 static const int ext_tx_used_inter_1D[EXT_TX_SETS_INTER][TX_TYPES_1D] = {
@@ -1401,6 +1798,11 @@ static void prune_tx(const AV1_COMP *cpi, BLOCK_SIZE bsize, MACROBLOCK *x,
       prune_tx_2D(bsize, x, cpi->sf.tx_type_search.prune_mode,
                   use_tx_split_prune);
       break;
+#if CONFIG_TXPRUNE_LAPLACIAN
+		case PRUNE_LAPLACIAN:
+			x->tx_search_prune[tx_set_type] = prune_laplacian(bsize, x);
+			break;
+#endif  // CONFIG_TXPRUNE_LAPLACIAN
     default: assert(0);
   }
 }
@@ -1408,7 +1810,11 @@ static void prune_tx(const AV1_COMP *cpi, BLOCK_SIZE bsize, MACROBLOCK *x,
 static int do_tx_type_search(TX_TYPE tx_type, int prune,
                              TX_TYPE_PRUNE_MODE mode) {
   // TODO(sarahparker) implement for non ext tx
+#if CONFIG_TXPRUNE_LAPLACIAN
+	if (mode == PRUNE_2D_ACCURATE || mode == PRUNE_2D_FAST) {
+#else
   if (mode >= PRUNE_2D_ACCURATE) {
+#endif  // CONFIG_TXPRUNE_LAPLACIAN
     return !((prune >> tx_type) & 1);
   } else {
     return !(((prune >> vtx_tab[tx_type]) & 1) |
@@ -4061,7 +4467,12 @@ static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
   }
 
   int tx_split_prune_flag = 0;
+#if CONFIG_TXPRUNE_LAPLACIAN
+  if (cpi->sf.tx_type_search.prune_mode == PRUNE_2D_ACCURATE ||
+	    cpi->sf.tx_type_search.prune_mode == PRUNE_2D_FAST)
+#else
   if (cpi->sf.tx_type_search.prune_mode >= PRUNE_2D_ACCURATE)
+#endif
     tx_split_prune_flag = ((x->tx_search_prune[0] >> TX_TYPES) & 1);
 
   if (cpi->sf.txb_split_cap)

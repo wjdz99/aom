@@ -197,6 +197,9 @@ typedef enum {
   PRUNE_2D_ACCURATE = 3,
   // similar, but applies much more aggressive pruning to get better speed-up
   PRUNE_2D_FAST = 4,
+#if CONFIG_TXPRUNE_LAPLACIAN
+  PRUNE_LAPLACIAN = 5,
+#endif
 } TX_TYPE_PRUNE_MODE;
 
 typedef struct {
