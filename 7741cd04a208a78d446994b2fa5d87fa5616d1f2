@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1ba830c6_9c83f7de",
+        "filename": "av1/common/x86/av1_inv_txfm_sse2.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1848,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2018-02-10T11:36:33Z",
+      "side": 1,
+      "message": "advatage -\u003e advantage",
+      "revId": "7741cd04a208a78d446994b2fa5d87fa5616d1f2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b477c5a8_3073a174",
+        "filename": "av1/common/x86/av1_inv_txfm_sse2.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1849,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2018-02-10T11:36:33Z",
+      "side": 1,
+      "message": "Nice idea. Worth trying.",
+      "revId": "7741cd04a208a78d446994b2fa5d87fa5616d1f2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
