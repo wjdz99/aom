@@ -1842,6 +1842,18 @@ void av1_lowbd_inv_txfm2d_add_32x16_sse2(const int32_t *input, uint8_t *output,
   lowbd_inv_txfm2d_add_internal_sse2(input, output, stride, tx_type, TX_32X16);
 }
 
+void av1_lowbd_inv_txfm2d_add_8x32_sse2(const int32_t *input, uint8_t *output,
+   int stride, TX_TYPE tx_type, int bd) {
+   (void)bd;
+   lowbd_inv_txfm2d_add_internal_sse2(input, output, stride, tx_type, TX_8X32);
+}
+
+void av1_lowbd_inv_txfm2d_add_32x8_sse2(const int32_t *input, uint8_t *output,
+   int stride, TX_TYPE tx_type, int bd) {
+   (void)bd;
+   lowbd_inv_txfm2d_add_internal_sse2(input, output, stride, tx_type, TX_32X8);
+}
+
 typedef void (*inv_txfm_func)(const int32_t *input, uint8_t *output, int stride,
                               TX_TYPE tx_type, int bd);
 
@@ -1865,8 +1877,8 @@ static inv_txfm_func inv_txfm_func_ls[TX_SIZES_ALL] = {
 #endif   // CONFIG_TX64X64
   NULL,  // 4x16
   NULL,  // 16x4
-  NULL,  // 8x32
-  NULL,  // 32x8
+  av1_lowbd_inv_txfm2d_add_8x32_sse2,  // 8x32
+  av1_lowbd_inv_txfm2d_add_32x8_sse2,  // 32x8
 #if CONFIG_TX64X64
   NULL,  // 16x64
   NULL,  // 64x16
