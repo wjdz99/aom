@@ -1122,56 +1122,51 @@ static void highbd_dr_predictor(uint16_t *dst, ptrdiff_t stride,
 
 #if CONFIG_FILTER_INTRA
 DECLARE_ALIGNED(16, const int16_t,
-                filter_intra_taps[FILTER_INTRA_MODES][8][8]) = {
+                av1_filter_intra_taps[FILTER_INTRA_MODES][7][8]) = {
   {
-      { -6, 10, 0, 0, 0, 12, 0, 0 },
-      { -5, 2, 10, 0, 0, 9, 0, 0 },
-      { -3, 1, 1, 10, 0, 7, 0, 0 },
-      { -3, 1, 1, 2, 10, 5, 0, 0 },
-      { -4, 6, 0, 0, 0, 2, 12, 0 },
-      { -3, 2, 6, 0, 0, 2, 9, 0 },
-      { -3, 2, 2, 6, 0, 2, 7, 0 },
-      { -3, 1, 2, 2, 6, 3, 5, 0 },
+      { -6, -5, -3, -3, -4, -3, -3, -3 },
+      { 10, 2, 1, 1, 6, 2, 2, 1 },
+      { 0, 10, 1, 1, 0, 6, 2, 2 },
+      { 0, 0, 10, 2, 0, 0, 6, 2 },
+      { 0, 0, 0, 10, 0, 0, 0, 6 },
+      { 12, 9, 7, 5, 2, 2, 2, 3 },
+      { 0, 0, 0, 0, 12, 9, 7, 5 },
   },
   {
-      { -10, 16, 0, 0, 0, 10, 0, 0 },
-      { -6, 0, 16, 0, 0, 6, 0, 0 },
-      { -4, 0, 0, 16, 0, 4, 0, 0 },
-      { -2, 0, 0, 0, 16, 2, 0, 0 },
-      { -10, 16, 0, 0, 0, 0, 10, 0 },
-      { -6, 0, 16, 0, 0, 0, 6, 0 },
-      { -4, 0, 0, 16, 0, 0, 4, 0 },
-      { -2, 0, 0, 0, 16, 0, 2, 0 },
+      { -10, -6, -4, -2, -10, -6, -4, -2 },
+      { 16, 0, 0, 0, 16, 0, 0, 0 },
+      { 0, 16, 0, 0, 0, 16, 0, 0 },
+      { 0, 0, 16, 0, 0, 0, 16, 0 },
+      { 0, 0, 0, 16, 0, 0, 0, 16 },
+      { 10, 6, 4, 2, 0, 0, 0, 0 },
+      { 0, 0, 0, 0, 10, 6, 4, 2 },
   },
   {
-      { -8, 8, 0, 0, 0, 16, 0, 0 },
-      { -8, 0, 8, 0, 0, 16, 0, 0 },
-      { -8, 0, 0, 8, 0, 16, 0, 0 },
-      { -8, 0, 0, 0, 8, 16, 0, 0 },
-      { -4, 4, 0, 0, 0, 0, 16, 0 },
-      { -4, 0, 4, 0, 0, 0, 16, 0 },
-      { -4, 0, 0, 4, 0, 0, 16, 0 },
-      { -4, 0, 0, 0, 4, 0, 16, 0 },
+      { -8, -8, -8, -8, -4, -4, -4, -4 },
+      { 8, 0, 0, 0, 4, 0, 0, 0 },
+      { 0, 8, 0, 0, 0, 4, 0, 0 },
+      { 0, 0, 8, 0, 0, 0, 4, 0 },
+      { 0, 0, 0, 8, 0, 0, 0, 4 },
+      { 16, 16, 16, 16, 0, 0, 0, 0 },
+      { 0, 0, 0, 0, 16, 16, 16, 16 },
   },
   {
-      { -2, 8, 0, 0, 0, 10, 0, 0 },
-      { -1, 3, 8, 0, 0, 6, 0, 0 },
-      { -1, 2, 3, 8, 0, 4, 0, 0 },
-      { 0, 1, 2, 3, 8, 2, 0, 0 },
-      { -1, 4, 0, 0, 0, 3, 10, 0 },
-      { -1, 3, 4, 0, 0, 4, 6, 0 },
-      { -1, 2, 3, 4, 0, 4, 4, 0 },
-      { -1, 2, 2, 3, 4, 3, 3, 0 },
+      { -2, -1, -1, 0, -1, -1, -1, -1 },
+      { 8, 3, 2, 1, 4, 3, 2, 2 },
+      { 0, 8, 3, 2, 0, 4, 3, 2 },
+      { 0, 0, 8, 3, 0, 0, 4, 3 },
+      { 0, 0, 0, 8, 0, 0, 0, 4 },
+      { 10, 6, 4, 2, 3, 4, 4, 3 },
+      { 0, 0, 0, 0, 10, 6, 4, 3 },
   },
   {
-      { -12, 14, 0, 0, 0, 14, 0, 0 },
-      { -10, 0, 14, 0, 0, 12, 0, 0 },
-      { -9, 0, 0, 14, 0, 11, 0, 0 },
-      { -8, 0, 0, 0, 14, 10, 0, 0 },
-      { -10, 12, 0, 0, 0, 0, 14, 0 },
-      { -9, 1, 12, 0, 0, 0, 12, 0 },
-      { -8, 0, 0, 12, 0, 1, 11, 0 },
-      { -7, 0, 0, 1, 12, 1, 9, 0 },
+      { -12, -10, -9, -8, -10, -9, -8, -7 },
+      { 14, 0, 0, 0, 12, 1, 0, 0 },
+      { 0, 14, 0, 0, 0, 12, 0, 0 },
+      { 0, 0, 14, 0, 0, 0, 12, 1 },
+      { 0, 0, 0, 14, 0, 0, 0, 12 },
+      { 14, 12, 11, 10, 0, 0, 1, 1 },
+      { 0, 0, 0, 0, 14, 12, 11, 9 },
   },
 };
 
@@ -1204,15 +1199,16 @@ void filter_intra_predictor_c(uint8_t *dst, ptrdiff_t stride, TX_SIZE tx_size,
       for (int k = 0; k < 8; ++k) {
         int r_offset = k >> 2;
         int c_offset = k & 0x03;
-        buffer[r + r_offset][c + c_offset] = clip_pixel(
-            ROUND_POWER_OF_TWO_SIGNED(filter_intra_taps[mode][k][0] * p0 +
-                                          filter_intra_taps[mode][k][1] * p1 +
-                                          filter_intra_taps[mode][k][2] * p2 +
-                                          filter_intra_taps[mode][k][3] * p3 +
-                                          filter_intra_taps[mode][k][4] * p4 +
-                                          filter_intra_taps[mode][k][5] * p5 +
-                                          filter_intra_taps[mode][k][6] * p6,
-                                      FILTER_INTRA_SCALE_BITS));
+        buffer[r + r_offset][c + c_offset] =
+            clip_pixel(ROUND_POWER_OF_TWO_SIGNED(
+                av1_filter_intra_taps[mode][0][k] * p0 +
+                    av1_filter_intra_taps[mode][1][k] * p1 +
+                    av1_filter_intra_taps[mode][2][k] * p2 +
+                    av1_filter_intra_taps[mode][3][k] * p3 +
+                    av1_filter_intra_taps[mode][4][k] * p4 +
+                    av1_filter_intra_taps[mode][5][k] * p5 +
+                    av1_filter_intra_taps[mode][6][k] * p6,
+                FILTER_INTRA_SCALE_BITS));
       }
     }
 
@@ -1253,16 +1249,17 @@ static void highbd_filter_intra_predictor(uint16_t *dst, ptrdiff_t stride,
       for (int k = 0; k < 8; ++k) {
         int r_offset = k >> 2;
         int c_offset = k & 0x03;
-        buffer[r + r_offset][c + c_offset] = clip_pixel_highbd(
-            ROUND_POWER_OF_TWO_SIGNED(filter_intra_taps[mode][k][0] * p0 +
-                                          filter_intra_taps[mode][k][1] * p1 +
-                                          filter_intra_taps[mode][k][2] * p2 +
-                                          filter_intra_taps[mode][k][3] * p3 +
-                                          filter_intra_taps[mode][k][4] * p4 +
-                                          filter_intra_taps[mode][k][5] * p5 +
-                                          filter_intra_taps[mode][k][6] * p6,
-                                      FILTER_INTRA_SCALE_BITS),
-            bd);
+        buffer[r + r_offset][c + c_offset] =
+            clip_pixel_highbd(ROUND_POWER_OF_TWO_SIGNED(
+                                  av1_filter_intra_taps[mode][0][k] * p0 +
+                                      av1_filter_intra_taps[mode][1][k] * p1 +
+                                      av1_filter_intra_taps[mode][2][k] * p2 +
+                                      av1_filter_intra_taps[mode][3][k] * p3 +
+                                      av1_filter_intra_taps[mode][4][k] * p4 +
+                                      av1_filter_intra_taps[mode][5][k] * p5 +
+                                      av1_filter_intra_taps[mode][6][k] * p6,
+                                  FILTER_INTRA_SCALE_BITS),
+                              bd);
       }
     }
 
