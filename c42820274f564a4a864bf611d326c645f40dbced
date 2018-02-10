@@ -2,6 +2,40 @@
   "comments": [
     {
       "key": {
+        "uuid": "f728208d_19e746cb",
+        "filename": "aom_dsp/prob.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 648,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-02-10T00:53:46Z",
+      "side": 1,
+      "message": "this could be extracted to a small function and used prior to the call to update_cdf to avoid the function call should this not get inlined",
+      "revId": "c42820274f564a4a864bf611d326c645f40dbced",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5c408b42_b15552f3",
+        "filename": "aom_dsp/prob.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 700,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-02-10T00:53:46Z",
+      "side": 1,
+      "message": "cdf[nsymbs] \u003d (cdf[nsymbs] \u0026 0x3f) | (-(cdf[nsymbs] \u003d\u003d 64) \u0026 0x20);\nshould work",
+      "revId": "c42820274f564a4a864bf611d326c645f40dbced",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b1956d97_5bbd0080",
         "filename": "av1/decoder/decodeframe.c",
         "patchSetId": 6
@@ -22,6 +56,23 @@
       "revId": "c42820274f564a4a864bf611d326c645f40dbced",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c055bd0d_8bc49333",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 2888,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-02-10T00:53:46Z",
+      "side": 1,
+      "message": "some of these could be CONFIG_CDF... ? xx : yy to cut down on the ifdeffry",
+      "revId": "c42820274f564a4a864bf611d326c645f40dbced",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     },
     {
       "key": {
