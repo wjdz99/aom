@@ -55,6 +55,7 @@
 #include "av1/encoder/rdopt.h"
 #include "av1/encoder/tokenize.h"
 #include "av1/encoder/tx_prune_model_weights.h"
+#include "av1/encoder/tx_prune_laplacian.h"
 
 #define DUAL_FILTER_SET_SIZE (SWITCHABLE_FILTERS * SWITCHABLE_FILTERS)
 static const int filter_sets[DUAL_FILTER_SET_SIZE][2] = {
@@ -989,6 +990,192 @@ static int prune_one_for_sby(const AV1_COMP *cpi, BLOCK_SIZE bsize,
                           pd->dst.stride);
 }
 
+#if CONFIG_TXPRUNE_LAPLACIAN
+// Get quadratic value x'*L*x and take the mean over all rows or columns
+void get_xlx(const int16_t *diff, int stride, int num_to_average,
+             const int laplacian[][3], int *xlx, int ne, int sc_fac,
+						 int is_col_tx) {
+  *xlx = 0;
+  int src, dst;
+  for (int j = 0; j < num_to_average; j++) {
+    for (int i = 0; i < ne; i++) {
+      // src: laplacian[i][0]
+      // dst: laplacian[i][1]
+      // weight: laplacian[i][2]
+      if (is_col_tx) {
+        src = diff[laplacian[i][0] * stride + j];
+        dst = diff[laplacian[i][1] * stride + j];
+      } else {
+        src = diff[j * stride + laplacian[i][0]];
+        dst = diff[j * stride + laplacian[i][1]];
+      }
+      if (laplacian[i][0] == laplacian[i][1])  // self-loop
+        *xlx += src * src * laplacian[i][2];
+      else  // edge
+        *xlx += (src - dst) * (src - dst) * laplacian[i][2];
+    }
+  }
+  *xlx /= (num_to_average * sc_fac);
+}
+
+static int prune_laplacian(BLOCK_SIZE bsize, MACROBLOCK *x) {
+  int prune = 0;
+  av1_subtract_plane(x, bsize, 0);
+
+  const struct macroblock_plane *const p = &x->plane[0];
+  const int bw = block_size_wide[bsize];
+  const int bh = block_size_high[bsize];
+
+  int xlx_d, xlx_a, xlx_f, xlx_i;
+  int sum_xlx_daf = 0, prune_thr_daf = 0, prune_thr_i = 0;
+
+  // prune horizontal
+  if (bw == 4) {
+    get_xlx(p->src_diff, bw, bh, Ld4, &xlx_d, nedges[0][0], sc[0][0], 0);
+    get_xlx(p->src_diff, bw, bh, La4, &xlx_a, nedges[1][0], sc[1][0], 0);
+#if USE_SINU_WEIGHTS
+    // The following quantity is actually (xlx_a - xlx_f)
+    get_xlx(p->src_diff, bw, bh, Laf4, &xlx_f, 2, 1, 0);
+    xlx_f = xlx_a - xlx_f;
+#else
+    get_xlx(p->src_diff, bw, bh, Lf4, &xlx_f, nedges[2][0], sc[2][0], 0);
+#endif
+    get_xlx(p->src_diff, bw, bh, Li4, &xlx_i, nedges[3][0], sc[3][0], 0);
+  } else if (bw == 8) {
+    get_xlx(p->src_diff, bw, bh, Ld8, &xlx_d, nedges[0][1], sc[0][1], 0);
+    get_xlx(p->src_diff, bw, bh, La8, &xlx_a, nedges[1][1], sc[1][1], 0);
+#if USE_SINU_WEIGHTS
+    get_xlx(p->src_diff, bw, bh, Laf8, &xlx_f, 2, 1, 0);
+    xlx_f = xlx_a - xlx_f;
+#else
+    get_xlx(p->src_diff, bw, bh, Lf8, &xlx_f, nedges[2][1], sc[2][1], 0);
+#endif
+    get_xlx(p->src_diff, bw, bh, Li8, &xlx_i, nedges[3][1], sc[3][1], 0);
+  } else if (bw == 16) {
+    get_xlx(p->src_diff, bw, bh, Ld16, &xlx_d, nedges[0][2], sc[0][2], 0);
+    get_xlx(p->src_diff, bw, bh, La16, &xlx_a, nedges[1][2], sc[1][2], 0);
+#if USE_SINU_WEIGHTS
+    get_xlx(p->src_diff, bw, bh, Laf16, &xlx_f, 2, 1, 0);
+    xlx_f = xlx_a - xlx_f;
+#else
+    get_xlx(p->src_diff, bw, bh, Lf16, &xlx_f, nedges[2][2], sc[2][2], 0);
+#endif
+    get_xlx(p->src_diff, bw, bh, Li16, &xlx_i, nedges[3][2], sc[3][2], 0);
+  } else {
+    get_xlx(p->src_diff, bw, bh, Ld32, &xlx_d, nedges[0][3], sc[0][3], 0);
+    get_xlx(p->src_diff, bw, bh, La32, &xlx_a, nedges[1][3], sc[1][3], 0);
+#if USE_SINU_WEIGHTS
+    get_xlx(p->src_diff, bw, bh, Laf32, &xlx_f, 2, 1, 0);
+    xlx_f = xlx_a - xlx_f;
+#else
+    get_xlx(p->src_diff, bw, bh, Lf32, &xlx_f, nedges[2][3], sc[2][3], 0);
+#endif
+    get_xlx(p->src_diff, bw, bh, Li32, &xlx_i, nedges[3][3], sc[3][3], 0);
+  }
+
+  sum_xlx_daf = xlx_d + xlx_a + xlx_f;
+  prune_thr_daf = (int) ((double) sum_xlx_daf * TAU_DAF);
+  prune_thr_i = (int) ((double) (sum_xlx_daf + xlx_i) * TAU_I);
+
+  if (xlx_d != xlx_a || xlx_a != xlx_f || xlx_f != xlx_i) {
+#if PRUNE_ONE_DAF
+    if (xlx_d > xlx_a && xlx_d > xlx_f) prune |= 1 << (DCT_1D + 8);
+    if (xlx_a > xlx_d && xlx_a > xlx_f) prune |= 1 << (ADST_1D + 8);
+    if (xlx_f > xlx_d && xlx_f > xlx_a) prune |= 1 << (FLIPADST_1D + 8);
+#elif PRUNE_ONE_AF
+    prune |= 1 << (xlx_a > xlx_f ? (ADST_1D + 8) : (FLIPADST_1D + 8));
+#else
+    if (xlx_d > prune_thr_daf)
+      prune |= 1 << (DCT_1D + 8);
+    if (xlx_a > prune_thr_daf)
+      prune |= 1 << (ADST_1D + 8);
+    if (xlx_f > prune_thr_daf)
+      prune |= 1 << (FLIPADST_1D + 8);
+#endif
+    if (xlx_i > prune_thr_i)
+      prune |= 1 << (IDTX_1D + 8);
+  }
+
+#if PRINT_XLX
+  fprintf(stderr, "[H %d, %d, %d, %d, %d]", bw, xlx_d, xlx_a, xlx_f, xlx_i);
+  fprintf(stderr, "(%d, %d, %d) ", prune_thr_daf, prune_thr_i, prune);
+#endif
+
+  // prune vertical
+  if (bh == 4) {
+    get_xlx(p->src_diff, bw, bw, Ld4, &xlx_d, nedges[0][0], sc[0][0], 1);
+    get_xlx(p->src_diff, bw, bw, La4, &xlx_a, nedges[1][0], sc[1][0], 1);
+#if USE_SINU_WEIGHTS
+    get_xlx(p->src_diff, bw, bw, Laf4, &xlx_f, 2, 1, 1);
+    xlx_f = xlx_a - xlx_f;
+#else
+    get_xlx(p->src_diff, bw, bw, Lf4, &xlx_f, nedges[2][0], sc[2][0], 1);
+#endif
+    get_xlx(p->src_diff, bw, bw, Li4, &xlx_i, nedges[3][0], sc[3][0], 1);
+  } else if (bh == 8) {
+    get_xlx(p->src_diff, bw, bw, Ld8, &xlx_d, nedges[0][1], sc[0][2], 1);
+    get_xlx(p->src_diff, bw, bw, La8, &xlx_a, nedges[1][1], sc[1][2], 1);
+#if USE_SINU_WEIGHTS
+    get_xlx(p->src_diff, bw, bw, Laf8, &xlx_f, 2, 1, 1);
+    xlx_f = xlx_a - xlx_f;
+#else
+    get_xlx(p->src_diff, bw, bw, Lf8, &xlx_f, nedges[2][1], sc[2][2], 1);
+#endif
+    get_xlx(p->src_diff, bw, bw, Li8, &xlx_i, nedges[3][1], sc[3][2], 1);
+  } else if (bh == 16) {
+    get_xlx(p->src_diff, bw, bw, Ld16, &xlx_d, nedges[0][2], sc[0][2], 1);
+    get_xlx(p->src_diff, bw, bw, La16, &xlx_a, nedges[1][2], sc[1][2], 1);
+#if USE_SINU_WEIGHTS
+    get_xlx(p->src_diff, bw, bw, Laf16, &xlx_f, 2, 1, 1);
+    xlx_f = xlx_a - xlx_f;
+#else
+    get_xlx(p->src_diff, bw, bw, Lf16, &xlx_f, nedges[2][2], sc[2][2], 1);
+#endif
+    get_xlx(p->src_diff, bw, bw, Li16, &xlx_i, nedges[3][2], sc[3][2], 1);
+  } else {
+    get_xlx(p->src_diff, bw, bw, Ld32, &xlx_d, nedges[0][3], sc[0][3], 1);
+    get_xlx(p->src_diff, bw, bw, La32, &xlx_a, nedges[1][3], sc[1][3], 1);
+#if USE_SINU_WEIGHTS
+    get_xlx(p->src_diff, bw, bw, Laf32, &xlx_f, 2, 1, 1);
+    xlx_f = xlx_a - xlx_f;
+#else
+    get_xlx(p->src_diff, bw, bw, Lf32, &xlx_f, nedges[2][3], sc[2][3], 1);
+#endif
+    get_xlx(p->src_diff, bw, bw, Li32, &xlx_i, nedges[3][3], sc[3][3], 1);
+  }
+
+  sum_xlx_daf = xlx_d + xlx_a + xlx_f;
+  prune_thr_daf = (int) ((double) sum_xlx_daf * TAU_DAF);
+  prune_thr_i = (int) ((double) (sum_xlx_daf + xlx_i) * TAU_I);
+
+  if (xlx_d != xlx_a || xlx_a != xlx_f || xlx_f != xlx_i) {
+#if PRUNE_ONE_DAF
+    if (xlx_d > xlx_a && xlx_d > xlx_f) prune |= 1 << DCT_1D;
+    if (xlx_a > xlx_d && xlx_a > xlx_f) prune |= 1 << ADST_1D;
+    if (xlx_f > xlx_d && xlx_f > xlx_a) prune |= 1 << FLIPADST_1D;
+#elif PRUNE_ONE_AF
+    prune |= 1 << (xlx_a > xlx_f ? ADST_1D : FLIPADST_1D);
+#else
+    if (xlx_d > prune_thr_daf)
+      prune |= 1 << DCT_1D;
+    if (xlx_a > prune_thr_daf)
+      prune |= 1 << ADST_1D;
+    if (xlx_f > prune_thr_daf)
+      prune |= 1 << FLIPADST_1D;
+#endif
+    if (xlx_i > prune_thr_i)
+      prune |= 1 << IDTX_1D;
+  }
+
+#if PRINT_XLX
+  fprintf(stderr, "[V %d, %d, %d, %d, %d]", bh, xlx_d, xlx_a, xlx_f, xlx_i);
+  fprintf(stderr, "(%d, %d, %d)\n", prune_thr_daf, prune_thr_i, prune);
+#endif
+
+  return prune;
+}
+#endif  // CONFIG_TXPRUNE_LAPLACIAN
+
 // 1D Transforms used in inter set, this needs to be changed if
 // ext_tx_used_inter is changed
 static const int ext_tx_used_inter_1D[EXT_TX_SETS_INTER][TX_TYPES_1D] = {
@@ -1387,6 +1574,11 @@ static void prune_tx(const AV1_COMP *cpi, BLOCK_SIZE bsize, MACROBLOCK *x,
     case PRUNE_2D_FAST:
       if (use_tx_split_prune) prune_tx_split(bsize, x);
       break;
+#if CONFIG_TXPRUNE_LAPLACIAN
+    case PRUNE_LAPLACIAN:
+      x->tx_search_prune[tx_set_type] = prune_laplacian(bsize, x);
+      break;
+#endif  // CONFIG_TXPRUNE_LAPLACIAN
     default: assert(0);
   }
 }
@@ -1394,7 +1586,11 @@ static void prune_tx(const AV1_COMP *cpi, BLOCK_SIZE bsize, MACROBLOCK *x,
 static int do_tx_type_search(TX_TYPE tx_type, int prune,
                              TX_TYPE_PRUNE_MODE mode) {
   // TODO(sarahparker) implement for non ext tx
+#if CONFIG_TXPRUNE_LAPLACIAN
+  if (mode == PRUNE_2D_ACCURATE || mode == PRUNE_2D_FAST) {
+#else
   if (mode >= PRUNE_2D_ACCURATE) {
+#endif  // CONFIG_TXPRUNE_LAPLACIAN
     return !((prune >> tx_type) & 1);
   } else {
     return !(((prune >> vtx_tab[tx_type]) & 1) |
@@ -1942,7 +2138,12 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
                        !(is_inter && x->use_default_inter_tx_type) &&
                        cpi->sf.tx_type_search.prune_mode > NO_PRUNE;
   if (do_prune) {
+#if CONFIG_TXPRUNE_LAPLACIAN
+    if (cpi->sf.tx_type_search.prune_mode == PRUNE_2D_ACCURATE ||
+		    cpi->sf.tx_type_search.prune_mode == PRUNE_2D_FAST) {
+#else
     if (cpi->sf.tx_type_search.prune_mode >= PRUNE_2D_ACCURATE) {
+#endif
       if (is_inter) {
         prune = prune_tx_2D(x, plane_bsize, tx_size, blk_row, blk_col,
                             tx_set_type, cpi->sf.tx_type_search.prune_mode);
@@ -3619,7 +3820,12 @@ static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
   }
 
   int tx_split_prune_flag = 0;
+#if CONFIG_TXPRUNE_LAPLACIAN
+  if (cpi->sf.tx_type_search.prune_mode == PRUNE_2D_ACCURATE ||
+      cpi->sf.tx_type_search.prune_mode == PRUNE_2D_FAST)
+#else
   if (cpi->sf.tx_type_search.prune_mode >= PRUNE_2D_ACCURATE)
+#endif
     tx_split_prune_flag = x->tx_split_prune_flag;
 
   if (cpi->sf.txb_split_cap)
