@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "79ce7142_700ff5fd",
+        "filename": "test/intra_edge_test.cc",
+        "patchSetId": 13
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-02-10T00:50:48Z",
+      "side": 1,
+      "message": "these could be scoped to the loop",
+      "revId": "1124db22687295c2597408286c36280d01bb7324",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
