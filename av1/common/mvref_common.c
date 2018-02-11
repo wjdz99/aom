@@ -999,6 +999,153 @@ static void setup_ref_mv_list(
   }
 
   if (rf[1] > NONE_FRAME) {
+#if CONFIG_OPT_REF_MV
+    // TODO(jingning, yunqing): Refactor and consolidate the compound and
+    // single reference frame modes. Reduce unnecessary redundancy.
+    if (refmv_count[ref_frame] < 2) {
+      int_mv ref_id[2][2], ref_diff[2][2];
+      int ref_id_count[2] = { 0 }, ref_diff_count[2] = { 0 };
+
+      int mi_width = AOMMIN(mi_size_wide[BLOCK_64X64], xd->n8_w);
+      mi_width = AOMMIN(mi_width, cm->mi_cols - mi_col);
+      int mi_height = AOMMIN(mi_size_high[BLOCK_64X64], xd->n8_h);
+      mi_height = AOMMIN(mi_height, cm->mi_rows - mi_row);
+      int mi_size = AOMMIN(mi_width, mi_height);
+
+      for (int idx = 0; abs(max_row_offset) >= 1 && idx < mi_size;) {
+        const MODE_INFO *const candidate_mi = xd->mi[-xd->mi_stride + idx];
+        const MB_MODE_INFO *const candidate = &candidate_mi->mbmi;
+        const int candidate_bsize = candidate->sb_type;
+
+        for (int rf_idx = 0; rf_idx < 2; ++rf_idx) {
+          MV_REFERENCE_FRAME can_rf = candidate->ref_frame[rf_idx];
+
+          if (can_rf == rf[0] && ref_id_count[0] < 2) {
+            ref_id[0][ref_id_count[0]] = candidate->mv[rf_idx];
+            ++ref_id_count[0];
+          } else if (can_rf > INTRA_FRAME && ref_diff_count[0] < 2) {
+            int_mv this_mv = candidate->mv[rf_idx];
+            if (cm->ref_frame_sign_bias[can_rf] !=
+                cm->ref_frame_sign_bias[rf[0]]) {
+              this_mv.as_mv.row = -this_mv.as_mv.row;
+              this_mv.as_mv.col = -this_mv.as_mv.col;
+            }
+            ref_diff[0][ref_diff_count[0]] = this_mv;
+            ++ref_diff_count[0];
+          }
+
+          if (can_rf == rf[1] && ref_id_count[1] < 2) {
+            ref_id[1][ref_id_count[1]] = candidate->mv[rf_idx];
+            ++ref_id_count[1];
+          } else if (can_rf > INTRA_FRAME && ref_diff_count[1] < 2) {
+            int_mv this_mv = candidate->mv[rf_idx];
+            if (cm->ref_frame_sign_bias[can_rf] !=
+                cm->ref_frame_sign_bias[rf[1]]) {
+              this_mv.as_mv.row = -this_mv.as_mv.row;
+              this_mv.as_mv.col = -this_mv.as_mv.col;
+            }
+            ref_diff[1][ref_diff_count[1]] = this_mv;
+            ++ref_diff_count[1];
+          }
+        }
+        idx += mi_size_wide[candidate_bsize];
+      }
+
+      for (int idx = 0; abs(max_col_offset) >= 1 && idx < mi_size;) {
+        const MODE_INFO *const candidate_mi = xd->mi[idx * xd->mi_stride - 1];
+        const MB_MODE_INFO *const candidate = &candidate_mi->mbmi;
+        const int candidate_bsize = candidate->sb_type;
+
+        for (int rf_idx = 0; rf_idx < 2; ++rf_idx) {
+          MV_REFERENCE_FRAME can_rf = candidate->ref_frame[rf_idx];
+
+          if (can_rf == rf[0] && ref_id_count[0] < 2) {
+            ref_id[0][ref_id_count[0]] = candidate->mv[rf_idx];
+            ++ref_id_count[0];
+          } else if (can_rf > INTRA_FRAME && ref_diff_count[0] < 2) {
+            int_mv this_mv = candidate->mv[rf_idx];
+            if (cm->ref_frame_sign_bias[can_rf] !=
+                cm->ref_frame_sign_bias[rf[0]]) {
+              this_mv.as_mv.row = -this_mv.as_mv.row;
+              this_mv.as_mv.col = -this_mv.as_mv.col;
+            }
+            ref_diff[0][ref_diff_count[0]] = this_mv;
+            ++ref_diff_count[0];
+          }
+
+          if (can_rf == rf[1] && ref_id_count[1] < 2) {
+            ref_id[1][ref_id_count[1]] = candidate->mv[rf_idx];
+            ++ref_id_count[1];
+          } else if (can_rf > INTRA_FRAME && ref_diff_count[1] < 2) {
+            int_mv this_mv = candidate->mv[rf_idx];
+            if (cm->ref_frame_sign_bias[can_rf] !=
+                cm->ref_frame_sign_bias[rf[1]]) {
+              this_mv.as_mv.row = -this_mv.as_mv.row;
+              this_mv.as_mv.col = -this_mv.as_mv.col;
+            }
+            ref_diff[1][ref_diff_count[1]] = this_mv;
+            ++ref_diff_count[1];
+          }
+        }
+        idx += mi_size_high[candidate_bsize];
+      }
+
+      // Build up the compound mv predictor
+      int_mv comp_list[3][2];
+
+      int comp_idx = 0;
+      for (int list_idx = 0; list_idx < ref_id_count[0] && comp_idx < 3;
+           ++list_idx, ++comp_idx)
+        comp_list[comp_idx][0] = ref_id[0][list_idx];
+      for (int list_idx = 0; list_idx < ref_diff_count[0] && comp_idx < 3;
+           ++list_idx, ++comp_idx)
+        comp_list[comp_idx][0] = ref_diff[0][list_idx];
+      for (; comp_idx < 3; ++comp_idx)
+        comp_list[comp_idx][0] = gm_mv_candidates[0];
+
+      comp_idx = 0;
+      for (int list_idx = 0; list_idx < ref_id_count[1] && comp_idx < 3;
+           ++list_idx, ++comp_idx)
+        comp_list[comp_idx][1] = ref_id[1][list_idx];
+      for (int list_idx = 0; list_idx < ref_diff_count[1] && comp_idx < 3;
+           ++list_idx, ++comp_idx)
+        comp_list[comp_idx][1] = ref_diff[1][list_idx];
+      for (; comp_idx < 3; ++comp_idx)
+        comp_list[comp_idx][1] = gm_mv_candidates[1];
+
+      if (refmv_count[ref_frame]) {
+        assert(refmv_count[ref_frame] == 1);
+        if (comp_list[0][0].as_int ==
+                ref_mv_stack[ref_frame][0].this_mv.as_int &&
+            comp_list[0][1].as_int ==
+                ref_mv_stack[ref_frame][0].comp_mv.as_int) {
+          ref_mv_stack[ref_frame][refmv_count[ref_frame]].this_mv =
+              comp_list[1][0];
+          ref_mv_stack[ref_frame][refmv_count[ref_frame]].comp_mv =
+              comp_list[1][1];
+        } else {
+          ref_mv_stack[ref_frame][refmv_count[ref_frame]].this_mv =
+              comp_list[0][0];
+          ref_mv_stack[ref_frame][refmv_count[ref_frame]].comp_mv =
+              comp_list[0][1];
+        }
+        ref_mv_stack[ref_frame][refmv_count[ref_frame]].weight = 2;
+        ++refmv_count[ref_frame];
+      } else {
+        for (int idx = 0; idx < MAX_MV_REF_CANDIDATES; ++idx) {
+          ref_mv_stack[ref_frame][refmv_count[ref_frame]].this_mv =
+              comp_list[idx][0];
+          ref_mv_stack[ref_frame][refmv_count[ref_frame]].comp_mv =
+              comp_list[idx][1];
+          ref_mv_stack[ref_frame][refmv_count[ref_frame]].weight = 2;
+          ++refmv_count[ref_frame];
+        }
+      }
+    }
+
+    assert(refmv_count[ref_frame] >= 2);
+#endif
+
     for (int idx = 0; idx < refmv_count[ref_frame]; ++idx) {
       clamp_mv_ref(&ref_mv_stack[ref_frame][idx].this_mv.as_mv,
                    xd->n8_w << MI_SIZE_LOG2, xd->n8_h << MI_SIZE_LOG2, xd);
