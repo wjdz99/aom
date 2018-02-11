@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a1c8e42_94356d6d",
+        "filename": "av1/common/mvref_common.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1037,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2018-02-11T07:03:39Z",
+      "side": 1,
+      "message": "Is it possible to add another loop here to cut the number of lines of code by half?\n\n        for (int idx \u003d 0; idx \u003c 2; ++idx) {\n          if (can_rf \u003d\u003d rf[idx] \u0026\u0026 ref_id_count[idx] \u003c 2) {\n            ref_id[idx][ref_id_count[idx]] \u003d candidate-\u003emv[rf_idx];\n            ++ref_id_count[idx];\n          } else if (can_rf \u003e INTRA_FRAME \u0026\u0026 ref_diff_count[idx] \u003c 2) {\n            int_mv this_mv \u003d candidate-\u003emv[rf_idx];\n            if (cm-\u003eref_frame_sign_bias[can_rf] !\u003d\n                cm-\u003eref_frame_sign_bias[rf[idx]]) {\n              this_mv.as_mv.row \u003d -this_mv.as_mv.row;\n              this_mv.as_mv.col \u003d -this_mv.as_mv.col;\n            }\n            ref_diff[idx][ref_diff_count[idx]] \u003d this_mv;\n            ++ref_diff_count[idx];\n          }\n        }",
+      "revId": "71898aae49ea51936b5a3c32646868993d66a5d1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f48ab7f1_d87648ff",
+        "filename": "av1/common/mvref_common.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1076,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2018-02-11T07:03:39Z",
+      "side": 1,
+      "message": "Ditto",
+      "revId": "71898aae49ea51936b5a3c32646868993d66a5d1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
