@@ -125,7 +125,7 @@ static void predict_and_reconstruct_intra_block(
 
   if (!mbmi->skip) {
     struct macroblockd_plane *const pd = &xd->plane[plane];
-#if TXCOEFF_TIMER
+#if TXCOEFF_TIMER && 0
     struct aom_usec_timer timer;
     aom_usec_timer_start(&timer);
 #endif
@@ -147,7 +147,7 @@ static void predict_and_reconstruct_intra_block(
                                 tx_type, &max_scan_line, r, mbmi->segment_id);
 #endif  // CONFIG_LV_MAP
 
-#if TXCOEFF_TIMER
+#if TXCOEFF_TIMER && 0
     aom_usec_timer_mark(&timer);
     const int64_t elapsed_time = aom_usec_timer_elapsed(&timer);
     cm->txcoeff_timer += elapsed_time;
@@ -188,7 +188,7 @@ static void decode_reconstruct_tx(AV1_COMMON *cm, MACROBLOCKD *const xd,
 
   if (tx_size == plane_tx_size || plane) {
     PLANE_TYPE plane_type = get_plane_type(plane);
-#if TXCOEFF_TIMER
+#if TXCOEFF_TIMER && 0
     struct aom_usec_timer timer;
     aom_usec_timer_start(&timer);
 #endif
@@ -210,7 +210,7 @@ static void decode_reconstruct_tx(AV1_COMMON *cm, MACROBLOCKD *const xd,
                                 tx_type, &max_scan_line, r, mbmi->segment_id);
 #endif  // CONFIG_LV_MAP
 
-#if TXCOEFF_TIMER
+#if TXCOEFF_TIMER && 0
     aom_usec_timer_mark(&timer);
     const int64_t elapsed_time = aom_usec_timer_elapsed(&timer);
     cm->txcoeff_timer += elapsed_time;

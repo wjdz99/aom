@@ -88,7 +88,7 @@ extern "C" {
 
 // TODO(jingning): Turning this on to set up transform coefficient
 // processing timer.
-#define TXCOEFF_TIMER 0
+#define TXCOEFF_TIMER 1
 #define TXCOEFF_COST_TIMER 0
 
 typedef enum {

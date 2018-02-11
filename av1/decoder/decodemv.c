@@ -11,6 +11,8 @@
 
 #include <assert.h>
 
+#include "aom_ports/aom_timer.h"
+
 #include "av1/common/common.h"
 #include "av1/common/entropy.h"
 #include "av1/common/entropymode.h"
@@ -1725,6 +1727,9 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
   read_ref_frames(cm, xd, r, mbmi->segment_id, mbmi->ref_frame);
   const int is_compound = has_second_ref(mbmi);
 
+  struct aom_usec_timer timer;
+  aom_usec_timer_start(&timer);
+
 #if CONFIG_OPT_REF_MV
   if (is_compound) {
     MV_REFERENCE_FRAME ref_frame = av1_ref_frame_type(mbmi->ref_frame);
@@ -1759,6 +1764,11 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
                      (void *)pbi, inter_mode_ctx, 0);
   }
 #endif
+
+  aom_usec_timer_mark(&timer);
+  const int64_t elapsed_time = aom_usec_timer_elapsed(&timer);
+  cm->txcoeff_timer += elapsed_time;
+  ++cm->txb_count;
 
   int mode_ctx = 0;
 
