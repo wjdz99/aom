@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0e1da776_f81373e0",
+        "filename": "av1/common/x86/av1_inv_txfm_sse2.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2291,
+      "author": {
+        "id": 8900
+      },
+      "writtenOn": "2018-02-11T11:28:08Z",
+      "side": 1,
+      "message": "For lossless case, need other simd functions. Skip them here temporarily.",
+      "range": {
+        "startLine": 2291,
+        "startChar": 23,
+        "endLine": 2291,
+        "endChar": 49
+      },
+      "revId": "1fbafbc0f87a7903f23723a383095a04a582f01d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
