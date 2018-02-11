@@ -472,10 +472,10 @@ static void generate_chroma_grain_blocks(
           wsum_cb = wsum_cb + params->ar_coeffs_cb[pos] * av_luma;
           wsum_cr = wsum_cr + params->ar_coeffs_cr[pos] * av_luma;
         } else {
-          printf(
+          aom_internal_error(
+              params->error_info, AOM_CODEC_UNSUP_FEATURE,
               "Grain synthesis: prediction between two chroma components is "
               "not supported!");
-          exit(1);
         }
       }
       cb_grain_block[i * chroma_grain_stride + j] =
@@ -772,8 +772,8 @@ void av1_add_film_grain(aom_film_grain_t *params, aom_image_t *src,
   int height, width, luma_stride, chroma_stride;
 
   if (!(src->fmt == AOM_IMG_FMT_I42016) && !(src->fmt == AOM_IMG_FMT_I420)) {
-    printf("Film grain error: only 4:2:0 is currently supported!");
-    exit(1);
+    aom_internal_error(params->error_info, AOM_CODEC_UNSUP_FEATURE,
+                       "Film grain error: only 4:2:0 is currently supported!");
   }
 
   dst->r_w = src->r_w;

@@ -22,6 +22,7 @@ extern "C" {
 
 #include "aom_dsp/aom_dsp_common.h"
 #include "aom/aom_image.h"
+#include "aom/internal/aom_codec_internal.h"
 
 /*!\brief Structure containing film grain synthesis parameters for a frame
  *
@@ -77,6 +78,8 @@ typedef struct {
   int chroma_scaling_from_luma;
 
   uint16_t random_seed;
+
+  struct aom_internal_error_info *error_info;
 } aom_film_grain_t;
 
 /*!\brief Add film grain
