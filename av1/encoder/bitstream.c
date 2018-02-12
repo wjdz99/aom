@@ -780,34 +780,15 @@ static void write_filter_intra_mode_info(const MACROBLOCKD *xd,
 }
 #endif  // CONFIG_FILTER_INTRA
 
-static void write_intra_angle_info(const MACROBLOCKD *xd,
-                                   FRAME_CONTEXT *const ec_ctx, aom_writer *w) {
-  const MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
-  const BLOCK_SIZE bsize = mbmi->sb_type;
-  if (!av1_use_angle_delta(bsize)) return;
-
-  if (av1_is_directional_mode(mbmi->mode, bsize)) {
+static void write_angle_delta(aom_writer *w, int angle_delta,
+                              aom_cdf_prob *cdf) {
 #if CONFIG_EXT_INTRA_MOD
-    aom_write_symbol(w, mbmi->angle_delta[PLANE_TYPE_Y] + MAX_ANGLE_DELTA,
-                     ec_ctx->angle_delta_cdf[mbmi->mode - V_PRED],
-                     2 * MAX_ANGLE_DELTA + 1);
+  aom_write_symbol(w, angle_delta + MAX_ANGLE_DELTA, cdf,
+                   2 * MAX_ANGLE_DELTA + 1);
 #else
-    (void)ec_ctx;
-    write_uniform(w, 2 * MAX_ANGLE_DELTA + 1,
-                  MAX_ANGLE_DELTA + mbmi->angle_delta[PLANE_TYPE_Y]);
+  (void)ec_ctx;
+  write_uniform(w, 2 * MAX_ANGLE_DELTA + 1, MAX_ANGLE_DELTA + angle_delta);
 #endif  // CONFIG_EXT_INTRA_MOD
-  }
-
-  if (av1_is_directional_mode(get_uv_mode(mbmi->uv_mode), bsize)) {
-#if CONFIG_EXT_INTRA_MOD
-    aom_write_symbol(w, mbmi->angle_delta[PLANE_TYPE_UV] + MAX_ANGLE_DELTA,
-                     ec_ctx->angle_delta_cdf[mbmi->uv_mode - V_PRED],
-                     2 * MAX_ANGLE_DELTA + 1);
-#else
-    write_uniform(w, 2 * MAX_ANGLE_DELTA + 1,
-                  MAX_ANGLE_DELTA + mbmi->angle_delta[PLANE_TYPE_UV]);
-#endif
-  }
 }
 
 static void write_mb_interp_filter(AV1_COMP *cpi, const MACROBLOCKD *xd,
@@ -1327,6 +1308,13 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
 
   if (!is_inter) {
     write_intra_mode(ec_ctx, bsize, mode, w);
+
+    if (av1_use_angle_delta(bsize) &&
+        av1_is_directional_mode(mbmi->mode, bsize)) {
+      write_angle_delta(w, mbmi->angle_delta[PLANE_TYPE_Y],
+                        ec_ctx->angle_delta_cdf[mbmi->mode - V_PRED]);
+    }
+
 #if CONFIG_MONO_VIDEO
     if (!cm->seq_params.monochrome &&
         is_chroma_reference(mi_row, mi_col, bsize, xd->plane[1].subsampling_x,
@@ -1345,7 +1333,12 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
 #endif
     }
 
-    write_intra_angle_info(xd, ec_ctx, w);
+    if (av1_use_angle_delta(bsize) &&
+        av1_is_directional_mode(get_uv_mode(mbmi->uv_mode), bsize)) {
+      write_angle_delta(w, mbmi->angle_delta[PLANE_TYPE_UV],
+                        ec_ctx->angle_delta_cdf[mbmi->uv_mode - V_PRED]);
+    }
+
     if (av1_allow_palette(cm->allow_screen_content_tools, bsize))
       write_palette_mode_info(cm, xd, mi, mi_row, mi_col, w);
 #if CONFIG_FILTER_INTRA
@@ -1647,6 +1640,12 @@ static void write_mb_modes_kf(AV1_COMP *cpi, MACROBLOCKD *xd,
 
   write_intra_mode_kf(ec_ctx, mi, above_mi, left_mi, mbmi->mode, w);
 
+  if (av1_use_angle_delta(bsize) &&
+      av1_is_directional_mode(mbmi->mode, bsize)) {
+    write_angle_delta(w, mbmi->angle_delta[PLANE_TYPE_Y],
+                      ec_ctx->angle_delta_cdf[mbmi->mode - V_PRED]);
+  }
+
 #if CONFIG_MONO_VIDEO
   if (!cm->seq_params.monochrome &&
       is_chroma_reference(mi_row, mi_col, bsize, xd->plane[1].subsampling_x,
@@ -1666,7 +1665,12 @@ static void write_mb_modes_kf(AV1_COMP *cpi, MACROBLOCKD *xd,
 #endif
   }
 
-  write_intra_angle_info(xd, ec_ctx, w);
+  if (av1_use_angle_delta(bsize) &&
+      av1_is_directional_mode(get_uv_mode(mbmi->uv_mode), bsize)) {
+    write_angle_delta(w, mbmi->angle_delta[PLANE_TYPE_UV],
+                      ec_ctx->angle_delta_cdf[mbmi->uv_mode - V_PRED]);
+  }
+
   if (av1_allow_palette(cm->allow_screen_content_tools, bsize))
     write_palette_mode_info(cm, xd, mi, mi_row, mi_col, w);
 #if CONFIG_FILTER_INTRA
@@ -1764,7 +1768,8 @@ static void enc_dump_logs(AV1_COMP *cpi, int mi_row, int mi_col) {
 #if CONFIG_EXT_SKIP
       printf(
           "=== ENCODER ===: "
-          "Frame=%d, (mi_row,mi_col)=(%d,%d), skip_mode=%d, mode=%d, bsize=%d, "
+          "Frame=%d, (mi_row,mi_col)=(%d,%d), skip_mode=%d, mode=%d, "
+          "bsize=%d, "
           "show_frame=%d, mv[0]=(%d,%d), mv[1]=(%d,%d), ref[0]=%d, "
           "ref[1]=%d, motion_mode=%d, mode_ctx=%d, "
           "newmv_ctx=%d, zeromv_ctx=%d, refmv_ctx=%d, tx_size=%d\n",
@@ -2748,9 +2753,9 @@ static int get_refresh_mask(AV1_COMP *cpi) {
 #endif  // USE_GF16_MULTI_LAYER
 
   // NOTE(zoeliu): When LAST_FRAME is to get refreshed, the decoder will be
-  // notified to get LAST3_FRAME refreshed and then the virtual indexes for all
-  // the 3 LAST reference frames will be updated accordingly, i.e.:
-  // (1) The original virtual index for LAST3_FRAME will become the new virtual
+  // notified to get LAST3_FRAME refreshed and then the virtual indexes for
+  // all the 3 LAST reference frames will be updated accordingly, i.e.: (1)
+  // The original virtual index for LAST3_FRAME will become the new virtual
   //     index for LAST_FRAME; and
   // (2) The original virtual indexes for LAST_FRAME and LAST2_FRAME will be
   //     shifted and become the new virtual indexes for LAST2_FRAME and
@@ -2763,15 +2768,14 @@ static int get_refresh_mask(AV1_COMP *cpi) {
 
   if (av1_preserve_existing_gf(cpi)) {
     // We have decided to preserve the previously existing golden frame as our
-    // new ARF frame. However, in the short term we leave it in the GF slot and,
-    // if we're updating the GF with the current decoded frame, we save it
-    // instead to the ARF slot.
-    // Later, in the function av1_encoder.c:av1_update_reference_frames() we
-    // will swap gld_fb_idx and alt_fb_idx to achieve our objective. We do it
-    // there so that it can be done outside of the recode loop.
-    // Note: This is highly specific to the use of ARF as a forward reference,
-    // and this needs to be generalized as other uses are implemented
-    // (like RTC/temporal scalability).
+    // new ARF frame. However, in the short term we leave it in the GF slot
+    // and, if we're updating the GF with the current decoded frame, we save
+    // it instead to the ARF slot. Later, in the function
+    // av1_encoder.c:av1_update_reference_frames() we will swap gld_fb_idx and
+    // alt_fb_idx to achieve our objective. We do it there so that it can be
+    // done outside of the recode loop. Note: This is highly specific to the
+    // use of ARF as a forward reference, and this needs to be generalized as
+    // other uses are implemented (like RTC/temporal scalability).
     return refresh_mask | (cpi->refresh_golden_frame << cpi->alt_fb_idx);
   } else {
     const int arf_idx = cpi->alt_fb_idx;
@@ -2923,7 +2927,8 @@ static uint32_t write_tiles(AV1_COMP *const cpi, uint8_t *const dst,
         if (tile_size > *max_tile_size) {
           cm->largest_tile_id = tile_cols * tile_row + tile_col;
         }
-        // Record the maximum tile size we see, so we can compact headers later.
+        // Record the maximum tile size we see, so we can compact headers
+        // later.
         *max_tile_size = AOMMAX(*max_tile_size, tile_size);
 
         if (have_tiles) {
@@ -3023,8 +3028,8 @@ static uint32_t write_tiles(AV1_COMP *const cpi, uint8_t *const dst,
             // Copy uncompressed header
             memmove(dst + old_total_size, dst,
                     uncompressed_hdr_size * sizeof(uint8_t));
-            // Write the number of tiles in the group into the last uncompressed
-            // header before the one we've just inserted
+            // Write the number of tiles in the group into the last
+            // uncompressed header before the one we've just inserted
             aom_wb_overwrite_literal(&tg_params_wb, tile_idx - tile_count,
                                      n_log2_tiles);
             aom_wb_overwrite_literal(&tg_params_wb, tile_count - 2,
@@ -3039,8 +3044,8 @@ static uint32_t write_tiles(AV1_COMP *const cpi, uint8_t *const dst,
             // Copy uncompressed header
             memmove(dst + total_size, dst,
                     uncompressed_hdr_size * sizeof(uint8_t));
-            // Write the number of tiles in the group into the last uncompressed
-            // header
+            // Write the number of tiles in the group into the last
+            // uncompressed header
             aom_wb_overwrite_literal(&tg_params_wb, tile_idx - tile_count,
                                      n_log2_tiles);
             aom_wb_overwrite_literal(&tg_params_wb, tile_count - 1,
@@ -3584,8 +3589,8 @@ static void write_global_motion(AV1_COMP *cpi,
     printf("Frame %d/%d: Enc Ref %d: %d %d %d %d\n",
            cm->current_video_frame, cm->show_frame, frame,
            cm->global_motion[frame].wmmat[0],
-           cm->global_motion[frame].wmmat[1], cm->global_motion[frame].wmmat[2],
-           cm->global_motion[frame].wmmat[3]);
+           cm->global_motion[frame].wmmat[1],
+    cm->global_motion[frame].wmmat[2], cm->global_motion[frame].wmmat[3]);
            */
   }
 }
@@ -4700,7 +4705,8 @@ static uint32_t write_tiles_in_tg_obus(AV1_COMP *const cpi, uint8_t *const dst,
         tile_size = mode_bc.pos;
         buf->size = tile_size;
 
-        // Record the maximum tile size we see, so we can compact headers later.
+        // Record the maximum tile size we see, so we can compact headers
+        // later.
         if (tile_size > *max_tile_size) {
           *max_tile_size = tile_size;
           cm->largest_tile_id = tile_cols * tile_row + tile_col;
