@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "e534c1de_5e1ba8a2",
+        "filename": "av1/common/cfl_avx2.c",
+        "patchSetId": 17
+      },
+      "lineNbr": 221,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2018-02-12T22:45:28Z",
+      "side": 1,
+      "message": "Looking at the intrinsics guide, _mm256_maskload_epi64() is much slower than _mm256_load_si. Reading or writing extra data into the CfL prediction buffer does not change the outcome of CfL as it ignores extra data in the buffer.",
+      "parentUuid": "e884fe77_439dbdad",
+      "revId": "ddfa0a8ece253cb4fabca5dfa0416a5cb5fb1b80",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7fd4183e_a179d2c7",
         "filename": "av1/common/cfl_avx2.c",
         "patchSetId": 17
@@ -42,6 +60,30 @@
     },
     {
       "key": {
+        "uuid": "2bd400d9_91f7f596",
+        "filename": "av1/common/cfl_avx2.c",
+        "patchSetId": 17
+      },
+      "lineNbr": 261,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2018-02-12T22:45:28Z",
+      "side": 1,
+      "message": "Done! But I notice a small slow down when the loop is not unrolled. Not sure why...",
+      "parentUuid": "7fd4183e_a179d2c7",
+      "range": {
+        "startLine": 261,
+        "startChar": 2,
+        "endLine": 261,
+        "endChar": 32
+      },
+      "revId": "ddfa0a8ece253cb4fabca5dfa0416a5cb5fb1b80",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fe554aea_996301ba",
         "filename": "av1/common/cfl_avx2.c",
         "patchSetId": 17
@@ -53,6 +95,24 @@
       "writtenOn": "2018-01-31T21:48:34Z",
       "side": 1,
       "message": "as for the load step above - may be to try _mm256_extract.. and _mm_storel_epi64.. ?",
+      "revId": "ddfa0a8ece253cb4fabca5dfa0416a5cb5fb1b80",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "710813d1_5a22324f",
+        "filename": "av1/common/cfl_avx2.c",
+        "patchSetId": 17
+      },
+      "lineNbr": 263,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2018-02-12T22:45:28Z",
+      "side": 1,
+      "message": "According to the intel intrinsics guide _mm256_extract.. appears to be slow. I also tried casting to 128 bit-sized registers, but that appears to be slightly slower (on my i7-7820x), maybe that\u0027s caused by switching to and from 256 bit-sized registers.",
+      "parentUuid": "fe554aea_996301ba",
       "revId": "ddfa0a8ece253cb4fabca5dfa0416a5cb5fb1b80",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
@@ -76,6 +136,24 @@
     },
     {
       "key": {
+        "uuid": "d630a2fc_c1375626",
+        "filename": "av1/common/cfl_ssse3.c",
+        "patchSetId": 17
+      },
+      "lineNbr": 231,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2018-02-12T22:45:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "54268b43_65ccad65",
+      "revId": "ddfa0a8ece253cb4fabca5dfa0416a5cb5fb1b80",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6b58cb4d_eda3cd90",
         "filename": "av1/common/cfl_ssse3.c",
         "patchSetId": 17
@@ -90,6 +168,24 @@
       "revId": "ddfa0a8ece253cb4fabca5dfa0416a5cb5fb1b80",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f1f3b11c_6fd03cf9",
+        "filename": "av1/common/cfl_ssse3.c",
+        "patchSetId": 17
+      },
+      "lineNbr": 243,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2018-02-12T22:45:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6b58cb4d_eda3cd90",
+      "revId": "ddfa0a8ece253cb4fabca5dfa0416a5cb5fb1b80",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
