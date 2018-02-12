@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "61cbf6be_e2565995",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 493,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-02-12T19:41:55Z",
+      "side": 1,
+      "message": "\"... This is needed because 128X* superblocks are divided into 64x64 blocks in raster order\".",
+      "revId": "b80ef5192e1c91dd8011bb9d4dc7862b4d15dbcb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "40d3ba82_f5fcced7",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 497,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-02-12T19:41:55Z",
+      "side": 1,
+      "message": "\"  // We are at the left column of top-right or bottom-right 64x64 block\"",
+      "revId": "b80ef5192e1c91dd8011bb9d4dc7862b4d15dbcb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9fa03b37_c2873e45",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 499,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-02-12T19:41:55Z",
+      "side": 1,
+      "message": "Suggest adding a comment:\n\"Check if all bottom-left pixels are in the left 64x64 block (which is already available)\"",
+      "revId": "b80ef5192e1c91dd8011bb9d4dc7862b4d15dbcb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
