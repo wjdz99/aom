@@ -266,6 +266,8 @@ void AV1LbdInvTxfm2d::RunAV1InvTxfm2dTest(TX_TYPE tx_type, int run_times) {
   int stride = BLK_WIDTH;
   int rows = tx_size_high[tx_size_];
   int cols = tx_size_wide[tx_size_];
+  run_times /= (rows + cols);
+  run_times = std::max(run_times, 1);
 
   ACMRandom rnd(ACMRandom::DeterministicSeed());
   int randTimes = run_times == 1 ? 500 : 2;
