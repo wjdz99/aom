@@ -292,7 +292,7 @@ struct macroblock {
   int drl_mode_cost0[DRL_MODE_CONTEXTS][2];
 
   int comp_inter_cost[COMP_INTER_CONTEXTS][2];
-  int single_ref_cost[REF_CONTEXTS][SINGLE_REFS - 1][2];
+  int single_ref_cost[COMP_REF_CONTEXTS][SINGLE_REFS - 1][2];
 #if CONFIG_EXT_COMP_REFS
   int comp_ref_type_cost[COMP_REF_TYPE_CONTEXTS]
                         [CDF_SIZE(COMP_REFERENCE_TYPES)];
