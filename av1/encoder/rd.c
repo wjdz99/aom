@@ -249,7 +249,7 @@ void av1_fill_mode_rates(AV1_COMMON *const cm, MACROBLOCK *x,
                                NULL);
     }
 
-    for (i = 0; i < REF_CONTEXTS; ++i) {
+    for (i = 0; i < COMP_REF_CONTEXTS; ++i) {
       for (j = 0; j < SINGLE_REFS - 1; ++j) {
         av1_cost_tokens_from_cdf(x->single_ref_cost[i][j],
                                  fc->single_ref_cdf[i][j], NULL);

@@ -250,39 +250,28 @@ static const aom_cdf_prob
       { { AOM_CDF2(30894) }, { AOM_CDF2(30639) } },
     };
 
-static const aom_cdf_prob default_single_ref_cdf[REF_CONTEXTS][SINGLE_REFS - 1]
-                                                [CDF_SIZE(2)] = {
-                                                  { { AOM_CDF2(4623) },
-                                                    { AOM_CDF2(2110) },
-                                                    { AOM_CDF2(4132) },
-                                                    { AOM_CDF2(7309) },
-                                                    { AOM_CDF2(1392) },
-                                                    { AOM_CDF2(1781) } },
-                                                  { { AOM_CDF2(8659) },
-                                                    { AOM_CDF2(16372) },
-                                                    { AOM_CDF2(9371) },
-                                                    { AOM_CDF2(16322) },
-                                                    { AOM_CDF2(6216) },
-                                                    { AOM_CDF2(15834) } },
-                                                  { { AOM_CDF2(17353) },
-                                                    { AOM_CDF2(30182) },
-                                                    { AOM_CDF2(16300) },
-                                                    { AOM_CDF2(21702) },
-                                                    { AOM_CDF2(10365) },
-                                                    { AOM_CDF2(30486) } },
-                                                  { { AOM_CDF2(16384) },
-                                                    { AOM_CDF2(16384) },
-                                                    { AOM_CDF2(24426) },
-                                                    { AOM_CDF2(26972) },
-                                                    { AOM_CDF2(14760) },
-                                                    { AOM_CDF2(16384) } },
-                                                  { { AOM_CDF2(28634) },
-                                                    { AOM_CDF2(16384) },
-                                                    { AOM_CDF2(29425) },
-                                                    { AOM_CDF2(30969) },
-                                                    { AOM_CDF2(26676) },
-                                                    { AOM_CDF2(16384) } }
-                                                };
+// TODO(zoelu): To use aom_entropy_optimizer to update the following defaults.
+static const aom_cdf_prob
+    default_single_ref_cdf[COMP_REF_CONTEXTS][SINGLE_REFS - 1][CDF_SIZE(2)] = {
+      { { AOM_CDF2(4623) },
+        { AOM_CDF2(2110) },
+        { AOM_CDF2(4132) },
+        { AOM_CDF2(7309) },
+        { AOM_CDF2(1392) },
+        { AOM_CDF2(1781) } },
+      { { AOM_CDF2(17353) },
+        { AOM_CDF2(30182) },
+        { AOM_CDF2(16300) },
+        { AOM_CDF2(21702) },
+        { AOM_CDF2(10365) },
+        { AOM_CDF2(30486) } },
+      { { AOM_CDF2(28634) },
+        { AOM_CDF2(16384) },
+        { AOM_CDF2(29425) },
+        { AOM_CDF2(30969) },
+        { AOM_CDF2(26676) },
+        { AOM_CDF2(16384) } }
+    };
 
 // TODO(huisu): tune these cdfs
 const aom_cdf_prob
