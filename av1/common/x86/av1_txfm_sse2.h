@@ -23,9 +23,9 @@
 extern "C" {
 #endif
 
-#define pair_set_epi16(a, b)                                            \
-  _mm_set_epi16((int16_t)(b), (int16_t)(a), (int16_t)(b), (int16_t)(a), \
-                (int16_t)(b), (int16_t)(a), (int16_t)(b), (int16_t)(a))
+#define pair_set_epi16(a, b)                     \
+  _mm_set1_epi32((((int32_t)(a)) & 0x0000FFFF) | \
+                 ((((int32_t)(b)) << 16) & 0xFFFF0000))
 
 #define btf_16_sse2(w0, w1, in0, in1, out0, out1) \
   {                                               \
