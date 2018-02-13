@@ -22,6 +22,30 @@
       "revId": "56ba9d1026e96ef2ab86875e9ba92f2c87159877",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "33f7c46f_28fd6816",
+        "filename": "av1/common/av1_loopfilter.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2286,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2018-02-13T23:15:55Z",
+      "side": 1,
+      "message": "Yes, it would be great that you create a follow-up patch to get comments fixed. I can do it too here but would require some hassle going through rebase.",
+      "parentUuid": "1edde50a_1c9f9932",
+      "range": {
+        "startLine": 2286,
+        "startChar": 8,
+        "endLine": 2286,
+        "endChar": 14
+      },
+      "revId": "56ba9d1026e96ef2ab86875e9ba92f2c87159877",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
