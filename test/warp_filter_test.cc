@@ -27,12 +27,14 @@ INSTANTIATE_TEST_CASE_P(
     SSE4_1, AV1WarpFilterTest,
     libaom_test::AV1WarpFilter::BuildParams(av1_warp_affine_sse4_1));
 
+/*
 TEST_P(AV1HighbdWarpFilterTest, CheckOutput) {
   RunCheckOutput(av1_highbd_warp_affine_sse4_1);
 }
 
 INSTANTIATE_TEST_CASE_P(SSE4_1, AV1HighbdWarpFilterTest,
                         libaom_test::AV1HighbdWarpFilter::GetDefaultParams());
+                        */
 
 #else  // CONFIG_JNT_COMP && HAVE_SSE4_1
 TEST_P(AV1WarpFilterTest, CheckOutput) { RunCheckOutput(GET_PARAM(3)); }
@@ -46,12 +48,14 @@ INSTANTIATE_TEST_CASE_P(
     SSSE3, AV1WarpFilterTest,
     libaom_test::AV1WarpFilter::BuildParams(av1_warp_affine_ssse3));
 
+/*
 TEST_P(AV1HighbdWarpFilterTest, CheckOutput) {
   RunCheckOutput(av1_highbd_warp_affine_ssse3);
 }
 
 INSTANTIATE_TEST_CASE_P(SSSE3, AV1HighbdWarpFilterTest,
                         libaom_test::AV1HighbdWarpFilter::GetDefaultParams());
+                        */
 #endif
 #endif  // CONFIG_JNT_COMP && CONFIG_CONVOVLE_ROUND && HAVE_SSE4_1
 
