@@ -14,6 +14,7 @@
 #include "./av1_rtcd.h"
 #include "av1/common/warped_motion.h"
 
+#if HORSHEAR_REDUCE_PREC_BITS >= 5
 void av1_highbd_warp_affine_sse4_1(const int32_t *mat, const uint16_t *ref,
                                    int width, int height, int stride,
                                    uint16_t *pred, int p_col, int p_row,
@@ -22,13 +23,10 @@ void av1_highbd_warp_affine_sse4_1(const int32_t *mat, const uint16_t *ref,
                                    ConvolveParams *conv_params, int16_t alpha,
                                    int16_t beta, int16_t gamma, int16_t delta) {
   int comp_avg = conv_params->do_average;
-#if HORSHEAR_REDUCE_PREC_BITS >= 5
   __m128i tmp[15];
-#else
-#error "HORSHEAR_REDUCE_PREC_BITS < 5 not currently supported by SSSE3 filter"
-#endif
   int i, j, k;
-  const int use_conv_params = conv_params->round == CONVOLVE_OPT_NO_ROUND;
+  const int use_conv_params =
+      (conv_params->round == CONVOLVE_OPT_NO_ROUND && conv_params->dst);
   const int reduce_bits_horiz =
       use_conv_params ? conv_params->round_0 : HORSHEAR_REDUCE_PREC_BITS;
   const int offset_bits_horiz =
@@ -91,10 +89,10 @@ void av1_highbd_warp_affine_sse4_1(const int32_t *mat, const uint16_t *ref,
           else if (iy > height - 1)
             iy = height - 1;
           tmp[k + 7] = _mm_set1_epi16(
-              (1 << (bd + WARPEDPIXEL_FILTER_BITS - HORSHEAR_REDUCE_PREC_BITS -
+              (1 << (bd + WARPEDPIXEL_FILTER_BITS - reduce_bits_horiz -
                      1)) +
               ref[iy * stride] *
-                  (1 << (WARPEDPIXEL_FILTER_BITS - HORSHEAR_REDUCE_PREC_BITS)));
+                  (1 << (WARPEDPIXEL_FILTER_BITS - reduce_bits_horiz)));
         }
       } else if (ix4 >= width + 6) {
         for (k = -7; k < AOMMIN(8, p_height - i); ++k) {
@@ -104,10 +102,10 @@ void av1_highbd_warp_affine_sse4_1(const int32_t *mat, const uint16_t *ref,
           else if (iy > height - 1)
             iy = height - 1;
           tmp[k + 7] = _mm_set1_epi16(
-              (1 << (bd + WARPEDPIXEL_FILTER_BITS - HORSHEAR_REDUCE_PREC_BITS -
+              (1 << (bd + WARPEDPIXEL_FILTER_BITS - reduce_bits_horiz -
                      1)) +
               ref[iy * stride + (width - 1)] *
-                  (1 << (WARPEDPIXEL_FILTER_BITS - HORSHEAR_REDUCE_PREC_BITS)));
+                  (1 << (WARPEDPIXEL_FILTER_BITS - reduce_bits_horiz)));
         }
       } else {
         for (k = -7; k < AOMMIN(8, p_height - i); ++k) {
@@ -395,3 +393,6 @@ void av1_highbd_warp_affine_sse4_1(const int32_t *mat, const uint16_t *ref,
     }
   }
 }
+#else
+#warning "HORSHEAR_REDUCE_PREC_BITS < 5 not currently supported by SSSE3 filter"
+#endif

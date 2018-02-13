@@ -60,27 +60,6 @@ typedef void (*aom_convolve_fn_t)(const uint8_t *src, int src_stride,
                                   const int subpel_x_q4, const int subpel_y_q4,
                                   ConvolveParams *conv_params);
 
-static INLINE ConvolveParams get_conv_params(int ref, int do_average, int plane,
-                                             int bd) {
-  ConvolveParams conv_params;
-  conv_params.ref = ref;
-  conv_params.do_average = do_average;
-  conv_params.round = CONVOLVE_OPT_ROUND;
-  conv_params.plane = plane;
-  conv_params.do_post_rounding = 0;
-  conv_params.round_0 = ROUND0_BITS;
-  conv_params.round_1 = 0;
-  conv_params.is_compound = 0;
-  conv_params.dst = NULL;
-  conv_params.dst_stride = 0;
-  const int intbufrange = bd + FILTER_BITS - conv_params.round_0 + 2;
-  if (bd < 12) assert(intbufrange <= 16);
-  if (intbufrange > 16) {
-    conv_params.round_0 += intbufrange - 16;
-  }
-  return conv_params;
-}
-
 static INLINE void av1_get_convolve_filter_params(InterpFilters interp_filters,
                                                   InterpFilterParams *params_x,
                                                   InterpFilterParams *params_y
@@ -107,12 +86,61 @@ static INLINE void av1_get_convolve_filter_params(InterpFilters interp_filters,
 
 struct AV1Common;
 struct scale_factors;
+
 void av1_convolve_2d_facade(const uint8_t *src, int src_stride, uint8_t *dst,
                             int dst_stride, int w, int h,
                             InterpFilters interp_filters, const int subpel_x_q4,
                             int x_step_q4, const int subpel_y_q4, int y_step_q4,
                             int scaled, ConvolveParams *conv_params,
                             const struct scale_factors *sf);
+
+#define USE_CONVOLVE_OPT_ROUND 0
+
+static INLINE ConvolveParams get_conv_params_round(int ref, int do_average,
+                                                   int plane, int bd) {
+  ConvolveParams conv_params;
+  conv_params.ref = ref;
+  conv_params.do_average = do_average;
+  conv_params.plane = plane;
+  conv_params.round = CONVOLVE_OPT_ROUND;
+  conv_params.round_0 = ROUND0_BITS;
+  conv_params.round_1 = 0;
+  conv_params.do_post_rounding = 0;
+  conv_params.is_compound = 0;
+  conv_params.dst = NULL;
+  conv_params.dst_stride = 0;
+  const int intbufrange = bd + FILTER_BITS - conv_params.round_0 + 2;
+  if (bd < 12) assert(intbufrange <= 16);
+  if (intbufrange > 16) {
+    conv_params.round_0 += intbufrange - 16;
+  }
+  return conv_params;
+}
+
+static INLINE ConvolveParams get_conv_params(int ref, int do_average, int plane,
+                                             int bd) {
+#if USE_CONVOLVE_OPT_ROUND
+  return get_conv_params_round(ref, do_average, plane, bd);
+#else
+  ConvolveParams conv_params;
+  conv_params.ref = ref;
+  conv_params.do_average = do_average;
+  conv_params.plane = plane;
+  conv_params.round = CONVOLVE_OPT_NO_ROUND;
+  conv_params.round_0 = ROUND0_BITS;
+  conv_params.round_1 = 2 * FILTER_BITS - conv_params.round_0;
+  conv_params.do_post_rounding = 0;
+  conv_params.is_compound = 0;
+  conv_params.dst = NULL;
+  conv_params.dst_stride = 0;
+  const int intbufrange = bd + FILTER_BITS - conv_params.round_0 + 2;
+  if (bd < 12) assert(intbufrange <= 16);
+  if (intbufrange > 16) {
+    conv_params.round_0 += intbufrange - 16;
+  }
+  return conv_params;
+#endif  // USE_CONVOLVE_OPT_ROUND
+}
 
 static INLINE ConvolveParams get_conv_params_no_round(int ref, int do_average,
                                                       int plane, int32_t *dst,
