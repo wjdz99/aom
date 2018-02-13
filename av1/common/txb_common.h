@@ -564,20 +564,18 @@ static INLINE void get_txb_ctx(const BLOCK_SIZE plane_bsize,
   const int txb_w_unit = tx_size_wide_unit[tx_size];
   const int txb_h_unit = tx_size_high_unit[tx_size];
   int dc_sign = 0;
-  int k = 0;
 
-  do {
+  for (int k = 0; k < txb_w_unit; ++k) {
     const unsigned int sign = ((uint8_t)a[k]) >> COEFF_CONTEXT_BITS;
     assert(sign <= 2);
     dc_sign += signs[sign];
-  } while (++k < txb_w_unit);
+  }
 
-  k = 0;
-  do {
+  for (int k = 0; k < txb_h_unit; ++k) {
     const unsigned int sign = ((uint8_t)l[k]) >> COEFF_CONTEXT_BITS;
     assert(sign <= 2);
     dc_sign += signs[sign];
-  } while (++k < txb_h_unit);
+  }
 
   txb_ctx->dc_sign_ctx = dc_sign_contexts[dc_sign + 2 * MAX_TX_SIZE_UNIT];
 
@@ -593,16 +591,12 @@ static INLINE void get_txb_ctx(const BLOCK_SIZE plane_bsize,
       int top = 0;
       int left = 0;
 
-      k = 0;
-      do {
-        top |= a[k];
-      } while (++k < txb_w_unit);
+      for (int k = 0; k < txb_w_unit; ++k) top |= a[k];
+
       top &= COEFF_CONTEXT_MASK;
 
-      k = 0;
-      do {
-        left |= l[k];
-      } while (++k < txb_h_unit);
+      for (int k = 0; k < txb_h_unit; ++k) left |= l[k];
+
       left &= COEFF_CONTEXT_MASK;
       const int max = AOMMIN(top | left, 4);
       const int min = AOMMIN(AOMMIN(top, left), 4);
