@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9c100d07_d82b79c9",
+        "filename": "av1/common/x86/av1_txfm_sse2.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-02-13T18:26:09Z",
+      "side": 1,
+      "message": "Or clean to _mm_set1_epi32((uint16_t)(a) | (b) \u003c\u003c 16)\n\nPlease delete this duplicate define and update the one in aom_dsp/x86/txfm_common_sse2.h.",
+      "revId": "8179aefd35d385e4ed3c6e1467f2136a4b24aab2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
