@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "91cb933b_db7b8e32",
+        "filename": "av1/common/scan.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-02-13T22:39:22Z",
+      "side": 1,
+      "message": "Should this table and other square tables also unify to single direction diagonal? If quality is equal, may or may NOT benefit SIMD optimization/hardware design. We\u0027ll see which order SIMD prefers later.",
+      "range": {
+        "startLine": 18,
+        "startChar": 42,
+        "endLine": 18,
+        "endChar": 58
+      },
+      "revId": "937dcfbd6469f2ae93022b3998a81d527bdfeaa1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
