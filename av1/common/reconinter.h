@@ -145,10 +145,28 @@ static INLINE void highbd_inter_predictor(const uint8_t *src, int src_stride,
     assert(xs <= SUBPEL_SHIFTS);
     assert(ys <= SUBPEL_SHIFTS);
     if (conv_params->round == CONVOLVE_OPT_NO_ROUND) {
-      av1_highbd_convolve_2d_facade(src, src_stride, dst, dst_stride, w, h,
-                                    interp_filters, subpel_x, xs, subpel_y, ys,
-                                    0, conv_params, bd);
-      conv_params->do_post_rounding = 1;
+      // TODO(debargha): The condition below is a hack to prevent seg faults
+      // since av1_highbd_convolve_2d_facade only works now when
+      // conv_params->dst is non-null. However this needs to be fixed.
+      if (conv_params->dst) {
+        av1_highbd_convolve_2d_facade(src, src_stride, dst, dst_stride, w, h,
+                                      interp_filters, subpel_x, xs, subpel_y,
+                                      ys, 0, conv_params, bd);
+        conv_params->do_post_rounding = 1;
+      } else {
+        InterpFilterParams filter_params_x, filter_params_y;
+#if CONFIG_SHORT_FILTER
+        av1_get_convolve_filter_params(interp_filters, &filter_params_x,
+                                       &filter_params_y, w, h);
+#else
+        av1_get_convolve_filter_params(interp_filters, &filter_params_x,
+                                       &filter_params_y);
+#endif
+        av1_highbd_convolve(src, src_stride, dst, dst_stride, w, h,
+                            interp_filters, subpel_x, xs, subpel_y, ys, avg,
+                            bd);
+        conv_params->do_post_rounding = 0;
+      }
     } else {
       InterpFilterParams filter_params_x, filter_params_y;
 #if CONFIG_SHORT_FILTER
