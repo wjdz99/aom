@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "197f205a_cc48e934",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 9058
+      },
+      "writtenOn": "2018-02-13T21:10:01Z",
+      "side": 1,
+      "message": "note that mulhi won\u0027t do the rounding\nyou\u0027ll have to pavgw with zero or something for that.",
+      "range": {
+        "startLine": 13,
+        "startChar": 11,
+        "endLine": 13,
+        "endChar": 16
+      },
+      "revId": "3c3962446076c0fb01c0ee00fedd143109fc2615",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
