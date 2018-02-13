@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b9424391_1165d8ca",
+        "filename": "test/lpf_test.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 449,
+      "author": {
+        "id": 5326
+      },
+      "writtenOn": "2018-02-13T02:18:40Z",
+      "side": 0,
+      "message": "should this part be kept?",
+      "range": {
+        "startLine": 449,
+        "startChar": 32,
+        "endLine": 449,
+        "endChar": 36
+      },
+      "revId": "637e8c788c173e50e9e81f7a260c0021da8eb28d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
