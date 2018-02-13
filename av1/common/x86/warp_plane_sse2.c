@@ -24,7 +24,8 @@ void av1_warp_affine_sse2(const int32_t *mat, const uint8_t *ref, int width,
   __m128i tmp[15];
   int i, j, k;
   const int bd = 8;
-  const int use_conv_params = conv_params->round == CONVOLVE_OPT_NO_ROUND;
+  const int use_conv_params =
+      (conv_params->round == CONVOLVE_OPT_NO_ROUND && conv_params->dst);
   const int reduce_bits_horiz =
       use_conv_params ? conv_params->round_0 : HORSHEAR_REDUCE_PREC_BITS;
   const int offset_bits_horiz =

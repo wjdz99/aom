@@ -28,7 +28,8 @@ void av1_highbd_warp_affine_ssse3(const int32_t *mat, const uint16_t *ref,
 #error "HORSHEAR_REDUCE_PREC_BITS < 5 not currently supported by SSSE3 filter"
 #endif
   int i, j, k;
-  const int use_conv_params = conv_params->round == CONVOLVE_OPT_NO_ROUND;
+  const int use_conv_params =
+      (conv_params->round == CONVOLVE_OPT_NO_ROUND && conv_params->dst);
   const int reduce_bits_horiz =
       use_conv_params ? conv_params->round_0 : HORSHEAR_REDUCE_PREC_BITS;
   const int offset_bits_horiz =
