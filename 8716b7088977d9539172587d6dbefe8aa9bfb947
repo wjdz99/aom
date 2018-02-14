@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ae089ee1_151bf0ae",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-02-14T04:38:22Z",
+      "side": 1,
+      "message": "add a newline after the subject otherwise the subsequent lines will be joined in the history and email",
+      "revId": "8716b7088977d9539172587d6dbefe8aa9bfb947",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3decc26b_bf581c4b",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-02-14T04:38:22Z",
+      "side": 1,
+      "message": "aomedia:1368 otherwise the linkification will fail (or point to chrome)",
+      "range": {
+        "startLine": 8,
+        "startChar": 17,
+        "endLine": 8,
+        "endChar": 21
+      },
+      "revId": "8716b7088977d9539172587d6dbefe8aa9bfb947",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
