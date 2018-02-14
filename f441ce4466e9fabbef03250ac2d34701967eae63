@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f3a338c4_f69ddca2",
+        "filename": "av1/encoder/x86/av1_fwd_txfm_sse2.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2176,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-02-14T19:41:00Z",
+      "side": 1,
+      "message": "Will specialize for 4x16 later, after I unify the functions\u0027 names with full width/height. Too much headache to understand which is which.",
+      "range": {
+        "startLine": 2176,
+        "startChar": 37,
+        "endLine": 2176,
+        "endChar": 47
+      },
+      "revId": "f441ce4466e9fabbef03250ac2d34701967eae63",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
