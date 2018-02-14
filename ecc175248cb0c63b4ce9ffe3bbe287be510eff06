@@ -1,0 +1,101 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8cee9dbb_d846f72d",
+        "filename": "av1/common/entropymode.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 2321,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2018-02-14T19:25:29Z",
+      "side": 1,
+      "message": "You could remove this empty line",
+      "revId": "ecc175248cb0c63b4ce9ffe3bbe287be510eff06",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "74bf423f_eefe97ae",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 3093,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2018-02-14T19:25:29Z",
+      "side": 1,
+      "message": "This checked comes up often you could consider a is_context_signaled(cm) or use_context_signaling(cm).",
+      "revId": "ecc175248cb0c63b4ce9ffe3bbe287be510eff06",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7407638e_499781e6",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 3708,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2018-02-14T19:25:29Z",
+      "side": 1,
+      "message": "I don\u0027t know if this is the intended behavior, but if the refresh_frame_mask has multiple 1s you will overwrite the value in updated_fb and only get the last one.",
+      "revId": "ecc175248cb0c63b4ce9ffe3bbe287be510eff06",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cbd7d525_7c6ac3be",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 352,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2018-02-14T19:25:29Z",
+      "side": 1,
+      "message": "You could do cm-\u003eprimary_ref_frame \u003d PRIMARY_REF_NONE;\nthis way you won\u0027t need lines 360-302",
+      "range": {
+        "startLine": 352,
+        "startChar": 4,
+        "endLine": 352,
+        "endChar": 31
+      },
+      "revId": "ecc175248cb0c63b4ce9ffe3bbe287be510eff06",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7ce20c95_fcea2a07",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 410,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2018-02-14T19:25:29Z",
+      "side": 1,
+      "message": "Feels redundant with 381-388. Maybe I\u0027m missing something.",
+      "range": {
+        "startLine": 402,
+        "startChar": 2,
+        "endLine": 410,
+        "endChar": 3
+      },
+      "revId": "ecc175248cb0c63b4ce9ffe3bbe287be510eff06",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
