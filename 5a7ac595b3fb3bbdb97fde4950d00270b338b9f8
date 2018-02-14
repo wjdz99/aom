@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "49865371_ee76fc4a",
+        "filename": "aom_dsp/grain_synthesis.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 514,
+      "author": {
+        "id": 6720
+      },
+      "writtenOn": "2018-02-14T23:50:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7038b673_1b3d70f6",
+      "range": {
+        "startLine": 514,
+        "startChar": 21,
+        "endLine": 514,
+        "endChar": 26
+      },
+      "revId": "5a7ac595b3fb3bbdb97fde4950d00270b338b9f8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0ea5df9b_8b107585",
         "filename": "aom_dsp/grain_synthesis.c",
         "patchSetId": 4
@@ -45,6 +69,30 @@
       "revId": "5a7ac595b3fb3bbdb97fde4950d00270b338b9f8",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a3cb7503_8fc171f9",
+        "filename": "aom_dsp/grain_synthesis.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 518,
+      "author": {
+        "id": 6720
+      },
+      "writtenOn": "2018-02-14T23:50:47Z",
+      "side": 1,
+      "message": "I changed \u003e\u003d to \u003d\u003d. I have some hesitations though regaring if we should add additional clamping. If the spec is based on the implementation, it will add additional operation for every sample (according to the spec). If we think that the input is always bounded (it is also clamped once in case of chroma before calling this function), maybe we should not add one more clamping.",
+      "parentUuid": "0ea5df9b_8b107585",
+      "range": {
+        "startLine": 518,
+        "startChar": 29,
+        "endLine": 518,
+        "endChar": 30
+      },
+      "revId": "5a7ac595b3fb3bbdb97fde4950d00270b338b9f8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "81d08cfa_c6291f08",
+        "filename": "aom_dsp/grain_synthesis.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1120,
+      "author": {
+        "id": 6720
+      },
+      "writtenOn": "2018-02-14T23:50:47Z",
+      "side": 1,
+      "message": "No, it should not. When x is zero (the leftmost block), the column buffer either contains samples that are related to the previous block in the raster scan order, i.e. on the other side of the picture one row above or some random data if it is the first block in the picture. \n\nWhen x is zero, the line buffer is filled by the code block below from the grain template.",
+      "parentUuid": "fcf46961_059f0416",
+      "range": {
+        "startLine": 1120,
+        "startChar": 13,
+        "endLine": 1120,
+        "endChar": 14
+      },
+      "revId": "5a7ac595b3fb3bbdb97fde4950d00270b338b9f8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cb307c56_8ad2159b",
         "filename": "aom_dsp/grain_synthesis.c",
         "patchSetId": 4
@@ -91,6 +163,30 @@
       "revId": "5a7ac595b3fb3bbdb97fde4950d00270b338b9f8",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bc4b415f_2e071d1d",
+        "filename": "aom_dsp/grain_synthesis.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1132,
+      "author": {
+        "id": 6720
+      },
+      "writtenOn": "2018-02-14T23:50:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cb307c56_8ad2159b",
+      "range": {
+        "startLine": 1132,
+        "startChar": 21,
+        "endLine": 1132,
+        "endChar": 28
+      },
+      "revId": "5a7ac595b3fb3bbdb97fde4950d00270b338b9f8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
