@@ -754,9 +754,8 @@ static void add_noise_to_block_hbd(aom_film_grain_t *params, uint16_t *luma,
 }
 
 static void copy_rect(uint8_t *src, int src_stride, uint8_t *dst,
-                      int dst_stride, int width, int height,
-                      int high_bit_depth) {
-  int hbd_coeff = high_bit_depth ? 2 : 0;
+                      int dst_stride, int width, int height, int bit_depth) {
+  int hbd_coeff = (bit_depth > 8) ? 2 : 1;
   while (height) {
     memcpy(dst, src, width * sizeof(uint8_t) * hbd_coeff);
     src += src_stride;
