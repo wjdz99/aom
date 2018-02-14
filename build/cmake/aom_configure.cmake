@@ -68,6 +68,8 @@ if (NOT AOM_TARGET_CPU)
   elseif ("${CMAKE_SYSTEM_PROCESSOR}" MATCHES "^arm" OR
           "${CMAKE_SYSTEM_PROCESSOR}" MATCHES "^mips")
     set(AOM_TARGET_CPU "${CMAKE_SYSTEM_PROCESSOR}")
+  elseif ("${CMAKE_SYSTEM_PROCESSOR}" MATCHES "aarch64")
+    set(AOM_TARGET_CPU "arm64")
   endif ()
 endif ()
 
@@ -138,6 +140,12 @@ elseif ("${AOM_TARGET_CPU}" MATCHES "arm")
   elseif ("${AOM_TARGET_SYSTEM}" STREQUAL "Linux")
     # arm linux assembler settings controlled by
     # build/cmake/toolchains/arm*-linux*.cmake
+    if (NOT AS_EXECUTABLE)
+      set(AS_EXECUTABLE as)
+      if ("${AOM_TARGET_CPU}" MATCHES "arm64")
+        set(AOM_AS_FLAGS "-march=armv8-a")
+      endif ()
+    endif ()
   endif ()
   if (NOT AS_EXECUTABLE)
     message(FATAL_ERROR
