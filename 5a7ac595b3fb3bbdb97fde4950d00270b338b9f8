@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7038b673_1b3d70f6",
+        "filename": "aom_dsp/grain_synthesis.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 514,
+      "author": {
+        "id": 8612
+      },
+      "writtenOn": "2018-02-14T17:38:33Z",
+      "side": 1,
+      "message": "nit: also update comment \"10- and 12-bit video\" (or higher bit depth video)",
+      "range": {
+        "startLine": 514,
+        "startChar": 21,
+        "endLine": 514,
+        "endChar": 26
+      },
+      "revId": "5a7ac595b3fb3bbdb97fde4950d00270b338b9f8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0ea5df9b_8b107585",
+        "filename": "aom_dsp/grain_synthesis.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 518,
+      "author": {
+        "id": 8612
+      },
+      "writtenOn": "2018-02-14T17:38:33Z",
+      "side": 1,
+      "message": "Maybe also be defensive about clamping to 255 (even though it shouldn\u0027t happen in practice):\nint x \u003d AOMMIN(index \u003e\u003e (bit_depth - 8), 255);",
+      "range": {
+        "startLine": 518,
+        "startChar": 29,
+        "endLine": 518,
+        "endChar": 30
+      },
+      "revId": "5a7ac595b3fb3bbdb97fde4950d00270b338b9f8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fcf46961_059f0416",
+        "filename": "aom_dsp/grain_synthesis.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1120,
+      "author": {
+        "id": 8612
+      },
+      "writtenOn": "2018-02-14T17:38:33Z",
+      "side": 1,
+      "message": "I\u0027m probably wrong, but should this also not happen when x \u003d\u003d 0?",
+      "range": {
+        "startLine": 1120,
+        "startChar": 13,
+        "endLine": 1120,
+        "endChar": 14
+      },
+      "revId": "5a7ac595b3fb3bbdb97fde4950d00270b338b9f8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cb307c56_8ad2159b",
+        "filename": "aom_dsp/grain_synthesis.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1132,
+      "author": {
+        "id": 8612
+      },
+      "writtenOn": "2018-02-14T17:38:33Z",
+      "side": 1,
+      "message": "nit: probably don\u0027t need the \"overlap \u0026\u0026 x ?\" (just \"x ?\") since we are in the \"if (overlap) {\"",
+      "range": {
+        "startLine": 1132,
+        "startChar": 21,
+        "endLine": 1132,
+        "endChar": 28
+      },
+      "revId": "5a7ac595b3fb3bbdb97fde4950d00270b338b9f8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
