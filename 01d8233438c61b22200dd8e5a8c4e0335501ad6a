@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "95faec2d_dd4e7d02",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 7738,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2018-02-14T23:41:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c2eefdb1_03019378",
+      "range": {
+        "startLine": 7736,
+        "startChar": 4,
+        "endLine": 7738,
+        "endChar": 26
+      },
+      "revId": "01d8233438c61b22200dd8e5a8c4e0335501ad6a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8e937ff0_a79a951a",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 2
@@ -36,6 +60,30 @@
       "writtenOn": "2018-02-14T22:18:20Z",
       "side": 1,
       "message": "\u0026\u0026 !is_interintra_mode",
+      "range": {
+        "startLine": 7739,
+        "startChar": 4,
+        "endLine": 7739,
+        "endChar": 50
+      },
+      "revId": "01d8233438c61b22200dd8e5a8c4e0335501ad6a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "831f4731_cf9961ea",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 7739,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2018-02-14T23:41:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8e937ff0_a79a951a",
       "range": {
         "startLine": 7739,
         "startChar": 4,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "c10b7ba4_8490db34",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 7840,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2018-02-14T23:41:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a8bc02e2_335620a4",
+      "range": {
+        "startLine": 7837,
+        "startChar": 5,
+        "endLine": 7840,
+        "endChar": 7
+      },
+      "revId": "01d8233438c61b22200dd8e5a8c4e0335501ad6a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f925fa2b_481226b4",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 2
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "639e13d9_54717a60",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 8291,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2018-02-14T23:41:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f925fa2b_481226b4",
+      "range": {
+        "startLine": 8291,
+        "startChar": 2,
+        "endLine": 8291,
+        "endChar": 66
+      },
+      "revId": "01d8233438c61b22200dd8e5a8c4e0335501ad6a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7e5092d5_a001af55",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 2
@@ -105,6 +201,30 @@
       "writtenOn": "2018-02-14T22:27:26Z",
       "side": 1,
       "message": "The conditional jumps can be merged by using one \u0027if\u0027 condition\nif (!(is_comp_pred \u0026\u0026 cpi-\u003esf.jnt_comp_fast_mv_search \u0026\u0026 !comp_idx))",
+      "range": {
+        "startLine": 8528,
+        "startChar": 0,
+        "endLine": 8538,
+        "endChar": 5
+      },
+      "revId": "01d8233438c61b22200dd8e5a8c4e0335501ad6a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ebfe97d1_05a40f50",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 8538,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2018-02-14T23:41:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7e5092d5_a001af55",
       "range": {
         "startLine": 8528,
         "startChar": 0,
