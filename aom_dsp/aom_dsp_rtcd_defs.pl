@@ -65,9 +65,7 @@ if (aom_config("CONFIG_EXT_PARTITION_TYPES") eq "yes") {
 }
 
 @tx_dims = (2, 4, 8, 16, 32);
-if (aom_config("CONFIG_TX64X64") eq "yes") {
-  push @tx_dims, '64';
-}
+push @tx_dims, '64';
 
 @tx_sizes = ();
 foreach $w (@tx_dims) {
