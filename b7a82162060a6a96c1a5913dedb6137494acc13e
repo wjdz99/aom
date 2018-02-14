@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cf4803b2_2fcc6d31",
+        "filename": "av1/common/x86/av1_txfm_sse2.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-02-14T04:28:57Z",
+      "side": 1,
+      "message": "there are too many __m128i for windows, they\u0027ll need to be pointers",
+      "revId": "b7a82162060a6a96c1a5913dedb6137494acc13e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d5ee1e9d_0b9d130a",
+        "filename": "av1/common/x86/av1_txfm_sse2.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-02-14T04:28:57Z",
+      "side": 1,
+      "message": "these could all be const",
+      "revId": "b7a82162060a6a96c1a5913dedb6137494acc13e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8d38e85d_742acc39",
+        "filename": "av1/common/x86/av1_txfm_sse2.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-02-14T04:28:57Z",
+      "side": 1,
+      "message": "this could be converted to an inline later",
+      "revId": "b7a82162060a6a96c1a5913dedb6137494acc13e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
