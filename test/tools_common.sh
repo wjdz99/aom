@@ -212,6 +212,19 @@ av1_encode_available() {
   [ "$(aom_config_option_enabled CONFIG_AV1_ENCODER)" = "yes" ] && echo yes
 }
 
+# Echoes number of frames to use when running an encode test with aomenc.
+av1enc_encode_test_frame_limit() {
+  echo ${AOM_ENCODE_TEST_FRAME_LIMIT}
+}
+
+# Echoes "fast" encode params for use with aomenc.
+aomenc_encode_test_fast_params() {
+  echo "--cpu-used=8
+        --limit=$(av1enc_encode_test_frame_limit)
+        --lag-in-frames=0
+        --test-decode=fatal"
+}
+
 # Echoes yes to stdout when aom_config_option_enabled() reports yes for
 # CONFIG_WEBM_IO.
 webm_io_available() {
