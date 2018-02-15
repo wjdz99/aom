@@ -2597,7 +2597,7 @@ static void choose_tx_size_type_from_rd(const AV1_COMP *const cpi,
 #if CONFIG_TXK_SEL
   TX_TYPE best_txk_type[MAX_SB_SQUARE / (TX_SIZE_W_MIN * TX_SIZE_H_MIN)];
 #endif  // CONFIG_TXK_SEL
-  uint8_t best_blk_skip[MAX_MIB_SIZE * MAX_MIB_SIZE * 8];
+  uint8_t best_blk_skip[MAX_MIB_SIZE * MAX_MIB_SIZE];
   const int n4 = bsize_to_num_blk(bs);
   const int tx_select = cm->tx_mode == TX_MODE_SELECT;
 
@@ -3292,7 +3292,7 @@ static int64_t rd_pick_intra_angle_sby(const AV1_COMP *const cpi, MACROBLOCK *x,
 #else
   TX_TYPE *best_txk_type = NULL;
 #endif
-  uint8_t best_blk_skip[MAX_MIB_SIZE * MAX_MIB_SIZE * 8];
+  uint8_t best_blk_skip[MAX_MIB_SIZE * MAX_MIB_SIZE];
 
   for (i = 0; i < 2 * (MAX_ANGLE_DELTA + 2); ++i) rd_cost[i] = INT64_MAX;
 
@@ -4958,7 +4958,7 @@ static void select_tx_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
   TX_SIZE best_tx_size[INTER_TX_SIZE_BUF_LEN] = { 0 };
   TX_SIZE best_tx = max_txsize_rect_lookup[1][bsize];
   TX_SIZE best_min_tx_size = TX_SIZES_ALL;
-  uint8_t best_blk_skip[MAX_MIB_SIZE * MAX_MIB_SIZE * 8];
+  uint8_t best_blk_skip[MAX_MIB_SIZE * MAX_MIB_SIZE];
   TX_TYPE txk_start = DCT_DCT;
 #if CONFIG_TXK_SEL
   TX_TYPE txk_end = DCT_DCT + 1;
@@ -7674,7 +7674,7 @@ static int64_t motion_mode_rd(
   int rate2_nocoeff = 0, best_xskip, best_disable_skip = 0;
   RD_STATS best_rd_stats, best_rd_stats_y, best_rd_stats_uv;
   MB_MODE_INFO base_mbmi, best_mbmi;
-  uint8_t best_blk_skip[MAX_MB_PLANE][MAX_MIB_SIZE * MAX_MIB_SIZE * 4];
+  uint8_t best_blk_skip[MAX_MB_PLANE][MAX_MIB_SIZE * MAX_MIB_SIZE];
   int interintra_allowed =
       cm->allow_interintra_compound && is_interintra_allowed(mbmi);
 #if CONFIG_EXT_WARPED_MOTION
@@ -8119,7 +8119,7 @@ static int64_t motion_mode_rd(
       if (num_planes > 1) best_rd_stats_uv = *rd_stats_uv;
       for (int i = 0; i < num_planes; ++i)
         memcpy(best_blk_skip[i], x->blk_skip[i],
-               sizeof(best_blk_skip[i][0]) * xd->n8_h * xd->n8_w * 4);
+               sizeof(best_blk_skip[i][0]) * xd->n8_h * xd->n8_w);
       best_xskip = x->skip;
       best_disable_skip = *disable_skip;
     }
@@ -8136,7 +8136,7 @@ static int64_t motion_mode_rd(
   if (num_planes > 1) *rd_stats_uv = best_rd_stats_uv;
   for (int i = 0; i < num_planes; ++i)
     memcpy(x->blk_skip[i], best_blk_skip[i],
-           sizeof(x->blk_skip[i][0]) * xd->n8_h * xd->n8_w * 4);
+           sizeof(x->blk_skip[i][0]) * xd->n8_h * xd->n8_w);
   x->skip = best_xskip;
   *disable_skip = best_disable_skip;
 
@@ -8266,7 +8266,7 @@ static int64_t handle_inter_mode(
   int64_t best_rd = INT64_MAX;
   int best_compound_idx = 1;
   int64_t best_ret_val = INT64_MAX;
-  uint8_t best_blk_skip[MAX_MB_PLANE][MAX_MIB_SIZE * MAX_MIB_SIZE * 4];
+  uint8_t best_blk_skip[MAX_MB_PLANE][MAX_MIB_SIZE * MAX_MIB_SIZE];
   const MB_MODE_INFO backup_mbmi = *mbmi;
   MB_MODE_INFO best_mbmi = *mbmi;
   int64_t early_terminate = 0;
@@ -8748,7 +8748,7 @@ static int64_t handle_inter_mode(
         best_mbmi = *mbmi;
         for (i = 0; i < num_planes; ++i)
           memcpy(best_blk_skip[i], x->blk_skip[i],
-                 sizeof(uint8_t) * xd->n8_h * xd->n8_w * 4);
+                 sizeof(uint8_t) * xd->n8_h * xd->n8_w);
       }
     }
   }
@@ -8762,7 +8762,7 @@ static int64_t handle_inter_mode(
     *mbmi = best_mbmi;
     for (i = 0; i < num_planes; ++i)
       memcpy(x->blk_skip[i], best_blk_skip[i],
-             sizeof(uint8_t) * xd->n8_h * xd->n8_w * 4);
+             sizeof(uint8_t) * xd->n8_h * xd->n8_w);
   }
   if (early_terminate == INT64_MAX) return INT64_MAX;
 #endif  // CONFIG_JNT_COMP
@@ -8830,7 +8830,7 @@ static int64_t rd_pick_intrabc_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
   RD_STATS best_rdcost = *rd_cost;
   int best_skip = x->skip;
 
-  uint8_t best_blk_skip[MAX_MIB_SIZE * MAX_MIB_SIZE * 8] = { 0 };
+  uint8_t best_blk_skip[MAX_MIB_SIZE * MAX_MIB_SIZE] = { 0 };
   for (enum IntrabcMotionDirection dir = IBC_MOTION_ABOVE;
        dir < IBC_MOTION_DIRECTIONS; ++dir) {
     const MvLimits tmp_mv_limits = x->mv_limits;
@@ -8945,7 +8945,7 @@ static int64_t rd_pick_intrabc_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
       best_skip = x->skip;
       best_rdcost = rdc_noskip;
       memcpy(best_blk_skip, x->blk_skip[0],
-             sizeof(x->blk_skip[0][0]) * xd->n8_h * xd->n8_w * 4);
+             sizeof(x->blk_skip[0][0]) * xd->n8_h * xd->n8_w);
     }
 
     if (!xd->lossless[mbmi->segment_id]) {
@@ -8962,7 +8962,7 @@ static int64_t rd_pick_intrabc_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
         best_skip = x->skip;
         best_rdcost = rdc_skip;
         memcpy(best_blk_skip, x->blk_skip[0],
-               sizeof(x->blk_skip[0][0]) * xd->n8_h * xd->n8_w * 4);
+               sizeof(x->blk_skip[0][0]) * xd->n8_h * xd->n8_w);
       }
     }
   }
@@ -8970,7 +8970,7 @@ static int64_t rd_pick_intrabc_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
   *rd_cost = best_rdcost;
   x->skip = best_skip;
   memcpy(x->blk_skip[0], best_blk_skip,
-         sizeof(x->blk_skip[0][0]) * xd->n8_h * xd->n8_w * 4);
+         sizeof(x->blk_skip[0][0]) * xd->n8_h * xd->n8_w);
   return best_rd;
 }
 #endif  // CONFIG_INTRABC
@@ -9888,7 +9888,7 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
       skippable = rd_stats_y.skip;
 
 #if CONFIG_FILTER_INTRA
-      uint8_t best_blk_skip[MAX_MIB_SIZE * MAX_MIB_SIZE * 8];
+      uint8_t best_blk_skip[MAX_MIB_SIZE * MAX_MIB_SIZE];
       memcpy(best_blk_skip, x->blk_skip[0],
              sizeof(best_blk_skip[0]) * ctx->num_4x4_blk);
 
@@ -10533,7 +10533,7 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
         x->palette_buffer->best_palette_color_map;
     uint8_t *const color_map = xd->plane[0].color_index_map;
     MB_MODE_INFO best_mbmi_palette = *mbmi;
-    uint8_t best_blk_skip[MAX_MIB_SIZE * MAX_MIB_SIZE * 8];
+    uint8_t best_blk_skip[MAX_MIB_SIZE * MAX_MIB_SIZE];
 
     mbmi->mode = DC_PRED;
     mbmi->uv_mode = UV_DC_PRED;
