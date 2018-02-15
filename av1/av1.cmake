@@ -394,6 +394,10 @@ if (CONFIG_CFL)
   set(AOM_AV1_COMMON_INTRIN_AVX2
     ${AOM_AV1_COMMON_INTRIN_AVX2}
     "${AOM_ROOT}/av1/common/x86/cfl_avx2.c")
+
+  set(AOM_AV1_COMMON_INTRIN_NEON
+      ${AOM_AV1_COMMON_INTRIN_NEON}
+      "${AOM_ROOT}/av1/common/arm/cfl_neon.c")
 endif ()
 
 if (CONFIG_LOOP_RESTORATION)
