@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "31fc1836_6a32310c",
+        "filename": "av1/decoder/decodetxb.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-02-15T02:13:12Z",
+      "side": 1,
+      "message": "usually the .h for the .c (or .cc) is separated by a newline to avoid it being included in any sort operation in the group that follows",
+      "revId": "b12be204be9abd61d2b4ef0e094ffeb2ca366035",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b6d95fc4_13afcc96",
+        "filename": "av1/decoder/decodetxb.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-02-15T02:13:12Z",
+      "side": 1,
+      "message": "could be const; maybe store the *eob - 1 value or change the c \u003d\u003d *eob - 1 checks to a constant since it\u0027s reused in a few places (i \u003d\u003d 0 works too)",
+      "revId": "b12be204be9abd61d2b4ef0e094ffeb2ca366035",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2188052e_d1b1efae",
+        "filename": "av1/decoder/decodetxb.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-02-15T02:13:12Z",
+      "side": 1,
+      "message": "could be const",
+      "revId": "b12be204be9abd61d2b4ef0e094ffeb2ca366035",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "611b096a_f4b06632",
+        "filename": "av1/decoder/decodetxb.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 240,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-02-15T02:13:12Z",
+      "side": 1,
+      "message": "could be const",
+      "revId": "b12be204be9abd61d2b4ef0e094ffeb2ca366035",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9a34f18b_764babcc",
+        "filename": "av1/encoder/encodetxb.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-02-15T02:13:12Z",
+      "side": 1,
+      "message": "same as the decode, add a newline",
+      "revId": "b12be204be9abd61d2b4ef0e094ffeb2ca366035",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
