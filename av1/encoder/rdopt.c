@@ -8269,12 +8269,13 @@ static int64_t handle_inter_mode(
   uint8_t best_blk_skip[MAX_MB_PLANE][MAX_MIB_SIZE * MAX_MIB_SIZE * 4];
   const MB_MODE_INFO backup_mbmi = *mbmi;
   MB_MODE_INFO best_mbmi = *mbmi;
-  int64_t early_terminate = 0;
+  int is_valid_mode[2] = { 1, 1 };
+  int64_t model_rd[2] = { INT64_MAX, INT64_MAX };
 
   int comp_idx;
-  for (comp_idx = 0; comp_idx < 1 + is_comp_pred; ++comp_idx) {
+  for (comp_idx = is_comp_pred; comp_idx >= 0; comp_idx--)
+  {
     compmode_interinter_cost = 0;
-    early_terminate = 0;
     *rd_stats = backup_rd_stats;
     *rd_stats_y = backup_rd_stats_y;
     *rd_stats_uv = backup_rd_stats_uv;
@@ -8298,7 +8299,7 @@ static int64_t handle_inter_mode(
                              single_newmv, args);
 #if CONFIG_JNT_COMP
       if (ret_val != 0) {
-        early_terminate = INT64_MAX;
+        is_valid_mode[comp_idx] = 0;
         continue;
       } else {
         rd_stats->rate += rate_mv;
@@ -8316,7 +8317,7 @@ static int64_t handle_inter_mode(
       if (this_mode != NEWMV) clamp_mv2(&cur_mv[i].as_mv, xd);
 #if CONFIG_JNT_COMP
       if (mv_check_bounds(&x->mv_limits, &cur_mv[i].as_mv)) {
-        early_terminate = INT64_MAX;
+        is_valid_mode[comp_idx] = 0;
         continue;
       }
 #else
@@ -8334,7 +8335,7 @@ static int64_t handle_inter_mode(
           clamp_mv2(&cur_mv[i].as_mv, xd);
 #if CONFIG_JNT_COMP
           if (mv_check_bounds(&x->mv_limits, &cur_mv[i].as_mv)) {
-            early_terminate = INT64_MAX;
+            is_valid_mode[comp_idx] = 0;
             continue;
           }
 #else
@@ -8358,7 +8359,7 @@ static int64_t handle_inter_mode(
         clamp_mv2(&cur_mv[0].as_mv, xd);
 #if CONFIG_JNT_COMP
         if (mv_check_bounds(&x->mv_limits, &cur_mv[0].as_mv)) {
-          early_terminate = INT64_MAX;
+          is_valid_mode[comp_idx] = 0;
           continue;
         }
 #else
@@ -8379,7 +8380,7 @@ static int64_t handle_inter_mode(
         clamp_mv2(&cur_mv[1].as_mv, xd);
 #if CONFIG_JNT_COMP
         if (mv_check_bounds(&x->mv_limits, &cur_mv[1].as_mv)) {
-          early_terminate = INT64_MAX;
+          is_valid_mode[comp_idx] = 0;
           continue;
         }
 #else
@@ -8403,7 +8404,7 @@ static int64_t handle_inter_mode(
         clamp_mv2(&cur_mv[0].as_mv, xd);
 #if CONFIG_JNT_COMP
         if (mv_check_bounds(&x->mv_limits, &cur_mv[0].as_mv)) {
-          early_terminate = INT64_MAX;
+          is_valid_mode[comp_idx] = 0;
           continue;
         }
 #else
@@ -8424,7 +8425,7 @@ static int64_t handle_inter_mode(
         clamp_mv2(&cur_mv[1].as_mv, xd);
 #if CONFIG_JNT_COMP
         if (mv_check_bounds(&x->mv_limits, &cur_mv[1].as_mv)) {
-          early_terminate = INT64_MAX;
+          is_valid_mode[comp_idx] = 0;
           continue;
         }
 #else
@@ -8475,7 +8476,7 @@ static int64_t handle_inter_mode(
 #if CONFIG_JNT_COMP
     if (RDCOST(x->rdmult, rd_stats->rate, 0) > ref_best_rd &&
         mbmi->mode != NEARESTMV && mbmi->mode != NEAREST_NEARESTMV) {
-      early_terminate = INT64_MAX;
+      is_valid_mode[comp_idx] = 0;
       continue;
     }
 #else
@@ -8489,7 +8490,8 @@ static int64_t handle_inter_mode(
         &rd, &rs, &skip_txfm_sb, &skip_sse_sb);
 #if CONFIG_JNT_COMP
     if (ret_val != 0) {
-      early_terminate = INT64_MAX;
+      restore_dst_buf(xd, orig_dst, num_planes);
+      is_valid_mode[comp_idx] = 0;
       continue;
     }
 #else
@@ -8660,7 +8662,7 @@ static int64_t handle_inter_mode(
       if (ref_best_rd < INT64_MAX && best_rd_compound / 3 > ref_best_rd) {
         restore_dst_buf(xd, orig_dst, num_planes);
 #if CONFIG_JNT_COMP
-        early_terminate = INT64_MAX;
+        is_valid_mode[comp_idx] = 0;
         continue;
 #else
       return INT64_MAX;
@@ -8679,7 +8681,35 @@ static int64_t handle_inter_mode(
       model_rd_for_sb(cpi, bsize, x, xd, 0, num_planes - 1, &tmp_rate,
                       &tmp_dist, &skip_txfm_sb, &skip_sse_sb);
       rd = RDCOST(x->rdmult, rs + tmp_rate, tmp_dist);
+#if CONFIG_JNT_COMP
+      model_rd[1] = rd;
+#endif
     }
+
+#if CONFIG_JNT_COMP
+    if (is_comp_pred && comp_idx == 0) {
+      av1_build_inter_predictors_sby(cm, xd, mi_row, mi_col, &orig_dst,
+                                     bsize);
+      av1_subtract_plane(x, bsize, 0);
+      int rate_sum;
+      int64_t dist_sum;
+      int tmp_skip_txfm_sb;
+      int64_t tmp_skip_sse_sb;
+      model_rd[0] = estimate_yrd_for_sb(cpi, bsize, x, &rate_sum, &dist_sum,
+                                        &tmp_skip_txfm_sb, &tmp_skip_sse_sb,
+                                        INT64_MAX);
+      if (model_rd[0] != INT64_MAX) {
+        rd = RDCOST(x->rdmult, rs + rate_sum, dist_sum);
+        model_rd[0] = rd;
+
+        if (model_rd[0] / 4 * 3 > model_rd[1]) {
+          restore_dst_buf(xd, orig_dst, num_planes);
+          is_valid_mode[comp_idx] = 0;
+          continue;
+        }
+      }
+    }
+#endif
 
     if (!is_comp_pred)
       args->single_filter[this_mode][refs[0]] =
@@ -8694,7 +8724,7 @@ static int64_t handle_inter_mode(
         if (rd / 4 * 3 > mrd && ref_best_rd < INT64_MAX) {
           restore_dst_buf(xd, orig_dst, num_planes);
 #if CONFIG_JNT_COMP
-          early_terminate = INT64_MAX;
+          is_valid_mode[comp_idx] = 0;
           continue;
 #else
         return INT64_MAX;
@@ -8711,7 +8741,7 @@ static int64_t handle_inter_mode(
       if (rd / 2 > ref_best_rd) {
         restore_dst_buf(xd, orig_dst, num_planes);
 #if CONFIG_JNT_COMP
-        early_terminate = INT64_MAX;
+        is_valid_mode[comp_idx] = 0;
         continue;
 #else
       return INT64_MAX;
@@ -8725,6 +8755,11 @@ static int64_t handle_inter_mode(
                              disable_skip, mode_mv, mi_row, mi_col, args,
                              ref_best_rd, refs, rate_mv, &orig_dst);
 #if CONFIG_JNT_COMP
+    if (ret_val == INT64_MAX) {
+      restore_dst_buf(xd, orig_dst, num_planes);
+      is_valid_mode[comp_idx] = 0;
+      continue;
+    }
     if (is_comp_pred && ret_val != INT64_MAX) {
       int64_t tmp_rd;
       const int skip_ctx = av1_get_skip_context(xd);
@@ -8752,6 +8787,11 @@ static int64_t handle_inter_mode(
       }
     }
   }
+
+  if (!is_comp_pred && !is_valid_mode[0])
+    return INT64_MAX;
+  if (is_comp_pred && !(is_valid_mode[0] || is_valid_mode[1]))
+    return INT64_MAX;
   // re-instate status of the best choice
   if (is_comp_pred && best_ret_val != INT64_MAX) {
     *rd_stats = best_rd_stats;
@@ -8764,9 +8804,9 @@ static int64_t handle_inter_mode(
       memcpy(x->blk_skip[i], best_blk_skip[i],
              sizeof(uint8_t) * xd->n8_h * xd->n8_w * 4);
   }
-  if (early_terminate == INT64_MAX) return INT64_MAX;
-#endif  // CONFIG_JNT_COMP
+#else
   if (ret_val != 0) return ret_val;
+#endif  // CONFIG_JNT_COMP
 
   return 0;  // The rate-distortion cost will be re-calculated by caller.
 }
