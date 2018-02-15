@@ -129,7 +129,7 @@ void aom_var_filter_block2d_bil_second_pass_ssse3(
       // shuffle to get each lower 8 bit of every 32 bit
       res = _mm_shuffle_epi8(res, mask);
 
-      xx_storeu_128(b, res);
+      xx_storel_32(b, res);
 
       a += 4;
       b += 4;
