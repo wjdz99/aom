@@ -141,10 +141,12 @@ static uint32_t read_one_tile_group_obu(AV1Decoder *pbi,
   uint32_t header_size, tg_payload_size;
 
   header_size = read_tile_group_header(pbi, rb, &startTile, &endTile);
+  fprintf(stderr," TG Header size=%u\n", header_size);
   data += header_size;
   av1_decode_tg_tiles_and_wrapup(pbi, data, data_end, p_data_end, startTile,
                                  endTile, is_first_tg);
   tg_payload_size = (uint32_t)(*p_data_end - data);
+  fprintf(stderr," TG Payload size=%u\n", tg_payload_size);
 
   // TODO(shan):  For now, assume all tile groups received in order
   *is_last_tg = endTile == cm->tile_rows * cm->tile_cols - 1;

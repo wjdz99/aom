@@ -138,7 +138,7 @@ int main(int argc, const char *argv[]) {
   int unit_number = 0;
   int64_t obu_overhead_bytes_total = 0;
   while (ReadTemporalUnit(&input_ctx, &unit_size)) {
-    printf("Temporal unit %d\n", unit_number);
+    printf("Temporal unit %d, size %zu bytes\n", unit_number, unit_size);
 
     int obu_overhead_current_unit = 0;
     if (!aom_tools::DumpObu(input_ctx.unit_buffer, static_cast<int>(unit_size),

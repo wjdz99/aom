@@ -28,6 +28,14 @@
 namespace {
 const aom_tools::ObuExtensionHeader kEmptyObuExt = { 0, 0, 0, false };
 const aom_tools::ObuHeader kEmptyObu = { 0, 0, false, kEmptyObuExt };
+
+struct ObuStats {
+  int num_temporal_delimiter = 0;
+  int num_tile_groups = 0;
+  int num_sequence_headers = 0;
+  int num_frame_headers = 0;
+};
+
 }  // namespace
 
 namespace aom_tools {
