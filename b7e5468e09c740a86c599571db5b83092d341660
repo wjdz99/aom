@@ -1,0 +1,113 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "668e9ffc_ed8ffa5b",
+        "filename": "av1/common/entropymode.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 1386,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2018-02-15T15:29:49Z",
+      "side": 1,
+      "message": "What I\u0027m used to seeing is matching the opening if (so no !). But I\u0027ve also seen occurence of people matching the else. Your call on this.",
+      "revId": "b7e5468e09c740a86c599571db5b83092d341660",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4808b41e_a3fdeffe",
+        "filename": "av1/common/onyxc_int.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 481,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2018-02-15T15:29:49Z",
+      "side": 1,
+      "message": "This was FRAME_CONTEXT_INDEXES, now it\u0027s 8. Is this TOTAL_REFS_PER_FRAME or maybe FRAME_CONTEXTS?",
+      "range": {
+        "startLine": 481,
+        "startChar": 25,
+        "endLine": 481,
+        "endChar": 26
+      },
+      "revId": "b7e5468e09c740a86c599571db5b83092d341660",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "73600d04_38f19e35",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 3768,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2018-02-15T15:29:49Z",
+      "side": 1,
+      "message": "What does this 8 represent? is it FRAME_CONTEXTS (onyxc_int.h)?",
+      "range": {
+        "startLine": 3768,
+        "startChar": 24,
+        "endLine": 3768,
+        "endChar": 25
+      },
+      "revId": "b7e5468e09c740a86c599571db5b83092d341660",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9503ee51_5fb27c20",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 338,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2018-02-15T15:29:49Z",
+      "side": 1,
+      "message": "This might not work anymore, since fb_of_context_type is of size 8, and this only sets the first 5 to -1",
+      "range": {
+        "startLine": 336,
+        "startChar": 4,
+        "endLine": 338,
+        "endChar": 5
+      },
+      "revId": "b7e5468e09c740a86c599571db5b83092d341660",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e6556294_7f5a5969",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 381,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2018-02-15T15:29:49Z",
+      "side": 1,
+      "message": "Deadcode?",
+      "range": {
+        "startLine": 381,
+        "startChar": 4,
+        "endLine": 381,
+        "endChar": 59
+      },
+      "revId": "b7e5468e09c740a86c599571db5b83092d341660",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
