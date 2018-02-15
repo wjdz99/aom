@@ -71,7 +71,7 @@ void aom_var_filter_block2d_bil_first_pass_ssse3(
     }
   } else {
     // output_width := 4, process two lines
-    for (i = 0; i < output_height; i += 2) {
+    for (i = 0; i < output_height; ++i) {
       // load source, only first 5 values are meaningful:
       // { a[0], a[1], a[2], a[3], a[4], xxxx }
       __m128i source = xx_loadl_64(a);
@@ -79,27 +79,15 @@ void aom_var_filter_block2d_bil_first_pass_ssse3(
       // shuffle, up to the first 8 are useful
       // { a[0], a[1], a[1], a[2], a[2], a[3], a[3], a[4],
       //   a[4], a[5], a[5], a[6], a[6], a[7], a[7], a[8] }
-      __m128i shuffle_lo = _mm_shuffle_epi8(source, shuffle_mask);
-
-      __m128i source_high_0 = xx_loadl_32(a + src_pixels_per_line);
-      __m128i source_high_1 = _mm_setzero_si128();
-      // avoid load undefined memory
-      if (a + src_pixels_per_line + 4 != NULL)
-        source_high_1 = xx_loadl_32(a + src_pixels_per_line + 4);
-      source = _mm_unpacklo_epi32(source_high_0, source_high_1);
-
-      __m128i shuffle_hi = _mm_shuffle_epi8(source, shuffle_mask);
-
-      __m128i source_shuffle = _mm_unpacklo_epi64(shuffle_lo, shuffle_hi);
+      __m128i source_shuffle = _mm_shuffle_epi8(source, shuffle_mask);
 
       __m128i res = _mm_maddubs_epi16(source_shuffle, filters);
       res = _mm_srai_epi16(_mm_add_epi16(res, r), FILTER_BITS - 1);
 
       xx_storel_64(b, res);
-      xx_storel_64(b + output_width, _mm_srli_si128(res, 8));
 
-      a += src_pixels_per_line * 2;
-      b += output_width * 2;
+      a += src_pixels_per_line;
+      b += output_width;
     }
   }
 }
