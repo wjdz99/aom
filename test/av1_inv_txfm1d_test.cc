@@ -22,29 +22,29 @@ using libaom_test::input_base;
 namespace {
 const int txfm_type_num = 2;
 const int txfm_size_ls[] = {
-  4,  8, 16, 32,
+    4,  8, 16, 32,
 #if CONFIG_TX64X64
-  64,
+    64,
 #endif  // CONFIG_TX64X64
 };
 
 const TxfmFunc fwd_txfm_func_ls[][txfm_type_num] = {
-  { av1_fdct4_new, av1_fadst4_new },
-  { av1_fdct8_new, av1_fadst8_new },
-  { av1_fdct16_new, av1_fadst16_new },
-  { av1_fdct32_new, av1_fadst32_new },
+    {av1_fdct4_new, av1_fadst4_new},
+    {av1_fdct8_new, av1_fadst8_new},
+    {av1_fdct16_new, av1_fadst16_new},
+    {av1_fdct32_new, av1_fadst32_new},
 #if CONFIG_TX64X64
-  { av1_fdct64_new, NULL },
+    {av1_fdct64_new, NULL},
 #endif
 };
 
 const TxfmFunc inv_txfm_func_ls[][txfm_type_num] = {
-  { av1_idct4_new, av1_iadst4_new },
-  { av1_idct8_new, av1_iadst8_new },
-  { av1_idct16_new, av1_iadst16_new },
-  { av1_idct32_new, av1_iadst32_new },
+    {av1_idct4_new, av1_iadst4_new},
+    {av1_idct8_new, av1_iadst8_new},
+    {av1_idct16_new, av1_iadst16_new},
+    {av1_idct32_new, av1_iadst32_new},
 #if CONFIG_TX64X64
-  { av1_idct64_new, NULL },
+    {av1_idct64_new, NULL},
 #endif
 };
 

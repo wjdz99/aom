@@ -1780,12 +1780,12 @@ static INLINE void lowbd_write_buffer_8xn_sse2(__m128i *in, uint8_t *output,
 }
 
 static const transform_1d_sse2 lowbd_txfm_all_1d_arr[TX_SIZES][TX_TYPES_1D] = {
-  { idct4_new_sse2, iadst4_new_sse2, iadst4_new_sse2, iidentity4_new_sse2 },
-  { idct8_new_sse2, iadst8_new_sse2, iadst8_new_sse2, iidentity8_new_sse2 },
-  { idct16_new_sse2, iadst16_new_sse2, iadst16_new_sse2, iidentity16_new_sse2 },
-  { idct32_new_sse2, NULL, NULL, iidentity32_new_sse2 },
+    {idct4_new_sse2, iadst4_new_sse2, iadst4_new_sse2, iidentity4_new_sse2},
+    {idct8_new_sse2, iadst8_new_sse2, iadst8_new_sse2, iidentity8_new_sse2},
+    {idct16_new_sse2, iadst16_new_sse2, iadst16_new_sse2, iidentity16_new_sse2},
+    {idct32_new_sse2, NULL, NULL, iidentity32_new_sse2},
 #if CONFIG_TX64X64
-  { idct64_new_sse2, NULL, NULL, iidentity64_new_sse2 },
+    {idct64_new_sse2, NULL, NULL, iidentity64_new_sse2},
 #endif
 };
 
@@ -2268,31 +2268,31 @@ typedef void (*inv_txfm_func)(const int32_t *input, uint8_t *output, int stride,
                               TX_TYPE tx_type, int bd);
 
 static inv_txfm_func inv_txfm_func_ls[TX_SIZES_ALL] = {
-  av1_lowbd_inv_txfm2d_add_4x4_sse2,    // 4x4
-  av1_lowbd_inv_txfm2d_add_8x8_sse2,    // 8x8
-  av1_lowbd_inv_txfm2d_add_16x16_sse2,  // 16x16
-  av1_lowbd_inv_txfm2d_add_32x32_sse2,  // 32x32
+    av1_lowbd_inv_txfm2d_add_4x4_sse2,    // 4x4
+    av1_lowbd_inv_txfm2d_add_8x8_sse2,    // 8x8
+    av1_lowbd_inv_txfm2d_add_16x16_sse2,  // 16x16
+    av1_lowbd_inv_txfm2d_add_32x32_sse2,  // 32x32
 #if CONFIG_TX64X64
-  av1_lowbd_inv_txfm2d_add_64x64_sse2,  // 64x64
-#endif                                  // CONFIG_TX64X64
-  av1_lowbd_inv_txfm2d_add_4x8_sse2,    // 4x8
-  av1_lowbd_inv_txfm2d_add_8x4_sse2,    // 8x4
-  av1_lowbd_inv_txfm2d_add_8x16_sse2,   // 8x16
-  av1_lowbd_inv_txfm2d_add_16x8_sse2,   // 16x8
-  av1_lowbd_inv_txfm2d_add_16x32_sse2,  // 16x32
-  av1_lowbd_inv_txfm2d_add_32x16_sse2,  // 32x16
+    av1_lowbd_inv_txfm2d_add_64x64_sse2,  // 64x64
+#endif                                    // CONFIG_TX64X64
+    av1_lowbd_inv_txfm2d_add_4x8_sse2,    // 4x8
+    av1_lowbd_inv_txfm2d_add_8x4_sse2,    // 8x4
+    av1_lowbd_inv_txfm2d_add_8x16_sse2,   // 8x16
+    av1_lowbd_inv_txfm2d_add_16x8_sse2,   // 16x8
+    av1_lowbd_inv_txfm2d_add_16x32_sse2,  // 16x32
+    av1_lowbd_inv_txfm2d_add_32x16_sse2,  // 32x16
 #if CONFIG_TX64X64
-  av1_lowbd_inv_txfm2d_add_32x64_sse2,  // 32x64
-  av1_lowbd_inv_txfm2d_add_64x32_sse2,  // 64x32
-#endif                                  // CONFIG_TX64X64
-  av1_lowbd_inv_txfm2d_add_4x16_sse2,   // 4x16
-  av1_lowbd_inv_txfm2d_add_16x4_sse2,   // 16x4
-  av1_lowbd_inv_txfm2d_add_8x32_sse2,   // 8x32
-  av1_lowbd_inv_txfm2d_add_32x8_sse2,   // 32x8
+    av1_lowbd_inv_txfm2d_add_32x64_sse2,  // 32x64
+    av1_lowbd_inv_txfm2d_add_64x32_sse2,  // 64x32
+#endif                                    // CONFIG_TX64X64
+    av1_lowbd_inv_txfm2d_add_4x16_sse2,   // 4x16
+    av1_lowbd_inv_txfm2d_add_16x4_sse2,   // 16x4
+    av1_lowbd_inv_txfm2d_add_8x32_sse2,   // 8x32
+    av1_lowbd_inv_txfm2d_add_32x8_sse2,   // 32x8
 #if CONFIG_TX64X64
-  av1_lowbd_inv_txfm2d_add_16x64_sse2,  // 16x64
-  av1_lowbd_inv_txfm2d_add_64x16_sse2,  // 64x16
-#endif                                  // CONFIG_TX64X64
+    av1_lowbd_inv_txfm2d_add_16x64_sse2,  // 16x64
+    av1_lowbd_inv_txfm2d_add_64x16_sse2,  // 64x16
+#endif                                    // CONFIG_TX64X64
 };
 
 void av1_inv_txfm_add_sse2(const tran_low_t *dqcoeff, uint8_t *dst, int stride,

@@ -63,13 +63,13 @@ extern void aom_highbd_lpf_vertical_6_c(uint16_t *s, int pitch,
 //
 // A loopfilter should be applied to every other 8x8 horizontally.
 static const uint64_t left_64x64_txform_mask[TX_SIZES] = {
-  0xffffffffffffffffULL,  // TX_4X4
-  0xffffffffffffffffULL,  // TX_8x8
-  0x5555555555555555ULL,  // TX_16x16
-  0x1111111111111111ULL,  // TX_32x32
+    0xffffffffffffffffULL,  // TX_4X4
+    0xffffffffffffffffULL,  // TX_8x8
+    0x5555555555555555ULL,  // TX_16x16
+    0x1111111111111111ULL,  // TX_32x32
 #if CONFIG_TX64X64
-  0x0101010101010101ULL,  // TX_64x64
-#endif                    // CONFIG_TX64X64
+    0x0101010101010101ULL,  // TX_64x64
+#endif                      // CONFIG_TX64X64
 };
 
 // 64 bit masks for above transform size. Each 1 represents a position where
@@ -90,13 +90,13 @@ static const uint64_t left_64x64_txform_mask[TX_SIZES] = {
 //
 // A loopfilter should be applied to every other 4 the row vertically.
 static const uint64_t above_64x64_txform_mask[TX_SIZES] = {
-  0xffffffffffffffffULL,  // TX_4X4
-  0xffffffffffffffffULL,  // TX_8x8
-  0x00ff00ff00ff00ffULL,  // TX_16x16
-  0x000000ff000000ffULL,  // TX_32x32
+    0xffffffffffffffffULL,  // TX_4X4
+    0xffffffffffffffffULL,  // TX_8x8
+    0x00ff00ff00ff00ffULL,  // TX_16x16
+    0x000000ff000000ffULL,  // TX_32x32
 #if CONFIG_TX64X64
-  0x00000000000000ffULL,  // TX_64x64
-#endif                    // CONFIG_TX64X64
+    0x00000000000000ffULL,  // TX_64x64
+#endif                      // CONFIG_TX64X64
 };
 
 // 64 bit masks for prediction sizes (left). Each 1 represents a position
@@ -189,23 +189,23 @@ static const uint64_t above_border = 0x000000ff000000ffULL;
 
 // 16 bit masks for uv transform sizes.
 static const uint16_t left_64x64_txform_mask_uv[TX_SIZES] = {
-  0xffff,  // TX_4X4
-  0xffff,  // TX_8x8
-  0x5555,  // TX_16x16
-  0x1111,  // TX_32x32
+    0xffff,  // TX_4X4
+    0xffff,  // TX_8x8
+    0x5555,  // TX_16x16
+    0x1111,  // TX_32x32
 #if CONFIG_TX64X64
-  0x0101,  // TX_64x64, never used
-#endif     // CONFIG_TX64X64
+    0x0101,  // TX_64x64, never used
+#endif       // CONFIG_TX64X64
 };
 
 static const uint16_t above_64x64_txform_mask_uv[TX_SIZES] = {
-  0xffff,  // TX_4X4
-  0xffff,  // TX_8x8
-  0x0f0f,  // TX_16x16
-  0x000f,  // TX_32x32
+    0xffff,  // TX_4X4
+    0xffff,  // TX_8x8
+    0x0f0f,  // TX_16x16
+    0x000f,  // TX_32x32
 #if CONFIG_TX64X64
-  0x0003,  // TX_64x64, never used
-#endif     // CONFIG_TX64X64
+    0x0003,  // TX_64x64, never used
+#endif       // CONFIG_TX64X64
 };
 
 // 16 bit left mask to shift and set for each uv prediction size.
@@ -1915,61 +1915,60 @@ static const uint32_t av1_prediction_masks[NUM_EDGE_DIRS][BLOCK_SIZES_ALL] = {
 };
 
 static const uint32_t av1_transform_masks[NUM_EDGE_DIRS][TX_SIZES_ALL] = {
-  {
-      4 - 1,   // TX_4X4
-      8 - 1,   // TX_8X8
-      16 - 1,  // TX_16X16
-      32 - 1,  // TX_32X32
+    {
+        4 - 1,   // TX_4X4
+        8 - 1,   // TX_8X8
+        16 - 1,  // TX_16X16
+        32 - 1,  // TX_32X32
 #if CONFIG_TX64X64
-      64 - 1,  // TX_64X64
-#endif         // CONFIG_TX64X64
-      4 - 1,   // TX_4X8
-      8 - 1,   // TX_8X4
-      8 - 1,   // TX_8X16
-      16 - 1,  // TX_16X8
-      16 - 1,  // TX_16X32
-      32 - 1,  // TX_32X16
+        64 - 1,  // TX_64X64
+#endif           // CONFIG_TX64X64
+        4 - 1,   // TX_4X8
+        8 - 1,   // TX_8X4
+        8 - 1,   // TX_8X16
+        16 - 1,  // TX_16X8
+        16 - 1,  // TX_16X32
+        32 - 1,  // TX_32X16
 #if CONFIG_TX64X64
-      32 - 1,  // TX_32X64
-      64 - 1,  // TX_64X32
-#endif         // CONFIG_TX64X64
-      4 - 1,   // TX_4X16
-      16 - 1,  // TX_16X4
-      8 - 1,   // TX_8X32
-      32 - 1,  // TX_32X8
+        32 - 1,  // TX_32X64
+        64 - 1,  // TX_64X32
+#endif           // CONFIG_TX64X64
+        4 - 1,   // TX_4X16
+        16 - 1,  // TX_16X4
+        8 - 1,   // TX_8X32
+        32 - 1,  // TX_32X8
 #if CONFIG_TX64X64
-      16 - 1,  // TX_16X64
-      64 - 1,  // TX_64X16
-#endif         // CONFIG_TX64X64
-  },
-  {
-      4 - 1,   // TX_4X4
-      8 - 1,   // TX_8X8
-      16 - 1,  // TX_16X16
-      32 - 1,  // TX_32X32
+        16 - 1,  // TX_16X64
+        64 - 1,  // TX_64X16
+#endif           // CONFIG_TX64X64
+    },
+    {
+        4 - 1,   // TX_4X4
+        8 - 1,   // TX_8X8
+        16 - 1,  // TX_16X16
+        32 - 1,  // TX_32X32
 #if CONFIG_TX64X64
-      64 - 1,  // TX_64X64
-#endif         // CONFIG_TX64X64
-      8 - 1,   // TX_4X8
-      4 - 1,   // TX_8X4
-      16 - 1,  // TX_8X16
-      8 - 1,   // TX_16X8
-      32 - 1,  // TX_16X32
-      16 - 1,  // TX_32X16
+        64 - 1,  // TX_64X64
+#endif           // CONFIG_TX64X64
+        8 - 1,   // TX_4X8
+        4 - 1,   // TX_8X4
+        16 - 1,  // TX_8X16
+        8 - 1,   // TX_16X8
+        32 - 1,  // TX_16X32
+        16 - 1,  // TX_32X16
 #if CONFIG_TX64X64
-      64 - 1,  // TX_32X64
-      32 - 1,  // TX_64X32
-#endif         // CONFIG_TX64X64
-      16 - 1,  // TX_4X16
-      4 - 1,   // TX_16X4
-      32 - 1,  // TX_8X32
-      8 - 1,   // TX_32X8
+        64 - 1,  // TX_32X64
+        32 - 1,  // TX_64X32
+#endif           // CONFIG_TX64X64
+        16 - 1,  // TX_4X16
+        4 - 1,   // TX_16X4
+        32 - 1,  // TX_8X32
+        8 - 1,   // TX_32X8
 #if CONFIG_TX64X64
-      64 - 1,  // TX_16X64
-      16 - 1,  // TX_64X16
-#endif         // CONFIG_TX64X64
-  }
-};
+        64 - 1,  // TX_16X64
+        16 - 1,  // TX_64X16
+#endif           // CONFIG_TX64X64
+    }};
 
 static TX_SIZE av1_get_transform_size(
     const MODE_INFO *const mi, const EDGE_DIR edge_dir, const int mi_row,

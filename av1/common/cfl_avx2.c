@@ -174,15 +174,15 @@ CFL_PREDICT_HBD_X(32)
 
 cfl_predict_lbd_fn get_predict_lbd_fn_avx2(TX_SIZE tx_size) {
   static const cfl_predict_lbd_fn predict_lbd[4] = {
-    cfl_predict_lbd_4, cfl_predict_lbd_8, cfl_predict_lbd_16, cfl_predict_lbd_32
-  };
+      cfl_predict_lbd_4, cfl_predict_lbd_8, cfl_predict_lbd_16,
+      cfl_predict_lbd_32};
   return predict_lbd[(tx_size_wide_log2[tx_size] - tx_size_wide_log2[0]) & 3];
 }
 
 cfl_predict_hbd_fn get_predict_hbd_fn_avx2(TX_SIZE tx_size) {
   static const cfl_predict_hbd_fn predict_hbd[4] = {
-    cfl_predict_hbd_4, cfl_predict_hbd_8, cfl_predict_hbd_16, cfl_predict_hbd_32
-  };
+      cfl_predict_hbd_4, cfl_predict_hbd_8, cfl_predict_hbd_16,
+      cfl_predict_hbd_32};
   return predict_hbd[(tx_size_wide_log2[tx_size] - tx_size_wide_log2[0]) & 3];
 }
 

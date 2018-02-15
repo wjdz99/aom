@@ -358,7 +358,7 @@ int bd_arr[BD_NUM] = { 8, 10, 12 };
 #if CONFIG_TX64X64
 int8_t low_range_arr[BD_NUM] = { 18, 32, 32 };
 #else
-int8_t low_range_arr[BD_NUM] = { 16, 32, 32 };
+int8_t low_range_arr[BD_NUM] = {16, 32, 32};
 #endif  // CONFIG_TX64X64
 int8_t high_range_arr[BD_NUM] = { 32, 32, 32 };
 

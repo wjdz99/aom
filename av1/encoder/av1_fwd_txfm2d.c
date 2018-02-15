@@ -448,18 +448,18 @@ static const int8_t fwd_shift_64x16[3] = { 2, -4, 0 };
 #endif  // CONFIG_TX64X64
 
 const int8_t *fwd_txfm_shift_ls[TX_SIZES_ALL] = {
-  fwd_shift_4x4,   fwd_shift_8x8,   fwd_shift_16x16, fwd_shift_32x32,
+    fwd_shift_4x4,   fwd_shift_8x8,   fwd_shift_16x16, fwd_shift_32x32,
 #if CONFIG_TX64X64
-  fwd_shift_64x64,
+    fwd_shift_64x64,
 #endif  // CONFIG_TX64X64
-  fwd_shift_4x8,   fwd_shift_8x4,   fwd_shift_8x16,  fwd_shift_16x8,
-  fwd_shift_16x32, fwd_shift_32x16,
+    fwd_shift_4x8,   fwd_shift_8x4,   fwd_shift_8x16,  fwd_shift_16x8,
+    fwd_shift_16x32, fwd_shift_32x16,
 #if CONFIG_TX64X64
-  fwd_shift_32x64, fwd_shift_64x32,
+    fwd_shift_32x64, fwd_shift_64x32,
 #endif  // CONFIG_TX64X64
-  fwd_shift_4x16,  fwd_shift_16x4,  fwd_shift_8x32,  fwd_shift_32x8,
+    fwd_shift_4x16,  fwd_shift_16x4,  fwd_shift_8x32,  fwd_shift_32x8,
 #if CONFIG_TX64X64
-  fwd_shift_16x64, fwd_shift_64x16,
+    fwd_shift_16x64, fwd_shift_64x16,
 #endif  // CONFIG_TX64X64
 };
 

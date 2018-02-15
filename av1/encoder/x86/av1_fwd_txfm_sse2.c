@@ -1972,117 +1972,117 @@ static INLINE void fidentity32_new_sse2(const __m128i *input, __m128i *output,
 }
 
 static const transform_2d_sse2 txfm4_arr[] = {
-  { fdct4x4_new_sse2, fdct4x4_new_sse2 },        // DCT_DCT
-  { fadst4_new_sse2, fdct4x4_new_sse2 },         // ADST_DCT
-  { fdct4x4_new_sse2, fadst4_new_sse2 },         // DCT_ADST
-  { fadst4_new_sse2, fadst4_new_sse2 },          // ADST_ADST
-  { fadst4_new_sse2, fdct4x4_new_sse2 },         // FLIPADST_DCT
-  { fdct4x4_new_sse2, fadst4_new_sse2 },         // DCT_FLIPADST
-  { fadst4_new_sse2, fadst4_new_sse2 },          // FLIPADST_FLIPADST
-  { fadst4_new_sse2, fadst4_new_sse2 },          // ADST_FLIPADST
-  { fadst4_new_sse2, fadst4_new_sse2 },          // FLIPADST_ADST
-  { fidentity4_new_sse2, fidentity4_new_sse2 },  // IDTX
-  { fdct4x4_new_sse2, fidentity4_new_sse2 },     // V_DCT
-  { fidentity4_new_sse2, fdct4x4_new_sse2 },     // H_DCT
-  { fadst4_new_sse2, fidentity4_new_sse2 },      // V_ADST
-  { fidentity4_new_sse2, fadst4_new_sse2 },      // H_ADST
-  { fadst4_new_sse2, fidentity4_new_sse2 },      // V_FLIPADST
-  { fidentity4_new_sse2, fadst4_new_sse2 },      // H_FLIPADST
+    {fdct4x4_new_sse2, fdct4x4_new_sse2},        // DCT_DCT
+    {fadst4_new_sse2, fdct4x4_new_sse2},         // ADST_DCT
+    {fdct4x4_new_sse2, fadst4_new_sse2},         // DCT_ADST
+    {fadst4_new_sse2, fadst4_new_sse2},          // ADST_ADST
+    {fadst4_new_sse2, fdct4x4_new_sse2},         // FLIPADST_DCT
+    {fdct4x4_new_sse2, fadst4_new_sse2},         // DCT_FLIPADST
+    {fadst4_new_sse2, fadst4_new_sse2},          // FLIPADST_FLIPADST
+    {fadst4_new_sse2, fadst4_new_sse2},          // ADST_FLIPADST
+    {fadst4_new_sse2, fadst4_new_sse2},          // FLIPADST_ADST
+    {fidentity4_new_sse2, fidentity4_new_sse2},  // IDTX
+    {fdct4x4_new_sse2, fidentity4_new_sse2},     // V_DCT
+    {fidentity4_new_sse2, fdct4x4_new_sse2},     // H_DCT
+    {fadst4_new_sse2, fidentity4_new_sse2},      // V_ADST
+    {fidentity4_new_sse2, fadst4_new_sse2},      // H_ADST
+    {fadst4_new_sse2, fidentity4_new_sse2},      // V_FLIPADST
+    {fidentity4_new_sse2, fadst4_new_sse2},      // H_FLIPADST
 };
 
 static const transform_2d_sse2 txfm4x8_arr[16] = {
-  { fdct4x8_new_sse2, fdct4_new_sse2 },            // DCT_DCT
-  { fadst4x8_new_sse2, fdct4_new_sse2 },           // ADST_DCT
-  { fdct4x8_new_sse2, fadst8x4_new_sse2 },         // DCT_ADST
-  { fadst4x8_new_sse2, fadst8x4_new_sse2 },        // ADST_ADST
-  { fadst4x8_new_sse2, fdct4_new_sse2 },           // FLIPADST_DCT
-  { fdct4x8_new_sse2, fadst8x4_new_sse2 },         // DCT_FLIPADST
-  { fadst4x8_new_sse2, fadst8x4_new_sse2 },        // FLIPADST_FLIPADST
-  { fadst4x8_new_sse2, fadst8x4_new_sse2 },        // ADST_FLIPADST
-  { fadst4x8_new_sse2, fadst8x4_new_sse2 },        // FLIPADST_ADST
-  { fidentity8_new_sse2, fidentity8x4_new_sse2 },  // IDTX
-  { fdct4x8_new_sse2, fidentity8x4_new_sse2 },     // V_DCT
-  { fidentity8_new_sse2, fdct4_new_sse2 },         // H_DCT
-  { fadst4x8_new_sse2, fidentity8x4_new_sse2 },    // V_ADST
-  { fidentity8_new_sse2, fadst8x4_new_sse2 },      // H_ADST
-  { fadst4x8_new_sse2, fidentity8x4_new_sse2 },    // V_FLIPADST
-  { fidentity8_new_sse2, fadst8x4_new_sse2 },      // H_FLIPADST
+    {fdct4x8_new_sse2, fdct4_new_sse2},            // DCT_DCT
+    {fadst4x8_new_sse2, fdct4_new_sse2},           // ADST_DCT
+    {fdct4x8_new_sse2, fadst8x4_new_sse2},         // DCT_ADST
+    {fadst4x8_new_sse2, fadst8x4_new_sse2},        // ADST_ADST
+    {fadst4x8_new_sse2, fdct4_new_sse2},           // FLIPADST_DCT
+    {fdct4x8_new_sse2, fadst8x4_new_sse2},         // DCT_FLIPADST
+    {fadst4x8_new_sse2, fadst8x4_new_sse2},        // FLIPADST_FLIPADST
+    {fadst4x8_new_sse2, fadst8x4_new_sse2},        // ADST_FLIPADST
+    {fadst4x8_new_sse2, fadst8x4_new_sse2},        // FLIPADST_ADST
+    {fidentity8_new_sse2, fidentity8x4_new_sse2},  // IDTX
+    {fdct4x8_new_sse2, fidentity8x4_new_sse2},     // V_DCT
+    {fidentity8_new_sse2, fdct4_new_sse2},         // H_DCT
+    {fadst4x8_new_sse2, fidentity8x4_new_sse2},    // V_ADST
+    {fidentity8_new_sse2, fadst8x4_new_sse2},      // H_ADST
+    {fadst4x8_new_sse2, fidentity8x4_new_sse2},    // V_FLIPADST
+    {fidentity8_new_sse2, fadst8x4_new_sse2},      // H_FLIPADST
 };
 
 static const transform_2d_sse2 txfm8x4_arr[] = {
-  { fdct4_new_sse2, fdct4x8_new_sse2 },            // DCT_DCT
-  { fadst8x4_new_sse2, fdct4x8_new_sse2 },         // ADST_DCT
-  { fdct4_new_sse2, fadst4x8_new_sse2 },           // DCT_ADST
-  { fadst8x4_new_sse2, fadst4x8_new_sse2 },        // ADST_ADST
-  { fadst8x4_new_sse2, fdct4x8_new_sse2 },         // FLIPADST_DCT
-  { fdct4_new_sse2, fadst4x8_new_sse2 },           // DCT_FLIPADST
-  { fadst8x4_new_sse2, fadst4x8_new_sse2 },        // FLIPADST_FLIPADST
-  { fadst8x4_new_sse2, fadst4x8_new_sse2 },        // ADST_FLIPADST
-  { fadst8x4_new_sse2, fadst4x8_new_sse2 },        // FLIPADST_ADST
-  { fidentity8x4_new_sse2, fidentity8_new_sse2 },  // IDTX
-  { fdct4_new_sse2, fidentity8_new_sse2 },         // V_DCT
-  { fidentity8x4_new_sse2, fdct4x8_new_sse2 },     // H_DCT
-  { fadst8x4_new_sse2, fidentity8_new_sse2 },      // V_ADST
-  { fidentity8x4_new_sse2, fadst4x8_new_sse2 },    // H_ADST
-  { fadst8x4_new_sse2, fidentity8_new_sse2 },      // V_FLIPADST
-  { fidentity8x4_new_sse2, fadst4x8_new_sse2 },    // H_FLIPADST
+    {fdct4_new_sse2, fdct4x8_new_sse2},            // DCT_DCT
+    {fadst8x4_new_sse2, fdct4x8_new_sse2},         // ADST_DCT
+    {fdct4_new_sse2, fadst4x8_new_sse2},           // DCT_ADST
+    {fadst8x4_new_sse2, fadst4x8_new_sse2},        // ADST_ADST
+    {fadst8x4_new_sse2, fdct4x8_new_sse2},         // FLIPADST_DCT
+    {fdct4_new_sse2, fadst4x8_new_sse2},           // DCT_FLIPADST
+    {fadst8x4_new_sse2, fadst4x8_new_sse2},        // FLIPADST_FLIPADST
+    {fadst8x4_new_sse2, fadst4x8_new_sse2},        // ADST_FLIPADST
+    {fadst8x4_new_sse2, fadst4x8_new_sse2},        // FLIPADST_ADST
+    {fidentity8x4_new_sse2, fidentity8_new_sse2},  // IDTX
+    {fdct4_new_sse2, fidentity8_new_sse2},         // V_DCT
+    {fidentity8x4_new_sse2, fdct4x8_new_sse2},     // H_DCT
+    {fadst8x4_new_sse2, fidentity8_new_sse2},      // V_ADST
+    {fidentity8x4_new_sse2, fadst4x8_new_sse2},    // H_ADST
+    {fadst8x4_new_sse2, fidentity8_new_sse2},      // V_FLIPADST
+    {fidentity8x4_new_sse2, fadst4x8_new_sse2},    // H_FLIPADST
 };
 
 static const transform_2d_sse2 txfm8_arr[] = {
-  { fdct8_new_sse2, fdct8_new_sse2 },            // DCT_DCT
-  { fadst8_new_sse2, fdct8_new_sse2 },           // ADST_DCT
-  { fdct8_new_sse2, fadst8_new_sse2 },           // DCT_ADST
-  { fadst8_new_sse2, fadst8_new_sse2 },          // ADST_ADST
-  { fadst8_new_sse2, fdct8_new_sse2 },           // FLIPADST_DCT
-  { fdct8_new_sse2, fadst8_new_sse2 },           // DCT_FLIPADST
-  { fadst8_new_sse2, fadst8_new_sse2 },          // FLIPADST_FLIPADST
-  { fadst8_new_sse2, fadst8_new_sse2 },          // ADST_FLIPADST
-  { fadst8_new_sse2, fadst8_new_sse2 },          // FLIPADST_ADST
-  { fidentity8_new_sse2, fidentity8_new_sse2 },  // IDTX
-  { fdct8_new_sse2, fidentity8_new_sse2 },       // V_DCT
-  { fidentity8_new_sse2, fdct8_new_sse2 },       // H_DCT
-  { fadst8_new_sse2, fidentity8_new_sse2 },      // V_ADST
-  { fidentity8_new_sse2, fadst8_new_sse2 },      // H_ADST
-  { fadst8_new_sse2, fidentity8_new_sse2 },      // V_FLIPADST
-  { fidentity8_new_sse2, fadst8_new_sse2 },      // H_FLIPADST
+    {fdct8_new_sse2, fdct8_new_sse2},            // DCT_DCT
+    {fadst8_new_sse2, fdct8_new_sse2},           // ADST_DCT
+    {fdct8_new_sse2, fadst8_new_sse2},           // DCT_ADST
+    {fadst8_new_sse2, fadst8_new_sse2},          // ADST_ADST
+    {fadst8_new_sse2, fdct8_new_sse2},           // FLIPADST_DCT
+    {fdct8_new_sse2, fadst8_new_sse2},           // DCT_FLIPADST
+    {fadst8_new_sse2, fadst8_new_sse2},          // FLIPADST_FLIPADST
+    {fadst8_new_sse2, fadst8_new_sse2},          // ADST_FLIPADST
+    {fadst8_new_sse2, fadst8_new_sse2},          // FLIPADST_ADST
+    {fidentity8_new_sse2, fidentity8_new_sse2},  // IDTX
+    {fdct8_new_sse2, fidentity8_new_sse2},       // V_DCT
+    {fidentity8_new_sse2, fdct8_new_sse2},       // H_DCT
+    {fadst8_new_sse2, fidentity8_new_sse2},      // V_ADST
+    {fidentity8_new_sse2, fadst8_new_sse2},      // H_ADST
+    {fadst8_new_sse2, fidentity8_new_sse2},      // V_FLIPADST
+    {fidentity8_new_sse2, fadst8_new_sse2},      // H_FLIPADST
 };
 
 static const transform_2d_sse2 txfm16_arr[] = {
-  { fdct16_new_sse2, fdct16_new_sse2 },            // DCT_DCT
-  { fadst16_new_sse2, fdct16_new_sse2 },           // ADST_DCT
-  { fdct16_new_sse2, fadst16_new_sse2 },           // DCT_ADST
-  { fadst16_new_sse2, fadst16_new_sse2 },          // ADST_ADST
-  { fadst16_new_sse2, fdct16_new_sse2 },           // FLIPADST_DCT
-  { fdct16_new_sse2, fadst16_new_sse2 },           // DCT_FLIPADST
-  { fadst16_new_sse2, fadst16_new_sse2 },          // FLIPADST_FLIPADST
-  { fadst16_new_sse2, fadst16_new_sse2 },          // ADST_FLIPADST
-  { fadst16_new_sse2, fadst16_new_sse2 },          // FLIPADST_ADST
-  { fidentity16_new_sse2, fidentity16_new_sse2 },  // IDTX
-  { fdct16_new_sse2, fidentity16_new_sse2 },       // V_DCT
-  { fidentity16_new_sse2, fdct16_new_sse2 },       // H_DCT
-  { fadst16_new_sse2, fidentity16_new_sse2 },      // V_ADST
-  { fidentity16_new_sse2, fadst16_new_sse2 },      // H_ADST
-  { fadst16_new_sse2, fidentity16_new_sse2 },      // V_FLIPADST
-  { fidentity16_new_sse2, fadst16_new_sse2 },      // H_FLIPADST
+    {fdct16_new_sse2, fdct16_new_sse2},            // DCT_DCT
+    {fadst16_new_sse2, fdct16_new_sse2},           // ADST_DCT
+    {fdct16_new_sse2, fadst16_new_sse2},           // DCT_ADST
+    {fadst16_new_sse2, fadst16_new_sse2},          // ADST_ADST
+    {fadst16_new_sse2, fdct16_new_sse2},           // FLIPADST_DCT
+    {fdct16_new_sse2, fadst16_new_sse2},           // DCT_FLIPADST
+    {fadst16_new_sse2, fadst16_new_sse2},          // FLIPADST_FLIPADST
+    {fadst16_new_sse2, fadst16_new_sse2},          // ADST_FLIPADST
+    {fadst16_new_sse2, fadst16_new_sse2},          // FLIPADST_ADST
+    {fidentity16_new_sse2, fidentity16_new_sse2},  // IDTX
+    {fdct16_new_sse2, fidentity16_new_sse2},       // V_DCT
+    {fidentity16_new_sse2, fdct16_new_sse2},       // H_DCT
+    {fadst16_new_sse2, fidentity16_new_sse2},      // V_ADST
+    {fidentity16_new_sse2, fadst16_new_sse2},      // H_ADST
+    {fadst16_new_sse2, fidentity16_new_sse2},      // V_FLIPADST
+    {fidentity16_new_sse2, fadst16_new_sse2},      // H_FLIPADST
 };
 
 static const transform_2d_sse2 txfm32_arr[] = {
-  { fdct32_new_sse2, fdct32_new_sse2 },            // DCT_DCT
-  { NULL, NULL },                                  // ADST_DCT
-  { NULL, NULL },                                  // DCT_ADST
-  { NULL, NULL },                                  // ADST_ADST
-  { NULL, NULL },                                  // FLIPADST_DCT
-  { NULL, NULL },                                  // DCT_FLIPADST
-  { NULL, NULL },                                  // FLIPADST_FLIPADST
-  { NULL, NULL },                                  // ADST_FLIPADST
-  { NULL, NULL },                                  // FLIPADST_ADST
-  { fidentity32_new_sse2, fidentity32_new_sse2 },  // IDTX
-  { fdct32_new_sse2, fidentity32_new_sse2 },       // V_DCT
-  { fidentity32_new_sse2, fdct32_new_sse2 },       // H_DCT
-  { NULL, NULL },                                  // V_ADST
-  { NULL, NULL },                                  // H_ADST
-  { NULL, NULL },                                  // V_FLIPADST
-  { NULL, NULL },                                  // H_FLIPADST
+    {fdct32_new_sse2, fdct32_new_sse2},            // DCT_DCT
+    {NULL, NULL},                                  // ADST_DCT
+    {NULL, NULL},                                  // DCT_ADST
+    {NULL, NULL},                                  // ADST_ADST
+    {NULL, NULL},                                  // FLIPADST_DCT
+    {NULL, NULL},                                  // DCT_FLIPADST
+    {NULL, NULL},                                  // FLIPADST_FLIPADST
+    {NULL, NULL},                                  // ADST_FLIPADST
+    {NULL, NULL},                                  // FLIPADST_ADST
+    {fidentity32_new_sse2, fidentity32_new_sse2},  // IDTX
+    {fdct32_new_sse2, fidentity32_new_sse2},       // V_DCT
+    {fidentity32_new_sse2, fdct32_new_sse2},       // H_DCT
+    {NULL, NULL},                                  // V_ADST
+    {NULL, NULL},                                  // H_ADST
+    {NULL, NULL},                                  // V_FLIPADST
+    {NULL, NULL},                                  // H_FLIPADST
 };
 
 void av1_lowbd_fwd_txfm2d_4x4_sse2(const int16_t *input, int32_t *output,
@@ -2646,31 +2646,31 @@ typedef void (*FwdTxfm2dFuncSSE2)(const int16_t *input, int32_t *output,
                                   int stride, TX_TYPE tx_type, int bd);
 
 FwdTxfm2dFuncSSE2 fwd_txfm2d_func_ls[TX_SIZES_ALL] = {
-  av1_lowbd_fwd_txfm2d_4x4_sse2,    // 4x4 transform
-  av1_lowbd_fwd_txfm2d_8x8_sse2,    // 8x8 transform
-  av1_lowbd_fwd_txfm2d_16x16_sse2,  // 16x16 transform
-  av1_lowbd_fwd_txfm2d_32x32_sse2,  // 32x32 transform
+    av1_lowbd_fwd_txfm2d_4x4_sse2,    // 4x4 transform
+    av1_lowbd_fwd_txfm2d_8x8_sse2,    // 8x8 transform
+    av1_lowbd_fwd_txfm2d_16x16_sse2,  // 16x16 transform
+    av1_lowbd_fwd_txfm2d_32x32_sse2,  // 32x32 transform
 #if CONFIG_TX64X64
-  NULL,                             // 64x64 transform
-#endif                              // CONFIG_TX64X64
-  av1_lowbd_fwd_txfm2d_4x8_sse2,    // 4x8 transform
-  av1_lowbd_fwd_txfm2d_8x4_sse2,    // 8x4 transform
-  av1_lowbd_fwd_txfm2d_8x16_sse2,   // 8x16 transform
-  av1_lowbd_fwd_txfm2d_16x8_sse2,   // 16x8 transform
-  av1_lowbd_fwd_txfm2d_16x32_sse2,  // 16x32 transform
-  av1_lowbd_fwd_txfm2d_32x16_sse2,  // 32x16 transform
+    NULL,                             // 64x64 transform
+#endif                                // CONFIG_TX64X64
+    av1_lowbd_fwd_txfm2d_4x8_sse2,    // 4x8 transform
+    av1_lowbd_fwd_txfm2d_8x4_sse2,    // 8x4 transform
+    av1_lowbd_fwd_txfm2d_8x16_sse2,   // 8x16 transform
+    av1_lowbd_fwd_txfm2d_16x8_sse2,   // 16x8 transform
+    av1_lowbd_fwd_txfm2d_16x32_sse2,  // 16x32 transform
+    av1_lowbd_fwd_txfm2d_32x16_sse2,  // 32x16 transform
 #if CONFIG_TX64X64
-  NULL,                            // 32x64 transform
-  NULL,                            // 64x32 transform
-#endif                             // CONFIG_TX64X64
-  NULL,                            // 4x16 transform
-  NULL,                            // 16x4 transform
-  av1_lowbd_fwd_txfm2d_8x32_sse2,  // 8x32 transform
-  av1_lowbd_fwd_txfm2d_32x8_sse2,  // 32x8 transform
+    NULL,                            // 32x64 transform
+    NULL,                            // 64x32 transform
+#endif                               // CONFIG_TX64X64
+    NULL,                            // 4x16 transform
+    NULL,                            // 16x4 transform
+    av1_lowbd_fwd_txfm2d_8x32_sse2,  // 8x32 transform
+    av1_lowbd_fwd_txfm2d_32x8_sse2,  // 32x8 transform
 #if CONFIG_TX64X64
-  NULL,  // 16x64 transform
-  NULL,  // 64x16 transform
-#endif   // CONFIG_TX64X64
+    NULL,  // 16x64 transform
+    NULL,  // 64x16 transform
+#endif     // CONFIG_TX64X64
 };
 
 void av1_lowbd_fwd_txfm_sse2(const int16_t *src_diff, tran_low_t *coeff,

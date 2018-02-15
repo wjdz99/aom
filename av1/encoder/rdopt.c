@@ -4679,9 +4679,9 @@ static int find_tx_size_rd_records(MACROBLOCK *x, BLOCK_SIZE bsize, int mi_row,
                                              x->tx_size_rd_record_32X32,
                                              x->tx_size_rd_record_64X64 };
 #else
-  TX_SIZE_RD_RECORD *rd_records_table[3] = { x->tx_size_rd_record_8X8,
-                                             x->tx_size_rd_record_16X16,
-                                             x->tx_size_rd_record_32X32 };
+  TX_SIZE_RD_RECORD *rd_records_table[3] = {x->tx_size_rd_record_8X8,
+                                            x->tx_size_rd_record_16X16,
+                                            x->tx_size_rd_record_32X32};
 #endif
   const TX_SIZE max_square_tx_size = max_txsize_lookup[bsize];
   const int bw = block_size_wide[bsize];
@@ -8830,7 +8830,7 @@ static int64_t rd_pick_intrabc_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
   RD_STATS best_rdcost = *rd_cost;
   int best_skip = x->skip;
 
-  uint8_t best_blk_skip[MAX_MIB_SIZE * MAX_MIB_SIZE * 8] = { 0 };
+  uint8_t best_blk_skip[MAX_MIB_SIZE * MAX_MIB_SIZE * 8] = {0};
   for (enum IntrabcMotionDirection dir = IBC_MOTION_ABOVE;
        dir < IBC_MOTION_DIRECTIONS; ++dir) {
     const MvLimits tmp_mv_limits = x->mv_limits;

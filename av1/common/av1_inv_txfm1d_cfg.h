@@ -15,30 +15,30 @@
 
 // sum of fwd_shift_##
 static const int8_t inv_start_range[TX_SIZES_ALL] = {
-  5,  // 4x4 transform
-  6,  // 8x8 transform
-  7,  // 16x16 transform
-  7,  // 32x32 transform
+    5,  // 4x4 transform
+    6,  // 8x8 transform
+    7,  // 16x16 transform
+    7,  // 32x32 transform
 #if CONFIG_TX64X64
-  7,    // 64x64 transform
+    7,  // 64x64 transform
 #endif  // CONFIG_TX64X64
-  5,    // 4x8 transform
-  5,    // 8x4 transform
-  6,    // 8x16 transform
-  6,    // 16x8 transform
-  6,    // 16x32 transform
-  6,    // 32x16 transform
+    5,  // 4x8 transform
+    5,  // 8x4 transform
+    6,  // 8x16 transform
+    6,  // 16x8 transform
+    6,  // 16x32 transform
+    6,  // 32x16 transform
 #if CONFIG_TX64X64
-  6,    // 32x64 transform
-  6,    // 64x32 transform
+    6,  // 32x64 transform
+    6,  // 64x32 transform
 #endif  // CONFIG_TX64X64
-  6,    // 4x16 transform
-  6,    // 16x4 transform
-  7,    // 8x32 transform
-  7,    // 32x8 transform
+    6,  // 4x16 transform
+    6,  // 16x4 transform
+    7,  // 8x32 transform
+    7,  // 32x8 transform
 #if CONFIG_TX64X64
-  7,  // 16x64 transform
-  7,  // 64x16 transform
+    7,  // 16x64 transform
+    7,  // 64x16 transform
 #endif
 };
 
