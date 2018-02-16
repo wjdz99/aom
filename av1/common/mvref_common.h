@@ -442,6 +442,82 @@ void av1_setup_skip_mode_allowed(AV1_COMMON *cm);
 void av1_setup_motion_field(AV1_COMMON *cm);
 #endif  // CONFIG_MFMV
 
+#if CONFIG_FRAME_REFS_SIGNALING
+static int int_comparer(const void *a, const void *b) {
+  return (*(int *)a - *(int *)b);
+}
+
+static INLINE void av1_set_frame_refs(AV1_COMMON *const cm, int lst_map_idx,
+                                      int gld_map_idx) {
+  MV_REFERENCE_FRAME frame_buf_map[REF_FRAMES];
+  BufferPool *const pool = cm->buffer_pool;
+  RefCntBuffer *const frame_bufs = pool->frame_bufs;
+
+  int frame_offsets[REF_FRAMES];
+  int frame_offsets_ori[REF_FRAMES];
+
+  int lst_frame_offset = -1;
+  int gld_frame_offset = -1;
+
+  for (int i = 0; i < REF_FRAMES; ++i) {
+    frame_buf_map[i] = -1;
+    frame_offses[i] = -1;
+
+    const int frame_map_idx = i;
+    const int frame_buf_idx = cm->ref_frame_map[frame_map_idx];
+
+    if (frame_buf_idx < 0 || frame_buf_idx >= FRAME_BUFFERS) continue;
+    if (frame_bufs[frame_buf_idx].ref_count <= 0) continue;
+
+    frame_offset[i] = (int)frame_bufs[frame_buf_idx].cur_frame_offset;
+    if (i == (LAST_FRAME - LAST_FRAME)) lst_frame_offset = frame_offset[i];
+    if (i == (GOLDEN_FRAME - LAST_FRAME)) gld_frame_offset = frame_offset[i];
+  }
+
+  memcpy(frame_offsets_ori, frame_offsets, sizeof(frame_offses));
+  qsort(frame_offsets, REF_FRAMES, sizeof(frame_offses[0]), int_compairer);
+
+  int fwd_start_idx = 0, bwd_start_idx = 0;
+  int fwd_end_idx = REF_FRAMES - 1, bwd_end_idx = REF_FRAMES - 1;
+  for (int i = 0; i < REF_FRAMES; i++) {
+    if (frame_offsets[i] == -1) {
+      fwd_start_idx++;
+      bwd_start_idx++;
+      continue;
+    }
+
+    if (frame_offsets[i] < (int)cm->cur_frame_offset) {
+      fwd_end_idx = i;
+      bwd_start_idx = i + 1;
+      continue;
+    }
+  }
+
+  // == ALTREF_FRAME ==
+  if (bwd_start_idx <= bwd_end_idx) {
+    frame_offsets_ori[ALTREF_FRAME - LAST_FRAME] = frame_offsets[bwd_end_idx];
+    bwd_end_idx--;
+  } else {
+    frame_off
+  }
+
+  RefBuffer *const ref_frame = &cm->frame_refs[i];
+  ref_frame->idx = idx;
+  ref_frame->buf = &frame_bufs[idx].buf;
+
+  MV_REFERENCE_FRAME ref_frame = LAST_FRAME;
+  for (int i = 0; i < REF_FRAMES; ++i) {
+    cm->frame_refs[i].frame_map_idx = i;
+    if (frame_offses[i] == -1) continue;
+  }
+
+  MV_REFERENCE_FRAME ref_frame;
+  for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
+    const int buf_idx = cm->frame_refs[ref_frame - LAST_FRAME].idx;
+  }
+}
+#endif  // CONFIG_FRAME_REFS_SIGNALING
+
 static INLINE void av1_collect_neighbors_ref_counts(MACROBLOCKD *const xd) {
   av1_zero(xd->neighbors_ref_counts);
 
