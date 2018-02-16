@@ -7717,6 +7717,10 @@ static int64_t motion_mode_rd(
       assert(mbmi->ref_frame[1] != INTRA_FRAME);
     }
 
+    if (is_comp_pred || is_interintra_mode ||
+        mbmi->motion_mode != SIMPLE_TRANSLATION)
+      continue;
+
     // SIMPLE_TRANSLATION mode: no need to recalculate.
     // The prediction is calculated before motion_mode_rd() is called in
     // handle_inter_mode()
@@ -10015,6 +10019,8 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
       distortion2 = distortion_y + distortion_uv;
     } else {
       int_mv backup_ref_mv[2];
+
+      if (mbmi->ref_frame[1] > INTRA_FRAME) continue;
 
       if (!is_comp_ref_allowed(bsize) && mbmi->ref_frame[1] > INTRA_FRAME)
         continue;

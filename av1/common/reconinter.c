@@ -33,6 +33,8 @@ static INLINE int allow_warp(const MODE_INFO *const mi,
                              const WarpedMotionParams *const gm_params,
                              int build_for_obmc, int x_scale, int y_scale,
                              WarpedMotionParams *final_warp_params) {
+  return 0;
+
   if (x_scale != SCALE_SUBPEL_SHIFTS || y_scale != SCALE_SUBPEL_SHIFTS)
     return 0;
 
