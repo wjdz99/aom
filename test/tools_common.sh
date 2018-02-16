@@ -17,6 +17,8 @@ AOM_TEST_TOOLS_COMMON_SH=included
 set -e
 devnull='> /dev/null 2>&1'
 AOM_TEST_PREFIX=""
+readonly AOM_ENCODE_TEST_FRAME_LIMIT=5
+
 
 elog() {
   echo "$@" 1>&2
@@ -174,22 +176,29 @@ is_windows_target() {
   fi
 }
 
-# Echoes path to $1 when it's executable and exists in ${LIBAOM_BIN_PATH}, or an
-# empty string. Caller is responsible for testing the string once the function
-# returns.
+# Echoes path to $1 when it's executable and exists in one of the directories
+# included in $tool_paths, or an empty string. Caller is responsible for testing
+# the string once the function returns.
 aom_tool_path() {
   local readonly tool_name="$1"
-  local tool_path="${LIBAOM_BIN_PATH}/${tool_name}${AOM_TEST_EXE_SUFFIX}"
-  if [ ! -x "${tool_path}" ]; then
-    # Try one directory up: when running via examples.sh the tool could be in
-    # the parent directory of $LIBAOM_BIN_PATH.
-    tool_path="${LIBAOM_BIN_PATH}/../${tool_name}${AOM_TEST_EXE_SUFFIX}"
-  fi
+  local readonly root_path="${LIBAOM_BIN_PATH}"
+  local readonly suffix="${AOM_TEST_EXE_SUFFIX}"
+  local readonly tool_paths="\
+    ${root_path}/${tool_name}${suffix} \
+    ${root_path}/../${tool_name}${suffix} \
+    ${root_path}/tools/${tool_name}${suffix} \
+    ${root_path}/../tools/${tool_name}${suffix}"
 
-  if [ ! -x "${tool_path}" ]; then
-    tool_path=""
-  fi
-  echo "${tool_path}"
+  local toolpath=""
+
+  for tool_path in ${tool_paths}; do
+    if [ -x "${tool_path}" ] && [ ! -d "${tool_path}" ]; then
+      echo "${tool_path}"
+      return 0
+    fi
+  done
+
+  return 1
 }
 
 # Echoes yes to stdout when the file named by positional parameter one exists
