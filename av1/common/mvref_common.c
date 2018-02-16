@@ -9,6 +9,8 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
+#include <stdlib.h>
+
 #include "av1/common/mvref_common.h"
 #include "av1/common/warped_motion.h"
 
@@ -2150,3 +2152,99 @@ void av1_setup_skip_mode_allowed(AV1_COMMON *cm) {
   }
 }
 #endif  // CONFIG_EXT_SKIP
+
+#if CONFIG_FRAME_REFS_SIGNALING
+static int int_comparer(const void *a, const void *b) {
+  return (*(int *)a - *(int *)b);
+}
+
+void av1_set_frame_refs(AV1_COMMON *const cm, int lst_map_idx,
+                        int gld_map_idx) {
+  BufferPool *const pool = cm->buffer_pool;
+  RefCntBuffer *const frame_bufs = pool->frame_bufs;
+
+  MV_REFERENCE_FRAME frame_buf_map[REF_FRAMES];
+  (void)frame_buf_map;
+
+  int frame_offsets[REF_FRAMES];
+  int frame_offsets_ori[REF_FRAMES];
+  (void)frame_offsets_ori;
+
+  int lst_frame_offset = -1;
+  int gld_frame_offset = -1;
+
+  const int cur_frame_offset = (int)cm->cur_frame->cur_frame_offset;
+  (void)lst_map_idx;
+  (void)gld_map_idx;
+
+  for (int i = 0; i < REF_FRAMES; ++i) {
+    frame_buf_map[i] = -1;
+    frame_offsets[i] = -1;
+    frame_offsets_ori[i] = -1;
+
+    const int frame_map_idx = i;
+    const int frame_buf_idx = cm->ref_frame_map[frame_map_idx];
+
+    if (frame_buf_idx < 0 || frame_buf_idx >= FRAME_BUFFERS) continue;
+    if (frame_bufs[frame_buf_idx].ref_count <= 0) continue;
+
+    frame_offsets[i] = (int)frame_bufs[frame_buf_idx].cur_frame_offset;
+    if (i == (LAST_FRAME - LAST_FRAME)) lst_frame_offset = frame_offsets[i];
+    if (i == (GOLDEN_FRAME - LAST_FRAME)) gld_frame_offset = frame_offsets[i];
+  }
+
+  qsort(frame_offsets, REF_FRAMES, sizeof(frame_offsets[0]), int_comparer);
+
+  int fwd_start_idx = 0, bwd_start_idx = 0;
+  int fwd_end_idx = REF_FRAMES - 1, bwd_end_idx = REF_FRAMES - 1;
+  (void)fwd_start_idx;
+  (void)bwd_start_idx;
+  (void)fwd_end_idx;
+  (void)bwd_end_idx;
+
+  for (int i = 0; i < REF_FRAMES; i++) {
+    if (frame_offsets[i] == -1) {
+      fwd_start_idx++;
+      bwd_start_idx++;
+      continue;
+    }
+
+    if (frame_offsets[i] < cur_frame_offset) {
+      fwd_end_idx = i;
+      bwd_start_idx = i + 1;
+      continue;
+    }
+  }
+
+  // Confirm both LAST_FRAME and GOLDEN_FRAME are forward reference frames.
+  // TODO(zoeliu): The bitstream check should be moved to where the symbol is
+  //               being read.
+  if (lst_frame_offset >= cur_frame_offset) {
+    aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
+                       "Invalid LAST_FRAME info");
+  }
+  if (gld_frame_offset >= cur_frame_offset) {
+    aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
+                       "Invalid GOLDEN_FRAME info");
+  }
+
+  // == ALTREF_FRAME ==
+  if (bwd_start_idx <= bwd_end_idx) {
+    frame_offsets_ori[ALTREF_FRAME - LAST_FRAME] = frame_offsets[bwd_end_idx];
+    bwd_end_idx--;
+  }
+
+  // == BWDREF_FRAME ==
+  if (bwd_start_idx <= bwd_end_idx) {
+    frame_offsets_ori[BWDREF_FRAME - LAST_FRAME] = frame_offsets[bwd_start_idx];
+    bwd_start_idx++;
+  }
+
+  // == ALTREF2_FRAME ==
+  if (bwd_start_idx <= bwd_end_idx) {
+    frame_offsets_ori[ALTREF2_FRAME - LAST_FRAME] =
+        frame_offsets[bwd_start_idx];
+    bwd_start_idx++;
+  }
+}
+#endif  // CONFIG_FRAME_REFS_SIGNALING
