@@ -4967,10 +4967,11 @@ static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
                            &xd->block_refs[ref]->sf, num_planes);
     }
 
-    av1_build_inter_predictors_sb(cm, xd, mi_row, mi_col, NULL, bsize);
-
     if (mbmi->motion_mode == OBMC_CAUSAL) {
+      //if (dry_run == OUTPUT_ENABLED) printf("haha\n");
       av1_build_obmc_inter_predictors_sb(cm, xd, mi_row, mi_col);
+    } else {
+      av1_build_inter_predictors_sb(cm, xd, mi_row, mi_col, NULL, bsize);
     }
 
 #if CONFIG_MISMATCH_DEBUG

@@ -362,6 +362,8 @@ typedef struct ThreadData {
   int32_t *mask_buf;
   uint8_t *above_pred_buf;
   uint8_t *left_pred_buf;
+  int32_t *above_pred_hp_buf;
+  int32_t *left_pred_hp_buf;
   PALETTE_BUFFER *palette_buffer;
 #if CONFIG_INTRABC
   int intrabc_used_this_tile;

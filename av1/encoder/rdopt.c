@@ -7364,6 +7364,10 @@ typedef struct {
   int above_pred_stride[MAX_MB_PLANE];
   uint8_t *left_pred_buf[MAX_MB_PLANE];
   int left_pred_stride[MAX_MB_PLANE];
+  CONV_BUF_TYPE *above_pred_hp_buf[MAX_MB_PLANE];
+  int above_pred_hp_stride[MAX_MB_PLANE];
+  CONV_BUF_TYPE *left_pred_hp_buf[MAX_MB_PLANE];
+  int left_pred_hp_stride[MAX_MB_PLANE];
   int_mv *single_newmv;
   // Pointer to array of motion vectors to use for each ref and their rates
   // Should point to first of 2 arrays in 2D array
@@ -7738,13 +7742,11 @@ static int64_t motion_mode_rd(
         mbmi->interp_filters =
             condition_interp_filters_on_mv(mbmi->interp_filters, xd);
 #endif  // CONFIG_DUAL_FILTER
-        av1_build_inter_predictors_sb(cm, xd, mi_row, mi_col, orig_dst, bsize);
-      } else {
-        av1_build_inter_predictors_sb(cm, xd, mi_row, mi_col, orig_dst, bsize);
       }
-      av1_build_obmc_inter_prediction(
-          cm, xd, mi_row, mi_col, args->above_pred_buf, args->above_pred_stride,
-          args->left_pred_buf, args->left_pred_stride);
+      //av1_build_obmc_inter_prediction(cm, xd, mi_row, mi_col, ,
+        //    dst_stride0, args->above_pred_hp_buf, args->above_pred_hp_stride,
+          //  args->left_pred_hp_buf, args->left_pred_hp_stride, num_planes);
+      av1_build_obmc_inter_predictors_sb(cm, xd, mi_row, mi_col);
     }
 
     // Local warped motion mode
@@ -9378,6 +9380,8 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
   HandleInterModeArgs args = {
     { NULL },  { MAX_SB_SIZE, MAX_SB_SIZE, MAX_SB_SIZE },
     { NULL },  { MAX_SB_SIZE, MAX_SB_SIZE, MAX_SB_SIZE },
+    { NULL },  { MAX_SB_SIZE, MAX_SB_SIZE, MAX_SB_SIZE },
+    { NULL },  { MAX_SB_SIZE, MAX_SB_SIZE, MAX_SB_SIZE },
     NULL,      NULL,
     NULL,      NULL,
     { { 0 } },
@@ -9416,6 +9420,12 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
     args.left_pred_buf[1] = x->left_pred_buf + MAX_SB_SQUARE;
     args.left_pred_buf[2] = x->left_pred_buf + 2 * MAX_SB_SQUARE;
   }
+  args.above_pred_hp_buf[0] = x->above_pred_hp_buf;
+  args.above_pred_hp_buf[1] = x->above_pred_hp_buf + MAX_SB_SQUARE;
+  args.above_pred_hp_buf[2] = x->above_pred_hp_buf + 2 * MAX_SB_SQUARE;
+  args.left_pred_hp_buf[0] = x->left_pred_hp_buf;
+  args.left_pred_hp_buf[1] = x->left_pred_hp_buf + MAX_SB_SQUARE;
+  args.left_pred_hp_buf[2] = x->left_pred_hp_buf + 2 * MAX_SB_SQUARE;
 
   av1_zero(best_mbmode);
   av1_zero(pmi_uv);
@@ -9494,6 +9504,12 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
     calc_target_weighted_pred(cm, x, xd, mi_row, mi_col, args.above_pred_buf[0],
                               args.above_pred_stride[0], args.left_pred_buf[0],
                               args.left_pred_stride[0]);
+/*    av1_build_prediction_by_above_preds_hp(cm, xd, mi_row, mi_col,
+                                           args.above_pred_hp_buf,
+                                           args.above_pred_hp_stride);
+    av1_build_prediction_by_left_preds_hp(cm, xd, mi_row, mi_col,
+                                          args.left_pred_hp_buf,
+                                          args.left_pred_hp_stride);*/
   }
 
   for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
@@ -10477,11 +10493,10 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
     }
 
     if (is_inter_mode(mbmi->mode)) {
-      av1_build_inter_predictors_sb(cm, xd, mi_row, mi_col, NULL, bsize);
       if (mbmi->motion_mode == OBMC_CAUSAL) {
-        av1_build_obmc_inter_prediction(
-            cm, xd, mi_row, mi_col, args.above_pred_buf, args.above_pred_stride,
-            args.left_pred_buf, args.left_pred_stride);
+        av1_build_obmc_inter_predictors_sb(cm, xd, mi_row, mi_col);
+      } else {
+        av1_build_inter_predictors_sb(cm, xd, mi_row, mi_col, NULL, bsize);
       }
       av1_subtract_plane(x, bsize, 0);
       if (cm->tx_mode == TX_MODE_SELECT && !xd->lossless[mbmi->segment_id]) {

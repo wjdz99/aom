@@ -538,6 +538,12 @@ static void dealloc_compressor_data(AV1_COMP *cpi) {
   aom_free(cpi->td.mb.left_pred_buf);
   cpi->td.mb.left_pred_buf = NULL;
 
+  aom_free(cpi->td.mb.above_pred_hp_buf);
+  cpi->td.mb.above_pred_hp_buf = NULL;
+
+  aom_free(cpi->td.mb.left_pred_hp_buf);
+  cpi->td.mb.left_pred_hp_buf = NULL;
+
   aom_free(cpi->td.mb.wsrc_buf);
   cpi->td.mb.wsrc_buf = NULL;
 
@@ -3433,6 +3439,15 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
       (uint8_t *)aom_memalign(16, buf_scaler * MAX_MB_PLANE * MAX_SB_SQUARE *
                                       sizeof(*cpi->td.mb.left_pred_buf)));
 
+  CHECK_MEM_ERROR(
+      cm, cpi->td.mb.above_pred_hp_buf,
+      (CONV_BUF_TYPE *)aom_memalign(16, buf_scaler * MAX_MB_PLANE * MAX_SB_SQUARE *
+                                      sizeof(*cpi->td.mb.above_pred_hp_buf)));
+  CHECK_MEM_ERROR(
+      cm, cpi->td.mb.left_pred_hp_buf,
+      (CONV_BUF_TYPE *)aom_memalign(16, buf_scaler * MAX_MB_PLANE * MAX_SB_SQUARE *
+                                      sizeof(*cpi->td.mb.left_pred_hp_buf)));
+
   CHECK_MEM_ERROR(cm, cpi->td.mb.wsrc_buf,
                   (int32_t *)aom_memalign(
                       16, MAX_SB_SQUARE * sizeof(*cpi->td.mb.wsrc_buf)));
@@ -3951,6 +3966,8 @@ void av1_remove_compressor(AV1_COMP *cpi) {
       aom_free(thread_data->td->palette_buffer);
       aom_free(thread_data->td->above_pred_buf);
       aom_free(thread_data->td->left_pred_buf);
+      aom_free(thread_data->td->above_pred_hp_buf);
+      aom_free(thread_data->td->left_pred_hp_buf);
       aom_free(thread_data->td->wsrc_buf);
       aom_free(thread_data->td->mask_buf);
       aom_free(thread_data->td->counts);

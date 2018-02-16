@@ -115,7 +115,7 @@ void av1_convolve_2d_facade(const uint8_t *src, int src_stride, uint8_t *dst,
                             const struct scale_factors *sf);
 
 static INLINE ConvolveParams get_conv_params_no_round(int ref, int do_average,
-                                                      int plane, int32_t *dst,
+                                                      int plane, CONV_BUF_TYPE *dst,
                                                       int dst_stride,
                                                       int is_compound, int bd) {
   ConvolveParams conv_params;
