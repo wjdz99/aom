@@ -226,6 +226,8 @@ struct macroblock {
   int32_t *mask_buf;
   uint8_t *above_pred_buf;
   uint8_t *left_pred_buf;
+  CONV_BUF_TYPE *above_pred_hp_buf;
+  CONV_BUF_TYPE *left_pred_hp_buf;
 
   PALETTE_BUFFER *palette_buffer;
 
