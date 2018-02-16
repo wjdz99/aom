@@ -7315,6 +7315,10 @@ typedef struct {
   int above_pred_stride[MAX_MB_PLANE];
   uint8_t *left_pred_buf[MAX_MB_PLANE];
   int left_pred_stride[MAX_MB_PLANE];
+  CONV_BUF_TYPE *above_pred_hp_buf[MAX_MB_PLANE];
+  int above_pred_hp_stride[MAX_MB_PLANE];
+  CONV_BUF_TYPE *left_pred_hp_buf[MAX_MB_PLANE];
+  int left_pred_hp_stride[MAX_MB_PLANE];
   int_mv *single_newmv;
   // Pointer to array of motion vectors to use for each ref and their rates
   // Should point to first of 2 arrays in 2D array
@@ -7634,6 +7638,7 @@ static int64_t motion_mode_rd(
   int pts[SAMPLES_ARRAY_SIZE], pts_inref[SAMPLES_ARRAY_SIZE];
 #endif  // CONFIG_EXT_WARPED_MOTION
 
+  (void)args;
   (void)rate_mv;
 
   av1_invalid_rd_stats(&best_rd_stats);
@@ -7689,13 +7694,12 @@ static int64_t motion_mode_rd(
         mbmi->interp_filters =
             condition_interp_filters_on_mv(mbmi->interp_filters, xd);
 #endif  // CONFIG_DUAL_FILTER
-        av1_build_inter_predictors_sb(cm, xd, mi_row, mi_col, orig_dst, bsize);
-      } else {
-        av1_build_inter_predictors_sb(cm, xd, mi_row, mi_col, orig_dst, bsize);
       }
-      av1_build_obmc_inter_prediction(
-          cm, xd, mi_row, mi_col, args->above_pred_buf, args->above_pred_stride,
-          args->left_pred_buf, args->left_pred_stride);
+      // TODO(yuec) reuse above_pred_hp_buf and left_pred_hp_buf
+      // av1_build_obmc_inter_prediction(cm, xd, mi_row, mi_col, ,
+      //    dst_stride0, args->above_pred_hp_buf, args->above_pred_hp_stride,
+      //  args->left_pred_hp_buf, args->left_pred_hp_stride, num_planes);
+      av1_build_obmc_inter_predictors_sb(cm, xd, mi_row, mi_col);
     }
 
     // Local warped motion mode
@@ -9331,11 +9335,13 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
   int skip_intra_modes = 0;
 
   HandleInterModeArgs args = {
-    { NULL },  { MAX_SB_SIZE, MAX_SB_SIZE, MAX_SB_SIZE },
-    { NULL },  { MAX_SB_SIZE, MAX_SB_SIZE, MAX_SB_SIZE },
-    NULL,      NULL,
-    NULL,      NULL,
-    { { 0 } },
+      {NULL}, {MAX_SB_SIZE, MAX_SB_SIZE, MAX_SB_SIZE},
+      {NULL}, {MAX_SB_SIZE, MAX_SB_SIZE, MAX_SB_SIZE},
+      {NULL}, {MAX_SB_SIZE, MAX_SB_SIZE, MAX_SB_SIZE},
+      {NULL}, {MAX_SB_SIZE, MAX_SB_SIZE, MAX_SB_SIZE},
+      NULL,   NULL,
+      NULL,   NULL,
+      {{0}},
   };
 
   const int rows = block_size_high[bsize];
@@ -9371,6 +9377,12 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
     args.left_pred_buf[1] = x->left_pred_buf + MAX_SB_SQUARE;
     args.left_pred_buf[2] = x->left_pred_buf + 2 * MAX_SB_SQUARE;
   }
+  args.above_pred_hp_buf[0] = x->above_pred_hp_buf;
+  args.above_pred_hp_buf[1] = x->above_pred_hp_buf + MAX_SB_SQUARE;
+  args.above_pred_hp_buf[2] = x->above_pred_hp_buf + 2 * MAX_SB_SQUARE;
+  args.left_pred_hp_buf[0] = x->left_pred_hp_buf;
+  args.left_pred_hp_buf[1] = x->left_pred_hp_buf + MAX_SB_SQUARE;
+  args.left_pred_hp_buf[2] = x->left_pred_hp_buf + 2 * MAX_SB_SQUARE;
 
   av1_zero(best_mbmode);
   av1_zero(pmi_uv);
@@ -9438,6 +9450,9 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
 
   if (check_num_overlappable_neighbors(mbmi) &&
       is_motion_variation_allowed_bsize(bsize)) {
+    // TODO(yuec) use high precision version of above/left preds in
+    // calc_target_weighted_pred() and remove
+    // low precision buffers completely
     av1_build_prediction_by_above_preds(cm, xd, mi_row, mi_col,
                                         args.above_pred_buf, dst_width1,
                                         dst_height1, args.above_pred_stride);
@@ -9449,6 +9464,13 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
     calc_target_weighted_pred(cm, x, xd, mi_row, mi_col, args.above_pred_buf[0],
                               args.above_pred_stride[0], args.left_pred_buf[0],
                               args.left_pred_stride[0]);
+    // TODO(yuec) reuse the following preds in motion_mode_rd()
+    av1_build_prediction_by_above_preds_hp(cm, xd, mi_row, mi_col,
+                                           args.above_pred_hp_buf,
+                                           args.above_pred_hp_stride);
+    av1_build_prediction_by_left_preds_hp(cm, xd, mi_row, mi_col,
+                                          args.left_pred_hp_buf,
+                                          args.left_pred_hp_stride);
   }
 
   for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
@@ -10416,11 +10438,10 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
     }
 
     if (is_inter_mode(mbmi->mode)) {
-      av1_build_inter_predictors_sb(cm, xd, mi_row, mi_col, NULL, bsize);
       if (mbmi->motion_mode == OBMC_CAUSAL) {
-        av1_build_obmc_inter_prediction(
-            cm, xd, mi_row, mi_col, args.above_pred_buf, args.above_pred_stride,
-            args.left_pred_buf, args.left_pred_stride);
+        av1_build_obmc_inter_predictors_sb(cm, xd, mi_row, mi_col);
+      } else {
+        av1_build_inter_predictors_sb(cm, xd, mi_row, mi_col, NULL, bsize);
       }
       av1_subtract_plane(x, bsize, 0);
       if (cm->tx_mode == TX_MODE_SELECT && !xd->lossless[mbmi->segment_id]) {
@@ -11132,6 +11153,9 @@ static void calc_target_weighted_pred(const AV1_COMMON *cm, const MACROBLOCK *x,
   if (xd->up_available) {
     const int overlap =
         AOMMIN(block_size_high[bsize], block_size_high[BLOCK_64X64]) >> 1;
+    // TODO(yuec) use high precision version of above preds and remove low
+    // precision
+    // buffers completely
     struct calc_target_weighted_pred_ctxt ctxt = { x, above, above_stride,
                                                    overlap };
     foreach_overlappable_nb_above(cm, (MACROBLOCKD *)xd, mi_col,
@@ -11148,6 +11172,9 @@ static void calc_target_weighted_pred(const AV1_COMMON *cm, const MACROBLOCK *x,
   if (xd->left_available) {
     const int overlap =
         AOMMIN(block_size_wide[bsize], block_size_wide[BLOCK_64X64]) >> 1;
+    // TODO(yuec) use high precision version of left preds and remove low
+    // precision
+    // buffers completely
     struct calc_target_weighted_pred_ctxt ctxt = { x, left, left_stride,
                                                    overlap };
     foreach_overlappable_nb_left(cm, (MACROBLOCKD *)xd, mi_row,
