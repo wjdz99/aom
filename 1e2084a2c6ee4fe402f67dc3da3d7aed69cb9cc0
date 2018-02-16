@@ -46,6 +46,30 @@
       "revId": "1e2084a2c6ee4fe402f67dc3da3d7aed69cb9cc0",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0667ae93_26f47018",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 5176,
+      "author": {
+        "id": 5975
+      },
+      "writtenOn": "2018-02-16T10:44:50Z",
+      "side": 0,
+      "message": "Yes - previously, when intrabc was used, this function would skip over everything except superres_post_encode(). But now we don\u0027t want to do that either, so it\u0027s simpler (and, IMO, a lot clearer) to skip the entire function.",
+      "parentUuid": "9e92900c_a8f10cc5",
+      "range": {
+        "startLine": 5173,
+        "startChar": 0,
+        "endLine": 5176,
+        "endChar": 19
+      },
+      "revId": "1e2084a2c6ee4fe402f67dc3da3d7aed69cb9cc0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
