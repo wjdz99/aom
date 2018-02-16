@@ -102,7 +102,6 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
   int cul_level = 0;
   uint8_t levels_buf[TX_PAD_2D];
   uint8_t *const levels = set_levels(levels_buf, width);
-  DECLARE_ALIGNED(16, uint8_t, level_counts[MAX_TX_SQUARE]);
   uint16_t update_pos[MAX_TX_SQUARE];
 
   const int all_zero = aom_read_symbol(
@@ -222,8 +221,7 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
         ec_ctx->coeff_base_eob_cdf[txs_ctx][plane_type][coeff_ctx];
     int level = aom_read_symbol(r, cdf, nsymbs, ACCT_STR) + 1;
     if (level > NUM_BASE_LEVELS) {
-      const int br_ctx =
-          get_br_ctx(levels, pos, bwl, level_counts[pos], tx_type);
+      const int br_ctx = get_br_ctx(levels, pos, bwl, tx_type);
       for (int idx = 0; idx < COEFF_BASE_RANGE; idx += BR_CDF_SIZE - 1) {
         const int k = aom_read_symbol(
             r,
@@ -239,22 +237,22 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
     }
     levels[get_padded_idx(pos, bwl)] = level;
   }
+
+  base_cdf_arr base_cdf = ec_ctx->coeff_base_cdf[txs_ctx][plane_type];
+  br_cdf_arr br_cdf =
+      ec_ctx->coeff_br_cdf[AOMMIN(txs_ctx, TX_32X32)][plane_type];
   for (int i = 1; i < *eob; ++i) {
     const int c = *eob - 1 - i;
     const int pos = scan[c];
     const int coeff_ctx =
         get_lower_levels_ctx(levels, pos, bwl, tx_size, tx_type);
-    aom_cdf_prob *cdf = ec_ctx->coeff_base_cdf[txs_ctx][plane_type][coeff_ctx];
+    aom_cdf_prob *cdf = base_cdf[coeff_ctx];
     const int nsymbs = 4;
     int level = aom_read_symbol(r, cdf, nsymbs, ACCT_STR);
     if (level > NUM_BASE_LEVELS) {
-      const int br_ctx =
-          get_br_ctx(levels, pos, bwl, level_counts[pos], tx_type);
+      const int br_ctx = get_br_ctx(levels, pos, bwl, tx_type);
       for (int idx = 0; idx < COEFF_BASE_RANGE; idx += BR_CDF_SIZE - 1) {
-        const int k = aom_read_symbol(
-            r,
-            ec_ctx->coeff_br_cdf[AOMMIN(txs_ctx, TX_32X32)][plane_type][br_ctx],
-            BR_CDF_SIZE, ACCT_STR);
+        const int k = aom_read_symbol(r, br_cdf[br_ctx], BR_CDF_SIZE, ACCT_STR);
         level += k;
         if (k < BR_CDF_SIZE - 1) break;
       }

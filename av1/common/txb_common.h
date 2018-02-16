@@ -359,14 +359,12 @@ static INLINE int get_br_ctx_from_count_mag(const int row, const int col,
 
 static INLINE int get_br_ctx(const uint8_t *const levels,
                              const int c,  // raster order
-                             const int bwl, const int count,
-                             const TX_TYPE tx_type) {
+                             const int bwl, const TX_TYPE tx_type) {
   const int row = c >> bwl;
   const int col = c - (row << bwl);
   const int stride = (1 << bwl) + TX_PAD_HOR;
   int mag = 0;
   int nb_mag[3] = { 0 };
-  (void)count;
   const TX_CLASS tx_class = tx_type_to_class[tx_type];
   get_level_mag_with_txclass(levels, stride, row, col, nb_mag, tx_class);
 
@@ -509,6 +507,10 @@ static INLINE int get_nz_map_ctx_from_stats(
     return ctx + map[AOMMIN(idx, 2)];
   }
 }
+
+typedef aom_cdf_prob (*base_cdf_arr)[CDF_SIZE(4)];
+typedef aom_cdf_prob (*br_cdf_arr)[CDF_SIZE(BR_CDF_SIZE)];
+
 static INLINE int get_lower_levels_ctx_eob(int bwl, int height, int scan_idx) {
   if (scan_idx == 0) return 0;
   if (scan_idx <= (height << bwl) / 8) return 1;
