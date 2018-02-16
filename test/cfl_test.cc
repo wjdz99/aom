@@ -486,8 +486,14 @@ INSTANTIATE_TEST_CASE_P(AVX2, CFLPredictHBDTest,
 const sub_avg_param sub_avg_sizes_neon[] = { ALL_CFL_TX_SIZES(
     get_subtract_average_fn_neon) };
 
+const subsample_param subsample_sizes_neon[] = { CHROMA_420_CFL_SIZES(
+    get_subsample_lbd_fn_neon) };
+
 INSTANTIATE_TEST_CASE_P(NEON, CFLSubAvgTest,
                         ::testing::ValuesIn(sub_avg_sizes_neon));
+
+INSTANTIATE_TEST_CASE_P(NEON, CFLSubsampleTest,
+                        ::testing::ValuesIn(subsample_sizes_neon));
 
 #endif
 }  // namespace

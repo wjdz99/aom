@@ -22,6 +22,39 @@ static INLINE uint16x8_t vldaddq_u16(const uint16_t *buf, size_t offset) {
   return vaddq_u16(vld1q_u16(buf), vld1q_u16(buf + offset));
 }
 
+static void cfl_luma_subsampling_420_lbd_neon(const uint8_t *input,
+                                              int input_stride,
+                                              int16_t *pred_buf_q3, int width,
+                                              int height) {
+  const int16_t *end = pred_buf_q3 + height * CFL_BUF_LINE;
+  const int luma_stride = input_stride << 1;
+
+  do {
+    if (width == 4) {
+      const uint16x4_t a0 = vpaddl_u8(vld1_u8(input));
+      const uint16x4_t a1 = vpaddl_u8(vld1_u8(input + input_stride));
+      const int16x4_t a2 = vreinterpret_s16_u16(vadd_u16(a0, a1));
+      vst1_s16(pred_buf_q3, vshl_n_s16(a2, 1));
+    } else {
+      uint16x8_t a0 = vpaddlq_u8(vld1q_u8(input));
+      uint16x8_t a1 = vpaddlq_u8(vld1q_u8(input + input_stride));
+      int16x8_t a2 = vreinterpretq_s16_u16(vaddq_u16(a0, a1));
+      vst1q_s16(pred_buf_q3, vshlq_n_s16(a2, 1));
+
+      if (width == 16) {
+        a0 = vpaddlq_u8(vld1q_u8(input + 16));
+        a1 = vpaddlq_u8(vld1q_u8(input + 16 + input_stride));
+        a2 = vreinterpretq_s16_u16(vaddq_u16(a0, a1));
+        vst1q_s16(pred_buf_q3 + 8, vshlq_n_s16(a2, 1));
+      }
+    }
+    input += luma_stride;
+    pred_buf_q3 += CFL_BUF_LINE;
+  } while (pred_buf_q3 < end);
+}
+
+CFL_GET_SUBSAMPLE_FUNCTION(neon)
+
 static INLINE void subtract_average_neon(int16_t *pred_buf, int width,
                                          int height, int round_offset,
                                          const int num_pel_log2) {
