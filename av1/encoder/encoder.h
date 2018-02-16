@@ -364,8 +364,8 @@ typedef struct ThreadData {
   PC_TREE *pc_root[MAX_MIB_SIZE_LOG2 - MIN_MIB_SIZE_LOG2 + 1];
   int32_t *wsrc_buf;
   int32_t *mask_buf;
-  uint8_t *above_pred_buf;
-  uint8_t *left_pred_buf;
+  int32_t *above_pred_hp_buf;
+  int32_t *left_pred_hp_buf;
   PALETTE_BUFFER *palette_buffer;
 #if CONFIG_INTRABC
   int intrabc_used_this_tile;
