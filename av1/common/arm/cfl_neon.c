@@ -22,6 +22,43 @@ static INLINE uint16x8_t vldaddq_u16(const uint16_t *buf, size_t offset) {
   return vaddq_u16(vld1q_u16(buf), vld1q_u16(buf + offset));
 }
 
+static INLINE uint8x8_t vldh_dup_u8(const uint8_t *input) {
+  return vreinterpret_u8_u32(vld1_dup_u32((uint32_t *)input));
+}
+
+static void cfl_luma_subsampling_420_lbd_neon(const uint8_t *input,
+                                              int input_stride,
+                                              int16_t *pred_buf_q3, int width,
+                                              int height) {
+  const int16_t *end = pred_buf_q3 + (height >> 1) * CFL_BUF_LINE;
+  const int luma_stride = input_stride << 1;
+  do {
+    if (width == 4) {
+      const uint16x4_t top = vpaddl_u8(vldh_dup_u8(input));
+      const uint16x4_t sum = vpadal_u8(top, vldh_dup_u8(input + input_stride));
+      vst1_lane_u32(pred_buf_q3, vreinterpret_u32_u16(vshl_n_u16(sum, 1)), 0);
+    } else if (width == 8) {
+      const uint16x4_t top = vpaddl_u8(vld1_u8(input));
+      const uint16x4_t sum = vpadal_u8(top, vld1_u8(input + input_stride));
+      vst1_s16(pred_buf_q3, vshl_n_s16(vreinterpret_s16_u16(sum), 1));
+    } else {
+      const uint16x8_t top = vpaddlq_u8(vld1q_u8(input));
+      const uint16x8_t sum = vpadalq_u8(top, vld1q_u8(input + input_stride));
+      vst1q_s16(pred_buf_q3, vshlq_n_s16(vreinterpretq_s16_u16(sum), 1));
+      if (width == 32) {
+        const uint16x8_t next_top = vpaddlq_u8(vld1q_u8(input + 16));
+        const uint16x8_t next_sum =
+            vpadalq_u8(next_top, vld1q_u8(input + 16 + input_stride));
+        vst1q_s16(pred_buf_q3 + 8,
+                  vshlq_n_s16(vreinterpretq_s16_u16(next_sum), 1));
+      }
+    }
+    input += luma_stride;
+  } while ((pred_buf_q3 += CFL_BUF_LINE) < end);
+}
+
+CFL_GET_SUBSAMPLE_FUNCTION(neon)
+
 static INLINE void subtract_average_neon(int16_t *pred_buf, int width,
                                          int height, int round_offset,
                                          const int num_pel_log2) {
