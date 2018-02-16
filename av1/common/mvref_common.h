@@ -562,6 +562,17 @@ static INLINE int av1_is_dv_valid(const MV dv, const TileInfo *const tile,
     return 0;
 #endif
 
+#if 1
+  // The 8 bottom pixel rows of previous SB row is not allowed.
+  if (active_sb_row > 0) {
+    const int src_top_pixel_row = src_top_edge >> 3;
+    const int src_bottom_pixel_row = src_bottom_edge >> 3;
+    if (src_top_pixel_row <= active_sb_row * sb_size &&
+        src_bottom_pixel_row > active_sb_row * sb_size - 8)
+      return 0;
+  }
+#endif
+
   return 1;
 }
 #endif  // CONFIG_INTRABC
