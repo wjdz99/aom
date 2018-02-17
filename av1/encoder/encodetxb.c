@@ -472,8 +472,6 @@ void av1_write_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
   uint8_t *const levels = set_levels(levels_buf, width);
   DECLARE_ALIGNED(16, uint8_t, level_counts[MAX_TX_SQUARE]);
   DECLARE_ALIGNED(16, int8_t, coeff_contexts[MAX_TX_SQUARE]);
-  uint16_t update_pos[MAX_TX_SQUARE];
-  int num_updates = 0;
 
   aom_write_symbol(w, eob == 0,
                    ec_ctx->txb_skip_cdf[txs_ctx][txb_ctx->txb_skip_ctx], 2);
@@ -542,6 +540,11 @@ void av1_write_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
 
   av1_get_nz_map_contexts(levels, scan, eob, tx_size, tx_type, coeff_contexts);
 
+  int n_nz = 0;
+  int nz_pos[4];
+  int golomb_flag = 0;
+  int sign = 0;
+  // printf("eob: %d\n", eob);
   for (c = eob - 1; c >= 0; --c) {
     const int pos = scan[c];
     const int coeff_ctx = coeff_contexts[pos];
@@ -574,30 +577,32 @@ void av1_write_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
                          BR_CDF_SIZE);
         if (k < BR_CDF_SIZE - 1) break;
       }
-      if (level > COEFF_BASE_RANGE + NUM_BASE_LEVELS) {
-        update_pos[num_updates] = pos;
-        ++num_updates;
-      }
     }
-  }
-
-  for (int i = 0; i < num_updates; ++i) {
-    const int pos = update_pos[i];
-    write_golomb(w, abs(tcoeff[pos]) - COEFF_BASE_RANGE - 1 - NUM_BASE_LEVELS);
-  }
-
-  // Loop to code all signs in the transform block,
-  // starting with the sign of DC (if applicable)
-  for (c = 0; c < eob; ++c) {
-    const tran_low_t v = tcoeff[scan[c]];
-    const int sign = (v < 0) ? 1 : 0;
-    if (v != 0) {
-      if (c == 0) {
+    if (level > 0) {
+      nz_pos[n_nz] = pos;
+      sign |= (v < 0) << n_nz;
+      golomb_flag |= (level > COEFF_BASE_RANGE + NUM_BASE_LEVELS) << n_nz;
+      n_nz++;
+    }
+    if (n_nz > 0 && (n_nz == 4 || c == 0)) {
+      int n_ac_sign = n_nz - (nz_pos[n_nz - 1] == 0);
+      if (n_ac_sign > 0) {
+        aom_write_multibit(w, n_ac_sign, sign & ((1 << n_ac_sign) - 1));
+      }
+      if (nz_pos[n_nz - 1] == 0) {
+        sign = sign >> n_ac_sign;
         aom_write_symbol(
             w, sign, ec_ctx->dc_sign_cdf[plane_type][txb_ctx->dc_sign_ctx], 2);
-      } else {
-        aom_write_bit(w, sign);
       }
+      for (int j = 0; j < n_nz; j++) {
+        if (golomb_flag & (1 << j)) {
+          write_golomb(w, abs(tcoeff[nz_pos[j]]) - COEFF_BASE_RANGE - 1 -
+                              NUM_BASE_LEVELS);
+        }
+      }
+      n_nz = 0;
+      sign = 0;
+      golomb_flag = 0;
     }
   }
 }

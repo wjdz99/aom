@@ -81,6 +81,19 @@ static INLINE void aom_write_symbol(aom_writer *w, int symb, aom_cdf_prob *cdf,
   if (w->allow_update_cdf) update_cdf(cdf, symb, nsymbs);
 }
 
+static INLINE void aom_write_multibit(aom_writer *w, int nbits, int data) {
+  static const aom_cdf_prob multibit_cdf[4][17] = {
+    { AOM_CDF2(0x4000), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+    { AOM_CDF4(0x2000, 0x4000, 0x6000), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+    { AOM_CDF8(0x1000, 0x2000, 0x3000, 0x4000, 0x5000, 0x6000, 0x7000), 0, 0, 0,
+      0, 0, 0, 0, 0 },
+    { AOM_CDF16(0x800, 0x1000, 0x1800, 0x2000, 0x2800, 0x3000, 0x3800, 0x4000,
+                0x4800, 0x5000, 0x5800, 0x6000, 0x6800, 0x7000, 0x7800) }
+  };
+  assert(nbits <= 4);
+  aom_write_cdf(w, data, multibit_cdf[nbits - 1], 1 << nbits);
+}
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif
