@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6d328514_ae053f16",
+        "filename": "aom_dsp/intrapred.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 364,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-02-17T05:49:43Z",
+      "side": 1,
+      "message": "this can be static INLINE",
+      "revId": "04ef20432793542b4909040b97a6a7145879d702",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "adfac931_36447690",
+        "filename": "aom_dsp/intrapred.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 397,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-02-17T05:49:43Z",
+      "side": 1,
+      "message": "you might provide a reference as to how this was derived and note that for 8-bit some smaller constants could work (\u003e\u003e 2 and sliding from there).",
+      "revId": "04ef20432793542b4909040b97a6a7145879d702",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "23f18a88_f20699a0",
+        "filename": "aom_dsp/intrapred.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1055,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-02-17T05:49:43Z",
+      "side": 1,
+      "message": "this would be problematic on NEON in cases where we\u0027d want its doubling multiply high. maybe a correct could be done for that.",
+      "revId": "04ef20432793542b4909040b97a6a7145879d702",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
