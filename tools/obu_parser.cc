@@ -13,14 +13,9 @@
 #include <string>
 
 // TODO(tomfinegan): Remove the aom_config.h include as soon as possible. At
-// present it's required because aom_config.h determines if the library writes
+// present it's required because aom_config.h determines how the library writes
 // OBUs.
 #include "./aom_config.h"
-
-#if !CONFIG_OBU
-#error "obu_parser.cc requires CONFIG_OBU"
-#endif
-
 #include "aom/aom_integer.h"
 #include "aom_ports/mem_ops.h"
 #include "tools/obu_parser.h"
