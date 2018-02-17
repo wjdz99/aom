@@ -3263,6 +3263,9 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
   highbd_set_var_fns(cpi);
 
   cm->seq_params.force_screen_content_tools = 2;
+#if CONFIG_INTRA_EDGE
+  cm->seq_params.disable_intra_edge_filter = 0;
+#endif
 #if CONFIG_AMVR
   cm->seq_params.force_integer_mv = 2;
 #endif
