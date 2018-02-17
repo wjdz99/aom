@@ -16,6 +16,24 @@
       "revId": "860f040f0a9f5c04820be4661ba7a782fa4aeb00",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "800fb87f_d423005b",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 3492,
+      "author": {
+        "id": 5050
+      },
+      "writtenOn": "2018-02-17T00:32:20Z",
+      "side": 1,
+      "message": "For 7, it\u0027s the PRIMARY_REF_NONE condition above. However you\u0027re right in that on the decoder I need to specify behavior when a framebuffer is invalid (I\u0027ll specify it that it loads the default probabilities in this case).",
+      "parentUuid": "4ef5346f_a0a49fdd",
+      "revId": "860f040f0a9f5c04820be4661ba7a782fa4aeb00",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
