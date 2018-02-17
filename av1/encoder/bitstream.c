@@ -3493,6 +3493,10 @@ void write_sequence_header(AV1_COMP *cpi, struct aom_write_bit_buffer *wb) {
     aom_wb_write_bit(wb, seq_params->force_screen_content_tools);
   }
 
+#if CONFIG_INTRA_EDGE
+  aom_wb_write_bit(wb, seq_params->disable_intra_edge_filter);
+#endif
+
 #if CONFIG_AMVR
   if (seq_params->force_screen_content_tools > 0) {
     if (seq_params->force_integer_mv == 2) {

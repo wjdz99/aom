@@ -226,6 +226,9 @@ typedef struct SequenceHeader {
   int force_screen_content_tools;  // 0 - force off
                                    // 1 - force on
                                    // 2 - adaptive
+#if CONFIG_INTRA_EDGE
+  int disable_intra_edge_filter;  // 1 - disable corner/edge/upsampling
+#endif
 #if CONFIG_AMVR
   int force_integer_mv;  // 0 - Not to force. MV can be in 1/4 or 1/8
                          // 1 - force to integer
