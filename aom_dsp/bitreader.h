@@ -45,6 +45,8 @@
   aom_read_cdf_(r, cdf, nsymbs ACCT_STR_ARG(ACCT_STR_NAME))
 #define aom_read_symbol(r, cdf, nsymbs, ACCT_STR_NAME) \
   aom_read_symbol_(r, cdf, nsymbs ACCT_STR_ARG(ACCT_STR_NAME))
+#define aom_read_multibit(r, nbits, ACCT_STR_NAME) \
+  aom_read_multibit_(r, nbits ACCT_STR_ARG(ACCT_STR_NAME))
 
 #ifdef __cplusplus
 extern "C" {
@@ -140,6 +142,21 @@ static INLINE int aom_read_symbol_(aom_reader *r, aom_cdf_prob *cdf,
   int ret;
   ret = aom_read_cdf(r, cdf, nsymbs, ACCT_STR_NAME);
   if (r->allow_update_cdf) update_cdf(cdf, ret, nsymbs);
+  return ret;
+}
+
+static INLINE int aom_read_multibit_(aom_reader *r, int nbits ACCT_STR_PARAM) {
+  static const aom_cdf_prob multibit_cdf[4][17] = {
+    { AOM_CDF2(0x4000), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+    { AOM_CDF4(0x2000, 0x4000, 0x6000), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+    { AOM_CDF8(0x1000, 0x2000, 0x3000, 0x4000, 0x5000, 0x6000, 0x7000), 0, 0, 0,
+      0, 0, 0, 0, 0 },
+    { AOM_CDF16(0x800, 0x1000, 0x1800, 0x2000, 0x2800, 0x3000, 0x3800, 0x4000,
+                0x4800, 0x5000, 0x5800, 0x6000, 0x6800, 0x7000, 0x7800) }
+  };
+  int ret;
+  assert(nbits <= 4);
+  ret = aom_read_cdf(r, multibit_cdf[nbits - 1], 1 << nbits, ACCT_STR_NAME);
   return ret;
 }
 

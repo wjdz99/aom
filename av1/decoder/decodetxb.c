@@ -84,7 +84,6 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
   const PLANE_TYPE plane_type = get_plane_type(plane);
   MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
   const int seg_eob = av1_get_max_eob(tx_size);
-  int num_updates = 0;
   struct macroblockd_plane *const pd = &xd->plane[plane];
   const int16_t *const dequant = pd->seg_dequant_QTX[mbmi->segment_id];
   tran_low_t *const tcoeffs = pd->dqcoeff;
@@ -103,7 +102,6 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
   uint8_t levels_buf[TX_PAD_2D];
   uint8_t *const levels = set_levels(levels_buf, width);
   DECLARE_ALIGNED(16, uint8_t, level_counts[MAX_TX_SQUARE]);
-  uint16_t update_pos[MAX_TX_SQUARE];
 
   const int all_zero = aom_read_symbol(
       r, ec_ctx->txb_skip_cdf[txs_ctx][txb_ctx->txb_skip_ctx], 2, ACCT_STR);
@@ -211,85 +209,91 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
   }
   *eob = rec_eob_pos(eob_pt, eob_extra);
 
-  for (int i = 0; i < *eob; ++i) {
-    const int c = *eob - 1 - i;
-    const int pos = scan[c];
-    const int coeff_ctx = get_nz_map_ctx(levels, pos, bwl, height, c,
-                                         c == *eob - 1, tx_size, tx_type);
-    aom_cdf_prob *cdf;
-    int nsymbs;
-    if (c == *eob - 1) {
-      cdf = ec_ctx->coeff_base_eob_cdf[txs_ctx][plane_type][coeff_ctx];
-      nsymbs = 3;
-    } else {
-      cdf = ec_ctx->coeff_base_cdf[txs_ctx][plane_type][coeff_ctx];
-      nsymbs = 4;
-    }
-    int level = aom_read_symbol(r, cdf, nsymbs, ACCT_STR) + (c == *eob - 1);
-    if (level > NUM_BASE_LEVELS) {
-      const int br_ctx =
-          get_br_ctx(levels, pos, bwl, level_counts[pos], tx_type);
-      for (int idx = 0; idx < COEFF_BASE_RANGE; idx += BR_CDF_SIZE - 1) {
-        const int k = aom_read_symbol(
-            r,
-            ec_ctx->coeff_br_cdf[AOMMIN(txs_ctx, TX_32X32)][plane_type][br_ctx],
-            BR_CDF_SIZE, ACCT_STR);
-        level += k;
-        if (k < BR_CDF_SIZE - 1) break;
-      }
-      if (level > NUM_BASE_LEVELS + COEFF_BASE_RANGE) {
-        update_pos[num_updates] = pos;
-        ++num_updates;
-      }
-    }
-    levels[get_padded_idx(pos, bwl)] = level;
-  }
-
-  for (int i = 0; i < num_updates; ++i) {
-    const int pos = update_pos[i];
-    const int level = levels[get_padded_idx(pos, bwl)];
-    tcoeffs[pos] = level + read_golomb(xd, r);
-  }
-
-  // Loop to decode all signs in the transform block,
-  // starting with the sign of the DC (if applicable)
-  for (int c = 0; c < *eob; ++c) {
-    const int pos = scan[c];
-    int8_t sign;
-    tran_low_t level = levels[get_padded_idx(pos, bwl)];
-    if (level) {
-      *max_scan_line = AOMMAX(*max_scan_line, pos);
-      if (c == 0) {
-        const int dc_sign_ctx = txb_ctx->dc_sign_ctx;
-        sign = aom_read_symbol(r, ec_ctx->dc_sign_cdf[plane_type][dc_sign_ctx],
-                               2, ACCT_STR);
+  int i = 0;
+  while (i < *eob) {
+    int nz_pos[4];
+    int nz_level[4];
+    int golomb_flag = 0;
+    int n_nz;
+    // Parse up to 4 non-zero coeffs
+    for (n_nz = 0; n_nz < 4 && i < *eob; i++) {
+      const int c = *eob - 1 - i;
+      const int pos = scan[c];
+      const int coeff_ctx = get_nz_map_ctx(levels, pos, bwl, height, c,
+                                           c == *eob - 1, tx_size, tx_type);
+      aom_cdf_prob *cdf;
+      int nsymbs;
+      if (c == *eob - 1) {
+        cdf = ec_ctx->coeff_base_eob_cdf[txs_ctx][plane_type][coeff_ctx];
+        nsymbs = 3;
       } else {
-        sign = aom_read_bit(r, ACCT_STR);
+        cdf = ec_ctx->coeff_base_cdf[txs_ctx][plane_type][coeff_ctx];
+        nsymbs = 4;
       }
-      if (level > NUM_BASE_LEVELS + COEFF_BASE_RANGE) {
-        // the quantized coeff with golomb residue is stored in tcoeffs because
-        // levels doesn't have enough bits got store the residue
-        level = tcoeffs[pos];
+      int level = aom_read_symbol(r, cdf, nsymbs, ACCT_STR) + (c == *eob - 1);
+      if (level > NUM_BASE_LEVELS) {
+        const int br_ctx =
+            get_br_ctx(levels, pos, bwl, level_counts[pos], tx_type);
+        for (int idx = 0; idx < COEFF_BASE_RANGE; idx += BR_CDF_SIZE - 1) {
+          const int k = aom_read_symbol(
+              r,
+              ec_ctx
+                  ->coeff_br_cdf[AOMMIN(txs_ctx, TX_32X32)][plane_type][br_ctx],
+              BR_CDF_SIZE, ACCT_STR);
+          level += k;
+          if (k < BR_CDF_SIZE - 1) break;
+        }
+        if (level > NUM_BASE_LEVELS + COEFF_BASE_RANGE)
+          golomb_flag |= (1 << n_nz);
       }
-      cul_level += level;
-      tran_low_t dq_coeff;
+      if (level > 0) {
+        nz_pos[n_nz] = pos;
+        nz_level[n_nz] = level;
+        n_nz++;
+      }
+      levels[get_padded_idx(pos, bwl)] = level;
+    }
+    if (n_nz > 0) {
+      int n_ac_sign = n_nz - (nz_pos[n_nz - 1] == 0);
+      int sign = 0;
+      if (n_ac_sign > 0) {
+        sign = aom_read_multibit(r, n_ac_sign, ACCT_STR);
+      }
+      if (nz_pos[n_nz - 1] == 0) {
+        const int dc_sign_ctx = txb_ctx->dc_sign_ctx;
+        sign |= aom_read_symbol(r, ec_ctx->dc_sign_cdf[plane_type][dc_sign_ctx],
+                                2, ACCT_STR)
+                << n_ac_sign;
+      }
+      for (int j = 0; j < n_nz; j++) {
+        const int pos = nz_pos[j];
+        int level = nz_level[j];
+        if (golomb_flag & (1 << j)) {
+          level += read_golomb(xd, r);
+        }
+
+        *max_scan_line = AOMMAX(*max_scan_line, pos);
+        cul_level += level;
+
+        tran_low_t dq_coeff;
 #if CONFIG_NEW_QUANT
 #if CONFIG_AOM_QM
-      dq_coeff = av1_dequant_abscoeff_nuq(level, dequant[!!c], dq_profile, !!c,
-                                          nq_shift);
+        dq_coeff = av1_dequant_abscoeff_nuq(level, dequant[!!c], dq_profile,
+                                            !!pos, nq_shift);
 #else
-      dqv_val = &dq_val[pos != 0][0];
-      dq_coeff =
-          av1_dequant_abscoeff_nuq(level, dequant[!!c], dqv_val, nq_shift);
+        dqv_val = &dq_val[pos != 0][0];
+        dq_coeff =
+            av1_dequant_abscoeff_nuq(level, dequant[!!pos], dqv_val, nq_shift);
 #endif  // CONFIG_AOM_QM
 #else
-      dq_coeff = level * get_dqv(dequant, scan[c], iqmatrix);
-      dq_coeff = dq_coeff >> shift;
+        dq_coeff = level * get_dqv(dequant, pos, iqmatrix);
+        dq_coeff = dq_coeff >> shift;
 #endif  // CONFIG_NEW_QUANT
-      if (sign) {
-        dq_coeff = -dq_coeff;
+        if (sign & (1 << j)) {
+          dq_coeff = -dq_coeff;
+        }
+        tcoeffs[pos] = clamp(dq_coeff, min_value, max_value);
       }
-      tcoeffs[pos] = clamp(dq_coeff, min_value, max_value);
     }
   }
 
