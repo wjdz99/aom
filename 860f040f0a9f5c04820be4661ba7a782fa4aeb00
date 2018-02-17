@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4ef5346f_a0a49fdd",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 3492,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2018-02-17T00:03:18Z",
+      "side": 1,
+      "message": "Could you please justify that \"cm-\u003eframe_refs[cm-\u003eprimary_ref_frame].idx\" is always valid here?\nIs it possible \"cm-\u003eframe_refs[cm-\u003eprimary_ref_frame].idx \u003d\u003d INVALID_IDX\" here?\n\nFurther, it seems the range of cm-\u003eprimary_ref_frame shall belong to [0,REF_FRAMES-1], which is [0,7] inclusive. Nevertheless, we have only assigned \u0027idx\u0027/\u0027buf\u0027 for cm-\u003eframe_refs[0/1/2/3/4/5/6], and it has not been specified for cm-\u003eframe_refs[7]. Which is, when cm-\u003eprimary_ref_frame \u003d\u003d 7, it is not clear to me at the decoder that what we would expect for cm-\u003eframe_refs[7].idx, most likely would be valued as INVALID_IDX, which is \"-1\".\n\nRegardless of the encoder setup, the decoder may need to have sufficient sanity check to make sure we have a valid bitstream.",
+      "revId": "860f040f0a9f5c04820be4661ba7a782fa4aeb00",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
