@@ -2230,7 +2230,10 @@ void av1_read_film_grain_params(AV1_COMMON *cm,
 
   pars->chroma_scaling_from_luma = aom_rb_read_bit(rb);
 
-  if (!pars->chroma_scaling_from_luma) {
+  if (pars->chroma_scaling_from_luma) {
+    pars->num_cb_points = 0;
+    pars->num_cr_points = 0;
+  } else {
     pars->num_cb_points = aom_rb_read_literal(rb, 4);  // max 10
     for (int i = 0; i < pars->num_cb_points; i++) {
       pars->scaling_points_cb[i][0] = aom_rb_read_literal(rb, 8);
