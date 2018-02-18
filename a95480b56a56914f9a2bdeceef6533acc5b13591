@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dd48206c_a9c54520",
+        "filename": "av1/common/convolve.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2018-02-18T15:30:24Z",
+      "side": 1,
+      "message": "Can this be a little more condense:\n\n#if CONFIG_LOWPRECISION_BLEND \u003d\u003d 1 || CONFIG_LOWPRECISION_BLEND \u003d\u003d 2\n#define ROUND0_BITS 3\n#define COMPOUND_ROUND1_BITS (5 + CONFIG_LOWPRECISION_BLEND)",
+      "revId": "a95480b56a56914f9a2bdeceef6533acc5b13591",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
