@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c2e37b82_1d8823e4",
+        "filename": "av1/common/arm/cfl_neon.c",
+        "patchSetId": 19
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 6340
+      },
+      "writtenOn": "2018-02-18T09:08:58Z",
+      "side": 1,
+      "message": "This should be `2 * CFL_BUF_LINE`.",
+      "range": {
+        "startLine": 53,
+        "startChar": 50,
+        "endLine": 53,
+        "endChar": 62
+      },
+      "revId": "9aaa265c38f682951f881b26b85b5131b9583934",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
