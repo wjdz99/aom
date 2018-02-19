@@ -19,6 +19,23 @@
     },
     {
       "key": {
+        "uuid": "d4112e43_c9334635",
+        "filename": "av1/common/x86/filterintra_sse4.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 8471
+      },
+      "writtenOn": "2018-02-19T21:54:27Z",
+      "side": 1,
+      "message": "av1_filter_intra_predictor_sse4_1",
+      "revId": "a70afb0ee7cb790406949cc66c6fb45914564016",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "97c26b88_7ba9b939",
         "filename": "av1/common/x86/filterintra_sse4.c",
         "patchSetId": 2
@@ -30,6 +47,23 @@
       "writtenOn": "2018-02-09T21:19:35Z",
       "side": 1,
       "message": "in the interaction with the vectors or a copy? I\u0027d prefer if we didn\u0027t need to carry this around",
+      "revId": "a70afb0ee7cb790406949cc66c6fb45914564016",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "51c75ff9_0d2a9f9a",
+        "filename": "av1/common/x86/filterintra_sse4.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 8471
+      },
+      "writtenOn": "2018-02-19T21:54:27Z",
+      "side": 1,
+      "message": "The taps fit in an int8_t, so the _mm_mullo_epi16, _mm_mullo_epi16, and _mm_hadd_epi16 can be replaced with _mm_maddubs_epi16(in, f1f0).  You will have to adjust the tables so when you read 128 bits, f0 will be in the lower 64 and f1 will be in the higher 64. ie:\n\nDECLARE_ALIGNED(16, const int8_t,\n                xfilter_intra_taps[FILTER_INTRA_MODES][4][16]) \u003d {",
       "revId": "a70afb0ee7cb790406949cc66c6fb45914564016",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
@@ -83,6 +117,75 @@
       "side": 1,
       "message": "I made slides to explain how they works\nhttps://docs.google.com/presentation/d/1ci6YhhAYneUDD1LHGa9Dr_RXRI0gFFe5Fb0zzH2-B50/edit?usp\u003dsharing",
       "parentUuid": "b780547d_6a267281",
+      "revId": "a70afb0ee7cb790406949cc66c6fb45914564016",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "522a63b6_51c8890e",
+        "filename": "av1/common/x86/filterintra_sse4.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 8471
+      },
+      "writtenOn": "2018-02-19T21:54:27Z",
+      "side": 1,
+      "message": "I didn\u0027t see where you timed the function, so I wrote a \"hack\" test function which loop timed the two functions.  The test shows the vertical method is faster:\n\nfilter_intra_predictor_sse4_1 17987 ms\nfilter_intra_predictor_sse4_1_vertadd 16492 ms\n\nI\u0027m not sure why you are seeing the vertical method being 2x slower.\n\nI re-worked this patch and the test shows:\n\nfilter_intra_predictor_sse4_1 13495 ms\nfilter_intra_predictor_sse4_1_vertadd 16464 ms\n\nI\u0027m still working on this patch, but I can push a version if you want.  Otherwise, look at my other comments for ideas.  Some can be applied to the vertical method, which I did not try yet.",
+      "parentUuid": "cab8d335_16f37043",
+      "revId": "a70afb0ee7cb790406949cc66c6fb45914564016",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "911caca0_bfa6f963",
+        "filename": "av1/common/x86/filterintra_sse4.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 8471
+      },
+      "writtenOn": "2018-02-19T21:54:27Z",
+      "side": 1,
+      "message": "This can be replaced with _mm_mulhrs_epi16.  ie:\n\n      const __m128i k_scale_bits \u003d _mm_set1_epi16(1 \u003c\u003c (15 - FILTER_INTRA_SCALE_BITS));\n      out0_w \u003d _mm_mulhrs_epi16(out0_w, k_scale_bits);",
+      "revId": "a70afb0ee7cb790406949cc66c6fb45914564016",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c39362a9_52139139",
+        "filename": "av1/common/x86/filterintra_sse4.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 8471
+      },
+      "writtenOn": "2018-02-19T21:54:27Z",
+      "side": 1,
+      "message": "The unpack/pack can be replaced with this:\n\n      const __m128i out0123 \u003d _mm_packus_epi16(out0_w, out0_w);;\n      const __m128i out4567 \u003d _mm_srli_si128(out0123, 4);",
+      "revId": "a70afb0ee7cb790406949cc66c6fb45914564016",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6594e399_a67db579",
+        "filename": "av1/common/x86/filterintra_sse4.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 8471
+      },
+      "writtenOn": "2018-02-19T21:54:27Z",
+      "side": 1,
+      "message": "You should be able to write dst in the above loop.",
       "revId": "a70afb0ee7cb790406949cc66c6fb45914564016",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
