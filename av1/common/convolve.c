@@ -1106,7 +1106,7 @@ void av1_highbd_convolve_2d_scale_c(const uint16_t *src, int src_stride,
                                     const int subpel_x_qn, const int x_step_qn,
                                     const int subpel_y_qn, const int y_step_qn,
                                     ConvolveParams *conv_params, int bd) {
-  int32_t im_block[(2 * MAX_SB_SIZE + MAX_FILTER_TAP) * MAX_SB_SIZE];
+  int16_t im_block[(2 * MAX_SB_SIZE + MAX_FILTER_TAP) * MAX_SB_SIZE];
   int im_h = (((h - 1) * y_step_qn + subpel_y_qn) >> SCALE_SUBPEL_BITS) +
              filter_params_y->taps;
   int im_stride = w;
@@ -1129,18 +1129,18 @@ void av1_highbd_convolve_2d_scale_c(const uint16_t *src, int src_stride,
       }
       assert(0 <= sum && sum < (1 << (bd + FILTER_BITS + 1)));
       im_block[y * im_stride + x] =
-          ROUND_POWER_OF_TWO(sum, conv_params->round_0);
+          (int16_t)ROUND_POWER_OF_TWO(sum, conv_params->round_0);
     }
     src_horiz += src_stride;
   }
 
   // vertical filter
-  int32_t *src_vert = im_block + fo_vert * im_stride;
+  int16_t *src_vert = im_block + fo_vert * im_stride;
   const int offset_bits = bd + 2 * FILTER_BITS - conv_params->round_0;
   for (int x = 0; x < w; ++x) {
     int y_qn = subpel_y_qn;
     for (int y = 0; y < h; ++y, y_qn += y_step_qn) {
-      const int32_t *src_y = &src_vert[(y_qn >> SCALE_SUBPEL_BITS) * im_stride];
+      const int16_t *src_y = &src_vert[(y_qn >> SCALE_SUBPEL_BITS) * im_stride];
       const int y_filter_idx = (y_qn & SCALE_SUBPEL_MASK) >> SCALE_EXTRA_BITS;
       assert(y_filter_idx < SUBPEL_SHIFTS);
       const int16_t *y_filter =
