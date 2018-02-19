@@ -558,7 +558,7 @@ void aom_qm_init(AV1_COMMON *cm) {
    frequency domain according to different nominal viewing
    distances.
  */
-static const uint16_t iwt_matrix_ref[NUM_QM_LEVELS][2][QM_TOTAL_SIZE] = {
+static const uint8_t iwt_matrix_ref[NUM_QM_LEVELS][2][QM_TOTAL_SIZE] = {
   {
       { /* Luma */
         /* Size 4x4 */
@@ -7326,7 +7326,7 @@ static const uint16_t iwt_matrix_ref[NUM_QM_LEVELS][2][QM_TOTAL_SIZE] = {
   },
 };
 
-static const uint16_t wt_matrix_ref[NUM_QM_LEVELS][2][QM_TOTAL_SIZE] = {
+static const uint8_t wt_matrix_ref[NUM_QM_LEVELS][2][QM_TOTAL_SIZE] = {
   {
       { /* Luma */
         /* Size 4x4 */
