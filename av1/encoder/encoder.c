@@ -400,7 +400,7 @@ static void enc_setup_mi(AV1_COMMON *cm) {
   // Clear top border row
   memset(cm->prev_mip, 0, sizeof(*cm->prev_mip) * cm->mi_stride);
   // Clear left border column
-  for (i = 1; i < cm->mi_rows + 1; ++i)
+  for (i = 0; i < cm->mi_rows; ++i)
     memset(&cm->prev_mip[i * cm->mi_stride], 0, sizeof(*cm->prev_mip));
   cm->mi_grid_visible = cm->mi_grid_base;
   cm->prev_mi_grid_visible = cm->prev_mi_grid_base;
