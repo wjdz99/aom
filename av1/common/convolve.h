@@ -129,13 +129,14 @@ static INLINE ConvolveParams get_conv_params_no_round(int ref, int do_average,
                                     : 2 * FILTER_BITS - conv_params.round_0;
 #else
   conv_params.round_1 = 0;
-#endif
+#endif  // CONFIG_LOWPRECISION_BLEND
   const int intbufrange = bd + FILTER_BITS - conv_params.round_0 + 2;
   if (bd < 12) assert(intbufrange <= 16);
   if (intbufrange > 16) {
     conv_params.round_0 += intbufrange - 16;
-    if (is_compound && conv_params.round_1 > 0)
-      conv_params.round_1 -= intbufrange - 16;
+#if CONFIG_LOWPRECISION_BLEND
+    conv_params.round_1 -= intbufrange - 16;
+#endif  // CONFIG_LOWPRECISION_BLEND
   }
   // TODO(yunqing): The following dst should only be valid while
   // is_compound = 1;
