@@ -857,7 +857,9 @@ static INLINE void set_skip_context(MACROBLOCKD *xd, int mi_row, int mi_col,
 
 static INLINE int calc_mi_size(int len) {
   // len is in mi units.
-  return len + MAX_MIB_SIZE;
+  int rem = len & (MAX_MIB_SIZE - 1);
+  if (rem > (MAX_MIB_SIZE >> 1)) rem = MAX_MIB_SIZE - rem;
+  return len + rem;
 }
 
 static INLINE void set_plane_n4(MACROBLOCKD *const xd, int bw, int bh,
