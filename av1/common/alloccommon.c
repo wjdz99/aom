@@ -114,7 +114,6 @@ void av1_alloc_restoration_buffers(AV1_COMMON *cm) {
     av1_alloc_restoration_struct(cm, &cm->rst_info[p], p > 0);
 
   if (cm->rst_tmpbuf == NULL) {
-    aom_free(cm->rst_tmpbuf);
     CHECK_MEM_ERROR(cm, cm->rst_tmpbuf,
                     (int32_t *)aom_memalign(16, RESTORATION_TMPBUF_SIZE));
   }
