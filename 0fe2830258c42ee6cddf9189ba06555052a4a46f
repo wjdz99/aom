@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "1d02ee34_23ab8001",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2239,
+      "author": {
+        "id": 5260
+      },
+      "writtenOn": "2018-02-20T17:00:30Z",
+      "side": 1,
+      "message": "I have had another look, but I can\u0027t find the code that would handle the case if num_y_points or num_cb_points were equal to 0.  Any chance you could point me to a line number?  My particular concern is that, as far as I can see, init_scaling_function accesses scaling_points[num_points - 1][0] which could go into illegal memory regions.",
+      "parentUuid": "4e860f29_055b1883",
+      "revId": "0fe2830258c42ee6cddf9189ba06555052a4a46f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5f882afe_bf72fb59",
         "filename": "av1/decoder/decodeframe.c",
         "patchSetId": 3
