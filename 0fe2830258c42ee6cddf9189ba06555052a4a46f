@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "4e860f29_055b1883",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2239,
+      "author": {
+        "id": 6720
+      },
+      "writtenOn": "2018-02-20T16:42:22Z",
+      "side": 1,
+      "message": "It is legal. We has at least one test vector that uses num_y_points \u003d 0. It means that the grain is not applied to y component.",
+      "parentUuid": "f4e63cf4_7fd61672",
+      "revId": "0fe2830258c42ee6cddf9189ba06555052a4a46f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5f882afe_bf72fb59",
         "filename": "av1/decoder/decodeframe.c",
         "patchSetId": 3
@@ -30,6 +48,24 @@
       "writtenOn": "2018-02-20T15:16:20Z",
       "side": 1,
       "message": "Is there a requirement that these x values are strictly increasing?",
+      "revId": "0fe2830258c42ee6cddf9189ba06555052a4a46f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f94661c2_94afbe52",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2241,
+      "author": {
+        "id": 6720
+      },
+      "writtenOn": "2018-02-20T16:42:22Z",
+      "side": 1,
+      "message": "Yes, there is. I will add a check.",
+      "parentUuid": "5f882afe_bf72fb59",
       "revId": "0fe2830258c42ee6cddf9189ba06555052a4a46f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
