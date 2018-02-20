@@ -30,26 +30,45 @@ static void cfl_luma_subsampling_420_lbd_avx2(const uint8_t *input,
                                               int input_stride,
                                               int16_t *pred_buf_q3, int width,
                                               int height) {
-  (void)width;  // Max chroma width is 16, so all widths fit in one __m256i
-
-  const __m256i twos = _mm256_set1_epi8(2);  // Thirty two twos
+  const int16_t *end = pred_buf_q3 + (height >> 1) * CFL_BUF_LINE;
   const int luma_stride = input_stride << 1;
-  const int16_t *end = pred_buf_q3 + height * CFL_BUF_LINE;
+
+  __m128i top, bot, top_16x8, bot_16x8, sum_16x8;
+  __m256i next_top, next_bot, next_top_16x8, next_bot_16x8, next_sum_16x8;
   do {
-    // Load 32 values for the top and bottom rows.
-    // t_0, t_1, ... t_31
-    __m256i top = _mm256_loadu_si256((__m256i *)(input));
-    // b_0, b_1, ... b_31
-    __m256i bot = _mm256_loadu_si256((__m256i *)(input + input_stride));
+    if (width == 4) {
+      top = _mm_cvtsi32_si128(*((int *)input));
+      bot = _mm_cvtsi32_si128(*((int *)(input + input_stride)));
+    } else if (width == 8) {
+      top = _mm_loadl_epi64((__m128i *)input);
+      bot = _mm_loadl_epi64((__m128i *)(input + input_stride));
+    } else if (width == 16) {
+      top = _mm_loadu_si128((__m128i *)input);
+      bot = _mm_loadu_si128((__m128i *)(input + input_stride));
+    } else if (width == 32) {
+      next_top = _mm256_loadu_si256((__m256i *)input);
+      next_bot = _mm256_loadu_si256((__m256i *)(input + input_stride));
+    }
 
-    // Horizontal add of the 32 values into 16 values that are multiplied by 2
-    // (t_0 + t_1) * 2, (t_2 + t_3) * 2, ... (t_30 + t_31) *2
-    top = _mm256_maddubs_epi16(top, twos);
-    // (b_0 + b_1) * 2, (b_2 + b_3) * 2, ... (b_30 + b_31) *2
-    bot = _mm256_maddubs_epi16(bot, twos);
+    if (width == 32) {
+      next_top_16x8 = _mm256_maddubs_epi16(next_top, _mm256_set1_epi8(2));
+      next_bot_16x8 = _mm256_maddubs_epi16(next_bot, _mm256_set1_epi8(2));
+      next_sum_16x8 = _mm256_add_epi16(next_top_16x8, next_bot_16x8);
+    } else {
+      top_16x8 = _mm_maddubs_epi16(top, _mm_set1_epi8(2));
+      bot_16x8 = _mm_maddubs_epi16(bot, _mm_set1_epi8(2));
+      sum_16x8 = _mm_add_epi16(top_16x8, bot_16x8);
+    }
 
-    // Add the 16 values in top with the 16 values in bottom
-    _mm256_storeu_si256((__m256i *)pred_buf_q3, _mm256_add_epi16(top, bot));
+    if (width == 4) {
+      *((int *)pred_buf_q3) = _mm_cvtsi128_si32(sum_16x8);
+    } else if (width == 8) {
+      _mm_storel_epi64((__m128i *)pred_buf_q3, sum_16x8);
+    } else if (width == 16) {
+      _mm_storeu_si128((__m128i *)pred_buf_q3, sum_16x8);
+    } else if (width == 32) {
+      _mm256_storeu_si256((__m256i *)pred_buf_q3, next_sum_16x8);
+    }
 
     input += luma_stride;
     pred_buf_q3 += CFL_BUF_LINE;
