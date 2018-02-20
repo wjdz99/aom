@@ -695,20 +695,6 @@ enum aome_enc_control_id {
   AV1E_SET_TILE_LOOPFILTER_V,
   AV1E_SET_TILE_LOOPFILTER_H,
 
-  /*!\brief Codec control function to set loop_filter_across_tiles_enabled.
-   *
-   * In encoding and decoding, AV1 allows disabling loop filter across tile
-   * boundary The parameter for this control describes the value of this flag,
-   * which has a valid range [0, 1]:
-   *            0 = disable loop filter across tile boundary
-   *            1 = enable loop filter across tile boundary
-   *
-   * By default, the value is 1, i.e. enable loop filter across tile boundary.
-   *
-   * Experiment: LOOPFILTERING_ACROSS_TILES
-   */
-  AV1E_SET_TILE_LOOPFILTER,
-
   /*!\brief Codec control function to set the delta q mode
    *
    * AV1 has a segment based feature that allows encoder to adaptively change
@@ -891,8 +877,6 @@ AOM_CTRL_USE_TYPE(AV1E_SET_TILE_LOOPFILTER_V, int)
 #define AOM_CTRL_AV1E_SET_TILE_LOOPFILTER_V
 AOM_CTRL_USE_TYPE(AV1E_SET_TILE_LOOPFILTER_H, int)
 #define AOM_CTRL_AV1E_SET_TILE_LOOPFILTER_H
-AOM_CTRL_USE_TYPE(AV1E_SET_TILE_LOOPFILTER, int)
-#define AOM_CTRL_AV1E_SET_TILE_LOOPFILTER
 
 AOM_CTRL_USE_TYPE(AOME_GET_LAST_QUANTIZER, int *)
 #define AOM_CTRL_AOME_GET_LAST_QUANTIZER
