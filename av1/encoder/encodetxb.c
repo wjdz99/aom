@@ -503,14 +503,10 @@ void av1_write_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
       const int br_ctx = get_br_ctx(levels, pos, bwl, tx_type);
       for (int idx = 0; idx < COEFF_BASE_RANGE; idx += BR_CDF_SIZE - 1) {
         const int k = AOMMIN(base_range - idx, BR_CDF_SIZE - 1);
-        aom_write_symbol(w, k,
-#if 0
-            ec_ctx->coeff_br_cdf[AOMMIN(txs_ctx, TX_16X16)][plane_type][ctx],
-#else
-                         ec_ctx->coeff_br_cdf[AOMMIN(txs_ctx, TX_32X32)]
-                                             [plane_type][br_ctx],
-#endif
-                         BR_CDF_SIZE);
+        aom_write_symbol(
+            w, k,
+            ec_ctx->coeff_br_cdf[AOMMIN(txs_ctx, TX_32X32)][plane_type][br_ctx],
+            BR_CDF_SIZE);
         if (k < BR_CDF_SIZE - 1) break;
       }
       if (level > COEFF_BASE_RANGE + NUM_BASE_LEVELS) {
@@ -518,11 +514,6 @@ void av1_write_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
         ++num_updates;
       }
     }
-  }
-
-  for (int i = 0; i < num_updates; ++i) {
-    const int pos = update_pos[i];
-    write_golomb(w, abs(tcoeff[pos]) - COEFF_BASE_RANGE - 1 - NUM_BASE_LEVELS);
   }
 
   // Loop to code all signs in the transform block,
@@ -538,6 +529,11 @@ void av1_write_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
         aom_write_bit(w, sign);
       }
     }
+  }
+
+  for (int i = 0; i < num_updates; ++i) {
+    const int pos = update_pos[i];
+    write_golomb(w, abs(tcoeff[pos]) - COEFF_BASE_RANGE - 1 - NUM_BASE_LEVELS);
   }
 }
 
