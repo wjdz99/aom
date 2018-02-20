@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8a0ca36d_c8652e28",
+        "filename": "aom_dsp/x86/highbd_loopfilter_sse4.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-02-20T15:58:34Z",
+      "side": 1,
+      "message": "You can\u0027t put the sse2 code in an sse4 file. The file will be compiled with sse4 flags and therefore may substitute sse4 instructions in this function, causing a crash on devices which do not have sse4.",
+      "range": {
+        "startLine": 191,
+        "startChar": 19,
+        "endLine": 191,
+        "endChar": 43
+      },
+      "revId": "4e063a06af52a9b8e22019454609804636d65bb6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
