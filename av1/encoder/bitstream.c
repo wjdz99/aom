@@ -3943,11 +3943,6 @@ static void write_uncompressed_header_frame(AV1_COMP *cpi,
       }
     }
   }
-#if CONFIG_NEW_QUANT
-  if (!cm->all_lossless) {
-    aom_wb_write_literal(wb, cm->dq_type, DQ_TYPE_BITS);
-  }
-#endif  // CONFIG_NEW_QUANT
   if (!cm->all_lossless) {
     encode_cdef(cm, wb);
   }
@@ -4355,11 +4350,6 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
       }
     }
   }
-#if CONFIG_NEW_QUANT
-  if (!cm->all_lossless) {
-    aom_wb_write_literal(wb, cm->dq_type, DQ_TYPE_BITS);
-  }
-#endif  // CONFIG_NEW_QUANT
   if (!cm->all_lossless) {
     encode_cdef(cm, wb);
   }
