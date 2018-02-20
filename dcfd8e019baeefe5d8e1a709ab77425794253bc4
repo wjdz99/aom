@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3aa0ccca_f93f571b",
+        "filename": "av1/common/mvref_common.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2235,
+      "author": {
+        "id": 5260
+      },
+      "writtenOn": "2018-02-20T14:41:03Z",
+      "side": 1,
+      "message": "I believe qsort is not guaranteed to be a stable sort in C, so this may give inconsistent answers when two frames have the same frame_offset.\n\nPerhaps the comparison function should also check map_idx to resolve ties?",
+      "revId": "dcfd8e019baeefe5d8e1a709ab77425794253bc4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
