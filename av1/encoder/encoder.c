@@ -5172,7 +5172,7 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
   int no_restoration = 0;
 #endif  // CONFIG_LOOP_RESTORATION
 
-  if (is_lossless_requested(&cpi->oxcf)
+  if (is_lossless_requested(&cpi->oxcf) || !cpi->oxcf.using_restoration
 #if CONFIG_EXT_TILE
       || cm->large_scale_tile
 #endif  // CONFIG_EXT_TILE
