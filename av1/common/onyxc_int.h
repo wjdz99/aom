@@ -1281,6 +1281,42 @@ static INLINE TX_SIZE get_sqr_tx_size(int tx_dim) {
   }
 }
 
+static INLINE TX_SIZE get_tx_size(int width, int height) {
+  if (width == height) {
+    return get_sqr_tx_size(width);
+  }
+  if (width > height) {
+    if (width >> 1 == height) {
+      switch (width) {
+        case 4: return TX_4X8; break;
+        case 8: return TX_8X16; break;
+        case 16: return TX_16X32; break;
+        case 32: return TX_32X64; break;
+      }
+    }
+    switch (width) {
+      case 4: return TX_4X16; break;
+      case 8: return TX_8X32; break;
+      case 16: return TX_16X64; break;
+    }
+  }
+  if (height >> 1 == width) {
+    switch (height) {
+      case 4: return TX_8X4; break;
+      case 8: return TX_16X8; break;
+      case 16: return TX_32X16; break;
+      case 32: return TX_64X32; break;
+    }
+  }
+  switch (height) {
+    case 4: return TX_16X4; break;
+    case 8: return TX_32X8; break;
+    case 16: return TX_64X16; break;
+  }
+  assert(0);
+  return TX_4X4;
+}
+
 static INLINE int txfm_partition_context(TXFM_CONTEXT *above_ctx,
                                          TXFM_CONTEXT *left_ctx,
                                          BLOCK_SIZE bsize, TX_SIZE tx_size) {

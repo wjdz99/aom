@@ -15,10 +15,10 @@
 #include "av1/common/blockd.h"
 
 typedef void (*cfl_subsample_lbd_fn)(const uint8_t *input, int input_stride,
-                                     int16_t *output_q3, int width, int height);
+                                     int16_t *output_q3);
 
 typedef void (*cfl_subsample_hbd_fn)(const uint16_t *input, int input_stride,
-                                     int16_t *output_q3, int width, int height);
+                                     int16_t *output_q3);
 
 typedef void (*cfl_subtract_average_fn)(int16_t *pred_buf_q3);
 
@@ -84,18 +84,130 @@ void cfl_luma_subsampling_422_lbd_c(const uint8_t *input, int input_stride,
 void cfl_luma_subsampling_444_lbd_c(const uint8_t *input, int input_stride,
                                     int16_t *output_q3, int width, int height);
 
-#define CFL_GET_SUBSAMPLE_FUNCTION(arch)                                   \
-  cfl_subsample_lbd_fn get_subsample_lbd_fn_##arch(int sub_x, int sub_y) { \
-    if (sub_x == 1)                                                        \
-      return (sub_y == 1) ? cfl_luma_subsampling_420_lbd_##arch            \
-                          : cfl_luma_subsampling_422_lbd_c;                \
-    return cfl_luma_subsampling_444_lbd_c;                                 \
-  }                                                                        \
-  cfl_subsample_hbd_fn get_subsample_hbd_fn_##arch(int sub_x, int sub_y) { \
-    if (sub_x == 1)                                                        \
-      return (sub_y == 1) ? cfl_luma_subsampling_420_hbd_c                 \
-                          : cfl_luma_subsampling_422_hbd_c;                \
-    return cfl_luma_subsampling_444_hbd_c;                                 \
+// Null function used for invalid tx_sizes
+static INLINE void cfl_subsample_lbd_null(const uint8_t *input,
+                                          int input_stride,
+                                          int16_t *output_q3) {
+  (void)input;
+  (void)input_stride;
+  (void)output_q3;
+  assert(0);
+}
+
+// Null function used for invalid tx_sizes
+static INLINE void cfl_subsample_hbd_null(const uint16_t *input,
+                                          int input_stride,
+                                          int16_t *output_q3) {
+  (void)input;
+  (void)input_stride;
+  (void)output_q3;
+  assert(0);
+}
+
+#define CFL_SUBSAMPLE_LBD(arch, sub, width, height)                         \
+  static void subsample_lbd_##sub##_##width##x##height##_##arch(            \
+      const uint8_t *input, int input_stride, int16_t *output_q3) {         \
+    cfl_luma_subsampling_##sub##_lbd_##arch(input, input_stride, output_q3, \
+                                            width, height);                 \
+  }
+
+#define CFL_SUBSAMPLE_HBD(arch, sub, width, height)                         \
+  static void subsample_hbd_##sub##_##width##x##height##_##arch(            \
+      const uint16_t *input, int input_stride, int16_t *output_q3) {        \
+    cfl_luma_subsampling_##sub##_hbd_##arch(input, input_stride, output_q3, \
+                                            width, height);                 \
+  }
+
+#define CFL_SUBSAMPLE_LBD_FUNCTIONS(arch, sub) \
+  CFL_SUBSAMPLE_LBD(arch, sub, 4, 4)           \
+  CFL_SUBSAMPLE_LBD(arch, sub, 8, 8)           \
+  CFL_SUBSAMPLE_LBD(arch, sub, 16, 16)         \
+  CFL_SUBSAMPLE_LBD(arch, sub, 32, 32)         \
+  CFL_SUBSAMPLE_LBD(arch, sub, 4, 8)           \
+  CFL_SUBSAMPLE_LBD(arch, sub, 8, 4)           \
+  CFL_SUBSAMPLE_LBD(arch, sub, 8, 16)          \
+  CFL_SUBSAMPLE_LBD(arch, sub, 16, 8)          \
+  CFL_SUBSAMPLE_LBD(arch, sub, 16, 32)         \
+  CFL_SUBSAMPLE_LBD(arch, sub, 32, 16)         \
+  CFL_SUBSAMPLE_LBD(arch, sub, 4, 16)          \
+  CFL_SUBSAMPLE_LBD(arch, sub, 16, 4)          \
+  CFL_SUBSAMPLE_LBD(arch, sub, 8, 32)          \
+  CFL_SUBSAMPLE_LBD(arch, sub, 32, 8)
+
+#define CFL_SUBSAMPLE_HBD_FUNCTIONS(arch, sub) \
+  CFL_SUBSAMPLE_HBD(arch, sub, 4, 4)           \
+  CFL_SUBSAMPLE_HBD(arch, sub, 8, 8)           \
+  CFL_SUBSAMPLE_HBD(arch, sub, 16, 16)         \
+  CFL_SUBSAMPLE_HBD(arch, sub, 32, 32)         \
+  CFL_SUBSAMPLE_HBD(arch, sub, 4, 8)           \
+  CFL_SUBSAMPLE_HBD(arch, sub, 8, 4)           \
+  CFL_SUBSAMPLE_HBD(arch, sub, 8, 16)          \
+  CFL_SUBSAMPLE_HBD(arch, sub, 16, 8)          \
+  CFL_SUBSAMPLE_HBD(arch, sub, 16, 32)         \
+  CFL_SUBSAMPLE_HBD(arch, sub, 32, 16)         \
+  CFL_SUBSAMPLE_HBD(arch, sub, 4, 16)          \
+  CFL_SUBSAMPLE_HBD(arch, sub, 16, 4)          \
+  CFL_SUBSAMPLE_HBD(arch, sub, 8, 32)          \
+  CFL_SUBSAMPLE_HBD(arch, sub, 32, 8)
+
+// TODO(ltrudeau) Remove this when LBD 422 SIMD is added
+CFL_SUBSAMPLE_LBD_FUNCTIONS(c, 422)
+// TODO(ltrudeau) Remove this when LBD 444 SIMD is added
+CFL_SUBSAMPLE_LBD_FUNCTIONS(c, 444)
+// TODO(ltrudeau) Remove this when HBD 420 SIMD is added
+CFL_SUBSAMPLE_HBD_FUNCTIONS(c, 420)
+// TODO(ltrudeau) Remove this when HBD 422 SIMD is added
+CFL_SUBSAMPLE_HBD_FUNCTIONS(c, 422)
+// TODO(ltrudeau) Remove this when HBD 444 SIMD is added
+CFL_SUBSAMPLE_HBD_FUNCTIONS(c, 444)
+
+#define CFL_SUBSAMPLE_FUNCTION_ARRAY(arch, bd, sub)                       \
+  static const cfl_subsample_##bd##_fn subfn_##sub[TX_SIZES_ALL] = {      \
+    subsample_##bd##_##sub##_4x4_##arch,   /* 4x4 */                      \
+    subsample_##bd##_##sub##_8x8_##arch,   /* 8x8 */                      \
+    subsample_##bd##_##sub##_16x16_##arch, /* 16x16 */                    \
+    subsample_##bd##_##sub##_32x32_##arch, /* 32x32 */                    \
+    cfl_subsample_##bd##_null,             /* 64x64 (invalid CFL size) */ \
+    subsample_##bd##_##sub##_4x8_##arch,   /* 4x8 */                      \
+    subsample_##bd##_##sub##_8x4_##arch,   /* 8x4 */                      \
+    subsample_##bd##_##sub##_8x16_##arch,  /* 8x16 */                     \
+    subsample_##bd##_##sub##_16x8_##arch,  /* 16x8 */                     \
+    subsample_##bd##_##sub##_16x32_##arch, /* 16x32 */                    \
+    subsample_##bd##_##sub##_32x16_##arch, /* 32x16 */                    \
+    cfl_subsample_##bd##_null,             /* 32x64 (invalid CFL size) */ \
+    cfl_subsample_##bd##_null,             /* 64x32 (invalid CFL size) */ \
+    subsample_##bd##_##sub##_4x16_##arch,  /* 4x16  */                    \
+    subsample_##bd##_##sub##_16x4_##arch,  /* 16x4  */                    \
+    subsample_##bd##_##sub##_8x32_##arch,  /* 8x32  */                    \
+    subsample_##bd##_##sub##_32x8_##arch,  /* 32x8  */                    \
+    cfl_subsample_##bd##_null,             /* 16x64 (invalid CFL size) */ \
+    cfl_subsample_##bd##_null,             /* 64x16 (invalid CFL size) */ \
+  };
+
+#define CFL_GET_SUBSAMPLE_FUNCTION(arch)                                 \
+  CFL_SUBSAMPLE_LBD_FUNCTIONS(arch, 420)                                 \
+  cfl_subsample_lbd_fn get_subsample_lbd_fn_##arch(int sub_x, int sub_y, \
+                                                   TX_SIZE tx_size) {    \
+    CFL_SUBSAMPLE_FUNCTION_ARRAY(arch, lbd, 420)                         \
+    /* TODO(ltrudeau) replace c with arc when LBD 422 SIMD is added */   \
+    CFL_SUBSAMPLE_FUNCTION_ARRAY(c, lbd, 422)                            \
+    /* TODO(ltrudeau) replace c with arc when LBD 444 SIMD is added */   \
+    CFL_SUBSAMPLE_FUNCTION_ARRAY(c, lbd, 444)                            \
+    if (sub_x == 1)                                                      \
+      return (sub_y == 1) ? subfn_420[tx_size] : subfn_422[tx_size];     \
+    return subfn_444[tx_size];                                           \
+  }                                                                      \
+  cfl_subsample_hbd_fn get_subsample_hbd_fn_##arch(int sub_x, int sub_y, \
+                                                   TX_SIZE tx_size) {    \
+    /* TODO(ltrudeau) replace c with arc when HBD 420 SIMD is added */   \
+    CFL_SUBSAMPLE_FUNCTION_ARRAY(c, hbd, 420)                            \
+    /* TODO(ltrudeau) replace c with arc when HBD 422 SIMD is added */   \
+    CFL_SUBSAMPLE_FUNCTION_ARRAY(c, hbd, 422)                            \
+    /* TODO(ltrudeau) replace c with arc when HBD 444 SIMD is added */   \
+    CFL_SUBSAMPLE_FUNCTION_ARRAY(c, hbd, 444)                            \
+    if (sub_x == 1)                                                      \
+      return (sub_y == 1) ? subfn_420[tx_size] : subfn_422[tx_size];     \
+    return subfn_444[tx_size];                                           \
   }
 
 // Null function used for invalid tx_sizes
