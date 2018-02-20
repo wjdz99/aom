@@ -3932,16 +3932,9 @@ void av1_encode_tile(AV1_COMP *cpi, ThreadData *td, int tile_row,
   cfl_init(&td->mb.e_mbd.cfl, cm);
 #endif
 
-#if CONFIG_LOOPFILTERING_ACROSS_TILES
-#if CONFIG_LOOPFILTERING_ACROSS_TILES_EXT
   if (!cm->loop_filter_across_tiles_v_enabled ||
       !cm->loop_filter_across_tiles_h_enabled)
     av1_setup_across_tile_boundary_info(cm, tile_info);
-#else
-  if (!cm->loop_filter_across_tiles_enabled)
-    av1_setup_across_tile_boundary_info(cm, tile_info);
-#endif  // CONFIG_LOOPFILTERING_ACROSS_TILES_EXT
-#endif  // CONFIG_LOOPFILTERING_ACROSS_TILES
 
   av1_crc_calculator_init(&td->mb.tx_rd_record.crc_calculator, 24, 0x5D6DCB);
 

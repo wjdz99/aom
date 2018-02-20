@@ -204,7 +204,6 @@ typedef struct {
   // stripe.
   uint16_t tmp_save_above[RESTORATION_BORDER][RESTORATION_LINEBUFFER_WIDTH];
   uint16_t tmp_save_below[RESTORATION_BORDER][RESTORATION_LINEBUFFER_WIDTH];
-#if CONFIG_LOOPFILTERING_ACROSS_TILES || CONFIG_LOOPFILTERING_ACROSS_TILES_EXT
   // Column buffers, for storing 3 pixels at the left/right of each tile
   // when loopfiltering across tiles is disabled.
   //
@@ -213,7 +212,6 @@ typedef struct {
   // stored into the above/below arrays.
   uint16_t tmp_save_left[RESTORATION_BORDER][RESTORATION_COLBUFFER_HEIGHT];
   uint16_t tmp_save_right[RESTORATION_BORDER][RESTORATION_COLBUFFER_HEIGHT];
-#endif  // CONFIG_LOOPFILTERING_ACROSS_TILES
 } RestorationLineBuffers;
 
 typedef struct {
@@ -298,14 +296,8 @@ void av1_loop_restoration_filter_unit(
     const RestorationTileLimits *limits, const RestorationUnitInfo *rui,
     const RestorationStripeBoundaries *rsb, RestorationLineBuffers *rlbs,
     const AV1PixelRect *tile_rect, int tile_stripe0,
-#if CONFIG_LOOPFILTERING_ACROSS_TILES
-#if CONFIG_LOOPFILTERING_ACROSS_TILES_EXT
     int loop_filter_across_tiles_v_enabled,
     int loop_filter_across_tiles_h_enabled,
-#else
-    int loop_filter_across_tiles_enabled,
-#endif  // CONFIG_LOOPFILTERING_ACROSS_TILES_EXT
-#endif  // CONFIG_LOOPFILTERING_ACROSS_TILES
     int ss_x, int ss_y, int highbd, int bit_depth, uint8_t *data8, int stride,
     uint8_t *dst8, int dst_stride, int32_t *tmpbuf);
 
