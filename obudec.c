@@ -116,11 +116,6 @@ int file_is_obu(struct AvxInputContext *input_ctx) {
   uint8_t obutd[PRE_OBU_SIZE_BYTES + OBU_HEADER_SIZE_BYTES];
   uint32_t size;
 
-#if !CONFIG_OBU
-  warn("obudec.c requires CONFIG_OBU");
-  return 0;
-#endif
-
   // Reading the first OBU TD to enable TU end detection at TD start.
   fread(obutd, 1, PRE_OBU_SIZE_BYTES + OBU_HEADER_SIZE_BYTES, input_ctx->file);
 
