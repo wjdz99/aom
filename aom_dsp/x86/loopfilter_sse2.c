@@ -143,7 +143,7 @@ AOM_FORCE_INLINE void filter4_sse2(__m128i *p1p0, __m128i *q1q0, __m128i *hev,
 void aom_lpf_horizontal_4_sse2(uint8_t *s, int p /* pitch */,
                                const uint8_t *_blimit, const uint8_t *_limit,
                                const uint8_t *_thresh) {
-  const __m128i zero = _mm_set1_epi16(0);
+  const __m128i zero = _mm_setzero_si128();
   const __m128i limit =
       _mm_unpacklo_epi64(_mm_loadl_epi64((const __m128i *)_blimit),
                          _mm_loadl_epi64((const __m128i *)_limit));
@@ -169,7 +169,7 @@ void aom_lpf_horizontal_4_sse2(uint8_t *s, int p /* pitch */,
 void aom_lpf_vertical_4_sse2(uint8_t *s, int p /* pitch */,
                              const uint8_t *_blimit, const uint8_t *_limit,
                              const uint8_t *_thresh) {
-  const __m128i zero = _mm_set1_epi16(0);
+  const __m128i zero = _mm_setzero_si128();
   const __m128i limit =
       _mm_unpacklo_epi64(_mm_loadl_epi64((const __m128i *)_blimit),
                          _mm_loadl_epi64((const __m128i *)_limit));
@@ -245,7 +245,7 @@ void aom_lpf_horizontal_14_sse2(unsigned char *s, int p,
                                 const unsigned char *_blimit,
                                 const unsigned char *_limit,
                                 const unsigned char *_thresh) {
-  const __m128i zero = _mm_set1_epi16(0);
+  const __m128i zero = _mm_setzero_si128();
   const __m128i one = _mm_set1_epi8(1);
   const __m128i blimit = _mm_load_si128((const __m128i *)_blimit);
   const __m128i limit = _mm_load_si128((const __m128i *)_limit);
@@ -630,13 +630,11 @@ void aom_lpf_horizontal_6_sse2(unsigned char *s, int p,
                                const unsigned char *_blimit,
                                const unsigned char *_limit,
                                const unsigned char *_thresh) {
-  {
     const __m128i zero = _mm_setzero_si128();
     const __m128i blimit = _mm_load_si128((const __m128i *)_blimit);
     const __m128i limit = _mm_load_si128((const __m128i *)_limit);
     const __m128i thresh = _mm_load_si128((const __m128i *)_thresh);
     __m128i mask, hev, flat;
-    int flatmmask, maskmmask;
     __m128i p2, p1, p0, q0, q1, q2;
     __m128i q2p2, q1p1, q0p0, p1q1, p0q0, flat_p1p0, flat_q0q1;
     __m128i p1p0, q1q0, ps1ps0, qs1qs0;
@@ -691,9 +689,6 @@ void aom_lpf_horizontal_6_sse2(unsigned char *s, int p,
       mask = _mm_cmpeq_epi8(mask, zero);
       // replicate for the further "merged variables" usage
       mask = _mm_unpacklo_epi64(mask, mask);
-      maskmmask = _mm_movemask_epi8(mask);  // if 0 we don't need to do 5 tap
-                                            // filter, otherwise don't need to
-                                            // do filter4_sse2
 
       // flat_mask
       flat = _mm_max_epu8(abs_diff(q2p2, q0p0), abs_p1p0);
@@ -703,13 +698,10 @@ void aom_lpf_horizontal_6_sse2(unsigned char *s, int p,
       flat = _mm_and_si128(flat, mask);
       // replicate for the further "merged variables" usage
       flat = _mm_unpacklo_epi64(flat, flat);
-      flatmmask = _mm_movemask_epi8(flat);  // if 0 we don't need to do 5 tap
-                                            // filter, otherwise don't need to
-                                            // do filter4_sse2
-    }
+   }
 
     // 5 tap filter
-    if (flatmmask & maskmmask) {
+{
       const __m128i four = _mm_set1_epi16(4);
       unsigned char *src = s;
 
@@ -755,21 +747,16 @@ void aom_lpf_horizontal_6_sse2(unsigned char *s, int p,
                                    3);  // p0  + q0 * 2 + q1 * 2 + q2 * 3 + 4
 
       flat_q0q1 = _mm_packus_epi16(workp_shft0, workp_shft1);
-    } else {
-      flat_p1p0 = _mm_setzero_si128();
-      flat_q0q1 = _mm_setzero_si128();
     }
-    if ((flatmmask & maskmmask) != 0xffff) {
+
+{
       // lp filter
       p1p0 = _mm_unpacklo_epi64(q0p0, q1p1);
       q1q0 = _mm_unpackhi_epi64(q0p0, q1p1);
 
       filter4_sse2(&p1p0, &q1q0, &hev, &mask, &qs1qs0, &ps1ps0);
-    } else {
-      ps1ps0 = _mm_setzero_si128();
-      qs1qs0 = _mm_setzero_si128();
-    }
-    qs1qs0 = _mm_andnot_si128(flat, qs1qs0);
+ 
+	qs1qs0 = _mm_andnot_si128(flat, qs1qs0);
     q1q0 = _mm_and_si128(flat, flat_q0q1);
     q1q0 = _mm_or_si128(qs1qs0, q1q0);
 
@@ -793,7 +780,6 @@ void aom_lpf_horizontal_8_sse2(unsigned char *s, int p,
   const __m128i limit = _mm_load_si128((const __m128i *)_limit);
   const __m128i thresh = _mm_load_si128((const __m128i *)_thresh);
   __m128i mask, hev, flat;
-  int flatmmask, maskmmask;
   __m128i p2, p1, p0, q0, q1, q2, p3, q3, q3p3, flat_p1p0, flat_q0q1;
   __m128i q2p2, q1p1, q0p0, p1q1, p0q0;
   __m128i p1p0, q1q0, ps1ps0, qs1qs0;
@@ -853,9 +839,6 @@ void aom_lpf_horizontal_8_sse2(unsigned char *s, int p,
     mask = _mm_cmpeq_epi8(mask, zero);
     // replicate for the further "merged variables" usage
     mask = _mm_unpacklo_epi64(mask, mask);
-    maskmmask = _mm_movemask_epi8(mask);  // if 0 we don't need to do 5 tap
-                                          // filter, otherwise don't need to do
-                                          // filter4_sse2
 
     // flat_mask4
 
@@ -868,13 +851,10 @@ void aom_lpf_horizontal_8_sse2(unsigned char *s, int p,
     flat = _mm_and_si128(flat, mask);
     // replicate for the further "merged variables" usage
     flat = _mm_unpacklo_epi64(flat, flat);
-    flatmmask = _mm_movemask_epi8(flat);  // if 0 we don't need to do 5 tap
-                                          // filter, otherwise don't need to do
-                                          // filter4_sse2
   }
 
   // filter8
-  if (flatmmask & maskmmask) {
+ {
     const __m128i four = _mm_set1_epi16(4);
     unsigned char *src = s;
 
@@ -924,24 +904,15 @@ void aom_lpf_horizontal_8_sse2(unsigned char *s, int p,
     workp_shft1 = _mm_srli_epi16(_mm_add_epi16(workp_a, workp_b), 3);
     oq2 = _mm_packus_epi16(workp_shft1, workp_shft1);
 
-  } else {
-    flat_p1p0 = _mm_setzero_si128();
-    flat_q0q1 = _mm_setzero_si128();
-    op2 = _mm_setzero_si128();
-    oq2 = _mm_setzero_si128();
   }
 
-  // lp filter
-  if ((flatmmask & maskmmask) != 0xffff) {
+
     // lp filter - the same for 8 and 6 versions
     p1p0 = _mm_unpacklo_epi64(q0p0, q1p1);
     q1q0 = _mm_unpackhi_epi64(q0p0, q1p1);
 
     filter4_sse2(&p1p0, &q1q0, &hev, &mask, &qs1qs0, &ps1ps0);
-  } else {
-    ps1ps0 = _mm_setzero_si128();
-    qs1qs0 = _mm_setzero_si128();
-  }
+
   qs1qs0 = _mm_andnot_si128(flat, qs1qs0);
   q1q0 = _mm_and_si128(flat, flat_q0q1);
   q1q0 = _mm_or_si128(qs1qs0, q1q0);
@@ -988,7 +959,7 @@ void aom_lpf_horizontal_8_dual_sse2(uint8_t *s, int p, const uint8_t *_blimit0,
   DECLARE_ALIGNED(16, unsigned char, flat_oq2[16]);
   DECLARE_ALIGNED(16, unsigned char, flat_oq1[16]);
   DECLARE_ALIGNED(16, unsigned char, flat_oq0[16]);
-  const __m128i zero = _mm_set1_epi16(0);
+  const __m128i zero = _mm_setzero_si128();
   const __m128i blimit =
       _mm_unpacklo_epi64(_mm_load_si128((const __m128i *)_blimit0),
                          _mm_load_si128((const __m128i *)_blimit1));
@@ -1234,7 +1205,7 @@ void aom_lpf_horizontal_4_dual_sse2(unsigned char *s, int p,
   const __m128i thresh =
       _mm_unpacklo_epi64(_mm_load_si128((const __m128i *)_thresh0),
                          _mm_load_si128((const __m128i *)_thresh1));
-  const __m128i zero = _mm_set1_epi16(0);
+  const __m128i zero = _mm_setzero_si128();
   __m128i p1, p0, q0, q1;
   __m128i mask, hev, flat;
   p1 = _mm_loadu_si128((__m128i *)(s - 2 * p));
@@ -1449,12 +1420,11 @@ static INLINE void transpose16x4(uint8_t *pDst, const ptrdiff_t dstStride,
 }
 
 static INLINE void transpose6x6(unsigned char *src[], int in_p,
-                                unsigned char *dst[], int out_p,
-                                int num_6x6_to_transpose) {
+                                unsigned char *dst[], int out_p) {
   int idx6x6 = 0;
   __m128i x0, x1, x2, x3, x4, x5, x6;
   DECLARE_ALIGNED(16, unsigned char, temp_dst[16]);  //
-  do {
+
     unsigned char *in = src[idx6x6];
     unsigned char *out = dst[idx6x6];
 
@@ -1504,7 +1474,7 @@ static INLINE void transpose6x6(unsigned char *src[], int in_p,
     _mm_store_si128((__m128i *)(temp_dst), x6);
     memcpy(out + 4 * out_p, temp_dst, 6);
     memcpy(out + 5 * out_p, temp_dst + 8, 6);
-  } while (++idx6x6 < num_6x6_to_transpose);
+
 }
 
 static INLINE void transpose8x8(unsigned char *src[], int in_p,
