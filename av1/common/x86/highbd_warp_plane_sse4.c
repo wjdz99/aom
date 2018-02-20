@@ -26,8 +26,7 @@ void av1_highbd_warp_affine_sse4_1(const int32_t *mat, const uint16_t *ref,
   int i, j, k;
   const int use_conv_params =
       (conv_params->round == CONVOLVE_OPT_NO_ROUND && conv_params->dst);
-  int reduce_bits_horiz =
-      use_conv_params ? conv_params->round_0 : HORSHEAR_REDUCE_PREC_BITS;
+  int reduce_bits_horiz = use_conv_params ? conv_params->round_0 : ROUND0_BITS;
   if (!use_conv_params && bd + FILTER_BITS + 2 - reduce_bits_horiz > 16)
     reduce_bits_horiz += bd + FILTER_BITS - reduce_bits_horiz - 14;
   const int reduce_bits_vert = use_conv_params
