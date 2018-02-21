@@ -14,7 +14,7 @@
 #include "./av1_rtcd.h"
 #include "test/util.h"
 #include "test/acm_random.h"
-#include "av1/common/cfl.h"
+#include "av1/common/cfl_rtcd.h"
 
 using std::tr1::make_tuple;
 

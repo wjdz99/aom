@@ -29,7 +29,7 @@ print <<EOF
 #endif
 
 #if CONFIG_CFL
-#include "av1/common/cfl.h"
+#include "av1/common/cfl_rtcd.h"
 #endif
 
 struct macroblockd;
