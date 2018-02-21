@@ -37,9 +37,6 @@ static INLINE int get_compound_post_rounding_bits(
   if (is_masked_compound_type(mbmi->interinter_compound_type))
     return round_bits;
   round_bits += conv_params->is_compound;
-#if CONFIG_JNT_COMP
-  if (conv_params->use_jnt_comp_avg) round_bits += DIST_PRECISION_BITS - 1;
-#endif  // CONFIG_JNT_COMP
   return round_bits;
 }
 
