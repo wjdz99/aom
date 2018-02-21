@@ -2873,10 +2873,6 @@ static int read_uncompressed_header(AV1Decoder *pbi,
   cm->allow_intrabc = 0;
 #endif  // CONFIG_INTRABC
 
-#if CONFIG_FRAME_REFS_SIGNALING
-  cm->frame_refs_short_signaling = 0;
-#endif  // CONFIG_FRAME_REFS_SIGNALING
-
   if (cm->frame_type == KEY_FRAME) {
 #if !CONFIG_OBU
     av1_read_bitdepth_colorspace_sampling(cm, rb, pbi->allow_lowbitdepth);
@@ -2990,19 +2986,10 @@ static int read_uncompressed_header(AV1Decoder *pbi,
         cm->is_reference_frame = 0;
       }
 
-#if CONFIG_FRAME_REFS_SIGNALING
-      // Frame refs short signaling is off when error resilient mode is on.
-      if (!cm->error_resilient_mode)
-        cm->frame_refs_short_signaling = aom_rb_read_bit(rb);
-
-      if (cm->frame_refs_short_signaling) {
-        // == LAST_FRAME ==
-        const int lst_ref = aom_rb_read_literal(rb, REF_FRAMES_LOG2);
-        const int lst_idx = cm->ref_frame_map[lst_ref];
-
-        // == GOLDEN_FRAME ==
-        const int gld_ref = aom_rb_read_literal(rb, REF_FRAMES_LOG2);
-        const int gld_idx = cm->ref_frame_map[gld_ref];
+      for (int i = 0; i < INTER_REFS_PER_FRAME; ++i) {
+        int ref = 0;
+        ref = aom_rb_read_literal(rb, REF_FRAMES_LOG2);
+        const int idx = cm->ref_frame_map[ref];
 
         // Most of the time, streams start with a keyframe. In that case,
         // ref_frame_map will have been filled in at that point and will not
@@ -3010,44 +2997,13 @@ static int read_uncompressed_header(AV1Decoder *pbi,
         // with an intra-only frame, so long as they don't then signal a
         // reference to a slot that hasn't been set yet. That's what we are
         // checking here.
-        if (lst_idx == -1)
-          aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
-                             "Inter frame requests nonexistent reference");
-        if (gld_idx == -1)
+        if (idx == -1)
           aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
                              "Inter frame requests nonexistent reference");
 
-        av1_set_frame_refs(cm, lst_ref, gld_ref);
-      }
-#endif  // CONFIG_FRAME_REFS_SIGNALING
-
-      for (int i = 0; i < INTER_REFS_PER_FRAME; ++i) {
-        int ref = 0;
-#if CONFIG_FRAME_REFS_SIGNALING
-        if (!cm->frame_refs_short_signaling) {
-#endif  // CONFIG_FRAME_REFS_SIGNALING
-          ref = aom_rb_read_literal(rb, REF_FRAMES_LOG2);
-          const int idx = cm->ref_frame_map[ref];
-
-          // Most of the time, streams start with a keyframe. In that case,
-          // ref_frame_map will have been filled in at that point and will not
-          // contain any -1's. However, streams are explicitly allowed to start
-          // with an intra-only frame, so long as they don't then signal a
-          // reference to a slot that hasn't been set yet. That's what we are
-          // checking here.
-          if (idx == -1)
-            aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
-                               "Inter frame requests nonexistent reference");
-
-          RefBuffer *const ref_frame = &cm->frame_refs[i];
-          ref_frame->idx = idx;
-          ref_frame->buf = &frame_bufs[idx].buf;
-#if CONFIG_FRAME_REFS_SIGNALING
-          ref_frame->map_idx = ref;
-        } else {
-          ref = cm->frame_refs[i].map_idx;
-        }
-#endif  // CONFIG_FRAME_REFS_SIGNALING
+        RefBuffer *const ref_frame = &cm->frame_refs[i];
+        ref_frame->idx = idx;
+        ref_frame->buf = &frame_bufs[idx].buf;
 
 #if CONFIG_OBU
         // NOTE: For the scenario of (cm->frame_type != S_FRAME),

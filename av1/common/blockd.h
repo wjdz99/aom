@@ -481,9 +481,6 @@ typedef struct macroblockd_plane {
 
 typedef struct RefBuffer {
   int idx;  // frame buf idx
-#if CONFIG_FRAME_REFS_SIGNALING
-  int map_idx;  // frame map idx
-#endif          // CONFIG_FRAME_REFS_SIGNALING
   YV12_BUFFER_CONFIG *buf;
   struct scale_factors sf;
 } RefBuffer;

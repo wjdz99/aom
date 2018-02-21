@@ -610,10 +610,6 @@ typedef struct AV1Common {
   int8_t ref_frame_side[TOTAL_REFS_PER_FRAME];
 #endif
 
-#if CONFIG_FRAME_REFS_SIGNALING
-  int frame_refs_short_signaling;
-#endif  // CONFIG_FRAME_REFS_SIGNALING
-
 #if CONFIG_SCALABILITY
   int temporal_layer_id;
   int enhancement_layer_id;
