@@ -1306,7 +1306,7 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
     write_intra_mode(ec_ctx, bsize, mode, w);
     const int use_angle_delta = av1_use_angle_delta(bsize);
 
-    if (use_angle_delta && av1_is_directional_mode(mode, bsize)) {
+    if (use_angle_delta && av1_is_directional_mode(mode)) {
       write_angle_delta(w, mbmi->angle_delta[PLANE_TYPE_Y],
                         ec_ctx->angle_delta_cdf[mode - V_PRED]);
     }
@@ -1328,8 +1328,7 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
       if (uv_mode == UV_CFL_PRED)
         write_cfl_alphas(ec_ctx, mbmi->cfl_alpha_idx, mbmi->cfl_alpha_signs, w);
 #endif
-      if (use_angle_delta &&
-          av1_is_directional_mode(get_uv_mode(uv_mode), bsize)) {
+      if (use_angle_delta && av1_is_directional_mode(get_uv_mode(uv_mode))) {
         write_angle_delta(w, mbmi->angle_delta[PLANE_TYPE_UV],
                           ec_ctx->angle_delta_cdf[uv_mode - V_PRED]);
       }
@@ -1636,7 +1635,7 @@ static void write_mb_modes_kf(AV1_COMP *cpi, MACROBLOCKD *xd,
   write_intra_mode_kf(ec_ctx, mi, above_mi, left_mi, mode, w);
 
   const int use_angle_delta = av1_use_angle_delta(bsize);
-  if (use_angle_delta && av1_is_directional_mode(mode, bsize)) {
+  if (use_angle_delta && av1_is_directional_mode(mode)) {
     write_angle_delta(w, mbmi->angle_delta[PLANE_TYPE_Y],
                       ec_ctx->angle_delta_cdf[mode - V_PRED]);
   }
@@ -1658,8 +1657,7 @@ static void write_mb_modes_kf(AV1_COMP *cpi, MACROBLOCKD *xd,
     if (uv_mode == UV_CFL_PRED)
       write_cfl_alphas(ec_ctx, mbmi->cfl_alpha_idx, mbmi->cfl_alpha_signs, w);
 #endif
-    if (use_angle_delta &&
-        av1_is_directional_mode(get_uv_mode(uv_mode), bsize)) {
+    if (use_angle_delta && av1_is_directional_mode(get_uv_mode(uv_mode))) {
       write_angle_delta(w, mbmi->angle_delta[PLANE_TYPE_UV],
                         ec_ctx->angle_delta_cdf[uv_mode - V_PRED]);
     }
