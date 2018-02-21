@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3411f2b0_214ebe9e",
+        "filename": "av1/decoder/decodetxb.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-02-21T04:03:45Z",
+      "side": 1,
+      "message": "this is shared with the block containing a TODO(); you could factor out the contents. doing the entire function would be possible, leaving the loop outside, but that would have a stronger requirement for inlining to remove the constants passed.",
+      "revId": "797120859f318ad19ef3922b82cebab1f7fb21a7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
