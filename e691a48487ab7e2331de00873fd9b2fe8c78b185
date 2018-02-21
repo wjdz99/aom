@@ -22,6 +22,30 @@
       "revId": "e691a48487ab7e2331de00873fd9b2fe8c78b185",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a0c1c73a_c3cdce3b",
+        "filename": "test/tools_common.sh",
+        "patchSetId": 4
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-02-21T19:04:21Z",
+      "side": 1,
+      "message": "Wasn\u0027t really thinking about symlinks, was trying to avoid returning the path to a directory as a valid tool path in the case where a caller does something silly but potentially hard to debug, i.e. calling aom_tool_path but forgetting the tool name.\n\nAnyway, -f is still clearer than a negated -d, so done.",
+      "parentUuid": "859b33fb_511f66ab",
+      "range": {
+        "startLine": 194,
+        "startChar": 34,
+        "endLine": 194,
+        "endChar": 38
+      },
+      "revId": "e691a48487ab7e2331de00873fd9b2fe8c78b185",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
