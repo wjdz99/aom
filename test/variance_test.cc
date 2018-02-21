@@ -592,7 +592,8 @@ class SubpelVarianceTest
     if (!use_high_bit_depth()) {
       src_ = reinterpret_cast<uint8_t *>(aom_memalign(16, block_size()));
       sec_ = reinterpret_cast<uint8_t *>(aom_memalign(16, block_size()));
-      ref_ = new uint8_t[block_size() + width() + height() + 1];
+      ref_ = reinterpret_cast<uint8_t *>(
+          aom_memalign(16, block_size() + width() + height() + 1));
     } else {
       src_ = CONVERT_TO_BYTEPTR(reinterpret_cast<uint16_t *>(
           aom_memalign(16, block_size() * sizeof(uint16_t))));
@@ -609,7 +610,7 @@ class SubpelVarianceTest
   virtual void TearDown() {
     if (!use_high_bit_depth()) {
       aom_free(src_);
-      delete[] ref_;
+      aom_free(ref_);
       aom_free(sec_);
     } else {
       aom_free(CONVERT_TO_SHORTPTR(src_));
@@ -684,8 +685,8 @@ void SubpelVarianceTest<SubpelVarianceFunctionType>::ExtremeRefTest() {
       if (!use_high_bit_depth()) {
         memset(src_, 0, half);
         memset(src_ + half, 255, half);
-        memset(ref_, 255, half);
-        memset(ref_ + half, 0, half + width() + height() + 1);
+        aom_memset16(ref_, 255, half);
+        aom_memset16(ref_ + half, 0, half + width() + height() + 1);
       } else {
         aom_memset16(CONVERT_TO_SHORTPTR(src_), mask(), half);
         aom_memset16(CONVERT_TO_SHORTPTR(src_) + half, 0, half);
