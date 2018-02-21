@@ -12,7 +12,6 @@
 #include <tmmintrin.h>
 
 #include "./av1_rtcd.h"
-
 #include "av1/common/cfl.h"
 
 /**
