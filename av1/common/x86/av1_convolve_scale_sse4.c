@@ -314,20 +314,26 @@ static void vfilter(const int32_t *src, int src_stride, int32_t *dst,
       __m128i result;
       if (conv_params->use_jnt_comp_avg) {
         if (conv_params->do_average) {
-          result = _mm_add_epi32(_mm_loadu_si128((__m128i *)dst_x),
-                                 _mm_mullo_epi32(subbed, bck_offset));
+          result =
+              _mm_srai_epi32(_mm_add_epi32(_mm_loadu_si128((__m128i *)dst_x),
+                                           _mm_mullo_epi32(subbed, bck_offset)),
+                             DIST_PRECISION_BITS);
         } else {
           result = _mm_mullo_epi32(subbed, fwd_offset);
         }
       } else {
-        result = (conv_params->do_average)
-                     ? _mm_add_epi32(subbed, _mm_loadu_si128((__m128i *)dst_x))
-                     : subbed;
+        result =
+            (conv_params->do_average)
+                ? _mm_srai_epi32(
+                      _mm_add_epi32(subbed, _mm_loadu_si128((__m128i *)dst_x)),
+                      1)
+                : subbed;
       }
 #else
       const __m128i result =
           (conv_params->do_average)
-              ? _mm_add_epi32(subbed, _mm_loadu_si128((__m128i *)dst_x))
+              ? _mm_srai_epi32(
+                    _mm_add_epi32(subbed, _mm_loadu_si128((__m128i *)dst_x)), 1)
               : subbed;
 #endif  // CONFIG_JNT_COMP
 
@@ -342,15 +348,18 @@ static void vfilter(const int32_t *src, int src_stride, int32_t *dst,
       if (conv_params->use_jnt_comp_avg) {
         if (conv_params->do_average) {
           dst[y * dst_stride + x] += res * conv_params->bck_offset;
+          dst[y * dst_stride + x] >>= DIST_PRECISION_BITS;
         } else {
           dst[y * dst_stride + x] = res * conv_params->fwd_offset;
         }
       } else {
 #endif  // CONFIG_JNT_COMP
-        if (conv_params->do_average)
+        if (conv_params->do_average) {
           dst[y * dst_stride + x] += res;
-        else
+          dst[y * dst_stride + x] >>= 1;
+        } else {
           dst[y * dst_stride + x] = res;
+        }
 #if CONFIG_JNT_COMP
       }
 #endif  // CONFIG_JNT_COMP
@@ -426,20 +435,26 @@ static void vfilter8(const int32_t *src, int src_stride, int32_t *dst,
       __m128i result;
       if (conv_params->use_jnt_comp_avg) {
         if (conv_params->do_average) {
-          result = _mm_add_epi32(_mm_loadu_si128((__m128i *)dst_x),
-                                 _mm_mullo_epi32(subbed, bck_offset));
+          result =
+              _mm_srai_epi32(_mm_add_epi32(_mm_loadu_si128((__m128i *)dst_x),
+                                           _mm_mullo_epi32(subbed, bck_offset)),
+                             DIST_PRECISION_BITS);
         } else {
           result = _mm_mullo_epi32(subbed, fwd_offset);
         }
       } else {
-        result = (conv_params->do_average)
-                     ? _mm_add_epi32(subbed, _mm_loadu_si128((__m128i *)dst_x))
-                     : subbed;
+        result =
+            (conv_params->do_average)
+                ? _mm_srai_epi32(
+                      _mm_add_epi32(subbed, _mm_loadu_si128((__m128i *)dst_x)),
+                      1)
+                : subbed;
       }
 #else
       const __m128i result =
           (conv_params->do_average)
-              ? _mm_add_epi32(subbed, _mm_loadu_si128((__m128i *)dst_x))
+              ? _mm_srai_epi32(
+                    _mm_add_epi32(subbed, _mm_loadu_si128((__m128i *)dst_x)), 1)
               : subbed;
 #endif  // CONFIG_JNT_COMP
 
@@ -454,15 +469,18 @@ static void vfilter8(const int32_t *src, int src_stride, int32_t *dst,
       if (conv_params->use_jnt_comp_avg) {
         if (conv_params->do_average) {
           dst[y * dst_stride + x] += res * conv_params->bck_offset;
+          dst[y * dst_stride + x] >>= DIST_PRECISION_BITS;
         } else {
           dst[y * dst_stride + x] = res * conv_params->fwd_offset;
         }
       } else {
 #endif  // CONFIG_JNT_COMP
-        if (conv_params->do_average)
+        if (conv_params->do_average) {
           dst[y * dst_stride + x] += res;
-        else
+          dst[y * dst_stride + x] >>= 1;
+        } else {
           dst[y * dst_stride + x] = res;
+        }
 #if CONFIG_JNT_COMP
       }
 #endif  // CONFIG_JNT_COMP
