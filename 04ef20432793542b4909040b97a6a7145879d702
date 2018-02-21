@@ -86,6 +86,24 @@
       "revId": "04ef20432793542b4909040b97a6a7145879d702",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "845ffac1_99fb1916",
+        "filename": "aom_dsp/intrapred.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1055,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-02-21T03:50:09Z",
+      "side": 1,
+      "message": "\u003e \u003e Right.\n\u003e \u003e Question: Is it possible to do the correction on NEON only somehow (to remain equivalent to this), so that this reference C code doesn\u0027t need to be changed?\n\u003e \n\u003e we can I think. easiest would be to identify equivalent constants, otherwise we might have to add a correction addition to the calculation or do mul/shift separately.\n\nthe smaller constant (0x199a) should work for neon in 8/10-bit.",
+      "parentUuid": "da33055a_72dd5911",
+      "revId": "04ef20432793542b4909040b97a6a7145879d702",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
