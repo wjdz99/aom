@@ -309,19 +309,24 @@ void av1_highbd_warp_affine_sse4_1(const int32_t *mat, const uint16_t *ref,
 #if CONFIG_JNT_COMP
           if (conv_params->use_jnt_comp_avg) {
             if (comp_avg) {
-              const __m128i sum = _mm_add_epi32(_mm_loadu_si128(p),
-                                                _mm_mullo_epi32(res_lo, wt1));
-              res_lo = sum;
+              const __m128i sum =
+                  _mm_add_epi32(_mm_mullo_epi32(_mm_loadu_si128(p), wt0),
+                                _mm_mullo_epi32(res_lo, wt1));
+              res_lo = _mm_srai_epi32(sum, DIST_PRECISION_BITS);
             } else {
-              res_lo = _mm_mullo_epi32(res_lo, wt0);
+              res_lo = res_lo;
             }
           } else {
-            if (comp_avg) res_lo = _mm_add_epi32(_mm_loadu_si128(p), res_lo);
+            if (comp_avg)
+              res_lo =
+                  _mm_srai_epi32(_mm_add_epi32(_mm_loadu_si128(p), res_lo), 1);
           }
 
           _mm_storeu_si128(p, res_lo);
 #else
-          if (comp_avg) res_lo = _mm_add_epi32(_mm_loadu_si128(p), res_lo);
+          if (comp_avg)
+            res_lo =
+                _mm_srai_epi32(_mm_add_epi32(_mm_loadu_si128(p), res_lo), 1);
           _mm_storeu_si128(p, res_lo);
 #endif
 
@@ -332,21 +337,24 @@ void av1_highbd_warp_affine_sse4_1(const int32_t *mat, const uint16_t *ref,
 #if CONFIG_JNT_COMP
             if (conv_params->use_jnt_comp_avg) {
               if (comp_avg) {
-                const __m128i sum = _mm_add_epi32(_mm_loadu_si128(p + 1),
-                                                  _mm_mullo_epi32(res_hi, wt1));
-                res_hi = sum;
+                const __m128i sum =
+                    _mm_add_epi32(_mm_mullo_epi32(_mm_loadu_si128(p + 1), wt0),
+                                  _mm_mullo_epi32(res_hi, wt1));
+                res_hi = _mm_srai_epi32(sum, DIST_PRECISION_BITS);
               } else {
-                res_hi = _mm_mullo_epi32(res_hi, wt0);
+                res_hi = res_hi;
               }
             } else {
               if (comp_avg)
-                res_hi = _mm_add_epi32(_mm_loadu_si128(p + 1), res_hi);
+                res_hi = _mm_srai_epi32(
+                    _mm_add_epi32(_mm_loadu_si128(p + 1), res_hi), 1);
             }
 
             _mm_storeu_si128(p + 1, res_hi);
 #else
             if (comp_avg)
-              res_hi = _mm_add_epi32(_mm_loadu_si128(p + 1), res_hi);
+              res_hi = _mm_srai_epi32(
+                  _mm_add_epi32(_mm_loadu_si128(p + 1), res_hi), 1);
             _mm_storeu_si128(p + 1, res_hi);
 #endif
           }
