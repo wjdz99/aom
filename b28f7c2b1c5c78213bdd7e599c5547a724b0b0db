@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "55895b7d_171fc2b2",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 614,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-02-22T01:02:03Z",
+      "side": 1,
+      "message": "Remove this block and below one",
+      "revId": "b28f7c2b1c5c78213bdd7e599c5547a724b0b0db",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
