@@ -8036,7 +8036,7 @@ static int64_t handle_inter_mode(
   const int bw = block_size_wide[bsize];
   int_mv single_newmv[TOTAL_REFS_PER_FRAME];
   uint8_t ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
-  DECLARE_ALIGNED(16, uint8_t, tmp_buf_[2 * MAX_MB_PLANE * MAX_SB_SQUARE]);
+  uint8_t *tmp_buf_ = cpi->td.mb.tmp_buf;
   uint8_t *tmp_buf;
   int64_t rd = INT64_MAX;
   BUFFER_SET orig_dst, tmp_dst;
@@ -8064,7 +8064,6 @@ static int64_t handle_inter_mode(
         av1_mode_context_analyzer(mbmi_ext->mode_context, mbmi->ref_frame);
 #endif
 
-  memset(tmp_buf_, 0, sizeof(tmp_buf_));
   if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH)
     tmp_buf = CONVERT_TO_BYTEPTR(tmp_buf_);
   else
