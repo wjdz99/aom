@@ -22,6 +22,30 @@
       "revId": "dbc3363e10b76b227433da74a1426001d6cfdba7",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7495b363_3c6814bf",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 3364,
+      "author": {
+        "id": 7984
+      },
+      "writtenOn": "2018-02-22T12:01:31Z",
+      "side": 1,
+      "message": "Hi Andrey. I have uploaded a new patch which hopefully resolves the second issue. It now properly searches for the reference frame with the matching and present film grain parameters. I do not know about scalability support - I cannot see a command line argument. I think adding scalable film grain support to the encoder is outside of the scope of this patch.",
+      "parentUuid": "44a56890_50c3b7cb",
+      "range": {
+        "startLine": 3364,
+        "startChar": 29,
+        "endLine": 3364,
+        "endChar": 58
+      },
+      "revId": "dbc3363e10b76b227433da74a1426001d6cfdba7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
