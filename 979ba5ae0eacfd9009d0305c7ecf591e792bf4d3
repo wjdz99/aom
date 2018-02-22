@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7da1af7a_c51bd2aa",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 2185,
+      "author": {
+        "id": 5260
+      },
+      "writtenOn": "2018-02-22T14:01:21Z",
+      "side": 1,
+      "message": "Would it make sense to only read update_parameters for frame_type \u003d\u003d INTER_FRAME?\nFor non-inter frames it could be set to 1.\n\n(Although perhaps this is a change unrelated to the purpose of this patch?)",
+      "revId": "979ba5ae0eacfd9009d0305c7ecf591e792bf4d3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
