@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "71cc0c14_4aa1721b",
+        "filename": "av1/common/convolve.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 771,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2018-02-22T16:59:29Z",
+      "side": 1,
+      "message": "const int32_t tmp \u003d res * conv_params-\u003ebck_offset + dst[y * dst_stride + x] * conv_params-\u003efwd_offset;\ndst[y * dst_stride + x] \u003d tmp \u003e\u003e DIST_PRECISION_BITS;",
+      "revId": "2d77dec9f97e7f175b9b1fd0a85bb2705b63a851",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8667cd59_dae15e8a",
+        "filename": "av1/common/convolve.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 773,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2018-02-22T16:59:29Z",
+      "side": 1,
+      "message": "dst[y * dst_stride + x] \u003d res;",
+      "revId": "2d77dec9f97e7f175b9b1fd0a85bb2705b63a851",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dbb72a52_32670f9b",
+        "filename": "av1/common/convolve.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 778,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2018-02-22T16:59:29Z",
+      "side": 1,
+      "message": "const int32_t tmp \u003d dst[y * dst_stride + x] + res;\ndst[y * dst_stride + x] \u003d tmp \u003e\u003e 1;",
+      "revId": "2d77dec9f97e7f175b9b1fd0a85bb2705b63a851",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
