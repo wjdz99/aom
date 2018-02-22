@@ -232,6 +232,8 @@ typedef struct SequenceHeader {
 #if CONFIG_MONO_VIDEO
   int monochrome;
 #endif  // CONFIG_MONO_VIDEO
+  int enable_dual_filter;  // 0 - disable dual interpolation filter
+                           // 1 - enable vertical and horiz filter selection
 } SequenceHeader;
 #endif  // CONFIG_REFERENCE_BUFFER
 
