@@ -23,6 +23,15 @@
 #define OBU_HEADER_EXTENSION_SIZE_BYTES 1
 #endif
 
+#if CONFIG_OBU_SIZING
+// Unsigned LEB128 OBU length field has maximum size of 8 bytes.
+#define kMaximumObuHeaderSize \
+  (OBU_HEADER_SIZE_BYTES + OBU_HEADER_SIZE_BYTES + 8)
+#else
+#define kMaximumObuHeaderSize \
+  (OBU_HEADER_SIZE_BYTES + OBU_HEADER_SIZE_BYTES + PRE_OBU_SIZE_BYTES)
+#endif
+
 #if CONFIG_OBU_NO_IVF
 int obu_read_temporal_unit(FILE *infile, uint8_t **buffer, size_t *bytes_read,
 #if CONFIG_SCALABILITY
@@ -39,6 +48,9 @@ int obu_read_temporal_unit(FILE *infile, uint8_t **buffer, size_t *bytes_read,
   if (feof(infile)) {
     return 1;
   }
+
+  fprintf(stderr, "buffer_size=%zu\n", *buffer_size);
+  exit(1);
 
   *buffer_size = 0;
   *bytes_read = 0;
@@ -118,8 +130,8 @@ int obu_read_temporal_unit(FILE *infile, uint8_t **buffer, size_t *bytes_read,
 }
 
 int file_is_obu(struct AvxInputContext *input_ctx) {
-  uint8_t obutd[PRE_OBU_SIZE_BYTES + OBU_HEADER_SIZE_BYTES];
-  uint64_t size;
+  uint8_t obutd[kMaximumObuHeaderSize] = { 0 };
+  uint64_t size = 0;
 
 #if !CONFIG_OBU
   warn("obudec.c requires CONFIG_OBU");
@@ -127,30 +139,36 @@ int file_is_obu(struct AvxInputContext *input_ctx) {
 #endif
 
   // Reading the first OBU TD to enable TU end detection at TD start.
-  const size_t obu_length_header_size =
-      PRE_OBU_SIZE_BYTES + OBU_HEADER_SIZE_BYTES;
-  const size_t ret = fread(obutd, 1, obu_length_header_size, input_ctx->file);
-  if (ret != obu_length_header_size) {
-    warn("Failed to read OBU Header\n");
+  const size_t ret = fread(obutd, 1, kMaximumObuHeaderSize, input_ctx->file);
+  if (ret != kMaximumObuHeaderSize) {
+    warn("Failed to read OBU Header, not enough data to process header.\n");
     return 0;
   }
 
 #if CONFIG_OBU_SIZING
-  aom_uleb_decode(obutd, PRE_OBU_SIZE_BYTES, &size);
+  if (aom_uleb_decode(
+          obutd,
+          kMaximumObuHeaderSize - OBU_HEADER_SIZE_BYTES - OBU_HEADER_SIZE_BYTES,
+          &size) != 0) {
+    warn("OBU size parse failed.\n");
+    return 0;
+  }
+  const size_t obu_header_offset = aom_uleb_size_in_bytes(size);
 #else
+  const size_t obu_header_offset = PRE_OBU_SIZE_BYTES;
   size = mem_get_le32(obutd);
 #endif  // CONFIG_OBU_SIZING
 
   if (size != 1) {
-    warn("Expected first OBU size to be 1, got %d", size);
+    warn("Expected first OBU size to be 1, got %d\n", size);
     return 0;
   }
-  if (((obutd[PRE_OBU_SIZE_BYTES] >> 3) & 0xF) != OBU_TEMPORAL_DELIMITER) {
-    warn("Expected OBU TD at file start, got %d\n", obutd[PRE_OBU_SIZE_BYTES]);
+  if (((obutd[obu_header_offset] >> 3) & 0xF) != OBU_TEMPORAL_DELIMITER) {
+    warn("Expected OBU TD at file start, got %d\n", obutd[obu_header_offset]);
     return 0;
   }
-  // fprintf(stderr, "Starting to parse OBU stream\n");
 
+  // fprintf(stderr, "Starting to parse OBU stream\n");
   return 1;
 }
 
