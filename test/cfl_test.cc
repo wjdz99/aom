@@ -208,9 +208,9 @@ class CFLPredictHBDTest : public ::testing::TestWithParam<predict_param_hbd> {
       for (int i = 0; i < width; i++) {
         chroma_pels[j * CFL_BUF_LINE + i] = dc;
         chroma_pels_ref[j * CFL_BUF_LINE + i] = dc;
-        sub_luma_pels_ref[j * CFL_BUF_LINE + i] =
-            sub_luma_pels[j * CFL_BUF_LINE + i] =
-                rnd(1 << bd) - (1 << (bd - 1));
+        int rand_val = rnd(1 << bd) - (1 << (bd - 1));
+        sub_luma_pels_ref[j * CFL_BUF_LINE + i] = rand_val;
+        sub_luma_pels[j * CFL_BUF_LINE + i] = rand_val;
       }
     }
   }
