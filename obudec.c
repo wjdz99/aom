@@ -33,7 +33,7 @@ int obu_read_temporal_unit(FILE *infile, uint8_t **buffer, size_t *bytes_read,
   size_t ret;
   const size_t obu_length_header_size =
       PRE_OBU_SIZE_BYTES + OBU_HEADER_SIZE_BYTES;
-  uint32_t obu_size = 0;
+  uint64_t obu_size = 0;
   uint8_t *data = NULL;
 
   if (feof(infile)) {
@@ -114,7 +114,7 @@ int obu_read_temporal_unit(FILE *infile, uint8_t **buffer, size_t *bytes_read,
 
 int file_is_obu(struct AvxInputContext *input_ctx) {
   uint8_t obutd[PRE_OBU_SIZE_BYTES + OBU_HEADER_SIZE_BYTES];
-  uint32_t size;
+  uint64_t size;
 
 #if !CONFIG_OBU
   warn("obudec.c requires CONFIG_OBU");
