@@ -1285,8 +1285,8 @@ static INLINE TX_SIZE get_tx_size(int width, int height) {
   if (width == height) {
     return get_sqr_tx_size(width);
   }
-  if (width > height) {
-    if (width >> 1 == height) {
+  if (width < height) {
+    if (width + width == height) {
       switch (width) {
         case 4: return TX_4X8; break;
         case 8: return TX_8X16; break;
@@ -1300,7 +1300,7 @@ static INLINE TX_SIZE get_tx_size(int width, int height) {
       case 16: return TX_16X64; break;
     }
   }
-  if (height >> 1 == width) {
+  if (height + height == width) {
     switch (height) {
       case 4: return TX_8X4; break;
       case 8: return TX_16X8; break;

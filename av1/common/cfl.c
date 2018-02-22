@@ -254,6 +254,24 @@ void cfl_predict_block(MACROBLOCKD *const xd, uint8_t *dst, int dst_stride,
                               alpha_q3);
 }
 
+// Null function used for invalid tx_sizes
+void cfl_subsample_lbd_null(const uint8_t *input, int input_stride,
+                            int16_t *output_q3) {
+  (void)input;
+  (void)input_stride;
+  (void)output_q3;
+  assert(0);
+}
+
+// Null function used for invalid tx_sizes
+void cfl_subsample_hbd_null(const uint16_t *input, int input_stride,
+                            int16_t *output_q3) {
+  (void)input;
+  (void)input_stride;
+  (void)output_q3;
+  assert(0);
+}
+
 static void cfl_luma_subsampling_420_lbd_c(const uint8_t *input,
                                            int input_stride, int16_t *output_q3,
                                            int width, int height) {
@@ -329,7 +347,74 @@ void cfl_luma_subsampling_444_hbd_c(const uint16_t *input, int input_stride,
   }
 }
 
+// TODO(ltrudeau) Remove this when LBD 422 SIMD is added
+CFL_SUBSAMPLE_LBD_FUNCTIONS(c, 422)
+
+// TODO(ltrudeau) Remove this when LBD 444 SIMD is added
+CFL_SUBSAMPLE_LBD_FUNCTIONS(c, 444)
+
+// TODO(ltrudeau) Remove this when HBD 420 SIMD is added
+CFL_SUBSAMPLE_HBD_FUNCTIONS(c, 420)
+
+// TODO(ltrudeau) Remove this when HBD 422 SIMD is added
+CFL_SUBSAMPLE_HBD_FUNCTIONS(c, 422)
+
+// TODO(ltrudeau) Remove this when HBD 444 SIMD is added
+CFL_SUBSAMPLE_HBD_FUNCTIONS(c, 444)
+
 CFL_GET_SUBSAMPLE_FUNCTION(c)
+
+cfl_subsample_hbd_fn cfl_get_luma_subsampling_420_hbd_c(TX_SIZE tx_size) {
+  CFL_SUBSAMPLE_FUNCTION_ARRAY(c, hbd, 420)
+  return subfn_420[tx_size];
+}
+
+cfl_subsample_hbd_fn cfl_get_luma_subsampling_422_hbd_c(TX_SIZE tx_size) {
+  CFL_SUBSAMPLE_FUNCTION_ARRAY(c, hbd, 422)
+  return subfn_422[tx_size];
+}
+
+cfl_subsample_hbd_fn cfl_get_luma_subsampling_444_hbd_c(TX_SIZE tx_size) {
+  CFL_SUBSAMPLE_FUNCTION_ARRAY(c, hbd, 444)
+  return subfn_444[tx_size];
+}
+
+cfl_subsample_lbd_fn cfl_get_luma_subsampling_422_lbd_c(TX_SIZE tx_size) {
+  CFL_SUBSAMPLE_FUNCTION_ARRAY(c, lbd, 422)
+  return subfn_422[tx_size];
+}
+
+cfl_subsample_lbd_fn cfl_get_luma_subsampling_444_lbd_c(TX_SIZE tx_size) {
+  CFL_SUBSAMPLE_FUNCTION_ARRAY(c, lbd, 444)
+  return subfn_444[tx_size];
+}
+
+static inline cfl_subsample_hbd_fn cfl_subsampling_hbd(TX_SIZE tx_size,
+                                                       int sub_x, int sub_y) {
+  if (sub_x == 1) {
+    if (sub_y == 1) {
+      // TODO(ltrudeau) Remove _c when HBD 420 SIMD is added
+      return cfl_get_luma_subsampling_420_hbd_c(tx_size);
+    }
+    // TODO(ltrudeau) Remove _c when HBD 422 SIMD is added
+    return cfl_get_luma_subsampling_422_hbd_c(tx_size);
+  }
+  // TODO(ltrudeau) Remove _c when HBD 444 SIMD is added
+  return cfl_get_luma_subsampling_444_hbd_c(tx_size);
+}
+
+static inline cfl_subsample_lbd_fn cfl_subsampling_lbd(TX_SIZE tx_size,
+                                                       int sub_x, int sub_y) {
+  if (sub_x == 1) {
+    if (sub_y == 1) {
+      return cfl_get_luma_subsampling_420_lbd(tx_size);
+    }
+    // TODO(ltrudeau) Remove _c when LBD 422 SIMD is added
+    return cfl_get_luma_subsampling_422_lbd_c(tx_size);
+  }
+  // TODO(ltrudeau) Remove _c when LBD 444 SIMD is added
+  return cfl_get_luma_subsampling_444_lbd_c(tx_size);
+}
 
 static void cfl_store(CFL_CTX *cfl, const uint8_t *input, int input_stride,
                       int row, int col, TX_SIZE tx_size, int use_hbd) {
@@ -366,13 +451,12 @@ static void cfl_store(CFL_CTX *cfl, const uint8_t *input, int input_stride,
       cfl->pred_buf_q3 + (store_row * CFL_BUF_LINE + store_col);
 
   if (use_hbd) {
-    const uint16_t *input_16 = CONVERT_TO_SHORTPTR(input);
-    get_subsample_hbd_fn(sub_x, sub_y)(input_16, input_stride, pred_buf_q3,
-                                       width, height);
-    return;
+    cfl_subsampling_hbd(tx_size, sub_x, sub_y)(CONVERT_TO_SHORTPTR(input),
+                                               input_stride, pred_buf_q3);
+  } else {
+    cfl_subsampling_lbd(tx_size, sub_x, sub_y)(input, input_stride,
+                                               pred_buf_q3);
   }
-  get_subsample_lbd_fn(sub_x, sub_y)(input, input_stride, pred_buf_q3, width,
-                                     height);
 }
 
 // Adjust the row and column of blocks smaller than 8X8, as chroma-referenced
@@ -393,8 +477,9 @@ static INLINE void sub8x8_adjust_offset(const CFL_CTX *cfl, int *row_out,
 }
 #if CONFIG_DEBUG && !CONFIG_RECT_TX_EXT_INTRA
 // Since the chroma surface of sub8x8 block span across multiple luma blocks,
-// this function validates that the reconstructed luma area required to predict
-// the chroma block using CfL has been stored during the previous luma encode.
+// this function validates that the reconstructed luma area required to
+// predict the chroma block using CfL has been stored during the previous luma
+// encode.
 //
 //   Issue 1: Chroma intra prediction is not always performed after luma. One
 //   such example is when luma RD cost is really high and the mode decision
@@ -407,9 +492,9 @@ static INLINE void sub8x8_adjust_offset(const CFL_CTX *cfl, int *row_out,
 //
 // To resolve these issues, we increment the store_counter on each store. if
 // other sub8x8 blocks have already been coded and the counter corresponds to
-// the previous value they are also set to the current value. If a sub8x8 block
-// is not stored the store_counter won't match which will be detected when the
-// CfL parements are computed.
+// the previous value they are also set to the current value. If a sub8x8
+// block is not stored the store_counter won't match which will be detected
+// when the CfL parements are computed.
 static void sub8x8_set_val(CFL_CTX *cfl, int row, int col, TX_SIZE y_tx_size) {
   const int y_tx_wide_unit = tx_size_wide_unit[y_tx_size];
   const int y_tx_high_unit = tx_size_high_unit[y_tx_size];
