@@ -8139,7 +8139,8 @@ static int64_t handle_inter_mode(
   const MB_MODE_INFO backup_mbmi = *mbmi;
   MB_MODE_INFO best_mbmi = *mbmi;
   int64_t early_terminate = 0;
-  const int search_jnt_comp = is_comp_pred & cm->seq_params.enable_jnt_comp;
+  const int search_jnt_comp = is_comp_pred && !cm->error_resilient_mode &&
+                              cm->seq_params.enable_jnt_comp;
 
   int comp_idx;
   for (comp_idx = 0; comp_idx < 1 + search_jnt_comp; ++comp_idx) {
