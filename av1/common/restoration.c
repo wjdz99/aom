@@ -605,8 +605,8 @@ static void boxsum1(int32_t *src, int width, int height, int src_stride,
         b = c;
         c = src[(i + 2) * src_stride + j];
       }
-      dst[i * dst_stride + j] = a + b + c;
-      dst[(i + 1) * dst_stride + j] = b + c;
+      dst[(height - 2) * dst_stride + j] = a + b + c;
+      dst[(height - 1) * dst_stride + j] = b + c;
     }
   } else {
     for (j = 0; j < width; ++j) {
@@ -621,8 +621,8 @@ static void boxsum1(int32_t *src, int width, int height, int src_stride,
         b = c;
         c = src[(i + 2) * src_stride + j] * src[(i + 2) * src_stride + j];
       }
-      dst[i * dst_stride + j] = a + b + c;
-      dst[(i + 1) * dst_stride + j] = b + c;
+      dst[(height - 2) * dst_stride + j] = a + b + c;
+      dst[(height - 1) * dst_stride + j] = b + c;
     }
   }
 
@@ -677,9 +677,9 @@ static void boxsum2(int32_t *src, int width, int height, int src_stride,
         d = e;
         e = src[(i + 3) * src_stride + j];
       }
-      dst[i * dst_stride + j] = a + b + c + d + e;
-      dst[(i + 1) * dst_stride + j] = b + c + d + e;
-      dst[(i + 2) * dst_stride + j] = c + d + e;
+      dst[(height - 3) * dst_stride + j] = a + b + c + d + e;
+      dst[(height - 2) * dst_stride + j] = b + c + d + e;
+      dst[(height - 1) * dst_stride + j] = c + d + e;
     }
   } else {
     for (j = 0; j < width; ++j) {
@@ -699,9 +699,9 @@ static void boxsum2(int32_t *src, int width, int height, int src_stride,
         d = e;
         e = src[(i + 3) * src_stride + j] * src[(i + 3) * src_stride + j];
       }
-      dst[i * dst_stride + j] = a + b + c + d + e;
-      dst[(i + 1) * dst_stride + j] = b + c + d + e;
-      dst[(i + 2) * dst_stride + j] = c + d + e;
+      dst[(height - 3) * dst_stride + j] = a + b + c + d + e;
+      dst[(height - 2) * dst_stride + j] = b + c + d + e;
+      dst[(height - 1) * dst_stride + j] = c + d + e;
     }
   }
 
@@ -810,6 +810,7 @@ static void av1_selfguided_restoration_fast_internal(
   int32_t *B = B_;
   int i, j;
 
+  assert(r > 0);
   assert(r <= MAX_RADIUS && "Need MAX_RADIUS >= r");
   assert(r <= SGRPROJ_BORDER_VERT - 1 && r <= SGRPROJ_BORDER_HORZ - 1 &&
          "Need SGRPROJ_BORDER_* >= r+1");
