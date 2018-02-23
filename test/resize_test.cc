@@ -247,7 +247,7 @@ class ResizingVideoSource : public ::libaom_test::DummyVideoSource {
  public:
   ResizingVideoSource() {
     SetSize(kInitialWidth, kInitialHeight);
-    limit_ = 250;
+    limit_ = 350;
   }
   int flag_codec_;
   virtual ~ResizingVideoSource() {}
@@ -289,6 +289,8 @@ TEST_P(ResizeTest, TestExternalResizeWorks) {
   ResizingVideoSource video;
   video.flag_codec_ = 0;
   cfg_.g_lag_in_frames = 0;
+  cfg_.g_forced_max_frame_width = cfg_.g_forced_max_frame_height =
+      kInitialWidth > kInitialHeight ? kInitialWidth : kInitialHeight;
   ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
 
   // Check we decoded the same number of frames as we attempted to encode
@@ -490,6 +492,8 @@ class ResizeRealtimeTest
     cfg_.g_error_resilient = 0;
     // Run at low bitrate.
     cfg_.rc_target_bitrate = 200;
+    cfg_.g_forced_max_frame_width = cfg_.g_forced_max_frame_height =
+        kInitialWidth > kInitialHeight ? kInitialWidth : kInitialHeight;
   }
 
   std::vector<FrameInfo> frame_info_list_;
