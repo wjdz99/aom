@@ -2733,9 +2733,7 @@ static int read_uncompressed_header(AV1Decoder *pbi,
 #if CONFIG_REFERENCE_BUFFER
 
 #if CONFIG_INTRA_EDGE2
-  if (frame_is_intra_only(cm)) {
-    cm->disable_intra_edge_filter = aom_rb_read_bit(rb);
-  }
+  cm->disable_intra_edge_filter = aom_rb_read_bit(rb);
 #endif  // CONFIG_INTRA_EDGE2
 
   if (cm->seq_params.force_screen_content_tools == 2) {
