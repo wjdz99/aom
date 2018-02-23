@@ -23,21 +23,21 @@ size_t aom_uleb_size_in_bytes(uint64_t value) {
   return size;
 }
 
+// Returns #decoded bytes, or -1 on error
 int aom_uleb_decode(const uint8_t *buffer, size_t available, uint64_t *value) {
-  int status = -1;
-
   if (buffer && value) {
     for (size_t i = 0; i < kMaximumLeb128Size && i < available; ++i) {
       const uint8_t decoded_byte = *(buffer + i) & kLeb128ByteMask;
       *value |= ((uint64_t)decoded_byte) << (i * 7);
       if ((*(buffer + i) >> 7) == 0) {
-        status = 0;
-        break;
+        return (int)(i + 1);  // Number of bytes read so far
       }
     }
   }
 
-  return status;
+  // If we get here, either the buffer/value pointers were invalid,
+  // or we ran over the available space
+  return -1;
 }
 
 int aom_uleb_encode(uint64_t value, size_t available, uint8_t *coded_value,
