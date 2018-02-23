@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8db6bd19_af7b6097",
+        "filename": "obudec.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-02-23T23:31:37Z",
+      "side": 1,
+      "message": "later it might be good to check this field size and deal with overflow",
+      "revId": "74f7512e5d3050ea65321e60c505a1eb77b459c4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
