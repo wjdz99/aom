@@ -810,6 +810,7 @@ static void av1_selfguided_restoration_fast_internal(
   int32_t *B = B_;
   int i, j;
 
+  assert(r > 0);
   assert(r <= MAX_RADIUS && "Need MAX_RADIUS >= r");
   assert(r <= SGRPROJ_BORDER_VERT - 1 && r <= SGRPROJ_BORDER_HORZ - 1 &&
          "Need SGRPROJ_BORDER_* >= r+1");
