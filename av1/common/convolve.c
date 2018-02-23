@@ -1117,10 +1117,13 @@ void av1_highbd_convolve_2d_copy_c(const uint16_t *src, int src_stride,
   for (int y = 0; y < h; ++y) {
     for (int x = 0; x < w; ++x) {
       CONV_BUF_TYPE res = src[y * src_stride + x] << bits;
-      if (conv_params->do_average)
-        dst[y * dst_stride + x] += res;
-      else
+      if (conv_params->do_average) {
+        int32_t tmp = dst[y * dst_stride + x];
+        tmp += res;
+        dst[y * dst_stride + x] = tmp >> 1;
+      } else {
         dst[y * dst_stride + x] = res;
+      }
     }
   }
 }
