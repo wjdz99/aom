@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "dad3e923_63e221c7",
+        "filename": "obudec.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-02-23T23:02:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e0c1fd18_e7c1efc0",
+      "range": {
+        "startLine": 38,
+        "startChar": 28,
+        "endLine": 38,
+        "endChar": 44
+      },
+      "revId": "8be401639a9b3a31f8494e1ae9fc2d67383d382f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b662ab9d_0fedc1bf",
         "filename": "obudec.c",
         "patchSetId": 8
@@ -45,6 +69,30 @@
       "revId": "8be401639a9b3a31f8494e1ae9fc2d67383d382f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a247ed22_1ad970c0",
+        "filename": "obudec.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-02-23T23:02:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b662ab9d_0fedc1bf",
+      "range": {
+        "startLine": 40,
+        "startChar": 30,
+        "endLine": 40,
+        "endChar": 39
+      },
+      "revId": "8be401639a9b3a31f8494e1ae9fc2d67383d382f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "4fc60794_c70d127e",
+        "filename": "obudec.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-02-23T23:02:42Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "561f0381_df94fff1",
+      "range": {
+        "startLine": 45,
+        "startChar": 22,
+        "endLine": 45,
+        "endChar": 45
+      },
+      "revId": "8be401639a9b3a31f8494e1ae9fc2d67383d382f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3ae4a807_fc526688",
         "filename": "obudec.c",
         "patchSetId": 8
@@ -82,6 +154,30 @@
       "writtenOn": "2018-02-23T22:45:45Z",
       "side": 1,
       "message": "could be \u0027pointer\u0027.\n\u0027. Returns 0 ...\u0027 on success?",
+      "range": {
+        "startLine": 53,
+        "startChar": 16,
+        "endLine": 53,
+        "endChar": 19
+      },
+      "revId": "8be401639a9b3a31f8494e1ae9fc2d67383d382f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2bec2418_29c488c6",
+        "filename": "obudec.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-02-23T23:02:42Z",
+      "side": 1,
+      "message": "First point: Done.\nSecond point: Says that in first sentence.",
+      "parentUuid": "3ae4a807_fc526688",
       "range": {
         "startLine": 53,
         "startChar": 16,
@@ -128,6 +224,24 @@
     },
     {
       "key": {
+        "uuid": "cdad3c94_70f4b62e",
+        "filename": "obudec.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-02-23T23:02:42Z",
+      "side": 1,
+      "message": "Debugging cruft, removed.",
+      "parentUuid": "f83a42cb_76218561",
+      "revId": "8be401639a9b3a31f8494e1ae9fc2d67383d382f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3eba48ca_9b9b5c24",
         "filename": "obudec.c",
         "patchSetId": 8
@@ -151,6 +265,30 @@
     },
     {
       "key": {
+        "uuid": "0251db2d_0262d19d",
+        "filename": "obudec.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-02-23T23:02:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3eba48ca_9b9b5c24",
+      "range": {
+        "startLine": 114,
+        "startChar": 55,
+        "endLine": 114,
+        "endChar": 56
+      },
+      "revId": "8be401639a9b3a31f8494e1ae9fc2d67383d382f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "325e5f96_c6eb7c45",
         "filename": "obudec.c",
         "patchSetId": 8
@@ -165,6 +303,24 @@
       "revId": "8be401639a9b3a31f8494e1ae9fc2d67383d382f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4843e2ea_751c5133",
+        "filename": "obudec.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-02-23T23:02:42Z",
+      "side": 1,
+      "message": "never was quite clear on what realloc did when it ran out of memory, so: saved old pointer, add free() it when realloc fails.",
+      "parentUuid": "325e5f96_c6eb7c45",
+      "revId": "8be401639a9b3a31f8494e1ae9fc2d67383d382f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -191,6 +347,30 @@
     },
     {
       "key": {
+        "uuid": "54a978fd_f76d5c2a",
+        "filename": "obudec.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-02-23T23:02:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ad1ecf96_91c05db9",
+      "range": {
+        "startLine": 146,
+        "startChar": 8,
+        "endLine": 146,
+        "endChar": 9
+      },
+      "revId": "8be401639a9b3a31f8494e1ae9fc2d67383d382f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8df7092a_8d55d62a",
         "filename": "obudec.c",
         "patchSetId": 8
@@ -205,6 +385,24 @@
       "revId": "8be401639a9b3a31f8494e1ae9fc2d67383d382f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6e98884e_ee974197",
+        "filename": "obudec.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-02-23T23:02:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8df7092a_8d55d62a",
+      "revId": "8be401639a9b3a31f8494e1ae9fc2d67383d382f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
