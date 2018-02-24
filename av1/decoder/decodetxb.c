@@ -63,6 +63,91 @@ static INLINE int get_dqv(const int16_t *dequant, int coeff_idx,
   return dqv;
 }
 
+#define BASE_CTX_USE_REGISTERS 1
+#if BASE_CTX_USE_REGISTERS
+static INLINE uint8_t get_mag(uint8_t rr, uint8_t r, uint8_t bb, uint8_t b,
+                              uint8_t d) {
+  uint8_t mag;
+  mag = rr + r + bb + b + d;
+  return AOMMIN((mag + 1) >> 1, 4);
+}
+
+static INLINE void read_coeffs_reverse_2d(aom_reader *r, TX_SIZE tx_size,
+                                          int start_si, int end_si,
+                                          const int16_t *scan, int bwl,
+                                          uint8_t *levels,
+                                          base_cdf_arr base_cdf,
+                                          br_cdf_arr br_cdf) {
+  uint8_t RR[32] = { 0 };
+  uint8_t R[32] = { 0 };
+  uint8_t BB[32] = { 0 };
+  uint8_t B[32] = { 0 };
+  uint8_t D[64] = { 0 };
+
+  uint8_t BR_R[32] = { 0 };
+  uint8_t BR_B[32] = { 0 };
+  uint8_t BR_D[32] = { 0 };
+
+  const int pos_eob = scan[end_si + 1];
+  const int row_eob = pos_eob >> bwl;
+  const int col_eob = pos_eob - (row_eob << bwl);
+  const int diag_eob = (row_eob - col_eob) + 31;
+
+  uint8_t level_eob = levels[get_padded_idx(pos_eob, bwl)];
+  R[row_eob] = B[col_eob] = D[diag_eob] = AOMMIN(level_eob, 3);
+
+  BR_R[row_eob] = BR_B[col_eob] = BR_D[diag_eob] = level_eob;
+
+  for (int c = end_si; c >= start_si; --c) {
+    const int pos = scan[c];
+    const int row = pos >> bwl;
+    const int col = pos - (row << bwl);
+    const int diag = (row - col) + 31;
+
+    const int coeff_ctx =
+        (!pos)
+            ? 0
+            : (get_mag(RR[row], R[row], BB[col], B[col], D[diag]) +
+               av1_nz_map_ctx_offset[tx_size][AOMMIN(row, 4)][AOMMIN(col, 4)]);
+#if 0
+    const int coeff_ctx_verify =
+        get_lower_levels_ctx_2d(levels, pos, bwl, tx_size);
+    if (coeff_ctx != coeff_ctx_verify) {
+      printf("%d: %d != %d\n", c, coeff_ctx, coeff_ctx_verify);
+    }
+#endif
+    const int nsymbs = 4;
+    int level = aom_read_symbol(r, base_cdf[coeff_ctx], nsymbs, ACCT_STR);
+
+    RR[row] = R[row];
+    BB[col] = B[col];
+    R[row] = B[col] = D[(row - col) + 31] = level;
+
+    if (level > NUM_BASE_LEVELS) {
+      const uint8_t mag =
+          AOMMIN((BR_R[row] + BR_B[col] + BR_D[diag] + 1) >> 1, 6);
+      const int br_ctx =
+          (pos == 0) ? mag
+                     : (((row < 2) && (col < 2)) ? (mag + 7) : (mag + 14));
+#if 0
+      const int br_ctx_verify = get_br_ctx_2d(levels, pos, bwl);
+      if (br_ctx != br_ctx_verify) {
+        printf("%d: %d != %d\n", c, br_ctx, br_ctx_verify);
+      }
+#endif
+      aom_cdf_prob *cdf = br_cdf[br_ctx];
+      for (int idx = 0; idx < COEFF_BASE_RANGE; idx += BR_CDF_SIZE - 1) {
+        const int k = aom_read_symbol(r, cdf, BR_CDF_SIZE, ACCT_STR);
+        level += k;
+        if (k < BR_CDF_SIZE - 1) break;
+      }
+    }
+    BR_R[row] = BR_B[col] = BR_D[diag] = level;
+
+    levels[get_padded_idx(pos, bwl)] = level;
+  }
+}
+#else
 static INLINE void read_coeffs_reverse_2d(aom_reader *r, TX_SIZE tx_size,
                                           int start_si, int end_si,
                                           const int16_t *scan, int bwl,
@@ -86,6 +171,7 @@ static INLINE void read_coeffs_reverse_2d(aom_reader *r, TX_SIZE tx_size,
     levels[get_padded_idx(pos, bwl)] = level;
   }
 }
+#endif
 
 static INLINE void read_coeffs_reverse(aom_reader *r, TX_SIZE tx_size,
                                        TX_TYPE tx_type, int start_si,
