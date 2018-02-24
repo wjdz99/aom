@@ -1158,26 +1158,6 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
 #endif  // CONFIG_EXT_SKIP
     write_is_inter(cm, xd, mbmi->segment_id, w, is_inter);
 
-  if (cm->tx_mode == TX_MODE_SELECT && block_signals_txsize(bsize) &&
-      !(is_inter && skip) && !xd->lossless[segment_id]) {
-    if (is_inter) {  // This implies skip flag is 0.
-      const TX_SIZE max_tx_size = get_vartx_max_txsize(xd, bsize, 0);
-      const int bh = tx_size_high_unit[max_tx_size];
-      const int bw = tx_size_wide_unit[max_tx_size];
-      const int width = block_size_wide[bsize] >> tx_size_wide_log2[0];
-      const int height = block_size_high[bsize] >> tx_size_wide_log2[0];
-      int idx, idy;
-      for (idy = 0; idy < height; idy += bh)
-        for (idx = 0; idx < width; idx += bw)
-          write_tx_size_vartx(cm, xd, mbmi, max_tx_size, 0, idy, idx, w);
-    } else {
-      write_selected_tx_size(cm, xd, w);
-      set_txfm_ctxs(mbmi->tx_size, xd->n8_w, xd->n8_h, skip, xd);
-    }
-  } else {
-    set_txfm_ctxs(mbmi->tx_size, xd->n8_w, xd->n8_h, skip, xd);
-  }
-
 #if CONFIG_EXT_SKIP
   if (mbmi->skip_mode) return;
 #endif  // CONFIG_EXT_SKIP
@@ -1498,8 +1478,8 @@ static void write_mb_modes_kf(AV1_COMP *cpi, MACROBLOCKD *xd,
   }
 
   int enable_tx_size = cm->tx_mode == TX_MODE_SELECT &&
-                       block_signals_txsize(bsize) &&
-                       !xd->lossless[mbmi->segment_id];
+                        block_signals_txsize(bsize) &&
+                        !xd->lossless[mbmi->segment_id];
 
 #if CONFIG_INTRABC
   if (av1_allow_intrabc(cm)) {
@@ -1507,10 +1487,6 @@ static void write_mb_modes_kf(AV1_COMP *cpi, MACROBLOCKD *xd,
     if (is_intrabc_block(mbmi)) return;
   }
 #endif  // CONFIG_INTRABC
-
-  if (enable_tx_size) write_selected_tx_size(cm, xd, w);
-
-  set_txfm_ctxs(mbmi->tx_size, xd->n8_w, xd->n8_h, mbmi->skip, xd);
 
   write_intra_mode_kf(ec_ctx, mi, above_mi, left_mi, mode, w);
 
@@ -1694,6 +1670,10 @@ static void write_mbmi_b(AV1_COMP *cpi, const TileInfo *const tile,
                       cpi->td.mb.mbmi_ext,
 #endif  // CONFIG_INTRABC
                       mi_row, mi_col, w);
+
+    int enable_tx_size = cm->tx_mode == TX_MODE_SELECT &&
+                         block_signals_txsize(m->mbmi.sb_type) &&
+                         !xd->lossless[m->mbmi.segment_id];
   } else {
     // has_subpel_mv_component needs the ref frame buffers set up to look
     // up if they are scaled. has_subpel_mv_component is in turn needed by
@@ -1784,25 +1764,6 @@ static void write_tokens_b(AV1_COMP *cpi, const TileInfo *const tile,
 #endif  // CONFIG_DEPENDENT_HORZTILES
                  cm->mi_rows, cm->mi_cols);
 
-  for (plane = 0; plane < AOMMIN(2, num_planes); ++plane) {
-    const uint8_t palette_size_plane =
-        mbmi->palette_mode_info.palette_size[plane];
-#if CONFIG_EXT_SKIP
-    assert(!mbmi->skip_mode || !palette_size_plane);
-#endif  // CONFIG_EXT_SKIP
-    if (palette_size_plane > 0) {
-#if CONFIG_INTRABC
-      assert(mbmi->use_intrabc == 0);
-#endif
-      assert(av1_allow_palette(cm->allow_screen_content_tools, mbmi->sb_type));
-      int rows, cols;
-      av1_get_block_dimensions(mbmi->sb_type, plane, xd, NULL, NULL, &rows,
-                               &cols);
-      assert(*tok < tok_end);
-      pack_map_tokens(w, tok, palette_size_plane, rows * cols);
-    }
-  }
-
   if (!mbmi->skip) {
     if (!is_inter_block(mbmi))
       av1_write_coeffs_mb(cm, x, mi_row, mi_col, w, mbmi->sb_type);
@@ -1857,6 +1818,52 @@ static void write_modes_b(AV1_COMP *cpi, const TileInfo *const tile,
                           const TOKENEXTRA *const tok_end, int mi_row,
                           int mi_col) {
   write_mbmi_b(cpi, tile, w, mi_row, mi_col);
+
+  AV1_COMMON *cm = &cpi->common;
+  MACROBLOCKD *xd = &cpi->td.mb.e_mbd;
+  MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
+  for (int plane = 0; plane < AOMMIN(2, av1_num_planes(cm)); ++plane) {
+    const uint8_t palette_size_plane =
+        mbmi->palette_mode_info.palette_size[plane];
+#if CONFIG_EXT_SKIP
+    assert(!mbmi->skip_mode || !palette_size_plane);
+#endif  // CONFIG_EXT_SKIP
+    if (palette_size_plane > 0) {
+#if CONFIG_INTRABC
+      assert(mbmi->use_intrabc == 0);
+#endif
+      assert(av1_allow_palette(cm->allow_screen_content_tools, mbmi->sb_type));
+      int rows, cols;
+      av1_get_block_dimensions(mbmi->sb_type, plane, xd, NULL, NULL, &rows,
+                               &cols);
+      assert(*tok < tok_end);
+      pack_map_tokens(w, tok, palette_size_plane, rows * cols);
+    }
+  }
+
+  BLOCK_SIZE bsize = mbmi->sb_type;
+  int is_inter = is_inter_block(mbmi);
+  int skip = mbmi->skip;
+  int segment_id = mbmi->segment_id;
+  if (cm->tx_mode == TX_MODE_SELECT && block_signals_txsize(bsize) &&
+      !(is_inter && skip) && !xd->lossless[segment_id]) {
+    if (is_inter) {  // This implies skip flag is 0.
+      const TX_SIZE max_tx_size = get_vartx_max_txsize(xd, bsize, 0);
+      const int txbh = tx_size_high_unit[max_tx_size];
+      const int txbw = tx_size_wide_unit[max_tx_size];
+      const int width = block_size_wide[bsize] >> tx_size_wide_log2[0];
+      const int height = block_size_high[bsize] >> tx_size_wide_log2[0];
+      int idx, idy;
+      for (idy = 0; idy < height; idy += txbh)
+        for (idx = 0; idx < width; idx += txbw)
+          write_tx_size_vartx(cm, xd, mbmi, max_tx_size, 0, idy, idx, w);
+    } else {
+      write_selected_tx_size(cm, xd, w);
+      set_txfm_ctxs(mbmi->tx_size, xd->n8_w, xd->n8_h, skip, xd);
+    }
+  } else {
+    set_txfm_ctxs(mbmi->tx_size, xd->n8_w, xd->n8_h, skip, xd);
+  }
 
   write_tokens_b(cpi, tile, w, tok, tok_end, mi_row, mi_col);
 }

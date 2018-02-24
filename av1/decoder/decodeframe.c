@@ -354,11 +354,6 @@ static void decode_token_and_recon_block(AV1Decoder *const pbi,
   if (mbmi->skip) av1_reset_skip_context(xd, mi_row, mi_col, bsize, num_planes);
 
   if (!is_inter_block(mbmi)) {
-    for (int plane = 0; plane < AOMMIN(2, num_planes); ++plane) {
-      if (mbmi->palette_mode_info.palette_size[plane])
-        av1_decode_palette_tokens(xd, plane, r);
-    }
-
     const struct macroblockd_plane *const y_pd = &xd->plane[0];
     const BLOCK_SIZE plane_bsize = get_plane_block_size(bsize, y_pd);
     int row, col;
@@ -532,6 +527,37 @@ static void decode_block(AV1Decoder *const pbi, MACROBLOCKD *const xd,
                     partition,
 #endif
                     bsize);
+
+  if (!is_inter_block(&xd->mi[0]->mbmi)) {
+    for (int plane = 0; plane < AOMMIN(2, av1_num_planes(&pbi->common)); ++plane) {
+      if (xd->mi[0]->mbmi.palette_mode_info.palette_size[plane])
+        av1_decode_palette_tokens(xd, plane, r);
+    }
+  }
+
+  AV1_COMMON *cm = &pbi->common;
+  MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
+  int inter_block = is_inter_block(mbmi);
+  if (cm->tx_mode == TX_MODE_SELECT && block_signals_txsize(bsize) &&
+      !mbmi->skip && inter_block && !xd->lossless[mbmi->segment_id]) {
+    const TX_SIZE max_tx_size = get_max_rect_tx_size(bsize, inter_block);
+    const int bh = tx_size_high_unit[max_tx_size];
+    const int bw = tx_size_wide_unit[max_tx_size];
+    const int width = block_size_wide[bsize] >> tx_size_wide_log2[0];
+    const int height = block_size_high[bsize] >> tx_size_wide_log2[0];
+
+    mbmi->min_tx_size = TX_SIZES_LARGEST;
+    for (int idy = 0; idy < height; idy += bh)
+      for (int idx = 0; idx < width; idx += bw)
+        read_tx_size_vartx(xd, mbmi, max_tx_size, 0, idy, idx, r);
+  } else {
+    mbmi->tx_size = read_tx_size(cm, xd, inter_block, !mbmi->skip, r);
+    if (inter_block)
+      memset(mbmi->inter_tx_size, mbmi->tx_size, sizeof(mbmi->inter_tx_size));
+    mbmi->min_tx_size = mbmi->tx_size;
+    set_txfm_ctxs(mbmi->tx_size, xd->n8_w, xd->n8_h, mbmi->skip, xd);
+  }
+
   decode_token_and_recon_block(pbi, xd, mi_row, mi_col, r, bsize);
 }
 

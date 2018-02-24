@@ -814,6 +814,8 @@ static const uint8_t mode_to_angle_map[] = {
 static INLINE int av1_filter_intra_allowed_txsize(TX_SIZE tx) {
   if (tx == TX_INVALID) return 0;
 
+  return 0;
+
   return tx_size_wide[tx] <= 32 && tx_size_high[tx] <= 32;
 }
 

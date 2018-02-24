@@ -345,7 +345,7 @@ static int read_segment_id(aom_reader *r, struct segmentation_probs *segp) {
 }
 #endif
 
-static void read_tx_size_vartx(MACROBLOCKD *xd, MB_MODE_INFO *mbmi,
+void read_tx_size_vartx(MACROBLOCKD *xd, MB_MODE_INFO *mbmi,
                                TX_SIZE tx_size, int depth, int blk_row,
                                int blk_col, aom_reader *r) {
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
@@ -435,7 +435,7 @@ static TX_SIZE read_selected_tx_size(MACROBLOCKD *xd, int is_inter,
   return tx_size;
 }
 
-static TX_SIZE read_tx_size(AV1_COMMON *cm, MACROBLOCKD *xd, int is_inter,
+TX_SIZE read_tx_size(AV1_COMMON *cm, MACROBLOCKD *xd, int is_inter,
                             int allow_select_inter, aom_reader *r) {
   const TX_MODE tx_mode = cm->tx_mode;
   const BLOCK_SIZE bsize = xd->mi[0]->mbmi.sb_type;
@@ -1041,8 +1041,6 @@ static void read_intra_frame_mode_info(AV1_COMMON *const cm,
   }
 #endif  // CONFIG_INTRABC
 
-  mbmi->tx_size = read_tx_size(cm, xd, 0, 1, r);
-  set_txfm_ctxs(mbmi->tx_size, xd->n8_w, xd->n8_h, mbmi->skip, xd);
   mbmi->mode = read_intra_mode(r, get_y_mode_cdf(ec_ctx, above_mi, left_mi));
 
   const int use_angle_delta = av1_use_angle_delta(bsize);
@@ -2118,26 +2116,6 @@ static void read_inter_frame_mode_info(AV1Decoder *const pbi,
       cm->above_txfm_context + (mi_col << TX_UNIT_WIDE_LOG2);
   xd->left_txfm_context = xd->left_txfm_context_buffer +
                           ((mi_row & MAX_MIB_MASK) << TX_UNIT_HIGH_LOG2);
-
-  if (cm->tx_mode == TX_MODE_SELECT && block_signals_txsize(bsize) &&
-      !mbmi->skip && inter_block && !xd->lossless[mbmi->segment_id]) {
-    const TX_SIZE max_tx_size = get_max_rect_tx_size(bsize, inter_block);
-    const int bh = tx_size_high_unit[max_tx_size];
-    const int bw = tx_size_wide_unit[max_tx_size];
-    const int width = block_size_wide[bsize] >> tx_size_wide_log2[0];
-    const int height = block_size_high[bsize] >> tx_size_wide_log2[0];
-
-    mbmi->min_tx_size = TX_SIZES_LARGEST;
-    for (int idy = 0; idy < height; idy += bh)
-      for (int idx = 0; idx < width; idx += bw)
-        read_tx_size_vartx(xd, mbmi, max_tx_size, 0, idy, idx, r);
-  } else {
-    mbmi->tx_size = read_tx_size(cm, xd, inter_block, !mbmi->skip, r);
-    if (inter_block)
-      memset(mbmi->inter_tx_size, mbmi->tx_size, sizeof(mbmi->inter_tx_size));
-    mbmi->min_tx_size = mbmi->tx_size;
-    set_txfm_ctxs(mbmi->tx_size, xd->n8_w, xd->n8_h, mbmi->skip, xd);
-  }
 
   if (inter_block)
     read_inter_block_mode_info(pbi, xd, mi, mi_row, mi_col, r);
