@@ -63,12 +63,74 @@ static INLINE int get_dqv(const int16_t *dequant, int coeff_idx,
   return dqv;
 }
 
-static INLINE void read_coeffs_reverse_2d(aom_reader *r, TX_SIZE tx_size,
-                                          int start_si, int end_si,
-                                          const int16_t *scan, int bwl,
-                                          uint8_t *levels,
-                                          base_cdf_arr base_cdf,
-                                          br_cdf_arr br_cdf) {
+#define BASE_CTX_USE_REGISTERS 1
+#if BASE_CTX_USE_REGISTERS
+static INLINE uint8_t get_mag(uint8_t rr, uint8_t r, uint8_t bb, uint8_t b,
+                              uint8_t d) {
+  uint8_t mag;
+  mag = rr + r + bb + b + d;
+  return AOMMIN((mag + 1) >> 1, 4);
+}
+
+static INLINE void
+read_coeffs_reverse_2d(aom_reader *r, TX_SIZE tx_size, int start_si, int end_si,
+                       const int16_t *scan, int bwl, uint8_t *levels,
+                       base_cdf_arr base_cdf, br_cdf_arr br_cdf) {
+  uint8_t RR[32] = {0};
+  uint8_t R[32] = {0};
+  uint8_t BB[32] = {0};
+  uint8_t B[32] = {0};
+  uint8_t D[64] = {0};
+
+  int pos_eob = scan[end_si + 1];
+  int row_eob = pos_eob >> bwl;
+  int col_eob = pos_eob - (row_eob << bwl);
+
+  R[row_eob] = B[col_eob] = D[(row_eob - col_eob) + 31] =
+      AOMMIN(levels[get_padded_idx(pos_eob, bwl)], 3);
+
+  for (int c = end_si; c >= start_si; --c) {
+    const int pos = scan[c];
+    const int row = pos >> bwl;
+    const int col = pos - (row << bwl);
+
+    const int coeff_ctx =
+        (!pos)
+            ? 0
+            : (get_mag(RR[row], R[row], BB[col], B[col], D[(row - col) + 31]) +
+               av1_nz_map_ctx_offset[tx_size][AOMMIN(row, 4)][AOMMIN(col, 4)]);
+#if 0
+    const int coeff_ctx_verify =
+        get_lower_levels_ctx_2d(levels, pos, bwl, tx_size);
+    if (coeff_ctx != coeff_ctx_verify) {
+      printf("%d: %d != %d\n", c, coeff_ctx, coeff_ctx_verify);
+    }
+#endif
+    const int nsymbs = 4;
+    int level = aom_read_symbol(r, base_cdf[coeff_ctx], nsymbs, ACCT_STR);
+
+    RR[row] = R[row];
+    BB[col] = B[col];
+    R[row] = B[col] = D[(row - col) + 31] = level;
+
+    if (level > NUM_BASE_LEVELS) {
+      const int br_ctx = get_br_ctx_2d(levels, pos, bwl);
+      aom_cdf_prob *cdf = br_cdf[br_ctx];
+      for (int idx = 0; idx < COEFF_BASE_RANGE; idx += BR_CDF_SIZE - 1) {
+        const int k = aom_read_symbol(r, cdf, BR_CDF_SIZE, ACCT_STR);
+        level += k;
+        if (k < BR_CDF_SIZE - 1)
+          break;
+      }
+    }
+    levels[get_padded_idx(pos, bwl)] = level;
+  }
+}
+#else
+static INLINE void
+read_coeffs_reverse_2d(aom_reader *r, TX_SIZE tx_size, int start_si, int end_si,
+                       const int16_t *scan, int bwl, uint8_t *levels,
+                       base_cdf_arr base_cdf, br_cdf_arr br_cdf) {
   for (int c = end_si; c >= start_si; --c) {
     const int pos = scan[c];
     const int coeff_ctx = get_lower_levels_ctx_2d(levels, pos, bwl, tx_size);
@@ -80,12 +142,14 @@ static INLINE void read_coeffs_reverse_2d(aom_reader *r, TX_SIZE tx_size,
       for (int idx = 0; idx < COEFF_BASE_RANGE; idx += BR_CDF_SIZE - 1) {
         const int k = aom_read_symbol(r, cdf, BR_CDF_SIZE, ACCT_STR);
         level += k;
-        if (k < BR_CDF_SIZE - 1) break;
+        if (k < BR_CDF_SIZE - 1)
+          break;
       }
     }
     levels[get_padded_idx(pos, bwl)] = level;
   }
 }
+#endif
 
 static INLINE void read_coeffs_reverse(aom_reader *r, TX_SIZE tx_size,
                                        TX_TYPE tx_type, int start_si,
@@ -104,7 +168,8 @@ static INLINE void read_coeffs_reverse(aom_reader *r, TX_SIZE tx_size,
       for (int idx = 0; idx < COEFF_BASE_RANGE; idx += BR_CDF_SIZE - 1) {
         const int k = aom_read_symbol(r, cdf, BR_CDF_SIZE, ACCT_STR);
         level += k;
-        if (k < BR_CDF_SIZE - 1) break;
+        if (k < BR_CDF_SIZE - 1)
+          break;
       }
     }
     levels[get_padded_idx(pos, bwl)] = level;
@@ -185,49 +250,49 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
   const int eob_multi_size = txsize_log2_minus4[tx_size];
   const int eob_multi_ctx = (tx_type_to_class[tx_type] == TX_CLASS_2D) ? 0 : 1;
   switch (eob_multi_size) {
-    case 0:
-      eob_pt =
-          aom_read_symbol(r, ec_ctx->eob_flag_cdf16[plane_type][eob_multi_ctx],
-                          5, ACCT_STR) +
-          1;
-      break;
-    case 1:
-      eob_pt =
-          aom_read_symbol(r, ec_ctx->eob_flag_cdf32[plane_type][eob_multi_ctx],
-                          6, ACCT_STR) +
-          1;
-      break;
-    case 2:
-      eob_pt =
-          aom_read_symbol(r, ec_ctx->eob_flag_cdf64[plane_type][eob_multi_ctx],
-                          7, ACCT_STR) +
-          1;
-      break;
-    case 3:
-      eob_pt =
-          aom_read_symbol(r, ec_ctx->eob_flag_cdf128[plane_type][eob_multi_ctx],
-                          8, ACCT_STR) +
-          1;
-      break;
-    case 4:
-      eob_pt =
-          aom_read_symbol(r, ec_ctx->eob_flag_cdf256[plane_type][eob_multi_ctx],
-                          9, ACCT_STR) +
-          1;
-      break;
-    case 5:
-      eob_pt =
-          aom_read_symbol(r, ec_ctx->eob_flag_cdf512[plane_type][eob_multi_ctx],
-                          10, ACCT_STR) +
-          1;
-      break;
-    case 6:
-    default:
-      eob_pt = aom_read_symbol(
-                   r, ec_ctx->eob_flag_cdf1024[plane_type][eob_multi_ctx], 11,
-                   ACCT_STR) +
-               1;
-      break;
+  case 0:
+    eob_pt =
+        aom_read_symbol(r, ec_ctx->eob_flag_cdf16[plane_type][eob_multi_ctx], 5,
+                        ACCT_STR) +
+        1;
+    break;
+  case 1:
+    eob_pt =
+        aom_read_symbol(r, ec_ctx->eob_flag_cdf32[plane_type][eob_multi_ctx], 6,
+                        ACCT_STR) +
+        1;
+    break;
+  case 2:
+    eob_pt =
+        aom_read_symbol(r, ec_ctx->eob_flag_cdf64[plane_type][eob_multi_ctx], 7,
+                        ACCT_STR) +
+        1;
+    break;
+  case 3:
+    eob_pt =
+        aom_read_symbol(r, ec_ctx->eob_flag_cdf128[plane_type][eob_multi_ctx],
+                        8, ACCT_STR) +
+        1;
+    break;
+  case 4:
+    eob_pt =
+        aom_read_symbol(r, ec_ctx->eob_flag_cdf256[plane_type][eob_multi_ctx],
+                        9, ACCT_STR) +
+        1;
+    break;
+  case 5:
+    eob_pt =
+        aom_read_symbol(r, ec_ctx->eob_flag_cdf512[plane_type][eob_multi_ctx],
+                        10, ACCT_STR) +
+        1;
+    break;
+  case 6:
+  default:
+    eob_pt =
+        aom_read_symbol(r, ec_ctx->eob_flag_cdf1024[plane_type][eob_multi_ctx],
+                        11, ACCT_STR) +
+        1;
+    break;
   }
 
   if (k_eob_offset_bits[eob_pt] > 0) {
@@ -264,7 +329,8 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
             ec_ctx->coeff_br_cdf[AOMMIN(txs_ctx, TX_32X32)][plane_type][br_ctx],
             BR_CDF_SIZE, ACCT_STR);
         level += k;
-        if (k < BR_CDF_SIZE - 1) break;
+        if (k < BR_CDF_SIZE - 1)
+          break;
       }
     }
     levels[get_padded_idx(pos, bwl)] = level;
