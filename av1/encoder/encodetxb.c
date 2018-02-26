@@ -401,7 +401,7 @@ void av1_write_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
   const TX_SIZE txs_ctx = get_txsize_entropy_ctx(tx_size);
   const TX_TYPE tx_type = av1_get_tx_type(plane_type, xd, blk_row, blk_col,
                                           tx_size, cm->reduced_tx_set_used);
-  const SCAN_ORDER *const scan_order = get_scan(cm, tx_size, tx_type, mbmi);
+  const SCAN_ORDER *const scan_order = get_scan(tx_size, tx_type);
   const int16_t *const scan = scan_order->scan;
   const int seg_eob = av1_get_max_eob(tx_size);
   int c;
@@ -637,7 +637,7 @@ int av1_cost_coeffs_txb(const AV1_COMMON *const cm, const MACROBLOCK *x,
   const int bwl = get_txb_bwl(tx_size);
   const int width = get_txb_wide(tx_size);
   const int height = get_txb_high(tx_size);
-  const SCAN_ORDER *const scan_order = get_scan(cm, tx_size, tx_type, mbmi);
+  const SCAN_ORDER *const scan_order = get_scan(tx_size, tx_type);
   const int16_t *const scan = scan_order->scan;
   uint8_t levels_buf[TX_PAD_2D];
   uint8_t *const levels = set_levels(levels_buf, width);
@@ -2054,7 +2054,7 @@ int av1_optimize_txb(const struct AV1_COMP *cpi, MACROBLOCK *x, int plane,
   const int width = get_txb_wide(tx_size);
   const int height = get_txb_high(tx_size);
   const int is_inter = is_inter_block(mbmi);
-  const SCAN_ORDER *const scan_order = get_scan(cm, tx_size, tx_type, mbmi);
+  const SCAN_ORDER *const scan_order = get_scan(tx_size, tx_type);
   const LV_MAP_COEFF_COST txb_costs = x->coeff_costs[txs_ctx][plane_type];
   const int eob_multi_size = txsize_log2_minus4[tx_size];
   const LV_MAP_EOB_COST txb_eob_costs =
@@ -2135,7 +2135,7 @@ void av1_update_txb_context_b(int plane, int block, int blk_row, int blk_col,
   const PLANE_TYPE plane_type = pd->plane_type;
   const TX_TYPE tx_type = av1_get_tx_type(plane_type, xd, blk_row, blk_col,
                                           tx_size, cm->reduced_tx_set_used);
-  const SCAN_ORDER *const scan_order = get_scan(cm, tx_size, tx_type, mbmi);
+  const SCAN_ORDER *const scan_order = get_scan(tx_size, tx_type);
   (void)plane_bsize;
 
   int cul_level = av1_get_txb_entropy_context(qcoeff, scan_order, eob);
@@ -2161,7 +2161,7 @@ void av1_update_and_record_txb_context(int plane, int block, int blk_row,
   const int segment_id = mbmi->segment_id;
   const TX_TYPE tx_type = av1_get_tx_type(plane_type, xd, blk_row, blk_col,
                                           tx_size, cm->reduced_tx_set_used);
-  const SCAN_ORDER *const scan_order = get_scan(cm, tx_size, tx_type, mbmi);
+  const SCAN_ORDER *const scan_order = get_scan(tx_size, tx_type);
   const int16_t *const scan = scan_order->scan;
   const int seg_eob = av1_get_tx_eob(&cpi->common.seg, segment_id, tx_size);
   int c;
