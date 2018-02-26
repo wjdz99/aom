@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "01abfedf_d057dbdf",
+        "filename": "av1/common/x86/av1_inv_txfm_sse2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-02-26T20:57:58Z",
+      "side": 1,
+      "message": "Would be better to make this macro as an inlined function.",
+      "range": {
+        "startLine": 17,
+        "startChar": 8,
+        "endLine": 17,
+        "endChar": 22
+      },
+      "revId": "92418b1f98327033418e1f40ddb16d31c197b53f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0e61d55b_2dea18f7",
+        "filename": "av1/common/x86/av1_inv_txfm_sse2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-02-26T20:57:58Z",
+      "side": 1,
+      "message": "Or could try to pack x2[0] and x2[1] together, and pack x2[3] and x2[2] together. Forget it if it finally generates more instructions.",
+      "range": {
+        "startLine": 29,
+        "startChar": 11,
+        "endLine": 29,
+        "endChar": 26
+      },
+      "revId": "92418b1f98327033418e1f40ddb16d31c197b53f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "706d9ee7_406e4477",
+        "filename": "av1/common/x86/av1_inv_txfm_sse2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-02-26T20:57:58Z",
+      "side": 1,
+      "message": "Please try to calculate these pairs together: 0 \u0026 1, 3 \u0026 2, 4 \u0026 7, 5 \u0026 6. If it works better, then could try similar idea in idct16.",
+      "range": {
+        "startLine": 156,
+        "startChar": 5,
+        "endLine": 156,
+        "endChar": 22
+      },
+      "revId": "92418b1f98327033418e1f40ddb16d31c197b53f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "093fbbfc_61035ad3",
+        "filename": "av1/common/x86/av1_inv_txfm_sse2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1658,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-02-26T20:57:58Z",
+      "side": 1,
+      "message": "I think it can reuse the majority of VP9 version iadst4_sse2() in vpx_dsp/x86/inv_txfm_sse2.c.\n\nIt can then be expanded to w8 case.\n\nThere is also aom_iadst4_sse2(), which is an older version of VP9 iadst4_sse2().",
+      "range": {
+        "startLine": 1658,
+        "startChar": 5,
+        "endLine": 1658,
+        "endChar": 23
+      },
+      "revId": "92418b1f98327033418e1f40ddb16d31c197b53f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1571ba9b_cb9f87e3",
+        "filename": "av1/common/x86/av1_inv_txfm_sse2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1707,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-02-26T20:57:58Z",
+      "side": 1,
+      "message": "There could be a follow-up CL to compare with VP9\u0027s iadst8 and iadst16 SSE2 to see which is better.",
+      "range": {
+        "startLine": 1707,
+        "startChar": 5,
+        "endLine": 1707,
+        "endChar": 20
+      },
+      "revId": "92418b1f98327033418e1f40ddb16d31c197b53f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
