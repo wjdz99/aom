@@ -574,4 +574,10 @@ if (aom_config("CONFIG_CFL") eq "yes") {
   specialize qw/get_predict_hbd_fn ssse3 avx2/;
 }
 
+# hash
+if (aom_config("CONFIG_AV1_ENCODER") eq "yes") {
+  add_proto qw/uint32_t av1_get_crc_value/, "void *crc_calculator, uint8_t *p, int length";
+  specialize qw/av1_get_crc_value sse4_2/;
+}
+
 1;
