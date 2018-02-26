@@ -19,7 +19,7 @@
 
 #define ACCT_STR __func__
 
-static int read_golomb(MACROBLOCKD *xd, aom_reader *r) {
+static int16_t read_golomb(MACROBLOCKD *xd, aom_reader *r) {
   int x = 1;
   int length = 0;
   int i = 0;
@@ -39,7 +39,7 @@ static int read_golomb(MACROBLOCKD *xd, aom_reader *r) {
     x += aom_read_bit(r, ACCT_STR);
   }
 
-  return x - 1;
+  return (int16_t)(x - 1);
 }
 
 static INLINE int rec_eob_pos(const int eob_token, const int extra) {
@@ -277,7 +277,7 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
   for (int c = 0; c < *eob; ++c) {
     const int pos = scan[c];
     uint8_t sign;
-    tran_low_t level = levels[get_padded_idx(pos, bwl)];
+    int16_t level = levels[get_padded_idx(pos, bwl)];
     if (level) {
       *max_scan_line = AOMMAX(*max_scan_line, pos);
       if (c == 0) {
@@ -309,7 +309,8 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
   for (int i = 0; i < num_updates; ++i) {
     const int pos = update_pos[i];
     const int sign = update_sign[i];
-    const int level = levels[get_padded_idx(pos, bwl)] + read_golomb(xd, r);
+    int16_t level = levels[get_padded_idx(pos, bwl)];
+    level += read_golomb(xd, r);
     cul_level += level;
     tran_low_t dq_coeff;
     dq_coeff = level * get_dqv(dequant, pos, iqmatrix);
