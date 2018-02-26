@@ -56,6 +56,16 @@
 #include "av1/encoder/tokenize.h"
 #include "av1/encoder/tx_prune_model_weights.h"
 
+// TODO(mfo): remove testing code when finished gathering data
+static int count1 = 0;
+static int count2 = 0;
+static const int numLinesOutput = 30000;  // num of lines of data output
+static const int everyNumLines = 16;  // over 20 frames Foreman, gives ~100000.
+static int USE_RATE_MODEL = 0;
+static int USE_DIST_MODEL = 0;  // Gives worse results. Should  not be used.
+static int PRINT_MODEL = 0;
+// end mfo model testing
+
 #define DUAL_FILTER_SET_SIZE (SWITCHABLE_FILTERS * SWITCHABLE_FILTERS)
 static const int filter_sets[DUAL_FILTER_SET_SIZE][2] = {
   { 0, 0 }, { 0, 1 }, { 0, 2 }, { 1, 0 }, { 1, 1 },
@@ -1429,7 +1439,179 @@ static int do_tx_type_search(TX_TYPE tx_type, int prune,
   }
 }
 
-static void model_rd_from_sse(const AV1_COMP *const cpi,
+// begin mfo model testing
+// static const double mfo2DModelRates[6][8] = {
+//   { 0, 415.2, 0666.1, 0972.8, 1318.3, 1687.1, 2068.9, 2457.5 },
+//   { 0, 481.3, 0772.4, 1128.2, 1528.9, 1956.8, 2399.7, 2850.6 },
+//   { 0, 532.2, 0854.2, 1247.8, 1691.1, 2164.5, 2654.4, 3153.2 },
+//   { 0, 608.4, 0976.8, 1427.1, 1934.3, 2475.7, 3036.3, 3606.8 },
+//   { 0, 710.3, 1140.6, 1666.6, 2258.9, 2891.3, 3546.0, 4212.5 },
+//   { 0, 832.8, 1337.6, 1954.6, 2649.5, 3391.4, 4159.4, 4941.2 },
+// };
+
+// // x: rt(sse/N)/deq, y: colCorRev
+// static const double xNodes[6] = { 0, 0.0625, 0.125, 0.25, 0.5, 1 };
+// static const double yNodes[8] = { 0, 0.5, 1, 2, 4, 8, 16, 32 };
+// // slopes(1,i) = (rates(i,8)-rates(i,7))/(yNodes(1,8)-yNodes(1,7));
+// // xslopes not used unless x extrap implemented
+// // static const double xSlopes_DD8x8[8] =
+// //    {0   13.3085   14.2169   15.7275   17.9916   21.0146   23.0806
+// 24.6520}; static const double ySlopes[6] = { 0, 245.1, 394.1, 576.1, 781.2,
+// 1000.1 };
+
+// // NOTE: this contains a very early (and terrible) version of the model
+// // Left for code quality evaluation purposes. Never reviewed.
+// int32_t rate_linearized_from_dd_model(int64_t sse, int16_t dequant, double
+// colCor, unsigned int n_log2) {
+//   // find intervals for x and y
+//   // x: sse-ish
+//   double xVal = 1 - colCor;        // colCorRev
+//   assert(xVal <= 1 && xVal >= 0);  // should be between 0 and 1
+//   assert(n_log2 < 32);
+//   int N = 1 << n_log2;  // numPixels
+//   double yVal = sqrt(((double)sse) / N) / dequant;
+
+//   int xInterval = 0;  // default to least common
+//   int yInterval = 7;
+//   // most common intervals at low sse, but high colCorRev
+//   for (int i = 4; i > 0; i--) {
+//     if (xVal >= xNodes[i] && xVal <= xNodes[i + 1]) {
+//       xInterval = i;
+//       break;
+//     }
+//   }
+//   for (int i = 0; i < 7; i++) {
+//     if (yVal >= yNodes[i] && yVal <= yNodes[i + 1]) {
+//       yInterval = i;
+//       break;
+//     }
+//   }
+
+//   // 2D linear interpolation to get final value
+//   double x1 = 0;
+//   double x2 = 0;
+//   int64_t rate = 0;
+//   double fraction = 0.0;
+
+//   if (yInterval < 7) {  // pure interpolation
+//     // x interp
+//     if (xVal == xNodes[xInterval]) {
+//       x1 = mfo2DModelRates[xInterval][yInterval];
+//       x2 = mfo2DModelRates[xInterval][yInterval + 1];
+//     } else if (xVal == xNodes[xInterval + 1]) {
+//       x1 = mfo2DModelRates[xInterval + 1][yInterval];
+//       x2 = mfo2DModelRates[xInterval + 1][yInterval + 1];
+//     } else {
+//       double x11 = xNodes[xInterval];
+//       double x12 = xNodes[xInterval + 1];
+//       fraction = (xVal - x11) / (x12 - x11);
+
+//       double r1 = mfo2DModelRates[xInterval][yInterval];
+//       double r2 = mfo2DModelRates[xInterval + 1][yInterval];
+//       x1 = r1 + (r2 - r1) * fraction;
+
+//       r1 = mfo2DModelRates[xInterval][yInterval + 1];
+//       r2 = mfo2DModelRates[xInterval + 1][yInterval + 1];
+//       x2 = r1 + (r2 - r1) * fraction;
+//     }
+//     // y interp
+//     if (yVal == yNodes[yInterval]) {
+//       rate = (int64_t)x1;  // yes, the other didn't need to be calculated...
+//       // could add check above
+//     } else if (yVal == yNodes[yInterval + 1]) {
+//       rate = (int64_t)x2;
+//     } else {
+//       double y11 = yNodes[yInterval];
+//       double y12 = yNodes[yInterval + 1];
+//       fraction = (yVal - y11) / (y12 - y11);
+
+//       rate = (int64_t)(x1 + (x2 - x1) * fraction);
+//     }
+
+//   } else {  // extrapolation: yInterval == 7
+//     double r1 = mfo2DModelRates[xInterval][7];
+//     double r2 = mfo2DModelRates[xInterval + 1][7];
+//     double ySep = yVal - yNodes[7];
+//     double rA = r1 + ySlopes[xInterval] * (ySep);
+//     double rB = r2 + ySlopes[xInterval + 1] * (ySep);
+
+//     double xSlope = (xVal - xNodes[xInterval]) /
+//                     (xNodes[xInterval + 1] - xNodes[xInterval]);
+//     rate = (int64_t)(rA + (rB - rA) * xSlope);
+//   }
+
+//   // if (real_rate != -1) { // don't output when using for PSNR
+//   // double relChange = (rate - real_rate) / ((float)real_rate);
+//   // double absChange = rate - real_rate;
+//   // printf("%1.2f %.0f %.0f %.0f %d %d\n", relChange, absChange, xVal, yVal,
+//   //        real_rate, rate);
+//   // sse, dequant, n_log2, sse/num pixels, rate, real_rate
+//   // printf("%.0f %.0f %d %" PRId64 " %d %d\n",
+//   //       xVal, yVal, n_log2, sse >> n_log2, rate, real_rate);
+
+//   // return real_rate;
+//   //}
+//   assert(rate <= 2147483647);
+//   // if(rate > 2147483647)
+//   //   rate = 2147483647;
+
+//   return (int32_t)rate;
+// }
+
+// Note: older versions of the models can be seen in the matlab scripts
+// in g3/experimental/users/mfo/AV1_matlab.
+// Current version gives RMSE 35.3% better than old model in Matlab testing.
+int32_t rate_from_dd_model(int64_t sseN, double ColCor, int qstep,
+                           unsigned int n_log2) {
+  int N = 1 << n_log2;
+  double y = sqrt(sseN) / qstep;
+  int x = n_log2;
+
+  // non-linearized 'quick' to implement model: slow and precise mathematically
+  // Data driven model: Rate1(log2(N), sqrt(Sse/N)/QStep)
+  double rate1 =
+      0.2307 * log(0.1235 * (y + 7.788)) * N * (-264.7 * (x - 22.62));
+
+  double a = ColCor;
+  double b = rate1;
+
+  double p00 = -4369;
+  double p10 = -1.631e+04;
+  double p01 = 2.007;
+  double p20 = 7.714e+04;
+  double p11 = -1.862;
+  double p02 = 2.699e-07;
+  double p30 = -5.473e+04;
+  double p21 = 0.521;
+  double p12 = -2.507e-07;
+
+  // Second stage data driven model: Rate2(column correlation, rate1)
+  double rate2 = p00 + p10 * a + p01 * b + p20 * a * a + p11 * a * b +
+                 p02 * b * b + p30 * a * a * a + p21 * a * a * b +
+                 p12 * a * b * b;
+
+  if (rate2 <= 0) return 0;
+  assert(rate2 < 2147483647);
+
+  return (int32_t)rate2;
+}
+
+// Data driven model based on original av1_model_rd_from_var_lapndz.
+// Note: this gives worse results by every metric checked.
+// Left for archiving and completeness.
+int64_t dist_from_dd_model(int qstep, int Nlog2, int64_t sseN) {
+  double a = 0.4349;
+  double b = -30450;
+  double c = 0.3671;
+  double d = -3295;
+  double x = ((double)sseN) / (((qstep * qstep) << (Nlog2 + 10)) + (sseN >> 1));
+  double distOvSseModel = a * exp(b * x) + c * exp(d * x);
+  int64_t dist = (int64_t)(distOvSseModel * sseN);
+
+  return dist;
+}
+
+static void model_rd_from_sse(const AV1_COMP *const cpi, const MACROBLOCK *x,
                               const MACROBLOCKD *const xd, BLOCK_SIZE bsize,
                               int plane, int64_t sse, int *rate,
                               int64_t *dist) {
@@ -1452,9 +1634,31 @@ static void model_rd_from_sse(const AV1_COMP *const cpi,
     av1_model_rd_from_var_lapndz(sse, num_pels_log2_lookup[bsize],
                                  pd->dequant_Q3[1] >> dequant_shift, rate,
                                  dist);
+    // mfo testing: overwrite above with data driven models
+    if (USE_RATE_MODEL) {
+      double colCor, rowCor;
+      const int stride = block_size_wide[bsize];
+      const int bw = block_size_wide[bsize];
+      const int bh = block_size_high[bsize];
+      const struct macroblock_plane *const p = &x->plane[plane];
+      const int16_t *diff = &p->src_diff[0];
+      get_horver_correlation(diff, stride, bw, bh, &rowCor, &colCor);
+
+      *rate =
+          rate_from_dd_model(sse, colCor, pd->dequant_Q3[1] >> dequant_shift,
+                             num_pels_log2_lookup[bsize]);
+    }
+
+    // poor theoretical results: do not use in practice
+    if (USE_DIST_MODEL) {
+      int qstep = pd->dequant_Q3[1] >> dequant_shift;
+      int Nlog2 = num_pels_log2_lookup[bsize];
+      *dist = dist_from_dd_model(qstep, Nlog2, sse);
+    }  // end mfo testing
   }
 
-  *dist <<= 4;
+  // *check* is needed for mfo testing only: always <<=4 with old model
+  if (!USE_DIST_MODEL) *dist <<= 4;
 }
 
 static void model_rd_for_sb(const AV1_COMP *const cpi, BLOCK_SIZE bsize,
@@ -1493,7 +1697,7 @@ static void model_rd_for_sb(const AV1_COMP *const cpi, BLOCK_SIZE bsize,
 
     total_sse += sse;
 
-    model_rd_from_sse(cpi, xd, bs, plane, sse, &rate, &dist);
+    model_rd_from_sse(cpi, x, xd, bs, plane, sse, &rate, &dist);
 
     rate_sum += rate;
     dist_sum += dist;
@@ -3971,6 +4175,7 @@ static void tx_block_yrd(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
 
     const int zero_blk_rate = x->coeff_costs[txs_ctx][get_plane_type(0)]
                                   .txb_skip_cost[txb_ctx.txb_skip_ctx][1];
+
     rd_stats->zero_rate = zero_blk_rate;
     rd_stats->ref_rdcost = ref_best_rd;
     av1_tx_block_rd_b(cpi, x, tx_size, blk_row, blk_col, 0, block, plane_bsize,
@@ -4466,6 +4671,55 @@ static void select_tx_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
 
   rd = select_tx_size_fix_type(cpi, x, &this_rd_stats, bsize, ref_best_rd,
                                found_rd_info ? matched_rd_info : NULL);
+
+  // mfo testing
+  if (!this_rd_stats.invalid_rate && PRINT_MODEL) {
+    if (count1 == everyNumLines && count2 < numLinesOutput) {
+      USE_DIST_MODEL = 1;
+      USE_RATE_MODEL = 1;
+      const struct macroblock_plane *const p = &x->plane[0];
+
+      unsigned int nLog2 = num_pels_log2_lookup[bsize];
+      const int dequant_shift =
+          (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) ? xd->bd - 5 : 3;
+      int qstep = p->dequant_QTX[1] >> dequant_shift;
+
+      double colCor, rowCor;
+      const int stride = block_size_wide[bsize];
+      const int bw = block_size_wide[bsize];
+      const int bh = block_size_high[bsize];
+
+      const int16_t *diff = &p->src_diff[0];
+      double mean = 0;
+      for (int i = 0; i < bh; i++) {
+        for (int j = 0; j < bw; j++) {
+          mean += diff[stride * i + j];
+        }
+      }
+      int n = bw * bh;
+      mean /= n;
+      get_horver_correlation(diff, stride, bw, bh, &rowCor, &colCor);
+
+      printf("%" PRId64 " %d %d %d %d %d %" PRId64, this_rd_stats.sse, qstep,
+             nLog2, n, bsize, this_rd_stats.rate, this_rd_stats.dist);
+
+      int rateOld = -1;
+      int64_t distOld = -1;
+      int64_t sseN = this_rd_stats.sse / n;
+      av1_model_rd_from_var_lapndz(sseN, nLog2, qstep, &rateOld, &distOld);
+      distOld <<= 4;
+
+      int rateNew = rate_from_dd_model(sseN, colCor, qstep, nLog2);
+      int64_t distNew = dist_from_dd_model(qstep, nLog2, sseN);
+
+      printf("%" PRId64 " %d %d %" PRId64 " %" PRId64 " %.6f %.6f %.6f \n",
+             sseN, rateOld, rateNew, distOld, distNew, mean, rowCor, colCor);
+
+      count1 = 0;
+      count2++;
+    }
+    if (count2 < numLinesOutput) count1++;
+  }  // end mfo testing code
 
   ref_best_rd = AOMMIN(rd, ref_best_rd);
   if (rd < best_rd) {
@@ -5799,14 +6053,14 @@ static void single_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,
               if (this_var < best_mv_var) best_mv = x->best_mv.as_mv;
               x->best_mv.as_mv = best_mv;
             }
+          } else {
+            cpi->find_fractional_mv_step(
+                x, &ref_mv, cm->allow_high_precision_mv, x->errorperbit,
+                &cpi->fn_ptr[bsize], cpi->sf.mv.subpel_force_stop,
+                cpi->sf.mv.subpel_iters_per_step,
+                cond_cost_list(cpi, cost_list), x->nmvjointcost, x->mvcost,
+                &dis, &x->pred_sse[ref], NULL, NULL, 0, 0, 0, 0, 0);
           }
-        } else {
-          cpi->find_fractional_mv_step(
-              x, &ref_mv, cm->allow_high_precision_mv, x->errorperbit,
-              &cpi->fn_ptr[bsize], cpi->sf.mv.subpel_force_stop,
-              cpi->sf.mv.subpel_iters_per_step, cond_cost_list(cpi, cost_list),
-              x->nmvjointcost, x->mvcost, &dis, &x->pred_sse[ref], NULL, NULL,
-              0, 0, 0, 0, 0);
         }
         break;
       case OBMC_CAUSAL:
@@ -6233,7 +6487,7 @@ static int64_t pick_wedge(const AV1_COMP *const cpi, const MACROBLOCK *const x,
       sse = av1_wedge_sse_from_residuals(r1, d10, mask, N);
     sse = ROUND_POWER_OF_TWO(sse, bd_round);
 
-    model_rd_from_sse(cpi, xd, bsize, 0, sse, &rate, &dist);
+    model_rd_from_sse(cpi, x, xd, bsize, 0, sse, &rate, &dist);
     rate += x->wedge_idx_cost[bsize][wedge_index];
     rd = RDCOST(x->rdmult, rate, dist);
 
@@ -6289,7 +6543,7 @@ static int64_t pick_wedge_fixed_sign(
       sse = av1_wedge_sse_from_residuals(r1, d10, mask, N);
     sse = ROUND_POWER_OF_TWO(sse, bd_round);
 
-    model_rd_from_sse(cpi, xd, bsize, 0, sse, &rate, &dist);
+    model_rd_from_sse(cpi, x, xd, bsize, 0, sse, &rate, &dist);
     rate += x->wedge_idx_cost[bsize][wedge_index];
     rd = RDCOST(x->rdmult, rate, dist);
 
@@ -6382,7 +6636,7 @@ static int64_t pick_interinter_seg(const AV1_COMP *const cpi,
     sse = av1_wedge_sse_from_residuals(r1, d10, xd->seg_mask, N);
     sse = ROUND_POWER_OF_TWO(sse, bd_round);
 
-    model_rd_from_sse(cpi, xd, bsize, 0, sse, &rate, &dist);
+    model_rd_from_sse(cpi, x, xd, bsize, 0, sse, &rate, &dist);
     rd0 = RDCOST(x->rdmult, rate, dist);
 
     if (rd0 < best_rd) {
