@@ -167,6 +167,11 @@ static void write_tx_size_vartx(const AV1_COMMON *cm, MACROBLOCKD *xd,
       av1_get_txb_size_index(mbmi->sb_type, blk_row, blk_col);
   const int write_txfm_partition =
       tx_size == mbmi->inter_tx_size[txb_size_index];
+  const int auto_split = auto_split_tx(tx_size, blk_row, blk_col,
+                                       max_blocks_high, max_blocks_wide);
+  if (auto_split)
+    assert(write_txfm_partition == 0);
+
   if (write_txfm_partition) {
     aom_write_symbol(w, 0, ec_ctx->txfm_partition_cdf[ctx], 2);
 
@@ -178,7 +183,8 @@ static void write_tx_size_vartx(const AV1_COMMON *cm, MACROBLOCKD *xd,
     const int bsw = tx_size_wide_unit[sub_txs];
     const int bsh = tx_size_high_unit[sub_txs];
 
-    aom_write_symbol(w, 1, ec_ctx->txfm_partition_cdf[ctx], 2);
+    if (!auto_split)
+      aom_write_symbol(w, 1, ec_ctx->txfm_partition_cdf[ctx], 2);
 
     if (sub_txs == TX_4X4) {
       txfm_partition_update(xd->above_txfm_context + blk_col,

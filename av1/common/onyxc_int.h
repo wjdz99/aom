@@ -1139,7 +1139,7 @@ static INLINE int max_block_high(const MACROBLOCKD *xd, BLOCK_SIZE bsize,
   if (xd->mb_to_bottom_edge < 0)
     max_blocks_high += xd->mb_to_bottom_edge >> (3 + pd->subsampling_y);
 
-  // Scale the width in the transform block unit.
+  // Scale the height in the transform block unit.
   return max_blocks_high >> tx_size_wide_log2[0];
 }
 
@@ -1202,6 +1202,20 @@ static INLINE void av1_zero_left_context(MACROBLOCKD *const xd) {
 #if defined(__GNUC__) && __GNUC__ >= 4
 #pragma GCC diagnostic warning "-Warray-bounds"
 #endif
+
+static INLINE int auto_split_tx(TX_SIZE tx_size, int blk_row, int blk_col,
+                                int max_block_high, int max_block_wide) {
+  TX_SIZE sub_tx_size = sub_tx_size_map[1][tx_size];
+  int tw = tx_size_wide_unit[tx_size];
+  int th = tx_size_high_unit[tx_size];
+  int stw = tx_size_wide_unit[sub_tx_size];
+  int sth = tx_size_high_unit[sub_tx_size];
+
+  int automatic_h_split = sth < th ? (blk_row + sth) >= max_block_high : 0;
+  int automatic_v_split = stw < tw ? (blk_col + stw) >= max_block_wide : 0;
+
+  return automatic_h_split || automatic_v_split;
+}
 
 static INLINE void set_txfm_ctx(TXFM_CONTEXT *txfm_ctx, uint8_t txs, int len) {
   int i;
