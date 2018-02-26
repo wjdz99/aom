@@ -3432,9 +3432,9 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
     av1_init_second_pass(cpi);
   }
 
-  int buf_scaler = 1;
 
 #if CONFIG_OBMC_HIGH_PREC_BLENDING
+  int buf_scaler = 1;
   CHECK_MEM_ERROR(cm, cpi->td.mb.above_pred_hp_buf,
                   (CONV_BUF_TYPE *)aom_memalign(
                       16, buf_scaler * MAX_MB_PLANE * (MAX_SB_SQUARE >> 1) *
@@ -3444,6 +3444,7 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
                       16, buf_scaler * MAX_MB_PLANE * (MAX_SB_SQUARE >> 1) *
                               sizeof(*cpi->td.mb.left_pred_hp_buf)));
 #else
+  int buf_scaler = 2;
   CHECK_MEM_ERROR(
       cm, cpi->td.mb.above_pred_buf,
       (uint8_t *)aom_memalign(16, buf_scaler * MAX_MB_PLANE * MAX_SB_SQUARE *
