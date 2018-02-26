@@ -34,7 +34,11 @@ struct daala_writer {
 typedef struct daala_writer daala_writer;
 
 void aom_daala_start_encode(daala_writer *w, uint8_t *buffer);
+#if CONFIG_TRAILING_BITS
+int aom_daala_stop_encode(daala_writer *w);
+#else
 void aom_daala_stop_encode(daala_writer *w);
+#endif
 
 static INLINE void aom_daala_write(daala_writer *w, int bit, int prob) {
   int p = (0x7FFFFF - (prob << 15) + prob) >> 8;

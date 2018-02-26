@@ -52,9 +52,15 @@ static INLINE void aom_start_encode(aom_writer *bc, uint8_t *buffer) {
   aom_daala_start_encode(bc, buffer);
 }
 
+#if CONFIG_TRAILING_BITS
+static INLINE int aom_stop_encode(aom_writer *bc) {
+  return aom_daala_stop_encode(bc);
+}
+#else
 static INLINE void aom_stop_encode(aom_writer *bc) {
   aom_daala_stop_encode(bc);
 }
+#endif
 
 static INLINE void aom_write(aom_writer *br, int bit, int probability) {
   aom_daala_write(br, bit, probability);
