@@ -532,7 +532,11 @@ static void read_tx_size_vartx(MACROBLOCKD *xd, MB_MODE_INFO *mbmi,
   const int ctx = txfm_partition_context(xd->above_txfm_context + blk_col,
                                          xd->left_txfm_context + blk_row,
                                          mbmi->sb_type, tx_size);
-  is_split = aom_read_symbol(r, ec_ctx->txfm_partition_cdf[ctx], 2, ACCT_STR);
+  const int auto_split = auto_split_tx(tx_size, blk_row, blk_col,
+                                       max_blocks_high, max_blocks_wide);
+  is_split =
+      auto_split ? 1 : aom_read_symbol(r, ec_ctx->txfm_partition_cdf[ctx], 2,
+                                       ACCT_STR);
 
   if (is_split) {
     const TX_SIZE sub_txs = sub_tx_size_map[1][tx_size];
