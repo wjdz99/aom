@@ -4511,6 +4511,10 @@ static void update_txfm_count(MACROBLOCK *x, MACROBLOCKD *xd,
     return;
   }
 
+  const int auto_split = auto_split_tx(tx_size, blk_row, blk_col,
+                                       max_blocks_high, max_blocks_wide);
+  if (auto_split) assert(tx_size != plane_tx_size);
+
   if (tx_size == plane_tx_size) {
     ++counts->txfm_partition[ctx][0];
     if (allow_update_cdf)
@@ -4523,9 +4527,11 @@ static void update_txfm_count(MACROBLOCK *x, MACROBLOCKD *xd,
     const int bsw = tx_size_wide_unit[sub_txs];
     const int bsh = tx_size_high_unit[sub_txs];
 
-    ++counts->txfm_partition[ctx][1];
-    if (allow_update_cdf)
-      update_cdf(xd->tile_ctx->txfm_partition_cdf[ctx], 1, 2);
+    if (!auto_split) {
+      ++counts->txfm_partition[ctx][1];
+      if (allow_update_cdf)
+        update_cdf(xd->tile_ctx->txfm_partition_cdf[ctx], 1, 2);
+    }
     ++x->txb_split_count;
 
     if (sub_txs == TX_4X4) {
