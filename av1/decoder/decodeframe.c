@@ -403,13 +403,9 @@ static void decode_token_and_recon_block(AV1Decoder *const pbi,
     for (int ref = 0; ref < 1 + has_second_ref(mbmi); ++ref) {
       const MV_REFERENCE_FRAME frame = mbmi->ref_frame[ref];
       if (frame < LAST_FRAME) {
-#if CONFIG_INTRABC
         assert(is_intrabc_block(mbmi));
         assert(frame == INTRA_FRAME);
         assert(ref == 0);
-#else
-        assert(0);
-#endif  // CONFIG_INTRABC
       } else {
         RefBuffer *ref_buf = &cm->frame_refs[frame - LAST_FRAME];
 
@@ -795,9 +791,7 @@ static void setup_segmentation(AV1_COMMON *const cm,
 static void decode_restoration_mode(AV1_COMMON *cm,
                                     struct aom_read_bit_buffer *rb) {
   const int num_planes = av1_num_planes(cm);
-#if CONFIG_INTRABC
   if (cm->allow_intrabc && NO_FILTER_FOR_IBC) return;
-#endif  // CONFIG_INTRABC
   int all_none = 1, chroma_none = 1;
   for (int p = 0; p < num_planes; ++p) {
     RestorationInfo *rsi = &cm->rst_info[p];
@@ -1012,9 +1006,7 @@ static void loop_restoration_read_sb_coeffs(const AV1_COMMON *const cm,
 
 static void setup_loopfilter(AV1_COMMON *cm, struct aom_read_bit_buffer *rb) {
   const int num_planes = av1_num_planes(cm);
-#if CONFIG_INTRABC
   if (cm->allow_intrabc && NO_FILTER_FOR_IBC) return;
-#endif  // CONFIG_INTRABC
   struct loopfilter *lf = &cm->lf;
 #if CONFIG_LOOPFILTER_LEVEL
   lf->filter_level[0] = aom_rb_read_literal(rb, 6);
@@ -1051,9 +1043,7 @@ static void setup_loopfilter(AV1_COMMON *cm, struct aom_read_bit_buffer *rb) {
 
 static void setup_cdef(AV1_COMMON *cm, struct aom_read_bit_buffer *rb) {
   const int num_planes = av1_num_planes(cm);
-#if CONFIG_INTRABC
   if (cm->allow_intrabc && NO_FILTER_FOR_IBC) return;
-#endif  // CONFIG_INTRABC
   cm->cdef_pri_damping = cm->cdef_sec_damping = aom_rb_read_literal(rb, 2) + 3;
   cm->cdef_bits = aom_rb_read_literal(rb, 2);
   cm->nb_cdef_strengths = 1 << cm->cdef_bits;
@@ -2074,10 +2064,7 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
                                 mi_row << cm->seq_params.mib_size_log2);
   }
 
-#if CONFIG_INTRABC
-  if (!(cm->allow_intrabc && NO_FILTER_FOR_IBC))
-#endif  // CONFIG_INTRABC
-  {
+  if (!(cm->allow_intrabc && NO_FILTER_FOR_IBC)) {
     // Loopfilter the whole frame.
     if (endTile == cm->tile_rows * cm->tile_cols - 1)
 #if CONFIG_LOOPFILTER_LEVEL
@@ -2764,9 +2751,7 @@ static int read_uncompressed_header(AV1Decoder *pbi,
   int frame_size_override_flag = aom_rb_read_literal(rb, 1);
 #endif
 
-#if CONFIG_INTRABC
   cm->allow_intrabc = 0;
-#endif  // CONFIG_INTRABC
 
 #if CONFIG_FRAME_REFS_SIGNALING
   cm->frame_refs_short_signaling = 0;
@@ -2790,7 +2775,7 @@ static int read_uncompressed_header(AV1Decoder *pbi,
       memset(&cm->ref_frame_map, -1, sizeof(cm->ref_frame_map));
       pbi->need_resync = 0;
     }
-#if CONFIG_INTRABC
+
 #if CONFIG_HORZONLY_FRAME_SUPERRES
     if (cm->allow_screen_content_tools &&
         (av1_superres_unscaled(cm) || !NO_FILTER_FOR_IBC))
@@ -2798,7 +2783,6 @@ static int read_uncompressed_header(AV1Decoder *pbi,
     if (cm->allow_screen_content_tools)
 #endif  // CONFIG_HORZONLY_FRAME_SUPERRES
       cm->allow_intrabc = aom_rb_read_bit(rb);
-#endif  // CONFIG_INTRABC
 #if CONFIG_CDF_UPDATE_MODE
     cm->cdf_update_mode = aom_rb_read_literal(rb, 2);
 #endif  // CONFIG_CDF_UPDATE_MODE
@@ -2839,7 +2823,6 @@ static int read_uncompressed_header(AV1Decoder *pbi,
         memset(&cm->ref_frame_map, -1, sizeof(cm->ref_frame_map));
         pbi->need_resync = 0;
       }
-#if CONFIG_INTRABC
 #if CONFIG_HORZONLY_FRAME_SUPERRES
       if (cm->allow_screen_content_tools &&
           (av1_superres_unscaled(cm) || !NO_FILTER_FOR_IBC))
@@ -2847,7 +2830,6 @@ static int read_uncompressed_header(AV1Decoder *pbi,
       if (cm->allow_screen_content_tools)
 #endif  // CONFIG_HORZONLY_FRAME_SUPERRES
         cm->allow_intrabc = aom_rb_read_bit(rb);
-#endif  // CONFIG_INTRABC                               // CONFIG_INTRABC
 #if CONFIG_CDF_UPDATE_MODE
       cm->cdf_update_mode = aom_rb_read_literal(rb, 2);
 #endif                                  // CONFIG_CDF_UPDATE_MODE
@@ -3079,7 +3061,6 @@ static int read_uncompressed_header(AV1Decoder *pbi,
   if (frame_is_intra_only(cm) || cm->error_resilient_mode)
     av1_setup_past_independence(cm);
 
-#if CONFIG_INTRABC
   if (cm->allow_intrabc && NO_FILTER_FOR_IBC) {
     // Set parameters corresponding to no filtering.
     struct loopfilter *lf = &cm->lf;
@@ -3099,7 +3080,6 @@ static int read_uncompressed_header(AV1Decoder *pbi,
     cm->rst_info[2].frame_restoration_type = RESTORE_NONE;
 #endif  // CONFIG_LOOP_RESTORATION
   }
-#endif  // CONFIG_INTRABC
 
 #if CONFIG_TILE_INFO_FIRST
   read_tile_info(pbi, rb);
@@ -3146,9 +3126,7 @@ static int read_uncompressed_header(AV1Decoder *pbi,
       xd->prev_qindex = cm->base_qindex;
       cm->delta_q_res = 1 << aom_rb_read_literal(rb, 2);
 #if CONFIG_EXT_DELTA_Q
-#if CONFIG_INTRABC
       if (!cm->allow_intrabc || !NO_FILTER_FOR_IBC)
-#endif  // CONFIG_INTRABC
         cm->delta_lf_present_flag = aom_rb_read_bit(rb);
       if (cm->delta_lf_present_flag) {
         xd->prev_delta_lf_from_base = 0;
@@ -3357,14 +3335,12 @@ int av1_decode_frame_headers_and_setup(AV1Decoder *pbi, const uint8_t *data,
   pbi->uncomp_hdr_size = aom_rb_bytes_read(&rb);
   YV12_BUFFER_CONFIG *new_fb = get_frame_new_buffer(cm);
   xd->cur_buf = new_fb;
-#if CONFIG_INTRABC
   if (frame_is_intra_only(cm) && av1_allow_intrabc(cm)) {
     av1_setup_scale_factors_for_frame(
         &cm->sf_identity, xd->cur_buf->y_crop_width, xd->cur_buf->y_crop_height,
         xd->cur_buf->y_crop_width, xd->cur_buf->y_crop_height,
         cm->use_highbitdepth);
   }
-#endif  // CONFIG_INTRABC
 
   if (cm->show_existing_frame) {
     // showing a frame directly
@@ -3504,9 +3480,7 @@ void av1_decode_tg_tiles_and_wrapup(AV1Decoder *pbi, const uint8_t *data,
     return;
   }
 
-#if CONFIG_INTRABC
   if (!(cm->allow_intrabc && NO_FILTER_FOR_IBC)) {
-#endif
 #if CONFIG_LOOP_RESTORATION
     if (cm->rst_info[0].frame_restoration_type != RESTORE_NONE ||
         cm->rst_info[1].frame_restoration_type != RESTORE_NONE ||
@@ -3532,9 +3506,7 @@ void av1_decode_tg_tiles_and_wrapup(AV1Decoder *pbi, const uint8_t *data,
       av1_loop_restoration_filter_frame((YV12_BUFFER_CONFIG *)xd->cur_buf, cm);
     }
 #endif  // CONFIG_LOOP_RESTORATION
-#if CONFIG_INTRABC
   }
-#endif
 
   if (!xd->corrupted) {
     if (cm->refresh_frame_context == REFRESH_FRAME_CONTEXT_BACKWARD) {
