@@ -317,7 +317,7 @@ static aom_codec_err_t validate_config(aom_codec_alg_priv_t *ctx,
   RANGE_CHECK(cfg, rc_superres_kf_qthresh, 1, 63);
 #endif  // CONFIG_HORZONLY_FRAME_SUPERRES
 #if CONFIG_CDF_UPDATE_MODE
-  RANGE_CHECK_HI(extra_cfg, cdf_update_mode, 3);
+  RANGE_CHECK_HI(extra_cfg, cdf_update_mode, 2);
 #endif  // CONFIG_CDF_UPDATE_MODE
 
   // AV1 does not support a lower bound on the keyframe interval in

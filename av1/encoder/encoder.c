@@ -6049,6 +6049,26 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
   }
 #endif  // CONFIG_REFERENCE_BUFFER
 
+#if CONFIG_CDF_UPDATE_MODE
+  switch (cpi->oxcf.cdf_update_mode) {
+    case 0:  // No CDF update for any frames.
+      cm->disable_cdf_update = 1;
+      break;
+    case 1:  // Enable CDF update for all frames.
+      cm->disable_cdf_update = 0;
+      break;
+    case 2:  // Strategically determine at which frames to do CDF update.
+      // TODO(huisu@google.com): design schemes for various trade-offs between
+      // compression quality and decoding speed.
+      if (frame_is_intra_only(cm) || !cm->show_frame)
+        cm->disable_cdf_update = 0;
+      else
+        cm->disable_cdf_update = 1;
+      //printf("\n cm->disable_cdf_update %d\n", cm->disable_cdf_update);
+      break;
+  }
+#endif  // CONFIG_CDF_UPDATE_MODE
+
   if (cpi->sf.recode_loop == DISALLOW_RECODE) {
     encode_without_recode_loop(cpi);
   } else {
