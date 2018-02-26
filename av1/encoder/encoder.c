@@ -3432,7 +3432,7 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
     av1_init_second_pass(cpi);
   }
 
-  int buf_scaler = 1;
+  int buf_scaler = 2;
 
 #if CONFIG_OBMC_HIGH_PREC_BLENDING
   CHECK_MEM_ERROR(cm, cpi->td.mb.above_pred_hp_buf,
