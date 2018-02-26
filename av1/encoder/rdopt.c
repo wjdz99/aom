@@ -3563,8 +3563,22 @@ static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
 
   if (blk_row >= max_blocks_high || blk_col >= max_blocks_wide) return;
 
+  int tx_split_prune_flag = 0;
+
+  int auto_split = 0;
+  if (tx_size > TX_4X4) {
+    const int mi_w = mi_size_wide[plane_bsize];
+    const int mi_h = mi_size_high[plane_bsize];
+    const int depth_offset = get_search_init_depth(mi_w, mi_h, &cpi->sf);
+
+    if (depth - depth_offset < MAX_VARTX_DEPTH) {
+      auto_split = auto_split_tx(tx_size, blk_row, blk_col, max_blocks_high,
+                                 max_blocks_wide);
+    }
+  }
+
   // TX no split
-  {
+  if (!auto_split) {
     const TX_SIZE txs_ctx = get_txsize_entropy_ctx(tx_size);
     TXB_CTX txb_ctx;
     get_txb_ctx(plane_bsize, tx_size, plane, pta, ptl, &txb_ctx);
@@ -3609,14 +3623,13 @@ static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
     const int txk_type_idx =
         av1_get_txk_type_index(plane_bsize, blk_row, blk_col);
     best_tx_type = mbmi->txk_type[txk_type_idx];
+
+    if (cpi->sf.tx_type_search.prune_mode >= PRUNE_2D_ACCURATE)
+      tx_split_prune_flag = ((x->tx_search_prune[0] >> TX_TYPES) & 1);
+
+    if (cpi->sf.txb_split_cap)
+      if (p->eobs[block] == 0) tx_split_prune_flag = 1;
   }
-
-  int tx_split_prune_flag = 0;
-  if (cpi->sf.tx_type_search.prune_mode >= PRUNE_2D_ACCURATE)
-    tx_split_prune_flag = ((x->tx_search_prune[0] >> TX_TYPES) & 1);
-
-  if (cpi->sf.txb_split_cap)
-    if (p->eobs[block] == 0) tx_split_prune_flag = 1;
 
   // TX split
   if (tx_size > TX_4X4 && depth < MAX_VARTX_DEPTH && tx_split_prune_flag == 0) {
@@ -3630,7 +3643,10 @@ static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
 #if CONFIG_DIST_8X8
     int sub8x8_eob[4] = { 0, 0, 0, 0 };
 #endif
-    sum_rd_stats.rate = x->txfm_partition_cost[ctx][1];
+    if (!auto_split)
+      sum_rd_stats.rate = x->txfm_partition_cost[ctx][1];
+    else
+      sum_rd_stats.rate = 0;
 
     assert(tx_size < TX_SIZES_ALL);
 
