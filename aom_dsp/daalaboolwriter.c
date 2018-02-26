@@ -18,11 +18,22 @@ void aom_daala_start_encode(daala_writer *br, uint8_t *source) {
   od_ec_enc_init(&br->ec, 62025);
 }
 
+#if CONFIG_TRAILING_BITS
+int aom_daala_stop_encode(daala_writer *br) {
+  int nb_bits;
+#else
 void aom_daala_stop_encode(daala_writer *br) {
+#endif
   uint32_t daala_bytes;
   unsigned char *daala_data;
   daala_data = od_ec_enc_done(&br->ec, &daala_bytes);
+#if CONFIG_TRAILING_BITS
+  nb_bits = od_ec_enc_tell(&br->ec);
+#endif
   memcpy(br->buffer, daala_data, daala_bytes);
   br->pos = daala_bytes;
   od_ec_enc_clear(&br->ec);
+#if CONFIG_TRAILING_BITS
+  return nb_bits;
+#endif
 }
