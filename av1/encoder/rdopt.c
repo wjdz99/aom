@@ -2713,14 +2713,10 @@ static int intra_mode_info_cost_y(const AV1_COMP *cpi, const MACROBLOCK *x,
 #if CONFIG_FILTER_INTRA
   const int use_filter_intra = mbmi->filter_intra_mode_info.use_filter_intra;
 #endif  // CONFIG_FILTER_INTRA
-// Can only activate one mode.
-#if CONFIG_INTRABC
   const int use_intrabc = mbmi->use_intrabc;
+  // Can only activate one mode.
   assert(((mbmi->mode != DC_PRED) + use_palette + use_intrabc +
           use_filter_intra) <= 1);
-#else
-  assert((mbmi->mode != DC_PRED) + use_palette + use_filter_intra <= 1);
-#endif  // CONFIG_INTRABC
   const int try_palette =
       av1_allow_palette(cpi->common.allow_screen_content_tools, mbmi->sb_type);
   if (try_palette && mbmi->mode == DC_PRED) {
@@ -2769,10 +2765,8 @@ static int intra_mode_info_cost_y(const AV1_COMP *cpi, const MACROBLOCK *x,
 #endif  // CONFIG_EXT_INTRA_MOD
     }
   }
-#if CONFIG_INTRABC
   if (av1_allow_intrabc(&cpi->common))
     total_rate += x->intrabc_cost[use_intrabc];
-#endif  // CONFIG_INTRABC
   return total_rate;
 }
 
@@ -2784,11 +2778,8 @@ static int intra_mode_info_cost_uv(const AV1_COMP *cpi, const MACROBLOCK *x,
   const int use_palette = mbmi->palette_mode_info.palette_size[1] > 0;
   const UV_PREDICTION_MODE mode = mbmi->uv_mode;
 // Can only activate one mode.
-#if CONFIG_INTRABC
   assert(((mode != UV_DC_PRED) + use_palette + mbmi->use_intrabc) <= 1);
-#else
-  assert((mode != UV_DC_PRED) + use_palette <= 1);
-#endif  // CONFIG_INTRABC
+
   const int try_palette =
       av1_allow_palette(cpi->common.allow_screen_content_tools, mbmi->sb_type);
   if (try_palette && mode == UV_DC_PRED) {
@@ -8641,7 +8632,6 @@ static int64_t handle_inter_mode(
   return 0;  // The rate-distortion cost will be re-calculated by caller.
 }
 
-#if CONFIG_INTRABC
 static int64_t rd_pick_intrabc_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
                                        RD_STATS *rd_cost, BLOCK_SIZE bsize,
                                        int64_t best_rd) {
@@ -8846,7 +8836,6 @@ static int64_t rd_pick_intrabc_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
          sizeof(x->blk_skip[0][0]) * xd->n8_h * xd->n8_w);
   return best_rd;
 }
-#endif  // CONFIG_INTRABC
 
 void av1_rd_pick_intra_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x, int mi_row,
                                int mi_col, RD_STATS *rd_cost, BLOCK_SIZE bsize,
@@ -8867,10 +8856,8 @@ void av1_rd_pick_intra_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x, int mi_row,
   ctx->skip = 0;
   mbmi->ref_frame[0] = INTRA_FRAME;
   mbmi->ref_frame[1] = NONE_FRAME;
-#if CONFIG_INTRABC
   mbmi->use_intrabc = 0;
   mbmi->mv[0].as_int = 0;
-#endif  // CONFIG_INTRABC
 
   const int64_t intra_yrd =
       rd_pick_intra_sby_mode(cpi, x, &rate_y, &rate_y_tokenonly, &dist_y,
@@ -8913,7 +8900,6 @@ void av1_rd_pick_intra_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x, int mi_row,
     rd_cost->rate = INT_MAX;
   }
 
-#if CONFIG_INTRABC
   if (rd_cost->rate != INT_MAX && rd_cost->rdcost < best_rd)
     best_rd = rd_cost->rdcost;
   if (rd_pick_intrabc_mode_sb(cpi, x, rd_cost, bsize, best_rd) < best_rd) {
@@ -8922,7 +8908,6 @@ void av1_rd_pick_intra_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x, int mi_row,
            sizeof(x->blk_skip[0][0]) * ctx->num_4x4_blk);
     assert(rd_cost->rate != INT_MAX);
   }
-#endif
   if (rd_cost->rate == INT_MAX) return;
 
   ctx->mic = *xd->mi[0];
