@@ -1132,7 +1132,8 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
   if (cm->tx_mode == TX_MODE_SELECT && block_signals_txsize(bsize) &&
       !(is_inter && skip) && !xd->lossless[segment_id]) {
     if (is_inter) {  // This implies skip flag is 0.
-      const TX_SIZE max_tx_size = get_vartx_max_txsize(xd, bsize, 0);
+      const struct macroblockd_plane *const y_pd = &xd->plane[0];
+      const TX_SIZE max_tx_size = get_vartx_max_txsize(xd, bsize, y_pd);
       const int bh = tx_size_high_unit[max_tx_size];
       const int bw = tx_size_wide_unit[max_tx_size];
       const int width = block_size_wide[bsize] >> tx_size_wide_log2[0];
@@ -1364,7 +1365,8 @@ static void write_intrabc_info(AV1_COMMON *cm, MACROBLOCKD *xd,
     assert(mbmi->uv_mode == UV_DC_PRED);
     if ((enable_tx_size && !mbmi->skip)) {
       const BLOCK_SIZE bsize = mbmi->sb_type;
-      const TX_SIZE max_tx_size = get_vartx_max_txsize(xd, bsize, 0);
+      const struct macroblockd_plane *const y_pd = &xd->plane[0];
+      const TX_SIZE max_tx_size = get_vartx_max_txsize(xd, bsize, y_pd);
       const int bh = tx_size_high_unit[max_tx_size];
       const int bw = tx_size_wide_unit[max_tx_size];
       const int width = block_size_wide[bsize] >> tx_size_wide_log2[0];
@@ -1665,8 +1667,7 @@ static void write_inter_txb_coeff(AV1_COMMON *const cm, MACROBLOCK *const x,
 
   const BLOCK_SIZE plane_bsize = get_plane_block_size(bsizec, pd);
 
-  TX_SIZE max_tx_size = get_vartx_max_txsize(
-      xd, plane_bsize, pd->subsampling_x || pd->subsampling_y);
+  const TX_SIZE max_tx_size = get_vartx_max_txsize(xd, bsize, pd);
   const int step =
       tx_size_wide_unit[max_tx_size] * tx_size_high_unit[max_tx_size];
   const int bkw = tx_size_wide_unit[max_tx_size];

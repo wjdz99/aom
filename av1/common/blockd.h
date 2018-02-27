@@ -1061,30 +1061,18 @@ static INLINE int is_interintra_pred(const MB_MODE_INFO *mbmi) {
 }
 
 static INLINE int get_vartx_max_txsize(const MACROBLOCKD *xd, BLOCK_SIZE bsize,
-                                       int subsampled) {
-  TX_SIZE max_txsize = xd->lossless[xd->mi[0]->mbmi.segment_id]
-                           ? TX_4X4
-                           : get_max_rect_tx_size(bsize);
+                                       const struct macroblockd_plane *pd) {
+  if (xd->lossless[xd->mi[0]->mbmi.segment_id]) return TX_4X4;
 
-#if CONFIG_EXT_PARTITION
-  // The decoder is designed so that it can process 64x64 luma pixels at a
-  // time. If this is a chroma plane with subsampling and bsize corresponds to
-  // a subsampled BLOCK_128X128 then the lookup above will give TX_64X64. That
-  // mustn't be used for the subsampled plane (because it would be bigger than
-  // a 64x64 luma block) so we round down to TX_32X32.
-  if (subsampled && txsize_sqr_up_map[max_txsize] == TX_64X64) {
-    if (max_txsize == TX_16X64)
-      max_txsize = TX_16X32;
-    else if (max_txsize == TX_64X16)
-      max_txsize = TX_32X16;
-    else
-      max_txsize = TX_32X32;
-  }
-#else
-  (void)subsampled;
-#endif
+  // Clamp the block size against a 64x64 luma unit
+  BLOCK_SIZE luma_unit_size;
+  if (bsize > BLOCK_64X64 && bsize <= BLOCK_128X128)
+    luma_unit_size = BLOCK_64X64;
+  else
+    luma_unit_size = bsize;
 
-  return max_txsize;
+  const BLOCK_SIZE unit_size = get_plane_block_size(luma_unit_size, pd);
+  return get_max_rect_tx_size(unit_size);
 }
 
 static INLINE int is_motion_variation_allowed_bsize(BLOCK_SIZE bsize) {
