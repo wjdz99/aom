@@ -2376,9 +2376,7 @@ static void write_tile_info_max_tile(const AV1_COMMON *const cm,
 #endif
 
 static void write_tile_info(const AV1_COMMON *const cm,
-#if CONFIG_EXT_TILE
                             struct aom_write_bit_buffer *saved_wb,
-#endif
                             struct aom_write_bit_buffer *wb) {
 #if CONFIG_EXT_TILE
   if (cm->large_scale_tile) {
@@ -2444,8 +2442,8 @@ static void write_tile_info(const AV1_COMMON *const cm,
 #endif  // CONFIG_LOOPFILTERING_ACROSS_TILES_EXT
 #endif  // CONFIG_LOOPFILTERING_ACROSS_TILES
 
-#if CONFIG_EXT_TILE
   *saved_wb = *wb;
+#if CONFIG_EXT_TILE
   if (cm->large_scale_tile) {
     if (cm->tile_rows * cm->tile_cols > 1) {
       // Note that the last item in the uncompressed header is the data
@@ -3042,9 +3040,7 @@ static void write_global_motion(AV1_COMP *cpi,
 
 // New function based on HLS R18
 static void write_uncompressed_header_obu(AV1_COMP *cpi,
-#if CONFIG_EXT_TILE
                                           struct aom_write_bit_buffer *saved_wb,
-#endif
                                           struct aom_write_bit_buffer *wb) {
   AV1_COMMON *const cm = &cpi->common;
   MACROBLOCKD *const xd = &cpi->td.mb.e_mbd;
@@ -3310,11 +3306,7 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
   aom_wb_write_literal(wb, cm->frame_context_idx, FRAME_CONTEXTS_LOG2);
 #endif
 #if CONFIG_TILE_INFO_FIRST
-#if CONFIG_EXT_TILE
   write_tile_info(cm, saved_wb, wb);
-#else
-  write_tile_info(cm, wb);
-#endif  // CONFIG_EXT_TILE
 #endif  // CONFIG_TILE_INFO_FIRST
   encode_quantization(cm, wb);
   encode_segmentation(cm, xd, wb);
@@ -3404,15 +3396,10 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
 #endif
 
 #if !CONFIG_TILE_INFO_FIRST
-#if CONFIG_EXT_TILE
   write_tile_info(cm, saved_wb, wb);
-#else
-  write_tile_info(cm, wb);
-#endif
 #endif  // !CONFIG_TILE_INFO_FIRST
 }
 
-#if CONFIG_EXT_TILE
 static int choose_size_bytes(uint32_t size, int spare_msbs) {
   // Choose the number of bytes required to represent size, without
   // using the 'spare_msbs' number of most significant bits.
@@ -3550,7 +3537,6 @@ static int remux_tiles(const AV1_COMMON *const cm, uint8_t *dst,
 
   return wpos;
 }
-#endif  // CONFIG_EXT_TILE
 
 uint32_t write_obu_header(OBU_TYPE obu_type, int obu_extension,
                           uint8_t *const dst) {
@@ -3661,20 +3647,14 @@ static uint32_t write_sequence_header_obu(AV1_COMP *cpi, uint8_t *const dst
 }
 
 static uint32_t write_frame_header_obu(AV1_COMP *cpi,
-#if CONFIG_EXT_TILE
                                        struct aom_write_bit_buffer *saved_wb,
-#endif
                                        uint8_t *const dst) {
   AV1_COMMON *const cm = &cpi->common;
   struct aom_write_bit_buffer wb = { dst, 0 };
   uint32_t total_size = 0;
   uint32_t uncompressed_hdr_size;
 
-  write_uncompressed_header_obu(cpi,
-#if CONFIG_EXT_TILE
-                                saved_wb,
-#endif
-                                &wb);
+  write_uncompressed_header_obu(cpi, saved_wb, &wb);
 
   if (cm->show_existing_frame) {
     total_size = aom_wb_bytes_written(&wb);
@@ -3701,9 +3681,7 @@ static uint32_t write_tile_group_header(uint8_t *const dst, int startTile,
 static uint32_t write_tiles_in_tg_obus(AV1_COMP *const cpi, uint8_t *const dst,
                                        unsigned int *max_tile_size,
                                        unsigned int *max_tile_col_size,
-#if CONFIG_EXT_TILE
                                        struct aom_write_bit_buffer *saved_wb,
-#endif
                                        uint8_t obu_extension_header) {
   AV1_COMMON *const cm = &cpi->common;
   aom_writer mode_bc;
@@ -3728,9 +3706,7 @@ static uint32_t write_tiles_in_tg_obus(AV1_COMP *const cpi, uint8_t *const dst,
   int curr_tg_data_size = 0;
   uint8_t *data = dst;
   int new_tg = 1;
-#if CONFIG_EXT_TILE
   const int have_tiles = tile_cols * tile_rows > 1;
-#endif
 
   cm->largest_tile_id = 0;
   *max_tile_size = 0;
@@ -3864,6 +3840,7 @@ static uint32_t write_tiles_in_tg_obus(AV1_COMP *const cpi, uint8_t *const dst,
   }
 #endif  // CONFIG_EXT_TILE
 
+  uint8_t *tile_data_start = dst + total_size;
   for (tile_row = 0; tile_row < tile_rows; tile_row++) {
     TileInfo tile_info;
     const int is_last_row = (tile_row == tile_rows - 1);
@@ -3893,6 +3870,7 @@ static uint32_t write_tiles_in_tg_obus(AV1_COMP *const cpi, uint8_t *const dst,
               AOMMIN(tile_idx + tg_size - 1, tile_cols * tile_rows - 1),
               n_log2_tiles);
         total_size += curr_tg_data_size + PRE_OBU_SIZE_BYTES;
+        tile_data_start += curr_tg_data_size + PRE_OBU_SIZE_BYTES;
         new_tg = 0;
         tile_count = 0;
       }
@@ -3946,15 +3924,25 @@ static uint32_t write_tiles_in_tg_obus(AV1_COMP *const cpi, uint8_t *const dst,
       } else {
 // write current tile group size
 #if CONFIG_OBU_SIZING
-        const uint32_t obu_payload_size = curr_tg_data_size - obu_header_size;
+        uint32_t obu_payload_size = curr_tg_data_size - obu_header_size;
+        const uint32_t move_length = obu_payload_size;
+        // Adjust the tile group obu size by the amount saved in remux_tiles
+        // when using fewer bytes for tile sizes.
+        if (num_tg_hdrs == 1) {
+          const int num_tile_sizes = tile_cols * tile_rows - 1;
+          obu_payload_size -=
+              num_tile_sizes * (4 - choose_size_bytes(*max_tile_size, 0));
+        }
+
         const size_t length_field_size =
-            obu_memmove(obu_header_size, obu_payload_size, data);
+            obu_memmove(obu_header_size, move_length, data);
         if (write_uleb_obu_size(obu_header_size, obu_payload_size, data) !=
             AOM_CODEC_OK) {
           assert(0);
         }
         curr_tg_data_size += (int)length_field_size;
         total_size += (uint32_t)length_field_size;
+        tile_data_start += length_field_size;
 #else
         mem_put_le32(data, curr_tg_data_size);
 #endif  // CONFIG_OBU_SIZING
@@ -3962,6 +3950,19 @@ static uint32_t write_tiles_in_tg_obus(AV1_COMP *const cpi, uint8_t *const dst,
 
       total_size += tile_size;
     }
+  }
+
+  if (have_tiles && num_tg_hdrs == 1) {
+    int tile_size_bytes = 4, unused;
+    const uint32_t tile_data_offset = (uint32_t)(tile_data_start - dst);
+    const uint32_t tile_data_size = total_size - tile_data_offset;
+
+    total_size =
+        remux_tiles(cm, tile_data_start, tile_data_size, *max_tile_size,
+                    *max_tile_col_size, &tile_size_bytes, &unused);
+    total_size += tile_data_offset;
+    assert(tile_size_bytes >= 1 && tile_size_bytes <= 4);
+    aom_wb_overwrite_literal(saved_wb, tile_size_bytes - 1, 2);
   }
   return (uint32_t)total_size;
 }
@@ -4016,19 +4017,12 @@ int av1_pack_bitstream(AV1_COMP *const cpi, uint8_t *dst, size_t *size) {
     data += obu_header_size + obu_payload_size + length_field_size;
   }
 
-#if CONFIG_EXT_TILE
   struct aom_write_bit_buffer saved_wb;
-#endif
-
   // write frame header obu, preceded by 4-byte size
   obu_header_size = write_obu_header(OBU_FRAME_HEADER, obu_extension_header,
                                      data + PRE_OBU_SIZE_BYTES);
-  obu_payload_size =
-      write_frame_header_obu(cpi,
-#if CONFIG_EXT_TILE
-                             &saved_wb,
-#endif
-                             data + PRE_OBU_SIZE_BYTES + obu_header_size);
+  obu_payload_size = write_frame_header_obu(
+      cpi, &saved_wb, data + PRE_OBU_SIZE_BYTES + obu_header_size);
 
 #if CONFIG_OBU_SIZING
   const size_t length_field_size =
@@ -4043,11 +4037,9 @@ int av1_pack_bitstream(AV1_COMP *const cpi, uint8_t *dst, size_t *size) {
 #endif  // CONFIG_OBU_SIZING
 
   data += obu_header_size + obu_payload_size + length_field_size;
-#if CONFIG_EXT_TILE
   // Since length_field_size is determined adaptively after frame header
   // encoding, saved_wb must be adjusted accordingly.
   saved_wb.bit_buffer += length_field_size;
-#endif
 
 #define EXT_TILE_DEBUG 0
 #if EXT_TILE_DEBUG
@@ -4069,10 +4061,7 @@ int av1_pack_bitstream(AV1_COMP *const cpi, uint8_t *dst, size_t *size) {
     //  obu
     data_size =
         write_tiles_in_tg_obus(cpi, data, &max_tile_size, &max_tile_col_size,
-#if CONFIG_EXT_TILE
-                               &saved_wb,
-#endif
-                               obu_extension_header);
+                               &saved_wb, obu_extension_header);
   }
   data += data_size;
   *size = data - dst;
