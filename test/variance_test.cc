@@ -1447,45 +1447,49 @@ INSTANTIATE_TEST_CASE_P(
                                 0)));
 
 #if CONFIG_JNT_COMP
+// Force HBD buffer used for joint compound
 INSTANTIATE_TEST_CASE_P(
     SSSE3, AvxJntSubpelAvgVarianceTest,
     ::testing::Values(
         JntSubpelAvgVarianceParams(6, 6,
                                    &aom_jnt_sub_pixel_avg_variance64x64_ssse3,
-                                   0),
+                                   10),
         JntSubpelAvgVarianceParams(6, 5,
                                    &aom_jnt_sub_pixel_avg_variance64x32_ssse3,
-                                   0),
+                                   10),
         JntSubpelAvgVarianceParams(5, 6,
                                    &aom_jnt_sub_pixel_avg_variance32x64_ssse3,
-                                   0),
+                                   10),
         JntSubpelAvgVarianceParams(5, 5,
                                    &aom_jnt_sub_pixel_avg_variance32x32_ssse3,
-                                   0),
+                                   10),
         JntSubpelAvgVarianceParams(5, 4,
                                    &aom_jnt_sub_pixel_avg_variance32x16_ssse3,
-                                   0),
+                                   10),
         JntSubpelAvgVarianceParams(4, 5,
                                    &aom_jnt_sub_pixel_avg_variance16x32_ssse3,
-                                   0),
+                                   10),
         JntSubpelAvgVarianceParams(4, 4,
                                    &aom_jnt_sub_pixel_avg_variance16x16_ssse3,
-                                   0),
+                                   10),
         JntSubpelAvgVarianceParams(4, 3,
                                    &aom_jnt_sub_pixel_avg_variance16x8_ssse3,
-                                   0),
+                                   10),
         JntSubpelAvgVarianceParams(3, 4,
                                    &aom_jnt_sub_pixel_avg_variance8x16_ssse3,
-                                   0),
+                                   10),
         JntSubpelAvgVarianceParams(3, 3,
-                                   &aom_jnt_sub_pixel_avg_variance8x8_ssse3, 0),
+                                   &aom_jnt_sub_pixel_avg_variance8x8_ssse3,
+                                   10),
         JntSubpelAvgVarianceParams(3, 2,
-                                   &aom_jnt_sub_pixel_avg_variance8x4_ssse3, 0),
+                                   &aom_jnt_sub_pixel_avg_variance8x4_ssse3,
+                                   10),
         JntSubpelAvgVarianceParams(2, 3,
-                                   &aom_jnt_sub_pixel_avg_variance4x8_ssse3, 0),
+                                   &aom_jnt_sub_pixel_avg_variance4x8_ssse3,
+                                   10),
         JntSubpelAvgVarianceParams(2, 2,
                                    &aom_jnt_sub_pixel_avg_variance4x4_ssse3,
-                                   0)));
+                                   10)));
 #endif  // CONFIG_JNT_COMP
 #endif  // HAVE_SSSE3
 
