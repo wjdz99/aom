@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "0e967501_690c6926",
+        "filename": "av1/common/x86/av1_inv_txfm_sse2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 8900
+      },
+      "writtenOn": "2018-02-27T05:16:53Z",
+      "side": 1,
+      "message": "Please refer to https://aomedia.googlesource.com/aom/+/master/av1/common/x86/av1_txfm_sse2.h#43\n\nbtf_16_4p_sse2 just try to keep the same style(same parameter list) with  btf_16_sse2, so w8 and w4 version are more similar.",
+      "parentUuid": "01abfedf_d057dbdf",
+      "range": {
+        "startLine": 17,
+        "startChar": 8,
+        "endLine": 17,
+        "endChar": 22
+      },
+      "revId": "92418b1f98327033418e1f40ddb16d31c197b53f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0e61d55b_2dea18f7",
         "filename": "av1/common/x86/av1_inv_txfm_sse2.c",
         "patchSetId": 1
@@ -36,6 +60,30 @@
       "writtenOn": "2018-02-26T20:57:58Z",
       "side": 1,
       "message": "Or could try to pack x2[0] and x2[1] together, and pack x2[3] and x2[2] together. Forget it if it finally generates more instructions.",
+      "range": {
+        "startLine": 29,
+        "startChar": 11,
+        "endLine": 29,
+        "endChar": 26
+      },
+      "revId": "92418b1f98327033418e1f40ddb16d31c197b53f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "97a0007e_ddd1353a",
+        "filename": "av1/common/x86/av1_inv_txfm_sse2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 8900
+      },
+      "writtenOn": "2018-02-27T05:16:53Z",
+      "side": 1,
+      "message": "Pack them here, still need to unpack outside, seems no benefit to pack them together.",
+      "parentUuid": "0e61d55b_2dea18f7",
       "range": {
         "startLine": 29,
         "startChar": 11,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "98b16a36_456755b1",
+        "filename": "av1/common/x86/av1_inv_txfm_sse2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 8900
+      },
+      "writtenOn": "2018-02-27T05:16:53Z",
+      "side": 1,
+      "message": "Didn\u0027t get your idea, can you explain this further?",
+      "parentUuid": "706d9ee7_406e4477",
+      "range": {
+        "startLine": 156,
+        "startChar": 5,
+        "endLine": 156,
+        "endChar": 22
+      },
+      "revId": "92418b1f98327033418e1f40ddb16d31c197b53f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "093fbbfc_61035ad3",
         "filename": "av1/common/x86/av1_inv_txfm_sse2.c",
         "patchSetId": 1
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "7393c611_5aae518b",
+        "filename": "av1/common/x86/av1_inv_txfm_sse2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1658,
+      "author": {
+        "id": 8900
+      },
+      "writtenOn": "2018-02-27T05:16:53Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "093fbbfc_61035ad3",
+      "range": {
+        "startLine": 1658,
+        "startChar": 5,
+        "endLine": 1658,
+        "endChar": 23
+      },
+      "revId": "92418b1f98327033418e1f40ddb16d31c197b53f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1571ba9b_cb9f87e3",
         "filename": "av1/common/x86/av1_inv_txfm_sse2.c",
         "patchSetId": 1
@@ -114,6 +210,30 @@
       "revId": "92418b1f98327033418e1f40ddb16d31c197b53f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a146c8bd_db9d7f81",
+        "filename": "av1/common/x86/av1_inv_txfm_sse2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1707,
+      "author": {
+        "id": 8900
+      },
+      "writtenOn": "2018-02-27T05:16:53Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "1571ba9b_cb9f87e3",
+      "range": {
+        "startLine": 1707,
+        "startChar": 5,
+        "endLine": 1707,
+        "endChar": 20
+      },
+      "revId": "92418b1f98327033418e1f40ddb16d31c197b53f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
