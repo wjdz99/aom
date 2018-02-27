@@ -361,8 +361,8 @@ class MainTestClass
     params_ = this->GetParam();
 
     rnd_.Reset(ACMRandom::DeterministicSeed());
-    const size_t unit =
-        use_high_bit_depth() ? sizeof(uint16_t) : sizeof(uint8_t);
+    // Force larger buffer allocation for jnt-comp related tests
+    const size_t unit = 2;
     src_ = reinterpret_cast<uint8_t *>(aom_memalign(16, block_size() * unit));
     ref_ = new uint8_t[block_size() * unit];
     ASSERT_TRUE(src_ != NULL);
