@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2a47d3d8_4cd1de4f",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 6875,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2018-02-27T20:39:52Z",
+      "side": 1,
+      "message": "So the problem is that previsou_hash_table is uninitialized before being used? If so, I think we also need to add error handling in is_integer_mv() to check if its input parameters are valid.",
+      "range": {
+        "startLine": 6870,
+        "startChar": 4,
+        "endLine": 6875,
+        "endChar": 12
+      },
+      "revId": "24a3129638bcc584b2f0bdd02dc87f926fd8125b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
