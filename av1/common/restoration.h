@@ -300,12 +300,10 @@ void av1_loop_restoration_filter_unit(
     const RestorationTileLimits *limits, const RestorationUnitInfo *rui,
     const RestorationStripeBoundaries *rsb, RestorationLineBuffers *rlbs,
     const AV1PixelRect *tile_rect, int tile_stripe0,
-#if CONFIG_LOOPFILTERING_ACROSS_TILES
     int loop_filter_across_tiles_v_enabled,
-    int loop_filter_across_tiles_h_enabled,
-#endif  // CONFIG_LOOPFILTERING_ACROSS_TILES
-    int ss_x, int ss_y, int highbd, int bit_depth, uint8_t *data8, int stride,
-    uint8_t *dst8, int dst_stride, int32_t *tmpbuf);
+    int loop_filter_across_tiles_h_enabled, int ss_x, int ss_y, int highbd,
+    int bit_depth, uint8_t *data8, int stride, uint8_t *dst8, int dst_stride,
+    int32_t *tmpbuf);
 
 void av1_loop_restoration_filter_frame(YV12_BUFFER_CONFIG *frame,
                                        struct AV1Common *cm);

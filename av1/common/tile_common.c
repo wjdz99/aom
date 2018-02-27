@@ -304,7 +304,7 @@ void av1_setup_across_tile_boundary_info(const AV1_COMMON *const cm,
     const int col_diff = tile_info->mi_col_end - tile_info->mi_col_start;
     int row, col;
 
-    // when CONFIG_LOOPFILTERING_ACROSS_TILES_EXT is enabled, whether tile
+    // when loopfiltering_across_tiles_ext is enabled, whether tile
     // is dependent horizontal tile or not is ignored. tile boundary is always
     // initialized based on the actual tile boundary.
     if (cm->loop_filter_across_tiles_h_enabled == 0) {
