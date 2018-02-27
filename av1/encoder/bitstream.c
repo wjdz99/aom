@@ -627,7 +627,6 @@ static void write_ref_frames(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   }
 }
 
-#if CONFIG_FILTER_INTRA
 static void write_filter_intra_mode_info(const MACROBLOCKD *xd,
                                          const MB_MODE_INFO *const mbmi,
                                          aom_writer *w) {
@@ -643,7 +642,6 @@ static void write_filter_intra_mode_info(const MACROBLOCKD *xd,
     }
   }
 }
-#endif  // CONFIG_FILTER_INTRA
 
 static void write_angle_delta(aom_writer *w, int angle_delta,
                               aom_cdf_prob *cdf) {
@@ -894,7 +892,6 @@ void av1_write_tx_type(const AV1_COMMON *const cm, const MACROBLOCKD *xd,
                        ec_ctx->inter_ext_tx_cdf[eset][square_tx_size],
                        av1_num_ext_tx_set[tx_set_type]);
     } else {
-#if CONFIG_FILTER_INTRA
       PREDICTION_MODE intra_dir;
       if (mbmi->filter_intra_mode_info.use_filter_intra)
         intra_dir =
@@ -905,12 +902,6 @@ void av1_write_tx_type(const AV1_COMMON *const cm, const MACROBLOCKD *xd,
           w, av1_ext_tx_ind[tx_set_type][tx_type],
           ec_ctx->intra_ext_tx_cdf[eset][square_tx_size][intra_dir],
           av1_num_ext_tx_set[tx_set_type]);
-#else
-      aom_write_symbol(
-          w, av1_ext_tx_ind[tx_set_type][tx_type],
-          ec_ctx->intra_ext_tx_cdf[eset][square_tx_size][mbmi->mode],
-          av1_num_ext_tx_set[tx_set_type]);
-#endif
     }
   }
 }
@@ -1181,9 +1172,7 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
 
     if (av1_allow_palette(cm->allow_screen_content_tools, bsize))
       write_palette_mode_info(cm, xd, mi, mi_row, mi_col, w);
-#if CONFIG_FILTER_INTRA
     write_filter_intra_mode_info(xd, mbmi, w);
-#endif  // CONFIG_FILTER_INTRA
   } else {
     int16_t mode_ctx;
 
@@ -1494,9 +1483,7 @@ static void write_mb_modes_kf(AV1_COMP *cpi, MACROBLOCKD *xd,
 
   if (av1_allow_palette(cm->allow_screen_content_tools, bsize))
     write_palette_mode_info(cm, xd, mi, mi_row, mi_col, w);
-#if CONFIG_FILTER_INTRA
   write_filter_intra_mode_info(xd, mbmi, w);
-#endif  // CONFIG_FILTER_INTRA
 
 #if !CONFIG_TXK_SEL
   av1_write_tx_type(cm, xd, w);
