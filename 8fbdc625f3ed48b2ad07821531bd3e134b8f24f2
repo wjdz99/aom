@@ -16,6 +16,24 @@
       "revId": "8fbdc625f3ed48b2ad07821531bd3e134b8f24f2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eaddc16e_994664e9",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 5952,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2018-02-27T20:55:29Z",
+      "side": 1,
+      "message": "Ack. Will fix it in another patch.",
+      "parentUuid": "fe777e97_20b0f2d4",
+      "revId": "8fbdc625f3ed48b2ad07821531bd3e134b8f24f2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
