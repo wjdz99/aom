@@ -2389,8 +2389,11 @@ static int64_t txfm_yrd(const AV1_COMP *const cpi, MACROBLOCK *x,
 
   s0 = x->skip_cost[skip_ctx][0];
   s1 = x->skip_cost[skip_ctx][1];
-
+#if CONFIG_TXK_SEL
+  (void)tx_type;  // TODO: remove it from input parameters.
+#else
   mbmi->tx_type = tx_type;
+#endif
   mbmi->tx_size = tx_size;
 #if CONFIG_FILTER_INTRA
   if (skip_invalid_tx_size_for_filter_intra(mbmi, AOM_PLANE_Y, rd_stats)) {
@@ -2475,7 +2478,10 @@ static void choose_largest_tx_size(const AV1_COMP *const cpi, MACROBLOCK *x,
   const AV1_COMMON *const cm = &cpi->common;
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
-  TX_TYPE tx_type, best_tx_type = DCT_DCT;
+  TX_TYPE tx_type;
+#if !CONFIG_TXK_SEL
+  TX_TYPE best_tx_type = DCT_DCT;
+#endif
   int64_t this_rd, best_rd = INT64_MAX;
   const int skip_ctx = av1_get_skip_context(xd);
   int s0 = x->skip_cost[skip_ctx][0];
@@ -2496,7 +2502,12 @@ static void choose_largest_tx_size(const AV1_COMP *const cpi, MACROBLOCK *x,
   if (get_ext_tx_types(mbmi->tx_size, bs, is_inter, cm->reduced_tx_set_used) >
           1 &&
       !xd->lossless[mbmi->segment_id]) {
-    for (tx_type = DCT_DCT; tx_type < TX_TYPES; ++tx_type) {
+#if CONFIG_TXK_SEL
+    const TX_TYPE tx_type_end = DCT_DCT + 1;
+#else
+    const TX_TYPE tx_type_end = TX_TYPES;
+#endif
+    for (tx_type = DCT_DCT; tx_type < tx_type_end; ++tx_type) {
       if (!av1_ext_tx_used[tx_set_type][tx_type]) continue;
       RD_STATS this_rd_stats;
       if (is_inter) {
@@ -2514,7 +2525,9 @@ static void choose_largest_tx_size(const AV1_COMP *const cpi, MACROBLOCK *x,
           continue;
       }
 
+#if !CONFIG_TXK_SEL
       mbmi->tx_type = tx_type;
+#endif
 
       txfm_rd_in_plane(x, cpi, &this_rd_stats, ref_best_rd, AOM_PLANE_Y, bs,
                        mbmi->tx_size, cpi->sf.use_fast_coef_costing);
@@ -2535,16 +2548,22 @@ static void choose_largest_tx_size(const AV1_COMP *const cpi, MACROBLOCK *x,
 
       if (this_rd < best_rd) {
         best_rd = this_rd;
+#if !CONFIG_TXK_SEL
         best_tx_type = mbmi->tx_type;
+#endif
         *rd_stats = this_rd_stats;
       }
     }
   } else {
+#if !CONFIG_TXK_SEL
     mbmi->tx_type = DCT_DCT;
+#endif
     txfm_rd_in_plane(x, cpi, rd_stats, ref_best_rd, AOM_PLANE_Y, bs,
                      mbmi->tx_size, cpi->sf.use_fast_coef_costing);
   }
+#if !CONFIG_TXK_SEL
   mbmi->tx_type = best_tx_type;
+#endif
   // Reset the pruning flags.
   av1_zero(x->tx_search_prune);
 }
@@ -2556,7 +2575,9 @@ static void choose_smallest_tx_size(const AV1_COMP *const cpi, MACROBLOCK *x,
   MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
 
   mbmi->tx_size = TX_4X4;
+#if !CONFIG_TXK_SEL
   mbmi->tx_type = DCT_DCT;
+#endif
   mbmi->min_tx_size = TX_4X4;
 
 #if CONFIG_FILTER_INTRA
@@ -2598,9 +2619,10 @@ static void choose_tx_size_type_from_rd(const AV1_COMP *const cpi,
   const int is_inter = is_inter_block(mbmi);
   const TX_SIZE max_rect_tx_size = get_max_rect_tx_size(bs, is_inter);
   TX_SIZE best_tx_size = max_rect_tx_size;
-  TX_TYPE best_tx_type = DCT_DCT;
 #if CONFIG_TXK_SEL
   TX_TYPE best_txk_type[TXK_TYPE_BUF_LEN];
+#else
+  TX_TYPE best_tx_type = DCT_DCT;
 #endif  // CONFIG_TXK_SEL
   uint8_t best_blk_skip[MAX_MIB_SIZE * MAX_MIB_SIZE];
   const int n4 = bsize_to_num_blk(bs);
@@ -2653,9 +2675,10 @@ static void choose_tx_size_type_from_rd(const AV1_COMP *const cpi,
 #if CONFIG_TXK_SEL
         memcpy(best_txk_type, mbmi->txk_type,
                sizeof(best_txk_type[0]) * TXK_TYPE_BUF_LEN);
+#else
+        best_tx_type = tx_type;
 #endif
         memcpy(best_blk_skip, x->blk_skip[0], sizeof(best_blk_skip[0]) * n4);
-        best_tx_type = tx_type;
         best_tx_size = n;
         best_rd = rd;
         *rd_stats = this_rd_stats;
@@ -2675,10 +2698,11 @@ static void choose_tx_size_type_from_rd(const AV1_COMP *const cpi,
     if (n == TX_4X4) break;
   }
   mbmi->tx_size = best_tx_size;
-  mbmi->tx_type = best_tx_type;
 #if CONFIG_TXK_SEL
   memcpy(mbmi->txk_type, best_txk_type,
          sizeof(best_txk_type[0]) * TXK_TYPE_BUF_LEN);
+#else
+  mbmi->tx_type = best_tx_type;
 #endif
   memcpy(x->blk_skip[0], best_blk_skip, sizeof(best_blk_skip[0]) * n4);
 
@@ -3151,9 +3175,10 @@ static int rd_pick_filter_intra_sby(const AV1_COMP *const cpi, MACROBLOCK *x,
   FILTER_INTRA_MODE mode;
   TX_SIZE best_tx_size = TX_8X8;
   FILTER_INTRA_MODE_INFO filter_intra_mode_info;
-  TX_TYPE best_tx_type;
 #if CONFIG_TXK_SEL
   TX_TYPE best_txk_type[TXK_TYPE_BUF_LEN];
+#else
+  TX_TYPE best_tx_type;
 #endif
   (void)ctx;
   av1_zero(filter_intra_mode_info);
@@ -3181,10 +3206,11 @@ static int rd_pick_filter_intra_sby(const AV1_COMP *const cpi, MACROBLOCK *x,
       *best_rd = this_rd;
       best_tx_size = mbmi->tx_size;
       filter_intra_mode_info = mbmi->filter_intra_mode_info;
-      best_tx_type = mbmi->tx_type;
 #if CONFIG_TXK_SEL
       memcpy(best_txk_type, mbmi->txk_type,
              sizeof(best_txk_type[0]) * TXK_TYPE_BUF_LEN);
+#else
+      best_tx_type = mbmi->tx_type;
 #endif
       memcpy(ctx->blk_skip[0], x->blk_skip[0],
              sizeof(uint8_t) * ctx->num_4x4_blk);
@@ -3200,10 +3226,11 @@ static int rd_pick_filter_intra_sby(const AV1_COMP *const cpi, MACROBLOCK *x,
     mbmi->mode = DC_PRED;
     mbmi->tx_size = best_tx_size;
     mbmi->filter_intra_mode_info = filter_intra_mode_info;
-    mbmi->tx_type = best_tx_type;
 #if CONFIG_TXK_SEL
     memcpy(mbmi->txk_type, best_txk_type,
            sizeof(best_txk_type[0]) * TXK_TYPE_BUF_LEN);
+#else
+    mbmi->tx_type = best_tx_type;
 #endif
     return 1;
   } else {
@@ -3227,7 +3254,9 @@ static int64_t calc_rd_given_intra_angle(
   const int n4 = bsize_to_num_blk(bsize);
   assert(!is_inter_block(mbmi));
 
-#if !CONFIG_TXK_SEL
+#if CONFIG_TXK_SEL
+  (void)best_tx_type;
+#else
   (void)best_txk_type;
 #endif
 
@@ -3255,12 +3284,13 @@ static int64_t calc_rd_given_intra_angle(
 #if CONFIG_TXK_SEL
     memcpy(best_txk_type, mbmi->txk_type,
            sizeof(*best_txk_type) * TXK_TYPE_BUF_LEN);
+#else
+    *best_tx_type = mbmi->tx_type;
 #endif
     memcpy(best_blk_skip, x->blk_skip[0], sizeof(best_blk_skip[0]) * n4);
     *best_rd = this_rd;
     *best_angle_delta = mbmi->angle_delta[PLANE_TYPE_Y];
     *best_tx_size = mbmi->tx_size;
-    *best_tx_type = mbmi->tx_type;
     *rate = this_rate;
     rd_stats->rate = tokenonly_rd_stats.rate;
     rd_stats->dist = tokenonly_rd_stats.dist;
@@ -3284,12 +3314,13 @@ static int64_t rd_pick_intra_angle_sby(const AV1_COMP *const cpi, MACROBLOCK *x,
   int first_try = 1;
   int64_t this_rd, best_rd_in, rd_cost[2 * (MAX_ANGLE_DELTA + 2)];
   TX_SIZE best_tx_size = mbmi->tx_size;
-  TX_TYPE best_tx_type = mbmi->tx_type;
 #if CONFIG_TXK_SEL
   const int n4 = bsize_to_num_blk(bsize);
   TX_TYPE best_txk_type[TXK_TYPE_BUF_LEN];
+  TX_TYPE best_tx_type = DCT_DCT;  // TODO: remove this dummy variable.
 #else
   TX_TYPE *best_txk_type = NULL;
+  TX_TYPE best_tx_type = mbmi->tx_type;
 #endif
   uint8_t best_blk_skip[MAX_MIB_SIZE * MAX_MIB_SIZE];
 
@@ -3335,11 +3366,12 @@ static int64_t rd_pick_intra_angle_sby(const AV1_COMP *const cpi, MACROBLOCK *x,
 
   mbmi->tx_size = best_tx_size;
   mbmi->angle_delta[PLANE_TYPE_Y] = best_angle_delta;
-  mbmi->tx_type = best_tx_type;
 #if CONFIG_TXK_SEL
   memcpy(mbmi->txk_type, best_txk_type,
          sizeof(*best_txk_type) * TXK_TYPE_BUF_LEN);
   memcpy(x->blk_skip[0], best_blk_skip, sizeof(best_blk_skip[0]) * n4);
+#else
+  mbmi->tx_type = best_tx_type;
 #endif
   return best_rd;
 }
@@ -4327,7 +4359,11 @@ static int64_t select_tx_size_fix_type(const AV1_COMP *cpi, MACROBLOCK *x,
   (void)mi_row;
   (void)mi_col;
 
+#if CONFIG_TXK_SEL
+  (void)tx_type;  // TODO: remove it from input parameters.
+#else
   mbmi->tx_type = tx_type;
+#endif
   int64_t rd_thresh = ref_best_rd;
   if (fast_tx_search && rd_thresh < INT64_MAX) {
     if (INT64_MAX - rd_thresh > (rd_thresh >> 3)) rd_thresh += (rd_thresh >> 3);
@@ -4576,15 +4612,15 @@ static void save_tx_rd_info(int n4, uint32_t hash, const MACROBLOCK *const x,
   const MACROBLOCKD *const xd = &x->e_mbd;
   const MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
   tx_rd_info->hash_value = hash;
-  tx_rd_info->tx_type = mbmi->tx_type;
   tx_rd_info->tx_size = mbmi->tx_size;
   tx_rd_info->min_tx_size = mbmi->min_tx_size;
   memcpy(tx_rd_info->blk_skip, x->blk_skip[0],
          sizeof(tx_rd_info->blk_skip[0]) * n4);
   av1_copy(tx_rd_info->inter_tx_size, mbmi->inter_tx_size);
-
 #if CONFIG_TXK_SEL
   av1_copy(tx_rd_info->txk_type, mbmi->txk_type);
+#else
+  tx_rd_info->tx_type = mbmi->tx_type;
 #endif  // CONFIG_TXK_SEL
   tx_rd_info->rd_stats = *rd_stats;
 }
@@ -4593,7 +4629,6 @@ static void fetch_tx_rd_info(int n4, const TX_RD_INFO *const tx_rd_info,
                              RD_STATS *const rd_stats, MACROBLOCK *const x) {
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
-  mbmi->tx_type = tx_rd_info->tx_type;
   mbmi->tx_size = tx_rd_info->tx_size;
   mbmi->min_tx_size = tx_rd_info->min_tx_size;
   memcpy(x->blk_skip[0], tx_rd_info->blk_skip,
@@ -4602,6 +4637,8 @@ static void fetch_tx_rd_info(int n4, const TX_RD_INFO *const tx_rd_info,
 
 #if CONFIG_TXK_SEL
   av1_copy(mbmi->txk_type, tx_rd_info->txk_type);
+#else
+  mbmi->tx_type = tx_rd_info->tx_type;
 #endif  // CONFIG_TXK_SEL
   *rd_stats = tx_rd_info->rd_stats;
 }
@@ -4853,9 +4890,10 @@ static void set_skip_flag(const AV1_COMP *cpi, MACROBLOCK *x,
   MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
   const int n4 = bsize_to_num_blk(bsize);
   const TX_SIZE tx_size = get_max_rect_tx_size(bsize, is_inter_block(mbmi));
-  mbmi->tx_type = DCT_DCT;
 #if CONFIG_TXK_SEL
   memset(mbmi->txk_type, DCT_DCT, sizeof(mbmi->txk_type[0]) * TXK_TYPE_BUF_LEN);
+#else
+  mbmi->tx_type = DCT_DCT;
 #endif
   memset(mbmi->inter_tx_size, tx_size, sizeof(mbmi->inter_tx_size));
   mbmi->tx_size = tx_size;
@@ -4907,7 +4945,7 @@ static void select_tx_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
   MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
   int64_t rd = INT64_MAX;
   int64_t best_rd = INT64_MAX;
-  TX_TYPE tx_type, best_tx_type = DCT_DCT;
+  TX_TYPE tx_type;
   const int is_inter = is_inter_block(mbmi);
   TX_SIZE best_tx_size[INTER_TX_SIZE_BUF_LEN] = { 0 };
   TX_SIZE best_tx = max_txsize_rect_lookup[bsize];
@@ -4918,6 +4956,7 @@ static void select_tx_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
   TX_TYPE txk_end = DCT_DCT + 1;
 #else
   TX_TYPE txk_end = TX_TYPES;
+  TX_TYPE best_tx_type = DCT_DCT;
 #endif
   const int n4 = bsize_to_num_blk(bsize);
   // Get the tx_size 1 level down
@@ -5023,7 +5062,9 @@ static void select_tx_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
     if (rd < best_rd) {
       best_rd = rd;
       *rd_stats = this_rd_stats;
+#if !CONFIG_TXK_SEL
       best_tx_type = mbmi->tx_type;
+#endif
       best_tx = mbmi->tx_size;
       best_min_tx_size = mbmi->min_tx_size;
       memcpy(best_blk_skip, x->blk_skip[0], sizeof(best_blk_skip[0]) * n4);
@@ -5050,7 +5091,9 @@ static void select_tx_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
 
   // We found a candidate transform to use. Copy our results from the "best"
   // array into mbmi.
+#if !CONFIG_TXK_SEL
   mbmi->tx_type = best_tx_type;
+#endif
   av1_copy(mbmi->inter_tx_size, best_tx_size);
   mbmi->tx_size = best_tx;
   mbmi->min_tx_size = best_min_tx_size;
@@ -9804,11 +9847,12 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
         RD_STATS rd_stats_y_fi;
         int filter_intra_selected_flag = 0;
         TX_SIZE best_tx_size = mbmi->tx_size;
-        TX_TYPE best_tx_type = mbmi->tx_type;
 #if CONFIG_TXK_SEL
         TX_TYPE best_txk_type[TXK_TYPE_BUF_LEN];
         memcpy(best_txk_type, mbmi->txk_type,
                sizeof(*best_txk_type) * TXK_TYPE_BUF_LEN);
+#else
+        TX_TYPE best_tx_type = mbmi->tx_type;
 #endif
         FILTER_INTRA_MODE best_fi_mode = FILTER_DC_PRED;
         int64_t best_rd_tmp = INT64_MAX;
@@ -9836,10 +9880,11 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
 
           if (this_rd_tmp < best_rd_tmp) {
             best_tx_size = mbmi->tx_size;
-            best_tx_type = mbmi->tx_type;
 #if CONFIG_TXK_SEL
             memcpy(best_txk_type, mbmi->txk_type,
                    sizeof(*best_txk_type) * TXK_TYPE_BUF_LEN);
+#else
+            best_tx_type = mbmi->tx_type;
 #endif
             memcpy(best_blk_skip, x->blk_skip[0],
                    sizeof(best_blk_skip[0]) * ctx->num_4x4_blk);
@@ -9854,10 +9899,11 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
         }
 
         mbmi->tx_size = best_tx_size;
-        mbmi->tx_type = best_tx_type;
 #if CONFIG_TXK_SEL
         memcpy(mbmi->txk_type, best_txk_type,
                sizeof(*best_txk_type) * TXK_TYPE_BUF_LEN);
+#else
+        mbmi->tx_type = best_tx_type;
 #endif
         memcpy(x->blk_skip[0], best_blk_skip,
                sizeof(x->blk_skip[0][0]) * ctx->num_4x4_blk);
@@ -10420,7 +10466,6 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
     if (RDCOST(x->rdmult, best_rate_y + best_rate_uv, rd_cost->dist) >
         RDCOST(x->rdmult, rd_stats_y.rate + rd_stats_uv.rate,
                (rd_stats_y.dist + rd_stats_uv.dist))) {
-      best_mbmode.tx_type = mbmi->tx_type;
       best_mbmode.tx_size = mbmi->tx_size;
       av1_copy(best_mbmode.inter_tx_size, mbmi->inter_tx_size);
       for (i = 0; i < num_planes; ++i)
@@ -10429,6 +10474,8 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
       best_mbmode.min_tx_size = mbmi->min_tx_size;
 #if CONFIG_TXK_SEL
       av1_copy(best_mbmode.txk_type, mbmi->txk_type);
+#else
+      best_mbmode.tx_type = mbmi->tx_type;
 #endif
       rd_cost->rate +=
           (rd_stats_y.rate + rd_stats_uv.rate - best_rate_y - best_rate_uv);

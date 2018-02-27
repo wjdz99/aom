@@ -254,9 +254,10 @@ typedef struct MB_MODE_INFO {
   // Only for INTER blocks
   InterpFilters interp_filters;
   MV_REFERENCE_FRAME ref_frame[2];
-  TX_TYPE tx_type;
 #if CONFIG_TXK_SEL
   TX_TYPE txk_type[TXK_TYPE_BUF_LEN];
+#else
+  TX_TYPE tx_type;
 #endif
 
 #if CONFIG_FILTER_INTRA
@@ -931,7 +932,6 @@ static INLINE TX_TYPE av1_get_tx_type(PLANE_TYPE plane_type,
 #else
   (void)blk_row;
   (void)blk_col;
-#endif  // CONFIG_TXK_SEL
 
   if (is_inter_block(mbmi) && !av1_ext_tx_used[tx_set_type][mbmi->tx_type])
     return DCT_DCT;
@@ -954,6 +954,7 @@ static INLINE TX_TYPE av1_get_tx_type(PLANE_TYPE plane_type,
   const TX_TYPE intra_type = intra_mode_to_tx_type_context(mbmi, PLANE_TYPE_UV);
   if (!av1_ext_tx_used[tx_set_type][intra_type]) return DCT_DCT;
   return intra_type;
+#endif  // CONFIG_TXK_SEL
 }
 
 void av1_setup_block_planes(MACROBLOCKD *xd, int ss_x, int ss_y,
