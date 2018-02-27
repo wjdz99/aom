@@ -1771,10 +1771,11 @@ static void write_modes_b(AV1_COMP *cpi, const TileInfo *const tile,
           write_tx_size_vartx(cm, xd, mbmi, max_tx_size, 0, idy, idx, w);
     } else {
       write_selected_tx_size(cm, xd, w);
-      set_txfm_ctxs(mbmi->tx_size, xd->n8_w, xd->n8_h, skip, xd);
+      set_txfm_ctxs(mbmi->tx_size, xd->n8_w, xd->n8_h, 0, xd);
     }
   } else {
-    set_txfm_ctxs(mbmi->tx_size, xd->n8_w, xd->n8_h, skip, xd);
+    set_txfm_ctxs(mbmi->tx_size, xd->n8_w, xd->n8_h,
+                  skip && is_inter_block(mbmi), xd);
   }
 
 #if CONFIG_FILTER_INTRA
