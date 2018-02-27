@@ -233,6 +233,11 @@ typedef struct SequenceHeader {
   int enable_jnt_comp;  // 0 - disable joint compound modes
                         // 1 - enable it
 #endif
+
+#if CONFIG_SCALABILITY
+  int enhancement_layers_cnt;
+  int frame_counter_increment_minus_one;
+#endif  // CONFIG_SCALABILITY
 } SequenceHeader;
 
 typedef struct AV1Common {
@@ -612,7 +617,7 @@ typedef struct AV1Common {
   int temporal_layer_id;
   int enhancement_layer_id;
   int enhancement_layers_cnt;
-#endif
+#endif  // CONFIG_SCALABILITY
 
 #if TXCOEFF_TIMER
   int64_t cum_txcoeff_timer;
