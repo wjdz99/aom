@@ -1384,6 +1384,7 @@ static void write_intrabc_info(AV1_COMMON *cm, MACROBLOCKD *xd,
   if (use_intrabc) {
     assert(mbmi->mode == DC_PRED);
     assert(mbmi->uv_mode == UV_DC_PRED);
+    assert(mbmi->motion_mode == SIMPLE_TRANSLATION);
     if ((enable_tx_size && !mbmi->skip)) {
       const BLOCK_SIZE bsize = mbmi->sb_type;
       const TX_SIZE max_tx_size = get_vartx_max_txsize(xd, bsize, 0);
