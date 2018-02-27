@@ -22,6 +22,30 @@
       "revId": "954843667874d936f217dd40a79dab7d030528b6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ffdd3e03_84a361ce",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2584,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2018-02-27T17:27:46Z",
+      "side": 1,
+      "message": "Only when a frame is key frame we do the wrapping. So there are not other reference frames.\n\nI had tried to wrap around current frame and its reference frames, but it didn\u0027t work because we can\u0027t identify all reference frames from an arbitrary frame.\n\nSo I ended up with wrapping only for key frames.",
+      "parentUuid": "90276654_5f7528fe",
+      "range": {
+        "startLine": 2584,
+        "startChar": 6,
+        "endLine": 2584,
+        "endChar": 48
+      },
+      "revId": "954843667874d936f217dd40a79dab7d030528b6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
