@@ -930,7 +930,6 @@ static void build_y_mask(AV1_COMMON *const cm,
     *int_4x4_y |= (size_mask[block_size] & 0xffffffffffffffffULL) << shift_y;
 }
 
-#if CONFIG_LOOPFILTERING_ACROSS_TILES || CONFIG_LOOPFILTERING_ACROSS_TILES_EXT
 // This function update the bit masks for the entire 64x64 region represented
 // by mi_row, mi_col. In case one of the edge is a tile boundary, loop filtering
 // for that edge is disabled. This function only check the tile boundary info
@@ -957,7 +956,6 @@ static void update_tile_boundary_filter_mask(AV1_COMMON *const cm,
     }
   }
 }
-#endif  // CONFIG_LOOPFILTERING_ACROSS_TILES
 
 // This function sets up the bit masks for the entire 64x64 region represented
 // by mi_row, mi_col.
@@ -1194,11 +1192,9 @@ void av1_setup_mask(AV1_COMMON *const cm, int mi_row, int mi_col,
     }
   }
 
-#if CONFIG_LOOPFILTERING_ACROSS_TILES || CONFIG_LOOPFILTERING_ACROSS_TILES_EXT
   if (av1_disable_loopfilter_on_tile_boundary(cm)) {
     update_tile_boundary_filter_mask(cm, mi_row, mi_col, lfm);
   }
-#endif  // CONFIG_LOOPFILTERING_ACROSS_TILES
 
   // Assert if we try to apply 2 different loop filters at the same position.
   assert(!(lfm->left_y[TX_16X16] & lfm->left_y[TX_8X8]));
@@ -1500,14 +1496,12 @@ void av1_filter_block_plane_non420_ver(AV1_COMMON *const cm,
 
     // Disable filtering on the leftmost column or tile boundary
     unsigned int border_mask = ~(mi_col == 0 ? 1 : 0);
-#if CONFIG_LOOPFILTERING_ACROSS_TILES || CONFIG_LOOPFILTERING_ACROSS_TILES_EXT
     const BOUNDARY_TYPE *const bi =
         cm->boundary_info + (mi_row + idx_r) * cm->mi_stride + mi_col;
     if (av1_disable_loopfilter_on_tile_boundary(cm) &&
         ((*bi & TILE_LEFT_BOUNDARY) != 0)) {
       border_mask = 0xfffffffe;
     }
-#endif  // CONFIG_LOOPFILTERING_ACROSS_TILES
 
     if (cm->use_highbitdepth)
       highbd_filter_selectively_vert(
@@ -1548,7 +1542,6 @@ void av1_filter_block_plane_non420_hor(AV1_COMMON *const cm,
                                       &lfl[r][0], &mask_4x4_int, NULL,
                                       &row_masks, NULL);
 
-#if CONFIG_LOOPFILTERING_ACROSS_TILES || CONFIG_LOOPFILTERING_ACROSS_TILES_EXT
     // Disable filtering on the abovemost row or tile boundary
     const BOUNDARY_TYPE *bi =
         cm->boundary_info + (mi_row + idx_r) * cm->mi_stride + mi_col;
@@ -1556,9 +1549,6 @@ void av1_filter_block_plane_non420_hor(AV1_COMMON *const cm,
          (*bi & TILE_ABOVE_BOUNDARY)) ||
         (mi_row + idx_r == 0))
       memset(&row_masks, 0, sizeof(row_masks));
-#else
-    if (mi_row + idx_r == 0) memset(&row_masks, 0, sizeof(row_masks));
-#endif  // CONFIG_LOOPFILTERING_ACROSS_TILES
 
     if (cm->use_highbitdepth)
       highbd_filter_selectively_horiz(
@@ -1973,7 +1963,6 @@ static void set_lpf_parameters(
     uint32_t level = curr_level;
     // prepare outer edge parameters. deblock the edge if it's an edge of a TU
     if (coord) {
-#if CONFIG_LOOPFILTERING_ACROSS_TILES || CONFIG_LOOPFILTERING_ACROSS_TILES_EXT
       // Note: For sub8x8 blocks, we need to look at the top-left mi unit in
       // order
       // to extract the correct boundary information.
@@ -1987,9 +1976,7 @@ static void set_lpf_parameters(
       int left_boundary = (*bi & TILE_LEFT_BOUNDARY);
       int top_boundary = (*bi & TILE_ABOVE_BOUNDARY);
       if (((VERT_EDGE == edge_dir) && (0 == left_boundary)) ||
-          ((HORZ_EDGE == edge_dir) && (0 == top_boundary)))
-#endif  // CONFIG_LOOPFILTERING_ACROSS_TILES
-      {
+          ((HORZ_EDGE == edge_dir) && (0 == top_boundary))) {
         const int32_t tu_edge =
             (coord & av1_transform_masks[edge_dir][ts]) ? (0) : (1);
         if (tu_edge) {
