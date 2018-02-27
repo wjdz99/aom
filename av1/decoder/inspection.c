@@ -99,7 +99,12 @@ int ifd_inspect(insp_frame_data *fd, void *decoder) {
       mi->filter[1] = av1_extract_interp_filter(mbmi->interp_filters, 1);
       mi->dual_filter_type = mi->filter[0] * 3 + mi->filter[1];
       // Transform
+#if CONFIG_TXK_SEL
+      // TODO(anyone): extract transform type info. from mbmi->txk_type[].
+      mi->tx_type = DCT_DCT;
+#else
       mi->tx_type = mbmi->tx_type;
+#endif
       mi->tx_size = mbmi->tx_size;
 
       mi->cdef_level =
