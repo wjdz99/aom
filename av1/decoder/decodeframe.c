@@ -1493,7 +1493,6 @@ static void read_tile_info(AV1Decoder *const pbi,
 #if CONFIG_DEPENDENT_HORZTILES
     cm->dependent_horz_tiles = 0;
 #endif
-#if CONFIG_LOOPFILTERING_ACROSS_TILES
     if (cm->tile_cols > 1) {
       cm->loop_filter_across_tiles_v_enabled = aom_rb_read_bit(rb);
     } else {
@@ -1504,7 +1503,6 @@ static void read_tile_info(AV1Decoder *const pbi,
     } else {
       cm->loop_filter_across_tiles_h_enabled = 1;
     }
-#endif  // CONFIG_LOOPFILTERING_ACROSS_TILES
 
     if (cm->tile_cols * cm->tile_rows > 1) {
       // Read the number of bytes used to store tile size
@@ -1556,7 +1554,6 @@ static void read_tile_info(AV1Decoder *const pbi,
   else
     cm->dependent_horz_tiles = 0;
 #endif
-#if CONFIG_LOOPFILTERING_ACROSS_TILES
   if (cm->tile_cols > 1) {
     cm->loop_filter_across_tiles_v_enabled = aom_rb_read_bit(rb);
   } else {
@@ -1567,7 +1564,6 @@ static void read_tile_info(AV1Decoder *const pbi,
   } else {
     cm->loop_filter_across_tiles_h_enabled = 1;
   }
-#endif  // CONFIG_LOOPFILTERING_ACROSS_TILES
 
   // tile size magnitude
   pbi->tile_size_bytes = aom_rb_read_literal(rb, 2) + 1;
@@ -3145,7 +3141,7 @@ void superres_post_decode(AV1Decoder *pbi) {
 }
 
 static void dec_setup_frame_boundary_info(AV1_COMMON *const cm) {
-  // Note: When LOOPFILTERING_ACROSS_TILES is enabled, we need to clear the
+  // Note: When loopfiltering_across_tiles is enabled, we need to clear the
   // boundary information every frame, since the tile boundaries may
   // change every frame (particularly when dependent-horztiles is also
   // enabled); when it is disabled, the only information stored is the frame
