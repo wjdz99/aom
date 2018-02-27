@@ -6865,7 +6865,8 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
 
 #if CONFIG_AMVR
   cpi->cur_poc++;
-  if (oxcf->pass != 1 && cpi->common.allow_screen_content_tools) {
+  if (oxcf->pass != 1 && cpi->common.allow_screen_content_tools &&
+      cm->frame_type != KEY_FRAME) {
     if (cpi->common.seq_params.force_integer_mv == 2) {
       struct lookahead_entry *previous_entry =
           cpi->lookahead->buf + cpi->previsous_index;
