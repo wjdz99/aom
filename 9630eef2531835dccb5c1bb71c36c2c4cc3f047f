@@ -16,6 +16,24 @@
       "revId": "9630eef2531835dccb5c1bb71c36c2c4cc3f047f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2c955a23_990de93f",
+        "filename": "test/variance_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 364,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2018-02-27T20:41:29Z",
+      "side": 1,
+      "message": "https://build.aomedia.org/jenkins/view/libaom-nightly-tests/job/libaom__unit_tests-multi-target/GTEST_SHARD_INDEX\u003d0,arch\u003dx86-linux-clang,experiments\u003dstable/567/console",
+      "parentUuid": "00ea83a2_f86b2f1f",
+      "revId": "9630eef2531835dccb5c1bb71c36c2c4cc3f047f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
