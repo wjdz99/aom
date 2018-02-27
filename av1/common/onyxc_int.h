@@ -516,10 +516,8 @@ typedef struct AV1Common {
   int tile_group_start_row[MAX_TILE_ROWS][MAX_TILE_COLS];
   int tile_group_start_col[MAX_TILE_ROWS][MAX_TILE_COLS];
 #endif
-#if CONFIG_LOOPFILTERING_ACROSS_TILES
   int loop_filter_across_tiles_v_enabled;
   int loop_filter_across_tiles_h_enabled;
-#endif  // CONFIG_LOOPFILTERING_ACROSS_TILES
 
   int byte_alignment;
   int skip_loop_filter;
