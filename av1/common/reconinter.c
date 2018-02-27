@@ -2326,9 +2326,7 @@ void av1_build_intra_predictors_for_interintra(const AV1_COMMON *cm,
       interintra_to_intra_mode[xd->mi[0]->mbmi.interintra_mode];
   xd->mi[0]->mbmi.angle_delta[PLANE_TYPE_Y] = 0;
   xd->mi[0]->mbmi.angle_delta[PLANE_TYPE_UV] = 0;
-#if CONFIG_FILTER_INTRA
   xd->mi[0]->mbmi.filter_intra_mode_info.use_filter_intra = 0;
-#endif  // CONFIG_FILTER_INTRA
 #if CONFIG_INTRABC
   xd->mi[0]->mbmi.use_intrabc = 0;
 #endif
