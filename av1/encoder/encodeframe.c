@@ -4870,6 +4870,7 @@ static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
       av1_encode_intra_block_plane(cpi, x, bsize, plane, x->optimize, mi_row,
                                    mi_col);
     }
+
 #if CONFIG_CFL
     xd->cfl.store_y = 0;
 #endif  // CONFIG_CFL

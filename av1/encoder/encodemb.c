@@ -529,7 +529,6 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
   if (x->blk_skip[plane][blk_row * bw + blk_col] && plane == 0) {
     *eob = 0;
     p->txb_entropy_ctx[block] = 0;
-    *(args->skip) = 0;
     assert(xd->mi[0]->mbmi.txk_type[av1_get_txk_type_index(
                plane_bsize, blk_row, blk_col)] == DCT_DCT);
 #if CONFIG_CFL
