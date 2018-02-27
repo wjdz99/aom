@@ -2358,6 +2358,9 @@ static void write_tile_info_max_tile(const AV1_COMMON *const cm,
 #endif
 
 static void write_tile_info(const AV1_COMMON *const cm,
+#if CONFIG_EXT_TILE
+                            struct aom_write_bit_buffer *saved_wb,
+#endif
                             struct aom_write_bit_buffer *wb) {
 #if CONFIG_EXT_TILE
   if (cm->large_scale_tile) {
@@ -2423,10 +2426,22 @@ static void write_tile_info(const AV1_COMMON *const cm,
 #endif  // CONFIG_LOOPFILTERING_ACROSS_TILES_EXT
 #endif  // CONFIG_LOOPFILTERING_ACROSS_TILES
 
-#if CONFIG_TILE_INFO_FIRST
-  // write the tile length code  (Always 4 bytes for now)
+#if CONFIG_EXT_TILE
+  *saved_wb = *wb;
+  if (cm->large_scale_tile) {
+    if (cm->tile_rows * cm->tile_cols > 1) {
+      // Note that the last item in the uncompressed header is the data
+      // describing tile configuration.
+      // Number of bytes in tile column size - 1
+      aom_wb_write_literal(wb, 0, 2);
+      // Number of bytes in tile size - 1
+      aom_wb_write_literal(wb, 0, 2);
+    }
+    return;
+  }
+#endif  // CONFIG_EXT_TILE
+  // Number of bytes in tile size - 1
   aom_wb_write_literal(wb, 3, 2);
-#endif
 }
 
 #if USE_GF16_MULTI_LAYER
@@ -3279,9 +3294,12 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
   aom_wb_write_literal(wb, cm->frame_context_idx, FRAME_CONTEXTS_LOG2);
 #endif
 #if CONFIG_TILE_INFO_FIRST
-  (void)saved_wb;
+#if CONFIG_EXT_TILE
+  write_tile_info(cm, saved_wb, wb);
+#else
   write_tile_info(cm, wb);
-#endif
+#endif  // CONFIG_EXT_TILE
+#endif  // CONFIG_TILE_INFO_FIRST
   encode_loopfilter(cm, wb);
   encode_quantization(cm, wb);
   encode_segmentation(cm, xd, wb);
@@ -3369,20 +3387,10 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
 #endif
 
 #if !CONFIG_TILE_INFO_FIRST
-  write_tile_info(cm, wb);
-
 #if CONFIG_EXT_TILE
-  *saved_wb = *wb;
-  // Write tile size magnitudes
-  if (cm->tile_rows * cm->tile_cols > 1 && cm->large_scale_tile) {
-    // Note that the last item in the uncompressed header is the data
-    // describing tile configuration.
-    // Number of bytes in tile column size - 1
-    aom_wb_write_literal(wb, 0, 2);
-
-    // Number of bytes in tile size - 1
-    aom_wb_write_literal(wb, 0, 2);
-  }
+  write_tile_info(cm, saved_wb, wb);
+#else
+  write_tile_info(cm, wb);
 #endif
 #endif  // !CONFIG_TILE_INFO_FIRST
 }
@@ -3616,14 +3624,6 @@ static uint32_t write_frame_header_obu(AV1_COMP *cpi,
     total_size = aom_wb_bytes_written(&wb);
     return total_size;
   }
-
-#if !CONFIG_TILE_INFO_FIRST
-// write the tile length code  (Always 4 bytes for now)
-#if CONFIG_EXT_TILE
-  if (!cm->large_scale_tile)
-#endif
-    aom_wb_write_literal(&wb, 3, 2);
-#endif
 
   uncompressed_hdr_size = aom_wb_bytes_written(&wb);
   total_size = uncompressed_hdr_size;
