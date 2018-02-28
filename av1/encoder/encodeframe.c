@@ -1011,7 +1011,6 @@ static void update_stats(const AV1_COMMON *const cm, TileDataEnc *tile_data,
         }
 
         if (has_second_ref(mbmi)) {
-#if CONFIG_EXT_COMP_REFS
           const COMP_REFERENCE_TYPE comp_ref_type = has_uni_comp_refs(mbmi)
                                                         ? UNIDIR_COMP_REFERENCE
                                                         : BIDIR_COMP_REFERENCE;
@@ -1052,7 +1051,6 @@ static void update_stats(const AV1_COMMON *const cm, TileDataEnc *tile_data,
               }
             }
           } else {
-#endif  // CONFIG_EXT_COMP_REFS
             const int bit = (ref0 == GOLDEN_FRAME || ref0 == LAST3_FRAME);
             if (allow_update_cdf)
               update_cdf(av1_get_pred_cdf_comp_ref_p(xd), bit, 2);
@@ -1096,9 +1094,7 @@ static void update_stats(const AV1_COMMON *const cm, TileDataEnc *tile_data,
                                  [ref1 == ALTREF2_FRAME]++;
 #endif  // CONFIG_ENTROPY_STATS
             }
-#if CONFIG_EXT_COMP_REFS
           }
-#endif  // CONFIG_EXT_COMP_REFS
         } else {
           const int bit = (ref0 >= BWDREF_FRAME);
           if (allow_update_cdf)
