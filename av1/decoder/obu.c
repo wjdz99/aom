@@ -355,7 +355,12 @@ void av1_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
       case OBU_METADATA:
         obu_payload_size = read_metadata(data, obu_size);
         break;
-      default: break;
+      case OBU_PADDING: break;
+      default:
+        // OBU type not supported yet!
+        cm->error.error_code = AOM_CODEC_CORRUPT_FRAME;
+        return;
+        break;
     }
 
     data += obu_payload_size;
