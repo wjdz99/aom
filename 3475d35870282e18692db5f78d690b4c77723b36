@@ -22,6 +22,30 @@
       "revId": "3475d35870282e18692db5f78d690b4c77723b36",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eeb4fc18_abac50bc",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 364,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2018-02-28T20:02:34Z",
+      "side": 1,
+      "message": "Thanks, will fix once the patch is verified.",
+      "parentUuid": "f3b6376b_ec367407",
+      "range": {
+        "startLine": 364,
+        "startChar": 8,
+        "endLine": 364,
+        "endChar": 47
+      },
+      "revId": "3475d35870282e18692db5f78d690b4c77723b36",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
