@@ -252,6 +252,22 @@ static const uint32_t kObuExtEnhancementIdBitsMask = 0x3;
 static const uint32_t kObuExtEnhancementIdBitsShift = 3;
 #endif
 
+#if CONFIG_OBU_SIZING
+static aom_codec_err_t read_obu_size(const uint8_t *data,
+                                     size_t bytes_available,
+                                     size_t *const length_field_size,
+                                     size_t *const obu_size) {
+  uint64_t u_obu_size = 0;
+  if (aom_uleb_decode(data, bytes_available, &u_obu_size, length_field_size) !=
+      0) {
+    return AOM_CODEC_CORRUPT_FRAME;
+  }
+
+  *obu_size = (size_t)u_obu_size;
+  return AOM_CODEC_OK;
+}
+#endif  // CONFIG_OBU_SIZING
+
 void av1_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
                                 const uint8_t *data_end,
                                 const uint8_t **p_data_end) {
@@ -280,30 +296,28 @@ void av1_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
       return;
     }
 
-#if CONFIG_OBU_SIZING
-    // OBUs are preceded by an unsigned leb128 coded unsigned integer.
-    uint64_t u_obu_size = 0;
-    size_t length_field_size;
-    if (aom_uleb_decode(data, bytes_available, &u_obu_size,
-                        &length_field_size) != 0) {
-      cm->error.error_code = AOM_CODEC_CORRUPT_FRAME;
-      return;
-    }
-
-    const size_t obu_size = (size_t)u_obu_size;
-#else
+#if !CONFIG_OBU_SIZING
     // every obu is preceded by PRE_OBU_SIZE_BYTES-byte size of obu (obu header
     // + payload size)
     // The obu size is only needed for tile group OBUs
     const size_t obu_size = mem_get_le32(data);
     const size_t length_field_size = PRE_OBU_SIZE_BYTES;
-#endif  // CONFIG_OBU_SIZING
-
     if (obu_size > bytes_available) {
       cm->error.error_code = AOM_CODEC_CORRUPT_FRAME;
       return;
     }
-
+#endif  // !CONFIG_OBU_SIZING
+#if CONFIG_OBU_SIZE_AFTER_HEADER
+    size_t length_field_size = 0;
+#else
+    size_t length_field_size;
+    size_t obu_size;
+    if (read_obu_size(data, bytes_available, &length_field_size, &obu_size) !=
+        AOM_CODEC_OK) {
+      cm->error.error_code = AOM_CODEC_CORRUPT_FRAME;
+      return;
+    }
+#endif
     av1_init_read_bit_buffer(pbi, &rb, data + length_field_size, data_end);
 
 #if !CONFIG_SCALABILITY
@@ -311,6 +325,16 @@ void av1_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
 #else
     const OBU_TYPE obu_type =
         read_obu_header(&rb, &obu_header_size, &obu_extension_header);
+#endif
+#if CONFIG_OBU_SIZE_AFTER_HEADER
+    size_t obu_size;
+    if (read_obu_size(data + obu_header_size, bytes_available - obu_header_size,
+                      &length_field_size, &obu_size) != AOM_CODEC_OK) {
+      cm->error.error_code = AOM_CODEC_CORRUPT_FRAME;
+      return;
+    }
+    av1_init_read_bit_buffer(
+        pbi, &rb, data + length_field_size + obu_header_size, data_end);
 #endif
 
     data += length_field_size + obu_header_size;
@@ -350,10 +374,15 @@ void av1_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
           cm->error.error_code = AOM_CODEC_CORRUPT_FRAME;
           return;
         }
-        obu_payload_size =
-            read_one_tile_group_obu(pbi, &rb, is_first_tg_obu_received, data,
-                                    data + obu_size - obu_header_size,
-                                    p_data_end, &frame_decoding_finished);
+#if CONFIG_OBU_SIZE_AFTER_HEADER
+        // In this case, obu_size is already excluding the header size.
+        const size_t payload_offset = obu_size;
+#else
+        const size_t payload_offset = obu_size - obu_header_size;
+#endif
+        obu_payload_size = read_one_tile_group_obu(
+            pbi, &rb, is_first_tg_obu_received, data, data + payload_offset,
+            p_data_end, &frame_decoding_finished);
         is_first_tg_obu_received = 0;
         break;
       case OBU_METADATA:
