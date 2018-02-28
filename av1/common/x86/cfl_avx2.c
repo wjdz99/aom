@@ -80,6 +80,138 @@ cfl_subsample_lbd_fn cfl_get_luma_subsampling_420_lbd_avx2(TX_SIZE tx_size) {
   return subfn_420[tx_size];
 }
 
+/**
+ * Adds 4 pixels (in a 2x2 grid) and multiplies them by 2. Resulting in a more
+ * precise version of a box filter 4:2:0 pixel subsampling in Q3.
+ *
+ * The CfL prediction buffer is always of size CFL_BUF_SQUARE. However, the
+ * active area is specified using width and height.
+ *
+ * Note: We don't need to worry about going over the active area, as long as we
+ * stay inside the CfL prediction buffer.
+ *
+ * Note: For 4:2:0 luma subsampling, the width will never be greater than 16.
+ */
+static void cfl_luma_subsampling_420_hbd_avx2(const uint16_t *input,
+                                              int input_stride,
+                                              int16_t *pred_buf_q3, int width,
+                                              int height) {
+  assert(width == 16 || width == 32);
+  const int16_t *end = pred_buf_q3 + (height >> 1) * CFL_BUF_LINE;
+  const int luma_stride = input_stride << 1;
+
+  // Permute mask from [0, 1, 2, 3] to [0, 2, 1, 3]
+  const int perm_mask = 0 | (2 << 2) | (1 << 4) | (3 << 6);
+  do {
+    __m128i top = _mm_loadu_si128((__m128i *)input);
+    __m128i bot = _mm_loadu_si128((__m128i *)(input + input_stride));
+    __m128i sum = _mm_add_epi16(top, bot);
+    __m128i top_1 = _mm_loadu_si128((__m128i *)(input + 8));
+    __m128i bot_1 = _mm_loadu_si128((__m128i *)(input + 8 + input_stride));
+    sum = _mm_hadd_epi16(sum, _mm_add_epi16(top_1, bot_1));
+    sum = _mm_add_epi16(sum, sum);
+    _mm_storeu_si128((__m128i *)pred_buf_q3, sum);
+
+    /*    __m256i top = _mm256_loadu_si256((__m256i *)input);
+        __m256i bot = _mm256_loadu_si256((__m256i *)(input + input_stride));
+        __m256i sum = _mm256_add_epi16(top, bot);
+        __m256i hsum = _mm256_hadd_epi16(sum, sum);
+        hsum = _mm256_permute4x64_epi64(hsum, perm_mask);
+        hsum = _mm256_add_epi16(hsum, hsum);
+        //_mm256_storeu_si256((__m256i *)pred_buf_q3, hsum);
+
+        _mm_storeu_si128((__m128i *)pred_buf_q3, _mm256_castsi256_si128(hsum));
+
+    */
+    /*
+        __m256i top = _mm256_loadu_si256((__m256i *)input);
+        __m128i top_128 = _mm_loadu_si128((__m128i *)input);
+        __m128i top_128_1 = _mm_loadu_si128((__m128i *)(input + 8));
+
+        __m256i bot = _mm256_loadu_si256((__m256i *)(input + input_stride));
+        __m128i bot_128 = _mm_loadu_si128((__m128i *)(input +
+       input_stride));
+        __m128i bot_128_1 = _mm_loadu_si128((__m128i *)(input + 8 +
+       input_stride));
+
+        __m256i sum = _mm256_add_epi16(top, bot);
+        __m256i hsum = _mm256_hadd_epi16(sum, sum);
+
+        __m128i sum_128 = _mm_add_epi16(top_128, bot_128);
+        __m128i sum_128_1 = _mm_add_epi16(top_128_1, bot_128_1);
+        __m128i hsum_128 = _mm_hadd_epi16(sum_128, sum_128_1);
+
+        int16_t *val, *val2;
+        for (int i = 0; i < 8; i++) {
+          assert(((int16_t *)&top_128)[i] == ((int16_t *)&top)[i]);
+          assert(((int16_t *)&top_128_1)[i] == ((int16_t *)&top)[i + 8]);
+          assert(((int16_t *)&bot_128)[i] == ((int16_t *)&bot)[i]);
+          assert(((int16_t *)&bot_128_1)[i] == ((int16_t *)&bot)[i + 8]);
+          assert(((int16_t *)&sum_128)[i] == ((int16_t *)&sum)[i]);
+          assert(((int16_t *)&sum_128_1)[i] == ((int16_t *)&sum)[i + 8]);
+          assert(((int16_t *)&hsum_128)[i] == ((int16_t *)&hsum)[i]);
+          val = (int16_t *)&sum_128;
+          val2 = (int16_t *)&sum;
+          printf("%d ==  %d\n", val[i], val2[i]);
+        }
+        sum = _mm256_add_epi16(sum, sum);
+        //_mm256_storeu_si256((__m256i *)pred_buf_q3, sum);
+        _mm_storeu_si128((__m128i *)pred_buf_q3,
+       _mm256_castsi256_si128(sum));
+    */
+    /*
+          // if (width == 16) {
+          sum = _mm256_hadd_epi16(sum, sum);
+          sum = _mm256_add_epi16(sum, sum);
+          _mm256_storeu_si256((__m256i *)pred_buf_q3, sum);
+      */
+    //  } else {
+    /*__m256i top_1 = _mm256_loadu_si256((__m256i *)(input + 16));
+    __m256i bot_1 =
+        _mm256_loadu_si256((__m256i *)(input + 16 + input_stride));
+    sum = _mm256_hadd_epi16(sum, _mm256_add_epi16(top_1, bot_1));
+    sum = _mm256_add_epi16(sum, sum);
+    _mm256_storeu_si256((__m256i *)pred_buf_q3, sum);
+*/
+    //  }
+
+    input += luma_stride;
+  } while ((pred_buf_q3 += CFL_BUF_LINE) < end);
+}
+
+CFL_SUBSAMPLE(avx2, 420, hbd, 16, 4)
+CFL_SUBSAMPLE(avx2, 420, hbd, 16, 8)
+CFL_SUBSAMPLE(avx2, 420, hbd, 16, 16)
+CFL_SUBSAMPLE(avx2, 420, hbd, 16, 32)
+CFL_SUBSAMPLE(avx2, 420, hbd, 32, 32)
+CFL_SUBSAMPLE(avx2, 420, hbd, 32, 16)
+CFL_SUBSAMPLE(avx2, 420, hbd, 32, 8)
+
+cfl_subsample_hbd_fn cfl_get_luma_subsampling_420_hbd_avx2(TX_SIZE tx_size) {
+  static const cfl_subsample_hbd_fn subfn_420[TX_SIZES_ALL] = {
+    subsample_hbd_420_4x4_ssse3,  /* 4x4 */
+    subsample_hbd_420_8x8_ssse3,  /* 8x8 */
+    subsample_hbd_420_16x16_avx2, /* 16x16 */
+    subsample_hbd_420_32x32_avx2, /* 32x32 */
+    cfl_subsample_hbd_null,       /* 64x64 (invalid CFL size) */
+    subsample_hbd_420_4x8_ssse3,  /* 4x8 */
+    subsample_hbd_420_8x4_ssse3,  /* 8x4 */
+    subsample_hbd_420_8x16_ssse3, /* 8x16 */
+    subsample_hbd_420_16x8_avx2,  /* 16x8 */
+    subsample_hbd_420_16x32_avx2, /* 16x32 */
+    subsample_hbd_420_32x16_avx2, /* 32x16 */
+    cfl_subsample_hbd_null,       /* 32x64 (invalid CFL size) */
+    cfl_subsample_hbd_null,       /* 64x32 (invalid CFL size) */
+    subsample_hbd_420_4x16_ssse3, /* 4x16  */
+    subsample_hbd_420_16x4_avx2,  /* 16x4  */
+    subsample_hbd_420_8x32_ssse3, /* 8x32  */
+    subsample_hbd_420_32x8_avx2,  /* 32x8  */
+    cfl_subsample_hbd_null,       /* 16x64 (invalid CFL size) */
+    cfl_subsample_hbd_null,       /* 64x16 (invalid CFL size) */
+  };
+  return subfn_420[tx_size];
+}
+
 static INLINE __m256i predict_unclipped(const __m256i *input, __m256i alpha_q12,
                                         __m256i alpha_sign, __m256i dc_q0) {
   __m256i ac_q3 = _mm256_loadu_si256(input);
