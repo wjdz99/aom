@@ -332,9 +332,12 @@ static int read_segment_id(AV1_COMMON *const cm, MACROBLOCKD *const xd,
 
   int segment_id = neg_deinterleave(coded_id, pred, cm->last_active_segid + 1);
 
-  assert(segment_id >= 0 && segment_id <= cm->last_active_segid);
-
-  return segment_id;
+  if (segment_id >= 0 && segment_id <= cm->last_active_segid) {
+    return segment_id;
+  } else {
+    aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
+                       "Corrupted segment_ids");
+  }
 }
 #else
 static int read_segment_id(aom_reader *r, struct segmentation_probs *segp) {
