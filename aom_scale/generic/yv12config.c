@@ -109,7 +109,7 @@ int aom_realloc_frame_buffer(YV12_BUFFER_CONFIG *ybf, int width, int height,
       // This memset is needed for fixing valgrind error from C loop filter
       // due to access uninitialized memory in frame border. It could be
       // removed if border is totally removed.
-      memset(ybf->buffer_alloc, 0, ybf->buffer_alloc_sz);
+      // memset(ybf->buffer_alloc, 0, ybf->buffer_alloc_sz);
     }
 
     /* Only support allocating buffers that have a border that's a multiple
