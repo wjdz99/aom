@@ -345,10 +345,6 @@ CFL_SUBSAMPLE_FUNCTIONS(c, 444, lbd)
 
 // TODO(ltrudeau) Move into the CFL_GET_SUBSAMPLE_FUNCTION when LBD 444 SIMD
 // will be implemented
-CFL_SUBSAMPLE_FUNCTIONS(c, 420, hbd)
-
-// TODO(ltrudeau) Move into the CFL_GET_SUBSAMPLE_FUNCTION when LBD 444 SIMD
-// will be implemented
 CFL_SUBSAMPLE_FUNCTIONS(c, 422, hbd)
 
 // TODO(ltrudeau) Move into the CFL_GET_SUBSAMPLE_FUNCTION when LBD 444 SIMD
@@ -356,13 +352,6 @@ CFL_SUBSAMPLE_FUNCTIONS(c, 422, hbd)
 CFL_SUBSAMPLE_FUNCTIONS(c, 444, hbd)
 
 CFL_GET_SUBSAMPLE_FUNCTION(c)
-
-// TODO(ltrudeau) Move into the CFL_GET_SUBSAMPLE_FUNCTION when LBD 444 SIMD
-// will be implemented
-cfl_subsample_hbd_fn cfl_get_luma_subsampling_420_hbd_c(TX_SIZE tx_size) {
-  CFL_SUBSAMPLE_FUNCTION_ARRAY(c, 420, hbd)
-  return subfn_420[tx_size];
-}
 
 // TODO(ltrudeau) Move into the CFL_GET_SUBSAMPLE_FUNCTION when LBD 444 SIMD
 // will be implemented
