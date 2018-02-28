@@ -34,6 +34,24 @@
       "revId": "860f040f0a9f5c04820be4661ba7a782fa4aeb00",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "116b1ae0_6d3dcedb",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 3492,
+      "author": {
+        "id": 5050
+      },
+      "writtenOn": "2018-02-28T20:50:58Z",
+      "side": 1,
+      "message": "I\u0027ve now resolved this with (a) the PRIMARY_REF_NONE condition and (b) making reading from an INVALID_INDEX an aom_internal_error. I decided to do that rather than load default probabilities as it makes conformance simpler.",
+      "parentUuid": "800fb87f_d423005b",
+      "revId": "860f040f0a9f5c04820be4661ba7a782fa4aeb00",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
