@@ -335,11 +335,11 @@ static void cfl_luma_subsampling_444_hbd_c(const uint16_t *input,
   }
 }
 
-// TODO(ltrudeau) Move into the CFL_GET_SUBSAMPLE_FUNCTION when LBD 444 SIMD
+// TODO(ltrudeau) Move into the CFL_GET_SUBSAMPLE_FUNCTION when LBD 420 SIMD
 // will be implemented
 CFL_SUBSAMPLE_FUNCTIONS(c, 420, hbd)
 
-// TODO(ltrudeau) Move into the CFL_GET_SUBSAMPLE_FUNCTION when LBD 444 SIMD
+// TODO(ltrudeau) Move into the CFL_GET_SUBSAMPLE_FUNCTION when LBD 422 SIMD
 // will be implemented
 CFL_SUBSAMPLE_FUNCTIONS(c, 422, hbd)
 
@@ -353,8 +353,7 @@ static INLINE cfl_subsample_hbd_fn cfl_subsampling_hbd(TX_SIZE tx_size,
                                                        int sub_x, int sub_y) {
   if (sub_x == 1) {
     if (sub_y == 1) {
-      // TODO(ltrudeau) Remove _c when HBD 420 SIMD is added
-      return cfl_get_luma_subsampling_420_hbd_c(tx_size);
+      return cfl_get_luma_subsampling_420_hbd(tx_size);
     }
     // TODO(ltrudeau) Remove _c when HBD 422 SIMD is added
     return cfl_get_luma_subsampling_422_hbd_c(tx_size);
@@ -369,11 +368,9 @@ static INLINE cfl_subsample_lbd_fn cfl_subsampling_lbd(TX_SIZE tx_size,
     if (sub_y == 1) {
       return cfl_get_luma_subsampling_420_lbd(tx_size);
     }
-    // TODO(ltrudeau) Remove _c when LBD 422 SIMD is added
-    return cfl_get_luma_subsampling_422_lbd_c(tx_size);
+    return cfl_get_luma_subsampling_422_lbd(tx_size);
   }
-  // TODO(ltrudeau) Remove _c when LBD 444 SIMD is added
-  return cfl_get_luma_subsampling_444_lbd_c(tx_size);
+  return cfl_get_luma_subsampling_444_lbd(tx_size);
 }
 
 static void cfl_store(CFL_CTX *cfl, const uint8_t *input, int input_stride,
