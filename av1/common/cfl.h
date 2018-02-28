@@ -114,9 +114,15 @@ void cfl_subsample_hbd_null(const uint16_t *input, int input_stride,
 // this function.
 #define CFL_GET_SUBSAMPLE_FUNCTION(arch)                        \
   CFL_SUBSAMPLE_FUNCTIONS(arch, 420, lbd)                       \
+  CFL_SUBSAMPLE_FUNCTIONS(arch, 420, hbd)                       \
   cfl_subsample_lbd_fn cfl_get_luma_subsampling_420_lbd_##arch( \
       TX_SIZE tx_size) {                                        \
     CFL_SUBSAMPLE_FUNCTION_ARRAY(arch, 420, lbd)                \
+    return subfn_420[tx_size];                                  \
+  }                                                             \
+  cfl_subsample_hbd_fn cfl_get_luma_subsampling_420_hbd_##arch( \
+      TX_SIZE tx_size) {                                        \
+    CFL_SUBSAMPLE_FUNCTION_ARRAY(arch, 420, hbd)                \
     return subfn_420[tx_size];                                  \
   }
 
