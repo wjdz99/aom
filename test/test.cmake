@@ -505,8 +505,10 @@ function (setup_aom_test_targets)
   # Collect all variables containing libaom test source files.
   get_cmake_property(all_cmake_vars VARIABLES)
   foreach (var ${all_cmake_vars})
-    if ("${var}" MATCHES "_TEST_" AND NOT
-        "${var}" MATCHES "_DATA_\|_COMPILED\|_HOSTING\|_CMAKE_\|INTRA_PRED")
+    if (("${var}" MATCHES "_TEST_" AND NOT
+        "${var}" MATCHES "_DATA_\|_HOSTING\|_CMAKE_\|INTRA_PRED\|_PERF_")
+        OR (CONFIG_ENCODE_PERF_TESTS AND "${var}" MATCHES "_ENCODE_PERF_TEST_")
+        OR (CONFIG_DECODE_PERF_TESTS AND "${var}" MATCHES "_DECODE_PERF_TEST_"))
       list(APPEND aom_test_source_vars ${var})
     endif ()
   endforeach ()
