@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "be5d8e19_c0d40880",
+        "filename": "av1/common/av1_inv_txfm1d.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 6000
+      },
+      "writtenOn": "2018-03-01T11:40:43Z",
+      "side": 1,
+      "message": "I think so.\n\nOtherwise, we would be range-checking the slightly different values anyway (as they would have been computed based on non-clamped values).",
+      "parentUuid": "2dad6de7_0ceacded",
+      "revId": "0313edb569ea3d205c2c984aa3e533c41791e789",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8f6b498a_af4a1a79",
         "filename": "av1/common/av1_inv_txfm2d.c",
         "patchSetId": 3
