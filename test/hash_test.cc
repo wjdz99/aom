@@ -20,7 +20,7 @@
 #include "test/util.h"
 #include "third_party/googletest/src/googletest/include/gtest/gtest.h"
 
-namespace AV1Hash {
+namespace {
 
 ////////////////////////////////////////
 // C version reference code from
@@ -31,13 +31,13 @@ namespace AV1Hash {
 #define POLY 0x82f63b78
 
 /* Table for a quadword-at-a-time software crc. */
-static uint32_t crc32c_table[8][256];
+uint32_t crc32c_table[8][256];
 
 /* Construct table for software CRC-32C calculation. */
 static void crc32c_init_sw(void) {
-  uint32_t n, crc, k;
+  uint32_t crc;
 
-  for (n = 0; n < 256; n++) {
+  for (int n = 0; n < 256; n++) {
     crc = n;
     crc = crc & 1 ? (crc >> 1) ^ POLY : crc >> 1;
     crc = crc & 1 ? (crc >> 1) ^ POLY : crc >> 1;
@@ -49,9 +49,9 @@ static void crc32c_init_sw(void) {
     crc = crc & 1 ? (crc >> 1) ^ POLY : crc >> 1;
     crc32c_table[0][n] = crc;
   }
-  for (n = 0; n < 256; n++) {
+  for (int n = 0; n < 256; n++) {
     crc = crc32c_table[0][n];
-    for (k = 1; k < 8; k++) {
+    for (int k = 1; k < 8; k++) {
       crc = crc32c_table[0][crc & 0xff] ^ (crc >> 8);
       crc32c_table[k][n] = crc;
     }
@@ -62,7 +62,7 @@ static void crc32c_init_sw(void) {
    than using the hardware instructions.  This assumes little-endian integers,
    as is the case on Intel processors that the assembler code here is for. */
 uint32_t crc32c_sw(const void *buf, size_t len, uint32_t crci) {
-  const unsigned char *next = (const unsigned char *)buf;
+  const unsigned char *next = reinterpret_cast<const unsigned char *>(buf);
   uint64_t crc;
 
   crc = crci ^ 0xffffffff;
@@ -188,4 +188,4 @@ INSTANTIATE_TEST_CASE_P(
                        ::testing::ValuesIn(kValidBlockSize)));
 #endif
 
-}  // namespace AV1Hash
+}  // namespace
