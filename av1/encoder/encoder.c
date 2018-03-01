@@ -6295,6 +6295,11 @@ static int is_integer_mv(AV1_COMP *cpi, const YV12_BUFFER_CONFIG *cur_picture,
   uint32_t hash_value_1;
   uint32_t hash_value_2;
 
+  // This function and the associated hashing functions does not work for
+  // highbitdepth. So just return 0.
+  // TODO(Roger): Make it work for highbitdepth.
+  if ((cur_picture->flags & YV12_FLAG_HIGHBITDEPTH) != 0) return 0;
+
   const int block_size = 8;
   const double threshold_current = 0.8;
   const double threshold_average = 0.95;
