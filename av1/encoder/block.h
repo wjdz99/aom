@@ -293,7 +293,7 @@ struct macroblock {
   int intra_uv_mode_cost[INTRA_MODES][UV_INTRA_MODES];
 #endif
   int y_mode_costs[INTRA_MODES][INTRA_MODES][INTRA_MODES];
-  int filter_intra_cost[TX_SIZES_ALL][2];
+  int filter_intra_cost[BLOCK_SIZES_ALL][2];
   int filter_intra_mode_cost[FILTER_INTRA_MODES];
   int switchable_interp_costs[SWITCHABLE_FILTER_CONTEXTS][SWITCHABLE_FILTERS];
   int partition_cost[PARTITION_CONTEXTS][EXT_PARTITION_TYPES];
