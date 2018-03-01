@@ -83,17 +83,18 @@ int av1_get_palette_cache(const MACROBLOCKD *const xd, int plane,
   const MODE_INFO *const left_mi = xd->left_mi;
   int above_n = 0, left_n = 0;
   if (above_mi)
-    above_n = above_mi->mbmi.palette_mode_info.palette_size[plane != 0];
+    above_n = above_mi->mbmi.intra_mode_info.
+                             palette_mode_info.palette_size[plane != 0];
   if (left_mi)
-    left_n = left_mi->mbmi.palette_mode_info.palette_size[plane != 0];
+    left_n = left_mi->mbmi.intra_mode_info.palette_mode_info.palette_size[plane != 0];
   if (above_n == 0 && left_n == 0) return 0;
   int above_idx = plane * PALETTE_MAX_SIZE;
   int left_idx = plane * PALETTE_MAX_SIZE;
   int n = 0;
   const uint16_t *above_colors =
-      above_mi ? above_mi->mbmi.palette_mode_info.palette_colors : NULL;
+      above_mi ? above_mi->mbmi.intra_mode_info.palette_mode_info.palette_colors : NULL;
   const uint16_t *left_colors =
-      left_mi ? left_mi->mbmi.palette_mode_info.palette_colors : NULL;
+      left_mi ? left_mi->mbmi.intra_mode_info.palette_mode_info.palette_colors : NULL;
   // Merge the sorted lists of base colors from above and left to get
   // combined sorted color cache.
   while (above_n > 0 && left_n > 0) {

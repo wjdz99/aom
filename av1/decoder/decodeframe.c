@@ -608,9 +608,9 @@ static void read_filter_intra_mode_info(MACROBLOCKD *const xd, aom_reader *r) {
   MODE_INFO *const mi = xd->mi[0];
   MB_MODE_INFO *const mbmi = &mi->mbmi;
   FILTER_INTRA_MODE_INFO *filter_intra_mode_info =
-      &mbmi->filter_intra_mode_info;
+      &mbmi->intra_mode_info.filter_intra_mode_info;
 
-  if (mbmi->mode == DC_PRED && mbmi->palette_mode_info.palette_size[0] == 0 &&
+  if (mbmi->mode == DC_PRED && mbmi->intra_mode_info.palette_mode_info.palette_size[0] == 0 &&
       av1_filter_intra_allowed_txsize(mbmi->tx_size)) {
     filter_intra_mode_info->use_filter_intra = aom_read_symbol(
         r, xd->tile_ctx->filter_intra_cdfs[mbmi->tx_size], 2, ACCT_STR);
@@ -629,7 +629,7 @@ static void decode_block(AV1Decoder *const pbi, MACROBLOCKD *const xd,
   if (!is_inter_block(&xd->mi[0]->mbmi)) {
     for (int plane = 0; plane < AOMMIN(2, av1_num_planes(&pbi->common));
          ++plane) {
-      if (xd->mi[0]->mbmi.palette_mode_info.palette_size[plane])
+      if (xd->mi[0]->mbmi.intra_mode_info.palette_mode_info.palette_size[plane])
         av1_decode_palette_tokens(xd, plane, r);
     }
   }

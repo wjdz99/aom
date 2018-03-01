@@ -2153,7 +2153,7 @@ static int skip_invalid_tx_size_for_filter_intra(const MB_MODE_INFO *mbmi,
                                                  int plane,
                                                  RD_STATS *rd_stats) {
   if (plane == 0 && !is_inter_block(mbmi) &&
-      mbmi->filter_intra_mode_info.use_filter_intra &&
+      mbmi->intra_mode_info.filter_intra_mode_info.use_filter_intra &&
       !av1_filter_intra_allowed_txsize(mbmi->tx_size)) {
     rd_stats->rate = INT_MAX;
     rd_stats->dist = INT64_MAX;
@@ -2243,8 +2243,8 @@ int av1_tx_type_cost(const AV1_COMMON *cm, const MACROBLOCK *x,
     } else {
       if (ext_tx_set > 0) {
         PREDICTION_MODE intra_dir;
-        if (mbmi->filter_intra_mode_info.use_filter_intra)
-          intra_dir = fimode_to_intradir[mbmi->filter_intra_mode_info
+        if (mbmi->intra_mode_info.filter_intra_mode_info.use_filter_intra)
+          intra_dir = fimode_to_intradir[mbmi->intra_mode_info.filter_intra_mode_info
                                              .filter_intra_mode];
         else
           intra_dir = mbmi->mode;
@@ -2504,8 +2504,8 @@ static int intra_mode_info_cost_y(const AV1_COMP *cpi, const MACROBLOCK *x,
                                   const MB_MODE_INFO *mbmi, BLOCK_SIZE bsize,
                                   int mode_cost) {
   int total_rate = mode_cost;
-  const int use_palette = mbmi->palette_mode_info.palette_size[0] > 0;
-  const int use_filter_intra = mbmi->filter_intra_mode_info.use_filter_intra;
+  const int use_palette = mbmi->intra_mode_info.palette_mode_info.palette_size[0] > 0;
+  const int use_filter_intra = mbmi->intra_mode_info.filter_intra_mode_info.use_filter_intra;
   const int use_intrabc = mbmi->use_intrabc;
   // Can only activate one mode.
   assert(((mbmi->mode != DC_PRED) + use_palette + use_intrabc +
@@ -2522,14 +2522,14 @@ static int intra_mode_info_cost_y(const AV1_COMP *cpi, const MACROBLOCK *x,
       int block_width, block_height, rows, cols;
       av1_get_block_dimensions(bsize, 0, xd, &block_width, &block_height, &rows,
                                &cols);
-      const int plt_size = mbmi->palette_mode_info.palette_size[0];
+      const int plt_size = mbmi->intra_mode_info.palette_mode_info.palette_size[0];
       int palette_mode_cost =
           x->palette_y_size_cost[bsize_ctx][plt_size - PALETTE_MIN_SIZE] +
           write_uniform_cost(plt_size, color_map[0]);
       uint16_t color_cache[2 * PALETTE_MAX_SIZE];
       const int n_cache = av1_get_palette_cache(xd, 0, color_cache);
       palette_mode_cost +=
-          av1_palette_color_cost_y(&mbmi->palette_mode_info, color_cache,
+          av1_palette_color_cost_y(&mbmi->intra_mode_info.palette_mode_info, color_cache,
                                    n_cache, cpi->common.bit_depth);
       palette_mode_cost +=
           av1_cost_color_map(x, 0, bsize, mbmi->tx_size, PALETTE_MAP);
@@ -2539,7 +2539,7 @@ static int intra_mode_info_cost_y(const AV1_COMP *cpi, const MACROBLOCK *x,
   if (mbmi->mode == DC_PRED && av1_filter_intra_allowed_txsize(mbmi->tx_size)) {
     total_rate += x->filter_intra_cost[mbmi->tx_size][use_filter_intra];
     if (use_filter_intra) {
-      total_rate += x->filter_intra_mode_cost[mbmi->filter_intra_mode_info
+      total_rate += x->filter_intra_mode_cost[mbmi->intra_mode_info.filter_intra_mode_info
                                                   .filter_intra_mode];
     }
   }
@@ -2566,7 +2566,7 @@ static int intra_mode_info_cost_uv(const AV1_COMP *cpi, const MACROBLOCK *x,
                                    const MB_MODE_INFO *mbmi, BLOCK_SIZE bsize,
                                    int mode_cost) {
   int total_rate = mode_cost;
-  const int use_palette = mbmi->palette_mode_info.palette_size[1] > 0;
+  const int use_palette = mbmi->intra_mode_info.palette_mode_info.palette_size[1] > 0;
   const UV_PREDICTION_MODE mode = mbmi->uv_mode;
   // Can only activate one mode.
   assert(((mode != UV_DC_PRED) + use_palette + mbmi->use_intrabc) <= 1);
@@ -2574,7 +2574,7 @@ static int intra_mode_info_cost_uv(const AV1_COMP *cpi, const MACROBLOCK *x,
   const int try_palette =
       av1_allow_palette(cpi->common.allow_screen_content_tools, mbmi->sb_type);
   if (try_palette && mode == UV_DC_PRED) {
-    const PALETTE_MODE_INFO *pmi = &mbmi->palette_mode_info;
+    const PALETTE_MODE_INFO *pmi = &mbmi->intra_mode_info.palette_mode_info;
     total_rate +=
         x->palette_uv_mode_cost[pmi->palette_size[0] > 0][use_palette];
     if (use_palette) {
@@ -2638,7 +2638,7 @@ static int64_t intra_model_yrd(const AV1_COMP *const cpi, MACROBLOCK *const x,
   int row, col;
   int64_t temp_sse, this_rd;
   TX_SIZE tx_size = tx_size_from_tx_mode(bsize, cm->tx_mode);
-  if (mbmi->filter_intra_mode_info.use_filter_intra) {
+  if (mbmi->intra_mode_info.filter_intra_mode_info.use_filter_intra) {
     tx_size = av1_max_tx_size_for_filter_intra(bsize, cm->tx_mode);
     if (!av1_filter_intra_allowed_txsize(tx_size)) return INT64_MAX;
   }
@@ -2668,8 +2668,8 @@ static int64_t intra_model_yrd(const AV1_COMP *const cpi, MACROBLOCK *const x,
 #endif  // CONFIG_EXT_INTRA_MOD
   }
   if (mbmi->mode == DC_PRED && av1_filter_intra_allowed_txsize(mbmi->tx_size)) {
-    if (mbmi->filter_intra_mode_info.use_filter_intra) {
-      const int mode = mbmi->filter_intra_mode_info.filter_intra_mode;
+    if (mbmi->intra_mode_info.filter_intra_mode_info.use_filter_intra) {
+      const int mode = mbmi->intra_mode_info.filter_intra_mode_info.filter_intra_mode;
       mode_cost += x->filter_intra_cost[mbmi->tx_size][1] +
                    x->filter_intra_mode_cost[mode];
     } else {
@@ -2740,7 +2740,7 @@ static void palette_rd_y(
     // well for that case anyway. So skip.
     return;
   }
-  PALETTE_MODE_INFO *const pmi = &mbmi->palette_mode_info;
+  PALETTE_MODE_INFO *const pmi = &mbmi->intra_mode_info.palette_mode_info;
   if (cpi->common.use_highbitdepth)
     for (int i = 0; i < k; ++i)
       pmi->palette_colors[i] =
@@ -2812,7 +2812,7 @@ static int rd_pick_palette_intra_sby(
                                      cpi->common.bit_depth, count_buf);
   else
     colors = av1_count_colors(src, src_stride, rows, cols, count_buf);
-  mbmi->filter_intra_mode_info.use_filter_intra = 0;
+  mbmi->intra_mode_info.filter_intra_mode_info.use_filter_intra = 0;
 
   if (colors > 1 && colors <= 64) {
     int r, c, i;
@@ -2851,7 +2851,7 @@ static int rd_pick_palette_intra_sby(
     }
 
     mbmi->mode = DC_PRED;
-    mbmi->filter_intra_mode_info.use_filter_intra = 0;
+    mbmi->intra_mode_info.filter_intra_mode_info.use_filter_intra = 0;
 
     uint16_t color_cache[2 * PALETTE_MAX_SIZE];
     const int n_cache = av1_get_palette_cache(xd, 0, color_cache);
@@ -2902,7 +2902,7 @@ static int rd_pick_palette_intra_sby(
     }
   }
 
-  if (best_mbmi->palette_mode_info.palette_size[0] > 0) {
+  if (best_mbmi->intra_mode_info.palette_mode_info.palette_size[0] > 0) {
     memcpy(color_map, best_palette_color_map,
            block_width * block_height * sizeof(best_palette_color_map[0]));
   }
@@ -2927,14 +2927,14 @@ static int rd_pick_filter_intra_sby(const AV1_COMP *const cpi, MACROBLOCK *x,
   TX_TYPE best_txk_type[TXK_TYPE_BUF_LEN];
   (void)ctx;
   av1_zero(filter_intra_mode_info);
-  mbmi->filter_intra_mode_info.use_filter_intra = 1;
+  mbmi->intra_mode_info.filter_intra_mode_info.use_filter_intra = 1;
   mbmi->mode = DC_PRED;
-  mbmi->palette_mode_info.palette_size[0] = 0;
+  mbmi->intra_mode_info.palette_mode_info.palette_size[0] = 0;
 
   for (mode = 0; mode < FILTER_INTRA_MODES; ++mode) {
     int64_t this_rd, this_model_rd;
     RD_STATS tokenonly_rd_stats;
-    mbmi->filter_intra_mode_info.filter_intra_mode = mode;
+    mbmi->intra_mode_info.filter_intra_mode_info.filter_intra_mode = mode;
     this_model_rd = intra_model_yrd(cpi, x, bsize, mode_cost);
     if (*best_model_rd != INT64_MAX &&
         this_model_rd > *best_model_rd + (*best_model_rd >> 1))
@@ -2950,7 +2950,7 @@ static int rd_pick_filter_intra_sby(const AV1_COMP *const cpi, MACROBLOCK *x,
     if (this_rd < *best_rd) {
       *best_rd = this_rd;
       best_tx_size = mbmi->tx_size;
-      filter_intra_mode_info = mbmi->filter_intra_mode_info;
+      filter_intra_mode_info = mbmi->intra_mode_info.filter_intra_mode_info;
       memcpy(best_txk_type, mbmi->txk_type,
              sizeof(best_txk_type[0]) * TXK_TYPE_BUF_LEN);
       memcpy(ctx->blk_skip[0], x->blk_skip[0],
@@ -2966,7 +2966,7 @@ static int rd_pick_filter_intra_sby(const AV1_COMP *const cpi, MACROBLOCK *x,
   if (filter_intra_selected_flag) {
     mbmi->mode = DC_PRED;
     mbmi->tx_size = best_tx_size;
-    mbmi->filter_intra_mode_info = filter_intra_mode_info;
+    mbmi->intra_mode_info.filter_intra_mode_info = filter_intra_mode_info;
     memcpy(mbmi->txk_type, best_txk_type,
            sizeof(best_txk_type[0]) * TXK_TYPE_BUF_LEN);
     return 1;
@@ -3006,7 +3006,7 @@ static int64_t calc_rd_given_intra_angle(
                          [max_angle_delta + mbmi->angle_delta[PLANE_TYPE_Y]];
 #else
       write_uniform_cost(2 * max_angle_delta + 1,
-                         mbmi->angle_delta[PLANE_TYPE_Y] + max_angle_delta);
+                         mbmi->intra_mode_info.angle_delta[PLANE_TYPE_Y] + max_angle_delta);
 #endif  // CONFIG_EXT_INTRA_MOD
   this_rd = RDCOST(x->rdmult, this_rate, tokenonly_rd_stats.dist);
 
@@ -3283,7 +3283,7 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   const uint8_t *src = x->plane[0].src.buf;
   int beat_best_rd = 0;
   const int *bmode_costs;
-  PALETTE_MODE_INFO *const pmi = &mbmi->palette_mode_info;
+  PALETTE_MODE_INFO *const pmi = &mbmi->intra_mode_info.palette_mode_info;
   const int try_palette =
       av1_allow_palette(cpi->common.allow_screen_content_tools, mbmi->sb_type);
   uint8_t *best_palette_color_map =
@@ -3303,7 +3303,7 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   else
     angle_estimation(src, src_stride, rows, cols, bsize,
                      directional_mode_skip_mask);
-  mbmi->filter_intra_mode_info.use_filter_intra = 0;
+  mbmi->intra_mode_info.filter_intra_mode_info.use_filter_intra = 0;
   pmi->palette_size[0] = 0;
 
   if (cpi->sf.tx_type_search.fast_intra_tx_type_search)
@@ -4585,7 +4585,7 @@ static void rd_pick_palette_intra_sbuv(const AV1_COMP *const cpi, MACROBLOCK *x,
   assert(!is_inter_block(mbmi));
   assert(
       av1_allow_palette(cpi->common.allow_screen_content_tools, mbmi->sb_type));
-  PALETTE_MODE_INFO *const pmi = &mbmi->palette_mode_info;
+  PALETTE_MODE_INFO *const pmi = &mbmi->intra_mode_info.palette_mode_info;
   const BLOCK_SIZE bsize = mbmi->sb_type;
   int this_rate;
   int64_t this_rd;
@@ -4716,7 +4716,7 @@ static void rd_pick_palette_intra_sbuv(const AV1_COMP *const cpi, MACROBLOCK *x,
       }
     }
   }
-  if (best_mbmi->palette_mode_info.palette_size[1] > 0) {
+  if (best_mbmi->intra_mode_info.palette_mode_info.palette_size[1] > 0) {
     memcpy(color_map, best_palette_color_map,
            plane_block_width * plane_block_height *
                sizeof(best_palette_color_map[0]));
@@ -4935,7 +4935,7 @@ static int cfl_rd_pick_alpha(MACROBLOCK *const x, const AV1_COMP *const cpi,
 
 static void init_sbuv_mode(MB_MODE_INFO *const mbmi) {
   mbmi->uv_mode = UV_DC_PRED;
-  mbmi->palette_mode_info.palette_size[1] = 0;
+  mbmi->intra_mode_info.palette_mode_info.palette_size[1] = 0;
 }
 
 static int64_t rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
@@ -7039,7 +7039,7 @@ static int64_t motion_mode_rd(
       mbmi->ref_frame[1] = INTRA_FRAME;
       mbmi->use_wedge_interintra = 0;
       for (j = 0; j < INTERINTRA_MODES; ++j) {
-        mbmi->interintra_mode = (INTERINTRA_MODE)j;
+        mbmi->inter_mode_info.interintra_mode = (INTERINTRA_MODE)j;
         rmode = interintra_mode_cost[mbmi->interintra_mode];
         av1_build_intra_predictors_for_interintra(cm, xd, bsize, 0, orig_dst,
                                                   intrapred, bw);
@@ -7049,11 +7049,11 @@ static int64_t motion_mode_rd(
         rd = RDCOST(x->rdmult, tmp_rate_mv + rate_sum + rmode, dist_sum);
         if (rd < best_interintra_rd) {
           best_interintra_rd = rd;
-          best_interintra_mode = mbmi->interintra_mode;
+          best_interintra_mode = mbmi->inter_mode_info.interintra_mode;
         }
       }
-      mbmi->interintra_mode = best_interintra_mode;
-      rmode = interintra_mode_cost[mbmi->interintra_mode];
+      mbmi->inter_mode_info.interintra_mode = best_interintra_mode;
+      rmode = interintra_mode_cost[mbmi->inter_mode_info.interintra_mode];
       av1_build_intra_predictors_for_interintra(cm, xd, bsize, 0, orig_dst,
                                                 intrapred, bw);
       av1_combine_interintra(xd, bsize, 0, tmp_buf, bw, intrapred, bw);
@@ -7159,7 +7159,7 @@ static int64_t motion_mode_rd(
                                           [mbmi->ref_frame[1] == INTRA_FRAME];
       if (mbmi->ref_frame[1] == INTRA_FRAME) {
         rd_stats->rate += x->interintra_mode_cost[size_group_lookup[bsize]]
-                                                 [mbmi->interintra_mode];
+                                                 [mbmi->inter_mode_info.interintra_mode];
         if (is_interintra_wedge_used(bsize)) {
           rd_stats->rate +=
               x->wedge_interintra_cost[bsize][mbmi->use_wedge_interintra];
@@ -8068,8 +8068,8 @@ static int64_t rd_pick_intrabc_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
     // DV should not have sub-pel.
     assert((dv.col & 7) == 0);
     assert((dv.row & 7) == 0);
-    memset(&mbmi->palette_mode_info, 0, sizeof(mbmi->palette_mode_info));
-    mbmi->filter_intra_mode_info.use_filter_intra = 0;
+    memset(&mbmi->intra_mode_info.palette_mode_info, 0, sizeof(mbmi->intra_mode_info.palette_mode_info));
+    mbmi->intra_mode_info.filter_intra_mode_info.use_filter_intra = 0;
     mbmi->use_intrabc = 1;
     mbmi->mode = DC_PRED;
     mbmi->uv_mode = UV_DC_PRED;
@@ -8297,7 +8297,7 @@ int av1_active_edge_sb(const AV1_COMP *cpi, int mi_row, int mi_col) {
 static void restore_uv_color_map(const AV1_COMP *const cpi, MACROBLOCK *x) {
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
-  PALETTE_MODE_INFO *const pmi = &mbmi->palette_mode_info;
+  PALETTE_MODE_INFO *const pmi = &mbmi->intra_mode_info.palette_mode_info;
   const BLOCK_SIZE bsize = mbmi->sb_type;
   int src_stride = x->plane[1].src.stride;
   const uint8_t *const src_u = x->plane[1].src.buf;
@@ -8433,8 +8433,8 @@ static void estimate_skip_mode_rdcost(
       }
     }
 
-    mbmi->filter_intra_mode_info.use_filter_intra = 0;
-    mbmi->interintra_mode = (INTERINTRA_MODE)(II_DC_PRED - 1);
+    mbmi->intra_mode_info.filter_intra_mode_info.use_filter_intra = 0;
+    mbmi->inter_mode_info.interintra_mode = (INTERINTRA_MODE)(II_DC_PRED - 1);
 #if CONFIG_JNT_COMP
     mbmi->comp_group_idx = 0;
     mbmi->compound_idx = x->compound_idx;
@@ -8476,7 +8476,7 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
   MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
   const int try_palette =
       av1_allow_palette(cm->allow_screen_content_tools, mbmi->sb_type);
-  PALETTE_MODE_INFO *const pmi = &mbmi->palette_mode_info;
+  PALETTE_MODE_INFO *const pmi = &mbmi->intra_mode_info.palette_mode_info;
   MB_MODE_INFO_EXT *const mbmi_ext = x->mbmi_ext;
   const struct segmentation *const seg = &cm->seg;
   PREDICTION_MODE this_mode;
@@ -8950,7 +8950,7 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
     mbmi->ref_frame[1] = second_ref_frame;
     pmi->palette_size[0] = 0;
     pmi->palette_size[1] = 0;
-    mbmi->filter_intra_mode_info.use_filter_intra = 0;
+    mbmi->intra_mode_info.filter_intra_mode_info.use_filter_intra = 0;
     // Evaluate all sub-pel filters irrespective of whether we can use them for
     // this frame.
 
@@ -8968,7 +8968,7 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
       if (comp_pred) xd->plane[i].pre[1] = yv12_mb[second_ref_frame][i];
     }
 
-    mbmi->interintra_mode = (INTERINTRA_MODE)(II_DC_PRED - 1);
+    mbmi->inter_mode_info.interintra_mode = (INTERINTRA_MODE)(II_DC_PRED - 1);
 
     if (sf->selective_ref_frame) {
       if (sf->selective_ref_frame == 2 || x->cb_partition_scan) {
@@ -9056,11 +9056,11 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
                                distortion_y);
         }
 
-        mbmi->filter_intra_mode_info.use_filter_intra = 1;
+        mbmi->intra_mode_info.filter_intra_mode_info.use_filter_intra = 1;
         for (FILTER_INTRA_MODE fi_mode = FILTER_DC_PRED;
              fi_mode < FILTER_INTRA_MODES; ++fi_mode) {
           int64_t this_rd_tmp;
-          mbmi->filter_intra_mode_info.filter_intra_mode = fi_mode;
+          mbmi->intra_mode_info.filter_intra_mode_info.filter_intra_mode = fi_mode;
 
           super_block_yrd(cpi, x, &rd_stats_y_fi, bsize, best_rd);
           if (rd_stats_y_fi.rate == INT_MAX) continue;
@@ -9093,10 +9093,10 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
                sizeof(x->blk_skip[0][0]) * ctx->num_4x4_blk);
 
         if (filter_intra_selected_flag) {
-          mbmi->filter_intra_mode_info.use_filter_intra = 1;
-          mbmi->filter_intra_mode_info.filter_intra_mode = best_fi_mode;
+          mbmi->intra_mode_info.filter_intra_mode_info.use_filter_intra = 1;
+          mbmi->intra_mode_info.filter_intra_mode_info.filter_intra_mode = best_fi_mode;
         } else {
-          mbmi->filter_intra_mode_info.use_filter_intra = 0;
+          mbmi->intra_mode_info.filter_intra_mode_info.use_filter_intra = 0;
         }
       }
 
@@ -9158,7 +9158,7 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
       if (comp_pred) backup_ref_mv[1] = mbmi_ext->ref_mvs[second_ref_frame][0];
       mbmi->angle_delta[PLANE_TYPE_Y] = 0;
       mbmi->angle_delta[PLANE_TYPE_UV] = 0;
-      mbmi->filter_intra_mode_info.use_filter_intra = 0;
+      mbmi->intra_mode_info.filter_intra_mode_info.use_filter_intra = 0;
       mbmi->ref_mv_idx = 0;
       ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
 
@@ -9777,8 +9777,8 @@ PALETTE_EXIT:
 
       // Set up color-related variables for skip mode.
       best_mbmode.uv_mode = UV_DC_PRED;
-      best_mbmode.palette_mode_info.palette_size[0] = 0;
-      best_mbmode.palette_mode_info.palette_size[1] = 0;
+      best_mbmode.intra_mode_info.palette_mode_info.palette_size[0] = 0;
+      best_mbmode.intra_mode_info.palette_mode_info.palette_size[1] = 0;
 
 #if CONFIG_JNT_COMP
       best_mbmode.comp_group_idx = 0;
@@ -9787,8 +9787,8 @@ PALETTE_EXIT:
       best_mbmode.interinter_compound_type = COMPOUND_AVERAGE;
       best_mbmode.motion_mode = SIMPLE_TRANSLATION;
 
-      best_mbmode.interintra_mode = (INTERINTRA_MODE)(II_DC_PRED - 1);
-      best_mbmode.filter_intra_mode_info.use_filter_intra = 0;
+      best_mbmode.inter_mode_info.interintra_mode = (INTERINTRA_MODE)(II_DC_PRED - 1);
+      best_mbmode.intra_mode_info.filter_intra_mode_info.use_filter_intra = 0;
 
       set_default_interp_filters(&best_mbmode, cm->interp_filter);
 
@@ -10023,9 +10023,9 @@ void av1_rd_pick_inter_mode_sb_seg_skip(const AV1_COMP *cpi,
 
   assert(segfeature_active(&cm->seg, segment_id, SEG_LVL_SKIP));
 
-  mbmi->palette_mode_info.palette_size[0] = 0;
-  mbmi->palette_mode_info.palette_size[1] = 0;
-  mbmi->filter_intra_mode_info.use_filter_intra = 0;
+  mbmi->intra_mode_info.palette_mode_info.palette_size[0] = 0;
+  mbmi->intra_mode_info.palette_mode_info.palette_size[1] = 0;
+  mbmi->intra_mode_info.filter_intra_mode_info.use_filter_intra = 0;
   mbmi->mode = GLOBALMV;
   mbmi->motion_mode = SIMPLE_TRANSLATION;
   mbmi->uv_mode = UV_DC_PRED;

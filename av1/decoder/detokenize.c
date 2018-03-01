@@ -192,7 +192,7 @@ static void get_palette_params(const MACROBLOCKD *const xd, int plane,
                                BLOCK_SIZE bsize, Av1ColorMapParam *params) {
   assert(plane == 0 || plane == 1);
   const MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
-  const PALETTE_MODE_INFO *const pmi = &mbmi->palette_mode_info;
+  const PALETTE_MODE_INFO *const pmi = &mbmi->intra_mode_info.palette_mode_info;
   params->color_map = xd->plane[plane].color_index_map;
   params->map_cdf = plane ? xd->tile_ctx->palette_uv_color_index_cdf
                           : xd->tile_ctx->palette_y_color_index_cdf;

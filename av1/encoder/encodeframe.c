@@ -764,10 +764,10 @@ static void sum_intra_stats(FRAME_COUNTS *counts, MACROBLOCKD *xd,
       update_cdf(fc->y_mode_cdf[size_group_lookup[bsize]], y_mode, INTRA_MODES);
   }
 
-  if (mbmi->mode == DC_PRED && mbmi->palette_mode_info.palette_size[0] == 0 &&
+  if (mbmi->mode == DC_PRED && mbmi->intra_mode_info.palette_mode_info.palette_size[0] == 0 &&
       av1_filter_intra_allowed_txsize(mbmi->tx_size)) {
     const int use_filter_intra_mode =
-        mbmi->filter_intra_mode_info.use_filter_intra;
+        mbmi->intra_mode_info.filter_intra_mode_info.use_filter_intra;
 #if CONFIG_ENTROPY_STATS
     ++counts->filter_intra_tx[mbmi->tx_size][use_filter_intra_mode];
     if (use_filter_intra_mode) {
@@ -778,7 +778,7 @@ static void sum_intra_stats(FRAME_COUNTS *counts, MACROBLOCKD *xd,
     if (allow_update_cdf) {
       if (use_filter_intra_mode) {
         update_cdf(fc->filter_intra_mode_cdf,
-                   mbmi->filter_intra_mode_info.filter_intra_mode,
+                   mbmi->intra_mode_info.filter_intra_mode_info.filter_intra_mode,
                    FILTER_INTRA_MODES);
       }
       update_cdf(fc->filter_intra_cdfs[mbmi->tx_size], use_filter_intra_mode,
@@ -842,7 +842,7 @@ static void update_palette_cdf(MACROBLOCKD *xd, const MODE_INFO *mi) {
   FRAME_CONTEXT *fc = xd->tile_ctx;
   const MB_MODE_INFO *const mbmi = &mi->mbmi;
   const BLOCK_SIZE bsize = mbmi->sb_type;
-  const PALETTE_MODE_INFO *const pmi = &mbmi->palette_mode_info;
+  const PALETTE_MODE_INFO *const pmi = &mbmi->intra_mode_info.palette_mode_info;
 
   if (mbmi->mode == DC_PRED) {
     const int n = pmi->palette_size[0];
@@ -1150,7 +1150,7 @@ static void update_stats(const AV1_COMMON *const cm, TileDataEnc *tile_data,
             counts->interintra[bsize_group][1]++;
             if (allow_update_cdf)
               update_cdf(fc->interintra_cdf[bsize_group], 1, 2);
-            counts->interintra_mode[bsize_group][mbmi->interintra_mode]++;
+            counts->interintra_mode[bsize_group][mbmi->inter_mode_info.interintra_mode]++;
             if (allow_update_cdf) {
               update_cdf(fc->interintra_mode_cdf[bsize_group],
                          mbmi->interintra_mode, INTERINTRA_MODES);
@@ -2911,7 +2911,7 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
         if (idx <= 1 && (bsize <= BLOCK_8X8 ||
                          pc_tree->split[idx]->partitioning == PARTITION_NONE)) {
           MB_MODE_INFO *const mbmi = &(pc_tree->split[idx]->none.mic.mbmi);
-          PALETTE_MODE_INFO *const pmi = &mbmi->palette_mode_info;
+          PALETTE_MODE_INFO *const pmi = &mbmi->intra_mode_info.palette_mode_info;
           // Neither palette mode nor cfl predicted
           if (pmi->palette_size[0] == 0 && pmi->palette_size[1] == 0) {
 #if CONFIG_CFL
@@ -2975,7 +2975,7 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
     if (sum_rdc.rdcost < best_rdc.rdcost && has_rows) {
       PICK_MODE_CONTEXT *ctx_h = &pc_tree->horizontal[0];
       MB_MODE_INFO *const mbmi = &(pc_tree->horizontal[0].mic.mbmi);
-      PALETTE_MODE_INFO *const pmi = &mbmi->palette_mode_info;
+      PALETTE_MODE_INFO *const pmi = &mbmi->intra_mode_info.palette_mode_info;
       // Neither palette mode nor cfl predicted
       if (pmi->palette_size[0] == 0 && pmi->palette_size[1] == 0) {
 #if CONFIG_CFL
@@ -3063,7 +3063,7 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
     const int64_t vert_max_rdcost = best_rdc.rdcost;
     if (sum_rdc.rdcost < vert_max_rdcost && has_cols) {
       MB_MODE_INFO *const mbmi = &(pc_tree->vertical[0].mic.mbmi);
-      PALETTE_MODE_INFO *const pmi = &mbmi->palette_mode_info;
+      PALETTE_MODE_INFO *const pmi = &mbmi->intra_mode_info.palette_mode_info;
       // Neither palette mode nor cfl predicted
       if (pmi->palette_size[0] == 0 && pmi->palette_size[1] == 0) {
 #if CONFIG_CFL
@@ -4644,8 +4644,8 @@ void av1_update_tx_type_count(const AV1_COMMON *cm, MACROBLOCKD *xd,
 #endif  // CONFIG_ENTROPY_STATS
       } else {
         PREDICTION_MODE intra_dir;
-        if (mbmi->filter_intra_mode_info.use_filter_intra)
-          intra_dir = fimode_to_intradir[mbmi->filter_intra_mode_info
+        if (mbmi->intra_mode_info.filter_intra_mode_info.use_filter_intra)
+          intra_dir = fimode_to_intradir[mbmi->intra_mode_info.filter_intra_mode_info
                                              .filter_intra_mode];
         else
           intra_dir = mbmi->mode;
@@ -4696,7 +4696,7 @@ static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
 #endif  // CONFIG_CFL
     if (av1_allow_palette(cm->allow_screen_content_tools, bsize)) {
       for (int plane = 0; plane < AOMMIN(2, num_planes); ++plane) {
-        if (mbmi->palette_mode_info.palette_size[plane] > 0) {
+        if (mbmi->intra_mode_info.palette_mode_info.palette_size[plane] > 0) {
           if (!dry_run) {
             av1_tokenize_color_map(x, plane, t, bsize, mbmi->tx_size,
                                    PALETTE_MAP);

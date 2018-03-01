@@ -177,8 +177,8 @@ static INLINE int av1_get_palette_mode_ctx(const MACROBLOCKD *xd) {
   const MODE_INFO *const above_mi = xd->above_mi;
   const MODE_INFO *const left_mi = xd->left_mi;
   int ctx = 0;
-  if (above_mi) ctx += (above_mi->mbmi.palette_mode_info.palette_size[0] > 0);
-  if (left_mi) ctx += (left_mi->mbmi.palette_mode_info.palette_size[0] > 0);
+  if (above_mi) ctx += (above_mi->mbmi.intra_mode_info.palette_mode_info.palette_size[0] > 0);
+  if (left_mi) ctx += (left_mi->mbmi.intra_mode_info.palette_mode_info.palette_size[0] > 0);
   return ctx;
 }
 

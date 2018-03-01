@@ -622,13 +622,13 @@ static void write_ref_frames(const AV1_COMMON *cm, const MACROBLOCKD *xd,
 static void write_filter_intra_mode_info(const MACROBLOCKD *xd,
                                          const MB_MODE_INFO *const mbmi,
                                          aom_writer *w) {
-  if (mbmi->mode == DC_PRED && mbmi->palette_mode_info.palette_size[0] == 0 &&
+  if (mbmi->mode == DC_PRED && mbmi->intra_mode_info.palette_mode_info.palette_size[0] == 0 &&
       av1_filter_intra_allowed_txsize(mbmi->tx_size)) {
-    aom_write_symbol(w, mbmi->filter_intra_mode_info.use_filter_intra,
+    aom_write_symbol(w, mbmi->intra_mode_info.filter_intra_mode_info.use_filter_intra,
                      xd->tile_ctx->filter_intra_cdfs[mbmi->tx_size], 2);
-    if (mbmi->filter_intra_mode_info.use_filter_intra) {
+    if (mbmi->intra_mode_info.filter_intra_mode_info.use_filter_intra) {
       const FILTER_INTRA_MODE mode =
-          mbmi->filter_intra_mode_info.filter_intra_mode;
+          mbmi->intra_mode_info.filter_intra_mode_info.filter_intra_mode;
       aom_write_symbol(w, mode, xd->tile_ctx->filter_intra_mode_cdf,
                        FILTER_INTRA_MODES);
     }
@@ -804,7 +804,7 @@ static void write_palette_mode_info(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   const MB_MODE_INFO *const mbmi = &mi->mbmi;
   const BLOCK_SIZE bsize = mbmi->sb_type;
   assert(av1_allow_palette(cm->allow_screen_content_tools, bsize));
-  const PALETTE_MODE_INFO *const pmi = &mbmi->palette_mode_info;
+  const PALETTE_MODE_INFO *const pmi = &mbmi->intra_mode_info.palette_mode_info;
   const int bsize_ctx = av1_get_palette_bsize_ctx(bsize);
 
   if (mbmi->mode == DC_PRED) {
@@ -873,9 +873,9 @@ void av1_write_tx_type(const AV1_COMMON *const cm, const MACROBLOCKD *xd,
                        av1_num_ext_tx_set[tx_set_type]);
     } else {
       PREDICTION_MODE intra_dir;
-      if (mbmi->filter_intra_mode_info.use_filter_intra)
+      if (mbmi->intra_mode_info.filter_intra_mode_info.use_filter_intra)
         intra_dir =
-            fimode_to_intradir[mbmi->filter_intra_mode_info.filter_intra_mode];
+            fimode_to_intradir[mbmi->intra_mode_info.filter_intra_mode_info.filter_intra_mode];
       else
         intra_dir = mbmi->mode;
       aom_write_symbol(
@@ -1185,7 +1185,7 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
       const int bsize_group = size_group_lookup[bsize];
       aom_write_symbol(w, interintra, ec_ctx->interintra_cdf[bsize_group], 2);
       if (interintra) {
-        aom_write_symbol(w, mbmi->interintra_mode,
+        aom_write_symbol(w, mbmi->inter_mode_info.interintra_mode,
                          ec_ctx->interintra_mode_cdf[bsize_group],
                          INTERINTRA_MODES);
         if (is_interintra_wedge_used(bsize)) {
@@ -1669,7 +1669,7 @@ static void write_modes_b(AV1_COMP *cpi, const TileInfo *const tile,
   MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
   for (int plane = 0; plane < AOMMIN(2, av1_num_planes(cm)); ++plane) {
     const uint8_t palette_size_plane =
-        mbmi->palette_mode_info.palette_size[plane];
+        mbmi->intra_mode_info.palette_mode_info.palette_size[plane];
     assert(!mbmi->skip_mode || !palette_size_plane);
     if (palette_size_plane > 0) {
       assert(mbmi->use_intrabc == 0);

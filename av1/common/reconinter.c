@@ -1826,11 +1826,13 @@ void av1_build_intra_predictors_for_interintra(const AV1_COMMON *cm,
                                                int dst_stride) {
   struct macroblockd_plane *const pd = &xd->plane[plane];
   BLOCK_SIZE plane_bsize = get_plane_block_size(bsize, &xd->plane[plane]);
+  const MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
   PREDICTION_MODE mode =
-      interintra_to_intra_mode[xd->mi[0]->mbmi.interintra_mode];
+      interintra_to_intra_mode[mbmi->inter_mode_info.interintra_mode];
+
   xd->mi[0]->mbmi.angle_delta[PLANE_TYPE_Y] = 0;
   xd->mi[0]->mbmi.angle_delta[PLANE_TYPE_UV] = 0;
-  xd->mi[0]->mbmi.filter_intra_mode_info.use_filter_intra = 0;
+  xd->mi[0]->mbmi.intra_mode_info.filter_intra_mode_info.use_filter_intra = 0;
   xd->mi[0]->mbmi.use_intrabc = 0;
 
   av1_predict_intra_block(cm, xd, pd->width, pd->height,
@@ -1843,19 +1845,20 @@ void av1_combine_interintra(MACROBLOCKD *xd, BLOCK_SIZE bsize, int plane,
                             const uint8_t *inter_pred, int inter_stride,
                             const uint8_t *intra_pred, int intra_stride) {
   const BLOCK_SIZE plane_bsize = get_plane_block_size(bsize, &xd->plane[plane]);
+  const MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
   if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
     combine_interintra_highbd(
-        xd->mi[0]->mbmi.interintra_mode, xd->mi[0]->mbmi.use_wedge_interintra,
-        xd->mi[0]->mbmi.interintra_wedge_index,
-        xd->mi[0]->mbmi.interintra_wedge_sign, bsize, plane_bsize,
+        mbmi->inter_mode_info.interintra_mode, mbmi->use_wedge_interintra,
+        mbmi->interintra_wedge_index,
+        mbmi->interintra_wedge_sign, bsize, plane_bsize,
         xd->plane[plane].dst.buf, xd->plane[plane].dst.stride, inter_pred,
         inter_stride, intra_pred, intra_stride, xd->bd);
     return;
   }
-  combine_interintra(xd->mi[0]->mbmi.interintra_mode,
-                     xd->mi[0]->mbmi.use_wedge_interintra,
-                     xd->mi[0]->mbmi.interintra_wedge_index,
-                     xd->mi[0]->mbmi.interintra_wedge_sign, bsize, plane_bsize,
+  combine_interintra(mbmi->inter_mode_info.interintra_mode,
+                     mbmi->use_wedge_interintra,
+                     mbmi->interintra_wedge_index,
+                     mbmi->interintra_wedge_sign, bsize, plane_bsize,
                      xd->plane[plane].dst.buf, xd->plane[plane].dst.stride,
                      inter_pred, inter_stride, intra_pred, intra_stride);
 }

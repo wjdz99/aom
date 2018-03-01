@@ -222,6 +222,23 @@ typedef struct {
   COMPOUND_TYPE interinter_compound_type;
 } INTERINTER_COMPOUND_DATA;
 
+typedef struct INTRA_MODE_INFO {
+  PALETTE_MODE_INFO palette_mode_info;
+  FILTER_INTRA_MODE_INFO filter_intra_mode_info;
+} INTRA_MODE_INFO;
+
+typedef struct INTER_MODE_INFO {
+  // interintra members
+  INTERINTRA_MODE interintra_mode;
+#if 0
+  // TODO(debargha): Consolidate these flags
+  int use_wedge_interintra;
+  int interintra_wedge_index;
+  int interintra_wedge_sign;
+#endif
+} INTER_MODE_INFO;
+
+
 #define INTER_TX_SIZE_BUF_LEN 16
 #define TXK_TYPE_BUF_LEN 64
 // This structure now relates to 4x4 block regions.
@@ -237,21 +254,20 @@ typedef struct MB_MODE_INFO {
   int8_t seg_id_predicted;  // valid only when temporal_update is enabled
 
   // Only for INTRA blocks
+  INTRA_MODE_INFO intra_mode_info;
   UV_PREDICTION_MODE uv_mode;
 
-  PALETTE_MODE_INFO palette_mode_info;
+  // The actual prediction angle is the base angle + (angle_delta * step).
+  int8_t angle_delta[PLANE_TYPES];
+
   uint8_t use_intrabc;
 
   // Only for INTER blocks
   InterpFilters interp_filters;
   MV_REFERENCE_FRAME ref_frame[2];
+  INTER_MODE_INFO inter_mode_info;
 
   TX_TYPE txk_type[TXK_TYPE_BUF_LEN];
-
-  FILTER_INTRA_MODE_INFO filter_intra_mode_info;
-
-  // The actual prediction angle is the base angle + (angle_delta * step).
-  int8_t angle_delta[PLANE_TYPES];
 
   // interintra members
   INTERINTRA_MODE interintra_mode;

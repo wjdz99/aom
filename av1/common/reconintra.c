@@ -1717,7 +1717,8 @@ void av1_predict_intra_block(
     int r, c;
     const uint8_t *const map = xd->plane[plane != 0].color_index_map;
     const uint16_t *const palette =
-        mbmi->palette_mode_info.palette_colors + plane * PALETTE_MAX_SIZE;
+        mbmi->intra_mode_info.palette_mode_info.palette_colors +
+        plane * PALETTE_MAX_SIZE;
     if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
       uint16_t *dst16 = CONVERT_TO_SHORTPTR(dst);
       for (r = 0; r < txhpx; ++r) {
@@ -1811,16 +1812,18 @@ void av1_predict_intra_block_facade(const AV1_COMMON *cm, MACROBLOCKD *xd,
                                     TX_SIZE tx_size) {
   const MODE_INFO *mi = xd->mi[0];
   const MB_MODE_INFO *const mbmi = &mi->mbmi;
+  const INTRA_MODE_INFO *const intra_mode_info = &mbmi->intra_mode_info;
   struct macroblockd_plane *const pd = &xd->plane[plane];
   const int dst_stride = pd->dst.stride;
   uint8_t *dst =
       &pd->dst.buf[(blk_row * dst_stride + blk_col) << tx_size_wide_log2[0]];
   const PREDICTION_MODE mode =
       (plane == AOM_PLANE_Y) ? mbmi->mode : get_uv_mode(mbmi->uv_mode);
-  const int use_palette = mbmi->palette_mode_info.palette_size[plane != 0] > 0;
+  const int use_palette =
+      intra_mode_info->palette_mode_info.palette_size[plane != 0] > 0;
   const FILTER_INTRA_MODE filter_intra_mode =
-      (plane == AOM_PLANE_Y && mbmi->filter_intra_mode_info.use_filter_intra)
-          ? mbmi->filter_intra_mode_info.filter_intra_mode
+      (plane == AOM_PLANE_Y && intra_mode_info->filter_intra_mode_info.use_filter_intra)
+          ? intra_mode_info->filter_intra_mode_info.filter_intra_mode
           : FILTER_INTRA_MODES;
   const int angle_delta = mbmi->angle_delta[plane != AOM_PLANE_Y] * ANGLE_STEP;
 
