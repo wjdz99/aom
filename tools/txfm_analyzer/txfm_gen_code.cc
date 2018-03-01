@@ -67,8 +67,17 @@ void node_to_code_c(Node *node, const char *buf0, const char *buf1) {
     if (fabs(node->inWeight[i]) == 1 || fabs(node->inWeight[i]) == 0) cnt++;
   }
   if (cnt == 2) {
-    int cnt1 = 0;
+    int cnt2 = 0;
     printf("  %s[%d] =", buf1, node->nodeIdx);
+    for (int i = 0; i < 2; i++) {
+      if (fabs(node->inWeight[i]) == 1) {
+        cnt2++;
+      }
+    }
+    if (cnt2 == 2) {
+      printf(" apply_value(");
+    }
+    int cnt1 = 0;
     for (int i = 0; i < 2; i++) {
       if (node->inWeight[i] == 1) {
         if (cnt1 > 0)
@@ -84,13 +93,16 @@ void node_to_code_c(Node *node, const char *buf0, const char *buf1) {
         cnt1++;
       }
     }
+    if (cnt2 == 2) {
+      printf(", stage_range[stage])");
+    }
     printf(";\n");
   } else {
     char w0[100];
     char w1[100];
     printf(
         "  %s[%d] = half_btf(%s, %s[%d], %s, %s[%d], "
-        "cos_bit[stage_idx]);\n",
+        "cos_bit);\n",
         buf1, node->nodeIdx, cos_text_arr(node->inWeight[0], COS_MOD, w0, 100),
         buf0, node->inNodeIdx[0],
         cos_text_arr(node->inWeight[1], COS_MOD, w1, 100), buf0,
@@ -104,33 +116,32 @@ void gen_code_c(Node *node, int stage_num, int node_num, TYPE_TXFM type) {
 
   printf("\n");
   printf(
-      "void %s(const int32_t *input, int32_t *output, const int8_t* cos_bit, "
+      "void av1_%s(const int32_t *input, int32_t *output, int8_t cos_bit, "
       "const int8_t* stage_range) "
       "{\n",
       fun_name);
+  printf("  assert(output != input);\n");
   printf("  const int32_t size = %d;\n", node_num);
-  printf("  const int32_t *cospi;\n");
+  printf("  const int32_t *cospi = cospi_arr(cos_bit);\n");
   printf("\n");
 
-  printf("  int32_t stage_idx = 0;\n");
-  printf("  int32_t *buf0, *buf1;\n");
+  printf("  int32_t stage = 0;\n");
+  printf("  int32_t *bf0, *bf1;\n");
   printf("  int32_t step[%d];\n", node_num);
 
-  const char *buf0 = "buf0";
-  const char *buf1 = "buf1";
+  const char *buf0 = "bf0";
+  const char *buf1 = "bf1";
   const char *input = "input";
 
   int si = 0;
   printf("\n");
   printf("  // stage %d;\n", si);
-  printf("  range_check(stage_idx, input, %s, size, stage_range[stage_idx]);\n",
-         input);
+  printf("  apply_range(stage, input, %s, size, stage_range[stage]);\n", input);
 
   si = 1;
   printf("\n");
   printf("  // stage %d;\n", si);
-  printf("  stage_idx++;\n");
-  printf("  cospi = cospi_arr[cos_bit[stage_idx] - cos_bit_min];\n");
+  printf("  stage++;\n");
   if (si % 2 == (stage_num - 1) % 2) {
     printf("  %s = output;\n", buf1);
   } else {
@@ -142,14 +153,10 @@ void gen_code_c(Node *node, int stage_num, int node_num, TYPE_TXFM type) {
     node_to_code_c(node + idx, input, buf1);
   }
 
-  printf(
-      "  range_check(stage_idx, input, buf1, size, stage_range[stage_idx]);\n");
-
   for (int si = 2; si < stage_num; si++) {
     printf("\n");
     printf("  // stage %d\n", si);
-    printf("  stage_idx++;\n");
-    printf("  cospi = cospi_arr[cos_bit[stage_idx] - cos_bit_min];\n");
+    printf("  stage++;\n");
     if (si % 2 == (stage_num - 1) % 2) {
       printf("  %s = step;\n", buf0);
       printf("  %s = output;\n", buf1);
@@ -163,11 +170,8 @@ void gen_code_c(Node *node, int stage_num, int node_num, TYPE_TXFM type) {
       int idx = get_idx(si, ni, node_num);
       node_to_code_c(node + idx, buf0, buf1);
     }
-
-    printf(
-        "  range_check(stage_idx, input, buf1, size, "
-        "stage_range[stage_idx]);\n");
   }
+  printf("  apply_range(stage, input, output, size, stage_range[stage]);\n");
   printf("}\n");
 }
 
@@ -560,7 +564,7 @@ void gen_hybrid_code(CODE_TYPE code_type, TYPE_TXFM txfm_type, int node_num) {
 
 int main(int argc, char **argv) {
   CODE_TYPE code_type = CODE_TYPE_SSE4_1;
-  for (int txfm_type = TYPE_DCT; txfm_type < TYPE_LAST; txfm_type++) {
+  for (int txfm_type = TYPE_IDCT; txfm_type < TYPE_LAST; txfm_type++) {
     for (int node_num = 4; node_num <= 64; node_num *= 2) {
       gen_hybrid_code(code_type, (TYPE_TXFM)txfm_type, node_num);
     }
