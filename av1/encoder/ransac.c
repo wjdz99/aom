@@ -28,23 +28,23 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 // ransac
-typedef int (*IsDegenerateFunc)(double *p);
-typedef void (*NormalizeFunc)(double *p, int np, double *T);
-typedef void (*DenormalizeFunc)(double *params, double *T1, double *T2);
-typedef int (*FindTransformationFunc)(int points, double *points1,
-                                      double *points2, double *params);
-typedef void (*ProjectPointsDoubleFunc)(double *mat, double *points,
-                                        double *proj, const int n,
+typedef int (*IsDegenerateFunc)(int32_t *p);
+typedef void (*NormalizeFunc)(int32_t *p, int np, int32_t *T);
+typedef void (*DenormalizeFunc)(int32_t *params, int32_t *T1, int32_t *T2);
+typedef int (*FindTransformationFunc)(int points, int32_t *points1,
+                                      int32_t *points2, double *params);
+typedef void (*ProjectPointsDoubleFunc)(int32_t *mat, int32_t *points,
+                                        int32_t *proj, const int n,
                                         const int stride_points,
                                         const int stride_proj);
 
-static void project_points_double_translation(double *mat, double *points,
-                                              double *proj, const int n,
+static void project_points_int32_t_translation(int32_t *mat, int32_t *points,
+                                              int32_t *proj, const int n,
                                               const int stride_points,
                                               const int stride_proj) {
   int i;
   for (i = 0; i < n; ++i) {
-    const double x = *(points++), y = *(points++);
+    const int32_t x = *(points++), y = *(points++);
     *(proj++) = x + mat[0];
     *(proj++) = y + mat[1];
     points += stride_points - 2;
@@ -52,13 +52,13 @@ static void project_points_double_translation(double *mat, double *points,
   }
 }
 
-static void project_points_double_rotzoom(double *mat, double *points,
-                                          double *proj, const int n,
+static void project_points_int32_t_rotzoom(int32_t *mat, int32_t *points,
+                                          int32_t *proj, const int n,
                                           const int stride_points,
                                           const int stride_proj) {
   int i;
   for (i = 0; i < n; ++i) {
-    const double x = *(points++), y = *(points++);
+    const int32_t x = *(points++), y = *(points++);
     *(proj++) = mat[2] * x + mat[3] * y + mat[0];
     *(proj++) = -mat[3] * x + mat[2] * y + mat[1];
     points += stride_points - 2;
@@ -66,13 +66,13 @@ static void project_points_double_rotzoom(double *mat, double *points,
   }
 }
 
-static void project_points_double_affine(double *mat, double *points,
-                                         double *proj, const int n,
+static void project_points_int32_t_affine(int32_t *mat, int32_t *points,
+                                         int32_t *proj, const int n,
                                          const int stride_points,
                                          const int stride_proj) {
   int i;
   for (i = 0; i < n; ++i) {
-    const double x = *(points++), y = *(points++);
+    const int32_t x = *(points++), y = *(points++);
     *(proj++) = mat[2] * x + mat[3] * y + mat[0];
     *(proj++) = mat[4] * x + mat[5] * y + mat[1];
     points += stride_points - 2;
@@ -80,6 +80,7 @@ static void project_points_double_affine(double *mat, double *points,
   }
 }
 
+//sarahparker
 static void normalize_homography(double *pts, int n, double *T) {
   double *p = pts;
   double mean[2] = { 0, 0 };
@@ -116,6 +117,7 @@ static void normalize_homography(double *pts, int n, double *T) {
   }
 }
 
+//sarahparker
 static void invnormalize_mat(double *T, double *iT) {
   double is = 1.0 / T[0];
   double m0 = -T[2] * is;
@@ -131,16 +133,16 @@ static void invnormalize_mat(double *T, double *iT) {
   iT[8] = 1;
 }
 
-static void denormalize_homography(double *params, double *T1, double *T2) {
-  double iT2[9];
-  double params2[9];
+static void denormalize_homography(int32_t *params, int32_t *T1, int32_t *T2) {
+  int32_t iT2[9];
+  int32_t params2[9];
   invnormalize_mat(T2, iT2);
   multiply_mat(params, T1, params2, 3, 3, 3);
   multiply_mat(iT2, params2, params, 3, 3, 3);
 }
 
-static void denormalize_affine_reorder(double *params, double *T1, double *T2) {
-  double params_denorm[MAX_PARAMDIM];
+static void denormalize_affine_reorder(int32_t *params, int32_t *T1, int32_t *T2) {
+  int32_t params_denorm[MAX_PARAMDIM];
   params_denorm[0] = params[0];
   params_denorm[1] = params[1];
   params_denorm[2] = params[4];
@@ -159,9 +161,9 @@ static void denormalize_affine_reorder(double *params, double *T1, double *T2) {
   params[6] = params[7] = 0;
 }
 
-static void denormalize_rotzoom_reorder(double *params, double *T1,
-                                        double *T2) {
-  double params_denorm[MAX_PARAMDIM];
+static void denormalize_rotzoom_reorder(int32_t *params, int32_t *T1,
+                                        int32_t *T2) {
+  int32_t params_denorm[MAX_PARAMDIM];
   params_denorm[0] = params[0];
   params_denorm[1] = params[1];
   params_denorm[2] = params[2];
@@ -180,9 +182,9 @@ static void denormalize_rotzoom_reorder(double *params, double *T1,
   params[6] = params[7] = 0;
 }
 
-static void denormalize_translation_reorder(double *params, double *T1,
-                                            double *T2) {
-  double params_denorm[MAX_PARAMDIM];
+static void denormalize_translation_reorder(int32_t *params, int32_t *T1,
+                                            int32_t *T2) {
+  int32_t params_denorm[MAX_PARAMDIM];
   params_denorm[0] = 1;
   params_denorm[1] = 0;
   params_denorm[2] = params[0];
@@ -199,6 +201,7 @@ static void denormalize_translation_reorder(double *params, double *T1,
   params[6] = params[7] = 0;
 }
 
+//sarahparker
 static int find_translation(int np, double *pts1, double *pts2, double *mat) {
   int i;
   double sx, sy, dx, dy;
@@ -225,15 +228,15 @@ static int find_translation(int np, double *pts1, double *pts2, double *mat) {
   return 0;
 }
 
-static int find_rotzoom(int np, double *pts1, double *pts2, double *mat) {
+static int find_rotzoom(int np, int32_t *pts1, int32_t *pts2, int32_t *mat) {
   const int np2 = np * 2;
-  double *a = (double *)aom_malloc(sizeof(*a) * (np2 * 5 + 20));
-  double *b = a + np2 * 4;
-  double *temp = b + np2;
+  int32_t *a = (int32_t *)aom_malloc(sizeof(*a) * (np2 * 5 + 20));
+  int32_t *b = a + np2 * 4;
+  int32_t *temp = b + np2;
   int i;
-  double sx, sy, dx, dy;
+  int32_t sx, sy, dx, dy;
 
-  double T1[9], T2[9];
+  int32_t T1[9], T2[9];
   normalize_homography(pts1, np, T1);
   normalize_homography(pts2, np, T2);
 
@@ -264,15 +267,15 @@ static int find_rotzoom(int np, double *pts1, double *pts2, double *mat) {
   return 0;
 }
 
-static int find_affine(int np, double *pts1, double *pts2, double *mat) {
+static int find_affine(int np, int32_t *pts1, int32_t *pts2, int32_t *mat) {
   const int np2 = np * 2;
-  double *a = (double *)aom_malloc(sizeof(*a) * (np2 * 7 + 42));
-  double *b = a + np2 * 6;
-  double *temp = b + np2;
+  int32_t *a = (int32_t *)aom_malloc(sizeof(*a) * (np2 * 7 + 42));
+  int32_t *b = a + np2 * 6;
+  int32_t *temp = b + np2;
   int i;
-  double sx, sy, dx, dy;
+  int32_t sx, sy, dx, dy;
 
-  double T1[9], T2[9];
+  int32_t T1[9], T2[9];
   normalize_homography(pts1, np, T1);
   normalize_homography(pts2, np, T2);
 
@@ -331,7 +334,7 @@ static int get_rand_indices(int npoints, int minpts, int *indices,
 
 typedef struct {
   int num_inliers;
-  double variance;
+  int variance;
   int *inlier_indices;
 } RANSAC_MOTION;
 
@@ -352,7 +355,7 @@ static int is_better_motion(const RANSAC_MOTION *motion_a,
   return compare_motions(motion_a, motion_b) < 0;
 }
 
-static void copy_points_at_indices(double *dest, const double *src,
+static void copy_points_at_indices(int32_t *dest, const int32_t *src,
                                    const int *indices, int num_points) {
   for (int i = 0; i < num_points; ++i) {
     const int index = indices[i];
@@ -361,7 +364,7 @@ static void copy_points_at_indices(double *dest, const double *src,
   }
 }
 
-static const double kInfiniteVariance = 1e12;
+static const int kInfiniteVariance = 1e12;
 
 static void clear_motion(RANSAC_MOTION *motion, int num_points) {
   motion->num_inliers = 0;
@@ -370,6 +373,7 @@ static void clear_motion(RANSAC_MOTION *motion, int num_points) {
          sizeof(*motion->inlier_indices * num_points));
 }
 
+//sarahparker
 static int ransac(const int *matched_points, int npoints,
                   int *num_inliers_by_motion, double *params_by_motion,
                   int num_desired_motions, const int minpts,
@@ -564,40 +568,40 @@ finish_ransac:
   return ret_val;
 }
 
-static int is_collinear3(double *p1, double *p2, double *p3) {
-  static const double collinear_eps = 1e-3;
-  const double v =
+static int is_collinear3(int32_t *p1, int32_t *p2, int32_t *p3) {
+  static const int32_t collinear_eps = 1e-3;
+  const int32_t v =
       (p2[0] - p1[0]) * (p3[1] - p1[1]) - (p2[1] - p1[1]) * (p3[0] - p1[0]);
   return fabs(v) < collinear_eps;
 }
 
-static int is_degenerate_translation(double *p) {
+static int is_degenerate_translation(int32_t *p) {
   return (p[0] - p[2]) * (p[0] - p[2]) + (p[1] - p[3]) * (p[1] - p[3]) <= 2;
 }
 
-static int is_degenerate_affine(double *p) {
+static int is_degenerate_affine(int32_t *p) {
   return is_collinear3(p, p + 2, p + 4);
 }
 
 int ransac_translation(int *matched_points, int npoints,
-                       int *num_inliers_by_motion, double *params_by_motion,
+                       int *num_inliers_by_motion, int32_t *params_by_motion,
                        int num_desired_motions) {
   return ransac(matched_points, npoints, num_inliers_by_motion,
                 params_by_motion, num_desired_motions, 3,
                 is_degenerate_translation, find_translation,
-                project_points_double_translation);
+                project_points_int32_t_translation);
 }
 
 int ransac_rotzoom(int *matched_points, int npoints, int *num_inliers_by_motion,
-                   double *params_by_motion, int num_desired_motions) {
+                   int32_t *params_by_motion, int num_desired_motions) {
   return ransac(matched_points, npoints, num_inliers_by_motion,
                 params_by_motion, num_desired_motions, 3, is_degenerate_affine,
-                find_rotzoom, project_points_double_rotzoom);
+                find_rotzoom, project_points_int32_t_rotzoom);
 }
 
 int ransac_affine(int *matched_points, int npoints, int *num_inliers_by_motion,
-                  double *params_by_motion, int num_desired_motions) {
+                  int32_t *params_by_motion, int num_desired_motions) {
   return ransac(matched_points, npoints, num_inliers_by_motion,
                 params_by_motion, num_desired_motions, 3, is_degenerate_affine,
-                find_affine, project_points_double_affine);
+                find_affine, project_points_int32_t_affine);
 }
