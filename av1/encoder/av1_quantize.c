@@ -54,6 +54,7 @@ static void quantize_fp_helper_c(
     for (i = 0; i < n_coeffs; i++) {
       const int rc = scan[i];
       const int coeff = coeff_ptr[rc];
+      if (!coeff) continue;
       const qm_val_t wt = qm_ptr ? qm_ptr[rc] : (1 << AOM_QM_BITS);
       const qm_val_t iwt = iqm_ptr ? iqm_ptr[rc] : (1 << AOM_QM_BITS);
       const int dequant =
@@ -104,6 +105,7 @@ static void highbd_quantize_fp_helper_c(
     for (i = 0; i < count; i++) {
       const int rc = scan[i];
       const int coeff = coeff_ptr[rc];
+      if (!coeff) continue;
       const qm_val_t wt = qm_ptr != NULL ? qm_ptr[rc] : (1 << AOM_QM_BITS);
       const qm_val_t iwt = iqm_ptr != NULL ? iqm_ptr[rc] : (1 << AOM_QM_BITS);
       const int dequant =
