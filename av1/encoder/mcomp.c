@@ -1171,7 +1171,7 @@ static int pattern_search(
     const MV candidates[MAX_PATTERN_SCALES][MAX_PATTERN_CANDIDATES]) {
   const MACROBLOCKD *const xd = &x->e_mbd;
   static const int search_param_to_steps[MAX_MVSEARCH_STEPS] = {
-    10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0,
+    11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0,
   };
   int i, s, t;
   const struct buf_2d *const what = &x->plane[0].src;
