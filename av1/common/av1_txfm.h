@@ -34,6 +34,7 @@ static const int cos_bit_max = 16;
 static const int NewSqrt2Bits = 12;
 // 2^12 * sqrt(2)
 static const int32_t NewSqrt2 = 5793;
+#define NEW_SQRT_2 5793
 // 2^12 / sqrt(2)
 static const int32_t NewInvSqrt2 = 2896;
 
