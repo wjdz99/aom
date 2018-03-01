@@ -6992,6 +6992,7 @@ static int64_t motion_mode_rd(
           ? motion_mode_allowed(xd->global_motion, xd, mi)
           : SIMPLE_TRANSLATION;
   assert(mbmi->ref_frame[1] != INTRA_FRAME);
+  const MV_REFERENCE_FRAME ref_frame_1 = mbmi->ref_frame[1];
 
   int64_t best_rd = INT64_MAX;
   for (int mode_index = (int)SIMPLE_TRANSLATION;
@@ -7195,8 +7196,11 @@ static int64_t motion_mode_rd(
         rd = RDCOST(x->rdmult, rate_mv + rmode + rate_sum, dist_sum);
       best_interintra_rd = rd;
 
-      if (ref_best_rd < INT64_MAX && (best_interintra_rd >> 1) > ref_best_rd)
+      if (ref_best_rd < INT64_MAX && (best_interintra_rd >> 1) > ref_best_rd) {
+        // restore ref_frame[1]
+        mbmi->ref_frame[1] = ref_frame_1;
         continue;
+      }
 
       if (is_interintra_wedge_used(bsize)) {
         int64_t best_interintra_rd_nowedge = INT64_MAX;
@@ -7330,9 +7334,11 @@ static int64_t motion_mode_rd(
         av1_invalid_rd_stats(rd_stats);
         if (mbmi->motion_mode != SIMPLE_TRANSLATION ||
             mbmi->ref_frame[1] == INTRA_FRAME) {
+          mbmi->ref_frame[1] = ref_frame_1;
           continue;
         } else {
           restore_dst_buf(xd, *orig_dst, num_planes);
+          mbmi->ref_frame[1] = ref_frame_1;
           return INT64_MAX;
         }
       }
@@ -7347,6 +7353,7 @@ static int64_t motion_mode_rd(
             inter_block_uvrd(cpi, x, rd_stats_uv, bsize, ref_best_rd - rdcosty,
                              0);
         if (!is_cost_valid_uv) {
+          mbmi->ref_frame[1] = ref_frame_1;
           continue;
         }
         /* clang-format on */
@@ -7427,6 +7434,7 @@ static int64_t motion_mode_rd(
       best_disable_skip = *disable_skip;
     }
   }
+  mbmi->ref_frame[1] = ref_frame_1;
 
   if (best_rd == INT64_MAX) {
     av1_invalid_rd_stats(rd_stats);
