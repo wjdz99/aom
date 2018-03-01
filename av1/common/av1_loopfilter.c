@@ -644,7 +644,95 @@ void av1_loop_filter_frame_init(AV1_COMMON *cm, int default_filt_lvl,
       }
     }
   }
+
+#if LOOP_FILTER_BITMASK
+  memset(lf->neighbor_sb_lpf_info.tx_size_y_above, TX_64X64,
+         sizeof(TX_SIZE) * MAX_MIB_SIZE);
+  memset(lf->neighbor_sb_lpf_info.tx_size_y_left, TX_64X64,
+         sizeof(TX_SIZE) * MAX_MIB_SIZE);
+  memset(lf->neighbor_sb_lpf_info.tx_size_uv_above, TX_64X64,
+         sizeof(TX_SIZE) * MAX_MIB_SIZE);
+  memset(lf->neighbor_sb_lpf_info.tx_size_uv_left, TX_64X64,
+         sizeof(TX_SIZE) * MAX_MIB_SIZE);
+  memset(lf->neighbor_sb_lpf_info.y_level_above, 0,
+         sizeof(uint8_t) * MAX_MIB_SIZE);
+  memset(lf->neighbor_sb_lpf_info.y_level_left, 0,
+         sizeof(uint8_t) * MAX_MIB_SIZE);
+  memset(lf->neighbor_sb_lpf_info.u_level_above, 0,
+         sizeof(uint8_t) * MAX_MIB_SIZE);
+  memset(lf->neighbor_sb_lpf_info.u_level_left, 0,
+         sizeof(uint8_t) * MAX_MIB_SIZE);
+  memset(lf->neighbor_sb_lpf_info.v_level_above, 0,
+         sizeof(uint8_t) * MAX_MIB_SIZE);
+  memset(lf->neighbor_sb_lpf_info.v_level_left, 0,
+         sizeof(uint8_t) * MAX_MIB_SIZE);
+  memset(lf->neighbor_sb_lpf_info.skip, 0, sizeof(uint8_t) * MAX_MIB_SIZE);
+#endif  // LOOP_FILTER_BITMASK
 }
+
+#if LOOP_FILTER_BITMASK
+// A 64x64 tx block requires 256 bits to represent each 4x4 tx block.
+// Every 4 rows is represented by one uint64_t mask. Hence,
+// there are 4 uint64_t bitmask[4] to represent the 64x64 block.
+//
+// Given a location by (idx, idy), This function returns the index
+// 0, 1, 2, 3 to select which bitmask[] to use.
+// Then the pointer y_shift contains the shift value in the bit mask.
+// Function returns y_shift; y_index contains the index.
+static int get_y_index_shift(int idx, int idy, int *y_index) {
+  *y_index = idy >> 4;
+  const int y_idy = (idy >> 2) % 4;
+  return (y_idy << 4) + (idx >> 2);
+}
+
+// Largest tx size of U/V plane is 32x32.
+// We need one uint64_t bitmask to present all 4x4 tx block.
+static int get_uv_index_shift(int idx, int idy) {
+  return ((idy >> 3) << 3) + (idx >> 3);
+}
+
+static int get_uv_shift(int idx, int idy) {
+  return (((idy - 2) >> 2) << 3) + (idx >> 2);
+}
+
+static void check_mask_y(const FilterMaskY *lfm) {
+#ifndef NDEBUG
+  int i;
+  for (i = 0; i < 4; ++i) {
+    assert(!(lfm[TX_4X4].bits[i] & lfm[TX_8X8].bits[i]));
+    assert(!(lfm[TX_4X4].bits[i] & lfm[TX_16X16].bits[i]));
+    assert(!(lfm[TX_4X4].bits[i] & lfm[TX_32X32].bits[i]));
+    assert(!(lfm[TX_8X8].bits[i] & lfm[TX_16X16].bits[i]));
+    assert(!(lfm[TX_8X8].bits[i] & lfm[TX_32X32].bits[i]));
+    assert(!(lfm[TX_16X16].bits[i] & lfm[TX_32X32].bits[i]));
+  }
+#else
+  (void)lfm;
+#endif
+}
+
+static void check_mask_uv(const FilterMaskUV *lfm) {
+#ifndef NDEBUG
+  int i;
+  for (i = 0; i < 4; ++i) {
+    assert(!(lfm[TX_4X4] & lfm[TX_8X8]));
+    assert(!(lfm[TX_4X4] & lfm[TX_16X16]));
+    assert(!(lfm[TX_4X4] & lfm[TX_32X32]));
+    assert(!(lfm[TX_8X8] & lfm[TX_16X16]));
+    assert(!(lfm[TX_8X8] & lfm[TX_32X32]));
+    assert(!(lfm[TX_16X16] & lfm[TX_32X32]));
+  }
+#else
+  (void)lfm;
+#endif
+}
+
+// mi_row, mi_col represent the starting postion of the coding block for
+// which the mask is built. idx, idy represet the offset from the startint
+// point, in the unit of actual distance. For example (idx >> MI_SIZE_LOG2)
+// is in the unit of MI.
+// static void setup_masks()
+#endif  // LOOP_FILTER_BITMASK
 
 static void filter_selectively_vert_row2(int subsampling_factor, uint8_t *s,
                                          int pitch, unsigned int mask_16x16_l,
