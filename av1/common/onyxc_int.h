@@ -1166,12 +1166,17 @@ static INLINE void av1_zero_above_context(AV1_COMMON *const cm,
 
   av1_zero_array(cm->above_txfm_context + (mi_col_start << TX_UNIT_WIDE_LOG2),
                  aligned_width << TX_UNIT_WIDE_LOG2);
+  memset(cm->above_txfm_context + (mi_col_start << TX_UNIT_WIDE_LOG2), 64,
+         (aligned_width << TX_UNIT_WIDE_LOG2) * sizeof(TXFM_CONTEXT));
 }
 
 static INLINE void av1_zero_left_context(MACROBLOCKD *const xd) {
   av1_zero(xd->left_context);
   av1_zero(xd->left_seg_context);
   av1_zero(xd->left_txfm_context_buffer);
+
+  memset(xd->left_txfm_context_buffer, 64,
+         sizeof(xd->left_txfm_context_buffer));
 }
 
 // Disable array-bounds checks as the TX_SIZE enum contains values larger than
