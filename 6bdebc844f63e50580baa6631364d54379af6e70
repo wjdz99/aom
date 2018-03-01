@@ -22,6 +22,30 @@
       "revId": "6bdebc844f63e50580baa6631364d54379af6e70",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "22dfb653_9c2c922f",
+        "filename": "av1/common/entropymv.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2018-03-01T01:15:41Z",
+      "side": 1,
+      "message": "Thanks.",
+      "parentUuid": "7602ef25_da6144b5",
+      "range": {
+        "startLine": 20,
+        "startChar": 27,
+        "endLine": 20,
+        "endChar": 39
+      },
+      "revId": "6bdebc844f63e50580baa6631364d54379af6e70",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
