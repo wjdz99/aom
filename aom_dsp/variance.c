@@ -444,7 +444,7 @@ static void highbd_variance64(const uint8_t *a8, int a_stride,
 
   for (i = 0; i < h; ++i) {
     for (j = 0; j < w; ++j) {
-      const int diff = a[j] - b[j];
+      const int64_t diff = a[j] - b[j];
       *sum += diff;
       *sse += diff * diff;
     }
