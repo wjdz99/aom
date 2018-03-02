@@ -14,6 +14,7 @@
 #include "test/av1_txfm_test.h"
 #include "test/util.h"
 #include "av1/common/av1_inv_txfm1d.h"
+#include "av1/common/av1_inv_txfm1d_cfg.h"
 #include "av1/encoder/av1_fwd_txfm1d.h"
 
 using libaom_test::ACMRandom;
@@ -40,7 +41,7 @@ const TxfmFunc inv_txfm_func_ls[][txfm_type_num] = {
 };
 
 // the maximum stage number of fwd/inv 1d dct/adst txfm is 12
-const int8_t cos_bit = 13;
+const int8_t cos_bit = INV_COS_BIT;
 const int8_t range_bit[12] = { 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20 };
 
 void reference_idct_1d_int(const int32_t *in, int32_t *out, int size) {
@@ -71,8 +72,8 @@ void random_matrix(int32_t *dst, int len, ACMRandom *rnd) {
 
 TEST(av1_inv_txfm1d, InvAccuracyCheck) {
   ACMRandom rnd(ACMRandom::DeterministicSeed());
-  const int count_test_block = 20000;
-  const int max_error[] = { 6, 10, 19, 31, 40 };
+  const int count_test_block = 250000;
+  const int max_error[] = { 11, 19, 53, 71, 97 };
   ASSERT_EQ(NELEMENTS(max_error), TX_SIZES);
   ASSERT_EQ(NELEMENTS(inv_txfm_func_ls), TX_SIZES);
   for (int k = 0; k < count_test_block; ++k) {
@@ -128,7 +129,7 @@ TEST(av1_inv_txfm1d, round_trip) {
 
       if (!fwd_txfm_func) continue;
 
-      const int count_test_block = 5000;
+      const int count_test_block = 250000;
       for (int ci = 0; ci < count_test_block; ++ci) {
         int32_t input[64];
         int32_t output[64];
