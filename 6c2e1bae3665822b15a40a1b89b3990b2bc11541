@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6dae6518_3b1e807a",
+        "filename": "test/test.cmake",
+        "patchSetId": 6
+      },
+      "lineNbr": 510,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-03-02T07:21:49Z",
+      "side": 1,
+      "message": "I wonder if the need to escape the | is an anachronism. There\u0027s no change necessary though, other checks are of this form so it\u0027s best to model them.",
+      "range": {
+        "startLine": 510,
+        "startChar": 16,
+        "endLine": 510,
+        "endChar": 18
+      },
+      "revId": "6c2e1bae3665822b15a40a1b89b3990b2bc11541",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9b9845ce_33d89e41",
+        "filename": "test/test.cmake",
+        "patchSetId": 6
+      },
+      "lineNbr": 511,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-03-02T07:21:49Z",
+      "side": 1,
+      "message": "I think within the existing cmake files it\u0027s more consistent to have the operators at the end of the line rather than the beginning.",
+      "range": {
+        "startLine": 511,
+        "startChar": 7,
+        "endLine": 511,
+        "endChar": 10
+      },
+      "revId": "6c2e1bae3665822b15a40a1b89b3990b2bc11541",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
