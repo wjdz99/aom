@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "c1ffef52_d61d694b",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-03-02T07:07:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7f5dafee_16001223",
+      "range": {
+        "startLine": 211,
+        "startChar": 10,
+        "endLine": 211,
+        "endChar": 24
+      },
+      "revId": "6576f7f5fa5e13ecad67b05e4755f6710a1c7d9a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "33567d2c_7b95fa34",
         "filename": "av1/decoder/obu.h",
         "patchSetId": 5
@@ -42,6 +66,24 @@
     },
     {
       "key": {
+        "uuid": "cb1ed0ab_c320e27c",
+        "filename": "av1/decoder/obu.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-03-02T07:07:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "33567d2c_7b95fa34",
+      "revId": "6576f7f5fa5e13ecad67b05e4755f6710a1c7d9a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2ff11492_00782040",
         "filename": "av1/decoder/obu.h",
         "patchSetId": 5
@@ -56,6 +98,24 @@
       "revId": "6576f7f5fa5e13ecad67b05e4755f6710a1c7d9a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fdb23984_bf7be865",
+        "filename": "av1/decoder/obu.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-03-02T07:07:09Z",
+      "side": 1,
+      "message": "Done (removed)",
+      "parentUuid": "2ff11492_00782040",
+      "revId": "6576f7f5fa5e13ecad67b05e4755f6710a1c7d9a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
