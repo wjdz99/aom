@@ -640,8 +640,6 @@ enum aome_enc_control_id {
    *
    * This will set the maximum number of tile groups. This will be
    * overridden if an MTU size is set. The default value is 1.
-   *
-   * Experiment: TILE_GROUPS
    */
   AV1E_SET_NUM_TG,
 
@@ -652,10 +650,18 @@ enum aome_enc_control_id {
    *
    * By default, the value is 0, in which case a fixed number of tile groups
    * is used.
-   *
-   * Experiment: TILE_GROUPS
    */
   AV1E_SET_MTU,
+
+  /*!\brief Codec control function to set a repeat frame header for multiple
+   * tile groups.
+   *
+   * When set, this will cause a frame header to be sent for each tile group.
+   *
+   * By default, the value is 0, in which case a single frame header is sent
+   * per frame
+   */
+  AV1E_SET_REPEAT_FRAME_HDR,
 
   /*!\brief Codec control function to set dependent_horz_tiles.
    *
@@ -968,8 +974,12 @@ AOM_CTRL_USE_TYPE(AV1E_SET_QM_V, unsigned int)
 
 AOM_CTRL_USE_TYPE(AV1E_SET_NUM_TG, unsigned int)
 #define AOM_CTRL_AV1E_SET_NUM_TG
+
 AOM_CTRL_USE_TYPE(AV1E_SET_MTU, unsigned int)
 #define AOM_CTRL_AV1E_SET_MTU
+
+AOM_CTRL_USE_TYPE(AV1E_SET_REPEAT_FRAME_HDR, unsigned int)
+#define AOM_CTRL_AV1E_SET_REPEAT_FRAME_HDR
 
 AOM_CTRL_USE_TYPE(AV1E_SET_TIMING_INFO, aom_timing_info_t)
 #define AOM_CTRL_AV1E_SET_TIMING_INFO
