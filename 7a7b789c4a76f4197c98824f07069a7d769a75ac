@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f9a360fb_db1f89e3",
+        "filename": "av1/common/av1_inv_txfm2d.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 8487
+      },
+      "writtenOn": "2018-03-02T07:55:18Z",
+      "side": 1,
+      "message": "Are there cases where this actually does not hold in the row inverse transform?",
+      "revId": "7a7b789c4a76f4197c98824f07069a7d769a75ac",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "644d9ff6_e6d45c21",
+        "filename": "av1/common/av1_inv_txfm2d.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 8487
+      },
+      "writtenOn": "2018-03-02T07:55:18Z",
+      "side": 1,
+      "message": "Shouldn\u0027t this be i \u003d\u003d 2 where iadst4_range is modified to be { 0, 0, 1, 0, 0, 0, 0 }? The range check changes in the idst4 function only seem to make sense if iadst4_range[1] is 0 and iadst4_range[2] is 1.",
+      "revId": "7a7b789c4a76f4197c98824f07069a7d769a75ac",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
