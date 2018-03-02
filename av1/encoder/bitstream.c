@@ -2673,7 +2673,6 @@ static void write_bitdepth_colorspace_sampling(
   aom_wb_write_bit(wb, cm->separate_uv_delta_q);
 }
 
-#if CONFIG_TIMING_INFO_IN_SEQ_HEADERS
 static void write_timing_info_header(AV1_COMMON *const cm,
                                      struct aom_write_bit_buffer *wb) {
   aom_wb_write_bit(wb, cm->timing_info_present);  // timing info present flag
@@ -2690,7 +2689,6 @@ static void write_timing_info_header(AV1_COMMON *const cm,
     }
   }
 }
-#endif  // CONFIG_TIMING_INFO_IN_SEQ_HEADERS
 
 #if CONFIG_FILM_GRAIN
 static void write_film_grain_params(AV1_COMP *cpi,
@@ -3612,10 +3610,8 @@ static uint32_t write_sequence_header_obu(AV1_COMP *cpi, uint8_t *const dst
   // color_config
   write_bitdepth_colorspace_sampling(cm, &wb);
 
-#if CONFIG_TIMING_INFO_IN_SEQ_HEADERS
   // timing_info
   write_timing_info_header(cm, &wb);
-#endif
 
 #if CONFIG_FILM_GRAIN
   aom_wb_write_bit(&wb, cm->film_grain_params_present);
