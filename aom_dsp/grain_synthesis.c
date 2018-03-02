@@ -592,17 +592,8 @@ static void add_noise_to_block(aom_film_grain_t *params, uint8_t *luma,
 
   for (int i = 0; i < (half_luma_height << (1 - chroma_subsamp_y)); i++) {
     for (int j = 0; j < (half_luma_width << (1 - chroma_subsamp_x)); j++) {
-      int average_luma = 0;
-      if (chroma_subsamp_x) {
-        average_luma = (luma[(i << chroma_subsamp_y) * luma_stride +
-                             (j << chroma_subsamp_x)] +
-                        luma[(i << chroma_subsamp_y) * luma_stride +
-                             (j << chroma_subsamp_x) + 1] +
-                        1) >>
-                       1;
-      } else {
-        average_luma = luma[(i << chroma_subsamp_y) * luma_stride + j];
-      }
+      int average_luma =
+          luma[(i << chroma_subsamp_y) * luma_stride + (j << chroma_subsamp_x)];
 
       if (apply_cb) {
         cb[i * chroma_stride + j] = clamp(
@@ -700,17 +691,8 @@ static void add_noise_to_block_hbd(
 
   for (int i = 0; i < (half_luma_height << (1 - chroma_subsamp_y)); i++) {
     for (int j = 0; j < (half_luma_width << (1 - chroma_subsamp_x)); j++) {
-      int average_luma = 0;
-      if (chroma_subsamp_x) {
-        average_luma = (luma[(i << chroma_subsamp_y) * luma_stride +
-                             (j << chroma_subsamp_x)] +
-                        luma[(i << chroma_subsamp_y) * luma_stride +
-                             (j << chroma_subsamp_x) + 1] +
-                        1) >>
-                       1;
-      } else {
-        average_luma = luma[(i << chroma_subsamp_y) * luma_stride + j];
-      }
+      int average_luma =
+          luma[(i << chroma_subsamp_y) * luma_stride + (j << chroma_subsamp_x)];
 
       if (apply_cb) {
         cb[i * chroma_stride + j] = clamp(
@@ -894,19 +876,22 @@ void av1_add_film_grain(aom_film_grain_t *params, aom_image_t *src,
   dst->r_w = src->r_w;
   dst->r_h = src->r_h;
 
+  width = dst->d_w % 2 ? dst->d_w + 1 : dst->d_w;
+  height = dst->d_h % 2 ? dst->d_h + 1 : dst->d_h;
+
   copy_rect(src->planes[AOM_PLANE_Y], src->stride[AOM_PLANE_Y],
-            dst->planes[AOM_PLANE_Y], dst->stride[AOM_PLANE_Y], dst->d_w,
-            dst->d_h, use_high_bit_depth);
+            dst->planes[AOM_PLANE_Y], dst->stride[AOM_PLANE_Y], width, height,
+            use_high_bit_depth);
 
   if (!src->monochrome) {
     copy_rect(src->planes[AOM_PLANE_U], src->stride[AOM_PLANE_U],
               dst->planes[AOM_PLANE_U], dst->stride[AOM_PLANE_U],
-              dst->d_w >> chroma_subsamp_x, dst->d_h >> chroma_subsamp_y,
+              width >> chroma_subsamp_x, height >> chroma_subsamp_y,
               use_high_bit_depth);
 
     copy_rect(src->planes[AOM_PLANE_V], src->stride[AOM_PLANE_V],
               dst->planes[AOM_PLANE_V], dst->stride[AOM_PLANE_V],
-              dst->d_w >> chroma_subsamp_x, dst->d_h >> chroma_subsamp_y,
+              width >> chroma_subsamp_x, height >> chroma_subsamp_y,
               use_high_bit_depth);
   }
 
@@ -918,8 +903,6 @@ void av1_add_film_grain(aom_film_grain_t *params, aom_image_t *src,
   luma_stride = dst->stride[AOM_PLANE_Y] >> use_high_bit_depth;
   chroma_stride = dst->stride[AOM_PLANE_U] >> use_high_bit_depth;
 
-  width = dst->d_w;
-  height = dst->d_h;
   params->bit_depth = dst->bit_depth;
 
   av1_add_film_grain_run(params, luma, cb, cr, height, width, luma_stride,
