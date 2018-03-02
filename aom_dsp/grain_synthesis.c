@@ -601,6 +601,7 @@ static void add_noise_to_block(aom_film_grain_t *params, uint8_t *luma,
     for (int j = 0; j < (half_luma_width << (1 - chroma_subsamp_x)); j++) {
       int average_luma = 0;
       if (chroma_subsamp_x) {
+        luma[(i << chroma_subsamp_y) * luma_stride + (j << chroma_subsamp_x)];
         average_luma = (luma[(i << chroma_subsamp_y) * luma_stride +
                              (j << chroma_subsamp_x)] +
                         luma[(i << chroma_subsamp_y) * luma_stride +
@@ -792,6 +793,33 @@ static void copy_area(int *src, int src_stride, int *dst, int dst_stride,
   return;
 }
 
+static void extend_even(uint8_t *dst, int dst_stride, int width, int height,
+                        int use_high_bit_depth) {
+  if ((width & 1) == 0 && (height & 1) == 0) return;
+  if (use_high_bit_depth) {
+    uint16_t *dst16 = (uint16_t *)dst;
+    if (width & 1) {
+      for (int i = 0; i < height; ++i)
+        dst16[i * dst_stride + width] = dst16[i * dst_stride + width - 1];
+    }
+    width = (width + 1) & (~1);
+    if (height & 1) {
+      memcpy(&dst16[height * stride], &dst16[(height - 1) * stride],
+             sizeof(*dst16) * width);
+    }
+  } else {
+    if (width & 1) {
+      for (int i = 0; i < height; ++i)
+        dst[i * dst_stride + width] = dst[i * dst_stride + width - 1];
+    }
+    width = (width + 1) & (~1);
+    if (height & 1) {
+      memcpy(&dst[height * stride], &dst[(height - 1) * stride],
+             sizeof(*dst) * width);
+    }
+  }
+}
+
 static void ver_boundary_overlap(int *left_block, int left_stride,
                                  int *right_block, int right_stride,
                                  int *dst_block, int dst_stride, int width,
@@ -900,20 +928,28 @@ void av1_add_film_grain(aom_film_grain_t *params, aom_image_t *src,
 
   dst->r_w = src->r_w;
   dst->r_h = src->r_h;
+  dst->d_w = src->d_w;
+  dst->d_h = src->d_h;
+
+  width = src->d_w % 2 ? src->d_w + 1 : src->d_w;
+  height = src->d_h % 2 ? src->d_h + 1 : src->d_h;
 
   copy_rect(src->planes[AOM_PLANE_Y], src->stride[AOM_PLANE_Y],
-            dst->planes[AOM_PLANE_Y], dst->stride[AOM_PLANE_Y], dst->d_w,
-            dst->d_h, use_high_bit_depth);
+            dst->planes[AOM_PLANE_Y], dst->stride[AOM_PLANE_Y], src->d_w,
+            src->d_h, use_high_bit_depth);
+  // Note that dst is already assumed to be aligned to even.
+  extend_even(dst->planes[AOM_PLANE_Y], dst->stride[AOM_PLANE_Y], src->d_w,
+              src->d_h, use_high_bit_depth);
 
   if (!src->monochrome) {
     copy_rect(src->planes[AOM_PLANE_U], src->stride[AOM_PLANE_U],
               dst->planes[AOM_PLANE_U], dst->stride[AOM_PLANE_U],
-              dst->d_w >> chroma_subsamp_x, dst->d_h >> chroma_subsamp_y,
+              width >> chroma_subsamp_x, height >> chroma_subsamp_y,
               use_high_bit_depth);
 
     copy_rect(src->planes[AOM_PLANE_V], src->stride[AOM_PLANE_V],
               dst->planes[AOM_PLANE_V], dst->stride[AOM_PLANE_V],
-              dst->d_w >> chroma_subsamp_x, dst->d_h >> chroma_subsamp_y,
+              width >> chroma_subsamp_x, height >> chroma_subsamp_y,
               use_high_bit_depth);
   }
 
@@ -925,8 +961,6 @@ void av1_add_film_grain(aom_film_grain_t *params, aom_image_t *src,
   luma_stride = dst->stride[AOM_PLANE_Y] >> use_high_bit_depth;
   chroma_stride = dst->stride[AOM_PLANE_U] >> use_high_bit_depth;
 
-  width = dst->d_w;
-  height = dst->d_h;
   params->bit_depth = dst->bit_depth;
 
   av1_add_film_grain_run(params, luma, cb, cr, height, width, luma_stride,
