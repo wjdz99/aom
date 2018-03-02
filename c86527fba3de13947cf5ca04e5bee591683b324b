@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "8fcc6193_a11495e5",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-03-02T18:06:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c2d15e53_02b0360e",
+      "range": {
+        "startLine": 50,
+        "startChar": 2,
+        "endLine": 50,
+        "endChar": 12
+      },
+      "revId": "c86527fba3de13947cf5ca04e5bee591683b324b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "134db222_0684537f",
         "filename": "av1/decoder/obu.c",
         "patchSetId": 3
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "dc384810_760c72fb",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-03-02T18:06:41Z",
+      "side": 1,
+      "message": "clang doesn\u0027t like nothing; break is fine/done.",
+      "parentUuid": "134db222_0684537f",
+      "range": {
+        "startLine": 62,
+        "startChar": 13,
+        "endLine": 62,
+        "endChar": 15
+      },
+      "revId": "c86527fba3de13947cf5ca04e5bee591683b324b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "dde616d5_4f2c7673",
         "filename": "av1/decoder/obu.c",
         "patchSetId": 3
@@ -59,6 +107,24 @@
       "writtenOn": "2018-03-02T09:00:25Z",
       "side": 1,
       "message": "this is a local function, if header\u003d\u003dNULL should be impossible an assert would do",
+      "revId": "c86527fba3de13947cf5ca04e5bee591683b324b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "88402a96_2a7f5bf4",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-03-02T18:06:41Z",
+      "side": 1,
+      "message": "Cleaning this up with the intent of ultimately exposing it via obu.h. Mind if it stays?",
+      "parentUuid": "dde616d5_4f2c7673",
       "revId": "c86527fba3de13947cf5ca04e5bee591683b324b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
@@ -85,6 +151,30 @@
       "revId": "c86527fba3de13947cf5ca04e5bee591683b324b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "45c1145a_76159881",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 295,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-03-02T18:06:41Z",
+      "side": 1,
+      "message": "was running -Wextra/-Werror w/Ycm: done.",
+      "parentUuid": "5ace1c7d_9d9b2368",
+      "range": {
+        "startLine": 295,
+        "startChar": 8,
+        "endLine": 295,
+        "endChar": 17
+      },
+      "revId": "c86527fba3de13947cf5ca04e5bee591683b324b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
