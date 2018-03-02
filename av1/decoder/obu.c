@@ -334,6 +334,8 @@ void av1_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
         break;
       case OBU_SEQUENCE_HEADER:
         obu_payload_size = read_sequence_header_obu(pbi, &rb);
+        // A sequence hearder resets flag if a frame_header is received.
+        frame_header_received = 0;
         break;
       case OBU_FRAME_HEADER:
         // Only decode first frame header received
