@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b1eb81c4_8de182f5",
+        "filename": "aom_dsp/bitwriter.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-03-02T01:33:24Z",
+      "side": 1,
+      "message": "This and the change to aom_daala_stop_encode() could be an unconditional change. Ignoring the return won\u0027t hurt existing code, and making the change unconditional helps reduce preproc complexity and yields more readable code.",
+      "range": {
+        "startLine": 55,
+        "startChar": 0,
+        "endLine": 63,
+        "endChar": 6
+      },
+      "revId": "eb79485a66cc167f86c9ead784ca8452fbe09a30",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e2ad03de_d1507954",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-03-02T01:33:24Z",
+      "side": 1,
+      "message": "comment nits: Caps and period.",
+      "revId": "eb79485a66cc167f86c9ead784ca8452fbe09a30",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d1169520_ee3b3405",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 4135,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-03-02T01:33:24Z",
+      "side": 1,
+      "message": "indent is off here: clang-format confused I guess since it appears the style check passed...",
+      "revId": "eb79485a66cc167f86c9ead784ca8452fbe09a30",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bac5dc59_1b8bd6f2",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 4147,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-03-02T01:33:24Z",
+      "side": 1,
+      "message": "Just for clarity\u0027s sake, what is this extra byte buying? Padded leb128\u0027s will have a matching byte (the pad byte value is 0x80), and annex B streams will frequently show size fields with the high bit set (though this obviously won\u0027t have the run of 7 unset bits).",
+      "range": {
+        "startLine": 4144,
+        "startChar": 1,
+        "endLine": 4147,
+        "endChar": 27
+      },
+      "revId": "eb79485a66cc167f86c9ead784ca8452fbe09a30",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
