@@ -77,6 +77,7 @@ struct av1_extracfg {
 #endif
   unsigned int num_tg;
   unsigned int mtu_size;
+  unsigned int repeat_frame_hdr;
 #if CONFIG_TIMING_INFO_IN_SEQ_HEADERS
   aom_timing_info_t timing_info;
 #endif
@@ -160,6 +161,7 @@ static struct av1_extracfg default_extra_cfg = {
 #endif
   1,  // max number of tile groups
   0,  // mtu_size
+  0,  // repeated frame headers
 #if CONFIG_TIMING_INFO_IN_SEQ_HEADERS
   AOM_TIMING_UNSPECIFIED,  // No picture timing signaling in bitstream
 #endif
@@ -579,6 +581,7 @@ static aom_codec_err_t set_encoder_config(
     oxcf->using_dist_8x8 = 1;
 #endif
   oxcf->num_tile_groups = extra_cfg->num_tg;
+  oxcf->repeated_frame_hdr = extra_cfg->repeat_frame_hdr;
 #if CONFIG_EXT_TILE
   // In large-scale tile encoding mode, num_tile_groups is always 1.
   if (cfg->large_scale_tile) oxcf->num_tile_groups = 1;
@@ -1035,6 +1038,13 @@ static aom_codec_err_t ctrl_set_mtu(aom_codec_alg_priv_t *ctx, va_list args) {
   extra_cfg.mtu_size = CAST(AV1E_SET_MTU, args);
   return update_extra_cfg(ctx, &extra_cfg);
 }
+static aom_codec_err_t ctrl_set_repeat_frame_hdr(aom_codec_alg_priv_t *ctx,
+                                                 va_list args) {
+  struct av1_extracfg extra_cfg = ctx->extra_cfg;
+  extra_cfg.repeat_frame_hdr = CAST(AV1E_SET_REPEAT_FRAME_HDR, args);
+  return update_extra_cfg(ctx, &extra_cfg);
+}
+
 #if CONFIG_TIMING_INFO_IN_SEQ_HEADERS
 static aom_codec_err_t ctrl_set_timing_info(aom_codec_alg_priv_t *ctx,
                                             va_list args) {
@@ -1726,6 +1736,7 @@ static aom_codec_ctrl_fn_map_t encoder_ctrl_maps[] = {
 #endif
   { AV1E_SET_NUM_TG, ctrl_set_num_tg },
   { AV1E_SET_MTU, ctrl_set_mtu },
+  { AV1E_SET_REPEAT_FRAME_HDR, ctrl_set_repeat_frame_hdr },
 #if CONFIG_TIMING_INFO_IN_SEQ_HEADERS
   { AV1E_SET_TIMING_INFO, ctrl_set_timing_info },
 #endif
