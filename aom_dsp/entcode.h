@@ -9,15 +9,16 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
-#if !defined(_entcode_H)
-#define _entcode_H (1)
+#ifndef AOM_DSP_ENTCODE_H_
+#define AOM_DSP_ENTCODE_H_
+
+#include "aom_dsp/prob.h"
+#include "av1/common/odintrin.h"
 #include <limits.h>
 #include <stddef.h>
-#include "av1/common/odintrin.h"
-#include "aom_dsp/prob.h"
 
 #define EC_PROB_SHIFT 6
-#define EC_MIN_PROB 4  // must be <= (1<<EC_PROB_SHIFT)/16
+#define EC_MIN_PROB 4 // must be <= (1<<EC_PROB_SHIFT)/16
 
 /*OPT: od_ec_window must be at least 32 bits, but if you have fast arithmetic
    on a larger type, you can speed up the decoder by using it here.*/
@@ -39,4 +40,4 @@ typedef uint32_t od_ec_window;
 OD_WARN_UNUSED_RESULT uint32_t od_ec_tell_frac(uint32_t nbits_total,
                                                uint32_t rng);
 
-#endif
+#endif // AOM_DSP_ENTCODE_H_
