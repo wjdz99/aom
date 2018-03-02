@@ -658,7 +658,6 @@ void av1_convolve_2d_copy_sr_c(const uint8_t *src, int src_stride, uint8_t *dst,
   }
 }
 
-#if CONFIG_JNT_COMP
 void av1_jnt_convolve_2d_c(const uint8_t *src, int src_stride, uint8_t *dst0,
                            int dst_stride0, int w, int h,
                            InterpFilterParams *filter_params_x,
@@ -862,7 +861,6 @@ void av1_jnt_convolve_2d_copy_c(const uint8_t *src, int src_stride,
     }
   }
 }
-#endif  // CONFIG_JNT_COMP
 
 void av1_convolve_2d_scale_c(const uint8_t *src, int src_stride,
                              CONV_BUF_TYPE *dst, int dst_stride, int w, int h,
@@ -919,7 +917,6 @@ void av1_convolve_2d_scale_c(const uint8_t *src, int src_stride,
       CONV_BUF_TYPE res = ROUND_POWER_OF_TWO(sum, conv_params->round_1) -
                           ((1 << (offset_bits - conv_params->round_1)) +
                            (1 << (offset_bits - conv_params->round_1 - 1)));
-#if CONFIG_JNT_COMP
       if (conv_params->use_jnt_comp_avg) {
         if (conv_params->do_average) {
           int32_t tmp = dst[y * dst_stride + x];
@@ -937,15 +934,6 @@ void av1_convolve_2d_scale_c(const uint8_t *src, int src_stride,
           dst[y * dst_stride + x] = res;
         }
       }
-#else
-      if (conv_params->do_average) {
-        int32_t tmp = dst[y * dst_stride + x];
-        tmp += res;
-        dst[y * dst_stride + x] = tmp >> 1;
-      } else {
-        dst[y * dst_stride + x] = res;
-      }
-#endif  // CONFIG_JNT_COMP
     }
     src_vert++;
   }
@@ -1320,7 +1308,6 @@ void av1_highbd_convolve_2d_sr_c(const uint16_t *src, int src_stride,
   }
 }
 
-#if CONFIG_JNT_COMP
 void av1_highbd_jnt_convolve_2d_c(const uint16_t *src, int src_stride,
                                   uint16_t *dst0, int dst_stride0, int w, int h,
                                   InterpFilterParams *filter_params_x,
@@ -1527,7 +1514,6 @@ void av1_highbd_jnt_convolve_2d_copy_c(
     }
   }
 }
-#endif  // CONFIG_JNT_COMP
 
 void av1_highbd_convolve_2d_scale_c(const uint16_t *src, int src_stride,
                                     CONV_BUF_TYPE *dst, int dst_stride, int w,
@@ -1583,7 +1569,6 @@ void av1_highbd_convolve_2d_scale_c(const uint16_t *src, int src_stride,
       CONV_BUF_TYPE res = ROUND_POWER_OF_TWO(sum, conv_params->round_1) -
                           ((1 << (offset_bits - conv_params->round_1)) +
                            (1 << (offset_bits - conv_params->round_1 - 1)));
-#if CONFIG_JNT_COMP
       if (conv_params->use_jnt_comp_avg) {
         if (conv_params->do_average) {
           int32_t tmp = dst[y * dst_stride + x];
@@ -1601,15 +1586,6 @@ void av1_highbd_convolve_2d_scale_c(const uint16_t *src, int src_stride,
           dst[y * dst_stride + x] = res;
         }
       }
-#else
-      if (conv_params->do_average) {
-        int32_t tmp = dst[y * dst_stride + x];
-        tmp += res;
-        dst[y * dst_stride + x] = tmp >> 1;
-      } else {
-        dst[y * dst_stride + x] = res;
-      }
-#endif  // CONFIG_JNT_COMP
     }
     src_vert++;
   }

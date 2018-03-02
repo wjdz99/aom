@@ -1199,7 +1199,6 @@ static void update_stats(const AV1_COMMON *const cm, TileDataEnc *tile_data,
           }
         }
 
-#if CONFIG_JNT_COMP
         if (has_second_ref(mbmi)) {
           assert(cm->reference_mode != SINGLE_REFERENCE &&
                  is_inter_compound_mode(mbmi->mode) &&
@@ -1236,20 +1235,6 @@ static void update_stats(const AV1_COMMON *const cm, TileDataEnc *tile_data,
             }
           }
         }
-#else   // CONFIG_JNT_COMP
-        if (cm->reference_mode != SINGLE_REFERENCE &&
-            is_inter_compound_mode(mbmi->mode) &&
-            mbmi->motion_mode == SIMPLE_TRANSLATION) {
-          if (is_interinter_compound_used(COMPOUND_WEDGE, bsize)) {
-            counts
-                ->compound_interinter[bsize][mbmi->interinter_compound_type]++;
-            if (allow_update_cdf) {
-              update_cdf(fc->compound_type_cdf[bsize],
-                         mbmi->interinter_compound_type, COMPOUND_TYPES);
-            }
-          }
-        }
-#endif  // CONFIG_JNT_COMP
 #if WEDGE_IDX_ENTROPY_CODING
         if (mbmi->interinter_compound_type == COMPOUND_WEDGE) {
           if (is_interinter_compound_used(COMPOUND_WEDGE, bsize)) {
@@ -1454,7 +1439,6 @@ static void encode_b(const AV1_COMP *const cpi, TileDataEnc *tile_data,
       mbmi->current_delta_lf_from_base = xd->prev_delta_lf_from_base;
     }
 #endif
-#if CONFIG_JNT_COMP
     if (has_second_ref(mbmi)) {
       if (mbmi->compound_idx == 0 ||
           mbmi->interinter_compound_type == COMPOUND_AVERAGE)
@@ -1462,7 +1446,6 @@ static void encode_b(const AV1_COMP *const cpi, TileDataEnc *tile_data,
       else
         mbmi->comp_group_idx = 1;
     }
-#endif
     update_stats(&cpi->common, tile_data, td, mi_row, mi_col);
   }
 }

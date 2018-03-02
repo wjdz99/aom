@@ -292,10 +292,8 @@ typedef struct MB_MODE_INFO {
   int cfl_alpha_signs;
 #endif
 
-#if CONFIG_JNT_COMP
   int compound_idx;
   int comp_group_idx;
-#endif
 } MB_MODE_INFO;
 
 typedef struct MODE_INFO {
@@ -520,13 +518,11 @@ typedef struct cfl_ctx {
 } CFL_CTX;
 #endif  // CONFIG_CFL
 
-#if CONFIG_JNT_COMP
 typedef struct jnt_comp_params {
   int use_jnt_comp_avg;
   int fwd_offset;
   int bck_offset;
 } JNT_COMP_PARAMS;
-#endif  // CONFIG_JNT_COMP
 
 typedef struct macroblockd {
   struct macroblockd_plane plane[MAX_MB_PLANE];
@@ -637,9 +633,7 @@ typedef struct macroblockd {
   CFL_CTX cfl;
 #endif
 
-#if CONFIG_JNT_COMP
   JNT_COMP_PARAMS jcp_param;
-#endif
 } MACROBLOCKD;
 
 static INLINE int get_bitdepth_data_path_index(const MACROBLOCKD *xd) {
