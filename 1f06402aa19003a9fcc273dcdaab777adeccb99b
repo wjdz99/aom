@@ -52,6 +52,24 @@
       "revId": "1f06402aa19003a9fcc273dcdaab777adeccb99b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e2be790c_837e52a4",
+        "filename": "test/hash_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 8900
+      },
+      "writtenOn": "2018-03-02T07:33:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "38570759_71b79f42",
+      "revId": "1f06402aa19003a9fcc273dcdaab777adeccb99b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
