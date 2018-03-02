@@ -592,17 +592,8 @@ static void add_noise_to_block(aom_film_grain_t *params, uint8_t *luma,
 
   for (int i = 0; i < (half_luma_height << (1 - chroma_subsamp_y)); i++) {
     for (int j = 0; j < (half_luma_width << (1 - chroma_subsamp_x)); j++) {
-      int average_luma = 0;
-      if (chroma_subsamp_x) {
-        average_luma = (luma[(i << chroma_subsamp_y) * luma_stride +
-                             (j << chroma_subsamp_x)] +
-                        luma[(i << chroma_subsamp_y) * luma_stride +
-                             (j << chroma_subsamp_x) + 1] +
-                        1) >>
-                       1;
-      } else {
-        average_luma = luma[(i << chroma_subsamp_y) * luma_stride + j];
-      }
+      int average_luma =
+          luma[(i << chroma_subsamp_y) * luma_stride + (j << chroma_subsamp_x)];
 
       if (apply_cb) {
         cb[i * chroma_stride + j] = clamp(
@@ -700,17 +691,8 @@ static void add_noise_to_block_hbd(
 
   for (int i = 0; i < (half_luma_height << (1 - chroma_subsamp_y)); i++) {
     for (int j = 0; j < (half_luma_width << (1 - chroma_subsamp_x)); j++) {
-      int average_luma = 0;
-      if (chroma_subsamp_x) {
-        average_luma = (luma[(i << chroma_subsamp_y) * luma_stride +
-                             (j << chroma_subsamp_x)] +
-                        luma[(i << chroma_subsamp_y) * luma_stride +
-                             (j << chroma_subsamp_x) + 1] +
-                        1) >>
-                       1;
-      } else {
-        average_luma = luma[(i << chroma_subsamp_y) * luma_stride + j];
-      }
+      int average_luma =
+          luma[(i << chroma_subsamp_y) * luma_stride + (j << chroma_subsamp_x)];
 
       if (apply_cb) {
         cb[i * chroma_stride + j] = clamp(
