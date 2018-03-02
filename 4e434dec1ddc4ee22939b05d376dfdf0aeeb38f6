@@ -16,6 +16,24 @@
       "revId": "4e434dec1ddc4ee22939b05d376dfdf0aeeb38f6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b4ac3457_c572623a",
+        "filename": "av1/common/av1_txfm.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2018-03-02T18:19:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7497ece9_964c8ffd",
+      "revId": "4e434dec1ddc4ee22939b05d376dfdf0aeeb38f6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
