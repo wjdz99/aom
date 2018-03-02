@@ -43,6 +43,9 @@ typedef enum {
 
 typedef struct {
   size_t size;
+#if CONFIG_OBU_TD_IN_HEADER
+  int td_flag;
+#endif
   OBU_TYPE type;
   int has_extension;
   int temporal_layer_id;
@@ -89,11 +92,19 @@ static int read_obu_header(struct aom_read_bit_buffer *rb, ObuHeader *header) {
   // first bit is obu_forbidden_bit (0) according to R19
   aom_rb_read_bit(rb);
 
+#if CONFIG_OBU_TD_IN_HEADER
+  header->td_flag = aom_rb_read_bit(rb);
+#endif  // CONFIG_OBU_TD_IN_HEADER
+
   header->type = (OBU_TYPE)aom_rb_read_literal(rb, 4);
 
   if (!valid_obu_type(header->type)) return AOM_CODEC_CORRUPT_FRAME;
 
+#if CONFIG_OBU_TD_IN_HEADER
+  aom_rb_read_literal(rb, 1);  // reserved
+#else
   aom_rb_read_literal(rb, 2);  // reserved
+#endif  // CONFIG_OBU_TD_IN_HEADER
 
   header->has_extension = aom_rb_read_bit(rb);
   if (header->has_extension) {
