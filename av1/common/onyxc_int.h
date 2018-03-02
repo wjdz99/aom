@@ -546,6 +546,7 @@ typedef struct AV1Common {
   TXFM_CONTEXT *top_txfm_context[MAX_MB_PLANE];
   TXFM_CONTEXT left_txfm_context[MAX_MB_PLANE][2 * MAX_MIB_SIZE];
   int above_context_alloc_cols;
+  int is_sframe;
   WarpedMotionParams global_motion[TOTAL_REFS_PER_FRAME];
 #if CONFIG_FILM_GRAIN
   int film_grain_params_present;
@@ -682,7 +683,7 @@ static INLINE int frame_might_use_prev_frame_mvs(const AV1_COMMON *cm) {
 #if CONFIG_EXT_TILE
          !cm->large_scale_tile &&
 #endif  // CONFIG_EXT_TILE
-         !frame_is_intra_only(cm);
+         !frame_is_intra_only(cm) && !cm->is_sframe;
 }
 
 // Returns 1 if this frame really can use MVs from some previous frame.
