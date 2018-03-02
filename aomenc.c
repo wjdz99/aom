@@ -482,6 +482,8 @@ static const arg_def_t mtu_size =
     ARG_DEF(NULL, "mtu-size", 1,
             "MTU size for a tile group, default is 0 (no MTU targeting), "
             "overrides maximum number of tile groups");
+static const arg_def_t repeat_frame_hdr = ARG_DEF(
+    NULL, "repeat-frame-hdr", 1, "Repeat frame header with each tile group, default is 0");
 #if CONFIG_TIMING_INFO_IN_SEQ_HEADERS
 static const struct arg_enum_list timing_info_enum[] = {
   { "unspecified", AOM_TIMING_UNSPECIFIED },
@@ -697,6 +699,7 @@ static const arg_def_t *av1_args[] = { &cpu_used_av1,
                                        &superblock_size,
                                        &num_tg,
                                        &mtu_size,
+                                       &repeat_frame_hdr,
 #if CONFIG_TIMING_INFO_IN_SEQ_HEADERS
                                        &timing_info,
 #endif
@@ -764,6 +767,7 @@ static const int av1_arg_ctrl_map[] = { AOME_SET_CPUUSED,
                                         AV1E_SET_SUPERBLOCK_SIZE,
                                         AV1E_SET_NUM_TG,
                                         AV1E_SET_MTU,
+                                        AV1E_SET_REPEAT_FRAME_HDR,
 #if CONFIG_TIMING_INFO_IN_SEQ_HEADERS
                                         AV1E_SET_TIMING_INFO,
 #endif

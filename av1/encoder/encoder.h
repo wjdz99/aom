@@ -207,6 +207,7 @@ typedef struct AV1EncoderConfig {
 #endif
   unsigned int num_tile_groups;
   unsigned int mtu;
+  unsigned int repeated_frame_hdr;
 
   unsigned int disable_tempmv;
   // Internal frame size scaling.
@@ -602,6 +603,7 @@ typedef struct AV1_COMP {
   int dv_cost[2][MV_VALS];
   // TODO(huisu@google.com): we can update dv_joint_cost per SB.
   int dv_joint_cost[MV_JOINTS];
+  int repeat_frame_hdr;
 } AV1_COMP;
 
 void av1_initialize_enc(void);
