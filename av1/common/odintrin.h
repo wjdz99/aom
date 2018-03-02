@@ -46,33 +46,6 @@ extern "C" {
 #  define M_LN2 (0.69314718055994530941723212145818)
 # endif
 
-/*Smallest blocks are 4x4*/
-#define OD_LOG_BSIZE0 (2)
-/*There are 5 block sizes total (4x4, 8x8, 16x16, 32x32 and 64x64).*/
-#define OD_NBSIZES (5)
-
-/*There are 4 transform sizes total in AV1 (4x4, 8x8, 16x16 and 32x32).*/
-#define OD_TXSIZES TX_SIZES
-/*The log of the maximum length of the side of a transform.*/
-#define OD_LOG_TXSIZE_MAX (OD_LOG_BSIZE0 + OD_TXSIZES - 1)
-/*The maximum length of the side of a transform.*/
-#define OD_TXSIZE_MAX (1 << OD_LOG_TXSIZE_MAX)
-
-/**The maximum number of color planes allowed in a single frame.*/
-# define OD_NPLANES_MAX (3)
-
-/* Native coefficient 'bitdepth'; TX is scaled up by (TX_COEFF_DEPTH-bitdepth)
-   such that the real coefficient depth precision is always TX_CEOFF_DEPTH
-   regardless of bitdepth or transform size.
-*/
-# define TX_COEFF_DEPTH (12)
-
-# define OD_DISABLE_CFL (1)
-# define OD_DISABLE_FILTER (1)
-
-# define OD_LOG(a)
-# define OD_LOG_PARTIAL(a)
-
 typedef int od_coeff;
 
 #define OD_DIVU_DMAX (1024)
