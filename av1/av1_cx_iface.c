@@ -1325,6 +1325,7 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
       pkt.data.frame.sz = ctx->pending_cx_data_sz;
       pkt.data.frame.partition_id = -1;
 
+#if !CONFIG_OBU_TD_IN_HEADER
       int write_temporal_delimiter = 1;
 #if CONFIG_SCALABILITY
       // only write OBU_TD if base layer
@@ -1335,6 +1336,7 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
         // optional 4 byte size
         uint32_t obu_header_size = 1;
         const uint32_t obu_payload_size = 0;
+
 #if CONFIG_OBU_SIZING
         const size_t length_field_size =
             get_uleb_obu_size_in_bytes(obu_header_size, obu_payload_size);
@@ -1351,8 +1353,9 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
 #else
         const uint32_t obu_header_offset = (uint32_t)length_field_size;
 #endif  // CONFIG_OBU_SIZE_AFTER_HEADER
+
         obu_header_size = write_obu_header(
-            OBU_TEMPORAL_DELIMITER, 0,
+            cpi, OBU_TEMPORAL_DELIMITER, 0,
             (uint8_t *)(ctx->pending_cx_data + obu_header_offset));
 
 #if CONFIG_OBU_SIZING
@@ -1367,6 +1370,7 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
         pkt.data.frame.sz +=
             obu_header_size + obu_payload_size + length_field_size;
       }
+#endif  // !CONFIG_OBU_TD_IN_HEADER
 
       pkt.data.frame.pts = ticks_to_timebase_units(timebase, dst_time_stamp);
       pkt.data.frame.flags = get_frame_pkt_flags(cpi, lib_flags);
