@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0073098f_84584843",
+        "filename": "aom_dsp/entcode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-03-02T17:34:10Z",
+      "side": 1,
+      "message": "these end in \u0027_\u0027:\n\nhttps://google.github.io/styleguide/cppguide.html#The__define_Guard",
+      "revId": "28ede7c9e1434ba9b39f3b65829ce5c63175f60d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a8e0130d_1e7efb83",
+        "filename": "aom_dsp/entcode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-03-02T17:34:10Z",
+      "side": 1,
+      "message": "this should match the define",
+      "range": {
+        "startLine": 40,
+        "startChar": 11,
+        "endLine": 40,
+        "endChar": 26
+      },
+      "revId": "28ede7c9e1434ba9b39f3b65829ce5c63175f60d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
