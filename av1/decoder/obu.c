@@ -43,6 +43,9 @@ typedef enum {
 
 typedef struct {
   size_t size;
+#if CONFIG_OBU_TD_IN_HEADER
+  int td_flag;
+#endif
   OBU_TYPE type;
   int has_extension;
   int temporal_layer_id;
@@ -51,7 +54,12 @@ typedef struct {
 
 int get_obu_type(uint8_t obu_header, OBU_TYPE *obu_type) {
   if (!obu_type) return -1;
+#if CONFIG_OBU_TD_IN_HEADER
+  *obu_type = (OBU_TYPE)((obu_header >> 2) & 0xF);
+#else
   *obu_type = (OBU_TYPE)((obu_header >> 3) & 0xF);
+#endif  // CONFIG_OBU_TD_IN_HEADER
+
   switch (*obu_type) {
     case OBU_SEQUENCE_HEADER:
     case OBU_TEMPORAL_DELIMITER:
@@ -89,11 +97,19 @@ static int read_obu_header(struct aom_read_bit_buffer *rb, ObuHeader *header) {
   // first bit is obu_forbidden_bit (0) according to R19
   aom_rb_read_bit(rb);
 
+#if CONFIG_OBU_TD_IN_HEADER
+  header->td_flag = aom_rb_read_bit(rb);
+#endif  // CONFIG_OBU_TD_IN_HEADER
+
   header->type = (OBU_TYPE)aom_rb_read_literal(rb, 4);
 
   if (!valid_obu_type(header->type)) return AOM_CODEC_CORRUPT_FRAME;
 
+#if CONFIG_OBU_TD_IN_HEADER
+  aom_rb_read_literal(rb, 1);  // reserved
+#else
   aom_rb_read_literal(rb, 2);  // reserved
+#endif  // CONFIG_OBU_TD_IN_HEADER
 
   header->has_extension = aom_rb_read_bit(rb);
   if (header->has_extension) {

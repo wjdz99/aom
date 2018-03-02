@@ -550,6 +550,10 @@ typedef struct AV1_COMP {
 
   int frame_flags;
 
+#if CONFIG_OBU_TD_IN_HEADER
+  int td_flag;
+#endif
+
   search_site_config ss_cfg;
 
   int multi_arf_allowed;
