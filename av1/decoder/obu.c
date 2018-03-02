@@ -299,7 +299,18 @@ void av1_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
       return;
     }
 
-#if !CONFIG_OBU_SIZING
+#if CONFIG_OBU_SIZE_AFTER_HEADER
+    size_t length_field_size = 0;
+#else
+#if CONFIG_OBU_SIZING
+    size_t length_field_size;
+    size_t obu_size;
+    if (read_obu_size(data, bytes_available, &obu_size, &length_field_size) !=
+        AOM_CODEC_OK) {
+      cm->error.error_code = AOM_CODEC_CORRUPT_FRAME;
+      return;
+    }
+#else
     // every obu is preceded by PRE_OBU_SIZE_BYTES-byte size of obu (obu header
     // + payload size)
     // The obu size is only needed for tile group OBUs
@@ -309,17 +320,7 @@ void av1_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
       cm->error.error_code = AOM_CODEC_CORRUPT_FRAME;
       return;
     }
-#endif  // !CONFIG_OBU_SIZING
-#if CONFIG_OBU_SIZE_AFTER_HEADER
-    size_t length_field_size = 0;
-#else
-    size_t length_field_size;
-    size_t obu_size;
-    if (read_obu_size(data, bytes_available, &obu_size, &length_field_size) !=
-        AOM_CODEC_OK) {
-      cm->error.error_code = AOM_CODEC_CORRUPT_FRAME;
-      return;
-    }
+#endif  // CONFIG_OBU_SIZING
 #endif  // CONFIG_OBU_SIZE_AFTER_HEADER
     av1_init_read_bit_buffer(pbi, &rb, data + length_field_size, data_end);
 
