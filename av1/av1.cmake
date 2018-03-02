@@ -46,7 +46,6 @@ set(AOM_AV1_COMMON_SOURCES
     "${AOM_ROOT}/av1/common/mv.h"
     "${AOM_ROOT}/av1/common/mvref_common.c"
     "${AOM_ROOT}/av1/common/mvref_common.h"
-    "${AOM_ROOT}/av1/common/odintrin.c"
     "${AOM_ROOT}/av1/common/odintrin.h"
     "${AOM_ROOT}/av1/common/onyxc_int.h"
     "${AOM_ROOT}/av1/common/pred_common.c"

@@ -298,7 +298,6 @@ if (NOT BUILD_SHARED_LIBS)
   if (CONFIG_AV1_DECODER AND CONFIG_AV1_ENCODER)
     set(AOM_UNIT_TEST_COMMON_SOURCES
         ${AOM_UNIT_TEST_COMMON_SOURCES}
-        "${AOM_ROOT}/test/divu_small_test.cc"
         "${AOM_ROOT}/test/ethread_test.cc"
         "${AOM_ROOT}/test/coding_path_sync.cc"
         "${AOM_ROOT}/test/idct8x8_test.cc"
