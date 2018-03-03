@@ -868,7 +868,6 @@ static void set_tile_info(AV1_COMP *cpi) {
   int tile_row, tile_col, num_tiles_in_tg;
   int tg_row_start, tg_col_start;
 #endif
-#if CONFIG_EXT_TILE
   if (cpi->oxcf.large_scale_tile) {
     if (cpi->oxcf.superblock_size != AOM_SUPERBLOCK_SIZE_64X64) {
       cm->tile_width = clamp(cpi->oxcf.tile_columns, 1, 32);
@@ -906,7 +905,6 @@ static void set_tile_info(AV1_COMP *cpi) {
     }
 #endif  // CONFIG_MAX_TILE
   } else {
-#endif  // CONFIG_EXT_TILE
 
 #if CONFIG_MAX_TILE
     set_tile_info_max_tile(cpi);
@@ -924,26 +922,18 @@ static void set_tile_info(AV1_COMP *cpi) {
   cm->tile_height =
       get_tile_size(cm->mi_rows, cm->log2_tile_rows, &cm->tile_rows);
 #endif  // CONFIG_MAX_TILE
-#if CONFIG_EXT_TILE
   }
-#endif  // CONFIG_EXT_TILE
 
 #if CONFIG_DEPENDENT_HORZTILES
   cm->dependent_horz_tiles = cpi->oxcf.dependent_horz_tiles;
-#if CONFIG_EXT_TILE
   if (cm->large_scale_tile) {
     // May not needed since cpi->oxcf.dependent_horz_tiles is already adjusted.
     cm->dependent_horz_tiles = 0;
   } else {
-#endif  // CONFIG_EXT_TILE
     if (cm->log2_tile_rows == 0) cm->dependent_horz_tiles = 0;
-#if CONFIG_EXT_TILE
   }
-#endif  // CONFIG_EXT_TILE
 
-#if CONFIG_EXT_TILE
   if (!cm->large_scale_tile) {
-#endif  // CONFIG_EXT_TILE
     if (cpi->oxcf.mtu == 0) {
       cm->num_tg = cpi->oxcf.num_tile_groups;
     } else {
@@ -965,9 +955,7 @@ static void set_tile_info(AV1_COMP *cpi) {
         cm->tile_group_start_col[tile_row][tile_col] = tg_col_start;
       }
     }
-#if CONFIG_EXT_TILE
   }
-#endif  // CONFIG_EXT_TILE
 #endif
 
 #if CONFIG_LOOPFILTERING_ACROSS_TILES
@@ -2966,10 +2954,8 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
       (oxcf->error_resilient_mode || oxcf->frame_parallel_decoding_mode)
           ? REFRESH_FRAME_CONTEXT_DISABLED
           : REFRESH_FRAME_CONTEXT_BACKWARD;
-#if CONFIG_EXT_TILE
   if (oxcf->large_scale_tile)
     cm->refresh_frame_context = REFRESH_FRAME_CONTEXT_DISABLED;
-#endif  // CONFIG_EXT_TILE
 
 #if !CONFIG_NO_FRAME_CONTEXT_SIGNALING
   cm->reset_frame_context = RESET_FRAME_CONTEXT_NONE;
@@ -3001,14 +2987,10 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
   rc->worst_quality = cpi->oxcf.worst_allowed_q;
   rc->best_quality = cpi->oxcf.best_allowed_q;
 
-#if CONFIG_EXT_TILE
   if (!oxcf->large_scale_tile)
-#endif  // CONFIG_EXT_TILE
     cm->interp_filter = cpi->sf.default_interp_filter;
-#if CONFIG_EXT_TILE
   else
     cm->interp_filter = EIGHTTAP_REGULAR;
-#endif  // CONFIG_EXT_TILE
 
   cm->switchable_motion_mode = 1;
 
@@ -4876,9 +4858,7 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
   int no_restoration = !cpi->oxcf.using_restoration;
 
   if (is_lossless_requested(&cpi->oxcf)
-#if CONFIG_EXT_TILE
       || cm->large_scale_tile
-#endif  // CONFIG_EXT_TILE
   ) {
     no_loopfilter = 1;
     no_restoration = 1;
@@ -4886,9 +4866,7 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
 
   int no_cdef = 0;
   if (is_lossless_requested(&cpi->oxcf) || !cpi->oxcf.using_cdef
-#if CONFIG_EXT_TILE
       || cm->large_scale_tile
-#endif
   ) {
     no_cdef = 1;
   }
@@ -5645,10 +5623,8 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
       // Only reset the current context.
       cm->reset_frame_context = RESET_FRAME_CONTEXT_CURRENT;
     }
-#if CONFIG_EXT_TILE
     if (cpi->oxcf.large_scale_tile)
       cm->refresh_frame_context = REFRESH_FRAME_CONTEXT_DISABLED;
-#endif  // CONFIG_EXT_TILE
 #endif  // !CONFIG_NO_FRAME_CONTEXT_SIGNALING
   }
   if (cpi->oxcf.mtu == 0) {
@@ -5659,11 +5635,9 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
     cm->num_tg = DEFAULT_MAX_NUM_TG;
   }
 
-#if CONFIG_EXT_TILE
   cm->large_scale_tile = cpi->oxcf.large_scale_tile;
   cm->single_tile_decoding = cpi->oxcf.single_tile_decoding;
   if (cm->large_scale_tile) cm->seq_params.frame_id_numbers_present_flag = 0;
-#endif  // CONFIG_EXT_TILE
 
   cm->seq_params.monochrome = oxcf->monochrome;
 
@@ -6442,10 +6416,8 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
       (oxcf->error_resilient_mode || oxcf->frame_parallel_decoding_mode)
           ? REFRESH_FRAME_CONTEXT_DISABLED
           : REFRESH_FRAME_CONTEXT_BACKWARD;
-#if CONFIG_EXT_TILE
   if (oxcf->large_scale_tile)
     cm->refresh_frame_context = REFRESH_FRAME_CONTEXT_DISABLED;
-#endif  // CONFIG_EXT_TILE
 
   cpi->refresh_last_frame = 1;
   cpi->refresh_golden_frame = 0;
@@ -6766,20 +6738,15 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
 
 #endif
 
-#if CONFIG_EXT_TILE
   if (!cm->large_scale_tile) {
-#endif  // CONFIG_EXT_TILE
 #if CONFIG_NO_FRAME_CONTEXT_SIGNALING
     cm->frame_contexts[cm->new_fb_idx] = *cm->fc;
 #else
   if (!cm->error_resilient_mode)
     cm->frame_contexts[cm->frame_context_idx] = *cm->fc;
 #endif  // CONFIG_NO_FRAME_CONTEXT_SIGNALING
-#if CONFIG_EXT_TILE
   }
-#endif  // CONFIG_EXT_TILE
 
-#if CONFIG_EXT_TILE
 #define EXT_TILE_DEBUG 0
 #if EXT_TILE_DEBUG
   if (cm->large_scale_tile && oxcf->pass == 2) {
@@ -6792,7 +6759,6 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
   }
 #endif  // EXT_TILE_DEBUG
 #undef EXT_TILE_DEBUG
-#endif  // CONFIG_EXT_TILE
 #if CONFIG_FILM_GRAIN_SHOWEX
   cm->showable_frame = !cm->show_frame && cm->showable_frame;
 #endif

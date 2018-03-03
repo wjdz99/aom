@@ -98,9 +98,7 @@ struct av1_extracfg {
   int render_width;
   int render_height;
   aom_superblock_size_t superblock_size;
-#if CONFIG_EXT_TILE
   unsigned int single_tile_decoding;
-#endif  // CONFIG_EXT_TILE
 
 #if CONFIG_FILM_GRAIN
   int film_grain_test_vector;
@@ -181,9 +179,7 @@ static struct av1_extracfg default_extra_cfg = {
   0,                            // render width
   0,                            // render height
   AOM_SUPERBLOCK_SIZE_DYNAMIC,  // superblock_size
-#if CONFIG_EXT_TILE
   0,    // Single tile decoding is off by default.
-#endif  // CONFIG_EXT_TILE
 
 #if CONFIG_FILM_GRAIN
   0,
@@ -324,7 +320,6 @@ static aom_codec_err_t validate_config(aom_codec_alg_priv_t *ctx,
   RANGE_CHECK_HI(extra_cfg, noise_sensitivity, 6);
   RANGE_CHECK(extra_cfg, superblock_size, AOM_SUPERBLOCK_SIZE_64X64,
               AOM_SUPERBLOCK_SIZE_DYNAMIC);
-#if CONFIG_EXT_TILE
   RANGE_CHECK_HI(cfg, large_scale_tile, 1);
   RANGE_CHECK_HI(extra_cfg, single_tile_decoding, 1);
 
@@ -347,7 +342,6 @@ static aom_codec_err_t validate_config(aom_codec_alg_priv_t *ctx,
       if (extra_cfg->tile_rows != 0) RANGE_CHECK(extra_cfg, tile_rows, 1, 64);
     }
   } else {
-#endif  // CONFIG_EXT_TILE
 #if CONFIG_MAX_TILE
     RANGE_CHECK_HI(extra_cfg, tile_columns, 6);
     RANGE_CHECK_HI(extra_cfg, tile_rows, 6);
@@ -355,17 +349,13 @@ static aom_codec_err_t validate_config(aom_codec_alg_priv_t *ctx,
   RANGE_CHECK_HI(extra_cfg, tile_columns, 6);
   RANGE_CHECK_HI(extra_cfg, tile_rows, 2);
 #endif  // CONFIG_MAX_TILE
-#if CONFIG_EXT_TILE
   }
-#endif  // CONFIG_EXT_TILE
   RANGE_CHECK_HI(cfg, monochrome, 1);
 
-#if CONFIG_EXT_TILE
   if (cfg->large_scale_tile && extra_cfg->aq_mode)
     ERROR(
         "Adaptive quantization are not supported in large scale tile "
         "coding.");
-#endif  // CONFIG_EXT_TILE
 
 #if CONFIG_DEPENDENT_HORZTILES
   RANGE_CHECK_HI(extra_cfg, dependent_horz_tiles, 1);
@@ -579,10 +569,8 @@ static aom_codec_err_t set_encoder_config(
     oxcf->using_dist_8x8 = 1;
 #endif
   oxcf->num_tile_groups = extra_cfg->num_tg;
-#if CONFIG_EXT_TILE
   // In large-scale tile encoding mode, num_tile_groups is always 1.
   if (cfg->large_scale_tile) oxcf->num_tile_groups = 1;
-#endif  // CONFIG_EXT_TILE
   oxcf->mtu = extra_cfg->mtu_size;
 
   oxcf->disable_tempmv = extra_cfg->disable_tempmv;
@@ -672,7 +660,6 @@ static aom_codec_err_t set_encoder_config(
 #if CONFIG_FILM_GRAIN
   oxcf->film_grain_test_vector = extra_cfg->film_grain_test_vector;
 #endif
-#if CONFIG_EXT_TILE
   oxcf->large_scale_tile = cfg->large_scale_tile;
   oxcf->single_tile_decoding =
       (oxcf->large_scale_tile) ? extra_cfg->single_tile_decoding : 0;
@@ -693,12 +680,9 @@ static aom_codec_err_t set_encoder_config(
     oxcf->tile_columns = AOMMIN(tc, max);
     oxcf->tile_rows = AOMMIN(tr, max);
   } else {
-#endif  // CONFIG_EXT_TILE
     oxcf->tile_columns = extra_cfg->tile_columns;
     oxcf->tile_rows = extra_cfg->tile_rows;
-#if CONFIG_EXT_TILE
   }
-#endif  // CONFIG_EXT_TILE
   oxcf->monochrome = cfg->monochrome;
   oxcf->enable_dual_filter = extra_cfg->use_dual_filter;
 #if CONFIG_JNT_COMP
@@ -717,9 +701,7 @@ static aom_codec_err_t set_encoder_config(
 #endif
 #if CONFIG_DEPENDENT_HORZTILES
   oxcf->dependent_horz_tiles =
-#if CONFIG_EXT_TILE
       (cfg->large_scale_tile) ? 0 :
-#endif  // CONFIG_EXT_TILE
                               extra_cfg->dependent_horz_tiles;
 #endif
 #if CONFIG_LOOPFILTERING_ACROSS_TILES
@@ -1074,14 +1056,12 @@ static aom_codec_err_t ctrl_set_frame_parallel_decoding_mode(
   return update_extra_cfg(ctx, &extra_cfg);
 }
 
-#if CONFIG_EXT_TILE
 static aom_codec_err_t ctrl_set_single_tile_decoding(aom_codec_alg_priv_t *ctx,
                                                      va_list args) {
   struct av1_extracfg extra_cfg = ctx->extra_cfg;
   extra_cfg.single_tile_decoding = CAST(AV1E_SET_SINGLE_TILE_DECODING, args);
   return update_extra_cfg(ctx, &extra_cfg);
 }
-#endif  // CONFIG_EXT_TILE
 
 static aom_codec_err_t ctrl_set_aq_mode(aom_codec_alg_priv_t *ctx,
                                         va_list args) {
@@ -1754,9 +1734,7 @@ static aom_codec_ctrl_fn_map_t encoder_ctrl_maps[] = {
   { AV1E_SET_MAX_GF_INTERVAL, ctrl_set_max_gf_interval },
   { AV1E_SET_RENDER_SIZE, ctrl_set_render_size },
   { AV1E_SET_SUPERBLOCK_SIZE, ctrl_set_superblock_size },
-#if CONFIG_EXT_TILE
   { AV1E_SET_SINGLE_TILE_DECODING, ctrl_set_single_tile_decoding },
-#endif  // CONFIG_EXT_TILE
 #if CONFIG_FILM_GRAIN
   { AV1E_SET_FILM_GRAIN_TEST_VECTOR, ctrl_set_film_grain_test_vector },
 #endif  // CONFIG_FILM_GRAIN
