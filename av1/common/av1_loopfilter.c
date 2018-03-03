@@ -716,9 +716,13 @@ static void check_mask_y(const FilterMaskY *lfm) {
     assert(!(lfm[TX_4X4].bits[i] & lfm[TX_8X8].bits[i]));
     assert(!(lfm[TX_4X4].bits[i] & lfm[TX_16X16].bits[i]));
     assert(!(lfm[TX_4X4].bits[i] & lfm[TX_32X32].bits[i]));
+    assert(!(lfm[TX_4X4].bits[i] & lfm[TX_64X64].bits[i]));
     assert(!(lfm[TX_8X8].bits[i] & lfm[TX_16X16].bits[i]));
     assert(!(lfm[TX_8X8].bits[i] & lfm[TX_32X32].bits[i]));
+    assert(!(lfm[TX_8X8].bits[i] & lfm[TX_64X64].bits[i]));
     assert(!(lfm[TX_16X16].bits[i] & lfm[TX_32X32].bits[i]));
+    assert(!(lfm[TX_16X16].bits[i] & lfm[TX_64X64].bits[i]));
+    assert(!(lfm[TX_32X32].bits[i] & lfm[TX_64X64].bits[i]));
   }
 #else
   (void)lfm;
@@ -741,11 +745,90 @@ static void check_mask_uv(const FilterMaskUV *lfm) {
 #endif
 }
 
+static void check_loop_filter_masks(const LoopFilterMask *lfm) {
+  int i;
+  for (i = 0; i < LOOP_FILTER_MASK_NUM; ++i) {
+    // Assert if we try to apply 2 different loop filters at the same position.
+    check_mask_y(lfm->lfm_info[i].left_y);
+    check_mask_y(lfm->lfm_info[i].above_y);
+    check_mask_uv(lfm->lfm_info[i].left_u);
+    check_mask_uv(lfm->lfm_info[i].above_u);
+    check_mask_uv(lfm->lfm_info[i].left_v);
+    check_mask_uv(lfm->lfm_info[i].above_v);
+  }
+}
+
 // mi_row, mi_col represent the starting postion of the coding block for
 // which the mask is built. idx, idy represet the offset from the startint
 // point, in the unit of actual distance. For example (idx >> MI_SIZE_LOG2)
 // is in the unit of MI.
 // static void setup_masks()
+
+static void setup_tx_block_mask() {
+  // place hoder: build bitmask for a tx block.
+}
+
+static void setup_block_mask(AV1_COMMON *const cm, int mi_row, int mi_col,
+                             int max_unit_bw, int max_unit_bh, int plane,
+                             int subsampling_x, int subsampling_y,
+                             LoopFilterMask *lfm) {
+  MODE_INFO **mi = cm->mi_grid_visible + mi_row * cm->mi_stride + mi_col;
+  const MB_MODE_INFO *const mbmi = &mi[0]->mbmi;
+  const BLOCK_SIZE bsize = mbmi->sb_type;
+  const int bw = block_size_wide[bsize];
+  const int bh = block_size_high[bsize];
+
+  if (bw >= max_unit_bw && bh >= max_unit_bh) {
+    setup_tx_block_mask();
+  } else {
+    int blk_idx, blk_idy;
+    const int next_max_unit_bw = bw >= max_unit_bw ? bw : max_unit_bw >> 1;
+    const int next_max_unit_bh = bh >= max_unit_bh ? bh : max_unit_bh >> 1;
+
+    for (blk_idy = 0; blk_idy < max_unit_bh; blk_idy += next_max_unit_bh) {
+      for (blk_idx = 0; blk_idx < max_unit_bw; blk_idx += next_max_unit_bw) {
+        const int mi_idx = blk_idx >> MI_SIZE_LOG2;
+        const int mi_idy = blk_idy >> MI_SIZE_LOG2;
+        setup_block_mask(cm, mi_row + mi_idy, mi_col + mi_idx, next_max_unit_bw,
+                         next_max_unit_bh, plane, subsampling_x, subsampling_y,
+                         lfm);
+      }
+    }
+  }
+}
+
+void av1_setup_bitmask(AV1_COMMON *const cm, int mi_row, int mi_col, int plane,
+                       int subsampling_x, int subsampling_y,
+                       LoopFilterMask *lfm) {
+  assert(lfm != NULL);
+
+  MODE_INFO **mi = cm->mi_grid_visible + mi_row * cm->mi_stride + mi_col;
+  const MB_MODE_INFO *const mbmi = &mi[0]->mbmi;
+  const BLOCK_SIZE bsize = mbmi->sb_type;  // largest 128x128
+  const int bw = block_size_wide[bsize];
+  const int bh = block_size_high[bsize];
+  const BLOCK_SIZE max_unit_bsize = BLOCK_64X64;
+  const int max_unit_bw = block_size_wide[max_unit_bsize];
+  const int max_unit_bh = block_size_high[max_unit_bsize];
+
+  // build mask for 64x64 block, even max block size is 128x128
+  int blk_idx, blk_idy;
+  for (blk_idy = 0; blk_idy < bh; blk_idy += max_unit_bh) {
+    for (blk_idx = 0; blk_idx < bw; blk_idx += max_unit_bw) {
+      const int mi_idx = blk_idx >> MI_SIZE_LOG2;
+      const int mi_idy = blk_idy >> MI_SIZE_LOG2;
+      setup_block_mask(cm, mi_row + mi_idy, mi_col + mi_idx, max_unit_bw,
+                       max_unit_bh, plane, subsampling_x, subsampling_y, lfm);
+    }
+  }
+
+  {
+    // place hoder: for potential special case handling.
+  }
+
+  // check if the mask is valid
+  check_loop_filter_masks(lfm);
+}
 #endif  // LOOP_FILTER_BITMASK
 
 static void filter_selectively_vert_row2(int subsampling_factor, uint8_t *s,
