@@ -758,14 +758,38 @@ static void check_loop_filter_masks(const LoopFilterMask *lfm) {
   }
 }
 
-// mi_row, mi_col represent the starting postion of the coding block for
-// which the mask is built. idx, idy represet the offset from the startint
-// point, in the unit of actual distance. For example (idx >> MI_SIZE_LOG2)
-// is in the unit of MI.
-// static void setup_masks()
+static void setup_masks() {
+  // place hoder
+}
 
-static void setup_tx_block_mask() {
-  // place hoder: build bitmask for a tx block.
+static void setup_tx_block_mask(AV1_COMMON *const cm, int mi_row, int mi_col,
+                                int max_tx_wide, int max_tx_high, int plane,
+                                int subsampling_x, int subsampling_y,
+                                LoopFilterMask *lfm) {
+  MODE_INFO **mi = cm->mi_grid_visible + mi_row * cm->mi_stride + mi_col;
+  const MB_MODE_INFO *const mbmi = &mi[0]->mbmi;
+  const int tx_wide = tx_size_wide[mbmi->tx_size];
+  const int tx_high = tx_size_high[mbmi->tx_size];
+  int blk_idx, blk_idy;
+
+  if (tx_wide == max_tx_wide && tx_high == max_tx_high) {
+    setup_masks();
+  } else {
+    const int next_max_tx_wide =
+        tx_wide == max_tx_wide ? tx_wide : max_tx_wide >> 1;
+    const int next_max_tx_high =
+        tx_high == max_tx_high ? tx_high : max_tx_high >> 1;
+
+    for (blk_idy = 0; blk_idy < max_tx_high; blk_idy += next_max_tx_high) {
+      for (blk_idx = 0; blk_idx < max_tx_wide; blk_idx += next_max_tx_wide) {
+        const int mi_idx = blk_idx >> MI_SIZE_LOG2;
+        const int mi_idy = blk_idy >> MI_SIZE_LOG2;
+        setup_tx_block_mask(cm, mi_row + mi_idy, mi_col + mi_idx,
+                            next_max_tx_wide, next_max_tx_high, plane,
+                            subsampling_x, subsampling_y, lfm);
+      }
+    }
+  }
 }
 
 static void setup_block_mask(AV1_COMMON *const cm, int mi_row, int mi_col,
@@ -777,11 +801,37 @@ static void setup_block_mask(AV1_COMMON *const cm, int mi_row, int mi_col,
   const BLOCK_SIZE bsize = mbmi->sb_type;
   const int bw = block_size_wide[bsize];
   const int bh = block_size_high[bsize];
+  const int is_inter = is_inter_block(mbmi);
+  int blk_idx, blk_idy;
 
   if (bw >= max_unit_bw && bh >= max_unit_bh) {
-    setup_tx_block_mask();
+    if (plane == 0) {
+      if (is_inter) {  // inter block has recursive tx size partition
+        setup_tx_block_mask(cm, mi_row, mi_col, max_unit_bw, max_unit_bh, plane,
+                            subsampling_x, subsampling_y, lfm);
+      } else {  // intra block has univariant tx size
+        const TX_SIZE tx_size = mbmi->tx_size;
+        const int tx_wide = tx_size_wide[tx_size];
+        const int tx_high = tx_size_high[tx_size];
+        for (blk_idy = 0; blk_idy < max_unit_bh; blk_idy += tx_high) {
+          for (blk_idx = 0; blk_idx < max_unit_bw; blk_idx += tx_wide) {
+            setup_masks();
+          }
+        }
+      }
+    } else {
+      // chroma planes always use largest tx size
+      const TX_SIZE uv_tx_size =
+          av1_get_max_uv_txsize(bsize, subsampling_x, subsampling_y);
+      const int uv_tx_size_wide = tx_size_wide[uv_tx_size];
+      const int uv_tx_size_high = tx_size_high[uv_tx_size];
+      for (blk_idy = 0; blk_idy < max_unit_bh; blk_idy += uv_tx_size_high) {
+        for (blk_idx = 0; blk_idx < max_unit_bw; blk_idx += uv_tx_size_wide) {
+          setup_masks();
+        }
+      }
+    }
   } else {
-    int blk_idx, blk_idy;
     const int next_max_unit_bw = bw >= max_unit_bw ? bw : max_unit_bw >> 1;
     const int next_max_unit_bh = bh >= max_unit_bh ? bh : max_unit_bh >> 1;
 
