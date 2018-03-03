@@ -34,6 +34,24 @@
       "revId": "e22f1ec956568fbdd699427aa8185a0e77f9d167",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ef2dbba8_21cb0f5d",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 380,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-03-03T01:25:28Z",
+      "side": 1,
+      "message": "\u003e Yes, but the spec requires that it\u0027s identical when it\u0027s not the first occurrence in the TU, so we\u0027re just skipping it (for now anyway; this came in as part of a fix for aomedia:1480). Confirming the length for a minimal check, but a memcmp would probably be better if we care to enforce the matching.\n\nright I\u0027m not sure if we care, except letting things go through means the decoder might produce corrupt output",
+      "parentUuid": "5e9ea4b1_5f711b1a",
+      "revId": "e22f1ec956568fbdd699427aa8185a0e77f9d167",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
