@@ -69,6 +69,24 @@
       "revId": "7a7b789c4a76f4197c98824f07069a7d769a75ac",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4ac17e72_9074195e",
+        "filename": "av1/common/av1_inv_txfm2d.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2018-03-03T03:54:00Z",
+      "side": 1,
+      "message": "Hi Frank, you are right. I correct the python script to match our current code.\nBasically, each stage\u0027s operation is treated as a matrix multiplication.\nThen from the stage 0 of fadst to the current stage of iadst, we will have a list of matrices .\nBy multiplying the matrices together, we can get a the operation matrix X from the stage 0 of fadst to the current stage of iadst.\n\nSo the out_vec \u003d X dot in_vec\nSince in_vec could be arbitrary +-1, we can let in_vec\u0027s signs match signs of each row of X to obtain the max range. The corresponding code of finding the maximum value is \"m \u003d max(np.sum(abs(X), axis \u003d 1))\"",
+      "parentUuid": "8f6e6320_ee58bb2c",
+      "revId": "7a7b789c4a76f4197c98824f07069a7d769a75ac",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
