@@ -2777,6 +2777,13 @@ static int read_uncompressed_header(AV1Decoder *pbi,
   cm->frame_refs_short_signaling = 0;
 #endif  // CONFIG_FRAME_REFS_SIGNALING
 
+  if (cm->show_frame == 0) {
+    cm->frame_offset =
+        cm->current_video_frame + aom_rb_read_literal(rb, FRAME_OFFSET_BITS);
+  } else {
+    cm->frame_offset = cm->current_video_frame;
+  }
+
   if (cm->frame_type == KEY_FRAME) {
     wrap_around_current_video_frame(pbi);
     pbi->refresh_frame_flags = (1 << REF_FRAMES) - 1;
@@ -2964,12 +2971,6 @@ static int read_uncompressed_header(AV1Decoder *pbi,
     }
   }
 
-  if (cm->show_frame == 0) {
-    cm->frame_offset =
-        cm->current_video_frame + aom_rb_read_literal(rb, FRAME_OFFSET_BITS);
-  } else {
-    cm->frame_offset = cm->current_video_frame;
-  }
   av1_setup_frame_buf_refs(cm);
 
   if (cm->frame_type != S_FRAME) av1_setup_frame_sign_bias(cm);
