@@ -71,10 +71,10 @@ typedef struct {
 // TODO(chengchen): remove old version of bitmask construction code once
 // new bitmask is complete.
 
-// Loopfilter bit mask per super block
+// Loopfilter bit mask per 64x64 block
 #define LOOP_FILTER_MASK_NUM 4
 typedef struct {
-  LoopFilterMaskInfo lfm_info[LOOP_FILTER_MASK_NUM];
+  LoopFilterMaskInfo lfm_info;
   int is_setup;
 } LoopFilterMask;
 

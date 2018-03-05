@@ -33,6 +33,64 @@ static const int delta_lf_id_lut[MAX_MB_PLANE][2] = {
 };
 #endif  // CONFIG_EXT_DELTA_Q
 
+typedef enum EDGE_DIR { VERT_EDGE = 0, HORZ_EDGE = 1, NUM_EDGE_DIRS } EDGE_DIR;
+static const uint32_t av1_prediction_masks[NUM_EDGE_DIRS][BLOCK_SIZES_ALL] = {
+  // mask for vertical edges filtering
+  {
+      4 - 1,    // BLOCK_4X4
+      4 - 1,    // BLOCK_4X8
+      8 - 1,    // BLOCK_8X4
+      8 - 1,    // BLOCK_8X8
+      8 - 1,    // BLOCK_8X16
+      16 - 1,   // BLOCK_16X8
+      16 - 1,   // BLOCK_16X16
+      16 - 1,   // BLOCK_16X32
+      32 - 1,   // BLOCK_32X16
+      32 - 1,   // BLOCK_32X32
+      32 - 1,   // BLOCK_32X64
+      64 - 1,   // BLOCK_64X32
+      64 - 1,   // BLOCK_64X64
+      64 - 1,   // BLOCK_64X128
+      128 - 1,  // BLOCK_128X64
+      128 - 1,  // BLOCK_128X128
+      4 - 1,    // BLOCK_4X16,
+      16 - 1,   // BLOCK_16X4,
+      8 - 1,    // BLOCK_8X32,
+      32 - 1,   // BLOCK_32X8,
+      16 - 1,   // BLOCK_16X64,
+      64 - 1,   // BLOCK_64X16
+      32 - 1,   // BLOCK_32X128
+      128 - 1,  // BLOCK_128X32
+  },
+  // mask for horizontal edges filtering
+  {
+      4 - 1,    // BLOCK_4X4
+      8 - 1,    // BLOCK_4X8
+      4 - 1,    // BLOCK_8X4
+      8 - 1,    // BLOCK_8X8
+      16 - 1,   // BLOCK_8X16
+      8 - 1,    // BLOCK_16X8
+      16 - 1,   // BLOCK_16X16
+      32 - 1,   // BLOCK_16X32
+      16 - 1,   // BLOCK_32X16
+      32 - 1,   // BLOCK_32X32
+      64 - 1,   // BLOCK_32X64
+      32 - 1,   // BLOCK_64X32
+      64 - 1,   // BLOCK_64X64
+      128 - 1,  // BLOCK_64X128
+      64 - 1,   // BLOCK_128X64
+      128 - 1,  // BLOCK_128X128
+      16 - 1,   // BLOCK_4X16,
+      4 - 1,    // BLOCK_16X4,
+      32 - 1,   // BLOCK_8X32,
+      8 - 1,    // BLOCK_32X8,
+      64 - 1,   // BLOCK_16X64,
+      16 - 1,   // BLOCK_64X16
+      128 - 1,  // BLOCK_32X128
+      32 - 1,   // BLOCK_128X32
+  },
+};
+
 extern void aom_highbd_lpf_horizontal_6_c(uint16_t *s, int p,
                                           const uint8_t *blimit,
                                           const uint8_t *limit,
@@ -746,20 +804,88 @@ static void check_mask_uv(const FilterMaskUV *lfm) {
 }
 
 static void check_loop_filter_masks(const LoopFilterMask *lfm) {
-  int i;
-  for (i = 0; i < LOOP_FILTER_MASK_NUM; ++i) {
-    // Assert if we try to apply 2 different loop filters at the same position.
-    check_mask_y(lfm->lfm_info[i].left_y);
-    check_mask_y(lfm->lfm_info[i].above_y);
-    check_mask_uv(lfm->lfm_info[i].left_u);
-    check_mask_uv(lfm->lfm_info[i].above_u);
-    check_mask_uv(lfm->lfm_info[i].left_v);
-    check_mask_uv(lfm->lfm_info[i].above_v);
-  }
+  // Assert if we try to apply 2 different loop filters at the same position.
+  check_mask_y(lfm->lfm_info.left_y);
+  check_mask_y(lfm->lfm_info.above_y);
+  check_mask_uv(lfm->lfm_info.left_u);
+  check_mask_uv(lfm->lfm_info.above_u);
+  check_mask_uv(lfm->lfm_info.left_v);
+  check_mask_uv(lfm->lfm_info.above_v);
 }
 
-static void setup_masks() {
-  // place hoder
+static void setup_masks(AV1_COMMON *const cm, int mi_row, int mi_col, int plane,
+                        int subsampling_x, int subsampling_y, TX_SIZE tx_size,
+                        LoopFilterMask *lfm) {
+  if (mi_row == 0 && mi_col == 0) return;
+
+  const int idx = mi_col << MI_SIZE_LOG2;
+  const int idy = mi_row << MI_SIZE_LOG2;
+  MODE_INFO **mi = cm->mi_grid_visible + mi_row * cm->mi_stride + mi_col;
+  const MB_MODE_INFO *const mbmi = &mi[0]->mbmi;
+  const int curr_skip = mbmi->skip && is_inter_block(mbmi);
+  int y_index;
+  const int shift =
+      plane ? get_uv_index_shift(idx, idy, subsampling_x, subsampling_y)
+            : get_y_index_shift(idx, idy, &y_index);
+
+  // decide whether current vertical/horizontal edge needs loop filtering
+  EDGE_DIR dir;
+  for (dir = VERT_EDGE; dir <= HORZ_EDGE; ++dir) {
+    const int row_or_col = dir == VERT_EDGE ? mi_col : mi_row;
+    if (row_or_col == 0) continue;  // do not filter frame boundary
+
+    MODE_INFO **mi_prev =
+        (dir == VERT_EDGE) ? mi - (tx_size_wide_unit[tx_size] << subsampling_x)
+                           : mi - ((tx_size_high_unit[tx_size] * cm->mi_stride)
+                                   << subsampling_y);
+    const MB_MODE_INFO *const mbmi_prev = &mi_prev[0]->mbmi;
+#if CONFIG_EXT_DELTA_Q
+    const uint8_t level = get_filter_level(cm, &cm->lf_info, dir, plane, mbmi);
+    const uint8_t level_prev =
+        get_filter_level(cm, &cm->lf_info, dir, plane, mbmi_prev);
+#else
+    const uint8_t level = get_filter_level(&cm->lf_info, mbmi);
+    const uint8_t level_prev = get_filter_level(&cm->lf_info, mbmi_prev);
+#endif  // CONFIG_EXT_DELTA_Q
+    const int prev_skip = mbmi_prev->skip && is_inter_block(mbmi_prev);
+    const int is_coding_block_border =
+        !(row_or_col &
+          av1_prediction_masks[dir][ss_size_lookup[mbmi->sb_type][subsampling_x]
+                                                  [subsampling_y]]);
+    const int is_edge = (level || level_prev) &&
+                        (!curr_skip || !prev_skip || is_coding_block_border);
+    if (is_edge) {
+      const TX_SIZE prev_tx_size =
+          plane ? av1_get_uv_tx_size(mbmi_prev, subsampling_x, subsampling_y)
+                : mbmi_prev->tx_size;
+      const TX_SIZE min_tx_size =
+          (dir == VERT_EDGE)
+              ? AOMMIN(txsize_horz_map[tx_size], txsize_horz_map[prev_tx_size])
+              : AOMMIN(txsize_vert_map[tx_size], txsize_vert_map[prev_tx_size]);
+      assert(min_tx_size < TX_SIZES);
+
+      // set mask on corresponding bit
+      if (dir == VERT_EDGE) {
+        switch (plane) {
+          case 0:
+            lfm->lfm_info.left_y[min_tx_size].bits[y_index] |= (1 << shift);
+            break;
+          case 1: lfm->lfm_info.left_u[min_tx_size] |= (1 << shift); break;
+          case 2: lfm->lfm_info.left_v[min_tx_size] |= (1 << shift); break;
+          default: assert(plane <= 2);
+        }
+      } else {
+        switch (plane) {
+          case 0:
+            lfm->lfm_info.above_y[min_tx_size].bits[y_index] |= (1 << shift);
+            break;
+          case 1: lfm->lfm_info.above_u[min_tx_size] |= (1 << shift); break;
+          case 2: lfm->lfm_info.above_v[min_tx_size] |= (1 << shift); break;
+          default: assert(plane <= 2);
+        }
+      }
+    }
+  }
 }
 
 static void setup_tx_block_mask(AV1_COMMON *const cm, int mi_row, int mi_col,
@@ -773,7 +899,8 @@ static void setup_tx_block_mask(AV1_COMMON *const cm, int mi_row, int mi_col,
   int blk_idx, blk_idy;
 
   if (tx_wide == max_tx_wide && tx_high == max_tx_high) {
-    setup_masks();
+    setup_masks(cm, mi_row, mi_col, plane, subsampling_x, subsampling_y,
+                mbmi->tx_size, lfm);
   } else {
     const int next_max_tx_wide =
         tx_wide == max_tx_wide ? tx_wide : max_tx_wide >> 1;
@@ -815,7 +942,8 @@ static void setup_block_mask(AV1_COMMON *const cm, int mi_row, int mi_col,
         const int tx_high = tx_size_high[tx_size];
         for (blk_idy = 0; blk_idy < max_unit_bh; blk_idy += tx_high) {
           for (blk_idx = 0; blk_idx < max_unit_bw; blk_idx += tx_wide) {
-            setup_masks();
+            setup_masks(cm, mi_row, mi_col, plane, subsampling_x, subsampling_y,
+                        tx_size, lfm);
           }
         }
       }
@@ -827,7 +955,8 @@ static void setup_block_mask(AV1_COMMON *const cm, int mi_row, int mi_col,
       const int uv_tx_size_high = tx_size_high[uv_tx_size];
       for (blk_idy = 0; blk_idy < max_unit_bh; blk_idy += uv_tx_size_high) {
         for (blk_idx = 0; blk_idx < max_unit_bw; blk_idx += uv_tx_size_wide) {
-          setup_masks();
+          setup_masks(cm, mi_row, mi_col, plane, subsampling_x, subsampling_y,
+                      uv_tx_size, lfm);
         }
       }
     }
@@ -2252,64 +2381,6 @@ void av1_filter_block_plane_ss11_hor(AV1_COMMON *const cm,
   // restore the buf pointer in case there is additional filter pass.
   dst->buf = dst0;
 }
-
-typedef enum EDGE_DIR { VERT_EDGE = 0, HORZ_EDGE = 1, NUM_EDGE_DIRS } EDGE_DIR;
-static const uint32_t av1_prediction_masks[NUM_EDGE_DIRS][BLOCK_SIZES_ALL] = {
-  // mask for vertical edges filtering
-  {
-      4 - 1,    // BLOCK_4X4
-      4 - 1,    // BLOCK_4X8
-      8 - 1,    // BLOCK_8X4
-      8 - 1,    // BLOCK_8X8
-      8 - 1,    // BLOCK_8X16
-      16 - 1,   // BLOCK_16X8
-      16 - 1,   // BLOCK_16X16
-      16 - 1,   // BLOCK_16X32
-      32 - 1,   // BLOCK_32X16
-      32 - 1,   // BLOCK_32X32
-      32 - 1,   // BLOCK_32X64
-      64 - 1,   // BLOCK_64X32
-      64 - 1,   // BLOCK_64X64
-      64 - 1,   // BLOCK_64X128
-      128 - 1,  // BLOCK_128X64
-      128 - 1,  // BLOCK_128X128
-      4 - 1,    // BLOCK_4X16,
-      16 - 1,   // BLOCK_16X4,
-      8 - 1,    // BLOCK_8X32,
-      32 - 1,   // BLOCK_32X8,
-      16 - 1,   // BLOCK_16X64,
-      64 - 1,   // BLOCK_64X16
-      32 - 1,   // BLOCK_32X128
-      128 - 1,  // BLOCK_128X32
-  },
-  // mask for horizontal edges filtering
-  {
-      4 - 1,    // BLOCK_4X4
-      8 - 1,    // BLOCK_4X8
-      4 - 1,    // BLOCK_8X4
-      8 - 1,    // BLOCK_8X8
-      16 - 1,   // BLOCK_8X16
-      8 - 1,    // BLOCK_16X8
-      16 - 1,   // BLOCK_16X16
-      32 - 1,   // BLOCK_16X32
-      16 - 1,   // BLOCK_32X16
-      32 - 1,   // BLOCK_32X32
-      64 - 1,   // BLOCK_32X64
-      32 - 1,   // BLOCK_64X32
-      64 - 1,   // BLOCK_64X64
-      128 - 1,  // BLOCK_64X128
-      64 - 1,   // BLOCK_128X64
-      128 - 1,  // BLOCK_128X128
-      16 - 1,   // BLOCK_4X16,
-      4 - 1,    // BLOCK_16X4,
-      32 - 1,   // BLOCK_8X32,
-      8 - 1,    // BLOCK_32X8,
-      64 - 1,   // BLOCK_16X64,
-      16 - 1,   // BLOCK_64X16
-      128 - 1,  // BLOCK_32X128
-      32 - 1,   // BLOCK_128X32
-  },
-};
 
 static const uint32_t av1_transform_masks[NUM_EDGE_DIRS][TX_SIZES_ALL] = {
   {
