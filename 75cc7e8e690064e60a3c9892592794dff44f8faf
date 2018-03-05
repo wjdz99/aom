@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b571f82e_8ca52838",
+        "filename": "av1/common/seg_common.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5050
+      },
+      "writtenOn": "2018-03-05T22:15:28Z",
+      "side": 1,
+      "message": "When you later split this into an array, be very careful to document (with comments) what state *needs* to be kept between frames and what can be derived from other data, or isn\u0027t used for predicting segment maps.",
+      "revId": "75cc7e8e690064e60a3c9892592794dff44f8faf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
