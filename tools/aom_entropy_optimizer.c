@@ -174,15 +174,12 @@ static int parse_counts_for_cdf_opt(aom_count_type **ct_ptr,
     fprintf(stderr, "The dimension of a counts vector should be at least 1!\n");
     return 1;
   }
+  const int total_modes = cts_each_dim[0];
   if (dim_of_cts == 1) {
-    const int total_modes = cts_each_dim[0];
-    aom_count_type *counts1d = *ct_ptr;
-    aom_cdf_prob *cdfs = aom_malloc(sizeof(*cdfs) * total_modes);
+    assert(total_modes <= CDF_PROB_BITS + 1);
 
-    if (cdfs == NULL) {
-      fprintf(stderr, "Allocating cdf array failed!\n");
-      return 1;
-    }
+    aom_count_type *counts1d = *ct_ptr;
+    aom_cdf_prob cdfs[CDF_PROB_BITS + 1];
 
     counts_to_cdf(counts1d, cdfs, total_modes);
     (*ct_ptr) += total_modes;
@@ -195,7 +192,7 @@ static int parse_counts_for_cdf_opt(aom_count_type **ct_ptr,
     }
     fprintf(probsfile, " )");
   } else {
-    for (int k = 0; k < cts_each_dim[0]; ++k) {
+    for (int k = 0; k < total_modes; ++k) {
       int tabs_next_level;
 
       if (dim_of_cts == 2)
@@ -210,19 +207,18 @@ static int parse_counts_for_cdf_opt(aom_count_type **ct_ptr,
       }
 
       if (dim_of_cts == 2) {
-        if (k == cts_each_dim[0] - 1)
+        if (k == total_modes - 1)
           fprintf(probsfile, "}\n");
         else
           fprintf(probsfile, "},\n");
       } else {
-        if (k == cts_each_dim[0] - 1)
+        if (k == total_modes - 1)
           fprintf(probsfile, "%*c}\n", tabs * SPACES_PER_TAB, ' ');
         else
           fprintf(probsfile, "%*c},\n", tabs * SPACES_PER_TAB, ' ');
       }
     }
   }
-
   return 0;
 }
 
