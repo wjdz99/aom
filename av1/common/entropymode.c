@@ -1174,7 +1174,8 @@ void av1_setup_frame_contexts(AV1_COMMON *cm) {
   cm->frame_contexts[FRAME_CONTEXT_DEFAULTS] = *cm->fc;
 #else
   if (cm->frame_type == KEY_FRAME || cm->error_resilient_mode ||
-      cm->reset_frame_context == RESET_FRAME_CONTEXT_ALL) {
+      cm->reset_frame_context == RESET_FRAME_CONTEXT_ALL ||
+      cm->frame_type == S_FRAME) {
     // Reset all frame contexts.
     for (int i = 0; i < FRAME_CONTEXTS; ++i) cm->frame_contexts[i] = *cm->fc;
   } else if (cm->reset_frame_context == RESET_FRAME_CONTEXT_CURRENT) {
