@@ -49,33 +49,21 @@ static int parse_stats(aom_count_type **ct_ptr, FILE *const probsfile, int tabs,
     fprintf(stderr, "The dimension of a counts vector should be at least 1!\n");
     return 1;
   }
+  const int total_modes = cts_each_dim[0];
   if (dim_of_cts == 1) {
-    const int total_modes = cts_each_dim[0];
     aom_count_type *counts1d = *ct_ptr;
-    uint8_t *probs = aom_malloc(sizeof(*probs) * (total_modes - 1));
-
-    if (probs == NULL) {
-      fprintf(stderr, "Allocating prob array failed!\n");
-      return 1;
-    }
-
-    (*ct_ptr) += total_modes;
     assert(total_modes == 2);
-    probs[0] = get_binary_prob_new(counts1d[0], counts1d[1]);
+    (*ct_ptr) += total_modes;
+    uint8_t probs = get_binary_prob_new(counts1d[0], counts1d[1]);
     if (tabs > 0) fprintf(probsfile, "%*c", tabs * SPACES_PER_TAB, ' ');
-    for (int k = 0; k < total_modes - 1; ++k) {
-      if (k == total_modes - 2)
-        fprintf(probsfile, " %3d ", probs[k]);
-      else
-        fprintf(probsfile, " %3d,", probs[k]);
-      fprintf(logfile, "%d ", counts1d[k]);
-    }
+    fprintf(probsfile, " %3d ", probs);
+    fprintf(logfile, "%d ", counts1d[0]);
     fprintf(logfile, "%d\n", counts1d[total_modes - 1]);
   } else if (dim_of_cts == 2 && flatten_last_dim) {
     assert(cts_each_dim[1] == 2);
 
-    for (int k = 0; k < cts_each_dim[0]; ++k) {
-      if (k == cts_each_dim[0] - 1) {
+    for (int k = 0; k < total_modes; ++k) {
+      if (k == total_modes - 1) {
         fprintf(probsfile, " %3d ",
                 get_binary_prob_new((*ct_ptr)[0], (*ct_ptr)[1]));
       } else {
@@ -86,7 +74,7 @@ static int parse_stats(aom_count_type **ct_ptr, FILE *const probsfile, int tabs,
       (*ct_ptr) += 2;
     }
   } else {
-    for (int k = 0; k < cts_each_dim[0]; ++k) {
+    for (int k = 0; k < total_modes; ++k) {
       int tabs_next_level;
       if (dim_of_cts == 2 || (dim_of_cts == 3 && flatten_last_dim)) {
         fprintf(probsfile, "%*c{", tabs * SPACES_PER_TAB, ' ');
@@ -100,12 +88,12 @@ static int parse_stats(aom_count_type **ct_ptr, FILE *const probsfile, int tabs,
         return 1;
       }
       if (dim_of_cts == 2 || (dim_of_cts == 3 && flatten_last_dim)) {
-        if (k == cts_each_dim[0] - 1)
+        if (k == total_modes - 1)
           fprintf(probsfile, "}\n");
         else
           fprintf(probsfile, "},\n");
       } else {
-        if (k == cts_each_dim[0] - 1)
+        if (k == total_modes - 1)
           fprintf(probsfile, "%*c}\n", tabs * SPACES_PER_TAB, ' ');
         else
           fprintf(probsfile, "%*c},\n", tabs * SPACES_PER_TAB, ' ');
