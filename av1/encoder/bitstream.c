@@ -269,7 +269,7 @@ static void write_motion_mode(const AV1_COMMON *cm, MACROBLOCKD *xd,
 
   MOTION_MODE last_motion_mode_allowed =
       cm->switchable_motion_mode
-          ? motion_mode_allowed(cm->global_motion, xd, mi)
+          ? motion_mode_allowed(cm->global_motion, xd, mi, cm->is_sframe)
           : SIMPLE_TRANSLATION;
   assert(mbmi->motion_mode <= last_motion_mode_allowed);
   switch (last_motion_mode_allowed) {
@@ -2162,7 +2162,7 @@ static void encode_segmentation(AV1_COMMON *cm, MACROBLOCKD *xd,
   if (!seg->enabled) return;
 
   // Segmentation map
-  if (!frame_is_intra_only(cm) && !cm->error_resilient_mode) {
+  if (!frame_is_intra_only(cm) && !cm->error_resilient_mode && !cm->is_sframe) {
     aom_wb_write_bit(wb, seg->update_map);
   } else {
     assert(seg->update_map == 1);
@@ -2172,7 +2172,8 @@ static void encode_segmentation(AV1_COMMON *cm, MACROBLOCKD *xd,
     if (!cm->error_resilient_mode) av1_choose_segmap_coding_method(cm, xd);
 
     // Write out the chosen coding method.
-    if (!frame_is_intra_only(cm) && !cm->error_resilient_mode) {
+    if (!frame_is_intra_only(cm) && !cm->error_resilient_mode &&
+        !cm->is_sframe) {
       aom_wb_write_bit(wb, seg->temporal_update);
     } else {
       assert(seg->temporal_update == 0);
@@ -3062,7 +3063,8 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
   }
   int frame_size_override_flag =
       (cm->width != cm->seq_params.max_frame_width ||
-       cm->height != cm->seq_params.max_frame_height);
+       cm->height != cm->seq_params.max_frame_height ||
+       cpi->oxcf.sframe_enabled);
   aom_wb_write_bit(wb, frame_size_override_flag);
 
 #if CONFIG_FRAME_REFS_SIGNALING
@@ -3111,6 +3113,8 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
     if (cm->frame_type == INTER_FRAME) {
       cpi->refresh_frame_mask = get_refresh_mask(cpi);
       aom_wb_write_literal(wb, cpi->refresh_frame_mask, REF_FRAMES);
+    } else if (cm->frame_type == S_FRAME) {
+      cpi->refresh_frame_mask = 0xFF;
     }
 
     if (!cpi->refresh_frame_mask) {
@@ -3167,7 +3171,9 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
       }
     }
 
-    if (cm->error_resilient_mode == 0 && frame_size_override_flag) {
+    if (cm->frame_type == S_FRAME) {
+      write_frame_size(cm, frame_size_override_flag, wb);
+    } else if (cm->error_resilient_mode == 0 && frame_size_override_flag) {
       write_frame_size_with_refs(cpi, wb);
     } else {
       write_frame_size(cm, frame_size_override_flag, wb);
@@ -3203,7 +3209,9 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
 
   if (cm->seq_params.frame_id_numbers_present_flag) {
     cm->refresh_mask =
-        cm->frame_type == KEY_FRAME ? 0xFF : get_refresh_mask(cpi);
+        (cm->frame_type == KEY_FRAME) || (cm->frame_type == S_FRAME)
+            ? 0xFF
+            : get_refresh_mask(cpi);
   }
 
   const int might_bwd_adapt =

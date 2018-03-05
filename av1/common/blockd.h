@@ -1065,7 +1065,7 @@ static INLINE int check_num_overlappable_neighbors(const MB_MODE_INFO *mbmi) {
 
 static INLINE MOTION_MODE
 motion_mode_allowed(const WarpedMotionParams *gm_params, const MACROBLOCKD *xd,
-                    const MODE_INFO *mi) {
+                    const MODE_INFO *mi, int is_sframe) {
   const MB_MODE_INFO *mbmi = &mi->mbmi;
 #if CONFIG_AMVR
   if (xd->cur_frame_force_integer_mv == 0) {
@@ -1080,8 +1080,8 @@ motion_mode_allowed(const WarpedMotionParams *gm_params, const MACROBLOCKD *xd,
       is_motion_variation_allowed_compound(mbmi)) {
     if (!check_num_overlappable_neighbors(mbmi)) return SIMPLE_TRANSLATION;
     assert(!has_second_ref(mbmi));
-    if (mbmi->num_proj_ref[0] >= 1 &&
-        !av1_is_scaled(&(xd->block_refs[0]->sf))) {
+    if ((mbmi->num_proj_ref[0] >= 1) &&
+        (!av1_is_scaled(&(xd->block_refs[0]->sf)) || is_sframe)) {
 #if CONFIG_AMVR
       if (xd->cur_frame_force_integer_mv) {
         return OBMC_CAUSAL;
@@ -1098,9 +1098,10 @@ motion_mode_allowed(const WarpedMotionParams *gm_params, const MACROBLOCKD *xd,
 static INLINE void assert_motion_mode_valid(MOTION_MODE mode,
                                             const WarpedMotionParams *gm_params,
                                             const MACROBLOCKD *xd,
-                                            const MODE_INFO *mi) {
+                                            const MODE_INFO *mi,
+                                            int is_sframe) {
   const MOTION_MODE last_motion_mode_allowed =
-      motion_mode_allowed(gm_params, xd, mi);
+      motion_mode_allowed(gm_params, xd, mi, is_sframe);
 
   // Check that the input mode is not illegal
   if (last_motion_mode_allowed < mode)
