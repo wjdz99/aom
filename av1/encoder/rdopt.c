@@ -7710,6 +7710,7 @@ static int64_t handle_inter_mode(
       int tmp_rate_mv;
       COMPOUND_TYPE cur_type;
       int best_compmode_interinter_cost = 0;
+      int is_sframe = cpi->common.is_sframe;
 
       best_mv[0].as_int = cur_mv[0].as_int;
       best_mv[1].as_int = cur_mv[1].as_int;
