@@ -35,13 +35,13 @@
 static void temporal_filter_predictors_mb_c(
     MACROBLOCKD *xd, uint8_t *y_mb_ptr, uint8_t *u_mb_ptr, uint8_t *v_mb_ptr,
     int stride, int uv_block_width, int uv_block_height, int mv_row, int mv_col,
-    uint8_t *pred, struct scale_factors *scale, int x, int y) {
+    uint8_t *pred, struct scale_factors *scale, int x, int y, int is_sframe) {
   const int which_mv = 0;
   const MV mv = { mv_row, mv_col };
   enum mv_precision mv_precision_uv;
   int uv_stride;
   // TODO(angiebird): change plane setting accordingly
-  ConvolveParams conv_params = get_conv_params(which_mv, 0, 0, xd->bd);
+  ConvolveParams conv_params = get_conv_params(which_mv, which_mv, 0, xd->bd);
   const InterpFilters interp_filters = xd->mi[0]->mbmi.interp_filters;
   WarpTypesAllowed warp_types;
   memset(&warp_types, 0, sizeof(WarpTypesAllowed));
@@ -57,32 +57,32 @@ static void temporal_filter_predictors_mb_c(
   if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
     av1_highbd_build_inter_predictor(
         y_mb_ptr, stride, &pred[0], 16, &mv, scale, 16, 16, which_mv,
-        interp_filters, &warp_types, x, y, 0, MV_PRECISION_Q3, x, y, xd);
+        interp_filters, &warp_types, x, y, 0, MV_PRECISION_Q3, x, y, xd, is_sframe);
 
     av1_highbd_build_inter_predictor(
         u_mb_ptr, uv_stride, &pred[256], uv_block_width, &mv, scale,
         uv_block_width, uv_block_height, which_mv, interp_filters, &warp_types,
-        x, y, 1, mv_precision_uv, x, y, xd);
+        x, y, 1, mv_precision_uv, x, y, xd, is_sframe);
 
     av1_highbd_build_inter_predictor(
         v_mb_ptr, uv_stride, &pred[512], uv_block_width, &mv, scale,
         uv_block_width, uv_block_height, which_mv, interp_filters, &warp_types,
-        x, y, 2, mv_precision_uv, x, y, xd);
+        x, y, 2, mv_precision_uv, x, y, xd, is_sframe);
     return;
   }
   av1_build_inter_predictor(y_mb_ptr, stride, &pred[0], 16, &mv, scale, 16, 16,
                             &conv_params, interp_filters, &warp_types, x, y, 0,
-                            0, MV_PRECISION_Q3, x, y, xd);
+                            0, MV_PRECISION_Q3, x, y, xd, is_sframe);
 
   av1_build_inter_predictor(u_mb_ptr, uv_stride, &pred[256], uv_block_width,
                             &mv, scale, uv_block_width, uv_block_height,
                             &conv_params, interp_filters, &warp_types, x, y, 1,
-                            0, mv_precision_uv, x, y, xd);
+                            0, mv_precision_uv, x, y, xd, is_sframe);
 
   av1_build_inter_predictor(v_mb_ptr, uv_stride, &pred[512], uv_block_width,
                             &mv, scale, uv_block_width, uv_block_height,
                             &conv_params, interp_filters, &warp_types, x, y, 2,
-                            0, mv_precision_uv, x, y, xd);
+                            0, mv_precision_uv, x, y, xd, is_sframe);
 }
 
 void av1_temporal_filter_apply_c(uint8_t *frame1, unsigned int stride,
@@ -385,7 +385,7 @@ static void temporal_filter_iterate_c(AV1_COMP *cpi,
               frames[frame]->v_buffer + mb_uv_offset, frames[frame]->y_stride,
               mb_uv_width, mb_uv_height, mbd->mi[0]->mbmi.mv[0].as_mv.row,
               mbd->mi[0]->mbmi.mv[0].as_mv.col, predictor, scale, mb_col * 16,
-              mb_row * 16);
+              mb_row * 16, cm->is_sframe);
 
           // Apply the filter (YUV)
           if (mbd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {

@@ -307,7 +307,7 @@ static void setup_frame(AV1_COMP *cpi) {
   cm->current_frame_seg_map = cm->cur_frame->seg_map;
 #endif
 
-  if (frame_is_intra_only(cm) || cm->error_resilient_mode) {
+  if (frame_is_intra_only(cm) || cm->error_resilient_mode || cm->is_sframe) {
     av1_setup_past_independence(cm);
   } else {
 #if CONFIG_NO_FRAME_CONTEXT_SIGNALING
@@ -341,6 +341,11 @@ static void setup_frame(AV1_COMP *cpi) {
 #else
     cm->pre_fc = &cm->frame_contexts[cm->frame_context_idx];
 #endif  // CONFIG_NO_FRAME_CONTEXT_SIGNALING
+  } else if (cm->frame_type == S_FRAME) {
+    cpi->refresh_golden_frame = 1;
+    cpi->refresh_alt_ref_frame = 1;
+    av1_zero(cpi->interp_filter_selected);
+    set_sb_size(&cm->seq_params, select_sb_size(cpi));
   } else {
 #if CONFIG_NO_FRAME_CONTEXT_SIGNALING
     if (frame_is_intra_only(cm) || cm->error_resilient_mode) {
@@ -1047,6 +1052,7 @@ static void init_config(struct AV1_COMP *cpi, AV1EncoderConfig *oxcf) {
   cpi->resize_pending_height = 0;
 
   init_buffer_indices(cpi);
+  cm->is_sframe = 0;
 }
 
 static void set_rc_buffer_sizes(RATE_CONTROL *rc,
@@ -3558,7 +3564,7 @@ static void update_reference_frames(AV1_COMP *cpi) {
   BufferPool *const pool = cm->buffer_pool;
   // At this point the new frame has been encoded.
   // If any buffer copy / swapping is signaled it should be done here.
-  if (cm->frame_type == KEY_FRAME) {
+  if (cm->frame_type == KEY_FRAME || cm->frame_type == S_FRAME) {
     ref_cnt_fb(pool->frame_bufs, &cm->ref_frame_map[cpi->gld_fb_idx],
                cm->new_fb_idx);
     ref_cnt_fb(pool->frame_bufs, &cm->ref_frame_map[cpi->bwd_fb_idx],
@@ -3683,7 +3689,7 @@ static void update_reference_frames(AV1_COMP *cpi) {
     // lst_fb_idxes[2], lst_fb_idxes[0], lst_fb_idxes[1]
     int ref_frame;
 
-    if (cm->frame_type == KEY_FRAME) {
+    if (cm->frame_type == KEY_FRAME || cm->frame_type == S_FRAME) {
       for (ref_frame = 0; ref_frame < LAST_REF_FRAMES; ++ref_frame) {
         ref_cnt_fb(pool->frame_bufs,
                    &cm->ref_frame_map[cpi->lst_fb_idxes[ref_frame]],
@@ -4996,7 +5002,7 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
     cpi->sf.interp_filter_search_mask = setup_interp_filter_search_mask(cpi);
 
   // Set various flags etc to special state if it is a key frame.
-  if (frame_is_intra_only(cm)) {
+  if (frame_is_intra_only(cm) || cm->is_sframe) {
     // Reset the loop filter deltas and segmentation map.
     av1_reset_segment_features(cm);
 
@@ -5072,6 +5078,13 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
         msb = cpi->source->y_buffer[1] & 0xff;
       }
       cm->current_frame_id = ((msb << 8) + lsb) % (1 << frame_id_length);
+
+      // S_frame is meant for stitching  different streams of different
+      // resolutions together so the Current_frame_id must be the
+      // same accross different streams of the same content current _frame_id
+      // should be the same and not random. 0x37 is a chosen number as start
+      // point
+      cm->current_frame_id = 0x37;
     } else {
       cm->current_frame_id =
           (cm->current_frame_id + 1 + (1 << frame_id_length)) %
@@ -5128,7 +5141,7 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
   }
 
   // If the encoder forced a KEY_FRAME decision
-  if (cm->frame_type == KEY_FRAME) {
+  if (cm->frame_type == KEY_FRAME || cm->frame_type == S_FRAME) {
     cpi->refresh_last_frame = 1;
   }
 

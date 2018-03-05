@@ -819,13 +819,13 @@ static void setup_segmentation(AV1_COMMON *const cm,
   }
 #endif
   // Segmentation map update
-  if (frame_is_intra_only(cm) || cm->error_resilient_mode) {
+  if (frame_is_intra_only(cm) || cm->error_resilient_mode || cm->is_sframe) {
     seg->update_map = 1;
   } else {
     seg->update_map = aom_rb_read_bit(rb);
   }
   if (seg->update_map) {
-    if (frame_is_intra_only(cm) || cm->error_resilient_mode) {
+    if (frame_is_intra_only(cm) || cm->error_resilient_mode || cm->is_sframe) {
       seg->temporal_update = 0;
     } else {
       seg->temporal_update = aom_rb_read_bit(rb);
@@ -2704,6 +2704,10 @@ static int read_uncompressed_header(AV1Decoder *pbi,
   cm->frame_type = (FRAME_TYPE)aom_rb_read_literal(rb, 2);  // 2 bits
   cm->show_frame = aom_rb_read_bit(rb);
   cm->intra_only = cm->frame_type == INTRA_ONLY_FRAME;
+  if (cm->frame_type == S_FRAME)
+    cm->is_sframe = 1;
+  else
+    cm->is_sframe = 0;
   cm->error_resilient_mode = aom_rb_read_bit(rb);
   cm->disable_intra_edge_filter = aom_rb_read_bit(rb);
 
@@ -2797,7 +2801,8 @@ static int read_uncompressed_header(AV1Decoder *pbi,
       cm->allow_intrabc = aom_rb_read_bit(rb);
     cm->use_prev_frame_mvs = 0;
   } else {
-    if (cm->intra_only || cm->error_resilient_mode) cm->use_prev_frame_mvs = 0;
+    if (cm->intra_only || cm->error_resilient_mode || cm->is_sframe)
+      cm->use_prev_frame_mvs = 0;
 #if CONFIG_NO_FRAME_CONTEXT_SIGNALING
 // The only way to reset all frame contexts to their default values is with a
 // keyframe.
@@ -2925,7 +2930,8 @@ static int read_uncompressed_header(AV1Decoder *pbi,
         }
       }
 
-      if (cm->error_resilient_mode == 0 && frame_size_override_flag) {
+      if (cm->error_resilient_mode == 0 && frame_size_override_flag &&
+          !cm->is_sframe) {
         setup_frame_size_with_refs(cm, rb);
       } else {
         setup_frame_size(cm, frame_size_override_flag, rb);
@@ -3047,9 +3053,6 @@ static int read_uncompressed_header(AV1Decoder *pbi,
   unlock_buffer_pool(pool);
   pbi->hold_ref_buf = 1;
 
-  if (frame_is_intra_only(cm) || cm->error_resilient_mode)
-    av1_setup_past_independence(cm);
-
   if (cm->allow_intrabc && NO_FILTER_FOR_IBC) {
     // Set parameters corresponding to no filtering.
     struct loopfilter *lf = &cm->lf;
@@ -3070,8 +3073,10 @@ static int read_uncompressed_header(AV1Decoder *pbi,
 
   setup_quantization(cm, rb);
   xd->bd = (int)cm->bit_depth;
+  if (frame_is_intra_only(cm) || cm->error_resilient_mode || cm->is_sframe)
+    av1_setup_past_independence(cm);
 
-  if (frame_is_intra_only(cm) || cm->error_resilient_mode) {
+  if (frame_is_intra_only(cm) || cm->error_resilient_mode || cm->is_sframe) {
     av1_default_coef_probs(cm);
     av1_setup_frame_contexts(cm);
   }
