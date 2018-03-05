@@ -1967,6 +1967,10 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
   }
 #endif  // CONFIG_EXT_TILE
 
+  // No tiles to decode.
+  if (tile_rows_end <= tile_rows_start || tile_cols_end <= tile_cols_start)
+    return data;
+
 #if CONFIG_CDF_UPDATE_MODE
   allow_update_cdf = allow_update_cdf && !cm->disable_cdf_update;
 #endif  // CONFIG_CDF_UPDATE_MODE
