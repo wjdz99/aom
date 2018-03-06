@@ -173,13 +173,17 @@ double aom_noise_strength_lut_eval(const aom_noise_strength_lut_t *lut,
   return lut->points[lut->num_points - 1][1];
 }
 
+static double noise_strength_solver_get_bin_index(
+    const aom_noise_strength_solver_t *solver, double value) {
+  const double val =
+      AOMMIN(AOMMAX(value, solver->min_intensity), solver->max_intensity);
+  const double range = solver->max_intensity - solver->min_intensity;
+  return (solver->num_bins - 1) * (val - solver->min_intensity) / range;
+}
+
 void aom_noise_strength_solver_add_measurement(
     aom_noise_strength_solver_t *solver, double block_mean, double noise_std) {
-  const double val =
-      AOMMIN(AOMMAX(block_mean, solver->min_intensity), solver->max_intensity);
-  const double range = solver->max_intensity - solver->min_intensity;
-  const double bin =
-      (solver->num_bins - 1) * (val - solver->min_intensity) / range;
+  const double bin = noise_strength_solver_get_bin_index(solver, block_mean);
   const int bin_i0 = (int)floor(bin);
   const int bin_i1 = AOMMIN(solver->num_bins - 1, bin_i0 + 1);
   const double a = bin - bin_i0;
@@ -257,7 +261,8 @@ double aom_noise_strength_solver_get_center(
 }
 
 int aom_noise_strength_solver_fit_piecewise(
-    const aom_noise_strength_solver_t *solver, aom_noise_strength_lut_t *lut) {
+    const aom_noise_strength_solver_t *solver, int max_output_points,
+    aom_noise_strength_lut_t *lut) {
   const double kTolerance = 0.1;
   int low_point = 0;
   aom_equation_system_t sys;
@@ -320,6 +325,41 @@ int aom_noise_strength_solver_fit_piecewise(
     }
   }
   equation_system_free(&sys);
+  if (max_output_points < 2) {
+    return 1;
+  }
+  // Now greedily remove points until we've reached the max number of points
+  while (lut->num_points > max_output_points) {
+    double min_residual = 1e10;
+    int min_index = 0;
+
+    for (int i = 1; i < lut->num_points - 1; ++i) {
+      const int lower =
+          AOMMAX(0, (int)floor(noise_strength_solver_get_bin_index(
+                        solver, lut->points[i - 1][0])));
+      const int upper = AOMMIN(solver->num_bins - 1,
+                               (int)ceil(noise_strength_solver_get_bin_index(
+                                   solver, lut->points[i + 1][0])));
+      double residual = 0;
+      for (int j = lower; j <= upper; ++j) {
+        const double x = aom_noise_strength_solver_get_center(solver, j);
+        const double a = (x - lut->points[i - 1][0]) /
+                         (lut->points[i + 1][0] - lut->points[i - 1][0]);
+        const double y = lut->points[i - 1][1] * (1.0 - a) +
+                         lut->points[i + 1][1] * (1.0 - a);
+        residual += fabs(y - solver->eqns.x[i]);
+      }
+      if (residual < min_residual) {
+        residual = min_residual;
+        min_index = i;
+      }
+    }
+    const int num_remaining = lut->num_points - min_index + 1;
+    memmove(lut->points + min_index, lut->points + min_index + 1,
+            sizeof(lut->points[0]) * num_remaining);
+    lut->num_points--;
+  }
+
   return 1;
 }
 
@@ -846,4 +886,99 @@ aom_noise_status_t aom_noise_model_update(
 
   return y_model_different ? AOM_NOISE_STATUS_DIFFERENT_NOISE_TYPE
                            : AOM_NOISE_STATUS_OK;
+}
+
+int aom_noise_model_get_grain_parameters(aom_noise_model_t *const noise_model,
+                                         aom_film_grain_t *film_grain) {
+  if (noise_model->params.lag > 3) {
+    fprintf(stderr, "params.lag = %d > 3\n", noise_model->params.lag);
+    return 0;
+  }
+  memset(film_grain, 0, sizeof(*film_grain));
+  film_grain->ar_coeff_lag = noise_model->params.lag;
+
+  // Convert the scaling functions to 8 bit values
+  aom_noise_strength_lut_t scaling_points[3];
+  aom_noise_strength_solver_fit_piecewise(
+      &noise_model->combined_state[0].strength_solver, 14, scaling_points + 0);
+  aom_noise_strength_solver_fit_piecewise(
+      &noise_model->combined_state[1].strength_solver, 10, scaling_points + 1);
+  aom_noise_strength_solver_fit_piecewise(
+      &noise_model->combined_state[2].strength_solver, 10, scaling_points + 2);
+
+  double max_scaling_value = 0;
+  for (int c = 0; c < 3; ++c) {
+    for (int i = 0; i < scaling_points[c].num_points; ++i) {
+      max_scaling_value =
+          AOMMAX(scaling_points[c].points[i][1], max_scaling_value);
+    }
+  }
+
+  // Scaling_shift values are in the range [8,11]
+  const int max_scaling_value_log2 =
+      clamp((int)floor(log2(max_scaling_value) + 1), 2, 5);
+  film_grain->scaling_shift = 5 + (8 - max_scaling_value_log2);
+
+  const double scale_factor = 1 << (8 - max_scaling_value_log2);
+  film_grain->num_y_points = scaling_points[0].num_points;
+  film_grain->num_cb_points = scaling_points[1].num_points;
+  film_grain->num_cr_points = scaling_points[2].num_points;
+
+  int(*film_grain_scaling[3])[2] = {
+    film_grain->scaling_points_y,
+    film_grain->scaling_points_cb,
+    film_grain->scaling_points_cr,
+  };
+  for (int c = 0; c < 3; c++) {
+    for (int i = 0; i < scaling_points[c].num_points; ++i) {
+      film_grain_scaling[c][i][0] = (int)(scaling_points[c].points[i][0] + 0.5);
+      film_grain_scaling[c][i][1] = clamp(
+          (int)(scale_factor * scaling_points[c].points[i][1] + 0.5), 0, 255);
+    }
+  }
+  aom_noise_strength_lut_free(scaling_points + 0);
+  aom_noise_strength_lut_free(scaling_points + 1);
+  aom_noise_strength_lut_free(scaling_points + 2);
+
+  // Convert the ar_coeffs into 8-bit values
+  double max_coeff = 1e-4, min_coeff = -1e-4;
+  for (int c = 0; c < 3; c++) {
+    aom_equation_system_t *eqns = &noise_model->combined_state[c].eqns;
+    for (int i = 0; i < eqns->n; ++i) {
+      max_coeff = AOMMAX(max_coeff, eqns->x[i]);
+      min_coeff = AOMMIN(min_coeff, eqns->x[i]);
+    }
+  }
+  // Shift value: AR coeffs range (values 6-9)
+  // 6: [-2, 2),  7: [-1, 1), 8: [-0.5, 0.5), 9: [-0.25, 0.25)
+  film_grain->ar_coeff_shift =
+      clamp(7 - (int)AOMMAX(1 + floor(log2(max_coeff)), ceil(log2(-min_coeff))),
+            6, 9);
+  double scale_ar_coeff = 1 << film_grain->ar_coeff_shift;
+  int *ar_coeffs[3] = {
+    film_grain->ar_coeffs_y,
+    film_grain->ar_coeffs_cb,
+    film_grain->ar_coeffs_cr,
+  };
+  for (int c = 0; c < 3; ++c) {
+    aom_equation_system_t *eqns = &noise_model->combined_state[c].eqns;
+    for (int i = 0; i < eqns->n; ++i) {
+      ar_coeffs[c][i] =
+          clamp((int)round(scale_ar_coeff * eqns->x[i]), -128, 127);
+    }
+  }
+
+  // At the moment, the noise modeling code assumes that the chroma scaling
+  // functions are a function of luma.
+  film_grain->cb_mult = 128;       // 8 bits
+  film_grain->cb_luma_mult = 192;  // 8 bits
+  film_grain->cb_offset = 256;     // 9 bits
+
+  film_grain->cr_mult = 128;       // 8 bits
+  film_grain->cr_luma_mult = 192;  // 8 bits
+  film_grain->cr_offset = 256;     // 9 bits
+
+  film_grain->chroma_scaling_from_luma = 0;
+  film_grain->grain_scale_shift = 0;
+  return 1;
 }
