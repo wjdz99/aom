@@ -2974,6 +2974,9 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
   // NOTE: By default all coded frames to be used as a reference
   cm->is_reference_frame = 1;
 
+#if CONFIG_DROPPABLE_FRAMES
+  aom_wb_write_bit(wb, cm->error_resilient_mode);
+#endif  // CONFIG_DROPPABLE_FRAMES
   if (cm->show_existing_frame) {
     RefCntBuffer *const frame_bufs = cm->buffer_pool->frame_bufs;
     const int frame_to_show = cm->ref_frame_map[cpi->existing_fb_idx_to_show];
@@ -3033,7 +3036,9 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
   if (cm->intra_only) cm->frame_type = INTRA_ONLY_FRAME;
 
   aom_wb_write_bit(wb, cm->show_frame);
+#if !CONFIG_DROPPABLE_FRAMES
   aom_wb_write_bit(wb, cm->error_resilient_mode);
+#endif  // !CONFIG_DROPPABLE_FRAMES
 
   aom_wb_write_bit(wb, cm->disable_intra_edge_filter);
 
@@ -3095,11 +3100,18 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
                          cm->reset_frame_context == RESET_FRAME_CONTEXT_ALL);
       }
     }
-#endif
+#endif  // !CONFIG_NO_FRAME_CONTEXT_SIGNALING
     cpi->refresh_frame_mask = get_refresh_mask(cpi);
 
     if (cm->intra_only) {
+#if CONFIG_DROPPABLE_FRAMES
+      if (!cm->error_resilient_mode)
+        aom_wb_write_literal(wb, cpi->refresh_frame_mask, REF_FRAMES);
+      else
+        assert(cpi->refresh_frame_mask == 0);
+#else
       aom_wb_write_literal(wb, cpi->refresh_frame_mask, REF_FRAMES);
+#endif  // CONFIG_DROPPABLE_FRAMES
       write_frame_size(cm, frame_size_override_flag, wb);
       assert(av1_superres_unscaled(cm) ||
              !(cm->allow_intrabc && NO_FILTER_FOR_IBC));
@@ -3117,11 +3129,18 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
         aom_wb_write_bit(wb,
                          cm->reset_frame_context == RESET_FRAME_CONTEXT_ALL);
     }
-#endif
+#endif  // !CONFIG_NO_FRAME_CONTEXT_SIGNALING
 
     if (cm->frame_type == INTER_FRAME) {
       cpi->refresh_frame_mask = get_refresh_mask(cpi);
+#if CONFIG_DROPPABLE_FRAMES
+      if (!cm->error_resilient_mode)
+        aom_wb_write_literal(wb, cpi->refresh_frame_mask, REF_FRAMES);
+      else
+        assert(cpi->refresh_frame_mask == 0);
+#else
       aom_wb_write_literal(wb, cpi->refresh_frame_mask, REF_FRAMES);
+#endif  // CONFIG_DROPPABLE_FRAMES
     }
 
     if (!cpi->refresh_frame_mask) {
@@ -3201,7 +3220,11 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
     }
   }
 
-  if (cm->show_frame == 0) {
+  if (cm->show_frame == 0
+#if CONFIG_DROPPABLE_FRAMES
+      || cm->error_resilient_mode == 1
+#endif  // CONFIG_DROPPABLE_FRAMES
+  ) {
     int arf_offset = AOMMIN(
         (MAX_GF_INTERVAL - 1),
         cpi->twopass.gf_group.arf_src_offset[cpi->twopass.gf_group.index]);
