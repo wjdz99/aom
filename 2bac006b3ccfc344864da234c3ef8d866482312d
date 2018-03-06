@@ -1,0 +1,165 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d4364505_ad156a71",
+        "filename": "tools/aom_entropy_optimizer.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 347,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2018-03-06T19:10:52Z",
+      "side": 0,
+      "message": "We can remove function optimize_entropy_table() and all usages",
+      "range": {
+        "startLine": 347,
+        "startChar": 2,
+        "endLine": 347,
+        "endChar": 25
+      },
+      "revId": "2bac006b3ccfc344864da234c3ef8d866482312d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7fc0a0fb_f2b7730c",
+        "filename": "tools/aom_entropy_optimizer.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 356,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2018-03-06T19:10:52Z",
+      "side": 0,
+      "message": "ditto",
+      "range": {
+        "startLine": 356,
+        "startChar": 2,
+        "endLine": 356,
+        "endChar": 24
+      },
+      "revId": "2bac006b3ccfc344864da234c3ef8d866482312d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ea5aab67_f7a8a044",
+        "filename": "tools/aom_entropy_optimizer.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 365,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2018-03-06T19:10:52Z",
+      "side": 0,
+      "message": "ditto",
+      "range": {
+        "startLine": 365,
+        "startChar": 2,
+        "endLine": 365,
+        "endChar": 24
+      },
+      "revId": "2bac006b3ccfc344864da234c3ef8d866482312d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "55e1eff4_6bb6d3cf",
+        "filename": "tools/aom_entropy_optimizer.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 532,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2018-03-06T19:10:52Z",
+      "side": 0,
+      "message": "ditto",
+      "range": {
+        "startLine": 532,
+        "startChar": 2,
+        "endLine": 532,
+        "endChar": 24
+      },
+      "revId": "2bac006b3ccfc344864da234c3ef8d866482312d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7265e832_229c91f6",
+        "filename": "tools/aom_entropy_optimizer.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 545,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2018-03-06T19:10:52Z",
+      "side": 0,
+      "message": "ditto",
+      "range": {
+        "startLine": 545,
+        "startChar": 2,
+        "endLine": 545,
+        "endChar": 24
+      },
+      "revId": "2bac006b3ccfc344864da234c3ef8d866482312d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8067fbde_6b7aacb6",
+        "filename": "tools/aom_entropy_optimizer.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 614,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2018-03-06T19:10:52Z",
+      "side": 0,
+      "message": "ditto",
+      "range": {
+        "startLine": 614,
+        "startChar": 2,
+        "endLine": 614,
+        "endChar": 24
+      },
+      "revId": "2bac006b3ccfc344864da234c3ef8d866482312d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5636210b_a0985620",
+        "filename": "tools/aom_entropy_optimizer.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 652,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2018-03-06T19:10:52Z",
+      "side": 0,
+      "message": "ditto",
+      "range": {
+        "startLine": 652,
+        "startChar": 2,
+        "endLine": 652,
+        "endChar": 24
+      },
+      "revId": "2bac006b3ccfc344864da234c3ef8d866482312d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
