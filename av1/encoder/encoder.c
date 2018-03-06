@@ -2940,7 +2940,11 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
     rc->baseline_gf_interval = (MIN_GF_INTERVAL + MAX_GF_INTERVAL) / 2;
   }
 
+#if CONFIG_DROPPABLE_FRAMES
+  cpi->refresh_last_frame = !oxcf->error_resilient_mode;
+#else
   cpi->refresh_last_frame = 1;
+#endif  // CONFIG_DROPPABLE_FRAMES
   cpi->refresh_golden_frame = 0;
   cpi->refresh_bwd_ref_frame = 0;
   cpi->refresh_alt2_ref_frame = 0;
@@ -5577,7 +5581,10 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
       av1_rc_postencode_update(cpi, *size);
     }
 
-    ++cm->current_video_frame;
+#if CONFIG_DROPPABLE_FRAMES
+    if (!oxcf->error_resilient_mode)
+#endif  // CONFIG_DROPPABLE_FRAMES
+      ++cm->current_video_frame;
 
     aom_free(tile_ctxs);
     aom_free(cdf_ptrs);
@@ -5724,7 +5731,11 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
 
   // If the encoder forced a KEY_FRAME decision
   if (cm->frame_type == KEY_FRAME) {
+#if CONFIG_DROPPABLE_FRAME
+    cpi->refresh_last_frame = (!cm->error_resilient_mode);
+#else
     cpi->refresh_last_frame = 1;
+#endif  // CONFIG_DROPPABLE_FRAME
   }
 
   cm->frame_to_show = get_frame_new_buffer(cm);
@@ -5874,7 +5885,10 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
     swap_mi_and_prev_mi(cm);
     // Don't increment frame counters if this was an altref buffer
     // update not a real frame
-    ++cm->current_video_frame;
+#if CONFIG_DROPPABLE_FRAMES
+    if (!oxcf->error_resilient_mode)
+#endif  // CONFIG_DROPPABLE_FRAMES
+      ++cm->current_video_frame;
   }
 
   // NOTE: Shall not refer to any frame not used as reference.
@@ -6105,10 +6119,14 @@ static void check_src_altref(AV1_COMP *cpi,
     cpi->alt_ref_source = NULL;
 
     if (rc->is_src_frame_ext_arf && !cpi->common.show_existing_frame) {
-      // For INTNL_OVERLAY, when show_existing_frame == 0, they do need to
-      // refresh the LAST_FRAME, i.e. LAST3 gets retired, LAST2 becomes LAST3,
-      // LAST becomes LAST2, and INTNL_OVERLAY becomes LAST.
+    // For INTNL_OVERLAY, when show_existing_frame == 0, they do need to
+    // refresh the LAST_FRAME, i.e. LAST3 gets retired, LAST2 becomes LAST3,
+    // LAST becomes LAST2, and INTNL_OVERLAY becomes LAST.
+#if CONFIG_DROPPABLE_FRAMES
+      cpi->refresh_last_frame = (!cpi->common.error_resilient_mode);
+#else
       cpi->refresh_last_frame = 1;
+#endif  // CONFIG_DROPPABLE_FRAMES
     } else {
       // Don't refresh the last buffer for an ARF overlay frame. It will
       // become the GF so preserve last as an alternative prediction option.
