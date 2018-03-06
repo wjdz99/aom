@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "47f570cd_0aa76473",
+        "filename": "av1/common/entropymode.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1194,
+      "author": {
+        "id": 5260
+      },
+      "writtenOn": "2018-03-06T10:17:43Z",
+      "side": 1,
+      "message": "On the experiment tracker, NO_FRAME_CONTEXT_SIGNALING is an adopted experiment so you probably need the same changes here.",
+      "revId": "0c66ee3da5f988de4b80e364da6c25277b90f785",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d2bf41fc_e4013b44",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2777,
+      "author": {
+        "id": 5260
+      },
+      "writtenOn": "2018-03-06T10:17:43Z",
+      "side": 1,
+      "message": "Should this depend on is_sframe? (I think it should be set to 0 and not read if S_FRAME)\n\nThe design document says the resolution should be explicitly sent.",
+      "revId": "0c66ee3da5f988de4b80e364da6c25277b90f785",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "77b73a94_bc60ee05",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2855,
+      "author": {
+        "id": 5260
+      },
+      "writtenOn": "2018-03-06T10:17:43Z",
+      "side": 1,
+      "message": "should this also disable short signalling of S_FRAME?\n\n(Short signalling uses the frame_offset to compute which reference frames to use.  It is not clear to me for S_FRAMEs whether we are assuming frame_offset will be valid or not?  If we are not assuming frame_offset is valid, then we should probably disable short signalling.)",
+      "revId": "0c66ee3da5f988de4b80e364da6c25277b90f785",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "403b758f_4efd6dca",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 3077,
+      "author": {
+        "id": 5260
+      },
+      "writtenOn": "2018-03-06T10:17:43Z",
+      "side": 1,
+      "message": "Does moving this call to av1_setup_past_independence have any normative effect?\n\nIf so, it should probably be inside the experiment flag.\n\nIf not, why has it moved?\n\n(If the answer is that it is just a code tidy up, then that is fine, but I just wanted to check in case there is something subtle going on that I need to document.)",
+      "revId": "0c66ee3da5f988de4b80e364da6c25277b90f785",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
