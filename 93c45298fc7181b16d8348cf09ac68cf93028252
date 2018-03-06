@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7979b82a_d0e33d93",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 2845,
+      "author": {
+        "id": 5260
+      },
+      "writtenOn": "2018-03-06T10:21:59Z",
+      "side": 1,
+      "message": "I think there are two cases that need to be distinguished here.\n\nS_FRAME should set refresh_frame_flags to 0xff\n\nerror_resilient_mode should set refresh_frame_flags to 0.",
+      "revId": "93c45298fc7181b16d8348cf09ac68cf93028252",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
