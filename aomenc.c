@@ -455,6 +455,10 @@ static const arg_def_t mtu_size =
 static const struct arg_enum_list timing_info_enum[] = {
   { "unspecified", AOM_TIMING_UNSPECIFIED },
   { "constant", AOM_TIMING_EQUAL },
+#if CONFIG_BUFFER_MODEL
+  { "variable", AOM_TIMING_VARIABLE },
+  { "model", AOM_TIMING_DEC_MODEL },
+#endif
   { NULL, 0 }
 };
 static const arg_def_t timing_info =
@@ -695,7 +699,7 @@ static const int av1_arg_ctrl_map[] = { AOME_SET_CPUUSED,
                                         AV1E_SET_SUPERBLOCK_SIZE,
                                         AV1E_SET_NUM_TG,
                                         AV1E_SET_MTU,
-                                        AV1E_SET_TIMING_INFO,
+                                        AV1E_SET_TIMING_INFO_TYPE,
                                         AV1E_SET_FILM_GRAIN_TEST_VECTOR,
                                         AV1E_SET_FILM_GRAIN_TABLE,
                                         AV1E_SET_ENABLE_REF_FRAME_MVS,

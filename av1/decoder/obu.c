@@ -157,6 +157,7 @@ static uint32_t read_sequence_header_obu(AV1Decoder *pbi,
   for (i = 0; i < operating_points_minus1_cnt + 1; i++) {
     seq_params->operating_point_idc[i] = aom_rb_read_literal(rb, 12);
     seq_params->level[i] = aom_rb_read_literal(rb, 4);
+#if !CONFIG_BUFFER_MODEL
     seq_params->decoder_rate_model_param_present_flag[i] =
         aom_rb_read_literal(rb, 1);
     if (seq_params->decoder_rate_model_param_present_flag[i]) {
@@ -164,6 +165,7 @@ static uint32_t read_sequence_header_obu(AV1Decoder *pbi,
       seq_params->initial_display_delay[i] = aom_rb_read_literal(rb, 24);
       seq_params->extra_frame_buffers[i] = aom_rb_read_literal(rb, 4);
     }
+#endif
   }
   // This decoder supports all levels.  Choose the first operating point
   pbi->current_operating_point = seq_params->operating_point_idc[0];
@@ -172,7 +174,33 @@ static uint32_t read_sequence_header_obu(AV1Decoder *pbi,
 
   av1_read_bitdepth_colorspace_sampling(cm, rb, pbi->allow_lowbitdepth);
 
-  av1_read_timing_info_header(cm, rb);
+#if CONFIG_BUFFER_MODEL
+  cm->timing_info_present = aom_rb_read_bit(rb);  // timing info present flag
+
+  if (cm->timing_info_present) {
+#endif
+    av1_read_timing_info_header(cm, rb);
+
+#if CONFIG_BUFFER_MODEL
+    cm->decoder_model_info_present = aom_rb_read_bit(rb);
+    if (cm->decoder_model_info_present) av1_read_decoder_model_info(cm, rb);
+  }
+  cm->operating_points_decoder_model_cnt = aom_rb_read_literal(rb, 5);
+  for (int op_num = 0; op_num < cm->operating_points_decoder_model_cnt;
+       ++op_num) {
+    cm->op_params[op_num].decoder_model_operating_point_idc =
+        aom_rb_read_literal(rb, 12);
+    cm->op_params[op_num].display_model_param_present_flag =
+        aom_rb_read_bit(rb);
+    if (cm->op_params[op_num].display_model_param_present_flag)
+      cm->op_params[op_num].initial_display_delay =
+          aom_rb_read_literal(rb, 4) + 1;
+    cm->op_params[op_num].decoder_model_param_present_flag =
+        aom_rb_read_bit(rb);
+    if (cm->op_params[op_num].decoder_model_param_present_flag)
+      av1_read_op_parameters_info(cm, rb, op_num);
+  }
+#endif
 
   cm->film_grain_params_present = aom_rb_read_bit(rb);
 
