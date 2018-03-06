@@ -383,7 +383,10 @@ static const arg_def_t kf_disabled =
     ARG_DEF(NULL, "disable-kf", 0, "Disable keyframe placement");
 static const arg_def_t *kf_args[] = { &kf_min_dist, &kf_max_dist, &kf_disabled,
                                       NULL };
-
+static const arg_def_t sframe_dist =
+    ARG_DEF(NULL, "sframe-dist", 1, "Sframe interval (frames)");
+static const arg_def_t sframe_mode =
+    ARG_DEF(NULL, "sframe-mode", 1, "Sframe insertion mode (1..2)");
 static const arg_def_t noise_sens =
     ARG_DEF(NULL, "noise-sensitivity", 1, "Noise sensitivity (frames to blur)");
 static const arg_def_t sharpness =
@@ -1284,6 +1287,10 @@ static int parse_stream_params(struct AvxEncoderConfig *global,
       config->cfg.kf_max_dist = arg_parse_uint(&arg);
     } else if (arg_match(&arg, &kf_disabled, argi)) {
       config->cfg.kf_mode = AOM_KF_DISABLED;
+    } else if (arg_match(&arg, &sframe_dist, argi)) {
+      config->cfg.sframe_dist = arg_parse_uint(&arg);
+    } else if (arg_match(&arg, &sframe_mode, argi)) {
+      config->cfg.sframe_mode = arg_parse_uint(&arg);
 #if CONFIG_MAX_TILE
     } else if (arg_match(&arg, &tile_width, argi)) {
       config->cfg.tile_width_count =

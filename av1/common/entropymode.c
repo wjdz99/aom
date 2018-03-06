@@ -1188,7 +1188,7 @@ static void set_default_lf_deltas(struct loopfilter *lf) {
 void av1_setup_frame_contexts(AV1_COMMON *cm) {
   int i;
 #if CONFIG_NO_FRAME_CONTEXT_SIGNALING
-  if (cm->frame_type == KEY_FRAME) {
+  if (cm->frame_type == KEY_FRAME || cm->frame_type == S_FRAME) {
     // Reset all frame contexts, as all reference frames will be lost.
     for (i = 0; i < FRAME_CONTEXTS; ++i) cm->frame_contexts[i] = *cm->fc;
   } else if (frame_is_intra_only(cm) || cm->error_resilient_mode) {
@@ -1198,7 +1198,8 @@ void av1_setup_frame_contexts(AV1_COMMON *cm) {
   }
 #else
   if (cm->frame_type == KEY_FRAME || cm->error_resilient_mode ||
-      cm->reset_frame_context == RESET_FRAME_CONTEXT_ALL) {
+      cm->reset_frame_context == RESET_FRAME_CONTEXT_ALL ||
+      cm->frame_type == S_FRAME) {
     // Reset all frame contexts.
     for (i = 0; i < FRAME_CONTEXTS; ++i) cm->frame_contexts[i] = *cm->fc;
   } else if (cm->reset_frame_context == RESET_FRAME_CONTEXT_CURRENT) {
