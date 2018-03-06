@@ -22,6 +22,30 @@
       "revId": "46929634257f291aa7be5cc46606509cec0ed9a1",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a3967a51_6f90dac5",
+        "filename": "av1/common/x86/av1_inv_txfm_ssse3.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 2290,
+      "author": {
+        "id": 8900
+      },
+      "writtenOn": "2018-03-06T09:50:34Z",
+      "side": 0,
+      "message": "Yes, iidentity32_new_sse2 and iidentity64_low32_new_sse2 are removed intentionally.\nAs mentioned in the comments, the inverse identity32 and identity64 are processed in dedicated functions, such as lowbd_inv_txfm2d_add_h_identity_ssse3, lowbd_inv_txfm2d_add_v_identity_ssse3 and lowbd_inv_txfm2d_add_idtx_ssse3. They are pick out in advance by the switch-case https://aomedia-review.googlesource.com/c/aom/+/49041/6/av1/common/x86/av1_inv_txfm_ssse3.c#2860 . The dedicated version is much faster than the origin version.",
+      "parentUuid": "5a115891_a8a21fb8",
+      "range": {
+        "startLine": 2290,
+        "startChar": 31,
+        "endLine": 2290,
+        "endChar": 51
+      },
+      "revId": "46929634257f291aa7be5cc46606509cec0ed9a1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
