@@ -119,9 +119,10 @@ static __m256i highbd_clamp_epi16(__m256i u, __m256i zero, __m256i max) {
   return _mm256_max_epi16(_mm256_min_epi16(u, max), zero);
 }
 
-static INLINE void cfl_predict_hbd(__m256i *dst, __m256i *src,
-                                   __m256i alpha_q12, __m256i alpha_sign,
-                                   __m256i dc_q0, __m256i max) {
+static INLINE void __vectorcall cfl_predict_hbd(__m256i *dst, __m256i *src,
+                                                __m256i alpha_q12,
+                                                __m256i alpha_sign,
+                                                __m256i dc_q0, __m256i max) {
   __m256i res = predict_unclipped(src, alpha_q12, alpha_sign, dc_q0);
   _mm256_storeu_si256(dst,
                       highbd_clamp_epi16(res, _mm256_setzero_si256(), max));
