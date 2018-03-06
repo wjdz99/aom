@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8623e215_fcd9e6ea",
+        "filename": "tools/aom_entropy_optimizer.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2018-03-06T01:11:11Z",
+      "side": 1,
+      "message": "This is not what CDF_PROB_BITS is for (it\u0027s the number of bits of precision in CDF probabilities). AFAIK, we don\u0027t have a constant for the maximum CDF size, but it isn\u0027t 15, and having the \"+ 1\" here looks like maybe this is a misguided reimplementation of CDF_SIZE() (I know it isn\u0027t, but I had to read the rest of the function to make sure this array wasn\u0027t supposed to have an extra element for the adaptation count).",
+      "revId": "49773d6064848848112e35f4469b5ce3adb8748e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fc03e903_58c6145f",
+        "filename": "tools/aom_entropy_optimizer.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2018-03-06T01:11:11Z",
+      "side": 1,
+      "message": "For the record, this is mostly useless. The optimizer will translate this to Single Static Assignment form, anyway, and see that the value is never changed.",
+      "revId": "49773d6064848848112e35f4469b5ce3adb8748e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
