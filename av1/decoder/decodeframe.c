@@ -2628,6 +2628,9 @@ static int read_uncompressed_header(AV1Decoder *pbi,
   // NOTE: By default all coded frames to be used as a reference
   cm->is_reference_frame = 1;
 
+#if CONFIG_DROPPABLE_FRAMES
+  cm->error_resilient_mode = aom_rb_read_bit(rb);
+#endif  // CONFIG_DROPPABLE_FRAMES
   cm->show_existing_frame = aom_rb_read_bit(rb);
 #if CONFIG_FWD_KF
   cm->reset_decoder_state = 0;
@@ -2702,7 +2705,9 @@ static int read_uncompressed_header(AV1Decoder *pbi,
   cm->frame_type = (FRAME_TYPE)aom_rb_read_literal(rb, 2);  // 2 bits
   cm->show_frame = aom_rb_read_bit(rb);
   cm->intra_only = cm->frame_type == INTRA_ONLY_FRAME;
+#if !CONFIG_DROPPABLE_FRAMES
   cm->error_resilient_mode = aom_rb_read_bit(rb);
+#endif  // !CONFIG_DROPPABLE_FRAMES
   cm->disable_intra_edge_filter = aom_rb_read_bit(rb);
 
 #if CONFIG_CDF_UPDATE_MODE
@@ -2823,7 +2828,11 @@ static int read_uncompressed_header(AV1Decoder *pbi,
 #if CONFIG_FILM_GRAIN
       cm->cur_frame->film_grain_params_present = cm->film_grain_params_present;
 #endif
-      pbi->refresh_frame_flags = aom_rb_read_literal(rb, REF_FRAMES);
+      pbi->refresh_frame_flags =
+#if CONFIG_DROPPABLE_FRAMES
+          cm->error_resilient_mode ? 0 :
+#endif
+                                   aom_rb_read_literal(rb, REF_FRAMES);
       setup_frame_size(cm, frame_size_override_flag, rb);
       if (pbi->need_resync) {
         memset(&cm->ref_frame_map, -1, sizeof(cm->ref_frame_map));
@@ -2833,9 +2842,11 @@ static int read_uncompressed_header(AV1Decoder *pbi,
           (av1_superres_unscaled(cm) || !NO_FILTER_FOR_IBC))
         cm->allow_intrabc = aom_rb_read_bit(rb);
     } else if (pbi->need_resync != 1) { /* Skip if need resync */
-      pbi->refresh_frame_flags = (cm->frame_type == S_FRAME)
-                                     ? 0xFF
-                                     : aom_rb_read_literal(rb, REF_FRAMES);
+      pbi->refresh_frame_flags = (cm->frame_type == S_FRAME ? 0xff :
+#if CONFIG_DROPPABLE_FRAMES
+                                  cm->error_resilient_mode ? 0 :
+#endif  // CONFIG_DROPPABLE_FRAMES
+                                  : aom_rb_read_literal(rb, REF_FRAMES);
 
       if (!pbi->refresh_frame_flags) {
         // NOTE: "pbi->refresh_frame_flags == 0" indicates that the coded frame
@@ -2962,7 +2973,11 @@ static int read_uncompressed_header(AV1Decoder *pbi,
     }
   }
 
-  if (cm->show_frame == 0) {
+  if (cm->show_frame == 0
+#if CONFIG_DROPPABLE_FRAMES
+      || cm->error_resilient_mode == 1
+#endif  // CONFIG_DROPPABLE_FRAMES
+  ) {
     cm->frame_offset =
         cm->current_video_frame + aom_rb_read_literal(rb, FRAME_OFFSET_BITS);
   } else {

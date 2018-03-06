@@ -3314,6 +3314,17 @@ static void configure_buffer_updates(AV1_COMP *cpi) {
   }
 #endif  // USE_GF16_MULTI_LAYER
 
+#if CONFIG_DROPPABLE_FRAMES
+  if (cpi->common.error_resilient_mode) {
+    cpi->refresh_last_frame = 0;
+    cpi->refresh_golden_frame = 0;
+    cpi->refresh_bwd_ref_frame = 0;
+    cpi->refresh_alt2_ref_frame = 0;
+    cpi->refresh_alt_ref_frame = 0;
+    return;
+  }
+#endif  // CONFIG_DROPPABLE_FRAMES
+
   switch (twopass->gf_group.update_type[twopass->gf_group.index]) {
     case KF_UPDATE:
       cpi->refresh_last_frame = 1;
