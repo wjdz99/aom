@@ -2779,7 +2779,15 @@ static int read_uncompressed_header(AV1Decoder *pbi,
 
   if (cm->frame_type == KEY_FRAME) {
     wrap_around_current_video_frame(pbi);
+#if CONFIG_FWD_KF
+    if (cm->show_frame) {
+      pbi->refresh_frame_flags = (1 << REF_FRAMES) - 1;
+    } else {
+      pbi->refresh_frame_flags = aom_rb_read_literal(rb, REF_FRAMES);
+    }
+#else
     pbi->refresh_frame_flags = (1 << REF_FRAMES) - 1;
+#endif  // CONFIG_FWD_KF
 
     for (int i = 0; i < INTER_REFS_PER_FRAME; ++i) {
       cm->frame_refs[i].idx = INVALID_IDX;
