@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "afd92707_dc889035",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2833,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2018-03-06T10:05:25Z",
+      "side": 1,
+      "message": "of course - it should be 0",
+      "parentUuid": "4ccb958c_18bd9d47",
+      "revId": "2cf2eb522e1318043cb61fc5d5f47d21d83c1291",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "dffbdc18_32f94d8c",
         "filename": "av1/decoder/decodeframe.c",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2018-03-06T08:46:36Z",
       "side": 1,
       "message": "Similar to above, I would expect S_FRAME to reset everything, but droppable frames to reset nothing.",
+      "revId": "2cf2eb522e1318043cb61fc5d5f47d21d83c1291",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b6959d70_aa222318",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2847,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2018-03-06T10:05:25Z",
+      "side": 1,
+      "message": "ditto",
+      "parentUuid": "dffbdc18_32f94d8c",
       "revId": "2cf2eb522e1318043cb61fc5d5f47d21d83c1291",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
