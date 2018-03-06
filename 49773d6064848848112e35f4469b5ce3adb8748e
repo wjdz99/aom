@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "f6f6eec8_a509accc",
+        "filename": "tools/aom_entropy_optimizer.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2018-03-06T01:47:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8623e215_fcd9e6ea",
+      "revId": "49773d6064848848112e35f4469b5ce3adb8748e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fc03e903_58c6145f",
         "filename": "tools/aom_entropy_optimizer.c",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2018-03-06T01:11:11Z",
       "side": 1,
       "message": "For the record, this is mostly useless. The optimizer will translate this to Single Static Assignment form, anyway, and see that the value is never changed.",
+      "revId": "49773d6064848848112e35f4469b5ce3adb8748e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e80a1555_205bd157",
+        "filename": "tools/aom_entropy_optimizer.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2018-03-06T01:47:04Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "fc03e903_58c6145f",
       "revId": "49773d6064848848112e35f4469b5ce3adb8748e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
