@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "20d759fd_91f4cc81",
+        "filename": "av1/common/entropymode.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1194,
+      "author": {
+        "id": 5345
+      },
+      "writtenOn": "2018-03-06T15:14:22Z",
+      "side": 1,
+      "message": "agreed. adding.",
+      "parentUuid": "47f570cd_0aa76473",
+      "revId": "0c66ee3da5f988de4b80e364da6c25277b90f785",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d2bf41fc_e4013b44",
         "filename": "av1/decoder/decodeframe.c",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2018-03-06T10:17:43Z",
       "side": 1,
       "message": "Should this depend on is_sframe? (I think it should be set to 0 and not read if S_FRAME)\n\nThe design document says the resolution should be explicitly sent.",
+      "revId": "0c66ee3da5f988de4b80e364da6c25277b90f785",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ae30ed0c_5aa0bb17",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2777,
+      "author": {
+        "id": 5345
+      },
+      "writtenOn": "2018-03-06T15:14:22Z",
+      "side": 1,
+      "message": "Actually we dont have to send the frame_size_override_flag  for sframe (making the changes). but needs to be inferred to 1 in decoder in order to read the width and height from the bitstream.",
+      "parentUuid": "d2bf41fc_e4013b44",
       "revId": "0c66ee3da5f988de4b80e364da6c25277b90f785",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "83198837_bbc8ee53",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2855,
+      "author": {
+        "id": 5345
+      },
+      "writtenOn": "2018-03-06T15:14:22Z",
+      "side": 1,
+      "message": "Short signalling should work for sframe",
+      "parentUuid": "77b73a94_bc60ee05",
+      "revId": "0c66ee3da5f988de4b80e364da6c25277b90f785",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "403b758f_4efd6dca",
         "filename": "av1/decoder/decodeframe.c",
         "patchSetId": 2
@@ -64,6 +118,24 @@
       "writtenOn": "2018-03-06T10:17:43Z",
       "side": 1,
       "message": "Does moving this call to av1_setup_past_independence have any normative effect?\n\nIf so, it should probably be inside the experiment flag.\n\nIf not, why has it moved?\n\n(If the answer is that it is just a code tidy up, then that is fine, but I just wanted to check in case there is something subtle going on that I need to document.)",
+      "revId": "0c66ee3da5f988de4b80e364da6c25277b90f785",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "380c8364_7770be16",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 3077,
+      "author": {
+        "id": 5345
+      },
+      "writtenOn": "2018-03-06T15:14:22Z",
+      "side": 1,
+      "message": "Actually this was a bug as far as I could tell:\nav1_setup_past_independence calls:  av1_default_coef_probs , which needs : cm-\u003ebase_qindex to fetch probabilities. however, cm-\u003ebase_qindex is read from the bitstream in: setup_quantization. I moved av1_setup_past_independence  to be called after setup_quantization to make sure cm-\u003ebase_qindex is read before being used.",
+      "parentUuid": "403b758f_4efd6dca",
       "revId": "0c66ee3da5f988de4b80e364da6c25277b90f785",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
