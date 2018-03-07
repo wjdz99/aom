@@ -22,6 +22,30 @@
       "revId": "2755fa56ee7a891d89a28f96de675b17c89d3851",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "645bb4fb_5a8a65b9",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 7025
+      },
+      "writtenOn": "2018-03-07T22:11:12Z",
+      "side": 1,
+      "message": "Done. Have added a line in the \"Unadopted sheet\". I will let Adrian decide the exact sheet it belongs in.",
+      "parentUuid": "14934b0a_6758c44d",
+      "range": {
+        "startLine": 9,
+        "startChar": 11,
+        "endLine": 9,
+        "endChar": 27
+      },
+      "revId": "2755fa56ee7a891d89a28f96de675b17c89d3851",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
