@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d7c4c925_b540c06a",
+        "filename": "av1/encoder/encodetxb.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 586,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2018-03-07T23:42:41Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 586,
+        "startChar": 4,
+        "endLine": 586,
+        "endChar": 7
+      },
+      "revId": "3f07c26029dbb7e269ae01d3be8ca8d163e339aa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
