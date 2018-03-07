@@ -255,7 +255,7 @@ static PREDICTION_MODE read_inter_compound_mode(MACROBLOCKD *xd, aom_reader *r,
 }
 
 #if CONFIG_SPATIAL_SEGMENTATION
-static int neg_deinterleave(int diff, int ref, int max) {
+int neg_deinterleave(int diff, int ref, int max) {
   if (!ref) return diff;
   if (ref >= (max - 1)) return max - diff - 1;
   if (2 * ref < max) {
