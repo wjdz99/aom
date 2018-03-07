@@ -2619,6 +2619,20 @@ static void show_existing_frame_reset(AV1Decoder *const pbi,
 }
 #endif  // CONFIG_FWD_KF
 
+#if ORDER_HINT_FIX
+static void read_order_hint(AV1_COMMON *const cm,
+                            struct aom_read_bit_buffer *rb, int buf_idx) {
+  int frame_offset_ref = 0;
+  if (buf_idx >= 0)
+    frame_offset_ref = cm->buffer_pool->frame_bufs[buf_idx].base_frame_offset;
+
+  int frame_offset_update = aom_rb_read_uvlc(rb) + 1;
+  cm->frame_offset = frame_offset_ref + frame_offset_update;
+  cm->cur_frame->base_frame_offset =
+      (cm->show_frame) ? cm->frame_offset : frame_offset_ref;
+}
+#endif
+
 static int read_uncompressed_header(AV1Decoder *pbi,
                                     struct aom_read_bit_buffer *rb) {
   AV1_COMMON *const cm = &pbi->common;
@@ -2782,12 +2796,14 @@ static int read_uncompressed_header(AV1Decoder *pbi,
   cm->primary_ref_frame = PRIMARY_REF_NONE;
 #endif  // CONFIG_NO_FRAME_CONTEXT_SIGNALING
 
+#if !ORDER_HINT_FIX
   if (cm->show_frame == 0) {
     cm->frame_offset =
         cm->current_video_frame + aom_rb_read_literal(rb, FRAME_OFFSET_BITS);
   } else {
     cm->frame_offset = cm->current_video_frame;
   }
+#endif
 
   if (cm->frame_type == KEY_FRAME) {
     wrap_around_current_video_frame(pbi);
@@ -2808,6 +2824,10 @@ static int read_uncompressed_header(AV1Decoder *pbi,
         (av1_superres_unscaled(cm) || !NO_FILTER_FOR_IBC))
       cm->allow_intrabc = aom_rb_read_bit(rb);
     cm->use_prev_frame_mvs = 0;
+#if ORDER_HINT_FIX
+    cm->frame_offset = 0;
+    cm->cur_frame->base_frame_offset = 0;
+#endif
   } else {
     if (cm->intra_only || cm->error_resilient_mode) cm->use_prev_frame_mvs = 0;
 #if CONFIG_NO_FRAME_CONTEXT_SIGNALING
@@ -2846,6 +2866,12 @@ static int read_uncompressed_header(AV1Decoder *pbi,
       if (cm->allow_screen_content_tools &&
           (av1_superres_unscaled(cm) || !NO_FILTER_FOR_IBC))
         cm->allow_intrabc = aom_rb_read_bit(rb);
+
+#if ORDER_HINT_FIX
+      int ref = aom_rb_read_literal(rb, REF_FRAMES_LOG2);
+      int buf_idx = cm->ref_frame_map[ref];
+      read_order_hint(cm, rb, buf_idx);
+#endif
     } else if (pbi->need_resync != 1) { /* Skip if need resync */
       pbi->refresh_frame_flags = (cm->frame_type == S_FRAME)
                                      ? 0xFF
@@ -2884,6 +2910,9 @@ static int read_uncompressed_header(AV1Decoder *pbi,
           aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
                              "Inter frame requests nonexistent reference");
 
+#if ORDER_HINT_FIX
+        read_order_hint(cm, rb, lst_idx);
+#endif
         av1_set_frame_refs(cm, lst_ref, gld_ref);
       }
 #endif  // CONFIG_FRAME_REFS_SIGNALING
@@ -2936,6 +2965,17 @@ static int read_uncompressed_header(AV1Decoder *pbi,
                                "Reference buffer frame ID mismatch");
         }
       }
+
+#if ORDER_HINT_FIX
+#if CONFIG_FRAME_REFS_SIGNALING
+      if (!cm->frame_refs_short_signaling) {
+#endif  // CONFIG_FRAME_REFS_SIGNALING
+        int buf_idx = cm->frame_refs[LAST_FRAME - LAST_FRAME].idx;
+        read_order_hint(cm, rb, buf_idx);
+#if CONFIG_FRAME_REFS_SIGNALING
+      }
+#endif  // CONFIG_FRAME_REFS_SIGNALING
+#endif
 
       if (cm->error_resilient_mode == 0 && frame_size_override_flag) {
         setup_frame_size_with_refs(cm, rb);
