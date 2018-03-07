@@ -330,6 +330,7 @@ struct macroblock {
   int comp_group_idx_cost[COMP_GROUP_IDX_CONTEXTS][2];
   // Bit flags for pruning tx type search, tx split, etc.
   int tx_search_prune[EXT_TX_SET_TYPES];
+  int tx_split_prune_flag;  // Flag to skip tx split RD search.
 };
 
 static INLINE int is_rect_tx_allowed_bsize(BLOCK_SIZE bsize) {
