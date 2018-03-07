@@ -116,9 +116,22 @@ void av1_fill_mode_rates(AV1_COMMON *const cm, MACROBLOCK *x,
   for (i = 0; i < BLOCK_SIZE_GROUPS; ++i)
     av1_cost_tokens_from_cdf(x->mbmode_cost[i], fc->y_mode_cdf[i], NULL);
   for (i = 0; i < CFL_ALLOWED_TYPES; ++i)
-    for (j = 0; j < INTRA_MODES; ++j)
+    for (j = 0; j < INTRA_MODES; ++j) {
       av1_cost_tokens_from_cdf(x->intra_uv_mode_cost[i][j],
                                fc->uv_mode_cdf[i][j], NULL);
+
+/*
+      if (j == 0) {
+      for (int k = 0; k < UV_INTRA_MODES; ++k) {
+                    printf("%d ", fc->uv_mode_cdf[i][j][k]);
+            }
+            printf("\n");
+      for (int k = 0; k < UV_INTRA_MODES; ++k) {
+        printf("%d ", x->intra_uv_mode_cost[i][j][k]);
+      }
+
+      printf("\n");*/
+    }
 
   av1_cost_tokens_from_cdf(x->filter_intra_mode_cost, fc->filter_intra_mode_cdf,
                            NULL);

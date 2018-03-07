@@ -743,6 +743,7 @@ static void sum_intra_stats(FRAME_COUNTS *counts, MACROBLOCKD *xd,
   (void)counts;
   const BLOCK_SIZE bsize = mbmi->sb_type;
 
+  allow_update_cdf = 1;
   if (intraonly) {
 #if CONFIG_ENTROPY_STATS
     const PREDICTION_MODE above = av1_above_block_mode(above_mi);
@@ -801,11 +802,11 @@ static void sum_intra_stats(FRAME_COUNTS *counts, MACROBLOCKD *xd,
 #if CONFIG_ENTROPY_STATS
   ++counts->uv_mode[is_cfl_allowed(mbmi)][y_mode][uv_mode];
 #endif  // CONFIG_ENTROPY_STATS
-  if (allow_update_cdf) {
+/*  if (allow_update_cdf) {
     const CFL_ALLOWED_TYPE cfl_allowed = is_cfl_allowed(mbmi);
     update_cdf(fc->uv_mode_cdf[cfl_allowed][y_mode], uv_mode,
                UV_INTRA_MODES - !cfl_allowed);
-  }
+  }*/
   if (uv_mode == UV_CFL_PRED) {
     const int joint_sign = mbmi->cfl_alpha_signs;
     const int idx = mbmi->cfl_alpha_idx;
@@ -3442,6 +3443,7 @@ static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
         td->pc_root[cm->seq_params.mib_size_log2 - MIN_MIB_SIZE_LOG2];
 
     av1_fill_coeff_costs(&td->mb, xd->tile_ctx, num_planes);
+    printf("=======%d %d========\n", mi_row, mi_col);
     av1_fill_mode_rates(cm, x, xd->tile_ctx);
 
     if (sf->adaptive_pred_interp_filter) {
