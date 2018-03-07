@@ -128,6 +128,8 @@ typedef struct {
   MV_REFERENCE_FRAME ref_frame[2];
 } MV_REF;
 
+#define ORDER_HINT_FIX 1
+
 typedef struct {
   int ref_count;
 
@@ -139,6 +141,10 @@ typedef struct {
   unsigned int lst3_frame_offset;
   unsigned int bwd_frame_offset;
   unsigned int alt2_frame_offset;
+
+#if ORDER_HINT_FIX
+  unsigned int base_frame_offset;
+#endif
 
   MV_REF *mvs;
 #if CONFIG_SEGMENT_PRED_LAST

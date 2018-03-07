@@ -2967,6 +2967,20 @@ static void write_global_motion(AV1_COMP *cpi,
   }
 }
 
+#if ORDER_HINT_FIX
+static void write_order_hint(AV1_COMMON *const cm,
+                             struct aom_write_bit_buffer *wb, int buf_idx) {
+  int frame_offset_ref = 0;
+  if (buf_idx >= 0)
+    frame_offset_ref = cm->buffer_pool->frame_bufs[buf_idx].base_frame_offset;
+  int frame_offset_update = cm->frame_offset - frame_offset_ref;
+  aom_wb_write_uvlc(wb, frame_offset_update - 1);
+
+  cm->cur_frame->base_frame_offset =
+      (cm->show_frame) ? cm->frame_offset : frame_offset_ref;
+}
+#endif
+
 // New function based on HLS R18
 static void write_uncompressed_header_obu(AV1_COMP *cpi,
                                           struct aom_write_bit_buffer *saved_wb,
@@ -3083,6 +3097,7 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
   cm->frame_refs_short_signaling = 0;
 #endif  // CONFIG_FRAME_REFS_SIGNALING
 
+#if !ORDER_HINT_FIX
   if (cm->show_frame == 0) {
     int arf_offset = AOMMIN(
         (MAX_GF_INTERVAL - 1),
@@ -3093,6 +3108,7 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
     arf_offset = AOMMIN((MAX_GF_INTERVAL - 1), arf_offset + brf_offset);
     aom_wb_write_literal(wb, arf_offset, FRAME_OFFSET_BITS);
   }
+#endif
 
   if (cm->frame_type == KEY_FRAME) {
     write_frame_size(cm, frame_size_override_flag, wb);
@@ -3104,6 +3120,9 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
 #if CONFIG_NO_FRAME_CONTEXT_SIGNALING
     // all eight fbs are refreshed, pick one that will live long enough
     cm->fb_of_context_type[REGULAR_FRAME] = 0;
+#endif
+#if ORDER_HINT_FIX
+    cm->cur_frame->base_frame_offset = cm->frame_offset;
 #endif
   } else if (cm->frame_type == INTRA_ONLY_FRAME) {
 #if !CONFIG_NO_FRAME_CONTEXT_SIGNALING
@@ -3137,6 +3156,29 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
           (av1_superres_unscaled(cm) || !NO_FILTER_FOR_IBC))
         aom_wb_write_bit(wb, cm->allow_intrabc);
     }
+
+#if ORDER_HINT_FIX
+    int ref = 0;
+    int buf_idx = -1;
+    // there may be a better reference to pick
+    for (int i = 0; i < REF_FRAMES; i++) {
+      int buf_idx_tmp = cm->ref_frame_map[i];
+      if (buf_idx_tmp >= 0) {
+        int j = cm->buffer_pool->frame_bufs[buf_idx_tmp].cur_frame_offset + 1;
+        if ((int)cm->frame_offset - j <= (1 << FRAME_OFFSET_BITS) &&
+            (int)cm->frame_offset - j >= 0) {
+          ref = i;
+          buf_idx = buf_idx_tmp;
+          break;
+        }
+      }
+    }
+    assert(buf_idx != -1);
+
+    aom_wb_write_literal(wb, ref, REF_FRAMES_LOG2);
+
+    write_order_hint(cm, wb, buf_idx);
+#endif
   } else if (cm->frame_type == INTER_FRAME || cm->frame_type == S_FRAME) {
     MV_REFERENCE_FRAME ref_frame;
 
@@ -3192,6 +3234,9 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
       assert(get_ref_frame_map_idx(cpi, GOLDEN_FRAME) != INVALID_IDX);
       aom_wb_write_literal(wb, get_ref_frame_map_idx(cpi, GOLDEN_FRAME),
                            REF_FRAMES_LOG2);
+#if ORDER_HINT_FIX
+      write_order_hint(cm, wb, get_ref_frame_buf_idx(cpi, LAST_FRAME));
+#endif
     }
 #endif  // CONFIG_FRAME_REFS_SIGNALING
 
@@ -3221,6 +3266,13 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
         aom_wb_write_literal(wb, delta_frame_id_minus1, diff_len);
       }
     }
+
+#if ORDER_HINT_FIX
+#if CONFIG_FRAME_REFS_SIGNALING
+    if (!cm->frame_refs_short_signaling)
+#endif  // CONFIG_FRAME_REFS_SIGNALING
+      write_order_hint(cm, wb, get_ref_frame_buf_idx(cpi, LAST_FRAME));
+#endif
 
     if (cm->error_resilient_mode == 0 && frame_size_override_flag) {
       write_frame_size_with_refs(cpi, wb);
