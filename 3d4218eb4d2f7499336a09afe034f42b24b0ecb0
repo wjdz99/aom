@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bad05961_437a786b",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 3888,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2018-03-07T23:44:09Z",
+      "side": 1,
+      "message": "Is it more clear to move the obu_sizing out, and do tile remux and obu_sizing together later after the encoding is done? That way, num_tg_hdrs \u003e 1 case can be also handled easily.",
+      "range": {
+        "startLine": 3887,
+        "startChar": 5,
+        "endLine": 3888,
+        "endChar": 60
+      },
+      "revId": "3d4218eb4d2f7499336a09afe034f42b24b0ecb0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
