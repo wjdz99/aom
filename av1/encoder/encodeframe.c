@@ -743,6 +743,7 @@ static void sum_intra_stats(FRAME_COUNTS *counts, MACROBLOCKD *xd,
   (void)counts;
   const BLOCK_SIZE bsize = mbmi->sb_type;
 
+  allow_update_cdf = 0;
   if (intraonly) {
 #if CONFIG_ENTROPY_STATS
     const PREDICTION_MODE above = av1_above_block_mode(above_mi);
