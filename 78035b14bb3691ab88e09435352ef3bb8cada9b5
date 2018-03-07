@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "06cb2169_006d95ed",
+        "filename": "av1/common/entropymode.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1192,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2018-03-07T18:28:53Z",
+      "side": 1,
+      "message": "Suggested to add the following assert before the above code:\n\nassert(frame_is_intra_only(cm) || cm-\u003eerror_resilient_mode);",
+      "revId": "78035b14bb3691ab88e09435352ef3bb8cada9b5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9bee2c1c_3a80c8d5",
         "filename": "av1/decoder/decodeframe.c",
         "patchSetId": 3
