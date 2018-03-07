@@ -2858,6 +2858,10 @@ void write_sequence_header(AV1_COMP *cpi, struct aom_write_bit_buffer *wb) {
     assert(seq_params->force_integer_mv == 2);
   }
 #endif
+
+#if CONFIG_EXPLICIT_ORDER_HINT
+  aom_wb_write_literal(wb, seq_params->order_hint_bits, 3);
+#endif
 }
 
 static void write_compound_tools(const AV1_COMMON *cm,
@@ -3083,6 +3087,10 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
   cm->frame_refs_short_signaling = 0;
 #endif  // CONFIG_FRAME_REFS_SIGNALING
 
+#if CONFIG_EXPLICIT_ORDER_HINT
+  aom_wb_write_literal(wb, cm->frame_offset, cm->seq_params.order_hint_bits);
+  // assert(cm->current_video_frame == cm->frame_offset);
+#else
   if (cm->show_frame == 0) {
     int arf_offset = AOMMIN(
         (MAX_GF_INTERVAL - 1),
@@ -3093,6 +3101,7 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
     arf_offset = AOMMIN((MAX_GF_INTERVAL - 1), arf_offset + brf_offset);
     aom_wb_write_literal(wb, arf_offset, FRAME_OFFSET_BITS);
   }
+#endif
 
   if (cm->frame_type == KEY_FRAME) {
     write_frame_size(cm, frame_size_override_flag, wb);
