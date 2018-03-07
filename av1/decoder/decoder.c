@@ -424,9 +424,11 @@ int av1_receive_compressed_data(AV1Decoder *pbi, size_t size,
     FrameWorkerData *const frame_worker_data = worker->data1;
     av1_frameworker_lock_stats(worker);
 
+#if !CONFIG_EXPLICIT_ORDER_HINT
     if (cm->show_frame) {
       cm->current_video_frame++;
     }
+#endif  // CONFIG_EXPLICIT_ORDER_HINT
     frame_worker_data->frame_decoded = 1;
     frame_worker_data->frame_context_ready = 1;
     av1_frameworker_signal_stats(worker);
@@ -436,9 +438,11 @@ int av1_receive_compressed_data(AV1Decoder *pbi, size_t size,
     cm->last_height = cm->height;
     cm->last_tile_cols = cm->tile_cols;
     cm->last_tile_rows = cm->tile_rows;
+#if !CONFIG_EXPLICIT_ORDER_HINT
     if (cm->show_frame) {
       cm->current_video_frame++;
     }
+#endif  // CONFIG_EXPLICIT_ORDER_HINT
   }
 
   cm->error.setjmp = 0;
