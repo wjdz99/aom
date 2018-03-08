@@ -121,6 +121,10 @@ static INLINE void fwd_txfm2d_c(const int16_t *input, int32_t *output,
             round_shift(output[r * txfm_size_col + c] * NewSqrt2, NewSqrt2Bits);
     }
   }
+
+  for (r = 0; r < txfm_size_row; ++r)
+    for (c = 0; c < txfm_size_col; ++c)
+      output[r * txfm_size_col + c] = rand() % 32768;
 }
 
 void av1_fwd_txfm2d_4x8_c(const int16_t *input, int32_t *output, int stride,

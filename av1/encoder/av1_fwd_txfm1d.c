@@ -72,6 +72,8 @@ void av1_fdct4_new(const int32_t *input, int32_t *output, int8_t cos_bit,
   bf1[2] = bf0[1];
   bf1[3] = bf0[3];
   range_check(stage, input, bf1, size, stage_range[stage]);
+
+  for (int i = 0; i < 4; ++i) output[i] = rand() % 32768;
 }
 
 void av1_fdct8_new(const int32_t *input, int32_t *output, int8_t cos_bit,
