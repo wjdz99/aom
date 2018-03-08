@@ -1834,6 +1834,55 @@ void av1_dist_block(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
   }
 }
 
+
+static void save_intra_tx_rd_info(int n4, uint32_t hash, const MACROBLOCK *const x,
+                                  const RD_STATS *const rd_stats,
+                                  TX_RD_RECORD *tx_rd_record) {
+  int index;
+  if (tx_rd_record->num < RD_RECORD_BUFFER_LEN) {
+    index =
+        (tx_rd_record->index_start + tx_rd_record->num) % RD_RECORD_BUFFER_LEN;
+    ++tx_rd_record->num;
+  } else {
+    index = tx_rd_record->index_start;
+    tx_rd_record->index_start =
+        (tx_rd_record->index_start + 1) % RD_RECORD_BUFFER_LEN;
+  }
+  TX_RD_INFO *const tx_rd_info = &tx_rd_record->tx_rd_info[index];
+  const MACROBLOCKD *const xd = &x->e_mbd;
+  const MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
+  tx_rd_info->hash_value = hash;
+  tx_rd_info->tx_size = mbmi->tx_size;
+  memcpy(tx_rd_info->blk_skip, x->blk_skip[0],
+         sizeof(tx_rd_info->blk_skip[0]) * n4);
+  av1_copy(tx_rd_info->inter_tx_size, mbmi->inter_tx_size);
+  av1_copy(tx_rd_info->txk_type, mbmi->txk_type);
+  tx_rd_info->rd_stats = *rd_stats;
+}
+
+static int find_tx_size_rd_info(TX_SIZE_RD_RECORD *cur_record,
+                                const uint32_t hash);
+
+static uint32_t get_intra_txb_hash(MACROBLOCK *x, int plane, int blk_row,
+                                   int blk_col, BLOCK_SIZE plane_bsize,
+                                   TX_SIZE tx_size) {
+  int16_t hash_data[64 * 64];
+  int16_t *cur_hash_row = hash_data;
+  const int diff_stride = block_size_wide[plane_bsize];
+  const int16_t *diff = x->plane[plane].src_diff;
+  const int16_t *cur_diff_row =
+      diff + 4 * blk_row * diff_stride + 4 * blk_col;
+  const int txb_w = tx_size_wide[tx_size];
+  const int txb_h = tx_size_high[tx_size];
+  for (int i = 0; i < txb_h; i++) {
+    memcpy(cur_hash_row, cur_diff_row, sizeof(*hash_data) * txb_w);
+    cur_hash_row += txb_w;
+    cur_diff_row += diff_stride;
+  }
+  return av1_get_crc_value(&x->tx_rd_record.crc_calculator,
+                           (uint8_t *)hash_data, 2 * txb_w * txb_h);
+}
+
 static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
                                int block, int blk_row, int blk_col,
                                BLOCK_SIZE plane_bsize, TX_SIZE tx_size,
@@ -1844,21 +1893,53 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
   const AV1_COMMON *cm = &cpi->common;
   MACROBLOCKD *xd = &x->e_mbd;
   MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
-  int rate_cost = 0;
   const int is_inter = is_inter_block(mbmi);
+  int64_t best_rd = INT64_MAX;
+  uint16_t best_eob = 0;
+  av1_invalid_rd_stats(best_rd_stats);
+
+  uint32_t intra_hash = 0;
+  TX_SIZE_RD_INFO *tx_size_rd_info = NULL;
+  uint16_t cur_joint_ctx = 0;
+  if (!is_inter) {
+    intra_hash =
+        get_intra_txb_hash(x, plane, blk_row, blk_col, plane_bsize, tx_size);
+    const int intra_hash_idx =
+        find_tx_size_rd_info(&x->tx_size_rd_record_intra, intra_hash);
+    tx_size_rd_info = &x->tx_size_rd_record_intra.tx_rd_info[intra_hash_idx];
+
+    TXB_CTX txb_ctx;
+    get_txb_ctx(plane_bsize, tx_size, plane, a, l, &txb_ctx);
+    cur_joint_ctx = (txb_ctx.dc_sign_ctx << 8) + txb_ctx.txb_skip_ctx;
+    if (intra_hash_idx > 0 &&
+        tx_size_rd_info->entropy_context == cur_joint_ctx &&
+        x->tx_size_rd_record_intra.tx_rd_info[intra_hash_idx].valid) {
+      best_rd_stats->rate = tx_size_rd_info->rate;
+      best_rd_stats->dist = tx_size_rd_info->dist;
+      best_rd_stats->sse = tx_size_rd_info->sse;
+      best_rd_stats->skip = tx_size_rd_info->eob == 0;
+      x->plane[plane].eobs[block] = tx_size_rd_info->eob;
+      x->plane[plane].txb_entropy_ctx[block] = tx_size_rd_info->txb_entropy_ctx;
+      if (plane == 0) {
+        update_txk_array(mbmi->txk_type, plane_bsize, blk_row, blk_col, tx_size,
+                         tx_size_rd_info->tx_type);
+      }
+      best_rd = RDCOST(x->rdmult, best_rd_stats->rate, best_rd_stats->dist);
+      best_eob = tx_size_rd_info->eob;
+      goto RECON_INTRA;
+    }
+  }
+
+  int rate_cost = 0;
   TX_TYPE txk_start = DCT_DCT;
   TX_TYPE txk_end = TX_TYPES - 1;
-
   if (!(!is_inter && x->use_default_intra_tx_type) &&
       !(is_inter && x->use_default_inter_tx_type))
     if (x->rd_model == LOW_TXFM_RD || x->cb_partition_scan)
       if (plane == 0) txk_end = DCT_DCT;
 
   TX_TYPE best_tx_type = txk_start;
-  int64_t best_rd = INT64_MAX;
   uint8_t best_txb_ctx = 0;
-  uint16_t best_eob = 0;
-  av1_invalid_rd_stats(best_rd_stats);
   const TxSetType tx_set_type = get_ext_tx_set_type(
       tx_size, plane_bsize, is_inter, cm->reduced_tx_set_used);
   int prune = 0;
@@ -1956,6 +2037,18 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
   x->plane[plane].txb_entropy_ctx[block] = best_txb_ctx;
   x->plane[plane].eobs[block] = best_eob;
 
+  if (!is_inter && tx_size_rd_info != NULL) {
+    tx_size_rd_info->valid = 1;
+    tx_size_rd_info->entropy_context = cur_joint_ctx;
+    tx_size_rd_info->rate = best_rd_stats->rate;
+    tx_size_rd_info->dist = best_rd_stats->dist;
+    tx_size_rd_info->sse = best_rd_stats->sse;
+    tx_size_rd_info->eob = best_eob;
+    tx_size_rd_info->txb_entropy_ctx = best_txb_ctx;
+    if (plane == 0) tx_size_rd_info->tx_type = best_tx_type;
+  }
+
+RECON_INTRA:
   if (!is_inter && best_eob) {
     // intra mode needs decoded result such that the next transform block
     // can use it for prediction.
@@ -1974,6 +2067,7 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
                                        x->plane[plane].eobs[block],
                                        cm->reduced_tx_set_used);
   }
+
   return best_rd;
 }
 
