@@ -1913,10 +1913,7 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
       av1_optimize_b(cpi, x, plane, blk_row, blk_col, block, plane_bsize,
                      tx_size, a, l, 1, &rate_cost);
       const int eob = x->plane[plane].eobs[block];
-      if (eob)
-        rate_cost +=
-            av1_tx_type_cost(cm, x, xd, mbmi->sb_type, plane, tx_size, tx_type);
-      else
+      if (eob == 0)
         rate_cost =
             av1_cost_coeffs(cpi, x, plane, blk_row, blk_col, block, tx_size,
                             scan_order, a, l, use_fast_coef_costing);
