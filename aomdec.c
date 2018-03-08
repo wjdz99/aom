@@ -493,7 +493,7 @@ static int main_loop(int argc, const char **argv_) {
   size_t bytes_in_buffer = 0, buffer_size = 0;
   FILE *infile;
   int frame_in = 0, frame_out = 0, flipuv = 0, noblit = 0;
-  int do_md5 = 0, progress = 0, frame_parallel = 0;
+  int do_md5 = 0, progress = 0;
   int stop_after = 0, postproc = 0, summary = 0, quiet = 1;
   int arg_skip = 0;
   int keep_going = 0;
@@ -600,12 +600,7 @@ static int main_loop(int argc, const char **argv_) {
       summary = 1;
     } else if (arg_match(&arg, &threadsarg, argi)) {
       cfg.threads = arg_parse_uint(&arg);
-    }
-#if CONFIG_AV1_DECODER
-    else if (arg_match(&arg, &frameparallelarg, argi))
-      frame_parallel = 1;
-#endif
-    else if (arg_match(&arg, &verbosearg, argi))
+    } else if (arg_match(&arg, &verbosearg, argi))
       quiet = 0;
     else if (arg_match(&arg, &scalearg, argi))
       do_scale = 1;
@@ -715,8 +710,7 @@ static int main_loop(int argc, const char **argv_) {
 
   if (!interface) interface = get_aom_decoder_by_index(0);
 
-  dec_flags = (postproc ? AOM_CODEC_USE_POSTPROC : 0) |
-              (frame_parallel ? AOM_CODEC_USE_FRAME_THREADING : 0);
+  dec_flags = (postproc ? AOM_CODEC_USE_POSTPROC : 0);
   if (aom_codec_dec_init(&decoder, interface->codec_interface(), &cfg,
                          dec_flags)) {
     fprintf(stderr, "Failed to initialize decoder: %s\n",
@@ -832,8 +826,7 @@ static int main_loop(int argc, const char **argv_) {
     aom_usec_timer_mark(&timer);
     dx_time += (unsigned int)aom_usec_timer_elapsed(&timer);
 
-    if (!frame_parallel &&
-        aom_codec_control(&decoder, AOMD_GET_FRAME_CORRUPTED, &corrupted)) {
+    if (aom_codec_control(&decoder, AOMD_GET_FRAME_CORRUPTED, &corrupted)) {
       warn("Failed AOM_GET_FRAME_CORRUPTED: %s", aom_codec_error(&decoder));
       if (!keep_going) goto fail;
     }
