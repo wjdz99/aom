@@ -867,8 +867,9 @@ static int optimize_txb(TxbInfo *txb_info, const LV_MAP_COEFF_COST *txb_costs,
 
   int non_zero_blk_rate =
       txb_costs->txb_skip_cost[txb_info->txb_ctx->txb_skip_ctx][0];
-  prev_eob_rd_cost =
-      RDCOST(txb_info->rdmult, accu_rate + non_zero_blk_rate, accu_dist);
+  non_zero_blk_rate += txb_info->tx_type_cost;
+  non_zero_blk_rate += accu_rate;
+  prev_eob_rd_cost = RDCOST(txb_info->rdmult, non_zero_blk_rate, accu_dist);
 
   int zero_blk_rate =
       txb_costs->txb_skip_cost[txb_info->txb_ctx->txb_skip_ctx][1];
@@ -883,14 +884,8 @@ static int optimize_txb(TxbInfo *txb_info, const LV_MAP_COEFF_COST *txb_costs,
   }
 
   // record total rate cost
-  *rate_cost = zero_blk_rd_cost <= prev_eob_rd_cost
-                   ? zero_blk_rate
-                   : accu_rate + non_zero_blk_rate;
-
-  if (txb_info->eob > 0) {
-    *rate_cost += txb_info->tx_type_cost;
-  }
-
+  *rate_cost =
+      zero_blk_rd_cost <= prev_eob_rd_cost ? zero_blk_rate : non_zero_blk_rate;
   return update;
 }
 
