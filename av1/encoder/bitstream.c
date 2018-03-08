@@ -617,10 +617,11 @@ static void write_ref_frames(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   }
 }
 
-static void write_filter_intra_mode_info(const MACROBLOCKD *xd,
+static void write_filter_intra_mode_info(const AV1_COMMON *cm,
+                                         const MACROBLOCKD *xd,
                                          const MB_MODE_INFO *const mbmi,
                                          aom_writer *w) {
-  if (av1_filter_intra_allowed(mbmi)) {
+  if (av1_filter_intra_allowed(cm, mbmi)) {
     aom_write_symbol(w, mbmi->filter_intra_mode_info.use_filter_intra,
                      xd->tile_ctx->filter_intra_cdfs[mbmi->sb_type], 2);
     if (mbmi->filter_intra_mode_info.use_filter_intra) {
@@ -1091,7 +1092,7 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
     if (av1_allow_palette(cm->allow_screen_content_tools, bsize))
       write_palette_mode_info(cm, xd, mi, mi_row, mi_col, w);
 
-    write_filter_intra_mode_info(xd, mbmi, w);
+    write_filter_intra_mode_info(cm, xd, mbmi, w);
   } else {
     int16_t mode_ctx;
 
@@ -1355,7 +1356,7 @@ static void write_mb_modes_kf(AV1_COMP *cpi, MACROBLOCKD *xd,
   if (av1_allow_palette(cm->allow_screen_content_tools, bsize))
     write_palette_mode_info(cm, xd, mi, mi_row, mi_col, w);
 
-  write_filter_intra_mode_info(xd, mbmi, w);
+  write_filter_intra_mode_info(cm, xd, mbmi, w);
 }
 
 #if CONFIG_RD_DEBUG
@@ -3332,6 +3333,8 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
   aom_wb_write_bit(wb, cm->reduced_tx_set_used);
 
   if (!frame_is_intra_only(cm)) write_global_motion(cpi, wb);
+
+  aom_wb_write_bit(wb, cm->allow_filter_intra);
 
 #if CONFIG_FILM_GRAIN_SHOWEX
   if (!cm->show_frame) {

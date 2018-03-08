@@ -3183,6 +3183,8 @@ static int read_uncompressed_header(AV1Decoder *pbi,
 
   if (!frame_is_intra_only(cm)) read_global_motion(cm, rb);
 
+  cm->allow_filter_intra = aom_rb_read_bit(rb);
+
 #if CONFIG_FILM_GRAIN_SHOWEX
   cm->showable_frame = 0;
   if (!cm->show_frame) {
