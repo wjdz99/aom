@@ -157,8 +157,7 @@ static int alloc_loop_filter(AV1_COMMON *cm) {
       (LoopFilterMask *)aom_calloc(cm->lf.lfm_num, sizeof(*cm->lf.lfm));
   if (!cm->lf.lfm) return 1;
 
-  unsigned int i;
-  for (i = 0; i < cm->lf.lfm_num; ++i) av1_zero(cm->lf.lfm[i]);
+  for (int i = 0; i < cm->lf.lfm_num; ++i) av1_zero(cm->lf.lfm[i]);
 
   return 0;
 }
