@@ -1999,6 +1999,8 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
 
   if (!(cm->allow_intrabc && NO_FILTER_FOR_IBC)) {
     // Loopfilter the whole frame.
+    for (int pl = 0; pl < MAX_MB_PLANE; ++pl) cm->lf.bitmask_built[pl] = 0;
+    cm->print = 2;
     if (endTile == cm->tile_rows * cm->tile_cols - 1)
       if (cm->lf.filter_level[0] || cm->lf.filter_level[1]) {
         av1_loop_filter_frame(get_frame_new_buffer(cm), cm, &pbi->mb,
