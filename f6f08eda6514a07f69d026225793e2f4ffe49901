@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "00fa0e3e_3b1a2228",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 4
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-03-08T22:24:19Z",
+      "side": 1,
+      "message": "These long lines need to be wrapped. 80 cols is the limit.",
+      "range": {
+        "startLine": 57,
+        "startChar": 0,
+        "endLine": 58,
+        "endChar": 94
+      },
+      "revId": "f6f08eda6514a07f69d026225793e2f4ffe49901",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
