@@ -93,6 +93,8 @@ typedef enum COMPOUND_DIST_WEIGHT_MODE {
 // bitmask construction.
 // Shall be removed when bitmask code is completely checkedin
 #define LOOP_FILTER_BITMASK 1
+typedef enum LF_PATH { LF_PATH_420; LF_PATH_444; LF_PATH_SLOW; }
+LF_PATH;
 
 // Bitstream profiles indicated by 2-3 bits in the uncompressed header.
 // 00: Profile 0.  8-bit 4:2:0 only.
