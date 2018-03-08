@@ -157,7 +157,7 @@ class CFLTestWithAlignedData : public CFLTest<F> {
         chroma_pels[j * CFL_BUF_LINE + i] = dc;
         chroma_pels_ref[j * CFL_BUF_LINE + i] = dc;
         sub_luma_pels_ref[j * CFL_BUF_LINE + i] =
-            sub_luma_pels[j * CFL_BUF_LINE + i] = this->rnd.Rand15Signed();
+            sub_luma_pels[j * CFL_BUF_LINE + i] = this->rnd(1 << (bd + 3));
       }
     }
   }
@@ -404,11 +404,16 @@ const sub_avg_param sub_avg_sizes_neon[] = { ALL_CFL_TX_SIZES(
 const subsample_param subsample_sizes_neon[] = { ALL_CFL_TX_SIZES(
     cfl_get_luma_subsampling_420_lbd_neon) };
 
+const predict_param predict_sizes_neon[] = { ALL_CFL_TX_SIZES(
+    get_predict_lbd_fn_neon) };
+
 INSTANTIATE_TEST_CASE_P(NEON, CFLSubAvgTest,
                         ::testing::ValuesIn(sub_avg_sizes_neon));
 
 INSTANTIATE_TEST_CASE_P(NEON, CFLSubsampleTest,
                         ::testing::ValuesIn(subsample_sizes_neon));
 
+INSTANTIATE_TEST_CASE_P(NEON, CFLPredictTest,
+                        ::testing::ValuesIn(predict_sizes_neon));
 #endif
 }  // namespace
