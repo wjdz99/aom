@@ -4080,6 +4080,60 @@ static void superres_post_encode(AV1_COMP *cpi) {
   }
 }
 
+static void print_frame_post(YV12_BUFFER_CONFIG *frame, int plane) {
+  FILE *pfile;
+  switch (plane) {
+    case 0: pfile = fopen("post_frame_y.txt", "a"); break;
+    case 1: pfile = fopen("post_frame_u.txt", "a"); break;
+    case 2: pfile = fopen("post_frame_v.txt", "a"); break;
+    default: assert(plane >= 0 && plane <= 2);
+  }
+
+  const int stride = frame->strides[plane > 0];
+  const int width = frame->crop_widths[plane > 0];
+  const int height = frame->crop_heights[plane > 0];
+  uint8_t *src = frame->buffers[plane];
+  const int use_highbitdepth = YV12_FLAG_HIGHBITDEPTH & frame->flags;
+  const uint16_t *src16 = use_highbitdepth ? CONVERT_TO_SHORTPTR(src) : NULL;
+  for (int r = 0; r < height; ++r) {
+    for (int c = 0; c < width; ++c) {
+      if (c) fprintf(pfile, " ");
+      if (use_highbitdepth)
+        fprintf(pfile, "%d", src16[r * stride + c]);
+      else
+        fprintf(pfile, "%d", src[r * stride + c]);
+    }
+    fprintf(pfile, "\n");
+  }
+}
+
+static void print_frame(YV12_BUFFER_CONFIG *frame, int plane) {
+  FILE *pfile;
+  switch (plane) {
+    case 0: pfile = fopen("frame_y.txt", "a"); break;
+    case 1: pfile = fopen("frame_u.txt", "a"); break;
+    case 2: pfile = fopen("frame_v.txt", "a"); break;
+    default: assert(plane >= 0 && plane <= 2);
+  }
+
+  const int stride = frame->strides[plane > 0];
+  const int width = frame->crop_widths[plane > 0];
+  const int height = frame->crop_heights[plane > 0];
+  uint8_t *src = frame->buffers[plane];
+  const int use_highbitdepth = YV12_FLAG_HIGHBITDEPTH & frame->flags;
+  const uint16_t *src16 = use_highbitdepth ? CONVERT_TO_SHORTPTR(src) : NULL;
+  for (int r = 0; r < height; ++r) {
+    for (int c = 0; c < width; ++c) {
+      if (c) fprintf(pfile, " ");
+      if (use_highbitdepth)
+        fprintf(pfile, "%d", src16[r * stride + c]);
+      else
+        fprintf(pfile, "%d", src[r * stride + c]);
+    }
+    fprintf(pfile, "\n");
+  }
+}
+
 static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
   const int num_planes = av1_num_planes(cm);
   MACROBLOCKD *xd = &cpi->td.mb.e_mbd;
@@ -4095,6 +4149,7 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
 
   struct loopfilter *lf = &cm->lf;
 
+  cm->print = 0;
   if (no_loopfilter) {
     lf->filter_level[0] = 0;
     lf->filter_level[1] = 0;
@@ -4105,13 +4160,25 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
 
     aom_usec_timer_start(&timer);
 
+    // set loop filter bitmask to 0
+    for (int i = 0; i < MAX_MB_PLANE; ++i) cm->lf.bitmask_built[i] = 0;
+
     av1_pick_filter_level(cpi->source, cpi, cpi->sf.lpf_pick);
+
+    assert(cm->lf.bitmask_built[0] && cm->lf.bitmask_built[1] &&
+           cm->lf.bitmask_built[2]);
 
     aom_usec_timer_mark(&timer);
     cpi->time_pick_lpf += aom_usec_timer_elapsed(&timer);
   }
 
+  fprintf(stderr, "\n level: %d, %d, %d, %d\n", lf->filter_level[0],
+          lf->filter_level[1], lf->filter_level_u, lf->filter_level_v);
   if (lf->filter_level[0] || lf->filter_level[1]) {
+    cm->print = 1;
+    print_frame(cm->frame_to_show, 0);
+    print_frame(cm->frame_to_show, 1);
+    print_frame(cm->frame_to_show, 2);
     av1_loop_filter_frame(cm->frame_to_show, cm, xd, lf->filter_level[0],
                           lf->filter_level[1], 0, 0);
     if (num_planes > 1) {
@@ -4120,6 +4187,9 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
       av1_loop_filter_frame(cm->frame_to_show, cm, xd, lf->filter_level_v,
                             lf->filter_level_v, 2, 0);
     }
+    print_frame_post(cm->frame_to_show, 0);
+    print_frame_post(cm->frame_to_show, 1);
+    print_frame_post(cm->frame_to_show, 2);
   }
 
   if (!no_restoration)
