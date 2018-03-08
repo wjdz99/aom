@@ -43,10 +43,8 @@ typedef struct OptTxbQcoeff {
 OptTxbQcoeff *hbt_hash_table;
 
 typedef struct LevelDownStats {
-  int update;
   tran_low_t low_qc;
   tran_low_t low_dqc;
-  int64_t dist0;
   int rate;
   int rate_low;
   int64_t dist;
@@ -54,10 +52,6 @@ typedef struct LevelDownStats {
   int64_t rd;
   int64_t rd_low;
   int64_t nz_rd;
-  int64_t rd_diff;
-  int cost_diff;
-  int64_t dist_diff;
-  int new_eob;
 } LevelDownStats;
 
 void av1_alloc_txb_buf(AV1_COMP *cpi) {
@@ -238,8 +232,6 @@ static void get_dist_cost_stats(LevelDownStats *const stats, const int scan_idx,
   const int coeff_idx = scan[scan_idx];
   const tran_low_t qc = txb_info->qcoeff[coeff_idx];
   const uint8_t *const levels = txb_info->levels;
-  stats->new_eob = -1;
-  stats->update = 0;
   stats->rd_low = 0;
   stats->rd = 0;
   stats->nz_rd = 0;
@@ -264,8 +256,8 @@ static void get_dist_cost_stats(LevelDownStats *const stats, const int scan_idx,
   const tran_low_t dqc0 =
       qcoeff_to_dqcoeff(0, coeff_idx, dqv, txb_info->shift, txb_info->iqmatrix);
 
-  stats->dist0 = get_coeff_dist(tqc, dqc0, txb_info->shift);
-  stats->dist = dqc_dist - stats->dist0;
+  int64_t dist0 = get_coeff_dist(tqc, dqc0, txb_info->shift);
+  stats->dist = dqc_dist - dist0;
   stats->rate = qc_cost;
 
   stats->rd = RDCOST(txb_info->rdmult, stats->rate, stats->dist);
@@ -282,7 +274,7 @@ static void get_dist_cost_stats(LevelDownStats *const stats, const int scan_idx,
                                          txb_info->shift, txb_info->iqmatrix);
       const int64_t low_dqc_dist =
           get_coeff_dist(tqc, stats->low_dqc, txb_info->shift);
-      stats->dist_low = low_dqc_dist - stats->dist0;
+      stats->dist_low = low_dqc_dist - dist0;
     }
     const int low_qc_cost = get_coeff_cost(stats->low_qc, scan_idx, is_eob,
                                            txb_info, txb_costs, coeff_ctx);
