@@ -759,26 +759,50 @@ static void check_loop_filter_masks(const LoopFilterMask *lfm) {
   }
 }
 
-// mi_row, mi_col represent the starting postion of the coding block for
-// which the mask is built. idx, idy represet the offset from the startint
-// point, in the unit of actual distance. For example (idx >> MI_SIZE_LOG2)
-// is in the unit of MI.
-// static void setup_masks()
+static void setup_masks() {
+  // place hoder
+}
 
 static void setup_tx_block_mask(AV1_COMMON *const cm, int mi_row, int mi_col,
-                                int mi_block_wide, int mi_block_high, int plane,
+                                int max_tx_wide, int max_tx_high, int plane,
                                 int subsampling_x, int subsampling_y,
                                 LoopFilterMask *lfm) {
-  // place hoder: build bitmask for a coding block.
-  (void)cm;
-  (void)mi_row;
-  (void)mi_col;
-  (void)mi_block_wide;
-  (void)mi_block_high;
-  (void)plane;
-  (void)subsampling_x;
-  (void)subsampling_y;
-  (void)lfm;
+  MODE_INFO **mi = cm->mi_grid_visible + mi_row * cm->mi_stride + mi_col;
+  const MB_MODE_INFO *const mbmi = &mi[0]->mbmi;
+  const TX_SIZE tx_size =
+      plane ? av1_get_uv_tx_size(mbmi, subsampling_x, subsampling_y)
+            : mbmi->tx_size;
+  const int tx_wide = tx_size_wide[tx_size];
+  const int tx_high = tx_size_high[tx_size];
+
+  max_tx_wide >>= subsampling_x;
+  max_tx_high >>= subsampling_y;
+
+  if (tx_wide == max_tx_wide && tx_high == max_tx_high) {
+    setup_masks();
+  } else {
+    int next_max_tx_wide;
+    int next_max_tx_high;
+    int blk_idx, blk_idy;
+
+    if (plane == 0) {
+      next_max_tx_wide = tx_wide == max_tx_wide ? tx_wide : max_tx_wide >> 1;
+      next_max_tx_high = tx_high == max_tx_high ? tx_high : max_tx_high >> 1;
+    } else {
+      // U, V plane always use largest tx size
+      next_max_tx_wide = tx_wide;
+      next_max_tx_high = tx_high;
+    }
+
+    for (blk_idy = 0; blk_idy < max_tx_high; blk_idy += next_max_tx_high) {
+      for (blk_idx = 0; blk_idx < max_tx_wide; blk_idx += next_max_tx_wide) {
+        const int mi_idx = blk_idx >> MI_SIZE_LOG2;
+        const int mi_idy = blk_idy >> MI_SIZE_LOG2;
+        setup_tx_block_mask(cm, mi_row + mi_idy, mi_col + mi_idx, tx_high,
+                            tx_wide, plane, subsampling_x, subsampling_y, lfm);
+      }
+    }
+  }
 }
 
 static void setup_block_mask(AV1_COMMON *const cm, int mi_row, int mi_col,
