@@ -3469,11 +3469,12 @@ static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
     }
 
     x->tx_rd_record.num = x->tx_rd_record.index_start = 0;
-    av1_zero(x->tx_size_rd_record_8X8);
-    av1_zero(x->tx_size_rd_record_16X16);
-    av1_zero(x->tx_size_rd_record_32X32);
-    av1_zero(x->tx_size_rd_record_64X64);
-    av1_zero(x->tx_size_rd_record_intra);
+
+    av1_zero(x->txb_rd_record_8X8);
+    av1_zero(x->txb_rd_record_16X16);
+    av1_zero(x->txb_rd_record_32X32);
+    av1_zero(x->txb_rd_record_64X64);
+    av1_zero(x->txb_rd_record_intra);
 
     av1_zero(x->pred_mv);
     pc_root->index = 0;
@@ -3593,10 +3594,11 @@ static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
         }
 
         x->tx_rd_record.num = x->tx_rd_record.index_start = 0;
-        av1_zero(x->tx_size_rd_record_8X8);
-        av1_zero(x->tx_size_rd_record_16X16);
-        av1_zero(x->tx_size_rd_record_32X32);
-        av1_zero(x->tx_size_rd_record_64X64);
+        av1_zero(x->txb_rd_record_8X8);
+        av1_zero(x->txb_rd_record_16X16);
+        av1_zero(x->txb_rd_record_32X32);
+        av1_zero(x->txb_rd_record_64X64);
+        av1_zero(x->txb_rd_record_intra);
         av1_zero(x->pred_mv);
         pc_root->index = 0;
 
