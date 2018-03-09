@@ -1,0 +1,135 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c09362ac_46024aa4",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-03-09T04:20:10Z",
+      "side": 1,
+      "message": "this could be a separate change, the other two are more closely related though it\u0027s possible they could be split too",
+      "revId": "a2522b68dfb5f8f05771e982de6c06b7d999986d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5460a818_cb91643a",
+        "filename": "av1/common/x86/av1_inv_txfm_ssse3.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-03-09T04:20:10Z",
+      "side": 1,
+      "message": "it\u0027s more common to not use ()s in these. this is consistent with the local file so they\u0027re OK to leave for this change",
+      "range": {
+        "startLine": 72,
+        "startChar": 16,
+        "endLine": 72,
+        "endChar": 17
+      },
+      "revId": "a2522b68dfb5f8f05771e982de6c06b7d999986d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6ca1fa8a_c0b01a85",
+        "filename": "av1/common/x86/av1_inv_txfm_ssse3.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 401,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-03-09T04:20:10Z",
+      "side": 1,
+      "message": "it\u0027d be great in a followup to normalize this variable name. the \u0027__\u0027 isn\u0027t necessary. it matches the existing code so for now it\u0027s OK.",
+      "range": {
+        "startLine": 401,
+        "startChar": 59,
+        "endLine": 401,
+        "endChar": 69
+      },
+      "revId": "a2522b68dfb5f8f05771e982de6c06b7d999986d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c1f24682_a9d22e36",
+        "filename": "av1/common/x86/av1_inv_txfm_ssse3.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 403,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-03-09T04:20:10Z",
+      "side": 1,
+      "message": "these can all be const",
+      "revId": "a2522b68dfb5f8f05771e982de6c06b7d999986d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2f11281a_608a3f71",
+        "filename": "av1/common/x86/av1_inv_txfm_ssse3.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-03-09T04:20:10Z",
+      "side": 1,
+      "message": "why bother with an assignment are the types coming in different? they shouldn\u0027t be. that is the argument for an inline function to convey the types of input parameters. I think Linfeng may have made this comment before.",
+      "revId": "a2522b68dfb5f8f05771e982de6c06b7d999986d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cbaf74c4_f834c5af",
+        "filename": "av1/common/x86/av1_inv_txfm_ssse3.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-03-09T04:20:10Z",
+      "side": 1,
+      "message": "any macro should be in a do {} while (0) to prevent side-effects",
+      "revId": "a2522b68dfb5f8f05771e982de6c06b7d999986d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fe467104_cf1ab17e",
+        "filename": "av1/common/x86/av1_inv_txfm_ssse3.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-03-09T04:20:10Z",
+      "side": 1,
+      "message": "const",
+      "revId": "a2522b68dfb5f8f05771e982de6c06b7d999986d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
