@@ -280,6 +280,10 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
       if (level >= MAX_BASE_BR_RANGE) {
         level += read_golomb(xd, r);
       }
+      // Bitmasking to clamp level to valid range:
+      //   The valid range for 8/10/12 bit vdieo are at most 14/16/18 bits
+      //   8/10 bit only decoder implementation may use mask 0xffff.
+      level &= 0xfffff;
       cul_level += level;
       tran_low_t dq_coeff;
       dq_coeff = level * get_dqv(dequant, scan[c], iqmatrix);
