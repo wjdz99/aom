@@ -1474,6 +1474,7 @@ static int motion_field_projection(AV1_COMMON *cm, MV_REFERENCE_FRAME ref_frame,
 }
 
 void av1_setup_motion_field(AV1_COMMON *cm) {
+  if (!cm->seq_params.enable_order_hint) return;
   int cur_frame_index = cm->cur_frame->cur_frame_offset;
   int alt_frame_index = 0, gld_frame_index = 0;
   int bwd_frame_index = 0, alt2_frame_index = 0;
