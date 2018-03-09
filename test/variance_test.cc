@@ -395,6 +395,7 @@ class MainTestClass
   void RefTest();
   void RefStrideTest();
   void OneQuarterTest();
+  void SpeedTest();
 
   // MSE/SSE tests
   void RefTestMse();
@@ -513,6 +514,28 @@ void MainTestClass<VarianceFunctionType>::OneQuarterTest() {
       var = params_.func(src_, width(), ref_, width(), &sse));
   expected = block_size() * 255 * 255 / 4;
   EXPECT_EQ(expected, var);
+}
+
+template <typename VarianceFunctionType>
+void MainTestClass<VarianceFunctionType>::SpeedTest() {
+  for (int j = 0; j < block_size(); j++) {
+    if (!use_high_bit_depth()) {
+      src_[j] = rnd_.Rand8();
+      ref_[j] = rnd_.Rand8();
+    } else {
+      CONVERT_TO_SHORTPTR(src_)[j] = rnd_.Rand16() & mask();
+      CONVERT_TO_SHORTPTR(ref_)[j] = rnd_.Rand16() & mask();
+    }
+  }
+  unsigned int sse1, var1, var2 = 0;
+  const int stride = width();
+  int run_time = 1000000000 / block_size();
+  for (int i = 0; i < run_time; ++i) {
+    var2 = var1;
+    ASM_REGISTER_STATE_CHECK(
+        var1 = params_.func(src_, stride, ref_, stride, &sse1));
+  }
+  EXPECT_EQ(var1, var2);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -791,6 +814,7 @@ TEST_P(AvxVarianceTest, Zero) { ZeroTest(); }
 TEST_P(AvxVarianceTest, Ref) { RefTest(); }
 TEST_P(AvxVarianceTest, RefStride) { RefStrideTest(); }
 TEST_P(AvxVarianceTest, OneQuarter) { OneQuarterTest(); }
+TEST_P(AvxVarianceTest, DISABLED_Speed) { SpeedTest(); }
 TEST_P(SumOfSquaresTest, Const) { ConstTest(); }
 TEST_P(SumOfSquaresTest, Ref) { RefTest(); }
 TEST_P(AvxSubpelVarianceTest, Ref) { RefTest(); }
@@ -816,7 +840,12 @@ INSTANTIATE_TEST_CASE_P(C, AvxMseTest,
 typedef TestParams<VarianceMxNFunc> VarianceParams;
 INSTANTIATE_TEST_CASE_P(
     C, AvxVarianceTest,
-    ::testing::Values(VarianceParams(6, 6, &aom_variance64x64_c),
+    ::testing::Values(VarianceParams(7, 7, &aom_variance128x128_c),
+                      VarianceParams(7, 6, &aom_variance128x64_c),
+                      VarianceParams(6, 7, &aom_variance64x128_c),
+                      VarianceParams(7, 5, &aom_variance128x32_c),
+                      VarianceParams(5, 7, &aom_variance32x128_c),
+                      VarianceParams(6, 6, &aom_variance64x64_c),
                       VarianceParams(6, 5, &aom_variance64x32_c),
                       VarianceParams(5, 6, &aom_variance32x64_c),
                       VarianceParams(5, 5, &aom_variance32x32_c),
@@ -1154,7 +1183,12 @@ INSTANTIATE_TEST_CASE_P(SSE2, AvxMseTest,
 
 INSTANTIATE_TEST_CASE_P(
     SSE2, AvxVarianceTest,
-    ::testing::Values(VarianceParams(6, 6, &aom_variance64x64_sse2),
+    ::testing::Values(VarianceParams(7, 7, &aom_variance128x128_sse2),
+                      VarianceParams(7, 6, &aom_variance128x64_sse2),
+                      VarianceParams(6, 7, &aom_variance64x128_sse2),
+                      VarianceParams(7, 5, &aom_variance128x32_sse2),
+                      VarianceParams(5, 7, &aom_variance32x128_sse2),
+                      VarianceParams(6, 6, &aom_variance64x64_sse2),
                       VarianceParams(6, 5, &aom_variance64x32_sse2),
                       VarianceParams(5, 6, &aom_variance32x64_sse2),
                       VarianceParams(5, 5, &aom_variance32x32_sse2),
@@ -1479,7 +1513,12 @@ INSTANTIATE_TEST_CASE_P(AVX2, AvxMseTest,
 
 INSTANTIATE_TEST_CASE_P(
     AVX2, AvxVarianceTest,
-    ::testing::Values(VarianceParams(6, 6, &aom_variance64x64_avx2),
+    ::testing::Values(VarianceParams(7, 7, &aom_variance128x128_avx2),
+                      VarianceParams(7, 6, &aom_variance128x64_avx2),
+                      VarianceParams(6, 7, &aom_variance64x128_avx2),
+                      VarianceParams(7, 5, &aom_variance128x32_avx2),
+                      VarianceParams(5, 7, &aom_variance32x128_avx2),
+                      VarianceParams(6, 6, &aom_variance64x64_avx2),
                       VarianceParams(6, 5, &aom_variance64x32_avx2),
                       VarianceParams(5, 5, &aom_variance32x32_avx2),
                       VarianceParams(5, 4, &aom_variance32x16_avx2),
