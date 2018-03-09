@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "a7ff275f_5515a825",
+        "filename": "av1/common/reconinter.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 943,
+      "author": {
+        "id": 5975
+      },
+      "writtenOn": "2018-03-09T11:45:25Z",
+      "side": 1,
+      "message": "Not quite - the case that this patch addresses is the sub-8x8 but not sub8x8_inter case.\n\nConsider a chroma reference block which is inter and has sb_type \u003c BLOCK_8X8. This can potentially cover several luma blocks. We set sub8x8_inter (and go through the special path) if all of the covered blocks are inter (+ some extra conditions). Otherwise, we continue down the normal prediction path. The problem was that, if we went down the normal path and were using scaling, we weren\u0027t applying the same adjustment as in all the other cases.\n\n(note that https://aomedia-review.googlesource.com/c/aom/+/48886 fixed the \"sub8x8_inter and scaling\" case, which was previously also wrong)\n\nThe addition of \u0027\u0026\u0026 !build_for_obmc\u0027 here is because all OBMC predictions also use the non-sub8x8_inter path. But they\u0027re a little different - bsize is set to the size of the above/left block, *not* of the current block, while the adjustment needs to be based on the size of the current block. But we\u0027re lucky - the current block must be at least 8x8 in size in order to use OBMC, so we can get away with just adding this condition here.",
+      "parentUuid": "249bfc12_a4930bc8",
+      "revId": "5d37baada45e6fa4f1abaa58384ab3772d087d88",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7b17695c_27566ae1",
         "filename": "av1/common/reconinter.c",
         "patchSetId": 4
@@ -30,6 +48,24 @@
       "writtenOn": "2018-03-08T19:28:22Z",
       "side": 1,
       "message": "Could you merge this \u0027if\u0027 with the \u0027if\u0027 above while we are at it?",
+      "revId": "5d37baada45e6fa4f1abaa58384ab3772d087d88",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "02331043_6a0cee8f",
+        "filename": "av1/common/reconinter.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 961,
+      "author": {
+        "id": 5975
+      },
+      "writtenOn": "2018-03-09T11:45:25Z",
+      "side": 1,
+      "message": "We can\u0027t do that, as the \u0027if\u0027 block above might set sub8x8_inter to 0.",
+      "parentUuid": "7b17695c_27566ae1",
       "revId": "5d37baada45e6fa4f1abaa58384ab3772d087d88",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
@@ -50,6 +86,24 @@
       "revId": "5d37baada45e6fa4f1abaa58384ab3772d087d88",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "555cf420_f2d6ace7",
+        "filename": "av1/common/reconinter.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1023,
+      "author": {
+        "id": 5975
+      },
+      "writtenOn": "2018-03-09T11:45:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8d3956a8_aefbf350",
+      "revId": "5d37baada45e6fa4f1abaa58384ab3772d087d88",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
