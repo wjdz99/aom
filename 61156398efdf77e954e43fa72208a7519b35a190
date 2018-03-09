@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9c827414_26608629",
+        "filename": "av1/decoder/decodetxb.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 285,
+      "author": {
+        "id": 8487
+      },
+      "writtenOn": "2018-03-09T19:56:36Z",
+      "side": 1,
+      "message": "NO! Decoders that fully conform to the spec cannot simply decide to drop a few bits here, even though it is very unlikely that it will make a difference in the end",
+      "revId": "61156398efdf77e954e43fa72208a7519b35a190",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
