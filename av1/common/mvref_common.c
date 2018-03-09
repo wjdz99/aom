@@ -1316,7 +1316,8 @@ void av1_setup_frame_sign_bias(AV1_COMMON *cm) {
   MV_REFERENCE_FRAME ref_frame;
   for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
     const int buf_idx = cm->frame_refs[ref_frame - LAST_FRAME].idx;
-    if (cm->seq_params.enable_order_hint && buf_idx != INVALID_IDX) {
+    if (cm->seq_params.enable_order_hint && !cm->error_resilient_mode &&
+        buf_idx != INVALID_IDX) {
       const int ref_frame_offset =
           cm->buffer_pool->frame_bufs[buf_idx].cur_frame_offset;
       cm->ref_frame_sign_bias[ref_frame] =
@@ -1508,16 +1509,18 @@ void av1_setup_motion_field(AV1_COMMON *cm) {
         cm->buffer_pool->frame_bufs[alt2_buf_idx].cur_frame_offset;
 
   memset(cm->ref_frame_side, 0, sizeof(cm->ref_frame_side));
-  for (int ref_frame = LAST_FRAME; ref_frame <= INTER_REFS_PER_FRAME;
-       ++ref_frame) {
-    int buf_idx = cm->frame_refs[ref_frame - LAST_FRAME].idx;
-    int frame_index = -1;
-    if (buf_idx >= 0)
-      frame_index = cm->buffer_pool->frame_bufs[buf_idx].cur_frame_offset;
-    if (frame_index > cur_frame_index)
-      cm->ref_frame_side[ref_frame] = 1;
-    else if (frame_index == cur_frame_index)
-      cm->ref_frame_side[ref_frame] = -1;
+  if (cm->seq_params.enable_order_hint && !cm->error_resilient_mode) {
+    for (int ref_frame = LAST_FRAME; ref_frame <= INTER_REFS_PER_FRAME;
+         ++ref_frame) {
+      int buf_idx = cm->frame_refs[ref_frame - LAST_FRAME].idx;
+      int frame_index = -1;
+      if (buf_idx >= 0)
+        frame_index = cm->buffer_pool->frame_bufs[buf_idx].cur_frame_offset;
+      if (frame_index > cur_frame_index)
+        cm->ref_frame_side[ref_frame] = 1;
+      else if (frame_index == cur_frame_index)
+        cm->ref_frame_side[ref_frame] = -1;
+    }
   }
 
   int ref_stamp = MFMV_STACK_SIZE - 1;
@@ -1852,6 +1855,7 @@ int findSamples(const AV1_COMMON *cm, MACROBLOCKD *xd, int mi_row, int mi_col,
 
 void av1_setup_skip_mode_allowed(AV1_COMMON *cm) {
   cm->is_skip_mode_allowed = 0;
+  if (!cm->seq_params.enable_order_hint || cm->error_resilient_mode) return;
   cm->ref_frame_idx_0 = cm->ref_frame_idx_1 = INVALID_IDX;
 
   if (frame_is_intra_only(cm) || cm->reference_mode == SINGLE_REFERENCE) return;
