@@ -22,6 +22,30 @@
       "revId": "2cc656d1497b955bf9ba8f37679af5d97640f0bf",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3838ec33_4403f864",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1919,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2018-03-09T22:25:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a2dc863e_9be7a225",
+      "range": {
+        "startLine": 1916,
+        "startChar": 6,
+        "endLine": 1919,
+        "endChar": 69
+      },
+      "revId": "2cc656d1497b955bf9ba8f37679af5d97640f0bf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
