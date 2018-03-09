@@ -2566,7 +2566,7 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
 #if CONFIG_AMVR
   cm->seq_params.force_integer_mv = 2;
 #endif
-  cm->disable_intra_edge_filter = 0;
+  cm->enable_intra_edge_filter = 1;
   cm->allow_filter_intra = 1;
 }
 
