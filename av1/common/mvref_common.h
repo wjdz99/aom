@@ -405,7 +405,7 @@ static INLINE uint8_t av1_drl_ctx(const CANDIDATE_MV *ref_mv_stack,
 }
 
 static INLINE int av1_is_compound_reference_allowed(const AV1_COMMON *cm) {
-  if (frame_is_intra_only(cm)) return 0;
+  if (frame_is_intra_only(cm) || cm->error_resilient_mode) return 0;
   // Check whether two different reference frames exist.
   int ref, ref_offset0;
   int is_comp_allowed = 0;
