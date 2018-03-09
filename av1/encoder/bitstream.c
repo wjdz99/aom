@@ -3332,12 +3332,13 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
 
   write_tx_mode(cm, &cm->tx_mode, wb);
 
-  if (cpi->allow_comp_inter_inter) {
+  if (cpi->allow_comp_inter_inter && !cm->error_resilient_mode) {
     const int use_hybrid_pred = cm->reference_mode == REFERENCE_MODE_SELECT;
 
     aom_wb_write_bit(wb, use_hybrid_pred);
   }
 
+  assert(cm->error_resilient_mode ? !cm->is_skip_mode_allowed : 1);
   if (cm->is_skip_mode_allowed) aom_wb_write_bit(wb, cm->skip_mode_flag);
 
   write_compound_tools(cm, wb);
