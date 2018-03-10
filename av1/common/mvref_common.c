@@ -1854,7 +1854,9 @@ void av1_setup_skip_mode_allowed(AV1_COMMON *cm) {
   cm->is_skip_mode_allowed = 0;
   cm->ref_frame_idx_0 = cm->ref_frame_idx_1 = INVALID_IDX;
 
-  if (frame_is_intra_only(cm) || cm->reference_mode == SINGLE_REFERENCE) return;
+  if (!cm->seq_params.enable_order_hint || frame_is_intra_only(cm) ||
+      cm->error_resilient_mode || cm->reference_mode == SINGLE_REFERENCE)
+    return;
 
   RefCntBuffer *const frame_bufs = cm->buffer_pool->frame_bufs;
   const int cur_frame_offset = cm->frame_offset;
