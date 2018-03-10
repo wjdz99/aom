@@ -110,7 +110,7 @@ static INLINE void smooth_predictor(uint8_t *dst, ptrdiff_t stride, int bw,
       for (i = 0; i < 4; ++i) {
         this_pred += weights[i] * pixels[i];
       }
-      dst[c] = clip_pixel(divide_round(this_pred, log2_scale));
+      dst[c] = divide_round(this_pred, log2_scale);
     }
     dst += stride;
   }
@@ -428,7 +428,7 @@ static INLINE void highbd_smooth_predictor(uint16_t *dst, ptrdiff_t stride,
       for (i = 0; i < 4; ++i) {
         this_pred += weights[i] * pixels[i];
       }
-      dst[c] = clip_pixel_highbd(divide_round(this_pred, log2_scale), bd);
+      dst[c] = divide_round(this_pred, log2_scale);
     }
     dst += stride;
   }
