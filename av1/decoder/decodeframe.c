@@ -2632,6 +2632,12 @@ static int read_uncompressed_header(AV1Decoder *pbi,
   BufferPool *const pool = cm->buffer_pool;
   RefCntBuffer *const frame_bufs = pool->frame_bufs;
 
+  if (cm->seq_params.sb_size != BLOCK_64X64 &&
+      cm->seq_params.sb_size != BLOCK_128X128) {
+    aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
+                       "Invalid superblock size");
+  }
+
   cm->last_frame_type = cm->frame_type;
   cm->last_intra_only = cm->intra_only;
 

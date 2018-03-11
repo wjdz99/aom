@@ -374,6 +374,9 @@ static aom_codec_err_t init_decoder(aom_codec_alg_priv_t *ctx) {
     frame_worker_data->scratch_buffer_size = 0;
     frame_worker_data->frame_context_ready = 0;
     frame_worker_data->received_frame = 0;
+    frame_worker_data->pbi->common.seq_params.sb_size = BLOCK_128X128;
+    frame_worker_data->pbi->common.seq_params.mib_size = 32;
+    frame_worker_data->pbi->common.seq_params.mib_size_log2 = 5;
 #if CONFIG_MULTITHREAD
     if (pthread_mutex_init(&frame_worker_data->stats_mutex, NULL)) {
       set_error_detail(ctx, "Failed to allocate frame_worker_data mutex");
