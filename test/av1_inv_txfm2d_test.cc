@@ -324,12 +324,10 @@ INSTANTIATE_TEST_CASE_P(SSSE3, AV1LbdInvTxfm2d,
 #endif  // _MSC_VER || __SSSE3__
 #endif  // HAVE_SSSE3
 
-#if HAVE_AVX2
-#if defined(_MSC_VER) || defined(__AVX2__)
+#if HAVE_AVX2 && HAVE_SSSE3 && HAVE_SSE2
 #include "av1/common/x86/av1_inv_txfm_avx2.h"
 INSTANTIATE_TEST_CASE_P(AVX2, AV1LbdInvTxfm2d,
                         ::testing::Values(av1_lowbd_inv_txfm2d_add_avx2));
-#endif  // (_MSC_VER) || (__AVX2__)
 #endif  // HAVE_AVX2
 
 }  // namespace
