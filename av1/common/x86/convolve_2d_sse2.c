@@ -29,7 +29,7 @@ void av1_convolve_2d_sse2(const uint8_t *src, int src_stride, uint8_t *dst0,
   (void)dst0;
   (void)dst_stride0;
 
-  DECLARE_ALIGNED(16, int16_t,
+  DECLARE_ALIGNED(32, int16_t,
                   im_block[(MAX_SB_SIZE + MAX_FILTER_TAP - 1) * MAX_SB_SIZE]);
   int im_h = h + filter_params_y->taps - 1;
   int im_stride = MAX_SB_SIZE;
@@ -218,7 +218,7 @@ void av1_convolve_2d_sr_sse2(const uint8_t *src, int src_stride, uint8_t *dst,
                              ConvolveParams *conv_params) {
   const int bd = 8;
 
-  DECLARE_ALIGNED(16, int16_t,
+  DECLARE_ALIGNED(32, int16_t,
                   im_block[(MAX_SB_SIZE + MAX_FILTER_TAP - 1) * MAX_SB_SIZE]);
   int im_h = h + filter_params_y->taps - 1;
   int im_stride = MAX_SB_SIZE;

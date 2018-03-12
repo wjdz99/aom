@@ -110,7 +110,7 @@ void av1_alloc_restoration_buffers(AV1_COMMON *cm) {
 
   if (cm->rst_tmpbuf == NULL) {
     CHECK_MEM_ERROR(cm, cm->rst_tmpbuf,
-                    (int32_t *)aom_memalign(16, RESTORATION_TMPBUF_SIZE));
+                    (int32_t *)aom_memalign(32, RESTORATION_TMPBUF_SIZE));
   }
 
   // For striped loop restoration, we divide each row of tiles into "stripes",

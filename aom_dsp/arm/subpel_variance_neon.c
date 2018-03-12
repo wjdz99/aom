@@ -78,8 +78,8 @@ unsigned int aom_sub_pixel_variance8x8_neon(const uint8_t *src, int src_stride,
                                             int xoffset, int yoffset,
                                             const uint8_t *dst, int dst_stride,
                                             unsigned int *sse) {
-  DECLARE_ALIGNED(16, uint8_t, temp2[8 * 8]);
-  DECLARE_ALIGNED(16, uint8_t, fdata3[9 * 8]);
+  DECLARE_ALIGNED(32, uint8_t, temp2[8 * 8]);
+  DECLARE_ALIGNED(32, uint8_t, fdata3[9 * 8]);
 
   var_filter_block2d_bil_w8(src, fdata3, src_stride, 1, 9, 8,
                             bilinear_filters[xoffset]);
@@ -93,8 +93,8 @@ unsigned int aom_sub_pixel_variance16x16_neon(const uint8_t *src,
                                               int yoffset, const uint8_t *dst,
                                               int dst_stride,
                                               unsigned int *sse) {
-  DECLARE_ALIGNED(16, uint8_t, temp2[16 * 16]);
-  DECLARE_ALIGNED(16, uint8_t, fdata3[17 * 16]);
+  DECLARE_ALIGNED(32, uint8_t, temp2[16 * 16]);
+  DECLARE_ALIGNED(32, uint8_t, fdata3[17 * 16]);
 
   var_filter_block2d_bil_w16(src, fdata3, src_stride, 1, 17, 16,
                              bilinear_filters[xoffset]);
@@ -108,8 +108,8 @@ unsigned int aom_sub_pixel_variance32x32_neon(const uint8_t *src,
                                               int yoffset, const uint8_t *dst,
                                               int dst_stride,
                                               unsigned int *sse) {
-  DECLARE_ALIGNED(16, uint8_t, temp2[32 * 32]);
-  DECLARE_ALIGNED(16, uint8_t, fdata3[33 * 32]);
+  DECLARE_ALIGNED(32, uint8_t, temp2[32 * 32]);
+  DECLARE_ALIGNED(32, uint8_t, fdata3[33 * 32]);
 
   var_filter_block2d_bil_w16(src, fdata3, src_stride, 1, 33, 32,
                              bilinear_filters[xoffset]);
@@ -123,8 +123,8 @@ unsigned int aom_sub_pixel_variance64x64_neon(const uint8_t *src,
                                               int yoffset, const uint8_t *dst,
                                               int dst_stride,
                                               unsigned int *sse) {
-  DECLARE_ALIGNED(16, uint8_t, temp2[64 * 64]);
-  DECLARE_ALIGNED(16, uint8_t, fdata3[65 * 64]);
+  DECLARE_ALIGNED(32, uint8_t, temp2[64 * 64]);
+  DECLARE_ALIGNED(32, uint8_t, fdata3[65 * 64]);
 
   var_filter_block2d_bil_w16(src, fdata3, src_stride, 1, 65, 64,
                              bilinear_filters[xoffset]);

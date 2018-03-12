@@ -90,7 +90,7 @@ typedef enum TX_CLASS {
   TX_CLASSES = 3,
 } TX_CLASS;
 
-DECLARE_ALIGNED(16, extern const uint8_t, av1_pt_energy_class[ENTROPY_TOKENS]);
+DECLARE_ALIGNED(32, extern const uint8_t, av1_pt_energy_class[ENTROPY_TOKENS]);
 
 #define CAT1_MIN_VAL 5
 #define CAT2_MIN_VAL 7
@@ -176,10 +176,10 @@ void av1_adapt_coef_probs(struct AV1Common *cm);
 // This macro is currently unused but may be used by certain implementations
 #define MAXBAND_INDEX 21
 
-DECLARE_ALIGNED(16, extern const uint8_t,
+DECLARE_ALIGNED(32, extern const uint8_t,
                 av1_coefband_trans_8x8plus[MAX_TX_SQUARE]);
-DECLARE_ALIGNED(16, extern const uint8_t, av1_coefband_trans_4x8_8x4[32]);
-DECLARE_ALIGNED(16, extern const uint8_t, av1_coefband_trans_4x4[16]);
+DECLARE_ALIGNED(32, extern const uint8_t, av1_coefband_trans_4x8_8x4[32]);
+DECLARE_ALIGNED(32, extern const uint8_t, av1_coefband_trans_4x4[16]);
 
 static INLINE const uint8_t *get_band_translate(TX_SIZE tx_size) {
   switch (tx_size) {
