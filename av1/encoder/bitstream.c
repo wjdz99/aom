@@ -3170,6 +3170,24 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
       cm->is_reference_frame = 0;
     }
 
+#if CONFIG_EXPLICIT_ORDER_HINT
+    // Write all ref frame order hints if error_resilient_mode == 1 and
+    // large_scale_tile == 0
+    if (cm->error_resilient_mode && cm->seq_params.enable_order_hint &&
+        !cm->large_scale_tile) {
+      RefCntBuffer *const frame_bufs = cm->buffer_pool->frame_bufs;
+      for (int ref_idx = 0; ref_idx < REF_FRAMES; ref_idx++) {
+        // Get buffer index
+        const int buf_idx = cm->ref_frame_map[ref_idx];
+        assert(buf_idx >= 0 && buf_idx < FRAME_BUFFERS);
+
+        // Write order hint to bit stream
+        aom_wb_write_literal(wb, frame_bufs[buf_idx].cur_frame_offset,
+                             cm->seq_params.order_hint_bits_minus1 + 1);
+      }
+    }
+#endif  // CONFIG_EXPLICIT_ORDER_HINT
+
 #if CONFIG_FRAME_REFS_SIGNALING
     // TODO(zoeliu@google.com): To complete the encoder-side implementation
     // for the scenario cm->frame_refs_short_signaling == 1.
