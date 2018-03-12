@@ -18,13 +18,13 @@
 void av1_filter_intra_edge_sse4_1(uint8_t *p, int sz, int strength) {
   if (!strength) return;
 
-  DECLARE_ALIGNED(16, static const int8_t, kern[3][16]) = {
+  DECLARE_ALIGNED(32, static const int8_t, kern[3][16]) = {
     { 4, 8, 4, 0, 4, 8, 4, 0, 4, 8, 4, 0, 4, 8, 4, 0 },  // strength 1: 4,8,4
     { 5, 6, 5, 0, 5, 6, 5, 0, 5, 6, 5, 0, 5, 6, 5, 0 },  // strength 2: 5,6,5
     { 2, 4, 4, 4, 2, 0, 0, 0, 2, 4, 4, 4, 2, 0, 0, 0 }  // strength 3: 2,4,4,4,2
   };
 
-  DECLARE_ALIGNED(16, static const int8_t, v_const[5][16]) = {
+  DECLARE_ALIGNED(32, static const int8_t, v_const[5][16]) = {
     { 0, 1, 2, 3, 1, 2, 3, 4, 2, 3, 4, 5, 3, 4, 5, 6 },
     { 4, 5, 6, 7, 5, 6, 7, 8, 6, 7, 8, 9, 7, 8, 9, 10 },
     { 0, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 8 },
@@ -116,13 +116,13 @@ void av1_filter_intra_edge_sse4_1(uint8_t *p, int sz, int strength) {
 void av1_filter_intra_edge_high_sse4_1(uint16_t *p, int sz, int strength) {
   if (!strength) return;
 
-  DECLARE_ALIGNED(16, static const int16_t, kern[3][8]) = {
+  DECLARE_ALIGNED(32, static const int16_t, kern[3][8]) = {
     { 4, 8, 4, 8, 4, 8, 4, 8 },  // strength 1: 4,8,4
     { 5, 6, 5, 6, 5, 6, 5, 6 },  // strength 2: 5,6,5
     { 2, 4, 2, 4, 2, 4, 2, 4 }   // strength 3: 2,4,4,4,2
   };
 
-  DECLARE_ALIGNED(16, static const int16_t,
+  DECLARE_ALIGNED(32, static const int16_t,
                   v_const[1][8]) = { { 0, 1, 2, 3, 4, 5, 6, 7 } };
 
   // Extend the first and last samples to simplify the loop for the 5-tap case
@@ -208,11 +208,11 @@ void av1_upsample_intra_edge_sse4_1(uint8_t *p, int sz) {
   // interpolate half-sample positions
   assert(sz <= 24);
 
-  DECLARE_ALIGNED(16, static const int8_t, kernel[1][16]) = {
+  DECLARE_ALIGNED(32, static const int8_t, kernel[1][16]) = {
     { -1, 9, 9, -1, -1, 9, 9, -1, -1, 9, 9, -1, -1, 9, 9, -1 }
   };
 
-  DECLARE_ALIGNED(16, static const int8_t, v_const[2][16]) = {
+  DECLARE_ALIGNED(32, static const int8_t, v_const[2][16]) = {
     { 0, 1, 2, 3, 1, 2, 3, 4, 2, 3, 4, 5, 3, 4, 5, 6 },
     { 4, 5, 6, 7, 5, 6, 7, 8, 6, 7, 8, 9, 7, 8, 9, 10 }
   };
@@ -268,7 +268,7 @@ void av1_upsample_intra_edge_high_sse4_1(uint16_t *p, int sz, int bd) {
   // interpolate half-sample positions
   assert(sz <= 24);
 
-  DECLARE_ALIGNED(16, static const int16_t,
+  DECLARE_ALIGNED(32, static const int16_t,
                   kernel[1][8]) = { { -1, 9, -1, 9, -1, 9, -1, 9 } };
 
   // Extend first/last samples (upper-left p[-1], last p[sz-1])

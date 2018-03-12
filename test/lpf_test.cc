@@ -176,15 +176,15 @@ typedef LoopTestParam<dual_loop_op_t, dual_loop_param_t> Loop8Test9Param_lbd;
   for (int i = 0; i < count_test_block; ++i) {                                 \
     int err_count = 0;                                                         \
     uint8_t tmp = GetOuterThresh(&rnd);                                        \
-    DECLARE_ALIGNED(16, const uint8_t,                                         \
+    DECLARE_ALIGNED(32, const uint8_t,                                         \
                     blimit[16]) = { tmp, tmp, tmp, tmp, tmp, tmp, tmp, tmp,    \
                                     tmp, tmp, tmp, tmp, tmp, tmp, tmp, tmp };  \
     tmp = GetInnerThresh(&rnd);                                                \
-    DECLARE_ALIGNED(16, const uint8_t,                                         \
+    DECLARE_ALIGNED(32, const uint8_t,                                         \
                     limit[16]) = { tmp, tmp, tmp, tmp, tmp, tmp, tmp, tmp,     \
                                    tmp, tmp, tmp, tmp, tmp, tmp, tmp, tmp };   \
     tmp = GetHevThresh(&rnd);                                                  \
-    DECLARE_ALIGNED(16, const uint8_t,                                         \
+    DECLARE_ALIGNED(32, const uint8_t,                                         \
                     thresh[16]) = { tmp, tmp, tmp, tmp, tmp, tmp, tmp, tmp,    \
                                     tmp, tmp, tmp, tmp, tmp, tmp, tmp, tmp };  \
     InitInput<a, b>(s, ref_s, &rnd, *limit, mask_, p, i);                      \
@@ -218,15 +218,15 @@ TEST_P(Loop8Test6Param_lbd, OperationCheck) { OPCHECK(uint8_t, 8); }
   for (int i = 0; i < count_test_block; ++i) {                                 \
     int err_count = 0;                                                         \
     uint8_t tmp = GetOuterThresh(&rnd);                                        \
-    DECLARE_ALIGNED(16, const uint8_t,                                         \
+    DECLARE_ALIGNED(32, const uint8_t,                                         \
                     blimit[16]) = { tmp, tmp, tmp, tmp, tmp, tmp, tmp, tmp,    \
                                     tmp, tmp, tmp, tmp, tmp, tmp, tmp, tmp };  \
     tmp = GetInnerThresh(&rnd);                                                \
-    DECLARE_ALIGNED(16, const uint8_t,                                         \
+    DECLARE_ALIGNED(32, const uint8_t,                                         \
                     limit[16]) = { tmp, tmp, tmp, tmp, tmp, tmp, tmp, tmp,     \
                                    tmp, tmp, tmp, tmp, tmp, tmp, tmp, tmp };   \
     tmp = GetHevThresh(&rnd);                                                  \
-    DECLARE_ALIGNED(16, const uint8_t,                                         \
+    DECLARE_ALIGNED(32, const uint8_t,                                         \
                     thresh[16]) = { tmp, tmp, tmp, tmp, tmp, tmp, tmp, tmp,    \
                                     tmp, tmp, tmp, tmp, tmp, tmp, tmp, tmp };  \
     int32_t p = kNumCoeffs / 32;                                               \
@@ -260,15 +260,15 @@ TEST_P(Loop8Test6Param_lbd, ValueCheck) { VALCHECK(uint8_t, 8); }
   const int32_t bd = bit_depth_;                                              \
   DECLARE_ALIGNED(b, a, s[kNumCoeffs]);                                       \
   uint8_t tmp = GetOuterThresh(&rnd);                                         \
-  DECLARE_ALIGNED(16, const uint8_t,                                          \
+  DECLARE_ALIGNED(32, const uint8_t,                                          \
                   blimit[16]) = { tmp, tmp, tmp, tmp, tmp, tmp, tmp, tmp,     \
                                   tmp, tmp, tmp, tmp, tmp, tmp, tmp, tmp };   \
   tmp = GetInnerThresh(&rnd);                                                 \
-  DECLARE_ALIGNED(16, const uint8_t,                                          \
+  DECLARE_ALIGNED(32, const uint8_t,                                          \
                   limit[16]) = { tmp, tmp, tmp, tmp, tmp, tmp, tmp, tmp,      \
                                  tmp, tmp, tmp, tmp, tmp, tmp, tmp, tmp };    \
   tmp = GetHevThresh(&rnd);                                                   \
-  DECLARE_ALIGNED(16, const uint8_t,                                          \
+  DECLARE_ALIGNED(32, const uint8_t,                                          \
                   thresh[16]) = { tmp, tmp, tmp, tmp, tmp, tmp, tmp, tmp,     \
                                   tmp, tmp, tmp, tmp, tmp, tmp, tmp, tmp };   \
   int32_t p = kNumCoeffs / 32;                                                \
@@ -292,27 +292,27 @@ TEST_P(Loop8Test6Param_lbd, DISABLED_Speed) { SPEEDCHECK(uint8_t, 8); }
   for (int i = 0; i < count_test_block; ++i) {                                 \
     int err_count = 0;                                                         \
     uint8_t tmp = GetOuterThresh(&rnd);                                        \
-    DECLARE_ALIGNED(16, const uint8_t,                                         \
+    DECLARE_ALIGNED(32, const uint8_t,                                         \
                     blimit0[16]) = { tmp, tmp, tmp, tmp, tmp, tmp, tmp, tmp,   \
                                      tmp, tmp, tmp, tmp, tmp, tmp, tmp, tmp }; \
     tmp = GetInnerThresh(&rnd);                                                \
-    DECLARE_ALIGNED(16, const uint8_t,                                         \
+    DECLARE_ALIGNED(32, const uint8_t,                                         \
                     limit0[16]) = { tmp, tmp, tmp, tmp, tmp, tmp, tmp, tmp,    \
                                     tmp, tmp, tmp, tmp, tmp, tmp, tmp, tmp };  \
     tmp = GetHevThresh(&rnd);                                                  \
-    DECLARE_ALIGNED(16, const uint8_t,                                         \
+    DECLARE_ALIGNED(32, const uint8_t,                                         \
                     thresh0[16]) = { tmp, tmp, tmp, tmp, tmp, tmp, tmp, tmp,   \
                                      tmp, tmp, tmp, tmp, tmp, tmp, tmp, tmp }; \
     tmp = GetOuterThresh(&rnd);                                                \
-    DECLARE_ALIGNED(16, const uint8_t,                                         \
+    DECLARE_ALIGNED(32, const uint8_t,                                         \
                     blimit1[16]) = { tmp, tmp, tmp, tmp, tmp, tmp, tmp, tmp,   \
                                      tmp, tmp, tmp, tmp, tmp, tmp, tmp, tmp }; \
     tmp = GetInnerThresh(&rnd);                                                \
-    DECLARE_ALIGNED(16, const uint8_t,                                         \
+    DECLARE_ALIGNED(32, const uint8_t,                                         \
                     limit1[16]) = { tmp, tmp, tmp, tmp, tmp, tmp, tmp, tmp,    \
                                     tmp, tmp, tmp, tmp, tmp, tmp, tmp, tmp };  \
     tmp = GetHevThresh(&rnd);                                                  \
-    DECLARE_ALIGNED(16, const uint8_t,                                         \
+    DECLARE_ALIGNED(32, const uint8_t,                                         \
                     thresh1[16]) = { tmp, tmp, tmp, tmp, tmp, tmp, tmp, tmp,   \
                                      tmp, tmp, tmp, tmp, tmp, tmp, tmp, tmp }; \
     int32_t p = kNumCoeffs / 32;                                               \
@@ -349,27 +349,27 @@ TEST_P(Loop8Test9Param_lbd, OperationCheck) { OPCHECKd(uint8_t, 8); }
   for (int i = 0; i < count_test_block; ++i) {                                 \
     int err_count = 0;                                                         \
     uint8_t tmp = GetOuterThresh(&rnd);                                        \
-    DECLARE_ALIGNED(16, const uint8_t,                                         \
+    DECLARE_ALIGNED(32, const uint8_t,                                         \
                     blimit0[16]) = { tmp, tmp, tmp, tmp, tmp, tmp, tmp, tmp,   \
                                      tmp, tmp, tmp, tmp, tmp, tmp, tmp, tmp }; \
     tmp = GetInnerThresh(&rnd);                                                \
-    DECLARE_ALIGNED(16, const uint8_t,                                         \
+    DECLARE_ALIGNED(32, const uint8_t,                                         \
                     limit0[16]) = { tmp, tmp, tmp, tmp, tmp, tmp, tmp, tmp,    \
                                     tmp, tmp, tmp, tmp, tmp, tmp, tmp, tmp };  \
     tmp = GetHevThresh(&rnd);                                                  \
-    DECLARE_ALIGNED(16, const uint8_t,                                         \
+    DECLARE_ALIGNED(32, const uint8_t,                                         \
                     thresh0[16]) = { tmp, tmp, tmp, tmp, tmp, tmp, tmp, tmp,   \
                                      tmp, tmp, tmp, tmp, tmp, tmp, tmp, tmp }; \
     tmp = GetOuterThresh(&rnd);                                                \
-    DECLARE_ALIGNED(16, const uint8_t,                                         \
+    DECLARE_ALIGNED(32, const uint8_t,                                         \
                     blimit1[16]) = { tmp, tmp, tmp, tmp, tmp, tmp, tmp, tmp,   \
                                      tmp, tmp, tmp, tmp, tmp, tmp, tmp, tmp }; \
     tmp = GetInnerThresh(&rnd);                                                \
-    DECLARE_ALIGNED(16, const uint8_t,                                         \
+    DECLARE_ALIGNED(32, const uint8_t,                                         \
                     limit1[16]) = { tmp, tmp, tmp, tmp, tmp, tmp, tmp, tmp,    \
                                     tmp, tmp, tmp, tmp, tmp, tmp, tmp, tmp };  \
     tmp = GetHevThresh(&rnd);                                                  \
-    DECLARE_ALIGNED(16, const uint8_t,                                         \
+    DECLARE_ALIGNED(32, const uint8_t,                                         \
                     thresh1[16]) = { tmp, tmp, tmp, tmp, tmp, tmp, tmp, tmp,   \
                                      tmp, tmp, tmp, tmp, tmp, tmp, tmp, tmp }; \
     int32_t p = kNumCoeffs / 32;                                               \
@@ -403,27 +403,27 @@ TEST_P(Loop8Test9Param_lbd, ValueCheck) { VALCHECKd(uint8_t, 8); }
   const int count_test_block = kSpeedTestNum;                                \
   DECLARE_ALIGNED(b, a, s[kNumCoeffs]);                                      \
   uint8_t tmp = GetOuterThresh(&rnd);                                        \
-  DECLARE_ALIGNED(16, const uint8_t,                                         \
+  DECLARE_ALIGNED(32, const uint8_t,                                         \
                   blimit0[16]) = { tmp, tmp, tmp, tmp, tmp, tmp, tmp, tmp,   \
                                    tmp, tmp, tmp, tmp, tmp, tmp, tmp, tmp }; \
   tmp = GetInnerThresh(&rnd);                                                \
-  DECLARE_ALIGNED(16, const uint8_t,                                         \
+  DECLARE_ALIGNED(32, const uint8_t,                                         \
                   limit0[16]) = { tmp, tmp, tmp, tmp, tmp, tmp, tmp, tmp,    \
                                   tmp, tmp, tmp, tmp, tmp, tmp, tmp, tmp };  \
   tmp = GetHevThresh(&rnd);                                                  \
-  DECLARE_ALIGNED(16, const uint8_t,                                         \
+  DECLARE_ALIGNED(32, const uint8_t,                                         \
                   thresh0[16]) = { tmp, tmp, tmp, tmp, tmp, tmp, tmp, tmp,   \
                                    tmp, tmp, tmp, tmp, tmp, tmp, tmp, tmp }; \
   tmp = GetOuterThresh(&rnd);                                                \
-  DECLARE_ALIGNED(16, const uint8_t,                                         \
+  DECLARE_ALIGNED(32, const uint8_t,                                         \
                   blimit1[16]) = { tmp, tmp, tmp, tmp, tmp, tmp, tmp, tmp,   \
                                    tmp, tmp, tmp, tmp, tmp, tmp, tmp, tmp }; \
   tmp = GetInnerThresh(&rnd);                                                \
-  DECLARE_ALIGNED(16, const uint8_t,                                         \
+  DECLARE_ALIGNED(32, const uint8_t,                                         \
                   limit1[16]) = { tmp, tmp, tmp, tmp, tmp, tmp, tmp, tmp,    \
                                   tmp, tmp, tmp, tmp, tmp, tmp, tmp, tmp };  \
   tmp = GetHevThresh(&rnd);                                                  \
-  DECLARE_ALIGNED(16, const uint8_t,                                         \
+  DECLARE_ALIGNED(32, const uint8_t,                                         \
                   thresh1[16]) = { tmp, tmp, tmp, tmp, tmp, tmp, tmp, tmp,   \
                                    tmp, tmp, tmp, tmp, tmp, tmp, tmp, tmp }; \
   int32_t p = kNumCoeffs / 32;                                               \

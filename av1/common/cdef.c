@@ -140,7 +140,7 @@ static INLINE void copy_rect(uint16_t *dst, int dstride, const uint16_t *src,
 void av1_cdef_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
                     MACROBLOCKD *xd) {
   const int num_planes = av1_num_planes(cm);
-  DECLARE_ALIGNED(16, uint16_t, src[CDEF_INBUF_SIZE]);
+  DECLARE_ALIGNED(32, uint16_t, src[CDEF_INBUF_SIZE]);
   uint16_t *linebuf[3];
   uint16_t *colbuf[3];
   cdef_list dlist[MI_SIZE_64X64 * MI_SIZE_64X64];

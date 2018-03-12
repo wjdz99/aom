@@ -52,13 +52,13 @@ class AV1FwdTxfm2d : public ::testing::TestWithParam<AV1FwdTxfm2dParam> {
     fwd_txfm_ = libaom_test::fwd_txfm_func_ls[tx_size_];
     txfm2d_size_ = tx_width_ * tx_height_;
     input_ = reinterpret_cast<int16_t *>(
-        aom_memalign(16, sizeof(input_[0]) * txfm2d_size_));
+        aom_memalign(32, sizeof(input_[0]) * txfm2d_size_));
     output_ = reinterpret_cast<int32_t *>(
-        aom_memalign(16, sizeof(output_[0]) * txfm2d_size_));
+        aom_memalign(32, sizeof(output_[0]) * txfm2d_size_));
     ref_input_ = reinterpret_cast<double *>(
-        aom_memalign(16, sizeof(ref_input_[0]) * txfm2d_size_));
+        aom_memalign(32, sizeof(ref_input_[0]) * txfm2d_size_));
     ref_output_ = reinterpret_cast<double *>(
-        aom_memalign(16, sizeof(ref_output_[0]) * txfm2d_size_));
+        aom_memalign(32, sizeof(ref_output_[0]) * txfm2d_size_));
   }
 
   void RunFwdAccuracyCheck() {
@@ -240,9 +240,9 @@ TEST(av1_fwd_txfm2d_sse2, match) {
       FwdTxfm2dFunc ref_func = fwd_func_sse2_list[tx_size][0];
       FwdTxfm2dFunc target_func = fwd_func_sse2_list[tx_size][1];
       if (ref_func != NULL && target_func != NULL) {
-        DECLARE_ALIGNED(16, int16_t, input[64 * 64]) = { 0 };
-        DECLARE_ALIGNED(16, int32_t, output[64 * 64]) = { 0 };
-        DECLARE_ALIGNED(16, int32_t, ref_output[64 * 64]) = { 0 };
+        DECLARE_ALIGNED(32, int16_t, input[64 * 64]) = { 0 };
+        DECLARE_ALIGNED(32, int32_t, output[64 * 64]) = { 0 };
+        DECLARE_ALIGNED(32, int32_t, ref_output[64 * 64]) = { 0 };
         int input_stride = 64;
         ACMRandom rnd(ACMRandom::DeterministicSeed());
         for (int cnt = 0; cnt < 500; ++cnt) {

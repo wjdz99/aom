@@ -1281,7 +1281,7 @@ void av1_pick_filter_restoration(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi) {
 
   assert(ntiles[1] <= ntiles[0]);
   RestUnitSearchInfo *rusi =
-      (RestUnitSearchInfo *)aom_memalign(16, sizeof(*rusi) * ntiles[0]);
+      (RestUnitSearchInfo *)aom_memalign(32, sizeof(*rusi) * ntiles[0]);
 
   // If the restoration unit dimensions are not multiples of
   // rsi->restoration_unit_size then some elements of the rusi array may be

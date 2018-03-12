@@ -326,7 +326,7 @@ class ConvolveTest : public ::testing::TestWithParam<ConvolveParam> {
   }
 
  protected:
-  static const int kDataAlignment = 16;
+  static const int kDataAlignment = 32;
   static const int kOuterBlockSize = 4 * kMaxDimension;
   static const int kInputStride = kOuterBlockSize;
   static const int kOutputStride = kOuterBlockSize;

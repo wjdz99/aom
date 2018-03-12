@@ -42,10 +42,10 @@ class TxbTest : public ::testing::TestWithParam<GetLevelCountsFunc> {
 
   virtual void SetUp() {
     level_counts_ref_ = reinterpret_cast<uint8_t *>(
-        aom_memalign(16, sizeof(*level_counts_ref_) * MAX_TX_SQUARE));
+        aom_memalign(32, sizeof(*level_counts_ref_) * MAX_TX_SQUARE));
     ASSERT_TRUE(level_counts_ref_ != NULL);
     level_counts_ = reinterpret_cast<uint8_t *>(
-        aom_memalign(16, sizeof(*level_counts_) * MAX_TX_SQUARE));
+        aom_memalign(32, sizeof(*level_counts_) * MAX_TX_SQUARE));
     ASSERT_TRUE(level_counts_ != NULL);
   }
 

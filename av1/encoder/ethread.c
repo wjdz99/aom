@@ -85,21 +85,21 @@ void av1_encode_tiles_mt(AV1_COMP *cpi) {
 
         CHECK_MEM_ERROR(cm, thread_data->td->above_pred_buf,
                         (uint8_t *)aom_memalign(
-                            16, MAX_MB_PLANE * MAX_SB_SQUARE *
+                            32, MAX_MB_PLANE * MAX_SB_SQUARE *
                                     sizeof(*thread_data->td->above_pred_buf)));
         CHECK_MEM_ERROR(cm, thread_data->td->left_pred_buf,
                         (uint8_t *)aom_memalign(
-                            16, MAX_MB_PLANE * MAX_SB_SQUARE *
+                            32, MAX_MB_PLANE * MAX_SB_SQUARE *
                                     sizeof(*thread_data->td->left_pred_buf)));
 
         CHECK_MEM_ERROR(
             cm, thread_data->td->wsrc_buf,
             (int32_t *)aom_memalign(
-                16, MAX_SB_SQUARE * sizeof(*thread_data->td->wsrc_buf)));
+                32, MAX_SB_SQUARE * sizeof(*thread_data->td->wsrc_buf)));
         CHECK_MEM_ERROR(
             cm, thread_data->td->mask_buf,
             (int32_t *)aom_memalign(
-                16, MAX_SB_SQUARE * sizeof(*thread_data->td->mask_buf)));
+                32, MAX_SB_SQUARE * sizeof(*thread_data->td->mask_buf)));
         // Allocate frame counters in thread data.
         CHECK_MEM_ERROR(cm, thread_data->td->counts,
                         aom_calloc(1, sizeof(*thread_data->td->counts)));
@@ -107,7 +107,7 @@ void av1_encode_tiles_mt(AV1_COMP *cpi) {
         // Allocate buffers used by palette coding mode.
         CHECK_MEM_ERROR(
             cm, thread_data->td->palette_buffer,
-            aom_memalign(16, sizeof(*thread_data->td->palette_buffer)));
+            aom_memalign(32, sizeof(*thread_data->td->palette_buffer)));
 
         // Create threads
         if (!winterface->reset(worker))
