@@ -1177,6 +1177,9 @@ void av1_setup_frame_contexts(AV1_COMMON *cm) {
   // Store the frame context into a special slot (not associated with any
   // reference buffer), so that we can set up cm->pre_fc correctly later
   cm->frame_contexts[FRAME_CONTEXT_DEFAULTS] = *cm->fc;
+  if (cm->large_scale_tile) {
+    for (int i = 0; i < FRAME_CONTEXTS; ++i) cm->frame_contexts[i] = *cm->fc;
+  }
 #else
   if (cm->frame_type == KEY_FRAME || cm->error_resilient_mode ||
       cm->reset_frame_context == RESET_FRAME_CONTEXT_ALL) {
