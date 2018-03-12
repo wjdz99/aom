@@ -1196,6 +1196,8 @@ void av1_setup_past_independence(AV1_COMMON *cm) {
 
   av1_clearall_segfeatures(&cm->seg);
 
+  av1_reset_use_mvs_flags(cm);
+
 #if CONFIG_SEGMENT_PRED_LAST
   cm->current_frame_seg_map = cm->cur_frame->seg_map;
 #endif

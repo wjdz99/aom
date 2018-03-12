@@ -76,6 +76,13 @@ void av1_copy_frame_mvs(const AV1_COMMON *const cm, MODE_INFO *mi, int mi_row,
   }
 }
 
+void av1_reset_use_mvs_flags(AV1_COMMON *cm) {
+  for (MV_REFERENCE_FRAME rf = LAST_FRAME; rf <= INTER_REFS_PER_FRAME; ++rf) {
+    int buf_idx = cm->frame_refs[FWD_RF_OFFSET(rf)].idx;
+    if (buf_idx >= 0) cm->buffer_pool->frame_bufs[buf_idx].allow_mvs = 0;
+  }
+}
+
 static void add_ref_mv_candidate(
     const MODE_INFO *const candidate_mi, const MB_MODE_INFO *const candidate,
     const MV_REFERENCE_FRAME rf[2], uint8_t refmv_counts[MODE_CTX_REF_FRAMES],
@@ -1156,6 +1163,8 @@ static int motion_field_projection(AV1_COMMON *cm, MV_REFERENCE_FRAME ref_frame,
   if (cm->buffer_pool->frame_bufs[ref_frame_idx].mi_rows != cm->mi_rows ||
       cm->buffer_pool->frame_bufs[ref_frame_idx].mi_cols != cm->mi_cols)
     return 0;
+
+  if (cm->buffer_pool->frame_bufs[ref_frame_idx].allow_mvs == 0) return 0;
 
   int ref_frame_index =
       cm->buffer_pool->frame_bufs[ref_frame_idx].cur_frame_offset;
