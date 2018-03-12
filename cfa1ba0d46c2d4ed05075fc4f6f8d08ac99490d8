@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "3b779429_7f665368",
+        "filename": "test/variance_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 618,
+      "author": {
+        "id": 8900
+      },
+      "writtenOn": "2018-03-12T03:05:03Z",
+      "side": 1,
+      "message": "Done, The AVX2 version use loadu, which is not need to be aligned. But change to 32 maybe faster.",
+      "parentUuid": "8e0851d3_1d083a3a",
+      "range": {
+        "startLine": 618,
+        "startChar": 23,
+        "endLine": 618,
+        "endChar": 25
+      },
+      "revId": "cfa1ba0d46c2d4ed05075fc4f6f8d08ac99490d8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ae194160_4fb6586a",
         "filename": "test/variance_test.cc",
         "patchSetId": 4
@@ -36,6 +60,30 @@
       "writtenOn": "2018-03-11T06:02:26Z",
       "side": 1,
       "message": "same here.",
+      "range": {
+        "startLine": 621,
+        "startChar": 23,
+        "endLine": 621,
+        "endChar": 25
+      },
+      "revId": "cfa1ba0d46c2d4ed05075fc4f6f8d08ac99490d8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7cfc584f_ce99c110",
+        "filename": "test/variance_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 621,
+      "author": {
+        "id": 8900
+      },
+      "writtenOn": "2018-03-12T03:05:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ae194160_4fb6586a",
       "range": {
         "startLine": 621,
         "startChar": 23,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "f791fca7_202a7d0e",
+        "filename": "test/variance_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 623,
+      "author": {
+        "id": 8900
+      },
+      "writtenOn": "2018-03-12T03:05:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "50e1c1c5_8ae00f45",
+      "range": {
+        "startLine": 623,
+        "startChar": 23,
+        "endLine": 623,
+        "endChar": 25
+      },
+      "revId": "cfa1ba0d46c2d4ed05075fc4f6f8d08ac99490d8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5dd68d5d_17830287",
         "filename": "test/variance_test.cc",
         "patchSetId": 4
@@ -82,6 +154,30 @@
       "writtenOn": "2018-03-11T06:02:26Z",
       "side": 1,
       "message": "here.",
+      "range": {
+        "startLine": 624,
+        "startChar": 11,
+        "endLine": 625,
+        "endChar": 11
+      },
+      "revId": "cfa1ba0d46c2d4ed05075fc4f6f8d08ac99490d8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ad2c1616_b9405738",
+        "filename": "test/variance_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 625,
+      "author": {
+        "id": 8900
+      },
+      "writtenOn": "2018-03-12T03:05:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5dd68d5d_17830287",
       "range": {
         "startLine": 624,
         "startChar": 11,
