@@ -100,7 +100,8 @@ void av1_highbd_wiener_convolve_add_src_hip_ssse3(
                                  conv_params->round_0);
 
         // Pack in the column order 0, 2, 4, 6, 1, 3, 5, 7
-        const __m128i maxval = _mm_set1_epi16((WIENER_CLAMP_LIMIT(bd)) - 1);
+        const __m128i maxval =
+            _mm_set1_epi16((WIENER_CLAMP_LIMIT(conv_params->round_0, bd)) - 1);
         __m128i res = _mm_packs_epi32(res_even, res_odd);
         res = _mm_min_epi16(_mm_max_epi16(res, zero), maxval);
         _mm_storeu_si128((__m128i *)&temp[i * MAX_SB_SIZE + j], res);
