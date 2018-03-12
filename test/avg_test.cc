@@ -152,7 +152,7 @@ class SatdTest : public ::testing::Test,
     satd_func_ = GET_PARAM(1);
     rnd_.Reset(ACMRandom::DeterministicSeed());
     src_ = reinterpret_cast<int16_t *>(
-        aom_memalign(16, sizeof(*src_) * satd_size_));
+        aom_memalign(32, sizeof(*src_) * satd_size_));
     ASSERT_TRUE(src_ != NULL);
   }
 

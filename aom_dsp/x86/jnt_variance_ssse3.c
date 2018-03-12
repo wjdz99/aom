@@ -259,7 +259,7 @@ void aom_jnt_comp_avg_upsampled_pred_ssse3(uint8_t *comp_pred,
       const uint8_t *second_pred, const JNT_COMP_PARAMS *jcp_param) {    \
     uint16_t fdata3[(H + 1) * W];                                        \
     uint8_t temp2[H * W];                                                \
-    DECLARE_ALIGNED(16, uint8_t, temp3[H * W]);                          \
+    DECLARE_ALIGNED(32, uint8_t, temp3[H * W]);                          \
                                                                          \
     aom_var_filter_block2d_bil_first_pass_ssse3(                         \
         a, fdata3, a_stride, 1, H + 1, W, bilinear_filters_2t[xoffset]); \

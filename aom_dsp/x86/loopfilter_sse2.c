@@ -967,12 +967,12 @@ void aom_lpf_horizontal_8_dual_sse2(uint8_t *s, int p, const uint8_t *_blimit0,
                                     const uint8_t *_blimit1,
                                     const uint8_t *_limit1,
                                     const uint8_t *_thresh1) {
-  DECLARE_ALIGNED(16, unsigned char, flat_op2[16]);
-  DECLARE_ALIGNED(16, unsigned char, flat_op1[16]);
-  DECLARE_ALIGNED(16, unsigned char, flat_op0[16]);
-  DECLARE_ALIGNED(16, unsigned char, flat_oq2[16]);
-  DECLARE_ALIGNED(16, unsigned char, flat_oq1[16]);
-  DECLARE_ALIGNED(16, unsigned char, flat_oq0[16]);
+  DECLARE_ALIGNED(32, unsigned char, flat_op2[16]);
+  DECLARE_ALIGNED(32, unsigned char, flat_op1[16]);
+  DECLARE_ALIGNED(32, unsigned char, flat_op0[16]);
+  DECLARE_ALIGNED(32, unsigned char, flat_oq2[16]);
+  DECLARE_ALIGNED(32, unsigned char, flat_oq1[16]);
+  DECLARE_ALIGNED(32, unsigned char, flat_oq0[16]);
   const __m128i zero = _mm_setzero_si128();
   const __m128i blimit =
       _mm_unpacklo_epi64(_mm_load_si128((const __m128i *)_blimit0),
@@ -1554,7 +1554,7 @@ void aom_lpf_vertical_4_dual_sse2(uint8_t *s, int p, const uint8_t *blimit0,
                                   const uint8_t *limit0, const uint8_t *thresh0,
                                   const uint8_t *blimit1, const uint8_t *limit1,
                                   const uint8_t *thresh1) {
-  DECLARE_ALIGNED(16, unsigned char, t_dst[16 * 8]);
+  DECLARE_ALIGNED(32, unsigned char, t_dst[16 * 8]);
   // Transpose 8x16
   transpose8x16(s - 4, s - 4 + p * 8, p, t_dst, 16);
 
@@ -1573,7 +1573,7 @@ void aom_lpf_vertical_6_sse2(unsigned char *s, int p,
 
   __m128i p2, p1, p0, q0, q1, q2;
   __m128i p1p0, q1q0;
-  DECLARE_ALIGNED(16, unsigned char, temp_dst[16]);
+  DECLARE_ALIGNED(32, unsigned char, temp_dst[16]);
 
   p2 = _mm_loadl_epi64((__m128i *)((s - 3) + 0 * p));
   p1 = _mm_loadl_epi64((__m128i *)((s - 3) + 1 * p));
@@ -1628,7 +1628,7 @@ void aom_lpf_vertical_8_dual_sse2(uint8_t *s, int p, const uint8_t *blimit0,
                                   const uint8_t *limit0, const uint8_t *thresh0,
                                   const uint8_t *blimit1, const uint8_t *limit1,
                                   const uint8_t *thresh1) {
-  DECLARE_ALIGNED(16, unsigned char, t_dst[16 * 8]);
+  DECLARE_ALIGNED(32, unsigned char, t_dst[16 * 8]);
   unsigned char *src[2];
   unsigned char *dst[2];
   // Transpose 8x16
@@ -1669,7 +1669,7 @@ void aom_lpf_vertical_14_sse2(unsigned char *s, int p,
 void aom_lpf_vertical_14_dual_sse2(unsigned char *s, int p,
                                    const uint8_t *blimit, const uint8_t *limit,
                                    const uint8_t *thresh) {
-  DECLARE_ALIGNED(16, unsigned char, t_dst[256]);
+  DECLARE_ALIGNED(32, unsigned char, t_dst[256]);
   // Transpose 16x16
   transpose8x16(s - 8, s - 8 + 8 * p, p, t_dst, 16);
   transpose8x16(s, s + 8 * p, p, t_dst + 8 * 16, 16);

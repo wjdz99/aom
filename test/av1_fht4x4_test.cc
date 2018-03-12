@@ -108,11 +108,11 @@ class AV1HighbdTrans4x4HT : public ::testing::TestWithParam<HighbdHt4x4Param> {
     num_coeffs_ = 16;
 
     input_ = reinterpret_cast<int16_t *>(
-        aom_memalign(16, sizeof(int16_t) * num_coeffs_));
+        aom_memalign(32, sizeof(int16_t) * num_coeffs_));
     output_ = reinterpret_cast<int32_t *>(
-        aom_memalign(16, sizeof(int32_t) * num_coeffs_));
+        aom_memalign(32, sizeof(int32_t) * num_coeffs_));
     output_ref_ = reinterpret_cast<int32_t *>(
-        aom_memalign(16, sizeof(int32_t) * num_coeffs_));
+        aom_memalign(32, sizeof(int32_t) * num_coeffs_));
   }
 
   virtual void TearDown() {

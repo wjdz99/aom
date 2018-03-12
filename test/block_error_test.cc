@@ -46,7 +46,7 @@ class BlockErrorTest : public ::testing::TestWithParam<BlockErrorParam> {
   virtual void SetUp() {
     const intptr_t block_size = getCoeffNum();
     coeff_ = reinterpret_cast<tran_low_t *>(
-        aom_memalign(16, 2 * block_size * sizeof(tran_low_t)));
+        aom_memalign(32, 2 * block_size * sizeof(tran_low_t)));
   }
 
   virtual void TearDown() {

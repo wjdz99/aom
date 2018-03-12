@@ -359,7 +359,7 @@ class MainTestClass
     rnd_.Reset(ACMRandom::DeterministicSeed());
     const size_t unit =
         use_high_bit_depth() ? sizeof(uint16_t) : sizeof(uint8_t);
-    src_ = reinterpret_cast<uint8_t *>(aom_memalign(16, block_size() * unit));
+    src_ = reinterpret_cast<uint8_t *>(aom_memalign(32, block_size() * unit));
     ref_ = new uint8_t[block_size() * unit];
     ASSERT_TRUE(src_ != NULL);
     ASSERT_TRUE(ref_ != NULL);

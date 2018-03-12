@@ -46,11 +46,11 @@ TEST_P(AV1SubtractBlockTest, SimpleSubtract) {
     const int block_width = block_size_wide[bsize];
     const int block_height = block_size_high[bsize];
     int16_t *diff = reinterpret_cast<int16_t *>(
-        aom_memalign(16, sizeof(*diff) * block_width * block_height * 2));
+        aom_memalign(32, sizeof(*diff) * block_width * block_height * 2));
     uint8_t *pred = reinterpret_cast<uint8_t *>(
-        aom_memalign(16, block_width * block_height * 2));
+        aom_memalign(32, block_width * block_height * 2));
     uint8_t *src = reinterpret_cast<uint8_t *>(
-        aom_memalign(16, block_width * block_height * 2));
+        aom_memalign(32, block_width * block_height * 2));
 
     for (int n = 0; n < 100; n++) {
       for (int r = 0; r < block_height; ++r) {
@@ -130,11 +130,11 @@ class AV1HBDSubtractBlockTest : public ::testing::TestWithParam<Params> {
     const size_t max_width = 128;
     const size_t max_block_size = max_width * max_width;
     src_ = CONVERT_TO_BYTEPTR(reinterpret_cast<uint16_t *>(
-        aom_memalign(16, max_block_size * sizeof(uint16_t))));
+        aom_memalign(32, max_block_size * sizeof(uint16_t))));
     pred_ = CONVERT_TO_BYTEPTR(reinterpret_cast<uint16_t *>(
-        aom_memalign(16, max_block_size * sizeof(uint16_t))));
+        aom_memalign(32, max_block_size * sizeof(uint16_t))));
     diff_ = reinterpret_cast<int16_t *>(
-        aom_memalign(16, max_block_size * sizeof(int16_t)));
+        aom_memalign(32, max_block_size * sizeof(int16_t)));
   }
 
   virtual void TearDown() {
