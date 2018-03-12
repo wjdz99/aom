@@ -146,11 +146,10 @@ int16_t aom_rb_read_signed_primitive_refsubexpfin(
 
 uint32_t aom_rb_read_uvlc(struct aom_read_bit_buffer *rb) {
   int leading_zeros = 0;
-
-  while (!aom_rb_read_bit(rb)) ++leading_zeros;
-
+  // Maximum 32 bits.
+  while (!aom_rb_read_bit(rb) && leading_zeros < 32) ++leading_zeros;
+  uint32_t base =
+      (leading_zeros == 32) ? UINT32_MAX : (1u << leading_zeros) - 1;
   uint32_t value = aom_rb_read_literal(rb, leading_zeros);
-  value += (1 << leading_zeros) - 1;
-
-  return value;
+  return (value > UINT32_MAX - base) ? UINT32_MAX : base + value;
 }
