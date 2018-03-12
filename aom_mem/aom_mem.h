@@ -24,6 +24,10 @@
 extern "C" {
 #endif
 
+#ifndef AOM_MAX_ALLOCABLE_MEMORY
+#define AOM_MAX_ALLOCABLE_MEMORY 8589934592  // 8 GB
+#endif
+
 void *aom_memalign(size_t align, size_t size);
 void *aom_malloc(size_t size);
 void *aom_calloc(size_t num, size_t size);
