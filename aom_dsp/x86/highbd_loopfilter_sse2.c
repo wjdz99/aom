@@ -453,12 +453,12 @@ void aom_highbd_lpf_horizontal_8_sse2(uint16_t *s, int p,
                                       const uint8_t *_blimit,
                                       const uint8_t *_limit,
                                       const uint8_t *_thresh, int bd) {
-  DECLARE_ALIGNED(16, uint16_t, flat_op2[16]);
-  DECLARE_ALIGNED(16, uint16_t, flat_op1[16]);
-  DECLARE_ALIGNED(16, uint16_t, flat_op0[16]);
-  DECLARE_ALIGNED(16, uint16_t, flat_oq2[16]);
-  DECLARE_ALIGNED(16, uint16_t, flat_oq1[16]);
-  DECLARE_ALIGNED(16, uint16_t, flat_oq0[16]);
+  DECLARE_ALIGNED(32, uint16_t, flat_op2[16]);
+  DECLARE_ALIGNED(32, uint16_t, flat_op1[16]);
+  DECLARE_ALIGNED(32, uint16_t, flat_op0[16]);
+  DECLARE_ALIGNED(32, uint16_t, flat_oq2[16]);
+  DECLARE_ALIGNED(32, uint16_t, flat_oq1[16]);
+  DECLARE_ALIGNED(32, uint16_t, flat_oq0[16]);
   const __m128i zero = _mm_set1_epi16(0);
   __m128i blimit, limit, thresh;
   __m128i mask, hev, flat;
@@ -862,7 +862,7 @@ void aom_highbd_lpf_horizontal_4_dual_sse2(
 void aom_highbd_lpf_vertical_4_sse2(uint16_t *s, int p, const uint8_t *blimit,
                                     const uint8_t *limit, const uint8_t *thresh,
                                     int bd) {
-  DECLARE_ALIGNED(16, uint16_t, t_dst[8 * 8]);
+  DECLARE_ALIGNED(32, uint16_t, t_dst[8 * 8]);
   uint16_t *src[1];
   uint16_t *dst[1];
 
@@ -886,7 +886,7 @@ void aom_highbd_lpf_vertical_4_dual_sse2(
     uint16_t *s, int p, const uint8_t *blimit0, const uint8_t *limit0,
     const uint8_t *thresh0, const uint8_t *blimit1, const uint8_t *limit1,
     const uint8_t *thresh1, int bd) {
-  DECLARE_ALIGNED(16, uint16_t, t_dst[16 * 8]);
+  DECLARE_ALIGNED(32, uint16_t, t_dst[16 * 8]);
   uint16_t *src[2];
   uint16_t *dst[2];
 
@@ -908,7 +908,7 @@ void aom_highbd_lpf_vertical_4_dual_sse2(
 void aom_highbd_lpf_vertical_8_sse2(uint16_t *s, int p, const uint8_t *blimit,
                                     const uint8_t *limit, const uint8_t *thresh,
                                     int bd) {
-  DECLARE_ALIGNED(16, uint16_t, t_dst[8 * 8]);
+  DECLARE_ALIGNED(32, uint16_t, t_dst[8 * 8]);
   uint16_t *src[1];
   uint16_t *dst[1];
 
@@ -932,7 +932,7 @@ void aom_highbd_lpf_vertical_8_dual_sse2(
     uint16_t *s, int p, const uint8_t *blimit0, const uint8_t *limit0,
     const uint8_t *thresh0, const uint8_t *blimit1, const uint8_t *limit1,
     const uint8_t *thresh1, int bd) {
-  DECLARE_ALIGNED(16, uint16_t, t_dst[16 * 8]);
+  DECLARE_ALIGNED(32, uint16_t, t_dst[16 * 8]);
   uint16_t *src[2];
   uint16_t *dst[2];
 
@@ -955,7 +955,7 @@ void aom_highbd_lpf_vertical_8_dual_sse2(
 void aom_highbd_lpf_vertical_14_sse2(uint16_t *s, int p, const uint8_t *blimit,
                                      const uint8_t *limit,
                                      const uint8_t *thresh, int bd) {
-  DECLARE_ALIGNED(16, uint16_t, t_dst[8 * 16]);
+  DECLARE_ALIGNED(32, uint16_t, t_dst[8 * 16]);
   uint16_t *src[2];
   uint16_t *dst[2];
 
@@ -983,7 +983,7 @@ void aom_highbd_lpf_vertical_14_dual_sse2(uint16_t *s, int p,
                                           const uint8_t *blimit,
                                           const uint8_t *limit,
                                           const uint8_t *thresh, int bd) {
-  DECLARE_ALIGNED(16, uint16_t, t_dst[256]);
+  DECLARE_ALIGNED(32, uint16_t, t_dst[256]);
 
   //  Transpose 16x16
   highbd_transpose8x16(s - 8, s - 8 + 8 * p, p, t_dst, 16);

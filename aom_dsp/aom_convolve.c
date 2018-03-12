@@ -437,7 +437,7 @@ void aom_convolve8_avg_c(const uint8_t *src, ptrdiff_t src_stride, uint8_t *dst,
                          int x_step_q4, const int16_t *filter_y, int y_step_q4,
                          int w, int h) {
   /* Fixed size intermediate buffer places limits on parameters. */
-  DECLARE_ALIGNED(16, uint8_t, temp[MAX_SB_SIZE * MAX_SB_SIZE]);
+  DECLARE_ALIGNED(32, uint8_t, temp[MAX_SB_SIZE * MAX_SB_SIZE]);
   assert(w <= MAX_SB_SIZE);
   assert(h <= MAX_SB_SIZE);
 
@@ -453,7 +453,7 @@ void aom_convolve8_avg_scale_c(const uint8_t *src, ptrdiff_t src_stride,
                                int x_step_qn, const int16_t *filter_y,
                                int subpel_y, int y_step_qn, int w, int h) {
   /* Fixed size intermediate buffer places limits on parameters. */
-  DECLARE_ALIGNED(16, uint8_t, temp[MAX_SB_SIZE * MAX_SB_SIZE]);
+  DECLARE_ALIGNED(32, uint8_t, temp[MAX_SB_SIZE * MAX_SB_SIZE]);
   assert(w <= MAX_SB_SIZE);
   assert(h <= MAX_SB_SIZE);
 
@@ -994,7 +994,7 @@ void aom_highbd_convolve8_avg_c(const uint8_t *src, ptrdiff_t src_stride,
                                 const int16_t *filter_y, int y_step_q4, int w,
                                 int h, int bd) {
   // Fixed size intermediate buffer places limits on parameters.
-  DECLARE_ALIGNED(16, uint16_t, temp[MAX_SB_SIZE * MAX_SB_SIZE]);
+  DECLARE_ALIGNED(32, uint16_t, temp[MAX_SB_SIZE * MAX_SB_SIZE]);
   assert(w <= MAX_SB_SIZE);
   assert(h <= MAX_SB_SIZE);
 

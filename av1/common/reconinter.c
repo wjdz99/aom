@@ -111,16 +111,16 @@ static INLINE void av1_make_inter_predictor(
 #define NSMOOTHERS 1
 
 // [smoother][negative][direction]
-DECLARE_ALIGNED(16, static uint8_t,
+DECLARE_ALIGNED(32, static uint8_t,
                 wedge_mask_obl[NSMOOTHERS][2][WEDGE_DIRECTIONS]
                               [MASK_MASTER_SIZE * MASK_MASTER_SIZE]);
 
-DECLARE_ALIGNED(16, static uint8_t,
+DECLARE_ALIGNED(32, static uint8_t,
                 wedge_signflip_lookup[BLOCK_SIZES_ALL][MAX_WEDGE_TYPES]);
 
 // 4 * MAX_WEDGE_SQUARE is an easy to compute and fairly tight upper bound
 // on the sum of all mask sizes up to an including MAX_WEDGE_SQUARE.
-DECLARE_ALIGNED(16, static uint8_t,
+DECLARE_ALIGNED(32, static uint8_t,
                 wedge_mask_buf[2 * MAX_WEDGE_TYPES * 4 * MAX_WEDGE_SQUARE]);
 
 static wedge_masks_type wedge_masks[BLOCK_SIZES_ALL][2];
@@ -1655,8 +1655,8 @@ void av1_build_prediction_by_left_preds(const AV1_COMMON *cm, MACROBLOCKD *xd,
 void av1_build_obmc_inter_predictors_sb(const AV1_COMMON *cm, MACROBLOCKD *xd,
                                         int mi_row, int mi_col) {
   const int num_planes = av1_num_planes(cm);
-  DECLARE_ALIGNED(16, uint8_t, tmp_buf1[2 * MAX_MB_PLANE * MAX_SB_SQUARE]);
-  DECLARE_ALIGNED(16, uint8_t, tmp_buf2[2 * MAX_MB_PLANE * MAX_SB_SQUARE]);
+  DECLARE_ALIGNED(32, uint8_t, tmp_buf1[2 * MAX_MB_PLANE * MAX_SB_SQUARE]);
+  DECLARE_ALIGNED(32, uint8_t, tmp_buf2[2 * MAX_MB_PLANE * MAX_SB_SQUARE]);
   uint8_t *dst_buf1[MAX_MB_PLANE], *dst_buf2[MAX_MB_PLANE];
   int dst_stride1[MAX_MB_PLANE] = { MAX_SB_SIZE, MAX_SB_SIZE, MAX_SB_SIZE };
   int dst_stride2[MAX_MB_PLANE] = { MAX_SB_SIZE, MAX_SB_SIZE, MAX_SB_SIZE };
@@ -1850,7 +1850,7 @@ void av1_build_interintra_predictors_sby(const AV1_COMMON *cm, MACROBLOCKD *xd,
                                          uint8_t *ypred, int ystride,
                                          BUFFER_SET *ctx, BLOCK_SIZE bsize) {
   if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
-    DECLARE_ALIGNED(16, uint16_t, intrapredictor[MAX_SB_SQUARE]);
+    DECLARE_ALIGNED(32, uint16_t, intrapredictor[MAX_SB_SQUARE]);
     av1_build_intra_predictors_for_interintra(
         cm, xd, bsize, 0, ctx, CONVERT_TO_BYTEPTR(intrapredictor), MAX_SB_SIZE);
     av1_combine_interintra(xd, bsize, 0, ypred, ystride,
@@ -1858,7 +1858,7 @@ void av1_build_interintra_predictors_sby(const AV1_COMMON *cm, MACROBLOCKD *xd,
     return;
   }
   {
-    DECLARE_ALIGNED(16, uint8_t, intrapredictor[MAX_SB_SQUARE]);
+    DECLARE_ALIGNED(32, uint8_t, intrapredictor[MAX_SB_SQUARE]);
     av1_build_intra_predictors_for_interintra(cm, xd, bsize, 0, ctx,
                                               intrapredictor, MAX_SB_SIZE);
     av1_combine_interintra(xd, bsize, 0, ypred, ystride, intrapredictor,
@@ -1871,14 +1871,14 @@ void av1_build_interintra_predictors_sbc(const AV1_COMMON *cm, MACROBLOCKD *xd,
                                          BUFFER_SET *ctx, int plane,
                                          BLOCK_SIZE bsize) {
   if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
-    DECLARE_ALIGNED(16, uint16_t, uintrapredictor[MAX_SB_SQUARE]);
+    DECLARE_ALIGNED(32, uint16_t, uintrapredictor[MAX_SB_SQUARE]);
     av1_build_intra_predictors_for_interintra(
         cm, xd, bsize, plane, ctx, CONVERT_TO_BYTEPTR(uintrapredictor),
         MAX_SB_SIZE);
     av1_combine_interintra(xd, bsize, plane, upred, ustride,
                            CONVERT_TO_BYTEPTR(uintrapredictor), MAX_SB_SIZE);
   } else {
-    DECLARE_ALIGNED(16, uint8_t, uintrapredictor[MAX_SB_SQUARE]);
+    DECLARE_ALIGNED(32, uint8_t, uintrapredictor[MAX_SB_SQUARE]);
     av1_build_intra_predictors_for_interintra(cm, xd, bsize, plane, ctx,
                                               uintrapredictor, MAX_SB_SIZE);
     av1_combine_interintra(xd, bsize, plane, upred, ustride, uintrapredictor,

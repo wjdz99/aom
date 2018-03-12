@@ -490,7 +490,7 @@ void av1_selfguided_restoration_sse4_1(const uint8_t *dgd8, int width,
                                        int flt_stride,
                                        const sgr_params_type *params,
                                        int bit_depth, int highbd) {
-  DECLARE_ALIGNED(16, int32_t, buf[4 * RESTORATION_PROC_UNIT_PELS]);
+  DECLARE_ALIGNED(32, int32_t, buf[4 * RESTORATION_PROC_UNIT_PELS]);
   memset(buf, 0, sizeof(buf));
 
   const int width_ext = width + 2 * SGRPROJ_BORDER_HORZ;

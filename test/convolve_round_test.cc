@@ -68,11 +68,11 @@ class ConvolveRoundTest : public ::testing::TestWithParam<ConvolveRoundParam> {
   virtual void SetUp() {
     const size_t block_size = 128 * 128;
     src_ = reinterpret_cast<int32_t *>(
-        aom_memalign(16, block_size * sizeof(*src_)));
+        aom_memalign(32, block_size * sizeof(*src_)));
     dst_ref_ = reinterpret_cast<uint16_t *>(
-        aom_memalign(16, block_size * sizeof(*dst_ref_)));
+        aom_memalign(32, block_size * sizeof(*dst_ref_)));
     dst_ = reinterpret_cast<uint16_t *>(
-        aom_memalign(16, block_size * sizeof(*dst_)));
+        aom_memalign(32, block_size * sizeof(*dst_)));
   }
 
   virtual void TearDown() {

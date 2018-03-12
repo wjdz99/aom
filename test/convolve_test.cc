@@ -326,7 +326,7 @@ class ConvolveTest : public ::testing::TestWithParam<ConvolveParam> {
   }
 
  protected:
-  static const int kDataAlignment = 16;
+  static const int kDataAlignment = 32;
   static const int kOuterBlockSize = 4 * kMaxDimension;
   static const int kInputStride = kOuterBlockSize;
   static const int kOutputStride = kOuterBlockSize;
@@ -527,8 +527,7 @@ TEST_P(ConvolveTest, Avg) {
 TEST_P(ConvolveTest, CopyHoriz) {
   uint8_t *const in = input();
   uint8_t *const out = output();
-  DECLARE_ALIGNED(256, const int16_t,
-                  filter8[8]) = { 0, 0, 0, 128, 0, 0, 0, 0 };
+  DECLARE_ALIGNED(32, const int16_t, filter8[8]) = { 0, 0, 0, 128, 0, 0, 0, 0 };
 
   ASM_REGISTER_STATE_CHECK(UUT_->sh8_(in, kInputStride, out, kOutputStride,
                                       filter8, 16, filter8, 16, Width(),
@@ -546,8 +545,7 @@ TEST_P(ConvolveTest, CopyHoriz) {
 TEST_P(ConvolveTest, CopyVert) {
   uint8_t *const in = input();
   uint8_t *const out = output();
-  DECLARE_ALIGNED(256, const int16_t,
-                  filter8[8]) = { 0, 0, 0, 128, 0, 0, 0, 0 };
+  DECLARE_ALIGNED(32, const int16_t, filter8[8]) = { 0, 0, 0, 128, 0, 0, 0, 0 };
 
   ASM_REGISTER_STATE_CHECK(UUT_->sv8_(in, kInputStride, out, kOutputStride,
                                       filter8, 16, filter8, 16, Width(),
@@ -565,8 +563,7 @@ TEST_P(ConvolveTest, CopyVert) {
 TEST_P(ConvolveTest, Copy2D) {
   uint8_t *const in = input();
   uint8_t *const out = output();
-  DECLARE_ALIGNED(256, const int16_t,
-                  filter8[8]) = { 0, 0, 0, 128, 0, 0, 0, 0 };
+  DECLARE_ALIGNED(32, const int16_t, filter8[8]) = { 0, 0, 0, 128, 0, 0, 0, 0 };
 
   ASM_REGISTER_STATE_CHECK(UUT_->shv8_(in, kInputStride, out, kOutputStride,
                                        filter8, 16, filter8, 16, Width(),

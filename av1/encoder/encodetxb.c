@@ -404,7 +404,7 @@ void av1_write_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *xd,
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
   uint8_t levels_buf[TX_PAD_2D];
   uint8_t *const levels = set_levels(levels_buf, width);
-  DECLARE_ALIGNED(16, int8_t, coeff_contexts[MAX_TX_SQUARE]);
+  DECLARE_ALIGNED(32, int8_t, coeff_contexts[MAX_TX_SQUARE]);
 
   aom_write_symbol(w, eob == 0,
                    ec_ctx->txb_skip_cdf[txs_ctx][txb_ctx->txb_skip_ctx], 2);
@@ -632,7 +632,7 @@ int av1_cost_coeffs_txb(const AV1_COMMON *const cm, const MACROBLOCK *x,
   const int16_t *const scan = scan_order->scan;
   uint8_t levels_buf[TX_PAD_2D];
   uint8_t *const levels = set_levels(levels_buf, width);
-  DECLARE_ALIGNED(16, int8_t, coeff_contexts[MAX_TX_SQUARE]);
+  DECLARE_ALIGNED(32, int8_t, coeff_contexts[MAX_TX_SQUARE]);
   const LV_MAP_COEFF_COST *const coeff_costs =
       &x->coeff_costs[txs_ctx][plane_type];
 
@@ -1334,7 +1334,7 @@ void av1_update_and_record_txb_context(int plane, int block, int blk_row,
 
   TX_SIZE txsize_ctx = get_txsize_entropy_ctx(tx_size);
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
-  DECLARE_ALIGNED(16, int8_t, coeff_contexts[MAX_TX_SQUARE]);
+  DECLARE_ALIGNED(32, int8_t, coeff_contexts[MAX_TX_SQUARE]);
 #if CONFIG_ENTROPY_STATS
   int cdf_idx = cm->coef_cdf_category;
 #endif  // CONFIG_ENTROPY_STATS

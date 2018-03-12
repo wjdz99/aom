@@ -40,28 +40,28 @@ typedef void (*AV1_QUANT_FACADE)(const tran_low_t *coeff_ptr, intptr_t n_coeffs,
 // All of its fields use the same coefficient shift/scaling at TX.
 typedef struct {
   // 0: dc 1: ac 2-8: ac repeated to SIMD width
-  DECLARE_ALIGNED(16, int16_t, y_quant[QINDEX_RANGE][8]);
-  DECLARE_ALIGNED(16, int16_t, y_quant_shift[QINDEX_RANGE][8]);
-  DECLARE_ALIGNED(16, int16_t, y_zbin[QINDEX_RANGE][8]);
-  DECLARE_ALIGNED(16, int16_t, y_round[QINDEX_RANGE][8]);
+  DECLARE_ALIGNED(32, int16_t, y_quant[QINDEX_RANGE][8]);
+  DECLARE_ALIGNED(32, int16_t, y_quant_shift[QINDEX_RANGE][8]);
+  DECLARE_ALIGNED(32, int16_t, y_zbin[QINDEX_RANGE][8]);
+  DECLARE_ALIGNED(32, int16_t, y_round[QINDEX_RANGE][8]);
 
   // TODO(jingning): in progress of re-working the quantization. will decide
   // if we want to deprecate the current use of y_quant.
-  DECLARE_ALIGNED(16, int16_t, y_quant_fp[QINDEX_RANGE][8]);
-  DECLARE_ALIGNED(16, int16_t, u_quant_fp[QINDEX_RANGE][8]);
-  DECLARE_ALIGNED(16, int16_t, v_quant_fp[QINDEX_RANGE][8]);
-  DECLARE_ALIGNED(16, int16_t, y_round_fp[QINDEX_RANGE][8]);
-  DECLARE_ALIGNED(16, int16_t, u_round_fp[QINDEX_RANGE][8]);
-  DECLARE_ALIGNED(16, int16_t, v_round_fp[QINDEX_RANGE][8]);
+  DECLARE_ALIGNED(32, int16_t, y_quant_fp[QINDEX_RANGE][8]);
+  DECLARE_ALIGNED(32, int16_t, u_quant_fp[QINDEX_RANGE][8]);
+  DECLARE_ALIGNED(32, int16_t, v_quant_fp[QINDEX_RANGE][8]);
+  DECLARE_ALIGNED(32, int16_t, y_round_fp[QINDEX_RANGE][8]);
+  DECLARE_ALIGNED(32, int16_t, u_round_fp[QINDEX_RANGE][8]);
+  DECLARE_ALIGNED(32, int16_t, v_round_fp[QINDEX_RANGE][8]);
 
-  DECLARE_ALIGNED(16, int16_t, u_quant[QINDEX_RANGE][8]);
-  DECLARE_ALIGNED(16, int16_t, v_quant[QINDEX_RANGE][8]);
-  DECLARE_ALIGNED(16, int16_t, u_quant_shift[QINDEX_RANGE][8]);
-  DECLARE_ALIGNED(16, int16_t, v_quant_shift[QINDEX_RANGE][8]);
-  DECLARE_ALIGNED(16, int16_t, u_zbin[QINDEX_RANGE][8]);
-  DECLARE_ALIGNED(16, int16_t, v_zbin[QINDEX_RANGE][8]);
-  DECLARE_ALIGNED(16, int16_t, u_round[QINDEX_RANGE][8]);
-  DECLARE_ALIGNED(16, int16_t, v_round[QINDEX_RANGE][8]);
+  DECLARE_ALIGNED(32, int16_t, u_quant[QINDEX_RANGE][8]);
+  DECLARE_ALIGNED(32, int16_t, v_quant[QINDEX_RANGE][8]);
+  DECLARE_ALIGNED(32, int16_t, u_quant_shift[QINDEX_RANGE][8]);
+  DECLARE_ALIGNED(32, int16_t, v_quant_shift[QINDEX_RANGE][8]);
+  DECLARE_ALIGNED(32, int16_t, u_zbin[QINDEX_RANGE][8]);
+  DECLARE_ALIGNED(32, int16_t, v_zbin[QINDEX_RANGE][8]);
+  DECLARE_ALIGNED(32, int16_t, u_round[QINDEX_RANGE][8]);
+  DECLARE_ALIGNED(32, int16_t, v_round[QINDEX_RANGE][8]);
 } QUANTS;
 
 // The Dequants structure is used only for internal quantizer setup in
@@ -69,15 +69,15 @@ typedef struct {
 // Fields are sufffixed according to whether or not they're expressed in
 // the same coefficient shift/precision as TX or a fixed Q3 format.
 typedef struct {
-  DECLARE_ALIGNED(16, int16_t,
+  DECLARE_ALIGNED(32, int16_t,
                   y_dequant_QTX[QINDEX_RANGE][8]);  // 8: SIMD width
-  DECLARE_ALIGNED(16, int16_t,
+  DECLARE_ALIGNED(32, int16_t,
                   u_dequant_QTX[QINDEX_RANGE][8]);  // 8: SIMD width
-  DECLARE_ALIGNED(16, int16_t,
+  DECLARE_ALIGNED(32, int16_t,
                   v_dequant_QTX[QINDEX_RANGE][8]);              // 8: SIMD width
-  DECLARE_ALIGNED(16, int16_t, y_dequant_Q3[QINDEX_RANGE][8]);  // 8: SIMD width
-  DECLARE_ALIGNED(16, int16_t, u_dequant_Q3[QINDEX_RANGE][8]);  // 8: SIMD width
-  DECLARE_ALIGNED(16, int16_t, v_dequant_Q3[QINDEX_RANGE][8]);  // 8: SIMD width
+  DECLARE_ALIGNED(32, int16_t, y_dequant_Q3[QINDEX_RANGE][8]);  // 8: SIMD width
+  DECLARE_ALIGNED(32, int16_t, u_dequant_Q3[QINDEX_RANGE][8]);  // 8: SIMD width
+  DECLARE_ALIGNED(32, int16_t, v_dequant_Q3[QINDEX_RANGE][8]);  // 8: SIMD width
 } Dequants;
 
 struct AV1_COMP;

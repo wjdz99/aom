@@ -19,28 +19,28 @@
 #include "aom_ports/emmintrin_compat.h"
 
 // filters only for the 4_h8 convolution
-DECLARE_ALIGNED(16, static const uint8_t, filt1_4_h8[16]) = {
+DECLARE_ALIGNED(32, static const uint8_t, filt1_4_h8[16]) = {
   0, 1, 1, 2, 2, 3, 3, 4, 2, 3, 3, 4, 4, 5, 5, 6
 };
 
-DECLARE_ALIGNED(16, static const uint8_t, filt2_4_h8[16]) = {
+DECLARE_ALIGNED(32, static const uint8_t, filt2_4_h8[16]) = {
   4, 5, 5, 6, 6, 7, 7, 8, 6, 7, 7, 8, 8, 9, 9, 10
 };
 
 // filters for 8_h8 and 16_h8
-DECLARE_ALIGNED(16, static const uint8_t, filt1_global[16]) = {
+DECLARE_ALIGNED(32, static const uint8_t, filt1_global[16]) = {
   0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8
 };
 
-DECLARE_ALIGNED(16, static const uint8_t, filt2_global[16]) = {
+DECLARE_ALIGNED(32, static const uint8_t, filt2_global[16]) = {
   2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10
 };
 
-DECLARE_ALIGNED(16, static const uint8_t, filt3_global[16]) = {
+DECLARE_ALIGNED(32, static const uint8_t, filt3_global[16]) = {
   4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12
 };
 
-DECLARE_ALIGNED(16, static const uint8_t, filt4_global[16]) = {
+DECLARE_ALIGNED(32, static const uint8_t, filt4_global[16]) = {
   6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13, 14
 };
 
@@ -456,7 +456,7 @@ static void scaledconvolve_horiz_w8(const uint8_t *src, ptrdiff_t src_stride,
                                     uint8_t *dst, ptrdiff_t dst_stride,
                                     const InterpKernel *x_filters, int x0_q4,
                                     int x_step_q4, int w, int h) {
-  DECLARE_ALIGNED(16, uint8_t, temp[8 * 8]);
+  DECLARE_ALIGNED(32, uint8_t, temp[8 * 8]);
   int x, y, z;
   src -= SUBPEL_TAPS / 2 - 1;
 
@@ -578,7 +578,7 @@ static void scaledconvolve_horiz_w4(const uint8_t *src, ptrdiff_t src_stride,
                                     uint8_t *dst, ptrdiff_t dst_stride,
                                     const InterpKernel *x_filters, int x0_q4,
                                     int x_step_q4, int w, int h) {
-  DECLARE_ALIGNED(16, uint8_t, temp[4 * 4]);
+  DECLARE_ALIGNED(32, uint8_t, temp[4 * 4]);
   int x, y, z;
   src -= SUBPEL_TAPS / 2 - 1;
 
@@ -841,7 +841,7 @@ static void scaledconvolve2d(const uint8_t *src, ptrdiff_t src_stride,
   // --Require an additional SUBPEL_TAPS rows for the 8-tap filter tails.
   // --((64 - 1) * 32 + 15) >> 4 + 8 = 135.
   // --Require an additional 8 rows for the horiz_w8 transpose tail.
-  DECLARE_ALIGNED(16, uint8_t, temp[(MAX_EXT_SIZE + 8) * MAX_SB_SIZE]);
+  DECLARE_ALIGNED(32, uint8_t, temp[(MAX_EXT_SIZE + 8) * MAX_SB_SIZE]);
   const int intermediate_height =
       (((h - 1) * y_step_q4 + y0_q4) >> SUBPEL_BITS) + SUBPEL_TAPS;
 
