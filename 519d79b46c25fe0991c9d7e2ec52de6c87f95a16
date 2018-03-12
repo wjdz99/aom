@@ -22,6 +22,30 @@
       "revId": "519d79b46c25fe0991c9d7e2ec52de6c87f95a16",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2ef9e8ec_be6a5fe9",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2018-03-12T18:52:53Z",
+      "side": 1,
+      "message": "I think in general we would want the decoder to be as robust and tolerant as possible.",
+      "parentUuid": "2c874ff4_a1991b88",
+      "range": {
+        "startLine": 194,
+        "startChar": 2,
+        "endLine": 194,
+        "endChar": 45
+      },
+      "revId": "519d79b46c25fe0991c9d7e2ec52de6c87f95a16",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
