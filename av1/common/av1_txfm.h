@@ -40,6 +40,9 @@ static const int32_t NewSqrt2 = 5793;
 // 2^12 / sqrt(2)
 static const int32_t NewInvSqrt2 = 2896;
 
+static int NewSqrt2list[TX_SIZES] = { 5793, 2 * 4096, 2 * 5793, 4 * 4096,
+                                      4 * 5793 };
+
 static INLINE const int32_t *cospi_arr(int n) {
   return av1_cospi_arr_data[n - cos_bit_min];
 }
