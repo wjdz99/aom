@@ -1475,7 +1475,7 @@ void av1_wiener_convolve_add_src_hip_c(const uint8_t *src, ptrdiff_t src_stride,
   const InterpKernel *const filters_y = get_filter_base(filter_y);
   const int y0_q4 = get_filter_offset(filter_y, filters_y);
 
-  uint16_t temp[MAX_EXT_SIZE * MAX_SB_SIZE];
+  uint16_t temp[WIENER_MAX_EXT_SIZE * MAX_SB_SIZE];
   const int intermediate_height =
       (((h - 1) * y_step_q4 + y0_q4) >> SUBPEL_BITS) + SUBPEL_TAPS;
 
@@ -1565,7 +1565,7 @@ void av1_highbd_wiener_convolve_add_src_hip_c(
   // --Must round-up because block may be located at sub-pixel position.
   // --Require an additional SUBPEL_TAPS rows for the 8-tap filter tails.
   // --((64 - 1) * 32 + 15) >> 4 + 8 = 135.
-  uint16_t temp[MAX_EXT_SIZE * MAX_SB_SIZE];
+  uint16_t temp[WIENER_MAX_EXT_SIZE * MAX_SB_SIZE];
   const int intermediate_height =
       (((h - 1) * y_step_q4 + y0_q4) >> SUBPEL_BITS) + SUBPEL_TAPS;
 

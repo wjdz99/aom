@@ -33,6 +33,20 @@ typedef struct ConvolveParams {
   int bck_offset;
 } ConvolveParams;
 
+// Note: Fixed size intermediate buffers, place limits on parameters
+// of some functions. 2d filtering proceeds in 2 steps:
+//   (1) Interpolate horizontally into an intermediate buffer, temp.
+//   (2) Interpolate temp vertically to derive the sub-pixel result.
+// Deriving the maximum number of rows in the temp buffer (135):
+// --Smallest scaling factor is x1/2 ==> y_step_q4 = 32 (Normative).
+// --Largest block size is 64x64 pixels.
+// --64 rows in the downscaled frame span a distance of (64 - 1) * 32 in the
+//   original frame (in 1/16th pixel units).
+// --Must round-up because block may be located at sub-pixel position.
+// --Require an additional SUBPEL_TAPS rows for the 8-tap filter tails.
+// --((64 - 1) * 32 + 15) >> 4 + 8 = 135.
+#define WIENER_MAX_EXT_SIZE 263
+
 #if CONFIG_LOWPRECISION_BLEND
 #define ROUND0_BITS 3
 #define COMPOUND_ROUND1_BITS 7
