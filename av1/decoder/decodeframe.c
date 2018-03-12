@@ -3113,6 +3113,9 @@ static int read_uncompressed_header(AV1Decoder *pbi,
     *cm->fc = cm->frame_contexts[FRAME_CONTEXT_DEFAULTS];
     av1_default_coef_probs(cm);
     cm->frame_contexts[FRAME_CONTEXT_DEFAULTS] = *cm->fc;
+    if (cm->large_scale_tile) {
+      for (int i = 0; i < FRAME_CONTEXTS; ++i) cm->frame_contexts[i] = *cm->fc;
+    }
   }
 #endif  // CONFIG_NO_FRAME_CONTEXT_SIGNALING
 
