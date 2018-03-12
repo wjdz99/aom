@@ -53,7 +53,7 @@ class AV1HighbdInvHTNxN : public ::testing::TestWithParam<IHbdHtParam> {
     bit_depth_ = GET_PARAM(5);
 
     input_ = reinterpret_cast<int16_t *>(
-        aom_memalign(16, sizeof(input_[0]) * num_coeffs_));
+        aom_memalign(32, sizeof(input_[0]) * num_coeffs_));
 
     // Note:
     // Inverse transform input buffer is 32-byte aligned

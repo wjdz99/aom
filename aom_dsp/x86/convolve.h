@@ -97,7 +97,7 @@ typedef void filter8_1dfunction(const uint8_t *src_ptr, ptrdiff_t src_pitch,
     assert(y_step_q4 == 16);                                                 \
     if (filter_x[0] || filter_x[1] || filter_x[2] || filter_y[0] ||          \
         filter_y[1] || filter_y[2]) {                                        \
-      DECLARE_ALIGNED(16, uint8_t, fdata2[MAX_SB_SIZE * (MAX_SB_SIZE + 7)]); \
+      DECLARE_ALIGNED(32, uint8_t, fdata2[MAX_SB_SIZE * (MAX_SB_SIZE + 7)]); \
       aom_convolve8_horiz_##opt(src - 3 * src_stride, src_stride, fdata2,    \
                                 MAX_SB_SIZE, filter_x, x_step_q4, filter_y,  \
                                 y_step_q4, w, h + 7);                        \
@@ -105,7 +105,7 @@ typedef void filter8_1dfunction(const uint8_t *src_ptr, ptrdiff_t src_pitch,
                                       dst, dst_stride, filter_x, x_step_q4,  \
                                       filter_y, y_step_q4, w, h);            \
     } else {                                                                 \
-      DECLARE_ALIGNED(16, uint8_t, fdata2[MAX_SB_SIZE * (MAX_SB_SIZE + 1)]); \
+      DECLARE_ALIGNED(32, uint8_t, fdata2[MAX_SB_SIZE * (MAX_SB_SIZE + 1)]); \
       aom_convolve8_horiz_##opt(src, src_stride, fdata2, MAX_SB_SIZE,        \
                                 filter_x, x_step_q4, filter_y, y_step_q4, w, \
                                 h + 1);                                      \
@@ -162,7 +162,7 @@ typedef void filter8_1dfunction(const uint8_t *src_ptr, ptrdiff_t src_pitch,
       const uint8_t *src, ptrdiff_t src_stride, uint8_t *dst,               \
       ptrdiff_t dst_stride, const int16_t *filter_x, int x_step_q4,         \
       const int16_t *filter_y, int y_step_q4, int w, int h) {               \
-    DECLARE_ALIGNED(16, uint8_t, fdata2[MAX_SB_SIZE * (MAX_SB_SIZE + 7)]);  \
+    DECLARE_ALIGNED(32, uint8_t, fdata2[MAX_SB_SIZE * (MAX_SB_SIZE + 7)]);  \
     assert((-128 <= filter_x[3]) && (filter_x[3] <= 127));                  \
     assert((-128 <= filter_y[3]) && (filter_y[3] <= 127));                  \
     assert(w <= MAX_SB_SIZE);                                               \
@@ -255,7 +255,7 @@ typedef void highbd_filter8_1dfunction(const uint16_t *src_ptr,
     if (x_step_q4 == 16 && y_step_q4 == 16) {                                 \
       if (filter_x[0] || filter_x[1] || filter_x[2] || filter_x[3] == 128 ||  \
           filter_y[0] || filter_y[1] || filter_y[2] || filter_y[3] == 128) {  \
-        DECLARE_ALIGNED(16, uint16_t,                                         \
+        DECLARE_ALIGNED(32, uint16_t,                                         \
                         fdata2[MAX_SB_SIZE * (MAX_SB_SIZE + 7)]);             \
         aom_highbd_convolve8_horiz_##opt(src - 3 * src_stride, src_stride,    \
                                          CONVERT_TO_BYTEPTR(fdata2),          \
@@ -265,7 +265,7 @@ typedef void highbd_filter8_1dfunction(const uint16_t *src_ptr,
             CONVERT_TO_BYTEPTR(fdata2) + 3 * MAX_SB_SIZE, MAX_SB_SIZE, dst,   \
             dst_stride, filter_x, x_step_q4, filter_y, y_step_q4, w, h, bd);  \
       } else {                                                                \
-        DECLARE_ALIGNED(16, uint16_t,                                         \
+        DECLARE_ALIGNED(32, uint16_t,                                         \
                         fdata2[MAX_SB_SIZE * (MAX_SB_SIZE + 1)]);             \
         aom_highbd_convolve8_horiz_##opt(                                     \
             src, src_stride, CONVERT_TO_BYTEPTR(fdata2), MAX_SB_SIZE,         \

@@ -49,16 +49,16 @@ class AV1QuantizeTest : public ::testing::TestWithParam<QuantizeFuncParams> {
  public:
   void RunQuantizeTest() {
     ACMRandom rnd(ACMRandom::DeterministicSeed());
-    DECLARE_ALIGNED(16, tran_low_t, coeff_ptr[maxSize]);
-    DECLARE_ALIGNED(16, int16_t, zbin_ptr[2]);
-    DECLARE_ALIGNED(16, int16_t, round_ptr[2]);
-    DECLARE_ALIGNED(16, int16_t, quant_ptr[2]);
-    DECLARE_ALIGNED(16, int16_t, quant_shift_ptr[2]);
-    DECLARE_ALIGNED(16, tran_low_t, qcoeff_ptr[maxSize]);
-    DECLARE_ALIGNED(16, tran_low_t, dqcoeff_ptr[maxSize]);
-    DECLARE_ALIGNED(16, tran_low_t, ref_qcoeff_ptr[maxSize]);
-    DECLARE_ALIGNED(16, tran_low_t, ref_dqcoeff_ptr[maxSize]);
-    DECLARE_ALIGNED(16, int16_t, dequant_ptr[2]);
+    DECLARE_ALIGNED(32, tran_low_t, coeff_ptr[maxSize]);
+    DECLARE_ALIGNED(32, int16_t, zbin_ptr[2]);
+    DECLARE_ALIGNED(32, int16_t, round_ptr[2]);
+    DECLARE_ALIGNED(32, int16_t, quant_ptr[2]);
+    DECLARE_ALIGNED(32, int16_t, quant_shift_ptr[2]);
+    DECLARE_ALIGNED(32, tran_low_t, qcoeff_ptr[maxSize]);
+    DECLARE_ALIGNED(32, tran_low_t, dqcoeff_ptr[maxSize]);
+    DECLARE_ALIGNED(32, tran_low_t, ref_qcoeff_ptr[maxSize]);
+    DECLARE_ALIGNED(32, tran_low_t, ref_dqcoeff_ptr[maxSize]);
+    DECLARE_ALIGNED(32, int16_t, dequant_ptr[2]);
     uint16_t eob;
     uint16_t ref_eob;
     int err_count_total = 0;
@@ -119,16 +119,16 @@ class AV1QuantizeTest : public ::testing::TestWithParam<QuantizeFuncParams> {
 
   void RunEobTest() {
     ACMRandom rnd(ACMRandom::DeterministicSeed());
-    DECLARE_ALIGNED(16, tran_low_t, coeff_ptr[maxSize]);
-    DECLARE_ALIGNED(16, int16_t, zbin_ptr[2]);
-    DECLARE_ALIGNED(16, int16_t, round_ptr[2]);
-    DECLARE_ALIGNED(16, int16_t, quant_ptr[2]);
-    DECLARE_ALIGNED(16, int16_t, quant_shift_ptr[2]);
-    DECLARE_ALIGNED(16, tran_low_t, qcoeff_ptr[maxSize]);
-    DECLARE_ALIGNED(16, tran_low_t, dqcoeff_ptr[maxSize]);
-    DECLARE_ALIGNED(16, tran_low_t, ref_qcoeff_ptr[maxSize]);
-    DECLARE_ALIGNED(16, tran_low_t, ref_dqcoeff_ptr[maxSize]);
-    DECLARE_ALIGNED(16, int16_t, dequant_ptr[2]);
+    DECLARE_ALIGNED(32, tran_low_t, coeff_ptr[maxSize]);
+    DECLARE_ALIGNED(32, int16_t, zbin_ptr[2]);
+    DECLARE_ALIGNED(32, int16_t, round_ptr[2]);
+    DECLARE_ALIGNED(32, int16_t, quant_ptr[2]);
+    DECLARE_ALIGNED(32, int16_t, quant_shift_ptr[2]);
+    DECLARE_ALIGNED(32, tran_low_t, qcoeff_ptr[maxSize]);
+    DECLARE_ALIGNED(32, tran_low_t, dqcoeff_ptr[maxSize]);
+    DECLARE_ALIGNED(32, tran_low_t, ref_qcoeff_ptr[maxSize]);
+    DECLARE_ALIGNED(32, tran_low_t, ref_dqcoeff_ptr[maxSize]);
+    DECLARE_ALIGNED(32, int16_t, dequant_ptr[2]);
     uint16_t eob;
     uint16_t ref_eob;
     int skip_block = 0;

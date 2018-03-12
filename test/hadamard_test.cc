@@ -105,8 +105,8 @@ class HadamardTestBase : public ::testing::TestWithParam<HadamardFunc> {
 class Hadamard8x8Test : public HadamardTestBase {};
 
 TEST_P(Hadamard8x8Test, CompareReferenceRandom) {
-  DECLARE_ALIGNED(16, int16_t, a[64]);
-  DECLARE_ALIGNED(16, int16_t, b[64]);
+  DECLARE_ALIGNED(32, int16_t, a[64]);
+  DECLARE_ALIGNED(32, int16_t, b[64]);
   int16_t b_ref[64];
   for (int i = 0; i < 64; ++i) {
     a[i] = rnd_.Rand9Signed();
@@ -124,8 +124,8 @@ TEST_P(Hadamard8x8Test, CompareReferenceRandom) {
 }
 
 TEST_P(Hadamard8x8Test, VaryStride) {
-  DECLARE_ALIGNED(16, int16_t, a[64 * 8]);
-  DECLARE_ALIGNED(16, int16_t, b[64]);
+  DECLARE_ALIGNED(32, int16_t, a[64 * 8]);
+  DECLARE_ALIGNED(32, int16_t, b[64]);
   int16_t b_ref[64];
   for (int i = 0; i < 64 * 8; ++i) {
     a[i] = rnd_.Rand9Signed();
@@ -166,8 +166,8 @@ INSTANTIATE_TEST_CASE_P(NEON, Hadamard8x8Test,
 class Hadamard16x16Test : public HadamardTestBase {};
 
 TEST_P(Hadamard16x16Test, CompareReferenceRandom) {
-  DECLARE_ALIGNED(16, int16_t, a[16 * 16]);
-  DECLARE_ALIGNED(16, int16_t, b[16 * 16]);
+  DECLARE_ALIGNED(32, int16_t, a[16 * 16]);
+  DECLARE_ALIGNED(32, int16_t, b[16 * 16]);
   int16_t b_ref[16 * 16];
   for (int i = 0; i < 16 * 16; ++i) {
     a[i] = rnd_.Rand9Signed();
@@ -185,8 +185,8 @@ TEST_P(Hadamard16x16Test, CompareReferenceRandom) {
 }
 
 TEST_P(Hadamard16x16Test, VaryStride) {
-  DECLARE_ALIGNED(16, int16_t, a[16 * 16 * 8]);
-  DECLARE_ALIGNED(16, int16_t, b[16 * 16]);
+  DECLARE_ALIGNED(32, int16_t, a[16 * 16 * 8]);
+  DECLARE_ALIGNED(32, int16_t, b[16 * 16]);
   int16_t b_ref[16 * 16];
   for (int i = 0; i < 16 * 16 * 8; ++i) {
     a[i] = rnd_.Rand9Signed();

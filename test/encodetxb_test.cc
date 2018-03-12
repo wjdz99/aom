@@ -45,10 +45,10 @@ class EncodeTxbTest : public ::testing::TestWithParam<GetNzMapContextsFunc> {
 
   virtual void SetUp() {
     coeff_contexts_ref_ = reinterpret_cast<int8_t *>(
-        aom_memalign(16, sizeof(*coeff_contexts_ref_) * MAX_TX_SQUARE));
+        aom_memalign(32, sizeof(*coeff_contexts_ref_) * MAX_TX_SQUARE));
     ASSERT_TRUE(coeff_contexts_ref_ != NULL);
     coeff_contexts_ = reinterpret_cast<int8_t *>(
-        aom_memalign(16, sizeof(*coeff_contexts_) * MAX_TX_SQUARE));
+        aom_memalign(32, sizeof(*coeff_contexts_) * MAX_TX_SQUARE));
     ASSERT_TRUE(coeff_contexts_ != NULL);
   }
 

@@ -41,7 +41,7 @@ void av1_filter_intra_predictor_sse4_1(uint8_t *dst, ptrdiff_t stride,
 
   for (r = 1; r < bh + 1; r += 2) {
     for (c = 1; c < bw + 1; c += 4) {
-      DECLARE_ALIGNED(16, uint8_t, p[8]);
+      DECLARE_ALIGNED(32, uint8_t, p[8]);
       memcpy(p, &buffer[r - 1][c - 1], 5 * sizeof(uint8_t));
       p[5] = buffer[r][c - 1];
       p[6] = buffer[r + 1][c - 1];

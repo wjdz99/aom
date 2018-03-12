@@ -84,8 +84,8 @@ void AV1HiprecConvolveTest::RunCheckOutput(hiprec_convolve_func test_impl) {
   uint8_t *output2 = new uint8_t[output_n];
 
   // Generate random filter kernels
-  DECLARE_ALIGNED(16, InterpKernel, hkernel);
-  DECLARE_ALIGNED(16, InterpKernel, vkernel);
+  DECLARE_ALIGNED(32, InterpKernel, hkernel);
+  DECLARE_ALIGNED(32, InterpKernel, vkernel);
 
   generate_kernels(&rnd_, hkernel, vkernel);
 
@@ -130,8 +130,8 @@ void AV1HiprecConvolveTest::RunSpeedTest(hiprec_convolve_func test_impl) {
   uint8_t *output2 = new uint8_t[output_n];
 
   // Generate random filter kernels
-  DECLARE_ALIGNED(16, InterpKernel, hkernel);
-  DECLARE_ALIGNED(16, InterpKernel, vkernel);
+  DECLARE_ALIGNED(32, InterpKernel, hkernel);
+  DECLARE_ALIGNED(32, InterpKernel, vkernel);
 
   generate_kernels(&rnd_, hkernel, vkernel);
 
@@ -221,8 +221,8 @@ void AV1HighbdHiprecConvolveTest::RunCheckOutput(
   uint16_t *output2 = new uint16_t[output_n];
 
   // Generate random filter kernels
-  DECLARE_ALIGNED(16, InterpKernel, hkernel);
-  DECLARE_ALIGNED(16, InterpKernel, vkernel);
+  DECLARE_ALIGNED(32, InterpKernel, hkernel);
+  DECLARE_ALIGNED(32, InterpKernel, vkernel);
 
   generate_kernels(&rnd_, hkernel, vkernel);
 
@@ -272,8 +272,8 @@ void AV1HighbdHiprecConvolveTest::RunSpeedTest(
   uint16_t *output2 = new uint16_t[output_n];
 
   // Generate random filter kernels
-  DECLARE_ALIGNED(16, InterpKernel, hkernel);
-  DECLARE_ALIGNED(16, InterpKernel, vkernel);
+  DECLARE_ALIGNED(32, InterpKernel, hkernel);
+  DECLARE_ALIGNED(32, InterpKernel, vkernel);
 
   generate_kernels(&rnd_, hkernel, vkernel);
 

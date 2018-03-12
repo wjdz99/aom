@@ -52,10 +52,10 @@ class MaskedSADTest : public ::testing::TestWithParam<MaskedSADParam> {
 TEST_P(MaskedSADTest, OperationCheck) {
   unsigned int ref_ret, ret;
   ACMRandom rnd(ACMRandom::DeterministicSeed());
-  DECLARE_ALIGNED(16, uint8_t, src_ptr[MAX_SB_SIZE * MAX_SB_SIZE]);
-  DECLARE_ALIGNED(16, uint8_t, ref_ptr[MAX_SB_SIZE * MAX_SB_SIZE]);
-  DECLARE_ALIGNED(16, uint8_t, second_pred_ptr[MAX_SB_SIZE * MAX_SB_SIZE]);
-  DECLARE_ALIGNED(16, uint8_t, msk_ptr[MAX_SB_SIZE * MAX_SB_SIZE]);
+  DECLARE_ALIGNED(32, uint8_t, src_ptr[MAX_SB_SIZE * MAX_SB_SIZE]);
+  DECLARE_ALIGNED(32, uint8_t, ref_ptr[MAX_SB_SIZE * MAX_SB_SIZE]);
+  DECLARE_ALIGNED(32, uint8_t, second_pred_ptr[MAX_SB_SIZE * MAX_SB_SIZE]);
+  DECLARE_ALIGNED(32, uint8_t, msk_ptr[MAX_SB_SIZE * MAX_SB_SIZE]);
   int err_count = 0;
   int first_failure = -1;
   int src_stride = MAX_SB_SIZE;
@@ -116,10 +116,10 @@ class HighbdMaskedSADTest
 TEST_P(HighbdMaskedSADTest, OperationCheck) {
   unsigned int ref_ret, ret;
   ACMRandom rnd(ACMRandom::DeterministicSeed());
-  DECLARE_ALIGNED(16, uint16_t, src_ptr[MAX_SB_SIZE * MAX_SB_SIZE]);
-  DECLARE_ALIGNED(16, uint16_t, ref_ptr[MAX_SB_SIZE * MAX_SB_SIZE]);
-  DECLARE_ALIGNED(16, uint16_t, second_pred_ptr[MAX_SB_SIZE * MAX_SB_SIZE]);
-  DECLARE_ALIGNED(16, uint8_t, msk_ptr[MAX_SB_SIZE * MAX_SB_SIZE]);
+  DECLARE_ALIGNED(32, uint16_t, src_ptr[MAX_SB_SIZE * MAX_SB_SIZE]);
+  DECLARE_ALIGNED(32, uint16_t, ref_ptr[MAX_SB_SIZE * MAX_SB_SIZE]);
+  DECLARE_ALIGNED(32, uint16_t, second_pred_ptr[MAX_SB_SIZE * MAX_SB_SIZE]);
+  DECLARE_ALIGNED(32, uint8_t, msk_ptr[MAX_SB_SIZE * MAX_SB_SIZE]);
   uint8_t *src8_ptr = CONVERT_TO_BYTEPTR(src_ptr);
   uint8_t *ref8_ptr = CONVERT_TO_BYTEPTR(ref_ptr);
   uint8_t *second_pred8_ptr = CONVERT_TO_BYTEPTR(second_pred_ptr);

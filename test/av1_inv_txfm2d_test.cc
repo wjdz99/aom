@@ -63,7 +63,7 @@ class AV1InvTxfm2d : public ::testing::TestWithParam<AV1InvTxfm2dParam> {
     const int count = 500;
 
     for (int ci = 0; ci < count; ci++) {
-      DECLARE_ALIGNED(16, int16_t, input[64 * 64]) = { 0 };
+      DECLARE_ALIGNED(32, int16_t, input[64 * 64]) = { 0 };
       ASSERT_LE(txfm2d_size, NELEMENTS(input));
 
       for (int ni = 0; ni < txfm2d_size; ++ni) {
@@ -75,7 +75,7 @@ class AV1InvTxfm2d : public ::testing::TestWithParam<AV1InvTxfm2dParam> {
         }
       }
 
-      DECLARE_ALIGNED(16, uint16_t, expected[64 * 64]) = { 0 };
+      DECLARE_ALIGNED(32, uint16_t, expected[64 * 64]) = { 0 };
       ASSERT_LE(txfm2d_size, NELEMENTS(expected));
       if (TxfmUsesApproximation()) {
         // Compare reference forward HT + inverse HT vs forward HT + inverse HT.
@@ -89,7 +89,7 @@ class AV1InvTxfm2d : public ::testing::TestWithParam<AV1InvTxfm2dParam> {
         ASSERT_EQ(tx_type_, DCT_DCT);
         libaom_test::reference_hybrid_2d(ref_input, ref_coeffs, tx_type_,
                                          tx_size_);
-        DECLARE_ALIGNED(16, int32_t, ref_coeffs_int[64 * 64]) = { 0 };
+        DECLARE_ALIGNED(32, int32_t, ref_coeffs_int[64 * 64]) = { 0 };
         ASSERT_LE(txfm2d_size, NELEMENTS(ref_coeffs_int));
         for (int ni = 0; ni < txfm2d_size; ++ni) {
           ref_coeffs_int[ni] = (int32_t)round(ref_coeffs[ni]);
@@ -102,11 +102,11 @@ class AV1InvTxfm2d : public ::testing::TestWithParam<AV1InvTxfm2dParam> {
         }
       }
 
-      DECLARE_ALIGNED(16, int32_t, coeffs[64 * 64]) = { 0 };
+      DECLARE_ALIGNED(32, int32_t, coeffs[64 * 64]) = { 0 };
       ASSERT_LE(txfm2d_size, NELEMENTS(coeffs));
       fwd_txfm_func(input, coeffs, tx_w, tx_type_, bd);
 
-      DECLARE_ALIGNED(16, uint16_t, actual[64 * 64]) = { 0 };
+      DECLARE_ALIGNED(32, uint16_t, actual[64 * 64]) = { 0 };
       ASSERT_LE(txfm2d_size, NELEMENTS(actual));
       inv_txfm_func(coeffs, actual, tx_w, tx_type_, bd);
 
@@ -245,10 +245,10 @@ void AV1LbdInvTxfm2d::RunAV1InvTxfm2dTest(TX_TYPE tx_type, TX_SIZE tx_size,
   const int bd = 8;
   const int BLK_WIDTH = 64;
   const int BLK_SIZE = BLK_WIDTH * BLK_WIDTH;
-  DECLARE_ALIGNED(16, int16_t, input[BLK_SIZE]) = { 0 };
+  DECLARE_ALIGNED(32, int16_t, input[BLK_SIZE]) = { 0 };
   DECLARE_ALIGNED(32, int32_t, inv_input[BLK_SIZE]) = { 0 };
-  DECLARE_ALIGNED(16, uint8_t, output[BLK_SIZE]) = { 0 };
-  DECLARE_ALIGNED(16, uint16_t, ref_output[BLK_SIZE]) = { 0 };
+  DECLARE_ALIGNED(32, uint8_t, output[BLK_SIZE]) = { 0 };
+  DECLARE_ALIGNED(32, uint16_t, ref_output[BLK_SIZE]) = { 0 };
   int stride = BLK_WIDTH;
   int rows = tx_size_high[tx_size];
   int cols = tx_size_wide[tx_size];
