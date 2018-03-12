@@ -187,7 +187,7 @@ void aom_var_filter_block2d_bil_second_pass_c(const uint16_t *a, uint8_t *b,
       const uint8_t *second_pred) {                                           \
     uint16_t fdata3[(H + 1) * W];                                             \
     uint8_t temp2[H * W];                                                     \
-    DECLARE_ALIGNED(16, uint8_t, temp3[H * W]);                               \
+    DECLARE_ALIGNED(32, uint8_t, temp3[H * W]);                               \
                                                                               \
     aom_var_filter_block2d_bil_first_pass_c(a, fdata3, a_stride, 1, H + 1, W, \
                                             bilinear_filters_2t[xoffset]);    \
@@ -204,7 +204,7 @@ void aom_var_filter_block2d_bil_second_pass_c(const uint16_t *a, uint8_t *b,
       const uint8_t *second_pred, const JNT_COMP_PARAMS *jcp_param) {         \
     uint16_t fdata3[(H + 1) * W];                                             \
     uint8_t temp2[H * W];                                                     \
-    DECLARE_ALIGNED(16, uint8_t, temp3[H * W]);                               \
+    DECLARE_ALIGNED(32, uint8_t, temp3[H * W]);                               \
                                                                               \
     aom_var_filter_block2d_bil_first_pass_c(a, fdata3, a_stride, 1, H + 1, W, \
                                             bilinear_filters_2t[xoffset]);    \
@@ -329,7 +329,7 @@ void aom_upsampled_pred_c(uint8_t *comp_pred, int width, int height,
       aom_convolve8_vert_c(ref, ref_stride, comp_pred, width, NULL, -1, kernel,
                            16, width, height);
     } else {
-      DECLARE_ALIGNED(16, uint8_t,
+      DECLARE_ALIGNED(32, uint8_t,
                       temp[((MAX_SB_SIZE * 2 + 16) + 16) * MAX_SB_SIZE]);
       const int16_t *kernel_x;
       const int16_t *kernel_y;
@@ -636,7 +636,7 @@ void aom_highbd_var_filter_block2d_bil_second_pass(
       const uint8_t *second_pred) {                                           \
     uint16_t fdata3[(H + 1) * W];                                             \
     uint16_t temp2[H * W];                                                    \
-    DECLARE_ALIGNED(16, uint16_t, temp3[H * W]);                              \
+    DECLARE_ALIGNED(32, uint16_t, temp3[H * W]);                              \
                                                                               \
     aom_highbd_var_filter_block2d_bil_first_pass(                             \
         src, fdata3, src_stride, 1, H + 1, W, bilinear_filters_2t[xoffset]);  \
@@ -656,7 +656,7 @@ void aom_highbd_var_filter_block2d_bil_second_pass(
       const uint8_t *second_pred) {                                           \
     uint16_t fdata3[(H + 1) * W];                                             \
     uint16_t temp2[H * W];                                                    \
-    DECLARE_ALIGNED(16, uint16_t, temp3[H * W]);                              \
+    DECLARE_ALIGNED(32, uint16_t, temp3[H * W]);                              \
                                                                               \
     aom_highbd_var_filter_block2d_bil_first_pass(                             \
         src, fdata3, src_stride, 1, H + 1, W, bilinear_filters_2t[xoffset]);  \
@@ -676,7 +676,7 @@ void aom_highbd_var_filter_block2d_bil_second_pass(
       const uint8_t *second_pred) {                                           \
     uint16_t fdata3[(H + 1) * W];                                             \
     uint16_t temp2[H * W];                                                    \
-    DECLARE_ALIGNED(16, uint16_t, temp3[H * W]);                              \
+    DECLARE_ALIGNED(32, uint16_t, temp3[H * W]);                              \
                                                                               \
     aom_highbd_var_filter_block2d_bil_first_pass(                             \
         src, fdata3, src_stride, 1, H + 1, W, bilinear_filters_2t[xoffset]);  \
@@ -696,7 +696,7 @@ void aom_highbd_var_filter_block2d_bil_second_pass(
       const uint8_t *second_pred, const JNT_COMP_PARAMS *jcp_param) {         \
     uint16_t fdata3[(H + 1) * W];                                             \
     uint16_t temp2[H * W];                                                    \
-    DECLARE_ALIGNED(16, uint16_t, temp3[H * W]);                              \
+    DECLARE_ALIGNED(32, uint16_t, temp3[H * W]);                              \
                                                                               \
     aom_highbd_var_filter_block2d_bil_first_pass(                             \
         src, fdata3, src_stride, 1, H + 1, W, bilinear_filters_2t[xoffset]);  \
@@ -716,7 +716,7 @@ void aom_highbd_var_filter_block2d_bil_second_pass(
       const uint8_t *second_pred, const JNT_COMP_PARAMS *jcp_param) {         \
     uint16_t fdata3[(H + 1) * W];                                             \
     uint16_t temp2[H * W];                                                    \
-    DECLARE_ALIGNED(16, uint16_t, temp3[H * W]);                              \
+    DECLARE_ALIGNED(32, uint16_t, temp3[H * W]);                              \
                                                                               \
     aom_highbd_var_filter_block2d_bil_first_pass(                             \
         src, fdata3, src_stride, 1, H + 1, W, bilinear_filters_2t[xoffset]);  \
@@ -736,7 +736,7 @@ void aom_highbd_var_filter_block2d_bil_second_pass(
       const uint8_t *second_pred, const JNT_COMP_PARAMS *jcp_param) {         \
     uint16_t fdata3[(H + 1) * W];                                             \
     uint16_t temp2[H * W];                                                    \
-    DECLARE_ALIGNED(16, uint16_t, temp3[H * W]);                              \
+    DECLARE_ALIGNED(32, uint16_t, temp3[H * W]);                              \
                                                                               \
     aom_highbd_var_filter_block2d_bil_first_pass(                             \
         src, fdata3, src_stride, 1, H + 1, W, bilinear_filters_2t[xoffset]);  \
@@ -844,7 +844,7 @@ void aom_highbd_upsampled_pred_c(uint16_t *comp_pred, int width, int height,
                                   CONVERT_TO_BYTEPTR(comp_pred), width, NULL,
                                   -1, kernel, 16, width, height, bd);
     } else {
-      DECLARE_ALIGNED(16, uint16_t,
+      DECLARE_ALIGNED(32, uint16_t,
                       temp[((MAX_SB_SIZE + 16) + 16) * MAX_SB_SIZE]);
       const int16_t *kernel_x;
       const int16_t *kernel_y;
@@ -975,7 +975,7 @@ void aom_comp_mask_upsampled_pred(uint8_t *comp_pred, const uint8_t *pred,
       unsigned int *sse) {                                                     \
     uint16_t fdata3[(H + 1) * W];                                              \
     uint8_t temp2[H * W];                                                      \
-    DECLARE_ALIGNED(16, uint8_t, temp3[H * W]);                                \
+    DECLARE_ALIGNED(32, uint8_t, temp3[H * W]);                                \
                                                                                \
     aom_var_filter_block2d_bil_first_pass_c(src, fdata3, src_stride, 1, H + 1, \
                                             W, bilinear_filters_2t[xoffset]);  \
@@ -1063,7 +1063,7 @@ void aom_highbd_comp_mask_upsampled_pred_c(
       unsigned int *sse) {                                                     \
     uint16_t fdata3[(H + 1) * W];                                              \
     uint16_t temp2[H * W];                                                     \
-    DECLARE_ALIGNED(16, uint16_t, temp3[H * W]);                               \
+    DECLARE_ALIGNED(32, uint16_t, temp3[H * W]);                               \
                                                                                \
     aom_highbd_var_filter_block2d_bil_first_pass(                              \
         src, fdata3, src_stride, 1, H + 1, W, bilinear_filters_2t[xoffset]);   \
@@ -1085,7 +1085,7 @@ void aom_highbd_comp_mask_upsampled_pred_c(
       unsigned int *sse) {                                                     \
     uint16_t fdata3[(H + 1) * W];                                              \
     uint16_t temp2[H * W];                                                     \
-    DECLARE_ALIGNED(16, uint16_t, temp3[H * W]);                               \
+    DECLARE_ALIGNED(32, uint16_t, temp3[H * W]);                               \
                                                                                \
     aom_highbd_var_filter_block2d_bil_first_pass(                              \
         src, fdata3, src_stride, 1, H + 1, W, bilinear_filters_2t[xoffset]);   \
@@ -1107,7 +1107,7 @@ void aom_highbd_comp_mask_upsampled_pred_c(
       unsigned int *sse) {                                                     \
     uint16_t fdata3[(H + 1) * W];                                              \
     uint16_t temp2[H * W];                                                     \
-    DECLARE_ALIGNED(16, uint16_t, temp3[H * W]);                               \
+    DECLARE_ALIGNED(32, uint16_t, temp3[H * W]);                               \
                                                                                \
     aom_highbd_var_filter_block2d_bil_first_pass(                              \
         src, fdata3, src_stride, 1, H + 1, W, bilinear_filters_2t[xoffset]);   \

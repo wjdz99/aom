@@ -527,7 +527,7 @@ TEST_P(ConvolveTest, Avg) {
 TEST_P(ConvolveTest, CopyHoriz) {
   uint8_t *const in = input();
   uint8_t *const out = output();
-  DECLARE_ALIGNED(256, const int16_t,
+  DECLARE_ALIGNED(32, const int16_t,
                   filter8[8]) = { 0, 0, 0, 128, 0, 0, 0, 0 };
 
   ASM_REGISTER_STATE_CHECK(UUT_->sh8_(in, kInputStride, out, kOutputStride,
@@ -546,7 +546,7 @@ TEST_P(ConvolveTest, CopyHoriz) {
 TEST_P(ConvolveTest, CopyVert) {
   uint8_t *const in = input();
   uint8_t *const out = output();
-  DECLARE_ALIGNED(256, const int16_t,
+  DECLARE_ALIGNED(32, const int16_t,
                   filter8[8]) = { 0, 0, 0, 128, 0, 0, 0, 0 };
 
   ASM_REGISTER_STATE_CHECK(UUT_->sv8_(in, kInputStride, out, kOutputStride,
@@ -565,7 +565,7 @@ TEST_P(ConvolveTest, CopyVert) {
 TEST_P(ConvolveTest, Copy2D) {
   uint8_t *const in = input();
   uint8_t *const out = output();
-  DECLARE_ALIGNED(256, const int16_t,
+  DECLARE_ALIGNED(32, const int16_t,
                   filter8[8]) = { 0, 0, 0, 128, 0, 0, 0, 0 };
 
   ASM_REGISTER_STATE_CHECK(UUT_->shv8_(in, kInputStride, out, kOutputStride,

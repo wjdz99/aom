@@ -441,7 +441,7 @@ typedef struct macroblockd_plane {
   const int16_t *dequant_Q3;
 
 #if CONFIG_DIST_8X8
-  DECLARE_ALIGNED(16, int16_t, pred[MAX_SB_SQUARE]);
+  DECLARE_ALIGNED(32, int16_t, pred[MAX_SB_SQUARE]);
 #endif
 } MACROBLOCKD_PLANE;
 
@@ -458,8 +458,8 @@ typedef struct RefBuffer {
 } RefBuffer;
 
 typedef struct {
-  DECLARE_ALIGNED(16, InterpKernel, vfilter);
-  DECLARE_ALIGNED(16, InterpKernel, hfilter);
+  DECLARE_ALIGNED(32, InterpKernel, vfilter);
+  DECLARE_ALIGNED(32, InterpKernel, hfilter);
 } WienerInfo;
 
 typedef struct {
@@ -621,7 +621,7 @@ typedef struct macroblockd {
   int curr_delta_lf[FRAME_LF_COUNT];
 #endif
 
-  DECLARE_ALIGNED(16, uint8_t, seg_mask[2 * MAX_SB_SQUARE]);
+  DECLARE_ALIGNED(32, uint8_t, seg_mask[2 * MAX_SB_SQUARE]);
 
   CFL_CTX cfl;
 

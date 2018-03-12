@@ -338,7 +338,7 @@ static unsigned int setup_center_error(
   unsigned int besterr;
   if (second_pred != NULL) {
     if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
-      DECLARE_ALIGNED(16, uint16_t, comp_pred16[MAX_SB_SQUARE]);
+      DECLARE_ALIGNED(32, uint16_t, comp_pred16[MAX_SB_SQUARE]);
       if (mask) {
         aom_highbd_comp_mask_pred(comp_pred16, second_pred, w, h, y + offset,
                                   y_stride, mask, mask_stride, invert_mask);
@@ -353,7 +353,7 @@ static unsigned int setup_center_error(
       besterr =
           vfp->vf(CONVERT_TO_BYTEPTR(comp_pred16), w, src, src_stride, sse1);
     } else {
-      DECLARE_ALIGNED(16, uint8_t, comp_pred[MAX_SB_SQUARE]);
+      DECLARE_ALIGNED(32, uint8_t, comp_pred[MAX_SB_SQUARE]);
       if (mask) {
         aom_comp_mask_pred(comp_pred, second_pred, w, h, y + offset, y_stride,
                            mask, mask_stride, invert_mask);
@@ -635,7 +635,7 @@ static int upsampled_pref_error(const MACROBLOCKD *xd,
                                 unsigned int *sse) {
   unsigned int besterr;
   if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
-    DECLARE_ALIGNED(16, uint16_t, pred16[MAX_SB_SQUARE]);
+    DECLARE_ALIGNED(32, uint16_t, pred16[MAX_SB_SQUARE]);
     if (second_pred != NULL) {
       if (mask) {
         aom_highbd_comp_mask_upsampled_pred(
@@ -658,7 +658,7 @@ static int upsampled_pref_error(const MACROBLOCKD *xd,
 
     besterr = vfp->vf(CONVERT_TO_BYTEPTR(pred16), w, src, src_stride, sse);
   } else {
-    DECLARE_ALIGNED(16, uint8_t, pred[MAX_SB_SQUARE]);
+    DECLARE_ALIGNED(32, uint8_t, pred[MAX_SB_SQUARE]);
     if (second_pred != NULL) {
       if (mask) {
         aom_comp_mask_upsampled_pred(pred, second_pred, w, h, subpel_x_q3,
@@ -1896,10 +1896,10 @@ unsigned int av1_int_pro_motion_estimation(const AV1_COMP *cpi, MACROBLOCK *x,
   MACROBLOCKD *xd = &x->e_mbd;
   MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
   struct buf_2d backup_yv12[MAX_MB_PLANE] = { { 0, 0, 0, 0, 0 } };
-  DECLARE_ALIGNED(16, int16_t, hbuf[2 * MAX_SB_SIZE]);
-  DECLARE_ALIGNED(16, int16_t, vbuf[2 * MAX_SB_SIZE]);
-  DECLARE_ALIGNED(16, int16_t, src_hbuf[MAX_SB_SQUARE]);
-  DECLARE_ALIGNED(16, int16_t, src_vbuf[MAX_SB_SQUARE]);
+  DECLARE_ALIGNED(32, int16_t, hbuf[2 * MAX_SB_SIZE]);
+  DECLARE_ALIGNED(32, int16_t, vbuf[2 * MAX_SB_SIZE]);
+  DECLARE_ALIGNED(32, int16_t, src_hbuf[MAX_SB_SQUARE]);
+  DECLARE_ALIGNED(32, int16_t, src_vbuf[MAX_SB_SQUARE]);
   int idx;
   const int src_stride = x->plane[0].src.stride;
   const int ref_stride = xd->plane[0].pre[0].stride;
@@ -2209,7 +2209,7 @@ int av1_full_search_sadx3(const MACROBLOCK *x, const MV *ref_mv,
     if (fn_ptr->sdx3f != NULL) {
       while ((c + 2) < col_max) {
         int i;
-        DECLARE_ALIGNED(16, uint32_t, sads[3]);
+        DECLARE_ALIGNED(32, uint32_t, sads[3]);
 
         fn_ptr->sdx3f(what->buf, what->stride, check_here, in_what->stride,
                       sads);
@@ -2275,7 +2275,7 @@ int av1_full_search_sadx8(const MACROBLOCK *x, const MV *ref_mv,
     if (fn_ptr->sdx8f != NULL) {
       while ((c + 7) < col_max) {
         int i;
-        DECLARE_ALIGNED(16, uint32_t, sads[8]);
+        DECLARE_ALIGNED(32, uint32_t, sads[8]);
 
         fn_ptr->sdx8f(what->buf, what->stride, check_here, in_what->stride,
                       sads);
@@ -2299,7 +2299,7 @@ int av1_full_search_sadx8(const MACROBLOCK *x, const MV *ref_mv,
     if (fn_ptr->sdx3f != NULL) {
       while ((c + 2) < col_max) {
         int i;
-        DECLARE_ALIGNED(16, uint32_t, sads[3]);
+        DECLARE_ALIGNED(32, uint32_t, sads[3]);
 
         fn_ptr->sdx3f(what->buf, what->stride, check_here, in_what->stride,
                       sads);
@@ -2729,13 +2729,13 @@ static int upsampled_obmc_pref_error(const MACROBLOCKD *xd, const int32_t *mask,
                                      int h, unsigned int *sse) {
   unsigned int besterr;
   if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
-    DECLARE_ALIGNED(16, uint16_t, pred16[MAX_SB_SQUARE]);
+    DECLARE_ALIGNED(32, uint16_t, pred16[MAX_SB_SQUARE]);
     aom_highbd_upsampled_pred(pred16, w, h, subpel_x_q3, subpel_y_q3, y,
                               y_stride, xd->bd);
 
     besterr = vfp->ovf(CONVERT_TO_BYTEPTR(pred16), w, wsrc, mask, sse);
   } else {
-    DECLARE_ALIGNED(16, uint8_t, pred[MAX_SB_SQUARE]);
+    DECLARE_ALIGNED(32, uint8_t, pred[MAX_SB_SQUARE]);
     aom_upsampled_pred(pred, w, h, subpel_x_q3, subpel_y_q3, y, y_stride);
 
     besterr = vfp->ovf(pred, w, wsrc, mask, sse);
