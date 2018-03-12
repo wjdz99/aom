@@ -33,8 +33,8 @@ static const int segment_id[ENERGY_SPAN] = { 0, 1, 1, 2, 3, 4 };
 
 #define SEGMENT_ID(i) segment_id[(i)-ENERGY_MIN]
 
-DECLARE_ALIGNED(16, static const uint8_t, av1_all_zeros[MAX_SB_SIZE]) = { 0 };
-DECLARE_ALIGNED(16, static const uint16_t,
+DECLARE_ALIGNED(32, static const uint8_t, av1_all_zeros[MAX_SB_SIZE]) = { 0 };
+DECLARE_ALIGNED(32, static const uint16_t,
                 av1_highbd_all_zeros[MAX_SB_SIZE]) = { 0 };
 
 unsigned int av1_vaq_segment_id(int energy) {

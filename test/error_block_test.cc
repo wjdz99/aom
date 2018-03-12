@@ -56,8 +56,8 @@ class ErrorBlockTest : public ::testing::TestWithParam<ErrorBlockParam> {
 
 TEST_P(ErrorBlockTest, OperationCheck) {
   ACMRandom rnd(ACMRandom::DeterministicSeed());
-  DECLARE_ALIGNED(16, tran_low_t, coeff[4096]);
-  DECLARE_ALIGNED(16, tran_low_t, dqcoeff[4096]);
+  DECLARE_ALIGNED(32, tran_low_t, coeff[4096]);
+  DECLARE_ALIGNED(32, tran_low_t, dqcoeff[4096]);
   int err_count_total = 0;
   int first_failure = -1;
   intptr_t block_size;
@@ -99,8 +99,8 @@ TEST_P(ErrorBlockTest, OperationCheck) {
 
 TEST_P(ErrorBlockTest, ExtremeValues) {
   ACMRandom rnd(ACMRandom::DeterministicSeed());
-  DECLARE_ALIGNED(16, tran_low_t, coeff[4096]);
-  DECLARE_ALIGNED(16, tran_low_t, dqcoeff[4096]);
+  DECLARE_ALIGNED(32, tran_low_t, coeff[4096]);
+  DECLARE_ALIGNED(32, tran_low_t, dqcoeff[4096]);
   int err_count_total = 0;
   int first_failure = -1;
   intptr_t block_size;

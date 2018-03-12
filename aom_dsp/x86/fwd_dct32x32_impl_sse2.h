@@ -59,7 +59,7 @@ void FDCT32x32_2D(const int16_t *input, tran_low_t *output_org, int stride) {
   const int str2 = 2 * stride;
   const int str3 = 2 * stride + str1;
   // We need an intermediate buffer between passes.
-  DECLARE_ALIGNED(16, int16_t, intermediate[32 * 32]);
+  DECLARE_ALIGNED(32, int16_t, intermediate[32 * 32]);
   // Constants
   //    When we use them, in one case, they are all the same. In all others
   //    it's a pair of them that we need to repeat four times. This is done

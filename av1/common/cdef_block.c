@@ -21,7 +21,7 @@
 #include "./cdef.h"
 
 /* Generated from gen_filter_tables.c. */
-DECLARE_ALIGNED(16, const int, cdef_directions[8][2]) = {
+DECLARE_ALIGNED(32, const int, cdef_directions[8][2]) = {
   { -1 * CDEF_BSTRIDE + 1, -2 * CDEF_BSTRIDE + 2 },
   { 0 * CDEF_BSTRIDE + 1, -1 * CDEF_BSTRIDE + 2 },
   { 0 * CDEF_BSTRIDE + 1, 0 * CDEF_BSTRIDE + 2 },
