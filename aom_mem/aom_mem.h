@@ -17,11 +17,21 @@
 #include <lddk.h>
 #endif
 
-#include <stdlib.h>
 #include <stddef.h>
+#include <stdint.h>
+#include <stdlib.h>
 
 #if defined(__cplusplus)
 extern "C" {
+#endif
+
+#ifndef AOM_MAX_ALLOCABLE_MEMORY
+#if SIZE_MAX > (1ULL << 32)
+#define AOM_MAX_ALLOCABLE_MEMORY 8589934592  // 8 GB
+#else
+// For 32-bit targets keep this below INT_MAX to avoid valgrind warnings.
+#define AOM_MAX_ALLOCABLE_MEMORY ((1ULL << 31) - (1 << 16))
+#endif
 #endif
 
 void *aom_memalign(size_t align, size_t size);
