@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a433c717_68d1b6f5",
+        "filename": "av1/common/convolve.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-03-12T21:20:54Z",
+      "side": 1,
+      "message": "you can use IMPLIES:\nassert(IMPLIES(bd \u003c 12, intbufrange \u003c\u003d 16));\nThat way, this is a no-op in release builds.",
+      "revId": "a940a4a2e25b420d541867cf22eb2cc0c27efb53",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
