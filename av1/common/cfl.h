@@ -22,8 +22,7 @@ static INLINE CFL_ALLOWED_TYPE is_cfl_allowed(const MB_MODE_INFO *mbmi) {
 }
 
 static INLINE int get_scaled_luma_q0(int alpha_q3, int16_t pred_buf_q3) {
-  int scaled_luma_q6 = alpha_q3 * pred_buf_q3;
-  return ROUND_POWER_OF_TWO_SIGNED(scaled_luma_q6, 6);
+  return (alpha_q3 * pred_buf_q3 + 32) >> 6;
 }
 
 static INLINE CFL_PRED_TYPE get_cfl_pred_type(PLANE_TYPE plane) {
