@@ -81,12 +81,9 @@ cfl_subsample_lbd_fn cfl_get_luma_subsampling_420_lbd_avx2(TX_SIZE tx_size) {
 }
 
 static INLINE __m256i predict_unclipped(const __m256i *input, __m256i alpha_q12,
-                                        __m256i alpha_sign, __m256i dc_q0) {
-  __m256i ac_q3 = _mm256_loadu_si256(input);
-  __m256i ac_sign = _mm256_sign_epi16(alpha_sign, ac_q3);
-  __m256i scaled_luma_q0 =
-      _mm256_mulhrs_epi16(_mm256_abs_epi16(ac_q3), alpha_q12);
-  scaled_luma_q0 = _mm256_sign_epi16(scaled_luma_q0, ac_sign);
+                                        __m256i dc_q0) {
+  const __m256i ac_q3 = _mm256_loadu_si256(input);
+  const __m256i scaled_luma_q0 = _mm256_mulhrs_epi16(ac_q3, alpha_q12);
   return _mm256_add_epi16(scaled_luma_q0, dc_q0);
 }
 
@@ -94,15 +91,14 @@ static INLINE void cfl_predict_lbd_avx2(const int16_t *pred_buf_q3,
                                         uint8_t *dst, int dst_stride,
                                         int alpha_q3, int width, int height) {
   (void)width;
-  const __m256i alpha_sign = _mm256_set1_epi16(alpha_q3);
-  const __m256i alpha_q12 = _mm256_slli_epi16(_mm256_abs_epi16(alpha_sign), 9);
+  const __m256i alpha_q12 = _mm256_set1_epi16(alpha_q3 << 9);
   const __m256i dc_q0 = _mm256_set1_epi16(*dst);
   __m256i *row = (__m256i *)pred_buf_q3;
   const __m256i *row_end = row + height * CFL_BUF_LINE_I256;
 
   do {
-    __m256i res = predict_unclipped(row, alpha_q12, alpha_sign, dc_q0);
-    __m256i next = predict_unclipped(row + 1, alpha_q12, alpha_sign, dc_q0);
+    __m256i res = predict_unclipped(row, alpha_q12, dc_q0);
+    __m256i next = predict_unclipped(row + 1, alpha_q12, dc_q0);
     res = _mm256_packus_epi16(res, next);
     res = _mm256_permute4x64_epi64(res, _MM_SHUFFLE(3, 1, 2, 0));
     _mm256_storeu_si256((__m256i *)dst, res);
@@ -147,16 +143,15 @@ static __m256i highbd_max_epi16(int bd) {
   return _mm256_xor_si256(_mm256_slli_epi16(neg_one, bd), neg_one);
 }
 
-static __m256i highbd_clamp_epi16(__m256i u, __m256i zero, __m256i max) {
-  return _mm256_max_epi16(_mm256_min_epi16(u, max), zero);
+static __m256i highbd_clamp_epi16(__m256i u, __m256i max) {
+  return _mm256_max_epi16(_mm256_min_epi16(u, max), _mm256_setzero_si256());
 }
 
 static INLINE void cfl_predict_hbd(__m256i *dst, __m256i *src,
-                                   __m256i alpha_q12, __m256i alpha_sign,
-                                   __m256i dc_q0, __m256i max) {
-  __m256i res = predict_unclipped(src, alpha_q12, alpha_sign, dc_q0);
-  _mm256_storeu_si256(dst,
-                      highbd_clamp_epi16(res, _mm256_setzero_si256(), max));
+                                   __m256i alpha_q12, __m256i dc_q0,
+                                   __m256i max) {
+  __m256i res = predict_unclipped(src, alpha_q12, dc_q0);
+  _mm256_storeu_si256(dst, highbd_clamp_epi16(res, max));
 }
 
 static INLINE void cfl_predict_hbd_avx2(const int16_t *pred_buf_q3,
@@ -165,18 +160,16 @@ static INLINE void cfl_predict_hbd_avx2(const int16_t *pred_buf_q3,
                                         int height) {
   // Use SSSE3 version for smaller widths
   assert(width == 16 || width == 32);
-  const __m256i alpha_sign = _mm256_set1_epi16(alpha_q3);
-  const __m256i alpha_q12 = _mm256_slli_epi16(_mm256_abs_epi16(alpha_sign), 9);
+  const __m256i alpha_q12 = _mm256_set1_epi16(alpha_q3 << 9);
   const __m256i dc_q0 = _mm256_loadu_si256((__m256i *)dst);
   const __m256i max = highbd_max_epi16(bd);
 
   __m256i *row = (__m256i *)pred_buf_q3;
   const __m256i *row_end = row + height * CFL_BUF_LINE_I256;
   do {
-    cfl_predict_hbd((__m256i *)dst, row, alpha_q12, alpha_sign, dc_q0, max);
+    cfl_predict_hbd((__m256i *)dst, row, alpha_q12, dc_q0, max);
     if (width == 32) {
-      cfl_predict_hbd((__m256i *)(dst + 16), row + 1, alpha_q12, alpha_sign,
-                      dc_q0, max);
+      cfl_predict_hbd((__m256i *)(dst + 16), row + 1, alpha_q12, dc_q0, max);
     }
     dst += dst_stride;
   } while ((row += CFL_BUF_LINE_I256) < row_end);
