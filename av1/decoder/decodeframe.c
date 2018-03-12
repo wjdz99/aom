@@ -2879,14 +2879,29 @@ static int read_uncompressed_header(AV1Decoder *pbi,
       if (cm->error_resilient_mode && cm->seq_params.enable_order_hint &&
           !cm->large_scale_tile) {
         for (int ref_idx = 0; ref_idx < REF_FRAMES; ref_idx++) {
-          // Get buffer index
-          const int buf_idx = cm->ref_frame_map[ref_idx];
-          assert(buf_idx >= 0 && buf_idx < FRAME_BUFFERS);
-
           // Read order hint from bit stream
           unsigned int frame_offset = aom_rb_read_literal(
               rb, cm->seq_params.order_hint_bits_minus1 + 1);
-          if (frame_offset != frame_bufs[buf_idx].cur_frame_offset) assert(0);
+
+          // Get buffer index
+          int buf_idx = cm->ref_frame_map[ref_idx];
+          assert(buf_idx < FRAME_BUFFERS);
+
+          if (buf_idx == -1) {
+            // If no corresponding buffer exists, allocate a new buffer with all
+            // pixels on all planes set to 0.
+            buf_idx = get_free_fb(cm);
+            aom_alloc_frame_buffer(
+                &frame_bufs[buf_idx].buf, cm->seq_params.max_frame_width,
+                cm->seq_params.max_frame_height, cm->subsampling_x,
+                cm->subsampling_y, cm->use_highbitdepth, AOM_BORDER_IN_PIXELS,
+                cm->byte_alignment);
+
+            cm->ref_frame_map[ref_idx] = buf_idx;
+            frame_bufs[buf_idx].cur_frame_offset = frame_offset;
+          } else {
+            assert(frame_offset == frame_bufs[buf_idx].cur_frame_offset);
+          }
         }
       }
 #endif  // CONFIG_EXPLICIT_ORDER_HINT
