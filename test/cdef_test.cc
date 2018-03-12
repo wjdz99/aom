@@ -54,9 +54,9 @@ void test_cdef(int bsize, int iterations, cdef_filter_block_func cdef,
   const int size = 8;
   const int ysize = size + 2 * CDEF_VBORDER;
   ACMRandom rnd(ACMRandom::DeterministicSeed());
-  DECLARE_ALIGNED(16, uint16_t, s[ysize * CDEF_BSTRIDE]);
-  DECLARE_ALIGNED(16, static uint16_t, d[size * size]);
-  DECLARE_ALIGNED(16, static uint16_t, ref_d[size * size]);
+  DECLARE_ALIGNED(32, uint16_t, s[ysize * CDEF_BSTRIDE]);
+  DECLARE_ALIGNED(32, static uint16_t, d[size * size]);
+  DECLARE_ALIGNED(32, static uint16_t, ref_d[size * size]);
   memset(ref_d, 0, sizeof(ref_d));
   memset(d, 0, sizeof(d));
 
@@ -215,7 +215,7 @@ void test_finddir(int (*finddir)(const uint16_t *img, int stride, int32_t *var,
                                      int32_t *var, int coeff_shift)) {
   const int size = 8;
   ACMRandom rnd(ACMRandom::DeterministicSeed());
-  DECLARE_ALIGNED(16, uint16_t, s[size * size]);
+  DECLARE_ALIGNED(32, uint16_t, s[size * size]);
 
   int error = 0;
   int depth, bits, level, count, errdepth = 0;

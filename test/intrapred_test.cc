@@ -141,10 +141,10 @@ class LowbdIntraPredTest : public AV1IntraPredTest<IntraPred, uint8_t> {
 
 TEST_P(HighbdIntraPredTest, Bitexact) {
   // max block size is 32
-  DECLARE_ALIGNED(16, uint16_t, left_col[2 * 32]);
-  DECLARE_ALIGNED(16, uint16_t, above_data[2 * 32 + 32]);
-  DECLARE_ALIGNED(16, uint16_t, dst[3 * 32 * 32]);
-  DECLARE_ALIGNED(16, uint16_t, ref_dst[3 * 32 * 32]);
+  DECLARE_ALIGNED(32, uint16_t, left_col[2 * 32]);
+  DECLARE_ALIGNED(32, uint16_t, above_data[2 * 32 + 32]);
+  DECLARE_ALIGNED(32, uint16_t, dst[3 * 32 * 32]);
+  DECLARE_ALIGNED(32, uint16_t, ref_dst[3 * 32 * 32]);
   memset(left_col, 0, sizeof(left_col));
   memset(above_data, 0, sizeof(above_data));
   RunTest(left_col, above_data, dst, ref_dst);
@@ -152,10 +152,10 @@ TEST_P(HighbdIntraPredTest, Bitexact) {
 
 TEST_P(LowbdIntraPredTest, Bitexact) {
   // max block size is 32
-  DECLARE_ALIGNED(16, uint8_t, left_col[2 * 32]);
-  DECLARE_ALIGNED(16, uint8_t, above_data[2 * 32 + 32]);
-  DECLARE_ALIGNED(16, uint8_t, dst[3 * 32 * 32]);
-  DECLARE_ALIGNED(16, uint8_t, ref_dst[3 * 32 * 32]);
+  DECLARE_ALIGNED(32, uint8_t, left_col[2 * 32]);
+  DECLARE_ALIGNED(32, uint8_t, above_data[2 * 32 + 32]);
+  DECLARE_ALIGNED(32, uint8_t, dst[3 * 32 * 32]);
+  DECLARE_ALIGNED(32, uint8_t, ref_dst[3 * 32 * 32]);
   memset(left_col, 0, sizeof(left_col));
   memset(above_data, 0, sizeof(above_data));
   RunTest(left_col, above_data, dst, ref_dst);

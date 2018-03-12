@@ -161,7 +161,7 @@ uint32_t aom_highbd_8_sub_pixel_avg_variance4x4_sse4_1(
     const uint8_t *second_pred) {
   uint16_t fdata3[(4 + 1) * 4];
   uint16_t temp2[4 * 4];
-  DECLARE_ALIGNED(16, uint16_t, temp3[4 * 4]);
+  DECLARE_ALIGNED(32, uint16_t, temp3[4 * 4]);
 
   aom_highbd_var_filter_block2d_bil_first_pass(
       src, fdata3, src_stride, 1, 4 + 1, 4, bilinear_filters_2t[xoffset]);
@@ -181,7 +181,7 @@ uint32_t aom_highbd_10_sub_pixel_avg_variance4x4_sse4_1(
     const uint8_t *second_pred) {
   uint16_t fdata3[(4 + 1) * 4];
   uint16_t temp2[4 * 4];
-  DECLARE_ALIGNED(16, uint16_t, temp3[4 * 4]);
+  DECLARE_ALIGNED(32, uint16_t, temp3[4 * 4]);
 
   aom_highbd_var_filter_block2d_bil_first_pass(
       src, fdata3, src_stride, 1, 4 + 1, 4, bilinear_filters_2t[xoffset]);
@@ -201,7 +201,7 @@ uint32_t aom_highbd_12_sub_pixel_avg_variance4x4_sse4_1(
     const uint8_t *second_pred) {
   uint16_t fdata3[(4 + 1) * 4];
   uint16_t temp2[4 * 4];
-  DECLARE_ALIGNED(16, uint16_t, temp3[4 * 4]);
+  DECLARE_ALIGNED(32, uint16_t, temp3[4 * 4]);
 
   aom_highbd_var_filter_block2d_bil_first_pass(
       src, fdata3, src_stride, 1, 4 + 1, 4, bilinear_filters_2t[xoffset]);

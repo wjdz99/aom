@@ -50,17 +50,17 @@ class TransformTestBase {
     const int count_test_block = 10000;
 
     int16_t *test_input_block = reinterpret_cast<int16_t *>(
-        aom_memalign(16, sizeof(int16_t) * num_coeffs_));
+        aom_memalign(32, sizeof(int16_t) * num_coeffs_));
     tran_low_t *test_temp_block = reinterpret_cast<tran_low_t *>(
-        aom_memalign(16, sizeof(tran_low_t) * num_coeffs_));
+        aom_memalign(32, sizeof(tran_low_t) * num_coeffs_));
     uint8_t *dst = reinterpret_cast<uint8_t *>(
-        aom_memalign(16, sizeof(uint8_t) * num_coeffs_));
+        aom_memalign(32, sizeof(uint8_t) * num_coeffs_));
     uint8_t *src = reinterpret_cast<uint8_t *>(
-        aom_memalign(16, sizeof(uint8_t) * num_coeffs_));
+        aom_memalign(32, sizeof(uint8_t) * num_coeffs_));
     uint16_t *dst16 = reinterpret_cast<uint16_t *>(
-        aom_memalign(16, sizeof(uint16_t) * num_coeffs_));
+        aom_memalign(32, sizeof(uint16_t) * num_coeffs_));
     uint16_t *src16 = reinterpret_cast<uint16_t *>(
-        aom_memalign(16, sizeof(uint16_t) * num_coeffs_));
+        aom_memalign(32, sizeof(uint16_t) * num_coeffs_));
 
     for (int i = 0; i < count_test_block; ++i) {
       // Initialize a test block with input range [-255, 255].
@@ -121,11 +121,11 @@ class TransformTestBase {
     int stride = 96;
 
     int16_t *input_block = reinterpret_cast<int16_t *>(
-        aom_memalign(16, sizeof(int16_t) * stride * height_));
+        aom_memalign(32, sizeof(int16_t) * stride * height_));
     tran_low_t *output_ref_block = reinterpret_cast<tran_low_t *>(
-        aom_memalign(16, sizeof(tran_low_t) * num_coeffs_));
+        aom_memalign(32, sizeof(tran_low_t) * num_coeffs_));
     tran_low_t *output_block = reinterpret_cast<tran_low_t *>(
-        aom_memalign(16, sizeof(tran_low_t) * num_coeffs_));
+        aom_memalign(32, sizeof(tran_low_t) * num_coeffs_));
 
     for (int i = 0; i < count_test_block; ++i) {
       int j, k;
@@ -170,13 +170,13 @@ class TransformTestBase {
     int stride = 96;
 
     int16_t *input_block = reinterpret_cast<int16_t *>(
-        aom_memalign(16, sizeof(int16_t) * num_coeffs_));
+        aom_memalign(32, sizeof(int16_t) * num_coeffs_));
     tran_low_t *trans_block = reinterpret_cast<tran_low_t *>(
-        aom_memalign(16, sizeof(tran_low_t) * num_coeffs_));
+        aom_memalign(32, sizeof(tran_low_t) * num_coeffs_));
     uint8_t *output_block = reinterpret_cast<uint8_t *>(
-        aom_memalign(16, sizeof(uint8_t) * stride * height_));
+        aom_memalign(32, sizeof(uint8_t) * stride * height_));
     uint8_t *output_ref_block = reinterpret_cast<uint8_t *>(
-        aom_memalign(16, sizeof(uint8_t) * stride * height_));
+        aom_memalign(32, sizeof(uint8_t) * stride * height_));
 
     for (int i = 0; i < count_test_block; ++i) {
       // Initialize a test block with input range [-mask_, mask_].
@@ -216,11 +216,11 @@ class TransformTestBase {
     const int count_test_block = 5000;
 
     int16_t *input_extreme_block = reinterpret_cast<int16_t *>(
-        aom_memalign(16, sizeof(int16_t) * num_coeffs_));
+        aom_memalign(32, sizeof(int16_t) * num_coeffs_));
     tran_low_t *output_ref_block = reinterpret_cast<tran_low_t *>(
-        aom_memalign(16, sizeof(tran_low_t) * num_coeffs_));
+        aom_memalign(32, sizeof(tran_low_t) * num_coeffs_));
     tran_low_t *output_block = reinterpret_cast<tran_low_t *>(
-        aom_memalign(16, sizeof(tran_low_t) * num_coeffs_));
+        aom_memalign(32, sizeof(tran_low_t) * num_coeffs_));
 
     for (int i = 0; i < count_test_block; ++i) {
       // Initialize a test block with input range [-mask_, mask_].
@@ -258,18 +258,18 @@ class TransformTestBase {
     const int count_test_block = 1000;
 
     int16_t *in = reinterpret_cast<int16_t *>(
-        aom_memalign(16, sizeof(int16_t) * num_coeffs_));
+        aom_memalign(32, sizeof(int16_t) * num_coeffs_));
     tran_low_t *coeff = reinterpret_cast<tran_low_t *>(
-        aom_memalign(16, sizeof(tran_low_t) * num_coeffs_));
+        aom_memalign(32, sizeof(tran_low_t) * num_coeffs_));
     uint8_t *dst = reinterpret_cast<uint8_t *>(
-        aom_memalign(16, sizeof(uint8_t) * num_coeffs_));
+        aom_memalign(32, sizeof(uint8_t) * num_coeffs_));
     uint8_t *src = reinterpret_cast<uint8_t *>(
-        aom_memalign(16, sizeof(uint8_t) * num_coeffs_));
+        aom_memalign(32, sizeof(uint8_t) * num_coeffs_));
 
     uint16_t *dst16 = reinterpret_cast<uint16_t *>(
-        aom_memalign(16, sizeof(uint16_t) * num_coeffs_));
+        aom_memalign(32, sizeof(uint16_t) * num_coeffs_));
     uint16_t *src16 = reinterpret_cast<uint16_t *>(
-        aom_memalign(16, sizeof(uint16_t) * num_coeffs_));
+        aom_memalign(32, sizeof(uint16_t) * num_coeffs_));
 
     for (int i = 0; i < count_test_block; ++i) {
       // Initialize a test block with input range [-mask_, mask_].

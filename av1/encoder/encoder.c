@@ -2484,7 +2484,7 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
 
   if (x->palette_buffer == NULL) {
     CHECK_MEM_ERROR(cm, x->palette_buffer,
-                    aom_memalign(16, sizeof(*x->palette_buffer)));
+                    aom_memalign(32, sizeof(*x->palette_buffer)));
   }
   set_compound_tools(cm);
   av1_reset_segment_features(cm);
@@ -2725,20 +2725,20 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
 
   CHECK_MEM_ERROR(
       cm, cpi->td.mb.above_pred_buf,
-      (uint8_t *)aom_memalign(16, MAX_MB_PLANE * MAX_SB_SQUARE *
+      (uint8_t *)aom_memalign(32, MAX_MB_PLANE * MAX_SB_SQUARE *
                                       sizeof(*cpi->td.mb.above_pred_buf)));
   CHECK_MEM_ERROR(
       cm, cpi->td.mb.left_pred_buf,
-      (uint8_t *)aom_memalign(16, MAX_MB_PLANE * MAX_SB_SQUARE *
+      (uint8_t *)aom_memalign(32, MAX_MB_PLANE * MAX_SB_SQUARE *
                                       sizeof(*cpi->td.mb.left_pred_buf)));
 
   CHECK_MEM_ERROR(cm, cpi->td.mb.wsrc_buf,
                   (int32_t *)aom_memalign(
-                      16, MAX_SB_SQUARE * sizeof(*cpi->td.mb.wsrc_buf)));
+                      32, MAX_SB_SQUARE * sizeof(*cpi->td.mb.wsrc_buf)));
 
   CHECK_MEM_ERROR(cm, cpi->td.mb.mask_buf,
                   (int32_t *)aom_memalign(
-                      16, MAX_SB_SQUARE * sizeof(*cpi->td.mb.mask_buf)));
+                      32, MAX_SB_SQUARE * sizeof(*cpi->td.mb.mask_buf)));
 
   av1_set_speed_features_framesize_independent(cpi);
   av1_set_speed_features_framesize_dependent(cpi);
