@@ -622,7 +622,7 @@ void aom_upsampled_pred_sse2(uint8_t *comp_pred, int width, int height,
       aom_convolve8_vert(ref, ref_stride, comp_pred, width, NULL, -1, kernel,
                          16, width, height);
     } else {
-      DECLARE_ALIGNED(16, uint8_t,
+      DECLARE_ALIGNED(32, uint8_t,
                       temp[((MAX_SB_SIZE * 2 + 16) + 16) * MAX_SB_SIZE]);
       const int16_t *kernel_x;
       const int16_t *kernel_y;

@@ -326,7 +326,7 @@ typedef struct TileDataEnc {
   int m_search_count;
   int ex_search_count;
   CFL_CTX cfl;
-  DECLARE_ALIGNED(16, FRAME_CONTEXT, tctx);
+  DECLARE_ALIGNED(32, FRAME_CONTEXT, tctx);
   uint8_t allow_update_cdf;
 } TileDataEnc;
 

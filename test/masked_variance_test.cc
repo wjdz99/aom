@@ -61,11 +61,11 @@ TEST_P(MaskedSubPixelVarianceTest, OperationCheck) {
   ACMRandom rnd(ACMRandom::DeterministicSeed());
   // Note: We pad out the input array to a multiple of 16 bytes wide, so that
   // consecutive rows keep the 16-byte alignment.
-  DECLARE_ALIGNED(16, uint8_t, src_ptr[(MAX_SB_SIZE + 1) * (MAX_SB_SIZE + 16)]);
-  DECLARE_ALIGNED(16, uint8_t, ref_ptr[(MAX_SB_SIZE + 1) * (MAX_SB_SIZE + 16)]);
-  DECLARE_ALIGNED(16, uint8_t,
+  DECLARE_ALIGNED(32, uint8_t, src_ptr[(MAX_SB_SIZE + 1) * (MAX_SB_SIZE + 16)]);
+  DECLARE_ALIGNED(32, uint8_t, ref_ptr[(MAX_SB_SIZE + 1) * (MAX_SB_SIZE + 16)]);
+  DECLARE_ALIGNED(32, uint8_t,
                   second_pred_ptr[(MAX_SB_SIZE + 1) * (MAX_SB_SIZE + 16)]);
-  DECLARE_ALIGNED(16, uint8_t, msk_ptr[(MAX_SB_SIZE + 1) * (MAX_SB_SIZE + 16)]);
+  DECLARE_ALIGNED(32, uint8_t, msk_ptr[(MAX_SB_SIZE + 1) * (MAX_SB_SIZE + 16)]);
   int err_count = 0;
   int first_failure = -1;
   int src_stride = (MAX_SB_SIZE + 16);
@@ -115,11 +115,11 @@ TEST_P(MaskedSubPixelVarianceTest, ExtremeValues) {
   unsigned int ref_ret, opt_ret;
   unsigned int ref_sse, opt_sse;
   ACMRandom rnd(ACMRandom::DeterministicSeed());
-  DECLARE_ALIGNED(16, uint8_t, src_ptr[(MAX_SB_SIZE + 1) * (MAX_SB_SIZE + 16)]);
-  DECLARE_ALIGNED(16, uint8_t, ref_ptr[(MAX_SB_SIZE + 1) * (MAX_SB_SIZE + 16)]);
-  DECLARE_ALIGNED(16, uint8_t,
+  DECLARE_ALIGNED(32, uint8_t, src_ptr[(MAX_SB_SIZE + 1) * (MAX_SB_SIZE + 16)]);
+  DECLARE_ALIGNED(32, uint8_t, ref_ptr[(MAX_SB_SIZE + 1) * (MAX_SB_SIZE + 16)]);
+  DECLARE_ALIGNED(32, uint8_t,
                   second_pred_ptr[(MAX_SB_SIZE + 1) * (MAX_SB_SIZE + 16)]);
-  DECLARE_ALIGNED(16, uint8_t, msk_ptr[(MAX_SB_SIZE + 1) * (MAX_SB_SIZE + 16)]);
+  DECLARE_ALIGNED(32, uint8_t, msk_ptr[(MAX_SB_SIZE + 1) * (MAX_SB_SIZE + 16)]);
   int first_failure_x = -1;
   int first_failure_y = -1;
   int err_count = 0;
@@ -195,11 +195,11 @@ TEST_P(HighbdMaskedSubPixelVarianceTest, OperationCheck) {
   unsigned int ref_ret, opt_ret;
   unsigned int ref_sse, opt_sse;
   ACMRandom rnd(ACMRandom::DeterministicSeed());
-  DECLARE_ALIGNED(16, uint16_t, src_ptr[(MAX_SB_SIZE + 1) * (MAX_SB_SIZE + 8)]);
-  DECLARE_ALIGNED(16, uint16_t, ref_ptr[(MAX_SB_SIZE + 1) * (MAX_SB_SIZE + 8)]);
-  DECLARE_ALIGNED(16, uint16_t,
+  DECLARE_ALIGNED(32, uint16_t, src_ptr[(MAX_SB_SIZE + 1) * (MAX_SB_SIZE + 8)]);
+  DECLARE_ALIGNED(32, uint16_t, ref_ptr[(MAX_SB_SIZE + 1) * (MAX_SB_SIZE + 8)]);
+  DECLARE_ALIGNED(32, uint16_t,
                   second_pred_ptr[(MAX_SB_SIZE + 1) * (MAX_SB_SIZE + 8)]);
-  DECLARE_ALIGNED(16, uint8_t, msk_ptr[(MAX_SB_SIZE + 1) * (MAX_SB_SIZE + 8)]);
+  DECLARE_ALIGNED(32, uint8_t, msk_ptr[(MAX_SB_SIZE + 1) * (MAX_SB_SIZE + 8)]);
   uint8_t *src8_ptr = CONVERT_TO_BYTEPTR(src_ptr);
   uint8_t *ref8_ptr = CONVERT_TO_BYTEPTR(ref_ptr);
   uint8_t *second_pred8_ptr = CONVERT_TO_BYTEPTR(second_pred_ptr);
@@ -254,10 +254,10 @@ TEST_P(HighbdMaskedSubPixelVarianceTest, ExtremeValues) {
   unsigned int ref_ret, opt_ret;
   unsigned int ref_sse, opt_sse;
   ACMRandom rnd(ACMRandom::DeterministicSeed());
-  DECLARE_ALIGNED(16, uint16_t, src_ptr[(MAX_SB_SIZE + 1) * (MAX_SB_SIZE + 8)]);
-  DECLARE_ALIGNED(16, uint16_t, ref_ptr[(MAX_SB_SIZE + 1) * (MAX_SB_SIZE + 8)]);
-  DECLARE_ALIGNED(16, uint8_t, msk_ptr[(MAX_SB_SIZE + 1) * (MAX_SB_SIZE + 8)]);
-  DECLARE_ALIGNED(16, uint16_t,
+  DECLARE_ALIGNED(32, uint16_t, src_ptr[(MAX_SB_SIZE + 1) * (MAX_SB_SIZE + 8)]);
+  DECLARE_ALIGNED(32, uint16_t, ref_ptr[(MAX_SB_SIZE + 1) * (MAX_SB_SIZE + 8)]);
+  DECLARE_ALIGNED(32, uint8_t, msk_ptr[(MAX_SB_SIZE + 1) * (MAX_SB_SIZE + 8)]);
+  DECLARE_ALIGNED(32, uint16_t,
                   second_pred_ptr[(MAX_SB_SIZE + 1) * (MAX_SB_SIZE + 8)]);
   uint8_t *src8_ptr = CONVERT_TO_BYTEPTR(src_ptr);
   uint8_t *ref8_ptr = CONVERT_TO_BYTEPTR(ref_ptr);

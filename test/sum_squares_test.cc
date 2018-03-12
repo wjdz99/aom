@@ -49,7 +49,7 @@ class SumSquaresTest : public ::testing::TestWithParam<TestFuncs> {
 
 TEST_P(SumSquaresTest, OperationCheck) {
   ACMRandom rnd(ACMRandom::DeterministicSeed());
-  DECLARE_ALIGNED(16, int16_t, src[256 * 256]);
+  DECLARE_ALIGNED(32, int16_t, src[256 * 256]);
 
   int failed = 0;
 
@@ -86,7 +86,7 @@ TEST_P(SumSquaresTest, OperationCheck) {
 
 TEST_P(SumSquaresTest, ExtremeValues) {
   ACMRandom rnd(ACMRandom::DeterministicSeed());
-  DECLARE_ALIGNED(16, int16_t, src[256 * 256]);
+  DECLARE_ALIGNED(32, int16_t, src[256 * 256]);
 
   int failed = 0;
 
@@ -145,7 +145,7 @@ class SumSquares1DTest : public FunctionEquivalenceTest<F1D> {
 };
 
 TEST_P(SumSquares1DTest, RandomValues) {
-  DECLARE_ALIGNED(16, int16_t, src[kMaxSize * kMaxSize]);
+  DECLARE_ALIGNED(32, int16_t, src[kMaxSize * kMaxSize]);
 
   for (int iter = 0; iter < kIterations && !HasFatalFailure(); ++iter) {
     for (int i = 0; i < kMaxSize * kMaxSize; ++i)
@@ -163,7 +163,7 @@ TEST_P(SumSquares1DTest, RandomValues) {
 }
 
 TEST_P(SumSquares1DTest, ExtremeValues) {
-  DECLARE_ALIGNED(16, int16_t, src[kMaxSize * kMaxSize]);
+  DECLARE_ALIGNED(32, int16_t, src[kMaxSize * kMaxSize]);
 
   for (int iter = 0; iter < kIterations && !HasFatalFailure(); ++iter) {
     if (rng_(2)) {

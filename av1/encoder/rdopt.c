@@ -560,9 +560,9 @@ static double od_compute_dist(uint16_t *x, uint16_t *y, int bsize_w,
   int activity_masking = 0;
 
   int i, j;
-  DECLARE_ALIGNED(16, od_coeff, e[MAX_TX_SQUARE]);
-  DECLARE_ALIGNED(16, od_coeff, tmp[MAX_TX_SQUARE]);
-  DECLARE_ALIGNED(16, od_coeff, e_lp[MAX_TX_SQUARE]);
+  DECLARE_ALIGNED(32, od_coeff, e[MAX_TX_SQUARE]);
+  DECLARE_ALIGNED(32, od_coeff, tmp[MAX_TX_SQUARE]);
+  DECLARE_ALIGNED(32, od_coeff, e_lp[MAX_TX_SQUARE]);
   for (i = 0; i < bsize_h; i++) {
     for (j = 0; j < bsize_w; j++) {
       e[i * bsize_w + j] = x[i * bsize_w + j] - y[i * bsize_w + j];
@@ -588,9 +588,9 @@ static double od_compute_dist_diff(uint16_t *x, int16_t *e, int bsize_w,
 
   int activity_masking = 0;
 
-  DECLARE_ALIGNED(16, uint16_t, y[MAX_TX_SQUARE]);
-  DECLARE_ALIGNED(16, od_coeff, tmp[MAX_TX_SQUARE]);
-  DECLARE_ALIGNED(16, od_coeff, e_lp[MAX_TX_SQUARE]);
+  DECLARE_ALIGNED(32, uint16_t, y[MAX_TX_SQUARE]);
+  DECLARE_ALIGNED(32, od_coeff, tmp[MAX_TX_SQUARE]);
+  DECLARE_ALIGNED(32, od_coeff, e_lp[MAX_TX_SQUARE]);
   int i, j;
   for (i = 0; i < bsize_h; i++) {
     for (j = 0; j < bsize_w; j++) {
@@ -619,8 +619,8 @@ int64_t av1_dist_8x8(const AV1_COMP *const cpi, const MACROBLOCK *x,
   int i, j;
   const MACROBLOCKD *xd = &x->e_mbd;
 
-  DECLARE_ALIGNED(16, uint16_t, orig[MAX_TX_SQUARE]);
-  DECLARE_ALIGNED(16, uint16_t, rec[MAX_TX_SQUARE]);
+  DECLARE_ALIGNED(32, uint16_t, orig[MAX_TX_SQUARE]);
+  DECLARE_ALIGNED(32, uint16_t, rec[MAX_TX_SQUARE]);
 
   assert(bsw >= 8);
   assert(bsh >= 8);
@@ -712,8 +712,8 @@ static int64_t dist_8x8_diff(const MACROBLOCK *x, const uint8_t *src,
   int i, j;
   const MACROBLOCKD *xd = &x->e_mbd;
 
-  DECLARE_ALIGNED(16, uint16_t, orig[MAX_TX_SQUARE]);
-  DECLARE_ALIGNED(16, int16_t, diff16[MAX_TX_SQUARE]);
+  DECLARE_ALIGNED(32, uint16_t, orig[MAX_TX_SQUARE]);
+  DECLARE_ALIGNED(32, int16_t, diff16[MAX_TX_SQUARE]);
 
   assert(bsw >= 8);
   assert(bsh >= 8);
@@ -756,7 +756,7 @@ static int64_t dist_8x8_diff(const MACROBLOCK *x, const uint8_t *src,
     d = (int64_t)od_compute_dist_diff(orig, diff16, bsw, bsh, qindex);
   } else if (x->tune_metric == AOM_TUNE_CDEF_DIST) {
     int coeff_shift = AOMMAX(xd->bd - 8, 0);
-    DECLARE_ALIGNED(16, uint16_t, dst16[MAX_TX_SQUARE]);
+    DECLARE_ALIGNED(32, uint16_t, dst16[MAX_TX_SQUARE]);
 
     for (i = 0; i < bsh; i++) {
       for (j = 0; j < bsw; j++) {
@@ -1777,7 +1777,7 @@ void av1_dist_block(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
                                blk_row, blk_col, plane_bsize, tx_bsize);
       } else {
         uint8_t *recon;
-        DECLARE_ALIGNED(16, uint16_t, recon16[MAX_TX_SQUARE]) = { 0 };
+        DECLARE_ALIGNED(32, uint16_t, recon16[MAX_TX_SQUARE]) = { 0 };
 
         if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH)
           recon = CONVERT_TO_BYTEPTR(recon16);
@@ -2166,7 +2166,7 @@ static void dist_8x8_sub8x8_txfm_rd(const AV1_COMP *const cpi, MACROBLOCK *x,
     // For inter mode, the decoded pixels are provided in pd->pred,
     // while the predicted pixels are in dst.
     uint8_t *pred8;
-    DECLARE_ALIGNED(16, uint16_t, pred16[MAX_SB_SQUARE]);
+    DECLARE_ALIGNED(32, uint16_t, pred16[MAX_SB_SQUARE]);
 
     if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH)
       pred8 = CONVERT_TO_BYTEPTR(pred16);
@@ -3663,7 +3663,7 @@ static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
       int row, col;
 
       uint8_t *pred8;
-      DECLARE_ALIGNED(16, uint16_t, pred8_16[8 * 8]);
+      DECLARE_ALIGNED(32, uint16_t, pred8_16[8 * 8]);
 
       dist_8x8 = av1_dist_8x8(cpi, x, src, src_stride, dst, dst_stride,
                               BLOCK_8X8, 8, 8, 8, 8, qindex) *
@@ -5240,7 +5240,7 @@ static void joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
   };
 
   // Prediction buffer from second frame.
-  DECLARE_ALIGNED(16, uint16_t, second_pred_alloc_16[MAX_SB_SQUARE]);
+  DECLARE_ALIGNED(32, uint16_t, second_pred_alloc_16[MAX_SB_SQUARE]);
   uint8_t *second_pred;
   (void)ref_mv_sub8x8;
 
@@ -6031,7 +6031,7 @@ static void compound_single_motion_search_interinter(
   assert(has_second_ref(mbmi));
 
   // Prediction buffer from second frame.
-  DECLARE_ALIGNED(16, uint16_t, second_pred_alloc_16[MAX_SB_SQUARE]);
+  DECLARE_ALIGNED(32, uint16_t, second_pred_alloc_16[MAX_SB_SQUARE]);
   uint8_t *second_pred;
   if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH)
     second_pred = CONVERT_TO_BYTEPTR(second_pred_alloc_16);
@@ -6981,8 +6981,8 @@ static int64_t motion_mode_rd(
       int tmp_skip_txfm_sb;
       int bw = block_size_wide[bsize];
       int64_t tmp_skip_sse_sb;
-      DECLARE_ALIGNED(16, uint8_t, intrapred_[2 * MAX_INTERINTRA_SB_SQUARE]);
-      DECLARE_ALIGNED(16, uint8_t, tmp_buf_[2 * MAX_INTERINTRA_SB_SQUARE]);
+      DECLARE_ALIGNED(32, uint8_t, intrapred_[2 * MAX_INTERINTRA_SB_SQUARE]);
+      DECLARE_ALIGNED(32, uint8_t, tmp_buf_[2 * MAX_INTERINTRA_SB_SQUARE]);
       uint8_t *tmp_buf, *intrapred;
       const int *const interintra_mode_cost =
           x->interintra_mode_cost[size_group_lookup[bsize]];
@@ -7352,7 +7352,7 @@ static int64_t handle_inter_mode(
   const int bw = block_size_wide[bsize];
   int_mv single_newmv[TOTAL_REFS_PER_FRAME];
   uint8_t ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
-  DECLARE_ALIGNED(16, uint8_t, tmp_buf_[2 * MAX_MB_PLANE * MAX_SB_SQUARE]);
+  DECLARE_ALIGNED(32, uint8_t, tmp_buf_[2 * MAX_MB_PLANE * MAX_SB_SQUARE]);
   uint8_t *tmp_buf;
   int64_t rd = INT64_MAX;
   BUFFER_SET orig_dst, tmp_dst;
@@ -7599,8 +7599,8 @@ static int64_t handle_inter_mode(
       int best_tmp_rate_mv = rate_mv;
       int tmp_skip_txfm_sb;
       int64_t tmp_skip_sse_sb;
-      DECLARE_ALIGNED(16, uint8_t, pred0[2 * MAX_SB_SQUARE]) = { 0 };
-      DECLARE_ALIGNED(16, uint8_t, pred1[2 * MAX_SB_SQUARE]) = { 0 };
+      DECLARE_ALIGNED(32, uint8_t, pred0[2 * MAX_SB_SQUARE]) = { 0 };
+      DECLARE_ALIGNED(32, uint8_t, pred1[2 * MAX_SB_SQUARE]) = { 0 };
       uint8_t *preds0[1] = { pred0 };
       uint8_t *preds1[1] = { pred1 };
       int strides[1] = { bw };

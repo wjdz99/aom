@@ -73,15 +73,15 @@ struct IntraPredTestMem {
     }
   }
 
-  DECLARE_ALIGNED(16, Pixel, src[kTotalPixels]);
-  DECLARE_ALIGNED(16, Pixel, ref_src[kTotalPixels]);
-  DECLARE_ALIGNED(16, Pixel, left[2 * kBPS]);
+  DECLARE_ALIGNED(32, Pixel, src[kTotalPixels]);
+  DECLARE_ALIGNED(32, Pixel, ref_src[kTotalPixels]);
+  DECLARE_ALIGNED(32, Pixel, left[2 * kBPS]);
   Pixel *above;
   int stride;
   int num_pixels;
 
  private:
-  DECLARE_ALIGNED(16, Pixel, above_mem[2 * kBPS + 16]);
+  DECLARE_ALIGNED(32, Pixel, above_mem[2 * kBPS + 16]);
 };
 
 // -----------------------------------------------------------------------------

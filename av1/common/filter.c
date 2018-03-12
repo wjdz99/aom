@@ -13,7 +13,7 @@
 
 #include "av1/common/filter.h"
 
-DECLARE_ALIGNED(256, static const InterpKernel,
+DECLARE_ALIGNED(32, static const InterpKernel,
                 bilinear_filters[SUBPEL_SHIFTS]) = {
   { 0, 0, 0, 128, 0, 0, 0, 0 },  { 0, 0, 0, 120, 8, 0, 0, 0 },
   { 0, 0, 0, 112, 16, 0, 0, 0 }, { 0, 0, 0, 104, 24, 0, 0, 0 },
@@ -25,7 +25,7 @@ DECLARE_ALIGNED(256, static const InterpKernel,
   { 0, 0, 0, 16, 112, 0, 0, 0 }, { 0, 0, 0, 8, 120, 0, 0, 0 }
 };
 
-DECLARE_ALIGNED(256, static const InterpKernel,
+DECLARE_ALIGNED(32, static const InterpKernel,
                 sub_pel_filters_8[SUBPEL_SHIFTS]) = {
   { 0, 0, 0, 128, 0, 0, 0, 0 },      { 0, 2, -6, 126, 8, -2, 0, 0 },
   { 0, 2, -10, 122, 18, -4, 0, 0 },  { 0, 2, -12, 116, 28, -8, 2, 0 },
@@ -37,7 +37,7 @@ DECLARE_ALIGNED(256, static const InterpKernel,
   { 0, 0, -4, 18, 122, -10, 2, 0 },  { 0, 0, -2, 8, 126, -6, 2, 0 }
 };
 
-DECLARE_ALIGNED(256, static const InterpKernel,
+DECLARE_ALIGNED(32, static const InterpKernel,
                 sub_pel_filters_8sharp[SUBPEL_SHIFTS]) = {
   { 0, 0, 0, 128, 0, 0, 0, 0 },         { -2, 2, -6, 126, 8, -2, 2, 0 },
   { -2, 6, -12, 124, 16, -6, 4, -2 },   { -2, 8, -18, 120, 26, -10, 6, -2 },
@@ -49,7 +49,7 @@ DECLARE_ALIGNED(256, static const InterpKernel,
   { -2, 4, -6, 16, 124, -12, 6, -2 },   { 0, 2, -2, 8, 126, -6, 2, -2 }
 };
 
-DECLARE_ALIGNED(256, static const InterpKernel,
+DECLARE_ALIGNED(32, static const InterpKernel,
                 sub_pel_filters_8smooth[SUBPEL_SHIFTS]) = {
   { 0, 0, 0, 128, 0, 0, 0, 0 },     { 0, 2, 28, 62, 34, 2, 0, 0 },
   { 0, 0, 26, 62, 36, 4, 0, 0 },    { 0, 0, 22, 62, 40, 4, 0, 0 },
@@ -75,7 +75,7 @@ static const InterpFilterParams
 
 #if CONFIG_SHORT_FILTER
 
-DECLARE_ALIGNED(256, static const InterpKernel,
+DECLARE_ALIGNED(32, static const InterpKernel,
                 sub_pel_filters_4[SUBPEL_SHIFTS]) = {
   { 0, 0, 0, 128, 0, 0, 0, 0 },     { 0, 0, -4, 126, 8, -2, 0, 0 },
   { 0, 0, -8, 122, 18, -4, 0, 0 },  { 0, 0, -10, 116, 28, -6, 0, 0 },
@@ -86,7 +86,7 @@ DECLARE_ALIGNED(256, static const InterpKernel,
   { 0, 0, -8, 38, 110, -12, 0, 0 }, { 0, 0, -6, 28, 116, -10, 0, 0 },
   { 0, 0, -4, 18, 122, -8, 0, 0 },  { 0, 0, -2, 8, 126, -4, 0, 0 }
 };
-DECLARE_ALIGNED(256, static const InterpKernel,
+DECLARE_ALIGNED(32, static const InterpKernel,
                 sub_pel_filters_4smooth[SUBPEL_SHIFTS]) = {
   { 0, 0, 0, 128, 0, 0, 0, 0 },   { 0, 0, 30, 62, 34, 2, 0, 0 },
   { 0, 0, 26, 62, 36, 4, 0, 0 },  { 0, 0, 22, 62, 40, 4, 0, 0 },

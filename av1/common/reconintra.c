@@ -916,7 +916,7 @@ static void highbd_dr_predictor(uint16_t *dst, ptrdiff_t stride,
   }
 }
 
-DECLARE_ALIGNED(16, const int8_t,
+DECLARE_ALIGNED(32, const int8_t,
                 av1_filter_intra_taps[FILTER_INTRA_MODES][8][8]) = {
   {
       { -6, 10, 0, 0, 0, 12, 0, 0 },
@@ -1271,8 +1271,8 @@ static void build_intra_predictors_high(
   int i;
   uint16_t *dst = CONVERT_TO_SHORTPTR(dst8);
   uint16_t *ref = CONVERT_TO_SHORTPTR(ref8);
-  DECLARE_ALIGNED(16, uint16_t, left_data[MAX_TX_SIZE * 2 + 32]);
-  DECLARE_ALIGNED(16, uint16_t, above_data[MAX_TX_SIZE * 2 + 32]);
+  DECLARE_ALIGNED(32, uint16_t, left_data[MAX_TX_SIZE * 2 + 32]);
+  DECLARE_ALIGNED(32, uint16_t, above_data[MAX_TX_SIZE * 2 + 32]);
   uint16_t *const above_row = above_data + 16;
   uint16_t *const left_col = left_data + 16;
   const int txwpx = tx_size_wide[tx_size];
@@ -1458,8 +1458,8 @@ static void build_intra_predictors(const MACROBLOCKD *xd, const uint8_t *ref,
   int i;
   const uint8_t *above_ref = ref - ref_stride;
   const uint8_t *left_ref = ref - 1;
-  DECLARE_ALIGNED(16, uint8_t, left_data[MAX_TX_SIZE * 2 + 32]);
-  DECLARE_ALIGNED(16, uint8_t, above_data[MAX_TX_SIZE * 2 + 32]);
+  DECLARE_ALIGNED(32, uint8_t, left_data[MAX_TX_SIZE * 2 + 32]);
+  DECLARE_ALIGNED(32, uint8_t, above_data[MAX_TX_SIZE * 2 + 32]);
   uint8_t *const above_row = above_data + 16;
   uint8_t *const left_col = left_data + 16;
   const int txwpx = tx_size_wide[tx_size];

@@ -24,7 +24,7 @@ void av1_highbd_jnt_convolve_2d_sse4_1(
     int h, InterpFilterParams *filter_params_x,
     InterpFilterParams *filter_params_y, const int subpel_x_q4,
     const int subpel_y_q4, ConvolveParams *conv_params, int bd) {
-  DECLARE_ALIGNED(16, int16_t,
+  DECLARE_ALIGNED(32, int16_t,
                   im_block[(MAX_SB_SIZE + MAX_FILTER_TAP - 1) * MAX_SB_SIZE]);
   CONV_BUF_TYPE *dst = conv_params->dst;
   int dst_stride = conv_params->dst_stride;

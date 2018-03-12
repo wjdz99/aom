@@ -96,12 +96,12 @@ TEST_P(Trans32x32Test, AccuracyCheck) {
   uint32_t max_error = 0;
   int64_t total_error = 0;
   const int count_test_block = 10000;
-  DECLARE_ALIGNED(16, int16_t, test_input_block[kNumCoeffs]);
-  DECLARE_ALIGNED(16, tran_low_t, test_temp_block[kNumCoeffs]);
-  DECLARE_ALIGNED(16, uint8_t, dst[kNumCoeffs]);
-  DECLARE_ALIGNED(16, uint8_t, src[kNumCoeffs]);
-  DECLARE_ALIGNED(16, uint16_t, dst16[kNumCoeffs]);
-  DECLARE_ALIGNED(16, uint16_t, src16[kNumCoeffs]);
+  DECLARE_ALIGNED(32, int16_t, test_input_block[kNumCoeffs]);
+  DECLARE_ALIGNED(32, tran_low_t, test_temp_block[kNumCoeffs]);
+  DECLARE_ALIGNED(32, uint8_t, dst[kNumCoeffs]);
+  DECLARE_ALIGNED(32, uint8_t, src[kNumCoeffs]);
+  DECLARE_ALIGNED(32, uint16_t, dst16[kNumCoeffs]);
+  DECLARE_ALIGNED(32, uint16_t, src16[kNumCoeffs]);
 
   for (int i = 0; i < count_test_block; ++i) {
     // Initialize a test block with input range [-mask_, mask_].
@@ -149,12 +149,12 @@ TEST_P(Trans32x32Test, AccuracyCheck) {
 TEST_P(Trans32x32Test, InverseAccuracy) {
   ACMRandom rnd(ACMRandom::DeterministicSeed());
   const int count_test_block = 1000;
-  DECLARE_ALIGNED(16, int16_t, in[kNumCoeffs]);
-  DECLARE_ALIGNED(16, tran_low_t, coeff[kNumCoeffs]);
-  DECLARE_ALIGNED(16, uint8_t, dst[kNumCoeffs]);
-  DECLARE_ALIGNED(16, uint8_t, src[kNumCoeffs]);
-  DECLARE_ALIGNED(16, uint16_t, dst16[kNumCoeffs]);
-  DECLARE_ALIGNED(16, uint16_t, src16[kNumCoeffs]);
+  DECLARE_ALIGNED(32, int16_t, in[kNumCoeffs]);
+  DECLARE_ALIGNED(32, tran_low_t, coeff[kNumCoeffs]);
+  DECLARE_ALIGNED(32, uint8_t, dst[kNumCoeffs]);
+  DECLARE_ALIGNED(32, uint8_t, src[kNumCoeffs]);
+  DECLARE_ALIGNED(32, uint16_t, dst16[kNumCoeffs]);
+  DECLARE_ALIGNED(32, uint16_t, src16[kNumCoeffs]);
 
   for (int i = 0; i < count_test_block; ++i) {
     double out_r[kNumCoeffs];
@@ -211,8 +211,8 @@ TEST_P(PartialTrans32x32Test, Extremes) {
   const int16_t maxval =
       static_cast<int16_t>(clip_pixel_highbd(1 << 30, bit_depth_));
   const int minval = -maxval;
-  DECLARE_ALIGNED(16, int16_t, input[kNumCoeffs]);
-  DECLARE_ALIGNED(16, tran_low_t, output[kNumCoeffs]);
+  DECLARE_ALIGNED(32, int16_t, input[kNumCoeffs]);
+  DECLARE_ALIGNED(32, tran_low_t, output[kNumCoeffs]);
 
   for (int i = 0; i < kNumCoeffs; ++i) input[i] = maxval;
   output[0] = 0;
@@ -228,8 +228,8 @@ TEST_P(PartialTrans32x32Test, Extremes) {
 TEST_P(PartialTrans32x32Test, Random) {
   const int16_t maxval =
       static_cast<int16_t>(clip_pixel_highbd(1 << 30, bit_depth_));
-  DECLARE_ALIGNED(16, int16_t, input[kNumCoeffs]);
-  DECLARE_ALIGNED(16, tran_low_t, output[kNumCoeffs]);
+  DECLARE_ALIGNED(32, int16_t, input[kNumCoeffs]);
+  DECLARE_ALIGNED(32, tran_low_t, output[kNumCoeffs]);
   ACMRandom rnd(ACMRandom::DeterministicSeed());
 
   int sum = 0;
