@@ -4001,8 +4001,13 @@ static int check_skip_mode_enabled(AV1_COMP *const cpi) {
   const int cur_offset = (int)cm->frame_offset;
   int ref_offset[2];
   get_skip_mode_ref_offsets(cm, ref_offset);
+#if CONFIG_EXPLICIT_ORDER_HINT
+  const int cur_to_ref0 = get_relative_dist(cm, cur_offset, ref_offset[0]);
+  const int cur_to_ref1 = abs(get_relative_dist(cm, cur_offset, ref_offset[1]));
+#else
   const int cur_to_ref0 = cur_offset - ref_offset[0];
   const int cur_to_ref1 = abs(cur_offset - ref_offset[1]);
+#endif
   if (abs(cur_to_ref0 - cur_to_ref1) > 1) return 0;
 
   // High Latency: Turn off skip mode if all refs are fwd.
