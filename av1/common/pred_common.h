@@ -23,6 +23,25 @@
 extern "C" {
 #endif
 
+static INLINE int get_segment_id(const AV1_COMMON *const cm,
+                                 const uint8_t *segment_ids, BLOCK_SIZE bsize,
+                                 int mi_row, int mi_col) {
+  const int mi_offset = mi_row * cm->mi_cols + mi_col;
+  const int bw = mi_size_wide[bsize];
+  const int bh = mi_size_high[bsize];
+  const int xmis = AOMMIN(cm->mi_cols - mi_col, bw);
+  const int ymis = AOMMIN(cm->mi_rows - mi_row, bh);
+  int x, y, segment_id = MAX_SEGMENTS;
+
+  for (y = 0; y < ymis; ++y)
+    for (x = 0; x < xmis; ++x)
+      segment_id =
+          AOMMIN(segment_id, segment_ids[mi_offset + y * cm->mi_cols + x]);
+
+  assert(segment_id >= 0 && segment_id < MAX_SEGMENTS);
+  return segment_id;
+}
+
 #if CONFIG_SPATIAL_SEGMENTATION
 /* Picks CDFs based on number of matching/out-of-bounds segment IDs */
 static INLINE int pick_spatial_seg_cdf(int prev_ul, int prev_u, int prev_l) {
@@ -45,26 +64,28 @@ static INLINE int pick_spatial_seg_pred(int prev_ul, int prev_u, int prev_l) {
   return (prev_ul == prev_u) ? prev_u : prev_l;
 }
 
-#endif
-
-static INLINE int get_segment_id(const AV1_COMMON *const cm,
-                                 const uint8_t *segment_ids, BLOCK_SIZE bsize,
-                                 int mi_row, int mi_col) {
-  const int mi_offset = mi_row * cm->mi_cols + mi_col;
-  const int bw = mi_size_wide[bsize];
-  const int bh = mi_size_high[bsize];
-  const int xmis = AOMMIN(cm->mi_cols - mi_col, bw);
-  const int ymis = AOMMIN(cm->mi_rows - mi_row, bh);
-  int x, y, segment_id = MAX_SEGMENTS;
-
-  for (y = 0; y < ymis; ++y)
-    for (x = 0; x < xmis; ++x)
-      segment_id =
-          AOMMIN(segment_id, segment_ids[mi_offset + y * cm->mi_cols + x]);
-
-  assert(segment_id >= 0 && segment_id < MAX_SEGMENTS);
-  return segment_id;
+static INLINE int av1_get_spatial_seg_pred(
+    const AV1_COMMON *const cm, const MACROBLOCKD *const xd, int mi_row,
+    int mi_col, int *cdf_index) {
+  int prev_ul = -1; /* Top left segment_id */
+  int prev_l = -1;  /* Current left segment_id */
+  int prev_u = -1;  /* Current top segment_id */
+  if ((xd->up_available) && (xd->left_available)) {
+    prev_ul = get_segment_id(cm, cm->current_frame_seg_map, BLOCK_4X4,
+                             mi_row - 1, mi_col - 1);
+  }
+  if (xd->up_available) {
+    prev_u = get_segment_id(cm, cm->current_frame_seg_map, BLOCK_4X4,
+                            mi_row - 1, mi_col - 0);
+  }
+  if (xd->left_available) {
+    prev_l = get_segment_id(cm, cm->current_frame_seg_map, BLOCK_4X4,
+                            mi_row - 0, mi_col - 1);
+  }
+  *cdf_index = pick_spatial_seg_cdf(prev_ul, prev_u, prev_l);
+  return pick_spatial_seg_pred(prev_ul, prev_u, prev_l);
 }
+#endif
 
 static INLINE int av1_get_pred_context_seg_id(const MACROBLOCKD *xd) {
   const MODE_INFO *const above_mi = xd->above_mi;
