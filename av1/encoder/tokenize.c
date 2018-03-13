@@ -28,7 +28,8 @@
 #include "av1/encoder/tokenize.h"
 
 static int cost_and_tokenize_map(Av1ColorMapParam *param, TOKENEXTRA **t,
-                                 int calc_rate) {
+                                 int plane, int calc_rate, int allow_update_cdf,
+                                 FRAME_COUNTS *counts) {
   const uint8_t *const color_map = param->color_map;
   MapCdf map_cdf = param->map_cdf;
   ColorCost color_cost = param->color_cost;
@@ -36,9 +37,12 @@ static int cost_and_tokenize_map(Av1ColorMapParam *param, TOKENEXTRA **t,
   const int rows = param->rows;
   const int cols = param->cols;
   const int n = param->n_colors;
-
   int this_rate = 0;
   uint8_t color_order[PALETTE_MAX_SIZE];
+
+  (void)plane;
+  (void)counts;
+
   for (int k = 1; k < rows + cols - 1; ++k) {
     for (int j = AOMMIN(k, cols - 1); j >= AOMMAX(0, k - rows + 1); --j) {
       int i = k - j;
@@ -53,6 +57,20 @@ static int cost_and_tokenize_map(Av1ColorMapParam *param, TOKENEXTRA **t,
         (*t)->token = color_new_idx;
         (*t)->color_map_cdf = map_cdf[n - PALETTE_MIN_SIZE][color_ctx];
         ++(*t);
+
+        if (allow_update_cdf) {
+          update_cdf(map_cdf[n - PALETTE_MIN_SIZE][color_ctx], color_new_idx,
+                     n);
+        }
+#if CONFIG_ENTROPY_STATS
+        if (plane) {
+          ++counts->palette_uv_color_index[n - PALETTE_MIN_SIZE][color_ctx]
+                                          [color_new_idx];
+        } else {
+          ++counts->palette_y_color_index[n - PALETTE_MIN_SIZE][color_ctx]
+                                         [color_new_idx];
+        }
+#endif
       }
     }
   }
@@ -92,12 +110,13 @@ int av1_cost_color_map(const MACROBLOCK *const x, int plane, BLOCK_SIZE bsize,
   assert(plane == 0 || plane == 1);
   Av1ColorMapParam color_map_params;
   get_color_map_params(x, plane, bsize, tx_size, type, &color_map_params);
-  return cost_and_tokenize_map(&color_map_params, NULL, 1);
+  return cost_and_tokenize_map(&color_map_params, NULL, plane, 1, 0, NULL);
 }
 
 void av1_tokenize_color_map(const MACROBLOCK *const x, int plane,
                             TOKENEXTRA **t, BLOCK_SIZE bsize, TX_SIZE tx_size,
-                            COLOR_MAP_TYPE type) {
+                            COLOR_MAP_TYPE type, int allow_update_cdf,
+                            FRAME_COUNTS *counts) {
   assert(plane == 0 || plane == 1);
   Av1ColorMapParam color_map_params;
   get_color_map_params(x, plane, bsize, tx_size, type, &color_map_params);
@@ -105,7 +124,8 @@ void av1_tokenize_color_map(const MACROBLOCK *const x, int plane,
   (*t)->token = color_map_params.color_map[0];
   (*t)->color_map_cdf = NULL;
   ++(*t);
-  cost_and_tokenize_map(&color_map_params, t, 0);
+  cost_and_tokenize_map(&color_map_params, t, plane, 0, allow_update_cdf,
+                        counts);
 }
 
 void tokenize_vartx(ThreadData *td, TOKENEXTRA **t, RUN_TYPE dry_run,
