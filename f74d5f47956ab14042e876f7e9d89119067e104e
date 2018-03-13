@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b9cea416_2eeaee29",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 4780,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2018-03-13T17:20:33Z",
+      "side": 1,
+      "message": "No needed, already checked at line 4774.",
+      "range": {
+        "startLine": 4780,
+        "startChar": 14,
+        "endLine": 4780,
+        "endChar": 41
+      },
+      "revId": "f74d5f47956ab14042e876f7e9d89119067e104e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
