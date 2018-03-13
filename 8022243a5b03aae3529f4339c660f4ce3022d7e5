@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "31eb078a_10642359",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2635,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-03-13T00:47:27Z",
+      "side": 1,
+      "message": "you could assert the SB size here now if you wanted",
+      "revId": "8022243a5b03aae3529f4339c660f4ce3022d7e5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8357700c_9de3d765",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-03-13T00:47:27Z",
+      "side": 1,
+      "message": "is the code still setup to allow --keep-going / needs_resync. you might want to clear this one on failure",
+      "revId": "8022243a5b03aae3529f4339c660f4ce3022d7e5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
