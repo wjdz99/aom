@@ -1192,10 +1192,8 @@ void av1_setup_frame_contexts(AV1_COMMON *cm) {
 }
 
 static void reset_use_mvs_flags(AV1_COMMON *cm) {
-  for (MV_REFERENCE_FRAME rf = LAST_FRAME; rf <= INTER_REFS_PER_FRAME; ++rf) {
-    int buf_idx = cm->frame_refs[FWD_RF_OFFSET(rf)].idx;
-    if (buf_idx >= 0) cm->buffer_pool->frame_bufs[buf_idx].allow_mvs = 0;
-  }
+  for (int rf = 0; rf < FRAME_BUFFERS; ++rf)
+    cm->buffer_pool->frame_bufs[rf].allow_mvs = 0;
 }
 
 void av1_setup_past_independence(AV1_COMMON *cm) {
