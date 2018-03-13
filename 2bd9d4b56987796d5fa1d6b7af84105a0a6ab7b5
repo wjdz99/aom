@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e7ea84ee_2b161527",
+        "filename": "av1/common/entropymode.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1193,
+      "author": {
+        "id": 5260
+      },
+      "writtenOn": "2018-03-13T08:51:46Z",
+      "side": 1,
+      "message": "This loop only disables MV prediction from frames that are referenced by the error resilient frame.  Is this right?  The commit message seems a bit ambiguous as to whether all reference frames refers to \"all the frames in the reference buffer\" or \"all the frames in the reference buffer that are referenced by this frame\"",
+      "revId": "2bd9d4b56987796d5fa1d6b7af84105a0a6ab7b5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dca696dc_fb464fbd",
+        "filename": "av1/common/entropymode.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1206,
+      "author": {
+        "id": 5260
+      },
+      "writtenOn": "2018-03-13T08:51:46Z",
+      "side": 1,
+      "message": "Do we really want to disable all motion vector information whenever we have an intra frame?\n\nShouldn\u0027t this be keyed on error_resilient_mode?\n\nIf it is an intra_only frame, are the frame_refs initialized to appropriate values?",
+      "revId": "2bd9d4b56987796d5fa1d6b7af84105a0a6ab7b5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
