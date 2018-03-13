@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "e15c84e9_245314ef",
+        "filename": "av1/common/entropymode.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1193,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2018-03-13T15:58:52Z",
+      "side": 1,
+      "message": "Done\n\nFixed here\nhttps://aomedia-review.googlesource.com/c/aom/+/51101",
+      "parentUuid": "e7ea84ee_2b161527",
+      "revId": "2bd9d4b56987796d5fa1d6b7af84105a0a6ab7b5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "dca696dc_fb464fbd",
         "filename": "av1/common/entropymode.c",
         "patchSetId": 4
@@ -30,6 +48,24 @@
       "writtenOn": "2018-03-13T08:51:46Z",
       "side": 1,
       "message": "Do we really want to disable all motion vector information whenever we have an intra frame?\n\nShouldn\u0027t this be keyed on error_resilient_mode?\n\nIf it is an intra_only frame, are the frame_refs initialized to appropriate values?",
+      "revId": "2bd9d4b56987796d5fa1d6b7af84105a0a6ab7b5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a680c27b_ab468a1b",
+        "filename": "av1/common/entropymode.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1206,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2018-03-13T15:58:52Z",
+      "side": 1,
+      "message": "It seems to be a safer approach to cut off the reference to prior frames mvs when setup_past_independence is triggered, like as its name suggested that it should clear all the past dependence(?)\n\nPerhaps we should re-consider if an intra frame should call this function instead? or split it to better satisfy both settings - independence and intra frame.\n\nThe CL\nhttps://aomedia-review.googlesource.com/c/aom/+/51101\nshould clear the frame_refs concern(?)",
+      "parentUuid": "dca696dc_fb464fbd",
       "revId": "2bd9d4b56987796d5fa1d6b7af84105a0a6ab7b5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
