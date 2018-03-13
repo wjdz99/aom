@@ -16,6 +16,24 @@
       "revId": "19f0a2332a6a23d2694c7747d1deddde1f50f802",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9d35b521_ff20fe3b",
+        "filename": "aom_dsp/binary_codes_reader.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2018-03-13T04:47:11Z",
+      "side": 0,
+      "message": "yes, you are right. The check for UINT32_MAX was not necessary.",
+      "parentUuid": "4beacff0_ea10bac3",
+      "revId": "19f0a2332a6a23d2694c7747d1deddde1f50f802",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
