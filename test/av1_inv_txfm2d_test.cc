@@ -18,6 +18,7 @@
 
 #include "aom_ports/aom_timer.h"
 #include "av1/common/av1_inv_txfm1d_cfg.h"
+#include "av1/common/scan.h"
 #include "test/acm_random.h"
 #include "test/av1_txfm_test.h"
 #include "test/util.h"
@@ -252,20 +253,31 @@ void AV1LbdInvTxfm2d::RunAV1InvTxfm2dTest(TX_TYPE tx_type, TX_SIZE tx_size,
   int stride = BLK_WIDTH;
   int rows = tx_size_high[tx_size];
   int cols = tx_size_wide[tx_size];
-  run_times = AOMMAX(run_times / (rows * cols), 1);
+  int rows_nonezero = AOMMIN(32, rows);
+  int cols_nonezero = AOMMIN(32, cols);
+  run_times /= (rows * cols);
+  run_times = AOMMAX(1, run_times);
+  const SCAN_ORDER *scan_order = get_default_scan(tx_size, tx_type);
+  const int16_t *scan = scan_order->scan;
+  int16_t eobmax = rows_nonezero * cols_nonezero;
   ACMRandom rnd(ACMRandom::DeterministicSeed());
-  int randTimes = run_times == 1 ? 500 : 1;
+  int randTimes = run_times == 1 ? (eobmax + 500) : 1;
   for (int cnt = 0; cnt < randTimes; ++cnt) {
-    const int16_t max_in = (1 << (bd + 1)) - 1;
-    for (int r = 0; r < rows; ++r) {
-      for (int c = 0; c < cols; ++c) {
+    const int16_t max_in = (1 << (bd)) - 1;
+    for (int r = 0; r < BLK_WIDTH; ++r) {
+      for (int c = 0; c < BLK_WIDTH; ++c) {
         input[r * cols + c] = (cnt == 0) ? max_in : rnd.Rand8Extremes();
         output[r * stride + c] = (cnt == 0) ? 128 : rnd.Rand8();
         ref_output[r * stride + c] = output[r * stride + c];
       }
     }
     fwd_func_(input, inv_input, stride, tx_type, bd);
-    int eob = AOMMIN(32, rows) * AOMMIN(32, cols);
+
+    // produce eob input by setting high freq coeffs to zero
+    int eob = AOMMIN(cnt + 1, eobmax);
+    for (int i = eob; i < eobmax; i++) {
+      inv_input[scan[i]] = 0;
+    }
 
     aom_usec_timer timer;
     aom_usec_timer_start(&timer);
@@ -289,8 +301,9 @@ void AV1LbdInvTxfm2d::RunAV1InvTxfm2dTest(TX_TYPE tx_type, TX_SIZE tx_size,
       for (int c = 0; c < cols; ++c) {
         uint8_t ref_value = static_cast<uint8_t>(ref_output[r * stride + c]);
         ASSERT_EQ(ref_value, output[r * stride + c])
-            << "[" << r << "," << c << "] " << cnt << " tx_size: " << tx_size
-            << " tx_type: " << tx_type;
+            << "[" << r << "," << c << "] " << cnt
+            << " tx_size: " << static_cast<int>(tx_size)
+            << " tx_type: " << tx_type << " eob " << eob;
       }
     }
   }
