@@ -35,30 +35,6 @@ static void iidtx4_c(const tran_low_t *input, tran_low_t *output) {
   }
 }
 
-static void iidtx8_c(const tran_low_t *input, tran_low_t *output) {
-  for (int i = 0; i < 8; ++i) {
-    output[i] = input[i] * 2;
-  }
-}
-
-static void iidtx16_c(const tran_low_t *input, tran_low_t *output) {
-  for (int i = 0; i < 16; ++i) {
-    output[i] = (tran_low_t)dct_const_round_shift(input[i] * 2 * Sqrt2);
-  }
-}
-
-static void iidtx32_c(const tran_low_t *input, tran_low_t *output) {
-  for (int i = 0; i < 32; ++i) {
-    output[i] = input[i] * 4;
-  }
-}
-
-static void iidtx64_c(const tran_low_t *input, tran_low_t *output) {
-  for (int i = 0; i < 64; ++i) {
-    output[i] = (tran_low_t)dct_const_round_shift(input[i] * 4 * Sqrt2);
-  }
-}
-
 static const int8_t inv_stage_range_col_dct_64[12] = { 0, 0, 0, 0, 0, 0,
                                                        0, 0, 0, 0, 0, 0 };
 static const int8_t inv_stage_range_row_dct_64[12] = { 0, 0, 0, 0, 0, 0,
