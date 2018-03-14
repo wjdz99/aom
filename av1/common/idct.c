@@ -59,20 +59,6 @@ static void iidtx64_c(const tran_low_t *input, tran_low_t *output) {
   }
 }
 
-// For use in lieu of ADST
-static void ihalfright32_c(const tran_low_t *input, tran_low_t *output) {
-  tran_low_t inputhalf[16];
-  // Multiply input by sqrt(2)
-  for (int i = 0; i < 16; ++i) {
-    inputhalf[i] = (tran_low_t)dct_const_round_shift(input[i] * Sqrt2);
-  }
-  for (int i = 0; i < 16; ++i) {
-    output[i] = input[16 + i] * 4;
-  }
-  aom_idct16_c(inputhalf, output + 16);
-  // Note overall scaling factor is 4 times orthogonal
-}
-
 static const int8_t inv_stage_range_col_dct_64[12] = { 0, 0, 0, 0, 0, 0,
                                                        0, 0, 0, 0, 0, 0 };
 static const int8_t inv_stage_range_row_dct_64[12] = { 0, 0, 0, 0, 0, 0,
@@ -95,20 +81,6 @@ static void idct64_row_c(const tran_low_t *input, tran_low_t *output) {
   av1_idct64_new(in, out, inv_cos_bit_row[txw_idx][txh_idx],
                  inv_stage_range_row_dct_64);
   for (int i = 0; i < 64; ++i) output[i] = (tran_low_t)out[i];
-}
-
-// For use in lieu of ADST
-static void ihalfright64_c(const tran_low_t *input, tran_low_t *output) {
-  tran_low_t inputhalf[32];
-  // Multiply input by sqrt(2)
-  for (int i = 0; i < 32; ++i) {
-    inputhalf[i] = (tran_low_t)dct_const_round_shift(input[i] * Sqrt2);
-  }
-  for (int i = 0; i < 32; ++i) {
-    output[i] = (tran_low_t)dct_const_round_shift(input[32 + i] * 4 * Sqrt2);
-  }
-  aom_idct32_c(inputhalf, output + 32);
-  // Note overall scaling factor is 4 * sqrt(2)  times orthogonal
 }
 
 #define FLIPUD_PTR(dest, stride, size)       \
