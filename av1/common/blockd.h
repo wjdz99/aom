@@ -455,6 +455,10 @@ typedef struct RefBuffer {
 #endif          // CONFIG_FRAME_REFS_SIGNALING
   YV12_BUFFER_CONFIG *buf;
   struct scale_factors sf;
+
+  // Inter frame reference frame delta for loop filter
+  int8_t ref_delta;
+  int8_t last_ref_delta;
 } RefBuffer;
 
 typedef struct {

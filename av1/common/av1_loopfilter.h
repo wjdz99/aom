@@ -127,10 +127,13 @@ struct loopfilter {
   uint8_t mode_ref_delta_enabled;
   uint8_t mode_ref_delta_update;
 
-  // 0 = Intra, Last, Last2+Last3,
-  // GF, BRF, ARF2, ARF
-  int8_t ref_deltas[TOTAL_REFS_PER_FRAME];
-  int8_t last_ref_deltas[TOTAL_REFS_PER_FRAME];
+  // Reference frame deltas for loop filter.
+  // It provides the flexibility that for different types of reference frames.
+  // Loop filter could use a delta to indicate stronger or weaker filtering.
+  // Inter frame deltas are associated with corresponding reference frame
+  // buffers, in cm->frame_refs
+  int8_t intra_ref_delta;
+  int8_t last_intra_ref_delta;
 
   // 0 = ZERO_MV, MV
   int8_t mode_deltas[MAX_MODE_LF_DELTAS];
