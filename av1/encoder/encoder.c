@@ -311,6 +311,7 @@ static void setup_frame(AV1_COMP *cpi) {
 #if CONFIG_NO_FRAME_CONTEXT_SIGNALING
   cm->primary_ref_frame = PRIMARY_REF_NONE;
 #endif  // CONFIG_NO_FRAME_CONTEXT_SIGNALING
+  if (frame_is_intra_only(cm)) av1_setup_loopfilter_deltas(cm);
   if (frame_is_intra_only(cm) || cm->error_resilient_mode) {
     av1_setup_past_independence(cm);
 #if CONFIG_NO_FRAME_CONTEXT_SIGNALING
@@ -568,7 +569,6 @@ static void save_coding_context(AV1_COMP *cpi) {
   av1_copy(cc->nmv_costs, cpi->nmv_costs);
   av1_copy(cc->nmv_costs_hp, cpi->nmv_costs_hp);
 
-  av1_copy(cc->last_ref_lf_deltas, cm->lf.last_ref_deltas);
   av1_copy(cc->last_mode_lf_deltas, cm->lf.last_mode_deltas);
 
   cc->fc = *cm->fc;
@@ -584,7 +584,6 @@ static void restore_coding_context(AV1_COMP *cpi) {
   av1_copy(cpi->nmv_costs, cc->nmv_costs);
   av1_copy(cpi->nmv_costs_hp, cc->nmv_costs_hp);
 
-  av1_copy(cm->lf.last_ref_deltas, cc->last_ref_lf_deltas);
   av1_copy(cm->lf.last_mode_deltas, cc->last_mode_lf_deltas);
 
   *cm->fc = cc->fc;
