@@ -111,7 +111,6 @@ endif ()
 if (NOT BUILD_SHARED_LIBS)
   set(AOM_UNIT_TEST_ENCODER_SOURCES
       ${AOM_UNIT_TEST_ENCODER_SOURCES}
-      "${AOM_ROOT}/test/dct16x16_test.cc"
       "${AOM_ROOT}/test/dct32x32_test.cc"
       "${AOM_ROOT}/test/sad_test.cc")
 endif ()
@@ -205,9 +204,6 @@ if (CONFIG_AV1_ENCODER)
         ${AOM_UNIT_TEST_ENCODER_SOURCES}
         "${AOM_ROOT}/test/arf_freq_test.cc"
         "${AOM_ROOT}/test/av1_dct_test.cc"
-        "${AOM_ROOT}/test/av1_fht16x16_test.cc"
-        "${AOM_ROOT}/test/av1_fht32x32_test.cc"
-        "${AOM_ROOT}/test/av1_fht8x8_test.cc"
         "${AOM_ROOT}/test/av1_fwd_txfm1d_test.cc"
         "${AOM_ROOT}/test/av1_fwd_txfm2d_test.cc"
         "${AOM_ROOT}/test/av1_inv_txfm1d_test.cc"
@@ -219,7 +215,6 @@ if (CONFIG_AV1_ENCODER)
         "${AOM_ROOT}/test/blend_a64_mask_test.cc"
         "${AOM_ROOT}/test/error_block_test.cc"
         "${AOM_ROOT}/test/fdct4x4_test.cc"
-        "${AOM_ROOT}/test/fdct8x8_test.cc"
         "${AOM_ROOT}/test/hadamard_test.cc"
         "${AOM_ROOT}/test/masked_sad_test.cc"
         "${AOM_ROOT}/test/masked_variance_test.cc"
@@ -268,16 +263,6 @@ if (CONFIG_AV1_ENCODER)
           ${AOM_UNIT_TEST_ENCODER_SOURCES}
           "${AOM_ROOT}/test/hash_test.cc")
     endif ()
-
-    set(AOM_UNIT_TEST_ENCODER_SOURCES
-        ${AOM_UNIT_TEST_ENCODER_SOURCES}
-        "${AOM_ROOT}/test/av1_fht16x32_test.cc"
-        "${AOM_ROOT}/test/av1_fht16x8_test.cc"
-        "${AOM_ROOT}/test/av1_fht32x16_test.cc"
-        "${AOM_ROOT}/test/av1_fht4x4_test.cc"
-        "${AOM_ROOT}/test/av1_fht4x8_test.cc"
-        "${AOM_ROOT}/test/av1_fht8x16_test.cc"
-        "${AOM_ROOT}/test/av1_fht8x4_test.cc")
 
     set(AOM_UNIT_TEST_ENCODER_INTRIN_SSE4_1
         ${AOM_UNIT_TEST_ENCODER_INTRIN_SSE4_1}
