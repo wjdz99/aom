@@ -2161,12 +2161,17 @@ static void encode_segmentation(AV1_COMMON *cm, MACROBLOCKD *xd,
 
 #if CONFIG_SPATIAL_SEGMENTATION
   seg->preskip_segid = 0;
+  int has_both_ll_and_lossy_segment = 0;
 #endif
 
   // Segmentation data
   aom_wb_write_bit(wb, seg->update_data);
   if (seg->update_data) {
     for (i = 0; i < MAX_SEGMENTS; i++) {
+#if CONFIG_SPATIAL_SEGMENTATION
+      has_both_ll_and_lossy_segment |=
+          (i > 0 && (xd->lossless[i] != xd->lossless[i - 1]));
+#endif
       for (j = 0; j < SEG_LVL_MAX; j++) {
         const int active = segfeature_active(seg, i, j);
         aom_wb_write_bit(wb, active);
@@ -2188,6 +2193,11 @@ static void encode_segmentation(AV1_COMMON *cm, MACROBLOCKD *xd,
         }
       }
     }
+#if CONFIG_SPATIAL_SEGMENTATION
+    // Disable spatial segment_id prediction if there are both lossy and
+    // lossless segments.
+    seg->preskip_segid |= has_both_ll_and_lossy_segment;
+#endif
   }
 }
 
