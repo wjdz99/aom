@@ -3169,6 +3169,9 @@ static int read_uncompressed_header(AV1Decoder *pbi,
   xd->cur_frame_force_integer_mv = cm->cur_frame_force_integer_mv;
 #endif
 
+#if CONFIG_SPATIAL_SEGMENTATION
+  int has_both_ll_and_lossy_segment = 0;
+#endif
   for (int i = 0; i < MAX_SEGMENTS; ++i) {
     const int qindex = cm->seg.enabled
                            ? av1_get_qindex(&cm->seg, i, cm->base_qindex)
@@ -3177,7 +3180,18 @@ static int read_uncompressed_header(AV1Decoder *pbi,
                       cm->u_dc_delta_q == 0 && cm->u_ac_delta_q == 0 &&
                       cm->v_dc_delta_q == 0 && cm->v_ac_delta_q == 0;
     xd->qindex[i] = qindex;
+#if CONFIG_SPATIAL_SEGMENTATION
+    has_both_ll_and_lossy_segment |=
+        (i > 0 && (xd->lossless[i] != xd->lossless[i - 1]));
+#endif
   }
+#if CONFIG_SPATIAL_SEGMENTATION
+  // Disable spatial segment_id prediction if there are both lossy and
+  // lossless segments.
+  cm->seg.preskip_segid |= has_both_ll_and_lossy_segment;
+#endif
+
+
   cm->all_lossless = all_lossless(cm, xd);
   setup_segmentation_dequant(cm);
   if (cm->all_lossless) {
