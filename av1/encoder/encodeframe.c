@@ -1437,11 +1437,11 @@ static void encode_b(const AV1_COMP *const cpi, TileDataEnc *tile_data,
   MACROBLOCK *const x = &td->mb;
 #if CONFIG_EXT_DELTA_Q
   MACROBLOCKD *xd = &x->e_mbd;
-  MB_MODE_INFO *mbmi;
 #endif
 
   set_offsets(cpi, tile, x, mi_row, mi_col, bsize);
-  x->e_mbd.mi[0]->mbmi.partition = partition;
+  MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
+  mbmi->partition = partition;
   update_state(cpi, tile_data, td, ctx, mi_row, mi_col, bsize, dry_run);
 
   if (!dry_run) av1_set_coeff_buffer(cpi, x, mi_row, mi_col);
@@ -1449,12 +1449,18 @@ static void encode_b(const AV1_COMP *const cpi, TileDataEnc *tile_data,
   encode_superblock(cpi, tile_data, td, tp, dry_run, mi_row, mi_col, bsize,
                     rate);
 
+  // If there is at least one lossless segment, force the skip for intra block
+  // to be 0, in order to avoid the segment_id to be changed by in
+  // write_segment_id().
+  if (!cpi->common.seg.preskip_segid && cpi->common.seg.update_map &&
+      cpi->has_lossless_segment && !is_inter_block(mbmi))
+    mbmi->skip = 0;
+
   if (dry_run == 0)
     x->cb_offset += block_size_wide[bsize] * block_size_high[bsize];
 
   if (!dry_run) {
 #if CONFIG_EXT_DELTA_Q
-    mbmi = &xd->mi[0]->mbmi;
     if (bsize == cpi->common.seq_params.sb_size && mbmi->skip == 1 &&
         cpi->common.delta_lf_present_flag) {
       const int frame_lf_count = av1_num_planes(&cpi->common) > 1
@@ -4323,6 +4329,7 @@ static void encode_frame_internal(AV1_COMP *cpi) {
     xd->lossless[i] = qindex == 0 && cm->y_dc_delta_q == 0 &&
                       cm->u_dc_delta_q == 0 && cm->u_ac_delta_q == 0 &&
                       cm->v_dc_delta_q == 0 && cm->v_ac_delta_q == 0;
+    if (xd->lossless[i]) cpi->has_lossless_segment = 1;
     xd->qindex[i] = qindex;
   }
   cm->all_lossless = all_lossless(cm, xd);

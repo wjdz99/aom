@@ -476,7 +476,11 @@ static void write_segment_id(AV1_COMP *cpi, const MB_MODE_INFO *const mbmi,
   int cdf_num = pick_spatial_seg_cdf(prev_ul, prev_u, prev_l);
   int pred = pick_spatial_seg_pred(prev_ul, prev_u, prev_l);
 
+  // Still need to transmit tx size for intra blocks even if skip is
+  // true. Changing segment_id may make the tx size become invalid, e.g
+  // changing from lossless to lossy.
   if (skip) {
+    assert(is_inter_block(mbmi) || !cpi->has_lossless_segment);
     set_spatial_segment_id(cm, cm->current_frame_seg_map, mbmi->sb_type, mi_row,
                            mi_col, pred);
     set_spatial_segment_id(cm, cpi->segmentation_map, mbmi->sb_type, mi_row,
