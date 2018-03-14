@@ -3494,8 +3494,7 @@ uint32_t write_obu_header(OBU_TYPE obu_type, int obu_extension,
   struct aom_write_bit_buffer wb = { dst, 0 };
   uint32_t size = 0;
 
-  // first bit is obu_forbidden_bit according to R19
-  aom_wb_write_literal(&wb, 0, 1);
+  aom_wb_write_literal(&wb, 0, 1);  // forbidden bit.
   aom_wb_write_literal(&wb, (int)obu_type, 4);
 #if CONFIG_OBU_SIZE_AFTER_HEADER
   aom_wb_write_literal(&wb, obu_extension ? 1 : 0, 1);
@@ -3642,6 +3641,7 @@ static uint32_t write_tile_group_header(uint8_t *const dst, int startTile,
 
 typedef struct {
   uint8_t *frame_header;
+  size_t obu_header_byte_offset;
   size_t total_length;
 } FrameHeaderInfo;
 
@@ -3911,7 +3911,7 @@ static uint32_t write_tiles_in_tg_obus(AV1_COMP *const cpi, uint8_t *const dst,
         // size of this tile
         mem_put_le32(buf->data, tile_size);
       } else {
-      // write current tile group size
+        // write current tile group size
 #if CONFIG_OBU_SIZING
         const uint32_t obu_payload_size = curr_tg_data_size - obu_header_size;
         const size_t length_field_size =
@@ -3932,6 +3932,14 @@ static uint32_t write_tiles_in_tg_obus(AV1_COMP *const cpi, uint8_t *const dst,
 
           // Insert a copy of the Frame Header OBU.
           memcpy(data, fh_info->frame_header, fh_info->total_length);
+
+#if CONFIG_OBU_REDUNDANT_FRAME_HEADER
+          // Rewrite the OBU header to change the OBU type to Redundant Frame
+          // Header.
+          write_obu_header(OBU_REDUNDANT_FRAME_HEADER, obu_extension_header,
+                           &data[fh_info->obu_header_byte_offset]);
+#endif  // CONFIG_OBU_REDUNDANT_FRAME_HEADER
+
           data += fh_info->total_length;
 
           curr_tg_data_size += fh_info->total_length;
@@ -3954,7 +3962,7 @@ int av1_pack_bitstream(AV1_COMP *const cpi, uint8_t *dst, size_t *size) {
   AV1_COMMON *const cm = &cpi->common;
   uint32_t obu_header_size = 0;
   uint32_t obu_payload_size = 0;
-  FrameHeaderInfo fh_info = { NULL, 0 };
+  FrameHeaderInfo fh_info = { NULL, 0, 0 };
 #if CONFIG_SCALABILITY
   const uint8_t enhancement_layers_cnt = cm->enhancement_layers_cnt;
   const uint8_t obu_extension_header =
@@ -4021,8 +4029,17 @@ int av1_pack_bitstream(AV1_COMP *const cpi, uint8_t *dst, size_t *size) {
     }
 #else
     const size_t length_field_size = PRE_OBU_SIZE_BYTES;
+    fh_info.obu_header_byte_offset = length_field_size;
     mem_put_le32(data, obu_header_size + obu_payload_size);
 #endif  // CONFIG_OBU_SIZING
+
+#if CONFIG_OBU_REDUNDANT_FRAME_HEADER
+#if CONFIG_OBU_SIZE_AFTER_HEADER
+    fh_info.obu_header_byte_offset = 0;
+#else
+    fh_info.obu_header_byte_offset = length_field_size;
+#endif  // CONFIG_OBU_SIZE_AFTER_HEADER
+#endif  // CONFIG_OBU_REDUNDANT_FRAME_HEADER
 
     fh_info.total_length =
         obu_header_size + obu_payload_size + length_field_size;
