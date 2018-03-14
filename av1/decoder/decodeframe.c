@@ -1106,13 +1106,21 @@ static void setup_loopfilter(AV1_COMMON *cm, struct aom_read_bit_buffer *rb) {
   if (lf->mode_ref_delta_enabled) {
     lf->mode_ref_delta_update = aom_rb_read_bit(rb);
     if (lf->mode_ref_delta_update) {
-      for (int i = 0; i < TOTAL_REFS_PER_FRAME; i++)
-        if (aom_rb_read_bit(rb))
-          lf->ref_deltas[i] = aom_rb_read_inv_signed_literal(rb, 6);
+      // intra ref frame delta
+      if (aom_rb_read_bit(rb))
+        lf->intra_ref_delta = aom_rb_read_inv_signed_literal(rb, 6);
+      // other ref frame delta
+      for (int ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
+        if (aom_rb_read_bit(rb)) {
+          RefBuffer *const ref_buf = &cm->frame_refs[ref_frame - LAST_FRAME];
+          ref_buf->ref_delta = aom_rb_read_inv_signed_literal(rb, 6);
+        }
+      }
 
       for (int i = 0; i < MAX_MODE_LF_DELTAS; i++)
         if (aom_rb_read_bit(rb))
-          lf->mode_deltas[i] = aom_rb_read_inv_signed_literal(rb, 6);
+          cm->frame_refs[cm->primary_ref_frame].mode_deltas[i] =
+              aom_rb_read_inv_signed_literal(rb, 6);
     }
   }
 }
@@ -3106,6 +3114,7 @@ static int read_uncompressed_header(AV1Decoder *pbi,
   setup_quantization(cm, rb);
   xd->bd = (int)cm->bit_depth;
 
+  if (frame_is_intra_only(cm)) av1_setup_loopfilter_deltas(cm);
   if (frame_is_intra_only(cm) || cm->error_resilient_mode) {
     av1_setup_past_independence(cm);
     av1_setup_frame_contexts(cm);

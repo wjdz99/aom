@@ -176,12 +176,22 @@ void av1_frameworker_copy_context(AVxWorker *const dst_worker,
 
   memcpy(dst_cm->lf_info.lfthr, src_cm->lf_info.lfthr,
          (MAX_LOOP_FILTER + 1) * sizeof(loop_filter_thresh));
-  dst_cm->lf.last_sharpness_level = src_cm->lf.sharpness_level;
+  dst_cm->frame_refs[dst_cm->primary_ref_frame].last_sharpness_level =
+      src_cm->lf.sharpness_level;
   dst_cm->lf.filter_level[0] = src_cm->lf.filter_level[0];
   dst_cm->lf.filter_level[1] = src_cm->lf.filter_level[1];
-  memcpy(dst_cm->lf.ref_deltas, src_cm->lf.ref_deltas, TOTAL_REFS_PER_FRAME);
-  memcpy(dst_cm->lf.mode_deltas, src_cm->lf.mode_deltas, MAX_MODE_LF_DELTAS);
   dst_cm->seg = src_cm->seg;
+  for (int ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
+    RefBuffer *const src_buf = &src_cm->frame_refs[ref_frame - LAST_FRAME];
+    RefBuffer *const dst_buf = &dst_cm->frame_refs[ref_frame - LAST_FRAME];
+    dst_buf->ref_delta = src_buf->ref_delta;
+    dst_buf->last_ref_delta = src_buf->last_ref_delta;
+
+    for (i = 0; i < MAX_MODE_LF_DELTAS; i++) {
+      dst_buf->mode_deltas[i] = src_buf->mode_deltas[i];
+      dst_buf->last_mode_deltas[i] = src_buf->last_mode_deltas[i];
+    }
+  }
   memcpy(dst_cm->frame_contexts, src_cm->frame_contexts,
          FRAME_CONTEXTS * sizeof(dst_cm->frame_contexts[0]));
 #else

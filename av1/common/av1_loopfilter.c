@@ -628,9 +628,16 @@ static uint8_t get_filter_level(const AV1_COMMON *cm,
 
     if (cm->lf.mode_ref_delta_enabled) {
       const int scale = 1 << (lvl_seg >> 5);
-      lvl_seg += cm->lf.ref_deltas[mbmi->ref_frame[0]] * scale;
       if (mbmi->ref_frame[0] > INTRA_FRAME)
-        lvl_seg += cm->lf.mode_deltas[mode_lf_lut[mbmi->mode]] * scale;
+        lvl_seg +=
+            cm->frame_refs[mbmi->ref_frame[0] - LAST_FRAME].ref_delta * scale;
+      else
+        lvl_seg += cm->lf.intra_ref_delta * scale;
+
+      if (mbmi->ref_frame[0] > INTRA_FRAME)
+        lvl_seg += cm->frame_refs[mbmi->ref_frame[0] - LAST_FRAME]
+                       .mode_deltas[mode_lf_lut[mbmi->mode]] *
+                   scale;
       lvl_seg = clamp(lvl_seg, 0, MAX_LOOP_FILTER);
     }
     return lvl_seg;
@@ -655,7 +662,8 @@ void av1_loop_filter_init(AV1_COMMON *cm) {
 
   // init limits for given sharpness
   update_sharpness(lfi, lf->sharpness_level);
-  lf->last_sharpness_level = lf->sharpness_level;
+  cm->frame_refs[cm->primary_ref_frame].last_sharpness_level =
+      lf->sharpness_level;
 
   // init hev threshold const vectors
   for (lvl = 0; lvl <= MAX_LOOP_FILTER; lvl++)
@@ -673,9 +681,11 @@ void av1_loop_filter_frame_init(AV1_COMMON *cm, int default_filt_lvl,
   const struct segmentation *const seg = &cm->seg;
 
   // update limits if sharpness has changed
-  if (lf->last_sharpness_level != lf->sharpness_level) {
+  if (cm->frame_refs[cm->primary_ref_frame].last_sharpness_level !=
+      lf->sharpness_level) {
     update_sharpness(lfi, lf->sharpness_level);
-    lf->last_sharpness_level = lf->sharpness_level;
+    cm->frame_refs[cm->primary_ref_frame].last_sharpness_level =
+        lf->sharpness_level;
   }
 
   for (seg_id = 0; seg_id < MAX_SEGMENTS; seg_id++) {
@@ -695,14 +705,15 @@ void av1_loop_filter_frame_init(AV1_COMMON *cm, int default_filt_lvl,
       } else {
         int ref, mode;
         const int scale = 1 << (lvl_seg >> 5);
-        const int intra_lvl = lvl_seg + lf->ref_deltas[INTRA_FRAME] * scale;
+        const int intra_lvl = lvl_seg + lf->intra_ref_delta * scale;
         lfi->lvl[seg_id][dir][INTRA_FRAME][0] =
             clamp(intra_lvl, 0, MAX_LOOP_FILTER);
 
         for (ref = LAST_FRAME; ref < TOTAL_REFS_PER_FRAME; ++ref) {
           for (mode = 0; mode < MAX_MODE_LF_DELTAS; ++mode) {
-            const int inter_lvl = lvl_seg + lf->ref_deltas[ref] * scale +
-                                  lf->mode_deltas[mode] * scale;
+            const int inter_lvl =
+                lvl_seg + cm->frame_refs[ref - LAST_FRAME].ref_delta * scale +
+                cm->frame_refs[ref - LAST_FRAME].mode_deltas[mode] * scale;
             lfi->lvl[seg_id][dir][ref][mode] =
                 clamp(inter_lvl, 0, MAX_LOOP_FILTER);
           }
