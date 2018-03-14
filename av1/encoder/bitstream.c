@@ -2054,22 +2054,31 @@ static void encode_loopfilter(AV1_COMMON *cm, struct aom_write_bit_buffer *wb) {
   if (lf->mode_ref_delta_enabled) {
     aom_wb_write_bit(wb, lf->mode_ref_delta_update);
     if (lf->mode_ref_delta_update) {
-      for (i = 0; i < TOTAL_REFS_PER_FRAME; i++) {
-        const int delta = lf->ref_deltas[i];
-        const int changed = delta != lf->last_ref_deltas[i];
+      // intra frame delta
+      const int intra_changed = lf->intra_ref_delta != lf->last_intra_ref_delta;
+      aom_wb_write_bit(wb, intra_changed);
+      if (intra_changed) {
+        lf->last_intra_ref_delta = lf->intra_ref_delta;
+        aom_wb_write_inv_signed_literal(wb, lf->intra_ref_delta, 6);
+      }
+      // other ref frame delta
+      for (int ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
+        RefBuffer *const ref_buf = &cm->frame_refs[ref_frame - LAST_FRAME];
+        const int changed = ref_buf->ref_delta != ref_buf->last_ref_delta;
         aom_wb_write_bit(wb, changed);
         if (changed) {
-          lf->last_ref_deltas[i] = delta;
-          aom_wb_write_inv_signed_literal(wb, delta, 6);
+          ref_buf->last_ref_delta = ref_buf->ref_delta;
+          aom_wb_write_inv_signed_literal(wb, ref_buf->ref_delta, 6);
         }
       }
 
       for (i = 0; i < MAX_MODE_LF_DELTAS; i++) {
-        const int delta = lf->mode_deltas[i];
-        const int changed = delta != lf->last_mode_deltas[i];
+        const int delta = cm->frame_refs[cm->primary_ref_frame].mode_deltas[i];
+        const int changed =
+            delta != cm->frame_refs[cm->primary_ref_frame].last_mode_deltas[i];
         aom_wb_write_bit(wb, changed);
         if (changed) {
-          lf->last_mode_deltas[i] = delta;
+          cm->frame_refs[cm->primary_ref_frame].last_mode_deltas[i] = delta;
           aom_wb_write_inv_signed_literal(wb, delta, 6);
         }
       }

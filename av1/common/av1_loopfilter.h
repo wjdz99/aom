@@ -27,8 +27,6 @@ extern "C" {
 
 #define SIMD_WIDTH 16
 
-#define MAX_MODE_LF_DELTAS 2
-
 enum lf_path {
   LF_PATH_420,
   LF_PATH_444,
@@ -122,19 +120,17 @@ struct loopfilter {
   int filter_level_v;
 
   int sharpness_level;
-  int last_sharpness_level;
 
   uint8_t mode_ref_delta_enabled;
   uint8_t mode_ref_delta_update;
 
-  // 0 = Intra, Last, Last2+Last3,
-  // GF, BRF, ARF2, ARF
-  int8_t ref_deltas[TOTAL_REFS_PER_FRAME];
-  int8_t last_ref_deltas[TOTAL_REFS_PER_FRAME];
-
-  // 0 = ZERO_MV, MV
-  int8_t mode_deltas[MAX_MODE_LF_DELTAS];
-  int8_t last_mode_deltas[MAX_MODE_LF_DELTAS];
+  // Reference frame deltas for loop filter.
+  // It provides the flexibility that for different types of reference frames.
+  // Loop filter could use a delta to indicate stronger or weaker filtering.
+  // Inter frame deltas are associated with corresponding reference frame
+  // buffers, in cm->frame_refs
+  int8_t intra_ref_delta;
+  int8_t last_intra_ref_delta;
 
 #if LOOP_FILTER_BITMASK
   LoopFilterMask *lfm;

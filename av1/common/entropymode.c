@@ -1144,24 +1144,48 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
   av1_copy(fc->intrabc_cdf, default_intrabc_cdf);
 }
 
-static void set_default_lf_deltas(struct loopfilter *lf) {
-  lf->mode_ref_delta_enabled = 1;
-  lf->mode_ref_delta_update = 1;
+static void set_default_lf_deltas(AV1_COMMON *cm) {
+  cm->lf.mode_ref_delta_enabled = 1;
+  cm->lf.mode_ref_delta_update = 1;
 
-  lf->ref_deltas[INTRA_FRAME] = 1;
-  lf->ref_deltas[LAST_FRAME] = 0;
-  lf->ref_deltas[LAST2_FRAME] = lf->ref_deltas[LAST_FRAME];
-  lf->ref_deltas[LAST3_FRAME] = lf->ref_deltas[LAST_FRAME];
-  lf->ref_deltas[BWDREF_FRAME] = lf->ref_deltas[LAST_FRAME];
-  lf->ref_deltas[GOLDEN_FRAME] = -1;
-  lf->ref_deltas[ALTREF2_FRAME] = -1;
-  lf->ref_deltas[ALTREF_FRAME] = -1;
+  cm->lf.intra_ref_delta = 1;
 
-  lf->mode_deltas[0] = 0;
-  lf->mode_deltas[1] = 0;
+  cm->frame_refs[LAST_FRAME - LAST_FRAME].ref_delta = 0;
 
-  av1_copy(lf->last_ref_deltas, lf->ref_deltas);
-  av1_copy(lf->last_mode_deltas, lf->mode_deltas);
+  cm->frame_refs[LAST2_FRAME - LAST_FRAME].ref_delta =
+      cm->frame_refs[LAST_FRAME - LAST_FRAME].ref_delta;
+
+  cm->frame_refs[LAST3_FRAME - LAST_FRAME].ref_delta =
+      cm->frame_refs[LAST_FRAME - LAST_FRAME].ref_delta;
+
+  cm->frame_refs[BWDREF_FRAME - LAST_FRAME].ref_delta =
+      cm->frame_refs[LAST_FRAME - LAST_FRAME].ref_delta;
+
+  cm->frame_refs[GOLDEN_FRAME - LAST_FRAME].ref_delta = -1;
+  cm->frame_refs[ALTREF2_FRAME - LAST_FRAME].ref_delta = -1;
+  cm->frame_refs[ALTREF_FRAME - LAST_FRAME].ref_delta = -1;
+
+  cm->lf.last_intra_ref_delta = cm->lf.intra_ref_delta;
+
+  for (int ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
+    RefBuffer *const ref_buf = &cm->frame_refs[ref_frame - LAST_FRAME];
+    ref_buf->last_ref_delta = ref_buf->ref_delta;
+    av1_zero(ref_buf->mode_deltas);
+    av1_copy(ref_buf->last_mode_deltas, ref_buf->mode_deltas);
+  }
+}
+
+void av1_setup_loopfilter_deltas(AV1_COMMON *cm) {
+  // Reset the mode ref deltas for loop filter
+  cm->lf.intra_ref_delta = 0;
+  for (int ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
+    RefBuffer *const ref_buf = &cm->frame_refs[ref_frame - LAST_FRAME];
+    ref_buf->last_ref_delta = 0;
+    av1_zero(ref_buf->last_mode_deltas);
+    // To force update of the sharpness
+    ref_buf->last_sharpness_level = -1;
+  }
+  set_default_lf_deltas(cm);
 }
 
 void av1_setup_frame_contexts(AV1_COMMON *cm) {
@@ -1186,9 +1210,7 @@ void av1_setup_frame_contexts(AV1_COMMON *cm) {
 
 void av1_setup_past_independence(AV1_COMMON *cm) {
   // Reset the segment feature data to the default stats:
-  // Features disabled, 0, with delta coding (Default state).
-  struct loopfilter *const lf = &cm->lf;
-
+  // Features disabled, 0.
   av1_clearall_segfeatures(&cm->seg);
 
 #if CONFIG_SEGMENT_PRED_LAST
@@ -1202,14 +1224,6 @@ void av1_setup_past_independence(AV1_COMMON *cm) {
 
   if (cm->current_frame_seg_map)
     memset(cm->current_frame_seg_map, 0, (cm->mi_rows * cm->mi_cols));
-
-  // Reset the mode ref deltas for loop filter
-  av1_zero(lf->last_ref_deltas);
-  av1_zero(lf->last_mode_deltas);
-  set_default_lf_deltas(lf);
-
-  // To force update of the sharpness
-  lf->last_sharpness_level = -1;
 
   av1_default_coef_probs(cm);
   init_mode_probs(cm->fc);

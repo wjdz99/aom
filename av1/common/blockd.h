@@ -35,6 +35,8 @@ extern "C" {
 
 #define MAX_MB_PLANE 3
 
+#define MAX_MODE_LF_DELTAS 2
+
 // Set COMPOUND_SEGMENT_TYPE to one of the three
 // 0: Uniform
 // 1: Difference weighted
@@ -455,6 +457,16 @@ typedef struct RefBuffer {
 #endif          // CONFIG_FRAME_REFS_SIGNALING
   YV12_BUFFER_CONFIG *buf;
   struct scale_factors sf;
+
+  // Inter frame reference frame delta for loop filter
+  int8_t ref_delta;
+  int8_t last_ref_delta;
+
+  // 0 = ZERO_MV, MV
+  int8_t mode_deltas[MAX_MODE_LF_DELTAS];
+  int8_t last_mode_deltas[MAX_MODE_LF_DELTAS];
+
+  int last_sharpness_level;
 } RefBuffer;
 
 typedef struct {
