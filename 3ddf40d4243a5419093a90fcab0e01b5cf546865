@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "6290d4cb_9c47854a",
+        "filename": "av1/common/alloccommon.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-03-14T23:59:33Z",
+      "side": 1,
+      "message": "Correspondingly, you should memset the whole struct to 0 in av1_alloc_restoration_buffers() above: otherwise, \u0027buffer_alloc_sz\u0027 etc may have junk values, that could affect the realloc calls later on.",
+      "revId": "3ddf40d4243a5419093a90fcab0e01b5cf546865",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "629dc51a_ebd14f61",
         "filename": "av1/common/restoration.c",
         "patchSetId": 3
