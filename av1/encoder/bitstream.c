@@ -2159,10 +2159,6 @@ static void encode_segmentation(AV1_COMMON *cm, MACROBLOCKD *xd,
     }
   }
 
-#if CONFIG_SPATIAL_SEGMENTATION
-  seg->preskip_segid = 0;
-#endif
-
   // Segmentation data
   aom_wb_write_bit(wb, seg->update_data);
   if (seg->update_data) {
@@ -2171,10 +2167,6 @@ static void encode_segmentation(AV1_COMMON *cm, MACROBLOCKD *xd,
         const int active = segfeature_active(seg, i, j);
         aom_wb_write_bit(wb, active);
         if (active) {
-#if CONFIG_SPATIAL_SEGMENTATION
-          seg->preskip_segid |= j >= SEG_LVL_REF_FRAME;
-          seg->last_active_segid = i;
-#endif
           const int data_max = av1_seg_feature_data_max(j);
           const int data_min = -data_max;
           const int ubits = get_unsigned_bits(data_max);

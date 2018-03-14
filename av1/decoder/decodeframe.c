@@ -832,10 +832,6 @@ static void setup_segmentation(AV1_COMMON *const cm,
     }
   }
 
-#if CONFIG_SPATIAL_SEGMENTATION
-  seg->preskip_segid = 0;
-#endif
-
   // Segmentation data update
   seg->update_data = aom_rb_read_bit(rb);
   if (seg->update_data) {
@@ -846,10 +842,6 @@ static void setup_segmentation(AV1_COMMON *const cm,
         int data = 0;
         const int feature_enabled = aom_rb_read_bit(rb);
         if (feature_enabled) {
-#if CONFIG_SPATIAL_SEGMENTATION
-          seg->preskip_segid |= j >= SEG_LVL_REF_FRAME;
-          seg->last_active_segid = i;
-#endif
           av1_enable_segfeature(seg, i, j);
 
           const int data_max = av1_seg_feature_data_max(j);
@@ -867,6 +859,11 @@ static void setup_segmentation(AV1_COMMON *const cm,
         av1_set_segdata(seg, i, j, data);
       }
     }
+#if CONFIG_SEGMENT_PRED_LAST
+    segfeatures_copy(&cm->cur_frame->seg, seg);
+  } else if (cm->prev_frame) {
+    segfeatures_copy(seg, &cm->prev_frame->seg);
+#endif
   }
 }
 
