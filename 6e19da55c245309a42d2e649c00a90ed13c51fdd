@@ -16,6 +16,24 @@
       "revId": "6e19da55c245309a42d2e649c00a90ed13c51fdd",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "19483450_a16c820c",
+        "filename": "test/resize_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2018-03-15T17:52:46Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "cf027647_2db3c1c4",
+      "revId": "6e19da55c245309a42d2e649c00a90ed13c51fdd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
