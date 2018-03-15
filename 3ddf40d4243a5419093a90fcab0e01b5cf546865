@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "cfe9796e_49f90a11",
+        "filename": "av1/common/alloccommon.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 7425
+      },
+      "writtenOn": "2018-03-15T06:26:15Z",
+      "side": 1,
+      "message": "av1_alloc_restoration_buffers() is called once per frame in decoder, and the point of this modification is to do actual frame buffer allocation only when the the frame buffer is smaller than needed. If do memset rst_frame in av1_alloc_restoration_buffers(), it will need to call aom_free_frame_buffer() first otherwise causing memory leak. rst_frame is already initialized to 0 when AV1_COMMON struct is allocated (just like other variables in AV1_COMMON struct also used in restoration filter, for example rst_tmpbuf).",
+      "parentUuid": "6290d4cb_9c47854a",
+      "revId": "3ddf40d4243a5419093a90fcab0e01b5cf546865",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "629dc51a_ebd14f61",
         "filename": "av1/common/restoration.c",
         "patchSetId": 3
