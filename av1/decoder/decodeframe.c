@@ -2706,7 +2706,6 @@ static int read_uncompressed_header(AV1Decoder *pbi,
     }
     ref_cnt_fb(frame_bufs, &cm->new_fb_idx, frame_to_show);
 #if CONFIG_FWD_KF
-    cm->reset_decoder_state = frame_bufs[frame_to_show].frame_type == KEY_FRAME;
 #endif  // CONFIG_FWD_KF
     unlock_buffer_pool(pool);
 
@@ -2729,6 +2728,11 @@ static int read_uncompressed_header(AV1Decoder *pbi,
 #endif
 
 #if CONFIG_FWD_KF
+    // NOTE: Forward keyframes can be either intra only frames or KEY_FRAME's
+    if (frame_bufs[frame_to_show].intra_only)
+      cm->reset_decoder_state = aom_rb_read_bit(rb);
+    else if (frame_bufs[frame_to_show].frame_type == KEY_FRAME)
+      cm->reset_decoder_state = 1;
     if (cm->reset_decoder_state) {
       show_existing_frame_reset(pbi, existing_frame_idx);
     } else {

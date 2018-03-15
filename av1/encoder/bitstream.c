@@ -2998,11 +2998,15 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
 #endif
 
 #if CONFIG_FWD_KF
+    // NOTE: Forward keyframes can be either intra only frames or KEY_FRAME's
+    if (frame_bufs[frame_to_show].intra_only)
+      aom_wb_write_bit(wb, cm->reset_decoder_state);
     if (cm->reset_decoder_state &&
-        frame_bufs[frame_to_show].frame_type != KEY_FRAME) {
+        frame_bufs[frame_to_show].frame_type != KEY_FRAME &&
+        !frame_bufs[frame_to_show].intra_only) {
       aom_internal_error(
           &cm->error, AOM_CODEC_UNSUP_BITSTREAM,
-          "show_existing_frame to reset state on KEY_FRAME only");
+          "show_existing_frame to reset state on KEY_FRAME or intra only");
     }
 #endif  // CONFIG_FWD_KF
 
