@@ -78,6 +78,10 @@ static const uint8_t mi_size_wide[BLOCK_SIZES_ALL] = {
   1, 1, 2, 2, 2, 4, 4, 4, 8, 8, 8, 16, 16,
   IF_EXT_PARTITION(16, 32, 32)  1, 4, 2, 8, 4, 16, IF_EXT_PARTITION(8, 32)
 };
+static const uint8_t mi_size_wide_log2[BLOCK_SIZES_ALL] = {
+  0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4,
+  IF_EXT_PARTITION(4, 5, 5)  0, 2, 1, 3, 2, 4, IF_EXT_PARTITION(3, 5)
+};
 static const uint8_t mi_size_high[BLOCK_SIZES_ALL] = {
   1, 2, 1, 2, 4, 2, 4, 8, 4, 8, 16, 8, 16,
   IF_EXT_PARTITION(32, 16, 32)  4, 1, 8, 2, 16, 4, IF_EXT_PARTITION(32, 8)
@@ -560,6 +564,16 @@ static const int tx_size_wide_unit[TX_SIZES_ALL] = {
 // Transform block height in unit
 static const int tx_size_high_unit[TX_SIZES_ALL] = {
   1, 2, 4, 8, 16, 2, 1, 4, 2, 8, 4, 16, 8, 4, 1, 8, 2, 16, 4,
+};
+
+// Transform block width log2 in unit
+static const int tx_size_wide_unit_log2[TX_SIZES_ALL] = {
+  0, 1, 2, 3, 4, 0, 1, 1, 2, 2, 3, 3, 4, 0, 2, 1, 3, 2, 4,
+};
+
+// Transform block height in unit
+static const int tx_size_high_unit_log2[TX_SIZES_ALL] = {
+  0, 1, 2, 3, 4, 1, 0, 2, 1, 3, 2, 4, 3, 2, 0, 3, 1, 4, 2,
 };
 
 // Transform block width in log2
