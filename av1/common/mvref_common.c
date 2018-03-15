@@ -419,43 +419,40 @@ static int add_tpl_ref_mv(const AV1_COMMON *cm, const MACROBLOCKD *xd,
 #endif
     CANDIDATE_MV *ref_mv_stack = ref_mv_stacks[rf[0]];
 
-    for (int i = 0; i < MFMV_STACK_SIZE; ++i) {
-      if (prev_frame_mvs->mfmv0[i].as_int != INVALID_MV) {
-        int_mv this_refmv;
+    if (prev_frame_mvs->mfmv0.as_int != INVALID_MV) {
+      int_mv this_refmv;
 
-        get_mv_projection(&this_refmv.as_mv, prev_frame_mvs->mfmv0[i].as_mv,
-                          cur_offset_0, prev_frame_mvs->ref_frame_offset[i]);
+      get_mv_projection(&this_refmv.as_mv, prev_frame_mvs->mfmv0.as_mv,
+                        cur_offset_0, prev_frame_mvs->ref_frame_offset);
 #if CONFIG_AMVR
-        lower_mv_precision(&this_refmv.as_mv, cm->allow_high_precision_mv,
-                           cm->cur_frame_force_integer_mv);
+      lower_mv_precision(&this_refmv.as_mv, cm->allow_high_precision_mv,
+                         cm->cur_frame_force_integer_mv);
 #else
-        lower_mv_precision(&this_refmv.as_mv, cm->allow_high_precision_mv);
+      lower_mv_precision(&this_refmv.as_mv, cm->allow_high_precision_mv);
 #endif
 
-        if (blk_row == 0 && blk_col == 0)
-          if (abs(this_refmv.as_mv.row - gm_mv_candidates[0].as_mv.row) >= 16 ||
-              abs(this_refmv.as_mv.col - gm_mv_candidates[0].as_mv.col) >= 16)
-            mode_context[ref_frame] |= (1 << GLOBALMV_OFFSET);
+      if (blk_row == 0 && blk_col == 0)
+        if (abs(this_refmv.as_mv.row - gm_mv_candidates[0].as_mv.row) >= 16 ||
+            abs(this_refmv.as_mv.col - gm_mv_candidates[0].as_mv.col) >= 16)
+          mode_context[ref_frame] |= (1 << GLOBALMV_OFFSET);
 
-        for (idx = 0; idx < refmv_count[rf[0]]; ++idx)
-          if (this_refmv.as_int == ref_mv_stack[idx].this_mv.as_int) break;
+      for (idx = 0; idx < refmv_count[rf[0]]; ++idx)
+        if (this_refmv.as_int == ref_mv_stack[idx].this_mv.as_int) break;
 
-        if (idx < refmv_count[rf[0]])
-          ref_mv_stack[idx].weight += 2 * weight_unit;
+      if (idx < refmv_count[rf[0]]) ref_mv_stack[idx].weight += 2 * weight_unit;
 
-        if (idx == refmv_count[rf[0]] &&
-            refmv_count[rf[0]] < MAX_REF_MV_STACK_SIZE) {
-          ref_mv_stack[idx].this_mv.as_int = this_refmv.as_int;
-          // TODO(jingning): Hard coded context number. Need to make it better
-          // sense.
-          ref_mv_stack[idx].pred_diff[0] = 1;
-          ref_mv_stack[idx].weight = 2 * weight_unit;
-          ++(refmv_count[rf[0]]);
-        }
-
-        ++coll_blk_count;
-        return coll_blk_count;
+      if (idx == refmv_count[rf[0]] &&
+          refmv_count[rf[0]] < MAX_REF_MV_STACK_SIZE) {
+        ref_mv_stack[idx].this_mv.as_int = this_refmv.as_int;
+        // TODO(jingning): Hard coded context number. Need to make it better
+        // sense.
+        ref_mv_stack[idx].pred_diff[0] = 1;
+        ref_mv_stack[idx].weight = 2 * weight_unit;
+        ++(refmv_count[rf[0]]);
       }
+
+      ++coll_blk_count;
+      return coll_blk_count;
     }
   } else {
     // Process compound inter mode
@@ -477,55 +474,53 @@ static int add_tpl_ref_mv(const AV1_COMMON *cm, const MACROBLOCKD *xd,
 #endif
     CANDIDATE_MV *ref_mv_stack = ref_mv_stacks[ref_frame];
 
-    for (int i = 0; i < MFMV_STACK_SIZE; ++i) {
-      if (prev_frame_mvs->mfmv0[i].as_int != INVALID_MV) {
-        int_mv this_refmv;
-        int_mv comp_refmv;
-        get_mv_projection(&this_refmv.as_mv, prev_frame_mvs->mfmv0[i].as_mv,
-                          cur_offset_0, prev_frame_mvs->ref_frame_offset[i]);
-        get_mv_projection(&comp_refmv.as_mv, prev_frame_mvs->mfmv0[i].as_mv,
-                          cur_offset_1, prev_frame_mvs->ref_frame_offset[i]);
+    if (prev_frame_mvs->mfmv0.as_int != INVALID_MV) {
+      int_mv this_refmv;
+      int_mv comp_refmv;
+      get_mv_projection(&this_refmv.as_mv, prev_frame_mvs->mfmv0.as_mv,
+                        cur_offset_0, prev_frame_mvs->ref_frame_offset);
+      get_mv_projection(&comp_refmv.as_mv, prev_frame_mvs->mfmv0.as_mv,
+                        cur_offset_1, prev_frame_mvs->ref_frame_offset);
 
 #if CONFIG_AMVR
-        lower_mv_precision(&this_refmv.as_mv, cm->allow_high_precision_mv,
-                           cm->cur_frame_force_integer_mv);
-        lower_mv_precision(&comp_refmv.as_mv, cm->allow_high_precision_mv,
-                           cm->cur_frame_force_integer_mv);
+      lower_mv_precision(&this_refmv.as_mv, cm->allow_high_precision_mv,
+                         cm->cur_frame_force_integer_mv);
+      lower_mv_precision(&comp_refmv.as_mv, cm->allow_high_precision_mv,
+                         cm->cur_frame_force_integer_mv);
 #else
-        lower_mv_precision(&this_refmv.as_mv, cm->allow_high_precision_mv);
-        lower_mv_precision(&comp_refmv.as_mv, cm->allow_high_precision_mv);
+      lower_mv_precision(&this_refmv.as_mv, cm->allow_high_precision_mv);
+      lower_mv_precision(&comp_refmv.as_mv, cm->allow_high_precision_mv);
 #endif
 
-        if (blk_row == 0 && blk_col == 0)
-          if (abs(this_refmv.as_mv.row - gm_mv_candidates[0].as_mv.row) >= 16 ||
-              abs(this_refmv.as_mv.col - gm_mv_candidates[0].as_mv.col) >= 16 ||
-              abs(comp_refmv.as_mv.row - gm_mv_candidates[1].as_mv.row) >= 16 ||
-              abs(comp_refmv.as_mv.col - gm_mv_candidates[1].as_mv.col) >= 16)
-            mode_context[ref_frame] |= (1 << GLOBALMV_OFFSET);
+      if (blk_row == 0 && blk_col == 0)
+        if (abs(this_refmv.as_mv.row - gm_mv_candidates[0].as_mv.row) >= 16 ||
+            abs(this_refmv.as_mv.col - gm_mv_candidates[0].as_mv.col) >= 16 ||
+            abs(comp_refmv.as_mv.row - gm_mv_candidates[1].as_mv.row) >= 16 ||
+            abs(comp_refmv.as_mv.col - gm_mv_candidates[1].as_mv.col) >= 16)
+          mode_context[ref_frame] |= (1 << GLOBALMV_OFFSET);
 
-        for (idx = 0; idx < refmv_count[ref_frame]; ++idx)
-          if (this_refmv.as_int == ref_mv_stack[idx].this_mv.as_int &&
-              comp_refmv.as_int == ref_mv_stack[idx].comp_mv.as_int)
-            break;
+      for (idx = 0; idx < refmv_count[ref_frame]; ++idx)
+        if (this_refmv.as_int == ref_mv_stack[idx].this_mv.as_int &&
+            comp_refmv.as_int == ref_mv_stack[idx].comp_mv.as_int)
+          break;
 
-        if (idx < refmv_count[ref_frame])
-          ref_mv_stack[idx].weight += 2 * weight_unit;
+      if (idx < refmv_count[ref_frame])
+        ref_mv_stack[idx].weight += 2 * weight_unit;
 
-        if (idx == refmv_count[ref_frame] &&
-            refmv_count[ref_frame] < MAX_REF_MV_STACK_SIZE) {
-          ref_mv_stack[idx].this_mv.as_int = this_refmv.as_int;
-          ref_mv_stack[idx].comp_mv.as_int = comp_refmv.as_int;
-          // TODO(jingning): Hard coded context number. Need to make it better
-          // sense.
-          ref_mv_stack[idx].pred_diff[0] = 1;
-          ref_mv_stack[idx].pred_diff[1] = 1;
-          ref_mv_stack[idx].weight = 2 * weight_unit;
-          ++(refmv_count[ref_frame]);
-        }
-
-        ++coll_blk_count;
-        return coll_blk_count;
+      if (idx == refmv_count[ref_frame] &&
+          refmv_count[ref_frame] < MAX_REF_MV_STACK_SIZE) {
+        ref_mv_stack[idx].this_mv.as_int = this_refmv.as_int;
+        ref_mv_stack[idx].comp_mv.as_int = comp_refmv.as_int;
+        // TODO(jingning): Hard coded context number. Need to make it better
+        // sense.
+        ref_mv_stack[idx].pred_diff[0] = 1;
+        ref_mv_stack[idx].pred_diff[1] = 1;
+        ref_mv_stack[idx].weight = 2 * weight_unit;
+        ++(refmv_count[ref_frame]);
       }
+
+      ++coll_blk_count;
+      return coll_blk_count;
     }
   }
 
@@ -1191,12 +1186,11 @@ static int motion_field_projection(AV1_COMMON *cm, MV_REFERENCE_FRAME ref_frame,
         if (pos_valid) {
           int mi_offset = mi_r * (cm->mi_stride >> 1) + mi_c;
 
-          tpl_mvs_base[mi_offset].mfmv0[ref_stamp].as_mv.row =
+          tpl_mvs_base[mi_offset].mfmv0.as_mv.row =
               (dir == 1) ? -fwd_mv.row : fwd_mv.row;
-          tpl_mvs_base[mi_offset].mfmv0[ref_stamp].as_mv.col =
+          tpl_mvs_base[mi_offset].mfmv0.as_mv.col =
               (dir == 1) ? -fwd_mv.col : fwd_mv.col;
-          tpl_mvs_base[mi_offset].ref_frame_offset[ref_stamp] =
-              ref_frame_offset;
+          tpl_mvs_base[mi_offset].ref_frame_offset = ref_frame_offset;
         }
       }
     }
@@ -1212,10 +1206,8 @@ void av1_setup_motion_field(AV1_COMMON *cm) {
   TPL_MV_REF *tpl_mvs_base = cm->tpl_mvs;
   int size = ((cm->mi_rows + MAX_MIB_SIZE) >> 1) * (cm->mi_stride >> 1);
   for (int idx = 0; idx < size; ++idx) {
-    for (int i = 0; i < MFMV_STACK_SIZE; ++i) {
-      tpl_mvs_base[idx].mfmv0[i].as_int = INVALID_MV;
-      tpl_mvs_base[idx].ref_frame_offset[i] = 0;
-    }
+    tpl_mvs_base[idx].mfmv0.as_int = INVALID_MV;
+    tpl_mvs_base[idx].ref_frame_offset = 0;
   }
 
   const int cur_order_hint = cm->cur_frame->cur_frame_offset;
