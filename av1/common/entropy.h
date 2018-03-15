@@ -304,32 +304,11 @@ static INLINE int get_entropy_context(TX_SIZE tx_size, const ENTROPY_CONTEXT *a,
   return combine_entropy_contexts(above_ec, left_ec);
 }
 
-#define COEF_COUNT_SAT 24
-#define COEF_MAX_UPDATE_FACTOR 112
-#define COEF_COUNT_SAT_AFTER_KEY 24
-#define COEF_MAX_UPDATE_FACTOR_AFTER_KEY 128
-
 static INLINE TX_SIZE get_txsize_entropy_ctx(TX_SIZE txsize) {
   return (TX_SIZE)((txsize_sqr_map[txsize] + txsize_sqr_up_map[txsize] + 1) >>
                    1);
 }
 
-void av1_average_tile_coef_cdfs(struct frame_contexts *fc,
-                                struct frame_contexts *ec_ctxs[],
-                                aom_cdf_prob *cdf_ptrs[], int num_tiles);
-void av1_average_tile_mv_cdfs(struct frame_contexts *fc,
-                              struct frame_contexts *ec_ctxs[],
-                              aom_cdf_prob *cdf_ptrs[], int num_tiles);
-void av1_average_tile_intra_cdfs(struct frame_contexts *fc,
-                                 struct frame_contexts *ec_ctxs[],
-                                 aom_cdf_prob *cdf_ptrs[], int num_tiles);
-void av1_average_tile_inter_cdfs(struct AV1Common *cm,
-                                 struct frame_contexts *fc,
-                                 struct frame_contexts *ec_ctxs[],
-                                 aom_cdf_prob *cdf_ptrs[], int num_tiles);
-void av1_average_tile_loopfilter_cdfs(struct frame_contexts *fc,
-                                      struct frame_contexts *ec_ctxs[],
-                                      aom_cdf_prob *cdf_ptrs[], int num_tiles);
 #ifdef __cplusplus
 }  // extern "C"
 #endif
