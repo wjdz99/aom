@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "fa93d53e_83d650f0",
+        "filename": "av1/common/alloccommon.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-03-15T18:56:35Z",
+      "side": 1,
+      "message": "\u003e av1_alloc_restoration_buffers() is called once per frame in decoder, \n\nAh, so looks like \u0027av1_alloc_restoration_buffers\u0027 is called once-per-frame and \u0027av1_free_restoration_buffers\u0027 is called only once when decoder is destroyed. The names had earlier made me think they were somehow symmetrical.\n\n\u003e and the point of this modification is to do actual frame buffer allocation only when the the frame buffer is smaller than needed. If do memset rst_frame in av1_alloc_restoration_buffers(), it will need to call aom_free_frame_buffer() first otherwise causing memory leak. rst_frame is already initialized to 0 when AV1_COMMON struct is allocated (just like other variables in AV1_COMMON struct also used in restoration filter, for example rst_tmpbuf).\n\nOK, if the struct was already memset before first call, then the \u0027realloc\u0027 will take care of zeroing out in the later calls.\n\nThanks for the explanation!",
+      "parentUuid": "cfe9796e_49f90a11",
+      "revId": "3ddf40d4243a5419093a90fcab0e01b5cf546865",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "629dc51a_ebd14f61",
         "filename": "av1/common/restoration.c",
         "patchSetId": 3
