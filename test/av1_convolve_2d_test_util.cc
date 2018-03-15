@@ -388,9 +388,9 @@ namespace AV1HighbdConvolve2D {
 ::testing::internal::ParamGenerator<HighbdConvolve2DParam> BuildParams(
     highbd_convolve_2d_func filter, int has_subx, int has_suby,
     int is_compound) {
-  int bit_depths[3] = { 8, 10, 12 };
+  const int bit_depths[3] = { 8, 10, 12 };
   HighbdConvolve2DParam param_list[3 * BLOCK_SIZES_ALL];
-  for (int bd = 0; bd < 3; bd++) {
+  for (int bd = 0; bd < 3; ++bd) {
     for (int block_idx = BLOCK_4X4; block_idx < BLOCK_SIZES_ALL; ++block_idx) {
       param_list[bd * BLOCK_SIZES_ALL + block_idx] = make_tuple(
           bit_depths[bd], filter, has_subx, has_suby, is_compound, block_idx);
