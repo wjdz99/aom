@@ -419,12 +419,11 @@ static int add_tpl_ref_mv(const AV1_COMMON *cm, const MACROBLOCKD *xd,
 #endif
     CANDIDATE_MV *ref_mv_stack = ref_mv_stacks[rf[0]];
 
-    for (int i = 0; i < MFMV_STACK_SIZE; ++i) {
-      if (prev_frame_mvs->mfmv0[i].as_int != INVALID_MV) {
-        int_mv this_refmv;
+    if (prev_frame_mvs->mfmv0.as_int != INVALID_MV) {
+      int_mv this_refmv;
 
-        get_mv_projection(&this_refmv.as_mv, prev_frame_mvs->mfmv0[i].as_mv,
-                          cur_offset_0, prev_frame_mvs->ref_frame_offset[i]);
+      get_mv_projection(&this_refmv.as_mv, prev_frame_mvs->mfmv0.as_mv,
+                        cur_offset_0, prev_frame_mvs->ref_frame_offset);
 #if CONFIG_AMVR
         lower_mv_precision(&this_refmv.as_mv, cm->allow_high_precision_mv,
                            cm->cur_frame_force_integer_mv);
@@ -455,7 +454,6 @@ static int add_tpl_ref_mv(const AV1_COMMON *cm, const MACROBLOCKD *xd,
 
         ++coll_blk_count;
         return coll_blk_count;
-      }
     }
   } else {
     // Process compound inter mode
@@ -477,14 +475,13 @@ static int add_tpl_ref_mv(const AV1_COMMON *cm, const MACROBLOCKD *xd,
 #endif
     CANDIDATE_MV *ref_mv_stack = ref_mv_stacks[ref_frame];
 
-    for (int i = 0; i < MFMV_STACK_SIZE; ++i) {
-      if (prev_frame_mvs->mfmv0[i].as_int != INVALID_MV) {
-        int_mv this_refmv;
-        int_mv comp_refmv;
-        get_mv_projection(&this_refmv.as_mv, prev_frame_mvs->mfmv0[i].as_mv,
-                          cur_offset_0, prev_frame_mvs->ref_frame_offset[i]);
-        get_mv_projection(&comp_refmv.as_mv, prev_frame_mvs->mfmv0[i].as_mv,
-                          cur_offset_1, prev_frame_mvs->ref_frame_offset[i]);
+    if (prev_frame_mvs->mfmv0.as_int != INVALID_MV) {
+      int_mv this_refmv;
+      int_mv comp_refmv;
+      get_mv_projection(&this_refmv.as_mv, prev_frame_mvs->mfmv0.as_mv,
+                        cur_offset_0, prev_frame_mvs->ref_frame_offset);
+      get_mv_projection(&comp_refmv.as_mv, prev_frame_mvs->mfmv0.as_mv,
+                        cur_offset_1, prev_frame_mvs->ref_frame_offset);
 
 #if CONFIG_AMVR
         lower_mv_precision(&this_refmv.as_mv, cm->allow_high_precision_mv,
@@ -526,7 +523,6 @@ static int add_tpl_ref_mv(const AV1_COMMON *cm, const MACROBLOCKD *xd,
         ++coll_blk_count;
         return coll_blk_count;
       }
-    }
   }
 
   return coll_blk_count;
@@ -1191,12 +1187,11 @@ static int motion_field_projection(AV1_COMMON *cm, MV_REFERENCE_FRAME ref_frame,
         if (pos_valid) {
           int mi_offset = mi_r * (cm->mi_stride >> 1) + mi_c;
 
-          tpl_mvs_base[mi_offset].mfmv0[ref_stamp].as_mv.row =
+          tpl_mvs_base[mi_offset].mfmv0.as_mv.row =
               (dir == 1) ? -fwd_mv.row : fwd_mv.row;
-          tpl_mvs_base[mi_offset].mfmv0[ref_stamp].as_mv.col =
+          tpl_mvs_base[mi_offset].mfmv0.as_mv.col =
               (dir == 1) ? -fwd_mv.col : fwd_mv.col;
-          tpl_mvs_base[mi_offset].ref_frame_offset[ref_stamp] =
-              ref_frame_offset;
+          tpl_mvs_base[mi_offset].ref_frame_offset = ref_frame_offset;
         }
       }
     }
@@ -1212,10 +1207,8 @@ void av1_setup_motion_field(AV1_COMMON *cm) {
   TPL_MV_REF *tpl_mvs_base = cm->tpl_mvs;
   int size = ((cm->mi_rows + MAX_MIB_SIZE) >> 1) * (cm->mi_stride >> 1);
   for (int idx = 0; idx < size; ++idx) {
-    for (int i = 0; i < MFMV_STACK_SIZE; ++i) {
-      tpl_mvs_base[idx].mfmv0[i].as_int = INVALID_MV;
-      tpl_mvs_base[idx].ref_frame_offset[i] = 0;
-    }
+    tpl_mvs_base[idx].mfmv0.as_int = INVALID_MV;
+    tpl_mvs_base[idx].ref_frame_offset = 0;
   }
 
   const int cur_order_hint = cm->cur_frame->cur_frame_offset;
