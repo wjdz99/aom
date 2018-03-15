@@ -220,6 +220,7 @@ if (CONFIG_AV1_ENCODER)
         "${AOM_ROOT}/test/error_block_test.cc"
         "${AOM_ROOT}/test/fdct4x4_test.cc"
         "${AOM_ROOT}/test/fdct8x8_test.cc"
+        "${AOM_ROOT}/test/film_grain_table_test.cc"
         "${AOM_ROOT}/test/hadamard_test.cc"
         "${AOM_ROOT}/test/masked_sad_test.cc"
         "${AOM_ROOT}/test/masked_variance_test.cc"
