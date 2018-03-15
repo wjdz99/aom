@@ -218,7 +218,6 @@ if (CONFIG_AV1_ENCODER)
         "${AOM_ROOT}/test/blend_a64_mask_1d_test.cc"
         "${AOM_ROOT}/test/blend_a64_mask_test.cc"
         "${AOM_ROOT}/test/error_block_test.cc"
-        "${AOM_ROOT}/test/fdct4x4_test.cc"
         "${AOM_ROOT}/test/fdct8x8_test.cc"
         "${AOM_ROOT}/test/hadamard_test.cc"
         "${AOM_ROOT}/test/masked_sad_test.cc"
@@ -274,7 +273,6 @@ if (CONFIG_AV1_ENCODER)
         "${AOM_ROOT}/test/av1_fht16x32_test.cc"
         "${AOM_ROOT}/test/av1_fht16x8_test.cc"
         "${AOM_ROOT}/test/av1_fht32x16_test.cc"
-        "${AOM_ROOT}/test/av1_fht4x4_test.cc"
         "${AOM_ROOT}/test/av1_fht4x8_test.cc"
         "${AOM_ROOT}/test/av1_fht8x16_test.cc"
         "${AOM_ROOT}/test/av1_fht8x4_test.cc")

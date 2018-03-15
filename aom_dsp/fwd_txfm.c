@@ -541,7 +541,3 @@ void aom_highbd_fdct8x8_c(const int16_t *input, tran_low_t *final_output,
                           int stride) {
   aom_fdct8x8_c(input, final_output, stride);
 }
-
-void aom_highbd_fdct32x32_c(const int16_t *input, tran_low_t *out, int stride) {
-  aom_fdct32x32_c(input, out, stride);
-}
