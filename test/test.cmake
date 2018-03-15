@@ -215,7 +215,6 @@ if (CONFIG_AV1_ENCODER)
         "${AOM_ROOT}/test/blend_a64_mask_1d_test.cc"
         "${AOM_ROOT}/test/blend_a64_mask_test.cc"
         "${AOM_ROOT}/test/error_block_test.cc"
-        "${AOM_ROOT}/test/fdct4x4_test.cc"
         "${AOM_ROOT}/test/hadamard_test.cc"
         "${AOM_ROOT}/test/masked_sad_test.cc"
         "${AOM_ROOT}/test/masked_variance_test.cc"
