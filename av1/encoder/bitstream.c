@@ -1167,7 +1167,7 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
         if (mbmi->compound_idx)
           assert(mbmi->interinter_compound_type == COMPOUND_AVERAGE);
 
-        if (cm->seq_params.enable_jnt_comp && !cm->error_resilient_mode) {
+        if (cm->seq_params.enable_jnt_comp) {
           const int comp_index_ctx = get_comp_index_context(cm, xd);
           aom_write_symbol(w, mbmi->compound_idx,
                            ec_ctx->compound_index_cdf[comp_index_ctx], 2);
@@ -3182,12 +3182,10 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
       }
 
 #if CONFIG_FRAME_REFS_SIGNALING
-      // TODO(zoeliu@google.com): To complete the encoder-side implementation
-      // for the scenario cm->frame_refs_short_signaling == 1.
       assert(cm->frame_refs_short_signaling == 0);
       // NOTE: Error resilient mode turns off frame_refs_short_signaling
       //       automatically.
-      if (!cm->error_resilient_mode && cm->seq_params.enable_order_hint)
+      if (cm->seq_params.enable_order_hint)
         aom_wb_write_bit(wb, cm->frame_refs_short_signaling);
       else
         assert(cm->frame_refs_short_signaling == 0);
@@ -3329,7 +3327,6 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
     aom_wb_write_bit(wb, use_hybrid_pred);
   }
 
-  assert(cm->error_resilient_mode ? !cm->is_skip_mode_allowed : 1);
   if (cm->is_skip_mode_allowed) aom_wb_write_bit(wb, cm->skip_mode_flag);
 
   write_compound_tools(cm, wb);

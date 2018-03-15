@@ -2943,7 +2943,7 @@ static int read_uncompressed_header(AV1Decoder *pbi,
 
 #if CONFIG_FRAME_REFS_SIGNALING
       // Frame refs short signaling is off when error resilient mode is on.
-      if (!cm->error_resilient_mode && cm->seq_params.enable_order_hint)
+      if (cm->seq_params.enable_order_hint)
         cm->frame_refs_short_signaling = aom_rb_read_bit(rb);
 
       if (cm->frame_refs_short_signaling) {
@@ -3062,8 +3062,7 @@ static int read_uncompressed_header(AV1Decoder *pbi,
 
   av1_setup_frame_buf_refs(cm);
 
-  if (cm->frame_type != S_FRAME && !cm->error_resilient_mode)
-    av1_setup_frame_sign_bias(cm);
+  if (cm->frame_type != S_FRAME) av1_setup_frame_sign_bias(cm);
 
   cm->cur_frame->intra_only = cm->frame_type == KEY_FRAME || cm->intra_only;
   cm->cur_frame->frame_type = cm->frame_type;
@@ -3262,7 +3261,6 @@ static int read_uncompressed_header(AV1Decoder *pbi,
   if (cm->reference_mode != SINGLE_REFERENCE) setup_compound_reference_mode(cm);
 
   av1_setup_skip_mode_allowed(cm);
-  assert(cm->error_resilient_mode ? !cm->is_skip_mode_allowed : 1);
   cm->skip_mode_flag = cm->is_skip_mode_allowed ? aom_rb_read_bit(rb) : 0;
 
   read_compound_tools(cm, rb);
