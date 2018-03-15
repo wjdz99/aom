@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cf027647_2db3c1c4",
+        "filename": "test/resize_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-03-15T03:48:57Z",
+      "side": 1,
+      "message": "the origin of this comment is actually for VP9 (vs. VP8), it\u0027s a bit redundant now given only AV1 exists in this tree. You might rename the member to something more explicit (swap_dimensions?) and make it a bool to test both paths.",
+      "revId": "6e19da55c245309a42d2e649c00a90ed13c51fdd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
