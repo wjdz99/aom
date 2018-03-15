@@ -37,12 +37,16 @@ class CDEFBlockTest : public ::testing::TestWithParam<cdef_dir_param_t> {
     cdef = GET_PARAM(0);
     ref_cdef = GET_PARAM(1);
     bsize = GET_PARAM(2);
+    boundary = GET_PARAM(3);
+    depth = GET_PARAM(4);
   }
 
   virtual void TearDown() { libaom_test::ClearSystemState(); }
 
  protected:
   int bsize;
+  int boundary;
+  int depth;
   cdef_filter_block_func cdef;
   cdef_filter_block_func ref_cdef;
 };
@@ -50,7 +54,7 @@ class CDEFBlockTest : public ::testing::TestWithParam<cdef_dir_param_t> {
 typedef CDEFBlockTest CDEFSpeedTest;
 
 void test_cdef(int bsize, int iterations, cdef_filter_block_func cdef,
-               cdef_filter_block_func ref_cdef) {
+               cdef_filter_block_func ref_cdef, int boundary, int depth) {
   const int size = 8;
   const int ysize = size + 2 * CDEF_VBORDER;
   ACMRandom rnd(ACMRandom::DeterministicSeed());
@@ -162,7 +166,8 @@ void test_cdef(int bsize, int iterations, cdef_filter_block_func cdef,
 }
 
 void test_cdef_speed(int bsize, int iterations, cdef_filter_block_func cdef,
-                     cdef_filter_block_func ref_cdef) {
+                     cdef_filter_block_func ref_cdef, int boundary,
+                     int depth) {
   aom_usec_timer ref_timer;
   aom_usec_timer timer;
 
@@ -280,11 +285,11 @@ void test_finddir_speed(int (*finddir)(const uint16_t *img, int stride,
 }
 
 TEST_P(CDEFBlockTest, TestSIMDNoMismatch) {
-  test_cdef(bsize, 1, cdef, ref_cdef);
+  test_cdef(bsize, 1, cdef, ref_cdef, boundary, depth);
 }
 
 TEST_P(CDEFSpeedTest, DISABLED_TestSpeed) {
-  test_cdef_speed(bsize, 4, cdef, ref_cdef);
+  test_cdef_speed(bsize, 4, cdef, ref_cdef, boundary, depth);
 }
 
 TEST_P(CDEFFindDirTest, TestSIMDNoMismatch) {
