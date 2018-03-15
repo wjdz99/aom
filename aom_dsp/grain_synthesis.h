@@ -20,7 +20,10 @@
 extern "C" {
 #endif
 
+#include <stdio.h>
 #include "aom_dsp/aom_dsp_common.h"
+#include "aom_dsp/bitwriter_buffer.h"
+#include "aom_dsp/bitreader_buffer.h"
 #include "aom/aom_image.h"
 
 /*!\brief Structure containing film grain synthesis parameters for a frame
@@ -110,6 +113,26 @@ void av1_add_film_grain_run(aom_film_grain_t *grain_params, uint8_t *luma,
  */
 void av1_add_film_grain(aom_film_grain_t *grain_params, aom_image_t *src,
                         aom_image_t *dst);
+
+/*!\brief Writes bitstream representation of all fields but header fields.
+ *
+ * Writes the content of the film grain parameters after "apply_grain",
+ * "random_seed", and "update_parameters", and should only be called
+ * when "update_parameters" is true. Those fields are not written here
+ * since they depend on other frame and encoder context.
+ */
+void av1_film_grain_write_updated(const aom_film_grain_t *pars, int monochrome,
+                                  struct aom_write_bit_buffer *wb);
+
+/*!\brief Reads the updated representation of all fields but header fields.
+ *
+ * This function reads the remaining parameters after "apply_grain",
+ * "random_seed", and "update_parameters" and should only be called
+ * when "update_parameters" is true.
+ */
+void av1_film_grain_read_updated(aom_film_grain_t *pars, int monochrome,
+                                 struct aom_read_bit_buffer *wb,
+                                 struct aom_internal_error_info *error);
 
 #ifdef __cplusplus
 }  // extern "C"

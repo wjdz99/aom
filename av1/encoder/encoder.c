@@ -481,21 +481,29 @@ static void update_film_grain_parameters(struct AV1_COMP *cpi,
   AV1_COMMON *const cm = &cpi->common;
   cpi->oxcf = *oxcf;
 
-  if (oxcf->film_grain_test_vector) {
-    cm->film_grain_params_present = 1;
-    if (cm->frame_type == KEY_FRAME) {
-      memcpy(&cm->film_grain_params,
-             film_grain_test_vectors + oxcf->film_grain_test_vector - 1,
-             sizeof(cm->film_grain_params));
+  if (cm->film_grain_table) {
+    aom_free(cm->film_grain_table);
+  }
+  cm->film_grain_table = 0;
 
-      cm->film_grain_params.bit_depth = cm->bit_depth;
-      if (cm->color_range == AOM_CR_FULL_RANGE) {
-        cm->film_grain_params.clip_to_restricted_range = 0;
-      }
+  if (oxcf->film_grain_test_vector) {
+    cm->film_grain_table = aom_malloc(sizeof(*cm->film_grain_table));
+    memset(cm->film_grain_table, 0, sizeof(aom_film_grain_table_t));
+
+    aom_film_grain_t film_grain_params;
+    memcpy(&film_grain_params, film_grain_test_vectors + oxcf->film_grain_test_vector - 1,
+           sizeof(aom_film_grain_t));
+    film_grain_params.bit_depth = cm->bit_depth;
+    if (cm->color_range == AOM_CR_FULL_RANGE) {
+      film_grain_params.clip_to_restricted_range = 0;
     }
-  } else {
-    cm->film_grain_params_present = 0;
-    memset(&cm->film_grain_params, 0, sizeof(cm->film_grain_params));
+    aom_film_grain_table_append(cm->film_grain_table, 0, INT64_MAX, &film_grain_params);
+  } else if(oxcf->film_grain_table_filename) {
+    cm->film_grain_table = aom_malloc(sizeof(*cm->film_grain_table));
+    memset(cm->film_grain_table, 0, sizeof(aom_film_grain_table_t));
+
+    aom_film_grain_table_read(cm->film_grain_table, oxcf->film_grain_table_filename,
+                              &cm->error);
   }
 }
 #endif
@@ -6065,7 +6073,13 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
 
   cm->cur_frame = &pool->frame_bufs[cm->new_fb_idx];
   cm->cur_frame->buf.buf_8bit_valid = 0;
+
 #if CONFIG_FILM_GRAIN
+  if (cm->film_grain_table) {
+    cm->film_grain_params_present = aom_film_grain_table_lookup(
+        cm->film_grain_table, *time_stamp, *time_end, 0  /* erase */,
+        &cm->film_grain_params);
+  }
   cm->cur_frame->film_grain_params_present = cm->film_grain_params_present;
 #endif
 
