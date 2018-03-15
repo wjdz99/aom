@@ -170,16 +170,9 @@ bool DumpObu(const uint8_t *data, int length, int *obu_overhead_bytes) {
       return false;
     }
 
-#if CONFIG_OBU_SIZE_AFTER_HEADER
     size_t length_field_size = 0;
     int current_obu_length = 0;
     int obu_header_size = 0;
-#else
-    uint64_t obu_size = 0;
-    size_t length_field_size;
-    aom_uleb_decode(data + consumed, remaining, &obu_size, &length_field_size);
-    const int current_obu_length = static_cast<int>(obu_size);
-#endif  // CONFIG_OBU_SIZE_AFTER_HEADER
 
     obu_overhead += (int)length_field_size;
 
@@ -200,9 +193,7 @@ bool DumpObu(const uint8_t *data, int length, int *obu_overhead_bytes) {
     }
 
     ++obu_overhead;
-#if CONFIG_OBU_SIZE_AFTER_HEADER
     ++obu_header_size;
-#endif
 
     if (obu_header.has_extension) {
       const uint8_t obu_ext_header_byte =
@@ -215,23 +206,16 @@ bool DumpObu(const uint8_t *data, int length, int *obu_overhead_bytes) {
       }
 
       ++obu_overhead;
-#if CONFIG_OBU_SIZE_AFTER_HEADER
       ++obu_header_size;
-#endif
     }
 
     PrintObuHeader(&obu_header);
 
-#if CONFIG_OBU_SIZE_AFTER_HEADER
     uint64_t obu_size = 0;
     aom_uleb_decode(data + consumed + obu_header_size, remaining, &obu_size,
                     &length_field_size);
     current_obu_length = static_cast<int>(obu_size);
-    consumed += obu_header_size + length_field_size;
-#endif
-
-    // TODO(tomfinegan): Parse OBU payload. For now just consume it.
-    consumed += current_obu_length;
+    consumed += obu_header_size + length_field_size + current_obu_length;
   }
 
   if (obu_overhead_bytes != nullptr) *obu_overhead_bytes = obu_overhead;
