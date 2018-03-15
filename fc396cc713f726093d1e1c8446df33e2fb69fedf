@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "56f8d2bb_ad53dd2e",
+        "filename": "aom_dsp/x86/intrapred_sse2.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 976,
+      "author": {
+        "id": 8471
+      },
+      "writtenOn": "2018-03-15T14:36:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "47b05867_53b0328b",
+      "revId": "fc396cc713f726093d1e1c8446df33e2fb69fedf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "15cd15eb_c1e16c7c",
         "filename": "aom_dsp/x86/intrapred_sse2.c",
         "patchSetId": 3
@@ -30,6 +48,24 @@
       "writtenOn": "2018-03-15T03:43:38Z",
       "side": 1,
       "message": "could move to do {} while in these (later) in case they\u0027re not inlined, might be 1 less branch; height \u003e\u003e 2 too just to be safe",
+      "revId": "fc396cc713f726093d1e1c8446df33e2fb69fedf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c1768cac_8a458b7f",
+        "filename": "aom_dsp/x86/intrapred_sse2.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 977,
+      "author": {
+        "id": 8471
+      },
+      "writtenOn": "2018-03-15T14:36:41Z",
+      "side": 1,
+      "message": "Done.  The compiler seems to produce the same output for either case.",
+      "parentUuid": "15cd15eb_c1e16c7c",
       "revId": "fc396cc713f726093d1e1c8446df33e2fb69fedf",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "4171f0e4_09bbcb71",
+        "filename": "aom_dsp/x86/intrapred_sse2.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 981,
+      "author": {
+        "id": 8471
+      },
+      "writtenOn": "2018-03-15T14:36:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7f80ada3_1bf2381d",
+      "revId": "fc396cc713f726093d1e1c8446df33e2fb69fedf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d2ce6679_576ad48f",
         "filename": "aom_dsp/x86/intrapred_sse2.c",
         "patchSetId": 3
@@ -67,6 +121,24 @@
       "revId": "fc396cc713f726093d1e1c8446df33e2fb69fedf",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "801e2d0f_9b0c62db",
+        "filename": "aom_dsp/x86/intrapred_sse2.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 987,
+      "author": {
+        "id": 8471
+      },
+      "writtenOn": "2018-03-15T14:36:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d2ce6679_576ad48f",
+      "revId": "fc396cc713f726093d1e1c8446df33e2fb69fedf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
