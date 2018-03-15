@@ -17,6 +17,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include "aom/aom_codec.h"
+#include "aom/internal/aom_codec_internal.h"
 #include "aom_dsp/grain_synthesis.h"
 #include "aom_mem/aom_mem.h"
 
@@ -1310,4 +1312,171 @@ void av1_add_film_grain_run(aom_film_grain_t *params, uint8_t *luma,
   dealloc_arrays(params, &pred_pos_luma, &pred_pos_chroma, &luma_grain_block,
                  &cb_grain_block, &cr_grain_block, &y_line_buf, &cb_line_buf,
                  &cr_line_buf, &y_col_buf, &cb_col_buf, &cr_col_buf);
+}
+
+void av1_film_grain_write_updated(const aom_film_grain_t *pars, int monochrome,
+                                  struct aom_write_bit_buffer *wb) {
+  aom_wb_write_literal(wb, pars->num_y_points, 4);  // max 14
+  for (int i = 0; i < pars->num_y_points; i++) {
+    aom_wb_write_literal(wb, pars->scaling_points_y[i][0], 8);
+    aom_wb_write_literal(wb, pars->scaling_points_y[i][1], 8);
+  }
+
+  if (!monochrome) aom_wb_write_bit(wb, pars->chroma_scaling_from_luma);
+
+  if (!(monochrome || pars->chroma_scaling_from_luma)) {
+    aom_wb_write_literal(wb, pars->num_cb_points, 4);  // max 10
+    for (int i = 0; i < pars->num_cb_points; i++) {
+      aom_wb_write_literal(wb, pars->scaling_points_cb[i][0], 8);
+      aom_wb_write_literal(wb, pars->scaling_points_cb[i][1], 8);
+    }
+
+    aom_wb_write_literal(wb, pars->num_cr_points, 4);  // max 10
+    for (int i = 0; i < pars->num_cr_points; i++) {
+      aom_wb_write_literal(wb, pars->scaling_points_cr[i][0], 8);
+      aom_wb_write_literal(wb, pars->scaling_points_cr[i][1], 8);
+    }
+  }
+
+  aom_wb_write_literal(wb, pars->scaling_shift - 8, 2);  // 8 + value
+
+  // AR coefficients
+  // Only sent if the corresponsing scaling function has
+  // more than 0 points
+  aom_wb_write_literal(wb, pars->ar_coeff_lag, 2);
+
+  int num_pos_luma = 2 * pars->ar_coeff_lag * (pars->ar_coeff_lag + 1);
+  int num_pos_chroma = num_pos_luma;
+  if (pars->num_y_points > 0) ++num_pos_chroma;
+
+  if (pars->num_y_points)
+    for (int i = 0; i < num_pos_luma; i++)
+      aom_wb_write_literal(wb, pars->ar_coeffs_y[i] + 128, 8);
+
+  if (pars->num_cb_points || pars->chroma_scaling_from_luma)
+    for (int i = 0; i < num_pos_chroma; i++)
+      aom_wb_write_literal(wb, pars->ar_coeffs_cb[i] + 128, 8);
+
+  if (pars->num_cr_points || pars->chroma_scaling_from_luma)
+    for (int i = 0; i < num_pos_chroma; i++)
+      aom_wb_write_literal(wb, pars->ar_coeffs_cr[i] + 128, 8);
+
+  aom_wb_write_literal(wb, pars->ar_coeff_shift - 6, 2);  // 8 + value
+
+  aom_wb_write_literal(wb, pars->grain_scale_shift, 2);
+
+  if (pars->num_cb_points) {
+    aom_wb_write_literal(wb, pars->cb_mult, 8);
+    aom_wb_write_literal(wb, pars->cb_luma_mult, 8);
+    aom_wb_write_literal(wb, pars->cb_offset, 9);
+  }
+
+  if (pars->num_cr_points) {
+    aom_wb_write_literal(wb, pars->cr_mult, 8);
+    aom_wb_write_literal(wb, pars->cr_luma_mult, 8);
+    aom_wb_write_literal(wb, pars->cr_offset, 9);
+  }
+
+  aom_wb_write_bit(wb, pars->overlap_flag);
+
+  aom_wb_write_bit(wb, pars->clip_to_restricted_range);
+}
+
+void av1_film_grain_read_updated(aom_film_grain_t *pars, int monochrome,
+                                 struct aom_read_bit_buffer *rb,
+                                 struct aom_internal_error_info *error) {
+  // Scaling functions parameters
+  pars->num_y_points = aom_rb_read_literal(rb, 4);  // max 14
+  if (pars->num_y_points > 14)
+    aom_internal_error(error, AOM_CODEC_UNSUP_BITSTREAM,
+                       "Number of points for film grain luma scaling function "
+                       "exceeds the maximum value.");
+  for (int i = 0; i < pars->num_y_points; i++) {
+    pars->scaling_points_y[i][0] = aom_rb_read_literal(rb, 8);
+    if (i && pars->scaling_points_y[i - 1][0] >= pars->scaling_points_y[i][0])
+      aom_internal_error(error, AOM_CODEC_UNSUP_BITSTREAM,
+                         "First coordinateg of the scaling function points "
+                         "shall be increasing.");
+    pars->scaling_points_y[i][1] = aom_rb_read_literal(rb, 8);
+  }
+
+  if (!monochrome) pars->chroma_scaling_from_luma = aom_rb_read_bit(rb);
+
+  if (monochrome || pars->chroma_scaling_from_luma) {
+    pars->num_cb_points = 0;
+    pars->num_cr_points = 0;
+  } else {
+    pars->num_cb_points = aom_rb_read_literal(rb, 4);  // max 10
+    if (pars->num_cb_points > 10)
+      aom_internal_error(error, AOM_CODEC_UNSUP_BITSTREAM,
+                         "Number of points for film grain cb scaling function "
+                         "exceeds the maximum value.");
+    for (int i = 0; i < pars->num_cb_points; i++) {
+      pars->scaling_points_cb[i][0] = aom_rb_read_literal(rb, 8);
+      if (i &&
+          pars->scaling_points_cb[i - 1][0] >= pars->scaling_points_cb[i][0])
+        aom_internal_error(error, AOM_CODEC_UNSUP_BITSTREAM,
+                           "First coordinate of the scaling function points "
+                           "shall be increasing.");
+      pars->scaling_points_cb[i][1] = aom_rb_read_literal(rb, 8);
+    }
+
+    pars->num_cr_points = aom_rb_read_literal(rb, 4);  // max 10
+    if (pars->num_cr_points > 10)
+      aom_internal_error(error, AOM_CODEC_UNSUP_BITSTREAM,
+                         "Number of points for film grain cr scaling function "
+                         "exceeds the maximum value.");
+    for (int i = 0; i < pars->num_cr_points; i++) {
+      pars->scaling_points_cr[i][0] = aom_rb_read_literal(rb, 8);
+      if (i &&
+          pars->scaling_points_cr[i - 1][0] >= pars->scaling_points_cr[i][0])
+        aom_internal_error(error, AOM_CODEC_UNSUP_BITSTREAM,
+                           "First coordinate of the scaling function points "
+                           "shall be increasing.");
+      pars->scaling_points_cr[i][1] = aom_rb_read_literal(rb, 8);
+    }
+  }
+
+  pars->scaling_shift = aom_rb_read_literal(rb, 2) + 8;  // 8 + value
+
+  // AR coefficients
+  // Only sent if the corresponsing scaling function has
+  // more than 0 points
+  pars->ar_coeff_lag = aom_rb_read_literal(rb, 2);
+
+  int num_pos_luma = 2 * pars->ar_coeff_lag * (pars->ar_coeff_lag + 1);
+  int num_pos_chroma = num_pos_luma;
+  if (pars->num_y_points > 0) ++num_pos_chroma;
+
+  if (pars->num_y_points)
+    for (int i = 0; i < num_pos_luma; i++)
+      pars->ar_coeffs_y[i] = aom_rb_read_literal(rb, 8) - 128;
+
+  if (pars->num_cb_points || pars->chroma_scaling_from_luma)
+    for (int i = 0; i < num_pos_chroma; i++)
+      pars->ar_coeffs_cb[i] = aom_rb_read_literal(rb, 8) - 128;
+
+  if (pars->num_cr_points || pars->chroma_scaling_from_luma)
+    for (int i = 0; i < num_pos_chroma; i++)
+      pars->ar_coeffs_cr[i] = aom_rb_read_literal(rb, 8) - 128;
+
+  pars->ar_coeff_shift = aom_rb_read_literal(rb, 2) + 6;  // 6 + value
+
+  pars->grain_scale_shift = aom_rb_read_literal(rb, 2);
+
+  if (pars->num_cb_points) {
+    pars->cb_mult = aom_rb_read_literal(rb, 8);
+    pars->cb_luma_mult = aom_rb_read_literal(rb, 8);
+    pars->cb_offset = aom_rb_read_literal(rb, 9);
+  }
+
+  if (pars->num_cr_points) {
+    pars->cr_mult = aom_rb_read_literal(rb, 8);
+    pars->cr_luma_mult = aom_rb_read_literal(rb, 8);
+    pars->cr_offset = aom_rb_read_literal(rb, 9);
+  }
+
+  pars->overlap_flag = aom_rb_read_bit(rb);
+
+  pars->clip_to_restricted_range = aom_rb_read_bit(rb);
 }
