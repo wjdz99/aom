@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "76cb7f1b_38306803",
+        "filename": "av1/common/restoration.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1206,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-03-15T00:19:54Z",
+      "side": 1,
+      "message": "Why not just call \"av1_highbd_wiener_convolve_add_src_hip\" directly and remove the #define?",
+      "revId": "be93ad5c75f2e2161f92e62970a3ffbfe4358aef",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
