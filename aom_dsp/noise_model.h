@@ -17,6 +17,7 @@ extern "C" {
 #endif  // __cplusplus
 
 #include <stdint.h>
+#include "aom_dsp/grain_synthesis.h"
 
 /*!\brief Wrapper of data required to represent linear system of eqns and soln.
  */
@@ -107,10 +108,12 @@ int aom_noise_strength_solver_solve(aom_noise_strength_solver_t *solver);
 
 /*!\brief Fits a reduced piecewise linear lut to the internal solution
  *
+ * \param[in] max_num_points  The maximum number of output points
  * \param[out] lut  The output piecewise linear lut.
  */
 int aom_noise_strength_solver_fit_piecewise(
-    const aom_noise_strength_solver_t *solver, aom_noise_strength_lut_t *lut);
+    const aom_noise_strength_solver_t *solver, int max_num_points,
+    aom_noise_strength_lut_t *lut);
 
 /*!\brief Helper for holding precomputed data for finding flat blocks.
  *
@@ -222,6 +225,39 @@ aom_noise_status_t aom_noise_model_update(
     aom_noise_model_t *const noise_model, const uint8_t *const data[3],
     const uint8_t *const denoised[3], int w, int h, int strides[3],
     int chroma_sub_log2[2], const uint8_t *const flat_blocks, int block_size);
+
+void aom_noise_model_swap(aom_noise_model_t *noise_model);
+
+/*!\brief Converts the noise_model parameters to the corresponding
+ *    grain_parameters.
+ *
+ * The noise structs in this file are suitable for estimation (e.g., using
+ * floats), but the grain parameters in the bitstream are quantized. This
+ * function does the conversion by selecting the correct quantization levels.
+ */
+int aom_noise_model_get_grain_parameters(aom_noise_model_t *const noise_model,
+                                         aom_film_grain_t *film_grain);
+
+
+void pointwise_multiply(const double *const a, double *b, int n);
+double *get_half_cos_window(int block_size);
+
+/*!\brief Perform a Wiener filter denoising in 2D using the provided noise
+ * model.
+ *
+ * \param[in]     data            Raw frame data
+ * \param[in]     denoised        Denoised frame data.
+ * \param[in]     w               Frame width
+ * \param[in]     h               Frame height
+ * \param[in]     stride          Stride of the planes
+ * \param[in]     chroma_sub_log2 Chroma subsampling for planes != 0.
+ * \param[in]     noise_psd       The power spectral density of the noise.
+ * \param[in]     block_size      The size of blocks.
+ */
+int aom_wiener_denoise_2d(const uint8_t *const data[3], uint8_t *denoised[3],
+                          int w, int h, int stride[3], int chroma_sub_log2[2],
+                          double *noise_psd[3], int block_size);
+
 
 #ifdef __cplusplus
 }  // extern "C"
