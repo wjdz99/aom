@@ -241,16 +241,3 @@ static INLINE void get_16x_level_counts_sse2(const uint8_t *levels,
     level_counts -= width * height;
   }
 }
-
-// Note: levels[] must be in the range [0, 127], inclusive.
-void av1_get_br_level_counts_sse2(const uint8_t *const levels, const int width,
-                                  const int height,
-                                  uint8_t *const level_counts) {
-  if (width == 4) {
-    get_4_level_counts_sse2(levels, height, level_counts);
-  } else if (width == 8) {
-    get_8_level_counts_sse2(levels, height, level_counts);
-  } else {
-    get_16x_level_counts_sse2(levels, width, height, level_counts);
-  }
-}
