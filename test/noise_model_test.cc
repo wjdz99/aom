@@ -1,3 +1,4 @@
+#include <math.h>
 #include <algorithm>
 #include <vector>
 
@@ -48,7 +49,7 @@ TEST(NoiseStrengthSolver, ObserveIdentity) {
   }
 
   aom_noise_strength_lut_t lut;
-  EXPECT_EQ(1, aom_noise_strength_solver_fit_piecewise(&solver, &lut));
+  EXPECT_EQ(1, aom_noise_strength_solver_fit_piecewise(&solver, 2, &lut));
 
   ASSERT_EQ(2, lut.num_points);
   EXPECT_NEAR(0.0, lut.points[0][0], 1e-5);
@@ -56,6 +57,44 @@ TEST(NoiseStrengthSolver, ObserveIdentity) {
   EXPECT_NEAR(255.0, lut.points[1][0], 1e-5);
   EXPECT_NEAR(255.0, lut.points[1][1], 0.5);
 
+  aom_noise_strength_lut_free(&lut);
+  aom_noise_strength_solver_free(&solver);
+}
+
+TEST(NoiseStrengthSolver, SimplifiesCurve) {
+  const int num_bins = 256;
+  aom_noise_strength_solver_t solver;
+  EXPECT_EQ(1, aom_noise_strength_solver_init(&solver, num_bins));
+
+  // Create a parabolic input
+  for (int i = 0; i < 256; ++i) {
+    const double x = (i - 127.5) / 63.5;
+    aom_noise_strength_solver_add_measurement(&solver, i, x * x);
+  }
+  EXPECT_EQ(1, aom_noise_strength_solver_solve(&solver));
+
+  // First try to fit an unconstrained lut
+  aom_noise_strength_lut_t lut;
+  EXPECT_EQ(1, aom_noise_strength_solver_fit_piecewise(&solver, -1, &lut));
+  ASSERT_LE(20, lut.num_points);
+  aom_noise_strength_lut_free(&lut);
+
+  // Now constrain the maximum number of points
+  const int kMaxPoints = 9;
+  EXPECT_EQ(1,
+            aom_noise_strength_solver_fit_piecewise(&solver, kMaxPoints, &lut));
+  ASSERT_EQ(kMaxPoints, lut.num_points);
+
+  // Check that the input parabola is still well represented
+  EXPECT_NEAR(0.0, lut.points[0][0], 1e-5);
+  EXPECT_NEAR(4.0, lut.points[0][1], 0.1);
+  for (int i = 1; i < lut.num_points - 1; ++i) {
+    const double x = (lut.points[i][0] - 128.) / 64.;
+    EXPECT_NEAR(x * x, lut.points[i][1], 0.1);
+  }
+  EXPECT_NEAR(255.0, lut.points[kMaxPoints - 1][0], 1e-5);
+
+  EXPECT_NEAR(4.0, lut.points[kMaxPoints - 1][1], 0.1);
   aom_noise_strength_lut_free(&lut);
   aom_noise_strength_solver_free(&solver);
 }
@@ -407,7 +446,7 @@ TEST_F(NoiseModelUpdateTest, UpdateSuccessForWhiteRandomNoise) {
 
   aom_noise_strength_lut_t lut;
   aom_noise_strength_solver_fit_piecewise(
-      &model_.latest_state[0].strength_solver, &lut);
+      &model_.latest_state[0].strength_solver, -1, &lut);
   ASSERT_EQ(2, lut.num_points);
   EXPECT_NEAR(0.0, lut.points[0][0], 1e-5);
   EXPECT_NEAR(1.0, lut.points[0][1], kStdEps);
@@ -475,7 +514,7 @@ TEST_F(NoiseModelUpdateTest, UpdateSuccessForScaledWhiteNoise) {
   // one near kLowStd at 0, and the other near kHighStd and 255.
   aom_noise_strength_lut_t lut;
   aom_noise_strength_solver_fit_piecewise(
-      &model_.latest_state[0].strength_solver, &lut);
+      &model_.latest_state[0].strength_solver, 2, &lut);
   ASSERT_EQ(2, lut.num_points);
   EXPECT_NEAR(0, lut.points[0][0], 1e-4);
   EXPECT_NEAR(kLowStd, lut.points[0][1], kStdEps);
@@ -496,9 +535,9 @@ TEST_F(NoiseModelUpdateTest, UpdateSuccessForCorrelatedNoise) {
       0.02833, -0.07178, 0.07076,  -0.11603, -0.10413, -0.16571,
       0.05158, -0.07969, 0.02640,  -0.07191, 0.02530,  0.41968,
       0.21450, -0.00702, -0.01401, -0.03676, -0.08713, 0.44196 },
-    { 0.00269, -0.01291, -0.01513, 0.07234,  0.03208,   0.00477,
-      0.00226, -0.00254, 0.03533,  0.12841,  -0.25970,  -0.06336,
-      0.05238, -0.00845, -0.03118, 0.09043,  -0.36558,  0.48903,
+    { 0.00269,  -0.01291, -0.01513, 0.07234, 0.03208,  0.00477,
+      0.00226,  -0.00254, 0.03533,  0.12841, -0.25970, -0.06336,
+      0.05238,  -0.00845, -0.03118, 0.09043, -0.36558, 0.48903,
       0.00595, -0.11938, 0.02106,  0.095956, -0.350139, 0.59305 },
     { -0.00643, -0.01080, -0.01466, 0.06951, 0.03707,  -0.00482,
       0.00817,  -0.00909, 0.02949,  0.12181, -0.25210, -0.07886,
@@ -508,6 +547,7 @@ TEST_F(NoiseModelUpdateTest, UpdateSuccessForCorrelatedNoise) {
   ASSERT_EQ(model_.n, kNumCoeffs);
   chroma_sub_[0] = chroma_sub_[1] = 1;
 
+  const int num_blocks_w = kWidth / kBlockSize;
   flat_blocks_.assign(flat_blocks_.size(), 1);
 
   // Add different noise onto each plane
@@ -520,8 +560,15 @@ TEST_F(NoiseModelUpdateTest, UpdateSuccessForCorrelatedNoise) {
       for (int x = 0; x < (kWidth >> x_shift); ++x) {
         const uint8_t value = 64 + x / 2 + y / 4;
         data_ptr_[c][y * kWidth + x] =
-            uint8_t(value + noise_ptr_[c][y * strides_[c] + x] * kStd);
-        denoised_ptr_[c][y * strides_[c] + x] = value;
+            uint8_t(value + noise_ptr_[c][y * kWidth + x] * kStd);
+        const int by = y / (kBlockSize >> y_shift);
+        const int bx = x / (kBlockSize >> x_shift);
+        if (flat_blocks_[by * num_blocks_w + bx]) {
+          denoised_ptr_[c][y * strides_[c] + x] = value;
+        } else {
+          denoised_ptr_[c][y * strides_[c] + x] =
+              data_ptr_[c][y * strides_[c] + x];
+        }
       }
     }
   }
@@ -537,7 +584,6 @@ TEST_F(NoiseModelUpdateTest, UpdateSuccessForCorrelatedNoise) {
       EXPECT_NEAR(kCoeffs[c][i], model_.latest_state[c].eqns.x[i], kCoeffEps);
       EXPECT_NEAR(kCoeffs[c][i], model_.combined_state[c].eqns.x[i], kCoeffEps);
     }
-    // The chroma planes should be uncorrelated with the luma plane
     if (c > 0) {
       EXPECT_NEAR(0, model_.latest_state[c].eqns.x[n], kCoeffEps);
       EXPECT_NEAR(0, model_.combined_state[c].eqns.x[n], kCoeffEps);
@@ -547,11 +593,16 @@ TEST_F(NoiseModelUpdateTest, UpdateSuccessForCorrelatedNoise) {
     EXPECT_LT(0.98, aom_normalized_cross_correlation(
                         model_.latest_state[c].eqns.x, kCoeffs[c], kNumCoeffs));
 
+    std::vector<double> ref_psd(kBlockSize * kBlockSize);
+#if CONFIG_DENOISE
+    aom_noise_psd_get(noise_ptr_[c], kWidth, kHeight, &ref_psd[0], kBlockSize);
+#endif
     aom_noise_synth(model_.params.lag, model_.n, model_.coords,
                     model_.latest_state[c].eqns.x, &renoise_[0], kWidth,
                     kHeight);
 
-    EXPECT_TRUE(aom_noise_data_validate(&renoise_[0], kWidth, kHeight));
+    EXPECT_TRUE(aom_noise_data_validate(&renoise_[0], kWidth, kHeight,
+                                        &ref_psd[0], kBlockSize));
   }
 
   // Check fitted noise strength
@@ -561,4 +612,199 @@ TEST_F(NoiseModelUpdateTest, UpdateSuccessForCorrelatedNoise) {
                   kStdEps);
     }
   }
+}
+
+TEST(NoiseModelGetGrainParameters, GetGrainParametersReal) {
+  aom_film_grain_t film_grain;
+  for (int lag = 1; lag <= 3; ++lag) {
+    aom_noise_model_params_t params = { AOM_NOISE_SHAPE_SQUARE, lag };
+    aom_noise_model_t model;
+    EXPECT_TRUE(aom_noise_model_init(&model, params));
+    EXPECT_TRUE(aom_noise_model_get_grain_parameters(&model, &film_grain));
+    EXPECT_EQ(lag, film_grain.ar_coeff_lag);
+    aom_noise_model_free(&model);
+  }
+
+  aom_noise_model_params_t params = { AOM_NOISE_SHAPE_SQUARE, 4 };
+  aom_noise_model_t model;
+  EXPECT_TRUE(aom_noise_model_init(&model, params));
+  EXPECT_FALSE(aom_noise_model_get_grain_parameters(&model, &film_grain));
+  aom_noise_model_free(&model);
+}
+
+TEST(NoiseModelGetGrainParameters, TestARCoeffShiftBounds) {
+  struct TestCase {
+    double max_input_value;
+    int expected_ar_coeff_shift;
+    int expected_value;
+  };
+  const int lag = 1;
+  const int kNumTestCases = 19;
+  const TestCase test_cases[] = {
+    // Test cases for ar_coeff_shift = 9
+    { 0, 9, 0 },
+    { 0.125, 9, 64 },
+    { -0.125, 9, -64 },
+    { 0.2499, 9, 127 },
+    { -0.25, 9, -128 },
+    // Test cases for ar_coeff_shift = 8
+    { 0.25, 8, 64 },
+    { -0.2501, 8, -64 },
+    { 0.499, 8, 127 },
+    { -0.5, 8, -128 },
+    // Test cases for ar_coeff_shift = 7
+    { 0.5, 7, 64 },
+    { -0.5001, 7, -64 },
+    { 0.999, 7, 127 },
+    { -1, 7, -128 },
+    // Test cases for ar_coeff_shift = 6
+    { 1.0, 6, 64 },
+    { -1.0001, 6, -64 },
+    { 2.0, 6, 127 },
+    { -2.0, 6, -128 },
+    { 4, 6, 127 },
+    { -4, 6, -128 },
+  };
+  aom_noise_model_params_t params = { AOM_NOISE_SHAPE_SQUARE, lag };
+  aom_noise_model_t model;
+  EXPECT_TRUE(aom_noise_model_init(&model, params));
+
+  for (int i = 0; i < kNumTestCases; ++i) {
+    const TestCase &test_case = test_cases[i];
+    model.combined_state[0].eqns.x[0] = test_case.max_input_value;
+
+    aom_film_grain_t film_grain;
+    EXPECT_TRUE(aom_noise_model_get_grain_parameters(&model, &film_grain));
+    EXPECT_EQ(1, film_grain.ar_coeff_lag);
+    EXPECT_EQ(test_case.expected_ar_coeff_shift, film_grain.ar_coeff_shift);
+    EXPECT_EQ(test_case.expected_value, film_grain.ar_coeffs_y[0]);
+  }
+  aom_noise_model_free(&model);
+}
+
+TEST(NoiseModelGetGrainParameters, TestNoiseStrengthShiftBounds) {
+  struct TestCase {
+    double max_input_value;
+    int expected_scaling_shift;
+    int expected_value;
+  };
+  const int kNumTestCases = 10;
+  const TestCase test_cases[] = {
+    { 0, 11, 0 },      { 1, 11, 64 },     { 2, 11, 128 }, { 3.99, 11, 255 },
+    { 4, 10, 128 },    { 7.99, 10, 255 }, { 8, 9, 128 },  { 16, 8, 128 },
+    { 31.99, 8, 255 }, { 64, 8, 255 },  // clipped
+  };
+  const int lag = 1;
+  aom_noise_model_params_t params = { AOM_NOISE_SHAPE_SQUARE, lag };
+  aom_noise_model_t model;
+  EXPECT_TRUE(aom_noise_model_init(&model, params));
+
+  for (int i = 0; i < kNumTestCases; ++i) {
+    const TestCase &test_case = test_cases[i];
+    aom_equation_system_t &eqns = model.combined_state[0].strength_solver.eqns;
+    // Set the fitted scale parameters to be a constant value.
+    for (int j = 0; j < eqns.n; ++j) {
+      eqns.x[j] = test_case.max_input_value;
+    }
+    aom_film_grain_t film_grain;
+    EXPECT_TRUE(aom_noise_model_get_grain_parameters(&model, &film_grain));
+    // We expect a single constant segemnt
+    EXPECT_EQ(test_case.expected_scaling_shift, film_grain.scaling_shift);
+    EXPECT_EQ(test_case.expected_value, film_grain.scaling_points_y[0][1]);
+    EXPECT_EQ(test_case.expected_value, film_grain.scaling_points_y[1][1]);
+  }
+  aom_noise_model_free(&model);
+}
+
+TEST(NoiseModelGetGrainParameters, GetGrainParametersKong) {
+  const double kInputCoeffsY[] = { 0.0315,  0.0073,  0.0218,  0.00235, 0.00511,
+                                   -0.0222, 0.0627,  -0.022,  0.05575, -0.1816,
+                                   0.0107,  -0.1966, 0.00065, -0.0809, 0.04934,
+                                   -0.1349, -0.0352, 0.41772, 0.27973, 0.04207,
+                                   -0.0429, -0.1372, 0.06193, 0.52032 };
+  const double kInputCoeffsCB[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,   0,
+                                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.25 };
+  const double kInputCoeffsCR[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0,
+                                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.5 };
+  const int kExpectedARCoeffsY[] = { 4,  1,   3,  0,   1,  -3,  8, -3,
+                                     7,  -23, 1,  -25, 0,  -10, 6, -17,
+                                     -5, 53,  36, 5,   -5, -18, 8, 67 };
+  const int kExpectedARCoeffsCB[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                                      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 32 };
+  const int kExpectedARCoeffsCR[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                                      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 64 };
+  // Scaling function is initialized analytically with a sqrt function.
+  const int kNumScalingPointsY = 12;
+  const int kExpectedScalingPointsY[][2] = {
+    { 0, 0 },     { 13, 44 },   { 27, 62 },   { 40, 76 },
+    { 54, 88 },   { 67, 98 },   { 94, 117 },  { 121, 132 },
+    { 148, 146 }, { 174, 159 }, { 201, 171 }, { 255, 192 },
+  };
+
+  const int lag = 3;
+  aom_noise_model_params_t params = { AOM_NOISE_SHAPE_SQUARE, lag };
+  aom_noise_model_t model;
+  EXPECT_TRUE(aom_noise_model_init(&model, params));
+
+  // Setup the AR coeffs
+  memcpy(model.combined_state[0].eqns.x, kInputCoeffsY, sizeof(kInputCoeffsY));
+  memcpy(model.combined_state[1].eqns.x, kInputCoeffsCB,
+         sizeof(kInputCoeffsCB));
+  memcpy(model.combined_state[2].eqns.x, kInputCoeffsCR,
+         sizeof(kInputCoeffsCR));
+  for (int i = 0; i < model.combined_state[0].strength_solver.num_bins; ++i) {
+    const double x =
+        ((double)i) / (model.combined_state[0].strength_solver.num_bins - 1.0);
+    model.combined_state[0].strength_solver.eqns.x[i] = 6 * sqrt(x);
+    model.combined_state[1].strength_solver.eqns.x[i] = 2;
+    model.combined_state[2].strength_solver.eqns.x[i] = 4;
+  }
+
+  aom_film_grain_t film_grain;
+  EXPECT_TRUE(aom_noise_model_get_grain_parameters(&model, &film_grain));
+  EXPECT_EQ(lag, film_grain.ar_coeff_lag);
+  EXPECT_EQ(3, film_grain.ar_coeff_lag);
+  EXPECT_EQ(7, film_grain.ar_coeff_shift);
+  EXPECT_EQ(10, film_grain.scaling_shift);
+  EXPECT_EQ(kNumScalingPointsY, film_grain.num_y_points);
+
+  const int kNumARCoeffs = 24;
+  for (int i = 0; i < kNumARCoeffs; ++i) {
+    EXPECT_EQ(kExpectedARCoeffsY[i], film_grain.ar_coeffs_y[i]);
+  }
+  for (int i = 0; i < kNumARCoeffs + 1; ++i) {
+    EXPECT_EQ(kExpectedARCoeffsCB[i], film_grain.ar_coeffs_cb[i]);
+  }
+  for (int i = 0; i < kNumARCoeffs + 1; ++i) {
+    EXPECT_EQ(kExpectedARCoeffsCR[i], film_grain.ar_coeffs_cr[i]);
+  }
+  for (int i = 0; i < kNumScalingPointsY; ++i) {
+    EXPECT_EQ(kExpectedScalingPointsY[i][0], film_grain.scaling_points_y[i][0]);
+    EXPECT_EQ(kExpectedScalingPointsY[i][1], film_grain.scaling_points_y[i][1]);
+  }
+
+  // CB strength should just be a piecewise segment
+  EXPECT_EQ(2, film_grain.num_cb_points);
+  EXPECT_EQ(0, film_grain.scaling_points_cb[0][0]);
+  EXPECT_EQ(255, film_grain.scaling_points_cb[1][0]);
+  EXPECT_EQ(64, film_grain.scaling_points_cb[0][1]);
+  EXPECT_EQ(64, film_grain.scaling_points_cb[1][1]);
+
+  // CR strength should just be a piecewise segment
+  EXPECT_EQ(2, film_grain.num_cr_points);
+  EXPECT_EQ(0, film_grain.scaling_points_cr[0][0]);
+  EXPECT_EQ(255, film_grain.scaling_points_cr[1][0]);
+  EXPECT_EQ(128, film_grain.scaling_points_cr[0][1]);
+  EXPECT_EQ(128, film_grain.scaling_points_cr[1][1]);
+
+  EXPECT_EQ(128, film_grain.cb_mult);
+  EXPECT_EQ(192, film_grain.cb_luma_mult);
+  EXPECT_EQ(256, film_grain.cb_offset);
+  EXPECT_EQ(128, film_grain.cr_mult);
+  EXPECT_EQ(192, film_grain.cr_luma_mult);
+  EXPECT_EQ(256, film_grain.cr_offset);
+  EXPECT_EQ(0, film_grain.chroma_scaling_from_luma);
+  EXPECT_EQ(0, film_grain.grain_scale_shift);
+
+  aom_noise_model_free(&model);
 }

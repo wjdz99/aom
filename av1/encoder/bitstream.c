@@ -2655,6 +2655,10 @@ static void write_film_grain_params(AV1_COMP *cpi,
   pars->random_seed += 3245;  // For film grain test vectors purposes
   if (!pars->random_seed)     // Random seed should not be zero
     pars->random_seed += 1735;
+
+  fprintf(stderr, "Writing film grain params apply: %d, update: %d\n",
+          pars->apply_grain, pars->update_parameters);
+
   if (cm->frame_type == INTER_FRAME)
     aom_wb_write_bit(wb, pars->update_parameters);
   else
@@ -2681,77 +2685,12 @@ static void write_film_grain_params(AV1_COMP *cpi,
   if (!pars->update_parameters) return;
 #endif
 
-  // Scaling functions parameters
-
-  aom_wb_write_literal(wb, pars->num_y_points, 4);  // max 14
-  for (int i = 0; i < pars->num_y_points; i++) {
-    aom_wb_write_literal(wb, pars->scaling_points_y[i][0], 8);
-    aom_wb_write_literal(wb, pars->scaling_points_y[i][1], 8);
-  }
-
-  if (!cm->seq_params.monochrome)
-    aom_wb_write_bit(wb, pars->chroma_scaling_from_luma);
-
+  // Make num points consistent (enforced in reader)
   if (cm->seq_params.monochrome || pars->chroma_scaling_from_luma) {
     pars->num_cb_points = 0;
     pars->num_cr_points = 0;
-  } else {
-    aom_wb_write_literal(wb, pars->num_cb_points, 4);  // max 10
-    for (int i = 0; i < pars->num_cb_points; i++) {
-      aom_wb_write_literal(wb, pars->scaling_points_cb[i][0], 8);
-      aom_wb_write_literal(wb, pars->scaling_points_cb[i][1], 8);
-    }
-
-    aom_wb_write_literal(wb, pars->num_cr_points, 4);  // max 10
-    for (int i = 0; i < pars->num_cr_points; i++) {
-      aom_wb_write_literal(wb, pars->scaling_points_cr[i][0], 8);
-      aom_wb_write_literal(wb, pars->scaling_points_cr[i][1], 8);
-    }
   }
-
-  aom_wb_write_literal(wb, pars->scaling_shift - 8, 2);  // 8 + value
-
-  // AR coefficients
-  // Only sent if the corresponsing scaling function has
-  // more than 0 points
-
-  aom_wb_write_literal(wb, pars->ar_coeff_lag, 2);
-
-  int num_pos_luma = 2 * pars->ar_coeff_lag * (pars->ar_coeff_lag + 1);
-  int num_pos_chroma = num_pos_luma;
-  if (pars->num_y_points > 0) ++num_pos_chroma;
-
-  if (pars->num_y_points)
-    for (int i = 0; i < num_pos_luma; i++)
-      aom_wb_write_literal(wb, pars->ar_coeffs_y[i] + 128, 8);
-
-  if (pars->num_cb_points || pars->chroma_scaling_from_luma)
-    for (int i = 0; i < num_pos_chroma; i++)
-      aom_wb_write_literal(wb, pars->ar_coeffs_cb[i] + 128, 8);
-
-  if (pars->num_cr_points || pars->chroma_scaling_from_luma)
-    for (int i = 0; i < num_pos_chroma; i++)
-      aom_wb_write_literal(wb, pars->ar_coeffs_cr[i] + 128, 8);
-
-  aom_wb_write_literal(wb, pars->ar_coeff_shift - 6, 2);  // 8 + value
-
-  aom_wb_write_literal(wb, pars->grain_scale_shift, 2);
-
-  if (pars->num_cb_points) {
-    aom_wb_write_literal(wb, pars->cb_mult, 8);
-    aom_wb_write_literal(wb, pars->cb_luma_mult, 8);
-    aom_wb_write_literal(wb, pars->cb_offset, 9);
-  }
-
-  if (pars->num_cr_points) {
-    aom_wb_write_literal(wb, pars->cr_mult, 8);
-    aom_wb_write_literal(wb, pars->cr_luma_mult, 8);
-    aom_wb_write_literal(wb, pars->cr_offset, 9);
-  }
-
-  aom_wb_write_bit(wb, pars->overlap_flag);
-
-  aom_wb_write_bit(wb, pars->clip_to_restricted_range);
+  av1_film_grain_write_updated(pars, cm->seq_params.monochrome, wb);
 }
 #endif  // CONFIG_FILM_GRAIN
 

@@ -298,6 +298,7 @@ typedef struct AV1EncoderConfig {
   uint32_t num_ticks_per_picture;
 #if CONFIG_FILM_GRAIN
   int film_grain_test_vector;
+  const char *film_grain_table_filename;
 #endif
 
 #if CONFIG_CDF_UPDATE_MODE
@@ -312,6 +313,10 @@ typedef struct AV1EncoderConfig {
   const cfg_options_t *cfg;
   int enable_jnt_comp;
   int enable_order_hint;
+#if CONFIG_DENOISE
+  float noise_level;
+  int noise_block_size;
+#endif
 } AV1EncoderConfig;
 
 static INLINE int is_lossless_requested(const AV1EncoderConfig *cfg) {

@@ -207,7 +207,9 @@ if (CONFIG_AV1_DECODER)
   set(AOM_DSP_DECODER_SOURCES
       ${AOM_DSP_DECODER_SOURCES}
       "${AOM_ROOT}/aom_dsp/grain_synthesis.c"
-      "${AOM_ROOT}/aom_dsp/grain_synthesis.h")
+      "${AOM_ROOT}/aom_dsp/grain_synthesis.h"
+      "${AOM_ROOT}/aom_dsp/grain_table.c"
+      "${AOM_ROOT}/aom_dsp/grain_table.h")
 
 endif ()
 
