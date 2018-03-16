@@ -4084,7 +4084,6 @@ static void encode_frame_internal(AV1_COMP *cpi) {
   MACROBLOCKD *const xd = &x->e_mbd;
   RD_COUNTS *const rdc = &cpi->td.rd_counts;
   int i;
-  const int last_fb_buf_idx = get_ref_frame_buf_idx(cpi, LAST_FRAME);
 
   x->min_partition_size = AOMMIN(x->min_partition_size, cm->seq_params.sb_size);
   x->max_partition_size = AOMMIN(x->max_partition_size, cm->seq_params.sb_size);
@@ -4217,8 +4216,8 @@ static void encode_frame_internal(AV1_COMP *cpi) {
       int pframe;
       cm->global_motion[frame] = default_warp_params;
       const WarpedMotionParams *ref_params =
-          cm->error_resilient_mode ? &default_warp_params
-                                   : &cm->prev_frame->global_motion[frame];
+          (cm->error_resilient_mode || cm->prev_frame == NULL) ?
+              &default_warp_params : &cm->prev_frame->global_motion[frame];
       // check for duplicate buffer
       for (pframe = LAST_FRAME; pframe < frame; ++pframe) {
         if (ref_buf[frame] == ref_buf[pframe]) break;
@@ -4352,10 +4351,7 @@ static void encode_frame_internal(AV1_COMP *cpi) {
   av1_initialize_me_consts(cpi, x, cm->base_qindex);
   init_encode_frame_mb_context(cpi);
 
-  cm->prev_frame = last_fb_buf_idx != INVALID_IDX
-                       ? &cm->buffer_pool->frame_bufs[last_fb_buf_idx]
-                       : NULL;
-
+  cm->prev_frame = get_prev_frame(cm);
   cm->use_prev_frame_mvs &= frame_can_use_prev_frame_mvs(cm);
 #if CONFIG_SEGMENT_PRED_LAST
   if (cm->prev_frame) cm->last_frame_seg_map = cm->prev_frame->seg_map;

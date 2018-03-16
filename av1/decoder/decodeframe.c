@@ -3014,11 +3014,7 @@ static int read_uncompressed_header(AV1Decoder *pbi,
       else
         cm->use_ref_frame_mvs = 0;
 
-      cm->prev_frame =
-          cm->frame_refs[LAST_FRAME - LAST_FRAME].idx != INVALID_IDX
-              ? &cm->buffer_pool
-                     ->frame_bufs[cm->frame_refs[LAST_FRAME - LAST_FRAME].idx]
-              : NULL;
+      cm->prev_frame = get_prev_frame(cm);
       cm->use_prev_frame_mvs =
           cm->use_ref_frame_mvs && frame_can_use_prev_frame_mvs(cm);
       for (int i = 0; i < INTER_REFS_PER_FRAME; ++i) {
