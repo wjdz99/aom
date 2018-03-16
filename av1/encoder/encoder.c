@@ -361,6 +361,8 @@ static void setup_frame(AV1_COMP *cpi) {
     av1_zero(cpi->interp_filter_selected[0]);
   }
 
+  cm->prev_frame = get_prev_frame(cm);
+
   cpi->vaq_refresh = 0;
 }
 
@@ -4386,10 +4388,12 @@ static void encode_without_recode_loop(AV1_COMP *cpi) {
   apply_active_map(cpi);
 #if CONFIG_SEGMENT_PRED_LAST
   if (cm->seg.enabled) {
-    if (cm->seg.update_data)
+    if (cm->seg.update_data) {
       segfeatures_copy(&cm->cur_frame->seg, &cm->seg);
-    else if (cm->prev_frame)
+    } else if (cm->prev_frame) {
       segfeatures_copy(&cm->seg, &cm->prev_frame->seg);
+      //segfeatures_copy(&cm->cur_frame->seg, &cm->seg);
+    }
   }
 #endif
 
@@ -4494,10 +4498,11 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
     }
 #if CONFIG_SEGMENT_PRED_LAST
     if (cm->seg.enabled) {
-      if (cm->seg.update_data)
+      if (cm->seg.update_data) {
         segfeatures_copy(&cm->cur_frame->seg, &cm->seg);
-      else if (cm->prev_frame)
+      } else if (cm->prev_frame) {
         segfeatures_copy(&cm->seg, &cm->prev_frame->seg);
+      }
     }
 #endif
 
@@ -5309,7 +5314,6 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
 
   // NOTE: Shall not refer to any frame not used as reference.
   if (cm->is_reference_frame) {
-    cm->prev_frame = cm->cur_frame;
     // keep track of the last coded dimensions
     cm->last_width = cm->width;
     cm->last_height = cm->height;
