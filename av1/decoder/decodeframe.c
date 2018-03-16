@@ -1101,8 +1101,23 @@ static void loop_restoration_read_sb_coeffs(const AV1_COMMON *const cm,
 static void setup_loopfilter(AV1_COMMON *cm, struct aom_read_bit_buffer *rb) {
   assert(!cm->all_lossless);
   const int num_planes = av1_num_planes(cm);
-  if (cm->allow_intrabc && NO_FILTER_FOR_IBC) return;
   struct loopfilter *lf = &cm->lf;
+  if ((cm->allow_intrabc && NO_FILTER_FOR_IBC) || cm->all_lossless) {
+    // write default deltas to frame buffer
+    av1_set_default_ref_deltas(lf->ref_deltas);
+    av1_set_default_mode_deltas(lf->mode_deltas);
+    av1_set_default_ref_deltas(cm->cur_frame->ref_deltas);
+    av1_set_default_mode_deltas(cm->cur_frame->mode_deltas);
+    cm->cur_frame->sharpness_level = -1;
+    lf->sharpness_level = -1;
+    return;
+  }
+  if (cm->prev_frame) {
+    // write deltas to frame buffer
+    memcpy(lf->ref_deltas, cm->prev_frame->ref_deltas, TOTAL_REFS_PER_FRAME);
+    memcpy(lf->mode_deltas, cm->prev_frame->mode_deltas, MAX_MODE_LF_DELTAS);
+    lf->sharpness_level = cm->prev_frame->sharpness_level;
+  }
   lf->filter_level[0] = aom_rb_read_literal(rb, 6);
   lf->filter_level[1] = aom_rb_read_literal(rb, 6);
   if (num_planes > 1) {
@@ -1130,6 +1145,11 @@ static void setup_loopfilter(AV1_COMMON *cm, struct aom_read_bit_buffer *rb) {
           lf->mode_deltas[i] = aom_rb_read_inv_signed_literal(rb, 6);
     }
   }
+
+  // write deltas to frame buffer
+  cm->cur_frame->sharpness_level = lf->sharpness_level;
+  memcpy(cm->cur_frame->ref_deltas, lf->ref_deltas, TOTAL_REFS_PER_FRAME);
+  memcpy(cm->cur_frame->mode_deltas, lf->mode_deltas, MAX_MODE_LF_DELTAS);
 }
 
 static void setup_cdef(AV1_COMMON *cm, struct aom_read_bit_buffer *rb) {
@@ -3070,8 +3090,9 @@ static int read_uncompressed_header(AV1Decoder *pbi,
     cm->rst_info[0].frame_restoration_type = RESTORE_NONE;
     cm->rst_info[1].frame_restoration_type = RESTORE_NONE;
     cm->rst_info[2].frame_restoration_type = RESTORE_NONE;
-  } else {
-    setup_loopfilter(cm, rb);
+  }
+  setup_loopfilter(cm, rb);
+  if (!cm->all_lossless) {
     setup_cdef(cm, rb);
     decode_restoration_mode(cm, rb);
   }
