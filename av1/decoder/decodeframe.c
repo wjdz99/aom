@@ -2511,8 +2511,9 @@ static int read_global_motion_params(WarpedMotionParams *params,
 static void read_global_motion(AV1_COMMON *cm, struct aom_read_bit_buffer *rb) {
   for (int frame = LAST_FRAME; frame <= ALTREF_FRAME; ++frame) {
     const WarpedMotionParams *ref_params =
-        cm->error_resilient_mode ? &default_warp_params
-                                 : &cm->prev_frame->global_motion[frame];
+        (cm->error_resilient_mode || cm->prev_frame == NULL)
+            ? &default_warp_params
+            : &cm->prev_frame->global_motion[frame];
     int good_params = read_global_motion_params(
         &cm->global_motion[frame], ref_params, rb, cm->allow_high_precision_mv);
     if (!good_params) {
@@ -3014,11 +3015,7 @@ static int read_uncompressed_header(AV1Decoder *pbi,
       else
         cm->use_ref_frame_mvs = 0;
 
-      cm->prev_frame =
-          cm->frame_refs[LAST_FRAME - LAST_FRAME].idx != INVALID_IDX
-              ? &cm->buffer_pool
-                     ->frame_bufs[cm->frame_refs[LAST_FRAME - LAST_FRAME].idx]
-              : NULL;
+      cm->prev_frame = get_prev_frame(cm);
       cm->use_prev_frame_mvs =
           cm->use_ref_frame_mvs && frame_can_use_prev_frame_mvs(cm);
       for (int i = 0; i < INTER_REFS_PER_FRAME; ++i) {

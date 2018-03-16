@@ -2919,8 +2919,9 @@ static void write_global_motion(AV1_COMP *cpi,
   int frame;
   for (frame = LAST_FRAME; frame <= ALTREF_FRAME; ++frame) {
     const WarpedMotionParams *ref_params =
-        cm->error_resilient_mode ? &default_warp_params
-                                 : &cm->prev_frame->global_motion[frame];
+        (cm->error_resilient_mode || cm->prev_frame == NULL)
+            ? &default_warp_params
+            : &cm->prev_frame->global_motion[frame];
     write_global_motion_params(&cm->global_motion[frame], ref_params, wb,
                                cm->allow_high_precision_mv);
     // TODO(sarahparker, debargha): The logic in the commented out code below
