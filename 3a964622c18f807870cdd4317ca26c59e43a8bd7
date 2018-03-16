@@ -22,6 +22,40 @@
       "revId": "3a964622c18f807870cdd4317ca26c59e43a8bd7",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1ed2e0b0_5b6a1709",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 873,
+      "author": {
+        "id": 5260
+      },
+      "writtenOn": "2018-03-16T10:08:08Z",
+      "side": 1,
+      "message": "We copy from prev_frame into cm-\u003eseg, but don\u0027t we also need to copy from cm-\u003eseg into cur_frame-\u003eseg?",
+      "revId": "3a964622c18f807870cdd4317ca26c59e43a8bd7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d1a9a120_68fe3ed7",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 875,
+      "author": {
+        "id": 5260
+      },
+      "writtenOn": "2018-03-16T10:08:08Z",
+      "side": 1,
+      "message": "If update_data\u003d\u003d0 and prev_frame\u003d\u003dNULL, shouldn\u0027t we set the segmentation data to some defaults?\n\nOtherwise we will use random values from cm-\u003eseg",
+      "revId": "3a964622c18f807870cdd4317ca26c59e43a8bd7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
