@@ -2851,7 +2851,7 @@ static int read_uncompressed_header(AV1Decoder *pbi,
     if (cm->allow_screen_content_tools &&
         (av1_superres_unscaled(cm) || !NO_FILTER_FOR_IBC))
       cm->allow_intrabc = aom_rb_read_bit(rb);
-    cm->use_prev_frame_mvs = 0;
+    cm->use_ref_frame_mvs = 0;
   } else {
 #if CONFIG_EXPLICIT_ORDER_HINT
     // Read all ref frame order hints if error_resilient_mode == 1
@@ -2885,7 +2885,7 @@ static int read_uncompressed_header(AV1Decoder *pbi,
     }
 #endif  // CONFIG_EXPLICIT_ORDER_HINT
 
-    if (cm->intra_only || cm->error_resilient_mode) cm->use_prev_frame_mvs = 0;
+    if (cm->intra_only || cm->error_resilient_mode) cm->use_ref_frame_mvs = 0;
 
     if (cm->intra_only) {
 #if CONFIG_FILM_GRAIN
@@ -3019,7 +3019,6 @@ static int read_uncompressed_header(AV1Decoder *pbi,
               ? &cm->buffer_pool
                      ->frame_bufs[cm->frame_refs[LAST_FRAME - LAST_FRAME].idx]
               : NULL;
-      cm->use_prev_frame_mvs = cm->use_ref_frame_mvs;
       for (int i = 0; i < INTER_REFS_PER_FRAME; ++i) {
         RefBuffer *const ref_buf = &cm->frame_refs[i];
         av1_setup_scale_factors_for_frame(
