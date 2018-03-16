@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "b9772614_dda6bbe8",
+        "filename": "av1/common/av1_loopfilter.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 676,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2018-03-16T22:10:00Z",
+      "side": 0,
+      "message": "Done",
+      "parentUuid": "75045d85_74900046",
+      "range": {
+        "startLine": 676,
+        "startChar": 5,
+        "endLine": 676,
+        "endChar": 54
+      },
+      "revId": "3871a9e882609e43782a526f44483b15a8774378",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e076728e_f54bc758",
         "filename": "av1/common/av1_loopfilter.h",
         "patchSetId": 5
@@ -36,6 +60,30 @@
       "writtenOn": "2018-03-16T19:28:18Z",
       "side": 0,
       "message": "How about to keep these as they are? then move to av1/common/av1_loopfilter.c next.",
+      "range": {
+        "startLine": 132,
+        "startChar": 2,
+        "endLine": 133,
+        "endChar": 47
+      },
+      "revId": "3871a9e882609e43782a526f44483b15a8774378",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6c4c7fe1_129ef901",
+        "filename": "av1/common/av1_loopfilter.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2018-03-16T22:10:00Z",
+      "side": 0,
+      "message": "Remove last_ref_deltas and last_mode_deltas. Add ref_deltas and mode_deltas in frame buffer. Last ref_deltas/mode_deltas are then determined by frame buffer index.",
+      "parentUuid": "e076728e_f54bc758",
       "range": {
         "startLine": 132,
         "startChar": 2,
