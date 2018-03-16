@@ -4225,6 +4225,18 @@ static void encode_frame_internal(AV1_COMP *cpi) {
   else
     cm->last_frame_seg_map = NULL;
   cm->current_frame_seg_map = cm->cur_frame->seg_map;
+  if (cm->allow_intrabc && NO_FILTER_FOR_IBC) {
+    cm->lf.sharpness_level = -1;
+    av1_set_default_ref_deltas(cm->lf.ref_deltas);
+    av1_set_default_mode_deltas(cm->lf.mode_deltas);
+  } else if (cm->prev_frame) {
+    cm->lf.sharpness_level = cm->prev_frame->sharpness_level;
+    memcpy(cm->lf.ref_deltas, cm->prev_frame->ref_deltas, TOTAL_REFS_PER_FRAME);
+    memcpy(cm->lf.mode_deltas, cm->prev_frame->mode_deltas, MAX_MODE_LF_DELTAS);
+  }
+  cm->cur_frame->sharpness_level = cm->lf.sharpness_level;
+  memcpy(cm->cur_frame->ref_deltas, cm->lf.ref_deltas, TOTAL_REFS_PER_FRAME);
+  memcpy(cm->cur_frame->mode_deltas, cm->lf.mode_deltas, MAX_MODE_LF_DELTAS);
 
   // Special case: set prev_mi to NULL when the previous mode info
   // context cannot be used.
