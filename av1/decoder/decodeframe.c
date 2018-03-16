@@ -3019,8 +3019,7 @@ static int read_uncompressed_header(AV1Decoder *pbi,
               ? &cm->buffer_pool
                      ->frame_bufs[cm->frame_refs[LAST_FRAME - LAST_FRAME].idx]
               : NULL;
-      cm->use_prev_frame_mvs =
-          cm->use_ref_frame_mvs && frame_can_use_prev_frame_mvs(cm);
+      cm->use_prev_frame_mvs = cm->use_ref_frame_mvs;
       for (int i = 0; i < INTER_REFS_PER_FRAME; ++i) {
         RefBuffer *const ref_buf = &cm->frame_refs[i];
         av1_setup_scale_factors_for_frame(
@@ -3228,7 +3227,7 @@ static int read_uncompressed_header(AV1Decoder *pbi,
 
   cm->reduced_tx_set_used = aom_rb_read_bit(rb);
 
-  if (cm->use_prev_frame_mvs && !frame_can_use_prev_frame_mvs(cm)) {
+  if (cm->use_ref_frame_mvs && !frame_might_use_prev_frame_mvs(cm)) {
     aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
                        "Frame wrongly requests previous frame MVs");
   }
