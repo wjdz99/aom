@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c1c03651_ab4f102a",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 4236,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2018-03-16T18:41:48Z",
+      "side": 1,
+      "message": "I moved the green block up before global motion parameter search, which needs gmparam of prev_frame.\nThe only different between the green block and the red block is how to set cm-\u003eprev_frame.",
+      "range": {
+        "startLine": 4236,
+        "startChar": 2,
+        "endLine": 4236,
+        "endChar": 38
+      },
+      "revId": "ae035bd7b986df781aa5a2d155369bcdab0cfc2c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
