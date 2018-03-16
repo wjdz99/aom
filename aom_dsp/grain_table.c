@@ -78,7 +78,6 @@ int aom_film_grain_table_lookup(aom_film_grain_table_t *t, int64_t time_stamp,
     prev_entry = entry;
     entry = next;
   }
-  memset(grain, 0, sizeof(*grain));
   return 0;
 }
 
