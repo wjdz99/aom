@@ -44,6 +44,14 @@ static void equation_system_clear(aom_equation_system_t *eqns) {
   memset(eqns->b, 0, sizeof(*eqns->b) * n);
 }
 
+static void equation_system_copy(aom_equation_system_t *dst,
+                                 const aom_equation_system_t *src) {
+  const int n = dst->n;
+  memcpy(dst->A, src->A, sizeof(*dst->A) * n * n);
+  memcpy(dst->x, src->x, sizeof(*dst->x) * n);
+  memcpy(dst->b, src->b, sizeof(*dst->b) * n);
+}
+
 static int equation_system_init(aom_equation_system_t *eqns, int n) {
   eqns->A = (double *)aom_malloc(sizeof(*eqns->A) * n * n);
   eqns->b = (double *)aom_malloc(sizeof(*eqns->b) * n);
@@ -320,8 +328,9 @@ int aom_noise_strength_solver_fit_piecewise(
         min_index = j;
       }
     }
-    double dx = lut->points[min_index + 1][0] - lut->points[min_index - 1][0];
-    double avg_residual = residual[min_index] / dx;
+    const double dx =
+        lut->points[min_index + 1][0] - lut->points[min_index - 1][0];
+    const double avg_residual = residual[min_index] / dx;
     if (lut->num_points <= max_output_points && avg_residual > kTolerance) {
       break;
     }
@@ -750,6 +759,39 @@ static void add_noise_std_observations(
   }
 }
 
+static int is_noise_model_different(aom_noise_model_t *const noise_model) {
+  const double kCoeffThreshold = 0.9;
+  const double kStrengthThreshold = 0.1 / 50;
+  for (int c = 0; c < 1; ++c) {
+    const double corr =
+        aom_normalized_cross_correlation(noise_model->latest_state[c].eqns.x,
+                                         noise_model->combined_state[c].eqns.x,
+                                         noise_model->combined_state[c].eqns.n);
+    if (corr < kCoeffThreshold) return 1;
+
+    const double dx =
+        1.0 / noise_model->latest_state[c].strength_solver.num_bins;
+
+    const aom_equation_system_t *latest_eqns =
+        &noise_model->latest_state[c].strength_solver.eqns;
+    const aom_equation_system_t *combined_eqns =
+        &noise_model->combined_state[c].strength_solver.eqns;
+    double diff = 0;
+    double total_weight = 0;
+    for (int j = 0; j < latest_eqns->n; ++j) {
+      double weight = 0;
+      for (int i = 0; i < latest_eqns->n; ++i) {
+        weight += latest_eqns->A[i * latest_eqns->n + j];
+      }
+      weight = sqrt(weight);
+      diff += weight * fabs(latest_eqns->x[j] - combined_eqns->x[j]);
+      total_weight += weight;
+    }
+    if (diff * dx / total_weight > kStrengthThreshold) return 1;
+  }
+  return 0;
+}
+
 aom_noise_status_t aom_noise_model_update(
     aom_noise_model_t *const noise_model, const uint8_t *const data[3],
     const uint8_t *const denoised[3], int w, int h, int stride[3],
@@ -828,7 +870,8 @@ aom_noise_status_t aom_noise_model_update(
     // Check noise characteristics and return if error.
     if (channel == 0 &&
         noise_model->combined_state[channel].strength_solver.num_equations >
-            0) {
+            0 &&
+        is_noise_model_different(noise_model)) {
       y_model_different = 1;
     }
 
@@ -863,6 +906,19 @@ aom_noise_status_t aom_noise_model_update(
                            : AOM_NOISE_STATUS_OK;
 }
 
+void aom_noise_model_swap(aom_noise_model_t *noise_model) {
+  for (int c = 0; c < 3; c++) {
+    equation_system_copy(&noise_model->combined_state[c].eqns,
+                         &noise_model->latest_state[c].eqns);
+    equation_system_copy(&noise_model->combined_state[c].strength_solver.eqns,
+                         &noise_model->latest_state[c].strength_solver.eqns);
+    noise_model->combined_state[c].strength_solver.num_equations =
+        noise_model->latest_state[c].strength_solver.num_equations;
+    noise_model->combined_state[c].strength_solver.total =
+        noise_model->latest_state[c].strength_solver.total;
+  }
+}
+
 int aom_noise_model_get_grain_parameters(aom_noise_model_t *const noise_model,
                                          aom_film_grain_t *film_grain) {
   if (noise_model->params.lag > 3) {
@@ -893,6 +949,7 @@ int aom_noise_model_get_grain_parameters(aom_noise_model_t *const noise_model,
   const int max_scaling_value_log2 =
       clamp((int)floor(log2(max_scaling_value) + 1), 2, 5);
   film_grain->scaling_shift = 5 + (8 - max_scaling_value_log2);
+
   const double scale_factor = 1 << (8 - max_scaling_value_log2);
   film_grain->num_y_points = scaling_points[0].num_points;
   film_grain->num_cb_points = scaling_points[1].num_points;
