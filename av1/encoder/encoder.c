@@ -5310,7 +5310,6 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
 
   // NOTE: Shall not refer to any frame not used as reference.
   if (cm->is_reference_frame) {
-    cm->prev_frame = cm->cur_frame;
     // keep track of the last coded dimensions
     cm->last_width = cm->width;
     cm->last_height = cm->height;
