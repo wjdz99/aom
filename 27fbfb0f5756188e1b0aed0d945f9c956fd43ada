@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "182fe1cb_f0a63f97",
+        "filename": "aom_mem/aom_mem.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-03-16T06:13:56Z",
+      "side": 1,
+      "message": "aom_integer.h would be more correct for this one, though it likely doesn\u0027t matter much with the move to c99",
+      "revId": "27fbfb0f5756188e1b0aed0d945f9c956fd43ada",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "970cd19b_355700f4",
+        "filename": "aom_mem/aom_mem.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-03-16T06:13:56Z",
+      "side": 1,
+      "message": "aom_mem.h doesn\u0027t require stdlib.h, you should add it where it\u0027s needed",
+      "revId": "27fbfb0f5756188e1b0aed0d945f9c956fd43ada",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "79d5e8aa_52f7f74f",
+        "filename": "obudec.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-03-16T06:13:56Z",
+      "side": 1,
+      "message": "realloc got removed from aom_mem, it could get restored for this, but this is fine for now",
+      "revId": "27fbfb0f5756188e1b0aed0d945f9c956fd43ada",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
