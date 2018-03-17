@@ -22,6 +22,30 @@
       "revId": "877e0b8891ca720db32e94cc1bfe94bceeb0bfca",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c27f6ca5_dbb45f5d",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 394,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2018-03-17T02:38:39Z",
+      "side": 1,
+      "message": "Will do it in a follow-up patch",
+      "parentUuid": "eabe9d2d_9f81ae2d",
+      "range": {
+        "startLine": 393,
+        "startChar": 1,
+        "endLine": 394,
+        "endChar": 37
+      },
+      "revId": "877e0b8891ca720db32e94cc1bfe94bceeb0bfca",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
