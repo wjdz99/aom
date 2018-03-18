@@ -3294,14 +3294,15 @@ void superres_post_decode(AV1Decoder *pbi) {
 }
 
 static void dec_setup_frame_boundary_info(AV1_COMMON *const cm) {
-// Note: When LOOPFILTERING_ACROSS_TILES is enabled, we need to clear the
-// boundary information every frame, since the tile boundaries may
-// change every frame (particularly when dependent-horztiles is also
-// enabled); when it is disabled, the only information stored is the frame
-// boundaries, which only depend on the frame size.
-#if !CONFIG_LOOPFILTERING_ACROSS_TILES && !CONFIG_LOOPFILTERING_ACROSS_TILES_EXT
-  if (cm->width != cm->last_width || cm->height != cm->last_height)
-#endif  // CONFIG_LOOPFILTERING_ACROSS_TILES
+  // Note: When LOOPFILTERING_ACROSS_TILES is enabled, we need to clear the
+  // boundary information every frame, since the tile boundaries may
+  // change every frame (particularly when dependent-horztiles is also
+  // enabled); when it is disabled, the only information stored is the frame
+  // boundaries, which only depend on the frame size.
+  // #if !CONFIG_LOOPFILTERING_ACROSS_TILES &&
+  // !CONFIG_LOOPFILTERING_ACROSS_TILES_EXT
+  //   if (cm->width != cm->last_width || cm->height != cm->last_height)
+  // #endif  // CONFIG_LOOPFILTERING_ACROSS_TILES
   {
     int row, col;
     for (row = 0; row < cm->mi_rows; ++row) {
