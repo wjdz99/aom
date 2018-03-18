@@ -4364,6 +4364,60 @@ static void encode_frame_internal(AV1_COMP *cpi) {
   memcpy(cm->cur_frame->global_motion, cm->global_motion,
          TOTAL_REFS_PER_FRAME * sizeof(WarpedMotionParams));
 
+  for (i = 0; i < MAX_SEGMENTS; ++i) {
+    const int qindex = cm->seg.enabled
+                           ? av1_get_qindex(&cm->seg, i, cm->base_qindex)
+                           : cm->base_qindex;
+    xd->lossless[i] = qindex == 0 && cm->y_dc_delta_q == 0 &&
+                      cm->u_dc_delta_q == 0 && cm->u_ac_delta_q == 0 &&
+                      cm->v_dc_delta_q == 0 && cm->v_ac_delta_q == 0;
+    if (xd->lossless[i]) cpi->has_lossless_segment = 1;
+    xd->qindex[i] = qindex;
+    if (xd->lossless[i]) {
+      cpi->optimize_seg_arr[i] = 0;
+    } else {
+      cpi->optimize_seg_arr[i] = cpi->optimize_speed_feature;
+    }
+  }
+  cm->all_lossless = all_lossless(cm, xd);
+
+  cm->tx_mode = select_tx_mode(cpi);
+
+  // Fix delta q resolution for the moment
+  cm->delta_q_res = DEFAULT_DELTA_Q_RES;
+// Set delta_q_present_flag before it is used for the first time
+#if CONFIG_EXT_DELTA_Q
+  cm->delta_lf_res = DEFAULT_DELTA_LF_RES;
+  cm->delta_q_present_flag = cpi->oxcf.deltaq_mode != NO_DELTA_Q;
+  cm->delta_lf_present_flag = cpi->oxcf.deltaq_mode == DELTA_Q_LF;
+  cm->delta_lf_multi = DEFAULT_DELTA_LF_MULTI;
+  // update delta_q_present_flag and delta_lf_present_flag based on base_qindex
+  cm->delta_q_present_flag &= cm->base_qindex > 0;
+  cm->delta_lf_present_flag &= cm->base_qindex > 0;
+#else
+  cm->delta_q_present_flag =
+      cpi->oxcf.aq_mode == DELTA_AQ && cm->base_qindex > 0;
+#endif  // CONFIG_EXT_DELTA_Q
+
+  av1_frame_init_quantizer(cpi);
+
+  av1_initialize_rd_consts(cpi);
+  av1_initialize_me_consts(cpi, x, cm->base_qindex);
+  init_encode_frame_mb_context(cpi);
+
+  cm->prev_frame = last_fb_buf_idx != INVALID_IDX
+                       ? &cm->buffer_pool->frame_bufs[last_fb_buf_idx]
+                       : NULL;
+  if (cm->prev_frame) cm->last_frame_seg_map = cm->prev_frame->seg_map;
+  cm->current_frame_seg_map = cm->cur_frame->seg_map;
+
+  // Special case: set prev_mi to NULL when the previous mode info
+  // context cannot be used.
+  cm->prev_mi = cm->use_ref_frame_mvs ? cm->prev_mip : NULL;
+
+  x->txb_split_count = 0;
+  av1_zero(x->blk_skip_drl);
+
   av1_setup_motion_field(cm);
 
   cpi->all_one_sided_refs =
