@@ -1333,11 +1333,7 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
           memmove(ctx->pending_cx_data + move_offset, ctx->pending_cx_data,
                   ctx->pending_cx_data_sz);
         }
-#if CONFIG_OBU_SIZE_AFTER_HEADER
         const uint32_t obu_header_offset = 0;
-#else
-        const uint32_t obu_header_offset = (uint32_t)length_field_size;
-#endif  // CONFIG_OBU_SIZE_AFTER_HEADER
         obu_header_size = write_obu_header(
             OBU_TEMPORAL_DELIMITER, 0,
             (uint8_t *)(ctx->pending_cx_data + obu_header_offset));
