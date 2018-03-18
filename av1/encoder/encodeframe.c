@@ -4359,10 +4359,8 @@ static void encode_frame_internal(AV1_COMP *cpi) {
   cm->prev_frame = last_fb_buf_idx != INVALID_IDX
                        ? &cm->buffer_pool->frame_bufs[last_fb_buf_idx]
                        : NULL;
-#if CONFIG_SEGMENT_PRED_LAST
   if (cm->prev_frame) cm->last_frame_seg_map = cm->prev_frame->seg_map;
   cm->current_frame_seg_map = cm->cur_frame->seg_map;
-#endif
 
   // Special case: set prev_mi to NULL when the previous mode info
   // context cannot be used.

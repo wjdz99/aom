@@ -383,16 +383,12 @@ int av1_receive_compressed_data(AV1Decoder *pbi, size_t size,
     if (cm->is_reference_frame) cm->prev_frame = cm->cur_frame;
 
     if (cm->seg.enabled) {
-#if CONFIG_SEGMENT_PRED_LAST
       if (cm->prev_frame && (cm->mi_rows == cm->prev_frame->mi_rows) &&
           (cm->mi_cols == cm->prev_frame->mi_cols)) {
         cm->last_frame_seg_map = cm->prev_frame->seg_map;
       } else {
         cm->last_frame_seg_map = NULL;
       }
-#else
-      av1_swap_current_and_last_seg_map(cm);
-#endif
     }
   }
 

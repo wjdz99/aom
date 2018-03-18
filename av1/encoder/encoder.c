@@ -302,10 +302,8 @@ static void setup_frame(AV1_COMP *cpi) {
   // other inter-frames the encoder currently uses only two contexts;
   // context 1 for ALTREF frames and context 0 for the others.
 
-#if CONFIG_SEGMENT_PRED_LAST
   if (cm->prev_frame) cm->last_frame_seg_map = cm->prev_frame->seg_map;
   cm->current_frame_seg_map = cm->cur_frame->seg_map;
-#endif
   cm->primary_ref_frame = PRIMARY_REF_NONE;
   if (frame_is_intra_only(cm) || cm->error_resilient_mode) {
     av1_setup_past_independence(cm);
@@ -731,11 +729,7 @@ static void configure_static_seg_features(AV1_COMP *cpi) {
 static void update_reference_segmentation_map(AV1_COMP *cpi) {
   AV1_COMMON *const cm = &cpi->common;
   MODE_INFO **mi_8x8_ptr = cm->mi_grid_visible;
-#if CONFIG_SEGMENT_PRED_LAST
   uint8_t *cache_ptr = cm->current_frame_seg_map;
-#else
-  uint8_t *cache_ptr = cm->last_frame_seg_map;
-#endif
   int row, col;
 
   for (row = 0; row < cm->mi_rows; row++) {
@@ -4384,14 +4378,12 @@ static void encode_without_recode_loop(AV1_COMP *cpi) {
     av1_cyclic_refresh_setup(cpi);
   }
   apply_active_map(cpi);
-#if CONFIG_SEGMENT_PRED_LAST
   if (cm->seg.enabled) {
     if (cm->seg.update_data)
       segfeatures_copy(&cm->cur_frame->seg, &cm->seg);
     else if (cm->prev_frame)
       segfeatures_copy(&cm->seg, &cm->prev_frame->seg);
   }
-#endif
 
   // transform / motion compensation build reconstruction frame
   av1_encode_frame(cpi);
@@ -4492,14 +4484,12 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
     } else if (cpi->oxcf.aq_mode == COMPLEXITY_AQ) {
       av1_setup_in_frame_q_adj(cpi);
     }
-#if CONFIG_SEGMENT_PRED_LAST
     if (cm->seg.enabled) {
       if (cm->seg.update_data)
         segfeatures_copy(&cm->cur_frame->seg, &cm->seg);
       else if (cm->prev_frame)
         segfeatures_copy(&cm->seg, &cm->prev_frame->seg);
     }
-#endif
 
     // transform / motion compensation build reconstruction frame
     save_coding_context(cpi);
@@ -5220,7 +5210,6 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
   dump_filtered_recon_frames(cpi);
 #endif  // DUMP_RECON_FRAMES
 
-#if CONFIG_SEGMENT_PRED_LAST
   if (cm->seg.enabled) {
     if (cm->seg.update_map) {
       update_reference_segmentation_map(cpi);
@@ -5229,9 +5218,6 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
              cm->mi_cols * cm->mi_rows * sizeof(uint8_t));
     }
   }
-#else
-  if (cm->seg.update_map) update_reference_segmentation_map(cpi);
-#endif
 
   if (frame_is_intra_only(cm) == 0) {
     release_scaled_references(cpi);
