@@ -18,6 +18,8 @@
 #include "test/util.h"
 #include "test/yuv_video_source.h"
 
+#if 0
+
 namespace {
 class AVxEncoderThreadTest
     : public ::libaom_test::CodecTestWith2Params<libaom_test::TestMode, int>,
@@ -232,3 +234,5 @@ AV1_INSTANTIATE_TEST_CASE(AVxEncoderThreadLSTestLarge,
                           ::testing::Range(0, 2));
 #endif  // CONFIG_AV1
 }  // namespace
+
+#endif
