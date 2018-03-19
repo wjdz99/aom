@@ -50,9 +50,6 @@ class SuperframeTest
       encoder->Control(AOME_SET_CPUUSED, 2);
       encoder->Control(AV1E_SET_TILE_COLUMNS, n_tile_cols_);
       encoder->Control(AV1E_SET_TILE_ROWS, n_tile_rows_);
-#if CONFIG_LOOPFILTERING_ACROSS_TILES
-      encoder->Control(AV1E_SET_TILE_LOOPFILTER, 0);
-#endif  // CONFIG_LOOPFILTERING_ACROSS_TILES
     }
   }
 

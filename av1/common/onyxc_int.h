@@ -490,10 +490,6 @@ typedef struct AV1Common {
   unsigned int large_scale_tile;
   unsigned int single_tile_decoding;
 
-#if CONFIG_LOOPFILTERING_ACROSS_TILES
-  int loop_filter_across_tiles_enabled;
-#endif  // CONFIG_LOOPFILTERING_ACROSS_TILES
-
   int byte_alignment;
   int skip_loop_filter;
 

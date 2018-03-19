@@ -71,9 +71,6 @@ class AVxEncoderThreadTest
                                   ::libaom_test::Encoder *encoder) {
     if (!encoder_initialized_) {
       SetTileSize(encoder);
-#if CONFIG_LOOPFILTERING_ACROSS_TILES
-      encoder->Control(AV1E_SET_TILE_LOOPFILTER, 0);
-#endif  // CONFIG_LOOPFILTERING_ACROSS_TILES
       encoder->Control(AOME_SET_CPUUSED, set_cpu_used_);
       if (encoding_mode_ != ::libaom_test::kRealTime) {
         encoder->Control(AOME_SET_ENABLEAUTOALTREF, 1);
