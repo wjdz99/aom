@@ -14,7 +14,11 @@
 
 #include "av1/common/blockd.h"
 
-static INLINE CFL_ALLOWED_TYPE is_cfl_allowed(const MB_MODE_INFO *mbmi) {
+static INLINE CFL_ALLOWED_TYPE is_cfl_allowed(const MACROBLOCKD *xd) {
+  const MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
+  if (xd->lossless[mbmi->segment_id]) {
+    return CFL_DISALLOWED;
+  }
   const BLOCK_SIZE bsize = mbmi->sb_type;
   assert(bsize < BLOCK_SIZES_ALL);
   return (CFL_ALLOWED_TYPE)(block_size_wide[bsize] <= 32 &&
