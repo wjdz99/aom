@@ -1662,7 +1662,7 @@ static void build_y_mask(AV1_COMMON *const cm,
     *int_4x4_y |= (size_mask[block_size] & 0xffffffffffffffffULL) << shift_y;
 }
 
-#if CONFIG_LOOPFILTERING_ACROSS_TILES || CONFIG_LOOPFILTERING_ACROSS_TILES_EXT
+#if CONFIG_LOOPFILTERING_ACROSS_TILES
 // This function update the bit masks for the entire 64x64 region represented
 // by mi_row, mi_col. In case one of the edge is a tile boundary, loop filtering
 // for that edge is disabled. This function only check the tile boundary info
@@ -1924,7 +1924,7 @@ void av1_setup_mask(AV1_COMMON *const cm, int mi_row, int mi_col,
     }
   }
 
-#if CONFIG_LOOPFILTERING_ACROSS_TILES || CONFIG_LOOPFILTERING_ACROSS_TILES_EXT
+#if CONFIG_LOOPFILTERING_ACROSS_TILES
   if (av1_disable_loopfilter_on_tile_boundary(cm)) {
     update_tile_boundary_filter_mask(cm, mi_row, mi_col, lfm);
   }
@@ -2340,7 +2340,7 @@ static TX_SIZE set_lpf_parameters(
       const int curr_skipped = mbmi->skip && is_inter_block(mbmi);
       uint32_t level = curr_level;
 
-#if CONFIG_LOOPFILTERING_ACROSS_TILES || CONFIG_LOOPFILTERING_ACROSS_TILES_EXT
+#if CONFIG_LOOPFILTERING_ACROSS_TILES
       // Note: For sub8x8 blocks, we need to look at the top-left mi unit in
       // order
       // to extract the correct boundary information.
