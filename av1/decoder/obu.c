@@ -152,6 +152,8 @@ static uint32_t read_sequence_header_obu(AV1Decoder *pbi,
   uint32_t saved_bit_offset = rb->bit_offset;
 
   cm->profile = av1_read_profile(rb);
+
+#if !CONFIG_OPERATING_POINTS
 #if !CONFIG_SCALABILITY
   aom_rb_read_literal(rb, 4);  // level
 #else
@@ -161,6 +163,23 @@ static uint32_t read_sequence_header_obu(AV1Decoder *pbi,
     aom_rb_read_literal(rb, 4);  // level for each enhancement layer
   }
 #endif
+#else  // CONFIG_OPERATING_POINTS
+  uint8_t operating_points_minus1_cnt = aom_rb_read_literal(rb, 5);
+#if CONFIG_SCALABILITY
+  pbi->common.enhancement_layers_cnt = operating_points_minus1_cnt + 1;
+#endif
+  int i;
+  for (i = 0; i < operating_points_minus1_cnt + 1; i++) {
+    aom_rb_read_literal(rb, 12);   // operating_point_idc[i]
+    aom_rb_read_literal(rb, 4);    // level[i]
+    if (aom_rb_read_literal(rb,
+                            1)) {   // decoder_rate_model_param_present_flag[i]
+      aom_rb_read_literal(rb, 12);  // decode_to_display_rate_ratio[i]
+      aom_rb_read_literal(rb, 24);  // initial_dispaly_delay[i]
+      aom_rb_read_literal(rb, 4);   // extra_frame_buffers[i]
+    }
+  }
+#endif  // CONFIG_OPERATING_POINTS
 
   read_sequence_header(cm, rb);
 
