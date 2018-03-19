@@ -681,10 +681,12 @@ void av1_loop_filter_frame_init(AV1_COMMON *cm, int default_filt_lvl,
   }
   if (last_sharpness_level != lf->sharpness_level) {
     update_sharpness(lfi, lf->sharpness_level);
-    const int buf_idx = cm->frame_refs[cm->primary_ref_frame].idx;
-    if (cm->primary_ref_frame != PRIMARY_REF_NONE && buf_idx >= 0)
-      cm->buffer_pool->frame_bufs[buf_idx].sharpness_level =
-          lf->sharpness_level;
+    if (cm->primary_ref_frame != PRIMARY_REF_NONE) {
+      const int buf_idx = cm->frame_refs[cm->primary_ref_frame].idx;
+      if (buf_idx >= 0)
+        cm->buffer_pool->frame_bufs[buf_idx].sharpness_level =
+            lf->sharpness_level;
+    }
   }
 
   for (seg_id = 0; seg_id < MAX_SEGMENTS; seg_id++) {
