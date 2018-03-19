@@ -17,7 +17,7 @@
 static INLINE CFL_ALLOWED_TYPE is_cfl_allowed(const MACROBLOCKD *xd) {
   const MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
   if (xd->lossless[mbmi->segment_id]) {
-    return CFL_DISALLOWED;
+    return CFL_ALLOWED;
   }
   const BLOCK_SIZE bsize = mbmi->sb_type;
   assert(bsize < BLOCK_SIZES_ALL);
