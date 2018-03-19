@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e8e8056e_250b905c",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 21
+      },
+      "lineNbr": 568,
+      "author": {
+        "id": 8213
+      },
+      "writtenOn": "2018-03-19T11:46:52Z",
+      "side": 1,
+      "message": "The compiler is generating a warning that it is impossible for cm-\u003ebuffer_pool-\u003eframe_bufs[buf_idx].ref_deltas to be equal to NULL, given its definition. Is the assert necessary?",
+      "revId": "d90d343f354d76d2d8992f0243f4bef103ce7ba6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "df40d727_a6aefa25",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 21
+      },
+      "lineNbr": 571,
+      "author": {
+        "id": 8213
+      },
+      "writtenOn": "2018-03-19T11:46:52Z",
+      "side": 1,
+      "message": "Same as above.",
+      "revId": "d90d343f354d76d2d8992f0243f4bef103ce7ba6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
