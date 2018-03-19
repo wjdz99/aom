@@ -77,6 +77,17 @@ extern "C" {
 
 #define NUM_PING_PONG_BUFFERS 2
 
+#if CONFIG_OPERATING_POINTS
+#if CONFIG_SCALABILITY
+#define MAX_NUM_TEMPORAL_LAYERS 8
+#define MAX_NUM_SPATIAL_LAYERS 4
+#define MAX_NUM_OPERATING_POINTS \
+  MAX_NUM_TEMPORAL_LAYERS + MAX_NUM_SPATIAL_LAYERS
+#else
+#define MAX_NUM_OPERATING_POINTS 1
+#endif
+#endif
+
 // TODO(jingning): Turning this on to set up transform coefficient
 // processing timer.
 #define TXCOEFF_TIMER 0
@@ -214,6 +225,14 @@ typedef struct SequenceHeader {
                            // if 0, enable_jnt_comp must be set zs 0.
   int enable_jnt_comp;     // 0 - disable joint compound modes
                            // 1 - enable it
+#if CONFIG_OPERATING_POINTS
+  int operating_point_idc[MAX_NUM_OPERATING_POINTS];
+  int level[MAX_NUM_OPERATING_POINTS];
+  int decoder_rate_model_param_present_flag[MAX_NUM_OPERATING_POINTS];
+  int decode_to_display_rate_ratio[MAX_NUM_OPERATING_POINTS];
+  int initial_dispaly_delay[MAX_NUM_OPERATING_POINTS];
+  int extra_frame_buffers[MAX_NUM_OPERATING_POINTS];
+#endif  // CONFIG_OPERATING_POINTS
 } SequenceHeader;
 
 typedef struct AV1Common {
