@@ -1592,23 +1592,10 @@ static void read_tile_info(AV1Decoder *const pbi,
     while (cm->tile_rows * cm->tile_height < cm->mi_rows) ++cm->tile_rows;
 
 #if CONFIG_LOOPFILTERING_ACROSS_TILES
-#if CONFIG_LOOPFILTERING_ACROSS_TILES_EXT
-    if (cm->tile_cols > 1) {
-      cm->loop_filter_across_tiles_v_enabled = aom_rb_read_bit(rb);
-    } else {
-      cm->loop_filter_across_tiles_v_enabled = 1;
-    }
-    if (cm->tile_rows > 1) {
-      cm->loop_filter_across_tiles_h_enabled = aom_rb_read_bit(rb);
-    } else {
-      cm->loop_filter_across_tiles_h_enabled = 1;
-    }
-#else
     if (cm->tile_cols * cm->tile_rows > 1)
       cm->loop_filter_across_tiles_enabled = aom_rb_read_bit(rb);
     else
       cm->loop_filter_across_tiles_enabled = 1;
-#endif  // CONFIG_LOOPFILTERING_ACROSS_TILES_EXT
 #endif  // CONFIG_LOOPFILTERING_ACROSS_TILES
 
     if (cm->tile_cols * cm->tile_rows > 1) {
@@ -1655,23 +1642,10 @@ static void read_tile_info(AV1Decoder *const pbi,
 
 #endif  // CONFIG_MAX_TILE
 #if CONFIG_LOOPFILTERING_ACROSS_TILES
-#if CONFIG_LOOPFILTERING_ACROSS_TILES_EXT
-  if (cm->tile_cols > 1) {
-    cm->loop_filter_across_tiles_v_enabled = aom_rb_read_bit(rb);
-  } else {
-    cm->loop_filter_across_tiles_v_enabled = 1;
-  }
-  if (cm->tile_rows > 1) {
-    cm->loop_filter_across_tiles_h_enabled = aom_rb_read_bit(rb);
-  } else {
-    cm->loop_filter_across_tiles_h_enabled = 1;
-  }
-#else
   if (cm->tile_cols * cm->tile_rows > 1)
     cm->loop_filter_across_tiles_enabled = aom_rb_read_bit(rb);
   else
     cm->loop_filter_across_tiles_enabled = 1;
-#endif  // CONFIG_LOOPFILTERING_ACROSS_TILES_EXT
 #endif  // CONFIG_LOOPFILTERING_ACROSS_TILES
 
   if (cm->tile_rows * cm->tile_cols > 1) {
@@ -1893,18 +1867,13 @@ static void get_tile_buffers(AV1Decoder *pbi, const uint8_t *data,
   }
 }
 
-#if CONFIG_LOOPFILTERING_ACROSS_TILES || CONFIG_LOOPFILTERING_ACROSS_TILES_EXT
+#if CONFIG_LOOPFILTERING_ACROSS_TILES
 static void dec_setup_across_tile_boundary_info(
     const AV1_COMMON *const cm, const TileInfo *const tile_info) {
   if (tile_info->mi_row_start >= tile_info->mi_row_end ||
       tile_info->mi_col_start >= tile_info->mi_col_end)
     return;
-#if CONFIG_LOOPFILTERING_ACROSS_TILES_EXT
-  if (!cm->loop_filter_across_tiles_v_enabled ||
-      !cm->loop_filter_across_tiles_h_enabled) {
-#else
   if (!cm->loop_filter_across_tiles_enabled) {
-#endif
     av1_setup_across_tile_boundary_info(cm, tile_info);
   }
 }
@@ -2039,7 +2008,7 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
       av1_zero_above_context(cm, tile_info.mi_col_start, tile_info.mi_col_end);
       av1_reset_loop_restoration(&td->xd, num_planes);
 
-#if CONFIG_LOOPFILTERING_ACROSS_TILES || CONFIG_LOOPFILTERING_ACROSS_TILES_EXT
+#if CONFIG_LOOPFILTERING_ACROSS_TILES
       dec_setup_across_tile_boundary_info(cm, &tile_info);
 #endif  // CONFIG_LOOPFILTERING_ACROSS_TILES
 
@@ -3313,7 +3282,7 @@ static void dec_setup_frame_boundary_info(AV1_COMMON *const cm) {
 // change every frame (particularly when dependent-horztiles is also
 // enabled); when it is disabled, the only information stored is the frame
 // boundaries, which only depend on the frame size.
-#if !CONFIG_LOOPFILTERING_ACROSS_TILES && !CONFIG_LOOPFILTERING_ACROSS_TILES_EXT
+#if !CONFIG_LOOPFILTERING_ACROSS_TILES
   if (cm->width != cm->last_width || cm->height != cm->last_height)
 #endif  // CONFIG_LOOPFILTERING_ACROSS_TILES
   {

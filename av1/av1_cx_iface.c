@@ -42,12 +42,7 @@ struct av1_extracfg {
   unsigned int tile_columns;  // log2 number of tile columns
   unsigned int tile_rows;     // log2 number of tile rows
 #if CONFIG_LOOPFILTERING_ACROSS_TILES
-#if CONFIG_LOOPFILTERING_ACROSS_TILES_EXT
-  unsigned int loop_filter_across_tiles_v_enabled;
-  unsigned int loop_filter_across_tiles_h_enabled;
-#else
   unsigned int loop_filter_across_tiles_enabled;
-#endif  // CONFIG_LOOPFILTERING_ACROSS_TILES_EXT
 #endif  // CONFIG_LOOPFILTERING_ACROSS_TILES
   unsigned int arnr_max_frames;
   unsigned int arnr_strength;
@@ -117,12 +112,7 @@ static struct av1_extracfg default_extra_cfg = {
   0,  // tile_columns
   0,  // tile_rows
 #if CONFIG_LOOPFILTERING_ACROSS_TILES
-#if CONFIG_LOOPFILTERING_ACROSS_TILES_EXT
-  1,  // loop_filter_across_tiles_v_enabled
-  1,  // loop_filter_across_tiles_h_enabled
-#else
-  1,  // loop_filter_across_tiles_enabled
-#endif            // CONFIG_LOOPFILTERING_ACROSS_TILES_EXT
+  1,              // loop_filter_across_tiles_enabled
 #endif            // CONFIG_LOOPFILTERING_ACROSS_TILES
   7,              // arnr_max_frames
   5,              // arnr_strength
@@ -346,12 +336,7 @@ static aom_codec_err_t validate_config(aom_codec_alg_priv_t *ctx,
         "coding.");
 
 #if CONFIG_LOOPFILTERING_ACROSS_TILES
-#if CONFIG_LOOPFILTERING_ACROSS_TILES_EXT
-  RANGE_CHECK_HI(extra_cfg, loop_filter_across_tiles_v_enabled, 1);
-  RANGE_CHECK_HI(extra_cfg, loop_filter_across_tiles_h_enabled, 1);
-#else
   RANGE_CHECK_HI(extra_cfg, loop_filter_across_tiles_enabled, 1);
-#endif  // CONFIG_LOOPFILTERING_ACROSS_TILES_EXT
 #endif  // CONFIG_LOOPFILTERING_ACROSS_TILES
   RANGE_CHECK_HI(extra_cfg, sharpness, 7);
   RANGE_CHECK_HI(extra_cfg, arnr_max_frames, 15);
@@ -679,15 +664,8 @@ static aom_codec_err_t set_encoder_config(
   }
 #endif
 #if CONFIG_LOOPFILTERING_ACROSS_TILES
-#if CONFIG_LOOPFILTERING_ACROSS_TILES_EXT
-  oxcf->loop_filter_across_tiles_v_enabled =
-      extra_cfg->loop_filter_across_tiles_v_enabled;
-  oxcf->loop_filter_across_tiles_h_enabled =
-      extra_cfg->loop_filter_across_tiles_h_enabled;
-#else
   oxcf->loop_filter_across_tiles_enabled =
       extra_cfg->loop_filter_across_tiles_enabled;
-#endif  // CONFIG_LOOPFILTERING_ACROSS_TILES_EXT
 #endif  // CONFIG_LOOPFILTERING_ACROSS_TILES
   oxcf->error_resilient_mode = cfg->g_error_resilient;
   oxcf->frame_parallel_decoding_mode = extra_cfg->frame_parallel_decoding_mode;
@@ -828,22 +806,6 @@ static aom_codec_err_t ctrl_set_tile_rows(aom_codec_alg_priv_t *ctx,
 }
 
 #if CONFIG_LOOPFILTERING_ACROSS_TILES
-#if CONFIG_LOOPFILTERING_ACROSS_TILES_EXT
-static aom_codec_err_t ctrl_set_tile_loopfilter_v(aom_codec_alg_priv_t *ctx,
-                                                  va_list args) {
-  struct av1_extracfg extra_cfg = ctx->extra_cfg;
-  extra_cfg.loop_filter_across_tiles_v_enabled =
-      CAST(AV1E_SET_TILE_LOOPFILTER_V, args);
-  return update_extra_cfg(ctx, &extra_cfg);
-}
-static aom_codec_err_t ctrl_set_tile_loopfilter_h(aom_codec_alg_priv_t *ctx,
-                                                  va_list args) {
-  struct av1_extracfg extra_cfg = ctx->extra_cfg;
-  extra_cfg.loop_filter_across_tiles_h_enabled =
-      CAST(AV1E_SET_TILE_LOOPFILTER_H, args);
-  return update_extra_cfg(ctx, &extra_cfg);
-}
-#else
 static aom_codec_err_t ctrl_set_tile_loopfilter(aom_codec_alg_priv_t *ctx,
                                                 va_list args) {
   struct av1_extracfg extra_cfg = ctx->extra_cfg;
@@ -851,7 +813,6 @@ static aom_codec_err_t ctrl_set_tile_loopfilter(aom_codec_alg_priv_t *ctx,
       CAST(AV1E_SET_TILE_LOOPFILTER, args);
   return update_extra_cfg(ctx, &extra_cfg);
 }
-#endif  // CONFIG_LOOPFILTERING_ACROSS_TILES_EXT
 #endif  // CONFIG_LOOPFILTERING_ACROSS_TILES
 
 static aom_codec_err_t ctrl_set_arnr_max_frames(aom_codec_alg_priv_t *ctx,
@@ -1635,12 +1596,7 @@ static aom_codec_ctrl_fn_map_t encoder_ctrl_maps[] = {
   { AV1E_SET_TILE_COLUMNS, ctrl_set_tile_columns },
   { AV1E_SET_TILE_ROWS, ctrl_set_tile_rows },
 #if CONFIG_LOOPFILTERING_ACROSS_TILES
-#if CONFIG_LOOPFILTERING_ACROSS_TILES_EXT
-  { AV1E_SET_TILE_LOOPFILTER_V, ctrl_set_tile_loopfilter_v },
-  { AV1E_SET_TILE_LOOPFILTER_H, ctrl_set_tile_loopfilter_h },
-#else
   { AV1E_SET_TILE_LOOPFILTER, ctrl_set_tile_loopfilter },
-#endif  // CONFIG_LOOPFILTERING_ACROSS_TILES_EXT
 #endif  // CONFIG_LOOPFILTERING_ACROSS_TILES
   { AOME_SET_ARNR_MAXFRAMES, ctrl_set_arnr_max_frames },
   { AOME_SET_ARNR_STRENGTH, ctrl_set_arnr_strength },
