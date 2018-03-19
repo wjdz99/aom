@@ -204,7 +204,7 @@ static aom_codec_err_t decoder_peek_si_internal(const uint8_t *data,
 
 #if CONFIG_OBU_SIZE_AFTER_HEADER
   // One byte has been consumed by the OBU header.
-  rb.bit_offset += get_obu_length_field_size(data + 1);
+  rb.bit_offset += get_obu_length_field_size(data + 1) * 8;
 #endif  // CONFIG_OBU_SIZE_AFTER_HEADER
 
   // This check is disabled because existing behavior is depended upon by
