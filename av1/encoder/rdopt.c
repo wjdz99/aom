@@ -8078,10 +8078,6 @@ void av1_rd_pick_intra_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x, int mi_row,
   int64_t dist_y = 0, dist_uv = 0;
   TX_SIZE max_uv_tx_size;
 
-  (void)cm;
-  (void)mi_row;
-  (void)mi_col;
-
   ctx->skip = 0;
   mbmi->ref_frame[0] = INTRA_FRAME;
   mbmi->ref_frame[1] = NONE_FRAME;
@@ -8425,7 +8421,7 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
   unsigned int ref_costs_single[TOTAL_REFS_PER_FRAME];
   unsigned int ref_costs_comp[TOTAL_REFS_PER_FRAME][TOTAL_REFS_PER_FRAME];
   int *comp_inter_cost =
-      x->comp_inter_cost[av1_get_reference_mode_context(cm, xd)];
+      x->comp_inter_cost[av1_get_reference_mode_context(xd)];
   int64_t best_intra_rd = INT64_MAX;
   unsigned int best_pred_sse = UINT_MAX;
   PREDICTION_MODE best_intra_mode = DC_PRED;
@@ -9953,7 +9949,7 @@ void av1_rd_pick_inter_mode_sb_seg_skip(const AV1_COMP *cpi,
   unsigned int ref_costs_single[TOTAL_REFS_PER_FRAME];
   unsigned int ref_costs_comp[TOTAL_REFS_PER_FRAME][TOTAL_REFS_PER_FRAME];
   int *comp_inter_cost =
-      x->comp_inter_cost[av1_get_reference_mode_context(cm, xd)];
+      x->comp_inter_cost[av1_get_reference_mode_context(xd)];
   InterpFilter best_filter = SWITCHABLE;
   int64_t this_rd = INT64_MAX;
   int rate2 = 0;
