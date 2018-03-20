@@ -17,14 +17,25 @@
 extern "C" {
 #endif
 
-int file_is_obu(struct AvxInputContext *input_ctx);
+struct ObuDecInputContext {
+  struct AvxInputContext *avx_ctx;
+  uint8_t *buffer;
+  size_t buffer_capacity;
+  size_t bytes_buffered;
+};
 
-int obu_read_temporal_unit(FILE *infile, uint8_t **buffer, size_t *bytes_read,
+int file_is_obu(struct ObuDecInputContext *obu_ctx);
+
+int obu_read_temporal_unit(struct ObuDecInputContext *obu_ctx, uint8_t **buffer,
+                           size_t *bytes_read,
 #if CONFIG_SCALABILITY
-                           size_t *buffer_size, int last_layer_id);
+                           size_t *buffer_size, int last_layer_id
 #else
-                           size_t *buffer_size);
+                           size_t *buffer_size
 #endif
+);
+
+void obudec_free(struct ObuDecInputContext *obu_ctx);
 
 #ifdef __cplusplus
 } /* extern "C" */
