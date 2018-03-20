@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "c319d914_fca460a9",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 1118,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2018-03-20T21:15:14Z",
+      "side": 1,
+      "message": "Yes. In the new CL, default values are set.",
+      "parentUuid": "6db2e15f_cdd89c88",
+      "revId": "c9b6f23bc0be2327e1cb5be9391b850c2e02abcb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "21ab1852_e34ebb20",
         "filename": "av1/decoder/decodeframe.c",
         "patchSetId": 9
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "dde9a78b_c511d5de",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 1135,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2018-03-20T21:15:14Z",
+      "side": 1,
+      "message": "It\u0027s not needed. ref_deltas and mode_deltas are absolute values, not depending on previous values.",
+      "parentUuid": "21ab1852_e34ebb20",
+      "revId": "c9b6f23bc0be2327e1cb5be9391b850c2e02abcb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "14909cb0_e1cb0816",
         "filename": "av1/decoder/decodeframe.c",
         "patchSetId": 9
@@ -47,6 +83,24 @@
       "writtenOn": "2018-03-19T16:40:49Z",
       "side": 1,
       "message": "if mode_ref_delta_enabled is 0, should we clear mode_deltas and ref_deltas?",
+      "revId": "c9b6f23bc0be2327e1cb5be9391b850c2e02abcb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "65953585_da31de9f",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 1145,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2018-03-20T21:15:14Z",
+      "side": 1,
+      "message": "Yes we could. Since they are governed by mode_ref_delta_enabled, if not cleared, it should not affect the behavior.",
+      "parentUuid": "14909cb0_e1cb0816",
       "revId": "c9b6f23bc0be2327e1cb5be9391b850c2e02abcb",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
