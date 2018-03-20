@@ -75,7 +75,4 @@ class AV1InvTxfm : public ::testing::TestWithParam<IdctParam> {
 
 TEST_P(AV1InvTxfm, RunInvAccuracyCheck) { RunInvAccuracyCheck(); }
 
-INSTANTIATE_TEST_CASE_P(C, AV1InvTxfm,
-                        ::testing::Values(IdctParam(&aom_idct4_c, 4, 1)));
-
 }  // namespace
