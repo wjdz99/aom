@@ -46,36 +46,6 @@ void fdct4x4_ref(const int16_t *in, tran_low_t *out, int stride,
   aom_fdct4x4_c(in, out, stride);
 }
 
-void fht4x4_10(const int16_t *in, tran_low_t *out, int stride,
-               TxfmParam *txfm_param) {
-  av1_fwd_txfm2d_4x4_c(in, out, stride, txfm_param->tx_type, 10);
-}
-
-void fht4x4_12(const int16_t *in, tran_low_t *out, int stride,
-               TxfmParam *txfm_param) {
-  av1_fwd_txfm2d_4x4_c(in, out, stride, txfm_param->tx_type, 12);
-}
-
-void iht4x4_10(const tran_low_t *in, uint8_t *out, int stride,
-               const TxfmParam *txfm_param) {
-  av1_inv_txfm2d_add_4x4_c(in, CONVERT_TO_SHORTPTR(out), stride,
-                           txfm_param->tx_type, 10);
-}
-
-void iht4x4_12(const tran_low_t *in, uint8_t *out, int stride,
-               const TxfmParam *txfm_param) {
-  av1_inv_txfm2d_add_4x4_c(in, CONVERT_TO_SHORTPTR(out), stride,
-                           txfm_param->tx_type, 12);
-}
-
-void iwht4x4_10(const tran_low_t *in, uint8_t *out, int stride) {
-  aom_highbd_iwht4x4_16_add_c(in, out, stride, 10);
-}
-
-void iwht4x4_12(const tran_low_t *in, uint8_t *out, int stride) {
-  aom_highbd_iwht4x4_16_add_c(in, out, stride, 12);
-}
-
 class Trans4x4DCT : public libaom_test::TransformTestBase,
                     public ::testing::TestWithParam<Dct4x4Param> {
  public:
@@ -113,12 +83,5 @@ TEST_P(Trans4x4DCT, CoeffCheck) { RunCoeffCheck(); }
 TEST_P(Trans4x4DCT, MemCheck) { RunMemCheck(); }
 
 TEST_P(Trans4x4DCT, InvAccuracyCheck) { RunInvAccuracyCheck(1); }
-
-using std::tr1::make_tuple;
-
-INSTANTIATE_TEST_CASE_P(C, Trans4x4DCT,
-                        ::testing::Values(make_tuple(&aom_fdct4x4_c,
-                                                     &aom_idct4x4_16_add_c,
-                                                     DCT_DCT, AOM_BITS_8, 16)));
 
 }  // namespace
