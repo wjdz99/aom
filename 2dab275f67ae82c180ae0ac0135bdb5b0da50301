@@ -16,6 +16,24 @@
       "revId": "2dab275f67ae82c180ae0ac0135bdb5b0da50301",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6451918b_8c883ce0",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 3596,
+      "author": {
+        "id": 8014
+      },
+      "writtenOn": "2018-03-20T16:13:44Z",
+      "side": 1,
+      "message": "Right. Simply moving the code below #if CONFIG_TRAILING_BITS/#endif above \"if (cm-\u003eshow_existing_frame)\" would be sufficient.",
+      "parentUuid": "7a87e36b_973ee65e",
+      "revId": "2dab275f67ae82c180ae0ac0135bdb5b0da50301",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
