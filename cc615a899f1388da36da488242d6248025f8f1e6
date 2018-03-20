@@ -22,6 +22,30 @@
       "revId": "cc615a899f1388da36da488242d6248025f8f1e6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3d985bde_cceeb971",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 6
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5975
+      },
+      "writtenOn": "2018-03-20T10:53:15Z",
+      "side": 1,
+      "message": "Sorry - I uploaded this right at the end of the day, so forgot to add the BUG\u003d tags.\n\nThis should be associated with both https://bugs.chromium.org/p/aomedia/issues/detail?id\u003d1441 and https://bugs.chromium.org/p/aomedia/issues/detail?id\u003d1589, as it is fixing up the interaction between the respective fixes for those bugs.\n\nI\u0027ll go and add a comment to each of the two issue reports.",
+      "parentUuid": "8935eff3_a152f057",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 10
+      },
+      "revId": "cc615a899f1388da36da488242d6248025f8f1e6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
