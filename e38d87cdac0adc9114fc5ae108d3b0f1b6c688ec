@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "73775845_a315da90",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 7963
+      },
+      "writtenOn": "2018-03-20T23:30:03Z",
+      "side": 1,
+      "message": "I thought that since they weren\u0027t used in libaom, they wouldn\u0027t need to be stored.  I will save them in the SequenceHeader structure.  Does that sound OK?",
+      "parentUuid": "67c85184_ec738234",
+      "range": {
+        "startLine": 169,
+        "startChar": 0,
+        "endLine": 176,
+        "endChar": 5
+      },
+      "revId": "e38d87cdac0adc9114fc5ae108d3b0f1b6c688ec",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "60bf3b1e_9fca45a7",
         "filename": "av1/encoder/bitstream.c",
         "patchSetId": 6
@@ -36,6 +60,30 @@
       "writtenOn": "2018-03-20T19:20:33Z",
       "side": 1,
       "message": "This does not match the parsing in obu.c, where you have: \n  for (i \u003d 0; i \u003c operating_points_minus1_cnt + 1; i++) {\n    aom_rb_read_literal(rb, 12);  // operating_point_idc[i]\n    aom_rb_read_literal(rb, 4);   // level[i]\n    if (aom_rb_read_literal(rb,\n                            1)) {   // decoder_rate_model_param_present_flag[i]\n      aom_rb_read_literal(rb, 12);  // decode_to_display_rate_ratio[i]\n      aom_rb_read_literal(rb, 24);  // initial_dispaly_delay[i]\n      aom_rb_read_literal(rb, 4);   // extra_frame_buffers[i]\n    }",
+      "range": {
+        "startLine": 3506,
+        "startChar": 1,
+        "endLine": 3510,
+        "endChar": 3
+      },
+      "revId": "e38d87cdac0adc9114fc5ae108d3b0f1b6c688ec",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "84ffeb7b_7b9c5873",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 3510,
+      "author": {
+        "id": 7963
+      },
+      "writtenOn": "2018-03-20T23:30:03Z",
+      "side": 1,
+      "message": "The encoder is setting the decoder_rate_mode_present_flag to be 0, which means there is nothing more to code.  The decoder logic is there if/when someone wants to encode with decoder_rate_mode_present_flag to be 1.  I don\u0027t think there is any change needed here.",
+      "parentUuid": "60bf3b1e_9fca45a7",
       "range": {
         "startLine": 3506,
         "startChar": 1,
