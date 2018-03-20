@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "15593f80_f09bf37b",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 8900
+      },
+      "writtenOn": "2018-03-20T06:14:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e0edd35a_8d5af057",
+      "range": {
+        "startLine": 9,
+        "startChar": 22,
+        "endLine": 9,
+        "endChar": 28
+      },
+      "revId": "942fca05fef38c9c66257c07f6e5d73c8c01bd7a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7300d036_aad29c45",
         "filename": "/COMMIT_MSG",
         "patchSetId": 3
@@ -39,6 +63,24 @@
       "revId": "942fca05fef38c9c66257c07f6e5d73c8c01bd7a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "09d5441f_5e234c8a",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 8900
+      },
+      "writtenOn": "2018-03-20T06:14:33Z",
+      "side": 1,
+      "message": "Yes, although the current patch set should be theoretically a bit slower the previous one, But after re-profiling on Ubuntu, the profiling results are almost the same.",
+      "parentUuid": "7300d036_aad29c45",
+      "revId": "942fca05fef38c9c66257c07f6e5d73c8c01bd7a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -65,6 +107,30 @@
     },
     {
       "key": {
+        "uuid": "ab2378a2_3282b8bb",
+        "filename": "av1/common/x86/av1_inv_txfm_ssse3.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 307,
+      "author": {
+        "id": 8900
+      },
+      "writtenOn": "2018-03-20T06:14:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c2f3bcb5_156bbd58",
+      "range": {
+        "startLine": 307,
+        "startChar": 2,
+        "endLine": 307,
+        "endChar": 18
+      },
+      "revId": "942fca05fef38c9c66257c07f6e5d73c8c01bd7a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "54f8c089_5223aad4",
         "filename": "av1/common/x86/av1_inv_txfm_ssse3.c",
         "patchSetId": 3
@@ -79,6 +145,24 @@
       "revId": "942fca05fef38c9c66257c07f6e5d73c8c01bd7a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4f215cad_ee515805",
+        "filename": "av1/common/x86/av1_inv_txfm_ssse3.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1173,
+      "author": {
+        "id": 8900
+      },
+      "writtenOn": "2018-03-20T06:14:33Z",
+      "side": 1,
+      "message": "Didn\u0027t see much impact in both MSVC 2013 and clang-900.0.39.2(MacOS). It seems clang didn\u0027t unroll this loop, so manually should be theoretically faster than for loop.",
+      "parentUuid": "54f8c089_5223aad4",
+      "revId": "942fca05fef38c9c66257c07f6e5d73c8c01bd7a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -105,6 +189,30 @@
     },
     {
       "key": {
+        "uuid": "c0b12feb_de4c2727",
+        "filename": "av1/common/x86/av1_inv_txfm_ssse3.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2381,
+      "author": {
+        "id": 8900
+      },
+      "writtenOn": "2018-03-20T06:14:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "96e146d1_eb2377ee",
+      "range": {
+        "startLine": 2381,
+        "startChar": 3,
+        "endLine": 2381,
+        "endChar": 47
+      },
+      "revId": "942fca05fef38c9c66257c07f6e5d73c8c01bd7a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "65940df3_c3452a77",
         "filename": "av1/common/x86/av1_inv_txfm_ssse3.c",
         "patchSetId": 3
@@ -119,6 +227,24 @@
       "revId": "942fca05fef38c9c66257c07f6e5d73c8c01bd7a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fe796fdb_25586906",
+        "filename": "av1/common/x86/av1_inv_txfm_ssse3.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2590,
+      "author": {
+        "id": 8900
+      },
+      "writtenOn": "2018-03-20T06:14:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "65940df3_c3452a77",
+      "revId": "942fca05fef38c9c66257c07f6e5d73c8c01bd7a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -139,6 +265,24 @@
     },
     {
       "key": {
+        "uuid": "840c7c7a_503035fc",
+        "filename": "av1/common/x86/av1_inv_txfm_ssse3.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2615,
+      "author": {
+        "id": 8900
+      },
+      "writtenOn": "2018-03-20T06:14:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "24ac1bac_6309b683",
+      "revId": "942fca05fef38c9c66257c07f6e5d73c8c01bd7a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a6344714_2a7b1e92",
         "filename": "av1/common/x86/av1_inv_txfm_ssse3.c",
         "patchSetId": 3
@@ -153,6 +297,24 @@
       "revId": "942fca05fef38c9c66257c07f6e5d73c8c01bd7a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a20131b5_5b07f2d1",
+        "filename": "av1/common/x86/av1_inv_txfm_ssse3.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2680,
+      "author": {
+        "id": 8900
+      },
+      "writtenOn": "2018-03-20T06:14:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a6344714_2a7b1e92",
+      "revId": "942fca05fef38c9c66257c07f6e5d73c8c01bd7a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -173,6 +335,24 @@
     },
     {
       "key": {
+        "uuid": "c4b7032b_fedc7577",
+        "filename": "av1/common/x86/av1_inv_txfm_ssse3.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2700,
+      "author": {
+        "id": 8900
+      },
+      "writtenOn": "2018-03-20T06:14:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b325c50d_f48ffdf6",
+      "revId": "942fca05fef38c9c66257c07f6e5d73c8c01bd7a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "11ce2c9a_a651b094",
         "filename": "av1/common/x86/av1_inv_txfm_ssse3.c",
         "patchSetId": 3
@@ -187,6 +367,24 @@
       "revId": "942fca05fef38c9c66257c07f6e5d73c8c01bd7a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c19a86fd_1a20f528",
+        "filename": "av1/common/x86/av1_inv_txfm_ssse3.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2732,
+      "author": {
+        "id": 8900
+      },
+      "writtenOn": "2018-03-20T06:14:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "11ce2c9a_a651b094",
+      "revId": "942fca05fef38c9c66257c07f6e5d73c8c01bd7a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -207,6 +405,24 @@
     },
     {
       "key": {
+        "uuid": "16306e74_749bcdf8",
+        "filename": "av1/common/x86/av1_inv_txfm_ssse3.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2754,
+      "author": {
+        "id": 8900
+      },
+      "writtenOn": "2018-03-20T06:14:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2276720d_99d548b6",
+      "revId": "942fca05fef38c9c66257c07f6e5d73c8c01bd7a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "14664c61_9c196c4a",
         "filename": "test/av1_inv_txfm2d_test.cc",
         "patchSetId": 3
@@ -224,6 +440,24 @@
     },
     {
       "key": {
+        "uuid": "928d2a8e_92790fad",
+        "filename": "test/av1_inv_txfm2d_test.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 256,
+      "author": {
+        "id": 8900
+      },
+      "writtenOn": "2018-03-20T06:14:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "14664c61_9c196c4a",
+      "revId": "942fca05fef38c9c66257c07f6e5d73c8c01bd7a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0e9a2c81_8e875826",
         "filename": "test/av1_inv_txfm2d_test.cc",
         "patchSetId": 3
@@ -238,6 +472,24 @@
       "revId": "942fca05fef38c9c66257c07f6e5d73c8c01bd7a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3ffcb83d_74685e27",
+        "filename": "test/av1_inv_txfm2d_test.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 277,
+      "author": {
+        "id": 8900
+      },
+      "writtenOn": "2018-03-20T06:14:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0e9a2c81_8e875826",
+      "revId": "942fca05fef38c9c66257c07f6e5d73c8c01bd7a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
