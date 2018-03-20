@@ -976,12 +976,8 @@ static void read_ref_frames(AV1_COMMON *const cm, MACROBLOCKD *const xd,
                                                    SEG_LVL_REF_FRAME);
     ref_frame[1] = NONE_FRAME;
   }
-#if CONFIG_SEGMENT_GLOBALMV
   else if (segfeature_active(&cm->seg, segment_id, SEG_LVL_SKIP) ||
            segfeature_active(&cm->seg, segment_id, SEG_LVL_GLOBALMV))
-#else
-  else if (segfeature_active(&cm->seg, segment_id, SEG_LVL_SKIP))
-#endif
   {
     ref_frame[0] = LAST_FRAME;
     ref_frame[1] = NONE_FRAME;
@@ -1313,9 +1309,7 @@ static int read_is_inter_block(AV1_COMMON *const cm, MACROBLOCKD *const xd,
     return frame != INTRA_FRAME && av1_is_valid_scale(&ref_buf->sf);
   }
   if (segfeature_active(&cm->seg, segment_id, SEG_LVL_SKIP)
-#if CONFIG_SEGMENT_GLOBALMV
       || segfeature_active(&cm->seg, segment_id, SEG_LVL_GLOBALMV)
-#endif
   ) {
     if (!av1_is_valid_scale(&cm->frame_refs[0].sf)) return 0;
   }
@@ -1400,12 +1394,8 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
     assert(is_compound);
     mbmi->mode = NEAREST_NEARESTMV;
   } else {
-#if CONFIG_SEGMENT_GLOBALMV
     if (segfeature_active(&cm->seg, mbmi->segment_id, SEG_LVL_SKIP) ||
         segfeature_active(&cm->seg, mbmi->segment_id, SEG_LVL_GLOBALMV))
-#else
-    if (segfeature_active(&cm->seg, mbmi->segment_id, SEG_LVL_SKIP))
-#endif
     {
       mbmi->mode = GLOBALMV;
     } else {
