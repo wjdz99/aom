@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a1552860_40f90223",
+        "filename": "av1/common/av1_loopfilter.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 684,
+      "author": {
+        "id": 5975
+      },
+      "writtenOn": "2018-03-20T14:02:34Z",
+      "side": 1,
+      "message": "Peter mentioned that you were getting a test failure with this patch. Please can you try removing this bit of code and replacing it with an unconditional call to update_sharpness?\n\nReasoning:\n\nIt seems to me that update_sharpness() is actually just setting up some data needed by the loop filter. Previously we had an optimization where, if we decoded a sequence of frames with the same sharpness parameters, we wouldn\u0027t call update_sharpness() since the correct values were already stored.\n\nFor that to work, we really do have to compare against the sharpness of *the last frame we decoded*, not of any reference frame (since it\u0027s an optimization, not a normative behaviour, that\u0027s okay). So I\u0027m very concerned by the new logic here - I think it can cause us to sometimes miss an update. We can check if that\u0027s the case by temporarily removing the optimization altogether.",
+      "range": {
+        "startLine": 675,
+        "startChar": 0,
+        "endLine": 684,
+        "endChar": 3
+      },
+      "revId": "d850fc9bef739c8704530d849eea6a20baeb7fdb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
