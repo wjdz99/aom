@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f46d2604_f789324b",
+        "filename": "av1/common/x86/av1_inv_txfm_ssse3.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 2735,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-03-21T01:56:53Z",
+      "side": 1,
+      "message": "this isn\u0027t a macro, no need for the extra ()s",
+      "range": {
+        "startLine": 2735,
+        "startChar": 14,
+        "endLine": 2735,
+        "endChar": 15
+      },
+      "revId": "c0ae3d1bcd909b7ec05fa9e1950d4f2f269c6e08",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9d1199ae_e995f7dd",
+        "filename": "av1/common/x86/av1_inv_txfm_ssse3.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 2736,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-03-21T01:56:53Z",
+      "side": 1,
+      "message": "typically it is preferable for readability to use ()s around the condition in a ternary, however",
+      "range": {
+        "startLine": 2736,
+        "startChar": 10,
+        "endLine": 2736,
+        "endChar": 25
+      },
+      "revId": "c0ae3d1bcd909b7ec05fa9e1950d4f2f269c6e08",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
