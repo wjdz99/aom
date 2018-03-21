@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "110816ce_c2b0f38d",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2018-03-21T01:01:12Z",
+      "side": 1,
+      "message": "So this is undoing the normative change for s-frame and making s-frame supported non-normatively. we probably should create an issue with normative label for this change and list issue number in this commit message.",
+      "range": {
+        "startLine": 18,
+        "startChar": 0,
+        "endLine": 18,
+        "endChar": 27
+      },
+      "revId": "665db0a7d998493ab58136c2b84e778ffd9d75d8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
