@@ -1157,31 +1157,33 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
           assert(mbmi->compound_idx == 1);
         }
       } else {
-        assert(cpi->common.reference_mode != SINGLE_REFERENCE &&
-               is_inter_compound_mode(mbmi->mode) &&
-               mbmi->motion_mode == SIMPLE_TRANSLATION);
-        assert(masked_compound_used);
-        // compound_segment, wedge
-        assert(mbmi->interinter_compound_type == COMPOUND_WEDGE ||
-               mbmi->interinter_compound_type == COMPOUND_SEG);
+        if (cpi->common.reference_mode != SINGLE_REFERENCE &&
+            is_inter_compound_mode(mbmi->mode) &&
+            mbmi->motion_mode == SIMPLE_TRANSLATION) {
+          assert(masked_compound_used);
+          // compound_segment, wedge
+          assert(mbmi->interinter_compound_type == COMPOUND_WEDGE ||
+                 mbmi->interinter_compound_type == COMPOUND_SEG);
 
-        if (is_interinter_compound_used(COMPOUND_WEDGE, bsize))
-          aom_write_symbol(w, mbmi->interinter_compound_type - 1,
-                           ec_ctx->compound_type_cdf[bsize],
-                           COMPOUND_TYPES - 1);
+          if (is_interinter_compound_used(COMPOUND_WEDGE, bsize))
+            aom_write_symbol(w, mbmi->interinter_compound_type - 1,
+                             ec_ctx->compound_type_cdf[bsize],
+                             COMPOUND_TYPES - 1);
 
-        if (mbmi->interinter_compound_type == COMPOUND_WEDGE) {
-          assert(is_interinter_compound_used(COMPOUND_WEDGE, bsize));
+          if (mbmi->interinter_compound_type == COMPOUND_WEDGE) {
+            assert(is_interinter_compound_used(COMPOUND_WEDGE, bsize));
 #if WEDGE_IDX_ENTROPY_CODING
-          aom_write_symbol(w, mbmi->wedge_index, ec_ctx->wedge_idx_cdf[bsize],
-                           16);
+            aom_write_symbol(w, mbmi->wedge_index, ec_ctx->wedge_idx_cdf[bsize],
+                             16);
 #else
-          aom_write_literal(w, mbmi->wedge_index, get_wedge_bits_lookup(bsize));
+            aom_write_literal(w, mbmi->wedge_index,
+                              get_wedge_bits_lookup(bsize));
 #endif
-          aom_write_bit(w, mbmi->wedge_sign);
-        } else {
-          assert(mbmi->interinter_compound_type == COMPOUND_SEG);
-          aom_write_literal(w, mbmi->mask_type, MAX_SEG_MASK_BITS);
+            aom_write_bit(w, mbmi->wedge_sign);
+          } else {
+            assert(mbmi->interinter_compound_type == COMPOUND_SEG);
+            aom_write_literal(w, mbmi->mask_type, MAX_SEG_MASK_BITS);
+          }
         }
       }
     }

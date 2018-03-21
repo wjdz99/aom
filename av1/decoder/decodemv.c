@@ -1556,32 +1556,33 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
         mbmi->compound_idx = 1;
       }
     } else {
-      assert(cm->reference_mode != SINGLE_REFERENCE &&
-             is_inter_compound_mode(mbmi->mode) &&
-             mbmi->motion_mode == SIMPLE_TRANSLATION);
-      assert(masked_compound_used);
+      if (cm->reference_mode != SINGLE_REFERENCE &&
+          is_inter_compound_mode(mbmi->mode) &&
+          mbmi->motion_mode == SIMPLE_TRANSLATION) {
+        assert(masked_compound_used);
 
-      // compound_segment, wedge
-      if (is_interinter_compound_used(COMPOUND_WEDGE, bsize))
-        mbmi->interinter_compound_type =
-            1 + aom_read_symbol(r, ec_ctx->compound_type_cdf[bsize],
-                                COMPOUND_TYPES - 1, ACCT_STR);
-      else
-        mbmi->interinter_compound_type = COMPOUND_SEG;
+        // compound_segment, wedge
+        if (is_interinter_compound_used(COMPOUND_WEDGE, bsize))
+          mbmi->interinter_compound_type =
+              1 + aom_read_symbol(r, ec_ctx->compound_type_cdf[bsize],
+                                  COMPOUND_TYPES - 1, ACCT_STR);
+        else
+          mbmi->interinter_compound_type = COMPOUND_SEG;
 
-      if (mbmi->interinter_compound_type == COMPOUND_WEDGE) {
-        assert(is_interinter_compound_used(COMPOUND_WEDGE, bsize));
+        if (mbmi->interinter_compound_type == COMPOUND_WEDGE) {
+          assert(is_interinter_compound_used(COMPOUND_WEDGE, bsize));
 #if WEDGE_IDX_ENTROPY_CODING
-        mbmi->wedge_index =
-            aom_read_symbol(r, ec_ctx->wedge_idx_cdf[bsize], 16, ACCT_STR);
+          mbmi->wedge_index =
+              aom_read_symbol(r, ec_ctx->wedge_idx_cdf[bsize], 16, ACCT_STR);
 #else
-        mbmi->wedge_index =
-            aom_read_literal(r, get_wedge_bits_lookup(bsize), ACCT_STR);
+          mbmi->wedge_index =
+              aom_read_literal(r, get_wedge_bits_lookup(bsize), ACCT_STR);
 #endif
-        mbmi->wedge_sign = aom_read_bit(r, ACCT_STR);
-      } else {
-        assert(mbmi->interinter_compound_type == COMPOUND_SEG);
-        mbmi->mask_type = aom_read_literal(r, MAX_SEG_MASK_BITS, ACCT_STR);
+          mbmi->wedge_sign = aom_read_bit(r, ACCT_STR);
+        } else {
+          assert(mbmi->interinter_compound_type == COMPOUND_SEG);
+          mbmi->mask_type = aom_read_literal(r, MAX_SEG_MASK_BITS, ACCT_STR);
+        }
       }
     }
   }
