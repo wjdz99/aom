@@ -241,359 +241,422 @@ static INLINE void store_buffer_horz_8(__m128i x, int p, int num, uint8_t *s) {
   xx_storel_32(s + num * p, _mm_srli_si128(x, 8));
 }
 
+
+void lpf_internal_14_sse2(__m128i* q6p6, __m128i* q5p5, __m128i* q4p4, __m128i* q3p3, __m128i* q2p2, __m128i* q1p1, __m128i* q0p0,
+	const unsigned char *_blimit,
+	const unsigned char *_limit,
+	const unsigned char *_thresh) {
+
+	const __m128i zero = _mm_setzero_si128();
+	const __m128i one = _mm_set1_epi8(1);
+	const __m128i blimit = _mm_load_si128((const __m128i *)_blimit);
+	const __m128i limit = _mm_load_si128((const __m128i *)_limit);
+	const __m128i thresh = _mm_load_si128((const __m128i *)_thresh);
+	__m128i mask, hev, flat, flat2;
+	__m128i p0q0, p1q1;
+
+	__m128i abs_p1p0;
+	
+	p0q0 = _mm_shuffle_epi32(*q0p0, 78);
+	p1q1 = _mm_shuffle_epi32(*q1p1, 78);
+
+	{
+		__m128i abs_p1q1, abs_p0q0, abs_q1q0, fe, ff, work;
+		abs_p1p0 = abs_diff(*q1p1, *q0p0);
+		abs_q1q0 = _mm_srli_si128(abs_p1p0, 8);
+		fe = _mm_set1_epi8(0xfe);
+		ff = _mm_cmpeq_epi8(abs_p1p0, abs_p1p0);
+		abs_p0q0 = abs_diff(*q0p0, p0q0);
+		abs_p1q1 = abs_diff(*q1p1, p1q1);
+		flat = _mm_max_epu8(abs_p1p0, abs_q1q0);
+		hev = _mm_subs_epu8(flat, thresh);
+		hev = _mm_xor_si128(_mm_cmpeq_epi8(hev, zero), ff);
+
+		abs_p0q0 = _mm_adds_epu8(abs_p0q0, abs_p0q0);
+		abs_p1q1 = _mm_srli_epi16(_mm_and_si128(abs_p1q1, fe), 1);
+		mask = _mm_subs_epu8(_mm_adds_epu8(abs_p0q0, abs_p1q1), blimit);
+		mask = _mm_xor_si128(_mm_cmpeq_epi8(mask, zero), ff);
+		// mask |= (abs(p0 - q0) * 2 + abs(p1 - q1) / 2  > blimit) * -1;
+		mask = _mm_max_epu8(abs_p1p0, mask);
+		// mask |= (abs(p1 - p0) > limit) * -1;
+		// mask |= (abs(q1 - q0) > limit) * -1;
+
+		work = _mm_max_epu8(abs_diff(*q2p2, *q1p1), abs_diff(*q3p3, *q2p2));
+		mask = _mm_max_epu8(work, mask);
+		mask = _mm_max_epu8(mask, _mm_srli_si128(mask, 8));
+		mask = _mm_subs_epu8(mask, limit);
+		mask = _mm_cmpeq_epi8(mask, zero);
+	}
+
+	// lp filter
+	{
+		const __m128i t4 = _mm_set1_epi8(4);
+		const __m128i t3 = _mm_set1_epi8(3);
+		const __m128i t80 = _mm_set1_epi8(0x80);
+		const __m128i t1 = _mm_set1_epi16(0x1);
+		__m128i qs1ps1 = _mm_xor_si128(*q1p1, t80);
+		__m128i qs0ps0 = _mm_xor_si128(*q0p0, t80);
+		__m128i qs0 = _mm_xor_si128(p0q0, t80);
+		__m128i qs1 = _mm_xor_si128(p1q1, t80);
+		__m128i filt;
+		__m128i work_a;
+		__m128i filter1, filter2;
+		__m128i flat2_q5p5, flat2_q4p4, flat2_q3p3, flat2_q2p2;
+		__m128i flat2_q1p1, flat2_q0p0, flat_q2p2, flat_q1p1, flat_q0p0;
+
+		filt = _mm_and_si128(_mm_subs_epi8(qs1ps1, qs1), hev);
+		work_a = _mm_subs_epi8(qs0, qs0ps0);
+		filt = _mm_adds_epi8(filt, work_a);
+		filt = _mm_adds_epi8(filt, work_a);
+		filt = _mm_adds_epi8(filt, work_a);
+		// (aom_filter + 3 * (qs0 - ps0)) & mask
+		filt = _mm_and_si128(filt, mask);
+
+		filter1 = _mm_adds_epi8(filt, t4);
+		filter2 = _mm_adds_epi8(filt, t3);
+
+		filter1 = _mm_unpacklo_epi8(zero, filter1);
+		filter1 = _mm_srai_epi16(filter1, 0xB);
+		filter2 = _mm_unpacklo_epi8(zero, filter2);
+		filter2 = _mm_srai_epi16(filter2, 0xB);
+
+		// Filter1 >> 3
+		filt = _mm_packs_epi16(filter2, _mm_subs_epi16(zero, filter1));
+		qs0ps0 = _mm_xor_si128(_mm_adds_epi8(qs0ps0, filt), t80);
+
+		// filt >> 1
+		filt = _mm_adds_epi16(filter1, t1);
+		filt = _mm_srai_epi16(filt, 1);
+		filt = _mm_andnot_si128(_mm_srai_epi16(_mm_unpacklo_epi8(zero, hev), 0x8),
+			filt);
+		filt = _mm_packs_epi16(filt, _mm_subs_epi16(zero, filt));
+		qs1ps1 = _mm_xor_si128(_mm_adds_epi8(qs1ps1, filt), t80);
+		// loopfilter done
+
+		{
+			__m128i work;
+			flat = _mm_max_epu8(abs_diff(*q2p2, *q0p0), abs_diff(*q3p3, *q0p0));
+			flat = _mm_max_epu8(abs_p1p0, flat);
+			flat = _mm_max_epu8(flat, _mm_srli_si128(flat, 8));
+			flat = _mm_subs_epu8(flat, one);
+			flat = _mm_cmpeq_epi8(flat, zero);
+			flat = _mm_and_si128(flat, mask);
+
+			flat2 = _mm_max_epu8(abs_diff(*q4p4, *q0p0), abs_diff(*q5p5, *q0p0));
+			work = abs_diff(*q6p6,*q0p0);
+			flat2 = _mm_max_epu8(work, flat2);
+			flat2 = _mm_max_epu8(flat2, _mm_srli_si128(flat2, 8));
+			flat2 = _mm_subs_epu8(flat2, one);
+			flat2 = _mm_cmpeq_epi8(flat2, zero);
+			flat2 = _mm_and_si128(flat2, flat);  // flat2 & flat & mask
+		}
+		// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		// flat and wide flat calculations
+		{
+			const __m128i eight = _mm_set1_epi16(8);
+			const __m128i four = _mm_set1_epi16(4);
+			__m128i p6_16, p5_16, p4_16, p3_16, p2_16, p1_16, p0_16;
+			__m128i q6_16, q5_16, q4_16, q3_16, q2_16, q1_16, q0_16;
+			__m128i pixelFilter_p, pixelFilter_q;
+			__m128i pixetFilter_p2p1p0, pixetFilter_q2q1q0;
+			__m128i sum_p6, sum_q6;
+			__m128i sum_p3, sum_q3, res_p, res_q;
+
+			p6_16 = _mm_unpacklo_epi8(*q6p6, zero);
+			p5_16 = _mm_unpacklo_epi8(*q5p5, zero);
+			p4_16 = _mm_unpacklo_epi8(*q4p4, zero);
+			p3_16 = _mm_unpacklo_epi8(*q3p3, zero);
+			p2_16 = _mm_unpacklo_epi8(*q2p2, zero);
+			p1_16 = _mm_unpacklo_epi8(*q1p1, zero);
+			p0_16 = _mm_unpacklo_epi8(*q0p0, zero);
+			q0_16 = _mm_unpackhi_epi8(*q0p0, zero);
+			q1_16 = _mm_unpackhi_epi8(*q1p1, zero);
+			q2_16 = _mm_unpackhi_epi8(*q2p2, zero);
+			q3_16 = _mm_unpackhi_epi8(*q3p3, zero);
+			q4_16 = _mm_unpackhi_epi8(*q4p4, zero);
+			q5_16 = _mm_unpackhi_epi8(*q5p5, zero);
+			q6_16 = _mm_unpackhi_epi8(*q6p6, zero);
+			pixelFilter_p = _mm_add_epi16(p5_16, _mm_add_epi16(p4_16, p3_16));
+			pixelFilter_q = _mm_add_epi16(q5_16, _mm_add_epi16(q4_16, q3_16));
+
+			pixetFilter_p2p1p0 = _mm_add_epi16(p0_16, _mm_add_epi16(p2_16, p1_16));
+			pixelFilter_p = _mm_add_epi16(pixelFilter_p, pixetFilter_p2p1p0);
+
+			pixetFilter_q2q1q0 = _mm_add_epi16(q0_16, _mm_add_epi16(q2_16, q1_16));
+			pixelFilter_q = _mm_add_epi16(pixelFilter_q, pixetFilter_q2q1q0);
+			pixelFilter_p =
+				_mm_add_epi16(eight, _mm_add_epi16(pixelFilter_p, pixelFilter_q));
+			pixetFilter_p2p1p0 = _mm_add_epi16(
+				four, _mm_add_epi16(pixetFilter_p2p1p0, pixetFilter_q2q1q0));
+			res_p = _mm_srli_epi16(
+				_mm_add_epi16(pixelFilter_p,
+					_mm_add_epi16(_mm_add_epi16(p6_16, p0_16),
+						_mm_add_epi16(p1_16, q0_16))),
+				4);
+			res_q = _mm_srli_epi16(
+				_mm_add_epi16(pixelFilter_p,
+					_mm_add_epi16(_mm_add_epi16(q6_16, q0_16),
+						_mm_add_epi16(p0_16, q1_16))),
+				4);
+			flat2_q0p0 = _mm_packus_epi16(res_p, res_q);
+
+			res_p = _mm_srli_epi16(
+				_mm_add_epi16(pixetFilter_p2p1p0, _mm_add_epi16(p3_16, p0_16)), 3);
+			res_q = _mm_srli_epi16(
+				_mm_add_epi16(pixetFilter_p2p1p0, _mm_add_epi16(q3_16, q0_16)), 3);
+
+			flat_q0p0 = _mm_packus_epi16(res_p, res_q);
+
+			sum_p6 = _mm_add_epi16(p6_16, p6_16);
+			sum_q6 = _mm_add_epi16(q6_16, q6_16);
+			sum_p3 = _mm_add_epi16(p3_16, p3_16);
+			sum_q3 = _mm_add_epi16(q3_16, q3_16);
+
+			pixelFilter_q = _mm_sub_epi16(pixelFilter_p, p5_16);
+			pixelFilter_p = _mm_sub_epi16(pixelFilter_p, q5_16);
+
+			res_p = _mm_srli_epi16(
+				_mm_add_epi16(
+					pixelFilter_p,
+					_mm_add_epi16(sum_p6,
+						_mm_add_epi16(p1_16, _mm_add_epi16(p2_16, p0_16)))),
+				4);
+			res_q = _mm_srli_epi16(
+				_mm_add_epi16(
+					pixelFilter_q,
+					_mm_add_epi16(sum_q6,
+						_mm_add_epi16(q1_16, _mm_add_epi16(q0_16, q2_16)))),
+				4);
+			flat2_q1p1 = _mm_packus_epi16(res_p, res_q);
+
+			pixetFilter_q2q1q0 = _mm_sub_epi16(pixetFilter_p2p1p0, p2_16);
+			pixetFilter_p2p1p0 = _mm_sub_epi16(pixetFilter_p2p1p0, q2_16);
+			res_p = _mm_srli_epi16(
+				_mm_add_epi16(pixetFilter_p2p1p0, _mm_add_epi16(sum_p3, p1_16)), 3);
+			res_q = _mm_srli_epi16(
+				_mm_add_epi16(pixetFilter_q2q1q0, _mm_add_epi16(sum_q3, q1_16)), 3);
+			flat_q1p1 = _mm_packus_epi16(res_p, res_q);
+
+			sum_p6 = _mm_add_epi16(sum_p6, p6_16);
+			sum_q6 = _mm_add_epi16(sum_q6, q6_16);
+			sum_p3 = _mm_add_epi16(sum_p3, p3_16);
+			sum_q3 = _mm_add_epi16(sum_q3, q3_16);
+
+			pixelFilter_p = _mm_sub_epi16(pixelFilter_p, q4_16);
+			pixelFilter_q = _mm_sub_epi16(pixelFilter_q, p4_16);
+
+			res_p = _mm_srli_epi16(
+				_mm_add_epi16(
+					pixelFilter_p,
+					_mm_add_epi16(sum_p6,
+						_mm_add_epi16(p2_16, _mm_add_epi16(p3_16, p1_16)))),
+				4);
+			res_q = _mm_srli_epi16(
+				_mm_add_epi16(
+					pixelFilter_q,
+					_mm_add_epi16(sum_q6,
+						_mm_add_epi16(q2_16, _mm_add_epi16(q1_16, q3_16)))),
+				4);
+			flat2_q2p2 = _mm_packus_epi16(res_p, res_q);
+
+			pixetFilter_p2p1p0 = _mm_sub_epi16(pixetFilter_p2p1p0, q1_16);
+			pixetFilter_q2q1q0 = _mm_sub_epi16(pixetFilter_q2q1q0, p1_16);
+
+			res_p = _mm_srli_epi16(
+				_mm_add_epi16(pixetFilter_p2p1p0, _mm_add_epi16(sum_p3, p2_16)), 3);
+			res_q = _mm_srli_epi16(
+				_mm_add_epi16(pixetFilter_q2q1q0, _mm_add_epi16(sum_q3, q2_16)), 3);
+			flat_q2p2 = _mm_packus_epi16(res_p, res_q);
+
+			sum_p6 = _mm_add_epi16(sum_p6, p6_16);
+			sum_q6 = _mm_add_epi16(sum_q6, q6_16);
+
+			pixelFilter_p = _mm_sub_epi16(pixelFilter_p, q3_16);
+			pixelFilter_q = _mm_sub_epi16(pixelFilter_q, p3_16);
+
+			res_p = _mm_srli_epi16(
+				_mm_add_epi16(
+					pixelFilter_p,
+					_mm_add_epi16(sum_p6,
+						_mm_add_epi16(p3_16, _mm_add_epi16(p4_16, p2_16)))),
+				4);
+			res_q = _mm_srli_epi16(
+				_mm_add_epi16(
+					pixelFilter_q,
+					_mm_add_epi16(sum_q6,
+						_mm_add_epi16(q3_16, _mm_add_epi16(q2_16, q4_16)))),
+				4);
+			flat2_q3p3 = _mm_packus_epi16(res_p, res_q);
+
+			sum_p6 = _mm_add_epi16(sum_p6, p6_16);
+			sum_q6 = _mm_add_epi16(sum_q6, q6_16);
+
+			pixelFilter_p = _mm_sub_epi16(pixelFilter_p, q2_16);
+			pixelFilter_q = _mm_sub_epi16(pixelFilter_q, p2_16);
+
+			res_p = _mm_srli_epi16(
+				_mm_add_epi16(
+					pixelFilter_p,
+					_mm_add_epi16(sum_p6,
+						_mm_add_epi16(p4_16, _mm_add_epi16(p5_16, p3_16)))),
+				4);
+			res_q = _mm_srli_epi16(
+				_mm_add_epi16(
+					pixelFilter_q,
+					_mm_add_epi16(sum_q6,
+						_mm_add_epi16(q4_16, _mm_add_epi16(q3_16, q5_16)))),
+				4);
+			flat2_q4p4 = _mm_packus_epi16(res_p, res_q);
+
+			sum_p6 = _mm_add_epi16(sum_p6, p6_16);
+			sum_q6 = _mm_add_epi16(sum_q6, q6_16);
+			pixelFilter_p = _mm_sub_epi16(pixelFilter_p, q1_16);
+			pixelFilter_q = _mm_sub_epi16(pixelFilter_q, p1_16);
+
+			res_p = _mm_srli_epi16(
+				_mm_add_epi16(
+					pixelFilter_p,
+					_mm_add_epi16(sum_p6,
+						_mm_add_epi16(p5_16, _mm_add_epi16(p6_16, p4_16)))),
+				4);
+			res_q = _mm_srli_epi16(
+				_mm_add_epi16(
+					pixelFilter_q,
+					_mm_add_epi16(sum_q6,
+						_mm_add_epi16(q5_16, _mm_add_epi16(q6_16, q4_16)))),
+				4);
+			flat2_q5p5 = _mm_packus_epi16(res_p, res_q);
+		}
+		// wide flat
+		// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+		flat = _mm_shuffle_epi32(flat, 68);
+		flat2 = _mm_shuffle_epi32(flat2, 68);
+
+		*q2p2 = _mm_andnot_si128(flat, *q2p2);
+		flat_q2p2 = _mm_and_si128(flat, flat_q2p2);
+		*q2p2 = _mm_or_si128(*q2p2, flat_q2p2);
+
+		qs1ps1 = _mm_andnot_si128(flat, qs1ps1);
+		flat_q1p1 = _mm_and_si128(flat, flat_q1p1);
+		*q1p1 = _mm_or_si128(qs1ps1, flat_q1p1);
+
+		qs0ps0 = _mm_andnot_si128(flat, qs0ps0);
+		flat_q0p0 = _mm_and_si128(flat, flat_q0p0);
+		*q0p0 = _mm_or_si128(qs0ps0, flat_q0p0);
+
+		*q5p5 = _mm_andnot_si128(flat2, *q5p5);
+		flat2_q5p5 = _mm_and_si128(flat2, flat2_q5p5);
+		*q5p5 = _mm_or_si128(*q5p5, flat2_q5p5);
+
+		*q4p4 = _mm_andnot_si128(flat2, *q4p4);
+		flat2_q4p4 = _mm_and_si128(flat2, flat2_q4p4);
+		*q4p4 = _mm_or_si128(*q4p4, flat2_q4p4);
+
+		*q3p3 = _mm_andnot_si128(flat2, *q3p3);
+		flat2_q3p3 = _mm_and_si128(flat2, flat2_q3p3);
+		*q3p3 = _mm_or_si128(*q3p3, flat2_q3p3);
+
+		*q2p2 = _mm_andnot_si128(flat2, *q2p2);
+		flat2_q2p2 = _mm_and_si128(flat2, flat2_q2p2);
+		*q2p2 = _mm_or_si128(*q2p2, flat2_q2p2);
+
+		*q1p1 = _mm_andnot_si128(flat2, *q1p1);
+		flat2_q1p1 = _mm_and_si128(flat2, flat2_q1p1);
+		*q1p1 = _mm_or_si128(*q1p1, flat2_q1p1);
+
+		*q0p0 = _mm_andnot_si128(flat2,* q0p0);
+		flat2_q0p0 = _mm_and_si128(flat2, flat2_q0p0);
+		*q0p0 = _mm_or_si128(*q0p0, flat2_q0p0);
+	}
+}
+
+
 void aom_lpf_horizontal_14_sse2(unsigned char *s, int p,
                                 const unsigned char *_blimit,
                                 const unsigned char *_limit,
                                 const unsigned char *_thresh) {
-  const __m128i zero = _mm_setzero_si128();
-  const __m128i one = _mm_set1_epi8(1);
-  const __m128i blimit = _mm_load_si128((const __m128i *)_blimit);
-  const __m128i limit = _mm_load_si128((const __m128i *)_limit);
-  const __m128i thresh = _mm_load_si128((const __m128i *)_thresh);
-  __m128i mask, hev, flat, flat2;
-  __m128i q6p6, q5p5, q4p4, q3p3, q2p2, q1p1, q0p0, p0q0, p1q1;
-  __m128i abs_p1p0;
 
-  q4p4 = _mm_loadl_epi64((__m128i *)(s - 5 * p));
-  q4p4 = _mm_castps_si128(
-      _mm_loadh_pi(_mm_castsi128_ps(q4p4), (__m64 *)(s + 4 * p)));
-  q3p3 = _mm_loadl_epi64((__m128i *)(s - 4 * p));
-  q3p3 = _mm_castps_si128(
-      _mm_loadh_pi(_mm_castsi128_ps(q3p3), (__m64 *)(s + 3 * p)));
-  q2p2 = _mm_loadl_epi64((__m128i *)(s - 3 * p));
-  q2p2 = _mm_castps_si128(
-      _mm_loadh_pi(_mm_castsi128_ps(q2p2), (__m64 *)(s + 2 * p)));
-  q1p1 = _mm_loadl_epi64((__m128i *)(s - 2 * p));
-  q1p1 = _mm_castps_si128(
-      _mm_loadh_pi(_mm_castsi128_ps(q1p1), (__m64 *)(s + 1 * p)));
-  p1q1 = _mm_shuffle_epi32(q1p1, 78);
-  q0p0 = _mm_loadl_epi64((__m128i *)(s - 1 * p));
-  q0p0 = _mm_castps_si128(
-      _mm_loadh_pi(_mm_castsi128_ps(q0p0), (__m64 *)(s - 0 * p)));
-  p0q0 = _mm_shuffle_epi32(q0p0, 78);
+	__m128i q6p6, q5p5, q4p4, q3p3, q2p2, q1p1, q0p0;
 
-  {
-    __m128i abs_p1q1, abs_p0q0, abs_q1q0, fe, ff, work;
-    abs_p1p0 = abs_diff(q1p1, q0p0);
-    abs_q1q0 = _mm_srli_si128(abs_p1p0, 8);
-    fe = _mm_set1_epi8(0xfe);
-    ff = _mm_cmpeq_epi8(abs_p1p0, abs_p1p0);
-    abs_p0q0 = abs_diff(q0p0, p0q0);
-    abs_p1q1 = abs_diff(q1p1, p1q1);
-    flat = _mm_max_epu8(abs_p1p0, abs_q1q0);
-    hev = _mm_subs_epu8(flat, thresh);
-    hev = _mm_xor_si128(_mm_cmpeq_epi8(hev, zero), ff);
 
-    abs_p0q0 = _mm_adds_epu8(abs_p0q0, abs_p0q0);
-    abs_p1q1 = _mm_srli_epi16(_mm_and_si128(abs_p1q1, fe), 1);
-    mask = _mm_subs_epu8(_mm_adds_epu8(abs_p0q0, abs_p1q1), blimit);
-    mask = _mm_xor_si128(_mm_cmpeq_epi8(mask, zero), ff);
-    // mask |= (abs(p0 - q0) * 2 + abs(p1 - q1) / 2  > blimit) * -1;
-    mask = _mm_max_epu8(abs_p1p0, mask);
-    // mask |= (abs(p1 - p0) > limit) * -1;
-    // mask |= (abs(q1 - q0) > limit) * -1;
+  q4p4 = _mm_unpacklo_epi64(_mm_loadl_epi64((__m128i *)(s - 5 * p)),
+      _mm_loadl_epi64((__m128i *)(s + 4 * p)) );
+  q3p3 = _mm_unpacklo_epi64(_mm_loadl_epi64((__m128i *)(s - 4 * p)),
+	  _mm_loadl_epi64((__m128i *)(s + 3 * p)));
+  q2p2 = _mm_unpacklo_epi64(_mm_loadl_epi64((__m128i *)(s - 3 * p)),
+	  _mm_loadl_epi64((__m128i *)(s + 2 * p)));
+  q1p1 = _mm_unpacklo_epi64(_mm_loadl_epi64((__m128i *)(s - 2 * p)),
+	  _mm_loadl_epi64((__m128i *)(s + 1 * p)));
 
-    work = _mm_max_epu8(abs_diff(q2p2, q1p1), abs_diff(q3p3, q2p2));
-    mask = _mm_max_epu8(work, mask);
-    mask = _mm_max_epu8(mask, _mm_srli_si128(mask, 8));
-    mask = _mm_subs_epu8(mask, limit);
-    mask = _mm_cmpeq_epi8(mask, zero);
-  }
+  q0p0 = _mm_unpacklo_epi64(_mm_loadl_epi64((__m128i *)(s - 1 * p)),
+	  _mm_loadl_epi64((__m128i *)(s - 0 * p)));
 
-  // lp filter
-  {
-    const __m128i t4 = _mm_set1_epi8(4);
-    const __m128i t3 = _mm_set1_epi8(3);
-    const __m128i t80 = _mm_set1_epi8(0x80);
-    const __m128i t1 = _mm_set1_epi16(0x1);
-    __m128i qs1ps1 = _mm_xor_si128(q1p1, t80);
-    __m128i qs0ps0 = _mm_xor_si128(q0p0, t80);
-    __m128i qs0 = _mm_xor_si128(p0q0, t80);
-    __m128i qs1 = _mm_xor_si128(p1q1, t80);
-    __m128i filt;
-    __m128i work_a;
-    __m128i filter1, filter2;
-    __m128i flat2_q5p5, flat2_q4p4, flat2_q3p3, flat2_q2p2;
-    __m128i flat2_q1p1, flat2_q0p0, flat_q2p2, flat_q1p1, flat_q0p0;
+  q5p5 = _mm_unpacklo_epi64(_mm_loadl_epi64((__m128i *)(s - 6 * p)),
+	  _mm_loadl_epi64((__m128i *)(s + 5 * p)));
 
-    filt = _mm_and_si128(_mm_subs_epi8(qs1ps1, qs1), hev);
-    work_a = _mm_subs_epi8(qs0, qs0ps0);
-    filt = _mm_adds_epi8(filt, work_a);
-    filt = _mm_adds_epi8(filt, work_a);
-    filt = _mm_adds_epi8(filt, work_a);
-    // (aom_filter + 3 * (qs0 - ps0)) & mask
-    filt = _mm_and_si128(filt, mask);
+  q6p6 = _mm_unpacklo_epi64(_mm_loadl_epi64((__m128i *)(s - 7 * p)),
+	  _mm_loadl_epi64((__m128i *)(s + 6 * p)));
 
-    filter1 = _mm_adds_epi8(filt, t4);
-    filter2 = _mm_adds_epi8(filt, t3);
+  lpf_internal_14_sse2(&q6p6, &q5p5, &q4p4, &q3p3, &q2p2, &q1p1, &q0p0,
+	  _blimit, _limit, _thresh);
 
-    filter1 = _mm_unpacklo_epi8(zero, filter1);
-    filter1 = _mm_srai_epi16(filter1, 0xB);
-    filter2 = _mm_unpacklo_epi8(zero, filter2);
-    filter2 = _mm_srai_epi16(filter2, 0xB);
-
-    // Filter1 >> 3
-    filt = _mm_packs_epi16(filter2, _mm_subs_epi16(zero, filter1));
-    qs0ps0 = _mm_xor_si128(_mm_adds_epi8(qs0ps0, filt), t80);
-
-    // filt >> 1
-    filt = _mm_adds_epi16(filter1, t1);
-    filt = _mm_srai_epi16(filt, 1);
-    filt = _mm_andnot_si128(_mm_srai_epi16(_mm_unpacklo_epi8(zero, hev), 0x8),
-                            filt);
-    filt = _mm_packs_epi16(filt, _mm_subs_epi16(zero, filt));
-    qs1ps1 = _mm_xor_si128(_mm_adds_epi8(qs1ps1, filt), t80);
-    // loopfilter done
-
-    {
-      __m128i work;
-      flat = _mm_max_epu8(abs_diff(q2p2, q0p0), abs_diff(q3p3, q0p0));
-      flat = _mm_max_epu8(abs_p1p0, flat);
-      flat = _mm_max_epu8(flat, _mm_srli_si128(flat, 8));
-      flat = _mm_subs_epu8(flat, one);
-      flat = _mm_cmpeq_epi8(flat, zero);
-      flat = _mm_and_si128(flat, mask);
-
-      q5p5 = _mm_loadl_epi64((__m128i *)(s - 6 * p));
-      q5p5 = _mm_castps_si128(
-          _mm_loadh_pi(_mm_castsi128_ps(q5p5), (__m64 *)(s + 5 * p)));
-
-      q6p6 = _mm_loadl_epi64((__m128i *)(s - 7 * p));
-      q6p6 = _mm_castps_si128(
-          _mm_loadh_pi(_mm_castsi128_ps(q6p6), (__m64 *)(s + 6 * p)));
-      flat2 = _mm_max_epu8(abs_diff(q4p4, q0p0), abs_diff(q5p5, q0p0));
-      work = abs_diff(q6p6, q0p0);
-      flat2 = _mm_max_epu8(work, flat2);
-      flat2 = _mm_max_epu8(flat2, _mm_srli_si128(flat2, 8));
-      flat2 = _mm_subs_epu8(flat2, one);
-      flat2 = _mm_cmpeq_epi8(flat2, zero);
-      flat2 = _mm_and_si128(flat2, flat);  // flat2 & flat & mask
-    }
-    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // flat and wide flat calculations
-    {
-      const __m128i eight = _mm_set1_epi16(8);
-      const __m128i four = _mm_set1_epi16(4);
-      __m128i p6_16, p5_16, p4_16, p3_16, p2_16, p1_16, p0_16;
-      __m128i q6_16, q5_16, q4_16, q3_16, q2_16, q1_16, q0_16;
-      __m128i pixelFilter_p, pixelFilter_q;
-      __m128i pixetFilter_p2p1p0, pixetFilter_q2q1q0;
-      __m128i sum_p6, sum_q6;
-      __m128i sum_p3, sum_q3, res_p, res_q;
-
-      p6_16 = _mm_unpacklo_epi8(q6p6, zero);
-      p5_16 = _mm_unpacklo_epi8(q5p5, zero);
-      p4_16 = _mm_unpacklo_epi8(q4p4, zero);
-      p3_16 = _mm_unpacklo_epi8(q3p3, zero);
-      p2_16 = _mm_unpacklo_epi8(q2p2, zero);
-      p1_16 = _mm_unpacklo_epi8(q1p1, zero);
-      p0_16 = _mm_unpacklo_epi8(q0p0, zero);
-      q0_16 = _mm_unpackhi_epi8(q0p0, zero);
-      q1_16 = _mm_unpackhi_epi8(q1p1, zero);
-      q2_16 = _mm_unpackhi_epi8(q2p2, zero);
-      q3_16 = _mm_unpackhi_epi8(q3p3, zero);
-      q4_16 = _mm_unpackhi_epi8(q4p4, zero);
-      q5_16 = _mm_unpackhi_epi8(q5p5, zero);
-      q6_16 = _mm_unpackhi_epi8(q6p6, zero);
-      pixelFilter_p = _mm_add_epi16(p5_16, _mm_add_epi16(p4_16, p3_16));
-      pixelFilter_q = _mm_add_epi16(q5_16, _mm_add_epi16(q4_16, q3_16));
-
-      pixetFilter_p2p1p0 = _mm_add_epi16(p0_16, _mm_add_epi16(p2_16, p1_16));
-      pixelFilter_p = _mm_add_epi16(pixelFilter_p, pixetFilter_p2p1p0);
-
-      pixetFilter_q2q1q0 = _mm_add_epi16(q0_16, _mm_add_epi16(q2_16, q1_16));
-      pixelFilter_q = _mm_add_epi16(pixelFilter_q, pixetFilter_q2q1q0);
-      pixelFilter_p =
-          _mm_add_epi16(eight, _mm_add_epi16(pixelFilter_p, pixelFilter_q));
-      pixetFilter_p2p1p0 = _mm_add_epi16(
-          four, _mm_add_epi16(pixetFilter_p2p1p0, pixetFilter_q2q1q0));
-      res_p = _mm_srli_epi16(
-          _mm_add_epi16(pixelFilter_p,
-                        _mm_add_epi16(_mm_add_epi16(p6_16, p0_16),
-                                      _mm_add_epi16(p1_16, q0_16))),
-          4);
-      res_q = _mm_srli_epi16(
-          _mm_add_epi16(pixelFilter_p,
-                        _mm_add_epi16(_mm_add_epi16(q6_16, q0_16),
-                                      _mm_add_epi16(p0_16, q1_16))),
-          4);
-      flat2_q0p0 = _mm_packus_epi16(res_p, res_q);
-
-      res_p = _mm_srli_epi16(
-          _mm_add_epi16(pixetFilter_p2p1p0, _mm_add_epi16(p3_16, p0_16)), 3);
-      res_q = _mm_srli_epi16(
-          _mm_add_epi16(pixetFilter_p2p1p0, _mm_add_epi16(q3_16, q0_16)), 3);
-
-      flat_q0p0 = _mm_packus_epi16(res_p, res_q);
-
-      sum_p6 = _mm_add_epi16(p6_16, p6_16);
-      sum_q6 = _mm_add_epi16(q6_16, q6_16);
-      sum_p3 = _mm_add_epi16(p3_16, p3_16);
-      sum_q3 = _mm_add_epi16(q3_16, q3_16);
-
-      pixelFilter_q = _mm_sub_epi16(pixelFilter_p, p5_16);
-      pixelFilter_p = _mm_sub_epi16(pixelFilter_p, q5_16);
-
-      res_p = _mm_srli_epi16(
-          _mm_add_epi16(
-              pixelFilter_p,
-              _mm_add_epi16(sum_p6,
-                            _mm_add_epi16(p1_16, _mm_add_epi16(p2_16, p0_16)))),
-          4);
-      res_q = _mm_srli_epi16(
-          _mm_add_epi16(
-              pixelFilter_q,
-              _mm_add_epi16(sum_q6,
-                            _mm_add_epi16(q1_16, _mm_add_epi16(q0_16, q2_16)))),
-          4);
-      flat2_q1p1 = _mm_packus_epi16(res_p, res_q);
-
-      pixetFilter_q2q1q0 = _mm_sub_epi16(pixetFilter_p2p1p0, p2_16);
-      pixetFilter_p2p1p0 = _mm_sub_epi16(pixetFilter_p2p1p0, q2_16);
-      res_p = _mm_srli_epi16(
-          _mm_add_epi16(pixetFilter_p2p1p0, _mm_add_epi16(sum_p3, p1_16)), 3);
-      res_q = _mm_srli_epi16(
-          _mm_add_epi16(pixetFilter_q2q1q0, _mm_add_epi16(sum_q3, q1_16)), 3);
-      flat_q1p1 = _mm_packus_epi16(res_p, res_q);
-
-      sum_p6 = _mm_add_epi16(sum_p6, p6_16);
-      sum_q6 = _mm_add_epi16(sum_q6, q6_16);
-      sum_p3 = _mm_add_epi16(sum_p3, p3_16);
-      sum_q3 = _mm_add_epi16(sum_q3, q3_16);
-
-      pixelFilter_p = _mm_sub_epi16(pixelFilter_p, q4_16);
-      pixelFilter_q = _mm_sub_epi16(pixelFilter_q, p4_16);
-
-      res_p = _mm_srli_epi16(
-          _mm_add_epi16(
-              pixelFilter_p,
-              _mm_add_epi16(sum_p6,
-                            _mm_add_epi16(p2_16, _mm_add_epi16(p3_16, p1_16)))),
-          4);
-      res_q = _mm_srli_epi16(
-          _mm_add_epi16(
-              pixelFilter_q,
-              _mm_add_epi16(sum_q6,
-                            _mm_add_epi16(q2_16, _mm_add_epi16(q1_16, q3_16)))),
-          4);
-      flat2_q2p2 = _mm_packus_epi16(res_p, res_q);
-
-      pixetFilter_p2p1p0 = _mm_sub_epi16(pixetFilter_p2p1p0, q1_16);
-      pixetFilter_q2q1q0 = _mm_sub_epi16(pixetFilter_q2q1q0, p1_16);
-
-      res_p = _mm_srli_epi16(
-          _mm_add_epi16(pixetFilter_p2p1p0, _mm_add_epi16(sum_p3, p2_16)), 3);
-      res_q = _mm_srli_epi16(
-          _mm_add_epi16(pixetFilter_q2q1q0, _mm_add_epi16(sum_q3, q2_16)), 3);
-      flat_q2p2 = _mm_packus_epi16(res_p, res_q);
-
-      sum_p6 = _mm_add_epi16(sum_p6, p6_16);
-      sum_q6 = _mm_add_epi16(sum_q6, q6_16);
-
-      pixelFilter_p = _mm_sub_epi16(pixelFilter_p, q3_16);
-      pixelFilter_q = _mm_sub_epi16(pixelFilter_q, p3_16);
-
-      res_p = _mm_srli_epi16(
-          _mm_add_epi16(
-              pixelFilter_p,
-              _mm_add_epi16(sum_p6,
-                            _mm_add_epi16(p3_16, _mm_add_epi16(p4_16, p2_16)))),
-          4);
-      res_q = _mm_srli_epi16(
-          _mm_add_epi16(
-              pixelFilter_q,
-              _mm_add_epi16(sum_q6,
-                            _mm_add_epi16(q3_16, _mm_add_epi16(q2_16, q4_16)))),
-          4);
-      flat2_q3p3 = _mm_packus_epi16(res_p, res_q);
-
-      sum_p6 = _mm_add_epi16(sum_p6, p6_16);
-      sum_q6 = _mm_add_epi16(sum_q6, q6_16);
-
-      pixelFilter_p = _mm_sub_epi16(pixelFilter_p, q2_16);
-      pixelFilter_q = _mm_sub_epi16(pixelFilter_q, p2_16);
-
-      res_p = _mm_srli_epi16(
-          _mm_add_epi16(
-              pixelFilter_p,
-              _mm_add_epi16(sum_p6,
-                            _mm_add_epi16(p4_16, _mm_add_epi16(p5_16, p3_16)))),
-          4);
-      res_q = _mm_srli_epi16(
-          _mm_add_epi16(
-              pixelFilter_q,
-              _mm_add_epi16(sum_q6,
-                            _mm_add_epi16(q4_16, _mm_add_epi16(q3_16, q5_16)))),
-          4);
-      flat2_q4p4 = _mm_packus_epi16(res_p, res_q);
-
-      sum_p6 = _mm_add_epi16(sum_p6, p6_16);
-      sum_q6 = _mm_add_epi16(sum_q6, q6_16);
-      pixelFilter_p = _mm_sub_epi16(pixelFilter_p, q1_16);
-      pixelFilter_q = _mm_sub_epi16(pixelFilter_q, p1_16);
-
-      res_p = _mm_srli_epi16(
-          _mm_add_epi16(
-              pixelFilter_p,
-              _mm_add_epi16(sum_p6,
-                            _mm_add_epi16(p5_16, _mm_add_epi16(p6_16, p4_16)))),
-          4);
-      res_q = _mm_srli_epi16(
-          _mm_add_epi16(
-              pixelFilter_q,
-              _mm_add_epi16(sum_q6,
-                            _mm_add_epi16(q5_16, _mm_add_epi16(q6_16, q4_16)))),
-          4);
-      flat2_q5p5 = _mm_packus_epi16(res_p, res_q);
-    }
-    // wide flat
-    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    flat = _mm_shuffle_epi32(flat, 68);
-    flat2 = _mm_shuffle_epi32(flat2, 68);
-
-    q2p2 = _mm_andnot_si128(flat, q2p2);
-    flat_q2p2 = _mm_and_si128(flat, flat_q2p2);
-    q2p2 = _mm_or_si128(q2p2, flat_q2p2);
-
-    qs1ps1 = _mm_andnot_si128(flat, qs1ps1);
-    flat_q1p1 = _mm_and_si128(flat, flat_q1p1);
-    q1p1 = _mm_or_si128(qs1ps1, flat_q1p1);
-
-    qs0ps0 = _mm_andnot_si128(flat, qs0ps0);
-    flat_q0p0 = _mm_and_si128(flat, flat_q0p0);
-    q0p0 = _mm_or_si128(qs0ps0, flat_q0p0);
-
-    q5p5 = _mm_andnot_si128(flat2, q5p5);
-    flat2_q5p5 = _mm_and_si128(flat2, flat2_q5p5);
-    q5p5 = _mm_or_si128(q5p5, flat2_q5p5);
-    store_buffer_horz_8(q5p5, p, 5, s);
-
-    q4p4 = _mm_andnot_si128(flat2, q4p4);
-    flat2_q4p4 = _mm_and_si128(flat2, flat2_q4p4);
-    q4p4 = _mm_or_si128(q4p4, flat2_q4p4);
-    store_buffer_horz_8(q4p4, p, 4, s);
-
-    q3p3 = _mm_andnot_si128(flat2, q3p3);
-    flat2_q3p3 = _mm_and_si128(flat2, flat2_q3p3);
-    q3p3 = _mm_or_si128(q3p3, flat2_q3p3);
-    store_buffer_horz_8(q3p3, p, 3, s);
-
-    q2p2 = _mm_andnot_si128(flat2, q2p2);
-    flat2_q2p2 = _mm_and_si128(flat2, flat2_q2p2);
-    q2p2 = _mm_or_si128(q2p2, flat2_q2p2);
-    store_buffer_horz_8(q2p2, p, 2, s);
-
-    q1p1 = _mm_andnot_si128(flat2, q1p1);
-    flat2_q1p1 = _mm_and_si128(flat2, flat2_q1p1);
-    q1p1 = _mm_or_si128(q1p1, flat2_q1p1);
-    store_buffer_horz_8(q1p1, p, 1, s);
-
-    q0p0 = _mm_andnot_si128(flat2, q0p0);
-    flat2_q0p0 = _mm_and_si128(flat2, flat2_q0p0);
-    q0p0 = _mm_or_si128(q0p0, flat2_q0p0);
     store_buffer_horz_8(q0p0, p, 0, s);
-  }
+    store_buffer_horz_8(q1p1, p, 1, s);
+    store_buffer_horz_8(q2p2, p, 2, s);
+    store_buffer_horz_8(q3p3, p, 3, s);
+    store_buffer_horz_8(q4p4, p, 4, s);
+    store_buffer_horz_8(q5p5, p, 5, s);
+}
+void aom_lpf_horizontal_14_sse2_test(unsigned char *s, int p,
+	const unsigned char *_blimit,
+	const unsigned char *_limit,
+	const unsigned char *_thresh, __m128i* q6p6_t, __m128i* q5p5_t, __m128i* q4p4_t, __m128i* q3p3_t, __m128i* q2p2_t, __m128i* q1p1_t, __m128i* q0p0_t, unsigned char *s_out) {
+
+	__m128i q6p6, q5p5, q4p4, q3p3, q2p2, q1p1, q0p0;
+
+	q4p4 = _mm_loadl_epi64((__m128i *)(s - 5 * p));
+	q4p4 = _mm_castps_si128(
+		_mm_loadh_pi(_mm_castsi128_ps(q4p4), (__m64 *)(s + 4 * p)));
+	q3p3 = _mm_loadl_epi64((__m128i *)(s - 4 * p));
+	q3p3 = _mm_castps_si128(
+		_mm_loadh_pi(_mm_castsi128_ps(q3p3), (__m64 *)(s + 3 * p)));
+	q2p2 = _mm_loadl_epi64((__m128i *)(s - 3 * p));
+	q2p2 = _mm_castps_si128(
+		_mm_loadh_pi(_mm_castsi128_ps(q2p2), (__m64 *)(s + 2 * p)));
+	q1p1 = _mm_loadl_epi64((__m128i *)(s - 2 * p));
+	q1p1 = _mm_castps_si128(
+		_mm_loadh_pi(_mm_castsi128_ps(q1p1), (__m64 *)(s + 1 * p)));
+
+	q0p0 = _mm_loadl_epi64((__m128i *)(s - 1 * p));
+	q0p0 = _mm_castps_si128(
+		_mm_loadh_pi(_mm_castsi128_ps(q0p0), (__m64 *)(s - 0 * p)));
+
+	q5p5 = _mm_loadl_epi64((__m128i *)(s - 6 * p));
+	q5p5 = _mm_castps_si128(
+		_mm_loadh_pi(_mm_castsi128_ps(q5p5), (__m64 *)(s + 5 * p)));
+
+	q6p6 = _mm_loadl_epi64((__m128i *)(s - 7 * p));
+	q6p6 = _mm_castps_si128(
+		_mm_loadh_pi(_mm_castsi128_ps(q6p6), (__m64 *)(s + 6 * p)));
+
+	lpf_internal_14_sse2(&q6p6, &q5p5, &q4p4, &q3p3, &q2p2, &q1p1, &q0p0,
+		_blimit, _limit, _thresh);
+
+	*q6p6_t = q6p6;
+	*q5p5_t = q5p5;
+	*q4p4_t = q4p4;
+	*q3p3_t = q3p3;
+	*q2p2_t = q2p2;
+	*q1p1_t = q1p1;
+	*q0p0_t = q0p0;
+
+	store_buffer_horz_8(q0p0, p, 0, s_out);
+	store_buffer_horz_8(q1p1, p, 1, s_out);
+	store_buffer_horz_8(q2p2, p, 2, s_out);
+	store_buffer_horz_8(q3p3, p, 3, s_out);
+	store_buffer_horz_8(q4p4, p, 4, s_out);
+	store_buffer_horz_8(q5p5, p, 5, s_out);
 }
 
 static INLINE __m128i filter_add2_sub2(const __m128i *const total,
@@ -784,173 +847,184 @@ void aom_lpf_horizontal_6_sse2(unsigned char *s, int p,
   xx_storel_32(s + 1 * p, _mm_srli_si128(q1q0, 8));
 }
 
+static AOM_FORCE_INLINE void lpf_internal_8_sse2(
+	__m128i *p3_8, __m128i *q3_8, __m128i *p2_8, __m128i *q2_8, __m128i *p1_8, __m128i *q1_8, __m128i *p0_8,
+	__m128i *q0_8, __m128i *q1q0_out, __m128i *p1p0_out, __m128i *p2_out, __m128i *q2_out, const unsigned char *_blimit,
+	const unsigned char *_limit, const unsigned char *_thresh) {
+
+	const __m128i zero = _mm_setzero_si128();
+	const __m128i blimit = _mm_load_si128((const __m128i *)_blimit);
+	const __m128i limit = _mm_load_si128((const __m128i *)_limit);
+	const __m128i thresh = _mm_load_si128((const __m128i *)_thresh);
+	__m128i mask, hev, flat;
+	__m128i  p2, q2, p1, p0, q0, q1,  p3, q3, q3p3, flat_p1p0, flat_q0q1;
+	__m128i q2p2, q1p1, q0p0, p1q1, p0q0;
+	__m128i q1q0, p1p0, ps1ps0, qs1qs0;
+	__m128i work_a, op2, oq2;
+
+	q3p3 = _mm_unpacklo_epi64(*p3_8, *q3_8);
+	q2p2 = _mm_unpacklo_epi64(*p2_8, *q2_8);
+	q1p1 = _mm_unpacklo_epi64(*p1_8, *q1_8);
+	q0p0 = _mm_unpacklo_epi64(*p0_8, *q0_8);
+									 
+	p1q1 = _mm_shuffle_epi32(q1p1, 78);
+	p0q0 = _mm_shuffle_epi32(q0p0, 78);
+
+	{
+		// filter_mask and hev_mask
+
+		// considering sse doesn't have unsigned elements comparison the idea is to
+		// find at least one case when X > limit, it means the corresponding  mask
+		// bit is set.
+		// to achieve that we find global max value of all inputs of abs(x-y) or
+		// (abs(p0 - q0) * 2 + abs(p1 - q1) / 2 If it is > limit the mask is set
+		// otherwise - not
+
+		const __m128i one = _mm_set1_epi8(1);
+		const __m128i fe = _mm_set1_epi8(0xfe);
+		const __m128i ff = _mm_cmpeq_epi8(fe, fe);
+		__m128i abs_p1q1, abs_p0q0, abs_q1q0, abs_p1p0, work;
+
+		abs_p1p0 = abs_diff(q1p1, q0p0);
+		abs_q1q0 = _mm_srli_si128(abs_p1p0, 8);
+
+		abs_p0q0 = abs_diff(q0p0, p0q0);
+		abs_p1q1 = abs_diff(q1p1, p1q1);
+		flat = _mm_max_epu8(abs_p1p0, abs_q1q0);
+		hev = _mm_subs_epu8(flat, thresh);
+		hev = _mm_xor_si128(_mm_cmpeq_epi8(hev, zero), ff);
+		// replicate for the further "merged variables" usage
+		hev = _mm_unpacklo_epi64(hev, hev);
+
+		abs_p0q0 = _mm_adds_epu8(abs_p0q0, abs_p0q0);
+		abs_p1q1 = _mm_srli_epi16(_mm_and_si128(abs_p1q1, fe), 1);
+		mask = _mm_subs_epu8(_mm_adds_epu8(abs_p0q0, abs_p1q1), blimit);
+		mask = _mm_xor_si128(_mm_cmpeq_epi8(mask, zero), ff);
+		// mask |= (abs(p0 - q0) * 2 + abs(p1 - q1) / 2  > blimit) * -1;
+		mask = _mm_max_epu8(abs_p1p0, mask);
+		// mask |= (abs(p1 - p0) > limit) * -1;
+		// mask |= (abs(q1 - q0) > limit) * -1;
+
+		work = _mm_max_epu8(abs_diff(q2p2, q1p1), abs_diff(q3p3, q2p2));
+
+		mask = _mm_max_epu8(work, mask);
+		mask = _mm_max_epu8(mask, _mm_srli_si128(mask, 8));
+		mask = _mm_subs_epu8(mask, limit);
+		mask = _mm_cmpeq_epi8(mask, zero);
+		// replicate for the further "merged variables" usage
+		mask = _mm_unpacklo_epi64(mask, mask);
+
+		// flat_mask4
+
+		flat = _mm_max_epu8(abs_diff(q2p2, q0p0), abs_diff(q3p3, q0p0));
+		flat = _mm_max_epu8(abs_p1p0, flat);
+
+		flat = _mm_max_epu8(flat, _mm_srli_si128(flat, 8));
+		flat = _mm_subs_epu8(flat, one);
+		flat = _mm_cmpeq_epi8(flat, zero);
+		flat = _mm_and_si128(flat, mask);
+		// replicate for the further "merged variables" usage
+		flat = _mm_unpacklo_epi64(flat, flat);
+	}
+
+	// filter8
+	{
+		const __m128i four = _mm_set1_epi16(4);
+
+		__m128i workp_a, workp_b, workp_shft0, workp_shft1;
+		p2 = _mm_unpacklo_epi8(*p2_8, zero);
+		p1 = _mm_unpacklo_epi8(*p1_8, zero);
+		p0 = _mm_unpacklo_epi8(*p0_8, zero);
+		q0 = _mm_unpacklo_epi8(*q0_8, zero);
+		q1 = _mm_unpacklo_epi8(*q1_8, zero);
+		q2 = _mm_unpacklo_epi8(*q2_8, zero);
+		p3 = _mm_unpacklo_epi8(*p3_8, zero);
+		q3 = _mm_unpacklo_epi8(*q3_8, zero);
+
+		// op2
+		workp_a = _mm_add_epi16(_mm_add_epi16(p3, p3), _mm_add_epi16(p2, p1));
+		workp_a = _mm_add_epi16(_mm_add_epi16(workp_a, four), p0);
+		workp_b = _mm_add_epi16(_mm_add_epi16(q0, p2), p3);
+		workp_shft0 = _mm_srli_epi16(_mm_add_epi16(workp_a, workp_b), 3);
+		op2 = _mm_packus_epi16(workp_shft0, workp_shft0);
+
+		// op1
+		workp_b = _mm_add_epi16(_mm_add_epi16(q0, q1), p1);
+		workp_shft0 = _mm_srli_epi16(_mm_add_epi16(workp_a, workp_b), 3);
+
+		// op0
+		workp_a = _mm_add_epi16(_mm_sub_epi16(workp_a, p3), q2);
+		workp_b = _mm_add_epi16(_mm_sub_epi16(workp_b, p1), p0);
+		workp_shft1 = _mm_srli_epi16(_mm_add_epi16(workp_a, workp_b), 3);
+
+		flat_p1p0 = _mm_packus_epi16(workp_shft1, workp_shft0);
+
+		// oq0
+		workp_a = _mm_add_epi16(_mm_sub_epi16(workp_a, p3), q3);
+		workp_b = _mm_add_epi16(_mm_sub_epi16(workp_b, p0), q0);
+		workp_shft0 = _mm_srli_epi16(_mm_add_epi16(workp_a, workp_b), 3);
+
+		// oq1
+		workp_a = _mm_add_epi16(_mm_sub_epi16(workp_a, p2), q3);
+		workp_b = _mm_add_epi16(_mm_sub_epi16(workp_b, q0), q1);
+		workp_shft1 = _mm_srli_epi16(_mm_add_epi16(workp_a, workp_b), 3);
+
+		flat_q0q1 = _mm_packus_epi16(workp_shft0, workp_shft1);
+
+		// oq2
+		workp_a = _mm_add_epi16(_mm_sub_epi16(workp_a, p1), q3);
+		workp_b = _mm_add_epi16(_mm_sub_epi16(workp_b, q1), q2);
+		workp_shft1 = _mm_srli_epi16(_mm_add_epi16(workp_a, workp_b), 3);
+		oq2 = _mm_packus_epi16(workp_shft1, workp_shft1);
+	}
+
+	// lp filter - the same for 8 and 6 versions
+	p1p0 = _mm_unpacklo_epi64(q0p0, q1p1);
+	q1q0 = _mm_unpackhi_epi64(q0p0, q1p1);
+
+	filter4_sse2(&p1p0, &q1q0, &hev, &mask, &qs1qs0, &ps1ps0);
+
+	qs1qs0 = _mm_andnot_si128(flat, qs1qs0);
+	q1q0 = _mm_and_si128(flat, flat_q0q1);
+	*q1q0_out = _mm_or_si128(qs1qs0, q1q0);
+
+	ps1ps0 = _mm_andnot_si128(flat, ps1ps0);
+	p1p0 = _mm_and_si128(flat, flat_p1p0);
+	*p1p0_out = _mm_or_si128(ps1ps0, p1p0);
+
+	work_a = _mm_andnot_si128(flat, *q2_8);
+	q2 = _mm_and_si128(flat, oq2);
+	*q2_out = _mm_or_si128(work_a, q2);
+
+	work_a = _mm_andnot_si128(flat, *p2_8);
+	p2 = _mm_and_si128(flat, op2);
+	*p2_out = _mm_or_si128(work_a, p2);
+}
+
 void aom_lpf_horizontal_8_sse2(unsigned char *s, int p,
                                const unsigned char *_blimit,
                                const unsigned char *_limit,
                                const unsigned char *_thresh) {
-  const __m128i zero = _mm_setzero_si128();
-  const __m128i blimit = _mm_load_si128((const __m128i *)_blimit);
-  const __m128i limit = _mm_load_si128((const __m128i *)_limit);
-  const __m128i thresh = _mm_load_si128((const __m128i *)_thresh);
-  __m128i mask, hev, flat;
-  __m128i p2, p1, p0, q0, q1, q2, p3, q3, q3p3, flat_p1p0, flat_q0q1;
-  __m128i q2p2, q1p1, q0p0, p1q1, p0q0;
-  __m128i p1p0, q1q0, ps1ps0, qs1qs0;
-  __m128i work_a, op2, oq2;
 
-  __m128i p2_8, p1_8, p0_8, q0_8, q1_8, q2_8, p3_8, q3_8;
+	__m128i p2_8, p1_8, p0_8, q0_8, q1_8, q2_8, p3_8, q3_8;
+	__m128i q1q0, p1p0, p2, q2;
+  p3_8 = _mm_loadl_epi64((__m128i *)(s - 4 * p));
   p2_8 = _mm_loadl_epi64((__m128i *)(s - 3 * p));
   p1_8 = _mm_loadl_epi64((__m128i *)(s - 2 * p));
   p0_8 = _mm_loadl_epi64((__m128i *)(s - 1 * p));
   q0_8 = _mm_loadl_epi64((__m128i *)(s - 0 * p));
   q1_8 = _mm_loadl_epi64((__m128i *)(s + 1 * p));
   q2_8 = _mm_loadl_epi64((__m128i *)(s + 2 * p));
-  p3_8 = _mm_loadl_epi64((__m128i *)(s - 4 * p));
   q3_8 = _mm_loadl_epi64((__m128i *)(s + 3 * p));
 
-  q3p3 = _mm_unpacklo_epi64(p3_8, q3_8);
-  q2p2 = _mm_unpacklo_epi64(p2_8, q2_8);
-  q1p1 = _mm_unpacklo_epi64(p1_8, q1_8);
-  q0p0 = _mm_unpacklo_epi64(p0_8, q0_8);
+  lpf_internal_8_sse2(&p3_8, &q3_8, &p2_8, &q2_8, &p1_8, &q1_8, &p0_8, &q0_8,  &q1q0, &p1p0, &p2, &q2,
+	  _blimit, _limit, _thresh);
 
-  p1q1 = _mm_shuffle_epi32(q1p1, 78);
-  p0q0 = _mm_shuffle_epi32(q0p0, 78);
-
-  {
-    // filter_mask and hev_mask
-
-    // considering sse doesn't have unsigned elements comparison the idea is to
-    // find at least one case when X > limit, it means the corresponding  mask
-    // bit is set.
-    // to achieve that we find global max value of all inputs of abs(x-y) or
-    // (abs(p0 - q0) * 2 + abs(p1 - q1) / 2 If it is > limit the mask is set
-    // otherwise - not
-
-    const __m128i one = _mm_set1_epi8(1);
-    const __m128i fe = _mm_set1_epi8(0xfe);
-    const __m128i ff = _mm_cmpeq_epi8(fe, fe);
-    __m128i abs_p1q1, abs_p0q0, abs_q1q0, abs_p1p0, work;
-
-    abs_p1p0 = abs_diff(q1p1, q0p0);
-    abs_q1q0 = _mm_srli_si128(abs_p1p0, 8);
-
-    abs_p0q0 = abs_diff(q0p0, p0q0);
-    abs_p1q1 = abs_diff(q1p1, p1q1);
-    flat = _mm_max_epu8(abs_p1p0, abs_q1q0);
-    hev = _mm_subs_epu8(flat, thresh);
-    hev = _mm_xor_si128(_mm_cmpeq_epi8(hev, zero), ff);
-    // replicate for the further "merged variables" usage
-    hev = _mm_unpacklo_epi64(hev, hev);
-
-    abs_p0q0 = _mm_adds_epu8(abs_p0q0, abs_p0q0);
-    abs_p1q1 = _mm_srli_epi16(_mm_and_si128(abs_p1q1, fe), 1);
-    mask = _mm_subs_epu8(_mm_adds_epu8(abs_p0q0, abs_p1q1), blimit);
-    mask = _mm_xor_si128(_mm_cmpeq_epi8(mask, zero), ff);
-    // mask |= (abs(p0 - q0) * 2 + abs(p1 - q1) / 2  > blimit) * -1;
-    mask = _mm_max_epu8(abs_p1p0, mask);
-    // mask |= (abs(p1 - p0) > limit) * -1;
-    // mask |= (abs(q1 - q0) > limit) * -1;
-
-    work = _mm_max_epu8(abs_diff(q2p2, q1p1), abs_diff(q3p3, q2p2));
-
-    mask = _mm_max_epu8(work, mask);
-    mask = _mm_max_epu8(mask, _mm_srli_si128(mask, 8));
-    mask = _mm_subs_epu8(mask, limit);
-    mask = _mm_cmpeq_epi8(mask, zero);
-    // replicate for the further "merged variables" usage
-    mask = _mm_unpacklo_epi64(mask, mask);
-
-    // flat_mask4
-
-    flat = _mm_max_epu8(abs_diff(q2p2, q0p0), abs_diff(q3p3, q0p0));
-    flat = _mm_max_epu8(abs_p1p0, flat);
-
-    flat = _mm_max_epu8(flat, _mm_srli_si128(flat, 8));
-    flat = _mm_subs_epu8(flat, one);
-    flat = _mm_cmpeq_epi8(flat, zero);
-    flat = _mm_and_si128(flat, mask);
-    // replicate for the further "merged variables" usage
-    flat = _mm_unpacklo_epi64(flat, flat);
-  }
-
-  // filter8
-  {
-    const __m128i four = _mm_set1_epi16(4);
-
-    __m128i workp_a, workp_b, workp_shft0, workp_shft1;
-    p2 = _mm_unpacklo_epi8(p2_8, zero);
-    p1 = _mm_unpacklo_epi8(p1_8, zero);
-    p0 = _mm_unpacklo_epi8(p0_8, zero);
-    q0 = _mm_unpacklo_epi8(q0_8, zero);
-    q1 = _mm_unpacklo_epi8(q1_8, zero);
-    q2 = _mm_unpacklo_epi8(q2_8, zero);
-    p3 = _mm_unpacklo_epi8(p3_8, zero);
-    q3 = _mm_unpacklo_epi8(q3_8, zero);
-
-    // op2
-    workp_a = _mm_add_epi16(_mm_add_epi16(p3, p3), _mm_add_epi16(p2, p1));
-    workp_a = _mm_add_epi16(_mm_add_epi16(workp_a, four), p0);
-    workp_b = _mm_add_epi16(_mm_add_epi16(q0, p2), p3);
-    workp_shft0 = _mm_srli_epi16(_mm_add_epi16(workp_a, workp_b), 3);
-    op2 = _mm_packus_epi16(workp_shft0, workp_shft0);
-
-    // op1
-    workp_b = _mm_add_epi16(_mm_add_epi16(q0, q1), p1);
-    workp_shft0 = _mm_srli_epi16(_mm_add_epi16(workp_a, workp_b), 3);
-
-    // op0
-    workp_a = _mm_add_epi16(_mm_sub_epi16(workp_a, p3), q2);
-    workp_b = _mm_add_epi16(_mm_sub_epi16(workp_b, p1), p0);
-    workp_shft1 = _mm_srli_epi16(_mm_add_epi16(workp_a, workp_b), 3);
-
-    flat_p1p0 = _mm_packus_epi16(workp_shft1, workp_shft0);
-
-    // oq0
-    workp_a = _mm_add_epi16(_mm_sub_epi16(workp_a, p3), q3);
-    workp_b = _mm_add_epi16(_mm_sub_epi16(workp_b, p0), q0);
-    workp_shft0 = _mm_srli_epi16(_mm_add_epi16(workp_a, workp_b), 3);
-
-    // oq1
-    workp_a = _mm_add_epi16(_mm_sub_epi16(workp_a, p2), q3);
-    workp_b = _mm_add_epi16(_mm_sub_epi16(workp_b, q0), q1);
-    workp_shft1 = _mm_srli_epi16(_mm_add_epi16(workp_a, workp_b), 3);
-
-    flat_q0q1 = _mm_packus_epi16(workp_shft0, workp_shft1);
-
-    // oq2
-    workp_a = _mm_add_epi16(_mm_sub_epi16(workp_a, p1), q3);
-    workp_b = _mm_add_epi16(_mm_sub_epi16(workp_b, q1), q2);
-    workp_shft1 = _mm_srli_epi16(_mm_add_epi16(workp_a, workp_b), 3);
-    oq2 = _mm_packus_epi16(workp_shft1, workp_shft1);
-  }
-
-  // lp filter - the same for 8 and 6 versions
-  p1p0 = _mm_unpacklo_epi64(q0p0, q1p1);
-  q1q0 = _mm_unpackhi_epi64(q0p0, q1p1);
-
-  filter4_sse2(&p1p0, &q1q0, &hev, &mask, &qs1qs0, &ps1ps0);
-
-  qs1qs0 = _mm_andnot_si128(flat, qs1qs0);
-  q1q0 = _mm_and_si128(flat, flat_q0q1);
-  q1q0 = _mm_or_si128(qs1qs0, q1q0);
-
-  ps1ps0 = _mm_andnot_si128(flat, ps1ps0);
-  p1p0 = _mm_and_si128(flat, flat_p1p0);
-  p1p0 = _mm_or_si128(ps1ps0, p1p0);
-
-  work_a = _mm_andnot_si128(flat, q2_8);
-  q2 = _mm_and_si128(flat, oq2);
-  q2 = _mm_or_si128(work_a, q2);
-
-  work_a = _mm_andnot_si128(flat, p2_8);
-  p2 = _mm_and_si128(flat, op2);
-  p2 = _mm_or_si128(work_a, p2);
-
-  xx_storel_32(s - 1 * p, p1p0);
+  xx_storel_32(s - 1 * p, p1p0); 
   xx_storel_32(s - 2 * p, _mm_srli_si128(p1p0, 8));
   xx_storel_32(s + 0 * p, q1q0);
   xx_storel_32(s + 1 * p, _mm_srli_si128(q1q0, 8));
-  xx_storel_32(s - 3 * p, p2);
+ xx_storel_32(s - 3 * p, p2);
   xx_storel_32(s + 2 * p, q2);
 }
 void aom_lpf_horizontal_14_dual_sse2(unsigned char *s, int p,
@@ -1474,6 +1548,44 @@ static INLINE void transpose6x6_sse2(__m128i *x0, __m128i *x1, __m128i *x2,
       w4, w5);  // 04 14 24 34 44 54 xx xx 05 15 25 35 45 55 xx xx
 }
 
+static INLINE void transpose8x8_sse2(__m128i *x0, __m128i *x1, __m128i *x2,
+	__m128i *x3, __m128i *x4, __m128i *x5, __m128i *x6, __m128i *x7,
+	__m128i *d0d1, __m128i *d2d3,
+	__m128i *d4d5, __m128i *d6d7) {
+
+	__m128i w0, w1, w2, w3, w4, w5, w6, w7;
+	//x0 00 01 02 03 04 05 06 07
+	//x1 10 11 12 13 14 15 16 17
+	w0 = _mm_unpacklo_epi8(
+		*x0, *x1);  // 00 10 01 11 02 12 03 13 04 14 05 15 06 16 07 17
+
+					//x2 20 21 22 23 24 25 26 27
+					//x3 30 31 32 33 34 35 36 37
+	w1 = _mm_unpacklo_epi8(
+		*x2, *x3);  // 20 30 21 31 22 32 23 33 24 34 25 35 26 36 27 37
+
+					// x4 40 41 42 43 44 45 46 47
+					//x5  50 51 52 53 54 55 56 57												  
+	w2 = _mm_unpacklo_epi8(*x4, *x5);// 40 50 41 51 42 52 43 53 44 54 45 55 46 56 47 57
+
+									 //x6  60 61 62 63 64 65 66 67
+									 //x7 70 71 72 73 74 75 76 77
+	w3 = _mm_unpacklo_epi8(*x6, *x7);	// 60 70 61 71 62 72 63 73 64 74 65 75 66 76 67 77
+
+	w4 = _mm_unpacklo_epi16(w0, w1);// 00 10 20 30 01 11 21 31 02 12 22 32 03 13 23 33
+	w5 = _mm_unpacklo_epi16(w2, w3); // 40 50 60 70 41 51 61 71 42 52 62 72 43 53 63 73
+
+	*d0d1 = _mm_unpacklo_epi32(w4, w5);// 00 10 20 30 40 50 60 70 01 11 21 31 41 51 61 71						
+	*d2d3 = _mm_unpackhi_epi32(w4, w5);// 02 12 22 32 42 52 62 72 03 13 23 33 43 53 63 73
+
+	w6 = _mm_unpackhi_epi16(w0, w1);// 04 14 24 34 05 15 25 35 06 16 26 36 07 17 27 37
+	w7 = _mm_unpackhi_epi16(w2, w3);// 44 54 64 74 45 55 65 75 46 56 66 76 47 57 67 77
+
+	*d4d5 = _mm_unpacklo_epi32(w6, w7);// 04 14 24 34 44 54 64 74 05 15 25 35 45 55 65 75							
+	*d6d7 = _mm_unpackhi_epi32(w6, w7);// 06 16 26 36 46 56 66 76 07 17 27 37 47 57 67 77
+}
+
+
 static INLINE void transpose8x8(unsigned char *src[], int in_p,
                                 unsigned char *dst[], int out_p,
                                 int num_8x8_to_transpose) {
@@ -1609,19 +1721,42 @@ void aom_lpf_vertical_8_sse2(unsigned char *s, int p,
                              const unsigned char *blimit,
                              const unsigned char *limit,
                              const unsigned char *thresh) {
-  DECLARE_ALIGNED(8, unsigned char, t_dst[8 * 8]);
-  unsigned char *src[1];
-  unsigned char *dst[1];
-  // Transpose 8x8
-  src[0] = s - 4;
-  dst[0] = t_dst;
-  transpose8x8(src, p, dst, 8, 1);
-  // Loop filtering
-  aom_lpf_horizontal_8_sse2(t_dst + 4 * 8, 8, blimit, limit, thresh);
-  src[0] = t_dst;
-  dst[0] = s - 4;
-  // Transpose back
-  transpose8x8(src, 8, dst, p, 1);
+
+	__m128i d0d1, d2d3, d4d5, d6d7;
+	__m128i d1, d3, d5, d7;
+	__m128i p2_8, p1_8, p0_8, q0_8, q1_8, q2_8, p3_8, q3_8;
+	__m128i q1q0, p1p0, p0, q0, p2, q2;
+
+	p3_8 = _mm_loadl_epi64((__m128i *)((s -4)  + 0*p));
+	p2_8 = _mm_loadl_epi64((__m128i *)((s -4)  + 1*p));
+	p1_8 = _mm_loadl_epi64((__m128i *)((s -4)  + 2*p));
+	p0_8 = _mm_loadl_epi64((__m128i *)((s -4)  + 3*p));
+	q0_8 = _mm_loadl_epi64((__m128i *)((s -4)  + 4*p));
+	q1_8 = _mm_loadl_epi64((__m128i *)((s -4)  + 5*p));
+	q2_8 = _mm_loadl_epi64((__m128i *)((s -4)  + 6*p));
+	q3_8 = _mm_loadl_epi64((__m128i *)((s -4)  + 7*p));
+
+	transpose8x8_sse2(&p3_8, &p2_8, &p1_8, &p0_8, &q0_8, &q1_8, &q2_8, &q3_8, &d0d1, &d2d3, &d4d5, &d6d7);
+
+	d1 = _mm_srli_si128(d0d1, 8);
+	d3 = _mm_srli_si128(d2d3, 8);
+	d5 = _mm_srli_si128(d4d5, 8);
+	d7 = _mm_srli_si128(d6d7, 8);
+
+	// Loop filtering
+	lpf_internal_8_sse2(&d0d1, &d7, &d1, &d6d7, &d2d3, &d5, &d3, &d4d5, &q1q0, &p1p0, &p2, &q2,
+		blimit, limit, thresh);
+
+
+	p0 = _mm_srli_si128(p1p0, 8);
+	q0 = _mm_srli_si128(q1q0, 8);
+
+	transpose8x8_sse2(&d0d1, &p2, &p0, &p1p0, &q1q0, &q0,   &q2, &d7, &d0d1, &d2d3, &d4d5, &d6d7);
+
+	_mm_storel_epi64((__m128i *)(s - 4 + 0 * p), d0d1);
+	_mm_storel_epi64((__m128i *)(s - 4 + 1 * p), _mm_srli_si128(d0d1, 8));
+	_mm_storel_epi64((__m128i *)(s - 4 + 2 * p), d2d3);
+	_mm_storel_epi64((__m128i *)(s - 4 + 3 * p), _mm_srli_si128(d2d3, 8));
 }
 
 void aom_lpf_vertical_8_dual_sse2(uint8_t *s, int p, const uint8_t *blimit0,
@@ -1647,23 +1782,80 @@ void aom_lpf_vertical_14_sse2(unsigned char *s, int p,
                               const unsigned char *blimit,
                               const unsigned char *limit,
                               const unsigned char *thresh) {
-  DECLARE_ALIGNED(8, unsigned char, t_dst[8 * 16]);
-  unsigned char *src[2];
-  unsigned char *dst[2];
-  src[0] = s - 8;
-  src[1] = s;
-  dst[0] = t_dst;
-  dst[1] = t_dst + 8 * 8;
-  // Transpose 16x8
-  transpose8x8(src, p, dst, 8, 2);
-  // Loop filtering
-  aom_lpf_horizontal_14_sse2(t_dst + 8 * 8, 8, blimit, limit, thresh);
-  src[0] = t_dst;
-  src[1] = t_dst + 8 * 8;
-  dst[0] = s - 8;
-  dst[1] = s;
-  // Transpose back
-  transpose8x8(src, 8, dst, p, 2);
+
+	__m128i q6p6, q5p5, q4p4, q3p3, q2p2, q1p1, q0p0;
+	__m128i p6, p5, p4, p3, p2, p1, p0, q0;
+	__m128i p6_2, p5_2, p4_2, p3_2, p2_2, p1_2, q0_2,p0_2;
+	__m128i d1, d3, d5, d7, d1_2, d3_2, d5_2, d7_2;
+	__m128i d0d1, d2d3, d4d5, d6d7;
+	__m128i d0d1_2, d2d3_2, d4d5_2, d6d7_2;
+
+  p6 = _mm_loadl_epi64((__m128i *)((s - 8) + 0 * p));
+  p5 = _mm_loadl_epi64((__m128i *)((s - 8) + 1 * p));
+  p4 = _mm_loadl_epi64((__m128i *)((s - 8) + 2 * p));
+  p3 = _mm_loadl_epi64((__m128i *)((s - 8) + 3 * p));
+  p2 = _mm_loadl_epi64((__m128i *)((s - 8) + 4 * p));
+  p1 = _mm_loadl_epi64((__m128i *)((s - 8) + 5 * p));
+  p0 = _mm_loadl_epi64((__m128i *)((s - 8) + 6 * p));
+  q0 = _mm_loadl_epi64((__m128i *)((s - 8) + 7 * p));
+
+  transpose8x8_sse2(&p6, &p5, &p4, &p3, &p2, &p1, &p0, &q0, &d0d1, &d2d3, &d4d5, &d6d7);
+
+  p6_2 = _mm_loadl_epi64((__m128i *)(s + 0 * p));
+  p5_2 = _mm_loadl_epi64((__m128i *)(s + 1 * p));
+  p4_2 = _mm_loadl_epi64((__m128i *)(s + 2 * p));
+  p3_2 = _mm_loadl_epi64((__m128i *)(s + 3 * p));
+  p2_2 = _mm_loadl_epi64((__m128i *)(s + 4 * p));
+  p1_2 = _mm_loadl_epi64((__m128i *)(s + 5 * p));
+  p0_2 = _mm_loadl_epi64((__m128i *)(s + 6 * p));
+  q0_2 = _mm_loadl_epi64((__m128i *)(s + 7 * p));
+ 
+  transpose8x8_sse2(&p6_2, &p5_2, &p4_2, &p3_2, &p2_2, &p1_2, &p0_2, &q0_2, &d0d1_2, &d2d3_2, &d4d5_2, &d6d7_2);
+
+  d1 = _mm_srli_si128(d0d1, 8);
+  d3 = _mm_srli_si128(d2d3, 8);
+  d5 = _mm_srli_si128(d4d5, 8);
+  d7 = _mm_srli_si128(d6d7, 8);
+
+  d1_2 = _mm_srli_si128(d0d1_2, 8);
+  d3_2 = _mm_srli_si128(d2d3_2, 8);
+  d5_2 = _mm_srli_si128(d4d5_2, 8);
+  d7_2 = _mm_srli_si128(d6d7_2, 8);
+
+  q6p6= _mm_unpacklo_epi64(d1, d6d7_2);
+  q5p5=	_mm_unpacklo_epi64(d2d3,d5_2);
+  q4p4=	_mm_unpacklo_epi64(d3, d4d5_2);
+  q3p3=	_mm_unpacklo_epi64(d4d5,d3_2);
+  q2p2=	_mm_unpacklo_epi64(d5, d2d3_2);
+  q1p1=	_mm_unpacklo_epi64(d6d7, d1_2);
+  q0p0=	_mm_unpacklo_epi64(d7, d0d1_2);
+
+  lpf_internal_14_sse2(&q6p6, &q5p5, &q4p4, &q3p3, &q2p2, &q1p1, &q0p0,
+	 blimit, limit, thresh);
+
+  transpose8x8_sse2(&d0d1,&d1,  &q5p5, &q4p4, &q3p3, &q2p2, &q1p1, &q0p0,   &d0d1, &d2d3, &d4d5, &d6d7);
+  
+  p0 = _mm_srli_si128(q0p0, 8);
+  p1 = _mm_srli_si128(q1p1, 8);
+  p2 = _mm_srli_si128(q2p2, 8);
+  p3 = _mm_srli_si128(q3p3, 8);
+  p4 = _mm_srli_si128(q4p4, 8);
+  p5 = _mm_srli_si128(q5p5, 8);
+  p6 = _mm_srli_si128(q6p6, 8);
+
+
+  transpose8x8_sse2(&p0, &p1,  &p2, &p3, &p4, &p5, &p6, &d7_2,   &d0d1_2, &d2d3_2, &d4d5_2, &d6d7_2);
+
+  _mm_storel_epi64((__m128i *)(s - 8 + 0 * p), d0d1);
+  _mm_storel_epi64((__m128i *)(s - 8 + 1 * p), _mm_srli_si128(d0d1, 8));
+  _mm_storel_epi64((__m128i *)(s - 8 + 2 * p), d2d3);
+  _mm_storel_epi64((__m128i *)(s - 8 + 3 * p), _mm_srli_si128(d2d3, 8));
+
+  _mm_storel_epi64((__m128i *)(s + 0 * p), d0d1_2);
+  _mm_storel_epi64((__m128i *)(s + 1 * p), _mm_srli_si128(d0d1_2, 8));
+  _mm_storel_epi64((__m128i *)(s + 2 * p), d2d3_2);
+  _mm_storel_epi64((__m128i *)(s + 3 * p), _mm_srli_si128(d2d3_2, 8));
+
 }
 
 void aom_lpf_vertical_14_dual_sse2(unsigned char *s, int p,
