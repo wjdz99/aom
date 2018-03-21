@@ -14,7 +14,8 @@
 
 #include "av1/common/blockd.h"
 
-static INLINE CFL_ALLOWED_TYPE is_cfl_allowed(const MB_MODE_INFO *mbmi) {
+static INLINE CFL_ALLOWED_TYPE is_cfl_allowed(const MACROBLOCKD *xd) {
+  const MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
   const BLOCK_SIZE bsize = mbmi->sb_type;
   assert(bsize < BLOCK_SIZES_ALL);
   return (CFL_ALLOWED_TYPE)(block_size_wide[bsize] <= 32 &&
@@ -33,6 +34,10 @@ static INLINE CFL_PRED_TYPE get_cfl_pred_type(PLANE_TYPE plane) {
 
 void cfl_predict_block(MACROBLOCKD *const xd, uint8_t *dst, int dst_stride,
                        TX_SIZE tx_size, int plane);
+
+void cfl_predict_block_lossless(MACROBLOCKD *const xd, uint8_t *dst,
+                                int dst_stride, int row, int col,
+                                TX_SIZE tx_size, int plane);
 
 void cfl_store_block(MACROBLOCKD *const xd, BLOCK_SIZE bsize, TX_SIZE tx_size);
 

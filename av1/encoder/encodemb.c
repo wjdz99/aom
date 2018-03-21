@@ -520,8 +520,7 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
     *(args->skip) = 0;
     assert(xd->mi[0]->mbmi.txk_type[av1_get_txk_type_index(
                plane_bsize, blk_row, blk_col)] == DCT_DCT);
-    if (plane == AOM_PLANE_Y && xd->cfl.store_y &&
-        is_cfl_allowed(&xd->mi[0]->mbmi)) {
+    if (plane == AOM_PLANE_Y && xd->cfl.store_y && is_cfl_allowed(xd)) {
       cfl_store_tx(xd, blk_row, blk_col, tx_size, plane_bsize);
     }
     return;
@@ -562,8 +561,7 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
 
   if (*eob) *(args->skip) = 0;
 
-  if (plane == AOM_PLANE_Y && xd->cfl.store_y &&
-      is_cfl_allowed(&xd->mi[0]->mbmi)) {
+  if (plane == AOM_PLANE_Y && xd->cfl.store_y && is_cfl_allowed(xd)) {
     cfl_store_tx(xd, blk_row, blk_col, tx_size, plane_bsize);
   }
 }

@@ -143,6 +143,21 @@ static void subtract_average_c(int16_t *pred_buf_q3, int width, int height,
   }
 }
 
+static void cfl_subtract_averages_lossless(CFL_CTX *cfl, TX_SIZE tx_size) {
+  const int width = cfl->buf_width;
+  const int height = cfl->buf_height;
+  const int tx_height = tx_size_high[tx_size];
+  const int tx_width = tx_size_wide[tx_size];
+  const int block_row_stride = CFL_BUF_LINE << tx_size_high_log2[tx_size];
+  int16_t *pred_buf_q3 = cfl->pred_buf_q3;
+  for (int b_j = 0; b_j < height; b_j += tx_height) {
+    for (int b_i = 0; b_i < width; b_i += tx_width) {
+      get_subtract_average_fn(tx_size)(pred_buf_q3 + b_i);
+    }
+    pred_buf_q3 += block_row_stride;
+  }
+}
+
 CFL_SUB_AVG_FN(c)
 
 static INLINE int cfl_idx_to_alpha(int alpha_idx, int joint_sign,
@@ -208,11 +223,19 @@ CFL_PREDICT_FN(c, hbd)
 
 static void cfl_compute_parameters(MACROBLOCKD *const xd, TX_SIZE tx_size) {
   CFL_CTX *const cfl = &xd->cfl;
+  const MB_MODE_INFO *const mbmi = &xd->mi[0]->mbmi;
+
   // Do not call cfl_compute_parameters multiple time on the same values.
   assert(cfl->are_parameters_computed == 0);
 
-  cfl_pad(cfl, tx_size_wide[tx_size], tx_size_high[tx_size]);
-  get_subtract_average_fn(tx_size)(cfl->pred_buf_q3);
+  if (xd->lossless[mbmi->segment_id]) {
+    cfl_pad(cfl, block_size_wide[mbmi->sb_type],
+            block_size_high[mbmi->sb_type]);
+    cfl_subtract_averages_lossless(cfl, tx_size);
+  } else {
+    cfl_pad(cfl, tx_size_wide[tx_size], tx_size_high[tx_size]);
+    get_subtract_average_fn(tx_size)(cfl->pred_buf_q3);
+  }
   cfl->are_parameters_computed = 1;
 }
 
@@ -220,7 +243,7 @@ void cfl_predict_block(MACROBLOCKD *const xd, uint8_t *dst, int dst_stride,
                        TX_SIZE tx_size, int plane) {
   CFL_CTX *const cfl = &xd->cfl;
   MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
-  assert(is_cfl_allowed(mbmi));
+  assert(is_cfl_allowed(xd));
 
   if (!cfl->are_parameters_computed) cfl_compute_parameters(xd, tx_size);
 
@@ -235,6 +258,32 @@ void cfl_predict_block(MACROBLOCKD *const xd, uint8_t *dst, int dst_stride,
     return;
   }
   get_predict_lbd_fn(tx_size)(cfl->pred_buf_q3, dst, dst_stride, alpha_q3);
+}
+
+void cfl_predict_block_lossless(MACROBLOCKD *const xd, uint8_t *dst,
+                                int dst_stride, int row, int col,
+                                TX_SIZE tx_size, int plane) {
+  CFL_CTX *const cfl = &xd->cfl;
+  MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
+  assert(is_cfl_allowed(xd));
+
+  if (!cfl->are_parameters_computed) cfl_compute_parameters(xd, tx_size);
+
+  const int alpha_q3 =
+      cfl_idx_to_alpha(mbmi->cfl_alpha_idx, mbmi->cfl_alpha_signs, plane - 1);
+  assert(((row << tx_size_high_log2[0]) + tx_size_high[tx_size] - 1) *
+                 CFL_BUF_LINE +
+             (col << tx_size_wide_log2[0]) + tx_size_wide[tx_size] <=
+         CFL_BUF_SQUARE);
+  const int16_t *pred_buf_q3 =
+      cfl->pred_buf_q3 + ((row * CFL_BUF_LINE + col) << tx_size_wide_log2[0]);
+  if (get_bitdepth_data_path_index(xd)) {
+    uint16_t *dst_16 = CONVERT_TO_SHORTPTR(dst);
+    get_predict_hbd_fn(tx_size)(pred_buf_q3, dst_16, dst_stride, alpha_q3,
+                                xd->bd);
+    return;
+  }
+  get_predict_lbd_fn(tx_size)(pred_buf_q3, dst, dst_stride, alpha_q3);
 }
 
 // Null function used for invalid tx_sizes
@@ -486,7 +535,7 @@ void cfl_store_tx(MACROBLOCKD *const xd, int row, int col, TX_SIZE tx_size,
   uint8_t *dst =
       &pd->dst.buf[(row * pd->dst.stride + col) << tx_size_wide_log2[0]];
 
-  assert(is_cfl_allowed(&xd->mi[0]->mbmi));
+  assert(is_cfl_allowed(xd));
   if (block_size_high[bsize] == 4 || block_size_wide[bsize] == 4) {
     // Only dimensions of size 4 can have an odd offset.
     assert(!((col & 1) && tx_size_wide[tx_size] != 4));
@@ -503,7 +552,7 @@ void cfl_store_block(MACROBLOCKD *const xd, BLOCK_SIZE bsize, TX_SIZE tx_size) {
   int row = 0;
   int col = 0;
 
-  assert(is_cfl_allowed(&xd->mi[0]->mbmi));
+  assert(is_cfl_allowed(xd));
   if (block_size_high[bsize] == 4 || block_size_wide[bsize] == 4) {
     sub8x8_adjust_offset(cfl, &row, &col);
   }
