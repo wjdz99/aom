@@ -70,6 +70,24 @@
       "revId": "deef6f731aa9603078340a7408f638497d58e23e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ea53c2bb_57535c0a",
+        "filename": "test/fdct4x4_test.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2018-03-21T10:32:08Z",
+      "side": 0,
+      "message": "Okay, but please understand that this will make it harder to review these patches.",
+      "parentUuid": "dd685071_6b14f0ed",
+      "revId": "deef6f731aa9603078340a7408f638497d58e23e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
