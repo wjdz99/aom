@@ -132,7 +132,7 @@ static INLINE __m128i highbd_clamp_epi16(__m128i u, __m128i zero, __m128i max) {
   return _mm_max_epi16(_mm_min_epi16(u, max), zero);
 }
 
-static INLINE void cfl_predict_hbd(__m128i *dst, __m128i *src,
+static INLINE void  cfl_predict_hbd(__m128i *dst, __m128i *src,
                                    __m128i alpha_q12, __m128i alpha_sign,
                                    __m128i dc_q0, __m128i max) {
   __m128i res = predict_unclipped(src, alpha_q12, alpha_sign, dc_q0);
