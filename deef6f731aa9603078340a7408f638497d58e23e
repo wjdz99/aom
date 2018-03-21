@@ -52,6 +52,24 @@
       "revId": "deef6f731aa9603078340a7408f638497d58e23e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dd685071_6b14f0ed",
+        "filename": "test/fdct4x4_test.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 6000
+      },
+      "writtenOn": "2018-03-21T10:30:04Z",
+      "side": 0,
+      "message": ":-)\nWhat I meant was I might temporarily introduce inconsistencies between what\u0027s left and what\u0027s removed ; and a removal commit might also have extra diff to fix for those inconsistencies.\n\nIn case I didn\u0027t answer your question; could you please rephrase it? Thanks!",
+      "parentUuid": "40963c94_d86fb20b",
+      "revId": "deef6f731aa9603078340a7408f638497d58e23e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
