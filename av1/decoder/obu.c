@@ -232,7 +232,12 @@ static uint32_t read_one_tile_group_obu(AV1Decoder *pbi,
                                         int is_first_tg, const uint8_t *data,
                                         const uint8_t *data_end,
                                         const uint8_t **p_data_end,
+#if CONFIG_TRAILING_BITS
+                                        int *is_last_tg,
+                                        uint32_t *last_bit_pos) {
+#else
                                         int *is_last_tg) {
+#endif
   AV1_COMMON *const cm = &pbi->common;
   int startTile, endTile;
   uint32_t header_size, tg_payload_size;
@@ -240,8 +245,13 @@ static uint32_t read_one_tile_group_obu(AV1Decoder *pbi,
   header_size = read_tile_group_header(pbi, rb, &startTile, &endTile);
   if (startTile > endTile) return header_size;
   data += header_size;
+#if CONFIG_TRAILING_BITS
+  av1_decode_tg_tiles_and_wrapup(pbi, data, data_end, p_data_end, startTile,
+                                 endTile, is_first_tg, last_bit_pos);
+#else
   av1_decode_tg_tiles_and_wrapup(pbi, data, data_end, p_data_end, startTile,
                                  endTile, is_first_tg);
+#endif
   tg_payload_size = (uint32_t)(*p_data_end - data);
 
   // TODO(shan):  For now, assume all tile groups received in order
@@ -368,6 +378,9 @@ void av1_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
   size_t seq_header_size = 0;
   ObuHeader obu_header;
   memset(&obu_header, 0, sizeof(obu_header));
+#if CONFIG_TRAILING_BITS
+  uint32_t last_bit_pos = 0;
+#endif
 
   if (data_end < data) {
     cm->error.error_code = AOM_CODEC_CORRUPT_FRAME;
@@ -488,7 +501,14 @@ void av1_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
         }
         decoded_payload_size += read_one_tile_group_obu(
             pbi, &rb, is_first_tg_obu_received, data + obu_payload_offset,
+#if !CONFIG_TRAILING_BITS
             data + payload_size, p_data_end, &frame_decoding_finished);
+#else
+            data + payload_size, p_data_end, &frame_decoding_finished,
+            &last_bit_pos);
+        av1_init_read_bit_buffer(pbi, &rb, data+(decoded_payload_size-1), data_end);
+        rb.bit_offset = last_bit_pos;
+#endif
         is_first_tg_obu_received = 0;
         break;
       case OBU_METADATA:
@@ -508,7 +528,9 @@ void av1_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
     int consumed_byte = 0;
     if (payload_size > 0 &&
         (obu_header.type == OBU_SEQUENCE_HEADER ||
-         obu_header.type == OBU_FRAME_HEADER) &&
+         obu_header.type == OBU_FRAME_HEADER ||
+         obu_header.type == OBU_FRAME ||
+         obu_header.type == OBU_TILE_GROUP) &&
         check_trailing_bits(pbi, &rb, &consumed_byte)) {
       return;
     }
