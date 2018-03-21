@@ -1674,7 +1674,12 @@ void av1_predict_intra_block_facade(const AV1_COMMON *cm, MACROBLOCKD *xd,
     } else {
       cfl_load_dc_pred(xd, dst, dst_stride, tx_size, pred_plane);
     }
-    cfl_predict_block(xd, dst, dst_stride, tx_size, plane);
+    if (xd->lossless[mbmi->segment_id]) {
+      cfl_predict_block_lossless(xd, dst, dst_stride, blk_row, blk_col, tx_size,
+                                 plane);
+    } else {
+      cfl_predict_block(xd, dst, dst_stride, tx_size, plane);
+    }
     return;
   }
   av1_predict_intra_block(cm, xd, pd->width, pd->height, tx_size, mode,
