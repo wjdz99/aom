@@ -150,7 +150,6 @@ const map_entry block_size_map[] = { ENUM(BLOCK_4X4),    ENUM(BLOCK_4X8),
                                      ENUM(BLOCK_4X16),   ENUM(BLOCK_16X4),
                                      ENUM(BLOCK_8X32),   ENUM(BLOCK_32X8),
                                      ENUM(BLOCK_16X64),  ENUM(BLOCK_64X16),
-                                     ENUM(BLOCK_32X128), ENUM(BLOCK_128X32),
                                      LAST_ENUM };
 
 const map_entry tx_size_map[] = {
