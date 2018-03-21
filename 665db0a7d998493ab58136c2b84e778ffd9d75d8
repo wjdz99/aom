@@ -46,6 +46,30 @@
       "revId": "665db0a7d998493ab58136c2b84e778ffd9d75d8",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "54d2ccdf_e5ab79fa",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2018-03-21T01:14:56Z",
+      "side": 1,
+      "message": "I see, SGTM.",
+      "parentUuid": "5dfac23f_d734528e",
+      "range": {
+        "startLine": 18,
+        "startChar": 0,
+        "endLine": 18,
+        "endChar": 27
+      },
+      "revId": "665db0a7d998493ab58136c2b84e778ffd9d75d8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
