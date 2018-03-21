@@ -4785,7 +4785,10 @@ static int cfl_rd_pick_alpha(MACROBLOCK *const x, const AV1_COMP *const cpi,
   }
 #endif  // CONFIG_DEBUG
 
-  xd->cfl.use_dc_pred_cache = 1;
+  // The DC_PRED cache is a simple optimization that is not available in
+  // lossless mode.
+  xd->cfl.use_dc_pred_cache = !xd->lossless[mbmi->segment_id];
+
   const int64_t mode_rd =
       RDCOST(x->rdmult,
              x->intra_uv_mode_cost[CFL_ALLOWED][mbmi->mode][UV_CFL_PRED], 0);
