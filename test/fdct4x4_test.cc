@@ -68,14 +68,6 @@ void iht4x4_12(const tran_low_t *in, uint8_t *out, int stride,
                            txfm_param->tx_type, 12);
 }
 
-void iwht4x4_10(const tran_low_t *in, uint8_t *out, int stride) {
-  aom_highbd_iwht4x4_16_add_c(in, out, stride, 10);
-}
-
-void iwht4x4_12(const tran_low_t *in, uint8_t *out, int stride) {
-  aom_highbd_iwht4x4_16_add_c(in, out, stride, 12);
-}
-
 class Trans4x4DCT : public libaom_test::TransformTestBase,
                     public ::testing::TestWithParam<Dct4x4Param> {
  public:
@@ -120,22 +112,4 @@ INSTANTIATE_TEST_CASE_P(C, Trans4x4DCT,
                         ::testing::Values(make_tuple(&aom_fdct4x4_c,
                                                      &aom_idct4x4_16_add_c,
                                                      DCT_DCT, AOM_BITS_8, 16)));
-INSTANTIATE_TEST_CASE_P(
-    C, Trans4x4WHT,
-    ::testing::Values(make_tuple(&av1_highbd_fwht4x4_c, &iwht4x4_10, DCT_DCT,
-                                 AOM_BITS_10, 16),
-                      make_tuple(&av1_highbd_fwht4x4_c, &iwht4x4_12, DCT_DCT,
-                                 AOM_BITS_12, 16),
-                      make_tuple(&av1_fwht4x4_c, &aom_iwht4x4_16_add_c, DCT_DCT,
-                                 AOM_BITS_8, 16)));
-
-#if HAVE_SSE2
-INSTANTIATE_TEST_CASE_P(
-    SSE2, Trans4x4WHT,
-    ::testing::Values(make_tuple(&av1_fwht4x4_c, &aom_iwht4x4_16_add_c, DCT_DCT,
-                                 AOM_BITS_8, 16),
-                      make_tuple(&av1_fwht4x4_c, &aom_iwht4x4_16_add_sse2,
-                                 DCT_DCT, AOM_BITS_8, 16)));
-#endif
-
 }  // namespace
