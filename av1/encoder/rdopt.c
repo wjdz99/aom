@@ -8888,6 +8888,8 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
         continue;
     }
 
+    if (ref_frame > LAST_FRAME) continue;
+
     if (ref_frame == INTRA_FRAME) {
       RD_STATS rd_stats_y;
       TX_SIZE uv_tx;
