@@ -162,15 +162,15 @@ TEST(NoiseStrengthLut, LutEvalMultiPointInterp) {
 }
 
 TEST(NoiseModel, InitSuccessWithValidSquareShape) {
-  aom_noise_model_params_t params = { AOM_NOISE_SHAPE_SQUARE, 2, 8, 0 };
+  aom_noise_model_params_t params = {AOM_NOISE_SHAPE_SQUARE, 2, 8, 0};
   aom_noise_model_t model;
 
   EXPECT_TRUE(aom_noise_model_init(&model, params));
 
   const int kNumCoords = 12;
-  const int kCoords[][2] = { { -2, -2 }, { -1, -2 }, { 0, -2 },  { 1, -2 },
-                             { 2, -2 },  { -2, -1 }, { -1, -1 }, { 0, -1 },
-                             { 1, -1 },  { 2, -1 },  { -2, 0 },  { -1, 0 } };
+  const int kCoords[][2] = {{-2, -2}, {-1, -2}, {0, -2},  {1, -2},
+                            {2, -2},  {-2, -1}, {-1, -1}, {0, -1},
+                            {1, -1},  {2, -1},  {-2, 0},  {-1, 0}};
   EXPECT_EQ(kNumCoords, model.n);
   for (int i = 0; i < kNumCoords; ++i) {
     const int *coord = kCoords[i];
@@ -182,12 +182,12 @@ TEST(NoiseModel, InitSuccessWithValidSquareShape) {
 
 TEST(NoiseModel, InitSuccessWithValidDiamondShape) {
   aom_noise_model_t model;
-  aom_noise_model_params_t params = { AOM_NOISE_SHAPE_DIAMOND, 2, 8, 0 };
+  aom_noise_model_params_t params = {AOM_NOISE_SHAPE_DIAMOND, 2, 8, 0};
   EXPECT_TRUE(aom_noise_model_init(&model, params));
   EXPECT_EQ(6, model.n);
   const int kNumCoords = 6;
-  const int kCoords[][2] = { { 0, -2 }, { -1, -1 }, { 0, -1 },
-                             { 1, -1 }, { -2, 0 },  { -1, 0 } };
+  const int kCoords[][2] = {{0, -2}, {-1, -1}, {0, -1},
+                            {1, -1}, {-2, 0},  {-1, 0}};
   EXPECT_EQ(kNumCoords, model.n);
   for (int i = 0; i < kNumCoords; ++i) {
     const int *coord = kCoords[i];
@@ -199,21 +199,21 @@ TEST(NoiseModel, InitSuccessWithValidDiamondShape) {
 
 TEST(NoiseModel, InitFailsWithTooLargeLag) {
   aom_noise_model_t model;
-  aom_noise_model_params_t params = { AOM_NOISE_SHAPE_SQUARE, 10, 8, 0 };
+  aom_noise_model_params_t params = {AOM_NOISE_SHAPE_SQUARE, 10, 8, 0};
   EXPECT_FALSE(aom_noise_model_init(&model, params));
   aom_noise_model_free(&model);
 }
 
 TEST(NoiseModel, InitFailsWithTooSmallLag) {
   aom_noise_model_t model;
-  aom_noise_model_params_t params = { AOM_NOISE_SHAPE_SQUARE, 0, 8, 0 };
+  aom_noise_model_params_t params = {AOM_NOISE_SHAPE_SQUARE, 0, 8, 0};
   EXPECT_FALSE(aom_noise_model_init(&model, params));
   aom_noise_model_free(&model);
 }
 
 TEST(NoiseModel, InitFailsWithInvalidShape) {
   aom_noise_model_t model;
-  aom_noise_model_params_t params = { aom_noise_shape(100), 3, 8, 0 };
+  aom_noise_model_params_t params = {aom_noise_shape(100), 3, 8, 0};
   EXPECT_FALSE(aom_noise_model_init(&model, params));
   aom_noise_model_free(&model);
 }
@@ -353,12 +353,33 @@ TYPED_TEST_P(FlatBlockEstimatorTest, FindFlatBlocks) {
   EXPECT_EQ(0, flat_blocks[1]);
 
   // Next 4 blocks are flat.
-  EXPECT_NE(0, flat_blocks[2]);
-  EXPECT_NE(0, flat_blocks[3]);
-  EXPECT_NE(0, flat_blocks[4]);
-  EXPECT_NE(0, flat_blocks[5]);
+  EXPECT_EQ(255, flat_blocks[2]);
+  EXPECT_EQ(255, flat_blocks[3]);
+  EXPECT_EQ(255, flat_blocks[4]);
+  EXPECT_EQ(255, flat_blocks[5]);
 
   // Last 2 are not.
+  EXPECT_EQ(0, flat_blocks[6]);
+  EXPECT_EQ(0, flat_blocks[7]);
+
+  // Add the noise from non-flat block 1 to every block.
+  for (int y = 0; y < kBlockSize; ++y) {
+    for (int x = 0; x < kBlockSize * num_blocks_w; ++x) {
+      this->data_[y * stride + x] +=
+          (this->data_[y * stride + x % kBlockSize + kBlockSize] -
+           (128 << shift));
+    }
+  }
+  // Now the scored selection will pick the one that is most likely flat (block
+  // 0)
+  EXPECT_EQ(1, aom_flat_block_finder_run(&flat_block_finder,
+                                         (uint8_t *)&this->data_[0], w, h,
+                                         stride, &flat_blocks[0]));
+  EXPECT_EQ(1, flat_blocks[0]);
+  EXPECT_EQ(0, flat_blocks[2]);
+  EXPECT_EQ(0, flat_blocks[3]);
+  EXPECT_EQ(0, flat_blocks[4]);
+  EXPECT_EQ(0, flat_blocks[5]);
   EXPECT_EQ(0, flat_blocks[6]);
   EXPECT_EQ(0, flat_blocks[7]);
 
@@ -386,8 +407,8 @@ class NoiseModelUpdateTest : public ::testing::Test, public T {
   static const int kNumBlocksY = kHeight / kBlockSize;
 
   void SetUp() {
-    const aom_noise_model_params_t params = { AOM_NOISE_SHAPE_SQUARE, 3,
-                                              T::kBitDepth, T::kUseHighBD };
+    const aom_noise_model_params_t params = {AOM_NOISE_SHAPE_SQUARE, 3,
+                                             T::kBitDepth, T::kUseHighBD};
     ASSERT_TRUE(aom_noise_model_init(&model_, params));
 
     data_.resize(kWidth * kHeight * 3);
@@ -609,18 +630,18 @@ TYPED_TEST_P(NoiseModelUpdateTest, UpdateSuccessForCorrelatedNoise) {
   const double kCoeffEps = 0.065;
   // Use different coefficients for each channel
   const double kCoeffs[3][24] = {
-    { 0.02884, -0.03356, 0.00633,  0.01757,  0.02849,  -0.04620,
-      0.02833, -0.07178, 0.07076,  -0.11603, -0.10413, -0.16571,
-      0.05158, -0.07969, 0.02640,  -0.07191, 0.02530,  0.41968,
-      0.21450, -0.00702, -0.01401, -0.03676, -0.08713, 0.44196 },
-    { 0.00269, -0.01291, -0.01513, 0.07234,  0.03208,   0.00477,
-      0.00226, -0.00254, 0.03533,  0.12841,  -0.25970,  -0.06336,
-      0.05238, -0.00845, -0.03118, 0.09043,  -0.36558,  0.48903,
-      0.00595, -0.11938, 0.02106,  0.095956, -0.350139, 0.59305 },
-    { -0.00643, -0.01080, -0.01466, 0.06951, 0.03707,  -0.00482,
-      0.00817,  -0.00909, 0.02949,  0.12181, -0.25210, -0.07886,
-      0.06083,  -0.01210, -0.03108, 0.08944, -0.35875, 0.49150,
-      0.00415,  -0.12905, 0.02870,  0.09740, -0.34610, 0.58824 },
+      {0.02884, -0.03356, 0.00633,  0.01757,  0.02849,  -0.04620,
+       0.02833, -0.07178, 0.07076,  -0.11603, -0.10413, -0.16571,
+       0.05158, -0.07969, 0.02640,  -0.07191, 0.02530,  0.41968,
+       0.21450, -0.00702, -0.01401, -0.03676, -0.08713, 0.44196},
+      {0.00269, -0.01291, -0.01513, 0.07234,  0.03208,   0.00477,
+       0.00226, -0.00254, 0.03533,  0.12841,  -0.25970,  -0.06336,
+       0.05238, -0.00845, -0.03118, 0.09043,  -0.36558,  0.48903,
+       0.00595, -0.11938, 0.02106,  0.095956, -0.350139, 0.59305},
+      {-0.00643, -0.01080, -0.01466, 0.06951, 0.03707,  -0.00482,
+       0.00817,  -0.00909, 0.02949,  0.12181, -0.25210, -0.07886,
+       0.06083,  -0.01210, -0.03108, 0.08944, -0.35875, 0.49150,
+       0.00415,  -0.12905, 0.02870,  0.09740, -0.34610, 0.58824},
   };
 
   ASSERT_EQ(model.n, kNumCoeffs);
@@ -762,15 +783,14 @@ TYPED_TEST_P(NoiseModelUpdateTest, NoiseCoeffsSignalsDifferentNoiseType) {
   const int kWidth = this->kWidth;
   const int kHeight = this->kHeight;
   const double kCoeffs[2][24] = {
-    { 0.02884, -0.03356, 0.00633,  0.01757,  0.02849,  -0.04620,
-      0.02833, -0.07178, 0.07076,  -0.11603, -0.10413, -0.16571,
-      0.05158, -0.07969, 0.02640,  -0.07191, 0.02530,  0.41968,
-      0.21450, -0.00702, -0.01401, -0.03676, -0.08713, 0.44196 },
-    { 0.00269, -0.01291, -0.01513, 0.07234,  0.03208,   0.00477,
-      0.00226, -0.00254, 0.03533,  0.12841,  -0.25970,  -0.06336,
-      0.05238, -0.00845, -0.03118, 0.09043,  -0.36558,  0.48903,
-      0.00595, -0.11938, 0.02106,  0.095956, -0.350139, 0.59305 }
-  };
+      {0.02884, -0.03356, 0.00633,  0.01757,  0.02849,  -0.04620,
+       0.02833, -0.07178, 0.07076,  -0.11603, -0.10413, -0.16571,
+       0.05158, -0.07969, 0.02640,  -0.07191, 0.02530,  0.41968,
+       0.21450, -0.00702, -0.01401, -0.03676, -0.08713, 0.44196},
+      {0.00269, -0.01291, -0.01513, 0.07234,  0.03208,   0.00477,
+       0.00226, -0.00254, 0.03533,  0.12841,  -0.25970,  -0.06336,
+       0.05238, -0.00845, -0.03118, 0.09043,  -0.36558,  0.48903,
+       0.00595, -0.11938, 0.02106,  0.095956, -0.350139, 0.59305}};
 
   aom_noise_synth(model.params.lag, model.n, model.coords, kCoeffs[0],
                   this->noise_ptr_[0], kWidth, kHeight);
@@ -803,7 +823,7 @@ INSTANTIATE_TYPED_TEST_CASE_P(NoiseModelUpdateTestInstatiation,
 TEST(NoiseModelGetGrainParameters, TestLagSize) {
   aom_film_grain_t film_grain;
   for (int lag = 1; lag <= 3; ++lag) {
-    aom_noise_model_params_t params = { AOM_NOISE_SHAPE_SQUARE, lag, 8, 0 };
+    aom_noise_model_params_t params = {AOM_NOISE_SHAPE_SQUARE, lag, 8, 0};
     aom_noise_model_t model;
     EXPECT_TRUE(aom_noise_model_init(&model, params));
     EXPECT_TRUE(aom_noise_model_get_grain_parameters(&model, &film_grain));
@@ -811,7 +831,7 @@ TEST(NoiseModelGetGrainParameters, TestLagSize) {
     aom_noise_model_free(&model);
   }
 
-  aom_noise_model_params_t params = { AOM_NOISE_SHAPE_SQUARE, 4, 8, 0 };
+  aom_noise_model_params_t params = {AOM_NOISE_SHAPE_SQUARE, 4, 8, 0};
   aom_noise_model_t model;
   EXPECT_TRUE(aom_noise_model_init(&model, params));
   EXPECT_FALSE(aom_noise_model_get_grain_parameters(&model, &film_grain));
@@ -827,31 +847,31 @@ TEST(NoiseModelGetGrainParameters, TestARCoeffShiftBounds) {
   const int lag = 1;
   const int kNumTestCases = 19;
   const TestCase test_cases[] = {
-    // Test cases for ar_coeff_shift = 9
-    { 0, 9, 0 },
-    { 0.125, 9, 64 },
-    { -0.125, 9, -64 },
-    { 0.2499, 9, 127 },
-    { -0.25, 9, -128 },
-    // Test cases for ar_coeff_shift = 8
-    { 0.25, 8, 64 },
-    { -0.2501, 8, -64 },
-    { 0.499, 8, 127 },
-    { -0.5, 8, -128 },
-    // Test cases for ar_coeff_shift = 7
-    { 0.5, 7, 64 },
-    { -0.5001, 7, -64 },
-    { 0.999, 7, 127 },
-    { -1, 7, -128 },
-    // Test cases for ar_coeff_shift = 6
-    { 1.0, 6, 64 },
-    { -1.0001, 6, -64 },
-    { 2.0, 6, 127 },
-    { -2.0, 6, -128 },
-    { 4, 6, 127 },
-    { -4, 6, -128 },
+      // Test cases for ar_coeff_shift = 9
+      {0, 9, 0},
+      {0.125, 9, 64},
+      {-0.125, 9, -64},
+      {0.2499, 9, 127},
+      {-0.25, 9, -128},
+      // Test cases for ar_coeff_shift = 8
+      {0.25, 8, 64},
+      {-0.2501, 8, -64},
+      {0.499, 8, 127},
+      {-0.5, 8, -128},
+      // Test cases for ar_coeff_shift = 7
+      {0.5, 7, 64},
+      {-0.5001, 7, -64},
+      {0.999, 7, 127},
+      {-1, 7, -128},
+      // Test cases for ar_coeff_shift = 6
+      {1.0, 6, 64},
+      {-1.0001, 6, -64},
+      {2.0, 6, 127},
+      {-2.0, 6, -128},
+      {4, 6, 127},
+      {-4, 6, -128},
   };
-  aom_noise_model_params_t params = { AOM_NOISE_SHAPE_SQUARE, lag, 8, 0 };
+  aom_noise_model_params_t params = {AOM_NOISE_SHAPE_SQUARE, lag, 8, 0};
   aom_noise_model_t model;
   EXPECT_TRUE(aom_noise_model_init(&model, params));
 
@@ -876,12 +896,12 @@ TEST(NoiseModelGetGrainParameters, TestNoiseStrengthShiftBounds) {
   };
   const int kNumTestCases = 10;
   const TestCase test_cases[] = {
-    { 0, 11, 0 },      { 1, 11, 64 },     { 2, 11, 128 }, { 3.99, 11, 255 },
-    { 4, 10, 128 },    { 7.99, 10, 255 }, { 8, 9, 128 },  { 16, 8, 128 },
-    { 31.99, 8, 255 }, { 64, 8, 255 },  // clipped
+      {0, 11, 0},      {1, 11, 64},     {2, 11, 128}, {3.99, 11, 255},
+      {4, 10, 128},    {7.99, 10, 255}, {8, 9, 128},  {16, 8, 128},
+      {31.99, 8, 255}, {64, 8, 255},  // clipped
   };
   const int lag = 1;
-  aom_noise_model_params_t params = { AOM_NOISE_SHAPE_SQUARE, lag, 8, 0 };
+  aom_noise_model_params_t params = {AOM_NOISE_SHAPE_SQUARE, lag, 8, 0};
   aom_noise_model_t model;
   EXPECT_TRUE(aom_noise_model_init(&model, params));
 
@@ -905,32 +925,30 @@ TEST(NoiseModelGetGrainParameters, TestNoiseStrengthShiftBounds) {
 // The AR coefficients are the same inputs used to generate "Test 2" in the test
 // vectors
 TEST(NoiseModelGetGrainParameters, GetGrainParametersReal) {
-  const double kInputCoeffsY[] = { 0.0315,  0.0073,  0.0218,  0.00235, 0.00511,
-                                   -0.0222, 0.0627,  -0.022,  0.05575, -0.1816,
-                                   0.0107,  -0.1966, 0.00065, -0.0809, 0.04934,
-                                   -0.1349, -0.0352, 0.41772, 0.27973, 0.04207,
-                                   -0.0429, -0.1372, 0.06193, 0.52032 };
-  const double kInputCoeffsCB[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,   0,
-                                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.25 };
-  const double kInputCoeffsCR[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0,
-                                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.5 };
-  const int kExpectedARCoeffsY[] = { 4,  1,   3,  0,   1,  -3,  8, -3,
-                                     7,  -23, 1,  -25, 0,  -10, 6, -17,
-                                     -5, 53,  36, 5,   -5, -18, 8, 67 };
-  const int kExpectedARCoeffsCB[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 32 };
-  const int kExpectedARCoeffsCR[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 64 };
+  const double kInputCoeffsY[] = {
+      0.0315,  0.0073,  0.0218,  0.00235, 0.00511, -0.0222, 0.0627,  -0.022,
+      0.05575, -0.1816, 0.0107,  -0.1966, 0.00065, -0.0809, 0.04934, -0.1349,
+      -0.0352, 0.41772, 0.27973, 0.04207, -0.0429, -0.1372, 0.06193, 0.52032};
+  const double kInputCoeffsCB[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,   0,
+                                   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.25};
+  const double kInputCoeffsCR[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0,
+                                   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.5};
+  const int kExpectedARCoeffsY[] = {4,  1,   3,  0,   1,  -3,  8, -3,
+                                    7,  -23, 1,  -25, 0,  -10, 6, -17,
+                                    -5, 53,  36, 5,   -5, -18, 8, 67};
+  const int kExpectedARCoeffsCB[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                                     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 32};
+  const int kExpectedARCoeffsCR[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                                     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 64};
   // Scaling function is initialized analytically with a sqrt function.
   const int kNumScalingPointsY = 12;
   const int kExpectedScalingPointsY[][2] = {
-    { 0, 0 },     { 13, 44 },   { 27, 62 },   { 40, 76 },
-    { 54, 88 },   { 67, 98 },   { 94, 117 },  { 121, 132 },
-    { 148, 146 }, { 174, 159 }, { 201, 171 }, { 255, 192 },
+      {0, 0},    {13, 44},   {27, 62},   {40, 76},   {54, 88},   {67, 98},
+      {94, 117}, {121, 132}, {148, 146}, {174, 159}, {201, 171}, {255, 192},
   };
 
   const int lag = 3;
-  aom_noise_model_params_t params = { AOM_NOISE_SHAPE_SQUARE, lag, 8, 0 };
+  aom_noise_model_params_t params = {AOM_NOISE_SHAPE_SQUARE, lag, 8, 0};
   aom_noise_model_t model;
   EXPECT_TRUE(aom_noise_model_init(&model, params));
 
