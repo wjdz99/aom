@@ -16,6 +16,24 @@
       "revId": "4fd29c4affa4a49546d9f303e90c37400a327ad8",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "306d331a_4d447316",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 8900
+      },
+      "writtenOn": "2018-03-22T07:45:10Z",
+      "side": 1,
+      "message": "I repeated the speed test again, with cmake ../../ -DENABLE_CCACHE\u003d1  -DCONFIG_LOWBITDEPTH\u003d1.\n\n1. Parent commit ID:  d30cde599\n2. Test commit ID: bacdd7e9e (Patch set 1)\n3. Test command: (run encoder two times and reduce to 10 frames for each)\n./aomenc --codec\u003dav1 --cpu-used\u003d1 --end-usage\u003dvbr --target-bitrate\u003d800 --limit\u003d10 /home/yuv/av1/foreman_cif.y4m -o foreman.webm\n\n4. Test results shows : 306s -\u003e 303s and 304-\u003e 301s   \n\nOriginal log attached.\n\nforeman_cif ( d30cde599 ) --\u003e foreman_cif.y4m\nPass 1/2 frame   10/11      2024B    1619b/f   48527b/s   41558 us (240.63 fps)\nPass 2/2 frame   10/10     60484B   48387b/f 1450165b/s  306088 ms (0.03 fps)\n\nreal\t5m6.435s\nuser\t5m6.263s\nsys\t0m0.180s\n9221f8e2d940d32f8ba12cd3306d0535  foreman_cif_d30cde599.webm\nforeman_cif ( bacdd7e9e ) --\u003e foreman_cif.y4m\nPass 1/2 frame   10/11      2024B    1619b/f   48527b/s   41226 us (242.57 fps)\nPass 2/2 frame   10/10     60484B   48387b/f 1450165b/s  303432 ms (0.03 fps)\n\nreal\t5m3.783s\nuser\t5m3.605s\nsys\t0m0.180s\n9221f8e2d940d32f8ba12cd3306d0535  foreman_cif_bacdd7e9e.webm\nforeman_cif ( d30cde599 ) --\u003e foreman_cif.y4m\nPass 1/2 frame   10/11      2024B    1619b/f   48527b/s   37233 us (268.58 fps)\nPass 2/2 frame   10/10     60484B   48387b/f 1450165b/s  304552 ms (0.03 fps)\n\nreal\t5m4.853s\nuser\t5m4.693s\nsys\t0m0.160s\n9221f8e2d940d32f8ba12cd3306d0535  foreman_cif_d30cde599.webm\nforeman_cif ( bacdd7e9e ) --\u003e foreman_cif.y4m\nPass 1/2 frame   10/11      2024B    1619b/f   48527b/s   40268 us (248.34 fps)\nPass 2/2 frame   10/10     60484B   48387b/f 1450165b/s  301442 ms (0.03 fps)\n\n\nreal\t5m1.777s\nuser\t5m1.602s\nsys\t0m0.172s\n9221f8e2d940d32f8ba12cd3306d0535  foreman_cif_bacdd7e9e.webm",
+      "parentUuid": "554278ae_9ae8d420",
+      "revId": "4fd29c4affa4a49546d9f303e90c37400a327ad8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
