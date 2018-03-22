@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a4d5a341_63c71941",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2018-03-22T20:25:04Z",
+      "side": 1,
+      "message": "add [cmake] to the title to avoid confusion",
+      "revId": "37fdcdcf81a2369d7c1a2f55897c07c92be754b2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
