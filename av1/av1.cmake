@@ -288,7 +288,7 @@ set(AOM_AV1_COMMON_INTRIN_SSE2
   set(AOM_AV1_COMMON_INTRIN_SSSE3
       ${AOM_AV1_COMMON_INTRIN_SSSE3}
       "${AOM_ROOT}/av1/common/x86/jnt_convolve_ssse3.c")
-  else()    
+  else()
 
   set(AOM_AV1_COMMON_INTRIN_SSE4_1
       ${AOM_AV1_COMMON_INTRIN_SSE4_1}
