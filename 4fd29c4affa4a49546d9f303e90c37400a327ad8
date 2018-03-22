@@ -52,6 +52,24 @@
       "revId": "4fd29c4affa4a49546d9f303e90c37400a327ad8",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0f1125fd_3b764399",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-03-22T19:10:02Z",
+      "side": 1,
+      "message": "Thanks for the detail. The abort doesn\u0027t occur in 1-pass (-p 1), but does with your command line. For performance timing on Linux make sure you have your governor set to performance to help stabilize things (cpufreq-set -r -g performance)",
+      "parentUuid": "5519cd3c_37d76618",
+      "revId": "4fd29c4affa4a49546d9f303e90c37400a327ad8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
