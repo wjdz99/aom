@@ -353,12 +353,33 @@ TYPED_TEST_P(FlatBlockEstimatorTest, FindFlatBlocks) {
   EXPECT_EQ(0, flat_blocks[1]);
 
   // Next 4 blocks are flat.
-  EXPECT_NE(0, flat_blocks[2]);
-  EXPECT_NE(0, flat_blocks[3]);
-  EXPECT_NE(0, flat_blocks[4]);
-  EXPECT_NE(0, flat_blocks[5]);
+  EXPECT_EQ(255, flat_blocks[2]);
+  EXPECT_EQ(255, flat_blocks[3]);
+  EXPECT_EQ(255, flat_blocks[4]);
+  EXPECT_EQ(255, flat_blocks[5]);
 
   // Last 2 are not.
+  EXPECT_EQ(0, flat_blocks[6]);
+  EXPECT_EQ(0, flat_blocks[7]);
+
+  // Add the noise from non-flat block 1 to every block.
+  for (int y = 0; y < kBlockSize; ++y) {
+    for (int x = 0; x < kBlockSize * num_blocks_w; ++x) {
+      this->data_[y * stride + x] +=
+          (this->data_[y * stride + x % kBlockSize + kBlockSize] -
+           (128 << shift));
+    }
+  }
+  // Now the scored selection will pick the one that is most likely flat (block
+  // 0)
+  EXPECT_EQ(1, aom_flat_block_finder_run(&flat_block_finder,
+                                         (uint8_t *)&this->data_[0], w, h,
+                                         stride, &flat_blocks[0]));
+  EXPECT_EQ(1, flat_blocks[0]);
+  EXPECT_EQ(0, flat_blocks[2]);
+  EXPECT_EQ(0, flat_blocks[3]);
+  EXPECT_EQ(0, flat_blocks[4]);
+  EXPECT_EQ(0, flat_blocks[5]);
   EXPECT_EQ(0, flat_blocks[6]);
   EXPECT_EQ(0, flat_blocks[7]);
 
