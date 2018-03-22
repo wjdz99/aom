@@ -1936,16 +1936,18 @@ static void loop_filter_rows(YV12_BUFFER_CONFIG *frame_buffer, AV1_COMMON *cm,
         av1_setup_dst_planes(pd, cm->seq_params.sb_size, frame_buffer, mi_row,
                              mi_col, plane, plane + 1);
         filter_block_plane_vert(cm, xd, plane, &pd[plane], mi_row, mi_col);
+        // filter horizontal edges
+        if (mi_col - MIN_MIB_SIZE >= 0) {
+          av1_setup_dst_planes(pd, cm->seq_params.sb_size, frame_buffer, mi_row,
+                               mi_col - MIN_MIB_SIZE, plane, plane + 1);
+          filter_block_plane_horz(cm, xd, plane, &pd[plane], mi_row,
+                                  mi_col - MIN_MIB_SIZE);
+        }
       }
-    }
-
-    // filter all horizontal edges in every 64x64 super block
-    for (mi_row = start; mi_row < stop; mi_row += MIN_MIB_SIZE) {
-      for (mi_col = col_start; mi_col < col_end; mi_col += MIN_MIB_SIZE) {
-        av1_setup_dst_planes(pd, cm->seq_params.sb_size, frame_buffer, mi_row,
-                             mi_col, plane, plane + 1);
-        filter_block_plane_horz(cm, xd, plane, &pd[plane], mi_row, mi_col);
-      }
+      av1_setup_dst_planes(pd, cm->seq_params.sb_size, frame_buffer, mi_row,
+                           mi_col - MIN_MIB_SIZE, plane, plane + 1);
+      filter_block_plane_horz(cm, xd, plane, &pd[plane], mi_row,
+                              mi_col - MIN_MIB_SIZE);
     }
 #endif  // LOOP_FILTER_BITMASK
   }
