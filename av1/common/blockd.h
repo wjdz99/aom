@@ -1060,8 +1060,12 @@ motion_mode_allowed(const WarpedMotionParams *gm_params, const MACROBLOCKD *xd,
       is_motion_variation_allowed_compound(mbmi)) {
     if (!check_num_overlappable_neighbors(mbmi)) return SIMPLE_TRANSLATION;
     assert(!has_second_ref(mbmi));
+    // Note the behavior w.r.t. can_use_previous.
+    // can_use_previous=0 implies do the scaling check.
+    // can_use_previous=1 implies bypass the scaling check assuming there is
+    // no scaling.
     if (mbmi->num_proj_ref[0] >= 1 &&
-        (can_use_previous && !av1_is_scaled(&(xd->block_refs[0]->sf)))) {
+        (can_use_previous || !av1_is_scaled(&(xd->block_refs[0]->sf)))) {
 #if CONFIG_AMVR
       if (xd->cur_frame_force_integer_mv) {
         return OBMC_CAUSAL;

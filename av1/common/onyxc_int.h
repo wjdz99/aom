@@ -392,8 +392,11 @@ typedef struct AV1Common {
   MODE_INFO **prev_mi_grid_base;
   MODE_INFO **prev_mi_grid_visible;
 
-  // Whether to use previous frame's motion vectors for prediction.
+  // Whether to use previous frames' motion vectors for prediction.
   int use_ref_frame_mvs;
+  // Whether to trust previous frames' dimensions as being the same as
+  // the current frame.
+  int trust_ref_frame_dims;
 
   uint8_t *last_frame_seg_map;
   uint8_t *current_frame_seg_map;

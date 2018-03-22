@@ -262,7 +262,7 @@ static void write_motion_mode(const AV1_COMMON *cm, MACROBLOCKD *xd,
   MOTION_MODE last_motion_mode_allowed =
       cm->switchable_motion_mode
           ? motion_mode_allowed(cm->global_motion, xd, mi,
-                                cm->use_ref_frame_mvs)
+                                cm->trust_ref_frame_dims)
           : SIMPLE_TRANSLATION;
   assert(mbmi->motion_mode <= last_motion_mode_allowed);
   switch (last_motion_mode_allowed) {
@@ -3178,6 +3178,7 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
           cm->seq_params.enable_order_hint) {
         aom_wb_write_bit(wb, cm->use_ref_frame_mvs);
       }
+      aom_wb_write_bit(wb, cm->trust_ref_frame_dims);
     }
   }
 
