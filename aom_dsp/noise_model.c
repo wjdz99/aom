@@ -483,6 +483,21 @@ void aom_flat_block_finder_extract_block(
   }
 }
 
+typedef struct {
+  int index;
+  float score;
+} index_and_score_t;
+
+static int compare_scores(const void *a, const void *b) {
+  const float diff =
+      ((index_and_score_t *)a)->score - ((index_and_score_t *)b)->score;
+  if (diff < 0)
+    return -1;
+  else if (diff > 0)
+    return 1;
+  return 0;
+}
+
 int aom_flat_block_finder_run(const aom_flat_block_finder_t *block_finder,
                               const uint8_t *const data, int w, int h,
                               int stride, uint8_t *flat_blocks) {
@@ -498,13 +513,19 @@ int aom_flat_block_finder_run(const aom_flat_block_finder_t *block_finder,
   int bx = 0, by = 0;
   double *plane = (double *)aom_malloc(n * sizeof(*plane));
   double *block = (double *)aom_malloc(n * sizeof(*block));
-  if (plane == NULL || block == NULL) {
+  index_and_score_t *scores = (index_and_score_t *)aom_malloc(
+      num_blocks_w * num_blocks_h * sizeof(*scores));
+  if (plane == NULL || block == NULL || scores == NULL) {
     fprintf(stderr, "Failed to allocate memory for block of size %d\n", n);
     aom_free(plane);
     aom_free(block);
+    aom_free(scores);
     return -1;
   }
 
+#ifdef NOISE_MODEL_LOG_SCORE
+  fprintf(stderr, "score = [");
+#endif
   for (by = 0; by < num_blocks_h; ++by) {
     for (bx = 0; bx < num_blocks_w; ++bx) {
       // Compute gradient covariance matrix.
@@ -535,10 +556,10 @@ int aom_flat_block_finder_run(const aom_flat_block_finder_t *block_finder,
       mean /= (block_size - 2) * (block_size - 2);
 
       // Normalize gradients by block_size.
-      Gxx /= (block_size - 2) * (block_size - 2);
-      Gxy /= (block_size - 2) * (block_size - 2);
-      Gyy /= (block_size - 2) * (block_size - 2);
-      var = var / (block_size - 2) * (block_size - 2) - mean * mean;
+      Gxx /= ((block_size - 2) * (block_size - 2));
+      Gxy /= ((block_size - 2) * (block_size - 2));
+      Gyy /= ((block_size - 2) * (block_size - 2));
+      var = var / ((block_size - 2) * (block_size - 2)) - mean * mean;
 
       {
         const double trace = Gxx + Gyy;
@@ -546,17 +567,46 @@ int aom_flat_block_finder_run(const aom_flat_block_finder_t *block_finder,
         const double e1 = (trace + sqrt(trace * trace - 4 * det)) / 2.;
         const double e2 = (trace - sqrt(trace * trace - 4 * det)) / 2.;
         const double norm = sqrt(Gxx * Gxx + Gxy * Gxy * 2 + Gyy * Gyy);
+        const double ratio = (e1 / AOMMAX(e2, 1e-8));
         const int is_flat = (trace < kTraceThreshold) &&
-                            (e1 / AOMMAX(e2, 1e-8) < kRatioThreshold) &&
-                            norm < kNormThreshold && var > kVarThreshold;
+                            (ratio < kRatioThreshold) &&
+                            (norm < kNormThreshold) && (var > kVarThreshold);
+        const double weights[5] = { -14222.76, -0.143, -2047.8258, 16943.2109,
+                                    4.3462 };
+        const float score =
+            (float)(1.0 / (1 + exp(-(weights[0] * var + weights[1] * ratio +
+                                     weights[2] * trace + weights[3] * norm +
+                                     weights[4]))));
         flat_blocks[by * num_blocks_w + bx] = is_flat ? 255 : 0;
+        scores[by * num_blocks_w + bx].score = var > kVarThreshold ? score : 0;
+        scores[by * num_blocks_w + bx].index = by * num_blocks_w + bx;
+#ifdef NOISE_MODEL_LOG_SCORE
+        fprintf(stderr, "%g %g %g %g %g ", score, var, ratio, trace, norm);
+#endif
         num_flat += is_flat;
       }
     }
+#ifdef NOISE_MODEL_LOG_SCORE
+    fprintf(stderr, "\n");
+#endif
   }
-
+#ifdef NOISE_MODEL_LOG_SCORE
+  fprintf(stderr, "];\n");
+#endif
+  // Find the top-scored blocks (most likely to be flat) and let the flat blocs
+  // be the union of the threshold results and the top 5th percentile.
+  qsort(scores, num_blocks_w * num_blocks_h, sizeof(*scores), &compare_scores);
+  const int top_5th_percentile = num_blocks_w * num_blocks_h * 95 / 100;
+  const float score_threshold = scores[top_5th_percentile].score;
+  for (int i = 0; i < num_blocks_w * num_blocks_h; ++i) {
+    if (scores[i].score >= score_threshold) {
+      num_flat += flat_blocks[scores[i].index] == 0;
+      flat_blocks[scores[i].index] |= 1;
+    }
+  }
   aom_free(block);
   aom_free(plane);
+  aom_free(scores);
   return num_flat;
 }
 
