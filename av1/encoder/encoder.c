@@ -4139,6 +4139,51 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
   }
 }
 
+typedef struct {
+  SUPERRES_MODE superres_mode;
+  uint8_t superres_scale_denominator;
+  uint8_t superres_kf_scale_denominator;
+  int superres_qthresh;
+  int superres_kf_qthresh;
+} SuperresParams;
+
+static void backup_superres_params(const AV1EncoderConfig *const oxcf,
+                                   SuperresParams *const srp) {
+  srp->superres_mode = oxcf->superres_mode;
+  srp->superres_scale_denominator = oxcf->superres_scale_denominator;
+  srp->superres_kf_scale_denominator = oxcf->superres_kf_scale_denominator;
+  srp->superres_qthresh = oxcf->superres_qthresh;
+  srp->superres_kf_qthresh = oxcf->superres_kf_qthresh;
+}
+
+static void restore_superres_params(const SuperresParams *const srp,
+                                    AV1EncoderConfig *const oxcf) {
+  oxcf->superres_mode = srp->superres_mode;
+  oxcf->superres_scale_denominator = srp->superres_scale_denominator;
+  oxcf->superres_kf_scale_denominator = srp->superres_kf_scale_denominator;
+  oxcf->superres_qthresh = srp->superres_qthresh;
+  oxcf->superres_kf_qthresh = srp->superres_kf_qthresh;
+}
+
+// Re-initialize frame-size related stuff with superres disabled.
+static void reinitialize_without_superres(AV1_COMP *cpi, int *const q,
+                                          int *const bottom_index,
+                                          int *const top_index) {
+  // Note: We backup and restore the original superres parameters, because
+  // later frames may still want to use lossy compression with superres.
+  SuperresParams tmp;
+  backup_superres_params(&cpi->oxcf, &tmp);
+  av1_disable_superres(&cpi->oxcf);
+  setup_frame_size(cpi);
+  set_size_dependent_vars(cpi, q, bottom_index, top_index);
+  // Reset the following to 0 again.
+  // TODO(urvang): Is it better to just accept the picked 'q' etc instead?
+  *q = 0;
+  *bottom_index = 0;
+  *top_index = 0;
+  restore_superres_params(&tmp, &cpi->oxcf);
+}
+
 static void encode_without_recode_loop(AV1_COMP *cpi) {
   AV1_COMMON *const cm = &cpi->common;
   int q = 0, bottom_index = 0, top_index = 0;  // Dummy variables.
@@ -4153,6 +4198,13 @@ static void encode_without_recode_loop(AV1_COMP *cpi) {
   assert(cm->height == cpi->scaled_source.y_crop_height);
 
   set_size_dependent_vars(cpi, &q, &bottom_index, &top_index);
+
+  // Special case
+  if (q == 0 && !av1_superres_unscaled(cm)) {
+    // Coding all-lossless frame with super-resolution is not allowed. So, we
+    // need to disable super-res and re-initialize frame-size related stuff.
+    reinitialize_without_superres(cpi, &q, &bottom_index, &top_index);
+  }
 
   cpi->source =
       av1_scale_if_required(cm, cpi->unscaled_source, &cpi->scaled_source);
@@ -4225,6 +4277,15 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
 
   do {
     aom_clear_system_state();
+
+    // Special case that can occur in first and/or later loops.
+    if (q == 0 && !av1_superres_unscaled(cm)) {
+      // Coding all-lossless frame with super-resolution is not allowed. So, we
+      // need to disable super-res and re-initialize frame-size related stuff.
+      reinitialize_without_superres(cpi, &q, &bottom_index, &top_index);
+      // The following (re)triggers some initializations below.
+      loop_count = 0;
+    }
 
     if (loop_count == 0) {
       // TODO(agrange) Scale cpi->max_mv_magnitude if frame-size has changed.

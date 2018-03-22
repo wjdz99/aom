@@ -775,6 +775,15 @@ static INLINE int av1_frame_unscaled(const AV1_COMMON *cm) {
   return av1_superres_unscaled(cm) && av1_resize_unscaled(cm);
 }
 
+// Set appropriate options to disable frame super-resolution.
+static INLINE void av1_disable_superres(AV1EncoderConfig *oxcf) {
+  oxcf->superres_mode = SUPERRES_NONE;
+  oxcf->superres_scale_denominator = SCALE_NUMERATOR;
+  oxcf->superres_kf_scale_denominator = SCALE_NUMERATOR;
+  oxcf->superres_qthresh = 255;
+  oxcf->superres_kf_qthresh = 255;
+}
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif
