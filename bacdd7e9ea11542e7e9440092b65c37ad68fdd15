@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3d134649_61bfa8ed",
+        "filename": "av1/encoder/av1_quantize.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2018-03-22T03:37:00Z",
+      "side": 1,
+      "message": "const. May consider another name for it, e.g. abs_dqcoeff.",
+      "range": {
+        "startLine": 62,
+        "startChar": 10,
+        "endLine": 62,
+        "endChar": 25
+      },
+      "revId": "bacdd7e9ea11542e7e9440092b65c37ad68fdd15",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7bc41413_8c0114f9",
+        "filename": "av1/encoder/av1_quantize.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2018-03-22T03:37:00Z",
+      "side": 1,
+      "message": "ditto",
+      "range": {
+        "startLine": 80,
+        "startChar": 10,
+        "endLine": 80,
+        "endChar": 20
+      },
+      "revId": "bacdd7e9ea11542e7e9440092b65c37ad68fdd15",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
