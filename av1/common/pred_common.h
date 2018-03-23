@@ -92,13 +92,14 @@ static INLINE int av1_get_pred_context_seg_id(const MACROBLOCKD *xd) {
   return above_sip + left_sip;
 }
 
-static INLINE int get_comp_index_context(const AV1_COMMON *cm,
-                                         const MACROBLOCKD *xd) {
+static INLINE int get_comp_group0_context(const AV1_COMMON *cm,
+                                          const MACROBLOCKD *xd) {
   MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
   int bck_idx = cm->frame_refs[mbmi->ref_frame[0] - LAST_FRAME].idx;
   int fwd_idx = cm->frame_refs[mbmi->ref_frame[1] - LAST_FRAME].idx;
   int bck_frame_index = 0, fwd_frame_index = 0;
   int cur_frame_index = cm->cur_frame->cur_frame_offset;
+  assert(!mbmi->comp_group_idx);
 
   if (bck_idx >= 0)
     bck_frame_index = cm->buffer_pool->frame_bufs[bck_idx].cur_frame_offset;
@@ -122,7 +123,7 @@ static INLINE int get_comp_index_context(const AV1_COMMON *cm,
   if (above_mi) {
     const MB_MODE_INFO *above_mbmi = &above_mi->mbmi;
     if (has_second_ref(above_mbmi))
-      above_ctx = above_mbmi->compound_idx;
+      above_ctx = (above_mbmi->interinter_compound_type == COMPOUND_AVERAGE);
     else if (above_mbmi->ref_frame[0] == ALTREF_FRAME)
       above_ctx = 1;
   }
@@ -130,7 +131,7 @@ static INLINE int get_comp_index_context(const AV1_COMMON *cm,
   if (left_mi) {
     const MB_MODE_INFO *left_mbmi = &left_mi->mbmi;
     if (has_second_ref(left_mbmi))
-      left_ctx = left_mbmi->compound_idx;
+      left_ctx = (left_mbmi->interinter_compound_type == COMPOUND_AVERAGE);
     else if (left_mbmi->ref_frame[0] == ALTREF_FRAME)
       left_ctx = 1;
   }

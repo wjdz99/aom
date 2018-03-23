@@ -7389,10 +7389,10 @@ static int64_t handle_inter_mode(
       mbmi->compound_idx = 0;
 
       const int comp_group_idx_ctx = get_comp_group_idx_context(xd);
-      const int comp_index_ctx = get_comp_index_context(cm, xd);
+      const int group0_ctx = get_comp_group0_context(cm, xd);
       if (masked_compound_used)
         rd_stats->rate += x->comp_group_idx_cost[comp_group_idx_ctx][0];
-      rd_stats->rate += x->comp_idx_cost[comp_index_ctx][0];
+      rd_stats->rate += x->comp_idx_cost[group0_ctx][0];
     }
 
     if (have_newmv_in_inter_mode(this_mode)) {
@@ -7592,7 +7592,7 @@ static int64_t handle_inter_mode(
             can_use_previous);
       }
 
-      for (cur_type = COMPOUND_AVERAGE; cur_type < COMPOUND_TYPES; cur_type++) {
+      for (cur_type = COMPOUND_AVERAGE; cur_type < COMPOUND_TYPES - 1; cur_type++) {
         if (cur_type != COMPOUND_AVERAGE && !masked_compound_used) break;
         if (!is_interinter_compound_used(cur_type, bsize)) continue;
         tmp_rate_mv = rate_mv;
@@ -7601,14 +7601,14 @@ static int64_t handle_inter_mode(
         int masked_type_cost = 0;
 
         const int comp_group_idx_ctx = get_comp_group_idx_context(xd);
-        const int comp_index_ctx = get_comp_index_context(cm, xd);
+        const int group0_ctx = get_comp_group0_context(cm, xd);
         if (masked_compound_used) {
           if (cur_type == COMPOUND_AVERAGE) {
             mbmi->comp_group_idx = 0;
             mbmi->compound_idx = 1;
 
             masked_type_cost += x->comp_group_idx_cost[comp_group_idx_ctx][0];
-            masked_type_cost += x->comp_idx_cost[comp_index_ctx][1];
+            masked_type_cost += x->comp_idx_cost[group0_ctx][1];
           } else {
             mbmi->comp_group_idx = 1;
             mbmi->compound_idx = 1;
@@ -7622,7 +7622,7 @@ static int64_t handle_inter_mode(
           mbmi->comp_group_idx = 0;
           mbmi->compound_idx = 1;
 
-          masked_type_cost += x->comp_idx_cost[comp_index_ctx][1];
+          masked_type_cost += x->comp_idx_cost[group0_ctx][1];
         }
         rs2 = masked_type_cost;
 

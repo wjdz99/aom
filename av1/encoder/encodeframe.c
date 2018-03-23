@@ -1234,11 +1234,13 @@ static void update_stats(const AV1_COMMON *const cm, TileDataEnc *tile_data,
           }
 
           if (mbmi->comp_group_idx == 0) {
-            const int comp_index_ctx = get_comp_index_context(cm, xd);
-            ++counts->compound_index[comp_index_ctx][mbmi->compound_idx];
+            const int group0_ctx = get_comp_group0_context(cm, xd);
+            const int group0_compound_type =
+              (mbmi->interinter_compound_type == COMPOUND_AVERAGE);
+            ++counts->compound_index[group0_ctx][group0_compound_type];
             if (allow_update_cdf) {
-              update_cdf(fc->compound_index_cdf[comp_index_ctx],
-                         mbmi->compound_idx, 2);
+              update_cdf(fc->compound_index_cdf[group0_ctx],
+                         group0_compound_type, 2);
             }
           } else {
             assert(masked_compound_used);
@@ -1442,7 +1444,7 @@ static void encode_b(const AV1_COMP *const cpi, TileDataEnc *tile_data,
     }
 #endif
     if (has_second_ref(mbmi)) {
-      if (mbmi->compound_idx == 0 ||
+      if (mbmi->interinter_compound_type == COMPOUND_JNT ||
           mbmi->interinter_compound_type == COMPOUND_AVERAGE)
         mbmi->comp_group_idx = 0;
       else
