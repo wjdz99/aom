@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "5415c8b8_fa1bfe58",
+        "filename": "obudec.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-03-23T21:21:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d673063d_d1c1e3ec",
+      "revId": "e63d6c3041699aa3fab7183cd3cca352cdcd87f9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "506f1155_27609529",
         "filename": "obudec.c",
         "patchSetId": 1
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "a4cfe7ea_af426b05",
+        "filename": "obudec.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-03-23T21:21:25Z",
+      "side": 1,
+      "message": "I thought an explicit wrap check was clearer...",
+      "parentUuid": "506f1155_27609529",
+      "revId": "e63d6c3041699aa3fab7183cd3cca352cdcd87f9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9225b7a6_3eecf773",
         "filename": "obudec.c",
         "patchSetId": 1
@@ -47,6 +83,24 @@
       "writtenOn": "2018-03-23T18:02:23Z",
       "side": 1,
       "message": "do you want to return this value on failure?",
+      "revId": "e63d6c3041699aa3fab7183cd3cca352cdcd87f9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0b5d4d59_25aa7345",
+        "filename": "obudec.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-03-23T21:21:25Z",
+      "side": 1,
+      "message": "yes; eventually I\u0027d like to support reallocing when space is not sufficient. For now it\u0027s a wasted assignment until this function returns a known value for the case where the payload is too large. It\u0027s partly why I left the rollover check separate.",
+      "parentUuid": "9225b7a6_3eecf773",
       "revId": "e63d6c3041699aa3fab7183cd3cca352cdcd87f9",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
