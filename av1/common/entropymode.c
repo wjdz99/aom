@@ -56,7 +56,28 @@ static const aom_cdf_prob
     };
 
 static const aom_cdf_prob
-    default_compound_type_cdf[BLOCK_SIZES_ALL][CDF_SIZE(COMPOUND_TYPES - 1)] = {
+    default_comp_group_idx_cdfs[COMP_GROUP_IDX_CONTEXTS][CDF_SIZE(2)] = {
+      { AOM_ICDF(29491), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(24576), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(16384), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(24576), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(16384), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(13107), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(13107), AOM_ICDF(32768), 0 },
+    };
+
+static const aom_cdf_prob
+    default_compound_group0_cdfs[COMP_INDEX_CONTEXTS][CDF_SIZE(2)] = {
+      { AOM_ICDF(24576), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(16384), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(8192), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(24576), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(16384), AOM_ICDF(32768), 0 },
+      { AOM_ICDF(8192), AOM_ICDF(32768), 0 },
+    };
+
+static const aom_cdf_prob
+    default_compound_group1_cdf[BLOCK_SIZES_ALL][CDF_SIZE(COMPOUND_TYPES - 1)] = {
       { AOM_CDF2(16384) }, { AOM_CDF2(16384) }, { AOM_CDF2(16384) },
       { AOM_CDF2(16384) }, { AOM_CDF2(16384) }, { AOM_CDF2(16384) },
       { AOM_CDF2(16384) }, { AOM_CDF2(16384) }, { AOM_CDF2(16384) },
@@ -545,27 +566,6 @@ static const aom_cdf_prob default_skip_mode_cdfs[SKIP_MODE_CONTEXTS][CDF_SIZE(
 static const aom_cdf_prob default_skip_cdfs[SKIP_CONTEXTS][CDF_SIZE(2)] = {
   { AOM_CDF2(30224) }, { AOM_CDF2(16244) }, { AOM_CDF2(4835) }
 };
-
-static const aom_cdf_prob
-    default_compound_idx_cdfs[COMP_INDEX_CONTEXTS][CDF_SIZE(2)] = {
-      { AOM_ICDF(24576), AOM_ICDF(32768), 0 },
-      { AOM_ICDF(16384), AOM_ICDF(32768), 0 },
-      { AOM_ICDF(8192), AOM_ICDF(32768), 0 },
-      { AOM_ICDF(24576), AOM_ICDF(32768), 0 },
-      { AOM_ICDF(16384), AOM_ICDF(32768), 0 },
-      { AOM_ICDF(8192), AOM_ICDF(32768), 0 },
-    };
-
-static const aom_cdf_prob
-    default_comp_group_idx_cdfs[COMP_GROUP_IDX_CONTEXTS][CDF_SIZE(2)] = {
-      { AOM_ICDF(29491), AOM_ICDF(32768), 0 },
-      { AOM_ICDF(24576), AOM_ICDF(32768), 0 },
-      { AOM_ICDF(16384), AOM_ICDF(32768), 0 },
-      { AOM_ICDF(24576), AOM_ICDF(32768), 0 },
-      { AOM_ICDF(16384), AOM_ICDF(32768), 0 },
-      { AOM_ICDF(13107), AOM_ICDF(32768), 0 },
-      { AOM_ICDF(13107), AOM_ICDF(32768), 0 },
-    };
 
 static const aom_cdf_prob default_filter_intra_mode_cdf[CDF_SIZE(
     FILTER_INTRA_MODES)] = { AOM_CDF5(14259, 17304, 20463, 29377) };
@@ -1091,8 +1091,6 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
   av1_copy(fc->comp_bwdref_cdf, default_comp_bwdref_cdf);
   av1_copy(fc->single_ref_cdf, default_single_ref_cdf);
   av1_copy(fc->txfm_partition_cdf, default_txfm_partition_cdf);
-  av1_copy(fc->compound_index_cdf, default_compound_idx_cdfs);
-  av1_copy(fc->comp_group_idx_cdf, default_comp_group_idx_cdfs);
   av1_copy(fc->newmv_cdf, default_newmv_cdf);
   av1_copy(fc->zeromv_cdf, default_zeromv_cdf);
   av1_copy(fc->refmv_cdf, default_refmv_cdf);
@@ -1100,7 +1098,9 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
   av1_copy(fc->motion_mode_cdf, default_motion_mode_cdf);
   av1_copy(fc->obmc_cdf, default_obmc_cdf);
   av1_copy(fc->inter_compound_mode_cdf, default_inter_compound_mode_cdf);
-  av1_copy(fc->compound_type_cdf, default_compound_type_cdf);
+  av1_copy(fc->comp_group_idx_cdf, default_comp_group_idx_cdfs);
+  av1_copy(fc->compound_group0_cdf, default_compound_group0_cdfs);
+  av1_copy(fc->compound_group1_cdf, default_compound_group1_cdf);
 #if WEDGE_IDX_ENTROPY_CODING
   av1_copy(fc->wedge_idx_cdf, default_wedge_idx_cdf);
 #endif

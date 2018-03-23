@@ -235,7 +235,6 @@ struct macroblock {
   int64_t skip_mode_dist;
   MV_REFERENCE_FRAME skip_mode_ref_frame[2];
   int_mv skip_mode_mv[2];
-  int compound_idx;
   int skip_mode_index_candidate;
   int skip_mode_index;
 
@@ -265,7 +264,9 @@ struct macroblock {
   // BWDREF_FRAME) in bidir-comp mode.
   int comp_bwdref_cost[REF_CONTEXTS][BWD_REFS - 1][2];
   int inter_compound_mode_cost[INTER_MODE_CONTEXTS][INTER_COMPOUND_MODES];
-  int compound_type_cost[BLOCK_SIZES_ALL][COMPOUND_TYPES - 1];
+  int comp_group_idx_cost[COMP_GROUP_IDX_CONTEXTS][2];
+  int compound_group0_cost[COMP_INDEX_CONTEXTS][2];
+  int compound_group1_cost[BLOCK_SIZES_ALL][COMPOUND_TYPES - 2];
 #if WEDGE_IDX_ENTROPY_CODING
   int wedge_idx_cost[BLOCK_SIZES_ALL][16];
 #endif
@@ -317,8 +318,6 @@ struct macroblock {
   int using_dist_8x8;
   aom_tune_metric tune_metric;
 #endif  // CONFIG_DIST_8X8
-  int comp_idx_cost[COMP_INDEX_CONTEXTS][2];
-  int comp_group_idx_cost[COMP_GROUP_IDX_CONTEXTS][2];
   // Bit flags for pruning tx type search, tx split, etc.
   int tx_search_prune[EXT_TX_SET_TYPES];
   int must_find_valid_partition;
