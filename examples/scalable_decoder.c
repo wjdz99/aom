@@ -124,7 +124,7 @@ int main(int argc, char **argv) {
   if (aom_codec_dec_init(&codec, decoder->codec_interface(), NULL, 0))
     die_codec(&codec, "Failed to initialize decoder.");
 
-  if (!file_is_obu(&obu_ctx))
+  if (!file_is_obu(&obu_ctx, 0))
     die_codec(&codec, "Input is not a valid obu file");
 
   // peak sequence header OBU to get enhancement layer count, if any
@@ -142,7 +142,7 @@ int main(int argc, char **argv) {
       die("Failed to open output for writing.");
   }
 
-  while (!obudec_read_temporal_unit(&obu_ctx, &buf, &bytes_in_buffer,
+  while (!obudec_read_temporal_unit(&obu_ctx, 0, &buf, &bytes_in_buffer,
                                     &buffer_size, next_layer_id)) {
     aom_codec_iter_t iter = NULL;
     aom_image_t *img = NULL;
