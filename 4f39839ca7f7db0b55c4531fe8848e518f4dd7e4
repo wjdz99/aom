@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "0d8e7a31_43e166d3",
+        "filename": "obudec.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-03-23T05:26:24Z",
+      "side": 1,
+      "message": "I\u0027ll change this to a checked fread() in a follow up. Was abusing fgetc() while this was WIP and forgot this one.",
+      "parentUuid": "3d3217ba_bdd34e4f",
+      "revId": "4f39839ca7f7db0b55c4531fe8848e518f4dd7e4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7bc2c087_8223aa42",
         "filename": "obudec.c",
         "patchSetId": 8
@@ -30,6 +48,30 @@
       "writtenOn": "2018-03-23T03:11:18Z",
       "side": 1,
       "message": "could use a check or assert on this parameter",
+      "range": {
+        "startLine": 89,
+        "startChar": 3,
+        "endLine": 89,
+        "endChar": 13
+      },
+      "revId": "4f39839ca7f7db0b55c4531fe8848e518f4dd7e4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "13189a45_8cc3b3a7",
+        "filename": "obudec.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-03-23T05:26:24Z",
+      "side": 1,
+      "message": "in a follow up",
+      "parentUuid": "7bc2c087_8223aa42",
       "range": {
         "startLine": 89,
         "startChar": 3,
@@ -59,6 +101,24 @@
     },
     {
       "key": {
+        "uuid": "e66344aa_8cb643eb",
+        "filename": "obudec.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-03-23T05:26:24Z",
+      "side": 1,
+      "message": "ditto/follow up",
+      "parentUuid": "9cb504c1_3be4e7e3",
+      "revId": "4f39839ca7f7db0b55c4531fe8848e518f4dd7e4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "6bd83e57_bf8c57d5",
         "filename": "obudec.c",
         "patchSetId": 8
@@ -82,6 +142,30 @@
     },
     {
       "key": {
+        "uuid": "7668e589_ce106e2f",
+        "filename": "obudec.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-03-23T05:26:24Z",
+      "side": 1,
+      "message": "Ack, follow up (or a fuzzer will get angry before I remember)",
+      "parentUuid": "6bd83e57_bf8c57d5",
+      "range": {
+        "startLine": 161,
+        "startChar": 19,
+        "endLine": 161,
+        "endChar": 37
+      },
+      "revId": "4f39839ca7f7db0b55c4531fe8848e518f4dd7e4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "85466ee9_debfe61a",
         "filename": "obudec.c",
         "patchSetId": 8
@@ -96,6 +180,24 @@
       "revId": "4f39839ca7f7db0b55c4531fe8848e518f4dd7e4",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bab44fbe_91e754d5",
+        "filename": "obudec.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-03-23T05:26:24Z",
+      "side": 1,
+      "message": "Ack/follow up",
+      "parentUuid": "85466ee9_debfe61a",
+      "revId": "4f39839ca7f7db0b55c4531fe8848e518f4dd7e4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
