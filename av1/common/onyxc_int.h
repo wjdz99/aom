@@ -34,6 +34,9 @@
 #include "av1/encoder/hash_motion.h"
 #include "aom_dsp/grain_synthesis.h"
 #include "aom_dsp/grain_table.h"
+#if CONFIG_DENOISE
+#include "aom_dsp/noise_model.h"
+#endif
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -506,6 +509,10 @@ typedef struct AV1Common {
   aom_film_grain_table_t *film_grain_table;
   int film_grain_params_present;
   aom_film_grain_t film_grain_params;
+#if CONFIG_DENOISE
+  aom_noise_model_t *noise_model;
+  aom_flat_block_finder_t *flat_block_finder;
+#endif
   int cdef_pri_damping;
   int cdef_sec_damping;
   int nb_cdef_strengths;

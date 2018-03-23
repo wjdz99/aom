@@ -56,6 +56,11 @@
 #include "av1/encoder/grain_test_vectors.h"
 #include "aom_dsp/aom_dsp_common.h"
 #include "aom_dsp/aom_filter.h"
+#if CONFIG_DENOISE
+#include "aom_dsp/grain_table.h"
+#include "aom_dsp/noise_util.h"
+#include "aom_dsp/noise_model.h"
+#endif
 #include "aom_ports/aom_timer.h"
 #include "aom_ports/mem.h"
 #include "aom_ports/system_state.h"
@@ -5028,6 +5033,162 @@ static int Pass2Encode(AV1_COMP *cpi, size_t *size, uint8_t *dest,
   return AOM_CODEC_OK;
 }
 
+#if CONFIG_DENOISE
+int av1_denoise_2d(AV1_COMMON *const cm, YV12_BUFFER_CONFIG *sd,
+                   float noise_level, int block_size, int64_t time_stamp,
+                   int64_t end_time) {
+  int res = 0;
+  block_size = block_size ? block_size : 32;
+  const bool use_highbd = (sd->flags & YV12_FLAG_HIGHBITDEPTH);
+  uint8_t *denoised[3] = {
+    aom_malloc((sd->y_stride * sd->y_width) << use_highbd),
+    aom_malloc((sd->uv_stride * sd->uv_height) << use_highbd),
+    aom_malloc((sd->uv_stride * sd->uv_height) << use_highbd),
+  };
+  uint8_t *raw_data[3] = {
+    use_highbd ? (uint8_t *)CONVERT_TO_SHORTPTR(sd->y_buffer) : sd->y_buffer,
+    use_highbd ? (uint8_t *)CONVERT_TO_SHORTPTR(sd->u_buffer) : sd->u_buffer,
+    use_highbd ? (uint8_t *)CONVERT_TO_SHORTPTR(sd->v_buffer) : sd->v_buffer,
+  };
+  const uint8_t *const data[3] = { raw_data[0], raw_data[1], raw_data[2] };
+  int strides[3] = {
+    sd->y_stride,
+    sd->uv_stride,
+    sd->uv_stride,
+  };
+  int chroma_sub_log2[2] = { sd->subsampling_x, sd->subsampling_y };
+  // Simply use a flat PSD (although we do flat block estimation and could use
+  // those to estimate an actual noise PSD)
+  double *noise_psd[3] = {
+    aom_malloc(sizeof(*noise_psd[0]) * block_size * block_size),
+    aom_malloc(sizeof(*noise_psd[1]) * block_size * block_size),
+    aom_malloc(sizeof(*noise_psd[2]) * block_size * block_size)
+  };
+  const double y_noise_level =
+      aom_noise_psd_get_default_value(block_size, noise_level);
+  const double uv_noise_level =
+      aom_noise_psd_get_default_value(block_size, noise_level);
+  for (int i = 0; i < block_size * block_size; ++i) {
+    noise_psd[0][i] = y_noise_level;
+    noise_psd[1][i] = uv_noise_level;
+    noise_psd[2][i] = uv_noise_level;
+  }
+
+  if (!cm->flat_block_finder) {
+    cm->flat_block_finder = aom_malloc(sizeof(*cm->flat_block_finder));
+    aom_flat_block_finder_init(cm->flat_block_finder, block_size, cm->bit_depth,
+                               use_highbd);
+  }
+  if (!cm->film_grain_table) {
+    cm->film_grain_table = aom_malloc(sizeof(*cm->film_grain_table));
+    memset(cm->film_grain_table, 0, sizeof(*cm->film_grain_table));
+  }
+
+  const int num_blocks_w = (sd->y_width + block_size - 1) / block_size;
+  const int num_blocks_h = (sd->y_height + block_size - 1) / block_size;
+  uint8_t *const flat_blocks = aom_malloc(num_blocks_w * num_blocks_h);
+  memset(flat_blocks, 0, sizeof(*flat_blocks) * num_blocks_w * num_blocks_h);
+  const int num_flat =
+      aom_flat_block_finder_run(cm->flat_block_finder, data[0], sd->y_width,
+                                sd->y_height, strides[0], flat_blocks);
+  fprintf(stdout, "Num flat blocks: %d (bit_depth: %d, highbd: %d/%d)\n",
+          num_flat, (int)cm->bit_depth, use_highbd, !CONFIG_LOWBITDEPTH);
+  if (num_flat == 0) {
+    // aom_internal_error(&cm->error, AOM_CODEC_ERROR,
+    //                   "Error running flat block finder\n");
+    // res = -1;
+  }
+  fprintf(stderr, "strides %d %d %d (%d %d)\n", strides[0], strides[1],
+          strides[2], sd->y_width, sd->y_height);
+  if (!aom_wiener_denoise_2d(data, denoised, sd->y_width, sd->y_height, strides,
+                             chroma_sub_log2, noise_psd, block_size,
+                             cm->bit_depth, use_highbd)) {
+    aom_internal_error(&cm->error, AOM_CODEC_ERROR, "Error denoising image\n");
+    res = -1;
+  }
+
+  if (!cm->noise_model) {
+    cm->noise_model = aom_malloc(sizeof(*cm->noise_model));
+    const aom_noise_model_params_t params = { AOM_NOISE_SHAPE_SQUARE, 3,
+                                              cm->bit_depth, use_highbd };
+    if (!aom_noise_model_init(cm->noise_model, params)) {
+      aom_internal_error(&cm->error, AOM_CODEC_ERROR,
+                         "Error initing noise model\n");
+      res = -1;
+    }
+  }
+
+  int have_noise_model = 0;
+  if (cm->noise_model) {
+    const aom_noise_status_t status = aom_noise_model_update(
+        cm->noise_model, data, (const uint8_t *const *)denoised, sd->y_width,
+        sd->y_height, strides, chroma_sub_log2, flat_blocks, block_size);
+    if (status == AOM_NOISE_STATUS_OK) {
+      fprintf(stdout, "Noise status updated successfully\n");
+      have_noise_model = 1;
+    } else if (status == AOM_NOISE_STATUS_DIFFERENT_NOISE_TYPE) {
+      fprintf(stderr, "Different noise type\n");
+      aom_noise_model_save_latest(cm->noise_model);
+      have_noise_model = 1;
+    } else {
+      fprintf(stderr, "Unable to update noise model, status = %d\n", status);
+      have_noise_model =
+          &cm->noise_model->combined_state[0].strength_solver.num_equations > 0;
+      fprintf(stderr, "Will use noise model if had previous estimate.");
+    }
+  }
+  if (have_noise_model) {
+    fprintf(stderr, "Using denoised model, gain: %f, %f: \n\n",
+            cm->noise_model->latest_state[0].ar_gain,
+            cm->noise_model->combined_state[0].ar_gain);
+
+    aom_equation_system_t *eqns =
+        &cm->noise_model->combined_state[0].strength_solver.eqns;
+    fprintf(stderr, "Noise strength:");
+    for (int i = 0; i < eqns->n; ++i) {
+      fprintf(stderr, "%f ", eqns->x[i]);
+      eqns->x[i] *= 1.2;
+    }
+    fprintf(stderr, "\n");
+    fprintf(stderr, "Coeffs:");
+    eqns = &cm->noise_model->combined_state[0].eqns;
+    for (int i = 0; i < eqns->n; ++i) {
+      fprintf(stderr, "%f ", eqns->x[i]);
+    }
+    fprintf(stderr, "\n");
+    int seed = cm->film_grain_params.random_seed;
+    if (aom_noise_model_get_grain_parameters(cm->noise_model,
+                                             &cm->film_grain_params)) {
+      res = -1;
+    }
+
+    // The seed cannot be zero
+    cm->film_grain_params.random_seed = seed;
+    if (!cm->film_grain_params.random_seed)
+      cm->film_grain_params.random_seed = 1017;
+    else {
+      cm->film_grain_params.random_seed += 3245;
+    }
+    aom_film_grain_table_append(cm->film_grain_table, time_stamp, end_time,
+                                &cm->film_grain_params);
+    av1_film_grain_print(stderr, &cm->film_grain_params);
+    memcpy(raw_data[0], denoised[0], (strides[0] * sd->y_height) << use_highbd);
+    memcpy(raw_data[1], denoised[1],
+           (strides[1] * sd->uv_height) << use_highbd);
+    memcpy(raw_data[2], denoised[2],
+           (strides[2] * sd->uv_height) << use_highbd);
+  }
+  aom_free(flat_blocks);
+  aom_free(denoised[0]);
+  aom_free(denoised[1]);
+  aom_free(denoised[2]);
+  aom_free(noise_psd[0]);
+  aom_free(noise_psd[1]);
+  aom_free(noise_psd[2]);
+  return res;
+}
+#endif
+
 int av1_receive_raw_frame(AV1_COMP *cpi, aom_enc_frame_flags_t frame_flags,
                           YV12_BUFFER_CONFIG *sd, int64_t time_stamp,
                           int64_t end_time) {
@@ -5041,6 +5202,12 @@ int av1_receive_raw_frame(AV1_COMP *cpi, aom_enc_frame_flags_t frame_flags,
   check_initial_width(cpi, use_highbitdepth, subsampling_x, subsampling_y);
 
   aom_usec_timer_start(&timer);
+
+#if CONFIG_DENOISE
+  if (cpi->oxcf.noise_level > 0)
+    av1_denoise_2d(cm, sd, cpi->oxcf.noise_level, cpi->oxcf.noise_block_size,
+                   time_stamp, end_time);
+#endif  //  CONFIG_DENOISE
 
   if (av1_lookahead_push(cpi->lookahead, sd, time_stamp, end_time,
                          use_highbitdepth, frame_flags))
@@ -5727,10 +5894,14 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
   cm->cur_frame->buf.buf_8bit_valid = 0;
 
   if (cm->film_grain_table) {
+    const bool erase = cm->show_frame || cm->showable_frame;
     cm->film_grain_params_present = aom_film_grain_table_lookup(
-        cm->film_grain_table, *time_stamp, *time_end, 0 /* erase */,
+        cm->film_grain_table, *time_stamp, *time_end, 0 * erase,
         &cm->film_grain_params);
   }
+  fprintf(stderr, "Outputting seed: %d %d show: %d %d source:%d\n",
+          cm->film_grain_params.random_seed, cm->film_grain_params_present,
+          cm->show_frame, cm->showable_frame, source != 0);
   cm->cur_frame->film_grain_params_present = cm->film_grain_params_present;
 
 #if CONFIG_BUFFER_MODEL

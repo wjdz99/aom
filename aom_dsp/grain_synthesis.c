@@ -1384,3 +1384,59 @@ void av1_add_film_grain_run(aom_film_grain_t *params, uint8_t *luma,
                  &cb_grain_block, &cr_grain_block, &y_line_buf, &cb_line_buf,
                  &cr_line_buf, &y_col_buf, &cb_col_buf, &cr_col_buf);
 }
+
+void av1_film_grain_print(FILE *file, const aom_film_grain_t *pars) {
+  fprintf(file, "num_y_points = %d\n", pars->num_y_points);
+  for (int i = 0; i < pars->num_y_points; i++) {
+    fprintf(file, "%d %d\n", pars->scaling_points_y[i][0],
+            pars->scaling_points_y[i][1]);
+  }
+  fprintf(file, "chroma_scaling_from_luma = %d\n",
+          pars->chroma_scaling_from_luma);
+
+  fprintf(file, "num_cb_points = %d\n", pars->num_cb_points);
+  for (int i = 0; i < pars->num_cb_points; i++) {
+    fprintf(file, "%d %d\n", pars->scaling_points_cb[i][0],
+            pars->scaling_points_cb[i][1]);
+  }
+  fprintf(file, "num_cr_points = %d\n", pars->num_cr_points);
+  for (int i = 0; i < pars->num_cr_points; i++) {
+    fprintf(file, "%d %d\n", pars->scaling_points_cr[i][0],
+            pars->scaling_points_cr[i][1]);
+  }
+  fprintf(file, "scaling_shift = %d\n", pars->scaling_shift);
+  fprintf(file, "ar_coeff_lag = %d\n", pars->ar_coeff_lag);
+  int num_pos_luma = 2 * pars->ar_coeff_lag * (pars->ar_coeff_lag + 1);
+  int num_pos_chroma = num_pos_luma;
+  if (pars->num_y_points > 0) ++num_pos_chroma;
+
+  fprintf(file, "num_pos_luma = %d\n", num_pos_luma);
+  for (int i = 0; i < num_pos_luma; i++) {
+    fprintf(file, "%d ", pars->ar_coeffs_y[i]);
+  }
+  fprintf(file, "\n");
+  fprintf(file, "num_pos_chroma = %d\n", num_pos_chroma);
+  for (int i = 0; i < num_pos_chroma; i++) {
+    fprintf(file, "%d ", pars->ar_coeffs_cb[i]);
+  }
+  fprintf(file, "\n");
+  for (int i = 0; i < num_pos_chroma; i++) {
+    fprintf(file, "%d ", pars->ar_coeffs_cr[i]);
+  }
+  fprintf(file, "\n");
+  fprintf(file, "ar_coeff_shift = %d\n", pars->ar_coeff_shift);
+  fprintf(file, "grain_scale_shift = %d\n", pars->grain_scale_shift);
+  fprintf(file, "overlap_flag = %d\n", pars->overlap_flag);
+
+  fprintf(file, "cb_mult = %d\n", pars->cb_mult);
+  fprintf(file, "cb_luma_mult = %d\n", pars->cb_luma_mult);
+  fprintf(file, "cb_offset = %d\n", pars->cb_offset);
+
+  fprintf(file, "cr_mult = %d\n", pars->cr_mult);
+  fprintf(file, "cr_luma_mult = %d\n", pars->cr_luma_mult);
+  fprintf(file, "cr_offset = %d\n", pars->cr_offset);
+
+  fprintf(file, "apply_grain = %d\n", pars->apply_grain);
+  fprintf(file, "update_parameters = %d\n", pars->update_parameters);
+  fprintf(file, "random_seed = %d\n", pars->random_seed);
+}
