@@ -535,6 +535,8 @@ typedef struct AV1Common {
   // TODO(jingning): This can be combined with sign_bias later.
   int8_t ref_frame_side[TOTAL_REFS_PER_FRAME];
 
+  int is_annexb;
+
 #if CONFIG_FRAME_REFS_SIGNALING
   int frame_refs_short_signaling;
 #endif  // CONFIG_FRAME_REFS_SIGNALING

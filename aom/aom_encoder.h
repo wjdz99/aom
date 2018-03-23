@@ -663,6 +663,14 @@ typedef struct aom_codec_enc_cfg {
    */
   unsigned int monochrome;
 
+  /*!\brief Bitstream syntax mode
+   *
+   * This value indicates the bitstream syntax mode.
+   * A value of 0 implies bitstream is saved as non-Annex-B bitstream. A value
+   * of 1 implies the bitstream is saved in Annex-B format
+   */
+  unsigned int save_as_annexb;
+
   /*!\brief Number of explicit tile widths specified
    *
    * This value indicates the number of tile widths specified

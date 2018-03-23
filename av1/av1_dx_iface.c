@@ -161,6 +161,11 @@ static aom_codec_err_t decoder_destroy(aom_codec_alg_priv_t *ctx) {
   return AOM_CODEC_OK;
 }
 
+static int is_annexb_detected(const uint8_t *data) {
+  return (
+      !((data[0] >> 3 & 0x0F) == OBU_TEMPORAL_DELIMITER && (data[0] & 0x2)));
+}
+
 static size_t get_obu_length_field_size(const uint8_t *data, size_t data_sz) {
   const size_t max_bytes = AOMMIN(sizeof(uint64_t), data_sz);
   size_t length_field_size = 1;
@@ -182,6 +187,17 @@ static aom_codec_err_t decoder_peek_si_internal(const uint8_t *data,
   si->h = 0;
   si->is_kf = 0;
 
+  // TODO(shan): Need a better way to detect whether Annex B
+  // Assuming it's not Annex B if first byte is a TD OBU with obu_has_size_field
+  // set to 1.  Alternate solution is to have decoder application tell us
+  // explicitly
+#if !CONFIG_ANNEX_BPRIME
+  if ((data[0] >> 3 & 0x0F) == OBU_TEMPORAL_DELIMITER && (data[0] & 0x2))
+    si->is_annexb = 0;
+  else
+    si->is_annexb = 1;
+#endif
+
   // TODO(tomfinegan): This function needs Sequence and Frame Header OBUs to
   // operate properly. At present it hard codes the values to 1 for the keyframe
   // and intra only flags, and assumes the data being parsed is a Sequence
@@ -189,15 +205,25 @@ static aom_codec_err_t decoder_peek_si_internal(const uint8_t *data,
   intra_only_flag = 1;
   si->is_kf = 1;
 
-  struct aom_read_bit_buffer rb = { data, data + data_sz, 0, NULL, NULL };
+  size_t length_field_size = 0;
+  if (si->is_annexb) {
+    length_field_size = get_obu_length_field_size(data, data_sz - 1);
+  }
+  struct aom_read_bit_buffer rb = { data + length_field_size, data + data_sz, 0,
+                                    NULL, NULL };
+
   const uint8_t obu_header = (uint8_t)aom_rb_read_literal(&rb, 8);
   OBU_TYPE obu_type;
 
   if (get_obu_type(obu_header, &obu_type) != 0)
     return AOM_CODEC_UNSUP_BITSTREAM;
 
-  // One byte has been consumed by the OBU header.
-  rb.bit_buffer += get_obu_length_field_size(data + 1, data_sz - 1) * 8;
+  if (!si->is_annexb) {
+    // One byte has been consumed by the OBU header.
+    // TODO(shan): Assuming 1-byte obu_header (need to account in case extension
+    // exists)
+    rb.bit_buffer += get_obu_length_field_size(data + 1, data_sz - 1) + 2;
+  }
 
   // This check is disabled because existing behavior is depended upon by
   // decoder tests (see decode_test_driver.cc), scalability_decoder (see
@@ -441,6 +467,8 @@ static aom_codec_err_t decode_one(aom_codec_alg_priv_t *ctx,
   frame_worker_data->pbi->dec_tile_row = ctx->decode_tile_row;
   frame_worker_data->pbi->dec_tile_col = ctx->decode_tile_col;
 
+  frame_worker_data->pbi->common.is_annexb = ctx->si.is_annexb;
+
   worker->had_error = 0;
   winterface->execute(worker);
 
@@ -477,6 +505,29 @@ static aom_codec_err_t decoder_decode(aom_codec_alg_priv_t *ctx,
     res = init_decoder(ctx);
     if (res != AOM_CODEC_OK) return res;
   }
+
+#if CONFIG_ANNEX_BPRIME
+  if (!ctx->si.h) ctx->si.is_annexb = is_annexb_detected(data_start);
+  if (ctx->si.is_annexb) {
+    // read the size of this temporal unit
+    size_t length_of_size;
+    uint64_t size_of_unit;
+    if (aom_uleb_decode(data_start, data_sz, &size_of_unit, &length_of_size) !=
+        0) {
+      return AOM_CODEC_CORRUPT_FRAME;
+    }
+    data_start += length_of_size;
+
+    // read the temporal_delimiter obu
+    if (aom_uleb_decode(data_start, data_sz, &size_of_unit, &length_of_size) !=
+        0) {
+      return AOM_CODEC_CORRUPT_FRAME;
+    }
+    data_start += length_of_size;  // size of the TD obu
+    data_start += size_of_unit;    // the actual TD
+  }
+#endif
+
   // Decode in serial mode.
   if (frame_count > 0) {
     int i;
@@ -496,6 +547,18 @@ static aom_codec_err_t decoder_decode(aom_codec_alg_priv_t *ctx,
     }
   } else {
     while (data_start < data_end) {
+#if CONFIG_ANNEX_BPRIME
+      if (ctx->si.is_annexb) {
+        // read the size of this frame unit
+        size_t length_of_size;
+        uint64_t size_of_frame_unit;
+        if (aom_uleb_decode(data_start, data_sz, &size_of_frame_unit,
+                            &length_of_size) != 0) {
+          return AOM_CODEC_CORRUPT_FRAME;
+        }
+        data_start += length_of_size;
+      }
+#endif
       const uint32_t frame_size = (uint32_t)(data_end - data_start);
       res = decode_one(ctx, &data_start, frame_size, user_priv);
       if (res != AOM_CODEC_OK) return res;

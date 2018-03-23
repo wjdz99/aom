@@ -100,11 +100,12 @@ static aom_codec_err_t read_obu_header(struct aom_read_bit_buffer *rb,
 
   header->has_extension = aom_rb_read_bit(rb);
   header->has_length_field = aom_rb_read_bit(rb);
+#if 0
   if (!header->has_length_field) {
     // libaom does not support streams with this bit set to 0.
     return AOM_CODEC_UNSUP_BITSTREAM;
   }
-
+#endif
   aom_rb_read_bit(rb);  // reserved
 
   const ptrdiff_t bit_buffer_byte_length = rb->bit_buffer_end - rb->bit_buffer;
@@ -388,6 +389,14 @@ void av1_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
     }
 
     size_t length_field_size = 0;
+    size_t obu_size = 0;
+    if (cm->is_annexb) {
+      if (read_obu_size(data, bytes_available, &obu_size, &length_field_size) !=
+          AOM_CODEC_OK) {
+        cm->error.error_code = AOM_CODEC_CORRUPT_FRAME;
+        return;
+      }
+    }
     if (data_end < data + length_field_size) {
       cm->error.error_code = AOM_CODEC_CORRUPT_FRAME;
       return;
@@ -400,13 +409,18 @@ void av1_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
       return;
     }
 
-    if (read_obu_size(data + obu_header.size, bytes_available - obu_header.size,
-                      &payload_size, &length_field_size) != AOM_CODEC_OK) {
-      cm->error.error_code = AOM_CODEC_CORRUPT_FRAME;
-      return;
+    if (!cm->is_annexb) {
+      if (read_obu_size(data + obu_header.size,
+                        bytes_available - obu_header.size, &payload_size,
+                        &length_field_size) != AOM_CODEC_OK) {
+        cm->error.error_code = AOM_CODEC_CORRUPT_FRAME;
+        return;
+      }
+      av1_init_read_bit_buffer(
+          pbi, &rb, data + length_field_size + obu_header.size, data_end);
+    } else {
+      payload_size = obu_size - obu_header.size;
     }
-    av1_init_read_bit_buffer(
-        pbi, &rb, data + length_field_size + obu_header.size, data_end);
 
     data += length_field_size + obu_header.size;
     if (data_end < data) {
