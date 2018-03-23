@@ -122,6 +122,24 @@
       "revId": "e63d6c3041699aa3fab7183cd3cca352cdcd87f9",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ab269469_23740535",
+        "filename": "obudec.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-03-23T23:12:16Z",
+      "side": 1,
+      "message": "I\u0027ll expand the comment and 0 the length value in a follow up. Thanks!",
+      "parentUuid": "0296ef68_d13b9b37",
+      "revId": "e63d6c3041699aa3fab7183cd3cca352cdcd87f9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
