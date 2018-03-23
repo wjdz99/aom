@@ -83,9 +83,10 @@ typedef struct {
  *
  * \param[in]  solver    The noise solver to be initialized.
  * \param[in]  num_bins  Number of bins to use in the internal representation.
+ * \param[in]  bit_depth The bit depth used to derive {min,max}_intensity.
  */
 int aom_noise_strength_solver_init(aom_noise_strength_solver_t *solver,
-                                   int num_bins);
+                                   int num_bins, int bit_depth);
 void aom_noise_strength_solver_free(aom_noise_strength_solver_t *solver);
 
 /*!\brief Gets the x coordinate of bin i.
@@ -129,11 +130,13 @@ typedef struct {
   double *A;
   int num_params;  // The number of parameters used for internal low-order model
   int block_size;  // The block size the finder was initialized with
+  double normalization;  // Normalization factor (1 / (2^(bit_depth) - 1))
+  int use_highbd;        // Whether input data should be interpreted as uint16
 } aom_flat_block_finder_t;
 
-/*!\brief Init the block_finder with the given block size */
+/*!\brief Init the block_finder with the given block size, bit_depth */
 int aom_flat_block_finder_init(aom_flat_block_finder_t *block_finder,
-                               int block_size);
+                               int block_size, int bit_depth, int use_highbd);
 void aom_flat_block_finder_free(aom_flat_block_finder_t *block_finder);
 
 /*!\brief Helper to extract a block and low order "planar" model. */
@@ -152,10 +155,14 @@ typedef enum {
   AOM_NOISE_SHAPE_SQUARE = 1
 } aom_noise_shape;
 
-// The parameters of the noise model include the shape type and the lag.
+// The parameters of the noise model include the shape type, lag, the
+// bit depth of the input images provided, and whether the input images
+// will be using uint16 (or uint8) representation.
 typedef struct {
   aom_noise_shape shape;
   int lag;
+  int bit_depth;
+  int use_highbd;
 } aom_noise_model_params_t;
 
 /*!\brief State of a noise model estimate for a single channel.
@@ -181,6 +188,7 @@ typedef struct {
   aom_noise_state_t latest_state[3];    // Latest state per channel
   int (*coords)[2];  // Offsets (x,y) of the coefficient samples
   int n;             // Number of parameters (size of coords)
+  int bit_depth;
 } aom_noise_model_t;
 
 /*!\brief Result of a noise model update. */
@@ -243,6 +251,26 @@ void aom_noise_model_save_latest(aom_noise_model_t *noise_model);
  */
 int aom_noise_model_get_grain_parameters(aom_noise_model_t *const noise_model,
                                          aom_film_grain_t *film_grain);
+
+void pointwise_multiply(const double *const a, double *b, int n);
+double *get_half_cos_window(int block_size);
+
+/*!\brief Perform a Wiener filter denoising in 2D using the provided noise
+ * model.
+ *
+ * \param[in]     data            Raw frame data
+ * \param[in]     denoised        Denoised frame data.
+ * \param[in]     w               Frame width
+ * \param[in]     h               Frame height
+ * \param[in]     stride          Stride of the planes
+ * \param[in]     chroma_sub_log2 Chroma subsampling for planes != 0.
+ * \param[in]     noise_psd       The power spectral density of the noise.
+ * \param[in]     block_size      The size of blocks.
+ */
+int aom_wiener_denoise_2d(const uint8_t *const data[3], uint8_t *denoised[3],
+                          int w, int h, int stride[3], int chroma_sub_log2[2],
+                          double *noise_psd[3], int block_size, int bit_depth,
+                          int use_highbd);
 
 #ifdef __cplusplus
 }  // extern "C"
