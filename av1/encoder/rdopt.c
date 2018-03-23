@@ -7334,7 +7334,7 @@ static int64_t handle_inter_mode(
   int compmode_interinter_cost = 0;
   mbmi->interinter_compound_type = COMPOUND_AVERAGE;
   mbmi->comp_group_idx = 0;
-  mbmi->compound_idx = 1;
+  //mbmi->compound_idx = 1;
   if (mbmi->ref_frame[1] == INTRA_FRAME) mbmi->ref_frame[1] = NONE_FRAME;
 
   mode_ctx = av1_mode_context_analyzer(mbmi_ext->mode_context, mbmi->ref_frame);
@@ -7365,34 +7365,35 @@ static int64_t handle_inter_mode(
   const RD_STATS backup_rd_stats_uv = *rd_stats_uv;
   RD_STATS best_rd_stats, best_rd_stats_y, best_rd_stats_uv;
   int64_t best_rd = INT64_MAX;
-  int best_compound_idx = 1;
+  //int best_compound_idx = 1;
   int64_t best_ret_val = INT64_MAX;
   uint8_t best_blk_skip[MAX_MIB_SIZE * MAX_MIB_SIZE];
   const MB_MODE_INFO backup_mbmi = *mbmi;
   MB_MODE_INFO best_mbmi = *mbmi;
   int64_t early_terminate = 0;
 
-  int comp_idx;
+  int exclude_jnt;
   const int search_jnt_comp = is_comp_pred & cm->seq_params.enable_jnt_comp;
-  // If !search_jnt_comp, we need to force mbmi->compound_idx = 1.
-  for (comp_idx = !search_jnt_comp; comp_idx < 2; ++comp_idx) {
+  // If !search_jnt_comp, we want to avoid searching COMPOUND_JNT
+  for (exclude_jnt = !search_jnt_comp; exclude_jnt < 2; ++exclude_jnt) {
     compmode_interinter_cost = 0;
     early_terminate = 0;
     *rd_stats = backup_rd_stats;
     *rd_stats_y = backup_rd_stats_y;
     *rd_stats_uv = backup_rd_stats_uv;
     *mbmi = backup_mbmi;
-    mbmi->compound_idx = comp_idx;
+    //mbmi->compound_idx = comp_idx;
 
-    if (is_comp_pred && comp_idx == 0) {
+    if (is_comp_pred && !exclude_jnt) {
       mbmi->comp_group_idx = 0;
-      mbmi->compound_idx = 0;
+      //mbmi->compound_idx = 0;
+      mbmi->interinter_compound_type = COMPOUND_JNT;
 
       const int comp_group_idx_ctx = get_comp_group_idx_context(xd);
-      const int comp_index_ctx = get_comp_index_context(cm, xd);
+      const int group0_ctx = get_comp_group0_context(cm, xd);
       if (masked_compound_used)
         rd_stats->rate += x->comp_group_idx_cost[comp_group_idx_ctx][0];
-      rd_stats->rate += x->comp_idx_cost[comp_index_ctx][0];
+      rd_stats->rate += x->compound_group0_cost[group0_ctx][0];
     }
 
     if (have_newmv_in_inter_mode(this_mode)) {
@@ -7557,7 +7558,7 @@ static int64_t handle_inter_mode(
       continue;
     }
 
-    if (is_comp_pred && comp_idx) {
+    if (is_comp_pred && exclude_jnt) {
       int rate_sum, rs2;
       int64_t dist_sum;
       int64_t best_rd_compound = INT64_MAX, best_rd_cur = INT64_MAX;
@@ -7592,7 +7593,7 @@ static int64_t handle_inter_mode(
             can_use_previous);
       }
 
-      for (cur_type = COMPOUND_AVERAGE; cur_type < COMPOUND_TYPES; cur_type++) {
+      for (cur_type = COMPOUND_AVERAGE; cur_type < COMPOUND_TYPES - 1; cur_type++) {
         if (cur_type != COMPOUND_AVERAGE && !masked_compound_used) break;
         if (!is_interinter_compound_used(cur_type, bsize)) continue;
         tmp_rate_mv = rate_mv;
@@ -7601,28 +7602,26 @@ static int64_t handle_inter_mode(
         int masked_type_cost = 0;
 
         const int comp_group_idx_ctx = get_comp_group_idx_context(xd);
-        const int comp_index_ctx = get_comp_index_context(cm, xd);
         if (masked_compound_used) {
           if (cur_type == COMPOUND_AVERAGE) {
             mbmi->comp_group_idx = 0;
-            mbmi->compound_idx = 1;
+            const int group0_ctx = get_comp_group0_context(cm, xd);
 
             masked_type_cost += x->comp_group_idx_cost[comp_group_idx_ctx][0];
-            masked_type_cost += x->comp_idx_cost[comp_index_ctx][1];
+            masked_type_cost += x->compound_group0_cost[group0_ctx][1];
           } else {
             mbmi->comp_group_idx = 1;
-            mbmi->compound_idx = 1;
 
             masked_type_cost += x->comp_group_idx_cost[comp_group_idx_ctx][1];
             masked_type_cost +=
-                x->compound_type_cost[bsize]
-                                     [mbmi->interinter_compound_type - 1];
+                x->compound_group1_cost[bsize]
+                                       [mbmi->interinter_compound_type == COMPOUND_SEG];
           }
         } else {
           mbmi->comp_group_idx = 0;
-          mbmi->compound_idx = 1;
+          const int group0_ctx = get_comp_group0_context(cm, xd);
 
-          masked_type_cost += x->comp_idx_cost[comp_index_ctx][1];
+          masked_type_cost += x->compound_group0_cost[group0_ctx][1];
         }
         rs2 = masked_type_cost;
 
@@ -7771,7 +7770,7 @@ static int64_t handle_inter_mode(
         best_rd_stats = *rd_stats;
         best_rd_stats_y = *rd_stats_y;
         best_rd_stats_uv = *rd_stats_uv;
-        best_compound_idx = mbmi->compound_idx;
+        //best_compound_idx = mbmi->compound_idx;
         best_ret_val = ret_val;
         best_rd = tmp_rd;
         best_mbmi = *mbmi;
@@ -7785,7 +7784,7 @@ static int64_t handle_inter_mode(
     *rd_stats = best_rd_stats;
     *rd_stats_y = best_rd_stats_y;
     *rd_stats_uv = best_rd_stats_uv;
-    mbmi->compound_idx = best_compound_idx;
+    //mbmi->compound_idx = best_compound_idx;
     ret_val = best_ret_val;
     *mbmi = best_mbmi;
     memcpy(x->blk_skip, best_blk_skip,
@@ -8282,7 +8281,7 @@ static void estimate_skip_mode_rdcost(
     mbmi->filter_intra_mode_info.use_filter_intra = 0;
     mbmi->interintra_mode = (INTERINTRA_MODE)(II_DC_PRED - 1);
     mbmi->comp_group_idx = 0;
-    mbmi->compound_idx = x->compound_idx;
+    //mbmi->compound_idx = x->compound_idx;
     mbmi->interinter_compound_type = COMPOUND_AVERAGE;
     mbmi->motion_mode = SIMPLE_TRANSLATION;
     mbmi->ref_mv_idx = 0;
@@ -9607,7 +9606,7 @@ PALETTE_EXIT:
       !segfeature_active(seg, segment_id, SEG_LVL_REF_FRAME) &&
       is_comp_ref_allowed(bsize)) {
     // Obtain the rdcost for skip_mode.
-    x->compound_idx = 1;  // COMPOUND_AVERAGE
+   // x->compound_idx = 1;  // COMPOUND_AVERAGE
     estimate_skip_mode_rdcost(cpi, tile_data, x, bsize, mi_row, mi_col,
                               frame_mv, yv12_mb);
 
@@ -9656,7 +9655,6 @@ PALETTE_EXIT:
       best_mbmode.palette_mode_info.palette_size[1] = 0;
 
       best_mbmode.comp_group_idx = 0;
-      best_mbmode.compound_idx = x->compound_idx;
       best_mbmode.interinter_compound_type = COMPOUND_AVERAGE;
       best_mbmode.motion_mode = SIMPLE_TRANSLATION;
 

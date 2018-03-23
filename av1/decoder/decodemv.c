@@ -1526,7 +1526,6 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
 
   // init
   mbmi->comp_group_idx = 0;
-  mbmi->compound_idx = 1;
   mbmi->interinter_compound_type = COMPOUND_AVERAGE;
 
   if (has_second_ref(mbmi) && !mbmi->skip_mode) {
@@ -1541,13 +1540,16 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
     }
 
     if (mbmi->comp_group_idx == 0) {
+      // compound_average or compound_jnt
       if (cm->seq_params.enable_jnt_comp) {
-        const int comp_index_ctx = get_comp_index_context(cm, xd);
-        mbmi->compound_idx = aom_read_symbol(
-            r, ec_ctx->compound_index_cdf[comp_index_ctx], 2, ACCT_STR);
+        const int group0_ctx = get_comp_group0_context(cm, xd);
+        const int is_compound_average = aom_read_symbol(
+            r, ec_ctx->compound_group0_cdf[group0_ctx], 2, ACCT_STR);
+        mbmi->interinter_compound_type =
+          is_compound_average ? COMPOUND_AVERAGE : COMPOUND_JNT;
       } else {
         // Distance-weighted compound is disabled, so always use average
-        mbmi->compound_idx = 1;
+        mbmi->interinter_compound_type = COMPOUND_AVERAGE;
       }
     } else {
       assert(cm->reference_mode != SINGLE_REFERENCE &&
@@ -1555,13 +1557,16 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
              mbmi->motion_mode == SIMPLE_TRANSLATION);
       assert(masked_compound_used);
 
-      // compound_segment, wedge
-      if (is_interinter_compound_used(COMPOUND_WEDGE, bsize))
-        mbmi->interinter_compound_type =
-            1 + aom_read_symbol(r, ec_ctx->compound_type_cdf[bsize],
-                                COMPOUND_TYPES - 1, ACCT_STR);
-      else
+      // compound_segment or compound_wedge
+      if (is_interinter_compound_used(COMPOUND_WEDGE, bsize)) {
+        const int is_compound_seg =
+            aom_read_symbol(r, ec_ctx->compound_group1_cdf[bsize],
+                                2, ACCT_STR);
+        mbmi->interinter_compound_type = is_compound_seg ? COMPOUND_SEG :
+                                                           COMPOUND_WEDGE;
+      } else {
         mbmi->interinter_compound_type = COMPOUND_SEG;
+      }
 
       if (mbmi->interinter_compound_type == COMPOUND_WEDGE) {
         assert(is_interinter_compound_used(COMPOUND_WEDGE, bsize));

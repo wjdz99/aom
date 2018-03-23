@@ -91,7 +91,9 @@ void av1_reset_cdf_symbol_counters(FRAME_CONTEXT *fc) {
   RESET_CDF_COUNTER(refmv_cdf);
   RESET_CDF_COUNTER(drl_cdf);
   RESET_CDF_COUNTER(inter_compound_mode_cdf);
-  RESET_CDF_COUNTER(compound_type_cdf);
+  RESET_CDF_COUNTER(comp_group_idx_cdf);
+  RESET_CDF_COUNTER(compound_group0_cdf);
+  RESET_CDF_COUNTER(compound_group1_cdf);
 #if WEDGE_IDX_ENTROPY_CODING
   RESET_CDF_COUNTER(wedge_idx_cdf);
 #endif
@@ -113,8 +115,6 @@ void av1_reset_cdf_symbol_counters(FRAME_CONTEXT *fc) {
   RESET_CDF_COUNTER(comp_ref_cdf);
   RESET_CDF_COUNTER(comp_bwdref_cdf);
   RESET_CDF_COUNTER(txfm_partition_cdf);
-  RESET_CDF_COUNTER(compound_index_cdf);
-  RESET_CDF_COUNTER(comp_group_idx_cdf);
   RESET_CDF_COUNTER(skip_mode_cdfs);
   RESET_CDF_COUNTER(skip_cdfs);
   RESET_CDF_COUNTER(intra_inter_cdf);

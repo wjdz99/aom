@@ -1131,7 +1131,7 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
     if (mbmi->ref_frame[1] != INTRA_FRAME) write_motion_mode(cm, xd, mi, w);
 
     // First write idx to indicate current compound inter prediction mode group
-    // Group A (0): jnt_comp, compound_average
+    // Group A (0): compound_jnt, compound_average
     // Group B (1): interintra, compound_segment, wedge
     if (has_second_ref(mbmi)) {
       const int masked_compound_used =
@@ -1146,15 +1146,13 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
       }
 
       if (mbmi->comp_group_idx == 0) {
-        if (mbmi->compound_idx)
-          assert(mbmi->interinter_compound_type == COMPOUND_AVERAGE);
-
         if (cm->seq_params.enable_jnt_comp) {
-          const int comp_index_ctx = get_comp_index_context(cm, xd);
-          aom_write_symbol(w, mbmi->compound_idx,
-                           ec_ctx->compound_index_cdf[comp_index_ctx], 2);
+          const int group0_ctx = get_comp_group0_context(cm, xd);
+          aom_write_symbol(w,
+                           mbmi->interinter_compound_type == COMPOUND_AVERAGE,
+                           ec_ctx->compound_group0_cdf[group0_ctx], 2);
         } else {
-          assert(mbmi->compound_idx == 1);
+          assert(mbmi->interinter_compound_type == COMPOUND_AVERAGE);
         }
       } else {
         assert(cpi->common.reference_mode != SINGLE_REFERENCE &&
@@ -1166,9 +1164,8 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
                mbmi->interinter_compound_type == COMPOUND_SEG);
 
         if (is_interinter_compound_used(COMPOUND_WEDGE, bsize))
-          aom_write_symbol(w, mbmi->interinter_compound_type - 1,
-                           ec_ctx->compound_type_cdf[bsize],
-                           COMPOUND_TYPES - 1);
+          aom_write_symbol(w, mbmi->interinter_compound_type == COMPOUND_SEG,
+                           ec_ctx->compound_group1_cdf[bsize], 2);
 
         if (mbmi->interinter_compound_type == COMPOUND_WEDGE) {
           assert(is_interinter_compound_used(COMPOUND_WEDGE, bsize));

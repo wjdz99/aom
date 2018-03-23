@@ -278,8 +278,8 @@ void av1_fill_mode_rates(AV1_COMMON *const cm, MACROBLOCK *x,
       av1_cost_tokens_from_cdf(x->inter_compound_mode_cost[i],
                                fc->inter_compound_mode_cdf[i], NULL);
     for (i = 0; i < BLOCK_SIZES_ALL; ++i)
-      av1_cost_tokens_from_cdf(x->compound_type_cost[i],
-                               fc->compound_type_cdf[i], NULL);
+      av1_cost_tokens_from_cdf(x->compound_group1_cost[i],
+                               fc->compound_group1_cdf[i], NULL);
 #if WEDGE_IDX_ENTROPY_CODING
     for (i = 0; i < BLOCK_SIZES_ALL; ++i) {
       if (get_interinter_wedge_bits(i)) {
@@ -306,7 +306,8 @@ void av1_fill_mode_rates(AV1_COMMON *const cm, MACROBLOCK *x,
       av1_cost_tokens_from_cdf(x->motion_mode_cost1[i], fc->obmc_cdf[i], NULL);
     }
     for (i = 0; i < COMP_INDEX_CONTEXTS; ++i) {
-      av1_cost_tokens_from_cdf(x->comp_idx_cost[i], fc->compound_index_cdf[i],
+      av1_cost_tokens_from_cdf(x->compound_group0_cost[i],
+                               fc->compound_group0_cdf[i],
                                NULL);
     }
     for (i = 0; i < COMP_GROUP_IDX_CONTEXTS; ++i) {
