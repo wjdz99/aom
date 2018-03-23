@@ -5597,6 +5597,8 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
   set_high_precision_mv(cpi, ALTREF_HIGH_PRECISION_MV);
 #endif
 
+  cm->is_annexb = oxcf->save_as_annexb;
+
   // Is multi-arf enabled.
   // Note that at the moment multi_arf is only configured for 2 pass VBR
   if ((oxcf->pass == 2) && (cpi->oxcf.enable_auto_arf > 1))

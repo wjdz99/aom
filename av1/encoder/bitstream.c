@@ -3422,15 +3422,15 @@ static int remux_tiles(const AV1_COMMON *const cm, uint8_t *dst,
 }
 
 uint32_t write_obu_header(OBU_TYPE obu_type, int obu_extension,
-                          uint8_t *const dst) {
+                          uint8_t *const dst, int is_annexb) {
   struct aom_write_bit_buffer wb = { dst, 0 };
   uint32_t size = 0;
 
   aom_wb_write_literal(&wb, 0, 1);  // forbidden bit.
   aom_wb_write_literal(&wb, (int)obu_type, 4);
   aom_wb_write_literal(&wb, obu_extension ? 1 : 0, 1);
-  aom_wb_write_literal(&wb, 1, 1);  // obu_has_payload_length_field
-  aom_wb_write_literal(&wb, 0, 1);  // reserved
+  aom_wb_write_literal(&wb, !is_annexb, 1);  // obu_has_payload_length_field
+  aom_wb_write_literal(&wb, 0, 1);           // reserved
 
   if (obu_extension) {
     aom_wb_write_literal(&wb, obu_extension & 0xFF, 8);
@@ -3440,10 +3440,19 @@ uint32_t write_obu_header(OBU_TYPE obu_type, int obu_extension,
   return size;
 }
 
+size_t get_uleb_obu_size_in_bytes(uint32_t obu_header_size,
+                                  uint32_t obu_payload_size, int is_annexb) {
+  uint32_t obu_size = obu_payload_size;
+  if (is_annexb) obu_size += obu_header_size;
+
+  return aom_uleb_size_in_bytes(obu_size);
+}
+
 int write_uleb_obu_size(uint32_t obu_header_size, uint32_t obu_payload_size,
-                        uint8_t *dest) {
-  const uint32_t obu_size = obu_payload_size;
-  const uint32_t offset = obu_header_size;
+                        uint8_t *dest, int is_annexb) {
+  uint32_t obu_size = obu_payload_size;
+  const uint32_t offset = is_annexb ? 0 : obu_header_size;
+  if (is_annexb) obu_size += obu_header_size;
   size_t coded_obu_size = 0;
 
   if (aom_uleb_encode(obu_size, sizeof(obu_size), dest + offset,
@@ -3455,12 +3464,18 @@ int write_uleb_obu_size(uint32_t obu_header_size, uint32_t obu_payload_size,
 }
 
 static size_t obu_memmove(uint32_t obu_header_size, uint32_t obu_payload_size,
-                          uint8_t *data) {
-  const size_t length_field_size = aom_uleb_size_in_bytes(obu_payload_size);
-  const uint32_t move_dst_offset =
-      (uint32_t)length_field_size + obu_header_size;
-  const uint32_t move_src_offset = obu_header_size;
-  const uint32_t move_size = obu_payload_size;
+                          uint8_t *data, int is_annexb) {
+  const size_t length_field_size =
+      get_uleb_obu_size_in_bytes(obu_header_size, obu_payload_size, is_annexb);
+  uint32_t move_dst_offset = (uint32_t)length_field_size;
+  uint32_t move_src_offset = obu_header_size;
+  uint32_t move_size = obu_payload_size;
+  if (!is_annexb) {
+    move_dst_offset += obu_header_size;
+  } else {
+    move_src_offset = 0;
+    move_size += obu_header_size;
+  }
   memmove(data + move_dst_offset, data + move_src_offset, move_size);
   return length_field_size;
 }
@@ -3624,7 +3639,8 @@ static uint32_t write_tiles_in_tg_obus(AV1_COMP *const cpi, uint8_t *const dst,
 #else
     const OBU_TYPE obu_type = OBU_TILE_GROUP;
 #endif  // CONFIG_OBU_FRAME
-    const uint32_t tg_hdr_size = write_obu_header(obu_type, 0, data);
+    const uint32_t tg_hdr_size =
+        write_obu_header(obu_type, 0, data, cm->is_annexb);
     data += tg_hdr_size;
 
 #if CONFIG_OBU_FRAME
@@ -3734,9 +3750,9 @@ static uint32_t write_tiles_in_tg_obus(AV1_COMP *const cpi, uint8_t *const dst,
     total_size += tg_hdr_size;
     const uint32_t obu_payload_size = total_size - tg_hdr_size;
     const size_t length_field_size =
-        obu_memmove(tg_hdr_size, obu_payload_size, dst);
-    if (write_uleb_obu_size(tg_hdr_size, obu_payload_size, dst) !=
-        AOM_CODEC_OK) {
+        obu_memmove(tg_hdr_size, obu_payload_size, dst, cm->is_annexb);
+    if (write_uleb_obu_size(tg_hdr_size, obu_payload_size, dst,
+                            cm->is_annexb) != AOM_CODEC_OK) {
       assert(0);
     }
     total_size += (uint32_t)length_field_size;
@@ -3786,8 +3802,8 @@ static uint32_t write_tiles_in_tg_obus(AV1_COMP *const cpi, uint8_t *const dst,
 #else
         const OBU_TYPE obu_type = OBU_TILE_GROUP;
 #endif
-        curr_tg_data_size =
-            write_obu_header(obu_type, obu_extension_header, data);
+        curr_tg_data_size = write_obu_header(obu_type, obu_extension_header,
+                                             data, cm->is_annexb);
         obu_header_size = curr_tg_data_size;
 
 #if CONFIG_OBU_FRAME
@@ -3874,9 +3890,9 @@ static uint32_t write_tiles_in_tg_obus(AV1_COMP *const cpi, uint8_t *const dst,
         // write current tile group size
         const uint32_t obu_payload_size = curr_tg_data_size - obu_header_size;
         const size_t length_field_size =
-            obu_memmove(obu_header_size, obu_payload_size, data);
-        if (write_uleb_obu_size(obu_header_size, obu_payload_size, data) !=
-            AOM_CODEC_OK) {
+            obu_memmove(obu_header_size, obu_payload_size, data, cm->is_annexb);
+        if (write_uleb_obu_size(obu_header_size, obu_payload_size, data,
+                                cm->is_annexb) != AOM_CODEC_OK) {
           assert(0);
         }
         curr_tg_data_size += (int)length_field_size;
@@ -3897,7 +3913,8 @@ static uint32_t write_tiles_in_tg_obus(AV1_COMP *const cpi, uint8_t *const dst,
           // Rewrite the OBU header to change the OBU type to Redundant Frame
           // Header.
           write_obu_header(OBU_REDUNDANT_FRAME_HEADER, obu_extension_header,
-                           &data[fh_info->obu_header_byte_offset]);
+                           &data[fh_info->obu_header_byte_offset],
+                           cm->is_annexb);
 #endif  // CONFIG_OBU_REDUNDANT_FRAME_HEADER
 
           data += fh_info->total_length;
@@ -3976,7 +3993,8 @@ int av1_pack_bitstream(AV1_COMP *const cpi, uint8_t *dst, size_t *size) {
 
   // write sequence header obu if KEY_FRAME, preceded by 4-byte size
   if (cm->frame_type == KEY_FRAME) {
-    obu_header_size = write_obu_header(OBU_SEQUENCE_HEADER, 0, data);
+    obu_header_size =
+        write_obu_header(OBU_SEQUENCE_HEADER, 0, data, cm->is_annexb);
 
 #if CONFIG_SCALABILITY
     obu_payload_size = write_sequence_header_obu(cpi, data + obu_header_size,
@@ -3986,9 +4004,9 @@ int av1_pack_bitstream(AV1_COMP *const cpi, uint8_t *dst, size_t *size) {
 #endif  // CONFIG_SCALABILITY
 
     const size_t length_field_size =
-        obu_memmove(obu_header_size, obu_payload_size, data);
-    if (write_uleb_obu_size(obu_header_size, obu_payload_size, data) !=
-        AOM_CODEC_OK) {
+        obu_memmove(obu_header_size, obu_payload_size, data, cm->is_annexb);
+    if (write_uleb_obu_size(obu_header_size, obu_payload_size, data,
+                            cm->is_annexb) != AOM_CODEC_OK) {
       return AOM_CODEC_ERROR;
     }
 
@@ -4005,15 +4023,15 @@ int av1_pack_bitstream(AV1_COMP *const cpi, uint8_t *dst, size_t *size) {
   if (write_frame_header) {
     // Write Frame Header OBU.
     fh_info.frame_header = data;
-    obu_header_size =
-        write_obu_header(OBU_FRAME_HEADER, obu_extension_header, data);
+    obu_header_size = write_obu_header(OBU_FRAME_HEADER, obu_extension_header,
+                                       data, cm->is_annexb);
     obu_payload_size =
         write_frame_header_obu(cpi, &saved_wb, data + obu_header_size);
 
     const size_t length_field_size =
-        obu_memmove(obu_header_size, obu_payload_size, data);
-    if (write_uleb_obu_size(obu_header_size, obu_payload_size, data) !=
-        AOM_CODEC_OK) {
+        obu_memmove(obu_header_size, obu_payload_size, data, cm->is_annexb);
+    if (write_uleb_obu_size(obu_header_size, obu_payload_size, data,
+                            cm->is_annexb) != AOM_CODEC_OK) {
       return AOM_CODEC_ERROR;
     }
 
@@ -4053,6 +4071,20 @@ int av1_pack_bitstream(AV1_COMP *const cpi, uint8_t *dst, size_t *size) {
                                &saved_wb, obu_extension_header, &fh_info);
   }
   data += data_size;
+#if CONFIG_ANNEX_BPRIME
+  if (cm->is_annexb) {
+    // write total size of this frame
+    data_size = (uint32_t)(data - dst);
+    size_t coded_size;
+    const size_t length_frame_size = aom_uleb_size_in_bytes(data_size);
+
+    memmove(dst + length_frame_size, dst, data_size);
+    if (aom_uleb_encode(data_size, sizeof(data_size), dst, &coded_size) != 0) {
+      return AOM_CODEC_ERROR;
+    }
+    data += length_frame_size;
+  }
+#endif  // CONFIG_ANNEX_BPRIME
   *size = data - dst;
   return AOM_CODEC_OK;
 }
