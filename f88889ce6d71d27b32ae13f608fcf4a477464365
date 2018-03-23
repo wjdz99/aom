@@ -19,6 +19,29 @@
     },
     {
       "key": {
+        "uuid": "3ff6febc_787a1326",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 3276,
+      "author": {
+        "id": 5975
+      },
+      "writtenOn": "2018-03-23T14:47:42Z",
+      "side": 1,
+      "message": "How should this interact with OBU_FRAME?\n\nIt looks like the code, as written, will include a \u00271\u0027 bit + byte alignment in the middle of the OBU, between the frame header and first tile group. Is this intended? (it may very well make sense - this would simplify the process of splitting/merging an OBU_FRAME to/from OBU_FRAME_HEADER+OBU_TILE_GROUP)",
+      "range": {
+        "startLine": 3276,
+        "startChar": 2,
+        "endLine": 3276,
+        "endChar": 51
+      },
+      "revId": "f88889ce6d71d27b32ae13f608fcf4a477464365",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ccd7fa4c_4a6cdced",
         "filename": "av1/decoder/obu.c",
         "patchSetId": 2
