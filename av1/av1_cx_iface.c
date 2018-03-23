@@ -98,6 +98,10 @@ struct av1_extracfg {
   int enable_order_hint;
   int use_jnt_comp;
   int enable_superres;
+#if CONFIG_DENOISE
+  float noise_level;
+  int noise_block_size;
+#endif
 };
 
 static struct av1_extracfg default_extra_cfg = {
@@ -167,6 +171,10 @@ static struct av1_extracfg default_extra_cfg = {
   1,    // frame order hint
   1,    // jnt_comp
   1,    // superres
+#if CONFIG_DENOISE
+  0,   // noise_level
+  32,  // noise_block_size
+#endif
 };
 
 struct aom_codec_alg_priv {
@@ -628,6 +636,10 @@ static aom_codec_err_t set_encoder_config(
   oxcf->film_grain_test_vector = extra_cfg->film_grain_test_vector;
   oxcf->film_grain_table_filename = extra_cfg->film_grain_table_filename;
 #endif
+#if CONFIG_DENOISE
+  oxcf->noise_level = extra_cfg->noise_level;
+  oxcf->noise_block_size = extra_cfg->noise_block_size;
+#endif
   oxcf->large_scale_tile = cfg->large_scale_tile;
   oxcf->single_tile_decoding =
       (oxcf->large_scale_tile) ? extra_cfg->single_tile_decoding : 0;
@@ -1014,6 +1026,24 @@ static aom_codec_err_t ctrl_set_film_grain_table(aom_codec_alg_priv_t *ctx,
                                                  va_list args) {
   struct av1_extracfg extra_cfg = ctx->extra_cfg;
   extra_cfg.film_grain_table_filename = CAST(AV1E_SET_FILM_GRAIN_TABLE, args);
+  return update_extra_cfg(ctx, &extra_cfg);
+}
+#endif
+
+#if CONFIG_DENOISE
+static aom_codec_err_t ctrl_set_denoise_noise_level(aom_codec_alg_priv_t *ctx,
+                                                    va_list args) {
+  struct av1_extracfg extra_cfg = ctx->extra_cfg;
+  extra_cfg.noise_level =
+      ((float)CAST(AV1E_SET_DENOISE_NOISE_LEVEL, args)) / 10.0f;
+  fprintf(stderr, "setting noise level %f\n", extra_cfg.noise_level);
+  return update_extra_cfg(ctx, &extra_cfg);
+}
+
+static aom_codec_err_t ctrl_set_denoise_block_size(aom_codec_alg_priv_t *ctx,
+                                                   va_list args) {
+  struct av1_extracfg extra_cfg = ctx->extra_cfg;
+  extra_cfg.noise_block_size = CAST(AV1E_SET_DENOISE_BLOCK_SIZE, args);
   return update_extra_cfg(ctx, &extra_cfg);
 }
 #endif
@@ -1653,7 +1683,10 @@ static aom_codec_ctrl_fn_map_t encoder_ctrl_maps[] = {
   { AV1E_SET_FILM_GRAIN_TEST_VECTOR, ctrl_set_film_grain_test_vector },
   { AV1E_SET_FILM_GRAIN_TABLE, ctrl_set_film_grain_table },
 #endif  // CONFIG_FILM_GRAIN
-
+#if CONFIG_DENOISE
+  { AV1E_SET_DENOISE_NOISE_LEVEL, ctrl_set_denoise_noise_level },
+  { AV1E_SET_DENOISE_BLOCK_SIZE, ctrl_set_denoise_block_size },
+#endif  // CONFIG_FILM_GRAIN
   { AV1E_ENABLE_MOTION_VECTOR_UNIT_TEST, ctrl_enable_motion_vector_unit_test },
 
   // Getters
