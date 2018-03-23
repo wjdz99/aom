@@ -70,6 +70,44 @@ int obu_read_temporal_unit(FILE *infile, uint8_t **buffer, size_t *bytes_read,
     return 1;
   }
 
+#if CONFIG_ANNEX_BPRIME
+  uint8_t obutd[OBU_MAX_LENGTH_FIELD_SIZE] = { 0 };
+  uint64_t size = 0;
+  size_t length_of_temporal_unit_size;
+
+  if (!fread(obutd, 1, OBU_MAX_LENGTH_FIELD_SIZE, infile)) {
+    return 1;
+  }
+  if (aom_uleb_decode(obutd, OBU_MAX_LENGTH_FIELD_SIZE, &size,
+                      &length_of_temporal_unit_size) != 0) {
+    warn("OBU size parse failed.\n");
+    return 0;
+  }
+  fseek(infile, -OBU_MAX_LENGTH_FIELD_SIZE, SEEK_CUR);
+
+  size += length_of_temporal_unit_size;
+  if (size > *buffer_size) {
+    uint8_t *new_buffer = (uint8_t *)realloc(*buffer, size);
+    if (new_buffer) {
+      *buffer = new_buffer;
+      *buffer_size = size;
+    } else {
+      warn("Failed to allocate compressed data buffer\n");
+      size = 0;
+    }
+  }
+  if (!feof(infile)) {
+    if (fread(*buffer, 1, size, infile) != size) {
+      warn("Failed to read full temporal unit\n");
+      return 1;
+    }
+    *bytes_read = size;
+    return 0;
+  }
+
+  return 1;
+#endif
+
   *buffer_size = 0;
   *bytes_read = 0;
   while (1) {

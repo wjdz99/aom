@@ -675,6 +675,8 @@ static aom_codec_err_t set_encoder_config(
   oxcf->deltaq_mode = extra_cfg->deltaq_mode;
 #endif
 
+  oxcf->save_as_annexb = cfg->save_as_annexb;
+
   oxcf->frame_periodic_boost = extra_cfg->frame_periodic_boost;
   oxcf->motion_vector_unit_test = extra_cfg->motion_vector_unit_test;
   return AOM_CODEC_OK;
@@ -1283,28 +1285,49 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
         // move data and insert OBU_TD preceded by optional 4 byte size
         uint32_t obu_header_size = 1;
         const uint32_t obu_payload_size = 0;
-        const size_t length_field_size =
-            aom_uleb_size_in_bytes(obu_payload_size);
+        const size_t length_field_size = get_uleb_obu_size_in_bytes(
+            obu_header_size, obu_payload_size, ctx->oxcf.save_as_annexb);
 
         if (ctx->pending_cx_data) {
           const size_t move_offset = length_field_size + 1;
           memmove(ctx->pending_cx_data + move_offset, ctx->pending_cx_data,
                   ctx->pending_cx_data_sz);
         }
-        const uint32_t obu_header_offset = 0;
+        const uint32_t obu_header_offset =
+            ctx->oxcf.save_as_annexb ? (uint32_t)length_field_size : 0;
         obu_header_size = write_obu_header(
             OBU_TEMPORAL_DELIMITER, 0,
-            (uint8_t *)(ctx->pending_cx_data + obu_header_offset));
+            (uint8_t *)(ctx->pending_cx_data + obu_header_offset),
+            ctx->oxcf.save_as_annexb);
 
         // OBUs are preceded/succeeded by an unsigned leb128 coded integer.
         if (write_uleb_obu_size(obu_header_size, obu_payload_size,
-                                ctx->pending_cx_data) != AOM_CODEC_OK) {
+                                ctx->pending_cx_data,
+                                ctx->oxcf.save_as_annexb) != AOM_CODEC_OK) {
           return AOM_CODEC_ERROR;
         }
 
         pkt.data.frame.sz +=
             obu_header_size + obu_payload_size + length_field_size;
       }
+#if CONFIG_ANNEX_BPRIME
+      if (ctx->cfg.save_as_annexb) {
+        // add total size of temporal unit
+        const uint32_t total_data_size = (uint32_t)pkt.data.frame.sz;
+        size_t coded_size;
+        const size_t length_temporal_unit_size =
+            aom_uleb_size_in_bytes(total_data_size);
+
+        memmove(ctx->pending_cx_data + length_temporal_unit_size,
+                ctx->pending_cx_data, total_data_size);
+
+        if (aom_uleb_encode(total_data_size, sizeof(total_data_size),
+                            ctx->pending_cx_data, &coded_size) != 0) {
+          return AOM_CODEC_ERROR;
+        }
+        pkt.data.frame.sz += length_temporal_unit_size;
+      }
+#endif  // CONFIG_ANNEX_BPRIME
 
       pkt.data.frame.pts = ticks_to_timebase_units(timebase, dst_time_stamp);
       pkt.data.frame.flags = get_frame_pkt_flags(cpi, lib_flags);
@@ -1714,6 +1737,7 @@ static aom_codec_enc_cfg_map_t encoder_usage_cfg_map[] = {
         1,            // sframe_mode
         0,            // large_scale_tile
         0,            // monochrome
+        0,            // save_as_annexb
         0,            // tile_width_count
         0,            // tile_height_count
         { 0 },        // tile_widths
