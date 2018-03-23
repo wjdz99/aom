@@ -35,6 +35,9 @@
 #include "aom_dsp/grain_synthesis.h"
 #include "aom_dsp/grain_table.h"
 #endif
+#if CONFIG_DENOISE
+#include "aom_dsp/noise_model.h"
+#endif
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -520,8 +523,13 @@ typedef struct AV1Common {
   WarpedMotionParams global_motion[TOTAL_REFS_PER_FRAME];
 #if CONFIG_FILM_GRAIN
   aom_film_grain_table_t *film_grain_table;
+  // These should only be used during decoding
   int film_grain_params_present;
   aom_film_grain_t film_grain_params;
+#endif
+#if CONFIG_DENOISE
+  aom_noise_model_t *noise_model;
+  aom_flat_block_finder_t *flat_block_finder;
 #endif
   int cdef_pri_damping;
   int cdef_sec_damping;
