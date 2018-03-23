@@ -1882,21 +1882,14 @@ static void loop_filter_block_plane_horz(AV1_COMMON *const cm,
 
 void av1_loop_filter_rows(YV12_BUFFER_CONFIG *frame_buffer, AV1_COMMON *cm,
                           struct macroblockd_plane *planes, int start, int stop,
-                          int y_only) {
+                          int plane) {
   const int num_planes = av1_num_planes(cm);
-  // y_only no longer has its original meaning.
-  // Here it means which plane to filter
-  // when y_only = {0, 1, 2}, it means we are searching for filter level for
-  // Y/U/V plane individually.
-  const int plane_start = y_only;
-  const int plane_end = plane_start + 1;
   const int col_start = 0;
   const int col_end = cm->mi_cols;
   int mi_row, mi_col;
-  int plane;
 
 #if LOOP_FILTER_BITMASK
-  enum lf_path path = get_loop_filter_path(y_only, planes);
+  enum lf_path path = get_loop_filter_path(plane, planes);
 
   // filter all vertical edges in every super block
   for (mi_row = start; mi_row < stop; mi_row += MAX_MIB_SIZE) {
@@ -1905,14 +1898,10 @@ void av1_loop_filter_rows(YV12_BUFFER_CONFIG *frame_buffer, AV1_COMMON *cm,
                            mi_col, num_planes);
 
       LoopFilterMask *lf_mask = get_loop_filter_mask(cm, mi_row, mi_col);
-
-      for (plane = plane_start; plane < plane_end; ++plane) {
-        av1_setup_bitmask(cm, mi_row, mi_col, plane,
-                          planes[plane].subsampling_x,
-                          planes[plane].subsampling_y, lf_mask);
-        loop_filter_block_plane_vert(cm, planes, plane, mi_row, mi_col, path,
-                                     lf_mask);
-      }
+      av1_setup_bitmask(cm, mi_row, mi_col, plane, planes[plane].subsampling_x,
+                        planes[plane].subsampling_y, lf_mask);
+      loop_filter_block_plane_vert(cm, planes, plane, mi_row, mi_col, path,
+                                   lf_mask);
     }
   }
 
@@ -1923,11 +1912,8 @@ void av1_loop_filter_rows(YV12_BUFFER_CONFIG *frame_buffer, AV1_COMMON *cm,
                            mi_col, num_planes);
 
       LoopFilterMask *lf_mask = get_loop_filter_mask(cm, mi_row, mi_col);
-
-      for (plane = plane_start; plane < plane_end; ++plane) {
-        loop_filter_block_plane_horz(cm, planes, plane, mi_row, mi_col, path,
-                                     lf_mask);
-      }
+      loop_filter_block_plane_horz(cm, planes, plane, mi_row, mi_col, path,
+                                   lf_mask);
     }
   }
 #else
@@ -1936,9 +1922,7 @@ void av1_loop_filter_rows(YV12_BUFFER_CONFIG *frame_buffer, AV1_COMMON *cm,
     for (mi_col = col_start; mi_col < col_end; mi_col += MAX_MIB_SIZE) {
       av1_setup_dst_planes(planes, cm->seq_params.sb_size, frame_buffer, mi_row,
                            mi_col, num_planes);
-      for (plane = plane_start; plane < plane_end; ++plane) {
-        filter_block_plane_vert(cm, plane, &planes[plane], mi_row, mi_col);
-      }
+      filter_block_plane_vert(cm, plane, &planes[plane], mi_row, mi_col);
     }
   }
 
@@ -1947,9 +1931,7 @@ void av1_loop_filter_rows(YV12_BUFFER_CONFIG *frame_buffer, AV1_COMMON *cm,
     for (mi_col = col_start; mi_col < col_end; mi_col += MAX_MIB_SIZE) {
       av1_setup_dst_planes(planes, cm->seq_params.sb_size, frame_buffer, mi_row,
                            mi_col, num_planes);
-      for (plane = plane_start; plane < plane_end; ++plane) {
-        filter_block_plane_horz(cm, plane, &planes[plane], mi_row, mi_col);
-      }
+      filter_block_plane_horz(cm, plane, &planes[plane], mi_row, mi_col);
     }
   }
 #endif  // LOOP_FILTER_BITMASK
@@ -1957,7 +1939,7 @@ void av1_loop_filter_rows(YV12_BUFFER_CONFIG *frame_buffer, AV1_COMMON *cm,
 
 void av1_loop_filter_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
                            MACROBLOCKD *xd, int frame_filter_level,
-                           int frame_filter_level_r, int y_only,
+                           int frame_filter_level_r, int plane,
                            int partial_frame) {
   int start_mi_row, end_mi_row, mi_rows_to_filter;
 #if CONFIG_EXT_DELTA_Q
@@ -1973,17 +1955,15 @@ void av1_loop_filter_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
     mi_rows_to_filter = AOMMAX(cm->mi_rows / 8, 8);
   }
   end_mi_row = start_mi_row + mi_rows_to_filter;
-  // TODO(chengchen): refactor the code such that y_only has its matching
-  // meaning. Now it means the plane to be filtered in this experiment.
   av1_loop_filter_frame_init(cm, frame_filter_level, frame_filter_level_r,
-                             y_only);
+                             plane);
 
 #if CONFIG_EXT_DELTA_Q
   cm->lf.filter_level[0] = frame_filter_level;
   cm->lf.filter_level[1] = frame_filter_level_r;
 #endif
 
-  av1_loop_filter_rows(frame, cm, xd->plane, start_mi_row, end_mi_row, y_only);
+  av1_loop_filter_rows(frame, cm, xd->plane, start_mi_row, end_mi_row, plane);
 
 #if CONFIG_EXT_DELTA_Q
   cm->lf.filter_level[0] = orig_filter_level[0];
