@@ -307,6 +307,11 @@ typedef struct AV1EncoderConfig {
   int allow_warped_motion;
   int enable_superres;
   unsigned int save_as_annexb;
+
+#if CONFIG_DENOISE
+  float noise_level;
+  int noise_block_size;
+#endif
 } AV1EncoderConfig;
 
 static INLINE int is_lossless_requested(const AV1EncoderConfig *cfg) {

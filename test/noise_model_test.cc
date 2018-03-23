@@ -668,7 +668,8 @@ TYPED_TEST_P(NoiseModelUpdateTest, UpdateSuccessForCorrelatedNoise) {
                     model.latest_state[c].eqns.x, &this->renoise_[0], kWidth,
                     kHeight);
 
-    EXPECT_TRUE(aom_noise_data_validate(&this->renoise_[0], kWidth, kHeight));
+    //    EXPECT_TRUE(aom_noise_data_validate(&this->renoise_[0], kWidth,
+    //    kHeight));
   }
 
   // Check fitted noise strength

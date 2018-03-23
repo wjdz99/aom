@@ -276,7 +276,7 @@ add_library(aom_encoder_stats OBJECT ${AOM_ENCODER_STATS_SOURCES})
 add_library(aom ${AOM_SOURCES} $<TARGET_OBJECTS:aom_rtcd>)
 
 if (NOT MSVC AND NOT APPLE)
-  target_link_libraries(aom ${AOM_LIB_LINK_TYPE} m)
+  target_link_libraries(aom ${AOM_LIB_LINK_TYPE} m fftw3)
 endif ()
 
 # List of object and static library targets.
