@@ -58,7 +58,7 @@ void PrintUsage() {
 
 VideoFileType GetFileType(InputContext *ctx) {
   if (file_is_ivf(ctx->avx_ctx)) return FILE_TYPE_IVF;
-  if (file_is_obu(ctx->obu_ctx)) return FILE_TYPE_OBU;
+  if (file_is_obu(ctx->obu_ctx, 0)) return FILE_TYPE_OBU;
 #if CONFIG_WEBM_IO
   if (file_is_webm(ctx->webm_ctx, ctx->avx_ctx)) return FILE_TYPE_WEBM;
 #endif
@@ -76,7 +76,8 @@ bool ReadTemporalUnit(InputContext *ctx, size_t *unit_size) {
       break;
     }
     case FILE_TYPE_OBU: {
-      if (obudec_read_temporal_unit(ctx->obu_ctx, &ctx->unit_buffer, unit_size,
+      if (obudec_read_temporal_unit(ctx->obu_ctx, 0, &ctx->unit_buffer,
+                                    unit_size,
 #if CONFIG_SCALABILITY
                                     &ctx->unit_buffer_size, kIgnoreLayers
 #else

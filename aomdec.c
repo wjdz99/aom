@@ -111,13 +111,17 @@ static const arg_def_t tiler = ARG_DEF(NULL, "tile-row", 1,
 static const arg_def_t tilec = ARG_DEF(NULL, "tile-column", 1,
                                        "Column index of tile to decode "
                                        "(-1 for all columns)");
+static const arg_def_t isannexb =
+    ARG_DEF(NULL, "annexb", 0, "Bitstream is in Annex-B format");
 
 static const arg_def_t *all_args[] = {
-  &help,           &codecarg,   &use_yv12,    &use_i420,      &flipuvarg,
-  &rawvideo,       &noblitarg,  &progressarg, &limitarg,      &skiparg,
-  &postprocarg,    &summaryarg, &outputfile,  &threadsarg,    &verbosearg,
-  &scalearg,       &fb_arg,     &md5arg,      &framestatsarg, &continuearg,
-  &outbitdeptharg, &tilem,      &tiler,       &tilec,         NULL
+  &help,           &codecarg,   &use_yv12,      &use_i420,
+  &flipuvarg,      &rawvideo,   &noblitarg,     &progressarg,
+  &limitarg,       &skiparg,    &postprocarg,   &summaryarg,
+  &outputfile,     &threadsarg, &verbosearg,    &scalearg,
+  &fb_arg,         &md5arg,     &framestatsarg, &continuearg,
+  &outbitdeptharg, &tilem,      &tiler,         &tilec,
+  &isannexb,       NULL
 };
 
 #if CONFIG_LIBYUV
@@ -230,7 +234,8 @@ static int raw_read_frame(FILE *infile, uint8_t **buffer, size_t *bytes_read,
 }
 
 static int read_frame(struct AvxDecInputContext *input, uint8_t **buf,
-                      size_t *bytes_in_buffer, size_t *buffer_size) {
+                      size_t *bytes_in_buffer, size_t *buffer_size,
+                      int is_annexb) {
   switch (input->aom_input_ctx->file_type) {
 #if CONFIG_WEBM_IO
     case FILE_TYPE_WEBM:
@@ -243,7 +248,7 @@ static int read_frame(struct AvxDecInputContext *input, uint8_t **buf,
       return ivf_read_frame(input->aom_input_ctx->file, buf, bytes_in_buffer,
                             buffer_size);
     case FILE_TYPE_OBU:
-      return obudec_read_temporal_unit(input->obu_ctx, buf,
+      return obudec_read_temporal_unit(input->obu_ctx, is_annexb, buf,
 #if CONFIG_SCALABILITY
                                        bytes_in_buffer, buffer_size, 0
 #else
@@ -505,6 +510,7 @@ static int main_loop(int argc, const char **argv_) {
   aom_codec_dec_cfg_t cfg = { 0, 0, 0, CONFIG_LOWBITDEPTH, { 1 } };
   unsigned int output_bit_depth = 0;
   unsigned int tile_mode = 0;
+  unsigned int is_annexb = 0;
   int tile_row = -1;
   int tile_col = -1;
   int frames_corrupted = 0;
@@ -609,6 +615,8 @@ static int main_loop(int argc, const char **argv_) {
       output_bit_depth = arg_parse_uint(&arg);
     } else if (arg_match(&arg, &tilem, argi)) {
       tile_mode = arg_parse_int(&arg);
+    } else if (arg_match(&arg, &isannexb, argi)) {
+      is_annexb = 1;
     } else if (arg_match(&arg, &tiler, argi)) {
       tile_row = arg_parse_int(&arg);
     } else if (arg_match(&arg, &tilec, argi)) {
@@ -654,7 +662,7 @@ static int main_loop(int argc, const char **argv_) {
   else if (file_is_webm(input.webm_ctx, input.aom_input_ctx))
     input.aom_input_ctx->file_type = FILE_TYPE_WEBM;
 #endif
-  else if (file_is_obu(&obu_ctx))
+  else if (file_is_obu(&obu_ctx, is_annexb))
     input.aom_input_ctx->file_type = FILE_TYPE_OBU;
   else if (file_is_raw(input.aom_input_ctx))
     input.aom_input_ctx->file_type = FILE_TYPE_RAW;
@@ -723,6 +731,11 @@ static int main_loop(int argc, const char **argv_) {
     goto fail;
   }
 
+  if (aom_codec_control(&decoder, AV1D_SET_IS_ANNEXB, is_annexb)) {
+    fprintf(stderr, "Failed to set is_annexb: %s\n", aom_codec_error(&decoder));
+    goto fail;
+  }
+
   if (aom_codec_control(&decoder, AV1_SET_DECODE_TILE_ROW, tile_row)) {
     fprintf(stderr, "Failed to set decode_tile_row: %s\n",
             aom_codec_error(&decoder));
@@ -738,7 +751,8 @@ static int main_loop(int argc, const char **argv_) {
 
   if (arg_skip) fprintf(stderr, "Skipping first %d frames.\n", arg_skip);
   while (arg_skip) {
-    if (read_frame(&input, &buf, &bytes_in_buffer, &buffer_size)) break;
+    if (read_frame(&input, &buf, &bytes_in_buffer, &buffer_size, is_annexb))
+      break;
     arg_skip--;
   }
 
@@ -769,7 +783,8 @@ static int main_loop(int argc, const char **argv_) {
 
     frame_avail = 0;
     if (!stop_after || frame_in < stop_after) {
-      if (!read_frame(&input, &buf, &bytes_in_buffer, &buffer_size)) {
+      if (!read_frame(&input, &buf, &bytes_in_buffer, &buffer_size,
+                      is_annexb)) {
         frame_avail = 1;
         frame_in++;
 
