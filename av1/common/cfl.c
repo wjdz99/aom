@@ -335,14 +335,6 @@ static void cfl_luma_subsampling_444_hbd_c(const uint16_t *input,
   }
 }
 
-// TODO(ltrudeau) Move into the CFL_GET_SUBSAMPLE_FUNCTION when LBD 422 SIMD
-// will be implemented
-CFL_SUBSAMPLE_FUNCTIONS(c, 422, lbd)
-
-// TODO(ltrudeau) Move into the CFL_GET_SUBSAMPLE_FUNCTION when LBD 444 SIMD
-// will be implemented
-CFL_SUBSAMPLE_FUNCTIONS(c, 444, lbd)
-
 // TODO(ltrudeau) Move into the CFL_GET_SUBSAMPLE_FUNCTION when LBD 444 SIMD
 // will be implemented
 CFL_SUBSAMPLE_FUNCTIONS(c, 420, hbd)
@@ -375,20 +367,6 @@ cfl_subsample_hbd_fn cfl_get_luma_subsampling_422_hbd_c(TX_SIZE tx_size) {
 // will be implemented
 cfl_subsample_hbd_fn cfl_get_luma_subsampling_444_hbd_c(TX_SIZE tx_size) {
   CFL_SUBSAMPLE_FUNCTION_ARRAY(c, 444, hbd)
-  return subfn_444[tx_size];
-}
-
-// TODO(ltrudeau) Move into the CFL_GET_SUBSAMPLE_FUNCTION when LBD 422 SIMD
-// will be implemented
-cfl_subsample_lbd_fn cfl_get_luma_subsampling_422_lbd_c(TX_SIZE tx_size) {
-  CFL_SUBSAMPLE_FUNCTION_ARRAY(c, 422, lbd)
-  return subfn_422[tx_size];
-}
-
-// TODO(ltrudeau) Move into the CFL_GET_SUBSAMPLE_FUNCTION when LBD 444 SIMD
-// will be implemented
-cfl_subsample_lbd_fn cfl_get_luma_subsampling_444_lbd_c(TX_SIZE tx_size) {
-  CFL_SUBSAMPLE_FUNCTION_ARRAY(c, 444, lbd)
   return subfn_444[tx_size];
 }
 
