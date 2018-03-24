@@ -126,6 +126,63 @@ static INLINE void cfl_luma_subsampling_422_lbd_ssse3(const uint8_t *input,
   } while (pred_buf_q3 < end);
 }
 
+/**
+ * Adds 2 pixels (in a 2x1 grid) and multiplies them by 4. Resulting in a more
+ * precise version of a box filter 4:2:0 pixel subsampling in Q3.
+ *
+ * The CfL prediction buffer is always of size CFL_BUF_SQUARE. However, the
+ * active area is specified using width and height.
+ *
+ * Note: We don't need to worry about going over the active area, as long as we
+ * stay inside the CfL prediction buffer.
+ */
+static INLINE void cfl_luma_subsampling_444_lbd_ssse3(const uint8_t *input,
+                                                      int input_stride,
+                                                      int16_t *pred_buf_q3,
+                                                      int width, int height) {
+  const int16_t *end = pred_buf_q3 + height * CFL_BUF_LINE;
+  const int luma_stride = input_stride;
+  __m128i row, row_lo, row_hi, next_row, next_row_lo, next_row_hi;
+  do {
+    if (width == 4) {
+      row = _mm_cvtsi32_si128(*((int *)input));
+    } else if (width == 8) {
+      row = _mm_loadl_epi64((__m128i *)input);
+    } else {
+      row = _mm_loadu_si128((__m128i *)input);
+      if (width == 32) {
+        next_row = _mm_loadu_si128((__m128i *)(input + 16));
+      }
+    }
+    row_lo = _mm_unpacklo_epi8(row, _mm_setzero_si128());
+    row_lo = _mm_slli_epi16(row_lo, 3);
+    if (width >= 16) {
+      row_hi = _mm_unpackhi_epi8(row, _mm_setzero_si128());
+      row_hi = _mm_slli_epi16(row_hi, 3);
+      if (width == 32) {
+        next_row_lo = _mm_unpacklo_epi8(next_row, _mm_setzero_si128());
+        next_row_lo = _mm_slli_epi16(next_row_lo, 3);
+        next_row_hi = _mm_unpackhi_epi8(next_row, _mm_setzero_si128());
+        next_row_hi = _mm_slli_epi16(next_row_hi, 3);
+      }
+    }
+    if (width == 4) {
+      _mm_storel_epi64((__m128i *)pred_buf_q3, row_lo);
+    } else if (width == 8) {
+      _mm_storeu_si128((__m128i *)pred_buf_q3, row_lo);
+    } else {
+      _mm_storeu_si128((__m128i *)pred_buf_q3, row_lo);
+      _mm_storeu_si128((__m128i *)(pred_buf_q3 + 8), row_hi);
+      if (width == 32) {
+        _mm_storeu_si128((__m128i *)(pred_buf_q3 + 16), next_row_lo);
+        _mm_storeu_si128((__m128i *)(pred_buf_q3 + 24), next_row_hi);
+      }
+    }
+    input += luma_stride;
+    pred_buf_q3 += CFL_BUF_LINE;
+  } while (pred_buf_q3 < end);
+}
+
 CFL_GET_SUBSAMPLE_FUNCTION(ssse3)
 
 static INLINE __m128i predict_unclipped(const __m128i *input, __m128i alpha_q12,
