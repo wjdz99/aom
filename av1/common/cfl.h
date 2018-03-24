@@ -127,6 +127,18 @@ void cfl_subsample_hbd_null(const uint16_t *input, int input_stride,
       TX_SIZE tx_size) {                                        \
     CFL_SUBSAMPLE_FUNCTION_ARRAY(arch, 420, lbd)                \
     return subfn_420[tx_size];                                  \
+  }                                                             \
+  CFL_SUBSAMPLE_FUNCTIONS(arch, 422, lbd)                       \
+  cfl_subsample_lbd_fn cfl_get_luma_subsampling_422_lbd_##arch( \
+      TX_SIZE tx_size) {                                        \
+    CFL_SUBSAMPLE_FUNCTION_ARRAY(arch, 422, lbd)                \
+    return subfn_422[tx_size];                                  \
+  }                                                             \
+  CFL_SUBSAMPLE_FUNCTIONS(arch, 444, lbd)                       \
+  cfl_subsample_lbd_fn cfl_get_luma_subsampling_444_lbd_##arch( \
+      TX_SIZE tx_size) {                                        \
+    CFL_SUBSAMPLE_FUNCTION_ARRAY(arch, 444, lbd)                \
+    return subfn_444[tx_size];                                  \
   }
 
 // Null function used for invalid tx_sizes
