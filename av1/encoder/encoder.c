@@ -934,6 +934,7 @@ void init_seq_coding_tools(AV1_COMMON *cm, const AV1EncoderConfig *oxcf) {
   cm->seq_params.enable_ref_frame_mvs = oxcf->enable_ref_frame_mvs;
   cm->seq_params.enable_ref_frame_mvs &= cm->seq_params.enable_order_hint;
   cm->seq_params.enable_superres = oxcf->enable_superres;
+  cm->seq_params.enable_warped_motion = oxcf->enable_warped_motion;
 }
 
 static void init_config(struct AV1_COMP *cpi, AV1EncoderConfig *oxcf) {
@@ -4739,8 +4740,9 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
   cm->use_ref_frame_mvs =
       cpi->oxcf.allow_ref_frame_mvs && frame_might_use_prev_frame_mvs(cm) &&
       cm->seq_params.enable_ref_frame_mvs && cm->seq_params.enable_order_hint;
-  cm->allow_warped_motion =
-      !(frame_is_intra_only(cm) || cm->error_resilient_mode);
+  cm->allow_warped_motion = cpi->oxcf.allow_warped_motion &&
+                            frame_might_use_warped_motion(cm) &&
+                            cm->seq_params.enable_warped_motion;
 
   // Reset the frame packet stamp index.
   if (cm->frame_type == KEY_FRAME) cm->current_video_frame = 0;
