@@ -225,18 +225,21 @@ typedef struct SequenceHeader {
                          // 2 - adaptive
 #endif
   int monochrome;
-  int enable_dual_filter;  // 0 - disable dual interpolation filter
-                           // 1 - enable vertical and horiz filter selection
-  int enable_order_hint;   // 0 - disable order hint, and related tools:
-                           // jnt_comp, ref_frame_mvs, frame_sign_bias
-                           // if 0, enable_jnt_comp must be set zs 0.
-  int enable_jnt_comp;     // 0 - disable joint compound modes
-                           // 1 - enable it
-  int enable_superres;     // 0 - Disable superres for the sequence, and disable
-                           //     transmitting per-frame superres enabled flag.
-                           // 1 - Enable superres for the sequence, and also
-                           //     enable per-frame flag to denote if superres is
-                           //     enabled for that frame.
+  int enable_dual_filter;    // 0 - disable dual interpolation filter
+                             // 1 - enable vertical and horiz filter selection
+  int enable_order_hint;     // 0 - disable order hint, and related tools:
+                             // jnt_comp, ref_frame_mvs, frame_sign_bias
+                             // if 0, enable_jnt_comp and enable_ref_frame_mvs
+                             // must be set zs 0.
+  int enable_jnt_comp;       // 0 - disable joint compound modes
+                             // 1 - enable it
+  int enable_ref_frame_mvs;  // 0 - disable ref frame mvs
+                             // 1 - enable it
+  int enable_superres;  // 0 - Disable superres for the sequence, and disable
+                        //     transmitting per-frame superres enabled flag.
+                        // 1 - Enable superres for the sequence, and also
+                        //     enable per-frame flag to denote if superres is
+                        //     enabled for that frame.
 #if CONFIG_OPERATING_POINTS
   int operating_point_idc[MAX_NUM_OPERATING_POINTS];
   int level[MAX_NUM_OPERATING_POINTS];
