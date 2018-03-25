@@ -919,6 +919,24 @@ static void init_buffer_indices(AV1_COMP *cpi) {
 #endif
 }
 
+void init_seq_coding_tools(struct AV1_COMMON *cm,
+                           const AV1EncoderConfig *oxcf) {
+  cm->seq_params.force_screen_content_tools = 2;
+#if CONFIG_AMVR
+  cm->seq_params.force_integer_mv = 2;
+#endif
+#if CONFIG_EXPLICIT_ORDER_HINT
+  cm->seq_params.order_hint_bits_minus1 = DEFAULT_EXPLICIT_ORDER_HINT_BITS - 1;
+#endif  // CONFIG_EXPLICIT_ORDER_HINT
+  cm->seq_params.enable_dual_filter = oxcf->enable_dual_filter;
+  cm->seq_params.enable_order_hint = oxcf->enable_order_hint;
+  cm->seq_params.enable_jnt_comp = oxcf->enable_jnt_comp;
+  cm->seq_params.enable_jnt_comp &= cm->seq_params.enable_order_hint;
+  cm->seq_params.enable_ref_frame_mvs = oxcf->enable_ref_frame_mvs;
+  cm->seq_params.enable_ref_frame_mvs &= cm->seq_params.enable_order_hint;
+  cm->seq_params.enable_superres = oxcf->enable_superres;
+}
+
 static void init_config(struct AV1_COMP *cpi, AV1EncoderConfig *oxcf) {
   AV1_COMMON *const cm = &cpi->common;
 
@@ -953,6 +971,9 @@ static void init_config(struct AV1_COMP *cpi, AV1EncoderConfig *oxcf) {
 
   // change includes all joint functionality
   av1_change_config(cpi, oxcf);
+
+  // Init sequence level coding tools
+  init_seq_coding_tools(cpi, oxcf);
 
   cpi->static_mb_pct = 0;
   cpi->ref_frame_flags = 0;
@@ -2366,21 +2387,6 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
 
   cm->enable_intra_edge_filter = 1;
   cm->allow_filter_intra = 1;
-
-  cm->seq_params.force_screen_content_tools = 2;
-#if CONFIG_AMVR
-  cm->seq_params.force_integer_mv = 2;
-#endif
-#if CONFIG_EXPLICIT_ORDER_HINT
-  cm->seq_params.order_hint_bits_minus1 = DEFAULT_EXPLICIT_ORDER_HINT_BITS - 1;
-#endif  // CONFIG_EXPLICIT_ORDER_HINT
-  cm->seq_params.enable_dual_filter = oxcf->enable_dual_filter;
-  cm->seq_params.enable_order_hint = oxcf->enable_order_hint;
-  cm->seq_params.enable_jnt_comp = oxcf->enable_jnt_comp;
-  cm->seq_params.enable_jnt_comp &= cm->seq_params.enable_order_hint;
-  cm->seq_params.enable_ref_frame_mvs = oxcf->enable_ref_frame_mvs;
-  cm->seq_params.enable_ref_frame_mvs &= cm->seq_params.enable_order_hint;
-  cm->seq_params.enable_superres = oxcf->enable_superres;
 }
 
 AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
