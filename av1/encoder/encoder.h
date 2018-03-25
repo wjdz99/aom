@@ -204,7 +204,7 @@ typedef struct AV1EncoderConfig {
   unsigned int num_tile_groups;
   unsigned int mtu;
 
-  unsigned int disable_tempmv;
+  unsigned int enable_tempmv;
   // Internal frame size scaling.
   RESIZE_MODE resize_mode;
   uint8_t resize_scale_denominator;

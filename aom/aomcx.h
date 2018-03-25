@@ -694,11 +694,10 @@ enum aome_enc_control_id {
   /*!\brief Codec control function to set temporal mv prediction
    * enabling/disabling.
    *
-   * This will enable or disable temporal mv predicton. The default value is 0.
+   * This will enable or disable temporal mv predicton. The default value is 1.
    *
-   * Experiment: TEMPMV_SIGNALING
    */
-  AV1E_SET_DISABLE_TEMPMV,
+  AV1E_SET_ENABLE_TEMPMV,
 
   /*!\brief Codec control function to turn on / off dual filter
    * enabling/disabling.
@@ -1015,8 +1014,8 @@ AOM_CTRL_USE_TYPE(AV1E_SET_MTU, unsigned int)
 AOM_CTRL_USE_TYPE(AV1E_SET_TIMING_INFO, aom_timing_info_t)
 #define AOM_CTRL_AV1E_SET_TIMING_INFO
 
-AOM_CTRL_USE_TYPE(AV1E_SET_DISABLE_TEMPMV, unsigned int)
-#define AOM_CTRL_AV1E_SET_DISABLE_TEMPMV
+AOM_CTRL_USE_TYPE(AV1E_SET_ENABLE_TEMPMV, unsigned int)
+#define AOM_CTRL_AV1E_SET_ENABLE_TEMPMV
 
 AOM_CTRL_USE_TYPE(AV1E_SET_ENABLE_DF, unsigned int)
 #define AOM_CTRL_AV1E_SET_ENABLE_DF
