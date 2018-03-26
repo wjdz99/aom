@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4fefe3cb_9abd27b8",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2018-03-26T17:20:05Z",
+      "side": 1,
+      "message": "Why do we need the frame level config flag in the struct for seq level control?",
+      "range": {
+        "startLine": 102,
+        "startChar": 2,
+        "endLine": 103,
+        "endChar": 43
+      },
+      "revId": "c8fe02c68379f10678fef513aa819db8a6d20e67",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
