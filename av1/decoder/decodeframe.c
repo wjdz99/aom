@@ -2304,6 +2304,9 @@ void read_sequence_header(AV1_COMMON *cm, struct aom_read_bit_buffer *rb) {
 
   setup_sb_size(seq_params, rb);
 
+  seq_params->enable_interintra_compound = aom_rb_read_bit(rb);
+  seq_params->enable_masked_compound = aom_rb_read_bit(rb);
+
   seq_params->enable_dual_filter = aom_rb_read_bit(rb);
 
   seq_params->enable_order_hint = aom_rb_read_bit(rb);
@@ -2336,18 +2339,6 @@ void read_sequence_header(AV1_COMMON *cm, struct aom_read_bit_buffer *rb) {
       seq_params->enable_order_hint ? aom_rb_read_literal(rb, 3) : -1;
 #endif
   seq_params->enable_superres = aom_rb_read_bit(rb);
-}
-
-static void read_compound_tools(AV1_COMMON *cm,
-                                struct aom_read_bit_buffer *rb) {
-  cm->allow_interintra_compound =
-      !frame_is_intra_only(cm) ? aom_rb_read_bit(rb) : 0;
-
-  if (!frame_is_intra_only(cm) && cm->reference_mode != SINGLE_REFERENCE) {
-    cm->allow_masked_compound = aom_rb_read_bit(rb);
-  } else {
-    cm->allow_masked_compound = 0;
-  }
 }
 
 static int read_global_motion_params(WarpedMotionParams *params,
@@ -3141,7 +3132,6 @@ static int read_uncompressed_header(AV1Decoder *pbi,
   av1_setup_skip_mode_allowed(cm);
   cm->skip_mode_flag = cm->is_skip_mode_allowed ? aom_rb_read_bit(rb) : 0;
 
-  read_compound_tools(cm, rb);
   if (frame_might_use_warped_motion(cm) && cm->seq_params.enable_warped_motion)
     cm->allow_warped_motion = aom_rb_read_bit(rb);
   else
