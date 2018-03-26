@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a8150ab9_1ad56bd6",
+        "filename": "av1/common/resize.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 493,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2018-03-26T23:53:47Z",
+      "side": 1,
+      "message": "looks like if proj_in_length \u003d\u003d in_length here, we have a dead-loop.. so probably can do something here.",
+      "range": {
+        "startLine": 493,
+        "startChar": 10,
+        "endLine": 493,
+        "endChar": 56
+      },
+      "revId": "cf1536e4e392888d1c3827bb29076c9842d40341",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
