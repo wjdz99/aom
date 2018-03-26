@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f95e5e3e_e391effc",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 3121,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2018-03-26T01:20:58Z",
+      "side": 1,
+      "message": "should these be reset by enable_cdef?",
+      "range": {
+        "startLine": 3120,
+        "startChar": 0,
+        "endLine": 3121,
+        "endChar": 31
+      },
+      "revId": "d60988398c80b128d3a1313f730527a85f6482f0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
