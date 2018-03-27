@@ -35,7 +35,7 @@ Segment GenerateSegment(int seed) {
   Segment segment;
   const int last_segid = rnd_.PseudoUniform(MAX_SEGMENTS);
   segment.last_id = last_segid;
-  segment.pred = rnd_.PseudoUniform(MAX_SEGMENTS);
+  segment.pred = rnd_.PseudoUniform(last_segid + 1);
   segment.id = rnd_.PseudoUniform(last_segid + 1);
 
   return segment;
