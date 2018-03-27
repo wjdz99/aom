@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5dd035f0_77c83315",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 3588,
+      "author": {
+        "id": 7025
+      },
+      "writtenOn": "2018-03-27T23:12:11Z",
+      "side": 1,
+      "message": "nit: this variable can probably go away.",
+      "revId": "67a4cd707bd4256f3432de556358fbd410248258",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "05e3b6df_6b4b614a",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 3941,
+      "author": {
+        "id": 7025
+      },
+      "writtenOn": "2018-03-27T23:12:11Z",
+      "side": 1,
+      "message": "nit: this variable can go and can be directly used as a condition in the if statement below.",
+      "revId": "67a4cd707bd4256f3432de556358fbd410248258",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
