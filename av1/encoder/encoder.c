@@ -4902,7 +4902,6 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
     }
   }
 
-#if CONFIG_CDF_UPDATE_MODE
   switch (cpi->oxcf.cdf_update_mode) {
     case 0:  // No CDF update for any frames(4~6% compression loss).
       cm->disable_cdf_update = 1;
@@ -4920,7 +4919,6 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
           (frame_is_intra_only(cm) || !cm->show_frame) ? 0 : 1;
       break;
   }
-#endif  // CONFIG_CDF_UPDATE_MODE
 
   if (cpi->sf.recode_loop == DISALLOW_RECODE) {
     encode_without_recode_loop(cpi);

@@ -91,9 +91,7 @@ struct av1_extracfg {
   const char *film_grain_table_filename;
 #endif
   unsigned int motion_vector_unit_test;
-#if CONFIG_CDF_UPDATE_MODE
   unsigned int cdf_update_mode;
-#endif  // CONFIG_CDF_UPDATE_MODE
   int enable_order_hint;
   int use_jnt_comp;
   int enable_superres;
@@ -159,12 +157,10 @@ static struct av1_extracfg default_extra_cfg = {
   0,  // film_grain_table_filename
 #endif
   0,  // motion_vector_unit_test
-#if CONFIG_CDF_UPDATE_MODE
-  1,    // CDF update mode
-#endif  // CONFIG_CDF_UPDATE_MODE
-  1,    // frame order hint
-  1,    // jnt_comp
-  1,    // superres
+  1,  // CDF update mode
+  1,  // frame order hint
+  1,  // jnt_comp
+  1,  // superres
 };
 
 struct aom_codec_alg_priv {
@@ -274,9 +270,7 @@ static aom_codec_err_t validate_config(aom_codec_alg_priv_t *ctx,
               SCALE_NUMERATOR << 1);
   RANGE_CHECK(cfg, rc_superres_qthresh, 1, 63);
   RANGE_CHECK(cfg, rc_superres_kf_qthresh, 1, 63);
-#if CONFIG_CDF_UPDATE_MODE
   RANGE_CHECK_HI(extra_cfg, cdf_update_mode, 2);
-#endif  // CONFIG_CDF_UPDATE_MODE
 
   // AV1 does not support a lower bound on the keyframe interval in
   // automatic keyframe placement mode.
@@ -613,11 +607,7 @@ static aom_codec_err_t set_encoder_config(
 
   oxcf->tuning = extra_cfg->tuning;
   oxcf->content = extra_cfg->content;
-
-#if CONFIG_CDF_UPDATE_MODE
   oxcf->cdf_update_mode = (uint8_t)extra_cfg->cdf_update_mode;
-#endif  // CONFIG_CDF_UPDATE_MODE
-
   oxcf->superblock_size = extra_cfg->superblock_size;
 
 #if CONFIG_FILM_GRAIN
@@ -1518,14 +1508,12 @@ static aom_codec_err_t ctrl_set_tune_content(aom_codec_alg_priv_t *ctx,
   return update_extra_cfg(ctx, &extra_cfg);
 }
 
-#if CONFIG_CDF_UPDATE_MODE
 static aom_codec_err_t ctrl_set_cdf_update_mode(aom_codec_alg_priv_t *ctx,
                                                 va_list args) {
   struct av1_extracfg extra_cfg = ctx->extra_cfg;
   extra_cfg.cdf_update_mode = CAST(AV1E_SET_CDF_UPDATE_MODE, args);
   return update_extra_cfg(ctx, &extra_cfg);
 }
-#endif  // CONFIG_CDF_UPDATE_MODE
 
 static aom_codec_err_t ctrl_set_color_primaries(aom_codec_alg_priv_t *ctx,
                                                 va_list args) {
@@ -1635,9 +1623,7 @@ static aom_codec_ctrl_fn_map_t encoder_ctrl_maps[] = {
 #endif
   { AV1E_SET_FRAME_PERIODIC_BOOST, ctrl_set_frame_periodic_boost },
   { AV1E_SET_TUNE_CONTENT, ctrl_set_tune_content },
-#if CONFIG_CDF_UPDATE_MODE
   { AV1E_SET_CDF_UPDATE_MODE, ctrl_set_cdf_update_mode },
-#endif  // CONFIG_CDF_UPDATE_MODE
   { AV1E_SET_COLOR_PRIMARIES, ctrl_set_color_primaries },
   { AV1E_SET_TRANSFER_CHARACTERISTICS, ctrl_set_transfer_characteristics },
   { AV1E_SET_MATRIX_COEFFICIENTS, ctrl_set_matrix_coefficients },
