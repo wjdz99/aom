@@ -1176,7 +1176,6 @@ static void update_stats(const AV1_COMMON *const cm, TileDataEnc *tile_data,
                 update_cdf(fc->wedge_interintra_cdf[bsize],
                            mbmi->use_wedge_interintra, 2);
               }
-#if II_WEDGE_IDX_ENTROPY_CODING
               if (mbmi->use_wedge_interintra) {
                 counts->wedge_idx[bsize][mbmi->interintra_wedge_index]++;
                 if (allow_update_cdf) {
@@ -1184,7 +1183,6 @@ static void update_stats(const AV1_COMMON *const cm, TileDataEnc *tile_data,
                              mbmi->interintra_wedge_index, 16);
                 }
               }
-#endif
             }
           } else {
             counts->interintra[bsize_group][0]++;
@@ -1251,7 +1249,6 @@ static void update_stats(const AV1_COMMON *const cm, TileDataEnc *tile_data,
             }
           }
         }
-#if WEDGE_IDX_ENTROPY_CODING
         if (mbmi->interinter_compound_type == COMPOUND_WEDGE) {
           if (is_interinter_compound_used(COMPOUND_WEDGE, bsize)) {
             counts->wedge_idx[bsize][mbmi->wedge_index]++;
@@ -1260,7 +1257,6 @@ static void update_stats(const AV1_COMMON *const cm, TileDataEnc *tile_data,
             }
           }
         }
-#endif
       }
     }
 

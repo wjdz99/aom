@@ -5046,7 +5046,6 @@ static int cost_mv_ref(const MACROBLOCK *const x, PREDICTION_MODE mode,
   }
 }
 
-#if WEDGE_IDX_ENTROPY_CODING
 static int get_interinter_compound_mask_rate(const MACROBLOCK *const x,
                                              const MB_MODE_INFO *const mbmi) {
   switch (mbmi->interinter_compound_type) {
@@ -5060,18 +5059,6 @@ static int get_interinter_compound_mask_rate(const MACROBLOCK *const x,
     default: assert(0); return 0;
   }
 }
-#else
-static int get_interinter_compound_type_bits(BLOCK_SIZE bsize,
-                                             COMPOUND_TYPE comp_type) {
-  (void)bsize;
-  switch (comp_type) {
-    case COMPOUND_AVERAGE: return 0;
-    case COMPOUND_WEDGE: return get_interinter_wedge_bits(bsize);
-    case COMPOUND_SEG: return 1;
-    default: assert(0); return 0;
-  }
-}
-#endif
 
 typedef struct {
   int eobs;
@@ -6205,9 +6192,7 @@ static int64_t pick_wedge(const AV1_COMP *const cpi, const MACROBLOCK *const x,
     sse = ROUND_POWER_OF_TWO(sse, bd_round);
 
     model_rd_from_sse(cpi, xd, bsize, 0, sse, &rate, &dist);
-#if WEDGE_IDX_ENTROPY_CODING
     rate += x->wedge_idx_cost[bsize][wedge_index];
-#endif
     rd = RDCOST(x->rdmult, rate, dist);
 
     if (rd < best_rd) {
@@ -6217,12 +6202,8 @@ static int64_t pick_wedge(const AV1_COMP *const cpi, const MACROBLOCK *const x,
     }
   }
 
-#if WEDGE_IDX_ENTROPY_CODING
   return best_rd -
          RDCOST(x->rdmult, x->wedge_idx_cost[bsize][*best_wedge_index], 0);
-#else
-  return best_rd;
-#endif
 }
 
 // Choose the best wedge index the specified sign
@@ -6267,12 +6248,7 @@ static int64_t pick_wedge_fixed_sign(
     sse = ROUND_POWER_OF_TWO(sse, bd_round);
 
     model_rd_from_sse(cpi, xd, bsize, 0, sse, &rate, &dist);
-#if WEDGE_IDX_ENTROPY_CODING
-#if !II_WEDGE_IDX_ENTROPY_CODING
-    if (!is_interintra_mode(mbmi))
-#endif
-      rate += x->wedge_idx_cost[bsize][wedge_index];
-#endif
+    rate += x->wedge_idx_cost[bsize][wedge_index];
     rd = RDCOST(x->rdmult, rate, dist);
 
     if (rd < best_rd) {
@@ -6281,15 +6257,8 @@ static int64_t pick_wedge_fixed_sign(
     }
   }
 
-#if WEDGE_IDX_ENTROPY_CODING
-#if !II_WEDGE_IDX_ENTROPY_CODING
-  if (!is_interintra_mode(mbmi))
-#endif
-    return best_rd -
-           RDCOST(x->rdmult, x->wedge_idx_cost[bsize][*best_wedge_index], 0);
-#else
-  return best_rd;
-#endif
+  return best_rd -
+         RDCOST(x->rdmult, x->wedge_idx_cost[bsize][*best_wedge_index], 0);
 }
 
 static int64_t pick_interinter_wedge(const AV1_COMP *const cpi,
@@ -6473,12 +6442,7 @@ static int64_t build_and_cost_compound_type(
   const COMPOUND_TYPE compound_type = mbmi->interinter_compound_type;
 
   best_rd_cur = pick_interinter_mask(cpi, x, bsize, *preds0, *preds1);
-#if WEDGE_IDX_ENTROPY_CODING
   *rs2 += get_interinter_compound_mask_rate(x, mbmi);
-#else
-  *rs2 +=
-      av1_cost_literal(get_interinter_compound_type_bits(bsize, compound_type));
-#endif
   best_rd_cur += RDCOST(x->rdmult, *rs2 + rate_mv, 0);
 
   if (have_newmv_in_inter_mode(this_mode) &&
