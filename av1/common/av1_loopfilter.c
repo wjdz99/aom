@@ -91,16 +91,6 @@ static const uint32_t av1_prediction_masks[NUM_EDGE_DIRS][BLOCK_SIZES_ALL] = {
   },
 };
 
-extern void aom_highbd_lpf_horizontal_6_c(uint16_t *s, int p,
-                                          const uint8_t *blimit,
-                                          const uint8_t *limit,
-                                          const uint8_t *thresh, int bd);
-
-extern void aom_highbd_lpf_vertical_6_c(uint16_t *s, int pitch,
-                                        const uint8_t *blimit,
-                                        const uint8_t *limit,
-                                        const uint8_t *thresh, int bd);
-
 // 64 bit masks for left transform size. Each 1 represents a position where
 // we should apply a loop filter across the left border of an 8x8 block
 // boundary.
@@ -2399,9 +2389,9 @@ static void filter_block_plane_vert(const AV1_COMMON *const cm, const int plane,
         case 6:  // apply 6-tap filter for chroma plane only
           assert(plane != 0);
           if (cm->use_highbitdepth)
-            aom_highbd_lpf_vertical_6_c(CONVERT_TO_SHORTPTR(p), dst_stride,
-                                        params.mblim, params.lim,
-                                        params.hev_thr, cm->bit_depth);
+            aom_highbd_lpf_vertical_6(CONVERT_TO_SHORTPTR(p), dst_stride,
+                                      params.mblim, params.lim, params.hev_thr,
+                                      cm->bit_depth);
           else
             aom_lpf_vertical_6(p, dst_stride, params.mblim, params.lim,
                                params.hev_thr);
@@ -2480,9 +2470,9 @@ static void filter_block_plane_horz(const AV1_COMMON *const cm, const int plane,
         case 6:
           assert(plane != 0);
           if (cm->use_highbitdepth)
-            aom_highbd_lpf_horizontal_6_c(CONVERT_TO_SHORTPTR(p), dst_stride,
-                                          params.mblim, params.lim,
-                                          params.hev_thr, cm->bit_depth);
+            aom_highbd_lpf_horizontal_6(CONVERT_TO_SHORTPTR(p), dst_stride,
+                                        params.mblim, params.lim,
+                                        params.hev_thr, cm->bit_depth);
           else
             aom_lpf_horizontal_6(p, dst_stride, params.mblim, params.lim,
                                  params.hev_thr);
