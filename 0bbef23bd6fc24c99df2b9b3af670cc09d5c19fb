@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c79e9b4c_4ead44db",
+        "filename": "av1/common/pred_common.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 6510
+      },
+      "writtenOn": "2018-03-27T22:31:15Z",
+      "side": 1,
+      "message": "This shouldn\u0027t really be here in the first place because it hides the real issue - segid modes in libaom are rubbish. Segmentation maps should never contain anything that cannot be encoded.\nBut since we have to live with this for now and its non-normative, okay.",
+      "revId": "0bbef23bd6fc24c99df2b9b3af670cc09d5c19fb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "beaa00f5_cf8ccb19",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 421,
+      "author": {
+        "id": 6510
+      },
+      "writtenOn": "2018-03-27T22:31:15Z",
+      "side": 1,
+      "message": "Move this to the segid encoding function.",
+      "revId": "0bbef23bd6fc24c99df2b9b3af670cc09d5c19fb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
