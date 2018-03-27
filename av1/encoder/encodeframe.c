@@ -462,12 +462,7 @@ static void update_state(const AV1_COMP *const cpi, TileDataEnc *tile_data,
         xd->mi[x_idx + y * mis] = mi_addr;
       }
 
-#if !CONFIG_EXT_DELTA_Q
-  if (cpi->oxcf.aq_mode > NO_AQ && cpi->oxcf.aq_mode < DELTA_AQ)
-    av1_init_plane_quantizers(cpi, x, mbmi->segment_id);
-#else
   if (cpi->oxcf.aq_mode) av1_init_plane_quantizers(cpi, x, mbmi->segment_id);
-#endif
 
   if (dry_run) return;
 
@@ -922,7 +917,6 @@ static void update_stats(const AV1_COMMON *const cm, TileDataEnc *tile_data,
     }
     if (absdq < DELTA_Q_SMALL) td->counts->delta_q[absdq][0]++;
     xd->prev_qindex = mbmi->current_q_index;
-#if CONFIG_EXT_DELTA_Q
     if (cm->delta_lf_present_flag) {
       if (cm->delta_lf_multi) {
         const int frame_lf_count =
@@ -952,7 +946,6 @@ static void update_stats(const AV1_COMMON *const cm, TileDataEnc *tile_data,
         xd->prev_delta_lf_from_base = mbmi->current_delta_lf_from_base;
       }
     }
-#endif
   }
 
   if (!is_inter_block(mbmi)) {
@@ -1412,9 +1405,7 @@ static void encode_b(const AV1_COMP *const cpi, TileDataEnc *tile_data,
                      int *rate) {
   TileInfo *const tile = &tile_data->tile_info;
   MACROBLOCK *const x = &td->mb;
-#if CONFIG_EXT_DELTA_Q
   MACROBLOCKD *xd = &x->e_mbd;
-#endif
 
   set_offsets(cpi, tile, x, mi_row, mi_col, bsize);
   MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
@@ -1430,7 +1421,6 @@ static void encode_b(const AV1_COMP *const cpi, TileDataEnc *tile_data,
     x->cb_offset += block_size_wide[bsize] * block_size_high[bsize];
 
   if (!dry_run) {
-#if CONFIG_EXT_DELTA_Q
     if (bsize == cpi->common.seq_params.sb_size && mbmi->skip == 1 &&
         cpi->common.delta_lf_present_flag) {
       const int frame_lf_count = av1_num_planes(&cpi->common) > 1
@@ -1440,7 +1430,6 @@ static void encode_b(const AV1_COMP *const cpi, TileDataEnc *tile_data,
         mbmi->curr_delta_lf[lf_id] = xd->prev_delta_lf[lf_id];
       mbmi->current_delta_lf_from_base = xd->prev_delta_lf_from_base;
     }
-#endif
     if (has_second_ref(mbmi)) {
       if (mbmi->compound_idx == 0 ||
           mbmi->interinter_compound_type == COMPOUND_AVERAGE)
@@ -3420,7 +3409,6 @@ static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
   // Reset delta for every tile
   if (cm->delta_q_present_flag)
     if (mi_row == tile_info->mi_row_start) xd->prev_qindex = cm->base_qindex;
-#if CONFIG_EXT_DELTA_Q
   if (cm->delta_lf_present_flag) {
     if (mi_row == tile_info->mi_row_start) {
       const int frame_lf_count =
@@ -3430,7 +3418,6 @@ static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
     }
     if (mi_row == tile_info->mi_row_start) xd->prev_delta_lf_from_base = 0;
   }
-#endif
 
   // Code each SB in the row
   for (mi_col = tile_info->mi_col_start; mi_col < tile_info->mi_col_end;
@@ -3503,11 +3490,7 @@ static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
       xd->delta_qindex = current_qindex - cm->base_qindex;
       set_offsets(cpi, tile_info, x, mi_row, mi_col, cm->seq_params.sb_size);
       xd->mi[0]->mbmi.current_q_index = current_qindex;
-#if !CONFIG_EXT_DELTA_Q
-      xd->mi[0]->mbmi.segment_id = 0;
-#endif  // CONFIG_EXT_DELTA_Q
       av1_init_plane_quantizers(cpi, x, xd->mi[0]->mbmi.segment_id);
-#if CONFIG_EXT_DELTA_Q
       if (cpi->oxcf.deltaq_mode == DELTA_Q_LF) {
         int j, k;
         int lfmask = ~(cm->delta_lf_res - 1);
@@ -3535,7 +3518,6 @@ static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
           }
         }
       }
-#endif  // CONFIG_EXT_DELTA_Q
     }
 
     x->source_variance = UINT_MAX;
@@ -4168,8 +4150,7 @@ static void encode_frame_internal(AV1_COMP *cpi) {
 
   // Fix delta q resolution for the moment
   cm->delta_q_res = DEFAULT_DELTA_Q_RES;
-// Set delta_q_present_flag before it is used for the first time
-#if CONFIG_EXT_DELTA_Q
+  // Set delta_q_present_flag before it is used for the first time
   cm->delta_lf_res = DEFAULT_DELTA_LF_RES;
   cm->delta_q_present_flag = cpi->oxcf.deltaq_mode != NO_DELTA_Q;
   cm->delta_lf_present_flag = cpi->oxcf.deltaq_mode == DELTA_Q_LF;
@@ -4177,10 +4158,6 @@ static void encode_frame_internal(AV1_COMP *cpi) {
   // update delta_q_present_flag and delta_lf_present_flag based on base_qindex
   cm->delta_q_present_flag &= cm->base_qindex > 0;
   cm->delta_lf_present_flag &= cm->base_qindex > 0;
-#else
-  cm->delta_q_present_flag =
-      cpi->oxcf.aq_mode == DELTA_AQ && cm->base_qindex > 0;
-#endif  // CONFIG_EXT_DELTA_Q
 
   av1_frame_init_quantizer(cpi);
 
@@ -4364,9 +4341,7 @@ static void encode_frame_internal(AV1_COMP *cpi) {
 
   // If intrabc is allowed but never selected, reset the allow_intrabc flag.
   if (cm->allow_intrabc && !cpi->intrabc_used) cm->allow_intrabc = 0;
-#if CONFIG_EXT_DELTA_Q
   if (cm->allow_intrabc) cm->delta_lf_present_flag = 0;
-#endif  // CONFIG_EXT_DELTA_Q
 }
 
 void av1_encode_frame(AV1_COMP *cpi) {
