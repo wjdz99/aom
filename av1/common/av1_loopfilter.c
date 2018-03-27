@@ -2480,7 +2480,7 @@ static void filter_block_plane_horz(const AV1_COMMON *const cm, const int plane,
         case 6:
           assert(plane != 0);
           if (cm->use_highbitdepth)
-            aom_highbd_lpf_horizontal_6_c(CONVERT_TO_SHORTPTR(p), dst_stride,
+            aom_highbd_lpf_horizontal_6(CONVERT_TO_SHORTPTR(p), dst_stride,
                                           params.mblim, params.lim,
                                           params.hev_thr, cm->bit_depth);
           else
