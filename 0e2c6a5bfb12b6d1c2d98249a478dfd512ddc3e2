@@ -2,6 +2,52 @@
   "comments": [
     {
       "key": {
+        "uuid": "6563459e_ef163ff9",
+        "filename": "aom_dsp/x86/highbd_loopfilter_sse2.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2018-03-27T19:00:56Z",
+      "side": 1,
+      "message": "There is a list of SIMD functions defined under aom_dsp/simd/. Maybe check to see if a similar one exists already?",
+      "range": {
+        "startLine": 25,
+        "startChar": 32,
+        "endLine": 25,
+        "endChar": 42
+      },
+      "revId": "0e2c6a5bfb12b6d1c2d98249a478dfd512ddc3e2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4abe6e01_54aa2e79",
+        "filename": "aom_dsp/x86/highbd_loopfilter_sse2.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2018-03-27T19:00:56Z",
+      "side": 1,
+      "message": "How do you decide when to use AOM_FORCE_INLINE? Do you see better performance by using it? Want to know if it helps since we normally use INLINE and leave this decision to the compiler.",
+      "range": {
+        "startLine": 138,
+        "startChar": 7,
+        "endLine": 138,
+        "endChar": 23
+      },
+      "revId": "0e2c6a5bfb12b6d1c2d98249a478dfd512ddc3e2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ca161398_ac828f90",
         "filename": "aom_dsp/x86/highbd_loopfilter_sse2.c",
         "patchSetId": 8
