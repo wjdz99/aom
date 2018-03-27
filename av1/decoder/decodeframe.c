@@ -2316,11 +2316,6 @@ void read_sequence_header(AV1_COMMON *cm, struct aom_read_bit_buffer *rb) {
     seq_params->force_integer_mv = 2;
   }
 #endif
-
-#if CONFIG_EXPLICIT_ORDER_HINT
-  seq_params->order_hint_bits_minus1 =
-      seq_params->enable_order_hint ? aom_rb_read_literal(rb, 3) : -1;
-#endif
   seq_params->enable_superres = aom_rb_read_bit(rb);
   seq_params->enable_cdef = aom_rb_read_bit(rb);
   seq_params->enable_restoration = aom_rb_read_bit(rb);
@@ -2707,8 +2702,7 @@ static int read_uncompressed_header(AV1Decoder *pbi,
   cm->primary_ref_frame = PRIMARY_REF_NONE;
 
 #if CONFIG_EXPLICIT_ORDER_HINT
-  cm->frame_offset =
-      aom_rb_read_literal(rb, cm->seq_params.order_hint_bits_minus1 + 1);
+  cm->frame_offset = aom_rb_read_literal(rb, DEFAULT_EXPLICIT_ORDER_HINT_BITS);
   cm->current_video_frame = cm->frame_offset;
 #else
   if (cm->show_frame == 0) {
@@ -2755,7 +2749,7 @@ static int read_uncompressed_header(AV1Decoder *pbi,
       for (int ref_idx = 0; ref_idx < REF_FRAMES; ref_idx++) {
         // Read order hint from bit stream
         unsigned int frame_offset =
-            aom_rb_read_literal(rb, cm->seq_params.order_hint_bits_minus1 + 1);
+            aom_rb_read_literal(rb, DEFAULT_EXPLICIT_ORDER_HINT_BITS);
 
         // Get buffer index
         int buf_idx = cm->ref_frame_map[ref_idx];
