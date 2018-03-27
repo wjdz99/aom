@@ -31,12 +31,18 @@ static INLINE int get_segment_id(const AV1_COMMON *const cm,
   const int bh = mi_size_high[bsize];
   const int xmis = AOMMIN(cm->mi_cols - mi_col, bw);
   const int ymis = AOMMIN(cm->mi_rows - mi_row, bh);
-  int x, y, segment_id = MAX_SEGMENTS;
+#if CONFIG_SPATIAL_SEGMENTATION
+  int segment_id = cm->seg.last_active_segid;
+#else
+  int segment_id = MAX_SEGMENTS;
+#endif
 
-  for (y = 0; y < ymis; ++y)
-    for (x = 0; x < xmis; ++x)
+  for (int y = 0; y < ymis; ++y) {
+    for (int x = 0; x < xmis; ++x) {
       segment_id =
           AOMMIN(segment_id, segment_ids[mi_offset + y * cm->mi_cols + x]);
+    }
+  }
 
   assert(segment_id >= 0 && segment_id < MAX_SEGMENTS);
   return segment_id;
