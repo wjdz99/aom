@@ -583,10 +583,10 @@ static INLINE int get_lower_levels_ctx(const uint8_t *levels, int coeff_idx,
   return get_nz_map_ctx_from_stats(stats, coeff_idx, bwl, tx_size, tx_class);
 }
 
-static INLINE void set_dc_sign(int *cul_level, tran_low_t v) {
-  if (v < 0)
+static INLINE void set_dc_sign(int *cul_level, int dc_val) {
+  if (dc_val < 0)
     *cul_level |= 1 << COEFF_CONTEXT_BITS;
-  else if (v > 0)
+  else if (dc_val > 0)
     *cul_level += 2 << COEFF_CONTEXT_BITS;
 }
 
