@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dce72f4e_d29ac0fc",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 576,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-03-28T17:46:22Z",
+      "side": 1,
+      "message": "could be const",
+      "range": {
+        "startLine": 576,
+        "startChar": 6,
+        "endLine": 576,
+        "endChar": 27
+      },
+      "revId": "a39391e0575edb540b3d8375b46d2189a6f289b2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
