@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "7ed5981b_09aceb21",
+        "filename": "av1/common/txb_common.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 576,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2018-03-28T19:55:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0ad1e233_45359a79",
+      "range": {
+        "startLine": 576,
+        "startChar": 36,
+        "endLine": 576,
+        "endChar": 39
+      },
+      "revId": "6075df66926d9a13dd0fb3b42bba02e8066d4dd1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ad435111_76a01203",
         "filename": "av1/encoder/encodetxb.c",
         "patchSetId": 6
@@ -118,6 +142,30 @@
     },
     {
       "key": {
+        "uuid": "65ae4c90_4c71ffc9",
+        "filename": "av1/encoder/encodetxb.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 669,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2018-03-28T19:55:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3b2001f6_1b8e28d9",
+      "range": {
+        "startLine": 669,
+        "startChar": 2,
+        "endLine": 669,
+        "endChar": 37
+      },
+      "revId": "6075df66926d9a13dd0fb3b42bba02e8066d4dd1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6fdaee52_f59da7b0",
         "filename": "av1/encoder/encodetxb.c",
         "patchSetId": 6
@@ -138,6 +186,30 @@
       "revId": "6075df66926d9a13dd0fb3b42bba02e8066d4dd1",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "29082d8b_e078e924",
+        "filename": "av1/encoder/encodetxb.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1176,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2018-03-28T19:55:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6fdaee52_f59da7b0",
+      "range": {
+        "startLine": 1176,
+        "startChar": 18,
+        "endLine": 1176,
+        "endChar": 39
+      },
+      "revId": "6075df66926d9a13dd0fb3b42bba02e8066d4dd1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -164,6 +236,30 @@
     },
     {
       "key": {
+        "uuid": "0eb4df85_4d521245",
+        "filename": "av1/encoder/encodetxb.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1279,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2018-03-28T19:55:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "37d3fe60_c34ccd9b",
+      "range": {
+        "startLine": 1279,
+        "startChar": 19,
+        "endLine": 1279,
+        "endChar": 38
+      },
+      "revId": "6075df66926d9a13dd0fb3b42bba02e8066d4dd1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "90358ace_242e4eb9",
         "filename": "av1/encoder/encodetxb.c",
         "patchSetId": 6
@@ -187,6 +283,30 @@
     },
     {
       "key": {
+        "uuid": "39bf6703_e032b90b",
+        "filename": "av1/encoder/encodetxb.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1567,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2018-03-28T19:55:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "90358ace_242e4eb9",
+      "range": {
+        "startLine": 1567,
+        "startChar": 4,
+        "endLine": 1567,
+        "endChar": 20
+      },
+      "revId": "6075df66926d9a13dd0fb3b42bba02e8066d4dd1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "54753040_61e533cc",
         "filename": "av1/encoder/encodetxb.h",
         "patchSetId": 6
@@ -198,6 +318,30 @@
       "writtenOn": "2018-03-28T05:03:15Z",
       "side": 1,
       "message": "Doesn\u0027t need to be a global function, only used in encodemb.c.",
+      "range": {
+        "startLine": 79,
+        "startChar": 4,
+        "endLine": 79,
+        "endChar": 24
+      },
+      "revId": "6075df66926d9a13dd0fb3b42bba02e8066d4dd1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "531f18dd_f3d715e3",
+        "filename": "av1/encoder/encodetxb.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2018-03-28T19:55:42Z",
+      "side": 1,
+      "message": "Yup you are right, but I hope to keep the coefficient coding related functions in encodetxb.c.\nIt\u0027s easier to maintain the code this way.",
+      "parentUuid": "54753040_61e533cc",
       "range": {
         "startLine": 79,
         "startChar": 4,
