@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "73453a79_4613635a",
+        "filename": "av1/common/txb_common.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 569,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2018-03-28T05:03:15Z",
+      "side": 1,
+      "message": "Does it have to be in a header file in the common folder? Seems it\u0027s only used in encodetxb.c. Functions in a header file should preferably have the av1_ prefix, which lots of functions in this file are missing.",
+      "range": {
+        "startLine": 569,
+        "startChar": 18,
+        "endLine": 569,
+        "endChar": 46
+      },
+      "revId": "6075df66926d9a13dd0fb3b42bba02e8066d4dd1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0ad1e233_45359a79",
         "filename": "av1/common/txb_common.h",
         "patchSetId": 6
@@ -41,6 +64,121 @@
         "startChar": 4,
         "endLine": 251,
         "endChar": 31
+      },
+      "revId": "6075df66926d9a13dd0fb3b42bba02e8066d4dd1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3b2001f6_1b8e28d9",
+        "filename": "av1/encoder/encodetxb.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 669,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2018-03-28T05:03:15Z",
+      "side": 1,
+      "message": "Remove?",
+      "range": {
+        "startLine": 669,
+        "startChar": 2,
+        "endLine": 669,
+        "endChar": 37
+      },
+      "revId": "6075df66926d9a13dd0fb3b42bba02e8066d4dd1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6fdaee52_f59da7b0",
+        "filename": "av1/encoder/encodetxb.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1176,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2018-03-28T05:03:15Z",
+      "side": 1,
+      "message": "What is simplified compared to the general version? A few words of comments would be very helpful.",
+      "range": {
+        "startLine": 1176,
+        "startChar": 18,
+        "endLine": 1176,
+        "endChar": 39
+      },
+      "revId": "6075df66926d9a13dd0fb3b42bba02e8066d4dd1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "37d3fe60_c34ccd9b",
+        "filename": "av1/encoder/encodetxb.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1279,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2018-03-28T05:03:15Z",
+      "side": 1,
+      "message": "ditto",
+      "range": {
+        "startLine": 1279,
+        "startChar": 19,
+        "endLine": 1279,
+        "endChar": 38
+      },
+      "revId": "6075df66926d9a13dd0fb3b42bba02e8066d4dd1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "90358ace_242e4eb9",
+        "filename": "av1/encoder/encodetxb.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1567,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2018-03-28T05:03:15Z",
+      "side": 1,
+      "message": "Remove it or comment it out saying it\u0027s being deprecated?",
+      "range": {
+        "startLine": 1567,
+        "startChar": 4,
+        "endLine": 1567,
+        "endChar": 20
+      },
+      "revId": "6075df66926d9a13dd0fb3b42bba02e8066d4dd1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "54753040_61e533cc",
+        "filename": "av1/encoder/encodetxb.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2018-03-28T05:03:15Z",
+      "side": 1,
+      "message": "Doesn\u0027t need to be a global function, only used in encodemb.c.",
+      "range": {
+        "startLine": 79,
+        "startChar": 4,
+        "endLine": 79,
+        "endChar": 24
       },
       "revId": "6075df66926d9a13dd0fb3b42bba02e8066d4dd1",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
