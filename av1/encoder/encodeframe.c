@@ -430,10 +430,12 @@ static void update_state(const AV1_COMP *const cpi, TileDataEnc *tile_data,
   if (seg->enabled) {
     // For in frame complexity AQ copy the segment id from the segment map.
     if (cpi->oxcf.aq_mode == COMPLEXITY_AQ) {
+      const int lossless = xd->lossless[mbmi->segment_id];
       const uint8_t *const map =
           seg->update_map ? cpi->segmentation_map : cm->last_frame_seg_map;
       mbmi->segment_id =
           map ? get_segment_id(cm, map, bsize, mi_row, mi_col) : 0;
+      xd->lossless[mbmi->segment_id] = lossless;
       reset_tx_size(x, mbmi, cm->tx_mode);
     }
     // Else for cyclic refresh mode update the segment map, set the segment id
