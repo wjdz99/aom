@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "601d1c79_bbff94b8",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 5445,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2018-03-28T17:29:33Z",
+      "side": 1,
+      "message": "There is a bug in the above code: INTER_REFS_PER_FRAME is valued as 7, hence the set on ref costs for ALTREF_FRAME has been left out, i.e. ref_costs_single[ALTREF_FRAME] has not been initialized here.\n\nIt is suggested to be fixed as either of the following two ways:\n\nMethod 1:\nfor (int i \u003d LAST_FRAME; i \u003c\u003d ALTREF_FRAME; ++i)\n      ref_costs_single[i] \u003d base_cost;\n\nMethod 2:\nfor (int i \u003d 0; i \u003c INTER_REFS_PER_FRAME; ++i)\n      ref_costs_single[i + LAST_FRAME] \u003d base_cost;",
+      "revId": "350db0b8748ab5cfdaf9458774d151e2cb5e1029",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
