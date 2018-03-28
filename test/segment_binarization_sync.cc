@@ -51,6 +51,7 @@ TEST(SegmentBinarizationSync, SearchForBinarizationMismatch) {
 
     const int max_segid = seg.last_id + 1;
     const int seg_diff = av1_neg_interleave(seg.id, seg.pred, max_segid);
+    assert(seg_diff >= 0);
     const int decoded_segid =
         av1_neg_deinterleave(seg_diff, seg.pred, max_segid);
 
