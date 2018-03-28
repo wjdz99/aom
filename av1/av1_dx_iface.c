@@ -206,15 +206,7 @@ static aom_codec_err_t decoder_peek_si_internal(const uint8_t *data,
   //   return AOM_CODEC_INVALID_PARAM;
 
   av1_read_profile(&rb);  // profile
-#if !CONFIG_SCALABILITY
   aom_rb_read_literal(&rb, 4);  // level
-#else
-  int i;
-  si->enhancement_layers_cnt = aom_rb_read_literal(&rb, 2);
-  for (i = 0; i <= (int)si->enhancement_layers_cnt; i++) {
-    aom_rb_read_literal(&rb, 4);  // level for each enhancement layer
-  }
-#endif  // CONFIG_SCALABILITY
 
   int num_bits_width = aom_rb_read_literal(&rb, 4) + 1;
   int num_bits_height = aom_rb_read_literal(&rb, 4) + 1;
@@ -620,10 +612,8 @@ static aom_image_t *decoder_get_frame(aom_codec_alg_priv_t *ctx,
 
           ctx->img.fb_priv = frame_bufs[cm->new_fb_idx].raw_frame_buffer.priv;
           img = &ctx->img;
-#if CONFIG_SCALABILITY
           img->temporal_id = cm->temporal_layer_id;
           img->enhancement_id = cm->enhancement_layer_id;
-#endif
 #if CONFIG_FILM_GRAIN
           return add_grain_if_needed(
               img, ctx->image_with_grain,
