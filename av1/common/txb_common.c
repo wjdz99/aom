@@ -98,7 +98,6 @@ const int8_t av1_coeff_band_32x32[1024] = {
 
 // The ctx offset table when TX is TX_CLASS_2D.
 // TX col and row indices are clamped to 4
-
 const int8_t av1_nz_map_ctx_offset_4x4[16] = {
   0, 1, 6, 6, 1, 6, 6, 21, 6, 6, 21, 21, 6, 21, 21, 21,
 };
@@ -431,6 +430,17 @@ const int8_t av1_nz_map_ctx_offset_32x8[256] = {
   21, 21, 21, 21, 21, 21, 21, 21, 21,
 };
 
+// This is the algorithm to generate av1_nz_map_ctx_offset[tx_size][ctx].
+//   const int width = tx_size_wide[tx_size];
+//   const int height = tx_size_high[tx_size];
+//   if (width < height) {
+//     if (row < 2) return 11 + ctx;
+//   } else if (width > height) {
+//     if (col < 2) return 16 + ctx;
+//   }
+//   if (row + col < 2) return ctx + 1;
+//   if (row + col < 4) return 5 + ctx + 1;
+//   return 21 + ctx;
 const int8_t *av1_nz_map_ctx_offset[19] = {
   av1_nz_map_ctx_offset_4x4,    // TX_4x4
   av1_nz_map_ctx_offset_8x8,    // TX_8x8

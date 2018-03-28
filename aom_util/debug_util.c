@@ -131,22 +131,6 @@ void mismatch_record_block_pre(const uint8_t *src, int src_stride,
                    src16 ? src16[r * src_stride + c] : src[r * src_stride + c];
     }
   }
-#if 0
-  int ref_frame_idx = 3;
-  int ref_frame_offset = 4;
-  int ref_plane = 1;
-  int ref_pixel_c = 162;
-  int ref_pixel_r = 16;
-  if (frame_idx_w == ref_frame_idx && plane == ref_plane &&
-      frame_offset == ref_frame_offset && ref_pixel_c >= pixel_c &&
-      ref_pixel_c < pixel_c + blk_w && ref_pixel_r >= pixel_r &&
-      ref_pixel_r < pixel_r + blk_h) {
-    printf(
-        "\nrecord_block_pre frame_idx %d frame_offset %d plane %d pixel_c %d pixel_r %d blk_w "
-        "%d blk_h %d\n",
-        frame_idx_w, frame_offset, plane, pixel_c, pixel_r, blk_w, blk_h);
-  }
-#endif
 }
 void mismatch_record_block_tx(const uint8_t *src, int src_stride,
                               int frame_offset, int plane, int pixel_c,
@@ -164,21 +148,6 @@ void mismatch_record_block_tx(const uint8_t *src, int src_stride,
                   src16 ? src16[r * src_stride + c] : src[r * src_stride + c];
     }
   }
-#if 0
-  int ref_frame_idx = 3;
-  int ref_frame_offset = 4;
-  int ref_plane = 1;
-  int ref_pixel_c = 162;
-  int ref_pixel_r = 16;
-  if (frame_idx_w == ref_frame_idx && plane == ref_plane && frame_offset == ref_frame_offset &&
-      ref_pixel_c >= pixel_c && ref_pixel_c < pixel_c + blk_w &&
-      ref_pixel_r >= pixel_r && ref_pixel_r < pixel_r + blk_h) {
-    printf(
-        "\nrecord_block_tx frame_idx %d frame_offset %d plane %d pixel_c %d pixel_r %d blk_w "
-        "%d blk_h %d\n",
-        frame_idx_w, frame_offset, plane, pixel_c, pixel_r, blk_w, blk_h);
-  }
-#endif
 }
 void mismatch_check_block_pre(const uint8_t *src, int src_stride,
                               int frame_offset, int plane, int pixel_c,
