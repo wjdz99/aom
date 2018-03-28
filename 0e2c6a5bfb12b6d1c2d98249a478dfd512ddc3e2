@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "1a9c0543_57f3c9d1",
+        "filename": "aom_dsp/x86/highbd_loopfilter_sse2.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 8911
+      },
+      "writtenOn": "2018-03-28T08:54:02Z",
+      "side": 1,
+      "message": "Yunqing, great question it is, thanks a lot! Prior to abs_diff16 creation I looked through the project for sure and haven\u0027t found it. That\u0027s why it is here now.\nBut the question about aom_dsp/simd content is important.  Such intrinsics wrappers functions creation and usage makes sense when  we either combine several intrinsics in one operation as abs_diff does and/or  when we create unified wrapper for a single code based various platforms  (arm, x86) and various simd capabilities (sse2, sse4 etc) compilation. I\u0027ve considered it for my initial wrong commit sse2/sse4 problem fix but found out that AV1 project CURRENT architecture is not suitable for such things. So to move further with anything there I\u0027d like to understand your plans there.",
+      "parentUuid": "6563459e_ef163ff9",
+      "range": {
+        "startLine": 25,
+        "startChar": 32,
+        "endLine": 25,
+        "endChar": 42
+      },
+      "revId": "0e2c6a5bfb12b6d1c2d98249a478dfd512ddc3e2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "4abe6e01_54aa2e79",
         "filename": "aom_dsp/x86/highbd_loopfilter_sse2.c",
         "patchSetId": 8
