@@ -68,9 +68,7 @@
 #include "aom_util/debug_util.h"
 #endif  // CONFIG_BITSTREAM_DEBUG || CONFIG_MISMATCH_DEBUG
 
-#if CONFIG_EXPLICIT_ORDER_HINT
 #define DEFAULT_EXPLICIT_ORDER_HINT_BITS 7
-#endif  // CONFIG_EXPLICIT_ORDER_HINT
 
 #if CONFIG_ENTROPY_STATS
 FRAME_COUNTS aggregate_fc;
@@ -924,9 +922,7 @@ void init_seq_coding_tools(SequenceHeader *seq, const AV1EncoderConfig *oxcf) {
 #if CONFIG_AMVR
   seq->force_integer_mv = 2;
 #endif
-#if CONFIG_EXPLICIT_ORDER_HINT
   seq->order_hint_bits_minus1 = DEFAULT_EXPLICIT_ORDER_HINT_BITS - 1;
-#endif  // CONFIG_EXPLICIT_ORDER_HINT
   seq->enable_dual_filter = oxcf->enable_dual_filter;
   seq->enable_order_hint = oxcf->enable_order_hint;
   seq->enable_jnt_comp = oxcf->enable_jnt_comp;
