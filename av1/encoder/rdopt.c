@@ -8526,6 +8526,7 @@ static void set_params_rd_pick_inter_mode(
                            ref_costs_comp);
 
   MV_REFERENCE_FRAME ref_frame;
+
   for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
     x->pred_mv_sad[ref_frame] = INT_MAX;
     x->mbmi_ext->mode_context[ref_frame] = 0;
@@ -8847,6 +8848,15 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
   };
   for (i = 0; i < REF_FRAMES; ++i) x->pred_sse[i] = INT_MAX;
 
+  PICK_MODE_CONTEXT *refctx = NULL;
+  for (i = 0; i < NUM_REF_PICK_MODE_CTXS; ++i) {
+    if (ctx->pick_mode_ctx_refs[i] &&
+        ctx->pick_mode_ctx_refs[i]->rd_mode_is_ready) {
+      refctx = ctx->pick_mode_ctx_refs[i];
+      break;
+    }
+  }
+
   av1_invalid_rd_stats(rd_cost);
 
   // init params, set frame modes, speed features
@@ -8875,6 +8885,10 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
     ref_frame = av1_mode_order[mode_index].ref_frame[0];
     second_ref_frame = av1_mode_order[mode_index].ref_frame[1];
     mbmi->ref_mv_idx = 0;
+
+    if (cpi->sf.reuse_ref_frame0_from_ref_partition && refctx) {
+      if (refctx->mic.ref_frame[0] != ref_frame) continue;
+    }
 
     if (ref_frame == INTRA_FRAME) {
       if (sf->skip_intra_in_interframe && search_state.skip_intra_modes)

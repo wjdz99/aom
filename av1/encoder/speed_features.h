@@ -555,6 +555,10 @@ typedef struct SPEED_FEATURES {
   // flag to drop some ref frames in compound motion search
   int drop_ref;
 
+  // flag to reuse ref_frame(s) chosen by the same block in a different
+  // partition type
+  int reuse_ref_frame0_from_ref_partition;
+
   // flag to allow skipping intra mode for inter frame prediction
   int skip_intra_in_interframe;
 
