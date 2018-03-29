@@ -666,7 +666,12 @@ static void rd_pick_sb_modes(const AV1_COMP *const cpi, TileDataEnc *tile_data,
 
   // TODO(jingning) The rate-distortion optimization flow needs to be
   // refactored to provide proper exit/return handle.
-  if (rd_cost->rate == INT_MAX) rd_cost->rdcost = INT64_MAX;
+  if (rd_cost->rate == INT_MAX) {
+    rd_cost->rdcost = INT64_MAX;
+    ctx->rd_mode_is_ready = 0;
+  } else {
+    ctx->rd_mode_is_ready = 1;
+  }
 
   ctx->rate = rd_cost->rate;
   ctx->dist = rd_cost->dist;
@@ -1661,6 +1666,8 @@ static void rd_use_partition(AV1_COMP *cpi, ThreadData *td,
   int do_partition_search = 1;
   PICK_MODE_CONTEXT *ctx_none = &pc_tree->none;
 
+  av1_set_pick_mode_ctx_refs(pc_tree);
+
   if (mi_row >= cm->mi_rows || mi_col >= cm->mi_cols) return;
 
   assert(mi_size_wide[bsize] == mi_size_high[bsize]);
@@ -2334,6 +2341,8 @@ static void rd_pick_sqr_partition(const AV1_COMP *const cpi, ThreadData *td,
   (void)*tp_orig;
   (void)split_rd;
 
+  av1_set_pick_mode_ctx_refs(pc_tree);
+
   // Override partition costs at the edges of the frame in the same
   // way as in read_partition (see decodeframe.c)
   if (!(has_rows && has_cols)) {
@@ -2615,6 +2624,8 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
   int partition_none_allowed = has_rows && has_cols;
   int partition_horz_allowed = has_cols && yss <= xss && bsize_at_least_8x8;
   int partition_vert_allowed = has_rows && xss <= yss && bsize_at_least_8x8;
+
+  av1_set_pick_mode_ctx_refs(pc_tree);
 
   (void)*tp_orig;
 

@@ -8470,7 +8470,7 @@ static void set_params_rd_pick_inter_mode(
     unsigned int ref_costs_single[REF_FRAMES],
     unsigned int ref_costs_comp[REF_FRAMES][REF_FRAMES],
     struct buf_2d yv12_mb[REF_FRAMES][MAX_MB_PLANE],
-    int64_t mode_threshold[MAX_MODES], int *mode_map) {
+    int64_t mode_threshold[MAX_MODES], int *mode_map, PICK_MODE_CONTEXT *ctx) {
   const AV1_COMMON *const cm = &cpi->common;
   const int num_planes = av1_num_planes(cm);
   MACROBLOCKD *const xd = &x->e_mbd;
@@ -8526,6 +8526,16 @@ static void set_params_rd_pick_inter_mode(
                            ref_costs_comp);
 
   MV_REFERENCE_FRAME ref_frame;
+
+  PICK_MODE_CONTEXT *refctx = NULL;
+  for (int i = 0; i < NUM_REF_PICK_MODE_CTXS; ++i) {
+    if (ctx->pick_mode_ctx_refs[i] &&
+        ctx->pick_mode_ctx_refs[i]->rd_mode_is_ready) {
+      refctx = ctx->pick_mode_ctx_refs[i];
+      break;
+    }
+  }
+
   for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
     x->pred_mv_sad[ref_frame] = INT_MAX;
     x->mbmi_ext->mode_context[ref_frame] = 0;
@@ -8854,7 +8864,7 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
       cpi, x, &args, bsize, mi_row, mi_col, search_state.frame_mv,
       search_state.ref_frame_skip_mask, search_state.mode_skip_mask,
       ref_costs_single, ref_costs_comp, yv12_mb, search_state.mode_threshold,
-      mode_map);
+      mode_map, ctx);
 
   for (int midx = 0; midx < MAX_MODES; ++midx) {
     int mode_index;
@@ -8875,6 +8885,10 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
     ref_frame = av1_mode_order[mode_index].ref_frame[0];
     second_ref_frame = av1_mode_order[mode_index].ref_frame[1];
     mbmi->ref_mv_idx = 0;
+
+    if (cpi->sf.reuse_ref_frame0_from_ref_partition && refctx) {
+      if (refctx->mic.ref_frame[0] != ref_frame) continue;
+    }
 
     if (ref_frame == INTRA_FRAME) {
       if (sf->skip_intra_in_interframe && search_state.skip_intra_modes)
