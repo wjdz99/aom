@@ -73,11 +73,11 @@ static INLINE void segfeatures_copy(struct segmentation *dst,
       if (src->feature_mask[i] & (1 << j)) {
         dst->preskip_segid |= j >= SEG_LVL_REF_FRAME;
         dst->last_active_segid = i;
-        src->preskip_segid = dst->preskip_segid;
-        src->last_active_segid = dst->last_active_segid;
       }
     }
   }
+  src->preskip_segid = dst->preskip_segid;
+  src->last_active_segid = dst->last_active_segid;
 }
 
 void av1_clearall_segfeatures(struct segmentation *seg);
