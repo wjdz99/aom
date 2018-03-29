@@ -354,6 +354,30 @@
     },
     {
       "key": {
+        "uuid": "08df54e7_81489c73",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 6032,
+      "author": {
+        "id": 7963
+      },
+      "writtenOn": "2018-03-29T21:03:03Z",
+      "side": 1,
+      "message": "It is both the input size and the output size.  I renamed it \"frame_size\".  I made the output size overwrite the input size because the new stream is overwriting the old stream in-place.",
+      "parentUuid": "63be5b0c_da9eb09d",
+      "range": {
+        "startLine": 6032,
+        "startChar": 61,
+        "endLine": 6032,
+        "endChar": 71
+      },
+      "revId": "cff68622efeb035c858ad1e742fb77d7103adbd9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fecfa53a_40345a8f",
         "filename": "av1/encoder/encoder.c",
         "patchSetId": 9
