@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "b4a18e8e_28ea8ab8",
+        "filename": "aomdec.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 238,
+      "author": {
+        "id": 7963
+      },
+      "writtenOn": "2018-03-29T18:08:15Z",
+      "side": 1,
+      "message": "Done.  Much cleaner now",
+      "parentUuid": "f479d3d2_74b9f48f",
+      "range": {
+        "startLine": 238,
+        "startChar": 22,
+        "endLine": 238,
+        "endChar": 35
+      },
+      "revId": "592c9ef6abc976f64d55856885879e042bd4a381",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "790396be_5c3d0ce0",
         "filename": "aomdec.c",
         "patchSetId": 4
@@ -36,6 +60,30 @@
       "writtenOn": "2018-03-29T16:05:40Z",
       "side": 1,
       "message": "Add to ObuDecInputContext.",
+      "range": {
+        "startLine": 665,
+        "startChar": 31,
+        "endLine": 665,
+        "endChar": 42
+      },
+      "revId": "592c9ef6abc976f64d55856885879e042bd4a381",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "49f4b672_dbcd5e6b",
+        "filename": "aomdec.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 665,
+      "author": {
+        "id": 7963
+      },
+      "writtenOn": "2018-03-29T18:08:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "790396be_5c3d0ce0",
       "range": {
         "startLine": 665,
         "startChar": 31,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "06294b02_d3159263",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 7963
+      },
+      "writtenOn": "2018-03-29T18:08:15Z",
+      "side": 1,
+      "message": "This function is obsolete. I deleted it.",
+      "parentUuid": "27fa526f_4127f3a4",
+      "range": {
+        "startLine": 165,
+        "startChar": 0,
+        "endLine": 165,
+        "endChar": 52
+      },
+      "revId": "592c9ef6abc976f64d55856885879e042bd4a381",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8e10cb12_d36bb5b0",
         "filename": "av1/decoder/obu.c",
         "patchSetId": 4
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "b30af43b_3fd2a2e0",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 450,
+      "author": {
+        "id": 7963
+      },
+      "writtenOn": "2018-03-29T18:08:15Z",
+      "side": 1,
+      "message": "I felt the decoder code wasn\u0027t that complicated to warrant a translation layer. If you think it\u0027s worth it, I can do it, but it means more time.  Probably not until next week, as I\u0027m away rest of the week.  Or if you want a \"faster\" solution, we can leave it as is.  I don\u0027t mind either way.  Let me know.",
+      "parentUuid": "8e10cb12_d36bb5b0",
+      "range": {
+        "startLine": 419,
+        "startChar": 0,
+        "endLine": 450,
+        "endChar": 5
+      },
+      "revId": "592c9ef6abc976f64d55856885879e042bd4a381",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "aaa7fc9a_6b271f1b",
         "filename": "av1/encoder/encoder.c",
         "patchSetId": 4
@@ -105,6 +201,30 @@
       "writtenOn": "2018-03-29T16:05:40Z",
       "side": 1,
       "message": "This variable isn\u0027t used.",
+      "range": {
+        "startLine": 6033,
+        "startChar": 36,
+        "endLine": 6033,
+        "endChar": 56
+      },
+      "revId": "592c9ef6abc976f64d55856885879e042bd4a381",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2f942368_c950e59a",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 6033,
+      "author": {
+        "id": 7963
+      },
+      "writtenOn": "2018-03-29T18:08:15Z",
+      "side": 1,
+      "message": "I was going to put some code in to prepare for annex-b-prime, but I\u0027ve removed it for now",
+      "parentUuid": "aaa7fc9a_6b271f1b",
       "range": {
         "startLine": 6033,
         "startChar": 36,
