@@ -69,7 +69,7 @@ extern "C" {
 #define MAX_NUM_TEMPORAL_LAYERS 8
 #define MAX_NUM_SPATIAL_LAYERS 4
 #define MAX_NUM_OPERATING_POINTS \
-  MAX_NUM_TEMPORAL_LAYERS + MAX_NUM_SPATIAL_LAYERS
+  MAX_NUM_TEMPORAL_LAYERS * MAX_NUM_SPATIAL_LAYERS
 #endif
 
 // TODO(jingning): Turning this on to set up transform coefficient
