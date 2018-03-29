@@ -140,7 +140,6 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
 
   // Speed 0 for all speed features that give neutral coding performance change.
   sf->reduce_inter_modes = 1;
-
   if (speed >= 1) {
     sf->gm_erroradv_type = GM_ERRORADV_TR_1;
     sf->selective_ref_frame = 1;
@@ -158,6 +157,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->optimize_b_precheck = 1;
   }
 
+  /*
   if (speed >= 2) {
     sf->gm_erroradv_type = GM_ERRORADV_TR_2;
     sf->tx_size_search_method = USE_FAST_RD;
@@ -200,6 +200,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->disable_wedge_search_var_thresh = 100;
     sf->fast_wedge_sign_estimate = 1;
   }
+  */
 
   if (speed >= 3) {
     sf->selective_ref_frame = 3;
