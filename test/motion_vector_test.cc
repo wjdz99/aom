@@ -16,6 +16,8 @@
 #include "test/util.h"
 #include "test/yuv_video_source.h"
 
+#include "av1/common/entropymv.h"
+
 namespace {
 #define MAX_EXTREME_MV 1
 #define MIN_EXTREME_MV 2
@@ -102,4 +104,17 @@ AV1_INSTANTIATE_TEST_CASE(MotionVectorTestLarge,
                           ::testing::ValuesIn(kEncodingModeVectors),
                           ::testing::ValuesIn(kCpuUsedVectors),
                           ::testing::ValuesIn(kMVTestModes));
+
+extern "C" {
+int av1_project_mv_component(int16_t mv_comp, int num, int den);
+}
+
+TEST(MotionVectorProjection, SearchForProjectionOverflow) {
+  for (int i = 0; i < 64; i++) {
+    const int large_mv = MV_UPP - 1;
+    const int projected_mv_comp =
+        av1_project_mv_component(large_mv, MAX_FRAME_DISTANCE, i);
+    ASSERT_TRUE(projected_mv_comp <= INT16_MAX);
+  }
+}
 }  // namespace
