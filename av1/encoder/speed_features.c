@@ -83,6 +83,7 @@ static void set_good_speed_feature_framesize_dependent(AV1_COMP *cpi,
                                                        int speed) {
   AV1_COMMON *const cm = &cpi->common;
 
+  /*
   if (speed >= 2) {
     if (AOMMIN(cm->width, cm->height) >= 720) {
       sf->disable_split_mask =
@@ -97,6 +98,7 @@ static void set_good_speed_feature_framesize_dependent(AV1_COMP *cpi,
     }
     sf->rd_auto_partition_min_limit = set_partition_min_limit(cm);
   }
+  */
 
   if (speed >= 3) {
     if (AOMMIN(cm->width, cm->height) >= 720) {
@@ -138,9 +140,9 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
   AV1_COMMON *const cm = &cpi->common;
   const int boosted = frame_is_boosted(cpi);
 
+  printf("Speed = %d\n", speed);
   // Speed 0 for all speed features that give neutral coding performance change.
   sf->reduce_inter_modes = 1;
-
   if (speed >= 1) {
     sf->gm_erroradv_type = GM_ERRORADV_TR_1;
     sf->selective_ref_frame = 1;
@@ -150,14 +152,13 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->two_pass_partition_search = 1;
     sf->prune_ext_partition_types_search = 1;
     sf->use_fast_interpolation_filter_search = 1;
-    // TODO(mfo): Activate feature once it gives positive results.
-    //   sf->use_hash_based_trellis = 1;
     sf->tx_type_search.skip_tx_search = 1;
     sf->adaptive_txb_search = 1;
     sf->use_intra_txb_hash = 1;
     sf->optimize_b_precheck = 1;
   }
 
+  /*
   if (speed >= 2) {
     sf->gm_erroradv_type = GM_ERRORADV_TR_2;
     sf->tx_size_search_method = USE_FAST_RD;
@@ -200,6 +201,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->disable_wedge_search_var_thresh = 100;
     sf->fast_wedge_sign_estimate = 1;
   }
+  */
 
   if (speed >= 3) {
     sf->selective_ref_frame = 3;
