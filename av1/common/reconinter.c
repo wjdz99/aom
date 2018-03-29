@@ -303,44 +303,44 @@ const uint8_t *av1_get_compound_type_mask(
 }
 
 #if COMPOUND_SEGMENT_TYPE == 0
-static void uniform_mask(uint8_t *mask, int which_inverse, BLOCK_SIZE sb_type,
-                         int h, int w, int mask_val) {
+static void uniform_mask(uint8_t *mask, int which_inverse, int h, int w,
+                         int mask_val) {
   int i, j;
-  int block_stride = block_size_wide[sb_type];
   for (i = 0; i < h; ++i)
     for (j = 0; j < w; ++j) {
-      mask[i * block_stride + j] =
+      mask[i * w + j] =
           which_inverse ? AOM_BLEND_A64_MAX_ALPHA - mask_val : mask_val;
     }
 }
 
-void build_compound_seg_mask(uint8_t *mask, SEG_MASK_TYPE mask_type,
-                             const uint8_t *src0, int src0_stride,
-                             const uint8_t *src1, int src1_stride,
-                             BLOCK_SIZE sb_type, int h, int w) {
+void av1_build_compound_seg_mask_c(uint8_t *mask, SEG_MASK_TYPE mask_type,
+                                   const uint8_t *src0, int src0_stride,
+                                   const uint8_t *src1, int src1_stride, int h,
+                                   int w) {
   (void)src0;
   (void)src1;
   (void)src0_stride;
   (void)src1_stride;
   switch (mask_type) {
-    case UNIFORM_45: uniform_mask(mask, 0, sb_type, h, w, 45); break;
-    case UNIFORM_45_INV: uniform_mask(mask, 1, sb_type, h, w, 45); break;
+    case UNIFORM_45: uniform_mask(mask, 0, h, w, 45); break;
+    case UNIFORM_45_INV: uniform_mask(mask, 1, h, w, 45); break;
     default: assert(0);
   }
 }
 
-void build_compound_seg_mask_highbd(uint8_t *mask, SEG_MASK_TYPE mask_type,
-                                    const uint8_t *src0, int src0_stride,
-                                    const uint8_t *src1, int src1_stride,
-                                    BLOCK_SIZE sb_type, int h, int w, int bd) {
+void av1_build_compound_seg_mask_highbd_c(uint8_t *mask,
+                                          SEG_MASK_TYPE mask_type,
+                                          const uint8_t *src0, int src0_stride,
+                                          const uint8_t *src1, int src1_stride,
+                                          int h, int w, int bd) {
   (void)src0;
   (void)src1;
   (void)src0_stride;
   (void)src1_stride;
   (void)bd;
   switch (mask_type) {
-    case UNIFORM_45: uniform_mask(mask, 0, sb_type, h, w, 45); break;
-    case UNIFORM_45_INV: uniform_mask(mask, 1, sb_type, h, w, 45); break;
+    case UNIFORM_45: uniform_mask(mask, 0, h, w, 45); break;
+    case UNIFORM_45_INV: uniform_mask(mask, 1, h, w, 45); break;
     default: assert(0);
   }
 }
@@ -350,36 +350,35 @@ void build_compound_seg_mask_highbd(uint8_t *mask, SEG_MASK_TYPE mask_type,
 
 static void diffwtd_mask_d32(uint8_t *mask, int which_inverse, int mask_base,
                              const CONV_BUF_TYPE *src0, int src0_stride,
-                             const CONV_BUF_TYPE *src1, int src1_stride,
-                             BLOCK_SIZE sb_type, int h, int w,
-                             ConvolveParams *conv_params, int bd) {
+                             const CONV_BUF_TYPE *src1, int src1_stride, int h,
+                             int w, ConvolveParams *conv_params, int bd) {
   int round =
       2 * FILTER_BITS - conv_params->round_0 - conv_params->round_1 + (bd - 8);
   int i, j, m, diff;
-  int block_stride = block_size_wide[sb_type];
   for (i = 0; i < h; ++i) {
     for (j = 0; j < w; ++j) {
       diff = abs(src0[i * src0_stride + j] - src1[i * src1_stride + j]);
       diff = ROUND_POWER_OF_TWO(diff, round);
       m = clamp(mask_base + (diff / DIFF_FACTOR), 0, AOM_BLEND_A64_MAX_ALPHA);
-      mask[i * block_stride + j] =
-          which_inverse ? AOM_BLEND_A64_MAX_ALPHA - m : m;
+      mask[i * w + j] = which_inverse ? AOM_BLEND_A64_MAX_ALPHA - m : m;
     }
   }
 }
 
-static void build_compound_seg_mask_d16(
-    uint8_t *mask, SEG_MASK_TYPE mask_type, const CONV_BUF_TYPE *src0,
-    int src0_stride, const CONV_BUF_TYPE *src1, int src1_stride,
-    BLOCK_SIZE sb_type, int h, int w, ConvolveParams *conv_params, int bd) {
+static void build_compound_seg_mask_d16(uint8_t *mask, SEG_MASK_TYPE mask_type,
+                                        const CONV_BUF_TYPE *src0,
+                                        int src0_stride,
+                                        const CONV_BUF_TYPE *src1,
+                                        int src1_stride, int h, int w,
+                                        ConvolveParams *conv_params, int bd) {
   switch (mask_type) {
     case DIFFWTD_38:
-      diffwtd_mask_d32(mask, 0, 38, src0, src0_stride, src1, src1_stride,
-                       sb_type, h, w, conv_params, bd);
+      diffwtd_mask_d32(mask, 0, 38, src0, src0_stride, src1, src1_stride, h, w,
+                       conv_params, bd);
       break;
     case DIFFWTD_38_INV:
-      diffwtd_mask_d32(mask, 1, 38, src0, src0_stride, src1, src1_stride,
-                       sb_type, h, w, conv_params, bd);
+      diffwtd_mask_d32(mask, 1, 38, src0, src0_stride, src1, src1_stride, h, w,
+                       conv_params, bd);
       break;
     default: assert(0);
   }
@@ -387,33 +386,28 @@ static void build_compound_seg_mask_d16(
 
 static void diffwtd_mask(uint8_t *mask, int which_inverse, int mask_base,
                          const uint8_t *src0, int src0_stride,
-                         const uint8_t *src1, int src1_stride,
-                         BLOCK_SIZE sb_type, int h, int w) {
+                         const uint8_t *src1, int src1_stride, int h, int w) {
   int i, j, m, diff;
-  int block_stride = block_size_wide[sb_type];
   for (i = 0; i < h; ++i) {
     for (j = 0; j < w; ++j) {
       diff =
           abs((int)src0[i * src0_stride + j] - (int)src1[i * src1_stride + j]);
       m = clamp(mask_base + (diff / DIFF_FACTOR), 0, AOM_BLEND_A64_MAX_ALPHA);
-      mask[i * block_stride + j] =
-          which_inverse ? AOM_BLEND_A64_MAX_ALPHA - m : m;
+      mask[i * w + j] = which_inverse ? AOM_BLEND_A64_MAX_ALPHA - m : m;
     }
   }
 }
 
-void build_compound_seg_mask(uint8_t *mask, SEG_MASK_TYPE mask_type,
-                             const uint8_t *src0, int src0_stride,
-                             const uint8_t *src1, int src1_stride,
-                             BLOCK_SIZE sb_type, int h, int w) {
+void av1_build_compound_seg_mask_c(uint8_t *mask, SEG_MASK_TYPE mask_type,
+                                   const uint8_t *src0, int src0_stride,
+                                   const uint8_t *src1, int src1_stride, int h,
+                                   int w) {
   switch (mask_type) {
     case DIFFWTD_38:
-      diffwtd_mask(mask, 0, 38, src0, src0_stride, src1, src1_stride, sb_type,
-                   h, w);
+      diffwtd_mask(mask, 0, 38, src0, src0_stride, src1, src1_stride, h, w);
       break;
     case DIFFWTD_38_INV:
-      diffwtd_mask(mask, 1, 38, src0, src0_stride, src1, src1_stride, sb_type,
-                   h, w);
+      diffwtd_mask(mask, 1, 38, src0, src0_stride, src1, src1_stride, h, w);
       break;
     default: assert(0);
   }
@@ -421,36 +415,33 @@ void build_compound_seg_mask(uint8_t *mask, SEG_MASK_TYPE mask_type,
 
 static void diffwtd_mask_highbd(uint8_t *mask, int which_inverse, int mask_base,
                                 const uint16_t *src0, int src0_stride,
-                                const uint16_t *src1, int src1_stride,
-                                BLOCK_SIZE sb_type, int h, int w, int bd) {
+                                const uint16_t *src1, int src1_stride, int h,
+                                int w, int bd) {
   int i, j, m, diff;
-  int block_stride = block_size_wide[sb_type];
   for (i = 0; i < h; ++i) {
     for (j = 0; j < w; ++j) {
       diff = abs((int)src0[i * src0_stride + j] -
                  (int)src1[i * src1_stride + j]) >>
              (bd - 8);
       m = clamp(mask_base + (diff / DIFF_FACTOR), 0, AOM_BLEND_A64_MAX_ALPHA);
-      mask[i * block_stride + j] =
-          which_inverse ? AOM_BLEND_A64_MAX_ALPHA - m : m;
+      mask[i * w + j] = which_inverse ? AOM_BLEND_A64_MAX_ALPHA - m : m;
     }
   }
 }
 
-void build_compound_seg_mask_highbd(uint8_t *mask, SEG_MASK_TYPE mask_type,
-                                    const uint8_t *src0, int src0_stride,
-                                    const uint8_t *src1, int src1_stride,
-                                    BLOCK_SIZE sb_type, int h, int w, int bd) {
+void av1_build_compound_seg_mask_highbd_c(uint8_t *mask,
+                                          SEG_MASK_TYPE mask_type,
+                                          const uint8_t *src0, int src0_stride,
+                                          const uint8_t *src1, int src1_stride,
+                                          int h, int w, int bd) {
   switch (mask_type) {
     case DIFFWTD_38:
       diffwtd_mask_highbd(mask, 0, 38, CONVERT_TO_SHORTPTR(src0), src0_stride,
-                          CONVERT_TO_SHORTPTR(src1), src1_stride, sb_type, h, w,
-                          bd);
+                          CONVERT_TO_SHORTPTR(src1), src1_stride, h, w, bd);
       break;
     case DIFFWTD_38_INV:
       diffwtd_mask_highbd(mask, 1, 38, CONVERT_TO_SHORTPTR(src0), src0_stride,
-                          CONVERT_TO_SHORTPTR(src1), src1_stride, sb_type, h, w,
-                          bd);
+                          CONVERT_TO_SHORTPTR(src1), src1_stride, h, w, bd);
       break;
     default: assert(0);
   }
@@ -690,9 +681,9 @@ void av1_make_masked_inter_predictor(
                            xd, can_use_previous);
 
   if (!plane && comp_data.interinter_compound_type == COMPOUND_SEG) {
-    build_compound_seg_mask_d16(
-        comp_data.seg_mask, comp_data.mask_type, org_dst, org_dst_stride,
-        tmp_buf16, tmp_buf_stride, mi->mbmi.sb_type, h, w, conv_params, xd->bd);
+    build_compound_seg_mask_d16(comp_data.seg_mask, comp_data.mask_type,
+                                org_dst, org_dst_stride, tmp_buf16,
+                                tmp_buf_stride, h, w, conv_params, xd->bd);
   }
   build_masked_compound_no_round(dst, dst_stride, org_dst, org_dst_stride,
                                  tmp_buf16, tmp_buf_stride, &comp_data,
@@ -1913,15 +1904,14 @@ static void build_wedge_inter_predictor_from_buf(
   if (is_compound && is_masked_compound_type(mbmi->interinter_compound_type)) {
     if (!plane && comp_data.interinter_compound_type == COMPOUND_SEG) {
       if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH)
-        build_compound_seg_mask_highbd(
+        av1_build_compound_seg_mask_highbd(
             comp_data.seg_mask, comp_data.mask_type,
             CONVERT_TO_BYTEPTR(ext_dst0), ext_dst_stride0,
-            CONVERT_TO_BYTEPTR(ext_dst1), ext_dst_stride1, mbmi->sb_type, h, w,
-            xd->bd);
+            CONVERT_TO_BYTEPTR(ext_dst1), ext_dst_stride1, h, w, xd->bd);
       else
-        build_compound_seg_mask(comp_data.seg_mask, comp_data.mask_type,
-                                ext_dst0, ext_dst_stride0, ext_dst1,
-                                ext_dst_stride1, mbmi->sb_type, h, w);
+        av1_build_compound_seg_mask(comp_data.seg_mask, comp_data.mask_type,
+                                    ext_dst0, ext_dst_stride0, ext_dst1,
+                                    ext_dst_stride1, h, w);
     }
 
     if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH)
