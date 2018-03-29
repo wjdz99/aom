@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "6a054126_237a75f9",
+        "filename": "av1/encoder/x86/encodetxb_sse4.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 8900
+      },
+      "writtenOn": "2018-03-29T04:56:09Z",
+      "side": 1,
+      "message": "Done. The input (tcoeff) of this function in av1_write_coeffs_txb, is not alloced aligned to 16byte. After update this one in https://aomedia-review.googlesource.com/c/aom/+/52741/4/av1/encoder/encodetxb.c#71  the _mm_loadu_si128 can be replaced by _mm_load_si128 .",
+      "parentUuid": "53714e9f_633e27dc",
+      "range": {
+        "startLine": 35,
+        "startChar": 29,
+        "endLine": 35,
+        "endChar": 44
+      },
+      "revId": "44f55a407c7ee23e17d23dc687488121c4ef0014",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e0514b00_8462b9f2",
         "filename": "test/encodetxb_test.cc",
         "patchSetId": 1
@@ -45,6 +69,30 @@
       "revId": "44f55a407c7ee23e17d23dc687488121c4ef0014",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e2951589_3307e0ce",
+        "filename": "test/encodetxb_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 8900
+      },
+      "writtenOn": "2018-03-29T04:56:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e0514b00_8462b9f2",
+      "range": {
+        "startLine": 210,
+        "startChar": 6,
+        "endLine": 210,
+        "endChar": 15
+      },
+      "revId": "44f55a407c7ee23e17d23dc687488121c4ef0014",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
