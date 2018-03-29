@@ -34,8 +34,9 @@ typedef enum {
   SPLIT_PLANE = 3,
 } CB_TREE_SEARCH;
 
+#define NUM_REF_PICK_MODE_CTXS 1
 // Structure to hold snapshot of coding context during the mode picking process
-typedef struct {
+typedef struct PICK_MODE_CONTEXT {
   MB_MODE_INFO mic;
   MB_MODE_INFO_EXT mbmi_ext;
   uint8_t *color_index_map[2];
@@ -70,6 +71,7 @@ typedef struct {
   MV pred_mv[REF_FRAMES];
   InterpFilter pred_interp_filter;
   PARTITION_TYPE partition;
+  struct PICK_MODE_CONTEXT *pick_mode_ctx_refs[NUM_REF_PICK_MODE_CTXS];
 } PICK_MODE_CONTEXT;
 
 typedef struct PC_TREE {
@@ -93,6 +95,7 @@ void av1_setup_pc_tree(struct AV1Common *cm, struct ThreadData *td);
 void av1_free_pc_tree(struct ThreadData *td, const int num_planes);
 void av1_copy_tree_context(PICK_MODE_CONTEXT *dst_ctx,
                            PICK_MODE_CONTEXT *src_ctx);
+void av1_set_pick_mode_ctx_refs(PC_TREE *pc_tree);
 
 #ifdef __cplusplus
 }  // extern "C"

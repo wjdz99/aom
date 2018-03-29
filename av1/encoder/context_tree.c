@@ -174,6 +174,68 @@ void av1_setup_pc_tree(AV1_COMMON *cm, ThreadData *td) {
   }
 }
 
+void av1_set_pick_mode_ctx_refs(PC_TREE *pc_tree) {
+  pc_tree->none.rd_mode_is_ready = 0;
+  pc_tree->horizontal[0].rd_mode_is_ready = 0;
+  pc_tree->horizontal[1].rd_mode_is_ready = 0;
+  pc_tree->vertical[0].rd_mode_is_ready = 0;
+  pc_tree->vertical[1].rd_mode_is_ready = 0;
+  pc_tree->horizontala[0].rd_mode_is_ready = 0;
+  pc_tree->horizontala[1].rd_mode_is_ready = 0;
+  pc_tree->horizontala[2].rd_mode_is_ready = 0;
+  pc_tree->horizontalb[0].rd_mode_is_ready = 0;
+  pc_tree->horizontalb[1].rd_mode_is_ready = 0;
+  pc_tree->horizontalb[2].rd_mode_is_ready = 0;
+  pc_tree->verticala[0].rd_mode_is_ready = 0;
+  pc_tree->verticala[1].rd_mode_is_ready = 0;
+  pc_tree->verticala[2].rd_mode_is_ready = 0;
+  pc_tree->verticalb[0].rd_mode_is_ready = 0;
+  pc_tree->verticalb[1].rd_mode_is_ready = 0;
+  pc_tree->verticalb[2].rd_mode_is_ready = 0;
+  pc_tree->horizontal4[0].rd_mode_is_ready = 0;
+  pc_tree->horizontal4[1].rd_mode_is_ready = 0;
+  pc_tree->horizontal4[2].rd_mode_is_ready = 0;
+  pc_tree->horizontal4[3].rd_mode_is_ready = 0;
+  pc_tree->vertical4[0].rd_mode_is_ready = 0;
+  pc_tree->vertical4[1].rd_mode_is_ready = 0;
+  pc_tree->vertical4[2].rd_mode_is_ready = 0;
+  pc_tree->vertical4[3].rd_mode_is_ready = 0;
+
+  pc_tree->none.pick_mode_ctx_refs[0] = NULL;
+
+  pc_tree->horizontal[0].pick_mode_ctx_refs[0] = NULL;
+  pc_tree->horizontal[1].pick_mode_ctx_refs[0] = NULL;
+
+  pc_tree->vertical[0].pick_mode_ctx_refs[0] = NULL;
+  pc_tree->vertical[1].pick_mode_ctx_refs[0] = NULL;
+
+  pc_tree->horizontala[0].pick_mode_ctx_refs[0] = &pc_tree->split[0]->none;
+  pc_tree->horizontala[1].pick_mode_ctx_refs[0] = &pc_tree->split[1]->none;
+  pc_tree->horizontala[2].pick_mode_ctx_refs[0] = &pc_tree->horizontal[1];
+
+  pc_tree->horizontalb[0].pick_mode_ctx_refs[0] = &pc_tree->horizontal[0];
+  pc_tree->horizontalb[1].pick_mode_ctx_refs[0] = &pc_tree->split[2]->none;
+  pc_tree->horizontalb[2].pick_mode_ctx_refs[0] = &pc_tree->split[3]->none;
+
+  pc_tree->verticala[0].pick_mode_ctx_refs[0] = &pc_tree->split[0]->none;
+  pc_tree->verticala[1].pick_mode_ctx_refs[0] = &pc_tree->split[2]->none;
+  pc_tree->verticala[2].pick_mode_ctx_refs[0] = &pc_tree->vertical[1];
+
+  pc_tree->verticalb[0].pick_mode_ctx_refs[0] = &pc_tree->vertical[0];
+  pc_tree->verticalb[1].pick_mode_ctx_refs[0] = &pc_tree->split[1]->none;
+  pc_tree->verticalb[2].pick_mode_ctx_refs[0] = &pc_tree->split[3]->none;
+
+  pc_tree->horizontal4[0].pick_mode_ctx_refs[0] = NULL;
+  pc_tree->horizontal4[1].pick_mode_ctx_refs[0] = NULL;
+  pc_tree->horizontal4[2].pick_mode_ctx_refs[0] = NULL;
+  pc_tree->horizontal4[3].pick_mode_ctx_refs[0] = NULL;
+
+  pc_tree->vertical4[0].pick_mode_ctx_refs[0] = NULL;
+  pc_tree->vertical4[1].pick_mode_ctx_refs[0] = NULL;
+  pc_tree->vertical4[2].pick_mode_ctx_refs[0] = NULL;
+  pc_tree->vertical4[3].pick_mode_ctx_refs[0] = NULL;
+}
+
 void av1_free_pc_tree(ThreadData *td, const int num_planes) {
   const int tree_nodes_inc = 1024;
 
