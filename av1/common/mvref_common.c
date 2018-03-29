@@ -26,16 +26,18 @@ static int div_mult[64] = {
   315,  309,   303,  297,  292,  287,  282,  277,  273,  268,  264,  260,
 };
 
+int av1_project_mv_component(int16_t mv_comp, int num, int den) {
+  return ROUND_POWER_OF_TWO_SIGNED(mv_comp * num * div_mult[den], 14);
+}
+
 // TODO(jingning): Consider the use of lookup table for (num / den)
 // altogether.
 static void get_mv_projection(MV *output, MV ref, int num, int den) {
   den = AOMMIN(den, MAX_FRAME_DISTANCE);
   num = num > 0 ? AOMMIN(num, MAX_FRAME_DISTANCE)
                 : AOMMAX(num, -MAX_FRAME_DISTANCE);
-  output->row =
-      (int16_t)(ROUND_POWER_OF_TWO_SIGNED(ref.row * num * div_mult[den], 14));
-  output->col =
-      (int16_t)(ROUND_POWER_OF_TWO_SIGNED(ref.col * num * div_mult[den], 14));
+  output->row = (int16_t)av1_project_mv_component(ref.row, num, den);
+  output->col = (int16_t)av1_project_mv_component(ref.col, num, den);
 }
 
 void av1_copy_frame_mvs(const AV1_COMMON *const cm, MODE_INFO *mi, int mi_row,
