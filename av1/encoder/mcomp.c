@@ -3147,11 +3147,7 @@ int av1_return_max_sub_pixel_mv(MACROBLOCK *x, const MV *ref_mv, int allow_hp,
   besterr = 0;
 // In the sub-pel motion search, if hp is not used, then the last bit of mv
 // has to be 0.
-#if CONFIG_AMVR
   lower_mv_precision(bestmv, allow_hp, 0);
-#else
-  lower_mv_precision(bestmv, allow_hp);
-#endif
   return besterr;
 }
 // Return the minimum MV.
@@ -3175,10 +3171,6 @@ int av1_return_min_sub_pixel_mv(MACROBLOCK *x, const MV *ref_mv, int allow_hp,
   besterr = 0;
 // In the sub-pel motion search, if hp is not used, then the last bit of mv
 // has to be 0.
-#if CONFIG_AMVR
   lower_mv_precision(bestmv, allow_hp, 0);
-#else
-  lower_mv_precision(bestmv, allow_hp);
-#endif
   return besterr;
 }
