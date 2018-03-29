@@ -1,0 +1,187 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5c3c1c12_9b1ce18e",
+        "filename": "av1/common/txb_common.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 596,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-03-29T20:09:28Z",
+      "side": 1,
+      "message": "for readability remove the \u0027else\u0027 if the other block returns directly.",
+      "revId": "e4ea748ed011fdc0df635a31fd4950e50bee8c2e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "798a7d5b_537fabb0",
+        "filename": "av1/encoder/encodetxb.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 250,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-03-29T20:09:28Z",
+      "side": 1,
+      "message": "for readability remove the \u0027else\u0027 if the other block returns directly.",
+      "revId": "e4ea748ed011fdc0df635a31fd4950e50bee8c2e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b26ecd4d_c15dbc3e",
+        "filename": "av1/encoder/encodetxb.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 261,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-03-29T20:09:28Z",
+      "side": 1,
+      "message": "{}s can help readability on conditionals carried to the next line. it\u0027s also less error prone if they happen to be in macros",
+      "revId": "e4ea748ed011fdc0df635a31fd4950e50bee8c2e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "38c9eb77_f1b54c6f",
+        "filename": "av1/encoder/encodetxb.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 265,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-03-29T20:09:28Z",
+      "side": 1,
+      "message": "for readability remove the \u0027else\u0027 if the other block returns directly.",
+      "revId": "e4ea748ed011fdc0df635a31fd4950e50bee8c2e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "65163250_aadf23a7",
+        "filename": "av1/encoder/encodetxb.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 1197,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-03-29T20:09:28Z",
+      "side": 1,
+      "message": "assumes",
+      "range": {
+        "startLine": 1197,
+        "startChar": 25,
+        "endLine": 1197,
+        "endChar": 31
+      },
+      "revId": "e4ea748ed011fdc0df635a31fd4950e50bee8c2e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c3249a79_537c3d13",
+        "filename": "av1/encoder/encodetxb.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 1243,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-03-29T20:09:28Z",
+      "side": 1,
+      "message": "could spell this as \u0027sign\u0027, I don\u0027t see a reason to abbreviate this here",
+      "range": {
+        "startLine": 1243,
+        "startChar": 14,
+        "endLine": 1243,
+        "endChar": 17
+      },
+      "revId": "e4ea748ed011fdc0df635a31fd4950e50bee8c2e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2da049ac_1fa49740",
+        "filename": "av1/encoder/encodetxb.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 1265,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-03-29T20:09:28Z",
+      "side": 1,
+      "message": "here too",
+      "range": {
+        "startLine": 1265,
+        "startChar": 14,
+        "endLine": 1265,
+        "endChar": 18
+      },
+      "revId": "e4ea748ed011fdc0df635a31fd4950e50bee8c2e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fcb61cc6_ffcfbc53",
+        "filename": "av1/encoder/encodetxb.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 1305,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-03-29T20:09:28Z",
+      "side": 1,
+      "message": "assumes",
+      "range": {
+        "startLine": 1305,
+        "startChar": 25,
+        "endLine": 1305,
+        "endChar": 31
+      },
+      "revId": "e4ea748ed011fdc0df635a31fd4950e50bee8c2e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3b69caed_47bbbd07",
+        "filename": "av1/encoder/encodetxb.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 1587,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-03-29T20:09:28Z",
+      "side": 1,
+      "message": "function, because",
+      "range": {
+        "startLine": 1587,
+        "startChar": 7,
+        "endLine": 1587,
+        "endChar": 15
+      },
+      "revId": "e4ea748ed011fdc0df635a31fd4950e50bee8c2e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
