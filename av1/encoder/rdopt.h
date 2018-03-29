@@ -97,7 +97,7 @@ static INLINE int av1_cost_coeffs(const struct AV1_COMP *const cpi,
   (void)scan_order;
   (void)use_fast_coef_costing;
   const MACROBLOCKD *xd = &x->e_mbd;
-  const MB_MODE_INFO *mbmi = &xd->mi[0]->mbmi;
+  const MB_MODE_INFO *mbmi = xd->mi[0];
   const struct macroblockd_plane *pd = &xd->plane[plane];
   const BLOCK_SIZE bsize = mbmi->sb_type;
   const BLOCK_SIZE plane_bsize = get_plane_block_size(bsize, pd);
