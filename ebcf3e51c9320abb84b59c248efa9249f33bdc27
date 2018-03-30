@@ -70,6 +70,30 @@
       "revId": "ebcf3e51c9320abb84b59c248efa9249f33bdc27",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6d0978c2_a1855f04",
+        "filename": "test/horz_superres_test.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2018-03-30T20:50:56Z",
+      "side": 0,
+      "message": "I see. Thanks.",
+      "parentUuid": "2231deeb_c4f40a39",
+      "range": {
+        "startLine": 34,
+        "startChar": 42,
+        "endLine": 34,
+        "endChar": 47
+      },
+      "revId": "ebcf3e51c9320abb84b59c248efa9249f33bdc27",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
