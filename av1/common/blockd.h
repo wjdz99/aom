@@ -1072,8 +1072,10 @@ static INLINE void assert_motion_mode_valid(MOTION_MODE mode,
       motion_mode_allowed(gm_params, xd, mi, allow_warped_motion);
 
   // Check that the input mode is not illegal
-  if (last_motion_mode_allowed < mode)
+  if (last_motion_mode_allowed < mode) {
+    printf("%d %d\n", last_motion_mode_allowed, mode);
     assert(0 && "Illegal motion mode selected");
+  }
 }
 
 static INLINE int is_neighbor_overlappable(const MB_MODE_INFO *mbmi) {
