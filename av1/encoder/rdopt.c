@@ -2867,6 +2867,7 @@ static int rd_pick_palette_intra_sby(
   else
     colors = av1_count_colors(src, src_stride, rows, cols, count_buf);
   mbmi->filter_intra_mode_info.use_filter_intra = 0;
+  mbmi->mode = DC_PRED;
 
   if (colors > 1 && colors <= 64) {
     int r, c, i;
@@ -2903,9 +2904,6 @@ static int rd_pick_palette_intra_sby(
         }
       }
     }
-
-    mbmi->mode = DC_PRED;
-    mbmi->filter_intra_mode_info.use_filter_intra = 0;
 
     uint16_t color_cache[2 * PALETTE_MAX_SIZE];
     const int n_cache = av1_get_palette_cache(xd, 0, color_cache);
@@ -9494,6 +9492,8 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
     mbmi->uv_mode = UV_DC_PRED;
     mbmi->ref_frame[0] = INTRA_FRAME;
     mbmi->ref_frame[1] = NONE_FRAME;
+    mbmi->filter_intra_mode_info.use_filter_intra = 0;
+    mbmi->motion_mode = SIMPLE_TRANSLATION;
     rate_overhead_palette = rd_pick_palette_intra_sby(
         cpi, x, bsize, intra_mode_cost[DC_PRED], &best_mbmi_palette,
         best_palette_color_map, &best_rd_palette, &best_model_rd_palette, NULL,
