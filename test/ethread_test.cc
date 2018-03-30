@@ -217,7 +217,7 @@ TEST_P(AVxEncoderThreadLSTestLarge, EncoderResultTest) {
 AV1_INSTANTIATE_TEST_CASE(AVxEncoderThreadLSTest,
                           ::testing::Values(::libaom_test::kTwoPassGood,
                                             ::libaom_test::kOnePassGood),
-                          ::testing::Range(2, 4));
+                          ::testing::Range(1, 4));
 AV1_INSTANTIATE_TEST_CASE(AVxEncoderThreadLSTestLarge,
                           ::testing::Values(::libaom_test::kTwoPassGood,
                                             ::libaom_test::kOnePassGood),
