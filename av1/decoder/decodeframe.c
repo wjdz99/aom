@@ -2208,6 +2208,7 @@ void av1_read_bitdepth_colorspace_sampling(AV1_COMMON *cm,
                                                           // to remove this
                                                           // dependency too
     cm->subsampling_y = cm->subsampling_x = 0;
+    cm->color_range = 1;  // assume full color-range
     if (!(cm->profile == PROFILE_1 ||
           (cm->profile == PROFILE_2 && cm->bit_depth == AOM_BITS_12))) {
       aom_internal_error(&cm->error, AOM_CODEC_UNSUP_BITSTREAM,
