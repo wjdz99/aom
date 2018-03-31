@@ -4500,6 +4500,8 @@ static void set_ext_overrides(AV1_COMP *cpi) {
     cpi->refresh_alt2_ref_frame = cpi->ext_refresh_alt2_ref_frame;
     cpi->ext_refresh_frame_flags_pending = 0;
   }
+
+  //if (!cpi->ext_use_ref_frame_mvs) cpi->common.allow_ref_frame_mvs = 0;
 }
 
 static int setup_interp_filter_search_mask(AV1_COMP *cpi) {
@@ -5994,7 +5996,8 @@ int av1_convert_sect5obus_to_annexb(uint8_t *buffer, size_t *frame_size) {
   return AOM_CODEC_OK;
 }
 
-void av1_apply_encoding_flags(AV1_COMP *cpi, aom_enc_frame_flags_t flags) {
+void av1_apply_encoding_flags(AV1_COMP *cpi,
+                                     aom_enc_frame_flags_t flags) {
   // TODO(yunqingwang): For what references to use, external encoding flags
   // should be consistent with internal reference frame selection. Need to
   // ensure that there is not conflict between the two. In AV1 encoder, the
@@ -6046,6 +6049,8 @@ void av1_apply_encoding_flags(AV1_COMP *cpi, aom_enc_frame_flags_t flags) {
 
     av1_update_reference(cpi, upd);
   }
+
+  cpi->ext_use_ref_frame_mvs = (flags & AOM_EFLAG_NO_REF_FRAME_MVS) == 0;
 
   if (flags & AOM_EFLAG_NO_UPD_ENTROPY) {
     av1_update_entropy(cpi, 0);
