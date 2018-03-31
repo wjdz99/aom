@@ -64,6 +64,8 @@ class ErrorResilienceTestLarge
   virtual void PreEncodeFrameHook(libaom_test::VideoSource *video,
                                   libaom_test::Encoder *encoder) {
     if (video->frame() == 0) encoder->Control(AOME_SET_CPUUSED, kCpuUsed);
+    frame_flags_ &= ~(AOM_EFLAG_NO_UPD_LAST | AOM_EFLAG_NO_UPD_GF |
+                     AOM_EFLAG_NO_UPD_ARF | AOM_EFLAG_NO_REF_FRAME_MVS);
     if (droppable_nframes_ > 0 &&
         (cfg_.g_pass == AOM_RC_LAST_PASS || cfg_.g_pass == AOM_RC_ONE_PASS)) {
       for (unsigned int i = 0; i < droppable_nframes_; ++i) {
@@ -88,14 +90,14 @@ class ErrorResilienceTestLarge
         }
       }
     }
-    encoder->Control(AV1E_SET_ALLOW_REF_FRAME_MVS, 1);
+
     if (nomfmv_nframes_ > 0 &&
         (cfg_.g_pass == AOM_RC_LAST_PASS || cfg_.g_pass == AOM_RC_ONE_PASS)) {
       for (unsigned int i = 0; i < nomfmv_nframes_; ++i) {
         if (nomfmv_frames_[i] == video->frame()) {
           std::cout << "             Encoding no mfmv frame: "
                     << nomfmv_frames_[i] << "\n";
-          encoder->Control(AV1E_SET_ALLOW_REF_FRAME_MVS, 0);
+          frame_flags_ |= AOM_EFLAG_NO_REF_FRAME_MVS;
           break;
         }
       }
@@ -297,7 +299,7 @@ TEST_P(ErrorResilienceTestLarge, ParseAbilityTest) {
 
   // Set an arbitrary error resilient (E) frame
   unsigned int num_error_resilient_frames = 1;
-  unsigned int error_resilient_frame_list[] = { 6 };
+  unsigned int error_resilient_frame_list[] = { 3 };
   SetErrorResilientFrames(num_error_resilient_frames,
                           error_resilient_frame_list);
   // Set all frames after the error resilient frame to not allow MFMV
@@ -306,7 +308,7 @@ TEST_P(ErrorResilienceTestLarge, ParseAbilityTest) {
   SetNoMFMVFrames(num_nomfmv_frames, nomfmv_frame_list);
 
   // Set a few frames before the E frame that are lost (not decoded)
-  unsigned int num_error_frames = 3;
+  unsigned int num_error_frames = 6;
   unsigned int error_frame_list[] = { 3, 4, 5 };
   SetErrorFrames(num_error_frames, error_frame_list);
 
