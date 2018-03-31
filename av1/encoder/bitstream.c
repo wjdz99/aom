@@ -2479,18 +2479,23 @@ static void write_bitdepth_colorspace_sampling(
       assert(cm->subsampling_x == 0 && cm->subsampling_y == 0);
     } else if (cm->profile == PROFILE_2) {
       if (cm->bit_depth == AOM_BITS_12) {
-        // 420, 444 or 422
-        aom_wb_write_bit(wb, cm->subsampling_x);
-        if (cm->subsampling_x == 0) {
-          assert(cm->subsampling_y == 0 &&
-                 "4:4:0 subsampling not allowed in AV1");
-        } else {
-          aom_wb_write_bit(wb, cm->subsampling_y);
+        if (cm->matrix_coefficients != AOM_CICP_MC_IDENTITY) {
+          // 420, 444 or 422
+          aom_wb_write_bit(wb, cm->subsampling_x);
+          if (cm->subsampling_x == 0) {
+            assert(cm->subsampling_y == 0 &&
+                   "4:4:0 subsampling not allowed in AV1");
+          } else {
+            aom_wb_write_bit(wb, cm->subsampling_y);
+          }
         }
       } else {
         // 422 only
         assert(cm->subsampling_x == 1 && cm->subsampling_y == 0);
       }
+    }
+    if (cm->matrix_coefficients == AOM_CICP_MC_IDENTITY) {
+      assert(cm->subsampling_x == 0 && cm->subsampling_y == 0);
     }
     if (cm->subsampling_x == 1 && cm->subsampling_y == 1) {
       aom_wb_write_literal(wb, cm->chroma_sample_position, 2);
