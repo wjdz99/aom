@@ -118,6 +118,19 @@ extern aom_codec_iface_t *aom_codec_av1_cx(void);
  * model based on the entropy of this frame.
  */
 #define AOM_EFLAG_NO_UPD_ENTROPY (1 << 26)
+/*!\brief Disable ref frame mvs
+ *
+ * When this flag is set, the encoder will not allow frames to
+ * be encoded using mfmv.
+ */
+#define AOM_EFLAG_NO_REF_FRAME_MVS (1 << 27)
+
+/*!\brief Enable error resilient frame
+ *
+ * When this flag is set, the encoder will code frames as error
+ * resilient.
+ */
+#define AOM_EFLAG_ERROR_RESILIENT (1 << 28)
 
 /*!\brief AVx encoder control functions
  *
