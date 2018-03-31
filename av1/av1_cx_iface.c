@@ -1196,11 +1196,6 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
   }
   cpi->common.error.setjmp = 1;
 
-  // Note(yunqing): While applying encoding flags, always start from enabling
-  // all, and then modifying according to the flags. Previous frame's flags are
-  // overwritten.
-  av1_apply_encoding_flags(cpi, flags);
-
   // Handle fixed keyframe intervals
   if (ctx->cfg.kf_mode == AOM_KF_AUTO &&
       ctx->cfg.kf_min_dist == ctx->cfg.kf_max_dist) {
