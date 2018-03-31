@@ -4513,6 +4513,7 @@ static void set_ext_overrides(AV1_COMP *cpi) {
     cpi->ext_refresh_frame_flags_pending = 0;
   }
   cpi->common.allow_ref_frame_mvs = cpi->ext_use_ref_frame_mvs;
+  cpi->common.error_resilient_mode = cpi->ext_use_error_resilient;
 }
 
 static int setup_interp_filter_search_mask(AV1_COMP *cpi) {
@@ -4678,7 +4679,7 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
   cm->cur_frame->frame_type = cm->frame_type;
 
   // S_FRAMEs are always error resilient
-  cm->error_resilient_mode = oxcf->error_resilient_mode || frame_is_sframe(cm);
+  cm->error_resilient_mode |= oxcf->error_resilient_mode || frame_is_sframe(cm);
   cm->allow_ref_frame_mvs &=
       cpi->oxcf.allow_ref_frame_mvs && frame_might_allow_ref_frame_mvs(cm);
   cm->allow_warped_motion =
@@ -6062,8 +6063,9 @@ void av1_apply_encoding_flags(AV1_COMP *cpi, aom_enc_frame_flags_t flags) {
   }
 
   cpi->ext_use_ref_frame_mvs = (flags & AOM_EFLAG_NO_REF_FRAME_MVS) == 0;
+  cpi->ext_use_error_resilient = (flags & AOM_EFLAG_ERROR_RESILIENT) != 0;
 
-  if (flags & AOM_EFLAG_NO_UPD_ENTROPY) {
+  if (flags & AOM_EFLAG_NO_UPD_ENTROPY || flags & AOM_EFLAG_ERROR_RESILIENT) {
     av1_update_entropy(cpi, 0);
   }
 }
