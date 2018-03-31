@@ -4512,6 +4512,8 @@ static void set_ext_overrides(AV1_COMP *cpi) {
     cpi->refresh_alt2_ref_frame = cpi->ext_refresh_alt2_ref_frame;
     cpi->ext_refresh_frame_flags_pending = 0;
   }
+
+  if (!cpi->ext_use_ref_frame_mvs) cpi->common.allow_ref_frame_mvs = 0;
 }
 
 static int setup_interp_filter_search_mask(AV1_COMP *cpi) {
@@ -4669,9 +4671,6 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
   const AV1EncoderConfig *const oxcf = &cpi->oxcf;
   struct segmentation *const seg = &cm->seg;
 
-  set_ext_overrides(cpi);
-  aom_clear_system_state();
-
   // frame type has been decided outside of this function call
   cm->cur_frame->intra_only = frame_is_intra_only(cm);
   cm->cur_frame->frame_type = cm->frame_type;
@@ -4682,6 +4681,9 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
       cpi->oxcf.allow_ref_frame_mvs && frame_might_allow_ref_frame_mvs(cm);
   cm->allow_warped_motion =
       cpi->oxcf.allow_warped_motion && frame_might_allow_warped_motion(cm);
+
+  set_ext_overrides(cpi);
+  aom_clear_system_state();
 
   // Reset the frame packet stamp index.
   if (cm->frame_type == KEY_FRAME) cm->current_video_frame = 0;
@@ -6058,6 +6060,8 @@ void av1_apply_encoding_flags(AV1_COMP *cpi, aom_enc_frame_flags_t flags) {
 
     av1_update_reference(cpi, upd);
   }
+
+  cpi->ext_use_ref_frame_mvs = (flags & AOM_EFLAG_NO_REF_FRAME_MVS) == 0;
 
   if (flags & AOM_EFLAG_NO_UPD_ENTROPY) {
     av1_update_entropy(cpi, 0);
