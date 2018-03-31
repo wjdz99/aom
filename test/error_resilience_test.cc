@@ -74,9 +74,9 @@ class ErrorResilienceTestLarge
   virtual void PreEncodeFrameHook(libaom_test::VideoSource *video,
                                   libaom_test::Encoder *encoder) {
     if (video->frame() == 0) encoder->Control(AOME_SET_CPUUSED, kCpuUsed);
-    frame_flags_ &=
-        ~(AOM_EFLAG_NO_UPD_LAST | AOM_EFLAG_NO_UPD_GF | AOM_EFLAG_NO_UPD_ARF);
-
+    frame_flags_ &= ~(AOM_EFLAG_NO_UPD_LAST | AOM_EFLAG_NO_UPD_GF |
+                      AOM_EFLAG_NO_UPD_ARF | AOM_EFLAG_NO_REF_FRAME_MVS |
+                      AOM_EFLAG_ERROR_RESILIENT);
     if (droppable_nframes_ > 0 &&
         (cfg_.g_pass == AOM_RC_LAST_PASS || cfg_.g_pass == AOM_RC_ONE_PASS)) {
       for (unsigned int i = 0; i < droppable_nframes_; ++i) {
@@ -90,27 +90,26 @@ class ErrorResilienceTestLarge
       }
     }
 
-    encoder->Control(AV1E_SET_ERROR_RESILIENT_MODE, 0);
     if (error_resilient_nframes_ > 0 &&
         (cfg_.g_pass == AOM_RC_LAST_PASS || cfg_.g_pass == AOM_RC_ONE_PASS)) {
       for (unsigned int i = 0; i < error_resilient_nframes_; ++i) {
         if (error_resilient_frames_[i] == video->frame()) {
           std::cout << "             Encoding error_resilient frame: "
                     << error_resilient_frames_[i] << "\n";
-          encoder->Control(AV1E_SET_ERROR_RESILIENT_MODE, 1);
+          frame_flags_ |= AOM_EFLAG_ERROR_RESILIENT;
+          printf("preflags %d\n", frame_flags_);
           break;
         }
       }
     }
 
-    encoder->Control(AV1E_SET_ALLOW_REF_FRAME_MVS, 1);
     if (nomfmv_nframes_ > 0 &&
         (cfg_.g_pass == AOM_RC_LAST_PASS || cfg_.g_pass == AOM_RC_ONE_PASS)) {
       for (unsigned int i = 0; i < nomfmv_nframes_; ++i) {
         if (nomfmv_frames_[i] == video->frame()) {
           std::cout << "             Encoding no mfmv frame: "
                     << nomfmv_frames_[i] << "\n";
-          encoder->Control(AV1E_SET_ALLOW_REF_FRAME_MVS, 0);
+          frame_flags_ |= AOM_EFLAG_NO_REF_FRAME_MVS;
           break;
         }
       }
@@ -141,6 +140,7 @@ class ErrorResilienceTestLarge
   }
 
   virtual bool DoDecode() const {
+    printf("decode\n");
     if (error_nframes_ > 0 &&
         (cfg_.g_pass == AOM_RC_LAST_PASS || cfg_.g_pass == AOM_RC_ONE_PASS)) {
       for (unsigned int i = 0; i < error_nframes_; ++i) {
@@ -304,9 +304,7 @@ TEST_P(ErrorResilienceTestLarge, DropFramesWithoutRecovery) {
 // subsequent frames from using MFMV. If frames are dropped before the
 // E frame, all frames starting from the E frame should be parse-able.
 TEST_P(ErrorResilienceTestLarge, ParseAbilityTest) {
-  // TODO(sarahparker, debargha): Make control setting work correctly for
-  // lag_in_frames > 0
-  SetupEncoder(500, 0);
+  SetupEncoder(200, 10);
 
   libaom_test::I420VideoSource video("hantro_collage_w352h288.yuv", 352, 288,
                                      cfg_.g_timebase.den, cfg_.g_timebase.num,
@@ -316,17 +314,17 @@ TEST_P(ErrorResilienceTestLarge, ParseAbilityTest) {
 
   // Set an arbitrary error resilient (E) frame
   unsigned int num_error_resilient_frames = 1;
-  unsigned int error_resilient_frame_list[] = { 6 };
+  unsigned int error_resilient_frame_list[] = { 3 };
   SetErrorResilientFrames(num_error_resilient_frames,
                           error_resilient_frame_list);
   // Set all frames after the error resilient frame to not allow MFMV
   unsigned int num_nomfmv_frames = 8;
-  unsigned int nomfmv_frame_list[] = { 7, 8, 9, 10, 11, 12, 13, 14 };
+  unsigned int nomfmv_frame_list[] = { 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 };
   SetNoMFMVFrames(num_nomfmv_frames, nomfmv_frame_list);
 
   // Set a few frames before the E frame that are lost (not decoded)
-  unsigned int num_error_frames = 3;
-  unsigned int error_frame_list[] = { 3, 4, 5 };
+  unsigned int num_error_frames = 2;
+  unsigned int error_frame_list[] = { 1, 2 };
   SetErrorFrames(num_error_frames, error_frame_list);
 
   ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
@@ -343,8 +341,6 @@ TEST_P(ErrorResilienceTestLarge, ParseAbilityTest) {
 // Encode an S-frame. If frames are dropped before the S-frame, all frames
 // starting from the S frame should be parse-able.
 TEST_P(ErrorResilienceTestLarge, SFrameTest) {
-  // TODO(sarahparker, debargha): Make control setting work correctly for
-  // lag_in_frames > 0
   SetupEncoder(500, 0);
 
   libaom_test::I420VideoSource video("hantro_collage_w352h288.yuv", 352, 288,

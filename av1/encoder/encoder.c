@@ -4512,6 +4512,8 @@ static void set_ext_overrides(AV1_COMP *cpi) {
     cpi->refresh_alt2_ref_frame = cpi->ext_refresh_alt2_ref_frame;
     cpi->ext_refresh_frame_flags_pending = 0;
   }
+  cpi->common.error_resilient_mode = cpi->ext_use_error_resilient;
+  cpi->common.allow_ref_frame_mvs = cpi->ext_use_ref_frame_mvs;
 }
 
 static int setup_interp_filter_search_mask(AV1_COMP *cpi) {
@@ -4668,6 +4670,7 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
   AV1_COMMON *const cm = &cpi->common;
   const AV1EncoderConfig *const oxcf = &cpi->oxcf;
   struct segmentation *const seg = &cm->seg;
+  printf("datarate\n");
 
   set_ext_overrides(cpi);
   aom_clear_system_state();
@@ -4677,8 +4680,8 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
   cm->cur_frame->frame_type = cm->frame_type;
 
   // S_FRAMEs are always error resilient
-  cm->error_resilient_mode = oxcf->error_resilient_mode || frame_is_sframe(cm);
-  cm->allow_ref_frame_mvs =
+  cm->error_resilient_mode |= (oxcf->error_resilient_mode || frame_is_sframe(cm));
+  cm->allow_ref_frame_mvs &=
       cpi->oxcf.allow_ref_frame_mvs && frame_might_allow_ref_frame_mvs(cm);
   cm->allow_warped_motion =
       cpi->oxcf.allow_warped_motion && frame_might_allow_warped_motion(cm);
@@ -5520,6 +5523,7 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
   int arf_src_index;
   int brf_src_index;
   int i;
+  printf("frm %d\n", cm->current_video_frame);
 
 #if CONFIG_BITSTREAM_DEBUG
   assert(cpi->oxcf.max_threads == 0 &&
@@ -5565,6 +5569,9 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
       *size = 0;
       return -1;
     }
+    printf("non null pop\n");
+    printf("pop flags %d\n", source->flags);
+    av1_apply_encoding_flags(cpi, source->flags);
     cpi->source = &source->img;
     // TODO(zoeliu): To track down to determine whether it's needed to adjust
     // the frame rate.
@@ -5732,12 +5739,14 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
     }
   }
   if (source) {
+    printf("non null pop\n");
     cpi->unscaled_source = cpi->source =
         force_src_buffer ? force_src_buffer : &source->img;
     cpi->unscaled_last_source = last_source != NULL ? &last_source->img : NULL;
 
     *time_stamp = source->ts_start;
     *time_end = source->ts_end;
+    printf("pop flags2 %d\n", source->flags);
     av1_apply_encoding_flags(cpi, source->flags);
     *frame_flags = (source->flags & AOM_EFLAG_FORCE_KF) ? FRAMEFLAGS_KEY : 0;
 
@@ -6059,7 +6068,10 @@ void av1_apply_encoding_flags(AV1_COMP *cpi, aom_enc_frame_flags_t flags) {
     av1_update_reference(cpi, upd);
   }
 
-  if (flags & AOM_EFLAG_NO_UPD_ENTROPY) {
+  cpi->ext_use_error_resilient = (flags & AOM_EFLAG_ERROR_RESILIENT) != 0;
+  cpi->ext_use_ref_frame_mvs = (flags & AOM_EFLAG_NO_REF_FRAME_MVS) == 0;
+
+  if (flags & AOM_EFLAG_NO_UPD_ENTROPY || flags & AOM_EFLAG_ERROR_RESILIENT) {
     av1_update_entropy(cpi, 0);
   }
 }

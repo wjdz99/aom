@@ -1200,6 +1200,8 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
   // all, and then modifying according to the flags. Previous frame's flags are
   // overwritten.
   av1_apply_encoding_flags(cpi, flags);
+  if (cpi->common.current_video_frame==3)
+    printf("debug\n");
 
   // Handle fixed keyframe intervals
   if (ctx->cfg.kf_mode == AOM_KF_AUTO &&

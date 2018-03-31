@@ -78,6 +78,7 @@ bail:
 int av1_lookahead_push(struct lookahead_ctx *ctx, YV12_BUFFER_CONFIG *src,
                        int64_t ts_start, int64_t ts_end, int use_highbitdepth,
                        aom_enc_frame_flags_t flags) {
+  printf("push\n");
   struct lookahead_entry *buf;
 #if USE_PARTIAL_COPY
   int row, col, active_end;
@@ -171,11 +172,13 @@ int av1_lookahead_push(struct lookahead_ctx *ctx, YV12_BUFFER_CONFIG *src,
   buf->ts_start = ts_start;
   buf->ts_end = ts_end;
   buf->flags = flags;
+  printf("push flags: %d\n", flags);
   return 0;
 }
 
 struct lookahead_entry *av1_lookahead_pop(struct lookahead_ctx *ctx,
                                           int drain) {
+  printf("pop\n");
   struct lookahead_entry *buf = NULL;
 
   if (ctx && ctx->sz && (drain || ctx->sz == ctx->max_sz - MAX_PRE_FRAMES)) {
