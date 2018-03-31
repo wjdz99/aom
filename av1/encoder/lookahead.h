@@ -93,6 +93,16 @@ struct lookahead_entry *av1_lookahead_pop(struct lookahead_ctx *ctx, int drain);
 struct lookahead_entry *av1_lookahead_peek(struct lookahead_ctx *ctx,
                                            int index);
 
+/**\brief Get the flags stored for a particular frame in the lookahead buffer
+ *
+ * \param[in] ctx       Pointer to the lookahead context
+ * \param[in] index     Index of the frame to be returned, 0 == next frame
+ *
+ * \retval 0, if no buffer exists at the specified index
+ */
+aom_codec_frame_flags_t av1_get_flags_from_lookahead(struct lookahead_ctx *ctx,
+                                                     int index);
+
 /**\brief Get the number of frames currently in the lookahead queue
  *
  * \param[in] ctx       Pointer to the lookahead context

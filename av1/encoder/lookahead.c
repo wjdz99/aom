@@ -208,4 +208,9 @@ struct lookahead_entry *av1_lookahead_peek(struct lookahead_ctx *ctx,
   return buf;
 }
 
+aom_codec_frame_flags_t av1_get_flags_from_lookahead(struct lookahead_ctx *ctx, int index) {
+  struct lookahead_entry *buf = av1_lookahead_peek(ctx, index);
+  return buf == NULL ? 0 : buf->flags;
+}
+
 unsigned int av1_lookahead_depth(struct lookahead_ctx *ctx) { return ctx->sz; }
