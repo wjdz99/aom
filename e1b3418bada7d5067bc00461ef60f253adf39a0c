@@ -46,6 +46,30 @@
       "revId": "e1b3418bada7d5067bc00461ef60f253adf39a0c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "79908354_1872ea7d",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 9496,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2018-03-31T07:13:00Z",
+      "side": 1,
+      "message": "Inside av1_temporal_filter(), it will call the motion compensated block prediction building. Yue is right that av1_build_inter_block is called but the block may not be set as inter-coded initially. Hence if the corresponding palette_mode_info.palette_size[0] and alette_mode_info.palette_size[1] are not reset, it might potentially cause problems. Same thing has once happened to the design of the skip_mode, as skip_mode is determined before inter/intra is being handled. Even though skip_mode always goes for inter blocks, there is still a need to reset the above two palette parameters otherwise it will cause mismatch.",
+      "parentUuid": "1c7ad0e3_741e5afa",
+      "range": {
+        "startLine": 9496,
+        "startChar": 4,
+        "endLine": 9496,
+        "endChar": 43
+      },
+      "revId": "e1b3418bada7d5067bc00461ef60f253adf39a0c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
