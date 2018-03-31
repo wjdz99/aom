@@ -1152,6 +1152,74 @@ static aom_codec_frame_flags_t get_frame_pkt_flags(const AV1_COMP *cpi,
   return flags;
 }
 
+/*
+static void av1_apply_encoding_flags(aom_codec_alg_priv_t *ctx,
+                                     aom_enc_frame_flags_t flags) {
+  AV1_COMP *cpi = ctx->cpi;
+  // TODO(yunqingwang): For what references to use, external encoding flags
+  // should be consistent with internal reference frame selection. Need to
+  // ensure that there is not conflict between the two. In AV1 encoder, the
+  // priority rank for 7 reference frames are: LAST, ALTREF, LAST2, LAST3,
+  // GOLDEN, BWDREF, ALTREF2. If only one reference frame is used, it must be
+  // LAST.
+  cpi->ext_ref_frame_flags = AOM_REFFRAME_ALL;
+  if (flags &
+      (AOM_EFLAG_NO_REF_LAST | AOM_EFLAG_NO_REF_LAST2 | AOM_EFLAG_NO_REF_LAST3 |
+       AOM_EFLAG_NO_REF_GF | AOM_EFLAG_NO_REF_ARF | AOM_EFLAG_NO_REF_BWD |
+       AOM_EFLAG_NO_REF_ARF2)) {
+    if (flags & AOM_EFLAG_NO_REF_LAST) {
+      cpi->ext_ref_frame_flags = 0;
+    } else {
+      int ref = AOM_REFFRAME_ALL;
+
+      if (flags & AOM_EFLAG_NO_REF_LAST2) ref ^= AOM_LAST2_FLAG;
+      if (flags & AOM_EFLAG_NO_REF_LAST3) ref ^= AOM_LAST3_FLAG;
+
+      if (flags & AOM_EFLAG_NO_REF_GF) ref ^= AOM_GOLD_FLAG;
+
+      if (flags & AOM_EFLAG_NO_REF_ARF) {
+        ref ^= AOM_ALT_FLAG;
+        ref ^= AOM_BWD_FLAG;
+        ref ^= AOM_ALT2_FLAG;
+      } else {
+        if (flags & AOM_EFLAG_NO_REF_BWD) ref ^= AOM_BWD_FLAG;
+        if (flags & AOM_EFLAG_NO_REF_ARF2) ref ^= AOM_ALT2_FLAG;
+      }
+
+      av1_use_as_reference(cpi, ref);
+    }
+  }
+
+  if (flags &
+      (AOM_EFLAG_NO_UPD_LAST | AOM_EFLAG_NO_UPD_GF | AOM_EFLAG_NO_UPD_ARF)) {
+    int upd = AOM_REFFRAME_ALL;
+
+    // Refreshing LAST/LAST2/LAST3 is handled by 1 common flag.
+    if (flags & AOM_EFLAG_NO_UPD_LAST) upd ^= AOM_LAST_FLAG;
+
+    if (flags & AOM_EFLAG_NO_UPD_GF) upd ^= AOM_GOLD_FLAG;
+
+    if (flags & AOM_EFLAG_NO_UPD_ARF) {
+      upd ^= AOM_ALT_FLAG;
+      upd ^= AOM_BWD_FLAG;
+      upd ^= AOM_ALT2_FLAG;
+    }
+
+    av1_update_reference(cpi, upd);
+  }
+
+  if (flags & AOM_EFLAG_NO_REF_FRAME_MVS) {
+    ctrl_set_allow_ref_frame_mvs(ctx, va_list args) {
+  } else {
+
+  }
+
+  if (flags & AOM_EFLAG_NO_UPD_ENTROPY) {
+    av1_update_entropy(cpi, 0);
+  }
+}
+*/
+
 static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
                                       const aom_image_t *img,
                                       aom_codec_pts_t pts,
@@ -1200,11 +1268,6 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
   }
   cpi->common.error.setjmp = 1;
 
-  // Note(yunqing): While applying encoding flags, always start from enabling
-  // all, and then modifying according to the flags. Previous frame's flags are
-  // overwritten.
-  av1_apply_encoding_flags(cpi, flags);
-
   // Handle fixed keyframe intervals
   if (ctx->cfg.kf_mode == AOM_KF_AUTO &&
       ctx->cfg.kf_min_dist == ctx->cfg.kf_max_dist) {
@@ -1234,6 +1297,18 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
       }
       ctx->next_frame_flags = 0;
     }
+
+    // get flags from lookahead buffer
+    aom_codec_frame_flags_t lookahead_flags =
+        av1_get_flags_from_lookahead(cpi->lookahead, 0);
+
+    // Note(yunqing): While applying encoding flags, always start from enabling
+    // all, and then modifying according to the flags. Previous frame's flags are
+    // overwritten.
+    printf("lookahead flags: %d frame: %d\n", lookahead_flags, cpi->common.current_video_frame);
+    //av1_apply_encoding_flags(ctx, lookahead_flags);
+    av1_apply_encoding_flags(cpi, lookahead_flags);
+
 
     unsigned char *cx_data = ctx->cx_data;
     size_t cx_data_sz = ctx->cx_data_sz;

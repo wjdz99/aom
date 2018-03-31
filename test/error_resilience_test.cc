@@ -73,6 +73,9 @@ class ErrorResilienceTestLarge
           frame_flags_ |= (AOM_EFLAG_NO_UPD_LAST | AOM_EFLAG_NO_UPD_GF |
                            AOM_EFLAG_NO_UPD_ARF);
           break;
+        } else {
+          frame_flags_ &= ~(AOM_EFLAG_NO_UPD_LAST | AOM_EFLAG_NO_UPD_GF |
+                           AOM_EFLAG_NO_UPD_ARF);
         }
       }
     }
@@ -88,18 +91,22 @@ class ErrorResilienceTestLarge
         }
       }
     }
-    encoder->Control(AV1E_SET_ALLOW_REF_FRAME_MVS, 1);
+/*
+    //encoder->Control(AV1E_SET_ALLOW_REF_FRAME_MVS, 1);
+    frame_flags_ |= AOM_EFLAG_NO_REF_FRAME_MVS;
     if (nomfmv_nframes_ > 0 &&
         (cfg_.g_pass == AOM_RC_LAST_PASS || cfg_.g_pass == AOM_RC_ONE_PASS)) {
       for (unsigned int i = 0; i < nomfmv_nframes_; ++i) {
         if (nomfmv_frames_[i] == video->frame()) {
           std::cout << "             Encoding no mfmv frame: "
                     << nomfmv_frames_[i] << "\n";
-          encoder->Control(AV1E_SET_ALLOW_REF_FRAME_MVS, 0);
+          frame_flags_ |= AOM_EFLAG_NO_REF_FRAME_MVS;
           break;
         }
       }
     }
+*/
+    printf("pre flags: %d\n", frame_flags_);
   }
 
   double GetAveragePsnr() const {
@@ -297,7 +304,7 @@ TEST_P(ErrorResilienceTestLarge, ParseAbilityTest) {
 
   // Set an arbitrary error resilient (E) frame
   unsigned int num_error_resilient_frames = 1;
-  unsigned int error_resilient_frame_list[] = { 6 };
+  unsigned int error_resilient_frame_list[] = { 3 };
   SetErrorResilientFrames(num_error_resilient_frames,
                           error_resilient_frame_list);
   // Set all frames after the error resilient frame to not allow MFMV

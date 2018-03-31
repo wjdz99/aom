@@ -718,8 +718,6 @@ static INLINE unsigned int allocated_tokens(TileInfo tile, int sb_size_log2,
   return get_token_alloc(tile_mb_rows, tile_mb_cols, sb_size_log2, num_planes);
 }
 
-void av1_apply_encoding_flags(AV1_COMP *cpi, aom_enc_frame_flags_t flags);
-
 #define ALT_MIN_LAG 3
 static INLINE int is_altref_enabled(const AV1_COMP *const cpi) {
   return cpi->oxcf.lag_in_frames >= ALT_MIN_LAG && cpi->oxcf.enable_auto_arf;
@@ -766,6 +764,8 @@ static INLINE int av1_resize_unscaled(const AV1_COMMON *cm) {
          cm->superres_upscaled_height == cm->render_height;
 }
 
+void av1_apply_encoding_flags(AV1_COMP *cpi,
+                                     aom_enc_frame_flags_t flags);
 static INLINE int av1_frame_unscaled(const AV1_COMMON *cm) {
   return av1_superres_unscaled(cm) && av1_resize_unscaled(cm);
 }

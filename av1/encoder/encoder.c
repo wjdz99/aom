@@ -5994,7 +5994,8 @@ int av1_convert_sect5obus_to_annexb(uint8_t *buffer, size_t *frame_size) {
   return AOM_CODEC_OK;
 }
 
-void av1_apply_encoding_flags(AV1_COMP *cpi, aom_enc_frame_flags_t flags) {
+void av1_apply_encoding_flags(AV1_COMP *cpi,
+                                     aom_enc_frame_flags_t flags) {
   // TODO(yunqingwang): For what references to use, external encoding flags
   // should be consistent with internal reference frame selection. Need to
   // ensure that there is not conflict between the two. In AV1 encoder, the
@@ -6046,6 +6047,14 @@ void av1_apply_encoding_flags(AV1_COMP *cpi, aom_enc_frame_flags_t flags) {
 
     av1_update_reference(cpi, upd);
   }
+
+/*
+  if (flags & AOM_EFLAG_NO_REF_FRAME_MVS) {
+    ctrl_set_allow_ref_frame_mvs(ctx, va_list args) {
+  } else {
+
+  }
+*/
 
   if (flags & AOM_EFLAG_NO_UPD_ENTROPY) {
     av1_update_entropy(cpi, 0);
