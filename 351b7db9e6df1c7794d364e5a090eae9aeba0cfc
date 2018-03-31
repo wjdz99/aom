@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ce65bf6d_dc423e89",
+        "filename": "av1/common/av1_inv_txfm1d.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1538,
+      "author": {
+        "id": 8487
+      },
+      "writtenOn": "2018-03-31T12:39:37Z",
+      "side": 1,
+      "message": "input[i] should have been previously clipped. There should be no need to worry about 64-bit intermediates and masking here",
+      "revId": "351b7db9e6df1c7794d364e5a090eae9aeba0cfc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ccd5543e_202087cc",
+        "filename": "av1/common/av1_inv_txfm1d.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1547,
+      "author": {
+        "id": 8487
+      },
+      "writtenOn": "2018-03-31T12:39:37Z",
+      "side": 1,
+      "message": "Some may want to implement this as round_shift(NewSqrt2 * input[i], NewSqrt2Bits-1) and not worry about 64-bit intermediates. Masking doesn\u0027t seem appropriate here",
+      "revId": "351b7db9e6df1c7794d364e5a090eae9aeba0cfc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b8381464_1e75d1b0",
+        "filename": "av1/common/av1_inv_txfm1d.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1564,
+      "author": {
+        "id": 8487
+      },
+      "writtenOn": "2018-03-31T12:39:37Z",
+      "side": 1,
+      "message": "Some may want to implement this as round_shift(NewSqrt2 * input[i], NewSqrt2Bits-2) and not worry about 64-bit intermediates. Masking doesn\u0027t seem appropriate here",
+      "revId": "351b7db9e6df1c7794d364e5a090eae9aeba0cfc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
