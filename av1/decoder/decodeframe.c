@@ -2579,10 +2579,12 @@ static int read_uncompressed_header(AV1Decoder *pbi,
       pbi->refresh_frame_flags = 0;
     }
 
+    printf("DECODE early frame type %d\n", cm->frame_type);
     return 0;
   }
 
   cm->frame_type = (FRAME_TYPE)aom_rb_read_literal(rb, 2);  // 2 bits
+  printf("DECODE frame type %d\n", cm->frame_type);
   cm->show_frame = aom_rb_read_bit(rb);
   cm->showable_frame = 0;
   if (!cm->show_frame) {
@@ -2592,6 +2594,7 @@ static int read_uncompressed_header(AV1Decoder *pbi,
   cm->cur_frame->showable_frame = cm->showable_frame;
   cm->intra_only = cm->frame_type == INTRA_ONLY_FRAME;
   cm->error_resilient_mode = frame_is_sframe(cm) ? 1 : aom_rb_read_bit(rb);
+  //printf(" is error res %d\n", cm->error_resilient_mode);
   cm->disable_cdf_update = aom_rb_read_bit(rb);
 
   if (cm->seq_params.force_screen_content_tools == 2) {
