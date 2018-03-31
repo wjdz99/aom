@@ -4512,6 +4512,8 @@ static void set_ext_overrides(AV1_COMP *cpi) {
     cpi->refresh_alt2_ref_frame = cpi->ext_refresh_alt2_ref_frame;
     cpi->ext_refresh_frame_flags_pending = 0;
   }
+  cpi->common.error_resilient_mode = cpi->ext_use_error_resilient;
+  cpi->common.allow_ref_frame_mvs = cpi->ext_use_ref_frame_mvs;
 }
 
 static int setup_interp_filter_search_mask(AV1_COMP *cpi) {
@@ -4677,8 +4679,8 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
   cm->cur_frame->frame_type = cm->frame_type;
 
   // S_FRAMEs are always error resilient
-  cm->error_resilient_mode = oxcf->error_resilient_mode || frame_is_sframe(cm);
-  cm->allow_ref_frame_mvs =
+  cm->error_resilient_mode |= (oxcf->error_resilient_mode || frame_is_sframe(cm));
+  cm->allow_ref_frame_mvs &=
       cpi->oxcf.allow_ref_frame_mvs && frame_might_allow_ref_frame_mvs(cm);
   cm->allow_warped_motion =
       cpi->oxcf.allow_warped_motion && frame_might_allow_warped_motion(cm);
@@ -5565,6 +5567,7 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
       *size = 0;
       return -1;
     }
+    av1_apply_encoding_flags(cpi, source->flags);
     cpi->source = &source->img;
     // TODO(zoeliu): To track down to determine whether it's needed to adjust
     // the frame rate.
@@ -6059,7 +6062,10 @@ void av1_apply_encoding_flags(AV1_COMP *cpi, aom_enc_frame_flags_t flags) {
     av1_update_reference(cpi, upd);
   }
 
-  if (flags & AOM_EFLAG_NO_UPD_ENTROPY) {
+  cpi->ext_use_error_resilient = (flags & AOM_EFLAG_ERROR_RESILIENT) != 0;
+  cpi->ext_use_ref_frame_mvs = (flags & AOM_EFLAG_NO_REF_FRAME_MVS) == 0;
+
+  if (flags & AOM_EFLAG_NO_UPD_ENTROPY || flags & AOM_EFLAG_ERROR_RESILIENT) {
     av1_update_entropy(cpi, 0);
   }
 }
