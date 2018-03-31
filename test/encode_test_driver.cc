@@ -181,6 +181,7 @@ void EncoderTest::RunLoop(VideoSource *video) {
 
   ASSERT_TRUE(passes_ == 1 || passes_ == 2);
   for (unsigned int pass = 0; pass < passes_; pass++) {
+    printf("PASS %d\n", pass);
     last_pts_ = 0;
 
     if (passes_ == 1)
