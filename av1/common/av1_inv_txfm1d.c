@@ -1518,14 +1518,15 @@ void av1_iadst32_new(const int32_t *input, int32_t *output, int8_t cos_bit,
   clamp_buf(bf1, size, stage_range[stage]);
 }
 
+#define mask_range(a) (int32_t)((a)&0xffffffff)
+
 void av1_iidentity4_c(const int32_t *input, int32_t *output, int8_t cos_bit,
                       const int8_t *stage_range) {
   (void)cos_bit;
   (void)stage_range;
   for (int i = 0; i < 4; ++i) {
-    // Normal input should fit into 32-bit. Cast to 64-bit here to avoid
-    // overflow with corrupted/fuzzed input. The same for av1_iidentity/16/64_c.
-    output[i] = round_shift((int64_t)NewSqrt2 * input[i], NewSqrt2Bits);
+    output[i] =
+        round_shift(mask_range((int64_t)NewSqrt2 * input[i]), NewSqrt2Bits);
   }
   assert(stage_range[0] + NewSqrt2Bits <= 32);
 }
@@ -1534,7 +1535,7 @@ void av1_iidentity8_c(const int32_t *input, int32_t *output, int8_t cos_bit,
                       const int8_t *stage_range) {
   (void)cos_bit;
   (void)stage_range;
-  for (int i = 0; i < 8; ++i) output[i] = (int32_t)((int64_t)input[i] * 2);
+  for (int i = 0; i < 8; ++i) output[i] = mask_range((int64_t)input[i] * 2);
 }
 
 void av1_iidentity16_c(const int32_t *input, int32_t *output, int8_t cos_bit,
@@ -1542,7 +1543,8 @@ void av1_iidentity16_c(const int32_t *input, int32_t *output, int8_t cos_bit,
   (void)cos_bit;
   (void)stage_range;
   for (int i = 0; i < 16; ++i)
-    output[i] = round_shift((int64_t)NewSqrt2 * 2 * input[i], NewSqrt2Bits);
+    output[i] =
+        round_shift(mask_range((int64_t)NewSqrt2 * 2 * input[i]), NewSqrt2Bits);
   assert(stage_range[0] + NewSqrt2Bits <= 32);
 }
 
@@ -1550,7 +1552,7 @@ void av1_iidentity32_c(const int32_t *input, int32_t *output, int8_t cos_bit,
                        const int8_t *stage_range) {
   (void)cos_bit;
   (void)stage_range;
-  for (int i = 0; i < 32; ++i) output[i] = (int32_t)((int64_t)input[i] * 4);
+  for (int i = 0; i < 32; ++i) output[i] = mask_range((int64_t)input[i] * 4);
 }
 
 void av1_iidentity64_c(const int32_t *input, int32_t *output, int8_t cos_bit,
@@ -1558,7 +1560,8 @@ void av1_iidentity64_c(const int32_t *input, int32_t *output, int8_t cos_bit,
   (void)cos_bit;
   (void)stage_range;
   for (int i = 0; i < 64; ++i)
-    output[i] = round_shift((int64_t)NewSqrt2 * 4 * input[i], NewSqrt2Bits);
+    output[i] =
+        round_shift(mask_range((int64_t)NewSqrt2 * 4 * input[i]), NewSqrt2Bits);
   assert(stage_range[0] + NewSqrt2Bits <= 32);
 }
 
