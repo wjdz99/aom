@@ -113,6 +113,12 @@ static void quantize_fp_helper_c(
   *eob_ptr = eob + 1;
 }
 
+// Do not use this when integer division is cheap as chips.
+static INLINE int integer_divide_by_power_of_2(int n, int shifts) {
+  const int s = n >> (sizeof(n) * 8 - 1);
+  return ((((n ^ s) - s) >> shifts) ^ s) - s;
+}
+
 static void highbd_quantize_fp_helper_c(
     const tran_low_t *coeff_ptr, intptr_t count, int skip_block,
     const int16_t *zbin_ptr, const int16_t *round_ptr, const int16_t *quant_ptr,
@@ -122,7 +128,6 @@ static void highbd_quantize_fp_helper_c(
     const qm_val_t *iqm_ptr, int log_scale) {
   int i;
   int eob = -1;
-  const int scale = 1 << log_scale;
   const int shift = 16 - log_scale;
   // TODO(jingning) Decide the need of these arguments after the
   // quantization process is completed.
@@ -154,7 +159,8 @@ static void highbd_quantize_fp_helper_c(
         abs_qcoeff =
             (int)((tmp * quant_ptr[rc != 0] * wt) >> (shift + AOM_QM_BITS));
         qcoeff_ptr[rc] = (tran_low_t)((abs_qcoeff ^ coeff_sign) - coeff_sign);
-        dqcoeff_ptr[rc] = qcoeff_ptr[rc] * dequant / scale;
+        dqcoeff_ptr[rc] =
+            integer_divide_by_power_of_2(qcoeff_ptr[rc] * dequant, log_scale);
       }
       if (abs_qcoeff) eob = i;
     }
