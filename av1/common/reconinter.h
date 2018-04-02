@@ -139,7 +139,7 @@ static INLINE int is_interinter_compound_used(COMPOUND_TYPE type,
   const int comp_allowed = is_comp_ref_allowed(sb_type);
   switch (type) {
     case COMPOUND_AVERAGE:
-    case COMPOUND_SEG: return comp_allowed;
+    case COMPOUND_DIFFWTD: return comp_allowed;
     case COMPOUND_WEDGE:
       return comp_allowed && wedge_params_lookup[sb_type].bits > 0;
     default: assert(0); return 0;
