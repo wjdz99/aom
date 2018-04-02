@@ -2698,16 +2698,20 @@ static int read_uncompressed_header(AV1Decoder *pbi,
   } else {
     // Read all ref frame order hints if error_resilient_mode == 1
     if (cm->error_resilient_mode && cm->seq_params.enable_order_hint) {
+      unsigned int frame_offset[REF_FRAMES];
       for (int ref_idx = 0; ref_idx < REF_FRAMES; ref_idx++) {
         // Read order hint from bit stream
-        unsigned int frame_offset =
+        frame_offset[ref_idx] =
             aom_rb_read_literal(rb, cm->seq_params.order_hint_bits_minus1 + 1);
-
+      }
+      for (int ref_idx = 0; ref_idx < REF_FRAMES; ref_idx++) {
         // Get buffer index
         int buf_idx = cm->ref_frame_map[ref_idx];
         assert(buf_idx < FRAME_BUFFERS);
-
-        if (buf_idx == -1) {
+        if (buf_idx == -1 ||
+            frame_offset[ref_idx] != frame_bufs[buf_idx].cur_frame_offset) {
+          lock_buffer_pool(pool);
+          if (buf_idx >= 0) decrease_ref_count(buf_idx, frame_bufs, pool);
           // If no corresponding buffer exists, allocate a new buffer with all
           // pixels set to neutral grey.
           buf_idx = get_free_fb(cm);
@@ -2719,7 +2723,8 @@ static int read_uncompressed_header(AV1Decoder *pbi,
           set_planes_to_neutral_grey(cm, xd, 0);
 
           cm->ref_frame_map[ref_idx] = buf_idx;
-          frame_bufs[buf_idx].cur_frame_offset = frame_offset;
+          frame_bufs[buf_idx].cur_frame_offset = frame_offset[ref_idx];
+          unlock_buffer_pool(pool);
         }
       }
     }
