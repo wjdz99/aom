@@ -5119,7 +5119,7 @@ static int get_interinter_compound_mask_rate(const MACROBLOCK *const x,
                  ? av1_cost_literal(1) +
                        x->wedge_idx_cost[mbmi->sb_type][mbmi->wedge_index]
                  : 0;
-    case COMPOUND_SEG: return av1_cost_literal(1);
+    case COMPOUND_DIFFWTD: return av1_cost_literal(1);
     default: assert(0); return 0;
   }
 }
@@ -6377,11 +6377,11 @@ static int64_t pick_interinter_seg(const AV1_COMP *const cpi,
   for (cur_mask_type = 0; cur_mask_type < SEG_MASK_TYPES; cur_mask_type++) {
     // build mask and inverse
     if (hbd)
-      build_compound_seg_mask_highbd(
+      build_compound_diffwtd_mask_highbd(
           xd->seg_mask, cur_mask_type, CONVERT_TO_BYTEPTR(p0), bw,
           CONVERT_TO_BYTEPTR(p1), bw, bsize, bh, bw, xd->bd);
     else
-      build_compound_seg_mask(xd->seg_mask, cur_mask_type, p0, bw, p1, bw,
+      build_compound_diffwtd_mask(xd->seg_mask, cur_mask_type, p0, bw, p1, bw,
                               bsize, bh, bw);
 
     // compute rd for mask
@@ -6400,11 +6400,11 @@ static int64_t pick_interinter_seg(const AV1_COMP *const cpi,
   // make final mask
   mbmi->mask_type = best_mask_type;
   if (hbd)
-    build_compound_seg_mask_highbd(
+    build_compound_diffwtd_mask_highbd(
         xd->seg_mask, mbmi->mask_type, CONVERT_TO_BYTEPTR(p0), bw,
         CONVERT_TO_BYTEPTR(p1), bw, bsize, bh, bw, xd->bd);
   else
-    build_compound_seg_mask(xd->seg_mask, mbmi->mask_type, p0, bw, p1, bw,
+    build_compound_diffwtd_mask(xd->seg_mask, mbmi->mask_type, p0, bw, p1, bw,
                             bsize, bh, bw);
 
   return best_rd;
@@ -6438,7 +6438,7 @@ static int64_t pick_interinter_mask(const AV1_COMP *const cpi, MACROBLOCK *x,
   const COMPOUND_TYPE compound_type = x->e_mbd.mi[0]->interinter_compound_type;
   switch (compound_type) {
     case COMPOUND_WEDGE: return pick_interinter_wedge(cpi, x, bsize, p0, p1);
-    case COMPOUND_SEG: return pick_interinter_seg(cpi, x, bsize, p0, p1);
+    case COMPOUND_DIFFWTD: return pick_interinter_seg(cpi, x, bsize, p0, p1);
     default: assert(0); return 0;
   }
 }
@@ -7645,7 +7645,7 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
                   &tmp_rate_mv, preds0, preds1, strides, mi_row, mi_col);
             }
             break;
-          case COMPOUND_SEG:
+          case COMPOUND_DIFFWTD:
             if (x->source_variance > cpi->sf.disable_wedge_search_var_thresh &&
                 best_rd_compound / 3 < ref_best_rd) {
               best_rd_cur = build_and_cost_compound_type(
