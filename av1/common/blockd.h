@@ -35,21 +35,21 @@ extern "C" {
 
 #define MAX_MB_PLANE 3
 
-// Set COMPOUND_SEGMENT_TYPE to one of the three
+// Set COMPOUND_DIFFWTD_TYPE to one of the three
 // 0: Uniform
 // 1: Difference weighted
-#define COMPOUND_SEGMENT_TYPE 1
+#define COMPOUND_DIFFWTD_TYPE 1
 #define MAX_SEG_MASK_BITS 1
 
 // SEG_MASK_TYPES should not surpass 1 << MAX_SEG_MASK_BITS
 typedef enum {
-#if COMPOUND_SEGMENT_TYPE == 0
+#if COMPOUND_DIFFWTD_TYPE == 0
   UNIFORM_45 = 0,
   UNIFORM_45_INV,
-#elif COMPOUND_SEGMENT_TYPE == 1
+#elif COMPOUND_DIFFWTD_TYPE == 1
   DIFFWTD_38 = 0,
   DIFFWTD_38_INV,
-#endif  // COMPOUND_SEGMENT_TYPE
+#endif  // COMPOUND_DIFFWTD_TYPE
   SEG_MASK_TYPES,
 } SEG_MASK_TYPE;
 
@@ -162,7 +162,7 @@ static INLINE int use_masked_motion_search(COMPOUND_TYPE type) {
 }
 
 static INLINE int is_masked_compound_type(COMPOUND_TYPE type) {
-  return (type == COMPOUND_WEDGE || type == COMPOUND_SEG);
+  return (type == COMPOUND_WEDGE || type == COMPOUND_DIFFWTD);
 }
 
 /* For keyframes, intra block modes are predicted by the (already decoded)
