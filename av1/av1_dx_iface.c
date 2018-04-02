@@ -199,8 +199,10 @@ static aom_codec_err_t decoder_peek_si_internal(const uint8_t *data,
     // One byte has been consumed by the OBU header.
     // TODO(shan): Assuming 1-byte obu_header (need to account in case extension
     // exists)
-    rb.bit_buffer += get_obu_length_field_size(data + 1, data_sz - 1) + 2;
+    rb.bit_buffer += get_obu_length_field_size(data + 1, data_sz - 1);
   }
+
+  rb.bit_buffer += 2;
 
   // This check is disabled because existing behavior is depended upon by
   // decoder tests (see decode_test_driver.cc), scalability_decoder (see
@@ -208,8 +210,20 @@ static aom_codec_err_t decoder_peek_si_internal(const uint8_t *data,
   // if (obu_type != OBU_SEQUENCE_HEADER)
   //   return AOM_CODEC_INVALID_PARAM;
 
-  av1_read_profile(&rb);        // profile
-  aom_rb_read_literal(&rb, 4);  // level
+  av1_read_profile(&rb);  // profile
+
+  uint8_t operating_points_minus1_cnt = aom_rb_read_literal(&rb, 5);
+  si->enhancement_layers_cnt = operating_points_minus1_cnt;
+  int i;
+  for (i = 0; i < operating_points_minus1_cnt + 1; i++) {
+    aom_rb_read_literal(&rb, 12);
+    aom_rb_read_literal(&rb, 4);
+    if (aom_rb_read_literal(&rb, 1)) {
+      aom_rb_read_literal(&rb, 12);
+      aom_rb_read_literal(&rb, 24);
+      aom_rb_read_literal(&rb, 4);
+    }
+  }
 
   int num_bits_width = aom_rb_read_literal(&rb, 4) + 1;
   int num_bits_height = aom_rb_read_literal(&rb, 4) + 1;
@@ -477,6 +491,17 @@ static aom_codec_err_t decoder_decode(aom_codec_alg_priv_t *ctx,
     if (res != AOM_CODEC_OK) return res;
   }
 
+  if (ctx->is_annexb) {
+    // read the size of this temporal unit
+    size_t length_of_size;
+    uint64_t size_of_unit;
+    if (aom_uleb_decode(data_start, data_sz, &size_of_unit, &length_of_size) !=
+        0) {
+      return AOM_CODEC_CORRUPT_FRAME;
+    }
+    data_start += length_of_size;
+  }
+
   // Decode in serial mode.
   if (frame_count > 0) {
     int i;
@@ -496,6 +521,17 @@ static aom_codec_err_t decoder_decode(aom_codec_alg_priv_t *ctx,
     }
   } else {
     while (data_start < data_end) {
+      if (ctx->is_annexb) {
+        // read the size of this frame unit
+        size_t length_of_size;
+        uint64_t size_of_frame_unit;
+        if (aom_uleb_decode(data_start, (uint32_t)(data_end - data_start),
+                            &size_of_frame_unit, &length_of_size) != 0) {
+          return AOM_CODEC_CORRUPT_FRAME;
+        }
+        data_start += length_of_size;
+      }
+
       const uint32_t frame_size = (uint32_t)(data_end - data_start);
       res = decode_one(ctx, &data_start, frame_size, user_priv);
       if (res != AOM_CODEC_OK) return res;
