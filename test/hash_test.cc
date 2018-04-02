@@ -147,6 +147,10 @@ void AV1CrcHashTest::RunCheckOutput(get_crc_value_func test_impl,
   uint32_t crc4 = ref_impl(&calc_, buffer_, length_);
   ASSERT_NE(crc0, crc3);  // crc shoud not equal to previous one
   ASSERT_EQ(crc3, crc4);
+
+  memset(buffer_, 0, length_);
+  crc0 = test_impl(&calc_, buffer_, length_);
+  printf("all zero block (%5d bytes) %x\n", length_, crc0);
 }
 
 void AV1CrcHashTest::RunSpeedTest(get_crc_value_func test_impl) {
