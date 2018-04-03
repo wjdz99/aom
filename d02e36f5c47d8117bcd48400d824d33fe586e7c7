@@ -96,6 +96,30 @@
     },
     {
       "key": {
+        "uuid": "b0716654_4eaaa6c3",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-04-03T17:21:24Z",
+      "side": 1,
+      "message": "Please land it in a separate patch. This is not related to annex-B/B-Prime at all.",
+      "parentUuid": "5a96c4b4_361f89ac",
+      "range": {
+        "startLine": 213,
+        "startChar": 0,
+        "endLine": 227,
+        "endChar": 0
+      },
+      "revId": "d02e36f5c47d8117bcd48400d824d33fe586e7c7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a2932b49_cc8db25e",
         "filename": "obudec.c",
         "patchSetId": 4
@@ -155,6 +179,30 @@
       "side": 1,
       "message": "On second thought, I probably can change the file_is_obu( ) and obudec_read_temporal_unit( ) to remove the rewind( ) in file_is_obu( ).  It might make the code slightly more messy though.",
       "parentUuid": "70b0bb66_91ecce93",
+      "range": {
+        "startLine": 276,
+        "startChar": 4,
+        "endLine": 276,
+        "endChar": 14
+      },
+      "revId": "d02e36f5c47d8117bcd48400d824d33fe586e7c7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "83d8eccc_b0a9572f",
+        "filename": "obudec.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-04-03T17:21:24Z",
+      "side": 1,
+      "message": "It shouldn\u0027t be much messier than the existing buffering done for the section-5 case. Please make the change.",
+      "parentUuid": "7c414ac4_b23d09cd",
       "range": {
         "startLine": 276,
         "startChar": 4,
