@@ -1900,6 +1900,8 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
   uint16_t best_eob = 0;
   TX_TYPE best_tx_type = DCT_DCT;
   TX_TYPE last_tx_type = TX_TYPES;
+  TX_TYPE last_tx_type_1pass = TX_TYPES;
+  int skip_optimize_b = 0;
   const int txk_type_idx =
       av1_get_txk_type_index(plane_bsize, blk_row, blk_col);
   av1_invalid_rd_stats(best_rd_stats);
@@ -2033,63 +2035,133 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
 #if CONFIG_DIST_8X8
   if (x->using_dist_8x8) use_transform_domain_distortion = 0;
 #endif
-  for (TX_TYPE tx_type = txk_start; tx_type <= txk_end; ++tx_type) {
-    if (!allowed_tx_mask[tx_type]) continue;
-    if (plane == 0) mbmi->txk_type[txk_type_idx] = tx_type;
-    last_tx_type = tx_type;
-    RD_STATS this_rd_stats;
-    av1_invalid_rd_stats(&this_rd_stats);
-    if (!cpi->optimize_seg_arr[mbmi->segment_id]) {
-      av1_xform_quant(
-          cm, x, plane, block, blk_row, blk_col, plane_bsize, tx_size,
-          USE_B_QUANT_NO_TRELLIS ? AV1_XFORM_QUANT_B : AV1_XFORM_QUANT_FP);
-      rate_cost = av1_cost_coeffs(cm, x, plane_bsize, plane, blk_row, blk_col,
-                                  block, tx_size, a, l, use_fast_coef_costing);
-    } else {
-      av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize,
-                      tx_size, AV1_XFORM_QUANT_FP);
-      if (cpi->sf.optimize_b_precheck && best_rd < INT64_MAX &&
-          x->plane[plane].eobs[block] >= 4) {
-        // Calculate distortion quickly in transform domain.
-        dist_block(cpi, x, plane, plane_bsize, block, blk_row, blk_col, tx_size,
-                   &this_rd_stats.dist, &this_rd_stats.sse,
-                   OUTPUT_HAS_PREDICTED_PIXELS, 1);
+
+  const int pre_select_type =
+      (plane == 0 && cpi->sf.optimize_b_preselect_txtype && allowed_tx_num > 1);
+  if (pre_select_type) {
+    for (TX_TYPE tx_type = txk_start; tx_type <= txk_end; ++tx_type) {
+      if (!allowed_tx_mask[tx_type]) continue;
+      if (plane == 0) mbmi->txk_type[txk_type_idx] = tx_type;
+      last_tx_type_1pass = tx_type;
+      RD_STATS this_rd_stats;
+      av1_invalid_rd_stats(&this_rd_stats);
+      if (!cpi->optimize_seg_arr[mbmi->segment_id]) {
+        av1_xform_quant(
+            cm, x, plane, block, blk_row, blk_col, plane_bsize, tx_size,
+            USE_B_QUANT_NO_TRELLIS ? AV1_XFORM_QUANT_B : AV1_XFORM_QUANT_FP);
         rate_cost =
             av1_cost_coeffs(cm, x, plane_bsize, plane, blk_row, blk_col, block,
                             tx_size, a, l, use_fast_coef_costing);
-        const int64_t rd_estimate =
-            AOMMIN(RDCOST(x->rdmult, rate_cost, this_rd_stats.dist),
-                   RDCOST(x->rdmult, 0, this_rd_stats.sse));
-        if (rd_estimate - (rd_estimate >> 3) > AOMMIN(best_rd, ref_best_rd))
-          continue;
+      } else {
+        av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize,
+                        tx_size, AV1_XFORM_QUANT_FP);
+        rate_cost =
+            av1_cost_coeffs(cm, x, plane_bsize, plane, blk_row, blk_col, block,
+                            tx_size, a, l, use_fast_coef_costing);
       }
-      av1_optimize_b(cpi, x, plane, blk_row, blk_col, block, plane_bsize,
-                     tx_size, a, l, 1, &rate_cost);
+      dist_block(cpi, x, plane, plane_bsize, block, blk_row, blk_col, tx_size,
+                 &this_rd_stats.dist, &this_rd_stats.sse,
+                 OUTPUT_HAS_PREDICTED_PIXELS, 1);
+
+      this_rd_stats.rate = rate_cost;
+
+      const int64_t rd =
+          RDCOST(x->rdmult, this_rd_stats.rate, this_rd_stats.dist);
+
+      if (rd < best_rd) {
+        best_rd = rd;
+        *best_rd_stats = this_rd_stats;
+        best_tx_type = tx_type;
+        best_txb_ctx = x->plane[plane].txb_entropy_ctx[block];
+        best_eob = x->plane[plane].eobs[block];
+      }
+
+      if (cpi->sf.adaptive_txb_search)
+        if ((best_rd - (best_rd >> 2)) > ref_best_rd) {
+          skip_optimize_b = 1;
+          break;
+        }
+
+      // Skip transform type search when we found the block has been quantized
+      // to all zero and at the same time, it has better rdcost than doing
+      // transform.
+      if (cpi->sf.tx_type_search.skip_tx_search && !best_eob) {
+        skip_optimize_b = 1;
+        break;
+      }
     }
-    dist_block(cpi, x, plane, plane_bsize, block, blk_row, blk_col, tx_size,
-               &this_rd_stats.dist, &this_rd_stats.sse,
-               OUTPUT_HAS_PREDICTED_PIXELS, use_transform_domain_distortion);
 
-    this_rd_stats.rate = rate_cost;
-
-    const int64_t rd =
-        RDCOST(x->rdmult, this_rd_stats.rate, this_rd_stats.dist);
-
-    if (rd < best_rd) {
-      best_rd = rd;
-      *best_rd_stats = this_rd_stats;
-      best_tx_type = tx_type;
-      best_txb_ctx = x->plane[plane].txb_entropy_ctx[block];
-      best_eob = x->plane[plane].eobs[block];
+    if (skip_optimize_b == 0) {
+      // reset best_rd to INT64_MAX and run optimize_b
+      best_rd = INT64_MAX;
+      txk_start = txk_end = best_tx_type;
+    } else {
+      last_tx_type = last_tx_type_1pass;
     }
-
-    if (cpi->sf.adaptive_txb_search)
-      if ((best_rd - (best_rd >> 2)) > ref_best_rd) break;
-
-    // Skip transform type search when we found the block has been quantized to
-    // all zero and at the same time, it has better rdcost than doing transform.
-    if (cpi->sf.tx_type_search.skip_tx_search && !best_eob) break;
   }
+
+  if (skip_optimize_b == 0)
+    for (TX_TYPE tx_type = txk_start; tx_type <= txk_end; ++tx_type) {
+      if (!allowed_tx_mask[tx_type]) continue;
+      if (plane == 0) mbmi->txk_type[txk_type_idx] = tx_type;
+      last_tx_type = tx_type;
+      RD_STATS this_rd_stats;
+      av1_invalid_rd_stats(&this_rd_stats);
+      if (!cpi->optimize_seg_arr[mbmi->segment_id]) {
+        av1_xform_quant(
+            cm, x, plane, block, blk_row, blk_col, plane_bsize, tx_size,
+            USE_B_QUANT_NO_TRELLIS ? AV1_XFORM_QUANT_B : AV1_XFORM_QUANT_FP);
+        rate_cost =
+            av1_cost_coeffs(cm, x, plane_bsize, plane, blk_row, blk_col, block,
+                            tx_size, a, l, use_fast_coef_costing);
+      } else {
+        if (last_tx_type_1pass != tx_type)
+          av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize,
+                          tx_size, AV1_XFORM_QUANT_FP);
+
+        if (!pre_select_type && cpi->sf.optimize_b_precheck &&
+            best_rd < INT64_MAX && x->plane[plane].eobs[block] >= 4) {
+          // Calculate distortion quickly in transform domain.
+          dist_block(cpi, x, plane, plane_bsize, block, blk_row, blk_col,
+                     tx_size, &this_rd_stats.dist, &this_rd_stats.sse,
+                     OUTPUT_HAS_PREDICTED_PIXELS, 1);
+          rate_cost =
+              av1_cost_coeffs(cm, x, plane_bsize, plane, blk_row, blk_col,
+                              block, tx_size, a, l, use_fast_coef_costing);
+          const int64_t rd_estimate =
+              AOMMIN(RDCOST(x->rdmult, rate_cost, this_rd_stats.dist),
+                     RDCOST(x->rdmult, 0, this_rd_stats.sse));
+          if (rd_estimate - (rd_estimate >> 3) > AOMMIN(best_rd, ref_best_rd))
+            continue;
+        }
+        av1_optimize_b(cpi, x, plane, blk_row, blk_col, block, plane_bsize,
+                       tx_size, a, l, 1, &rate_cost);
+      }
+      dist_block(cpi, x, plane, plane_bsize, block, blk_row, blk_col, tx_size,
+                 &this_rd_stats.dist, &this_rd_stats.sse,
+                 OUTPUT_HAS_PREDICTED_PIXELS, use_transform_domain_distortion);
+
+      this_rd_stats.rate = rate_cost;
+
+      const int64_t rd =
+          RDCOST(x->rdmult, this_rd_stats.rate, this_rd_stats.dist);
+
+      if (rd < best_rd) {
+        best_rd = rd;
+        *best_rd_stats = this_rd_stats;
+        best_tx_type = tx_type;
+        best_txb_ctx = x->plane[plane].txb_entropy_ctx[block];
+        best_eob = x->plane[plane].eobs[block];
+      }
+
+      if (cpi->sf.adaptive_txb_search)
+        if ((best_rd - (best_rd >> 2)) > ref_best_rd) break;
+
+      // Skip transform type search when we found the block has been quantized
+      // to all zero and at the same time, it has better rdcost than doing
+      // transform.
+      if (cpi->sf.tx_type_search.skip_tx_search && !best_eob) break;
+    }
 
   assert(best_rd != INT64_MAX);
 

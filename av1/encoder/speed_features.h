@@ -572,6 +572,9 @@ typedef struct SPEED_FEATURES {
 
   // Calculate RD cost before doing optimize_b, and skip if the cost is large.
   int optimize_b_precheck;
+
+  // Use RD cost to decide tx_type before doing optimize_b
+  int optimize_b_preselect_txtype;
 } SPEED_FEATURES;
 
 struct AV1_COMP;
