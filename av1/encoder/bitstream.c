@@ -2653,6 +2653,9 @@ void write_sequence_header(AV1_COMP *cpi, struct aom_write_bit_buffer *wb) {
   seq_params->max_frame_width = max_frame_width;
   seq_params->max_frame_height = max_frame_height;
 
+  // Still picture or not
+  aom_wb_write_bit(wb, seq_params->still_picture);
+
   aom_wb_write_literal(wb, num_bits_width - 1, 4);
   aom_wb_write_literal(wb, num_bits_height - 1, 4);
   aom_wb_write_literal(wb, max_frame_width - 1, num_bits_width);

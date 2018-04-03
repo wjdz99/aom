@@ -2271,6 +2271,10 @@ void av1_read_timing_info_header(AV1_COMMON *cm,
 
 void read_sequence_header(AV1_COMMON *cm, struct aom_read_bit_buffer *rb) {
   SequenceHeader *seq_params = &cm->seq_params;
+
+  // Still picture or not
+  seq_params->still_picture = aom_rb_read_bit(rb);
+
   int num_bits_width = aom_rb_read_literal(rb, 4) + 1;
   int num_bits_height = aom_rb_read_literal(rb, 4) + 1;
   int max_frame_width = aom_rb_read_literal(rb, num_bits_width) + 1;
