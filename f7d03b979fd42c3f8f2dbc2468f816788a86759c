@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "486bed1b_0ef010a6",
+        "filename": "av1/common/x86/reconinter_sse4.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-04-03T18:17:08Z",
+      "side": 1,
+      "message": "Would src0/src1 be 16-byte aligned in real codec?",
+      "range": {
+        "startLine": 78,
+        "startChar": 0,
+        "endLine": 80,
+        "endChar": 0
+      },
+      "revId": "f7d03b979fd42c3f8f2dbc2468f816788a86759c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
