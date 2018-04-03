@@ -22,6 +22,30 @@
       "revId": "855bfd5b81b632ae20dee3a6047e857cc04beb18",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ba6029d3_2e42d940",
+        "filename": "test/hash_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 8900
+      },
+      "writtenOn": "2018-04-03T02:00:16Z",
+      "side": 1,
+      "message": "This is not a real test, no need to merge. \nJust to demonstrate inputs with different size get same output from C version hash function.  \n\nBy run this test, you can get following output messages.\nWhich means 4x4 and 8x8 all zero blocks get the same crc value. And in intra hash, they will share the same entry in tx_rd_info. Is this your expected behavior?\n\nC/AV1CrcHashTest.CheckOutput/0\nall zero block ( 8192 bytes) 0\nall zero block ( 2048 bytes) 0\nall zero block (  128 bytes) 0\nall zero block (   32 bytes) 0\n\nSSE4_2/AV1CrcHashTest.CheckOutput/0\nall zero block ( 8192 bytes) 90444623\nall zero block ( 2048 bytes) a489834f\nall zero block (  128 bytes) 82764db\nall zero block (   32 bytes) 8a9136aa",
+      "parentUuid": "807c829c_37e90a8f",
+      "range": {
+        "startLine": 152,
+        "startChar": 2,
+        "endLine": 152,
+        "endChar": 45
+      },
+      "revId": "855bfd5b81b632ae20dee3a6047e857cc04beb18",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
