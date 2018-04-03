@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "64df65c5_a3d8a983",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1900,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2018-04-03T23:25:33Z",
+      "side": 1,
+      "message": "Why not just call it COLLECT_RDSTATS ?",
+      "range": {
+        "startLine": 1900,
+        "startChar": 36,
+        "endLine": 1900,
+        "endChar": 0
+      },
+      "revId": "bba6d15aeecca00758bc067730e6df2a05b0c9ca",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
