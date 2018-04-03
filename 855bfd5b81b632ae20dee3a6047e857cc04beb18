@@ -46,6 +46,30 @@
       "revId": "855bfd5b81b632ae20dee3a6047e857cc04beb18",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "244dce84_f400ed1a",
+        "filename": "test/hash_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2018-04-03T03:00:19Z",
+      "side": 1,
+      "message": "I see what you meant. This is not intended. I forgot to take block size into account for intra txb hashing, like what we did in get_block_residue_hash().\nPatch to fix:\nhttps://aomedia-review.googlesource.com/c/aom/+/54041",
+      "parentUuid": "ba6029d3_2e42d940",
+      "range": {
+        "startLine": 152,
+        "startChar": 2,
+        "endLine": 152,
+        "endChar": 45
+      },
+      "revId": "855bfd5b81b632ae20dee3a6047e857cc04beb18",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
