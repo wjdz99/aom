@@ -143,6 +143,30 @@
     },
     {
       "key": {
+        "uuid": "7c414ac4_b23d09cd",
+        "filename": "obudec.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 7963
+      },
+      "writtenOn": "2018-04-03T16:43:43Z",
+      "side": 1,
+      "message": "On second thought, I probably can change the file_is_obu( ) and obudec_read_temporal_unit( ) to remove the rewind( ) in file_is_obu( ).  It might make the code slightly more messy though.",
+      "parentUuid": "70b0bb66_91ecce93",
+      "range": {
+        "startLine": 276,
+        "startChar": 4,
+        "endLine": 276,
+        "endChar": 14
+      },
+      "revId": "d02e36f5c47d8117bcd48400d824d33fe586e7c7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "18ea994b_96759224",
         "filename": "obudec.c",
         "patchSetId": 4
