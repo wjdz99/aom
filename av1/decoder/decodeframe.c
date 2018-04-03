@@ -179,7 +179,7 @@ static void predict_and_reconstruct_intra_block(
                               max_scan_line, eob, cm->reduced_tx_set_used);
     }
   }
-  if (plane == AOM_PLANE_Y && xd->cfl.store_y && is_cfl_allowed(xd)) {
+  if (plane == AOM_PLANE_Y && xd->cfl.store_y) {
     cfl_store_tx(xd, row, col, tx_size, mbmi->sb_type);
   }
 }
@@ -506,11 +506,8 @@ static void decode_token_and_recon_block(AV1Decoder *const pbi,
       }
     }
   }
-  if (mbmi->uv_mode != UV_CFL_PRED) {
-    if (!cfl->is_chroma_reference && is_inter_block(mbmi) &&
-        is_cfl_allowed(xd)) {
-      cfl_store_block(xd, mbmi->sb_type, mbmi->tx_size);
-    }
+  if (xd->cfl.store_y && is_inter_block(mbmi)) {
+    cfl_store_block(xd, mbmi->sb_type, mbmi->tx_size);
   }
 
   int reader_corrupted_flag = aom_reader_has_error(r);
