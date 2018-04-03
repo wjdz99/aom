@@ -81,7 +81,8 @@ int av1_check_trailing_bits(AV1Decoder *pbi, struct aom_read_bit_buffer *rb) {
 // Use only_chroma = 1 to only set the chroma planes
 static void set_planes_to_neutral_grey(AV1_COMMON *const cm,
                                        MACROBLOCKD *const xd, int only_chroma) {
-  YV12_BUFFER_CONFIG *cur_buf = (YV12_BUFFER_CONFIG *)xd->cur_buf;
+  YV12_BUFFER_CONFIG *const cur_buf = (YV12_BUFFER_CONFIG *)xd->cur_buf;
+  if (!cur_buf) return;
   const int val = 1 << (cm->bit_depth - 1);
 
   for (int plane = only_chroma; plane < MAX_MB_PLANE; plane++) {
