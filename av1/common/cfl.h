@@ -14,11 +14,12 @@
 
 #include "av1/common/blockd.h"
 
-static INLINE CFL_ALLOWED_TYPE is_cfl_allowed(const MACROBLOCKD *xd) {
+static INLINE CFL_ALLOWED_TYPE is_cfl_allowed(const MACROBLOCKD *xd,
+                                              CFL_ALLOWED_MODE use_lossless) {
   const MB_MODE_INFO *mbmi = xd->mi[0];
   const BLOCK_SIZE bsize = mbmi->sb_type;
   assert(bsize < BLOCK_SIZES_ALL);
-  if (xd->lossless[mbmi->segment_id]) {
+  if (use_lossless && xd->lossless[mbmi->segment_id]) {
     // In lossless, CfL is available when the partition size is equal to the
     // transform size.
     const int plane_bsize =

@@ -795,8 +795,8 @@ static void read_intra_frame_mode_info(AV1_COMMON *const cm,
       is_chroma_reference(mi_row, mi_col, bsize, xd->plane[1].subsampling_x,
                           xd->plane[1].subsampling_y)) {
     xd->cfl.is_chroma_reference = 1;
-    mbmi->uv_mode =
-        read_intra_mode_uv(ec_ctx, r, is_cfl_allowed(xd), mbmi->mode);
+    mbmi->uv_mode = read_intra_mode_uv(
+        ec_ctx, r, is_cfl_allowed(xd, CFL_USE_LOSSLESS), mbmi->mode);
     if (mbmi->uv_mode == UV_CFL_PRED) {
       mbmi->cfl_alpha_idx = read_cfl_alphas(ec_ctx, r, &mbmi->cfl_alpha_signs);
       xd->cfl.store_y = 1;
@@ -1060,8 +1060,8 @@ static void read_intra_block_mode_info(AV1_COMMON *const cm, const int mi_row,
   if (!cm->seq_params.monochrome &&
       is_chroma_reference(mi_row, mi_col, bsize, xd->plane[1].subsampling_x,
                           xd->plane[1].subsampling_y)) {
-    mbmi->uv_mode =
-        read_intra_mode_uv(ec_ctx, r, is_cfl_allowed(xd), mbmi->mode);
+    mbmi->uv_mode = read_intra_mode_uv(
+        ec_ctx, r, is_cfl_allowed(xd, CFL_USE_LOSSLESS), mbmi->mode);
     if (mbmi->uv_mode == UV_CFL_PRED) {
       mbmi->cfl_alpha_idx =
           read_cfl_alphas(xd->tile_ctx, r, &mbmi->cfl_alpha_signs);

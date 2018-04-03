@@ -366,6 +366,15 @@ typedef enum ATTRIBUTE_PACKED {
   CFL_ALLOWED_TYPES
 } CFL_ALLOWED_TYPE;
 
+// When some segment IDs use lossless mode and others do not,
+// it is possible for the luma pixel buffer used by CfL to be
+// incorrectly updated, leading to bad predictions. As such,
+// lossless mode must not be considered when storing.
+typedef enum ATTRIBUTE_PACKED {
+  CFL_IGNORE_LOSSLESS = 0,
+  CFL_USE_LOSSLESS = 1,
+} CFL_ALLOWED_MODE;
+
 // CFL_SIGN_ZERO,CFL_SIGN_ZERO is invalid
 #define CFL_JOINT_SIGNS (CFL_SIGNS * CFL_SIGNS - 1)
 // CFL_SIGN_U is equivalent to (js + 1) / 3 for js in 0 to 8

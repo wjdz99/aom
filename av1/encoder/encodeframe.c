@@ -441,7 +441,8 @@ static void update_state(const AV1_COMP *const cpi, TileDataEnc *tile_data,
                                         ctx->rate, ctx->dist, x->skip);
       reset_tx_size(x, mi_addr, cm->tx_mode);
     }
-    if (mi_addr->uv_mode == UV_CFL_PRED && !is_cfl_allowed(xd))
+    if (mi_addr->uv_mode == UV_CFL_PRED &&
+        !is_cfl_allowed(xd, CFL_USE_LOSSLESS))
       mi_addr->uv_mode = UV_DC_PRED;
   }
 
@@ -821,10 +822,10 @@ static void sum_intra_stats(const AV1_COMMON *const cm, FRAME_COUNTS *counts,
     return;
 
 #if CONFIG_ENTROPY_STATS
-  ++counts->uv_mode[is_cfl_allowed(xd)][y_mode][uv_mode];
+  ++counts->uv_mode[is_cfl_allowed(xd, CFL_USE_LOSSLESS)][y_mode][uv_mode];
 #endif  // CONFIG_ENTROPY_STATS
   if (allow_update_cdf) {
-    const CFL_ALLOWED_TYPE cfl_allowed = is_cfl_allowed(xd);
+    const CFL_ALLOWED_TYPE cfl_allowed = is_cfl_allowed(xd, CFL_USE_LOSSLESS);
     update_cdf(fc->uv_mode_cdf[cfl_allowed][y_mode], uv_mode,
                UV_INTRA_MODES - !cfl_allowed);
   }
@@ -4779,7 +4780,7 @@ static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
   if (is_inter_block(mbmi) &&
       !is_chroma_reference(mi_row, mi_col, bsize, cfl->subsampling_x,
                            cfl->subsampling_y) &&
-      is_cfl_allowed(xd)) {
+      is_cfl_allowed(xd, CFL_IGNORE_LOSSLESS)) {
     cfl_store_block(xd, mbmi->sb_type, mbmi->tx_size);
   }
 }
