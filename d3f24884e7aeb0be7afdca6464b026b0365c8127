@@ -70,6 +70,30 @@
       "revId": "d3f24884e7aeb0be7afdca6464b026b0365c8127",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f6d231fe_a19604e4",
+        "filename": "av1/common/blockd.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-04-03T00:05:28Z",
+      "side": 1,
+      "message": "It will still call memset, while the original version will check if it\u0027s none zero before calling memset. I browsed the disassembly, the original function has code size 760 bytes, and the new version has code size 416 bytes, much smaller, and less jumps. For this function with no loop, the smaller, the better. (Both versions utilize memset, no single element setting in for loops as in C).",
+      "parentUuid": "e3993d96_9ac45791",
+      "range": {
+        "startLine": 102,
+        "startChar": 48,
+        "endLine": 102,
+        "endChar": 73
+      },
+      "revId": "d3f24884e7aeb0be7afdca6464b026b0365c8127",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
