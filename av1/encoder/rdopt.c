@@ -8479,7 +8479,6 @@ static void set_params_rd_pick_inter_mode(
   const struct segmentation *const seg = &cm->seg;
   const SPEED_FEATURES *const sf = &cpi->sf;
   unsigned char segment_id = mbmi->segment_id;
-  const int mode_skip_start = sf->mode_skip_start + 1;
   static const int flag_list[REF_FRAMES] = { 0,
                                              AOM_LAST_FLAG,
                                              AOM_LAST2_FLAG,
@@ -8664,20 +8663,6 @@ static void set_params_rd_pick_inter_mode(
   mode_skip_mask[INTRA_FRAME] |=
       ~(sf->intra_y_mode_mask[max_txsize_lookup[bsize]]);
 
-  int midx = sf->schedule_mode_search ? mode_skip_start : 0;
-  while (midx > 4) {
-    uint8_t end_pos = 0;
-    for (int i = 5; i < midx; ++i) {
-      if (mode_threshold[mode_map[i - 1]] > mode_threshold[mode_map[i]]) {
-        uint8_t tmp = mode_map[i];
-        mode_map[i] = mode_map[i - 1];
-        mode_map[i - 1] = tmp;
-        end_pos = i;
-      }
-    }
-    midx = end_pos;
-  }
-
   if (cpi->sf.tx_type_search.fast_intra_tx_type_search)
     x->use_default_intra_tx_type = 1;
   else
@@ -8828,7 +8813,6 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
   const int intra_cost_penalty = av1_get_intra_cost_penalty(
       cm->base_qindex, cm->y_dc_delta_q, cm->bit_depth);
   const int *const intra_mode_cost = x->mbmode_cost[size_group_lookup[bsize]];
-  const int mode_skip_start = sf->mode_skip_start + 1;
   int *mode_map = tile_data->mode_map[bsize];
   const int rows = block_size_high[bsize];
   const int cols = block_size_wide[bsize];
@@ -8906,54 +8890,12 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
               .as_int;
     }
 
-    // Look at the reference frame of the best mode so far and set the
-    // skip mask to look at a subset of the remaining modes.
-    if (midx == mode_skip_start && search_state.best_mode_index >= 0) {
-      switch (search_state.best_mbmode.ref_frame[0]) {
-        case INTRA_FRAME: break;
-        case LAST_FRAME:
-          search_state.ref_frame_skip_mask[0] |= LAST_FRAME_MODE_MASK;
-          search_state.ref_frame_skip_mask[1] |= SECOND_REF_FRAME_MASK;
-          break;
-        case LAST2_FRAME:
-          search_state.ref_frame_skip_mask[0] |= LAST2_FRAME_MODE_MASK;
-          search_state.ref_frame_skip_mask[1] |= SECOND_REF_FRAME_MASK;
-          break;
-        case LAST3_FRAME:
-          search_state.ref_frame_skip_mask[0] |= LAST3_FRAME_MODE_MASK;
-          search_state.ref_frame_skip_mask[1] |= SECOND_REF_FRAME_MASK;
-          break;
-        case GOLDEN_FRAME:
-          search_state.ref_frame_skip_mask[0] |= GOLDEN_FRAME_MODE_MASK;
-          search_state.ref_frame_skip_mask[1] |= SECOND_REF_FRAME_MASK;
-          break;
-        case BWDREF_FRAME:
-          search_state.ref_frame_skip_mask[0] |= BWDREF_FRAME_MODE_MASK;
-          search_state.ref_frame_skip_mask[1] |= SECOND_REF_FRAME_MASK;
-          break;
-        case ALTREF2_FRAME:
-          search_state.ref_frame_skip_mask[0] |= ALTREF2_FRAME_MODE_MASK;
-          search_state.ref_frame_skip_mask[1] |= SECOND_REF_FRAME_MASK;
-          break;
-        case ALTREF_FRAME:
-          search_state.ref_frame_skip_mask[0] |= ALTREF_FRAME_MODE_MASK;
-          search_state.ref_frame_skip_mask[1] |= SECOND_REF_FRAME_MASK;
-          break;
-        case NONE_FRAME:
-        case REF_FRAMES: assert(0 && "Invalid Reference frame"); break;
-      }
-    }
-
     if ((search_state.ref_frame_skip_mask[0] & (1 << ref_frame)) &&
         (search_state.ref_frame_skip_mask[1] &
          (1 << AOMMAX(0, second_ref_frame))))
       continue;
 
     if (search_state.mode_skip_mask[ref_frame] & (1 << this_mode)) continue;
-
-    // Test best rd so far against threshold for trying this mode.
-    if (search_state.best_mode_skippable && sf->schedule_mode_search)
-      search_state.mode_threshold[mode_index] <<= 1;
 
     if (search_state.best_rd < search_state.mode_threshold[mode_index])
       continue;
