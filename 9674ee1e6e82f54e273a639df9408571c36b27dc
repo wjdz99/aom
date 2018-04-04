@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a7cb88c8_697052e7",
+        "filename": "aom_dsp/x86/intrapred_ssse3.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 315,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-04-04T01:46:45Z",
+      "side": 1,
+      "message": "this one can be const I think",
+      "revId": "9674ee1e6e82f54e273a639df9408571c36b27dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "98d11d15_cb6989ed",
+        "filename": "aom_dsp/x86/intrapred_ssse3.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 318,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-04-04T01:46:45Z",
+      "side": 1,
+      "message": "you can scope this to the loop",
+      "revId": "9674ee1e6e82f54e273a639df9408571c36b27dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
