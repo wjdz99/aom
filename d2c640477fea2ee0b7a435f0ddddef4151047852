@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ea8b5874_ee6c7cc4",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 4682,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2018-04-04T06:31:14Z",
+      "side": 1,
+      "message": "move out oxcf-\u003eerror_resilient_mode to av1_apply_encoding_flags()",
+      "revId": "d2c640477fea2ee0b7a435f0ddddef4151047852",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0ba64568_f84d0c5b",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 6068,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2018-04-04T06:31:14Z",
+      "side": 1,
+      "message": "Why do we need this for error_resilient_mode?\nIn AV1\u0027s error resilient mode this should not be needed.",
+      "revId": "d2c640477fea2ee0b7a435f0ddddef4151047852",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
