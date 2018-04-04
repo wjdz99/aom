@@ -95,8 +95,8 @@ static int hash_block_size_to_index(int block_size) {
 
 void av1_hash_table_init(hash_table *p_hash_table) {
   if (g_crc_initialized == 0) {
-    av1_crc_calculator_init(&crc_calculator1, 24, 0x5D6DCB);
-    av1_crc_calculator_init(&crc_calculator2, 24, 0x864CFB);
+    av1_crc_calculator_init(&crc_calculator1);
+    av1_crc_calculator_init(&crc_calculator2);
     g_crc_initialized = 1;
   }
   p_hash_table->p_lookup_table = NULL;

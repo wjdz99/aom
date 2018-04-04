@@ -906,7 +906,7 @@ void hbt_init() {
       aom_malloc(sizeof(OptTxbQcoeff) * HBT_TABLE_SIZE * HBT_ARRAY_LENGTH);
   memset(hbt_hash_table, 0,
          sizeof(OptTxbQcoeff) * HBT_TABLE_SIZE * HBT_ARRAY_LENGTH);
-  av1_crc_calculator_init(&crc_calculator, 31, 0x5D6DCB);  // 31 bit: qc & ctx
+  av1_crc_calculator_init(&crc_calculator);  // 31 bit: qc & ctx
 
   hbt_needs_init = 0;
 }
