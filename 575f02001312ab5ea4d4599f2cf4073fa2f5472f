@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "147d5084_e11820dd",
+        "filename": "av1/common/ppc/cfl_ppc.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5635
+      },
+      "writtenOn": "2018-04-04T14:49:45Z",
+      "side": 1,
+      "message": "you might use the first argument of vec_vsx_ld for this kind of offsetting.",
+      "revId": "575f02001312ab5ea4d4599f2cf4073fa2f5472f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cddaf19f_b6dbe3c0",
+        "filename": "av1/common/ppc/cfl_ppc.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5635
+      },
+      "writtenOn": "2018-04-04T14:49:45Z",
+      "side": 1,
+      "message": "you should compute the average in vsx and spare some stores for 2 additional load+splat for round_offset and num_pel_log2.",
+      "revId": "575f02001312ab5ea4d4599f2cf4073fa2f5472f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
