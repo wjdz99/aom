@@ -26,6 +26,13 @@ extern "C" {
 
 #define MAX_REF_MV_SERCH 3
 
+// Set this macro as 1 to collect data about tx size selection.
+// Data format:
+#define COLLECT_TX_SIZE_DATA 0
+#if COLLECT_TX_SIZE_DATA
+static const char av1_tx_size_data_output_file[] = "tx_size_data.txt";
+#endif
+
 struct TileInfo;
 struct macroblock;
 struct RD_STATS;
