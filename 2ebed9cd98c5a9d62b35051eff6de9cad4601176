@@ -22,6 +22,30 @@
       "revId": "2ebed9cd98c5a9d62b35051eff6de9cad4601176",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "55e5740b_cca6b90f",
+        "filename": "obudec.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 384,
+      "author": {
+        "id": 7963
+      },
+      "writtenOn": "2018-04-04T15:59:14Z",
+      "side": 1,
+      "message": "Yes,you are correct.  My new patch should work since length_of_temporal_unit_size includes any padding, and instead of re-encoding the size, I am merely copying to the new buffer.",
+      "parentUuid": "f7cad7f5_d62526f2",
+      "range": {
+        "startLine": 377,
+        "startChar": 0,
+        "endLine": 384,
+        "endChar": 46
+      },
+      "revId": "2ebed9cd98c5a9d62b35051eff6de9cad4601176",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
