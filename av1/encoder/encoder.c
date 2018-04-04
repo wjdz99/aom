@@ -756,7 +756,9 @@ static void alloc_compressor_data(AV1_COMP *cpi) {
   AV1_COMMON *cm = &cpi->common;
   const int num_planes = av1_num_planes(cm);
 
-  av1_alloc_context_buffers(cm, cm->width, cm->height);
+  if (av1_alloc_context_buffers(cm, cm->width, cm->height))
+    aom_internal_error(&cm->error, AOM_CODEC_MEM_ERROR,
+                       "Failed to allocate context buffers");
 
   av1_alloc_txb_buf(cpi);
 

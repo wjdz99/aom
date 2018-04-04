@@ -195,6 +195,13 @@ void av1_free_context_buffers(AV1_COMMON *cm) {
 #endif  // LOOP_FILTER_BITMASK
 }
 
+static int fail_and_exit(AV1_COMMON *cm) {
+  // clear the mi_* values to force a realloc on resync
+  av1_set_mb_mi(cm, 0, 0);
+  av1_free_context_buffers(cm);
+  return 1;
+}
+
 int av1_alloc_context_buffers(AV1_COMMON *cm, int width, int height) {
   const int num_planes = av1_num_planes(cm);
   int new_mi_size;
@@ -203,7 +210,7 @@ int av1_alloc_context_buffers(AV1_COMMON *cm, int width, int height) {
   new_mi_size = cm->mi_stride * calc_mi_size(cm->mi_rows);
   if (cm->mi_alloc_size < new_mi_size) {
     cm->free_mi(cm);
-    if (cm->alloc_mi(cm, new_mi_size)) goto fail;
+    if (cm->alloc_mi(cm, new_mi_size)) return fail_and_exit(cm);
   }
 
   const int new_boundary_info_alloc_size = cm->mi_rows * cm->mi_stride;
@@ -212,7 +219,7 @@ int av1_alloc_context_buffers(AV1_COMMON *cm, int width, int height) {
     cm->boundary_info = (BOUNDARY_TYPE *)aom_calloc(
         new_boundary_info_alloc_size, sizeof(BOUNDARY_TYPE));
     cm->boundary_info_alloc_size = 0;
-    if (!cm->boundary_info) goto fail;
+    if (!cm->boundary_info) return fail_and_exit(cm);
     cm->boundary_info_alloc_size = new_boundary_info_alloc_size;
   }
 
@@ -229,41 +236,35 @@ int av1_alloc_context_buffers(AV1_COMMON *cm, int width, int height) {
       cm->above_context[i] = (ENTROPY_CONTEXT *)aom_calloc(
           aligned_mi_cols << (MI_SIZE_LOG2 - tx_size_wide_log2[0]),
           sizeof(*cm->above_context[0]));
-      if (!cm->above_context[i]) goto fail;
+      if (!cm->above_context[i]) return fail_and_exit(cm);
     }
 
     aom_free(cm->above_seg_context);
     cm->above_seg_context = (PARTITION_CONTEXT *)aom_calloc(
         aligned_mi_cols, sizeof(*cm->above_seg_context));
-    if (!cm->above_seg_context) goto fail;
+    if (!cm->above_seg_context) return fail_and_exit(cm);
 
     aom_free(cm->above_txfm_context);
     cm->above_txfm_context = (TXFM_CONTEXT *)aom_calloc(
         aligned_mi_cols << TX_UNIT_WIDE_LOG2, sizeof(*cm->above_txfm_context));
-    if (!cm->above_txfm_context) goto fail;
+    if (!cm->above_txfm_context) return fail_and_exit(cm);
 
     for (i = 0; i < num_planes; ++i) {
       aom_free(cm->top_txfm_context[i]);
       cm->top_txfm_context[i] =
           (TXFM_CONTEXT *)aom_calloc(aligned_mi_cols << TX_UNIT_WIDE_LOG2,
                                      sizeof(*cm->top_txfm_context[0]));
-      if (!cm->top_txfm_context[i]) goto fail;
+      if (!cm->top_txfm_context[i]) return fail_and_exit(cm);
     }
 
     cm->above_context_alloc_cols = aligned_mi_cols;
   }
 
 #if LOOP_FILTER_BITMASK
-  if (alloc_loop_filter(cm)) goto fail;
+  if (alloc_loop_filter(cm)) return fail_and_exit(cm);
 #endif  // LOOP_FILTER_BITMASK
 
   return 0;
-
-fail:
-  // clear the mi_* values to force a realloc on resync
-  av1_set_mb_mi(cm, 0, 0);
-  av1_free_context_buffers(cm);
-  return 1;
 }
 
 void av1_remove_common(AV1_COMMON *cm) {

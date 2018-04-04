@@ -555,6 +555,13 @@ static void fill_arr_to_col(uint8_t *img, int stride, int len, uint8_t *arr) {
   }
 }
 
+static void free_bufs(uint8_t *a, uint8_t *b, uint8_t *c, uint8_t *d) {
+  aom_free(a);
+  aom_free(b);
+  aom_free(c);
+  aom_free(d);
+}
+
 static void resize_plane(const uint8_t *const input, int height, int width,
                          int in_stride, uint8_t *output, int height2,
                          int width2, int out_stride) {
@@ -565,7 +572,7 @@ static void resize_plane(const uint8_t *const input, int height, int width,
   uint8_t *arrbuf = (uint8_t *)aom_malloc(sizeof(uint8_t) * height);
   uint8_t *arrbuf2 = (uint8_t *)aom_malloc(sizeof(uint8_t) * height2);
   if (intbuf == NULL || tmpbuf == NULL || arrbuf == NULL || arrbuf2 == NULL)
-    goto Error;
+    free_bufs(intbuf, tmpbuf, arrbuf, arrbuf2);
   assert(width > 0);
   assert(height > 0);
   assert(width2 > 0);
@@ -579,11 +586,7 @@ static void resize_plane(const uint8_t *const input, int height, int width,
     fill_arr_to_col(output + i, out_stride, height2, arrbuf2);
   }
 
-Error:
-  aom_free(intbuf);
-  aom_free(tmpbuf);
-  aom_free(arrbuf);
-  aom_free(arrbuf2);
+  free_bufs(intbuf, tmpbuf, arrbuf, arrbuf2);
 }
 
 static void upscale_normative_rect(const uint8_t *const input, int height,
@@ -903,6 +906,14 @@ static void highbd_fill_arr_to_col(uint16_t *img, int stride, int len,
   }
 }
 
+static void highbd_free_bufs(uint16_t *a, uint16_t *b, uint16_t *c,
+                             uint16_t *d) {
+  aom_free(a);
+  aom_free(b);
+  aom_free(c);
+  aom_free(d);
+}
+
 static void highbd_resize_plane(const uint8_t *const input, int height,
                                 int width, int in_stride, uint8_t *output,
                                 int height2, int width2, int out_stride,
@@ -914,7 +925,7 @@ static void highbd_resize_plane(const uint8_t *const input, int height,
   uint16_t *arrbuf = (uint16_t *)aom_malloc(sizeof(uint16_t) * height);
   uint16_t *arrbuf2 = (uint16_t *)aom_malloc(sizeof(uint16_t) * height2);
   if (intbuf == NULL || tmpbuf == NULL || arrbuf == NULL || arrbuf2 == NULL)
-    goto Error;
+    highbd_free_bufs(intbuf, tmpbuf, arrbuf, arrbuf2);
   for (i = 0; i < height; ++i) {
     highbd_resize_multistep(CONVERT_TO_SHORTPTR(input + in_stride * i), width,
                             intbuf + width2 * i, width2, tmpbuf, bd);
@@ -926,11 +937,7 @@ static void highbd_resize_plane(const uint8_t *const input, int height,
                            arrbuf2);
   }
 
-Error:
-  aom_free(intbuf);
-  aom_free(tmpbuf);
-  aom_free(arrbuf);
-  aom_free(arrbuf2);
+  highbd_free_bufs(intbuf, tmpbuf, arrbuf, arrbuf2);
 }
 
 static void highbd_upscale_normative_rect(const uint8_t *const input,
