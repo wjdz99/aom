@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f7cad7f5_d62526f2",
+        "filename": "obudec.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 384,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-04-04T03:23:08Z",
+      "side": 1,
+      "message": "This won\u0027t work if the length field is padded[1]. The safest thing to do, imo, would be to parse what\u0027s in the buffer to determine the offset that needs to be passed to the fread() call below.\n\n[1] See note at end of http://av1-spec.argondesign.com/av1-spec/av1-spec.html#leb128",
+      "range": {
+        "startLine": 377,
+        "startChar": 0,
+        "endLine": 384,
+        "endChar": 46
+      },
+      "revId": "2ebed9cd98c5a9d62b35051eff6de9cad4601176",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
