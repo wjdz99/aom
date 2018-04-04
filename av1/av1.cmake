@@ -422,6 +422,10 @@ set(AOM_AV1_COMMON_INTRIN_NEON
     ${AOM_AV1_COMMON_INTRIN_NEON}
     "${AOM_ROOT}/av1/common/arm/cfl_neon.c")
 
+set(AOM_AV1_COMMON_INTRIN_VSX
+    ${AOM_AV1_COMMON_INTRIN_VSX}
+    "${AOM_ROOT}/av1/common/ppc/cfl_ppc.c")
+
 set(AOM_AV1_COMMON_SOURCES
     ${AOM_AV1_COMMON_SOURCES}
     "${AOM_ROOT}/av1/common/restoration.c"
