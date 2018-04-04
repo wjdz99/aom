@@ -19,18 +19,15 @@
 extern "C" {
 #endif
 
+// POLY = 0x82f63b78;
 typedef struct _crc_calculator {
-  uint32_t remainder;
-  uint32_t trunc_poly;
-  uint32_t bits;
-  uint32_t table[256];
-  uint32_t final_result_mask;
+  /* Table for a quadword-at-a-time software crc. */
+  uint32_t table[8][256];
 } CRC_CALCULATOR;
 
 // Initialize the crc calculator. It must be executed at least once before
 // calling av1_get_crc_value().
-void av1_crc_calculator_init(CRC_CALCULATOR *p_crc_calculator, uint32_t bits,
-                             uint32_t truncPoly);
+void av1_crc_calculator_init(CRC_CALCULATOR *p_crc_calculator);
 
 #ifdef __cplusplus
 }  // extern "C"
