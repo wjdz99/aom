@@ -41,8 +41,9 @@
 #include "aom/aomdx.h"
 #endif
 
+#include "io/obudec.h"
+
 #include "./md5_utils.h"
-#include "./obudec.h"
 #include "./tools_common.h"
 
 #if CONFIG_WEBM_IO

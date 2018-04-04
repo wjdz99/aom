@@ -174,8 +174,12 @@ set(AOM_COMMON_APP_UTIL_SOURCES
 set(AOM_DECODER_APP_UTIL_SOURCES
     "${AOM_ROOT}/ivfdec.c"
     "${AOM_ROOT}/ivfdec.h"
-    "${AOM_ROOT}/obudec.c"
-    "${AOM_ROOT}/obudec.h"
+    "${AOM_ROOT}/io/obudec.c"
+    "${AOM_ROOT}/io/obudec.h"
+    "${AOM_ROOT}/io/obudec_annexb.c"
+    "${AOM_ROOT}/io/obudec_annexb.h"
+    "${AOM_ROOT}/io/obudec_section5.c"
+    "${AOM_ROOT}/io/obudec_section5.h"
     "${AOM_ROOT}/video_reader.c"
     "${AOM_ROOT}/video_reader.h")
 

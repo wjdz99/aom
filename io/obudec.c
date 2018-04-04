@@ -13,71 +13,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "./obudec.h"
+#include "io/obudec.h"
 
 #include "aom_ports/mem_ops.h"
 #include "av1/common/common.h"
 #include "av1/decoder/obu.h"
-
-#define OBU_BUFFER_SIZE (500 * 1024)
-
-#define OBU_HEADER_SIZE 1
-#define OBU_EXTENSION_SIZE 1
-#define OBU_MAX_LENGTH_FIELD_SIZE 8
-#define OBU_DETECTION_SIZE \
-  (OBU_HEADER_SIZE + OBU_EXTENSION_SIZE + 2 * OBU_MAX_LENGTH_FIELD_SIZE)
-
-// Reads unsigned LEB128 integer and returns 0 upon successful read and decode.
-// Stores raw bytes in 'value_buffer', length of the number in 'value_length',
-// and decoded value in 'value'.
-static int obudec_read_leb128(FILE *f, uint8_t *value_buffer,
-                              size_t *value_length, uint64_t *value) {
-  if (!f || !value_buffer || !value_length || !value) return -1;
-  for (int len = 0; len < OBU_MAX_LENGTH_FIELD_SIZE; ++len) {
-    const size_t num_read = fread(&value_buffer[len], 1, 1, f);
-    if (num_read == 0 && feof(f)) {
-      *value_length = 0;
-      return 0;
-    }
-    if (num_read != 1) {
-      // Ran out of data before completing read of value.
-      return -1;
-    }
-    if ((value_buffer[len] >> 7) == 0) {
-      *value_length = (size_t)(len + 1);
-      break;
-    }
-  }
-
-  return aom_uleb_decode(value_buffer, OBU_MAX_LENGTH_FIELD_SIZE, value, NULL);
-}
-
-// Reads OBU size from infile and returns 0 upon success. Returns obu_size via
-// output pointer obu_size. Returns -1 when reading or parsing fails. Always
-// returns FILE pointer to position at time of call. Returns 0 and sets obu_size
-// to 0 when end of file is reached.
-static int obudec_read_obu_size(FILE *infile, uint64_t *obu_size,
-                                size_t *length_field_size) {
-  if (!infile || !obu_size) return 1;
-
-  uint8_t read_buffer[OBU_MAX_LENGTH_FIELD_SIZE] = { 0 };
-  size_t bytes_read = fread(read_buffer, 1, OBU_MAX_LENGTH_FIELD_SIZE, infile);
-  *obu_size = 0;
-
-  if (bytes_read == 0) {
-    return 0;
-  }
-
-  const int seek_pos = (int)bytes_read;
-  if (seek_pos != 0 && fseek(infile, -seek_pos, SEEK_CUR) != 0) return 1;
-
-  if (aom_uleb_decode(read_buffer, bytes_read, obu_size, length_field_size) !=
-      0) {
-    return 1;
-  }
-
-  return 0;
-}
 
 // Reads OBU header from 'f'. The 'buffer_capacity' passed in must be large
 // enough to store an OBU header with extension (2 bytes). Raw OBU data is
@@ -118,22 +58,6 @@ static int obudec_read_obu_header(FILE *f, size_t buffer_capacity,
     return -1;
   }
 
-  return 0;
-}
-
-// Reads OBU payload from 'f' and returns 0 for success when all payload bytes
-// are read from the file. Payload data is written to 'obu_data', and actual
-// bytes read written to 'bytes_read'.
-static int obudec_read_obu_payload(FILE *f, uint64_t payload_length,
-                                   uint8_t *obu_data, size_t *bytes_read) {
-  if (!f || payload_length == 0 || !obu_data || !bytes_read) return -1;
-
-  if (fread(obu_data, 1, (size_t)payload_length, f) != payload_length) {
-    fprintf(stderr, "obudec: Failure reading OBU payload.\n");
-    return -1;
-  }
-
-  *bytes_read += (size_t)payload_length;
   return 0;
 }
 
@@ -197,6 +121,41 @@ static int obudec_read_one_obu(FILE *f, size_t buffer_capacity, int is_annexb,
 
   *obu_length = bytes_read;
   return 0;
+}
+
+int obudec_read_obu_payload(FILE *f, uint64_t payload_length, uint8_t *obu_data,
+                            size_t *bytes_read) {
+  if (!f || payload_length == 0 || !obu_data || !bytes_read) return -1;
+
+  if (fread(obu_data, 1, (size_t)payload_length, f) != payload_length) {
+    fprintf(stderr, "obudec: Failure reading OBU payload.\n");
+    return -1;
+  }
+
+  *bytes_read += (size_t)payload_length;
+  return 0;
+}
+
+int obudec_read_leb128(FILE *f, uint8_t *value_buffer, size_t *value_length,
+                       uint64_t *value) {
+  if (!f || !value_buffer || !value_length || !value) return -1;
+  for (int len = 0; len < OBU_MAX_LENGTH_FIELD_SIZE; ++len) {
+    const size_t num_read = fread(&value_buffer[len], 1, 1, f);
+    if (num_read == 0 && feof(f)) {
+      *value_length = 0;
+      return 0;
+    }
+    if (num_read != 1) {
+      // Ran out of data before completing read of value.
+      return -1;
+    }
+    if ((value_buffer[len] >> 7) == 0) {
+      *value_length = (size_t)(len + 1);
+      break;
+    }
+  }
+
+  return aom_uleb_decode(value_buffer, OBU_MAX_LENGTH_FIELD_SIZE, value, NULL);
 }
 
 int file_is_obu(struct ObuDecInputContext *obu_ctx) {
