@@ -135,6 +135,10 @@ static INLINE void cfl_subtract_average_null(int16_t *pred_buf_q3) {
   assert(0);
 }
 
+void subtract_average_4x4_c(int16_t *pred_buf_q3);
+void subtract_average_4x8_c(int16_t *pred_buf_q3);
+void subtract_average_4x16_c(int16_t *pred_buf_q3);
+
 // Declare a size-specific wrapper for the size-generic function. The compiler
 // will inline the size generic function in here, the advantage is that the size
 // will be constant allowing for loop unrolling and other constant propagated
