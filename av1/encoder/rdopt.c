@@ -5165,7 +5165,7 @@ static INLINE int mv_check_bounds(const MvLimits *mv_limits, const MV *mv) {
 static int check_best_zero_mv(const AV1_COMP *const cpi,
                               const MACROBLOCK *const x,
                               const int16_t mode_context[REF_FRAMES],
-                              int_mv frame_mv[MB_MODE_COUNT][REF_FRAMES],
+                              const int_mv frame_mv[MB_MODE_COUNT][REF_FRAMES],
                               int this_mode,
                               const MV_REFERENCE_FRAME ref_frames[2],
                               const BLOCK_SIZE bsize, int mi_row, int mi_col) {
@@ -8744,7 +8744,7 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
   PREDICTION_MODE this_mode;
   MV_REFERENCE_FRAME ref_frame, second_ref_frame;
   unsigned char segment_id = mbmi->segment_id;
-  int comp_pred, i, k;
+  int i, k;
   struct buf_2d yv12_mb[REF_FRAMES][MAX_MB_PLANE];
   static const int flag_list[REF_FRAMES] = { 0,
                                              AOM_LAST_FLAG,
@@ -8765,7 +8765,6 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
   const int *const intra_mode_cost = x->mbmode_cost[size_group_lookup[bsize]];
   const int mode_skip_start = sf->mode_skip_start + 1;
   int *mode_map = tile_data->mode_map[bsize];
-  const int mode_search_skip_flags = sf->mode_search_skip_flags;
   const int rows = block_size_high[bsize];
   const int cols = block_size_wide[bsize];
 
@@ -8793,7 +8792,6 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
 
   for (int midx = 0; midx < MAX_MODES; ++midx) {
     int mode_index;
-    int mode_excluded = 0;
     int64_t this_rd = INT64_MAX;
     int disable_skip = 0;
     int compmode_cost = 0;
@@ -8898,7 +8896,7 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
     // This is only used in motion vector unit test.
     if (cpi->oxcf.motion_vector_unit_test && ref_frame == INTRA_FRAME) continue;
 
-    comp_pred = second_ref_frame > INTRA_FRAME;
+    const int comp_pred = second_ref_frame > INTRA_FRAME;
     if (comp_pred) {
       if (!cpi->allow_comp_inter_inter) continue;
 
@@ -8909,14 +8907,10 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
       // feature is in use as in this case there can only be one reference.
       if (segfeature_active(seg, segment_id, SEG_LVL_REF_FRAME)) continue;
 
-      if ((mode_search_skip_flags & FLAG_SKIP_COMP_BESTINTRA) &&
+      if ((sf->mode_search_skip_flags & FLAG_SKIP_COMP_BESTINTRA) &&
           search_state.best_mode_index >= 0 &&
           search_state.best_mbmode.ref_frame[0] == INTRA_FRAME)
         continue;
-
-      mode_excluded = cm->reference_mode == SINGLE_REFERENCE;
-    } else {
-      if (ref_frame != INTRA_FRAME) mode_excluded = 0;
     }
 
     if (ref_frame == INTRA_FRAME) {
@@ -8930,18 +8924,18 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
         // Threshold for intra skipping based on source variance
         // TODO(debargha): Specialize the threshold for super block sizes
         const unsigned int skip_intra_var_thresh = 64;
-        if ((mode_search_skip_flags & FLAG_SKIP_INTRA_LOWVAR) &&
+        if ((sf->mode_search_skip_flags & FLAG_SKIP_INTRA_LOWVAR) &&
             x->source_variance < skip_intra_var_thresh)
           continue;
         // Only search the oblique modes if the best so far is
         // one of the neighboring directional modes
-        if ((mode_search_skip_flags & FLAG_SKIP_INTRA_BESTINTER) &&
+        if ((sf->mode_search_skip_flags & FLAG_SKIP_INTRA_BESTINTER) &&
             (this_mode >= D45_PRED && this_mode <= PAETH_PRED)) {
           if (search_state.best_mode_index >= 0 &&
               search_state.best_mbmode.ref_frame[0] > INTRA_FRAME)
             continue;
         }
-        if (mode_search_skip_flags & FLAG_SKIP_INTRA_DIRMISMATCH) {
+        if (sf->mode_search_skip_flags & FLAG_SKIP_INTRA_DIRMISMATCH) {
           if (conditional_skipintra(this_mode, search_state.best_intra_mode))
             continue;
         }
@@ -9502,6 +9496,10 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
 
     // Did this mode help.. i.e. is it the new best mode
     if (this_rd < search_state.best_rd || x->skip) {
+      int mode_excluded = 0;
+      if (comp_pred) {
+        mode_excluded = cm->reference_mode == SINGLE_REFERENCE;
+      }
       if (!mode_excluded) {
         // Note index of best mode so far
         search_state.best_mode_index = mode_index;
