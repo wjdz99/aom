@@ -149,7 +149,7 @@ typedef struct {
 
 typedef struct {
   loop_filter_thresh lfthr[MAX_LOOP_FILTER + 1];
-  uint8_t lvl[MAX_SEGMENTS][2][REF_FRAMES][MAX_MODE_LF_DELTAS];
+  uint8_t lvl[MAX_MB_PLANE][MAX_SEGMENTS][2][REF_FRAMES][MAX_MODE_LF_DELTAS];
 } loop_filter_info_n;
 
 // This structure holds bit masks for all 8x8 blocks in a 64x64 region.
@@ -190,18 +190,18 @@ void av1_loop_filter_init(struct AV1Common *cm);
 // This should be called before av1_loop_filter_rows(),
 // av1_loop_filter_frame()
 // calls this function directly.
-void av1_loop_filter_frame_init(struct AV1Common *cm, int default_filt_lvl,
-                                int default_filt_lvl_r, int plane);
+void av1_loop_filter_frame_init(struct AV1Common *cm, int plane_start,
+                                int plane_end);
 
 void av1_loop_filter_frame(YV12_BUFFER_CONFIG *frame, struct AV1Common *cm,
-                           struct macroblockd *mbd, int filter_level,
-                           int filter_level_r, int plane, int partial_frame);
+                           struct macroblockd *mbd, int plane_start,
+                           int plane_end, int partial_frame);
 
 // Apply the loop filter to [start, stop) macro block rows in frame_buffer.
 void av1_loop_filter_rows(YV12_BUFFER_CONFIG *frame_buffer,
                           struct AV1Common *cm,
                           struct macroblockd_plane *planes, int start, int stop,
-                          int y_only);
+                          int plane_start, int plane_end);
 
 typedef struct LoopFilterWorkerData {
   YV12_BUFFER_CONFIG *frame_buffer;
