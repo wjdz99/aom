@@ -528,8 +528,7 @@ const subsample_lbd_param subsample_lbd_sizes_neon[] = {
 const subsample_hbd_param subsample_hbd_sizes_neon[] = {
   ALL_CFL_TX_SIZES_SUBSAMPLE(
       cfl_get_luma_subsampling_420_hbd_neon,
-      cfl_get_luma_subsampling_422_hbd_c,  // TODO(ltrudeau) replace with
-      // 422 when SIMD is available
+      cfl_get_luma_subsampling_422_hbd_neon,
       cfl_get_luma_subsampling_420_hbd_neon)  // TODO(ltrudeau) replace with
                                               // 444 when SIMD is available
 };
@@ -545,6 +544,9 @@ INSTANTIATE_TEST_CASE_P(NEON, CFLSubAvgTest,
 
 INSTANTIATE_TEST_CASE_P(NEON, CFLSubsampleLBDTest,
                         ::testing::ValuesIn(subsample_lbd_sizes_neon));
+
+INSTANTIATE_TEST_CASE_P(NEON, CFLSubsampleHBDTest,
+                        ::testing::ValuesIn(subsample_hbd_sizes_neon));
 
 INSTANTIATE_TEST_CASE_P(NEON, CFLPredictTest,
                         ::testing::ValuesIn(predict_sizes_neon));
