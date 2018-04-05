@@ -4499,7 +4499,10 @@ static void set_ext_overrides(AV1_COMP *cpi) {
   // av1_update_reference() and av1_update_entropy() calls
   // Note: The overrides are valid only for the next frame passed
   // to encode_frame_to_data_rate() function
-  if (cpi->ext_use_s_frame) cpi->common.frame_type = S_FRAME;
+  if (cpi->ext_use_s_frame) {
+    cpi->common.frame_type = S_FRAME;
+    if (cpi->common.show_existing_frame) printf("Hello\n");
+  }
 
   if (cpi->ext_refresh_frame_context_pending) {
     cpi->common.refresh_frame_context = cpi->ext_refresh_frame_context;
@@ -4684,6 +4687,12 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
   cm->allow_ref_frame_mvs &= frame_might_allow_ref_frame_mvs(cm);
   cm->allow_warped_motion =
       cpi->oxcf.allow_warped_motion && frame_might_allow_warped_motion(cm);
+
+  // TODO(sarahparker, debargha): Make sure that this is the right way to
+  // turn off show_existing_frame.
+  cm->show_existing_frame &= !cm->error_resilient_mode;
+
+  assert(IMPLIES(cm->error_resilient_mode, !cm->show_existing_frame));
 
   // Reset the frame packet stamp index.
   if (cm->frame_type == KEY_FRAME) cm->current_video_frame = 0;
