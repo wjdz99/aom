@@ -236,6 +236,65 @@ static INLINE void cfl_luma_subsampling_420_hbd_ssse3(const uint16_t *input,
   } while ((pred_buf_q3 += CFL_BUF_LINE) < end);
 }
 
+/**
+ * Adds 2 pixels (in a 2x1 grid) and multiplies them by 4. Resulting in a more
+ * precise version of a box filter 4:2:2 pixel subsampling in Q3.
+ *
+ * The CfL prediction buffer is always of size CFL_BUF_SQUARE. However, the
+ * active area is specified using width and height.
+ *
+ * Note: We don't need to worry about going over the active area, as long as we
+ * stay inside the CfL prediction buffer.
+ */
+static INLINE void cfl_luma_subsampling_422_hbd_ssse3(const uint16_t *input,
+                                                      int input_stride,
+                                                      int16_t *pred_buf_q3,
+                                                      int width, int height) {
+  const int16_t *end = pred_buf_q3 + height * CFL_BUF_LINE;
+
+  __m128i top, top_1, top_2, top_3, sum, next_sum;
+  do {
+    if (width == 4) {
+      top = _mm_loadl_epi64((__m128i *)input);
+    } else {
+      top = _mm_loadu_si128((__m128i *)input);
+      if (width >= 16) {
+        top_1 = _mm_loadu_si128((__m128i *)(input + 8));
+      }
+      if (width == 32) {
+        top_2 = _mm_loadu_si128((__m128i *)(input + 16));
+        top_3 = _mm_loadu_si128((__m128i *)(input + 24));
+      }
+    }
+    if (width <= 8) {
+      sum = _mm_hadd_epi16(top, top);
+    } else {
+      sum = _mm_hadd_epi16(top, top_1);
+      if (width == 32) {
+        next_sum = _mm_hadd_epi16(top_2, top_3);
+        next_sum = _mm_slli_epi16(next_sum, 2);
+      }
+    }
+    sum = _mm_slli_epi16(sum, 2);
+
+    if (width == 4) {
+      *((int *)pred_buf_q3) = _mm_cvtsi128_si32(sum);
+    } else if (width == 8) {
+      _mm_storel_epi64((__m128i *)pred_buf_q3, sum);
+    } else {
+      _mm_storeu_si128((__m128i *)pred_buf_q3, sum);
+      if (width == 32) {
+        _mm_storeu_si128((__m128i *)(pred_buf_q3 + 8), next_sum);
+      }
+    }
+    input += input_stride;
+  } while ((pred_buf_q3 += CFL_BUF_LINE) < end);
+}
+
+// TODO(ltrudeau) Move into the CFL_GET_SUBSAMPLE_FUNCTION when LBD 422 SIMD
+// will be implemented
+CFL_SUBSAMPLE_FUNCTIONS(ssse3, 422, hbd)
+
 CFL_GET_SUBSAMPLE_FUNCTION(ssse3)
 
 static INLINE __m128i predict_unclipped(const __m128i *input, __m128i alpha_q12,
