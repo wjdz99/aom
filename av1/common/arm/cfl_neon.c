@@ -209,6 +209,31 @@ static void cfl_luma_subsampling_422_hbd_neon(const uint16_t *input,
   } while ((pred_buf_q3 += CFL_BUF_LINE) < end);
 }
 
+static void cfl_luma_subsampling_444_hbd_neon(const uint16_t *input,
+                                              int input_stride,
+                                              int16_t *pred_buf_q3, int width,
+                                              int height) {
+  const int16_t *end = pred_buf_q3 + height * CFL_BUF_LINE;
+  do {
+    if (width == 4) {
+      const int16x4_t top = vreinterpret_s16_u16(vld1_u16(input));
+      vst1_s16(pred_buf_q3, vshl_n_s16(top, 3));
+    } else {
+      const int16x8_t top = vreinterpretq_s16_u16(vld1q_u16(input));
+      vst1q_s16(pred_buf_q3, vshlq_n_s16(top, 3));
+      const int16x8_t top_1 = vreinterpretq_s16_u16(vld1q_u16(input + 8));
+      vst1q_s16(pred_buf_q3 + 8, vshlq_n_s16(top_1, 3));
+      if (width == 32) {
+        const int16x8_t top_2 = vreinterpretq_s16_u16(vld1q_u16(input + 16));
+        vst1q_s16(pred_buf_q3 + 16, vshlq_n_s16(top_2, 3));
+        const int16x8_t top_3 = vreinterpretq_s16_u16(vld1q_u16(input + 24));
+        vst1q_s16(pred_buf_q3 + 24, vshlq_n_s16(top_3, 3));
+      }
+    }
+    input += input_stride;
+  } while ((pred_buf_q3 += CFL_BUF_LINE) < end);
+}
+
 CFL_GET_SUBSAMPLE_FUNCTION(neon)
 
 static INLINE void subtract_average_neon(int16_t *pred_buf, int width,
