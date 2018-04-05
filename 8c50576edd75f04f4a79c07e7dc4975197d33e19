@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "342f2e1c_08de021f",
+        "filename": "build/cmake/aom_configure.cmake",
+        "patchSetId": 2
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-04-05T21:30:17Z",
+      "side": 1,
+      "message": "Just like C/C++ code: 2 spaces before comment. You can drop the comment entirely: this is a common pattern in the CMake scripts.",
+      "range": {
+        "startLine": 128,
+        "startChar": 30,
+        "endLine": 128,
+        "endChar": 31
+      },
+      "revId": "8c50576edd75f04f4a79c07e7dc4975197d33e19",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
