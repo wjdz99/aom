@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "889ebca9_d0ed98f8",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 772,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-04-05T21:28:52Z",
+      "side": 1,
+      "message": "EoL whitespace",
+      "range": {
+        "startLine": 772,
+        "startChar": 77,
+        "endLine": 772,
+        "endChar": 78
+      },
+      "revId": "42fb2c3909c8956d786fa7fb6cc67fb3da56d46a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
