@@ -4685,6 +4685,12 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
   cm->allow_warped_motion =
       cpi->oxcf.allow_warped_motion && frame_might_allow_warped_motion(cm);
 
+  // TODO(sarahparker, debargha): Make sure that this is the right way to
+  // turn off show_existing_frame.
+  cm->show_existing_frame &= !cm->error_resilient_mode;
+
+  assert(IMPLIES(cm->error_resilient_mode, !cm->show_existing_frame));
+
   // Reset the frame packet stamp index.
   if (cm->frame_type == KEY_FRAME) cm->current_video_frame = 0;
 
