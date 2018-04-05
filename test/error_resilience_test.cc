@@ -249,7 +249,7 @@ TEST_P(ErrorResilienceTestLarge, OnVersusOff) {
   SetupEncoder(2000, 10);
   libaom_test::I420VideoSource video("hantro_collage_w352h288.yuv", 352, 288,
                                      cfg_.g_timebase.den, cfg_.g_timebase.num,
-                                     0, 12);
+                                     0, 15);
 
   // Global error resilient mode OFF.
   cfg_.g_error_resilient = 0;
@@ -282,7 +282,7 @@ TEST_P(ErrorResilienceTestLarge, DropFramesWithoutRecovery) {
   SetupEncoder(500, 10);
   libaom_test::I420VideoSource video("hantro_collage_w352h288.yuv", 352, 288,
                                      cfg_.g_timebase.den, cfg_.g_timebase.num,
-                                     0, 20);
+                                     0, 15);
 
   // Set an arbitrary set of error frames same as droppable frames.
   unsigned int num_droppable_frames = 3;
@@ -341,7 +341,7 @@ TEST_P(ErrorResilienceTestLarge, ParseAbilityTest) {
 TEST_P(ErrorResilienceTestLarge, SFrameTest) {
   // TODO(sarahparker, debargha): Make control setting work correctly for
   // lag_in_frames > 0
-  SetupEncoder(500, 0);
+  SetupEncoder(500, 10);
 
   libaom_test::I420VideoSource video("hantro_collage_w352h288.yuv", 352, 288,
                                      cfg_.g_timebase.den, cfg_.g_timebase.num,
@@ -354,12 +354,13 @@ TEST_P(ErrorResilienceTestLarge, SFrameTest) {
   // up.
   // Set an arbitrary S-frame
   unsigned int num_s_frames = 1;
-  unsigned int s_frame_list[] = { 7 };
+  unsigned int s_frame_list[] = { 5 };
   SetSFrames(num_s_frames, s_frame_list);
 
   // Set a few frames before the S frame that are lost (not decoded)
-  unsigned int num_error_frames = 4;
-  unsigned int error_frame_list[] = { 3, 4, 5, 6 };
+  unsigned int num_error_frames = 3;
+  unsigned int error_frame_list[] = { s_frame_list[0] - 3, s_frame_list[0] - 2,
+                                      s_frame_list[0] - 1 };
   SetErrorFrames(num_error_frames, error_frame_list);
 
   ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
