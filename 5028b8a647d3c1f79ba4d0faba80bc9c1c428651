@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "2ea95b42_40b92244",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 509,
+      "author": {
+        "id": 5975
+      },
+      "writtenOn": "2018-04-05T15:35:14Z",
+      "side": 1,
+      "message": "Not necessarily - for intra blocks which use UV_CFL_PRED, we set cfl.store_y \u003d 1 as well. But in that case, we store the luma pixels in predict_and_reconstruct_intra_block() instead of here.\n\nThat said, this line is directly below a block which looks like \"if (!is_inter_block(mbmi)) { ... } else { ... }\", so it might be clearer to move the call to cfl_store_block() inside the \u0027else\u0027 branch. I\u0027ll go try that out.",
+      "parentUuid": "19856d36_00bbd1ed",
+      "range": {
+        "startLine": 509,
+        "startChar": 24,
+        "endLine": 509,
+        "endChar": 45
+      },
+      "revId": "5028b8a647d3c1f79ba4d0faba80bc9c1c428651",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "af1ea472_451d20c3",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 4
@@ -36,6 +60,30 @@
       "writtenOn": "2018-04-05T13:35:29Z",
       "side": 1,
       "message": "This is not a problem for 16x4. Inter chroma blocks that are 16x4 only occur in 4:4:4, and in this case we don\u0027t store the reconstructed luma pixels.",
+      "range": {
+        "startLine": 2217,
+        "startChar": 28,
+        "endLine": 2217,
+        "endChar": 70
+      },
+      "revId": "5028b8a647d3c1f79ba4d0faba80bc9c1c428651",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cabb5a35_d9bc2db4",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 2217,
+      "author": {
+        "id": 5975
+      },
+      "writtenOn": "2018-04-05T15:35:14Z",
+      "side": 1,
+      "message": "Ah yes - I had missed that we look at \"plane_bsize\" rather than \"bsize\". I\u0027ll put up a new patch set with this comment removed.",
+      "parentUuid": "af1ea472_451d20c3",
       "range": {
         "startLine": 2217,
         "startChar": 28,
