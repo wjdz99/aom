@@ -3536,11 +3536,17 @@ static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
 
       reset_partition(pc_root, cm->seq_params.sb_size);
       x->use_cb_search_range = 0;
+      memset(x->ref0_candidate_mask, 1, sizeof(x->ref0_candidate_mask));
+      memset(x->ref1_candidate_mask, 1, sizeof(x->ref1_candidate_mask));
       if (cpi->sf.two_pass_partition_search &&
           mi_row + mi_size_high[cm->seq_params.sb_size] < cm->mi_rows &&
           mi_col + mi_size_wide[cm->seq_params.sb_size] < cm->mi_cols &&
           cm->frame_type != KEY_FRAME) {
         x->cb_partition_scan = 1;
+        if (sf->mode_pruning_based_on_two_pass_partition_search) {
+          av1_zero(x->ref0_candidate_mask);
+          av1_zero(x->ref1_candidate_mask);
+        }
         rd_pick_sqr_partition(cpi, td, tile_data, tp, mi_row, mi_col,
                               cm->seq_params.sb_size, &dummy_rdc, INT64_MAX,
                               pc_root, NULL);
@@ -3573,6 +3579,28 @@ static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
         }
 
         x->use_cb_search_range = 1;
+
+        if (sf->mode_pruning_based_on_two_pass_partition_search) {
+          int allowed_ref0 = 0;
+          int allowed_ref1 = 0;
+          for (i = 0; i < REF_FRAMES; ++i) {
+            allowed_ref0 += x->ref0_candidate_mask[i];
+            allowed_ref1 += x->ref1_candidate_mask[i];
+          }
+          if (allowed_ref0 == 0 || allowed_ref1 == 0) {
+            // If no candidates found, make them all available.
+            memset(x->ref0_candidate_mask, 1, sizeof(x->ref0_candidate_mask));
+            memset(x->ref1_candidate_mask, 1, sizeof(x->ref1_candidate_mask));
+          } else if (sf->selective_ref_frame < 2) {
+            // ALTREF2_FRAME and BWDREF_FRAME may be skipped during the initial
+            // partition scan, so we don't eliminate them.
+            x->ref0_candidate_mask[ALTREF2_FRAME] = 1;
+            x->ref1_candidate_mask[ALTREF2_FRAME] = 1;
+            x->ref0_candidate_mask[BWDREF_FRAME] = 1;
+            x->ref1_candidate_mask[BWDREF_FRAME] = 1;
+          }
+        }
+
         rd_pick_partition(cpi, td, tile_data, tp, mi_row, mi_col,
                           cm->seq_params.sb_size, &dummy_rdc, INT64_MAX,
                           pc_root, NULL);
@@ -4633,6 +4661,14 @@ static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
   const int mi_width = mi_size_wide[bsize];
   const int mi_height = mi_size_high[bsize];
   const int is_inter = is_inter_block(mbmi);
+
+  if (cpi->sf.mode_pruning_based_on_two_pass_partition_search &&
+      x->cb_partition_scan) {
+    // Record that ref_frame[0] and ref_frame[1] are picked.
+    x->ref0_candidate_mask[mbmi->ref_frame[0]] = 1;
+    if (mbmi->ref_frame[1] >= 0)
+      x->ref1_candidate_mask[mbmi->ref_frame[1]] = 1;
+  }
 
   if (!is_inter) {
     xd->cfl.is_chroma_reference = is_chroma_reference(
