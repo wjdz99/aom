@@ -208,8 +208,22 @@ static aom_codec_err_t decoder_peek_si_internal(const uint8_t *data,
   // if (obu_type != OBU_SEQUENCE_HEADER)
   //   return AOM_CODEC_INVALID_PARAM;
 
-  av1_read_profile(&rb);        // profile
-  aom_rb_read_literal(&rb, 4);  // level
+  av1_read_profile(&rb);  // profile
+
+  aom_rb_read_literal(&rb, 1);  // still_picture
+
+  uint8_t operating_points_minus1_cnt = aom_rb_read_literal(&rb, 5);
+  si->enhancement_layers_cnt = operating_points_minus1_cnt;
+  int i;
+  for (i = 0; i < operating_points_minus1_cnt + 1; i++) {
+    aom_rb_read_literal(&rb, 12);
+    aom_rb_read_literal(&rb, 4);
+    if (aom_rb_read_literal(&rb, 1)) {
+      aom_rb_read_literal(&rb, 12);
+      aom_rb_read_literal(&rb, 24);
+      aom_rb_read_literal(&rb, 4);
+    }
+  }
 
   int num_bits_width = aom_rb_read_literal(&rb, 4) + 1;
   int num_bits_height = aom_rb_read_literal(&rb, 4) + 1;
