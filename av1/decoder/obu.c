@@ -379,6 +379,50 @@ static void read_metadata_scalability(const uint8_t *data, size_t sz) {
   }
 }
 
+static void read_metadata_timecode(const uint8_t *data, size_t sz) {
+    struct aom_read_bit_buffer rb = { data, data + sz, 0, NULL, NULL };
+    // int counting_type
+    aom_rb_read_literal(&rb, 5);
+    int full_timestamp_flag = aom_rb_read_bit(&rb);
+    // discontinuity_flag
+    aom_rb_read_bit(&rb);
+    // counting_type
+    aom_rb_read_literal(&rb, 5);
+    // cnt_dropped_flag
+    aom_rb_read_bit(&rb);
+    // n_frames
+    aom_rb_read_literal(&rb, 9);
+    if (full_timestamp_flag) {
+      // seconds_value
+      aom_rb_read_literal(&rb, 6);
+      // minutes_value
+      aom_rb_read_literal(&rb, 6);
+      // hours_value
+      aom_rb_read_literal(&rb, 5);
+    } else {
+      int seconds_flag = aom_rb_read_bit(&rb);
+      if (seconds_flag) {
+        // seconds_value
+        aom_rb_read_literal(&rb, 6);
+        int minutes_flag = aom_rb_read_bit(&rb);
+        if (minutes_flag) {
+          // minutes_value
+          aom_rb_read_literal(&rb, 6);
+          int hours_flag = aom_rb_read_bit(&rb);
+          if (hours_flag) {
+            // hours_value
+            aom_rb_read_literal(&rb, 5);
+           }
+         }
+      }
+    }
+  int time_offset_length = aom_rb_read_literal(&rb, 5);
+  if (time_offset_length) {
+      // int time_offset_value
+      aom_rb_read_literal(&rb, time_offset_length);
+  }
+}
+
 static size_t read_metadata(const uint8_t *data, size_t sz) {
   if (sz < 2) return sz;  // Invalid data size.
   const OBU_METADATA_TYPE metadata_type = (OBU_METADATA_TYPE)mem_get_le16(data);
@@ -391,6 +435,8 @@ static size_t read_metadata(const uint8_t *data, size_t sz) {
     read_metadata_hdr_mdcv(data + 2);
   } else if (metadata_type == OBU_METADATA_TYPE_SCALABILITY) {
     read_metadata_scalability(data + 2, sz - 2);
+  } else if (metadata_type == OBU_METADATA_TYPE_TIMECODE) {
+    read_metadata_timecode(data + 2, sz - 2);
   }
 
   return sz;
