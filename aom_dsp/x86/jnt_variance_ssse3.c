@@ -203,10 +203,10 @@ void aom_jnt_comp_avg_pred_ssse3(uint8_t *comp_pred, const uint8_t *pred,
     assert(!(width & 3));
     assert(!(height & 3));
     for (i = 0; i < height; i += 4) {
-      __m128i p0_0 = xx_loadl_32(ref + 0 * ref_stride);
-      __m128i p0_1 = xx_loadl_32(ref + 1 * ref_stride);
-      __m128i p0_2 = xx_loadl_32(ref + 2 * ref_stride);
-      __m128i p0_3 = xx_loadl_32(ref + 3 * ref_stride);
+      __m128i p0_0 = xx_loadl_64(ref + 0 * ref_stride);
+      __m128i p0_1 = xx_loadl_64(ref + 1 * ref_stride);
+      __m128i p0_2 = xx_loadl_64(ref + 2 * ref_stride);
+      __m128i p0_3 = xx_loadl_64(ref + 3 * ref_stride);
       __m128i p0 = _mm_unpacklo_epi64(_mm_unpacklo_epi32(p0_0, p0_1),
                                       _mm_unpacklo_epi32(p0_2, p0_3));
       __m128i p1 = xx_loadu_128(pred);
