@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "de8c5db2_c3f1f6ed",
+        "filename": "av1/common/arm/cfl_neon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 209,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2018-04-06T23:45:45Z",
+      "side": 1,
+      "message": "I know this currently matches the rest of the code, but generally having side effects in your loop condition can confuse people. It probably would be better to do the add in its own statement inside the loop, and then just test the value against end in the while() condition afterwards.",
+      "revId": "e9b3ebc35d078d25b5c2e19be5dfcac68b5de07d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d081a04b_2564c7c9",
+        "filename": "av1/common/cfl.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2018-04-06T23:45:45Z",
+      "side": 1,
+      "message": "FYI, not an issue with this patch, but grammar-o: \"the an\".",
+      "revId": "e9b3ebc35d078d25b5c2e19be5dfcac68b5de07d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
