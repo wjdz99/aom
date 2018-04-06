@@ -9095,6 +9095,13 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
         continue;
     }
 
+    if (cpi->sf.mode_pruning_based_on_two_pass_partition_search &&
+        !x->cb_partition_scan) {
+      if (!x->ref0_candidate_mask[mbmi->ref_frame[0]] ||
+          !x->ref1_candidate_mask[mbmi->ref_frame[1]])
+        continue;
+    }
+
     if (ref_frame == INTRA_FRAME) {
       RD_STATS rd_stats_y;
       TX_SIZE uv_tx;
