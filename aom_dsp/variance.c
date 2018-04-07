@@ -1036,16 +1036,24 @@ void aom_highbd_comp_mask_upsampled_pred_c(
   uint16_t *pred = CONVERT_TO_SHORTPTR(pred8);
   aom_highbd_upsampled_pred(comp_pred, width, height, subpel_x_q3, subpel_y_q3,
                             ref8, ref_stride, bd);
-  for (i = 0; i < height; ++i) {
-    for (j = 0; j < width; ++j) {
-      if (!invert_mask)
-        comp_pred[j] = AOM_BLEND_A64(mask[j], comp_pred[j], pred[j]);
-      else
+  if (invert_mask) {
+    for (i = 0; i < height; ++i) {
+      for (j = 0; j < width; ++j) {
         comp_pred[j] = AOM_BLEND_A64(mask[j], pred[j], comp_pred[j]);
+      }
+      comp_pred += width;
+      pred += width;
+      mask += mask_stride;
     }
-    comp_pred += width;
-    pred += width;
-    mask += mask_stride;
+  } else {
+    for (i = 0; i < height; ++i) {
+      for (j = 0; j < width; ++j) {
+        comp_pred[j] = AOM_BLEND_A64(mask[j], comp_pred[j], pred[j]);
+      }
+      comp_pred += width;
+      pred += width;
+      mask += mask_stride;
+    }
   }
 }
 
