@@ -1122,7 +1122,6 @@ static void get_horver_correlation_full(const int16_t *diff, int stride, int w,
                                         int h, float *hcorr, float *vcorr) {
   const float num_hor = (float)(h * (w - 1));
   const float num_ver = (float)((h - 1) * w);
-  int i, j;
 
   // The following notation is used:
   // x - current pixel
@@ -1131,39 +1130,53 @@ static void get_horver_correlation_full(const int16_t *diff, int stride, int w,
   int64_t xy_sum = 0, xz_sum = 0;
   int64_t xhor_sum = 0, xver_sum = 0, y_sum = 0, z_sum = 0;
   int64_t x2hor_sum = 0, x2ver_sum = 0, y2_sum = 0, z2_sum = 0;
-
-  int16_t x, y, z;
-  for (j = 1; j < w; ++j) {
-    x = diff[j];
-    y = diff[j - 1];
-    xy_sum += x * y;
-    xhor_sum += x;
-    y_sum += y;
-    x2hor_sum += x * x;
-    y2_sum += y * y;
-  }
-  for (i = 1; i < h; ++i) {
-    x = diff[i * stride];
-    z = diff[(i - 1) * stride];
-    xz_sum += x * z;
-    xver_sum += x;
-    z_sum += z;
-    x2ver_sum += x * x;
-    z2_sum += z * z;
-    for (j = 1; j < w; ++j) {
-      x = diff[i * stride + j];
-      y = diff[i * stride + j - 1];
-      z = diff[(i - 1) * stride + j];
+  {
+    int x = diff[0];
+    for (int j = 1; j < w; ++j) {
+      int y = x;
+      x = diff[j];
       xy_sum += x * y;
-      xz_sum += x * z;
       xhor_sum += x;
-      xver_sum += x;
-      y_sum += y;
-      z_sum += z;
       x2hor_sum += x * x;
+    }
+    if (1 < w) {
+      int y = diff[0];
+      y_sum = y + xhor_sum - x;
+      y2_sum = y * y + x2hor_sum - x * x;
+    }
+  }
+  {
+    const int16_t *diffz = &diff[0];
+    for (int i = 1; i < h; ++i, diffz += stride) {
+      int z = diffz[0];
+      int x = diffz[stride];
+      xz_sum += x * z;
+      xver_sum += x;
+      z_sum += z;
       x2ver_sum += x * x;
-      y2_sum += y * y;
       z2_sum += z * z;
+      int x_sum = 0;
+      int64_t x2_sum = 0;
+      for (int j = 1; j < w; ++j) {
+        int y = x;
+        x = diffz[j + stride];
+        z = diffz[j];
+        x_sum += x;
+        z_sum += z;
+        x2_sum += x * x;
+        xy_sum += x * y;
+        xz_sum += x * z;
+        z2_sum += z * z;
+      }
+      if (1 < w) {
+        int y = diffz[stride];
+        y_sum += y + x_sum - x;
+        y2_sum += y * y + x2_sum - x * x;
+      }
+      xhor_sum += x_sum;
+      xver_sum += x_sum;
+      x2hor_sum += x2_sum;
+      x2ver_sum += x2_sum;
     }
   }
   const float xhor_var_n = x2hor_sum - (xhor_sum * xhor_sum) / num_hor;
