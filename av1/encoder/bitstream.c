@@ -2658,20 +2658,22 @@ void write_sequence_header(AV1_COMP *cpi, struct aom_write_bit_buffer *wb) {
   aom_wb_write_literal(wb, max_frame_height - 1, num_bits_height);
 
   /* Placeholder for actually writing to the bitstream */
-  seq_params->frame_id_numbers_present_flag =
-      cm->large_scale_tile ? 0 : cm->error_resilient_mode;
-  seq_params->frame_id_length = FRAME_ID_LENGTH;
-  seq_params->delta_frame_id_length = DELTA_FRAME_ID_LENGTH;
+  if (!seq_params->reduced_still_picture_hdr) {
+    seq_params->frame_id_numbers_present_flag =
+        cm->large_scale_tile ? 0 : cm->error_resilient_mode;
+    seq_params->frame_id_length = FRAME_ID_LENGTH;
+    seq_params->delta_frame_id_length = DELTA_FRAME_ID_LENGTH;
 
-  aom_wb_write_bit(wb, seq_params->frame_id_numbers_present_flag);
-  if (seq_params->frame_id_numbers_present_flag) {
-    // We must always have delta_frame_id_length < frame_id_length,
-    // in order for a frame to be referenced with a unique delta.
-    // Avoid wasting bits by using a coding that enforces this restriction.
-    aom_wb_write_literal(wb, seq_params->delta_frame_id_length - 2, 4);
-    aom_wb_write_literal(
-        wb, seq_params->frame_id_length - seq_params->delta_frame_id_length - 1,
-        3);
+    aom_wb_write_bit(wb, seq_params->frame_id_numbers_present_flag);
+    if (seq_params->frame_id_numbers_present_flag) {
+      // We must always have delta_frame_id_length < frame_id_length,
+      // in order for a frame to be referenced with a unique delta.
+      // Avoid wasting bits by using a coding that enforces this restriction.
+      aom_wb_write_literal(wb, seq_params->delta_frame_id_length - 2, 4);
+      aom_wb_write_literal(
+          wb, seq_params->frame_id_length - seq_params->delta_frame_id_length - 1,
+          3);
+    }
   }
 
   write_sb_size(seq_params, wb);
@@ -2679,38 +2681,38 @@ void write_sequence_header(AV1_COMP *cpi, struct aom_write_bit_buffer *wb) {
   aom_wb_write_bit(wb, seq_params->enable_filter_intra);
   aom_wb_write_bit(wb, seq_params->enable_intra_edge_filter);
 
-  aom_wb_write_bit(wb, seq_params->enable_interintra_compound);
-  aom_wb_write_bit(wb, seq_params->enable_masked_compound);
-  aom_wb_write_bit(wb, seq_params->enable_warped_motion);
-  aom_wb_write_bit(wb, seq_params->enable_dual_filter);
+  if (!seq_params->reduced_still_picture_hdr) {
+    aom_wb_write_bit(wb, seq_params->enable_interintra_compound);
+    aom_wb_write_bit(wb, seq_params->enable_masked_compound);
+    aom_wb_write_bit(wb, seq_params->enable_warped_motion);
+    aom_wb_write_bit(wb, seq_params->enable_dual_filter);
 
-  aom_wb_write_bit(wb, seq_params->enable_order_hint);
+    aom_wb_write_bit(wb, seq_params->enable_order_hint);
 
-  if (seq_params->enable_order_hint) {
-    aom_wb_write_bit(wb, seq_params->enable_jnt_comp);
-    aom_wb_write_bit(wb, seq_params->enable_ref_frame_mvs);
-  }
-
-  if (seq_params->force_screen_content_tools == 2) {
-    aom_wb_write_bit(wb, 1);
-  } else {
-    aom_wb_write_bit(wb, 0);
-    aom_wb_write_bit(wb, seq_params->force_screen_content_tools);
-  }
-
-  if (seq_params->force_screen_content_tools > 0) {
-    if (seq_params->force_integer_mv == 2) {
+    if (seq_params->enable_order_hint) {
+      aom_wb_write_bit(wb, seq_params->enable_jnt_comp);
+      aom_wb_write_bit(wb, seq_params->enable_ref_frame_mvs);
+    }
+    if (seq_params->force_screen_content_tools == 2) {
       aom_wb_write_bit(wb, 1);
     } else {
       aom_wb_write_bit(wb, 0);
-      aom_wb_write_bit(wb, seq_params->force_integer_mv);
+      aom_wb_write_bit(wb, seq_params->force_screen_content_tools);
     }
-  } else {
-    assert(seq_params->force_integer_mv == 2);
+    if (seq_params->force_screen_content_tools > 0) {
+      if (seq_params->force_integer_mv == 2) {
+        aom_wb_write_bit(wb, 1);
+      } else {
+        aom_wb_write_bit(wb, 0);
+        aom_wb_write_bit(wb, seq_params->force_integer_mv);
+      }
+    } else {
+      assert(seq_params->force_integer_mv == 2);
+    }
+    if (seq_params->enable_order_hint)
+      aom_wb_write_literal(wb, seq_params->order_hint_bits_minus1, 3);
   }
 
-  if (seq_params->enable_order_hint)
-    aom_wb_write_literal(wb, seq_params->order_hint_bits_minus1, 3);
   aom_wb_write_bit(wb, seq_params->enable_superres);
   aom_wb_write_bit(wb, seq_params->enable_cdef);
   aom_wb_write_bit(wb, seq_params->enable_restoration);
@@ -2819,56 +2821,63 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
   // NOTE: By default all coded frames to be used as a reference
   cm->is_reference_frame = 1;
 
-  if (cm->show_existing_frame) {
-    RefCntBuffer *const frame_bufs = cm->buffer_pool->frame_bufs;
-    const int frame_to_show = cm->ref_frame_map[cpi->existing_fb_idx_to_show];
+  if (cm->seq_params.still_picture) {
+    assert(cm->show_existing_frame == 0);
+    assert(cm->show_frame == 1);
+    assert(cm->frame_type == KEY_FRAME);
+  }
+  if (!cm->seq_params.reduced_still_picture_hdr) {
+    if (cm->show_existing_frame) {
+      RefCntBuffer *const frame_bufs = cm->buffer_pool->frame_bufs;
+      const int frame_to_show = cm->ref_frame_map[cpi->existing_fb_idx_to_show];
 
-    if (frame_to_show < 0 || frame_bufs[frame_to_show].ref_count < 1) {
-      aom_internal_error(&cm->error, AOM_CODEC_UNSUP_BITSTREAM,
-                         "Buffer %d does not contain a reconstructed frame",
-                         frame_to_show);
+      if (frame_to_show < 0 || frame_bufs[frame_to_show].ref_count < 1) {
+        aom_internal_error(&cm->error, AOM_CODEC_UNSUP_BITSTREAM,
+                           "Buffer %d does not contain a reconstructed frame",
+                           frame_to_show);
+      }
+      ref_cnt_fb(frame_bufs, &cm->new_fb_idx, frame_to_show);
+
+      aom_wb_write_bit(wb, 1);  // show_existing_frame
+      aom_wb_write_literal(wb, cpi->existing_fb_idx_to_show, 3);
+
+      if (cm->seq_params.frame_id_numbers_present_flag) {
+        int frame_id_len = cm->seq_params.frame_id_length;
+        int display_frame_id = cm->ref_frame_id[cpi->existing_fb_idx_to_show];
+        aom_wb_write_literal(wb, display_frame_id, frame_id_len);
+      }
+
+      if (cm->reset_decoder_state &&
+          frame_bufs[frame_to_show].frame_type != KEY_FRAME) {
+        aom_internal_error(
+            &cm->error, AOM_CODEC_UNSUP_BITSTREAM,
+            "show_existing_frame to reset state on KEY_FRAME only");
+      }
+
+      return;
+    } else {
+      aom_wb_write_bit(wb, 0);  // show_existing_frame
     }
-    ref_cnt_fb(frame_bufs, &cm->new_fb_idx, frame_to_show);
 
-    aom_wb_write_bit(wb, 1);  // show_existing_frame
-    aom_wb_write_literal(wb, cpi->existing_fb_idx_to_show, 3);
+    cm->frame_type = cm->intra_only ? INTRA_ONLY_FRAME : cm->frame_type;
+    aom_wb_write_literal(wb, cm->frame_type, 2);
 
-    if (cm->seq_params.frame_id_numbers_present_flag) {
-      int frame_id_len = cm->seq_params.frame_id_length;
-      int display_frame_id = cm->ref_frame_id[cpi->existing_fb_idx_to_show];
-      aom_wb_write_literal(wb, display_frame_id, frame_id_len);
+    if (cm->intra_only) cm->frame_type = INTRA_ONLY_FRAME;
+
+    aom_wb_write_bit(wb, cm->show_frame);
+    if (!cm->show_frame) {
+      aom_wb_write_bit(wb, cm->showable_frame);
     }
-
-    if (cm->reset_decoder_state &&
-        frame_bufs[frame_to_show].frame_type != KEY_FRAME) {
-      aom_internal_error(
-          &cm->error, AOM_CODEC_UNSUP_BITSTREAM,
-          "show_existing_frame to reset state on KEY_FRAME only");
+    if (frame_is_sframe(cm)) {
+      assert(cm->error_resilient_mode);
+    } else {
+      aom_wb_write_bit(wb, cm->error_resilient_mode);
     }
-
-    return;
-  } else {
-    aom_wb_write_bit(wb, 0);  // show_existing_frame
+    aom_wb_write_bit(wb, cm->disable_cdf_update);
   }
 
-  cm->frame_type = cm->intra_only ? INTRA_ONLY_FRAME : cm->frame_type;
-  aom_wb_write_literal(wb, cm->frame_type, 2);
-
-  if (cm->intra_only) cm->frame_type = INTRA_ONLY_FRAME;
-
-  aom_wb_write_bit(wb, cm->show_frame);
-  if (!cm->show_frame) {
-    aom_wb_write_bit(wb, cm->showable_frame);
-  }
-  if (frame_is_sframe(cm)) {
-    assert(cm->error_resilient_mode);
-  } else {
-    aom_wb_write_bit(wb, cm->error_resilient_mode);
-  }
-
-  aom_wb_write_bit(wb, cm->disable_cdf_update);
-
-  if (cm->seq_params.force_screen_content_tools == 2) {
+  if (cm->seq_params.force_screen_content_tools == 2 ||
+      cm->seq_params.reduced_still_picture_hdr) {
     aom_wb_write_bit(wb, cm->allow_screen_content_tools);
   } else {
     assert(cm->allow_screen_content_tools ==
@@ -2876,7 +2885,8 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
   }
 
   if (cm->allow_screen_content_tools) {
-    if (cm->seq_params.force_integer_mv == 2) {
+    if (cm->seq_params.force_integer_mv == 2 ||
+        cm->seq_params.reduced_still_picture_hdr) {
       aom_wb_write_bit(wb, cm->cur_frame_force_integer_mv);
     } else {
       assert(cm->cur_frame_force_integer_mv == cm->seq_params.force_integer_mv);
@@ -2886,30 +2896,33 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
   }
 
   cm->invalid_delta_frame_id_minus1 = 0;
-  if (cm->seq_params.frame_id_numbers_present_flag) {
-    int frame_id_len = cm->seq_params.frame_id_length;
-    aom_wb_write_literal(wb, cm->current_frame_id, frame_id_len);
-  }
+  int frame_size_override_flag = 1;
+  if (!cm->seq_params.reduced_still_picture_hdr) {
+    if (cm->seq_params.frame_id_numbers_present_flag) {
+      int frame_id_len = cm->seq_params.frame_id_length;
+      aom_wb_write_literal(wb, cm->current_frame_id, frame_id_len);
+    }
 
-  if (cm->width > cm->seq_params.max_frame_width ||
-      cm->height > cm->seq_params.max_frame_height) {
-    aom_internal_error(&cm->error, AOM_CODEC_UNSUP_BITSTREAM,
-                       "Frame dimensions are larger than the maximum values");
-  }
+    if (cm->width > cm->seq_params.max_frame_width ||
+        cm->height > cm->seq_params.max_frame_height) {
+      aom_internal_error(&cm->error, AOM_CODEC_UNSUP_BITSTREAM,
+                         "Frame dimensions are larger than the maximum values");
+    }
 
-  int frame_size_override_flag =
-      frame_is_sframe(cm) ? 1
-                          : (cm->width != cm->seq_params.max_frame_width ||
-                             cm->height != cm->seq_params.max_frame_height);
-  if (!frame_is_sframe(cm)) aom_wb_write_bit(wb, frame_size_override_flag);
+    frame_size_override_flag =
+        frame_is_sframe(cm) ? 1
+        : (cm->width != cm->seq_params.max_frame_width ||
+           cm->height != cm->seq_params.max_frame_height);
+    if (!frame_is_sframe(cm)) aom_wb_write_bit(wb, frame_size_override_flag);
 
-  cm->frame_refs_short_signaling = 0;
+    cm->frame_refs_short_signaling = 0;
 
-  aom_wb_write_literal(wb, cm->frame_offset,
-                       cm->seq_params.order_hint_bits_minus1 + 1);
+    aom_wb_write_literal(wb, cm->frame_offset,
+                         cm->seq_params.order_hint_bits_minus1 + 1);
 
-  if (!cm->error_resilient_mode && !frame_is_intra_only(cm)) {
-    aom_wb_write_literal(wb, cm->primary_ref_frame, PRIMARY_REF_BITS);
+    if (!cm->error_resilient_mode && !frame_is_intra_only(cm)) {
+      aom_wb_write_literal(wb, cm->primary_ref_frame, PRIMARY_REF_BITS);
+    }
   }
 
   if (cm->frame_type == KEY_FRAME) {
@@ -3044,17 +3057,15 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
         aom_wb_write_bit(wb, cm->allow_ref_frame_mvs);
       }
     }
-  }
+    if (cm->seq_params.frame_id_numbers_present_flag)
+      cm->refresh_mask = get_refresh_mask(cpi);
+    const int might_bwd_adapt =
+        !(cm->large_scale_tile) && !(cm->disable_cdf_update);
 
-  if (cm->seq_params.frame_id_numbers_present_flag)
-    cm->refresh_mask = get_refresh_mask(cpi);
-
-  const int might_bwd_adapt =
-      !(cm->large_scale_tile) && !(cm->disable_cdf_update);
-
-  if (might_bwd_adapt) {
-    aom_wb_write_bit(
-        wb, cm->refresh_frame_context == REFRESH_FRAME_CONTEXT_DISABLED);
+    if (might_bwd_adapt) {
+      aom_wb_write_bit(
+          wb, cm->refresh_frame_context == REFRESH_FRAME_CONTEXT_DISABLED);
+    }
   }
 
   write_tile_info(cm, saved_wb, wb);
@@ -3326,6 +3337,10 @@ static uint32_t write_sequence_header_obu(AV1_COMP *cpi, uint8_t *const dst,
 
   // Still picture or not
   aom_wb_write_bit(&wb, cm->seq_params.still_picture);
+  assert(IMPLIES(!cm->seq_params.still_picture,
+                 !cm->seq_params.reduced_still_picture_hdr));
+  // whether to use reduced still picture header
+  aom_wb_write_bit(&wb, cm->seq_params.reduced_still_picture_hdr);
 
   uint8_t operating_points_minus1_cnt = enhancement_layers_cnt;
   aom_wb_write_literal(&wb, operating_points_minus1_cnt, 5);
