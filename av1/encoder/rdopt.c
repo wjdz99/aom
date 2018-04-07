@@ -6710,7 +6710,7 @@ static INLINE int clamp_and_check_mv(int_mv *out_mv, int_mv in_mv,
 
 static int64_t handle_newmv(const AV1_COMP *const cpi, MACROBLOCK *const x,
                             const BLOCK_SIZE bsize,
-                            int_mv (*const mode_mv)[REF_FRAMES],
+                            int_mv (*const mode_mv)[REF_FRAMES], int_mv *cur_mv,
                             const int mi_row, const int mi_col,
                             int *const rate_mv, int_mv *const single_newmv,
                             HandleInterModeArgs *const args) {
@@ -6747,6 +6747,8 @@ static int64_t handle_newmv(const AV1_COMP *const cpi, MACROBLOCK *const x,
               x->nmvjointcost, x->mvcost, MV_COST_WEIGHT);
         }
       }
+      cur_mv[0].as_int = frame_mv[refs[0]].as_int;
+      cur_mv[1].as_int = frame_mv[refs[1]].as_int;
     } else if (this_mode == NEAREST_NEWMV || this_mode == NEAR_NEWMV) {
       frame_mv[refs[1]].as_int = single_newmv[refs[1]].as_int;
       if (cpi->sf.comp_inter_joint_search_thresh <= bsize) {
@@ -6761,6 +6763,8 @@ static int64_t handle_newmv(const AV1_COMP *const cpi, MACROBLOCK *const x,
                                    &mbmi_ext->ref_mvs[refs[1]][0].as_mv,
                                    x->nmvjointcost, x->mvcost, MV_COST_WEIGHT);
       }
+      cur_mv[0].as_int = frame_mv[refs[0]].as_int;
+      cur_mv[1].as_int = frame_mv[refs[1]].as_int;
     } else {
       assert(this_mode == NEW_NEARESTMV || this_mode == NEW_NEARMV);
       frame_mv[refs[0]].as_int = single_newmv[refs[0]].as_int;
@@ -6776,6 +6780,8 @@ static int64_t handle_newmv(const AV1_COMP *const cpi, MACROBLOCK *const x,
                                    &mbmi_ext->ref_mvs[refs[0]][0].as_mv,
                                    x->nmvjointcost, x->mvcost, MV_COST_WEIGHT);
       }
+      cur_mv[0].as_int = frame_mv[refs[0]].as_int;
+      cur_mv[0].as_int = frame_mv[refs[0]].as_int;
     }
   } else {
     single_motion_search(cpi, x, bsize, mi_row, mi_col, 0, rate_mv);
@@ -6786,6 +6792,7 @@ static int64_t handle_newmv(const AV1_COMP *const cpi, MACROBLOCK *const x,
     args->single_newmv_valid[refs[0]] = 1;
 
     frame_mv[refs[0]] = x->best_mv;
+    cur_mv[0].as_int = frame_mv[refs[0]].as_int;
 
     // Estimate the rate implications of a new mv but discount this
     // under certain circumstances where we want to help initiate a weak
@@ -7474,6 +7481,75 @@ static int64_t skip_mode_rd(const AV1_COMP *const cpi, MACROBLOCK *const x,
   return 0;
 }
 
+static INLINE int build_cur_mv(int_mv *cur_mv, int this_mode,
+                               const int_mv *frame_mv, const AV1_COMMON *cm,
+                               const MACROBLOCK *x) {
+  const MACROBLOCKD *const xd = &x->e_mbd;
+  const MB_MODE_INFO *const mbmi = xd->mi[0];
+  const uint8_t ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
+  const MB_MODE_INFO_EXT *const mbmi_ext = x->mbmi_ext;
+  const int is_comp_pred = has_second_ref(mbmi);
+  for (int i = 0; i < is_comp_pred + 1; ++i) {
+    cur_mv[i] = frame_mv[mbmi->ref_frame[i]];
+    // Clip "next_nearest" so that it does not extend to far out of image
+    if (this_mode != NEWMV) clamp_mv2(&cur_mv[i].as_mv, xd);
+    if (mv_check_bounds(&x->mv_limits, &cur_mv[i].as_mv)) {
+      return 0;
+    }
+  }
+  if (this_mode == NEAREST_NEARESTMV) {
+    if (mbmi_ext->ref_mv_count[ref_frame_type] > 0) {
+      int ret = clamp_and_check_mv(
+          &cur_mv[0], mbmi_ext->ref_mv_stack[ref_frame_type][0].this_mv, cm, x);
+      ret &= clamp_and_check_mv(
+          &cur_mv[1], mbmi_ext->ref_mv_stack[ref_frame_type][0].comp_mv, cm, x);
+      if (!ret) {
+        return 0;
+      }
+    }
+  }
+
+  if (mbmi_ext->ref_mv_count[ref_frame_type] > 0) {
+    if (this_mode == NEAREST_NEWMV) {
+      const int ret = clamp_and_check_mv(
+          &cur_mv[0], mbmi_ext->ref_mv_stack[ref_frame_type][0].this_mv, cm, x);
+      if (!ret) {
+        return 0;
+      }
+    }
+
+    if (this_mode == NEW_NEARESTMV) {
+      const int ret = clamp_and_check_mv(
+          &cur_mv[1], mbmi_ext->ref_mv_stack[ref_frame_type][0].comp_mv, cm, x);
+      if (!ret) {
+        return 0;
+      }
+    }
+  }
+
+  if (mbmi_ext->ref_mv_count[ref_frame_type] > 1) {
+    int ref_mv_idx = mbmi->ref_mv_idx + 1;
+    if (this_mode == NEAR_NEWMV || this_mode == NEAR_NEARMV) {
+      const int ret = clamp_and_check_mv(
+          &cur_mv[0],
+          mbmi_ext->ref_mv_stack[ref_frame_type][ref_mv_idx].this_mv, cm, x);
+      if (!ret) {
+        return 0;
+      }
+    }
+
+    if (this_mode == NEW_NEARMV || this_mode == NEAR_NEARMV) {
+      const int ret = clamp_and_check_mv(
+          &cur_mv[1],
+          mbmi_ext->ref_mv_stack[ref_frame_type][ref_mv_idx].comp_mv, cm, x);
+      if (!ret) {
+        return 0;
+      }
+    }
+  }
+  return 1;
+}
+
 static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
                                  BLOCK_SIZE bsize, RD_STATS *rd_stats,
                                  RD_STATS *rd_stats_y, RD_STATS *rd_stats_uv,
@@ -7492,12 +7568,10 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   int i;
   int refs[2] = { mbmi->ref_frame[0],
                   (mbmi->ref_frame[1] < 0 ? 0 : mbmi->ref_frame[1]) };
-  int_mv cur_mv[2];
   int rate_mv = 0;
   int pred_exists = 1;
   const int bw = block_size_wide[bsize];
   int_mv single_newmv[REF_FRAMES];
-  const uint8_t ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
   DECLARE_ALIGNED(32, uint8_t, tmp_buf_[2 * MAX_MB_PLANE * MAX_SB_SQUARE]);
   uint8_t *tmp_buf;
   int64_t rd = INT64_MAX;
@@ -7573,9 +7647,10 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
       rd_stats->rate += x->comp_idx_cost[comp_index_ctx][0];
     }
 
+    int_mv cur_mv[2];
     if (have_newmv_in_inter_mode(this_mode)) {
-      ret_val = handle_newmv(cpi, x, bsize, mode_mv, mi_row, mi_col, &rate_mv,
-                             single_newmv, args);
+      ret_val = handle_newmv(cpi, x, bsize, mode_mv, cur_mv, mi_row, mi_col,
+                             &rate_mv, single_newmv, args);
       if (ret_val != 0) {
         early_terminate = INT64_MAX;
         continue;
@@ -7583,87 +7658,12 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
         rd_stats->rate += rate_mv;
       }
     }
+    if (!build_cur_mv(cur_mv, this_mode, frame_mv, cm, x)) {
+      early_terminate = INT64_MAX;
+      continue;
+    }
     for (i = 0; i < is_comp_pred + 1; ++i) {
-      cur_mv[i] = frame_mv[refs[i]];
-      // Clip "next_nearest" so that it does not extend to far out of image
-      if (this_mode != NEWMV) clamp_mv2(&cur_mv[i].as_mv, xd);
-      if (mv_check_bounds(&x->mv_limits, &cur_mv[i].as_mv)) {
-        early_terminate = INT64_MAX;
-        continue;
-      }
       mbmi->mv[i].as_int = cur_mv[i].as_int;
-    }
-
-    if (this_mode == NEAREST_NEARESTMV) {
-      if (mbmi_ext->ref_mv_count[ref_frame_type] > 0) {
-        int ret = 1;
-        ret &= clamp_and_check_mv(
-            &cur_mv[0], mbmi_ext->ref_mv_stack[ref_frame_type][0].this_mv, cm,
-            x);
-        ret &= clamp_and_check_mv(
-            &cur_mv[1], mbmi_ext->ref_mv_stack[ref_frame_type][0].comp_mv, cm,
-            x);
-        if (ret) {
-          mbmi->mv[0].as_int = cur_mv[0].as_int;
-          mbmi->mv[1].as_int = cur_mv[1].as_int;
-        } else {
-          early_terminate = INT64_MAX;
-          continue;
-        }
-      }
-    }
-
-    if (mbmi_ext->ref_mv_count[ref_frame_type] > 0) {
-      if (this_mode == NEAREST_NEWMV) {
-        const int ret = clamp_and_check_mv(
-            &cur_mv[0], mbmi_ext->ref_mv_stack[ref_frame_type][0].this_mv, cm,
-            x);
-        if (ret) {
-          mbmi->mv[0].as_int = cur_mv[0].as_int;
-        } else {
-          early_terminate = INT64_MAX;
-          continue;
-        }
-      }
-
-      if (this_mode == NEW_NEARESTMV) {
-        const int ret = clamp_and_check_mv(
-            &cur_mv[1], mbmi_ext->ref_mv_stack[ref_frame_type][0].comp_mv, cm,
-            x);
-        if (ret) {
-          mbmi->mv[1].as_int = cur_mv[1].as_int;
-        } else {
-          early_terminate = INT64_MAX;
-          continue;
-        }
-      }
-    }
-
-    if (mbmi_ext->ref_mv_count[ref_frame_type] > 1) {
-      int ref_mv_idx = mbmi->ref_mv_idx + 1;
-      if (this_mode == NEAR_NEWMV || this_mode == NEAR_NEARMV) {
-        const int ret = clamp_and_check_mv(
-            &cur_mv[0],
-            mbmi_ext->ref_mv_stack[ref_frame_type][ref_mv_idx].this_mv, cm, x);
-        if (ret) {
-          mbmi->mv[0].as_int = cur_mv[0].as_int;
-        } else {
-          early_terminate = INT64_MAX;
-          continue;
-        }
-      }
-
-      if (this_mode == NEW_NEARMV || this_mode == NEAR_NEARMV) {
-        const int ret = clamp_and_check_mv(
-            &cur_mv[1],
-            mbmi_ext->ref_mv_stack[ref_frame_type][ref_mv_idx].comp_mv, cm, x);
-        if (ret) {
-          mbmi->mv[1].as_int = cur_mv[1].as_int;
-        } else {
-          early_terminate = INT64_MAX;
-          continue;
-        }
-      }
     }
 
     // Initialise tmp_dst and orig_dst buffers to prevent "may be used
