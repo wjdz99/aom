@@ -506,7 +506,9 @@ static aom_codec_err_t decoder_decode(aom_codec_alg_priv_t *ctx,
       data_start += frame_size;
     }
   } else {
+    int n_frms = 0;
     while (data_start < data_end) {
+      n_frms++;
       if (ctx->is_annexb) {
         // read the size of this frame unit
         size_t length_of_size;
@@ -529,6 +531,7 @@ static aom_codec_err_t decoder_decode(aom_codec_alg_priv_t *ctx,
         ++data_start;
       }
     }
+      printf("n_frames: %d\n", n_frms);
   }
 
   return res;
