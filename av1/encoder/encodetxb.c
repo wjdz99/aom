@@ -1325,7 +1325,7 @@ static INLINE void update_coeff_simple(
   }
 }
 
-static INLINE void update_coeff_eob(
+static AOM_FORCE_INLINE void update_coeff_eob(
     int *accu_rate, int64_t *accu_dist, int *eob, int *nz_num, int *nz_ci,
     int si, TX_SIZE tx_size, TX_CLASS tx_class, int bwl, int height,
     int dc_sign_ctx, int64_t rdmult, int shift, const int16_t *dequant,
@@ -1534,11 +1534,22 @@ int av1_optimize_txb_new(const struct AV1_COMP *cpi, MACROBLOCK *x, int plane,
     --si;
   }
 
-  for (; si >= 0 && nz_num <= max_nz_num; --si) {
-    update_coeff_eob(&accu_rate, &accu_dist, &eob, &nz_num, nz_ci, si, tx_size,
-                     tx_class, bwl, height, txb_ctx->dc_sign_ctx, rdmult, shift,
-                     dequant, scan, txb_eob_costs, txb_costs, tcoeff, qcoeff,
-                     dqcoeff, levels);
+#define UPDATE_COEFF_EOB_CASE(tx_class_literal)                            \
+  case tx_class_literal:                                                   \
+    for (; si >= 0 && nz_num <= max_nz_num; --si) {                        \
+      update_coeff_eob(&accu_rate, &accu_dist, &eob, &nz_num, nz_ci, si,   \
+                       tx_size, tx_class_literal, bwl, height,             \
+                       txb_ctx->dc_sign_ctx, rdmult, shift, dequant, scan, \
+                       txb_eob_costs, txb_costs, tcoeff, qcoeff, dqcoeff,  \
+                       levels);                                            \
+    }                                                                      \
+    break;
+  switch (tx_class) {
+    UPDATE_COEFF_EOB_CASE(TX_CLASS_2D);
+    UPDATE_COEFF_EOB_CASE(TX_CLASS_HORIZ);
+    UPDATE_COEFF_EOB_CASE(TX_CLASS_VERT);
+#undef UPDATE_COEFF_EOB_CASE
+    default: assert(false);
   }
 
   if (si == -1 && nz_num <= max_nz_num) {
