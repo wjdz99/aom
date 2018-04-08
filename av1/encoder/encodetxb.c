@@ -695,40 +695,74 @@ int av1_cost_coeffs_txb(const AV1_COMMON *const cm, const MACROBLOCK *x,
 
   av1_get_nz_map_contexts(levels, scan, eob, tx_size, tx_class, coeff_contexts);
 
-  for (int c = eob - 1; c >= 0; --c) {
+  const int(*lps_cost)[COEFF_BASE_RANGE + 1] = coeff_costs->lps_cost;
+  int c = eob - 1;
+  if (c >= 0) {
     const int pos = scan[c];
     const tran_low_t v = qcoeff[pos];
-    const int is_nz = (v != 0);
-    const int level = abs(v);
+    const int sign = v >> 31;
+    const int level = (v ^ sign) - sign;
     const int coeff_ctx = coeff_contexts[pos];
-    if (c == eob - 1) {
-      cost += coeff_costs->base_eob_cost[coeff_ctx][AOMMIN(level, 3) - 1];
-    } else {
-      cost += coeff_costs->base_cost[coeff_ctx][AOMMIN(level, 3)];
-    }
+    cost += coeff_costs->base_eob_cost[coeff_ctx][AOMMIN(level, 3) - 1];
 
-    if (is_nz) {
-      const int sign = (v < 0) ? 1 : 0;
-
+    if (v) {
       // sign bit cost
-      if (c == 0) {
-        const int dc_sign_ctx = txb_ctx->dc_sign_ctx;
-        cost += coeff_costs->dc_sign_cost[dc_sign_ctx][sign];
-      } else {
-        cost += av1_cost_literal(1);
-      }
       if (level > NUM_BASE_LEVELS) {
         const int ctx = get_br_ctx(levels, pos, bwl, tx_class);
-        const int base_range = level - 1 - NUM_BASE_LEVELS;
-        if (base_range < COEFF_BASE_RANGE) {
-          cost += coeff_costs->lps_cost[ctx][base_range];
-        } else {
-          cost += coeff_costs->lps_cost[ctx][COEFF_BASE_RANGE];
-        }
+        const int base_range =
+            AOMMIN(level - 1 - NUM_BASE_LEVELS, COEFF_BASE_RANGE);
+        cost += lps_cost[ctx][base_range];
+        cost += get_golomb_cost(level);
+      }
+      if (c) {
+        cost += av1_cost_literal(1);
+      } else {
+        const int sign01 = (sign ^ sign) - sign;
+        const int dc_sign_ctx = txb_ctx->dc_sign_ctx;
+        cost += coeff_costs->dc_sign_cost[dc_sign_ctx][sign01];
+        return cost;
+      }
+    }
+  }
+  const int(*base_cost)[4] = coeff_costs->base_cost;
+  for (c = eob - 2; c >= 1; --c) {
+    const int pos = scan[c];
+    const int coeff_ctx = coeff_contexts[pos];
+    const tran_low_t v = qcoeff[pos];
+    const int level = abs(v);
+    const int cost0 = base_cost[coeff_ctx][AOMMIN(level, 3)];
+    if (v) {
+      // sign bit cost
+      cost += av1_cost_literal(1);
+      if (level > NUM_BASE_LEVELS) {
+        const int ctx = get_br_ctx(levels, pos, bwl, tx_class);
+        const int base_range =
+            AOMMIN(level - 1 - NUM_BASE_LEVELS, COEFF_BASE_RANGE);
+        cost += lps_cost[ctx][base_range];
+        cost += get_golomb_cost(level);
+      }
+    }
+    cost += cost0;
+  }
+  if (c == 0) {
+    const int pos = scan[c];
+    const tran_low_t v = qcoeff[pos];
+    const int coeff_ctx = coeff_contexts[pos];
+    const int sign = v >> 31;
+    const int level = (v ^ sign) - sign;
+    cost += base_cost[coeff_ctx][AOMMIN(level, 3)];
 
-        if (level >= 1 + NUM_BASE_LEVELS + COEFF_BASE_RANGE) {
-          cost += get_golomb_cost(level);
-        }
+    if (v) {
+      // sign bit cost
+      const int sign01 = (sign ^ sign) - sign;
+      const int dc_sign_ctx = txb_ctx->dc_sign_ctx;
+      cost += coeff_costs->dc_sign_cost[dc_sign_ctx][sign01];
+      if (level > NUM_BASE_LEVELS) {
+        const int ctx = get_br_ctx(levels, pos, bwl, tx_class);
+        const int base_range =
+            AOMMIN(level - 1 - NUM_BASE_LEVELS, COEFF_BASE_RANGE);
+        cost += lps_cost[ctx][base_range];
+        cost += get_golomb_cost(level);
       }
     }
   }
