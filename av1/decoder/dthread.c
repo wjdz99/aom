@@ -41,7 +41,7 @@ void av1_frameworker_signal_stats(AVxWorker *const worker) {
   FrameWorkerData *const worker_data = worker->data1;
 
 // TODO(hkuang): Fix the pthread_cond_broadcast in windows wrapper.
-#if defined(_WIN32) && !HAVE_PTHREAD_H
+#if defined(_WIN32)
   pthread_cond_signal(&worker_data->stats_cond);
 #else
   pthread_cond_broadcast(&worker_data->stats_cond);

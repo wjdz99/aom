@@ -188,7 +188,9 @@ fix_experiment_configs()
 # Test compiler support.
 aom_get_inline("INLINE")
 
-aom_check_source_compiles("pthread_check" "#include <pthread.h>" HAVE_PTHREAD_H)
+if (NOT WIN32)
+  aom_check_source_compiles("pthread_check" "#include <pthread.h>" HAVE_PTHREAD_H)
+endif()
 aom_check_source_compiles("unistd_check" "#include <unistd.h>" HAVE_UNISTD_H)
 
 if (NOT MSVC)
