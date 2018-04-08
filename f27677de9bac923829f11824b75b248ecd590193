@@ -70,6 +70,30 @@
       "revId": "f27677de9bac923829f11824b75b248ecd590193",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8b1e90c4_d0afaa6e",
+        "filename": "av1/encoder/hash_motion.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 8900
+      },
+      "writtenOn": "2018-04-08T05:12:45Z",
+      "side": 1,
+      "message": "Done, uploaded another CL, which keep hash-motion feature unchanged, but use CRC32C in other places.\nhttps://aomedia-review.googlesource.com/c/aom/+/54881",
+      "parentUuid": "991bc4d5_de0e4afa",
+      "range": {
+        "startLine": 98,
+        "startChar": 3,
+        "endLine": 99,
+        "endChar": 46
+      },
+      "revId": "f27677de9bac923829f11824b75b248ecd590193",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
