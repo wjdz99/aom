@@ -2272,7 +2272,8 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
     }
 
 #if COLLECT_RD_STATS == 1
-    if (plane == 0) {
+    if (plane == 0 && this_rd_stats.rate != INT_MAX &&
+        this_rd_stats.dist != INT64_MAX) {
       PrintTransformUnitStats(cpi, x, &this_rd_stats, blk_row, blk_col,
                               plane_bsize, tx_size, tx_type);
     }
