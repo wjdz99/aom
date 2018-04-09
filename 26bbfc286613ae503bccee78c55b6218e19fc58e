@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e13fbb79_24672800",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2278,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2018-04-09T23:18:01Z",
+      "side": 1,
+      "message": "it may be better to have this check inside the PrintTransformUnitStats() function. Also you can add: this_rd_stats.rdcost !\u003d INT64_MAX",
+      "revId": "26bbfc286613ae503bccee78c55b6218e19fc58e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
