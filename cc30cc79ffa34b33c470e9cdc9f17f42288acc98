@@ -22,6 +22,30 @@
       "revId": "cc30cc79ffa34b33c470e9cdc9f17f42288acc98",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "76ad3ab7_d15844ef",
+        "filename": "av1/encoder/av1_quantize.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 9370
+      },
+      "writtenOn": "2018-04-09T17:17:07Z",
+      "side": 0,
+      "message": "Thank you for letting me know the problem.",
+      "parentUuid": "a81b3b17_ce28d789",
+      "range": {
+        "startLine": 133,
+        "startChar": 2,
+        "endLine": 134,
+        "endChar": 55
+      },
+      "revId": "cc30cc79ffa34b33c470e9cdc9f17f42288acc98",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
