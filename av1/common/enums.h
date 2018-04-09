@@ -109,6 +109,8 @@ typedef enum BITSTREAM_PROFILE {
   MAX_PROFILES,
 } BITSTREAM_PROFILE;
 
+#define LEVEL_BITS 4
+
 // Note: Some enums use the attribute 'packed' to use smallest possible integer
 // type, so that we can save memory when they are used in structs/arrays.
 
