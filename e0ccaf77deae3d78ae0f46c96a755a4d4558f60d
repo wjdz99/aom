@@ -16,6 +16,24 @@
       "revId": "e0ccaf77deae3d78ae0f46c96a755a4d4558f60d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3dcddf20_3fddae34",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2174,
+      "author": {
+        "id": 5975
+      },
+      "writtenOn": "2018-04-09T15:34:25Z",
+      "side": 1,
+      "message": "That depends if we want to make it a bitstream conformance requirement.\n\nThe behaviour with this patch is well-defined - \"non-showable frames are usable as film grain references, and are treated as having apply_grain\u003d0\". The advantage of this is that we don\u0027t need a bitstream conformance requirement in the spec. With your suggestion, it would simplify some other things but we\u0027d need to add a conformance requirement.\n\nI\u0027m happy either way, it\u0027s just worth thinking about the trade-off.\n\n\nNote also that we\u0027d probably want to rename cm-\u003ecur_frame-\u003efilm_grain_params_present, since there\u0027s also a sequence-level parameter cm-\u003efilm_grain_params_present. Currently they\u0027re equivalent, but with your proposal they\u0027d have different meanings.",
+      "parentUuid": "e3f42ac5_50849789",
+      "revId": "e0ccaf77deae3d78ae0f46c96a755a4d4558f60d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
