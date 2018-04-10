@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "0691521c_243d10dd",
+        "filename": "aom_dsp/x86/sum_squares_sse2.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 8900
+      },
+      "writtenOn": "2018-04-10T08:18:47Z",
+      "side": 1,
+      "message": "Yes, you are right, done.",
+      "parentUuid": "b616a19a_73be2ead",
+      "range": {
+        "startLine": 52,
+        "startChar": 40,
+        "endLine": 52,
+        "endChar": 42
+      },
+      "revId": "dfd0faee9e6d59ffc07ec2de04019fa447d48b72",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8ca18f41_5ac3bdbf",
         "filename": "aom_dsp/x86/sum_squares_sse2.c",
         "patchSetId": 4
@@ -45,6 +69,30 @@
       "revId": "dfd0faee9e6d59ffc07ec2de04019fa447d48b72",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c669ed84_d162ad4d",
+        "filename": "aom_dsp/x86/sum_squares_sse2.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 8900
+      },
+      "writtenOn": "2018-04-10T08:18:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8ca18f41_5ac3bdbf",
+      "range": {
+        "startLine": 55,
+        "startChar": 32,
+        "endLine": 55,
+        "endChar": 43
+      },
+      "revId": "dfd0faee9e6d59ffc07ec2de04019fa447d48b72",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
