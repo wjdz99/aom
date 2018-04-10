@@ -3524,23 +3524,9 @@ static uint32_t write_sequence_header_obu(AV1_COMP *cpi, uint8_t *const dst,
 static uint32_t write_frame_header_obu(AV1_COMP *cpi,
                                        struct aom_write_bit_buffer *saved_wb,
                                        uint8_t *const dst) {
-  AV1_COMMON *const cm = &cpi->common;
   struct aom_write_bit_buffer wb = { dst, 0 };
-  uint32_t total_size = 0;
-  uint32_t uncompressed_hdr_size;
-
   write_uncompressed_header_obu(cpi, saved_wb, &wb);
-
-  add_trailing_bits(&wb);
-
-  if (cm->show_existing_frame) {
-    total_size = aom_wb_bytes_written(&wb);
-    return total_size;
-  }
-
-  uncompressed_hdr_size = aom_wb_bytes_written(&wb);
-  total_size = uncompressed_hdr_size;
-  return total_size;
+  return aom_wb_bytes_written(&wb);
 }
 
 static uint32_t write_tile_group_header(uint8_t *const dst, int startTile,

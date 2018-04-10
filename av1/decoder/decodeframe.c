@@ -3269,8 +3269,6 @@ int av1_decode_frame_headers_and_setup(AV1Decoder *pbi,
 
   read_uncompressed_header(pbi, rb);
 
-  av1_check_trailing_bits(pbi, rb);
-
   // If cm->single_tile_decoding = 0, the independent decoding of a single tile
   // or a section of a frame is not allowed.
   if (!cm->single_tile_decoding &&
