@@ -282,7 +282,7 @@ static int read_segment_id(AV1_COMMON *const cm, MACROBLOCKD *const xd,
   if (skip) return pred;
 
   aom_cdf_prob *pred_cdf = segp->spatial_pred_seg_cdf[cdf_num];
-  int coded_id = aom_read_symbol(r, pred_cdf, 8, ACCT_STR);
+  int coded_id = aom_read_symbol(r, pred_cdf, MAX_SEGMENTS, ACCT_STR);
   const int segment_id =
       av1_neg_deinterleave(coded_id, pred, seg->last_active_segid + 1);
 
