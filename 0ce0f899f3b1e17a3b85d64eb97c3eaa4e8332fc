@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "c888ee55_a6e9c9b8",
+        "filename": "av1/common/entropy.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5050
+      },
+      "writtenOn": "2018-04-10T23:48:36Z",
+      "side": 1,
+      "message": "Yeah, I plan to change the macro to convert to # of CDFs, then pass that into the reset_ function.",
+      "parentUuid": "62b8f058_93f0b876",
+      "revId": "0ce0f899f3b1e17a3b85d64eb97c3eaa4e8332fc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c49d0b59_d515f1ce",
         "filename": "av1/common/entropy.c",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2018-04-10T23:41:31Z",
       "side": 1,
       "message": "Putting a semicolon here defeats the purpose of wrapping this in a do-while.",
+      "revId": "0ce0f899f3b1e17a3b85d64eb97c3eaa4e8332fc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "adb8e2d4_bee56ec8",
+        "filename": "av1/common/entropy.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5050
+      },
+      "writtenOn": "2018-04-10T23:48:36Z",
+      "side": 1,
+      "message": "Agreed (was there in the original).",
+      "parentUuid": "c49d0b59_d515f1ce",
       "revId": "0ce0f899f3b1e17a3b85d64eb97c3eaa4e8332fc",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "4dfc8b52_4bdc7ca8",
+        "filename": "av1/common/entropy.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5050
+      },
+      "writtenOn": "2018-04-10T23:48:36Z",
+      "side": 1,
+      "message": "Will rebase.",
+      "parentUuid": "6d2c981f_b2bf9817",
+      "revId": "0ce0f899f3b1e17a3b85d64eb97c3eaa4e8332fc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e5f028c6_d2106adb",
         "filename": "av1/common/entropy.c",
         "patchSetId": 1
@@ -64,6 +118,24 @@
       "writtenOn": "2018-04-10T23:41:31Z",
       "side": 1,
       "message": "This flag was removed in 9ec6fe4cdb03.",
+      "revId": "0ce0f899f3b1e17a3b85d64eb97c3eaa4e8332fc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7778a58f_ce883c59",
+        "filename": "av1/common/entropy.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 5050
+      },
+      "writtenOn": "2018-04-10T23:48:36Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "e5f028c6_d2106adb",
       "revId": "0ce0f899f3b1e17a3b85d64eb97c3eaa4e8332fc",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
