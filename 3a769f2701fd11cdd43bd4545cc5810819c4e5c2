@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "bd9e0ad5_1afee917",
+        "filename": "aom_dsp/x86/variance_sse2.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 556,
+      "author": {
+        "id": 9096
+      },
+      "writtenOn": "2018-04-10T13:40:14Z",
+      "side": 1,
+      "message": "xx_loadl_32 instruction requires the memory address to be aligned to 4 bytes.\nBut the memory \u0027ref\u0027 is not aligned. This causes a runtime error due to load of misaligned address when built with -DSANITIZE\u003dundefined.\n\nOne solution to this issue could be  - load unaligned 64 bits and use only valid 32 bits.\nSince, \u0027ref\u0027 is a big temporary buffer, loading extra bytes should not cause any issue.",
+      "parentUuid": "f6756779_d4c5c9de",
+      "range": {
+        "startLine": 556,
+        "startChar": 29,
+        "endLine": 556,
+        "endChar": 40
+      },
+      "revId": "3a769f2701fd11cdd43bd4545cc5810819c4e5c2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3405f941_6fc1c85e",
         "filename": "test/comp_avg_pred_test.h",
         "patchSetId": 4
