@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cc71ae0a_7e583d0c",
+        "filename": "av1/encoder/hybrid_fwd_txfm.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 8900
+      },
+      "writtenOn": "2018-04-10T04:53:56Z",
+      "side": 1,
+      "message": "It seems 32x64 should support V_DCT and H_DCT. But here V_DCT and H_DCT are forced to DCT_DCT.\nIs this desired?",
+      "range": {
+        "startLine": 211,
+        "startChar": 63,
+        "endLine": 211,
+        "endChar": 70
+      },
+      "revId": "9f0a48fab32ce678ef9a96c2e871c8198a8cfd8d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4bb4f887_6c5e7740",
+        "filename": "av1/encoder/hybrid_fwd_txfm.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 249,
+      "author": {
+        "id": 8900
+      },
+      "writtenOn": "2018-04-10T04:53:56Z",
+      "side": 1,
+      "message": "ditto",
+      "range": {
+        "startLine": 249,
+        "startChar": 63,
+        "endLine": 249,
+        "endChar": 70
+      },
+      "revId": "9f0a48fab32ce678ef9a96c2e871c8198a8cfd8d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2ed7a5ba_aa6a8e70",
+        "filename": "av1/encoder/hybrid_fwd_txfm.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 287,
+      "author": {
+        "id": 8900
+      },
+      "writtenOn": "2018-04-10T04:53:56Z",
+      "side": 1,
+      "message": "ditto",
+      "range": {
+        "startLine": 287,
+        "startChar": 63,
+        "endLine": 287,
+        "endChar": 70
+      },
+      "revId": "9f0a48fab32ce678ef9a96c2e871c8198a8cfd8d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fb728c48_c30383f7",
+        "filename": "av1/encoder/hybrid_fwd_txfm.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 325,
+      "author": {
+        "id": 8900
+      },
+      "writtenOn": "2018-04-10T04:53:56Z",
+      "side": 1,
+      "message": "ditto",
+      "range": {
+        "startLine": 325,
+        "startChar": 63,
+        "endLine": 325,
+        "endChar": 70
+      },
+      "revId": "9f0a48fab32ce678ef9a96c2e871c8198a8cfd8d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f51b7998_837b8198",
+        "filename": "av1/encoder/hybrid_fwd_txfm.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 363,
+      "author": {
+        "id": 8900
+      },
+      "writtenOn": "2018-04-10T04:53:56Z",
+      "side": 1,
+      "message": "ditto",
+      "range": {
+        "startLine": 363,
+        "startChar": 63,
+        "endLine": 363,
+        "endChar": 70
+      },
+      "revId": "9f0a48fab32ce678ef9a96c2e871c8198a8cfd8d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
