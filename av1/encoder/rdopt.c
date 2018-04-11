@@ -7755,22 +7755,7 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
       orig_dst.stride[i] = xd->plane[i].dst.stride;
     }
 
-    // We don't include the cost of the second reference here, because there
-    // are only three options: Last/Golden, ARF/Last or Golden/ARF, or in other
-    // words if you present them in that order, the second one is always known
-    // if the first is known.
-    //
-    // Under some circumstances we discount the cost of new mv mode to encourage
-    // initiation of a motion field.
-    if (discount_newmv_test(cpi, this_mode, frame_mv[refs[0]], mode_mv,
-                            refs[0])) {
-      rd_stats->rate +=
-          AOMMIN(cost_mv_ref(x, this_mode, mode_ctx),
-                 cost_mv_ref(x, is_comp_pred ? NEAREST_NEARESTMV : NEARESTMV,
-                             mode_ctx));
-    } else {
-      rd_stats->rate += cost_mv_ref(x, this_mode, mode_ctx);
-    }
+    rd_stats->rate += cost_mv_ref(x, this_mode, mode_ctx);
 
     if (RDCOST(x->rdmult, rd_stats->rate, 0) > ref_best_rd &&
         mbmi->mode != NEARESTMV && mbmi->mode != NEAREST_NEARESTMV) {
