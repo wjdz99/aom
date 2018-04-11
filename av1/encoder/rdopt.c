@@ -6321,24 +6321,6 @@ static void do_masked_motion_search_indexed(
   }
 }
 
-// In some situations we want to discount the apparent cost of a new motion
-// vector. Where there is a subtle motion field and especially where there is
-// low spatial complexity then it can be hard to cover the cost of a new motion
-// vector in a single block, even if that motion vector reduces distortion.
-// However, once established that vector may be usable through the nearest and
-// near mv modes to reduce distortion in subsequent blocks and also improve
-// visual quality.
-static int discount_newmv_test(const AV1_COMP *const cpi, int this_mode,
-                               int_mv this_mv, int_mv (*mode_mv)[REF_FRAMES],
-                               int ref_frame) {
-  return (!cpi->rc.is_src_frame_alt_ref && (this_mode == NEWMV) &&
-          (this_mv.as_int != 0) &&
-          ((mode_mv[NEARESTMV][ref_frame].as_int == 0) ||
-           (mode_mv[NEARESTMV][ref_frame].as_int == INVALID_MV)) &&
-          ((mode_mv[NEARMV][ref_frame].as_int == 0) ||
-           (mode_mv[NEARMV][ref_frame].as_int == INVALID_MV)));
-}
-
 #define LEFT_TOP_MARGIN ((AOM_BORDER_IN_PIXELS - AOM_INTERP_EXTEND) << 3)
 #define RIGHT_BOTTOM_MARGIN ((AOM_BORDER_IN_PIXELS - AOM_INTERP_EXTEND) << 3)
 
@@ -7039,8 +7021,7 @@ static InterpFilters condition_interp_filters_on_mv(
 static int64_t motion_mode_rd(const AV1_COMP *const cpi, MACROBLOCK *const x,
                               BLOCK_SIZE bsize, RD_STATS *rd_stats,
                               RD_STATS *rd_stats_y, RD_STATS *rd_stats_uv,
-                              int *disable_skip, int_mv (*mode_mv)[REF_FRAMES],
-                              int mi_row, int mi_col,
+                              int *disable_skip, int mi_row, int mi_col,
                               HandleInterModeArgs *const args,
                               const int64_t ref_best_rd, const int *refs,
                               int rate_mv, BUFFER_SET *orig_dst) {
@@ -7106,10 +7087,6 @@ static int64_t motion_mode_rd(const AV1_COMP *const cpi, MACROBLOCK *const x,
 
         single_motion_search(cpi, x, bsize, mi_row, mi_col, 0, &tmp_rate_mv);
         mbmi->mv[0].as_int = x->best_mv.as_int;
-        if (discount_newmv_test(cpi, this_mode, mbmi->mv[0], mode_mv,
-                                refs[0])) {
-          tmp_rate_mv = AOMMAX((tmp_rate_mv / NEW_MV_DISCOUNT_FACTOR), 1);
-        }
         tmp_rate2 = rate2_nocoeff - rate_mv + tmp_rate_mv;
         mbmi->interp_filters =
             condition_interp_filters_on_mv(mbmi->interp_filters, xd);
@@ -7162,10 +7139,6 @@ static int64_t motion_mode_rd(const AV1_COMP *const cpi, MACROBLOCK *const x,
             if (cpi->sf.adaptive_motion_search)
               x->pred_mv[ref] = mbmi->mv[0].as_mv;
 
-            if (discount_newmv_test(cpi, this_mode, mbmi->mv[0], mode_mv,
-                                    refs[0])) {
-              tmp_rate_mv = AOMMAX((tmp_rate_mv / NEW_MV_DISCOUNT_FACTOR), 1);
-            }
             tmp_rate2 = rate2_nocoeff - rate_mv + tmp_rate_mv;
             mbmi->interp_filters =
                 condition_interp_filters_on_mv(mbmi->interp_filters, xd);
@@ -7974,8 +7947,8 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
     rd_stats->rate += compmode_interinter_cost;
 
     ret_val = motion_mode_rd(cpi, x, bsize, rd_stats, rd_stats_y, rd_stats_uv,
-                             disable_skip, mode_mv, mi_row, mi_col, args,
-                             ref_best_rd, refs, rate_mv, &orig_dst);
+                             disable_skip, mi_row, mi_col, args, ref_best_rd,
+                             refs, rate_mv, &orig_dst);
     if (is_comp_pred && ret_val != INT64_MAX) {
       int64_t tmp_rd;
       const int skip_ctx = av1_get_skip_context(xd);
