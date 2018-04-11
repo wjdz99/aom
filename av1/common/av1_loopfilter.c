@@ -1911,7 +1911,7 @@ void av1_loop_filter_rows(YV12_BUFFER_CONFIG *frame_buffer, AV1_COMMON *cm,
   for (mi_row = start; mi_row < stop; mi_row += MAX_MIB_SIZE) {
     for (mi_col = col_start; mi_col < col_end; mi_col += MAX_MIB_SIZE) {
       av1_setup_dst_planes(pd, cm->seq_params.sb_size, frame_buffer, mi_row,
-                           mi_col, num_planes);
+                           mi_col, plane, plane + 1);
 
       LoopFilterMask *lf_mask = get_loop_filter_mask(cm, mi_row, mi_col);
       av1_setup_bitmask(cm, mi_row, mi_col, plane, pd[plane].subsampling_x,
@@ -1925,7 +1925,7 @@ void av1_loop_filter_rows(YV12_BUFFER_CONFIG *frame_buffer, AV1_COMMON *cm,
   for (mi_row = start; mi_row < stop; mi_row += MAX_MIB_SIZE) {
     for (mi_col = col_start; mi_col < col_end; mi_col += MAX_MIB_SIZE) {
       av1_setup_dst_planes(pd, cm->seq_params.sb_size, frame_buffer, mi_row,
-                           mi_col, num_planes);
+                           mi_col, plane, plane + 1);
 
       LoopFilterMask *lf_mask = get_loop_filter_mask(cm, mi_row, mi_col);
       loop_filter_block_plane_horz(cm, pd, plane, mi_row, mi_col, path,
@@ -1937,7 +1937,7 @@ void av1_loop_filter_rows(YV12_BUFFER_CONFIG *frame_buffer, AV1_COMMON *cm,
   for (mi_row = start; mi_row < stop; mi_row += MAX_MIB_SIZE) {
     for (mi_col = col_start; mi_col < col_end; mi_col += MAX_MIB_SIZE) {
       av1_setup_dst_planes(pd, cm->seq_params.sb_size, frame_buffer, mi_row,
-                           mi_col, num_planes);
+                           mi_col, plane, plane + 1);
       filter_block_plane_vert(cm, plane, &pd[plane], mi_row, mi_col);
     }
   }
@@ -1946,7 +1946,7 @@ void av1_loop_filter_rows(YV12_BUFFER_CONFIG *frame_buffer, AV1_COMMON *cm,
   for (mi_row = start; mi_row < stop; mi_row += MAX_MIB_SIZE) {
     for (mi_col = col_start; mi_col < col_end; mi_col += MAX_MIB_SIZE) {
       av1_setup_dst_planes(pd, cm->seq_params.sb_size, frame_buffer, mi_row,
-                           mi_col, num_planes);
+                           mi_col, plane, plane + 1);
       filter_block_plane_horz(cm, plane, &pd[plane], mi_row, mi_col);
     }
   }
