@@ -6401,6 +6401,11 @@ static void do_masked_motion_search_indexed(
   }
 }
 
+// Tuning on this flag may introduce compile error due to the on-going work of
+// codebase cleanup.
+// TODO(angiebird): fix compile error when this flag is on
+#define USE_DISCOUNT_NEWMV_TEST 0
+#if USE_DISCOUNT_NEWMV_TEST
 // In some situations we want to discount the apparent cost of a new motion
 // vector. Where there is a subtle motion field and especially where there is
 // low spatial complexity then it can be hard to cover the cost of a new motion
@@ -6418,6 +6423,7 @@ static int discount_newmv_test(const AV1_COMP *const cpi, int this_mode,
           ((mode_mv[NEARMV][ref_frame].as_int == 0) ||
            (mode_mv[NEARMV][ref_frame].as_int == INVALID_MV)));
 }
+#endif
 
 #define LEFT_TOP_MARGIN ((AOM_BORDER_IN_PIXELS - AOM_INTERP_EXTEND) << 3)
 #define RIGHT_BOTTOM_MARGIN ((AOM_BORDER_IN_PIXELS - AOM_INTERP_EXTEND) << 3)
@@ -6941,6 +6947,16 @@ static int64_t handle_newmv(const AV1_COMP *const cpi, MACROBLOCK *const x,
     args->single_newmv_valid[refs[0]] = 1;
 
     cur_mv[0].as_int = x->best_mv.as_int;
+
+#if USE_DISCOUNT_NEWMV_TEST
+    // Estimate the rate implications of a new mv but discount this
+    // under certain circumstances where we want to help initiate a weak
+    // motion field, where the distortion gain for a single block may not
+    // be enough to overcome the cost of a new mv.
+    if (discount_newmv_test(cpi, this_mode, x->best_mv, mode_mv, refs[0])) {
+      *rate_mv = AOMMAX(*rate_mv / NEW_MV_DISCOUNT_FACTOR, 1);
+    }
+#endif
   }
 
   return 0;
@@ -7186,10 +7202,12 @@ static int64_t motion_mode_rd(const AV1_COMP *const cpi, MACROBLOCK *const x,
 
         single_motion_search(cpi, x, bsize, mi_row, mi_col, 0, &tmp_rate_mv);
         mbmi->mv[0].as_int = x->best_mv.as_int;
+#if USE_DISCOUNT_NEWMV_TEST
         if (discount_newmv_test(cpi, this_mode, mbmi->mv[0], mode_mv,
                                 refs[0])) {
           tmp_rate_mv = AOMMAX((tmp_rate_mv / NEW_MV_DISCOUNT_FACTOR), 1);
         }
+#endif
         tmp_rate2 = rate2_nocoeff - rate_mv + tmp_rate_mv;
         mbmi->interp_filters =
             condition_interp_filters_on_mv(mbmi->interp_filters, xd);
@@ -7242,10 +7260,12 @@ static int64_t motion_mode_rd(const AV1_COMP *const cpi, MACROBLOCK *const x,
             if (cpi->sf.adaptive_motion_search)
               x->pred_mv[ref] = mbmi->mv[0].as_mv;
 
+#if USE_DISCOUNT_NEWMV_TEST
             if (discount_newmv_test(cpi, this_mode, mbmi->mv[0], mode_mv,
                                     refs[0])) {
               tmp_rate_mv = AOMMAX((tmp_rate_mv / NEW_MV_DISCOUNT_FACTOR), 1);
             }
+#endif
             tmp_rate2 = rate2_nocoeff - rate_mv + tmp_rate_mv;
             mbmi->interp_filters =
                 condition_interp_filters_on_mv(mbmi->interp_filters, xd);
@@ -7838,6 +7858,7 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
       orig_dst.stride[i] = xd->plane[i].dst.stride;
     }
 
+#if USE_DISCOUNT_NEWMV_TEST
     // We don't include the cost of the second reference here, because there
     // are only three options: Last/Golden, ARF/Last or Golden/ARF, or in other
     // words if you present them in that order, the second one is always known
@@ -7854,6 +7875,9 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
     } else {
       rd_stats->rate += cost_mv_ref(x, this_mode, mode_ctx);
     }
+#else
+    rd_stats->rate += cost_mv_ref(x, this_mode, mode_ctx);
+#endif
 
     if (RDCOST(x->rdmult, rd_stats->rate, 0) > ref_best_rd &&
         mbmi->mode != NEARESTMV && mbmi->mode != NEAREST_NEARESTMV) {
