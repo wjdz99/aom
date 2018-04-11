@@ -2958,7 +2958,7 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
     }
     if (frame_is_sframe(cm)) {
       assert(cm->error_resilient_mode);
-    } else {
+    } else if (cm->frame_type != KEY_FRAME) {
       aom_wb_write_bit(wb, cm->error_resilient_mode);
     }
     aom_wb_write_bit(wb, cm->disable_cdf_update);

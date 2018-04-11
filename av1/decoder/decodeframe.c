@@ -2692,7 +2692,10 @@ static int read_uncompressed_header(AV1Decoder *pbi,
     }
     cm->cur_frame->showable_frame = cm->showable_frame;
     cm->intra_only = cm->frame_type == INTRA_ONLY_FRAME;
-    cm->error_resilient_mode = frame_is_sframe(cm) ? 1 : aom_rb_read_bit(rb);
+    cm->error_resilient_mode =
+        frame_is_sframe(cm) || cm->frame_type == KEY_FRAME
+            ? 1
+            : aom_rb_read_bit(rb);
     cm->disable_cdf_update = aom_rb_read_bit(rb);
   }
   if (cm->seq_params.still_picture) {
