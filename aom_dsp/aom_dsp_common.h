@@ -86,6 +86,10 @@ static INLINE uint16_t clip_pixel_highbd(int val, int bd) {
   }
 }
 
+static INLINE unsigned int negative_to_zero(int value) {
+  return value & ~(value >> (sizeof(value) * 8 - 1));
+}
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif
