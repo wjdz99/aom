@@ -232,6 +232,9 @@ struct BitDepthParams {
 template <typename T>
 class FlatBlockEstimatorTest : public ::testing::Test, public T {
  public:
+  void SetUp() {
+    srand(10170);
+  }
   typedef std::vector<typename T::data_type_t> VecType;
   VecType data_;
 };
@@ -389,6 +392,8 @@ class NoiseModelUpdateTest : public ::testing::Test, public T {
     const aom_noise_model_params_t params = { AOM_NOISE_SHAPE_SQUARE, 3,
                                               T::kBitDepth, T::kUseHighBD };
     ASSERT_TRUE(aom_noise_model_init(&model_, params));
+
+    srand(10170);
 
     data_.resize(kWidth * kHeight * 3);
     denoised_.resize(kWidth * kHeight * 3);
