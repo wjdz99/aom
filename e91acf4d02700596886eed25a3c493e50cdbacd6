@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "49be8826_77238668",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 7683,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2018-04-12T23:26:45Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 7683,
+        "startChar": 2,
+        "endLine": 7683,
+        "endChar": 5
+      },
+      "revId": "e91acf4d02700596886eed25a3c493e50cdbacd6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ab2f192a_5ab896eb",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 7717,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2018-04-12T23:26:45Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 7717,
+        "startChar": 4,
+        "endLine": 7717,
+        "endChar": 7
+      },
+      "revId": "e91acf4d02700596886eed25a3c493e50cdbacd6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5aa9a92d_7e66306f",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 7717,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2018-04-12T23:26:45Z",
+      "side": 1,
+      "message": "single_mode is calculated first in get_this_mv(), then here again. Can we do it only once? e.g. pass it to get_this_mv() as input parameter.",
+      "range": {
+        "startLine": 7717,
+        "startChar": 8,
+        "endLine": 7717,
+        "endChar": 19
+      },
+      "revId": "e91acf4d02700596886eed25a3c493e50cdbacd6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8fcafbc8_8947eb6c",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 7719,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2018-04-12T23:26:45Z",
+      "side": 1,
+      "message": "In this case, this_mv is always INVALID_MV, right? If so, we can call get_this_mv() only in the else branch.",
+      "range": {
+        "startLine": 7719,
+        "startChar": 18,
+        "endLine": 7719,
+        "endChar": 25
+      },
+      "revId": "e91acf4d02700596886eed25a3c493e50cdbacd6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
