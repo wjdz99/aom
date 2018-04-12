@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d30ef9ce_f8ed91cc",
+        "filename": "av1/common/av1_loopfilter.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1540,
+      "author": {
+        "id": 5326
+      },
+      "writtenOn": "2018-04-12T19:02:46Z",
+      "side": 1,
+      "message": "Hi, Cheng\ndeblocker basically get all coding mode information from the mbmi structure, without any other logic. in this case, shouldn\u0027t the mbmi-\u003etx_size be change to TX_4x4 by external logic if the segment is lossless? I think we should make mbmi-\u003etx_size to be consistent.",
+      "range": {
+        "startLine": 1540,
+        "startChar": 26,
+        "endLine": 1540,
+        "endChar": 31
+      },
+      "revId": "89273d0d3d7a637de687eaae2a4efac25e006525",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
