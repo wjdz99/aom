@@ -179,24 +179,24 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
 
   if (speed >= 3) {
     sf->tx_size_search_method = USE_FAST_RD;
-    sf->tx_type_search.fast_intra_tx_type_search = 1;
-    sf->tx_type_search.fast_inter_tx_type_search = 1;
+    //    sf->tx_type_search.fast_intra_tx_type_search = 1;
+    //    sf->tx_type_search.fast_inter_tx_type_search = 1;
 
     sf->selective_ref_frame = 3;
 
     sf->tx_size_search_method = boosted ? USE_FULL_RD : USE_LARGESTALL;
-    sf->mode_search_skip_flags =
-        (cm->frame_type == KEY_FRAME)
-            ? 0
-            : FLAG_SKIP_INTRA_DIRMISMATCH | FLAG_SKIP_INTRA_BESTINTER |
-                  FLAG_SKIP_COMP_BESTINTRA | FLAG_SKIP_INTRA_LOWVAR;
+    //    sf->mode_search_skip_flags =
+    //        (cm->frame_type == KEY_FRAME)
+    //            ? 0
+    //            : FLAG_SKIP_INTRA_DIRMISMATCH | FLAG_SKIP_INTRA_BESTINTER |
+    //                  FLAG_SKIP_COMP_BESTINTRA | FLAG_SKIP_INTRA_LOWVAR;
 
-    if ((cpi->twopass.fr_content_type == FC_GRAPHICS_ANIMATION) ||
-        av1_internal_image_edge(cpi)) {
-      sf->use_square_partition_only = !boosted;
-    } else {
-      sf->use_square_partition_only = !frame_is_intra_only(cm);
-    }
+    //    if ((cpi->twopass.fr_content_type == FC_GRAPHICS_ANIMATION) ||
+    //        av1_internal_image_edge(cpi)) {
+    //      sf->use_square_partition_only = !boosted;
+    //    } else {
+    //      sf->use_square_partition_only = !frame_is_intra_only(cm);
+    //    }
 
     sf->less_rectangular_check = 1;
 
@@ -205,12 +205,12 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->adaptive_motion_search = 1;
 
     sf->recode_loop = ALLOW_RECODE_KFARFGF;
-    sf->intra_y_mode_mask[TX_64X64] = INTRA_DC_H_V;
-    sf->intra_uv_mode_mask[TX_64X64] = UV_INTRA_DC_H_V_CFL;
-    sf->intra_y_mode_mask[TX_32X32] = INTRA_DC_H_V;
-    sf->intra_uv_mode_mask[TX_32X32] = UV_INTRA_DC_H_V_CFL;
-    sf->intra_y_mode_mask[TX_16X16] = INTRA_DC_H_V;
-    sf->intra_uv_mode_mask[TX_16X16] = UV_INTRA_DC_H_V_CFL;
+    //    sf->intra_y_mode_mask[TX_64X64] = INTRA_DC_H_V;
+    //    sf->intra_uv_mode_mask[TX_64X64] = UV_INTRA_DC_H_V_CFL;
+    //    sf->intra_y_mode_mask[TX_32X32] = INTRA_DC_H_V;
+    //    sf->intra_uv_mode_mask[TX_32X32] = UV_INTRA_DC_H_V_CFL;
+    //    sf->intra_y_mode_mask[TX_16X16] = INTRA_DC_H_V;
+    //    sf->intra_uv_mode_mask[TX_16X16] = UV_INTRA_DC_H_V_CFL;
 
     sf->use_transform_domain_distortion = 1;
     sf->use_accurate_subpel_search = 0;
