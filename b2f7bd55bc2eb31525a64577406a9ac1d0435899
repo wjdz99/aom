@@ -22,6 +22,30 @@
       "revId": "b2f7bd55bc2eb31525a64577406a9ac1d0435899",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "99da60f1_c23a331f",
+        "filename": "test/quantize_func_test.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 322,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-04-13T19:52:59Z",
+      "side": 1,
+      "message": "\u003e I still think it\u0027s better to disable these functions entirely until they are fixed. This just stops the tests from running, but users are still potentially getting broken results.\n\nthis keeps code from rotting. you have to explicitly ask for the tests to be run with --gtest_also_run_disabled_tests so it\u0027s safe to leave code in and it doesn\u0027t require any local edits when trying to resolve the issue.",
+      "parentUuid": "ffce93db_1261f647",
+      "range": {
+        "startLine": 322,
+        "startChar": 0,
+        "endLine": 322,
+        "endChar": 55
+      },
+      "revId": "b2f7bd55bc2eb31525a64577406a9ac1d0435899",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
