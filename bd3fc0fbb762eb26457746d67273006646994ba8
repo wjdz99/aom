@@ -34,6 +34,24 @@
       "revId": "bd3fc0fbb762eb26457746d67273006646994ba8",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8f47b7e8_42d7b7b8",
+        "filename": "test/noise_model_test.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-04-13T03:38:29Z",
+      "side": 1,
+      "message": "\u003e This was really just a quick fix, as I wasn\u0027t sure how much immediate pain this was causing.\n\u003e \n\u003e At first, I\u0027d put some library code in aom_dsp/noise_util for synthesizing correlated grain (alongside existing aom_dsp/add_noise), as I expected it was going to be useful for validation during noise modeling. Now that we have Andrey\u0027s synthesis algorithm (with internal random generator) it is probably better to pull those helpers into this file and use test/acm_random as you suggest. I can do that now instead (and ignore this change unless you need a quick fix).\n\nthe fix and a cleanup should be fine, I was just curious. Note SetUp() should be virtual.",
+      "parentUuid": "fac3c2af_bafc4fa2",
+      "revId": "bd3fc0fbb762eb26457746d67273006646994ba8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
