@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6e1ef88f_ede5c099",
+        "filename": "av1/common/entropymode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-04-13T18:35:38Z",
+      "side": 1,
+      "message": "In a later patch, we could move this struct to the encoder I guess.",
+      "revId": "7bd3ebda56e7117e9cce02a9113c9cdc6b652d0d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
