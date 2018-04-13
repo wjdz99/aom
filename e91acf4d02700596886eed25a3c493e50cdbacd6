@@ -119,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "202c3de1_a4dffe51",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 7717,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2018-04-13T18:05:31Z",
+      "side": 1,
+      "message": "I plan to use get_this_mv in other places.\nIf we move single_mode into parameter, we will need to call get_single_mode before get_this_mv every time.\nThis part is not speed critical, so it should be okay to write it in this way.",
+      "parentUuid": "5aa9a92d_7e66306f",
+      "range": {
+        "startLine": 7717,
+        "startChar": 8,
+        "endLine": 7717,
+        "endChar": 19
+      },
+      "revId": "e91acf4d02700596886eed25a3c493e50cdbacd6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8fcafbc8_8947eb6c",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 3
