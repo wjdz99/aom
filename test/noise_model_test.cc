@@ -540,9 +540,9 @@ TYPED_TEST_P(NoiseModelUpdateTest, UpdateSuccessForScaledWhiteNoise) {
         // Top half has high intensity and high noise strength
         const int avg = (y < kHeight / 2) ? 4 : 245;
         const double std = (y < kHeight / 2) ? kLowStd : kHighStd;
-        this->data_ptr_[c][y * kWidth + x] =
-            ((uint8_t)std::min((int)255, (int)(2 + avg + aom_randn(std))))
-            << shift;
+        const int data_r = (int)(2 + avg + aom_randn(std));
+        this->data_ptr_[c][y * kWidth + x] = ((uint8_t)(AOMMIN(255, data_r)))
+                                             << shift;
         this->denoised_ptr_[c][y * kWidth + x] = (2 + avg) << shift;
       }
     }
