@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "81620915_c2182ba2",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 384,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2018-04-14T18:26:30Z",
+      "side": 1,
+      "message": "Can we store syntax elements read from the bitstream? \n\nideally, we shall have end-to-end test to verify the information passed correctly from input to encoder to output of decoder. \n\nTo speed the process, I guess booth can be done as follow-up commits, you can merge this if there is an intent to do the follow-up ones.",
+      "range": {
+        "startLine": 384,
+        "startChar": 2,
+        "endLine": 384,
+        "endChar": 29
+      },
+      "revId": "712bb4f2a9ed9f98af66f733c89a9a268b02bbb1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
