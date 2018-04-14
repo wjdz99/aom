@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "888d387f_d142389c",
+        "filename": "av1/encoder/av1_quantize.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 9370
+      },
+      "writtenOn": "2018-04-14T10:10:32Z",
+      "side": 0,
+      "message": "I suppose right shifting `dequant_ptr[0]` erased lower bits and that might have led to the problem you mentioned in the commit message? Could you explain the problem further with sample input values since I added the bug in `highbd_quantize_fp_helper_c` function.\n\nAside from fixing the bug, I\u0027m a little concerned about increased operation inside loops (though it\u0027s just an additional left shift). But.. adding micro optimizations worsens code readability so I wonder if doing so should be convered in _SIMD_extension_name suffix functions. Ideally, branches should be removed and a number of executing operations should be reduced with SIMD instructions. It seems `highbd_quantize_fp_helper_c` function occupies around 10% of encoding time.",
+      "revId": "2e0d2403f764680273965da014960ba5268cb2bf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
