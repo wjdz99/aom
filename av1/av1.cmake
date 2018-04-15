@@ -159,7 +159,8 @@ set(AOM_AV1_ENCODER_SOURCES
 
 set(AOM_AV1_COMMON_INTRIN_SSE2
     "${AOM_ROOT}/av1/common/x86/idct_intrin_sse2.c"
-    "${AOM_ROOT}/av1/common/x86/av1_txfm_sse2.h")
+    "${AOM_ROOT}/av1/common/x86/av1_txfm_sse2.h"
+    "${AOM_ROOT}/av1/common/x86/reconinter_sse2.c")
 
 set(AOM_AV1_COMMON_INTRIN_SSSE3
     "${AOM_ROOT}/av1/common/x86/av1_inv_txfm_ssse3.h"
@@ -175,7 +176,8 @@ set(AOM_AV1_COMMON_INTRIN_AVX2
     "${AOM_ROOT}/av1/common/x86/highbd_inv_txfm_avx2.c"
     "${AOM_ROOT}/av1/common/x86/hybrid_inv_txfm_avx2.c"
     "${AOM_ROOT}/av1/common/x86/av1_inv_txfm_avx2.h"
-    "${AOM_ROOT}/av1/common/x86/av1_inv_txfm_avx2.c")
+    "${AOM_ROOT}/av1/common/x86/av1_inv_txfm_avx2.c"
+    "${AOM_ROOT}/av1/common/x86/reconinter_avx2.c")
 
 set(AOM_AV1_COMMON_INTRIN_MSA
     "${AOM_ROOT}/av1/common/mips/msa/av1_idct16x16_msa.c"
