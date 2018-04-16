@@ -3132,12 +3132,50 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
         assert(cm->frame_refs_short_signaling == 0);
 
       if (cm->frame_refs_short_signaling) {
-        assert(get_ref_frame_map_idx(cpi, LAST_FRAME) != INVALID_IDX);
-        aom_wb_write_literal(wb, get_ref_frame_map_idx(cpi, LAST_FRAME),
-                             REF_FRAMES_LOG2);
-        assert(get_ref_frame_map_idx(cpi, GOLDEN_FRAME) != INVALID_IDX);
-        aom_wb_write_literal(wb, get_ref_frame_map_idx(cpi, GOLDEN_FRAME),
-                             REF_FRAMES_LOG2);
+        const int lst_ref = get_ref_frame_map_idx(cpi, LAST_FRAME);
+        assert(lst_ref != INVALID_IDX);
+        aom_wb_write_literal(wb, lst_ref, REF_FRAMES_LOG2);
+
+        const int gld_ref = get_ref_frame_map_idx(cpi, GOLDEN_FRAME);
+        assert(gld_ref != INVALID_IDX);
+        aom_wb_write_literal(wb, gld_ref, REF_FRAMES_LOG2);
+
+        // NOTE(zoeliu@google.com):
+        //   A tempopary solution for encoder-side implementation on frame refs
+        //   short signaling, which maps the reference frame from the encoder
+        //   side value to the decoder side value that will be obtained
+        //   following a certain procedure.
+        av1_set_frame_refs(cm, lst_ref, gld_ref);
+
+        for (int enc_ref = LAST_FRAME; enc_ref <= ALTREF_FRAME; enc_ref++) {
+          cpi->ref_frame_dec[enc_ref] = INVALID_IDX;
+        }
+
+        for (int dec_ref = LAST_FRAME; dec_ref <= ALTREF_FRAME; dec_ref++) {
+          // ref_frame_dec: The reference index value used by the decoder
+          cpi->ref_frame_enc[dec_ref] = dec_ref;
+          if (dec_ref == LAST_FRAME || dec_ref == GOLDEN_FRAME) continue;
+
+          const int ref_map_idx_dec =
+              cm->frame_refs[dec_ref - LAST_FRAME].map_idx;
+          for (int enc_ref = LAST_FRAME; enc_ref <= ALTREF_FRAME; enc_ref++) {
+            if (cpi->ref_frame_dec[enc_ref] != INVALID_IDX) continue;
+
+            if (ref_map_idx_dec == get_ref_frame_map_idx(cpi, enc_ref)) {
+              cpi->ref_frame_dec[enc_ref] = dec_ref;
+              cpi->ref_frame_enc[dec_ref] = enc_ref;
+              break;
+            }
+          }
+        }
+
+        for (int enc_ref = LAST_FRAME; enc_ref <= ALTREF_FRAME; enc_ref++) {
+          if (cpi->ref_frame_dec[enc_ref] == INVALID_IDX) {
+            printf("\nenc_ref=%d ===> dec_ref=%d\n", enc_ref,
+                   cpi->ref_frame_dec[enc_ref]);
+            assert(0);
+          }
+        }
       }
 
       for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
