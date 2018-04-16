@@ -2883,6 +2883,82 @@ static void write_global_motion(AV1_COMP *cpi,
   }
 }
 
+void map_refs_for_short_signaling(AV1_COMP *const cpi, int lst_map_idx,
+                                  int gld_map_idx) {
+  AV1_COMMON *const cm = &cpi->common;
+
+  RefBuffer frame_refs_copy[INTER_REFS_PER_FRAME];
+
+  // Backup the frame refs info
+  memcpy(frame_refs_copy, cm->frame_refs,
+         INTER_REFS_PER_FRAME * sizeof(RefBuffer));
+  av1_set_frame_refs(cm, lst_map_idx, gld_map_idx);
+
+  //  LAST_FRAME or GOLDEN_FRAME
+  cpi->ref_frame_dec[LAST_FRAME] = LAST_FRAME;
+  cpi->ref_frame_dec[GOLDEN_FRAME] = GOLDEN_FRAME;
+
+  int ref_buf_idx_dec[INTER_REFS_PER_FRAME];
+  int ref_flag_dec[INTER_REFS_PER_FRAME];
+  // int ref_flag_enc[INTER_REFS_PER_FRAME];
+
+  for (int ref_idx = 0; ref_idx < INTER_REFS_PER_FRAME; ++ref_idx) {
+    ref_buf_idx_dec[ref_idx] = cm->frame_refs[ref_idx].idx;
+    if (ref_idx == (LAST_FRAME - LAST_FRAME) ||
+        ref_idx == (GOLDEN_FRAME - LAST_FRAME)) {
+      ref_flag_dec[ref_idx] = 1;
+      // ref_flag_enc[ref_idx] = 1;
+    } else {
+      ref_flag_dec[ref_idx] = 0;
+      // ref_flag_enc[ref_idx] = 0;
+    }
+  }
+
+  // All other reference frames
+  for (int ref_frame = ALTREF_FRAME; ref_frame > LAST_FRAME; --ref_frame) {
+    if (ref_frame == GOLDEN_FRAME) continue;
+
+    for (int enc_ref = ALTREF_FRAME; enc_ref > LAST_FRAME; --enc_ref) {
+      // if (ref_flag_enc[enc_ref - LAST_FRAME]) continue;
+
+      const int buf_idx = get_ref_frame_buf_idx(cpi, enc_ref);
+      if (buf_idx < 0) {
+        // ref_flag_enc[ref_frame - LAST_FRAME] = 1;
+        break;
+      }
+
+      if (ref_buf_idx_dec[ref_frame - LAST_FRAME] == buf_idx) {
+        // enc_ref ===> ref_frame
+        cpi->ref_frame_dec[enc_ref] = ref_frame;
+        ref_flag_dec[ref_frame - LAST_FRAME] = 1;
+        // ref_flag_enc[enc_ref - LAST_FRAME] = 1;
+        break;
+      }
+    }
+
+    if (!ref_flag_dec[ref_frame - LAST_FRAME]) {
+      printf("\nFrame refs short signaling: None mapped to ref_frame=%d\n",
+             ref_frame);
+      assert(0);
+    }
+  }
+
+#if 0
+  printf("\nFrame=%d: ", cm->current_video_frame);
+  for (int enc_ref = LAST_FRAME; enc_ref <= ALTREF_FRAME; ++enc_ref) {
+    printf("enc_ref(buf_idx=%d)=%d, mapped to dec_ref(buf_idx=%d)=%d\n",
+        get_ref_frame_buf_idx(cpi, enc_ref), enc_ref,
+        cm->frame_refs[cpi->ref_frame_dec[enc_ref] - LAST_FRAME].idx,
+        cpi->ref_frame_dec[enc_ref]
+        );
+  }
+#endif  // 0
+
+  // Restore the frame refs info
+  memcpy(cm->frame_refs, frame_refs_copy,
+         INTER_REFS_PER_FRAME * sizeof(RefBuffer));
+}
+
 // New function based on HLS R18
 static void write_uncompressed_header_obu(AV1_COMP *cpi,
                                           struct aom_write_bit_buffer *saved_wb,
@@ -2979,7 +3055,7 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
 
   cm->invalid_delta_frame_id_minus1 = 0;
   int frame_size_override_flag = 0;
-  cm->frame_refs_short_signaling = 0;
+  cm->frame_refs_short_signaling = 1;
 
   if (cm->seq_params.reduced_still_picture_hdr) {
     assert(cm->width == cm->seq_params.max_frame_width &&
@@ -3127,12 +3203,20 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
         assert(cm->frame_refs_short_signaling == 0);
 
       if (cm->frame_refs_short_signaling) {
-        assert(get_ref_frame_map_idx(cpi, LAST_FRAME) != INVALID_IDX);
-        aom_wb_write_literal(wb, get_ref_frame_map_idx(cpi, LAST_FRAME),
-                             REF_FRAMES_LOG2);
-        assert(get_ref_frame_map_idx(cpi, GOLDEN_FRAME) != INVALID_IDX);
-        aom_wb_write_literal(wb, get_ref_frame_map_idx(cpi, GOLDEN_FRAME),
-                             REF_FRAMES_LOG2);
+        const int lst_ref = get_ref_frame_map_idx(cpi, LAST_FRAME);
+        assert(lst_ref != INVALID_IDX);
+        aom_wb_write_literal(wb, lst_ref, REF_FRAMES_LOG2);
+
+        const int gld_ref = get_ref_frame_map_idx(cpi, GOLDEN_FRAME);
+        assert(gld_ref != INVALID_IDX);
+        aom_wb_write_literal(wb, gld_ref, REF_FRAMES_LOG2);
+
+        // NOTE(zoeliu@google.com):
+        //   A tempopary solution for encoder-side implementation on frame refs
+        //   short signaling, which maps the reference frame from the encoder
+        //   side value to the decoder side value that will be obtained
+        //   following the short signaling procedure.
+        map_refs_for_short_signaling(cpi, lst_ref, gld_ref);
       }
 
       for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
