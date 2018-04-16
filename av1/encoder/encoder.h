@@ -599,6 +599,11 @@ typedef struct AV1_COMP {
   int dv_joint_cost[MV_JOINTS];
   int has_lossless_segment;
   AV1LfSync lf_row_sync;
+
+  // For frame refs short signaling:
+  //   A mapping of each reference frame from its encoder side value to the
+  //   decoder side value obtained following the short signaling procedure.
+  int ref_conv[REF_FRAMES];
 } AV1_COMP;
 
 void av1_initialize_enc(void);
