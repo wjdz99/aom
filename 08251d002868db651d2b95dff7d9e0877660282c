@@ -16,6 +16,24 @@
       "revId": "08251d002868db651d2b95dff7d9e0877660282c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "40c1b3f8_47a52514",
+        "filename": "av1/common/av1_rtcd_defs.pl",
+        "patchSetId": 8
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5975
+      },
+      "writtenOn": "2018-04-16T11:05:13Z",
+      "side": 1,
+      "message": "I\u0027ve just checked, and you\u0027re right - both the SSSE3 and AVX2 versions of this function seem to be fine. Thanks for spotting this!",
+      "parentUuid": "2d582589_d8882ba0",
+      "revId": "08251d002868db651d2b95dff7d9e0877660282c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
