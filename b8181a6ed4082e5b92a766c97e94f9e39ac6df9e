@@ -46,6 +46,30 @@
       "revId": "b8181a6ed4082e5b92a766c97e94f9e39ac6df9e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1d6f8e53_ff901482",
+        "filename": "build/cmake/toolchains/arm64-mingw-gcc.cmake",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-04-16T16:40:28Z",
+      "side": 1,
+      "message": "What this does is cause the libaom CMake scripts to create a gtest target instead of relying on the one created by the gtest CMake script. The tests should still build and run properly.\n\nHopefully we can get rid of this entirely next time we roll the gtest snapshot, but I don\u0027t think that\u0027s something that requires urgent attention.",
+      "parentUuid": "a99d1ed5_9c773b8d",
+      "range": {
+        "startLine": 27,
+        "startChar": 0,
+        "endLine": 27,
+        "endChar": 47
+      },
+      "revId": "b8181a6ed4082e5b92a766c97e94f9e39ac6df9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
