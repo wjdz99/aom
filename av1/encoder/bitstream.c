@@ -2891,6 +2891,86 @@ static void write_global_motion(AV1_COMP *cpi,
   }
 }
 
+void map_refs_for_short_signaling(AV1_COMP *const cpi, int lst_map_idx,
+                                  int gld_map_idx) {
+  AV1_COMMON *const cm = &cpi->common;
+
+  if (!cm->frame_refs_short_signaling) return;
+
+  // Check whether all references are distinct frames.
+  int refs[REF_FRAMES] = { 0 };
+  for (int ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
+    const int map_idx = get_ref_frame_map_idx(cpi, ref_frame);
+    if (map_idx != INVALID_IDX) {
+      assert(map_idx >= 0 && map_idx < REF_FRAMES);
+      refs[map_idx] = 1;
+    }
+  }
+
+  int num_refs = 0;
+  for (int ref_idx = 0; ref_idx < REF_FRAMES; ++ref_idx) {
+    num_refs += refs[ref_idx];
+  }
+
+  // We only turn on frame_refs_short_signaling when all references are
+  // distinct.
+  if (num_refs < INTER_REFS_PER_FRAME) {
+    // It indicates that there exist more than one reference frame pointing to
+    // the same reference buffer, i.e. two or more references are duplicate.
+    cm->frame_refs_short_signaling = 0;
+    return;
+  }
+
+  RefBuffer frame_refs_copy[INTER_REFS_PER_FRAME];
+
+  // Backup the frame refs info
+  memcpy(frame_refs_copy, cm->frame_refs,
+         INTER_REFS_PER_FRAME * sizeof(RefBuffer));
+
+  // Set up the frame refs mapping indexes according to the
+  // frame_refs_short_signaling policy.
+  av1_set_frame_refs(cm, lst_map_idx, gld_map_idx);
+
+  // NOTE: ref_conv -
+  //   Map encoder side ref_Frame to decoder side ref_frame when
+  //   frame_refs_short_signaling is on.
+  //  LAST_FRAME or GOLDEN_FRAME
+  cpi->ref_conv[LAST_FRAME] = LAST_FRAME;
+  cpi->ref_conv[GOLDEN_FRAME] = GOLDEN_FRAME;
+
+  int ref_flags[REF_FRAMES] = { 0 };
+  ref_flags[LAST_FRAME] = 1;
+  ref_flags[GOLDEN_FRAME] = 1;
+
+  for (int enc_ref = LAST2_FRAME; enc_ref <= ALTREF_FRAME; ++enc_ref) {
+    if (enc_ref == GOLDEN_FRAME) continue;
+
+    for (int dec_ref = LAST_FRAME; dec_ref <= ALTREF_FRAME; ++dec_ref) {
+      if (ref_flags[dec_ref]) continue;
+
+      if (cm->frame_refs[dec_ref - LAST_FRAME].idx ==
+          frame_refs_copy[enc_ref - LAST_FRAME].idx) {
+        cpi->ref_conv[enc_ref] = dec_ref;
+        ref_flags[dec_ref] = 1;
+      }
+    }
+  }
+
+#if 0   // For debug
+  printf("\nFrame=%d: ", cm->current_video_frame);
+  for (int enc_ref = LAST_FRAME; enc_ref <= ALTREF_FRAME; ++enc_ref) {
+    printf("enc_ref(map_idx=%d)=%d, mapped to dec_ref(map_idx=%d)=%d\n",
+        get_ref_frame_map_idx(cpi, enc_ref), enc_ref,
+        cm->frame_refs[cpi->ref_conv[enc_ref] - LAST_FRAME].map_idx,
+        cpi->ref_conv[enc_ref]);
+  }
+#endif  // 0
+
+  // Restore the frame refs info
+  memcpy(cm->frame_refs, frame_refs_copy,
+         INTER_REFS_PER_FRAME * sizeof(RefBuffer));
+}
+
 // New function based on HLS R18
 static void write_uncompressed_header_obu(AV1_COMP *cpi,
                                           struct aom_write_bit_buffer *saved_wb,
@@ -3131,12 +3211,20 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
         assert(cm->frame_refs_short_signaling == 0);
 
       if (cm->frame_refs_short_signaling) {
-        assert(get_ref_frame_map_idx(cpi, LAST_FRAME) != INVALID_IDX);
-        aom_wb_write_literal(wb, get_ref_frame_map_idx(cpi, LAST_FRAME),
-                             REF_FRAMES_LOG2);
-        assert(get_ref_frame_map_idx(cpi, GOLDEN_FRAME) != INVALID_IDX);
-        aom_wb_write_literal(wb, get_ref_frame_map_idx(cpi, GOLDEN_FRAME),
-                             REF_FRAMES_LOG2);
+        const int lst_ref = get_ref_frame_map_idx(cpi, LAST_FRAME);
+        assert(lst_ref != INVALID_IDX);
+        aom_wb_write_literal(wb, lst_ref, REF_FRAMES_LOG2);
+
+        const int gld_ref = get_ref_frame_map_idx(cpi, GOLDEN_FRAME);
+        assert(gld_ref != INVALID_IDX);
+        aom_wb_write_literal(wb, gld_ref, REF_FRAMES_LOG2);
+
+        // NOTE(zoeliu@google.com):
+        //   A tempopary solution for encoder-side implementation on frame refs
+        //   short signaling, which maps the reference frame from the encoder
+        //   side value to the decoder side value that will be obtained
+        //   following the short signaling procedure.
+        map_refs_for_short_signaling(cpi, lst_ref, gld_ref);
       }
 
       for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
