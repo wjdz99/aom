@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "830588aa_266ed706",
+        "filename": "av1/common/av1_rtcd_defs.pl",
+        "patchSetId": 3
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 9370
+      },
+      "writtenOn": "2018-04-17T18:46:36Z",
+      "side": 1,
+      "message": "Thank you for the review.\nI updated the file with Patch Set 4.",
+      "parentUuid": "7a77297c_21849ab8",
+      "range": {
+        "startLine": 151,
+        "startChar": 53,
+        "endLine": 151,
+        "endChar": 58
+      },
+      "revId": "cab1e7e8250de7377040bde1dfabd74e925d9e04",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "1aa6bb73_1243ac05",
         "filename": "av1/common/x86/reconinter_avx2.c",
         "patchSetId": 3
