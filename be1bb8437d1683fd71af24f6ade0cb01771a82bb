@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "eeb7c3e8_b750a280",
+        "filename": "build/cmake/aom_configure.cmake",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-04-17T17:33:27Z",
+      "side": 1,
+      "message": "Is this thing configurable? Indenting the body w/in the include guards is not ideal.",
+      "range": {
+        "startLine": 12,
+        "startChar": 0,
+        "endLine": 12,
+        "endChar": 2
+      },
+      "revId": "be1bb8437d1683fd71af24f6ade0cb01771a82bb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "45a36916_08ef5925",
+        "filename": "build/cmake/aom_configure.cmake",
+        "patchSetId": 1
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-04-17T17:33:27Z",
+      "side": 1,
+      "message": "This is hideous... Can the behavior be disabled?",
+      "range": {
+        "startLine": 69,
+        "startChar": 11,
+        "endLine": 75,
+        "endChar": 17
+      },
+      "revId": "be1bb8437d1683fd71af24f6ade0cb01771a82bb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c36d503b_898e03ca",
+        "filename": "build/cmake/aom_configure.cmake",
+        "patchSetId": 1
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-04-17T17:33:27Z",
+      "side": 1,
+      "message": "The way cmake-format reflows conditionals is really far from ideal.",
+      "range": {
+        "startLine": 146,
+        "startChar": 0,
+        "endLine": 147,
+        "endChar": 80
+      },
+      "revId": "be1bb8437d1683fd71af24f6ade0cb01771a82bb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aec30517_e887d2b0",
+        "filename": "build/cmake/aom_configure.cmake",
+        "patchSetId": 1
+      },
+      "lineNbr": 280,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-04-17T17:33:27Z",
+      "side": 1,
+      "message": "cmake-format is confused here",
+      "range": {
+        "startLine": 278,
+        "startChar": 43,
+        "endLine": 280,
+        "endChar": 67
+      },
+      "revId": "be1bb8437d1683fd71af24f6ade0cb01771a82bb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
