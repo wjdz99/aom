@@ -190,6 +190,9 @@ static aom_codec_err_t decoder_peek_si_internal(const uint8_t *data,
                                                 aom_codec_stream_info_t *si,
                                                 int *is_intra_only) {
   int intra_only_flag = 0;
+  ObuHeader obu_header;
+  size_t payload_size, bytes_read;
+  aom_codec_err_t status;
 
   if (data + data_sz <= data || data_sz < 1) return AOM_CODEC_INVALID_PARAM;
 
@@ -201,34 +204,35 @@ static aom_codec_err_t decoder_peek_si_internal(const uint8_t *data,
   // operate properly. At present it hard codes the values to 1 for the keyframe
   // and intra only flags, and assumes the data being parsed is a Sequence
   // Header OBU.
+  // NOTE(david.barker): In addition, this code currently requires the video
+  // stream to begin with an optional OBU_TEMPORAL_DELIMITER followed by an
+  // OBU_SEQUENCE_HEADER.
   intra_only_flag = 1;
   si->is_kf = 1;
 
-  size_t length_field_size = 0;
-  if (si->is_annexb) {
-    length_field_size = get_obu_length_field_size(data, data_sz - 1);
-  }
-  struct aom_read_bit_buffer rb = { data + length_field_size, data + data_sz, 0,
-                                    NULL, NULL };
+  status = aom_read_obu_header_and_size(
+      data, data_sz, si->is_annexb, &obu_header, &payload_size, &bytes_read);
+  if (status != AOM_CODEC_OK) return status;
 
-  const uint8_t obu_header = (uint8_t)aom_rb_read_literal(&rb, 8);
-  OBU_TYPE obu_type;
+  // If the first OBU is a temporal delimiter, skip over it and look at the next
+  // OBU in the bitstream
+  if (obu_header.type == OBU_TEMPORAL_DELIMITER) {
+    // Skip any associated payload (there shouldn't be one, but just in case)
+    data += bytes_read + payload_size;
+    data_sz -= bytes_read + payload_size;
 
-  if (get_obu_type(obu_header, &obu_type) != 0)
-    return AOM_CODEC_UNSUP_BITSTREAM;
-
-  if (!si->is_annexb) {
-    // One byte has been consumed by the OBU header.
-    // TODO(shan): Assuming 1-byte obu_header (need to account in case extension
-    // exists)
-    rb.bit_buffer += get_obu_length_field_size(data + 1, data_sz - 1) + 2;
+    status = aom_read_obu_header_and_size(
+        data, data_sz, si->is_annexb, &obu_header, &payload_size, &bytes_read);
+    if (status != AOM_CODEC_OK) return status;
   }
 
-  // This check is disabled because existing behavior is depended upon by
-  // decoder tests (see decode_test_driver.cc), scalability_decoder (see
-  // scalable_decoder.c), and decode_once() in this file.
-  // if (obu_type != OBU_SEQUENCE_HEADER)
-  //   return AOM_CODEC_INVALID_PARAM;
+  // Check that the selected OBU is a sequence header
+  if (obu_header.type != OBU_SEQUENCE_HEADER) return AOM_CODEC_UNSUP_BITSTREAM;
+
+  // Read a few values from the sequence header payload
+  data += bytes_read;
+  data_sz -= bytes_read;
+  struct aom_read_bit_buffer rb = { data, data + data_sz, 0, NULL, NULL };
 
   av1_read_profile(&rb);  // profile
   const int still_picture = aom_rb_read_bit(&rb);
