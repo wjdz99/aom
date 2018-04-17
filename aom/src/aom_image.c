@@ -16,14 +16,13 @@
 #include "aom/aom_integer.h"
 #include "aom_mem/aom_mem.h"
 
-static aom_image_t *img_alloc_helper(aom_image_t *img, aom_img_fmt_t fmt,
-                                     unsigned int d_w, unsigned int d_h,
-                                     unsigned int buf_align,
-                                     unsigned int stride_align,
-                                     unsigned char *img_data) {
+static aom_image_t *img_alloc_helper(
+    aom_image_t *img, aom_img_fmt_t fmt, unsigned int d_w, unsigned int d_h,
+    unsigned int buf_align, unsigned int stride_align, unsigned int size_align,
+    unsigned char *img_data, unsigned int border) {
   unsigned int h, w, s, xcs, ycs, bps;
   unsigned int stride_in_bytes;
-  int align;
+  unsigned int align;
 
   /* Treat align==0 like align==1 */
   if (!buf_align) buf_align = 1;
@@ -36,6 +35,12 @@ static aom_image_t *img_alloc_helper(aom_image_t *img, aom_img_fmt_t fmt,
 
   /* Validate alignment (must be power of 2) */
   if (stride_align & (stride_align - 1)) goto fail;
+
+  /* Treat align==0 like align==1 */
+  if (!size_align) size_align = 1;
+
+  /* Validate alignment (must be power of 2) */
+  if (size_align & (size_align - 1)) goto fail;
 
   /* Get sample size for this format */
   switch (fmt) {
@@ -74,11 +79,13 @@ static aom_image_t *img_alloc_helper(aom_image_t *img, aom_img_fmt_t fmt,
 
   /* Calculate storage sizes given the chroma subsampling */
   align = (1 << xcs) - 1;
+  align = (size_align - 1 > align) ? (size_align - 1) : align;
   w = (d_w + align) & ~align;
   align = (1 << ycs) - 1;
+  align = (size_align - 1 > align) ? (size_align - 1) : align;
   h = (d_h + align) & ~align;
   s = (fmt & AOM_IMG_FMT_PLANAR) ? w : bps * w / 8;
-  s = (s + stride_align - 1) & ~(stride_align - 1);
+  s = (s + 2 * border + stride_align - 1) & ~(stride_align - 1);
   stride_in_bytes = (fmt & AOM_IMG_FMT_HIGHBITDEPTH) ? s * 2 : s;
 
   /* Allocate the new image */
@@ -95,9 +102,10 @@ static aom_image_t *img_alloc_helper(aom_image_t *img, aom_img_fmt_t fmt,
   img->img_data = img_data;
 
   if (!img_data) {
-    const uint64_t alloc_size = (fmt & AOM_IMG_FMT_PLANAR)
-                                    ? (uint64_t)h * s * bps / 8
-                                    : (uint64_t)h * s;
+    const uint64_t alloc_size =
+        (fmt & AOM_IMG_FMT_PLANAR)
+            ? (uint64_t)(h + 2 * border) * stride_in_bytes * bps / 8
+            : (uint64_t)(h + 2 * border) * stride_in_bytes;
 
     if (alloc_size != (size_t)alloc_size) goto fail;
 
@@ -109,6 +117,7 @@ static aom_image_t *img_alloc_helper(aom_image_t *img, aom_img_fmt_t fmt,
 
   img->fmt = fmt;
   img->bit_depth = (fmt & AOM_IMG_FMT_HIGHBITDEPTH) ? 16 : 8;
+  // aligned width and aligned height
   img->w = w;
   img->h = h;
   img->x_chroma_shift = xcs;
@@ -120,7 +129,7 @@ static aom_image_t *img_alloc_helper(aom_image_t *img, aom_img_fmt_t fmt,
   img->stride[AOM_PLANE_U] = img->stride[AOM_PLANE_V] = stride_in_bytes >> xcs;
 
   /* Default viewport to entire image */
-  if (!aom_img_set_rect(img, 0, 0, d_w, d_h)) return img;
+  if (!aom_img_set_rect(img, 0, 0, d_w, d_h, border)) return img;
 
 fail:
   aom_img_free(img);
@@ -130,7 +139,7 @@ fail:
 aom_image_t *aom_img_alloc(aom_image_t *img, aom_img_fmt_t fmt,
                            unsigned int d_w, unsigned int d_h,
                            unsigned int align) {
-  return img_alloc_helper(img, fmt, d_w, d_h, align, align, NULL);
+  return img_alloc_helper(img, fmt, d_w, d_h, align, align, 1, NULL, 0);
 }
 
 aom_image_t *aom_img_wrap(aom_image_t *img, aom_img_fmt_t fmt, unsigned int d_w,
@@ -138,16 +147,28 @@ aom_image_t *aom_img_wrap(aom_image_t *img, aom_img_fmt_t fmt, unsigned int d_w,
                           unsigned char *img_data) {
   /* By setting buf_align = 1, we don't change buffer alignment in this
    * function. */
-  return img_alloc_helper(img, fmt, d_w, d_h, 1, stride_align, img_data);
+  return img_alloc_helper(img, fmt, d_w, d_h, 1, stride_align, 1, img_data, 0);
+}
+
+aom_image_t *aom_img_alloc_with_border(aom_image_t *img, aom_img_fmt_t fmt,
+                                       unsigned int d_w, unsigned int d_h,
+                                       unsigned int align,
+                                       unsigned int size_align,
+                                       unsigned int border) {
+  return img_alloc_helper(img, fmt, d_w, d_h, align, align, size_align, NULL,
+                          border);
 }
 
 int aom_img_set_rect(aom_image_t *img, unsigned int x, unsigned int y,
-                     unsigned int w, unsigned int h) {
+                     unsigned int w, unsigned int h, unsigned int border) {
   unsigned char *data;
 
   if (x + w <= img->w && y + h <= img->h) {
     img->d_w = w;
     img->d_h = h;
+
+    x += border;
+    y += border;
 
     /* Calculate plane pointers */
     if (!(img->fmt & AOM_IMG_FMT_PLANAR)) {
