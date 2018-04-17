@@ -45,6 +45,30 @@
       "revId": "cab1e7e8250de7377040bde1dfabd74e925d9e04",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3c9014f9_d65a6673",
+        "filename": "av1/common/x86/reconinter_avx2.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 9370
+      },
+      "writtenOn": "2018-04-17T18:42:11Z",
+      "side": 1,
+      "message": "Only the value of `which_inverse` argument varies and it\u0027s simply decided based on `mask_type` value of caller function. So compilers should simply inline this function but sometimes they are conservative to do so.\n\nPlease refer\nhttps://aomedia-review.googlesource.com/c/aom/+/55421\n\nI optimized `diffwtd_mask_highbd` function in file `av1/common/reconinter.c` and I think it\u0027s related to this change. It seems like the compiler I use (VC++ 14.1) is conservative about optimizing loops.\n\nI guess leaving INLINE keyword isn\u0027t much of a problem as it only adds call instructions outside of inner loops. But I\u0027d rather abuse the overriding keyword to squeeze a little bif of performance.",
+      "parentUuid": "1aa6bb73_1243ac05",
+      "range": {
+        "startLine": 19,
+        "startChar": 7,
+        "endLine": 19,
+        "endChar": 23
+      },
+      "revId": "cab1e7e8250de7377040bde1dfabd74e925d9e04",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
