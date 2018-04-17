@@ -1205,6 +1205,9 @@ static int read_is_inter_block(AV1_COMMON *const cm, MACROBLOCKD *const xd,
     RefBuffer *ref_buf = &cm->frame_refs[frame - LAST_FRAME];
     return frame != INTRA_FRAME;
   }
+  if (segfeature_active(&cm->seg, segment_id, SEG_LVL_GLOBALMV)) {
+    return 1;
+  }
   const int ctx = av1_get_intra_inter_context(xd);
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
   const int is_inter =
