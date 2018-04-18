@@ -1963,15 +1963,6 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
     }
   }
 
-  if (!(cm->allow_intrabc && NO_FILTER_FOR_IBC)) {
-    // Loopfilter the whole frame.
-    if (endTile == cm->tile_rows * cm->tile_cols - 1)
-      if (cm->lf.filter_level[0] || cm->lf.filter_level[1]) {
-        av1_loop_filter_frame(get_frame_new_buffer(cm), cm, &pbi->mb, 0,
-                              num_planes, 0);
-      }
-  }
-
   if (cm->large_scale_tile) {
     if (n_tiles == 1) {
       // Find the end of the single tile buffer
@@ -3318,6 +3309,11 @@ void av1_decode_tg_tiles_and_wrapup(AV1Decoder *pbi, const uint8_t *data,
   }
 
   if (!(cm->allow_intrabc && NO_FILTER_FOR_IBC)) {
+    if (cm->lf.filter_level[0] || cm->lf.filter_level[1]) {
+      av1_loop_filter_frame(get_frame_new_buffer(cm), cm, &pbi->mb, 0,
+                            num_planes, 0);
+    }
+
     const int do_loop_restoration =
         cm->rst_info[0].frame_restoration_type != RESTORE_NONE ||
         cm->rst_info[1].frame_restoration_type != RESTORE_NONE ||
