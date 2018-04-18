@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "15ffea9c_9ccfb868",
+        "filename": "av1/decoder/obu.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5975
+      },
+      "writtenOn": "2018-04-18T10:23:43Z",
+      "side": 1,
+      "message": "Note: This addition of \u0027const\u0027 (and the corresponding change in obu.c) is left over from developing this patch. The final version of the patch doesn\u0027t modify this function or its callers, so it seems best to not make this change here.",
+      "range": {
+        "startLine": 30,
+        "startChar": 36,
+        "endLine": 30,
+        "endChar": 42
+      },
+      "revId": "9b1f45ac477caee080c6d2f3dfec87d50068affc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
