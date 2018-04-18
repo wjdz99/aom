@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "733be04d_7b6bc77b",
+        "filename": "examples/aom_cx_set_ref.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 299,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2018-04-18T22:53:27Z",
+      "side": 0,
+      "message": "why remove this? do we still need flush if there is a lag?",
+      "range": {
+        "startLine": 294,
+        "startChar": 0,
+        "endLine": 299,
+        "endChar": 0
+      },
+      "revId": "c0b131074a66c0083c5071a06cfb8c45ef971dc5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
