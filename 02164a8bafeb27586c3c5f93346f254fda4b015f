@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "7729ce75_a009acbc",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1920,
+      "author": {
+        "id": 9101
+      },
+      "writtenOn": "2018-04-18T04:58:41Z",
+      "side": 1,
+      "message": "yes, This function will be for single thread only. thread_data allocation is done assuming the function is for single thread.",
+      "parentUuid": "aa5c746c_af36463a",
+      "range": {
+        "startLine": 1916,
+        "startChar": 2,
+        "endLine": 1920,
+        "endChar": 3
+      },
+      "revId": "02164a8bafeb27586c3c5f93346f254fda4b015f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "572fa229_7b2e5bc0",
         "filename": "av1/decoder/decoder.h",
         "patchSetId": 1
@@ -45,6 +69,30 @@
       "revId": "02164a8bafeb27586c3c5f93346f254fda4b015f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f0a6ecbb_7caa6286",
+        "filename": "av1/decoder/decoder.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 9101
+      },
+      "writtenOn": "2018-04-18T04:58:41Z",
+      "side": 1,
+      "message": "This structure is added for future use. More member variables will be added. It acts similar to TileDataEnc structure of encoder.",
+      "parentUuid": "572fa229_7b2e5bc0",
+      "range": {
+        "startLine": 47,
+        "startChar": 2,
+        "endLine": 47,
+        "endChar": 13
+      },
+      "revId": "02164a8bafeb27586c3c5f93346f254fda4b015f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
