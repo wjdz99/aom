@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "209d522e_83dde39c",
+        "filename": "aom/aom_image.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 257,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2018-04-18T22:02:55Z",
+      "side": 1,
+      "message": "This alignment applies to 2 things - the buffer and the stride as mentioned in the comment. The name \"align\" used here follows the one in above functions.",
+      "parentUuid": "dfe2f7f5_50113b28",
+      "revId": "e7ef82571cee6e6af65ddd5955be7c68401bfe17",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f612b0a9_ac4f8818",
         "filename": "aom/src/aom_image.c",
         "patchSetId": 3
@@ -30,6 +48,24 @@
       "writtenOn": "2018-04-18T21:26:23Z",
       "side": 1,
       "message": "if this is an external api you may want to do a bit of sanity checking here on the inputs.",
+      "revId": "e7ef82571cee6e6af65ddd5955be7c68401bfe17",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3cee9c74_f2f05d4c",
+        "filename": "aom/src/aom_image.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2018-04-18T22:02:55Z",
+      "side": 1,
+      "message": "There are some checking in img_alloc_helper(). I think I can add similar checking for size_align.",
+      "parentUuid": "f612b0a9_ac4f8818",
       "revId": "e7ef82571cee6e6af65ddd5955be7c68401bfe17",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
