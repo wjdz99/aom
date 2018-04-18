@@ -110,8 +110,8 @@ int av1_get_frame_to_show(struct AV1Decoder *pbi, YV12_BUFFER_CONFIG *frame);
 aom_codec_err_t av1_copy_reference_dec(struct AV1Decoder *pbi, int idx,
                                        YV12_BUFFER_CONFIG *sd);
 
-aom_codec_err_t av1_set_reference_dec(AV1_COMMON *cm, int idx,
-                                      YV12_BUFFER_CONFIG *sd);
+aom_codec_err_t av1_set_reference_ptr_dec(AV1_COMMON *cm, int idx,
+                                          YV12_BUFFER_CONFIG *sd);
 
 struct AV1Decoder *av1_decoder_create(BufferPool *const pool);
 
