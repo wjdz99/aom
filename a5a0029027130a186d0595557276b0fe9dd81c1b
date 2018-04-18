@@ -39,6 +39,29 @@
       "revId": "a5a0029027130a186d0595557276b0fe9dd81c1b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6ee91a3f_0c4db2e8",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 489,
+      "author": {
+        "id": 5975
+      },
+      "writtenOn": "2018-04-18T10:17:36Z",
+      "side": 1,
+      "message": "Note to self: This block is unnecessary now, as this condition is checked within aom_read_obu_header_and_size() (by either read_obu_size() or read_obu_header()).",
+      "range": {
+        "startLine": 486,
+        "startChar": 0,
+        "endLine": 489,
+        "endChar": 5
+      },
+      "revId": "a5a0029027130a186d0595557276b0fe9dd81c1b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
