@@ -26,21 +26,19 @@
 namespace {
 using libaom_test::ACMRandom;
 
-#define QUAN_PARAM_LIST                                                   \
-  const tran_low_t *coeff_ptr, intptr_t n_coeffs, int skip_block,         \
-      const int16_t *zbin_ptr, const int16_t *round_ptr,                  \
-      const int16_t *quant_ptr, const int16_t *quant_shift_ptr,           \
-      tran_low_t *qcoeff_ptr, tran_low_t *dqcoeff_ptr,                    \
-      const int16_t *dequant_ptr, uint16_t *eob_ptr, const int16_t *scan, \
-      const int16_t *iscan
+#define QUAN_PARAM_LIST                                                       \
+  const tran_low_t *coeff_ptr, intptr_t n_coeffs, const int16_t *zbin_ptr,    \
+      const int16_t *round_ptr, const int16_t *quant_ptr,                     \
+      const int16_t *quant_shift_ptr, tran_low_t *qcoeff_ptr,                 \
+      tran_low_t *dqcoeff_ptr, const int16_t *dequant_ptr, uint16_t *eob_ptr, \
+      const int16_t *scan, const int16_t *iscan
 
 typedef void (*QuantizeFunc)(QUAN_PARAM_LIST);
 typedef void (*QuantizeFuncHbd)(QUAN_PARAM_LIST, int log_scale);
 
 #define HBD_QUAN_FUNC                                                      \
-  fn(coeff_ptr, n_coeffs, skip_block, zbin_ptr, round_ptr, quant_ptr,      \
-     quant_shift_ptr, qcoeff_ptr, dqcoeff_ptr, dequant_ptr, eob_ptr, scan, \
-     iscan, log_scale)
+  fn(coeff_ptr, n_coeffs, zbin_ptr, round_ptr, quant_ptr, quant_shift_ptr, \
+     qcoeff_ptr, dqcoeff_ptr, dequant_ptr, eob_ptr, scan, iscan, log_scale)
 
 template <QuantizeFuncHbd fn>
 void highbd_quan16x16_wrapper(QUAN_PARAM_LIST) {
@@ -104,7 +102,6 @@ class QuantizeTest : public ::testing::TestWithParam<QuantizeParam> {
   void QuantizeRun(bool is_loop, int q = 0, int test_num = 1) {
     tran_low_t *coeff_ptr = coeff_;
     const intptr_t n_coeffs = coeff_num();
-    const int skip_block = 0;
 
     tran_low_t *qcoeff_ref = coeff_ptr + n_coeffs;
     tran_low_t *dqcoeff_ref = qcoeff_ref + n_coeffs;
@@ -137,13 +134,13 @@ class QuantizeTest : public ::testing::TestWithParam<QuantizeParam> {
 
       memset(qcoeff_ref, 0, 5 * n_coeffs * sizeof(*qcoeff_ref));
 
-      quant_ref_(coeff_ptr, n_coeffs, skip_block, zbin, round, quant,
-                 quant_shift, qcoeff_ref, dqcoeff_ref, dequant, &eob[0],
-                 sc->scan, sc->iscan);
+      quant_ref_(coeff_ptr, n_coeffs, zbin, round, quant, quant_shift,
+                 qcoeff_ref, dqcoeff_ref, dequant, &eob[0], sc->scan,
+                 sc->iscan);
 
-      ASM_REGISTER_STATE_CHECK(quant_(
-          coeff_ptr, n_coeffs, skip_block, zbin, round, quant, quant_shift,
-          qcoeff, dqcoeff, dequant, &eob[1], sc->scan, sc->iscan));
+      ASM_REGISTER_STATE_CHECK(quant_(coeff_ptr, n_coeffs, zbin, round, quant,
+                                      quant_shift, qcoeff, dqcoeff, dequant,
+                                      &eob[1], sc->scan, sc->iscan));
 
       for (int j = 0; j < n_coeffs; ++j) {
         ASSERT_EQ(qcoeff_ref[j], qcoeff[j])
@@ -258,7 +255,6 @@ TEST_P(QuantizeTest, MultipleQ) {
 TEST_P(QuantizeTest, DISABLED_Speed) {
   tran_low_t *coeff_ptr = coeff_;
   const intptr_t n_coeffs = coeff_num();
-  const int skip_block = 0;
 
   tran_low_t *qcoeff_ref = coeff_ptr + n_coeffs;
   tran_low_t *dqcoeff_ref = qcoeff_ref + n_coeffs;
@@ -284,8 +280,8 @@ TEST_P(QuantizeTest, DISABLED_Speed) {
 
   aom_usec_timer_start(&timer);
   for (int n = 0; n < kNumTests; ++n) {
-    quant_(coeff_ptr, n_coeffs, skip_block, zbin, round_fp, quant_fp,
-           quant_shift, qcoeff, dqcoeff, dequant, eob, sc->scan, sc->iscan);
+    quant_(coeff_ptr, n_coeffs, zbin, round_fp, quant_fp, quant_shift, qcoeff,
+           dqcoeff, dequant, eob, sc->scan, sc->iscan);
   }
   aom_usec_timer_mark(&timer);
 
