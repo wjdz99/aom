@@ -178,9 +178,16 @@ aom_codec_err_t av1_copy_reference_dec(AV1Decoder *pbi, int idx,
   return cm->error.error_code;
 }
 
-aom_codec_err_t av1_set_reference_dec(AV1_COMMON *cm, int idx,
-                                      YV12_BUFFER_CONFIG *sd) {
-  const int num_planes = av1_num_planes(cm);
+static int equal_dimensions_and_border(const YV12_BUFFER_CONFIG *a,
+                                       const YV12_BUFFER_CONFIG *b) {
+  return a->y_height == b->y_height && a->y_width == b->y_width &&
+         a->uv_height == b->uv_height && a->uv_width == b->uv_width &&
+         a->y_stride == b->y_stride && a->uv_stride == b->uv_stride &&
+         a->border == b->border;
+}
+
+aom_codec_err_t av1_set_reference_ptr_dec(AV1_COMMON *cm, int idx,
+                                          YV12_BUFFER_CONFIG *sd) {
   YV12_BUFFER_CONFIG *ref_buf = NULL;
 
   // Get the destination reference buffer.
@@ -191,12 +198,16 @@ aom_codec_err_t av1_set_reference_dec(AV1_COMMON *cm, int idx,
     return AOM_CODEC_ERROR;
   }
 
-  if (!equal_dimensions(ref_buf, sd)) {
+  if (!equal_dimensions_and_border(ref_buf, sd)) {
     aom_internal_error(&cm->error, AOM_CODEC_ERROR,
                        "Incorrect buffer dimensions");
   } else {
-    // Overwrite the reference frame buffer.
-    aom_yv12_copy_frame(sd, ref_buf, num_planes);
+    // Overwrite the reference frame buffer pointers.
+    // Note: don't overwrite ref_buf->buffer_alloc, so that the internally
+    // allocated memory will be freed.
+    ref_buf->y_buffer = sd->y_buffer;
+    ref_buf->u_buffer = sd->u_buffer;
+    ref_buf->v_buffer = sd->v_buffer;
   }
 
   return cm->error.error_code;
