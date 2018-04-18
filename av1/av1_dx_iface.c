@@ -700,6 +700,8 @@ static aom_codec_err_t decoder_set_fb_fn(
   return AOM_CODEC_ERROR;
 }
 
+// This API allows to set reference frame by copying the buffer poniters instead
+// of copying the whole frame.
 static aom_codec_err_t ctrl_set_reference(aom_codec_alg_priv_t *ctx,
                                           va_list args) {
   av1_ref_frame_t *const data = va_arg(args, av1_ref_frame_t *);
@@ -710,8 +712,8 @@ static aom_codec_err_t ctrl_set_reference(aom_codec_alg_priv_t *ctx,
     AVxWorker *const worker = ctx->frame_workers;
     FrameWorkerData *const frame_worker_data = (FrameWorkerData *)worker->data1;
     image2yuvconfig(&frame->img, &sd);
-    return av1_set_reference_dec(&frame_worker_data->pbi->common, frame->idx,
-                                 &sd);
+    return av1_set_reference_ptr_dec(&frame_worker_data->pbi->common,
+                                     frame->idx, &sd);
   } else {
     return AOM_CODEC_INVALID_PARAM;
   }
