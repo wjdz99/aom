@@ -19,6 +19,7 @@
  * The --output-grain-table file can be passed as input to the encoder (in
  * aomenc this is done through the "--film-grain-table" parameter).
  */
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -31,6 +32,9 @@
 #include "aom_dsp/noise_model.h"
 #include "aom_dsp/noise_util.h"
 #include "aom_dsp/grain_table.h"
+#if CONFIG_AV1_DECODER
+#include "aom_dsp/grain_synthesis.h"
+#endif
 #include "aom_mem/aom_mem.h"
 
 static const char *exec_name;
@@ -59,7 +63,7 @@ static const arg_def_t output_grain_table_arg =
 static const arg_def_t input_denoised_arg =
     ARG_DEF("d", "input-denoised", 1, "Input denoised filename (YUV) only");
 static const arg_def_t block_size_arg =
-    ARG_DEF("b", "block_size", 1, "Block size");
+    ARG_DEF("b", "block-size", 1, "Block size");
 static const arg_def_t bit_depth_arg =
     ARG_DEF(NULL, "bit-depth", 1, "Bit depth of input");
 static const arg_def_t use_i420 =
@@ -68,6 +72,8 @@ static const arg_def_t use_i422 =
     ARG_DEF(NULL, "i422", 0, "Input file (and denoised) is I422");
 static const arg_def_t use_i444 =
     ARG_DEF(NULL, "i444", 0, "Input file (and denoised) is I444");
+static const arg_def_t debug_file_arg =
+    ARG_DEF(NULL, "debug-file", 1, "File to output debug info");
 
 typedef struct {
   int width;
@@ -82,6 +88,7 @@ typedef struct {
   int run_flat_block_finder;
   int force_flat_psd;
   int skip_frames;
+  const char *debug_file;
 } noise_model_args_t;
 
 void parse_args(noise_model_args_t *noise_args, int *argc, char **argv) {
@@ -97,6 +104,7 @@ void parse_args(noise_model_args_t *noise_args, int *argc, char **argv) {
                                           &use_i420,
                                           &use_i422,
                                           &use_i444,
+                                          &debug_file_arg,
                                           NULL };
   for (int argi = *argc + 1; *argv; argi++, argv++) {
     if (arg_match(&arg, &help, argv)) {
@@ -127,6 +135,8 @@ void parse_args(noise_model_args_t *noise_args, int *argc, char **argv) {
       noise_args->img_fmt = AOM_IMG_FMT_I444;
     } else if (arg_match(&arg, &skip_frames_arg, argv)) {
       noise_args->skip_frames = atoi(arg.val);
+    } else if (arg_match(&arg, &debug_file_arg, argv)) {
+      noise_args->debug_file = arg.val;
     } else {
       fprintf(stdout, "Unknown arg: %s\n\nUsage:\n", *argv);
       arg_show_usage(stdout, main_args);
@@ -138,9 +148,111 @@ void parse_args(noise_model_args_t *noise_args, int *argc, char **argv) {
   }
 }
 
+#if CONFIG_AV1_DECODER
+static void print_variance_y(FILE *debug_file, aom_image_t *raw,
+                             aom_image_t *denoised, const uint8_t *flat_blocks,
+                             int block_size, aom_film_grain_t *grain) {
+  aom_image_t renoised;
+  grain->apply_grain = 1;
+  grain->random_seed = 1071;
+  aom_img_alloc(&renoised, raw->fmt, raw->w, raw->h, 1);
+  av1_add_film_grain(grain, denoised, &renoised);
+
+  const int num_blocks_w = (raw->w + block_size - 1) / block_size;
+  const int num_blocks_h = (raw->h + block_size - 1) / block_size;
+  fprintf(debug_file, "x = [");
+  for (int by = 0; by < num_blocks_h; by++) {
+    for (int bx = 0; bx < num_blocks_w; bx++) {
+      double block_mean = 0;
+      double noise_std = 0, noise_mean = 0;
+      double renoise_std = 0, renoise_mean = 0;
+      for (int yi = 0; yi < block_size; ++yi) {
+        const int y = by * block_size + yi;
+        for (int xi = 0; xi < block_size; ++xi) {
+          const int x = bx * block_size + xi;
+          const double noise_v = (raw->planes[0][y * raw->stride[0] + x] -
+                                  denoised->planes[0][y * raw->stride[0] + x]);
+          noise_mean += noise_v;
+          noise_std += noise_v * noise_v;
+
+          block_mean += raw->planes[0][y * raw->stride[0] + x];
+
+          const double renoise_v =
+              (renoised.planes[0][y * raw->stride[0] + x] -
+               denoised->planes[0][y * raw->stride[0] + x]);
+          renoise_mean += renoise_v;
+          renoise_std += renoise_v * renoise_v;
+        }
+      }
+      int n = (block_size * block_size);
+      block_mean /= n;
+      noise_mean /= n;
+      renoise_mean /= n;
+      noise_std = sqrt(noise_std / n - noise_mean * noise_mean);
+      renoise_std = sqrt(renoise_std / n - renoise_mean * renoise_mean);
+      fprintf(debug_file, "%d %3.2lf %3.2lf %3.2lf  ",
+              flat_blocks[by * num_blocks_w + bx], block_mean, noise_std,
+              renoise_std);
+    }
+    fprintf(debug_file, "\n");
+  }
+  fprintf(debug_file, "];\n");
+
+  if (raw->fmt & AOM_IMG_FMT_HIGHBITDEPTH) {
+    fprintf(stderr,
+            "Detailed debug info not supported for high bit"
+            "depth formats\n");
+  } else {
+    fprintf(debug_file, "figure(2); clf;\n");
+    fprintf(debug_file,
+            "scatter(x(:, 2:4:end), x(:, 3:4:end), 'r'); hold on;\n");
+    fprintf(debug_file, "scatter(x(:, 2:4:end), x(:, 4:4:end), 'b');\n");
+    fprintf(debug_file,
+            "plot(linspace(0, 255, length(noise_strength_0)), "
+            "noise_strength_0, 'b');\n");
+    fprintf(debug_file,
+            "title('Scatter plot of intensity vs noise strength');\n");
+    fprintf(debug_file,
+            "legend('Actual', 'Estimated', 'Estimated strength');\n");
+    fprintf(debug_file, "figure(3); clf;\n");
+    fprintf(debug_file, "scatter(x(:, 3:4:end), x(:, 4:4:end), 'k');\n");
+    fprintf(debug_file, "title('Actual vs Estimated');\n");
+    fprintf(debug_file, "pause(3);\n");
+  }
+  aom_img_free(&renoised);
+}
+#endif
+
+static void print_debug_info(FILE *debug_file, aom_image_t *raw,
+                             aom_image_t *denoised, uint8_t *flat_blocks,
+                             int block_size, aom_noise_model_t *noise_model) {
+  fprintf(debug_file, "figure(3); clf;\n");
+  fprintf(debug_file, "figure(2); clf;\n");
+  fprintf(debug_file, "figure(1); clf;\n");
+  for (int c = 0; c < 3; ++c) {
+    fprintf(debug_file, "noise_strength_%d = [\n", c);
+    const aom_equation_system_t *eqns =
+        &noise_model->combined_state[c].strength_solver.eqns;
+    for (int k = 0; k < eqns->n; ++k) {
+      fprintf(debug_file, "%lf ", eqns->x[k]);
+    }
+    fprintf(debug_file, "];\n");
+    fprintf(debug_file, "plot(noise_strength_%d); hold on;\n", c);
+  }
+  fprintf(debug_file, "legend('Y', 'cb', 'cr');\n");
+  fprintf(debug_file, "title('Noise strength function');\n");
+
+#if CONFIG_AV1_DECODER
+  aom_film_grain_t grain;
+  aom_noise_model_get_grain_parameters(noise_model, &grain);
+  print_variance_y(debug_file, raw, denoised, flat_blocks, block_size, &grain);
+#endif
+  fflush(debug_file);
+}
+
 int main(int argc, char *argv[]) {
-  noise_model_args_t args = { 0,  0, { 1, 25 }, 0, 0, 0, AOM_IMG_FMT_I420,
-                              32, 8, 0,         0, 1 };
+  noise_model_args_t args = { 0,  0, { 1, 25 }, 0, 0, 0,   AOM_IMG_FMT_I420,
+                              32, 8, 0,         0, 1, NULL };
   aom_image_t raw, denoised;
   FILE *infile = NULL;
   AvxVideoInfo info;
@@ -182,6 +294,8 @@ int main(int argc, char *argv[]) {
   const int num_blocks_w = (info.frame_width + block_size - 1) / block_size;
   const int num_blocks_h = (info.frame_height + block_size - 1) / block_size;
   uint8_t *flat_blocks = (uint8_t *)aom_malloc(num_blocks_w * num_blocks_h);
+  // Sets the random seed on the first entry in the output table
+  int16_t random_seed = 1071;
   aom_noise_model_t noise_model;
   aom_noise_model_params_t params = { AOM_NOISE_SHAPE_SQUARE, 3, args.bit_depth,
                                       high_bd };
@@ -194,6 +308,10 @@ int main(int argc, char *argv[]) {
       die("Unable to open input_denoised: %s", args.input_denoised);
   } else {
     die("--input-denoised file must be specified");
+  }
+  FILE *debug_file = 0;
+  if (args.debug_file) {
+    debug_file = fopen(args.debug_file, "w");
   }
   aom_film_grain_table_t grain_table = { 0, 0 };
 
@@ -237,14 +355,21 @@ int main(int argc, char *argv[]) {
                 "Noise type is different, updating parameters for time "
                 "[ %" PRId64 ", %" PRId64 ")\n",
                 prev_timestamp, cur_timestamp);
+        aom_noise_model_save_latest(&noise_model);
+
         aom_film_grain_t grain;
         aom_noise_model_get_grain_parameters(&noise_model, &grain);
+        grain.random_seed = random_seed;
+        random_seed = 0;
         aom_film_grain_table_append(&grain_table, prev_timestamp, cur_timestamp,
                                     &grain);
         aom_noise_model_save_latest(&noise_model);
         prev_timestamp = cur_timestamp;
       }
-
+      if (debug_file) {
+        print_debug_info(debug_file, &raw, &denoised, flat_blocks, block_size,
+                         &noise_model);
+      }
       fprintf(stdout, "Done noise model update, status = %d\n", status);
     }
     frame_count++;
@@ -252,6 +377,7 @@ int main(int argc, char *argv[]) {
 
   aom_film_grain_t grain;
   aom_noise_model_get_grain_parameters(&noise_model, &grain);
+  grain.random_seed = random_seed;
   aom_film_grain_table_append(&grain_table, prev_timestamp, INT64_MAX, &grain);
   if (args.output_grain_table) {
     struct aom_internal_error_info error_info;
@@ -265,8 +391,8 @@ int main(int argc, char *argv[]) {
 
   if (infile) fclose(infile);
   if (denoised_file) fclose(denoised_file);
+  if (debug_file) fclose(debug_file);
   aom_img_free(&raw);
   aom_img_free(&denoised);
-
   return EXIT_SUCCESS;
 }
