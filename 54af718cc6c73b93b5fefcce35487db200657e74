@@ -34,6 +34,24 @@
       "revId": "54af718cc6c73b93b5fefcce35487db200657e74",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "63bd1149_81d9b49c",
+        "filename": "aom/src/aom_image.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 9493
+      },
+      "writtenOn": "2018-04-19T00:40:06Z",
+      "side": 1,
+      "message": "thanks!  that makes it a lot easier to read.",
+      "parentUuid": "53c93fa1_ff35b993",
+      "revId": "54af718cc6c73b93b5fefcce35487db200657e74",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
