@@ -368,13 +368,10 @@ static void decode_token_and_recon_block(AV1Decoder *const pbi,
   if (mbmi->skip) av1_reset_skip_context(xd, mi_row, mi_col, bsize, num_planes);
 
   if (!is_inter_block(mbmi)) {
-    const struct macroblockd_plane *const y_pd = &xd->plane[0];
-    const BLOCK_SIZE plane_bsize = get_plane_block_size(bsize, y_pd);
     int row, col;
-    const int max_blocks_wide = max_block_wide(xd, plane_bsize, 0);
-    const int max_blocks_high = max_block_high(xd, plane_bsize, 0);
-
-    const BLOCK_SIZE max_unit_bsize = get_plane_block_size(BLOCK_64X64, y_pd);
+    const int max_blocks_wide = max_block_wide(xd, bsize, 0);
+    const int max_blocks_high = max_block_high(xd, bsize, 0);
+    const BLOCK_SIZE max_unit_bsize = BLOCK_64X64;
     int mu_blocks_wide =
         block_size_wide[max_unit_bsize] >> tx_size_wide_log2[0];
     int mu_blocks_high =
