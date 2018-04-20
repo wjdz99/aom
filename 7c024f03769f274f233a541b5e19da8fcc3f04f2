@@ -22,6 +22,30 @@
       "revId": "7c024f03769f274f233a541b5e19da8fcc3f04f2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "49312b2f_00307e6e",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 8471
+      },
+      "writtenOn": "2018-04-20T21:52:05Z",
+      "side": 1,
+      "message": "It produces the same output as the c version.  I\u0027ll update the message.",
+      "parentUuid": "bca1d4b7_62cb0bf2",
+      "range": {
+        "startLine": 7,
+        "startChar": 44,
+        "endLine": 7,
+        "endChar": 48
+      },
+      "revId": "7c024f03769f274f233a541b5e19da8fcc3f04f2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
