@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "4d579c11_5236e4ab",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 7963
+      },
+      "writtenOn": "2018-04-20T16:42:58Z",
+      "side": 1,
+      "message": "Actually, 1 operating point means no scalability (0 enhancement layers).  Thus, this is correct.",
+      "parentUuid": "237eace3_11afa868",
+      "revId": "b764f3ab22d4a6dd6b6aeb2fb70e75a6d0aff780",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d7b4bd82_fa4fdd48",
         "filename": "av1/av1_dx_iface.c",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2018-04-07T03:05:36Z",
       "side": 1,
       "message": "this can be scoped to the loop",
+      "revId": "b764f3ab22d4a6dd6b6aeb2fb70e75a6d0aff780",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "98398b2a_abdf9fff",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 7963
+      },
+      "writtenOn": "2018-04-20T16:42:58Z",
+      "side": 1,
+      "message": "The refactored code resolves this",
+      "parentUuid": "d7b4bd82_fa4fdd48",
       "revId": "b764f3ab22d4a6dd6b6aeb2fb70e75a6d0aff780",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "b3ff132b_427f2319",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 7963
+      },
+      "writtenOn": "2018-04-20T16:42:58Z",
+      "side": 1,
+      "message": "this code was refactored",
+      "parentUuid": "357233b2_6e2ce278",
+      "revId": "b764f3ab22d4a6dd6b6aeb2fb70e75a6d0aff780",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "33f6776b_5e938b29",
         "filename": "av1/av1_dx_iface.c",
         "patchSetId": 1
@@ -67,6 +121,24 @@
       "revId": "b764f3ab22d4a6dd6b6aeb2fb70e75a6d0aff780",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bcc0577a_58cc0eea",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 7963
+      },
+      "writtenOn": "2018-04-20T16:42:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "33f6776b_5e938b29",
+      "revId": "b764f3ab22d4a6dd6b6aeb2fb70e75a6d0aff780",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "b42a976e_4136c23a",
+        "filename": "examples/scalable_decoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 7963
+      },
+      "writtenOn": "2018-04-20T16:42:58Z",
+      "side": 1,
+      "message": "The way file_is_obu( ) and obudec_read_temporal_unit( ) are structured, obudec_read_temporal_unit( ) expects the current TU\u0027s temporal delimiter to be read-in in a previous call.  Thus, file_is_obu( ) needs to be called right before the first obudec_read_temporal_unit( ) call.  This was done to remove \"rewind\" file calls so that piping of output is possible.",
+      "parentUuid": "fcd15320_047434b4",
+      "revId": "b764f3ab22d4a6dd6b6aeb2fb70e75a6d0aff780",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "102e223b_92ba9626",
         "filename": "test/scalability_test.cc",
         "patchSetId": 1
@@ -101,6 +191,24 @@
       "revId": "b764f3ab22d4a6dd6b6aeb2fb70e75a6d0aff780",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8c71410c_48e6b0c6",
+        "filename": "test/scalability_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 7963
+      },
+      "writtenOn": "2018-04-20T16:42:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "102e223b_92ba9626",
+      "revId": "b764f3ab22d4a6dd6b6aeb2fb70e75a6d0aff780",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -127,6 +235,30 @@
     },
     {
       "key": {
+        "uuid": "584bc08d_09d6003d",
+        "filename": "test/scalability_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 7963
+      },
+      "writtenOn": "2018-04-20T16:42:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ab4d5242_10fb0e64",
+      "range": {
+        "startLine": 62,
+        "startChar": 18,
+        "endLine": 62,
+        "endChar": 29
+      },
+      "revId": "b764f3ab22d4a6dd6b6aeb2fb70e75a6d0aff780",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "388b2638_8a1534f0",
         "filename": "test/scalability_test.cc",
         "patchSetId": 1
@@ -147,6 +279,30 @@
       "revId": "b764f3ab22d4a6dd6b6aeb2fb70e75a6d0aff780",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "52823b83_0606a6a5",
+        "filename": "test/scalability_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 7963
+      },
+      "writtenOn": "2018-04-20T16:42:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "388b2638_8a1534f0",
+      "range": {
+        "startLine": 77,
+        "startChar": 30,
+        "endLine": 77,
+        "endChar": 38
+      },
+      "revId": "b764f3ab22d4a6dd6b6aeb2fb70e75a6d0aff780",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
