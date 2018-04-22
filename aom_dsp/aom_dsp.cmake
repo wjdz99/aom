@@ -75,7 +75,8 @@ set(AOM_DSP_COMMON_INTRIN_AVX2
     "${AOM_ROOT}/aom_dsp/x86/common_avx2.h"
     "${AOM_ROOT}/aom_dsp/x86/convolve_avx2.h"
     "${AOM_ROOT}/aom_dsp/x86/inv_txfm_common_avx2.h"
-    "${AOM_ROOT}/aom_dsp/x86/txfm_common_avx2.h")
+    "${AOM_ROOT}/aom_dsp/x86/txfm_common_avx2.h"
+    "${AOM_ROOT}/aom_dsp/x86/blend_a64_mask_avx2.c")
 
 set(AOM_DSP_COMMON_ASM_NEON
     ${AOM_DSP_COMMON_ASM_NEON}
