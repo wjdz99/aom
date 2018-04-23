@@ -355,14 +355,21 @@ typedef struct ActiveMap {
   unsigned char *map;
 } ActiveMap;
 
-#define NUM_STAT_TYPES 4  // types of stats: Y, U, V and ALL
+#if CONFIG_INTERNAL_STATS
+// types of stats
+typedef enum {
+  STAT_Y = 0,
+  STAT_U = 1,
+  STAT_V = 2,
+  STAT_ALL = 3,
+  NUM_STAT_TYPES  // This should always be the last member of the enum
+} STAT_TYPE;
 
 typedef struct IMAGE_STAT {
   double stat[NUM_STAT_TYPES];
   double worst;
 } ImageStat;
-
-#undef NUM_STAT_TYPES
+#endif  // CONFIG_INTERNAL_STATS
 
 typedef struct {
   int ref_count;
