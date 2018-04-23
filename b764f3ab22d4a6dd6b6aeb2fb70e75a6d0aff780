@@ -195,6 +195,24 @@
     },
     {
       "key": {
+        "uuid": "d396656b_e2d7709d",
+        "filename": "examples/scalable_decoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 7963
+      },
+      "writtenOn": "2018-04-23T19:04:46Z",
+      "side": 1,
+      "message": "The \"remove \"rewind\" to support piping\" changes were done by Tom Finegan.  They were not like that before.  I don\u0027t know what the scope of his work is.  I am attempting to re-use functions that are available.  The behavior of these functions were changed by Tom, so I am merely trying to adjust my code to re-use them.  I have no desire/intent to have scalable_encoder output piped.",
+      "parentUuid": "0e8b0de9_cf5b3149",
+      "revId": "b764f3ab22d4a6dd6b6aeb2fb70e75a6d0aff780",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "102e223b_92ba9626",
         "filename": "test/scalability_test.cc",
         "patchSetId": 1
