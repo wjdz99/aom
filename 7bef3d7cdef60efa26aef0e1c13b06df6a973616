@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "417f9a41_982ecfdf",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 360,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-04-23T22:40:13Z",
+      "side": 1,
+      "message": "Is this enum and struct only used in the single \".c\" file? If so, move both to the \".c\" itself.",
+      "revId": "7bef3d7cdef60efa26aef0e1c13b06df6a973616",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d66d183b_7b733e42",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 361,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-04-23T22:40:13Z",
+      "side": 1,
+      "message": "No need to set \u0027\u003d 0\u0027 etc. These will be the default values anyway.",
+      "revId": "7bef3d7cdef60efa26aef0e1c13b06df6a973616",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "64f75763_90447704",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 366,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-04-23T22:40:13Z",
+      "side": 1,
+      "message": "s/STAT_TYPE/StatType/\n\nCurrently, the codebase isn\u0027t consistent about this, but we want all enum type names to be CamelCase eventually.",
+      "range": {
+        "startLine": 366,
+        "startChar": 2,
+        "endLine": 366,
+        "endChar": 11
+      },
+      "revId": "7bef3d7cdef60efa26aef0e1c13b06df6a973616",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
