@@ -620,9 +620,9 @@ void aom_highbd_upsampled_pred_sse2(uint16_t *comp_pred, int width, int height,
     }
   } else {
     const InterpFilterParams filter_x =
-        av1_get_interp_filter_params_with_block_size(EIGHTTAP_REGULAR, width);
+        av1_get_interp_filter_params_with_block_size(EIGHTTAP_REGULAR, 8);
     const InterpFilterParams filter_y =
-        av1_get_interp_filter_params_with_block_size(EIGHTTAP_REGULAR, height);
+        av1_get_interp_filter_params_with_block_size(EIGHTTAP_REGULAR, 8);
     if (!subpel_y_q3) {
       const int16_t *kernel;
       kernel = av1_get_interp_filter_subpel_kernel(filter_x, subpel_x_q3 << 1);
