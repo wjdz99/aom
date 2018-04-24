@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "82fdaef1_3b90afca",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 335,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2018-04-24T23:55:44Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 335,
+        "startChar": 7,
+        "endLine": 335,
+        "endChar": 14
+      },
+      "revId": "36705b07d7bda83a35d9ef924f3e20a20694b9b7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "08c85428_30923b8b",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 353,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2018-04-24T23:55:44Z",
+      "side": 1,
+      "message": "REF_FRAMES may make more sense.",
+      "range": {
+        "startLine": 353,
+        "startChar": 46,
+        "endLine": 353,
+        "endChar": 62
+      },
+      "revId": "36705b07d7bda83a35d9ef924f3e20a20694b9b7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e7cf9528_6c37ed47",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 366,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2018-04-24T23:55:44Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 366,
+        "startChar": 7,
+        "endLine": 366,
+        "endChar": 14
+      },
+      "revId": "36705b07d7bda83a35d9ef924f3e20a20694b9b7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cd458176_0d975bdb",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 484,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2018-04-24T23:55:44Z",
+      "side": 1,
+      "message": "Since we return at end of each \"if\", we can make the code a bit easier to read:\nif (condition_1) {\n ...\n return;\n}\n\nif (condition_2) {\n ...\n return;\n}  \n\n...",
+      "range": {
+        "startLine": 462,
+        "startChar": 2,
+        "endLine": 484,
+        "endChar": 0
+      },
+      "revId": "36705b07d7bda83a35d9ef924f3e20a20694b9b7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bdc06854_4cb1cfc7",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 8698,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2018-04-24T23:55:44Z",
+      "side": 1,
+      "message": "Do we need to do \"x-\u003eskip_mode_rdcost \u003d INT64_MAX;\" here(or at beginning of this function)?",
+      "range": {
+        "startLine": 8698,
+        "startChar": 4,
+        "endLine": 8698,
+        "endChar": 11
+      },
+      "revId": "36705b07d7bda83a35d9ef924f3e20a20694b9b7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cfd47216_0ce389e5",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 8704,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2018-04-24T23:55:44Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 8704,
+        "startChar": 2,
+        "endLine": 8704,
+        "endChar": 5
+      },
+      "revId": "36705b07d7bda83a35d9ef924f3e20a20694b9b7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
