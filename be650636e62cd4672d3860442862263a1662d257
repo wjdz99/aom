@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "787560f2_11c9e968",
+        "filename": "test/decode_multithreaded_test.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-04-24T17:17:09Z",
+      "side": 1,
+      "message": "Nit: I suggest adding a blank line to separate the C/C++ system headers from the other headers, and sorting the other headers in alphabetical order as follows:\n\n#include \u003ccstdio\u003e\t\n#include \u003ccstdlib\u003e\n#include \u003cstring\u003e\n\n#include \"aom_mem/aom_mem.h\"\n#include \"test/codec_factory.h\"\t\n#include \"test/encode_test_driver.h\"\n#include \"test/i420_video_source.h\"\n#include \"test/md5_helper.h\"\n#include \"test/util.h\"\n#include \"third_party/googletest/src/googletest/include/gtest/gtest.h\"\n\nPlease see the Style Guide:\nhttps://google.github.io/styleguide/cppguide.html#Names_and_Order_of_Includes",
+      "range": {
+        "startLine": 12,
+        "startChar": 0,
+        "endLine": 21,
+        "endChar": 28
+      },
+      "revId": "be650636e62cd4672d3860442862263a1662d257",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "89ab05dd_8efd3afe",
+        "filename": "test/decode_multithreaded_test.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-04-24T17:17:09Z",
+      "side": 1,
+      "message": "Nit: In C++ code, we can define this as a constant. Let\u0027s also move it into the unnamed namespace, as follows:\n\nnamespace {\n\nconstexpr int kMaxNumThreadsMinus1 \u003d 7;\n\nclass AV1DecodeMultiThreadedTest\n...",
+      "range": {
+        "startLine": 23,
+        "startChar": 0,
+        "endLine": 23,
+        "endChar": 33
+      },
+      "revId": "be650636e62cd4672d3860442862263a1662d257",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d87d7be8_380eab8d",
+        "filename": "test/decode_multithreaded_test.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-04-24T17:17:09Z",
+      "side": 1,
+      "message": "Nit: It seems that the for loop should not be nested inside the if statement for single_thread_dec_-\u003eIsAV1(). Should we rewrite this as follows?\n\n    if (single_thread_dec_-\u003eIsAV1()) {\n      single_thread_dec_-\u003eControl(AV1_SET_DECODE_TILE_ROW, -1);\n      single_thread_dec_-\u003eControl(AV1_SET_DECODE_TILE_COL, -1);\n    }\n    for (int t \u003d 0; t \u003c MAX_NUM_THREADS_MINUS_1; ++t) {\t\n      if (multi_thread_dec_[t]-\u003eIsAV1()) {\t\n        multi_thread_dec_[t]-\u003eControl(AV1_SET_DECODE_TILE_ROW, -1);\t\n        multi_thread_dec_[t]-\u003eControl(AV1_SET_DECODE_TILE_COL, -1);\n      }\t\n    }",
+      "range": {
+        "startLine": 47,
+        "startChar": 0,
+        "endLine": 56,
+        "endChar": 5
+      },
+      "revId": "be650636e62cd4672d3860442862263a1662d257",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cc655045_2bfa4c1e",
+        "filename": "test/decode_multithreaded_test.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-04-24T17:17:09Z",
+      "side": 1,
+      "message": "BUG: The order should be timebase.num, timebase.den. Here is the prototype of the libaom_test::I420VideoSource constructor:\n\nI420VideoSource(const std::string \u0026file_name, unsigned int width,\n                  unsigned int height, int rate_numerator, int rate_denominator,\n                  unsigned int start, int limit)",
+      "range": {
+        "startLine": 108,
+        "startChar": 39,
+        "endLine": 108,
+        "endChar": 65
+      },
+      "revId": "be650636e62cd4672d3860442862263a1662d257",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a89dd551_45503e5a",
+        "filename": "test/decode_multithreaded_test.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-04-24T17:17:09Z",
+      "side": 1,
+      "message": "Nit: I suggest defining one data member in each declaration:\n\n  ::libaom_test::MD5 md5_single_thread_;\n  ::libaom_test::MD5 md5_multi_thread_[MAX_NUM_THREADS_MINUS_1];\n  ::libaom_test::Decoder *single_thread_dec_;\n  ::libaom_test::Decoder *multi_thread_dec_[MAX_NUM_THREADS_MINUS_1];\n\nNote that the Style Guide disallows the second declaration at lines 121-122 because the data members are pointers:\n\n\"It is allowed (if unusual) to declare multiple variables in the same declaration, but it is disallowed if any of those have pointer or reference decorations. Such declarations are easily misread.\"\n\nPlease see the Style Guide:\nhttps://google.github.io/styleguide/cppguide.html#Pointer_and_Reference_Expressions",
+      "range": {
+        "startLine": 119,
+        "startChar": 0,
+        "endLine": 122,
+        "endChar": 50
+      },
+      "revId": "be650636e62cd4672d3860442862263a1662d257",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f89669d8_1ea2099e",
+        "filename": "test/decode_multithreaded_test.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-04-24T17:17:09Z",
+      "side": 1,
+      "message": "IMPORTANT: This test is exactly the same as AV1DecodeMultiThreadedTest.MD5Match. Is this right?",
+      "range": {
+        "startLine": 144,
+        "startChar": 0,
+        "endLine": 150,
+        "endChar": 1
+      },
+      "revId": "be650636e62cd4672d3860442862263a1662d257",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
