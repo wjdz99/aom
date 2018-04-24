@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6481b220_3444dfbc",
+        "filename": "test/decode_multithreaded_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2018-04-24T00:18:36Z",
+      "side": 1,
+      "message": "May not need to test 0? only do 1 and 2 here? Please add a comment here to state that more tests can be added back when we can use pre-generated MD5 instead of doing actual encoding in this test.",
+      "range": {
+        "startLine": 162,
+        "startChar": 28,
+        "endLine": 163,
+        "endChar": 55
+      },
+      "revId": "f4659f12c046647178c644a15e0ea1be58d4b7f3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "19712b8c_0d08ee6c",
+        "filename": "test/decode_multithreaded_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2018-04-24T00:18:36Z",
+      "side": 1,
+      "message": "Only test TG\u003d1 here. TG !\u003d 1 case is tested in Large test.",
+      "range": {
+        "startLine": 164,
+        "startChar": 26,
+        "endLine": 164,
+        "endChar": 51
+      },
+      "revId": "f4659f12c046647178c644a15e0ea1be58d4b7f3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "69804742_13a6c453",
+        "filename": "test/decode_multithreaded_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2018-04-24T00:18:36Z",
+      "side": 1,
+      "message": "Maybe move LS tests to Large test if it is needed.",
+      "range": {
+        "startLine": 191,
+        "startChar": 0,
+        "endLine": 193,
+        "endChar": 77
+      },
+      "revId": "f4659f12c046647178c644a15e0ea1be58d4b7f3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
