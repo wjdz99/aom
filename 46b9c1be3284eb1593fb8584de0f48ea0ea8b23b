@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "be6d0f71_72f0075e",
+        "filename": "av1/encoder/x86/av1_fwd_txfm_sse2.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2127,
+      "author": {
+        "id": 8900
+      },
+      "writtenOn": "2018-04-24T02:29:34Z",
+      "side": 1,
+      "message": "ditto",
+      "range": {
+        "startLine": 2127,
+        "startChar": 31,
+        "endLine": 2127,
+        "endChar": 47
+      },
+      "revId": "46b9c1be3284eb1593fb8584de0f48ea0ea8b23b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2e8f217d_d97825dc",
+        "filename": "av1/encoder/x86/av1_fwd_txfm_sse2.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 8900
+      },
+      "writtenOn": "2018-04-24T02:29:34Z",
+      "side": 1,
+      "message": "It seems there is only one entry in this array, can we remove it?",
+      "range": {
+        "startLine": 112,
+        "startChar": 31,
+        "endLine": 112,
+        "endChar": 47
+      },
+      "revId": "46b9c1be3284eb1593fb8584de0f48ea0ea8b23b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
