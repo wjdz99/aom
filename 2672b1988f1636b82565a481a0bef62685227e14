@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "e3cdb7bc_73f63169",
+        "filename": "av1/common/restoration.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2018-04-24T21:51:43Z",
+      "side": 1,
+      "message": "We didn\u0027t change lpf here. So this was an optimized LR. Will change it to optimized_lr.",
+      "parentUuid": "1157bad7_6296368b",
+      "range": {
+        "startLine": 229,
+        "startChar": 6,
+        "endLine": 229,
+        "endChar": 9
+      },
+      "revId": "2672b1988f1636b82565a481a0bef62685227e14",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "2f851f53_9b5a1256",
         "filename": "av1/encoder/pickrst.c",
         "patchSetId": 3
