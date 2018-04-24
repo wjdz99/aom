@@ -45,6 +45,30 @@
       "revId": "46b9c1be3284eb1593fb8584de0f48ea0ea8b23b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1fc84bd9_36e5700c",
+        "filename": "av1/encoder/x86/av1_fwd_txfm_sse2.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2018-04-24T17:12:52Z",
+      "side": 1,
+      "message": "Okay, I will do it in another patch",
+      "parentUuid": "2e8f217d_d97825dc",
+      "range": {
+        "startLine": 112,
+        "startChar": 31,
+        "endLine": 112,
+        "endChar": 47
+      },
+      "revId": "46b9c1be3284eb1593fb8584de0f48ea0ea8b23b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
