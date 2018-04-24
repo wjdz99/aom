@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "96e508b2_9be39f7d",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 9559,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2018-04-24T23:24:31Z",
+      "side": 1,
+      "message": "Would it be possible to move these inside handle_inter_mode()?",
+      "range": {
+        "startLine": 9554,
+        "startChar": 8,
+        "endLine": 9559,
+        "endChar": 9
+      },
+      "revId": "e59c3e6fdc5c1cd7a30701fa9c782570f78d7478",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
