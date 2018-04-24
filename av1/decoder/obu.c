@@ -10,6 +10,7 @@
  */
 
 #include <assert.h>
+#include <stdint.h>
 
 #include "./aom_config.h"
 
@@ -427,6 +428,11 @@ static aom_codec_err_t read_obu_size(const uint8_t *data,
     return AOM_CODEC_CORRUPT_FRAME;
   }
 
+#if UINT64_MAX > SIZE_MAX
+  // Detect integer truncation error if size_t is 32 bits.
+  if (u_obu_size > SIZE_MAX)
+    return AOM_CODEC_UNSUP_BITSTREAM;
+#endif
   *obu_size = (size_t)u_obu_size;
   return AOM_CODEC_OK;
 }
