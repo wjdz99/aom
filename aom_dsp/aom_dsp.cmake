@@ -429,8 +429,12 @@ function (setup_aom_dsp_targets)
   if (HAVE_AVX2)
     add_intrinsics_object_library("-mavx2" "avx2" "aom_dsp_common"
                                   "AOM_DSP_COMMON_INTRIN_AVX2" "aom")
+    add_intrinsics_object_library("-mfma" "avx2" "aom_dsp_common"
+                                  "AOM_DSP_COMMON_INTRIN_AVX2" "aom")
     if (CONFIG_AV1_ENCODER)
       add_intrinsics_object_library("-mavx2" "avx2" "aom_dsp_encoder"
+                                    "AOM_DSP_ENCODER_INTRIN_AVX2" "aom")
+      add_intrinsics_object_library("-mfma" "avx2" "aom_dsp_encoder"
                                     "AOM_DSP_ENCODER_INTRIN_AVX2" "aom")
     endif ()
   endif ()

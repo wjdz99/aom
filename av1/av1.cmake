@@ -210,7 +210,8 @@ set(AOM_AV1_ENCODER_INTRIN_AVX2
     "${AOM_ROOT}/av1/encoder/x86/av1_quantize_avx2.c"
     "${AOM_ROOT}/av1/encoder/x86/av1_highbd_quantize_avx2.c"
     "${AOM_ROOT}/av1/encoder/x86/error_intrin_avx2.c"
-    "${AOM_ROOT}/av1/encoder/x86/hybrid_fwd_txfm_avx2.c")
+    "${AOM_ROOT}/av1/encoder/x86/hybrid_fwd_txfm_avx2.c"
+    "${AOM_ROOT}/av1/encoder/x86/pickrst_avx2.c")
 
 set(AOM_AV1_ENCODER_INTRIN_NEON
     "${AOM_ROOT}/av1/encoder/arm/neon/quantize_neon.c")
@@ -576,9 +577,13 @@ function (setup_av1_targets)
     require_compiler_flag_nomsvc("-mavx2" NO)
     add_intrinsics_object_library("-mavx2" "avx2" "aom_av1_common"
                                   "AOM_AV1_COMMON_INTRIN_AVX2" "aom")
+    add_intrinsics_object_library("-mfma" "avx2" "aom_av1_common"
+                                  "AOM_AV1_COMMON_INTRIN_AVX2" "aom")
 
     if (CONFIG_AV1_ENCODER)
       add_intrinsics_object_library("-mavx2" "avx2" "aom_av1_encoder"
+                                    "AOM_AV1_ENCODER_INTRIN_AVX2" "aom")
+      add_intrinsics_object_library("-mfma" "avx2" "aom_av1_encoder"
                                     "AOM_AV1_ENCODER_INTRIN_AVX2" "aom")
     endif ()
   endif ()
