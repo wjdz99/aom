@@ -50,8 +50,8 @@ static unsigned int do_16x16_motion_iteration(AV1_COMP *cpi, const MV *ref_mv,
   // Try sub-pixel MC
   // if (bestsme > error_thresh && bestsme < INT_MAX)
   if (cpi->common.cur_frame_force_integer_mv == 1) {
-    x->best_mv.as_mv.row *= 8;
-    x->best_mv.as_mv.col *= 8;
+    x->best_mv.row *= 8;
+    x->best_mv.col *= 8;
   } else {
     int distortion;
     unsigned int sse;
@@ -98,7 +98,7 @@ static int do_16x16_motion_search(AV1_COMP *cpi, const MV *ref_mv, int mb_row,
   tmp_err = do_16x16_motion_iteration(cpi, ref_mv, mb_row, mb_col);
   if (tmp_err < err) {
     err = tmp_err;
-    best_mv = x->best_mv.as_mv;
+    best_mv = x->best_mv;
   }
 
   // If the current best reference mv is not centered on 0,0 then do a 0,0
@@ -109,15 +109,15 @@ static int do_16x16_motion_search(AV1_COMP *cpi, const MV *ref_mv, int mb_row,
     tmp_err = do_16x16_motion_iteration(cpi, &zero_ref_mv, mb_row, mb_col);
     if (tmp_err < err) {
       err = tmp_err;
-      best_mv = x->best_mv.as_mv;
+      best_mv = x->best_mv;
     }
   }
 
-  x->best_mv.as_mv = best_mv;
+  x->best_mv = best_mv;
   return err;
 }
 
-static int do_16x16_zerozero_search(AV1_COMP *cpi, int_mv *dst_mv) {
+static int do_16x16_zerozero_search(AV1_COMP *cpi, MV *dst_mv) {
   MACROBLOCK *const x = &cpi->td.mb;
   MACROBLOCKD *const xd = &x->e_mbd;
   unsigned int err;
@@ -261,7 +261,7 @@ static void update_mbgraph_frame_stats(AV1_COMP *cpi,
 
       update_mbgraph_mb_stats(cpi, mb_stats, buf, mb_y_in_offset, golden_ref,
                               &gld_left_mv, alt_ref, mb_row, mb_col);
-      gld_left_mv = mb_stats->ref[GOLDEN_FRAME].m.mv.as_mv;
+      gld_left_mv = mb_stats->ref[GOLDEN_FRAME].m.mv;
       if (mb_col == 0) {
         gld_top_mv = gld_left_mv;
       }

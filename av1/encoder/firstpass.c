@@ -358,7 +358,7 @@ static void first_pass_motion_search(AV1_COMP *cpi, MACROBLOCK *x,
                                      int *best_motion_err) {
   MACROBLOCKD *const xd = &x->e_mbd;
   MV tmp_mv = kZeroMv;
-  MV ref_mv_full = { ref_mv->row >> 3, ref_mv->col >> 3 };
+  MV ref_mv_full = { { ref_mv->row >> 3, ref_mv->col >> 3 } };
   int num00, tmp_err, n;
   const BLOCK_SIZE bsize = xd->mi[0]->sb_type;
   aom_variance_fn_ptr_t v_fn_ptr = cpi->fn_ptr[bsize];
@@ -830,7 +830,7 @@ void av1_first_pass(AV1_COMP *cpi, const struct lookahead_entry *source) {
           mv.col *= 8;
           this_error = motion_error;
           xd->mi[0]->mode = NEWMV;
-          xd->mi[0]->mv[0].as_mv = mv;
+          xd->mi[0]->mv[0] = mv;
           xd->mi[0]->tx_size = TX_4X4;
           xd->mi[0]->ref_frame[0] = LAST_FRAME;
           xd->mi[0]->ref_frame[1] = NONE_FRAME;

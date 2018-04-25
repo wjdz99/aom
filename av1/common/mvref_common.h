@@ -58,26 +58,26 @@ static INLINE void clamp_mv_ref(MV *mv, int bw, int bh, const MACROBLOCKD *xd) {
 
 // This function returns either the appropriate sub block or block's mv
 // on whether the block_size < 8x8 and we have check_sub_blocks set.
-static INLINE int_mv get_sub_block_mv(const MB_MODE_INFO *candidate,
-                                      int which_mv, int search_col) {
+static INLINE MV get_sub_block_mv(const MB_MODE_INFO *candidate, int which_mv,
+                                  int search_col) {
   (void)search_col;
   return candidate->mv[which_mv];
 }
 
-static INLINE int_mv get_sub_block_pred_mv(const MB_MODE_INFO *candidate,
-                                           int which_mv, int search_col) {
+static INLINE MV get_sub_block_pred_mv(const MB_MODE_INFO *candidate,
+                                       int which_mv, int search_col) {
   (void)search_col;
   return candidate->mv[which_mv];
 }
 
 // Performs mv sign inversion if indicated by the reference frame combination.
-static INLINE int_mv scale_mv(const MB_MODE_INFO *mbmi, int ref,
-                              const MV_REFERENCE_FRAME this_ref_frame,
-                              const int *ref_sign_bias) {
-  int_mv mv = mbmi->mv[ref];
+static INLINE MV scale_mv(const MB_MODE_INFO *mbmi, int ref,
+                          const MV_REFERENCE_FRAME this_ref_frame,
+                          const int *ref_sign_bias) {
+  MV mv = mbmi->mv[ref];
   if (ref_sign_bias[mbmi->ref_frame[ref]] != ref_sign_bias[this_ref_frame]) {
-    mv.as_mv.row *= -1;
-    mv.as_mv.col *= -1;
+    mv.row *= -1;
+    mv.col *= -1;
   }
   return mv;
 }
@@ -270,15 +270,14 @@ void av1_find_mv_refs(const AV1_COMMON *cm, const MACROBLOCKD *xd,
                       MB_MODE_INFO *mi, MV_REFERENCE_FRAME ref_frame,
                       uint8_t ref_mv_count[MODE_CTX_REF_FRAMES],
                       CANDIDATE_MV ref_mv_stack[][MAX_REF_MV_STACK_SIZE],
-                      int_mv mv_ref_list[][MAX_MV_REF_CANDIDATES],
-                      int_mv *global_mvs, int mi_row, int mi_col,
-                      int16_t *mode_context);
+                      MV mv_ref_list[][MAX_MV_REF_CANDIDATES], MV *global_mvs,
+                      int mi_row, int mi_col, int16_t *mode_context);
 
 // check a list of motion vectors by sad score using a number rows of pixels
 // above and a number cols of pixels in the left to select the one with best
 // score to use as ref motion vector
-void av1_find_best_ref_mvs(int allow_hp, int_mv *mvlist, int_mv *nearest_mv,
-                           int_mv *near_mv, int is_integer);
+void av1_find_best_ref_mvs(int allow_hp, MV *mvlist, MV *nearest_mv,
+                           MV *near_mv, int is_integer);
 
 int selectSamples(MV *mv, int *pts, int *pts_inref, int len, BLOCK_SIZE bsize);
 int findSamples(const AV1_COMMON *cm, MACROBLOCKD *xd, int mi_row, int mi_col,
@@ -288,18 +287,18 @@ int findSamples(const AV1_COMMON *cm, MACROBLOCKD *xd, int mi_row, int mi_col,
 #define INTRABC_DELAY_SB64 (INTRABC_DELAY_PIXELS / 64)
 #define USE_WAVE_FRONT 1  // Use only top left area of frame for reference.
 
-static INLINE void av1_find_ref_dv(int_mv *ref_dv, const TileInfo *const tile,
+static INLINE void av1_find_ref_dv(MV *ref_dv, const TileInfo *const tile,
                                    int mib_size, int mi_row, int mi_col) {
   (void)mi_col;
   if (mi_row - mib_size < tile->mi_row_start) {
-    ref_dv->as_mv.row = 0;
-    ref_dv->as_mv.col = -MI_SIZE * mib_size - INTRABC_DELAY_PIXELS;
+    ref_dv->row = 0;
+    ref_dv->col = -MI_SIZE * mib_size - INTRABC_DELAY_PIXELS;
   } else {
-    ref_dv->as_mv.row = -MI_SIZE * mib_size;
-    ref_dv->as_mv.col = 0;
+    ref_dv->row = -MI_SIZE * mib_size;
+    ref_dv->col = 0;
   }
-  ref_dv->as_mv.row *= 8;
-  ref_dv->as_mv.col *= 8;
+  ref_dv->row *= 8;
+  ref_dv->col *= 8;
 }
 
 static INLINE int av1_is_dv_valid(const MV dv, const AV1_COMMON *cm,

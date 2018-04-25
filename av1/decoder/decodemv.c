@@ -653,19 +653,19 @@ static INLINE void read_mv(aom_reader *r, MV *mv, const MV *ref,
 
 static INLINE int is_mv_valid(const MV *mv);
 
-static INLINE int assign_dv(AV1_COMMON *cm, MACROBLOCKD *xd, int_mv *mv,
-                            const int_mv *ref_mv, int mi_row, int mi_col,
+static INLINE int assign_dv(AV1_COMMON *cm, MACROBLOCKD *xd, MV *mv,
+                            const MV *ref_mv, int mi_row, int mi_col,
                             BLOCK_SIZE bsize, aom_reader *r) {
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
-  read_mv(r, &mv->as_mv, &ref_mv->as_mv, &ec_ctx->ndvc, MV_SUBPEL_NONE);
+  read_mv(r, mv, ref_mv, &ec_ctx->ndvc, MV_SUBPEL_NONE);
   // DV should not have sub-pel.
-  assert((mv->as_mv.col & 7) == 0);
-  assert((mv->as_mv.row & 7) == 0);
-  mv->as_mv.col = (mv->as_mv.col >> 3) * 8;
-  mv->as_mv.row = (mv->as_mv.row >> 3) * 8;
-  int valid = is_mv_valid(&mv->as_mv) &&
-              av1_is_dv_valid(mv->as_mv, cm, xd, mi_row, mi_col, bsize,
-                              cm->seq_params.mib_size_log2);
+  assert((mv->col & 7) == 0);
+  assert((mv->row & 7) == 0);
+  mv->col = (mv->col >> 3) * 8;
+  mv->row = (mv->row >> 3) * 8;
+  int valid =
+      is_mv_valid(mv) && av1_is_dv_valid(*mv, cm, xd, mi_row, mi_col, bsize,
+                                         cm->seq_params.mib_size_log2);
   return valid;
 }
 
@@ -682,24 +682,24 @@ static void read_intrabc_info(AV1_COMMON *const cm, MACROBLOCKD *const xd,
     mbmi->motion_mode = SIMPLE_TRANSLATION;
 
     int16_t inter_mode_ctx[MODE_CTX_REF_FRAMES];
-    int_mv ref_mvs[INTRA_FRAME + 1][MAX_MV_REF_CANDIDATES];
-    int_mv global_mvs[REF_FRAMES];
+    MV ref_mvs[INTRA_FRAME + 1][MAX_MV_REF_CANDIDATES];
+    MV global_mvs[REF_FRAMES];
 
     av1_find_mv_refs(cm, xd, mbmi, INTRA_FRAME, xd->ref_mv_count,
                      xd->ref_mv_stack, ref_mvs, global_mvs, mi_row, mi_col,
                      inter_mode_ctx);
 
-    int_mv nearestmv, nearmv;
+    MV nearestmv, nearmv;
 
     av1_find_best_ref_mvs(0, ref_mvs[INTRA_FRAME], &nearestmv, &nearmv, 0);
-    int_mv dv_ref = nearestmv.as_int == 0 ? nearmv : nearestmv;
+    MV dv_ref = nearestmv.as_int == 0 ? nearmv : nearestmv;
     if (dv_ref.as_int == 0)
       av1_find_ref_dv(&dv_ref, &xd->tile, cm->seq_params.mib_size, mi_row,
                       mi_col);
     // Ref DV should not have sub-pel.
-    int valid_dv = (dv_ref.as_mv.col & 7) == 0 && (dv_ref.as_mv.row & 7) == 0;
-    dv_ref.as_mv.col = (dv_ref.as_mv.col >> 3) * 8;
-    dv_ref.as_mv.row = (dv_ref.as_mv.row >> 3) * 8;
+    int valid_dv = (dv_ref.col & 7) == 0 && (dv_ref.row & 7) == 0;
+    dv_ref.col = (dv_ref.col >> 3) * 8;
+    dv_ref.row = (dv_ref.row >> 3) * 8;
     valid_dv = valid_dv && assign_dv(cm, xd, &mbmi->mv[0], &dv_ref, mi_row,
                                      mi_col, bsize, r);
     if (!valid_dv) {
@@ -1090,10 +1090,10 @@ static INLINE int is_mv_valid(const MV *mv) {
 
 static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
                             PREDICTION_MODE mode,
-                            MV_REFERENCE_FRAME ref_frame[2], int_mv mv[2],
-                            int_mv ref_mv[2], int_mv nearest_mv[2],
-                            int_mv near_mv[2], int mi_row, int mi_col,
-                            int is_compound, int allow_hp, aom_reader *r) {
+                            MV_REFERENCE_FRAME ref_frame[2], MV mv[2],
+                            MV ref_mv[2], MV nearest_mv[2], MV near_mv[2],
+                            int mi_row, int mi_col, int is_compound,
+                            int allow_hp, aom_reader *r) {
   int ret = 1;
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
   MB_MODE_INFO *mbmi = xd->mi[0];
@@ -1105,8 +1105,8 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
   switch (mode) {
     case NEWMV: {
       nmv_context *const nmvc = &ec_ctx->nmvc;
-      read_mv(r, &mv[0].as_mv, &ref_mv[0].as_mv, nmvc, allow_hp);
-      ret = ret && is_mv_valid(&mv[0].as_mv);
+      read_mv(r, &mv[0], &ref_mv[0], nmvc, allow_hp);
+      ret = ret && is_mv_valid(&mv[0]);
       break;
     }
     case NEARESTMV: {
@@ -1129,8 +1129,8 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
       assert(is_compound);
       for (int i = 0; i < 2; ++i) {
         nmv_context *const nmvc = &ec_ctx->nmvc;
-        read_mv(r, &mv[i].as_mv, &ref_mv[i].as_mv, nmvc, allow_hp);
-        ret = ret && is_mv_valid(&mv[i].as_mv);
+        read_mv(r, &mv[i], &ref_mv[i], nmvc, allow_hp);
+        ret = ret && is_mv_valid(&mv[i]);
       }
       break;
     }
@@ -1148,34 +1148,34 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
     }
     case NEW_NEARESTMV: {
       nmv_context *const nmvc = &ec_ctx->nmvc;
-      read_mv(r, &mv[0].as_mv, &ref_mv[0].as_mv, nmvc, allow_hp);
+      read_mv(r, &mv[0], &ref_mv[0], nmvc, allow_hp);
       assert(is_compound);
-      ret = ret && is_mv_valid(&mv[0].as_mv);
+      ret = ret && is_mv_valid(&mv[0]);
       mv[1].as_int = nearest_mv[1].as_int;
       break;
     }
     case NEAREST_NEWMV: {
       nmv_context *const nmvc = &ec_ctx->nmvc;
       mv[0].as_int = nearest_mv[0].as_int;
-      read_mv(r, &mv[1].as_mv, &ref_mv[1].as_mv, nmvc, allow_hp);
+      read_mv(r, &mv[1], &ref_mv[1], nmvc, allow_hp);
       assert(is_compound);
-      ret = ret && is_mv_valid(&mv[1].as_mv);
+      ret = ret && is_mv_valid(&mv[1]);
       break;
     }
     case NEAR_NEWMV: {
       nmv_context *const nmvc = &ec_ctx->nmvc;
       mv[0].as_int = near_mv[0].as_int;
-      read_mv(r, &mv[1].as_mv, &ref_mv[1].as_mv, nmvc, allow_hp);
+      read_mv(r, &mv[1], &ref_mv[1], nmvc, allow_hp);
       assert(is_compound);
 
-      ret = ret && is_mv_valid(&mv[1].as_mv);
+      ret = ret && is_mv_valid(&mv[1]);
       break;
     }
     case NEW_NEARMV: {
       nmv_context *const nmvc = &ec_ctx->nmvc;
-      read_mv(r, &mv[0].as_mv, &ref_mv[0].as_mv, nmvc, allow_hp);
+      read_mv(r, &mv[0], &ref_mv[0], nmvc, allow_hp);
       assert(is_compound);
-      ret = ret && is_mv_valid(&mv[0].as_mv);
+      ret = ret && is_mv_valid(&mv[0]);
       mv[1].as_int = near_mv[1].as_int;
       break;
     }
@@ -1218,9 +1218,9 @@ static int read_is_inter_block(AV1_COMMON *const cm, MACROBLOCKD *const xd,
 #if DEC_MISMATCH_DEBUG
 static void dec_dump_logs(AV1_COMMON *cm, MB_MODE_INFO *const mbmi, int mi_row,
                           int mi_col, int16_t mode_ctx) {
-  int_mv mv[2] = { { 0 } };
+  MV mv[2] = { { 0 } };
   for (int ref = 0; ref < 1 + has_second_ref(mbmi); ++ref)
-    mv[ref].as_mv = mbmi->mv[ref].as_mv;
+    mv[ref] = mbmi->mv[ref];
 
   const int16_t newmv_ctx = mode_ctx & NEWMV_CTX_MASK;
   int16_t zeromv_ctx = -1;
@@ -1240,10 +1240,9 @@ static void dec_dump_logs(AV1_COMMON *cm, MB_MODE_INFO *const mbmi, int mi_row,
         "ref[1]=%d, motion_mode=%d, mode_ctx=%d, "
         "newmv_ctx=%d, zeromv_ctx=%d, refmv_ctx=%d, tx_size=%d\n",
         cm->current_video_frame, mi_row, mi_col, mbmi->skip_mode, mbmi->mode,
-        mbmi->sb_type, cm->show_frame, mv[0].as_mv.row, mv[0].as_mv.col,
-        mv[1].as_mv.row, mv[1].as_mv.col, mbmi->ref_frame[0],
-        mbmi->ref_frame[1], mbmi->motion_mode, mode_ctx, newmv_ctx, zeromv_ctx,
-        refmv_ctx, mbmi->tx_size);
+        mbmi->sb_type, cm->show_frame, mv[0].row, mv[0].col, mv[1].row,
+        mv[1].col, mbmi->ref_frame[0], mbmi->ref_frame[1], mbmi->motion_mode,
+        mode_ctx, newmv_ctx, zeromv_ctx, refmv_ctx, mbmi->tx_size);
   }
 }
 #endif  // DEC_MISMATCH_DEBUG
@@ -1255,8 +1254,8 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
   AV1_COMMON *const cm = &pbi->common;
   const BLOCK_SIZE bsize = mbmi->sb_type;
   const int allow_hp = cm->allow_high_precision_mv;
-  int_mv nearestmv[2], nearmv[2];
-  int_mv ref_mvs[MODE_CTX_REF_FRAMES][MAX_MV_REF_CANDIDATES] = { { { 0 } } };
+  MV nearestmv[2], nearmv[2];
+  MV ref_mvs[MODE_CTX_REF_FRAMES][MAX_MV_REF_CANDIDATES] = { { { { 0 } } } };
   int16_t inter_mode_ctx[MODE_CTX_REF_FRAMES];
   int pts[SAMPLES_ARRAY_SIZE], pts_inref[SAMPLES_ARRAY_SIZE];
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
@@ -1271,7 +1270,7 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
   const int is_compound = has_second_ref(mbmi);
 
   MV_REFERENCE_FRAME ref_frame = av1_ref_frame_type(mbmi->ref_frame);
-  int_mv global_mvs[REF_FRAMES];
+  MV global_mvs[REF_FRAMES];
   av1_find_mv_refs(cm, xd, mbmi, ref_frame, xd->ref_mv_count, xd->ref_mv_stack,
                    ref_mvs, global_mvs, mi_row, mi_col, inter_mode_ctx);
 
@@ -1313,21 +1312,17 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
     nearestmv[1] = xd->ref_mv_stack[ref_frame][0].comp_mv;
     nearmv[0] = xd->ref_mv_stack[ref_frame][ref_mv_idx].this_mv;
     nearmv[1] = xd->ref_mv_stack[ref_frame][ref_mv_idx].comp_mv;
-    lower_mv_precision(&nearestmv[0].as_mv, allow_hp,
-                       cm->cur_frame_force_integer_mv);
-    lower_mv_precision(&nearestmv[1].as_mv, allow_hp,
-                       cm->cur_frame_force_integer_mv);
-    lower_mv_precision(&nearmv[0].as_mv, allow_hp,
-                       cm->cur_frame_force_integer_mv);
-    lower_mv_precision(&nearmv[1].as_mv, allow_hp,
-                       cm->cur_frame_force_integer_mv);
+    lower_mv_precision(&nearestmv[0], allow_hp, cm->cur_frame_force_integer_mv);
+    lower_mv_precision(&nearestmv[1], allow_hp, cm->cur_frame_force_integer_mv);
+    lower_mv_precision(&nearmv[0], allow_hp, cm->cur_frame_force_integer_mv);
+    lower_mv_precision(&nearmv[1], allow_hp, cm->cur_frame_force_integer_mv);
   } else if (mbmi->ref_mv_idx > 0 && mbmi->mode == NEARMV) {
-    int_mv cur_mv =
+    MV cur_mv =
         xd->ref_mv_stack[mbmi->ref_frame[0]][1 + mbmi->ref_mv_idx].this_mv;
     nearmv[0] = cur_mv;
   }
 
-  int_mv ref_mv[2];
+  MV ref_mv[2];
   ref_mv[0] = nearestmv[0];
   ref_mv[1] = nearestmv[1];
 
@@ -1464,12 +1459,12 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
     mbmi->wm_params[0].invalid = 0;
 
     if (mbmi->num_proj_ref[0] > 1)
-      mbmi->num_proj_ref[0] = selectSamples(&mbmi->mv[0].as_mv, pts, pts_inref,
+      mbmi->num_proj_ref[0] = selectSamples(&mbmi->mv[0], pts, pts_inref,
                                             mbmi->num_proj_ref[0], bsize);
 
     if (find_projection(mbmi->num_proj_ref[0], pts, pts_inref, bsize,
-                        mbmi->mv[0].as_mv.row, mbmi->mv[0].as_mv.col,
-                        &mbmi->wm_params[0], mi_row, mi_col)) {
+                        mbmi->mv[0].row, mbmi->mv[0].col, &mbmi->wm_params[0],
+                        mi_row, mi_col)) {
 #if WARPED_MOTION_DEBUG
       printf("Warning: unexpected warped model from aomenc\n");
 #endif
