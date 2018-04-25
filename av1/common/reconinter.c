@@ -882,7 +882,7 @@ static INLINE void build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd,
             is_intrabc ? &cm->sf_identity : &ref_buf->sf;
         struct buf_2d *const pre_buf = is_intrabc ? dst_buf : &pd->pre[ref];
 
-        const MV mv = this_mbmi->mv[ref].as_mv;
+        const MV mv = this_mbmi->mv[ref];
 
         uint8_t *pre;
         int xs, ys, subpel_x, subpel_y;
@@ -962,7 +962,7 @@ static INLINE void build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd,
       const struct scale_factors *const sf =
           is_intrabc ? &cm->sf_identity : &xd->block_refs[ref]->sf;
       struct buf_2d *const pre_buf = is_intrabc ? dst_buf : &pd->pre[ref];
-      const MV mv = mi->mv[ref].as_mv;
+      const MV mv = mi->mv[ref];
 
       const int is_scaled = av1_is_scaled(sf);
       if (is_scaled) {
@@ -1785,7 +1785,7 @@ static void build_inter_predictors_single_buf(MACROBLOCKD *xd, int plane,
       (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH ? CONVERT_TO_BYTEPTR(ext_dst)
                                                    : ext_dst) +
       ext_dst_stride * y + x;
-  const MV mv = mi->mv[ref].as_mv;
+  const MV mv = mi->mv[ref];
   uint8_t *pre;
   int xs, ys, subpel_x, subpel_y;
   const int is_scaled = av1_is_scaled(sf);

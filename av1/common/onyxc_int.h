@@ -101,12 +101,12 @@ typedef enum {
 
 #define MFMV_STACK_SIZE 3
 typedef struct {
-  int_mv mfmv0;
+  MV mfmv0;
   uint8_t ref_frame_offset;
 } TPL_MV_REF;
 
 typedef struct {
-  int_mv mv;
+  MV mv;
   MV_REFERENCE_FRAME ref_frame;
 } MV_REF;
 

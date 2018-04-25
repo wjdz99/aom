@@ -74,7 +74,7 @@ typedef struct {
 } CB_COEFF_BUFFER;
 
 typedef struct {
-  int_mv ref_mvs[MODE_CTX_REF_FRAMES][MAX_MV_REF_CANDIDATES];
+  MV ref_mvs[MODE_CTX_REF_FRAMES][MAX_MV_REF_CANDIDATES];
   int16_t mode_context[MODE_CTX_REF_FRAMES];
   // TODO(angiebird): Reduce the buffer size according to sb_type
   tran_low_t *tcoeff[MAX_MB_PLANE];
@@ -83,7 +83,7 @@ typedef struct {
   int *dc_sign_ctx[MAX_MB_PLANE];
   uint8_t ref_mv_count[MODE_CTX_REF_FRAMES];
   CANDIDATE_MV ref_mv_stack[MODE_CTX_REF_FRAMES][MAX_REF_MV_STACK_SIZE];
-  int_mv global_mvs[REF_FRAMES];
+  MV global_mvs[REF_FRAMES];
   int16_t compound_mode_context[MODE_CTX_REF_FRAMES];
 } MB_MODE_INFO_EXT;
 
@@ -263,7 +263,7 @@ struct macroblock {
   int64_t skip_mode_sse;
   int64_t skip_mode_dist;
   MV_REFERENCE_FRAME skip_mode_ref_frame[2];
-  int_mv skip_mode_mv[2];
+  MV skip_mode_mv[2];
   int compound_idx;
   int skip_mode_index_candidate;
   int skip_mode_index;
@@ -332,9 +332,9 @@ struct macroblock {
   MV pred_mv[REF_FRAMES];
 
   // Store the best motion vector during motion search
-  int_mv best_mv;
+  MV best_mv;
   // Store the second best motion vector during full-pixel motion search
-  int_mv second_best_mv;
+  MV second_best_mv;
 
   // use default transform and skip transform type search for intra modes
   int use_default_intra_tx_type;

@@ -88,7 +88,7 @@ static INLINE int mv_cost(const MV *mv, const int *joint_cost,
 
 int av1_mv_bit_cost(const MV *mv, const MV *ref, const int *mvjcost,
                     int *mvcost[2], int weight) {
-  const MV diff = { mv->row - ref->row, mv->col - ref->col };
+  const MV diff = { { mv->row - ref->row, mv->col - ref->col } };
   return ROUND_POWER_OF_TWO(mv_cost(&diff, mvjcost, mvcost) * weight, 7);
 }
 
@@ -96,7 +96,7 @@ int av1_mv_bit_cost(const MV *mv, const MV *ref, const int *mvjcost,
 static int mv_err_cost(const MV *mv, const MV *ref, const int *mvjcost,
                        int *mvcost[2], int error_per_bit) {
   if (mvcost) {
-    const MV diff = { mv->row - ref->row, mv->col - ref->col };
+    const MV diff = { { mv->row - ref->row, mv->col - ref->col } };
     return (int)ROUND_POWER_OF_TWO_64(
         (int64_t)mv_cost(&diff, mvjcost, mvcost) * error_per_bit,
         RDDIV_BITS + AV1_PROB_COST_SHIFT - RD_EPB_SHIFT +
@@ -107,7 +107,7 @@ static int mv_err_cost(const MV *mv, const MV *ref, const int *mvjcost,
 
 static int mvsad_err_cost(const MACROBLOCK *x, const MV *mv, const MV *ref,
                           int sad_per_bit) {
-  const MV diff = { (mv->row - ref->row) * 8, (mv->col - ref->col) * 8 };
+  const MV diff = { { (mv->row - ref->row) * 8, (mv->col - ref->col) * 8 } };
   return ROUND_POWER_OF_TWO(
       (unsigned)mv_cost(&diff, x->nmvjointcost, x->mvcost) * sad_per_bit,
       AV1_PROB_COST_SHIFT);
@@ -121,7 +121,9 @@ void av1_init_dsmotion_compensation(search_site_config *cfg, int stride) {
 
   for (len = MAX_FIRST_STEP; len > 0; len /= 2) {
     // Generate offsets for 4 search sites per step.
-    const MV ss_mvs[] = { { -len, 0 }, { len, 0 }, { 0, -len }, { 0, len } };
+    const MV ss_mvs[] = {
+      { { -len, 0 } }, { { len, 0 } }, { { 0, -len } }, { { 0, len } }
+    };
     int i;
     for (i = 0; i < 4; ++i) {
       search_site *const ss = &cfg->ss[ss_count++];
@@ -142,9 +144,10 @@ void av1_init3smotion_compensation(search_site_config *cfg, int stride) {
 
   for (len = MAX_FIRST_STEP; len > 0; len /= 2) {
     // Generate offsets for 8 search sites per step.
-    const MV ss_mvs[8] = { { -len, 0 },   { len, 0 },     { 0, -len },
-                           { 0, len },    { -len, -len }, { -len, len },
-                           { len, -len }, { len, len } };
+    const MV ss_mvs[8] = { { { -len, 0 } },    { { len, 0 } },
+                           { { 0, -len } },    { { 0, len } },
+                           { { -len, -len } }, { { -len, len } },
+                           { { len, -len } },  { { len, len } } };
     int i;
     for (i = 0; i < 8; ++i) {
       search_site *const ss = &cfg->ss[ss_count++];
@@ -307,7 +310,7 @@ static INLINE const uint8_t *pre(const uint8_t *buf, int stride, int r, int c) {
   unsigned int sse;                                                     \
   unsigned int whichdir;                                                \
   int thismse;                                                          \
-  MV *bestmv = &x->best_mv.as_mv;                                       \
+  MV *bestmv = &x->best_mv;                                             \
   const unsigned int halfiters = iters_per_step;                        \
   const unsigned int quarteriters = iters_per_step;                     \
   const unsigned int eighthiters = iters_per_step;                      \
@@ -711,7 +714,7 @@ int av1_find_best_sub_pixel_tree(
   unsigned int sse;
   unsigned int thismse;
   const int y_stride = xd->plane[0].pre[0].stride;
-  MV *bestmv = &x->best_mv.as_mv;
+  MV *bestmv = &x->best_mv;
   const int offset = bestmv->row * y_stride + bestmv->col;
   const uint8_t *const y = xd->plane[0].pre[0].buf;
 
@@ -890,7 +893,7 @@ unsigned int av1_compute_motion_cost(const AV1_COMP *cpi, MACROBLOCK *const x,
   uint8_t *const dst = xd->plane[0].dst.buf;
   const int dst_stride = xd->plane[0].dst.stride;
   const aom_variance_fn_ptr_t *vfp = &cpi->fn_ptr[bsize];
-  const MV ref_mv = x->mbmi_ext->ref_mvs[mbmi->ref_frame[0]][0].as_mv;
+  const MV ref_mv = x->mbmi_ext->ref_mvs[mbmi->ref_frame[0]][0];
   unsigned int mse;
   unsigned int sse;
 
@@ -911,11 +914,11 @@ unsigned int av1_refine_warped_mv(const AV1_COMP *cpi, MACROBLOCK *const x,
   MB_MODE_INFO *mbmi = xd->mi[0];
   const MV neighbors[8] = { { 0, -1 }, { 1, 0 }, { 0, 1 }, { -1, 0 },
                             { 0, -2 }, { 2, 0 }, { 0, 2 }, { -2, 0 } };
-  const MV ref_mv = x->mbmi_ext->ref_mvs[mbmi->ref_frame[0]][0].as_mv;
-  int16_t br = mbmi->mv[0].as_mv.row;
-  int16_t bc = mbmi->mv[0].as_mv.col;
-  int16_t *tr = &mbmi->mv[0].as_mv.row;
-  int16_t *tc = &mbmi->mv[0].as_mv.col;
+  const MV ref_mv = x->mbmi_ext->ref_mvs[mbmi->ref_frame[0]][0];
+  int16_t br = mbmi->mv[0].row;
+  int16_t bc = mbmi->mv[0].col;
+  int16_t *tr = &mbmi->mv[0].row;
+  int16_t *tc = &mbmi->mv[0].col;
   WarpedMotionParams best_wm_params = mbmi->wm_params[0];
   int best_num_proj_ref = mbmi->num_proj_ref[0];
   unsigned int bestmse;
@@ -928,8 +931,8 @@ unsigned int av1_refine_warped_mv(const AV1_COMP *cpi, MACROBLOCK *const x,
 
   // Calculate the center position's error
   assert(bc >= minc && bc <= maxc && br >= minr && br <= maxr);
-  bestmse = av1_compute_motion_cost(cpi, x, bsize, mi_row, mi_col,
-                                    &mbmi->mv[0].as_mv);
+  bestmse =
+      av1_compute_motion_cost(cpi, x, bsize, mi_row, mi_col, &mbmi->mv[0]);
 
   // MV search
   for (ite = 0; ite < 2; ++ite) {
@@ -1356,8 +1359,8 @@ static int pattern_search(
                          cost_list);
     }
   }
-  x->best_mv.as_mv.row = br;
-  x->best_mv.as_mv.col = bc;
+  x->best_mv.row = br;
+  x->best_mv.col = bc;
   return bestsad;
 }
 
@@ -1600,7 +1603,7 @@ static int exhuastive_mesh_search(MACROBLOCK *x, MV *ref_mv, MV *best_mv,
           sad += mvsad_err_cost(x, &mv, ref_mv, sad_per_bit);
           if (sad < best_sad) {
             best_sad = sad;
-            x->second_best_mv.as_mv = *best_mv;
+            x->second_best_mv = *best_mv;
             *best_mv = mv;
           }
         }
@@ -1622,7 +1625,7 @@ static int exhuastive_mesh_search(MACROBLOCK *x, MV *ref_mv, MV *best_mv,
                   sads[i] + mvsad_err_cost(x, &mv, ref_mv, sad_per_bit);
               if (sad < best_sad) {
                 best_sad = sad;
-                x->second_best_mv.as_mv = *best_mv;
+                x->second_best_mv = *best_mv;
                 *best_mv = mv;
               }
             }
@@ -1637,7 +1640,7 @@ static int exhuastive_mesh_search(MACROBLOCK *x, MV *ref_mv, MV *best_mv,
               sad += mvsad_err_cost(x, &mv, ref_mv, sad_per_bit);
               if (sad < best_sad) {
                 best_sad = sad;
-                x->second_best_mv.as_mv = *best_mv;
+                x->second_best_mv = *best_mv;
                 *best_mv = mv;
               }
             }
@@ -1759,7 +1762,7 @@ int av1_diamond_search_sad_c(MACROBLOCK *x, const search_site_config *cfg,
       }
     }
     if (best_site != last_site) {
-      x->second_best_mv.as_mv = *best_mv;
+      x->second_best_mv = *best_mv;
       best_mv->row += ss[best_site].mv.row;
       best_mv->col += ss[best_site].mv.col;
       best_address += ss[best_site].offset;
@@ -1807,7 +1810,7 @@ static int full_pixel_diamond(const AV1_COMP *const cpi, MACROBLOCK *x,
                                         step_param, sadpb, &n, fn_ptr, ref_mv);
   if (bestsme < INT_MAX)
     bestsme = av1_get_mvpred_var(x, &temp_mv, ref_mv, fn_ptr, 1);
-  x->best_mv.as_mv = temp_mv;
+  x->best_mv = temp_mv;
 
   // If there won't be more n-step search, check to see if refining search is
   // needed.
@@ -1830,7 +1833,7 @@ static int full_pixel_diamond(const AV1_COMP *const cpi, MACROBLOCK *x,
 
       if (thissme < bestsme) {
         bestsme = thissme;
-        x->best_mv.as_mv = temp_mv;
+        x->best_mv = temp_mv;
       }
     }
   }
@@ -1838,20 +1841,20 @@ static int full_pixel_diamond(const AV1_COMP *const cpi, MACROBLOCK *x,
   // final 1-away diamond refining search
   if (do_refine) {
     const int search_range = 8;
-    MV best_mv = x->best_mv.as_mv;
+    MV best_mv = x->best_mv;
     thissme = av1_refining_search_sad(x, &best_mv, sadpb, search_range, fn_ptr,
                                       ref_mv);
     if (thissme < INT_MAX)
       thissme = av1_get_mvpred_var(x, &best_mv, ref_mv, fn_ptr, 1);
     if (thissme < bestsme) {
       bestsme = thissme;
-      x->best_mv.as_mv = best_mv;
+      x->best_mv = best_mv;
     }
   }
 
   // Return cost list.
   if (cost_list) {
-    calc_int_cost_list(x, ref_mv, sadpb, fn_ptr, &x->best_mv.as_mv, cost_list);
+    calc_int_cost_list(x, ref_mv, sadpb, fn_ptr, &x->best_mv, cost_list);
   }
   return bestsme;
 }
@@ -1983,7 +1986,7 @@ int av1_refining_search_sad(MACROBLOCK *x, MV *ref_mv, int error_per_bit,
     if (best_site == -1) {
       break;
     } else {
-      x->second_best_mv.as_mv = *ref_mv;
+      x->second_best_mv = *ref_mv;
       ref_mv->row += neighbors[best_site].row;
       ref_mv->col += neighbors[best_site].col;
       best_address = get_buf_from_mv(in_what, ref_mv);
@@ -2006,7 +2009,7 @@ int av1_refining_search_8p_c(MACROBLOCK *x, int error_per_bit, int search_range,
   const struct buf_2d *const what = &x->plane[0].src;
   const struct buf_2d *const in_what = &xd->plane[0].pre[0];
   const MV fcenter_mv = { center_mv->row >> 3, center_mv->col >> 3 };
-  MV *best_mv = &x->best_mv.as_mv;
+  MV *best_mv = &x->best_mv;
   unsigned int best_sad = INT_MAX;
   int i, j;
 
@@ -2141,13 +2144,12 @@ int av1_full_pixel_search(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
         if (var > exhuastive_thr) {
           int var_ex;
           MV tmp_mv_ex;
-          var_ex =
-              full_pixel_exhaustive(cpi, x, &x->best_mv.as_mv, error_per_bit,
-                                    cost_list, fn_ptr, ref_mv, &tmp_mv_ex);
+          var_ex = full_pixel_exhaustive(cpi, x, &x->best_mv, error_per_bit,
+                                         cost_list, fn_ptr, ref_mv, &tmp_mv_ex);
 
           if (var_ex < var) {
             var = var_ex;
-            x->best_mv.as_mv = tmp_mv_ex;
+            x->best_mv = tmp_mv_ex;
           }
         }
       }
@@ -2158,7 +2160,7 @@ int av1_full_pixel_search(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
   }
 
   if (method != NSTEP && rd && var < var_max)
-    var = av1_get_mvpred_var(x, &x->best_mv.as_mv, ref_mv, fn_ptr, 1);
+    var = av1_get_mvpred_var(x, &x->best_mv, ref_mv, fn_ptr, 1);
 
   do {
     if (!av1_use_hash_me(&cpi->common)) break;
@@ -2221,7 +2223,7 @@ int av1_full_pixel_search(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
         }
         if (best_hash_cost < var) {
           x->second_best_mv = x->best_mv;
-          x->best_mv.as_mv = best_hash_mv;
+          x->best_mv = best_hash_mv;
           var = best_hash_cost;
         }
       }
