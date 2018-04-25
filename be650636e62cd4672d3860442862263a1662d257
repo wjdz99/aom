@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "119d8a8e_ac9ae16b",
+        "filename": "test/decode_multithreaded_test.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2018-04-25T12:07:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "787560f2_11c9e968",
+      "range": {
+        "startLine": 12,
+        "startChar": 0,
+        "endLine": 21,
+        "endChar": 28
+      },
+      "revId": "be650636e62cd4672d3860442862263a1662d257",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "89ab05dd_8efd3afe",
         "filename": "test/decode_multithreaded_test.cc",
         "patchSetId": 3
@@ -36,6 +60,30 @@
       "writtenOn": "2018-04-24T17:17:09Z",
       "side": 1,
       "message": "Nit: In C++ code, we can define this as a constant. Let\u0027s also move it into the unnamed namespace, as follows:\n\nnamespace {\n\nconstexpr int kMaxNumThreadsMinus1 \u003d 7;\n\nclass AV1DecodeMultiThreadedTest\n...",
+      "range": {
+        "startLine": 23,
+        "startChar": 0,
+        "endLine": 23,
+        "endChar": 33
+      },
+      "revId": "be650636e62cd4672d3860442862263a1662d257",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ea512222_580937a5",
+        "filename": "test/decode_multithreaded_test.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2018-04-25T12:07:03Z",
+      "side": 1,
+      "message": "I have not used \"constexpr\" as it requires a C++11 capable compiler.",
+      "parentUuid": "89ab05dd_8efd3afe",
       "range": {
         "startLine": 23,
         "startChar": 0,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "93cbe482_39caed18",
+        "filename": "test/decode_multithreaded_test.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2018-04-25T12:07:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d87d7be8_380eab8d",
+      "range": {
+        "startLine": 47,
+        "startChar": 0,
+        "endLine": 56,
+        "endChar": 5
+      },
+      "revId": "be650636e62cd4672d3860442862263a1662d257",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cc655045_2bfa4c1e",
         "filename": "test/decode_multithreaded_test.cc",
         "patchSetId": 3
@@ -82,6 +154,30 @@
       "writtenOn": "2018-04-24T17:17:09Z",
       "side": 1,
       "message": "BUG: The order should be timebase.num, timebase.den. Here is the prototype of the libaom_test::I420VideoSource constructor:\n\nI420VideoSource(const std::string \u0026file_name, unsigned int width,\n                  unsigned int height, int rate_numerator, int rate_denominator,\n                  unsigned int start, int limit)",
+      "range": {
+        "startLine": 108,
+        "startChar": 39,
+        "endLine": 108,
+        "endChar": 65
+      },
+      "revId": "be650636e62cd4672d3860442862263a1662d257",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7461ecf6_eb03faa7",
+        "filename": "test/decode_multithreaded_test.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2018-04-25T12:07:03Z",
+      "side": 1,
+      "message": "We feel this is not a bug. The video-\u003etimebase() function in the file encode_test_driver.cc swaps the numerator and denominator. Following is the definition : \n\nvirtual aom_rational_t timebase() const {\n  const aom_rational_t t \u003d { framerate_denominator_, framerate_numerator_ };\n  return t;\n}",
+      "parentUuid": "cc655045_2bfa4c1e",
       "range": {
         "startLine": 108,
         "startChar": 39,
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "cf1f2117_5f5a5dba",
+        "filename": "test/decode_multithreaded_test.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2018-04-25T12:07:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a89dd551_45503e5a",
+      "range": {
+        "startLine": 119,
+        "startChar": 0,
+        "endLine": 122,
+        "endChar": 50
+      },
+      "revId": "be650636e62cd4672d3860442862263a1662d257",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f89669d8_1ea2099e",
         "filename": "test/decode_multithreaded_test.cc",
         "patchSetId": 3
@@ -128,6 +248,30 @@
       "writtenOn": "2018-04-24T17:17:09Z",
       "side": 1,
       "message": "IMPORTANT: This test is exactly the same as AV1DecodeMultiThreadedTest.MD5Match. Is this right?",
+      "range": {
+        "startLine": 144,
+        "startChar": 0,
+        "endLine": 150,
+        "endChar": 1
+      },
+      "revId": "be650636e62cd4672d3860442862263a1662d257",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e1726d80_7cc0a877",
+        "filename": "test/decode_multithreaded_test.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2018-04-25T12:07:03Z",
+      "side": 1,
+      "message": "The tests are not exactly the same. Do you mean that highlighted code can be abstracted?\n\nAV1DecodeMultiThreadedTestLarge.MD5Match encodes with cpu-used as 0, whereas AV1DecodeMultiThreadedTest.MD5Match encodes with cpu-used 3. \n\nAV1DecodeMultiThreadedTestLarge tests for tile-columns : 1,2,4,64 and tile_rows :1,2,4,64 and number of tile-groups : 1, 4.\n\nAV1DecodeMultiThreadedTestLarge tests for tile-columns : 2,4 and tile_rows :2,4 and number of tile-groups : 1",
+      "parentUuid": "f89669d8_1ea2099e",
       "range": {
         "startLine": 144,
         "startChar": 0,
