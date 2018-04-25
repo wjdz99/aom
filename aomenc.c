@@ -2273,6 +2273,14 @@ int main(int argc, const char **argv_) {
     if (global.show_psnr) {
       if (global.codec->fourcc == AV1_FOURCC) {
         FOREACH_STREAM(stream, streams) {
+          if (stream->psnr_count) {
+            int64_t kbps = seen_frames ? (int64_t)stream->nbytes * 8 *
+                                             (int64_t)global.framerate.num /
+                                             global.framerate.den / seen_frames
+                                       : 0;
+            fprintf(stderr, " %7" PRId64 " kbps", kbps);
+            fprintf(stderr, " %7" PRId64 " ms ", stream->cx_time / 1000);
+          }
           show_psnr(stream, (1 << stream->config.cfg.g_input_bit_depth) - 1);
         }
       } else {
