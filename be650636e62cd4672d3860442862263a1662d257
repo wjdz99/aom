@@ -190,6 +190,30 @@
     },
     {
       "key": {
+        "uuid": "01d85ef6_deaf7db5",
+        "filename": "test/decode_multithreaded_test.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-04-25T16:27:18Z",
+      "side": 1,
+      "message": "Deepa: You are right! The constructor arguments are the numerator and denominator of the frame rate, not the timebase. I am very sorry for my confusion.",
+      "parentUuid": "7461ecf6_eb03faa7",
+      "range": {
+        "startLine": 108,
+        "startChar": 39,
+        "endLine": 108,
+        "endChar": 65
+      },
+      "revId": "be650636e62cd4672d3860442862263a1662d257",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a89dd551_45503e5a",
         "filename": "test/decode_multithreaded_test.cc",
         "patchSetId": 3
@@ -281,6 +305,30 @@
       "revId": "be650636e62cd4672d3860442862263a1662d257",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2f66a401_a672f9bf",
+        "filename": "test/decode_multithreaded_test.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-04-25T16:27:18Z",
+      "side": 1,
+      "message": "I means the code at lines 135-139 and the code at lines 145-149 are exactly the same. Therefore, I am wondering if we can get rid of the AV1DecodeMultiThreadedTestLarge class and just do:\n\nAV1_INSTANTIATE_TEST_CASE(AV1DecodeMultiThreadedTest,\n                          ::testing::Values(0, 1, 2, 6),\n                          ::testing::Values(0, 1, 2, 6),\n                          ::testing::Values(1, 4), ::testing::Values(0));\n\nWhat do you think?",
+      "parentUuid": "e1726d80_7cc0a877",
+      "range": {
+        "startLine": 144,
+        "startChar": 0,
+        "endLine": 150,
+        "endChar": 1
+      },
+      "revId": "be650636e62cd4672d3860442862263a1662d257",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
