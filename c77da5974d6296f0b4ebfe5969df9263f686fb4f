@@ -22,6 +22,30 @@
       "revId": "c77da5974d6296f0b4ebfe5969df9263f686fb4f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "450abf7e_e12894dd",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 223,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-04-25T21:12:10Z",
+      "side": 1,
+      "message": "Tom: Thank you very much for pointing this out. I ran \"git clang-format\" several times yesterday, but something was wrong with my clang-format git integration, so it had no effects. I just ran clang-format -i --style\u003dfile manually to fix this.",
+      "parentUuid": "0bbfdeaf_fd17dfef",
+      "range": {
+        "startLine": 222,
+        "startChar": 0,
+        "endLine": 223,
+        "endChar": 37
+      },
+      "revId": "c77da5974d6296f0b4ebfe5969df9263f686fb4f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
