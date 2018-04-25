@@ -38,7 +38,7 @@ static void temporal_filter_predictors_mb_c(
     uint8_t *pred, struct scale_factors *scale, int x, int y,
     int can_use_previous) {
   const int which_mv = 0;
-  const MV mv = { mv_row, mv_col };
+  const MV mv = { { mv_row, mv_col } };
   enum mv_precision mv_precision_uv;
   int uv_stride;
   // TODO(angiebird): change plane setting accordingly
@@ -262,10 +262,10 @@ static int temporal_filter_find_matching_mb_c(AV1_COMP *cpi,
     const int src_stride = x->plane[0].src.stride;
     const uint8_t *const y = xd->plane[0].pre[0].buf;
     const int y_stride = xd->plane[0].pre[0].stride;
-    const int offset = x->best_mv.as_mv.row * y_stride + x->best_mv.as_mv.col;
+    const int offset = x->best_mv.row * y_stride + x->best_mv.col;
 
-    x->best_mv.as_mv.row *= 8;
-    x->best_mv.as_mv.col *= 8;
+    x->best_mv.row *= 8;
+    x->best_mv.col *= 8;
 
     bestsme = cpi->fn_ptr[BLOCK_16X16].vf(y + offset, y_stride, src_address,
                                           src_stride, &sse);
@@ -358,8 +358,8 @@ static void temporal_filter_iterate_c(AV1_COMP *cpi,
 
         if (frames[frame] == NULL) continue;
 
-        mbd->mi[0]->mv[0].as_mv.row = 0;
-        mbd->mi[0]->mv[0].as_mv.col = 0;
+        mbd->mi[0]->mv[0].row = 0;
+        mbd->mi[0]->mv[0].col = 0;
         mbd->mi[0]->motion_mode = SIMPLE_TRANSLATION;
 
         if (frame == alt_ref_index) {
@@ -382,9 +382,9 @@ static void temporal_filter_iterate_c(AV1_COMP *cpi,
               mbd, frames[frame]->y_buffer + mb_y_offset,
               frames[frame]->u_buffer + mb_uv_offset,
               frames[frame]->v_buffer + mb_uv_offset, frames[frame]->y_stride,
-              mb_uv_width, mb_uv_height, mbd->mi[0]->mv[0].as_mv.row,
-              mbd->mi[0]->mv[0].as_mv.col, predictor, scale, mb_col * 16,
-              mb_row * 16, cm->allow_warped_motion);
+              mb_uv_width, mb_uv_height, mbd->mi[0]->mv[0].row,
+              mbd->mi[0]->mv[0].col, predictor, scale, mb_col * 16, mb_row * 16,
+              cm->allow_warped_motion);
 
           // Apply the filter (YUV)
           if (mbd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {

@@ -20,7 +20,7 @@ typedef struct {
   struct {
     int err;
     union {
-      int_mv mv;
+      MV mv;
       PREDICTION_MODE mode;
     } m;
   } ref[REF_FRAMES];

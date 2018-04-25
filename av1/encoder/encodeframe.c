@@ -361,19 +361,19 @@ static void set_ref_and_pred_mvs(MACROBLOCK *const x, int8_t rf_type) {
     if (mbmi->mode == NEAR_NEWMV || mbmi->mode == NEW_NEARMV) ref_mv_idx += 1;
 
     if (compound_ref0_mode(mbmi->mode) == NEWMV) {
-      int_mv this_mv = curr_ref_mv_stack[ref_mv_idx].this_mv;
+      MV this_mv = curr_ref_mv_stack[ref_mv_idx].this_mv;
       mbmi_ext->ref_mvs[mbmi->ref_frame[0]][0] = this_mv;
     }
     if (compound_ref1_mode(mbmi->mode) == NEWMV) {
-      int_mv this_mv = curr_ref_mv_stack[ref_mv_idx].comp_mv;
+      MV this_mv = curr_ref_mv_stack[ref_mv_idx].comp_mv;
       mbmi_ext->ref_mvs[mbmi->ref_frame[1]][0] = this_mv;
     }
   } else {
     if (mbmi->mode == NEWMV) {
       int i;
       for (i = 0; i < 1 + has_second_ref(mbmi); ++i) {
-        int_mv this_mv = (i == 0) ? curr_ref_mv_stack[ref_mv_idx].this_mv
-                                  : curr_ref_mv_stack[ref_mv_idx].comp_mv;
+        MV this_mv = (i == 0) ? curr_ref_mv_stack[ref_mv_idx].this_mv
+                              : curr_ref_mv_stack[ref_mv_idx].comp_mv;
         mbmi_ext->ref_mvs[mbmi->ref_frame[i]][0] = this_mv;
       }
     }

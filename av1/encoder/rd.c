@@ -805,10 +805,10 @@ void av1_mv_pred(const AV1_COMP *cpi, MACROBLOCK *x, uint8_t *ref_y_buffer,
   MV pred_mv[MAX_MV_REF_CANDIDATES + 1];
   int num_mv_refs = 0;
 
-  pred_mv[num_mv_refs++] = x->mbmi_ext->ref_mvs[ref_frame][0].as_mv;
+  pred_mv[num_mv_refs++] = x->mbmi_ext->ref_mvs[ref_frame][0];
   if (x->mbmi_ext->ref_mvs[ref_frame][0].as_int !=
       x->mbmi_ext->ref_mvs[ref_frame][1].as_int) {
-    pred_mv[num_mv_refs++] = x->mbmi_ext->ref_mvs[ref_frame][1].as_mv;
+    pred_mv[num_mv_refs++] = x->mbmi_ext->ref_mvs[ref_frame][1];
   }
   if (cpi->sf.adaptive_motion_search && block_size < x->max_partition_size)
     pred_mv[num_mv_refs++] = x->pred_mv[ref_frame];

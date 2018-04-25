@@ -1042,23 +1042,20 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
     }
 
     if (mode == NEWMV || mode == NEW_NEWMV) {
-      int_mv ref_mv;
+      MV ref_mv;
       for (ref = 0; ref < 1 + is_compound; ++ref) {
         nmv_context *nmvc = &ec_ctx->nmvc;
         ref_mv = mbmi_ext->ref_mvs[mbmi->ref_frame[ref]][0];
-        av1_encode_mv(cpi, w, &mbmi->mv[ref].as_mv, &ref_mv.as_mv, nmvc,
-                      allow_hp);
+        av1_encode_mv(cpi, w, &mbmi->mv[ref], &ref_mv, nmvc, allow_hp);
       }
     } else if (mode == NEAREST_NEWMV || mode == NEAR_NEWMV) {
       nmv_context *nmvc = &ec_ctx->nmvc;
-      av1_encode_mv(cpi, w, &mbmi->mv[1].as_mv,
-                    &mbmi_ext->ref_mvs[mbmi->ref_frame[1]][0].as_mv, nmvc,
-                    allow_hp);
+      av1_encode_mv(cpi, w, &mbmi->mv[1],
+                    &mbmi_ext->ref_mvs[mbmi->ref_frame[1]][0], nmvc, allow_hp);
     } else if (mode == NEW_NEARESTMV || mode == NEW_NEARMV) {
       nmv_context *nmvc = &ec_ctx->nmvc;
-      av1_encode_mv(cpi, w, &mbmi->mv[0].as_mv,
-                    &mbmi_ext->ref_mvs[mbmi->ref_frame[0]][0].as_mv, nmvc,
-                    allow_hp);
+      av1_encode_mv(cpi, w, &mbmi->mv[0],
+                    &mbmi_ext->ref_mvs[mbmi->ref_frame[0]][0], nmvc, allow_hp);
     }
 
     if (cpi->common.reference_mode != COMPOUND_REFERENCE &&
@@ -1152,8 +1149,8 @@ static void write_intrabc_info(MACROBLOCKD *xd,
     assert(mbmi->mode == DC_PRED);
     assert(mbmi->uv_mode == UV_DC_PRED);
     assert(mbmi->motion_mode == SIMPLE_TRANSLATION);
-    int_mv dv_ref = mbmi_ext->ref_mvs[INTRA_FRAME][0];
-    av1_encode_dv(w, &mbmi->mv[0].as_mv, &dv_ref.as_mv, &ec_ctx->ndvc);
+    MV dv_ref = mbmi_ext->ref_mvs[INTRA_FRAME][0];
+    av1_encode_dv(w, &mbmi->mv[0], &dv_ref, &ec_ctx->ndvc);
   }
 }
 
@@ -1292,12 +1289,11 @@ static void enc_dump_logs(AV1_COMP *cpi, int mi_row, int mi_col) {
     if (cm->current_video_frame == FRAME_TO_CHECK && cm->show_frame == 1) {
       const BLOCK_SIZE bsize = mbmi->sb_type;
 
-      int_mv mv[2];
+      MV mv[2];
       int is_comp_ref = has_second_ref(mbmi);
       int ref;
 
-      for (ref = 0; ref < 1 + is_comp_ref; ++ref)
-        mv[ref].as_mv = mbmi->mv[ref].as_mv;
+      for (ref = 0; ref < 1 + is_comp_ref; ++ref) mv[ref] = mbmi->mv[ref];
 
       if (!is_comp_ref) {
         mv[1].as_int = 0;
@@ -1327,10 +1323,9 @@ static void enc_dump_logs(AV1_COMP *cpi, int mi_row, int mi_col) {
           "ref[1]=%d, motion_mode=%d, mode_ctx=%d, "
           "newmv_ctx=%d, zeromv_ctx=%d, refmv_ctx=%d, tx_size=%d\n",
           cm->current_video_frame, mi_row, mi_col, mbmi->skip_mode, mbmi->mode,
-          bsize, cm->show_frame, mv[0].as_mv.row, mv[0].as_mv.col,
-          mv[1].as_mv.row, mv[1].as_mv.col, mbmi->ref_frame[0],
-          mbmi->ref_frame[1], mbmi->motion_mode, mode_ctx, newmv_ctx,
-          zeromv_ctx, refmv_ctx, mbmi->tx_size);
+          bsize, cm->show_frame, mv[0].row, mv[0].col, mv[1].row, mv[1].col,
+          mbmi->ref_frame[0], mbmi->ref_frame[1], mbmi->motion_mode, mode_ctx,
+          newmv_ctx, zeromv_ctx, refmv_ctx, mbmi->tx_size);
     }
   }
 }

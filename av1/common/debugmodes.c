@@ -78,7 +78,7 @@ void av1_print_modes_and_motion_vectors(AV1_COMMON *cm, const char *file) {
   for (mi_row = 0; mi_row < rows; mi_row++) {
     fprintf(mvs, "V ");
     for (mi_col = 0; mi_col < cols; mi_col++) {
-      fprintf(mvs, "%4d:%4d ", mi[0]->mv[0].as_mv.row, mi[0]->mv[0].as_mv.col);
+      fprintf(mvs, "%4d:%4d ", mi[0]->mv[0].row, mi[0]->mv[0].col);
       mi++;
     }
     fprintf(mvs, "\n");
