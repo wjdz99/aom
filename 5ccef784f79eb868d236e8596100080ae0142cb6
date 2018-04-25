@@ -49,6 +49,53 @@
     },
     {
       "key": {
+        "uuid": "8caf8c22_3683f362",
+        "filename": "av1/encoder/x86/av1_quantize_sse2.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 8900
+      },
+      "writtenOn": "2018-04-25T15:01:23Z",
+      "side": 1,
+      "message": "But only one thr is passed in, both qcoeff0 and qcoeff1 are using the same thr.\n\nI think qcoeff0 contains DC + AC*7, and qcoeff1 contains AC*8, they should use different \"thr\"s.",
+      "parentUuid": "8b2659eb_fb1b55d0",
+      "range": {
+        "startLine": 76,
+        "startChar": 43,
+        "endLine": 76,
+        "endChar": 46
+      },
+      "revId": "5ccef784f79eb868d236e8596100080ae0142cb6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6a2a1c49_1ac0559f",
+        "filename": "av1/encoder/x86/av1_quantize_sse2.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 8900
+      },
+      "writtenOn": "2018-04-25T15:01:23Z",
+      "side": 1,
+      "message": "Should here use thr1?",
+      "range": {
+        "startLine": 90,
+        "startChar": 63,
+        "endLine": 90,
+        "endChar": 66
+      },
+      "revId": "5ccef784f79eb868d236e8596100080ae0142cb6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "034b61f8_a2b1ba88",
         "filename": "av1/encoder/x86/av1_quantize_sse2.c",
         "patchSetId": 8
@@ -77,6 +124,24 @@
       "writtenOn": "2018-04-25T14:08:38Z",
       "side": 1,
       "message": "And here.",
+      "revId": "5ccef784f79eb868d236e8596100080ae0142cb6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d70a6e5c_48945932",
+        "filename": "av1/encoder/x86/av1_quantize_sse2.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 8900
+      },
+      "writtenOn": "2018-04-25T15:01:23Z",
+      "side": 1,
+      "message": "thr1 is not used in the first time.",
+      "parentUuid": "bfa8502e_62841312",
       "revId": "5ccef784f79eb868d236e8596100080ae0142cb6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
