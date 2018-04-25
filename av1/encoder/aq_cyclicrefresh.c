@@ -113,7 +113,7 @@ static int apply_cyclic_refresh_bitrate(const AV1_COMMON *cm,
 static int candidate_refresh_aq(const CYCLIC_REFRESH *cr,
                                 const MB_MODE_INFO *mbmi, int64_t rate,
                                 int64_t dist, int bsize) {
-  MV mv = mbmi->mv[0].as_mv;
+  MV mv = mbmi->mv[0];
   // Reject the block for lower-qp coding if projected distortion
   // is above the threshold, and any of the following is true:
   // 1) mode uses large mv
@@ -330,12 +330,10 @@ void av1_cyclic_refresh_check_golden_update(AV1_COMP *const cpi) {
     mi = cm->mi_grid_visible + mi_row * cm->mi_stride;
 
     for (mi_col = 0; mi_col < cols; mi_col++) {
-      int16_t abs_mvr = mi[0]->mv[0].as_mv.row >= 0
-                            ? mi[0]->mv[0].as_mv.row
-                            : -1 * mi[0]->mv[0].as_mv.row;
-      int16_t abs_mvc = mi[0]->mv[0].as_mv.col >= 0
-                            ? mi[0]->mv[0].as_mv.col
-                            : -1 * mi[0]->mv[0].as_mv.col;
+      int16_t abs_mvr =
+          mi[0]->mv[0].row >= 0 ? mi[0]->mv[0].row : -1 * mi[0]->mv[0].row;
+      int16_t abs_mvc =
+          mi[0]->mv[0].col >= 0 ? mi[0]->mv[0].col : -1 * mi[0]->mv[0].col;
 
       // Calculate the motion of the background.
       if (abs_mvr <= 16 && abs_mvc <= 16) {
