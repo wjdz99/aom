@@ -16,6 +16,24 @@
       "revId": "66acc065962d216d2f63665f75451eeed3d83e9f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4d68975f_e0530d27",
+        "filename": "test/test_data_download_worker.cmake",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-04-25T00:29:54Z",
+      "side": 1,
+      "message": "\u003e please use http; see aomedia:1253. Some CMake builds are supplied without HTTPS support, and downloading the test data over a clear link is mostly harmless since we\u0027re doing a sha1 check on data downloaded from a different source.\n\nI forgot about that one and was just normalizing to what libvpx had for wget. I restored the http.",
+      "parentUuid": "b90bb353_85eabe1b",
+      "revId": "66acc065962d216d2f63665f75451eeed3d83e9f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
