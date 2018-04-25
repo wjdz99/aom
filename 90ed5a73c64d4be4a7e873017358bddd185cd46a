@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "e0155441_fe20aecc",
+        "filename": "av1/common/arm/cfl_neon.c",
+        "patchSetId": 24
+      },
+      "lineNbr": 257,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2018-04-25T15:50:30Z",
+      "side": 1,
+      "message": "It would appear that the vcgtz and vcltz intrinsics are only available on A64 (see https://developer.arm.com/technologies/neon/intrinsics). However, it does appear that in assembly, the instruction if available on ARMv7.\nNote that, based on the documentation, vcgtz_s16 gets translated to CMGT Vd.4H,Vn.4H,#0",
+      "parentUuid": "2a099379_6186b652",
+      "revId": "90ed5a73c64d4be4a7e873017358bddd185cd46a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f51d8d24_3bbb8d48",
         "filename": "av1/common/arm/cfl_neon.c",
         "patchSetId": 24
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "bc8d5db4_b2d601e3",
+        "filename": "av1/common/arm/cfl_neon.c",
+        "patchSetId": 24
+      },
+      "lineNbr": 260,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2018-04-25T15:50:30Z",
+      "side": 1,
+      "message": "You\u0027re right, I had not copied the whole comment from the Intel documentation. This part was missing: \"Element in a are zeroed out when the corresponding element in b is zero\". I\u0027ve expressed this concern in the comments of the function\n\nLet\u0027s use vshr_n_s16(b, 15), this removes the need for the #if __ARM_ARCH \u003e\u003d 8 block.\n\nI noticed some issues with INT16_MIN, so I changed vadd for vaddq, now negating INT16_MIN results in INT16_MAX. This situation cannot occur in practice.",
+      "parentUuid": "f51d8d24_3bbb8d48",
+      "revId": "90ed5a73c64d4be4a7e873017358bddd185cd46a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6e2903ba_c2fc77e5",
         "filename": "av1/common/arm/cfl_neon.c",
         "patchSetId": 24
@@ -47,6 +83,24 @@
       "writtenOn": "2018-04-25T01:48:48Z",
       "side": 1,
       "message": "See above.",
+      "revId": "90ed5a73c64d4be4a7e873017358bddd185cd46a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6d4aae90_412b1711",
+        "filename": "av1/common/arm/cfl_neon.c",
+        "patchSetId": 24
+      },
+      "lineNbr": 265,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2018-04-25T15:50:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6e2903ba_c2fc77e5",
       "revId": "90ed5a73c64d4be4a7e873017358bddd185cd46a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
