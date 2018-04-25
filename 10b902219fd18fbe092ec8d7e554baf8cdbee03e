@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "887bd8c3_68c994d4",
+        "filename": "obudec.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-04-25T17:49:53Z",
+      "side": 1,
+      "message": "Oops, missed this earlier. size_t: This is usually a small value, but there\u0027s not sense in risking an overflow here.",
+      "range": {
+        "startLine": 166,
+        "startChar": 31,
+        "endLine": 166,
+        "endChar": 57
+      },
+      "revId": "10b902219fd18fbe092ec8d7e554baf8cdbee03e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
