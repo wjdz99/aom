@@ -18,7 +18,7 @@ include("${AOM_ROOT}/build/cmake/util.cmake")
 function (get_msvc_intrinsic_flag flag translated_flag)
   if ("${flag}" STREQUAL "-mavx")
     set(${translated_flag} "/arch:AVX" PARENT_SCOPE)
-  elseif ("${flag}" STREQUAL "-mavx2")
+  elseif ("${flag}" STREQUAL "-mavx2" OR "${flag}" STREQUAL "-mavx2 -mfma")
     set(${translated_flag} "/arch:AVX2" PARENT_SCOPE)
   else ()
     # MSVC does not need flags for intrinsics flavors other than AVX/AVX2.

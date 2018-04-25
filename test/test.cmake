@@ -413,7 +413,7 @@ function (setup_aom_test_targets)
     endif ()
   endif ()
   if (HAVE_AVX2)
-    add_intrinsics_source_to_target("-mavx2" "test_libaom"
+    add_intrinsics_source_to_target("-mavx2 -mfma" "test_libaom"
                                     "AOM_UNIT_TEST_COMMON_INTRIN_AVX2")
   endif ()
   if (HAVE_NEON)
