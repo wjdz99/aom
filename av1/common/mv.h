@@ -22,17 +22,15 @@ extern "C" {
 
 #define INVALID_MV 0x80008000
 
-typedef struct mv {
-  int16_t row;
-  int16_t col;
+typedef union mv {
+  struct {
+    int16_t row;
+    int16_t col;
+  };
+  uint32_t as_int; /* facilitates faster equality tests */
 } MV;
 
-static const MV zero_mv = { 0, 0 };
-
-typedef union int_mv {
-  uint32_t as_int;
-  MV as_mv;
-} int_mv; /* facilitates faster equality tests and copies */
+static const MV zero_mv = { { 0, 0 } };
 
 typedef struct mv32 {
   int32_t row;
@@ -207,11 +205,10 @@ static INLINE void integer_mv_precision(MV *mv) {
 // allow_hp is zero, the bottom bit will always be zero. If CONFIG_AMVR and
 // is_integer is true, the bottom three bits will be zero (so the motion vector
 // represents an integer)
-static INLINE int_mv gm_get_motion_vector(const WarpedMotionParams *gm,
-                                          int allow_hp, BLOCK_SIZE bsize,
-                                          int mi_col, int mi_row,
-                                          int is_integer) {
-  int_mv res;
+static INLINE MV gm_get_motion_vector(const WarpedMotionParams *gm,
+                                      int allow_hp, BLOCK_SIZE bsize,
+                                      int mi_col, int mi_row, int is_integer) {
+  MV res;
 
   if (gm->wmtype == IDENTITY) {
     res.as_int = 0;
@@ -230,11 +227,11 @@ static INLINE int_mv gm_get_motion_vector(const WarpedMotionParams *gm,
     // After the right shifts, there are 3 fractional bits of precision. If
     // allow_hp is false, the bottom bit is always zero (so we don't need a
     // call to convert_to_trans_prec here)
-    res.as_mv.row = gm->wmmat[0] >> GM_TRANS_ONLY_PREC_DIFF;
-    res.as_mv.col = gm->wmmat[1] >> GM_TRANS_ONLY_PREC_DIFF;
-    assert(IMPLIES(1 & (res.as_mv.row | res.as_mv.col), allow_hp));
+    res.row = gm->wmmat[0] >> GM_TRANS_ONLY_PREC_DIFF;
+    res.col = gm->wmmat[1] >> GM_TRANS_ONLY_PREC_DIFF;
+    assert(IMPLIES(1 & (res.row | res.col), allow_hp));
     if (is_integer) {
-      integer_mv_precision(&res.as_mv);
+      integer_mv_precision(&res);
     }
     return res;
   }
@@ -254,11 +251,11 @@ static INLINE int_mv gm_get_motion_vector(const WarpedMotionParams *gm,
   tx = convert_to_trans_prec(allow_hp, xc);
   ty = convert_to_trans_prec(allow_hp, yc);
 
-  res.as_mv.row = ty;
-  res.as_mv.col = tx;
+  res.row = ty;
+  res.col = tx;
 
   if (is_integer) {
-    integer_mv_precision(&res.as_mv);
+    integer_mv_precision(&res);
   }
   return res;
 }
@@ -275,8 +272,8 @@ static INLINE TransformationType get_gmtype(const WarpedMotionParams *gm) {
 }
 
 typedef struct candidate_mv {
-  int_mv this_mv;
-  int_mv comp_mv;
+  MV this_mv;
+  MV comp_mv;
   int weight;
 } CANDIDATE_MV;
 

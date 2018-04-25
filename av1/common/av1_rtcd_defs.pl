@@ -32,8 +32,7 @@ struct macroblock;
 struct txfm_param;
 struct aom_variance_vtable;
 struct search_site_config;
-typedef struct mv MV;
-union int_mv;
+typedef union mv MV;
 struct yv12_buffer_config;
 
 /* Function pointers return by CfL functions */
