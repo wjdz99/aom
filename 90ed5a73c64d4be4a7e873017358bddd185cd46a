@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2a099379_6186b652",
+        "filename": "av1/common/arm/cfl_neon.c",
+        "patchSetId": 24
+      },
+      "lineNbr": 257,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2018-04-25T01:48:48Z",
+      "side": 1,
+      "message": "Out of curiosity, why can\u0027t you use vctgz/vcltz on ARMv7? The instruction set certainly supports it.",
+      "revId": "90ed5a73c64d4be4a7e873017358bddd185cd46a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f51d8d24_3bbb8d48",
+        "filename": "av1/common/arm/cfl_neon.c",
+        "patchSetId": 24
+      },
+      "lineNbr": 260,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2018-04-25T01:48:48Z",
+      "side": 1,
+      "message": "Multiplies have a very long latency in NEON. You can do much better than this if you don\u0027t care about preserving the current behavior when b is zero (which I don\u0027t think you do, that behavior does not even match what the comment on the function says).\n\nSpecifically:\nmask \u003d vreinterpret_s16_u16(vcltz_s16(b)); //alternatively vshr_s16(b, 15);\nreturn vreinterpret_s16_u16(veor_s16(vadd_s16(a, mask), mask));",
+      "revId": "90ed5a73c64d4be4a7e873017358bddd185cd46a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6e2903ba_c2fc77e5",
+        "filename": "av1/common/arm/cfl_neon.c",
+        "patchSetId": 24
+      },
+      "lineNbr": 265,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2018-04-25T01:48:48Z",
+      "side": 1,
+      "message": "See above.",
+      "revId": "90ed5a73c64d4be4a7e873017358bddd185cd46a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "200accbd_80e20620",
+        "filename": "av1/common/arm/cfl_neon.c",
+        "patchSetId": 24
+      },
+      "lineNbr": 281,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2018-04-25T01:48:48Z",
+      "side": 1,
+      "message": "All you need here is for ac_sign to be negative if the signs of alpha_sign and ac_q3 differ, and non-negative if they are the same. So this reduces to\n\nac_sign \u003d vreinterpret_s16_u16(veor_s16(alpha_sign, ac_q3));\n\nThat saves two operations even over the simplified implementation of vsign_s16 proposed above.",
+      "revId": "90ed5a73c64d4be4a7e873017358bddd185cd46a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "23146d26_bf0c1d42",
+        "filename": "av1/common/arm/cfl_neon.c",
+        "patchSetId": 24
+      },
+      "lineNbr": 309,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2018-04-25T01:48:48Z",
+      "side": 1,
+      "message": "ARMv7 also has VQMOVUN.S16, so I\u0027m a little confused why you\u0027re doing this in two steps (first vqshluq_n_s16(..., 0) and then vqmovn_u16()).\n\nIt\u0027s also a little weird that this function does the unsigned saturation/narrowing inside of it, while the other predict_w\u003cN\u003e functions do not. The reader doesn\u0027t find out why until they get to the hbd implementation below. I think this function should have a different name that indicates the extra functionality somehow. It may even be worth making functions for the other sizes that also include the saturation/narrowing and also follow the same naming scheme, to make cfl_predict_lbd_neon() look more consistent, but that\u0027s up to you.",
+      "revId": "90ed5a73c64d4be4a7e873017358bddd185cd46a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
