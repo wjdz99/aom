@@ -5903,6 +5903,21 @@ static void store_coding_context(MACROBLOCK *x, PICK_MODE_CONTEXT *ctx,
   ctx->hybrid_pred_diff = (int)comp_pred_diff[REFERENCE_MODE_SELECT];
 }
 
+static void restore_rd_coding_context(MACROBLOCK *x, PICK_MODE_CONTEXT *ctx,
+                                      int *mode_index,
+                                      int64_t comp_pred_diff[REFERENCE_MODES],
+                                      int *skippable) {
+  MACROBLOCKD *const xd = &x->e_mbd;
+  x->skip = ctx->skip;
+  *skippable = ctx->skippable;
+  *mode_index = ctx->best_mode_index;
+  *xd->mi[0] = ctx->mic;
+  *x->mbmi_ext = ctx->mbmi_ext;
+  comp_pred_diff[SINGLE_REFERENCE] = ctx->single_pred_diff;
+  comp_pred_diff[COMPOUND_REFERENCE] = ctx->comp_pred_diff;
+  comp_pred_diff[REFERENCE_MODE_SELECT] = ctx->hybrid_pred_diff;
+}
+
 static void setup_buffer_ref_mvs_inter(
     const AV1_COMP *const cpi, MACROBLOCK *x, MV_REFERENCE_FRAME ref_frame,
     BLOCK_SIZE block_size, int mi_row, int mi_col,
@@ -7188,12 +7203,11 @@ static int64_t motion_mode_rd(const AV1_COMP *const cpi, MACROBLOCK *const x,
       assert(mbmi->ref_frame[1] != INTRA_FRAME);
     }
 
-    // SIMPLE_TRANSLATION mode: no need to recalculate.
-    // The prediction is calculated before motion_mode_rd() is called in
-    // handle_inter_mode()
-
-    // OBMC mode
-    if (mbmi->motion_mode == OBMC_CAUSAL) {
+    if (mbmi->motion_mode == SIMPLE_TRANSLATION && !is_interintra_mode) {
+      // SIMPLE_TRANSLATION mode: no need to recalculate.
+      // The prediction is calculated before motion_mode_rd() is called in
+      // handle_inter_mode()
+    } else if (mbmi->motion_mode == OBMC_CAUSAL) {
       mbmi->motion_mode = OBMC_CAUSAL;
       if (!is_comp_pred && have_newmv_in_inter_mode(this_mode)) {
         int tmp_rate_mv = 0;
@@ -7214,10 +7228,7 @@ static int64_t motion_mode_rd(const AV1_COMP *const cpi, MACROBLOCK *const x,
       av1_build_obmc_inter_prediction(
           cm, xd, mi_row, mi_col, args->above_pred_buf, args->above_pred_stride,
           args->left_pred_buf, args->left_pred_stride);
-    }
-
-    // Local warped motion mode
-    if (mbmi->motion_mode == WARPED_CAUSAL) {
+    } else if (mbmi->motion_mode == WARPED_CAUSAL) {
       int pts[SAMPLES_ARRAY_SIZE], pts_inref[SAMPLES_ARRAY_SIZE];
       mbmi->motion_mode = WARPED_CAUSAL;
       mbmi->wm_params[0].wmtype = DEFAULT_WMTYPE;
@@ -7279,10 +7290,7 @@ static int64_t motion_mode_rd(const AV1_COMP *const cpi, MACROBLOCK *const x,
       } else {
         continue;
       }
-    }
-
-    // Interintra mode
-    if (is_interintra_mode) {
+    } else if (is_interintra_mode) {
       INTERINTRA_MODE best_interintra_mode = II_DC_PRED;
       int64_t rd, best_interintra_rd = INT64_MAX;
       int rmode, rate_sum;
@@ -7742,7 +7750,6 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   int refs[2] = { mbmi->ref_frame[0],
                   (mbmi->ref_frame[1] < 0 ? 0 : mbmi->ref_frame[1]) };
   int rate_mv = 0;
-  int pred_exists = 1;
   const int bw = block_size_wide[bsize];
   DECLARE_ALIGNED(32, uint8_t, tmp_buf_[2 * MAX_MB_PLANE * MAX_SB_SQUARE]);
   uint8_t *tmp_buf;
@@ -7789,22 +7796,33 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   const RD_STATS backup_rd_stats = *rd_stats;
   const RD_STATS backup_rd_stats_y = *rd_stats_y;
   const RD_STATS backup_rd_stats_uv = *rd_stats_uv;
-  RD_STATS best_rd_stats, best_rd_stats_y, best_rd_stats_uv;
-  int64_t best_rd = INT64_MAX;
-  int best_compound_idx = 1;
-  int64_t best_ret_val = INT64_MAX;
-  uint8_t best_blk_skip[MAX_MIB_SIZE * MAX_MIB_SIZE];
   const MB_MODE_INFO backup_mbmi = *mbmi;
-  MB_MODE_INFO best_mbmi = *mbmi;
-  int64_t early_terminate = 0;
+  int64_t model_rd[2] = { INT64_MAX, INT64_MAX };
+  int modes_rate[2] = { INT_MAX, INT_MAX };
+  int is_valid_mode[2] = { 1, 1 };
+  int dummy_mode_index = 0;
+  int64_t dummy_pred_diff[REFERENCE_MODES] = { 0 };
+  int dummy_skippable = 0;
+  PICK_MODE_CONTEXT ctx[2];
+  INTERINTER_COMPOUND_DATA best_compound_data;
+  memset(&best_compound_data, 0, sizeof(best_compound_data));
+  uint8_t tmp_mask_buf[2 * MAX_SB_SQUARE];
+  best_compound_data.seg_mask = tmp_mask_buf;
 
   int comp_idx;
   const int search_jnt_comp = is_comp_pred & cm->seq_params.enable_jnt_comp &
                               (mbmi->mode != GLOBAL_GLOBALMV);
   // If !search_jnt_comp, we need to force mbmi->compound_idx = 1.
   for (comp_idx = !search_jnt_comp; comp_idx < 2; ++comp_idx) {
+    rs = 0;
     compmode_interinter_cost = 0;
-    early_terminate = 0;
+    rate_mv = 0;
+    rd = INT64_MAX;
+    mbmi->interinter_compound_type = COMPOUND_AVERAGE;
+    mbmi->num_proj_ref[0] = 0;
+    mbmi->num_proj_ref[1] = 0;
+    mbmi->motion_mode = SIMPLE_TRANSLATION;
+    ret_val = 0;
     *rd_stats = backup_rd_stats;
     *rd_stats_y = backup_rd_stats_y;
     *rd_stats_uv = backup_rd_stats_uv;
@@ -7824,17 +7842,21 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
 
     int_mv cur_mv[2];
     if (!build_cur_mv(cur_mv, this_mode, cm, x)) {
-      early_terminate = INT64_MAX;
+      is_valid_mode[comp_idx] = 0;
       continue;
     }
     if (have_newmv_in_inter_mode(this_mode)) {
-      ret_val =
-          handle_newmv(cpi, x, bsize, cur_mv, mi_row, mi_col, &rate_mv, args);
+      // when jnt_comp_skip_mv_search flag is on, new mv will be searech once
+      if (!(search_jnt_comp && cpi->sf.jnt_comp_skip_mv_search &&
+            comp_idx == 1))
+        ret_val =
+            handle_newmv(cpi, x, bsize, cur_mv, mi_row, mi_col, &rate_mv, args);
       for (i = 0; i < is_comp_pred + 1; ++i) {
         frame_mv[refs[i]].as_int = cur_mv[i].as_int;
       }
       if (ret_val != 0) {
-        early_terminate = INT64_MAX;
+        is_valid_mode[comp_idx] = 0;
+        if (cpi->sf.jnt_comp_skip_mv_search) return INT64_MAX;
         continue;
       } else {
         rd_stats->rate += rate_mv;
@@ -7888,7 +7910,7 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
 
     if (RDCOST(x->rdmult, rd_stats->rate, 0) > ref_best_rd &&
         mbmi->mode != NEARESTMV && mbmi->mode != NEAREST_NEARESTMV) {
-      early_terminate = INT64_MAX;
+      is_valid_mode[comp_idx] = 0;
       continue;
     }
 
@@ -7896,7 +7918,8 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
         x, cpi, bsize, mi_row, mi_col, &tmp_dst, &orig_dst, args->single_filter,
         &rd, &rs, &skip_txfm_sb, &skip_sse_sb);
     if (ret_val != 0) {
-      early_terminate = INT64_MAX;
+      is_valid_mode[comp_idx] = 0;
+      restore_dst_buf(xd, orig_dst, num_planes);
       continue;
     }
 
@@ -7904,7 +7927,6 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
       int rate_sum, rs2;
       int64_t dist_sum;
       int64_t best_rd_compound = INT64_MAX, best_rd_cur = INT64_MAX;
-      INTERINTER_COMPOUND_DATA best_compound_data;
       int_mv best_mv[2];
       int best_tmp_rate_mv = rate_mv;
       int tmp_skip_txfm_sb;
@@ -7922,9 +7944,6 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
 
       best_mv[0].as_int = cur_mv[0].as_int;
       best_mv[1].as_int = cur_mv[1].as_int;
-      memset(&best_compound_data, 0, sizeof(best_compound_data));
-      uint8_t tmp_mask_buf[2 * MAX_SB_SQUARE];
-      best_compound_data.seg_mask = tmp_mask_buf;
 
       if (masked_compound_used) {
         // get inter predictors to use for masked compound modes
@@ -8045,26 +8064,25 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
 
       if (ref_best_rd < INT64_MAX && best_rd_compound / 3 > ref_best_rd) {
         restore_dst_buf(xd, orig_dst, num_planes);
-        early_terminate = INT64_MAX;
+        is_valid_mode[comp_idx] = 0;
         continue;
       }
-
-      pred_exists = 0;
-
       compmode_interinter_cost = best_compmode_interinter_cost;
     }
 
-    if (pred_exists == 0) {
+    if (is_comp_pred) {
       int tmp_rate;
       int64_t tmp_dist;
       av1_build_inter_predictors_sb(cm, xd, mi_row, mi_col, &orig_dst, bsize);
       model_rd_for_sb(cpi, bsize, x, xd, 0, num_planes - 1, &tmp_rate,
                       &tmp_dist, &skip_txfm_sb, &skip_sse_sb);
-      rd = RDCOST(x->rdmult, rs + tmp_rate, tmp_dist);
+      rd = RDCOST(x->rdmult, rs + tmp_rate + rd_stats->rate, tmp_dist);
+    }
 
+    if (search_jnt_comp) {
       // if 1/2 model rd is larger than best_rd in jnt_comp mode,
       // use jnt_comp mode, save additional search
-      if ((rd >> 1) > best_rd) {
+      if (comp_idx && (rd >> 1) > model_rd[0]) {
         restore_dst_buf(xd, orig_dst, num_planes);
         continue;
       }
@@ -8082,7 +8100,7 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
                                    args->modelled_rd[mode1][refs[1]]);
         if (rd / 4 * 3 > mrd && ref_best_rd < INT64_MAX) {
           restore_dst_buf(xd, orig_dst, num_planes);
-          early_terminate = INT64_MAX;
+          is_valid_mode[comp_idx] = 0;
           continue;
         }
       } else {
@@ -8095,55 +8113,58 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
       // so far, do not bother doing full rd
       if (rd / 2 > ref_best_rd) {
         restore_dst_buf(xd, orig_dst, num_planes);
-        early_terminate = INT64_MAX;
+        is_valid_mode[comp_idx] = 0;
         continue;
       }
     }
 
     rd_stats->rate += compmode_interinter_cost;
 
-    ret_val = motion_mode_rd(cpi, x, bsize, rd_stats, rd_stats_y, rd_stats_uv,
-                             disable_skip, mi_row, mi_col, args, ref_best_rd,
-                             refs, rate_mv, &orig_dst);
-    if (is_comp_pred && ret_val != INT64_MAX) {
-      int64_t tmp_rd;
-      const int skip_ctx = av1_get_skip_context(xd);
-      if (RDCOST(x->rdmult, rd_stats->rate, rd_stats->dist) <
-          RDCOST(x->rdmult, 0, rd_stats->sse))
-        tmp_rd = RDCOST(x->rdmult, rd_stats->rate + x->skip_cost[skip_ctx][0],
-                        rd_stats->dist);
-      else
-        tmp_rd = RDCOST(x->rdmult,
-                        rd_stats->rate + x->skip_cost[skip_ctx][1] -
-                            rd_stats_y->rate - rd_stats_uv->rate,
-                        rd_stats->sse);
-
-      if (tmp_rd < best_rd) {
-        best_rd_stats = *rd_stats;
-        best_rd_stats_y = *rd_stats_y;
-        best_rd_stats_uv = *rd_stats_uv;
-        best_compound_idx = mbmi->compound_idx;
-        best_ret_val = ret_val;
-        best_rd = tmp_rd;
-        best_mbmi = *mbmi;
-        memcpy(best_blk_skip, x->blk_skip,
-               sizeof(best_blk_skip[0]) * xd->n8_h * xd->n8_w);
+    if (search_jnt_comp) {
+      if (cpi->sf.jnt_comp_fast_tx_search && comp_idx == 0) {
+        modes_rate[comp_idx] = rd_stats->rate;
+        model_rd[comp_idx] = rd;
+      } else {
+        ret_val = motion_mode_rd(cpi, x, bsize, rd_stats, rd_stats_y,
+                                 rd_stats_uv, disable_skip, mi_row, mi_col,
+                                 args, ref_best_rd, refs, rate_mv, &orig_dst);
+        if (ret_val == INT64_MAX) {
+          restore_dst_buf(xd, orig_dst, num_planes);
+          is_valid_mode[comp_idx] = 0;
+          continue;
+        }
+        modes_rate[comp_idx] = rd_stats->rate;
+        model_rd[comp_idx] =
+            RDCOST(x->rdmult, rs + rd_stats->rate, rd_stats->dist);
       }
+    } else {
+      ret_val = motion_mode_rd(cpi, x, bsize, rd_stats, rd_stats_y, rd_stats_uv,
+                               disable_skip, mi_row, mi_col, args, ref_best_rd,
+                               refs, rate_mv, &orig_dst);
+      if (ret_val != 0) return ret_val;
+    }
+    store_coding_context(x, &ctx[comp_idx], dummy_mode_index, dummy_pred_diff,
+                         dummy_skippable);
+  }
+  restore_dst_buf(xd, orig_dst, num_planes);
+
+  if (search_jnt_comp) {
+    if (!(is_valid_mode[0] || is_valid_mode[1])) return INT64_MAX;
+    // restore internal states to the selected mode (jnt_comp or other modes)
+    if (model_rd[0] < model_rd[1]) {
+      rd = model_rd[0];
+      rd_stats->rate = modes_rate[0];
+      restore_rd_coding_context(x, &ctx[0], &dummy_mode_index, dummy_pred_diff,
+                                &dummy_skippable);
+    } else {
+      rd = model_rd[1];
+      rd_stats->rate = modes_rate[1];
+      memcpy(xd->seg_mask, best_compound_data.seg_mask,
+             2 * MAX_SB_SQUARE * sizeof(uint8_t));
+      restore_rd_coding_context(x, &ctx[1], &dummy_mode_index, dummy_pred_diff,
+                                &dummy_skippable);
     }
   }
-  // re-instate status of the best choice
-  if (is_comp_pred && best_ret_val != INT64_MAX) {
-    *rd_stats = best_rd_stats;
-    *rd_stats_y = best_rd_stats_y;
-    *rd_stats_uv = best_rd_stats_uv;
-    mbmi->compound_idx = best_compound_idx;
-    ret_val = best_ret_val;
-    *mbmi = best_mbmi;
-    memcpy(x->blk_skip, best_blk_skip,
-           sizeof(best_blk_skip[0]) * xd->n8_h * xd->n8_w);
-  }
-  if (early_terminate == INT64_MAX) return INT64_MAX;
-  if (ret_val != 0) return ret_val;
 
   return 0;  // The rate-distortion cost will be re-calculated by caller.
 }
