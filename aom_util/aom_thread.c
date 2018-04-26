@@ -131,7 +131,8 @@ static int reset(AVxWorker *const worker) {
 
 static void execute(AVxWorker *const worker) {
   if (worker->hook != NULL) {
-    worker->had_error |= !worker->hook(worker->data1, worker->data2);
+    worker->had_error |=
+        !worker->hook(worker->data1, worker->data2, worker->data3);
   }
 }
 
