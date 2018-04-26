@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "ecd23c6f_76915236",
+        "filename": "av1/common/arm/cfl_neon.c",
+        "patchSetId": 24
+      },
+      "lineNbr": 257,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2018-04-26T00:02:27Z",
+      "side": 1,
+      "message": "Looking up the timings, at least for older ARMv7 chips, VSHR has 1...2 cycles less latency, also (which I guess makes vcltz completely useless? not sure if that\u0027s the same on newer chips or ARM64, but it was probably free to add to the ISA once you had it for floating-point).",
+      "parentUuid": "e0155441_fe20aecc",
+      "revId": "90ed5a73c64d4be4a7e873017358bddd185cd46a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f51d8d24_3bbb8d48",
         "filename": "av1/common/arm/cfl_neon.c",
         "patchSetId": 24
@@ -66,6 +84,24 @@
       "side": 1,
       "message": "You\u0027re right, I had not copied the whole comment from the Intel documentation. This part was missing: \"Element in a are zeroed out when the corresponding element in b is zero\". I\u0027ve expressed this concern in the comments of the function\n\nLet\u0027s use vshr_n_s16(b, 15), this removes the need for the #if __ARM_ARCH \u003e\u003d 8 block.\n\nI noticed some issues with INT16_MIN, so I changed vadd for vaddq, now negating INT16_MIN results in INT16_MAX. This situation cannot occur in practice.",
       "parentUuid": "f51d8d24_3bbb8d48",
+      "revId": "90ed5a73c64d4be4a7e873017358bddd185cd46a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c5673489_748ee9bd",
+        "filename": "av1/common/arm/cfl_neon.c",
+        "patchSetId": 24
+      },
+      "lineNbr": 260,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2018-04-26T00:02:27Z",
+      "side": 1,
+      "message": "vqadd*() has one cycle more latency than vadd*() (again, on the older ARMv7 chips for which I had the TRMs handy). So probably not worth using if INT16_MIN can\u0027t happen in practice. Given that we are now only using this function on the result of the product of two non-negative numbers, I agree with you that it can\u0027t. It\u0027s still good practice to document the behavior for INT16_MIN, of course (i.e., without vqadd*(), INT16_MIN stays INT16_MIN).",
+      "parentUuid": "bc8d5db4_b2d601e3",
       "revId": "90ed5a73c64d4be4a7e873017358bddd185cd46a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -171,6 +207,24 @@
       "side": 1,
       "message": "It would appear that the vqmovun_high intrinsic is only available on A64 (see https://developer.arm.com/technologies/neon/intrinsics).",
       "parentUuid": "23146d26_bf0c1d42",
+      "revId": "90ed5a73c64d4be4a7e873017358bddd185cd46a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "68bdcac8_86e11ce7",
+        "filename": "av1/common/arm/cfl_neon.c",
+        "patchSetId": 24
+      },
+      "lineNbr": 309,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2018-04-26T00:02:27Z",
+      "side": 1,
+      "message": "Yes, but vqmovun_s16() is available on both. So two of those followed by vcombine_u8() should do, right? Assuming the register allocator makes the vcombine_u8() disappear, that\u0027s fewer instructions on both architectures, or did I misunderstand something?",
+      "parentUuid": "d254b767_15111093",
       "revId": "90ed5a73c64d4be4a7e873017358bddd185cd46a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
