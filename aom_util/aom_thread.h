@@ -173,6 +173,23 @@ static INLINE int pthread_cond_signal(pthread_cond_t *const condition) {
   return !ok;
 }
 
+static INLINE int pthread_cond_broadcast(pthread_cond_t *const condition) {
+  int ok = 1;
+#ifdef USE_WINDOWS_CONDITION_VARIABLE
+  WakeAllConditionVariable(condition);
+#else
+  while (WaitForSingleObject(condition->waiting_sem_, 0) == WAIT_OBJECT_0) {
+    // a thread is waiting in pthread_cond_wait: allow it to be notified
+    ok = SetEvent(condition->signal_event_);
+    // wait until the event is consumed so the signaler cannot consume
+    // the event via its own pthread_cond_wait.
+    ok &= (WaitForSingleObject(condition->received_sem_, INFINITE) !=
+           WAIT_OBJECT_0);
+  }
+#endif
+  return !ok;
+}
+
 static INLINE int pthread_cond_wait(pthread_cond_t *const condition,
                                     pthread_mutex_t *const mutex) {
   int ok;
@@ -351,9 +368,9 @@ typedef enum {
   WORK         // busy finishing the current task
 } AVxWorkerStatus;
 
-// Function to be called by the worker thread. Takes two opaque pointers as
-// arguments (data1 and data2), and should return false in case of error.
-typedef int (*AVxWorkerHook)(void *, void *);
+// Function to be called by the worker thread. Takes three opaque pointers as
+// arguments (data1, data2, data3), and should return false in case of error.
+typedef int (*AVxWorkerHook)(void *, void *, void *);
 
 // Platform-dependent implementation details for the worker.
 typedef struct AVxWorkerImpl AVxWorkerImpl;
@@ -365,6 +382,7 @@ typedef struct {
   AVxWorkerHook hook;  // hook to call
   void *data1;         // first argument passed to 'hook'
   void *data2;         // second argument passed to 'hook'
+  void *data3;         // third argument passed to 'hook'
   int had_error;       // return value of the last call to 'hook'
 } AVxWorker;
 
@@ -379,9 +397,10 @@ typedef struct {
   // Makes sure the previous work is finished. Returns true if worker->had_error
   // was not set and no error condition was triggered by the working thread.
   int (*sync)(AVxWorker *const worker);
-  // Triggers the thread to call hook() with data1 and data2 arguments. These
-  // hook/data1/data2 values can be changed at any time before calling this
-  // function, but not be changed afterward until the next call to Sync().
+  // Triggers the thread to call hook() with data1, data2 and data3 arguments.
+  // These hook/data1/data2/data3 values can be changed at any time before
+  // calling this function, but not be changed afterward until the next call to
+  // Sync().
   void (*launch)(AVxWorker *const worker);
   // This function is similar to launch() except that it calls the
   // hook directly instead of using a thread. Convenient to bypass the thread
