@@ -27,14 +27,16 @@ static void accumulate_rd_opt(ThreadData *td, ThreadData *td_t) {
   td->rd_counts.skip_mode_used_flag |= td_t->rd_counts.skip_mode_used_flag;
 }
 
-static int enc_worker_hook(EncWorkerData *const thread_data, void *unused) {
+static int enc_worker_hook(EncWorkerData *const thread_data, void *unused_data1,
+                           void *unused_data2) {
   AV1_COMP *const cpi = thread_data->cpi;
   const AV1_COMMON *const cm = &cpi->common;
   const int tile_cols = cm->tile_cols;
   const int tile_rows = cm->tile_rows;
   int t;
 
-  (void)unused;
+  (void)unused_data1;
+  (void)unused_data2;
 
   for (t = thread_data->start; t < tile_rows * tile_cols;
        t += cpi->num_workers) {
@@ -129,6 +131,7 @@ void av1_encode_tiles_mt(AV1_COMP *cpi) {
     worker->hook = (AVxWorkerHook)enc_worker_hook;
     worker->data1 = &cpi->tile_thr_data[i];
     worker->data2 = NULL;
+    worker->data3 = NULL;
     thread_data = (EncWorkerData *)worker->data1;
 
     // Before encoding a frame, copy the thread data from cpi.
