@@ -22,6 +22,30 @@
       "revId": "112e29d85ade0a43c0a84ef6a3bd8596ad845852",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0dd3c9e2_939f99d7",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 8719,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2018-04-26T23:56:47Z",
+      "side": 1,
+      "message": "This part is removed in a later CL.\nI move all skip mode related code into this func.",
+      "parentUuid": "27fd56ff_cf1d45e2",
+      "range": {
+        "startLine": 8719,
+        "startChar": 4,
+        "endLine": 8719,
+        "endChar": 9
+      },
+      "revId": "112e29d85ade0a43c0a84ef6a3bd8596ad845852",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
