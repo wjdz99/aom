@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "ee85d94a_84f99073",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-04-26T05:25:49Z",
+      "side": 1,
+      "message": "\u003e It seems the warning in libvpx:70859 and error in aomedia:1756 are two unrelated issue.\n\u003e \n\u003e 1. This CL try to fix the error by rename, so this sse4_1 test can be skipped by the negative test filter.\n\u003e \n\u003e \"The problem is the name of the test, not the code itself. This version of valgrind doesn\u0027t support sse4, which we detect at runtime and set an appropriate negative test filter:\"\n\u003e \n\nmy mistake, I forgot about the bug and didn\u0027t read it through again.\n\n\u003e 2. Since we are using ::testing::tuple here, there is no need to add operater\u003c\u003c, the output is just the way as expected. \n\u003e \n\u003e typedef ::testing::tuple\u003cTX_SIZE, lowbd_fwd_txfm_func\u003e LbdFwdTxfm2dParam;\n\u003e \n\u003e [  FAILED  ] SSE4_1/AV1FwdTxfm2dTest.match/0, where GetParam() \u003d (0, 0x10df545a0)\n\u003e [  FAILED  ] SSE4_1/AV1FwdTxfm2dTest.match/1, where GetParam() \u003d (4, 0x10df545a0)\n\u003e [  FAILED  ] SSE4_1/AV1FwdTxfm2dTest.match/2, where GetParam() \u003d (11, 0x10df545a0)\n\u003e [  FAILED  ] SSE4_1/AV1FwdTxfm2dTest.match/3, where GetParam() \u003d (12, 0x10df545a0)",
+      "parentUuid": "aa05f950_bf9d1e3a",
+      "revId": "f25121678ae8a7d642af3a13122a728fc7876d49",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3712d8fe_e887293f",
         "filename": "test/av1_fwd_txfm2d_test.cc",
         "patchSetId": 1
