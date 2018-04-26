@@ -1974,12 +1974,14 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
   return aom_reader_find_end(&tile_data->bit_reader);
 }
 
-static int tile_worker_hook(void *arg1, void *arg2) {
+static int tile_worker_hook(void *arg1, void *arg2, void *arg3) {
   DecWorkerData *const thread_data = (DecWorkerData *)arg1;
   AV1Decoder *const pbi = (AV1Decoder *)arg2;
   AV1_COMMON *cm = &pbi->common;
   ThreadData *const td = thread_data->td;
   uint8_t allow_update_cdf;
+
+  (void)arg3;
 
   volatile int tile_idx = thread_data->tile_start;
 
@@ -2139,6 +2141,7 @@ static const uint8_t *decode_tiles_mt(AV1Decoder *pbi, const uint8_t *data,
     worker->hook = tile_worker_hook;
     worker->data1 = thread_data;
     worker->data2 = pbi;
+    worker->data3 = NULL;
   }
 #if CONFIG_ACCOUNTING
   if (pbi->acct_enabled) {
@@ -3532,8 +3535,14 @@ void av1_decode_tg_tiles_and_wrapup(AV1Decoder *pbi, const uint8_t *data,
 
   if (!(cm->allow_intrabc && NO_FILTER_FOR_IBC)) {
     if (cm->lf.filter_level[0] || cm->lf.filter_level[1]) {
-      av1_loop_filter_frame(get_frame_new_buffer(cm), cm, &pbi->mb, 0,
-                            num_planes, 0);
+      if (pbi->num_workers > 1) {
+        av1_loop_filter_frame_mt(get_frame_new_buffer(cm), cm, &pbi->mb, 0,
+                                 num_planes, 0, pbi->tile_workers,
+                                 pbi->num_workers, &pbi->lf_row_sync);
+      } else {
+        av1_loop_filter_frame(get_frame_new_buffer(cm), cm, &pbi->mb, 0,
+                              num_planes, 0);
+      }
     }
 
     const int do_loop_restoration =
