@@ -1131,7 +1131,7 @@ static INLINE int is_nontrans_global_motion(const MACROBLOCKD *xd) {
 
   // Now check if all global motion is non translational
   for (ref = 0; ref < 1 + has_second_ref(mbmi); ++ref) {
-    if (xd->global_motion[mbmi->ref_frame[ref]].wmtype <= TRANSLATION) return 0;
+    if (xd->global_motion[mbmi->ref_frame[ref]].wmtype == TRANSLATION) return 0;
   }
   return 1;
 }
