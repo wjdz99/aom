@@ -1,0 +1,159 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "87fbeda6_35eca541",
+        "filename": "aom_dsp/aom_dsp.cmake",
+        "patchSetId": 3
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-04-27T23:21:12Z",
+      "side": 1,
+      "message": "sigh-- this is pure laziness. When CONFIG_HIGHBITDEPTH was removed these should have been collapsed into the set()s above instead of leaving them down here.\n\nNothing to be done here, just pointing out the suck. I\u0027ll probably do a refactoring pass after this lands. I\u0027ve seen some external examples (abseil, for one) that just use list(APPEND \u003cvar\u003e ...) everywhere. It might be cleaner, and is certainly less error-prone (i.e. can\u0027t accidentally wipe out a list by forgetting to expand what you\u0027re appending).",
+      "range": {
+        "startLine": 149,
+        "startChar": 0,
+        "endLine": 163,
+        "endChar": 55
+      },
+      "revId": "bd7517d1defc46dd0ebe8e95b636c2bcc68309e8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "409ff2ab_0e0db814",
+        "filename": "aom_dsp/aom_dsp.cmake",
+        "patchSetId": 3
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-04-27T23:21:12Z",
+      "side": 1,
+      "message": "These aren\u0027t ideal, but worth the trade off for automated formatting.\n\nNot sure why we need to use these silly short file names anyway. \n\nNo action needed here either.",
+      "range": {
+        "startLine": 164,
+        "startChar": 0,
+        "endLine": 170,
+        "endChar": 72
+      },
+      "revId": "bd7517d1defc46dd0ebe8e95b636c2bcc68309e8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "afbc89ed_7ce29957",
+        "filename": "build/cmake/aom_configure.cmake",
+        "patchSetId": 3
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-04-27T23:21:12Z",
+      "side": 1,
+      "message": "This is weird, but can live with it.\n\nSeems like cmake_format is confused and treating the message string as an arg to FATAL_ERROR.",
+      "range": {
+        "startLine": 61,
+        "startChar": 0,
+        "endLine": 64,
+        "endChar": 61
+      },
+      "revId": "bd7517d1defc46dd0ebe8e95b636c2bcc68309e8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "28ff44d1_50a5106e",
+        "filename": "build/cmake/aom_configure.cmake",
+        "patchSetId": 3
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-04-27T23:21:12Z",
+      "side": 1,
+      "message": "This one could use adjustment.",
+      "range": {
+        "startLine": 86,
+        "startChar": 6,
+        "endLine": 86,
+        "endChar": 47
+      },
+      "revId": "bd7517d1defc46dd0ebe8e95b636c2bcc68309e8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "81d161b9_06b003b9",
+        "filename": "build/cmake/aom_configure.cmake",
+        "patchSetId": 3
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-04-27T23:21:12Z",
+      "side": 1,
+      "message": "Can you add a TODO(tomfinegan): clang needs -pie in CMAKE_EXE_LINKER_FLAGS for this to work.",
+      "revId": "bd7517d1defc46dd0ebe8e95b636c2bcc68309e8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2088dc29_c6200e91",
+        "filename": "build/cmake/aom_configure.cmake",
+        "patchSetId": 3
+      },
+      "lineNbr": 286,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-04-27T23:21:12Z",
+      "side": 1,
+      "message": "This one could use a fix.",
+      "range": {
+        "startLine": 286,
+        "startChar": 10,
+        "endLine": 286,
+        "endChar": 53
+      },
+      "revId": "bd7517d1defc46dd0ebe8e95b636c2bcc68309e8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "81bf75b0_9cab35fa",
+        "filename": "build/cmake/aom_optimization.cmake",
+        "patchSetId": 3
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-04-27T23:21:12Z",
+      "side": 1,
+      "message": "wish it would not do this w/o having to mess w/comment format.",
+      "range": {
+        "startLine": 25,
+        "startChar": 9,
+        "endLine": 25,
+        "endChar": 79
+      },
+      "revId": "bd7517d1defc46dd0ebe8e95b636c2bcc68309e8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
