@@ -168,15 +168,20 @@ void av1_free_context_buffers(AV1_COMMON *cm) {
   int i;
   cm->free_mi(cm);
 
-  for (i = 0; i < MAX_MB_PLANE; i++) {
-    aom_free(cm->above_context[i]);
-    cm->above_context[i] = NULL;
+  for (int tile_row = 0; tile_row < cm->num_allocated_above_contexts;
+       tile_row++) {
+    for (i = 0; i < MAX_MB_PLANE; i++) {
+      aom_free(cm->above_context[tile_row][i]);
+      cm->above_context[tile_row][i] = NULL;
+    }
+    aom_free(cm->above_seg_context[tile_row]);
+    cm->above_seg_context[tile_row] = NULL;
+
+    aom_free(cm->above_txfm_context[tile_row]);
+    cm->above_txfm_context[tile_row] = NULL;
   }
-  aom_free(cm->above_seg_context);
-  cm->above_seg_context = NULL;
   cm->above_context_alloc_cols = 0;
-  aom_free(cm->above_txfm_context);
-  cm->above_txfm_context = NULL;
+  cm->num_allocated_above_contexts = 0;
 
   for (i = 0; i < MAX_MB_PLANE; ++i) {
     aom_free(cm->top_txfm_context[i]);
@@ -189,6 +194,51 @@ void av1_free_context_buffers(AV1_COMMON *cm) {
   cm->lf.lfm_num = 0;
   cm->lf.lfm_stride = 0;
 #endif  // LOOP_FILTER_BITMASK
+}
+
+int av1_alloc_above_context_buffers(AV1_COMMON *cm,
+                                    int num_alloc_above_contexts,
+                                    int num_free_above_contexts) {
+  const int num_planes = av1_num_planes(cm);
+  const int aligned_mi_cols =
+      ALIGN_POWER_OF_TWO(cm->mi_cols, MAX_MIB_SIZE_LOG2);
+
+  // Free already allocated above context buffers
+  for (int tile_row = 0; tile_row < num_free_above_contexts; tile_row++) {
+    int plane_idx;
+    for (plane_idx = 0; plane_idx < num_planes; plane_idx++) {
+      aom_free(cm->above_context[tile_row][plane_idx]);
+      cm->above_context[tile_row][plane_idx] = NULL;
+    }
+    aom_free(cm->above_seg_context[tile_row]);
+    cm->above_seg_context[tile_row] = NULL;
+
+    aom_free(cm->above_txfm_context[tile_row]);
+    cm->above_txfm_context[tile_row] = NULL;
+  }
+
+  // Allocate above context buffers
+  cm->num_allocated_above_contexts = num_alloc_above_contexts;
+  for (int tile_row = 0; tile_row < num_alloc_above_contexts; tile_row++) {
+    int plane_idx;
+    for (plane_idx = 0; plane_idx < num_planes; plane_idx++) {
+      cm->above_context[tile_row][plane_idx] = (ENTROPY_CONTEXT *)aom_calloc(
+          aligned_mi_cols << (MI_SIZE_LOG2 - tx_size_wide_log2[0]),
+          sizeof(*cm->above_context[tile_row][0]));
+      if (!cm->above_context[tile_row][plane_idx]) return 1;
+    }
+
+    cm->above_seg_context[tile_row] = (PARTITION_CONTEXT *)aom_calloc(
+        aligned_mi_cols, sizeof(*cm->above_seg_context[tile_row]));
+    if (!cm->above_seg_context[tile_row]) return 1;
+
+    cm->above_txfm_context[tile_row] =
+        (TXFM_CONTEXT *)aom_calloc(aligned_mi_cols << TX_UNIT_WIDE_LOG2,
+                                   sizeof(*cm->above_txfm_context[tile_row]));
+    if (!cm->above_txfm_context[tile_row]) return 1;
+  }
+
+  return 0;
 }
 
 int av1_alloc_context_buffers(AV1_COMMON *cm, int width, int height) {
@@ -210,23 +260,9 @@ int av1_alloc_context_buffers(AV1_COMMON *cm, int width, int height) {
         ALIGN_POWER_OF_TWO(cm->mi_cols, MAX_MIB_SIZE_LOG2);
     int i;
 
-    for (i = 0; i < num_planes; i++) {
-      aom_free(cm->above_context[i]);
-      cm->above_context[i] = (ENTROPY_CONTEXT *)aom_calloc(
-          aligned_mi_cols << (MI_SIZE_LOG2 - tx_size_wide_log2[0]),
-          sizeof(*cm->above_context[0]));
-      if (!cm->above_context[i]) goto fail;
-    }
-
-    aom_free(cm->above_seg_context);
-    cm->above_seg_context = (PARTITION_CONTEXT *)aom_calloc(
-        aligned_mi_cols, sizeof(*cm->above_seg_context));
-    if (!cm->above_seg_context) goto fail;
-
-    aom_free(cm->above_txfm_context);
-    cm->above_txfm_context = (TXFM_CONTEXT *)aom_calloc(
-        aligned_mi_cols << TX_UNIT_WIDE_LOG2, sizeof(*cm->above_txfm_context));
-    if (!cm->above_txfm_context) goto fail;
+    if (av1_alloc_above_context_buffers(cm, DEFAULT_NUM_ABOVE_CTX_BUFF,
+                                        cm->num_allocated_above_contexts))
+      goto fail;
 
     for (i = 0; i < num_planes; ++i) {
       aom_free(cm->top_txfm_context[i]);

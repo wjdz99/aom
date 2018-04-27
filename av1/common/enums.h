@@ -65,6 +65,9 @@ extern "C" {
 #define REF_FRAMES_LOG2 3
 #define REF_FRAMES (1 << REF_FRAMES_LOG2)
 
+// Default number of above context buffer
+#define DEFAULT_NUM_ABOVE_CTX_BUFF 1
+
 // 4 scratch frames for the new frames to support a maximum of 4 cores decoding
 // in parallel, 3 for scaled references on the encoder.
 // TODO(hkuang): Add ondemand frame buffers instead of hardcoding the number
