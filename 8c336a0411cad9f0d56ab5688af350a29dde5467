@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "6feb08a5_e4b0584a",
+        "filename": "test/test.cmake",
+        "patchSetId": 1
+      },
+      "lineNbr": 441,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-04-27T18:54:44Z",
+      "side": 1,
+      "message": "running the number up high enough to concatenate this is worse:\n+    if(( \"${var}\" MATCHES \"_TEST_\" AND NOT \"${var}\" MATCHES\n+       \"_DATA_\\|_CMAKE_\\|INTRA_PRED\\|_COMPILED\\|_HOSTING\\|_PERF_\\|CODER_\" ) OR\n+       ( CONFIG_AV1_ENCODER AND CONFIG_ENCODE_PERF_TESTS AND \"${var}\" MATCHES\n+       \"_ENCODE_PERF_TEST_\" ) OR ( CONFIG_AV1_DECODER AND\n+       CONFIG_DECODE_PERF_TESTS AND \"${var}\" MATCHES \"_DECODE_PERF_TEST_\" ) OR\n+       ( CONFIG_AV1_ENCODER AND \"${var}\" MATCHES \"_TEST_ENCODER_\" ) OR (\n+       CONFIG_AV1_DECODER AND \"${var}\" MATCHES \"_TEST_DECODER_\" ))",
+      "parentUuid": "776c8566_d1a8efe2",
+      "range": {
+        "startLine": 441,
+        "startChar": 2,
+        "endLine": 441,
+        "endChar": 9
+      },
+      "revId": "8c336a0411cad9f0d56ab5688af350a29dde5467",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f859fa99_acd03752",
         "filename": "test/test_data_download_worker.cmake",
         "patchSetId": 1
