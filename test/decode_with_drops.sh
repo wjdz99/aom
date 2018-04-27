@@ -16,7 +16,7 @@
 . $(dirname $0)/tools_common.sh
 
 # Environment check: Make sure input is available:
-#   $AOM_IVF_FILE and $AV1_IVF_FILE are required.
+#   $AV1_IVF_FILE is required.
 decode_with_drops_verify_environment() {
   if [ "$(av1_encode_available)" != "yes" ] && [ ! -e "${AV1_IVF_FILE}" ]; then
     return 1
@@ -27,7 +27,7 @@ decode_with_drops_verify_environment() {
 # to name the output file. $3 is the drop mode, and is passed directly to
 # decode_with_drops.
 decode_with_drops() {
-  local decoder="${LIBAOM_BIN_PATH}/decode_with_drops${AOM_TEST_EXE_SUFFIX}"
+  local decoder="$(aom_tool_path decode_with_drops)"
   local input_file="$1"
   local codec="$2"
   local output_file="${AOM_TEST_OUTPUT_DIR}/decode_with_drops_${codec}"
@@ -64,5 +64,4 @@ decode_with_drops_av1() {
 
 decode_with_drops_tests="decode_with_drops_av1"
 
-# TODO(yaowu): Disable this test as trailing_bit check is expected to fail
-# run_tests decode_with_drops_verify_environment "${decode_with_drops_tests}"
+run_tests decode_with_drops_verify_environment "${decode_with_drops_tests}"

@@ -16,7 +16,7 @@
 . $(dirname $0)/tools_common.sh
 
 # Environment check: Make sure input is available:
-#   $AOM_IVF_FILE and $AV1_IVF_FILE are required.
+#   $AV1_IVF_FILE is required.
 decode_to_md5_verify_environment() {
   if [ "$(av1_encode_available)" != "yes" ] && [ ! -e "${AV1_IVF_FILE}" ]; then
     return 1
@@ -26,8 +26,8 @@ decode_to_md5_verify_environment() {
 # Runs decode_to_md5 on $1 and captures the md5 sum for the final frame. $2 is
 # interpreted as codec name and used solely to name the output file. $3 is the
 # expected md5 sum: It must match that of the final frame.
-decode_to_md5() {
-  local decoder="${LIBAOM_BIN_PATH}/decode_to_md5${AOM_TEST_EXE_SUFFIX}"
+DISABLED_decode_to_md5() {
+  local decoder="$(aom_tool_path decode_to_md5)"
   local input_file="$1"
   local codec="$2"
   local expected_md5="$3"
@@ -71,6 +71,7 @@ decode_to_md5_av1() {
   fi
 }
 
-decode_to_md5_tests="decode_to_md5_av1"
+# TODO(tomfinegan): Enable when the bitstream stablizes.
+decode_to_md5_tests="DISABLED_decode_to_md5_av1"
 
 run_tests decode_to_md5_verify_environment "${decode_to_md5_tests}"
