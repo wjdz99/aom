@@ -96,6 +96,41 @@ aomenc_av1_ivf() {
   fi
 }
 
+aomenc_av1_obu() {
+   if [ "$(aomenc_can_encode_av1)" = "yes" ]; then
+    local readonly output="${AOM_TEST_OUTPUT_DIR}/av1.obu"
+    aomenc $(yuv_raw_input) \
+      $(aomenc_encode_test_fast_params) \
+      --passes=1 \
+      --obu \
+      --output="${output}"
+
+    if [ ! -e "${output}" ]; then
+      elog "Output file does not exist."
+      return 1
+    fi
+  fi
+}
+
+aomenc_av1_obu_annexb() {
+   if [ "$(aomenc_can_encode_av1)" = "yes" ]; then
+    local readonly output="${AOM_TEST_OUTPUT_DIR}/av1.obu"
+    aomenc $(yuv_raw_input) \
+      $(aomenc_encode_test_fast_params) \
+      --passes=1 \
+      --obu \
+      --annexb=1 \
+      --output="${output}"
+
+    if [ ! -e "${output}" ]; then
+      elog "Output file does not exist."
+      return 1
+    fi
+  fi
+}
+
+
+
 aomenc_av1_webm() {
   if [ "$(aomenc_can_encode_av1)" = "yes" ] && \
      [ "$(webm_io_available)" = "yes" ]; then

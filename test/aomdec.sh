@@ -69,6 +69,24 @@ aomdec_aom_ivf_pipe_input() {
   fi
 }
 
+aomdec_av1_obu() {
+  if [ "$(aomdec_can_decode_av1)" = "yes" ] && \
+    local file
+    if [ ! -e "${AV1_WEBM_FILE}" ]; then
+      file="${AOM_TEST_OUTPUT_DIR}/test_encode.webm"
+      encode_yuv_raw_input_av1 "${file}" "--ivf --error-resilient=1 "
+    else
+      file="${AV1_FPM_WEBM_FILE}"
+    fi
+    for threads in 2 3 4 5 6 7 8; do
+      aomdec "${file}" --summary --noblit --threads=$threads
+    done
+  fi
+}
+
+aomdec_av1_obu_annexb() {
+}
+
 aomdec_av1_webm() {
   if [ "$(aomdec_can_decode_av1)" = "yes" ] && \
      [ "$(webm_io_available)" = "yes" ]; then
