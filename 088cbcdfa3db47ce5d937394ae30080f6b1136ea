@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6cfff3cb_579b8191",
+        "filename": "obudec.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 355,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-04-27T19:54:24Z",
+      "side": 1,
+      "message": "This \u0027else\u0027 branch is taken if obu_ctx-\u003eis_annexb is false. This matches the condition at line 395.",
+      "range": {
+        "startLine": 355,
+        "startChar": 2,
+        "endLine": 355,
+        "endChar": 10
+      },
+      "revId": "088cbcdfa3db47ce5d937394ae30080f6b1136ea",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4e09caa3_05791f69",
+        "filename": "obudec.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 371,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-04-27T19:54:24Z",
+      "side": 1,
+      "message": "We break out of the while (1) loop here. Note that obu_ctx-\u003ebytes_buffered is not incremented because line 373 is not executed.",
+      "range": {
+        "startLine": 371,
+        "startChar": 8,
+        "endLine": 371,
+        "endChar": 14
+      },
+      "revId": "088cbcdfa3db47ce5d937394ae30080f6b1136ea",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
