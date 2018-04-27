@@ -384,6 +384,7 @@ int obudec_read_temporal_unit(struct ObuDecInputContext *obu_ctx,
   uint8_t *new_buffer = (uint8_t *)realloc(*buffer, (size_t)tu_size);
   if (!new_buffer) {
     free(*buffer);
+    *buffer = NULL;
     fprintf(stderr, "obudec: Out of memory.\n");
     return -1;
   }
@@ -395,9 +396,8 @@ int obudec_read_temporal_unit(struct ObuDecInputContext *obu_ctx,
     memcpy(*buffer, obu_ctx->buffer, (size_t)tu_size);
 
     // At this point, (obu_ctx->buffer + obu_ctx->bytes_buffered) points to the
-    // end of the buffer.
-    memmove(obu_ctx->buffer,
-            obu_ctx->buffer + obu_ctx->bytes_buffered - obu_size,
+    // beginning of the next OBU in the buffer.
+    memmove(obu_ctx->buffer, obu_ctx->buffer + obu_ctx->bytes_buffered,
             (size_t)obu_size);
     obu_ctx->bytes_buffered = (size_t)obu_size;
   } else {
