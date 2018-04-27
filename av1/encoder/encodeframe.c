@@ -228,8 +228,9 @@ static void set_offsets_without_segment_id(const AV1_COMP *const cpi,
   set_mode_info_offsets(cpi, x, xd, mi_row, mi_col);
 
   set_skip_context(xd, mi_row, mi_col, num_planes);
+
   xd->above_txfm_context =
-      cm->above_txfm_context + (mi_col << TX_UNIT_WIDE_LOG2);
+      cm->above_txfm_context[tile->tile_row] + (mi_col << TX_UNIT_WIDE_LOG2);
   xd->left_txfm_context = xd->left_txfm_context_buffer +
                           ((mi_row & MAX_MIB_MASK) << TX_UNIT_HIGH_LOG2);
 
@@ -1717,8 +1718,8 @@ static void rd_use_partition(AV1_COMP *cpi, ThreadData *td,
 
   pc_tree->partitioning = partition;
 
-  xd->above_txfm_context =
-      cm->above_txfm_context + (mi_col << TX_UNIT_WIDE_LOG2);
+  xd->above_txfm_context = cm->above_txfm_context[tile_info->tile_row] +
+                           (mi_col << TX_UNIT_WIDE_LOG2);
   xd->left_txfm_context = xd->left_txfm_context_buffer +
                           ((mi_row & MAX_MIB_MASK) << TX_UNIT_HIGH_LOG2);
   save_context(x, &x_ctx, mi_row, mi_col, bsize, num_planes);
@@ -2425,8 +2426,8 @@ static void rd_pick_sqr_partition(const AV1_COMP *const cpi, ThreadData *td,
   if (bsize == BLOCK_16X16 && cpi->vaq_refresh)
     x->mb_energy = av1_block_energy(cpi, x, bsize);
 
-  xd->above_txfm_context =
-      cm->above_txfm_context + (mi_col << TX_UNIT_WIDE_LOG2);
+  xd->above_txfm_context = cm->above_txfm_context[tile_info->tile_row] +
+                           (mi_col << TX_UNIT_WIDE_LOG2);
   xd->left_txfm_context = xd->left_txfm_context_buffer +
                           ((mi_row & MAX_MIB_MASK) << TX_UNIT_HIGH_LOG2);
   save_context(x, &x_ctx, mi_row, mi_col, bsize, num_planes);
@@ -2752,8 +2753,8 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
     }
   }
 
-  xd->above_txfm_context =
-      cm->above_txfm_context + (mi_col << TX_UNIT_WIDE_LOG2);
+  xd->above_txfm_context = cm->above_txfm_context[tile_info->tile_row] +
+                           (mi_col << TX_UNIT_WIDE_LOG2);
   xd->left_txfm_context = xd->left_txfm_context_buffer +
                           ((mi_row & MAX_MIB_MASK) << TX_UNIT_HIGH_LOG2);
   save_context(x, &x_ctx, mi_row, mi_col, bsize, num_planes);
@@ -3764,7 +3765,9 @@ void av1_encode_tile(AV1_COMP *cpi, ThreadData *td, int tile_row,
   TOKENEXTRA *tok = cpi->tile_tok[tile_row][tile_col];
   int mi_row;
 
-  av1_zero_above_context(cm, tile_info->mi_col_start, tile_info->mi_col_end);
+  av1_zero_above_context(cm, tile_info->mi_col_start, tile_info->mi_col_end,
+                         tile_row);
+  av1_init_above_context(cm, &td->mb.e_mbd, tile_row);
 
   // Set up pointers to per thread motion search counters.
   this_tile->m_search_count = 0;   // Count of motion search hits.
@@ -4598,7 +4601,7 @@ static void tx_partition_count_update(const AV1_COMMON *const cm, MACROBLOCK *x,
   int idx, idy;
 
   xd->above_txfm_context =
-      cm->above_txfm_context + (mi_col << TX_UNIT_WIDE_LOG2);
+      cm->above_txfm_context[xd->tile.tile_row] + (mi_col << TX_UNIT_WIDE_LOG2);
   xd->left_txfm_context = xd->left_txfm_context_buffer +
                           ((mi_row & MAX_MIB_MASK) << TX_UNIT_HIGH_LOG2);
 
@@ -4657,7 +4660,7 @@ static void tx_partition_set_contexts(const AV1_COMMON *const cm,
   int idx, idy;
 
   xd->above_txfm_context =
-      cm->above_txfm_context + (mi_col << TX_UNIT_WIDE_LOG2);
+      cm->above_txfm_context[xd->tile.tile_row] + (mi_col << TX_UNIT_WIDE_LOG2);
   xd->left_txfm_context = xd->left_txfm_context_buffer +
                           ((mi_row & MAX_MIB_MASK) << TX_UNIT_HIGH_LOG2);
 

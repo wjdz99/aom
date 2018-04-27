@@ -872,6 +872,13 @@ static void update_frame_size(AV1_COMP *cpi) {
   memset(cpi->mbmi_ext_base, 0,
          cm->mi_rows * cm->mi_cols * sizeof(*cpi->mbmi_ext_base));
   set_tile_info(cpi);
+
+  if (cm->num_allocated_above_contexts < cm->tile_rows) {
+    if (av1_alloc_above_context_buffers(cm, cm->tile_rows,
+                                        cm->num_allocated_above_contexts))
+      aom_internal_error(&cm->error, AOM_CODEC_MEM_ERROR,
+                         "Failed to allocate above context buffers");
+  }
 }
 
 static void init_buffer_indices(AV1_COMP *cpi) {
