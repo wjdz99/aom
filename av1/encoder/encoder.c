@@ -2301,6 +2301,13 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
   }
   update_frame_size(cpi);
 
+  if (cm->num_allocated_above_contexts < cm->tile_rows) {
+    if (av1_alloc_above_context_buffers(cm, cm->tile_rows,
+                                        cm->num_allocated_above_contexts))
+      aom_internal_error(&cm->error, AOM_CODEC_MEM_ERROR,
+                         "Failed to allocate above context buffers");
+  }
+
   cpi->alt_ref_source = NULL;
   rc->is_src_frame_alt_ref = 0;
 
@@ -3662,6 +3669,13 @@ static int set_size_literal(AV1_COMP *cpi, int width, int height) {
     cpi->initial_width = cpi->initial_height = 0;
   }
   update_frame_size(cpi);
+
+  if (cm->num_allocated_above_contexts < cm->tile_rows) {
+    if (av1_alloc_above_context_buffers(cm, cm->tile_rows,
+                                        cm->num_allocated_above_contexts))
+      aom_internal_error(&cm->error, AOM_CODEC_MEM_ERROR,
+                         "Failed to allocate above context buffers");
+  }
 
   return 0;
 }
