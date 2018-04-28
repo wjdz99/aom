@@ -242,3 +242,168 @@ void aom_comp_mask_pred_avx2(uint8_t *comp_pred, const uint8_t *pred, int width,
     } while (i < height);
   }
 }
+
+void aom_highbd_variance64_avx2(const uint8_t *a8, int a_stride,
+                                const uint8_t *b8, int b_stride, int w, int h,
+                                uint64_t *sse, int64_t *sum) {
+  const uint16_t *a = CONVERT_TO_SHORTPTR(a8);
+  const uint16_t *b = CONVERT_TO_SHORTPTR(b8);
+
+  switch (w) {
+    case 128:
+    case 64:
+    case 32:
+    case 16: {
+      const int n16 = w / 16;
+      __m256i vsum = _mm256_setzero_si256();
+      __m256i vsse = _mm256_setzero_si256();
+      for (int i = 0; i < h; ++i) {
+        __m256i vsum0;
+        __m256i vsum1;
+        __m256i vsse0;
+        __m256i vsse1;
+        {
+          __m256i al =
+              _mm256_cvtepu16_epi32(_mm_loadu_si128((const __m128i *)(a + 0)));
+          __m256i ah =
+              _mm256_cvtepu16_epi32(_mm_loadu_si128((const __m128i *)(a + 8)));
+          __m256i bl =
+              _mm256_cvtepu16_epi32(_mm_loadu_si128((const __m128i *)(b + 0)));
+          __m256i bh =
+              _mm256_cvtepu16_epi32(_mm_loadu_si128((const __m128i *)(b + 8)));
+          vsum0 = _mm256_sub_epi32(al, bl);
+          vsum1 = _mm256_sub_epi32(ah, bh);
+          vsse0 = _mm256_mullo_epi32(vsum0, vsum0);
+          vsse1 = _mm256_mullo_epi32(vsum1, vsum1);
+        }
+        for (int j = 1; j < n16; ++j) {
+          __m256i al = _mm256_cvtepu16_epi32(
+              _mm_loadu_si128((const __m128i *)(a + j * 16 + 0)));
+          __m256i ah = _mm256_cvtepu16_epi32(
+              _mm_loadu_si128((const __m128i *)(a + j * 16 + 8)));
+          __m256i bl = _mm256_cvtepu16_epi32(
+              _mm_loadu_si128((const __m128i *)(b + j * 16 + 0)));
+          __m256i bh = _mm256_cvtepu16_epi32(
+              _mm_loadu_si128((const __m128i *)(b + j * 16 + 8)));
+          __m256i dl = _mm256_sub_epi32(al, bl);
+          __m256i dh = _mm256_sub_epi32(ah, bh);
+          __m256i dl2 = _mm256_mullo_epi32(dl, dl);
+          __m256i dh2 = _mm256_mullo_epi32(dh, dh);
+          vsum0 = _mm256_add_epi32(vsum0, dl);
+          vsum1 = _mm256_add_epi32(vsum1, dh);
+          vsse0 = _mm256_add_epi32(vsse0, dl2);
+          vsse1 = _mm256_add_epi32(vsse1, dh2);
+        }
+        vsum = _mm256_add_epi64(
+            vsum, _mm256_cvtepi32_epi64(_mm256_castsi256_si128(vsum0)));
+        vsum = _mm256_add_epi64(
+            vsum, _mm256_cvtepi32_epi64(_mm256_extracti128_si256(vsum0, 1)));
+        vsum = _mm256_add_epi64(
+            vsum, _mm256_cvtepi32_epi64(_mm256_castsi256_si128(vsum1)));
+        vsum = _mm256_add_epi64(
+            vsum, _mm256_cvtepi32_epi64(_mm256_extracti128_si256(vsum1, 1)));
+        vsse = _mm256_add_epi64(
+            vsse, _mm256_cvtepu32_epi64(_mm256_castsi256_si128(vsse0)));
+        vsse = _mm256_add_epi64(
+            vsse, _mm256_cvtepu32_epi64(_mm256_extracti128_si256(vsse0, 1)));
+        vsse = _mm256_add_epi64(
+            vsse, _mm256_cvtepu32_epi64(_mm256_castsi256_si128(vsse1)));
+        vsse = _mm256_add_epi64(
+            vsse, _mm256_cvtepu32_epi64(_mm256_extracti128_si256(vsse1, 1)));
+        a += a_stride;
+        b += b_stride;
+      }
+      __m128i xsum = _mm_add_epi64(_mm256_castsi256_si128(vsum),
+                                   _mm256_extracti128_si256(vsum, 1));
+      __m128i xsse = _mm_add_epi64(_mm256_castsi256_si128(vsse),
+                                   _mm256_extracti128_si256(vsse, 1));
+      xsum = _mm_add_epi64(xsum, _mm_srli_si128(xsum, 8));
+      xsse = _mm_add_epi64(xsse, _mm_srli_si128(xsse, 8));
+      _mm_storel_epi64((__m128i *)sum, xsum);
+      _mm_storel_epi64((__m128i *)sse, xsse);
+    } break;
+    case 8: {
+      __m256i vsum = _mm256_setzero_si256();
+      __m256i vsse = _mm256_setzero_si256();
+      for (int i = 0; i < h; ++i) {
+        __m256i va = _mm256_cvtepu16_epi32(_mm_loadu_si128((const __m128i *)a));
+        __m256i vb = _mm256_cvtepu16_epi32(_mm_loadu_si128((const __m128i *)b));
+        __m256i vd = _mm256_sub_epi32(va, vb);
+        __m256i vd2 = _mm256_mullo_epi32(vd, vd);
+        __m256i vdl = _mm256_cvtepi32_epi64(_mm256_castsi256_si128(vd));
+        __m256i vdh = _mm256_cvtepi32_epi64(_mm256_extracti128_si256(vd, 1));
+        __m256i vd2l = _mm256_cvtepu32_epi64(_mm256_castsi256_si128(vd2));
+        __m256i vd2h = _mm256_cvtepu32_epi64(_mm256_extracti128_si256(vd2, 1));
+        vsum = _mm256_add_epi64(vsum, vdl);
+        vsum = _mm256_add_epi64(vsum, vdh);
+        vsse = _mm256_add_epi64(vsse, vd2l);
+        vsse = _mm256_add_epi64(vsse, vd2h);
+        a += a_stride;
+        b += b_stride;
+      }
+      __m128i vsum2 = _mm_add_epi64(_mm256_castsi256_si128(vsum),
+                                    _mm256_extracti128_si256(vsum, 1));
+      __m128i vsse2 = _mm_add_epi64(_mm256_castsi256_si128(vsse),
+                                    _mm256_extracti128_si256(vsse, 1));
+      vsum2 = _mm_add_epi64(vsum2, _mm_srli_si128(vsum2, 8));
+      vsse2 = _mm_add_epi64(vsse2, _mm_srli_si128(vsse2, 8));
+      _mm_storel_epi64((__m128i *)sum, vsum2);
+      _mm_storel_epi64((__m128i *)sse, vsse2);
+    } break;
+    case 4: {
+      __m256i vsum = _mm256_setzero_si256();
+      __m256i vsse = _mm256_setzero_si256();
+      for (int i = 0; i < h; ++i) {
+        __m128i va = _mm_cvtepu16_epi32(_mm_loadl_epi64((const __m128i *)a));
+        __m128i vb = _mm_cvtepu16_epi32(_mm_loadl_epi64((const __m128i *)b));
+        __m128i vd = _mm_sub_epi32(va, vb);
+        __m128i vd2 = _mm_mullo_epi32(vd, vd);
+        vsum = _mm256_add_epi64(vsum, _mm256_cvtepi32_epi64(vd));
+        vsse = _mm256_add_epi64(vsse, _mm256_cvtepi32_epi64(vd2));
+        a += a_stride;
+        b += b_stride;
+      }
+      __m128i vsum2 = _mm_add_epi64(_mm256_castsi256_si128(vsum),
+                                    _mm256_extracti128_si256(vsum, 1));
+      __m128i vsse2 = _mm_add_epi64(_mm256_castsi256_si128(vsse),
+                                    _mm256_extracti128_si256(vsse, 1));
+      vsum2 = _mm_add_epi64(vsum2, _mm_srli_si128(vsum2, 8));
+      vsse2 = _mm_add_epi64(vsse2, _mm_srli_si128(vsse2, 8));
+      _mm_storel_epi64((__m128i *)sum, vsum2);
+      _mm_storel_epi64((__m128i *)sse, vsse2);
+    } break;
+    case 2: {
+      int64_t tsum = 0;
+      uint64_t tsse = 0;
+      for (int i = 0; i < h; ++i) {
+        const int diff0 = a[0] - b[0];
+        const int diff1 = a[1] - b[1];
+        tsum += diff0;
+        tsum += diff1;
+        tsse += (uint32_t)(diff0 * diff0);
+        tsse += (uint32_t)(diff1 * diff1);
+        a += a_stride;
+        b += b_stride;
+      }
+      *sum = tsum;
+      *sse = tsse;
+    } break;
+    default: {
+      int64_t tsum = 0;
+      uint64_t tsse = 0;
+      for (int i = 0; i < h; ++i) {
+        int32_t lsum = 0;
+        for (int j = 0; j < w; ++j) {
+          const int diff = a[j] - b[j];
+          lsum += diff;
+          tsse += (uint32_t)(diff * diff);
+        }
+        tsum += lsum;
+        a += a_stride;
+        b += b_stride;
+      }
+      *sum = tsum;
+      *sse = tsse;
+    } break;
+  }
+}
