@@ -3171,8 +3171,8 @@ BEGIN_PARTITION_SEARCH:
     restore_context(x, &x_ctx, mi_row, mi_col, bsize, num_planes);
   }
 
-  const int ext_partition_allowed =
-      do_rectangular_split && bsize > BLOCK_8X8 && partition_none_allowed;
+  const int ext_partition_allowed = 0;
+  // do_rectangular_split && bsize > BLOCK_8X8 && partition_none_allowed;
 
   // partition4_allowed is 1 if we can use a PARTITION_HORZ_4 or
   // PARTITION_VERT_4 for this block. This is almost the same as
