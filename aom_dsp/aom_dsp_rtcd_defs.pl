@@ -900,6 +900,8 @@ if (aom_config("CONFIG_AV1_ENCODER") eq "yes") {
   add_proto qw/void aom_jnt_comp_avg_upsampled_pred/, "uint8_t *comp_pred, const uint8_t *pred, int width, int height, int subsample_x_q3, int subsample_y_q3, const uint8_t *ref, int ref_stride, const JNT_COMP_PARAMS *jcp_param";
   specialize qw/aom_jnt_comp_avg_upsampled_pred ssse3/;
 
+  add_proto qw/void aom_highbd_variance64/, "const uint8_t *a8, int a_stride, const uint8_t *b8, int b_stride, int w, int h, uint64_t *sse, int64_t *sum";
+  specialize qw/aom_highbd_variance64 avx2/;
 
   add_proto qw/void aom_highbd_upsampled_pred/, "uint16_t *comp_pred, int width, int height, int subsample_x_q3, int subsample_y_q3, const uint8_t *ref8, int ref_stride, int bd";
   specialize qw/aom_highbd_upsampled_pred sse2/;
