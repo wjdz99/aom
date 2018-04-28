@@ -3945,7 +3945,6 @@ static void superres_post_encode(AV1_COMP *cpi) {
 }
 
 static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
-  const int num_planes = av1_num_planes(cm);
   MACROBLOCKD *xd = &cpi->td.mb.e_mbd;
 
   assert(IMPLIES(is_lossless_requested(&cpi->oxcf),
@@ -3976,7 +3975,7 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
   }
 
   if (lf->filter_level[0] || lf->filter_level[1]) {
-    av1_loop_filter_frame(cm->frame_to_show, cm, xd, 0, num_planes, 0);
+    av1_loop_filter_frame(cm->frame_to_show, cm, xd, 0, 1, 0);
   }
 
   if (!no_restoration)
