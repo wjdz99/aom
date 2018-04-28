@@ -3976,7 +3976,7 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
   }
 
   if (lf->filter_level[0] || lf->filter_level[1]) {
-    av1_loop_filter_frame(cm->frame_to_show, cm, xd, 0, num_planes, 0);
+    av1_loop_filter_frame(cm->frame_to_show, cm, xd, 0, 1, 0);
   }
 
   if (!no_restoration)
