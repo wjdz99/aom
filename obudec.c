@@ -396,8 +396,7 @@ int obudec_read_temporal_unit(struct ObuDecInputContext *obu_ctx,
 
     // At this point, (obu_ctx->buffer + obu_ctx->bytes_buffered) points to the
     // end of the buffer.
-    memmove(obu_ctx->buffer,
-            obu_ctx->buffer + obu_ctx->bytes_buffered - obu_size,
+    memmove(obu_ctx->buffer, obu_ctx->buffer + obu_ctx->bytes_buffered,
             (size_t)obu_size);
     obu_ctx->bytes_buffered = (size_t)obu_size;
   } else {
