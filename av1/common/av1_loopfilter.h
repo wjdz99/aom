@@ -36,9 +36,7 @@ enum lf_path {
 #if LOOP_FILTER_BITMASK
 typedef struct {
   uint64_t bits[4];
-} FilterMaskY;
-
-typedef uint64_t FilterMaskUV;
+} FilterMask;
 
 // This structure holds bit masks for all 4x4 blocks in a 64x64 region.
 // Each 1 bit represents a position in which we want to apply the loop filter.
@@ -51,20 +49,24 @@ typedef uint64_t FilterMaskUV;
 // Since each transform is accompanied by a potentially different type of
 // loop filter there is a different entry in the array for each transform size.
 typedef struct {
-  FilterMaskY left_y[TX_SIZES];
-  FilterMaskY above_y[TX_SIZES];
-  FilterMaskUV left_u[TX_SIZES];
-  FilterMaskUV above_u[TX_SIZES];
-  FilterMaskUV left_v[TX_SIZES];
-  FilterMaskUV above_v[TX_SIZES];
+  FilterMask left_y[TX_SIZES];
+  FilterMask above_y[TX_SIZES];
+  FilterMask left_u[TX_SIZES];
+  FilterMask above_u[TX_SIZES];
+  FilterMask left_v[TX_SIZES];
+  FilterMask above_v[TX_SIZES];
 
   // Y plane vertical edge and horizontal edge filter level
   uint8_t lfl_y_hor[MI_SIZE_64X64][MI_SIZE_64X64];
   uint8_t lfl_y_ver[MI_SIZE_64X64][MI_SIZE_64X64];
 
-  // UV plane vertical edge and horizontal edge shares the same level
-  uint8_t lfl_u[MI_SIZE_64X64 / 2][MI_SIZE_64X64 / 2];
-  uint8_t lfl_v[MI_SIZE_64X64 / 2][MI_SIZE_64X64 / 2];
+  // U plane vertical edge and horizontal edge filter level
+  uint8_t lfl_u_hor[MI_SIZE_64X64][MI_SIZE_64X64];
+  uint8_t lfl_u_ver[MI_SIZE_64X64][MI_SIZE_64X64];
+
+  // V plane vertical edge and horizontal edge filter level
+  uint8_t lfl_v_hor[MI_SIZE_64X64][MI_SIZE_64X64];
+  uint8_t lfl_v_ver[MI_SIZE_64X64][MI_SIZE_64X64];
 } LoopFilterMaskInfo;
 // TODO(chengchen): remove old version of bitmask construction code once
 // new bitmask is complete.
