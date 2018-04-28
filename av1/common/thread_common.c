@@ -248,10 +248,6 @@ static INLINE void thread_loop_filter_rows(
       dir = cur_job_info->dir;
       r = mi_row >> MAX_MIB_SIZE_LOG2;
 
-#if LOOP_FILTER_BITMASK
-      enum lf_path path = av1_get_loop_filter_path(plane, planes);
-#endif
-
       if (dir == 0) {
         for (mi_col = 0; mi_col < cm->mi_cols; mi_col += MAX_MIB_SIZE) {
           c = mi_col >> MAX_MIB_SIZE_LOG2;
@@ -260,13 +256,16 @@ static INLINE void thread_loop_filter_rows(
                                mi_row, mi_col, plane, plane + 1);
 
 #if LOOP_FILTER_BITMASK
-          LoopFilterMask *lf_mask =
-              av1_get_loop_filter_mask(cm, mi_row, mi_col);
-          av1_setup_bitmask(cm, mi_row, mi_col, plane,
-                            planes[plane].subsampling_x,
-                            planes[plane].subsampling_y, lf_mask);
-          av1_loop_filter_block_plane_vert(cm, planes, plane, mi_row, mi_col,
-                                           path, lf_mask);
+          (void)xd;
+          const int sb_num = MAX_MIB_SIZE / cm->seq_params.mib_size;
+          for (int x = 0; x < sb_num; ++x) {
+            const int col = mi_col + x * cm->seq_params.mib_size;
+            av1_setup_bitmask(
+                cm, mi_row, col, plane, planes[plane].subsampling_x,
+                planes[plane].subsampling_y, cm->mi_rows, cm->mi_cols);
+            av1_filter_block_plane_ver(cm, &planes[plane], plane, mi_row,
+                                       mi_col);
+          }
 #else
           av1_filter_block_plane_vert(cm, xd, plane, &planes[plane], mi_row,
                                       mi_col);
@@ -288,10 +287,16 @@ static INLINE void thread_loop_filter_rows(
           av1_setup_dst_planes(planes, cm->seq_params.sb_size, frame_buffer,
                                mi_row, mi_col, plane, plane + 1);
 #if LOOP_FILTER_BITMASK
-          LoopFilterMask *lf_mask =
-              av1_get_loop_filter_mask(cm, mi_row, mi_col);
-          av1_loop_filter_block_plane_horz(cm, planes, plane, mi_row, mi_col,
-                                           path, lf_mask);
+          // FIXME(chengchen): is bitmask setup already?
+          const int sb_num = MAX_MIB_SIZE / cm->seq_params.mib_size;
+          for (int y = 0; y < sb_num; ++y) {
+            const int row = mi_row + y * cm->seq_params.mib_size;
+            av1_setup_bitmask(
+                cm, row, mi_col, plane, planes[plane].subsampling_x,
+                planes[plane].subsampling_y, cm->mi_rows, cm->mi_cols);
+            av1_filter_block_plane_hor(cm, &planes[plane], plane, mi_row,
+                                       mi_col);
+          }
 #else
           av1_filter_block_plane_horz(cm, xd, plane, &planes[plane], mi_row,
                                       mi_col);
