@@ -207,7 +207,8 @@ set(AOM_AV1_ENCODER_INTRIN_AVX2
     "${AOM_ROOT}/av1/encoder/x86/av1_quantize_avx2.c"
     "${AOM_ROOT}/av1/encoder/x86/av1_highbd_quantize_avx2.c"
     "${AOM_ROOT}/av1/encoder/x86/error_intrin_avx2.c"
-    "${AOM_ROOT}/av1/encoder/x86/hybrid_fwd_txfm_avx2.c")
+    "${AOM_ROOT}/av1/encoder/x86/hybrid_fwd_txfm_avx2.c"
+    "${AOM_ROOT}/av1/encoder/x86/pickrst_avx2.c")
 
 set(AOM_AV1_ENCODER_INTRIN_NEON
     "${AOM_ROOT}/av1/encoder/arm/neon/quantize_neon.c")

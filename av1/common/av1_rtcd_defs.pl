@@ -249,6 +249,9 @@ if (aom_config("CONFIG_AV1_ENCODER") eq "yes") {
   add_proto qw/uint32_t av1_get_crc32c_value/, "void *crc_calculator, uint8_t *p, int length";
   specialize qw/av1_get_crc32c_value sse4_2/;
 
+  # pick
+  add_proto qw/int64_t av1_get_pixel_proj_error/, "const uint8_t *src8, int width, int height, int src_stride, const uint8_t *dat8, int dat_stride, int use_highbitdepth, int32_t *flt0, int flt0_stride, int32_t *flt1, int flt1_stride, int *xqd, const sgr_params_type *params";
+  specialize qw/av1_get_pixel_proj_error avx2/;
 }
 # end encoder functions
 

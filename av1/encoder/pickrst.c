@@ -170,12 +170,12 @@ static int64_t try_restoration_unit(const RestSearchCtxt *rsc,
   return sse_restoration_unit(limits, rsc->src, rsc->dst, plane, highbd);
 }
 
-static int64_t get_pixel_proj_error(const uint8_t *src8, int width, int height,
-                                    int src_stride, const uint8_t *dat8,
-                                    int dat_stride, int use_highbitdepth,
-                                    int32_t *flt0, int flt0_stride,
-                                    int32_t *flt1, int flt1_stride, int *xqd,
-                                    const sgr_params_type *params) {
+int64_t av1_get_pixel_proj_error_c(const uint8_t *src8, int width, int height,
+                                   int src_stride, const uint8_t *dat8,
+                                   int dat_stride, int use_highbitdepth,
+                                   int32_t *flt0, int flt0_stride,
+                                   int32_t *flt1, int flt1_stride, int *xqd,
+                                   const sgr_params_type *params) {
   int i, j;
   int64_t err = 0;
   int xq[2];
@@ -272,7 +272,7 @@ static int64_t finer_search_pixel_proj_error(
     const uint8_t *dat8, int dat_stride, int use_highbitdepth, int32_t *flt0,
     int flt0_stride, int32_t *flt1, int flt1_stride, int start_step, int *xqd,
     const sgr_params_type *params) {
-  int64_t err = get_pixel_proj_error(
+  int64_t err = av1_get_pixel_proj_error(
       src8, width, height, src_stride, dat8, dat_stride, use_highbitdepth, flt0,
       flt0_stride, flt1, flt1_stride, xqd, params);
   (void)start_step;
@@ -287,10 +287,10 @@ static int64_t finer_search_pixel_proj_error(
       do {
         if (xqd[p] - s >= tap_min[p]) {
           xqd[p] -= s;
-          err2 =
-              get_pixel_proj_error(src8, width, height, src_stride, dat8,
-                                   dat_stride, use_highbitdepth, flt0,
-                                   flt0_stride, flt1, flt1_stride, xqd, params);
+          err2 = av1_get_pixel_proj_error(src8, width, height, src_stride, dat8,
+                                          dat_stride, use_highbitdepth, flt0,
+                                          flt0_stride, flt1, flt1_stride, xqd,
+                                          params);
           if (err2 > err) {
             xqd[p] += s;
           } else {
@@ -306,10 +306,10 @@ static int64_t finer_search_pixel_proj_error(
       do {
         if (xqd[p] + s <= tap_max[p]) {
           xqd[p] += s;
-          err2 =
-              get_pixel_proj_error(src8, width, height, src_stride, dat8,
-                                   dat_stride, use_highbitdepth, flt0,
-                                   flt0_stride, flt1, flt1_stride, xqd, params);
+          err2 = av1_get_pixel_proj_error(src8, width, height, src_stride, dat8,
+                                          dat_stride, use_highbitdepth, flt0,
+                                          flt0_stride, flt1, flt1_stride, xqd,
+                                          params);
           if (err2 > err) {
             xqd[p] -= s;
           } else {
