@@ -16,6 +16,20 @@
 #include <string>
 #include "test/video_source.h"
 
+#if defined(__SANITIZE_ADDRESS__)
+extern "C" {
+void __asan_poison_memory_region(void const volatile *addr, size_t size);
+void __asan_unpoison_memory_region(void const volatile *addr, size_t size);
+}
+#define ASAN_POISON_MEMORY_REGION(addr, size) \
+  __asan_poison_memory_region((addr), (size))
+#define ASAN_UNPOISON_MEMORY_REGION(addr, size) \
+  __asan_unpoison_memory_region((addr), (size))
+#else
+#define ASAN_POISON_MEMORY_REGION(addr, size) ((void)(addr), (void)(size))
+#define ASAN_UNPOISON_MEMORY_REGION(addr, size) ((void)(addr), (void)(size))
+#endif
+
 namespace libaom_test {
 const unsigned int kCodeBufferSize = 256 * 1024;
 const unsigned int kIvfFileHdrSize = 32;
@@ -34,16 +48,20 @@ class IVFVideoSource : public CompressedVideoSource {
         frame_sz_(0), frame_(0), end_of_file_(false) {}
 
   virtual ~IVFVideoSource() {
-    delete[] compressed_frame_buf_;
+    if (compressed_frame_buf_) {
+      ASAN_UNPOISON_MEMORY_REGION(compressed_frame_buf_, kCodeBufferSize);
+      delete[] compressed_frame_buf_;
+    }
 
     if (input_file_) fclose(input_file_);
   }
 
   virtual void Init() {
     // Allocate a buffer for read in the compressed video frame.
-    compressed_frame_buf_ = new uint8_t[libaom_test::kCodeBufferSize];
+    compressed_frame_buf_ = new uint8_t[kCodeBufferSize];
     ASSERT_TRUE(compressed_frame_buf_ != NULL)
         << "Allocate frame buffer failed";
+    ASAN_POISON_MEMORY_REGION(compressed_frame_buf_, kCodeBufferSize);
   }
 
   virtual void Begin() {
@@ -81,9 +99,12 @@ class IVFVideoSource : public CompressedVideoSource {
       frame_sz_ = MemGetLe32(frame_hdr);
       ASSERT_LE(frame_sz_, kCodeBufferSize)
           << "Frame is too big for allocated code buffer";
+      ASAN_UNPOISON_MEMORY_REGION(compressed_frame_buf_, kCodeBufferSize);
       ASSERT_EQ(frame_sz_,
                 fread(compressed_frame_buf_, 1, frame_sz_, input_file_))
           << "Failed to read complete frame";
+      ASAN_POISON_MEMORY_REGION(compressed_frame_buf_ + frame_sz_,
+                                kCodeBufferSize - frame_sz_);
     }
   }
 
