@@ -45,11 +45,12 @@ static int obudec_read_leb128(FILE *f, uint8_t *value_buffer,
     }
     if ((value_buffer[len] >> 7) == 0) {
       *value_length = (size_t)(len + 1);
-      break;
+      return aom_uleb_decode(value_buffer, len + 1, value, NULL);
     }
   }
 
-  return aom_uleb_decode(value_buffer, OBU_MAX_LENGTH_FIELD_SIZE, value, NULL);
+  // The most significant bit of the 8th byte is not 0.
+  return -1;
 }
 
 // Reads OBU header from 'f'. The 'buffer_capacity' passed in must be large
