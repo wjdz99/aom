@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "e96da480_05e0543b",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-04-30T21:51:59Z",
+      "side": 1,
+      "message": "Changed to uint64_t. We need some API changes-- a TU that\u0027s of a size that won\u0027t fit in 32-bits is going to break things.",
+      "parentUuid": "b960fa2d_464ad4fb",
+      "range": {
+        "startLine": 191,
+        "startChar": 48,
+        "endLine": 191,
+        "endChar": 68
+      },
+      "revId": "07c8d1032349099cb2be50a7d85474db0ec1c7bd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "74e390e0_55ddfdbd",
         "filename": "av1/decoder/obu.c",
         "patchSetId": 2
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "51a1d2b4_4af8b0c0",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 427,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-04-30T21:51:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "74e390e0_55ddfdbd",
+      "range": {
+        "startLine": 427,
+        "startChar": 45,
+        "endLine": 427,
+        "endChar": 56
+      },
+      "revId": "07c8d1032349099cb2be50a7d85474db0ec1c7bd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "272e395f_9718d4fb",
         "filename": "av1/decoder/obu.c",
         "patchSetId": 2
@@ -59,6 +107,30 @@
       "writtenOn": "2018-04-30T21:31:40Z",
       "side": 1,
       "message": "On a successful return, *bytes_read must be \u003c\u003d bytes_available. Therefore, *bytes_read doesn\u0027t need to be a larger type than bytes_available (size_t). This means bytes_read can still be declared as size_t *const bytes_read.",
+      "range": {
+        "startLine": 441,
+        "startChar": 45,
+        "endLine": 441,
+        "endChar": 71
+      },
+      "revId": "07c8d1032349099cb2be50a7d85474db0ec1c7bd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "15033965_3a13758e",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 441,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-04-30T21:51:59Z",
+      "side": 1,
+      "message": "Yes, but I want to discourage usage of size_t wherever possible. The code is simpler, clearer, and cleaner (imo, anyway) if we stay away from types that change size based on target. I\u0027ve changed the type of bytes_available as well.",
+      "parentUuid": "272e395f_9718d4fb",
       "range": {
         "startLine": 441,
         "startChar": 45,
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "365b0c0d_1d3befbf",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 514,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-04-30T21:51:59Z",
+      "side": 1,
+      "message": "I\u0027m not clear on why you wish to continue using size_t. I want to avoid it for reasons stated in earlier comments.",
+      "parentUuid": "1b1df125_67112c4d",
+      "range": {
+        "startLine": 514,
+        "startChar": 4,
+        "endLine": 514,
+        "endChar": 22
+      },
+      "revId": "07c8d1032349099cb2be50a7d85474db0ec1c7bd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "51d931ab_f013cd1d",
         "filename": "obudec.c",
         "patchSetId": 2
@@ -105,6 +201,30 @@
       "writtenOn": "2018-04-30T21:31:40Z",
       "side": 1,
       "message": "Here is an example. Although new_capacity is declared as a uint64_t, this realloc() call will malfunction on 32-bit platforms if new_capacity holds a value greater than 2^32.",
+      "range": {
+        "startLine": 202,
+        "startChar": 58,
+        "endLine": 202,
+        "endChar": 70
+      },
+      "revId": "07c8d1032349099cb2be50a7d85474db0ec1c7bd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7ba76be2_1827ae8a",
+        "filename": "obudec.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-04-30T21:51:59Z",
+      "side": 1,
+      "message": "The fread() calls are problematic as well. We could change the reads here to use fgetc() and ferror() to avoid problems on 32-bit targets. However it\u0027s likely a moot point: we don\u0027t have support for handling memory allocations of sizes that a 32-bit target won\u0027t allow (these allocs would exceed per process memory limits on 32 bit targets).",
+      "parentUuid": "51d931ab_f013cd1d",
       "range": {
         "startLine": 202,
         "startChar": 58,
@@ -140,6 +260,30 @@
     },
     {
       "key": {
+        "uuid": "2cc8ad0b_520cf9c5",
+        "filename": "obudec.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-04-30T21:51:59Z",
+      "side": 1,
+      "message": "That\u0027s true in this case, but making the type change for same reasons as stated previously.",
+      "parentUuid": "7a447a23_3f7824f9",
+      "range": {
+        "startLine": 23,
+        "startChar": 0,
+        "endLine": 24,
+        "endChar": 26
+      },
+      "revId": "07c8d1032349099cb2be50a7d85474db0ec1c7bd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "000b1ff0_edebc2c5",
         "filename": "obudec.h",
         "patchSetId": 2
@@ -151,6 +295,30 @@
       "writtenOn": "2018-04-30T21:31:40Z",
       "side": 1,
       "message": "Similarly, *bytes_read and *buffer_size don\u0027t need to be of a type larger than size_t.",
+      "range": {
+        "startLine": 40,
+        "startChar": 0,
+        "endLine": 41,
+        "endChar": 53
+      },
+      "revId": "07c8d1032349099cb2be50a7d85474db0ec1c7bd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f6860343_4dc4c2f9",
+        "filename": "obudec.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-04-30T21:51:59Z",
+      "side": 1,
+      "message": "A TU can be larger than 32 bits.",
+      "parentUuid": "000b1ff0_edebc2c5",
       "range": {
         "startLine": 40,
         "startChar": 0,
