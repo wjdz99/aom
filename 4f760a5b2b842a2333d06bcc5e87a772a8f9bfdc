@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "94f8cdf5_3c08d779",
+        "filename": "obudec.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-04-30T23:12:44Z",
+      "side": 1,
+      "message": "This was added in https://aomedia-review.googlesource.com/c/aom/+/52822. I don\u0027t understand this change. It seems that reaching EOF when we expect a leb128 should be an error, i.e., we should return -1 in this case.",
+      "range": {
+        "startLine": 38,
+        "startChar": 0,
+        "endLine": 41,
+        "endChar": 5
+      },
+      "revId": "4f760a5b2b842a2333d06bcc5e87a772a8f9bfdc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
