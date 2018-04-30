@@ -60,8 +60,8 @@ int file_is_ivf(struct AvxInputContext *input_ctx) {
   return is_ivf;
 }
 
-int ivf_read_frame(FILE *infile, uint8_t **buffer, size_t *bytes_read,
-                   size_t *buffer_size) {
+int ivf_read_frame(FILE *infile, uint8_t **buffer, uint64_t *bytes_read,
+                   uint64_t *buffer_size) {
   char raw_header[IVF_FRAME_HDR_SZ] = { 0 };
   size_t frame_size = 0;
 

@@ -40,7 +40,8 @@ int aom_video_reader_read_frame(AvxVideoReader *reader);
 
 // Returns the pointer to memory buffer with frame data read by last call to
 // aom_video_reader_read_frame().
-const uint8_t *aom_video_reader_get_frame(AvxVideoReader *reader, size_t *size);
+const uint8_t *aom_video_reader_get_frame(AvxVideoReader *reader,
+                                          uint64_t *size);
 
 // Fills AvxVideoInfo with information from opened video file.
 const AvxVideoInfo *aom_video_reader_get_info(AvxVideoReader *reader);

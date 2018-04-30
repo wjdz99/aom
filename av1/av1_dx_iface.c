@@ -188,7 +188,7 @@ static void parse_operating_points(struct aom_read_bit_buffer *rb,
 }
 
 static aom_codec_err_t decoder_peek_si_internal(const uint8_t *data,
-                                                unsigned int data_sz,
+                                                uint64_t data_sz,
                                                 aom_codec_stream_info_t *si,
                                                 int *is_intra_only) {
   int intra_only_flag = 0;
@@ -211,8 +211,8 @@ static aom_codec_err_t decoder_peek_si_internal(const uint8_t *data,
 
   ObuHeader obu_header;
   memset(&obu_header, 0, sizeof(obu_header));
-  size_t payload_size = 0;
-  size_t bytes_read = 0;
+  uint64_t payload_size = 0;
+  uint64_t bytes_read = 0;
   aom_codec_err_t status = aom_read_obu_header_and_size(
       data, data_sz, si->is_annexb, &obu_header, &payload_size, &bytes_read);
   if (status != AOM_CODEC_OK) return status;

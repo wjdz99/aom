@@ -623,7 +623,7 @@ int read_frame() {
   if (!aom_video_reader_read_frame(reader)) return EXIT_FAILURE;
   img = NULL;
   aom_codec_iter_t iter = NULL;
-  size_t frame_size = 0;
+  uint64_t frame_size = 0;
   const unsigned char *frame = aom_video_reader_get_frame(reader, &frame_size);
   if (aom_codec_decode(&codec, frame, (unsigned int)frame_size, NULL) !=
       AOM_CODEC_OK) {

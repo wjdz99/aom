@@ -23,8 +23,8 @@ struct AvxVideoReaderStruct {
   AvxVideoInfo info;
   FILE *file;
   uint8_t *buffer;
-  size_t buffer_size;
-  size_t frame_size;
+  uint64_t buffer_size;
+  uint64_t frame_size;
 };
 
 AvxVideoReader *aom_video_reader_open(const char *filename) {
@@ -67,7 +67,7 @@ int aom_video_reader_read_frame(AvxVideoReader *reader) {
 }
 
 const uint8_t *aom_video_reader_get_frame(AvxVideoReader *reader,
-                                          size_t *size) {
+                                          uint64_t *size) {
   if (size) *size = reader->frame_size;
 
   return reader->buffer;
