@@ -9,6 +9,7 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
+#include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -283,7 +284,7 @@ int file_is_obu(struct ObuDecInputContext *obu_ctx) {
   }
 
   // Appears that input is valid Section 5 AV1 stream.
-  obu_ctx->buffer = (uint8_t *)calloc(OBU_BUFFER_SIZE, 1);
+  obu_ctx->buffer = (uint8_t *)malloc(OBU_BUFFER_SIZE);
   if (!obu_ctx->buffer) {
     fprintf(stderr, "Out of memory.\n");
     rewind(f);
@@ -293,6 +294,13 @@ int file_is_obu(struct ObuDecInputContext *obu_ctx) {
 
   if (is_annexb) {
     bytes_read += annexb_header_length;
+  }
+  if (bytes_read > obu_ctx->buffer_capacity) {
+    fprintf(stderr,
+            "obudec: bytes_read (%" PRIu64 ") > obu_ctx->buffer_capacity\n",
+            bytes_read);
+    rewind(f);
+    return 0;
   }
   memcpy(obu_ctx->buffer, &detect_buf[0], (size_t)bytes_read);
   obu_ctx->bytes_buffered = (size_t)bytes_read;
