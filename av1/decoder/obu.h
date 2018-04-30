@@ -32,8 +32,8 @@ aom_codec_err_t aom_read_obu_header_and_size(const uint8_t *data,
                                              size_t bytes_available,
                                              int is_annexb,
                                              ObuHeader *obu_header,
-                                             size_t *const payload_size,
-                                             size_t *const bytes_read);
+                                             uint64_t *const payload_size,
+                                             uint64_t *const bytes_read);
 
 void aom_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
                                 const uint8_t *data_end,

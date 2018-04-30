@@ -98,8 +98,8 @@ int main(int argc, char **argv) {
   const AvxInterface *decoder = NULL;
   FILE *inputfile = NULL;
   uint8_t *buf = NULL;
-  size_t bytes_in_buffer = 0;
-  size_t buffer_size = 0;
+  uint64_t bytes_in_buffer = 0;
+  uint64_t buffer_size = 0;
   struct AvxInputContext aom_input_ctx;
   struct ObuDecInputContext obu_ctx = { &aom_input_ctx, NULL, 0, 0, 0, 0 };
   aom_codec_stream_info_t si;

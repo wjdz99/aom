@@ -20,8 +20,8 @@ extern "C" {
 struct ObuDecInputContext {
   struct AvxInputContext *avx_ctx;
   uint8_t *buffer;
-  size_t buffer_capacity;
-  size_t bytes_buffered;
+  uint64_t buffer_capacity;
+  uint64_t bytes_buffered;
   int is_annexb;
   int last_layer_id;
 };
@@ -37,8 +37,8 @@ int file_is_obu(struct ObuDecInputContext *obu_ctx);
 // returns buffer capacity via 'buffer_size', and returns size of buffered data
 // via 'bytes_read'.
 int obudec_read_temporal_unit(struct ObuDecInputContext *obu_ctx,
-                              uint8_t **buffer, size_t *bytes_read,
-                              size_t *buffer_size);
+                              uint8_t **buffer, uint64_t *bytes_read,
+                              uint64_t *buffer_size);
 
 void obudec_free(struct ObuDecInputContext *obu_ctx);
 
