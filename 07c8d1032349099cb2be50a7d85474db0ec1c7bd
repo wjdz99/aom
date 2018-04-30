@@ -1,0 +1,165 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b960fa2d_464ad4fb",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-04-30T21:31:40Z",
+      "side": 1,
+      "message": "\u0027data_sz\u0027 should be declared as a size_t. We can deal with this separately.",
+      "range": {
+        "startLine": 191,
+        "startChar": 48,
+        "endLine": 191,
+        "endChar": 68
+      },
+      "revId": "07c8d1032349099cb2be50a7d85474db0ec1c7bd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "74e390e0_55ddfdbd",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 427,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-04-30T21:31:40Z",
+      "side": 1,
+      "message": "Delete the u_obu_size local variable. Then, pass obu_size nstead of \u0026u_obu_size here.",
+      "range": {
+        "startLine": 427,
+        "startChar": 45,
+        "endLine": 427,
+        "endChar": 56
+      },
+      "revId": "07c8d1032349099cb2be50a7d85474db0ec1c7bd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "272e395f_9718d4fb",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 441,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-04-30T21:31:40Z",
+      "side": 1,
+      "message": "On a successful return, *bytes_read must be \u003c\u003d bytes_available. Therefore, *bytes_read doesn\u0027t need to be a larger type than bytes_available (size_t). This means bytes_read can still be declared as size_t *const bytes_read.",
+      "range": {
+        "startLine": 441,
+        "startChar": 45,
+        "endLine": 441,
+        "endChar": 71
+      },
+      "revId": "07c8d1032349099cb2be50a7d85474db0ec1c7bd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1b1df125_67112c4d",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 514,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-04-30T21:31:40Z",
+      "side": 1,
+      "message": "Here is an example. We add bytes_read to \u0027data\u0027, so bytes_read doesn\u0027t need to be a type larger than size_t. You can find other examples by searching for \"data +\" in this function.",
+      "range": {
+        "startLine": 514,
+        "startChar": 4,
+        "endLine": 514,
+        "endChar": 22
+      },
+      "revId": "07c8d1032349099cb2be50a7d85474db0ec1c7bd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "51d931ab_f013cd1d",
+        "filename": "obudec.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-04-30T21:31:40Z",
+      "side": 1,
+      "message": "Here is an example. Although new_capacity is declared as a uint64_t, this realloc() call will malfunction on 32-bit platforms if new_capacity holds a value greater than 2^32.",
+      "range": {
+        "startLine": 202,
+        "startChar": 58,
+        "endLine": 202,
+        "endChar": 70
+      },
+      "revId": "07c8d1032349099cb2be50a7d85474db0ec1c7bd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a447a23_3f7824f9",
+        "filename": "obudec.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-04-30T21:31:40Z",
+      "side": 1,
+      "message": "These two fields don\u0027t need to be a type larger than size_t.",
+      "range": {
+        "startLine": 23,
+        "startChar": 0,
+        "endLine": 24,
+        "endChar": 26
+      },
+      "revId": "07c8d1032349099cb2be50a7d85474db0ec1c7bd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "000b1ff0_edebc2c5",
+        "filename": "obudec.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-04-30T21:31:40Z",
+      "side": 1,
+      "message": "Similarly, *bytes_read and *buffer_size don\u0027t need to be of a type larger than size_t.",
+      "range": {
+        "startLine": 40,
+        "startChar": 0,
+        "endLine": 41,
+        "endChar": 53
+      },
+      "revId": "07c8d1032349099cb2be50a7d85474db0ec1c7bd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
