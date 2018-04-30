@@ -112,7 +112,7 @@ int main(int argc, char **argv) {
   while (aom_video_reader_read_frame(reader)) {
     aom_codec_iter_t iter = NULL;
     aom_image_t *img = NULL;
-    size_t frame_size = 0;
+    uint64_t frame_size = 0;
     int skip;
     const unsigned char *frame =
         aom_video_reader_get_frame(reader, &frame_size);
