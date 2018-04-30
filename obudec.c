@@ -9,6 +9,7 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
+#include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -263,6 +264,10 @@ int file_is_obu(struct ObuDecInputContext *obu_ctx) {
     return 0;
   }
 
+  if (is_annexb) {
+    bytes_read += annexb_header_length;
+  }
+
   if (obu_header.type != OBU_TEMPORAL_DELIMITER &&
       obu_header.type != OBU_SEQUENCE_HEADER) {
     return 0;
@@ -283,7 +288,7 @@ int file_is_obu(struct ObuDecInputContext *obu_ctx) {
   }
 
   // Appears that input is valid Section 5 AV1 stream.
-  obu_ctx->buffer = (uint8_t *)calloc(OBU_BUFFER_SIZE, 1);
+  obu_ctx->buffer = (uint8_t *)malloc(OBU_BUFFER_SIZE);
   if (!obu_ctx->buffer) {
     fprintf(stderr, "Out of memory.\n");
     rewind(f);
@@ -291,9 +296,6 @@ int file_is_obu(struct ObuDecInputContext *obu_ctx) {
   }
   obu_ctx->buffer_capacity = OBU_BUFFER_SIZE;
 
-  if (is_annexb) {
-    bytes_read += annexb_header_length;
-  }
   memcpy(obu_ctx->buffer, &detect_buf[0], (size_t)bytes_read);
   obu_ctx->bytes_buffered = (size_t)bytes_read;
   // If the first OBU is a SEQUENCE_HEADER, then it will have a payload.
