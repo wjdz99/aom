@@ -118,7 +118,7 @@ int file_is_webm(struct WebmInputContext *webm_ctx,
 }
 
 int webm_read_frame(struct WebmInputContext *webm_ctx, uint8_t **buffer,
-                    size_t *bytes_read, size_t *buffer_size) {
+                    uint64_t *bytes_read, uint64_t *buffer_size) {
   // This check is needed for frame parallel decoding, in which case this
   // function could be called even after it has reached end of input stream.
   if (webm_ctx->reached_eos) {
@@ -199,8 +199,8 @@ int webm_guess_framerate(struct WebmInputContext *webm_ctx,
                          struct AvxInputContext *aom_ctx) {
   uint32_t i = 0;
   uint8_t *buffer = NULL;
-  size_t buffer_size = 0;
-  size_t bytes_read = 0;
+  uint64_t buffer_size = 0;
+  uint64_t bytes_read = 0;
   while (webm_ctx->timestamp_ns < 1000000000 && i < 50) {
     if (webm_read_frame(webm_ctx, &buffer, &bytes_read, &buffer_size)) {
       break;

@@ -47,7 +47,7 @@ struct InputContext {
   WebmInputContext *webm_ctx = nullptr;
 #endif
   uint8_t *unit_buffer = nullptr;
-  size_t unit_buffer_size = 0;
+  uint64_t unit_buffer_size = 0;
 };
 
 void PrintUsage() {
@@ -63,7 +63,7 @@ VideoFileType GetFileType(InputContext *ctx) {
   return FILE_TYPE_RAW;
 }
 
-bool ReadTemporalUnit(InputContext *ctx, size_t *unit_size) {
+bool ReadTemporalUnit(InputContext *ctx, uint64_t *unit_size) {
   const VideoFileType file_type = ctx->avx_ctx->file_type;
   switch (file_type) {
     case FILE_TYPE_IVF: {
@@ -142,7 +142,7 @@ int main(int argc, const char *argv[]) {
   }
   input_ctx.unit_buffer_size = kInitialBufferSize;
 
-  size_t unit_size = 0;
+  uint64_t unit_size = 0;
   int unit_number = 0;
   int64_t obu_overhead_bytes_total = 0;
   while (ReadTemporalUnit(&input_ctx, &unit_size)) {

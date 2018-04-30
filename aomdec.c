@@ -188,8 +188,8 @@ void usage_exit(void) {
   exit(EXIT_FAILURE);
 }
 
-static int raw_read_frame(FILE *infile, uint8_t **buffer, size_t *bytes_read,
-                          size_t *buffer_size) {
+static int raw_read_frame(FILE *infile, uint8_t **buffer, uint64_t *bytes_read,
+                          uint64_t *buffer_size) {
   char raw_hdr[RAW_FRAME_HDR_SZ];
   size_t frame_size = 0;
 
@@ -234,7 +234,7 @@ static int raw_read_frame(FILE *infile, uint8_t **buffer, size_t *bytes_read,
 }
 
 static int read_frame(struct AvxDecInputContext *input, uint8_t **buf,
-                      size_t *bytes_in_buffer, size_t *buffer_size) {
+                      uint64_t *bytes_in_buffer, uint64_t *buffer_size) {
   switch (input->aom_input_ctx->file_type) {
 #if CONFIG_WEBM_IO
     case FILE_TYPE_WEBM:
@@ -485,7 +485,7 @@ static int main_loop(int argc, const char **argv_) {
   int i;
   int ret = EXIT_FAILURE;
   uint8_t *buf = NULL;
-  size_t bytes_in_buffer = 0, buffer_size = 0;
+  uint64_t bytes_in_buffer = 0, buffer_size = 0;
   FILE *infile;
   int frame_in = 0, frame_out = 0, flipuv = 0, noblit = 0;
   int do_md5 = 0, progress = 0;
@@ -528,7 +528,8 @@ static int main_loop(int argc, const char **argv_) {
   unsigned char md5_digest[16];
 
   struct AvxDecInputContext input = { NULL, NULL, NULL };
-  struct AvxInputContext aom_input_ctx = { 0 };
+  struct AvxInputContext aom_input_ctx;
+  memset(&aom_input_ctx, 0, sizeof(aom_input_ctx));
 #if CONFIG_WEBM_IO
   struct WebmInputContext webm_ctx;
   memset(&webm_ctx, 0, sizeof(webm_ctx));
