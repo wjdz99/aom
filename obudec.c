@@ -163,8 +163,8 @@ static int obudec_read_obu_header_and_size(FILE *f, size_t buffer_capacity,
 }
 
 static int obudec_read_one_obu(FILE *f, uint8_t **obu_buffer,
-                               size_t obu_bytes_buffered,
-                               size_t *obu_buffer_capacity,
+                               uint64_t obu_bytes_buffered,
+                               uint64_t *obu_buffer_capacity,
                                uint64_t *obu_length, ObuHeader *obu_header,
                                int is_annexb) {
   uint64_t available_buffer_capacity =
@@ -318,8 +318,8 @@ int file_is_obu(struct ObuDecInputContext *obu_ctx) {
 }
 
 int obudec_read_temporal_unit(struct ObuDecInputContext *obu_ctx,
-                              uint8_t **buffer, size_t *bytes_read,
-                              size_t *buffer_size) {
+                              uint8_t **buffer, uint64_t *bytes_read,
+                              uint64_t *buffer_size) {
   FILE *f = obu_ctx->avx_ctx->file;
   if (!f) return -1;
 

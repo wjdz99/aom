@@ -47,7 +47,7 @@ struct InputContext {
   WebmInputContext *webm_ctx = nullptr;
 #endif
   uint8_t *unit_buffer = nullptr;
-  size_t unit_buffer_size = 0;
+  uint64_t unit_buffer_size = 0;
 };
 
 void PrintUsage() {
@@ -63,14 +63,18 @@ VideoFileType GetFileType(InputContext *ctx) {
   return FILE_TYPE_RAW;
 }
 
-bool ReadTemporalUnit(InputContext *ctx, size_t *unit_size) {
+bool ReadTemporalUnit(InputContext *ctx, uint64_t *unit_size) {
   const VideoFileType file_type = ctx->avx_ctx->file_type;
   switch (file_type) {
     case FILE_TYPE_IVF: {
-      if (ivf_read_frame(ctx->avx_ctx->file, &ctx->unit_buffer, unit_size,
-                         &ctx->unit_buffer_size)) {
+      size_t ivf_unit_size = static_cast<size_t>(*unit_size);
+      size_t ivf_unit_buffer_size = static_cast<size_t>(ctx->unit_buffer_size);
+      if (ivf_read_frame(ctx->avx_ctx->file, &ctx->unit_buffer, &ivf_unit_size,
+                         &ivf_unit_buffer_size)) {
         return false;
       }
+      *unit_size = ivf_unit_size;
+      ctx->unit_buffer_size = ivf_unit_buffer_size;
       break;
     }
     case FILE_TYPE_OBU: {
@@ -82,10 +86,14 @@ bool ReadTemporalUnit(InputContext *ctx, size_t *unit_size) {
     }
 #if CONFIG_WEBM_IO
     case FILE_TYPE_WEBM: {
-      if (webm_read_frame(ctx->webm_ctx, &ctx->unit_buffer, unit_size,
-                          &ctx->unit_buffer_size)) {
+      size_t webm_unit_size = static_cast<size_t>(*unit_size);
+      size_t webm_unit_buffer_size = static_cast<size_t>(ctx->unit_buffer_size);
+      if (webm_read_frame(ctx->webm_ctx, &ctx->unit_buffer, &webm_unit_size,
+                          &webm_unit_buffer_size)) {
         return false;
       }
+      *unit_size = webm_unit_size;
+      ctx->unit_buffer_size = webm_unit_buffer_size;
       break;
     }
 #endif
@@ -142,7 +150,7 @@ int main(int argc, const char *argv[]) {
   }
   input_ctx.unit_buffer_size = kInitialBufferSize;
 
-  size_t unit_size = 0;
+  uint64_t unit_size = 0;
   int unit_number = 0;
   int64_t obu_overhead_bytes_total = 0;
   while (ReadTemporalUnit(&input_ctx, &unit_size)) {
