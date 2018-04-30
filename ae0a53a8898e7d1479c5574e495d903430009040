@@ -22,6 +22,30 @@
       "revId": "ae0a53a8898e7d1479c5574e495d903430009040",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e21b0dfb_ea80d4be",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1334,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-04-30T21:45:31Z",
+      "side": 1,
+      "message": "Good question.\n\nIt seems that seq_params_locked \u003d 1 is set in encode_frame_to_data_rate(), which is called from Pass2Encode() and Pass0Encode(), but not from av1_first_pass().\n\nSo, without this fix, encoder gets into a wrong state just before 2nd frame in av1_first_pass().\n\nDo you think maybe av1_first_pass() is a better place for the fix()? (I haven\u0027t verified that alternate, but I can try).",
+      "parentUuid": "89637269_843e2dd2",
+      "range": {
+        "startLine": 1334,
+        "startChar": 6,
+        "endLine": 1334,
+        "endChar": 33
+      },
+      "revId": "ae0a53a8898e7d1479c5574e495d903430009040",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
