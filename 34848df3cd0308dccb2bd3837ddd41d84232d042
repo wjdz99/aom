@@ -188,6 +188,30 @@
     },
     {
       "key": {
+        "uuid": "726e90ef_ed0c6faa",
+        "filename": "av1/common/thread_common.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 335,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2018-05-01T23:03:28Z",
+      "side": 1,
+      "message": "-1 is the invalid value. We initialize them to invalid values.",
+      "parentUuid": "4582b11f_cf33b628",
+      "range": {
+        "startLine": 335,
+        "startChar": 35,
+        "endLine": 335,
+        "endChar": 37
+      },
+      "revId": "34848df3cd0308dccb2bd3837ddd41d84232d042",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "2a5a1783_f709204d",
         "filename": "av1/decoder/decodeframe.c",
         "patchSetId": 6
