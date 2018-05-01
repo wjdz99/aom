@@ -34,6 +34,24 @@
       "revId": "83b00dad624d3d4f70875acce01e660bce3bcd54",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "db497306_d4b8f6d4",
+        "filename": "obudec.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 290,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-05-01T00:20:27Z",
+      "side": 1,
+      "message": "I know. I wanted memset() memory when I wrote the code initially. \n\nIt\u0027s harmless with uninitialized memory since we only operate on what we know to have read, but the intent of the original call was for a malloc+memset. calloc() docs state as much. \n\n$ man calloc\n\n... snip ...\n\n     The calloc() function contiguously allocates enough space for count objects that are size bytes of memory each and returns a pointer\n     to the allocated memory.  The allocated memory is filled with bytes of value zero.",
+      "parentUuid": "5166cea7_98857374",
+      "revId": "83b00dad624d3d4f70875acce01e660bce3bcd54",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
