@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "7dca4eab_160671bf",
+        "filename": "aom_util/aom_thread.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2018-05-01T22:57:47Z",
+      "side": 1,
+      "message": "To make myself clear, for this function, should \"ok\" be the bitwise AND of every thread\u0027s return value?",
+      "parentUuid": "3fdda544_b6cd74c9",
+      "range": {
+        "startLine": 183,
+        "startChar": 4,
+        "endLine": 183,
+        "endChar": 6
+      },
+      "revId": "34848df3cd0308dccb2bd3837ddd41d84232d042",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b32a8c47_81bff90e",
         "filename": "aom_util/aom_thread.h",
         "patchSetId": 6
