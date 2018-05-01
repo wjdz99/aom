@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "1098b4c0_d0bc46fb",
+        "filename": "test/aomdec.sh",
+        "patchSetId": 4
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-05-01T23:16:25Z",
+      "side": 1,
+      "message": "oops/yes/done\n\nWe need them all when the encoder is disabled. I could update the test functions to do the check, but I would do that in a follow up if it\u0027s preferred.",
+      "parentUuid": "77aab4c9_26c5ddfc",
+      "range": {
+        "startLine": 21,
+        "startChar": 40,
+        "endLine": 21,
+        "endChar": 41
+      },
+      "revId": "57f2a09f907eb4905672175db5fe62e733969bf0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5ba447f3_6de9b6df",
         "filename": "test/aomdec.sh",
         "patchSetId": 4
@@ -36,6 +60,30 @@
       "writtenOn": "2018-05-01T22:56:12Z",
       "side": 1,
       "message": "why not test av1_decode_available directly?",
+      "range": {
+        "startLine": 61,
+        "startChar": 10,
+        "endLine": 61,
+        "endChar": 30
+      },
+      "revId": "57f2a09f907eb4905672175db5fe62e733969bf0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "69938e11_7a0d60e7",
+        "filename": "test/aomdec.sh",
+        "patchSetId": 4
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-05-01T23:16:25Z",
+      "side": 1,
+      "message": "This is shorthand for $(aom_config_option_enabled CONFIG_AV1_DECODER); it\u0027s a wrapper function in test/tools_common.sh.",
+      "parentUuid": "5ba447f3_6de9b6df",
       "range": {
         "startLine": 61,
         "startChar": 10,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "5ac0e25e_80b55e67",
+        "filename": "test/aomdec.sh",
+        "patchSetId": 4
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-05-01T23:16:25Z",
+      "side": 1,
+      "message": "yeah, this is a holdover from the libvpx origins... I\u0027ll have to do a clean up pass for things like this.",
+      "parentUuid": "40c86e5e_e2254d8b",
+      "range": {
+        "startLine": 67,
+        "startChar": 10,
+        "endLine": 67,
+        "endChar": 31
+      },
+      "revId": "57f2a09f907eb4905672175db5fe62e733969bf0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d9130b76_875fa7bd",
         "filename": "test/aomdec.sh",
         "patchSetId": 4
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "f2d895ea_5d5429f5",
+        "filename": "test/aomdec.sh",
+        "patchSetId": 4
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-05-01T23:16:25Z",
+      "side": 1,
+      "message": "that check only runs if the encoder is disabled. this is checking to make sure we actually need to encode something before doing it.",
+      "parentUuid": "d9130b76_875fa7bd",
+      "range": {
+        "startLine": 68,
+        "startChar": 27,
+        "endLine": 68,
+        "endChar": 39
+      },
+      "revId": "57f2a09f907eb4905672175db5fe62e733969bf0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d32479e3_35dc05b4",
         "filename": "test/aomdec.sh",
         "patchSetId": 4
@@ -105,6 +201,30 @@
       "writtenOn": "2018-05-01T22:56:12Z",
       "side": 1,
       "message": "Should there be some kind of validation that --threads\u003d is having an effect? Or just generally what\u0027s the goal?",
+      "range": {
+        "startLine": 93,
+        "startChar": 44,
+        "endLine": 93,
+        "endChar": 51
+      },
+      "revId": "57f2a09f907eb4905672175db5fe62e733969bf0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6563bb0c_762ffb53",
+        "filename": "test/aomdec.sh",
+        "patchSetId": 4
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-05-01T23:16:25Z",
+      "side": 1,
+      "message": "Just making sure threaded decode has some coverage in the tools. Unit tests (hopefully) handle things like measuring actual effectiveness.",
+      "parentUuid": "d32479e3_35dc05b4",
       "range": {
         "startLine": 93,
         "startChar": 44,
