@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bc930807_014fc913",
+        "filename": "obudec.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-05-01T22:07:44Z",
+      "side": 1,
+      "message": "Note that we add leb128_length to \u0027buffer\u0027 here. Therefore we should also subtract leb128_length from buffer_capacity.",
+      "range": {
+        "startLine": 141,
+        "startChar": 29,
+        "endLine": 141,
+        "endChar": 51
+      },
+      "revId": "ecbabd5c38bc2be8591543e602455caa59bf6764",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
