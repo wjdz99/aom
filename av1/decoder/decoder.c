@@ -260,6 +260,20 @@ static void swap_frame_buffers(AV1Decoder *pbi) {
   BufferPool *const pool = cm->buffer_pool;
   RefCntBuffer *const frame_bufs = cm->buffer_pool->frame_bufs;
 
+  if (pbi->dropped_obus) {
+    pbi->hold_ref_buf = 0;
+
+    lock_buffer_pool(pool);
+    --frame_bufs[cm->new_fb_idx].ref_count;
+    unlock_buffer_pool(pool);
+
+    // Invalidate these references until the next frame starts.
+    for (ref_index = 0; ref_index < INTER_REFS_PER_FRAME; ref_index++) {
+      cm->frame_refs[ref_index].idx = INVALID_IDX;
+      cm->frame_refs[ref_index].buf = NULL;
+    }
+  }
+
   lock_buffer_pool(pool);
   for (mask = pbi->refresh_frame_flags; mask; mask >>= 1) {
     const int old_idx = cm->ref_frame_map[ref_index];
@@ -436,6 +450,8 @@ int av1_receive_compressed_data(AV1Decoder *pbi, size_t size,
   cm->last_tile_cols = cm->tile_cols;
   cm->last_tile_rows = cm->tile_rows;
   cm->error.setjmp = 0;
+
+  if (pbi->dropped_obus) pbi->ready_for_new_data = 1;
   return 0;
 }
 
