@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c9da0610_c615e575",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 312,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2018-05-01T01:32:20Z",
+      "side": 1,
+      "message": "This patch is good for fixing the issue raised. Future patches should store the data in decoder and provide API for application to access.",
+      "range": {
+        "startLine": 312,
+        "startChar": 2,
+        "endLine": 312,
+        "endChar": 21
+      },
+      "revId": "32ba632729900bd642b0c9ffa92b1815863f9974",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
