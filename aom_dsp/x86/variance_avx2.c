@@ -242,3 +242,135 @@ void aom_comp_mask_pred_avx2(uint8_t *comp_pred, const uint8_t *pred, int width,
     } while (i < height);
   }
 }
+
+void aom_highbd_comp_mask_upsampled_pred_avx2(
+    uint16_t *comp_pred, const uint8_t *pred8, int width, int height,
+    int subpel_x_q3, int subpel_y_q3, const uint8_t *ref8, int ref_stride,
+    const uint8_t *mask, int mask_stride, int invert_mask, int bd) {
+  uint16_t *pred = CONVERT_TO_SHORTPTR(pred8);
+  aom_highbd_upsampled_pred(comp_pred, width, height, subpel_x_q3, subpel_y_q3,
+                            ref8, ref_stride, bd);
+  const __m256i v64 = _mm256_set1_epi16(AOM_BLEND_A64_MAX_ALPHA);
+  const __m256i vhalf = _mm256_set1_epi32(1 << (AOM_BLEND_A64_ROUND_BITS - 1));
+  uint16_t *pv0;
+  uint16_t *pv1;
+  if (invert_mask) {
+    pv0 = pred;
+    pv1 = comp_pred;
+  } else {
+    pv0 = comp_pred;
+    pv1 = pred;
+  }
+  switch (width) {
+    case 128:
+    case 64:
+    case 32: {
+      const int n32 = width / 32;
+      for (int i = 0; i < height; ++i) {
+        for (int j = 0; j < n32; ++j) {
+          __m256i vmaskA = _mm256_cvtepu8_epi16(
+              _mm_loadu_si128((const __m128i *)(mask + j * 32 + 0)));
+          __m256i vmaskB = _mm256_cvtepu8_epi16(
+              _mm_loadu_si128((const __m128i *)(mask + j * 32 + 16)));
+          __m256i v0A = _mm256_loadu_si256((const __m256i *)(pv0 + j * 32 + 0));
+          __m256i v0B =
+              _mm256_loadu_si256((const __m256i *)(pv0 + j * 32 + 16));
+          __m256i v1A = _mm256_loadu_si256((const __m256i *)(pv1 + j * 32 + 0));
+          __m256i v1B =
+              _mm256_loadu_si256((const __m256i *)(pv1 + j * 32 + 16));
+          __m256i vmaskA2 = _mm256_sub_epi16(v64, vmaskA);
+          __m256i vmaskB2 = _mm256_sub_epi16(v64, vmaskB);
+          __m256i vmaskAlo = _mm256_unpacklo_epi16(vmaskA, vmaskA2);
+          __m256i vmaskAhi = _mm256_unpackhi_epi16(vmaskA, vmaskA2);
+          __m256i vmaskBlo = _mm256_unpacklo_epi16(vmaskB, vmaskB2);
+          __m256i vmaskBhi = _mm256_unpackhi_epi16(vmaskB, vmaskB2);
+          __m256i v01Alo = _mm256_unpacklo_epi16(v0A, v1A);
+          __m256i v01Ahi = _mm256_unpackhi_epi16(v0A, v1A);
+          __m256i v01Blo = _mm256_unpacklo_epi16(v0B, v1B);
+          __m256i v01Bhi = _mm256_unpackhi_epi16(v0B, v1B);
+          vmaskAlo = _mm256_madd_epi16(vmaskAlo, v01Alo);
+          vmaskAhi = _mm256_madd_epi16(vmaskAhi, v01Ahi);
+          vmaskBlo = _mm256_madd_epi16(vmaskBlo, v01Blo);
+          vmaskBhi = _mm256_madd_epi16(vmaskBhi, v01Bhi);
+          vmaskAlo = _mm256_add_epi32(vmaskAlo, vhalf);
+          vmaskAhi = _mm256_add_epi32(vmaskAhi, vhalf);
+          vmaskBlo = _mm256_add_epi32(vmaskBlo, vhalf);
+          vmaskBhi = _mm256_add_epi32(vmaskBhi, vhalf);
+          vmaskAlo = _mm256_srai_epi32(vmaskAlo, AOM_BLEND_A64_ROUND_BITS);
+          vmaskAhi = _mm256_srai_epi32(vmaskAhi, AOM_BLEND_A64_ROUND_BITS);
+          vmaskBlo = _mm256_srai_epi32(vmaskBlo, AOM_BLEND_A64_ROUND_BITS);
+          vmaskBhi = _mm256_srai_epi32(vmaskBhi, AOM_BLEND_A64_ROUND_BITS);
+          vmaskAlo = _mm256_packs_epi32(vmaskAlo, vmaskAhi);
+          vmaskBlo = _mm256_packs_epi32(vmaskBlo, vmaskBhi);
+          _mm256_storeu_si256((__m256i *)(comp_pred + j * 32 + 0), vmaskAlo);
+          _mm256_storeu_si256((__m256i *)(comp_pred + j * 32 + 16), vmaskBlo);
+        }
+        comp_pred += width;
+        pv0 += width;
+        pv1 += width;
+        mask += mask_stride;
+      }
+    } break;
+    case 16: {
+      for (int i = 0; i < height; ++i) {
+        __m256i vmask =
+            _mm256_cvtepu8_epi16(_mm_loadu_si128((const __m128i *)mask));
+        __m256i v0 = _mm256_loadu_si256((const __m256i *)pv0);
+        __m256i v1 = _mm256_loadu_si256((const __m256i *)pv1);
+        __m256i vmask2 = _mm256_sub_epi16(v64, vmask);
+        __m256i vmasklo = _mm256_unpacklo_epi16(vmask, vmask2);
+        __m256i vmaskhi = _mm256_unpackhi_epi16(vmask, vmask2);
+        __m256i v01lo = _mm256_unpacklo_epi16(v0, v1);
+        __m256i v01hi = _mm256_unpackhi_epi16(v0, v1);
+        vmasklo = _mm256_madd_epi16(vmasklo, v01lo);
+        vmaskhi = _mm256_madd_epi16(vmaskhi, v01hi);
+        vmasklo = _mm256_add_epi32(vmasklo, vhalf);
+        vmaskhi = _mm256_add_epi32(vmaskhi, vhalf);
+        vmasklo = _mm256_srai_epi32(vmasklo, AOM_BLEND_A64_ROUND_BITS);
+        vmaskhi = _mm256_srai_epi32(vmaskhi, AOM_BLEND_A64_ROUND_BITS);
+        vmasklo = _mm256_packs_epi32(vmasklo, vmaskhi);
+        _mm256_storeu_si256((__m256i *)comp_pred, vmasklo);
+        comp_pred += width;
+        pv0 += width;
+        pv1 += width;
+        mask += mask_stride;
+      }
+    } break;
+    case 8:
+      for (int i = 0; i < height; ++i) {
+        __m128i vmask =
+            _mm_cvtepu8_epi16(_mm_loadl_epi64((const __m128i *)mask));
+        __m128i v0 = _mm_loadu_si128((const __m128i *)(pv0));
+        __m128i v1 = _mm_loadu_si128((const __m128i *)(pv1));
+        __m128i vmask2 = _mm_sub_epi16(_mm256_castsi256_si128(v64), vmask);
+        __m128i vmasklo = _mm_unpacklo_epi16(vmask, vmask2);
+        __m128i vmaskhi = _mm_unpackhi_epi16(vmask, vmask2);
+        __m128i v01lo = _mm_unpacklo_epi16(v0, v1);
+        __m128i v01hi = _mm_unpackhi_epi16(v0, v1);
+        vmasklo = _mm_madd_epi16(vmasklo, v01lo);
+        vmaskhi = _mm_madd_epi16(vmaskhi, v01hi);
+        vmasklo = _mm_add_epi32(vmasklo, _mm256_castsi256_si128(vhalf));
+        vmaskhi = _mm_add_epi32(vmaskhi, _mm256_castsi256_si128(vhalf));
+        vmasklo = _mm_srai_epi32(vmasklo, AOM_BLEND_A64_ROUND_BITS);
+        vmaskhi = _mm_srai_epi32(vmaskhi, AOM_BLEND_A64_ROUND_BITS);
+        vmasklo = _mm_packs_epi32(vmasklo, vmaskhi);
+        _mm_storeu_si128((__m128i *)comp_pred, vmasklo);
+        comp_pred += width;
+        pv0 += width;
+        pv1 += width;
+        mask += mask_stride;
+      }
+      break;
+    case 4:
+      for (int i = 0; i < height; ++i) {
+        for (int j = 0; j < width; ++j) {
+          comp_pred[j] = AOM_BLEND_A64(mask[j], pv0[j], pv1[j]);
+        }
+        comp_pred += width;
+        pv0 += width;
+        pv1 += width;
+        mask += mask_stride;
+      }
+      break;
+  }
+}
