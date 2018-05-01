@@ -172,7 +172,11 @@ static uint32_t read_sequence_header_obu(AV1Decoder *pbi,
     }
   }
   // This decoder supports all levels.  Choose the first operating point
-  pbi->current_operating_point = seq_params->operating_point_idc[0];
+  int operating_point = pbi->operating_point;
+  if (operating_point >= pbi->common.enhancement_layers_cnt)
+    operating_point = 0;
+  pbi->current_operating_point =
+      seq_params->operating_point_idc[operating_point];
 
   read_sequence_header(cm, rb);
 
@@ -487,6 +491,7 @@ void aom_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
   size_t seq_header_size = 0;
   ObuHeader obu_header;
   memset(&obu_header, 0, sizeof(obu_header));
+  pbi->dropped_obus = 0;
 
   if (data_end < data) {
     cm->error.error_code = AOM_CODEC_CORRUPT_FRAME;
@@ -501,6 +506,11 @@ void aom_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
     size_t obu_payload_offset = 0;
     size_t bytes_read = 0;
     const size_t bytes_available = data_end - data;
+
+    if (bytes_available == 0 && !frame_header_received) {
+      cm->error.error_code = AOM_CODEC_OK;
+      return;
+    }
 
     aom_codec_err_t status =
         aom_read_obu_header_and_size(data, bytes_available, cm->is_annexb,
@@ -544,6 +554,8 @@ void aom_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
         // don't decode obu if it's not in current operating mode
         if (!is_obu_in_current_operating_point(pbi, obu_header)) {
           decoded_payload_size = payload_size;
+          *p_data_end = data + payload_size;
+          pbi->dropped_obus++;
           break;
         }
         // Only decode first frame header received
@@ -562,6 +574,13 @@ void aom_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
         obu_payload_offset = frame_header_size;
         AOM_FALLTHROUGH_INTENDED;  // fall through to read tile group.
       case OBU_TILE_GROUP:
+        // don't decode obu if it's not in current operating mode
+        if (!is_obu_in_current_operating_point(pbi, obu_header)) {
+          decoded_payload_size = payload_size;
+          *p_data_end = data + payload_size;
+          pbi->dropped_obus++;
+          break;
+        }
         if (!frame_header_received) {
           cm->error.error_code = AOM_CODEC_CORRUPT_FRAME;
           return;
@@ -570,11 +589,6 @@ void aom_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
             data_end < data + payload_size) {
           cm->error.error_code = AOM_CODEC_CORRUPT_FRAME;
           return;
-        }
-        // don't decode obu if it's not in current operating mode
-        if (!is_obu_in_current_operating_point(pbi, obu_header)) {
-          decoded_payload_size = payload_size;
-          break;
         }
         decoded_payload_size += read_one_tile_group_obu(
             pbi, &rb, is_first_tg_obu_received, data + obu_payload_offset,
@@ -586,6 +600,8 @@ void aom_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
         // don't decode obu if it's not in current operating mode
         if (!is_obu_in_current_operating_point(pbi, obu_header)) {
           decoded_payload_size = payload_size;
+          *p_data_end = data + payload_size;
+          pbi->dropped_obus++;
           break;
         }
         if (data_end < data + payload_size) {
