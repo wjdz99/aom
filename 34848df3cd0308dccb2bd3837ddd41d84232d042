@@ -121,6 +121,30 @@
     },
     {
       "key": {
+        "uuid": "bd88b52c_47a4b427",
+        "filename": "aom_util/aom_thread.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2018-05-02T10:20:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6818bc51_fb80ebe5",
+      "range": {
+        "startLine": 183,
+        "startChar": 4,
+        "endLine": 183,
+        "endChar": 6
+      },
+      "revId": "34848df3cd0308dccb2bd3837ddd41d84232d042",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b32a8c47_81bff90e",
         "filename": "aom_util/aom_thread.h",
         "patchSetId": 6
@@ -167,6 +191,30 @@
     },
     {
       "key": {
+        "uuid": "8f9c9f0d_e27843ed",
+        "filename": "av1/common/thread_common.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2018-05-02T10:20:02Z",
+      "side": 1,
+      "message": "We have seen that the value of nsync has no significant impact on the decoder performance(\u003c 0.5%) for resolutions 1920x1080, 1280x720 and 640x480. However, the decoding time increases by ~2% for CIF resolution (352x288) with nsync range of 2,4, 8 w.r.t nsync range of 1.",
+      "parentUuid": "a45cd925_beea9f3e",
+      "range": {
+        "startLine": 24,
+        "startChar": 2,
+        "endLine": 31,
+        "endChar": 13
+      },
+      "revId": "34848df3cd0308dccb2bd3837ddd41d84232d042",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "77ef89eb_7b75b2ef",
         "filename": "av1/common/thread_common.c",
         "patchSetId": 6
@@ -190,6 +238,30 @@
     },
     {
       "key": {
+        "uuid": "6be4fe4a_ef82622c",
+        "filename": "av1/common/thread_common.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2018-05-02T10:20:02Z",
+      "side": 1,
+      "message": "As only these 3 elements are used in the \u0027thread_loop_filter_rows\u0027 function we reset only those. Resetting the whole \u0027macroblockd_plane\u0027 structure is unnecessary.",
+      "parentUuid": "77ef89eb_7b75b2ef",
+      "range": {
+        "startLine": 126,
+        "startChar": 0,
+        "endLine": 128,
+        "endChar": 59
+      },
+      "revId": "34848df3cd0308dccb2bd3837ddd41d84232d042",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3f01596a_68ac0e6b",
         "filename": "av1/common/thread_common.c",
         "patchSetId": 6
@@ -201,6 +273,30 @@
       "writtenOn": "2018-05-01T07:18:51Z",
       "side": 1,
       "message": "Have you try different enqueue order?",
+      "range": {
+        "startLine": 193,
+        "startChar": 0,
+        "endLine": 193,
+        "endChar": 33
+      },
+      "revId": "34848df3cd0308dccb2bd3837ddd41d84232d042",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "190b7284_210c4a33",
+        "filename": "av1/common/thread_common.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2018-05-02T10:20:02Z",
+      "side": 1,
+      "message": "The horizontal edge filtering requires top-right and right super-block of vertical edge filtering to be completed. The time spent in \u0027sync_read\u0027 is minimized in this particular order. We have also verified that this enqueue order gives the best performance.",
+      "parentUuid": "3f01596a_68ac0e6b",
       "range": {
         "startLine": 193,
         "startChar": 0,
@@ -307,6 +403,30 @@
     },
     {
       "key": {
+        "uuid": "53a0e7a3_3957aa8f",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1977,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2018-05-02T10:20:02Z",
+      "side": 1,
+      "message": "The other option is to add \"MACROBLOCKD *xd\" as a member of \"LFWorkerData\" structure. Doing so would eliminate the third argument.",
+      "parentUuid": "c9654a08_8d9e307e",
+      "range": {
+        "startLine": 1977,
+        "startChar": 52,
+        "endLine": 1977,
+        "endChar": 62
+      },
+      "revId": "34848df3cd0308dccb2bd3837ddd41d84232d042",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d48fabdf_9274440e",
         "filename": "av1/decoder/decodeframe.c",
         "patchSetId": 6
@@ -327,6 +447,30 @@
       "revId": "34848df3cd0308dccb2bd3837ddd41d84232d042",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5a79a4b3_b2d4acf6",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1984,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2018-05-02T10:20:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d48fabdf_9274440e",
+      "range": {
+        "startLine": 1984,
+        "startChar": 2,
+        "endLine": 1984,
+        "endChar": 13
+      },
+      "revId": "34848df3cd0308dccb2bd3837ddd41d84232d042",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -353,6 +497,30 @@
     },
     {
       "key": {
+        "uuid": "8662ae94_6516dc4d",
+        "filename": "av1/decoder/decoder.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2018-05-02T10:20:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1852d5da_197cdfbc",
+      "range": {
+        "startLine": 157,
+        "startChar": 6,
+        "endLine": 157,
+        "endChar": 34
+      },
+      "revId": "34848df3cd0308dccb2bd3837ddd41d84232d042",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "32e51ae1_358b2eba",
         "filename": "av1/encoder/ethread.c",
         "patchSetId": 6
@@ -373,6 +541,30 @@
       "revId": "34848df3cd0308dccb2bd3837ddd41d84232d042",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9a0dbd40_80ecd6a3",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2018-05-02T10:20:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "32e51ae1_358b2eba",
+      "range": {
+        "startLine": 38,
+        "startChar": 0,
+        "endLine": 39,
+        "endChar": 21
+      },
+      "revId": "34848df3cd0308dccb2bd3837ddd41d84232d042",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
