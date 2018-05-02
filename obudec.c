@@ -31,9 +31,9 @@
 // Stores raw bytes in 'value_buffer', length of the number in 'value_length',
 // and decoded value in 'value'.
 static int obudec_read_leb128(FILE *f, uint8_t *value_buffer,
-                              uint64_t *value_length, uint64_t *value) {
+                              size_t *value_length, uint64_t *value) {
   if (!f || !value_buffer || !value_length || !value) return -1;
-  int len;
+  size_t len;
   for (len = 0; len < OBU_MAX_LENGTH_FIELD_SIZE; ++len) {
     const size_t num_read = fread(&value_buffer[len], 1, 1, f);
     if (num_read == 0) {
@@ -46,7 +46,7 @@ static int obudec_read_leb128(FILE *f, uint8_t *value_buffer,
     }
     if ((value_buffer[len] >> 7) == 0) {
       ++len;
-      *value_length = (size_t)len;
+      *value_length = len;
       break;
     }
   }
@@ -124,7 +124,7 @@ static int obudec_read_obu_header_and_size(FILE *f, size_t buffer_capacity,
     return -1;
   }
 
-  uint64_t leb128_length = 0;
+  size_t leb128_length = 0;
   uint64_t obu_size = 0;
   uint64_t header_size = 0;
   if (is_annexb) {
@@ -235,9 +235,9 @@ int file_is_obu(struct ObuDecInputContext *obu_ctx) {
   uint64_t payload_length = 0;
   ObuHeader obu_header;
   memset(&obu_header, 0, sizeof(obu_header));
-  uint64_t length_of_unit_size = 0;
-  uint64_t unit_size;
-  uint64_t annexb_header_length = 0;
+  size_t length_of_unit_size = 0;
+  size_t annexb_header_length = 0;
+  uint64_t unit_size = 0;
 
   if (is_annexb) {
     // read the size of first temporal unit
@@ -335,7 +335,7 @@ int obudec_read_temporal_unit(struct ObuDecInputContext *obu_ctx,
 
   uint64_t tu_size;
   uint64_t obu_size = 0;
-  uint64_t length_of_temporal_unit_size = 0;
+  size_t length_of_temporal_unit_size = 0;
   uint8_t tuheader[OBU_MAX_LENGTH_FIELD_SIZE] = { 0 };
 
   if (obu_ctx->is_annexb) {
