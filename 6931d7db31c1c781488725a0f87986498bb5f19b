@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5b402fb5_1a6b65b7",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 534,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-05-02T23:56:44Z",
+      "side": 1,
+      "message": "The correctness of this change depends on MI_SIZE_LOG2 - tx_size_high_log2[0] being equal to 0.\n\nBut this means code like the following:\n\n    int left_idx \u003d (row_offset \u0026 MAX_MIB_MASK)\n                   \u003c\u003c (MI_SIZE_LOG2 - tx_size_high_log2[0]);\n\nis performing a left shift by 0 bits. Should we remove the left shift?\n\n    int left_idx \u003d row_offset \u0026 MAX_MIB_MASK;",
+      "range": {
+        "startLine": 534,
+        "startChar": 45,
+        "endLine": 534,
+        "endChar": 57
+      },
+      "revId": "6931d7db31c1c781488725a0f87986498bb5f19b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
