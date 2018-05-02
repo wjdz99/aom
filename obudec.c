@@ -31,9 +31,9 @@
 // Stores raw bytes in 'value_buffer', length of the number in 'value_length',
 // and decoded value in 'value'.
 static int obudec_read_leb128(FILE *f, uint8_t *value_buffer,
-                              uint64_t *value_length, uint64_t *value) {
+                              size_t *value_length, uint64_t *value) {
   if (!f || !value_buffer || !value_length || !value) return -1;
-  int len;
+  size_t len;
   for (len = 0; len < OBU_MAX_LENGTH_FIELD_SIZE; ++len) {
     const size_t num_read = fread(&value_buffer[len], 1, 1, f);
     if (num_read == 0) {
@@ -46,7 +46,7 @@ static int obudec_read_leb128(FILE *f, uint8_t *value_buffer,
     }
     if ((value_buffer[len] >> 7) == 0) {
       ++len;
-      *value_length = (size_t)len;
+      *value_length = len;
       break;
     }
   }
