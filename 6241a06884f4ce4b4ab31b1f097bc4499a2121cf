@@ -2,6 +2,98 @@
   "comments": [
     {
       "key": {
+        "uuid": "f55a0c95_99fd5ece",
+        "filename": "test/aomdec.sh",
+        "patchSetId": 7
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-05-02T01:31:18Z",
+      "side": 1,
+      "message": "Just curious: why don\u0027t we test threads\u003d1?\n\nI am also wondering if we should test just the even numbers or powers of 2, to reduce test time.",
+      "range": {
+        "startLine": 104,
+        "startChar": 19,
+        "endLine": 104,
+        "endChar": 32
+      },
+      "revId": "6241a06884f4ce4b4ab31b1f097bc4499a2121cf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "539c52f2_e4f7f809",
+        "filename": "test/aomenc.sh",
+        "patchSetId": 7
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-05-02T01:31:18Z",
+      "side": 1,
+      "message": "Nit: can we use \"annexb\" instead of \"ab\"?",
+      "range": {
+        "startLine": 105,
+        "startChar": 46,
+        "endLine": 105,
+        "endChar": 48
+      },
+      "revId": "6241a06884f4ce4b4ab31b1f097bc4499a2121cf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e4b487f7_23c4f160",
+        "filename": "test/aomenc.sh",
+        "patchSetId": 7
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-05-02T01:31:18Z",
+      "side": 1,
+      "message": "Nit: can we use \"sec5\" instead of \"s5\"?",
+      "range": {
+        "startLine": 124,
+        "startChar": 46,
+        "endLine": 124,
+        "endChar": 48
+      },
+      "revId": "6241a06884f4ce4b4ab31b1f097bc4499a2121cf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2e26016b_0419ac95",
+        "filename": "test/decode_to_md5.sh",
+        "patchSetId": 7
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-05-02T01:31:18Z",
+      "side": 1,
+      "message": "It seems that we disabled the wrong test. At line 29, we added DISABLED_ to decode_to_md5, not decode_to_md5_av1.",
+      "range": {
+        "startLine": 75,
+        "startChar": 21,
+        "endLine": 75,
+        "endChar": 47
+      },
+      "revId": "6241a06884f4ce4b4ab31b1f097bc4499a2121cf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ef0fc391_370f494f",
         "filename": "test/decode_with_drops.sh",
         "patchSetId": 7
@@ -13,6 +105,47 @@
       "writtenOn": "2018-05-02T00:34:44Z",
       "side": 1,
       "message": "This works locally when I\u0027m being impatient and using only 2 frames at speed 8, but breaks with default settings.",
+      "revId": "6241a06884f4ce4b4ab31b1f097bc4499a2121cf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d107b3cb_9dfbd1c3",
+        "filename": "test/decode_with_drops.sh",
+        "patchSetId": 7
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-05-02T01:31:18Z",
+      "side": 1,
+      "message": "Did you disable the wrong test? We have DISABLED_decode_with_drops_av1 here, but at line 29 we added DISABLED_ to decode_with_drops, not decode_with_drops_av1.",
+      "parentUuid": "ef0fc391_370f494f",
+      "revId": "6241a06884f4ce4b4ab31b1f097bc4499a2121cf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7efc62b7_6da00ce3",
+        "filename": "test/tools_common.sh",
+        "patchSetId": 7
+      },
+      "lineNbr": 449,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-05-02T01:31:18Z",
+      "side": 1,
+      "message": "Nit: \"ab\" and \"s5\" are quite cryptic. Can we use \"annexb\" and \"sec5\"?",
+      "range": {
+        "startLine": 448,
+        "startChar": 0,
+        "endLine": 449,
+        "endChar": 75
+      },
       "revId": "6241a06884f4ce4b4ab31b1f097bc4499a2121cf",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
