@@ -22,6 +22,53 @@
       "revId": "04bde35f7a65dc924afc74ffa3e4ee677fcb7a16",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ffc484ab_a32d3bf5",
+        "filename": "obudec.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-05-02T22:39:58Z",
+      "side": 1,
+      "message": "\u003e Maybe I should use SIZE_MAX here and in the other checks? Seems like using UINT32_MAX will yield consistent behavior between x86 and x86_64, so imo this might be better. Thoughts?\n\nYou could keep this small for now until a case where something larger was identified. Maybe add a comment noting this was intentional.",
+      "parentUuid": "c07d0d40_b32285d2",
+      "range": {
+        "startLine": 137,
+        "startChar": 19,
+        "endLine": 137,
+        "endChar": 29
+      },
+      "revId": "04bde35f7a65dc924afc74ffa3e4ee677fcb7a16",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "22e639ac_597b8682",
+        "filename": "obudec.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 375,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-05-02T22:39:58Z",
+      "side": 1,
+      "message": "safest would be to check this before applying the length",
+      "range": {
+        "startLine": 375,
+        "startChar": 8,
+        "endLine": 375,
+        "endChar": 25
+      },
+      "revId": "04bde35f7a65dc924afc74ffa3e4ee677fcb7a16",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
