@@ -120,19 +120,20 @@ static void cfl_luma_subsampling_444_lbd_neon(const uint8_t *input,
     } else if (width == 8) {
       const uint16x8_t top = vshll_n_u8(vld1_u8(input), 3);
       vst1q_s16(pred_buf_q3, vreinterpretq_s16_u16(top));
-    } else {
+    } else if (width == 16) {
       const uint8x16_t top = vld1q_u8(input);
       vst1q_s16(pred_buf_q3,
                 vreinterpretq_s16_u16(vshll_n_u8(vget_low_u8(top), 3)));
       vst1q_s16(pred_buf_q3 + 8,
                 vreinterpretq_s16_u16(vshll_n_u8(vget_high_u8(top), 3)));
-      if (width == 32) {
-        const uint8x16_t next_top = vld1q_u8(input + 16);
-        vst1q_s16(pred_buf_q3 + 16,
-                  vreinterpretq_s16_u16(vshll_n_u8(vget_low_u8(next_top), 3)));
-        vst1q_s16(pred_buf_q3 + 24,
-                  vreinterpretq_s16_u16(vshll_n_u8(vget_high_u8(next_top), 3)));
-      }
+    } else {
+      const uint8x8x4_t top = vld4_u8(input);
+      int16x8x4_t result;
+      result.val[0] = vreinterpretq_s16_u16(vshll_n_u8(top.val[0], 3));
+      result.val[1] = vreinterpretq_s16_u16(vshll_n_u8(top.val[1], 3));
+      result.val[2] = vreinterpretq_s16_u16(vshll_n_u8(top.val[2], 3));
+      result.val[3] = vreinterpretq_s16_u16(vshll_n_u8(top.val[3], 3));
+      vst4q_s16(pred_buf_q3, result);
     }
     input += input_stride;
   } while ((pred_buf_q3 += CFL_BUF_LINE) < end);
