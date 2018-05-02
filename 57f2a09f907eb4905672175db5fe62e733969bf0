@@ -96,6 +96,30 @@
     },
     {
       "key": {
+        "uuid": "0c76eeff_cd0bd0da",
+        "filename": "test/aomdec.sh",
+        "patchSetId": 4
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-05-02T18:17:08Z",
+      "side": 1,
+      "message": "It\u0027s probably a holdover from libvpx. I meant why have a wrapper called aomdec_can_decode_av1 around av1_decode_available. It looks like this could be removed and all uses of aomdec_can_decode_av1 can check av1_decode_available directly.",
+      "parentUuid": "69938e11_7a0d60e7",
+      "range": {
+        "startLine": 61,
+        "startChar": 10,
+        "endLine": 61,
+        "endChar": 30
+      },
+      "revId": "57f2a09f907eb4905672175db5fe62e733969bf0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "40c86e5e_e2254d8b",
         "filename": "test/aomdec.sh",
         "patchSetId": 4
@@ -140,6 +164,30 @@
       "revId": "57f2a09f907eb4905672175db5fe62e733969bf0",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a37ecc88_437cb336",
+        "filename": "test/aomdec.sh",
+        "patchSetId": 4
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-05-02T18:17:08Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "5ac0e25e_80b55e67",
+      "range": {
+        "startLine": 67,
+        "startChar": 10,
+        "endLine": 67,
+        "endChar": 31
+      },
+      "revId": "57f2a09f907eb4905672175db5fe62e733969bf0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -190,6 +238,30 @@
     },
     {
       "key": {
+        "uuid": "a7d74d9c_a2428acb",
+        "filename": "test/aomdec.sh",
+        "patchSetId": 4
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-05-02T18:17:08Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "f2d895ea_5d5429f5",
+      "range": {
+        "startLine": 68,
+        "startChar": 27,
+        "endLine": 68,
+        "endChar": 39
+      },
+      "revId": "57f2a09f907eb4905672175db5fe62e733969bf0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d32479e3_35dc05b4",
         "filename": "test/aomdec.sh",
         "patchSetId": 4
@@ -234,6 +306,30 @@
       "revId": "57f2a09f907eb4905672175db5fe62e733969bf0",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fcb94c76_195dffce",
+        "filename": "test/aomdec.sh",
+        "patchSetId": 4
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-05-02T18:17:08Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "6563bb0c_762ffb53",
+      "range": {
+        "startLine": 93,
+        "startChar": 44,
+        "endLine": 93,
+        "endChar": 51
+      },
+      "revId": "57f2a09f907eb4905672175db5fe62e733969bf0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
