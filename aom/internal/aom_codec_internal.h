@@ -438,6 +438,7 @@ void aom_internal_error(struct aom_internal_error_info *info,
                         ...) CLANG_ANALYZER_NORETURN;
 
 void aom_merge_corrupted_flag(int *corrupted, int value);
+int aom_merge_corrupted_flag_atomic(int *corrupted, int value);
 #ifdef __cplusplus
 }  // extern "C"
 #endif

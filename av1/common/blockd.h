@@ -560,7 +560,6 @@ typedef struct macroblockd {
 
   int qindex[MAX_SEGMENTS];
   int lossless[MAX_SEGMENTS];
-  int corrupted;
   int cur_frame_force_integer_mv;
   // same with that in AV1_COMMON
   struct aom_internal_error_info *error_info;
@@ -598,6 +597,8 @@ typedef struct macroblockd {
   CFL_CTX cfl;
 
   JNT_COMP_PARAMS jcp_param;
+
+  int corrupted;
 } MACROBLOCKD;
 
 static INLINE int get_bitdepth_data_path_index(const MACROBLOCKD *xd) {

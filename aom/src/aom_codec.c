@@ -139,6 +139,10 @@ void aom_merge_corrupted_flag(int *corrupted, int value) {
   *corrupted |= value;
 }
 
+int aom_merge_corrupted_flag_atomic(int *corrupted, int value) {
+  return __atomic_or_fetch(corrupted, value, __ATOMIC_RELAXED);
+}
+
 const char *aom_obu_type_to_string(OBU_TYPE type) {
   switch (type) {
     case OBU_SEQUENCE_HEADER: return "OBU_SEQUENCE_HEADER";

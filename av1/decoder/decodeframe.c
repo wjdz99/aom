@@ -1799,10 +1799,10 @@ static void decode_tile_sb_row(AV1Decoder *pbi, ThreadData *const td,
     decode_partition(pbi, &td->xd, mi_row, mi_col, td->bit_reader,
                      cm->seq_params.sb_size);
   }
-  aom_merge_corrupted_flag(&pbi->mb.corrupted, td->xd.corrupted);
-  if (pbi->mb.corrupted)
+  if (aom_merge_corrupted_flag_atomic(&pbi->mb.corrupted, td->xd.corrupted)) {
     aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
                        "Failed to decode tile data");
+  }
 }
 
 static void decode_tile(AV1Decoder *pbi, ThreadData *const td, int tile_row,
@@ -1932,7 +1932,7 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
           row * cm->tile_cols + col > endTile)
         continue;
 
-      td->xd = pbi->mb;
+      memcpy(&td->xd, &pbi->mb, offsetof(MACROBLOCKD, corrupted));
       td->xd.corrupted = 0;
       td->bit_reader = &tile_data->bit_reader;
       av1_zero(td->dqcoeff);
@@ -2000,7 +2000,7 @@ static int tile_worker_hook(void *arg1, void *arg2) {
     TileDataDec *const tile_data =
         pbi->tile_data + tile_row * cm->tile_cols + tile_col;
 
-    td->xd = pbi->mb;
+    memcpy(&td->xd, &pbi->mb, offsetof(MACROBLOCKD, corrupted));
     td->xd.corrupted = 0;
     td->bit_reader = &tile_data->bit_reader;
     av1_zero(td->dqcoeff);
@@ -2172,7 +2172,8 @@ static const uint8_t *decode_tiles_mt(AV1Decoder *pbi, const uint8_t *data,
 
     for (; worker_idx > 0; --worker_idx) {
       AVxWorker *const worker = &pbi->tile_workers[worker_idx - 1];
-      pbi->mb.corrupted |= !winterface->sync(worker);
+      aom_merge_corrupted_flag_atomic(&pbi->mb.corrupted,
+                                      !winterface->sync(worker));
     }
   }
 
