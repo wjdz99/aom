@@ -888,8 +888,7 @@ static INLINE TX_SIZE
 av1_get_max_uv_txsize(BLOCK_SIZE bsize, const struct macroblockd_plane *pd) {
   const BLOCK_SIZE plane_bsize = get_plane_block_size(bsize, pd);
   assert(plane_bsize < BLOCK_SIZES_ALL);
-  const TX_SIZE uv_tx = max_txsize_rect_lookup[plane_bsize];
-  return av1_get_adjusted_tx_size(uv_tx);
+  return max_txsize_rect_lookup[plane_bsize];
 }
 
 static INLINE TX_SIZE av1_get_tx_size(int plane, const MACROBLOCKD *xd) {
@@ -963,12 +962,10 @@ static INLINE int is_interintra_pred(const MB_MODE_INFO *mbmi) {
          mbmi->ref_frame[1] == INTRA_FRAME && is_interintra_allowed(mbmi);
 }
 
-static INLINE int get_vartx_max_txsize(const MACROBLOCKD *xd, BLOCK_SIZE bsize,
-                                       int plane) {
+static INLINE int get_vartx_max_txsize(const MACROBLOCKD *xd,
+                                       BLOCK_SIZE bsize) {
   if (xd->lossless[xd->mi[0]->segment_id]) return TX_4X4;
-  const TX_SIZE max_txsize = max_txsize_rect_lookup[bsize];
-  if (plane == 0) return max_txsize;            // luma
-  return av1_get_adjusted_tx_size(max_txsize);  // chroma
+  return max_txsize_rect_lookup[bsize];
 }
 
 static INLINE int is_motion_variation_allowed_bsize(BLOCK_SIZE bsize) {

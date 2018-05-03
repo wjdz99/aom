@@ -1389,7 +1389,7 @@ static void write_inter_txb_coeff(AV1_COMMON *const cm, MACROBLOCK *const x,
 
   const BLOCK_SIZE plane_bsize = get_plane_block_size(bsizec, pd);
 
-  const TX_SIZE max_tx_size = get_vartx_max_txsize(xd, plane_bsize, plane);
+  const TX_SIZE max_tx_size = get_vartx_max_txsize(xd, plane_bsize);
   const int step =
       tx_size_wide_unit[max_tx_size] * tx_size_high_unit[max_tx_size];
   const int bkw = tx_size_wide_unit[max_tx_size];
@@ -1527,7 +1527,7 @@ static void write_modes_b(AV1_COMP *cpi, const TileInfo *const tile,
   if (cm->tx_mode == TX_MODE_SELECT && block_signals_txsize(bsize) &&
       !(is_inter_tx && skip) && !xd->lossless[segment_id]) {
     if (is_inter_tx) {  // This implies skip flag is 0.
-      const TX_SIZE max_tx_size = get_vartx_max_txsize(xd, bsize, 0);
+      const TX_SIZE max_tx_size = get_vartx_max_txsize(xd, bsize);
       const int txbh = tx_size_high_unit[max_tx_size];
       const int txbw = tx_size_wide_unit[max_tx_size];
       const int width = block_size_wide[bsize] >> tx_size_wide_log2[0];
