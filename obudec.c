@@ -376,8 +376,8 @@ int obudec_read_temporal_unit(struct ObuDecInputContext *obu_ctx,
       }
 
       if (obu_header.type == OBU_TEMPORAL_DELIMITER || obu_size == 0 ||
-          (obu_header.has_extension &&
-           obu_header.enhancement_layer_id > obu_ctx->last_layer_id)) {
+          (obu_header.has_extension && obu_ctx->only_one_layer &&
+           obu_header.enhancement_layer > obu_ctx->last_layer_id)) {
         tu_size = obu_ctx->bytes_buffered;
         break;
       } else {
