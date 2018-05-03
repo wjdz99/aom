@@ -602,12 +602,20 @@ static INLINE int get_bitdepth_data_path_index(const MACROBLOCKD *xd) {
   return xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH ? 1 : 0;
 }
 
+static INLINE int is_sqr_bsize(BLOCK_SIZE bsize) {
+  return bsize == BLOCK_4X4 || bsize == BLOCK_8X8 || bsize == BLOCK_16X16 ||
+         bsize == BLOCK_32X32 || bsize == BLOCK_64X64;
+}
+
 static INLINE BLOCK_SIZE get_subsize(BLOCK_SIZE bsize,
                                      PARTITION_TYPE partition) {
-  if (partition == PARTITION_INVALID)
+  if (partition == PARTITION_INVALID) {
     return BLOCK_INVALID;
-  else
-    return subsize_lookup[partition][bsize];
+  } else {
+    if (partition == PARTITION_NONE) return bsize;
+    return is_sqr_bsize(bsize) ? subsize_lookup[partition][bsize]
+                               : BLOCK_INVALID;
+  }
 }
 
 static TX_TYPE intra_mode_to_tx_type(const MB_MODE_INFO *mbmi,
