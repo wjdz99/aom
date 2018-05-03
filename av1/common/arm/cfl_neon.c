@@ -414,13 +414,6 @@ static void vst1un_s16(uint8_t *dst, int16x8_t scaled_luma) {
   vst1_u8(dst, vqmovun_s16(scaled_luma));
 }
 
-// Vector signed->unsigned narrowing store
-static void vst1unq_s16(uint8_t *dst, int16x8_t scaled_luma,
-                        int16x8_t scaled_luma_next) {
-  vst1q_u8(dst, vcombine_u8(vqmovun_s16(scaled_luma),
-                            vqmovun_s16(scaled_luma_next)));
-}
-
 static INLINE void cfl_predict_lbd_neon(const int16_t *pred_buf_q3,
                                         uint8_t *dst, int dst_stride,
                                         int alpha_q3, int width, int height) {
@@ -443,17 +436,20 @@ static INLINE void cfl_predict_lbd_neon(const int16_t *pred_buf_q3,
           predict_w8(pred_buf_q3, alpha_sign, abs_alpha_q12, dc);
       if (width == 8) {
         vst1un_s16(dst, scaled_luma);
+      } else if (width == 16) {
+        const int16x8x2_t pred =
+            predict_w16(pred_buf_q3, alpha_sign, abs_alpha_q12, dc);
+        const uint8x8x2_t predun = { { vqmovun_s16(pred.val[0]),
+                                       vqmovun_s16(pred.val[1]) } };
+        vst2_u8(dst, predun);
       } else {
-        const int16x8_t scaled_luma_1 =
-            predict_w8(pred_buf_q3 + 8, alpha_sign, abs_alpha_q12, dc);
-        vst1unq_s16(dst, scaled_luma, scaled_luma_1);
-        if (width == 32) {
-          const int16x8_t scaled_luma_2 =
-              predict_w8(pred_buf_q3 + 16, alpha_sign, abs_alpha_q12, dc);
-          const int16x8_t scaled_luma_3 =
-              predict_w8(pred_buf_q3 + 24, alpha_sign, abs_alpha_q12, dc);
-          vst1unq_s16(dst + 16, scaled_luma_2, scaled_luma_3);
-        }
+        const int16x8x4_t pred =
+            predict_w32(pred_buf_q3, alpha_sign, abs_alpha_q12, dc);
+        const uint8x8x4_t predun = {
+          { vqmovun_s16(pred.val[0]), vqmovun_s16(pred.val[1]),
+            vqmovun_s16(pred.val[2]), vqmovun_s16(pred.val[3]) }
+        };
+        vst4_u8(dst, predun);
       }
       dst += dst_stride;
     } while ((pred_buf_q3 += CFL_BUF_LINE) < end);
