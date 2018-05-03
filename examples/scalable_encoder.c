@@ -226,7 +226,7 @@ int main(int argc, char **argv) {
       flags |= AOM_EFLAG_FORCE_KF;
     else
       // use previous base layer (LAST) as sole reference
-      // save this frame as LAST to be used as reference by enhanmcent layer
+      // save this frame as LAST to be used as reference by enhancement layer
       // and next base layer
       flags |= AOM_EFLAG_NO_REF_LAST2 | AOM_EFLAG_NO_REF_LAST3 |
                AOM_EFLAG_NO_REF_GF | AOM_EFLAG_NO_REF_ARF |
@@ -237,7 +237,7 @@ int main(int argc, char **argv) {
     cfg.g_h = info.frame_height;
     if (aom_codec_enc_config_set(&codec, &cfg))
       die_codec(&codec, "Failed to set enc cfg for layer 0");
-    if (aom_codec_control(&codec, AOME_SET_ENHANCEMENT_LAYER_ID, 0))
+    if (aom_codec_control(&codec, AOME_SET_SPATIAL_LAYER_ID, 0))
       die_codec(&codec, "Failed to set layer id to 0");
     if (aom_codec_control(&codec, AOME_SET_CQ_LEVEL, 62))
       die_codec(&codec, "Failed to set cq level");
@@ -256,7 +256,7 @@ int main(int argc, char **argv) {
     aom_img_read(&raw1, infile1);
     if (aom_codec_enc_config_set(&codec, &cfg))
       die_codec(&codec, "Failed to set enc cfg for layer 1");
-    if (aom_codec_control(&codec, AOME_SET_ENHANCEMENT_LAYER_ID, 1))
+    if (aom_codec_control(&codec, AOME_SET_SPATIAL_LAYER_ID, 1))
       die_codec(&codec, "Failed to set layer id to 1");
     if (aom_codec_control(&codec, AOME_SET_CQ_LEVEL, 10))
       die_codec(&codec, "Failed to set cq level");
