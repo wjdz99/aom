@@ -215,6 +215,30 @@
     },
     {
       "key": {
+        "uuid": "e101e423_8b083340",
+        "filename": "av1/common/thread_common.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2018-05-03T13:29:01Z",
+      "side": 1,
+      "message": "As nsync range equal to 1 always gives the best performance, can we always return 1 in this function? Please let us know your thoughts.",
+      "parentUuid": "8f9c9f0d_e27843ed",
+      "range": {
+        "startLine": 24,
+        "startChar": 2,
+        "endLine": 31,
+        "endChar": 13
+      },
+      "revId": "34848df3cd0308dccb2bd3837ddd41d84232d042",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "77ef89eb_7b75b2ef",
         "filename": "av1/common/thread_common.c",
         "patchSetId": 6
@@ -415,6 +439,30 @@
       "side": 1,
       "message": "The other option is to add \"MACROBLOCKD *xd\" as a member of \"LFWorkerData\" structure. Doing so would eliminate the third argument.",
       "parentUuid": "c9654a08_8d9e307e",
+      "range": {
+        "startLine": 1977,
+        "startChar": 52,
+        "endLine": 1977,
+        "endChar": 62
+      },
+      "revId": "34848df3cd0308dccb2bd3837ddd41d84232d042",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9d1c52fe_b5149d59",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1977,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2018-05-03T13:29:01Z",
+      "side": 1,
+      "message": "We think it is better to add \"MACROBLOCKD *xd\" as a member of AV1LfSync structure as \u0027xd-\u003elossless\u0027 need not be thread specific. Please let us know if we can go ahead with the change.",
+      "parentUuid": "53a0e7a3_3957aa8f",
       "range": {
         "startLine": 1977,
         "startChar": 52,
