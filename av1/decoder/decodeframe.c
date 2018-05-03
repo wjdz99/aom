@@ -716,7 +716,7 @@ static void decode_partition(AV1Decoder *const pbi, MACROBLOCKD *const xd,
   partition = (bsize < BLOCK_8X8) ? PARTITION_NONE
                                   : read_partition(xd, mi_row, mi_col, r,
                                                    has_rows, has_cols, bsize);
-  subsize = subsize_lookup[partition][bsize];  // get_subsize(bsize, partition);
+  subsize = get_subsize(bsize, partition);
 
   // Check the bitstream is conformant: if there is subsampling on the
   // chroma planes, subsize must subsample to a valid block size.
