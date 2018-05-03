@@ -254,11 +254,11 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
   }
 
   if (p->eobs[block] == 0 && plane == 0) {
-  // TODO(debargha, jingning): Temporarily disable txk_type check for eob=0
-  // case. It is possible that certain collision in hash index would cause
-  // the assertion failure. To further optimize the rate-distortion
-  // performance, we need to re-visit this part and enable this assert
-  // again.
+    // TODO(debargha, jingning): Temporarily disable txk_type check for eob=0
+    // case. It is possible that certain collision in hash index would cause
+    // the assertion failure. To further optimize the rate-distortion
+    // performance, we need to re-visit this part and enable this assert
+    // again.
 #if 0
     if (args->cpi->oxcf.aq_mode == NO_AQ &&
         args->cpi->oxcf.deltaq_mode == NO_DELTA_Q) {
@@ -427,13 +427,13 @@ void av1_encode_sb(const struct AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
     const struct macroblockd_plane *const pd = &xd->plane[plane];
     const BLOCK_SIZE plane_bsize = get_plane_block_size(bsizec, pd);
     const int mi_width = block_size_wide[plane_bsize] >> tx_size_wide_log2[0];
-    const int mi_height = block_size_high[plane_bsize] >> tx_size_wide_log2[0];
+    const int mi_height = block_size_high[plane_bsize] >> tx_size_high_log2[0];
     TX_SIZE max_tx_size = get_vartx_max_txsize(
         xd, plane_bsize, pd->subsampling_x || pd->subsampling_y);
 
     const BLOCK_SIZE txb_size = txsize_to_bsize[max_tx_size];
     const int bw = block_size_wide[txb_size] >> tx_size_wide_log2[0];
-    const int bh = block_size_high[txb_size] >> tx_size_wide_log2[0];
+    const int bh = block_size_high[txb_size] >> tx_size_high_log2[0];
     int idx, idy;
     int block = 0;
     int step = tx_size_wide_unit[max_tx_size] * tx_size_high_unit[max_tx_size];
@@ -535,11 +535,11 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
   }
 
   if (*eob == 0 && plane == 0) {
-  // TODO(jingning): Temporarily disable txk_type check for eob=0 case.
-  // It is possible that certain collision in hash index would cause
-  // the assertion failure. To further optimize the rate-distortion
-  // performance, we need to re-visit this part and enable this assert
-  // again.
+    // TODO(jingning): Temporarily disable txk_type check for eob=0 case.
+    // It is possible that certain collision in hash index would cause
+    // the assertion failure. To further optimize the rate-distortion
+    // performance, we need to re-visit this part and enable this assert
+    // again.
 #if 0
     if (args->cpi->oxcf.aq_mode == NO_AQ
         && args->cpi->oxcf.deltaq_mode == NO_DELTA_Q) {
