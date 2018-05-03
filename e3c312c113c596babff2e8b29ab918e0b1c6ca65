@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9431d044_f65a64bd",
+        "filename": "av1/decoder/decoder.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 263,
+      "author": {
+        "id": 7963
+      },
+      "writtenOn": "2018-05-03T14:55:38Z",
+      "side": 1,
+      "message": "Can you explain why this code is necessary?  I\u0027m not arguing against it, but perhaps my understanding of how the buffering works is too shallow to understand what\u0027s being done here.  What would happen if this code is absent?  I was working on a similar solution in parallel, and my patch would look similar to your patch absent this part.",
+      "range": {
+        "startLine": 263,
+        "startChar": 26,
+        "endLine": 263,
+        "endChar": 0
+      },
+      "revId": "e3c312c113c596babff2e8b29ab918e0b1c6ca65",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
