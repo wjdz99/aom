@@ -539,8 +539,8 @@ typedef struct AV1Common {
 
   int frame_refs_short_signaling;
   int temporal_layer_id;
-  int enhancement_layer_id;
-  int enhancement_layers_cnt;
+  int spatial_layer_id;
+  int enhancement_layer_count;
 
 #if TXCOEFF_TIMER
   int64_t cum_txcoeff_timer;
