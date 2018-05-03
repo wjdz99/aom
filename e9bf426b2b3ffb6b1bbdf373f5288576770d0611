@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a2e6707e_c6af1154",
+        "filename": "obudec.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-05-03T17:15:39Z",
+      "side": 1,
+      "message": "Couldn\u0027t this be handled the same way dump_obu handles it? By setting last_layer_id to an invalid value (kIgnoreLayers, 8). \n\nPolluting file input wrappers with information about the code using them seems suboptimal. The constant in dump_obu.cc could be moved to tools_common.h (and made a preproc define) to avoid adding information about code using this wrapper to the wrapper.",
+      "range": {
+        "startLine": 26,
+        "startChar": 0,
+        "endLine": 28,
+        "endChar": 21
+      },
+      "revId": "e9bf426b2b3ffb6b1bbdf373f5288576770d0611",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
