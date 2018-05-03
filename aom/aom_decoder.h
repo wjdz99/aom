@@ -81,11 +81,11 @@ extern "C" {
  * stream.
  */
 typedef struct aom_codec_stream_info {
-  unsigned int w;                      /**< Width (or 0 for unknown/default) */
-  unsigned int h;                      /**< Height (or 0 for unknown/default) */
-  unsigned int is_kf;                  /**< Current frame is a keyframe */
-  unsigned int enhancement_layers_cnt; /**< Enhancement layers */
-  unsigned int is_annexb;              /**< Is Bitstream in Annex-B format */
+  unsigned int w;     /**< Width (or 0 for unknown/default) */
+  unsigned int h;     /**< Height (or 0 for unknown/default) */
+  unsigned int is_kf; /**< Current frame is a keyframe */
+  unsigned int operating_points_minus1_count; /**< Num operating points */
+  unsigned int is_annexb; /**< Is Bitstream in Annex-B format */
 } aom_codec_stream_info_t;
 
 /* REQUIRED FUNCTIONS

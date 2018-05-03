@@ -38,14 +38,14 @@ class ScalabilityTest
                                   ::libaom_test::Encoder *encoder) {
     if (video->frame() == 0) {
       encoder->Control(AOME_SET_CPUUSED, kCpuUsed);
-      encoder->Control(AOME_SET_NUMBER_SPATIAL_LAYERS, num_spatial_layers_);
+      encoder->Control(AOME_SET_NUMBER_ENHANCEMENT_LAYERS, num_spatial_layers_);
     } else if (video->frame() % num_spatial_layers_) {
       frame_flags_ = AOM_EFLAG_NO_REF_LAST2 | AOM_EFLAG_NO_REF_LAST3 |
                      AOM_EFLAG_NO_REF_GF | AOM_EFLAG_NO_REF_ARF |
                      AOM_EFLAG_NO_REF_BWD | AOM_EFLAG_NO_REF_ARF2 |
                      AOM_EFLAG_NO_UPD_LAST | AOM_EFLAG_NO_UPD_GF |
                      AOM_EFLAG_NO_UPD_ARF | AOM_EFLAG_NO_UPD_ENTROPY;
-      encoder->Control(AOME_SET_ENHANCEMENT_LAYER_ID, 1);
+      encoder->Control(AOME_SET_SPATIAL_LAYER_ID, 1);
       encoder->Control(AOME_SET_CQ_LEVEL, kEnhancementLayerQp);
     } else {
       frame_flags_ = AOM_EFLAG_NO_REF_LAST2 | AOM_EFLAG_NO_REF_LAST3 |
@@ -53,7 +53,7 @@ class ScalabilityTest
                      AOM_EFLAG_NO_REF_BWD | AOM_EFLAG_NO_REF_ARF2 |
                      AOM_EFLAG_NO_UPD_GF | AOM_EFLAG_NO_UPD_ARF |
                      AOM_EFLAG_NO_UPD_ENTROPY;
-      encoder->Control(AOME_SET_ENHANCEMENT_LAYER_ID, 0);
+      encoder->Control(AOME_SET_SPATIAL_LAYER_ID, 0);
       encoder->Control(AOME_SET_CQ_LEVEL, kBaseLayerQp);
     }
   }
