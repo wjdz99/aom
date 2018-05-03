@@ -22,6 +22,30 @@
       "revId": "33ffe3b85efecad58c3628c515c30ef70bccc2b9",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "661f052b_eb817d06",
+        "filename": "av1/common/arm/cfl_neon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 441,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2018-05-03T13:13:09Z",
+      "side": 1,
+      "message": "Great find! The compiler problably already optimized it out, I don\u0027t see any speedups after fixing this.",
+      "parentUuid": "918e2708_dea3e1ab",
+      "range": {
+        "startLine": 441,
+        "startChar": 22,
+        "endLine": 441,
+        "endChar": 33
+      },
+      "revId": "33ffe3b85efecad58c3628c515c30ef70bccc2b9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
