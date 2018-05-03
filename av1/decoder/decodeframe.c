@@ -1799,8 +1799,8 @@ static void decode_tile_sb_row(AV1Decoder *pbi, ThreadData *const td,
     decode_partition(pbi, &td->xd, mi_row, mi_col, td->bit_reader,
                      cm->seq_params.sb_size);
   }
-  aom_merge_corrupted_flag(&pbi->mb.corrupted, td->xd.corrupted);
-  if (pbi->mb.corrupted)
+  // TODO(wtc): Perhaps delete this?
+  if (td->xd.corrupted)
     aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
                        "Failed to decode tile data");
 }
@@ -1854,6 +1854,7 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
                                    const uint8_t *data_end, int startTile,
                                    int endTile) {
   AV1_COMMON *const cm = &pbi->common;
+  ThreadData *const td = &pbi->td;
   const int tile_cols = cm->tile_cols;
   const int tile_rows = cm->tile_rows;
   const int n_tiles = tile_cols * tile_rows;
@@ -1919,12 +1920,12 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
   }
 #endif
   // Load all tile information into thread_data.
+  td->xd = pbi->mb;
   for (tile_row = tile_rows_start; tile_row < tile_rows_end; ++tile_row) {
     const int row = inv_row_order ? tile_rows - 1 - tile_row : tile_row;
 
     for (tile_col = tile_cols_start; tile_col < tile_cols_end; ++tile_col) {
       const int col = inv_col_order ? tile_cols - 1 - tile_col : tile_col;
-      ThreadData *const td = &pbi->td;
       TileDataDec *const tile_data = pbi->tile_data + row * cm->tile_cols + col;
       const TileBufferDec *const tile_bs_buf = &tile_buffers[row][col];
 
@@ -1932,7 +1933,6 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
           row * cm->tile_cols + col > endTile)
         continue;
 
-      td->xd = pbi->mb;
       td->xd.corrupted = 0;
       td->bit_reader = &tile_data->bit_reader;
       av1_zero(td->dqcoeff);
@@ -2000,7 +2000,6 @@ static int tile_worker_hook(void *arg1, void *arg2) {
     TileDataDec *const tile_data =
         pbi->tile_data + tile_row * cm->tile_cols + tile_col;
 
-    td->xd = pbi->mb;
     td->xd.corrupted = 0;
     td->bit_reader = &tile_data->bit_reader;
     av1_zero(td->dqcoeff);
@@ -2115,6 +2114,7 @@ static const uint8_t *decode_tiles_mt(AV1Decoder *pbi, const uint8_t *data,
         // Main thread acts as a worker and uses the thread data in pbi
         thread_data->td = &pbi->td;
       }
+      thread_data->td->xd = pbi->mb;
     }
   }
 
