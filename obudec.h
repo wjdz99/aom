@@ -23,6 +23,9 @@ struct ObuDecInputContext {
   size_t buffer_capacity;
   size_t bytes_buffered;
   int is_annexb;
+  // Special support for examples/scalable_decoder.c, which wants to pick out
+  // the individual enhancement layers from each temporal unit
+  int only_one_layer;
   int last_layer_id;
 };
 
