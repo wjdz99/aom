@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <vector>
 
+#include "./aom_dsp_rtcd.h"
 #include "./aom_dsp/noise_model.h"
 #include "./aom_dsp/noise_util.h"
 #include "test/acm_random.h"
@@ -1081,4 +1082,93 @@ TEST(NoiseModelGetGrainParameters, GetGrainParametersReal) {
   EXPECT_EQ(0, film_grain.grain_scale_shift);
 
   aom_noise_model_free(&model);
+}
+
+class WienerDenoiseTest : public ::testing::Test {
+ protected:
+  static void SetUpTestCase() {
+    aom_dsp_rtcd();
+  }
+  void SetUp() {
+    stride_[0] = kWidth;
+    stride_[1] = kWidth / 2;
+    stride_[2] = kWidth / 2;
+    for (int k = 0; k < 3; ++k) {
+      data_[k] = std::vector<uint8_t>(kWidth * kHeight);
+      denoised_[k] = std::vector<uint8_t>(kWidth * kHeight);
+      noise_psd_[k] = std::vector<float>(kBlockSize * kBlockSize);
+      denoised_ptrs_[k] = &denoised_[k][0];
+      noise_psd_ptrs_[k] = &noise_psd_[k][0];
+    }
+    float psd_value = aom_noise_psd_get_default_value(kBlockSize, 2.5f);
+    for (int i = 0; i < kBlockSize * kBlockSize; ++i) {
+      noise_psd_[0][i] = psd_value;
+    }
+    psd_value = aom_noise_psd_get_default_value(kBlockSize / 2, 2.5f);
+    for (int i = 0; i < kBlockSize * kBlockSize / 4; ++i) {
+      noise_psd_[1][i] = psd_value;
+      noise_psd_[2][i] = psd_value;
+    }
+  }
+  const int kWidth = 1920;
+  const int kHeight = 1080;
+  const int kBlockSize = 32;
+
+  std::vector<uint8_t> data_[3];
+  std::vector<uint8_t> denoised_[3];
+  std::vector<float> noise_psd_[3];
+  int chroma_sub_[2] = { 1, 1 };
+  uint8_t *denoised_ptrs_[3];
+  float *noise_psd_ptrs_[3];
+  int stride_[3];
+};
+
+TEST_F(WienerDenoiseTest, GradientTest) {
+  const double kStd = 3;
+  const uint8_t *const data_ptrs[3] = {
+    &data_[0][0],
+    &data_[1][0],
+    &data_[2][0],
+  };
+
+  libaom_test::ACMRandom random;
+  for (int y = 0; y < kHeight; ++y) {
+    for (int x = 0; x < kWidth; ++x) {
+      data_[0][y * kWidth + x] = (uint8_t)(
+          std::max(0.0, std::min(255.0, (x / 12.) + randn(&random, kStd))));
+    }
+  }
+  const int ret =
+      aom_wiener_denoise_2d(data_ptrs, denoised_ptrs_, kWidth, kHeight, stride_,
+                            chroma_sub_, noise_psd_ptrs_, kBlockSize, 8, 0);
+  EXPECT_EQ(1, ret);
+
+  // Check the noise on the denoised image and make sure that it is less
+  // than what we added.
+  for (int x = kBlockSize / 2; x < kWidth - kBlockSize / 2; ++x) {
+    double sum = 0, mean = 0;
+    for (int y = 0; y < kHeight; ++y) {
+      const double diff = (x / 12.0) - denoised_[0][y * kWidth + x];
+      mean += diff;
+      sum += diff * diff;
+    }
+    mean /= kHeight;
+    const double std = sqrt(std::max(0.0, sum / kHeight - mean * mean));
+    EXPECT_LT(std, 0.75);
+  }
+}
+
+TEST_F(WienerDenoiseTest, Benchmark) {
+  const uint8_t *const data_ptrs[3] = {
+    &data_[0][0],
+    &data_[1][0],
+    &data_[2][0],
+  };
+
+  for (int i = 0; i < 10; ++i) {
+    const int ret = aom_wiener_denoise_2d(data_ptrs, denoised_ptrs_, kWidth,
+                                          kHeight, stride_, chroma_sub_,
+                                          noise_psd_ptrs_, kBlockSize, 8, 0);
+    EXPECT_EQ(1, ret);
+  }
 }
