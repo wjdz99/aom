@@ -15,11 +15,11 @@
 
 #include "av1/encoder/aq_variance.h"
 
+#include "aom_ports/system_state.h"
 #include "av1/common/seg_common.h"
 #include "av1/encoder/ratectrl.h"
 #include "av1/encoder/rd.h"
 #include "av1/encoder/segmentation.h"
-#include "aom_ports/system_state.h"
 
 #define ENERGY_MIN (-4)
 #define ENERGY_MAX (1)
@@ -142,6 +142,37 @@ static void aq_highbd_8_variance(const uint8_t *a8, int a_stride,
 
 static unsigned int block_variance(const AV1_COMP *const cpi, MACROBLOCK *x,
                                    BLOCK_SIZE bs) {
+  MACROBLOCKD *xd = &x->e_mbd;
+  unsigned int var = 0, sse;
+  int i, j;
+
+  int right_overflow =
+      (xd->mb_to_right_edge < 0) ? ((-xd->mb_to_right_edge) >> 3) : 0;
+  int bottom_overflow =
+      (xd->mb_to_bottom_edge < 0) ? ((-xd->mb_to_bottom_edge) >> 3) : 0;
+
+  const int bw = MI_SIZE * mi_size_wide[bs] - right_overflow;
+  const int bh = MI_SIZE * mi_size_high[bs] - bottom_overflow;
+
+  for (i = 0; i < bh; i += 4) {
+    for (j = 0; j < bw; j += 4) {
+      if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
+        var += cpi->fn_ptr[BLOCK_4X4].vf(
+            x->plane[0].src.buf + i * x->plane[0].src.stride + j,
+            x->plane[0].src.stride, CONVERT_TO_BYTEPTR(av1_highbd_all_zeros), 0,
+            &sse);
+      } else {
+        var += cpi->fn_ptr[BLOCK_4X4].vf(
+            x->plane[0].src.buf + i * x->plane[0].src.stride + j,
+            x->plane[0].src.stride, av1_all_zeros, 0, &sse);
+      }
+    }
+  }
+  return (unsigned int)((uint64_t)var * 256) >> (num_pels_log2_lookup[bs]);
+}
+
+static unsigned int block_variance2(const AV1_COMP *const cpi, MACROBLOCK *x,
+                                    BLOCK_SIZE bs) {
   MACROBLOCKD *xd = &x->e_mbd;
   unsigned int var, sse;
   int right_overflow =
