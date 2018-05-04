@@ -287,6 +287,30 @@
     },
     {
       "key": {
+        "uuid": "abaeb3ad_de8fad82",
+        "filename": "av1/common/thread_common.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2018-05-04T16:00:20Z",
+      "side": 1,
+      "message": "Good to know. I think it might be good for us to keep get_sync_range() function in the code. The function can be modified based on your result. Is this what you want?\nstatic INLINE int get_sync_range(int width) {\n  // nsync numbers are picked by testing. Different numbers\n  // can be picked for different resolution.\n  (void)width;\n  return 1;\n}\nThis can be done in a separate patch.",
+      "parentUuid": "ca09c775_701ab30d",
+      "range": {
+        "startLine": 24,
+        "startChar": 2,
+        "endLine": 31,
+        "endChar": 13
+      },
+      "revId": "34848df3cd0308dccb2bd3837ddd41d84232d042",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "77ef89eb_7b75b2ef",
         "filename": "av1/common/thread_common.c",
         "patchSetId": 6
