@@ -12,6 +12,7 @@
 #ifndef AOM_DSP_AOM_DSP_COMMON_H_
 #define AOM_DSP_AOM_DSP_COMMON_H_
 
+#include <math.h>
 #include "config/aom_config.h"
 
 #include "aom/aom_integer.h"
@@ -47,6 +48,10 @@ extern "C" {
 #else
 #define LIKELY(v) (v)
 #define UNLIKELY(v) (v)
+#endif
+
+#if !defined(M_PI)
+#define M_PI (3.141592653589793238462643)
 #endif
 
 typedef uint8_t qm_val_t;
