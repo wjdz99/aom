@@ -13,9 +13,119 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
+#include "./aom_dsp_rtcd.h"
 #include "aom_dsp/noise_util.h"
+#include "aom_dsp/fft_common.h"
 #include "aom_mem/aom_mem.h"
+
+float aom_noise_psd_get_default_value(int block_size, float factor) {
+  return (factor * factor / 10000) * 0.25f * block_size * block_size / 2;
+}
+
+struct aom_noise_tx_t {
+  float *block;
+  float *tx_block;
+  float *temp;
+  int block_size;
+  void (*fft)(const float *, float *, float *);
+  void (*ifft)(const float *, float *, float *);
+};
+
+struct aom_noise_tx_t *aom_noise_tx_malloc(int block_size) {
+  struct aom_noise_tx_t *noise_tx =
+      (struct aom_noise_tx_t *)aom_malloc(sizeof(struct aom_noise_tx_t));
+  switch (block_size) {
+    case 2:
+      noise_tx->fft = aom_fft2x2_float;
+      noise_tx->ifft = aom_ifft2x2_float;
+      break;
+    case 4:
+      noise_tx->fft = aom_fft4x4_float;
+      noise_tx->ifft = aom_ifft4x4_float;
+      break;
+    case 8:
+      noise_tx->fft = aom_fft8x8_float;
+      noise_tx->ifft = aom_ifft8x8_float;
+      break;
+    case 16:
+      noise_tx->fft = aom_fft16x16_float;
+      noise_tx->ifft = aom_ifft16x16_float;
+      break;
+    case 32:
+      noise_tx->fft = aom_fft32x32_float;
+      noise_tx->ifft = aom_ifft32x32_float;
+      break;
+  }
+  if (!noise_tx->fft) {
+    aom_free(noise_tx);
+    fprintf(stderr, "Unsupported block size %d\n", block_size);
+    return 0;
+  }
+  noise_tx->block_size = block_size;
+  noise_tx->block =
+      (float *)aom_memalign(32, sizeof(float) * block_size * block_size);
+  noise_tx->tx_block =
+      (float *)aom_memalign(32, 2 * sizeof(float) * block_size * block_size);
+  noise_tx->temp =
+      (float *)aom_memalign(32, 2 * sizeof(float) * block_size * block_size);
+  if (!noise_tx->block || !noise_tx->tx_block || !noise_tx->temp) {
+    aom_noise_tx_free(noise_tx);
+    aom_free(noise_tx);
+    return 0;
+  }
+  return noise_tx;
+}
+
+void aom_noise_tx_forward(struct aom_noise_tx_t *noise_tx, float *data) {
+  noise_tx->fft(data, noise_tx->temp, noise_tx->tx_block);
+}
+
+void aom_noise_tx_filter(struct aom_noise_tx_t *noise_tx, float *psd) {
+  const int block_size = noise_tx->block_size;
+  const float kBeta = 1.1f;
+  const float kEps = 1e-6f;
+  int i = 0;
+  for (i = 0; i < block_size * block_size; ++i) {
+    float *c = noise_tx->tx_block + 2 * i;
+    const float p = c[0] * c[0] + c[1] * c[1];
+    if (p > kBeta * psd[i] && p > 1e-6) {
+      noise_tx->tx_block[2 * i + 0] *= (p - psd[i]) / AOMMAX(p, kEps);
+      noise_tx->tx_block[2 * i + 1] *= (p - psd[i]) / AOMMAX(p, kEps);
+    } else {
+      noise_tx->tx_block[2 * i + 0] *= (kBeta - 1.0f) / kBeta;
+      noise_tx->tx_block[2 * i + 1] *= (kBeta - 1.0f) / kBeta;
+    }
+  }
+}
+
+void aom_noise_tx_inverse(struct aom_noise_tx_t *noise_tx, float *data) {
+  const int n = noise_tx->block_size * noise_tx->block_size;
+  noise_tx->ifft(noise_tx->tx_block, noise_tx->temp, data);
+  for (int i = 0; i < n; ++i) {
+    data[i] /= n;
+  }
+}
+
+void aom_noise_tx_add_energy(const struct aom_noise_tx_t *noise_tx,
+                             float *psd) {
+  const int block_size = noise_tx->block_size;
+  for (int yb = 0; yb < block_size; ++yb) {
+    for (int xb = 0; xb < block_size; ++xb) {
+      float *c = noise_tx->tx_block + 2 * (yb * block_size + xb);
+      psd[yb * block_size + xb] += c[0] * c[0] + c[1] * c[1];
+    }
+  }
+}
+
+void aom_noise_tx_free(struct aom_noise_tx_t *noise_tx) {
+  if (!noise_tx) return;
+  aom_free(noise_tx->tx_block);
+  aom_free(noise_tx->block);
+  aom_free(noise_tx->temp);
+  memset(noise_tx, 0, sizeof(struct aom_noise_tx_t));
+}
 
 double aom_normalized_cross_correlation(const double *a, const double *b,
                                         int n) {
