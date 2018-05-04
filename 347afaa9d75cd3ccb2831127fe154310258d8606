@@ -93,6 +93,30 @@
       "revId": "347afaa9d75cd3ccb2831127fe154310258d8606",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0c2d4332_2f903afd",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2117,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-05-04T18:07:05Z",
+      "side": 1,
+      "message": "I moved this to the for loop that launches the worker threads, at line 2162.",
+      "parentUuid": "11c9987e_df736318",
+      "range": {
+        "startLine": 2117,
+        "startChar": 6,
+        "endLine": 2117,
+        "endChar": 36
+      },
+      "revId": "347afaa9d75cd3ccb2831127fe154310258d8606",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
