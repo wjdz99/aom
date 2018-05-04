@@ -3829,7 +3829,11 @@ static uint32_t write_tiles_in_tg_obus(AV1_COMP *const cpi, uint8_t *const dst,
         curr_tg_data_size += (int)length_field_size;
         total_size += (uint32_t)length_field_size;
         tile_data_start += length_field_size;
-        saved_wb->bit_buffer += length_field_size;
+        if (num_tg_hdrs == 1) {
+          // if this tg is combined with the frame header then update saved
+          // frame header base offset accroding to length field size
+          saved_wb->bit_buffer += length_field_size;
+        }
 
         if (!first_tg && cm->error_resilient_mode) {
           // Make room for a duplicate Frame Header OBU.
@@ -3837,6 +3841,11 @@ static uint32_t write_tiles_in_tg_obus(AV1_COMP *const cpi, uint8_t *const dst,
 
           // Insert a copy of the Frame Header OBU.
           memcpy(data, fh_info->frame_header, fh_info->total_length);
+
+          // Force context update tile to be the first tile in error
+          // resiliant mode as the duplicate frame headers will have
+          // context_update_tile_id set to 0
+          cm->largest_tile_id = 0;
 
           // Rewrite the OBU header to change the OBU type to Redundant Frame
           // Header.
@@ -3894,6 +3903,11 @@ static uint32_t write_tiles_in_tg_obus(AV1_COMP *const cpi, uint8_t *const dst,
         total_size -= (int)(length_field_size - new_length_field_size);
       }
     }
+  } else if (have_tiles) {
+    // more than one tile group. tile_size_bytes takes the default value 4
+    // and does not need to be set. context_update_tile_id must be set
+    aom_wb_overwrite_literal(saved_wb, cm->largest_tile_id,
+                             cm->log2_tile_cols + cm->log2_tile_rows);
   }
   return total_size;
 }
