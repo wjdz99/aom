@@ -36,6 +36,8 @@ set(AOM_DSP_COMMON_SOURCES
     "${AOM_ROOT}/aom_dsp/simd/v64_intrinsics_c.h"
     "${AOM_ROOT}/aom_dsp/subtract.c"
     "${AOM_ROOT}/aom_dsp/txfm_common.h"
+    "${AOM_ROOT}/aom_dsp/fft_common.h"
+    "${AOM_ROOT}/aom_dsp/fft.c"
     "${AOM_ROOT}/aom_dsp/x86/convolve_common_intrin.h"
     "${AOM_ROOT}/aom_dsp/x86/txfm_common_intrin.h")
 
@@ -48,6 +50,7 @@ set(AOM_DSP_COMMON_ASM_SSE2
 set(AOM_DSP_COMMON_INTRIN_SSE2 "${AOM_ROOT}/aom_dsp/x86/aom_asm_stubs.c"
     "${AOM_ROOT}/aom_dsp/x86/convolve.h"
     "${AOM_ROOT}/aom_dsp/x86/convolve_sse2.h"
+    "${AOM_ROOT}/aom_dsp/x86/fft_sse2.c"
     "${AOM_ROOT}/aom_dsp/x86/intrapred_sse2.c"
     "${AOM_ROOT}/aom_dsp/x86/loopfilter_sse2.c"
     "${AOM_ROOT}/aom_dsp/x86/lpf_common_sse2.h"
@@ -75,6 +78,7 @@ set(AOM_DSP_COMMON_INTRIN_AVX2
     "${AOM_ROOT}/aom_dsp/x86/inv_txfm_avx2.c"
     "${AOM_ROOT}/aom_dsp/x86/common_avx2.h"
     "${AOM_ROOT}/aom_dsp/x86/convolve_avx2.h"
+    "${AOM_ROOT}/aom_dsp/x86/fft_avx2.c"
     "${AOM_ROOT}/aom_dsp/x86/inv_txfm_common_avx2.h"
     "${AOM_ROOT}/aom_dsp/x86/txfm_common_avx2.h")
 
