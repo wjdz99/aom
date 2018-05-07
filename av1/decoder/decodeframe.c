@@ -1842,6 +1842,8 @@ static void decode_tile(AV1Decoder *pbi, ThreadData *const td, int tile_row,
                        "Decode failed. Frame data is corrupted.");
   }
 
+  // TODO(wtc): Do we need to check if nb_bits > 0, so that it is safe to read
+  // p[-1]?
   uint8_t last_byte = p[-1];
   uint8_t pattern = 128 >> ((nb_bits - 1) & 7);
   if ((last_byte & (2 * pattern - 1)) != pattern) {
