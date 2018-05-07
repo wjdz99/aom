@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "d150d255_ddd7410b",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1840,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2018-05-07T23:01:56Z",
+      "side": 1,
+      "message": "The while loop is checking to make sure that all padding bytes are zero as required by the spec. But it is legal to have no padding bytes (p \u003d\u003d p_end), in which case all none of them will be zero.",
+      "parentUuid": "a84ab051_b2ce848a",
+      "range": {
+        "startLine": 1840,
+        "startChar": 6,
+        "endLine": 1840,
+        "endChar": 16
+      },
+      "revId": "f4f7794f2ecd17f61f9688b5673997e9bed4b7d1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "73d1dd02_fa218c9c",
         "filename": "av1/decoder/decodeframe.c",
         "patchSetId": 1
@@ -83,6 +107,30 @@
       "writtenOn": "2018-05-07T22:53:07Z",
       "side": 1,
       "message": "If nb_bits is 0 then I believe read_is_valid() fails in setup_bool_decoder() and throws an aom_internal_error(). Checking for p \u003e p_begin may thus not be required.",
+      "parentUuid": "73d1dd02_fa218c9c",
+      "range": {
+        "startLine": 1847,
+        "startChar": 22,
+        "endLine": 1847,
+        "endChar": 27
+      },
+      "revId": "f4f7794f2ecd17f61f9688b5673997e9bed4b7d1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2c3573a2_584ec58c",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1847,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2018-05-07T23:01:56Z",
+      "side": 1,
+      "message": "It may not be obvious, but aom_reader_tell() ultimately dispatches to od_ec_dec_tell(), which is documented to have bitwise identical behavior to od_ec_enc_tell(), whose implementation states,\n\n  /*The 10 here counteracts the offset of -9 baked into cnt, and adds 1 extra\n     bit, which we reserve for terminating the stream.*/\n\nI.e., aom_reader_tell() returns 1 for a newly initialized decoder, and the return value only increases as values are decoded. So nb_bits \u003e 0 (unless you have managed to decode a 512 MB packet, which could potentially overflow the counter to exactly 0), and thus nb_bytes \u003e 0 and p \u003e p_begin.\n\nI\u0027m not sure if we check for excessively large packets, but this likely isn\u0027t the only place they would cause issues, and probably isn\u0027t the best spot in the code to add such a check.\n\nAs you might surmise by the necessity of the p \u003e p_end check, it is also possible to try to decode more values from a packet than it actually contains bits for. The reader will use zeros in place of any bits beyond the end of the buffer, and actually does so in normal practice because it can read 15 bits or more ahead. So it may be worth thinking very carefully about a more robust way to do this check (especially since the pointer computation may not even be valid). I\u0027m not sure if it is possible to consume that much data with a packet that otherwise conforms to any currently defined profile and level limits.\n\nIt would be reasonable to explicitly document why (barring overflows from large packets discussed above) accessing p[-1] should be generally safe.",
       "parentUuid": "73d1dd02_fa218c9c",
       "range": {
         "startLine": 1847,
