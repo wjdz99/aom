@@ -57,13 +57,7 @@ void av1_highbd_inv_txfm_add_4x4(const tran_low_t *input, uint8_t *dest,
     return;
   }
   switch (tx_type) {
-    // use the c version for anything including identity for now
-    case V_DCT:
-    case H_DCT:
-    case V_ADST:
-    case H_ADST:
-    case V_FLIPADST:
-    case H_FLIPADST:
+    // Optimized version doesn't support IDTX, so force use of the C version.
     case IDTX:
       av1_inv_txfm2d_add_4x4_c(src, CONVERT_TO_SHORTPTR(dest), stride, tx_type,
                                bd);
@@ -181,13 +175,7 @@ static void highbd_inv_txfm_add_8x8(const tran_low_t *input, uint8_t *dest,
   const TX_TYPE tx_type = txfm_param->tx_type;
   const int32_t *src = cast_to_int32(input);
   switch (tx_type) {
-    // use the c version for anything including identity for now
-    case V_DCT:
-    case H_DCT:
-    case V_ADST:
-    case H_ADST:
-    case V_FLIPADST:
-    case H_FLIPADST:
+    // Optimized version doesn't support IDTX, so force use of the C version.
     case IDTX:
       av1_inv_txfm2d_add_8x8_c(src, CONVERT_TO_SHORTPTR(dest), stride, tx_type,
                                bd);
@@ -205,13 +193,7 @@ static void highbd_inv_txfm_add_16x16(const tran_low_t *input, uint8_t *dest,
   const TX_TYPE tx_type = txfm_param->tx_type;
   const int32_t *src = cast_to_int32(input);
   switch (tx_type) {
-    // use the c version for anything including identity for now
-    case V_DCT:
-    case H_DCT:
-    case V_ADST:
-    case H_ADST:
-    case V_FLIPADST:
-    case H_FLIPADST:
+    // Optimized version doesn't support IDTX, so force use of the C version.
     case IDTX:
       av1_inv_txfm2d_add_16x16_c(src, CONVERT_TO_SHORTPTR(dest), stride,
                                  tx_type, bd);
@@ -234,8 +216,7 @@ static void highbd_inv_txfm_add_32x32(const tran_low_t *input, uint8_t *dest,
                                bd);
       break;
 
-    // The optimised version only supports DCT_DCT, so force use of
-    // the C version for all other transform types.
+    // Optimized version doesn't support IDTX, so force use of the C version.
     case IDTX:
       av1_inv_txfm2d_add_32x32_c(src, CONVERT_TO_SHORTPTR(dest), stride,
                                  tx_type, bd);
