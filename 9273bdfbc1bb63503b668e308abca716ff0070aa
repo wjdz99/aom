@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ef21d0cb_9bbefe3f",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 617,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-05-07T18:22:58Z",
+      "side": 1,
+      "message": "Do you mind adding a comment clarifying that this is function is for *partition* subsize? Or, rename the function to \"get_partition_subsize\" for clarify. (This patch or later patch, as per your choice).\nAlso, a note saying that all valid calls should have a square block size would be helpful.",
+      "revId": "9273bdfbc1bb63503b668e308abca716ff0070aa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
