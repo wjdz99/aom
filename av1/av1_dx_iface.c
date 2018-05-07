@@ -171,7 +171,7 @@ static void parse_operating_points(struct aom_read_bit_buffer *rb,
   } else {
     const uint8_t operating_points_minus1_cnt =
         aom_rb_read_literal(rb, OP_POINTS_MINUS1_BITS);
-    si->enhancement_layers_cnt = operating_points_minus1_cnt;
+    si->operating_points_minus1_cnt = operating_points_minus1_cnt;
     for (int i = 0; i < operating_points_minus1_cnt + 1; i++) {
       aom_rb_read_literal(rb, OP_POINTS_IDC_BITS);  // idc
       aom_rb_read_literal(rb, LEVEL_BITS);          // level
