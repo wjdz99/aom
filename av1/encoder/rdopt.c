@@ -592,6 +592,7 @@ static INLINE int get_comp_mode(const MB_MODE_INFO *mbmi) {
       return 3;  // diffwtd compound
     }
   }
+  assert(0);
   return -1;
 }
 
@@ -8243,6 +8244,8 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
             can_use_previous);
       }
 
+      int best_comp_group_idx = 0;
+      int best_compound_idx = 1;
       for (cur_type = COMPOUND_AVERAGE; cur_type < COMPOUND_TYPES; cur_type++) {
         if (cur_type != COMPOUND_AVERAGE && !masked_compound_used) break;
         if (!is_interinter_compound_used(cur_type, bsize)) continue;
@@ -8310,6 +8313,8 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
         }
 
         if (best_rd_cur < best_rd_compound) {
+          best_comp_group_idx = mbmi->comp_group_idx;
+          best_compound_idx = mbmi->compound_idx;
           best_rd_compound = best_rd_cur;
           best_compound_data.wedge_index = mbmi->wedge_index;
           best_compound_data.wedge_sign = mbmi->wedge_sign;
@@ -8333,6 +8338,11 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
         // reset to original mvs for next iteration
         mbmi->mv[0].as_int = cur_mv[0].as_int;
         mbmi->mv[1].as_int = cur_mv[1].as_int;
+      }
+      mbmi->comp_group_idx = best_comp_group_idx;
+      mbmi->compound_idx = best_compound_idx;
+      if (mbmi->comp_group_idx == 1) {
+        assert(mbmi->interinter_compound_type != COMPOUND_AVERAGE);
       }
       mbmi->wedge_index = best_compound_data.wedge_index;
       mbmi->wedge_sign = best_compound_data.wedge_sign;
@@ -8487,6 +8497,9 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
     *rd_stats_uv = best_rd_stats_uv;
     ret_val = best_ret_val;
     *mbmi = best_mbmi;
+    if (mbmi->comp_group_idx == 1) {
+      assert(mbmi->interinter_compound_type != COMPOUND_AVERAGE);
+    }
     memcpy(x->blk_skip, best_blk_skip,
            sizeof(best_blk_skip[0]) * xd->n8_h * xd->n8_w);
   }
