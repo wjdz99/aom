@@ -121,7 +121,7 @@ int main(int argc, char **argv) {
   if (aom_codec_dec_init(&codec, decoder->codec_interface(), NULL, 0))
     die_codec(&codec, "Failed to initialize decoder.");
 
-  // peak sequence header OBU to get enhancement layer count, if any
+  // peak sequence header OBU to get number of spatial layers
   const size_t ret = fread(tmpbuf, 1, 32, inputfile);
   if (ret != 32) die_codec(&codec, "Input is not a valid obu file");
   si.is_annexb = 0;
@@ -134,7 +134,7 @@ int main(int argc, char **argv) {
     die_codec(&codec, "Input is not a valid obu file");
 
   // open output yuv files
-  for (i = 0; i <= si.enhancement_layers_cnt; i++) {
+  for (i = 0; i < si.number_spatial_layers; i++) {
     snprintf(filename, sizeof(filename), "out_lyr%d.yuv", i);
     if (!(outfile[i] = fopen(filename, "wb")))
       die("Failed to open output for writing.");
@@ -153,29 +153,28 @@ int main(int argc, char **argv) {
       img_shifted->bit_depth = 8;
       aom_img_downshift(img_shifted, img,
                         img->bit_depth - img_shifted->bit_depth);
-      if (img->enhancement_id == 0) {
+      if (img->spatial_id == 0) {
         printf("Writing       base layer 0 %d\n", frame_cnt);
         aom_img_write(img_shifted, outfile[0]);
         obu_ctx.last_layer_id++;
-      } else if (img->enhancement_id <= (int)si.enhancement_layers_cnt) {
-        printf("Writing enhancemnt layer %d %d\n", img->enhancement_id,
-               frame_cnt);
-        aom_img_write(img_shifted, outfile[img->enhancement_id]);
-        if (img->enhancement_id == (int)si.enhancement_layers_cnt)
+      } else if (img->spatial_id <= (int)(si.number_spatial_layers - 1)) {
+        printf("Writing enhancemnt layer %d %d\n", img->spatial_id, frame_cnt);
+        aom_img_write(img_shifted, outfile[img->spatial_id]);
+        if (img->spatial_id == (int)(si.number_spatial_layers - 1))
           obu_ctx.last_layer_id = 0;
         else
           obu_ctx.last_layer_id++;
       } else {
         die_codec(&codec, "Invalid bitstream.  Layer id exceeds layer count");
       }
-      if (img->enhancement_id == (int)si.enhancement_layers_cnt) ++frame_cnt;
+      if (img->spatial_id == (int)(si.number_spatial_layers - 1)) ++frame_cnt;
     }
   }
 
   printf("Processed %d frames.\n", frame_cnt);
   if (aom_codec_destroy(&codec)) die_codec(&codec, "Failed to destroy codec");
 
-  for (i = 0; i <= si.enhancement_layers_cnt; i++) fclose(outfile[i]);
+  for (i = 0; i < si.number_spatial_layers; i++) fclose(outfile[i]);
 
   fclose(inputfile);
 
