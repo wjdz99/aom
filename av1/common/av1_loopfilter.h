@@ -179,9 +179,9 @@ void av1_filter_block_plane_horz(const struct AV1Common *const cm,
                                  const uint32_t mi_row, const uint32_t mi_col);
 
 typedef struct LoopFilterWorkerData {
+  struct macroblockd_plane planes[MAX_MB_PLANE];
   YV12_BUFFER_CONFIG *frame_buffer;
   struct AV1Common *cm;
-  struct macroblockd_plane planes[MAX_MB_PLANE];
   // TODO(Ranjit): When the filter functions are modified to use xd->lossless
   // add lossless as a member here.
   MACROBLOCKD *xd;

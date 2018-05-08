@@ -65,7 +65,8 @@ static void loop_filter_alloc(AV1LfSync *lf_sync, AV1_COMMON *cm, int rows,
   }
 #endif  // CONFIG_MULTITHREAD
   CHECK_MEM_ERROR(cm, lf_sync->lfdata,
-                  aom_malloc(num_workers * sizeof(*(lf_sync->lfdata))));
+                  aom_memalign(16, num_workers * sizeof(*(lf_sync->lfdata))));
+
   lf_sync->num_workers = num_workers;
 
   for (int j = 0; j < MAX_MB_PLANE; j++) {
