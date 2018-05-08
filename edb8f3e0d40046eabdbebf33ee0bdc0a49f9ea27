@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5897c5d4_9af479d0",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1823,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2018-05-08T16:52:11Z",
+      "side": 1,
+      "message": "I\u0027d prefer to see this check updated as described here: https://aomedia-review.googlesource.com/#/c/aom/+/57822/2/av1/decoder/decodeframe.c@1840\n\nIt\u0027d be okay to do that in a separate patch, but since this patch already makes functional changes (the return type of av1_check_trailing_bits), I think it is fine to do it here, too.",
+      "revId": "edb8f3e0d40046eabdbebf33ee0bdc0a49f9ea27",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
