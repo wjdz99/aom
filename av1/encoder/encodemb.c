@@ -191,8 +191,12 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
       av1_quantize_skip(n_coeffs, qcoeff, dqcoeff, eob);
     }
   }
-  p->txb_entropy_ctx[block] =
-      (uint8_t)av1_get_txb_entropy_context(qcoeff, scan_order, *eob);
+  if (xform_quant_idx != AV1_XFORM_QUANT_FP || txfm_param.lossless) {
+    p->txb_entropy_ctx[block] =
+        (uint8_t)av1_get_txb_entropy_context(qcoeff, scan_order, *eob);
+  } else {
+    p->txb_entropy_ctx[block] = 0;
+  }
   return;
 }
 
@@ -254,11 +258,11 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
   }
 
   if (p->eobs[block] == 0 && plane == 0) {
-  // TODO(debargha, jingning): Temporarily disable txk_type check for eob=0
-  // case. It is possible that certain collision in hash index would cause
-  // the assertion failure. To further optimize the rate-distortion
-  // performance, we need to re-visit this part and enable this assert
-  // again.
+    // TODO(debargha, jingning): Temporarily disable txk_type check for eob=0
+    // case. It is possible that certain collision in hash index would cause
+    // the assertion failure. To further optimize the rate-distortion
+    // performance, we need to re-visit this part and enable this assert
+    // again.
 #if 0
     if (args->cpi->oxcf.aq_mode == NO_AQ &&
         args->cpi->oxcf.deltaq_mode == NO_DELTA_Q) {
@@ -534,11 +538,11 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
   }
 
   if (*eob == 0 && plane == 0) {
-  // TODO(jingning): Temporarily disable txk_type check for eob=0 case.
-  // It is possible that certain collision in hash index would cause
-  // the assertion failure. To further optimize the rate-distortion
-  // performance, we need to re-visit this part and enable this assert
-  // again.
+    // TODO(jingning): Temporarily disable txk_type check for eob=0 case.
+    // It is possible that certain collision in hash index would cause
+    // the assertion failure. To further optimize the rate-distortion
+    // performance, we need to re-visit this part and enable this assert
+    // again.
 #if 0
     if (args->cpi->oxcf.aq_mode == NO_AQ
         && args->cpi->oxcf.deltaq_mode == NO_DELTA_Q) {
