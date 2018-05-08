@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f087f957_ee027034",
+        "filename": "aom_dsp/entdec.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-05-08T19:27:40Z",
+      "side": 0,
+      "message": "I can abandon this CL if you prefer to keep these fields for some reason, for example, to keep od_ec_dec and od_ec_enc similar.",
+      "range": {
+        "startLine": 35,
+        "startChar": 0,
+        "endLine": 40,
+        "endChar": 16
+      },
+      "revId": "9d3b3eb7f8339688e62765e3f839529d11bf2e58",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
