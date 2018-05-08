@@ -191,8 +191,12 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
       av1_quantize_skip(n_coeffs, qcoeff, dqcoeff, eob);
     }
   }
-  p->txb_entropy_ctx[block] =
-      (uint8_t)av1_get_txb_entropy_context(qcoeff, scan_order, *eob);
+  if (xform_quant_idx != AV1_XFORM_QUANT_FP || txfm_param.lossless) {
+    p->txb_entropy_ctx[block] =
+        (uint8_t)av1_get_txb_entropy_context(qcoeff, scan_order, *eob);
+  } else {
+    p->txb_entropy_ctx[block] = 0;
+  }
   return;
 }
 
