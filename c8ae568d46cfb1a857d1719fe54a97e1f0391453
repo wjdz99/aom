@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "789ad47e_ecaced47",
+        "filename": "aom_dsp/entenc.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 338,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-05-08T21:55:43Z",
+      "side": 0,
+      "message": "Note that s \u003c\u003d 0 at this point, because if s \u003e 0 at line 316, the do-while loop at line 330 will make s \u003c\u003d 0.",
+      "range": {
+        "startLine": 338,
+        "startChar": 2,
+        "endLine": 338,
+        "endChar": 3
+      },
+      "revId": "c8ae568d46cfb1a857d1719fe54a97e1f0391453",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e4f1aa23_5e7af8f3",
+        "filename": "aom_dsp/entenc.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 346,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-05-08T21:55:43Z",
+      "side": 0,
+      "message": "s \u003c\u003d 0 before this statement.\ns \u003e\u003d 0 after this statement.",
+      "range": {
+        "startLine": 346,
+        "startChar": 2,
+        "endLine": 346,
+        "endChar": 9
+      },
+      "revId": "c8ae568d46cfb1a857d1719fe54a97e1f0391453",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f584dde9_db9cb933",
+        "filename": "aom_dsp/entenc.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 360,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-05-08T21:55:43Z",
+      "side": 0,
+      "message": "When we get here, nend_bits is 0, and s \u003e\u003d 0. Therefore nend_bits \u003e s is false, so this while loop can be deleted. In particular, we delete line 364, the only statement that modifies nend_bits. Therefore nend_bits stays 0.\n\nThis also allows us to go back and delete line 346 (s \u003d -s;) and change \"- s\" to \"s\" in line 347.",
+      "range": {
+        "startLine": 360,
+        "startChar": 9,
+        "endLine": 360,
+        "endChar": 22
+      },
+      "revId": "c8ae568d46cfb1a857d1719fe54a97e1f0391453",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "60a570e1_da8436a0",
+        "filename": "aom_dsp/entenc.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 381,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-05-08T21:55:43Z",
+      "side": 0,
+      "message": "Since nends_bits is 0, this if statement and the associated comment and assert can all be deleted.",
+      "range": {
+        "startLine": 381,
+        "startChar": 6,
+        "endLine": 381,
+        "endChar": 19
+      },
+      "revId": "c8ae568d46cfb1a857d1719fe54a97e1f0391453",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
