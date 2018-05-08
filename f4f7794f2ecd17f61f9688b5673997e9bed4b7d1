@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "e6e9bd55_260c998a",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1840,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-05-08T17:47:39Z",
+      "side": 1,
+      "message": "Done. Thanks for the explanation. I added these comments to the new check_trailing_bits_after_symbol_coder() function.",
+      "parentUuid": "d150d255_ddd7410b",
+      "range": {
+        "startLine": 1840,
+        "startChar": 6,
+        "endLine": 1840,
+        "endChar": 16
+      },
+      "revId": "f4f7794f2ecd17f61f9688b5673997e9bed4b7d1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "73d1dd02_fa218c9c",
         "filename": "av1/decoder/decodeframe.c",
         "patchSetId": 1
@@ -141,6 +165,30 @@
       "revId": "f4f7794f2ecd17f61f9688b5673997e9bed4b7d1",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d6567fca_0c0a3466",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1847,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-05-08T17:47:39Z",
+      "side": 1,
+      "message": "Done. I added a comment to explain why accessing p[-1] is safe.",
+      "parentUuid": "2c3573a2_584ec58c",
+      "range": {
+        "startLine": 1847,
+        "startChar": 22,
+        "endLine": 1847,
+        "endChar": 27
+      },
+      "revId": "f4f7794f2ecd17f61f9688b5673997e9bed4b7d1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
