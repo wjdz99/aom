@@ -179,8 +179,7 @@ set(AOM_AV1_COMMON_INTRIN_AVX2
 
 set(AOM_AV1_COMMON_INTRIN_MSA
     "${AOM_ROOT}/av1/common/mips/msa/av1_idct16x16_msa.c"
-    "${AOM_ROOT}/av1/common/mips/msa/av1_idct4x4_msa.c"
-    "${AOM_ROOT}/av1/common/mips/msa/av1_idct8x8_msa.c")
+    "${AOM_ROOT}/av1/common/mips/msa/av1_idct4x4_msa.c")
 
 set(AOM_AV1_ENCODER_ASM_SSE2 "${AOM_ROOT}/av1/encoder/x86/dct_sse2.asm"
     "${AOM_ROOT}/av1/encoder/x86/error_sse2.asm"
@@ -214,8 +213,6 @@ set(AOM_AV1_ENCODER_INTRIN_NEON
 set(AOM_AV1_ENCODER_INTRIN_MSA "${AOM_ROOT}/av1/encoder/mips/msa/error_msa.c"
     "${AOM_ROOT}/av1/encoder/mips/msa/fdct16x16_msa.c"
     "${AOM_ROOT}/av1/encoder/mips/msa/fdct4x4_msa.c"
-    "${AOM_ROOT}/av1/encoder/mips/msa/fdct8x8_msa.c"
-    "${AOM_ROOT}/av1/encoder/mips/msa/fdct_msa.h"
     "${AOM_ROOT}/av1/encoder/mips/msa/temporal_filter_msa.c")
 
 set(AOM_AV1_COMMON_INTRIN_SSE4_1 ${AOM_AV1_COMMON_INTRIN_SSE4_1}
