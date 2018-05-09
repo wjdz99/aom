@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "c0be5376_35f13a82",
+        "filename": "av1/decoder/decoder.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 263,
+      "author": {
+        "id": 7963
+      },
+      "writtenOn": "2018-05-09T13:57:21Z",
+      "side": 1,
+      "message": "One possible way to generate an S2T1 stream is to slightly modify the existing scalable_encoder example.  When configuring the enhancement layer coding, after line 258, add the line\n\nflags |\u003d AOM_EFLAG_NO_REF_LAST;\n\nI believe this will create an S2T1 frame, albeit somewhat dumb  (the enhancement layer will be coded as INTER frames but all blocks will be intra mode)",
+      "parentUuid": "65797d5b_1d3481db",
+      "range": {
+        "startLine": 263,
+        "startChar": 0,
+        "endLine": 263,
+        "endChar": 27
+      },
+      "revId": "a1b02c9adfb9abf448696b785a54f8f90f2847f2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9f521e3d_14d64a8f",
         "filename": "av1/decoder/obu.c",
         "patchSetId": 6
