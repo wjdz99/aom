@@ -81,11 +81,11 @@ void cfl_load_dc_pred(MACROBLOCKD *const xd, uint8_t *dst, int dst_stride,
 
 // Null function used for invalid tx_sizes
 void cfl_subsample_lbd_null(const uint8_t *input, int input_stride,
-                            int16_t *output_q3);
+                            uint16_t *output_q3);
 
 // Null function used for invalid tx_sizes
 void cfl_subsample_hbd_null(const uint16_t *input, int input_stride,
-                            int16_t *output_q3);
+                            uint16_t *output_q3);
 
 // Allows the CFL_SUBSAMPLE function to switch types depending on the bitdepth.
 #define CFL_lbd_TYPE uint8_t *cfl_type
@@ -97,7 +97,7 @@ void cfl_subsample_hbd_null(const uint16_t *input, int input_stride,
 // goodness.
 #define CFL_SUBSAMPLE(arch, sub, bd, width, height)                       \
   void subsample_##bd##_##sub##_##width##x##height##_##arch(              \
-      const CFL_##bd##_TYPE, int input_stride, int16_t *output_q3) {      \
+      const CFL_##bd##_TYPE, int input_stride, uint16_t *output_q3) {     \
     cfl_luma_subsampling_##sub##_##bd##_##arch(cfl_type, input_stride,    \
                                                output_q3, width, height); \
   }
@@ -158,7 +158,9 @@ void cfl_subsample_hbd_null(const uint16_t *input, int input_stride,
   CFL_SUBSAMPLE_FUNCTIONS(arch, 420, hbd)
 
 // Null function used for invalid tx_sizes
-static INLINE void cfl_subtract_average_null(int16_t *pred_buf_q3) {
+static INLINE void cfl_subtract_average_null(uint16_t *luma_buf_q3,
+                                             int16_t *pred_buf_q3) {
+  (void)luma_buf_q3;
   (void)pred_buf_q3;
   assert(0);
 }
@@ -168,9 +170,10 @@ static INLINE void cfl_subtract_average_null(int16_t *pred_buf_q3) {
 // will be constant allowing for loop unrolling and other constant propagated
 // goodness.
 #define CFL_SUB_AVG_X(arch, width, height, round_offset, num_pel_log2)      \
-  void subtract_average_##width##x##height##_##arch(int16_t *pred_buf_q3) { \
-    subtract_average_##arch(pred_buf_q3, width, height, round_offset,       \
-                            num_pel_log2);                                  \
+  void subtract_average_##width##x##height##_##arch(uint16_t *luma_buf_q3,  \
+                                                    int16_t *pred_buf_q3) { \
+    subtract_average_##arch(luma_buf_q3, pred_buf_q3, width, height,        \
+                            round_offset, num_pel_log2);                    \
   }
 
 // Declare size-specific wrappers for all valid CfL sizes.
