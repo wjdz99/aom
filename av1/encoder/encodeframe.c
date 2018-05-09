@@ -3259,8 +3259,17 @@ BEGIN_PARTITION_SEARCH:
   if (cpi->sf.prune_ext_partition_types_search) {
     const int64_t horz_a_rd = horz_rd[1] + split_rd[0] + split_rd[1];
     const int64_t horz_b_rd = horz_rd[0] + split_rd[2] + split_rd[3];
-    horza_partition_allowed &= (horz_a_rd / 16 * 15 < best_rdc.rdcost);
-    horzb_partition_allowed &= (horz_b_rd / 16 * 15 < best_rdc.rdcost);
+    switch (cpi->sf.prune_ext_partition_types_search) {
+      case 1:
+        horza_partition_allowed &= (horz_a_rd / 16 * 14 < best_rdc.rdcost);
+        horzb_partition_allowed &= (horz_b_rd / 16 * 14 < best_rdc.rdcost);
+        break;
+      case 2:
+      default:
+        horza_partition_allowed &= (horz_a_rd / 16 * 15 < best_rdc.rdcost);
+        horzb_partition_allowed &= (horz_b_rd / 16 * 15 < best_rdc.rdcost);
+        break;
+    }
   }
 
   // PARTITION_HORZ_A
@@ -3313,6 +3322,17 @@ BEGIN_PARTITION_SEARCH:
     const int64_t vert_b_rd = vert_rd[0] + split_rd[1] + split_rd[3];
     verta_partition_allowed &= (vert_a_rd / 16 * 15 < best_rdc.rdcost);
     vertb_partition_allowed &= (vert_b_rd / 16 * 15 < best_rdc.rdcost);
+    switch (cpi->sf.prune_ext_partition_types_search) {
+      case 1:
+        verta_partition_allowed &= (vert_a_rd / 16 * 14 < best_rdc.rdcost);
+        vertb_partition_allowed &= (vert_b_rd / 16 * 14 < best_rdc.rdcost);
+        break;
+      case 2:
+      default:
+        verta_partition_allowed &= (vert_a_rd / 16 * 15 < best_rdc.rdcost);
+        vertb_partition_allowed &= (vert_b_rd / 16 * 15 < best_rdc.rdcost);
+        break;
+    }
   }
 
   // PARTITION_VERT_A
@@ -3354,7 +3374,7 @@ BEGIN_PARTITION_SEARCH:
 
   // PARTITION_HORZ_4
   int partition_horz4_allowed = partition4_allowed && partition_horz_allowed;
-  if (cpi->sf.prune_ext_partition_types_search) {
+  if (cpi->sf.prune_ext_partition_types_search == 2) {
     partition_horz4_allowed &= (pc_tree->partitioning == PARTITION_HORZ ||
                                 pc_tree->partitioning == PARTITION_HORZ_A ||
                                 pc_tree->partitioning == PARTITION_HORZ_B ||
@@ -3398,7 +3418,7 @@ BEGIN_PARTITION_SEARCH:
 
   // PARTITION_VERT_4
   int partition_vert4_allowed = partition4_allowed && partition_vert_allowed;
-  if (cpi->sf.prune_ext_partition_types_search) {
+  if (cpi->sf.prune_ext_partition_types_search == 2) {
     partition_vert4_allowed &= (pc_tree->partitioning == PARTITION_VERT ||
                                 pc_tree->partitioning == PARTITION_VERT_A ||
                                 pc_tree->partitioning == PARTITION_VERT_B ||
