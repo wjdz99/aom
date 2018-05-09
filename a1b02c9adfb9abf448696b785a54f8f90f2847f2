@@ -121,6 +121,30 @@
     },
     {
       "key": {
+        "uuid": "52ccf31b_33b32f92",
+        "filename": "av1/decoder/decoder.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 263,
+      "author": {
+        "id": 8487
+      },
+      "writtenOn": "2018-05-09T14:03:30Z",
+      "side": 1,
+      "message": "David: please email that stream. Would be very helpful.\nSoo-Chul: would that actually qualify as an S2T1 stream? There may still be dependencies related to entropy coding?",
+      "parentUuid": "c0be5376_35f13a82",
+      "range": {
+        "startLine": 263,
+        "startChar": 0,
+        "endLine": 263,
+        "endChar": 27
+      },
+      "revId": "a1b02c9adfb9abf448696b785a54f8f90f2847f2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9f521e3d_14d64a8f",
         "filename": "av1/decoder/obu.c",
         "patchSetId": 6
