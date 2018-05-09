@@ -282,6 +282,7 @@ typedef enum {
   GM_ERRORADV_TR_0,
   GM_ERRORADV_TR_1,
   GM_ERRORADV_TR_2,
+  GM_ERRORADV_TR_TYPES,
 } GM_ERRORADV_TYPE;
 
 typedef enum {
@@ -376,6 +377,8 @@ typedef struct SPEED_FEATURES {
   int selective_ref_frame;
 
   // Conditionally prune extended partition types search
+  // Can take values 0 - 3, 0 referring to no pruning, and 1 - 3 increasing
+  // aggressiveness of pruning progressively.
   int prune_ext_partition_types_search;
 
   int fast_cdef_search;
