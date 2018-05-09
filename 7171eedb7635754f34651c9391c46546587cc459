@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4aa03a3f_55420e88",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1857,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-05-09T22:29:32Z",
+      "side": 1,
+      "message": "Optional: We can also use an if statement, which skips the merge if corrupted is 0:\n\n  if (check_trailing_bits_after_symbol_coder(td-\u003ebit_reader)) {\n    aom_merge_corrupted_flag(\u0026td-\u003exd.corrupted, 1);\n  }",
+      "range": {
+        "startLine": 1855,
+        "startChar": 0,
+        "endLine": 1857,
+        "endChar": 57
+      },
+      "revId": "7171eedb7635754f34651c9391c46546587cc459",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
