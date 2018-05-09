@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b4a930ae_e57e1101",
+        "filename": "aom_dsp/fft_common.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 8612
+      },
+      "writtenOn": "2018-05-09T20:48:18Z",
+      "side": 1,
+      "message": "This code was automatically generated. I can include the scripts used to generate if we feel this is the right direction.",
+      "revId": "e0ea385c6dc431272f48c6befda9f6d2f10abec8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
