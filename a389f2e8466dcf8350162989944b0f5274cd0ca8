@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "aa8fac53_4a44ecae",
+        "filename": "av1/encoder/encodemb.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2018-05-09T01:59:40Z",
+      "side": 1,
+      "message": "This if condition may introduce bug if the condition of doing optimize_b is changed.\nHow about move optimize_b into this function with an extra parameter like do_optimize.\nThan skip the av1_get_txb_entropy_context when do_optimize is 1.",
+      "range": {
+        "startLine": 194,
+        "startChar": 2,
+        "endLine": 194,
+        "endChar": 67
+      },
+      "revId": "a389f2e8466dcf8350162989944b0f5274cd0ca8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
