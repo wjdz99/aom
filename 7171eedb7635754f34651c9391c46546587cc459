@@ -22,6 +22,30 @@
       "revId": "7171eedb7635754f34651c9391c46546587cc459",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "24ca8066_2b86b00e",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1857,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2018-05-09T22:50:32Z",
+      "side": 1,
+      "message": "I changed to this way and wanted to emphasize that flag merging always needs to be done at end of this function. May want to keep this way if it is fine. Thanks.",
+      "parentUuid": "4aa03a3f_55420e88",
+      "range": {
+        "startLine": 1855,
+        "startChar": 0,
+        "endLine": 1857,
+        "endChar": 57
+      },
+      "revId": "7171eedb7635754f34651c9391c46546587cc459",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
