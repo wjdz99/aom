@@ -2951,6 +2951,19 @@ static int get_search_init_depth(int mi_width, int mi_height,
                                  : sf->tx_size_search_init_depth_sqr;
 }
 
+static int get_search_init_depth_intra(int mi_width, int mi_height,
+                                       const SPEED_FEATURES *sf) {
+  if (sf->tx_size_search_method == USE_LARGESTALL) return MAX_VARTX_DEPTH;
+
+  if (sf->tx_size_search_lgr_block) {
+    if (mi_width > mi_size_wide[BLOCK_64X64] ||
+        mi_height > mi_size_high[BLOCK_64X64])
+      return MAX_VARTX_DEPTH;
+  }
+
+  return 1;
+}
+
 static void choose_tx_size_type_from_rd(const AV1_COMP *const cpi,
                                         MACROBLOCK *x, RD_STATS *rd_stats,
                                         int64_t ref_best_rd, BLOCK_SIZE bs) {
@@ -2973,7 +2986,8 @@ static void choose_tx_size_type_from_rd(const AV1_COMP *const cpi,
 
   if (tx_select) {
     start_tx = max_rect_tx_size;
-    depth = get_search_init_depth(mi_size_wide[bs], mi_size_high[bs], &cpi->sf);
+    depth = get_search_init_depth_intra(mi_size_wide[bs],
+                                        mi_size_high[bs], &cpi->sf);
   } else {
     const TX_SIZE chosen_tx_size = tx_size_from_tx_mode(bs, cm->tx_mode);
     start_tx = chosen_tx_size;
