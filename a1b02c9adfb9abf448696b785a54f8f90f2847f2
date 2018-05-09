@@ -169,6 +169,30 @@
     },
     {
       "key": {
+        "uuid": "86a28380_781774ab",
+        "filename": "av1/decoder/decoder.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 263,
+      "author": {
+        "id": 8487
+      },
+      "writtenOn": "2018-05-09T15:05:23Z",
+      "side": 1,
+      "message": "Soo-Chul: you are right. AOM_EFLAG_NO_UPD_ENTROPY should remove the entropy-coding dependency. However I think that the scalable_encoder example would still not generate a stream where an operating point is defined such as to exclude the \"base\" layer, which is the case that David pointed out as being problematic.",
+      "parentUuid": "1f969812_2ca123d0",
+      "range": {
+        "startLine": 263,
+        "startChar": 0,
+        "endLine": 263,
+        "endChar": 27
+      },
+      "revId": "a1b02c9adfb9abf448696b785a54f8f90f2847f2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9f521e3d_14d64a8f",
         "filename": "av1/decoder/obu.c",
         "patchSetId": 6
