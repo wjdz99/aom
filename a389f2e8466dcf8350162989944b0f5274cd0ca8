@@ -22,6 +22,30 @@
       "revId": "a389f2e8466dcf8350162989944b0f5274cd0ca8",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "073c4a4d_9b39b4a7",
+        "filename": "av1/encoder/encodemb.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 8900
+      },
+      "writtenOn": "2018-05-10T07:39:52Z",
+      "side": 1,
+      "message": "There are some troubles while moving optimize_b into av1_xform_quant.\n\n1. av1_xform_quant is also used in 1 pass encode, where has no AV1_COMP defined.\n2. optimize_b_precheck feature in rdopt need to do some calculation between av1_xform_quant and av1_optimize_b. Those calculations seems should not move into av1_xform_quant.",
+      "parentUuid": "aa8fac53_4a44ecae",
+      "range": {
+        "startLine": 194,
+        "startChar": 2,
+        "endLine": 194,
+        "endChar": 67
+      },
+      "revId": "a389f2e8466dcf8350162989944b0f5274cd0ca8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
