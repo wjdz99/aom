@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "48e988d3_56826edb",
+        "filename": "aom/aomdx.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2018-05-10T01:17:27Z",
+      "side": 1,
+      "message": "This documentation could use some kind of hint as to what constitutes a valid operating point. Is there any way for a user of this API to even know how many operating points a stream defines? Looking at scalable_decoder.c and reading the code you added to obu.c, I guess the thing to do is to use aom_codec_peek_stream_info() and then look at aom_codec_stream_info_t::enhancement_layers_cnt, but I don\u0027t know how someone is expected to figure that out without reading the implementation.",
+      "revId": "50d3a03ddbfada6f3723337792f48f39c0725c32",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f9021270_8c4c14f1",
+        "filename": "aomdec.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2018-05-10T01:17:27Z",
+      "side": 1,
+      "message": "Some hint in this text that this is meant for scalable streams might help here. The term \"operating point\" is pretty generic otherwise and could easily lead to confusion.",
+      "revId": "50d3a03ddbfada6f3723337792f48f39c0725c32",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2f1e1ad1_7dee1817",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1013,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2018-05-10T01:17:27Z",
+      "side": 1,
+      "message": "You\u0027re reading an unsigned int argument but storing it in a signed int field. C is lax enough that this can\u0027t really cause any problems, but it would still be less confusing if this was consistent.",
+      "revId": "50d3a03ddbfada6f3723337792f48f39c0725c32",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4265b35e_86c6cf46",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2018-05-10T01:17:27Z",
+      "side": 1,
+      "message": "This comment is no longer accurate.",
+      "revId": "50d3a03ddbfada6f3723337792f48f39c0725c32",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "57c1188e_27d537e0",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2018-05-10T01:17:27Z",
+      "side": 1,
+      "message": "This is the first time the user-provided operating_point value is validated, but you only check to see if it is too large. If it is negative, we\u0027ll (likely) crash when using this as an index below.",
+      "revId": "50d3a03ddbfada6f3723337792f48f39c0725c32",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
