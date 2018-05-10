@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6aa95c4d_a64b7ed9",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 428,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2018-05-10T21:38:49Z",
+      "side": 0,
+      "message": "Could you add a comment before this function in reconinter.c to state it is only used in encoder? So, we could move it to the encoder later.",
+      "range": {
+        "startLine": 428,
+        "startChar": 4,
+        "endLine": 428,
+        "endChar": 33
+      },
+      "revId": "3df6f19083c5509a91b6eac1e0d23d1d70f34fb8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f184c469_02d6421f",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 430,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2018-05-10T21:38:49Z",
+      "side": 0,
+      "message": "same as above.",
+      "range": {
+        "startLine": 430,
+        "startChar": 6,
+        "endLine": 430,
+        "endChar": 40
+      },
+      "revId": "3df6f19083c5509a91b6eac1e0d23d1d70f34fb8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
