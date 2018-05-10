@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d1752f99_304ceb8c",
+        "filename": "av1/decoder/decoder.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 290,
+      "author": {
+        "id": 5975
+      },
+      "writtenOn": "2018-05-10T16:20:59Z",
+      "side": 1,
+      "message": "This should be inside the \u0027if\u0027 above - see below for why",
+      "range": {
+        "startLine": 290,
+        "startChar": 0,
+        "endLine": 290,
+        "endChar": 47
+      },
+      "revId": "750219e7995f741e70d17e04ec25eeac38ffab2d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6aa5d746_904f3127",
+        "filename": "av1/decoder/decoder.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 327,
+      "author": {
+        "id": 5975
+      },
+      "writtenOn": "2018-05-10T16:20:59Z",
+      "side": 1,
+      "message": "This should be moved - see below",
+      "range": {
+        "startLine": 327,
+        "startChar": 0,
+        "endLine": 327,
+        "endChar": 30
+      },
+      "revId": "750219e7995f741e70d17e04ec25eeac38ffab2d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ba8091bf_7fea714a",
+        "filename": "av1/decoder/decoder.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 443,
+      "author": {
+        "id": 5975
+      },
+      "writtenOn": "2018-05-10T16:20:59Z",
+      "side": 1,
+      "message": "I think this logic needs adjusting a bit. The case I\u0027m seeing is:\n\n* We\u0027re decoding only the lower layer of an S2T1 stream\n* The first frame is decoded, has show_frame\u003d1, and sets up cm-\u003eframe_to_show as normal\n* cm-\u003enew_fb_idx is updated to point to a fresh buffer, in preparation for the next decoded frame\n* The second frame in the temporal unit is skipped - so the buffer pointed to by cm-\u003enew_fb_idx is left uninitialized\n* Then we end up setting cm-\u003eframe_to_show to this uninitialized buffer\n* Finally, this line sets pbi-\u003eready_for_new_data \u003d 1, which is used to indicate that *no* showable frame is ready.\n\nSo we end up in a sort-of-consistent state, but we\u0027ve forgotten that we do, in fact, have a frame ready to show - namely, the one frame we did decode! To fix this, we want to leave cm-\u003eframe_to_show and pbi-\u003eready_for_new_data unchanged when skipping a frame.\n\nTo implement that, I believe the correct set of steps is:\n\n* Move the cm-\u003eframe_to_show update inside the \"if (!pbi-\u003edropped_obus)\" block\n* Delete the line pbi-\u003eready_for_new_data \u003d 0 above\n* Change this to \"if (!pbi-\u003edropped_obus) pbi-\u003eready_for_new_data \u003d 0;\"\n\nI\u0027ll upload a new version of this patch making those changes - do they make sense to you?",
+      "range": {
+        "startLine": 443,
+        "startChar": 0,
+        "endLine": 443,
+        "endChar": 53
+      },
+      "revId": "750219e7995f741e70d17e04ec25eeac38ffab2d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
