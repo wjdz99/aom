@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4aa97b7b_3de987c8",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 458,
+      "author": {
+        "id": 8213
+      },
+      "writtenOn": "2018-05-10T12:08:22Z",
+      "side": 1,
+      "message": "I wonder if it\u0027s worth defining this as uint16_t rather than int16_t? While not necessary, it might help prevent someone getting confused later.",
+      "revId": "2235ea8f8d47599164063e23d6f9f9d3b26539a0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
