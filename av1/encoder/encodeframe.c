@@ -1999,6 +1999,68 @@ static void get_sb_partition_size_range(const AV1_COMMON *const cm,
   }
 }
 
+// Checks to see if a super block is on a horizontal image edge.
+// In most cases this is the "real" edge unless there are formatting
+// bars embedded in the stream.
+static int active_h_edge(const AV1_COMP *cpi, int mi_row, int mi_step) {
+  int top_edge = 0;
+  int bottom_edge = cpi->common.mi_rows;
+  int is_active_h_edge = 0;
+
+  // For two pass account for any formatting bars detected.
+  if (cpi->oxcf.pass == 2) {
+    const TWO_PASS *const twopass = &cpi->twopass;
+
+    // The inactive region is specified in MBs not mi units.
+    // The image edge is in the following MB row.
+    top_edge += (int)(twopass->this_frame_stats.inactive_zone_rows * 2);
+
+    bottom_edge -= (int)(twopass->this_frame_stats.inactive_zone_rows * 2);
+    bottom_edge = AOMMAX(top_edge, bottom_edge);
+  }
+
+  if (((top_edge >= mi_row) && (top_edge < (mi_row + mi_step))) ||
+      ((bottom_edge >= mi_row) && (bottom_edge < (mi_row + mi_step)))) {
+    is_active_h_edge = 1;
+  }
+  return is_active_h_edge;
+}
+
+// Checks to see if a super block is on a vertical image edge.
+// In most cases this is the "real" edge unless there are formatting
+// bars embedded in the stream.
+static int active_v_edge(const AV1_COMP *cpi, int mi_col, int mi_step) {
+  int left_edge = 0;
+  int right_edge = cpi->common.mi_cols;
+  int is_active_v_edge = 0;
+
+  // For two pass account for any formatting bars detected.
+  if (cpi->oxcf.pass == 2) {
+    const TWO_PASS *const twopass = &cpi->twopass;
+
+    // The inactive region is specified in MBs not mi units.
+    // The image edge is in the following MB row.
+    left_edge += (int)(twopass->this_frame_stats.inactive_zone_cols * 2);
+
+    right_edge -= (int)(twopass->this_frame_stats.inactive_zone_cols * 2);
+    right_edge = AOMMAX(left_edge, right_edge);
+  }
+
+  if (((left_edge >= mi_col) && (left_edge < (mi_col + mi_step))) ||
+      ((right_edge >= mi_col) && (right_edge < (mi_col + mi_step)))) {
+    is_active_v_edge = 1;
+  }
+  return is_active_v_edge;
+}
+
+// Checks to see if a super block is at the edge of the active image.
+// In most cases this is the "real" edge unless there are formatting
+// bars embedded in the stream.
+static int active_edge_sb(const AV1_COMP *cpi, int mi_row, int mi_col) {
+  return active_h_edge(cpi, mi_row, cpi->common.seq_params.mib_size) ||
+         active_v_edge(cpi, mi_col, cpi->common.seq_params.mib_size);
+}
+
 // Look at neighboring blocks and set a min and max partition size based on
 // what they chose.
 static void rd_auto_partition_range(AV1_COMP *cpi, const TileInfo *const tile,
@@ -2056,7 +2118,7 @@ static void rd_auto_partition_range(AV1_COMP *cpi, const TileInfo *const tile,
   // Test for blocks at the edge of the active image.
   // This may be the actual edge of the image or where there are formatting
   // bars.
-  if (av1_active_edge_sb(cpi, mi_row, mi_col)) {
+  if (active_edge_sb(cpi, mi_row, mi_col)) {
     min_size = BLOCK_4X4;
   } else {
     min_size = AOMMIN(cpi->sf.rd_auto_partition_min_limit, min_size);
@@ -2994,7 +3056,7 @@ BEGIN_PARTITION_SEARCH:
 
   // PARTITION_HORZ
   if (partition_horz_allowed &&
-      (do_rectangular_split || av1_active_h_edge(cpi, mi_row, mi_step))) {
+      (do_rectangular_split || active_h_edge(cpi, mi_row, mi_step))) {
     av1_init_rd_stats(&sum_rdc);
     subsize = get_partition_subsize(bsize, PARTITION_HORZ);
     if (cpi->sf.adaptive_motion_search) load_pred_mv(x, ctx_none);
@@ -3078,7 +3140,7 @@ BEGIN_PARTITION_SEARCH:
 
   // PARTITION_VERT
   if (partition_vert_allowed &&
-      (do_rectangular_split || av1_active_v_edge(cpi, mi_col, mi_step))) {
+      (do_rectangular_split || active_v_edge(cpi, mi_col, mi_step))) {
     av1_init_rd_stats(&sum_rdc);
     subsize = get_partition_subsize(bsize, PARTITION_VERT);
 
@@ -3300,7 +3362,7 @@ BEGIN_PARTITION_SEARCH:
                                 pc_tree->partitioning == PARTITION_NONE);
   }
   if (partition_horz4_allowed && has_rows &&
-      (do_rectangular_split || av1_active_h_edge(cpi, mi_row, mi_step))) {
+      (do_rectangular_split || active_h_edge(cpi, mi_row, mi_step))) {
     av1_init_rd_stats(&sum_rdc);
     const int quarter_step = mi_size_high[bsize] / 4;
     PICK_MODE_CONTEXT *ctx_prev = ctx_none;
@@ -3344,7 +3406,7 @@ BEGIN_PARTITION_SEARCH:
                                 pc_tree->partitioning == PARTITION_NONE);
   }
   if (partition_vert4_allowed && has_cols &&
-      (do_rectangular_split || av1_active_v_edge(cpi, mi_row, mi_step))) {
+      (do_rectangular_split || active_v_edge(cpi, mi_row, mi_step))) {
     av1_init_rd_stats(&sum_rdc);
     const int quarter_step = mi_size_wide[bsize] / 4;
     PICK_MODE_CONTEXT *ctx_prev = ctx_none;
