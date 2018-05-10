@@ -38,10 +38,10 @@ void aom_highbd_iwht4x4_16_add_c(const tran_low_t *input, uint8_t *dest8,
     c1 = e1 - c1;
     a1 -= b1;
     d1 += c1;
-    op[0] = HIGHBD_WRAPLOW(a1, bd);
-    op[1] = HIGHBD_WRAPLOW(b1, bd);
-    op[2] = HIGHBD_WRAPLOW(c1, bd);
-    op[3] = HIGHBD_WRAPLOW(d1, bd);
+    op[0] = a1;
+    op[1] = b1;
+    op[2] = c1;
+    op[3] = d1;
     ip += 4;
     op += 4;
   }
@@ -59,14 +59,10 @@ void aom_highbd_iwht4x4_16_add_c(const tran_low_t *input, uint8_t *dest8,
     c1 = e1 - c1;
     a1 -= b1;
     d1 += c1;
-    dest[stride * 0] =
-        highbd_clip_pixel_add(dest[stride * 0], HIGHBD_WRAPLOW(a1, bd), bd);
-    dest[stride * 1] =
-        highbd_clip_pixel_add(dest[stride * 1], HIGHBD_WRAPLOW(b1, bd), bd);
-    dest[stride * 2] =
-        highbd_clip_pixel_add(dest[stride * 2], HIGHBD_WRAPLOW(c1, bd), bd);
-    dest[stride * 3] =
-        highbd_clip_pixel_add(dest[stride * 3], HIGHBD_WRAPLOW(d1, bd), bd);
+    dest[stride * 0] = highbd_clip_pixel_add(dest[stride * 0], a1, bd);
+    dest[stride * 1] = highbd_clip_pixel_add(dest[stride * 1], b1, bd);
+    dest[stride * 2] = highbd_clip_pixel_add(dest[stride * 2], c1, bd);
+    dest[stride * 3] = highbd_clip_pixel_add(dest[stride * 3], d1, bd);
 
     ip++;
     dest++;
@@ -86,8 +82,8 @@ void aom_highbd_iwht4x4_1_add_c(const tran_low_t *in, uint8_t *dest8,
   a1 = ip[0] >> UNIT_QUANT_SHIFT;
   e1 = a1 >> 1;
   a1 -= e1;
-  op[0] = HIGHBD_WRAPLOW(a1, bd);
-  op[1] = op[2] = op[3] = HIGHBD_WRAPLOW(e1, bd);
+  op[0] = a1;
+  op[1] = op[2] = op[3] = e1;
 
   ip = tmp;
   for (i = 0; i < 4; i++) {
