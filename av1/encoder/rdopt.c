@@ -63,6 +63,12 @@
 static const char av1_tx_size_data_output_file[] = "tx_size_data.txt";
 #endif
 
+// Set this macro as 1 to collect data about tx type selection.
+#define COLLECT_TX_TYPE_DATA 0
+#if COLLECT_TX_TYPE_DATA
+static const char av1_tx_type_data_output_file[] = "tx_type_data.txt";
+#endif
+
 #define DUAL_FILTER_SET_SIZE (SWITCHABLE_FILTERS * SWITCHABLE_FILTERS)
 static const int filter_sets[DUAL_FILTER_SET_SIZE][2] = {
   { 0, 0 }, { 0, 1 }, { 0, 2 }, { 1, 0 }, { 1, 1 },
@@ -2422,6 +2428,9 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
                         cm->reduced_tx_set_used);
   }
 
+#if COLLECT_TX_TYPE_DATA
+  prune = 0;
+#endif
   for (TX_TYPE tx_type = txk_start; tx_type <= txk_end; ++tx_type) {
     allowed_tx_mask[tx_type] = 1;
     if (do_prune) {
@@ -2468,8 +2477,14 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
 #if CONFIG_DIST_8X8
   if (x->using_dist_8x8) use_transform_domain_distortion = 0;
 #endif
+#if COLLECT_TX_TYPE_DATA
+  int tx_types_examined = 0;
+#endif
   for (TX_TYPE tx_type = txk_start; tx_type <= txk_end; ++tx_type) {
     if (!allowed_tx_mask[tx_type]) continue;
+#if COLLECT_TX_TYPE_DATA
+    ++tx_types_examined;
+#endif
     if (plane == 0) mbmi->txk_type[txk_type_idx] = tx_type;
     last_tx_type = tx_type;
     RD_STATS this_rd_stats;
@@ -2534,6 +2549,37 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
   }
 
   assert(best_rd != INT64_MAX);
+
+#if COLLECT_TX_TYPE_DATA
+  do {
+    if (plane || !is_inter || !within_border || tx_types_examined <= 1) break;
+
+    FILE *fp = fopen(av1_tx_type_data_output_file, "a");
+    if (!fp) break;
+
+    // Tx type decision, q-index, rdmult, block size, allowed_tx_num, and
+    // tx_types_examined.
+    const int txb_w = tx_size_wide[tx_size];
+    const int txb_h = tx_size_high[tx_size];
+    fprintf(fp, "%d,%d,%d,%d,%d,%d,%d,",
+            best_tx_type, cpi->common.base_qindex, x->rdmult, txb_w, txb_h,
+            allowed_tx_num, tx_types_examined);
+
+    // Residue signal.
+    const int diff_stride = block_size_wide[plane_bsize];
+    const int16_t *src_diff =
+        &x->plane[0].src_diff[(blk_row * diff_stride + blk_col) * 4];
+    for (int r = 0; r < txb_h; ++r) {
+      for (int c = 0; c < txb_w; ++c) {
+        fprintf(fp, "%d,", src_diff[c]);
+      }
+      src_diff += diff_stride;
+    }
+    fprintf(fp, "\n");
+
+    fclose(fp);
+  } while (0);
+#endif  // COLLECT_TX_SIZE_DATA
 
   if (best_eob == 0) best_tx_type = DCT_DCT;
   if (plane == 0) {
