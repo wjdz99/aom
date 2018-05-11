@@ -1577,6 +1577,7 @@ static void setup_loopfilter(AV1_COMMON *cm, struct aom_read_bit_buffer *rb) {
 static void setup_cdef(AV1_COMMON *cm, struct aom_read_bit_buffer *rb) {
   const int num_planes = av1_num_planes(cm);
   if (cm->allow_intrabc) return;
+  cm->cdef_filter_skip = aom_rb_read_literal(rb, 1);
   cm->cdef_pri_damping = cm->cdef_sec_damping = aom_rb_read_literal(rb, 2) + 3;
   cm->cdef_bits = aom_rb_read_literal(rb, 2);
   cm->nb_cdef_strengths = 1 << cm->cdef_bits;
