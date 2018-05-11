@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "feb70cbe_3be8e314",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 5975
+      },
+      "writtenOn": "2018-05-11T13:07:23Z",
+      "side": 1,
+      "message": "Minor nitpick - it might be better to define \"LEVEL_MAJOR_MAX\" (or similar) and have this condition be \"if (seq_params-\u003elevel[0].major \u003e LEVEL_MAJOR_MAX)\"",
+      "range": {
+        "startLine": 160,
+        "startChar": 4,
+        "endLine": 160,
+        "endChar": 62
+      },
+      "revId": "8959cd504b69ec162573d0bdf5482513dd0c072b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "57cfc84e_21bdb28e",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 5975
+      },
+      "writtenOn": "2018-05-11T13:07:23Z",
+      "side": 1,
+      "message": "Similar here",
+      "range": {
+        "startLine": 171,
+        "startChar": 6,
+        "endLine": 171,
+        "endChar": 64
+      },
+      "revId": "8959cd504b69ec162573d0bdf5482513dd0c072b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "16802e69_d53d8d8c",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 3455,
+      "author": {
+        "id": 5975
+      },
+      "writtenOn": "2018-05-11T13:07:23Z",
+      "side": 1,
+      "message": "Could use LEVEL_MAJOR_MIN and LEVEL_MAJOR_MAX here too",
+      "range": {
+        "startLine": 3455,
+        "startChar": 2,
+        "endLine": 3455,
+        "endChar": 41
+      },
+      "revId": "8959cd504b69ec162573d0bdf5482513dd0c072b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
