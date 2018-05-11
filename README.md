@@ -407,6 +407,18 @@ rule:
 
 The above make command will only download and verify the test data.
 
+### Adding a new test data file
+
+First, add the new test data file to the `aom-test-data` bucket of the
+`aomedia-testing` project on Google Cloud Platform. You may need to ask someone
+with the necessary access permissions to do this for you.
+
+Once the new test data file has been added to `aom-test-data`, create a CL to
+add the name of the new test data file to test/test_data_util.cmake and add the
+SHA1 checksum of the new test data file to test/test-data.sha1. (The SHA1
+checksum of a file can be calculated by running the `sha1sum` command on the
+file.)
+
 ### Additional test data
 
 The test data mentioned above is strictly intended for unit testing.
