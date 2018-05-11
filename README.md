@@ -401,11 +401,23 @@ rule:
 
 ~~~
     $ cmake path/to/aom -G "Unix Makefiles"
-    # 28 is used because there are 28 test files as of this writing.
-    $ make -j28 testdata
+    # 29 is used because there are 29 test files as of this writing.
+    $ make -j29 testdata
 ~~~
 
 The above make command will only download and verify the test data.
+
+### Adding a new test data file
+
+First, add the new test data file to the `aom-test-data` bucket of the
+`aomedia-testing` project on Google Cloud Platform. You may need to ask someone
+with the necessary access permissions to do this for you.
+
+Once the new test data file has been added to `aom-test-data`, create a CL to
+add the name of the new test data file to test/test_data_util.cmake and add the
+SHA1 checksum of the new test data file to test/test-data.sha1. (The SHA1
+checksum of a file can be calculated by running the `sha1sum` command on the
+file.)
 
 ### Additional test data
 
