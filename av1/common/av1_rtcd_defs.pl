@@ -74,6 +74,7 @@ add_proto qw/void av1_highbd_wiener_convolve_add_src/, "const uint8_t *src, ptrd
 
 specialize qw/av1_wiener_convolve_add_src sse2/;
 specialize qw/av1_wiener_convolve_add_src avx2/;
+specialize qw/av1_wiener_convolve_add_src neon/;
 specialize qw/av1_highbd_wiener_convolve_add_src ssse3/;
 specialize qw/av1_highbd_wiener_convolve_add_src avx2/;
 
