@@ -2604,6 +2604,14 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
 #if CONFIG_DIST_8X8
   if (x->using_dist_8x8) use_transform_domain_distortion = 0;
 #endif
+  TXB_CTX txb_ctx;
+  get_txb_ctx(plane_bsize, tx_size, plane, a, l, &txb_ctx);
+  const TX_SIZE txs_ctx = get_txsize_entropy_ctx(tx_size);
+  const PLANE_TYPE plane_type = get_plane_type(plane);
+  const LV_MAP_COEFF_COST *const coeff_costs =
+      &x->coeff_costs[txs_ctx][plane_type];
+  const int non_skip_cost = coeff_costs->txb_skip_cost[txb_ctx.txb_skip_ctx][0];
+
   for (TX_TYPE tx_type = txk_start; tx_type <= txk_end; ++tx_type) {
     if (!allowed_tx_mask[tx_type]) continue;
     if (plane == 0) mbmi->txk_type[txk_type_idx] = tx_type;
@@ -2625,12 +2633,22 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
         dist_block(cpi, x, plane, plane_bsize, block, blk_row, blk_col, tx_size,
                    &this_rd_stats.dist, &this_rd_stats.sse,
                    OUTPUT_HAS_PREDICTED_PIXELS, 1);
+
+        int64_t rd_estimate;
+
+        rate_cost = non_skip_cost;
+        rate_cost += av1_tx_type_cost(cm, x, xd, plane, tx_size, tx_type);
+
+        rd_estimate = AOMMIN(RDCOST(x->rdmult, rate_cost, this_rd_stats.dist),
+                             RDCOST(x->rdmult, 0, this_rd_stats.sse));
+        if (rd_estimate - (rd_estimate >> 3) > AOMMIN(best_rd, ref_best_rd))
+          continue;
+
         rate_cost =
             av1_cost_coeffs(cm, x, plane_bsize, plane, blk_row, blk_col, block,
                             tx_size, a, l, use_fast_coef_costing);
-        const int64_t rd_estimate =
-            AOMMIN(RDCOST(x->rdmult, rate_cost, this_rd_stats.dist),
-                   RDCOST(x->rdmult, 0, this_rd_stats.sse));
+        rd_estimate = AOMMIN(RDCOST(x->rdmult, rate_cost, this_rd_stats.dist),
+                             RDCOST(x->rdmult, 0, this_rd_stats.sse));
         if (rd_estimate - (rd_estimate >> 3) > AOMMIN(best_rd, ref_best_rd))
           continue;
       }
