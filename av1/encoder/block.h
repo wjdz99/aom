@@ -32,6 +32,9 @@ typedef struct {
 
 typedef struct macroblock_plane {
   DECLARE_ALIGNED(16, int16_t, src_diff[MAX_SB_SQUARE]);
+#if CONFIG_DIST_8X8
+  DECLARE_ALIGNED(16, int16_t, pred[MAX_SB_SQUARE]);
+#endif
   tran_low_t *qcoeff;
   tran_low_t *coeff;
   uint16_t *eobs;

@@ -2060,12 +2060,12 @@ static void dist_block(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
                        int64_t *out_sse, OUTPUT_STATUS output_status,
                        int use_transform_domain_distortion) {
   MACROBLOCKD *const xd = &x->e_mbd;
-  const struct macroblock_plane *const p = &x->plane[plane];
 #if CONFIG_DIST_8X8
-  struct macroblockd_plane *const pd = &xd->plane[plane];
+  struct macroblock_plane *const p = &x->plane[plane];
 #else   // CONFIG_DIST_8X8
-  const struct macroblockd_plane *const pd = &xd->plane[plane];
+  const struct macroblock_plane *const p = &x->plane[plane];
 #endif  // CONFIG_DIST_8X8
+  const struct macroblockd_plane *const pd = &xd->plane[plane];
   const uint16_t eob = p->eobs[block];
 
   // When eob is 0, pixel domain distortion is more efficient and accurate.
@@ -2157,7 +2157,7 @@ static void dist_block(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
           const int pred_stride = block_size_wide[plane_bsize];
           const int pred_idx = (blk_row * pred_stride + blk_col)
                                << tx_size_wide_log2[0];
-          int16_t *pred = &pd->pred[pred_idx];
+          int16_t *pred = &p->pred[pred_idx];
           int i, j;
 
           if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
@@ -2805,7 +2805,7 @@ static void dist_8x8_sub8x8_txfm_rd(const AV1_COMP *const cpi, MACROBLOCK *x,
   const int dst_stride = pd->dst.stride;
   const uint8_t *src = &p->src.buf[0];
   const uint8_t *dst = &pd->dst.buf[0];
-  const int16_t *pred = &pd->pred[0];
+  const int16_t *pred = &p->pred[0];
   int bw = block_size_wide[bsize];
   int bh = block_size_high[bsize];
   int visible_w = bw;
@@ -2834,7 +2834,7 @@ static void dist_8x8_sub8x8_txfm_rd(const AV1_COMP *const cpi, MACROBLOCK *x,
                         visible_w, visible_h, qindex);
     dist *= 16;
   } else {
-    // For inter mode, the decoded pixels are provided in pd->pred,
+    // For inter mode, the decoded pixels are provided in p->pred,
     // while the predicted pixels are in dst.
     uint8_t *pred8;
     DECLARE_ALIGNED(16, uint16_t, pred16[MAX_SB_SQUARE]);
@@ -4262,7 +4262,7 @@ static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
       const int pred_stride = block_size_wide[plane_bsize];
       const int pred_idx = (blk_row * pred_stride + blk_col)
                            << tx_size_wide_log2[0];
-      const int16_t *pred = &pd->pred[pred_idx];
+      const int16_t *pred = &p->pred[pred_idx];
       int i, j;
       int row, col;
 
