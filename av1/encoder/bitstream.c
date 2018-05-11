@@ -876,6 +876,9 @@ static void write_cdef(AV1_COMMON *cm, MACROBLOCKD *const xd, aom_writer *w,
         xd->cdef_preset[3] = -1;
   }
 
+  // Force CDEF if the entire frame is to be filtered
+  skip &= !cm->cdef_filter_skip;
+
   // Emit CDEF param at first non-skip coding block
   const int mask = 1 << (6 - MI_SIZE_LOG2);
   const int index = cm->seq_params.sb_size == BLOCK_128X128
@@ -1984,6 +1987,7 @@ static void encode_cdef(const AV1_COMMON *cm, struct aom_write_bit_buffer *wb) {
   if (cm->allow_intrabc) return;
   const int num_planes = av1_num_planes(cm);
   int i;
+  aom_wb_write_literal(wb, cm->cdef_filter_skip, 1);
   aom_wb_write_literal(wb, cm->cdef_pri_damping - 3, 2);
   assert(cm->cdef_pri_damping == cm->cdef_sec_damping);
   aom_wb_write_literal(wb, cm->cdef_bits, 2);
