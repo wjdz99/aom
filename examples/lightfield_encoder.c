@@ -116,7 +116,7 @@ static int get_frame_stats(aom_codec_ctx_t *ctx, const aom_image_t *img,
 
 static int encode_frame(aom_codec_ctx_t *ctx, const aom_image_t *img,
                         aom_codec_pts_t pts, unsigned int duration,
-                        aom_enc_frame_flags_t flags AvxVideoWriter *writer) {
+                        aom_enc_frame_flags_t flags, AvxVideoWriter *writer) {
   int got_pkts = 0;
   aom_codec_iter_t iter = NULL;
   const aom_codec_cx_pkt_t *pkt = NULL;
