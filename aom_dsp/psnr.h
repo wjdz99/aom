@@ -70,9 +70,6 @@ void aom_calc_highbd_psnr(const YV12_BUFFER_CONFIG *a,
 void aom_calc_psnr(const YV12_BUFFER_CONFIG *a, const YV12_BUFFER_CONFIG *b,
                    PSNR_STATS *psnr);
 
-double aom_psnrhvs(const YV12_BUFFER_CONFIG *source,
-                   const YV12_BUFFER_CONFIG *dest, double *phvs_y,
-                   double *phvs_u, double *phvs_v, uint32_t bd, uint32_t in_bd);
 #ifdef __cplusplus
 }  // extern "C"
 #endif

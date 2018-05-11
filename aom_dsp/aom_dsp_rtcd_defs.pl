@@ -461,23 +461,6 @@ add_proto qw/void av1_round_shift_array/, "int32_t *arr, int size, int bit";
 specialize "av1_round_shift_array", qw/sse4_1/;
 
 #
-# Encoder functions.
-#
-
-#
-# Forward transform
-#
-if (aom_config("CONFIG_AV1_ENCODER") eq "yes"){
-    add_proto qw/void aom_fdct8x8/, "const int16_t *input, tran_low_t *output, int stride";
-    specialize qw/aom_fdct8x8 sse2/, "$ssse3_x86_64";
-
-    # High bit depth
-    add_proto qw/void aom_highbd_fdct8x8/, "const int16_t *input, tran_low_t *output, int stride";
-    specialize qw/aom_highbd_fdct8x8 sse2/;
-
-}  # CONFIG_AV1_ENCODER
-
-#
 # Inverse transform
 if (aom_config("CONFIG_AV1") eq "yes") {
   add_proto qw/void aom_highbd_iwht4x4_1_add/, "const tran_low_t *input, uint8_t *dest, int dest_stride, int bd";
