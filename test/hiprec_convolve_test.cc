@@ -20,7 +20,7 @@ using libaom_test::AV1HiprecConvolve::AV1HiprecConvolveTest;
 
 namespace {
 
-#if HAVE_SSE2 || HAVE_AVX2
+#if HAVE_SSE2 || HAVE_AVX2 || HAVE_NEON
 TEST_P(AV1HiprecConvolveTest, CheckOutput) { RunCheckOutput(GET_PARAM(3)); }
 TEST_P(AV1HiprecConvolveTest, DISABLED_SpeedTest) {
   RunSpeedTest(GET_PARAM(3));
@@ -34,6 +34,11 @@ INSTANTIATE_TEST_CASE_P(SSE2, AV1HiprecConvolveTest,
 INSTANTIATE_TEST_CASE_P(AVX2, AV1HiprecConvolveTest,
                         libaom_test::AV1HiprecConvolve::BuildParams(
                             av1_wiener_convolve_add_src_avx2));
+#endif
+#if HAVE_NEON
+INSTANTIATE_TEST_CASE_P(NEON, AV1HiprecConvolveTest,
+                        libaom_test::AV1HiprecConvolve::BuildParams(
+                            av1_wiener_convolve_add_src_neon));
 #endif
 #endif
 
