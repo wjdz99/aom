@@ -3452,7 +3452,8 @@ static void add_trailing_bits(struct aom_write_bit_buffer *wb) {
 
 static void write_bitstream_level(BitstreamLevel bl,
                                   struct aom_write_bit_buffer *wb) {
-  assert(bl.major >= LEVEL_MAJOR_MIN && bl.major <= LEVEL_MAJOR_MAX);
+  assert((bl.major == 9 && bl.minor == 3) ||
+         (bl.major >= LEVEL_MAJOR_MIN && bl.major <= LEVEL_MAJOR_MAX));
   aom_wb_write_literal(wb, bl.major - LEVEL_MAJOR_MIN, LEVEL_MAJOR_BITS);
   aom_wb_write_literal(wb, bl.minor, LEVEL_MINOR_BITS);
 }

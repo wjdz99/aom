@@ -135,6 +135,14 @@ static BitstreamLevel read_bitstream_level(struct aom_read_bit_buffer *rb) {
   return bl;
 }
 
+static int is_valid_bitstream_level(BitstreamLevel bl, int still) {
+  if (bl.major > LEVEL_MAJOR_MAX) {
+    if (bl.major == 9 && bl.minor == 3 && still) return 1;
+    return 0;
+  }
+  return 1;
+}
+
 static uint32_t read_sequence_header_obu(AV1Decoder *pbi,
                                          struct aom_read_bit_buffer *rb) {
   AV1_COMMON *const cm = &pbi->common;
@@ -157,7 +165,8 @@ static uint32_t read_sequence_header_obu(AV1Decoder *pbi,
     pbi->common.enhancement_layers_cnt = 1;
     seq_params->operating_point_idc[0] = 0;
     seq_params->level[0] = read_bitstream_level(rb);
-    if (seq_params->level[0].major > LEVEL_MAJOR_MAX)
+    if (!is_valid_bitstream_level(seq_params->level[0],
+                                  cm->seq_params.still_picture))
       return AOM_CODEC_UNSUP_BITSTREAM;
     seq_params->decoder_rate_model_param_present_flag[0] = 0;
   } else {
@@ -168,7 +177,8 @@ static uint32_t read_sequence_header_obu(AV1Decoder *pbi,
       seq_params->operating_point_idc[i] =
           aom_rb_read_literal(rb, OP_POINTS_IDC_BITS);
       seq_params->level[i] = read_bitstream_level(rb);
-      if (seq_params->level[i].major > LEVEL_MAJOR_MAX)
+      if (!is_valid_bitstream_level(seq_params->level[i],
+                                    cm->seq_params.still_picture))
         return AOM_CODEC_UNSUP_BITSTREAM;
 #if !CONFIG_BUFFER_MODEL
       seq_params->decoder_rate_model_param_present_flag[i] =
