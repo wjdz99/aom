@@ -512,6 +512,7 @@ void av1_cdef_search(YV12_BUFFER_CONFIG *frame, const YV12_BUFFER_CONFIG *ref,
           (cm->cdef_uv_strengths[j] % CDEF_SEC_STRENGTHS);
     }
   }
+  cm->cdef_filter_skip = 0;
   cm->cdef_pri_damping = pri_damping;
   cm->cdef_sec_damping = sec_damping;
   aom_free(mse[0]);
