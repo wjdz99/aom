@@ -900,14 +900,49 @@ static void set_bitstream_level(SequenceHeader *seq,
                                 const AV1EncoderConfig *oxcf) {
   // TODO(any): This is a placeholder function.
   (void)oxcf;
+  BitstreamLevel bl = { 9, 3 };
+  if (oxcf->width * oxcf->height <= 512 * 288) {
+    bl.major = 2;
+    bl.minor = 0;
+  } else if (oxcf->width * oxcf->height <= 704 * 396) {
+    bl.major = 2;
+    bl.minor = 1;
+  } else if (oxcf->width * oxcf->height <= 1088 * 612) {
+    bl.major = 3;
+    bl.minor = 0;
+  } else if (oxcf->width * oxcf->height <= 1376 * 774) {
+    bl.major = 3;
+    bl.minor = 1;
+  } else if (oxcf->width * oxcf->height <= 2048 * 1152) {
+    bl.major = 4;
+    bl.minor = (oxcf->init_framerate <= 30);
+  } else if (oxcf->width * oxcf->height <= 4096 * 2176) {
+    bl.major = 5;
+    bl.minor =
+        (oxcf->init_framerate <= 30 ? 0 : (oxcf->init_framerate <= 60 ? 1 : 2));
+  } else if (oxcf->width * oxcf->height <= 8192 * 4352) {
+    bl.major = 6;
+    bl.minor =
+        (oxcf->init_framerate <= 30 ? 0 : (oxcf->init_framerate <= 60 ? 1 : 2));
+  } else if (oxcf->width * oxcf->height <= 16384 * 8704) {
+    bl.major = 7;
+    bl.minor = 0;
+  } else if (oxcf->width * oxcf->height <= 16384 * 8705) {
+    bl.major = 7;
+    bl.minor = 1;
+  } else if (oxcf->width * oxcf->height <= 16384 * 8706) {
+    bl.major = 7;
+    bl.minor = 2;
+  } else if (oxcf->width * oxcf->height <= 16384 * 8707) {
+    bl.major = 7;
+    bl.minor = 3;
+  }
   for (int i = 0; i < MAX_NUM_OPERATING_POINTS; ++i) {
-    seq->level[i].major = 5;
-    seq->level[i].major = 2;
+    seq->level[i] = bl;
   }
 }
 
 void init_seq_coding_tools(SequenceHeader *seq, const AV1EncoderConfig *oxcf) {
-  set_bitstream_level(seq, oxcf);
   seq->still_picture = (oxcf->limit == 1);
   seq->reduced_still_picture_hdr = seq->still_picture;
   seq->reduced_still_picture_hdr &= !oxcf->full_still_picture_hdr;
@@ -937,6 +972,8 @@ void init_seq_coding_tools(SequenceHeader *seq, const AV1EncoderConfig *oxcf) {
   seq->enable_masked_compound = 1;
   seq->enable_intra_edge_filter = 1;
   seq->enable_filter_intra = 1;
+
+  set_bitstream_level(seq, oxcf);
 }
 
 static void init_config(struct AV1_COMP *cpi, AV1EncoderConfig *oxcf) {
