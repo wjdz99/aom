@@ -271,6 +271,10 @@ set(AOM_AV1_COMMON_INTRIN_SSE4_1 ${AOM_AV1_COMMON_INTRIN_SSE4_1}
 set(AOM_AV1_COMMON_INTRIN_SSE2 ${AOM_AV1_COMMON_INTRIN_SSE2}
     "${AOM_ROOT}/av1/common/x86/convolve_sse2.c")
 
+set(AOM_AV1_COMMON_INTRIN_NEON ${AOM_AV1_COMMON_INTRIN_NEON}
+    "${AOM_ROOT}/av1/common/arm/convolve_neon.c"
+    "${AOM_ROOT}/av1/common/arm/transpose_neon.h")
+
 set(AOM_AV1_COMMON_INTRIN_SSE4_1 ${AOM_AV1_COMMON_INTRIN_SSE4_1}
     "${AOM_ROOT}/av1/common/x86/av1_convolve_horiz_rs_sse4.c")
 
