@@ -5848,9 +5848,7 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
     }
   }
 
-  if (!cm->large_scale_tile) {
-    cm->frame_contexts[cm->new_fb_idx] = *cm->fc;
-  }
+  cm->frame_contexts[cm->new_fb_idx] = *cm->fc;
 
 #define EXT_TILE_DEBUG 0
 #if EXT_TILE_DEBUG

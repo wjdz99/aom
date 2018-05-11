@@ -4059,8 +4059,5 @@ void av1_decode_tg_tiles_and_wrapup(AV1Decoder *pbi, const uint8_t *data,
   }
 #endif
 
-  // Non frame parallel update frame context here.
-  if (!cm->large_scale_tile) {
-    cm->frame_contexts[cm->new_fb_idx] = *cm->fc;
-  }
+  cm->frame_contexts[cm->new_fb_idx] = *cm->fc;
 }
