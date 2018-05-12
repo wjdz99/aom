@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d8b1f746_eaaa21f7",
+        "filename": "av1/encoder/encodemb.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 409,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-05-12T00:39:39Z",
+      "side": 1,
+      "message": "ctx is passed to a av1_get_entropy_contexts() call at line 448. This is why this CL modifies the definition of struct optimize_ctx in encodemb.h.",
+      "range": {
+        "startLine": 409,
+        "startChar": 2,
+        "endLine": 409,
+        "endChar": 26
+      },
+      "revId": "0ef8ce7ce8eda8065042a9c03cd9b7a6dd3bb4e8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5596b3fa_a6747018",
+        "filename": "av1/encoder/encodemb.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 448,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-05-12T00:39:39Z",
+      "side": 1,
+      "message": "Note that ctx.ta[plane] and ctx.tl[plane] are passed to av1_get_entropy_contexts().",
+      "range": {
+        "startLine": 448,
+        "startChar": 4,
+        "endLine": 448,
+        "endChar": 71
+      },
+      "revId": "0ef8ce7ce8eda8065042a9c03cd9b7a6dd3bb4e8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "43678fa6_576d4ec1",
+        "filename": "av1/encoder/encodemb.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 590,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-05-12T00:39:39Z",
+      "side": 1,
+      "message": "Note that ta and tl are passed to av1_get_entropy_contexts().",
+      "range": {
+        "startLine": 590,
+        "startChar": 4,
+        "endLine": 590,
+        "endChar": 48
+      },
+      "revId": "0ef8ce7ce8eda8065042a9c03cd9b7a6dd3bb4e8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d102a3dd_b85584ac",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2898,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-05-12T00:39:39Z",
+      "side": 1,
+      "message": "Note that args.t_above, args.t_left are passed to av1_get_entropy_contexts(). args is declared as struct rdcost_block_args at line 2888. This is why this CL modifies struct rdcost_block_args.",
+      "range": {
+        "startLine": 2898,
+        "startChar": 2,
+        "endLine": 2898,
+        "endChar": 65
+      },
+      "revId": "0ef8ce7ce8eda8065042a9c03cd9b7a6dd3bb4e8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
