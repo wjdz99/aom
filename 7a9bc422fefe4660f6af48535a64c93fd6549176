@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "8518b8d4_1e32a69f",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2018-05-13T04:45:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "77fa5c33_9867fdf6",
+      "range": {
+        "startLine": 9,
+        "startChar": 14,
+        "endLine": 9,
+        "endChar": 19
+      },
+      "revId": "7a9bc422fefe4660f6af48535a64c93fd6549176",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b3121c22_b9bec7ff",
         "filename": "av1/av1.cmake",
         "patchSetId": 3
@@ -45,6 +69,30 @@
       "revId": "7a9bc422fefe4660f6af48535a64c93fd6549176",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5930114a_310851e0",
+        "filename": "av1/av1.cmake",
+        "patchSetId": 3
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2018-05-13T04:45:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b3121c22_b9bec7ff",
+      "range": {
+        "startLine": 232,
+        "startChar": 4,
+        "endLine": 232,
+        "endChar": 30
+      },
+      "revId": "7a9bc422fefe4660f6af48535a64c93fd6549176",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "63473c72_e945ff49",
+        "filename": "av1/common/arm/convolve_neon.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2018-05-13T04:45:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "47e395d9_4a6c1ecb",
+      "range": {
+        "startLine": 21,
+        "startChar": 19,
+        "endLine": 21,
+        "endChar": 36
+      },
+      "revId": "7a9bc422fefe4660f6af48535a64c93fd6549176",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ec6b7863_1419e368",
         "filename": "av1/common/arm/convolve_neon.c",
         "patchSetId": 3
@@ -91,6 +163,30 @@
       "revId": "7a9bc422fefe4660f6af48535a64c93fd6549176",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d635b60b_5bf35dde",
+        "filename": "av1/common/arm/convolve_neon.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2018-05-13T04:45:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ec6b7863_1419e368",
+      "range": {
+        "startLine": 35,
+        "startChar": 47,
+        "endLine": 35,
+        "endChar": 56
+      },
+      "revId": "7a9bc422fefe4660f6af48535a64c93fd6549176",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "25a65ce6_f2f2484d",
+        "filename": "av1/common/arm/convolve_neon.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2018-05-13T04:45:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "eb9cdba0_fcaf6938",
+      "range": {
+        "startLine": 40,
+        "startChar": 8,
+        "endLine": 40,
+        "endChar": 21
+      },
+      "revId": "7a9bc422fefe4660f6af48535a64c93fd6549176",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "03acd190_1e8efbc4",
         "filename": "av1/common/arm/convolve_neon.c",
         "patchSetId": 3
@@ -140,6 +260,30 @@
     },
     {
       "key": {
+        "uuid": "2665125c_619d95cc",
+        "filename": "av1/common/arm/convolve_neon.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2018-05-13T04:45:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "03acd190_1e8efbc4",
+      "range": {
+        "startLine": 71,
+        "startChar": 45,
+        "endLine": 71,
+        "endChar": 53
+      },
+      "revId": "7a9bc422fefe4660f6af48535a64c93fd6549176",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1f88669a_a9982dba",
         "filename": "av1/common/arm/convolve_neon.c",
         "patchSetId": 3
@@ -160,6 +304,30 @@
       "revId": "7a9bc422fefe4660f6af48535a64c93fd6549176",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e6020a74_f00d5092",
+        "filename": "av1/common/arm/convolve_neon.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2018-05-13T04:45:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1f88669a_a9982dba",
+      "range": {
+        "startLine": 77,
+        "startChar": 19,
+        "endLine": 77,
+        "endChar": 35
+      },
+      "revId": "7a9bc422fefe4660f6af48535a64c93fd6549176",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -209,6 +377,54 @@
     },
     {
       "key": {
+        "uuid": "1c617dfa_77520048",
+        "filename": "av1/common/arm/convolve_neon.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2018-05-13T04:45:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dae78aa3_25664ca6",
+      "range": {
+        "startLine": 168,
+        "startChar": 2,
+        "endLine": 168,
+        "endChar": 8
+      },
+      "revId": "7a9bc422fefe4660f6af48535a64c93fd6549176",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8ac4f433_eb015c03",
+        "filename": "av1/common/arm/convolve_neon.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2018-05-13T04:45:11Z",
+      "side": 1,
+      "message": "\u0027o\u0027 stands for offset. I have now modified the variable as horiz_offset.",
+      "parentUuid": "eaa99efa_77c45160",
+      "range": {
+        "startLine": 168,
+        "startChar": 9,
+        "endLine": 168,
+        "endChar": 17
+      },
+      "revId": "7a9bc422fefe4660f6af48535a64c93fd6549176",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b85769fc_96bc31c6",
         "filename": "av1/common/arm/convolve_neon.c",
         "patchSetId": 3
@@ -229,6 +445,30 @@
       "revId": "7a9bc422fefe4660f6af48535a64c93fd6549176",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d7eebc87_edb2b215",
+        "filename": "av1/common/arm/convolve_neon.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2018-05-13T04:45:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b85769fc_96bc31c6",
+      "range": {
+        "startLine": 169,
+        "startChar": 2,
+        "endLine": 169,
+        "endChar": 8
+      },
+      "revId": "7a9bc422fefe4660f6af48535a64c93fd6549176",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -255,6 +495,30 @@
     },
     {
       "key": {
+        "uuid": "26556206_d6beab28",
+        "filename": "av1/common/arm/convolve_neon.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2018-05-13T04:45:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "17e3b2e4_1086c93b",
+      "range": {
+        "startLine": 184,
+        "startChar": 38,
+        "endLine": 184,
+        "endChar": 46
+      },
+      "revId": "7a9bc422fefe4660f6af48535a64c93fd6549176",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ebd873d7_c66c45a4",
         "filename": "av1/common/arm/convolve_neon.c",
         "patchSetId": 3
@@ -278,6 +542,30 @@
     },
     {
       "key": {
+        "uuid": "1ee4b3ee_3d4e2327",
+        "filename": "av1/common/arm/convolve_neon.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2018-05-13T04:45:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ebd873d7_c66c45a4",
+      "range": {
+        "startLine": 200,
+        "startChar": 4,
+        "endLine": 200,
+        "endChar": 22
+      },
+      "revId": "7a9bc422fefe4660f6af48535a64c93fd6549176",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "56f30ffe_904ad170",
         "filename": "av1/common/arm/convolve_neon.c",
         "patchSetId": 3
@@ -289,6 +577,30 @@
       "writtenOn": "2018-05-11T19:50:12Z",
       "side": 1,
       "message": "What case does this else cover?",
+      "range": {
+        "startLine": 398,
+        "startChar": 6,
+        "endLine": 398,
+        "endChar": 10
+      },
+      "revId": "7a9bc422fefe4660f6af48535a64c93fd6549176",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fb651234_16230272",
+        "filename": "av1/common/arm/convolve_neon.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 398,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2018-05-13T04:45:11Z",
+      "side": 1,
+      "message": "Block sizes with (height !\u003d 4)\u0026\u0026( width \u003e 4) cases will fall under this else.",
+      "parentUuid": "56f30ffe_904ad170",
       "range": {
         "startLine": 398,
         "startChar": 6,
@@ -318,6 +630,24 @@
     },
     {
       "key": {
+        "uuid": "72e917b8_35e764ff",
+        "filename": "av1/common/arm/convolve_neon.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 423,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2018-05-13T04:45:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a9157ebb_40dda46b",
+      "revId": "7a9bc422fefe4660f6af48535a64c93fd6549176",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "23ce1239_eef79cc7",
         "filename": "av1/common/arm/transpose_neon.h",
         "patchSetId": 3
@@ -341,6 +671,30 @@
     },
     {
       "key": {
+        "uuid": "0d9c46fa_deef4d77",
+        "filename": "av1/common/arm/transpose_neon.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2018-05-13T04:45:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "23ce1239_eef79cc7",
+      "range": {
+        "startLine": 16,
+        "startChar": 19,
+        "endLine": 16,
+        "endChar": 30
+      },
+      "revId": "7a9bc422fefe4660f6af48535a64c93fd6549176",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f49d7cfc_90f17377",
         "filename": "test/test.cmake",
         "patchSetId": 3
@@ -361,6 +715,30 @@
       "revId": "7a9bc422fefe4660f6af48535a64c93fd6549176",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "231efe2d_5a3afa2e",
+        "filename": "test/test.cmake",
+        "patchSetId": 3
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2018-05-13T04:45:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f49d7cfc_90f17377",
+      "range": {
+        "startLine": 193,
+        "startChar": 8,
+        "endLine": 193,
+        "endChar": 17
+      },
+      "revId": "7a9bc422fefe4660f6af48535a64c93fd6549176",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
