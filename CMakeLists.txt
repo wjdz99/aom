@@ -95,7 +95,6 @@ list(APPEND AOM_RTCD_SOURCES
     "${AOM_ROOT}/av1/common/av1_rtcd.c"
     "${AOM_ROOT}/build/make/rtcd.pl")
 
-# TODO(tomfinegan): Use libwebm's cmake support directly.
 list(APPEND AOM_LIBWEBM_SOURCES
     "${AOM_ROOT}/third_party/libwebm/common/hdr_util.cc"
     "${AOM_ROOT}/third_party/libwebm/common/hdr_util.h"
@@ -469,9 +468,6 @@ if (ENABLE_TOOLS)
 
     if (NOT MSVC)
       target_compile_options(dump_obu PUBLIC -std=c++11)
-      # TODO(tomfinegan): This can go once the GCC pragma in libwebm is updated
-      # to silence the auto_ptr warnings for GCC >= v4.
-      target_compile_options(dump_obu PUBLIC -Wno-deprecated-declarations)
     endif ()
 
     # Maintain a separate variable listing only the examples to facilitate
@@ -533,6 +529,8 @@ if (CONFIG_UNIT_TESTS OR ENABLE_EXAMPLES OR ENABLE_TOOLS)
     include_directories("${AOM_ROOT}/third_party/libwebm")
     target_compile_definitions(webm PRIVATE __STDC_CONSTANT_MACROS)
     target_compile_definitions(webm PRIVATE __STDC_LIMIT_MACROS)
+
+    require_cxx_flag("-std=c++11" YES)
 
     if (NOT MSVC)
       target_compile_options(webm PRIVATE -Wno-shadow)

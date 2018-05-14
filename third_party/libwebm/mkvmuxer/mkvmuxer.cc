@@ -26,11 +26,6 @@
 #include "mkvmuxer/mkvwriter.h"
 #include "mkvparser/mkvparser.h"
 
-// disable deprecation warnings for auto_ptr
-#if defined(__GNUC__) && __GNUC__ >= 5
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif
-
 namespace mkvmuxer {
 
 const float PrimaryChromaticity::kChromaticityMin = 0.0f;
@@ -74,7 +69,7 @@ bool StrCpy(const char* src, char** dst_ptr) {
   return true;
 }
 
-typedef std::auto_ptr<PrimaryChromaticity> PrimaryChromaticityPtr;
+typedef std::unique_ptr<PrimaryChromaticity> PrimaryChromaticityPtr;
 bool CopyChromaticity(const PrimaryChromaticity* src,
                       PrimaryChromaticityPtr* dst) {
   if (!dst)
@@ -1059,22 +1054,22 @@ bool MasteringMetadata::Write(IMkvWriter* writer) const {
 bool MasteringMetadata::SetChromaticity(
     const PrimaryChromaticity* r, const PrimaryChromaticity* g,
     const PrimaryChromaticity* b, const PrimaryChromaticity* white_point) {
-  PrimaryChromaticityPtr r_ptr(NULL);
+  PrimaryChromaticityPtr r_ptr(nullptr);
   if (r) {
     if (!CopyChromaticity(r, &r_ptr))
       return false;
   }
-  PrimaryChromaticityPtr g_ptr(NULL);
+  PrimaryChromaticityPtr g_ptr(nullptr);
   if (g) {
     if (!CopyChromaticity(g, &g_ptr))
       return false;
   }
-  PrimaryChromaticityPtr b_ptr(NULL);
+  PrimaryChromaticityPtr b_ptr(nullptr);
   if (b) {
     if (!CopyChromaticity(b, &b_ptr))
       return false;
   }
-  PrimaryChromaticityPtr wp_ptr(NULL);
+  PrimaryChromaticityPtr wp_ptr(nullptr);
   if (white_point) {
     if (!CopyChromaticity(white_point, &wp_ptr))
       return false;
@@ -1240,7 +1235,7 @@ bool Colour::Write(IMkvWriter* writer) const {
 }
 
 bool Colour::SetMasteringMetadata(const MasteringMetadata& mastering_metadata) {
-  std::auto_ptr<MasteringMetadata> mm_ptr(new MasteringMetadata());
+  std::unique_ptr<MasteringMetadata> mm_ptr(new MasteringMetadata());
   if (!mm_ptr.get())
     return false;
 
@@ -1548,7 +1543,7 @@ bool VideoTrack::Write(IMkvWriter* writer) const {
 }
 
 bool VideoTrack::SetColour(const Colour& colour) {
-  std::auto_ptr<Colour> colour_ptr(new Colour());
+  std::unique_ptr<Colour> colour_ptr(new Colour());
   if (!colour_ptr.get())
     return false;
 
@@ -1576,7 +1571,7 @@ bool VideoTrack::SetColour(const Colour& colour) {
 }
 
 bool VideoTrack::SetProjection(const Projection& projection) {
-  std::auto_ptr<Projection> projection_ptr(new Projection());
+  std::unique_ptr<Projection> projection_ptr(new Projection());
   if (!projection_ptr.get())
     return false;
 
@@ -1710,7 +1705,6 @@ const char Tracks::kVorbisCodecId[] = "A_VORBIS";
 const char Tracks::kVp8CodecId[] = "V_VP8";
 const char Tracks::kVp9CodecId[] = "V_VP9";
 const char Tracks::kVp10CodecId[] = "V_VP10";
-const char Tracks::kAV1CodecId[] = "V_AV1";
 const char Tracks::kWebVttCaptionsId[] = "D_WEBVTT/CAPTIONS";
 const char Tracks::kWebVttDescriptionsId[] = "D_WEBVTT/DESCRIPTIONS";
 const char Tracks::kWebVttMetadataId[] = "D_WEBVTT/METADATA";
@@ -4166,15 +4160,15 @@ bool Segment::WriteFramesLessThan(uint64_t timestamp) {
 }
 
 bool Segment::DocTypeIsWebm() const {
-  const int kNumCodecIds = 10;
+  const int kNumCodecIds = 9;
 
   // TODO(vigneshv): Tweak .clang-format.
   const char* kWebmCodecIds[kNumCodecIds] = {
       Tracks::kOpusCodecId,          Tracks::kVorbisCodecId,
       Tracks::kVp8CodecId,           Tracks::kVp9CodecId,
-      Tracks::kVp10CodecId,          Tracks::kAV1CodecId,
-      Tracks::kWebVttCaptionsId,     Tracks::kWebVttDescriptionsId,
-      Tracks::kWebVttMetadataId,     Tracks::kWebVttSubtitlesId};
+      Tracks::kVp10CodecId,          Tracks::kWebVttCaptionsId,
+      Tracks::kWebVttDescriptionsId, Tracks::kWebVttMetadataId,
+      Tracks::kWebVttSubtitlesId};
 
   const int num_tracks = static_cast<int>(tracks_.track_entries_size());
   for (int track_index = 0; track_index < num_tracks; ++track_index) {
