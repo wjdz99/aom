@@ -22,6 +22,47 @@
       "revId": "df3a2716626e92965712d0fc486e758771e181b0",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "eb9a5914_3ab1e5b7",
+        "filename": "test/ivf_video_source.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-05-14T21:54:07Z",
+      "side": 1,
+      "message": "\u003e Note that compressed_frame_buf_ is 256 KB long. (kCodeBufferSize is defined as 256 * 1024 at line 23).\n\nThis was updated in libvpx recently to match ivfdec.c. The same could be done here.\n\nhttps://chromium-review.googlesource.com/c/webm/libvpx/+/1054000\n\n\n\u003e Therefore, for some fuzz test cases, the invalid pointer will still point within the bounds of compressed_frame_buf_ and therefore won\u0027t be reported as a heap-buffer-overflow by ASAN.\n\u003e \n\u003e I have tested two possible solutions.\n\u003e \n\u003e 1. For each frame, re-allocate compressed_frame_buf_ to be the exact size needed.\n\u003e \n\u003e 2. Use ASAN manual memory poisoning.\n\u003e \n\u003e Both solutions work. I chose the second solution in this CL because it seems more similar to production code.",
+      "parentUuid": "7241f756_c68e53b5",
+      "range": {
+        "startLine": 50,
+        "startChar": 4,
+        "endLine": 50,
+        "endChar": 57
+      },
+      "revId": "df3a2716626e92965712d0fc486e758771e181b0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "58f5bf6f_3f052f44",
+        "filename": "test/ivf_video_source.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-05-14T21:54:07Z",
+      "side": 1,
+      "message": "I understand the intent, the assert before this line would catch this condition. The test code doesn\u0027t necessarily need to handle arbitrary sizes, we usually strip files down to a minimum to avoid out-sized frames.",
+      "revId": "df3a2716626e92965712d0fc486e758771e181b0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
