@@ -1,0 +1,326 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4b855d98_954f534c",
+        "filename": "av1/common/arm/convolve_neon.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-05-14T23:59:24Z",
+      "side": 1,
+      "message": "What do the two \u00278\u0027 values mean?",
+      "range": {
+        "startLine": 16,
+        "startChar": 44,
+        "endLine": 16,
+        "endChar": 47
+      },
+      "revId": "dff9005de25f74df454eba0794243b8bfb8d7780",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "96ce8cab_74aca3a0",
+        "filename": "av1/common/arm/convolve_neon.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-05-14T23:59:24Z",
+      "side": 1,
+      "message": "If only the low filter values are used, why pass the high ones in? Would it be better to pass the filter array directly and use vmlal_n_ instead of vmlal_lane?",
+      "range": {
+        "startLine": 21,
+        "startChar": 18,
+        "endLine": 21,
+        "endChar": 28
+      },
+      "revId": "dff9005de25f74df454eba0794243b8bfb8d7780",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "78423849_0a6ee34e",
+        "filename": "av1/common/arm/convolve_neon.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-05-14T23:59:24Z",
+      "side": 1,
+      "message": "Do the values need to be signed before this? Are any of the filter values negative?",
+      "range": {
+        "startLine": 51,
+        "startChar": 9,
+        "endLine": 51,
+        "endChar": 18
+      },
+      "revId": "dff9005de25f74df454eba0794243b8bfb8d7780",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7d573cad_cdae0451",
+        "filename": "av1/common/arm/convolve_neon.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-05-14T23:59:24Z",
+      "side": 1,
+      "message": "For simple instructions like this it is not necessary to add a comment",
+      "range": {
+        "startLine": 156,
+        "startChar": 12,
+        "endLine": 156,
+        "endChar": 13
+      },
+      "revId": "dff9005de25f74df454eba0794243b8bfb8d7780",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "34eb2b3a_cbf08426",
+        "filename": "av1/common/arm/convolve_neon.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-05-14T23:59:24Z",
+      "side": 1,
+      "message": "This is shifting a negated round0_bits, for a right shift, correct?",
+      "range": {
+        "startLine": 159,
+        "startChar": 5,
+        "endLine": 159,
+        "endChar": 15
+      },
+      "revId": "dff9005de25f74df454eba0794243b8bfb8d7780",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0112bba9_e7e4e2ca",
+        "filename": "av1/common/arm/wiener_convolve_neon.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-05-14T23:59:24Z",
+      "side": 1,
+      "message": "Space\n/* Wiener",
+      "range": {
+        "startLine": 24,
+        "startChar": 2,
+        "endLine": 24,
+        "endChar": 8
+      },
+      "revId": "dff9005de25f74df454eba0794243b8bfb8d7780",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1151e3c8_2fe37642",
+        "filename": "av1/common/arm/wiener_convolve_neon.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-05-14T23:59:24Z",
+      "side": 1,
+      "message": "Leave off the indentation:\n/* Wiener filter 2D\n   Apply horizontal filter and store in a temporary buffer. When applying\n   vertical filter, overwrite the original pixel values.\n */\n\n/* Or put\n * stars\n * on each line\n */",
+      "range": {
+        "startLine": 25,
+        "startChar": 2,
+        "endLine": 25,
+        "endChar": 8
+      },
+      "revId": "dff9005de25f74df454eba0794243b8bfb8d7780",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5ee35259_5e86b44e",
+        "filename": "av1/common/arm/wiener_convolve_neon.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-05-14T23:59:24Z",
+      "side": 1,
+      "message": "Horiz\n\nUnless this is a parameter or variable name, it is clearer to say \u0027horizontal filtering\u0027 without the underscore. The capitalization is inconsistent throughout the file and with respect to Vert/vert/Filter/filter",
+      "range": {
+        "startLine": 25,
+        "startChar": 22,
+        "endLine": 25,
+        "endChar": 36
+      },
+      "revId": "dff9005de25f74df454eba0794243b8bfb8d7780",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "73a9b381_a99a8d2d",
+        "filename": "av1/common/arm/wiener_convolve_neon.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-05-14T23:59:24Z",
+      "side": 1,
+      "message": "What is o/p?",
+      "range": {
+        "startLine": 26,
+        "startChar": 36,
+        "endLine": 26,
+        "endChar": 39
+      },
+      "revId": "dff9005de25f74df454eba0794243b8bfb8d7780",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cd6ac058_5e90f75f",
+        "filename": "av1/common/arm/wiener_convolve_neon.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-05-14T23:59:24Z",
+      "side": 1,
+      "message": "const int16x4_t filters \u003d vld1_s16(filter_x)\n\nIt doesn\u0027t appear that the high values are used anywhere. Is the filter just one value repeated? Or a vector?",
+      "range": {
+        "startLine": 44,
+        "startChar": 2,
+        "endLine": 44,
+        "endChar": 11
+      },
+      "revId": "dff9005de25f74df454eba0794243b8bfb8d7780",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0bbcd3da_e39f47f8",
+        "filename": "av1/common/arm/wiener_convolve_neon.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-05-14T23:59:24Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 45,
+        "startChar": 2,
+        "endLine": 45,
+        "endChar": 5
+      },
+      "revId": "dff9005de25f74df454eba0794243b8bfb8d7780",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f81670bc_cb962975",
+        "filename": "av1/common/arm/wiener_convolve_neon.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-05-14T23:59:24Z",
+      "side": 1,
+      "message": "Is it perhaps possible to use a smaller buffer and filter in stages? How much overlap is there between the horizontal and vertical?",
+      "range": {
+        "startLine": 49,
+        "startChar": 24,
+        "endLine": 49,
+        "endChar": 35
+      },
+      "revId": "dff9005de25f74df454eba0794243b8bfb8d7780",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e40fdb32_ba49c16c",
+        "filename": "av1/common/arm/wiener_convolve_neon.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-05-14T23:59:24Z",
+      "side": 1,
+      "message": "filter_x[7] does not appear to be used. Is it necessary to check it?",
+      "range": {
+        "startLine": 58,
+        "startChar": 9,
+        "endLine": 58,
+        "endChar": 17
+      },
+      "revId": "dff9005de25f74df454eba0794243b8bfb8d7780",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4137bf28_b751f14a",
+        "filename": "av1/common/arm/wiener_convolve_neon.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-05-14T23:59:24Z",
+      "side": 1,
+      "message": "Is the prefect effective when it is immediately before the load?",
+      "range": {
+        "startLine": 84,
+        "startChar": 6,
+        "endLine": 84,
+        "endChar": 24
+      },
+      "revId": "dff9005de25f74df454eba0794243b8bfb8d7780",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
