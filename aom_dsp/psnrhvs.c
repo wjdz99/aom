@@ -180,7 +180,7 @@ static double calc_psnrhvs(const unsigned char *src, int _systride,
           if (!buf_is_hbd) {
             dct_s[i * 8 + j] = _src8[(y + i) * _systride + (j + x)];
             dct_d[i * 8 + j] = _dst8[(y + i) * _dystride + (j + x)];
-          } else if (bit_depth == 10 || bit_depth == 12) {
+          } else {
             dct_s[i * 8 + j] = _src16[(y + i) * _systride + (j + x)] >> _shift;
             dct_d[i * 8 + j] = _dst16[(y + i) * _dystride + (j + x)] >> _shift;
           }
@@ -213,13 +213,12 @@ static double calc_psnrhvs(const unsigned char *src, int _systride,
         s_gvar = (s_vars[0] + s_vars[1] + s_vars[2] + s_vars[3]) / s_gvar;
       if (d_gvar > 0)
         d_gvar = (d_vars[0] + d_vars[1] + d_vars[2] + d_vars[3]) / d_gvar;
-      if (bit_depth == 10 || bit_depth == 12) {
-        hbd_od_bin_fdct8x8(dct_s_coef, 8, dct_s, 8);
-        hbd_od_bin_fdct8x8(dct_d_coef, 8, dct_d, 8);
-      }
-      if (bit_depth == 8) {
+      if (!buf_is_hbd) {
         od_bin_fdct8x8(dct_s_coef, 8, dct_s, 8);
         od_bin_fdct8x8(dct_d_coef, 8, dct_d, 8);
+      } else {
+        hbd_od_bin_fdct8x8(dct_s_coef, 8, dct_s, 8);
+        hbd_od_bin_fdct8x8(dct_d_coef, 8, dct_d, 8);
       }
       for (i = 0; i < 8; i++)
         for (j = (i == 0); j < 8; j++)
@@ -258,7 +257,7 @@ double aom_psnrhvs(const YV12_BUFFER_CONFIG *src, const YV12_BUFFER_CONFIG *dst,
   assert(bd == 8 || bd == 10 || bd == 12);
   assert(bd >= in_bd);
   assert(src->flags == dst->flags);
-  int buf_is_hbd = src->flags & YV12_FLAG_HIGHBITDEPTH;
+  const int buf_is_hbd = src->flags & YV12_FLAG_HIGHBITDEPTH;
 
   bd_shift = bd - in_bd;
 
