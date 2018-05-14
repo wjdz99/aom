@@ -46,6 +46,30 @@
       "revId": "de0e712ffe1cd74b3fab63057f4e532262fd186d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "396ed450_83406cdf",
+        "filename": "aom_dsp/aom_dsp.cmake",
+        "patchSetId": 2
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-05-14T20:20:43Z",
+      "side": 1,
+      "message": "Yeah, maybe something else was arm64-only, or there was assembly for armv7, etc. W/E glad to see it gone.",
+      "parentUuid": "9a3e027a_72468098",
+      "range": {
+        "startLine": 103,
+        "startChar": 32,
+        "endLine": 103,
+        "endChar": 46
+      },
+      "revId": "de0e712ffe1cd74b3fab63057f4e532262fd186d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
