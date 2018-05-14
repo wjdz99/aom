@@ -522,7 +522,7 @@ void av1_dr_prediction_z1_c(uint8_t *dst, ptrdiff_t stride, int bw, int bh,
   (void)dy;
   assert(dy == 1);
   assert(dx > 0);
-
+// test
   const int max_base_x = ((bw + bh) - 1) << upsample_above;
   const int frac_bits = 6 - upsample_above;
   const int base_inc = 1 << upsample_above;
