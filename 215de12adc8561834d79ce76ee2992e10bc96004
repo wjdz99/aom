@@ -1,0 +1,372 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "89b18ab1_8b622fb6",
+        "filename": "av1/av1.cmake",
+        "patchSetId": 4
+      },
+      "lineNbr": 279,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-05-14T23:34:23Z",
+      "side": 1,
+      "message": "undo this change",
+      "range": {
+        "startLine": 278,
+        "startChar": 0,
+        "endLine": 279,
+        "endChar": 0
+      },
+      "revId": "215de12adc8561834d79ce76ee2992e10bc96004",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "641d8656_a7fd5b90",
+        "filename": "av1/common/arm/convolve_neon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-05-14T23:34:23Z",
+      "side": 1,
+      "message": "This goes in the list below since it is not a system header\n\n#include \"aom_ports/mem.h\"",
+      "range": {
+        "startLine": 15,
+        "startChar": 10,
+        "endLine": 15,
+        "endChar": 19
+      },
+      "revId": "215de12adc8561834d79ce76ee2992e10bc96004",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "127dff9e_3b980f5d",
+        "filename": "av1/common/arm/convolve_neon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-05-14T23:34:23Z",
+      "side": 1,
+      "message": "It\u0027s not immediately clear what the 8 and 4 refer to. It might not be necessary to specify \u0027s16\u0027 either, unless there is a variant which takes unsigned values or different sizes (8 or 32?)",
+      "range": {
+        "startLine": 23,
+        "startChar": 24,
+        "endLine": 23,
+        "endChar": 40
+      },
+      "revId": "215de12adc8561834d79ce76ee2992e10bc96004",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d6bdb5e3_16a25c92",
+        "filename": "av1/common/arm/convolve_neon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-05-14T23:34:23Z",
+      "side": 1,
+      "message": "Why are these last two set up this way? Is it because you need saturation? A comment would be helpful.\n\nIs widening an option? It\u0027s only two instructions, so maybe not.",
+      "range": {
+        "startLine": 36,
+        "startChar": 8,
+        "endLine": 36,
+        "endChar": 17
+      },
+      "revId": "215de12adc8561834d79ce76ee2992e10bc96004",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a2ffe6e9_a842c7eb",
+        "filename": "av1/common/arm/convolve_neon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-05-14T23:34:23Z",
+      "side": 1,
+      "message": "The naming could be more consistent here, see comments above.",
+      "range": {
+        "startLine": 42,
+        "startChar": 24,
+        "endLine": 42,
+        "endChar": 35
+      },
+      "revId": "215de12adc8561834d79ce76ee2992e10bc96004",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "279edc5b_cfffebf4",
+        "filename": "av1/common/arm/convolve_neon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-05-14T23:34:23Z",
+      "side": 1,
+      "message": "likewise, how was it determined that this is necessary. specifically, are you sure it\u0027s not needed a stage earlier?",
+      "range": {
+        "startLine": 57,
+        "startChar": 8,
+        "endLine": 57,
+        "endChar": 18
+      },
+      "revId": "215de12adc8561834d79ce76ee2992e10bc96004",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0e8c2f4e_f50b9f4e",
+        "filename": "av1/common/arm/convolve_neon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-05-14T23:34:23Z",
+      "side": 1,
+      "message": "const?",
+      "range": {
+        "startLine": 89,
+        "startChar": 2,
+        "endLine": 89,
+        "endChar": 11
+      },
+      "revId": "215de12adc8561834d79ce76ee2992e10bc96004",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2aee3644_10a66743",
+        "filename": "av1/common/arm/convolve_neon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-05-14T23:34:23Z",
+      "side": 1,
+      "message": "do you need this temp variable or can you\nvdupq_n_s16(-bits)?",
+      "range": {
+        "startLine": 91,
+        "startChar": 16,
+        "endLine": 91,
+        "endChar": 26
+      },
+      "revId": "215de12adc8561834d79ce76ee2992e10bc96004",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f6fe5fbe_5b0f0eaa",
+        "filename": "av1/common/arm/convolve_neon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-05-14T23:34:23Z",
+      "side": 1,
+      "message": "const?",
+      "range": {
+        "startLine": 92,
+        "startChar": 2,
+        "endLine": 92,
+        "endChar": 11
+      },
+      "revId": "215de12adc8561834d79ce76ee2992e10bc96004",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "15075318_cec72c14",
+        "filename": "av1/common/arm/convolve_neon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-05-14T23:34:23Z",
+      "side": 1,
+      "message": "These temp variables are not really necessary. It should fit on one line.\ns0 \u003d vget(vreinterpret(vmovl()))",
+      "range": {
+        "startLine": 108,
+        "startChar": 4,
+        "endLine": 108,
+        "endChar": 7
+      },
+      "revId": "215de12adc8561834d79ce76ee2992e10bc96004",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ea826c7c_5548e8f2",
+        "filename": "av1/common/arm/convolve_neon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-05-14T23:34:23Z",
+      "side": 1,
+      "message": "You could even pass t0-t3 in here and deal with them in convolve_s16_8_4",
+      "range": {
+        "startLine": 137,
+        "startChar": 11,
+        "endLine": 137,
+        "endChar": 27
+      },
+      "revId": "215de12adc8561834d79ce76ee2992e10bc96004",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "821f7b1e_f1999ed5",
+        "filename": "av1/common/arm/convolve_neon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 243,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-05-14T23:34:23Z",
+      "side": 1,
+      "message": "Please add a comment to each block describing the store pattern.",
+      "range": {
+        "startLine": 243,
+        "startChar": 16,
+        "endLine": 243,
+        "endChar": 17
+      },
+      "revId": "215de12adc8561834d79ce76ee2992e10bc96004",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "58856bfd_550a8e2b",
+        "filename": "av1/common/arm/convolve_neon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-05-14T23:34:23Z",
+      "side": 1,
+      "message": "Is dst guaranteed to be aligned? This has been a problem in the past with small transforms (4x4)",
+      "range": {
+        "startLine": 244,
+        "startChar": 36,
+        "endLine": 244,
+        "endChar": 39
+      },
+      "revId": "215de12adc8561834d79ce76ee2992e10bc96004",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dfc6200a_63c83358",
+        "filename": "av1/common/arm/mem_neon.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-05-14T23:34:23Z",
+      "side": 1,
+      "message": "AV1_COMMON_ARM_MEM_NEON_H_",
+      "range": {
+        "startLine": 11,
+        "startChar": 8,
+        "endLine": 11,
+        "endChar": 31
+      },
+      "revId": "215de12adc8561834d79ce76ee2992e10bc96004",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "33cbe65f_c5ffe3d3",
+        "filename": "av1/common/arm/transpose_neon.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-05-14T23:34:23Z",
+      "side": 1,
+      "message": "AV1_COMMON",
+      "range": {
+        "startLine": 11,
+        "startChar": 8,
+        "endLine": 11,
+        "endChar": 37
+      },
+      "revId": "215de12adc8561834d79ce76ee2992e10bc96004",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "92592e32_8a849736",
+        "filename": "test/test.cmake",
+        "patchSetId": 4
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-05-14T23:34:23Z",
+      "side": 1,
+      "message": "These should be added directly to the list above.",
+      "range": {
+        "startLine": 184,
+        "startChar": 8,
+        "endLine": 184,
+        "endChar": 37
+      },
+      "revId": "215de12adc8561834d79ce76ee2992e10bc96004",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
