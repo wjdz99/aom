@@ -70,6 +70,30 @@
       "revId": "c8323f9a20a976e8f725797b217e25023ca0dd46",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "929a5c89_c00cc7df",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 447,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-05-14T22:53:34Z",
+      "side": 1,
+      "message": "What I meant by \u0027unsigned int\u0027 being too small was that \u0027unsigned int\u0027 can not express the size of large memory buffers in a 64-bit address space. I know we are planning to cap the size of memory buffers in the libaom decoder to UINT32_MAX, so in that sense \u0027unsigned int\u0027 is not too small.",
+      "parentUuid": "e9ad6c09_9f9bf617",
+      "range": {
+        "startLine": 447,
+        "startChar": 56,
+        "endLine": 447,
+        "endChar": 65
+      },
+      "revId": "c8323f9a20a976e8f725797b217e25023ca0dd46",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
