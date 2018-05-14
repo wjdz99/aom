@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "57b58ca9_a6bdc1fb",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 3278,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-05-14T18:42:00Z",
+      "side": 1,
+      "message": "Better to write as:\ncase 2: \u003clogic here\u003e\ndefault: assert(0); \nto make sure code doesn\u0027t use invalid values.",
+      "revId": "ed3a75bab05d9b6de9b9227a51398d8f56ba5b3a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3e75fe0f_e7cdf29c",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 3340,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-05-14T18:42:00Z",
+      "side": 1,
+      "message": "same here",
+      "revId": "ed3a75bab05d9b6de9b9227a51398d8f56ba5b3a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b5e2308c_dc1420f3",
+        "filename": "av1/encoder/speed_features.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 382,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-05-14T18:42:00Z",
+      "side": 1,
+      "message": "0-2, looking at the code?",
+      "range": {
+        "startLine": 382,
+        "startChar": 25,
+        "endLine": 382,
+        "endChar": 26
+      },
+      "revId": "ed3a75bab05d9b6de9b9227a51398d8f56ba5b3a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
