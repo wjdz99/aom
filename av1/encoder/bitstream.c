@@ -2891,8 +2891,7 @@ static void write_global_motion(AV1_COMP *cpi,
   }
 }
 
-void check_frame_refs_short_signaling(AV1_COMP *const cpi, int lst_map_idx,
-                                      int gld_map_idx) {
+void check_frame_refs_short_signaling(AV1_COMP *const cpi) {
   AV1_COMMON *const cm = &cpi->common;
   if (!cm->frame_refs_short_signaling) return;
 
@@ -2928,6 +2927,9 @@ void check_frame_refs_short_signaling(AV1_COMP *const cpi, int lst_map_idx,
   memcpy(frame_refs_copy, cm->frame_refs,
          INTER_REFS_PER_FRAME * sizeof(RefBuffer));
 
+  const int lst_map_idx = get_ref_frame_map_idx(cpi, LAST_FRAME);
+  const int gld_map_idx = get_ref_frame_map_idx(cpi, GOLDEN_FRAME);
+
   // Set up the frame refs mapping indexes according to the
   // frame_refs_short_signaling policy.
   av1_set_frame_refs(cm, lst_map_idx, gld_map_idx);
@@ -2944,15 +2946,15 @@ void check_frame_refs_short_signaling(AV1_COMP *const cpi, int lst_map_idx,
   }
 
 #if 0   // For debug
-  printf("\nFrame=%d: ", cm->current_video_frame);
-  for (int enc_ref = LAST_FRAME; enc_ref <= ALTREF_FRAME; ++enc_ref) {
-    printf("enc_ref(map_idx=%d, buf_idx=%d)=%d, mapped to "
+  printf("\nFrame=%d: \n", cm->current_video_frame);
+  printf("***frame_refs_short_signaling=%d\n", cm->frame_refs_short_signaling);
+  for (int ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
+    printf("enc_ref(map_idx=%d, buf_idx=%d)=%d, vs. "
         "dec_ref(map_idx=%d, buf_idx=%d)=%d\n",
-        get_ref_frame_map_idx(cpi, enc_ref),
-        get_ref_frame_buf_idx(cpi, enc_ref), enc_ref,
-        cm->frame_refs[cpi->ref_conv[enc_ref] - LAST_FRAME].map_idx,
-        cm->frame_refs[cpi->ref_conv[enc_ref] - LAST_FRAME].idx,
-        cpi->ref_conv[enc_ref]);
+        get_ref_frame_map_idx(cpi, ref_frame),
+        get_ref_frame_buf_idx(cpi, ref_frame), ref_frame,
+        cm->frame_refs[ref_frame - LAST_FRAME].map_idx,
+        cm->frame_refs[ref_frame - LAST_FRAME].idx, ref_frame);
   }
 #endif  // 0
 
@@ -3194,6 +3196,18 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
     } else if (cm->frame_type == INTER_FRAME || frame_is_sframe(cm)) {
       MV_REFERENCE_FRAME ref_frame;
 
+#define FRAME_REFS_SHORT_SIGNALING 0
+#if FRAME_REFS_SHORT_SIGNALING
+      cm->frame_refs_short_signaling = 1;
+#endif  // FRAME_REFS_SHORT_SIGNALING
+      if (cm->frame_refs_short_signaling) {
+        // NOTE(zoeliu@google.com):
+        //   An example solution for encoder-side implementation on frame refs
+        //   short signaling, which is only turned on when the encoder side
+        //   decision on ref frames is identical to that at the decoder side.
+        check_frame_refs_short_signaling(cpi);
+      }
+
       // NOTE: Error resilient mode turns off frame_refs_short_signaling
       //       automatically.
       if (cm->seq_params.enable_order_hint)
@@ -3203,21 +3217,10 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
 
       if (cm->frame_refs_short_signaling) {
         const int lst_ref = get_ref_frame_map_idx(cpi, LAST_FRAME);
-        assert(lst_ref != INVALID_IDX);
+        aom_wb_write_literal(wb, lst_ref, REF_FRAMES_LOG2);
 
         const int gld_ref = get_ref_frame_map_idx(cpi, GOLDEN_FRAME);
-        assert(gld_ref != INVALID_IDX);
-
-        // NOTE(zoeliu@google.com):
-        //   An example solution for encoder-side implementation on frame refs
-        //   short signaling, which is only turned on when the encoder side
-        //   decision on ref frames is identical to that at the decoder side.
-        check_frame_refs_short_signaling(cpi, lst_ref, gld_ref);
-
-        if (cm->frame_refs_short_signaling) {
-          aom_wb_write_literal(wb, lst_ref, REF_FRAMES_LOG2);
-          aom_wb_write_literal(wb, gld_ref, REF_FRAMES_LOG2);
-        }
+        aom_wb_write_literal(wb, gld_ref, REF_FRAMES_LOG2);
       }
 
       for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
