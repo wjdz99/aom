@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "1f0b4ab5_fa95e302",
+        "filename": "av1/common/arm/convolve_neon.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2018-05-15T13:51:59Z",
+      "side": 1,
+      "message": "Hi Johann,\n\nThis naming convention has been borrowed from vp9. But for clarity we have changed the function names according to the following convention.\n\nwiener_convolve\u003cfilter-taps\u003e_\u003cfilter-direction\u003e_\u003cheight\u003e_\u003cwidth\u003e.",
+      "parentUuid": "4b855d98_954f534c",
+      "range": {
+        "startLine": 16,
+        "startChar": 44,
+        "endLine": 16,
+        "endChar": 47
+      },
+      "revId": "dff9005de25f74df454eba0794243b8bfb8d7780",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "96ce8cab_74aca3a0",
         "filename": "av1/common/arm/convolve_neon.h",
         "patchSetId": 5
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "51f130df_fd8fb392",
+        "filename": "av1/common/arm/convolve_neon.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2018-05-15T13:51:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "96ce8cab_74aca3a0",
+      "range": {
+        "startLine": 21,
+        "startChar": 18,
+        "endLine": 21,
+        "endChar": 28
+      },
+      "revId": "dff9005de25f74df454eba0794243b8bfb8d7780",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "78423849_0a6ee34e",
         "filename": "av1/common/arm/convolve_neon.h",
         "patchSetId": 5
@@ -59,6 +107,30 @@
       "writtenOn": "2018-05-14T23:59:24Z",
       "side": 1,
       "message": "Do the values need to be signed before this? Are any of the filter values negative?",
+      "range": {
+        "startLine": 51,
+        "startChar": 9,
+        "endLine": 51,
+        "endChar": 18
+      },
+      "revId": "dff9005de25f74df454eba0794243b8bfb8d7780",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9d213c9c_217120a6",
+        "filename": "av1/common/arm/convolve_neon.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2018-05-15T13:51:59Z",
+      "side": 1,
+      "message": "Yes, filter values can be negative.",
+      "parentUuid": "78423849_0a6ee34e",
       "range": {
         "startLine": 51,
         "startChar": 9,
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "28183a73_bba90240",
+        "filename": "av1/common/arm/convolve_neon.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2018-05-15T13:51:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7d573cad_cdae0451",
+      "range": {
+        "startLine": 156,
+        "startChar": 12,
+        "endLine": 156,
+        "endChar": 13
+      },
+      "revId": "dff9005de25f74df454eba0794243b8bfb8d7780",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "34eb2b3a_cbf08426",
         "filename": "av1/common/arm/convolve_neon.h",
         "patchSetId": 5
@@ -105,6 +201,30 @@
       "writtenOn": "2018-05-14T23:59:24Z",
       "side": 1,
       "message": "This is shifting a negated round0_bits, for a right shift, correct?",
+      "range": {
+        "startLine": 159,
+        "startChar": 5,
+        "endLine": 159,
+        "endChar": 15
+      },
+      "revId": "dff9005de25f74df454eba0794243b8bfb8d7780",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "607a792e_3d737d56",
+        "filename": "av1/common/arm/convolve_neon.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2018-05-15T13:51:59Z",
+      "side": 1,
+      "message": "Yes, left shift with negative to achieve right shift.",
+      "parentUuid": "34eb2b3a_cbf08426",
       "range": {
         "startLine": 159,
         "startChar": 5,
@@ -137,6 +257,30 @@
       "revId": "dff9005de25f74df454eba0794243b8bfb8d7780",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b49e7e8a_b4775fe4",
+        "filename": "av1/common/arm/wiener_convolve_neon.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2018-05-15T13:51:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0112bba9_e7e4e2ca",
+      "range": {
+        "startLine": 24,
+        "startChar": 2,
+        "endLine": 24,
+        "endChar": 8
+      },
+      "revId": "dff9005de25f74df454eba0794243b8bfb8d7780",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -186,6 +330,54 @@
     },
     {
       "key": {
+        "uuid": "30bc6d8a_089d6dcf",
+        "filename": "av1/common/arm/wiener_convolve_neon.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2018-05-15T13:51:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1151e3c8_2fe37642",
+      "range": {
+        "startLine": 25,
+        "startChar": 2,
+        "endLine": 25,
+        "endChar": 8
+      },
+      "revId": "dff9005de25f74df454eba0794243b8bfb8d7780",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "12e0fab0_b627cd6c",
+        "filename": "av1/common/arm/wiener_convolve_neon.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2018-05-15T13:51:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5ee35259_5e86b44e",
+      "range": {
+        "startLine": 25,
+        "startChar": 22,
+        "endLine": 25,
+        "endChar": 36
+      },
+      "revId": "dff9005de25f74df454eba0794243b8bfb8d7780",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "73a9b381_a99a8d2d",
         "filename": "av1/common/arm/wiener_convolve_neon.c",
         "patchSetId": 5
@@ -209,6 +401,30 @@
     },
     {
       "key": {
+        "uuid": "5c5e9239_ac10c51f",
+        "filename": "av1/common/arm/wiener_convolve_neon.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2018-05-15T13:51:59Z",
+      "side": 1,
+      "message": "Output",
+      "parentUuid": "73a9b381_a99a8d2d",
+      "range": {
+        "startLine": 26,
+        "startChar": 36,
+        "endLine": 26,
+        "endChar": 39
+      },
+      "revId": "dff9005de25f74df454eba0794243b8bfb8d7780",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cd6ac058_5e90f75f",
         "filename": "av1/common/arm/wiener_convolve_neon.c",
         "patchSetId": 5
@@ -220,6 +436,30 @@
       "writtenOn": "2018-05-14T23:59:24Z",
       "side": 1,
       "message": "const int16x4_t filters \u003d vld1_s16(filter_x)\n\nIt doesn\u0027t appear that the high values are used anywhere. Is the filter just one value repeated? Or a vector?",
+      "range": {
+        "startLine": 44,
+        "startChar": 2,
+        "endLine": 44,
+        "endChar": 11
+      },
+      "revId": "dff9005de25f74df454eba0794243b8bfb8d7780",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1c20e98d_8e88439b",
+        "filename": "av1/common/arm/wiener_convolve_neon.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2018-05-15T13:51:59Z",
+      "side": 1,
+      "message": "It is a vector with symmetric values around 3rd filter coefficient.",
+      "parentUuid": "cd6ac058_5e90f75f",
       "range": {
         "startLine": 44,
         "startChar": 2,
@@ -255,6 +495,30 @@
     },
     {
       "key": {
+        "uuid": "8bd7b44d_a998afa1",
+        "filename": "av1/common/arm/wiener_convolve_neon.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2018-05-15T13:51:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0bbcd3da_e39f47f8",
+      "range": {
+        "startLine": 45,
+        "startChar": 2,
+        "endLine": 45,
+        "endChar": 5
+      },
+      "revId": "dff9005de25f74df454eba0794243b8bfb8d7780",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f81670bc_cb962975",
         "filename": "av1/common/arm/wiener_convolve_neon.c",
         "patchSetId": 5
@@ -266,6 +530,30 @@
       "writtenOn": "2018-05-14T23:59:24Z",
       "side": 1,
       "message": "Is it perhaps possible to use a smaller buffer and filter in stages? How much overlap is there between the horizontal and vertical?",
+      "range": {
+        "startLine": 49,
+        "startChar": 24,
+        "endLine": 49,
+        "endChar": 35
+      },
+      "revId": "dff9005de25f74df454eba0794243b8bfb8d7780",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c27ec768_c5e4e36b",
+        "filename": "av1/common/arm/wiener_convolve_neon.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2018-05-15T13:51:59Z",
+      "side": 1,
+      "message": "The buffer size we are using is same as other simd modules. \n\nAs we are doing vertical filtering after horizontal filtering we need to horizontal filtering for (SUBPEL_TAPS - 1) many extra rows.",
+      "parentUuid": "f81670bc_cb962975",
       "range": {
         "startLine": 49,
         "startChar": 24,
@@ -301,6 +589,30 @@
     },
     {
       "key": {
+        "uuid": "d3ccbc8d_f9e6e6c1",
+        "filename": "av1/common/arm/wiener_convolve_neon.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2018-05-15T13:51:59Z",
+      "side": 1,
+      "message": "We are not doing any multiplication with filter_x[7] under this assumption. If this assumption fails output will go wrong.",
+      "parentUuid": "e40fdb32_ba49c16c",
+      "range": {
+        "startLine": 58,
+        "startChar": 9,
+        "endLine": 58,
+        "endChar": 17
+      },
+      "revId": "dff9005de25f74df454eba0794243b8bfb8d7780",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "4137bf28_b751f14a",
         "filename": "av1/common/arm/wiener_convolve_neon.c",
         "patchSetId": 5
@@ -312,6 +624,30 @@
       "writtenOn": "2018-05-14T23:59:24Z",
       "side": 1,
       "message": "Is the prefect effective when it is immediately before the load?",
+      "range": {
+        "startLine": 84,
+        "startChar": 6,
+        "endLine": 84,
+        "endChar": 24
+      },
+      "revId": "dff9005de25f74df454eba0794243b8bfb8d7780",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "15eab38b_94f819b8",
+        "filename": "av1/common/arm/wiener_convolve_neon.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2018-05-15T13:51:59Z",
+      "side": 1,
+      "message": "This piece of code has been borrowed from vp9. we did not do any analysis to identify any effectiveness of this order.",
+      "parentUuid": "4137bf28_b751f14a",
       "range": {
         "startLine": 84,
         "startChar": 6,
