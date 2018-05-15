@@ -677,6 +677,7 @@ static aom_image_t *decoder_get_frame(aom_codec_alg_priv_t *ctx,
           img = &ctx->img;
           img->temporal_id = cm->temporal_layer_id;
           img->enhancement_id = cm->enhancement_layer_id;
+          img->max_spatial_id = cm->enhancement_layers_cnt - 1;
           return add_grain_if_needed(
               img, ctx->image_with_grain,
               &frame_worker_data->pbi->common.film_grain_params);

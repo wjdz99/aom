@@ -175,6 +175,7 @@ typedef struct aom_image {
 
   int temporal_id;    /**< Temporal layer Id of image */
   int enhancement_id; /**< Spatial layer Id of image */
+  int max_spatial_id; /**< Maximum spatial layer Id in sequence */
 
   /*!\brief The following member may be set by the application to associate
    * data with this image.
