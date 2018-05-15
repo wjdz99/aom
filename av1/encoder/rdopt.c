@@ -8067,6 +8067,7 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
     *rd_stats_uv = backup_rd_stats_uv;
     *mbmi = backup_mbmi;
     mbmi->compound_idx = comp_idx;
+    ret_val = INT64_MAX;
 
     if (is_comp_pred && comp_idx == 0) {
       mbmi->comp_group_idx = 0;
@@ -8329,7 +8330,7 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
     if (search_jnt_comp) {
       // if 1/2 model rd is larger than best_rd in jnt_comp mode,
       // use jnt_comp mode, save additional search
-      if ((rd >> 1) > best_rd) {
+      if ((rd >> 1) > best_rd && !comp_idx) {
         restore_dst_buf(xd, orig_dst, num_planes);
         continue;
       }
