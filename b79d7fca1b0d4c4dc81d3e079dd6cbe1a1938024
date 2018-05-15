@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e7a37903_3e4aa662",
+        "filename": "aom/src/aom_integer.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-05-15T22:48:43Z",
+      "side": 1,
+      "message": "We should consider changing the output argument \u0027value\u0027 to size_t *, because we assume it is a buffer allocation size.",
+      "range": {
+        "startLine": 27,
+        "startChar": 61,
+        "endLine": 27,
+        "endChar": 76
+      },
+      "revId": "b79d7fca1b0d4c4dc81d3e079dd6cbe1a1938024",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a0a8e069_fa21dcbb",
+        "filename": "aom/src/aom_integer.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-05-15T22:48:43Z",
+      "side": 1,
+      "message": "I checked two things for this change.\n\n1. The spec uses the leb128() type for the following fields: obu_size, temporal_unit_size, frame_unit_size, and obu_length. All of them are lengths. Therefore your claim that the value is used to determine buffer allocation size is correct.\n\n2. I was worried that some caller may have validated the data it passes to aom_uleb_decode() and  therefore does not check the return value. There is only one caller that does not check the return value: tools/obu_parser.cc. I will write a CL to fix that.",
+      "range": {
+        "startLine": 39,
+        "startChar": 0,
+        "endLine": 42,
+        "endChar": 43
+      },
+      "revId": "b79d7fca1b0d4c4dc81d3e079dd6cbe1a1938024",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1f1b6f9a_b8edfd10",
+        "filename": "test/aom_integer_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-05-15T22:48:43Z",
+      "side": 1,
+      "message": "This should be bytes_written, not kMaximumLeb128CodedSize.",
+      "range": {
+        "startLine": 149,
+        "startChar": 47,
+        "endLine": 149,
+        "endChar": 70
+      },
+      "revId": "b79d7fca1b0d4c4dc81d3e079dd6cbe1a1938024",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
