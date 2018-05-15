@@ -16,8 +16,8 @@
 // input file
 // containing the compressed data (in OBU format), passes it through the
 // decoder, and writes the decompressed frames to disk. The base layer and
-// enhancement layers are stored as separate files, lyr0.yuv and lyr1.yuv,
-// respectively.
+// enhancement layers are stored as separate files, out_lyr0.yuv and
+// out_lyr1.yuv, respectively.
 //
 // Standard Includes
 // -----------------
@@ -163,7 +163,7 @@ int main(int argc, char **argv) {
         aom_img_write(img_shifted, outfile[0]);
         obu_ctx.last_layer_id++;
       } else if (img->spatial_id <= (int)(si.number_spatial_layers - 1)) {
-        printf("Writing enhancemnt layer %d %d\n", img->spatial_id, frame_cnt);
+        printf("Writing enhancement layer %d %d\n", img->spatial_id, frame_cnt);
         aom_img_write(img_shifted, outfile[img->spatial_id]);
         if (img->spatial_id == (int)(si.number_spatial_layers - 1))
           obu_ctx.last_layer_id = 0;
