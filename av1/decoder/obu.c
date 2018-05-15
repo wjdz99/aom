@@ -184,8 +184,7 @@ static uint32_t read_sequence_header_obu(AV1Decoder *pbi,
   // This decoder supports all levels.  Choose operating point provided by
   // external means
   int operating_point = pbi->operating_point;
-  if (operating_point < 0 ||
-      operating_point >= pbi->common.enhancement_layers_cnt)
+  if (operating_point < 0 || operating_point >= pbi->common.enhancement_layers_cnt)
     operating_point = 0;
   pbi->current_operating_point =
       seq_params->operating_point_idc[operating_point];
