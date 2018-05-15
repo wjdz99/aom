@@ -710,7 +710,7 @@ INSTANTIATE(
 INSTANTIATE(
     ARCH, ARCH_POSTFIX(V256_V256V256_Part2), SIMD_TUPLE(v256_cmpeq_8, 0U, 0U),
     SIMD_TUPLE(v256_cmpgt_s16, 0U, 0U), SIMD_TUPLE(v256_cmplt_s16, 0U, 0U),
-    SIMD_TUPLE(v256_cmpeq_16, 0U, 0U), SIMD_TUPLE(v256_shuffle_8, 15U, 8U),
+    SIMD_TUPLE(v256_cmpeq_16, 0U, 0U), SIMD_TUPLE(v256_shuffle_8, 31U, 8U),
     SIMD_TUPLE(v256_pshuffle_8, 15U, 8U), SIMD_TUPLE(imm_v256_align<1>, 0U, 0U),
     SIMD_TUPLE(imm_v256_align<2>, 0U, 0U),
     SIMD_TUPLE(imm_v256_align<3>, 0U, 0U),

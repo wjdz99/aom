@@ -48,8 +48,7 @@ SIMD_INLINE v128 v256_high_v128(v256 a) {
 
 SIMD_INLINE v256 v256_from_v128(v128 a, v128 b) {
   // gcc seems to be missing _mm256_set_m128i()
-  return _mm256_insertf128_si256(
-      _mm256_insertf128_si256(_mm256_setzero_si256(), b, 0), a, 1);
+  return _mm256_insertf128_si256(_mm256_castsi128_si256(b), a, 1);
 }
 
 SIMD_INLINE v256 v256_from_v64(v64 a, v64 b, v64 c, v64 d) {
@@ -285,18 +284,12 @@ SIMD_INLINE v256 v256_unpackhi_s16_s32(v256 a) {
                         v128_unpacklo_s16_s32(v256_high_v128(a)));
 }
 SIMD_INLINE v256 v256_shuffle_8(v256 a, v256 pattern) {
-  v128 c16 = v128_dup_8(16);
-  v128 hi = v256_high_v128(pattern);
-  v128 lo = v256_low_v128(pattern);
-  v128 maskhi = v128_cmplt_s8(hi, c16);
-  v128 masklo = v128_cmplt_s8(lo, c16);
-  return v256_from_v128(
-      v128_or(v128_and(v128_shuffle_8(v256_low_v128(a), hi), maskhi),
-              v128_andn(v128_shuffle_8(v256_high_v128(a), v128_sub_8(hi, c16)),
-                        maskhi)),
-      v128_or(v128_and(v128_shuffle_8(v256_low_v128(a), lo), masklo),
-              v128_andn(v128_shuffle_8(v256_high_v128(a), v128_sub_8(lo, c16)),
-                        masklo)));
+  return _mm256_blendv_epi8(
+      _mm256_shuffle_epi8(
+          _mm256_permute2x128_si256(a, a, _MM_SHUFFLE(0, 1, 0, 1)), pattern),
+      _mm256_shuffle_epi8(
+          _mm256_permute2x128_si256(a, a, _MM_SHUFFLE(0, 0, 0, 0)), pattern),
+      _mm256_cmpgt_epi8(v256_dup_8(16), pattern));
 }
 
 SIMD_INLINE v256 v256_pshuffle_8(v256 a, v256 pattern) {
