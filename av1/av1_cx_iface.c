@@ -277,8 +277,6 @@ static aom_codec_err_t validate_config(aom_codec_alg_priv_t *ctx,
   RANGE_CHECK(extra_cfg, cpu_used, 0, 8);
   RANGE_CHECK(extra_cfg, dev_sf, 0, UINT8_MAX);
   RANGE_CHECK_HI(extra_cfg, noise_sensitivity, 6);
-  RANGE_CHECK(extra_cfg, superblock_size, AOM_SUPERBLOCK_SIZE_64X64,
-              AOM_SUPERBLOCK_SIZE_DYNAMIC);
   RANGE_CHECK_HI(cfg, large_scale_tile, 1);
   RANGE_CHECK_HI(extra_cfg, single_tile_decoding, 1);
 
@@ -287,10 +285,9 @@ static aom_codec_err_t validate_config(aom_codec_alg_priv_t *ctx,
     // means tile_width, and tile_rows really means tile_hight. The interface
     // should be sanitized.
     // While cfg->large_scale_tile = 1, only allow AOM_SUPERBLOCK_SIZE_64X64 and
-    // AOM_SUPERBLOCK_SIZE_128X128 for superblock_size. If superblock_size =
-    // AOM_SUPERBLOCK_SIZE_DYNAMIC(default), hard set it to
-    // AOM_SUPERBLOCK_SIZE_64X64(default value in large_scale_tile) in
-    // set_encoder_config().
+    // AOM_SUPERBLOCK_SIZE_128X128 for superblock_size.
+    RANGE_CHECK(extra_cfg, superblock_size, AOM_SUPERBLOCK_SIZE_64X64,
+                AOM_SUPERBLOCK_SIZE_128X128);
     if (extra_cfg->superblock_size == AOM_SUPERBLOCK_SIZE_128X128) {
       if (extra_cfg->tile_columns != 0)
         RANGE_CHECK(extra_cfg, tile_columns, 1, 32);
@@ -301,6 +298,8 @@ static aom_codec_err_t validate_config(aom_codec_alg_priv_t *ctx,
       if (extra_cfg->tile_rows != 0) RANGE_CHECK(extra_cfg, tile_rows, 1, 64);
     }
   } else {
+    RANGE_CHECK(extra_cfg, superblock_size, AOM_SUPERBLOCK_SIZE_64X64,
+                AOM_SUPERBLOCK_SIZE_DYNAMIC);
     RANGE_CHECK_HI(extra_cfg, tile_columns, 6);
     RANGE_CHECK_HI(extra_cfg, tile_rows, 6);
   }
@@ -652,11 +651,6 @@ static aom_codec_err_t set_encoder_config(
   oxcf->single_tile_decoding =
       (oxcf->large_scale_tile) ? extra_cfg->single_tile_decoding : 0;
   if (oxcf->large_scale_tile) {
-    // superblock_size can only be AOM_SUPERBLOCK_SIZE_64X64 or
-    // AOM_SUPERBLOCK_SIZE_128X128 while oxcf->large_scale_tile = 1;
-    if (extra_cfg->superblock_size != AOM_SUPERBLOCK_SIZE_64X64 &&
-        extra_cfg->superblock_size != AOM_SUPERBLOCK_SIZE_128X128)
-      oxcf->superblock_size = AOM_SUPERBLOCK_SIZE_64X64;
     const unsigned int max =
         oxcf->superblock_size == AOM_SUPERBLOCK_SIZE_64X64 ? 64 : 32;
     // If tile size is not set, set it to the default value.
