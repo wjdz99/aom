@@ -99,7 +99,7 @@ aom_codec_err_t aom_codec_get_stream_info(aom_codec_ctx_t *ctx,
 }
 
 aom_codec_err_t aom_codec_decode(aom_codec_ctx_t *ctx, const uint8_t *data,
-                                 unsigned int data_sz, void *user_priv) {
+                                 size_t data_sz, void *user_priv) {
   aom_codec_err_t res;
 
   /* Sanity checks */
