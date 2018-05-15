@@ -148,6 +148,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
   // Speed 0 for all speed features that give neutral coding performance change.
   sf->reduce_inter_modes = 1;
   sf->prune_ext_partition_types_search_level = 1;
+  sf->jnt_comp_skip_mv_search = 1;
 
   if (speed >= 1) {
     sf->gm_erroradv_type = GM_ERRORADV_TR_1;
