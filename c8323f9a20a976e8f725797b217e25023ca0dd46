@@ -118,6 +118,30 @@
       "revId": "c8323f9a20a976e8f725797b217e25023ca0dd46",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "60a467b1_fddde94b",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 447,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-05-15T17:02:41Z",
+      "side": 1,
+      "message": "\u003e What I meant by \u0027unsigned int\u0027 being too small was that \u0027unsigned int\u0027 can not express the size of large memory buffers in a 64-bit address space. I know we are planning to cap the size of memory buffers in the libaom decoder to UINT32_MAX, so in that sense \u0027unsigned int\u0027 is not too small.\n\nAh, got it.\n\n\u003e I have no issues with changing this to a size_t if that\u0027s preferred. Either way, we should probably detect when the coded size (when present) is \u003e\u003d 2^32, to avoid issues on 32-bit platforms. Do you want to do that in a separate patch, or would you rather add it to this patch?\n\nThis is fine as-is for this patch, but should be changed to use size_t: we\u0027re already handling the same issue in obu.c:\nhttps://aomedia.googlesource.com/aom/+/master/av1/decoder/obu.c#454\n\nProbably better handled by renaming read_obu_size() in obu.c to aom_read_obu_size(), making it non-static, adding it to obu.h, and calling that from decoder_decode() so we\u0027re not checking the value in multiple places. I\u0027ll write a patch today and see how it looks.",
+      "parentUuid": "b630aad0_d7295629",
+      "range": {
+        "startLine": 447,
+        "startChar": 56,
+        "endLine": 447,
+        "endChar": 65
+      },
+      "revId": "c8323f9a20a976e8f725797b217e25023ca0dd46",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
