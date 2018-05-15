@@ -320,6 +320,7 @@ static INLINE void inv_txfm2d_add_c(const int32_t *input, uint16_t *output,
     clamp_buf(temp_in, txfm_size_row, AOMMAX(bd + 6, 16));
     txfm_func_col(temp_in, temp_out, cos_bit_col, stage_range_col);
     av1_round_shift_array(temp_out, txfm_size_row, -shift[1]);
+    range_check_buf(0, temp_in, temp_out, txfm_size_row, bd + 2);
     if (cfg->ud_flip == 0) {
       for (r = 0; r < txfm_size_row; ++r) {
         output[r * stride + c] =
