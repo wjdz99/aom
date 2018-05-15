@@ -16,6 +16,24 @@
       "revId": "787e62df091c535cf1bfb7212fe1e5dcec1af428",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8dd855b2_6b896e99",
+        "filename": "av1/common/mvref_common.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1409,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-05-15T22:49:59Z",
+      "side": 1,
+      "message": "Certainly. I will do that in a separate patch.",
+      "parentUuid": "d47d5ecc_2ffbe39e",
+      "revId": "787e62df091c535cf1bfb7212fe1e5dcec1af428",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
