@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "36366a92_c6edafaf",
+        "filename": "av1/common/mvref_common.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1409,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-05-15T23:35:01Z",
+      "side": 1,
+      "message": "av1_set_frame_refs() has two callers. I verified both of them call av1_set_frame_refs() only if cm-\u003eseq_params.enable_order_hint is true.",
+      "range": {
+        "startLine": 1409,
+        "startChar": 2,
+        "endLine": 1409,
+        "endChar": 43
+      },
+      "revId": "012ab1f6486e0ad65872f5cafe8a3e98a7cdb5c8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
