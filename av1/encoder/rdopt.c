@@ -7232,7 +7232,7 @@ static int64_t handle_newmv(const AV1_COMP *const cpi, MACROBLOCK *const x,
                             const BLOCK_SIZE bsize, int_mv *cur_mv,
                             const int mi_row, const int mi_col,
                             int *const rate_mv,
-                            HandleInterModeArgs *const args) {
+                            const HandleInterModeArgs *const args) {
   const MACROBLOCKD *const xd = &x->e_mbd;
   const MB_MODE_INFO *const mbmi = xd->mi[0];
   const MB_MODE_INFO_EXT *const mbmi_ext = x->mbmi_ext;
@@ -7314,8 +7314,9 @@ static int64_t handle_newmv(const AV1_COMP *const cpi, MACROBLOCK *const x,
 static int64_t interpolation_filter_search(
     MACROBLOCK *const x, const AV1_COMP *const cpi, BLOCK_SIZE bsize,
     int mi_row, int mi_col, const BUFFER_SET *const tmp_dst,
-    BUFFER_SET *const orig_dst, InterpFilter (*const single_filter)[REF_FRAMES],
-    int64_t *const rd, int *const switchable_rate, int *const skip_txfm_sb,
+    BUFFER_SET *const orig_dst,
+    const InterpFilter (*const single_filter)[REF_FRAMES], int64_t *const rd,
+    int *const switchable_rate, int *const skip_txfm_sb,
     int64_t *const skip_sse_sb) {
   const AV1_COMMON *cm = &cpi->common;
   const int num_planes = av1_num_planes(cm);
@@ -8127,6 +8128,10 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   int plane_rate[MAX_MB_PLANE] = { 0 };
   int64_t plane_sse[MAX_MB_PLANE] = { 0 };
   int64_t plane_dist[MAX_MB_PLANE] = { 0 };
+  int64_t newmv_ret_val = INT64_MAX;
+  int_mv bkp_mv[2];
+  memset(bkp_mv, 0, sizeof(bkp_mv));
+  int bkp_rate_mv = 0;
 
   int comp_idx;
   const int search_jnt_comp = is_comp_pred & cm->seq_params.enable_jnt_comp &
@@ -8161,12 +8166,24 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
       continue;
     }
     if (have_newmv_in_inter_mode(this_mode)) {
+      cur_mv[0] = bkp_mv[0];
+      cur_mv[1] = bkp_mv[1];
+      rate_mv = bkp_rate_mv;
+
       // when jnt_comp_skip_mv_search flag is on, new mv will be searched once
       if (!(search_jnt_comp && cpi->sf.jnt_comp_skip_mv_search &&
-            comp_idx == 0))
-        ret_val =
+            comp_idx == 0)) {
+        newmv_ret_val =
             handle_newmv(cpi, x, bsize, cur_mv, mi_row, mi_col, &rate_mv, args);
-      if (ret_val != 0) {
+
+        // Store cur_mv and rate_mv so that they can be restored in the next
+        // iteration of the loop
+        bkp_mv[0] = cur_mv[0];
+        bkp_mv[1] = cur_mv[1];
+        bkp_rate_mv = rate_mv;
+      }
+
+      if (newmv_ret_val != 0) {
         early_terminate = INT64_MAX;
         continue;
       } else {
@@ -8403,7 +8420,7 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
     if (search_jnt_comp) {
       // if 1/2 model rd is larger than best_rd in jnt_comp mode,
       // use jnt_comp mode, save additional search
-      if ((rd >> 1) > best_rd) {
+      if ((rd >> 1) > best_rd && !comp_idx) {
         restore_dst_buf(xd, orig_dst, num_planes);
         continue;
       }
