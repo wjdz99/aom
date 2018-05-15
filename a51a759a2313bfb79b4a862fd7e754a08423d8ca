@@ -22,6 +22,75 @@
       "revId": "a51a759a2313bfb79b4a862fd7e754a08423d8ca",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "41f9604c_d8b29807",
+        "filename": "examples/scalable_decoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-05-15T22:04:19Z",
+      "side": 1,
+      "message": "Looks like shan@vidyo was trying to preserve alignment with the enhancement layer output below-- if you replace enhancement w/spatial in the printf() you probably need to adjust this white space.",
+      "range": {
+        "startLine": 162,
+        "startChar": 23,
+        "endLine": 162,
+        "endChar": 29
+      },
+      "revId": "a51a759a2313bfb79b4a862fd7e754a08423d8ca",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0fb2bdd1_acb833a2",
+        "filename": "examples/scalable_decoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-05-15T22:04:19Z",
+      "side": 1,
+      "message": "should probably change this to spatial while you\u0027re in here",
+      "range": {
+        "startLine": 166,
+        "startChar": 24,
+        "endLine": 166,
+        "endChar": 35
+      },
+      "revId": "a51a759a2313bfb79b4a862fd7e754a08423d8ca",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "050d92eb_60f3a5f5",
+        "filename": "examples/scalable_decoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-05-15T22:04:19Z",
+      "side": 1,
+      "message": "this space could go",
+      "range": {
+        "startLine": 173,
+        "startChar": 46,
+        "endLine": 173,
+        "endChar": 47
+      },
+      "revId": "a51a759a2313bfb79b4a862fd7e754a08423d8ca",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
