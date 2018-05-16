@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "43c3027c_8abc5055",
+        "filename": "aomdec.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 844,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-05-16T22:20:00Z",
+      "side": 1,
+      "message": "dx_time is a uint64_t. aom_usec_timer_elapsed() returns int64_t. So the (unsigned int) cast is not necessary. Also the same code at line 820 doesn\u0027t have a type cast.",
+      "range": {
+        "startLine": 844,
+        "startChar": 4,
+        "endLine": 844,
+        "endChar": 46
+      },
+      "revId": "3ff69a4be8606849047c72d518c294bfa644a50e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "965e52ee_7b322106",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 548,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-05-16T22:20:00Z",
+      "side": 1,
+      "message": "This check (which I just added today) makes the frame_size \u003e UINT32_MAX check unnecessary.\n\nIf you prefer an explicit frame_size \u003e UINT32_MAX check, it would seem better to perform that check here (because we just read the frame_size value from an external untrusted source).",
+      "range": {
+        "startLine": 547,
+        "startChar": 0,
+        "endLine": 548,
+        "endChar": 39
+      },
+      "revId": "3ff69a4be8606849047c72d518c294bfa644a50e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
