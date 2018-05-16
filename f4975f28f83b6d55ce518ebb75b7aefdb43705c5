@@ -16,6 +16,24 @@
       "revId": "f4975f28f83b6d55ce518ebb75b7aefdb43705c5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e342cc21_8fc8c000",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2018-05-16T16:10:12Z",
+      "side": 1,
+      "message": "\"tier\" is probably not relevant?",
+      "parentUuid": "70af96d6_6cae995e",
+      "revId": "f4975f28f83b6d55ce518ebb75b7aefdb43705c5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
