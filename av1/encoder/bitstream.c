@@ -3222,10 +3222,8 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
         //   decision on ref frames is identical to that at the decoder side.
         check_frame_refs_short_signaling(cpi, lst_ref, gld_ref);
 
-        if (cm->frame_refs_short_signaling) {
-          aom_wb_write_literal(wb, lst_ref, REF_FRAMES_LOG2);
-          aom_wb_write_literal(wb, gld_ref, REF_FRAMES_LOG2);
-        }
+        aom_wb_write_literal(wb, lst_ref, REF_FRAMES_LOG2);
+        aom_wb_write_literal(wb, gld_ref, REF_FRAMES_LOG2);
       }
 
       for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
