@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "87159727_a8066ac9",
+        "filename": "aom/src/aom_integer.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-05-16T15:36:29Z",
+      "side": 1,
+      "message": "Another idea is to leave aom_uleb_decode unchanged, so that it can decode anything that aom_uleb_encode encodes, and add a new function that decodes a leb128() into a size_t and imposes a maximum of UINT32_MAX.",
+      "parentUuid": "e7a37903_3e4aa662",
+      "range": {
+        "startLine": 27,
+        "startChar": 61,
+        "endLine": 27,
+        "endChar": 76
+      },
+      "revId": "b79d7fca1b0d4c4dc81d3e079dd6cbe1a1938024",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a0a8e069_fa21dcbb",
         "filename": "aom/src/aom_integer.c",
         "patchSetId": 1
