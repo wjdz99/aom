@@ -393,8 +393,12 @@ typedef struct SPEED_FEATURES {
   int two_pass_partition_search;
 
   // Use the mode decisions made in the initial partition search to prune mode
-  // candidates, e.g. ref frames.
+  // candidates, e.g. ref frames. It replies on "two_pass_partition_search".
   int mode_pruning_based_on_two_pass_partition_search;
+
+  // Use machine learning based method to prune partitions based on data from
+  // the initial partition search. It relies on "two_pass_partition_search".
+  int use_ml_2pass_partition_pruning;
 
   // Skip rectangular partition test when partition type none gives better
   // rd than partition type split.

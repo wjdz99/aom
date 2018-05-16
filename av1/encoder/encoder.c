@@ -2866,6 +2866,25 @@ void av1_remove_compressor(AV1_COMP *cpi) {
       }
 
       fclose(f);
+
+#if 0
+      printf("\n");
+      for (int i = 0; i < 4; ++i) {
+        printf("%4.2f %4.2f %4.2f %4.2f\n",
+               cpi->result[i][0], cpi->result[i][1],
+               cpi->result[i][0], cpi->result[i][0]);
+      }
+      printf("\n");
+#endif
+#if 0
+      printf("\n");
+      for (int i = 0; i < 4; ++i) {
+        printf("%4d %4d %4d %4d\n",
+               cpi->result[i][0], cpi->result[i][1],
+               cpi->result[i][2], cpi->result[i][3]);
+      }
+      printf("\n");
+#endif
     }
 #endif  // CONFIG_INTERNAL_STATS
   }
