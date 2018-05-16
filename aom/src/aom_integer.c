@@ -53,6 +53,8 @@ int aom_uleb_decode(const uint8_t *buffer, size_t available, uint64_t *value,
 
 int aom_uleb_encode(uint64_t value, size_t available, uint8_t *coded_value,
                     size_t *coded_size) {
+  if (value > UINT32_MAX) return -1;
+
   const size_t leb_size = aom_uleb_size_in_bytes(value);
   if (value > kMaximumLeb128Value || leb_size > kMaximumLeb128Size ||
       leb_size > available || !coded_value || !coded_size) {
