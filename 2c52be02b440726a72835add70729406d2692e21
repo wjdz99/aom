@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "f15a5428_fb5cbc1b",
+        "filename": "aom/src/aom_integer.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-05-16T22:50:59Z",
+      "side": 1,
+      "message": "I think we should change the value. I\u0027ll handle it in a follow up.",
+      "parentUuid": "0d877ab4_c852eb47",
+      "range": {
+        "startLine": 62,
+        "startChar": 6,
+        "endLine": 62,
+        "endChar": 33
+      },
+      "revId": "2c52be02b440726a72835add70729406d2692e21",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "aa5072e1_d641c6c1",
         "filename": "aom/src/aom_integer.c",
         "patchSetId": 3
@@ -36,6 +60,30 @@
       "writtenOn": "2018-05-16T21:45:20Z",
       "side": 1,
       "message": "Should this function receive the same treatment?",
+      "range": {
+        "startLine": 80,
+        "startChar": 4,
+        "endLine": 80,
+        "endChar": 30
+      },
+      "revId": "2c52be02b440726a72835add70729406d2692e21",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "660ed208_257da0a6",
+        "filename": "aom/src/aom_integer.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-05-16T22:50:59Z",
+      "side": 1,
+      "message": "yes-- missed it. Ditto: In a follow up.",
+      "parentUuid": "aa5072e1_d641c6c1",
       "range": {
         "startLine": 80,
         "startChar": 4,
