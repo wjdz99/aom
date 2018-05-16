@@ -2437,6 +2437,8 @@ static void rd_pick_sqr_partition(const AV1_COMP *const cpi, ThreadData *td,
   (void)*tp_orig;
   (void)split_rd;
 
+  av1_zero(pc_tree->pc_tree_stats);
+
   // Override partition costs at the edges of the frame in the same
   // way as in read_partition (see decodeframe.c)
   if (!(has_rows && has_cols)) {
@@ -2493,6 +2495,14 @@ static void rd_pick_sqr_partition(const AV1_COMP *const cpi, ThreadData *td,
 
     rd_pick_sb_modes(cpi, tile_data, x, mi_row, mi_col, &this_rdc,
                      PARTITION_NONE, bsize, ctx_none, best_rdc.rdcost);
+
+#if 1
+    pc_tree->pc_tree_stats.rate = ctx_none->rate;
+    pc_tree->pc_tree_stats.dist = ctx_none->dist;
+    pc_tree->pc_tree_stats.rdcost = ctx_none->rdcost;
+    pc_tree->pc_tree_stats.skip = ctx_none->skip;
+#endif
+
     if (none_rd) *none_rd = this_rdc.rdcost;
     if (this_rdc.rate != INT_MAX) {
       if (bsize_at_least_8x8) {
@@ -2573,6 +2583,13 @@ static void rd_pick_sqr_partition(const AV1_COMP *const cpi, ThreadData *td,
                             temp_best_rdcost - sum_rdc.rdcost,
                             pc_tree->split[idx], p_split_rd);
 
+#if 1
+      pc_tree->pc_tree_stats.sub_rate[idx] = this_rdc.rate;
+      pc_tree->pc_tree_stats.sub_dist[idx] = this_rdc.dist;
+      pc_tree->pc_tree_stats.sub_rdcost[idx] = this_rdc.rdcost;
+      pc_tree->pc_tree_stats.sub_skip[idx] = pc_tree->split[idx]->none.skip;
+#endif
+
       if (this_rdc.rate == INT_MAX) {
         sum_rdc.rdcost = INT64_MAX;
         break;
@@ -2624,6 +2641,16 @@ static void rd_pick_sqr_partition(const AV1_COMP *const cpi, ThreadData *td,
 
     restore_context(x, &x_ctx, mi_row, mi_col, bsize, num_planes);
   }  // if (do_split)
+
+#if 1
+  pc_tree->pc_tree_stats.split = pc_tree->partitioning == PARTITION_SPLIT;
+  if (do_square_split) {
+    for (int i = 0; i < 4; ++i) {
+      pc_tree->pc_tree_stats.sub_split[i] =
+          pc_tree->split[i]->partitioning == PARTITION_SPLIT;
+    }
+  }
+#endif
 
   // TODO(jbb): This code added so that we avoid static analysis
   // warning related to the fact that best_rd isn't used after this
@@ -3226,6 +3253,34 @@ BEGIN_PARTITION_SEARCH:
     restore_context(x, &x_ctx, mi_row, mi_col, bsize, num_planes);
   }
 
+#if 1
+  do {
+    if (frame_is_intra_only(cm)) break;
+
+    const int bw = block_size_wide[bsize];
+    const int bh = block_size_high[bsize];
+    if (bw < 8 || bh < 8) break;
+
+    FILE *fp = fopen("2pass_partition_data.txt", "a");
+    if (!fp) break;
+
+    const PC_TREE_STATS *stats = &pc_tree->pc_tree_stats;
+    fprintf(fp, "%d,%d,%d,%d,%d,%d,%d,%d,",
+            pc_tree->partitioning, bw, bh, stats->split, stats->skip,
+            stats->rate, (int)AOMMIN(INT_MAX, stats->dist),
+            (int)AOMMIN(INT_MAX, stats->rdcost));
+    for (int i = 0; i < 4; ++i) {
+      fprintf(fp, "%d,%d,%d,%d,%d,",
+              stats->sub_split[i], stats->sub_skip[i], stats->sub_rate[i],
+              (int)AOMMIN(INT_MAX, stats->sub_dist[i]),
+              (int)AOMMIN(INT_MAX, stats->sub_rdcost[i]));
+    }
+
+    fprintf(fp, "\n");
+    fclose(fp);
+  } while (0);
+#endif
+
   const int ext_partition_allowed =
       do_rectangular_split && bsize > BLOCK_8X8 && partition_none_allowed;
 
@@ -3720,7 +3775,7 @@ static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
           }
         }
 
-        x->use_cb_search_range = 1;
+        // x->use_cb_search_range = 1;
 
         if (sf->mode_pruning_based_on_two_pass_partition_search) {
           for (i = 0; i < FIRST_PARTITION_PASS_STATS_TABLES; ++i) {
