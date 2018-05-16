@@ -22,6 +22,30 @@
       "revId": "8f552eef22312b9b02804edf51a591d761fb7189",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bc4c6008_4c435bf8",
+        "filename": "av1/common/x86/highbd_inv_txfm_avx2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 8487
+      },
+      "writtenOn": "2018-05-16T18:58:19Z",
+      "side": 1,
+      "message": "Not sure I understand the issue. This function is declared static and I would expect a compiler to inline it. Even if the function is not inlined shouldn\u0027t a compiler be smart enough to know that the last parameters may not be aligned and therefore to use unaligned load/store instructions?",
+      "parentUuid": "fdfe6788_e7575c95",
+      "range": {
+        "startLine": 171,
+        "startChar": 29,
+        "endLine": 171,
+        "endChar": 47
+      },
+      "revId": "8f552eef22312b9b02804edf51a591d761fb7189",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
