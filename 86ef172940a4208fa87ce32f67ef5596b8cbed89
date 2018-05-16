@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "b92164ed_d8f4edd9",
+        "filename": "test/dr_prediction_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 8471
+      },
+      "writtenOn": "2018-05-16T18:21:03Z",
+      "side": 1,
+      "message": "This test started from an existing intra test and these were the sizes used.  Will double check the code for the 64 sizes.",
+      "parentUuid": "f1337a91_2b5d852e",
+      "revId": "86ef172940a4208fa87ce32f67ef5596b8cbed89",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "04869451_127e3e9e",
         "filename": "test/dr_prediction_test.cc",
         "patchSetId": 1
@@ -33,6 +51,24 @@
       "revId": "86ef172940a4208fa87ce32f67ef5596b8cbed89",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a11f53c9_2b1e4555",
+        "filename": "test/dr_prediction_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 8471
+      },
+      "writtenOn": "2018-05-16T18:21:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "04869451_127e3e9e",
+      "revId": "86ef172940a4208fa87ce32f67ef5596b8cbed89",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "09d9fdda_02f16170",
+        "filename": "test/dr_prediction_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 8471
+      },
+      "writtenOn": "2018-05-16T18:21:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0c0d0e7b_e9a8d37f",
+      "revId": "86ef172940a4208fa87ce32f67ef5596b8cbed89",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e890d3b9_9f8d3ed3",
         "filename": "test/dr_prediction_test.cc",
         "patchSetId": 1
@@ -64,6 +118,24 @@
       "writtenOn": "2018-05-16T05:33:48Z",
       "side": 1,
       "message": "isn\u0027t the step size and minimum delta 3?",
+      "revId": "86ef172940a4208fa87ce32f67ef5596b8cbed89",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5cfb6f8d_b3ece7c4",
+        "filename": "test/dr_prediction_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 8471
+      },
+      "writtenOn": "2018-05-16T18:21:03Z",
+      "side": 1,
+      "message": "I think I saw that in the encoder, however, the dr_intra_derivative had a couple with steps of 4 and 5.  I\u0027m going to change this to only pass non-zero values.  An assert is displayed when built in debug mode.",
+      "parentUuid": "e890d3b9_9f8d3ed3",
       "revId": "86ef172940a4208fa87ce32f67ef5596b8cbed89",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
