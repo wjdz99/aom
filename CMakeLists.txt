@@ -497,7 +497,7 @@ if(CONFIG_UNIT_TESTS OR ENABLE_EXAMPLES OR ENABLE_TOOLS)
       target_compile_options(webm PUBLIC -std=c++11)
     endif()
 
-    # Add to existing targets.
+      # Add to existing targets.
     if(CONFIG_AV1_DECODER)
       target_sources(aom_decoder_app_util PRIVATE ${AOM_WEBM_DECODER_SOURCES})
     endif()
