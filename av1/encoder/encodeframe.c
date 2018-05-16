@@ -52,6 +52,7 @@
 #include "av1/encoder/encodetxb.h"
 #include "av1/encoder/ethread.h"
 #include "av1/encoder/extend.h"
+#include "av1/encoder/ml.h"
 #include "av1/encoder/rd.h"
 #include "av1/encoder/rdopt.h"
 #include "av1/encoder/segmentation.h"
@@ -139,6 +140,336 @@ static const uint8_t num_16x16_blocks_high_lookup[BLOCK_SIZES_ALL] = {
   1, 1, 1, 1, 1, 1, 1, 2, 1, 2, 4, 2, 4, 8, 4, 8, 1, 1, 2, 1, 4, 2
 };
 #endif  // CONFIG_FP_MB_STATS
+
+// nn model for 2-pass partition pruning, 16x16.
+static const float two_pass_partition_nn_weights_8x8_layer0[14 * 8] = {
+  -0.438260f, -0.094211f, -0.223222f, -0.071411f, 0.258459f,  0.473184f,
+  -0.171189f, 0.454278f,  0.438832f,  -0.093644f, 0.568401f,  -0.300438f,
+  0.076884f,  -1.611604f, -1.285264f, 0.445543f,  0.497680f,  0.060024f,
+  -0.160178f, 0.394551f,  0.232244f,  -0.061572f, -0.051961f, 0.611414f,
+  -0.406171f, 0.304499f,  -0.201567f, -0.814273f, -0.686117f, -0.094385f,
+  -0.439993f, 0.026153f,  -0.437280f, 0.439265f,  -0.071183f, -0.080241f,
+  -0.286296f, -0.016051f, 0.157887f,  -0.259715f, -0.675260f, 1.637362f,
+  -1.367357f, 0.400374f,  0.165408f,  0.352162f,  -0.322819f, 0.514500f,
+  0.200680f,  -0.133927f, -0.380133f, -0.132175f, 0.175974f,  -0.341925f,
+  0.042078f,  -0.593244f, -0.516020f, 0.091197f,  -0.197571f, 0.308788f,
+  0.495121f,  0.061053f,  0.343321f,  0.022013f,  -0.446903f, -0.508221f,
+  0.224193f,  -0.064697f, 0.226131f,  -0.034980f, -0.372749f, -0.050800f,
+  -0.137858f, -0.112664f, -0.231651f, -0.297428f, 0.218765f,  -0.201874f,
+  0.039861f,  0.380196f,  -0.511350f, -0.073166f, -0.111342f, -0.157197f,
+  -0.609423f, 0.100664f,  0.248875f,  0.090815f,  0.433859f,  -0.505221f,
+  -0.028536f, 0.065623f,  -0.208858f, -0.020870f, -0.005139f, -0.015057f,
+  -0.521868f, 1.154957f,  -0.698216f, -0.032675f, -0.271058f, -0.074561f,
+  0.737104f,  0.212517f,  0.104786f,  0.839399f,  -0.035567f, 0.386113f,
+  -0.029804f, -0.229327f, 0.095927f,  -0.073421f,
+};
+
+static const float two_pass_partition_nn_bias_8x8_layer0[8] = {
+  0.576017f, 0.152336f, -0.747074f, 0.367669f,
+  0.166003f, 0.325889f, -0.732460f, 0.686157f,
+};
+
+static const float two_pass_partition_nn_weights_8x8_layer1[8 * 4] = {
+  1.335284f,  0.704565f,  1.139931f,  0.799158f,  0.238905f,  0.646971f,
+  0.699736f,  0.092640f,  0.007774f,  -0.051381f, -1.628587f, -0.420234f,
+  0.242280f,  -0.106531f, -0.909614f, -0.149107f, -0.260942f, -0.355303f,
+  -1.564191f, -0.010777f, -0.301611f, -0.040725f, -1.093112f, 0.084404f,
+  -0.832792f, -0.859452f, -2.359789f, -0.562795f, -0.763279f, 0.109731f,
+  -0.701468f, -1.133433f,
+};
+
+static const float two_pass_partition_nn_bias_8x8_layer1[4] = {
+  0.276913f,
+  -0.383764f,
+  -0.273604f,
+  -0.009290f,
+};
+
+static const NN_CONFIG two_pass_partition_nnconfig_8x8 = {
+  14,  // num_inputs
+  4,   // num_outputs
+  1,   // num_hidden_layers
+  {
+      8,
+  },  // num_hidden_nodes
+  {
+      two_pass_partition_nn_weights_8x8_layer0,
+      two_pass_partition_nn_weights_8x8_layer1,
+  },
+  {
+      two_pass_partition_nn_bias_8x8_layer0,
+      two_pass_partition_nn_bias_8x8_layer1,
+  },
+};
+
+// nn model for 2-pass partition pruning, 16x16.
+static const float two_pass_partition_nn_weights_16x16_layer0[14 * 16] = {
+  -0.097344f, -0.175240f, -0.068904f, 0.016855f,  -1.727198f, 0.084141f,
+  -0.151367f, 0.802270f,  -0.124856f, 0.171280f,  -1.170743f, -0.046075f,
+  -0.031255f, 0.191639f,  0.342346f,  -0.763132f, 0.218166f,  -0.665555f,
+  0.548185f,  0.037785f,  -0.700691f, 0.087924f,  0.142402f,  -1.016180f,
+  0.114329f,  -0.034195f, -0.393619f, 0.148789f,  -0.493421f, -0.045322f,
+  -0.234869f, 0.388220f,  -0.717808f, -0.118284f, 0.007044f,  -0.121161f,
+  -0.476780f, -0.154601f, 0.036819f,  -0.514401f, -0.583231f, 1.788845f,
+  1.323804f,  -0.161430f, 0.105908f,  0.008103f,  -1.390874f, 0.086959f,
+  0.035889f,  -1.524786f, 0.062659f,  0.024182f,  -1.274623f, 0.144257f,
+  -0.046964f, -1.415196f, -0.388176f, -0.062600f, 0.057498f,  0.066445f,
+  0.202165f,  0.149068f,  0.007492f,  0.621325f,  -0.005822f, 0.018219f,
+  0.961651f,  -0.686275f, -0.060397f, -3.196912f, -0.095846f, 0.093916f,
+  0.123147f,  -0.008335f, 0.896634f,  0.038677f,  0.010146f,  0.681370f,
+  0.024055f,  -0.036103f, 0.792841f,  0.040834f,  0.102615f,  1.523639f,
+  -1.019226f, 0.253400f,  -0.069261f, -0.820867f, -0.575516f, -0.245139f,
+  -0.329400f, 0.818759f,  -0.225522f, -0.197461f, 0.543208f,  -0.386121f,
+  0.029982f,  -1.875221f, -0.415084f, -0.114259f, -0.300595f, -0.520741f,
+  -0.214834f, 0.037388f,  0.087287f,  -0.010414f, 0.187932f,  -0.464336f,
+  -0.294254f, 0.095919f,  -0.314163f, 0.138366f,  -0.361766f, -0.103980f,
+  -0.404888f, -0.173301f, -0.032588f, -0.217393f, -0.254016f, -0.510621f,
+  0.303803f,  -0.288387f, 0.002526f,  -0.147323f, -0.344773f, -0.535228f,
+  -1.681352f, 0.295332f,  -0.379254f, 0.448677f,  -0.306724f, -0.640319f,
+  0.636871f,  0.073532f,  -0.119221f, 0.562156f,  -0.750604f, -0.151003f,
+  -0.168780f, -0.578690f, 0.079284f,  -0.044057f, -0.014671f, 0.314681f,
+  -1.229390f, -0.022290f, 0.111875f,  -0.814914f, 0.132924f,  -0.153106f,
+  0.144829f,  0.239413f,  -0.067015f, 1.063023f,  -1.207324f, 0.304132f,
+  -0.612802f, 0.427923f,  -0.502568f, -0.354241f, 0.366912f,  -0.414902f,
+  -0.595271f, 0.408939f,  0.508863f,  -1.066212f, 0.142816f,  -1.077233f,
+  -1.144382f, -0.113472f, -0.846730f, 0.309208f,  -0.037115f, -0.854574f,
+  0.334146f,  0.524286f,  -0.889595f, 0.453429f,  0.149891f,  -1.702725f,
+  0.195224f,  -0.173740f, 0.048076f,  -0.320833f, -0.326496f, -0.039963f,
+  -0.045220f, -0.298208f, 0.094397f,  -0.425402f, -0.217363f, -0.433659f,
+  -0.167056f, -0.369581f, 0.033750f,  -0.106430f, 0.163303f,  0.079288f,
+  0.152970f,  -0.410913f, 0.553066f,  0.444310f,  -0.557613f, 1.036045f,
+  -0.027878f, 0.369941f,  -1.046719f, 0.005333f,  0.080830f,  -1.099041f,
+  0.620985f,  -0.447472f, 0.103712f,  0.058923f,  -1.633108f, 0.088669f,
+  0.058862f,  -1.794693f, -0.000792f, 0.191859f,  -0.896629f, 0.003915f,
+  -0.027549f, -1.200509f,
+};
+
+static const float two_pass_partition_nn_bias_16x16_layer0[16] = {
+  0.487074f, 0.690457f,  -0.998941f, 0.145420f,  0.330424f, -0.532155f,
+  0.292862f, -0.288538f, -0.313831f, -0.872689f, 0.409988f, -0.795626f,
+  0.572857f, -0.186612f, 0.599670f,  0.474927f,
+};
+
+static const float two_pass_partition_nn_weights_16x16_layer1[16 * 4] = {
+  -0.180623f, -0.457962f, 1.705000f,  0.003019f,  1.336687f,  1.202013f,
+  0.603198f,  -0.307587f, 0.268837f,  0.964424f,  -0.483374f, 1.129800f,
+  0.269627f,  -0.320242f, -0.267831f, 0.631777f,  -1.429355f, -0.311681f,
+  -1.882371f, -1.380726f, -1.296457f, -0.444013f, 0.090227f,  -0.399419f,
+  0.567303f,  -0.498629f, 0.391579f,  -0.318328f, 0.129753f,  -0.234552f,
+  0.415199f,  0.162916f,  0.331035f,  -0.122447f, -0.458117f, -0.551798f,
+  -0.990151f, -0.052066f, 0.107210f,  -0.496122f, -0.283849f, -0.607666f,
+  -0.960799f, -0.315056f, 0.010898f,  0.031955f,  -0.648020f, -0.303073f,
+  0.176808f,  0.563780f,  -0.989324f, 1.465247f,  -0.728946f, -0.308604f,
+  -1.866935f, -0.544285f, 0.046971f,  -0.044315f, 0.029357f,  -0.453145f,
+  -0.774947f, -0.456667f, 0.138113f,  -1.507105f,
+};
+
+static const float two_pass_partition_nn_bias_16x16_layer1[4] = {
+  -0.382896f,
+  0.202255f,
+  0.349266f,
+  0.005851f,
+};
+
+static const NN_CONFIG two_pass_partition_nnconfig_16x16 = {
+  14,  // num_inputs
+  4,   // num_outputs
+  1,   // num_hidden_layers
+  {
+      16,
+  },  // num_hidden_nodes
+  {
+      two_pass_partition_nn_weights_16x16_layer0,
+      two_pass_partition_nn_weights_16x16_layer1,
+  },
+  {
+      two_pass_partition_nn_bias_16x16_layer0,
+      two_pass_partition_nn_bias_16x16_layer1,
+  },
+};
+
+// nn model for 2-pass partition pruning, 32x32.
+static const float two_pass_partition_nn_weights_32x32_layer0[14 * 8] = {
+  0.418992f,  -0.521219f, 0.402484f,  -0.033133f, 0.074474f,  0.240410f,
+  -0.172701f, 0.331144f,  0.293117f,  -0.087685f, -0.334224f, 0.113981f,
+  -0.197431f, 0.092223f,  -0.331250f, 0.830349f,  -0.469500f, -0.411326f,
+  -0.260897f, 0.306160f,  0.470237f,  0.263455f,  -0.294946f, -0.575346f,
+  -0.475307f, -0.124261f, -0.024749f, -0.198071f, -0.292269f, -0.586063f,
+  0.717487f,  -0.186088f, 0.347545f,  0.673156f,  -0.106442f, 0.240136f,
+  0.732296f,  -0.149241f, -0.224130f, 0.524690f,  -0.698650f, 0.037369f,
+  0.340808f,  -0.025216f, 0.893140f,  -0.097964f, -0.130381f, 0.941126f,
+  -0.029122f, -0.100584f, 0.866642f,  -0.160398f, -0.052379f, 0.759944f,
+  -0.356526f, 0.443491f,  0.907066f,  -0.143857f, 0.429467f,  -0.249902f,
+  -0.316304f, 0.313824f,  -0.389002f, -0.163972f, 0.550650f,  -0.190859f,
+  -0.301553f, 0.424798f,  -0.341131f, 0.042618f,  0.060128f,  -0.740928f,
+  0.164977f,  -0.723761f, 0.247003f,  0.093071f,  -0.593584f, 0.147018f,
+  -0.039208f, -0.847435f, -0.182427f, -0.206383f, -0.510000f, 0.249732f,
+  -1.522342f, 0.351595f,  -1.652094f, 0.058638f,  -0.386943f, -0.672339f,
+  0.120922f,  0.207304f,  -0.859776f, 0.081317f,  0.401096f,  -1.873594f,
+  -0.069139f, 1.882131f,  -1.411360f, 0.076361f,  -0.356849f, 0.037406f,
+  -0.381321f, -0.281809f, 0.152015f,  0.333902f,  -0.387286f, 0.068839f,
+  -0.077814f, -1.257994f, 0.024609f,  -2.964458f,
+};
+
+static const float two_pass_partition_nn_bias_32x32_layer0[8] = {
+  0.222192f, 0.044787f, 0.393152f,  0.557114f,
+  0.489215f, 0.324944f, -0.163607f, 0.874578f,
+};
+
+static const float two_pass_partition_nn_weights_32x32_layer1[8 * 4] = {
+  -0.039502f, -1.032810f, -0.045555f, 0.824314f,  -0.337278f, 0.015638f,
+  1.092442f,  2.172773f,  -0.540933f, 0.128156f,  1.036214f,  -0.346238f,
+  0.179944f,  -0.268462f, -0.517072f, -1.138841f, 0.254443f,  0.435932f,
+  0.832590f,  -0.474194f, -0.244364f, -0.422073f, -0.613494f, -1.211316f,
+  0.083031f,  1.030358f,  -0.344774f, 0.712580f,  0.734476f,  0.587097f,
+  -0.976563f, -1.291300f,
+};
+
+static const float two_pass_partition_nn_bias_32x32_layer1[4] = {
+  -0.294561f,
+  -0.151843f,
+  -0.211684f,
+  0.541356f,
+};
+
+static const NN_CONFIG two_pass_partition_nnconfig_32x32 = {
+  14,  // num_inputs
+  4,   // num_outputs
+  1,   // num_hidden_layers
+  {
+      8,
+  },  // num_hidden_nodes
+  {
+      two_pass_partition_nn_weights_32x32_layer0,
+      two_pass_partition_nn_weights_32x32_layer1,
+  },
+  {
+      two_pass_partition_nn_bias_32x32_layer0,
+      two_pass_partition_nn_bias_32x32_layer1,
+  },
+};
+
+// nn model for 2-pass partition pruning, 64x64.
+static const float two_pass_partition_nn_weights_64x64_layer0[14 * 8] = {
+  0.804755f,  0.205404f,  0.207209f,  0.278539f,  0.283930f,  0.031326f,
+  -0.104261f, 0.151894f,  0.149602f,  -0.167202f, -0.252382f, 0.227200f,
+  -0.181839f, -0.193418f, 0.016019f,  0.198911f,  0.038151f,  -0.268940f,
+  -0.206007f, 0.381716f,  0.147265f,  -0.065004f, 0.751173f,  0.057991f,
+  0.111647f,  0.303126f,  -0.312599f, -0.076857f, -0.337239f, -0.281950f,
+  -0.006774f, 0.083384f,  -0.252343f, 0.417066f,  0.164332f,  0.040307f,
+  0.047799f,  0.163902f,  0.346781f,  0.315015f,  0.084736f,  -0.025236f,
+  -0.307513f, -0.448533f, 0.408878f,  -0.260206f, -0.160614f, 0.447663f,
+  0.249003f,  -0.216717f, 0.573600f,  0.240959f,  -0.322363f, 0.742757f,
+  -0.096632f, -0.417707f, -0.362033f, 0.193526f,  0.116481f,  0.395614f,
+  0.284161f,  0.433899f,  0.591025f,  0.331356f,  0.146568f,  -0.049357f,
+  0.371030f,  0.296057f,  -0.438914f, -0.316683f, -0.777514f, -0.081551f,
+  -0.414544f, 0.333971f,  -0.658446f, -0.184419f, 0.130235f,  -0.392334f,
+  -0.084646f, 0.487333f,  -0.777866f, -0.314750f, 0.052145f,  -1.772741f,
+  0.511763f,  -0.366043f, 0.554610f,  -0.356140f, -0.093560f, 0.336679f,
+  0.177040f,  0.512805f,  -0.101879f, -0.118305f, -0.010686f, 0.243287f,
+  -0.081643f, 0.141917f,  -1.817956f, 0.123121f,  -1.176257f, 0.625561f,
+  -0.247277f, -1.412391f, -0.031126f, 0.191628f,  -1.206652f, 0.130275f,
+  0.020860f,  -1.233309f, -0.119130f, 0.758783f,
+};
+
+static const float two_pass_partition_nn_bias_64x64_layer0[8] = {
+  0.216038f, 0.221272f,  0.103477f, 0.042738f,
+  0.125436f, -0.022558f, 0.216954f, 0.471345f,
+};
+
+static const float two_pass_partition_nn_weights_64x64_layer1[8 * 4] = {
+  -0.965053f, -0.231605f, -0.313156f, 0.667082f,  0.670257f,  1.268245f,
+  -0.310016f, 0.879858f,  -0.169652f, -0.617792f, -0.121566f, 0.454471f,
+  0.285982f,  -0.903023f, -0.235049f, -0.178883f, -0.177774f, -0.519575f,
+  -0.163002f, 0.516771f,  0.346955f,  -1.323025f, -0.719141f, -0.329066f,
+  0.986345f,  0.775635f,  0.715032f,  -0.604926f, -0.154341f, -0.682361f,
+  0.479107f,  -0.448082f,
+};
+
+static const float two_pass_partition_nn_bias_64x64_layer1[4] = {
+  0.244050f,
+  -0.122314f,
+  -0.257327f,
+  0.092536f,
+};
+
+static const NN_CONFIG two_pass_partition_nnconfig_64x64 = {
+  14,  // num_inputs
+  4,   // num_outputs
+  1,   // num_hidden_layers
+  {
+      8,
+  },  // num_hidden_nodes
+  {
+      two_pass_partition_nn_weights_64x64_layer0,
+      two_pass_partition_nn_weights_64x64_layer1,
+  },
+  {
+      two_pass_partition_nn_bias_64x64_layer0,
+      two_pass_partition_nn_bias_64x64_layer1,
+  },
+};
+
+// nn model for 2-pass partition pruning, 128x128.
+static const float two_pass_partition_nn_weights_128x128_layer0[14 * 8] = {
+  1.309011f,  -0.158979f, -0.398179f, -0.285940f, -0.269409f, 0.134167f,
+  -0.179819f, 0.110023f,  -0.290646f, 0.206519f,  -0.117168f, -0.037147f,
+  0.102479f,  0.057555f,  0.158428f,  -0.168642f, 0.280897f,  0.234438f,
+  -0.456738f, 0.110999f,  0.097442f,  0.433954f,  0.411740f,  -0.257751f,
+  -0.209304f, 0.771770f,  -0.308999f, 0.065789f,  -0.516440f, -0.485597f,
+  0.337117f,  -0.515759f, -0.725041f, -0.121496f, -0.497336f, 0.323491f,
+  0.339766f,  0.332618f,  0.234676f,  -0.306438f, -0.195587f, -0.266880f,
+  0.442351f,  0.273780f,  0.556508f,  -0.253367f, -0.735693f, 0.279632f,
+  -0.183290f, 0.601869f,  -0.003903f, -0.081445f, -0.326627f, -0.014482f,
+  -0.401920f, 0.188640f,  -0.474751f, 0.615416f,  -0.952006f, -0.094545f,
+  -0.040050f, -0.908082f, 0.247680f,  0.187253f,  -0.711345f, 0.318889f,
+  -0.254028f, -0.599595f, -0.358873f, -0.180182f, -0.786851f, 0.061063f,
+  0.695387f,  -0.164524f, -0.103362f, -0.879364f, -0.359913f, 0.415570f,
+  -0.567386f, 0.148783f,  -0.102768f, -0.818592f, 0.303144f,  0.672526f,
+  0.493584f,  0.238881f,  0.003149f,  -0.078431f, 0.214230f,  0.112800f,
+  -0.118229f, 0.139136f,  0.409740f,  -0.083294f, -0.531912f, -0.051889f,
+  0.014728f,  0.649764f,  -0.372476f, 0.121811f,  -0.151818f, -0.476566f,
+  -0.348238f, 1.036497f,  -0.237858f, 0.036660f,  -0.114298f, 0.108036f,
+  -0.051538f, -0.366894f, 0.361685f,  0.251589f,
+};
+
+static const float two_pass_partition_nn_bias_128x128_layer0[8] = {
+  0.275817f, 0.473493f, -0.113704f, -0.025433f,
+  0.290394f, 0.455996f, 0.350801f,  0.353255f,
+};
+
+static const float two_pass_partition_nn_weights_128x128_layer1[8 * 4] = {
+  -1.488558f, 0.088853f,  0.694452f,  -0.923533f, 1.282819f,  0.805853f,
+  -0.155207f, 0.513909f,  0.023896f,  -0.106880f, 0.063811f,  -0.267915f,
+  0.424596f,  -0.287859f, -0.617236f, -0.199329f, -0.468575f, -0.275072f,
+  -0.075811f, -0.926946f, -0.174219f, -0.055114f, -0.177016f, -1.026856f,
+  0.217085f,  1.004809f,  0.339265f,  -0.091964f, -0.992989f, 0.215327f,
+  0.412213f,  0.205387f,
+};
+
+static const float two_pass_partition_nn_bias_128x128_layer1[4] = {
+  0.152741f,
+  -0.395872f,
+  -0.156055f,
+  0.206580f,
+};
+
+static const NN_CONFIG two_pass_partition_nnconfig_128x128 = {
+  14,  // num_inputs
+  4,   // num_outputs
+  1,   // num_hidden_layers
+  {
+      8,
+  },  // num_hidden_nodes
+  {
+      two_pass_partition_nn_weights_128x128_layer0,
+      two_pass_partition_nn_weights_128x128_layer1,
+  },
+  {
+      two_pass_partition_nn_bias_128x128_layer0,
+      two_pass_partition_nn_bias_128x128_layer1,
+  },
+};
 
 unsigned int av1_get_sby_perpixel_variance(const AV1_COMP *cpi,
                                            const struct buf_2d *ref,
@@ -2391,6 +2722,7 @@ static int64_t dist_8x8_yuv(const AV1_COMP *const cpi, MACROBLOCK *const x,
 static void reset_partition(PC_TREE *pc_tree, BLOCK_SIZE bsize) {
   pc_tree->partitioning = PARTITION_NONE;
   pc_tree->cb_search_range = SEARCH_FULL_PLANE;
+  pc_tree->pc_tree_stats.valid = 0;
 
   if (bsize >= BLOCK_8X8) {
     BLOCK_SIZE subsize = get_partition_subsize(bsize, PARTITION_SPLIT);
@@ -2436,6 +2768,9 @@ static void rd_pick_sqr_partition(const AV1_COMP *const cpi, ThreadData *td,
 
   (void)*tp_orig;
   (void)split_rd;
+
+  av1_zero(pc_tree->pc_tree_stats);
+  if (cpi->sf.use_ml_2pass_partition_pruning) pc_tree->pc_tree_stats.valid = 1;
 
   // Override partition costs at the edges of the frame in the same
   // way as in read_partition (see decodeframe.c)
@@ -2493,6 +2828,12 @@ static void rd_pick_sqr_partition(const AV1_COMP *const cpi, ThreadData *td,
 
     rd_pick_sb_modes(cpi, tile_data, x, mi_row, mi_col, &this_rdc,
                      PARTITION_NONE, bsize, ctx_none, best_rdc.rdcost);
+
+    if (cpi->sf.use_ml_2pass_partition_pruning) {
+      pc_tree->pc_tree_stats.rdcost = ctx_none->rdcost;
+      pc_tree->pc_tree_stats.skip = ctx_none->skip;
+    }
+
     if (none_rd) *none_rd = this_rdc.rdcost;
     if (this_rdc.rate != INT_MAX) {
       if (bsize_at_least_8x8) {
@@ -2573,6 +2914,11 @@ static void rd_pick_sqr_partition(const AV1_COMP *const cpi, ThreadData *td,
                             temp_best_rdcost - sum_rdc.rdcost,
                             pc_tree->split[idx], p_split_rd);
 
+      if (cpi->sf.use_ml_2pass_partition_pruning) {
+        pc_tree->pc_tree_stats.sub_rdcost[idx] = this_rdc.rdcost;
+        pc_tree->pc_tree_stats.sub_skip[idx] = pc_tree->split[idx]->none.skip;
+      }
+
       if (this_rdc.rate == INT_MAX) {
         sum_rdc.rdcost = INT64_MAX;
         break;
@@ -2625,6 +2971,16 @@ static void rd_pick_sqr_partition(const AV1_COMP *const cpi, ThreadData *td,
     restore_context(x, &x_ctx, mi_row, mi_col, bsize, num_planes);
   }  // if (do_split)
 
+  if (cpi->sf.use_ml_2pass_partition_pruning) {
+    pc_tree->pc_tree_stats.split = pc_tree->partitioning == PARTITION_SPLIT;
+    if (do_square_split) {
+      for (int i = 0; i < 4; ++i) {
+        pc_tree->pc_tree_stats.sub_split[i] =
+            pc_tree->split[i]->partitioning == PARTITION_SPLIT;
+      }
+    }
+  }
+
   // TODO(jbb): This code added so that we avoid static analysis
   // warning related to the fact that best_rd isn't used after this
   // point.  This code should be refactored so that the duplicate
@@ -2656,6 +3012,42 @@ static void rd_pick_sqr_partition(const AV1_COMP *const cpi, ThreadData *td,
   } else {
     assert(tp_orig == *tp);
   }
+}
+
+static void ml_prune_2pass_partition(const PC_TREE_STATS *pc_tree_stats,
+                                     BLOCK_SIZE bsize, int *output_score) {
+  for (int i = 0; i < 4; ++i) output_score[i] = 100;
+  if (!pc_tree_stats->valid) return;
+  const NN_CONFIG *nn_config = NULL;
+  switch (bsize) {
+    case BLOCK_4X4: break;
+    case BLOCK_8X8: nn_config = &two_pass_partition_nnconfig_8x8; break;
+    case BLOCK_16X16: nn_config = &two_pass_partition_nnconfig_16x16; break;
+    case BLOCK_32X32: nn_config = &two_pass_partition_nnconfig_32x32; break;
+    case BLOCK_64X64: nn_config = &two_pass_partition_nnconfig_64x64; break;
+    case BLOCK_128X128: nn_config = &two_pass_partition_nnconfig_128x128; break;
+    default: assert(0 && "Unexpected bsize.");
+  }
+  if (!nn_config) return;
+
+  float features[14];
+  int feature_index = 0;
+  features[feature_index++] = (float)pc_tree_stats->split;
+  features[feature_index++] = (float)pc_tree_stats->skip;
+  for (int i = 0; i < 4; ++i) {
+    features[feature_index++] = (float)pc_tree_stats->sub_split[0];
+    features[feature_index++] = (float)pc_tree_stats->sub_skip[1];
+    float rd_ratio = 1.0f;
+    if (pc_tree_stats->sub_rdcost[i] > 0 &&
+        pc_tree_stats->sub_rdcost[i] < pc_tree_stats->rdcost) {
+      rd_ratio = (float)((double)pc_tree_stats->sub_rdcost[i] /
+                         (double)pc_tree_stats->rdcost);
+    }
+    features[feature_index++] = rd_ratio;
+  }
+  float score[4] = { 0.0f };
+  av1_nn_predict(features, nn_config, score);
+  for (int i = 0; i < 4; ++i) output_score[i] = (int)(100 * score[i]);
 }
 
 // TODO(jingning,jimbankoski,rbultje): properly skip partition types that are
@@ -2790,7 +3182,24 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
     partition_vert_allowed &= !has_cols;
   }
 
+  // Flags to skip none, horz, vert and split partitions. These flags may be set
+  // by the use_ml_2pass_partition_pruning speed feature.
+  int predict_skip_partitions[4] = { 0 };
   if (x->use_cb_search_range && cpi->sf.auto_min_max_partition_size == 0) {
+    if (cpi->sf.use_ml_2pass_partition_pruning) {
+      int scores[4];
+      ml_prune_2pass_partition(&pc_tree->pc_tree_stats, bsize, scores);
+      int max_score = 0;
+      for (int i = 0; i < 4; ++i) max_score = AOMMAX(max_score, scores[i]);
+      for (int i = 0; i < 4; ++i) {
+        const int th1 = 400;
+        const int th2 = -100;
+        // Skip if score is too low, or much lower than the max score.
+        if (scores[i] < max_score - th1 || scores[i] < th2)
+          predict_skip_partitions[i] = 1;
+      }
+    }
+
     if (pc_tree->cb_search_range == SPLIT_PLANE) {
       partition_none_allowed = 0;
       partition_horz_allowed = 0;
@@ -2875,9 +3284,11 @@ BEGIN_PARTITION_SEARCH:
     partition_none_allowed = has_rows && has_cols;
     partition_horz_allowed = has_cols && yss <= xss && bsize_at_least_8x8;
     partition_vert_allowed = has_rows && xss <= yss && bsize_at_least_8x8;
+    av1_zero(predict_skip_partitions);
   }
+
   // PARTITION_NONE
-  if (partition_none_allowed) {
+  if (partition_none_allowed && !predict_skip_partitions[0]) {
     rd_pick_sb_modes(cpi, tile_data, x, mi_row, mi_col, &this_rdc,
                      PARTITION_NONE, bsize, ctx_none, best_rdc.rdcost);
     if (none_rd) *none_rd = this_rdc.rdcost;
@@ -2981,7 +3392,7 @@ BEGIN_PARTITION_SEARCH:
 #endif  // CONFIG_DIST_8X8
 
   // PARTITION_SPLIT
-  if (do_square_split) {
+  if (do_square_split && !predict_skip_partitions[3]) {
     av1_init_rd_stats(&sum_rdc);
     int reached_last_index = 0;
     subsize = get_partition_subsize(bsize, PARTITION_SPLIT);
@@ -3056,7 +3467,7 @@ BEGIN_PARTITION_SEARCH:
   }  // if (do_split)
 
   // PARTITION_HORZ
-  if (partition_horz_allowed &&
+  if (partition_horz_allowed && !predict_skip_partitions[1] &&
       (do_rectangular_split || active_h_edge(cpi, mi_row, mi_step))) {
     av1_init_rd_stats(&sum_rdc);
     subsize = get_partition_subsize(bsize, PARTITION_HORZ);
@@ -3140,7 +3551,7 @@ BEGIN_PARTITION_SEARCH:
   }
 
   // PARTITION_VERT
-  if (partition_vert_allowed &&
+  if (partition_vert_allowed && !predict_skip_partitions[2] &&
       (do_rectangular_split || active_v_edge(cpi, mi_col, mi_step))) {
     av1_init_rd_stats(&sum_rdc);
     subsize = get_partition_subsize(bsize, PARTITION_VERT);

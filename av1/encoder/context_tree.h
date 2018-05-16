@@ -72,6 +72,18 @@ typedef struct {
   PARTITION_TYPE partition;
 } PICK_MODE_CONTEXT;
 
+typedef struct {
+  // RD stats for "NONE" partition
+  int split;
+  int skip;
+  int64_t rdcost;
+  // RD stats for "SPLIT" partition
+  int sub_split[4];
+  int sub_skip[4];
+  int64_t sub_rdcost[4];
+  int valid;
+} PC_TREE_STATS;
+
 typedef struct PC_TREE {
   int index;
   PARTITION_TYPE partitioning;
@@ -87,6 +99,7 @@ typedef struct PC_TREE {
   PICK_MODE_CONTEXT vertical4[4];
   CB_TREE_SEARCH cb_search_range;
   struct PC_TREE *split[4];
+  PC_TREE_STATS pc_tree_stats;
 } PC_TREE;
 
 void av1_setup_pc_tree(struct AV1Common *cm, struct ThreadData *td);
