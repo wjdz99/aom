@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "75d4b901_449c0a89",
+        "filename": "examples/scalable_decoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-05-16T00:00:16Z",
+      "side": 1,
+      "message": "Done. You are very perceptive!",
+      "parentUuid": "41f9604c_d8b29807",
+      "range": {
+        "startLine": 162,
+        "startChar": 23,
+        "endLine": 162,
+        "endChar": 29
+      },
+      "revId": "a51a759a2313bfb79b4a862fd7e754a08423d8ca",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0fb2bdd1_acb833a2",
         "filename": "examples/scalable_decoder.c",
         "patchSetId": 1
@@ -71,6 +95,30 @@
     },
     {
       "key": {
+        "uuid": "2cee153b_88e328e4",
+        "filename": "examples/scalable_decoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-05-16T00:00:16Z",
+      "side": 1,
+      "message": "I made that change originally. Then I found that the spec defines an enhancement layer as \"A layer with either spatial_id greater than 0 or temporal_id greater than 0\", which is the case here (img-\u003espatial_id !\u003d 0).",
+      "parentUuid": "0fb2bdd1_acb833a2",
+      "range": {
+        "startLine": 166,
+        "startChar": 24,
+        "endLine": 166,
+        "endChar": 35
+      },
+      "revId": "a51a759a2313bfb79b4a862fd7e754a08423d8ca",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "050d92eb_60f3a5f5",
         "filename": "examples/scalable_decoder.c",
         "patchSetId": 1
@@ -91,6 +139,30 @@
       "revId": "a51a759a2313bfb79b4a862fd7e754a08423d8ca",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "94eaff8a_ae5dde3f",
+        "filename": "examples/scalable_decoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-05-16T00:00:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "050d92eb_60f3a5f5",
+      "range": {
+        "startLine": 173,
+        "startChar": 46,
+        "endLine": 173,
+        "endChar": 47
+      },
+      "revId": "a51a759a2313bfb79b4a862fd7e754a08423d8ca",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
