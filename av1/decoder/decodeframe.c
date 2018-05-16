@@ -3627,10 +3627,10 @@ static int read_uncompressed_header(AV1Decoder *pbi,
       for (int op_num = 0; op_num < cm->operating_points_decoder_model_cnt;
            op_num++) {
         if ((((cm->op_params[op_num].decoder_model_operating_point_idc >>
-               cm->temporal_layer_id) &
+               cm->layer_id.temporal) &
               0x1) &&
              ((cm->op_params[op_num].decoder_model_operating_point_idc >>
-               (cm->spatial_layer_id + 8)) &
+               (cm->layer_id.spatial + 8)) &
               0x1)) ||
             cm->op_params[op_num].decoder_model_operating_point_idc == 0) {
           cm->op_frame_timing[op_num].buffer_removal_delay =

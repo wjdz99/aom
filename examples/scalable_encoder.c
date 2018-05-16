@@ -16,6 +16,10 @@
 // YV12 format, passes it through the encoder, and writes the compressed
 // frames to disk in OBU format.
 //
+// Scalability modes
+// -----------------
+// Presently onle two encoding modes are supported, L2T1(0) and L1T2(1)
+//
 // Getting The Default Configuration
 // ---------------------------------
 // Encoders have the notion of "usage profiles." For example, an encoder
@@ -84,7 +88,7 @@ static const char *exec_name;
 
 void usage_exit(void) {
   fprintf(stderr,
-          "Usage: %s <codec> <width> <height> <infile0> <infile1> "
+          "Usage: %s <scalability_mode> <width> <height> <infile0> <infile1> "
           "<outfile> <frames to encode>\n"
           "See comments in scalable_encoder.c for more information.\n",
           exec_name);
@@ -133,7 +137,6 @@ int main(int argc, char **argv) {
   int keyframe_interval = 0;
   int max_frames = 0;
   int frames_encoded = 0;
-  const char *codec_arg = NULL;
   const char *width_arg = NULL;
   const char *height_arg = NULL;
   const char *infile0_arg = NULL;
@@ -141,6 +144,9 @@ int main(int argc, char **argv) {
   const char *outfile_arg = NULL;
   //  const char *keyframe_interval_arg = NULL;
   FILE *outfile = NULL;
+  int num_spatial_layers;
+  int num_temporal_layers;
+  int scalability_mode = 0;
 
   exec_name = argv[0];
 
@@ -150,7 +156,7 @@ int main(int argc, char **argv) {
 
   if (argc != 8) die("Invalid number of arguments");
 
-  codec_arg = argv[1];
+  scalability_mode = (int)strtol(argv[1], NULL, 0);
   width_arg = argv[2];
   height_arg = argv[3];
   infile0_arg = argv[4];
@@ -158,8 +164,20 @@ int main(int argc, char **argv) {
   outfile_arg = argv[6];
   max_frames = (int)strtol(argv[7], NULL, 0);
 
-  encoder = get_aom_encoder_by_name(codec_arg);
+  encoder = get_aom_encoder_by_name("av1");
   if (!encoder) die("Unsupported codec.");
+
+  if (scalability_mode == 0) {
+    // L2T1
+    num_spatial_layers = 2;
+    num_temporal_layers = 1;
+  } else if (scalability_mode == 1) {
+    // L1T2
+    num_spatial_layers = 1;
+    num_temporal_layers = 2;
+  } else {
+    die("scalability_mode must be 0 or 1");
+  }
 
   info.codec_fourcc = encoder->fourcc;
   info.frame_width = (int)strtol(width_arg, NULL, 0);
@@ -175,10 +193,6 @@ int main(int argc, char **argv) {
   if (!aom_img_alloc(&raw0, AOM_IMG_FMT_I420, info.frame_width,
                      info.frame_height, 1)) {
     die("Failed to allocate image for layer 0.");
-  }
-  if (!aom_img_alloc(&raw1, AOM_IMG_FMT_I420, info.frame_width,
-                     info.frame_height, 1)) {
-    die("Failed to allocate image for layer 1.");
   }
 
   //  keyframe_interval = (int)strtol(keyframe_interval_arg, NULL, 0);
@@ -205,67 +219,104 @@ int main(int argc, char **argv) {
 
   if (!(infile0 = fopen(infile0_arg, "rb")))
     die("Failed to open %s for reading.", infile0_arg);
-  if (!(infile1 = fopen(infile1_arg, "rb")))
-    die("Failed to open %s for reading.", infile0_arg);
 
   if (aom_codec_enc_init(&codec, encoder->codec_interface(), &cfg, 0))
     die_codec(&codec, "Failed to initialize encoder");
   if (aom_codec_control(&codec, AOME_SET_CPUUSED, 8))
     die_codec(&codec, "Failed to set cpu to 8");
+#if 1
+  if (aom_codec_control(&codec, AV1E_SET_TILE_COLUMNS, 2))
+    die_codec(&codec, "Failed to set tile columns");
+  if (aom_codec_control(&codec, AV1E_SET_NUM_TG, 3))
+    die_codec(&codec, "Failed to set number of tile groups");
+#endif
+
+  // allocate frame buffers and open spatial enhancemeent layer
+  if (num_spatial_layers > 1) {
+    if (!(infile1 = fopen(infile1_arg, "rb")))
+      die("Failed to open %s for reading.", infile1_arg);
+    if (!aom_img_alloc(&raw1, AOM_IMG_FMT_I420, info.frame_width,
+                       info.frame_height, 1)) {
+      die("Failed to allocate image for layer 1.");
+    }
+    if (aom_codec_control(&codec, AOME_SET_NUMBER_SPATIAL_LAYERS,
+                          num_spatial_layers))
+      die_codec(&codec, "Failed to set number of spatial layers");
+  }
 
   if (aom_codec_control(&codec, AV1E_SET_TILE_COLUMNS, 2))
     die_codec(&codec, "Failed to set tile columns to 2");
   if (aom_codec_control(&codec, AV1E_SET_NUM_TG, 3))
     die_codec(&codec, "Failed to set num of tile groups to 3");
 
-  if (aom_codec_control(&codec, AOME_SET_NUMBER_SPATIAL_LAYERS, 2))
-    die_codec(&codec, "Failed to set number of spatial layers to 2");
+  if (num_temporal_layers > 1)
+    if (aom_codec_control(&codec, AOME_SET_NUMBER_TEMPORAL_LAYERS,
+                          num_temporal_layers))
+      die_codec(&codec, "Failed to set number of temporal layers");
 
   // Encode frames.
   while (aom_img_read(&raw0, infile0)) {
     int flags = 0;
+    const int temporal_id = frames_encoded % num_temporal_layers;
+    if (aom_codec_control(&codec, AOME_SET_TEMPORAL_LAYER_ID, temporal_id))
+      die_codec(&codec, "Failed to set temporal layer id");
 
     // configure and encode base layer
 
-    if (keyframe_interval > 0 && frames_encoded % keyframe_interval == 0)
+    if (keyframe_interval > 0 && frames_encoded % keyframe_interval == 0 &&
+        !temporal_id) {
       flags |= AOM_EFLAG_FORCE_KF;
-    else
+    } else {
       // use previous base layer (LAST) as sole reference
-      // save this frame as LAST to be used as reference by enhanmcent layer
-      // and next base layer
+      // save this frame as LAST to be used as reference by enhancement
+      // layer and next base layer
       flags |= AOM_EFLAG_NO_REF_LAST2 | AOM_EFLAG_NO_REF_LAST3 |
                AOM_EFLAG_NO_REF_GF | AOM_EFLAG_NO_REF_ARF |
                AOM_EFLAG_NO_REF_BWD | AOM_EFLAG_NO_REF_ARF2 |
                AOM_EFLAG_NO_UPD_GF | AOM_EFLAG_NO_UPD_ARF |
                AOM_EFLAG_NO_UPD_ENTROPY;
+      if (temporal_id) flags |= AOM_EFLAG_NO_UPD_LAST;
+    }
     cfg.g_w = info.frame_width;
     cfg.g_h = info.frame_height;
     if (aom_codec_enc_config_set(&codec, &cfg))
       die_codec(&codec, "Failed to set enc cfg for layer 0");
     if (aom_codec_control(&codec, AOME_SET_SPATIAL_LAYER_ID, 0))
       die_codec(&codec, "Failed to set layer id to 0");
-    if (aom_codec_control(&codec, AOME_SET_CQ_LEVEL, 62))
+    if (aom_codec_control(&codec, AOME_SET_CQ_LEVEL, 32))
       die_codec(&codec, "Failed to set cq level");
+    if (aom_codec_control(&codec, AV1E_SET_ALLOW_REF_FRAME_MVS, 0))
+      die_codec(&codec, "Failed to disable ref_frame_mvs");
+
     encode_frame(&codec, &raw0, frame_count++, flags, outfile);
 
-    // configure and encode enhancement layer
+    // configure and encode spatial enhancement layer, if any
 
-    //  use LAST (base layer) as sole reference
-    flags = AOM_EFLAG_NO_REF_LAST2 | AOM_EFLAG_NO_REF_LAST3 |
-            AOM_EFLAG_NO_REF_GF | AOM_EFLAG_NO_REF_ARF | AOM_EFLAG_NO_REF_BWD |
-            AOM_EFLAG_NO_REF_ARF2 | AOM_EFLAG_NO_UPD_LAST |
-            AOM_EFLAG_NO_UPD_GF | AOM_EFLAG_NO_UPD_ARF |
-            AOM_EFLAG_NO_UPD_ENTROPY;
-    cfg.g_w = info.frame_width;
-    cfg.g_h = info.frame_height;
-    aom_img_read(&raw1, infile1);
-    if (aom_codec_enc_config_set(&codec, &cfg))
-      die_codec(&codec, "Failed to set enc cfg for layer 1");
-    if (aom_codec_control(&codec, AOME_SET_SPATIAL_LAYER_ID, 1))
-      die_codec(&codec, "Failed to set layer id to 1");
-    if (aom_codec_control(&codec, AOME_SET_CQ_LEVEL, 10))
-      die_codec(&codec, "Failed to set cq level");
-    encode_frame(&codec, &raw1, frame_count++, flags, outfile);
+    if (num_spatial_layers > 1) {
+      //  use LAST (current base layer) and GF (previous EL) as
+      //  the two references
+      //  Save as GF (to be used by next EL)
+      flags = AOM_EFLAG_NO_REF_LAST2 | AOM_EFLAG_NO_REF_LAST3 |
+              /*AOM_EFLAG_NO_REF_GF |*/ AOM_EFLAG_NO_REF_ARF |
+              AOM_EFLAG_NO_REF_BWD | AOM_EFLAG_NO_REF_ARF2 |
+              AOM_EFLAG_NO_UPD_LAST |
+              /*AOM_EFLAG_NO_UPD_GF |*/ AOM_EFLAG_NO_UPD_ARF |
+              AOM_EFLAG_NO_UPD_ENTROPY;
+      if (!frames_encoded) flags |= AOM_EFLAG_NO_REF_GF;
+      cfg.g_w = info.frame_width;
+      cfg.g_h = info.frame_height;
+      aom_img_read(&raw1, infile1);
+      if (aom_codec_enc_config_set(&codec, &cfg))
+        die_codec(&codec, "Failed to set enc cfg for layer 1");
+      if (aom_codec_control(&codec, AOME_SET_SPATIAL_LAYER_ID, 1))
+        die_codec(&codec, "Failed to set layer id to 1");
+      if (aom_codec_control(&codec, AOME_SET_CQ_LEVEL, 10))
+        die_codec(&codec, "Failed to set cq level");
+      if (aom_codec_control(&codec, AV1E_SET_ALLOW_REF_FRAME_MVS, 1))
+        die_codec(&codec, "Failed to enable ref_frame_mvs");
+
+      encode_frame(&codec, &raw1, frame_count++, flags, outfile);
+    }
 
     frames_encoded++;
 
@@ -277,11 +328,13 @@ int main(int argc, char **argv) {
 
   printf("\n");
   fclose(infile0);
-  fclose(infile1);
-  printf("Processed %d frames.\n", frame_count / 2);
+  if (num_spatial_layers > 1) {
+    fclose(infile1);
+    aom_img_free(&raw1);
+  }
+  printf("Processed %d temporal units.\n", frames_encoded);
 
   aom_img_free(&raw0);
-  aom_img_free(&raw1);
   if (aom_codec_destroy(&codec)) die_codec(&codec, "Failed to destroy codec.");
 
   fclose(outfile);

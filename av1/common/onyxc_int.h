@@ -111,6 +111,11 @@ typedef struct {
 } MV_REF;
 
 typedef struct {
+  int temporal;
+  int spatial;
+} SCALABILITY_COMP;
+
+typedef struct {
   int ref_count;
 
   unsigned int cur_frame_offset;
@@ -541,10 +546,10 @@ typedef struct AV1Common {
   int is_annexb;
 
   int frame_refs_short_signaling;
-  int temporal_layer_id;
-  int spatial_layer_id;
-  unsigned int number_temporal_layers;
-  unsigned int number_spatial_layers;
+
+  SCALABILITY_COMP layer_id;
+  SCALABILITY_COMP number_layers;
+
   int num_allocated_above_context_mi_col;
   int num_allocated_above_contexts;
   int num_allocated_above_context_planes;

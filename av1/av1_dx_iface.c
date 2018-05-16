@@ -658,9 +658,9 @@ static aom_image_t *decoder_get_frame(aom_codec_alg_priv_t *ctx,
 
           ctx->img.fb_priv = frame_bufs[cm->new_fb_idx].raw_frame_buffer.priv;
           img = &ctx->img;
-          img->temporal_id = cm->temporal_layer_id;
-          img->spatial_id = cm->spatial_layer_id;
-          img->max_spatial_id = cm->number_spatial_layers - 1;
+          img->temporal_id = cm->layer_id.temporal;
+          img->spatial_id = cm->layer_id.spatial;
+          img->max_spatial_id = cm->number_layers.spatial - 1;
           return add_grain_if_needed(
               img, ctx->image_with_grain,
               &frame_worker_data->pbi->common.film_grain_params);

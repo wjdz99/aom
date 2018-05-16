@@ -98,10 +98,10 @@ bool ParseObuHeader(uint8_t obu_header_byte, ObuHeader *obu_header) {
 }
 
 bool ParseObuExtensionHeader(uint8_t ext_header_byte, ObuHeader *obu_header) {
-  obu_header->temporal_layer_id =
+  obu_header->layer_id.temporal =
       (ext_header_byte >> kObuExtTemporalIdBitsShift) &
       kObuExtTemporalIdBitsMask;
-  obu_header->spatial_layer_id =
+  obu_header->layer_id.spatial =
       (ext_header_byte >> kObuExtSpatialIdBitsShift) & kObuExtSpatialIdBitsMask;
 
   return true;
@@ -117,7 +117,7 @@ void PrintObuHeader(const ObuHeader *header) {
     printf(
         "      temporal_id: %d\n"
         "      spatial_id:  %d\n",
-        header->temporal_layer_id, header->temporal_layer_id);
+        header->layer_id.temporal, header->layer_id.spatial);
   }
 }
 

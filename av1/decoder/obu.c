@@ -91,8 +91,8 @@ static aom_codec_err_t read_obu_header(struct aom_read_bit_buffer *rb,
     if (bit_buffer_byte_length == 1) return AOM_CODEC_CORRUPT_FRAME;
 
     header->size += 1;
-    header->temporal_layer_id = aom_rb_read_literal(rb, 3);
-    header->spatial_layer_id = aom_rb_read_literal(rb, 2);
+    header->layer_id.temporal = aom_rb_read_literal(rb, 3);
+    header->layer_id.spatial = aom_rb_read_literal(rb, 2);
     aom_rb_read_literal(rb, 3);  // reserved
   }
 
@@ -147,8 +147,8 @@ static int is_obu_in_current_operating_point(AV1Decoder *pbi,
     return 1;
   }
 
-  if ((pbi->current_operating_point >> obu_header.temporal_layer_id) & 0x1 &&
-      (pbi->current_operating_point >> (obu_header.spatial_layer_id + 8)) &
+  if ((pbi->current_operating_point >> obu_header.layer_id.temporal) & 0x1 &&
+      (pbi->current_operating_point >> (obu_header.layer_id.spatial + 8)) &
           0x1) {
     return 1;
   }
@@ -222,8 +222,8 @@ static uint32_t read_sequence_header_obu(AV1Decoder *pbi,
   pbi->current_operating_point =
       seq_params->operating_point_idc[operating_point];
   aom_get_num_layers_from_operating_point_idc(pbi->current_operating_point,
-                                              &cm->number_spatial_layers,
-                                              &cm->number_temporal_layers);
+                                              &cm->number_layers.spatial,
+                                              &cm->number_layers.temporal);
 
   read_sequence_header(cm, rb);
 
@@ -576,8 +576,8 @@ void aom_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
     // doesn't cause 'data' to advance past 'data_end'.
     data += bytes_read;
 
-    cm->temporal_layer_id = obu_header.temporal_layer_id;
-    cm->spatial_layer_id = obu_header.spatial_layer_id;
+    cm->layer_id.temporal = obu_header.layer_id.temporal;
+    cm->layer_id.spatial = obu_header.layer_id.spatial;
 
     if (obu_header.type != OBU_TEMPORAL_DELIMITER &&
         obu_header.type != OBU_SEQUENCE_HEADER &&

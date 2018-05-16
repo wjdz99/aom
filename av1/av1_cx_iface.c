@@ -1344,7 +1344,7 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
         if (ctx->pending_cx_data == 0) ctx->pending_cx_data = cx_data;
 
         const int write_temporal_delimiter =
-            !cpi->common.spatial_layer_id && !ctx->pending_frame_count;
+            !cpi->common.layer_id.spatial && !ctx->pending_frame_count;
 
         if (write_temporal_delimiter) {
           uint32_t obu_header_size = 1;
@@ -1599,16 +1599,33 @@ static aom_codec_err_t ctrl_set_spatial_layer_id(aom_codec_alg_priv_t *ctx,
   const int spatial_layer_id = va_arg(args, int);
   if (spatial_layer_id > MAX_NUM_ENHANCEMENT_LAYERS)
     return AOM_CODEC_INVALID_PARAM;
-  ctx->cpi->common.spatial_layer_id = spatial_layer_id;
+  ctx->cpi->common.layer_id.spatial = spatial_layer_id;
   return AOM_CODEC_OK;
 }
 
+static aom_codec_err_t ctrl_set_temporal_layer_id(aom_codec_alg_priv_t *ctx,
+                                                  va_list args) {
+  const int temporal_layer_id = va_arg(args, int);
+  if (temporal_layer_id > MAX_NUM_ENHANCEMENT_LAYERS)
+    return AOM_CODEC_INVALID_PARAM;
+  ctx->cpi->common.layer_id.temporal = temporal_layer_id;
+  return AOM_CODEC_OK;
+}
 static aom_codec_err_t ctrl_set_number_spatial_layers(aom_codec_alg_priv_t *ctx,
                                                       va_list args) {
   const int number_spatial_layers = va_arg(args, int);
   if (number_spatial_layers > MAX_NUM_ENHANCEMENT_LAYERS)
     return AOM_CODEC_INVALID_PARAM;
-  ctx->cpi->common.number_spatial_layers = number_spatial_layers;
+  ctx->cpi->common.number_layers.spatial = number_spatial_layers;
+  return AOM_CODEC_OK;
+}
+
+static aom_codec_err_t ctrl_set_number_temporal_layers(
+    aom_codec_alg_priv_t *ctx, va_list args) {
+  const int number_temporal_layers = va_arg(args, int);
+  if (number_temporal_layers > MAX_NUM_ENHANCEMENT_LAYERS)
+    return AOM_CODEC_INVALID_PARAM;
+  ctx->cpi->common.number_layers.temporal = number_temporal_layers;
   return AOM_CODEC_OK;
 }
 
@@ -1690,6 +1707,7 @@ static aom_codec_ctrl_fn_map_t encoder_ctrl_maps[] = {
   { AOME_SET_ACTIVEMAP, ctrl_set_active_map },
   { AOME_SET_SCALEMODE, ctrl_set_scale_mode },
   { AOME_SET_SPATIAL_LAYER_ID, ctrl_set_spatial_layer_id },
+  { AOME_SET_TEMPORAL_LAYER_ID, ctrl_set_temporal_layer_id },
   { AOME_SET_CPUUSED, ctrl_set_cpuused },
   { AOME_SET_DEVSF, ctrl_set_devsf },
   { AOME_SET_ENABLEAUTOALTREF, ctrl_set_enable_auto_alt_ref },
@@ -1704,6 +1722,7 @@ static aom_codec_ctrl_fn_map_t encoder_ctrl_maps[] = {
   { AOME_SET_CQ_LEVEL, ctrl_set_cq_level },
   { AOME_SET_MAX_INTRA_BITRATE_PCT, ctrl_set_rc_max_intra_bitrate_pct },
   { AOME_SET_NUMBER_SPATIAL_LAYERS, ctrl_set_number_spatial_layers },
+  { AOME_SET_NUMBER_TEMPORAL_LAYERS, ctrl_set_number_temporal_layers },
   { AV1E_SET_MAX_INTER_BITRATE_PCT, ctrl_set_rc_max_inter_bitrate_pct },
   { AV1E_SET_GF_CBR_BOOST_PCT, ctrl_set_rc_gf_cbr_boost_pct },
   { AV1E_SET_LOSSLESS, ctrl_set_lossless },

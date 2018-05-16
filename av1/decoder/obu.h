@@ -20,8 +20,9 @@ typedef struct {
   OBU_TYPE type;
   int has_length_field;
   int has_extension;
-  int temporal_layer_id;
-  int spatial_layer_id;
+  SCALABILITY_COMP layer_id;
+  //  int temporal_layer_id;
+  //  int spatial_layer_id;
 } ObuHeader;
 
 aom_codec_err_t aom_read_obu_header(uint8_t *buffer, size_t buffer_length,
