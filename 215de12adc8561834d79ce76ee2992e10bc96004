@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "d6cd5020_249b4728",
+        "filename": "av1/av1.cmake",
+        "patchSetId": 4
+      },
+      "lineNbr": 279,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2018-05-16T10:34:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "89b18ab1_8b622fb6",
+      "range": {
+        "startLine": 278,
+        "startChar": 0,
+        "endLine": 279,
+        "endChar": 0
+      },
+      "revId": "215de12adc8561834d79ce76ee2992e10bc96004",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "641d8656_a7fd5b90",
         "filename": "av1/common/arm/convolve_neon.c",
         "patchSetId": 4
@@ -45,6 +69,30 @@
       "revId": "215de12adc8561834d79ce76ee2992e10bc96004",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "080df4d5_919a9bff",
+        "filename": "av1/common/arm/convolve_neon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2018-05-16T10:34:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "641d8656_a7fd5b90",
+      "range": {
+        "startLine": 15,
+        "startChar": 10,
+        "endLine": 15,
+        "endChar": 19
+      },
+      "revId": "215de12adc8561834d79ce76ee2992e10bc96004",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "1b44ea77_3730c63d",
+        "filename": "av1/common/arm/convolve_neon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2018-05-16T10:34:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "127dff9e_3b980f5d",
+      "range": {
+        "startLine": 23,
+        "startChar": 24,
+        "endLine": 23,
+        "endChar": 40
+      },
+      "revId": "215de12adc8561834d79ce76ee2992e10bc96004",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d6bdb5e3_16a25c92",
         "filename": "av1/common/arm/convolve_neon.c",
         "patchSetId": 4
@@ -82,6 +154,30 @@
       "writtenOn": "2018-05-14T23:34:23Z",
       "side": 1,
       "message": "Why are these last two set up this way? Is it because you need saturation? A comment would be helpful.\n\nIs widening an option? It\u0027s only two instructions, so maybe not.",
+      "range": {
+        "startLine": 36,
+        "startChar": 8,
+        "endLine": 36,
+        "endChar": 17
+      },
+      "revId": "215de12adc8561834d79ce76ee2992e10bc96004",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cb5afe33_ce0e0192",
+        "filename": "av1/common/arm/convolve_neon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2018-05-16T10:34:01Z",
+      "side": 1,
+      "message": "filter[3] can take a max value of 128.So the max value of the result: 128*255 + sum \u003e 16 bits. Therefore saturation is done. Shall add a brief comment along with the code.",
+      "parentUuid": "d6bdb5e3_16a25c92",
       "range": {
         "startLine": 36,
         "startChar": 8,
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "9e89b093_9e3da642",
+        "filename": "av1/common/arm/convolve_neon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2018-05-16T10:34:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a2ffe6e9_a842c7eb",
+      "range": {
+        "startLine": 42,
+        "startChar": 24,
+        "endLine": 42,
+        "endChar": 35
+      },
+      "revId": "215de12adc8561834d79ce76ee2992e10bc96004",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "279edc5b_cfffebf4",
         "filename": "av1/common/arm/convolve_neon.c",
         "patchSetId": 4
@@ -137,6 +257,30 @@
       "revId": "215de12adc8561834d79ce76ee2992e10bc96004",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4e45fe46_2816e671",
+        "filename": "av1/common/arm/convolve_neon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2018-05-16T10:34:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "279edc5b_cfffebf4",
+      "range": {
+        "startLine": 57,
+        "startChar": 8,
+        "endLine": 57,
+        "endChar": 18
+      },
+      "revId": "215de12adc8561834d79ce76ee2992e10bc96004",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -163,6 +307,30 @@
     },
     {
       "key": {
+        "uuid": "00d6d26f_92accb0b",
+        "filename": "av1/common/arm/convolve_neon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2018-05-16T10:34:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0e8c2f4e_f50b9f4e",
+      "range": {
+        "startLine": 89,
+        "startChar": 2,
+        "endLine": 89,
+        "endChar": 11
+      },
+      "revId": "215de12adc8561834d79ce76ee2992e10bc96004",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2aee3644_10a66743",
         "filename": "av1/common/arm/convolve_neon.c",
         "patchSetId": 4
@@ -183,6 +351,30 @@
       "revId": "215de12adc8561834d79ce76ee2992e10bc96004",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f95e02cc_4d0e17be",
+        "filename": "av1/common/arm/convolve_neon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2018-05-16T10:34:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2aee3644_10a66743",
+      "range": {
+        "startLine": 91,
+        "startChar": 16,
+        "endLine": 91,
+        "endChar": 26
+      },
+      "revId": "215de12adc8561834d79ce76ee2992e10bc96004",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -209,6 +401,30 @@
     },
     {
       "key": {
+        "uuid": "66800d8f_c9489273",
+        "filename": "av1/common/arm/convolve_neon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2018-05-16T10:34:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f6fe5fbe_5b0f0eaa",
+      "range": {
+        "startLine": 92,
+        "startChar": 2,
+        "endLine": 92,
+        "endChar": 11
+      },
+      "revId": "215de12adc8561834d79ce76ee2992e10bc96004",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "15075318_cec72c14",
         "filename": "av1/common/arm/convolve_neon.c",
         "patchSetId": 4
@@ -232,6 +448,30 @@
     },
     {
       "key": {
+        "uuid": "61caf2d0_c36b3918",
+        "filename": "av1/common/arm/convolve_neon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2018-05-16T10:34:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "15075318_cec72c14",
+      "range": {
+        "startLine": 108,
+        "startChar": 4,
+        "endLine": 108,
+        "endChar": 7
+      },
+      "revId": "215de12adc8561834d79ce76ee2992e10bc96004",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ea826c7c_5548e8f2",
         "filename": "av1/common/arm/convolve_neon.c",
         "patchSetId": 4
@@ -243,6 +483,30 @@
       "writtenOn": "2018-05-14T23:34:23Z",
       "side": 1,
       "message": "You could even pass t0-t3 in here and deal with them in convolve_s16_8_4",
+      "range": {
+        "startLine": 137,
+        "startChar": 11,
+        "endLine": 137,
+        "endChar": 27
+      },
+      "revId": "215de12adc8561834d79ce76ee2992e10bc96004",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "af671f9e_9f22c9ce",
+        "filename": "av1/common/arm/convolve_neon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2018-05-16T10:34:01Z",
+      "side": 1,
+      "message": "Although to - t3 are loaded, in the first iteration only \u0027to\u0027 is used along with those loaded outside the do-while loop.",
+      "parentUuid": "ea826c7c_5548e8f2",
       "range": {
         "startLine": 137,
         "startChar": 11,
@@ -278,6 +542,30 @@
     },
     {
       "key": {
+        "uuid": "5fbfb981_d6aead37",
+        "filename": "av1/common/arm/convolve_neon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 243,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2018-05-16T10:34:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "821f7b1e_f1999ed5",
+      "range": {
+        "startLine": 243,
+        "startChar": 16,
+        "endLine": 243,
+        "endChar": 17
+      },
+      "revId": "215de12adc8561834d79ce76ee2992e10bc96004",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "58856bfd_550a8e2b",
         "filename": "av1/common/arm/convolve_neon.c",
         "patchSetId": 4
@@ -289,6 +577,30 @@
       "writtenOn": "2018-05-14T23:34:23Z",
       "side": 1,
       "message": "Is dst guaranteed to be aligned? This has been a problem in the past with small transforms (4x4)",
+      "range": {
+        "startLine": 244,
+        "startChar": 36,
+        "endLine": 244,
+        "endChar": 39
+      },
+      "revId": "215de12adc8561834d79ce76ee2992e10bc96004",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bf61abc5_9ace6701",
+        "filename": "av1/common/arm/convolve_neon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2018-05-16T10:34:01Z",
+      "side": 1,
+      "message": "Yes, the dst is guaranteed to be aligned.",
+      "parentUuid": "58856bfd_550a8e2b",
       "range": {
         "startLine": 244,
         "startChar": 36,
@@ -324,6 +636,30 @@
     },
     {
       "key": {
+        "uuid": "5c727ea9_8eab8c72",
+        "filename": "av1/common/arm/mem_neon.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2018-05-16T10:34:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dfc6200a_63c83358",
+      "range": {
+        "startLine": 11,
+        "startChar": 8,
+        "endLine": 11,
+        "endChar": 31
+      },
+      "revId": "215de12adc8561834d79ce76ee2992e10bc96004",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "33cbe65f_c5ffe3d3",
         "filename": "av1/common/arm/transpose_neon.h",
         "patchSetId": 4
@@ -347,6 +683,30 @@
     },
     {
       "key": {
+        "uuid": "63792fc8_2f81b263",
+        "filename": "av1/common/arm/transpose_neon.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2018-05-16T10:34:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "33cbe65f_c5ffe3d3",
+      "range": {
+        "startLine": 11,
+        "startChar": 8,
+        "endLine": 11,
+        "endChar": 37
+      },
+      "revId": "215de12adc8561834d79ce76ee2992e10bc96004",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "92592e32_8a849736",
         "filename": "test/test.cmake",
         "patchSetId": 4
@@ -367,6 +727,30 @@
       "revId": "215de12adc8561834d79ce76ee2992e10bc96004",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7076a072_21c3ee5c",
+        "filename": "test/test.cmake",
+        "patchSetId": 4
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2018-05-16T10:34:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "92592e32_8a849736",
+      "range": {
+        "startLine": 184,
+        "startChar": 8,
+        "endLine": 184,
+        "endChar": 37
+      },
+      "revId": "215de12adc8561834d79ce76ee2992e10bc96004",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
