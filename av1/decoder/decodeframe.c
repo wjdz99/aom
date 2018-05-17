@@ -2380,7 +2380,6 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
           row * cm->tile_cols + col > endTile)
         continue;
 
-      td->xd = pbi->mb;
       td->xd.corrupted = 0;
       td->bit_reader = &tile_data->bit_reader;
       av1_zero(td->dqcoeff);
@@ -2406,9 +2405,8 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
       td->xd.plane[1].color_index_map = td->color_index_map[1];
 
       // decode tile
-      decode_tile(pbi, &pbi->td, row, col);
-      aom_merge_corrupted_flag(&pbi->mb.corrupted, td->xd.corrupted);
-      if (pbi->mb.corrupted)
+      decode_tile(pbi, td, row, col);
+      if (td->xd.corrupted)
         aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
                            "Failed to decode tile data");
     }
@@ -2553,12 +2551,12 @@ static const uint8_t *decode_tiles_mt(AV1Decoder *pbi, const uint8_t *data,
       ++pbi->num_workers;
 
       winterface->init(worker);
-      if (worker_idx < num_threads - 1 && !winterface->reset(worker)) {
-        aom_internal_error(&cm->error, AOM_CODEC_ERROR,
-                           "Tile decoder thread creation failed");
-      }
-
       if (worker_idx < num_threads - 1) {
+        if (!winterface->reset(worker)) {
+          aom_internal_error(&cm->error, AOM_CODEC_ERROR,
+                             "Tile decoder thread creation failed");
+        }
+
         // Allocate thread data.
         CHECK_MEM_ERROR(cm, thread_data->td,
                         aom_memalign(32, sizeof(*thread_data->td)));
@@ -2590,7 +2588,9 @@ static const uint8_t *decode_tiles_mt(AV1Decoder *pbi, const uint8_t *data,
     AVxWorker *const worker = &pbi->tile_workers[worker_idx];
     DecWorkerData *const thread_data = pbi->thread_data + worker_idx;
     winterface->sync(worker);
-    thread_data->td->xd = pbi->mb;
+    if (worker_idx < pbi->max_threads - 1) {
+      thread_data->td->xd = pbi->td.xd;
+    }
     thread_data->td->xd.corrupted = 0;
     worker->hook = tile_worker_hook;
     worker->data1 = thread_data;
@@ -2605,6 +2605,7 @@ static const uint8_t *decode_tiles_mt(AV1Decoder *pbi, const uint8_t *data,
     const int base = tile_count_tg / num_workers;
     const int remain = tile_count_tg % num_workers;
     int tile_start = startTile;
+    int corrupted = 0;
 
     for (worker_idx = 0; worker_idx < num_workers; ++worker_idx) {
       // compute number of tiles assign to each worker
@@ -2628,11 +2629,13 @@ static const uint8_t *decode_tiles_mt(AV1Decoder *pbi, const uint8_t *data,
 
     for (; worker_idx > 0; --worker_idx) {
       AVxWorker *const worker = &pbi->tile_workers[worker_idx - 1];
-      aom_merge_corrupted_flag(&pbi->mb.corrupted, !winterface->sync(worker));
+      aom_merge_corrupted_flag(&corrupted, !winterface->sync(worker));
     }
+
+    pbi->td.xd.corrupted = corrupted;
   }
 
-  if (pbi->mb.corrupted)
+  if (pbi->td.xd.corrupted)
     aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
                        "Failed to decode tile data");
 
@@ -3249,7 +3252,7 @@ static void show_existing_frame_reset(AV1Decoder *const pbi,
 static int read_uncompressed_header(AV1Decoder *pbi,
                                     struct aom_read_bit_buffer *rb) {
   AV1_COMMON *const cm = &pbi->common;
-  MACROBLOCKD *const xd = &pbi->mb;
+  MACROBLOCKD *const xd = &pbi->td.xd;
   BufferPool *const pool = cm->buffer_pool;
   RefCntBuffer *const frame_bufs = pool->frame_bufs;
 
@@ -3894,7 +3897,7 @@ int av1_decode_frame_headers_and_setup(AV1Decoder *pbi,
                                        int trailing_bits_present) {
   AV1_COMMON *const cm = &pbi->common;
   const int num_planes = av1_num_planes(cm);
-  MACROBLOCKD *const xd = &pbi->mb;
+  MACROBLOCKD *const xd = &pbi->td.xd;
 
 #if CONFIG_BITSTREAM_DEBUG
   bitstream_queue_set_frame_read(cm->current_video_frame * 2 + cm->show_frame);
@@ -3980,7 +3983,7 @@ void av1_decode_tg_tiles_and_wrapup(AV1Decoder *pbi, const uint8_t *data,
                                     const uint8_t **p_data_end, int startTile,
                                     int endTile, int initialize_flag) {
   AV1_COMMON *const cm = &pbi->common;
-  MACROBLOCKD *const xd = &pbi->mb;
+  MACROBLOCKD *const xd = &pbi->td.xd;
   const int tile_count_tg = endTile - startTile + 1;
 
   if (initialize_flag) setup_frame_info(pbi);
@@ -4001,12 +4004,12 @@ void av1_decode_tg_tiles_and_wrapup(AV1Decoder *pbi, const uint8_t *data,
   if (!cm->allow_intrabc) {
     if (cm->lf.filter_level[0] || cm->lf.filter_level[1]) {
       if (pbi->num_workers > 1) {
-        av1_loop_filter_frame_mt(get_frame_new_buffer(cm), cm, &pbi->mb, 0,
+        av1_loop_filter_frame_mt(get_frame_new_buffer(cm), cm, xd, 0,
                                  num_planes, 0, pbi->tile_workers,
                                  pbi->num_workers, &pbi->lf_row_sync);
       } else {
-        av1_loop_filter_frame(get_frame_new_buffer(cm), cm, &pbi->mb, 0,
-                              num_planes, 0);
+        av1_loop_filter_frame(get_frame_new_buffer(cm), cm, xd, 0, num_planes,
+                              0);
       }
     }
 
@@ -4024,7 +4027,7 @@ void av1_decode_tg_tiles_and_wrapup(AV1Decoder *pbi, const uint8_t *data,
       if (do_loop_restoration)
         av1_loop_restoration_save_boundary_lines(&pbi->cur_buf->buf, cm, 0);
 
-      if (do_cdef) av1_cdef_frame(&pbi->cur_buf->buf, cm, &pbi->mb);
+      if (do_cdef) av1_cdef_frame(&pbi->cur_buf->buf, cm, xd);
 
       superres_post_decode(pbi);
 
