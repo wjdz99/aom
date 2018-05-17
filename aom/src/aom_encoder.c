@@ -194,7 +194,7 @@ aom_codec_err_t aom_codec_enc_config_default(aom_codec_iface_t *iface,
 
 #if HAVE_FEXCEPT && CONFIG_DEBUG
 #define FLOATING_POINT_SET_EXCEPTIONS \
-  const int float_excepts = feenableexcept(FE_DIVBYZERO);
+  const int float_excepts = feenableexcept(FE_DIVBYZERO | FE_INEXACT);
 #define FLOATING_POINT_RESTORE_EXCEPTIONS feenableexcept(float_excepts);
 #else
 #define FLOATING_POINT_SET_EXCEPTIONS
