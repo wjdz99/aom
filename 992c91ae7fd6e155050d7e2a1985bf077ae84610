@@ -34,6 +34,24 @@
       "revId": "992c91ae7fd6e155050d7e2a1985bf077ae84610",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e5854f4f_9ecd3b1b",
+        "filename": "av1/common/av1_inv_txfm2d.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 328,
+      "author": {
+        "id": 8487
+      },
+      "writtenOn": "2018-05-17T03:50:15Z",
+      "side": 1,
+      "message": "I agree that the nominal range is bd+1.\nThe intent here should be to derive a bound based on the restrictions already defined in the spec, not to add a new restriction.\nWith noise and given the restrictions/clamping that we have expressed in the spec, bd+2 sounds right for the DCT, except for the 8-bit case where I think it should be 12 (\u003dbd+4).\nThe last step of the inverse ADST inverts the sign of values. A 16-bit value such as -32768 might thus become a 17-bit value (32768). The range may thus have to be increased by 1 bit for the ADST case.\nFinally in the case of the column inverse identity transform a value may be multiplied by 4 before being shifted down by 4 bits. The range may thus be even higher: bd+4 in general and 14 for the 8-bit case.\nTo the best of my understanding the derived bound at the output of the inverse transform should be AOMMAX(bd+4, 14)",
+      "parentUuid": "6d48ce4d_112cf8ce",
+      "revId": "992c91ae7fd6e155050d7e2a1985bf077ae84610",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
