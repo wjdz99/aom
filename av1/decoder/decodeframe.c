@@ -3182,6 +3182,7 @@ static void show_existing_frame_reset(AV1Decoder *const pbi,
 
   assert(cm->show_existing_frame);
 
+  // sarahparker shouldn't this already be the case?
   cm->frame_type = KEY_FRAME;
 
   pbi->refresh_frame_flags = (1 << REF_FRAMES) - 1;
