@@ -52,6 +52,24 @@
       "revId": "992c91ae7fd6e155050d7e2a1985bf077ae84610",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "15d95d08_dd0942bb",
+        "filename": "av1/common/av1_inv_txfm2d.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 328,
+      "author": {
+        "id": 8487
+      },
+      "writtenOn": "2018-05-17T10:19:13Z",
+      "side": 1,
+      "message": "In the above I forgot to consider that av1_round_shift_array() uses rounding. A signed 16-bit value such as 32767 could yield a signed 15-bit value 8192 after a multiplication by 4 and a round-shift(4) operation (note that the max range for signed 14-bit is -8192..8191).\nThe bound may thus have to be increased to AOMMAX(bd+5, 15)",
+      "parentUuid": "e5854f4f_9ecd3b1b",
+      "revId": "992c91ae7fd6e155050d7e2a1985bf077ae84610",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
