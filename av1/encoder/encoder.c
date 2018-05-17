@@ -3032,6 +3032,13 @@ static void check_show_existing_frame(AV1_COMP *cpi) {
                                        : cpi->ref_fb_idx[ALTREF2_FRAME - 1];
     cpi->is_arf_filter_off[which_arf] = 0;
   }
+  /*
+    else if (nex_frame_update_type == FWD_KF) {
+      cm->show_existing_frame = 1;
+      cpi->rc.is_src_frame_kf = 1;????
+      cpi->existing_fb_idx_to_show = cpi->ref_fb_idx[?KEY_FRAME? - 1];
+    }
+  */
   cpi->rc.is_src_frame_ext_arf = 0;
 }
 
@@ -3270,6 +3277,7 @@ static void update_reference_frames(AV1_COMP *cpi) {
   // At this point the new frame has been encoded.
   // If any buffer copy / swapping is signaled it should be done here.
 
+  // TODO(sarahparker) only do this if show_frame == 1 and is KF
   if (cm->frame_type == KEY_FRAME || frame_is_sframe(cm)) {
     for (int ref_frame = 0; ref_frame < REF_FRAMES; ++ref_frame) {
       ref_cnt_fb(pool->frame_bufs,
@@ -4654,7 +4662,11 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
       cpi->oxcf.allow_warped_motion && frame_might_allow_warped_motion(cm);
 
   // Reset the frame packet stamp index.
+  // TODO(sarahparker) maybe write an INLINE to check if it is a normal KF or a fwd KF
   if (cm->frame_type == KEY_FRAME) cm->current_video_frame = 0;
+  // TODO(sarahparker) treat this as a normal KF only if it is being displayed? It might actualy
+  // be ok as is here because either way it is at the beginning of the GOF
+  // if (cm->frame_type == KEY_FRAME && cm->show_existing_frame) cm->current_video_frame = 0;
 
   // NOTE:
   // (1) Move the setup of the ref_frame_flags upfront as it would be
@@ -4668,9 +4680,12 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
   if (cm->show_existing_frame) {
     // NOTE(zoeliu): In BIDIR_PRED, the existing frame to show is the current
     //               BWDREF_FRAME in the reference frame buffer.
-    cm->frame_type = INTER_FRAME;
+    cm->frame_type = INTER_FRAME; //TODO(sarahparker) this will no longer be the case w/ FWD_KF
     cm->show_frame = 1;
     cpi->frame_flags = *frame_flags;
+
+    // TODO(sarahparker) cm->reset_decoder_state = 1 should be done as needed
+    // Also, find where to call show_existing_frame_reset()
 
     // In the case of show_existing frame, we will not send fresh flag
     // to decoder. Any change in the reference frame buffer can be done by
@@ -4718,6 +4733,7 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
     //     LAST3 will get retired, LAST2 becomes LAST3, LAST becomes LAST2,
     //     and
     //     ALTREF2_FRAME will serve as the new LAST_FRAME.
+    // TODO(sarahparker) this will maybe need to be modified
     update_reference_frames(cpi);
 
     // Update frame flags
@@ -4749,6 +4765,7 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
     cpi->sf.interp_filter_search_mask = setup_interp_filter_search_mask(cpi);
 
   // Set various flags etc to special state if it is a key frame.
+  // TODO(sarahparker) how should this be hanlded for FWD_KF??
   if (frame_is_intra_only(cm) || frame_is_sframe(cm)) {
     // Reset the loop filter deltas and segmentation map.
     av1_reset_segment_features(cm);
@@ -4974,6 +4991,7 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
 
   av1_rc_postencode_update(cpi, *size);
 
+  // TODO(sarahparker) this is probably for a KEY_FRAME where show_frame == 0
   if (cm->frame_type == KEY_FRAME) {
     // Tell the caller that the frame was coded as a key frame
     *frame_flags = cpi->frame_flags | FRAMEFLAGS_KEY;
@@ -4987,6 +5005,7 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
   cm->seg.update_data = 0;
   cm->lf.mode_ref_delta_update = 0;
 
+  // TODO(sarahparker) what is this?
   if (cm->show_frame) {
     // TODO(zoeliu): We may only swamp mi and prev_mi for those frames that
     // are
@@ -5055,6 +5074,8 @@ static int Pass2Encode(AV1_COMP *cpi, size_t *size, uint8_t *dest,
   // a gf group, but note that an OVERLAY frame always has a spot in a gf
   // group,
   // even when show_existing_frame is used.
+  // TODO(sarahparker) what do we do here for fwd kf? maybe no change here,
+  // update the rc for the fwd kf
   if (!cpi->common.show_existing_frame || cpi->rc.is_src_frame_alt_ref) {
     av1_twopass_postencode_update(cpi);
   }
@@ -5164,6 +5185,8 @@ static int get_arf_src_index(AV1_COMP *cpi) {
       if (gf_group->update_type[gf_group->index] == ARF_UPDATE) {
         arf_src_index = gf_group->arf_src_offset[gf_group->index];
       }
+    // use alt_ref_pending flag when twopass is not enabled
+    // TODO(sarahparker) what happens here for first pass of two pass?
     } else if (rc->source_alt_ref_pending) {
       arf_src_index = rc->frames_till_gf_update_due;
     }
@@ -5190,6 +5213,12 @@ static int get_brf_src_index(AV1_COMP *cpi) {
   return brf_src_index;
 }
 
+/*
+static int get_fwd_kf_src_index(AV1_COMP *cpi) {
+  // TODO(sarahparker)
+}
+
+*/
 // Returns 0 if this is not an alt ref else the offset of the source frame
 // used as the arf midpoint.
 static int get_arf2_src_index(AV1_COMP *cpi) {
@@ -5708,6 +5737,9 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
       rc->is_bwd_ref_frame = 1;
     }
   }
+
+
+  // TODO(sarahparker) should we encode a FWD_KF?
 
   if (!source) {
     // Get last frame source.

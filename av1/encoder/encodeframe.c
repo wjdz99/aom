@@ -4471,6 +4471,7 @@ void av1_encode_frame(AV1_COMP *cpi) {
   // rather than the potential full set of 16 transforms
   cm->reduced_tx_set_used = 0;
 
+  // TODO(sarahparker) this might need to be changed when kf is not a show_frame
   if (cm->show_frame == 0) {
     int arf_offset = AOMMIN(
         (MAX_GF_INTERVAL - 1),
@@ -4801,6 +4802,8 @@ static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
     set_ref_ptrs(cm, xd, mbmi->ref_frame[0], mbmi->ref_frame[1]);
     for (ref = 0; ref < 1 + is_compound; ++ref) {
       YV12_BUFFER_CONFIG *cfg = get_ref_frame_buffer(cpi, mbmi->ref_frame[ref]);
+      if (cm->current_video_frame == 1)
+        printf("ref: %d\n", mbmi->ref_frame[ref]);
       assert(IMPLIES(!is_intrabc_block(mbmi), cfg));
       av1_setup_pre_planes(xd, ref, cfg, mi_row, mi_col,
                            &xd->block_refs[ref]->sf, num_planes);
