@@ -22,6 +22,30 @@
       "revId": "765902c9f4b5833b43f35328da423cfff84320e3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fee475af_90282cdd",
+        "filename": "av1/common/av1_inv_txfm2d.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2018-05-17T01:54:09Z",
+      "side": 1,
+      "message": "This implementation is an approximation of Hadamard transform.\nThe following step in fwht will introduce 1/2 offset when (a1 - d1) is odd.\ne1 \u003d (a1 - d1) \u003e\u003e 1;\nThe 1/2 offset might introduce an extra bit to the output of fwht.",
+      "parentUuid": "41cb32dc_4677e64a",
+      "range": {
+        "startLine": 43,
+        "startChar": 0,
+        "endLine": 47,
+        "endChar": 0
+      },
+      "revId": "765902c9f4b5833b43f35328da423cfff84320e3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
