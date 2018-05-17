@@ -1546,6 +1546,7 @@ static int calculate_boost_bits(int frame_count, int boost,
                 0);
 }
 
+/*
 #if USE_GF16_MULTI_LAYER
 // === GF Group of 16 ===
 #define GF_INTERVAL_16 16
@@ -2114,16 +2115,19 @@ static void define_gf_group_structure_16(AV1_COMP *cpi) {
   }
 }
 #endif  // USE_GF16_MULTI_LAYER
+*/
 
 static void define_gf_group_structure(AV1_COMP *cpi) {
   RATE_CONTROL *const rc = &cpi->rc;
 
+/*
 #if USE_GF16_MULTI_LAYER
   if (rc->baseline_gf_interval == 16) {
     define_gf_group_structure_16(cpi);
     return;
   }
 #endif  // USE_GF16_MULTI_LAYER
+*/
 
   TWO_PASS *const twopass = &cpi->twopass;
   GF_GROUP *const gf_group = &twopass->gf_group;
@@ -2679,7 +2683,9 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   }
 
   // Set the interval until the next gf.
-  rc->baseline_gf_interval = i - (is_key_frame || rc->source_alt_ref_pending);
+  // rc->baseline_gf_interval = i - (is_key_frame || rc->source_alt_ref_pending);
+  // TODO(sarahparker) fix the interval to make this easier
+  rc->baseline_gf_interval = 8;
   if (non_zero_stdev_count) avg_raw_err_stdev /= non_zero_stdev_count;
 
   // Disable extra altrefs and backward refs for "still" gf group:
@@ -3128,6 +3134,7 @@ static void find_next_key_frame(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   twopass->modified_error_left -= kf_group_err;
 }
 
+/*
 #if USE_GF16_MULTI_LAYER
 // === GF Group of 16 ===
 void av1_ref_frame_map_idx_updates(AV1_COMP *cpi, int gf_frame_index) {
@@ -3268,6 +3275,7 @@ static void configure_buffer_updates_16(AV1_COMP *cpi) {
   }
 }
 #endif  // USE_GF16_MULTI_LAYER
+*/
 
 // Define the reference buffers that will be updated post encode.
 static void configure_buffer_updates(AV1_COMP *cpi) {
@@ -3282,6 +3290,7 @@ static void configure_buffer_updates(AV1_COMP *cpi) {
   cpi->rc.is_bipred_frame = 0;
   cpi->rc.is_src_frame_ext_arf = 0;
 
+/*
 #if USE_GF16_MULTI_LAYER
   RATE_CONTROL *const rc = &cpi->rc;
   if (rc->baseline_gf_interval == 16) {
@@ -3289,8 +3298,11 @@ static void configure_buffer_updates(AV1_COMP *cpi) {
     return;
   }
 #endif  // USE_GF16_MULTI_LAYER
+*/
 
   switch (twopass->gf_group.update_type[twopass->gf_group.index]) {
+    // TODO(sarahparker) the update type will have to be set differently
+    // for fwd kf
     case KF_UPDATE:
       cpi->refresh_last_frame = 1;
       cpi->refresh_golden_frame = 1;
@@ -3408,6 +3420,7 @@ static int is_skippable_frame(const AV1_COMP *cpi) {
           twopass->stats_in->pcnt_inter - twopass->stats_in->pcnt_motion == 1);
 }
 
+//TODO(sarahparker) this is the driving function
 void av1_rc_get_second_pass_params(AV1_COMP *cpi) {
   AV1_COMMON *const cm = &cpi->common;
   RATE_CONTROL *const rc = &cpi->rc;
@@ -3481,6 +3494,7 @@ void av1_rc_get_second_pass_params(AV1_COMP *cpi) {
   else
     twopass->fr_content_type = FC_NORMAL;
 
+  // TODO(sarahparker) edit here
   // Keyframe and section processing.
   if (rc->frames_to_key == 0 || (cpi->frame_flags & FRAMEFLAGS_KEY)) {
     FIRSTPASS_STATS this_frame_copy;
