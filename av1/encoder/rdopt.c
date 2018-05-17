@@ -1625,6 +1625,7 @@ static void score_2D_transform_pow8(float *scores_2D, float shift) {
   for (i = 0; i < 16; i++) {
     float v, v2, v4;
     v = AOMMAX(scores_2D[i] + shift, 0.0f);
+    v = AOMMIN(v, 100.0f);
     v2 = v * v;
     v4 = v2 * v2;
     scores_2D[i] = v4 * v4;
