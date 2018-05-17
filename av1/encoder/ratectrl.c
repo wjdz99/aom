@@ -1274,6 +1274,11 @@ void av1_rc_postencode_update(AV1_COMP *cpi, uint64_t bytes_used) {
 
   rc->total_target_vs_actual = rc->total_actual_bits - rc->total_target_bits;
 
+  // TODO(sarahparker) adjust this for fwd kf, this should be:
+//if (is_altref_enabled(cpi) && cpi->refresh_alt_ref_frame &&
+//    (cm->frame_type != KEY_FRAME || cm->show_frame == 0))
+  // because if it is an invisible key frame, we want to prevent
+  // the altref from being updated again and overwrite the fwd kf
   if (is_altref_enabled(cpi) && cpi->refresh_alt_ref_frame &&
       (cm->frame_type != KEY_FRAME))
     // Update the alternate reference frame stats as appropriate.

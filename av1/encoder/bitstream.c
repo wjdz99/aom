@@ -2249,6 +2249,7 @@ static int get_refresh_mask_gf16(AV1_COMP *cpi) {
 #endif  // USE_GF16_MULTI_LAYER
 
 static int get_refresh_mask(AV1_COMP *cpi) {
+  // TODO(sarahparker) this needs to be fixed for fwd kf
   if (cpi->common.frame_type == KEY_FRAME || frame_is_sframe(&cpi->common))
     return 0xFF;
 
@@ -2273,6 +2274,7 @@ static int get_refresh_mask(AV1_COMP *cpi) {
   refresh_mask |=
       (cpi->refresh_alt2_ref_frame << cpi->ref_fb_idx[ALTREF2_FRAME - 1]);
 
+  // TODO(sarahparker) should this overwrite the altref if there is a kf there?
   if (av1_preserve_existing_gf(cpi)) {
     // We have decided to preserve the previously existing golden frame as our
     // new ARF frame. However, in the short term we leave it in the GF slot and,
