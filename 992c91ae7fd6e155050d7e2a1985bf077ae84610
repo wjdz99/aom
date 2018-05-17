@@ -16,6 +16,24 @@
       "revId": "992c91ae7fd6e155050d7e2a1985bf077ae84610",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6d48ce4d_112cf8ce",
+        "filename": "av1/common/av1_inv_txfm2d.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 328,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2018-05-17T01:56:52Z",
+      "side": 1,
+      "message": "Notice that the av1_round_shift_array will shift the signal back to ideally bd + 1 range.\nTaking the quantizer noise into account, I use bd + 2 here.",
+      "parentUuid": "6cc4f14a_52cf8b53",
+      "revId": "992c91ae7fd6e155050d7e2a1985bf077ae84610",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
