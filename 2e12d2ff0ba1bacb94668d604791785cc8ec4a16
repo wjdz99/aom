@@ -46,6 +46,30 @@
       "revId": "2e12d2ff0ba1bacb94668d604791785cc8ec4a16",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bd616dec_00e9201c",
+        "filename": "build/cmake/sanitizers.cmake",
+        "patchSetId": 2
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-05-17T17:50:55Z",
+      "side": 1,
+      "message": "\u003e \u003e I assume this works, but have to ask since I usually need to escape the pipe. (see aom_configure for ex).\n\u003e \n\u003e worked for \u0027integer\u0027 for me locally; I can make doubly sure for undefined.\n\u003e \n\u003e https://cmake.org/cmake/help/v3.9/command/string.html#regex-specification\n\nworks. I didn\u0027t check the docs beforehand, but this appears to be using extended regexs.",
+      "parentUuid": "6dbf920a_7241961a",
+      "range": {
+        "startLine": 35,
+        "startChar": 13,
+        "endLine": 35,
+        "endChar": 14
+      },
+      "revId": "2e12d2ff0ba1bacb94668d604791785cc8ec4a16",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
