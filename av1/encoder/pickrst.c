@@ -40,6 +40,9 @@ static const RestorationType force_restore_type = RESTORE_TYPES;
 // Number of Wiener iterations
 #define NUM_WIENER_ITERS 5
 
+// Penalty factor for use of dual sgr
+#define DUAL_SGR_PENALTY 1.01
+
 const int frame_level_restore_bits[RESTORE_TYPES] = { 2, 2, 2, 2 };
 
 typedef int64_t (*sse_extractor_type)(const YV12_BUFFER_CONFIG *a,
@@ -563,6 +566,7 @@ static void search_sgrproj(const RestorationTileLimits *limits,
       RDCOST_DBL(x->rdmult, bits_none >> 4, rusi->sse[RESTORE_NONE]);
   double cost_sgr =
       RDCOST_DBL(x->rdmult, bits_sgr >> 4, rusi->sse[RESTORE_SGRPROJ]);
+  if (rusi->sgrproj.ep < 11) cost_sgr *= DUAL_SGR_PENALTY;
 
   RestorationType rtype =
       (cost_sgr < cost_none) ? RESTORE_SGRPROJ : RESTORE_NONE;
@@ -1186,6 +1190,7 @@ static void search_switchable(const RestorationTileLimits *limits,
     const int64_t coeff_bits = coeff_pcost << AV1_PROB_COST_SHIFT;
     const int64_t bits = x->switchable_restore_cost[r] + coeff_bits;
     double cost = RDCOST_DBL(x->rdmult, bits >> 4, sse);
+    if (r == RESTORE_SGRPROJ && rusi->sgrproj.ep < 11) cost *= DUAL_SGR_PENALTY;
     if (r == 0 || cost < best_cost) {
       best_cost = cost;
       best_bits = bits;
