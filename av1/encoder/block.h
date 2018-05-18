@@ -87,6 +87,12 @@ typedef struct {
   int16_t compound_mode_context[MODE_CTX_REF_FRAMES];
 } MB_MODE_INFO_EXT;
 
+typedef struct MotionInfo {
+  MV_REFERENCE_FRAME ref_frame[2];
+  InterpFilters interp_filters;
+  int_mv mv[2];
+} MotionInfo;
+
 typedef struct {
   int col_min;
   int col_max;
@@ -241,6 +247,8 @@ struct macroblock {
   int32_t *mask_buf;
   uint8_t *above_pred_buf;
   uint8_t *left_pred_buf;
+  MotionInfo obmc_motion;
+  int const_motion_field_obmc;
 
   PALETTE_BUFFER *palette_buffer;
 

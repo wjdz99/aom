@@ -330,8 +330,7 @@ long UnserializeString(IMkvReader* pReader, long long pos, long long size,
   delete[] str;
   str = NULL;
 
-  if (size >= LONG_MAX || size < 0)
-    return E_FILE_FORMAT_INVALID;
+  if (size >= LONG_MAX || size < 0) return E_FILE_FORMAT_INVALID;
 
   // +1 for '\0' terminator
   const long required_size = static_cast<long>(size) + 1;
