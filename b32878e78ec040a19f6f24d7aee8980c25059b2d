@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "90818fbb_8f8bafe9",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 2783,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2018-05-18T22:47:36Z",
+      "side": 1,
+      "message": "Should you use num_workers instead of pbi-\u003emax_threads? otherwise, sounds good.",
+      "parentUuid": "185e1328_6a6be9f9",
+      "range": {
+        "startLine": 2781,
+        "startChar": 0,
+        "endLine": 2783,
+        "endChar": 5
+      },
+      "revId": "b32878e78ec040a19f6f24d7aee8980c25059b2d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "03f58685_bdd964eb",
         "filename": "av1/decoder/decodeframe.c",
         "patchSetId": 4
@@ -36,6 +60,30 @@
       "writtenOn": "2018-05-18T20:53:55Z",
       "side": 1,
       "message": "I merge the results of all the workers to a local variable. If you think we should merge the results to pbi-\u003etd.xd.corrupted instead, please let me know.\n\nI prefer the local variable because it takes some work to show why it is safe to merge to pbi-\u003etd.xd.corrupted.",
+      "range": {
+        "startLine": 2822,
+        "startChar": 31,
+        "endLine": 2822,
+        "endChar": 42
+      },
+      "revId": "b32878e78ec040a19f6f24d7aee8980c25059b2d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8bbea441_cc8b61b9",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 2822,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2018-05-18T22:47:36Z",
+      "side": 1,
+      "message": "I think we should merge the results to pbi-\u003etd.xd.corrupted at the end.\n\nWould the following be clearer?\nif (worker_idx \u003c num_workers - 1)\naom_merge_corrupted_flag(\u0026pbi-\u003etd.xd.corrupted, ...\nSimilar to how you handle xd, and also easy to understand.",
+      "parentUuid": "03f58685_bdd964eb",
       "range": {
         "startLine": 2822,
         "startChar": 31,
