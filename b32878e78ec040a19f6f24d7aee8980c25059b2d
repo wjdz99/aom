@@ -2,6 +2,98 @@
   "comments": [
     {
       "key": {
+        "uuid": "4793ac8e_f41b7ad1",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 2713,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-05-18T23:42:00Z",
+      "side": 1,
+      "message": "num_workers is defined here. Note that num_workers may be smaller than pbi-\u003emax_threads.",
+      "range": {
+        "startLine": 2713,
+        "startChar": 2,
+        "endLine": 2713,
+        "endChar": 56
+      },
+      "revId": "b32878e78ec040a19f6f24d7aee8980c25059b2d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f5d0a514_711d3dc4",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 2732,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-05-18T23:42:00Z",
+      "side": 1,
+      "message": "This if block defines a local variable named num_threads as an alias for pbi-\u003emax_threads.",
+      "range": {
+        "startLine": 2732,
+        "startChar": 4,
+        "endLine": 2732,
+        "endChar": 45
+      },
+      "revId": "b32878e78ec040a19f6f24d7aee8980c25059b2d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5cbcc1d5_dc394c68",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 2744,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-05-18T23:42:00Z",
+      "side": 1,
+      "message": "This test is equivalen to worker_idx \u003c pbi-\u003emax_threads - 1.",
+      "range": {
+        "startLine": 2744,
+        "startChar": 10,
+        "endLine": 2744,
+        "endChar": 38
+      },
+      "revId": "b32878e78ec040a19f6f24d7aee8980c25059b2d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "16545890_3652a873",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 2756,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-05-18T23:42:00Z",
+      "side": 1,
+      "message": "Therefore we set thread_data-\u003etd to \u0026pbi-\u003etd for worker_idx \u003d\u003d pbi-\u003emax_threads - 1.",
+      "range": {
+        "startLine": 2756,
+        "startChar": 8,
+        "endLine": 2756,
+        "endChar": 35
+      },
+      "revId": "b32878e78ec040a19f6f24d7aee8980c25059b2d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "185e1328_6a6be9f9",
         "filename": "av1/decoder/decodeframe.c",
         "patchSetId": 4
@@ -49,6 +141,30 @@
     },
     {
       "key": {
+        "uuid": "4d3212bd_b0c9309d",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 2783,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-05-18T23:42:00Z",
+      "side": 1,
+      "message": "Please see the annotations I added above. This is why we must use pbi-\u003emax_threads instead of num_workers in this test.",
+      "parentUuid": "90818fbb_8f8bafe9",
+      "range": {
+        "startLine": 2781,
+        "startChar": 0,
+        "endLine": 2783,
+        "endChar": 5
+      },
+      "revId": "b32878e78ec040a19f6f24d7aee8980c25059b2d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "03f58685_bdd964eb",
         "filename": "av1/decoder/decodeframe.c",
         "patchSetId": 4
@@ -84,6 +200,30 @@
       "side": 1,
       "message": "I think we should merge the results to pbi-\u003etd.xd.corrupted at the end.\n\nWould the following be clearer?\nif (worker_idx \u003c num_workers - 1)\naom_merge_corrupted_flag(\u0026pbi-\u003etd.xd.corrupted, ...\nSimilar to how you handle xd, and also easy to understand.",
       "parentUuid": "03f58685_bdd964eb",
+      "range": {
+        "startLine": 2822,
+        "startChar": 31,
+        "endLine": 2822,
+        "endChar": 42
+      },
+      "revId": "b32878e78ec040a19f6f24d7aee8980c25059b2d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e37b29c3_419131a8",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 2822,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-05-18T23:42:00Z",
+      "side": 1,
+      "message": "Done. With a careful analysis, we can show it is safe to merge the results of all workers (including the main thread) into pbi-\u003etd.xd.corrupted.\n\nAnalysis: we need to consider two cases:\n\nCase 1: num_workers \u003d\u003d pbi-\u003emax_threads: In this case, the main thread uses pbi-\u003etd.xd, so it will merge pbi-\u003etd.xd.corrupted into itself, which is harmless.\n\nCase 2: num_workers \u003c pbi-\u003emax_threads: In this case, the main thread uses a td-\u003exd different from pbi-\u003etd.xd, so the main thread must merge its td-\u003exd.corrupted into pbi-\u003etd.xd.corrupted.",
+      "parentUuid": "8bbea441_cc8b61b9",
       "range": {
         "startLine": 2822,
         "startChar": 31,
