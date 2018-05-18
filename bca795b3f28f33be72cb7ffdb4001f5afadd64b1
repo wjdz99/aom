@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "99bfa072_a0605aa8",
+        "filename": "aom/src/aom_integer.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-05-18T18:37:57Z",
+      "side": 1,
+      "message": "The fixed size encode function is used in three of the existing tests. Did you have a particular test case in mind that we\u0027ve missed thus far?",
+      "parentUuid": "5ed38ede_d4fb137c",
+      "range": {
+        "startLine": 79,
+        "startChar": 4,
+        "endLine": 79,
+        "endChar": 30
+      },
+      "revId": "bca795b3f28f33be72cb7ffdb4001f5afadd64b1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "1d2da5d9_b1dcf72a",
         "filename": "aom/src/aom_integer.c",
         "patchSetId": 2
@@ -36,6 +60,30 @@
       "writtenOn": "2018-05-17T01:06:10Z",
       "side": 1,
       "message": "Another optional change: reorder these tests so that they match the order of the tests in aom_ulib_encode at line 61:\n\n  if (value \u003e kMaximumLeb128Value || pad_to_size \u003e kMaximumLeb128Size ||\n      pad_to_size \u003e available || !coded_value || !coded_size) {",
+      "range": {
+        "startLine": 82,
+        "startChar": 0,
+        "endLine": 83,
+        "endChar": 68
+      },
+      "revId": "bca795b3f28f33be72cb7ffdb4001f5afadd64b1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b0276ae7_dcbb3ef2",
+        "filename": "aom/src/aom_integer.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-05-18T18:37:57Z",
+      "side": 1,
+      "message": "Leaving as-is for now-- low hanging fruit for a follow up I guess. :)",
+      "parentUuid": "1d2da5d9_b1dcf72a",
       "range": {
         "startLine": 82,
         "startChar": 0,
