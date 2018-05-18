@@ -486,6 +486,9 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi) {
   sf->use_fast_interpolation_filter_search = 0;
   sf->use_hash_based_trellis = 0;
 
+  // Set decoder side speed feature to use less dual sgr modes
+  sf->dual_sgr_penalty_level = 0;
+
   set_dev_sf(cpi, sf, oxcf->dev_sf);
 
   if (oxcf->mode == GOOD)
