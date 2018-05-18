@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "2078e24b_ae83ef70",
+        "filename": "test/decode_perf_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-05-18T23:57:35Z",
+      "side": 1,
+      "message": "\u003e The std::string constructor throws an exception if the input argument is null.\n\ngood catch. I think most uses of this assumed it was set, but best to be robust.",
+      "parentUuid": "33706aaa_adc84bed",
+      "range": {
+        "startLine": 131,
+        "startChar": 0,
+        "endLine": 132,
+        "endChar": 49
+      },
+      "revId": "2c976435de29cc126e1ab722a322b50d372c6590",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "052c68af_d8a686fc",
         "filename": "test/decode_perf_test.cc",
         "patchSetId": 1
@@ -45,6 +69,23 @@
       "revId": "2c976435de29cc126e1ab722a322b50d372c6590",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e6c70d8b_5dc25c35",
+        "filename": "test/webm_video_source.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-05-18T23:57:35Z",
+      "side": 1,
+      "message": "pointer followed by size feels like a more natural ordering, as buf_/buf_sz_ above",
+      "revId": "2c976435de29cc126e1ab722a322b50d372c6590",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
