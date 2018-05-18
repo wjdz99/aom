@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "cde0aa49_bf5aae63",
+        "filename": "aom/src/aom_integer.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-05-18T21:04:56Z",
+      "side": 1,
+      "message": "I meant a test case for encoding 2^32 (UINT32_MAX + 1) with aom_uleb_encode_fixed_size() and expecting a -1 return value, in aom_integer_test.cc, after the aom_uleb_encode() test case:\n\nTEST(AomLeb128, EncodeFailTest) {\n  ...\n  const uint64_t kValueOutOfRange \u003d kMaximumLeb128Value + 1;\n  ASSERT_EQ(aom_uleb_encode(kValueOutOfRange, kWriteBufferSize,\n                            \u0026write_buffer[0], \u0026coded_size),\n            -1);",
+      "parentUuid": "99bfa072_a0605aa8",
+      "range": {
+        "startLine": 79,
+        "startChar": 4,
+        "endLine": 79,
+        "endChar": 30
+      },
+      "revId": "bca795b3f28f33be72cb7ffdb4001f5afadd64b1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "1d2da5d9_b1dcf72a",
         "filename": "aom/src/aom_integer.c",
         "patchSetId": 2
