@@ -7538,7 +7538,9 @@ static int64_t motion_mode_rd(const AV1_COMP *const cpi, MACROBLOCK *const x,
       // handle_inter_mode()
     } else if (mbmi->motion_mode == OBMC_CAUSAL) {
       mbmi->motion_mode = OBMC_CAUSAL;
-      if (!is_comp_pred && have_newmv_in_inter_mode(this_mode)) {
+
+      assert(!is_comp_pred);
+      if (have_newmv_in_inter_mode(this_mode)) {
         int tmp_rate_mv = 0;
 
         single_motion_search(cpi, x, bsize, mi_row, mi_col, 0, &tmp_rate_mv);
@@ -7551,6 +7553,11 @@ static int64_t motion_mode_rd(const AV1_COMP *const cpi, MACROBLOCK *const x,
         tmp_rate2 = rate2_nocoeff - rate_mv + tmp_rate_mv;
         mbmi->interp_filters =
             condition_interp_filters_on_mv(mbmi->interp_filters, xd);
+      } else {
+        if (x->const_motion_field_obmc &&
+            av1_check_sf_identical_motion_with_minfo(&x->obmc_motion, mbmi)) {
+          continue;
+        }
       }
       av1_build_inter_predictors_sb(cm, xd, mi_row, mi_col, orig_dst, bsize);
       av1_build_obmc_inter_prediction(
@@ -9170,6 +9177,8 @@ static void set_params_rd_pick_inter_mode(
         cm, x, xd, mi_row, mi_col, args->above_pred_buf[0],
         args->above_pred_stride[0], args->left_pred_buf[0],
         args->left_pred_stride[0]);
+    x->const_motion_field_obmc = -1;
+    av1_check_obmc_const_motion_field(cm, x, xd, mi_row, mi_col);
   }
 
   int min_pred_mv_sad = INT_MAX;

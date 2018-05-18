@@ -143,6 +143,11 @@ unsigned int av1_refine_warped_mv(const struct AV1_COMP *cpi,
                                   int mi_row, int mi_col, int *pts0,
                                   int *pts_inref0, int total_samples);
 
+void av1_check_obmc_const_motion_field(const AV1_COMMON *cm, MACROBLOCK *x,
+                                       MACROBLOCKD *xd, int mi_row, int mi_col);
+int av1_check_sf_identical_motion_with_minfo(MotionInfo *motion_info,
+                                             MB_MODE_INFO *mbmi);
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif

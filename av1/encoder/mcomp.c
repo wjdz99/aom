@@ -24,6 +24,7 @@
 #include "av1/common/mvref_common.h"
 #include "av1/common/onyxc_int.h"
 #include "av1/common/reconinter.h"
+#include "av1/common/obmc.h"
 
 #include "av1/encoder/encoder.h"
 #include "av1/encoder/mcomp.h"
@@ -2802,4 +2803,80 @@ int av1_return_min_sub_pixel_mv(MACROBLOCK *x, const AV1_COMMON *const cm,
   // has to be 0.
   lower_mv_precision(bestmv, allow_hp, 0);
   return besterr;
+}
+
+// Check if the neighboring inter blocks usable in obmc mode have identical
+// motion vectors + reference frames
+struct check_obmc_const_motion_ctxt {
+  MotionInfo *motion_info;
+  int *const_motion_field;
+};
+
+int av1_check_sf_identical_motion_with_minfo(MotionInfo *motion_info,
+                                             MB_MODE_INFO *mbmi) {
+  if (motion_info->ref_frame[0] != mbmi->ref_frame[0] ||
+      motion_info->ref_frame[1] != mbmi->ref_frame[1] ||
+      motion_info->interp_filters != mbmi->interp_filters ||
+      motion_info->mv[0].as_int != mbmi->mv[0].as_int)
+    return 1;
+  else
+    return 0;
+}
+
+void check_obmc_const_motion_field(MACROBLOCKD *xd, int rel_mi_col,
+                                   uint8_t above_mi_width,
+                                   MB_MODE_INFO *nb_mbmi, void *fun_ctxt,
+                                   const int num_planes) {
+  (void)xd;
+  (void)rel_mi_col;
+  (void)above_mi_width;
+  (void)num_planes;
+  MB_MODE_INFO backup_mbmi = *nb_mbmi;
+  av1_modify_neighbor_predictor_for_obmc(nb_mbmi);
+
+  struct check_obmc_const_motion_ctxt *ctxt =
+      (struct check_obmc_const_motion_ctxt *)fun_ctxt;
+
+  if (*ctxt->const_motion_field == -1) {
+    *ctxt->const_motion_field = 1;
+    ctxt->motion_info->ref_frame[0] = nb_mbmi->ref_frame[0];
+    ctxt->motion_info->ref_frame[1] = NONE_FRAME;
+    ctxt->motion_info->interp_filters = nb_mbmi->interp_filters;
+    ctxt->motion_info->mv[0].as_int = nb_mbmi->mv[0].as_int;
+  } else if (*ctxt->const_motion_field == 1) {
+    if (av1_check_sf_identical_motion_with_minfo(ctxt->motion_info, nb_mbmi))
+      *ctxt->const_motion_field = 0;
+  }
+
+  *nb_mbmi = backup_mbmi;
+}
+
+void check_obmc_const_motion_field_above(const AV1_COMMON *cm, MACROBLOCKD *xd,
+                                         int mi_col, void *fun_ctxt) {
+  if (!xd->up_available) return;
+
+  BLOCK_SIZE bsize = xd->mi[0]->sb_type;
+  foreach_overlappable_nb_above(cm, xd, mi_col,
+                                max_neighbor_obmc[mi_size_wide_log2[bsize]],
+                                check_obmc_const_motion_field, fun_ctxt);
+}
+
+void check_obmc_const_motion_field_left(const AV1_COMMON *cm, MACROBLOCKD *xd,
+                                        int mi_row, void *fun_ctxt) {
+  if (!xd->left_available) return;
+
+  BLOCK_SIZE bsize = xd->mi[0]->sb_type;
+  foreach_overlappable_nb_left(cm, xd, mi_row,
+                               max_neighbor_obmc[mi_size_high_log2[bsize]],
+                               check_obmc_const_motion_field, fun_ctxt);
+}
+
+void av1_check_obmc_const_motion_field(const AV1_COMMON *cm, MACROBLOCK *x,
+                                       MACROBLOCKD *xd, int mi_row,
+                                       int mi_col) {
+  struct check_obmc_const_motion_ctxt ctxt = { &x->obmc_motion,
+                                               &x->const_motion_field_obmc };
+
+  check_obmc_const_motion_field_above(cm, xd, mi_col, &ctxt);
+  check_obmc_const_motion_field_left(cm, xd, mi_row, &ctxt);
 }
