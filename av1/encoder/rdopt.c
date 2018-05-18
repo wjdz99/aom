@@ -4044,7 +4044,7 @@ static void tx_block_rd_b(const AV1_COMP *cpi, MACROBLOCK *x, TX_SIZE tx_size,
 static void get_mean_and_dev(const int16_t *data, int stride, int bw, int bh,
                              float *mean, float *dev) {
   int x_sum = 0;
-  int x2_sum = 0;
+  uint32_t x2_sum = 0;
   for (int i = 0; i < bh; ++i) {
     for (int j = 0; j < bw; ++j) {
       const int val = data[j];
