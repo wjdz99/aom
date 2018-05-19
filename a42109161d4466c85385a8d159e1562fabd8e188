@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "71350f92_22f66d0f",
+        "filename": "av1/common/onyxc_int.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 551,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-05-19T22:10:48Z",
+      "side": 1,
+      "message": "This can be confusing, because the \u0027temporal\u0027 and \u0027spatial\u0027 fields of SCALABILITY_COMP have two different meanings: id or total number.",
+      "range": {
+        "startLine": 550,
+        "startChar": 0,
+        "endLine": 551,
+        "endChar": 33
+      },
+      "revId": "a42109161d4466c85385a8d159e1562fabd8e188",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
