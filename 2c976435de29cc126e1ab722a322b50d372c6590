@@ -104,6 +104,24 @@
       "revId": "2c976435de29cc126e1ab722a322b50d372c6590",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c2aa9b7e_a89b9615",
+        "filename": "test/webm_video_source.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-05-19T00:41:19Z",
+      "side": 1,
+      "message": "\u003e buf_ is followed by buf_sz_. Are you suggesting I reorder these three members as follows?\n\u003e \n\u003e   uint8_t *buf_;\n\u003e   size_t frame_sz_;\n\u003e   size_t buf_sz_;\n\nsorry I did a bad job at scanning; I thought frame_ at line 90 was a pointer.",
+      "parentUuid": "eb62ad4f_b51df3a9",
+      "revId": "2c976435de29cc126e1ab722a322b50d372c6590",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
