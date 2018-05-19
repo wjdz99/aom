@@ -150,6 +150,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
   sf->prune_ext_partition_types_search_level = 1;
   sf->adaptive_txb_search_level = 1;
   sf->jnt_comp_skip_mv_search = 1;
+  sf->model_based_prune_tx_search_level = 1;
 
   if (speed >= 1) {
     sf->gm_erroradv_type = GM_ERRORADV_TR_1;
@@ -169,6 +170,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->use_intra_txb_hash = 1;
     sf->optimize_b_precheck = 1;
     sf->dual_sgr_penalty_level = 1;
+    sf->model_based_prune_tx_search_level = 2;
   }
 
   if (speed >= 2) {
@@ -409,6 +411,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi) {
   sf->intra_tx_size_search_init_depth_rect = 0;
   sf->intra_tx_size_search_init_depth_sqr = 0;
   sf->tx_size_search_lgr_block = 0;
+  sf->model_based_prune_tx_search_level = 0;
   sf->reduce_inter_modes = 0;
   sf->adaptive_motion_search = 0;
   sf->adaptive_pred_interp_filter = 0;
