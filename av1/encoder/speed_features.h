@@ -369,6 +369,9 @@ typedef struct SPEED_FEATURES {
   // aggressiveness
   int adaptive_txb_search_level;
 
+  // Prune tx_size_type search for inter based on rd model
+  int prune_model_based_tx_size_type_search;
+
   // Used if partition_search_type = FIXED_SIZE_PARTITION
   BLOCK_SIZE always_this_block_size;
 

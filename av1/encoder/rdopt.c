@@ -5107,6 +5107,26 @@ static void select_tx_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
     }
   }
 
+  if (cpi->sf.prune_model_based_tx_size_type_search &&
+      ref_best_rd != INT64_MAX) {
+    struct macroblock_plane *const p = &x->plane[0];
+    const struct macroblockd_plane *const pd = &xd->plane[0];
+    const int src_stride = p->src.stride;
+    const uint8_t *const src = p->src.buf;
+    const int dst_stride = pd->dst.stride;
+    const uint8_t *const dst = pd->dst.buf;
+    unsigned int sse;
+    cpi->fn_ptr[bsize].vf(src, src_stride, dst, dst_stride, &sse);
+    int model_rate;
+    int64_t model_dist;
+    model_rd_from_sse(cpi, xd, bsize, 0, sse, &model_rate, &model_dist);
+    int64_t model_rd = RDCOST(x->rdmult, model_rate, model_dist);
+    // If the modeled rd is a lot worse than the best so far, breakout.
+    // TODO(debargha, urvang): Improve the model and make the check below
+    // tighter.
+    if (model_rd / 3 > ref_best_rd) return;
+  }
+
   // If we predict that skip is the optimal RD decision - set the respective
   // context and terminate early.
   int64_t dist;
