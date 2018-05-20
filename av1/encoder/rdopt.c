@@ -4085,8 +4085,8 @@ static void get_mean_and_dev_float(const float *data, int stride, int bw,
 
 // Feature used by the model to predict tx split: the mean and standard
 // deviation values of the block and sub-blocks.
-static void get_mean_dev_features(const int16_t *data, int stride, int bw,
-                                  int bh, int levels, float *feature) {
+static int get_mean_dev_features(const int16_t *data, int stride, int bw,
+                                 int bh, int levels, float *feature) {
   int feature_idx = 0;
   int width = bw;
   int height = bh;
@@ -4126,11 +4126,17 @@ static void get_mean_dev_features(const int16_t *data, int stride, int bw,
       width = width >> 1;
     }
   }
+  return feature_idx;
 }
 
 static int ml_predict_tx_split(MACROBLOCK *x, BLOCK_SIZE bsize, int blk_row,
-                               int blk_col, TX_SIZE tx_size) {
-  const NN_CONFIG *nn_config = av1_tx_split_nnconfig_map[tx_size];
+                               int blk_col, TX_SIZE tx_size, int q_index) {
+
+  const int tbw = tx_size_wide[tx_size];
+  const int tbh = tx_size_high[tx_size];
+  const int is_square_block = tbw == tbh;
+  const NN_CONFIG *nn_config = is_square_block ?
+      &av1_tx_split_nnconfig_square : &av1_tx_split_nnconfig_rect;
   if (!nn_config) return -1;
 
   const int diff_stride = block_size_wide[bsize];
@@ -4141,8 +4147,15 @@ static int ml_predict_tx_split(MACROBLOCK *x, BLOCK_SIZE bsize, int blk_row,
   aom_clear_system_state();
 
   float features[64] = { 0.0f };
-  get_mean_dev_features(diff, diff_stride, bw, bh, 2, features);
-
+  int feature_num =
+      get_mean_dev_features(diff, diff_stride, bw, bh, 2, features);
+  if (is_square_block) {
+    features[feature_num++] = (float)(tbw >> 2);
+  } else {
+    features[feature_num++] = (float)(tbw >> 2);
+    features[feature_num++] = (float)(tbh >> 2);
+  }
+  features[feature_num++] = (float)(q_index >> 2);
   float score = 0.0f;
   av1_nn_predict(features, nn_config, &score);
   if (score > 8.0f) return 100;
@@ -4247,7 +4260,8 @@ static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
     const int threshold = cpi->sf.tx_type_search.ml_tx_split_thresh;
     if (threshold >= 0) {
       const int split_score =
-          ml_predict_tx_split(x, plane_bsize, blk_row, blk_col, tx_size);
+          ml_predict_tx_split(x, plane_bsize, blk_row, blk_col, tx_size,
+                              cpi->common.base_qindex);
       if (split_score >= 0 && split_score < threshold) try_split = 0;
     }
   }
