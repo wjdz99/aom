@@ -2550,15 +2550,14 @@ static const uint8_t *decode_tiles_mt(AV1Decoder *pbi, const uint8_t *data,
     for (worker_idx = 0; worker_idx < num_threads; ++worker_idx) {
       AVxWorker *const worker = &pbi->tile_workers[worker_idx];
       DecWorkerData *const thread_data = pbi->thread_data + worker_idx;
-      ++pbi->num_workers;
 
       winterface->init(worker);
-      if (worker_idx < num_threads - 1 && !winterface->reset(worker)) {
-        aom_internal_error(&cm->error, AOM_CODEC_ERROR,
-                           "Tile decoder thread creation failed");
-      }
-
       if (worker_idx < num_threads - 1) {
+        if (!winterface->reset(worker)) {
+          aom_internal_error(&cm->error, AOM_CODEC_ERROR,
+                             "Tile decoder thread creation failed");
+        }
+
         // Allocate thread data.
         CHECK_MEM_ERROR(cm, thread_data->td,
                         aom_memalign(32, sizeof(*thread_data->td)));
@@ -2567,6 +2566,7 @@ static const uint8_t *decode_tiles_mt(AV1Decoder *pbi, const uint8_t *data,
         // Main thread acts as a worker and uses the thread data in pbi
         thread_data->td = &pbi->td;
       }
+      ++pbi->num_workers;
     }
   }
 
