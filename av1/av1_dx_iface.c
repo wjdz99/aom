@@ -126,6 +126,7 @@ static aom_codec_err_t decoder_destroy(aom_codec_alg_priv_t *ctx) {
       FrameWorkerData *const frame_worker_data =
           (FrameWorkerData *)worker->data1;
       aom_get_worker_interface()->end(worker);
+      if (!frame_worker_data) continue;
       aom_free(frame_worker_data->pbi->common.tpl_mvs);
       frame_worker_data->pbi->common.tpl_mvs = NULL;
       av1_remove_common(&frame_worker_data->pbi->common);
@@ -364,7 +365,7 @@ static aom_codec_err_t init_decoder(aom_codec_alg_priv_t *ctx) {
   }
 #endif
 
-  ctx->frame_workers = (AVxWorker *)aom_malloc(ctx->num_frame_workers *
+  ctx->frame_workers = (AVxWorker *)aom_calloc(ctx->num_frame_workers,
                                                sizeof(*ctx->frame_workers));
   if (ctx->frame_workers == NULL) {
     set_error_detail(ctx, "Failed to allocate frame_workers");
@@ -383,11 +384,25 @@ static aom_codec_err_t init_decoder(aom_codec_alg_priv_t *ctx) {
     frame_worker_data = (FrameWorkerData *)worker->data1;
     frame_worker_data->pbi = av1_decoder_create(ctx->buffer_pool);
     if (frame_worker_data->pbi == NULL) {
-      set_error_detail(ctx, "Failed to allocate frame_worker_data");
+      set_error_detail(ctx, "Failed to allocate frame_worker_data decoder");
+      aom_free(frame_worker_data);
+      worker->data1 = NULL;
       return AOM_CODEC_MEM_ERROR;
     }
     frame_worker_data->pbi->common.options = &ctx->cfg.cfg;
     frame_worker_data->pbi->frame_worker_owner = worker;
+    frame_worker_data->pbi->allow_lowbitdepth = ctx->cfg.allow_lowbitdepth;
+
+    // If decoding in serial mode, FrameWorker thread could create tile worker
+    // thread or loopfilter thread.
+    frame_worker_data->pbi->max_threads = ctx->cfg.threads;
+    frame_worker_data->pbi->inv_tile_order = ctx->invert_tile_order;
+    frame_worker_data->pbi->common.large_scale_tile = ctx->tile_mode;
+    frame_worker_data->pbi->common.is_annexb = ctx->is_annexb;
+    frame_worker_data->pbi->dec_tile_row = ctx->decode_tile_row;
+    frame_worker_data->pbi->dec_tile_col = ctx->decode_tile_col;
+    frame_worker_data->pbi->operating_point = ctx->operating_point;
+
     frame_worker_data->worker_id = i;
     frame_worker_data->scratch_buffer = NULL;
     frame_worker_data->scratch_buffer_size = 0;
@@ -404,17 +419,6 @@ static aom_codec_err_t init_decoder(aom_codec_alg_priv_t *ctx) {
       return AOM_CODEC_MEM_ERROR;
     }
 #endif
-    frame_worker_data->pbi->allow_lowbitdepth = ctx->cfg.allow_lowbitdepth;
-
-    // If decoding in serial mode, FrameWorker thread could create tile worker
-    // thread or loopfilter thread.
-    frame_worker_data->pbi->max_threads = ctx->cfg.threads;
-    frame_worker_data->pbi->inv_tile_order = ctx->invert_tile_order;
-    frame_worker_data->pbi->common.large_scale_tile = ctx->tile_mode;
-    frame_worker_data->pbi->common.is_annexb = ctx->is_annexb;
-    frame_worker_data->pbi->dec_tile_row = ctx->decode_tile_row;
-    frame_worker_data->pbi->dec_tile_col = ctx->decode_tile_col;
-    frame_worker_data->pbi->operating_point = ctx->operating_point;
     worker->hook = (AVxWorkerHook)frame_worker_hook;
     if (!winterface->reset(worker)) {
       set_error_detail(ctx, "Frame Worker thread creation failed");
