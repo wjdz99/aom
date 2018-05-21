@@ -46,6 +46,30 @@
       "revId": "7adebeedfd90dc967ea6dca63456c2ecdf65d29d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "87755a78_aacd274c",
+        "filename": "webmdec.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-05-21T19:03:40Z",
+      "side": 1,
+      "message": "Thank you! I didn\u0027t know the coding style Code-Review -1 was overridden by the jenkins Verified +1.",
+      "parentUuid": "ccd81012_86074998",
+      "range": {
+        "startLine": 14,
+        "startChar": 0,
+        "endLine": 14,
+        "endChar": 18
+      },
+      "revId": "7adebeedfd90dc967ea6dca63456c2ecdf65d29d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
