@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "73a2ef6e_c14bfa0a",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1761,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2018-05-21T18:09:59Z",
+      "side": 1,
+      "message": "what is the purpose of checking if(skip_txfm_sb)\nIn the main change below, model_skip is not even initialized.",
+      "range": {
+        "startLine": 1761,
+        "startChar": 2,
+        "endLine": 1761,
+        "endChar": 51
+      },
+      "revId": "cc0412e1d7a6d7df9f6d5632833704fd3b93fd2f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cdd10246_a903b502",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 5097,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2018-05-21T18:09:59Z",
+      "side": 1,
+      "message": "This is what I mentioned above",
+      "range": {
+        "startLine": 5097,
+        "startChar": 8,
+        "endLine": 5097,
+        "endChar": 18
+      },
+      "revId": "cc0412e1d7a6d7df9f6d5632833704fd3b93fd2f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
