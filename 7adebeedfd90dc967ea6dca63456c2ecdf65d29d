@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "584ad8fc_418daeb4",
+        "filename": "webmdec.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-05-21T15:59:43Z",
+      "side": 1,
+      "message": "I got a coding style warning on this line:\n\nFound C++ system header after other header. Should be: -.h, c system, c++ system, other.  [build/include_order] [4]\n\nDo you know how to fix this? Under Google\u0027s C++ Style Guide, it is correct to include webmdec.h first. It seems that the coding style checker considers \"./webmdec.h\" as being in the \"other header\" category.",
+      "range": {
+        "startLine": 14,
+        "startChar": 0,
+        "endLine": 14,
+        "endChar": 18
+      },
+      "revId": "7adebeedfd90dc967ea6dca63456c2ecdf65d29d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
