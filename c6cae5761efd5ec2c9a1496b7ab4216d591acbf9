@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "32181c28_ae908579",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-05-21T21:44:02Z",
+      "side": 1,
+      "message": "Nit: 0 \u003d\u003e AOM_CODEC_OK",
+      "range": {
+        "startLine": 185,
+        "startChar": 44,
+        "endLine": 185,
+        "endChar": 45
+      },
+      "revId": "c6cae5761efd5ec2c9a1496b7ab4216d591acbf9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4a660281_70f14cc2",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-05-21T21:44:02Z",
+      "side": 1,
+      "message": "Nit: 0 \u003d\u003e AOM_CODEC_OK",
+      "range": {
+        "startLine": 252,
+        "startChar": 68,
+        "endLine": 252,
+        "endChar": 69
+      },
+      "revId": "c6cae5761efd5ec2c9a1496b7ab4216d591acbf9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
