@@ -134,10 +134,8 @@ int aom_get_num_layers_from_operating_point_idc(
     }
   }
 
-  if (*number_spatial_layers > MAX_NUM_SPATIAL_LAYERS ||
-      *number_temporal_layers > MAX_NUM_TEMPORAL_LAYERS)
-    return -1;
-
+  assert(*number_spatial_layers <= MAX_NUM_SPATIAL_LAYERS &&
+         *number_temporal_layers <= MAX_NUM_TEMPORAL_LAYERS);
   return 0;
 }
 
@@ -221,9 +219,12 @@ static uint32_t read_sequence_header_obu(AV1Decoder *pbi,
     operating_point = 0;
   pbi->current_operating_point =
       seq_params->operating_point_idc[operating_point];
-  aom_get_num_layers_from_operating_point_idc(pbi->current_operating_point,
-                                              &cm->number_spatial_layers,
-                                              &cm->number_temporal_layers);
+  if (aom_get_num_layers_from_operating_point_idc(
+          pbi->current_operating_point, &cm->number_spatial_layers,
+          &cm->number_temporal_layers) != 0) {
+    cm->error.error_code = AOM_CODEC_CORRUPT_FRAME;
+    return 0;
+  }
 
   read_sequence_header(cm, rb);
 
@@ -600,6 +601,8 @@ void aom_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
       case OBU_SEQUENCE_HEADER:
         if (!seq_header_received) {
           decoded_payload_size = read_sequence_header_obu(pbi, &rb);
+          if (cm->error.error_code != AOM_CODEC_OK) return;
+
           seq_header_size = decoded_payload_size;
           seq_header_received = 1;
         } else {
