@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "3ee592d6_28e428ce",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-05-21T21:36:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "239de5e8_3bdc9d79",
+      "range": {
+        "startLine": 158,
+        "startChar": 7,
+        "endLine": 158,
+        "endChar": 10
+      },
+      "revId": "15b279ec74bcb02465e1ed60805e73facc08b493",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f89732db_45fe6328",
         "filename": "av1/av1_dx_iface.c",
         "patchSetId": 1
@@ -36,6 +60,30 @@
       "writtenOn": "2018-05-21T21:08:33Z",
       "side": 1,
       "message": "I am not nit-picking; This error code is not accurate. The only reason parse_operating_points() can fail is that we pass a null pointer to aom_get_num_layers_from_operating_point_idc(). That is an internal error (a bug in our own code), not a corrupt frame. The closest error code I can find is AOM_CODEC_INVALID_PARAM or AOM_CODEC_ERROR.",
+      "range": {
+        "startLine": 253,
+        "startChar": 11,
+        "endLine": 253,
+        "endChar": 34
+      },
+      "revId": "15b279ec74bcb02465e1ed60805e73facc08b493",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6d441d86_58778208",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-05-21T21:36:26Z",
+      "side": 1,
+      "message": "Using AOM_CODEC_ERROR.",
+      "parentUuid": "f89732db_45fe6328",
       "range": {
         "startLine": 253,
         "startChar": 11,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "fcd15003_8c0b7b3c",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-05-21T21:36:26Z",
+      "side": 1,
+      "message": "I\u0027m not aware of the existence of such a function.",
+      "parentUuid": "03697599_12621969",
+      "range": {
+        "startLine": 128,
+        "startChar": 0,
+        "endLine": 134,
+        "endChar": 5
+      },
+      "revId": "15b279ec74bcb02465e1ed60805e73facc08b493",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "19deacfd_6d39fd4d",
         "filename": "av1/decoder/obu.c",
         "patchSetId": 1
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "f22b8032_c02320b5",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-05-21T21:36:26Z",
+      "side": 1,
+      "message": "done/deleted",
+      "parentUuid": "19deacfd_6d39fd4d",
+      "range": {
+        "startLine": 137,
+        "startChar": 0,
+        "endLine": 138,
+        "endChar": 61
+      },
+      "revId": "15b279ec74bcb02465e1ed60805e73facc08b493",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "325f283d_3f1dd2d9",
         "filename": "av1/decoder/obu.c",
         "patchSetId": 1
@@ -105,6 +201,30 @@
       "writtenOn": "2018-05-21T21:08:33Z",
       "side": 1,
       "message": "Your change below made me realize this is wrong. This should be changed to set cm-\u003eerror.error_code and return 0.\n\nDo you want to make fix these \"return AOM_CODEC_UNSUP_BITSTREAM\" lines as part of this CL? Or I can write a separate CL to do that.",
+      "range": {
+        "startLine": 183,
+        "startChar": 4,
+        "endLine": 183,
+        "endChar": 37
+      },
+      "revId": "15b279ec74bcb02465e1ed60805e73facc08b493",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3f306e7c_8fb28075",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-05-21T21:36:26Z",
+      "side": 1,
+      "message": "Err... yeah, this function needs fixing throughout. Separate CL please. Good catch! I was focused very narrowly on the one call.",
+      "parentUuid": "325f283d_3f1dd2d9",
       "range": {
         "startLine": 183,
         "startChar": 4,
@@ -140,6 +260,30 @@
     },
     {
       "key": {
+        "uuid": "d49155e3_86675e47",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-05-21T21:36:26Z",
+      "side": 1,
+      "message": "Used AOM_CODEC_ERROR instead.",
+      "parentUuid": "2d96385a_38532835",
+      "range": {
+        "startLine": 225,
+        "startChar": 27,
+        "endLine": 225,
+        "endChar": 50
+      },
+      "revId": "15b279ec74bcb02465e1ed60805e73facc08b493",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "570c36fa_8010a195",
         "filename": "av1/decoder/obu.c",
         "patchSetId": 1
@@ -163,6 +307,30 @@
     },
     {
       "key": {
+        "uuid": "2e89fe2e_386fe7bc",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 555,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-05-21T21:36:26Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "570c36fa_8010a195",
+      "range": {
+        "startLine": 555,
+        "startChar": 2,
+        "endLine": 555,
+        "endChar": 61
+      },
+      "revId": "15b279ec74bcb02465e1ed60805e73facc08b493",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4681ab06_491dc1b5",
         "filename": "av1/decoder/obu.c",
         "patchSetId": 1
@@ -174,6 +342,30 @@
       "writtenOn": "2018-05-21T21:08:33Z",
       "side": 1,
       "message": "We may be able to rely on the check at line 555. But it\u0027s fine to check here, because it\u0027s easier to verify it\u0027s correct.",
+      "range": {
+        "startLine": 604,
+        "startChar": 10,
+        "endLine": 604,
+        "endChar": 59
+      },
+      "revId": "15b279ec74bcb02465e1ed60805e73facc08b493",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "464896c3_df9eeb0f",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 604,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-05-21T21:36:26Z",
+      "side": 1,
+      "message": "I think the early return here is probably better since it avoids any further processing.",
+      "parentUuid": "4681ab06_491dc1b5",
       "range": {
         "startLine": 604,
         "startChar": 10,
