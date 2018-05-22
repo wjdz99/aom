@@ -4737,6 +4737,7 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
   // frame type has been decided outside of this function call
   cm->cur_frame->intra_only = frame_is_intra_only(cm);
   cm->cur_frame->frame_type = cm->frame_type;
+  printf("fwd kf enabled %d\n", oxcf->fwd_kf_enabled);
 
   // S_FRAMEs are always error resilient
   cm->error_resilient_mode |= frame_is_sframe(cm);

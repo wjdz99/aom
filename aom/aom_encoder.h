@@ -633,6 +633,11 @@ typedef struct aom_codec_enc_cfg {
    */
   unsigned int kf_max_dist;
 
+  /*!\brief Option to enable forward reference key frame
+   *
+   */
+  int fwd_kf_enabled;
+
   /*!\brief sframe interval
    *
    * This value, expressed as a number of frames, forces the encoder to code

@@ -364,7 +364,8 @@ static const arg_def_t maxsection_pct =
     ARG_DEF(NULL, "maxsection-pct", 1, "GOP max bitrate (% of target)");
 static const arg_def_t *rc_twopass_args[] = { &bias_pct, &minsection_pct,
                                               &maxsection_pct, NULL };
-
+static const arg_def_t fwd_kf_enabled =
+    ARG_DEF(NULL, "enable-fwd-kf", 0, "Enable forward reference keyframes");
 static const arg_def_t kf_min_dist =
     ARG_DEF(NULL, "kf-min-dist", 1, "Minimum keyframe interval (frames)");
 static const arg_def_t kf_max_dist =
@@ -628,6 +629,7 @@ static const arg_def_t *av1_args[] = { &cpu_used_av1,
                                        &max_inter_rate_pct,
                                        &gf_cbr_boost_pct,
                                        &lossless,
+                                       &fwd_kf_enabled,
                                        &enable_cdef,
                                        &enable_restoration,
                                        &disable_trellis_quant,
@@ -1231,6 +1233,8 @@ static int parse_stream_params(struct AvxEncoderConfig *global,
       config->cfg.kf_min_dist = arg_parse_uint(&arg);
     } else if (arg_match(&arg, &kf_max_dist, argi)) {
       config->cfg.kf_max_dist = arg_parse_uint(&arg);
+ // } else if (arg_match(&arg, &fwd_kf_enabled, argi)) {
+ //   config->cfg.fwd_kf_enabled = arg_parse_uint(&arg);
     } else if (arg_match(&arg, &kf_disabled, argi)) {
       config->cfg.kf_mode = AOM_KF_DISABLED;
     } else if (arg_match(&arg, &sframe_dist, argi)) {
