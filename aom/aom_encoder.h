@@ -615,6 +615,11 @@ typedef struct aom_codec_enc_cfg {
    */
   enum aom_kf_mode kf_mode;
 
+  /*!\brief Option to enable forward reference key frame
+   *
+   */
+  int fwd_kf_enabled;
+
   /*!\brief Keyframe minimum interval
    *
    * This value, expressed as a number of frames, prevents the encoder from
