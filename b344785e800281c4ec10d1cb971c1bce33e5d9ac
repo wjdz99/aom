@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8a475d56_77d0a412",
+        "filename": "aom_dsp/simd/v128_intrinsics_arm.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 580,
+      "author": {
+        "id": 7105
+      },
+      "writtenOn": "2018-05-22T16:55:19Z",
+      "side": 1,
+      "message": "The right shift output should be cast, not the vreinterpet. This should be\nv128_from_64(0, (uint64_t)vshr_n_u64(vreinterpret_u64_s64(vget_high_s64(a)),(n - 8) * 8)));",
+      "range": {
+        "startLine": 580,
+        "startChar": 49,
+        "endLine": 580,
+        "endChar": 59
+      },
+      "revId": "b344785e800281c4ec10d1cb971c1bce33e5d9ac",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
