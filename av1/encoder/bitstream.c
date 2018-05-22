@@ -3582,7 +3582,7 @@ static uint32_t write_sequence_header_obu(AV1_COMP *cpi, uint8_t *const dst,
 
     for (i = 0; i < operating_points_cnt_minus_1 + 1; i++) {
       aom_wb_write_literal(&wb, cm->seq_params.operating_point_idc[i],
-                           OP_POINTS_IDC_BITS);
+                           OP_POINT_IDC_BITS);
       write_bitstream_level(cm->seq_params.level[i], &wb);
       if (cm->seq_params.level[i].major > 3)
         aom_wb_write_bit(&wb, cm->seq_params.tier[i]);

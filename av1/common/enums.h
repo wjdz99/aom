@@ -119,7 +119,7 @@ typedef enum BITSTREAM_PROFILE {
 #define LEVEL_MINOR_MAX ((1 << LEVEL_MINOR_BITS) - 1)
 
 #define OP_POINTS_CNT_MINUS_1_BITS 5
-#define OP_POINTS_IDC_BITS 12
+#define OP_POINT_IDC_BITS 12
 
 // Note: Some enums use the attribute 'packed' to use smallest possible integer
 // type, so that we can save memory when they are used in structs/arrays.
