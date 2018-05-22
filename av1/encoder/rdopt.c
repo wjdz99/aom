@@ -9784,7 +9784,6 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
     int64_t distortion2 = 0, distortion_y = 0, distortion_uv = 0;
     int skippable = 0;
     int this_skip2 = 0;
-    int64_t total_sse = INT64_MAX;
     uint8_t ref_frame_type;
 
     this_mode = av1_mode_order[mode_index].mode;
@@ -10122,7 +10121,6 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
         rate2 = rd_stats.rate;
         skippable = rd_stats.skip;
         distortion2 = rd_stats.dist;
-        total_sse = rd_stats.sse;
         rate_y = rd_stats_y.rate;
         rate_uv = rd_stats_uv.rate;
       }
@@ -10149,19 +10147,6 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
 
         rate2 += (rate2 < INT_MAX ? x->drl_mode_cost0[drl_ctx][0] : 0);
 
-        if (this_rd < INT64_MAX) {
-          if (RDCOST(x->rdmult, rate_y + rate_uv, distortion2) <
-              RDCOST(x->rdmult, 0, total_sse))
-            tmp_ref_rd = RDCOST(
-                x->rdmult, rate2 + x->skip_cost[av1_get_skip_context(xd)][0],
-                distortion2);
-          else
-            tmp_ref_rd =
-                RDCOST(x->rdmult,
-                       rate2 + x->skip_cost[av1_get_skip_context(xd)][1] -
-                           rate_y - rate_uv,
-                       total_sse);
-        }
         memcpy(x->blk_skip_drl, x->blk_skip,
                sizeof(x->blk_skip[0]) * ctx->num_4x4_blk);
 
