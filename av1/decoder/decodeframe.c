@@ -3446,7 +3446,7 @@ static int read_uncompressed_header(AV1Decoder *pbi,
     if (!cm->show_frame)  // unshown keyframe (forward keyframe)
       pbi->refresh_frame_flags = aom_rb_read_literal(rb, REF_FRAMES);
     else  // shown keyframe
-      pbi->refresh_frame_flags = (1 << REF_FRAMES) - 1;
+      pbi->refresh_frame_flags = (1 << REF_FRAMES) - 1; //should this be 0xff?
 
     for (int i = 0; i < INTER_REFS_PER_FRAME; ++i) {
       cm->frame_refs[i].idx = INVALID_IDX;
