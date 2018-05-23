@@ -3352,7 +3352,7 @@ static void update_reference_frames(AV1_COMP *cpi) {
   // At this point the new frame has been encoded.
   // If any buffer copy / swapping is signaled it should be done here.
 
-  if (cm->frame_type == KEY_FRAME || frame_is_sframe(cm)) {
+  if ((cm->frame_type == KEY_FRAME && cm->show_frame) || frame_is_sframe(cm)) {
     for (int ref_frame = 0; ref_frame < REF_FRAMES; ++ref_frame) {
       ref_cnt_fb(pool->frame_bufs,
                  &cm->ref_frame_map[cpi->ref_fb_idx[ref_frame]],
@@ -4737,6 +4737,7 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
   // frame type has been decided outside of this function call
   cm->cur_frame->intra_only = frame_is_intra_only(cm);
   cm->cur_frame->frame_type = cm->frame_type;
+  printf("frame type %d\n", cm->frame_type);
 
   // S_FRAMEs are always error resilient
   cm->error_resilient_mode |= frame_is_sframe(cm);
@@ -4750,7 +4751,7 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
       cpi->oxcf.allow_warped_motion && frame_might_allow_warped_motion(cm);
 
   // Reset the frame packet stamp index.
-  if (cm->frame_type == KEY_FRAME) cm->current_video_frame = 0;
+  if (cm->frame_type == KEY_FRAME && cm->show_frame) cm->current_video_frame = 0;
 
   // NOTE:
   // (1) Move the setup of the ref_frame_flags upfront as it would be
@@ -4764,6 +4765,10 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
   if (cm->show_existing_frame) {
     // NOTE(zoeliu): In BIDIR_PRED, the existing frame to show is the current
     //               BWDREF_FRAME in the reference frame buffer.
+    if (cm->frame_type == KEY_FRAME) {
+      //TODO(sarahparker)
+
+    }
     cm->frame_type = INTER_FRAME;
     cm->show_frame = 1;
     cpi->frame_flags = *frame_flags;
@@ -4960,7 +4965,7 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
   }
 
   // If the encoder forced a KEY_FRAME decision or if frame is an S_FRAME
-  if (cm->frame_type == KEY_FRAME || frame_is_sframe(cm)) {
+  if ((cm->frame_type == KEY_FRAME && cm->show_frame)|| frame_is_sframe(cm)) {
     cpi->refresh_last_frame = 1;
   }
 
@@ -5653,6 +5658,8 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
       return -1;
     }
     av1_apply_encoding_flags(cpi, source->flags);
+    // set up the flag for fwd_kf
+    cm->reset_decoder_state = 1;
     cpi->source = &source->img;
     // TODO(zoeliu): To track down to determine whether it's needed to adjust
     // the frame rate.
@@ -5719,16 +5726,23 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
     if ((source = av1_lookahead_peek(cpi->lookahead, arf_src_index)) != NULL) {
       cm->showable_frame = 1;
       cpi->alt_ref_source = source;
-
-      if (oxcf->arnr_max_frames > 0) {
-        // Produce the filtered ARF frame.
-        av1_temporal_filter(cpi, arf_src_index);
-        aom_extend_frame_borders(&cpi->alt_ref_buffer, num_planes);
-        force_src_buffer = &cpi->alt_ref_buffer;
+      if (arf_src_index == rc->frames_to_key) {// && oxcf->fwd_kf_enabled) {
+        printf("is arf, frame type %d\n", cm->frame_type);
+//    } else {
+//      printf("is non-fwd-kf arf, frame type %d\n", cm->frame_type);
+//    }
+//    if (0) { // if this altref is a forward kf
+        cm->intra_only = 1;
+      } else {
+        if (oxcf->arnr_max_frames > 0) {
+          // Produce the filtered ARF frame.
+          av1_temporal_filter(cpi, arf_src_index);
+          aom_extend_frame_borders(&cpi->alt_ref_buffer, num_planes);
+          force_src_buffer = &cpi->alt_ref_buffer;
+        }
+        cm->intra_only = 0;
       }
-
       cm->show_frame = 0;
-      cm->intra_only = 0;
       cpi->refresh_alt_ref_frame = 1;
       cpi->refresh_last_frame = 0;
       cpi->refresh_golden_frame = 0;
@@ -5889,7 +5903,7 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
     setup_frame_size(cpi);
   }
 
-  if (cpi->oxcf.pass != 0 || frame_is_intra_only(cm) == 1) {
+  if (cpi->oxcf.pass != 0 || frame_is_intra_only(cm) == 1) { // TODO(sarahparker) should we still do this for fwd kf?
     for (i = 0; i < REF_FRAMES; ++i) cpi->scaled_ref_idx[i] = INVALID_IDX;
   }
 
