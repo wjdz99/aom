@@ -5719,16 +5719,23 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
     if ((source = av1_lookahead_peek(cpi->lookahead, arf_src_index)) != NULL) {
       cm->showable_frame = 1;
       cpi->alt_ref_source = source;
-
-      if (oxcf->arnr_max_frames > 0) {
-        // Produce the filtered ARF frame.
-        av1_temporal_filter(cpi, arf_src_index);
-        aom_extend_frame_borders(&cpi->alt_ref_buffer, num_planes);
-        force_src_buffer = &cpi->alt_ref_buffer;
+      if (arf_src_index == rc->frames_to_key) {// && oxcf->fwd_kf_enabled) {
+        printf("is arf, frame type %d\n", cm->frame_type);
+      } else {
+        printf("is non-fwd-kf arf, frame type %d\n", cm->frame_type);
       }
-
+      if (0) { // if this altref is a forward kf
+        cm->intra_only = 1;
+      } else {
+        if (oxcf->arnr_max_frames > 0) {
+          // Produce the filtered ARF frame.
+          av1_temporal_filter(cpi, arf_src_index);
+          aom_extend_frame_borders(&cpi->alt_ref_buffer, num_planes);
+          force_src_buffer = &cpi->alt_ref_buffer;
+        }
+        cm->intra_only = 0;
+      }
       cm->show_frame = 0;
-      cm->intra_only = 0;
       cpi->refresh_alt_ref_frame = 1;
       cpi->refresh_last_frame = 0;
       cpi->refresh_golden_frame = 0;
@@ -5889,7 +5896,7 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
     setup_frame_size(cpi);
   }
 
-  if (cpi->oxcf.pass != 0 || frame_is_intra_only(cm) == 1) {
+  if (cpi->oxcf.pass != 0 || frame_is_intra_only(cm) == 1) { // TODO(sarahparker) should we still do this for fwd kf?
     for (i = 0; i < REF_FRAMES; ++i) cpi->scaled_ref_idx[i] = INVALID_IDX;
   }
 

@@ -2178,8 +2178,11 @@ static void define_gf_group_structure(AV1_COMP *cpi) {
   if (rc->source_alt_ref_pending) {
     gf_group->update_type[frame_index] = ARF_UPDATE;
     gf_group->rf_level[frame_index] = GF_ARF_STD;
+    int is_fwd_kf = //cpi->oxcf.fwd_kf_enabled &&
+                    (rc->baseline_gf_interval == (rc->frames_to_key - 1));
+    is_fwd_kf = 0;
     gf_group->arf_src_offset[frame_index] =
-        (unsigned char)(rc->baseline_gf_interval - 1);
+        (unsigned char)(rc->baseline_gf_interval - !is_fwd_kf);
 
     gf_group->arf_update_idx[frame_index] = 0;
     gf_group->arf_ref_idx[frame_index] = 0;
