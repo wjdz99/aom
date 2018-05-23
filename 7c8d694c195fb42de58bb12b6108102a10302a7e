@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "71aa63d0_4f654c23",
+        "filename": "aom_dsp/x86/highbd_loopfilter_sse2.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2018-05-23T15:57:51Z",
+      "side": 1,
+      "message": "remove the blank line here.",
+      "revId": "7c8d694c195fb42de58bb12b6108102a10302a7e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
