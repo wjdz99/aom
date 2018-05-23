@@ -821,7 +821,7 @@ static void setup_block_mask(AV1_COMMON *const cm, int mi_row, int mi_col,
 void av1_setup_bitmask(AV1_COMMON *const cm, int mi_row, int mi_col, int plane,
                        int subsampling_x, int subsampling_y, int row_end,
                        int col_end) {
-  const int num_64x64 = cm->seq_params.mib_size >> MIN_MIB_SIZE_LOG2;
+  const int num_64x64 = MAX_MIB_SIZE >> MIN_MIB_SIZE_LOG2;
   for (int y = 0; y < num_64x64; ++y) {
     for (int x = 0; x < num_64x64; ++x) {
       const int row = mi_row + y * MI_SIZE_64X64;
@@ -853,8 +853,18 @@ void av1_setup_bitmask(AV1_COMMON *const cm, int mi_row, int mi_col, int plane,
   }
 
   // set up bitmask for each superblock
-  setup_block_mask(cm, mi_row, mi_col, cm->seq_params.sb_size, plane,
-                   subsampling_x, subsampling_y);
+  const int num_sb = MAX_MIB_SIZE / cm->seq_params.sb_size;
+  for (int y = 0; y < num_sb; ++y) {
+    for (int x = 0; x < num_sb; ++x) {
+      const int row = mi_row + y * cm->seq_params.sb_size;
+      const int col = mi_col + x * cm->seq_params.sb_size;
+      if (row >= row_end || col >= col_end) continue;
+      if (row >= cm->mi_rows || col >= cm->mi_cols) continue;
+
+      setup_block_mask(cm, row, col, cm->seq_params.sb_size, plane,
+                       subsampling_x, subsampling_y);
+    }
+  }
 
   for (int y = 0; y < num_64x64; ++y) {
     for (int x = 0; x < num_64x64; ++x) {
@@ -1311,9 +1321,8 @@ void av1_filter_block_plane_ver(AV1_COMMON *const cm,
   uint8_t *lfl2;
 
   // filter two rows at a time
-  for (r = 0; r < cm->seq_params.mib_size && mi_row + r < cm->mi_rows;
-       r += r_step) {
-    for (c = 0; c < cm->seq_params.mib_size && mi_col + c < cm->mi_cols;
+  for (r = 0; r < MAX_MIB_SIZE && mi_row + r < cm->mi_rows; r += r_step) {
+    for (c = 0; c < MAX_MIB_SIZE && mi_col + c < cm->mi_cols;
          c += MI_SIZE_64X64) {
       dst->buf += ((c << MI_SIZE_LOG2) >> ssx);
       LoopFilterMask *lfm = get_loop_filter_mask(cm, mi_row + r, mi_col + c);
@@ -1388,9 +1397,8 @@ void av1_filter_block_plane_hor(AV1_COMMON *const cm,
   uint64_t mask_4x4 = 0;
   uint8_t *lfl;
 
-  for (r = 0; r < cm->seq_params.mib_size && mi_row + r < cm->mi_rows;
-       r += r_step) {
-    for (c = 0; c < cm->seq_params.mib_size && mi_col + c < cm->mi_cols;
+  for (r = 0; r < MAX_MIB_SIZE && mi_row + r < cm->mi_rows; r += r_step) {
+    for (c = 0; c < MAX_MIB_SIZE && mi_col + c < cm->mi_cols;
          c += MI_SIZE_64X64) {
       if (mi_row + r == 0) continue;
 
@@ -1788,9 +1796,8 @@ static void loop_filter_rows(YV12_BUFFER_CONFIG *frame_buffer, AV1_COMMON *cm,
 
 #if LOOP_FILTER_BITMASK
     // filter all vertical edges every superblock (could be 128x128 or 64x64)
-    for (mi_row = start; mi_row < stop; mi_row += cm->seq_params.mib_size) {
-      for (mi_col = col_start; mi_col < col_end;
-           mi_col += cm->seq_params.mib_size) {
+    for (mi_row = start; mi_row < stop; mi_row += MAX_MIB_SIZE) {
+      for (mi_col = col_start; mi_col < col_end; mi_col += MAX_MIB_SIZE) {
         av1_setup_dst_planes(pd, cm->seq_params.sb_size, frame_buffer, mi_row,
                              mi_col, plane, plane + 1);
 
@@ -1801,9 +1808,8 @@ static void loop_filter_rows(YV12_BUFFER_CONFIG *frame_buffer, AV1_COMMON *cm,
     }
 
     // filter all horizontal edges every superblock
-    for (mi_row = start; mi_row < stop; mi_row += cm->seq_params.mib_size) {
-      for (mi_col = col_start; mi_col < col_end;
-           mi_col += cm->seq_params.mib_size) {
+    for (mi_row = start; mi_row < stop; mi_row += MAX_MIB_SIZE) {
+      for (mi_col = col_start; mi_col < col_end; mi_col += MAX_MIB_SIZE) {
         av1_setup_dst_planes(pd, cm->seq_params.sb_size, frame_buffer, mi_row,
                              mi_col, plane, plane + 1);
 

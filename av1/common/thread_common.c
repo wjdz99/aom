@@ -248,6 +248,42 @@ static INLINE void thread_loop_filter_rows(
       dir = cur_job_info->dir;
       r = mi_row >> MAX_MIB_SIZE_LOG2;
 
+#if LOOP_FILTER_BITMASK
+      (void)xd;
+      if (dir == 0) {
+        for (mi_col = 0; mi_col < cm->mi_cols; mi_col += MAX_MIB_SIZE) {
+          av1_setup_dst_planes(planes, cm->seq_params.sb_size, frame_buffer,
+                               mi_row, mi_col, plane, plane + 1);
+
+          av1_setup_bitmask(
+              cm, mi_row, mi_col, plane, planes[plane].subsampling_x,
+              planes[plane].subsampling_y, cm->mi_rows, cm->mi_cols);
+          av1_filter_block_plane_ver(cm, &planes[plane], plane, mi_row, mi_col);
+
+          sync_write(lf_sync, r, mi_col >> MAX_MIB_SIZE_LOG2, sb_cols, plane);
+        }
+      } else if (dir == 1) {
+        for (mi_col = 0; mi_col < cm->mi_cols; mi_col += MAX_MIB_SIZE) {
+          c = mi_col >> MAX_MIB_SIZE_LOG2;
+
+          // Wait for vertical edge filtering of the top-right block to be
+          // completed
+          sync_read(lf_sync, r, c, plane);
+
+          // Wait for vertical edge filtering of the right block to be
+          // completed
+          sync_read(lf_sync, r + 1, c, plane);
+
+          av1_setup_dst_planes(planes, cm->seq_params.sb_size, frame_buffer,
+                               mi_row, mi_col, plane, plane + 1);
+
+          av1_setup_bitmask(
+              cm, mi_row, mi_col, plane, planes[plane].subsampling_x,
+              planes[plane].subsampling_y, cm->mi_rows, cm->mi_cols);
+          av1_filter_block_plane_hor(cm, &planes[plane], plane, mi_row, mi_col);
+        }
+      }
+#else
       if (dir == 0) {
         for (mi_col = 0; mi_col < cm->mi_cols; mi_col += MAX_MIB_SIZE) {
           c = mi_col >> MAX_MIB_SIZE_LOG2;
@@ -277,6 +313,7 @@ static INLINE void thread_loop_filter_rows(
                                       mi_col);
         }
       }
+#endif
     } else {
       break;
     }
