@@ -288,8 +288,9 @@ static void setup_frame(AV1_COMP *cpi) {
     for (int i = 0; i < REF_FRAMES; i++) {
       cm->fb_of_context_type[i] = -1;
     }
-    cm->fb_of_context_type[REGULAR_FRAME] =
-        get_ref_frame_map_idx(cpi, GOLDEN_FRAME);
+    cm->fb_of_context_type[REGULAR_FRAME] = cm->show_frame ?
+        get_ref_frame_map_idx(cpi, GOLDEN_FRAME) :
+        get_ref_frame_map_idx(cpi, ALTREF_FRAME);
     cm->frame_context_idx = REGULAR_FRAME;
   } else {
     const GF_GROUP *gf_group = &cpi->twopass.gf_group;
@@ -314,7 +315,7 @@ static void setup_frame(AV1_COMP *cpi) {
     }
   }
 
-  if (cm->frame_type == KEY_FRAME) {
+  if (cm->frame_type == KEY_FRAME && cm->show_frame) {
     cpi->refresh_golden_frame = 1;
     cpi->refresh_alt_ref_frame = 1;
     av1_zero(cpi->interp_filter_selected);
@@ -3336,7 +3337,9 @@ static void update_reference_frames(AV1_COMP *cpi) {
   // At this point the new frame has been encoded.
   // If any buffer copy / swapping is signaled it should be done here.
 
-  if (cm->frame_type == KEY_FRAME || frame_is_sframe(cm)) {
+  // Only update all of the reference buffers if a KEY_FRAME is also a
+  // show_frame. This ensures a fwd keyframe does not update all of the buffers
+  if ((cm->frame_type == KEY_FRAME && cm->show_frame) || frame_is_sframe(cm)) {
     for (int ref_frame = 0; ref_frame < REF_FRAMES; ++ref_frame) {
       ref_cnt_fb(pool->frame_bufs,
                  &cm->ref_frame_map[cpi->ref_fb_idx[ref_frame]],
@@ -3345,6 +3348,7 @@ static void update_reference_frames(AV1_COMP *cpi) {
     return;
   }
 
+  //sarahparker for an overlay
   if (av1_preserve_existing_gf(cpi)) {
     // We have decided to preserve the previously existing golden frame as our
     // new ARF frame. However, in the short term in function
@@ -4569,6 +4573,7 @@ static int setup_interp_filter_search_mask(AV1_COMP *cpi) {
 
   if (cpi->common.last_frame_type == KEY_FRAME || cpi->refresh_alt_ref_frame ||
       cpi->refresh_alt2_ref_frame)
+    // TODO(sarahparker) should this be handled differently for fwd kf?
     return mask;
 
   for (ref = LAST_FRAME; ref <= ALTREF_FRAME; ++ref)
@@ -4714,6 +4719,8 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
   AV1_COMMON *const cm = &cpi->common;
   const AV1EncoderConfig *const oxcf = &cpi->oxcf;
   struct segmentation *const seg = &cm->seg;
+  if (cm->frame_type == KEY_FRAME) printf("kf, invisible %d\n", cpi->invisible_kf);
+  else printf("regular\n");
 
   set_ext_overrides(cpi);
   aom_clear_system_state();
@@ -4734,7 +4741,7 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
       cpi->oxcf.allow_warped_motion && frame_might_allow_warped_motion(cm);
 
   // Reset the frame packet stamp index.
-  if (cm->frame_type == KEY_FRAME) cm->current_video_frame = 0;
+  if (cm->frame_type == KEY_FRAME && cm->show_frame) cm->current_video_frame = 0;
 
   // NOTE:
   // (1) Move the setup of the ref_frame_flags upfront as it would be
@@ -4748,7 +4755,11 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
   if (cm->show_existing_frame) {
     // NOTE(zoeliu): In BIDIR_PRED, the existing frame to show is the current
     //               BWDREF_FRAME in the reference frame buffer.
-    cm->frame_type = INTER_FRAME;
+    if (cm->frame_type == KEY_FRAME) {
+      cm->reset_decoder_state = 1;
+    } else {
+      cm->frame_type = INTER_FRAME;
+    }
     cm->show_frame = 1;
     cpi->frame_flags = *frame_flags;
 
@@ -4812,6 +4823,7 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
 
     // Since we allocate a spot for the OVERLAY frame in the gf group, we need
     // to do post-encoding update accordingly.
+    // TODO(sarahparker) handle this for fwd kf
     if (cpi->rc.is_src_frame_alt_ref) {
       av1_set_target_rate(cpi, cm->width, cm->height);
       av1_rc_postencode_update(cpi, *size);
@@ -4944,7 +4956,7 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
   }
 
   // If the encoder forced a KEY_FRAME decision or if frame is an S_FRAME
-  if (cm->frame_type == KEY_FRAME || frame_is_sframe(cm)) {
+  if ((cm->frame_type == KEY_FRAME && cm->show_frame)|| frame_is_sframe(cm)) {
     cpi->refresh_last_frame = 1;
   }
 
@@ -5050,6 +5062,7 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
 
   av1_rc_postencode_update(cpi, *size);
 
+  //sarahparker what are frame_flags used for?
   if (cm->frame_type == KEY_FRAME) {
     // Tell the caller that the frame was coded as a key frame
     *frame_flags = cpi->frame_flags | FRAMEFLAGS_KEY;
@@ -5606,8 +5619,8 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
   cpi->refresh_alt2_ref_frame = 0;
   cpi->refresh_alt_ref_frame = 0;
 
-  // TODO(zoeliu@gmail.com): To support forward-KEY_FRAME and set up the
-  //                         following flag accordingly.
+  // Initialize fields related to forward keyframes
+  cpi->invisible_kf = 0;
   cm->reset_decoder_state = 0;
 
   // Don't allow a show_existing_frame to coincide with an error resilient or
@@ -5631,6 +5644,7 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
       return -1;
     }
     av1_apply_encoding_flags(cpi, source->flags);
+    // set up the flag for fwd_kf, need to find out if this is a kf
     cpi->source = &source->img;
     // TODO(zoeliu): To track down to determine whether it's needed to adjust
     // the frame rate.
@@ -5697,16 +5711,22 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
     if ((source = av1_lookahead_peek(cpi->lookahead, arf_src_index)) != NULL) {
       cm->showable_frame = 1;
       cpi->alt_ref_source = source;
-
-      if (oxcf->arnr_max_frames > 0) {
-        // Produce the filtered ARF frame.
-        av1_temporal_filter(cpi, arf_src_index);
-        aom_extend_frame_borders(&cpi->alt_ref_buffer, num_planes);
-        force_src_buffer = &cpi->alt_ref_buffer;
+      if (arf_src_index == rc->frames_to_key) {
+        // Skip temporal filtering and mark as intra_only if we have a fwd_kf
+        const GF_GROUP *const gf_group = &cpi->twopass.gf_group;
+        int which_arf = gf_group->arf_update_idx[gf_group->index];
+        cpi->is_arf_filter_off[which_arf] = 1;
+        cpi->invisible_kf = 1;
+      } else {
+        if (oxcf->arnr_max_frames > 0) {
+          // Produce the filtered ARF frame.
+          av1_temporal_filter(cpi, arf_src_index);
+          aom_extend_frame_borders(&cpi->alt_ref_buffer, num_planes);
+          force_src_buffer = &cpi->alt_ref_buffer;
+        }
       }
-
-      cm->show_frame = 0;
       cm->intra_only = 0;
+      cm->show_frame = 0;
       cpi->refresh_alt_ref_frame = 1;
       cpi->refresh_last_frame = 0;
       cpi->refresh_golden_frame = 0;
@@ -5865,7 +5885,7 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
     setup_frame_size(cpi);
   }
 
-  if (cpi->oxcf.pass != 0 || frame_is_intra_only(cm) == 1) {
+  if (cpi->oxcf.pass != 0 || frame_is_intra_only(cm) == 1) { // TODO(sarahparker) should we still do this for fwd kf?
     for (i = 0; i < REF_FRAMES; ++i) cpi->scaled_ref_idx[i] = INVALID_IDX;
   }
 
@@ -5927,6 +5947,7 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
     }
   }
 
+  //sarahparker check frame ctx handling here
   if (!cm->large_scale_tile) {
     cm->frame_contexts[cm->new_fb_idx] = *cm->fc;
   }

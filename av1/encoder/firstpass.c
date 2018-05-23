@@ -2178,8 +2178,12 @@ static void define_gf_group_structure(AV1_COMP *cpi) {
   if (rc->source_alt_ref_pending) {
     gf_group->update_type[frame_index] = ARF_UPDATE;
     gf_group->rf_level[frame_index] = GF_ARF_STD;
+    // If this gf_group ends before a key frame, place the altref position
+    // at the key frame to encode a forward reference key frame
+    int is_fwd_kf = cpi->oxcf.fwd_kf_enabled &&
+                    (rc->baseline_gf_interval == (rc->frames_to_key - 1));
     gf_group->arf_src_offset[frame_index] =
-        (unsigned char)(rc->baseline_gf_interval - 1);
+        (unsigned char)(rc->baseline_gf_interval - !is_fwd_kf);
 
     gf_group->arf_update_idx[frame_index] = 0;
     gf_group->arf_ref_idx[frame_index] = 0;
@@ -2667,6 +2671,7 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   if (i) avg_sr_coded_error /= i;
 
   // Should we use the alternate reference frame.
+  printf("min gf interval %d\n", rc->min_gf_interval);
   if (allow_alt_ref && (i < cpi->oxcf.lag_in_frames) &&
       (i >= rc->min_gf_interval)) {
     // Calculate the boost for alt ref.
@@ -2680,6 +2685,7 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
 
   // Set the interval until the next gf.
   rc->baseline_gf_interval = i - (is_key_frame || rc->source_alt_ref_pending);
+  printf("interval: %d\n", rc->baseline_gf_interval);
   if (non_zero_stdev_count) avg_raw_err_stdev /= non_zero_stdev_count;
 
   // Disable extra altrefs and backward refs for "still" gf group:
@@ -3431,7 +3437,12 @@ void av1_rc_get_second_pass_params(AV1_COMP *cpi) {
     target_rate = av1_rc_clamp_pframe_target_size(cpi, target_rate);
     rc->base_frame_target = target_rate;
 
-    cm->frame_type = INTER_FRAME;
+    if (cpi->invisible_kf) {
+      assert(gf_group->update_type[gf_group->index] == ARF_UPDATE);
+      cm->frame_type = KEY_FRAME;
+    } else {
+      cm->frame_type = INTER_FRAME;
+    }
 
     // Do the firstpass stats indicate that this frame is skippable for the
     // partition search?
