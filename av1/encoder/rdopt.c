@@ -8153,6 +8153,37 @@ static INLINE int build_cur_mv(int_mv *cur_mv, int this_mode,
   return ret;
 }
 
+static INLINE int get_drl_cost(const MB_MODE_INFO *mbmi,
+                               const MB_MODE_INFO_EXT *mbmi_ext,
+                               int (*drl_mode_cost0)[2],
+                               int8_t ref_frame_type) {
+  int cost = 0;
+  if (mbmi->mode == NEWMV || mbmi->mode == NEW_NEWMV) {
+    for (int idx = 0; idx < 2; ++idx) {
+      if (mbmi_ext->ref_mv_count[ref_frame_type] > idx + 1) {
+        uint8_t drl_ctx =
+            av1_drl_ctx(mbmi_ext->ref_mv_stack[ref_frame_type], idx);
+        cost += drl_mode_cost0[drl_ctx][mbmi->ref_mv_idx != idx];
+        if (mbmi->ref_mv_idx == idx) return cost;
+      }
+    }
+    return cost;
+  }
+
+  if (have_nearmv_in_inter_mode(mbmi->mode)) {
+    for (int idx = 1; idx < 3; ++idx) {
+      if (mbmi_ext->ref_mv_count[ref_frame_type] > idx + 1) {
+        uint8_t drl_ctx =
+            av1_drl_ctx(mbmi_ext->ref_mv_stack[ref_frame_type], idx);
+        cost += drl_mode_cost0[drl_ctx][mbmi->ref_mv_idx != (idx - 1)];
+        if (mbmi->ref_mv_idx == (idx - 1)) return cost;
+      }
+    }
+    return cost;
+  }
+  return cost;
+}
+
 static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
                                  BLOCK_SIZE bsize, RD_STATS *rd_stats,
                                  RD_STATS *rd_stats_y, RD_STATS *rd_stats_uv,
@@ -8217,7 +8248,10 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   const int masked_compound_used = is_any_masked_compound_used(bsize) &&
                                    cm->seq_params.enable_masked_compound;
   int64_t ret_val = INT64_MAX;
+  const int8_t ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
   rd_stats->rate += args->ref_frame_cost + args->single_comp_cost;
+  rd_stats->rate +=
+      get_drl_cost(mbmi, mbmi_ext, x->drl_mode_cost0, ref_frame_type);
   const RD_STATS backup_rd_stats = *rd_stats;
   const RD_STATS backup_rd_stats_y = *rd_stats_y;
   const RD_STATS backup_rd_stats_uv = *rd_stats_uv;
@@ -9712,37 +9746,6 @@ static INLINE void init_mbmi(MB_MODE_INFO *mbmi, int mode_index,
   set_default_interp_filters(mbmi, cm->interp_filter);
 }
 
-static INLINE int get_drl_cost(const MB_MODE_INFO *mbmi,
-                               const MB_MODE_INFO_EXT *mbmi_ext,
-                               int (*drl_mode_cost0)[2],
-                               int8_t ref_frame_type) {
-  int cost = 0;
-  if (mbmi->mode == NEWMV || mbmi->mode == NEW_NEWMV) {
-    for (int idx = 0; idx < 2; ++idx) {
-      if (mbmi_ext->ref_mv_count[ref_frame_type] > idx + 1) {
-        uint8_t drl_ctx =
-            av1_drl_ctx(mbmi_ext->ref_mv_stack[ref_frame_type], idx);
-        cost += drl_mode_cost0[drl_ctx][mbmi->ref_mv_idx != idx];
-        if (mbmi->ref_mv_idx == idx) return cost;
-      }
-    }
-    return cost;
-  }
-
-  if (have_nearmv_in_inter_mode(mbmi->mode)) {
-    for (int idx = 1; idx < 3; ++idx) {
-      if (mbmi_ext->ref_mv_count[ref_frame_type] > idx + 1) {
-        uint8_t drl_ctx =
-            av1_drl_ctx(mbmi_ext->ref_mv_stack[ref_frame_type], idx);
-        cost += drl_mode_cost0[drl_ctx][mbmi->ref_mv_idx != (idx - 1)];
-        if (mbmi->ref_mv_idx == (idx - 1)) return cost;
-      }
-    }
-    return cost;
-  }
-  return cost;
-}
-
 void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
                                MACROBLOCK *x, int mi_row, int mi_col,
                                RD_STATS *rd_cost, BLOCK_SIZE bsize,
@@ -9777,19 +9780,12 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
                                best_rd_so_far);
 
   HandleInterModeArgs args = {
-    { NULL },
-    { MAX_SB_SIZE, MAX_SB_SIZE, MAX_SB_SIZE },
-    { NULL },
-    { MAX_SB_SIZE >> 1, MAX_SB_SIZE >> 1, MAX_SB_SIZE >> 1 },
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    { { 0 } },
-#if CONFIG_COLLECT_INTER_MODE_RD_STATS
-    INT_MAX,
+    { NULL },  { MAX_SB_SIZE, MAX_SB_SIZE, MAX_SB_SIZE },
+    { NULL },  { MAX_SB_SIZE >> 1, MAX_SB_SIZE >> 1, MAX_SB_SIZE >> 1 },
+    NULL,      NULL,
+    NULL,      NULL,
+    { { 0 } }, INT_MAX,
     INT_MAX
-#endif
   };
   for (i = 0; i < REF_FRAMES; ++i) x->pred_sse[i] = INT_MAX;
 
@@ -9963,7 +9959,6 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
              fi_mode < FILTER_INTRA_MODES; ++fi_mode) {
           int64_t this_rd_tmp;
           mbmi->filter_intra_mode_info.filter_intra_mode = fi_mode;
-
           super_block_yrd(cpi, x, &rd_stats_y_fi, bsize, search_state.best_rd);
           if (rd_stats_y_fi.rate == INT_MAX) continue;
           const int this_rate_tmp =
@@ -10171,11 +10166,6 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
         int ref_set =
             AOMMIN(MAX_REF_MV_SERCH - 1,
                    mbmi_ext->ref_mv_count[ref_frame_type] - 1 - idx_offset);
-        if (rate2 < INT_MAX) {
-          rate2 +=
-              get_drl_cost(mbmi, mbmi_ext, x->drl_mode_cost0, ref_frame_type);
-        }
-
         memcpy(x->blk_skip_drl, x->blk_skip,
                sizeof(x->blk_skip[0]) * ctx->num_4x4_blk);
 
@@ -10274,11 +10264,6 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
             args.single_newmv = search_state.single_newmv[0];
             args.single_newmv_rate = search_state.single_newmv_rate[0];
             args.single_newmv_valid = search_state.single_newmv_valid[0];
-          }
-
-          if (tmp_rd_stats.rate < INT_MAX) {
-            tmp_rd_stats.rate +=
-                get_drl_cost(mbmi, mbmi_ext, x->drl_mode_cost0, ref_frame_type);
           }
 
           if (tmp_alt_rd < INT64_MAX) {
