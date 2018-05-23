@@ -3215,6 +3215,7 @@ static void show_existing_frame_reset(AV1Decoder *const pbi,
     }
   }
 
+  //sarahparker what to do with this on encoder
   cm->refresh_frame_context = REFRESH_FRAME_CONTEXT_DISABLED;
 
   // Generate next_ref_frame_map.
@@ -3443,14 +3444,16 @@ static int read_uncompressed_header(AV1Decoder *pbi,
     }
   }
   if (cm->frame_type == KEY_FRAME) {
-    if (!cm->show_frame)  // unshown keyframe (forward keyframe)
+    if (!cm->show_frame) {  // unshown keyframe (forward keyframe)
       pbi->refresh_frame_flags = aom_rb_read_literal(rb, REF_FRAMES);
-    else  // shown keyframe
-      pbi->refresh_frame_flags = (1 << REF_FRAMES) - 1;
+    } else {  // shown keyframe
+      pbi->refresh_frame_flags = (1 << REF_FRAMES) - 1; //should this be 0xff?
 
-    for (int i = 0; i < INTER_REFS_PER_FRAME; ++i) {
-      cm->frame_refs[i].idx = INVALID_IDX;
-      cm->frame_refs[i].buf = NULL;
+      // sarahparker should this update happen for !show_frame?
+      for (int i = 0; i < INTER_REFS_PER_FRAME; ++i) {
+        cm->frame_refs[i].idx = INVALID_IDX;
+        cm->frame_refs[i].buf = NULL;
+      }
     }
     if (pbi->need_resync) {
       memset(&cm->ref_frame_map, -1, sizeof(cm->ref_frame_map));
