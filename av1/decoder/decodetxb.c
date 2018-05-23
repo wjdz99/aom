@@ -318,8 +318,7 @@ uint8_t av1_read_coeffs_txb_facade(const AV1_COMMON *const cm,
   struct macroblockd_plane *const pd = &xd->plane[plane];
 
   const BLOCK_SIZE bsize = mbmi->sb_type;
-  const BLOCK_SIZE plane_bsize =
-      get_plane_block_size(bsize, pd->subsampling_x, pd->subsampling_y);
+  const BLOCK_SIZE plane_bsize = get_plane_block_size(bsize, pd);
 
   TXB_CTX txb_ctx;
   get_txb_ctx(plane_bsize, tx_size, plane, pd->above_context + col,
