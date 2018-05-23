@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3ab3056e_16960eca",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 8183,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2018-05-23T16:03:30Z",
+      "side": 1,
+      "message": "This section looks very similar to the section above, do not know how hard it is, but would be nice if they can be refactored to reduce the duplication. \n\njust a thought, non-blocking.",
+      "range": {
+        "startLine": 8174,
+        "startChar": 0,
+        "endLine": 8183,
+        "endChar": 3
+      },
+      "revId": "6995ad8ace1e8a8f7a49cd2627e04b774a0f45ba",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
