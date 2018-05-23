@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4923830b_13f446ff",
+        "filename": "av1/common/onyxc_int.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-05-23T20:30:06Z",
+      "side": 1,
+      "message": "Is there any reason that we shouldn\u0027t go ahead and make this uint8_t?\n\nIn addition, if we were to go that route there appear to be several other candidates (reduced_still_picture_header is 1 bit, for example).",
+      "range": {
+        "startLine": 236,
+        "startChar": 2,
+        "endLine": 236,
+        "endChar": 80
+      },
+      "revId": "fee9daec919a34e39b8c400358a8f6b772e729a3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
