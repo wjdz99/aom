@@ -2178,8 +2178,12 @@ static void define_gf_group_structure(AV1_COMP *cpi) {
   if (rc->source_alt_ref_pending) {
     gf_group->update_type[frame_index] = ARF_UPDATE;
     gf_group->rf_level[frame_index] = GF_ARF_STD;
+    // If this gf_group ends before a key frame, place the altref position
+    // at the key frame to encode a forward reference key frame
+    int is_fwd_kf = cpi->oxcf.fwd_kf_enabled &&
+                    (rc->baseline_gf_interval == (rc->frames_to_key - 1));
     gf_group->arf_src_offset[frame_index] =
-        (unsigned char)(rc->baseline_gf_interval - 1);
+        (unsigned char)(rc->baseline_gf_interval - !is_fwd_kf);
 
     gf_group->arf_update_idx[frame_index] = 0;
     gf_group->arf_ref_idx[frame_index] = 0;
@@ -3431,7 +3435,11 @@ void av1_rc_get_second_pass_params(AV1_COMP *cpi) {
     target_rate = av1_rc_clamp_pframe_target_size(cpi, target_rate);
     rc->base_frame_target = target_rate;
 
-    cm->frame_type = INTER_FRAME;
+    // If this is an intra only arf frame, it must be a fwd key frame
+    if (cm->intra_only)
+      cm->frame_type = KEY_FRAME;
+    else
+      cm->frame_type = INTER_FRAME;
 
     // Do the firstpass stats indicate that this frame is skippable for the
     // partition search?
