@@ -8356,7 +8356,7 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
     ret_val = interpolation_filter_search(
         x, cpi, bsize, mi_row, mi_col, &tmp_dst, &orig_dst, args->single_filter,
         &rd, &rs, &skip_txfm_sb, &skip_sse_sb);
-    if (ret_val != 0) {
+    if (ret_val != 0 || (rd / 3 > ref_best_rd)) {
       early_terminate = INT64_MAX;
       restore_dst_buf(xd, orig_dst, num_planes);
       continue;
