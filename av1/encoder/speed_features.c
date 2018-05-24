@@ -248,6 +248,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->use_fast_coef_updates = ONE_LOOP_REDUCED;
     sf->use_fast_coef_costing = 1;
     sf->partition_search_breakout_rate_thr = 300;
+    sf->use_transform_domain_distortion = 2;
   }
 
   if (speed >= 6) {

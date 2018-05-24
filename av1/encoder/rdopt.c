@@ -2458,12 +2458,22 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
                                RD_STATS *best_rd_stats) {
   const AV1_COMMON *cm = &cpi->common;
   MACROBLOCKD *xd = &x->e_mbd;
+  struct macroblock_plane *const p = &x->plane[plane];
+  struct macroblockd_plane *const pd = &xd->plane[plane];
   MB_MODE_INFO *mbmi = xd->mi[0];
   const int is_inter = is_inter_block(mbmi);
   int64_t best_rd = INT64_MAX;
   uint16_t best_eob = 0;
   TX_TYPE best_tx_type = DCT_DCT;
   TX_TYPE last_tx_type = TX_TYPES;
+  // The buffers use to swap qcoeff in macroblock_plane and dqcoeff in
+  // macroblockd_plane so we can keep qcoeff and dqcoeff of the best tx_type
+  DECLARE_ALIGNED(32, tran_low_t, this_qcoeff[MAX_SB_SQUARE]);
+  DECLARE_ALIGNED(32, tran_low_t, this_dqcoeff[MAX_SB_SQUARE]);
+  tran_low_t *orig_qcoeff = p->qcoeff;
+  tran_low_t *orig_dqcoeff = pd->dqcoeff;
+  tran_low_t *best_qcoeff = this_qcoeff;
+  tran_low_t *best_dqcoeff = this_dqcoeff;
   const int txk_type_idx =
       av1_get_txk_type_index(plane_bsize, blk_row, blk_col);
   av1_invalid_rd_stats(best_rd_stats);
@@ -2597,6 +2607,14 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
 #if CONFIG_DIST_8X8
   if (x->using_dist_8x8) use_transform_domain_distortion = 0;
 #endif
+
+  int calc_pixel_domain_distortion_final =
+      cpi->sf.use_transform_domain_distortion == 1 &&
+      use_transform_domain_distortion && x->rd_model != LOW_TXFM_RD &&
+      !x->cb_partition_scan;
+  if (calc_pixel_domain_distortion_final && allowed_tx_num <= 1)
+    calc_pixel_domain_distortion_final = use_transform_domain_distortion = 0;
+
   const uint16_t *eobs_ptr = x->plane[plane].eobs;
 
   const BLOCK_SIZE tx_bsize = txsize_to_bsize[tx_size];
@@ -2609,7 +2627,6 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
   for (TX_TYPE tx_type = txk_start; tx_type <= txk_end; ++tx_type) {
     if (!allowed_tx_mask[tx_type]) continue;
     if (plane == 0) mbmi->txk_type[txk_type_idx] = tx_type;
-    last_tx_type = tx_type;
     RD_STATS this_rd_stats;
     av1_invalid_rd_stats(&this_rd_stats);
 
@@ -2662,6 +2679,17 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
       best_tx_type = tx_type;
       best_txb_ctx = x->plane[plane].txb_entropy_ctx[block];
       best_eob = x->plane[plane].eobs[block];
+      last_tx_type = best_tx_type;
+
+      // Swap qcoeff and dqcoeff buffers
+      tran_low_t *tmp_qcoeff;
+      tran_low_t *tmp_dqcoeff;
+      tmp_qcoeff = best_qcoeff;
+      tmp_dqcoeff = best_dqcoeff;
+      best_qcoeff = p->qcoeff;
+      best_dqcoeff = pd->dqcoeff;
+      p->qcoeff = tmp_qcoeff;
+      pd->dqcoeff = tmp_dqcoeff;
     }
 
 #if CONFIG_COLLECT_RD_STATS == 1
@@ -2693,6 +2721,15 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
   }
   x->plane[plane].txb_entropy_ctx[block] = best_txb_ctx;
   x->plane[plane].eobs[block] = best_eob;
+
+  p->qcoeff = best_qcoeff;
+  pd->dqcoeff = best_dqcoeff;
+
+  if (calc_pixel_domain_distortion_final && best_eob) {
+    best_rd_stats->dist = dist_block_px_domain(
+        cpi, x, plane, plane_bsize, block, blk_row, blk_col, tx_size);
+    best_rd_stats->sse = block_sse;
+  }
 
   if (intra_txb_rd_info != NULL) {
     intra_txb_rd_info->valid = 1;
@@ -2739,6 +2776,8 @@ RECON_INTRA:
                        DCT_DCT);
     }
   }
+  p->qcoeff = orig_qcoeff;
+  pd->dqcoeff = orig_dqcoeff;
 
   return best_rd;
 }
