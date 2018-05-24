@@ -990,14 +990,6 @@ static int motion_field_projection(AV1_COMMON *cm, MV_REFERENCE_FRAME ref_frame,
         get_relative_dist(cm, ref_frame_index, ref_rf_idx[rf - LAST_FRAME]);
   }
 
-  if (dir == 1) {
-    ref_to_cur = -ref_to_cur;
-    for (MV_REFERENCE_FRAME rf = LAST_FRAME; rf <= INTER_REFS_PER_FRAME; ++rf) {
-      cur_offset[rf] = -cur_offset[rf];
-      ref_offset[rf] = -ref_offset[rf];
-    }
-  }
-
   if (dir == 2) ref_to_cur = -ref_to_cur;
 
   MV_REF *mv_ref_base = cm->buffer_pool->frame_bufs[ref_frame_idx].mvs;
@@ -1028,10 +1020,8 @@ static int motion_field_projection(AV1_COMMON *cm, MV_REFERENCE_FRAME ref_frame,
         if (pos_valid) {
           int mi_offset = mi_r * (cm->mi_stride >> 1) + mi_c;
 
-          tpl_mvs_base[mi_offset].mfmv0.as_mv.row =
-              (dir == 1) ? -fwd_mv.row : fwd_mv.row;
-          tpl_mvs_base[mi_offset].mfmv0.as_mv.col =
-              (dir == 1) ? -fwd_mv.col : fwd_mv.col;
+          tpl_mvs_base[mi_offset].mfmv0.as_mv.row = fwd_mv.row;
+          tpl_mvs_base[mi_offset].mfmv0.as_mv.col = fwd_mv.col;
           tpl_mvs_base[mi_offset].ref_frame_offset = ref_frame_offset;
         }
       }
