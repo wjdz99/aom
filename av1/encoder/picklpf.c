@@ -67,6 +67,10 @@ static int64_t try_filter_frame(const YV12_BUFFER_CONFIG *sd,
     case 2: cm->lf.filter_level_v = filter_level[0]; break;
   }
 
+#if LOOP_FILTER_BITMASK
+  av1_loop_filter_frame(cm->frame_to_show, cm, &cpi->td.mb.e_mbd, plane,
+                        plane + 1, partial_frame);
+#else
   if (cpi->num_workers > 1)
     av1_loop_filter_frame_mt(cm->frame_to_show, cm, &cpi->td.mb.e_mbd, plane,
                              plane + 1, partial_frame, cpi->workers,
@@ -74,6 +78,7 @@ static int64_t try_filter_frame(const YV12_BUFFER_CONFIG *sd,
   else
     av1_loop_filter_frame(cm->frame_to_show, cm, &cpi->td.mb.e_mbd, plane,
                           plane + 1, partial_frame);
+#endif
 
   int highbd = 0;
   highbd = cm->use_highbitdepth;
@@ -234,6 +239,11 @@ void av1_pick_filter_level(const YV12_BUFFER_CONFIG *sd, AV1_COMP *cpi,
                                              lf->filter_level[1],
                                              lf->filter_level_u,
                                              lf->filter_level_v };
+#if LOOP_FILTER_BITMASK
+    if (av1_alloc_loop_filter_mask(cm))
+      aom_internal_error(&cm->error, AOM_CODEC_MEM_ERROR,
+                         "Failed to allocate loop filter mask");
+#endif
 
     lf->filter_level[0] = lf->filter_level[1] =
         search_filter_level(sd, cpi, method == LPF_PICK_FROM_SUBIMAGE,
@@ -253,5 +263,8 @@ void av1_pick_filter_level(const YV12_BUFFER_CONFIG *sd, AV1_COMP *cpi,
           search_filter_level(sd, cpi, method == LPF_PICK_FROM_SUBIMAGE,
                               last_frame_filter_level, NULL, 2, 0);
     }
+#if LOOP_FILTER_BITMASK
+    av1_free_loop_filter_mask(cm);
+#endif
   }
 }

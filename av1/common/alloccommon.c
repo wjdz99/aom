@@ -142,29 +142,6 @@ void av1_free_restoration_buffers(AV1_COMMON *cm) {
   aom_free_frame_buffer(&cm->rst_frame);
 }
 
-#if LOOP_FILTER_BITMASK
-static int alloc_loop_filter(AV1_COMMON *cm) {
-  aom_free(cm->lf.lfm);
-  cm->lf.lfm = NULL;
-  if (cm->coded_lossless) return 0;
-  // Each lfm holds bit masks for all the 4x4 blocks in a max
-  // 64x64 (128x128 for ext_partitions) region.  The stride
-  // and rows are rounded up / truncated to a multiple of 16
-  // (32 for ext_partition).
-  cm->lf.lfm_stride = (cm->mi_cols + (MI_SIZE_64X64 - 1)) >> MIN_MIB_SIZE_LOG2;
-  cm->lf.lfm_num = ((cm->mi_rows + (MI_SIZE_64X64 - 1)) >> MIN_MIB_SIZE_LOG2) *
-                   cm->lf.lfm_stride;
-  cm->lf.lfm =
-      (LoopFilterMask *)aom_calloc(cm->lf.lfm_num, sizeof(*cm->lf.lfm));
-  if (!cm->lf.lfm) return 1;
-
-  unsigned int i;
-  for (i = 0; i < cm->lf.lfm_num; ++i) av1_zero(cm->lf.lfm[i]);
-
-  return 0;
-}
-#endif  // LOOP_FILTER_BITMASK
-
 void av1_free_above_context_buffers(AV1_COMMON *cm,
                                     int num_free_above_contexts) {
   int i;
@@ -200,13 +177,6 @@ void av1_free_context_buffers(AV1_COMMON *cm) {
   cm->free_mi(cm);
 
   av1_free_above_context_buffers(cm, cm->num_allocated_above_contexts);
-
-#if LOOP_FILTER_BITMASK
-  aom_free(cm->lf.lfm);
-  cm->lf.lfm = NULL;
-  cm->lf.lfm_num = 0;
-  cm->lf.lfm_stride = 0;
-#endif  // LOOP_FILTER_BITMASK
 }
 
 int av1_alloc_above_context_buffers(AV1_COMMON *cm,
@@ -262,10 +232,6 @@ int av1_alloc_context_buffers(AV1_COMMON *cm, int width, int height) {
     cm->free_mi(cm);
     if (cm->alloc_mi(cm, new_mi_size)) goto fail;
   }
-
-#if LOOP_FILTER_BITMASK
-  if (alloc_loop_filter(cm)) goto fail;
-#endif  // LOOP_FILTER_BITMASK
 
   return 0;
 

@@ -181,6 +181,9 @@ typedef struct LoopFilterWorkerData {
 } LFWorkerData;
 
 #if LOOP_FILTER_BITMASK
+int av1_alloc_loop_filter_mask(struct AV1Common *cm);
+void av1_free_loop_filter_mask(struct AV1Common *cm);
+
 void av1_setup_bitmask(struct AV1Common *const cm, int mi_row, int mi_col,
                        int plane, int subsampling_x, int subsampling_y,
                        int row_end, int col_end);

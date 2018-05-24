@@ -3994,8 +3994,14 @@ void av1_decode_tg_tiles_and_wrapup(AV1Decoder *pbi, const uint8_t *data,
   if (!cm->allow_intrabc) {
     if (cm->lf.filter_level[0] || cm->lf.filter_level[1]) {
 #if LOOP_FILTER_BITMASK
+      if (av1_alloc_loop_filter_mask(cm))
+        aom_internal_error(&cm->error, AOM_CODEC_MEM_ERROR,
+                           "Failed to allocate loop filter mask");
+
       av1_loop_filter_frame(get_frame_new_buffer(cm), cm, &pbi->mb, 0,
                             num_planes, 0);
+
+      av1_free_loop_filter_mask(cm);
 #else
       if (pbi->num_workers > 1) {
         av1_loop_filter_frame_mt(get_frame_new_buffer(cm), cm, &pbi->mb, 0,
