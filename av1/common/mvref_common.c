@@ -989,56 +989,48 @@ static int motion_field_projection(AV1_COMMON *cm, MV_REFERENCE_FRAME ref_frame,
     ref_offset[rf] =
         get_relative_dist(cm, ref_frame_index, ref_rf_idx[rf - LAST_FRAME]);
   }
+}
 
-  if (dir == 1) {
-    ref_to_cur = -ref_to_cur;
-    for (MV_REFERENCE_FRAME rf = LAST_FRAME; rf <= INTER_REFS_PER_FRAME; ++rf) {
-      cur_offset[rf] = -cur_offset[rf];
-      ref_offset[rf] = -ref_offset[rf];
-    }
-  }
+if (dir == 2) ref_to_cur = -ref_to_cur;
 
-  if (dir == 2) ref_to_cur = -ref_to_cur;
+MV_REF *mv_ref_base = cm->buffer_pool->frame_bufs[ref_frame_idx].mvs;
+const int mvs_rows = (cm->mi_rows + 1) >> 1;
+const int mvs_cols = (cm->mi_cols + 1) >> 1;
 
-  MV_REF *mv_ref_base = cm->buffer_pool->frame_bufs[ref_frame_idx].mvs;
-  const int mvs_rows = (cm->mi_rows + 1) >> 1;
-  const int mvs_cols = (cm->mi_cols + 1) >> 1;
+for (int blk_row = 0; blk_row < mvs_rows; ++blk_row) {
+  for (int blk_col = 0; blk_col < mvs_cols; ++blk_col) {
+    MV_REF *mv_ref = &mv_ref_base[blk_row * mvs_cols + blk_col];
+    MV fwd_mv = mv_ref->mv.as_mv;
 
-  for (int blk_row = 0; blk_row < mvs_rows; ++blk_row) {
-    for (int blk_col = 0; blk_col < mvs_cols; ++blk_col) {
-      MV_REF *mv_ref = &mv_ref_base[blk_row * mvs_cols + blk_col];
-      MV fwd_mv = mv_ref->mv.as_mv;
+    if (mv_ref->ref_frame > INTRA_FRAME) {
+      int_mv this_mv;
+      int mi_r, mi_c;
+      const int ref_frame_offset = ref_offset[mv_ref->ref_frame];
 
-      if (mv_ref->ref_frame > INTRA_FRAME) {
-        int_mv this_mv;
-        int mi_r, mi_c;
-        const int ref_frame_offset = ref_offset[mv_ref->ref_frame];
+      int pos_valid = abs(ref_frame_offset) <= MAX_FRAME_DISTANCE &&
+                      ref_frame_offset > 0 &&
+                      abs(ref_to_cur) <= MAX_FRAME_DISTANCE;
 
-        int pos_valid = abs(ref_frame_offset) <= MAX_FRAME_DISTANCE &&
-                        ref_frame_offset > 0 &&
-                        abs(ref_to_cur) <= MAX_FRAME_DISTANCE;
+      if (pos_valid) {
+        get_mv_projection(&this_mv.as_mv, fwd_mv, ref_to_cur, ref_frame_offset);
+        pos_valid = get_block_position(cm, &mi_r, &mi_c, blk_row, blk_col,
+                                       this_mv.as_mv, dir >> 1);
+      }
 
-        if (pos_valid) {
-          get_mv_projection(&this_mv.as_mv, fwd_mv, ref_to_cur,
-                            ref_frame_offset);
-          pos_valid = get_block_position(cm, &mi_r, &mi_c, blk_row, blk_col,
-                                         this_mv.as_mv, dir >> 1);
-        }
+      if (pos_valid) {
+        int mi_offset = mi_r * (cm->mi_stride >> 1) + mi_c;
 
-        if (pos_valid) {
-          int mi_offset = mi_r * (cm->mi_stride >> 1) + mi_c;
-
-          tpl_mvs_base[mi_offset].mfmv0.as_mv.row =
-              (dir == 1) ? -fwd_mv.row : fwd_mv.row;
-          tpl_mvs_base[mi_offset].mfmv0.as_mv.col =
-              (dir == 1) ? -fwd_mv.col : fwd_mv.col;
-          tpl_mvs_base[mi_offset].ref_frame_offset = ref_frame_offset;
-        }
+        tpl_mvs_base[mi_offset].mfmv0.as_mv.row =
+            (dir == 1) ? -fwd_mv.row : fwd_mv.row;
+        tpl_mvs_base[mi_offset].mfmv0.as_mv.col =
+            (dir == 1) ? -fwd_mv.col : fwd_mv.col;
+        tpl_mvs_base[mi_offset].ref_frame_offset = ref_frame_offset;
       }
     }
   }
+}
 
-  return 1;
+return 1;
 }
 
 void av1_setup_motion_field(AV1_COMMON *cm) {
