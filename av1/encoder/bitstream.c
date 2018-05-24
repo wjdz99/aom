@@ -2967,7 +2967,6 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
   // NOTE: By default all coded frames to be used as a reference
   cm->is_reference_frame = 1;
   cm->frame_type = cm->intra_only ? INTRA_ONLY_FRAME : cm->frame_type;
-
   if (cm->seq_params.still_picture) {
     assert(cm->show_existing_frame == 0);
     assert(cm->show_frame == 1);
