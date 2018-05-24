@@ -46,6 +46,30 @@
       "revId": "d9a708343a779fe77df1623c22637732d91df542",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ea11dba7_5c121f6f",
+        "filename": "test/decode_test_driver.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-05-24T16:52:54Z",
+      "side": 1,
+      "message": "That\u0027s actually what I considered originally, but I found that aom_codec_peek_stream_info() reads only the is_annexb field and sets all the other fields of stream_info. I also saw the following code in the decode_one() function in av1/av1_dx_iface.c:\n\n  // Determine the stream parameters. Note that we rely on peek_si to\n  // validate that we have a buffer that does not wrap around the top\n  // of the heap.\n  if (!ctx-\u003esi.h) {\n    int is_intra_only \u003d 0;\n    ctx-\u003esi.is_annexb \u003d ctx-\u003eis_annexb;\n    const aom_codec_err_t res \u003d\n        decoder_peek_si_internal(*data, data_sz, \u0026ctx-\u003esi, \u0026is_intra_only);\n    if (res !\u003d AOM_CODEC_OK) return res;\n\n    if (!ctx-\u003esi.is_kf \u0026\u0026 !is_intra_only) return AOM_CODEC_ERROR;\n  }\n\nSo I decided to initialize is_annexb only to make that clear.",
+      "parentUuid": "47ca0a8a_0eaac2e1",
+      "range": {
+        "startLine": 68,
+        "startChar": 4,
+        "endLine": 68,
+        "endChar": 30
+      },
+      "revId": "d9a708343a779fe77df1623c22637732d91df542",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
