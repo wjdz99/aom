@@ -351,8 +351,13 @@ sub ppc() {
 #include "aom_config.h"
 
 #ifdef RTCD_C
+#include "aom_ports/ppc.h"
 static void setup_rtcd_internal(void)
 {
+  int flags = ppc_simd_caps();
+
+  (void)flags;
+
 EOF
 
   set_function_pointers("c", @ALL_ARCHS);
