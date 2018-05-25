@@ -600,6 +600,15 @@ if(ENABLE_DOCS)
   endif()
 endif()
 
+# The MSVC generators produce an install script that attempts to install to
+# Program Files, which requires admin privileges when $CMAKE_INSTALL_PREFIX is
+# unspecified. This causes the INSTALL target to fail because users don't
+# typically run MSVC with admin privileges. Install into the aom sub directory
+# of the configuration dir when $CMAKE_INSTALL_PREFIX is empty.
+if(MSVC AND "${CMAKE_INSTALL_PREFIX}" STREQUAL "")
+  set(CMAKE_INSTALL_PREFIX "${AOM_CONFIG_DIR}/aom")
+endif()
+
 # Aomedia install rule.
 list(APPEND AOM_INSTALL_INCS "${AOM_ROOT}/aom/aom.h"
             "${AOM_ROOT}/aom/aom_codec.h" "${AOM_ROOT}/aom/aom_frame_buffer.h"
