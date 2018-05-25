@@ -411,6 +411,8 @@ if(CONFIG_AV1_ENCODER)
     endif()
   endif()
 
+
+
   # Add encoder examples and tools to the targets list.
   list(APPEND AOM_APP_TARGETS ${AOM_ENCODER_EXAMPLE_TARGETS}
               ${AOM_ENCODER_TOOL_TARGETS})
