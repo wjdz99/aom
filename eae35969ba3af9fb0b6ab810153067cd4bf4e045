@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "620ef951_0b165feb",
+        "filename": "av1/decoder/decoder.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-05-25T17:34:20Z",
+      "side": 1,
+      "message": "I suggest naming this field seen_frame_header to match the SeenFrameHeader variable in the spec. (I assume this field is intended to implement SeenFrameHeader.)",
+      "range": {
+        "startLine": 108,
+        "startChar": 6,
+        "endLine": 108,
+        "endChar": 31
+      },
+      "revId": "eae35969ba3af9fb0b6ab810153067cd4bf4e045",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ea8cf1cd_6cf3fd74",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 603,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-05-25T17:34:20Z",
+      "side": 1,
+      "message": "If pbi-\u003ereceived_frame_header_obu is intended to implement the SeenFrameHeader variable in the spec, then the spec (Section 5.6 Temporal delimiter obu syntax) says pbi-\u003ereceived_frame_header_obu should be set to 0 here, instead of at line 550.",
+      "range": {
+        "startLine": 601,
+        "startChar": 0,
+        "endLine": 603,
+        "endChar": 14
+      },
+      "revId": "eae35969ba3af9fb0b6ab810153067cd4bf4e045",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9547da68_1d3cd42d",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 636,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-05-25T17:34:20Z",
+      "side": 1,
+      "message": "If pbi-\u003ereceived_frame_header_obu is intended to implement the SeenFrameHeader variable in the spec, then the spec (Section 5.9.1 General frame header OBU syntax\n) says pbi-\u003ereceived_frame_header_obu should be set to 0 if show_existing_frame is true.",
+      "range": {
+        "startLine": 633,
+        "startChar": 0,
+        "endLine": 636,
+        "endChar": 9
+      },
+      "revId": "eae35969ba3af9fb0b6ab810153067cd4bf4e045",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "88c8f4ce_2f173778",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 653,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-05-25T17:34:20Z",
+      "side": 1,
+      "message": "The spec (Section 5.11.1 General tile group OBU syntax) says we should set SeenFrameHeader to 0 if frame_decoding_finished is 1 on return from read_one_tile_group_obu().",
+      "range": {
+        "startLine": 650,
+        "startChar": 0,
+        "endLine": 653,
+        "endChar": 42
+      },
+      "revId": "eae35969ba3af9fb0b6ab810153067cd4bf4e045",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}

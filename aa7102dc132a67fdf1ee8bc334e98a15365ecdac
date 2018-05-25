@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1b8ea910_c27211a0",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 544,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-05-25T17:34:20Z",
+      "side": 0,
+      "message": "This is a good fix! frame_header_received should not be a local variable. The sequence header OBU has a similar issue; we should not use a local variable (seq_header_received, declared at line 546) for that. (We may be able to just use pbi-\u003esequence_header_ready). I am planning to fix it as part of aomedia:1875.",
+      "range": {
+        "startLine": 544,
+        "startChar": 2,
+        "endLine": 544,
+        "endChar": 32
+      },
+      "revId": "aa7102dc132a67fdf1ee8bc334e98a15365ecdac",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
