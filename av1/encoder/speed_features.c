@@ -198,6 +198,8 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
   sf->use_fast_interpolation_filter_search = 1;
   sf->intra_tx_size_search_init_depth_sqr = 1;
   sf->intra_angle_estimation = 1;
+  // TODO(now): Try at different speeds.
+  sf->use_model_for_tx_rate_distortion = 1;
 
   if (speed >= 1) {
     sf->gm_erroradv_type = GM_ERRORADV_TR_1;

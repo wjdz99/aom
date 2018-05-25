@@ -53,6 +53,7 @@
 #include "av1/encoder/palette.h"
 #include "av1/encoder/pustats.h"
 #include "av1/encoder/random.h"
+#include "av1/encoder/rate_distortion_model_params.h"
 #include "av1/encoder/ratectrl.h"
 #include "av1/encoder/rd.h"
 #include "av1/encoder/rdopt.h"
@@ -2263,8 +2264,8 @@ static INLINE int64_t dist_block_px_domain(const AV1_COMP *cpi, MACROBLOCK *x,
                          blk_row, blk_col, plane_bsize, tx_bsize);
 }
 
-static double get_mean(const int16_t *diff, int stride, int w, int h) {
-  double sum = 0.0;
+static float get_mean(const int16_t *diff, int stride, int w, int h) {
+  float sum = 0.0;
   for (int j = 0; j < h; ++j) {
     for (int i = 0; i < w; ++i) {
       sum += diff[j * stride + i];
@@ -2274,8 +2275,8 @@ static double get_mean(const int16_t *diff, int stride, int w, int h) {
   return sum / (w * h);
 }
 
-static double get_sse_norm(const int16_t *diff, int stride, int w, int h) {
-  double sum = 0.0;
+static float get_sse_norm(const int16_t *diff, int stride, int w, int h) {
+  float sum = 0.0;
   for (int j = 0; j < h; ++j) {
     for (int i = 0; i < w; ++i) {
       const int err = diff[j * stride + i];
@@ -2286,8 +2287,8 @@ static double get_sse_norm(const int16_t *diff, int stride, int w, int h) {
   return sum / (w * h);
 }
 
-static double get_sad_norm(const int16_t *diff, int stride, int w, int h) {
-  double sum = 0.0;
+static float get_sad_norm(const int16_t *diff, int stride, int w, int h) {
+  float sum = 0.0;
   for (int j = 0; j < h; ++j) {
     for (int i = 0; i < w; ++i) {
       sum += abs(diff[j * stride + i]);
@@ -2300,8 +2301,8 @@ static double get_sad_norm(const int16_t *diff, int stride, int w, int h) {
 static void get_2x2_normalized_sses_and_sads(
     const AV1_COMP *const cpi, BLOCK_SIZE tx_bsize, const uint8_t *const src,
     int src_stride, const uint8_t *const dst, int dst_stride,
-    const int16_t *const src_diff, int diff_stride, double *const sse_norm_arr,
-    double *const sad_norm_arr) {
+    const int16_t *const src_diff, int diff_stride, float *const sse_norm_arr,
+    float *const sad_norm_arr) {
   const BLOCK_SIZE tx_bsize_half =
       get_partition_subsize(tx_bsize, PARTITION_SPLIT);
   if (tx_bsize_half == BLOCK_INVALID) {  // manually calculate stats
@@ -2336,13 +2337,13 @@ static void get_2x2_normalized_sses_and_sads(
           unsigned int this_sse;
           cpi->fn_ptr[tx_bsize_half].vf(this_src, src_stride, this_dst,
                                         dst_stride, &this_sse);
-          sse_norm_arr[row * 2 + col] = (double)this_sse / num_samples_half;
+          sse_norm_arr[row * 2 + col] = (float)this_sse / num_samples_half;
         }
 
         if (sad_norm_arr) {
           const unsigned int this_sad = cpi->fn_ptr[tx_bsize_half].sdf(
               this_src, src_stride, this_dst, dst_stride);
-          sad_norm_arr[row * 2 + col] = (double)this_sad / num_samples_half;
+          sad_norm_arr[row * 2 + col] = (float)this_sad / num_samples_half;
         }
       }
     }
@@ -2353,24 +2354,27 @@ static void get_2x2_normalized_sses_and_sads(
 // 0: Do not collect any RD stats
 // 1: Collect RD stats for transform units
 // 2: Collect RD stats for partition units
-#if CONFIG_COLLECT_RD_STATS
 
-#if CONFIG_COLLECT_RD_STATS == 1
-static void PrintTransformUnitStats(const AV1_COMP *const cpi, MACROBLOCK *x,
-                                    const RD_STATS *const rd_stats, int blk_row,
-                                    int blk_col, BLOCK_SIZE plane_bsize,
-                                    TX_SIZE tx_size, TX_TYPE tx_type,
-                                    int64_t rd) {
-  if (rd_stats->rate == INT_MAX || rd_stats->dist == INT64_MAX) return;
+// Note: Variable names are alpha-sorted.
+typedef struct {
+  // Features.
+  float hdist[3];
+  int q_step;
+  float sad_norm;
+  float variance_norm;
+  float vdist[3];
+  int rdmult;
 
-  // Generate small sample to restrict output size.
-  static unsigned int seed = 21743;
-  if (lcg_rand16(&seed) % 256 > 0) return;
+  // Extras.
+  int tx_width;
+  int tx_height;
+  float sse_norm;
+} TxUnitStats;
 
-  const char output_file[] = "tu_stats.txt";
-  FILE *fout = fopen(output_file, "a");
-  if (!fout) return;
-
+static void GetTransformUnitStats(const AV1_COMP *const cpi, MACROBLOCK *x,
+                                  int blk_row, int blk_col,
+                                  BLOCK_SIZE plane_bsize, TX_SIZE tx_size,
+                                  TxUnitStats *const stats) {
   const BLOCK_SIZE tx_bsize = txsize_to_bsize[tx_size];
   const MACROBLOCKD *const xd = &x->e_mbd;
   const int plane = 0;
@@ -2381,13 +2385,7 @@ static void PrintTransformUnitStats(const AV1_COMP *const cpi, MACROBLOCK *x,
   const int dequant_shift =
       (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) ? xd->bd - 5 : 3;
   const int q_step = pd->dequant_Q3[1] >> dequant_shift;
-  const double num_samples = txw * txh;
-
-  const double rate_norm = (double)rd_stats->rate / num_samples;
-  const double dist_norm = (double)rd_stats->dist / num_samples;
-
-  fprintf(fout, "%g %g", rate_norm, dist_norm);
-
+  const int num_samples = txw * txh;
   const int src_stride = p->src.stride;
   const uint8_t *const src =
       &p->src.buf[(blk_row * src_stride + blk_col) << tx_size_wide_log2[0]];
@@ -2396,59 +2394,137 @@ static void PrintTransformUnitStats(const AV1_COMP *const cpi, MACROBLOCK *x,
       &pd->dst.buf[(blk_row * dst_stride + blk_col) << tx_size_wide_log2[0]];
   unsigned int sse;
   cpi->fn_ptr[tx_bsize].vf(src, src_stride, dst, dst_stride, &sse);
-  const double sse_norm = (double)sse / num_samples;
+  stats->sse_norm = (float)sse / num_samples;
 
   const unsigned int sad =
       cpi->fn_ptr[tx_bsize].sdf(src, src_stride, dst, dst_stride);
-  const double sad_norm = (double)sad / num_samples;
-
-  fprintf(fout, " %g %g", sse_norm, sad_norm);
+  stats->sad_norm = (float)sad / num_samples;
 
   const int diff_stride = block_size_wide[plane_bsize];
   const int16_t *const src_diff =
       &p->src_diff[(blk_row * diff_stride + blk_col) << tx_size_wide_log2[0]];
 
-  double sse_norm_arr[4], sad_norm_arr[4];
-  get_2x2_normalized_sses_and_sads(cpi, tx_bsize, src, src_stride, dst,
-                                   dst_stride, src_diff, diff_stride,
-                                   sse_norm_arr, sad_norm_arr);
+  stats->q_step = q_step;
+  stats->tx_width = tx_size_wide[tx_size];
+  stats->tx_height = tx_size_high[tx_size];
+
+  double hdist[3] = { 0 }, vdist[3] = { 0 };
+  get_energy_distribution_fine(cpi, tx_bsize, src, src_stride, dst, dst_stride,
+                               0, hdist, vdist);
+  for (int i = 0; i < 3; ++i) {
+    stats->hdist[i] = (float)hdist[i];
+    stats->vdist[i] = (float)vdist[i];
+  }
+
+  float mean = get_mean(src_diff, diff_stride, txw, txh);
+  const float variance = sse - (mean * mean);
+  stats->variance_norm = variance / num_samples;
+
+  stats->rdmult = x->rdmult;
+}
+
+#if CONFIG_COLLECT_RD_STATS == 1
+
+static void PrintTransformUnitStats(const TxUnitStats *const stats,
+                                    const RD_STATS *const rd_stats,
+                                    TX_SIZE tx_size, TX_TYPE tx_type,
+                                    int64_t rd) {
+  if (rd_stats->rate == INT_MAX || rd_stats->dist == INT64_MAX) return;
+
+  // Generate small sample to restrict output size.
+  static unsigned int seed = 21743;
+  if (lcg_rand16(&seed) % 100 > 0) return;
+
+  const char output_file[] = "tu_stats.txt";
+  FILE *fout = fopen(output_file, "a");
+  if (!fout) return;
+
+  // Labels: actual rate and distortion.
+  const int txw = tx_size_wide[tx_size];
+  const int txh = tx_size_high[tx_size];
+  const double num_samples = txw * txh;
+
+  const double rate_norm = (double)rd_stats->rate / num_samples;
+  const double dist_norm = (double)rd_stats->dist / num_samples;
+
+  fprintf(fout, "%g %g", rate_norm, dist_norm);
+
+  const TX_TYPE_1D tx_type_1d_row = htx_tab[tx_type];
+  const TX_TYPE_1D tx_type_1d_col = vtx_tab[tx_type];
+
+  fprintf(fout, " %g %g", stats->sse_norm, stats->sad_norm);
   for (int i = 0; i < 4; ++i) {
-    fprintf(fout, " %g", sse_norm_arr[i]);
+    fprintf(fout, " %g", stats->sse2x2_norms[i]);
   }
   for (int i = 0; i < 4; ++i) {
-    fprintf(fout, " %g", sad_norm_arr[i]);
+    fprintf(fout, " %g", stats->sad2x2_norms[i]);
+  }
+  fprintf(fout, " %d %d %d %d %d", stats->q_step, stats->tx_width,
+          stats->tx_height, tx_type_1d_row, tx_type_1d_col);
+  fprintf(fout, " %g %g", stats->model_rate_norm, stats->model_distortion_norm);
+  fprintf(fout, " %g %g %g", stats->mean, stats->horz_correlation,
+          stats->vert_correlation);
+
+  for (int i = 0; i < 4; ++i) {
+    fprintf(fout, " %g", stats->hdist[i]);
+  }
+  for (int i = 0; i < 4; ++i) {
+    fprintf(fout, " %g", stats->vdist[i]);
+  }
+
+  fprintf(fout, " %d %" PRId64, stats->rdmult, rd);
+
+  fprintf(fout, "\n");
+  fclose(fout);
+}
+
+#else
+
+static void ml_predict_rdcost(const TxUnitStats *const stats, TX_TYPE tx_type,
+                              int64_t *rdcost) {
+  // Special case.
+  if (stats->sse_norm == 0) {
+    if (rdcost) *rdcost = 0;
+    return;
   }
 
   const TX_TYPE_1D tx_type_1d_row = htx_tab[tx_type];
   const TX_TYPE_1D tx_type_1d_col = vtx_tab[tx_type];
 
-  fprintf(fout, " %d %d %d %d %d", q_step, tx_size_wide[tx_size],
-          tx_size_high[tx_size], tx_type_1d_row, tx_type_1d_col);
+  // Predict RDcost using DNN.
+  const float features[19] = {
+    // must be in alpha-sorted order
+    stats->hdist[0],
+    stats->hdist[1],
+    stats->hdist[2],
+    log2f(stats->tx_width * stats->tx_height),
+    stats->q_step * stats->q_step,
+    stats->rdmult,
+    stats->sad_norm,
+    tx_type_1d_col == 0,
+    tx_type_1d_col == 1,
+    tx_type_1d_col == 2,
+    tx_type_1d_col == 3,
+    tx_type_1d_row == 0,
+    tx_type_1d_row == 1,
+    tx_type_1d_row == 2,
+    tx_type_1d_row == 3,
+    stats->variance_norm,
+    stats->vdist[0],
+    stats->vdist[1],
+    stats->vdist[2],
+  };
+  float pred_rdcost = 0.0f;
+  av1_nn_predict(features, &av1_rdcost_model_nnconfig, &pred_rdcost);
+  *rdcost = (int)(pred_rdcost + 0.5);
 
-  int model_rate;
-  int64_t model_dist;
-  model_rd_sse_fn[MODELRD_CURVFIT](cpi, x, tx_bsize, plane, sse, num_samples,
-                                   &model_rate, &model_dist);
-  const double model_rate_norm = (double)model_rate / num_samples;
-  const double model_dist_norm = (double)model_dist / num_samples;
-  fprintf(fout, " %g %g", model_rate_norm, model_dist_norm);
-
-  const double mean = get_mean(src_diff, diff_stride, txw, txh);
-  double hor_corr, vert_corr;
-  get_horver_correlation(src_diff, diff_stride, txw, txh, &hor_corr,
-                         &vert_corr);
-  fprintf(fout, " %g %g %g", mean, hor_corr, vert_corr);
-
-  double hdist[4] = { 0 }, vdist[4] = { 0 };
-  get_energy_distribution_fine(cpi, tx_bsize, src, src_stride, dst, dst_stride,
-                               1, hdist, vdist);
-  fprintf(fout, " %g %g %g %g %g %g %g %g", hdist[0], hdist[1], hdist[2],
-          hdist[3], vdist[0], vdist[1], vdist[2], vdist[3]);
-
-  fprintf(fout, " %d %" PRId64, x->rdmult, rd);
-
-  fprintf(fout, "\n");
-  fclose(fout);
+  // Special case: check if skip is better.
+  const int64_t sse =
+      (int64_t)(stats->sse_norm * stats->tx_width * stats->tx_height + 0.5);
+  const int64_t skip_rdcost = RDCOST(stats->rdmult, 0, sse << 4);
+  if (*rdcost >= skip_rdcost) {
+    *rdcost = skip_rdcost;
+  }
 }
 #endif  // CONFIG_COLLECT_RD_STATS == 1
 
@@ -2549,7 +2625,6 @@ static void PrintPredictionUnitStats(const AV1_COMP *const cpi, MACROBLOCK *x,
   fclose(fout);
 }
 #endif  // CONFIG_COLLECT_RD_STATS >= 2
-#endif  // CONFIG_COLLECT_RD_STATS
 
 static void model_rd_with_dnn(const AV1_COMP *const cpi,
                               const MACROBLOCK *const x, BLOCK_SIZE plane_bsize,
@@ -2593,7 +2668,7 @@ static void model_rd_with_dnn(const AV1_COMP *const cpi,
   aom_clear_system_state();
   const double sse_norm = (double)sse / num_samples;
 
-  double sse_norm_arr[4];
+  float sse_norm_arr[4];
   get_2x2_normalized_sses_and_sads(cpi, plane_bsize, src, src_stride, dst,
                                    dst_stride, src_diff, diff_stride,
                                    sse_norm_arr, NULL);
@@ -3129,58 +3204,93 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
     block_sse = ROUND_POWER_OF_TWO(block_sse, (xd->bd - 8) * 2);
   block_sse *= 16;
 
+#if CONFIG_COLLECT_RD_STATS != 1
+  const int use_ml_based_rd = cpi->sf.use_model_for_tx_rate_distortion &&
+                              plane == 0 && allowed_tx_mask != 0x0001;
+#endif  // CONFIG_COLLECT_RD_STATS != 1
+
+  TxUnitStats tx_stats = { 0 };
+#if CONFIG_COLLECT_RD_STATS == 1
+  if (plane == 0)
+#else
+  if (use_ml_based_rd)
+#endif  // CONFIG_COLLECT_RD_STATS == 1
+    GetTransformUnitStats(cpi, x, blk_row, blk_col, plane_bsize, tx_size,
+                          &tx_stats);
+
   for (TX_TYPE tx_type = txk_start; tx_type <= txk_end; ++tx_type) {
     if (!(allowed_tx_mask & (1 << tx_type))) continue;
     if (plane == 0) mbmi->txk_type[txk_type_idx] = tx_type;
     RD_STATS this_rd_stats;
     av1_invalid_rd_stats(&this_rd_stats);
+    int64_t rd;
 
-    if (!cpi->optimize_seg_arr[mbmi->segment_id]) {
-      av1_xform_quant(
-          cm, x, plane, block, blk_row, blk_col, plane_bsize, tx_size, tx_type,
-          USE_B_QUANT_NO_TRELLIS ? AV1_XFORM_QUANT_B : AV1_XFORM_QUANT_FP);
-      rate_cost = av1_cost_coeffs(cm, x, plane, block, tx_size, tx_type,
-                                  txb_ctx, use_fast_coef_costing);
+#if CONFIG_COLLECT_RD_STATS != 1
+    if (use_ml_based_rd) {
+      ml_predict_rdcost(&tx_stats, tx_type, &rd);
+      // Note: 'rate' and 'dist' not initialized, but not used either.
+      this_rd_stats.sse = block_sse;
     } else {
-      av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize,
-                      tx_size, tx_type, AV1_XFORM_QUANT_FP);
-      if (cpi->sf.optimize_b_precheck && best_rd < INT64_MAX &&
-          eobs_ptr[block] >= 4) {
-        // Calculate distortion quickly in transform domain.
+#endif  // CONFIG_COLLECT_RD_STATS != 1
+      if (!cpi->optimize_seg_arr[mbmi->segment_id]) {
+        av1_xform_quant(
+            cm, x, plane, block, blk_row, blk_col, plane_bsize, tx_size,
+            tx_type,
+            USE_B_QUANT_NO_TRELLIS ? AV1_XFORM_QUANT_B : AV1_XFORM_QUANT_FP);
+        rate_cost = av1_cost_coeffs(cm, x, plane, block, tx_size, tx_type,
+                                    txb_ctx, use_fast_coef_costing);
+      } else {
+        av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize,
+                        tx_size, tx_type, AV1_XFORM_QUANT_FP);
+        if (cpi->sf.optimize_b_precheck && best_rd < INT64_MAX &&
+            eobs_ptr[block] >= 4) {
+          // Calculate distortion quickly in transform domain.
+          dist_block_tx_domain(x, plane, block, tx_size, &this_rd_stats.dist,
+                               &this_rd_stats.sse);
+
+          const int64_t best_rd_ = AOMMIN(best_rd, ref_best_rd);
+          const int64_t dist_cost_estimate = RDCOST(
+              x->rdmult, 0, AOMMIN(this_rd_stats.dist, this_rd_stats.sse));
+          if (dist_cost_estimate - (dist_cost_estimate >> 3) > best_rd_)
+            continue;
+        }
+        av1_optimize_b(cpi, x, plane, block, tx_size, tx_type, txb_ctx, 1,
+                       &rate_cost);
+      }
+      if (eobs_ptr[block] == 0) {
+        // When eob is 0, pixel domain distortion is more efficient and
+        // accurate.
+        this_rd_stats.dist = this_rd_stats.sse = block_sse;
+      } else if (use_transform_domain_distortion) {
         dist_block_tx_domain(x, plane, block, tx_size, &this_rd_stats.dist,
                              &this_rd_stats.sse);
-
-        const int64_t best_rd_ = AOMMIN(best_rd, ref_best_rd);
-        const int64_t dist_cost_estimate =
-            RDCOST(x->rdmult, 0, AOMMIN(this_rd_stats.dist, this_rd_stats.sse));
-        if (dist_cost_estimate - (dist_cost_estimate >> 3) > best_rd_) continue;
+      } else {
+        this_rd_stats.dist = dist_block_px_domain(
+            cpi, x, plane, plane_bsize, block, blk_row, blk_col, tx_size);
+        this_rd_stats.sse = block_sse;
       }
-      av1_optimize_b(cpi, x, plane, block, tx_size, tx_type, txb_ctx, 1,
-                     &rate_cost);
-    }
-    if (eobs_ptr[block] == 0) {
-      // When eob is 0, pixel domain distortion is more efficient and accurate.
-      this_rd_stats.dist = this_rd_stats.sse = block_sse;
-    } else if (use_transform_domain_distortion) {
-      dist_block_tx_domain(x, plane, block, tx_size, &this_rd_stats.dist,
-                           &this_rd_stats.sse);
-    } else {
-      this_rd_stats.dist = dist_block_px_domain(
-          cpi, x, plane, plane_bsize, block, blk_row, blk_col, tx_size);
-      this_rd_stats.sse = block_sse;
-    }
 
-    this_rd_stats.rate = rate_cost;
-
-    const int64_t rd =
-        RDCOST(x->rdmult, this_rd_stats.rate, this_rd_stats.dist);
+      this_rd_stats.rate = rate_cost;
+      rd = RDCOST(x->rdmult, this_rd_stats.rate, this_rd_stats.dist);
+#if CONFIG_COLLECT_RD_STATS != 1
+    }
+#endif  // CONFIG_COLLECT_RD_STATS != 1
 
     if (rd < best_rd) {
       best_rd = rd;
       *best_rd_stats = this_rd_stats;
       best_tx_type = tx_type;
-      best_txb_ctx = x->plane[plane].txb_entropy_ctx[block];
-      best_eob = x->plane[plane].eobs[block];
+#if CONFIG_COLLECT_RD_STATS != 1
+      if (use_ml_based_rd) {
+        best_txb_ctx = 1;  // Filler value.
+        best_eob = 1;      // Non-zero filler value.
+      } else {
+#endif  // CONFIG_COLLECT_RD_STATS != 1
+        best_txb_ctx = x->plane[plane].txb_entropy_ctx[block];
+        best_eob = x->plane[plane].eobs[block];
+#if CONFIG_COLLECT_RD_STATS != 1
+      }
+#endif  // CONFIG_COLLECT_RD_STATS != 1
       last_tx_type = best_tx_type;
 
       // Swap qcoeff and dqcoeff buffers
@@ -3191,8 +3301,7 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
 
 #if CONFIG_COLLECT_RD_STATS == 1
     if (plane == 0) {
-      PrintTransformUnitStats(cpi, x, &this_rd_stats, blk_row, blk_col,
-                              plane_bsize, tx_size, tx_type, rd);
+      PrintTransformUnitStats(&tx_stats, &this_rd_stats, tx_size, tx_type, rd);
     }
 #endif  // CONFIG_COLLECT_RD_STATS == 1
 
@@ -3242,6 +3351,57 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
     // all zero and at the same time, it has better rdcost than doing transform.
     if (cpi->sf.tx_type_search.skip_tx_search && !best_eob) break;
   }
+
+#if CONFIG_COLLECT_RD_STATS != 1
+  if (use_ml_based_rd) {
+    // In the loop above, we only calculated estimated rate and distortion using
+    // model. So, we now calculate actual rate and distortion for the best
+    // tx_type.
+    // TODO(now): Mostly copy-pasted. Need to refactor.
+    if (plane == 0) mbmi->txk_type[txk_type_idx] = best_tx_type;
+    RD_STATS this_rd_stats;
+    av1_invalid_rd_stats(&this_rd_stats);
+    if (!cpi->optimize_seg_arr[mbmi->segment_id]) {
+      av1_xform_quant(
+          cm, x, plane, block, blk_row, blk_col, plane_bsize, tx_size,
+          best_tx_type,
+          USE_B_QUANT_NO_TRELLIS ? AV1_XFORM_QUANT_B : AV1_XFORM_QUANT_FP);
+      rate_cost = av1_cost_coeffs(cm, x, plane, block, tx_size, best_tx_type,
+                                  txb_ctx, use_fast_coef_costing);
+    } else {
+      av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize,
+                      tx_size, best_tx_type, AV1_XFORM_QUANT_FP);
+      if (cpi->sf.optimize_b_precheck && best_rd < INT64_MAX &&
+          eobs_ptr[block] >= 4) {
+        // Calculate distortion quickly in transform domain.
+        dist_block_tx_domain(x, plane, block, tx_size, &this_rd_stats.dist,
+                             &this_rd_stats.sse);
+      }
+      av1_optimize_b(cpi, x, plane, block, tx_size, best_tx_type, txb_ctx, 1,
+                     &rate_cost);
+    }
+    if (eobs_ptr[block] == 0) {
+      // When eob is 0, pixel domain distortion is more efficient and
+      // accurate.
+      this_rd_stats.dist = this_rd_stats.sse = block_sse;
+    } else if (use_transform_domain_distortion) {
+      dist_block_tx_domain(x, plane, block, tx_size, &this_rd_stats.dist,
+                           &this_rd_stats.sse);
+    } else {
+      this_rd_stats.dist = dist_block_px_domain(
+          cpi, x, plane, plane_bsize, block, blk_row, blk_col, tx_size);
+      this_rd_stats.sse = block_sse;
+    }
+    this_rd_stats.rate = rate_cost;
+    const int64_t rd =
+        RDCOST(x->rdmult, this_rd_stats.rate, this_rd_stats.dist);
+
+    best_rd = rd;
+    *best_rd_stats = this_rd_stats;
+    best_txb_ctx = x->plane[plane].txb_entropy_ctx[block];
+    best_eob = x->plane[plane].eobs[block];
+  }
+#endif  // CONFIG_COLLECT_RD_STATS != 1
 
   assert(best_rd != INT64_MAX);
 

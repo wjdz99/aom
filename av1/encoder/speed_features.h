@@ -573,6 +573,10 @@ typedef struct SPEED_FEATURES {
 
   // Prune intra mode candidates based on source block gradient stats.
   int intra_angle_estimation;
+
+  // Use machine learning based model to predict rate and distortion for a
+  // transform block, instead of actually calculating the rate and distortion.
+  int use_model_for_tx_rate_distortion;
 } SPEED_FEATURES;
 
 struct AV1_COMP;
