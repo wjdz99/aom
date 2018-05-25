@@ -546,6 +546,7 @@ void aom_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
   int frame_header_size = 0;
   int seq_header_received = 0;
   size_t seq_header_size = 0;
+  static int ls_frame_header_received = 0;
   ObuHeader obu_header;
   memset(&obu_header, 0, sizeof(obu_header));
   pbi->dropped_obus = 0;
@@ -554,6 +555,9 @@ void aom_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
     cm->error.error_code = AOM_CODEC_CORRUPT_FRAME;
     return;
   }
+
+  // Reset ls_frame_header_received to 0 if cm->large_scale_tile = 0.
+  if (!cm->large_scale_tile) ls_frame_header_received = 0;
 
   // decode frame as a series of OBUs
   while (!frame_decoding_finished && !cm->error.error_code) {
@@ -623,15 +627,20 @@ void aom_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
       case OBU_REDUNDANT_FRAME_HEADER:
       case OBU_FRAME:
         // Only decode first frame header received
-        if (!frame_header_received) {
+        if (!frame_header_received ||
+            (cm->large_scale_tile && !ls_frame_header_received)) {
           pbi->dropped_obus = 0;
           av1_init_read_bit_buffer(pbi, &rb, data, data_end);
           frame_header_size = read_frame_header_obu(
               pbi, &rb, data, p_data_end, obu_header.type != OBU_FRAME);
           frame_header_received = 1;
+          ls_frame_header_received = 1;
         }
         decoded_payload_size = frame_header_size;
-        if (cm->show_existing_frame) {
+
+        // In large scale tile coding, decode the common camera frame header
+        // before any tile list OBU.
+        if (cm->show_existing_frame || ls_frame_header_received) {
           frame_decoding_finished = 1;
           break;
         }
@@ -662,6 +671,21 @@ void aom_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
         decoded_payload_size = read_metadata(data, payload_size);
         break;
       case OBU_TILE_LIST:
+        // This OBU type is only valid when large scale tile coding mode is on.
+        if (!cm->large_scale_tile) {
+          frame_decoding_finished = 1;
+          break;
+        }
+
+        // The common camera frame header has to be already decoded.
+        if (!ls_frame_header_received) {
+          cm->error.error_code = AOM_CODEC_CORRUPT_FRAME;
+          return;
+        }
+
+        // Place holder: Process the tile list.
+
+        break;
       case OBU_PADDING:
       default:
         // Skip unrecognized OBUs
