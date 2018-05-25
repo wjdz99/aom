@@ -1006,7 +1006,7 @@ static int rc_pick_q_and_bounds_two_pass(const AV1_COMP *cpi, int width,
         // Modify best quality for second level arfs. For mode AOM_Q this
         // becomes the baseline frame q.
         if (gf_group->rf_level[gf_group->index] == GF_ARF_LOW)
-          active_best_quality = (active_best_quality + cq_level + 1) / 2;
+          active_best_quality = (active_best_quality + 3 * cq_level + 2) / 4;
       }
     } else {
       active_best_quality = get_gf_active_quality(rc, q, cm->bit_depth);
