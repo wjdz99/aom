@@ -169,7 +169,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->adaptive_txb_search_level = 2;
     sf->use_intra_txb_hash = 1;
     sf->optimize_b_precheck = 1;
-    sf->dual_sgr_penalty_level = 1;
+    sf->dual_sgr_penalty_level = 0;
   }
 
   if (speed >= 2) {
