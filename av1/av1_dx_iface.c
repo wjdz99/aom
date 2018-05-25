@@ -835,9 +835,9 @@ static aom_codec_err_t ctrl_get_frame_corrupted(aom_codec_alg_priv_t *ctx,
       AVxWorker *const worker = ctx->frame_workers;
       FrameWorkerData *const frame_worker_data =
           (FrameWorkerData *)worker->data1;
-      RefCntBuffer *const frame_bufs =
-          frame_worker_data->pbi->common.buffer_pool->frame_bufs;
-      if (frame_worker_data->pbi->common.frame_to_show == NULL)
+      AV1Decoder *const pbi = frame_worker_data->pbi;
+      RefCntBuffer *const frame_bufs = pbi->common.buffer_pool->frame_bufs;
+      if (pbi->received_frame_header_obu && pbi->common.frame_to_show == NULL)
         return AOM_CODEC_ERROR;
       if (ctx->last_show_frame >= 0)
         *corrupted = frame_bufs[ctx->last_show_frame].buf.corrupted;

@@ -541,13 +541,13 @@ void aom_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
   AV1_COMMON *const cm = &pbi->common;
   int frame_decoding_finished = 0;
   int is_first_tg_obu_received = 1;
-  int frame_header_received = 0;
   int frame_header_size = 0;
   int seq_header_received = 0;
   size_t seq_header_size = 0;
   ObuHeader obu_header;
   memset(&obu_header, 0, sizeof(obu_header));
   pbi->dropped_obus = 0;
+  pbi->received_frame_header_obu = 0;
 
   if (data_end < data) {
     cm->error.error_code = AOM_CODEC_CORRUPT_FRAME;
@@ -563,7 +563,7 @@ void aom_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
     size_t bytes_read = 0;
     const size_t bytes_available = data_end - data;
 
-    if (bytes_available == 0 && !frame_header_received) {
+    if (bytes_available == 0 && !pbi->received_frame_header_obu) {
       cm->error.error_code = AOM_CODEC_OK;
       return;
     }
@@ -622,12 +622,12 @@ void aom_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
       case OBU_REDUNDANT_FRAME_HEADER:
       case OBU_FRAME:
         // Only decode first frame header received
-        if (!frame_header_received) {
+        if (!pbi->received_frame_header_obu) {
           pbi->dropped_obus = 0;
           av1_init_read_bit_buffer(pbi, &rb, data, data_end);
           frame_header_size = read_frame_header_obu(
               pbi, &rb, data, p_data_end, obu_header.type != OBU_FRAME);
-          frame_header_received = 1;
+          pbi->received_frame_header_obu = 1;
         }
         decoded_payload_size = frame_header_size;
         if (cm->show_existing_frame) {
@@ -638,7 +638,7 @@ void aom_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
         obu_payload_offset = frame_header_size;
         AOM_FALLTHROUGH_INTENDED;  // fall through to read tile group.
       case OBU_TILE_GROUP:
-        if (!frame_header_received) {
+        if (!pbi->received_frame_header_obu) {
           cm->error.error_code = AOM_CODEC_CORRUPT_FRAME;
           return;
         }

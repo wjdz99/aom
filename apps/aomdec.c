@@ -840,11 +840,14 @@ static int main_loop(int argc, const char **argv_) {
     if ((img = aom_codec_get_frame(&decoder, &iter))) {
       ++frame_out;
       got_data = 1;
-      if (output_all_layers) {
-        if (obu_ctx.last_layer_id++ == img->max_spatial_id) {
-          // We've decoded the last layer.  Reset
-          obu_ctx.last_layer_id = 0;
-        }
+    }
+
+    if (output_all_layers) {
+      if (img && obu_ctx.last_layer_id >= img->max_spatial_id) {
+        // We've decoded the last layer.  Reset
+        obu_ctx.last_layer_id = 0;
+      } else {
+        obu_ctx.last_layer_id++;
       }
     }
 
