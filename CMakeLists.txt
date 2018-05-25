@@ -600,82 +600,86 @@ if(ENABLE_DOCS)
   endif()
 endif()
 
-# Aomedia install rule.
-list(APPEND AOM_INSTALL_INCS "${AOM_ROOT}/aom/aom.h"
-            "${AOM_ROOT}/aom/aom_codec.h" "${AOM_ROOT}/aom/aom_frame_buffer.h"
-            "${AOM_ROOT}/aom/aom_image.h" "${AOM_ROOT}/aom/aom_integer.h"
-            "${AOM_ROOT}/aom/aom.h")
+if(NOT (MSVC OR XCODE))
+  # Aomedia install rule.
+  list(APPEND AOM_INSTALL_INCS "${AOM_ROOT}/aom/aom.h"
+              "${AOM_ROOT}/aom/aom_codec.h"
+              "${AOM_ROOT}/aom/aom_frame_buffer.h"
+              "${AOM_ROOT}/aom/aom_image.h" "${AOM_ROOT}/aom/aom_integer.h"
+              "${AOM_ROOT}/aom/aom.h")
 
-if(CONFIG_AV1_DECODER)
-  if(ENABLE_EXAMPLES)
-    list(APPEND AOM_INSTALL_BINS aomdec)
+  if(CONFIG_AV1_DECODER)
+    if(ENABLE_EXAMPLES)
+      list(APPEND AOM_INSTALL_BINS aomdec)
+    endif()
+
+    list(APPEND AOM_INSTALL_INCS "${AOM_ROOT}/aom/aom_decoder.h"
+                "${AOM_ROOT}/aom/aomdx.h")
   endif()
 
-  list(APPEND AOM_INSTALL_INCS "${AOM_ROOT}/aom/aom_decoder.h"
-              "${AOM_ROOT}/aom/aomdx.h")
-endif()
+  if(CONFIG_AV1_ENCODER)
+    if(ENABLE_EXAMPLES)
+      list(APPEND AOM_INSTALL_BINS aomenc)
+    endif()
 
-if(CONFIG_AV1_ENCODER)
-  if(ENABLE_EXAMPLES)
-    list(APPEND AOM_INSTALL_BINS aomenc)
+    list(APPEND AOM_INSTALL_INCS "${AOM_ROOT}/aom/aomcx.h"
+                "${AOM_ROOT}/aom/aom_encoder.h")
   endif()
 
-  list(APPEND AOM_INSTALL_INCS "${AOM_ROOT}/aom/aomcx.h"
-              "${AOM_ROOT}/aom/aom_encoder.h")
-endif()
+  set(AOM_INSTALL_LIBS aom)
 
-set(AOM_INSTALL_LIBS aom)
+  install(FILES ${AOM_INSTALL_INCS} DESTINATION "${INCLUDE_INSTALL_DIR}/aom")
+  install(FILES "${AOM_CONFIG_DIR}/aom.pc" DESTINATION
+                "${LIB_INSTALL_DIR}/pkgconfig")
+  install(TARGETS ${AOM_INSTALL_LIBS} DESTINATION "${LIB_INSTALL_DIR}")
 
-install(FILES ${AOM_INSTALL_INCS} DESTINATION "${INCLUDE_INSTALL_DIR}/aom")
-install(FILES "${AOM_CONFIG_DIR}/aom.pc" DESTINATION
-              "${LIB_INSTALL_DIR}/pkgconfig")
-install(TARGETS ${AOM_INSTALL_LIBS} DESTINATION "${LIB_INSTALL_DIR}")
+  if(ENABLE_EXAMPLES)
+    install(TARGETS ${AOM_INSTALL_BINS} DESTINATION
+                    "${CMAKE_INSTALL_PREFIX}/bin")
+  endif()
 
-if(ENABLE_EXAMPLES)
-  install(TARGETS ${AOM_INSTALL_BINS} DESTINATION "${CMAKE_INSTALL_PREFIX}/bin")
-endif()
+  # Aomedia dist rule.
+  if(CONFIG_AV1_DECODER AND ENABLE_EXAMPLES)
+    list(APPEND AOM_DIST_APPS $<TARGET_FILE:aomdec>)
+  endif()
+  if(CONFIG_AV1_ENCODER AND ENABLE_EXAMPLES)
+    list(APPEND AOM_DIST_APPS $<TARGET_FILE:aomenc>)
+  endif()
 
-# Aomedia dist rule.
-if(CONFIG_AV1_DECODER AND ENABLE_EXAMPLES)
-  list(APPEND AOM_DIST_APPS $<TARGET_FILE:aomdec>)
-endif()
-if(CONFIG_AV1_ENCODER AND ENABLE_EXAMPLES)
-  list(APPEND AOM_DIST_APPS $<TARGET_FILE:aomenc>)
-endif()
+  if(ENABLE_EXAMPLES)
+    foreach(example ${AOM_EXAMPLE_TARGETS})
+      list(APPEND AOM_DIST_EXAMPLES $<TARGET_FILE:${example}>)
+    endforeach()
+  endif()
 
-if(ENABLE_EXAMPLES)
-  foreach(example ${AOM_EXAMPLE_TARGETS})
-    list(APPEND AOM_DIST_EXAMPLES $<TARGET_FILE:${example}>)
-  endforeach()
-endif()
+  if(ENABLE_TOOLS)
+    foreach(tool ${AOM_TOOL_TARGETS})
+      list(APPEND AOM_DIST_TOOLS $<TARGET_FILE:${tool}>)
+    endforeach()
+  endif()
 
-if(ENABLE_TOOLS)
-  foreach(tool ${AOM_TOOL_TARGETS})
-    list(APPEND AOM_DIST_TOOLS $<TARGET_FILE:${tool}>)
-  endforeach()
-endif()
+  if(NOT AOM_DIST_DIR)
+    set(AOM_DIST_DIR "${AOM_CONFIG_DIR}/dist")
+  endif()
 
-if(NOT AOM_DIST_DIR)
-  set(AOM_DIST_DIR "${AOM_CONFIG_DIR}/dist")
-endif()
+  add_custom_target(dist
+                    COMMAND ${CMAKE_COMMAND} -DAOM_ROOT=${AOM_ROOT}
+                            -DAOM_CONFIG_DIR=${AOM_CONFIG_DIR}
+                            -DAOM_DIST_DIR=${AOM_DIST_DIR}
+                            -DAOM_DIST_APPS="${AOM_DIST_APPS}"
+                            -DAOM_DIST_EXAMPLES="${AOM_DIST_EXAMPLES}"
+                            -DAOM_DIST_TOOLS="${AOM_DIST_TOOLS}"
+                            -DAOM_DIST_INCLUDES="${AOM_INSTALL_INCS}"
+                            -DAOM_DIST_LIBS=$<TARGET_FILE:aom>
+                            -DENABLE_DOCS=${ENABLE_DOCS} -P
+                            "${AOM_ROOT}/build/cmake/dist.cmake"
+                    DEPENDS ${AOM_INSTALL_BINS} ${AOM_INSTALL_LIBS}
+                            ${AOM_INSTALL_INCS} ${AOM_EXAMPLE_TARGETS}
+                            ${AOM_TOOL_TARGETS})
 
-add_custom_target(dist
-                  COMMAND ${CMAKE_COMMAND} -DAOM_ROOT=${AOM_ROOT}
-                          -DAOM_CONFIG_DIR=${AOM_CONFIG_DIR}
-                          -DAOM_DIST_DIR=${AOM_DIST_DIR}
-                          -DAOM_DIST_APPS="${AOM_DIST_APPS}"
-                          -DAOM_DIST_EXAMPLES="${AOM_DIST_EXAMPLES}"
-                          -DAOM_DIST_TOOLS="${AOM_DIST_TOOLS}"
-                          -DAOM_DIST_INCLUDES="${AOM_INSTALL_INCS}"
-                          -DAOM_DIST_LIBS=$<TARGET_FILE:aom>
-                          -DENABLE_DOCS=${ENABLE_DOCS} -P
-                          "${AOM_ROOT}/build/cmake/dist.cmake"
-                  DEPENDS ${AOM_INSTALL_BINS} ${AOM_INSTALL_LIBS}
-                          ${AOM_INSTALL_INCS} ${AOM_EXAMPLE_TARGETS}
-                          ${AOM_TOOL_TARGETS})
-
-if(ENABLE_DOCS)
-  add_dependencies(dist docs)
+  if(ENABLE_DOCS)
+    add_dependencies(dist docs)
+  endif()
 endif()
 
 # Collect all variables containing libaom source files.
