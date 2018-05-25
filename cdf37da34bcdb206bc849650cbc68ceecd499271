@@ -22,6 +22,30 @@
       "revId": "cdf37da34bcdb206bc849650cbc68ceecd499271",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "add36239_87dc749d",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 8363,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2018-05-25T18:58:55Z",
+      "side": 1,
+      "message": "Done, but I think the compiler optimizes this correctly.",
+      "parentUuid": "e5d96674_a4934cd2",
+      "range": {
+        "startLine": 8363,
+        "startChar": 15,
+        "endLine": 8363,
+        "endChar": 21
+      },
+      "revId": "cdf37da34bcdb206bc849650cbc68ceecd499271",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
