@@ -154,6 +154,30 @@
     },
     {
       "key": {
+        "uuid": "4c4bd6ea_e95a657e",
+        "filename": "test/blend_a64_mask_test.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-05-25T17:46:28Z",
+      "side": 1,
+      "message": "\u003e Right.  (MAX_SB_SIZE_LOG2 - 2 + 1) if you prefer.\n\nI think it\u0027s OK as is, just wanted to double check.",
+      "parentUuid": "318f8e54_8647d3a5",
+      "range": {
+        "startLine": 88,
+        "startChar": 25,
+        "endLine": 89,
+        "endChar": 0
+      },
+      "revId": "395f73a489058306cd4998b4751d486b722893e7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "95ee7d31_029d68dd",
         "filename": "test/blend_a64_mask_test.cc",
         "patchSetId": 5
