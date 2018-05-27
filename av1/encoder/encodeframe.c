@@ -3750,6 +3750,9 @@ static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
                           pc_root, NULL);
       }
     }
+#if CONFIG_COLLECT_INTER_MODE_RD_STATS
+    av1_inter_mode_data_fit(x->rdmult);
+#endif
   }
 }
 
@@ -4488,6 +4491,10 @@ static void encode_frame_internal(AV1_COMP *cpi) {
       av1_encode_tiles_mt(cpi);
     else
       encode_tiles(cpi);
+
+    // #if CONFIG_COLLECT_INTER_MODE_RD_STATS
+    //     av1_inter_mode_data_show(cm);
+    // #endif
 
     aom_usec_timer_mark(&emr_timer);
     cpi->time_encode_sb_row += aom_usec_timer_elapsed(&emr_timer);
