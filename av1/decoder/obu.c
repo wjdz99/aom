@@ -640,6 +640,9 @@ void aom_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
         // In large scale tile coding, decode the common camera frame header
         // before any tile list OBU.
         if (cm->show_existing_frame || pbi->camera_frame_header_ready) {
+          // Skip the camera frame header except the first one.
+          if (pbi->camera_frame_header_ready)
+            decoded_payload_size = payload_size;
           frame_decoding_finished = 1;
           break;
         }
