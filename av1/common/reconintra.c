@@ -514,10 +514,12 @@ static void init_intra_predictors_internal(void) {
 }
 
 // Directional prediction, zone 1: 0 < angle < 90
-void av1_dr_prediction_z1_c(uint8_t *dst, ptrdiff_t stride, int bw, int bh,
+void av1_dr_prediction_z1_c(uint8_t *dst, ptrdiff_t stride, TX_SIZE tx_size,
                             const uint8_t *above, const uint8_t *left,
                             int upsample_above, int dx, int dy) {
   int r, c, x, base, shift, val;
+  const int bw = tx_size_wide[tx_size];
+  const int bh = tx_size_high[tx_size];
 
   (void)left;
   (void)dy;
@@ -553,11 +555,13 @@ void av1_dr_prediction_z1_c(uint8_t *dst, ptrdiff_t stride, int bw, int bh,
 }
 
 // Directional prediction, zone 2: 90 < angle < 180
-void av1_dr_prediction_z2_c(uint8_t *dst, ptrdiff_t stride, int bw, int bh,
+void av1_dr_prediction_z2_c(uint8_t *dst, ptrdiff_t stride, TX_SIZE tx_size,
                             const uint8_t *above, const uint8_t *left,
                             int upsample_above, int upsample_left, int dx,
                             int dy) {
   int r, c, x, y, shift1, shift2, val, base1, base2;
+  const int bw = tx_size_wide[tx_size];
+  const int bh = tx_size_high[tx_size];
 
   assert(dx > 0);
   assert(dy > 0);
@@ -588,10 +592,12 @@ void av1_dr_prediction_z2_c(uint8_t *dst, ptrdiff_t stride, int bw, int bh,
 }
 
 // Directional prediction, zone 3: 180 < angle < 270
-void av1_dr_prediction_z3_c(uint8_t *dst, ptrdiff_t stride, int bw, int bh,
+void av1_dr_prediction_z3_c(uint8_t *dst, ptrdiff_t stride, TX_SIZE tx_size,
                             const uint8_t *above, const uint8_t *left,
                             int upsample_left, int dx, int dy) {
   int r, c, y, base, shift, val;
+  const int bw = tx_size_wide[tx_size];
+  const int bh = tx_size_high[tx_size];
 
   (void)above;
   (void)dx;
@@ -625,18 +631,16 @@ static void dr_predictor(uint8_t *dst, ptrdiff_t stride, TX_SIZE tx_size,
                          int upsample_above, int upsample_left, int angle) {
   const int dx = av1_get_dx(angle);
   const int dy = av1_get_dy(angle);
-  const int bw = tx_size_wide[tx_size];
-  const int bh = tx_size_high[tx_size];
   assert(angle > 0 && angle < 270);
 
   if (angle > 0 && angle < 90) {
-    av1_dr_prediction_z1(dst, stride, bw, bh, above, left, upsample_above, dx,
+    av1_dr_prediction_z1(dst, stride, tx_size, above, left, upsample_above, dx,
                          dy);
   } else if (angle > 90 && angle < 180) {
-    av1_dr_prediction_z2(dst, stride, bw, bh, above, left, upsample_above,
+    av1_dr_prediction_z2(dst, stride, tx_size, above, left, upsample_above,
                          upsample_left, dx, dy);
   } else if (angle > 180 && angle < 270) {
-    av1_dr_prediction_z3(dst, stride, bw, bh, above, left, upsample_left, dx,
+    av1_dr_prediction_z3(dst, stride, tx_size, above, left, upsample_left, dx,
                          dy);
   } else if (angle == 90) {
     pred[V_PRED][tx_size](dst, stride, above, left);
@@ -646,8 +650,8 @@ static void dr_predictor(uint8_t *dst, ptrdiff_t stride, TX_SIZE tx_size,
 }
 
 // Directional prediction, zone 1: 0 < angle < 90
-void av1_highbd_dr_prediction_z1_c(uint16_t *dst, ptrdiff_t stride, int bw,
-                                   int bh, const uint16_t *above,
+void av1_highbd_dr_prediction_z1_c(uint16_t *dst, ptrdiff_t stride,
+                                   TX_SIZE tx_size, const uint16_t *above,
                                    const uint16_t *left, int upsample_above,
                                    int dx, int dy, int bd) {
   int r, c, x, base, shift, val;
@@ -657,6 +661,8 @@ void av1_highbd_dr_prediction_z1_c(uint16_t *dst, ptrdiff_t stride, int bw,
   assert(dy == 1);
   assert(dx > 0);
 
+  const int bw = tx_size_wide[tx_size];
+  const int bh = tx_size_high[tx_size];
   const int max_base_x = ((bw + bh) - 1) << upsample_above;
   const int frac_bits = 6 - upsample_above;
   const int base_inc = 1 << upsample_above;
@@ -686,8 +692,8 @@ void av1_highbd_dr_prediction_z1_c(uint16_t *dst, ptrdiff_t stride, int bw,
 }
 
 // Directional prediction, zone 2: 90 < angle < 180
-void av1_highbd_dr_prediction_z2_c(uint16_t *dst, ptrdiff_t stride, int bw,
-                                   int bh, const uint16_t *above,
+void av1_highbd_dr_prediction_z2_c(uint16_t *dst, ptrdiff_t stride,
+                                   TX_SIZE tx_size, const uint16_t *above,
                                    const uint16_t *left, int upsample_above,
                                    int upsample_left, int dx, int dy, int bd) {
   int r, c, x, y, shift, val, base;
@@ -695,6 +701,8 @@ void av1_highbd_dr_prediction_z2_c(uint16_t *dst, ptrdiff_t stride, int bw,
   assert(dx > 0);
   assert(dy > 0);
 
+  const int bw = tx_size_wide[tx_size];
+  const int bh = tx_size_high[tx_size];
   const int min_base_x = -(1 << upsample_above);
   const int frac_bits_x = 6 - upsample_above;
   const int frac_bits_y = 6 - upsample_left;
@@ -722,8 +730,8 @@ void av1_highbd_dr_prediction_z2_c(uint16_t *dst, ptrdiff_t stride, int bw,
 }
 
 // Directional prediction, zone 3: 180 < angle < 270
-void av1_highbd_dr_prediction_z3_c(uint16_t *dst, ptrdiff_t stride, int bw,
-                                   int bh, const uint16_t *above,
+void av1_highbd_dr_prediction_z3_c(uint16_t *dst, ptrdiff_t stride,
+                                   TX_SIZE tx_size, const uint16_t *above,
                                    const uint16_t *left, int upsample_left,
                                    int dx, int dy, int bd) {
   int r, c, y, base, shift, val;
@@ -733,6 +741,8 @@ void av1_highbd_dr_prediction_z3_c(uint16_t *dst, ptrdiff_t stride, int bw,
   assert(dx == 1);
   assert(dy > 0);
 
+  const int bw = tx_size_wide[tx_size];
+  const int bh = tx_size_high[tx_size];
   const int max_base_y = (bw + bh - 1) << upsample_left;
   const int frac_bits = 6 - upsample_left;
   const int base_inc = 1 << upsample_left;
@@ -760,19 +770,16 @@ static void highbd_dr_predictor(uint16_t *dst, ptrdiff_t stride,
                                 int upsample_left, int angle, int bd) {
   const int dx = av1_get_dx(angle);
   const int dy = av1_get_dy(angle);
-  const int bw = tx_size_wide[tx_size];
-  const int bh = tx_size_high[tx_size];
   assert(angle > 0 && angle < 270);
-
   if (angle > 0 && angle < 90) {
-    av1_highbd_dr_prediction_z1(dst, stride, bw, bh, above, left,
+    av1_highbd_dr_prediction_z1(dst, stride, tx_size, above, left,
                                 upsample_above, dx, dy, bd);
   } else if (angle > 90 && angle < 180) {
-    av1_highbd_dr_prediction_z2(dst, stride, bw, bh, above, left,
+    av1_highbd_dr_prediction_z2(dst, stride, tx_size, above, left,
                                 upsample_above, upsample_left, dx, dy, bd);
   } else if (angle > 180 && angle < 270) {
-    av1_highbd_dr_prediction_z3(dst, stride, bw, bh, above, left, upsample_left,
-                                dx, dy, bd);
+    av1_highbd_dr_prediction_z3(dst, stride, tx_size, above, left,
+                                upsample_left, dx, dy, bd);
   } else if (angle == 90) {
     pred_high[V_PRED][tx_size](dst, stride, above, left, bd);
   } else if (angle == 180) {
