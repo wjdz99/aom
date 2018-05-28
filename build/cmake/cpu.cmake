@@ -15,6 +15,7 @@ if("${AOM_TARGET_CPU}" STREQUAL "arm64")
 
   if(ENABLE_NEON)
     set(HAVE_NEON 1)
+    set(HAVE_AARCH64 1)
     set(RTCD_HAVE_NEON "yes")
   else()
     set(HAVE_NEON 0)

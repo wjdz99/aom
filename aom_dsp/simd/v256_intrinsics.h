@@ -12,12 +12,12 @@
 #ifndef _V256_INTRINSICS_H
 #define _V256_INTRINSICS_H
 
+#include "./v128_intrinsics.h"
+#include "./v256_intrinsics_c.h"
+#include "./v64_intrinsics.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "./v256_intrinsics_c.h"
-#include "./v128_intrinsics.h"
-#include "./v64_intrinsics.h"
 
 /* Fallback to plain, unoptimised C. */
 
@@ -25,6 +25,7 @@ typedef c_v256 v256;
 
 SIMD_INLINE uint32_t v256_low_u32(v256 a) { return c_v256_low_u32(a); }
 SIMD_INLINE v64 v256_low_v64(v256 a) { return c_v256_low_v64(a); }
+SIMD_INLINE uint64_t v256_low_u64(v256 a) { return c_v256_low_u64(a); }
 SIMD_INLINE v128 v256_low_v128(v256 a) { return c_v256_low_v128(a); }
 SIMD_INLINE v128 v256_high_v128(v256 a) { return c_v256_high_v128(a); }
 SIMD_INLINE v256 v256_from_v128(v128 hi, v128 lo) {
@@ -59,6 +60,7 @@ SIMD_INLINE v256 v256_zero() { return c_v256_zero(); }
 SIMD_INLINE v256 v256_dup_8(uint8_t x) { return c_v256_dup_8(x); }
 SIMD_INLINE v256 v256_dup_16(uint16_t x) { return c_v256_dup_16(x); }
 SIMD_INLINE v256 v256_dup_32(uint32_t x) { return c_v256_dup_32(x); }
+SIMD_INLINE v256 v256_dup_64(uint64_t x) { return c_v256_dup_64(x); }
 
 typedef uint32_t sad256_internal;
 SIMD_INLINE sad256_internal v256_sad_u8_init() { return c_v256_sad_u8_init(); }
@@ -76,8 +78,12 @@ SIMD_INLINE ssd256_internal v256_ssd_u8(ssd256_internal s, v256 a, v256 b) {
 SIMD_INLINE uint32_t v256_ssd_u8_sum(ssd256_internal s) {
   return c_v256_ssd_u8_sum(s);
 }
+
 SIMD_INLINE int64_t v256_dotp_s16(v256 a, v256 b) {
   return c_v256_dotp_s16(a, b);
+}
+SIMD_INLINE int64_t v256_dotp_s32(v256 a, v256 b) {
+  return c_v256_dotp_s32(a, b);
 }
 SIMD_INLINE uint64_t v256_hadd_u8(v256 a) { return c_v256_hadd_u8(a); }
 
@@ -88,8 +94,13 @@ SIMD_INLINE v256 v256_andn(v256 a, v256 b) { return c_v256_andn(a, b); }
 
 SIMD_INLINE v256 v256_add_8(v256 a, v256 b) { return c_v256_add_8(a, b); }
 SIMD_INLINE v256 v256_add_16(v256 a, v256 b) { return c_v256_add_16(a, b); }
+SIMD_INLINE v256 v256_sadd_s8(v256 a, v256 b) { return c_v256_sadd_s8(a, b); }
+SIMD_INLINE v256 v256_sadd_u8(v256 a, v256 b) { return c_v256_sadd_u8(a, b); }
 SIMD_INLINE v256 v256_sadd_s16(v256 a, v256 b) { return c_v256_sadd_s16(a, b); }
 SIMD_INLINE v256 v256_add_32(v256 a, v256 b) { return c_v256_add_32(a, b); }
+SIMD_INLINE v256 v256_add_64(v256 a, v256 b) { return c_v256_add_64(a, b); }
+SIMD_INLINE v256 v256_sub_64(v256 a, v256 b) { return c_v256_sub_64(a, b); }
+SIMD_INLINE v256 v256_padd_u8(v256 a) { return c_v256_padd_u8(a); }
 SIMD_INLINE v256 v256_padd_s16(v256 a) { return c_v256_padd_s16(a); }
 SIMD_INLINE v256 v256_sub_8(v256 a, v256 b) { return c_v256_sub_8(a, b); }
 SIMD_INLINE v256 v256_ssub_u8(v256 a, v256 b) { return c_v256_ssub_u8(a, b); }
@@ -114,8 +125,16 @@ SIMD_INLINE v256 v256_mullo_s32(v256 a, v256 b) {
 SIMD_INLINE v256 v256_madd_s16(v256 a, v256 b) { return c_v256_madd_s16(a, b); }
 SIMD_INLINE v256 v256_madd_us8(v256 a, v256 b) { return c_v256_madd_us8(a, b); }
 
+SIMD_INLINE uint32_t v256_movemask_8(v256 a) { return c_v256_movemask_8(a); }
+SIMD_INLINE v256 v256_blend_8(v256 a, v256 b, v256 c) {
+  return c_v256_blend_8(a, b, c);
+}
+
 SIMD_INLINE v256 v256_avg_u8(v256 a, v256 b) { return c_v256_avg_u8(a, b); }
 SIMD_INLINE v256 v256_rdavg_u8(v256 a, v256 b) { return c_v256_rdavg_u8(a, b); }
+SIMD_INLINE v256 v256_rdavg_u16(v256 a, v256 b) {
+  return c_v256_rdavg_u16(a, b);
+}
 SIMD_INLINE v256 v256_avg_u16(v256 a, v256 b) { return c_v256_avg_u16(a, b); }
 SIMD_INLINE v256 v256_min_u8(v256 a, v256 b) { return c_v256_min_u8(a, b); }
 SIMD_INLINE v256 v256_max_u8(v256 a, v256 b) { return c_v256_max_u8(a, b); }
@@ -176,6 +195,9 @@ SIMD_INLINE v256 v256_unpackhi_s8_s16(v256 a) {
 SIMD_INLINE v256 v256_pack_s32_s16(v256 a, v256 b) {
   return c_v256_pack_s32_s16(a, b);
 }
+SIMD_INLINE v256 v256_pack_s32_u16(v256 a, v256 b) {
+  return c_v256_pack_s32_u16(a, b);
+}
 SIMD_INLINE v256 v256_pack_s16_u8(v256 a, v256 b) {
   return c_v256_pack_s16_u8(a, b);
 }
@@ -202,6 +224,9 @@ SIMD_INLINE v256 v256_unpackhi_s16_s32(v256 a) {
 }
 SIMD_INLINE v256 v256_shuffle_8(v256 a, v256 pattern) {
   return c_v256_shuffle_8(a, pattern);
+}
+SIMD_INLINE v256 v256_wideshuffle_8(v256 a, v256 b, v256 pattern) {
+  return c_v256_wideshuffle_8(a, b, pattern);
 }
 SIMD_INLINE v256 v256_pshuffle_8(v256 a, v256 pattern) {
   return c_v256_pshuffle_8(a, pattern);
@@ -261,6 +286,9 @@ SIMD_INLINE v256 v256_shl_n_16(v256 a, unsigned int n) {
 SIMD_INLINE v256 v256_shl_n_32(v256 a, unsigned int n) {
   return c_v256_shl_n_32(a, n);
 }
+SIMD_INLINE v256 v256_shl_n_64(v256 a, unsigned int n) {
+  return c_v256_shl_n_64(a, n);
+}
 SIMD_INLINE v256 v256_shr_n_u8(v256 a, unsigned int n) {
   return c_v256_shr_n_u8(a, n);
 }
@@ -270,6 +298,9 @@ SIMD_INLINE v256 v256_shr_n_u16(v256 a, unsigned int n) {
 SIMD_INLINE v256 v256_shr_n_u32(v256 a, unsigned int n) {
   return c_v256_shr_n_u32(a, n);
 }
+SIMD_INLINE v256 v256_shr_n_u64(v256 a, unsigned int n) {
+  return c_v256_shr_n_u64(a, n);
+}
 SIMD_INLINE v256 v256_shr_n_s8(v256 a, unsigned int n) {
   return c_v256_shr_n_s8(a, n);
 }
@@ -278,6 +309,16 @@ SIMD_INLINE v256 v256_shr_n_s16(v256 a, unsigned int n) {
 }
 SIMD_INLINE v256 v256_shr_n_s32(v256 a, unsigned int n) {
   return c_v256_shr_n_s32(a, n);
+}
+SIMD_INLINE v256 v256_shr_n_s64(v256 a, unsigned int n) {
+  return c_v256_shr_n_s64(a, n);
+}
+
+SIMD_INLINE v256 v256_shr_n_word(v256 a, unsigned int n) {
+  return c_v256_shr_n_word(a, n);
+}
+SIMD_INLINE v256 v256_shl_n_word(v256 a, unsigned int n) {
+  return c_v256_shl_n_word(a, n);
 }
 
 #endif /* _V256_INTRINSICS_H */
