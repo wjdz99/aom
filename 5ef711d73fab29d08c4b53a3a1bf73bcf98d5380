@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "1418521d_339963e9",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 9670
+      },
+      "writtenOn": "2018-05-28T12:17:29Z",
+      "side": 1,
+      "message": "2d_copy_sr function is less complex than jnt 2d_copy. Thus optimization of C function itself better than jnt 2d_copy. So we are seeing better scaling than 2d_copy_sr.",
+      "parentUuid": "9f8a51e2_a7fb4476",
+      "range": {
+        "startLine": 20,
+        "startChar": 0,
+        "endLine": 20,
+        "endChar": 7
+      },
+      "revId": "5ef711d73fab29d08c4b53a3a1bf73bcf98d5380",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9bd10f74_b11b9080",
         "filename": "av1/common/arm/convolve_neon.c",
         "patchSetId": 2
@@ -36,6 +60,30 @@
       "writtenOn": "2018-05-25T21:03:57Z",
       "side": 1,
       "message": "How does this compare to memcpy?",
+      "range": {
+        "startLine": 628,
+        "startChar": 0,
+        "endLine": 628,
+        "endChar": 39
+      },
+      "revId": "5ef711d73fab29d08c4b53a3a1bf73bcf98d5380",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1267150c_b5c477f7",
+        "filename": "av1/common/arm/convolve_neon.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 628,
+      "author": {
+        "id": 9670
+      },
+      "writtenOn": "2018-05-28T12:17:29Z",
+      "side": 1,
+      "message": "we tried with memcpy also but we were facing some drop in scaling data with memcpy.",
+      "parentUuid": "9bd10f74_b11b9080",
       "range": {
         "startLine": 628,
         "startChar": 0,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "255cf42f_7fb15ade",
+        "filename": "av1/common/arm/convolve_neon.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 632,
+      "author": {
+        "id": 9670
+      },
+      "writtenOn": "2018-05-28T12:17:29Z",
+      "side": 1,
+      "message": "This is not a common case. src_stride and dst_stride value is 128 which is equal to w or h for some block size only",
+      "parentUuid": "1ecf0e29_24008e47",
+      "range": {
+        "startLine": 632,
+        "startChar": 13,
+        "endLine": 632,
+        "endChar": 23
+      },
+      "revId": "5ef711d73fab29d08c4b53a3a1bf73bcf98d5380",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5693eae2_c997e1c4",
         "filename": "av1/common/arm/jnt_convolve_neon.c",
         "patchSetId": 2
@@ -82,6 +154,30 @@
       "writtenOn": "2018-05-25T21:03:57Z",
       "side": 1,
       "message": "Since DIST_PRECISION_BITS is a constant you can use vshrq_n_s32",
+      "range": {
+        "startLine": 127,
+        "startChar": 53,
+        "endLine": 127,
+        "endChar": 72
+      },
+      "revId": "5ef711d73fab29d08c4b53a3a1bf73bcf98d5380",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0494cc9c_a2c23ca2",
+        "filename": "av1/common/arm/jnt_convolve_neon.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 9670
+      },
+      "writtenOn": "2018-05-28T12:17:29Z",
+      "side": 1,
+      "message": "used vshrq_n_u32 for right shift.",
+      "parentUuid": "5693eae2_c997e1c4",
       "range": {
         "startLine": 127,
         "startChar": 53,
@@ -111,6 +207,24 @@
     },
     {
       "key": {
+        "uuid": "e7acb445_27054d25",
+        "filename": "av1/common/arm/jnt_convolve_neon.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 9670
+      },
+      "writtenOn": "2018-05-28T12:17:29Z",
+      "side": 1,
+      "message": "removed typecasting.",
+      "parentUuid": "f1736abb_2e4e2635",
+      "revId": "5ef711d73fab29d08c4b53a3a1bf73bcf98d5380",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "6c49d528_a894f909",
         "filename": "av1/common/arm/jnt_convolve_neon.c",
         "patchSetId": 2
@@ -134,6 +248,30 @@
     },
     {
       "key": {
+        "uuid": "b6f861dd_9f622939",
+        "filename": "av1/common/arm/jnt_convolve_neon.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 9670
+      },
+      "writtenOn": "2018-05-28T12:17:29Z",
+      "side": 1,
+      "message": "used vhaddq_u16 and removed typecasting.",
+      "parentUuid": "6c49d528_a894f909",
+      "range": {
+        "startLine": 211,
+        "startChar": 20,
+        "endLine": 211,
+        "endChar": 41
+      },
+      "revId": "5ef711d73fab29d08c4b53a3a1bf73bcf98d5380",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "08933802_3dffbe6e",
         "filename": "av1/common/arm/jnt_convolve_neon.c",
         "patchSetId": 2
@@ -145,6 +283,30 @@
       "writtenOn": "2018-05-25T21:03:57Z",
       "side": 1,
       "message": "If it needs to be signed for the subtraction here, you could cast it at this point.",
+      "range": {
+        "startLine": 216,
+        "startChar": 9,
+        "endLine": 216,
+        "endChar": 18
+      },
+      "revId": "5ef711d73fab29d08c4b53a3a1bf73bcf98d5380",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5c88ab47_6c971ec2",
+        "filename": "av1/common/arm/jnt_convolve_neon.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 9670
+      },
+      "writtenOn": "2018-05-28T12:17:29Z",
+      "side": 1,
+      "message": "used casting at this point and removed casting from vhaddq_u16.",
+      "parentUuid": "08933802_3dffbe6e",
       "range": {
         "startLine": 216,
         "startChar": 9,
