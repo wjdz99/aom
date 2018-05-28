@@ -45,6 +45,10 @@ if(NOT BUILD_SHARED_LIBS)
     set(AOM_UNIT_TEST_COMMON_SOURCES ${AOM_UNIT_TEST_COMMON_SOURCES}
         "${AOM_ROOT}/test/simd_neon_test.cc")
   endif()
+  if(HAVE_AARCH64)
+    set(AOM_UNIT_TEST_COMMON_SOURCES ${AOM_UNIT_TEST_COMMON_SOURCES}
+        "${AOM_ROOT}/test/simd_aarch64_test.cc")
+  endif()
   if(HAVE_SSE2)
     set(AOM_UNIT_TEST_COMMON_SOURCES ${AOM_UNIT_TEST_COMMON_SOURCES}
         "${AOM_ROOT}/test/simd_sse2_test.cc")
@@ -137,6 +141,9 @@ if(NOT BUILD_SHARED_LIBS)
 
     set(AOM_UNIT_TEST_COMMON_INTRIN_NEON ${AOM_UNIT_TEST_COMMON_INTRIN_NEON}
         "${AOM_ROOT}/test/simd_cmp_neon.cc")
+    set(AOM_UNIT_TEST_COMMON_INTRIN_AARCH64
+        ${AOM_UNIT_TEST_COMMON_INTRIN_AARCH64}
+        "${AOM_ROOT}/test/simd_cmp_aarch64.cc")
     set(AOM_UNIT_TEST_COMMON_INTRIN_SSE2 ${AOM_UNIT_TEST_COMMON_INTRIN_SSE2}
         "${AOM_ROOT}/test/simd_cmp_sse2.cc")
     set(AOM_UNIT_TEST_COMMON_INTRIN_SSSE3 ${AOM_UNIT_TEST_COMMON_INTRIN_SSSE3}
@@ -371,6 +378,10 @@ function(setup_aom_test_targets)
   if(HAVE_NEON)
     add_intrinsics_source_to_target("${AOM_NEON_INTRIN_FLAG}" "test_libaom"
                                     "AOM_UNIT_TEST_COMMON_INTRIN_NEON")
+  endif()
+  if(HAVE_AARCH64)
+    add_intrinsics_source_to_target("${AOM_NEON_INTRIN_FLAG}" "test_libaom"
+                                    "AOM_UNIT_TEST_COMMON_INTRIN_AARCH64")
   endif()
 
   make_test_data_lists("${AOM_UNIT_TEST_DATA_LIST_FILE}" test_files
