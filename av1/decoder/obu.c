@@ -567,6 +567,7 @@ void aom_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
     const size_t bytes_available = data_end - data;
 
     if (bytes_available == 0 && !pbi->seen_frame_header) {
+      *p_data_end = data;
       cm->error.error_code = AOM_CODEC_OK;
       return;
     }
@@ -592,7 +593,6 @@ void aom_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
       // don't decode obu if it's not in current operating mode
       if (!is_obu_in_current_operating_point(pbi, obu_header)) {
         data += payload_size;
-        *p_data_end = data;
         pbi->dropped_obus++;
         continue;
       }
