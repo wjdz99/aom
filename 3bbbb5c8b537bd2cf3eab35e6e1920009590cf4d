@@ -93,6 +93,30 @@
       "revId": "3bbbb5c8b537bd2cf3eab35e6e1920009590cf4d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8fe02dc0_6471d128",
+        "filename": "av1/common/arm/jnt_convolve_neon.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1010,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-05-29T18:20:51Z",
+      "side": 1,
+      "message": "OK, this needs some comments. You are loading 8x4 but only want 4x4.\n\nHow about\nd4 \u003d vtrn_u32(d4, d5)\nx \u003d vmovl_u8(d4)\ns7 \u003d vget_low(x)\ns8 \u003d vget_high(x)",
+      "parentUuid": "a8e3b0a7_029cf67f",
+      "range": {
+        "startLine": 1010,
+        "startChar": 13,
+        "endLine": 1010,
+        "endChar": 20
+      },
+      "revId": "3bbbb5c8b537bd2cf3eab35e6e1920009590cf4d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
