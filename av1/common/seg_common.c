@@ -68,4 +68,15 @@ void av1_set_segdata(struct segmentation *seg, int segment_id,
   seg->feature_data[segment_id][feature_id] = seg_data;
 }
 
+void av1_set_segment_qindex(const AV1_COMMON *cm, const MACROBLOCKD *xd, int current_qindex) {
+  for (int i = 0; i < MAX_SEGMENTS; ++i) {
+    const int qindex = cm->seg.enabled ? av1_get_qindex(&cm->seg, i, current_qindex)
+					                   : current_qindex;
+	xd->lossless[i] = qindex == 0 && cm->y_dc_delta_q == 0 &&
+			cm->u_dc_delta_q == 0 && cm->u_ac_delta_q == 0 &&
+			cm->v_dc_delta_q == 0 && cm->v_ac_delta_q == 0;
+	xd->qindex[i] = qindex;
+  }
+}
+
 // TBD? Functions to read and write segment data with range / validity checking
