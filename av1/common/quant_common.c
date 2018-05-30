@@ -13697,3 +13697,16 @@ static const qm_val_t wt_matrix_ref[NUM_QM_LEVELS][2][QM_TOTAL_SIZE] = {
         32, 32, 32, 32 },
   },
 };
+
+void av1_set_segment_qindex(AV1_COMMON *cm, MACROBLOCKD *xd,
+                            int current_qindex) {
+  for (int i = 0; i < MAX_SEGMENTS; ++i) {
+    const int qindex = cm->seg.enabled
+                           ? av1_get_qindex(&cm->seg, i, current_qindex)
+                           : current_qindex;
+    xd->lossless[i] = qindex == 0 && cm->y_dc_delta_q == 0 &&
+                      cm->u_dc_delta_q == 0 && cm->u_ac_delta_q == 0 &&
+                      cm->v_dc_delta_q == 0 && cm->v_ac_delta_q == 0;
+    xd->qindex[i] = qindex;
+  }
+}

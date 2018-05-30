@@ -37,6 +37,7 @@ extern "C" {
 #define DEFAULT_QM_LAST 9
 
 struct AV1Common;
+struct macroblockd;
 
 int16_t av1_dc_quant_Q3(int qindex, int delta, aom_bit_depth_t bit_depth);
 int16_t av1_ac_quant_Q3(int qindex, int delta, aom_bit_depth_t bit_depth);
@@ -56,6 +57,8 @@ const qm_val_t *av1_iqmatrix(struct AV1Common *cm, int qindex, int comp,
                              TX_SIZE tx_size);
 const qm_val_t *av1_qmatrix(struct AV1Common *cm, int qindex, int comp,
                             TX_SIZE tx_size);
+void av1_set_segment_qindex(struct AV1Common *cm, struct macroblockd *xd,
+                            int current_qindex);
 
 #ifdef __cplusplus
 }  // extern "C"

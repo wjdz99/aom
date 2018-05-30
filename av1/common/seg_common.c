@@ -12,7 +12,6 @@
 #include <assert.h>
 
 #include "av1/common/av1_loopfilter.h"
-#include "av1/common/blockd.h"
 #include "av1/common/seg_common.h"
 #include "av1/common/quant_common.h"
 
