@@ -92,6 +92,9 @@ int av1_is_segfeature_signed(SEG_LVL_FEATURES feature_id);
 void av1_set_segdata(struct segmentation *seg, int segment_id,
                      SEG_LVL_FEATURES feature_id, int seg_data);
 
+void av1_set_segment_qindex(const AV1_COMMON *cm, const MACROBLOCKD *xd,
+		                    int current_qindex);
+
 static INLINE int get_segdata(const struct segmentation *seg, int segment_id,
                               SEG_LVL_FEATURES feature_id) {
   return seg->feature_data[segment_id][feature_id];
