@@ -536,6 +536,9 @@ aom_codec_err_t aom_read_obu_header_and_size(const uint8_t *data,
   return AOM_CODEC_OK;
 }
 
+// On success, returns a boolean that indicates whether the decoding of the
+// current frame is finished. On failure, sets cm->error.error_code and
+// returns -1.
 int aom_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
                                const uint8_t *data_end,
                                const uint8_t **p_data_end) {
@@ -583,6 +586,11 @@ int aom_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
     // doesn't cause 'data' to advance past 'data_end'.
     data += bytes_read;
 
+    if ((size_t)(data_end - data) < payload_size) {
+      cm->error.error_code = AOM_CODEC_CORRUPT_FRAME;
+      return -1;
+    }
+
     cm->temporal_layer_id = obu_header.temporal_layer_id;
     cm->spatial_layer_id = obu_header.spatial_layer_id;
 
@@ -627,7 +635,6 @@ int aom_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
         if (!pbi->seen_frame_header ||
             (cm->large_scale_tile && !pbi->camera_frame_header_ready)) {
           pbi->seen_frame_header = 1;
-          av1_init_read_bit_buffer(pbi, &rb, data, data_end);
           frame_header_size = read_frame_header_obu(
               pbi, &rb, data, p_data_end, obu_header.type != OBU_FRAME);
           if (cm->large_scale_tile) pbi->camera_frame_header_ready = 1;
@@ -649,8 +656,7 @@ int aom_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
           cm->error.error_code = AOM_CODEC_CORRUPT_FRAME;
           return -1;
         }
-        if (data_end < data + obu_payload_offset ||
-            data_end < data + payload_size) {
+        if ((size_t)(data_end - data) < obu_payload_offset) {
           cm->error.error_code = AOM_CODEC_CORRUPT_FRAME;
           return -1;
         }
@@ -662,10 +668,6 @@ int aom_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
         if (frame_decoding_finished) pbi->seen_frame_header = 0;
         break;
       case OBU_METADATA:
-        if (data_end < data + payload_size) {
-          cm->error.error_code = AOM_CODEC_CORRUPT_FRAME;
-          return -1;
-        }
         decoded_payload_size = read_metadata(data, payload_size);
         break;
       case OBU_TILE_LIST:
@@ -693,11 +695,6 @@ int aom_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
 
     // Check that the signalled OBU size matches the actual amount of data read
     if (decoded_payload_size > payload_size) {
-      cm->error.error_code = AOM_CODEC_CORRUPT_FRAME;
-      return -1;
-    }
-
-    if (data_end < data + payload_size) {
       cm->error.error_code = AOM_CODEC_CORRUPT_FRAME;
       return -1;
     }
