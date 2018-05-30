@@ -747,6 +747,8 @@ static void read_intra_frame_mode_info(AV1_COMMON *const cm,
     /* Normative: Clamp to [1,MAXQ] to not interfere with lossless mode */
     xd->current_qindex = clamp(xd->current_qindex, 1, MAXQ);
     xd->prev_qindex = xd->current_qindex;
+    av1_set_segment_qindex(cm, xd, xd->current_qindex);
+
     if (cm->delta_lf_present_flag) {
       if (cm->delta_lf_multi) {
         const int frame_lf_count =
@@ -1522,6 +1524,8 @@ static void read_inter_frame_mode_info(AV1Decoder *const pbi,
     /* Normative: Clamp to [1,MAXQ] to not interfere with lossless mode */
     xd->current_qindex = clamp(xd->current_qindex, 1, MAXQ);
     xd->prev_qindex = xd->current_qindex;
+    av1_set_segment_qindex(cm, xd, xd->current_qindex);
+
     if (cm->delta_lf_present_flag) {
       if (cm->delta_lf_multi) {
         const int frame_lf_count =

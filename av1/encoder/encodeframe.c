@@ -3624,6 +3624,8 @@ static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
       set_offsets(cpi, tile_info, x, mi_row, mi_col, cm->seq_params.sb_size);
       xd->mi[0]->current_q_index = current_qindex;
       av1_init_plane_quantizers(cpi, x, xd->mi[0]->segment_id);
+      av1_set_segment_qindex(cm, xd, current_qindex);
+
       if (cpi->oxcf.deltaq_mode == DELTA_Q_LF) {
         int j, k;
         int lfmask = ~(cm->delta_lf_res - 1);
