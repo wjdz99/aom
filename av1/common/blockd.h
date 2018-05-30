@@ -587,6 +587,7 @@ typedef struct macroblockd {
   int cdef_preset[4];
 
   DECLARE_ALIGNED(16, uint8_t, seg_mask[2 * MAX_SB_SQUARE]);
+  DECLARE_ALIGNED(16, uint8_t, mc_buf[2][144 * 2 * 144 * 2]);
 
   CFL_CTX cfl;
 
