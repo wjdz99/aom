@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a2c5be6_5c30004b",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 590,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-05-30T22:03:13Z",
+      "side": 1,
+      "message": "James: I assume this is the more correct way to validate payload_size than:\n\n        if (data_end \u003c data + payload_size) {",
+      "range": {
+        "startLine": 590,
+        "startChar": 4,
+        "endLine": 590,
+        "endChar": 51
+      },
+      "revId": "5a2505499f19023bcc675761b8033de3eee76637",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a537bd06_f799b852",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 604,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-05-30T22:03:13Z",
+      "side": 1,
+      "message": "Note that this function may increment \u0027data\u0027 by payload_size as early as here. So it must validate payload_size before this point.",
+      "range": {
+        "startLine": 603,
+        "startChar": 0,
+        "endLine": 604,
+        "endChar": 17
+      },
+      "revId": "5a2505499f19023bcc675761b8033de3eee76637",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
