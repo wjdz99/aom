@@ -3760,7 +3760,21 @@ static int read_uncompressed_header(AV1Decoder *pbi,
   cm->delta_lf_res = 1;
   cm->delta_lf_present_flag = 0;
   cm->delta_lf_multi = 0;
-  cm->delta_q_present_flag = cm->base_qindex > 0 ? aom_rb_read_bit(rb) : 0;
+
+  for (int i = 0; i < MAX_SEGMENTS; ++i) {
+    const int qindex = cm->seg.enabled
+                           ? av1_get_qindex(&cm->seg, i, cm->base_qindex)
+                           : cm->base_qindex;
+    xd->lossless[i] = qindex == 0 && cm->y_dc_delta_q == 0 &&
+                      cm->u_dc_delta_q == 0 && cm->u_ac_delta_q == 0 &&
+                      cm->v_dc_delta_q == 0 && cm->v_ac_delta_q == 0;
+    xd->qindex[i] = qindex;
+  }
+  cm->coded_lossless = is_coded_lossless(cm, xd);
+
+  cm->delta_q_present_flag =
+      cm->base_qindex > 0 && !cm->coded_lossless ? aom_rb_read_bit(rb) : 0;
+
   if (cm->delta_q_present_flag) {
     xd->prev_qindex = cm->base_qindex;
     cm->delta_q_res = 1 << aom_rb_read_literal(rb, 2);
@@ -3778,16 +3792,6 @@ static int read_uncompressed_header(AV1Decoder *pbi,
 
   xd->cur_frame_force_integer_mv = cm->cur_frame_force_integer_mv;
 
-  for (int i = 0; i < MAX_SEGMENTS; ++i) {
-    const int qindex = cm->seg.enabled
-                           ? av1_get_qindex(&cm->seg, i, cm->base_qindex)
-                           : cm->base_qindex;
-    xd->lossless[i] = qindex == 0 && cm->y_dc_delta_q == 0 &&
-                      cm->u_dc_delta_q == 0 && cm->u_ac_delta_q == 0 &&
-                      cm->v_dc_delta_q == 0 && cm->v_ac_delta_q == 0;
-    xd->qindex[i] = qindex;
-  }
-  cm->coded_lossless = is_coded_lossless(cm, xd);
   cm->all_lossless = cm->coded_lossless && av1_superres_unscaled(cm);
   setup_segmentation_dequant(cm);
   if (cm->coded_lossless) {

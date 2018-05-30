@@ -3263,8 +3263,9 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
   encode_quantization(cm, wb);
   encode_segmentation(cm, xd, wb);
 
-  if (cm->delta_q_present_flag) assert(cm->base_qindex > 0);
-  if (cm->base_qindex > 0) {
+  if (cm->delta_q_present_flag)
+    assert(cm->base_qindex > 0 && !cm->coded_lossless);
+  if (cm->base_qindex > 0 && !cm->coded_lossless) {
     aom_wb_write_bit(wb, cm->delta_q_present_flag);
     if (cm->delta_q_present_flag) {
       aom_wb_write_literal(wb, OD_ILOG_NZ(cm->delta_q_res) - 1, 2);
