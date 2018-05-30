@@ -18,8 +18,10 @@
 typedef struct {
   size_t size;
   OBU_TYPE type;
-  int has_length_field;
+  int has_size_field;
   int has_extension;
+  // The following fields come from the OBU extension header and therefore are
+  // only used if has_extension is true.
   int temporal_layer_id;
   int spatial_layer_id;
 } ObuHeader;
