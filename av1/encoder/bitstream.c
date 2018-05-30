@@ -975,6 +975,8 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
           (mbmi->current_q_index - xd->prev_qindex) / cm->delta_q_res;
       write_delta_qindex(xd, reduced_delta_qindex, w);
       xd->prev_qindex = mbmi->current_q_index;
+      av1_set_segment_qindex(cm, xd, mbmi->current_q_index);
+
       if (cm->delta_lf_present_flag) {
         if (cm->delta_lf_multi) {
           const int frame_lf_count =
