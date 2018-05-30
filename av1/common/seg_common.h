@@ -13,6 +13,7 @@
 #define AV1_COMMON_SEG_COMMON_H_
 
 #include "aom_dsp/prob.h"
+#include "av1/common/blockd.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -23,6 +24,8 @@ extern "C" {
 
 #define SEG_TEMPORAL_PRED_CTXS 3
 #define SPATIAL_PREDICTION_PROBS 3
+
+struct AV1Common;
 
 typedef enum {
   SEG_LVL_ALT_Q,       // Use alternate Quantizer ....
@@ -91,6 +94,9 @@ int av1_is_segfeature_signed(SEG_LVL_FEATURES feature_id);
 
 void av1_set_segdata(struct segmentation *seg, int segment_id,
                      SEG_LVL_FEATURES feature_id, int seg_data);
+
+void av1_set_segment_qindex(const struct AV1_COMMON *cm, const MACROBLOCKD *xd,
+                            int current_qindex);
 
 static INLINE int get_segdata(const struct segmentation *seg, int segment_id,
                               SEG_LVL_FEATURES feature_id) {
