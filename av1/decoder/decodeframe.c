@@ -3444,19 +3444,20 @@ static int read_uncompressed_header(AV1Decoder *pbi,
     }
   }
   if (cm->frame_type == KEY_FRAME) {
-    if (!cm->show_frame)  // unshown keyframe (forward keyframe)
+    if (!cm->show_frame) {  // unshown keyframe (forward keyframe)
       pbi->refresh_frame_flags = aom_rb_read_literal(rb, REF_FRAMES);
-    else  // shown keyframe
+    } else {  // shown keyframe
       pbi->refresh_frame_flags = (1 << REF_FRAMES) - 1;
+      for (int i = 0; i < INTER_REFS_PER_FRAME; ++i) {
+        cm->frame_refs[i].idx = INVALID_IDX;
+        cm->frame_refs[i].buf = NULL;
+      }
+      if (pbi->need_resync) {
+        memset(&cm->ref_frame_map, -1, sizeof(cm->ref_frame_map));
+        pbi->need_resync = 0;
+      }
+    }
 
-    for (int i = 0; i < INTER_REFS_PER_FRAME; ++i) {
-      cm->frame_refs[i].idx = INVALID_IDX;
-      cm->frame_refs[i].buf = NULL;
-    }
-    if (pbi->need_resync) {
-      memset(&cm->ref_frame_map, -1, sizeof(cm->ref_frame_map));
-      pbi->need_resync = 0;
-    }
   } else {
     if (cm->intra_only) {
       pbi->refresh_frame_flags = aom_rb_read_literal(rb, REF_FRAMES);
