@@ -336,11 +336,92 @@ static void decode_mbmi_block(AV1Decoder *const pbi, MACROBLOCKD *const xd,
   aom_merge_corrupted_flag(&xd->corrupted, reader_corrupted_flag);
 }
 
+typedef struct PadBlock {
+  int x0;
+  int x1;
+  int y0;
+  int y1;
+} PadBlock;
+
+static void highbd_build_mc_border(const uint8_t *src8, int src_stride,
+                                   uint16_t *dst, int dst_stride, int x, int y,
+                                   int b_w, int b_h, int w, int h) {
+  // Get a pointer to the start of the real data for this row.
+  const uint16_t *src = CONVERT_TO_SHORTPTR(src8);
+  const uint16_t *ref_row = src - x - y * src_stride;
+
+  if (y >= h)
+    ref_row += (h - 1) * src_stride;
+  else if (y > 0)
+    ref_row += y * src_stride;
+
+  do {
+    int right = 0, copy;
+    int left = x < 0 ? -x : 0;
+
+    if (left > b_w) left = b_w;
+
+    if (x + b_w > w) right = x + b_w - w;
+
+    if (right > b_w) right = b_w;
+
+    copy = b_w - left - right;
+
+    if (left) aom_memset16(dst, ref_row[0], left);
+
+    if (copy) memcpy(dst + left, ref_row + x + left, copy * sizeof(uint16_t));
+
+    if (right) aom_memset16(dst + left + copy, ref_row[w - 1], right);
+
+    dst += dst_stride;
+    ++y;
+
+    if (y > 0 && y < h) ref_row += src_stride;
+  } while (--b_h);
+}
+
+static void build_mc_border(const uint8_t *src, int src_stride, uint8_t *dst,
+                            int dst_stride, int x, int y, int b_w, int b_h,
+                            int w, int h) {
+  // Get a pointer to the start of the real data for this row.
+  const uint8_t *ref_row = src - x - y * src_stride;
+
+  if (y >= h)
+    ref_row += (h - 1) * src_stride;
+  else if (y > 0)
+    ref_row += y * src_stride;
+
+  do {
+    int right = 0, copy;
+    int left = x < 0 ? -x : 0;
+
+    if (left > b_w) left = b_w;
+
+    if (x + b_w > w) right = x + b_w - w;
+
+    if (right > b_w) right = b_w;
+
+    copy = b_w - left - right;
+
+    if (left) memset(dst, ref_row[0], left);
+
+    if (copy) memcpy(dst + left, ref_row + x + left, copy);
+
+    if (right) memset(dst + left + copy, ref_row[w - 1], right);
+
+    dst += dst_stride;
+    ++y;
+
+    if (y > 0 && y < h) ref_row += src_stride;
+  } while (--b_h);
+}
+
 static INLINE void dec_calc_subpel_params(
     MACROBLOCKD *xd, const struct scale_factors *const sf, const MV mv,
     int plane, const int pre_x, const int pre_y, int x, int y,
     struct buf_2d *const pre_buf, uint8_t **pre, SubpelParams *subpel_params,
-    int bw, int bh) {
+    PadBlock *block, int bw, int bh, int mi_x, int mi_y, MV32 *scaled_mv,
+    int *subpel_x_mv, int *subpel_y_mv) {
   struct macroblockd_plane *const pd = &xd->plane[plane];
   const int is_scaled = av1_is_scaled(sf);
   if (is_scaled) {
@@ -369,15 +450,90 @@ static INLINE void dec_calc_subpel_params(
     subpel_params->subpel_y = pos_y & SCALE_SUBPEL_MASK;
     subpel_params->xs = sf->x_step_q4;
     subpel_params->ys = sf->y_step_q4;
+
+    // Get block position in the scaled reference frame.
+    MV temp_mv;
+    temp_mv = clamp_mv_to_umv_border_sb(xd, &mv, bw, bh, pd->subsampling_x,
+                                        pd->subsampling_y);
+    *scaled_mv = av1_scale_mv(&temp_mv, (mi_x + x), (mi_y + y), sf);
+    scaled_mv->row += SCALE_EXTRA_OFF;
+    scaled_mv->col += SCALE_EXTRA_OFF;
+
+    // Get reference block top left coordinate.
+    block->x0 = pos_x >> SCALE_SUBPEL_BITS;
+    block->y0 = pos_y >> SCALE_SUBPEL_BITS;
+
+    // Get reference block bottom right coordinate.
+    block->x1 =
+        ((pos_x + (bw - 1) * subpel_params->xs) >> SCALE_SUBPEL_BITS) + 1;
+    block->y1 =
+        ((pos_y + (bh - 1) * subpel_params->ys) >> SCALE_SUBPEL_BITS) + 1;
+
+    *subpel_x_mv = scaled_mv->col & SCALE_SUBPEL_MASK;
+    *subpel_y_mv = scaled_mv->row & SCALE_SUBPEL_MASK;
   } else {
+    // Get block position in current frame.
+    int pos_x = (pre_x + x) << SUBPEL_BITS;
+    int pos_y = (pre_y + y) << SUBPEL_BITS;
+
     const MV mv_q4 = clamp_mv_to_umv_border_sb(
         xd, &mv, bw, bh, pd->subsampling_x, pd->subsampling_y);
     subpel_params->xs = subpel_params->ys = SCALE_SUBPEL_SHIFTS;
+    scaled_mv->row = mv_q4.row;
+    scaled_mv->col = mv_q4.col;
     subpel_params->subpel_x = (mv_q4.col & SUBPEL_MASK) << SCALE_EXTRA_BITS;
     subpel_params->subpel_y = (mv_q4.row & SUBPEL_MASK) << SCALE_EXTRA_BITS;
     *pre = pre_buf->buf + (y + (mv_q4.row >> SUBPEL_BITS)) * pre_buf->stride +
            (x + (mv_q4.col >> SUBPEL_BITS));
+
+    // Get reference block top left coordinate.
+    pos_x += scaled_mv->col;
+    pos_y += scaled_mv->row;
+    block->x0 = pos_x >> SUBPEL_BITS;
+    block->y0 = pos_y >> SUBPEL_BITS;
+
+    // Get reference block bottom right coordinate.
+    block->x1 = (pos_x >> SUBPEL_BITS) + (bw - 1) + 1;
+    block->y1 = (pos_y >> SUBPEL_BITS) + (bh - 1) + 1;
+
+    *subpel_x_mv = scaled_mv->col & SUBPEL_MASK;
+    *subpel_y_mv = scaled_mv->row & SUBPEL_MASK;
   }
+}
+
+static INLINE int update_extend_mc_border_params(
+    const struct scale_factors *const sf, struct buf_2d *const pre_buf,
+    MV32 scaled_mv, PadBlock *block, int subpel_x_mv, int subpel_y_mv,
+    int do_warp, int is_intrabc, int *x_pad, int *y_pad) {
+  const int is_scaled = av1_is_scaled(sf);
+  // Get reference width and height.
+  int frame_width = pre_buf->width;
+  int frame_height = pre_buf->height;
+
+  // Do border extension if there is motion or
+  // width/height is not a multiple of 8 pixels.
+  if ((!is_intrabc) && (!do_warp) &&
+      (is_scaled || scaled_mv.col || scaled_mv.row || (frame_width & 0x7) ||
+       (frame_height & 0x7))) {
+    if (subpel_x_mv || (sf->x_step_q4 != SUBPEL_SHIFTS)) {
+      block->x0 -= AOM_INTERP_EXTEND - 1;
+      block->x1 += AOM_INTERP_EXTEND;
+      *x_pad = 1;
+    }
+
+    if (subpel_y_mv || (sf->y_step_q4 != SUBPEL_SHIFTS)) {
+      block->y0 -= AOM_INTERP_EXTEND - 1;
+      block->y1 += AOM_INTERP_EXTEND;
+      *y_pad = 1;
+    }
+
+    // Skip border extension if block is inside the frame.
+    if (block->x0 < 0 || block->x1 > frame_width - 1 || block->y0 < 0 ||
+        block->y1 > frame_height - 1) {
+      return 1;
+    }
+  }
+  return 0;
 }
 
 static INLINE void dec_build_inter_predictors(const AV1_COMMON *cm,
@@ -474,13 +630,42 @@ static INLINE void dec_build_inter_predictors(const AV1_COMMON *cm,
 
         uint8_t *pre;
         SubpelParams subpel_params;
+        MV32 scaled_mv;
+        PadBlock block;
+        int subpel_x_mv, subpel_y_mv;
         WarpTypesAllowed warp_types;
         warp_types.global_warp_allowed = is_global[ref];
         warp_types.local_warp_allowed = this_mbmi->motion_mode == WARPED_CAUSAL;
 
         dec_calc_subpel_params(xd, sf, mv, plane, pre_x, pre_y, x, y, pre_buf,
-                               &pre, &subpel_params, bw, bh);
+                               &pre, &subpel_params, &block, bw, bh, mi_x, mi_y,
+                               &scaled_mv, &subpel_x_mv, &subpel_y_mv);
+        int x_pad = 0, y_pad = 0;
+        if (update_extend_mc_border_params(sf, pre_buf, scaled_mv, &block,
+                                           subpel_x_mv, subpel_y_mv, 0,
+                                           is_intrabc, &x_pad, &y_pad)) {
+          // Get reference block pointer.
+          const uint8_t *const buf_ptr =
+              pre_buf->buf0 + block.y0 * pre_buf->stride + block.x0;
+          int buf_stride = pre_buf->stride;
+          const int b_w = block.x1 - block.x0;
+          const int b_h = block.y1 - block.y0;
 
+          // Extend the border.
+          if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
+            highbd_build_mc_border(
+                buf_ptr, buf_stride, (uint16_t *)xd->mc_buf[ref], b_w, block.x0,
+                block.y0, b_w, b_h, pre_buf->width, pre_buf->height);
+            pre = CONVERT_TO_BYTEPTR(xd->mc_buf[ref]) + y_pad * 3 * b_w +
+                  x_pad * 3;
+          } else {
+            build_mc_border(buf_ptr, buf_stride, xd->mc_buf[ref], b_w, block.x0,
+                            block.y0, b_w, b_h, pre_buf->width,
+                            pre_buf->height);
+            pre = xd->mc_buf[ref] + y_pad * 3 * b_w + x_pad * 3;
+          }
+          pre_buf->stride = b_w;
+        }
         conv_params.ref = ref;
         conv_params.do_average = ref;
         if (is_masked_compound_type(mi->interinter_compound_type)) {
@@ -509,14 +694,58 @@ static INLINE void dec_build_inter_predictors(const AV1_COMMON *cm,
     uint8_t *pre[2];
     SubpelParams subpel_params[2];
     DECLARE_ALIGNED(32, uint16_t, tmp_dst[MAX_SB_SIZE * MAX_SB_SIZE]);
+    int src_stride[2];
     for (ref = 0; ref < 1 + is_compound; ++ref) {
       const struct scale_factors *const sf =
           is_intrabc ? &cm->sf_identity : &xd->block_refs[ref]->sf;
       struct buf_2d *const pre_buf = is_intrabc ? dst_buf : &pd->pre[ref];
       const MV mv = mi->mv[ref].as_mv;
 
+      MV32 scaled_mv;
+      PadBlock block;
+      int subpel_x_mv, subpel_y_mv;
+
       dec_calc_subpel_params(xd, sf, mv, plane, pre_x, pre_y, 0, 0, pre_buf,
-                             &pre[ref], &subpel_params[ref], bw, bh);
+                             &pre[ref], &subpel_params[ref], &block, bw, bh,
+                             mi_x, mi_y, &scaled_mv, &subpel_x_mv,
+                             &subpel_y_mv);
+
+      WarpTypesAllowed warp_types;
+      warp_types.global_warp_allowed = is_global[ref];
+      warp_types.local_warp_allowed = mi->motion_mode == WARPED_CAUSAL;
+      int do_warp = (bw >= 8 && bh >= 8 &&
+                     av1_allow_warp(mi, &warp_types,
+                                    &xd->global_motion[mi->ref_frame[ref]],
+                                    build_for_obmc, subpel_params[ref].xs,
+                                    subpel_params[ref].ys, NULL));
+      do_warp = (do_warp && xd->cur_frame_force_integer_mv == 0);
+      src_stride[ref] = pre_buf->stride;
+
+      int x_pad = 0, y_pad = 0;
+      if (update_extend_mc_border_params(sf, pre_buf, scaled_mv, &block,
+                                         subpel_x_mv, subpel_y_mv, do_warp,
+                                         is_intrabc, &x_pad, &y_pad)) {
+        // Get reference block pointer.
+        const uint8_t *const buf_ptr =
+            pre_buf->buf0 + block.y0 * pre_buf->stride + block.x0;
+        int buf_stride = pre_buf->stride;
+        const int b_w = block.x1 - block.x0;
+        const int b_h = block.y1 - block.y0;
+
+        // Extend the border.
+        if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
+          highbd_build_mc_border(
+              buf_ptr, buf_stride, (uint16_t *)xd->mc_buf[ref], b_w, block.x0,
+              block.y0, b_w, b_h, pre_buf->width, pre_buf->height);
+          pre[ref] =
+              CONVERT_TO_BYTEPTR(xd->mc_buf[ref]) + y_pad * 3 * b_w + x_pad * 3;
+        } else {
+          build_mc_border(buf_ptr, buf_stride, xd->mc_buf[ref], b_w, block.x0,
+                          block.y0, b_w, b_h, pre_buf->width, pre_buf->height);
+          pre[ref] = xd->mc_buf[ref] + y_pad * 3 * b_w + x_pad * 3;
+        }
+        src_stride[ref] = b_w;
+      }
     }
 
     ConvolveParams conv_params = get_conv_params_no_round(
@@ -528,7 +757,6 @@ static INLINE void dec_build_inter_predictors(const AV1_COMMON *cm,
     for (ref = 0; ref < 1 + is_compound; ++ref) {
       const struct scale_factors *const sf =
           is_intrabc ? &cm->sf_identity : &xd->block_refs[ref]->sf;
-      struct buf_2d *const pre_buf = is_intrabc ? dst_buf : &pd->pre[ref];
       WarpTypesAllowed warp_types;
       warp_types.global_warp_allowed = is_global[ref];
       warp_types.local_warp_allowed = mi->motion_mode == WARPED_CAUSAL;
@@ -541,13 +769,13 @@ static INLINE void dec_build_inter_predictors(const AV1_COMMON *cm,
 
       if (ref && is_masked_compound_type(mi->interinter_compound_type))
         av1_make_masked_inter_predictor(
-            pre[ref], pre_buf->stride, dst, dst_buf->stride,
+            pre[ref], src_stride[ref], dst, dst_buf->stride,
             &subpel_params[ref], sf, bw, bh, &conv_params, mi->interp_filters,
             plane, &warp_types, mi_x >> pd->subsampling_x,
             mi_y >> pd->subsampling_y, ref, xd, cm->allow_warped_motion);
       else
         av1_make_inter_predictor(
-            pre[ref], pre_buf->stride, dst, dst_buf->stride,
+            pre[ref], src_stride[ref], dst, dst_buf->stride,
             &subpel_params[ref], sf, bw, bh, &conv_params, mi->interp_filters,
             &warp_types, mi_x >> pd->subsampling_x, mi_y >> pd->subsampling_y,
             plane, ref, mi, build_for_obmc, xd, cm->allow_warped_motion);
