@@ -1013,6 +1013,22 @@ void init_seq_coding_tools(SequenceHeader *seq, const AV1EncoderConfig *oxcf) {
   seq->enable_filter_intra = 1;
 
   set_bitstream_level_tier(seq, oxcf);
+
+  cm->operating_points_cnt_minus_1 =
+      cm->number_spatial_layers > 1 ? cm->number_spatial_layers - 1 : 0;
+  if (cm->operating_points_cnt_minus_1 == 0) {
+    cm->seq_params.operating_point_idc[0] = 0;
+  } else {
+    // Set operating_point_idc[] such that for the i-th operating point the
+    // first (operating_points_cnt-i) spatial layers and the first temporal
+    // layer are decoded Note that highest quality operating point should come
+    // first
+    for (i = 0; i < cm->operating_points_cnt_minus_1 + 1; i++)
+      cm->seq_params.operating_point_idc[i] =
+          (~(~0u << (cm->operating_points_cnt_minus_1 + 1 - i)) << 8) | 1;
+  }
+  cm->display_model_info_present_flag = 0;
+  cm->decoder_model_info_present_flag = 0;
 }
 
 static void init_config(struct AV1_COMP *cpi, AV1EncoderConfig *oxcf) {
@@ -1040,8 +1056,6 @@ static void init_config(struct AV1_COMP *cpi, AV1EncoderConfig *oxcf) {
       oxcf->timing_info.num_ticks_per_picture;
 
   cm->decoder_model_info_present_flag = oxcf->decoder_model_info_present_flag;
-  cm->operating_points_decoder_model_cnt =
-      oxcf->operating_points_decoder_model_cnt;
   if (oxcf->decoder_model_info_present_flag) {
     cm->buffer_model.num_units_in_decoding_tick =
         oxcf->buffer_model.num_units_in_decoding_tick;
@@ -2283,8 +2297,6 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
       oxcf->timing_info.num_ticks_per_picture;
 
   cm->decoder_model_info_present_flag = oxcf->decoder_model_info_present_flag;
-  cm->operating_points_decoder_model_cnt =
-      oxcf->operating_points_decoder_model_cnt;
   if (oxcf->decoder_model_info_present_flag) {
     cm->buffer_model.num_units_in_decoding_tick =
         oxcf->buffer_model.num_units_in_decoding_tick;
