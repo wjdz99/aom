@@ -196,6 +196,7 @@ static uint32_t read_sequence_header_obu(AV1Decoder *pbi,
   }
 
   if (seq_params->reduced_still_picture_hdr) {
+    seq_params->decoder_model_info_present_flag = 0;
     seq_params->operating_point_idc[0] = 0;
     if (!read_bitstream_level(&seq_params->level[0], rb)) {
       cm->error.error_code = AOM_CODEC_UNSUP_BITSTREAM;
@@ -203,6 +204,10 @@ static uint32_t read_sequence_header_obu(AV1Decoder *pbi,
     }
     seq_params->tier[0] = 0;
   } else {
+    cm->display_model_info_present_flag = aom_rb_read_bit(rb);
+    cm->decoder_model_info_present_flag = aom_rb_read_bit(rb);
+    if (cm->decoder_model_info_present_flag)
+      av1_read_decoder_model_info(cm, rb);
     operating_points_cnt_minus_1 =
         aom_rb_read_literal(rb, OP_POINTS_CNT_MINUS_1_BITS);
     for (int i = 0; i < operating_points_cnt_minus_1 + 1; i++) {
@@ -218,6 +223,23 @@ static uint32_t read_sequence_header_obu(AV1Decoder *pbi,
         seq_params->tier[i] = aom_rb_read_bit(rb);
       else
         seq_params->tier[i] = 0;
+      if (cm->decoder_model_info_present_flag) {
+	cm->decoder_model_present_for_this_op_flag[i] = aom_rb_read_bit(rb);
+	if (cm->decoder_model_present_for_this_op_flag[i])
+	  av1_read_op_parameters_info(cm, rb, i);
+      } else {
+	cm->decoder_model_present_for_this_op_flag[i] = 0;
+      }
+      cm->op_params[i].display_model_initial_delay_present_flag =
+          aom_rb_read_bit(rb);
+      if (cm->op_params[i].display_model_initial_delay_present_flag) {
+        cm->op_params[i].initial_display_delay =
+            aom_rb_read_literal(rb, 4) + 1;
+        if (cm->op_params[i].initial_display_delay > 10)
+          aom_internal_error(
+              &cm->error, AOM_CODEC_UNSUP_BITSTREAM,
+              "AV1 does not support more than 10 decoded frames delay");
+      }
     }
   }
   // This decoder supports all levels.  Choose operating point provided by
@@ -243,42 +265,9 @@ static uint32_t read_sequence_header_obu(AV1Decoder *pbi,
   else
     cm->timing_info_present = 0;
 
-  if (cm->timing_info_present) {
+  if (cm->timing_info_present)
     av1_read_timing_info_header(cm, rb);
-
-    cm->decoder_model_info_present_flag = aom_rb_read_bit(rb);
-    if (cm->decoder_model_info_present_flag)
-      av1_read_decoder_model_info(cm, rb);
-  } else {
-    cm->decoder_model_info_present_flag = 0;
-  }
-  int operating_points_decoder_model_present = aom_rb_read_bit(rb);
-  if (operating_points_decoder_model_present) {
-    cm->operating_points_decoder_model_cnt = aom_rb_read_literal(rb, 5) + 1;
-  } else {
-    cm->operating_points_decoder_model_cnt = 0;
-  }
-  for (int op_num = 0; op_num < cm->operating_points_decoder_model_cnt;
-       ++op_num) {
-    cm->op_params[op_num].decoder_model_operating_point_idc =
-        aom_rb_read_literal(rb, 12);
-    cm->op_params[op_num].display_model_param_present_flag =
-        aom_rb_read_bit(rb);
-    if (cm->op_params[op_num].display_model_param_present_flag) {
-      cm->op_params[op_num].initial_display_delay =
-          aom_rb_read_literal(rb, 4) + 1;
-      if (cm->op_params[op_num].initial_display_delay > 10)
-        aom_internal_error(
-            &cm->error, AOM_CODEC_UNSUP_BITSTREAM,
-            "AV1 does not support more than 10 decoded frames delay");
-    }
-    if (cm->decoder_model_info_present_flag) {
-      cm->op_params[op_num].decoder_model_param_present_flag =
-          aom_rb_read_bit(rb);
-      if (cm->op_params[op_num].decoder_model_param_present_flag)
-        av1_read_op_parameters_info(cm, rb, op_num);
-    }
-  }
+    
 
   cm->film_grain_params_present = aom_rb_read_bit(rb);
 

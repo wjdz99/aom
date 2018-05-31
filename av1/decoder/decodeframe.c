@@ -3427,18 +3427,20 @@ static int read_uncompressed_header(AV1Decoder *pbi,
   if (cm->decoder_model_info_present_flag) {
     cm->buffer_removal_delay_present = aom_rb_read_bit(rb);
     if (cm->buffer_removal_delay_present) {
-      for (int op_num = 0; op_num < cm->operating_points_decoder_model_cnt;
+      for (int op_num = 0; op_num < cm->operating_points_cnt_minus_1 + 1;
            op_num++) {
-        if ((((cm->op_params[op_num].decoder_model_operating_point_idc >>
-               cm->temporal_layer_id) &
-              0x1) &&
-             ((cm->op_params[op_num].decoder_model_operating_point_idc >>
-               (cm->spatial_layer_id + 8)) &
-              0x1)) ||
-            cm->op_params[op_num].decoder_model_operating_point_idc == 0) {
-          cm->op_frame_timing[op_num].buffer_removal_delay =
-              aom_rb_read_literal(rb,
-                                  cm->buffer_model.buffer_removal_delay_length);
+        if ( decoder_model_present_for_this_op_flag[ op_num ] ) {
+          if ((((cm->op_params[op_num].decoder_model_operating_point_idc >>
+                 cm->temporal_layer_id) &
+                0x1) &&
+               ((cm->op_params[op_num].decoder_model_operating_point_idc >>
+                 (cm->spatial_layer_id + 8)) &
+                0x1)) ||
+              cm->op_params[op_num].decoder_model_operating_point_idc == 0) {
+            cm->op_frame_timing[op_num].buffer_removal_delay =
+                aom_rb_read_literal(rb,
+                                 cm->buffer_model.buffer_removal_delay_length);
+	  }
         }
       }
     }
