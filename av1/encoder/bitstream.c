@@ -3082,7 +3082,7 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
   if (cm->decoder_model_info_present_flag) {
     aom_wb_write_bit(wb, cm->buffer_removal_delay_present);
     if (cm->buffer_removal_delay_present) {
-      for (int op_num = 0; op_num < cm->operating_points_decoder_model_cnt;
+      for (int op_num = 0; op_num < cm->operating_points_cnt_minus_1 + 1;
            op_num++) {
         if (((cm->op_params[op_num].decoder_model_operating_point_idc >>
               cm->temporal_layer_id) &
@@ -3540,29 +3540,46 @@ static uint32_t write_sequence_header_obu(AV1_COMP *cpi, uint8_t *const dst,
   if (cm->seq_params.reduced_still_picture_hdr) {
     write_bitstream_level(cm->seq_params.level[0], &wb);
   } else {
-    uint8_t operating_points_cnt_minus_1 =
+    aom_wb_write_bit(&wb, cm->display_model_info_present_flag);
+    aom_wb_write_bit(&wb, cm->decoder_model_info_present_flag);
+    if (cm->decoder_model_info_present_flag) {
+      write_decoder_model_info(cm, &wb);
+    }
+    cm->operating_points_cnt_minus_1 =
         number_spatial_layers > 1 ? number_spatial_layers - 1 : 0;
-    aom_wb_write_literal(&wb, operating_points_cnt_minus_1,
+    aom_wb_write_literal(&wb, cm->operating_points_cnt_minus_1,
                          OP_POINTS_CNT_MINUS_1_BITS);
     int i;
-    if (operating_points_cnt_minus_1 == 0) {
+    if (cm->operating_points_cnt_minus_1 == 0) {
       cm->seq_params.operating_point_idc[0] = 0;
     } else {
       // Set operating_point_idc[] such that for the i-th operating point the
       // first (operating_points_cnt-i) spatial layers and the first temporal
       // layer are decoded Note that highest quality operating point should come
       // first
-      for (i = 0; i < operating_points_cnt_minus_1 + 1; i++)
+      for (i = 0; i < cm->operating_points_cnt_minus_1 + 1; i++)
         cm->seq_params.operating_point_idc[i] =
-            (~(~0u << (operating_points_cnt_minus_1 + 1 - i)) << 8) | 1;
+            (~(~0u << (cm->operating_points_cnt_minus_1 + 1 - i)) << 8) | 1;
     }
 
-    for (i = 0; i < operating_points_cnt_minus_1 + 1; i++) {
+    for (i = 0; i < cm->operating_points_cnt_minus_1 + 1; i++) {
       aom_wb_write_literal(&wb, cm->seq_params.operating_point_idc[i],
                            OP_POINTS_IDC_BITS);
       write_bitstream_level(cm->seq_params.level[i], &wb);
       if (cm->seq_params.level[i].major > 3)
         aom_wb_write_bit(&wb, cm->seq_params.tier[i]);
+      if (cm->decoder_model_info_present_flag) {
+        aom_wb_write_bit(&wb, cm->op_params[i].decoder_model_param_present_flag);
+        if (cm->op_params[i].decoder_model_param_present_flag)
+          write_dec_model_op_parameters(cm, &wb, i);
+      }
+      if (cm->display_model_info_present_flag) {
+        aom_wb_write_bit(&wb, cm->op_params[i].display_model_param_present_flag);
+        if (cm->op_params[i].display_model_param_present_flag) {
+          assert(cm->op_params[i].initial_display_delay <= 10);
+          aom_wb_write_literal(&wb, cm->op_params[i].initial_display_delay - 1, 4);
+        }
+      }
     }
   }
   write_sequence_header(cpi, &wb);
@@ -3577,10 +3594,9 @@ static uint32_t write_sequence_header_obu(AV1_COMP *cpi, uint8_t *const dst,
   if (cm->timing_info_present) {
     // timing_info
     write_timing_info_header(cm, &wb);
-    aom_wb_write_bit(&wb, cm->decoder_model_info_present_flag);
-    if (cm->decoder_model_info_present_flag) write_decoder_model_info(cm, &wb);
   }
 
+  /*
   if (cm->operating_points_decoder_model_cnt > 0) {
     aom_wb_write_bit(&wb, 1);
     aom_wb_write_literal(&wb, cm->operating_points_decoder_model_cnt - 1, 5);
@@ -3603,6 +3619,7 @@ static uint32_t write_sequence_header_obu(AV1_COMP *cpi, uint8_t *const dst,
         write_dec_model_op_parameters(cm, &wb, op_num);
     }
   }
+  */
   aom_wb_write_bit(&wb, cm->film_grain_params_present);
 
   add_trailing_bits(&wb);
