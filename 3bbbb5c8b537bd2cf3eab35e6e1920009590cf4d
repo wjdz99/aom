@@ -141,6 +141,30 @@
       "revId": "3bbbb5c8b537bd2cf3eab35e6e1920009590cf4d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "789502f4_f3e67178",
+        "filename": "av1/common/arm/jnt_convolve_neon.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1010,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-05-31T15:37:40Z",
+      "side": 1,
+      "message": "How are you counting the instructions? From the assembly or from the source?\n\nThis replaces 2x vzip with 1x vtrn and 1x vmovl.\n\nvget_low() does not necessarily generate an instruction. It\u0027s similar to the res4 calculation below:\nvreinterpret_u16_u8(d4.val[0]);\n\nif it can refer to the existing position, it will.\n\nFor loading, you could use load_u8 from libvpx:\nhttps://chromium.googlesource.com/webm/libvpx/+/master/vpx_dsp/arm/mem_neon.h#160\n\nThis would avoid the over-read of load_u8_8x4 and the vtrn.",
+      "parentUuid": "bc7aad36_2f3d1c9e",
+      "range": {
+        "startLine": 1010,
+        "startChar": 13,
+        "endLine": 1010,
+        "endChar": 20
+      },
+      "revId": "3bbbb5c8b537bd2cf3eab35e6e1920009590cf4d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
