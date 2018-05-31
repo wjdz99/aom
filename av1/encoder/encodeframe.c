@@ -2307,7 +2307,8 @@ static void rd_test_partition3(const AV1_COMP *const cpi, ThreadData *td,
                                BLOCK_SIZE bsize, PARTITION_TYPE partition,
                                int mi_row0, int mi_col0, BLOCK_SIZE subsize0,
                                int mi_row1, int mi_col1, BLOCK_SIZE subsize1,
-                               int mi_row2, int mi_col2, BLOCK_SIZE subsize2) {
+                               int mi_row2, int mi_col2, BLOCK_SIZE subsize2,
+                               int64_t *rd_data) {
   MACROBLOCK *const x = &td->mb;
   MACROBLOCKD *const xd = &x->e_mbd;
   RD_STATS sum_rdc, this_rdc;
@@ -2334,6 +2335,8 @@ static void rd_test_partition3(const AV1_COMP *const cpi, ThreadData *td,
                        best_rdc, &sum_rdc, &this_rdc,
                        RTP_STX_TRY_ARGS partition, &ctxs[1], &ctxs[2]))
     return;
+
+  if (rd_data) *rd_data = sum_rdc.rdcost;
 
   if (sum_rdc.rdcost >= best_rdc->rdcost) return;
 
@@ -3241,6 +3244,19 @@ BEGIN_PARTITION_SEARCH:
   int horzab_partition_allowed = ext_partition_allowed;
   int vertab_partition_allowed = ext_partition_allowed;
 
+
+  const int data_part = pc_tree->partitioning;
+  const int data_source_variance = get_unsigned_bits(x->source_variance);
+  const int64_t data_ref_rd = best_rdc.rdcost;
+  int64_t data_rd_vert_a = 0;
+  int64_t data_rd_vert_b = 0;
+  int64_t data_rd_horz_a = 0;
+  int64_t data_rd_horz_b = 0;
+#if 0
+  printf("source_variance %d, %d\n",
+         x->source_variance, data_source_variance);
+#endif
+
   if (cpi->sf.prune_ext_partition_types_search_level) {
     if (cpi->sf.prune_ext_partition_types_search_level == 1) {
       horzab_partition_allowed &= (pc_tree->partitioning == PARTITION_HORZ ||
@@ -3305,7 +3321,7 @@ BEGIN_PARTITION_SEARCH:
                        pc_tree->horizontala, ctx_none, mi_row, mi_col, bsize,
                        PARTITION_HORZ_A, mi_row, mi_col, bsize2, mi_row,
                        mi_col + mi_step, bsize2, mi_row + mi_step, mi_col,
-                       subsize);
+                       subsize, &data_rd_horz_a);
     restore_context(x, &x_ctx, mi_row, mi_col, bsize, num_planes);
   }
   // PARTITION_HORZ_B
@@ -3323,7 +3339,7 @@ BEGIN_PARTITION_SEARCH:
                        pc_tree->horizontalb, ctx_none, mi_row, mi_col, bsize,
                        PARTITION_HORZ_B, mi_row, mi_col, subsize,
                        mi_row + mi_step, mi_col, bsize2, mi_row + mi_step,
-                       mi_col + mi_step, bsize2);
+                       mi_col + mi_step, bsize2, &data_rd_horz_b);
     restore_context(x, &x_ctx, mi_row, mi_col, bsize, num_planes);
   }
 
@@ -3360,7 +3376,7 @@ BEGIN_PARTITION_SEARCH:
                        pc_tree->verticala, ctx_none, mi_row, mi_col, bsize,
                        PARTITION_VERT_A, mi_row, mi_col, bsize2,
                        mi_row + mi_step, mi_col, bsize2, mi_row,
-                       mi_col + mi_step, subsize);
+                       mi_col + mi_step, subsize, &data_rd_vert_a);
     restore_context(x, &x_ctx, mi_row, mi_col, bsize, num_planes);
   }
   // PARTITION_VERT_B
@@ -3378,9 +3394,46 @@ BEGIN_PARTITION_SEARCH:
                        pc_tree->verticalb, ctx_none, mi_row, mi_col, bsize,
                        PARTITION_VERT_B, mi_row, mi_col, subsize, mi_row,
                        mi_col + mi_step, bsize2, mi_row + mi_step,
-                       mi_col + mi_step, bsize2);
+                       mi_col + mi_step, bsize2, &data_rd_vert_b);
     restore_context(x, &x_ctx, mi_row, mi_col, bsize, num_planes);
   }
+
+#if COLLECT_DATA
+  do {
+    if (!ext_partition_allowed || frame_is_intra_only(cm)) break;
+    FILE *fp = fopen("ab_partition_data.txt", "a");
+    if (!fp) break;
+
+    if (block_size_wide[bsize] != block_size_high[bsize])
+      printf("\n error\n");
+
+    // Block size, partition, source_variance,
+    // partition_vert_allowed, partition_horz_allowed,
+    // ref_rd, final rd, vert_rd(2),
+    // horz_rd(2), split_rd(4), vert_a rd, vert_b rd, horz_a rd, horz_b rd.
+    const int bs = block_size_wide[bsize];
+    fprintf(fp, "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,",
+            bs, data_part, data_source_variance,
+            partition_vert_allowed, partition_horz_allowed,
+            (int)(AOMMIN(INT_MAX, data_ref_rd)),
+            (int)(AOMMIN(INT_MAX, vert_rd[0])),
+            (int)(AOMMIN(INT_MAX, vert_rd[1])),
+            (int)(AOMMIN(INT_MAX, horz_rd[0])),
+            (int)(AOMMIN(INT_MAX, horz_rd[1])),
+            (int)(AOMMIN(INT_MAX, split_rd[0])),
+            (int)(AOMMIN(INT_MAX, split_rd[1])),
+            (int)(AOMMIN(INT_MAX, split_rd[2])),
+            (int)(AOMMIN(INT_MAX, split_rd[3])),
+            (int)(AOMMIN(INT_MAX, data_rd_vert_a)),
+            (int)(AOMMIN(INT_MAX, data_rd_vert_b)),
+            (int)(AOMMIN(INT_MAX, data_rd_horz_a)),
+            (int)(AOMMIN(INT_MAX, data_rd_horz_b))
+            );
+
+    fprintf(fp, "\n");
+    fclose(fp);
+  } while (0);
+#endif
 
   // PARTITION_HORZ_4
   int partition_horz4_allowed = partition4_allowed && partition_horz_allowed;

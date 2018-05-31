@@ -20,6 +20,8 @@
 extern "C" {
 #endif
 
+#define COLLECT_DATA 1
+
 struct macroblock;
 struct yv12_buffer_config;
 struct AV1_COMP;
