@@ -137,6 +137,18 @@ static INLINE void store_u8_8x8(uint8_t *s, ptrdiff_t p, const uint8x8_t s0,
   vst1_u8(s, s7);
 }
 
+static INLINE void store_u8_8x4(uint8_t *s, ptrdiff_t p, const uint8x8_t s0,
+                                const uint8x8_t s1, const uint8x8_t s2,
+                                const uint8x8_t s3) {
+  vst1_u8(s, s0);
+  s += p;
+  vst1_u8(s, s1);
+  s += p;
+  vst1_u8(s, s2);
+  s += p;
+  vst1_u8(s, s3);
+}
+
 static INLINE void store_u16_8x8(uint16_t *s, ptrdiff_t dst_stride,
                                  const uint16x8_t s0, const uint16x8_t s1,
                                  const uint16x8_t s2, const uint16x8_t s3,
