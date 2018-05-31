@@ -22,6 +22,30 @@
       "revId": "059e372ad301100a17c5bc99f0ad94be7e060290",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4dce84d2_71fc75dc",
+        "filename": "av1/decoder/obu.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-05-31T18:28:50Z",
+      "side": 1,
+      "message": "Done. I agree with you. (I also noticed this). I reverted this change and updated the commit message.",
+      "parentUuid": "8a6f9601_bdf47422",
+      "range": {
+        "startLine": 22,
+        "startChar": 2,
+        "endLine": 22,
+        "endChar": 19
+      },
+      "revId": "059e372ad301100a17c5bc99f0ad94be7e060290",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
