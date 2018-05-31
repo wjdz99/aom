@@ -1040,8 +1040,6 @@ static void init_config(struct AV1_COMP *cpi, AV1EncoderConfig *oxcf) {
       oxcf->timing_info.num_ticks_per_picture;
 
   cm->decoder_model_info_present_flag = oxcf->decoder_model_info_present_flag;
-  cm->operating_points_decoder_model_cnt =
-      oxcf->operating_points_decoder_model_cnt;
   if (oxcf->decoder_model_info_present_flag) {
     cm->buffer_model.num_units_in_decoding_tick =
         oxcf->buffer_model.num_units_in_decoding_tick;
@@ -2283,8 +2281,6 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
       oxcf->timing_info.num_ticks_per_picture;
 
   cm->decoder_model_info_present_flag = oxcf->decoder_model_info_present_flag;
-  cm->operating_points_decoder_model_cnt =
-      oxcf->operating_points_decoder_model_cnt;
   if (oxcf->decoder_model_info_present_flag) {
     cm->buffer_model.num_units_in_decoding_tick =
         oxcf->buffer_model.num_units_in_decoding_tick;
