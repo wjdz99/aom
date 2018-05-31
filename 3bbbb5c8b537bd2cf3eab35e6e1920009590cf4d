@@ -117,6 +117,30 @@
       "revId": "3bbbb5c8b537bd2cf3eab35e6e1920009590cf4d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bc7aad36_2f3d1c9e",
+        "filename": "av1/common/arm/jnt_convolve_neon.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1010,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2018-05-31T02:55:23Z",
+      "side": 1,
+      "message": "Hi Johann,\n\nwe used vzip_u8 so that we can finish the operation in single instruction.\n\nIf we replace the vzip_u8 with combination of vtrn, vmovl, vget/vhigh we end up doing 4 extra instructions for 4 rows of result.",
+      "parentUuid": "8fe02dc0_6471d128",
+      "range": {
+        "startLine": 1010,
+        "startChar": 13,
+        "endLine": 1010,
+        "endChar": 20
+      },
+      "revId": "3bbbb5c8b537bd2cf3eab35e6e1920009590cf4d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
