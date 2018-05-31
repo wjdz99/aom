@@ -250,7 +250,7 @@ typedef struct AV1Common {
   int last_height;
   int timing_info_present;
   aom_timing_info_t timing_info;
-  int operating_points_decoder_model_cnt;
+  int display_model_info_present_flag;
   int decoder_model_info_present_flag;
   int buffer_removal_delay_present;
   aom_dec_model_info_t buffer_model;
