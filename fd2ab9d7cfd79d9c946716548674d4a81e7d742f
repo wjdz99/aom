@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8e61ac73_b4e84d35",
+        "filename": "tools/obu_parser.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-06-01T17:07:36Z",
+      "side": 1,
+      "message": "static_cast",
+      "range": {
+        "startLine": 170,
+        "startChar": 26,
+        "endLine": 170,
+        "endChar": 31
+      },
+      "revId": "fd2ab9d7cfd79d9c946716548674d4a81e7d742f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "73d21664_19e1b4fa",
+        "filename": "tools/obu_parser.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-06-01T17:07:36Z",
+      "side": 1,
+      "message": "might as well fix this while you\u0027re in here: static_cast",
+      "range": {
+        "startLine": 175,
+        "startChar": 34,
+        "endLine": 175,
+        "endChar": 39
+      },
+      "revId": "fd2ab9d7cfd79d9c946716548674d4a81e7d742f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
