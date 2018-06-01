@@ -107,6 +107,8 @@ struct AvxInputContext {
 #endif
 };
 
+typedef int64_t aom_codec_pts_t;
+
 #ifdef __cplusplus
 extern "C" {
 #endif
