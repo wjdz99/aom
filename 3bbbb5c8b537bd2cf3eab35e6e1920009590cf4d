@@ -189,6 +189,30 @@
       "revId": "3bbbb5c8b537bd2cf3eab35e6e1920009590cf4d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "06f0cbd9_0dcbd433",
+        "filename": "av1/common/arm/jnt_convolve_neon.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1010,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2018-06-01T15:41:25Z",
+      "side": 1,
+      "message": "Hi Johann,\n\nThanks for the inputs. we verified the disassembly of the code with vzip.\n We have 2 observations\n\n  -\u003e when we do vzip_u8(t0, zero) [interleaving with zero register], vzip_u8 instruction is   getting replaced by vmovl_u8.\n\n  -\u003e If we do vzip_u8(reg1, const_val_reg) [interleaving with constant value register], then we are able to see vzip_u8 in assembly generated code.\n  \nSo as you suggested we modified the code by using unaligned_loads for loading 4bytes \u0026 replaced the vzip_u8 instruction by vmovl_u8.",
+      "parentUuid": "fb728df4_00d81041",
+      "range": {
+        "startLine": 1010,
+        "startChar": 13,
+        "endLine": 1010,
+        "endChar": 20
+      },
+      "revId": "3bbbb5c8b537bd2cf3eab35e6e1920009590cf4d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
