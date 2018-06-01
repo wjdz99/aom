@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ea942cff_0ee8e524",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 3546,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-01T01:07:18Z",
+      "side": 0,
+      "message": "This conditional expression is common to all the three inner if statements, so it can be moved outside.",
+      "range": {
+        "startLine": 3546,
+        "startChar": 4,
+        "endLine": 3546,
+        "endChar": 42
+      },
+      "revId": "b7f1f0c07a474f60130c89230eb38adb6dc77b62",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
