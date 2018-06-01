@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "7ec6432d_9869f2bf",
+        "filename": "test/test-data.sha1",
+        "patchSetId": 3
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2018-06-01T23:07:03Z",
+      "side": 1,
+      "message": "this .md5 file contains information to verify that the corresponding test vector .ivf file has been decoded correctly.",
+      "parentUuid": "6099b066_005c192d",
+      "range": {
+        "startLine": 33,
+        "startChar": 0,
+        "endLine": 33,
+        "endChar": 74
+      },
+      "revId": "6532f0b27d42fb135f5c2f342891e3742195933b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cfcbcb1a_ef8fbbe4",
         "filename": "test/test_vector_test.cc",
         "patchSetId": 3
@@ -45,6 +69,30 @@
       "revId": "6532f0b27d42fb135f5c2f342891e3742195933b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0dbfd842_09044e52",
+        "filename": "test/test_vector_test.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2018-06-01T23:07:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cfcbcb1a_ef8fbbe4",
+      "range": {
+        "startLine": 121,
+        "startChar": 40,
+        "endLine": 121,
+        "endChar": 44
+      },
+      "revId": "6532f0b27d42fb135f5c2f342891e3742195933b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
