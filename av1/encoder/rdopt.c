@@ -527,7 +527,6 @@ static int inter_mode_data_all_cost[4][INTER_MODE_RD_DATA_OVERALL_SIZE];
 static int64_t inter_mode_data_ref_best_rd[4][INTER_MODE_RD_DATA_OVERALL_SIZE];
 
 int inter_mode_data_block_idx(BLOCK_SIZE bsize) {
-  if (bsize == BLOCK_4X4) return 0;
   if (bsize == BLOCK_8X8) return 1;
   if (bsize == BLOCK_16X16) return 2;
   if (bsize == BLOCK_32X32) return 3;
