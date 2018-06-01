@@ -2276,6 +2276,18 @@ static int check_trailing_bits_after_symbol_coder(aom_reader *r) {
   return 0;
 }
 
+// Called before each decode_tile() call to reset the MACROBLOCKD fields
+// related to delta_q and delta_lf.
+static void reset_delta_before_decode_tile(MACROBLOCKD *xd,
+                                           const AV1_COMMON *const cm) {
+  xd->prev_qindex = cm->base_qindex;
+  xd->prev_delta_lf_from_base = 0;
+  const int frame_lf_count =
+      av1_num_planes(cm) > 1 ? FRAME_LF_COUNT : FRAME_LF_COUNT - 2;
+  for (int lf_id = 0; lf_id < frame_lf_count; ++lf_id)
+    xd->prev_delta_lf[lf_id] = 0;
+}
+
 static void decode_tile(AV1Decoder *pbi, ThreadData *const td, int tile_row,
                         int tile_col) {
   TileInfo tile_info;
@@ -2303,6 +2315,7 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
                                    const uint8_t *data_end, int startTile,
                                    int endTile) {
   AV1_COMMON *const cm = &pbi->common;
+  ThreadData *const td = &pbi->td;
   const int tile_cols = cm->tile_cols;
   const int tile_rows = cm->tile_rows;
   const int n_tiles = tile_cols * tile_rows;
@@ -2371,12 +2384,13 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
   }
 #endif
   // Load all tile information into thread_data.
+  td->xd = pbi->mb;
+  td->xd.corrupted = 0;
   for (tile_row = tile_rows_start; tile_row < tile_rows_end; ++tile_row) {
     const int row = inv_row_order ? tile_rows - 1 - tile_row : tile_row;
 
     for (tile_col = tile_cols_start; tile_col < tile_cols_end; ++tile_col) {
       const int col = inv_col_order ? tile_cols - 1 - tile_col : tile_col;
-      ThreadData *const td = &pbi->td;
       TileDataDec *const tile_data = pbi->tile_data + row * cm->tile_cols + col;
       const TileBufferDec *const tile_bs_buf = &tile_buffers[row][col];
 
@@ -2384,8 +2398,7 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
           row * cm->tile_cols + col > endTile)
         continue;
 
-      td->xd = pbi->mb;
-      td->xd.corrupted = 0;
+      reset_delta_before_decode_tile(&td->xd, cm);
       td->bit_reader = &tile_data->bit_reader;
       av1_zero(td->dqcoeff);
       av1_tile_init(&td->xd.tile, cm, row, col);
@@ -2457,8 +2470,7 @@ static int tile_worker_hook(void *arg1, void *arg2) {
     TileDataDec *const tile_data =
         pbi->tile_data + tile_row * cm->tile_cols + tile_col;
 
-    td->xd = pbi->mb;
-    td->xd.corrupted = 0;
+    reset_delta_before_decode_tile(&td->xd, cm);
     td->bit_reader = &tile_data->bit_reader;
     av1_zero(td->dqcoeff);
     av1_tile_init(&td->xd.tile, cm, tile_row, tile_col);
@@ -2597,7 +2609,8 @@ static const uint8_t *decode_tiles_mt(AV1Decoder *pbi, const uint8_t *data,
     AVxWorker *const worker = &pbi->tile_workers[worker_idx];
     DecWorkerData *const thread_data = pbi->thread_data + worker_idx;
     winterface->sync(worker);
-
+    thread_data->td->xd = pbi->mb;
+    thread_data->td->xd.corrupted = 0;
     worker->hook = tile_worker_hook;
     worker->data1 = thread_data;
     worker->data2 = pbi;
