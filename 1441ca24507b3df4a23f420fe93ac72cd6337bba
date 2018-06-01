@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e63d2a7d_cd10cfd7",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2286,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-01T01:02:05Z",
+      "side": 1,
+      "message": "See encode_rd_sb_row() in av1/encoder/encodeframe.c and read_intra_frame_mode_info() in av1/decoder/decodemv.c for why I think these three fields are related to tile decoding and should be copied together.\n\nIn encode_rd_sb_row(), search for the comment \"Reset delta for every tile\".\n\nIn read_intra_frame_mode_info(), look at the big if statement that begins with \"if (cm-\u003edelta_q_present_flag)\".",
+      "range": {
+        "startLine": 2281,
+        "startChar": 0,
+        "endLine": 2286,
+        "endChar": 1
+      },
+      "revId": "1441ca24507b3df4a23f420fe93ac72cd6337bba",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
