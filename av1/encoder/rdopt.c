@@ -8014,7 +8014,7 @@ static int64_t motion_mode_rd(const AV1_COMP *const cpi, MACROBLOCK *const x,
         int64_t curr_sse = get_sse(cpi, x);
         const int64_t est_rd =
             get_est_rd(mbmi->sb_type, x->rdmult, curr_sse, rd_stats->rate);
-        if (est_rd > *best_est_rd) {
+        if (est_rd * 0.8 > *best_est_rd) {
           ++md->skip_count;
           mbmi->ref_frame[1] = ref_frame_1;
           continue;
