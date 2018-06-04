@@ -25,6 +25,29 @@
     },
     {
       "key": {
+        "uuid": "10c556c5_8a370fba",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 3444,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-04T21:00:51Z",
+      "side": 1,
+      "message": "The spec has two nested \"else\" branches here to set cm-\u003eop_frame_timing[op_num].buffer_removal_delay \u003d 0.\n\nWe can either match the spec verbatim, or just initialize cm-\u003eop_frame_timing[op_num].buffer_removal_delay to 0 at the beginning of this for loop.",
+      "range": {
+        "startLine": 3443,
+        "startChar": 0,
+        "endLine": 3444,
+        "endChar": 9
+      },
+      "revId": "f354a27a380568eae22afaf954df0bb0b428cc91",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "1561b812_1dac6eed",
         "filename": "av1/decoder/obu.c",
         "patchSetId": 7
@@ -41,6 +64,29 @@
         "startChar": 4,
         "endLine": 201,
         "endChar": 43
+      },
+      "revId": "f354a27a380568eae22afaf954df0bb0b428cc91",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ce8ee062_d40b9b11",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-04T21:00:51Z",
+      "side": 1,
+      "message": "Comparing with the spec, we are missing the code to set\n\n        cm-\u003eop_params[0].decoder_model_param_present_flag \u003d 0;\n        cm-\u003eop_params[0].display_model_param_present_flag \u003d 0;",
+      "range": {
+        "startLine": 206,
+        "startChar": 4,
+        "endLine": 206,
+        "endChar": 28
       },
       "revId": "f354a27a380568eae22afaf954df0bb0b428cc91",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
@@ -110,6 +156,29 @@
         "startChar": 24,
         "endLine": 253,
         "endChar": 67
+      },
+      "revId": "f354a27a380568eae22afaf954df0bb0b428cc91",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cb49684a_d6dc422b",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 3098,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-04T21:00:51Z",
+      "side": 1,
+      "message": "This if statement should be put inside\n\n        if (cm-\u003eop_params[op_num].decoder_model_param_present_flag) {\n        }",
+      "range": {
+        "startLine": 3087,
+        "startChar": 0,
+        "endLine": 3098,
+        "endChar": 9
       },
       "revId": "f354a27a380568eae22afaf954df0bb0b428cc91",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
