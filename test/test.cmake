@@ -126,6 +126,7 @@ if(NOT BUILD_SHARED_LIBS)
 
     if(HAVE_SSE4_1)
       set(AOM_UNIT_TEST_COMMON_SOURCES ${AOM_UNIT_TEST_COMMON_SOURCES}
+          "${AOM_ROOT}/test/dr_prediction_test.cc"
           "${AOM_ROOT}/test/filterintra_test.cc")
     endif()
 
