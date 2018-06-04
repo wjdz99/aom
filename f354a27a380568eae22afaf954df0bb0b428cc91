@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6e1b7fec_9d40bf95",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 3439,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-04T18:48:07Z",
+      "side": 1,
+      "message": "Just a note: If cm-\u003eop_params[op_num].decoder_model_operating_point_idc \u003d\u003d 0 is the common case, we should check this first. Then in the common case we can skip the \u003e\u003e and \u0026 operations.",
+      "range": {
+        "startLine": 3439,
+        "startChar": 14,
+        "endLine": 3439,
+        "endChar": 74
+      },
+      "revId": "f354a27a380568eae22afaf954df0bb0b428cc91",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1561b812_1dac6eed",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-04T18:48:07Z",
+      "side": 1,
+      "message": "I suggest moving line 176 before this line, like so:\n\n    seq_params-\u003eoperating_points_cnt_minus_1 \u003d 0;\n    seq_params-\u003eoperating_point_idc[0] \u003d 0;\n\nThis matches the spec.",
+      "range": {
+        "startLine": 201,
+        "startChar": 4,
+        "endLine": 201,
+        "endChar": 43
+      },
+      "revId": "f354a27a380568eae22afaf954df0bb0b428cc91",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "010813ff_8cdb6098",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-04T18:48:07Z",
+      "side": 1,
+      "message": "Nit: use the seq_params local variable:\n\n    seq_params-\u003eoperating_points_cnt_minus_1 \u003d",
+      "range": {
+        "startLine": 212,
+        "startChar": 0,
+        "endLine": 212,
+        "endChar": 49
+      },
+      "revId": "f354a27a380568eae22afaf954df0bb0b428cc91",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "17084760_60727774",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 214,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-04T18:48:07Z",
+      "side": 1,
+      "message": "Nit: Use the seq_params local variable:\n\n    seq_params-\u003eoperating_points_cnt_minus_1",
+      "range": {
+        "startLine": 214,
+        "startChar": 24,
+        "endLine": 214,
+        "endChar": 67
+      },
+      "revId": "f354a27a380568eae22afaf954df0bb0b428cc91",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "81ea7d4e_ef0bbbe4",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-04T18:48:07Z",
+      "side": 1,
+      "message": "Nit: Use the seq_params local variable:\n\n    seq_params-\u003eoperating_points_cnt_minus_1",
+      "range": {
+        "startLine": 253,
+        "startChar": 24,
+        "endLine": 253,
+        "endChar": 67
+      },
+      "revId": "f354a27a380568eae22afaf954df0bb0b428cc91",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cba4e73b_06024194",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 2406,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-04T18:48:07Z",
+      "side": 1,
+      "message": "Can cm-\u003enumber_spatial_layers be 0?\n\nUnless cm-\u003enumber_spatial_layers can be 0, we don\u0027t need to use the ? : operator:\n\n    cm-\u003eseq_params.operating_points_cnt_minus_1 \u003d cm-\u003enumber_spatial_layers - 1;",
+      "range": {
+        "startLine": 2405,
+        "startChar": 0,
+        "endLine": 2406,
+        "endChar": 74
+      },
+      "revId": "f354a27a380568eae22afaf954df0bb0b428cc91",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
