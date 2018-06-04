@@ -883,6 +883,9 @@ typedef TestParams<SubpixAvgVarMxNFunc> SubpelAvgVarianceParams;
 INSTANTIATE_TEST_CASE_P(
     C, AvxSubpelAvgVarianceTest,
     ::testing::Values(
+        SubpelAvgVarianceParams(7, 7, &aom_sub_pixel_avg_variance128x128_c, 0),
+        SubpelAvgVarianceParams(7, 6, &aom_sub_pixel_avg_variance128x64_c, 0),
+        SubpelAvgVarianceParams(6, 7, &aom_sub_pixel_avg_variance64x128_c, 0),
         SubpelAvgVarianceParams(6, 6, &aom_sub_pixel_avg_variance64x64_c, 0),
         SubpelAvgVarianceParams(6, 5, &aom_sub_pixel_avg_variance64x32_c, 0),
         SubpelAvgVarianceParams(5, 6, &aom_sub_pixel_avg_variance32x64_c, 0),
@@ -1526,9 +1529,11 @@ INSTANTIATE_TEST_CASE_P(
 INSTANTIATE_TEST_CASE_P(
     AVX2, AvxSubpelAvgVarianceTest,
     ::testing::Values(
-        SubpelAvgVarianceParams(6, 6, &aom_sub_pixel_avg_variance64x64_avx2, 0),
-        SubpelAvgVarianceParams(5, 5, &aom_sub_pixel_avg_variance32x32_avx2,
-                                0)));
+        SubpelAvgVarianceParams(7, 7, &aom_sub_pixel_avg_variance128x128_avx2),
+        SubpelAvgVarianceParams(7, 6, &aom_sub_pixel_avg_variance128x64_avx2),
+        SubpelAvgVarianceParams(6, 7, &aom_sub_pixel_avg_variance64x128_avx2),
+        SubpelAvgVarianceParams(6, 6, &aom_sub_pixel_avg_variance64x64_avx2),
+        SubpelAvgVarianceParams(5, 5, &aom_sub_pixel_avg_variance32x32_avx2)));
 #endif  // HAVE_AVX2
 
 #if HAVE_NEON

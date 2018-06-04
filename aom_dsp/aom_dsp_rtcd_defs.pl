@@ -961,6 +961,9 @@ if (aom_config("CONFIG_AV1_ENCODER") eq "yes") {
   specialize qw/aom_sub_pixel_variance4x8                 msa sse2 ssse3/;
   specialize qw/aom_sub_pixel_variance4x4                 msa sse2 ssse3/;
 
+  specialize qw/aom_sub_pixel_avg_variance128x128 avx2 /;
+  specialize qw/aom_sub_pixel_avg_variance128x64  avx2 /;
+  specialize qw/aom_sub_pixel_avg_variance64x128  avx2 /;
   specialize qw/aom_sub_pixel_avg_variance64x64 avx2 msa sse2 ssse3/;
   specialize qw/aom_sub_pixel_avg_variance64x32      msa sse2 ssse3/;
   specialize qw/aom_sub_pixel_avg_variance32x64      msa sse2 ssse3/;
