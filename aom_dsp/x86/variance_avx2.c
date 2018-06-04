@@ -285,13 +285,66 @@ unsigned int aom_sub_pixel_avg_variance64x64_avx2(
       src + 32, src_stride, x_offset, y_offset, dst + 32, dst_stride, sec + 32,
       64, 64, &sse2);
   const int se = se1 + se2;
-  unsigned int variance;
-
   *sse = sse1 + sse2;
-
-  variance = *sse - (uint32_t)(((int64_t)se * se) >> 12);
+  unsigned int variance = *sse - (uint32_t)(((int64_t)se * se) >> 12);
   _mm256_zeroupper();
   return variance;
+}
+
+unsigned int aom_sub_pixel_avg_variance64x128_avx2(
+    const uint8_t *src, int src_stride, int x_offset, int y_offset,
+    const uint8_t *dst, int dst_stride, unsigned int *sse, const uint8_t *sec) {
+  unsigned int sse1;
+  const int se1 =
+      aom_sub_pixel_avg_variance32xh_avx2(src, src_stride, x_offset, y_offset,
+                                          dst, dst_stride, sec, 64, 128, &sse1);
+  unsigned int sse2;
+  const int se2 = aom_sub_pixel_avg_variance32xh_avx2(
+      src + 32, src_stride, x_offset, y_offset, dst + 32, dst_stride, sec + 32,
+      64, 128, &sse2);
+  const int se = se1 + se2;
+  *sse = sse1 + sse2;
+  unsigned int variance = *sse - (uint32_t)(((int64_t)se * se) >> 13);
+  _mm256_zeroupper();
+  return variance;
+}
+
+unsigned int aom_sub_pixel_avg_variance128x64_avx2(
+    const uint8_t *src, int src_stride, int x_offset, int y_offset,
+    const uint8_t *dst, int dst_stride, unsigned int *sse, const uint8_t *sec) {
+  *sse = 0;
+  int se = 0;
+  for (int i = 0; i < 4; ++i) {
+    unsigned int sse1;
+    se += aom_sub_pixel_avg_variance32xh_avx2(src, src_stride, x_offset,
+                                              y_offset, dst, dst_stride, sec,
+                                              128, 64, &sse1);
+    *sse += sse1;
+    src += 32;
+    dst += 32;
+    sec += 32;
+  }
+  _mm256_zeroupper();
+  return *sse - (uint32_t)(((int64_t)se * se) >> 13);
+}
+
+unsigned int aom_sub_pixel_avg_variance128x128_avx2(
+    const uint8_t *src, int src_stride, int x_offset, int y_offset,
+    const uint8_t *dst, int dst_stride, unsigned int *sse, const uint8_t *sec) {
+  *sse = 0;
+  int se = 0;
+  for (int i = 0; i < 4; ++i) {
+    unsigned int sse1;
+    se += aom_sub_pixel_avg_variance32xh_avx2(src, src_stride, x_offset,
+                                              y_offset, dst, dst_stride, sec,
+                                              128, 128, &sse1);
+    *sse += sse1;
+    src += 32;
+    dst += 32;
+    sec += 32;
+  }
+  _mm256_zeroupper();
+  return *sse - (uint32_t)(((int64_t)se * se) >> 14);
 }
 
 unsigned int aom_sub_pixel_avg_variance32x32_avx2(
