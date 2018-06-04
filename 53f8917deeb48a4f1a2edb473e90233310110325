@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "50780a1b_c4b05865",
+        "filename": "aom_dsp/x86/variance_avx2.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 289,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-06-04T21:40:13Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 289,
+        "startChar": 2,
+        "endLine": 289,
+        "endChar": 10
+      },
+      "revId": "53f8917deeb48a4f1a2edb473e90233310110325",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c200486d_9c256a7a",
+        "filename": "aom_dsp/x86/variance_avx2.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 328,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-06-04T21:40:13Z",
+      "side": 1,
+      "message": "How come the other functions calculate variance before zeroupper()?",
+      "range": {
+        "startLine": 328,
+        "startChar": 2,
+        "endLine": 328,
+        "endChar": 8
+      },
+      "revId": "53f8917deeb48a4f1a2edb473e90233310110325",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
