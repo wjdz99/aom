@@ -1,0 +1,970 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "61af9328_fdf47004",
+        "filename": "aom_dsp/aom_dsp_rtcd_defs.pl",
+        "patchSetId": 11
+      },
+      "lineNbr": 486,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-04T23:30:16Z",
+      "side": 1,
+      "message": "Nit/optional: Perhaps add a blank line to separate the ifft2x2 line from the two ifft4x4 lines?",
+      "range": {
+        "startLine": 486,
+        "startChar": 0,
+        "endLine": 486,
+        "endChar": 91
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2904b52c_8d369e88",
+        "filename": "aom_dsp/fft.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-04T23:30:16Z",
+      "side": 1,
+      "message": "Nit: complex \u003d\u003e imaginary ?",
+      "range": {
+        "startLine": 130,
+        "startChar": 45,
+        "endLine": 130,
+        "endChar": 52
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "916600f5_47baa214",
+        "filename": "aom_dsp/fft_common.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-04T23:30:16Z",
+      "side": 1,
+      "message": "1. Nit: Should we include the names of the first two parameters in these function type definitions?\n\n2. Ideally these function types should be documented. In particular the sizes of the first two parameters should be documented.",
+      "range": {
+        "startLine": 19,
+        "startChar": 0,
+        "endLine": 21,
+        "endChar": 69
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d994777d_78038989",
+        "filename": "aom_dsp/fft_common.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-04T23:30:16Z",
+      "side": 1,
+      "message": "\u0027output\u0027 should be a \\param[out], not a \\param[in], right?",
+      "range": {
+        "startLine": 31,
+        "startChar": 3,
+        "endLine": 31,
+        "endChar": 21
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bb71a0b0_f9021661",
+        "filename": "aom_dsp/fft_common.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-04T23:30:16Z",
+      "side": 1,
+      "message": "Typo: Trnspose \u003d\u003e Transpose",
+      "range": {
+        "startLine": 49,
+        "startChar": 48,
+        "endLine": 49,
+        "endChar": 56
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "251bed19_b8d1f909",
+        "filename": "aom_dsp/fft_common.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-04T23:30:16Z",
+      "side": 1,
+      "message": "1. \u0027output\u0027 should be a \\param[out], not a \\param[in], right?\n\n2. Start each \"\\param[in]\" on a separate line:\n\n * \\param[in]  output     Output buffer (size n * n)\n * \\param[in]  fft_single Forward transform function (non vectorized)\n * \\param[in]  fft_multi  Forward transform function (vectorized)\n...",
+      "range": {
+        "startLine": 46,
+        "startChar": 8,
+        "endLine": 51,
+        "endChar": 19
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "629f6781_28ebb227",
+        "filename": "aom_dsp/fft_common.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-04T23:30:16Z",
+      "side": 1,
+      "message": "i0 + -i1 \u003d\u003e i0 - i1",
+      "range": {
+        "startLine": 69,
+        "startChar": 31,
+        "endLine": 69,
+        "endChar": 39
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fc935008_4ae1fd7a",
+        "filename": "aom_dsp/fft_common.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-04T23:30:16Z",
+      "side": 1,
+      "message": "Question: Would it be faster to increment \u0027input\u0027 to avoid the integer multiplications?\n\n    const T_VEC i0 \u003d load(input);                                   \\\n    input +\u003d stride;                                                \\\t\n    const T_VEC i1 \u003d load(input);                                   \\\n    input +\u003d stride;                                                \\\t\n    const T_VEC i2 \u003d load(input);                                   \\\n    input +\u003d stride;                                                \\\t\n    const T_VEC i3 \u003d load(input);                                   \\\n\nSimilarly for the \u0027output\u0027 parameter.",
+      "range": {
+        "startLine": 74,
+        "startChar": 0,
+        "endLine": 77,
+        "endChar": 69
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0eb81372_b8de9d98",
+        "filename": "aom_dsp/fft_common.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-04T23:30:16Z",
+      "side": 1,
+      "message": "I guess the \u0027constant\u0027 function is supposed to convert a float literal to a T_VEC value?",
+      "range": {
+        "startLine": 88,
+        "startChar": 54,
+        "endLine": 88,
+        "endChar": 62
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ce27318f_a48e1691",
+        "filename": "aom_dsp/fft_common.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-04T23:30:16Z",
+      "side": 1,
+      "message": "Just curious: why is w6 missing?",
+      "range": {
+        "startLine": 105,
+        "startChar": 0,
+        "endLine": 105,
+        "endChar": 73
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "107bc9a7_57344276",
+        "filename": "aom_dsp/fft_common.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 1046,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-04T23:30:16Z",
+      "side": 1,
+      "message": "Nit: add a comment for the include-guard macro\u0027s name:\n\n#endif  // AOM_DSP_FFT_COMMON_H_",
+      "range": {
+        "startLine": 1046,
+        "startChar": 0,
+        "endLine": 1046,
+        "endChar": 6
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ba08ae02_4adf0f97",
+        "filename": "aom_dsp/noise_model.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 1272,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-04T23:30:16Z",
+      "side": 1,
+      "message": "Nit: this \u0027const\u0027 is not necessary.",
+      "range": {
+        "startLine": 1272,
+        "startChar": 44,
+        "endLine": 1272,
+        "endChar": 49
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ff5adb65_93e34df2",
+        "filename": "aom_dsp/noise_model.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 1279,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-04T23:30:16Z",
+      "side": 1,
+      "message": "Nit: M_PI should be available from the standard library, right?",
+      "range": {
+        "startLine": 1279,
+        "startChar": 2,
+        "endLine": 1279,
+        "endChar": 33
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "14287111_80a13e27",
+        "filename": "aom_dsp/noise_model.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 1340,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-04T23:30:16Z",
+      "side": 1,
+      "message": "Nit: 0 \u003d\u003e NULL",
+      "range": {
+        "startLine": 1340,
+        "startChar": 18,
+        "endLine": 1340,
+        "endChar": 19
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "09a57877_da46dca9",
+        "filename": "aom_dsp/noise_model.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 1376,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-04T23:30:16Z",
+      "side": 1,
+      "message": "Nit: I suggest listing window_full and window_chroma next to each other, to make it easier to verify we\u0027ve checked every variable that needs to be checked.",
+      "range": {
+        "startLine": 1375,
+        "startChar": 18,
+        "endLine": 1376,
+        "endChar": 42
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cb8164eb_653aa58a",
+        "filename": "aom_dsp/noise_model.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 1377,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-04T23:30:16Z",
+      "side": 1,
+      "message": "Optional: This ? : operator is used to skip the for loop on init failure. I confirmed it is OK in libaom to use a goto statement to jump to the cleanup code at the end of this function. I leave this decision to you.",
+      "range": {
+        "startLine": 1377,
+        "startChar": 7,
+        "endLine": 1377,
+        "endChar": 35
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8436721e_3435e1bd",
+        "filename": "aom_dsp/noise_model.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 1380,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-04T23:30:16Z",
+      "side": 1,
+      "message": "Just curious: it is more correct to use chroma_sub[1] here? Since this function requires chroma_sub[0] and chroma_sub[1] to be the same, we can also use chroma_sub[0] here.",
+      "range": {
+        "startLine": 1380,
+        "startChar": 37,
+        "endLine": 1380,
+        "endChar": 50
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4b0b4ae7_cd8f9fbb",
+        "filename": "aom_dsp/noise_model.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 1401,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-04T23:30:16Z",
+      "side": 1,
+      "message": "n and pixels_per_block have the same value. We only need one of them.",
+      "range": {
+        "startLine": 1398,
+        "startChar": 0,
+        "endLine": 1401,
+        "endChar": 76
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7b118608_acd0940a",
+        "filename": "aom_dsp/noise_model.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 273,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-04T23:30:16Z",
+      "side": 1,
+      "message": "1. Some of these parameters should be \\param[out].\n\n2. bit_depth and use_highbd are not documented.",
+      "range": {
+        "startLine": 266,
+        "startChar": 0,
+        "endLine": 273,
+        "endChar": 52
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "99aaa15c_2c3566ee",
+        "filename": "aom_dsp/noise_util.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-04T23:30:16Z",
+      "side": 1,
+      "message": "Nit: Based on my analysis of the code in this file, I believe the \u0027block\u0027 field is not needed.",
+      "range": {
+        "startLine": 31,
+        "startChar": 2,
+        "endLine": 31,
+        "endChar": 15
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0c027a6f_794cacf4",
+        "filename": "aom_dsp/noise_util.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-04T23:30:16Z",
+      "side": 1,
+      "message": "Check for aom_malloc error:\n\n  if (!noise_tx) return NULL;",
+      "range": {
+        "startLine": 40,
+        "startChar": 0,
+        "endLine": 41,
+        "endChar": 73
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7ec01269_033595fb",
+        "filename": "aom_dsp/noise_util.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-04T23:30:16Z",
+      "side": 1,
+      "message": "Nit: 0 \u003d\u003e NULL. Also at line 77.",
+      "range": {
+        "startLine": 66,
+        "startChar": 13,
+        "endLine": 66,
+        "endChar": 14
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2f5e9a5a_7e270e12",
+        "filename": "aom_dsp/noise_util.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-04T23:30:16Z",
+      "side": 1,
+      "message": "Also check for noise_tx-\u003eblock allocation error.",
+      "range": {
+        "startLine": 75,
+        "startChar": 6,
+        "endLine": 75,
+        "endChar": 44
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f59dbf6c_3bc79679",
+        "filename": "aom_dsp/noise_util.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-04T23:30:16Z",
+      "side": 1,
+      "message": "noise_tx-\u003eblock, noise_tx-\u003etx_block, and noise_tx-\u003etemp also need to be freed. This requires initializing them to NULL after noise_tx is allocated.",
+      "range": {
+        "startLine": 76,
+        "startChar": 4,
+        "endLine": 76,
+        "endChar": 32
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cdc2a473_c670d098",
+        "filename": "aom_dsp/noise_util.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-04T23:30:16Z",
+      "side": 1,
+      "message": "We don\u0027t need to copy \u0027data\u0027 into noise_tx-\u003eblock. We can just call:\n\n  noise_tx-\u003efft(data, noise_tx-\u003etemp, noise_tx-\u003etx_block);",
+      "range": {
+        "startLine": 84,
+        "startChar": 0,
+        "endLine": 85,
+        "endChar": 69
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a5123f28_6c9c03d5",
+        "filename": "aom_dsp/noise_util.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-04T23:30:16Z",
+      "side": 1,
+      "message": "We can receive the output of ifft in \u0027data\u0027 directly:\n\n  noise_tx-\u003eifft(noise_tx-\u003etx_block, noise_tx-\u003etemp, data);\t\n  for (int i \u003d 0; i \u003c n; ++i) {\t\n    data[i] /\u003d n;\t\n  }",
+      "range": {
+        "startLine": 110,
+        "startChar": 0,
+        "endLine": 113,
+        "endChar": 3
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "76020c97_75b5f698",
+        "filename": "aom_dsp/noise_util.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-04T23:30:16Z",
+      "side": 1,
+      "message": "Nit: Add \"in\" after \"it\"",
+      "range": {
+        "startLine": 30,
+        "startChar": 42,
+        "endLine": 30,
+        "endChar": 44
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "438f5c4e_01694fd9",
+        "filename": "aom_dsp/noise_util.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-04T23:30:16Z",
+      "side": 1,
+      "message": "Nit: Declare \u0027data\u0027 as const:\n\nconst float *data",
+      "range": {
+        "startLine": 31,
+        "startChar": 63,
+        "endLine": 31,
+        "endChar": 74
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ce832336_30417dce",
+        "filename": "aom_dsp/noise_util.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-04T23:30:16Z",
+      "side": 1,
+      "message": "Declare psd as const:\n\nconst float *psd",
+      "range": {
+        "startLine": 37,
+        "startChar": 62,
+        "endLine": 37,
+        "endChar": 72
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9dc8e3a8_fc46e0e3",
+        "filename": "aom_dsp/noise_util.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-04T23:30:16Z",
+      "side": 1,
+      "message": "Nit: Document the \u0027factor\u0027 parameter?",
+      "range": {
+        "startLine": 48,
+        "startChar": 54,
+        "endLine": 48,
+        "endChar": 66
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "087e4f89_8148353b",
+        "filename": "aom_dsp/x86/fft_avx2.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-04T23:30:16Z",
+      "side": 1,
+      "message": "Optional: I wonder if we should declare these functions in some header file...",
+      "range": {
+        "startLine": 17,
+        "startChar": 0,
+        "endLine": 18,
+        "endChar": 79
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2763d0f5_b7e15d01",
+        "filename": "aom_dsp/x86/fft_avx2.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-04T23:30:16Z",
+      "side": 1,
+      "message": "1. Nit: include the names of the first two parameters?\n\n2. Optional: I wonder if we should declare these functions in \"aom_dsp/fft_common.h\".",
+      "range": {
+        "startLine": 52,
+        "startChar": 0,
+        "endLine": 54,
+        "endChar": 60
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2b98bb1e_4660eebb",
+        "filename": "aom_dsp/x86/fft_sse2.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-04T23:30:16Z",
+      "side": 1,
+      "message": "Nit: did you mean mm128 or __m128? Same question for line 135.",
+      "range": {
+        "startLine": 106,
+        "startChar": 58,
+        "endLine": 106,
+        "endChar": 63
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5f1e3ec9_2a20dc68",
+        "filename": "aom_dsp/x86/fft_sse2.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-04T23:30:16Z",
+      "side": 1,
+      "message": "Nit: include the names of the first two parameters?",
+      "range": {
+        "startLine": 145,
+        "startChar": 0,
+        "endLine": 148,
+        "endChar": 60
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f61a5f2c_42fc980c",
+        "filename": "test/fft_test.cc",
+        "patchSetId": 11
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-04T23:30:16Z",
+      "side": 1,
+      "message": "Nit: I think these two noise_xxx.h headers don\u0027t need to be included.",
+      "range": {
+        "startLine": 8,
+        "startChar": 0,
+        "endLine": 9,
+        "endChar": 31
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9fb4f263_6fd9d033",
+        "filename": "test/fft_test.cc",
+        "patchSetId": 11
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-04T23:30:16Z",
+      "side": 1,
+      "message": "Nit: Use \u0026temp[n / 2] instead?",
+      "range": {
+        "startLine": 31,
+        "startChar": 6,
+        "endLine": 31,
+        "endChar": 22
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2410de4e_15fb38c3",
+        "filename": "test/fft_test.cc",
+        "patchSetId": 11
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-04T23:30:16Z",
+      "side": 1,
+      "message": "Nit: These should be sizeof(*temp) ad sizeof(*output), respectively.",
+      "range": {
+        "startLine": 80,
+        "startChar": 0,
+        "endLine": 81,
+        "endChar": 50
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "33f73493_28d19acb",
+        "filename": "test/fft_test.cc",
+        "patchSetId": 11
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-04T23:30:16Z",
+      "side": 1,
+      "message": "Nit: The names of these data members should have a trailing underscore: input_, temp_, and output_.",
+      "range": {
+        "startLine": 92,
+        "startChar": 0,
+        "endLine": 94,
+        "endChar": 16
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "69b24640_e4c266b5",
+        "filename": "test/fft_test.cc",
+        "patchSetId": 11
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-04T23:30:16Z",
+      "side": 1,
+      "message": "Nit: These should be sizeof(*temp) ad sizeof(*output), respectively.",
+      "range": {
+        "startLine": 165,
+        "startChar": 0,
+        "endLine": 166,
+        "endChar": 46
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2272e53e_1860bb69",
+        "filename": "test/fft_test.cc",
+        "patchSetId": 11
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-04T23:30:16Z",
+      "side": 1,
+      "message": "Nit: The names of these data members should have a trailing underscore: input_, temp_, and output_.",
+      "range": {
+        "startLine": 177,
+        "startChar": 0,
+        "endLine": 179,
+        "endChar": 16
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "65cfaf1e_156aff03",
+        "filename": "test/noise_model_test.cc",
+        "patchSetId": 11
+      },
+      "lineNbr": 1149,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-04T23:30:16Z",
+      "side": 1,
+      "message": "Nit: Can we omit all the uses of \"this-\u003e\" in this class? Do we need it to disambiguate?",
+      "range": {
+        "startLine": 1149,
+        "startChar": 42,
+        "endLine": 1149,
+        "endChar": 48
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f347766c_41f3a4cc",
+        "filename": "test/test.cmake",
+        "patchSetId": 11
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-04T23:30:16Z",
+      "side": 1,
+      "message": "Nit: list fft_test.cc before fwht4x4_test.cc.",
+      "range": {
+        "startLine": 178,
+        "startChar": 0,
+        "endLine": 178,
+        "endChar": 38
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
