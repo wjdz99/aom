@@ -620,36 +620,6 @@ void av1_dr_prediction_z3_c(uint8_t *dst, ptrdiff_t stride, int bw, int bh,
   }
 }
 
-// Get the shift (up-scaled by 256) in X w.r.t a unit change in Y.
-// If angle > 0 && angle < 90, dx = -((int)(256 / t));
-// If angle > 90 && angle < 180, dx = (int)(256 / t);
-// If angle > 180 && angle < 270, dx = 1;
-static INLINE int get_dx(int angle) {
-  if (angle > 0 && angle < 90) {
-    return dr_intra_derivative[angle];
-  } else if (angle > 90 && angle < 180) {
-    return dr_intra_derivative[180 - angle];
-  } else {
-    // In this case, we are not really going to use dx. We may return any value.
-    return 1;
-  }
-}
-
-// Get the shift (up-scaled by 256) in Y w.r.t a unit change in X.
-// If angle > 0 && angle < 90, dy = 1;
-// If angle > 90 && angle < 180, dy = (int)(256 * t);
-// If angle > 180 && angle < 270, dy = -((int)(256 * t));
-static INLINE int get_dy(int angle) {
-  if (angle > 90 && angle < 180) {
-    return dr_intra_derivative[angle - 90];
-  } else if (angle > 180 && angle < 270) {
-    return dr_intra_derivative[270 - angle];
-  } else {
-    // In this case, we are not really going to use dy. We may return any value.
-    return 1;
-  }
-}
-
 static void dr_predictor(uint8_t *dst, ptrdiff_t stride, TX_SIZE tx_size,
                          const uint8_t *above, const uint8_t *left,
                          int upsample_above, int upsample_left, int angle) {
