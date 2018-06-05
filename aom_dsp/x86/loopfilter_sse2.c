@@ -238,6 +238,7 @@ static INLINE void transpose8x8_sse2(__m128i *x0, __m128i *x1, __m128i *x2,
       w6, w7);  // 06 16 26 36 46 56 66 76 07 17 27 37 47 57 67 77
 }
 
+#if 0
 // filter_mask and hev_mask
 static AOM_FORCE_INLINE void filter_hev_mask4(__m128i *p1p0, __m128i *q1q0,
                                               __m128i *q1p1, __m128i *q0p0,
@@ -278,6 +279,7 @@ static AOM_FORCE_INLINE void filter_hev_mask4(__m128i *p1p0, __m128i *q1q0,
   *mask = _mm_cmpeq_epi8(*mask, zero);
   *mask = _mm_and_si128(*mask, _mm_srli_si128(*mask, 8));
 }
+#endif
 
 static AOM_FORCE_INLINE void filter4_sse2(__m128i *p1p0, __m128i *q1q0,
                                           __m128i *hev, __m128i *mask,
