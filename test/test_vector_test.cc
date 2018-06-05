@@ -123,7 +123,7 @@ TEST_P(TestVectorTest, MD5Match) {
 // CONFIG_LOWBITDEPTH = 0
 #if CONFIG_AV1_DECODER && CONFIG_LOWBITDEPTH
 AV1_INSTANTIATE_TEST_CASE(
-    TestVectorTest,
+    DISABLED_TestVectorTest,
     ::testing::Combine(
         ::testing::Values(1),  // Single thread.
         ::testing::ValuesIn(libaom_test::kAV1TestVectors,
@@ -132,7 +132,7 @@ AV1_INSTANTIATE_TEST_CASE(
 
 // Test AV1 decode in with different numbers of threads.
 INSTANTIATE_TEST_CASE_P(
-    AV1MultiThreaded, TestVectorTest,
+    DISABLED_AV1MultiThreaded, TestVectorTest,
     ::testing::Combine(
         ::testing::Values(
             static_cast<const libaom_test::CodecFactory *>(&libaom_test::kAV1)),
