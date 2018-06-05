@@ -70,6 +70,30 @@
       "revId": "07251fefcb4c38f2803b862f23d1544b405187f7",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "36524933_2c4d8adb",
+        "filename": "av1/common/av1_loopfilter.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 496,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2018-06-05T17:33:58Z",
+      "side": 1,
+      "message": "Thanks for pointing that out. I didn\u0027t take 422 into consideration.\nPlease see the new patch.",
+      "parentUuid": "316e3b48_4264230b",
+      "range": {
+        "startLine": 496,
+        "startChar": 3,
+        "endLine": 496,
+        "endChar": 50
+      },
+      "revId": "07251fefcb4c38f2803b862f23d1544b405187f7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
