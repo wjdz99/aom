@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d5e0d4ef_0d84b9b9",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2468,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-06-05T18:31:32Z",
+      "side": 1,
+      "message": "\"used to\"",
+      "range": {
+        "startLine": 2468,
+        "startChar": 17,
+        "endLine": 2468,
+        "endChar": 20
+      },
+      "revId": "4ededcc5867f19f2d9c6f505bbec1fef6409fd03",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "48b7be81_3f458266",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2598,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-06-05T18:31:32Z",
+      "side": 1,
+      "message": "This feature is no longer binary, so for code readability, use \"(cpi-\u003esf.use_transform_domain_distortion \u003e 0)\"\n\n(Also check if used similarly elsewhere)",
+      "range": {
+        "startLine": 2598,
+        "startChar": 6,
+        "endLine": 2598,
+        "endChar": 45
+      },
+      "revId": "4ededcc5867f19f2d9c6f505bbec1fef6409fd03",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a346fabb_852d8b0c",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2682,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-06-05T18:31:32Z",
+      "side": 1,
+      "message": "Merge the two lines. Also, \"const tran_low_t *const\"",
+      "range": {
+        "startLine": 2682,
+        "startChar": 33,
+        "endLine": 2682,
+        "endChar": 0
+      },
+      "revId": "4ededcc5867f19f2d9c6f505bbec1fef6409fd03",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
