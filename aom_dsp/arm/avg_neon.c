@@ -17,14 +17,6 @@
 
 #include "aom/aom_integer.h"
 
-static INLINE unsigned int horizontal_add_u16x8(const uint16x8_t v_16x8) {
-  const uint32x4_t a = vpaddlq_u16(v_16x8);
-  const uint64x2_t b = vpaddlq_u32(a);
-  const uint32x2_t c = vadd_u32(vreinterpret_u32_u64(vget_low_u64(b)),
-                                vreinterpret_u32_u64(vget_high_u64(b)));
-  return vget_lane_u32(c, 0);
-}
-
 // coeff: 16 bits, dynamic range [-32640, 32640].
 // length: value range {16, 64, 256, 1024}.
 int aom_satd_neon(const int16_t *coeff, int length) {
