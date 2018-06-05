@@ -46,6 +46,30 @@
       "revId": "07251fefcb4c38f2803b862f23d1544b405187f7",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "316e3b48_4264230b",
+        "filename": "av1/common/av1_loopfilter.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 496,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2018-06-05T14:59:36Z",
+      "side": 1,
+      "message": "Then, the check of row and col should depend on subsmpling_x and subsampling_y.  The following checks treat row and col symmetrically would only work when subsampling_x and subsampling_y are same. \n\nbasically what happens if the color format is 422?",
+      "parentUuid": "fba7fce0_96501c73",
+      "range": {
+        "startLine": 496,
+        "startChar": 3,
+        "endLine": 496,
+        "endChar": 50
+      },
+      "revId": "07251fefcb4c38f2803b862f23d1544b405187f7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
