@@ -30,11 +30,15 @@ static const int seg_feature_data_max[SEG_LVL_MAX] = {
 void av1_clearall_segfeatures(struct segmentation *seg) {
   av1_zero(seg->feature_data);
   av1_zero(seg->feature_mask);
+  seg->preskip_segid = 0;
+  seg->last_active_segid = 0;
 }
 
 void av1_enable_segfeature(struct segmentation *seg, int segment_id,
                            SEG_LVL_FEATURES feature_id) {
   seg->feature_mask[segment_id] |= 1 << feature_id;
+  seg->preskip_segid |= (feature_id >= SEG_LVL_REF_FRAME);
+  seg->last_active_segid = AOMMAX(seg->last_active_segid, segment_id);
 }
 
 int av1_seg_feature_data_max(SEG_LVL_FEATURES feature_id) {
