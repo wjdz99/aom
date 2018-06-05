@@ -46,6 +46,30 @@
       "revId": "044d2852c5c3f7f3a17c07c0adb2e471ae689f8e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "144e73e3_9192966a",
+        "filename": "av1/common/seg_common.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-06-05T18:29:49Z",
+      "side": 1,
+      "message": "Yeah, making it uint8_t would help. It matches the other flags treated as booleans in this struct. \n\nThe variable should probably be renamed if we really want clarity. Something like read_segid_before_skip would be ideal.  SegIdPreSkip is the element from the spec, so even segid_preskip is more clear than preskip_segid. \n\nNote that renaming the variable would be noisy:\n\nav1/common/seg_common.h:48:  int preskip_segid;\nav1/common/seg_common.h:67:  dst-\u003epreskip_segid \u003d 0;\nav1/common/seg_common.h:74:        dst-\u003epreskip_segid |\u003d j \u003e\u003d SEG_LVL_REF_FRAME;\nav1/common/seg_common.h:76:        src-\u003epreskip_segid \u003d dst-\u003epreskip_segid;\nav1/decoder/decodemv.c:381:    if (!seg-\u003epreskip_segid) return 0;\nav1/decoder/decodemv.c:383:    if (seg-\u003epreskip_segid) return mbmi-\u003esegment_id;\nav1/decoder/decodemv.c:734:  if (seg-\u003epreskip_segid)\nav1/decoder/decodemv.c:740:  if (!seg-\u003epreskip_segid)\nav1/encoder/bitstream.c:910:      if (!seg-\u003epreskip_segid) return;\nav1/encoder/bitstream.c:912:      if (seg-\u003epreskip_segid) return;\nav1/encoder/bitstream.c:1183:  if (seg-\u003epreskip_segid \u0026\u0026 seg-\u003eupdate_map)\nav1/encoder/bitstream.c:1188:  if (!seg-\u003epreskip_segid \u0026\u0026 seg-\u003eupdate_map)\nav1/encoder/encodeframe.c:4813:    if (!cpi-\u003ecommon.seg.preskip_segid \u0026\u0026 cpi-\u003ecommon.seg.update_map \u0026\u0026\n\nAnyway, still +2 as-is. If you want to change the type to uint8_t that\u0027s fine. Also fine with a rename, but it\u0027s up to you if you want to do that.",
+      "parentUuid": "cb18ebd0_3d350b36",
+      "range": {
+        "startLine": 51,
+        "startChar": 0,
+        "endLine": 52,
+        "endChar": 75
+      },
+      "revId": "044d2852c5c3f7f3a17c07c0adb2e471ae689f8e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
