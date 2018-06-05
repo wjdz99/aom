@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7b71aa61_4e480221",
+        "filename": "av1/common/seg_common.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-06-05T17:57:58Z",
+      "side": 1,
+      "message": "Seems odd to see the 1 before the 0, but it makes sense after reading the text (moreso when the name of the variable is considered along with the text).",
+      "range": {
+        "startLine": 51,
+        "startChar": 0,
+        "endLine": 52,
+        "endChar": 75
+      },
+      "revId": "044d2852c5c3f7f3a17c07c0adb2e471ae689f8e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
