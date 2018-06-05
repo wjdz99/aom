@@ -155,7 +155,9 @@ set(AOM_AV1_ENCODER_SOURCES
     "${AOM_ROOT}/av1/encoder/temporal_filter.h"
     "${AOM_ROOT}/av1/encoder/tokenize.c"
     "${AOM_ROOT}/av1/encoder/tokenize.h"
-    "${AOM_ROOT}/av1/encoder/timing.c")
+    "${AOM_ROOT}/av1/encoder/timing.c"
+    "${AOM_ROOT}/av1/encoder/dwt.c"
+    "${AOM_ROOT}/av1/encoder/dwt.h")
 
 set(AOM_AV1_COMMON_INTRIN_SSE2 "${AOM_ROOT}/av1/common/x86/av1_txfm_sse2.h")
 

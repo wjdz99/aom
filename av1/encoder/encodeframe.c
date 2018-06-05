@@ -3729,9 +3729,20 @@ static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
     if (cm->delta_q_present_flag) {
       // Variance Delta-q
       av1_setup_src_planes(x, cpi->source, mi_row, mi_col, num_planes);
-      int block_var_level = av1_block_energy(cpi, x, cm->seq_params.sb_size);
-      int offset_qindex =
-          av1_compute_deltaq_from_energy_level(cpi, block_var_level);
+
+      int offset_qindex;
+      if (DELTAQ_MODULATION == 1) {
+        const int block_wavelet_energy_level =
+             av1_block_wavelet_energy_level(cpi, x, cm->seq_params.sb_size);
+        offset_qindex =
+            av1_compute_deltaq_from_energy_level(cpi, block_wavelet_energy_level);
+        printf("wavelet energy level:%d\n", block_wavelet_energy_level);
+      } else {
+        const int block_var_level =
+            av1_block_energy(cpi, x, cm->seq_params.sb_size);
+        offset_qindex =
+            av1_compute_deltaq_from_energy_level(cpi, block_var_level);
+      }
       int qmask = ~(cm->delta_q_res - 1);
       int current_qindex = clamp(cm->base_qindex + offset_qindex,
                                  cm->delta_q_res, 256 - cm->delta_q_res);
@@ -3740,8 +3751,8 @@ static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
           ((current_qindex - cm->base_qindex + cm->delta_q_res / 2) & qmask) +
           cm->base_qindex;
       assert(current_qindex > 0);
-      printf("var_level:%d, q_offset: %d, baseq: %d, q: %d\n", block_var_level,
-             offset_qindex, cm->base_qindex, current_qindex);
+/*      printf("var_level:%d, q_offset: %d, baseq: %d, q: %d\n", block_var_level,
+             offset_qindex, cm->base_qindex, current_qindex);*/
       xd->delta_qindex = current_qindex - cm->base_qindex;
       set_offsets(cpi, tile_info, x, mi_row, mi_col, cm->seq_params.sb_size);
       xd->mi[0]->current_q_index = current_qindex;
