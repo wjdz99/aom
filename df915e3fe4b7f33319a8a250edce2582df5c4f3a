@@ -46,6 +46,30 @@
       "revId": "df915e3fe4b7f33319a8a250edce2582df5c4f3a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2dd2e4f9_b88d0f31",
+        "filename": "av1/common/seg_common.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-05T16:45:11Z",
+      "side": 1,
+      "message": "Done. I wrote https://aomedia-review.googlesource.com/c/aom/+/60401. I also documented preskip_segid, which also has a cryptic name.",
+      "parentUuid": "7883fb4d_f1cbd038",
+      "range": {
+        "startLine": 47,
+        "startChar": 6,
+        "endLine": 47,
+        "endChar": 23
+      },
+      "revId": "df915e3fe4b7f33319a8a250edce2582df5c4f3a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
