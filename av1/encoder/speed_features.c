@@ -150,8 +150,8 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
   sf->prune_ext_partition_types_search_level = 1;
   sf->adaptive_txb_search_level = 1;
   sf->jnt_comp_skip_mv_search = 1;
-  sf->model_based_prune_tx_search_level = 1;
-  sf->model_based_post_interp_filter_breakout = 1;
+  // sf->model_based_prune_tx_search_level = 1;
+  // sf->model_based_post_interp_filter_breakout = 1;
 
   if (speed >= 1) {
     sf->gm_erroradv_type = GM_ERRORADV_TR_1;
