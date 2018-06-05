@@ -70,6 +70,30 @@
       "revId": "044d2852c5c3f7f3a17c07c0adb2e471ae689f8e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7c8d115_5da989b4",
+        "filename": "av1/common/seg_common.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-05T18:46:16Z",
+      "side": 1,
+      "message": "Done. Thank you for the answer. I definitely want to rename preskip_segid, but will do that in a separate CL because David has a pending CL that modifies related code.",
+      "parentUuid": "144e73e3_9192966a",
+      "range": {
+        "startLine": 51,
+        "startChar": 0,
+        "endLine": 52,
+        "endChar": 75
+      },
+      "revId": "044d2852c5c3f7f3a17c07c0adb2e471ae689f8e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
