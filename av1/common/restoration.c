@@ -1446,11 +1446,12 @@ static void save_deblock_boundary_lines(
   const int src_stride = frame->strides[is_uv] << use_highbd;
   const uint8_t *src_rows = src_buf + row * src_stride;
 
-  uint8_t *bdry_buf = is_above ? boundaries->stripe_boundary_above
-                               : boundaries->stripe_boundary_below;
-  uint8_t *bdry_start = bdry_buf + (RESTORATION_EXTRA_HORZ << use_highbd);
+  const uint8_t *bdry_buf = is_above ? boundaries->stripe_boundary_above
+                                     : boundaries->stripe_boundary_below;
+  const uint8_t *bdry_start = bdry_buf + (RESTORATION_EXTRA_HORZ << use_highbd);
   const int bdry_stride = boundaries->stripe_boundary_stride << use_highbd;
-  uint8_t *bdry_rows = bdry_start + RESTORATION_CTX_VERT * stripe * bdry_stride;
+  const uint8_t *bdry_rows =
+      bdry_start + RESTORATION_CTX_VERT * stripe * bdry_stride;
 
   // There is a rare case in which a processing stripe can end 1px above the
   // crop border. In this case, we do want to use deblocked pixels from below
@@ -1501,11 +1502,12 @@ static void save_cdef_boundary_lines(const YV12_BUFFER_CONFIG *frame,
   const int src_stride = frame->strides[is_uv] << use_highbd;
   const uint8_t *src_rows = src_buf + row * src_stride;
 
-  uint8_t *bdry_buf = is_above ? boundaries->stripe_boundary_above
-                               : boundaries->stripe_boundary_below;
-  uint8_t *bdry_start = bdry_buf + (RESTORATION_EXTRA_HORZ << use_highbd);
+  const uint8_t *bdry_buf = is_above ? boundaries->stripe_boundary_above
+                                     : boundaries->stripe_boundary_below;
+  const uint8_t *bdry_start = bdry_buf + (RESTORATION_EXTRA_HORZ << use_highbd);
   const int bdry_stride = boundaries->stripe_boundary_stride << use_highbd;
-  uint8_t *bdry_rows = bdry_start + RESTORATION_CTX_VERT * stripe * bdry_stride;
+  const uint8_t *bdry_rows =
+      bdry_start + RESTORATION_CTX_VERT * stripe * bdry_stride;
   const int src_width = frame->crop_widths[is_uv];
 
   // At the point where this function is called, we've already applied
@@ -1542,7 +1544,7 @@ static void save_tile_row_boundary_lines(const YV12_BUFFER_CONFIG *frame,
 
   RestorationStripeBoundaries *boundaries = &cm->rst_info[plane].boundaries;
 
-  int plane_height = ROUND_POWER_OF_TWO(cm->height, ss_y);
+  const int plane_height = ROUND_POWER_OF_TWO(cm->height, ss_y);
 
   int tile_stripe;
   for (tile_stripe = 0;; ++tile_stripe) {
@@ -1555,12 +1557,11 @@ static void save_tile_row_boundary_lines(const YV12_BUFFER_CONFIG *frame,
 
     const int frame_stripe = stripe0 + tile_stripe;
 
-    int use_deblock_above, use_deblock_below;
     // In this case, we should only use CDEF pixels at the top
     // and bottom of the frame as a whole; internal tile boundaries
     // can use deblocked pixels from adjacent tiles for context.
-    use_deblock_above = (frame_stripe > 0);
-    use_deblock_below = (y1 < plane_height);
+    const int use_deblock_above = (frame_stripe > 0);
+    const int use_deblock_below = (y1 < plane_height);
 
     if (!after_cdef) {
       // Save deblocked context where needed.
