@@ -2758,6 +2758,12 @@ static int ml_prune_2pass_split_partition(const PC_TREE_STATS *pc_tree_stats,
 }
 #undef FEATURE_SIZE
 
+static INLINE int not_palette_or_cfl(MB_MODE_INFO *const mbmi) {
+  PALETTE_MODE_INFO *const pmi = &mbmi->palette_mode_info;
+  return (pmi->palette_size[0] == 0 && pmi->palette_size[1] == 0 &&
+          mbmi->uv_mode != UV_CFL_PRED);
+}
+
 // TODO(jingning,jimbankoski,rbultje): properly skip partition types that are
 // unlikely to be selected depending on previous rate-distortion optimization
 // results, for encoding speed-up.
@@ -3078,8 +3084,9 @@ BEGIN_PARTITION_SEARCH:
     }
 
     restore_context(x, &x_ctx, mi_row, mi_col, bsize, num_planes);
+  } else {
+    pc_tree->none.rdcost = INT64_MAX;
   }
-
   // store estimated motion vector
   if (cpi->sf.adaptive_motion_search) store_pred_mv(x, ctx_none);
 
@@ -3109,13 +3116,18 @@ BEGIN_PARTITION_SEARCH:
         continue;
 
       if (cpi->sf.adaptive_motion_search) load_pred_mv(x, ctx_none);
-
-      pc_tree->split[idx]->index = idx;
+      PC_TREE *sub_tree = pc_tree->split[idx];
+      sub_tree->index = idx;
       int64_t *p_split_rd = &split_rd[idx];
       rd_pick_partition(cpi, td, tile_data, tp, mi_row + y_idx, mi_col + x_idx,
                         subsize, &this_rdc, best_rdc.rdcost - sum_rdc.rdcost,
-                        pc_tree->split[idx], p_split_rd);
-
+                        sub_tree, p_split_rd);
+      MB_MODE_INFO *const mbmi = &(sub_tree->none.mic);
+      const PARTITION_TYPE first_part = pc_tree->split[0]->partitioning;
+      if ((idx == 0 || ((idx == 1) && (first_part == PARTITION_NONE))) &&
+          (sub_tree->none.rdcost != INT64_MAX)) {
+        split_ctx_is_ready[idx] = not_palette_or_cfl(mbmi);
+      }
       if (this_rdc.rate == INT_MAX) {
         sum_rdc.rdcost = INT64_MAX;
         break;
@@ -3123,16 +3135,6 @@ BEGIN_PARTITION_SEARCH:
         sum_rdc.rate += this_rdc.rate;
         sum_rdc.dist += this_rdc.dist;
         sum_rdc.rdcost += this_rdc.rdcost;
-
-        if (idx <= 1 && (bsize <= BLOCK_8X8 ||
-                         pc_tree->split[idx]->partitioning == PARTITION_NONE)) {
-          MB_MODE_INFO *const mbmi = &(pc_tree->split[idx]->none.mic);
-          PALETTE_MODE_INFO *const pmi = &mbmi->palette_mode_info;
-          // Neither palette mode nor cfl predicted
-          if (pmi->palette_size[0] == 0 && pmi->palette_size[1] == 0) {
-            if (mbmi->uv_mode != UV_CFL_PRED) split_ctx_is_ready[idx] = 1;
-          }
-        }
       }
     }
     reached_last_index = (idx == 4);
@@ -3187,12 +3189,8 @@ BEGIN_PARTITION_SEARCH:
 
     if (sum_rdc.rdcost < best_rdc.rdcost && has_rows) {
       PICK_MODE_CONTEXT *ctx_h = &pc_tree->horizontal[0];
-      MB_MODE_INFO *const mbmi = &(pc_tree->horizontal[0].mic);
-      PALETTE_MODE_INFO *const pmi = &mbmi->palette_mode_info;
       // Neither palette mode nor cfl predicted
-      if (pmi->palette_size[0] == 0 && pmi->palette_size[1] == 0) {
-        if (mbmi->uv_mode != UV_CFL_PRED) horz_ctx_is_ready = 1;
-      }
+      horz_ctx_is_ready = not_palette_or_cfl(&(pc_tree->horizontal[0].mic));
       update_state(cpi, tile_data, td, ctx_h, mi_row, mi_col, subsize, 1);
       encode_superblock(cpi, tile_data, td, tp, DRY_RUN_NORMAL, mi_row, mi_col,
                         subsize, NULL);
@@ -3272,12 +3270,7 @@ BEGIN_PARTITION_SEARCH:
     vert_rd[0] = sum_rdc.rdcost;
     const int64_t vert_max_rdcost = best_rdc.rdcost;
     if (sum_rdc.rdcost < vert_max_rdcost && has_cols) {
-      MB_MODE_INFO *const mbmi = &(pc_tree->vertical[0].mic);
-      PALETTE_MODE_INFO *const pmi = &mbmi->palette_mode_info;
-      // Neither palette mode nor cfl predicted
-      if (pmi->palette_size[0] == 0 && pmi->palette_size[1] == 0) {
-        if (mbmi->uv_mode != UV_CFL_PRED) vert_ctx_is_ready = 1;
-      }
+      vert_ctx_is_ready = not_palette_or_cfl(&(pc_tree->vertical[0].mic));
       update_state(cpi, tile_data, td, &pc_tree->vertical[0], mi_row, mi_col,
                    subsize, 1);
       encode_superblock(cpi, tile_data, td, tp, DRY_RUN_NORMAL, mi_row, mi_col,
