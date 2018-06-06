@@ -356,6 +356,54 @@ static uint32_t read_one_tile_group_obu(
   return header_size + tg_payload_size;
 }
 
+// Only called while large_scale_tile = 1.
+static uint32_t read_and_decode_one_tile_list(AV1Decoder *pbi,
+                                              const uint8_t *data,
+                                              const uint8_t *data_end,
+                                              const uint8_t **p_data_end,
+                                              int *frame_decoding_finished) {
+  AV1_COMMON *const cm = &pbi->common;
+  uint32_t tile_list_payload_size = 0;
+  int num_tiles = cm->tile_cols * cm->tile_rows;
+  int startTile, endTile;
+  int i = 0;
+
+  // Always have 1 TG.
+  startTile = 0;
+  endTile = num_tiles - 1;
+
+  for (i = 0; i <= pbi->tile_count_minus_1; i++) {
+    // Process 1 tile.
+    int ref_idx;
+    size_t tile_info_bytes;
+
+    ref_idx = *data++;  // TODO(yunqing): set reference here.
+    (void)ref_idx;
+
+    pbi->dec_tile_row = *data++;
+    pbi->dec_tile_col = *data++;
+    pbi->coded_tile_data_size = (*(uint16_t *)data) + 1;
+    data += 2;
+    tile_info_bytes = 5;
+
+    int initialize_flag = 0;
+    int32_t tile_payload_size;
+
+    av1_decode_tg_tiles_and_wrapup(pbi, data, data_end, p_data_end, startTile,
+                                   endTile, initialize_flag);
+    tile_payload_size = (uint32_t)(*p_data_end - data);
+
+    tile_list_payload_size += tile_info_bytes + tile_payload_size;
+
+    // Update data ptr for next tile decoding.
+    data = *p_data_end;
+    assert(data <= data_end);
+  }
+
+  if (i == pbi->tile_count_minus_1 + 1) *frame_decoding_finished = 1;
+  return tile_list_payload_size;
+}
+
 static void read_metadata_itut_t35(const uint8_t *data, size_t sz) {
   struct aom_read_bit_buffer rb = { data, data + sz, 0, NULL, NULL };
   for (size_t i = 0; i < sz; i++) {
@@ -524,6 +572,12 @@ aom_codec_err_t aom_read_obu_header_and_size(const uint8_t *data,
     if (obu_size < obu_header->size) return AOM_CODEC_CORRUPT_FRAME;
 
     *payload_size = obu_size - obu_header->size;
+  } else if (obu_header->type == OBU_TILE_LIST) {
+    // Use 4 bytes to store the obu_size in a Tile List OBU.
+    length_field_size = 4;
+    const uint8_t *obu_size_data = data + obu_header->size;
+    uint32_t tile_list_obu_size = *(uint32_t *)obu_size_data;
+    *payload_size = (size_t)tile_list_obu_size;
   } else {
     // Size field comes after the OBU header, and is just the payload size
     status = read_obu_size(data + obu_header->size,
@@ -578,6 +632,7 @@ int aom_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
     aom_codec_err_t status =
         aom_read_obu_header_and_size(data, bytes_available, cm->is_annexb,
                                      &obu_header, &payload_size, &bytes_read);
+
     if (status != AOM_CODEC_OK) {
       cm->error.error_code = status;
       return -1;
@@ -651,7 +706,7 @@ int aom_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
 #if !EXT_TILE_DEBUG
         // In large scale tile coding, decode the common camera frame header
         // before any tile list OBU.
-        if (pbi->camera_frame_header_ready) {
+        if (!pbi->ext_tile_debug && pbi->camera_frame_header_ready) {
           frame_decoding_finished = 1;
           // Skip the rest of the frame data.
           decoded_payload_size = payload_size;
@@ -696,8 +751,17 @@ int aom_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
           return -1;
         }
 
-        // Place holder: Process the tile list.
+        // Process the tile list.
+        const uint8_t *temp = data;
+        pbi->output_frame_width_in_tiles_minus_1 = *temp++;
+        pbi->output_frame_height_in_tiles_minus_1 = *temp++;
+        pbi->tile_count_minus_1 = *(uint16_t *)temp;
+        obu_payload_offset = 4;
+        decoded_payload_size += 4;
 
+        decoded_payload_size += read_and_decode_one_tile_list(
+            pbi, data + obu_payload_offset, data + payload_size, p_data_end,
+            &frame_decoding_finished);
         break;
       case OBU_PADDING:
       default:
