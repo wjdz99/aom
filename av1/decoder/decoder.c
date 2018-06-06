@@ -265,6 +265,20 @@ static void swap_frame_buffers(AV1Decoder *pbi, int frame_decoded) {
   BufferPool *const pool = cm->buffer_pool;
   RefCntBuffer *const frame_bufs = cm->buffer_pool->frame_bufs;
 
+  // In ext-tile decoding, the camera frame header is only decoded once. So,
+  // we don't release the references here.
+  if (pbi->camera_frame_header_ready) {
+    if (frame_decoded) {
+      cm->frame_to_show = get_frame_new_buffer(cm);
+      assert(pbi->hold_ref_buf == 1);
+
+      lock_buffer_pool(pool);
+      --frame_bufs[cm->new_fb_idx].ref_count;
+      unlock_buffer_pool(pool);
+    }
+    return;
+  }
+
   if (frame_decoded) {
     lock_buffer_pool(pool);
     for (mask = pbi->refresh_frame_flags; mask; mask >>= 1) {
@@ -354,7 +368,8 @@ int av1_receive_compressed_data(AV1Decoder *pbi, size_t size,
   // Assign a MV array to the frame buffer.
   cm->cur_frame = &pool->frame_bufs[cm->new_fb_idx];
 
-  pbi->hold_ref_buf = 0;
+  if (!pbi->camera_frame_header_ready) pbi->hold_ref_buf = 0;
+
   pbi->cur_buf = &frame_bufs[cm->new_fb_idx];
 
   if (setjmp(cm->error.jmp)) {
