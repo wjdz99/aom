@@ -3123,9 +3123,9 @@ BEGIN_PARTITION_SEARCH:
         sum_rdc.rate += this_rdc.rate;
         sum_rdc.dist += this_rdc.dist;
         sum_rdc.rdcost += this_rdc.rdcost;
-
-        if (idx <= 1 && (bsize <= BLOCK_8X8 ||
-                         pc_tree->split[idx]->partitioning == PARTITION_NONE)) {
+        const PARTITION_TYPE first_part = pc_tree->split[0]->partitioning;
+        if ((idx == 0) ||  // first block is always reuseable
+            ((idx == 1) && (first_part == PARTITION_NONE))) {
           MB_MODE_INFO *const mbmi = &(pc_tree->split[idx]->none.mic);
           PALETTE_MODE_INFO *const pmi = &mbmi->palette_mode_info;
           // Neither palette mode nor cfl predicted
