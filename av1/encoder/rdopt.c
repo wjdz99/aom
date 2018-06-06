@@ -515,9 +515,9 @@ typedef struct InterModeSearchState {
 
 typedef struct InterModeRdModel {
   int ready;
-  double a;
-  double b;
-  double dist_mean;
+  double a[PLANE_TYPES];
+  double b[PLANE_TYPES];
+  double dist_mean[PLANE_TYPES];
   int skip_count;
   int non_skip_count;
   int fp_skip_count;
@@ -528,9 +528,12 @@ InterModeRdModel inter_mode_rd_models[BLOCK_SIZES_ALL];
 
 #define INTER_MODE_RD_DATA_OVERALL_SIZE 6400
 static int inter_mode_data_idx[4];
-static int64_t inter_mode_data_sse[4][INTER_MODE_RD_DATA_OVERALL_SIZE];
-static int64_t inter_mode_data_dist[4][INTER_MODE_RD_DATA_OVERALL_SIZE];
-static int inter_mode_data_residue_cost[4][INTER_MODE_RD_DATA_OVERALL_SIZE];
+static int64_t inter_mode_data_sse[4][PLANE_TYPES]
+                                  [INTER_MODE_RD_DATA_OVERALL_SIZE];
+static int64_t inter_mode_data_dist[4][PLANE_TYPES]
+                                   [INTER_MODE_RD_DATA_OVERALL_SIZE];
+static int inter_mode_data_residue_cost[4][PLANE_TYPES]
+                                       [INTER_MODE_RD_DATA_OVERALL_SIZE];
 static int inter_mode_data_all_cost[4][INTER_MODE_RD_DATA_OVERALL_SIZE];
 static int64_t inter_mode_data_ref_best_rd[4][INTER_MODE_RD_DATA_OVERALL_SIZE];
 
@@ -567,16 +570,34 @@ void av1_inter_mode_data_show(const AV1_COMMON *cm) {
   }
 }
 
-static int64_t get_est_rd(BLOCK_SIZE bsize, int rdmult, int64_t sse,
-                          int curr_cost) {
+static int64_t get_est_rd(BLOCK_SIZE bsize, int rdmult, int64_t sse_y,
+                          int64_t sse_uv, int curr_cost) {
   aom_clear_system_state();
   InterModeRdModel *md = &inter_mode_rd_models[bsize];
   if (md->ready) {
-    const double est_ld = md->a * sse + md->b;
-    const double est_residue_cost = (sse - md->dist_mean) / est_ld;
-    const int est_cost = (int)round(est_residue_cost) + curr_cost;
-    const int64_t int64_dist_mean = (int64_t)round(md->dist_mean);
-    const int64_t est_rd = RDCOST(rdmult, est_cost, int64_dist_mean);
+    const double est_ld_y = md->a[PLANE_TYPE_Y] * sse_y + md->b[PLANE_TYPE_Y];
+    double est_residue_cost_y =
+        (sse_y - md->dist_mean[PLANE_TYPE_Y]) / est_ld_y;
+    double dist_y = md->dist_mean[PLANE_TYPE_Y];
+    if (sse_y < md->dist_mean[PLANE_TYPE_Y]) {
+      est_residue_cost_y = 0;
+      dist_y = sse_y;
+    }
+
+    const double est_ld_uv =
+        md->a[PLANE_TYPE_UV] * sse_uv + md->b[PLANE_TYPE_UV];
+    double est_residue_cost_uv =
+        (sse_uv - md->dist_mean[PLANE_TYPE_UV]) / est_ld_uv;
+    double dist_uv = md->dist_mean[PLANE_TYPE_UV];
+    if (sse_uv < md->dist_mean[PLANE_TYPE_UV]) {
+      est_residue_cost_uv = 0;
+      dist_uv = sse_uv;
+    }
+
+    const int est_cost =
+        (int)round(est_residue_cost_y + est_residue_cost_uv) + curr_cost;
+    const int64_t dist_mean = (int64_t)round(dist_y + dist_uv);
+    const int64_t est_rd = RDCOST(rdmult, est_cost, dist_mean);
     return est_rd;
   }
   return 0;
@@ -597,35 +618,38 @@ void av1_inter_mode_data_fit(int rdmult) {
     if (data_num < data_num_threshold[md->bracket_idx]) {
       continue;
     }
-    double my = 0;
-    double mx = 0;
-    double dx = 0;
-    double dxy = 0;
-    double dist_mean = 0;
-    const int train_num = data_num;
-    for (int i = 0; i < train_num; ++i) {
-      const double sse = inter_mode_data_sse[block_idx][i];
-      const double dist = inter_mode_data_dist[block_idx][i];
-      const double residue_cost = inter_mode_data_residue_cost[block_idx][i];
-      const double ld = (sse - dist) / residue_cost;
-      dist_mean += dist;
-      my += ld;
-      mx += sse;
-      dx += sse * sse;
-      dxy += sse * ld;
-    }
-    dist_mean = dist_mean / data_num;
-    my = my / train_num;
-    mx = mx / train_num;
-    dx = sqrt(dx / train_num);
-    dxy = dxy / train_num;
-
-    md->dist_mean = dist_mean;
-    md->a = (dxy - mx * my) / (dx * dx - mx * mx);
-    md->b = my - md->a * mx;
     ++md->bracket_idx;
     md->ready = 1;
     assert(md->bracket_idx < DATA_BRACKETS);
+    for (int pi = 0; pi < PLANE_TYPES; ++pi) {
+      double my = 0;
+      double mx = 0;
+      double dx = 0;
+      double dxy = 0;
+      double dist_mean = 0;
+      const int train_num = data_num;
+      for (int i = 0; i < train_num; ++i) {
+        const double sse = inter_mode_data_sse[block_idx][pi][i];
+        const double dist = inter_mode_data_dist[block_idx][pi][i];
+        const double residue_cost =
+            inter_mode_data_residue_cost[block_idx][pi][i];
+        const double ld = (sse - dist) / residue_cost;
+        dist_mean += dist;
+        my += ld;
+        mx += sse;
+        dx += sse * sse;
+        dxy += sse * ld;
+      }
+      dist_mean = dist_mean / data_num;
+      my = my / train_num;
+      mx = mx / train_num;
+      dx = sqrt(dx / train_num);
+      dxy = dxy / train_num;
+
+      md->dist_mean[pi] = dist_mean;
+      md->a[pi] = (dxy - mx * my) / (dx * dx - mx * mx);
+      md->b[pi] = my - md->a[pi] * mx;
+    }
 
     (void)rdmult;
 #if 0
@@ -634,12 +658,22 @@ void av1_inter_mode_data_fit(int rdmult) {
     double avg_error = 0;
     const int test_num = data_num;
     for (int i = 0; i < data_num; ++i) {
-      const int64_t sse = inter_mode_data_sse[block_idx][i];
-      const int64_t dist = inter_mode_data_dist[block_idx][i];
-      const int64_t residue_cost = inter_mode_data_residue_cost[block_idx][i];
+      const int64_t sse_y = inter_mode_data_sse[block_idx][PLANE_TYPE_Y][i];
+      const int64_t sse_uv = inter_mode_data_sse[block_idx][PLANE_TYPE_UV][i];
+
+      const int64_t dist_y = inter_mode_data_dist[block_idx][PLANE_TYPE_Y][i];
+      const int64_t dist_uv = inter_mode_data_dist[block_idx][PLANE_TYPE_UV][i];
+      const int64_t dist = dist_y + dist_uv;
+
+      const int64_t residue_cost_y =
+          inter_mode_data_residue_cost[block_idx][PLANE_TYPE_Y][i];
+      const int64_t residue_cost_uv =
+          inter_mode_data_residue_cost[block_idx][PLANE_TYPE_UV][i];
+      const int64_t residue_cost = residue_cost_y + residue_cost_uv;
+
       const int64_t all_cost = inter_mode_data_all_cost[block_idx][i];
       const int64_t est_rd =
-          get_est_rd(bsize, rdmult, sse, all_cost - residue_cost);
+          get_est_rd(bsize, rdmult, sse_y, sse_uv, all_cost - residue_cost);
       const int64_t real_rd = RDCOST(rdmult, all_cost, dist);
       const int64_t ref_best_rd = inter_mode_data_ref_best_rd[block_idx][i];
       if (est_rd > ref_best_rd) {
@@ -657,17 +691,28 @@ void av1_inter_mode_data_fit(int rdmult) {
   }
 }
 
-static void inter_mode_data_push(BLOCK_SIZE bsize, int64_t sse, int64_t dist,
-                                 int residue_cost, int all_cost,
+static void inter_mode_data_push(BLOCK_SIZE bsize, RD_STATS *rd_stats_y,
+                                 RD_STATS *rd_stats_uv, int all_cost,
                                  int64_t ref_best_rd) {
-  if (residue_cost == 0 || sse == dist) return;
+  if (rd_stats_y->rate == 0 || rd_stats_uv->rate == 0 ||
+      rd_stats_y->dist == 0 || rd_stats_uv->dist == 0)
+    return;
   const int block_idx = inter_mode_data_block_idx(bsize);
   if (block_idx == -1) return;
   if (inter_mode_data_idx[block_idx] < INTER_MODE_RD_DATA_OVERALL_SIZE) {
     const int data_idx = inter_mode_data_idx[block_idx];
-    inter_mode_data_sse[block_idx][data_idx] = sse;
-    inter_mode_data_dist[block_idx][data_idx] = dist;
-    inter_mode_data_residue_cost[block_idx][data_idx] = residue_cost;
+    inter_mode_data_sse[block_idx][PLANE_TYPE_Y][data_idx] = rd_stats_y->sse;
+    inter_mode_data_sse[block_idx][PLANE_TYPE_UV][data_idx] = rd_stats_uv->sse;
+
+    inter_mode_data_dist[block_idx][PLANE_TYPE_Y][data_idx] = rd_stats_y->dist;
+    inter_mode_data_dist[block_idx][PLANE_TYPE_UV][data_idx] =
+        rd_stats_uv->dist;
+
+    inter_mode_data_residue_cost[block_idx][PLANE_TYPE_Y][data_idx] =
+        rd_stats_y->rate;
+    inter_mode_data_residue_cost[block_idx][PLANE_TYPE_UV][data_idx] =
+        rd_stats_uv->rate;
+
     inter_mode_data_all_cost[block_idx][data_idx] = all_cost;
     inter_mode_data_ref_best_rd[block_idx][data_idx] = ref_best_rd;
     ++inter_mode_data_idx[block_idx];
@@ -1712,22 +1757,24 @@ static void model_rd_from_sse(const AV1_COMP *const cpi,
     else
       *rate = 0;
     *dist = (square_error * quantizer) >> 8;
-  } else {
-    av1_model_rd_from_var_lapndz(sse, num_pels_log2_lookup[bsize],
-                                 pd->dequant_Q3[1] >> dequant_shift, rate,
-                                 dist);
+    *dist <<= 4;
+    return;
   }
 
+  av1_model_rd_from_var_lapndz(sse, num_pels_log2_lookup[bsize],
+                               pd->dequant_Q3[1] >> dequant_shift, rate, dist);
   *dist <<= 4;
 }
 
 #if CONFIG_COLLECT_INTER_MODE_RD_STATS
-static int64_t get_sse(const AV1_COMP *cpi, const MACROBLOCK *x) {
+static void get_sse(const AV1_COMP *cpi, const MACROBLOCK *x, int64_t *sse_y,
+                    int64_t *sse_uv) {
   const AV1_COMMON *cm = &cpi->common;
   const int num_planes = av1_num_planes(cm);
   const MACROBLOCKD *xd = &x->e_mbd;
   const MB_MODE_INFO *mbmi = xd->mi[0];
-  int64_t total_sse = 0;
+  *sse_y = 0;
+  *sse_uv = 0;
   for (int plane = 0; plane < num_planes; ++plane) {
     const struct macroblock_plane *const p = &x->plane[plane];
     const struct macroblockd_plane *const pd = &xd->plane[plane];
@@ -1739,10 +1786,13 @@ static int64_t get_sse(const AV1_COMP *cpi, const MACROBLOCK *x) {
 
     cpi->fn_ptr[bs].vf(p->src.buf, p->src.stride, pd->dst.buf, pd->dst.stride,
                        &sse);
-    total_sse += sse;
+    if (plane == 0)
+      *sse_y += sse;
+    else
+      *sse_uv += sse;
   }
-  total_sse <<= 4;
-  return total_sse;
+  *sse_y <<= 4;
+  *sse_uv <<= 4;
 }
 #endif
 
@@ -7886,9 +7936,11 @@ static int64_t motion_mode_rd(const AV1_COMP *const cpi, MACROBLOCK *const x,
       if (cpi->sf.inter_mode_rd_model_estimation) {
         InterModeRdModel *md = &inter_mode_rd_models[mbmi->sb_type];
         if (md->ready) {
-          const int64_t curr_sse = get_sse(cpi, x);
-          est_rd =
-              get_est_rd(mbmi->sb_type, x->rdmult, curr_sse, rd_stats->rate);
+          int64_t curr_sse_y;
+          int64_t curr_sse_uv;
+          get_sse(cpi, x, &curr_sse_y, &curr_sse_uv);
+          est_rd = get_est_rd(mbmi->sb_type, x->rdmult, curr_sse_y, curr_sse_uv,
+                              rd_stats->rate);
           est_skip = est_rd * 0.8 > *best_est_rd;
 #if INTER_MODE_RD_TEST
           if (est_rd < *best_est_rd) {
@@ -8014,9 +8066,7 @@ static int64_t motion_mode_rd(const AV1_COMP *const cpi, MACROBLOCK *const x,
           }
         }
 #endif  // INTER_MODE_RD_TEST
-        inter_mode_data_push(mbmi->sb_type, rd_stats->sse, rd_stats->dist,
-                             rd_stats_y->rate + rd_stats_uv->rate +
-                                 x->skip_cost[skip_ctx][mbmi->skip],
+        inter_mode_data_push(mbmi->sb_type, rd_stats_y, rd_stats_uv,
                              rd_stats->rate, ref_best_rd);
       }
 #endif  // CONFIG_COLLECT_INTER_MODE_RD_STATS
