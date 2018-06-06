@@ -127,7 +127,7 @@ int main(int argc, char **argv) {
     if (aom_codec_decode(&codec, frame, frame_size, NULL))
       die_codec(&codec, "Failed to decode frame.");
 
-    if (aom_codec_control(&codec, AV1_GET_NEW_FRAME_IMAGE,
+    if (aom_codec_control(&codec, AV1_COPY_NEW_FRAME_IMAGE,
                           &reference_images[frame_count]))
       die_codec(&codec, "Failed to get decoded reference frame");
 
@@ -144,6 +144,15 @@ int main(int argc, char **argv) {
     }
   }
 
+  // TODO(yunqing): need to implement this at tile level.
+  av1_ref_frame_t ref;
+  ref.idx = 0;
+  ref.use_external_ref = 1;
+  ref.img = reference_images[0];  // hard-coded for now.
+
+  if (aom_codec_control(&codec, AV1_SET_REFERENCE, &ref))
+    die_codec(&codec, "Failed to set reference frame");
+
   // Decode the lightfield.
   aom_codec_control_(&codec, AV1_SET_TILE_MODE, 1);
 
@@ -153,18 +162,24 @@ int main(int argc, char **argv) {
   if (aom_codec_decode(&codec, frame, frame_size, NULL))
     die_codec(&codec, "Failed to decode the frame.");
 
+  printf("\nCamera frame header is decoded.\n");
+
   // Decode tile lists one by one.
   for (n = 0; n < num_tile_lists; n++) {
     aom_video_reader_read_frame(reader);
     frame = aom_video_reader_get_frame(reader, &frame_size);
-
-    // TODO(yunqing): need to implement this at tile level.
-    av1_ref_frame_t ref;
-    ref.idx = 0;
-    ref.use_external_ref = 1;
-    ref.img = reference_images[0];  // hard-coded for now.
-    if (aom_codec_control(&codec, AV1_SET_REFERENCE, &ref))
-      die_codec(&codec, "Failed to set reference frame");
+    //
+    //    // TODO(yunqing): need to implement this at tile level.
+    //    av1_ref_frame_t ref;
+    //    ref.idx = 0;
+    //    ref.use_external_ref = 1;
+    //    ref.img = reference_images[0];  // hard-coded for now.
+    //
+    //
+    //    printf("\next reference: %p\n", reference_images[0].planes[0]);
+    //
+    //    if (aom_codec_control(&codec, AV1_SET_REFERENCE, &ref))
+    //      die_codec(&codec, "Failed to set reference frame");
 
     if (aom_codec_decode(&codec, frame, frame_size, NULL))
       die_codec(&codec, "Failed to decode the tile list.");

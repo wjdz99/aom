@@ -25,7 +25,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <assert.h>
 
 #include "aom/aom_decoder.h"
 #include "aom/aom_encoder.h"
@@ -92,6 +91,7 @@ int main(int argc, char **argv) {
   int lf_blocksize;
   int u_blocks, v_blocks;
   int n, i;
+  aom_codec_pts_t pts;
 
   exec_name = argv[0];
   if (argc != 6) die("Invalid number of arguments.");
@@ -137,8 +137,7 @@ int main(int argc, char **argv) {
     size_t frame_size = 0;
     const unsigned char *frame =
         aom_video_reader_get_frame(reader, &frame_size);
-    aom_codec_pts_t pts =
-        (aom_codec_pts_t)aom_video_reader_get_frame_pts(reader);
+    pts = (aom_codec_pts_t)aom_video_reader_get_frame_pts(reader);
 
     // Copy references bitstream directly.
     if (!aom_video_writer_write_frame(writer, frame, frame_size, pts))
@@ -150,6 +149,27 @@ int main(int argc, char **argv) {
 
   // Decode camera frames.
   aom_codec_control_(&codec, AV1_SET_TILE_MODE, 1);
+  aom_codec_control_(&codec, AV1D_EXT_TILE_DEBUG, 1);
+
+  FILE *infile = aom_video_reader_get_file(reader);
+  // Record the offset of the first camera image.
+  const FileOffset camera_frame_pos = ftello(infile);
+
+  // Read out the first camera frame.
+  aom_video_reader_read_frame(reader);
+
+  // Copy first camera frame for getting camera frame header. This is done
+  // only once.
+  {
+    size_t frame_size = 0;
+    const unsigned char *frame =
+        aom_video_reader_get_frame(reader, &frame_size);
+    pts = (aom_codec_pts_t)aom_video_reader_get_frame_pts(reader);
+
+    // Copy camera frame bitstream directly to get the header.
+    if (!aom_video_writer_write_frame(writer, frame, frame_size, pts))
+      die_codec(&codec, "Failed to copy compressed camera frame.");
+  }
 
   // Allocate a buffer to store tile list bitstream. Image format
   // AOM_IMG_FMT_I420.
@@ -158,21 +178,14 @@ int main(int argc, char **argv) {
   unsigned char *tl_buf = (unsigned char *)malloc(data_sz);
   if (tl_buf == NULL) die_codec(&codec, "Failed to allocate tile list buffer.");
 
-  FILE *infile = aom_video_reader_get_file(reader);
-  // Record the offset of the first camera image.
-  const FileOffset camera_frame_pos = ftello(infile);
-  aom_codec_pts_t tl_pts = 0;
-  int camera_frame_header_received = 0;
+  aom_codec_pts_t tl_pts = pts;
 
   // Process 1 tile list.
   for (n = 0; n < num_tile_lists; n++) {
     unsigned char *tl = tl_buf;
+    uint32_t tile_list_obu_header_size = 0;
     uint32_t tile_list_obu_size = 0;
-    int frame_cnt = -1;
     unsigned char *saved_obu_size_loc = NULL;
-
-    // Seek to the first camera image.
-    fseeko(infile, camera_frame_pos, SEEK_SET);
 
     // Start to construct tile list OBU
     // Write tile list OBU header - 1 byte long. Details:
@@ -185,11 +198,13 @@ int main(int argc, char **argv) {
     // Write OBU size - length_field_size is always 4 byte long.
     saved_obu_size_loc = tl;
     tl += 4;
+    tile_list_obu_header_size = 5;
 
     // write_tile_list_obu()
     *tl++ = output_frame_width_in_tiles_minus_1;
     *tl++ = output_frame_height_in_tiles_minus_1;
-    *(uint16_t *)tl++ = tile_count_minus_1;
+    *(uint16_t *)tl = tile_count_minus_1;
+    tl += 2;
     tile_list_obu_size += 4;
 
     // Write each tile's data
@@ -200,28 +215,15 @@ int main(int argc, char **argv) {
       int ref_idx = tile_list[n][i].reference_idx;
       int tc = tile_list[n][i].tile_col;
       int tr = tile_list[n][i].tile_row;
+      int frame_cnt = -1;
+
+      // Seek to the first camera image.
+      fseeko(infile, camera_frame_pos, SEEK_SET);
 
       // Read out the camera image
-      assert(frame_cnt <= image_idx);
       while (frame_cnt != image_idx) {
         aom_video_reader_read_frame(reader);
         frame_cnt++;
-
-        // Copy first camera frame for getting camera frame header. This is done
-        // only once.
-        if (frame_cnt == 0 && !camera_frame_header_received) {
-          size_t frame_size = 0;
-          const unsigned char *frame =
-              aom_video_reader_get_frame(reader, &frame_size);
-          aom_codec_pts_t pts =
-              (aom_codec_pts_t)aom_video_reader_get_frame_pts(reader);
-
-          // Copy camera frame bitstream directly to get the header.
-          if (!aom_video_writer_write_frame(writer, frame, frame_size, pts))
-            die_codec(&codec, "Failed to copy compressed camera frame.");
-
-          camera_frame_header_received = 1;
-        }
       }
 
       size_t frame_size = 0;
@@ -237,27 +239,34 @@ int main(int argc, char **argv) {
 
       aom_codec_control_(&codec, AV1D_GET_TILE_DATA, &tile_data);
 
-      // Copy over tile data.
+      // Copy over tile info.
       //  uint8_t anchor_frame_idx;
       //  uint8_t tile_row;
       //  uint8_t tile_col;
       //  uint16_t coded_tile_data_size_minus_1;
       //  uint8_t *coded_tile_data;
+      uint32_t tile_info_bytes = 5;
       *tl++ = ref_idx;
       *tl++ = tr;
       *tl++ = tc;
-      *(uint16_t *)tl++ = (uint16_t)(tile_data.coded_tile_data_size - 1);
+      *(uint16_t *)tl = (uint16_t)(tile_data.coded_tile_data_size - 1);
+      tl += 2;
+
       memcpy(tl, (uint8_t *)tile_data.coded_tile_data,
              tile_data.coded_tile_data_size);
-      tile_list_obu_size += 5 + (uint32_t)tile_data.coded_tile_data_size;
+      tl += tile_data.coded_tile_data_size;
+
+      tile_list_obu_size +=
+          tile_info_bytes + (uint32_t)tile_data.coded_tile_data_size;
     }
 
     // Write tile list OBU size.
     *(uint32_t *)saved_obu_size_loc = tile_list_obu_size;
 
     // Copy camera frame bitstream directly to get the header.
-    if (!aom_video_writer_write_frame(writer, tl_buf, tile_list_obu_size,
-                                      tl_pts))
+    if (!aom_video_writer_write_frame(
+            writer, tl_buf, tile_list_obu_header_size + tile_list_obu_size,
+            tl_pts))
       die_codec(&codec, "Failed to copy compressed tile list.");
 
     tl_pts++;
