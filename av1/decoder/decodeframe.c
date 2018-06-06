@@ -853,7 +853,6 @@ static void decode_token_and_recon_block(AV1Decoder *const pbi,
         assert(ref == 0);
       } else {
         RefBuffer *ref_buf = &cm->frame_refs[frame - LAST_FRAME];
-
         xd->block_refs[ref] = ref_buf;
         av1_setup_pre_planes(xd, ref, ref_buf->buf, mi_row, mi_col,
                              &ref_buf->sf, num_planes);
@@ -1153,6 +1152,7 @@ static void decode_partition(AV1Decoder *const pbi, MACROBLOCKD *const xd,
       for (int rrow = rrow0; rrow < rrow1; ++rrow) {
         for (int rcol = rcol0; rcol < rcol1; ++rcol) {
           const int runit_idx = tile_tl_idx + rcol + rrow * rstride;
+
           loop_restoration_read_sb_coeffs(cm, xd, r, plane, runit_idx);
         }
       }
@@ -2179,6 +2179,16 @@ static const uint8_t *get_ls_tile_buffers(
 }
 #endif  // EXT_TILE_DEBUG
 
+static const uint8_t *get_ls_single_tile_buffer(
+    AV1Decoder *pbi, const uint8_t *data,
+    TileBufferDec (*const tile_buffers)[MAX_TILE_COLS]) {
+  assert(pbi->dec_tile_row >= 0 && pbi->dec_tile_col >= 0);
+  tile_buffers[pbi->dec_tile_row][pbi->dec_tile_col].data = data;
+  tile_buffers[pbi->dec_tile_row][pbi->dec_tile_col].size =
+      (size_t)pbi->coded_tile_data_size;
+  return data + pbi->coded_tile_data_size;
+}
+
 // Reads the next tile returning its size and adjusting '*data' accordingly
 // based on 'is_last'.
 static void get_tile_buffer(const uint8_t *const data_end,
@@ -2253,10 +2263,8 @@ static void decode_tile_sb_row(AV1Decoder *pbi, ThreadData *const td,
 static int check_trailing_bits_after_symbol_coder(aom_reader *r) {
   uint32_t nb_bits = aom_reader_tell(r);
   uint32_t nb_bytes = (nb_bits + 7) >> 3;
-
   const uint8_t *p_begin = aom_reader_find_begin(r);
   const uint8_t *p_end = aom_reader_find_end(r);
-
   // It is legal to have no padding bytes (nb_bytes == p_end - p_begin).
   if ((ptrdiff_t)nb_bytes > p_end - p_begin) return -1;
   const uint8_t *p = p_begin + nb_bytes;
@@ -2353,7 +2361,9 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
   assert(tile_cols <= MAX_TILE_COLS);
 
 #if EXT_TILE_DEBUG
-  if (cm->large_scale_tile)
+  if (cm->large_scale_tile && !pbi->ext_tile_debug)
+    raw_data_end = get_ls_single_tile_buffer(pbi, data, tile_buffers);
+  else if (cm->large_scale_tile && pbi->ext_tile_debug)
     raw_data_end = get_ls_tile_buffers(pbi, data, data_end, tile_buffers);
   else
 #endif  // EXT_TILE_DEBUG
@@ -3944,6 +3954,7 @@ int av1_decode_frame_headers_and_setup(AV1Decoder *pbi,
   av1_setup_motion_field(cm);
 
   av1_setup_block_planes(xd, cm->subsampling_x, cm->subsampling_y, num_planes);
+
   if (cm->primary_ref_frame == PRIMARY_REF_NONE) {
     // use the default frame context values
     *cm->fc = cm->frame_contexts[FRAME_CONTEXT_DEFAULTS];
@@ -3979,7 +3990,7 @@ void av1_decode_tg_tiles_and_wrapup(AV1Decoder *pbi, const uint8_t *data,
 
   if (initialize_flag) setup_frame_info(pbi);
 
-  if (pbi->max_threads > 1 && tile_count_tg > 1)
+  if (pbi->max_threads > 1 && tile_count_tg > 1 && !cm->large_scale_tile)
     *p_data_end = decode_tiles_mt(pbi, data, data_end, startTile, endTile);
   else
     *p_data_end = decode_tiles(pbi, data, data_end, startTile, endTile);
@@ -3992,7 +4003,7 @@ void av1_decode_tg_tiles_and_wrapup(AV1Decoder *pbi, const uint8_t *data,
     return;
   }
 
-  if (!cm->allow_intrabc) {
+  if (!cm->allow_intrabc && !cm->single_tile_decoding) {
     if (cm->lf.filter_level[0] || cm->lf.filter_level[1]) {
 #if LOOP_FILTER_BITMASK
       av1_loop_filter_frame(get_frame_new_buffer(cm), cm, &pbi->mb, 0,

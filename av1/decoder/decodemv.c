@@ -1220,8 +1220,10 @@ static int read_is_inter_block(AV1_COMMON *const cm, MACROBLOCKD *const xd,
   }
   const int ctx = av1_get_intra_inter_context(xd);
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
+
   const int is_inter =
       aom_read_symbol(r, ec_ctx->intra_inter_cdf[ctx], 2, ACCT_STR);
+
   return is_inter;
 }
 
@@ -1276,7 +1278,6 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
   mbmi->palette_mode_info.palette_size[1] = 0;
 
   av1_collect_neighbors_ref_counts(xd);
-
   read_ref_frames(cm, xd, r, mbmi->segment_id, mbmi->ref_frame);
   const int is_compound = has_second_ref(mbmi);
 

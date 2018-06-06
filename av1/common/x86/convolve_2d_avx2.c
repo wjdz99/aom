@@ -189,7 +189,6 @@ void av1_convolve_2d_copy_sr_avx2(const uint8_t *src, int src_stride,
   (void)subpel_x_q4;
   (void)subpel_y_q4;
   (void)conv_params;
-
   if (w >= 16) {
     assert(!((intptr_t)dst % 16));
     assert(!(dst_stride % 16));
