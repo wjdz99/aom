@@ -3115,7 +3115,6 @@ BEGIN_PARTITION_SEARCH:
       rd_pick_partition(cpi, td, tile_data, tp, mi_row + y_idx, mi_col + x_idx,
                         subsize, &this_rdc, best_rdc.rdcost - sum_rdc.rdcost,
                         pc_tree->split[idx], p_split_rd);
-
       if (this_rdc.rate == INT_MAX) {
         sum_rdc.rdcost = INT64_MAX;
         break;
@@ -3123,14 +3122,16 @@ BEGIN_PARTITION_SEARCH:
         sum_rdc.rate += this_rdc.rate;
         sum_rdc.dist += this_rdc.dist;
         sum_rdc.rdcost += this_rdc.rdcost;
-
-        if (idx <= 1 && (bsize <= BLOCK_8X8 ||
-                         pc_tree->split[idx]->partitioning == PARTITION_NONE)) {
-          MB_MODE_INFO *const mbmi = &(pc_tree->split[idx]->none.mic);
-          PALETTE_MODE_INFO *const pmi = &mbmi->palette_mode_info;
+        PICK_MODE_CONTEXT *const ctx = &(pc_tree->split[idx]->none);
+        const PARTITION_TYPE first_part = pc_tree->split[0]->partitioning;
+        if ((idx == 0) ||  // first block is always reuseable
+            ((idx == 1) && (first_part == PARTITION_NONE) &&
+             (ctx->rdcost != INT64_MAX) && !ctx->skip)) {
+          PALETTE_MODE_INFO *const pmi = &ctx->mic.palette_mode_info;
           // Neither palette mode nor cfl predicted
-          if (pmi->palette_size[0] == 0 && pmi->palette_size[1] == 0) {
-            if (mbmi->uv_mode != UV_CFL_PRED) split_ctx_is_ready[idx] = 1;
+          if (pmi->palette_size[0] == 0 && pmi->palette_size[1] == 0 &&
+              ctx->mic.uv_mode != UV_CFL_PRED) {
+            split_ctx_is_ready[idx] = 1;
           }
         }
       }
