@@ -265,53 +265,65 @@ static void swap_frame_buffers(AV1Decoder *pbi, int frame_decoded) {
   BufferPool *const pool = cm->buffer_pool;
   RefCntBuffer *const frame_bufs = cm->buffer_pool->frame_bufs;
 
-  if (frame_decoded) {
-    lock_buffer_pool(pool);
-    for (mask = pbi->refresh_frame_flags; mask; mask >>= 1) {
-      const int old_idx = cm->ref_frame_map[ref_index];
+  if (!pbi->camera_frame_header_ready) {
+    if (frame_decoded) {
+      lock_buffer_pool(pool);
+      for (mask = pbi->refresh_frame_flags; mask; mask >>= 1) {
+        const int old_idx = cm->ref_frame_map[ref_index];
+        // Current thread releases the holding of reference frame.
+        decrease_ref_count(old_idx, frame_bufs, pool);
+
+        // Release the reference frame holding in the reference map for the
+        // decoding of the next frame.
+        if (mask & 1) decrease_ref_count(old_idx, frame_bufs, pool);
+        cm->ref_frame_map[ref_index] = cm->next_ref_frame_map[ref_index];
+        ++ref_index;
+      }
+
       // Current thread releases the holding of reference frame.
-      decrease_ref_count(old_idx, frame_bufs, pool);
+      const int check_on_show_existing_frame =
+          !cm->show_existing_frame || cm->reset_decoder_state;
+      for (; ref_index < REF_FRAMES && check_on_show_existing_frame;
+           ++ref_index) {
+        const int old_idx = cm->ref_frame_map[ref_index];
+        decrease_ref_count(old_idx, frame_bufs, pool);
+        cm->ref_frame_map[ref_index] = cm->next_ref_frame_map[ref_index];
+      }
 
-      // Release the reference frame holding in the reference map for the
-      // decoding of the next frame.
-      if (mask & 1) decrease_ref_count(old_idx, frame_bufs, pool);
-      cm->ref_frame_map[ref_index] = cm->next_ref_frame_map[ref_index];
-      ++ref_index;
+      unlock_buffer_pool(pool);
+      cm->frame_to_show = get_frame_new_buffer(cm);
+
+      // For now, we only extend the frame borders when the whole frame is
+      // decoded. Later, if needed, extend the border for the decoded tile on
+      // the frame border.
+      if (pbi->dec_tile_row == -1 && pbi->dec_tile_col == -1)
+        // TODO(debargha): Fix encoder side mv range, so that we can use the
+        // inner border extension. As of now use the larger extension.
+        // aom_extend_frame_inner_borders(cm->frame_to_show,
+        // av1_num_planes(cm));
+        aom_extend_frame_borders(cm->frame_to_show, av1_num_planes(cm));
     }
 
-    // Current thread releases the holding of reference frame.
-    const int check_on_show_existing_frame =
-        !cm->show_existing_frame || cm->reset_decoder_state;
-    for (; ref_index < REF_FRAMES && check_on_show_existing_frame;
-         ++ref_index) {
-      const int old_idx = cm->ref_frame_map[ref_index];
-      decrease_ref_count(old_idx, frame_bufs, pool);
-      cm->ref_frame_map[ref_index] = cm->next_ref_frame_map[ref_index];
-    }
+    pbi->hold_ref_buf = 0;
 
+    lock_buffer_pool(pool);
+    --frame_bufs[cm->new_fb_idx].ref_count;
     unlock_buffer_pool(pool);
-    cm->frame_to_show = get_frame_new_buffer(cm);
 
-    // For now, we only extend the frame borders when the whole frame is
-    // decoded. Later, if needed, extend the border for the decoded tile on the
-    // frame border.
-    if (pbi->dec_tile_row == -1 && pbi->dec_tile_col == -1)
-      // TODO(debargha): Fix encoder side mv range, so that we can use the
-      // inner border extension. As of now use the larger extension.
-      // aom_extend_frame_inner_borders(cm->frame_to_show, av1_num_planes(cm));
-      aom_extend_frame_borders(cm->frame_to_show, av1_num_planes(cm));
-  }
+    // Invalidate these references until the next frame starts.
+    for (ref_index = 0; ref_index < INTER_REFS_PER_FRAME; ref_index++) {
+      cm->frame_refs[ref_index].idx = INVALID_IDX;
+      cm->frame_refs[ref_index].buf = NULL;
+    }
+  } else {
+    if (frame_decoded) {
+      cm->frame_to_show = get_frame_new_buffer(cm);
+      assert(pbi->hold_ref_buf == 1);
 
-  pbi->hold_ref_buf = 0;
-
-  lock_buffer_pool(pool);
-  --frame_bufs[cm->new_fb_idx].ref_count;
-  unlock_buffer_pool(pool);
-
-  // Invalidate these references until the next frame starts.
-  for (ref_index = 0; ref_index < INTER_REFS_PER_FRAME; ref_index++) {
-    cm->frame_refs[ref_index].idx = INVALID_IDX;
-    cm->frame_refs[ref_index].buf = NULL;
+      lock_buffer_pool(pool);
+      --frame_bufs[cm->new_fb_idx].ref_count;
+      unlock_buffer_pool(pool);
+    }
   }
 }
 
@@ -354,7 +366,8 @@ int av1_receive_compressed_data(AV1Decoder *pbi, size_t size,
   // Assign a MV array to the frame buffer.
   cm->cur_frame = &pool->frame_bufs[cm->new_fb_idx];
 
-  pbi->hold_ref_buf = 0;
+  if (!pbi->camera_frame_header_ready) pbi->hold_ref_buf = 0;
+
   pbi->cur_buf = &frame_bufs[cm->new_fb_idx];
 
   if (setjmp(cm->error.jmp)) {
