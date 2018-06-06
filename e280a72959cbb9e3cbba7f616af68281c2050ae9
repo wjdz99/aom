@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "79a7465d_7a7a9431",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-06T16:15:44Z",
+      "side": 1,
+      "message": "The only remaining issue is a stylistic nit: Should we move the seq_params-\u003edisplay_model_info_present_flag bit after all the decoder model syntax elements, to match the order used in the for loop below (see line 235 and line 242)?\n\nThis will require a corresponding change at av1/encoder/bitstream.c:3544, as well as in the spec.",
+      "range": {
+        "startLine": 216,
+        "startChar": 0,
+        "endLine": 219,
+        "endChar": 42
+      },
+      "revId": "e280a72959cbb9e3cbba7f616af68281c2050ae9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
