@@ -1,0 +1,349 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a2b1f75e_21fb2b22",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 4008,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-07T22:51:39Z",
+      "side": 1,
+      "message": "I don\u0027t understand this change. Just wanted to make sure it is intended.",
+      "range": {
+        "startLine": 4008,
+        "startChar": 25,
+        "endLine": 4008,
+        "endChar": 53
+      },
+      "revId": "55db8e44a794505daeb57e2f0f255715877bc6b2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "63cc6b56_a454813d",
+        "filename": "av1/decoder/decoder.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 272,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-07T22:51:39Z",
+      "side": 1,
+      "message": "[I don\u0027t this block of code, so I just compared it with the code below.]\n\nShould we also duplicate lines 309-316 here?\n\n    // For now, we only extend the frame borders when the whole frame is\n    // decoded. Later, if needed, extend the border for the decoded tile on the\n    // frame border.\n    if (pbi-\u003edec_tile_row \u003d\u003d -1 \u0026\u0026 pbi-\u003edec_tile_col \u003d\u003d -1)\t\n      // TODO(debargha): Fix encoder side mv range, so that we can use the\n      // inner border extension. As of now use the larger extension.\t\n      // aom_extend_frame_inner_borders(cm-\u003eframe_to_show, av1_num_planes(cm));\n      aom_extend_frame_borders(cm-\u003eframe_to_show, av1_num_planes(cm));",
+      "range": {
+        "startLine": 272,
+        "startChar": 0,
+        "endLine": 272,
+        "endChar": 51
+      },
+      "revId": "55db8e44a794505daeb57e2f0f255715877bc6b2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "90c8992f_08d88a08",
+        "filename": "av1/decoder/decoder.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 277,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-07T22:51:39Z",
+      "side": 1,
+      "message": "Should these three lines be outside the if (frame_decoded) block? I asked because lines 321-323 are outside if (frame_decoded).",
+      "range": {
+        "startLine": 275,
+        "startChar": 0,
+        "endLine": 277,
+        "endChar": 31
+      },
+      "revId": "55db8e44a794505daeb57e2f0f255715877bc6b2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a54898a9_6d1f1904",
+        "filename": "av1/decoder/decoder.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-07T22:51:39Z",
+      "side": 1,
+      "message": "Optional: We should be able to avoid adding this field by having read_and_decode_one_tile_list() pass an appropriate data_end argument to av1_decode_tg_tiles_and_wrapup().",
+      "range": {
+        "startLine": 114,
+        "startChar": 2,
+        "endLine": 114,
+        "endChar": 32
+      },
+      "revId": "55db8e44a794505daeb57e2f0f255715877bc6b2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f1a68b1d_3bbc90a5",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 386,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-07T22:51:39Z",
+      "side": 1,
+      "message": "We need to check there are five bytes available to read:\n\n        if ((size_t)(data_end - data) \u003c 5) {\n          ... error reporting code, such as aom_internal_error() ...\n        }",
+      "range": {
+        "startLine": 386,
+        "startChar": 4,
+        "endLine": 386,
+        "endChar": 61
+      },
+      "revId": "55db8e44a794505daeb57e2f0f255715877bc6b2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4f3dac75_af5c405b",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 391,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-07T22:51:39Z",
+      "side": 1,
+      "message": "Read the two bytes separately to avoid the unaligned read of uint16_t, which does not work on all processors:\n\n    pbi-\u003ecoded_tile_data_size \u003d (*data \u003c\u003c 8) + *(data + 1) + 1;",
+      "range": {
+        "startLine": 391,
+        "startChar": 4,
+        "endLine": 391,
+        "endChar": 56
+      },
+      "revId": "55db8e44a794505daeb57e2f0f255715877bc6b2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "557f56c5_818e26a4",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 396,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-07T22:51:39Z",
+      "side": 1,
+      "message": "We need to validate coded_tile_data_size before using it:\n\n        if ((size_t)(data_end - data) \u003c pbi-\u003ecoded_tile_data_size) {\n          ... error reporting code, such as aom_internal_error() ...\n        }",
+      "range": {
+        "startLine": 396,
+        "startChar": 4,
+        "endLine": 396,
+        "endChar": 30
+      },
+      "revId": "55db8e44a794505daeb57e2f0f255715877bc6b2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c2731f35_42e7a67e",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 398,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-07T22:51:39Z",
+      "side": 1,
+      "message": "Optional: coded_tile_data_size can be a local variable in this function. If we pass \"data + coded_tile_data_size\" instead of data_end here, then we don\u0027t need to add the coded_tile_data_size field to pbi.",
+      "range": {
+        "startLine": 398,
+        "startChar": 46,
+        "endLine": 398,
+        "endChar": 54
+      },
+      "revId": "55db8e44a794505daeb57e2f0f255715877bc6b2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5f3ab3e3_354bed5a",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 399,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-07T22:51:39Z",
+      "side": 1,
+      "message": "Nit: Just use 0 here directly and delete initialize_flag?",
+      "range": {
+        "startLine": 399,
+        "startChar": 44,
+        "endLine": 399,
+        "endChar": 59
+      },
+      "revId": "55db8e44a794505daeb57e2f0f255715877bc6b2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "43a16d14_1ead8f38",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 409,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-07T22:51:39Z",
+      "side": 1,
+      "message": "Since the for loop above does not have a break statement, when we get here, i \u003d\u003d pbi-\u003etile_count_minus_1 + 1 must be true, so this can be simply:\n\n  *frame_decoding_finished \u003d 1;",
+      "range": {
+        "startLine": 409,
+        "startChar": 2,
+        "endLine": 409,
+        "endChar": 39
+      },
+      "revId": "55db8e44a794505daeb57e2f0f255715877bc6b2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "37076b09_e25eca1a",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 586,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-07T22:51:39Z",
+      "side": 1,
+      "message": "I don\u0027t understand this block of code... Is this correct?",
+      "range": {
+        "startLine": 581,
+        "startChar": 0,
+        "endLine": 586,
+        "endChar": 47
+      },
+      "revId": "55db8e44a794505daeb57e2f0f255715877bc6b2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "38aa755f_5788b741",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 715,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-07T22:51:39Z",
+      "side": 1,
+      "message": "I don\u0027t understand this change. I assume pbi-\u003eext_tile_debug is for debugging. Why does pbi-\u003eext_tile_debug change the behavior like this?",
+      "range": {
+        "startLine": 715,
+        "startChar": 12,
+        "endLine": 715,
+        "endChar": 32
+      },
+      "revId": "55db8e44a794505daeb57e2f0f255715877bc6b2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2df2a638_b617aca2",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 750,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-07T22:51:39Z",
+      "side": 1,
+      "message": "Should we instead handle this as an error? Or is it correct to silently ignore this?",
+      "range": {
+        "startLine": 750,
+        "startChar": 10,
+        "endLine": 750,
+        "endChar": 38
+      },
+      "revId": "55db8e44a794505daeb57e2f0f255715877bc6b2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2c027f25_d5e3ee7a",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 760,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-07T22:51:39Z",
+      "side": 1,
+      "message": "We need to first make sure there are four bytes available to read:\n\n        if ((size_t)(data_end - data) \u003c 4) {\n          cm-\u003eerror.error_code \u003d AOM_CODEC_CORRUPT_FRAME;\t\n          return -1;\t\n        }\n\nBut I suggest we read these four bytes inside read_and_decode_one_tile_list(), because in the spec these four bytes are read inside the tile_list_obu( ) function (Section 5.12.1).",
+      "range": {
+        "startLine": 760,
+        "startChar": 0,
+        "endLine": 760,
+        "endChar": 33
+      },
+      "revId": "55db8e44a794505daeb57e2f0f255715877bc6b2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "504b95ae_8b435f06",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 764,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-07T22:51:39Z",
+      "side": 1,
+      "message": "Read the two bytes separately to avoid the unaligned read of uint16_t:\n\n      pbi-\u003etile_count_minus_1 \u003d (*temp \u003c\u003c 8) + *(temp + 1);\n\n(Alternatively, we can use rb to read these four bytes.)",
+      "range": {
+        "startLine": 764,
+        "startChar": 34,
+        "endLine": 764,
+        "endChar": 51
+      },
+      "revId": "55db8e44a794505daeb57e2f0f255715877bc6b2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
