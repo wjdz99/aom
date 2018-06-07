@@ -51,6 +51,7 @@ struct aom_codec_alg_priv {
   unsigned int tile_mode;
   unsigned int is_annexb;
   int operating_point;
+  int output_all_layers;
   unsigned int ext_tile_debug;
 
   AVxWorker *frame_workers;
@@ -402,6 +403,7 @@ static aom_codec_err_t init_decoder(aom_codec_alg_priv_t *ctx) {
     frame_worker_data->pbi->dec_tile_row = ctx->decode_tile_row;
     frame_worker_data->pbi->dec_tile_col = ctx->decode_tile_col;
     frame_worker_data->pbi->operating_point = ctx->operating_point;
+    frame_worker_data->pbi->output_all_layers = ctx->output_all_layers;
     frame_worker_data->pbi->ext_tile_debug = ctx->ext_tile_debug;
 
     worker->hook = (AVxWorkerHook)frame_worker_hook;
@@ -997,6 +999,12 @@ static aom_codec_err_t ctrl_set_operating_point(aom_codec_alg_priv_t *ctx,
   return AOM_CODEC_OK;
 }
 
+static aom_codec_err_t ctrl_set_output_all_layers(aom_codec_alg_priv_t *ctx,
+                                                  va_list args) {
+  ctx->output_all_layers = va_arg(args, int);
+  return AOM_CODEC_OK;
+}
+
 static aom_codec_err_t ctrl_set_inspection_callback(aom_codec_alg_priv_t *ctx,
                                                     va_list args) {
 #if !CONFIG_INSPECTION
@@ -1035,6 +1043,7 @@ static aom_codec_ctrl_fn_map_t decoder_ctrl_maps[] = {
   { AV1_SET_TILE_MODE, ctrl_set_tile_mode },
   { AV1D_SET_IS_ANNEXB, ctrl_set_is_annexb },
   { AV1D_SET_OPERATING_POINT, ctrl_set_operating_point },
+  { AV1D_SET_OUTPUT_ALL_LAYERS, ctrl_set_output_all_layers },
   { AV1_SET_INSPECTION_CALLBACK, ctrl_set_inspection_callback },
   { AV1D_EXT_TILE_DEBUG, ctrl_ext_tile_debug },
 
