@@ -1,0 +1,165 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e9af9917_e178ec96",
+        "filename": "aom_dsp/arm/loopfilter_neon.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-06-07T16:08:23Z",
+      "side": 1,
+      "message": "You don\u0027t need to specify \u0027internal\u0027. That is implied by not prefixing them with aom_/av1_ and the \u0027static\u0027 function.",
+      "range": {
+        "startLine": 21,
+        "startChar": 16,
+        "endLine": 21,
+        "endChar": 24
+      },
+      "revId": "21332c7e681ccc0e90944877b5ad8bb1c9eaccc8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3e19b94b_dbb7ac91",
+        "filename": "aom_dsp/arm/loopfilter_neon.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-06-07T16:08:23Z",
+      "side": 1,
+      "message": "*thresh is always 1?",
+      "range": {
+        "startLine": 28,
+        "startChar": 44,
+        "endLine": 28,
+        "endChar": 45
+      },
+      "revId": "21332c7e681ccc0e90944877b5ad8bb1c9eaccc8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "49c07ba8_9310f8b4",
+        "filename": "aom_dsp/arm/loopfilter_neon.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-06-07T16:08:23Z",
+      "side": 1,
+      "message": "vdup_n_s16 to avoid all the extra casting/vmovl. Use (int16_t)*limit but only if the compiler complains.",
+      "range": {
+        "startLine": 44,
+        "startChar": 30,
+        "endLine": 44,
+        "endChar": 38
+      },
+      "revId": "21332c7e681ccc0e90944877b5ad8bb1c9eaccc8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "79c6ac18_8e0209b6",
+        "filename": "aom_dsp/arm/loopfilter_neon.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-06-07T16:08:23Z",
+      "side": 1,
+      "message": "vdup_n_s16",
+      "range": {
+        "startLine": 47,
+        "startChar": 55,
+        "endLine": 47,
+        "endChar": 65
+      },
+      "revId": "21332c7e681ccc0e90944877b5ad8bb1c9eaccc8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ed6fc100_eb4e93ae",
+        "filename": "aom_dsp/arm/loopfilter_neon.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-06-07T16:08:23Z",
+      "side": 1,
+      "message": "thresh is uint8, can you compare without expanding p4q4 etc?",
+      "range": {
+        "startLine": 94,
+        "startChar": 58,
+        "endLine": 94,
+        "endChar": 69
+      },
+      "revId": "21332c7e681ccc0e90944877b5ad8bb1c9eaccc8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ee7bcf54_58b31b59",
+        "filename": "aom_dsp/arm/loopfilter_neon.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-06-07T16:08:23Z",
+      "side": 1,
+      "message": "what is this doing?",
+      "range": {
+        "startLine": 121,
+        "startChar": 13,
+        "endLine": 121,
+        "endChar": 72
+      },
+      "revId": "21332c7e681ccc0e90944877b5ad8bb1c9eaccc8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "13a67408_26c2e4c2",
+        "filename": "aom_dsp/arm/loopfilter_neon.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 289,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-06-07T16:08:23Z",
+      "side": 1,
+      "message": "this looks very similar to above. can you extract it into a function?",
+      "range": {
+        "startLine": 289,
+        "startChar": 7,
+        "endLine": 289,
+        "endChar": 38
+      },
+      "revId": "21332c7e681ccc0e90944877b5ad8bb1c9eaccc8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
