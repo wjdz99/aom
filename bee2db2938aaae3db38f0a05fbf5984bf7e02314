@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e1da08da_7ac25476",
+        "filename": "aom_dsp/arm/blend_a64_mask_neon.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-06-07T15:52:48Z",
+      "side": 1,
+      "message": "Please make this it\u0027s own function. If you pass in vget_low/high values, you should be able to do this with just one function for low/high",
+      "range": {
+        "startLine": 38,
+        "startChar": 0,
+        "endLine": 44,
+        "endChar": 72
+      },
+      "revId": "bee2db2938aaae3db38f0a05fbf5984bf7e02314",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dcd2a466_99ded301",
+        "filename": "aom_dsp/arm/blend_a64_mask_neon.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-06-07T15:52:48Z",
+      "side": 1,
+      "message": "You can include this as part of the function",
+      "range": {
+        "startLine": 102,
+        "startChar": 0,
+        "endLine": 102,
+        "endChar": 79
+      },
+      "revId": "bee2db2938aaae3db38f0a05fbf5984bf7e02314",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1843caba_8e5bab99",
+        "filename": "aom_dsp/arm/blend_a64_mask_neon.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 302,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-06-07T15:52:48Z",
+      "side": 1,
+      "message": "This should only happen for w\u003d4, correct? in which case you can drop the do-while part below",
+      "range": {
+        "startLine": 302,
+        "startChar": 8,
+        "endLine": 302,
+        "endChar": 14
+      },
+      "revId": "bee2db2938aaae3db38f0a05fbf5984bf7e02314",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c5f6a40e_3076adaf",
+        "filename": "aom_dsp/arm/blend_a64_mask_neon.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 400,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-06-07T15:52:48Z",
+      "side": 1,
+      "message": "likewise",
+      "range": {
+        "startLine": 400,
+        "startChar": 8,
+        "endLine": 400,
+        "endChar": 14
+      },
+      "revId": "bee2db2938aaae3db38f0a05fbf5984bf7e02314",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
