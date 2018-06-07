@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "091909a4_5ac6c37e",
+        "filename": "aom_dsp/aom_dsp_rtcd_defs.pl",
+        "patchSetId": 11
+      },
+      "lineNbr": 486,
+      "author": {
+        "id": 8612
+      },
+      "writtenOn": "2018-06-07T14:22:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "61af9328_fdf47004",
+      "range": {
+        "startLine": 486,
+        "startChar": 0,
+        "endLine": 486,
+        "endChar": 91
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2904b52c_8d369e88",
         "filename": "aom_dsp/fft.c",
         "patchSetId": 11
@@ -45,6 +69,30 @@
       "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3da704bc_4ff26e5b",
+        "filename": "aom_dsp/fft.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 8612
+      },
+      "writtenOn": "2018-06-07T14:22:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2904b52c_8d369e88",
+      "range": {
+        "startLine": 130,
+        "startChar": 45,
+        "endLine": 130,
+        "endChar": 52
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "8c690805_e7e317cd",
+        "filename": "aom_dsp/fft_common.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 8612
+      },
+      "writtenOn": "2018-06-07T14:22:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "916600f5_47baa214",
+      "range": {
+        "startLine": 19,
+        "startChar": 0,
+        "endLine": 21,
+        "endChar": 69
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d994777d_78038989",
         "filename": "aom_dsp/fft_common.h",
         "patchSetId": 11
@@ -91,6 +163,30 @@
       "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f935267c_e299dd5f",
+        "filename": "aom_dsp/fft_common.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 8612
+      },
+      "writtenOn": "2018-06-07T14:22:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d994777d_78038989",
+      "range": {
+        "startLine": 31,
+        "startChar": 3,
+        "endLine": 31,
+        "endChar": 21
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "a547b85f_e0b1ff01",
+        "filename": "aom_dsp/fft_common.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 8612
+      },
+      "writtenOn": "2018-06-07T14:22:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bb71a0b0_f9021661",
+      "range": {
+        "startLine": 49,
+        "startChar": 48,
+        "endLine": 49,
+        "endChar": 56
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "251bed19_b8d1f909",
         "filename": "aom_dsp/fft_common.h",
         "patchSetId": 11
@@ -137,6 +257,30 @@
       "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "352d83c9_8f1421c1",
+        "filename": "aom_dsp/fft_common.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 8612
+      },
+      "writtenOn": "2018-06-07T14:22:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "251bed19_b8d1f909",
+      "range": {
+        "startLine": 46,
+        "startChar": 8,
+        "endLine": 51,
+        "endChar": 19
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -163,6 +307,30 @@
     },
     {
       "key": {
+        "uuid": "89082df8_52bebc09",
+        "filename": "aom_dsp/fft_common.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 8612
+      },
+      "writtenOn": "2018-06-07T14:22:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "629f6781_28ebb227",
+      "range": {
+        "startLine": 69,
+        "startChar": 31,
+        "endLine": 69,
+        "endChar": 39
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fc935008_4ae1fd7a",
         "filename": "aom_dsp/fft_common.h",
         "patchSetId": 11
@@ -174,6 +342,30 @@
       "writtenOn": "2018-06-04T23:30:16Z",
       "side": 1,
       "message": "Question: Would it be faster to increment \u0027input\u0027 to avoid the integer multiplications?\n\n    const T_VEC i0 \u003d load(input);                                   \\\n    input +\u003d stride;                                                \\\t\n    const T_VEC i1 \u003d load(input);                                   \\\n    input +\u003d stride;                                                \\\t\n    const T_VEC i2 \u003d load(input);                                   \\\n    input +\u003d stride;                                                \\\t\n    const T_VEC i3 \u003d load(input);                                   \\\n\nSimilarly for the \u0027output\u0027 parameter.",
+      "range": {
+        "startLine": 74,
+        "startChar": 0,
+        "endLine": 77,
+        "endChar": 69
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "06ba5ae3_a7d392ee",
+        "filename": "aom_dsp/fft_common.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 8612
+      },
+      "writtenOn": "2018-06-07T14:22:07Z",
+      "side": 1,
+      "message": "I tested this on the 32x32 case, but didn\u0027t see a major difference. If you think it is more readable, I will change.",
+      "parentUuid": "fc935008_4ae1fd7a",
       "range": {
         "startLine": 74,
         "startChar": 0,
@@ -209,6 +401,30 @@
     },
     {
       "key": {
+        "uuid": "5dbb9eda_d2ff95aa",
+        "filename": "aom_dsp/fft_common.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 8612
+      },
+      "writtenOn": "2018-06-07T14:22:07Z",
+      "side": 1,
+      "message": "Yeah, to get the vector populated with the constant.",
+      "parentUuid": "0eb81372_b8de9d98",
+      "range": {
+        "startLine": 88,
+        "startChar": 54,
+        "endLine": 88,
+        "endChar": 62
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ce27318f_a48e1691",
         "filename": "aom_dsp/fft_common.h",
         "patchSetId": 11
@@ -220,6 +436,30 @@
       "writtenOn": "2018-06-04T23:30:16Z",
       "side": 1,
       "message": "Just curious: why is w6 missing?",
+      "range": {
+        "startLine": 105,
+        "startChar": 0,
+        "endLine": 105,
+        "endChar": 73
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0f0e342f_df4b1f8d",
+        "filename": "aom_dsp/fft_common.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 8612
+      },
+      "writtenOn": "2018-06-07T14:22:07Z",
+      "side": 1,
+      "message": "It guess it would have eventually been multiplied by a zero and was no longer referenced. The variable naming is not super intelligent. I can fix if preferable, just let me know.",
+      "parentUuid": "ce27318f_a48e1691",
       "range": {
         "startLine": 105,
         "startChar": 0,
@@ -255,6 +495,30 @@
     },
     {
       "key": {
+        "uuid": "e56ae918_e177b9a7",
+        "filename": "aom_dsp/fft_common.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 1046,
+      "author": {
+        "id": 8612
+      },
+      "writtenOn": "2018-06-07T14:22:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "107bc9a7_57344276",
+      "range": {
+        "startLine": 1046,
+        "startChar": 0,
+        "endLine": 1046,
+        "endChar": 6
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba08ae02_4adf0f97",
         "filename": "aom_dsp/noise_model.c",
         "patchSetId": 11
@@ -275,6 +539,30 @@
       "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "da7e31d3_a8807bb6",
+        "filename": "aom_dsp/noise_model.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 1272,
+      "author": {
+        "id": 8612
+      },
+      "writtenOn": "2018-06-07T14:22:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba08ae02_4adf0f97",
+      "range": {
+        "startLine": 1272,
+        "startChar": 44,
+        "endLine": 1272,
+        "endChar": 49
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -301,6 +589,30 @@
     },
     {
       "key": {
+        "uuid": "b4a33fa9_3ee1aa38",
+        "filename": "aom_dsp/noise_model.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 1279,
+      "author": {
+        "id": 8612
+      },
+      "writtenOn": "2018-06-07T14:22:07Z",
+      "side": 1,
+      "message": "It seems that it is not always there. I noticed another define in aom_dsp and pulled it into aom_dsp_common.h",
+      "parentUuid": "ff5adb65_93e34df2",
+      "range": {
+        "startLine": 1279,
+        "startChar": 2,
+        "endLine": 1279,
+        "endChar": 33
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "14287111_80a13e27",
         "filename": "aom_dsp/noise_model.c",
         "patchSetId": 11
@@ -324,6 +636,30 @@
     },
     {
       "key": {
+        "uuid": "0d89392b_87d4925c",
+        "filename": "aom_dsp/noise_model.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 1340,
+      "author": {
+        "id": 8612
+      },
+      "writtenOn": "2018-06-07T14:22:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "14287111_80a13e27",
+      "range": {
+        "startLine": 1340,
+        "startChar": 18,
+        "endLine": 1340,
+        "endChar": 19
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "09a57877_da46dca9",
         "filename": "aom_dsp/noise_model.c",
         "patchSetId": 11
@@ -344,6 +680,30 @@
       "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a640fe6b_845fa581",
+        "filename": "aom_dsp/noise_model.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 1376,
+      "author": {
+        "id": 8612
+      },
+      "writtenOn": "2018-06-07T14:22:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "09a57877_da46dca9",
+      "range": {
+        "startLine": 1375,
+        "startChar": 18,
+        "endLine": 1376,
+        "endChar": 42
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -393,6 +753,30 @@
     },
     {
       "key": {
+        "uuid": "7997723e_cc3abfca",
+        "filename": "aom_dsp/noise_model.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 1380,
+      "author": {
+        "id": 8612
+      },
+      "writtenOn": "2018-06-07T14:22:07Z",
+      "side": 1,
+      "message": "We certainly could do. For now, I left it as is, in case we want to relax that constraint.",
+      "parentUuid": "8436721e_3435e1bd",
+      "range": {
+        "startLine": 1380,
+        "startChar": 37,
+        "endLine": 1380,
+        "endChar": 50
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4b0b4ae7_cd8f9fbb",
         "filename": "aom_dsp/noise_model.c",
         "patchSetId": 11
@@ -413,6 +797,30 @@
       "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "db1fefcf_8722c78b",
+        "filename": "aom_dsp/noise_model.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 1401,
+      "author": {
+        "id": 8612
+      },
+      "writtenOn": "2018-06-07T14:22:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4b0b4ae7_cd8f9fbb",
+      "range": {
+        "startLine": 1398,
+        "startChar": 0,
+        "endLine": 1401,
+        "endChar": 76
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -439,6 +847,30 @@
     },
     {
       "key": {
+        "uuid": "f5698432_dc7b3c2d",
+        "filename": "aom_dsp/noise_model.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 273,
+      "author": {
+        "id": 8612
+      },
+      "writtenOn": "2018-06-07T14:22:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7b118608_acd0940a",
+      "range": {
+        "startLine": 266,
+        "startChar": 0,
+        "endLine": 273,
+        "endChar": 52
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "99aaa15c_2c3566ee",
         "filename": "aom_dsp/noise_util.c",
         "patchSetId": 11
@@ -459,6 +891,30 @@
       "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3214fb2c_af013901",
+        "filename": "aom_dsp/noise_util.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 8612
+      },
+      "writtenOn": "2018-06-07T14:22:07Z",
+      "side": 1,
+      "message": "It was primarily there to ensure that input buffer had proper alignment. No longer needed.",
+      "parentUuid": "99aaa15c_2c3566ee",
+      "range": {
+        "startLine": 31,
+        "startChar": 2,
+        "endLine": 31,
+        "endChar": 15
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -485,6 +941,30 @@
     },
     {
       "key": {
+        "uuid": "78789480_ec9d5058",
+        "filename": "aom_dsp/noise_util.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 8612
+      },
+      "writtenOn": "2018-06-07T14:22:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0c027a6f_794cacf4",
+      "range": {
+        "startLine": 40,
+        "startChar": 0,
+        "endLine": 41,
+        "endChar": 73
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7ec01269_033595fb",
         "filename": "aom_dsp/noise_util.c",
         "patchSetId": 11
@@ -505,6 +985,30 @@
       "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ce3375ae_d42939a6",
+        "filename": "aom_dsp/noise_util.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 8612
+      },
+      "writtenOn": "2018-06-07T14:22:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7ec01269_033595fb",
+      "range": {
+        "startLine": 66,
+        "startChar": 13,
+        "endLine": 66,
+        "endChar": 14
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -531,6 +1035,30 @@
     },
     {
       "key": {
+        "uuid": "5ca87340_a97849c7",
+        "filename": "aom_dsp/noise_util.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 8612
+      },
+      "writtenOn": "2018-06-07T14:22:07Z",
+      "side": 1,
+      "message": "Done. No longer needed since we don\u0027t have block anymore.",
+      "parentUuid": "2f5e9a5a_7e270e12",
+      "range": {
+        "startLine": 75,
+        "startChar": 6,
+        "endLine": 75,
+        "endChar": 44
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f59dbf6c_3bc79679",
         "filename": "aom_dsp/noise_util.c",
         "patchSetId": 11
@@ -551,6 +1079,30 @@
       "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d38610f8_300fad2b",
+        "filename": "aom_dsp/noise_util.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 8612
+      },
+      "writtenOn": "2018-06-07T14:22:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f59dbf6c_3bc79679",
+      "range": {
+        "startLine": 76,
+        "startChar": 4,
+        "endLine": 76,
+        "endChar": 32
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -577,6 +1129,30 @@
     },
     {
       "key": {
+        "uuid": "8e599332_6384ca00",
+        "filename": "aom_dsp/noise_util.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 8612
+      },
+      "writtenOn": "2018-06-07T14:22:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cdc2a473_c670d098",
+      "range": {
+        "startLine": 84,
+        "startChar": 0,
+        "endLine": 85,
+        "endChar": 69
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a5123f28_6c9c03d5",
         "filename": "aom_dsp/noise_util.c",
         "patchSetId": 11
@@ -597,6 +1173,30 @@
       "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "23a76da3_3f8a3589",
+        "filename": "aom_dsp/noise_util.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 8612
+      },
+      "writtenOn": "2018-06-07T14:22:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a5123f28_6c9c03d5",
+      "range": {
+        "startLine": 110,
+        "startChar": 0,
+        "endLine": 113,
+        "endChar": 3
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -623,6 +1223,30 @@
     },
     {
       "key": {
+        "uuid": "a96a153c_d60c088b",
+        "filename": "aom_dsp/noise_util.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 8612
+      },
+      "writtenOn": "2018-06-07T14:22:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "76020c97_75b5f698",
+      "range": {
+        "startLine": 30,
+        "startChar": 42,
+        "endLine": 30,
+        "endChar": 44
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "438f5c4e_01694fd9",
         "filename": "aom_dsp/noise_util.h",
         "patchSetId": 11
@@ -643,6 +1267,30 @@
       "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ecf4461c_6b4d9f57",
+        "filename": "aom_dsp/noise_util.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 8612
+      },
+      "writtenOn": "2018-06-07T14:22:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "438f5c4e_01694fd9",
+      "range": {
+        "startLine": 31,
+        "startChar": 63,
+        "endLine": 31,
+        "endChar": 74
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -669,6 +1317,30 @@
     },
     {
       "key": {
+        "uuid": "1690c71b_39b23a4c",
+        "filename": "aom_dsp/noise_util.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 8612
+      },
+      "writtenOn": "2018-06-07T14:22:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ce832336_30417dce",
+      "range": {
+        "startLine": 37,
+        "startChar": 62,
+        "endLine": 37,
+        "endChar": 72
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9dc8e3a8_fc46e0e3",
         "filename": "aom_dsp/noise_util.h",
         "patchSetId": 11
@@ -692,6 +1364,30 @@
     },
     {
       "key": {
+        "uuid": "81426c05_0897b263",
+        "filename": "aom_dsp/noise_util.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 8612
+      },
+      "writtenOn": "2018-06-07T14:22:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9dc8e3a8_fc46e0e3",
+      "range": {
+        "startLine": 48,
+        "startChar": 54,
+        "endLine": 48,
+        "endChar": 66
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "087e4f89_8148353b",
         "filename": "aom_dsp/x86/fft_avx2.c",
         "patchSetId": 11
@@ -703,6 +1399,30 @@
       "writtenOn": "2018-06-04T23:30:16Z",
       "side": 1,
       "message": "Optional: I wonder if we should declare these functions in some header file...",
+      "range": {
+        "startLine": 17,
+        "startChar": 0,
+        "endLine": 18,
+        "endChar": 79
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d6747216_8cdad096",
+        "filename": "aom_dsp/x86/fft_avx2.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 8612
+      },
+      "writtenOn": "2018-06-07T14:22:07Z",
+      "side": 1,
+      "message": "If you prefer, we can. So far they are only referenced in that file and in this one.",
+      "parentUuid": "087e4f89_8148353b",
       "range": {
         "startLine": 17,
         "startChar": 0,
@@ -738,6 +1458,30 @@
     },
     {
       "key": {
+        "uuid": "b293a489_92844842",
+        "filename": "aom_dsp/x86/fft_avx2.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 8612
+      },
+      "writtenOn": "2018-06-07T14:22:07Z",
+      "side": 1,
+      "message": "Sure, these have been moved to fft_common.h",
+      "parentUuid": "2763d0f5_b7e15d01",
+      "range": {
+        "startLine": 52,
+        "startChar": 0,
+        "endLine": 54,
+        "endChar": 60
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2b98bb1e_4660eebb",
         "filename": "aom_dsp/x86/fft_sse2.c",
         "patchSetId": 11
@@ -758,6 +1502,30 @@
       "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f22bc77b_3c97984d",
+        "filename": "aom_dsp/x86/fft_sse2.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 8612
+      },
+      "writtenOn": "2018-06-07T14:22:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2b98bb1e_4660eebb",
+      "range": {
+        "startLine": 106,
+        "startChar": 58,
+        "endLine": 106,
+        "endChar": 63
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -784,6 +1552,30 @@
     },
     {
       "key": {
+        "uuid": "fd57d8fc_53233c2f",
+        "filename": "aom_dsp/x86/fft_sse2.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 8612
+      },
+      "writtenOn": "2018-06-07T14:22:07Z",
+      "side": 1,
+      "message": "Moved to common header.",
+      "parentUuid": "5f1e3ec9_2a20dc68",
+      "range": {
+        "startLine": 145,
+        "startChar": 0,
+        "endLine": 148,
+        "endChar": 60
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f61a5f2c_42fc980c",
         "filename": "test/fft_test.cc",
         "patchSetId": 11
@@ -804,6 +1596,30 @@
       "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0cd7c42b_7c2a8277",
+        "filename": "test/fft_test.cc",
+        "patchSetId": 11
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 8612
+      },
+      "writtenOn": "2018-06-07T14:22:07Z",
+      "side": 1,
+      "message": "Yep, good point.",
+      "parentUuid": "f61a5f2c_42fc980c",
+      "range": {
+        "startLine": 8,
+        "startChar": 0,
+        "endLine": 9,
+        "endChar": 31
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -830,6 +1646,30 @@
     },
     {
       "key": {
+        "uuid": "b845918d_2aceb900",
+        "filename": "test/fft_test.cc",
+        "patchSetId": 11
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 8612
+      },
+      "writtenOn": "2018-06-07T14:22:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9fb4f263_6fd9d033",
+      "range": {
+        "startLine": 31,
+        "startChar": 6,
+        "endLine": 31,
+        "endChar": 22
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2410de4e_15fb38c3",
         "filename": "test/fft_test.cc",
         "patchSetId": 11
@@ -850,6 +1690,30 @@
       "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "79db8d09_efa1f4a6",
+        "filename": "test/fft_test.cc",
+        "patchSetId": 11
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 8612
+      },
+      "writtenOn": "2018-06-07T14:22:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2410de4e_15fb38c3",
+      "range": {
+        "startLine": 80,
+        "startChar": 0,
+        "endLine": 81,
+        "endChar": 50
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -876,6 +1740,30 @@
     },
     {
       "key": {
+        "uuid": "1e55ac46_0b2b2388",
+        "filename": "test/fft_test.cc",
+        "patchSetId": 11
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 8612
+      },
+      "writtenOn": "2018-06-07T14:22:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "33f73493_28d19acb",
+      "range": {
+        "startLine": 92,
+        "startChar": 0,
+        "endLine": 94,
+        "endChar": 16
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "69b24640_e4c266b5",
         "filename": "test/fft_test.cc",
         "patchSetId": 11
@@ -896,6 +1784,30 @@
       "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0aa4b452_cb88559f",
+        "filename": "test/fft_test.cc",
+        "patchSetId": 11
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 8612
+      },
+      "writtenOn": "2018-06-07T14:22:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "69b24640_e4c266b5",
+      "range": {
+        "startLine": 165,
+        "startChar": 0,
+        "endLine": 166,
+        "endChar": 46
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -922,6 +1834,30 @@
     },
     {
       "key": {
+        "uuid": "c4bb2211_591a3546",
+        "filename": "test/fft_test.cc",
+        "patchSetId": 11
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 8612
+      },
+      "writtenOn": "2018-06-07T14:22:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2272e53e_1860bb69",
+      "range": {
+        "startLine": 177,
+        "startChar": 0,
+        "endLine": 179,
+        "endChar": 16
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "65cfaf1e_156aff03",
         "filename": "test/noise_model_test.cc",
         "patchSetId": 11
@@ -945,6 +1881,30 @@
     },
     {
       "key": {
+        "uuid": "e5d92fc1_d1d4ad30",
+        "filename": "test/noise_model_test.cc",
+        "patchSetId": 11
+      },
+      "lineNbr": 1149,
+      "author": {
+        "id": 8612
+      },
+      "writtenOn": "2018-06-07T14:22:07Z",
+      "side": 1,
+      "message": "Unfortunately, we need these due to the templated inheritance in the TYPED_TEST_P. This one, I can replace with a T::kBitDepth, though.",
+      "parentUuid": "65cfaf1e_156aff03",
+      "range": {
+        "startLine": 1149,
+        "startChar": 42,
+        "endLine": 1149,
+        "endChar": 48
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f347766c_41f3a4cc",
         "filename": "test/test.cmake",
         "patchSetId": 11
@@ -965,6 +1925,30 @@
       "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "39cdeec6_65aeccc7",
+        "filename": "test/test.cmake",
+        "patchSetId": 11
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 8612
+      },
+      "writtenOn": "2018-06-07T14:22:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f347766c_41f3a4cc",
+      "range": {
+        "startLine": 178,
+        "startChar": 0,
+        "endLine": 178,
+        "endChar": 38
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
