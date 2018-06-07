@@ -378,6 +378,30 @@
     },
     {
       "key": {
+        "uuid": "96da2474_89e21288",
+        "filename": "aom_dsp/fft_common.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-07T19:39:44Z",
+      "side": 1,
+      "message": "Both forms are readable to me. I was hoping to avoid the multiplications by constants. I wonder if the compiler recognizes this pattern and optimizes away the multiplications.\n\nI can ask my coworkers familiar with this kind of code for advice.",
+      "parentUuid": "06ba5ae3_a7d392ee",
+      "range": {
+        "startLine": 74,
+        "startChar": 0,
+        "endLine": 77,
+        "endChar": 69
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0eb81372_b8de9d98",
         "filename": "aom_dsp/fft_common.h",
         "patchSetId": 11
@@ -460,6 +484,30 @@
       "side": 1,
       "message": "It guess it would have eventually been multiplied by a zero and was no longer referenced. The variable naming is not super intelligent. I can fix if preferable, just let me know.",
       "parentUuid": "ce27318f_a48e1691",
+      "range": {
+        "startLine": 105,
+        "startChar": 0,
+        "endLine": 105,
+        "endChar": 73
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "31502f6d_ae887b77",
+        "filename": "aom_dsp/fft_common.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-07T19:39:44Z",
+      "side": 1,
+      "message": "No need to change the variable names. Might be good to add a comment to reassure people reading this code that the missing w6 is not a mistake.",
+      "parentUuid": "0f0e342f_df4b1f8d",
       "range": {
         "startLine": 105,
         "startChar": 0,
@@ -906,6 +954,30 @@
       "side": 1,
       "message": "It was primarily there to ensure that input buffer had proper alignment. No longer needed.",
       "parentUuid": "99aaa15c_2c3566ee",
+      "range": {
+        "startLine": 31,
+        "startChar": 2,
+        "endLine": 31,
+        "endChar": 15
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f8974483_411eaf08",
+        "filename": "aom_dsp/noise_util.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-07T19:39:44Z",
+      "side": 1,
+      "message": "Oh, I see. This explains why aom_wiener_denoise_2d is now allocating \u0027block\u0027 with a 32-byte alignment.",
+      "parentUuid": "3214fb2c_af013901",
       "range": {
         "startLine": 31,
         "startChar": 2,
@@ -1432,6 +1504,30 @@
       "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d94385eb_ca1514fa",
+        "filename": "aom_dsp/x86/fft_avx2.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-07T19:39:44Z",
+      "side": 1,
+      "message": "We can deal with this later.",
+      "parentUuid": "d6747216_8cdad096",
+      "range": {
+        "startLine": 17,
+        "startChar": 0,
+        "endLine": 18,
+        "endChar": 79
+      },
+      "revId": "27ed87f33ebd239bc1ed4e064634fb809028b954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
