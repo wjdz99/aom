@@ -1,0 +1,234 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a2067b4e_3e62f7f4",
+        "filename": "examples/aom_cx_set_ref.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-07T23:57:39Z",
+      "side": 1,
+      "message": "Nit: get \u003d\u003e copy ?",
+      "range": {
+        "startLine": 167,
+        "startChar": 41,
+        "endLine": 167,
+        "endChar": 44
+      },
+      "revId": "564a30631bfa93cc2c75068ec9053fefa9c23349",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6cb3af13_f3bc1804",
+        "filename": "examples/lightfield_bitstream_parsing.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 195,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-07T23:57:39Z",
+      "side": 1,
+      "message": "obu_has_payload_length_field \u003d\u003e obu_has_size_field",
+      "range": {
+        "startLine": 195,
+        "startChar": 44,
+        "endLine": 195,
+        "endChar": 72
+      },
+      "revId": "564a30631bfa93cc2c75068ec9053fefa9c23349",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b4469b94_020e46b9",
+        "filename": "examples/lightfield_bitstream_parsing.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 197,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-07T23:57:39Z",
+      "side": 1,
+      "message": "Nit: Change 66 to 0x42.",
+      "range": {
+        "startLine": 197,
+        "startChar": 12,
+        "endLine": 197,
+        "endChar": 14
+      },
+      "revId": "564a30631bfa93cc2c75068ec9053fefa9c23349",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cdf87c98_646266bd",
+        "filename": "examples/lightfield_bitstream_parsing.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-07T23:57:39Z",
+      "side": 1,
+      "message": "Write the two bytes separately to avoid unaligned write of a uint16_t, which may not work on some processors:\n\n    *tl++ \u003d (tile_count_minus_1 \u003e\u003e 8);\n    *tl++ \u003d tile_count_minus_1;\n\n(You can add \"\u0026 0xFF\" to these two statements if you prefer.)",
+      "range": {
+        "startLine": 206,
+        "startChar": 0,
+        "endLine": 207,
+        "endChar": 12
+      },
+      "revId": "564a30631bfa93cc2c75068ec9053fefa9c23349",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2249ae61_e398f39c",
+        "filename": "examples/lightfield_bitstream_parsing.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-07T23:57:39Z",
+      "side": 1,
+      "message": "Write the two bytes separately to avoid unaligned write of a uint16_t, which may not work on some processors:\n\n    uint16_t tile_data_size_minus_1 \u003d (uint16_t)(tile_data.coded_tile_data_size - 1);\n    *tl++ \u003d (tile_data_size_minus_1 \u003e\u003e 8);\n    *tl++ \u003d tile_data_size_minus_1;\n\n(You can add \"\u0026 0xFF\" to these two statements if you prefer.)",
+      "range": {
+        "startLine": 252,
+        "startChar": 0,
+        "endLine": 253,
+        "endChar": 14
+      },
+      "revId": "564a30631bfa93cc2c75068ec9053fefa9c23349",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9322be13_01eef8b0",
+        "filename": "examples/lightfield_bitstream_parsing.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-07T23:57:39Z",
+      "side": 1,
+      "message": "This does not match the spec. (I think this is why you made the change to aom_read_obu_header_and_size() in https://aomedia-review.googlesource.com/c/aom/+/60603/3.)\n\nThis obu_size needs to be encoded as leb128() using exactly four bytes:\n\n    size_t coded_size;\n    if (aom_uleb_encode_fixed_size(tile_list_obu_size, 4, 4, saved_obu_size_loc, \u0026coded_size) !\u003d 0) {\n      die_codec(\u0026codec, \"Cannot encode tile list OBU size in 4 bytes.\");\n    }",
+      "range": {
+        "startLine": 263,
+        "startChar": 0,
+        "endLine": 264,
+        "endChar": 57
+      },
+      "revId": "564a30631bfa93cc2c75068ec9053fefa9c23349",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4231c286_f6c27170",
+        "filename": "examples/lightfield_decoder.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-07T23:57:39Z",
+      "side": 1,
+      "message": "Nit: get \u003d\u003e copy ?",
+      "range": {
+        "startLine": 144,
+        "startChar": 35,
+        "endLine": 144,
+        "endChar": 38
+      },
+      "revId": "564a30631bfa93cc2c75068ec9053fefa9c23349",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1a67ae27_da5f0fe6",
+        "filename": "examples/lightfield_encoder.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 327,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-07T23:57:39Z",
+      "side": 1,
+      "message": "Nit: get \u003d\u003e copy ?",
+      "range": {
+        "startLine": 327,
+        "startChar": 37,
+        "endLine": 327,
+        "endChar": 40
+      },
+      "revId": "564a30631bfa93cc2c75068ec9053fefa9c23349",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "53d67698_e45d8820",
+        "filename": "examples/lightfield_tile_list_decoder.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-07T23:57:39Z",
+      "side": 1,
+      "message": "Should this array index be frame_count or i? Please compare with line 143 in examples/lightfield_decoder.c.",
+      "range": {
+        "startLine": 131,
+        "startChar": 44,
+        "endLine": 131,
+        "endChar": 55
+      },
+      "revId": "564a30631bfa93cc2c75068ec9053fefa9c23349",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6623bf09_4ccad29d",
+        "filename": "examples/lightfield_tile_list_decoder.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-07T23:57:39Z",
+      "side": 1,
+      "message": "Nit: get \u003d\u003e copy ?",
+      "range": {
+        "startLine": 132,
+        "startChar": 35,
+        "endLine": 132,
+        "endChar": 38
+      },
+      "revId": "564a30631bfa93cc2c75068ec9053fefa9c23349",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
