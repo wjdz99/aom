@@ -467,15 +467,15 @@ static void generate_chroma_grain_blocks(
 
   for (int i = top_pad; i < chroma_block_size_y - bottom_pad; i++)
     for (int j = left_pad; j < chroma_block_size_x - right_pad; j++) {
-      int wsum_cb = 0;
-      int wsum_cr = 0;
+      int64_t wsum_cb = 0;
+      int64_t wsum_cr = 0;
       for (int pos = 0; pos < num_pos_chroma; pos++) {
         if (pred_pos_chroma[pos][2] == 0) {
-          wsum_cb = wsum_cb + params->ar_coeffs_cb[pos] *
+          wsum_cb = wsum_cb + (int64_t)params->ar_coeffs_cb[pos] *
                                   cb_grain_block[(i + pred_pos_chroma[pos][0]) *
                                                      chroma_grain_stride +
                                                  j + pred_pos_chroma[pos][1]];
-          wsum_cr = wsum_cr + params->ar_coeffs_cr[pos] *
+          wsum_cr = wsum_cr + (int64_t)params->ar_coeffs_cr[pos] *
                                   cr_grain_block[(i + pred_pos_chroma[pos][0]) *
                                                      chroma_grain_stride +
                                                  j + pred_pos_chroma[pos][1]];
@@ -504,15 +504,15 @@ static void generate_chroma_grain_blocks(
         }
       }
       if (params->num_cb_points || params->chroma_scaling_from_luma)
-        cb_grain_block[i * chroma_grain_stride + j] =
-            clamp(cb_grain_block[i * chroma_grain_stride + j] +
-                      ((wsum_cb + rounding_offset) >> params->ar_coeff_shift),
-                  grain_min, grain_max);
+        cb_grain_block[i * chroma_grain_stride + j] = (int)clamp64(
+            cb_grain_block[i * chroma_grain_stride + j] +
+                ((wsum_cb + rounding_offset) >> params->ar_coeff_shift),
+            grain_min, grain_max);
       if (params->num_cr_points || params->chroma_scaling_from_luma)
-        cr_grain_block[i * chroma_grain_stride + j] =
-            clamp(cr_grain_block[i * chroma_grain_stride + j] +
-                      ((wsum_cr + rounding_offset) >> params->ar_coeff_shift),
-                  grain_min, grain_max);
+        cr_grain_block[i * chroma_grain_stride + j] = (int)clamp64(
+            cr_grain_block[i * chroma_grain_stride + j] +
+                ((wsum_cr + rounding_offset) >> params->ar_coeff_shift),
+            grain_min, grain_max);
     }
 }
 
