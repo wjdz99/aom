@@ -1,0 +1,303 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f0a6d423_7d2bb348",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 368,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-08T23:33:33Z",
+      "side": 1,
+      "message": "Nit: just declare this variable at line 381.",
+      "range": {
+        "startLine": 368,
+        "startChar": 2,
+        "endLine": 368,
+        "endChar": 30
+      },
+      "revId": "987d516f3ccf942f1a3412b4e3141d284f3cbec6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fe8d2538_b6744634",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 377,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-08T23:33:33Z",
+      "side": 1,
+      "message": "Delete this check. (rb performs equivalent checks internally.)",
+      "range": {
+        "startLine": 374,
+        "startChar": 0,
+        "endLine": 377,
+        "endChar": 3
+      },
+      "revId": "987d516f3ccf942f1a3412b4e3141d284f3cbec6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "64509ddd_43a7971c",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 380,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-08T23:33:33Z",
+      "side": 1,
+      "message": "Sec. 6.11.1 of the spec says: It is a requirement of bitstream conformance that tile_count_minus_1 is less than or equal to 511.\n\nSo we should check that here:\n\n  if (pbi-\u003etile_count_minus_1 \u003e 511) {\n    cm-\u003eerror.error_code \u003d AOM_CODEC_CORRUPT_FRAME;\n    return 0;\n  }\n\nNote that we cannot return -1 from this function because the return type is unsigned (uint32_t).",
+      "range": {
+        "startLine": 380,
+        "startChar": 0,
+        "endLine": 380,
+        "endChar": 56
+      },
+      "revId": "987d516f3ccf942f1a3412b4e3141d284f3cbec6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b638117e_393a7837",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 391,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-08T23:33:33Z",
+      "side": 1,
+      "message": "Nit: Just declare this variable at line 403.",
+      "range": {
+        "startLine": 391,
+        "startChar": 4,
+        "endLine": 391,
+        "endChar": 16
+      },
+      "revId": "987d516f3ccf942f1a3412b4e3141d284f3cbec6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c31e7bfe_b9fa294c",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 392,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-08T23:33:33Z",
+      "side": 1,
+      "message": "Nit: Just declare this variable at line 414.",
+      "range": {
+        "startLine": 392,
+        "startChar": 4,
+        "endLine": 392,
+        "endChar": 27
+      },
+      "revId": "987d516f3ccf942f1a3412b4e3141d284f3cbec6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "37e9891a_ff7dd8b2",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 397,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-08T23:33:33Z",
+      "side": 1,
+      "message": "Delete this check. (rb performs equivalent checks internally.)",
+      "range": {
+        "startLine": 394,
+        "startChar": 0,
+        "endLine": 397,
+        "endChar": 5
+      },
+      "revId": "987d516f3ccf942f1a3412b4e3141d284f3cbec6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eb1a5349_f584f6d7",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 404,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-08T23:33:33Z",
+      "side": 1,
+      "message": "Sec. 6.11.2 of the spec says: It is a requirement of bitstream conformance that anchor_frame_idx is less than or equal to 127.\n\nWe should check that here:\n\n    if (ref_idx \u003e 127) {\n      cm-\u003eerror.error_code \u003d AOM_CODEC_CORRUPT_FRAME;\n      return 0;\n    }",
+      "range": {
+        "startLine": 404,
+        "startChar": 4,
+        "endLine": 404,
+        "endChar": 18
+      },
+      "revId": "987d516f3ccf942f1a3412b4e3141d284f3cbec6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2217f717_18faec89",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 407,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-08T23:33:33Z",
+      "side": 1,
+      "message": "We should validate dec_tile_row and dec_tile_col according to the spec:\n\n    if (pbi-\u003edec_tile_row \u003e\u003d cm-\u003etile_rows || pbi-\u003edec_tile_col \u003e\u003d cm-\u003etile_cols) {\n      cm-\u003eerror.error_code \u003d AOM_CODEC_CORRUPT_FRAME;\n      return 0;\n    }",
+      "range": {
+        "startLine": 406,
+        "startChar": 0,
+        "endLine": 407,
+        "endChar": 51
+      },
+      "revId": "987d516f3ccf942f1a3412b4e3141d284f3cbec6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fca6247a_536bbbf8",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 411,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-08T23:33:33Z",
+      "side": 1,
+      "message": "Return 0, not -1.\n\nNote: This check is necessary.",
+      "range": {
+        "startLine": 411,
+        "startChar": 6,
+        "endLine": 411,
+        "endChar": 16
+      },
+      "revId": "987d516f3ccf942f1a3412b4e3141d284f3cbec6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "59f59264_eeabd102",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 417,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-08T23:33:33Z",
+      "side": 1,
+      "message": "Nit: just declare this variable at line 421.",
+      "range": {
+        "startLine": 417,
+        "startChar": 4,
+        "endLine": 417,
+        "endChar": 30
+      },
+      "revId": "987d516f3ccf942f1a3412b4e3141d284f3cbec6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3f6ea5ec_b873c412",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 419,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-08T23:33:33Z",
+      "side": 1,
+      "message": "Pass \"data + pbi-\u003ecoded_tile_data_size\" instead of data_end.",
+      "range": {
+        "startLine": 419,
+        "startChar": 46,
+        "endLine": 419,
+        "endChar": 54
+      },
+      "revId": "987d516f3ccf942f1a3412b4e3141d284f3cbec6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ecf79766_8dfdd9e4",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 776,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-08T23:33:33Z",
+      "side": 1,
+      "message": "Change \"+\u003d\" back to \"\u003d\". We don\u0027t need to use +\u003d in this case.",
+      "range": {
+        "startLine": 776,
+        "startChar": 29,
+        "endLine": 776,
+        "endChar": 31
+      },
+      "revId": "987d516f3ccf942f1a3412b4e3141d284f3cbec6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "57c629f5_62672776",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 778,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-08T23:33:33Z",
+      "side": 1,
+      "message": "Add this to check for read_and_decode_one_tile_list() failure:\n\n    if (cm-\u003eerror.error_code !\u003d AOM_CODEC_OK) return -1;",
+      "range": {
+        "startLine": 778,
+        "startChar": 0,
+        "endLine": 778,
+        "endChar": 80
+      },
+      "revId": "987d516f3ccf942f1a3412b4e3141d284f3cbec6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
