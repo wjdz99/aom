@@ -322,6 +322,18 @@ static int check_sb_border(const int mi_row, const int mi_col,
   return 1;
 }
 
+static INLINE void set_ref_frame(MV_REFERENCE_FRAME *rf,
+                                 int8_t ref_frame_type) {
+  if (ref_frame_type >= REF_FRAMES) {
+    rf[0] = ref_frame_map[ref_frame_type - REF_FRAMES][0];
+    rf[1] = ref_frame_map[ref_frame_type - REF_FRAMES][1];
+  } else {
+    rf[0] = ref_frame_type;
+    rf[1] = NONE_FRAME;
+    assert(ref_frame_type > NONE_FRAME);
+  }
+}
+
 static int add_tpl_ref_mv(const AV1_COMMON *cm, const MACROBLOCKD *xd,
                           int mi_row, int mi_col, MV_REFERENCE_FRAME ref_frame,
                           int blk_row, int blk_col, int_mv *gm_mv_candidates,
@@ -344,7 +356,7 @@ static int add_tpl_ref_mv(const AV1_COMMON *cm, const MACROBLOCKD *xd,
       ((mi_col + mi_pos.col) >> 1);
 
   MV_REFERENCE_FRAME rf[2];
-  av1_set_ref_frame(rf, ref_frame);
+  set_ref_frame(rf, ref_frame);
 
   if (rf[1] == NONE_FRAME) {
     int cur_frame_index = cm->cur_frame->cur_frame_offset;
@@ -449,7 +461,7 @@ static void setup_ref_mv_list(
   int processed_rows = 0;
   int processed_cols = 0;
 
-  av1_set_ref_frame(rf, ref_frame);
+  set_ref_frame(rf, ref_frame);
   mode_context[ref_frame] = 0;
   refmv_count[ref_frame] = 0;
 
@@ -849,7 +861,7 @@ void av1_find_mv_refs(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   int_mv zeromv[2];
   BLOCK_SIZE bsize = mi->sb_type;
   MV_REFERENCE_FRAME rf[2];
-  av1_set_ref_frame(rf, ref_frame);
+  set_ref_frame(rf, ref_frame);
 
   if (ref_frame < REF_FRAMES) {
     if (ref_frame != INTRA_FRAME) {
