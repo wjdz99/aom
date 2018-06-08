@@ -255,6 +255,30 @@
     },
     {
       "key": {
+        "uuid": "c9b1b760_82979bc9",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 586,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-08T00:00:29Z",
+      "side": 1,
+      "message": "I found the answer to my question in https://aomedia-review.googlesource.com/c/aom/+/60604. This change should be reverted.",
+      "parentUuid": "37076b09_e25eca1a",
+      "range": {
+        "startLine": 581,
+        "startChar": 0,
+        "endLine": 586,
+        "endChar": 47
+      },
+      "revId": "55db8e44a794505daeb57e2f0f255715877bc6b2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "38aa755f_5788b741",
         "filename": "av1/decoder/obu.c",
         "patchSetId": 3
