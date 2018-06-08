@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "cc646c96_5295cb42",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 4008,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2018-06-08T18:28:22Z",
+      "side": 1,
+      "message": "Yes. It is intended.",
+      "parentUuid": "a2b1f75e_21fb2b22",
+      "range": {
+        "startLine": 4008,
+        "startChar": 25,
+        "endLine": 4008,
+        "endChar": 53
+      },
+      "revId": "55db8e44a794505daeb57e2f0f255715877bc6b2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "63cc6b56_a454813d",
         "filename": "av1/decoder/decoder.c",
         "patchSetId": 3
@@ -36,6 +60,30 @@
       "writtenOn": "2018-06-07T22:51:39Z",
       "side": 1,
       "message": "[I don\u0027t this block of code, so I just compared it with the code below.]\n\nShould we also duplicate lines 309-316 here?\n\n    // For now, we only extend the frame borders when the whole frame is\n    // decoded. Later, if needed, extend the border for the decoded tile on the\n    // frame border.\n    if (pbi-\u003edec_tile_row \u003d\u003d -1 \u0026\u0026 pbi-\u003edec_tile_col \u003d\u003d -1)\t\n      // TODO(debargha): Fix encoder side mv range, so that we can use the\n      // inner border extension. As of now use the larger extension.\t\n      // aom_extend_frame_inner_borders(cm-\u003eframe_to_show, av1_num_planes(cm));\n      aom_extend_frame_borders(cm-\u003eframe_to_show, av1_num_planes(cm));",
+      "range": {
+        "startLine": 272,
+        "startChar": 0,
+        "endLine": 272,
+        "endChar": 51
+      },
+      "revId": "55db8e44a794505daeb57e2f0f255715877bc6b2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d851276d_76d3ad69",
+        "filename": "av1/decoder/decoder.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 272,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2018-06-08T18:28:22Z",
+      "side": 1,
+      "message": "This part doesn\u0027t apply.",
+      "parentUuid": "63cc6b56_a454813d",
       "range": {
         "startLine": 272,
         "startChar": 0,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "7a4e3a34_a1ea1398",
+        "filename": "av1/decoder/decoder.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 277,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2018-06-08T18:28:22Z",
+      "side": 1,
+      "message": "I modified this part. There is a recent change on cm-\u003eframe_to_show, and I also updated my code. I didn\u0027t separate pbi-\u003ecamera_frame_header_ready anymore, so that the ext-tile case will be handled correctly by others in the future.",
+      "parentUuid": "90c8992f_08d88a08",
+      "range": {
+        "startLine": 275,
+        "startChar": 0,
+        "endLine": 277,
+        "endChar": 31
+      },
+      "revId": "55db8e44a794505daeb57e2f0f255715877bc6b2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a54898a9_6d1f1904",
         "filename": "av1/decoder/decoder.h",
         "patchSetId": 3
@@ -82,6 +154,30 @@
       "writtenOn": "2018-06-07T22:51:39Z",
       "side": 1,
       "message": "Optional: We should be able to avoid adding this field by having read_and_decode_one_tile_list() pass an appropriate data_end argument to av1_decode_tg_tiles_and_wrapup().",
+      "range": {
+        "startLine": 114,
+        "startChar": 2,
+        "endLine": 114,
+        "endChar": 32
+      },
+      "revId": "55db8e44a794505daeb57e2f0f255715877bc6b2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d3f2042c_8aa8a694",
+        "filename": "av1/decoder/decoder.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2018-06-08T18:28:22Z",
+      "side": 1,
+      "message": "Will look at it later.",
+      "parentUuid": "a54898a9_6d1f1904",
       "range": {
         "startLine": 114,
         "startChar": 2,
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "bf78fc42_dd644463",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 386,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2018-06-08T18:28:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f1a68b1d_3bbc90a5",
+      "range": {
+        "startLine": 386,
+        "startChar": 4,
+        "endLine": 386,
+        "endChar": 61
+      },
+      "revId": "55db8e44a794505daeb57e2f0f255715877bc6b2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4f3dac75_af5c405b",
         "filename": "av1/decoder/obu.c",
         "patchSetId": 3
@@ -137,6 +257,30 @@
       "revId": "55db8e44a794505daeb57e2f0f255715877bc6b2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3bd7be2f_0de070ed",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 391,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2018-06-08T18:28:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4f3dac75_af5c405b",
+      "range": {
+        "startLine": 391,
+        "startChar": 4,
+        "endLine": 391,
+        "endChar": 56
+      },
+      "revId": "55db8e44a794505daeb57e2f0f255715877bc6b2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -163,6 +307,30 @@
     },
     {
       "key": {
+        "uuid": "acd1b53c_347d8431",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 396,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2018-06-08T18:28:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "557f56c5_818e26a4",
+      "range": {
+        "startLine": 396,
+        "startChar": 4,
+        "endLine": 396,
+        "endChar": 30
+      },
+      "revId": "55db8e44a794505daeb57e2f0f255715877bc6b2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c2731f35_42e7a67e",
         "filename": "av1/decoder/obu.c",
         "patchSetId": 3
@@ -183,6 +351,30 @@
       "revId": "55db8e44a794505daeb57e2f0f255715877bc6b2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9b00b398_a0de578c",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 398,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2018-06-08T18:28:22Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "c2731f35_42e7a67e",
+      "range": {
+        "startLine": 398,
+        "startChar": 46,
+        "endLine": 398,
+        "endChar": 54
+      },
+      "revId": "55db8e44a794505daeb57e2f0f255715877bc6b2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -209,6 +401,30 @@
     },
     {
       "key": {
+        "uuid": "734b698a_7b080649",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 399,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2018-06-08T18:28:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5f3ab3e3_354bed5a",
+      "range": {
+        "startLine": 399,
+        "startChar": 44,
+        "endLine": 399,
+        "endChar": 59
+      },
+      "revId": "55db8e44a794505daeb57e2f0f255715877bc6b2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "43a16d14_1ead8f38",
         "filename": "av1/decoder/obu.c",
         "patchSetId": 3
@@ -229,6 +445,30 @@
       "revId": "55db8e44a794505daeb57e2f0f255715877bc6b2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "760e4105_53223b30",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 409,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2018-06-08T18:28:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "43a16d14_1ead8f38",
+      "range": {
+        "startLine": 409,
+        "startChar": 2,
+        "endLine": 409,
+        "endChar": 39
+      },
+      "revId": "55db8e44a794505daeb57e2f0f255715877bc6b2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -279,6 +519,30 @@
     },
     {
       "key": {
+        "uuid": "e2a62bbd_1c1de017",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 586,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2018-06-08T18:28:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c9b1b760_82979bc9",
+      "range": {
+        "startLine": 581,
+        "startChar": 0,
+        "endLine": 586,
+        "endChar": 47
+      },
+      "revId": "55db8e44a794505daeb57e2f0f255715877bc6b2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "38aa755f_5788b741",
         "filename": "av1/decoder/obu.c",
         "patchSetId": 3
@@ -299,6 +563,30 @@
       "revId": "55db8e44a794505daeb57e2f0f255715877bc6b2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6b6c9e63_0e212fe9",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 715,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2018-06-08T18:28:22Z",
+      "side": 1,
+      "message": "We talked about it already.",
+      "parentUuid": "38aa755f_5788b741",
+      "range": {
+        "startLine": 715,
+        "startChar": 12,
+        "endLine": 715,
+        "endChar": 32
+      },
+      "revId": "55db8e44a794505daeb57e2f0f255715877bc6b2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -325,6 +613,30 @@
     },
     {
       "key": {
+        "uuid": "e1894939_7b5e3d98",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 750,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2018-06-08T18:28:22Z",
+      "side": 1,
+      "message": "This part will be gone later. I will add a todo here.",
+      "parentUuid": "2df2a638_b617aca2",
+      "range": {
+        "startLine": 750,
+        "startChar": 10,
+        "endLine": 750,
+        "endChar": 38
+      },
+      "revId": "55db8e44a794505daeb57e2f0f255715877bc6b2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2c027f25_d5e3ee7a",
         "filename": "av1/decoder/obu.c",
         "patchSetId": 3
@@ -336,6 +648,30 @@
       "writtenOn": "2018-06-07T22:51:39Z",
       "side": 1,
       "message": "We need to first make sure there are four bytes available to read:\n\n        if ((size_t)(data_end - data) \u003c 4) {\n          cm-\u003eerror.error_code \u003d AOM_CODEC_CORRUPT_FRAME;\t\n          return -1;\t\n        }\n\nBut I suggest we read these four bytes inside read_and_decode_one_tile_list(), because in the spec these four bytes are read inside the tile_list_obu( ) function (Section 5.12.1).",
+      "range": {
+        "startLine": 760,
+        "startChar": 0,
+        "endLine": 760,
+        "endChar": 33
+      },
+      "revId": "55db8e44a794505daeb57e2f0f255715877bc6b2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2197b6f1_02e3185b",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 760,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2018-06-08T18:28:22Z",
+      "side": 1,
+      "message": "I will move the code. But, do we need these data_end - data \u003c ... checking since there is already a payload_size checking at the beginning? Add it for now anyway.",
+      "parentUuid": "2c027f25_d5e3ee7a",
       "range": {
         "startLine": 760,
         "startChar": 0,
@@ -368,6 +704,30 @@
       "revId": "55db8e44a794505daeb57e2f0f255715877bc6b2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4de2ff96_bf9811be",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 764,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2018-06-08T18:28:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "504b95ae_8b435f06",
+      "range": {
+        "startLine": 764,
+        "startChar": 34,
+        "endLine": 764,
+        "endChar": 51
+      },
+      "revId": "55db8e44a794505daeb57e2f0f255715877bc6b2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
