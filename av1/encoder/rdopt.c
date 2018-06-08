@@ -2767,11 +2767,14 @@ static void block_rd_txfm(int plane, int block, int blk_row, int blk_col,
 #endif  // CONFIG_RD_DEBUG
   av1_set_txb_context(x, plane, block, tx_size, a, l);
 
-  if (plane == 0) {
-    x->blk_skip[blk_row *
-                    (block_size_wide[plane_bsize] >> tx_size_wide_log2[0]) +
-                blk_col] = (x->plane[plane].eobs[block] == 0);
-  }
+  const int blk_idx =
+      blk_row * (block_size_wide[plane_bsize] >> tx_size_wide_log2[0]) +
+      blk_col;
+
+  if (plane == 0)
+    set_blk_skip(x, plane, blk_idx, x->plane[plane].eobs[block] == 0);
+  else
+    set_blk_skip(x, plane, blk_idx, 0);
 
   rd1 = RDCOST(x->rdmult, this_rd_stats.rate, this_rd_stats.dist);
   rd2 = RDCOST(x->rdmult, 0, this_rd_stats.sse);
@@ -3096,10 +3099,13 @@ static void choose_tx_size_type_from_rd(const AV1_COMP *const cpi,
     }
     if (n == TX_4X4) break;
   }
-  mbmi->tx_size = best_tx_size;
-  memcpy(mbmi->txk_type, best_txk_type,
-         sizeof(best_txk_type[0]) * TXK_TYPE_BUF_LEN);
-  memcpy(x->blk_skip, best_blk_skip, sizeof(best_blk_skip[0]) * n4);
+
+  if (rd_stats->rate != INT_MAX) {
+    mbmi->tx_size = best_tx_size;
+    memcpy(mbmi->txk_type, best_txk_type,
+           sizeof(best_txk_type[0]) * TXK_TYPE_BUF_LEN);
+    memcpy(x->blk_skip, best_blk_skip, sizeof(best_blk_skip[0]) * n4);
+  }
 
   // Reset the pruning flags.
   av1_zero(x->tx_search_prune);
@@ -3679,11 +3685,13 @@ static int64_t rd_pick_intra_angle_sby(const AV1_COMP *const cpi, MACROBLOCK *x,
     }
   }
 
-  mbmi->tx_size = best_tx_size;
-  mbmi->angle_delta[PLANE_TYPE_Y] = best_angle_delta;
-  memcpy(mbmi->txk_type, best_txk_type,
-         sizeof(*best_txk_type) * TXK_TYPE_BUF_LEN);
-  memcpy(x->blk_skip, best_blk_skip, sizeof(best_blk_skip[0]) * n4);
+  if (rd_stats->rate != INT_MAX) {
+    mbmi->tx_size = best_tx_size;
+    mbmi->angle_delta[PLANE_TYPE_Y] = best_angle_delta;
+    memcpy(mbmi->txk_type, best_txk_type,
+           sizeof(*best_txk_type) * TXK_TYPE_BUF_LEN);
+    memcpy(x->blk_skip, best_blk_skip, sizeof(best_blk_skip[0]) * n4);
+  }
   return best_rd;
 }
 
@@ -4266,12 +4274,12 @@ static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
       rd_stats->rate = zero_blk_rate;
       rd_stats->dist = rd_stats->sse;
       rd_stats->skip = 1;
-      x->blk_skip[blk_row * bw + blk_col] = 1;
+      set_blk_skip(x, 0, blk_row * bw + blk_col, 1);
       p->eobs[block] = 0;
       update_txk_array(mbmi->txk_type, plane_bsize, blk_row, blk_col, tx_size,
                        DCT_DCT);
     } else {
-      x->blk_skip[blk_row * bw + blk_col] = 0;
+      set_blk_skip(x, 0, blk_row * bw + blk_col, 0);
       rd_stats->skip = 0;
     }
 
@@ -4529,7 +4537,7 @@ static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
     mbmi->tx_size = tx_size_selected;
     update_txk_array(mbmi->txk_type, plane_bsize, blk_row, blk_col, tx_size,
                      no_split_tx_type);
-    x->blk_skip[blk_row * bw + blk_col] = rd_stats->skip;
+    set_blk_skip(x, 0, blk_row * bw + blk_col, rd_stats->skip);
   } else {
     *rd_stats = split_rd_stats;
     if (split_rd == INT64_MAX) *is_cost_valid = 0;
@@ -4704,14 +4712,14 @@ static void tx_block_yrd(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
       rd_stats->rate = zero_blk_rate;
       rd_stats->dist = rd_stats->sse;
       rd_stats->skip = 1;
-      x->blk_skip[blk_row * mi_width + blk_col] = 1;
+      set_blk_skip(x, 0, blk_row * mi_width + blk_col, 1);
       x->plane[0].eobs[block] = 0;
       x->plane[0].txb_entropy_ctx[block] = 0;
       update_txk_array(mbmi->txk_type, plane_bsize, blk_row, blk_col, tx_size,
                        DCT_DCT);
     } else {
       rd_stats->skip = 0;
-      x->blk_skip[blk_row * mi_width + blk_col] = 0;
+      set_blk_skip(x, 0, blk_row * mi_width + blk_col, 0);
     }
     if (tx_size > TX_4X4 && depth < MAX_VARTX_DEPTH)
       rd_stats->rate += x->txfm_partition_cost[ctx][0];
@@ -5100,7 +5108,7 @@ static void set_skip_flag(MACROBLOCK *x, RD_STATS *rd_stats, int bsize,
   memset(mbmi->txk_type, DCT_DCT, sizeof(mbmi->txk_type[0]) * TXK_TYPE_BUF_LEN);
   memset(mbmi->inter_tx_size, tx_size, sizeof(mbmi->inter_tx_size));
   mbmi->tx_size = tx_size;
-  memset(x->blk_skip, 1, sizeof(x->blk_skip[0]) * n4);
+  for (int i = 0; i < n4; i++) set_blk_skip(x, 0, i, 1);
   rd_stats->skip = 1;
 
   // Rate.
@@ -5239,6 +5247,7 @@ static void tx_block_uvrd(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
   assert(plane > 0);
   assert(tx_size < TX_SIZES_ALL);
   MACROBLOCKD *const xd = &x->e_mbd;
+  const MB_MODE_INFO *const mbmi = xd->mi[0];
   const int max_blocks_high = max_block_high(xd, plane_bsize, plane);
   const int max_blocks_wide = max_block_wide(xd, plane_bsize, plane);
   if (blk_row >= max_blocks_high || blk_col >= max_blocks_wide) return;
@@ -5247,6 +5256,30 @@ static void tx_block_uvrd(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
   ENTROPY_CONTEXT *tl = left_ctx + blk_row;
   tx_block_rd_b(cpi, x, tx_size, blk_row, blk_col, plane, block, plane_bsize,
                 ta, tl, rd_stats, ftxs_mode, INT64_MAX, NULL);
+
+  const int mi_width = block_size_wide[plane_bsize] >> tx_size_wide_log2[0];
+  const int blk_idx = blk_row * mi_width + blk_col;
+  if (is_inter_block(mbmi)) {
+    const TX_SIZE txs_ctx = get_txsize_entropy_ctx(tx_size);
+    TXB_CTX txb_ctx;
+    get_txb_ctx(plane_bsize, tx_size, plane, ta, tl, &txb_ctx);
+    const int zero_blk_rate = x->coeff_costs[txs_ctx][get_plane_type(plane)]
+                                  .txb_skip_cost[txb_ctx.txb_skip_ctx][1];
+    rd_stats->zero_rate = zero_blk_rate;
+    if (RDCOST(x->rdmult, rd_stats->rate, rd_stats->dist) >=
+            RDCOST(x->rdmult, zero_blk_rate, rd_stats->sse) ||
+        rd_stats->skip == 1) {
+      rd_stats->rate = zero_blk_rate;
+      rd_stats->dist = rd_stats->sse;
+      rd_stats->skip = 1;
+      x->plane[plane].eobs[block] = 0;
+      x->plane[plane].txb_entropy_ctx[block] = 0;
+    }
+    set_blk_skip(x, plane, blk_idx, rd_stats->skip);
+  } else {
+    set_blk_skip(x, plane, blk_idx, 0);
+  }
+
   av1_set_txb_context(x, plane, block, tx_size, ta, tl);
 }
 
@@ -7929,8 +7962,8 @@ static int64_t motion_mode_rd(const AV1_COMP *const cpi, MACROBLOCK *const x,
       } else {
         super_block_yrd(cpi, x, rd_stats_y, bsize, ref_best_rd);
         memset(mbmi->inter_tx_size, mbmi->tx_size, sizeof(mbmi->inter_tx_size));
-        memset(x->blk_skip, rd_stats_y->skip,
-               sizeof(x->blk_skip[0]) * xd->n8_h * xd->n8_w);
+        for (int i = 0; i < xd->n8_h * xd->n8_w; i++)
+          set_blk_skip(x, 0, i, rd_stats_y->skip);
       }
 
       if (rd_stats_y->rate == INT_MAX) {
@@ -8844,8 +8877,8 @@ static int64_t rd_pick_intrabc_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
     } else {
       super_block_yrd(cpi, x, &rd_stats, bsize, INT64_MAX);
       memset(mbmi->inter_tx_size, mbmi->tx_size, sizeof(mbmi->inter_tx_size));
-      memset(x->blk_skip, rd_stats.skip,
-             sizeof(x->blk_skip[0]) * xd->n8_h * xd->n8_w);
+      for (int i = 0; i < xd->n8_h * xd->n8_w; i++)
+        set_blk_skip(x, 0, i, rd_stats.skip);
     }
     if (num_planes > 1) {
       super_block_uvrd(cpi, x, &rd_stats_uv, bsize, INT64_MAX);
@@ -9209,8 +9242,8 @@ static void sf_refine_fast_tx_type_search(
       } else {
         super_block_yrd(cpi, x, &rd_stats_y, bsize, INT64_MAX);
         memset(mbmi->inter_tx_size, mbmi->tx_size, sizeof(mbmi->inter_tx_size));
-        memset(x->blk_skip, rd_stats_y.skip,
-               sizeof(x->blk_skip[0]) * xd->n8_h * xd->n8_w);
+        for (int i = 0; i < xd->n8_h * xd->n8_w; i++)
+          set_blk_skip(x, 0, i, rd_stats_y.skip);
       }
       if (num_planes > 1) {
         inter_block_uvrd(cpi, x, &rd_stats_uv, bsize, INT64_MAX, FTXS_NONE);

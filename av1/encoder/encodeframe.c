@@ -2468,9 +2468,11 @@ static void rd_pick_sqr_partition(const AV1_COMP *const cpi, ThreadData *td,
 
 #ifndef NDEBUG
   // Nothing should rely on the default value of this array (which is just
-  // leftover from encoding the previous block. Setting it to magic number
+  // leftover from encoding the previous block. Setting it to fixed pattern
   // when debugging.
-  memset(x->blk_skip, 234, sizeof(x->blk_skip));
+  // bit 0, 1, 2 are blk_skip of each plane
+  // bit 4, 5, 6 are initialization checking of each plane
+  memset(x->blk_skip, 0x77, sizeof(x->blk_skip));
 #endif  // NDEBUG
 
   assert(mi_size_wide[bsize] == mi_size_high[bsize]);
@@ -2906,9 +2908,11 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
 
 #ifndef NDEBUG
   // Nothing should rely on the default value of this array (which is just
-  // leftover from encoding the previous block. Setting it to magic number
+  // leftover from encoding the previous block. Setting it to fixed pattern
   // when debugging.
-  memset(x->blk_skip, 234, sizeof(x->blk_skip));
+  // bit 0, 1, 2 are blk_skip of each plane
+  // bit 4, 5, 6 are initialization checking of each plane
+  memset(x->blk_skip, 0x77, sizeof(x->blk_skip));
 #endif  // NDEBUG
 
   assert(mi_size_wide[bsize] == mi_size_high[bsize]);
