@@ -1,0 +1,326 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a48a587d_cf58dbbe",
+        "filename": "av1/common/arm/av1_txfm_neon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-06-08T17:21:09Z",
+      "side": 1,
+      "message": "assert size % 4 and use size/4 here (or i+\u003d4) instead of \u003e\u003e 2",
+      "range": {
+        "startLine": 24,
+        "startChar": 21,
+        "endLine": 24,
+        "endChar": 31
+      },
+      "revId": "79a35904be700cb9cba75faf2bb0a7a69161a83d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4778b8b0_d6c64d74",
+        "filename": "av1/common/arm/av1_txfm_neon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-06-08T17:21:09Z",
+      "side": 1,
+      "message": "arr +\u003d 4",
+      "range": {
+        "startLine": 28,
+        "startChar": 6,
+        "endLine": 28,
+        "endChar": 19
+      },
+      "revId": "79a35904be700cb9cba75faf2bb0a7a69161a83d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5d5863ec_e6eb3abc",
+        "filename": "test/av1_round_shift_array_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-06-08T17:21:09Z",
+      "side": 1,
+      "message": "I don\u0027t think you need this.",
+      "range": {
+        "startLine": 16,
+        "startChar": 17,
+        "endLine": 16,
+        "endChar": 29
+      },
+      "revId": "79a35904be700cb9cba75faf2bb0a7a69161a83d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5e477e16_79f585b9",
+        "filename": "test/av1_round_shift_array_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-06-08T17:21:09Z",
+      "side": 1,
+      "message": "Is this #if block necessary? You should be able to leave it out.",
+      "range": {
+        "startLine": 31,
+        "startChar": 4,
+        "endLine": 31,
+        "endChar": 14
+      },
+      "revId": "79a35904be700cb9cba75faf2bb0a7a69161a83d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "87ddcb4a_baf91568",
+        "filename": "test/av1_round_shift_array_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-06-08T17:21:09Z",
+      "side": 1,
+      "message": "Is there an existing list of block sizes you could use?\n\nThese are also generally sorted:\n\n64x64, 64x32, 32x64, 32x32, 32x16, 16x32, etc",
+      "range": {
+        "startLine": 32,
+        "startChar": 6,
+        "endLine": 32,
+        "endChar": 16
+      },
+      "revId": "79a35904be700cb9cba75faf2bb0a7a69161a83d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "65bc5457_b530cf68",
+        "filename": "test/av1_round_shift_array_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-06-08T17:21:09Z",
+      "side": 1,
+      "message": "Are these the only valid bits? How did you determine that?",
+      "range": {
+        "startLine": 38,
+        "startChar": 10,
+        "endLine": 38,
+        "endChar": 24
+      },
+      "revId": "79a35904be700cb9cba75faf2bb0a7a69161a83d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d1fde8f1_128deb0e",
+        "filename": "test/av1_round_shift_array_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-06-08T17:21:09Z",
+      "side": 1,
+      "message": "Because these are each a single line, they can be declared and implemented here.",
+      "range": {
+        "startLine": 51,
+        "startChar": 7,
+        "endLine": 53,
+        "endChar": 15
+      },
+      "revId": "79a35904be700cb9cba75faf2bb0a7a69161a83d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4bbd1895_ec5b7815",
+        "filename": "test/av1_round_shift_array_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-06-08T17:21:09Z",
+      "side": 1,
+      "message": "width. err actually it looks like that is an existing array. not sure how that got it.",
+      "range": {
+        "startLine": 74,
+        "startChar": 27,
+        "endLine": 74,
+        "endChar": 31
+      },
+      "revId": "79a35904be700cb9cba75faf2bb0a7a69161a83d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6cbff5dc_9e00ac5d",
+        "filename": "test/av1_round_shift_array_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-06-08T17:21:09Z",
+      "side": 1,
+      "message": "with blk_size \u003d 64, isn\u0027t this a problem for blocks larger than 8x8?",
+      "range": {
+        "startLine": 77,
+        "startChar": 37,
+        "endLine": 77,
+        "endChar": 45
+      },
+      "revId": "79a35904be700cb9cba75faf2bb0a7a69161a83d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "119a091e_99618f18",
+        "filename": "test/av1_round_shift_array_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-06-08T17:21:09Z",
+      "side": 1,
+      "message": "This doesn\u0027t work. Use av1_zero()",
+      "range": {
+        "startLine": 77,
+        "startChar": 50,
+        "endLine": 77,
+        "endChar": 55
+      },
+      "revId": "79a35904be700cb9cba75faf2bb0a7a69161a83d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f319abb5_5f660309",
+        "filename": "test/av1_round_shift_array_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-06-08T17:21:09Z",
+      "side": 1,
+      "message": "ref_buffer_ \u003d pred_ \u003d rnd()",
+      "range": {
+        "startLine": 80,
+        "startChar": 4,
+        "endLine": 80,
+        "endChar": 9
+      },
+      "revId": "79a35904be700cb9cba75faf2bb0a7a69161a83d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c9be74e4_76f0aeac",
+        "filename": "test/av1_round_shift_array_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-06-08T17:21:09Z",
+      "side": 1,
+      "message": "av1_round_shift_array",
+      "range": {
+        "startLine": 116,
+        "startChar": 10,
+        "endLine": 116,
+        "endChar": 24
+      },
+      "revId": "79a35904be700cb9cba75faf2bb0a7a69161a83d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3cfa0692_7983bda1",
+        "filename": "test/av1_round_shift_array_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-06-08T17:21:09Z",
+      "side": 1,
+      "message": "DISABLED_Speed",
+      "range": {
+        "startLine": 125,
+        "startChar": 30,
+        "endLine": 125,
+        "endChar": 35
+      },
+      "revId": "79a35904be700cb9cba75faf2bb0a7a69161a83d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7bc4fce5_b6d6f4dc",
+        "filename": "test/av1_round_shift_array_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-06-08T17:21:09Z",
+      "side": 1,
+      "message": "SSE4_1",
+      "range": {
+        "startLine": 131,
+        "startChar": 4,
+        "endLine": 131,
+        "endChar": 9
+      },
+      "revId": "79a35904be700cb9cba75faf2bb0a7a69161a83d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
