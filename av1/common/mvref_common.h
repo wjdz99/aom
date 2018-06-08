@@ -180,8 +180,8 @@ static MV_REFERENCE_FRAME ref_frame_map[TOTAL_COMP_REFS][2] = {
 };
 // clang-format on
 
-static INLINE void av1_set_ref_frame(MV_REFERENCE_FRAME *rf,
-                                     int8_t ref_frame_type) {
+static INLINE void set_ref_frame(MV_REFERENCE_FRAME *rf,
+                                 int8_t ref_frame_type) {
   if (ref_frame_type >= REF_FRAMES) {
     rf[0] = ref_frame_map[ref_frame_type - REF_FRAMES][0];
     rf[1] = ref_frame_map[ref_frame_type - REF_FRAMES][1];

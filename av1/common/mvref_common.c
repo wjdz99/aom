@@ -344,7 +344,7 @@ static int add_tpl_ref_mv(const AV1_COMMON *cm, const MACROBLOCKD *xd,
       ((mi_col + mi_pos.col) >> 1);
 
   MV_REFERENCE_FRAME rf[2];
-  av1_set_ref_frame(rf, ref_frame);
+  set_ref_frame(rf, ref_frame);
 
   if (rf[1] == NONE_FRAME) {
     int cur_frame_index = cm->cur_frame->cur_frame_offset;
@@ -449,7 +449,7 @@ static void setup_ref_mv_list(
   int processed_rows = 0;
   int processed_cols = 0;
 
-  av1_set_ref_frame(rf, ref_frame);
+  set_ref_frame(rf, ref_frame);
   mode_context[ref_frame] = 0;
   refmv_count[ref_frame] = 0;
 
@@ -849,7 +849,7 @@ void av1_find_mv_refs(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   int_mv zeromv[2];
   BLOCK_SIZE bsize = mi->sb_type;
   MV_REFERENCE_FRAME rf[2];
-  av1_set_ref_frame(rf, ref_frame);
+  set_ref_frame(rf, ref_frame);
 
   if (ref_frame < REF_FRAMES) {
     if (ref_frame != INTRA_FRAME) {
