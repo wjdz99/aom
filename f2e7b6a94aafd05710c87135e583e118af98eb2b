@@ -80,6 +80,24 @@
       "revId": "f2e7b6a94aafd05710c87135e583e118af98eb2b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d1055056_40201507",
+        "filename": "av1/common/arm/round_shift.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 9670
+      },
+      "writtenOn": "2018-06-08T15:05:37Z",
+      "side": 1,
+      "message": "In case of positive argument vqrshl is doing saturation also, so we can\u0027t combine both looops.",
+      "parentUuid": "1608c7dc_7af80651",
+      "revId": "f2e7b6a94aafd05710c87135e583e118af98eb2b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
