@@ -3656,16 +3656,11 @@ static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
   av1_zero_left_context(xd);
 
   // Reset delta for every tile
-  if (cm->delta_q_present_flag)
-    if (mi_row == tile_info->mi_row_start) xd->current_qindex = cm->base_qindex;
-  if (cm->delta_lf_present_flag) {
-    if (mi_row == tile_info->mi_row_start) {
-      const int frame_lf_count =
-          av1_num_planes(cm) > 1 ? FRAME_LF_COUNT : FRAME_LF_COUNT - 2;
-      for (int lf_id = 0; lf_id < frame_lf_count; ++lf_id)
-        xd->delta_lf[lf_id] = 0;
+  if (mi_row == tile_info->mi_row_start) {
+    if (cm->delta_q_present_flag) xd->current_qindex = cm->base_qindex;
+    if (cm->delta_lf_present_flag) {
+      av1_reset_loop_filter_delta(xd, av1_num_planes(cm));
     }
-    if (mi_row == tile_info->mi_row_start) xd->delta_lf_from_base = 0;
   }
 
   // Code each SB in the row
