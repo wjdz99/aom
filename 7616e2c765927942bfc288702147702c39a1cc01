@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b78f7684_e906f538",
+        "filename": "aom_dsp/arm/loopfilter_neon.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-06-08T18:47:55Z",
+      "side": 1,
+      "message": "This is always called with \u00271\u0027\n\nat a minimum, remove the parameter and add a comment along the lines of \"for bd\u003d\u003d8 threshold is always 1\"",
+      "range": {
+        "startLine": 62,
+        "startChar": 53,
+        "endLine": 62,
+        "endChar": 59
+      },
+      "revId": "7616e2c765927942bfc288702147702c39a1cc01",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e85da29c_afb26712",
+        "filename": "aom_dsp/arm/loopfilter_neon.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-06-08T18:47:55Z",
+      "side": 1,
+      "message": "Since thresh is always 1 it should be possible to improve this.\n\nPerhaps\na \u003d (abd() | abd() | abd() | abd()) \u003e\u003e 1\nb \u003d (abd() | abd() | abd() | abd()) \u003e\u003e 1\n\nvtst(a, b)\n\nIf any value was set it would be combined. By \u0026 with 0xfe you would exclude any values which are exactly 1 (alternatively, downshift by 1). Since it\u0027s using abd() all values are positive.\n\nOr look at libvpx:\nhttps://chromium.googlesource.com/webm/libvpx/+/master/vpx_dsp/arm/loopfilter_neon.c#80\nand use vmax (i think you can make something faster since thresh \u003d\u003d 1 here though)\n\nI don\u0027t recommend using those macros though. inline functions are easier to deal with.\n\nand/or use vcle to avoid having to negate the mask:\nhttps://chromium.googlesource.com/webm/libvpx/+/master/vpx_dsp/arm/loopfilter_neon.c#142",
+      "range": {
+        "startLine": 66,
+        "startChar": 13,
+        "endLine": 66,
+        "endChar": 20
+      },
+      "revId": "7616e2c765927942bfc288702147702c39a1cc01",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "369c17bc_a92e196d",
+        "filename": "aom_dsp/arm/loopfilter_neon.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-06-08T18:47:55Z",
+      "side": 1,
+      "message": "Why the reversal?",
+      "revId": "7616e2c765927942bfc288702147702c39a1cc01",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9309e7c5_acb78424",
+        "filename": "aom_dsp/arm/loopfilter_neon.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-06-08T18:47:55Z",
+      "side": 1,
+      "message": "\"sign_bit\" or \"sign_mask\" would be a more descriptive name.",
+      "range": {
+        "startLine": 106,
+        "startChar": 19,
+        "endLine": 106,
+        "endChar": 26
+      },
+      "revId": "7616e2c765927942bfc288702147702c39a1cc01",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
