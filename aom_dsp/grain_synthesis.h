@@ -20,6 +20,7 @@
 extern "C" {
 #endif
 
+#include <stdio.h>
 #include "aom_dsp/aom_dsp_common.h"
 #include "aom/aom_image.h"
 
@@ -111,6 +112,7 @@ void av1_add_film_grain_run(aom_film_grain_t *grain_params, uint8_t *luma,
 void av1_add_film_grain(aom_film_grain_t *grain_params, aom_image_t *src,
                         aom_image_t *dst);
 
+void av1_film_grain_print(FILE *file, const aom_film_grain_t *pars);
 #ifdef __cplusplus
 }  // extern "C"
 #endif
