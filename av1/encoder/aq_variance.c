@@ -22,14 +22,15 @@
 #include "aom_ports/system_state.h"
 
 #define ENERGY_MIN (-4)
-#define ENERGY_MAX (1)
+#define ENERGY_MAX (3)
 #define ENERGY_SPAN (ENERGY_MAX - ENERGY_MIN + 1)
 #define ENERGY_IN_BOUNDS(energy) \
   assert((energy) >= ENERGY_MIN && (energy) <= ENERGY_MAX)
 
-static const double rate_ratio[MAX_SEGMENTS] = { 2.5,  2.0, 1.5, 1.0,
-                                                 0.75, 1.0, 1.0, 1.0 };
-static const int segment_id[ENERGY_SPAN] = { 0, 1, 1, 2, 3, 4 };
+static const double rate_ratio[MAX_SEGMENTS] = { 2.0,  2.0, 1.5, 1.0,
+                                                 0.75, .60, .5, .5 };
+
+static const int segment_id[ENERGY_SPAN] = { 0, 1, 2, 3, 4, 5, 6, 7 };
 
 #define SEGMENT_ID(i) segment_id[(i)-ENERGY_MIN]
 
@@ -140,48 +141,49 @@ static void aq_highbd_8_variance(const uint8_t *a8, int a_stride,
   *sum = (int)sum_long;
 }
 
-static unsigned int block_variance(const AV1_COMP *const cpi, MACROBLOCK *x,
-                                   BLOCK_SIZE bs) {
+static unsigned int block_lvariance(const AV1_COMP *const cpi, MACROBLOCK *x,
+                                    BLOCK_SIZE bs) {
+  // This functions returns a score for the blocks local variance as calculated by:
+  // sum of the log of the (4x4 variances) of each subblock to the current block (x,bs)
+  // * 32 / number of pixels in the block_size.
+  // This is used for segmentation because to avoid situations in which a large block
+  // with a gentle gradient gets marked high variance even though each subblock has a
+  // low variance.   This allows us to assign the same segment number for the same sorts
+  // of area regardless of how the partitioning goes.
+
   MACROBLOCKD *xd = &x->e_mbd;
-  unsigned int var, sse;
+  unsigned int var=0, sse;
+  int i,j;
+
   int right_overflow =
       (xd->mb_to_right_edge < 0) ? ((-xd->mb_to_right_edge) >> 3) : 0;
   int bottom_overflow =
       (xd->mb_to_bottom_edge < 0) ? ((-xd->mb_to_bottom_edge) >> 3) : 0;
 
-  if (right_overflow || bottom_overflow) {
-    const int bw = MI_SIZE * mi_size_wide[bs] - right_overflow;
-    const int bh = MI_SIZE * mi_size_high[bs] - bottom_overflow;
-    int avg;
-    if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
-      aq_highbd_8_variance(x->plane[0].src.buf, x->plane[0].src.stride,
-                           CONVERT_TO_BYTEPTR(av1_highbd_all_zeros), 0, bw, bh,
-                           &sse, &avg);
-      sse >>= 2 * (xd->bd - 8);
-      avg >>= (xd->bd - 8);
-    } else {
-      aq_variance(x->plane[0].src.buf, x->plane[0].src.stride, av1_all_zeros, 0,
-                  bw, bh, &sse, &avg);
+  const int bw = MI_SIZE * mi_size_wide[bs] - right_overflow;
+  const int bh = MI_SIZE * mi_size_high[bs] - bottom_overflow;
+
+  for (i = 0;i < bh;i += 4) {
+    for (j = 0;j < bw;j += 4) {
+      if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
+        var +=
+          log(1+cpi->fn_ptr[BLOCK_4X4].vf(x->plane[0].src.buf + i * x->plane[0].src.stride + j,
+                               x->plane[0].src.stride,
+                               CONVERT_TO_BYTEPTR(av1_highbd_all_zeros), 0, &sse));
+      } else {
+        var +=
+          log(1+cpi->fn_ptr[BLOCK_4X4].vf(x->plane[0].src.buf + i * x->plane[0].src.stride + j,
+                                    x->plane[0].src.stride, av1_all_zeros, 0, &sse));
+      }
     }
-    var = sse - (unsigned int)(((int64_t)avg * avg) / (bw * bh));
-    return (unsigned int)((uint64_t)var * 256) / (bw * bh);
-  } else {
-    if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
-      var =
-          cpi->fn_ptr[bs].vf(x->plane[0].src.buf, x->plane[0].src.stride,
-                             CONVERT_TO_BYTEPTR(av1_highbd_all_zeros), 0, &sse);
-    } else {
-      var = cpi->fn_ptr[bs].vf(x->plane[0].src.buf, x->plane[0].src.stride,
-                               av1_all_zeros, 0, &sse);
-    }
-    return (unsigned int)((uint64_t)var * 256) >> num_pels_log2_lookup[bs];
   }
+  return (unsigned int)((uint64_t)var * 32) >> (num_pels_log2_lookup[bs]);
 }
 
 double av1_log_block_var(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bs) {
-  unsigned int var = block_variance(cpi, x, bs);
+  unsigned int var = block_lvariance(cpi, x, bs);
   aom_clear_system_state();
-  return log(var + 1.0);
+  return var;
 }
 
 #define DEFAULT_E_MIDPOINT 10.0

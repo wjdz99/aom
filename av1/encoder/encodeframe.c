@@ -617,8 +617,7 @@ static void rd_pick_sb_modes(const AV1_COMP *const cpi, TileDataEnc *tile_data,
 
   if (aq_mode == VARIANCE_AQ) {
     if (cpi->vaq_refresh) {
-      const int energy =
-          bsize <= BLOCK_16X16 ? x->mb_energy : av1_block_energy(cpi, x, bsize);
+      const int energy = av1_block_energy(cpi, x, bsize);
       mbmi->segment_id = av1_vaq_segment_id(energy);
     }
     x->rdmult = set_segment_rdmult(cpi, x, mbmi->segment_id);
@@ -662,7 +661,10 @@ static void rd_pick_sb_modes(const AV1_COMP *const cpi, TileDataEnc *tile_data,
 
   ctx->rate = rd_cost->rate;
   ctx->dist = rd_cost->dist;
-  ctx->rdcost = rd_cost->rdcost;
+  
+  // Recalculate the cost for this sub block using the rdmult corresponding
+  // to the larger parent block.
+  ctx->rdcost = RDCOST(x->rdmult,rd_cost->rate,rd_cost->dist);
 }
 
 static void update_inter_mode_stats(FRAME_CONTEXT *fc, FRAME_COUNTS *counts,
