@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "df60e2b6_c3dc005f",
+        "filename": "aom_dsp/x86/variance_avx2.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 272,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-06-08T02:30:22Z",
+      "side": 1,
+      "message": "given they\u0027re all the same I don\u0027t think there\u0027s much benefit in carrying around the cast parameter",
+      "range": {
+        "startLine": 272,
+        "startChar": 43,
+        "endLine": 272,
+        "endChar": 63
+      },
+      "revId": "a93ab3c90142d423782773f5b1c18d7a76da6b1a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
