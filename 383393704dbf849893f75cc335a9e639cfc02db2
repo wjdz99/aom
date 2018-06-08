@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d24f08c0_132debcc",
+        "filename": "aom_dsp/x86/variance_avx2.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 249,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-06-08T23:05:32Z",
+      "side": 1,
+      "message": "these can be scoped to the loops",
+      "revId": "383393704dbf849893f75cc335a9e639cfc02db2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e682f891_8732e23e",
+        "filename": "aom_dsp/x86/variance_avx2.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 257,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-06-08T23:05:32Z",
+      "side": 1,
+      "message": "this can be const",
+      "revId": "383393704dbf849893f75cc335a9e639cfc02db2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "42a2f3ee_0c715eb6",
+        "filename": "aom_dsp/x86/variance_avx2.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 288,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-06-08T23:05:32Z",
+      "side": 1,
+      "message": "these can be scoped to the loops",
+      "revId": "383393704dbf849893f75cc335a9e639cfc02db2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "36885d63_d450ab9b",
+        "filename": "aom_dsp/x86/variance_avx2.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 297,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-06-08T23:05:32Z",
+      "side": 1,
+      "message": "this can be const",
+      "revId": "383393704dbf849893f75cc335a9e639cfc02db2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5faa442b_b967559f",
+        "filename": "aom_dsp/x86/variance_sse2.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 353,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-06-08T23:05:32Z",
+      "side": 1,
+      "message": "the same comments as the avx2 file apply here",
+      "revId": "383393704dbf849893f75cc335a9e639cfc02db2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
