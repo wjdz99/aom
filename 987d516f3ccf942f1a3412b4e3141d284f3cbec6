@@ -209,6 +209,30 @@
     },
     {
       "key": {
+        "uuid": "e2e5d8ed_dd374270",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 411,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-08T23:38:03Z",
+      "side": 1,
+      "message": "I just realized that we need to perform this check *after* we increment \u0027data\u0027 at line 415, because this check needs to use the new value of \u0027data\u0027.",
+      "parentUuid": "fca6247a_536bbbf8",
+      "range": {
+        "startLine": 411,
+        "startChar": 6,
+        "endLine": 411,
+        "endChar": 16
+      },
+      "revId": "987d516f3ccf942f1a3412b4e3141d284f3cbec6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "59f59264_eeabd102",
         "filename": "av1/decoder/obu.c",
         "patchSetId": 7
