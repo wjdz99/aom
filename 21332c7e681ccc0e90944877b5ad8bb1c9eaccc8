@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "75c4508b_5d4f06b3",
+        "filename": "aom_dsp/arm/loopfilter_neon.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 9101
+      },
+      "writtenOn": "2018-06-08T15:13:49Z",
+      "side": 1,
+      "message": "Function name is changed to lpf_14_neon",
+      "parentUuid": "e9af9917_e178ec96",
+      "range": {
+        "startLine": 21,
+        "startChar": 16,
+        "endLine": 21,
+        "endChar": 24
+      },
+      "revId": "21332c7e681ccc0e90944877b5ad8bb1c9eaccc8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3e19b94b_dbb7ac91",
         "filename": "aom_dsp/arm/loopfilter_neon.c",
         "patchSetId": 1
@@ -45,6 +69,30 @@
       "revId": "21332c7e681ccc0e90944877b5ad8bb1c9eaccc8",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c8a6ce5d_c7750294",
+        "filename": "aom_dsp/arm/loopfilter_neon.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 9101
+      },
+      "writtenOn": "2018-06-08T15:13:49Z",
+      "side": 1,
+      "message": "Yes, the threshold value is always 1. It is used to calculate masks flat and flat2",
+      "parentUuid": "3e19b94b_dbb7ac91",
+      "range": {
+        "startLine": 28,
+        "startChar": 44,
+        "endLine": 28,
+        "endChar": 45
+      },
+      "revId": "21332c7e681ccc0e90944877b5ad8bb1c9eaccc8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "22d9559c_af8d7a6e",
+        "filename": "aom_dsp/arm/loopfilter_neon.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 9101
+      },
+      "writtenOn": "2018-06-08T15:13:49Z",
+      "side": 1,
+      "message": "Instruction is modified as per the suggestion.",
+      "parentUuid": "49c07ba8_9310f8b4",
+      "range": {
+        "startLine": 44,
+        "startChar": 30,
+        "endLine": 44,
+        "endChar": 38
+      },
+      "revId": "21332c7e681ccc0e90944877b5ad8bb1c9eaccc8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "79c6ac18_8e0209b6",
         "filename": "aom_dsp/arm/loopfilter_neon.c",
         "patchSetId": 1
@@ -91,6 +163,30 @@
       "revId": "21332c7e681ccc0e90944877b5ad8bb1c9eaccc8",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c8950e4d_d9fbf161",
+        "filename": "aom_dsp/arm/loopfilter_neon.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 9101
+      },
+      "writtenOn": "2018-06-08T15:13:49Z",
+      "side": 1,
+      "message": "Instruction is modified as per the suggestion.",
+      "parentUuid": "79c6ac18_8e0209b6",
+      "range": {
+        "startLine": 47,
+        "startChar": 55,
+        "endLine": 47,
+        "endChar": 65
+      },
+      "revId": "21332c7e681ccc0e90944877b5ad8bb1c9eaccc8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "85c8bf74_add9aaeb",
+        "filename": "aom_dsp/arm/loopfilter_neon.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 9101
+      },
+      "writtenOn": "2018-06-08T15:13:49Z",
+      "side": 1,
+      "message": "Suggestion is considered. Similar code is modified in the calculation of mask and flat",
+      "parentUuid": "ed6fc100_eb4e93ae",
+      "range": {
+        "startLine": 94,
+        "startChar": 58,
+        "endLine": 94,
+        "endChar": 69
+      },
+      "revId": "21332c7e681ccc0e90944877b5ad8bb1c9eaccc8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ee7bcf54_58b31b59",
         "filename": "aom_dsp/arm/loopfilter_neon.c",
         "patchSetId": 1
@@ -140,6 +260,30 @@
     },
     {
       "key": {
+        "uuid": "ded22a4a_aae3a20d",
+        "filename": "aom_dsp/arm/loopfilter_neon.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 9101
+      },
+      "writtenOn": "2018-06-08T15:13:49Z",
+      "side": 1,
+      "message": "In filter4, I could not vectorize p and q packed in a variable. So extracting lower 32-bit after p0q0 ^ 0x80.",
+      "parentUuid": "ee7bcf54_58b31b59",
+      "range": {
+        "startLine": 121,
+        "startChar": 13,
+        "endLine": 121,
+        "endChar": 72
+      },
+      "revId": "21332c7e681ccc0e90944877b5ad8bb1c9eaccc8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "13a67408_26c2e4c2",
         "filename": "aom_dsp/arm/loopfilter_neon.c",
         "patchSetId": 1
@@ -160,6 +304,30 @@
       "revId": "21332c7e681ccc0e90944877b5ad8bb1c9eaccc8",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f212d14e_07aabcb2",
+        "filename": "aom_dsp/arm/loopfilter_neon.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 289,
+      "author": {
+        "id": 9101
+      },
+      "writtenOn": "2018-06-08T15:13:49Z",
+      "side": 1,
+      "message": "Considered your suggestion. I am creating a function for all mask calculation.",
+      "parentUuid": "13a67408_26c2e4c2",
+      "range": {
+        "startLine": 289,
+        "startChar": 7,
+        "endLine": 289,
+        "endChar": 38
+      },
+      "revId": "21332c7e681ccc0e90944877b5ad8bb1c9eaccc8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
