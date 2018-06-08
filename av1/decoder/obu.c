@@ -201,8 +201,8 @@ static uint32_t read_sequence_header_obu(AV1Decoder *pbi,
   }
 
   if (seq_params->reduced_still_picture_hdr) {
-    seq_params->display_model_info_present_flag = 0;
     seq_params->decoder_model_info_present_flag = 0;
+    seq_params->display_model_info_present_flag = 0;
     seq_params->operating_points_cnt_minus_1 = 0;
     seq_params->operating_point_idc[0] = 0;
     if (!read_bitstream_level(&seq_params->level[0], rb)) {
