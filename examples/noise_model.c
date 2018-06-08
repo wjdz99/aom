@@ -53,6 +53,11 @@
 #include "aom_dsp/grain_table.h"
 #include "aom_dsp/noise_model.h"
 #include "aom_dsp/noise_util.h"
+#include "aom_dsp/grain_table.h"
+#if CONFIG_AV1_DECODER
+#include "aom_dsp/grain_synthesis.h"
+#endif
+
 #include "aom_mem/aom_mem.h"
 #include "common/args.h"
 #include "common/tools_common.h"
@@ -263,7 +268,8 @@ static void print_debug_info(FILE *debug_file, aom_image_t *raw,
     const aom_equation_system_t *eqns =
         &noise_model->combined_state[c].strength_solver.eqns;
     for (int k = 0; k < eqns->n; ++k) {
-      fprintf(debug_file, "%lf ", eqns->x[k]);
+      fprintf(debug_file, "%lf ",
+              eqns->x[k] * noise_model->combined_state[c].ar_gain);
     }
     fprintf(debug_file, "];\n");
     fprintf(debug_file, "plot(noise_strength_%d); hold on;\n", c);
