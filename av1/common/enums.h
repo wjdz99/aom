@@ -232,7 +232,7 @@ typedef enum ATTRIBUTE_PACKED {
 // Pad 16 extra bytes to avoid reading overflow in SIMD optimization.
 #define TX_PAD_END 16
 #define TX_PAD_2D \
-  ((MAX_TX_SIZE + TX_PAD_HOR) * (MAX_TX_SIZE + TX_PAD_VER) + TX_PAD_END)
+  ((32 + TX_PAD_HOR) * (32 + TX_PAD_VER) + TX_PAD_END)
 
 // Number of maxium size transform blocks in the maximum size superblock
 #define MAX_TX_BLOCKS_IN_MAX_SB_LOG2 ((MAX_SB_SIZE_LOG2 - MAX_TX_SIZE_LOG2) * 2)
