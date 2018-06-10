@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "712c80be_beb569c2",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2335,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-10T01:03:48Z",
+      "side": 1,
+      "message": "This code fragment is equivalent to the following 11 lines in Section 5.11.2. Decode tile syntax in the spec:\n\n    clear_above_context( )\n    for ( i \u003d 0; i \u003c FRAME_LF_COUNT; i++ )\n        DeltaLF[ i ] \u003d 0\n    for ( plane \u003d 0; plane \u003c NumPlanes; plane++ ) {\n        for ( pass \u003d 0; pass \u003c 2; pass++ ) {\n            RefSgrXqd[ plane ][ pass ] \u003d Sgrproj_Xqd_Mid[ pass ]\n            for ( i \u003d 0; i \u003c WIENER_COEFFS; i++ ) {\n                RefLrWiener[ plane ][ pass ][ i ] \u003d Wiener_Taps_Mid[ i ]         \n            }\n        }\n    }",
+      "range": {
+        "startLine": 2332,
+        "startChar": 0,
+        "endLine": 2335,
+        "endChar": 50
+      },
+      "revId": "0af13c6628936fb7d265180bedfce1efe7cf6cc8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "62ec89f7_61d3514f",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2441,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-10T01:03:48Z",
+      "side": 1,
+      "message": "This code fragment (and lines 2510-2514 in tile_worker_hook()) is equivalent to the following 6 lines in Section 5.11.1. General tile group OBU syntax in the spec:\n\n        MiRowStart \u003d MiRowStarts[ tileRow ]\n        MiRowEnd \u003d MiRowStarts[ tileRow + 1 ]\n        MiColStart \u003d MiColStarts[ tileCol ]\n        MiColEnd \u003d MiColStarts[ tileCol + 1 ]\n        CurrentQIndex \u003d base_q_idx\n        init_symbol( tileSize )",
+      "range": {
+        "startLine": 2438,
+        "startChar": 0,
+        "endLine": 2441,
+        "endChar": 71
+      },
+      "revId": "0af13c6628936fb7d265180bedfce1efe7cf6cc8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
