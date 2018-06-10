@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c28b9e77_90ebb98d",
+        "filename": "aom_dsp/arm/blend_a64_mask_neon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 9039
+      },
+      "writtenOn": "2018-06-10T17:39:34Z",
+      "side": 1,
+      "message": "Can the result be narrowed to int16x4_t instead of int32x4_t, using vshrn?\nIn that case, vmovn later can be avoided.\nAlso, we can create a variant for blending int16x8 sources and return int16x8 res and avoid one sub by using vsubq instead.",
+      "revId": "e561e110f2ae57959ad985a115afceb7e06c4698",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1c13b196_c491bddc",
+        "filename": "aom_dsp/arm/blend_a64_mask_neon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 9039
+      },
+      "writtenOn": "2018-06-10T17:39:34Z",
+      "side": 1,
+      "message": "might be better to name the function as blend_8x4 here.\nOthers can use blend_4x4, blend_4x1, blend_8x1 (if we create a new one).",
+      "revId": "e561e110f2ae57959ad985a115afceb7e06c4698",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f9971daf_3681d708",
+        "filename": "aom_dsp/arm/blend_a64_mask_neon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 223,
+      "author": {
+        "id": 9039
+      },
+      "writtenOn": "2018-06-10T17:39:34Z",
+      "side": 1,
+      "message": "No need to check for (w_tmp \u003d\u003d 4), else alone should be enough.\nw is guaranteed to be power of 2 and at least 4.",
+      "revId": "e561e110f2ae57959ad985a115afceb7e06c4698",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
