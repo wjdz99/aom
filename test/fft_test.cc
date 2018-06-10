@@ -6,7 +6,9 @@
 
 #include "aom_dsp/fft_common.h"
 #include "aom_mem/aom_mem.h"
+#if ARCH_X86 || ARCH_X86_64
 #include "aom_ports/x86.h"
+#endif
 #include "config/aom_dsp_rtcd.h"
 #include "test/acm_random.h"
 #include "third_party/googletest/src/googletest/include/gtest/gtest.h"
