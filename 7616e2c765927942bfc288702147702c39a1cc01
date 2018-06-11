@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "7ee46262_a83c28cb",
+        "filename": "aom_dsp/arm/loopfilter_neon.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 9101
+      },
+      "writtenOn": "2018-06-11T13:54:40Z",
+      "side": 1,
+      "message": "Function argument is removed and declared as a local variable.",
+      "parentUuid": "b78f7684_e906f538",
+      "range": {
+        "startLine": 62,
+        "startChar": 53,
+        "endLine": 62,
+        "endChar": 59
+      },
+      "revId": "7616e2c765927942bfc288702147702c39a1cc01",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e85da29c_afb26712",
         "filename": "aom_dsp/arm/loopfilter_neon.c",
         "patchSetId": 2
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "8e2d5679_ae22561d",
+        "filename": "aom_dsp/arm/loopfilter_neon.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 9101
+      },
+      "writtenOn": "2018-06-11T13:54:40Z",
+      "side": 1,
+      "message": "Function is modified as per the suggestion. Similar optimization applied in lpf_mask() function as well.",
+      "parentUuid": "e85da29c_afb26712",
+      "range": {
+        "startLine": 66,
+        "startChar": 13,
+        "endLine": 66,
+        "endChar": 20
+      },
+      "revId": "7616e2c765927942bfc288702147702c39a1cc01",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "369c17bc_a92e196d",
         "filename": "aom_dsp/arm/loopfilter_neon.c",
         "patchSetId": 2
@@ -62,6 +110,24 @@
       "revId": "7616e2c765927942bfc288702147702c39a1cc01",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e0ca9af8_bc065f66",
+        "filename": "aom_dsp/arm/loopfilter_neon.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 9101
+      },
+      "writtenOn": "2018-06-11T13:54:40Z",
+      "side": 1,
+      "message": "Result of abs(px - p0) is stored in lower half and abs(qx - q0) is stored in higher half of flat_8x8.\nflat \u003d abs(qx - q0) | abs(px - p0)\n\nFinal output of the function is, same flat value packed in lower and upper half. So I am doing reversal before \u0027or\u0027 operation.\nflat_rev \u003d abs(px - p0) | abs(qx - q0)\nout \u003d (flat | flat_rev)",
+      "parentUuid": "369c17bc_a92e196d",
+      "revId": "7616e2c765927942bfc288702147702c39a1cc01",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -85,6 +151,30 @@
       "revId": "7616e2c765927942bfc288702147702c39a1cc01",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8f16a531_305d419e",
+        "filename": "aom_dsp/arm/loopfilter_neon.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 9101
+      },
+      "writtenOn": "2018-06-11T13:54:40Z",
+      "side": 1,
+      "message": "Renamed the variable to sign_mask",
+      "parentUuid": "9309e7c5_acb78424",
+      "range": {
+        "startLine": 106,
+        "startChar": 19,
+        "endLine": 106,
+        "endChar": 26
+      },
+      "revId": "7616e2c765927942bfc288702147702c39a1cc01",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
