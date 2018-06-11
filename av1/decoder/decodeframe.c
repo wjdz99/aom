@@ -140,10 +140,15 @@ static REFERENCE_MODE read_frame_reference_mode(
 static void inverse_transform_block(MACROBLOCKD *xd, int plane,
                                     const TX_TYPE tx_type,
                                     const TX_SIZE tx_size, uint8_t *dst,
-                                    int stride, int16_t scan_line, int eob,
-                                    int reduced_tx_set) {
+                                    int stride, int reduced_tx_set) {
   struct macroblockd_plane *const pd = &xd->plane[plane];
-  tran_low_t *const dqcoeff = pd->dqcoeff;
+  tran_low_t *const dqcoeff = pd->dqcoeff_block;
+  eob_info *eob_data = pd->eob_data + xd->txb_offset[plane];
+  uint16_t scan_line = eob_data->max_scan_line;
+  uint16_t eob = eob_data->eob;
+
+  memcpy(dqcoeff, pd->dqcoeff + xd->cb_offset[plane],
+         (scan_line + 1) * sizeof(dqcoeff[0]));
   av1_inverse_transform_block(xd, dqcoeff, plane, tx_type, tx_size, dst, stride,
                               eob, reduced_tx_set);
   memset(dqcoeff, 0, (scan_line + 1) * sizeof(dqcoeff[0]));
@@ -161,10 +166,7 @@ static void predict_and_reconstruct_intra_block(
     struct aom_usec_timer timer;
     aom_usec_timer_start(&timer);
 #endif
-    int16_t max_scan_line = 0;
-    int eob;
-    av1_read_coeffs_txb_facade(cm, xd, r, row, col, plane, tx_size,
-                               &max_scan_line, &eob);
+    av1_read_coeffs_txb_facade(cm, xd, r, row, col, plane, tx_size);
     // tx_type will be read out in av1_read_coeffs_txb_facade
     const TX_TYPE tx_type = av1_get_tx_type(plane_type, xd, row, col, tx_size,
                                             cm->reduced_tx_set_used);
@@ -175,16 +177,20 @@ static void predict_and_reconstruct_intra_block(
     cm->txcoeff_timer += elapsed_time;
     ++cm->txb_count;
 #endif
-    if (eob) {
+    eob_info *eob_data = pd->eob_data + xd->txb_offset[plane];
+    if (eob_data->eob) {
       uint8_t *dst =
           &pd->dst.buf[(row * pd->dst.stride + col) << tx_size_wide_log2[0]];
       inverse_transform_block(xd, plane, tx_type, tx_size, dst, pd->dst.stride,
-                              max_scan_line, eob, cm->reduced_tx_set_used);
+                              cm->reduced_tx_set_used);
     }
   }
   if (plane == AOM_PLANE_Y && store_cfl_required(cm, xd)) {
     cfl_store_tx(xd, row, col, tx_size, mbmi->sb_type);
   }
+  xd->cb_offset[plane] += tx_size_wide[tx_size] * tx_size_high[tx_size];
+  xd->txb_offset[plane] =
+      xd->cb_offset[plane] / (TX_SIZE_W_MIN * TX_SIZE_H_MIN);
 }
 
 static void decode_reconstruct_tx(AV1_COMMON *cm, MACROBLOCKD *const xd,
@@ -210,10 +216,7 @@ static void decode_reconstruct_tx(AV1_COMMON *cm, MACROBLOCKD *const xd,
     struct aom_usec_timer timer;
     aom_usec_timer_start(&timer);
 #endif
-    int16_t max_scan_line = 0;
-    int eob;
-    av1_read_coeffs_txb_facade(cm, xd, r, blk_row, blk_col, plane, tx_size,
-                               &max_scan_line, &eob);
+    av1_read_coeffs_txb_facade(cm, xd, r, blk_row, blk_col, plane, tx_size);
     // tx_type will be read out in av1_read_coeffs_txb_facade
     const TX_TYPE tx_type = av1_get_tx_type(plane_type, xd, blk_row, blk_col,
                                             tx_size, cm->reduced_tx_set_used);
@@ -232,7 +235,7 @@ static void decode_reconstruct_tx(AV1_COMMON *cm, MACROBLOCKD *const xd,
         &pd->dst
              .buf[(blk_row * pd->dst.stride + blk_col) << tx_size_wide_log2[0]];
     inverse_transform_block(xd, plane, tx_type, tx_size, dst, pd->dst.stride,
-                            max_scan_line, eob, cm->reduced_tx_set_used);
+                            cm->reduced_tx_set_used);
 #if CONFIG_MISMATCH_DEBUG
     int pixel_c, pixel_r;
     BLOCK_SIZE bsize = txsize_to_bsize[tx_size];
@@ -244,7 +247,11 @@ static void decode_reconstruct_tx(AV1_COMMON *cm, MACROBLOCKD *const xd,
                             pixel_c, pixel_r, blk_w, blk_h,
                             xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH);
 #endif
-    *eob_total += eob;
+    eob_info *eob_data = pd->eob_data + xd->txb_offset[plane];
+    *eob_total += eob_data->eob;
+    xd->cb_offset[plane] += tx_size_wide[tx_size] * tx_size_high[tx_size];
+    xd->txb_offset[plane] =
+        xd->cb_offset[plane] / (TX_SIZE_W_MIN * TX_SIZE_H_MIN);
   } else {
     const TX_SIZE sub_txs = sub_tx_size_map[tx_size];
     assert(IMPLIES(tx_size <= TX_4X4, sub_txs == tx_size));
@@ -1770,8 +1777,22 @@ static void resize_context_buffers(AV1_COMMON *cm, int width, int height) {
   cm->cur_frame->height = cm->height;
 }
 
-static void setup_frame_size(AV1_COMMON *cm, int frame_size_override_flag,
+static void dec_alloc_cb_buf(AV1Decoder *pbi) {
+  AV1_COMMON *const cm = &pbi->common;
+  int size = ((cm->mi_rows >> cm->seq_params.mib_size_log2) + 1) *
+             ((cm->mi_cols >> cm->seq_params.mib_size_log2) + 1);
+
+  if (pbi->cb_buffer_alloc_size < size) {
+    av1_dec_free_cb_buf(pbi);
+    CHECK_MEM_ERROR(cm, pbi->cb_buffer_base,
+                    aom_memalign(32, sizeof(*pbi->cb_buffer_base) * size));
+    pbi->cb_buffer_alloc_size = size;
+  }
+}
+
+static void setup_frame_size(AV1Decoder *pbi, int frame_size_override_flag,
                              struct aom_read_bit_buffer *rb) {
+  AV1_COMMON *const cm = &pbi->common;
   int width, height;
   BufferPool *const pool = cm->buffer_pool;
 
@@ -1792,6 +1813,8 @@ static void setup_frame_size(AV1_COMMON *cm, int frame_size_override_flag,
   setup_superres(cm, rb, &width, &height);
   resize_context_buffers(cm, width, height);
   setup_render_size(cm, rb);
+
+  dec_alloc_cb_buf(pbi);
 
   lock_buffer_pool(pool);
   if (aom_realloc_frame_buffer(
@@ -1835,8 +1858,9 @@ static INLINE int valid_ref_frame_img_fmt(aom_bit_depth_t ref_bit_depth,
          ref_yss == this_yss;
 }
 
-static void setup_frame_size_with_refs(AV1_COMMON *cm,
+static void setup_frame_size_with_refs(AV1Decoder *pbi,
                                        struct aom_read_bit_buffer *rb) {
+  AV1_COMMON *cm = &pbi->common;
   int width, height;
   int found = 0;
   int has_valid_ref_frame = 0;
@@ -1864,6 +1888,8 @@ static void setup_frame_size_with_refs(AV1_COMMON *cm,
     resize_context_buffers(cm, width, height);
     setup_render_size(cm, rb);
   }
+
+  dec_alloc_cb_buf(pbi);
 
   if (width <= 0 || height <= 0)
     aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
@@ -2282,6 +2308,24 @@ static void get_tile_buffers(AV1Decoder *pbi, const uint8_t *data,
   }
 }
 
+static void set_cb_buffer(AV1Decoder *pbi, ThreadData *const td, int mi_row,
+                          int mi_col) {
+  AV1_COMMON *const cm = &pbi->common;
+  MACROBLOCKD *const xd = &td->xd;
+  const int num_planes = av1_num_planes(cm);
+  int mib_size_log2 = cm->seq_params.mib_size_log2;
+  int stride = (cm->mi_cols >> mib_size_log2) + 1;
+  int offset = (mi_row >> mib_size_log2) * stride + (mi_col >> mib_size_log2);
+  CB_BUFFER *coeff_buf = &pbi->cb_buffer_base[offset];
+
+  for (int plane = 0; plane < num_planes; ++plane) {
+    xd->plane[plane].dqcoeff = coeff_buf->dqcoeff[plane];
+    xd->plane[plane].eob_data = coeff_buf->eob_data[plane];
+    xd->cb_offset[plane] = 0;
+    xd->txb_offset[plane] = 0;
+  }
+}
+
 static void decode_tile_sb_row(AV1Decoder *pbi, ThreadData *const td,
                                TileInfo tile_info, const int mi_row) {
   AV1_COMMON *const cm = &pbi->common;
@@ -2289,6 +2333,8 @@ static void decode_tile_sb_row(AV1Decoder *pbi, ThreadData *const td,
 
   for (int mi_col = tile_info.mi_col_start; mi_col < tile_info.mi_col_end;
        mi_col += cm->seq_params.mib_size) {
+    set_cb_buffer(pbi, td, mi_row, mi_col);
+
     decode_partition(pbi, &td->xd, mi_row, mi_col, td->bit_reader,
                      cm->seq_params.sb_size);
   }
@@ -3578,7 +3624,7 @@ static int read_uncompressed_header(AV1Decoder *pbi,
   }
 
   if (cm->frame_type == KEY_FRAME) {
-    setup_frame_size(cm, frame_size_override_flag, rb);
+    setup_frame_size(pbi, frame_size_override_flag, rb);
 
     if (cm->allow_screen_content_tools && !av1_superres_scaled(cm))
       cm->allow_intrabc = aom_rb_read_bit(rb);
@@ -3589,7 +3635,7 @@ static int read_uncompressed_header(AV1Decoder *pbi,
 
     if (cm->intra_only) {
       cm->cur_frame->film_grain_params_present = cm->film_grain_params_present;
-      setup_frame_size(cm, frame_size_override_flag, rb);
+      setup_frame_size(pbi, frame_size_override_flag, rb);
       if (cm->allow_screen_content_tools && !av1_superres_scaled(cm))
         cm->allow_intrabc = aom_rb_read_bit(rb);
 
@@ -3668,9 +3714,9 @@ static int read_uncompressed_header(AV1Decoder *pbi,
       }
 
       if (!cm->error_resilient_mode && frame_size_override_flag) {
-        setup_frame_size_with_refs(cm, rb);
+        setup_frame_size_with_refs(pbi, rb);
       } else {
-        setup_frame_size(cm, frame_size_override_flag, rb);
+        setup_frame_size(pbi, frame_size_override_flag, rb);
       }
 
       if (cm->cur_frame_force_integer_mv) {

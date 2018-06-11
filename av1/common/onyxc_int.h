@@ -712,7 +712,7 @@ static INLINE void av1_init_macroblockd(AV1_COMMON *cm, MACROBLOCKD *xd,
                                         tran_low_t *dqcoeff) {
   const int num_planes = av1_num_planes(cm);
   for (int i = 0; i < num_planes; ++i) {
-    xd->plane[i].dqcoeff = dqcoeff;
+    xd->plane[i].dqcoeff_block = dqcoeff;
 
     if (xd->plane[i].plane_type == PLANE_TYPE_Y) {
       memcpy(xd->plane[i].seg_dequant_QTX, cm->y_dequant_QTX,

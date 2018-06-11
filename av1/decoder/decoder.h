@@ -122,6 +122,9 @@ typedef struct AV1Decoder {
   uint32_t coded_tile_data_size;
   unsigned int ext_tile_debug;  // for ext-tile software debug & testing
   EXTERNAL_REFERENCES ext_refs;
+
+  CB_BUFFER *cb_buffer_base;
+  int cb_buffer_alloc_size;
 } AV1Decoder;
 
 int av1_receive_compressed_data(struct AV1Decoder *pbi, size_t size,
@@ -144,6 +147,8 @@ aom_codec_err_t av1_copy_new_frame_dec(AV1_COMMON *cm,
 struct AV1Decoder *av1_decoder_create(BufferPool *const pool);
 
 void av1_decoder_remove(struct AV1Decoder *pbi);
+
+void av1_dec_free_cb_buf(AV1Decoder *pbi);
 
 static INLINE void decrease_ref_count(int idx, RefCntBuffer *const frame_bufs,
                                       BufferPool *const pool) {

@@ -131,10 +131,17 @@ AV1Decoder *av1_decoder_create(BufferPool *const pool) {
   return pbi;
 }
 
+void av1_dec_free_cb_buf(AV1Decoder *pbi) {
+  aom_free(pbi->cb_buffer_base);
+  pbi->cb_buffer_alloc_size = 0;
+}
+
 void av1_decoder_remove(AV1Decoder *pbi) {
   int i;
 
   if (!pbi) return;
+
+  av1_dec_free_cb_buf(pbi);
 
   aom_get_worker_interface()->end(&pbi->lf_worker);
   aom_free(pbi->lf_worker.data1);
