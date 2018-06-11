@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fcde8af4_18a8adfb",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-06-11T21:31:42Z",
+      "side": 1,
+      "message": "What\u0027s the drop on objective1-fast now?",
+      "revId": "7e45fb35d8f9d5bfce43bd61843e138f1d2d91a5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
