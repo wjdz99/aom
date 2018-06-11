@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "4ed6fe99_dc2e0163",
+        "filename": "av1/common/arm/av1_txfm_neon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 9670
+      },
+      "writtenOn": "2018-06-11T08:32:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a48a587d_cf58dbbe",
+      "range": {
+        "startLine": 24,
+        "startChar": 21,
+        "endLine": 24,
+        "endChar": 31
+      },
+      "revId": "79a35904be700cb9cba75faf2bb0a7a69161a83d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4778b8b0_d6c64d74",
         "filename": "av1/common/arm/av1_txfm_neon.c",
         "patchSetId": 4
@@ -45,6 +69,30 @@
       "revId": "79a35904be700cb9cba75faf2bb0a7a69161a83d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f506fc51_d8cfca1d",
+        "filename": "av1/common/arm/av1_txfm_neon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 9670
+      },
+      "writtenOn": "2018-06-11T08:32:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4778b8b0_d6c64d74",
+      "range": {
+        "startLine": 28,
+        "startChar": 6,
+        "endLine": 28,
+        "endChar": 19
+      },
+      "revId": "79a35904be700cb9cba75faf2bb0a7a69161a83d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "86db2685_484f3d9e",
+        "filename": "test/av1_round_shift_array_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 9670
+      },
+      "writtenOn": "2018-06-11T08:32:03Z",
+      "side": 1,
+      "message": "av1_round_shift_array_neon function is defined in this header file, I removed \"av1_rtcd.h\".",
+      "parentUuid": "5d5863ec_e6eb3abc",
+      "range": {
+        "startLine": 16,
+        "startChar": 17,
+        "endLine": 16,
+        "endChar": 29
+      },
+      "revId": "79a35904be700cb9cba75faf2bb0a7a69161a83d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5e477e16_79f585b9",
         "filename": "test/av1_round_shift_array_test.cc",
         "patchSetId": 4
@@ -91,6 +163,30 @@
       "revId": "79a35904be700cb9cba75faf2bb0a7a69161a83d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6d2d5686_199db81a",
+        "filename": "test/av1_round_shift_array_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 9670
+      },
+      "writtenOn": "2018-06-11T08:32:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5e477e16_79f585b9",
+      "range": {
+        "startLine": 31,
+        "startChar": 4,
+        "endLine": 31,
+        "endChar": 14
+      },
+      "revId": "79a35904be700cb9cba75faf2bb0a7a69161a83d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "6fbea70f_daa1006c",
+        "filename": "test/av1_round_shift_array_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 9670
+      },
+      "writtenOn": "2018-06-11T08:32:03Z",
+      "side": 1,
+      "message": "I replaced this array with already existing array txsize_to_bsize.",
+      "parentUuid": "87ddcb4a_baf91568",
+      "range": {
+        "startLine": 32,
+        "startChar": 6,
+        "endLine": 32,
+        "endChar": 16
+      },
+      "revId": "79a35904be700cb9cba75faf2bb0a7a69161a83d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "65bc5457_b530cf68",
         "filename": "test/av1_round_shift_array_test.cc",
         "patchSetId": 4
@@ -137,6 +257,30 @@
       "revId": "79a35904be700cb9cba75faf2bb0a7a69161a83d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "08558fb2_d80ecb29",
+        "filename": "test/av1_round_shift_array_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 9670
+      },
+      "writtenOn": "2018-06-11T08:32:03Z",
+      "side": 1,
+      "message": "This bit value we are calculating from inv_txfm_shift_ls array. Inside this array only -4,-2,-1,0 values are being used.",
+      "parentUuid": "65bc5457_b530cf68",
+      "range": {
+        "startLine": 38,
+        "startChar": 10,
+        "endLine": 38,
+        "endChar": 24
+      },
+      "revId": "79a35904be700cb9cba75faf2bb0a7a69161a83d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -163,6 +307,30 @@
     },
     {
       "key": {
+        "uuid": "da66345d_3334e552",
+        "filename": "test/av1_round_shift_array_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 9670
+      },
+      "writtenOn": "2018-06-11T08:32:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d1fde8f1_128deb0e",
+      "range": {
+        "startLine": 51,
+        "startChar": 7,
+        "endLine": 53,
+        "endChar": 15
+      },
+      "revId": "79a35904be700cb9cba75faf2bb0a7a69161a83d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4bbd1895_ec5b7815",
         "filename": "test/av1_round_shift_array_test.cc",
         "patchSetId": 4
@@ -183,6 +351,30 @@
       "revId": "79a35904be700cb9cba75faf2bb0a7a69161a83d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "37fc8d3c_20f0f258",
+        "filename": "test/av1_round_shift_array_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 9670
+      },
+      "writtenOn": "2018-06-11T08:32:03Z",
+      "side": 1,
+      "message": "In aom_dsp_rtcd.h header file we are including blockd.h header file which included common_data.h header file. block_size_wide array is defined in common_data.h header file.",
+      "parentUuid": "4bbd1895_ec5b7815",
+      "range": {
+        "startLine": 74,
+        "startChar": 27,
+        "endLine": 74,
+        "endChar": 31
+      },
+      "revId": "79a35904be700cb9cba75faf2bb0a7a69161a83d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -232,6 +424,54 @@
     },
     {
       "key": {
+        "uuid": "4da158b8_d720d35f",
+        "filename": "test/av1_round_shift_array_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 9670
+      },
+      "writtenOn": "2018-06-11T08:32:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "119a091e_99618f18",
+      "range": {
+        "startLine": 77,
+        "startChar": 50,
+        "endLine": 77,
+        "endChar": 55
+      },
+      "revId": "79a35904be700cb9cba75faf2bb0a7a69161a83d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "74df1031_cff89d61",
+        "filename": "test/av1_round_shift_array_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 9670
+      },
+      "writtenOn": "2018-06-11T08:32:03Z",
+      "side": 1,
+      "message": "We are processing one dimensional, and largest block size is 64x64 so block_wd\u003d64 is sufficient.",
+      "parentUuid": "6cbff5dc_9e00ac5d",
+      "range": {
+        "startLine": 77,
+        "startChar": 37,
+        "endLine": 77,
+        "endChar": 45
+      },
+      "revId": "79a35904be700cb9cba75faf2bb0a7a69161a83d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f319abb5_5f660309",
         "filename": "test/av1_round_shift_array_test.cc",
         "patchSetId": 4
@@ -252,6 +492,30 @@
       "revId": "79a35904be700cb9cba75faf2bb0a7a69161a83d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7beb2f97_8ae0a152",
+        "filename": "test/av1_round_shift_array_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 9670
+      },
+      "writtenOn": "2018-06-11T08:32:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f319abb5_5f660309",
+      "range": {
+        "startLine": 80,
+        "startChar": 4,
+        "endLine": 80,
+        "endChar": 9
+      },
+      "revId": "79a35904be700cb9cba75faf2bb0a7a69161a83d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -278,6 +542,30 @@
     },
     {
       "key": {
+        "uuid": "5dc6eb39_f507be73",
+        "filename": "test/av1_round_shift_array_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 9670
+      },
+      "writtenOn": "2018-06-11T08:32:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c9be74e4_76f0aeac",
+      "range": {
+        "startLine": 116,
+        "startChar": 10,
+        "endLine": 116,
+        "endChar": 24
+      },
+      "revId": "79a35904be700cb9cba75faf2bb0a7a69161a83d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3cfa0692_7983bda1",
         "filename": "test/av1_round_shift_array_test.cc",
         "patchSetId": 4
@@ -301,6 +589,30 @@
     },
     {
       "key": {
+        "uuid": "8267c1fd_a5f598f1",
+        "filename": "test/av1_round_shift_array_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 9670
+      },
+      "writtenOn": "2018-06-11T08:32:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3cfa0692_7983bda1",
+      "range": {
+        "startLine": 125,
+        "startChar": 30,
+        "endLine": 125,
+        "endChar": 35
+      },
+      "revId": "79a35904be700cb9cba75faf2bb0a7a69161a83d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7bc4fce5_b6d6f4dc",
         "filename": "test/av1_round_shift_array_test.cc",
         "patchSetId": 4
@@ -321,6 +633,30 @@
       "revId": "79a35904be700cb9cba75faf2bb0a7a69161a83d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "41c1a645_4305a53a",
+        "filename": "test/av1_round_shift_array_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 9670
+      },
+      "writtenOn": "2018-06-11T08:32:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7bc4fce5_b6d6f4dc",
+      "range": {
+        "startLine": 131,
+        "startChar": 4,
+        "endLine": 131,
+        "endChar": 9
+      },
+      "revId": "79a35904be700cb9cba75faf2bb0a7a69161a83d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
