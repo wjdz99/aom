@@ -4129,9 +4129,11 @@ static int read_uncompressed_header(AV1Decoder *pbi,
   read_film_grain(cm, rb);
 
 #if EXT_TILE_DEBUG
-  if (cm->large_scale_tile) read_ext_tile_info(pbi, rb);
+  if (cm->large_scale_tile) {
+    read_ext_tile_info(pbi, rb);
+    set_single_tile_decoding_mode(&pbi->common);
+  }
 #endif  // EXT_TILE_DEBUG
-  set_single_tile_decoding_mode(&pbi->common);
   return 0;
 }
 
