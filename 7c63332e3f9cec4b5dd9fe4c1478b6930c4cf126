@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c020eb72_7680fceb",
+        "filename": "av1/common/arm/av1_txfm_neon.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 6340
+      },
+      "writtenOn": "2018-06-11T16:24:03Z",
+      "side": 1,
+      "message": "This can become a \u0027for\u0027 loop initial declaration, as we require c99.",
+      "range": {
+        "startLine": 20,
+        "startChar": 2,
+        "endLine": 20,
+        "endChar": 8
+      },
+      "revId": "7c63332e3f9cec4b5dd9fe4c1478b6930c4cf126",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ec50a541_02b24532",
+        "filename": "av1/common/arm/av1_txfm_neon.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 6340
+      },
+      "writtenOn": "2018-06-11T16:24:03Z",
+      "side": 1,
+      "message": "This can be declared in the body of the loop.",
+      "range": {
+        "startLine": 21,
+        "startChar": 2,
+        "endLine": 21,
+        "endChar": 22
+      },
+      "revId": "7c63332e3f9cec4b5dd9fe4c1478b6930c4cf126",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2c9cfe20_fcebd555",
+        "filename": "test/av1_round_shift_array_test.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 6340
+      },
+      "writtenOn": "2018-06-11T16:24:03Z",
+      "side": 1,
+      "message": "As in RunCheckOutput, \"av1_zero(ref_buffer_);\" rather than \"\u003d { 0 };\"",
+      "revId": "7c63332e3f9cec4b5dd9fe4c1478b6930c4cf126",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d61b7dfd_df67a18a",
+        "filename": "test/av1_round_shift_array_test.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 6340
+      },
+      "writtenOn": "2018-06-11T16:24:03Z",
+      "side": 1,
+      "message": "It is quite informative to include the value of \u0027bit\u0027 here.\nTesting on an odroid-xu4, I see solid speedups for positive values of \u0027bit\u0027.\nFor negative or zero values, the speed up is marginal.",
+      "revId": "7c63332e3f9cec4b5dd9fe4c1478b6930c4cf126",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
