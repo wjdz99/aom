@@ -22,6 +22,30 @@
       "revId": "f6839133bc41e358008eeae0b6ce4c9f1c06579a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "448981a7_9c31d3ef",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 4624,
+      "author": {
+        "id": 7425
+      },
+      "writtenOn": "2018-06-11T09:13:57Z",
+      "side": 1,
+      "message": "The other way is remove this skip check here, and only get the minimum of RDCOST(x-\u003erdmult, rd_stats-\u003erate, rd_stats-\u003edist) and RDCOST(x-\u003erdmult, 0, rd_stats-\u003esse) and compare with ref_best_rd for the valid cost, and let callers handle the skip check together with luma and chroma. I also don\u0027t think this will affect the compression performance significantly, it is just comparing with zero_rate in the original code is not correct.",
+      "parentUuid": "ec2b3d36_c95f806c",
+      "range": {
+        "startLine": 4622,
+        "startChar": 12,
+        "endLine": 4624,
+        "endChar": 43
+      },
+      "revId": "f6839133bc41e358008eeae0b6ce4c9f1c06579a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
