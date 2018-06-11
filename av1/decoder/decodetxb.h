@@ -23,12 +23,12 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
                             aom_reader *const r, const int blk_row,
                             const int blk_col, const int plane,
                             const TXB_CTX *const txb_ctx, const TX_SIZE tx_size,
-                            int16_t *const max_scan_line, int *const eob);
+                            int16_t *const max_scan_line, int16_t *const eob);
 
 uint8_t av1_read_coeffs_txb_facade(const AV1_COMMON *const cm,
                                    MACROBLOCKD *const xd, aom_reader *const r,
                                    const int row, const int col,
                                    const int plane, const TX_SIZE tx_size,
                                    int16_t *const max_scan_line,
-                                   int *const eob);
+                                   int16_t *const eob);
 #endif  //  DECODETXB_H_

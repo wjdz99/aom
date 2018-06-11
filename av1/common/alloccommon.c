@@ -217,6 +217,7 @@ void av1_free_above_context_buffers(AV1_COMMON *cm,
 
 void av1_free_context_buffers(AV1_COMMON *cm) {
   cm->free_mi(cm);
+  av1_dec_free_data(cm);
 
   av1_free_above_context_buffers(cm, cm->num_allocated_above_contexts);
 
@@ -277,6 +278,9 @@ int av1_alloc_context_buffers(AV1_COMMON *cm, int width, int height) {
   if (cm->mi_alloc_size < new_mi_size) {
     cm->free_mi(cm);
     if (cm->alloc_mi(cm, new_mi_size)) goto fail;
+
+    av1_dec_free_data(cm);
+    if (av1_dec_alloc_data(cm)) goto fail;
   }
 
   return 0;

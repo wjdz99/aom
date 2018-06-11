@@ -143,7 +143,8 @@ static void inverse_transform_block(MACROBLOCKD *xd, int plane,
                                     int stride, int16_t scan_line, int eob,
                                     int reduced_tx_set) {
   struct macroblockd_plane *const pd = &xd->plane[plane];
-  tran_low_t *const dqcoeff = pd->dqcoeff;
+  tran_low_t *const dqcoeff = pd->dqcoeff_block;
+  memcpy(dqcoeff, pd->dqcoeff, (scan_line + 1) * sizeof(dqcoeff[0]));
   av1_inverse_transform_block(xd, dqcoeff, plane, tx_type, tx_size, dst, stride,
                               eob, reduced_tx_set);
   memset(dqcoeff, 0, (scan_line + 1) * sizeof(dqcoeff[0]));
@@ -161,10 +162,11 @@ static void predict_and_reconstruct_intra_block(
     struct aom_usec_timer timer;
     aom_usec_timer_start(&timer);
 #endif
-    int16_t max_scan_line = 0;
-    int eob;
+    int16_t *const max_scan_line = &(pd->eob_data->max_scan_line);
+    *max_scan_line = 0;
+    int16_t *const eob = &(pd->eob_data->eob);
     av1_read_coeffs_txb_facade(cm, xd, r, row, col, plane, tx_size,
-                               &max_scan_line, &eob);
+                               max_scan_line, eob);
     // tx_type will be read out in av1_read_coeffs_txb_facade
     const TX_TYPE tx_type = av1_get_tx_type(plane_type, xd, row, col, tx_size,
                                             cm->reduced_tx_set_used);
@@ -179,8 +181,10 @@ static void predict_and_reconstruct_intra_block(
       uint8_t *dst =
           &pd->dst.buf[(row * pd->dst.stride + col) << tx_size_wide_log2[0]];
       inverse_transform_block(xd, plane, tx_type, tx_size, dst, pd->dst.stride,
-                              max_scan_line, eob, cm->reduced_tx_set_used);
+                              *max_scan_line, *eob, cm->reduced_tx_set_used);
     }
+    pd->dqcoeff += *max_scan_line + 1;
+    pd->eob_data += 1;
   }
   if (plane == AOM_PLANE_Y && store_cfl_required(cm, xd)) {
     cfl_store_tx(xd, row, col, tx_size, mbmi->sb_type);
@@ -192,7 +196,7 @@ static void decode_reconstruct_tx(AV1_COMMON *cm, MACROBLOCKD *const xd,
                                   int plane, BLOCK_SIZE plane_bsize,
                                   int blk_row, int blk_col, int block,
                                   TX_SIZE tx_size, int *eob_total) {
-  const struct macroblockd_plane *const pd = &xd->plane[plane];
+  struct macroblockd_plane *const pd = &xd->plane[plane];
   const TX_SIZE plane_tx_size =
       plane ? av1_get_max_uv_txsize(mbmi->sb_type, pd->subsampling_x,
                                     pd->subsampling_y)
@@ -210,10 +214,11 @@ static void decode_reconstruct_tx(AV1_COMMON *cm, MACROBLOCKD *const xd,
     struct aom_usec_timer timer;
     aom_usec_timer_start(&timer);
 #endif
-    int16_t max_scan_line = 0;
-    int eob;
+    int16_t *const max_scan_line = &(pd->eob_data->max_scan_line);
+    *max_scan_line = 0;
+    int16_t *const eob = &(pd->eob_data->eob);
     av1_read_coeffs_txb_facade(cm, xd, r, blk_row, blk_col, plane, tx_size,
-                               &max_scan_line, &eob);
+                               max_scan_line, eob);
     // tx_type will be read out in av1_read_coeffs_txb_facade
     const TX_TYPE tx_type = av1_get_tx_type(plane_type, xd, blk_row, blk_col,
                                             tx_size, cm->reduced_tx_set_used);
@@ -232,7 +237,7 @@ static void decode_reconstruct_tx(AV1_COMMON *cm, MACROBLOCKD *const xd,
         &pd->dst
              .buf[(blk_row * pd->dst.stride + blk_col) << tx_size_wide_log2[0]];
     inverse_transform_block(xd, plane, tx_type, tx_size, dst, pd->dst.stride,
-                            max_scan_line, eob, cm->reduced_tx_set_used);
+                            *max_scan_line, *eob, cm->reduced_tx_set_used);
 #if CONFIG_MISMATCH_DEBUG
     int pixel_c, pixel_r;
     BLOCK_SIZE bsize = txsize_to_bsize[tx_size];
@@ -244,7 +249,9 @@ static void decode_reconstruct_tx(AV1_COMMON *cm, MACROBLOCKD *const xd,
                             pixel_c, pixel_r, blk_w, blk_h,
                             xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH);
 #endif
-    *eob_total += eob;
+    *eob_total += *eob;
+    pd->dqcoeff += *max_scan_line + 1;
+    pd->eob_data += 1;
   } else {
     const TX_SIZE sub_txs = sub_tx_size_map[tx_size];
     assert(IMPLIES(tx_size <= TX_4X4, sub_txs == tx_size));
@@ -2285,10 +2292,24 @@ static void get_tile_buffers(AV1Decoder *pbi, const uint8_t *data,
 static void decode_tile_sb_row(AV1Decoder *pbi, ThreadData *const td,
                                TileInfo tile_info, const int mi_row) {
   AV1_COMMON *const cm = &pbi->common;
+  const int aligned_cols = mi_cols_aligned_to_sb(cm);
+  const int sb_cols = aligned_cols >> cm->seq_params.mib_size_log2;
+  const int sb_row = mi_row >> cm->seq_params.mib_size_log2;
+
   av1_zero_left_context(&td->xd);
 
   for (int mi_col = tile_info.mi_col_start; mi_col < tile_info.mi_col_end;
        mi_col += cm->seq_params.mib_size) {
+    const int sb_col = mi_col >> cm->seq_params.mib_size_log2;
+    const int sb_num = sb_row * sb_cols + sb_col;
+
+    for (int plane = 0; plane < MAX_MB_PLANE; ++plane) {
+      td->xd.plane[plane].dqcoeff =
+          cm->dqcoeff[plane] + (sb_num << DQCOEFFS_PER_SB_LOG2);
+      td->xd.plane[plane].eob_data =
+          cm->eob_data[plane] + (sb_num << EOBS_PER_SB_LOG2);
+    }
+
     decode_partition(pbi, &td->xd, mi_row, mi_col, td->bit_reader,
                      cm->seq_params.sb_size);
   }

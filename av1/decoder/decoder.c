@@ -73,6 +73,33 @@ static void dec_free_mi(AV1_COMMON *cm) {
   cm->mi_grid_base = NULL;
 }
 
+int av1_dec_alloc_data(AV1_COMMON *cm) {
+  int mi_cols = mi_cols_aligned_to_sb(cm);
+  int mi_rows = mi_rows_aligned_to_sb(cm);
+  int sb_cols = mi_cols >> cm->seq_params.mib_size_log2;
+  int sb_rows = mi_rows >> cm->seq_params.mib_size_log2;
+  int sbs_in_frame = sb_cols * sb_rows;
+
+  for (int plane = 0; plane < MAX_MB_PLANE; ++plane) {
+    cm->dqcoeff[plane] = aom_calloc((sbs_in_frame << DQCOEFFS_PER_SB_LOG2),
+                                    sizeof(*cm->dqcoeff[plane]));
+    if (!cm->dqcoeff[plane]) return 1;
+    cm->eob_data[plane] = aom_calloc((sbs_in_frame << EOBS_PER_SB_LOG2),
+                                     sizeof(*cm->eob_data[plane]));
+    if (!cm->eob_data[plane]) return 1;
+  }
+  return 0;
+}
+
+void av1_dec_free_data(AV1_COMMON *cm) {
+  for (int plane = 0; plane < MAX_MB_PLANE; ++plane) {
+    aom_free(cm->dqcoeff[plane]);
+    cm->dqcoeff[plane] = NULL;
+    aom_free(cm->eob_data[plane]);
+    cm->eob_data[plane] = NULL;
+  }
+}
+
 AV1Decoder *av1_decoder_create(BufferPool *const pool) {
   AV1Decoder *volatile const pbi = aom_memalign(32, sizeof(*pbi));
   AV1_COMMON *volatile const cm = pbi ? &pbi->common : NULL;

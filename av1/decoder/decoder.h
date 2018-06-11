@@ -33,6 +33,9 @@
 extern "C" {
 #endif
 
+#define DQCOEFFS_PER_SB_LOG2 (2 * MAX_SB_SIZE_LOG2)
+#define EOBS_PER_SB_LOG2 (2 * (MAX_SB_SIZE_LOG2 - MI_SIZE_LOG2))
+
 typedef struct ThreadData {
   aom_reader *bit_reader;
   DECLARE_ALIGNED(32, MACROBLOCKD, xd);

@@ -549,6 +549,9 @@ typedef struct AV1Common {
   int64_t txcoeff_cost_count;
 #endif
   const cfg_options_t *options;
+
+  tran_low_t *dqcoeff[MAX_MB_PLANE];
+  eob_info *eob_data[MAX_MB_PLANE];
 } AV1_COMMON;
 
 // TODO(hkuang): Don't need to lock the whole pool after implementing atomic
@@ -712,7 +715,7 @@ static INLINE void av1_init_macroblockd(AV1_COMMON *cm, MACROBLOCKD *xd,
                                         tran_low_t *dqcoeff) {
   const int num_planes = av1_num_planes(cm);
   for (int i = 0; i < num_planes; ++i) {
-    xd->plane[i].dqcoeff = dqcoeff;
+    xd->plane[i].dqcoeff_block = dqcoeff;
 
     if (xd->plane[i].plane_type == PLANE_TYPE_Y) {
       memcpy(xd->plane[i].seg_dequant_QTX, cm->y_dequant_QTX,

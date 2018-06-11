@@ -111,7 +111,7 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
                             aom_reader *const r, const int blk_row,
                             const int blk_col, const int plane,
                             const TXB_CTX *const txb_ctx, const TX_SIZE tx_size,
-                            int16_t *const max_scan_line, int *const eob) {
+                            int16_t *const max_scan_line, int16_t *const eob) {
   FRAME_CONTEXT *const ec_ctx = xd->tile_ctx;
   const int32_t max_value = (1 << (7 + xd->bd)) - 1;
   const int32_t min_value = -(1 << (7 + xd->bd));
@@ -265,6 +265,13 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
     }
   }
 
+  int16_t num_zero_coeffs = 0;
+  for (int c = 0; c < *eob; ++c) {
+    const int pos = scan[c];
+    num_zero_coeffs = AOMMAX(num_zero_coeffs, pos);
+  }
+  memset(tcoeffs, 0, (num_zero_coeffs + 1) * sizeof(tcoeffs[0]));
+
   for (int c = 0; c < *eob; ++c) {
     const int pos = scan[c];
     uint8_t sign;
@@ -314,7 +321,7 @@ uint8_t av1_read_coeffs_txb_facade(const AV1_COMMON *const cm,
                                    const int row, const int col,
                                    const int plane, const TX_SIZE tx_size,
                                    int16_t *const max_scan_line,
-                                   int *const eob) {
+                                   int16_t *const eob) {
   MB_MODE_INFO *const mbmi = xd->mi[0];
   struct macroblockd_plane *const pd = &xd->plane[plane];
 

@@ -41,6 +41,9 @@ void av1_free_state_buffers(struct AV1Common *cm);
 void av1_set_mb_mi(struct AV1Common *cm, int width, int height);
 int av1_get_MBs(int width, int height);
 
+int av1_dec_alloc_data(struct AV1Common *cm);
+void av1_dec_free_data(struct AV1Common *cm);
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif

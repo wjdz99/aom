@@ -389,8 +389,15 @@ struct buf_2d {
   int stride;
 };
 
+typedef struct eob_info {
+  int16_t eob;
+  int16_t max_scan_line;
+} eob_info;
+
 typedef struct macroblockd_plane {
   tran_low_t *dqcoeff;
+  tran_low_t *dqcoeff_block;
+  eob_info *eob_data;
   PLANE_TYPE plane_type;
   int subsampling_x;
   int subsampling_y;
