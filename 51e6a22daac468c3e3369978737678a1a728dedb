@@ -22,6 +22,30 @@
       "revId": "51e6a22daac468c3e3369978737678a1a728dedb",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a622faa0_142c20ae",
+        "filename": "aom_dsp/arm/blend_a64_mask_neon.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2018-06-12T10:33:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a105c4e5_1722d4b2",
+      "range": {
+        "startLine": 26,
+        "startChar": 2,
+        "endLine": 26,
+        "endChar": 16
+      },
+      "revId": "51e6a22daac468c3e3369978737678a1a728dedb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
