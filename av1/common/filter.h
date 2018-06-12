@@ -46,7 +46,7 @@ typedef enum ATTRIBUTE_PACKED {
 typedef uint32_t InterpFilters;
 static INLINE InterpFilter av1_extract_interp_filter(InterpFilters filters,
                                                      int x_filter) {
-  return (InterpFilter)((filters >> (x_filter ? 16 : 0)) & 0xffff);
+  return (InterpFilter)((filters >> (x_filter ? 16 : 0)) & 0xf);
 }
 
 static INLINE InterpFilters av1_make_interp_filters(InterpFilter y_filter,
