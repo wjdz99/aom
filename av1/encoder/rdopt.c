@@ -570,8 +570,8 @@ void av1_inter_mode_data_show(const AV1_COMMON *cm) {
   }
 }
 
-static int64_t get_est_rd(BLOCK_SIZE bsize, int rdmult, int64_t sse_y,
-                          int64_t sse_uv, int curr_cost) {
+static int get_est_rate_dist(int *est_rate, int64_t *est_dist, BLOCK_SIZE bsize,
+                             int sse_y, int sse_uv, int y_only) {
   aom_clear_system_state();
   InterModeRdModel *md = &inter_mode_rd_models[bsize];
   if (md->ready) {
@@ -583,7 +583,11 @@ static int64_t get_est_rd(BLOCK_SIZE bsize, int rdmult, int64_t sse_y,
       est_residue_cost_y = 0;
       dist_y = sse_y;
     }
-
+    if (y_only) {
+      *est_rate = (int)round(est_residue_cost_y);
+      *est_dist = (int64_t)round(dist_y);
+      return 1;
+    }
     const double est_ld_uv =
         md->a[PLANE_TYPE_UV] * sse_uv + md->b[PLANE_TYPE_UV];
     double est_residue_cost_uv =
@@ -594,10 +598,24 @@ static int64_t get_est_rd(BLOCK_SIZE bsize, int rdmult, int64_t sse_y,
       dist_uv = sse_uv;
     }
 
-    const int est_cost =
-        (int)round(est_residue_cost_y + est_residue_cost_uv) + curr_cost;
-    const int64_t dist_mean = (int64_t)round(dist_y + dist_uv);
-    const int64_t est_rd = RDCOST(rdmult, est_cost, dist_mean);
+    *est_rate = (int)round(est_residue_cost_y + est_residue_cost_uv);
+    *est_dist = (int64_t)round(dist_y + dist_uv);
+    return 1;
+  } else {
+    return 0;
+  }
+}
+
+static int64_t get_est_rd(BLOCK_SIZE bsize, int rdmult, int64_t sse_y,
+                          int64_t sse_uv, int curr_cost) {
+  aom_clear_system_state();
+  InterModeRdModel *md = &inter_mode_rd_models[bsize];
+  if (md->ready) {
+    int est_cost = 0;
+    int64_t est_dist = 0;
+    get_est_rate_dist(&est_cost, &est_dist, bsize, sse_y, sse_uv, 0);
+    est_cost += curr_cost;
+    const int64_t est_rd = RDCOST(rdmult, est_cost, est_dist);
     return est_rd;
   }
   return 0;
@@ -1768,7 +1786,7 @@ static void model_rd_from_sse(const AV1_COMP *const cpi,
 
 #if CONFIG_COLLECT_INTER_MODE_RD_STATS
 static void get_sse(const AV1_COMP *cpi, const MACROBLOCK *x, int64_t *sse_y,
-                    int64_t *sse_uv) {
+                    int64_t *sse_uv, int y_only) {
   const AV1_COMMON *cm = &cpi->common;
   const int num_planes = av1_num_planes(cm);
   const MACROBLOCKD *xd = &x->e_mbd;
@@ -1776,6 +1794,9 @@ static void get_sse(const AV1_COMP *cpi, const MACROBLOCK *x, int64_t *sse_y,
   *sse_y = 0;
   *sse_uv = 0;
   for (int plane = 0; plane < num_planes; ++plane) {
+    if (y_only && plane >= 1) {
+      break;
+    }
     const struct macroblock_plane *const p = &x->plane[plane];
     const struct macroblockd_plane *const pd = &xd->plane[plane];
     const BLOCK_SIZE bs = get_plane_block_size(mbmi->sb_type, pd->subsampling_x,
@@ -1793,6 +1814,29 @@ static void get_sse(const AV1_COMP *cpi, const MACROBLOCK *x, int64_t *sse_y,
   }
   *sse_y <<= 4;
   *sse_uv <<= 4;
+}
+
+static int adapt_model_rd(int *est_rate, int64_t *sse, int64_t *est_dist,
+                          int *skip, const AV1_COMP *cpi, const MACROBLOCK *x,
+                          int y_only) {
+  const MACROBLOCKD *xd = &x->e_mbd;
+  const MB_MODE_INFO *mbmi = xd->mi[0];
+  BLOCK_SIZE bsize = mbmi->sb_type;
+  InterModeRdModel *md = &inter_mode_rd_models[bsize];
+  if (md->ready) {
+    int64_t sse_y, sse_uv;
+    get_sse(cpi, x, &sse_y, &sse_uv, y_only);
+    if (y_only) {
+      *sse = sse_y;
+    } else {
+      *sse = sse_y + sse_uv;
+    }
+    get_est_rate_dist(est_rate, est_dist, bsize, sse_y, sse_uv, y_only);
+    *skip = *sse == 0;
+    return 1;
+  } else {
+    return 0;
+  }
 }
 #endif
 
@@ -7938,7 +7982,8 @@ static int64_t motion_mode_rd(const AV1_COMP *const cpi, MACROBLOCK *const x,
         if (md->ready) {
           int64_t curr_sse_y;
           int64_t curr_sse_uv;
-          get_sse(cpi, x, &curr_sse_y, &curr_sse_uv);
+          const int y_only = 0;
+          get_sse(cpi, x, &curr_sse_y, &curr_sse_uv, y_only);
           est_rd = get_est_rd(mbmi->sb_type, x->rdmult, curr_sse_y, curr_sse_uv,
                               rd_stats->rate);
           est_skip = est_rd * 0.8 > *best_est_rd;
