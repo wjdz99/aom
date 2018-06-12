@@ -207,6 +207,14 @@ INSTANTIATE_TEST_CASE_P(
         TestFuncs(blend_a64_vmask_ref, aom_blend_a64_vmask_sse4_1)));
 #endif  // HAVE_SSE4_1
 
+#if HAVE_NEON
+INSTANTIATE_TEST_CASE_P(NEON, BlendA64Mask1DTest8B,
+                        ::testing::Values(TestFuncs(blend_a64_hmask_ref,
+                                                    aom_blend_a64_hmask_neon),
+                                          TestFuncs(blend_a64_vmask_ref,
+                                                    aom_blend_a64_vmask_neon)));
+#endif  // HAVE_NEON
+
 //////////////////////////////////////////////////////////////////////////////
 // High bit-depth version
 //////////////////////////////////////////////////////////////////////////////
