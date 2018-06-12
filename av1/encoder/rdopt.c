@@ -7502,15 +7502,18 @@ static INLINE int64_t interpolation_filter_rd(
   const int num_planes = av1_num_planes(cm);
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = xd->mi[0];
-  int tmp_rate, tmp_skip_sb = 0;
-  int64_t tmp_dist, tmp_skip_sse = INT64_MAX;
+  int tmp_rate = 0, tmp_skip_sb = 0;
+  int64_t tmp_dist = INT64_MAX, tmp_skip_sse = INT64_MAX;
 
   const InterpFilters last_best = mbmi->interp_filters;
   mbmi->interp_filters = filter_sets[filter_idx];
   const int tmp_rs = av1_get_switchable_rate(cm, x, xd);
   av1_build_inter_predictors_sb(cm, xd, mi_row, mi_col, orig_dst, bsize);
-  model_rd_for_sb(cpi, bsize, x, xd, 0, num_planes - 1, &tmp_rate, &tmp_dist,
-                  &tmp_skip_sb, &tmp_skip_sse, NULL, NULL, NULL);
+  if (!adapt_model_rd(&tmp_rate, &tmp_skip_sse, &tmp_dist, &tmp_skip_sb, cpi, x,
+                      0)) {
+    model_rd_for_sb(cpi, bsize, x, xd, 0, num_planes - 1, &tmp_rate, &tmp_dist,
+                    &tmp_skip_sb, &tmp_skip_sse, NULL, NULL, NULL);
+  }
   int64_t tmp_rd = RDCOST(x->rdmult, tmp_rs + tmp_rate, tmp_dist);
   if (tmp_rd < *rd) {
     *rd = tmp_rd;
@@ -7594,8 +7597,11 @@ static int64_t interpolation_filter_search(
   }
   *switchable_rate = av1_get_switchable_rate(cm, x, xd);
   av1_build_inter_predictors_sb(cm, xd, mi_row, mi_col, orig_dst, bsize);
-  model_rd_for_sb(cpi, bsize, x, xd, 0, num_planes - 1, &tmp_rate, &tmp_dist,
-                  skip_txfm_sb, skip_sse_sb, NULL, NULL, NULL);
+  if (!adapt_model_rd(&tmp_rate, skip_sse_sb, &tmp_dist, skip_txfm_sb, cpi, x,
+                      0)) {
+    model_rd_for_sb(cpi, bsize, x, xd, 0, num_planes - 1, &tmp_rate, &tmp_dist,
+                    skip_txfm_sb, skip_sse_sb, NULL, NULL, NULL);
+  }
   *rd = RDCOST(x->rdmult, *switchable_rate + tmp_rate, tmp_dist);
 
   if (assign_filter != SWITCHABLE || match_found != -1) {
