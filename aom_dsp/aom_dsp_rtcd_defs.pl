@@ -1089,6 +1089,7 @@ if (aom_config("CONFIG_AV1_ENCODER") eq "yes") {
     add_proto qw/unsigned int/, "aom_obmc_variance${w}x${h}", "const uint8_t *pre, int pre_stride, const int32_t *wsrc, const int32_t *mask, unsigned int *sse";
     add_proto qw/unsigned int/, "aom_obmc_sub_pixel_variance${w}x${h}", "const uint8_t *pre, int pre_stride, int xoffset, int yoffset, const int32_t *wsrc, const int32_t *mask, unsigned int *sse";
     specialize "aom_obmc_variance${w}x${h}", q/sse4_1/;
+    specialize "aom_obmc_sub_pixel_variance${w}x${h}", q/sse4_1/; 
   }
 
 
@@ -1100,7 +1101,6 @@ if (aom_config("CONFIG_AV1_ENCODER") eq "yes") {
         specialize "aom_highbd${bd}obmc_variance${w}x${h}", qw/sse4_1/;
       }
     }
-
 
   add_proto qw/uint32_t aom_sub_pixel_avg_variance64x64/, "const uint8_t *src_ptr, int source_stride, int xoffset, int  yoffset, const uint8_t *ref_ptr, int ref_stride, uint32_t *sse, const uint8_t *second_pred";
   specialize qw/aom_sub_pixel_avg_variance64x64 avx2 msa sse2 ssse3/;
