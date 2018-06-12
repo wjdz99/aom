@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "26ed2909_2f24ae76",
+        "filename": "test/dr_prediction_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-06-12T03:11:03Z",
+      "side": 1,
+      "message": "this is unnecessary in an anonymous namespace",
+      "range": {
+        "startLine": 33,
+        "startChar": 0,
+        "endLine": 33,
+        "endChar": 7
+      },
+      "revId": "75b2a60af313f1a64f08d9d9ff16339addd69cdf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5208a5ad_ccb55f3b",
+        "filename": "test/dr_prediction_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-06-12T03:11:03Z",
+      "side": 1,
+      "message": "just \u0027num_tests\u0027 works as a function parameter.",
+      "range": {
+        "startLine": 127,
+        "startChar": 23,
+        "endLine": 127,
+        "endChar": 32
+      },
+      "revId": "75b2a60af313f1a64f08d9d9ff16339addd69cdf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "09b37925_583758a4",
+        "filename": "test/dr_prediction_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-06-12T03:11:03Z",
+      "side": 1,
+      "message": "this can be const",
+      "revId": "75b2a60af313f1a64f08d9d9ff16339addd69cdf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c7c3c50a_fd736424",
+        "filename": "test/dr_prediction_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 394,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-06-12T03:11:03Z",
+      "side": 1,
+      "message": "I think the only difference between these is the bd_; maybe an adapter could help normalize them, then you\u0027d only need a simple instantiation of uint8_t and uint16_t versions.\n\nhttps://chromium.googlesource.com/webm/libvpx/+/master/test/partial_idct_test.cc#39",
+      "range": {
+        "startLine": 394,
+        "startChar": 56,
+        "endLine": 394,
+        "endChar": 60
+      },
+      "revId": "75b2a60af313f1a64f08d9d9ff16339addd69cdf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
