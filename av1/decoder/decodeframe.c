@@ -4273,6 +4273,10 @@ void av1_decode_tg_tiles_and_wrapup(AV1Decoder *pbi, const uint8_t *data,
   MACROBLOCKD *const xd = &pbi->mb;
   const int tile_count_tg = endTile - startTile + 1;
 
+  if (endTile != cm->tile_rows * cm->tile_cols - 1) {
+    return;
+  }
+
   if (initialize_flag) setup_frame_info(pbi);
 
   if (pbi->max_threads > 1 && tile_count_tg > 1 && !cm->large_scale_tile)
@@ -4283,10 +4287,6 @@ void av1_decode_tg_tiles_and_wrapup(AV1Decoder *pbi, const uint8_t *data,
   const int num_planes = av1_num_planes(cm);
   // If the bit stream is monochrome, set the U and V buffers to a constant.
   if (num_planes < 3) set_planes_to_neutral_grey(cm, xd->cur_buf, 1);
-
-  if (endTile != cm->tile_rows * cm->tile_cols - 1) {
-    return;
-  }
 
   if (!cm->allow_intrabc && !cm->single_tile_decoding) {
     if (cm->lf.filter_level[0] || cm->lf.filter_level[1]) {
