@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "09ad7281_6445770c",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 920,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-06-14T15:01:10Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "613af5cb_d5629333",
+      "revId": "3bbced686064e743b6fc8f734c31c9b721fc9793",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f51dd25d_fdb3ead9",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2018-06-14T06:13:08Z",
       "side": 1,
       "message": "I don\u0027t understand when force_sse needs be 1?\nWhether a block is skipped or not, the daala_dist error, if turned on, is measured the same way.\nAlso, this patch made pixel_diff_dist() is always called with force_sse \u003d 1, which leads dist_8x8_diff() is never called. I believe you did not intend this?",
+      "revId": "3bbced686064e743b6fc8f734c31c9b721fc9793",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7e3c3326_92043fca",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1951,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-06-14T15:01:10Z",
+      "side": 1,
+      "message": "My intention was to eventually fix the code in select_txb that still uses sse despite this function\u0027s existence,  as it stand that code initializes to daala_dist, and then does a lot of comparisons using straight SSE. \n\nI thought this was possibly better than letting it use mixed metrics but I\u0027m happy to not do\nthat.",
+      "parentUuid": "f51dd25d_fdb3ead9",
       "revId": "3bbced686064e743b6fc8f734c31c9b721fc9793",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
@@ -50,6 +86,24 @@
       "revId": "3bbced686064e743b6fc8f734c31c9b721fc9793",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7c499940_5d038531",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1956,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-06-14T15:01:10Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "30015331_4b7edfcc",
+      "revId": "3bbced686064e743b6fc8f734c31c9b721fc9793",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -76,6 +130,30 @@
     },
     {
       "key": {
+        "uuid": "0e52ee31_87634889",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2562,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-06-14T15:01:10Z",
+      "side": 1,
+      "message": "To me it looked like the distortions used in the rest of this code were all SSE.   For instance dist_block_tx_domain  is effectively sum square error calculated from difference between coeff and quantized coeff.    Same with av1_optimize_b .      \n\nSo the code in this function was mixing the two.     I think its unfortunate that it is and I hoped to fix it,  but for now it seemed easiest to let this function do its thing using SSE until we could take the time to make it work in daala dist.",
+      "parentUuid": "bcecf77e_d5d0454f",
+      "range": {
+        "startLine": 2562,
+        "startChar": 73,
+        "endLine": 2562,
+        "endChar": 74
+      },
+      "revId": "3bbced686064e743b6fc8f734c31c9b721fc9793",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "2af5743e_4c0788aa",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 2
@@ -87,6 +165,30 @@
       "writtenOn": "2018-06-14T06:13:08Z",
       "side": 1,
       "message": "I don\u0027t understand why pixel_diff_dist need to skip dist_8x8_diff (i.e. when daala_dist is turned on) when testing skipped block.",
+      "range": {
+        "startLine": 5050,
+        "startChar": 52,
+        "endLine": 5050,
+        "endChar": 53
+      },
+      "revId": "3bbced686064e743b6fc8f734c31c9b721fc9793",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a8daef2e_43f3b84b",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 5050,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-06-14T15:01:10Z",
+      "side": 1,
+      "message": "Perhaps this one could be left alone,   I wasn\u0027t sure the difference between this and similar calls in optimize_b.",
+      "parentUuid": "2af5743e_4c0788aa",
       "range": {
         "startLine": 5050,
         "startChar": 52,
