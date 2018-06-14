@@ -167,10 +167,10 @@ void av1_build_nmv_cost_table(int *mvjoint, int *mvcost[2],
   build_nmv_component_cost_table(mvcost[1], &ctx->comps[1], precision);
 }
 
-int_mv av1_get_ref_mv(const MACROBLOCK *x, int ref_idx) {
+int_mv av1_get_ref_mv_from_stack(const MACROBLOCK *x, int ref_idx,
+                                 int ref_mv_idx) {
   const MACROBLOCKD *xd = &x->e_mbd;
   const MB_MODE_INFO *mbmi = xd->mi[0];
-  int ref_mv_idx = mbmi->ref_mv_idx;
   const MB_MODE_INFO_EXT *mbmi_ext = x->mbmi_ext;
   const int8_t ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
   const CANDIDATE_MV *curr_ref_mv_stack =
@@ -179,10 +179,6 @@ int_mv av1_get_ref_mv(const MACROBLOCK *x, int ref_idx) {
   ref_mv.as_int = INVALID_MV;
 
   if (has_second_ref(mbmi)) {
-    // Special case: NEAR_NEWMV and NEW_NEARMV modes use 1 + mbmi->ref_mv_idx
-    // (like NEARMV) instead
-    if (mbmi->mode == NEAR_NEWMV || mbmi->mode == NEW_NEARMV) ref_mv_idx += 1;
-
     if (ref_idx == 0) {
       if (compound_ref0_mode(mbmi->mode) == NEWMV) {
         ref_mv = curr_ref_mv_stack[ref_mv_idx].this_mv;
@@ -204,4 +200,15 @@ int_mv av1_get_ref_mv(const MACROBLOCK *x, int ref_idx) {
     }
   }
   return ref_mv;
+}
+
+int_mv av1_get_ref_mv(const MACROBLOCK *x, int ref_idx) {
+  const MACROBLOCKD *xd = &x->e_mbd;
+  const MB_MODE_INFO *mbmi = xd->mi[0];
+  int ref_mv_idx = mbmi->ref_mv_idx;
+  if (mbmi->mode == NEAR_NEWMV || mbmi->mode == NEW_NEARMV) {
+    assert(has_second_ref(mbmi));
+    ref_mv_idx += 1;
+  }
+  return av1_get_ref_mv_from_stack(x, ref_idx, ref_mv_idx);
 }
