@@ -1,0 +1,101 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "613af5cb_d5629333",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 920,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2018-06-14T06:13:08Z",
+      "side": 1,
+      "message": "Thank you for fixing this and all same cases below! I think that 128x128 SB size was not default last time I tested, i.e. MAX_SB_SQUARE \u003d\u003d MAX_TX_SIZE.",
+      "revId": "3bbced686064e743b6fc8f734c31c9b721fc9793",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f51dd25d_fdb3ead9",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1951,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2018-06-14T06:13:08Z",
+      "side": 1,
+      "message": "I don\u0027t understand when force_sse needs be 1?\nWhether a block is skipped or not, the daala_dist error, if turned on, is measured the same way.\nAlso, this patch made pixel_diff_dist() is always called with force_sse \u003d 1, which leads dist_8x8_diff() is never called. I believe you did not intend this?",
+      "revId": "3bbced686064e743b6fc8f734c31c9b721fc9793",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "30015331_4b7edfcc",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1956,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2018-06-14T06:13:08Z",
+      "side": 1,
+      "message": "Thanks a lot catching and fixing this!\nI can\u0027t believe I missed this...",
+      "revId": "3bbced686064e743b6fc8f734c31c9b721fc9793",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bcecf77e_d5d0454f",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2562,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2018-06-14T06:13:08Z",
+      "side": 1,
+      "message": "I guess you meant 0 for force_sse here?",
+      "range": {
+        "startLine": 2562,
+        "startChar": 73,
+        "endLine": 2562,
+        "endChar": 74
+      },
+      "revId": "3bbced686064e743b6fc8f734c31c9b721fc9793",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2af5743e_4c0788aa",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 5050,
+      "author": {
+        "id": 5035
+      },
+      "writtenOn": "2018-06-14T06:13:08Z",
+      "side": 1,
+      "message": "I don\u0027t understand why pixel_diff_dist need to skip dist_8x8_diff (i.e. when daala_dist is turned on) when testing skipped block.",
+      "range": {
+        "startLine": 5050,
+        "startChar": 52,
+        "endLine": 5050,
+        "endChar": 53
+      },
+      "revId": "3bbced686064e743b6fc8f734c31c9b721fc9793",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
