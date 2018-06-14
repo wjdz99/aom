@@ -401,6 +401,30 @@
     },
     {
       "key": {
+        "uuid": "a7ba51d5_6a927477",
+        "filename": "av1/common/arm/blend_a64_hmask_neon.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-06-14T14:44:02Z",
+      "side": 1,
+      "message": "Are you sure? src and dst have strides, but it does not appear that mask has any stride.",
+      "parentUuid": "6399466a_eefb9d3f",
+      "range": {
+        "startLine": 80,
+        "startChar": 6,
+        "endLine": 80,
+        "endChar": 7
+      },
+      "revId": "3306999815ed6e5cc495e09024f9921585d9a12a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "683d1af3_0eceb4b2",
         "filename": "av1/common/arm/blend_a64_hmask_neon.c",
         "patchSetId": 5
@@ -436,6 +460,30 @@
       "side": 1,
       "message": "Since we are not loading continuous memory, so we can\u0027t use load_u8 or load_unaligned_u8.",
       "parentUuid": "683d1af3_0eceb4b2",
+      "range": {
+        "startLine": 85,
+        "startChar": 6,
+        "endLine": 85,
+        "endChar": 10
+      },
+      "revId": "3306999815ed6e5cc495e09024f9921585d9a12a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e74424c9_56c77be7",
+        "filename": "av1/common/arm/blend_a64_hmask_neon.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-06-14T14:44:02Z",
+      "side": 1,
+      "message": "Both of those take stride as an argument",
+      "parentUuid": "78703abf_2b4a847b",
       "range": {
         "startLine": 85,
         "startChar": 6,
