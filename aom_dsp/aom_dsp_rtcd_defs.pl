@@ -397,7 +397,7 @@ add_proto qw/void aom_lpf_horizontal_14_dual/, "uint8_t *s, int pitch, const uin
 specialize qw/aom_lpf_horizontal_14_dual sse2/;
 
 add_proto qw/void aom_lpf_horizontal_6/, "uint8_t *s, int pitch, const uint8_t *blimit, const uint8_t *limit, const uint8_t *thresh";
-specialize qw/aom_lpf_horizontal_6 sse2/;
+specialize qw/aom_lpf_horizontal_6 sse2 neon/;
 
 add_proto qw/void aom_lpf_horizontal_8/, "uint8_t *s, int pitch, const uint8_t *blimit, const uint8_t *limit, const uint8_t *thresh";
 specialize qw/aom_lpf_horizontal_8 sse2 neon/;
