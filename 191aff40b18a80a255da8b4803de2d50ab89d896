@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b534911d_8e0f0a93",
+        "filename": "av1/common/av1_txfm.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-06-15T22:03:15Z",
+      "side": 1,
+      "message": "these are unnecessary. they\u0027ll be implicitly promoted",
+      "range": {
+        "startLine": 82,
+        "startChar": 34,
+        "endLine": 82,
+        "endChar": 43
+      },
+      "revId": "191aff40b18a80a255da8b4803de2d50ab89d896",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
