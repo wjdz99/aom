@@ -78,7 +78,10 @@ void av1_round_shift_array_c(int32_t *arr, int size, int bit) {
       }
     } else {
       for (i = 0; i < size; i++) {
-        arr[i] = (int32_t)((int64_t)arr[i] * (1ULL << (-bit)));
+        int64_t val = (int64_t)arr[i] * (1 << (-bit));
+        arr[i] = (val > (int64_t)INT32_MAX)
+                     ? INT32_MAX
+                     : (val < (int64_t)INT32_MIN ? INT32_MIN : (int32_t)val);
       }
     }
   }
