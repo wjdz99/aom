@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e0638b33_f807472c",
+        "filename": "av1/common/av1_txfm.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2018-06-15T01:10:49Z",
+      "side": 1,
+      "message": "Better add ULL, which means it is unsigned long type.\narr[i] \u003d (int32_t)((int64_t)arr[i] * (1ULL \u003c\u003c (-bit)));",
+      "revId": "9300b9e3c3f87f842dbb18e3a06167afe3893737",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
