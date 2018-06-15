@@ -1,0 +1,204 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9e8fd50c_945f3466",
+        "filename": "test/dr_prediction_test.cc",
+        "patchSetId": 11
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-06-15T19:50:44Z",
+      "side": 1,
+      "message": "static is unnecessary in an anonymous namespace",
+      "range": {
+        "startLine": 30,
+        "startChar": 0,
+        "endLine": 30,
+        "endChar": 6
+      },
+      "revId": "646b62d362e77ca09d78820f5b41d5333716434c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "275093a6_cedb9438",
+        "filename": "test/dr_prediction_test.cc",
+        "patchSetId": 11
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-06-15T19:50:44Z",
+      "side": 1,
+      "message": "drop the else and just return since all the other branches return",
+      "revId": "646b62d362e77ca09d78820f5b41d5333716434c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8bf1d8a6_ab73a204",
+        "filename": "test/dr_prediction_test.cc",
+        "patchSetId": 11
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-06-15T19:50:44Z",
+      "side": 1,
+      "message": "you can use inline here; GetDy() would be more consistent with C++ style rules",
+      "range": {
+        "startLine": 41,
+        "startChar": 7,
+        "endLine": 41,
+        "endChar": 13
+      },
+      "revId": "646b62d362e77ca09d78820f5b41d5333716434c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2da2c3c7_d3edc2e3",
+        "filename": "test/dr_prediction_test.cc",
+        "patchSetId": 11
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-06-15T19:50:44Z",
+      "side": 1,
+      "message": "const int should work, no?",
+      "range": {
+        "startLine": 52,
+        "startChar": 8,
+        "endLine": 52,
+        "endChar": 16
+      },
+      "revId": "646b62d362e77ca09d78820f5b41d5333716434c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a80cc5e0_fd0e6a30",
+        "filename": "test/dr_prediction_test.cc",
+        "patchSetId": 11
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-06-15T19:50:44Z",
+      "side": 1,
+      "message": "just put this in the constructor",
+      "revId": "646b62d362e77ca09d78820f5b41d5333716434c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "df18cdbd_5c094f24",
+        "filename": "test/dr_prediction_test.cc",
+        "patchSetId": 11
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-06-15T19:50:44Z",
+      "side": 1,
+      "message": "constructors come after statics and before other functions:\nhttps://engdoc.corp.google.com/eng/doc/devguide/cpp/styleguide.shtml?cl\u003dhead#Declaration_Order",
+      "revId": "646b62d362e77ca09d78820f5b41d5333716434c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "87752a10_a8ed2996",
+        "filename": "test/dr_prediction_test.cc",
+        "patchSetId": 11
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-06-15T19:50:44Z",
+      "side": 1,
+      "message": "set what you can in the initializer list: DrPredTest() : bd_(8), ...",
+      "revId": "646b62d362e77ca09d78820f5b41d5333716434c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6ff28e9b_e19338d3",
+        "filename": "test/dr_prediction_test.cc",
+        "patchSetId": 11
+      },
+      "lineNbr": 265,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-06-15T19:50:44Z",
+      "side": 1,
+      "message": "num_tests is more consistent with the style guide:\nhttps://engdoc.corp.google.com/eng/doc/devguide/cpp/styleguide.shtml?cl\u003dhead#Variable_Names",
+      "range": {
+        "startLine": 265,
+        "startChar": 23,
+        "endLine": 265,
+        "endChar": 32
+      },
+      "revId": "646b62d362e77ca09d78820f5b41d5333716434c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b5e91f26_c996664e",
+        "filename": "test/dr_prediction_test.cc",
+        "patchSetId": 11
+      },
+      "lineNbr": 268,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-06-15T19:50:44Z",
+      "side": 1,
+      "message": "prefer (one) static_cast\u003cfloat\u003e() and make this const",
+      "range": {
+        "startLine": 268,
+        "startChar": 18,
+        "endLine": 268,
+        "endChar": 25
+      },
+      "revId": "646b62d362e77ca09d78820f5b41d5333716434c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4430ce70_1ea51d35",
+        "filename": "test/dr_prediction_test.cc",
+        "patchSetId": 11
+      },
+      "lineNbr": 334,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-06-15T19:50:44Z",
+      "side": 1,
+      "message": "prefer ::testing::make_tuple\n\nhttps://aomedia-review.googlesource.com/c/aom/+/53592",
+      "revId": "646b62d362e77ca09d78820f5b41d5333716434c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
