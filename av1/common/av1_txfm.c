@@ -69,19 +69,10 @@ const int32_t av1_sinpi_arr_data[7][5] = {
 
 void av1_round_shift_array_c(int32_t *arr, int size, int bit) {
   int i;
-  if (bit == 0) {
-    return;
-  } else {
-    if (bit > 0) {
-      for (i = 0; i < size; i++) {
-        arr[i] = round_shift(arr[i], bit);
-      }
-    } else {
-      for (i = 0; i < size; i++) {
-        arr[i] = (int32_t)clamp64(((int64_t)1 << (-bit)) * arr[i], INT32_MIN,
-                                  INT32_MAX);
-      }
-    }
+  assert(bit >= 0);  //range of bit is 0 to 4
+  if (bit == 0) return;
+  for (i = 0; i < size; i++) {
+    arr[i] = round_shift(arr[i], bit);
   }
 }
 
