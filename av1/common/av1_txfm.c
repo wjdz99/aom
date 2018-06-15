@@ -69,6 +69,7 @@ const int32_t av1_sinpi_arr_data[7][5] = {
 
 void av1_round_shift_array_c(int32_t *arr, int size, int bit) {
   int i;
+  assert(!(bit < 0));
   if (bit == 0) {
     return;
   } else {
