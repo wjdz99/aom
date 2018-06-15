@@ -3585,6 +3585,13 @@ BEGIN_PARTITION_SEARCH:
                           &verta_partition_allowed, &vertb_partition_allowed);
   }
 
+#if 1
+  // For performance comparision: Explictly turn off HorzA/B and VertA/B to
+  // check the coding performance difference
+  horza_partition_allowed = horzb_partition_allowed = verta_partition_allowed =
+      vertb_partition_allowed = 0;
+#endif  // 0
+
   // PARTITION_HORZ_A
   if (partition_horz_allowed && horza_partition_allowed) {
     subsize = get_partition_subsize(bsize, PARTITION_HORZ_A);
