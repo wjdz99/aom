@@ -165,6 +165,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->tx_size_search_lgr_block = 1;
     sf->two_pass_partition_search = 1;
     sf->mode_pruning_based_on_two_pass_partition_search = 1;
+    sf->skip_interp_filter_search_1st_part_scan = 1;
     sf->prune_ext_partition_types_search_level = 2;
     sf->use_fast_interpolation_filter_search = 1;
     sf->skip_repeat_interpolation_filter_search = 1;
@@ -461,6 +462,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi) {
   sf->adaptive_txb_search_level = 0;
   sf->two_pass_partition_search = 0;
   sf->mode_pruning_based_on_two_pass_partition_search = 0;
+  sf->skip_interp_filter_search_1st_part_scan = 0;
   sf->use_intra_txb_hash = 0;
   sf->use_inter_txb_hash = 1;
   sf->use_mb_rd_hash = 1;

@@ -409,6 +409,9 @@ typedef struct SPEED_FEATURES {
   // candidates, e.g. ref frames.
   int mode_pruning_based_on_two_pass_partition_search;
 
+  // Skip interp_filter_search during the first pass partition scan
+  int skip_interp_filter_search_1st_part_scan;
+
   // Skip rectangular partition test when partition type none gives better
   // rd than partition type split.
   int less_rectangular_check;

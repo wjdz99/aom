@@ -7485,8 +7485,10 @@ static int64_t interpolation_filter_search(
   const int num_planes = av1_num_planes(cm);
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = xd->mi[0];
-  const int need_search =
-      av1_is_interp_needed(xd) && av1_is_interp_search_needed(xd);
+  const int need_search = av1_is_interp_needed(xd) &&
+                          av1_is_interp_search_needed(xd) &&
+                          (!(cpi->sf.skip_interp_filter_search_1st_part_scan &&
+                             x->cb_partition_scan));
   int i, tmp_rate;
   int64_t tmp_dist;
 
