@@ -6377,7 +6377,7 @@ static void single_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,
   int sadpb = x->sadperbit16;
   MV mvp_full;
   int ref = mbmi->ref_frame[ref_idx];
-  MV ref_mv = x->mbmi_ext->ref_mvs[ref][0].as_mv;
+  MV ref_mv = av1_get_ref_mv(x, ref_idx).as_mv;
 
   MvLimits tmp_mv_limits = x->mv_limits;
   int cost_list[5];
@@ -6386,8 +6386,10 @@ static void single_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,
       av1_get_scaled_ref_frame(cpi, ref);
 
   MV pred_mv[3];
-  pred_mv[0] = x->mbmi_ext->ref_mvs[ref][0].as_mv;
-  pred_mv[1] = x->mbmi_ext->ref_mvs[ref][1].as_mv;
+  pred_mv[0] =
+      av1_get_ref_mv_from_stack(ref_idx, mbmi->ref_frame, 0, x->mbmi_ext).as_mv;
+  pred_mv[1] =
+      av1_get_ref_mv_from_stack(ref_idx, mbmi->ref_frame, 1, x->mbmi_ext).as_mv;
   pred_mv[2] = x->pred_mv[ref];
 
   if (scaled_ref_frame) {
