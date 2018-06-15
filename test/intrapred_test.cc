@@ -140,6 +140,7 @@ class LowbdIntraPredTest : public AV1IntraPredTest<IntraPred, uint8_t> {
   }
 };
 
+#if !HAVE_NEON  // gcc 7 and aarch64 throw up a weird uninitialized warning
 TEST_P(HighbdIntraPredTest, Bitexact) {
   // max block size is 32
   DECLARE_ALIGNED(16, uint16_t, left_col[2 * 32]);
@@ -161,6 +162,7 @@ TEST_P(LowbdIntraPredTest, Bitexact) {
   memset(above_data, 0, sizeof(above_data));
   RunTest(left_col, above_data, dst, ref_dst);
 }
+#endif
 
 // -----------------------------------------------------------------------------
 // High Bit Depth Tests
