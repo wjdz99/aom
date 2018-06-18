@@ -46,6 +46,75 @@
       "revId": "11cc42610c150d3707e6eaf604cdf14c79b9e211",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "087aab55_e6d7b6b3",
+        "filename": "test/dr_prediction_test.cc",
+        "patchSetId": 15
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-06-18T21:07:48Z",
+      "side": 1,
+      "message": "this could be a bool",
+      "range": {
+        "startLine": 173,
+        "startChar": 15,
+        "endLine": 173,
+        "endChar": 28
+      },
+      "revId": "11cc42610c150d3707e6eaf604cdf14c79b9e211",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "11a74a5c_e2fa8558",
+        "filename": "test/dr_prediction_test.cc",
+        "patchSetId": 15
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-06-18T21:07:48Z",
+      "side": 1,
+      "message": "same here",
+      "range": {
+        "startLine": 199,
+        "startChar": 15,
+        "endLine": 199,
+        "endChar": 18
+      },
+      "revId": "11cc42610c150d3707e6eaf604cdf14c79b9e211",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e9fd814f_9033ce90",
+        "filename": "test/dr_prediction_test.cc",
+        "patchSetId": 15
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-06-18T21:07:48Z",
+      "side": 1,
+      "message": "probably want static_cast\u003cfloat\u003e(ref_time) / ... to force the conversion before doing the divide",
+      "range": {
+        "startLine": 236,
+        "startChar": 24,
+        "endLine": 236,
+        "endChar": 51
+      },
+      "revId": "11cc42610c150d3707e6eaf604cdf14c79b9e211",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
