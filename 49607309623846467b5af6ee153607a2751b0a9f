@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "74567466_c064a527",
+        "filename": "av1/common/onyxc_int.h",
+        "patchSetId": 22
+      },
+      "lineNbr": 497,
+      "author": {
+        "id": 8612
+      },
+      "writtenOn": "2018-06-18T19:07:08Z",
+      "side": 0,
+      "message": "This really was the wrong place for the table (since it is only necessary during encode). Are we ok offsetting all the fields by moving this to an encoder specific struct?",
+      "revId": "49607309623846467b5af6ee153607a2751b0a9f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
