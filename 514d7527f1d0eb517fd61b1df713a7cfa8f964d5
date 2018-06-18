@@ -1,0 +1,182 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a9d5d64f_e36a08a2",
+        "filename": "av1/common/arm/reconinter_neon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-06-18T13:23:24Z",
+      "side": 1,
+      "message": "add av1 rtcd (this ensures that that function signatures/prototypes match)",
+      "revId": "514d7527f1d0eb517fd61b1df713a7cfa8f964d5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e098d2d1_e459ba38",
+        "filename": "av1/common/arm/reconinter_neon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-06-18T13:23:24Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 26,
+        "startChar": 2,
+        "endLine": 26,
+        "endChar": 5
+      },
+      "revId": "514d7527f1d0eb517fd61b1df713a7cfa8f964d5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fe648f8a_170a7a69",
+        "filename": "av1/common/arm/reconinter_neon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-06-18T13:23:24Z",
+      "side": 1,
+      "message": "AOM_BLEND_A64_MAX_ALPHA",
+      "range": {
+        "startLine": 33,
+        "startChar": 40,
+        "endLine": 33,
+        "endChar": 42
+      },
+      "revId": "514d7527f1d0eb517fd61b1df713a7cfa8f964d5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "16b27c57_56528c38",
+        "filename": "av1/common/arm/reconinter_neon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-06-18T13:23:24Z",
+      "side": 1,
+      "message": "w \u003e\u003d 8\n\nassert possible sizes (looks like 2 is not possible?)",
+      "range": {
+        "startLine": 34,
+        "startChar": 8,
+        "endLine": 34,
+        "endChar": 9
+      },
+      "revId": "514d7527f1d0eb517fd61b1df713a7cfa8f964d5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "89607ff3_9586cea2",
+        "filename": "av1/common/arm/reconinter_neon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-06-18T13:23:24Z",
+      "side": 1,
+      "message": "mask_type \u003d\u003d DIFFWTD_38",
+      "range": {
+        "startLine": 46,
+        "startChar": 12,
+        "endLine": 46,
+        "endChar": 22
+      },
+      "revId": "514d7527f1d0eb517fd61b1df713a7cfa8f964d5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a56a194f_e90457cc",
+        "filename": "av1/common/arm/reconinter_neon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-06-18T13:23:24Z",
+      "side": 1,
+      "message": "shouldn\u0027t this just be AOM_BLEND_A64_MAX_ALPHA - m? (64 - diff_d)",
+      "range": {
+        "startLine": 49,
+        "startChar": 27,
+        "endLine": 49,
+        "endChar": 36
+      },
+      "revId": "514d7527f1d0eb517fd61b1df713a7cfa8f964d5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5abed9da_98c84c59",
+        "filename": "av1/common/arm/reconinter_neon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-06-18T13:23:24Z",
+      "side": 1,
+      "message": "assert that height is a multiple of 2",
+      "range": {
+        "startLine": 62,
+        "startChar": 32,
+        "endLine": 62,
+        "endChar": 33
+      },
+      "revId": "514d7527f1d0eb517fd61b1df713a7cfa8f964d5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "97142b8b_817c9cb4",
+        "filename": "test/reconinter_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-06-18T13:23:24Z",
+      "side": 1,
+      "message": "please split this out into a separate commit",
+      "range": {
+        "startLine": 30,
+        "startChar": 0,
+        "endLine": 31,
+        "endChar": 0
+      },
+      "revId": "514d7527f1d0eb517fd61b1df713a7cfa8f964d5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
