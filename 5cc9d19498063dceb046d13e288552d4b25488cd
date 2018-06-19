@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fda51509_6292b85a",
+        "filename": "test/test_data_util.cmake",
+        "patchSetId": 1
+      },
+      "lineNbr": 372,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-06-19T20:48:27Z",
+      "side": 1,
+      "message": "huh, would have thought this was enough elements to go vertical. oh well.",
+      "range": {
+        "startLine": 372,
+        "startChar": 15,
+        "endLine": 372,
+        "endChar": 33
+      },
+      "revId": "5cc9d19498063dceb046d13e288552d4b25488cd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
