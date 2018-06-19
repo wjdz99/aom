@@ -5033,6 +5033,42 @@ static void tx_partition_set_contexts(const AV1_COMMON *const cm,
       set_txfm_context(xd, max_tx_size, idy, idx);
 }
 
+static void get_training_data(MACROBLOCK *const x, BLOCK_SIZE bsize, int plane) {
+  MACROBLOCKD *const xd = &x->e_mbd;
+  struct macroblock_plane *const p = &x->plane[plane];
+  struct macroblockd_plane *const pd = &xd->plane[plane];
+  const BLOCK_SIZE plane_bsize =
+      get_plane_block_size(bsize, pd->subsampling_x, pd->subsampling_y);
+  const uint16_t bw = block_size_wide[plane_bsize];
+  const uint16_t bh = block_size_high[plane_bsize];
+
+  uint16_t *src, *dst;
+  uint8_t *dst8 = pd->dst.buf;
+  const int dst_stride = pd->dst.stride;
+  uint8_t *src8 = p->src.buf;
+  const int src_stride = p->src.stride;
+  int i;
+  FILE *fp = xd->training_fp;
+  printf("writing block\n");
+
+  fwrite(&bw, 1, sizeof(bw), fp);
+  fwrite(&bh, 1, sizeof(bh), fp);
+  if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
+    assert(xd->bd == 8);
+    src = CONVERT_TO_SHORTPTR(src8);
+    dst = CONVERT_TO_SHORTPTR(dst8);
+    for (i = 0; i < bh; ++i)
+      fwrite(src + i * src_stride, bw, sizeof(*src), fp);
+    for (i = 0; i < bh; ++i)
+      fwrite(dst + i * dst_stride, bw, sizeof(*dst), fp);
+  } else {
+    for (i = 0; i < bh; ++i)
+      fwrite(src8 + i * src_stride, bw, sizeof(*src8), fp);
+    for (i = 0; i < bh; ++i)
+      fwrite(dst8 + i * dst_stride, bw, sizeof(*dst8), fp);
+  }
+}
+
 static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
                               ThreadData *td, TOKENEXTRA **t, RUN_TYPE dry_run,
                               int mi_row, int mi_col, BLOCK_SIZE bsize,
@@ -5142,6 +5178,11 @@ static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
 #else
     (void)num_planes;
 #endif
+
+    if (!dry_run && cm->show_frame && !x->skip && bsize == BLOCK_32X32) {
+      for (int plane = 0; plane < MAX_MB_PLANE; ++plane)
+        get_training_data(x, bsize, plane);
+    }
 
     av1_encode_sb(cpi, x, bsize, mi_row, mi_col, dry_run);
     av1_tokenize_sb_vartx(cpi, td, t, dry_run, mi_row, mi_col, bsize, rate,
