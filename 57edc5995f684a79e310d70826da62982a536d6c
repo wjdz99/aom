@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6c3791d8_1ca7d97b",
+        "filename": "av1/common/av1_txfm.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-06-19T13:37:17Z",
+      "side": 1,
+      "message": "// Bit range is specified in section 7.13.3\nassert(bit \u003e\u003d 0);\nassert(bit \u003c\u003d 4);",
+      "range": {
+        "startLine": 72,
+        "startChar": 2,
+        "endLine": 72,
+        "endChar": 8
+      },
+      "revId": "57edc5995f684a79e310d70826da62982a536d6c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
