@@ -117,6 +117,30 @@
       "revId": "88d0bd0c68c5d98293a3397c7d42b8e932de3270",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ac2f3bc3_48047d54",
+        "filename": "test/blend_a64_mask_1d_test.cc",
+        "patchSetId": 7
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 9670
+      },
+      "writtenOn": "2018-06-19T14:03:58Z",
+      "side": 1,
+      "message": "In case when rng(7) will be 6 then width or height value will be 2\u003c\u003c6, i.e. 2*(2^6)\u003d128, thus we will get the 128 size.",
+      "parentUuid": "920fcbfd_207c537d",
+      "range": {
+        "startLine": 50,
+        "startChar": 4,
+        "endLine": 50,
+        "endChar": 6
+      },
+      "revId": "88d0bd0c68c5d98293a3397c7d42b8e932de3270",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
