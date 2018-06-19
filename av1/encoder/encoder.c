@@ -523,6 +523,12 @@ static void dealloc_compressor_data(AV1_COMP *cpi) {
   av1_free_pc_tree(&cpi->td, num_planes);
 
   aom_free(cpi->td.mb.palette_buffer);
+
+  if (cpi->training_fp) {
+    fclose(cpi->training_fp);
+    printf("Training file closed\n");
+    cpi->training_fp = NULL;
+  }
 }
 
 static void save_coding_context(AV1_COMP *cpi) {
@@ -993,6 +999,14 @@ static void init_config(struct AV1_COMP *cpi, AV1EncoderConfig *oxcf) {
 
   cpi->oxcf = *oxcf;
   cpi->framerate = oxcf->init_framerate;
+
+  if (cpi->training_fp) {
+    fclose(cpi->training_fp);
+    printf("Training file closed\n");
+  }
+  cpi->training_fp = fopen("training.dat", "wb");
+  if (cpi->training_fp != NULL)
+    printf("Training file opened\n");
 
   cm->profile = oxcf->profile;
   cm->bit_depth = oxcf->bit_depth;
@@ -2234,6 +2248,8 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
   RATE_CONTROL *const rc = &cpi->rc;
   MACROBLOCK *const x = &cpi->td.mb;
 
+  cpi->td.mb.e_mbd.training_fp = cpi->training_fp;
+
   if (cm->profile != oxcf->profile) cm->profile = oxcf->profile;
   cm->bit_depth = oxcf->bit_depth;
   cm->color_primaries = oxcf->color_primaries;
@@ -3163,6 +3179,7 @@ static int recode_loop_test(AV1_COMP *cpi, int high_limit, int low_limit, int q,
   const AV1EncoderConfig *const oxcf = &cpi->oxcf;
   const int frame_is_kfgfarf = frame_is_kf_gf_arf(cpi);
   int force_recode = 0;
+  return 0;
 
   if ((rc->projected_frame_size >= rc->max_frame_bandwidth) ||
       (cpi->sf.recode_loop == ALLOW_RECODE) ||
