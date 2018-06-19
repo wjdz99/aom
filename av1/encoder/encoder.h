@@ -687,6 +687,7 @@ typedef struct AV1_COMP {
   AV1LfSync lf_row_sync;
   AV1LrSync lr_row_sync;
   AV1LrStruct lr_ctxt;
+  FILE *training_fp;
 } AV1_COMP;
 
 void av1_initialize_enc(void);

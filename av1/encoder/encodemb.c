@@ -29,6 +29,7 @@
 #include "av1/common/scan.h"
 
 #include "av1/encoder/av1_quantize.h"
+#include "av1/encoder/encoder.h"
 #include "av1/encoder/encodemb.h"
 #include "av1/encoder/encodetxb.h"
 #include "av1/encoder/hybrid_fwd_txfm.h"
