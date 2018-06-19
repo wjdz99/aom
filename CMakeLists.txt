@@ -28,6 +28,7 @@ option(ENABLE_IDE_TEST_HOSTING
 option(ENABLE_NASM "Use nasm instead of yasm for x86 assembly." OFF)
 option(ENABLE_TOOLS "Enable applications in tools sub directory." ON)
 option(ENABLE_WERROR "Converts warnings to errors at compile time." OFF)
+option(ENABLE_TESTDATA "CMake should generate targets to download testdata." ON)
 
 # ARM assembly/intrinsics flags.
 option(ENABLE_NEON "Enables NEON optimizations on ARM targets." ON)
