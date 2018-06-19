@@ -141,6 +141,30 @@
       "revId": "88d0bd0c68c5d98293a3397c7d42b8e932de3270",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8676f1b4_98511ae0",
+        "filename": "test/blend_a64_mask_1d_test.cc",
+        "patchSetId": 7
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-06-19T14:21:23Z",
+      "side": 1,
+      "message": "You are correct, sorry.",
+      "parentUuid": "ac2f3bc3_48047d54",
+      "range": {
+        "startLine": 50,
+        "startChar": 4,
+        "endLine": 50,
+        "endChar": 6
+      },
+      "revId": "88d0bd0c68c5d98293a3397c7d42b8e932de3270",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
