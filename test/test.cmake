@@ -334,27 +334,30 @@ function(setup_aom_test_targets)
                                     "AOM_UNIT_TEST_COMMON_INTRIN_NEON")
   endif()
 
-  make_test_data_lists("${AOM_UNIT_TEST_DATA_LIST_FILE}" test_files
-                       test_file_checksums)
-  list(LENGTH test_files num_test_files)
-  list(LENGTH test_file_checksums num_test_file_checksums)
+  if(ENABLE_TESTDATA)
+    make_test_data_lists("${AOM_UNIT_TEST_DATA_LIST_FILE}" test_files
+                         test_file_checksums)
+    list(LENGTH test_files num_test_files)
+    list(LENGTH test_file_checksums num_test_file_checksums)
 
-  math(EXPR max_file_index "${num_test_files} - 1")
-  foreach(test_index RANGE ${max_file_index})
-    list(GET test_files ${test_index} test_file)
-    list(GET test_file_checksums ${test_index} test_file_checksum)
-    add_custom_target(testdata_${test_index}
-                      COMMAND
-                        ${CMAKE_COMMAND} -DAOM_CONFIG_DIR="${AOM_CONFIG_DIR}"
-                        -DAOM_ROOT="${AOM_ROOT}" -DAOM_TEST_FILE="${test_file}"
-                        -DAOM_TEST_CHECKSUM=${test_file_checksum} -P
-                        "${AOM_ROOT}/test/test_data_download_worker.cmake")
-    list(APPEND testdata_targets testdata_${test_index})
-  endforeach()
+    math(EXPR max_file_index "${num_test_files} - 1")
+    foreach(test_index RANGE ${max_file_index})
+      list(GET test_files ${test_index} test_file)
+      list(GET test_file_checksums ${test_index} test_file_checksum)
+      add_custom_target(testdata_${test_index} 
+                        COMMAND
+                          ${CMAKE_COMMAND} -DAOM_CONFIG_DIR="${AOM_CONFIG_DIR}"
+                          -DAOM_ROOT="${AOM_ROOT}" 
+                          -DAOM_TEST_FILE="${test_file}"
+                          -DAOM_TEST_CHECKSUM=${test_file_checksum} -P
+                          "${AOM_ROOT}/test/test_data_download_worker.cmake")
+      list(APPEND testdata_targets testdata_${test_index})
+    endforeach()
 
-  # Create a custom build target for running each test data download target.
-  add_custom_target(testdata)
-  add_dependencies(testdata ${testdata_targets})
+    # Create a custom build target for running each test data download target.
+    add_custom_target(testdata)
+    add_dependencies(testdata ${testdata_targets})
+  endif()
 
   if(NOT ENABLE_IDE_TEST_HOSTING)
     if(MSVC OR XCODE) # Skip creation of test run targets when generating for
