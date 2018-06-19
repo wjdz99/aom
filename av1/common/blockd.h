@@ -12,6 +12,7 @@
 #ifndef AV1_COMMON_BLOCKD_H_
 #define AV1_COMMON_BLOCKD_H_
 
+#include <stdio.h>
 #include "config/aom_config.h"
 
 #include "aom_dsp/aom_dsp_common.h"
@@ -581,6 +582,7 @@ typedef struct macroblockd {
   CFL_CTX cfl;
 
   JNT_COMP_PARAMS jcp_param;
+  FILE *training_fp;
 } MACROBLOCKD;
 
 static INLINE int get_bitdepth_data_path_index(const MACROBLOCKD *xd) {
