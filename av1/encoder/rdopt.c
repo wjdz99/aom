@@ -56,6 +56,7 @@
 #include "av1/encoder/rdopt.h"
 #include "av1/encoder/tokenize.h"
 #include "av1/encoder/tx_prune_model_weights.h"
+#include "av1/encoder/pustats.h"
 
 // Set this macro as 1 to collect data about tx size selection.
 #define COLLECT_TX_SIZE_DATA 0
@@ -1705,7 +1706,6 @@ static void model_rd_from_sse(const AV1_COMP *const cpi,
   if (cpi->sf.simple_model_rd_from_var) {
     const int64_t square_error = sse;
     int quantizer = (pd->dequant_Q3[1] >> dequant_shift);
-
     if (quantizer < 120)
       *rate = (int)((square_error * (280 - quantizer)) >>
                     (16 - AV1_PROB_COST_SHIFT));
@@ -1717,7 +1717,6 @@ static void model_rd_from_sse(const AV1_COMP *const cpi,
                                  pd->dequant_Q3[1] >> dequant_shift, rate,
                                  dist);
   }
-
   *dist <<= 4;
 }
 
@@ -2137,11 +2136,6 @@ static INLINE int64_t dist_block_px_domain(const AV1_COMP *cpi, MACROBLOCK *x,
                          blk_row, blk_col, plane_bsize, tx_bsize);
 }
 
-#if CONFIG_COLLECT_RD_STATS
-// NOTE: CONFIG_COLLECT_RD_STATS has 3 possible values
-// 0: Do not collect any RD stats
-// 1: Collect RD stats for transform units
-// 2: Collect RD stats for partition units
 static double get_mean(const int16_t *diff, int stride, int w, int h) {
   double sum = 0.0;
   for (int j = 0; j < h; ++j) {
@@ -2220,6 +2214,11 @@ static void get_2x2_normalized_sses_and_sads(
   }
 }
 
+#if CONFIG_COLLECT_RD_STATS
+// NOTE: CONFIG_COLLECT_RD_STATS has 3 possible values
+// 0: Do not collect any RD stats
+// 1: Collect RD stats for transform units
+// 2: Collect RD stats for partition units
 static void PrintTransformUnitStats(const AV1_COMP *const cpi, MACROBLOCK *x,
                                     const RD_STATS *const rd_stats, int blk_row,
                                     int blk_col, BLOCK_SIZE plane_bsize,
@@ -2395,6 +2394,81 @@ static void PrintPredictionUnitStats(const AV1_COMP *const cpi, MACROBLOCK *x,
 }
 #endif  // CONFIG_COLLECT_RD_STATS == 2
 #endif  // CONFIG_COLLECT_RD_STATS
+
+int64_t model_rd_with_dnn(const AV1_COMP *const cpi,
+                                 const MACROBLOCK *const x, BLOCK_SIZE bsize,
+                                 int plane, int *rate, int64_t *dist) {
+  const MACROBLOCKD *const xd = &x->e_mbd;
+  const struct macroblockd_plane *const pd = &xd->plane[plane];
+  const BLOCK_SIZE plane_bsize =
+      get_plane_block_size(bsize, pd->subsampling_x, pd->subsampling_y);
+  const int log_numpels = num_pels_log2_lookup[plane_bsize];
+  const int num_samples = (1 << log_numpels);
+
+  const struct macroblock_plane *const p = &x->plane[plane];
+  const int bw = block_size_wide[plane_bsize];
+  const int bh = block_size_high[plane_bsize];
+  const int dequant_shift =
+      (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) ? xd->bd - 5 : 3;
+  const int q_step = pd->dequant_Q3[1] >> dequant_shift;
+
+  const int src_stride = p->src.stride;
+  const uint8_t *const src = p->src.buf;
+  const int dst_stride = pd->dst.stride;
+  const uint8_t *const dst = pd->dst.buf;
+  unsigned int sse;
+  cpi->fn_ptr[plane_bsize].vf(src, src_stride, dst, dst_stride, &sse);
+  const double sse_norm = (double)sse / num_samples;
+
+  const int diff_stride = block_size_wide[plane_bsize];
+  const int16_t *const src_diff = p->src_diff;
+
+  double sse_norm_arr[4], sad_norm_arr[4];
+  get_2x2_normalized_sses_and_sads(cpi, plane_bsize, src, src_stride, dst,
+                                   dst_stride, src_diff, diff_stride,
+                                   sse_norm_arr, sad_norm_arr);
+  const double mean = get_mean(src_diff, diff_stride, bw, bh);
+  const double variance = sse_norm - mean * mean;
+  const double q_sqr = (double)(q_step * q_step);
+  const double q_sqr_by_variance = q_sqr / variance;
+  double hor_corr, vert_corr;
+  get_horver_correlation(src_diff, diff_stride, bw, bh, &hor_corr, &vert_corr);
+  double hdist[4] = { 0 }, vdist[4] = { 0 };
+  get_energy_distribution_fine(cpi, plane_bsize, src, src_stride, dst,
+                               dst_stride, 1, hdist, vdist);
+
+  float features[20];
+  features[0] = (float)hdist[0];
+  features[1] = (float)hdist[1];
+  features[2] = (float)hdist[2];
+  features[3] = (float)hdist[3];
+  features[4] = (float)hor_corr;
+  features[5] = (float)log_numpels;
+  features[6] = (float)mean;
+  features[7] = (float)q_sqr;
+  features[8] = (float)q_sqr_by_variance;
+  features[9] = (float)sse_norm_arr[0];
+  features[10] = (float)sse_norm_arr[1];
+  features[11] = (float)sse_norm_arr[2];
+  features[12] = (float)sse_norm_arr[3];
+  features[13] = (float)sse_norm_arr[3];
+  features[14] = (float)variance;
+  features[15] = (float)vdist[0];
+  features[16] = (float)vdist[1];
+  features[17] = (float)vdist[2];
+  features[18] = (float)vdist[3];
+  features[19] = (float)vert_corr;
+
+  float rate_f, dist_f;
+  av1_nn_predict(features, &av1_pustats_dist_nnconfig, &dist_f);
+  av1_nn_predict(features, &av1_pustats_rate_nnconfig, &rate_f);
+  const int rate_i = (int)(AOMMAX(0.0, rate_f * (1 << log_numpels)) + 0.5);
+  const int64_t dist_i =
+      (int64_t)(AOMMAX(0.0, dist_f * (1 << log_numpels)) + 0.5);
+  if (rate) *rate = rate_i;
+  if (dist) *dist = dist_i;
+  return RDCOST(x->rdmult, rate_i, dist_i);
+}
 
 static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
                                int block, int blk_row, int blk_col,
