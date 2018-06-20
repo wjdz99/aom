@@ -22,6 +22,30 @@
       "revId": "fdd02f69e9fa210eb9e6df8e95c522e3bff4689a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "351ce790_7311c6d7",
+        "filename": "test/test.cmake",
+        "patchSetId": 1
+      },
+      "lineNbr": 336,
+      "author": {
+        "id": 8900
+      },
+      "writtenOn": "2018-06-20T02:26:58Z",
+      "side": 1,
+      "message": "It doesn\u0027t affect anything in the makefile generator, but does in other IDE generators.\nThere are a huge number of test data targets added to IDE. \nI think It\u0027s more comfortable if we have the chance to disable them \nwhen we don\u0027t need test data. Unit test with test datas still \nruns by make common, not in a IDE. \n\nJust a suggestion. Thanks.",
+      "parentUuid": "71cc04e5_0ce8fe10",
+      "range": {
+        "startLine": 336,
+        "startChar": 5,
+        "endLine": 336,
+        "endChar": 20
+      },
+      "revId": "fdd02f69e9fa210eb9e6df8e95c522e3bff4689a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
