@@ -63,6 +63,12 @@
 static const char av1_tx_size_data_output_file[] = "tx_size_data.txt";
 #endif
 
+// Set this macro as 1 to collect data about tx type selection.
+#define COLLECT_TX_TYPE_DATA 0
+#if COLLECT_TX_TYPE_DATA
+static const char av1_tx_type_data_output_file[] = "tx_type_data.txt";
+#endif
+
 #define DUAL_FILTER_SET_SIZE (SWITCHABLE_FILTERS * SWITCHABLE_FILTERS)
 static const InterpFilters filter_sets[DUAL_FILTER_SET_SIZE] = {
   0x00000000, 0x00010000, 0x00020000,  // y = 0
@@ -2514,6 +2520,10 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
   } else {
     memset(allowed_tx_mask + txk_start, 1, txk_end - txk_start + 1);
   }
+
+#if COLLECT_TX_TYPE_DATA
+  prune = 0;
+#endif
   for (TX_TYPE tx_type = txk_start; tx_type <= txk_end; ++tx_type) {
     if (do_prune) {
       if (!do_tx_type_search(tx_type, prune, cpi->sf.tx_type_search.prune_mode))
@@ -2564,8 +2574,18 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
 
   TXB_CTX txb_ctx;
   get_txb_ctx(plane_bsize, tx_size, plane, a, l, &txb_ctx);
+#if COLLECT_TX_TYPE_DATA
+  int tx_types_examined = 0;
+  int tx_rd_costs[TX_TYPES];
+  for (int i = 0; i < TX_TYPES; i++) tx_rd_costs[i] = -1;
+  int tx_eobs[TX_TYPES];
+  for (int i = 0; i < TX_TYPES; i++) tx_eobs[i] = -1;
+#endif
   for (TX_TYPE tx_type = txk_start; tx_type <= txk_end; ++tx_type) {
     if (!allowed_tx_mask[tx_type]) continue;
+#if COLLECT_TX_TYPE_DATA
+    ++tx_types_examined;
+#endif
     if (plane == 0) mbmi->txk_type[txk_type_idx] = tx_type;
     RD_STATS this_rd_stats;
     av1_invalid_rd_stats(&this_rd_stats);
@@ -2579,6 +2599,7 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
     } else {
       av1_xform_quant(cm, x, plane, block, blk_row, blk_col, plane_bsize,
                       tx_size, tx_type, AV1_XFORM_QUANT_FP);
+#if !COLLECT_TX_TYPE_DATA
       if (cpi->sf.optimize_b_precheck && best_rd < INT64_MAX &&
           eobs_ptr[block] >= 4) {
         // Calculate distortion quickly in transform domain.
@@ -2592,6 +2613,7 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
         if (rd_estimate - (rd_estimate >> 3) > AOMMIN(best_rd, ref_best_rd))
           continue;
       }
+#endif
       av1_optimize_b(cpi, x, plane, blk_row, blk_col, block, plane_bsize,
                      tx_size, a, l, 1, &rate_cost);
     }
@@ -2611,7 +2633,12 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
 
     const int64_t rd =
         RDCOST(x->rdmult, this_rd_stats.rate, this_rd_stats.dist);
-
+#if COLLECT_TX_TYPE_DATA
+    if (!plane) {
+      tx_rd_costs[tx_type] = AOMMIN(rd, INT_MAX);
+      tx_eobs[tx_type] = x->plane[plane].eobs[block];
+    }
+#endif
     if (rd < best_rd) {
       best_rd = rd;
       *best_rd_stats = this_rd_stats;
@@ -2633,6 +2660,7 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
     }
 #endif  // CONFIG_COLLECT_RD_STATS == 1
 
+#if !COLLECT_TX_TYPE_DATA
     if (cpi->sf.adaptive_txb_search_level) {
       if ((best_rd - (best_rd >> cpi->sf.adaptive_txb_search_level)) >
           ref_best_rd) {
@@ -2643,9 +2671,42 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
     // Skip transform type search when we found the block has been quantized to
     // all zero and at the same time, it has better rdcost than doing transform.
     if (cpi->sf.tx_type_search.skip_tx_search && !best_eob) break;
+#endif
   }
 
   assert(best_rd != INT64_MAX);
+
+#if COLLECT_TX_TYPE_DATA
+  do {
+    if (plane || !is_inter || !within_border || allowed_tx_num <= 1 ||
+        fast_tx_search)
+      break;
+    FILE *fp = fopen(av1_tx_type_data_output_file, "a");
+    if (!fp) break;
+    // Tx type decision, q-index, rdmult, block size, allowed_tx_num, and
+    // tx_types_examined.
+    const int txb_w = tx_size_wide[tx_size];
+    const int txb_h = tx_size_high[tx_size];
+    fprintf(fp, "%d,%d,%d,%d,%d,%d,%d,", best_tx_type, cpi->common.base_qindex,
+            x->rdmult, txb_w, txb_h, allowed_tx_num, tx_types_examined);
+    // RD costs for all 16 tx types (unavailable ones are marked with -1)
+    for (int i = 0; i < TX_TYPES; i++) fprintf(fp, "%d,", tx_rd_costs[i]);
+    // eobs for all 16 tx types (unavailable ones are marked with -1)
+    for (int i = 0; i < TX_TYPES; i++) fprintf(fp, "%d,", tx_eobs[i]);
+    // Residue signal.
+    const int diff_stride = block_size_wide[plane_bsize];
+    const int16_t *src_diff =
+        &x->plane[0].src_diff[(blk_row * diff_stride + blk_col) * 4];
+    for (int r = 0; r < txb_h; ++r) {
+      for (int c = 0; c < txb_w; ++c) {
+        fprintf(fp, "%d,", src_diff[c]);
+      }
+      src_diff += diff_stride;
+    }
+    fprintf(fp, "\n");
+    fclose(fp);
+  } while (0);
+#endif  // COLLECT_TX_SIZE_DATA
 
   best_rd_stats->skip = best_eob == 0;
   if (best_eob == 0) best_tx_type = DCT_DCT;
