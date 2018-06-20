@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c4d62227_4bf97a2c",
+        "filename": "av1/common/arm/reconinter_neon.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-06-20T13:46:56Z",
+      "side": 1,
+      "message": "OK, cool I was hoping this was possible. It was hard to see with the way the subtraction was happening before.",
+      "range": {
+        "startLine": 38,
+        "startChar": 6,
+        "endLine": 38,
+        "endChar": 29
+      },
+      "revId": "5068f636f60aaa179cdefb7decc7c218352fbe58",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0b7bb43b_63e3d788",
+        "filename": "av1/common/arm/reconinter_neon.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-06-20T13:46:56Z",
+      "side": 1,
+      "message": "w \u003d\u003d 4 seems like the only other option if 2x2 is not allowed?",
+      "range": {
+        "startLine": 63,
+        "startChar": 15,
+        "endLine": 63,
+        "endChar": 23
+      },
+      "revId": "5068f636f60aaa179cdefb7decc7c218352fbe58",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7103fdac_d29fd142",
+        "filename": "test/reconinter_test.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-06-20T13:46:56Z",
+      "side": 1,
+      "message": "you should be able to drop this #if",
+      "revId": "5068f636f60aaa179cdefb7decc7c218352fbe58",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9de928ab_17a97e7b",
+        "filename": "test/reconinter_test.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-06-20T13:46:56Z",
+      "side": 1,
+      "message": "Does this test not work for neon yet?",
+      "range": {
+        "startLine": 179,
+        "startChar": 4,
+        "endLine": 179,
+        "endChar": 15
+      },
+      "revId": "5068f636f60aaa179cdefb7decc7c218352fbe58",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
