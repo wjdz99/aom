@@ -543,8 +543,7 @@ void av1_dr_prediction_z1_c(uint8_t *dst, ptrdiff_t stride, int bw, int bh,
     for (c = 0; c < bw; ++c, base += base_inc) {
       if (base < max_base_x) {
         val = above[base] * (32 - shift) + above[base + 1] * shift;
-        val = ROUND_POWER_OF_TWO(val, 5);
-        dst[c] = clip_pixel(val);
+        dst[c] = ROUND_POWER_OF_TWO(val, 5);
       } else {
         dst[c] = above[max_base_x];
       }
@@ -582,7 +581,7 @@ void av1_dr_prediction_z2_c(uint8_t *dst, ptrdiff_t stride, int bw, int bh,
         val = left[base2] * (32 - shift2) + left[base2 + 1] * shift2;
         val = ROUND_POWER_OF_TWO(val, 5);
       }
-      dst[c] = clip_pixel(val);
+      dst[c] = val;
     }
   }
 }
@@ -610,8 +609,7 @@ void av1_dr_prediction_z3_c(uint8_t *dst, ptrdiff_t stride, int bw, int bh,
     for (r = 0; r < bh; ++r, base += base_inc) {
       if (base < max_base_y) {
         val = left[base] * (32 - shift) + left[base + 1] * shift;
-        val = ROUND_POWER_OF_TWO(val, 5);
-        dst[r * stride + c] = clip_pixel(val);
+        dst[r * stride + c] = val = ROUND_POWER_OF_TWO(val, 5);
       } else {
         for (; r < bh; ++r) dst[r * stride + c] = left[max_base_y];
         break;
@@ -676,8 +674,7 @@ void av1_highbd_dr_prediction_z1_c(uint16_t *dst, ptrdiff_t stride, int bw,
     for (c = 0; c < bw; ++c, base += base_inc) {
       if (base < max_base_x) {
         val = above[base] * (32 - shift) + above[base + 1] * shift;
-        val = ROUND_POWER_OF_TWO(val, 5);
-        dst[c] = clip_pixel_highbd(val, bd);
+        dst[c] = ROUND_POWER_OF_TWO(val, 5);
       } else {
         dst[c] = above[max_base_x];
       }
@@ -715,7 +712,7 @@ void av1_highbd_dr_prediction_z2_c(uint16_t *dst, ptrdiff_t stride, int bw,
         val = left[base] * (32 - shift) + left[base + 1] * shift;
         val = ROUND_POWER_OF_TWO(val, 5);
       }
-      dst[c] = clip_pixel_highbd(val, bd);
+      dst[c] = val;
     }
     dst += stride;
   }
@@ -744,8 +741,7 @@ void av1_highbd_dr_prediction_z3_c(uint16_t *dst, ptrdiff_t stride, int bw,
     for (r = 0; r < bh; ++r, base += base_inc) {
       if (base < max_base_y) {
         val = left[base] * (32 - shift) + left[base + 1] * shift;
-        val = ROUND_POWER_OF_TWO(val, 5);
-        dst[r * stride + c] = clip_pixel_highbd(val, bd);
+        dst[r * stride + c] = ROUND_POWER_OF_TWO(val, 5);
       } else {
         for (; r < bh; ++r) dst[r * stride + c] = left[max_base_y];
         break;
