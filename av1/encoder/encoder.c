@@ -1019,8 +1019,7 @@ static void init_config(struct AV1_COMP *cpi, AV1EncoderConfig *oxcf) {
         oxcf->buffer_model.num_units_in_decoding_tick;
     cm->buffer_removal_delay_present = 1;
     set_aom_dec_model_info(&cm->buffer_model);
-    set_dec_model_op_parameters(&cm->op_params[0], &cm->buffer_model,
-                                oxcf->target_bandwidth);
+    set_dec_model_op_parameters(&cm->op_params[0], oxcf->target_bandwidth);
   }
   cm->width = oxcf->width;
   cm->height = oxcf->height;
@@ -2261,8 +2260,7 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
         oxcf->buffer_model.num_units_in_decoding_tick;
     cm->buffer_removal_delay_present = 1;
     set_aom_dec_model_info(&cm->buffer_model);
-    set_dec_model_op_parameters(&cm->op_params[0], &cm->buffer_model,
-                                oxcf->target_bandwidth);
+    set_dec_model_op_parameters(&cm->op_params[0], oxcf->target_bandwidth);
   }
 
   update_film_grain_parameters(cpi, oxcf);
