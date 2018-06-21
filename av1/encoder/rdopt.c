@@ -3103,6 +3103,7 @@ static int64_t estimate_yrd_for_sb(const AV1_COMP *const cpi, BLOCK_SIZE bs,
                                    MACROBLOCK *x, int *r, int64_t *d, int *s,
                                    int64_t *sse, int64_t ref_best_rd) {
   RD_STATS rd_stats;
+  av1_subtract_plane(x, bs, 0);
   x->rd_model = LOW_TXFM_RD;
   int64_t rd = txfm_yrd(cpi, x, &rd_stats, ref_best_rd, bs,
                         max_txsize_rect_lookup[bs], FTXS_NONE);
@@ -7373,7 +7374,6 @@ static int64_t build_and_cost_compound_type(
       av1_build_wedge_inter_predictor_from_buf(xd, bsize, 0, 0, preds0, strides,
                                                preds1, strides);
     }
-    av1_subtract_plane(x, bsize, 0);
     rd = estimate_yrd_for_sb(cpi, bsize, x, &rate_sum, &dist_sum,
                              &tmp_skip_txfm_sb, &tmp_skip_sse_sb, INT64_MAX);
     if (rd != INT64_MAX)
@@ -7383,7 +7383,6 @@ static int64_t build_and_cost_compound_type(
   } else {
     av1_build_wedge_inter_predictor_from_buf(xd, bsize, 0, 0, preds0, strides,
                                              preds1, strides);
-    av1_subtract_plane(x, bsize, 0);
     rd = estimate_yrd_for_sb(cpi, bsize, x, &rate_sum, &dist_sum,
                              &tmp_skip_txfm_sb, &tmp_skip_sse_sb, INT64_MAX);
     if (rd != INT64_MAX)
@@ -7867,7 +7866,6 @@ static int64_t motion_mode_rd(const AV1_COMP *const cpi, MACROBLOCK *const x,
       av1_build_intra_predictors_for_interintra(cm, xd, bsize, 0, orig_dst,
                                                 intrapred, bw);
       av1_combine_interintra(xd, bsize, 0, tmp_buf, bw, intrapred, bw);
-      av1_subtract_plane(x, bsize, 0);
       rd = estimate_yrd_for_sb(cpi, bsize, x, &rate_sum, &dist_sum,
                                &tmp_skip_txfm_sb, &tmp_skip_sse_sb, INT64_MAX);
       if (rd != INT64_MAX)
@@ -7931,7 +7929,6 @@ static int64_t motion_mode_rd(const AV1_COMP *const cpi, MACROBLOCK *const x,
             av1_combine_interintra(xd, bsize, 0, tmp_buf, bw, intrapred, bw);
           }
           // Evaluate closer to true rd
-          av1_subtract_plane(x, bsize, 0);
           rd = estimate_yrd_for_sb(cpi, bsize, x, &rate_sum, &dist_sum,
                                    &tmp_skip_txfm_sb, &tmp_skip_sse_sb,
                                    INT64_MAX);
@@ -8554,6 +8551,7 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
       int strides[1] = { bw };
       int tmp_rate_mv;
       const int num_pix = 1 << num_pels_log2_lookup[bsize];
+      const int mask_len = 2 * num_pix * sizeof(uint8_t);
       COMPOUND_TYPE cur_type;
       int best_compmode_interinter_cost = 0;
       int can_use_previous = cm->allow_warped_motion;
@@ -8583,67 +8581,41 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
 
         const int comp_group_idx_ctx = get_comp_group_idx_context(xd);
         const int comp_index_ctx = get_comp_index_context(cm, xd);
-        if (masked_compound_used) {
-          if (cur_type == COMPOUND_AVERAGE) {
-            mbmi->comp_group_idx = 0;
-            mbmi->compound_idx = 1;
-
-            masked_type_cost += x->comp_group_idx_cost[comp_group_idx_ctx][0];
-            masked_type_cost += x->comp_idx_cost[comp_index_ctx][1];
-          } else {
-            mbmi->comp_group_idx = 1;
-            mbmi->compound_idx = 1;
-
-            masked_type_cost += x->comp_group_idx_cost[comp_group_idx_ctx][1];
-            masked_type_cost +=
-                x->compound_type_cost[bsize][mbmi->interinter_comp.type - 1];
-          }
-        } else {
+        mbmi->compound_idx = 1;
+        if (cur_type == COMPOUND_AVERAGE) {
           mbmi->comp_group_idx = 0;
-          mbmi->compound_idx = 1;
-
+          if (masked_compound_used) {
+            masked_type_cost += x->comp_group_idx_cost[comp_group_idx_ctx][0];
+          }
           masked_type_cost += x->comp_idx_cost[comp_index_ctx][1];
+          rs2 = masked_type_cost;
+          av1_build_inter_predictors_sby(cm, xd, mi_row, mi_col, &orig_dst,
+                                         bsize);
+          rd = estimate_yrd_for_sb(cpi, bsize, x, &rate_sum, &dist_sum,
+                                   &tmp_skip_txfm_sb, &tmp_skip_sse_sb,
+                                   INT64_MAX);
+          if (rd != INT64_MAX)
+            best_rd_cur = RDCOST(x->rdmult, rs2 + rate_mv + rate_sum, dist_sum);
+        } else {
+          mbmi->comp_group_idx = 1;
+          masked_type_cost += x->comp_group_idx_cost[comp_group_idx_ctx][1];
+          masked_type_cost += x->compound_type_cost[bsize][cur_type - 1];
+          rs2 = masked_type_cost;
+          if (x->source_variance > cpi->sf.disable_wedge_search_var_thresh &&
+              best_rd_compound / 3 < ref_best_rd) {
+            best_rd_cur = build_and_cost_compound_type(
+                cpi, x, cur_mv, bsize, this_mode, &rs2, rate_mv, &orig_dst,
+                &tmp_rate_mv, preds0, preds1, strides, mi_row, mi_col);
+          }
         }
-        rs2 = masked_type_cost;
-
-        switch (cur_type) {
-          case COMPOUND_AVERAGE:
-            av1_build_inter_predictors_sby(cm, xd, mi_row, mi_col, &orig_dst,
-                                           bsize);
-            av1_subtract_plane(x, bsize, 0);
-            rd = estimate_yrd_for_sb(cpi, bsize, x, &rate_sum, &dist_sum,
-                                     &tmp_skip_txfm_sb, &tmp_skip_sse_sb,
-                                     INT64_MAX);
-            if (rd != INT64_MAX)
-              best_rd_cur =
-                  RDCOST(x->rdmult, rs2 + rate_mv + rate_sum, dist_sum);
-            break;
-          case COMPOUND_WEDGE:
-            if (x->source_variance > cpi->sf.disable_wedge_search_var_thresh &&
-                best_rd_compound / 3 < ref_best_rd) {
-              best_rd_cur = build_and_cost_compound_type(
-                  cpi, x, cur_mv, bsize, this_mode, &rs2, rate_mv, &orig_dst,
-                  &tmp_rate_mv, preds0, preds1, strides, mi_row, mi_col);
-            }
-            break;
-          case COMPOUND_DIFFWTD:
-            if (x->source_variance > cpi->sf.disable_wedge_search_var_thresh &&
-                best_rd_compound / 3 < ref_best_rd) {
-              best_rd_cur = build_and_cost_compound_type(
-                  cpi, x, cur_mv, bsize, this_mode, &rs2, rate_mv, &orig_dst,
-                  &tmp_rate_mv, preds0, preds1, strides, mi_row, mi_col);
-            }
-            break;
-          default: assert(0); return INT64_MAX;
-        }
-
         if (best_rd_cur < best_rd_compound) {
           best_comp_group_idx = mbmi->comp_group_idx;
           best_compound_idx = mbmi->compound_idx;
           best_rd_compound = best_rd_cur;
           best_compound_data = mbmi->interinter_comp;
-          memcpy(tmp_best_mask_buf, xd->seg_mask,
-                 2 * num_pix * sizeof(uint8_t));
+          if (masked_compound_used && cur_type != COMPOUND_TYPES - 1) {
+            memcpy(tmp_best_mask_buf, xd->seg_mask, mask_len);
+          }
           best_compmode_interinter_cost = rs2;
           if (have_newmv_in_inter_mode(this_mode)) {
             if (use_masked_motion_search(cur_type)) {
@@ -8660,12 +8632,14 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
         mbmi->mv[0].as_int = cur_mv[0].as_int;
         mbmi->mv[1].as_int = cur_mv[1].as_int;
       }
-      mbmi->comp_group_idx = best_comp_group_idx;
-      mbmi->compound_idx = best_compound_idx;
-      mbmi->interinter_comp = best_compound_data;
-      assert(IMPLIES(mbmi->comp_group_idx == 1,
-                     mbmi->interinter_comp.type != COMPOUND_AVERAGE));
-      memcpy(xd->seg_mask, tmp_best_mask_buf, 2 * num_pix * sizeof(uint8_t));
+      if (mbmi->interinter_comp.type != best_compound_data.type) {
+        mbmi->comp_group_idx = best_comp_group_idx;
+        mbmi->compound_idx = best_compound_idx;
+        mbmi->interinter_comp = best_compound_data;
+        assert(IMPLIES(mbmi->comp_group_idx == 1,
+                       mbmi->interinter_comp.type != COMPOUND_AVERAGE));
+        memcpy(xd->seg_mask, tmp_best_mask_buf, mask_len);
+      }
       if (have_newmv_in_inter_mode(this_mode)) {
         mbmi->mv[0].as_int = best_mv[0].as_int;
         mbmi->mv[1].as_int = best_mv[1].as_int;
