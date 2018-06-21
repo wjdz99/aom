@@ -38,6 +38,9 @@ endfunction()
 # the change to the user via call to message(WARNING ...). $cause is expected to
 # be a configuration variable that conflicts with $feature in some way.
 function(change_config_and_warn feature value cause)
+  if(${feature} EQUAL ${value})
+    return()
+  endif()
   set(${feature} ${value} PARENT_SCOPE)
   if(${value} EQUAL 1)
     set(verb "Enabled")
