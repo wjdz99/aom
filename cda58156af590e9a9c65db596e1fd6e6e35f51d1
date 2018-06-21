@@ -1,0 +1,222 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cd5685ea_78cc2e32",
+        "filename": "av1/common/arm/intrapred_neon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-06-21T15:27:04Z",
+      "side": 1,
+      "message": "since bh \u003d\u003d bw, only pass one value",
+      "revId": "cda58156af590e9a9c65db596e1fd6e6e35f51d1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "921115d4_430aa410",
+        "filename": "av1/common/arm/intrapred_neon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-06-21T15:27:04Z",
+      "side": 1,
+      "message": "that\u0027s ... weird. but that\u0027s what the c code does.",
+      "range": {
+        "startLine": 28,
+        "startChar": 12,
+        "endLine": 28,
+        "endChar": 17
+      },
+      "revId": "cda58156af590e9a9c65db596e1fd6e6e35f51d1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5057b152_65a2d719",
+        "filename": "av1/common/arm/intrapred_neon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-06-21T15:27:04Z",
+      "side": 1,
+      "message": "remove the bd argument",
+      "range": {
+        "startLine": 29,
+        "startChar": 8,
+        "endLine": 29,
+        "endChar": 10
+      },
+      "revId": "cda58156af590e9a9c65db596e1fd6e6e35f51d1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d2ff9b17_4c8fa0ba",
+        "filename": "av1/common/arm/intrapred_neon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-06-21T15:27:04Z",
+      "side": 1,
+      "message": "\u003e\u003d 8\n\nthe compile should optimize it out anyway, and \u003e\u003d 8 is much easier when glancing at the code",
+      "range": {
+        "startLine": 34,
+        "startChar": 8,
+        "endLine": 34,
+        "endChar": 17
+      },
+      "revId": "cda58156af590e9a9c65db596e1fd6e6e35f51d1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ad63039e_dd3e3437",
+        "filename": "av1/common/arm/intrapred_neon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-06-21T15:27:04Z",
+      "side": 1,
+      "message": "combine these two loops. there is nothing preventing loading above and left at the same time.",
+      "range": {
+        "startLine": 36,
+        "startChar": 14,
+        "endLine": 36,
+        "endChar": 23
+      },
+      "revId": "cda58156af590e9a9c65db596e1fd6e6e35f51d1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d24ed1c3_260a79a1",
+        "filename": "av1/common/arm/intrapred_neon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-06-21T15:27:04Z",
+      "side": 1,
+      "message": "tmp_q can be a local variable (or above_q/left_q once combined)",
+      "range": {
+        "startLine": 36,
+        "startChar": 6,
+        "endLine": 36,
+        "endChar": 11
+      },
+      "revId": "cda58156af590e9a9c65db596e1fd6e6e35f51d1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "512ce263_a0c98ef5",
+        "filename": "av1/common/arm/intrapred_neon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-06-21T15:27:04Z",
+      "side": 1,
+      "message": "or just inline it with vpadalq_u16(sum_q, vld1q_u16(above))",
+      "range": {
+        "startLine": 38,
+        "startChar": 17,
+        "endLine": 38,
+        "endChar": 0
+      },
+      "revId": "cda58156af590e9a9c65db596e1fd6e6e35f51d1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e171ed0f_fbf05f08",
+        "filename": "av1/common/arm/intrapred_neon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-06-21T15:27:04Z",
+      "side": 1,
+      "message": "comment that the else block is only 4x4",
+      "range": {
+        "startLine": 57,
+        "startChar": 4,
+        "endLine": 57,
+        "endChar": 8
+      },
+      "revId": "cda58156af590e9a9c65db596e1fd6e6e35f51d1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7d0f55db_ca79171c",
+        "filename": "av1/common/arm/intrapred_neon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-06-21T15:27:04Z",
+      "side": 1,
+      "message": "unless this will be expanded for non-square functions, just pass one value",
+      "range": {
+        "startLine": 70,
+        "startChar": 38,
+        "endLine": 70,
+        "endChar": 43
+      },
+      "revId": "cda58156af590e9a9c65db596e1fd6e6e35f51d1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b0437370_cdbec2e6",
+        "filename": "av1/common/arm/intrapred_neon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-06-21T15:27:04Z",
+      "side": 1,
+      "message": "void(bd) here",
+      "revId": "cda58156af590e9a9c65db596e1fd6e6e35f51d1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
