@@ -3687,7 +3687,6 @@ static int read_uncompressed_header(AV1Decoder *pbi,
       if (!frame_bufs[frame_to_show].showable_frame) {
         aom_merge_corrupted_flag(&xd->corrupted, 1);
       }
-      frame_bufs[frame_to_show].showable_frame = 0;
       cm->film_grain_params = frame_bufs[frame_to_show].film_grain_params;
 
       if (cm->reset_decoder_state) {
