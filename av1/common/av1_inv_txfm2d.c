@@ -63,10 +63,10 @@ void av1_highbd_iwht4x4_16_add_c(const tran_low_t *input, uint8_t *dest8,
     a1 -= b1;
     d1 += c1;
 
-    range_check_value(a1, bd + 1);
-    range_check_value(b1, bd + 1);
-    range_check_value(c1, bd + 1);
-    range_check_value(d1, bd + 1);
+    clamp_value(a1, bd + 1);
+    clamp_value(b1, bd + 1);
+    clamp_value(c1, bd + 1);
+    clamp_value(d1, bd + 1);
 
     dest[stride * 0] = highbd_clip_pixel_add(dest[stride * 0], a1, bd);
     dest[stride * 1] = highbd_clip_pixel_add(dest[stride * 1], b1, bd);
