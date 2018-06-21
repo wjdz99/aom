@@ -724,37 +724,37 @@ void av1_iadst4_new(const int32_t *input, int32_t *output, int8_t cos_bit,
   assert(sinpi[1] + sinpi[2] == sinpi[4]);
 
   // stage 1
-  s0 = range_check_value(sinpi[1] * x0, stage_range[1] + bit);
-  s1 = range_check_value(sinpi[2] * x0, stage_range[1] + bit);
-  s2 = range_check_value(sinpi[3] * x1, stage_range[1] + bit);
-  s3 = range_check_value(sinpi[4] * x2, stage_range[1] + bit);
-  s4 = range_check_value(sinpi[1] * x2, stage_range[1] + bit);
-  s5 = range_check_value(sinpi[2] * x3, stage_range[1] + bit);
-  s6 = range_check_value(sinpi[4] * x3, stage_range[1] + bit);
+  s0 = clamp_value(sinpi[1] * x0, stage_range[1] + bit);
+  s1 = clamp_value(sinpi[2] * x0, stage_range[1] + bit);
+  s2 = clamp_value(sinpi[3] * x1, stage_range[1] + bit);
+  s3 = clamp_value(sinpi[4] * x2, stage_range[1] + bit);
+  s4 = clamp_value(sinpi[1] * x2, stage_range[1] + bit);
+  s5 = clamp_value(sinpi[2] * x3, stage_range[1] + bit);
+  s6 = clamp_value(sinpi[4] * x3, stage_range[1] + bit);
 
   // stage 2
   // NOTICE: (x0 - x2) here may use one extra bit compared to the
   // opt_range_row/col specified in av1_gen_inv_stage_range()
-  s7 = range_check_value((x0 - x2) + x3, stage_range[2]);
+  s7 = clamp_value((x0 - x2) + x3, stage_range[2]);
 
   // stage 3
-  s0 = range_check_value(s0 + s3, stage_range[3] + bit);
-  s1 = range_check_value(s1 - s4, stage_range[3] + bit);
-  s3 = range_check_value(s2, stage_range[3] + bit);
-  s2 = range_check_value(sinpi[3] * s7, stage_range[3] + bit);
+  s0 = clamp_value(s0 + s3, stage_range[3] + bit);
+  s1 = clamp_value(s1 - s4, stage_range[3] + bit);
+  s3 = clamp_value(s2, stage_range[3] + bit);
+  s2 = clamp_value(sinpi[3] * s7, stage_range[3] + bit);
 
   // stage 4
-  s0 = range_check_value(s0 + s5, stage_range[4] + bit);
-  s1 = range_check_value(s1 - s6, stage_range[4] + bit);
+  s0 = clamp_value(s0 + s5, stage_range[4] + bit);
+  s1 = clamp_value(s1 - s6, stage_range[4] + bit);
 
   // stage 5
-  x0 = range_check_value(s0 + s3, stage_range[5] + bit);
-  x1 = range_check_value(s1 + s3, stage_range[5] + bit);
-  x2 = range_check_value(s2, stage_range[5] + bit);
-  x3 = range_check_value(s0 + s1, stage_range[5] + bit);
+  x0 = clamp_value(s0 + s3, stage_range[5] + bit);
+  x1 = clamp_value(s1 + s3, stage_range[5] + bit);
+  x2 = clamp_value(s2, stage_range[5] + bit);
+  x3 = clamp_value(s0 + s1, stage_range[5] + bit);
 
   // stage 6
-  x3 = range_check_value(x3 - s3, stage_range[6] + bit);
+  x3 = clamp_value(x3 - s3, stage_range[6] + bit);
 
   output[0] = round_shift(x0, bit);
   output[1] = round_shift(x1, bit);
