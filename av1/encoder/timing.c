@@ -9,29 +9,68 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
-#include "aom_ports/mem.h"
 #include "av1/common/timing.h"
+
+/* Tables for AV1 max bitrates for different levels of main and high tier.
+ * The tables are in Kbps instead of Mbps in the specification.
+ * Note that depending on the profile, a multiplier is needed.
+ */
+
+/* Max Bitrates for levels of Main Tier in kbps */
+static int main_kbps[1 << LEVEL_BITS] = {
+  1500, 3000,  0,     0,     6000,  10000, 0,      0,      12000,  20000, 0,
+  0,    30000, 40000, 60000, 60000, 60000, 100000, 160000, 160000, 0,     0,
+  0,    0,     0,     0,     0,     0,     0,      0,      0,      0
+};
+
+/* Max Bitrates for levels of High Tier in kbps */
+static int high_kbps[1 << LEVEL_BITS] = {
+  0, 0,      0,      0,      0,      0,      0,      0,      30000,  50000, 0,
+  0, 100000, 160000, 240000, 240000, 240000, 480000, 800000, 800000, 0,     0,
+  0, 0,      0,      0,      0,      0,      0,      0,      0,      0
+};
+
+/* BitrateProfileFactor */
+static int bitrate_profile_factor[1 << PROFILE_BITS] = {
+  1, 2, 3, 0, 0, 0, 0, 0
+};
+
+int64_t max_level_bitrate(BITSTREAM_PROFILE seq_profile, int seq_level_idx,
+                          int seq_tier) {
+  int64_t bitrate;
+
+  if (seq_tier) {
+    bitrate = high_kbps[seq_level_idx] * bitrate_profile_factor[seq_profile];
+  } else {
+    bitrate = main_kbps[seq_level_idx] * bitrate_profile_factor[seq_profile];
+  }
+
+  return bitrate * 1000;
+}
 
 void set_aom_dec_model_info(aom_dec_model_info_t *decoder_model) {
   decoder_model->encoder_decoder_buffer_delay_length = 16;
   decoder_model->buffer_removal_delay_length = 10;
   decoder_model->frame_presentation_delay_length = 10;
-  decoder_model->bitrate_scale = 4;      // in units of 1024 bits/second
-  decoder_model->buffer_size_scale = 6;  // in units of 1024 bits
 }
 
-void set_dec_model_op_parameters(aom_dec_model_op_parameters_t *op_params,
-                                 aom_dec_model_info_t *decoder_model,
-                                 int64_t bitrate) {
+void set_dec_model_op_parameters(aom_dec_model_op_parameters_t *op_params) {
   op_params->decoder_model_param_present_flag = 1;
-  op_params->bitrate = (uint32_t)ROUND_POWER_OF_TWO_64(
-      bitrate, decoder_model->bitrate_scale + 6);
-  op_params->buffer_size = (uint32_t)ROUND_POWER_OF_TWO_64(
-      bitrate, decoder_model->buffer_size_scale + 4);
-  op_params->cbr_flag = 0;
   op_params->decoder_buffer_delay = 90000 >> 1;  //  0.5 s
   op_params->encoder_buffer_delay = 90000 >> 1;  //  0.5 s
   op_params->low_delay_mode_flag = 0;
   op_params->display_model_param_present_flag = 1;
-  op_params->initial_display_delay = 8;  // 8 frames delay by default
+  op_params->initial_display_delay = 8;  // 8 frames delay just in case
+}
+
+void set_resource_avaialbility_parameters(
+    aom_dec_model_op_parameters_t *op_params) {
+  op_params->decoder_model_param_present_flag = 0;
+  op_params->decoder_buffer_delay =
+      70000;  // Resource avaialbility mode default
+  op_params->encoder_buffer_delay =
+      20000;                           // Resource avaialbility mode default
+  op_params->low_delay_mode_flag = 0;  // Resource avaialbility mode default
+  op_params->display_model_param_present_flag = 1;
+  op_params->initial_display_delay = 8;  // 8 frames delay just in case
 }
