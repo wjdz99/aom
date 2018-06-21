@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "8e9cb4b9_d3e5d429",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 5050
+      },
+      "writtenOn": "2018-06-21T01:46:29Z",
+      "side": 1,
+      "message": "It\u0027s really \"is_kf means that the current TU contains a RAP\". I could change the variable name if you like, though it\u0027s part of libaom public API.",
+      "parentUuid": "edf6c7ae_bbaef192",
+      "revId": "cde35a7ef47539bd5444d4f8691af802e3b56f62",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "79667cd8_2e2a9e9b",
         "filename": "av1/av1_dx_iface.c",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2018-06-21T01:01:17Z",
       "side": 1,
       "message": "You haven\u0027t set an error handler in the aom_read_bit_buffer, so there\u0027s no error checking here that we actually had enough data the part of the sequence header we read. Should there be?",
+      "revId": "cde35a7ef47539bd5444d4f8691af802e3b56f62",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a6c496f0_cc7867e1",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 237,
+      "author": {
+        "id": 5050
+      },
+      "writtenOn": "2018-06-21T01:46:29Z",
+      "side": 1,
+      "message": "Yes, the bit reader should have error checking here. Or, I could check to make sure the payload size is sufficient for the fixed number of bits I\u0027m reading.",
+      "parentUuid": "79667cd8_2e2a9e9b",
       "revId": "cde35a7ef47539bd5444d4f8691af802e3b56f62",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
@@ -64,6 +100,24 @@
       "writtenOn": "2018-06-21T01:01:17Z",
       "side": 1,
       "message": "If I\u0027m reading this correctly, then *any* sequence header OBU that is eventually followed by a frame header or frame OBU that is a keyframe will terminate the loop, even if there is other random junk (including other non-keyframe frames) in between. Is that the behavior we want?",
+      "revId": "cde35a7ef47539bd5444d4f8691af802e3b56f62",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fef0a1fd_e4199021",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 258,
+      "author": {
+        "id": 5050
+      },
+      "writtenOn": "2018-06-21T01:46:29Z",
+      "side": 1,
+      "message": "Yes, that\u0027s the intended behavior. I think what we want is \"does this TU contain a RAP?\" rather than \"does this TU contain 100% RAPs?\". This means that some layers may not be decodeable, but we should get at least 1 frame out.",
+      "parentUuid": "248f91a6_47548330",
       "revId": "cde35a7ef47539bd5444d4f8691af802e3b56f62",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
