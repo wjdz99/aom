@@ -1740,25 +1740,8 @@ static void encode_restoration_mode(AV1_COMMON *cm,
       all_none = 0;
       chroma_none &= p == 0;
     }
-    switch (rsi->frame_restoration_type) {
-      case RESTORE_NONE:
-        aom_wb_write_bit(wb, 0);
-        aom_wb_write_bit(wb, 0);
-        break;
-      case RESTORE_WIENER:
-        aom_wb_write_bit(wb, 1);
-        aom_wb_write_bit(wb, 0);
-        break;
-      case RESTORE_SGRPROJ:
-        aom_wb_write_bit(wb, 1);
-        aom_wb_write_bit(wb, 1);
-        break;
-      case RESTORE_SWITCHABLE:
-        aom_wb_write_bit(wb, 0);
-        aom_wb_write_bit(wb, 1);
-        break;
-      default: assert(0);
-    }
+    assert(rsi->frame_restoration_type < RESTORE_TYPES);
+    aom_wb_write_literal(wb, rsi->frame_restoration_type, 2);
   }
   if (!all_none) {
     assert(cm->seq_params.sb_size == BLOCK_64X64 ||

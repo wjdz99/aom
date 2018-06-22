@@ -426,6 +426,10 @@ static const int quant_dist_lookup_table[2][4][2] = {
   { { 7, 9 }, { 5, 11 }, { 4, 12 }, { 3, 13 } },
 };
 
+static const int lr_type_map[RESTORE_TYPES] = {
+  RESTORE_NONE, RESTORE_SWITCHABLE, RESTORE_WIENER, RESTORE_SGRPROJ
+};
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif
