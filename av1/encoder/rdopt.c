@@ -7605,6 +7605,9 @@ static int64_t interpolation_filter_search(
   const InterpFilter assign_filter = cm->interp_filter;
   if (cpi->sf.skip_repeat_interpolation_filter_search && need_search) {
     match_found = find_interp_filter_in_stats(x, mbmi);
+    if (match_found != -1 && has_second_ref(mbmi)) {
+      return 0;
+    }
   }
   if (!need_search || match_found == -1) {
     set_default_interp_filters(mbmi, assign_filter);
@@ -8531,7 +8534,8 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
       restore_dst_buf(xd, orig_dst, num_planes);
       continue;
     } else if (cpi->sf.model_based_post_interp_filter_breakout &&
-               ref_best_rd != INT64_MAX && (rd / 6) > ref_best_rd) {
+               ref_best_rd != INT64_MAX && rd != INT64_MAX &&
+               (rd / 6) > ref_best_rd) {
       early_terminate = INT64_MAX;
       restore_dst_buf(xd, orig_dst, num_planes);
       if ((rd >> 4) > ref_best_rd) break;
