@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "890e445c_eaad5b6f",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1619,
+      "author": {
+        "id": 6340
+      },
+      "writtenOn": "2018-06-22T03:27:21Z",
+      "side": 1,
+      "message": "The second parameter is bits. So instead of RESTORE_TYPES, there should be a 2 here.",
+      "revId": "1da2da5b29f08ed8cdbca97ce4763da143fcf890",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
