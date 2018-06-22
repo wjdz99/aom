@@ -1615,13 +1615,8 @@ static void decode_restoration_mode(AV1_COMMON *cm,
   int all_none = 1, chroma_none = 1;
   for (int p = 0; p < num_planes; ++p) {
     RestorationInfo *rsi = &cm->rst_info[p];
-    if (aom_rb_read_bit(rb)) {
-      rsi->frame_restoration_type =
-          aom_rb_read_bit(rb) ? RESTORE_SGRPROJ : RESTORE_WIENER;
-    } else {
-      rsi->frame_restoration_type =
-          aom_rb_read_bit(rb) ? RESTORE_SWITCHABLE : RESTORE_NONE;
-    }
+    rsi->frame_restoration_type = lr_type_map[aom_rb_read_literal(rb, 2)];
+
     if (rsi->frame_restoration_type != RESTORE_NONE) {
       all_none = 0;
       chroma_none &= p == 0;
