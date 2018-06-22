@@ -32,6 +32,7 @@ int aom_rb_read_bit(struct aom_read_bit_buffer *rb) {
 
 int aom_rb_read_literal(struct aom_read_bit_buffer *rb, int bits) {
   int value = 0, bit;
+  if (bits > 31) bits = 31;
   for (bit = bits - 1; bit >= 0; bit--) value |= aom_rb_read_bit(rb) << bit;
   return value;
 }
@@ -40,6 +41,7 @@ uint32_t aom_rb_read_unsigned_literal(struct aom_read_bit_buffer *rb,
                                       int bits) {
   uint32_t value = 0;
   int bit;
+  if (bits > 32) bits = 32;
   for (bit = bits - 1; bit >= 0; bit--)
     value |= (uint32_t)aom_rb_read_bit(rb) << bit;
   return value;
