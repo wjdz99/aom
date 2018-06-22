@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "039f85ef_4592bfd8",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 261,
+      "author": {
+        "id": 6720
+      },
+      "writtenOn": "2018-06-22T00:19:16Z",
+      "side": 1,
+      "message": "Yes, it is. Buffer size is bitrate in bits/s multiplied by 1s. I just skipped the multiplication.",
+      "parentUuid": "5d904d3a_c7abc655",
+      "revId": "d60a18924d187ccc6af1aa9baa14a8ce7cb155d1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3b3f1a7a_e7be4ca6",
         "filename": "av1/decoder/obu.c",
         "patchSetId": 5
@@ -30,6 +48,24 @@
       "writtenOn": "2018-06-22T00:03:36Z",
       "side": 1,
       "message": "Should op_params[i].bitrate be set in this path to max_level_bitrate too? Likewise for buffer_size? It looks like it\u0027s unconditional on the encoder side.",
+      "revId": "d60a18924d187ccc6af1aa9baa14a8ce7cb155d1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "08cd0ea2_db2f3687",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 265,
+      "author": {
+        "id": 6720
+      },
+      "writtenOn": "2018-06-22T00:19:16Z",
+      "side": 1,
+      "message": "Bitrate would be set in the previous path. The bitrate and the buffer size are set in both cases, while the three parameters below are set to default values only in this branch (resource availability mode). When the timing_info is not signaled, there is no need to set anything because we do not know the frame rate anyway. \n\nIn the encoder, bitrate is set when the levels are chosen, to have it available if needed.",
+      "parentUuid": "3b3f1a7a_e7be4ca6",
       "revId": "d60a18924d187ccc6af1aa9baa14a8ce7cb155d1",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
