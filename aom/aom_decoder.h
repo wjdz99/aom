@@ -102,6 +102,7 @@ typedef struct aom_codec_stream_info {
  */
 typedef struct aom_codec_dec_cfg {
   unsigned int threads; /**< Maximum number of threads to use, default 1 */
+  unsigned int row_mt;  /**< Enable row based multi-threading of decoding */
   unsigned int w;       /**< Width */
   unsigned int h;       /**< Height */
   unsigned int allow_lowbitdepth; /**< Allow use of low-bitdepth coding path */

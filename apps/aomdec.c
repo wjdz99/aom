@@ -83,6 +83,8 @@ static const arg_def_t outputfile =
     ARG_DEF("o", "output", 1, "Output file name pattern (see below)");
 static const arg_def_t threadsarg =
     ARG_DEF("t", "threads", 1, "Max threads to use");
+static const arg_def_t rowmtarg =
+    ARG_DEF(NULL, "row-mt", 1, "Enable row based multi-threading");
 static const arg_def_t verbosearg =
     ARG_DEF("v", "verbose", 0, "Show version string");
 static const arg_def_t scalearg =
@@ -114,12 +116,12 @@ static const arg_def_t outallarg = ARG_DEF(
     NULL, "all-layers", 0, "Output all decoded frames of a scalable bitstream");
 
 static const arg_def_t *all_args[] = {
-  &help,           &codecarg,   &use_yv12,    &use_i420,      &flipuvarg,
-  &rawvideo,       &noblitarg,  &progressarg, &limitarg,      &skiparg,
-  &postprocarg,    &summaryarg, &outputfile,  &threadsarg,    &verbosearg,
-  &scalearg,       &fb_arg,     &md5arg,      &framestatsarg, &continuearg,
-  &outbitdeptharg, &tilem,      &tiler,       &tilec,         &isannexb,
-  &oppointarg,     &outallarg,  NULL
+  &help,        &codecarg,       &use_yv12,    &use_i420,   &flipuvarg,
+  &rawvideo,    &noblitarg,      &progressarg, &limitarg,   &skiparg,
+  &postprocarg, &summaryarg,     &outputfile,  &threadsarg, &rowmtarg,
+  &verbosearg,  &scalearg,       &fb_arg,      &md5arg,     &framestatsarg,
+  &continuearg, &outbitdeptharg, &tilem,       &tiler,      &tilec,
+  &isannexb,    &oppointarg,     &outallarg,   NULL
 };
 
 #if CONFIG_LIBYUV
@@ -501,7 +503,7 @@ static int main_loop(int argc, const char **argv_) {
   int opt_yv12 = 0;
   int opt_i420 = 0;
   int opt_raw = 0;
-  aom_codec_dec_cfg_t cfg = { 0, 0, 0, CONFIG_LOWBITDEPTH, { 1 } };
+  aom_codec_dec_cfg_t cfg = { 0, 0, 0, 0, CONFIG_LOWBITDEPTH, { 1 } };
   unsigned int output_bit_depth = 0;
   unsigned int tile_mode = 0;
   unsigned int is_annexb = 0;
@@ -601,6 +603,8 @@ static int main_loop(int argc, const char **argv_) {
       summary = 1;
     } else if (arg_match(&arg, &threadsarg, argi)) {
       cfg.threads = arg_parse_uint(&arg);
+    } else if (arg_match(&arg, &rowmtarg, argi)) {
+      cfg.row_mt = arg_parse_uint(&arg);
     } else if (arg_match(&arg, &verbosearg, argi)) {
       quiet = 0;
     } else if (arg_match(&arg, &scalearg, argi)) {

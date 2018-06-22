@@ -128,6 +128,7 @@ typedef struct AV1Decoder {
 
   int allow_lowbitdepth;
   int max_threads;
+  unsigned int row_mt;
   int inv_tile_order;
   int need_resync;   // wait for key/intra-only frame.
   int hold_ref_buf;  // hold the reference buffer.

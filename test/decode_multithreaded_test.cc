@@ -23,7 +23,7 @@
 
 namespace {
 
-static const int kNumMultiThreadDecoders = 3;
+static const int kNumMultiThreadDecoders = 6;
 
 class AV1DecodeMultiThreadedTest
     : public ::libaom_test::CodecTestWith4Params<int, int, int, int>,
@@ -43,7 +43,8 @@ class AV1DecodeMultiThreadedTest
 
     // Test cfg.threads == powers of 2.
     for (int i = 0; i < kNumMultiThreadDecoders; ++i) {
-      cfg.threads <<= 1;
+      cfg.threads = 2 << (i >> 1);
+      cfg.row_mt = i & 0x1;
       multi_thread_dec_[i] = codec_->CreateDecoder(cfg, 0);
     }
 

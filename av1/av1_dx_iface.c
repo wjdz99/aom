@@ -398,6 +398,7 @@ static aom_codec_err_t init_decoder(aom_codec_alg_priv_t *ctx) {
     // If decoding in serial mode, FrameWorker thread could create tile worker
     // thread or loopfilter thread.
     frame_worker_data->pbi->max_threads = ctx->cfg.threads;
+    frame_worker_data->pbi->row_mt = ctx->cfg.row_mt;
     frame_worker_data->pbi->inv_tile_order = ctx->invert_tile_order;
     frame_worker_data->pbi->common.large_scale_tile = ctx->tile_mode;
     frame_worker_data->pbi->common.is_annexb = ctx->is_annexb;
