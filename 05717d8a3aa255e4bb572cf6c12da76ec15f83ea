@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8167d46b_3d76296b",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1057,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2018-06-22T20:04:19Z",
+      "side": 1,
+      "message": "decode_token_or_recon_block -- The way to write this function is hard to follow. Is it possible to separate this into multiple(2?) functions?",
+      "range": {
+        "startLine": 1057,
+        "startChar": 12,
+        "endLine": 1057,
+        "endChar": 39
+      },
+      "revId": "05717d8a3aa255e4bb572cf6c12da76ec15f83ea",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "697682fd_0a7230a7",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2597,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2018-06-22T20:04:19Z",
+      "side": 1,
+      "message": "Does this need to be called twice?",
+      "range": {
+        "startLine": 2597,
+        "startChar": 6,
+        "endLine": 2597,
+        "endChar": 19
+      },
+      "revId": "05717d8a3aa255e4bb572cf6c12da76ec15f83ea",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0fc19687_5808f6f8",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2599,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2018-06-22T20:04:19Z",
+      "side": 1,
+      "message": "Better to add comments to state what is done for each decode_partition() call. Will this be refactored later?",
+      "range": {
+        "startLine": 2599,
+        "startChar": 6,
+        "endLine": 2599,
+        "endChar": 22
+      },
+      "revId": "05717d8a3aa255e4bb572cf6c12da76ec15f83ea",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
