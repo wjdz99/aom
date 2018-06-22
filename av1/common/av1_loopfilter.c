@@ -1621,10 +1621,6 @@ static TX_SIZE set_lpf_parameters(
                 params->filter_length = 6;
               }
             }
-
-            // update the level if the current block is skipped,
-            // but the previous one is not
-            level = (curr_level) ? (curr_level) : (pv_lvl);
           }
         }
       }
