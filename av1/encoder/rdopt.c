@@ -7605,6 +7605,9 @@ static int64_t interpolation_filter_search(
   const InterpFilter assign_filter = cm->interp_filter;
   if (cpi->sf.skip_repeat_interpolation_filter_search && need_search) {
     match_found = find_interp_filter_in_stats(x, mbmi);
+    if ( match_found != -1 && has_second_ref(mbmi) ) {
+      return 0;
+    }
   }
   if (!need_search || match_found == -1) {
     set_default_interp_filters(mbmi, assign_filter);
