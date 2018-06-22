@@ -195,7 +195,7 @@ class AV1SelfguidedFilterTest
   SgrFunc tst_fun_;
 };
 
-TEST_P(AV1SelfguidedFilterTest, DISABLED_SpeedTest) { RunSpeedTest(); }
+TEST_P(AV1SelfguidedFilterTest, SpeedTest) { RunSpeedTest(); }
 TEST_P(AV1SelfguidedFilterTest, CorrectnessTest) { RunCorrectnessTest(); }
 
 #if HAVE_SSE4_1
@@ -206,6 +206,11 @@ INSTANTIATE_TEST_CASE_P(SSE4_1, AV1SelfguidedFilterTest,
 #if HAVE_AVX2
 INSTANTIATE_TEST_CASE_P(AVX2, AV1SelfguidedFilterTest,
                         ::testing::Values(apply_selfguided_restoration_avx2));
+#endif
+
+#if HAVE_NEON
+INSTANTIATE_TEST_CASE_P(NEON, AV1SelfguidedFilterTest,
+                        ::testing::Values(apply_selfguided_restoration_neon));
 #endif
 
 // Test parameter list:
@@ -377,7 +382,7 @@ class AV1HighbdSelfguidedFilterTest
   SgrFunc tst_fun_;
 };
 
-TEST_P(AV1HighbdSelfguidedFilterTest, DISABLED_SpeedTest) { RunSpeedTest(); }
+TEST_P(AV1HighbdSelfguidedFilterTest, SpeedTest) { RunSpeedTest(); }
 TEST_P(AV1HighbdSelfguidedFilterTest, CorrectnessTest) { RunCorrectnessTest(); }
 
 #if HAVE_SSE4_1
@@ -395,5 +400,11 @@ INSTANTIATE_TEST_CASE_P(
     ::testing::Combine(::testing::Values(apply_selfguided_restoration_avx2),
                        ::testing::ValuesIn(highbd_params_avx2)));
 #endif
-
+#if HAVE_NEON
+const int highbd_params_neon[] = { 8, 10, 12 };
+INSTANTIATE_TEST_CASE_P(
+    NEON, AV1HighbdSelfguidedFilterTest,
+    ::testing::Combine(::testing::Values(apply_selfguided_restoration_neon),
+                       ::testing::ValuesIn(highbd_params_neon)));
+#endif
 }  // namespace
