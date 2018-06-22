@@ -7610,6 +7610,9 @@ static int64_t interpolation_filter_search(
     set_default_interp_filters(mbmi, assign_filter);
   }
   *switchable_rate = av1_get_switchable_rate(cm, x, xd);
+  if (match_found != -1 && has_second_ref(mbmi)) {
+    return 0;
+  }
   av1_build_inter_predictors_sb(cm, xd, mi_row, mi_col, orig_dst, bsize);
   model_rd_for_sb(cpi, bsize, x, xd, 0, num_planes - 1, &tmp_rate, &tmp_dist,
                   skip_txfm_sb, skip_sse_sb, NULL, NULL, NULL);
@@ -8531,7 +8534,8 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
       restore_dst_buf(xd, orig_dst, num_planes);
       continue;
     } else if (cpi->sf.model_based_post_interp_filter_breakout &&
-               ref_best_rd != INT64_MAX && (rd / 6) > ref_best_rd) {
+               ref_best_rd != INT64_MAX && rd != INT64_MAX &&
+               (rd / 6) > ref_best_rd) {
       early_terminate = INT64_MAX;
       restore_dst_buf(xd, orig_dst, num_planes);
       if ((rd >> 4) > ref_best_rd) break;
