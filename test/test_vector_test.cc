@@ -60,9 +60,27 @@ class TestVectorTest : public ::libaom_test::DecoderTest,
     expected_md5[32] = '\0';
 
     ::libaom_test::MD5 md5_res;
-    md5_res.Add(&img);
-    const char *actual_md5 = md5_res.Get();
+#if !CONFIG_LOWBITDEPTH
+    const aom_img_fmt_t shifted_fmt = (aom_img_fmt)(
+        (img.bit_depth == 8) ? img.fmt ^ (img.fmt & AOM_IMG_FMT_HIGHBITDEPTH)
+                             : img.fmt | AOM_IMG_FMT_HIGHBITDEPTH);
+    if (shifted_fmt != img.fmt && img.bit_depth == 8) {
+      aom_image_t *img_shifted =
+          aom_img_alloc(NULL, shifted_fmt, img.d_w, img.d_h, 16);
+      img_shifted->bit_depth = img.bit_depth;
+      img_shifted->monochrome = img.monochrome;
 
+      aom_img_downshift(img_shifted, &img, img.bit_depth - 8);
+      md5_res.Add(img_shifted);
+      aom_img_free(img_shifted);
+    } else {
+      md5_res.Add(&img);
+    }
+#else
+    md5_res.Add(&img);
+#endif
+
+    const char *actual_md5 = md5_res.Get();
     // Check md5 match.
     ASSERT_STREQ(expected_md5, actual_md5)
         << "Md5 checksums don't match: frame number = " << frame_number;
@@ -121,7 +139,7 @@ TEST_P(TestVectorTest, MD5Match) {
 // TODO(yaowu): Current md5 check works only when CONFIG_LOWBITDEPTH is enabled,
 // remove CONFIG_LOWBITDEPTH when md5 check is reworked to be compatible with
 // CONFIG_LOWBITDEPTH = 0
-#if CONFIG_AV1_DECODER && CONFIG_LOWBITDEPTH
+#if CONFIG_AV1_DECODER
 AV1_INSTANTIATE_TEST_CASE(
     TestVectorTest,
     ::testing::Combine(
