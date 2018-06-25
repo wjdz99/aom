@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "4f4bab80_a5849a65",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1057,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2018-06-25T11:32:28Z",
+      "side": 1,
+      "message": "We have separated the function \u0027decode_token_or_recon_block\u0027 into two functions, i.e., \u0027decode_token\u0027 and \u0027recon_block\u0027. However this would lead to code replication, i.e., \u0027decode_token\u0027 and \u0027recon_block\u0027 have the same code for traversing the transform blocks.",
+      "parentUuid": "8167d46b_3d76296b",
+      "range": {
+        "startLine": 1057,
+        "startChar": 12,
+        "endLine": 1057,
+        "endChar": 39
+      },
+      "revId": "05717d8a3aa255e4bb572cf6c12da76ec15f83ea",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "697682fd_0a7230a7",
         "filename": "av1/decoder/decodeframe.c",
         "patchSetId": 2
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "8379c7bb_6539c195",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2597,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2018-06-25T11:32:28Z",
+      "side": 1,
+      "message": "Yes. cb_offset, txb_offset and color_index_map_offset would have been incremented when decode_partition is called with \u0027is_parse\u0027 equal to 1. These offsets need to be reset to zero before calling decode_partition with \u0027is_parse\u0027 equal to 0.",
+      "parentUuid": "697682fd_0a7230a7",
+      "range": {
+        "startLine": 2597,
+        "startChar": 6,
+        "endLine": 2597,
+        "endChar": 19
+      },
+      "revId": "05717d8a3aa255e4bb572cf6c12da76ec15f83ea",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0fc19687_5808f6f8",
         "filename": "av1/decoder/decodeframe.c",
         "patchSetId": 2
@@ -59,6 +107,30 @@
       "writtenOn": "2018-06-22T20:04:19Z",
       "side": 1,
       "message": "Better to add comments to state what is done for each decode_partition() call. Will this be refactored later?",
+      "range": {
+        "startLine": 2599,
+        "startChar": 6,
+        "endLine": 2599,
+        "endChar": 22
+      },
+      "revId": "05717d8a3aa255e4bb572cf6c12da76ec15f83ea",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "35f342fb_97e056b7",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2599,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2018-06-25T11:32:28Z",
+      "side": 1,
+      "message": "Done. This part of the code would not be refactored later. In the row-mt implementation we would be calling the function \u0027decode_partition\u0027 with \u0027is_parse\u0027 flag equal to 1 for the entire frame followed by \u0027decode_partition\u0027 with \u0027is_parse\u0027 flag equal to 0.",
+      "parentUuid": "0fc19687_5808f6f8",
       "range": {
         "startLine": 2599,
         "startChar": 6,
