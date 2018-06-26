@@ -182,7 +182,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
 
   // Speed 0 for all speed features that give neutral coding performance change.
   sf->reduce_inter_modes = 1;
-  sf->prune_ext_partition_types_search_level = 1;
+  sf->prune_ext_partition_types_search_level = 0;
   sf->ml_prune_ab_partition = 1;
   sf->ml_prune_4_partition = 1;
   sf->adaptive_txb_search_level = 1;
