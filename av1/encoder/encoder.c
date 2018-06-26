@@ -5578,6 +5578,7 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
   int arf_src_index;
   int brf_src_index;
   int i;
+  cpi->td.mb.output_data = 1;
 
 #if CONFIG_BITSTREAM_DEBUG
   assert(cpi->oxcf.max_threads == 0 &&
