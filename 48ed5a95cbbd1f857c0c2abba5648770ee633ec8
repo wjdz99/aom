@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d14d334b_dd9fe164",
+        "filename": "test/test_vector_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2018-06-26T01:49:01Z",
+      "side": 1,
+      "message": "It is suggested that:\n\n#if !CONFIG_LOWBITDEPTH\n  if (img.bit_depth \u003d\u003d 8) {\n    const aom_img_fmt_t shifted_fmt \u003d\n        (aom_img_fmt)(img.fmt ^ (img.fmt \u0026 AOM_IMG_FMT_HIGHBITDEPTH));\n    if (shifted_fmt !\u003d img.fmt) {\n      ...\n    }\n  } else {\n#endif\n    md5_res.Add(\u0026img);\n#if !CONFIG_LOWBITDEPTH\n  }\n#endif",
+      "revId": "48ed5a95cbbd1f857c0c2abba5648770ee633ec8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
