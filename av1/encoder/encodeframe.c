@@ -5191,7 +5191,8 @@ static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
     (void)num_planes;
 #endif
 
-    if (!dry_run && cm->show_frame && !x->skip && bsize == BLOCK_32X32) {
+    if (!dry_run && cm->show_frame && !x->skip &&
+        x->output_data && bsize == BLOCK_32X32) {
       for (int plane = 0; plane < MAX_MB_PLANE; ++plane)
         get_training_data(x, bsize, plane);
     }
