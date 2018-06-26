@@ -4748,6 +4748,12 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
   // Reset the frame packet stamp index.
   if (cm->frame_type == KEY_FRAME) cm->current_video_frame = 0;
 
+  // Collect 32x32 blocks from all frames for now since they are relatively
+  // rare
+  cpi->td.mb.output_data = 1;
+//    (cm->frame_offset == (cpi->rc.baseline_gf_interval / 2) ||
+//     !(cm->frame_offset % 3));
+
   // NOTE:
   // (1) Move the setup of the ref_frame_flags upfront as it would be
   //     determined by the current frame properties;
