@@ -3642,6 +3642,12 @@ BEGIN_PARTITION_SEARCH:
     restore_context(x, &x_ctx, mi_row, mi_col, bsize, num_planes);
   }
 
+  const int data_ref_part = pc_tree->partitioning;
+  const int data_source_variance = get_unsigned_bits(x->source_variance);
+  const int64_t data_ref_rd = best_rdc.rdcost;
+  int64_t data_rd_horz4 = 0;
+  int64_t data_rd_vert4 = 0;
+
   // PARTITION_HORZ_4
   int partition_horz4_allowed = partition4_allowed && partition_horz_allowed;
   if (cpi->sf.prune_ext_partition_types_search_level == 2) {
@@ -3673,6 +3679,10 @@ BEGIN_PARTITION_SEARCH:
         break;
 
       ctx_prev = ctx_this;
+    }
+
+    if (sum_rdc.rdcost > 0 && sum_rdc.rdcost < INT64_MAX) {
+      data_rd_horz4 = sum_rdc.rdcost;
     }
 
     if (sum_rdc.rdcost < best_rdc.rdcost) {
@@ -3719,6 +3729,10 @@ BEGIN_PARTITION_SEARCH:
       ctx_prev = ctx_this;
     }
 
+    if (sum_rdc.rdcost > 0 && sum_rdc.rdcost < INT64_MAX) {
+      data_rd_vert4 = sum_rdc.rdcost;
+    }
+
     if (sum_rdc.rdcost < best_rdc.rdcost) {
       sum_rdc.rate += partition_cost[PARTITION_VERT_4];
       sum_rdc.rdcost = RDCOST(x->rdmult, sum_rdc.rate, sum_rdc.dist);
@@ -3729,6 +3743,45 @@ BEGIN_PARTITION_SEARCH:
     }
     restore_context(x, &x_ctx, mi_row, mi_col, bsize, num_planes);
   }
+
+#if 1
+  do {
+    if (!partition4_allowed) break;
+    FILE *fp = fopen("4_partition_data.txt", "a");
+    if (!fp) break;
+
+    if (block_size_wide[bsize] != block_size_high[bsize]) {
+      printf("\n error\n");
+      break;
+    }
+
+    // Block size, ref partition, source_variance,
+    // partition_vert_allowed, partition_horz_allowed,
+    // final partition, final rd, ref_rd, vert_rd(2),
+    // horz_rd(2), split_rd(4), horz4 rd, vert4 rd.
+    const int bs = block_size_wide[bsize];
+    fprintf(fp, "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,",
+            bs, data_ref_part, data_source_variance,
+            partition_vert_allowed, partition_horz_allowed,
+            pc_tree->partitioning,
+            (int)(AOMMIN(INT_MAX, best_rdc.rdcost)),
+            (int)(AOMMIN(INT_MAX, data_ref_rd)),
+            (int)(AOMMIN(INT_MAX, vert_rd[0])),
+            (int)(AOMMIN(INT_MAX, vert_rd[1])),
+            (int)(AOMMIN(INT_MAX, horz_rd[0])),
+            (int)(AOMMIN(INT_MAX, horz_rd[1])),
+            (int)(AOMMIN(INT_MAX, split_rd[0])),
+            (int)(AOMMIN(INT_MAX, split_rd[1])),
+            (int)(AOMMIN(INT_MAX, split_rd[2])),
+            (int)(AOMMIN(INT_MAX, split_rd[3])),
+            (int)(AOMMIN(INT_MAX, data_rd_horz4)),
+            (int)(AOMMIN(INT_MAX, data_rd_vert4))
+            );
+
+    fprintf(fp, "\n");
+    fclose(fp);
+  } while (0);
+#endif
 
   if (bsize == cm->seq_params.sb_size && best_rdc.rate == INT_MAX) {
     // Did not find a valid partition, go back and search again, with less
