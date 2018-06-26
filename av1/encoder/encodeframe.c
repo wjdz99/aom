@@ -4025,6 +4025,97 @@ BEGIN_PARTITION_SEARCH:
   // so we require that bsize is not BLOCK_128X128.
   const int partition4_allowed =
       ext_partition_allowed && bsize != BLOCK_128X128;
+
+  const int data_ref_part = pc_tree->partitioning;
+  const unsigned int data_source_variance = pb_source_variance;
+  const int data_source_variance_bits = get_unsigned_bits(pb_source_variance);
+  const int64_t data_ref_rd = best_rdc.rdcost;
+  int64_t data_rd_horz4 = 0;
+  int64_t data_rd_vert4 = 0;
+
+  unsigned int horz_4_source_var[4] = { 0 };
+  unsigned int vert_4_source_var[4] = { 0 };
+
+  if (partition4_allowed) {
+    av1_setup_src_planes(x, cpi->source, mi_row, mi_col, num_planes);
+
+    BLOCK_SIZE horz_4_bs = get_partition_subsize(bsize, PARTITION_HORZ_4);
+    BLOCK_SIZE vert_4_bs = get_partition_subsize(bsize, PARTITION_VERT_4);
+    const int src_stride = x->plane[0].src.stride;
+    const uint8_t *src = x->plane[0].src.buf;
+    for (int i = 0; i < 4; ++i) {
+      const uint8_t *horz_src =
+          src + i * block_size_high[horz_4_bs] * src_stride;
+      const uint8_t *vert_src = src + i * block_size_wide[vert_4_bs];
+      unsigned int horz_var, vert_var, sse;
+      if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
+        switch (xd->bd) {
+          case 10:
+            horz_var =
+                cpi->fn_ptr[horz_4_bs].
+                vf(horz_src, src_stride,
+                   CONVERT_TO_BYTEPTR(AV1_HIGH_VAR_OFFS_10), 0, &sse);
+            vert_var =
+                cpi->fn_ptr[vert_4_bs].
+                vf(vert_src, src_stride,
+                   CONVERT_TO_BYTEPTR(AV1_HIGH_VAR_OFFS_10), 0, &sse);
+            break;
+          case 12:
+            horz_var =
+                cpi->fn_ptr[horz_4_bs].
+                vf(horz_src, src_stride,
+                   CONVERT_TO_BYTEPTR(AV1_HIGH_VAR_OFFS_12), 0, &sse);
+            vert_var =
+                cpi->fn_ptr[vert_4_bs].
+                vf(vert_src, src_stride,
+                   CONVERT_TO_BYTEPTR(AV1_HIGH_VAR_OFFS_12), 0, &sse);
+            break;
+          case 8:
+          default:
+            horz_var =
+                cpi->fn_ptr[horz_4_bs].
+                vf(horz_src, src_stride,
+                   CONVERT_TO_BYTEPTR(AV1_HIGH_VAR_OFFS_8), 0, &sse);
+            vert_var =
+                cpi->fn_ptr[vert_4_bs].
+                vf(vert_src, src_stride,
+                   CONVERT_TO_BYTEPTR(AV1_HIGH_VAR_OFFS_8), 0, &sse);
+            break;
+        }
+        horz_4_source_var[i] =
+            ROUND_POWER_OF_TWO(horz_var, num_pels_log2_lookup[horz_4_bs]);
+        vert_4_source_var[i] =
+            ROUND_POWER_OF_TWO(vert_var, num_pels_log2_lookup[vert_4_bs]);
+      } else {
+        horz_var =
+            cpi->fn_ptr[horz_4_bs].
+            vf(horz_src, src_stride, AV1_VAR_OFFS, 0, &sse);
+        vert_var =
+            cpi->fn_ptr[vert_4_bs].
+            vf(vert_src, src_stride, AV1_VAR_OFFS, 0, &sse);
+        horz_4_source_var[i] =
+            ROUND_POWER_OF_TWO(horz_var, num_pels_log2_lookup[horz_4_bs]);
+        vert_4_source_var[i] =
+            ROUND_POWER_OF_TWO(vert_var, num_pels_log2_lookup[vert_4_bs]);
+      }
+    }
+
+#if 0
+    {
+      printf("bsize %d %d, horz size %d %d, vert size %d %d\n",
+             block_size_wide[bsize], block_size_high[bsize],
+             block_size_wide[horz_4_bs], block_size_high[horz_4_bs],
+             block_size_wide[vert_4_bs], block_size_high[vert_4_bs]);
+      printf("variance %d, horz %d %d %d %d, vert %d %d %d %d\n",
+             x->source_variance,
+             horz_4_source_var[0], horz_4_source_var[1],
+             horz_4_source_var[2], horz_4_source_var[3],
+             vert_4_source_var[0], vert_4_source_var[1],
+             vert_4_source_var[3], vert_4_source_var[2]);
+    }
+#endif
+  }
+
   int partition_horz4_allowed = partition4_allowed && partition_horz_allowed;
   int partition_vert4_allowed = partition4_allowed && partition_vert_allowed;
   if (cpi->sf.prune_ext_partition_types_search_level == 2) {
@@ -4039,7 +4130,7 @@ BEGIN_PARTITION_SEARCH:
                                 pc_tree->partitioning == PARTITION_SPLIT ||
                                 pc_tree->partitioning == PARTITION_NONE);
   }
-  if (cpi->sf.ml_prune_4_partition && partition4_allowed &&
+  if (0 && cpi->sf.ml_prune_4_partition && partition4_allowed &&
       partition_horz_allowed && partition_vert_allowed) {
     ml_prune_4_partition(cpi, x, bsize, pc_tree->partitioning, best_rdc.rdcost,
                          horz_rd, vert_rd, split_rd, &partition_horz4_allowed,
@@ -4078,9 +4169,14 @@ BEGIN_PARTITION_SEARCH:
       ctx_prev = ctx_this;
     }
 
+    if (sum_rdc.rdcost > 0 && sum_rdc.rdcost < INT64_MAX) {
+      data_rd_horz4 = sum_rdc.rdcost;
+    }
+
     if (sum_rdc.rdcost < best_rdc.rdcost) {
       sum_rdc.rate += partition_cost[PARTITION_HORZ_4];
       sum_rdc.rdcost = RDCOST(x->rdmult, sum_rdc.rate, sum_rdc.dist);
+      data_rd_horz4 = sum_rdc.rdcost;
       if (sum_rdc.rdcost < best_rdc.rdcost) {
         best_rdc = sum_rdc;
         pc_tree->partitioning = PARTITION_HORZ_4;
@@ -4121,9 +4217,14 @@ BEGIN_PARTITION_SEARCH:
       ctx_prev = ctx_this;
     }
 
+    if (sum_rdc.rdcost > 0 && sum_rdc.rdcost < INT64_MAX) {
+      data_rd_vert4 = sum_rdc.rdcost;
+    }
+
     if (sum_rdc.rdcost < best_rdc.rdcost) {
       sum_rdc.rate += partition_cost[PARTITION_VERT_4];
       sum_rdc.rdcost = RDCOST(x->rdmult, sum_rdc.rate, sum_rdc.dist);
+      data_rd_vert4 = sum_rdc.rdcost;
       if (sum_rdc.rdcost < best_rdc.rdcost) {
         best_rdc = sum_rdc;
         pc_tree->partitioning = PARTITION_VERT_4;
@@ -4131,6 +4232,58 @@ BEGIN_PARTITION_SEARCH:
     }
     restore_context(x, &x_ctx, mi_row, mi_col, bsize, num_planes);
   }
+
+#if 1
+  do {
+    if (!partition4_allowed) break;
+    FILE *fp = fopen("4_partition_data.txt", "a");
+    if (!fp) break;
+
+    if (block_size_wide[bsize] != block_size_high[bsize]) {
+      printf("\n error\n");
+      break;
+    }
+
+    // Block size, ref partition,
+    // partition_vert_allowed, partition_horz_allowed,
+    // final partition, final rd, ref_rd, vert_rd(2),
+    // horz_rd(2), split_rd(4),
+    // source_variance_bits, source_variance, horz var(4), vert_var(4),
+    // horz4 rd, vert4 rd.
+    const int bs = block_size_wide[bsize];
+    fprintf(fp, "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,"
+                "%d,%d,%d,%d,%d,%d,%d,%d,%d,",
+            bs, data_ref_part,
+            partition_vert_allowed, partition_horz_allowed,
+            pc_tree->partitioning,
+            (int)(AOMMIN(INT_MAX, best_rdc.rdcost)),
+            (int)(AOMMIN(INT_MAX, data_ref_rd)),
+            (int)(AOMMIN(INT_MAX, vert_rd[0])),
+            (int)(AOMMIN(INT_MAX, vert_rd[1])),
+            (int)(AOMMIN(INT_MAX, horz_rd[0])),
+            (int)(AOMMIN(INT_MAX, horz_rd[1])),
+            (int)(AOMMIN(INT_MAX, split_rd[0])),
+            (int)(AOMMIN(INT_MAX, split_rd[1])),
+            (int)(AOMMIN(INT_MAX, split_rd[2])),
+            (int)(AOMMIN(INT_MAX, split_rd[3])),
+            (int)(AOMMIN(INT_MAX, data_source_variance)),
+            data_source_variance_bits,
+            (int)(AOMMIN(INT_MAX, horz_4_source_var[0])),
+            (int)(AOMMIN(INT_MAX, horz_4_source_var[1])),
+            (int)(AOMMIN(INT_MAX, horz_4_source_var[2])),
+            (int)(AOMMIN(INT_MAX, horz_4_source_var[3])),
+            (int)(AOMMIN(INT_MAX, vert_4_source_var[0])),
+            (int)(AOMMIN(INT_MAX, vert_4_source_var[1])),
+            (int)(AOMMIN(INT_MAX, vert_4_source_var[2])),
+            (int)(AOMMIN(INT_MAX, vert_4_source_var[3])),
+            (int)(AOMMIN(INT_MAX, data_rd_horz4)),
+            (int)(AOMMIN(INT_MAX, data_rd_vert4))
+            );
+
+    fprintf(fp, "\n");
+    fclose(fp);
+  } while (0);
+#endif
 
   if (bsize == cm->seq_params.sb_size && best_rdc.rate == INT_MAX) {
     // Did not find a valid partition, go back and search again, with less
