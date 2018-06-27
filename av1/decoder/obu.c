@@ -803,7 +803,7 @@ int aom_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
           // required to be identical except for the contents of
           // operating_parameters_info and the amount of trailing bits.
           // TODO(yaowu): verifying redundant sequence headers are identical.
-          decoded_payload_size = seq_header_size;
+          decoded_payload_size = payload_size;
         }
         break;
       case OBU_FRAME_HEADER:
