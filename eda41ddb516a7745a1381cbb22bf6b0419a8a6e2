@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "6321ac2f_0d8c5d6a",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2018-06-27T14:34:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f5ce5869_5d17d34c",
+      "range": {
+        "startLine": 7,
+        "startChar": 26,
+        "endLine": 7,
+        "endChar": 48
+      },
+      "revId": "eda41ddb516a7745a1381cbb22bf6b0419a8a6e2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9b98471e_41e371b5",
         "filename": "av1/common/arm/mem_neon.h",
         "patchSetId": 3
@@ -45,6 +69,30 @@
       "revId": "eda41ddb516a7745a1381cbb22bf6b0419a8a6e2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b6c117aa_a048410e",
+        "filename": "av1/common/arm/mem_neon.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 427,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2018-06-27T14:34:49Z",
+      "side": 1,
+      "message": "Removed the comments.",
+      "parentUuid": "9b98471e_41e371b5",
+      "range": {
+        "startLine": 427,
+        "startChar": 26,
+        "endLine": 427,
+        "endChar": 29
+      },
+      "revId": "eda41ddb516a7745a1381cbb22bf6b0419a8a6e2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "648c16d3_d65cec07",
+        "filename": "av1/common/arm/selfguided_neon.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2018-06-27T14:34:49Z",
+      "side": 1,
+      "message": "Hi Johann,\n\nIn the code of final_filter calculation they are using const values 5 , 4 to do the rounding right shift for even, odd rows respectively.\n\nmaintained a macro with same values to reduce a duplication of value into a register \u0026 avoid doing left-shift with negative value register to achieve a right shift.",
+      "parentUuid": "c5867efb_292e7e17",
+      "range": {
+        "startLine": 29,
+        "startChar": 11,
+        "endLine": 29,
+        "endChar": 18
+      },
+      "revId": "eda41ddb516a7745a1381cbb22bf6b0419a8a6e2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "920965b8_58d7e5b3",
         "filename": "av1/common/arm/selfguided_neon.c",
         "patchSetId": 3
@@ -91,6 +163,30 @@
       "revId": "eda41ddb516a7745a1381cbb22bf6b0419a8a6e2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1ea15ee5_6707d7e1",
+        "filename": "av1/common/arm/selfguided_neon.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2018-06-27T14:34:49Z",
+      "side": 1,
+      "message": "Can be made as static inline, preferred macro as the number of arguments for function are coming around 20.",
+      "parentUuid": "920965b8_58d7e5b3",
+      "range": {
+        "startLine": 33,
+        "startChar": 1,
+        "endLine": 33,
+        "endChar": 7
+      },
+      "revId": "eda41ddb516a7745a1381cbb22bf6b0419a8a6e2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "d9755f48_22ca183c",
+        "filename": "av1/common/arm/selfguided_neon.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2018-06-27T14:34:49Z",
+      "side": 1,
+      "message": "Hi Johann,\n\nThe actual transformation is \n\n 1                     ,   x\u003d0\n Round( x/(x+1) * 256) ,   0 \u003c x \u003c 255   \n 256                   ,   x\u003d255\n\n\nWe found some difficulty in vectorizing this opearation hence we are following this approach.",
+      "parentUuid": "79d6ea25_bccf0814",
+      "range": {
+        "startLine": 84,
+        "startChar": 38,
+        "endLine": 84,
+        "endChar": 49
+      },
+      "revId": "eda41ddb516a7745a1381cbb22bf6b0419a8a6e2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "77376cd9_f46aed6f",
         "filename": "av1/common/arm/selfguided_neon.c",
         "patchSetId": 3
@@ -137,6 +257,30 @@
       "revId": "eda41ddb516a7745a1381cbb22bf6b0419a8a6e2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "839e046b_09fead50",
+        "filename": "av1/common/arm/selfguided_neon.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2018-06-27T14:34:49Z",
+      "side": 1,
+      "message": "Hi Johann,\n\nIf we make them part of the look-up table we can avoid subtraction here, but i am storing these values into dst_A16 buffer which I need to use in further final_filter calculation. \n\nSo when we load the same values in final_filter internal/fast_internal we might have to add the same value.\n\nOr if we maintain one more table for 256-A[k] then we have to load the same values into registers for further processing in this block of code.",
+      "parentUuid": "77376cd9_f46aed6f",
+      "range": {
+        "startLine": 90,
+        "startChar": 2,
+        "endLine": 98,
+        "endChar": 35
+      },
+      "revId": "eda41ddb516a7745a1381cbb22bf6b0419a8a6e2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -163,6 +307,30 @@
     },
     {
       "key": {
+        "uuid": "ae4d918e_d46ddb70",
+        "filename": "av1/common/arm/selfguided_neon.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2018-06-27T14:34:49Z",
+      "side": 1,
+      "message": "Hi Johann,\n\none_by_n_minus_1_vec is being calculated once for a block as the value of n is fixed.",
+      "parentUuid": "3133fca6_6fdec64d",
+      "range": {
+        "startLine": 103,
+        "startChar": 45,
+        "endLine": 103,
+        "endChar": 65
+      },
+      "revId": "eda41ddb516a7745a1381cbb22bf6b0419a8a6e2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f5dd5ca5_b5d3b7db",
         "filename": "av1/common/arm/selfguided_neon.c",
         "patchSetId": 3
@@ -186,6 +354,30 @@
     },
     {
       "key": {
+        "uuid": "b75adc58_e77affbb",
+        "filename": "av1/common/arm/selfguided_neon.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2018-06-27T14:34:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f5dd5ca5_b5d3b7db",
+      "range": {
+        "startLine": 121,
+        "startChar": 7,
+        "endLine": 121,
+        "endChar": 10
+      },
+      "revId": "eda41ddb516a7745a1381cbb22bf6b0419a8a6e2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2ed79d0c_20be2241",
         "filename": "av1/common/arm/selfguided_neon.c",
         "patchSetId": 3
@@ -206,6 +398,30 @@
       "revId": "eda41ddb516a7745a1381cbb22bf6b0419a8a6e2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bc9e318f_7a8bbe5f",
+        "filename": "av1/common/arm/selfguided_neon.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2018-06-27T14:34:49Z",
+      "side": 1,
+      "message": "it\u0027s not necessary. changed the other block subtraction is also into 16bit.",
+      "parentUuid": "2ed79d0c_20be2241",
+      "range": {
+        "startLine": 219,
+        "startChar": 12,
+        "endLine": 219,
+        "endChar": 21
+      },
+      "revId": "eda41ddb516a7745a1381cbb22bf6b0419a8a6e2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
