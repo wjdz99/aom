@@ -2450,7 +2450,7 @@ static void model_rd_with_dnn(const AV1_COMP *const cpi,
   features[10] = (float)sse_norm_arr[1];
   features[11] = (float)sse_norm_arr[2];
   features[12] = (float)sse_norm_arr[3];
-  features[13] = (float)sse_norm_arr[3];
+  features[13] = (float)sse_norm;
   features[14] = (float)variance;
   features[15] = (float)vdist[0];
   features[16] = (float)vdist[1];
@@ -7525,8 +7525,9 @@ static INLINE int64_t interpolation_filter_rd(
   mbmi->interp_filters = filter_sets[filter_idx];
   const int tmp_rs = av1_get_switchable_rate(cm, x, xd);
   av1_build_inter_predictors_sb(cm, xd, mi_row, mi_col, orig_dst, bsize);
-  model_rd_for_sb(cpi, bsize, x, xd, 0, num_planes - 1, &tmp_rate, &tmp_dist,
-                  &tmp_skip_sb, &tmp_skip_sse, NULL, NULL, NULL);
+  model_rd_for_sb_with_dnn(cpi, bsize, x, xd, 0, num_planes - 1, &tmp_rate,
+                           &tmp_dist, &tmp_skip_sb, &tmp_skip_sse, NULL, NULL,
+                           NULL);
   int64_t tmp_rd = RDCOST(x->rdmult, tmp_rs + tmp_rate, tmp_dist);
   if (tmp_rd < *rd) {
     *rd = tmp_rd;
@@ -7607,8 +7608,9 @@ static int64_t interpolation_filter_search(
   }
   *switchable_rate = av1_get_switchable_rate(cm, x, xd);
   av1_build_inter_predictors_sb(cm, xd, mi_row, mi_col, orig_dst, bsize);
-  model_rd_for_sb(cpi, bsize, x, xd, 0, num_planes - 1, &tmp_rate, &tmp_dist,
-                  skip_txfm_sb, skip_sse_sb, NULL, NULL, NULL);
+  model_rd_for_sb_with_dnn(cpi, bsize, x, xd, 0, num_planes - 1, &tmp_rate,
+                           &tmp_dist, skip_txfm_sb, skip_sse_sb, NULL, NULL,
+                           NULL);
   *rd = RDCOST(x->rdmult, *switchable_rate + tmp_rate, tmp_dist);
 
   if (assign_filter != SWITCHABLE || match_found != -1) {
