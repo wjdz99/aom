@@ -2426,14 +2426,22 @@ static void allocate_gf_group_bits(AV1_COMP *cpi, int64_t gf_group_bits,
     target_frame_size =
         clamp(target_frame_size, 0, AOMMIN(max_bits, (int)total_group_bits));
 
+    // frame_stats is estimated in display order rather than encoding order.
+    // For backward reference frames, we always encode:
+    // BRF_UPDATE -> LAST_BIPRED_UPDATE
+    // but display:
+    // LAST_BIPRED_UPDATE -> BRF_UPDATE
+    // Therefore, we need to take care the bit-rate allocation assignment
+    // accordingly.
     if (gf_group->update_type[frame_index] == BRF_UPDATE) {
-      // Boost up the allocated bits on BWDREF_FRAME
-      gf_group->bit_allocation[frame_index] =
-          target_frame_size + (target_frame_size >> 2);
-    } else if (gf_group->update_type[frame_index] == LAST_BIPRED_UPDATE) {
-      // Press down the allocated bits on LAST_BIPRED_UPDATE frames
-      gf_group->bit_allocation[frame_index] =
+      // Here we actually press down the allocated bits on
+      // LAST_BIPRED_UPDATE frames
+      gf_group->bit_allocation[frame_index + 1] =
           target_frame_size - (target_frame_size >> 1);
+    } else if (gf_group->update_type[frame_index] == LAST_BIPRED_UPDATE) {
+      // Here we actually boost up the allocated bits on BWDREF_FRAME
+      gf_group->bit_allocation[frame_index - 1] =
+          target_frame_size + (target_frame_size >> 2);
     } else if (gf_group->update_type[frame_index] == BIPRED_UPDATE) {
       // TODO(zoeliu): To investigate whether the allocated bits on
       // BIPRED_UPDATE frames need to be further adjusted.
