@@ -1,4 +1,3 @@
-// clang-format off
 #include <stdlib.h>
 #include "fast.h"
 
@@ -19,4 +18,3 @@ xy* fast9_detect_nonmax(const byte* im, int xsize, int ysize, int stride, int b,
 
 	return nonmax;
 }
-// clang-format on
