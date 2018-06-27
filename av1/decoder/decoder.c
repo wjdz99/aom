@@ -314,7 +314,7 @@ static void swap_frame_buffers(AV1Decoder *pbi, int frame_decoded) {
 
     // In ext-tile decoding, the camera frame header is only decoded once. So,
     // we don't release the references here.
-    if (!pbi->camera_frame_header_ready) {
+    if (!cm->large_scale_tile) {
       for (mask = pbi->refresh_frame_flags; mask; mask >>= 1) {
         const int old_idx = cm->ref_frame_map[ref_index];
         // Current thread releases the holding of reference frame.
@@ -375,7 +375,7 @@ static void swap_frame_buffers(AV1Decoder *pbi, int frame_decoded) {
     unlock_buffer_pool(pool);
   }
 
-  if (!pbi->camera_frame_header_ready) {
+  if (!cm->large_scale_tile) {
     pbi->hold_ref_buf = 0;
 
     // Invalidate these references until the next frame starts.
