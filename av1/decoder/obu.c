@@ -721,7 +721,6 @@ int aom_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
   int is_first_tg_obu_received = 1;
   int frame_header_size = 0;
   int seq_header_received = 0;
-  size_t seq_header_size = 0;
   ObuHeader obu_header;
   memset(&obu_header, 0, sizeof(obu_header));
   pbi->seen_frame_header = 0;
@@ -796,14 +795,13 @@ int aom_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
           decoded_payload_size = read_sequence_header_obu(pbi, &rb);
           if (cm->error.error_code != AOM_CODEC_OK) return -1;
 
-          seq_header_size = decoded_payload_size;
           seq_header_received = 1;
         } else {
           // Seeing another sequence header, skip as all sequence headers are
           // required to be identical except for the contents of
           // operating_parameters_info and the amount of trailing bits.
           // TODO(yaowu): verifying redundant sequence headers are identical.
-          decoded_payload_size = seq_header_size;
+          decoded_payload_size = payload_size;
         }
         break;
       case OBU_FRAME_HEADER:
