@@ -1667,7 +1667,7 @@ static INLINE void lowbd_inv_txfm2d_add_no_identity_avx2(
     if (lr_flip) {
       for (int j = 0; j < buf_size_w_div16; ++j) {
         __m256i temp[16];
-        flip_buf_av2(buf0 + 16 * j, temp, 16);
+        flip_buf_avx2(buf0 + 16 * j, temp, 16);
         int offset = txfm_size_row * (buf_size_w_div16 - 1 - j);
         transpose_16bit_16x16_avx2(temp, buf1_cur + offset);
       }
@@ -1856,7 +1856,7 @@ static INLINE void lowbd_inv_txfm2d_add_v_identity_avx2(
     if (lr_flip) {
       for (int j = 0; j < buf_size_w_div16; ++j) {
         __m256i temp[16];
-        flip_buf_av2(buf0 + 16 * j, temp, 16);
+        flip_buf_avx2(buf0 + 16 * j, temp, 16);
         transpose_16bit_16x16_avx2(temp,
                                    _buf1 + 16 * (buf_size_w_div16 - 1 - j));
       }
