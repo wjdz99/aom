@@ -5626,11 +5626,8 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
   if (oxcf->large_scale_tile)
     cm->refresh_frame_context = REFRESH_FRAME_CONTEXT_DISABLED;
 
-  cpi->refresh_last_frame = 1;
-  cpi->refresh_golden_frame = 0;
-  cpi->refresh_bwd_ref_frame = 0;
-  cpi->refresh_alt2_ref_frame = 0;
-  cpi->refresh_alt_ref_frame = 0;
+  // default reference buffers update config
+  configure_buffer_updates_firstpass(cpi, LF_UPDATE);
 
   // TODO(zoeliu@gmail.com): To support forward-KEY_FRAME and set up the
   //                         following flag accordingly.
@@ -5733,12 +5730,12 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
 
       cm->show_frame = 0;
       cm->intra_only = 0;
-      cpi->refresh_alt_ref_frame = 1;
-      cpi->refresh_last_frame = 0;
-      cpi->refresh_golden_frame = 0;
-      cpi->refresh_bwd_ref_frame = 0;
-      cpi->refresh_alt2_ref_frame = 0;
-      rc->is_src_frame_alt_ref = 0;
+
+      if (oxcf->pass < 2) {
+        // In second pass, the buffer updates configure will be set
+        // in the function av1_rc_get_second_pass_params
+        configure_buffer_updates_firstpass(cpi, ARF_UPDATE);
+      }
     }
     rc->source_alt_ref_pending = 0;
   }
@@ -5775,13 +5772,12 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
 
       cm->show_frame = 0;
       cm->intra_only = 0;
-      cpi->refresh_alt2_ref_frame = 1;
-      cpi->refresh_last_frame = 0;
-      cpi->refresh_golden_frame = 0;
-      cpi->refresh_bwd_ref_frame = 0;
-      cpi->refresh_alt_ref_frame = 0;
-      rc->is_src_frame_alt_ref = 0;
-      rc->is_src_frame_ext_arf = 0;
+
+      if (oxcf->pass < 2) {
+        // In second pass, the buffer updates configure will be set
+        // in the function av1_rc_get_second_pass_params
+        configure_buffer_updates_firstpass(cpi, INTNL_ARF_UPDATE);
+      }
     }
     rc->source_alt_ref_pending = 0;
   }
@@ -5795,13 +5791,11 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
       cm->show_frame = 0;
       cm->intra_only = 0;
 
-      cpi->refresh_bwd_ref_frame = 1;
-      cpi->refresh_last_frame = 0;
-      cpi->refresh_golden_frame = 0;
-      cpi->refresh_alt2_ref_frame = 0;
-      cpi->refresh_alt_ref_frame = 0;
-
-      rc->is_bwd_ref_frame = 1;
+      if (oxcf->pass < 2) {
+        // In second pass, the buffer updates configure will be set
+        // in the function av1_rc_get_second_pass_params
+        configure_buffer_updates_firstpass(cpi, BIPRED_UPDATE);
+      }
     }
   }
 
