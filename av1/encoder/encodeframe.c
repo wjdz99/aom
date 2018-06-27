@@ -2387,9 +2387,9 @@ static void rd_pick_sqr_partition(const AV1_COMP *const cpi, ThreadData *td,
   int tmp_partition_cost[PARTITION_TYPES];
   BLOCK_SIZE subsize;
   RD_STATS this_rdc, sum_rdc, best_rdc, pn_rdc;
-  const int bsize_at_least_8x8 = (bsize >= BLOCK_8X8);
-  int do_square_split = bsize_at_least_8x8;
-  const int pl = bsize_at_least_8x8
+  const int bsize_at_least_32x32 = (bsize >= BLOCK_32X32);
+  int do_square_split = bsize_at_least_32x32;
+  const int pl = bsize_at_least_32x32
                      ? partition_plane_context(xd, mi_row, mi_col, bsize)
                      : 0;
   const int *partition_cost =
@@ -2415,7 +2415,7 @@ static void rd_pick_sqr_partition(const AV1_COMP *const cpi, ThreadData *td,
   // Override partition costs at the edges of the frame in the same
   // way as in read_partition (see decodeframe.c)
   if (!(has_rows && has_cols)) {
-    assert(bsize_at_least_8x8 && pl >= 0);
+    assert(bsize_at_least_32x32 && pl >= 0);
     const aom_cdf_prob *partition_cdf = cm->fc->partition_cdf[pl];
     for (int i = 0; i < PARTITION_TYPES; ++i) tmp_partition_cost[i] = INT_MAX;
     if (has_cols) {
@@ -2464,7 +2464,7 @@ static void rd_pick_sqr_partition(const AV1_COMP *const cpi, ThreadData *td,
 
   // PARTITION_NONE
   if (partition_none_allowed) {
-    if (bsize_at_least_8x8) pc_tree->partitioning = PARTITION_NONE;
+    if (bsize_at_least_32x32) pc_tree->partitioning = PARTITION_NONE;
 
     rd_pick_sb_modes(cpi, tile_data, x, mi_row, mi_col, &this_rdc,
                      PARTITION_NONE, bsize, ctx_none, best_rdc.rdcost);
@@ -2474,7 +2474,7 @@ static void rd_pick_sqr_partition(const AV1_COMP *const cpi, ThreadData *td,
 
     if (none_rd) *none_rd = this_rdc.rdcost;
     if (this_rdc.rate != INT_MAX) {
-      if (bsize_at_least_8x8) {
+      if (bsize_at_least_32x32) {
         const int pt_cost = partition_cost[PARTITION_NONE] < INT_MAX
                                 ? partition_cost[PARTITION_NONE]
                                 : 0;
@@ -2493,7 +2493,7 @@ static void rd_pick_sqr_partition(const AV1_COMP *const cpi, ThreadData *td,
             num_pels_log2_lookup[bsize];
 
         best_rdc = this_rdc;
-        if (bsize_at_least_8x8) pc_tree->partitioning = PARTITION_NONE;
+        if (bsize_at_least_32x32) pc_tree->partitioning = PARTITION_NONE;
 
         pc_tree->cb_search_range = SEARCH_FULL_PLANE;
 
@@ -2896,9 +2896,9 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
   int tmp_partition_cost[PARTITION_TYPES];
   BLOCK_SIZE subsize;
   RD_STATS this_rdc, sum_rdc, best_rdc;
-  const int bsize_at_least_8x8 = (bsize >= BLOCK_8X8);
-  int do_square_split = bsize_at_least_8x8;
-  const int pl = bsize_at_least_8x8
+  const int bsize_at_least_32x32 = (bsize >= BLOCK_32X32);
+  int do_square_split = bsize_at_least_32x32;
+  const int pl = bsize_at_least_32x32
                      ? partition_plane_context(xd, mi_row, mi_col, bsize)
                      : 0;
   const int *partition_cost =
@@ -2933,15 +2933,15 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
 #endif
 
   int partition_none_allowed = has_rows && has_cols;
-  int partition_horz_allowed = has_cols && yss <= xss && bsize_at_least_8x8;
-  int partition_vert_allowed = has_rows && xss <= yss && bsize_at_least_8x8;
+  int partition_horz_allowed = has_cols && yss <= xss && bsize_at_least_32x32;
+  int partition_vert_allowed = has_rows && xss <= yss && bsize_at_least_32x32;
 
   (void)*tp_orig;
 
   // Override partition costs at the edges of the frame in the same
   // way as in read_partition (see decodeframe.c)
   if (!(has_rows && has_cols)) {
-    assert(bsize_at_least_8x8 && pl >= 0);
+    assert(bsize_at_least_32x32 && pl >= 0);
     const aom_cdf_prob *partition_cdf = cm->fc->partition_cdf[pl];
     for (int i = 0; i < PARTITION_TYPES; ++i) tmp_partition_cost[i] = INT_MAX;
     if (has_cols) {
@@ -3052,10 +3052,10 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
     // Fall back to default values in case all partition modes are rejected.
     if (partition_none_allowed == 0 && do_square_split == 0 &&
         partition_horz_allowed == 0 && partition_vert_allowed == 0) {
-      do_square_split = bsize_at_least_8x8;
+      do_square_split = bsize_at_least_32x32;
       partition_none_allowed = has_rows && has_cols;
-      partition_horz_allowed = has_cols && yss <= xss && bsize_at_least_8x8;
-      partition_vert_allowed = has_rows && xss <= yss && bsize_at_least_8x8;
+      partition_horz_allowed = has_cols && yss <= xss && bsize_at_least_32x32;
+      partition_vert_allowed = has_rows && xss <= yss && bsize_at_least_32x32;
     }
   }
 
@@ -3124,8 +3124,8 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
 BEGIN_PARTITION_SEARCH:
   if (x->must_find_valid_partition) {
     partition_none_allowed = has_rows && has_cols;
-    partition_horz_allowed = has_cols && yss <= xss && bsize_at_least_8x8;
-    partition_vert_allowed = has_rows && xss <= yss && bsize_at_least_8x8;
+    partition_horz_allowed = has_cols && yss <= xss && bsize_at_least_32x32;
+    partition_vert_allowed = has_rows && xss <= yss && bsize_at_least_32x32;
   }
   // PARTITION_NONE
   if (partition_none_allowed) {
@@ -3133,7 +3133,7 @@ BEGIN_PARTITION_SEARCH:
                      PARTITION_NONE, bsize, ctx_none, best_rdc.rdcost);
     if (none_rd) *none_rd = this_rdc.rdcost;
     if (this_rdc.rate != INT_MAX) {
-      if (bsize_at_least_8x8) {
+      if (bsize_at_least_32x32) {
         const int pt_cost = partition_cost[PARTITION_NONE] < INT_MAX
                                 ? partition_cost[PARTITION_NONE]
                                 : 0;
@@ -3152,7 +3152,7 @@ BEGIN_PARTITION_SEARCH:
             num_pels_log2_lookup[bsize];
 
         best_rdc = this_rdc;
-        if (bsize_at_least_8x8) pc_tree->partitioning = PARTITION_NONE;
+        if (bsize_at_least_32x32) pc_tree->partitioning = PARTITION_NONE;
 
         // If all y, u, v transform blocks in this partition are skippable, and
         // the dist & rate are within the thresholds, the partition search is
@@ -5097,6 +5097,7 @@ static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
   const int mi_width = mi_size_wide[bsize];
   const int mi_height = mi_size_high[bsize];
   const int is_inter = is_inter_block(mbmi);
+  if (!dry_run && cm->show_frame) printf("block type %d\n", mbmi->sb_type);
 
   if (cpi->sf.mode_pruning_based_on_two_pass_partition_search &&
       x->cb_partition_scan) {
