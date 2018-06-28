@@ -7557,6 +7557,7 @@ static INLINE int is_interp_filter_match(const INTERPOLATION_FILTER_STATS *st,
       return 0;
     }
   }
+  if (has_second_ref(mi) && st->comp_type != mi->interinter_comp.type) return 0;
   return 1;
 }
 
@@ -7579,11 +7580,11 @@ static INLINE void save_interp_filter_search_stat(MACROBLOCK *x,
   const int comp_idx = mbmi->compound_idx;
   const int offset = x->interp_filter_stats_idx[comp_idx];
   if (offset < MAX_INTERP_FILTER_STATS) {
-    INTERPOLATION_FILTER_STATS stat = {
-      mbmi->interp_filters,
-      { mbmi->mv[0], mbmi->mv[1] },
-      { mbmi->ref_frame[0], mbmi->ref_frame[1] },
-    };
+    INTERPOLATION_FILTER_STATS stat = { mbmi->interp_filters,
+                                        { mbmi->mv[0], mbmi->mv[1] },
+                                        { mbmi->ref_frame[0],
+                                          mbmi->ref_frame[1] },
+                                        mbmi->interinter_comp.type };
     x->interp_filter_stats[comp_idx][offset] = stat;
     x->interp_filter_stats_idx[comp_idx]++;
   }
@@ -8527,21 +8528,6 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
       continue;
     }
 
-    ret_val = interpolation_filter_search(
-        x, cpi, bsize, mi_row, mi_col, &tmp_dst, &orig_dst, args->single_filter,
-        &rd, &rs, &skip_txfm_sb, &skip_sse_sb);
-    if (ret_val != 0) {
-      early_terminate = INT64_MAX;
-      restore_dst_buf(xd, orig_dst, num_planes);
-      continue;
-    } else if (cpi->sf.model_based_post_interp_filter_breakout &&
-               ref_best_rd != INT64_MAX && (rd / 6) > ref_best_rd) {
-      early_terminate = INT64_MAX;
-      restore_dst_buf(xd, orig_dst, num_planes);
-      if ((rd >> 4) > ref_best_rd) break;
-      continue;
-    }
-
     if (is_comp_pred && comp_idx) {
       int rate_sum, rs2;
       int64_t dist_sum;
@@ -8686,14 +8672,19 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
       compmode_interinter_cost = best_compmode_interinter_cost;
     }
 
-    if (is_comp_pred) {
-      int tmp_rate;
-      int64_t tmp_dist;
-      av1_build_inter_predictors_sb(cm, xd, mi_row, mi_col, &orig_dst, bsize);
-      model_rd_for_sb(cpi, bsize, x, xd, 0, num_planes - 1, &tmp_rate,
-                      &tmp_dist, &skip_txfm_sb, &skip_sse_sb, plane_rate,
-                      plane_sse, plane_dist);
-      rd = RDCOST(x->rdmult, rs + tmp_rate, tmp_dist);
+    ret_val = interpolation_filter_search(
+        x, cpi, bsize, mi_row, mi_col, &tmp_dst, &orig_dst, args->single_filter,
+        &rd, &rs, &skip_txfm_sb, &skip_sse_sb);
+    if (ret_val != 0) {
+      early_terminate = INT64_MAX;
+      restore_dst_buf(xd, orig_dst, num_planes);
+      continue;
+    } else if (cpi->sf.model_based_post_interp_filter_breakout &&
+               ref_best_rd != INT64_MAX && (rd / 6) > ref_best_rd) {
+      early_terminate = INT64_MAX;
+      restore_dst_buf(xd, orig_dst, num_planes);
+      if ((rd >> 4) > ref_best_rd) break;
+      continue;
     }
 
     if (search_jnt_comp) {
