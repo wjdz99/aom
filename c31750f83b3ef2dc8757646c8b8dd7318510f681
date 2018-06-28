@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "007e87a4_62d576c7",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 889,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-28T19:29:03Z",
+      "side": 0,
+      "message": "If we actually decode the OBU and decoded_payload_size \u003e payload_size is true, we have already read beyond the data buffer. In those cases, this check detects the memory error after the fact.\n\nIn the case of a redundant sequence header, we don\u0027t decode the redundant sequence header, so decoded_payload_size is not really the number of bytes we decoded, and this check prevents us from reading beyond the end of the data buffer when we decode the next OBU. So this check serves a new purpose now.",
+      "range": {
+        "startLine": 885,
+        "startChar": 0,
+        "endLine": 889,
+        "endChar": 5
+      },
+      "revId": "c31750f83b3ef2dc8757646c8b8dd7318510f681",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
