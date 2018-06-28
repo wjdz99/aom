@@ -7634,6 +7634,7 @@ static INLINE int is_interp_filter_match(const INTERPOLATION_FILTER_STATS *st,
       return 0;
     }
   }
+  if (has_second_ref(mi) && st->comp_type != mi->interinter_comp.type) return 0;
   return 1;
 }
 
@@ -7656,11 +7657,11 @@ static INLINE void save_interp_filter_search_stat(MACROBLOCK *x,
   const int comp_idx = mbmi->compound_idx;
   const int offset = x->interp_filter_stats_idx[comp_idx];
   if (offset < MAX_INTERP_FILTER_STATS) {
-    INTERPOLATION_FILTER_STATS stat = {
-      mbmi->interp_filters,
-      { mbmi->mv[0], mbmi->mv[1] },
-      { mbmi->ref_frame[0], mbmi->ref_frame[1] },
-    };
+    INTERPOLATION_FILTER_STATS stat = { mbmi->interp_filters,
+                                        { mbmi->mv[0], mbmi->mv[1] },
+                                        { mbmi->ref_frame[0],
+                                          mbmi->ref_frame[1] },
+                                        mbmi->interinter_comp.type };
     x->interp_filter_stats[comp_idx][offset] = stat;
     x->interp_filter_stats_idx[comp_idx]++;
   }
@@ -8593,9 +8594,6 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   uint8_t best_blk_skip[MAX_MIB_SIZE * MAX_MIB_SIZE];
   MB_MODE_INFO best_mbmi = *mbmi;
   int64_t early_terminate = 0;
-  int plane_rate[MAX_MB_PLANE] = { 0 };
-  int64_t plane_sse[MAX_MB_PLANE] = { 0 };
-  int64_t plane_dist[MAX_MB_PLANE] = { 0 };
   int64_t newmv_ret_val = INT64_MAX;
   int_mv backup_mv[2] = { { 0 } };
   int backup_rate_mv = 0;
@@ -8711,6 +8709,17 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
       continue;
     }
 
+    if (is_comp_pred && comp_idx) {
+      compmode_interinter_cost = compound_type_rd(
+          cpi, x, bsize, mi_col, mi_row, cur_mv, masked_compound_used,
+          &orig_dst, &rate_mv, &rd, rd_stats, ref_best_rd);
+      if (ref_best_rd < INT64_MAX && rd / 3 > ref_best_rd) {
+        restore_dst_buf(xd, orig_dst, num_planes);
+        early_terminate = INT64_MAX;
+        continue;
+      }
+    }
+
     ret_val = interpolation_filter_search(
         x, cpi, bsize, mi_row, mi_col, &tmp_dst, &orig_dst, args->single_filter,
         &rd, &rs, &skip_txfm_sb, &skip_sse_sb);
@@ -8724,27 +8733,6 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
       restore_dst_buf(xd, orig_dst, num_planes);
       if ((rd >> 4) > ref_best_rd) break;
       continue;
-    }
-
-    if (is_comp_pred && comp_idx) {
-      compmode_interinter_cost = compound_type_rd(
-          cpi, x, bsize, mi_col, mi_row, cur_mv, masked_compound_used,
-          &orig_dst, &rate_mv, &rd, rd_stats, ref_best_rd);
-      if (ref_best_rd < INT64_MAX && rd / 3 > ref_best_rd) {
-        restore_dst_buf(xd, orig_dst, num_planes);
-        early_terminate = INT64_MAX;
-        continue;
-      }
-    }
-
-    if (is_comp_pred) {
-      int tmp_rate;
-      int64_t tmp_dist;
-      av1_build_inter_predictors_sb(cm, xd, mi_row, mi_col, &orig_dst, bsize);
-      model_rd_for_sb(cpi, bsize, x, xd, 0, num_planes - 1, &tmp_rate,
-                      &tmp_dist, &skip_txfm_sb, &skip_sse_sb, plane_rate,
-                      plane_sse, plane_dist);
-      rd = RDCOST(x->rdmult, rs + tmp_rate, tmp_dist);
     }
 
     if (search_jnt_comp) {
@@ -8791,6 +8779,16 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
     if (search_jnt_comp && cpi->sf.jnt_comp_fast_tx_search && comp_idx == 0) {
       // TODO(chengchen): this speed feature introduces big loss.
       // Need better estimation of rate distortion.
+      int dummy_rate;
+      int64_t dummy_dist;
+      int plane_rate[MAX_MB_PLANE] = { 0 };
+      int64_t plane_sse[MAX_MB_PLANE] = { 0 };
+      int64_t plane_dist[MAX_MB_PLANE] = { 0 };
+
+      model_rd_for_sb(cpi, bsize, x, xd, 0, num_planes - 1, &dummy_rate,
+                      &dummy_dist, &skip_txfm_sb, &skip_sse_sb, plane_rate,
+                      plane_sse, plane_dist);
+
       rd_stats->rate += rs;
       rd_stats->rate += plane_rate[0] + plane_rate[1] + plane_rate[2];
       rd_stats_y->rate = plane_rate[0];
