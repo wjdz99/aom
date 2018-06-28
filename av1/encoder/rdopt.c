@@ -8535,7 +8535,7 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
       restore_dst_buf(xd, orig_dst, num_planes);
       continue;
     } else if (cpi->sf.model_based_post_interp_filter_breakout &&
-               ref_best_rd != INT64_MAX && (rd / 6) > ref_best_rd) {
+               ref_best_rd != INT64_MAX && (rd > ref_best_rd * 6)) {
       early_terminate = INT64_MAX;
       restore_dst_buf(xd, orig_dst, num_planes);
       if ((rd >> 4) > ref_best_rd) break;
@@ -8576,6 +8576,9 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
 
       int best_comp_group_idx = 0;
       int best_compound_idx = 1;
+      const int orig_is_best = xd->plane[0].dst.buf == orig_dst.plane[0];
+      const BUFFER_SET *backup_buf = orig_is_best ? &tmp_dst : &orig_dst;
+      const BUFFER_SET *best_buf = orig_is_best ? &orig_dst : &tmp_dst;
       for (cur_type = COMPOUND_AVERAGE; cur_type < COMPOUND_TYPES; cur_type++) {
         if (cur_type != COMPOUND_AVERAGE && !masked_compound_used) break;
         if (!is_interinter_compound_used(cur_type, bsize)) continue;
@@ -8611,13 +8614,16 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
 
         switch (cur_type) {
           case COMPOUND_AVERAGE:
-            av1_build_inter_predictors_sby(cm, xd, mi_row, mi_col, &orig_dst,
-                                           bsize);
+            // no need to call av1_build_inter_predictors_sby
+            // 1. COMPOUND_AVERAGE is always the first candidate
+            // 2. av1_build_inter_predictors_sby has been called by
+            // interpolation_filter_search
             av1_subtract_plane(x, bsize, 0);
-            rd = estimate_yrd_for_sb(cpi, bsize, x, &rate_sum, &dist_sum,
-                                     &tmp_skip_txfm_sb, &tmp_skip_sse_sb,
-                                     INT64_MAX);
-            if (rd != INT64_MAX)
+            int64_t est_rd = estimate_yrd_for_sb(cpi, bsize, x, &rate_sum,
+                                                 &dist_sum, &tmp_skip_txfm_sb,
+                                                 &tmp_skip_sse_sb, INT64_MAX);
+            restore_dst_buf(xd, *backup_buf, num_planes);
+            if (est_rd != INT64_MAX)
               best_rd_cur =
                   RDCOST(x->rdmult, rs2 + rate_mv + rate_sum, dist_sum);
             break;
@@ -8677,23 +8683,22 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
           rate_mv = best_tmp_rate_mv;
         }
       }
-
       if (ref_best_rd < INT64_MAX && best_rd_compound / 3 > ref_best_rd) {
         restore_dst_buf(xd, orig_dst, num_planes);
         early_terminate = INT64_MAX;
         continue;
       }
       compmode_interinter_cost = best_compmode_interinter_cost;
-    }
-
-    if (is_comp_pred) {
-      int tmp_rate;
-      int64_t tmp_dist;
-      av1_build_inter_predictors_sb(cm, xd, mi_row, mi_col, &orig_dst, bsize);
-      model_rd_for_sb(cpi, bsize, x, xd, 0, num_planes - 1, &tmp_rate,
-                      &tmp_dist, &skip_txfm_sb, &skip_sse_sb, plane_rate,
-                      plane_sse, plane_dist);
-      rd = RDCOST(x->rdmult, rs + tmp_rate, tmp_dist);
+      restore_dst_buf(xd, *best_buf, num_planes);
+      if (mbmi->interinter_comp.type != COMPOUND_AVERAGE) {
+        int tmp_rate;
+        int64_t tmp_dist;
+        av1_build_inter_predictors_sb(cm, xd, mi_row, mi_col, &orig_dst, bsize);
+        model_rd_for_sb(cpi, bsize, x, xd, 0, num_planes - 1, &tmp_rate,
+                        &tmp_dist, &skip_txfm_sb, &skip_sse_sb, plane_rate,
+                        plane_sse, plane_dist);
+        rd = RDCOST(x->rdmult, rs + tmp_rate, tmp_dist);
+      }
     }
 
     if (search_jnt_comp) {
