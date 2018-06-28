@@ -1,7 +1,5 @@
-Next Release
-  - Incompatible changes:
-    The AV1 encoder's default keyframe interval changed to 128 from 9999.
-    Support for armv6 was removed.
+2018-06-28 v1.0.0 "AOMedia Video 1 verions 1.0.0"
+  - AV1 bitstream v1.0.0
 
 2016-04-07 v0.1.0 "AOMedia Codec 1"
   This release is the first Alliance for Open Media codec.
