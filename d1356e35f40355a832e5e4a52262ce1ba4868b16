@@ -25,6 +25,29 @@
     },
     {
       "key": {
+        "uuid": "3f9b7728_94c65d4c",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 510,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2018-06-29T16:12:13Z",
+      "side": 1,
+      "message": "Thanks for looking into it. But, the above part(mi_row) shouldn\u0027t be included since strides is already adjusted.",
+      "range": {
+        "startLine": 510,
+        "startChar": 22,
+        "endLine": 510,
+        "endChar": 68
+      },
+      "revId": "d1356e35f40355a832e5e4a52262ce1ba4868b16",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "102f1988_6972d7c4",
         "filename": "av1/decoder/obu.c",
         "patchSetId": 2
