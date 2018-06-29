@@ -591,8 +591,6 @@ void av1_temporal_filter(AV1_COMP *cpi, int distance) {
     frames_to_blur = 1;
   }
 
-  int which_arf = gf_group->arf_update_idx[gf_group->index];
-
 #if USE_GF16_MULTI_LAYER
   if (cpi->rc.baseline_gf_interval == 16) {
     // Identify the index to the current ARF.
@@ -607,6 +605,25 @@ void av1_temporal_filter(AV1_COMP *cpi, int distance) {
     assert(arf_idx < num_arfs_in_gf);
   }
 #endif  // USE_GF16_MULTI_LAYER
+#if MY_GF_4_STRUCT
+  if (gf_group->update_type[gf_group->index] == ARF_UPDATE) {
+    if (strength == 0 && frames_to_blur == 1)
+      cpi->is_arf_filter_off[0] = 1;
+    else
+      cpi->is_arf_filter_off[0] = 0;
+    cpi->common.showable_frame = cpi->is_arf_filter_off[0];
+  } else {
+    cpi->is_arf_filter_off[1] = 1;
+    cpi->common.showable_frame = 1;
+
+    // Since we decide not to apply filter on this frame
+    // we can directly return the source and skip the
+    // following code
+    cpi->alt_ref_buffer = cpi->alt_ref_source->img;
+    return;
+  }
+#else
+  int which_arf = gf_group->arf_update_idx[gf_group->index];
 
   // Set the temporal filtering status for the corresponding OVERLAY frame
   if (strength == 0 && frames_to_blur == 1)
@@ -614,6 +631,7 @@ void av1_temporal_filter(AV1_COMP *cpi, int distance) {
   else
     cpi->is_arf_filter_off[which_arf] = 0;
   cpi->common.showable_frame = cpi->is_arf_filter_off[which_arf];
+#endif
 
   frames_to_blur_backward = (frames_to_blur / 2);
   frames_to_blur_forward = ((frames_to_blur - 1) / 2);

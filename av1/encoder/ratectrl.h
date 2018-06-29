@@ -12,6 +12,8 @@
 #ifndef AV1_ENCODER_RATECTRL_H_
 #define AV1_ENCODER_RATECTRL_H_
 
+#include "config/aom_config.h"
+
 #include "aom/aom_codec.h"
 #include "aom/aom_integer.h"
 
@@ -23,6 +25,19 @@ extern "C" {
 
 // Bits Per MB at different Q (Multiplied by 512)
 #define BPER_MB_NORMBITS 9
+
+#if CONFIG_NEW_LAYER_STRUCT
+#define FIX_GF_INTERVAL_LENGTH 1
+#define FIXED_GF_LENGTH 4
+#define MY_GF_4_STRUCT 1
+#else
+#define FIX_GF_INTERVAL_LENGTH 0
+#endif
+
+// My debug output flags
+#define MY_DUMP_FILES 0
+#define MY_DUMP_BIT_USAGE 0
+#define FILE_NUM "2"
 
 #define MIN_GF_INTERVAL 4
 #define MAX_GF_INTERVAL 16
