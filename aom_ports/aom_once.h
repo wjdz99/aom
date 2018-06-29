@@ -17,22 +17,22 @@
 /* Implement a function wrapper to guarantee initialization
  * thread-safety for library singletons.
  *
- * NOTE: These functions use static locks, and can only be
+ * NOTE: This function uses static locks, and can only be
  * used with one common argument per compilation unit. So
  *
  * file1.c:
- *   aom_once(foo);
+ *   once(foo);
  *   ...
- *   aom_once(foo);
+ *   once(foo);
  *
- *   file2.c:
- *     aom_once(bar);
+ * file2.c:
+ *   once(bar);
  *
  * will ensure foo() and bar() are each called only once, but in
  *
  * file1.c:
- *   aom_once(foo);
- *   aom_once(bar):
+ *   once(foo);
+ *   once(bar):
  *
  * bar() will never be called because the lock is used up
  * by the call to foo().
@@ -123,10 +123,7 @@ static void once(void (*func)(void)) {
 }
 
 #else
-/* No-op version that performs no synchronization. *_rtcd() is idempotent,
- * so as long as your platform provides atomic loads/stores of pointers
- * no synchronization is strictly necessary.
- */
+/* Default version that performs no synchronization. */
 
 static void once(void (*func)(void)) {
   static int done;
