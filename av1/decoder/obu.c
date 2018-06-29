@@ -507,8 +507,9 @@ static uint32_t read_and_decode_one_tile_list(AV1Decoder *pbi,
             (plane > 0) ? 2 * cur_frame->strides[1] : 2 * cur_frame->strides[0];
       }
 
-      bufs[plane] += mi_row * (MI_SIZE >> shift_y) * strides[plane] +
-                     mi_col * (MI_SIZE >> shift_x);
+      bufs[plane] += (mi_row * (MI_SIZE >> shift_y) * strides[plane] +
+                      mi_col * (MI_SIZE >> shift_x)) *
+                     (1 + is_hbd);
 
       int w, h;
       w = (plane > 0 && shift_x > 0) ? ((tile_width_in_pixels + 1) >> shift_x)
