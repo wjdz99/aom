@@ -2001,7 +2001,7 @@ static const unsigned char gf16_multi_layer_params[][GF_FRAME_PARAMS] = {
 };
 
 // === GF Group of 16 ===
-static void define_gf_group_structure_16(AV1_COMP *cpi) {
+static int define_gf_group_structure_16(AV1_COMP *cpi) {
   RATE_CONTROL *const rc = &cpi->rc;
   TWO_PASS *const twopass = &cpi->twopass;
   GF_GROUP *const gf_group = &twopass->gf_group;
@@ -2127,18 +2127,352 @@ static void define_gf_group_structure_16(AV1_COMP *cpi) {
     }
     start_frame_index = end_frame_index + 1;
   }
+  return gf_update_frames;
 }
 #endif  // USE_GF16_MULTI_LAYER
 
-static void define_gf_group_structure(AV1_COMP *cpi) {
+#if MY_GF_4_STRUCT
+#define GF_INTERVAL_4 4
+#define GF_FRAME_PARAMS (4 + REF_FRAMES + INTER_REFS_PER_FRAME + 1)
+
+static const unsigned char gf4_multi_layer_params[][GF_FRAME_PARAMS] = {
+  {
+      // gf_group->index == 0 (Frame 0)
+      // It can also be KEY frame. Will assign the proper value
+      // in define_gf_group_structure
+      OVERLAY_UPDATE,  // update_type (default value)
+      0,               // arf_src_offset
+      0,               // brf_src_offset
+
+      GOLDEN_FRAME,  // Index (current) of reference to get updated
+
+      // References update (will be used for the next frame to be coded)
+      // Will be used in the function update_reference_frames().
+      LAST_FRAME,     // ==> LAST_FRAME
+      LAST2_FRAME,    // ==> LAST2_FRAME
+      LAST3_FRAME,    // ==> LAST3_FRAME
+      GOLDEN_FRAME,   // ==> GOLDEN_FRAME
+      BWDREF_FRAME,   // ==> BWDREF_FRAME
+      ALTREF2_FRAME,  // ==> ALTREF2_FRAME
+      ALTREF_FRAME,   // ==> ALTREF_FRAME
+      REF_FRAMES,     // ==> REF_FRAMES
+
+      // refresh flags (use previous flags)
+      1,  // LAST_FRAME
+      1,  // LAST2_FRAME
+      1,  // LAST3_FRAME
+      1,  // GOLDEN_FRAME
+      1,  // BWDREF_FRAME
+      1,  // ALTREF2_FRAME
+      1,  // ALTREF_FRAME
+      1   // REF_FRAMES
+  },
+  {
+      // gf_group->index == 1 (Frame 4)
+      ARF_UPDATE,         // update_type
+      GF_INTERVAL_4 - 1,  // arf_src_offset
+      0,                  // brf_src_offset
+
+      ALTREF_FRAME,  // Index (current) of reference to get updated
+
+      // References update (will be used for the next frame to be coded)
+      LAST_FRAME,     // ==> LAST_FRAME
+      LAST2_FRAME,    // ==> LAST2_FRAME
+      LAST3_FRAME,    // ==> LAST3_FRAME
+      GOLDEN_FRAME,   // ==> GOLDEN_FRAME
+      BWDREF_FRAME,   // ==> BWDREF_FRAME
+      ALTREF2_FRAME,  // ==> ALTREF2_FRAME
+      ALTREF_FRAME,   // ==> ALTREF_FRAME
+      REF_FRAMES,     // ==> REF_FRAMES
+
+      // refresh flags (use previous flags)
+      0,  // LAST_FRAME
+      0,  // LAST2_FRAME
+      0,  // LAST3_FRAME
+      0,  // GOLDEN_FRAME
+      0,  // BWDREF_FRAME
+      0,  // ALTREF2_FRAME
+      1,  // ALTREF_FRAME
+      0   // REF_FRAMES
+  },
+  {
+      // gf_group->index == 2 (Frame 2)
+      INTNL_ARF_UPDATE,          // update_type
+      (GF_INTERVAL_4 >> 1) - 1,  // arf_src_offset
+      0,                         // brf_src_offset
+
+      ALTREF2_FRAME,  // Index (current) of reference to get updated
+
+      // References update (will be used for the next frame to be coded)
+      LAST_FRAME,     // ==> LAST_FRAME
+      LAST2_FRAME,    // ==> LAST2_FRAME
+      LAST3_FRAME,    // ==> LAST3_FRAME
+      GOLDEN_FRAME,   // ==> GOLDEN_FRAME
+      BWDREF_FRAME,   // ==> BWDREF_FRAME
+      ALTREF2_FRAME,  // ==> ALTREF2_FRAME
+      ALTREF_FRAME,   // ==> ALTREF_FRAME
+      REF_FRAMES,     // ==> REF_FRAMES
+
+      // refresh flags (use previous flags)
+      0,  // LAST_FRAME
+      0,  // LAST2_FRAME
+      0,  // LAST3_FRAME
+      0,  // GOLDEN_FRAME
+      0,  // BWDREF_FRAME
+      1,  // ALTREF2_FRAME
+      0,  // ALTREF_FRAME
+      0   // REF_FRAMES
+  },
+  {
+      // gf_group->index == 3 (Frame 1)
+      LAST_BIPRED_UPDATE,  // update_type
+      0,                   // arf_src_offset
+      0,                   // brf_src_offset
+
+      LAST3_FRAME,  // Index (current) of reference to get updated
+
+      // References update (will be used for the next frame to be coded)
+      LAST3_FRAME,    // ==> LAST_FRAME
+      LAST_FRAME,     // ==> LAST2_FRAME
+      LAST2_FRAME,    // ==> LAST3_FRAME
+      GOLDEN_FRAME,   // ==> GOLDEN_FRAME
+      BWDREF_FRAME,   // ==> BWDREF_FRAME
+      ALTREF2_FRAME,  // ==> ALTREF2_FRAME
+      ALTREF_FRAME,   // ==> ALTREF_FRAME
+      REF_FRAMES,     // ==> REF_FRAMES
+
+      // refresh flags (use previous flags)
+      0,  // LAST_FRAME
+      0,  // LAST2_FRAME
+      1,  // LAST3_FRAME
+      0,  // GOLDEN_FRAME
+      0,  // BWDREF_FRAME
+      0,  // ALTREF2_FRAME
+      0,  // ALTREF_FRAME
+      0   // REF_FRAMES
+  },
+
+  {
+      // gf_group->index == 4 (Frame 2 - OVERLAY)
+      INTNL_OVERLAY_UPDATE,  // update_type
+      0,                     // arf_src_offset
+      0,                     // brf_src_offset
+
+      ALTREF2_FRAME,  // Index (current) of reference to get updated
+
+      // References update (will be used for the next frame to be coded)
+      ALTREF2_FRAME,  // ==> LAST_FRAME
+      LAST_FRAME,     // ==> LAST2_FRAME
+      LAST2_FRAME,    // ==> LAST3_FRAME
+      GOLDEN_FRAME,   // ==> GOLDEN_FRAME
+      BWDREF_FRAME,   // ==> BWDREF_FRAME
+      LAST3_FRAME,    // ==> ALTREF2_FRAME
+      ALTREF_FRAME,   // ==> ALTREF_FRAME
+      REF_FRAMES,     // ==> REF_FRAMES
+
+      // refresh flags (use previous flags)
+      0,  // LAST_FRAME
+      0,  // LAST2_FRAME
+      1,  // LAST3_FRAME
+      0,  // GOLDEN_FRAME
+      0,  // BWDREF_FRAME
+      1,  // ALTREF2_FRAME
+      0,  // ALTREF_FRAME
+      0   // REF_FRAMES
+  },
+  {
+      // gf_group->index == 5 (Frame 3)
+      LF_UPDATE,  // update_type
+      0,          // arf_src_offset
+      0,          // brf_src_offset
+
+      LAST3_FRAME,  // Index (current) of reference to get updated
+
+      // References update (will be used for the next frame to be coded)
+      LAST3_FRAME,    // ==> LAST_FRAME
+      LAST_FRAME,     // ==> LAST2_FRAME
+      LAST2_FRAME,    // ==> LAST3_FRAME
+      GOLDEN_FRAME,   // ==> GOLDEN_FRAME
+      BWDREF_FRAME,   // ==> BWDREF_FRAME
+      ALTREF2_FRAME,  // ==> ALTREF2_FRAME
+      ALTREF_FRAME,   // ==> ALTREF_FRAME
+      REF_FRAMES,     // ==> REF_FRAMES
+
+      // refresh flags (use previous flags)
+      0,  // LAST_FRAME
+      0,  // LAST2_FRAME
+      1,  // LAST3_FRAME
+      0,  // GOLDEN_FRAME
+      0,  // BWDREF_FRAME
+      0,  // ALTREF2_FRAME
+      0,  // ALTREF_FRAME
+      0   // REF_FRAMES
+  }
+};
+
+static int update_type_2_rf_level(FRAME_UPDATE_TYPE update_type) {
+  // Derive rf_level from update_type
+  switch (update_type) {
+    case LF_UPDATE: return INTER_NORMAL;
+    case ARF_UPDATE: return GF_ARF_STD;
+    case OVERLAY_UPDATE: return INTER_NORMAL;
+    case BRF_UPDATE: return GF_ARF_LOW;
+    case LAST_BIPRED_UPDATE: return INTER_NORMAL;
+    case BIPRED_UPDATE: return INTER_NORMAL;
+    case INTNL_ARF_UPDATE: return GF_ARF_LOW;
+    case INTNL_OVERLAY_UPDATE: return INTER_NORMAL;
+    default: return INTER_NORMAL;
+  }
+}
+
+static void gf4_arf_index_handling(AV1_COMP *cpi, int frame_index) {
+  TWO_PASS *const twopass = &cpi->twopass;
+  GF_GROUP *const gf_group = &twopass->gf_group;
+  // position for the internal overlay frame
+  const int ovrly_pos = 4;
+
+  // spacial handle for ARF and KEY frames
+  if (frame_index <= 1) {
+    gf_group->arf_update_idx[frame_index] = 0;
+    return;
+  }
+
+  if (frame_index <= ovrly_pos) {
+    gf_group->arf_update_idx[frame_index] = 1;
+  } else {
+    gf_group->arf_update_idx[frame_index] = 0;
+  }
+}
+
+static void gf4_arf_position_handling(AV1_COMP *cpi) {
+  cpi->arf_pos_for_ovrly[0] = 6;
+  cpi->arf_pos_for_ovrly[1] = 4;
+
+  cpi->arf_pos_in_gf[0] = 1;
+  cpi->arf_pos_in_gf[1] = 2;
+}
+
+static int define_gf_group_structure_4(AV1_COMP *cpi) {
+  RATE_CONTROL *const rc = &cpi->rc;
+  TWO_PASS *const twopass = &cpi->twopass;
+  GF_GROUP *const gf_group = &twopass->gf_group;
+  const int key_frame = cpi->common.frame_type == KEY_FRAME;
+
+  assert(rc->baseline_gf_interval == GF_INTERVAL_4);
+
+  const int gf_update_frames = rc->baseline_gf_interval + 2;
+  int frame_index;
+
+  for (frame_index = 0; frame_index < gf_update_frames; ++frame_index) {
+    int param_idx = 0;
+
+    gf_group->bidir_pred_enabled[frame_index] = 0;
+
+    if (frame_index == 0) {
+      // gf_group->arf_src_offset[frame_index] = 0;
+      gf_group->brf_src_offset[frame_index] = 0;
+      gf_group->bidir_pred_enabled[frame_index] = 0;
+
+      // For key frames the frame target rate is already set and it
+      // is also the golden frame.
+      if (key_frame) continue;
+
+      gf_group->update_type[frame_index] =
+          gf4_multi_layer_params[frame_index][param_idx++];
+
+      if (rc->source_alt_ref_active) {
+        gf_group->update_type[frame_index] = OVERLAY_UPDATE;
+      } else {
+        gf_group->update_type[frame_index] = GF_UPDATE;
+      }
+      param_idx++;
+    } else {
+      gf_group->update_type[frame_index] =
+          gf4_multi_layer_params[frame_index][param_idx++];
+    }
+
+    // set-up arf_update_idx
+    gf4_arf_index_handling(cpi, frame_index);
+
+    // setup parameters
+    gf_group->rf_level[frame_index] =
+        update_type_2_rf_level(gf_group->update_type[frame_index]);
+
+    // == arf_src_offset ==
+    gf_group->arf_src_offset[frame_index] =
+        gf4_multi_layer_params[frame_index][param_idx++];
+
+    // == brf_src_offset ==
+    gf_group->brf_src_offset[frame_index] =
+        gf4_multi_layer_params[frame_index][param_idx++];
+
+    // == refresh_idx ==
+    gf_group->refresh_idx[frame_index] =
+        gf4_multi_layer_params[frame_index][param_idx++];
+
+    // == ref_fb_idx_map ==
+    for (int ref_idx = 0; ref_idx < REF_FRAMES; ++ref_idx)
+      gf_group->ref_fb_idx_map[frame_index][ref_idx] =
+          gf4_multi_layer_params[frame_index][param_idx++];
+
+    // == refresh_flag ==
+    for (int ref_idx = 0; ref_idx < REF_FRAMES; ++ref_idx)
+      gf_group->refresh_flag[frame_index][ref_idx] =
+          gf4_multi_layer_params[frame_index][param_idx++];
+  }
+
+  // NOTE: We need to configure the frame at the end of the sequence + 1 that
+  // will
+  //       be the start frame for the next group. Otherwise prior to the call to
+  //       av1_rc_get_second_pass_params() the data will be undefined.
+  gf_group->arf_update_idx[frame_index] = 0;
+  gf_group->arf_ref_idx[frame_index] = 0;
+
+  if (rc->source_alt_ref_pending) {
+    gf_group->update_type[frame_index] = OVERLAY_UPDATE;
+    gf_group->rf_level[frame_index] = INTER_NORMAL;
+    /*
+    cpi->arf_pos_in_gf[0] = 1;
+    if (cpi->num_extra_arfs) {
+      // Overwrite the update_type for extra-ARF's corresponding internal
+      // OVERLAY's: Change from LF_UPDATE to INTNL_OVERLAY_UPDATE.
+      for (int i = cpi->num_extra_arfs; i > 0; --i) {
+        cpi->arf_pos_in_gf[i] =
+            (i == cpi->num_extra_arfs ? 2 : cpi->arf_pos_for_ovrly[i + 1] + 1);
+
+        gf_group->update_type[cpi->arf_pos_for_ovrly[i]] = INTNL_OVERLAY_UPDATE;
+        gf_group->rf_level[cpi->arf_pos_for_ovrly[i]] = INTER_NORMAL;
+      }
+    }
+    */
+  } else {
+    gf_group->update_type[frame_index] = GF_UPDATE;
+    gf_group->rf_level[frame_index] = GF_ARF_STD;
+  }
+
+  gf_group->bidir_pred_enabled[frame_index] = 0;
+  gf_group->brf_src_offset[frame_index] = 0;
+
+  gf4_arf_position_handling(cpi);
+
+  return gf_update_frames;
+}
+#endif
+
+static int define_gf_group_structure(AV1_COMP *cpi) {
   RATE_CONTROL *const rc = &cpi->rc;
 
 #if USE_GF16_MULTI_LAYER
   if (rc->baseline_gf_interval == 16) {
-    define_gf_group_structure_16(cpi);
-    return;
+    return define_gf_group_structure_16(cpi);
   }
 #endif  // USE_GF16_MULTI_LAYER
+#if MY_GF_4_STRUCT
+  if (rc->source_alt_ref_pending && rc->baseline_gf_interval == 4) {
+    // used only if arf is allowed
+    return define_gf_group_structure_4(cpi);
+  }
+#endif
 
   TWO_PASS *const twopass = &cpi->twopass;
   GF_GROUP *const gf_group = &twopass->gf_group;
@@ -2351,6 +2685,8 @@ static void define_gf_group_structure(AV1_COMP *cpi) {
 
   gf_group->bidir_pred_enabled[frame_index] = 0;
   gf_group->brf_src_offset[frame_index] = 0;
+
+  return frame_index;
 }
 
 static void allocate_gf_group_bits(AV1_COMP *cpi, int64_t gf_group_bits,
@@ -2370,8 +2706,19 @@ static void allocate_gf_group_bits(AV1_COMP *cpi, int64_t gf_group_bits,
   double err_fraction;
   int ext_arf_boost[MAX_EXT_ARFS];
 
-  define_gf_group_structure(cpi);
+  int gf_frames_num = define_gf_group_structure(cpi);
 
+#if MY_DUMP_FILES
+  {
+    FILE *fid = fopen("GF_structure" FILE_NUM ".txt", "a");
+    fprintf(fid, "%d: ", rc->baseline_gf_interval);
+    for (int f = 0; f <= gf_frames_num; ++f) {
+      fprintf(fid, "[%d %d]", f, gf_group->update_type[f]);
+    }
+    fprintf(fid, "\n");
+    fclose(fid);
+  }
+#endif
   av1_zero_array(ext_arf_boost, MAX_EXT_ARFS);
 
   key_frame = cpi->common.frame_type == KEY_FRAME;
@@ -2438,10 +2785,19 @@ static void allocate_gf_group_bits(AV1_COMP *cpi, int64_t gf_group_bits,
       // TODO(zoeliu): To investigate whether the allocated bits on
       // BIPRED_UPDATE frames need to be further adjusted.
       gf_group->bit_allocation[frame_index] = target_frame_size;
+#if MY_GF_4_STRUCT
+    } else if (gf_group->update_type[frame_index] == INTNL_OVERLAY_UPDATE) {
+      gf_group->bit_allocation[frame_index] =
+          target_frame_size + (target_frame_size >> 2);
+    } else {
+      assert(gf_group->update_type[frame_index] == LF_UPDATE);
+      gf_group->bit_allocation[frame_index] = target_frame_size;
+#else
     } else {
       assert(gf_group->update_type[frame_index] == LF_UPDATE ||
              gf_group->update_type[frame_index] == INTNL_OVERLAY_UPDATE);
       gf_group->bit_allocation[frame_index] = target_frame_size;
+#endif
     }
 
     ++frame_index;
@@ -2476,6 +2832,16 @@ static void allocate_gf_group_bits(AV1_COMP *cpi, int64_t gf_group_bits,
       }
     }
   }
+#if MY_DUMP_BIT_USAGE
+  {
+    FILE *fid = fopen("bit_alloc" FILE_NUM ".txt", "a");
+    for (i = 0; i < frame_index; ++i) {
+      fprintf(fid, "[%d %d]\n", i, gf_group->bit_allocation[i]);
+    }
+    fprintf(fid, "\n");
+    fclose(fid);
+  }
+#endif
 }
 
 // Analyse and define a gf/arf group.
@@ -2489,7 +2855,9 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   int i;
 
   double boost_score = 0.0;
+#if !FIX_GF_INTERVAL_LENGTH
   double old_boost_score = 0.0;
+#endif
   double gf_group_err = 0.0;
 #if GROUP_ADAPTIVE_MAXQ
   double gf_group_raw_error = 0.0;
@@ -2602,7 +2970,12 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
     gf_group_skip_pct += this_frame->intra_skip_pct;
     gf_group_inactive_zone_rows += this_frame->inactive_zone_rows;
 
-    if (EOF == input_stats(twopass, &next_frame)) break;
+    if (EOF == input_stats(twopass, &next_frame)) {
+      FILE *fid = fopen("GF_structure" FILE_NUM ".txt", "a");
+      fprintf(fid, "EOF (%d): ", i);
+      fclose(fid);
+      break;
+    }
 
     // Test for the case where there is a brief flash but the prediction
     // quality back to an earlier frame is then restored.
@@ -2644,6 +3017,10 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
         decay_accumulator *
         calc_frame_boost(cpi, &next_frame, this_frame_mv_in_out, GF_MAX_BOOST);
 
+#if FIX_GF_INTERVAL_LENGTH
+    if (i == (FIXED_GF_LENGTH + 1)) break;
+#else
+    // Skip breaking condition for FIX_GF_INTERVAL_LENGTH
     // Break out conditions.
     if (
         // Break at active_max_gf_interval unless almost totally static.
@@ -2666,9 +3043,9 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
         break;
       }
     }
-
-    *this_frame = next_frame;
     old_boost_score = boost_score;
+#endif  // FIX_GF_INTERVAL_LENGTH
+    *this_frame = next_frame;
   }
   twopass->gf_zeromotion_pct = (int)(zero_motion_accumulator * 1000.0);
 
@@ -2694,6 +3071,14 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
 
   // Set the interval until the next gf.
   rc->baseline_gf_interval = i - (is_key_frame || rc->source_alt_ref_pending);
+
+  {
+    FILE *fid = fopen("GF_structure" FILE_NUM ".txt", "a");
+    fprintf(fid, "[%d %d %d %d %d] : ", i, rc->static_scene_max_gf_interval,
+            rc->frames_to_key, is_key_frame, rc->source_alt_ref_pending);
+    fclose(fid);
+  }
+
   if (non_zero_stdev_count) avg_raw_err_stdev /= non_zero_stdev_count;
 
   // Disable extra altrefs and backward refs for "still" gf group:
@@ -2711,9 +3096,17 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   if (!cpi->extra_arf_allowed) {
     cpi->num_extra_arfs = 0;
   } else {
+#if MY_GF_4_STRUCT
+    if (rc->baseline_gf_interval == 4)
+      cpi->num_extra_arfs = 1;
+    else
+      cpi->num_extra_arfs = get_number_of_extra_arfs(
+          rc->baseline_gf_interval, rc->source_alt_ref_pending);
+#else
     // Compute how many extra alt_refs we can have
     cpi->num_extra_arfs = get_number_of_extra_arfs(rc->baseline_gf_interval,
                                                    rc->source_alt_ref_pending);
+#endif
   }
   // Currently at maximum two extra ARFs' are allowed
   assert(cpi->num_extra_arfs <= MAX_EXT_ARFS);
@@ -3274,13 +3667,34 @@ static void configure_buffer_updates_16(AV1_COMP *cpi) {
 
     case BIPRED_UPDATE: cpi->rc.is_bipred_frame = 1; break;
 
-    case INTNL_OVERLAY_UPDATE: cpi->rc.is_src_frame_ext_arf = 1;
+    case INTNL_OVERLAY_UPDATE: cpi->rc.is_src_frame_ext_arf = 1; break;
+
     case OVERLAY_UPDATE: cpi->rc.is_src_frame_alt_ref = 1; break;
 
     default: break;
   }
 }
 #endif  // USE_GF16_MULTI_LAYER
+#if MY_GF_4_STRUCT
+// The refresh flags are important as they are used in
+// rd control ...
+static void customized_buffer_update(AV1_COMP *cpi) {
+  TWO_PASS *const twopass = &cpi->twopass;
+  GF_GROUP *const gf_group = &twopass->gf_group;
+
+  if (gf_group->update_type[gf_group->index] == KF_UPDATE) {
+    cpi->refresh_fb_idx = 0;
+
+    cpi->refresh_last_frame = 1;
+    cpi->refresh_golden_frame = 1;
+    cpi->refresh_bwd_ref_frame = 1;
+    cpi->refresh_alt2_ref_frame = 1;
+    cpi->refresh_alt_ref_frame = 1;
+
+    return;
+  }
+}
+#endif
 
 // Define the reference buffers that will be updated post encode.
 static void configure_buffer_updates(AV1_COMP *cpi) {
@@ -3295,13 +3709,17 @@ static void configure_buffer_updates(AV1_COMP *cpi) {
   cpi->rc.is_bipred_frame = 0;
   cpi->rc.is_src_frame_ext_arf = 0;
 
-#if USE_GF16_MULTI_LAYER
+#if 0   // USE_GF16_MULTI_LAYER
   RATE_CONTROL *const rc = &cpi->rc;
   if (rc->baseline_gf_interval == 16) {
     configure_buffer_updates_16(cpi);
     return;
   }
 #endif  // USE_GF16_MULTI_LAYER
+#if MY_GF_4_STRUCT
+  // right now we don't have to do this...
+  // customized_buffer_update(cpi);
+#endif
 
   switch (twopass->gf_group.update_type[twopass->gf_group.index]) {
     case KF_UPDATE:
@@ -3394,8 +3812,13 @@ static void configure_buffer_updates(AV1_COMP *cpi) {
       cpi->refresh_last_frame = 0;
       cpi->refresh_golden_frame = 0;
       cpi->refresh_bwd_ref_frame = 0;
-      cpi->refresh_alt2_ref_frame = 1;
+      cpi->refresh_alt2_ref_frame = 0;
       cpi->refresh_alt_ref_frame = 0;
+
+#if MY_GF_4_STRUCT
+      cpi->refresh_bwd_ref_frame = 1;
+      cpi->rc.is_bwd_ref_frame = 1;
+#endif
       break;
 
     default: assert(0); break;
@@ -3539,6 +3962,15 @@ void av1_rc_get_second_pass_params(AV1_COMP *cpi) {
   else
     twopass->fr_content_type = FC_NORMAL;
 
+#if MY_DUMP_FILES
+  {
+    FILE *fid;
+    fid = fopen("gf_interval" FILE_NUM ".txt", "a");
+    fprintf(fid, "(%d)", rc->frames_to_key);
+    fclose(fid);
+  };
+#endif
+
   // Keyframe and section processing.
   if (rc->frames_to_key == 0 || (cpi->frame_flags & FRAMEFLAGS_KEY)) {
     FIRSTPASS_STATS this_frame_copy;
@@ -3555,6 +3987,15 @@ void av1_rc_get_second_pass_params(AV1_COMP *cpi) {
     define_gf_group(cpi, &this_frame);
 
     rc->frames_till_gf_update_due = rc->baseline_gf_interval;
+    // Also check the default condition
+#if MY_DUMP_FILES
+    {
+      FILE *fid;
+      fid = fopen("gf_interval" FILE_NUM ".txt", "a");
+      fprintf(fid, "\n%d %d ", rc->baseline_gf_interval, rc->frames_to_key);
+      fclose(fid);
+    };
+#endif
 
 #if ARF_STATS_OUTPUT
     {

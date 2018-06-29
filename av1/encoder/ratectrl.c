@@ -1277,9 +1277,18 @@ void av1_rc_postencode_update(AV1_COMP *cpi, uint64_t bytes_used) {
 
   if (cm->frame_type == KEY_FRAME) rc->frames_since_key = 0;
 
-  // TODO(zoeliu): To investigate whether we should treat BWDREF_FRAME
-  //               differently here for rc->avg_frame_bandwidth.
+    // TODO(zoeliu): To investigate whether we should treat BWDREF_FRAME
+    //               differently here for rc->avg_frame_bandwidth.
+
+#if MY_GF_4_STRUCT
+  // since we have every backward reference frame have one overlay frame,
+  // we don't need to treat BWDREF differently
+
+  // TODO (weitinglin): handle the condition when a frame is dropped
+  if (cm->show_frame) {
+#else
   if (cm->show_frame || rc->is_bwd_ref_frame) {
+#endif
     rc->frames_since_key++;
     rc->frames_to_key--;
   }
@@ -1583,6 +1592,10 @@ void av1_rc_set_gf_interval_range(const AV1_COMP *const cpi,
 
     if (rc->max_gf_interval > rc->static_scene_max_gf_interval)
       rc->max_gf_interval = rc->static_scene_max_gf_interval;
+
+#if FIX_GF_INTERVAL_LENGTH
+    rc->max_gf_interval = FIXED_GF_LENGTH + 1;
+#endif
 
     // Clamp min to max
     rc->min_gf_interval = AOMMIN(rc->min_gf_interval, rc->max_gf_interval);

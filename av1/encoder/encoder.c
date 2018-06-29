@@ -3080,10 +3080,16 @@ static void check_show_existing_frame(AV1_COMP *cpi) {
   AV1_COMMON *const cm = &cpi->common;
   const FRAME_UPDATE_TYPE next_frame_update_type =
       gf_group->update_type[gf_group->index];
+#if MY_GF_4_STRUCT
+  const int which_arf = gf_group->arf_update_idx[gf_group->index] > 0;
+#else
   const int which_arf = gf_group->arf_update_idx[gf_group->index];
+#endif
 
   if (cm->show_existing_frame == 1) {
     cm->show_existing_frame = 0;
+#if !MY_GF_4_STRUCT
+    // we will use overlay to show the existing frame directly
   } else if (cpi->rc.is_last_bipred_frame) {
     // NOTE: If the current frame is a last bi-predictive frame, it is
     //       needed next to show the BWDREF_FRAME, which is pointed by
@@ -3091,6 +3097,7 @@ static void check_show_existing_frame(AV1_COMP *cpi) {
     cpi->rc.is_last_bipred_frame = 0;
     cm->show_existing_frame = 1;
     cpi->existing_fb_idx_to_show = cpi->ref_fb_idx[0];
+#endif
   } else if (cpi->is_arf_filter_off[which_arf] &&
              (next_frame_update_type == OVERLAY_UPDATE ||
               next_frame_update_type == INTNL_OVERLAY_UPDATE)) {
@@ -3100,7 +3107,11 @@ static void check_show_existing_frame(AV1_COMP *cpi) {
     cpi->rc.is_src_frame_alt_ref = 1;
     cpi->existing_fb_idx_to_show = (next_frame_update_type == OVERLAY_UPDATE)
                                        ? cpi->ref_fb_idx[ALTREF_FRAME - 1]
+#if MY_GF_4_STRUCT
+                                       : cpi->ref_fb_idx[LAST_FRAME - 1];
+#else
                                        : cpi->ref_fb_idx[ALTREF2_FRAME - 1];
+#endif
     cpi->is_arf_filter_off[which_arf] = 0;
   }
   cpi->rc.is_src_frame_ext_arf = 0;
@@ -4217,6 +4228,13 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
   setup_frame_size(cpi);
   set_size_dependent_vars(cpi, &q, &bottom_index, &top_index);
 
+#if MY_DUMP_FILES
+  static int f_num = 0;
+  FILE *fid = fopen("bits" FILE_NUM ".txt", "a");
+  fprintf(fid, "\n%d: ", f_num++);
+  fclose(fid);
+#endif
+
   do {
     aom_clear_system_state();
 
@@ -4793,6 +4811,12 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
     // Set up frame to show to get ready for stats collection.
     cm->frame_to_show = get_frame_new_buffer(cm);
 
+#ifdef OUTPUT_YUV_REC
+    // cpi->existing_fb_idx_to_show
+    int what_i_got = cm->ref_frame_map[cpi->existing_fb_idx_to_show];
+    aom_write_one_yuv_frame(cm, &cm->buffer_pool->frame_bufs[what_i_got].buf);
+#endif
+
     // Update current frame offset.
     cm->frame_offset =
         cm->buffer_pool->frame_bufs[cm->new_fb_idx].cur_frame_offset;
@@ -4838,6 +4862,16 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
       cpi->rc.frames_till_gf_update_due--;
 
     ++cm->current_video_frame;
+
+#if MY_DUMP_FILES  // FIX_GF_INTERVAL_LENGTH
+    {
+      FILE *fid;
+      fid = fopen("gf_interval" FILE_NUM ".txt", "a");
+      fprintf(fid, "[%d %d %d] ", cm->current_video_frame, cm->show_frame,
+              cpi->rc.frames_till_gf_update_due);
+      fclose(fid);
+    }
+#endif
 
     return AOM_CODEC_OK;
   }
@@ -5001,7 +5035,7 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
   aom_extend_frame_borders(cm->frame_to_show, av1_num_planes(cm));
 
 #ifdef OUTPUT_YUV_REC
-  aom_write_one_yuv_frame(cm, cm->frame_to_show);
+  // aom_write_one_yuv_frame(cm, cm->frame_to_show);
 #endif
 
   // Build the bitstream
@@ -5091,6 +5125,10 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
     // Don't increment frame counters if this was an altref buffer
     // update not a real frame
 
+#ifdef OUTPUT_YUV_REC
+    aom_write_one_yuv_frame(cm, cm->frame_to_show);
+#endif
+
     // Decrement count down till next gf
     if (cpi->rc.frames_till_gf_update_due > 0)
       cpi->rc.frames_till_gf_update_due--;
@@ -5107,6 +5145,16 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
     // reset to normal state now that we are done.
     cm->last_show_frame = cm->show_frame;
   }
+
+#if MY_DUMP_FILES
+  {
+    FILE *fid;
+    fid = fopen("gf_interval" FILE_NUM ".txt", "a");
+    fprintf(fid, "[%d %d %d] ", cm->current_video_frame, cm->show_frame,
+            cpi->rc.frames_till_gf_update_due);
+    fclose(fid);
+  }
+#endif
 
   return AOM_CODEC_OK;
 }
@@ -5697,6 +5745,15 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
     return 0;
   }
 
+#if 0  // FIX_GF_INTERVAL_LENGTH
+  {
+    FILE *fid;
+    fid = fopen("gf_interval.txt", "a");
+    fprintf(fid, "[%d] ", rc->frames_till_gf_update_due);
+    fclose(fid);
+  };
+#endif
+
   // Should we encode an arf frame.
   arf_src_index = get_arf_src_index(cpi);
   if (arf_src_index) {
@@ -5880,6 +5937,17 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
 
   if (oxcf->pass == 2) {
     av1_rc_get_second_pass_params(cpi);
+#if MY_DUMP_FILES
+    FILE *fid = fopen("ref_buf" FILE_NUM ".txt", "a");
+    fprintf(fid, "\n%d\n", cpi->twopass.gf_group.index);
+    for (int bidx = 0; bidx < 8; ++bidx) {
+      fprintf(fid, "%d ", cpi->ref_fb_idx[bidx]);
+    }
+    fprintf(fid, "\n");
+    for (int bidx = 0; bidx < 8; ++bidx)
+      fprintf(fid, "%d ", cm->ref_frame_map[bidx]);
+    fclose(fid);
+#endif
   } else if (oxcf->pass == 1) {
     setup_frame_size(cpi);
   }
