@@ -149,6 +149,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
   sf->reduce_inter_modes = 1;
   sf->prune_ext_partition_types_search_level = 1;
   sf->ml_prune_ab_partition = 1;
+  sf->ml_prune_4_partition_level = 1;
   sf->adaptive_txb_search_level = 1;
   sf->jnt_comp_skip_mv_search = 1;
   sf->model_based_prune_tx_search_level = 1;
@@ -166,6 +167,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->two_pass_partition_search = 1;
     sf->mode_pruning_based_on_two_pass_partition_search = 1;
     sf->prune_ext_partition_types_search_level = 2;
+    sf->ml_prune_4_partition_level = 2;
     sf->use_fast_interpolation_filter_search = 1;
     sf->skip_repeat_interpolation_filter_search = 1;
     sf->tx_type_search.skip_tx_search = 1;
@@ -493,6 +495,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi) {
   sf->simple_model_rd_from_var = 0;
   sf->prune_ext_partition_types_search_level = 0;
   sf->ml_prune_ab_partition = 0;
+  sf->ml_prune_4_partition_level = 0;
   sf->fast_cdef_search = 0;
 
   // Set this at the appropriate speed levels
