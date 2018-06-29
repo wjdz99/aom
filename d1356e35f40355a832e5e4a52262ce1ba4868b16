@@ -68,6 +68,30 @@
       "revId": "d1356e35f40355a832e5e4a52262ce1ba4868b16",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e6261e4d_0f746181",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 512,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-06-29T16:39:34Z",
+      "side": 1,
+      "message": "I see we\u0027re using the (1 + is_hbd) expression at line 517 below. So using (1 + is_hbd) is consistent locally.\n\nUnrelated to this, I noticed the bufs and strides array can be changed to single (non-array) variables declared inside the for loop.",
+      "parentUuid": "102f1988_6972d7c4",
+      "range": {
+        "startLine": 512,
+        "startChar": 21,
+        "endLine": 512,
+        "endChar": 33
+      },
+      "revId": "d1356e35f40355a832e5e4a52262ce1ba4868b16",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
