@@ -8767,6 +8767,7 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
                    mbmi->interinter_comp.type != COMPOUND_AVERAGE));
     memcpy(x->blk_skip, best_blk_skip,
            sizeof(best_blk_skip[0]) * xd->n8_h * xd->n8_w);
+    return RDCOST(x->rdmult, rd_stats->rate, rd_stats->dist);
   }
   if (early_terminate == INT64_MAX) return INT64_MAX;
   if (ret_val != 0) return ret_val;
