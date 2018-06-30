@@ -5612,6 +5612,10 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
   bitstream_queue_set_frame_write(cm->current_video_frame * 2 + cm->show_frame);
 #endif
 
+  // This flag will be set to zero when we try to encode an
+  // out of order frame (backward reference frame)
+  cm->show_frame = 1;  // default value
+
   cm->showable_frame = 0;
   aom_usec_timer_start(&cmptimer);
 
