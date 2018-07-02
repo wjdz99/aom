@@ -931,10 +931,15 @@ static int rc_pick_q_and_bounds_two_pass(const AV1_COMP *cpi, int width,
 
 #if CUSTOMIZED_GF
   int is_intrl_arf_boost =
-      gf_group->update_type[gf_group->index] == INTNL_ARF_UPDATE;
+#if MY_GF_4_STRUCT
+      (cpi->new_struct_update_rule == 1)
+          ? 0
+          :
+#endif
+          gf_group->update_type[gf_group->index] == INTNL_ARF_UPDATE;
 #else
   int is_intrl_arf_boost = cpi->refresh_alt2_ref_frame;
-#endif
+#endif  // CUSTOMIZED_GF
 
   if (frame_is_intra_only(cm)) {
     // Handle the special case for key frames forced when we have reached
@@ -1613,6 +1618,12 @@ void av1_rc_set_gf_interval_range(const AV1_COMP *const cpi,
 
     if (rc->max_gf_interval > rc->static_scene_max_gf_interval)
       rc->max_gf_interval = rc->static_scene_max_gf_interval;
+
+#if FIX_GF_INTERVAL_LENGTH
+    // default min_gf_interval can be larger than the fixed length, which will
+    // make no arf be used. Therefore, we need to set up maximum length here
+    rc->max_gf_interval = FIXED_GF_LENGTH + 1;
+#endif
 
     // Clamp min to max
     rc->min_gf_interval = AOMMIN(rc->min_gf_interval, rc->max_gf_interval);
