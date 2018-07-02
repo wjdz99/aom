@@ -31,6 +31,9 @@ extern "C" {
 #define MY_GF_4_STRUCT 0
 #endif
 
+#define DUMP_FILE 0
+#define FILE_NUM "3"
+
 #undef MAX_SB_SIZE
 
 // Max superblock size

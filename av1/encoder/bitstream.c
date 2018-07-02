@@ -2947,6 +2947,17 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
       RefCntBuffer *const frame_bufs = cm->buffer_pool->frame_bufs;
       const int frame_to_show = cm->ref_frame_map[cpi->existing_fb_idx_to_show];
 
+#if DUMP_FILE
+      {
+        FILE *fid = fopen("ref_buf" FILE_NUM ".txt", "a");
+        fprintf(fid, "[%d %d] ", cpi->existing_fb_idx_to_show,
+                cm->ref_frame_map[cpi->existing_fb_idx_to_show]);
+        fprintf(fid, "\n");
+
+        fflush(fid);
+      }
+#endif
+
       if (frame_to_show < 0 || frame_bufs[frame_to_show].ref_count < 1) {
         aom_internal_error(&cm->error, AOM_CODEC_UNSUP_BITSTREAM,
                            "Buffer %d does not contain a reconstructed frame",

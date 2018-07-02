@@ -615,6 +615,15 @@ void av1_temporal_filter(AV1_COMP *cpi, int distance) {
     cpi->is_arf_filter_off[which_arf] = 0;
   cpi->common.showable_frame = cpi->is_arf_filter_off[which_arf];
 
+#if DUMP_FILE
+  {
+    FILE *fid = fopen("ref_buf" FILE_NUM ".txt", "a");
+    fprintf(fid, "{%d, %d}", which_arf, cpi->is_arf_filter_off[which_arf]);
+    fprintf(fid, "\n");
+    fflush(fid);
+  }
+#endif
+
   frames_to_blur_backward = (frames_to_blur / 2);
   frames_to_blur_forward = ((frames_to_blur - 1) / 2);
   start_frame = distance + frames_to_blur_forward;
