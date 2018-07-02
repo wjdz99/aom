@@ -3739,8 +3739,13 @@ static void configure_buffer_updates(AV1_COMP *cpi) {
     case INTNL_ARF_UPDATE:
       cpi->refresh_last_frame = 0;
       cpi->refresh_golden_frame = 0;
+#if MY_GF_4_STRUCT
+      cpi->refresh_bwd_ref_frame = 1;
+      cpi->refresh_alt2_ref_frame = 0;
+#else
       cpi->refresh_bwd_ref_frame = 0;
       cpi->refresh_alt2_ref_frame = 1;
+#endif  // MY_GF_4_STRUCT
       cpi->refresh_alt_ref_frame = 0;
       break;
 
