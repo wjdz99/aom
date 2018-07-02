@@ -2224,9 +2224,9 @@ static const unsigned char gf4_multi_layer_params[][GF_FRAME_PARAMS] = {
   },
   {
       // gf_group->index == 3 (Frame 1)
-      LF_UPDATE,  // update_type
-      0,          // arf_src_offset
-      0,          // brf_src_offset
+      LAST_BIPRED_UPDATE,  // update_type
+      0,                   // arf_src_offset
+      0,                   // brf_src_offset
 
       LAST3_FRAME,  // Index (current) of reference to get updated
 
@@ -2250,7 +2250,6 @@ static const unsigned char gf4_multi_layer_params[][GF_FRAME_PARAMS] = {
       0,  // ALTREF_FRAME
       0   // REF_FRAMES
   },
-
   {
       // gf_group->index == 4 (Frame 2 - OVERLAY)
       INTNL_OVERLAY_UPDATE,  // update_type
@@ -2759,11 +2758,22 @@ static void allocate_gf_group_bits(AV1_COMP *cpi, int64_t gf_group_bits,
       // TODO(zoeliu): To investigate whether the allocated bits on
       // BIPRED_UPDATE frames need to be further adjusted.
       gf_group->bit_allocation[frame_index] = target_frame_size;
+#if MY_GF_4_STRUCT
+    } else if (gf_group->update_type[frame_index] == INTNL_OVERLAY_UPDATE) {
+      // Boost up the allocated bits on BWDREF_FRAME
+      gf_group->bit_allocation[frame_index] =
+          target_frame_size + (target_frame_size >> 2);
+    } else {
+      assert(gf_group->update_type[frame_index] == LF_UPDATE);
+      gf_group->bit_allocation[frame_index] = target_frame_size;
+    }
+#else
     } else {
       assert(gf_group->update_type[frame_index] == LF_UPDATE ||
              gf_group->update_type[frame_index] == INTNL_OVERLAY_UPDATE);
       gf_group->bit_allocation[frame_index] = target_frame_size;
     }
+#endif
 
     ++frame_index;
 

@@ -931,7 +931,11 @@ static int rc_pick_q_and_bounds_two_pass(const AV1_COMP *cpi, int width,
 
 #if CUSTOMIZED_GF
   int is_intrl_arf_boost =
+#if MY_GF_4_STRUCT
+      0;
+#else
       gf_group->update_type[gf_group->index] == INTNL_ARF_UPDATE;
+#endif  // MY_GF_4_STRUCT
 #else
   int is_intrl_arf_boost = cpi->refresh_alt2_ref_frame;
 #endif
