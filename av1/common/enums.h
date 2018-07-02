@@ -22,6 +22,12 @@ extern "C" {
 #endif
 
 #define CUSTOMIZED_GF 1
+#define FIX_GF_INTERVAL_LENGTH 0
+
+#if FIX_GF_INTERVAL_LENGTH
+#define FIXED_GF_LENGTH 4
+#else
+#endif
 
 #undef MAX_SB_SIZE
 
