@@ -21,6 +21,8 @@
 extern "C" {
 #endif
 
+#define CUSTOMIZED_GF 1
+
 #undef MAX_SB_SIZE
 
 // Max superblock size
