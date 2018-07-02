@@ -22,6 +22,30 @@
       "revId": "7d89ec4c6be7ff746d0d3c17d833af29e2aea171",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9a948b2f_33e83f0c",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 2568,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-02T20:16:07Z",
+      "side": 1,
+      "message": "This change is not needed to fix the bug, but this change makes lines 2566-2569 match Section 5.11.2 (Decode tile syntax) in the spec:\n\ndecode_tile( ) {\n    clear_above_context( )\n    for ( i \u003d 0; i \u003c FRAME_LF_COUNT; i++ )\n        DeltaLF[ i ] \u003d 0\n    for ( plane \u003d 0; plane \u003c NumPlanes; plane++ ) {\n        for ( pass \u003d 0; pass \u003c 2; pass++ ) {\n            RefSgrXqd[ plane ][ pass ] \u003d Sgrproj_Xqd_Mid[ pass ]\n            for ( i \u003d 0; i \u003c WIENER_COEFFS; i++ ) {\n                RefLrWiener[ plane ][ pass ][ i ] \u003d Wiener_Taps_Mid[ i ]\n            }\n        }\n    }\n    ...\n\nSpecifically:\n* av1_zero_above_context() corresponds to clear_above_context() in the spec.\n* av1_reset_loop_filter_delta() corresponds to the first for loop in the spec.\n* av1_reset_loop_restoration() corresponds to the second (nested) for loop in the spec.\n\nYou are right that DeltaLF is used only if cm-\u003edelta_q_present_flag and cm-\u003edelta_lf_present_flag are true. I did not check those flags here, because I want the code to match the spec exactly.",
+      "parentUuid": "20c89bcd_e80a65da",
+      "range": {
+        "startLine": 2568,
+        "startChar": 2,
+        "endLine": 2568,
+        "endChar": 29
+      },
+      "revId": "7d89ec4c6be7ff746d0d3c17d833af29e2aea171",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
