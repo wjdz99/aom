@@ -3870,7 +3870,7 @@ static int read_uncompressed_header(AV1Decoder *pbi,
                 0x1)) ||
               cm->seq_params.operating_point_idc[op_num] == 0) {
             cm->op_frame_timing[op_num].buffer_removal_delay =
-                aom_rb_read_literal(
+                aom_rb_read_unsigned_literal(
                     rb, cm->buffer_model.buffer_removal_delay_length);
           } else {
             cm->op_frame_timing[op_num].buffer_removal_delay = 0;
