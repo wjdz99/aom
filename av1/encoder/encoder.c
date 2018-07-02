@@ -3096,10 +3096,10 @@ static void check_show_existing_frame(AV1_COMP *cpi) {
     cm->show_existing_frame = 0;
 #if MY_GF_4_STRUCT
   } else if (cpi->new_struct_update_rule == 0 && cpi->rc.is_last_bipred_frame) {
+#else
     // NOTE: When new structure is used, every bwdref will have one overlay
     //       frame. Therefore, there is no need to find out which frame to
     //       show in advance.
-#else
   } else if (cpi->rc.is_last_bipred_frame) {
 #endif  // MY_GF_4_STRUCT
     // NOTE: If the current frame is a last bi-predictive frame, it is
@@ -3523,7 +3523,14 @@ static void update_reference_frames(AV1_COMP *cpi) {
            cpi->interp_filter_selected[0],
            sizeof(cpi->interp_filter_selected[0]));
 
+    // If the new structure is used, we will always have overlay frames couple
+    // with the bwdref frames. Therefore, we won't have to perform this update
+    // in advance (we do this update when the overlay frame shows up).
+#if MY_GF_4_STRUCT
+    if (cpi->new_struct_update_rule == 0 && cpi->rc.is_last_bipred_frame) {
+#else
     if (cpi->rc.is_last_bipred_frame) {
+#endif
       // Refresh the LAST_FRAME with the BWDREF_FRAME and retire the
       // LAST3_FRAME by updating the virtual indices.
       //
