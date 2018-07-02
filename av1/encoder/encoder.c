@@ -5896,8 +5896,9 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
   cm->cur_frame->film_grain_params_present = cm->film_grain_params_present;
 
   // only one operating point supported now
-  cpi->common.tu_presentation_delay =
-      ticks_to_timebase_units(timebase, *time_stamp);
+  int64_t delay64 = ticks_to_timebase_units(timebase, *time_stamp);
+  if (delay64 > UINT32_MAX) return AOM_CODEC_ERROR;
+  cpi->common.tu_presentation_delay = (uint32_t)delay64;
 
   // Start with a 0 size frame.
   *size = 0;

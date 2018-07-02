@@ -43,7 +43,7 @@ typedef struct aom_dec_model_op_parameters {
 } aom_dec_model_op_parameters_t;
 
 typedef struct aom_op_timing_info_t {
-  int64_t buffer_removal_delay;
+  uint32_t buffer_removal_delay;
 } aom_op_timing_info_t;
 
 void set_aom_dec_model_info(aom_dec_model_info_t *decoder_model);

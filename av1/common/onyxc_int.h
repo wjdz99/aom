@@ -258,7 +258,7 @@ typedef struct AV1Common {
   aom_dec_model_op_parameters_t op_params[MAX_NUM_OPERATING_POINTS + 1];
   aom_op_timing_info_t op_frame_timing[MAX_NUM_OPERATING_POINTS + 1];
   int tu_presentation_delay_flag;
-  int64_t tu_presentation_delay;
+  uint32_t tu_presentation_delay;
 
   // TODO(jkoleszar): this implies chroma ss right now, but could vary per
   // plane. Revisit as part of the future change to YV12_BUFFER_CONFIG to
