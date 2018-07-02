@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b6988786_d950bdf2",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-02T18:26:42Z",
+      "side": 1,
+      "message": "Please see the following sections in the spec for the names used in the spec:\n  5.5.4. Decoder model info syntax\n  5.9.2. Uncompressed header syntax\n  5.9.31. Temporal point info syntax",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 15,
+        "endChar": 54
+      },
+      "revId": "92838d4350a2e91ea8191853b13e8c0e9f768e1d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
