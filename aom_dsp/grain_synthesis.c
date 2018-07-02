@@ -455,7 +455,7 @@ static void generate_chroma_grain_blocks(
              ((1 << gauss_sec_shift) >> 1)) >>
             gauss_sec_shift;
   } else {
-    memset(cr_grain_block, 0, sizeof(*cr_grain_block) * chroma_grain_samples);
+    memset(cb_grain_block, 0, sizeof(*cb_grain_block) * chroma_grain_samples);
   }
 
   if (params->num_cr_points || params->chroma_scaling_from_luma) {
@@ -468,7 +468,7 @@ static void generate_chroma_grain_blocks(
              ((1 << gauss_sec_shift) >> 1)) >>
             gauss_sec_shift;
   } else {
-    memset(cb_grain_block, 0, sizeof(*cb_grain_block) * chroma_grain_samples);
+    memset(cr_grain_block, 0, sizeof(*cr_grain_block) * chroma_grain_samples);
   }
 
   for (int i = top_pad; i < chroma_block_size_y - bottom_pad; i++)
