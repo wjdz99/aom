@@ -126,7 +126,7 @@ typedef struct {
   unsigned char bidir_pred_enabled[(MAX_LAG_BUFFERS * 2) + 1];
   unsigned char ref_fb_idx_map[(MAX_LAG_BUFFERS * 2) + 1][REF_FRAMES];
   unsigned char refresh_idx[(MAX_LAG_BUFFERS * 2) + 1];
-  unsigned char refresh_flag[(MAX_LAG_BUFFERS * 2) + 1];
+  unsigned char refresh_flag[(MAX_LAG_BUFFERS * 2) + 1][REF_FRAMES];
   int bit_allocation[(MAX_LAG_BUFFERS * 2) + 1];
 } GF_GROUP;
 

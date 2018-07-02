@@ -21,6 +21,15 @@
 extern "C" {
 #endif
 
+#define FIX_GF_INTERVAL_LENGTH 1
+
+#if FIX_GF_INTERVAL_LENGTH
+#define FIXED_GF_LENGTH 4
+#define MY_GF_4_STRUCT 1
+#else
+#define MY_GF_4_STRUCT 0
+#endif
+
 #undef MAX_SB_SIZE
 
 // Max superblock size

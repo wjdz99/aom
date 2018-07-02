@@ -24,6 +24,11 @@ extern "C" {
 // Bits Per MB at different Q (Multiplied by 512)
 #define BPER_MB_NORMBITS 9
 
+// My debug output flags
+#define MY_DUMP_FILES 0
+#define MY_DUMP_BIT_USAGE 0
+#define FILE_NUM "2"
+
 #define MIN_GF_INTERVAL 4
 #define MAX_GF_INTERVAL 16
 #define FIXED_GF_INTERVAL 8  // Used in some testing modes only

@@ -4011,5 +4011,12 @@ int av1_pack_bitstream(AV1_COMP *const cpi, uint8_t *dst, size_t *size) {
   }
   data += data_size;
   *size = data - dst;
+
+#if MY_DUMP_FILES
+  FILE *fid = fopen("bits" FILE_NUM ".txt", "a");
+  fprintf(fid, "%ld  ", *size);
+  fclose(fid);
+#endif
+
   return AOM_CODEC_OK;
 }
