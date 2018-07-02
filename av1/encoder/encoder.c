@@ -3103,6 +3103,16 @@ static void check_show_existing_frame(AV1_COMP *cpi) {
                                        ? cpi->ref_fb_idx[ALTREF_FRAME - 1]
                                        : cpi->ref_fb_idx[ALTREF2_FRAME - 1];
     cpi->is_arf_filter_off[which_arf] = 0;
+
+#if DUMP_FILE
+    {
+      FILE *fid = fopen("ref_buf" FILE_NUM ".txt", "a");
+      fprintf(fid, "(%d, %d) ", cpi->existing_fb_idx_to_show,
+              cm->ref_frame_map[cpi->existing_fb_idx_to_show]);
+      fprintf(fid, "\n");
+      fflush(fid);
+    }
+#endif
   }
   cpi->rc.is_src_frame_ext_arf = 0;
 }
@@ -4829,6 +4839,24 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
     //     and
     //     ALTREF2_FRAME will serve as the new LAST_FRAME.
     update_reference_frames(cpi);
+#if DUMP_FILE
+    {
+      FILE *fid = fopen("ref_buf" FILE_NUM ".txt", "a");
+      fprintf(fid, "(%d) ", cm->show_existing_frame);
+      for (int ind = 0; ind < 8; ++ind) {
+        fprintf(fid, "%d ", cpi->ref_fb_idx[ind]);
+      }
+      fprintf(fid, "\n");
+
+      fprintf(fid, "(%d) ", cm->new_fb_idx);
+      for (int ind = 0; ind < 8; ++ind) {
+        fprintf(fid, "%d ", cm->ref_frame_map[cpi->ref_fb_idx[ind]]);
+      }
+      fprintf(fid, "\n");
+
+      fflush(fid);
+    }
+#endif
 
     // Update frame flags
     cpi->frame_flags &= ~FRAMEFLAGS_GOLDEN;
@@ -5055,6 +5083,25 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
   }
 
   update_reference_frames(cpi);
+
+#if DUMP_FILE
+  {
+    FILE *fid = fopen("ref_buf" FILE_NUM ".txt", "a");
+    fprintf(fid, "(%d) ", cm->show_existing_frame);
+    for (int ind = 0; ind < 8; ++ind) {
+      fprintf(fid, "%d ", cpi->ref_fb_idx[ind]);
+    }
+    fprintf(fid, "\n");
+
+    fprintf(fid, "(%d) ", cm->new_fb_idx);
+    for (int ind = 0; ind < 8; ++ind) {
+      fprintf(fid, "%d ", cm->ref_frame_map[cpi->ref_fb_idx[ind]]);
+    }
+    fprintf(fid, "\n");
+
+    fflush(fid);
+  }
+#endif
 
 #if CONFIG_ENTROPY_STATS
   av1_accumulate_frame_counts(&aggregate_fc, &cpi->counts);

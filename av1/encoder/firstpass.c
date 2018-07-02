@@ -3919,6 +3919,21 @@ void av1_rc_get_second_pass_params(AV1_COMP *cpi) {
       fclose(fpfile);
     }
 #endif
+#if DUMP_FILE
+    {
+      FILE *fid = fopen("ref_buf" FILE_NUM ".txt", "a");
+      int num_arfs = rc->source_alt_ref_pending + cpi->num_extra_arfs;
+      int frame_nums = rc->baseline_gf_interval + num_arfs;
+
+      fprintf(fid, "gf (%d/%d):", rc->baseline_gf_interval, num_arfs);
+      for (int f = 0; f <= frame_nums; ++f) {
+        fprintf(fid, " [%d %d]", f, gf_group->update_type[f]);
+      }
+      fprintf(fid, "\n");
+
+      fflush(fid);
+    }
+#endif
   }
 
   configure_buffer_updates(cpi);
