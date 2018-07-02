@@ -2783,6 +2783,8 @@ static int tile_worker_hook(void *arg1, void *arg2) {
     thread_data->td->xd.corrupted = 1;
     return 0;
   }
+  thread_data->error_info.setjmp = 1;
+
   allow_update_cdf = cm->large_scale_tile ? 0 : 1;
   allow_update_cdf = allow_update_cdf && !cm->disable_cdf_update;
 
