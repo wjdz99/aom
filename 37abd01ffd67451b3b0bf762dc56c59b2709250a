@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "8391d922_68317c70",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2018-07-02T05:42:51Z",
+      "side": 1,
+      "message": "The other way is to assign the function pointers to NULL when a particular function should not be called. Then have a check before calling the function, i.e.,\n\nif (func_ptr)\n  func_ptr(...);\n\nHowever, this would introduce checks at TU level. Please let us know which approach would be better.",
+      "parentUuid": "b48dc48e_1404f5a6",
+      "range": {
+        "startLine": 179,
+        "startChar": 12,
+        "endLine": 179,
+        "endChar": 52
+      },
+      "revId": "37abd01ffd67451b3b0bf762dc56c59b2709250a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5a35ceff_64452d36",
         "filename": "av1/decoder/decodeframe.c",
         "patchSetId": 1
