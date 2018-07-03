@@ -950,6 +950,9 @@ void av1_add_film_grain(aom_film_grain_t *params, aom_image_t *src,
       exit(1);
   }
 
+  dst->fmt = src->fmt;
+  dst->bit_depth = src->bit_depth;
+
   dst->r_w = src->r_w;
   dst->r_h = src->r_h;
   dst->d_w = src->d_w;
