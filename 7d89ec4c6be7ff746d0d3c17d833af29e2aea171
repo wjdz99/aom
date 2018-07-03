@@ -46,6 +46,30 @@
       "revId": "7d89ec4c6be7ff746d0d3c17d833af29e2aea171",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bef49631_3c51f4e2",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 2568,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2018-07-03T00:27:18Z",
+      "side": 1,
+      "message": "Thanks for the info. The code in the spec probably copied from the codebase before. Maybe we can check the file history to understand when/why av1_reset_loop_filter_delta() was removed.",
+      "parentUuid": "9a948b2f_33e83f0c",
+      "range": {
+        "startLine": 2568,
+        "startChar": 2,
+        "endLine": 2568,
+        "endChar": 29
+      },
+      "revId": "7d89ec4c6be7ff746d0d3c17d833af29e2aea171",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
