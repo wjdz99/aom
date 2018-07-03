@@ -505,6 +505,9 @@ typedef struct AV1_COMP {
   int refresh_bwd_ref_frame;
   int refresh_alt2_ref_frame;
   int refresh_alt_ref_frame;
+#if MY_GF_4_STRUCT
+  int new_struct_update_rule;
+#endif
 
   int ext_refresh_frame_flags_pending;
   int ext_refresh_last_frame;
