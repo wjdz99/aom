@@ -1259,7 +1259,6 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
       if (cx_data_sz < ctx->cx_data_sz / 2) {
         aom_internal_error(&cpi->common.error, AOM_CODEC_ERROR,
                            "Compressed data buffer too small");
-        return AOM_CODEC_ERROR;
       }
     }
 
@@ -1276,6 +1275,7 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
       if (cpi->common.seq_params.frame_id_numbers_present_flag) {
         if (cpi->common.invalid_delta_frame_id_minus_1) {
           ctx->base.err_detail = "Invalid delta_frame_id_minus_1";
+          cpi->common.error.setjmp = 0;
           return AOM_CODEC_ERROR;
         }
       }
@@ -1305,6 +1305,7 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
           // OBUs are preceded/succeeded by an unsigned leb128 coded integer.
           if (write_uleb_obu_size(obu_header_size, obu_payload_size,
                                   ctx->pending_cx_data) != AOM_CODEC_OK) {
+            cpi->common.error.setjmp = 0;
             return AOM_CODEC_ERROR;
           }
 
@@ -1315,6 +1316,7 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
           size_t curr_frame_size = frame_size;
           if (av1_convert_sect5obus_to_annexb(cx_data, &curr_frame_size) !=
               AOM_CODEC_OK) {
+            cpi->common.error.setjmp = 0;
             return AOM_CODEC_ERROR;
           }
           frame_size = curr_frame_size;
@@ -1327,6 +1329,7 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
           }
           if (write_uleb_obu_size(0, (uint32_t)frame_size, cx_data) !=
               AOM_CODEC_OK) {
+            cpi->common.error.setjmp = 0;
             return AOM_CODEC_ERROR;
           }
           frame_size += length_field_size;
@@ -1358,6 +1361,7 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
         }
         if (write_uleb_obu_size(0, (uint32_t)tu_size, ctx->pending_cx_data) !=
             AOM_CODEC_OK) {
+          cpi->common.error.setjmp = 0;
           return AOM_CODEC_ERROR;
         }
         ctx->pending_cx_data_sz += length_field_size;

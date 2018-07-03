@@ -491,6 +491,7 @@ int av1_receive_compressed_data(AV1Decoder *pbi, size_t size,
 
   if (cm->error.error_code != AOM_CODEC_OK) {
     cm->cur_frame->ref_count = 0;
+    cm->error.setjmp = 0;
     return 1;
   }
 
@@ -511,7 +512,10 @@ int av1_receive_compressed_data(AV1Decoder *pbi, size_t size,
     pbi->decoding_first_frame = 0;
   }
 
-  if (cm->error.error_code != AOM_CODEC_OK) return 1;
+  if (cm->error.error_code != AOM_CODEC_OK) {
+    cm->error.setjmp = 0;
+    return 1;
+  }
 
   aom_clear_system_state();
 
