@@ -45,6 +45,30 @@
       "revId": "e5c90764bc542c45e4539403c8f3dbdee5970431",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0e5e890d_093b44fe",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 359,
+      "author": {
+        "id": 7425
+      },
+      "writtenOn": "2018-07-03T03:26:24Z",
+      "side": 1,
+      "message": "Thanks for the suggestion. Do you have estimation how much stack size can be reduced? My other CL https://aomedia-review.googlesource.com/c/aom/+/63781 is also triggered this stack usage warning, so that\u0027s why I want to remove this big array from this function.",
+      "parentUuid": "2f4aee73_50287ed0",
+      "range": {
+        "startLine": 359,
+        "startChar": 31,
+        "endLine": 359,
+        "endChar": 38
+      },
+      "revId": "e5c90764bc542c45e4539403c8f3dbdee5970431",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
