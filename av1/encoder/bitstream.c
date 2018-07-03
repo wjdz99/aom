@@ -2260,9 +2260,19 @@ static int get_refresh_mask(AV1_COMP *cpi) {
       (cpi->refresh_last_frame << cpi->ref_fb_idx[LAST_REF_FRAMES - 1]);
 
   refresh_mask |=
-      (cpi->refresh_bwd_ref_frame << cpi->ref_fb_idx[BWDREF_FRAME - 1]);
+#if MY_GF_4_STRUCT
+      (cpi->new_struct_update_rule == 1)
+          ? (cpi->refresh_bwd_ref_frame << cpi->ref_fb_idx[EXT_REF - 1])
+          :
+#endif
+          (cpi->refresh_bwd_ref_frame << cpi->ref_fb_idx[BWDREF_FRAME - 1]);
   refresh_mask |=
       (cpi->refresh_alt2_ref_frame << cpi->ref_fb_idx[ALTREF2_FRAME - 1]);
+
+#if MY_GF_4_STRUCT
+  // at the begining of each gf, we reset all the
+  refresh_mask |= (cpi->refresh_golden_frame << cpi->ref_fb_idx[EXT_REF - 1]);
+#endif
 
   if (av1_preserve_existing_gf(cpi)) {
     // We have decided to preserve the previously existing golden frame as our

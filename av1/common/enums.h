@@ -33,6 +33,7 @@ extern "C" {
 
 #define DUMP_FILE 0
 #define FILE_NUM "3"
+#define TEST_SHIFT 1
 
 #undef MAX_SB_SIZE
 
@@ -570,6 +571,7 @@ typedef uint8_t TXFM_CONTEXT;
 #define BWDREF_FRAME 5
 #define ALTREF2_FRAME 6
 #define ALTREF_FRAME 7
+#define EXT_REF 8
 #define LAST_REF_FRAMES (LAST3_FRAME - LAST_FRAME + 1)
 
 #define INTER_REFS_PER_FRAME (ALTREF_FRAME - LAST_FRAME + 1)

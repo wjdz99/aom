@@ -1605,9 +1605,9 @@ static void decode_partition(AV1Decoder *const pbi, MACROBLOCKD *const xd,
   // 01 - do parse only
   // 10 - do decode only
   // 11 - do parse and decode
-  static const block_visitor_fn_t block_visit[4] = {
-    NULL, parse_decode_block, decode_block, parse_decode_block
-  };
+  static const block_visitor_fn_t block_visit[4] = { NULL, parse_decode_block,
+                                                     decode_block,
+                                                     parse_decode_block };
 
   if (parse_decode_flag & 1) {
     const int num_planes = av1_num_planes(cm);
@@ -4239,6 +4239,7 @@ static int read_uncompressed_header(AV1Decoder *pbi,
         av1_set_frame_refs(cm, lst_ref, gld_ref);
       }
 
+      // only read 7 number...
       for (int i = 0; i < INTER_REFS_PER_FRAME; ++i) {
         int ref = 0;
         if (!cm->frame_refs_short_signaling) {
