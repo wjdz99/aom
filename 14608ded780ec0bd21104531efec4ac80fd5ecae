@@ -16,6 +16,24 @@
       "revId": "14608ded780ec0bd21104531efec4ac80fd5ecae",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f971834d_b242bfce",
+        "filename": "build/cmake/aom_config_defaults.cmake",
+        "patchSetId": 3
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-07-03T00:56:50Z",
+      "side": 1,
+      "message": "For reference, see a similar C / CXX flag I added to oss-fuzz build here:\nhttps://github.com/google/oss-fuzz/blob/master/projects/libaom/build.sh#L24",
+      "parentUuid": "a53f408c_5501435a",
+      "revId": "14608ded780ec0bd21104531efec4ac80fd5ecae",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
