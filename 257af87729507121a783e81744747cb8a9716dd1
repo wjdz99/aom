@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e2c24330_5379e897",
+        "filename": "av1/common/av1_txfm.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-03T21:35:23Z",
+      "side": 1,
+      "message": "1. I think we can omit the defined(__clang__) test here. It should be safe to test defined(__has_attribute) directly.\n\n2. It may be better to only set DO_RANGE_CHECK_CLAMP to 1 for integer sanitizer. For example, I suspect ThreadSanitizer does not check for integer overflow errors, so we don\u0027t need to set DO_RANGE_CHECK_CLAMP to 1 under ThreadSanitizer.",
+      "range": {
+        "startLine": 31,
+        "startChar": 4,
+        "endLine": 31,
+        "endChar": 25
+      },
+      "revId": "257af87729507121a783e81744747cb8a9716dd1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
