@@ -33,9 +33,13 @@
 extern "C" {
 #endif
 
-typedef void (*intra_block_visitor_fn_t)(AV1_COMMON *cm, MACROBLOCKD *const xd,
-                                         aom_reader *const r, int plane,
-                                         int row, int col, TX_SIZE tx_size);
+typedef void (*read_coeffs_tx_intra_block_visitor_fn_t)(
+    AV1_COMMON *cm, MACROBLOCKD *const xd, aom_reader *const r, int plane,
+    int row, int col, TX_SIZE tx_size);
+
+typedef void (*predict_and_recon_intra_block_visitor_fn_t)(
+    AV1_COMMON *cm, MACROBLOCKD *const xd, aom_reader *const r, int plane,
+    int row, int col, TX_SIZE tx_size);
 
 typedef void (*read_coeffs_tx_inter_block_visitor_fn_t)(
     const AV1_COMMON *const cm, MACROBLOCKD *const xd, aom_reader *const r,
@@ -61,6 +65,14 @@ typedef struct ThreadData {
   CB_BUFFER cb_buffer_base;
   uint8_t *mc_buf[2];
   int32_t mc_buf_size;
+
+  read_coeffs_tx_intra_block_visitor_fn_t read_coeffs_tx_intra_block_visit;
+  predict_and_recon_intra_block_visitor_fn_t
+      predict_and_recon_intra_block_visit;
+  read_coeffs_tx_inter_block_visitor_fn_t read_coeffs_tx_inter_block_visit;
+  inverse_tx_inter_block_visitor_fn_t inverse_tx_inter_block_visit;
+  predict_inter_block_visitor_fn_t predict_inter_block_visit;
+  cfl_store_inter_block_visitor_fn_t cfl_store_inter_block_visit;
 } ThreadData;
 
 typedef struct TileDataDec {
@@ -188,11 +200,6 @@ typedef struct AV1Decoder {
   uint8_t *tile_list_output;
   size_t buffer_sz;
 
-  intra_block_visitor_fn_t intra_block_visit;
-  inverse_tx_inter_block_visitor_fn_t inverse_tx_inter_block_visit;
-  predict_inter_block_visitor_fn_t predict_inter_block_visit;
-  cfl_store_inter_block_visitor_fn_t cfl_store_inter_block_visit;
-
   CB_BUFFER *cb_buffer_base;
   int cb_buffer_alloc_size;
 } AV1Decoder;
@@ -269,7 +276,7 @@ void av1_visit_palette(AV1Decoder *const pbi, MACROBLOCKD *const xd, int mi_row,
                        int mi_col, aom_reader *r, BLOCK_SIZE bsize,
                        palette_visitor_fn_t visit);
 
-typedef void (*block_visitor_fn_t)(AV1Decoder *const pbi, MACROBLOCKD *const xd,
+typedef void (*block_visitor_fn_t)(AV1Decoder *const pbi, ThreadData *const td,
                                    int mi_row, int mi_col, aom_reader *r,
                                    PARTITION_TYPE partition, BLOCK_SIZE bsize);
 
