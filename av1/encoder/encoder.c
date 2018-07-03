@@ -3319,7 +3319,47 @@ static INLINE void shift_last_ref_frames(AV1_COMP *cpi) {
     }
   }
 }
+#if TEST_SHIFT && MY_GF_4_STRUCT
+// This function is used to shift the virtual indices of bwd reference
+// frames as follows:
+// BWD_REF -> ALT2_REF -> EXT_REF
+// to clear a space to store the closest bwdref
+static INLINE void rshift_closest_bwd_ref_frames(AV1_COMP *cpi) {
+  // TODO(isbs): shift the scaled indices as well
+  static const int ordered_bwd[3] = { BWDREF_FRAME - 1, ALTREF2_FRAME - 1,
+                                      EXT_REF - 1 };
 
+  for (int i = 2; i > 0; --i) {
+    cpi->ref_fb_idx[ordered_bwd[i]] = cpi->ref_fb_idx[ordered_bwd[i - 1]];
+
+    // [0] is allocated to the current coded frame, i.e. bwdref
+    memcpy(
+        cpi->interp_filter_selected[ordered_bwd[i] + LAST_FRAME],
+        cpi->interp_filter_selected[ordered_bwd[i - 1] + LAST_FRAME],
+        sizeof(cpi->interp_filter_selected[ordered_bwd[i - 1] + LAST_FRAME]));
+  }
+}
+
+// This function is used to shift the virtual indices of bwd reference
+// frames as follows:
+// BWD_REF <- ALT2_REF <- EXT_REF
+// to update the bwd reference frame for coding the next frame.
+static INLINE void lshift_closest_bwd_ref_frames(AV1_COMP *cpi) {
+  // TODO(isbs): shift the scaled indices as well
+  static const int ordered_bwd[3] = { BWDREF_FRAME - 1, ALTREF2_FRAME - 1,
+                                      EXT_REF - 1 };
+
+  for (int i = 0; i < 2; ++i) {
+    cpi->ref_fb_idx[ordered_bwd[i]] = cpi->ref_fb_idx[ordered_bwd[i + 1]];
+
+    // [0] is allocated to the current coded frame, i.e. bwdref
+    memcpy(
+        cpi->interp_filter_selected[ordered_bwd[i] + LAST_FRAME],
+        cpi->interp_filter_selected[ordered_bwd[i + 1] + LAST_FRAME],
+        sizeof(cpi->interp_filter_selected[ordered_bwd[i + 1] + LAST_FRAME]));
+  }
+}
+#endif  // TEST_SHIFT && MY_GF_4_STRUCT
 #if USE_GF16_MULTI_LAYER
 static void update_reference_frames_gf16(AV1_COMP *cpi) {
   AV1_COMMON *const cm = &cpi->common;
@@ -3386,6 +3426,17 @@ static void update_reference_frames(AV1_COMP *cpi) {
     return;
   }
 
+#if CUSTOMIZED_GF  // MY_GF_4_STRUCT
+  // Reset EXT_REF flag at the beginning of each GF group
+  if (cpi->refresh_golden_frame) {
+    ref_cnt_fb(pool->frame_bufs,
+               &cm->ref_frame_map[cpi->ref_fb_idx[EXT_REF - 1]],
+               cm->new_fb_idx);
+
+    memcpy(cpi->interp_filter_selected[EXT_REF], cpi->interp_filter_selected[0],
+           sizeof(cpi->interp_filter_selected[0]));
+  }
+#endif
   if (av1_preserve_existing_gf(cpi)) {
     // We have decided to preserve the previously existing golden frame as our
     // new ARF frame. However, in the short term in function
@@ -3426,11 +3477,23 @@ static void update_reference_frames(AV1_COMP *cpi) {
     shift_last_ref_frames(cpi);
 
     cpi->ref_fb_idx[LAST_FRAME - 1] = cpi->ref_fb_idx[closest_bwd_ind - 1];
-    cpi->ref_fb_idx[closest_bwd_ind - 1] = tmp;
 
     memcpy(cpi->interp_filter_selected[LAST_FRAME],
            cpi->interp_filter_selected[closest_bwd_ind],
            sizeof(cpi->interp_filter_selected[closest_bwd_ind]));
+
+#if TEST_SHIFT && MY_GF_4_STRUCT
+    if (cpi->new_struct_update_rule == 1) {
+      lshift_closest_bwd_ref_frames(cpi);
+      // pass outdated forward reference frame (previous LAST3) to the
+      // spared space
+      cpi->ref_fb_idx[EXT_REF - 1] = tmp;
+    } else {
+#endif
+      cpi->ref_fb_idx[closest_bwd_ind - 1] = tmp;
+#if TEST_SHIFT && MY_GF_4_STRUCT
+    }
+#endif
   } else { /* For non key/golden frames */
     // === ALTREF_FRAME ===
     if (cpi->refresh_alt_ref_frame) {
@@ -3455,10 +3518,21 @@ static void update_reference_frames(AV1_COMP *cpi) {
 
     // === BWDREF_FRAME ===
     if (cpi->refresh_bwd_ref_frame) {
-      ref_cnt_fb(pool->frame_bufs,
-                 &cm->ref_frame_map[cpi->ref_fb_idx[BWDREF_FRAME - 1]],
-                 cm->new_fb_idx);
+#if TEST_SHIFT && MY_GF_4_STRUCT
+      if (cpi->new_struct_update_rule) {
+        int tmp = cpi->ref_fb_idx[EXT_REF - 1];
+        ref_cnt_fb(pool->frame_bufs, &cm->ref_frame_map[tmp], cm->new_fb_idx);
 
+        rshift_closest_bwd_ref_frames(cpi);
+        cpi->ref_fb_idx[BWDREF_FRAME - 1] = tmp;
+      } else {
+#endif
+        ref_cnt_fb(pool->frame_bufs,
+                   &cm->ref_frame_map[cpi->ref_fb_idx[BWDREF_FRAME - 1]],
+                   cm->new_fb_idx);
+#if TEST_SHIFT && MY_GF_4_STRUCT
+      }
+#endif
       memcpy(cpi->interp_filter_selected[BWDREF_FRAME],
              cpi->interp_filter_selected[0],
              sizeof(cpi->interp_filter_selected[0]));
