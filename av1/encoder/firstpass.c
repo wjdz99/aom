@@ -3741,6 +3741,7 @@ static void configure_buffer_updates(AV1_COMP *cpi) {
 #if MY_GF_4_STRUCT
       cpi->refresh_bwd_ref_frame = 1;
       cpi->refresh_alt2_ref_frame = 0;
+      cpi->rc.is_bwd_ref_frame = 1;
 #else
       cpi->refresh_bwd_ref_frame = 0;
       cpi->refresh_alt2_ref_frame = 1;

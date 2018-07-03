@@ -1311,9 +1311,14 @@ void av1_rc_postencode_update(AV1_COMP *cpi, uint64_t bytes_used) {
 
   if (cm->frame_type == KEY_FRAME) rc->frames_since_key = 0;
 
+#if MY_GF_4_STRUCT
+  // TODO(weitinglin): Should we also handle droppable frame here?
+  if (cm->show_frame) {
+#else
   // TODO(zoeliu): To investigate whether we should treat BWDREF_FRAME
   //               differently here for rc->avg_frame_bandwidth.
   if (cm->show_frame || rc->is_bwd_ref_frame) {
+#endif
     rc->frames_since_key++;
     rc->frames_to_key--;
   }
