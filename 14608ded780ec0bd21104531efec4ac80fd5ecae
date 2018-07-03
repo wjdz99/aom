@@ -34,6 +34,24 @@
       "revId": "14608ded780ec0bd21104531efec4ac80fd5ecae",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "75f6e2c4_eb0539a4",
+        "filename": "build/cmake/aom_config_defaults.cmake",
+        "patchSetId": 3
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-07-03T06:21:05Z",
+      "side": 1,
+      "message": "\u003e For reference, see a similar C / CXX flag I added to oss-fuzz build here:\n\u003e https://github.com/google/oss-fuzz/blob/master/projects/libaom/build.sh#L24\n\nthat will work in this case, but we still might get noise from other groups doing fuzzing. we can detect the sanitizer at compile time and avoid instrumenting a function or enable this define.",
+      "parentUuid": "f971834d_b242bfce",
+      "revId": "14608ded780ec0bd21104531efec4ac80fd5ecae",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
