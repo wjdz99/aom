@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3c79e632_641bb028",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 7619,
+      "author": {
+        "id": 8900
+      },
+      "writtenOn": "2018-07-03T03:56:02Z",
+      "side": 1,
+      "message": "Should this loop of av1_subtract_plane be wrapped by the following macro?",
+      "revId": "a5d728605a1d2d31a53d9d2a19a4c167dc4e3bd7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4f64685a_4ffe2856",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 7713,
+      "author": {
+        "id": 8900
+      },
+      "writtenOn": "2018-07-03T03:56:02Z",
+      "side": 1,
+      "message": "Should this loop of av1_subtract_plane be wrapped by the following macro?",
+      "revId": "a5d728605a1d2d31a53d9d2a19a4c167dc4e3bd7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
