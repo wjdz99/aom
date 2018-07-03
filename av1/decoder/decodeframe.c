@@ -4239,6 +4239,7 @@ static int read_uncompressed_header(AV1Decoder *pbi,
         av1_set_frame_refs(cm, lst_ref, gld_ref);
       }
 
+      // only read 7 number...
       for (int i = 0; i < INTER_REFS_PER_FRAME; ++i) {
         int ref = 0;
         if (!cm->frame_refs_short_signaling) {
