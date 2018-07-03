@@ -46,6 +46,30 @@
       "revId": "2a181abc188c451fd494ca92b514d761cdb66f70",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2e7246cc_ceb76df0",
+        "filename": "aom_dsp/arm/loopfilter_neon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 788,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-07-03T06:16:28Z",
+      "side": 1,
+      "message": "\u003e \u003e Thanks for the fix. \n\u003e \u003e Can you clarify why this fix is not applied on other 3 variables? Because other variables also not initialized similar to p1p0.\n\u003e \n\u003e These ones were enough to make it build without warnings with both gcc and clang, I didn\u0027t investigate why it only warned about these.\n\nmy guess would be the use with a set operation, usually we just default the register to 0. I removed this flag in libvpx, I\u0027d prefer if it wasn\u0027t overused here. Cherma could you investigate the usage here and remove this in a followup, please?",
+      "parentUuid": "160e4cf1_abef5da2",
+      "range": {
+        "startLine": 788,
+        "startChar": 41,
+        "endLine": 788,
+        "endChar": 57
+      },
+      "revId": "2a181abc188c451fd494ca92b514d761cdb66f70",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
