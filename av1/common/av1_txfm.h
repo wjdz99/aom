@@ -29,7 +29,14 @@ extern "C" {
 
 #if !defined(DO_RANGE_CHECK_CLAMP)
 #define DO_RANGE_CHECK_CLAMP 0
-#endif
+#if defined(__clang__) && defined(__has_attribute)
+#if __has_attribute(no_sanitize)
+// A sanitizer is being used. So suppress noise from integer overflow errors in
+// inverse transform functions by enabling clamping.
+#define DO_RANGE_CHECK_CLAMP 1
+#endif  // __has_attribute(no_sanitize)
+#endif  // defined(__clang__) && defined(__has_attribute)
+#endif  // !defined(DO_RANGE_CHECK_CLAMP)
 
 extern const int32_t av1_cospi_arr_data[7][64];
 extern const int32_t av1_sinpi_arr_data[7][5];
