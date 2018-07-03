@@ -369,7 +369,8 @@ typedef enum {
 } AVxWorkerStatus;
 
 // Function to be called by the worker thread. Takes two opaque pointers as
-// arguments (data1 and data2), and should return false in case of error.
+// arguments (data1 and data2). Returns true on success and returns false in
+// case of error.
 typedef int (*AVxWorkerHook)(void *, void *);
 
 // Platform-dependent implementation details for the worker.
