@@ -69,6 +69,30 @@
       "revId": "8d1bead5bf78641cc04e9e6e178a851f8a3e5ace",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2ee2f7a0_2fec5aac",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 694,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-03T16:36:12Z",
+      "side": 1,
+      "message": "An application needs to make sure av1_initialize_enc() is called only once. If an application calls av1_initialize_enc() directly, it will need to call av1_initialize_enc() via aom_once(). But more likely, an application calls aom_codec_enc_init(), in which case av1_initialize_enc() is called via aom_once() under the hood.\n\nNote that the init_done local variable that this CL removes is not thread-safe, so it can only do one-time initialization in single-threaded mode.",
+      "parentUuid": "6290e6e0_342b19e6",
+      "range": {
+        "startLine": 694,
+        "startChar": 5,
+        "endLine": 694,
+        "endChar": 23
+      },
+      "revId": "8d1bead5bf78641cc04e9e6e178a851f8a3e5ace",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
