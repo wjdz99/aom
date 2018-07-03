@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cf0cd1d9_16419a50",
+        "filename": "aom_dsp/grain_synthesis.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 954,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-03T17:08:22Z",
+      "side": 1,
+      "message": "I was planning to make this change. It is better to copy the bit_depth field in this function rather than in the caller.",
+      "range": {
+        "startLine": 954,
+        "startChar": 2,
+        "endLine": 954,
+        "endChar": 34
+      },
+      "revId": "8c7c90d72fde8608c110a8b7f07dcab0be70d8f6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b3cc4d61_22dfd3a6",
+        "filename": "aom_dsp/grain_synthesis.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1005,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-03T17:08:22Z",
+      "side": 1,
+      "message": "It is unfortunate that this function modifies \u0027params\u0027 like this. Without this assignment statement, we may be able to declare \u0027params\u0027 as const. I haven\u0027t figured out a solution.",
+      "range": {
+        "startLine": 1005,
+        "startChar": 2,
+        "endLine": 1005,
+        "endChar": 37
+      },
+      "revId": "8c7c90d72fde8608c110a8b7f07dcab0be70d8f6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
