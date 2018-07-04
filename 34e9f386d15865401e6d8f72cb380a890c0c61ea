@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "7885d145_03263fab",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2722,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2018-07-04T04:36:16Z",
+      "side": 1,
+      "message": "We are planning to use the function \u0027decode_tile_sb_row\u0027 only in row-mt \u003d 1 decoding. We will be  adding the top right sync dependency in this function. Merging this function with \u0027decode_tile\u0027 would require us to write void functions for \u0027sync_read\u0027 and \u0027sync_write\u0027 in the non row-mt path. In order to avoid separate void functions we preferred this approach.",
+      "parentUuid": "ba387968_6ab294b9",
+      "range": {
+        "startLine": 2722,
+        "startChar": 12,
+        "endLine": 2722,
+        "endChar": 30
+      },
+      "revId": "34e9f386d15865401e6d8f72cb380a890c0c61ea",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e6d2e797_1ec98c92",
         "filename": "av1/decoder/decodeframe.c",
         "patchSetId": 1
@@ -39,6 +63,29 @@
       "range": {
         "startLine": 3080,
         "startChar": 0,
+        "endLine": 3102,
+        "endChar": 7
+      },
+      "revId": "34e9f386d15865401e6d8f72cb380a890c0c61ea",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3982dfa5_606be8a9",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 3102,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2018-07-04T04:36:16Z",
+      "side": 1,
+      "message": "This code will be move outside the while loop in future commits, as each superblock row in a tile can be decoded by different threads.",
+      "range": {
+        "startLine": 3099,
+        "startChar": 6,
         "endLine": 3102,
         "endChar": 7
       },
@@ -68,6 +115,30 @@
       "revId": "34e9f386d15865401e6d8f72cb380a890c0c61ea",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "425582e4_403d8ced",
+        "filename": "av1/decoder/decoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2018-07-04T04:36:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ecac142f_0093cb35",
+      "range": {
+        "startLine": 150,
+        "startChar": 11,
+        "endLine": 150,
+        "endChar": 30
+      },
+      "revId": "34e9f386d15865401e6d8f72cb380a890c0c61ea",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
