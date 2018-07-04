@@ -45,6 +45,30 @@
       "revId": "8c7c90d72fde8608c110a8b7f07dcab0be70d8f6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "706b34d7_037d108c",
+        "filename": "aom_dsp/grain_synthesis.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1005,
+      "author": {
+        "id": 5975
+      },
+      "writtenOn": "2018-07-04T09:49:33Z",
+      "side": 1,
+      "message": "Since the \"params\" structure gives the parameters for a single frame, we should be able to set params-\u003ebit_depth while decoding the frame itself (in av1_read_film_grain_params()). I\u0027ll try that out and see if it works.",
+      "parentUuid": "b3cc4d61_22dfd3a6",
+      "range": {
+        "startLine": 1005,
+        "startChar": 2,
+        "endLine": 1005,
+        "endChar": 37
+      },
+      "revId": "8c7c90d72fde8608c110a8b7f07dcab0be70d8f6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }

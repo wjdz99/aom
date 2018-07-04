@@ -22,6 +22,30 @@
       "revId": "1f8bf1e8ef8819c4e9f7291e1e2eb14bf5f85e71",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f5487e41_fd757c1f",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 661,
+      "author": {
+        "id": 5975
+      },
+      "writtenOn": "2018-07-04T09:49:33Z",
+      "side": 0,
+      "message": "Ah - I meant to move this line lower down in the function (since we not use *index later on and want the old value), but that got lost when I was rebasing. I\u0027ll go add it back in!",
+      "parentUuid": "15058b07_b741249a",
+      "range": {
+        "startLine": 661,
+        "startChar": 10,
+        "endLine": 661,
+        "endChar": 74
+      },
+      "revId": "1f8bf1e8ef8819c4e9f7291e1e2eb14bf5f85e71",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
