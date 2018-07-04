@@ -28,7 +28,7 @@ void av1_nn_predict(const float *features, const NN_CONFIG *nn_config,
     const float *bias = nn_config->bias[layer];
     float *output_nodes = buf[buf_index];
     const int num_output_nodes = nn_config->num_hidden_nodes[layer];
-    assert(num_output_nodes < NN_MAX_NODES_PER_LAYER);
+    assert(num_output_nodes <= NN_MAX_NODES_PER_LAYER);
     for (int node = 0; node < num_output_nodes; ++node) {
       float val = 0.0f;
       for (int i = 0; i < num_input_nodes; ++i)
