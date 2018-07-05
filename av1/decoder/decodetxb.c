@@ -295,14 +295,9 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
 
       if (c == 0) dc_val = sign ? -level : level;
 
-      // Bitmasking to clamp level to valid range:
-      //   The valid range for 8/10/12 bit vdieo is at most 14/16/18 bit
       level &= 0xfffff;
       cul_level += level;
-      tran_low_t dq_coeff;
-      // Bitmasking to clamp dq_coeff to valid range:
-      //   The valid range for 8/10/12 bit video is at most 17/19/21 bit
-      dq_coeff = (tran_low_t)(
+      tran_low_t dq_coeff = (tran_low_t)(
           (int64_t)level * get_dqv(dequant, scan[c], iqmatrix) & 0xffffff);
       dq_coeff = dq_coeff >> shift;
       if (sign) {
