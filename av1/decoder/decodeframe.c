@@ -219,7 +219,6 @@ static void predict_and_reconstruct_intra_block(
   if (!mbmi->skip) {
     struct macroblockd_plane *const pd = &xd->plane[plane];
 
-    // tx_type will be read out in av1_read_coeffs_txb_facade
     const TX_TYPE tx_type = av1_get_tx_type(plane_type, xd, row, col, tx_size,
                                             cm->reduced_tx_set_used);
     eob_info *eob_data = pd->eob_data + xd->txb_offset[plane];
