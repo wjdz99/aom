@@ -202,7 +202,7 @@ function(add_rtcd_build_step config output source symbol)
     COMMAND ${PERL_EXECUTABLE} ARGS "${AOM_ROOT}/build/make/rtcd.pl"
             --arch=${AOM_TARGET_CPU}
             --sym=${symbol} ${AOM_RTCD_FLAGS}
-            --config=${AOM_CONFIG_DIR}/${AOM_TARGET_CPU}_rtcd_config.rtcd
+            --config=${AOM_CONFIG_DIR}/config/aom_config.h
             ${config} > ${output}
     DEPENDS ${config}
     COMMENT "Generating ${output}"
