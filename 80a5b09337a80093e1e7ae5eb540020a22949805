@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c8bfe467_8fca6b2d",
+        "filename": "av1/decoder/decoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-06T20:55:31Z",
+      "side": 1,
+      "message": "Optional: It would be better to free cm-\u003emip and reset cm-\u003emi_alloc_size to 0 before returning 1 here. It may be risky to leave these three fields (mpi, mi_alloc_size, mi_grid_base) in an inconsistent state. On the other hand, I think the current code will call dec_free_mi(), and dec_free_mi() can correctly free a \u0027cm\u0027 object in this state though.",
+      "range": {
+        "startLine": 65,
+        "startChar": 2,
+        "endLine": 65,
+        "endChar": 34
+      },
+      "revId": "80a5b09337a80093e1e7ae5eb540020a22949805",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
