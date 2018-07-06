@@ -22,6 +22,30 @@
       "revId": "80a5b09337a80093e1e7ae5eb540020a22949805",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "12121281_90e27e1b",
+        "filename": "av1/decoder/decoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-07-06T21:09:24Z",
+      "side": 1,
+      "message": "I think ideal would be that all failure cases in this function say \"goto fail\", and fail label just calls dec_free_mi().\n\nBut, this patch will still be needed in that case.\nSo, I think that can be done in a followup -- I\u0027m not sure if that will need changes elsewhere in the flow, and also this is consistent with encoder side behavior, so both should be changed simultaneously to be consistent.",
+      "parentUuid": "c8bfe467_8fca6b2d",
+      "range": {
+        "startLine": 65,
+        "startChar": 2,
+        "endLine": 65,
+        "endChar": 34
+      },
+      "revId": "80a5b09337a80093e1e7ae5eb540020a22949805",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
