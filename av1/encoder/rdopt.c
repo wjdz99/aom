@@ -67,6 +67,24 @@
 static const char av1_tx_size_data_output_file[] = "tx_size_data.txt";
 #endif
 
+#define COLLECT_INTER_MODE_SEARCH_BREAKOUT_DATA 0
+
+#if COLLECT_INTER_MODE_SEARCH_BREAKOUT_DATA
+static const char av1_pred_mode_breakout_data_output_file[] =
+    "inter_mode_breakout_data.txt";
+static int av1_reference_full_sz;
+static int16_t av1_reference_pred_mode_diff[MAX_MB_PLANE * MAX_SB_SQUARE];
+
+static int av1_reference_leftover_rate;
+static int av1_reference_coeff_rate_Y, av1_reference_coeff_rate_UV;
+static int64_t av1_reference_distortion_Y, av1_reference_distortion_UV;
+static int64_t av1_reference_full_rd_cost;
+static int av1_reference_is_skip;
+
+static const int av1_inter_mode_search_breakout_data_sparsity = 37;
+static int av1_inter_mode_search_breakout_data_current_idx = 0;
+#endif
+
 #define DUAL_FILTER_SET_SIZE (SWITCHABLE_FILTERS * SWITCHABLE_FILTERS)
 static const InterpFilters filter_sets[DUAL_FILTER_SET_SIZE] = {
   0x00000000, 0x00010000, 0x00020000,  // y = 0
@@ -5343,6 +5361,7 @@ static void select_tx_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
 
   av1_invalid_rd_stats(rd_stats);
 
+#if !COLLECT_INTER_MODE_SEARCH_BREAKOUT_DATA
   if (cpi->sf.model_based_prune_tx_search_level && ref_best_rd != INT64_MAX) {
     int model_rate;
     int64_t model_dist;
@@ -5360,6 +5379,7 @@ static void select_tx_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
             ref_best_rd)
       return;
   }
+#endif
 
   const uint32_t hash = get_block_residue_hash(x, bsize);
   MB_RD_RECORD *mb_rd_record = &x->mb_rd_record;
@@ -8163,6 +8183,10 @@ static int64_t motion_mode_rd(const AV1_COMP *const cpi, MACROBLOCK *const x,
       int64_t rdcosty = INT64_MAX;
       int is_cost_valid_uv = 0;
 
+#if COLLECT_INTER_MODE_SEARCH_BREAKOUT_DATA
+      int cur_leftover_rate = rd_stats->rate;
+#endif
+
       // cost and distortion
       av1_subtract_plane(x, bsize, 0);
       if (cm->tx_mode == TX_MODE_SELECT && !xd->lossless[mbmi->segment_id]) {
@@ -8272,6 +8296,94 @@ static int64_t motion_mode_rd(const AV1_COMP *const cpi, MACROBLOCK *const x,
       }
 #endif  // CONFIG_COLLECT_INTER_MODE_RD_STATS
       int64_t curr_rd = RDCOST(x->rdmult, rd_stats->rate, rd_stats->dist);
+
+#if COLLECT_INTER_MODE_SEARCH_BREAKOUT_DATA
+      const BLOCK_SIZE bsize_Y = get_plane_block_size(
+          bsize, xd->plane[0].subsampling_x, xd->plane[0].subsampling_y);
+      const int bw_Y = block_size_wide[bsize_Y];
+      const int bh_Y = block_size_high[bsize_Y];
+      const BLOCK_SIZE bsize_U = get_plane_block_size(
+          bsize, xd->plane[1].subsampling_x, xd->plane[1].subsampling_y);
+      const int bw_U = block_size_wide[bsize_U];
+      const int bh_U = block_size_high[bsize_U];
+      const BLOCK_SIZE bsize_V = get_plane_block_size(
+          bsize, xd->plane[2].subsampling_x, xd->plane[2].subsampling_y);
+      const int bw_V = block_size_wide[bsize_V];
+      const int bh_V = block_size_high[bsize_V];
+
+      const int sz_Y = bw_Y * bh_Y;
+      const int sz_U = bw_U * bh_U;
+      const int sz_V = bw_V * bh_V;
+
+#define GET_YUV_RESIDUE(dst)                        \
+  {                                                 \
+    int cur_pos = 0;                                \
+    memcpy(dst + cur_pos, x->plane[0].src_diff,     \
+           sz_Y * sizeof(x->plane[0].src_diff[0])); \
+    cur_pos += sz_Y;                                \
+    memcpy(dst + cur_pos, x->plane[1].src_diff,     \
+           sz_U * sizeof(x->plane[1].src_diff[0])); \
+    cur_pos += sz_U;                                \
+    memcpy(dst + cur_pos, x->plane[2].src_diff,     \
+           sz_V * sizeof(x->plane[2].src_diff[0])); \
+  }
+
+      if (av1_reference_full_rd_cost != INT64_MAX) {
+        av1_inter_mode_search_breakout_data_current_idx =
+            (av1_inter_mode_search_breakout_data_current_idx + 1) %
+            av1_inter_mode_search_breakout_data_sparsity;
+        if (av1_inter_mode_search_breakout_data_current_idx == 0) {
+          assert(av1_reference_full_sz == sz_Y + sz_U + sz_V);
+          FILE *fp = fopen(av1_pred_mode_breakout_data_output_file, "a");
+          if (fp) {
+            // General info
+            int dc_q = av1_dc_quant_QTX(x->qindex, 0, xd->bd);
+            int ac_q = av1_ac_quant_QTX(x->qindex, 0, xd->bd);
+            fprintf(fp, "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,", x->qindex, dc_q, ac_q,
+                    x->rdmult, bw_Y, bh_Y, bw_U, bh_U, bw_V, bh_V);
+
+            // RD stats and residue signal for the current prediction mode
+            fprintf(fp, "%d,%d,%d,%d,%d,%d,%d,", (int)AOMMIN(curr_rd, INT_MAX),
+                    cur_leftover_rate, rd_stats_y->rate, rd_stats_uv->rate,
+                    (int)AOMMIN(rd_stats_y->dist, INT_MAX),
+                    (int)AOMMIN(rd_stats_uv->dist, INT_MAX),
+                    (int)(rd_stats->dist == rd_stats->sse));
+            int16_t cur_pred_mode_diff[MAX_MB_PLANE * MAX_SB_SQUARE];
+            GET_YUV_RESIDUE(cur_pred_mode_diff);
+            for (int i = 0; i < av1_reference_full_sz; i++)
+              fprintf(fp, "%d,", cur_pred_mode_diff[i]);
+
+            // RD stats and residue signal for the current best prediction mode
+            fprintf(fp, "%d,%d,%d,%d,%d,%d,%d,",
+                    (int)AOMMIN(av1_reference_full_rd_cost, INT_MAX),
+                    av1_reference_leftover_rate, av1_reference_coeff_rate_Y,
+                    av1_reference_coeff_rate_UV,
+                    (int)AOMMIN(av1_reference_distortion_Y, INT_MAX),
+                    (int)AOMMIN(av1_reference_distortion_UV, INT_MAX),
+                    av1_reference_is_skip);
+            for (int i = 0; i < av1_reference_full_sz; i++)
+              fprintf(fp, "%d,", av1_reference_pred_mode_diff[i]);
+
+            fprintf(fp, "\n");
+            fclose(fp);
+          }
+        }
+      }
+
+      if (curr_rd < av1_reference_full_rd_cost) {
+        av1_reference_full_rd_cost = curr_rd;
+        av1_reference_leftover_rate = cur_leftover_rate;
+        av1_reference_coeff_rate_Y = rd_stats_y->rate;
+        av1_reference_coeff_rate_UV = rd_stats_uv->rate;
+        av1_reference_distortion_Y = rd_stats_y->dist;
+        av1_reference_distortion_UV = rd_stats_uv->dist;
+        av1_reference_is_skip = (rd_stats->dist == rd_stats->sse);
+        GET_YUV_RESIDUE(av1_reference_pred_mode_diff);
+        av1_reference_full_sz = sz_Y + sz_U + sz_V;
+      }
+#undef GET_YUV_RESIDUE
+#endif
+
       if (curr_rd < ref_best_rd) {
         ref_best_rd = curr_rd;
       }
@@ -10210,6 +10322,10 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
 
 #if CONFIG_COLLECT_INTER_MODE_RD_STATS
   int64_t best_est_rd = INT64_MAX;
+#endif
+
+#if COLLECT_INTER_MODE_SEARCH_BREAKOUT_DATA
+  av1_reference_full_rd_cost = INT64_MAX;
 #endif
 
   for (int midx = 0; midx < MAX_MODES; ++midx) {
