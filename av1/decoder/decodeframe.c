@@ -3059,71 +3059,245 @@ static int tile_worker_hook(void *arg1, void *arg2) {
   return !td->xd.corrupted;
 }
 
+static int get_next_job_info(AV1Decoder *const pbi,
+                             AV1DecRowMTJobInfo *next_job_info) {
+  AV1_COMMON *cm = &pbi->common;
+  const int sb_mi_size = mi_size_wide[cm->seq_params.sb_size];
+  int tile_rows_start = pbi->tile_rows_start;
+  int tile_rows_end = pbi->tile_rows_end;
+  int tile_cols_start = pbi->tile_cols_start;
+  int tile_cols_end = pbi->tile_cols_end;
+  int start_tile = pbi->start_tile;
+  int end_tile = pbi->end_tile;
+  int num_tiles = end_tile - start_tile + 1;
+  int decode_completed_tiles = 0;
+  int num_jobs_available, num_threads_working;
+  int min_threads_working = INT_MAX;
+  int max_jobs_available = 0;
+  int job_available = 0;
+  int tile_row_idx, tile_col_idx;
+  int tile_row = 0;
+  int tile_col = 0;
+  TileDataDec *tile_data;
+  TileInfo tile_info;
+  AV1DecRowMTSync *dec_row_mt_sync;
+
+  next_job_info->job_available = 0;
+
+  for (tile_row_idx = tile_rows_start; tile_row_idx < tile_rows_end;
+       ++tile_row_idx) {
+    for (tile_col_idx = tile_cols_start; tile_col_idx < tile_cols_end;
+         ++tile_col_idx) {
+      if (tile_row_idx * cm->tile_cols + tile_col_idx < start_tile ||
+          tile_row_idx * cm->tile_cols + tile_col_idx > end_tile)
+        continue;
+
+      tile_data = pbi->tile_data + tile_row_idx * cm->tile_cols + tile_col_idx;
+      dec_row_mt_sync = &tile_data->dec_row_mt_sync;
+      num_jobs_available = (dec_row_mt_sync->mi_rows_parse_done -
+                            dec_row_mt_sync->mi_rows_decode_started) *
+                           dec_row_mt_sync->mi_cols;
+      num_threads_working = dec_row_mt_sync->num_threads_working;
+
+      if (num_jobs_available > 0) {
+        if (num_threads_working < min_threads_working) {
+          min_threads_working = num_threads_working;
+          job_available = 1;
+        }
+      } else if (dec_row_mt_sync->mi_rows ==
+                 dec_row_mt_sync->mi_rows_decode_started) {
+        decode_completed_tiles++;
+      }
+    }
+  }
+
+  if (decode_completed_tiles == num_tiles || pbi->row_mt_exit == 1) {
+    pbi->frame_decode_completed = 1;
+    return 1;
+  }
+
+  if (job_available) {
+    for (tile_row_idx = tile_rows_start; tile_row_idx < tile_rows_end;
+         ++tile_row_idx) {
+      for (tile_col_idx = tile_cols_start; tile_col_idx < tile_cols_end;
+           ++tile_col_idx) {
+        if (tile_row_idx * cm->tile_cols + tile_col_idx < start_tile ||
+            tile_row_idx * cm->tile_cols + tile_col_idx > end_tile)
+          continue;
+
+        tile_data =
+            pbi->tile_data + tile_row_idx * cm->tile_cols + tile_col_idx;
+        dec_row_mt_sync = &tile_data->dec_row_mt_sync;
+        num_threads_working = dec_row_mt_sync->num_threads_working;
+        num_jobs_available = (dec_row_mt_sync->mi_rows_parse_done -
+                              dec_row_mt_sync->mi_rows_decode_started) *
+                             dec_row_mt_sync->mi_cols;
+
+        if (num_threads_working == min_threads_working &&
+            num_jobs_available > max_jobs_available) {
+          max_jobs_available = num_jobs_available;
+          tile_row = tile_row_idx;
+          tile_col = tile_col_idx;
+        }
+      }
+    }
+
+    tile_data = pbi->tile_data + tile_row * cm->tile_cols + tile_col;
+    tile_info = tile_data->tile_info;
+    dec_row_mt_sync = &tile_data->dec_row_mt_sync;
+
+    next_job_info->job_available = 1;
+    next_job_info->tile_row = tile_row;
+    next_job_info->tile_col = tile_col;
+    next_job_info->mi_row =
+        dec_row_mt_sync->mi_rows_decode_started + tile_info.mi_row_start;
+
+    dec_row_mt_sync->num_threads_working++;
+    dec_row_mt_sync->mi_rows_decode_started += sb_mi_size;
+
+    return 1;
+  }
+  return 0;
+}
+
+static int call_setjmp(DecWorkerData *const thread_data,
+                       AV1Decoder *const pbi) {
+  if (setjmp(thread_data->error_info.jmp)) {
+    thread_data->error_info.setjmp = 0;
+    thread_data->td->xd.corrupted = 1;
+#if CONFIG_MULTITHREAD
+    pthread_mutex_lock(pbi->row_mt_mutex_);
+#endif
+    pbi->row_mt_exit = 1;
+#if CONFIG_MULTITHREAD
+    pthread_mutex_unlock(pbi->row_mt_mutex_);
+#endif
+    return 0;
+  }
+  return 1;
+}
+
 static int row_mt_worker_hook(void *arg1, void *arg2) {
   DecWorkerData *const thread_data = (DecWorkerData *)arg1;
   AV1Decoder *const pbi = (AV1Decoder *)arg2;
   AV1_COMMON *cm = &pbi->common;
   const int num_planes = av1_num_planes(cm);
   ThreadData *const td = thread_data->td;
+  td->xd.corrupted = 0;
   uint8_t allow_update_cdf;
+  const int sb_mi_size = mi_size_wide[cm->seq_params.sb_size];
+  int end_of_frame = 0;
 
-  if (setjmp(thread_data->error_info.jmp)) {
-    thread_data->error_info.setjmp = 0;
-    thread_data->td->xd.corrupted = 1;
-    return 0;
-  }
-  thread_data->error_info.setjmp = 1;
+  if (call_setjmp(thread_data, pbi)) {
+    thread_data->error_info.setjmp = 1;
 
-  allow_update_cdf = cm->large_scale_tile ? 0 : 1;
-  allow_update_cdf = allow_update_cdf && !cm->disable_cdf_update;
+    allow_update_cdf = cm->large_scale_tile ? 0 : 1;
+    allow_update_cdf = allow_update_cdf && !cm->disable_cdf_update;
 
-  assert(cm->tile_cols > 0);
-  while (1) {
-    TileJobsDec *cur_job_info = get_dec_job_info(&pbi->tile_mt_info);
+    assert(cm->tile_cols > 0);
+    while (1) {
+      TileJobsDec *cur_job_info = get_dec_job_info(&pbi->tile_mt_info);
 
-    if (cur_job_info != NULL && !td->xd.corrupted) {
-      const TileBufferDec *const tile_buffer = cur_job_info->tile_buffer;
-      TileDataDec *const tile_data = cur_job_info->tile_data;
-      tile_worker_hook_init(pbi, thread_data, tile_buffer, tile_data,
-                            allow_update_cdf);
+      if (cur_job_info != NULL && !td->xd.corrupted) {
+        const TileBufferDec *const tile_buffer = cur_job_info->tile_buffer;
+        TileDataDec *const tile_data = cur_job_info->tile_data;
+        tile_worker_hook_init(pbi, thread_data, tile_buffer, tile_data,
+                              allow_update_cdf);
 
-      set_decode_func_pointers(td, 0x1);
+        set_decode_func_pointers(td, 0x1);
 
-      // decode tile
-      TileInfo tile_info = tile_data->tile_info;
-      int tile_row = tile_info.tile_row;
+        // decode tile
+        TileInfo tile_info = tile_data->tile_info;
+        int tile_row = tile_info.tile_row;
 
-      av1_zero_above_context(cm, tile_info.mi_col_start, tile_info.mi_col_end,
-                             tile_row);
-      av1_reset_loop_restoration(&td->xd, num_planes);
+        av1_zero_above_context(cm, tile_info.mi_col_start, tile_info.mi_col_end,
+                               tile_row);
+        av1_reset_loop_restoration(&td->xd, num_planes);
 
-      for (int mi_row = tile_info.mi_row_start; mi_row < tile_info.mi_row_end;
-           mi_row += cm->seq_params.mib_size) {
-        av1_zero_left_context(&td->xd);
+        for (int mi_row = tile_info.mi_row_start; mi_row < tile_info.mi_row_end;
+             mi_row += cm->seq_params.mib_size) {
+          av1_zero_left_context(&td->xd);
 
-        for (int mi_col = tile_info.mi_col_start; mi_col < tile_info.mi_col_end;
-             mi_col += cm->seq_params.mib_size) {
-          set_cb_buffer(pbi, &td->xd, pbi->cb_buffer_base, num_planes, mi_row,
-                        mi_col);
+          for (int mi_col = tile_info.mi_col_start;
+               mi_col < tile_info.mi_col_end;
+               mi_col += cm->seq_params.mib_size) {
+            set_cb_buffer(pbi, &td->xd, pbi->cb_buffer_base, num_planes, mi_row,
+                          mi_col);
 
-          // Bit-stream parsing of the superblock
-          decode_partition(pbi, td, mi_row, mi_col, td->bit_reader,
-                           cm->seq_params.sb_size, 0x1);
+            // Bit-stream parsing of the superblock
+            decode_partition(pbi, td, mi_row, mi_col, td->bit_reader,
+                             cm->seq_params.sb_size, 0x1);
+          }
+#if CONFIG_MULTITHREAD
+          pthread_mutex_lock(pbi->row_mt_mutex_);
+#endif
+          tile_data->dec_row_mt_sync.mi_rows_parse_done += sb_mi_size;
+#if CONFIG_MULTITHREAD
+          pthread_cond_broadcast(pbi->row_mt_cond_);
+          pthread_mutex_unlock(pbi->row_mt_mutex_);
+#endif
         }
+
+        int corrupted =
+            (check_trailing_bits_after_symbol_coder(td->bit_reader)) ? 1 : 0;
+        aom_merge_corrupted_flag(&td->xd.corrupted, corrupted);
+      } else {
+        break;
+      }
+    }
+
+    set_decode_func_pointers(td, 0x2);
+
+    while (end_of_frame == 0) {
+      TileDataDec *tile_data;
+      TileInfo tile_info;
+      AV1DecRowMTSync *dec_row_mt_sync;
+      AV1DecRowMTJobInfo next_job_info;
+      int tile_row, tile_col;
+      int mi_row;
+
+#if CONFIG_MULTITHREAD
+      pthread_mutex_lock(pbi->row_mt_mutex_);
+#endif
+
+      while (!get_next_job_info(pbi, &next_job_info)) {
+#if CONFIG_MULTITHREAD
+        pthread_cond_wait(pbi->row_mt_cond_, pbi->row_mt_mutex_);
+#endif
       }
 
-      int corrupted =
-          (check_trailing_bits_after_symbol_coder(td->bit_reader)) ? 1 : 0;
-      aom_merge_corrupted_flag(&td->xd.corrupted, corrupted);
+      end_of_frame = pbi->frame_decode_completed;
 
-      set_decode_func_pointers(td, 0x2);
+#if CONFIG_MULTITHREAD
+      pthread_mutex_unlock(pbi->row_mt_mutex_);
+#endif
 
-      for (int mi_row = tile_info.mi_row_start; mi_row < tile_info.mi_row_end;
-           mi_row += cm->seq_params.mib_size) {
+      if (next_job_info.job_available) {
+        tile_row = next_job_info.tile_row;
+        tile_col = next_job_info.tile_col;
+        mi_row = next_job_info.mi_row;
+
+        tile_data = pbi->tile_data + tile_row * cm->tile_cols + tile_col;
+        tile_info = tile_data->tile_info;
+        dec_row_mt_sync = &tile_data->dec_row_mt_sync;
+
+        td->xd = pbi->mb;
+        td->xd.mc_buf[0] = td->mc_buf[0];
+        td->xd.mc_buf[1] = td->mc_buf[1];
+        av1_tile_init(&td->xd.tile, cm, tile_row, tile_col);
+        av1_init_macroblockd(cm, &td->xd, td->dqcoeff);
+        td->xd.error_info = &thread_data->error_info;
+
         decode_tile_sb_row(pbi, td, tile_info, mi_row);
+
+#if CONFIG_MULTITHREAD
+        pthread_mutex_lock(pbi->row_mt_mutex_);
+#endif
+        dec_row_mt_sync->num_threads_working--;
+#if CONFIG_MULTITHREAD
+        pthread_mutex_unlock(pbi->row_mt_mutex_);
+#endif
       }
-    } else {
-      break;
     }
   }
   return !td->xd.corrupted;
@@ -3459,7 +3633,7 @@ static const uint8_t *decode_tiles_row_mt(AV1Decoder *pbi, const uint8_t *data,
     tile_cols_end = tile_cols;
   }
   tile_count_tg = end_tile - start_tile + 1;
-  num_workers = AOMMIN(pbi->max_threads, tile_count_tg);
+  num_workers = pbi->max_threads;
 
   // No tiles to decode.
   if (tile_rows_end <= tile_rows_start || tile_cols_end <= tile_cols_start ||
@@ -3475,6 +3649,8 @@ static const uint8_t *decode_tiles_row_mt(AV1Decoder *pbi, const uint8_t *data,
   assert(num_workers > 0);
   assert(start_tile <= end_tile);
   assert(start_tile >= 0 && end_tile < n_tiles);
+
+  (void)tile_count_tg;
 
   decode_mt_init(pbi);
 
@@ -3514,10 +3690,63 @@ static const uint8_t *decode_tiles_row_mt(AV1Decoder *pbi, const uint8_t *data,
     pbi->allocated_row_mt_sync_rows = max_sb_rows;
   }
 
+#if CONFIG_MULTITHREAD
+  if (pbi->row_mt_mutex_ == NULL) {
+    CHECK_MEM_ERROR(cm, pbi->row_mt_mutex_,
+                    aom_malloc(sizeof(*(pbi->row_mt_mutex_))));
+    if (pbi->row_mt_mutex_) {
+      pthread_mutex_init(pbi->row_mt_mutex_, NULL);
+    }
+  }
+
+  if (pbi->row_mt_cond_ == NULL) {
+    CHECK_MEM_ERROR(cm, pbi->row_mt_cond_,
+                    aom_malloc(sizeof(*(pbi->row_mt_cond_))));
+    if (pbi->row_mt_cond_) {
+      pthread_cond_init(pbi->row_mt_cond_, NULL);
+    }
+  }
+#endif
+
   tile_mt_queue(pbi, tile_cols, tile_rows, tile_rows_start, tile_rows_end,
                 tile_cols_start, tile_cols_end, start_tile, end_tile);
 
   dec_alloc_cb_buf(pbi);
+
+  pbi->tile_rows_start = tile_rows_start;
+  pbi->tile_rows_end = tile_rows_end;
+  pbi->tile_cols_start = tile_cols_start;
+  pbi->tile_cols_end = tile_cols_end;
+  pbi->start_tile = start_tile;
+  pbi->end_tile = end_tile;
+  pbi->frame_decode_completed = 0;
+  pbi->row_mt_exit = 0;
+
+  for (int tile_row = tile_rows_start; tile_row < tile_rows_end; ++tile_row) {
+    for (int tile_col = tile_cols_start; tile_col < tile_cols_end; ++tile_col) {
+      if (tile_row * cm->tile_cols + tile_col < start_tile ||
+          tile_row * cm->tile_cols + tile_col > end_tile)
+        continue;
+
+      TileDataDec *const tile_data =
+          pbi->tile_data + tile_row * cm->tile_cols + tile_col;
+      TileInfo tile_info = tile_data->tile_info;
+
+      tile_data->dec_row_mt_sync.mi_rows_parse_done = 0;
+      tile_data->dec_row_mt_sync.mi_rows_decode_started = 0;
+      tile_data->dec_row_mt_sync.num_threads_working = 0;
+      tile_data->dec_row_mt_sync.mi_rows =
+          ALIGN_POWER_OF_TWO(tile_info.mi_row_end - tile_info.mi_row_start,
+                             cm->seq_params.mib_size_log2);
+      tile_data->dec_row_mt_sync.mi_cols =
+          ALIGN_POWER_OF_TWO(tile_info.mi_col_end - tile_info.mi_col_start,
+                             cm->seq_params.mib_size_log2);
+
+      // Initialize cur_sb_col to -1 for all SB rows.
+      memset(tile_data->dec_row_mt_sync.cur_sb_col, -1,
+             sizeof(*tile_data->dec_row_mt_sync.cur_sb_col) * max_sb_rows);
+    }
+  }
 
   reset_dec_workers(pbi, row_mt_worker_hook, num_workers);
   launch_dec_workers(pbi, data_end, num_workers);
