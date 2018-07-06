@@ -3063,7 +3063,6 @@ static int row_mt_worker_hook(void *arg1, void *arg2) {
   DecWorkerData *const thread_data = (DecWorkerData *)arg1;
   AV1Decoder *const pbi = (AV1Decoder *)arg2;
   AV1_COMMON *cm = &pbi->common;
-  const int num_planes = av1_num_planes(cm);
   ThreadData *const td = thread_data->td;
   uint8_t allow_update_cdf;
 
@@ -3090,6 +3089,7 @@ static int row_mt_worker_hook(void *arg1, void *arg2) {
       set_decode_func_pointers(td, 0x1);
 
       // decode tile
+      const int num_planes = av1_num_planes(cm);
       TileInfo tile_info = tile_data->tile_info;
       int tile_row = tile_info.tile_row;
 
