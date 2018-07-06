@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a9b733db_9db97d10",
+        "filename": "build/make/rtcd.pl",
+        "patchSetId": 1
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-07-06T18:30:57Z",
+      "side": 1,
+      "message": "ihavenoideawhatimdoing.webp :)\n\nThere\u0027s probably a much saner and efficient way of doing this. Anyway, here\u0027s what\u0027s happening.\n\nThe old input line format was:\nVAR\u003dyes\nor\nVAR\u003d\n\nNow it is:\n#define VAR 1\nor\n#define VAR 0\n\nThis is just translating into the old format so the subsequent lines continue working. Suggestions welcome here.",
+      "range": {
+        "startLine": 61,
+        "startChar": 0,
+        "endLine": 66,
+        "endChar": 13
+      },
+      "revId": "229798d47cee3f90ca0b831d499b7715f11df71c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
