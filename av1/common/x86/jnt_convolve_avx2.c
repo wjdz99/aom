@@ -47,7 +47,7 @@ void av1_jnt_convolve_x_avx2(const uint8_t *src, int src_stride, uint8_t *dst0,
   const __m256i offset_const = _mm256_set1_epi16(offset);
   const int rounding_shift =
       2 * FILTER_BITS - conv_params->round_0 - conv_params->round_1;
-  const __m256i rounding_const = _mm256_set1_epi16((1 << rounding_shift) >> 1);
+  const __m256i rounding_scale = _mm256_set1_epi16(1 << (15 - rounding_shift));
   __m256i filt[4], coeffs[4];
 
   assert(bits >= 0);
@@ -60,9 +60,8 @@ void av1_jnt_convolve_x_avx2(const uint8_t *src, int src_stride, uint8_t *dst0,
 
   prepare_coeffs_lowbd(filter_params_x, subpel_x_q4, coeffs);
 
-  const __m256i round_const =
-      _mm256_set1_epi16((1 << (conv_params->round_0 - 1)) >> 1);
-  const __m128i round_shift = _mm_cvtsi32_si128(conv_params->round_0 - 1);
+  const __m256i round_scale =
+      _mm256_set1_epi16((1 << (15 - (conv_params->round_0 - 1))));
 
   (void)filter_params_y;
   (void)subpel_y_q4;
@@ -78,7 +77,7 @@ void av1_jnt_convolve_x_avx2(const uint8_t *src, int src_stride, uint8_t *dst0,
 
       __m256i res = convolve_lowbd_x(data, coeffs, filt);
 
-      res = _mm256_sra_epi16(_mm256_add_epi16(res, round_const), round_shift);
+      res = _mm256_mulhrs_epi16(res, round_scale);
 
       res = _mm256_slli_epi16(res, bits);
 
@@ -96,8 +95,8 @@ void av1_jnt_convolve_x_avx2(const uint8_t *src, int src_stride, uint8_t *dst0,
         const __m256i comp_avg_res =
             comp_avg(&data_ref_0, &res_unsigned, &wt, use_jnt_comp_avg);
 
-        const __m256i round_result = convolve_rounding(
-            &comp_avg_res, &offset_const, &rounding_const, rounding_shift);
+        const __m256i round_result =
+            convolve_rounding(&comp_avg_res, &offset_const, &rounding_scale);
 
         const __m256i res_8 = _mm256_packus_epi16(round_result, round_result);
         const __m128i res_0 = _mm256_castsi256_si128(res_8);
@@ -157,7 +156,7 @@ void av1_jnt_convolve_y_avx2(const uint8_t *src, int src_stride, uint8_t *dst0,
   const __m256i offset_const_2 = _mm256_set1_epi16((1 << offset_0));
   const int rounding_shift =
       2 * FILTER_BITS - conv_params->round_0 - conv_params->round_1;
-  const __m256i rounding_const = _mm256_set1_epi16((1 << rounding_shift) >> 1);
+  const __m256i rounding_scale = _mm256_set1_epi16(1 << (15 - rounding_shift));
   const __m256i zero = _mm256_setzero_si256();
   __m256i coeffs[4], s[8];
 
@@ -276,8 +275,8 @@ void av1_jnt_convolve_y_avx2(const uint8_t *src, int src_stride, uint8_t *dst0,
           const __m256i comp_avg_res =
               comp_avg(&data_ref_0, &res_lo_unsigned, &wt, use_jnt_comp_avg);
 
-          const __m256i round_result = convolve_rounding(
-              &comp_avg_res, &offset_const, &rounding_const, rounding_shift);
+          const __m256i round_result =
+              convolve_rounding(&comp_avg_res, &offset_const, &rounding_scale);
 
           const __m256i res_8 = _mm256_packus_epi16(round_result, round_result);
           const __m128i res_0 = _mm256_castsi256_si128(res_8);
@@ -346,10 +345,10 @@ void av1_jnt_convolve_y_avx2(const uint8_t *src, int src_stride, uint8_t *dst0,
               comp_avg(&data_ref_0_hi, &res_hi_unsigned, &wt, use_jnt_comp_avg);
 
           const __m256i round_result_lo = convolve_rounding(
-              &comp_avg_res_lo, &offset_const, &rounding_const, rounding_shift);
+              &comp_avg_res_lo, &offset_const, &rounding_scale);
 
           const __m256i round_result_hi = convolve_rounding(
-              &comp_avg_res_hi, &offset_const, &rounding_const, rounding_shift);
+              &comp_avg_res_hi, &offset_const, &rounding_scale);
 
           const __m256i res_8 =
               _mm256_packus_epi16(round_result_lo, round_result_hi);
@@ -417,7 +416,7 @@ void av1_jnt_convolve_2d_avx2(const uint8_t *src, int src_stride, uint8_t *dst0,
   const __m256i offset_const = _mm256_set1_epi16(offset);
   const int rounding_shift =
       2 * FILTER_BITS - conv_params->round_0 - conv_params->round_1;
-  const __m256i rounding_const = _mm256_set1_epi16((1 << rounding_shift) >> 1);
+  const __m256i rounding_scale = _mm256_set1_epi16(1 << (15 - rounding_shift));
   __m256i filt[4], s[8], coeffs_x[4], coeffs_y[4];
 
   assert(conv_params->round_0 > 0);
@@ -511,7 +510,7 @@ void av1_jnt_convolve_2d_avx2(const uint8_t *src, int src_stride, uint8_t *dst0,
                 comp_avg(&data_ref_0, &res_unsigned, &wt, use_jnt_comp_avg);
 
             const __m256i round_result = convolve_rounding(
-                &comp_avg_res, &offset_const, &rounding_const, rounding_shift);
+                &comp_avg_res, &offset_const, &rounding_scale);
 
             const __m256i res_8 =
                 _mm256_packus_epi16(round_result, round_result);
@@ -545,7 +544,7 @@ void av1_jnt_convolve_2d_avx2(const uint8_t *src, int src_stride, uint8_t *dst0,
                 comp_avg(&data_ref_0, &res_unsigned, &wt, use_jnt_comp_avg);
 
             const __m256i round_result = convolve_rounding(
-                &comp_avg_res, &offset_const, &rounding_const, rounding_shift);
+                &comp_avg_res, &offset_const, &rounding_scale);
 
             const __m256i res_8 =
                 _mm256_packus_epi16(round_result, round_result);
@@ -611,7 +610,7 @@ void av1_jnt_convolve_2d_copy_avx2(const uint8_t *src, int src_stride,
   const __m256i offset_const = _mm256_set1_epi16(offset);
   const int rounding_shift =
       2 * FILTER_BITS - conv_params->round_0 - conv_params->round_1;
-  const __m256i rounding_const = _mm256_set1_epi16((1 << rounding_shift) >> 1);
+  const __m256i rounding_scale = _mm256_set1_epi16(1 << (15 - rounding_shift));
   int i, j;
 
   if (!(w % 16)) {
@@ -630,8 +629,8 @@ void av1_jnt_convolve_2d_copy_avx2(const uint8_t *src, int src_stride,
           const __m256i comp_avg_res =
               comp_avg(&data_ref_0, &res_unsigned, &wt, use_jnt_comp_avg);
 
-          const __m256i round_result = convolve_rounding(
-              &comp_avg_res, &offset_const, &rounding_const, rounding_shift);
+          const __m256i round_result =
+              convolve_rounding(&comp_avg_res, &offset_const, &rounding_scale);
 
           const __m256i res_8 = _mm256_packus_epi16(round_result, round_result);
           const __m256i res_0 = _mm256_permute4x64_epi64(res_8, 0xD8);
@@ -673,8 +672,8 @@ void av1_jnt_convolve_2d_copy_avx2(const uint8_t *src, int src_stride,
           const __m256i comp_avg_res =
               comp_avg(&data_ref_0, &res_unsigned, &wt, use_jnt_comp_avg);
 
-          const __m256i round_result = convolve_rounding(
-              &comp_avg_res, &offset_const, &rounding_const, rounding_shift);
+          const __m256i round_result =
+              convolve_rounding(&comp_avg_res, &offset_const, &rounding_scale);
 
           const __m256i res_8 = _mm256_packus_epi16(round_result, round_result);
           const __m128i res_0 = _mm256_castsi256_si128(res_8);

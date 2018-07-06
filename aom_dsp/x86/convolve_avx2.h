@@ -159,11 +159,9 @@ static INLINE __m256i comp_avg(const __m256i *const data_ref_0,
 
 static INLINE __m256i convolve_rounding(const __m256i *const res_unsigned,
                                         const __m256i *const offset_const,
-                                        const __m256i *const round_const,
-                                        const int round_shift) {
+                                        const __m256i *const round_scale) {
   const __m256i res_signed = _mm256_sub_epi16(*res_unsigned, *offset_const);
-  const __m256i res_round = _mm256_srai_epi16(
-      _mm256_add_epi16(res_signed, *round_const), round_shift);
+  const __m256i res_round = _mm256_mulhrs_epi16(res_signed, *round_scale);
   return res_round;
 }
 
