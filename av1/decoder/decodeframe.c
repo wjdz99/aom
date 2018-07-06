@@ -3063,7 +3063,6 @@ static int row_mt_worker_hook(void *arg1, void *arg2) {
   DecWorkerData *const thread_data = (DecWorkerData *)arg1;
   AV1Decoder *const pbi = (AV1Decoder *)arg2;
   AV1_COMMON *cm = &pbi->common;
-  const int num_planes = av1_num_planes(cm);
   ThreadData *const td = thread_data->td;
   uint8_t allow_update_cdf;
 
@@ -3082,6 +3081,7 @@ static int row_mt_worker_hook(void *arg1, void *arg2) {
     TileJobsDec *cur_job_info = get_dec_job_info(&pbi->tile_mt_info);
 
     if (cur_job_info != NULL && !td->xd.corrupted) {
+      const int num_planes = av1_num_planes(cm);
       const TileBufferDec *const tile_buffer = cur_job_info->tile_buffer;
       TileDataDec *const tile_data = cur_job_info->tile_data;
       tile_worker_hook_init(pbi, thread_data, tile_buffer, tile_data,
