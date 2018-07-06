@@ -64,6 +64,13 @@ typedef struct ThreadData {
   cfl_store_inter_block_visitor_fn_t cfl_store_inter_block_visit;
 } ThreadData;
 
+typedef struct AV1DecRowMTJobInfo {
+  int tile_row;
+  int tile_col;
+  int mi_row;
+  int job_available;
+} AV1DecRowMTJobInfo;
+
 typedef struct AV1DecRowMTSyncData {
 #if CONFIG_MULTITHREAD
   pthread_mutex_t *mutex_;
@@ -72,6 +79,11 @@ typedef struct AV1DecRowMTSyncData {
   int allocated_sb_rows;
   int *cur_sb_col;
   int sync_range;
+  int mi_rows;
+  int mi_cols;
+  int mi_rows_parse_done;
+  int mi_rows_decode_started;
+  int num_threads_working;
 } AV1DecRowMTSync;
 
 typedef struct TileDataDec {
@@ -204,6 +216,20 @@ typedef struct AV1Decoder {
   int cb_buffer_alloc_size;
 
   int allocated_row_mt_sync_rows;
+
+#if CONFIG_MULTITHREAD
+  pthread_mutex_t *row_mt_mutex_;
+  pthread_cond_t *row_mt_cond_;
+#endif
+
+  int tile_rows_start;
+  int tile_rows_end;
+  int tile_cols_start;
+  int tile_cols_end;
+  int start_tile;
+  int end_tile;
+  int num_tiles_completed;
+  int row_mt_exit;
 } AV1Decoder;
 
 int av1_receive_compressed_data(struct AV1Decoder *pbi, size_t size,
