@@ -69,6 +69,7 @@ static const int mode_lf_lut[] = {
 //
 // A loopfilter should be applied to every other 4x4 horizontally.
 // TODO(chengchen): make these tables static
+/*
 const FilterMask left_txform_mask[TX_SIZES] = {
   { { 0xffffffffffffffffULL,  // TX_4X4,
       0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL } },
@@ -85,6 +86,7 @@ const FilterMask left_txform_mask[TX_SIZES] = {
   { { 0x0001000100010001ULL,  // TX_64X64,
       0x0001000100010001ULL, 0x0001000100010001ULL, 0x0001000100010001ULL } },
 };
+*/
 
 // 256 bit masks (64x64 / 4x4) for above transform size for Y plane.
 // We use 4 uint64_t to represent the 256 bit.
@@ -113,6 +115,7 @@ const FilterMask left_txform_mask[TX_SIZES] = {
 //    00000000|00000000
 //
 // A loopfilter should be applied to every other 4x4 horizontally.
+/*
 const FilterMask above_txform_mask[TX_SIZES] = {
   { { 0xffffffffffffffffULL,  // TX_4X4
       0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL } },
@@ -129,6 +132,7 @@ const FilterMask above_txform_mask[TX_SIZES] = {
   { { 0x000000000000ffffULL,  // TX_64X64
       0x0000000000000000ULL, 0x0000000000000000ULL, 0x0000000000000000ULL } },
 };
+*/
 
 // 64 bit mask to shift and set for each prediction size. A bit is set for
 // each 4x4 block that would be in the top left most block of the given block
@@ -248,10 +252,10 @@ static void update_sharpness(loop_filter_info_n *lfi, int sharpness_lvl) {
            SIMD_WIDTH);
   }
 }
-static uint8_t get_filter_level(const AV1_COMMON *cm,
-                                const loop_filter_info_n *lfi_n,
-                                const int dir_idx, int plane,
-                                const MB_MODE_INFO *mbmi) {
+
+uint8_t get_filter_level(const AV1_COMMON *cm, const loop_filter_info_n *lfi_n,
+                         const int dir_idx, int plane,
+                         const MB_MODE_INFO *mbmi) {
   const int segment_id = mbmi->segment_id;
   if (cm->delta_lf_present_flag) {
     int delta_lf;
@@ -413,7 +417,7 @@ void av1_loop_filter_frame_init(AV1_COMMON *cm, int plane_start,
 // After locating which uint64_t, mi_row % 4 is the
 // row offset, and each row has 16 = 1 << stride_log2 4x4 units.
 // Therefore, shift = (row << stride_log2) + mi_col;
-static int get_index_shift(int mi_col, int mi_row, int *index) {
+int get_index_shift(int mi_col, int mi_row, int *index) {
   // *index = mi_row >> 2;
   // rows = mi_row % 4;
   // stride_log2 = 4;
@@ -623,11 +627,12 @@ static void setup_masks(AV1_COMMON *const cm, int mi_row, int mi_col, int plane,
           const TX_SIZE prev_tx_size =
               plane ? av1_get_max_uv_txsize(mbmi_prev->sb_type, ssx, ssy)
                     : mbmi_prev->tx_size;
-          const TX_SIZE min_tx_size =
-              (dir == VERT_EDGE) ? AOMMIN(txsize_horz_map[tx_size],
-                                          txsize_horz_map[prev_tx_size])
-                                 : AOMMIN(txsize_vert_map[tx_size],
-                                          txsize_vert_map[prev_tx_size]);
+          TX_SIZE min_tx_size = (dir == VERT_EDGE)
+                                    ? AOMMIN(txsize_horz_map[tx_size],
+                                             txsize_horz_map[prev_tx_size])
+                                    : AOMMIN(txsize_vert_map[tx_size],
+                                             txsize_vert_map[prev_tx_size]);
+          min_tx_size = AOMMIN(min_tx_size, TX_16X16);
           assert(min_tx_size < TX_SIZES);
           const int row = r % MI_SIZE_64X64;
           const int col = c % MI_SIZE_64X64;
@@ -1297,45 +1302,6 @@ static void highbd_filter_selectively_horiz(
     mask_8x8 >>= step * count;
     mask_4x4 >>= step * count;
   }
-}
-
-static int compare_ref_dst(AV1_COMMON *const cm, uint8_t *ref_buf,
-                           uint8_t *dst_buf, int ref_stride, int dst_stride,
-                           int start, int end) {
-  return 0;
-
-  start <<= MI_SIZE_LOG2;
-  end <<= MI_SIZE_LOG2;
-  uint8_t *ref0 = ref_buf;
-  uint8_t *dst0 = dst_buf;
-  if (cm->use_highbitdepth) {
-    const uint16_t *ref16 = CONVERT_TO_SHORTPTR(ref_buf);
-    const uint16_t *dst16 = CONVERT_TO_SHORTPTR(dst_buf);
-    for (int j = 0; j < 4; ++j) {
-      for (int i = start; i < end; ++i)
-        if (ref16[i] != dst16[i]) {
-          ref_buf = ref0;
-          dst_buf = dst0;
-          return i + 1;
-        }
-      ref16 += ref_stride;
-      dst16 += dst_stride;
-    }
-  } else {
-    for (int j = 0; j < 4; ++j) {
-      for (int i = start; i < end; ++i)
-        if (ref_buf[i] != dst_buf[i]) {
-          ref_buf = ref0;
-          dst_buf = dst0;
-          return i + 1;
-        }
-      ref_buf += ref_stride;
-      dst_buf += dst_stride;
-    }
-  }
-  ref_buf = ref0;
-  dst_buf = dst0;
-  return 0;
 }
 
 void av1_filter_block_plane_ver(AV1_COMMON *const cm,
