@@ -2358,12 +2358,13 @@ static void PrintPredictionUnitStats(const AV1_COMP *const cpi, MACROBLOCK *x,
   const int plane = 0;
   struct macroblock_plane *const p = &x->plane[plane];
   const struct macroblockd_plane *const pd = &xd->plane[plane];
-  const int bw = block_size_wide[plane_bsize];
-  const int bh = block_size_high[plane_bsize];
+  const int diff_stride = block_size_wide[plane_bsize];
+  get_txb_dimensions(xd, plane, plane_bsize, 0, 0, plane_bsize, NULL, NULL, &bw,
+                     &bh);
+  const int num_samples = bw * bh;
   const int dequant_shift =
       (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) ? xd->bd - 5 : 3;
   const int q_step = pd->dequant_Q3[1] >> dequant_shift;
-  const double num_samples = bw * bh;
 
   const double rate_norm = (double)rd_stats->rate / num_samples;
   const double dist_norm = (double)rd_stats->dist / num_samples;
@@ -2374,18 +2375,17 @@ static void PrintPredictionUnitStats(const AV1_COMP *const cpi, MACROBLOCK *x,
   const uint8_t *const src = p->src.buf;
   const int dst_stride = pd->dst.stride;
   const uint8_t *const dst = pd->dst.buf;
-  unsigned int sse;
-  cpi->fn_ptr[plane_bsize].vf(src, src_stride, dst, dst_stride, &sse);
+  const int16_t *const src_diff = p->src_diff;
+
+  int64_t sse = aom_sum_squares_2d_i16(src_diff, diff_stride, bw, bh);
   const double sse_norm = (double)sse / num_samples;
 
   const unsigned int sad =
       cpi->fn_ptr[plane_bsize].sdf(src, src_stride, dst, dst_stride);
-  const double sad_norm = (double)sad / num_samples;
+  const double sad_norm =
+      (double)sad / (1 << num_pels_log2_lookup[plane_bsize]);
 
   fprintf(fout, " %g %g", sse_norm, sad_norm);
-
-  const int diff_stride = block_size_wide[plane_bsize];
-  const int16_t *const src_diff = p->src_diff;
 
   double sse_norm_arr[4], sad_norm_arr[4];
   get_2x2_normalized_sses_and_sads(cpi, plane_bsize, src, src_stride, dst,
@@ -2430,11 +2430,13 @@ static void model_rd_with_dnn(const AV1_COMP *const cpi, MACROBLOCK *const x,
   const MACROBLOCKD *const xd = &x->e_mbd;
   const struct macroblockd_plane *const pd = &xd->plane[plane];
   const int log_numpels = num_pels_log2_lookup[plane_bsize];
-  const int num_samples = (1 << log_numpels);
 
   const struct macroblock_plane *const p = &x->plane[plane];
-  const int bw = block_size_wide[plane_bsize];
-  const int bh = block_size_high[plane_bsize];
+  int bw, bh;
+  const int diff_stride = block_size_wide[plane_bsize];
+  get_txb_dimensions(xd, plane, plane_bsize, 0, 0, plane_bsize, NULL, NULL, &bw,
+                     &bh);
+  const int num_samples = bw * bh;
   const int dequant_shift =
       (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) ? xd->bd - 5 : 3;
   const int q_step = pd->dequant_Q3[1] >> dequant_shift;
@@ -2445,7 +2447,7 @@ static void model_rd_with_dnn(const AV1_COMP *const cpi, MACROBLOCK *const x,
   const uint8_t *const dst = pd->dst.buf;
   const int16_t *const src_diff = p->src_diff;
   const int shift = (xd->bd - 8);
-  int64_t sse = aom_sum_squares_2d_i16(p->src_diff, bw, bw, bh);
+  int64_t sse = aom_sum_squares_2d_i16(p->src_diff, diff_stride, bw, bh);
   sse = ROUND_POWER_OF_TWO(sse, shift * 2);
   const double sse_norm = (double)sse / num_samples;
 
@@ -2468,8 +2470,8 @@ static void model_rd_with_dnn(const AV1_COMP *const cpi, MACROBLOCK *const x,
 
   double sse_norm_arr[4];
   get_2x2_normalized_sses_and_sads(cpi, plane_bsize, src, src_stride, dst,
-                                   dst_stride, src_diff, bw, sse_norm_arr,
-                                   NULL);
+                                   dst_stride, src_diff, diff_stride,
+                                   sse_norm_arr, NULL);
   if (shift) {
     for (int k = 0; k < 4; ++k) sse_norm_arr[k] /= (1 << shift);
   }
@@ -2480,7 +2482,7 @@ static void model_rd_with_dnn(const AV1_COMP *const cpi, MACROBLOCK *const x,
   const double q_sqr = (double)(q_step * q_step);
   const double q_sqr_by_sse_norm = q_sqr / (sse_norm + 1.0);
   double hor_corr, vert_corr;
-  get_horver_correlation(src_diff, bw, bw, bh, &hor_corr, &vert_corr);
+  get_horver_correlation(src_diff, diff_stride, bw, bh, &hor_corr, &vert_corr);
 
   float features[11];
   features[0] = (float)hor_corr;
@@ -2499,18 +2501,37 @@ static void model_rd_with_dnn(const AV1_COMP *const cpi, MACROBLOCK *const x,
   av1_nn_predict(features, &av1_pustats_dist_nnconfig, &dist_by_sse_norm_f);
   av1_nn_predict(features, &av1_pustats_rate_nnconfig, &rate_f);
   const float dist_f = (float)((double)dist_by_sse_norm_f * (1.0 + sse_norm));
-  int rate_i = (int)(AOMMAX(0.0, rate_f * (1 << log_numpels)) + 0.5);
-  int64_t dist_i = (int64_t)(AOMMAX(0.0, dist_f * (1 << log_numpels)) + 0.5);
+  int rate_i = (int)(AOMMAX(0.0, rate_f * num_samples) + 0.5);
+  int64_t dist_i = (int64_t)(AOMMAX(0.0, dist_f * num_samples) + 0.5);
 
   // Check if skip is better
   if (RDCOST(x->rdmult, rate_i, dist_i) >= RDCOST(x->rdmult, 0, (sse << 4))) {
     dist_i = sse << 4;
     rate_i = 0;
+  } else if (rate_i == 0) {
+    dist_i = sse << 4;
   }
 
   if (rate) *rate = rate_i;
   if (dist) *dist = dist_i;
   if (rsse) *rsse = sse;
+  /*
+  {
+    static int count = 0;
+    RD_STATS rd_stats_y;
+    if (count >= 159984) {
+      printf("Gotcha\n");
+    }
+    printf("Count: %d\n", count++);
+    av1_invalid_rd_stats(&rd_stats_y);
+    select_tx_type_yrd(cpi, x, &rd_stats_y, plane_bsize, mi_row, mi_col,
+                       INT64_MAX);
+    printf("Full RD:      %d %"PRId64", skip %d sse %"PRId64"\n",
+  rd_stats_y.rate, rd_stats_y.dist, rd_stats_y.skip, rd_stats_y.sse);
+    printf("DNN Model RD: %d %"PRId64"\n", rate_i, dist_i);
+    assert(IMPLIES(rd_stats_y.rate == 0, rd_stats_y.dist == sse << 4));
+  }
+  */
   return;
 }
 
