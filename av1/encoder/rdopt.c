@@ -58,7 +58,7 @@
 #include "av1/encoder/tokenize.h"
 #include "av1/encoder/tx_prune_model_weights.h"
 
-#define DNN_BASED_RD_INTERP_FILTER 0
+#define DNN_BASED_RD_INTERP_FILTER 1
 
 // Set this macro as 1 to collect data about tx size selection.
 #define COLLECT_TX_SIZE_DATA 0
@@ -2426,8 +2426,9 @@ static void PrintPredictionUnitStats(const AV1_COMP *const cpi, MACROBLOCK *x,
 #endif  // CONFIG_COLLECT_RD_STATS
 
 static void model_rd_with_dnn(const AV1_COMP *const cpi, MACROBLOCK *const x,
-                              BLOCK_SIZE plane_bsize, int plane, int64_t *rsse,
-                              int *rate, int64_t *dist) {
+                              BLOCK_SIZE plane_bsize, int plane, int mi_row,
+                              int mi_col, int64_t *rsse, int *rate,
+                              int64_t *dist) {
   const MACROBLOCKD *const xd = &x->e_mbd;
   const struct macroblockd_plane *const pd = &xd->plane[plane];
   const int log_numpels = num_pels_log2_lookup[plane_bsize];
@@ -2522,7 +2523,7 @@ static void model_rd_with_dnn(const AV1_COMP *const cpi, MACROBLOCK *const x,
     select_tx_type_yrd(cpi, x, &rd_stats_y, plane_bsize, mi_row, mi_col,
                        INT64_MAX);
     printf("Full RD:      %d %"PRId64", skip %d sse %"PRId64"\n",
-  rd_stats_y.rate, rd_stats_y.dist, rd_stats_y.skip, rd_stats_y.sse);
+           rd_stats_y.rate, rd_stats_y.dist, rd_stats_y.skip, rd_stats_y.sse);
     printf("DNN Model RD: %d %"PRId64"\n", rate_i, dist_i);
     assert(IMPLIES(rd_stats_y.rate == 0, rd_stats_y.dist == sse << 4));
   }
@@ -2532,10 +2533,11 @@ static void model_rd_with_dnn(const AV1_COMP *const cpi, MACROBLOCK *const x,
 
 void model_rd_for_sb_with_dnn(const AV1_COMP *const cpi, BLOCK_SIZE bsize,
                               MACROBLOCK *x, MACROBLOCKD *xd, int plane_from,
-                              int plane_to, int *out_rate_sum,
-                              int64_t *out_dist_sum, int *skip_txfm_sb,
-                              int64_t *skip_sse_sb, int *plane_rate,
-                              int64_t *plane_sse, int64_t *plane_dist) {
+                              int plane_to, int mi_row, int mi_col,
+                              int *out_rate_sum, int64_t *out_dist_sum,
+                              int *skip_txfm_sb, int64_t *skip_sse_sb,
+                              int *plane_rate, int64_t *plane_sse,
+                              int64_t *plane_dist) {
   // Note our transform coeffs are 8 times an orthogonal transform.
   // Hence quantizer step is also 8 times. To get effective quantizer
   // we need to divide by 8 before sending to modeling function.
@@ -2557,7 +2559,8 @@ void model_rd_for_sb_with_dnn(const AV1_COMP *const cpi, BLOCK_SIZE bsize,
 
     if (x->skip_chroma_rd && plane) continue;
 
-    model_rd_with_dnn(cpi, x, plane_bsize, plane, &sse, &rate, &dist);
+    model_rd_with_dnn(cpi, x, plane_bsize, plane, mi_row, mi_col, &sse, &rate,
+                      &dist);
 
     if (plane == 0) x->pred_sse[ref] = (unsigned int)AOMMIN(sse, UINT_MAX);
 
@@ -7654,8 +7657,9 @@ static INLINE int64_t interpolation_filter_rd(
     av1_build_inter_predictors_sby(cm, xd, mi_row, mi_col, orig_dst, bsize);
     av1_subtract_plane(x, bsize, 0);
 #if DNN_BASED_RD_INTERP_FILTER
-    model_rd_for_sb_with_dnn(cpi, bsize, x, xd, 0, 0, &tmp_rate, &tmp_dist,
-                             &tmp_skip_sb, &tmp_skip_sse, NULL, NULL, NULL);
+    model_rd_for_sb_with_dnn(cpi, bsize, x, xd, 0, 0, mi_row, mi_col, &tmp_rate,
+                             &tmp_dist, &tmp_skip_sb, &tmp_skip_sse, NULL, NULL,
+                             NULL);
 #else
     model_rd_for_sb(cpi, bsize, x, xd, 0, 0, &tmp_rate, &tmp_dist, &tmp_skip_sb,
                     &tmp_skip_sse, NULL, NULL, NULL);
@@ -7672,9 +7676,9 @@ static INLINE int64_t interpolation_filter_rd(
       for (int plane = 1; plane < num_planes; ++plane)
         av1_subtract_plane(x, bsize, plane);
 #if DNN_BASED_RD_INTERP_FILTER
-      model_rd_for_sb_with_dnn(cpi, bsize, x, xd, 1, num_planes - 1,
-                               &tmp_rate_uv, &tmp_dist_uv, &tmp_skip_sb_uv,
-                               &tmp_skip_sse_uv, NULL, NULL, NULL);
+      model_rd_for_sb_with_dnn(
+          cpi, bsize, x, xd, 1, num_planes - 1, mi_row, mi_col, &tmp_rate_uv,
+          &tmp_dist_uv, &tmp_skip_sb_uv, &tmp_skip_sse_uv, NULL, NULL, NULL);
 #else
       model_rd_for_sb(cpi, bsize, x, xd, 1, num_planes - 1, &tmp_rate_uv,
                       &tmp_dist_uv, &tmp_skip_sb_uv, &tmp_skip_sse_uv, NULL,
@@ -7780,9 +7784,9 @@ static int64_t interpolation_filter_search(
   for (int plane = 0; plane < num_planes; ++plane)
     av1_subtract_plane(x, bsize, plane);
 #if DNN_BASED_RD_INTERP_FILTER
-  model_rd_for_sb_with_dnn(cpi, bsize, x, xd, 0, num_planes - 1, &tmp_rate,
-                           &tmp_dist, skip_txfm_sb, skip_sse_sb, NULL, NULL,
-                           NULL);
+  model_rd_for_sb_with_dnn(cpi, bsize, x, xd, 0, num_planes - 1, mi_row, mi_col,
+                           &tmp_rate, &tmp_dist, skip_txfm_sb, skip_sse_sb,
+                           NULL, NULL, NULL);
 #else
   model_rd_for_sb(cpi, bsize, x, xd, 0, num_planes - 1, &tmp_rate, &tmp_dist,
                   skip_txfm_sb, skip_sse_sb, NULL, NULL, NULL);
