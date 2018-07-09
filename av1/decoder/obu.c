@@ -190,7 +190,10 @@ static uint32_t read_sequence_header_obu(AV1Decoder *pbi,
     return 0;
   }
 
-  SequenceHeader *const seq_params = &cm->seq_params;
+  // Use a local variable to store the info. as we decode. At the end, if no
+  // errors have occurred, cm->seq_params is updated.
+  SequenceHeader sh = cm->seq_params;
+  SequenceHeader *const seq_params = &sh;
 
   // Still picture or not
   seq_params->still_picture = aom_rb_read_bit(rb);
@@ -318,6 +321,8 @@ static uint32_t read_sequence_header_obu(AV1Decoder *pbi,
   }
 
   cm->film_grain_params_present = aom_rb_read_bit(rb);
+
+  cm->seq_params = *seq_params;
 
   if (av1_check_trailing_bits(pbi, rb) != 0) {
     // cm->error.error_code is already set.
