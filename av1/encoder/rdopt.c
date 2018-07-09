@@ -2473,7 +2473,7 @@ static void model_rd_with_dnn(const AV1_COMP *const cpi, MACROBLOCK *const x,
   const double variance = sse_norm - mean * mean;
   assert(variance >= 0.0);
   const double q_sqr = (double)(q_step * q_step);
-  const double q_sqr_by_variance = q_sqr / (variance + 1.0);
+  const double q_sqr_by_sse_norm = q_sqr / (sse_norm + 1.0);
   double hor_corr, vert_corr;
   get_horver_correlation(src_diff, bw, bw, bh, &hor_corr, &vert_corr);
 
@@ -2481,7 +2481,7 @@ static void model_rd_with_dnn(const AV1_COMP *const cpi, MACROBLOCK *const x,
   features[0] = (float)hor_corr;
   features[1] = (float)log_numpels;
   features[2] = (float)q_sqr;
-  features[3] = (float)q_sqr_by_variance;
+  features[3] = (float)q_sqr_by_sse_norm;
   features[4] = (float)sse_norm_arr[0];
   features[5] = (float)sse_norm_arr[1];
   features[6] = (float)sse_norm_arr[2];
@@ -2490,10 +2490,10 @@ static void model_rd_with_dnn(const AV1_COMP *const cpi, MACROBLOCK *const x,
   features[9] = (float)variance;
   features[10] = (float)vert_corr;
 
-  float rate_f, dist_by_variance_f;
-  av1_nn_predict(features, &av1_pustats_dist_nnconfig, &dist_by_variance_f);
+  float rate_f, dist_by_sse_norm_f;
+  av1_nn_predict(features, &av1_pustats_dist_nnconfig, &dist_by_sse_norm_f);
   av1_nn_predict(features, &av1_pustats_rate_nnconfig, &rate_f);
-  const float dist_f = (float)((double)dist_by_variance_f * (1.0 + variance));
+  const float dist_f = (float)((double)dist_by_sse_norm_f * (1.0 + sse_norm));
   int rate_i = (int)(AOMMAX(0.0, rate_f * (1 << log_numpels)) + 0.5);
   int64_t dist_i = (int64_t)(AOMMAX(0.0, dist_f * (1 << log_numpels)) + 0.5);
 
