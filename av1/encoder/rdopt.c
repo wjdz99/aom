@@ -2583,7 +2583,9 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
   int has_zero_eob = 0;
 #endif
   for (TX_TYPE tx_type = txk_start; tx_type <= txk_end; ++tx_type) {
-    if (!allowed_tx_mask[tx_type]) continue;
+    if (!allowed_tx_mask[tx_type]) {
+      if (!(plane == 0 && allowed_tx_num == 16)) continue;
+    }
 #if COLLECT_TX_TYPE_DATA
     ++tx_types_examined;
 #endif
@@ -2640,7 +2642,7 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
       if (x->plane[plane].eobs[block] == 0) has_zero_eob = 1;
     }
 #endif
-    if (rd < best_rd) {
+    if (rd < best_rd && allowed_tx_mask[tx_type]) {
       best_rd = rd;
       *best_rd_stats = this_rd_stats;
       best_tx_type = tx_type;
