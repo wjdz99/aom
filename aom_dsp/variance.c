@@ -118,8 +118,7 @@ void aom_var_filter_block2d_bil_first_pass_c(const uint8_t *a, uint16_t *b,
 
   for (i = 0; i < output_height; ++i) {
     for (j = 0; j < output_width; ++j) {
-      b[j] = ROUND_POWER_OF_TWO(
-          (int)a[0] * filter[0] + (int)a[pixel_step] * filter[1], FILTER_BITS);
+      b[j] = (int)a[0] * filter[0] + (int)a[pixel_step] * filter[1];
 
       ++a;
     }
@@ -149,7 +148,7 @@ void aom_var_filter_block2d_bil_second_pass_c(const uint16_t *a, uint8_t *b,
   for (i = 0; i < output_height; ++i) {
     for (j = 0; j < output_width; ++j) {
       b[j] = ROUND_POWER_OF_TWO(
-          (int)a[0] * filter[0] + (int)a[pixel_step] * filter[1], FILTER_BITS);
+          (int)a[0] * filter[0] + (int)a[pixel_step] * filter[1], FILTER_BITS * 2);
       ++a;
     }
 

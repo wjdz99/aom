@@ -179,7 +179,6 @@ if(NOT BUILD_SHARED_LIBS)
               "${AOM_ROOT}/test/fft_test.cc"
               "${AOM_ROOT}/test/fwht4x4_test.cc"
               "${AOM_ROOT}/test/masked_sad_test.cc"
-              "${AOM_ROOT}/test/masked_variance_test.cc"
               "${AOM_ROOT}/test/motion_vector_test.cc"
               "${AOM_ROOT}/test/noise_model_test.cc"
               "${AOM_ROOT}/test/obmc_sad_test.cc"
@@ -187,8 +186,7 @@ if(NOT BUILD_SHARED_LIBS)
               "${AOM_ROOT}/test/sad_test.cc"
               "${AOM_ROOT}/test/subtract_test.cc"
               "${AOM_ROOT}/test/reconinter_test.cc"
-              "${AOM_ROOT}/test/sum_squares_test.cc"
-              "${AOM_ROOT}/test/variance_test.cc")
+              "${AOM_ROOT}/test/sum_squares_test.cc")
 
   list(APPEND AOM_UNIT_TEST_ENCODER_INTRIN_SSE4_1
               "${AOM_ROOT}/test/av1_highbd_iht_test.cc"
