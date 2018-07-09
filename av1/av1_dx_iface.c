@@ -664,6 +664,8 @@ static aom_image_t *decoder_get_frame(aom_codec_alg_priv_t *ctx,
         aom_film_grain_t *grain_params;
         if (av1_get_raw_frame(frame_worker_data->pbi, *index, &sd,
                               &grain_params) == 0) {
+          uintptr_t current_index =
+              *index++;  // Advance the iterator to point to the next image
           AV1Decoder *const pbi = frame_worker_data->pbi;
           AV1_COMMON *const cm = &pbi->common;
           RefCntBuffer *const frame_bufs = cm->buffer_pool->frame_bufs;
@@ -719,10 +721,8 @@ static aom_image_t *decoder_get_frame(aom_codec_alg_priv_t *ctx,
           img = &ctx->img;
           img->temporal_id = cm->temporal_layer_id;
           img->spatial_id = cm->spatial_layer_id;
-          aom_image_t *res = add_grain_if_needed(
-              img, &ctx->image_with_grain[*index], grain_params);
-          *index += 1;  // Advance the iterator to point to the next image
-          return res;
+          return add_grain_if_needed(img, &ctx->image_with_grain[current_index],
+                                     grain_params);
         }
       } else {
         // Decoding failed. Release the worker thread.
