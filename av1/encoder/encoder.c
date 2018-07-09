@@ -3353,6 +3353,24 @@ static void update_reference_frames(AV1_COMP *cpi) {
     return;
   }
 
+  // At the beginning of each GF group we should reset all the backward
+  // reference frames, or the encoder might use outdated frames as reference
+  if (cpi->refresh_golden_frame) {
+    ref_cnt_fb(pool->frame_bufs,
+               &cm->ref_frame_map[cpi->ref_fb_idx[ALTREF2_FRAME - 1]],
+               cm->new_fb_idx);
+    memcpy(cpi->interp_filter_selected[BWDREF_FRAME],
+           cpi->interp_filter_selected[0],
+           sizeof(cpi->interp_filter_selected[0]));
+
+    ref_cnt_fb(pool->frame_bufs,
+               &cm->ref_frame_map[cpi->ref_fb_idx[BWDREF_FRAME - 1]],
+               cm->new_fb_idx);
+    memcpy(cpi->interp_filter_selected[BWDREF_FRAME],
+           cpi->interp_filter_selected[0],
+           sizeof(cpi->interp_filter_selected[0]));
+  }
+
   if (av1_preserve_existing_gf(cpi)) {
     // We have decided to preserve the previously existing golden frame as our
     // new ARF frame. However, in the short term in function
