@@ -857,7 +857,9 @@ static INLINE TX_TYPE av1_get_tx_type(PLANE_TYPE plane_type,
     }
   }
   assert(tx_type < TX_TYPES);
-  if (!av1_ext_tx_used[tx_set_type][tx_type]) return DCT_DCT;
+  if (!av1_ext_tx_used[tx_set_type][tx_type]) {
+    if (!(plane_type == PLANE_TYPE_Y && is_inter_block(mbmi))) return DCT_DCT;
+  }
   return tx_type;
 }
 
