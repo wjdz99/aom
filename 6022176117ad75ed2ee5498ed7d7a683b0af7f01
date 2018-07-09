@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9c08142d_99c988a6",
+        "filename": "aom_dsp/aom_dsp_rtcd_defs.pl",
+        "patchSetId": 1
+      },
+      "lineNbr": 1542,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2018-07-09T17:38:33Z",
+      "side": 1,
+      "message": "As we did before, could you also add an optimized version lower than avx2(any one between sse2 to sse4) later? Thanks.",
+      "range": {
+        "startLine": 1542,
+        "startChar": 16,
+        "endLine": 1542,
+        "endChar": 41
+      },
+      "revId": "6022176117ad75ed2ee5498ed7d7a683b0af7f01",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0124c7d3_9bf0951d",
+        "filename": "aom_dsp/variance.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1197,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2018-07-09T17:38:33Z",
+      "side": 1,
+      "message": "Thanks for refactoring this function.",
+      "range": {
+        "startLine": 1197,
+        "startChar": 2,
+        "endLine": 1197,
+        "endChar": 27
+      },
+      "revId": "6022176117ad75ed2ee5498ed7d7a683b0af7f01",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
