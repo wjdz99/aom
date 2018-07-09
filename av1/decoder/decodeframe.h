@@ -20,11 +20,8 @@ struct AV1Decoder;
 struct aom_read_bit_buffer;
 struct ThreadData;
 
-// Reads the middle part of the sequence header OBU (from
-// frame_width_bits_minus_1 to enable_restoration) into cm->seq_params (a
-// SequenceHeader). Reports errors by calling rb->error_handler() or
-// aom_internal_error().
-void read_sequence_header(AV1_COMMON *cm, struct aom_read_bit_buffer *rb);
+void av1_read_sequence_header(AV1_COMMON *cm, SequenceHeader *seq_params,
+                              struct aom_read_bit_buffer *rb);
 
 void av1_read_frame_size(struct aom_read_bit_buffer *rb, int num_bits_width,
                          int num_bits_height, int *width, int *height);

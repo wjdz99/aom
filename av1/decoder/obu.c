@@ -190,7 +190,14 @@ static uint32_t read_sequence_header_obu(AV1Decoder *pbi,
     return 0;
   }
 
+#if 1
+  // Use a local variable to store the info. as we decode. At the end, if no
+  // errors have occurred, cm->seq_params is updated.
+  SequenceHeader sh = cm->seq_params;
+  SequenceHeader *const seq_params = &sh;
+#else
   SequenceHeader *const seq_params = &cm->seq_params;
+#endif
 
   // Still picture or not
   seq_params->still_picture = aom_rb_read_bit(rb);
@@ -305,7 +312,7 @@ static uint32_t read_sequence_header_obu(AV1Decoder *pbi,
     return 0;
   }
 
-  read_sequence_header(cm, rb);
+  av1_read_sequence_header(cm, seq_params, rb);
 
   av1_read_color_config(cm, rb, pbi->allow_lowbitdepth);
   if (!(cm->subsampling_x == 0 && cm->subsampling_y == 0) &&
@@ -324,6 +331,7 @@ static uint32_t read_sequence_header_obu(AV1Decoder *pbi,
     return 0;
   }
 
+  cm->seq_params = *seq_params;
   pbi->sequence_header_ready = 1;
 
   return ((rb->bit_offset - saved_bit_offset + 7) >> 3);
