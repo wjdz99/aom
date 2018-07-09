@@ -2264,6 +2264,14 @@ static int get_refresh_mask(AV1_COMP *cpi) {
   refresh_mask |=
       (cpi->refresh_alt2_ref_frame << cpi->ref_fb_idx[ALTREF2_FRAME - 1]);
 
+  // At the beginning of each GF group, we reset all the backward reference
+  // frames except ALTREF
+  refresh_mask |=
+      (cpi->refresh_golden_frame << cpi->ref_fb_idx[BWDREF_FRAME - 1]);
+  refresh_mask |=
+      (cpi->refresh_golden_frame << cpi->ref_fb_idx[ALTREF2_FRAME - 1]);
+
+
   if (av1_preserve_existing_gf(cpi)) {
     // We have decided to preserve the previously existing golden frame as our
     // new ARF frame. However, in the short term we leave it in the GF slot and,
