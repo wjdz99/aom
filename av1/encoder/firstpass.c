@@ -2298,7 +2298,10 @@ static void define_gf_group_structure(AV1_COMP *cpi) {
   if (rc->source_alt_ref_pending && rc->baseline_gf_interval == 4) {
     // used only if arf is allowed
     define_gf_group_structure_4(cpi);
+    cpi->new_bwdref_update_rule = 1;
     return;
+  } else {
+    cpi->new_bwdref_update_rule = 0;
   }
 #endif
 
@@ -3580,8 +3583,17 @@ static void configure_buffer_updates(AV1_COMP *cpi) {
     case INTNL_ARF_UPDATE:
       cpi->refresh_last_frame = 0;
       cpi->refresh_golden_frame = 0;
-      cpi->refresh_bwd_ref_frame = 0;
-      cpi->refresh_alt2_ref_frame = 1;
+#if USE_SYMM_MULTI_LAYER
+      if (cpi->new_bwdref_update_rule == 1) {
+        cpi->refresh_bwd_ref_frame = 1;
+        cpi->refresh_alt2_ref_frame = 0;
+      } else {
+#endif
+        cpi->refresh_bwd_ref_frame = 0;
+        cpi->refresh_alt2_ref_frame = 1;
+#if USE_SYMM_MULTI_LAYER
+      }
+#endif
       cpi->refresh_alt_ref_frame = 0;
       break;
 
