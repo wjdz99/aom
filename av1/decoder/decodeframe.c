@@ -3059,6 +3059,15 @@ static int tile_worker_hook(void *arg1, void *arg2) {
   return !td->xd.corrupted;
 }
 
+static int call_setjmp(DecWorkerData *const thread_data) {
+  if (setjmp(thread_data->error_info.jmp)) {
+    thread_data->error_info.setjmp = 0;
+    thread_data->td->xd.corrupted = 1;
+    return 0;
+  }
+  return 1;
+}
+
 static int row_mt_worker_hook(void *arg1, void *arg2) {
   DecWorkerData *const thread_data = (DecWorkerData *)arg1;
   AV1Decoder *const pbi = (AV1Decoder *)arg2;
@@ -3066,68 +3075,66 @@ static int row_mt_worker_hook(void *arg1, void *arg2) {
   ThreadData *const td = thread_data->td;
   uint8_t allow_update_cdf;
 
-  if (setjmp(thread_data->error_info.jmp)) {
-    thread_data->error_info.setjmp = 0;
-    thread_data->td->xd.corrupted = 1;
-    return 0;
-  }
-  thread_data->error_info.setjmp = 1;
+  if (call_setjmp(thread_data)) {
+    thread_data->error_info.setjmp = 1;
 
-  const int num_planes = av1_num_planes(cm);
-  allow_update_cdf = cm->large_scale_tile ? 0 : 1;
-  allow_update_cdf = allow_update_cdf && !cm->disable_cdf_update;
+    const int num_planes = av1_num_planes(cm);
+    allow_update_cdf = cm->large_scale_tile ? 0 : 1;
+    allow_update_cdf = allow_update_cdf && !cm->disable_cdf_update;
 
-  assert(cm->tile_cols > 0);
-  while (1) {
-    TileJobsDec *cur_job_info = get_dec_job_info(&pbi->tile_mt_info);
+    assert(cm->tile_cols > 0);
+    while (1) {
+      TileJobsDec *cur_job_info = get_dec_job_info(&pbi->tile_mt_info);
 
-    if (cur_job_info != NULL && !td->xd.corrupted) {
-      const TileBufferDec *const tile_buffer = cur_job_info->tile_buffer;
-      TileDataDec *const tile_data = cur_job_info->tile_data;
-      tile_worker_hook_init(pbi, thread_data, tile_buffer, tile_data,
-                            allow_update_cdf);
+      if (cur_job_info != NULL && !td->xd.corrupted) {
+        const TileBufferDec *const tile_buffer = cur_job_info->tile_buffer;
+        TileDataDec *const tile_data = cur_job_info->tile_data;
+        tile_worker_hook_init(pbi, thread_data, tile_buffer, tile_data,
+                              allow_update_cdf);
 
-      set_decode_func_pointers(td, 0x1);
+        set_decode_func_pointers(td, 0x1);
 
-      // decode tile
-      TileInfo tile_info = tile_data->tile_info;
-      int tile_row = tile_info.tile_row;
+        // decode tile
+        TileInfo tile_info = tile_data->tile_info;
+        int tile_row = tile_info.tile_row;
 
-      av1_zero_above_context(cm, &td->xd, tile_info.mi_col_start,
-                             tile_info.mi_col_end, tile_row);
-      av1_reset_loop_filter_delta(&td->xd, num_planes);
-      av1_reset_loop_restoration(&td->xd, num_planes);
+        av1_zero_above_context(cm, &td->xd, tile_info.mi_col_start,
+                               tile_info.mi_col_end, tile_row);
+        av1_reset_loop_filter_delta(&td->xd, num_planes);
+        av1_reset_loop_restoration(&td->xd, num_planes);
 
-      for (int mi_row = tile_info.mi_row_start; mi_row < tile_info.mi_row_end;
-           mi_row += cm->seq_params.mib_size) {
-        av1_zero_left_context(&td->xd);
+        for (int mi_row = tile_info.mi_row_start; mi_row < tile_info.mi_row_end;
+             mi_row += cm->seq_params.mib_size) {
+          av1_zero_left_context(&td->xd);
 
-        for (int mi_col = tile_info.mi_col_start; mi_col < tile_info.mi_col_end;
-             mi_col += cm->seq_params.mib_size) {
-          set_cb_buffer(pbi, &td->xd, pbi->cb_buffer_base, num_planes, mi_row,
-                        mi_col);
+          for (int mi_col = tile_info.mi_col_start;
+               mi_col < tile_info.mi_col_end;
+               mi_col += cm->seq_params.mib_size) {
+            set_cb_buffer(pbi, &td->xd, pbi->cb_buffer_base, num_planes, mi_row,
+                          mi_col);
 
-          // Bit-stream parsing of the superblock
-          decode_partition(pbi, td, mi_row, mi_col, td->bit_reader,
-                           cm->seq_params.sb_size, 0x1);
+            // Bit-stream parsing of the superblock
+            decode_partition(pbi, td, mi_row, mi_col, td->bit_reader,
+                             cm->seq_params.sb_size, 0x1);
+          }
         }
+
+        int corrupted =
+            (check_trailing_bits_after_symbol_coder(td->bit_reader)) ? 1 : 0;
+        aom_merge_corrupted_flag(&td->xd.corrupted, corrupted);
+
+        set_decode_func_pointers(td, 0x2);
+
+        for (int mi_row = tile_info.mi_row_start; mi_row < tile_info.mi_row_end;
+             mi_row += cm->seq_params.mib_size) {
+          decode_tile_sb_row(pbi, td, tile_info, mi_row);
+        }
+      } else {
+        break;
       }
-
-      int corrupted =
-          (check_trailing_bits_after_symbol_coder(td->bit_reader)) ? 1 : 0;
-      aom_merge_corrupted_flag(&td->xd.corrupted, corrupted);
-
-      set_decode_func_pointers(td, 0x2);
-
-      for (int mi_row = tile_info.mi_row_start; mi_row < tile_info.mi_row_end;
-           mi_row += cm->seq_params.mib_size) {
-        decode_tile_sb_row(pbi, td, tile_info, mi_row);
-      }
-    } else {
-      break;
     }
+    thread_data->error_info.setjmp = 0;
   }
-  thread_data->error_info.setjmp = 0;
   return !td->xd.corrupted;
 }
 
