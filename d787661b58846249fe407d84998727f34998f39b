@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "4307627b_7d539639",
+        "filename": "av1/common/arm/av1_inv_txfm_neon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2018-07-10T03:40:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "880681bd_d2b8b09a",
+      "revId": "d787661b58846249fe407d84998727f34998f39b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a25f3c19_1c5b33c9",
         "filename": "av1/common/arm/av1_inv_txfm_neon.c",
         "patchSetId": 4
@@ -33,6 +51,24 @@
       "revId": "d787661b58846249fe407d84998727f34998f39b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aa41b099_4ed6b60e",
+        "filename": "av1/common/arm/av1_inv_txfm_neon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 718,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2018-07-10T03:40:09Z",
+      "side": 1,
+      "message": "Hi Harish,\n\nIn \"C\" function it uses all the values of input irrespective of eob value. When we implement repsective neon modules, memset/memcpy of input when either width/height is 64 will be ignored and uses the values present in only top_left 32x32 block.",
+      "parentUuid": "a25f3c19_1c5b33c9",
+      "revId": "d787661b58846249fe407d84998727f34998f39b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
