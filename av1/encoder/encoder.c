@@ -4754,6 +4754,8 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
   cm->single_tile_decoding = cpi->oxcf.single_tile_decoding;
   if (cm->large_scale_tile) cm->seq_params.frame_id_numbers_present_flag = 0;
 
+  if (cm->frame_type == KEY_FRAME) printf("kf visible: %d\n", cm->show_frame);
+
   cm->allow_ref_frame_mvs &= frame_might_allow_ref_frame_mvs(cm);
   // cm->allow_ref_frame_mvs needs to be written into the frame header while
   // cm->large_scale_tile is 1, therefore, "cm->large_scale_tile=1" case is

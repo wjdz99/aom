@@ -2700,7 +2700,8 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
       rc->baseline_gf_interval = AOMMIN(rc->frames_to_key - rc->min_gf_interval,
                                         rc->static_scene_max_gf_interval);
     } else {
-      rc->baseline_gf_interval = i;
+      rc->baseline_gf_interval =
+          i == rc->frames_to_key ? i : i - rc->source_alt_ref_pending;
     }
   } else {
     rc->baseline_gf_interval = i - (is_key_frame || rc->source_alt_ref_pending);
