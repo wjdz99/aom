@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "b0eb4ff0_c97af40b",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 3728,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-10T21:23:57Z",
+      "side": 1,
+      "message": "[This is just a comment, not a request for change.] We probably should move all the fields of the sequence header OBU into the SequenceHeader struct.\n\nThis CL uses a SequenceHeader local variable to receive the parsed results, but some fields in \u0027cm\u0027 are already modified, for example, cm-\u003euse_highbitdepth, cm-\u003ecolor_primaries, cm-\u003etransfer_characteristics, cm-\u003ematrix_coefficients, etc.",
+      "range": {
+        "startLine": 3728,
+        "startChar": 2,
+        "endLine": 3728,
+        "endChar": 28
+      },
+      "revId": "cd39bbd52fb207533b97d2805c7257da50e3a034",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "095452a6_22912c0e",
         "filename": "av1/decoder/decodeframe.h",
         "patchSetId": 3
