@@ -19,6 +19,8 @@
 #include "aom/aom_integer.h"
 #include "aom_dsp/x86/synonyms.h"
 
+#include "aom_dsp/x86//masked_sad_intrin_ssse3.h"
+
 // For width a multiple of 16
 static INLINE unsigned int masked_sad_ssse3(const uint8_t *src_ptr,
                                             int src_stride,
@@ -26,16 +28,6 @@ static INLINE unsigned int masked_sad_ssse3(const uint8_t *src_ptr,
                                             const uint8_t *b_ptr, int b_stride,
                                             const uint8_t *m_ptr, int m_stride,
                                             int width, int height);
-
-static INLINE unsigned int masked_sad8xh_ssse3(
-    const uint8_t *src_ptr, int src_stride, const uint8_t *a_ptr, int a_stride,
-    const uint8_t *b_ptr, int b_stride, const uint8_t *m_ptr, int m_stride,
-    int height);
-
-static INLINE unsigned int masked_sad4xh_ssse3(
-    const uint8_t *src_ptr, int src_stride, const uint8_t *a_ptr, int a_stride,
-    const uint8_t *b_ptr, int b_stride, const uint8_t *m_ptr, int m_stride,
-    int height);
 
 #define MASKSADMXN_SSSE3(m, n)                                                \
   unsigned int aom_masked_sad##m##x##n##_ssse3(                               \
@@ -145,10 +137,11 @@ static INLINE unsigned int masked_sad_ssse3(const uint8_t *src_ptr,
   return (sad + 31) >> 6;
 }
 
-static INLINE unsigned int masked_sad8xh_ssse3(
-    const uint8_t *src_ptr, int src_stride, const uint8_t *a_ptr, int a_stride,
-    const uint8_t *b_ptr, int b_stride, const uint8_t *m_ptr, int m_stride,
-    int height) {
+unsigned int masked_sad8xh_ssse3(const uint8_t *src_ptr, int src_stride,
+                                 const uint8_t *a_ptr, int a_stride,
+                                 const uint8_t *b_ptr, int b_stride,
+                                 const uint8_t *m_ptr, int m_stride,
+                                 int height) {
   int y;
   __m128i res = _mm_setzero_si128();
   const __m128i mask_max = _mm_set1_epi8((1 << AOM_BLEND_A64_ROUND_BITS));
@@ -189,10 +182,11 @@ static INLINE unsigned int masked_sad8xh_ssse3(
   return (sad + 31) >> 6;
 }
 
-static INLINE unsigned int masked_sad4xh_ssse3(
-    const uint8_t *src_ptr, int src_stride, const uint8_t *a_ptr, int a_stride,
-    const uint8_t *b_ptr, int b_stride, const uint8_t *m_ptr, int m_stride,
-    int height) {
+unsigned int masked_sad4xh_ssse3(const uint8_t *src_ptr, int src_stride,
+                                 const uint8_t *a_ptr, int a_stride,
+                                 const uint8_t *b_ptr, int b_stride,
+                                 const uint8_t *m_ptr, int m_stride,
+                                 int height) {
   int y;
   __m128i res = _mm_setzero_si128();
   const __m128i mask_max = _mm_set1_epi8((1 << AOM_BLEND_A64_ROUND_BITS));
@@ -237,11 +231,6 @@ static INLINE unsigned int highbd_masked_sad_ssse3(
     const uint8_t *src8, int src_stride, const uint8_t *a8, int a_stride,
     const uint8_t *b8, int b_stride, const uint8_t *m_ptr, int m_stride,
     int width, int height);
-
-static INLINE unsigned int highbd_masked_sad4xh_ssse3(
-    const uint8_t *src8, int src_stride, const uint8_t *a8, int a_stride,
-    const uint8_t *b8, int b_stride, const uint8_t *m_ptr, int m_stride,
-    int height);
 
 #define HIGHBD_MASKSADMXN_SSSE3(m, n)                                         \
   unsigned int aom_highbd_masked_sad##m##x##n##_ssse3(                        \
@@ -350,10 +339,11 @@ static INLINE unsigned int highbd_masked_sad_ssse3(
   return (sad + 31) >> 6;
 }
 
-static INLINE unsigned int highbd_masked_sad4xh_ssse3(
-    const uint8_t *src8, int src_stride, const uint8_t *a8, int a_stride,
-    const uint8_t *b8, int b_stride, const uint8_t *m_ptr, int m_stride,
-    int height) {
+unsigned int highbd_masked_sad4xh_ssse3(const uint8_t *src8, int src_stride,
+                                        const uint8_t *a8, int a_stride,
+                                        const uint8_t *b8, int b_stride,
+                                        const uint8_t *m_ptr, int m_stride,
+                                        int height) {
   const uint16_t *src_ptr = CONVERT_TO_SHORTPTR(src8);
   const uint16_t *a_ptr = CONVERT_TO_SHORTPTR(a8);
   const uint16_t *b_ptr = CONVERT_TO_SHORTPTR(b8);
