@@ -2455,10 +2455,14 @@ static void define_gf_group_structure(AV1_COMP *cpi) {
   }
 #endif  // USE_GF16_MULTI_LAYER
 #if MY_GF_4_STRUCT
-  if (rc->source_alt_ref_pending && rc->baseline_gf_interval == 4) {
+  if (rc->source_alt_ref_pending && cpi->extra_arf_allowed > 0 &&
+      rc->baseline_gf_interval == 4) {
     // used only if arf is allowed
     define_gf_group_structure_4(cpi);
+    cpi->new_struct_update_rule = 1;
     return;
+  } else {
+    cpi->new_struct_update_rule = 0;
   }
 #endif
   TWO_PASS *const twopass = &cpi->twopass;
@@ -3050,7 +3054,7 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
     cpi->num_extra_arfs = 0;
   } else {
 #if MY_GF_4_STRUCT
-    if (rc->baseline_gf_interval == 4)
+    if (rc->baseline_gf_interval == 4 && rc->source_alt_ref_pending)
       cpi->num_extra_arfs = 1;
     else
       cpi->num_extra_arfs = get_number_of_extra_arfs(
@@ -3739,8 +3743,17 @@ static void configure_buffer_updates(AV1_COMP *cpi) {
     case INTNL_ARF_UPDATE:
       cpi->refresh_last_frame = 0;
       cpi->refresh_golden_frame = 0;
-      cpi->refresh_bwd_ref_frame = 0;
-      cpi->refresh_alt2_ref_frame = 1;
+#if MY_GF_4_STRUCT
+      if (cpi->new_struct_update_rule == 1) {
+        cpi->refresh_bwd_ref_frame = 1;
+        cpi->refresh_alt2_ref_frame = 0;
+      } else {
+#endif
+        cpi->refresh_bwd_ref_frame = 0;
+        cpi->refresh_alt2_ref_frame = 1;
+#if MY_GF_4_STRUCT
+      }
+#endif  // MY_GF_4_STRUCT
       cpi->refresh_alt_ref_frame = 0;
       break;
 

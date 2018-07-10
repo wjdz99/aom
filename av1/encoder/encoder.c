@@ -3081,11 +3081,27 @@ static void check_show_existing_frame(AV1_COMP *cpi) {
   AV1_COMMON *const cm = &cpi->common;
   const FRAME_UPDATE_TYPE next_frame_update_type =
       gf_group->update_type[gf_group->index];
-  const int which_arf = gf_group->arf_update_idx[gf_group->index];
+
+  // Note: When new struct is used, we force no temporal filter can
+  //       apply to any internal ARF.
+  const int which_arf =
+#if MY_GF_4_STRUCT
+      (cpi->new_struct_update_rule == 1)
+          ? gf_group->arf_update_idx[gf_group->index] > 0
+          :
+#endif
+          gf_group->arf_update_idx[gf_group->index];
 
   if (cm->show_existing_frame == 1) {
     cm->show_existing_frame = 0;
+#if MY_GF_4_STRUCT
+  } else if (cpi->new_struct_update_rule == 0 && cpi->rc.is_last_bipred_frame) {
+    // NOTE: When new structure is used, every bwdref will have one overlay
+    //       frame. Therefore, there is no need to find out which frame to
+    //       show in advance.
+#else
   } else if (cpi->rc.is_last_bipred_frame) {
+#endif  // MY_GF_4_STRUCT
     // NOTE: If the current frame is a last bi-predictive frame, it is
     //       needed next to show the BWDREF_FRAME, which is pointed by
     //       the last_fb_idxes[0] after reference frame buffer update
@@ -3097,11 +3113,18 @@ static void check_show_existing_frame(AV1_COMP *cpi) {
               next_frame_update_type == INTNL_OVERLAY_UPDATE)) {
     // Other parameters related to OVERLAY_UPDATE will be taken care of
     // in av1_rc_get_second_pass_params(cpi)
+    const int intnl_frame_ind =
+#if MY_GF_4_STRUCT
+        (cpi->new_struct_update_rule == 1) ? BWDREF_FRAME : ALTREF2_FRAME;
+#else
+        ALTREF2_FRAME;
+#endif
+
     cm->show_existing_frame = 1;
     cpi->rc.is_src_frame_alt_ref = 1;
     cpi->existing_fb_idx_to_show = (next_frame_update_type == OVERLAY_UPDATE)
                                        ? cpi->ref_fb_idx[ALTREF_FRAME - 1]
-                                       : cpi->ref_fb_idx[ALTREF2_FRAME - 1];
+                                       : cpi->ref_fb_idx[intnl_frame_ind - 1];
     cpi->is_arf_filter_off[which_arf] = 0;
   }
   cpi->rc.is_src_frame_ext_arf = 0;
@@ -3378,6 +3401,13 @@ static void update_reference_frames(AV1_COMP *cpi) {
     const GF_GROUP *const gf_group = &cpi->twopass.gf_group;
     assert(gf_group->update_type[gf_group->index] == INTNL_OVERLAY_UPDATE);
 #endif
+    const int closest_bwd_ind =
+#if MY_GF_4_STRUCT
+        (cpi->new_struct_update_rule == 1) ? BWDREF_FRAME : ALTREF2_FRAME;
+#else
+        ALTREF2_FRAME;
+#endif
+
     // Deal with the special case for showing existing internal ALTREF_FRAME
     // Refresh the LAST_FRAME with the ALTREF_FRAME and retire the LAST3_FRAME
     // by updating the virtual indices.
@@ -3385,12 +3415,12 @@ static void update_reference_frames(AV1_COMP *cpi) {
     const int tmp = cpi->ref_fb_idx[LAST_REF_FRAMES - 1];
     shift_last_ref_frames(cpi);
 
-    cpi->ref_fb_idx[LAST_FRAME - 1] = cpi->ref_fb_idx[ALTREF2_FRAME - 1];
-    cpi->ref_fb_idx[ALTREF2_FRAME - 1] = tmp;
+    cpi->ref_fb_idx[LAST_FRAME - 1] = cpi->ref_fb_idx[closest_bwd_ind - 1];
+    cpi->ref_fb_idx[closest_bwd_ind - 1] = tmp;
 
     memcpy(cpi->interp_filter_selected[LAST_FRAME],
-           cpi->interp_filter_selected[ALTREF2_FRAME],
-           sizeof(cpi->interp_filter_selected[ALTREF2_FRAME]));
+           cpi->interp_filter_selected[closest_bwd_ind],
+           sizeof(cpi->interp_filter_selected[closest_bwd_ind]));
   } else { /* For non key/golden frames */
     // === ALTREF_FRAME ===
     if (cpi->refresh_alt_ref_frame) {
