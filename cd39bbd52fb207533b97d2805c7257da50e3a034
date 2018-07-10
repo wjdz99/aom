@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "095452a6_22912c0e",
+        "filename": "av1/decoder/decodeframe.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-07-10T19:35:32Z",
+      "side": 1,
+      "message": "\u0027seq_params\u0027 is purely an output param. So, better to put it at the end.",
+      "range": {
+        "startLine": 23,
+        "startChar": 62,
+        "endLine": 23,
+        "endChar": 72
+      },
+      "revId": "cd39bbd52fb207533b97d2805c7257da50e3a034",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c177b4b6_aac4c1be",
+        "filename": "av1/decoder/decodeframe.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-07-10T19:35:32Z",
+      "side": 1,
+      "message": "same here.",
+      "revId": "cd39bbd52fb207533b97d2805c7257da50e3a034",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
