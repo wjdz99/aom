@@ -3041,6 +3041,15 @@ static void tile_worker_hook_init(AV1Decoder *const pbi,
 #endif
 }
 
+static int call_setjmp(DecWorkerData *const thread_data) {
+  if (setjmp(thread_data->error_info.jmp)) {
+    thread_data->error_info.setjmp = 0;
+    thread_data->td->xd.corrupted = 1;
+    return 0;
+  }
+  return 1;
+}
+
 static int tile_worker_hook(void *arg1, void *arg2) {
   DecWorkerData *const thread_data = (DecWorkerData *)arg1;
   AV1Decoder *const pbi = (AV1Decoder *)arg2;
@@ -3048,9 +3057,7 @@ static int tile_worker_hook(void *arg1, void *arg2) {
   ThreadData *const td = thread_data->td;
   uint8_t allow_update_cdf;
 
-  if (setjmp(thread_data->error_info.jmp)) {
-    thread_data->error_info.setjmp = 0;
-    thread_data->td->xd.corrupted = 1;
+  if (!call_setjmp(thread_data)) {
     return 0;
   }
   thread_data->error_info.setjmp = 1;
@@ -3088,9 +3095,7 @@ static int row_mt_worker_hook(void *arg1, void *arg2) {
   ThreadData *const td = thread_data->td;
   uint8_t allow_update_cdf;
 
-  if (setjmp(thread_data->error_info.jmp)) {
-    thread_data->error_info.setjmp = 0;
-    thread_data->td->xd.corrupted = 1;
+  if (!call_setjmp(thread_data)) {
     return 0;
   }
   thread_data->error_info.setjmp = 1;
