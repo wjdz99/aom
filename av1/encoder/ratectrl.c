@@ -932,9 +932,12 @@ static int rc_pick_q_and_bounds_two_pass(const AV1_COMP *cpi, int width,
 #if CUSTOMIZED_GF
   int is_intrl_arf_boost =
       gf_group->update_type[gf_group->index] == INTNL_ARF_UPDATE;
+#if MATCH_OLD_BITRATE
+  if (cpi->new_bwdref_update_rule == 1) is_intrl_arf_boost = 0;
+#endif
 #else
   int is_intrl_arf_boost = cpi->refresh_alt2_ref_frame;
-#endif
+#endif  // CUSTOMIZED_GF
 
   if (frame_is_intra_only(cm)) {
     // Handle the special case for key frames forced when we have reached
