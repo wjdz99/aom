@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "2104794b_42dbcb23",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 3725,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-10T23:33:03Z",
+      "side": 1,
+      "message": "Optional: Since this function sets only the \u0027monochrome\u0027 field of seq_params, it would be clearer to declare an \"int *monochrome\" output parameter, and pass \u0026seq_params-\u003emonochrome as that argument.",
+      "range": {
+        "startLine": 3725,
+        "startChar": 43,
+        "endLine": 3725,
+        "endChar": 69
+      },
+      "revId": "cd39bbd52fb207533b97d2805c7257da50e3a034",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b0eb4ff0_c97af40b",
         "filename": "av1/decoder/decodeframe.c",
         "patchSetId": 3
@@ -42,6 +65,29 @@
         "startChar": 2,
         "endLine": 3728,
         "endChar": 28
+      },
+      "revId": "cd39bbd52fb207533b97d2805c7257da50e3a034",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "20026d06_302e14ea",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 3861,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-10T23:33:03Z",
+      "side": 1,
+      "message": "Optional: This function is only using the \u0027error\u0027 field of cm. Perhaps we should just declare a \"struct aom_internal_error_info *error_info\" parameter and pass \u0026cm-\u003eerror as that argument.",
+      "range": {
+        "startLine": 3861,
+        "startChar": 30,
+        "endLine": 3861,
+        "endChar": 44
       },
       "revId": "cd39bbd52fb207533b97d2805c7257da50e3a034",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
@@ -96,6 +142,29 @@
     },
     {
       "key": {
+        "uuid": "2b9c1737_059ad660",
+        "filename": "av1/decoder/decodeframe.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-10T23:33:03Z",
+      "side": 1,
+      "message": "Please keep the comment. We just need to update it:\n\n// Reads the middle part of the sequence header OBU (from\n// frame_width_bits_minus_1 to enable_restoration) into seq_params.\n// Reports errors by calling rb-\u003eerror_handler() or aom_internal_error().",
+      "range": {
+        "startLine": 23,
+        "startChar": 0,
+        "endLine": 23,
+        "endChar": 73
+      },
+      "revId": "cd39bbd52fb207533b97d2805c7257da50e3a034",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c177b4b6_aac4c1be",
         "filename": "av1/decoder/decodeframe.h",
         "patchSetId": 3
@@ -128,6 +197,52 @@
       "revId": "cd39bbd52fb207533b97d2805c7257da50e3a034",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d4fd087e_9e85455e",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-10T23:33:03Z",
+      "side": 1,
+      "message": "1. It would be good to explain why we use this local variable. The original code gives the following reason:\n\n    // rb-\u003eerror_handler may be triggered during aom_rb_read_bit(), raising\n    // internal errors and immediate decoding termination.\n\nIs it the same reason here?\n\n2. Nit: Delete the period (.) after \"info\". (I know you copied it from the original comment.)",
+      "range": {
+        "startLine": 193,
+        "startChar": 0,
+        "endLine": 194,
+        "endChar": 53
+      },
+      "revId": "cd39bbd52fb207533b97d2805c7257da50e3a034",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "083bd5f0_bc7d8e0c",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 807,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-10T23:33:03Z",
+      "side": 1,
+      "message": "Another possible fix is to get rid of the seq_header_received local variable and use pbi-\u003esequence_header_ready instead. I can try that...",
+      "range": {
+        "startLine": 807,
+        "startChar": 12,
+        "endLine": 807,
+        "endChar": 32
+      },
+      "revId": "cd39bbd52fb207533b97d2805c7257da50e3a034",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
