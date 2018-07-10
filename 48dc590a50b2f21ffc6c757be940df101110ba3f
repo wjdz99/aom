@@ -94,6 +94,23 @@
     },
     {
       "key": {
+        "uuid": "fc8e5724_b83a3d4f",
+        "filename": "av1/common/arm/av1_inv_txfm_neon.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 9039
+      },
+      "writtenOn": "2018-07-10T19:34:07Z",
+      "side": 1,
+      "message": "stage_range should be of size MAX_TXFM_STAGE_NUM in all functions.",
+      "revId": "48dc590a50b2f21ffc6c757be940df101110ba3f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0b22c9f1_a7a774e4",
         "filename": "av1/common/arm/av1_inv_txfm_neon.c",
         "patchSetId": 6
@@ -134,6 +151,125 @@
         "endLine": 174,
         "endChar": 55
       },
+      "revId": "48dc590a50b2f21ffc6c757be940df101110ba3f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ddf0e54b_31787798",
+        "filename": "av1/common/arm/av1_inv_txfm_neon.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 351,
+      "author": {
+        "id": 9039
+      },
+      "writtenOn": "2018-07-10T19:34:07Z",
+      "side": 1,
+      "message": "Except for this pre multiplication by NewInvSqrt2 in this and in 8x4 function, all 4x4, 8x4, 4x8, 16x4, 4x16 implementation are same.\nIf the pre multiplication can be done conditionally, these can be combined too.\nThere is av1_round_shift_array by shift[0] in some, but as shift[0] for these sizes is 0, that should be ok.\n\nEventually, if we decide to use eob for these sizes too, then we can call the generic function itself.",
+      "revId": "48dc590a50b2f21ffc6c757be940df101110ba3f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5002b972_a2434fae",
+        "filename": "av1/common/arm/av1_inv_txfm_neon.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 574,
+      "author": {
+        "id": 9039
+      },
+      "writtenOn": "2018-07-10T19:34:07Z",
+      "side": 1,
+      "message": "if the txfm_buf in lowbd_inv_txfm2d_add_v_identity_neon is increased to 64 * 64 + 64 + 64 and eobx and eoby calculation is done based on flag or moved out of these functions, then this can be removed too",
+      "revId": "48dc590a50b2f21ffc6c757be940df101110ba3f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2a53b71a_f4f52a1e",
+        "filename": "av1/common/arm/av1_inv_txfm_neon.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 664,
+      "author": {
+        "id": 9039
+      },
+      "writtenOn": "2018-07-10T19:34:07Z",
+      "side": 1,
+      "message": "Remove this case as it is same as default.",
+      "revId": "48dc590a50b2f21ffc6c757be940df101110ba3f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d5d9066a_18a5d5de",
+        "filename": "av1/common/arm/av1_inv_txfm_neon.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 685,
+      "author": {
+        "id": 9039
+      },
+      "writtenOn": "2018-07-10T19:34:07Z",
+      "side": 1,
+      "message": "Can this be static void lowbd_inv_txfm2d_add_neon as it is not called from any other file?",
+      "revId": "48dc590a50b2f21ffc6c757be940df101110ba3f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "70002d1e_0bcf09fe",
+        "filename": "av1/common/arm/av1_inv_txfm_neon.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 718,
+      "author": {
+        "id": 9039
+      },
+      "writtenOn": "2018-07-10T19:34:07Z",
+      "side": 1,
+      "message": "The memcpy is redundant, pass inut directly.",
+      "revId": "48dc590a50b2f21ffc6c757be940df101110ba3f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "53b40cd7_8e3b4978",
+        "filename": "av1/common/arm/av1_inv_txfm_neon.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 734,
+      "author": {
+        "id": 9039
+      },
+      "writtenOn": "2018-07-10T19:34:07Z",
+      "side": 1,
+      "message": "Redundant memcpy, pass input directly.",
+      "revId": "48dc590a50b2f21ffc6c757be940df101110ba3f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "920c9c07_a8710375",
+        "filename": "av1/common/arm/av1_inv_txfm_neon.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 755,
+      "author": {
+        "id": 9039
+      },
+      "writtenOn": "2018-07-10T19:34:07Z",
+      "side": 1,
+      "message": "Check if this memset is really needed, as first stage wouldn\u0027t access these rows based on eoby.",
       "revId": "48dc590a50b2f21ffc6c757be940df101110ba3f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
