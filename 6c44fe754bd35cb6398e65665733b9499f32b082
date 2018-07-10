@@ -34,6 +34,23 @@
       "revId": "6c44fe754bd35cb6398e65665733b9499f32b082",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e07b9aae_fed9c75b",
+        "filename": "test/lightfield_test.sh",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-07-10T17:54:59Z",
+      "side": 1,
+      "message": "This file needs its executable bit set.",
+      "revId": "6c44fe754bd35cb6398e65665733b9499f32b082",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
