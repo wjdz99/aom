@@ -22,6 +22,30 @@
       "revId": "0b63a1baac0f437963e4252a4604bae059cd4fa3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c678ba97_60901cd2",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 668,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-10T19:56:21Z",
+      "side": 1,
+      "message": "As we discussed in person, my original suggestion is wrong, and my new suggestion is worse. The correct fix is:\n\n          uintptr_t current_index \u003d *index;\n          *index +\u003d 1;  // Advance the iterator to point to the next image\n\nIt should be possible to do this in one line, but I won\u0027t attempt that now :-) Also, it is fine to use your original approach.",
+      "parentUuid": "a70e6b80_69318c3a",
+      "range": {
+        "startLine": 667,
+        "startChar": 0,
+        "endLine": 668,
+        "endChar": 75
+      },
+      "revId": "0b63a1baac0f437963e4252a4604bae059cd4fa3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
