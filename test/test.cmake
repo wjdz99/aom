@@ -216,10 +216,10 @@ endif()
 if(ENABLE_TESTS)
   find_package(PythonInterp)
   if(NOT PYTHONINTERP_FOUND)
-    message(FATAL_ERROR
-              "--- Unit tests require Python, rerun cmake with "
-              "-DENABLE_TESTS=0 to avoid this error, or install Python and "
-              "make sure it's in your PATH.")
+    message(
+      FATAL_ERROR "--- Unit tests require Python, rerun cmake with "
+                  "-DENABLE_TESTS=0 to avoid this error, or install Python and "
+                  "make sure it's in your PATH.")
   endif()
 
   if(MSVC) # Force static run time to avoid collisions with googletest.
@@ -236,8 +236,7 @@ if(ENABLE_TESTS)
   if(AOM_DISABLE_GTEST_CMAKE)
     include_directories("${AOM_ROOT}/third_party/googletest/src/googletest")
     add_library(
-      gtest
-      STATIC
+      gtest STATIC
       "${AOM_ROOT}/third_party/googletest/src/googletest/src/gtest-all.cc")
   else()
     add_subdirectory("${AOM_ROOT}/third_party/googletest/src/googletest"
@@ -343,13 +342,13 @@ function(setup_aom_test_targets)
     foreach(test_index RANGE ${max_file_index})
       list(GET test_files ${test_index} test_file)
       list(GET test_file_checksums ${test_index} test_file_checksum)
-      add_custom_target(testdata_${test_index}
-                        COMMAND
-                          ${CMAKE_COMMAND} -DAOM_CONFIG_DIR="${AOM_CONFIG_DIR}"
-                          -DAOM_ROOT="${AOM_ROOT}"
-                          -DAOM_TEST_FILE="${test_file}"
-                          -DAOM_TEST_CHECKSUM=${test_file_checksum} -P
-                          "${AOM_ROOT}/test/test_data_download_worker.cmake")
+      add_custom_target(
+        testdata_${test_index}
+        COMMAND ${CMAKE_COMMAND}
+                -DAOM_CONFIG_DIR="${AOM_CONFIG_DIR}" -DAOM_ROOT="${AOM_ROOT}"
+                -DAOM_TEST_FILE="${test_file}"
+                -DAOM_TEST_CHECKSUM=${test_file_checksum} -P
+                "${AOM_ROOT}/test/test_data_download_worker.cmake")
       list(APPEND testdata_targets testdata_${test_index})
     endforeach()
 
@@ -393,7 +392,7 @@ function(setup_aom_test_targets)
   foreach(var ${all_cmake_vars})
 
     # https://github.com/cheshirekow/cmake_format/issues/34
-# cmake-format: off
+    # cmake-format: off
     if (("${var}" MATCHES "_TEST_" AND NOT
          "${var}" MATCHES
          "_DATA_\|_CMAKE_\|INTRA_PRED\|_COMPILED\|_HOSTING\|_PERF_\|CODER_")
@@ -405,7 +404,7 @@ function(setup_aom_test_targets)
         OR (CONFIG_AV1_DECODER AND  "${var}" MATCHES "_TEST_DECODER_"))
       list(APPEND aom_test_source_vars ${var})
     endif()
-    # cmake-format:on
+    # cmake-format: on
   endforeach()
 
   # Libaom_test_srcs.txt generation.
