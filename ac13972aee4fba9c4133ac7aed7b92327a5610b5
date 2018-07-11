@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8508dd7d_8d2d5304",
+        "filename": "aom_dsp/intrapred.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 282,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2018-07-11T02:27:42Z",
+      "side": 1,
+      "message": "Given left[] and above[] are uint8(max 255), wouldn\u0027t this be true all the time?",
+      "range": {
+        "startLine": 282,
+        "startChar": 17,
+        "endLine": 282,
+        "endChar": 50
+      },
+      "revId": "ac13972aee4fba9c4133ac7aed7b92327a5610b5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
