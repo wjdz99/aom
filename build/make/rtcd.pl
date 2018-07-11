@@ -58,15 +58,13 @@ open CONFIG_FILE, $opts{config} or
 
 my %config = ();
 while (<CONFIG_FILE>) {
-  next if !/^\#define /;
-  s/\#define //;
-  next if !/^(?:CONFIG_|HAVE_)/;
+  next if !/^#define\s+(?:CONFIG_|HAVE_)/;
   chomp;
-  s/ 0/=/;
-  s/ 1/=yes/;
-  s/\r$//;
-  my @pair = split /=/;
-  $config{$pair[0]} = $pair[1];
+  my @line_components = split /\s/;
+  # $line_components[0] = #define
+  # $line_components[1] = flag name (CONFIG_SOMETHING or HAVE_SOMETHING)
+  # $line_components[0] = flag value (0 or 1)
+  $config{$line_components[1]} = "$line_components[2]" == "1" ? "yes" : "";
 }
 close CONFIG_FILE;
 
