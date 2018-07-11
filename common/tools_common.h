@@ -156,6 +156,8 @@ void aom_img_upshift(aom_image_t *dst, const aom_image_t *src, int input_shift);
 void aom_img_downshift(aom_image_t *dst, const aom_image_t *src,
                        int down_shift);
 void aom_img_truncate_16_to_8(aom_image_t *dst, const aom_image_t *src);
+struct av1_color_format;
+aom_img_fmt_t aom_get_img_format(struct av1_color_format *color_fmt, int lbd);
 
 #ifdef __cplusplus
 } /* extern "C" */
