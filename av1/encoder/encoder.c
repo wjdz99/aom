@@ -4762,6 +4762,7 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
 
   cm->allow_warped_motion =
       cpi->oxcf.allow_warped_motion && frame_might_allow_warped_motion(cm);
+  if (cm->frame_type == KEY_FRAME) printf("kf visible: %d\n", cm->show_frame);
 
   // Reset the frame packet stamp index.
   if (cm->frame_type == KEY_FRAME && cm->show_frame)
@@ -4845,9 +4846,10 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
     // Update the frame type
     cm->last_frame_type = cm->frame_type;
 
-    // Since we allocate a spot for the OVERLAY frame in the gf group, we need
-    // to do post-encoding update accordingly.
-    if (cpi->rc.is_src_frame_alt_ref) {
+    // Since we allocate a spot for the OVERLAY frame and the forward
+    // keyframe in the gf group, we need to do post-encoding
+    // update accordingly.
+    if (cpi->rc.is_src_frame_alt_ref || cm->frame_type == KEY_FRAME) {
       av1_set_target_rate(cpi, cm->width, cm->height);
       av1_rc_postencode_update(cpi, *size);
     }
@@ -5087,7 +5089,8 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
 
   cm->last_frame_type = cm->frame_type;
 
-  av1_rc_postencode_update(cpi, *size);
+  if (!(cm->frame_type == KEY_FRAME && !cm->show_frame))
+    av1_rc_postencode_update(cpi, *size);
 
   if (cm->frame_type == KEY_FRAME) {
     // Tell the caller that the frame was coded as a key frame
