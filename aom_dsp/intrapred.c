@@ -277,7 +277,9 @@ static INLINE void dc_predictor_rect(uint8_t *dst, ptrdiff_t stride, int bw,
 
   const int expected_dc = divide_using_multiply_shift(
       sum + ((bw + bh) >> 1), shift1, multiplier, DC_SHIFT2);
-  assert(expected_dc < (1 << 8));
+
+  // Sanity check: valid input should result in valid 'expected_dc'.
+  assert(IMPLIES(sum <= ((1 << 8) - 1) * (bw + bh), expected_dc < (1 << 8)));
 
   for (int r = 0; r < bh; r++) {
     memset(dst, expected_dc, bw);
@@ -594,7 +596,9 @@ static INLINE void highbd_dc_predictor_rect(uint16_t *dst, ptrdiff_t stride,
 
   const int expected_dc = divide_using_multiply_shift(
       sum + ((bw + bh) >> 1), shift1, multiplier, HIGHBD_DC_SHIFT2);
-  assert(expected_dc < (1 << bd));
+
+  // Sanity check: valid input should result in valid 'expected_dc'.
+  assert(IMPLIES(sum <= ((1 << bd) - 1) * (bw + bh), expected_dc < (1 << bd)));
 
   for (int r = 0; r < bh; r++) {
     aom_memset16(dst, expected_dc, bw);
