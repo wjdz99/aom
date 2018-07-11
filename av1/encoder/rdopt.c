@@ -5362,9 +5362,57 @@ static void set_skip_flag(MACROBLOCK *x, RD_STATS *rd_stats, int bsize,
   rd_stats->dist = rd_stats->sse = (dist << 4);
 }
 
+static const float *inter_tx_breakout_adaptive_thresholds[] = {
+  // BLOCK_4x4
+  (float[]){ 5.95719f, 5.11898f, 4.06409f, 3.14524f, 1.89746f, 1.05532f },
+  // BLOCK_4x8
+  (float[]){ 5.53735f, 4.33523f, 3.58901f, 2.80001f, 1.79703f, 1.02046f },
+  // BLOCK_8x4
+  (float[]){ 5.76780f, 4.77942f, 3.77042f, 2.91576f, 1.86111f, 1.04777f },
+  // BLOCK_8x8
+  (float[]){ 5.80416f, 4.50531f, 3.69839f, 2.96399f, 1.82749f, 0.99230f },
+  // BLOCK_8x16
+  (float[]){ 5.71765f, 4.01944f, 3.22889f, 2.47104f, 1.36534f, 0.56100f },
+  // BLOCK_16x8
+  (float[]){ 5.21855f, 3.86217f, 3.14206f, 2.37903f, 1.37762f, 0.56879f },
+  // BLOCK_16x16
+  NULL,
+  // BLOCK_16x32
+  NULL,
+  // BLOCK_32x16
+  NULL,
+  // BLOCK_32x32
+  NULL,
+  // BLOCK_32x64
+  NULL,
+  // BLOCK_64x32
+  NULL,
+  // BLOCK_64x64
+  NULL,
+  // BLOCK_64x128
+  NULL,
+  // BLOCK_128x64
+  NULL,
+  // BLOCK_128x128
+  NULL,
+  // BLOCK_4x16
+  (float[]){ 6.05274f, 4.37119f, 3.39761f, 2.43336f, 1.41280f, 0.61497f },
+  // BLOCK_16x4
+  (float[]){ 6.48667f, 4.37121f, 3.36385f, 2.53391f, 1.39844f, 0.60796f },
+  // BLOCK_8x32
+  (float[]){ 4.64495f, 2.77695f, 2.11481f, 1.41880f, 0.57633f, -0.00658f },
+  // BLOCK_32x8
+  (float[]){ 5.45655f, 3.23176f, 2.36179f, 1.70005f, 0.76059f, 0.06581f },
+  // BLOCK_16x64
+  NULL,
+  // BLOCK_64x16
+  NULL,
+};
+
 static void select_tx_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
                                RD_STATS *rd_stats, BLOCK_SIZE bsize, int mi_row,
-                               int mi_col, int64_t ref_best_rd) {
+                               int mi_col, int64_t ref_best_rd,
+                               float *breakout_prediction_features) {
   const AV1_COMMON *cm = &cpi->common;
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = xd->mi[0];
@@ -5427,6 +5475,28 @@ static void select_tx_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
     // Save the RD search results into tx_rd_record.
     if (within_border) save_tx_rd_info(n4, hash, x, rd_stats, mb_rd_record);
     return;
+  }
+
+  if (breakout_prediction_features != NULL &&
+      inter_tx_breakout_adaptive_thresholds[bsize] != NULL) {
+    // Normalize the input features:
+    float feature_vec_sum = 0.0f;
+    for (int i = 0; i < 6; i++)
+      feature_vec_sum += breakout_prediction_features[i];
+    if (feature_vec_sum < 0.01f) {
+      for (int i = 0; i < 6; i++) breakout_prediction_features[i] = 1 / 6.0f;
+    } else {
+      for (int i = 0; i < 6; i++)
+        breakout_prediction_features[i] /= feature_vec_sum;
+    }
+
+    // Predict the breakout decision:
+    float cur_breakout_score = 0.0f;
+    av1_nn_predict(breakout_prediction_features,
+                   &av1_inter_tx_breakout_nnconfig, &cur_breakout_score);
+    float cur_thresh = inter_tx_breakout_adaptive_thresholds
+        [bsize][cpi->sf.pairwise_model_prune_tx_search_level];
+    if (cur_breakout_score > cur_thresh) return;
   }
 
   // Precompute residual hashes and find existing or add new RD records to
@@ -8276,16 +8346,42 @@ static int64_t motion_mode_rd(const AV1_COMP *const cpi, MACROBLOCK *const x,
         }
       }
 #endif  // CONFIG_COLLECT_INTER_MODE_RD_STATS
-
       int64_t rdcosty = INT64_MAX;
       int is_cost_valid_uv = 0;
+
+      // Features for the pairwise tx search breakout prediction model
+      int cur_extra_rate = rd_stats->rate;
+      int64_t cur_sse = INT64_MAX;
+      float cur_variance = -1.0f;
+      float *cur_breakout_prediction_features = NULL;
+      float feature_buf[6];
 
       // cost and distortion
       av1_subtract_plane(x, bsize, 0);
       if (cm->tx_mode == TX_MODE_SELECT && !xd->lossless[mbmi->segment_id]) {
+        if (cpi->sf.pairwise_model_prune_tx_search_level > 0 &&
+            inter_tx_breakout_adaptive_thresholds[bsize] != NULL) {
+          const int bw = block_size_wide[bsize];
+          const int bh = block_size_high[bsize];
+          cur_sse = aom_sum_squares_2d_i16(x->plane[0].src_diff, bw, bw, bh);
+          float sse_norm = (float)cur_sse / (bw * bh);
+          float mean = (float)get_mean(x->plane[0].src_diff, bw, bw, bh);
+          cur_variance = bw * bh * (sse_norm - mean * mean);
+
+          if (x->cur_best_inter_mode_rd_cost < INT64_MAX) {
+            float norm_rdmult = x->rdmult / 1000000.0f;
+            feature_buf[0] = norm_rdmult * cur_extra_rate;
+            feature_buf[1] = (float)cur_sse;
+            feature_buf[2] = cur_variance;
+            feature_buf[3] = norm_rdmult * x->cur_best_inter_mode_extra_rate;
+            feature_buf[4] = (float)x->cur_best_inter_mode_SSE;
+            feature_buf[5] = x->cur_best_inter_mode_variance;
+            cur_breakout_prediction_features = feature_buf;
+          }
+        }
         // Motion mode
         select_tx_type_yrd(cpi, x, rd_stats_y, bsize, mi_row, mi_col,
-                           ref_best_rd);
+                           ref_best_rd, cur_breakout_prediction_features);
 #if CONFIG_COLLECT_RD_STATS == 2
         PrintPredictionUnitStats(cpi, x, rd_stats_y, bsize);
 #endif  // CONFIG_COLLECT_RD_STATS == 2
@@ -8389,6 +8485,12 @@ static int64_t motion_mode_rd(const AV1_COMP *const cpi, MACROBLOCK *const x,
       }
 #endif  // CONFIG_COLLECT_INTER_MODE_RD_STATS
       int64_t curr_rd = RDCOST(x->rdmult, rd_stats->rate, rd_stats->dist);
+      if (cur_sse < INT64_MAX && curr_rd < x->cur_best_inter_mode_rd_cost) {
+        x->cur_best_inter_mode_rd_cost = curr_rd;
+        x->cur_best_inter_mode_extra_rate = cur_extra_rate;
+        x->cur_best_inter_mode_SSE = cur_sse;
+        x->cur_best_inter_mode_variance = cur_variance;
+      }
       if (curr_rd < ref_best_rd) {
         ref_best_rd = curr_rd;
       }
@@ -9225,7 +9327,8 @@ static int64_t rd_pick_intrabc_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
     av1_subtract_plane(x, bsize, 0);
     if (cm->tx_mode == TX_MODE_SELECT && !xd->lossless[mbmi->segment_id]) {
       // Intrabc
-      select_tx_type_yrd(cpi, x, &rd_stats, bsize, mi_row, mi_col, INT64_MAX);
+      select_tx_type_yrd(cpi, x, &rd_stats, bsize, mi_row, mi_col, INT64_MAX,
+                         NULL);
     } else {
       super_block_yrd(cpi, x, &rd_stats, bsize, INT64_MAX);
       memset(mbmi->inter_tx_size, mbmi->tx_size, sizeof(mbmi->inter_tx_size));
@@ -9590,7 +9693,7 @@ static void sf_refine_fast_tx_type_search(
       if (cm->tx_mode == TX_MODE_SELECT && !xd->lossless[mbmi->segment_id]) {
         // av1_rd_pick_inter_mode_sb
         select_tx_type_yrd(cpi, x, &rd_stats_y, bsize, mi_row, mi_col,
-                           INT64_MAX);
+                           INT64_MAX, NULL);
         assert(rd_stats_y.rate != INT_MAX);
       } else {
         super_block_yrd(cpi, x, &rd_stats_y, bsize, INT64_MAX);
@@ -10386,6 +10489,7 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
   int64_t best_est_rd = INT64_MAX;
 #endif
 
+  x->cur_best_inter_mode_rd_cost = INT64_MAX;
   for (int midx = 0; midx < MAX_MODES; ++midx) {
     int mode_index = mode_map[midx];
     int64_t this_rd = INT64_MAX;

@@ -172,6 +172,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
   sf->model_based_prune_tx_search_level = 1;
   sf->model_based_post_interp_filter_breakout = 1;
   sf->inter_mode_rd_model_estimation = 1;
+  sf->pairwise_model_prune_tx_search_level = 1;
 
   if (speed >= 1) {
     sf->gm_erroradv_type = GM_ERRORADV_TR_1;

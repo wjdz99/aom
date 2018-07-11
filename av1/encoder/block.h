@@ -352,6 +352,13 @@ struct macroblock {
   int tx_search_prune[EXT_TX_SET_TYPES];
   int must_find_valid_partition;
   int tx_split_prune_flag;  // Flag to skip tx split RD search.
+
+  // Features of the current best inter mode. Used in
+  // the pairwise tx search breakout prediction model.
+  int64_t cur_best_inter_mode_rd_cost;
+  int64_t cur_best_inter_mode_SSE;
+  float cur_best_inter_mode_variance;
+  int cur_best_inter_mode_extra_rate;
 };
 
 static INLINE int is_rect_tx_allowed_bsize(BLOCK_SIZE bsize) {

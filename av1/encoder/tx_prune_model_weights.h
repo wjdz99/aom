@@ -2079,6 +2079,44 @@ static const NN_CONFIG *av1_tx_split_nnconfig_map[TX_SIZES_ALL] = {
   &av1_tx_split_nnconfig_16x64,  // TX_64X16,
 };
 
+// Model for predicting TX search breakout, same for all block sizes
+static const float av1_inter_tx_breakout_nn_weights_layer0[48] = {
+  -0.58783f,  -0.70907f, 0.25943f,  -0.04552f,  0.23904f,  0.25210f,
+  23.94415f,  1.93141f,  24.15717f, -24.51951f, -2.21232f, -24.46743f,
+  0.19886f,   -0.56386f, -0.56909f, 0.36798f,   0.44026f,  0.24412f,
+  23.87395f,  1.65614f,  24.63010f, -25.43148f, -2.60440f, -25.66377f,
+  13.20351f,  -2.87716f, 2.45584f,  -13.58915f, 0.34823f,  -0.66846f,
+  -16.36063f, 0.67391f,  0.65070f,  9.56277f,   0.62913f,  1.92680f,
+  0.13021f,   -0.16191f, -0.15508f, -0.00730f,  -0.01933f, 0.62900f,
+  2.42540f,   1.43139f,  8.35616f,  3.26405f,   -5.71550f, -0.16312f,
+};
+
+static const float av1_inter_tx_breakout_nn_bias_layer0[8] = {
+  -0.24501f, 0.18033f,  -0.58558f, 0.48993f,
+  0.27999f,  -0.54669f, -0.29770f, 8.45111f,
+};
+
+static const float av1_inter_tx_breakout_nn_weights_layer1[8] = {
+  0.40520f, 47.12183f, -0.59321f, -46.29634f,
+  5.18942f, -4.44452f, -0.04481f, 0.65400f,
+};
+
+static const float av1_inter_tx_breakout_nn_bias_layer1[1] = {
+  -7.05169f,
+};
+
+static const NN_CONFIG av1_inter_tx_breakout_nnconfig = {
+  6,  // num_inputs
+  1,  // num_outputs
+  1,  // num_hidden_layers
+  {
+      8,
+  },  // num_hidden_nodes
+  { av1_inter_tx_breakout_nn_weights_layer0,
+    av1_inter_tx_breakout_nn_weights_layer1 },
+  { av1_inter_tx_breakout_nn_bias_layer0, av1_inter_tx_breakout_nn_bias_layer1 }
+};
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif
