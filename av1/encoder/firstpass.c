@@ -2146,7 +2146,7 @@ void check_frame_params(int gf_interval, int frame_nums) {
   FILE *fid = fopen("GF_PARAMS.txt", "a");
 
   fprintf(fid, "\n{%d}\n", gf_interval);
-  for (int i = 0; i <= frame_nums; ++i) {
+  for (int i = 0; i < frame_nums; ++i) {
     fprintf(fid, "%s %d %d %d\n", str[gf_multi_layer_params[i][0]],
             gf_multi_layer_params[i][1], gf_multi_layer_params[i][2],
             gf_multi_layer_params[i][3]);
@@ -2241,6 +2241,8 @@ void define_customized_gf_group_structure(AV1_COMP *cpi) {
       construct_multi_layer_gf_structure(rc->baseline_gf_interval);
   int frame_index;
 
+  cpi->num_extra_arfs = 0;
+
   for (frame_index = 0; frame_index < gf_update_frames; ++frame_index) {
     int param_idx = 0;
 
@@ -2262,6 +2264,9 @@ void define_customized_gf_group_structure(AV1_COMP *cpi) {
     } else {
       gf_group->update_type[frame_index] =
           gf_multi_layer_params[frame_index][param_idx++];
+
+      if (gf_group->update_type[frame_index] == INTNL_ARF_UPDATE)
+        ++cpi->num_extra_arfs;
     }
 
     // Assign the rest parameters
@@ -2450,14 +2455,18 @@ static void define_gf_group_structure(AV1_COMP *cpi) {
   }
 #endif  // USE_GF16_MULTI_LAYER
 #if USE_SYMM_MULTI_LAYER
-  if (rc->baseline_gf_interval == 4 && rc->source_alt_ref_pending &&
+  const int valid_customized_gf_length = rc->baseline_gf_interval == 4 ||
+                                         rc->baseline_gf_interval == 8 ||
+                                         rc->baseline_gf_interval == 16;
+  // used the new structure only if extra_arf is allowed
+  if (valid_customized_gf_length && rc->source_alt_ref_pending &&
       cpi->extra_arf_allowed > 0) {
-    // used only if arf is allowed
 #if USE_MANUAL_GF4_STRUCT
-    define_gf_group_structure_4(cpi);
-#else
-    define_customized_gf_group_structure(cpi);
+    if (rc->baseline_gf_interval == 4)
+      define_gf_group_structure_4(cpi);
+    else
 #endif
+      define_customized_gf_group_structure(cpi);
     cpi->new_bwdref_update_rule = 1;
     return;
   } else {
@@ -2787,14 +2796,14 @@ static void allocate_gf_group_bits(AV1_COMP *cpi, int64_t gf_group_bits,
     }
   }
 
-  // NOTE: We need to configure the frame at the end of the sequence + 1 that
-  //       will be the start frame for the next group. Otherwise prior to the
-  //       call to av1_rc_get_second_pass_params() the data will be undefined.
 #if USE_SYMM_MULTI_LAYER
   if (cpi->new_bwdref_update_rule == 0 && rc->source_alt_ref_pending) {
 #else
   if (rc->source_alt_ref_pending) {
 #endif
+    // NOTE: We need to configure the frame at the end of the sequence + 1 that
+    //       will be the start frame for the next group. Otherwise prior to the
+    //       call to av1_rc_get_second_pass_params() the data will be undefined.
     if (cpi->num_extra_arfs) {
       // NOTE: For bit allocation, move the allocated bits associated with
       //       INTNL_OVERLAY_UPDATE to the corresponding INTNL_ARF_UPDATE.
@@ -3078,8 +3087,11 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
                                                    rc->source_alt_ref_pending);
 #endif  // USE_SYMM_MULTI_LAYER
   }
+
+#if !USE_SYMM_MULTI_LAYER
   // Currently at maximum two extra ARFs' are allowed
   assert(cpi->num_extra_arfs <= MAX_EXT_ARFS);
+#endif
 
   rc->frames_till_gf_update_due = rc->baseline_gf_interval;
 
