@@ -19,6 +19,29 @@
     },
     {
       "key": {
+        "uuid": "8c0fb63d_32048099",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1794,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-11T19:11:05Z",
+      "side": 1,
+      "message": "The sse1 variable is set but not used. If this is intentional, we may want to name it \"sse_dummy\", or add a comment.",
+      "range": {
+        "startLine": 1794,
+        "startChar": 49,
+        "endLine": 1794,
+        "endChar": 53
+      },
+      "revId": "f9aa62486e13f2162f8353f4a5951ff958cb819f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "46fd68d9_96b41518",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 3
@@ -30,6 +53,29 @@
       "writtenOn": "2018-07-11T19:06:09Z",
       "side": 1,
       "message": "Do you need similar changes in function that collects PredictionUnitStats?",
+      "revId": "f9aa62486e13f2162f8353f4a5951ff958cb819f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0ef7e35c_d7230fde",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2477,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-11T19:11:05Z",
+      "side": 1,
+      "message": "Optional: We can move this into the if (shift) block, but it requires some reordering:\n\n  double sse_norm_arr[4];\n  get_2x2_normalized_sses_and_sads(cpi, plane_bsize, src, src_stride, dst,\n                                   dst_stride, src_diff, bw, sse_norm_arr,\n                                   NULL);\n  double mean \u003d get_mean(src_diff, bw, bw, bh);\n  if (shift) {\n    for (int k \u003d 0; k \u003c 4; ++k) sse_norm_arr[k] /\u003d (1 \u003c\u003c (2 * shift));\n    mean /\u003d (1 \u003c\u003c shift);\n  }",
+      "range": {
+        "startLine": 2477,
+        "startChar": 2,
+        "endLine": 2477,
+        "endChar": 23
+      },
       "revId": "f9aa62486e13f2162f8353f4a5951ff958cb819f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
