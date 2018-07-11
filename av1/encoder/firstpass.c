@@ -2141,7 +2141,7 @@ void check_frame_params(AV1_COMP *cpi, int gf_interval, int frame_nums) {
   FILE *fid = fopen("GF_PARAMS.txt", "a");
 
   fprintf(fid, "\n{%d}\n", gf_interval);
-  for (int i = 0; i <= frame_nums; ++i) {
+  for (int i = 0; i < frame_nums; ++i) {
     fprintf(fid, "%s %d %d %d\n", str[cpi->gf_params[i][0]],
             cpi->gf_params[i][1], cpi->gf_params[i][2], cpi->gf_params[i][3]);
   }
@@ -2167,10 +2167,10 @@ static void set_multi_layer_params(AV1_COMP *cpi, int l, int r, int *frame_ind,
                                    int arf_ind) {
   if (r - l == 2) {
     // leaf node, not a look-ahead frame
-    cpi->gf_params[*frame_ind][0] = LAST_BIPRED_UPDATE;  // update_type
-    cpi->gf_params[*frame_ind][1] = 0;                   // arf_offset
-    cpi->gf_params[*frame_ind][2] = 0;                   // arf_pos_in_gf
-    cpi->gf_params[*frame_ind][3] = arf_ind;             // arf_update_idx
+    cpi->gf_params[*frame_ind][0] = LF_UPDATE;  // update_type
+    cpi->gf_params[*frame_ind][1] = 0;          // arf_offset
+    cpi->gf_params[*frame_ind][2] = 0;          // arf_pos_in_gf
+    cpi->gf_params[*frame_ind][3] = arf_ind;    // arf_update_idx
     ++(*frame_ind);
   } else {
     int m = (l + r) / 2;
@@ -2237,6 +2237,8 @@ void define_customized_gf_group_structure(AV1_COMP *cpi) {
       construct_multi_layer_gf_structure(cpi, rc->baseline_gf_interval);
   int frame_index;
 
+  cpi->num_extra_arfs = 0;
+
   for (frame_index = 0; frame_index < gf_update_frames; ++frame_index) {
     int param_idx = 0;
 
@@ -2257,6 +2259,9 @@ void define_customized_gf_group_structure(AV1_COMP *cpi) {
     } else {
       gf_group->update_type[frame_index] =
           cpi->gf_params[frame_index][param_idx];
+
+      if (gf_group->update_type[frame_index] == INTNL_ARF_UPDATE)
+        ++cpi->num_extra_arfs;
     }
 
     param_idx++;
@@ -2450,13 +2455,18 @@ static void define_gf_group_structure(AV1_COMP *cpi) {
   }
 #endif  // USE_GF16_MULTI_LAYER
 #if USE_SYMM_MULTI_LAYER
-  if (rc->baseline_gf_interval == 4 && rc->source_alt_ref_pending &&
+  const int valid_customized_gf_length = rc->baseline_gf_interval == 4 ||
+                                         rc->baseline_gf_interval == 8 ||
+                                         rc->baseline_gf_interval == 16;
+  // used the new structure only if extra_arf is allowed
+  if (valid_customized_gf_length && rc->source_alt_ref_pending &&
       cpi->extra_arf_allowed > 0) {
 #if USE_MANUAL_GF4_STRUCT
-    define_gf_group_structure_4(cpi);
-#else
-    define_customized_gf_group_structure(cpi);
+    if (rc->baseline_gf_interval == 4)
+      define_gf_group_structure_4(cpi);
+    else
 #endif
+      define_customized_gf_group_structure(cpi);
     cpi->new_bwdref_update_rule = 1;
     return;
   } else {
@@ -2767,8 +2777,8 @@ static void allocate_gf_group_bits(AV1_COMP *cpi, int64_t gf_group_bits,
       int arf_pos = gf_group->arf_pos_in_gf[frame_index];
       gf_group->bit_allocation[frame_index] = 0;
       // Boost up the allocated bits on backward reference frame
-      gf_group->bit_allocation[arf_pos] =
-          target_frame_size + (target_frame_size >> 2);
+      gf_group->bit_allocation[arf_pos] = target_frame_size;
+      // target_frame_size + (target_frame_size >> 2);
 #endif
     } else {
       assert(gf_group->update_type[frame_index] == LF_UPDATE ||
@@ -3073,8 +3083,11 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
                                                    rc->source_alt_ref_pending);
 #endif  // USE_SYMM_MULTI_LAYER
   }
+
+#if !USE_SYMM_MULTI_LAYER
   // Currently at maximum two extra ARFs' are allowed
   assert(cpi->num_extra_arfs <= MAX_EXT_ARFS);
+#endif
 
   rc->frames_till_gf_update_due = rc->baseline_gf_interval;
 
