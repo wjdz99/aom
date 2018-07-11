@@ -48,6 +48,12 @@
 extern "C" {
 #endif
 
+#if USE_SYMM_MULTI_LAYER
+#define MAX_LAYERS 4
+#define GF_FRAME_PARAMS 4
+#define MAX_CUSTOMIZED_GF_FRAMES (1 << MAX_LAYERS) + (1 << (MAX_LAYERS - 1))
+#endif
+
 typedef struct {
   int nmv_vec_cost[MV_JOINTS];
   int nmv_costs[2][MV_VALS];
@@ -507,6 +513,8 @@ typedef struct AV1_COMP {
   int refresh_alt_ref_frame;
 #if USE_SYMM_MULTI_LAYER
   int new_bwdref_update_rule;
+
+  int gf_params[MAX_CUSTOMIZED_GF_FRAMES][GF_FRAME_PARAMS];
 #endif
 
   int ext_refresh_frame_flags_pending;
