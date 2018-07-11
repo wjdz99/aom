@@ -2693,7 +2693,9 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   }
 
   // Set the interval until the next gf.
-  if (cpi->oxcf.fwd_kf_enabled) {
+//if (cpi->oxcf.fwd_kf_enabled) {
+  if (cpi->oxcf.fwd_kf_enabled &&
+      (twopass->stats_in < twopass->stats_in_end)) {
     // Ensure the gf group before the next keyframe will contain an altref
     if ((rc->frames_to_key - i < rc->min_gf_interval) &&
         (rc->frames_to_key != i)) {
@@ -2705,6 +2707,8 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   } else {
     rc->baseline_gf_interval = i - (is_key_frame || rc->source_alt_ref_pending);
   }
+  printf("\n\ninterval: %d, frames to key: %d, i: %d, allow_altref: %d, lag: %d\n\n", rc->baseline_gf_interval,
+          rc->frames_to_key, i, allow_alt_ref, cpi->oxcf.lag_in_frames);
   if (non_zero_stdev_count) avg_raw_err_stdev /= non_zero_stdev_count;
 
   // Disable extra altrefs and backward refs for "still" gf group:
