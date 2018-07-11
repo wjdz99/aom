@@ -10432,7 +10432,6 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
         for (ref_idx = 0; ref_idx < ref_set; ++ref_idx) {
           int64_t tmp_alt_rd = INT64_MAX;
           int dummy_disable_skip = 0;
-          int_mv cur_mv;
           RD_STATS tmp_rd_stats, tmp_rd_stats_y, tmp_rd_stats_uv;
 
           av1_invalid_rd_stats(&tmp_rd_stats);
@@ -10457,12 +10456,7 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
             }
           }
 
-          cur_mv =
-              mbmi_ext->ref_mv_stack[ref_frame][mbmi->ref_mv_idx + idx_offset]
-                  .this_mv;
-          clamp_mv2(&cur_mv.as_mv, xd);
-
-          if (!mv_check_bounds(&x->mv_limits, &cur_mv.as_mv)) {
+          {
             av1_init_rd_stats(&tmp_rd_stats);
 
             args.modelled_rd = NULL;
@@ -10503,6 +10497,7 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
             backup_skip = x->skip;
             memcpy(x->blk_skip_drl, x->blk_skip,
                    sizeof(x->blk_skip[0]) * ctx->num_4x4_blk);
+            if (tmp_alt_rd < ref_best_rd) ref_best_rd = tmp_alt_rd;
           } else {
             *mbmi = backup_mbmi;
             x->skip = backup_skip;
