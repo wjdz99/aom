@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "648d31c5_558c9ed2",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1792,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2018-07-11T19:49:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "236f8908_227a1430",
+      "revId": "f9aa62486e13f2162f8353f4a5951ff958cb819f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8c0fb63d_32048099",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 3
@@ -42,6 +60,30 @@
     },
     {
       "key": {
+        "uuid": "20c7e563_4c02cdf1",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1794,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2018-07-11T19:49:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8c0fb63d_32048099",
+      "range": {
+        "startLine": 1794,
+        "startChar": 49,
+        "endLine": 1794,
+        "endChar": 53
+      },
+      "revId": "f9aa62486e13f2162f8353f4a5951ff958cb819f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "46fd68d9_96b41518",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 3
@@ -56,6 +98,24 @@
       "revId": "f9aa62486e13f2162f8353f4a5951ff958cb819f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "38f58fb2_c4885f79",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2449,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2018-07-11T19:49:42Z",
+      "side": 1,
+      "message": "It is not strictly needed since we can collect stats only for 8-bit. But I added it to the subsequent patch to handle edge blocks.",
+      "parentUuid": "46fd68d9_96b41518",
+      "revId": "f9aa62486e13f2162f8353f4a5951ff958cb819f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -79,6 +139,30 @@
       "revId": "f9aa62486e13f2162f8353f4a5951ff958cb819f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ba11c8b4_1b428279",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2477,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2018-07-11T19:49:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0ef7e35c_d7230fde",
+      "range": {
+        "startLine": 2477,
+        "startChar": 2,
+        "endLine": 2477,
+        "endChar": 23
+      },
+      "revId": "f9aa62486e13f2162f8353f4a5951ff958cb819f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
