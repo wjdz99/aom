@@ -84,6 +84,17 @@ typedef struct av1_ext_ref_frame {
   int num;
 } av1_ext_ref_frame_t;
 
+/*!\brief Structure to hold the color format.
+ *
+ * Define a structure to hold the color format.
+ */
+typedef struct av1_color_format {
+  /*! Chroma subsampling factor in x direction. */
+  int subsampling_x;
+  /*! Chroma subsampling factor in y direction. */
+  int subsampling_y;
+} av1_color_format_t;
+
 /*!\enum aom_dec_control_id
  * \brief AOM decoder control functions
  *
@@ -118,6 +129,9 @@ enum aom_dec_control_id {
 
   /** control function to get the bit depth of the stream. */
   AV1D_GET_BIT_DEPTH,
+
+  /** control function to get the color format of the stream. */
+  AV1D_GET_COLOR_FORMAT,
 
   /** control function to set the byte alignment of the planes in the reference
    * buffers. Valid values are power of 2, from 32 to 1024. A value of 0 sets
@@ -244,6 +258,8 @@ AOM_CTRL_USE_TYPE(AV1D_GET_DISPLAY_SIZE, int *)
 #define AOM_CTRL_AV1D_GET_DISPLAY_SIZE
 AOM_CTRL_USE_TYPE(AV1D_GET_BIT_DEPTH, unsigned int *)
 #define AOM_CTRL_AV1D_GET_BIT_DEPTH
+AOM_CTRL_USE_TYPE(AV1D_GET_COLOR_FORMAT, av1_color_format_t *)
+#define AOM_CTRL_AV1D_GET_COLOR_FORMAT
 AOM_CTRL_USE_TYPE(AV1D_GET_FRAME_SIZE, int *)
 #define AOM_CTRL_AV1D_GET_FRAME_SIZE
 AOM_CTRL_USE_TYPE(AV1_INVERT_TILE_DECODE_ORDER, int)

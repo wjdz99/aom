@@ -423,3 +423,17 @@ void aom_img_downshift(aom_image_t *dst, const aom_image_t *src,
     lowbd_img_downshift(dst, src, down_shift);
   }
 }
+
+aom_img_fmt_t aom_get_img_format(av1_color_format_t *color_fmt, int lbd) {
+  aom_img_fmt_t fmt = 0;
+
+  if (color_fmt->subsampling_x == 0 && color_fmt->subsampling_y == 0)
+    fmt = AOM_IMG_FMT_I444;
+  else if (color_fmt->subsampling_x == 1 && color_fmt->subsampling_y == 0)
+    fmt = AOM_IMG_FMT_I422;
+  else if (color_fmt->subsampling_x == 1 && color_fmt->subsampling_y == 1)
+    fmt = AOM_IMG_FMT_I420;
+
+  if (!lbd) fmt |= AOM_IMG_FMT_HIGHBITDEPTH;
+  return fmt;
+}
