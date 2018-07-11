@@ -379,6 +379,12 @@ typedef struct SPEED_FEATURES {
   // 1-2: progressively increasing aggressiveness of pruning
   int model_based_prune_tx_search_level;
 
+  // Prune level for tx_size_type search in inter mode search based
+  // on a pairwise block residue comparison model.
+  // 0: no pruning
+  // 1-4: progressively increasing aggressiveness of pruning
+  int pairwise_model_prune_tx_search_level;
+
   // Model based breakout after interpolation filter search
   // 0: no breakout
   // 1: use model based rd breakout
