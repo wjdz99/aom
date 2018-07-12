@@ -195,13 +195,13 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->comp_inter_joint_search_thresh = BLOCK_SIZES_ALL;
 
     sf->partition_search_breakout_rate_thr = 80;
-    sf->auto_min_max_partition_size = RELAXED_NEIGHBORING_MIN_MAX;
     sf->allow_partition_search_skip = 1;
     sf->disable_wedge_search_var_thresh = 100;
     sf->fast_wedge_sign_estimate = 1;
   }
 
   if (speed >= 3) {
+    sf->auto_min_max_partition_size = RELAXED_NEIGHBORING_MIN_MAX;
     sf->tx_size_search_method = boosted ? USE_FULL_RD : USE_LARGESTALL;
     sf->less_rectangular_check = 1;
     sf->mode_skip_start = 10;
