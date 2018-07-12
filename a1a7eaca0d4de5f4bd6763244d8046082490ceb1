@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "b7412cbd_5849cd32",
+        "filename": "av1/encoder/firstpass.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2203,
+      "author": {
+        "id": 7555
+      },
+      "writtenOn": "2018-07-12T23:07:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "54f7a8ec_e5e2b753",
+      "revId": "a1a7eaca0d4de5f4bd6763244d8046082490ceb1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d5a552c4_d43b2d15",
         "filename": "av1/encoder/firstpass.c",
         "patchSetId": 2
@@ -50,6 +68,24 @@
       "revId": "a1a7eaca0d4de5f4bd6763244d8046082490ceb1",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b19a042e_83d01a58",
+        "filename": "av1/encoder/firstpass.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2222,
+      "author": {
+        "id": 7555
+      },
+      "writtenOn": "2018-07-12T23:07:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d5a552c4_d43b2d15",
+      "revId": "a1a7eaca0d4de5f4bd6763244d8046082490ceb1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -81,6 +117,24 @@
       "writtenOn": "2018-07-12T21:43:54Z",
       "side": 1,
       "message": "It is suggested to handle these variables directly inside GF_GROUP, instead of introducing the use of array gf_params",
+      "revId": "a1a7eaca0d4de5f4bd6763244d8046082490ceb1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eac7f3f1_87b88465",
+        "filename": "av1/encoder/firstpass.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2266,
+      "author": {
+        "id": 7555
+      },
+      "writtenOn": "2018-07-12T23:07:22Z",
+      "side": 1,
+      "message": "I absorb these assignment into the recursive function \"set_multi_layer_params,\" and it looks like this:\n\n...\nif (r - l \u003d\u003d 2) {\n    gf_group-\u003eupdate_type[*frame_ind] \u003d LAST_BIPRED_UPDATE;\n    gf_group-\u003earf_src_offset[*frame_ind] \u003d 0;\n    gf_group-\u003earf_pos_in_gf[*frame_ind] \u003d 0;\n    gf_group-\u003earf_update_idx[*frame_ind] \u003d arf_ind;\n    gf_group-\u003erf_level[*frame_ind] \u003d\n        update_type_2_rf_level(gf_group-\u003eupdate_type[*frame_ind]);\n}\n...\n\nI feel like this doesn\u0027t look very pretty compared to the original...\n\nif (r - l \u003d\u003d 2) {\n    cpi-\u003egf_params[*frame_ind][0] \u003d LAST_BIPRED_UPDATE;  // update_type\n    cpi-\u003egf_params[*frame_ind][1] \u003d 0;                   // arf_offset\n    cpi-\u003egf_params[*frame_ind][2] \u003d 0;                   // arf_pos_in_gf\n    cpi-\u003egf_params[*frame_ind][3] \u003d arf_ind;             // arf_update_idx",
+      "parentUuid": "eb9a2925_ad054374",
       "revId": "a1a7eaca0d4de5f4bd6763244d8046082490ceb1",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
