@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5b8ca411_0df50255",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 517,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2018-07-12T21:43:54Z",
+      "side": 1,
+      "message": "Suggested not to define this array for the current code.",
+      "revId": "a1a7eaca0d4de5f4bd6763244d8046082490ceb1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "54f7a8ec_e5e2b753",
+        "filename": "av1/encoder/firstpass.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2203,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2018-07-12T21:43:54Z",
+      "side": 1,
+      "message": "Better not to use the same variable name for different types in one file.",
+      "revId": "a1a7eaca0d4de5f4bd6763244d8046082490ceb1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d5a552c4_d43b2d15",
+        "filename": "av1/encoder/firstpass.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2222,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2018-07-12T21:43:54Z",
+      "side": 1,
+      "message": "This function is to be disabled, correct?",
+      "revId": "a1a7eaca0d4de5f4bd6763244d8046082490ceb1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0db653b8_49ae6b54",
+        "filename": "av1/encoder/firstpass.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2257,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2018-07-12T21:43:54Z",
+      "side": 1,
+      "message": "Indeed, param_idx++ is common for both if() and else(), which can be pulled out of the if-else statement.",
+      "revId": "a1a7eaca0d4de5f4bd6763244d8046082490ceb1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eb9a2925_ad054374",
+        "filename": "av1/encoder/firstpass.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2266,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2018-07-12T21:43:54Z",
+      "side": 1,
+      "message": "It is suggested to handle these variables directly inside GF_GROUP, instead of introducing the use of array gf_params",
+      "revId": "a1a7eaca0d4de5f4bd6763244d8046082490ceb1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "744ea72b_96270f92",
+        "filename": "av1/encoder/firstpass.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2306,
+      "author": {
+        "id": 5200
+      },
+      "writtenOn": "2018-07-12T21:43:54Z",
+      "side": 1,
+      "message": "It is suggested to keep this function at this time, but make an explicit comment that this function will result in exactly the same GF group structure as define_customized_gf_group_structure() when rc-\u003ebaseline_gf_interval \u003d\u003d 4",
+      "revId": "a1a7eaca0d4de5f4bd6763244d8046082490ceb1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
