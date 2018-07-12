@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "a3fcc499_d5fe8052",
+        "filename": "av1/common/arm/av1_inv_txfm_neon.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2018-07-12T05:21:10Z",
+      "side": 1,
+      "message": "Both are same. Removed lowbd_txfm_all_1d_w4_arr and replaced the array name with lowbd_txfm_all_1d_arr.",
+      "parentUuid": "28a6dbcf_6fc3e3ab",
+      "range": {
+        "startLine": 59,
+        "startChar": 16,
+        "endLine": 59,
+        "endChar": 23
+      },
+      "revId": "48dc590a50b2f21ffc6c757be940df101110ba3f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "39d8f872_688cf7e2",
         "filename": "av1/common/arm/av1_inv_txfm_neon.c",
         "patchSetId": 6
@@ -71,6 +95,54 @@
     },
     {
       "key": {
+        "uuid": "e8280965_4ddc73a0",
+        "filename": "av1/common/arm/av1_inv_txfm_neon.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2018-07-12T05:21:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "226a6305_7ac63527",
+      "range": {
+        "startLine": 80,
+        "startChar": 3,
+        "endLine": 80,
+        "endChar": 12
+      },
+      "revId": "48dc590a50b2f21ffc6c757be940df101110ba3f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0150aeb5_7eccbdf9",
+        "filename": "av1/common/arm/av1_inv_txfm_neon.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2018-07-12T05:21:10Z",
+      "side": 1,
+      "message": "Hi Johann,\n\nThis array will eventually replaced by the equivalent neon functions which will use the eobx logic and do only 8 or 16 or 32 pixels width/height.\n\nNote that this frame-level work has been borrowed from ssse3 \u0026 for now we are calling all  c functions as we do not have equivalent variants in c.",
+      "parentUuid": "39d8f872_688cf7e2",
+      "range": {
+        "startLine": 80,
+        "startChar": 43,
+        "endLine": 80,
+        "endChar": 49
+      },
+      "revId": "48dc590a50b2f21ffc6c757be940df101110ba3f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0aa12f5b_b57516ea",
         "filename": "av1/common/arm/av1_inv_txfm_neon.c",
         "patchSetId": 6
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "960d19f0_1109b437",
+        "filename": "av1/common/arm/av1_inv_txfm_neon.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2018-07-12T05:21:10Z",
+      "side": 1,
+      "message": "Hi Johann,\n\nTo keep the row_txfm output we need in 32x32.\n\nAnd in row_txfm \u0026 col_txrm we are using one row extra buffer to keep temporary data.\nHowever this can be removed once we have the equivalent module of neon.",
+      "parentUuid": "0aa12f5b_b57516ea",
+      "range": {
+        "startLine": 109,
+        "startChar": 46,
+        "endLine": 109,
+        "endChar": 48
+      },
+      "revId": "48dc590a50b2f21ffc6c757be940df101110ba3f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fc8e5724_b83a3d4f",
         "filename": "av1/common/arm/av1_inv_txfm_neon.c",
         "patchSetId": 6
@@ -108,6 +204,24 @@
       "revId": "48dc590a50b2f21ffc6c757be940df101110ba3f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e85e86ea_0827eae0",
+        "filename": "av1/common/arm/av1_inv_txfm_neon.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2018-07-12T05:21:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fc8e5724_b83a3d4f",
+      "revId": "48dc590a50b2f21ffc6c757be940df101110ba3f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -134,6 +248,30 @@
     },
     {
       "key": {
+        "uuid": "fccabf3c_94e352b0",
+        "filename": "av1/common/arm/av1_inv_txfm_neon.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2018-07-12T05:21:10Z",
+      "side": 1,
+      "message": "Yes, memset is required for now. However it is possible to remove this memset once we have equivalent neon module.",
+      "parentUuid": "0b22c9f1_a7a774e4",
+      "range": {
+        "startLine": 156,
+        "startChar": 2,
+        "endLine": 156,
+        "endChar": 5
+      },
+      "revId": "48dc590a50b2f21ffc6c757be940df101110ba3f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0fdb9cee_a8ea88d1",
         "filename": "av1/common/arm/av1_inv_txfm_neon.c",
         "patchSetId": 6
@@ -157,6 +295,30 @@
     },
     {
       "key": {
+        "uuid": "ed7a3460_c9b97903",
+        "filename": "av1/common/arm/av1_inv_txfm_neon.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2018-07-12T05:21:10Z",
+      "side": 1,
+      "message": "Hi Johann,\n\nThe current patch tries to enable a framework similar to that of intrinsic path on x86/x64. For now, these modules are similar as we are using c code in both the places.\nEventually those will be way different when it comes to neon implemention.\nEg: lowbd_inv_txfm2d_add_v_identity_neon will be quite simplified and different from lowbd_inv_txfm2d_add_no_identity_neon eventually.\nHowever we can plan to merge the same in future (if the modules are similar eventually)",
+      "parentUuid": "0fdb9cee_a8ea88d1",
+      "range": {
+        "startLine": 174,
+        "startChar": 19,
+        "endLine": 174,
+        "endChar": 55
+      },
+      "revId": "48dc590a50b2f21ffc6c757be940df101110ba3f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ddf0e54b_31787798",
         "filename": "av1/common/arm/av1_inv_txfm_neon.c",
         "patchSetId": 6
@@ -171,6 +333,24 @@
       "revId": "48dc590a50b2f21ffc6c757be940df101110ba3f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "81e1eb74_4394102c",
+        "filename": "av1/common/arm/av1_inv_txfm_neon.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 351,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2018-07-12T05:21:10Z",
+      "side": 1,
+      "message": "Hi Harish,\n\nFor now, these modules are similar as we are using c code in all the places.\nEventually those will be different when it comes to neon implementation.",
+      "parentUuid": "ddf0e54b_31787798",
+      "revId": "48dc590a50b2f21ffc6c757be940df101110ba3f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -191,6 +371,24 @@
     },
     {
       "key": {
+        "uuid": "a98b0dcf_61f58d38",
+        "filename": "av1/common/arm/av1_inv_txfm_neon.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 574,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2018-07-12T05:21:10Z",
+      "side": 1,
+      "message": "Hi Harish,\n\nFor now, these modules are similar as we are using c code in both the places.\nEventually those will be way different when it comes to neon implemention.\nEg: lowbd_inv_txfm2d_add_v_identity_neon will be quite simplified and different from lowbd_inv_txfm2d_add_no_identity_neon eventually.\nHowever we can plan to merge the same in future (if the modules are similar eventually)",
+      "parentUuid": "5002b972_a2434fae",
+      "revId": "48dc590a50b2f21ffc6c757be940df101110ba3f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2a53b71a_f4f52a1e",
         "filename": "av1/common/arm/av1_inv_txfm_neon.c",
         "patchSetId": 6
@@ -205,6 +403,24 @@
       "revId": "48dc590a50b2f21ffc6c757be940df101110ba3f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1da4c5fd_60bf5aa6",
+        "filename": "av1/common/arm/av1_inv_txfm_neon.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 664,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2018-07-12T05:21:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2a53b71a_f4f52a1e",
+      "revId": "48dc590a50b2f21ffc6c757be940df101110ba3f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -225,6 +441,24 @@
     },
     {
       "key": {
+        "uuid": "c86025cf_6a3bce4e",
+        "filename": "av1/common/arm/av1_inv_txfm_neon.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 685,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2018-07-12T05:21:10Z",
+      "side": 1,
+      "message": "Hi Harish,\n\nThis cannot be static as in test_bench they will directly call this function instead of caller of this function.\n\n\nGeneration txfm_params structure in test bench might be needed if call for outer function to be happened.",
+      "parentUuid": "d5d9066a_18a5d5de",
+      "revId": "48dc590a50b2f21ffc6c757be940df101110ba3f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "70002d1e_0bcf09fe",
         "filename": "av1/common/arm/av1_inv_txfm_neon.c",
         "patchSetId": 6
@@ -239,6 +473,24 @@
       "revId": "48dc590a50b2f21ffc6c757be940df101110ba3f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "27d8e7c4_9459f83b",
+        "filename": "av1/common/arm/av1_inv_txfm_neon.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 718,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2018-07-12T05:21:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "70002d1e_0bcf09fe",
+      "revId": "48dc590a50b2f21ffc6c757be940df101110ba3f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -259,6 +511,24 @@
     },
     {
       "key": {
+        "uuid": "18d29c68_3aeed30d",
+        "filename": "av1/common/arm/av1_inv_txfm_neon.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 734,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2018-07-12T05:21:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "53b40cd7_8e3b4978",
+      "revId": "48dc590a50b2f21ffc6c757be940df101110ba3f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "920c9c07_a8710375",
         "filename": "av1/common/arm/av1_inv_txfm_neon.c",
         "patchSetId": 6
@@ -273,6 +543,24 @@
       "revId": "48dc590a50b2f21ffc6c757be940df101110ba3f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4dbdda2e_7c01a0e1",
+        "filename": "av1/common/arm/av1_inv_txfm_neon.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 755,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2018-07-12T05:21:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "920c9c07_a8710375",
+      "revId": "48dc590a50b2f21ffc6c757be940df101110ba3f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
