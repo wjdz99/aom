@@ -34,6 +34,24 @@
       "revId": "fad20dea79ba3cd9745c80bb986c9a162f0d9d19",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2a11b2a5_93a97481",
+        "filename": "aom_dsp/x86/aom_subpixel_8t_intrin_avx2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 787,
+      "author": {
+        "id": 6240
+      },
+      "writtenOn": "2018-07-13T04:30:07Z",
+      "side": 1,
+      "message": "By that I mean that there is no reason to use this instruction on Haswell and later.\n\nhttps://stackoverflow.com/questions/38370622/a-faster-integer-sse-unalligned-load-thats-rarely-used\n\nhttps://stackoverflow.com/questions/47425851/whats-the-difference-between-mm256-lddqu-si256-and-mm256-loadu-si256",
+      "parentUuid": "564d1838_257b4979",
+      "revId": "fad20dea79ba3cd9745c80bb986c9a162f0d9d19",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
