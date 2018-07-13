@@ -303,7 +303,7 @@ struct macroblock {
   int motion_mode_cost[BLOCK_SIZES_ALL][MOTION_MODES];
   int motion_mode_cost1[BLOCK_SIZES_ALL][2];
   int intra_uv_mode_cost[CFL_ALLOWED_TYPES][INTRA_MODES][UV_INTRA_MODES];
-  int y_mode_costs[INTRA_MODES][INTRA_MODES][INTRA_MODES];
+  int y_mode_costs[KF_MODE_CONTEXTS][KF_MODE_CONTEXTS][INTRA_MODES];
   int filter_intra_cost[BLOCK_SIZES_ALL][2];
   int filter_intra_mode_cost[FILTER_INTRA_MODES];
   int switchable_interp_costs[SWITCHABLE_FILTER_CONTEXTS][SWITCHABLE_FILTERS];
