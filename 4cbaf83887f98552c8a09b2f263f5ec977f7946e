@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "95cd029f_cd049d93",
+        "filename": "aom_dsp/grain_synthesis.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 849,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-13T16:16:55Z",
+      "side": 1,
+      "message": "Nit: When I first read this comment, I didn\u0027t know what the shift of 5 means. Since the function is short, it wasn\u0027t hard to figure out it means. But I suggest we at least change \"shift\" to \"right shift\". Alternatively, the comment can specify the function using pseudo code, for example:\n\n  // Computes round((val1 * weight1 + val2 * weight2) / 32.0) and clamps the result.",
+      "range": {
+        "startLine": 849,
+        "startChar": 9,
+        "endLine": 849,
+        "endChar": 29
+      },
+      "revId": "4cbaf83887f98552c8a09b2f263f5ec977f7946e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "667a6381_39aa7ff6",
+        "filename": "aom_dsp/grain_synthesis.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 850,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-13T16:16:55Z",
+      "side": 1,
+      "message": "The bug reports say val1 or val2 can be 351728818 or 1966110000. Are those values in the valid range for left_block/right_block?",
+      "range": {
+        "startLine": 850,
+        "startChar": 41,
+        "endLine": 850,
+        "endChar": 49
+      },
+      "revId": "4cbaf83887f98552c8a09b2f263f5ec977f7946e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8f140c3c_80503631",
+        "filename": "aom_dsp/grain_synthesis.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 854,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-13T16:16:55Z",
+      "side": 1,
+      "message": "Can the addition in line 853 or inside the ROUND_POWER_OF_TWO_64 macro overflow?\n\nIn any case, now that this code is refactored in this function, we just need to fix one place if overflow is possible.",
+      "revId": "4cbaf83887f98552c8a09b2f263f5ec977f7946e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f19fbe04_c7ee34e7",
+        "filename": "aom_dsp/grain_synthesis.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 855,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-13T16:16:55Z",
+      "side": 1,
+      "message": "[This is just a comment, not a request for change.] Nit: The name \"weighted average\" implies the sum of the weights should be equal to 32. But their sum is either 44 or 45.\n\nI cannot suggest a better name though.",
+      "range": {
+        "startLine": 855,
+        "startChar": 15,
+        "endLine": 855,
+        "endChar": 27
+      },
+      "revId": "4cbaf83887f98552c8a09b2f263f5ec977f7946e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
