@@ -88,7 +88,6 @@ int main(int argc, char **argv) {
   const char *lf_width_arg;
   const char *lf_height_arg;
   const char *lf_blocksize_arg;
-  int width, height;
   int lf_width, lf_height;
   int lf_blocksize;
   int u_blocks;
@@ -115,8 +114,6 @@ int main(int argc, char **argv) {
   lf_blocksize = (int)strtol(lf_blocksize_arg, NULL, 0);
 
   info = aom_video_reader_get_info(reader);
-  width = info->frame_width;
-  height = info->frame_height;
 
   decoder = get_aom_decoder_by_fourcc(info->codec_fourcc);
   if (!decoder) die("Unknown input codec.");
@@ -124,6 +121,10 @@ int main(int argc, char **argv) {
 
   if (aom_codec_dec_init(&codec, decoder->codec_interface(), NULL, 0))
     die_codec(&codec, "Failed to initialize decoder.");
+
+  if (aom_codec_control(&codec, AV1D_SET_IS_ANNEXB, info->is_annexb)) {
+    die("Failed to set annex b status");
+  }
 
   // How many anchor frames we have.
   u_blocks = (lf_width + lf_blocksize - 1) / lf_blocksize;
@@ -145,12 +146,17 @@ int main(int argc, char **argv) {
       if (aom_codec_control(&codec, AV1D_GET_IMG_FORMAT, &ref_fmt))
         die_codec(&codec, "Failed to get the image format");
 
+      int frame_res[2];
+      if (aom_codec_control(&codec, AV1D_GET_FRAME_SIZE, frame_res))
+        die_codec(&codec, "Failed to get the image frame size");
+
       // Allocate memory to store decoded references. Allocate memory with the
       // border so that it can be used as a reference.
       for (j = 0; j < num_references; j++) {
         unsigned int border = AOM_BORDER_IN_PIXELS;
-        if (!aom_img_alloc_with_border(&reference_images[j], ref_fmt, width,
-                                       height, 32, 8, border)) {
+        if (!aom_img_alloc_with_border(&reference_images[j], ref_fmt,
+                                       frame_res[0], frame_res[1], 32, 8,
+                                       border)) {
           die("Failed to allocate references.");
         }
       }
