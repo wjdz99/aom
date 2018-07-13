@@ -846,14 +846,22 @@ static void extend_even(uint8_t *dst, int dst_stride, int width, int height,
   }
 }
 
+// Note: Assumes a shift of 5.
+static INLINE int weighted_clamped_grain(int val1, int weight1, int val2,
+                                         int weight2) {
+  const int64_t weighted_sum =
+      (int64_t)val1 * weight1 + (int64_t)val2 * weight2;
+  const int weighted_avg = (int)ROUND_POWER_OF_TWO_64(weighted_sum, 5);
+  return clamp(weighted_avg, grain_min, grain_max);
+}
+
 static void ver_boundary_overlap(int *left_block, int left_stride,
                                  int *right_block, int right_stride,
                                  int *dst_block, int dst_stride, int width,
                                  int height) {
   if (width == 1) {
     while (height) {
-      *dst_block = clamp((*left_block * 23 + *right_block * 22 + 16) >> 5,
-                         grain_min, grain_max);
+      *dst_block = weighted_clamped_grain(*left_block, 23, *right_block, 22);
       left_block += left_stride;
       right_block += right_stride;
       dst_block += dst_stride;
@@ -862,10 +870,10 @@ static void ver_boundary_overlap(int *left_block, int left_stride,
     return;
   } else if (width == 2) {
     while (height) {
-      dst_block[0] = clamp((27 * left_block[0] + 17 * right_block[0] + 16) >> 5,
-                           grain_min, grain_max);
-      dst_block[1] = clamp((17 * left_block[1] + 27 * right_block[1] + 16) >> 5,
-                           grain_min, grain_max);
+      dst_block[0] =
+          weighted_clamped_grain(left_block[0], 27, right_block[0], 17);
+      dst_block[1] =
+          weighted_clamped_grain(left_block[1], 17, right_block[1], 27);
       left_block += left_stride;
       right_block += right_stride;
       dst_block += dst_stride;
@@ -881,8 +889,7 @@ static void hor_boundary_overlap(int *top_block, int top_stride,
                                  int height) {
   if (height == 1) {
     while (width) {
-      *dst_block = clamp((*top_block * 23 + *bottom_block * 22 + 16) >> 5,
-                         grain_min, grain_max);
+      *dst_block = weighted_clamped_grain(*top_block, 23, *bottom_block, 22);
       ++top_block;
       ++bottom_block;
       ++dst_block;
@@ -891,12 +898,10 @@ static void hor_boundary_overlap(int *top_block, int top_stride,
     return;
   } else if (height == 2) {
     while (width) {
-      dst_block[0] = clamp((27 * top_block[0] + 17 * bottom_block[0] + 16) >> 5,
-                           grain_min, grain_max);
-      dst_block[dst_stride] = clamp((17 * top_block[top_stride] +
-                                     27 * bottom_block[bottom_stride] + 16) >>
-                                        5,
-                                    grain_min, grain_max);
+      dst_block[0] =
+          weighted_clamped_grain(top_block[0], 27, bottom_block[0], 17);
+      dst_block[dst_stride] = weighted_clamped_grain(
+          top_block[top_stride], 17, bottom_block[bottom_stride], 27);
       ++top_block;
       ++bottom_block;
       ++dst_block;
