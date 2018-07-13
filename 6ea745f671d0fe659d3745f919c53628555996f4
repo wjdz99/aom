@@ -45,6 +45,30 @@
       "revId": "6ea745f671d0fe659d3745f919c53628555996f4",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "11b167be_b86d3069",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 3330,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-13T22:35:06Z",
+      "side": 1,
+      "message": "Done. You are right. The structure has five fields:\n\nstruct aom_internal_error_info {\n  aom_codec_err_t error_code;\n  int has_detail;\n  char detail[80];\n  int setjmp;\n  jmp_buf jmp;\n};\n\nStrictly speaking, we only need to initialize two fields:\n\n1. Set error_code to AOM_CODEC_OK. When error_code is AOM_CODEC_OK, we don\u0027t read \u0027has_detail\u0027 and \u0027detail\u0027.\n2. Set \u0027setjmp\u0027 to 0. When \u0027setjmp\u0027 is 0, we don\u0027t use \u0027jmp\u0027.",
+      "parentUuid": "8b9552d3_bb502d1f",
+      "range": {
+        "startLine": 3330,
+        "startChar": 6,
+        "endLine": 3330,
+        "endChar": 40
+      },
+      "revId": "6ea745f671d0fe659d3745f919c53628555996f4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
