@@ -22,6 +22,29 @@
       "revId": "6ea745f671d0fe659d3745f919c53628555996f4",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8b9552d3_bb502d1f",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 3330,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2018-07-13T22:21:57Z",
+      "side": 1,
+      "message": "only need to set thread_data-\u003eerror_info.setjmp to 0 instead of the structure?",
+      "range": {
+        "startLine": 3330,
+        "startChar": 6,
+        "endLine": 3330,
+        "endChar": 40
+      },
+      "revId": "6ea745f671d0fe659d3745f919c53628555996f4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
