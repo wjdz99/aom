@@ -85,6 +85,29 @@
       "revId": "4cbaf83887f98552c8a09b2f263f5ec977f7946e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "52c72d97_025add8b",
+        "filename": "aom_dsp/grain_synthesis.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 874,
+      "author": {
+        "id": 6720
+      },
+      "writtenOn": "2018-07-13T16:45:07Z",
+      "side": 1,
+      "message": "I do not think this patch solves the problem. The left_block[0] value should be in the range [-2048, 2047] for bitdepth 12 and smaller for lower values of bits. The error looks more like uninitialized values used.",
+      "range": {
+        "startLine": 874,
+        "startChar": 10,
+        "endLine": 874,
+        "endChar": 32
+      },
+      "revId": "4cbaf83887f98552c8a09b2f263f5ec977f7946e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
