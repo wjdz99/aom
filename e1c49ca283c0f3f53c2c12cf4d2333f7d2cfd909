@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bac21f24_d2e404a8",
+        "filename": "aom_dsp/x86/masked_sad_intrin_ssse3.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2018-07-13T00:17:57Z",
+      "side": 1,
+      "message": "To follow the naming convention, may need to add \"aom_\". Or you can simply move the function definition here(use static INLINE).",
+      "range": {
+        "startLine": 15,
+        "startChar": 13,
+        "endLine": 15,
+        "endChar": 32
+      },
+      "revId": "e1c49ca283c0f3f53c2c12cf4d2333f7d2cfd909",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
