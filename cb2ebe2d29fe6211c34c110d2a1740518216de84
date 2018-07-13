@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6ebc778a_9a38eb13",
+        "filename": "aom_dsp/x86/loopfilter_sse2.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 419,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2018-07-13T22:30:52Z",
+      "side": 1,
+      "message": "Noticed that many functions in this file used AOM_FORCE_INLINE. This wouldn\u0027t be flexible while optimizing for small library size. Using INLINE is recommended unless there are only few lines in the function. Could you modify them?",
+      "range": {
+        "startLine": 419,
+        "startChar": 7,
+        "endLine": 419,
+        "endChar": 23
+      },
+      "revId": "cb2ebe2d29fe6211c34c110d2a1740518216de84",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
