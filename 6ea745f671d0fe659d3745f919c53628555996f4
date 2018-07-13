@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9e20dcad_e669484c",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 3308,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-13T01:32:19Z",
+      "side": 1,
+      "message": "Alternatively, we can just use aom_calloc to allocate the pbi-\u003ethread_data array.",
+      "range": {
+        "startLine": 3307,
+        "startChar": 0,
+        "endLine": 3308,
+        "endChar": 73
+      },
+      "revId": "6ea745f671d0fe659d3745f919c53628555996f4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
