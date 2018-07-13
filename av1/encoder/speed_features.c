@@ -202,6 +202,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->optimize_b_precheck = 1;
     sf->dual_sgr_penalty_level = 1;
     sf->use_accurate_subpel_search = 1;
+    sf->prune_comp_search_by_single_result = 1;
   }
 
   if (speed >= 2) {
@@ -483,6 +484,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi) {
   sf->use_fast_interpolation_filter_search = 0;
   sf->skip_repeat_interpolation_filter_search = 0;
   sf->use_hash_based_trellis = 0;
+  sf->prune_comp_search_by_single_result = 0;
 
   // Set decoder side speed feature to use less dual sgr modes
   sf->dual_sgr_penalty_level = 0;
