@@ -384,6 +384,9 @@ static uint32_t read_one_tile_group_obu(
   int start_tile, end_tile;
   int32_t header_size, tg_payload_size;
 
+  assert((rb->bit_offset & 7) == 0);
+  assert(rb->bit_buffer + aom_rb_bytes_read(rb) == data);
+
   header_size = read_tile_group_header(pbi, rb, &start_tile, &end_tile,
                                        tile_start_implicit);
   if (header_size == -1) return 0;
@@ -871,6 +874,13 @@ int aom_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
 
         if (obu_header.type != OBU_FRAME) break;
         obu_payload_offset = frame_header_size;
+        // Byte align the reader before reading the tile group.
+        while (rb.bit_offset & 7) {
+          if (aom_rb_read_bit(&rb)) {
+            cm->error.error_code = AOM_CODEC_CORRUPT_FRAME;
+            return -1;
+          }
+        }
         AOM_FALLTHROUGH_INTENDED;  // fall through to read tile group.
       case OBU_TILE_GROUP:
         if (!pbi->seen_frame_header) {
