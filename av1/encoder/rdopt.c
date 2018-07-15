@@ -2485,25 +2485,26 @@ static void model_rd_with_dnn(const AV1_COMP *const cpi, MACROBLOCK *const x,
     for (int k = 0; k < 4; ++k) sse_norm_arr[k] /= (1 << (2 * shift));
     mean /= (1 << shift);
   }
-  const double variance = sse_norm - mean * mean;
-  assert(variance >= 0.0);
+  double sse_norm_sum = 0.0, sse_frac_arr[3];
+  for (int k = 0; k < 4; ++k) sse_norm_sum += sse_norm_arr[k];
+  for (int k = 0; k < 3; ++k)
+    sse_frac_arr[k] =
+        sse_norm_sum > 0.0 ? sse_norm_arr[k] / sse_norm_sum : 0.25;
   const double q_sqr = (double)(q_step * q_step);
   const double q_sqr_by_sse_norm = q_sqr / (sse_norm + 1.0);
+  const double mean_sqr_by_sse_norm = mean * mean / (sse_norm + 1.0);
   double hor_corr, vert_corr;
   get_horver_correlation(src_diff, diff_stride, bw, bh, &hor_corr, &vert_corr);
 
-  float features[11];
+  float features[8];
   features[0] = (float)hor_corr;
   features[1] = (float)log_numpels;
-  features[2] = (float)q_sqr;
+  features[2] = (float)mean_sqr_by_sse_norm;
   features[3] = (float)q_sqr_by_sse_norm;
-  features[4] = (float)sse_norm_arr[0];
-  features[5] = (float)sse_norm_arr[1];
-  features[6] = (float)sse_norm_arr[2];
-  features[7] = (float)sse_norm_arr[3];
-  features[8] = (float)sse_norm;
-  features[9] = (float)variance;
-  features[10] = (float)vert_corr;
+  features[4] = (float)sse_frac_arr[0];
+  features[5] = (float)sse_frac_arr[1];
+  features[6] = (float)sse_frac_arr[2];
+  features[7] = (float)vert_corr;
 
   float rate_f, dist_by_sse_norm_f;
   av1_nn_predict(features, &av1_pustats_dist_nnconfig, &dist_by_sse_norm_f);
