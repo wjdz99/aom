@@ -590,6 +590,10 @@ void av1_temporal_filter(AV1_COMP *cpi, int distance) {
     strength = 0;
     frames_to_blur = 1;
   }
+#if NO_TEMP_FILTERING
+  strength = 0;
+  frames_to_blur = 1;
+#endif
 
   int which_arf = gf_group->arf_update_idx[gf_group->index];
 
