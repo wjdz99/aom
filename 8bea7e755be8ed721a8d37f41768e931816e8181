@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "10b9f784_f85e5a42",
+        "filename": "av1/encoder/firstpass.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 2136,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-07-16T22:48:53Z",
+      "side": 1,
+      "message": "use a more descriptive name like \"update_type_strings\"",
+      "range": {
+        "startLine": 2136,
+        "startChar": 21,
+        "endLine": 2136,
+        "endChar": 24
+      },
+      "revId": "8bea7e755be8ed721a8d37f41768e931816e8181",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "889dd56d_6ac38dc5",
+        "filename": "av1/encoder/firstpass.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 2150,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-07-16T22:48:53Z",
+      "side": 1,
+      "message": "Close the file with fclose() instead.",
+      "revId": "8bea7e755be8ed721a8d37f41768e931816e8181",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e18b2f52_bb735d00",
+        "filename": "av1/encoder/ratectrl.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-07-16T22:48:53Z",
+      "side": 1,
+      "message": "This is 0 in both cases? If so, move out of the #if?",
+      "revId": "8bea7e755be8ed721a8d37f41768e931816e8181",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
