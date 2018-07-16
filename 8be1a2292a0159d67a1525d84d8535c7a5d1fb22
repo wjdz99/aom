@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8fc19c8a_86bc9802",
+        "filename": "av1/encoder/ratectrl.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-07-16T23:20:48Z",
+      "side": 1,
+      "message": "Turn this off before submitting as discussed offline.",
+      "revId": "8be1a2292a0159d67a1525d84d8535c7a5d1fb22",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
