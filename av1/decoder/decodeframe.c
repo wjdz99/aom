@@ -1410,11 +1410,65 @@ static void set_offsets_for_pred_and_recon(AV1Decoder *const pbi,
                        mi_col, 0, num_planes);
 }
 
+static INLINE void sync_read(AV1DecRowMTSync *const dec_row_mt_sync, int r,
+                             int c) {
+#if CONFIG_MULTITHREAD
+  const int nsync = dec_row_mt_sync->sync_range;
+
+  assert(nsync == 1);
+
+  if (r && !(c & (nsync - 1))) {
+    pthread_mutex_t *const mutex = &dec_row_mt_sync->mutex_[r - 1];
+    pthread_mutex_lock(mutex);
+
+    while (c > dec_row_mt_sync->cur_mi_col[r - 1]) {
+      pthread_cond_wait(&dec_row_mt_sync->cond_[r - 1], mutex);
+    }
+    pthread_mutex_unlock(mutex);
+  }
+#else
+  (void)dec_row_mt_sync;
+  (void)r;
+  (void)c;
+#endif  // CONFIG_MULTITHREAD
+}
+
 static void decode_block(AV1Decoder *const pbi, ThreadData *const td,
                          int mi_row, int mi_col, aom_reader *r,
                          PARTITION_TYPE partition, BLOCK_SIZE bsize) {
   (void)partition;
   set_offsets_for_pred_and_recon(pbi, td, mi_row, mi_col, bsize);
+
+  AV1_COMMON *const cm = &pbi->common;
+  MACROBLOCKD *const xd = &td->xd;
+  const int sb_mi_size = mi_size_high[cm->seq_params.sb_size];
+  const int blk_row_in_sb = mi_row & (sb_mi_size - 1);
+  MB_MODE_INFO *mbmi = xd->mi[0];
+  // Top right sync is required if mis on top superblock boundary
+  // are intra or inter-intra. To handle sub 8x8 chroma case,
+  // dependency is checked for top two mi rows on superblock boundary.
+  // For intrabc top-right check is done at superblock level.
+  const int top_sync_required =
+      (blk_row_in_sb < 2) &&
+      (!is_inter_block(mbmi) || is_interintra_pred(mbmi)) &&
+      !(av1_allow_intrabc(cm));
+
+  if (top_sync_required) {
+    TileDataDec *const tile_data =
+        pbi->tile_data + xd->tile.tile_row * cm->tile_cols + xd->tile.tile_col;
+    TileInfo tile_info = tile_data->tile_info;
+    const int cur_sb_row_in_tile =
+        (mi_row - tile_info.mi_row_start) >> cm->seq_params.mib_size_log2;
+    const int cur_mi_col_in_tile = mi_col - tile_info.mi_col_start;
+    const int bw = mi_size_wide[bsize];
+    // Intra prediction requires bw + bw = 2 * bw top pixels atmost.
+    // AOMMAX(bw, 2) handles sub 8x8 chroma case.
+    const int num_mis_required = cur_mi_col_in_tile + bw + AOMMAX(bw, 2);
+
+    sync_read(&tile_data->dec_row_mt_sync, cur_sb_row_in_tile,
+              num_mis_required);
+  }
+
   decode_token_recon_block(pbi, td, mi_row, mi_col, r, bsize);
 }
 
@@ -2645,8 +2699,8 @@ static void dec_row_mt_alloc(AV1DecRowMTSync *dec_row_mt_sync, AV1_COMMON *cm,
   }
 #endif  // CONFIG_MULTITHREAD
 
-  CHECK_MEM_ERROR(cm, dec_row_mt_sync->cur_sb_col,
-                  aom_malloc(sizeof(*(dec_row_mt_sync->cur_sb_col)) * rows));
+  CHECK_MEM_ERROR(cm, dec_row_mt_sync->cur_mi_col,
+                  aom_malloc(sizeof(*(dec_row_mt_sync->cur_mi_col)) * rows));
 
   // Set up nsync.
   dec_row_mt_sync->sync_range = get_sync_range(cm->width);
@@ -2670,7 +2724,7 @@ void av1_dec_row_mt_dealloc(AV1DecRowMTSync *dec_row_mt_sync) {
       aom_free(dec_row_mt_sync->cond_);
     }
 #endif  // CONFIG_MULTITHREAD
-    aom_free(dec_row_mt_sync->cur_sb_col);
+    aom_free(dec_row_mt_sync->cur_mi_col);
 
     // clear the structure as the source of this call may be a resize in which
     // case this call will be followed by an _alloc() which may fail.
@@ -2678,45 +2732,24 @@ void av1_dec_row_mt_dealloc(AV1DecRowMTSync *dec_row_mt_sync) {
   }
 }
 
-static INLINE void sync_read(AV1DecRowMTSync *const dec_row_mt_sync, int r,
-                             int c) {
-#if CONFIG_MULTITHREAD
-  const int nsync = dec_row_mt_sync->sync_range;
-
-  if (r && !(c & (nsync - 1))) {
-    pthread_mutex_t *const mutex = &dec_row_mt_sync->mutex_[r - 1];
-    pthread_mutex_lock(mutex);
-
-    while (c > dec_row_mt_sync->cur_sb_col[r - 1] - nsync) {
-      pthread_cond_wait(&dec_row_mt_sync->cond_[r - 1], mutex);
-    }
-    pthread_mutex_unlock(mutex);
-  }
-#else
-  (void)dec_row_mt_sync;
-  (void)r;
-  (void)c;
-#endif  // CONFIG_MULTITHREAD
-}
-
 static INLINE void sync_write(AV1DecRowMTSync *const dec_row_mt_sync, int r,
-                              int c, const int sb_cols) {
+                              int c, const int mi_cols) {
 #if CONFIG_MULTITHREAD
   const int nsync = dec_row_mt_sync->sync_range;
   int cur;
   int sig = 1;
 
-  if (c < sb_cols - 1) {
+  if (c < mi_cols) {
     cur = c;
     if (c % nsync) sig = 0;
   } else {
-    cur = sb_cols + nsync;
+    cur = c + MAX_MIB_SIZE;
   }
 
   if (sig) {
     pthread_mutex_lock(&dec_row_mt_sync->mutex_[r]);
 
-    dec_row_mt_sync->cur_sb_col[r] = cur;
+    dec_row_mt_sync->cur_mi_col[r] = cur;
 
     pthread_cond_signal(&dec_row_mt_sync->cond_[r]);
     pthread_mutex_unlock(&dec_row_mt_sync->mutex_[r]);
@@ -2725,7 +2758,7 @@ static INLINE void sync_write(AV1DecRowMTSync *const dec_row_mt_sync, int r,
   (void)dec_row_mt_sync;
   (void)r;
   (void)c;
-  (void)sb_cols;
+  (void)mi_cols;
 #endif  // CONFIG_MULTITHREAD
 }
 
@@ -2738,39 +2771,34 @@ static INLINE int get_sb_rows_in_tile(AV1Decoder *pbi, TileInfo tile) {
   return sb_rows;
 }
 
-static INLINE int get_sb_cols_in_tile(AV1Decoder *pbi, TileInfo tile) {
-  AV1_COMMON *cm = &pbi->common;
-  int mi_cols_aligned_to_sb = ALIGN_POWER_OF_TWO(
-      tile.mi_col_end - tile.mi_col_start, cm->seq_params.mib_size_log2);
-  int sb_cols = mi_cols_aligned_to_sb >> cm->seq_params.mib_size_log2;
-
-  return sb_cols;
-}
-
 static void decode_tile_sb_row(AV1Decoder *pbi, ThreadData *const td,
                                TileInfo tile_info, const int mi_row) {
   AV1_COMMON *const cm = &pbi->common;
   const int num_planes = av1_num_planes(cm);
+  const int sb_mi_size = mi_size_wide[cm->seq_params.sb_size];
   TileDataDec *const tile_data =
       pbi->tile_data + tile_info.tile_row * cm->tile_cols + tile_info.tile_col;
-  const int sb_cols_in_tile = get_sb_cols_in_tile(pbi, tile_info);
+  const int mi_cols_in_tile = tile_info.mi_col_end - tile_info.mi_col_start;
   const int sb_row_in_tile =
       (mi_row - tile_info.mi_row_start) >> cm->seq_params.mib_size_log2;
-  int sb_col_in_tile = 0;
 
   for (int mi_col = tile_info.mi_col_start; mi_col < tile_info.mi_col_end;
-       mi_col += cm->seq_params.mib_size, sb_col_in_tile++) {
+       mi_col += cm->seq_params.mib_size) {
+    const int mi_col_in_tile = mi_col - tile_info.mi_col_start;
     set_cb_buffer(pbi, &td->xd, pbi->cb_buffer_base, num_planes, mi_row,
                   mi_col);
 
-    sync_read(&tile_data->dec_row_mt_sync, sb_row_in_tile, sb_col_in_tile);
+    if (av1_allow_intrabc(cm)) {
+      const int num_mis_required = mi_col_in_tile + 2 * sb_mi_size;
+      sync_read(&tile_data->dec_row_mt_sync, sb_row_in_tile, num_mis_required);
+    }
 
     // Decoding of the super-block
     decode_partition(pbi, td, mi_row, mi_col, td->bit_reader,
                      cm->seq_params.sb_size, 0x2);
 
-    sync_write(&tile_data->dec_row_mt_sync, sb_row_in_tile, sb_col_in_tile,
-               sb_cols_in_tile);
+    sync_write(&tile_data->dec_row_mt_sync, sb_row_in_tile,
+               mi_col_in_tile + sb_mi_size, mi_cols_in_tile);
   }
 }
 
@@ -3663,9 +3691,9 @@ static void row_mt_frame_init(AV1Decoder *pbi, int tile_rows_start,
       frame_row_mt_info->mi_rows_to_decode +=
           tile_data->dec_row_mt_sync.mi_rows;
 
-      // Initialize cur_sb_col to -1 for all SB rows.
-      memset(tile_data->dec_row_mt_sync.cur_sb_col, -1,
-             sizeof(*tile_data->dec_row_mt_sync.cur_sb_col) * max_sb_rows);
+      // Initialize cur_mi_col to -1 for all SB rows.
+      memset(tile_data->dec_row_mt_sync.cur_mi_col, -1,
+             sizeof(*tile_data->dec_row_mt_sync.cur_mi_col) * max_sb_rows);
     }
   }
 
