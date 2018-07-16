@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4927e8d0_8b37c1de",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-16T19:55:08Z",
+      "side": 1,
+      "message": "Please add a comment to point out that this function only approximates that requirement of the spec. The deviations from the spec\u0027s requirement are:\n\n1. The SequenceHeader struct does not include all the syntax elements of the sequence header OBU.\n\n2. Being bit-identical means defaulting a field to 0 and specifying a 0 value are considered different. I don\u0027t know if this difference actually matters to the sequence header OBU though.",
+      "range": {
+        "startLine": 177,
+        "startChar": 0,
+        "endLine": 178,
+        "endChar": 80
+      },
+      "revId": "ee5254110ca1f9c6973f771e140b82dd4d75b1cc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
