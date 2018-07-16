@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "65fd4b4a_e897af29",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-16T21:24:14Z",
+      "side": 1,
+      "message": "Nit: Add \"true\" after \"Returns\".\n\n(I guess changing \"if\" to \"whether\" should also work.)",
+      "range": {
+        "startLine": 176,
+        "startChar": 3,
+        "endLine": 176,
+        "endChar": 10
+      },
+      "revId": "ee5254110ca1f9c6973f771e140b82dd4d75b1cc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "4927e8d0_8b37c1de",
         "filename": "av1/decoder/obu.c",
         "patchSetId": 3
@@ -18,6 +41,98 @@
         "startChar": 0,
         "endLine": 178,
         "endChar": 80
+      },
+      "revId": "ee5254110ca1f9c6973f771e140b82dd4d75b1cc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "03135d45_c8307176",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-16T21:24:14Z",
+      "side": 1,
+      "message": "I think the operating_points_cnt_minus_1 syntax element needs to be identical in the two sequence header OBUs.",
+      "range": {
+        "startLine": 183,
+        "startChar": 0,
+        "endLine": 184,
+        "endChar": 47
+      },
+      "revId": "ee5254110ca1f9c6973f771e140b82dd4d75b1cc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9aab60f5_1c89d6a7",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-16T21:24:14Z",
+      "side": 1,
+      "message": "Similarly, the valid elements in the operating_point_idc array should be identical in the two sequence header OBUs. We can zero the invalid elements, from index (seq_param_1.operating_points_cnt_minus_1 + 1) to the end of the array.\n\nBecause we initialize seq_params_new (\u0027sh\u0027) to be a copy of seq_params_old (cm-\u003eseq_params), I think we don\u0027t need to zero the invalid elements at the end of the operating_point_idc array.\n\nNote: the contents of operating_parameters_info are read by the av1_read_op_parameters_info() function. That function currently reads the data into cm-\u003eop_params, which is unrelated to the SequenceHeader struct. This means everything in the SequenceHeader struct should be identical except for the invalid elements in the three arrays: operating_point_idc, level, and tier.",
+      "range": {
+        "startLine": 185,
+        "startChar": 0,
+        "endLine": 186,
+        "endChar": 44
+      },
+      "revId": "ee5254110ca1f9c6973f771e140b82dd4d75b1cc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "419263e9_a068c293",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-16T21:24:14Z",
+      "side": 1,
+      "message": "The display_model_info_present_flag and decoder_model_info_present_flag syntax elements should be identical, so these four lines should be removed.",
+      "range": {
+        "startLine": 187,
+        "startChar": 0,
+        "endLine": 190,
+        "endChar": 50
+      },
+      "revId": "ee5254110ca1f9c6973f771e140b82dd4d75b1cc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0263d4ba_5749c5c2",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-16T21:24:14Z",
+      "side": 1,
+      "message": "Delete the two (const void *) type casts. They are not necessary (in C or C++).",
+      "range": {
+        "startLine": 191,
+        "startChar": 17,
+        "endLine": 191,
+        "endChar": 72
       },
       "revId": "ee5254110ca1f9c6973f771e140b82dd4d75b1cc",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
