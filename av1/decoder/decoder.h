@@ -76,7 +76,7 @@ typedef struct AV1DecRowMTSyncData {
   pthread_cond_t *cond_;
 #endif
   int allocated_sb_rows;
-  int *cur_sb_col;
+  int *cur_mi_col;
   int sync_range;
   int mi_rows;
   int mi_cols;
