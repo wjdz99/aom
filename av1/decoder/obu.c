@@ -173,6 +173,25 @@ static int read_bitstream_level(BitstreamLevel *bl,
   return 1;
 }
 
+// Returns if two sequence headers are consistent with each other.
+// The contents of sequence_header must be bit-identical each time the
+// sequence header appears except for the contents of operating_parameters_info.
+static int are_seq_headers_consistent(const SequenceHeader *seq_params_old,
+                                      const SequenceHeader *seq_params_new) {
+  SequenceHeader seq_param_1 = *seq_params_old;
+  SequenceHeader seq_param_2 = *seq_params_new;
+  seq_param_1.operating_points_cnt_minus_1 = 0;
+  seq_param_2.operating_points_cnt_minus_1 = 0;
+  av1_zero(seq_param_1.operating_point_idc);
+  av1_zero(seq_param_2.operating_point_idc);
+  seq_param_1.display_model_info_present_flag = 0;
+  seq_param_2.display_model_info_present_flag = 0;
+  seq_param_1.decoder_model_info_present_flag = 0;
+  seq_param_2.decoder_model_info_present_flag = 0;
+  return !memcmp((const void *)&seq_param_1, (const void *)&seq_param_2,
+                 sizeof(SequenceHeader));
+}
+
 // On success, sets pbi->sequence_header_ready to 1 and returns the number of
 // bytes read from 'rb'.
 // On failure, sets pbi->common.error.error_code and returns 0.
@@ -325,6 +344,15 @@ static uint32_t read_sequence_header_obu(AV1Decoder *pbi,
   if (av1_check_trailing_bits(pbi, rb) != 0) {
     // cm->error.error_code is already set.
     return 0;
+  }
+
+  // If a sequence header has been decoded before, we check if the new
+  // one is consistent with the old one.
+  if (pbi->sequence_header_ready) {
+    if (!are_seq_headers_consistent(&cm->seq_params, seq_params)) {
+      aom_internal_error(&cm->error, AOM_CODEC_UNSUP_BITSTREAM,
+                         "Inconsistent sequence headers received.");
+    }
   }
 
   cm->seq_params = *seq_params;
