@@ -101,7 +101,6 @@ typedef uint16_t aom_cdf_prob;
       AOM_ICDF(a6), AOM_ICDF(a7), AOM_ICDF(a8), AOM_ICDF(a9), AOM_ICDF(a10),  \
       AOM_ICDF(a11), AOM_ICDF(a12), AOM_ICDF(a13), AOM_ICDF(a14),             \
       AOM_ICDF(CDF_PROB_TOP), 0
-
 #else
 #define AOM_CDF2(a0)                                       \
   AOM_ICDF((((a0)-1) * ((CDF_INIT_TOP >> CDF_SHIFT) - 2) + \
@@ -628,7 +627,6 @@ typedef uint16_t aom_cdf_prob;
                    ((CDF_INIT_TOP - 16)) +                                    \
                15),                                                           \
       AOM_ICDF(CDF_PROB_TOP), 0
-
 #endif
 
 static INLINE uint8_t get_prob(unsigned int num, unsigned int den) {

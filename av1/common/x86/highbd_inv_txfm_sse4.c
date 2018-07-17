@@ -644,7 +644,14 @@ static void iidentity4_sse4_1(__m128i *in, __m128i *out, int bit, int do_cols,
   out[3] = _mm_unpackhi_epi64(v[1], v[3]);
 }
 void av1_inv_txfm2d_add_4x4_sse4_1(const int32_t *coeff, uint16_t *output,
-                                   int stride, TX_TYPE tx_type, int bd) {
+                                   int stride, TX_TYPE tx_type,
+#if CONFIG_DATA_DRIVEN_TX
+                                   int is_inter,
+#endif
+                                   int bd) {
+#if CONFIG_DATA_DRIVEN_TX
+  (void)is_inter;
+#endif
   __m128i in[4];
   const int8_t *shift = inv_txfm_shift_ls[TX_4X4];
   const int txw_idx = get_txw_idx(TX_4X4);
@@ -1350,7 +1357,14 @@ static void write_buffer_8x8(__m128i *in, uint16_t *output, int stride,
 }
 
 void av1_inv_txfm2d_add_8x8_sse4_1(const int32_t *coeff, uint16_t *output,
-                                   int stride, TX_TYPE tx_type, int bd) {
+                                   int stride, TX_TYPE tx_type,
+#if CONFIG_DATA_DRIVEN_TX
+                                   int is_inter,
+#endif
+                                   int bd) {
+#if CONFIG_DATA_DRIVEN_TX
+  (void)is_inter;
+#endif
   __m128i in[16], out[16];
   const int8_t *shift = inv_txfm_shift_ls[TX_8X8];
   const int txw_idx = get_txw_idx(TX_8X8);
@@ -5227,6 +5241,10 @@ void av1_highbd_inv_txfm_add_8x8_sse4_1(const tran_low_t *input, uint8_t *dest,
   int bd = txfm_param->bd;
   const TX_TYPE tx_type = txfm_param->tx_type;
   const int32_t *src = cast_to_int32(input);
+#if CONFIG_DATA_DRIVEN_TX
+  av1_inv_txfm2d_add_8x8_c(src, CONVERT_TO_SHORTPTR(dest), stride, tx_type,
+                           txfm_param->is_inter, bd);
+#else
   switch (tx_type) {
     case IDTX:
     case H_DCT:
@@ -5244,6 +5262,7 @@ void av1_highbd_inv_txfm_add_8x8_sse4_1(const tran_low_t *input, uint8_t *dest,
                                     tx_type, bd);
       break;
   }
+#endif
 }
 void av1_highbd_inv_txfm_add_4x4_sse4_1(const tran_low_t *input, uint8_t *dest,
                                         int stride,
@@ -5259,8 +5278,13 @@ void av1_highbd_inv_txfm_add_4x4_sse4_1(const tran_low_t *input, uint8_t *dest,
     av1_highbd_iwht4x4_add(input, dest, stride, eob, bd);
     return;
   }
+#if CONFIG_DATA_DRIVEN_TX
+  av1_inv_txfm2d_add_4x4_c(src, CONVERT_TO_SHORTPTR(dest), stride, tx_type,
+                           txfm_param->is_inter, bd);
+#else
   av1_inv_txfm2d_add_4x4_sse4_1(src, CONVERT_TO_SHORTPTR(dest), stride, tx_type,
                                 bd);
+#endif
 }
 static void iidentity32_sse4_1(__m128i *in, __m128i *out, int bit, int do_cols,
                                int bd, int out_shift) {
@@ -5299,6 +5323,7 @@ static void iidentity32_sse4_1(__m128i *in, __m128i *out, int bit, int do_cols,
     highbd_clamp_epi32_sse4_1(v, out, &clamp_lo, &clamp_hi, 32);
   }
 }
+
 static const transform_1d_sse4_1
     highbd_txfm_all_1d_zeros_w8_arr[TX_SIZES][ITX_TYPES_1D][4] = {
       {
@@ -5884,8 +5909,13 @@ void av1_highbd_inv_txfm_add_4x8_sse4_1(const tran_low_t *input, uint8_t *dest,
   const TX_TYPE tx_type = txfm_param->tx_type;
   const TX_SIZE tx_size = txfm_param->tx_size;
   int eob = txfm_param->eob;
+#if CONFIG_DATA_DRIVEN_TX
+  av1_inv_txfm2d_add_4x8_c(input, CONVERT_TO_SHORTPTR(dest), stride, tx_type,
+                           txfm_param->is_inter, bd);
+#else
   highbd_inv_txfm2d_add_4x8_sse41(input, CONVERT_TO_SHORTPTR(dest), stride,
                                   tx_type, tx_size, eob, bd);
+#endif
 }
 
 void av1_highbd_inv_txfm_add_8x4_sse4_1(const tran_low_t *input, uint8_t *dest,
@@ -5895,8 +5925,13 @@ void av1_highbd_inv_txfm_add_8x4_sse4_1(const tran_low_t *input, uint8_t *dest,
   const TX_TYPE tx_type = txfm_param->tx_type;
   const TX_SIZE tx_size = txfm_param->tx_size;
   int eob = txfm_param->eob;
+#if CONFIG_DATA_DRIVEN_TX
+  av1_inv_txfm2d_add_8x4_c(input, CONVERT_TO_SHORTPTR(dest), stride, tx_type,
+                           txfm_param->is_inter, bd);
+#else
   highbd_inv_txfm2d_add_8x4_sse41(input, CONVERT_TO_SHORTPTR(dest), stride,
                                   tx_type, tx_size, eob, bd);
+#endif
 }
 
 void av1_highbd_inv_txfm_add_4x16_sse4_1(const tran_low_t *input, uint8_t *dest,
@@ -5906,8 +5941,13 @@ void av1_highbd_inv_txfm_add_4x16_sse4_1(const tran_low_t *input, uint8_t *dest,
   const TX_TYPE tx_type = txfm_param->tx_type;
   const TX_SIZE tx_size = txfm_param->tx_size;
   int eob = txfm_param->eob;
+#if CONFIG_DATA_DRIVEN_TX
+  av1_inv_txfm2d_add_4x16_c(input, CONVERT_TO_SHORTPTR(dest), stride, tx_type,
+                            txfm_param->is_inter, bd);
+#else
   highbd_inv_txfm2d_add_4x16_sse4_1(input, CONVERT_TO_SHORTPTR(dest), stride,
                                     tx_type, tx_size, eob, bd);
+#endif
 }
 
 void av1_highbd_inv_txfm_add_16x4_sse4_1(const tran_low_t *input, uint8_t *dest,
@@ -5917,8 +5957,13 @@ void av1_highbd_inv_txfm_add_16x4_sse4_1(const tran_low_t *input, uint8_t *dest,
   const TX_TYPE tx_type = txfm_param->tx_type;
   const TX_SIZE tx_size = txfm_param->tx_size;
   int eob = txfm_param->eob;
+#if CONFIG_DATA_DRIVEN_TX
+  av1_inv_txfm2d_add_16x4_c(input, CONVERT_TO_SHORTPTR(dest), stride, tx_type,
+                            txfm_param->is_inter, bd);
+#else
   highbd_inv_txfm2d_add_16x4_sse4_1(input, CONVERT_TO_SHORTPTR(dest), stride,
                                     tx_type, tx_size, eob, bd);
+#endif
 }
 
 void av1_highbd_inv_txfm_add_sse4_1(const tran_low_t *input, uint8_t *dest,
