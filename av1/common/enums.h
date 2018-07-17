@@ -251,6 +251,10 @@ typedef enum ATTRIBUTE_PACKED {
   ADST_1D,
   FLIPADST_1D,
   IDTX_1D,
+#if CONFIG_DATA_DRIVEN_TX
+  DDTX1_1D,
+  DDTX2_1D,
+#endif
   TX_TYPES_1D,
 } TX_TYPE_1D;
 
@@ -271,8 +275,23 @@ typedef enum ATTRIBUTE_PACKED {
   H_ADST,
   V_FLIPADST,
   H_FLIPADST,
+#if CONFIG_DATA_DRIVEN_TX
+  DDTX1_DDTX1,
+  DDTX1_DCT,
+  DCT_DDTX1,
+  DDTX2_DDTX2,
+  DDTX2_DCT,
+  DCT_DDTX2,
+  DDTX2_DDTX1,
+  DDTX1_DDTX2,
+#endif
   TX_TYPES,
 } TX_TYPE;
+
+#if CONFIG_DATA_DRIVEN_TX
+#define USE_DDTX_INTER 0
+#define USE_DDTX_INTRA 1
+#endif
 
 typedef enum ATTRIBUTE_PACKED {
   REG_REG,
@@ -293,16 +312,35 @@ typedef enum ATTRIBUTE_PACKED {
   EXT_TX_SET_DCT_IDTX,
   // Discrete Trig transforms w/o flip (4) + Identity (1)
   EXT_TX_SET_DTT4_IDTX,
+#if CONFIG_DATA_DRIVEN_TX && USE_DDTX_INTRA
+  // Discrete Trig transforms w/o flip (4) + Identity (1) + 1D Hor/vert DCT (2)
+  //  + DCT w/ 1 DDTX (2) + DDTX1_DDTX1 (1) 
+  EXT_TX_SET_DTT4_IDTX_1DDCT_DDTX,
+#else
   // Discrete Trig transforms w/o flip (4) + Identity (1) + 1D Hor/vert DCT (2)
   EXT_TX_SET_DTT4_IDTX_1DDCT,
+#endif
   // Discrete Trig transforms w/ flip (9) + Identity (1) + 1D Hor/Ver DCT (2)
   EXT_TX_SET_DTT9_IDTX_1DDCT,
+#if CONFIG_DATA_DRIVEN_TX && USE_DDTX_INTER
+  // Discrete Trig transforms w/ flip (9) + Identity (1) + 1D Hor/Ver (6)
+	//  + DCT w/ 2 DDTXs (4) + 2 DDTXs (4)
+  EXT_TX_SET_ALL16_DDTX,
+#else
   // Discrete Trig transforms w/ flip (9) + Identity (1) + 1D Hor/Ver (6)
   EXT_TX_SET_ALL16,
+#endif
   EXT_TX_SET_TYPES
 } TxSetType;
 
+#if CONFIG_DATA_DRIVEN_TX
+#define TX_TYPES_NODDTX 16
+#define DDTX_TYPES_INTER 8
+#define DDTX_TYPES_INTRA 3
+#define IS_2D_TRANSFORM(tx_type) (tx_type < IDTX || tx_type > H_FLIPADST)
+#else
 #define IS_2D_TRANSFORM(tx_type) (tx_type < IDTX)
+#endif
 
 #define EXT_TX_SIZES 4       // number of sizes that use extended transforms
 #define EXT_TX_SETS_INTER 4  // Sets of transform selections for INTER
