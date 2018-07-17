@@ -175,8 +175,13 @@ static const aom_cdf_prob default_partition_cdf[PARTITION_CONTEXTS][CDF_SIZE(
   { AOM_CDF8(711, 966, 1172, 32448, 32538, 32617, 32664) },
 };
 
+#if CONFIG_DATA_DRIVEN_TX
+static const aom_cdf_prob default_intra_ext_tx_cdf
+    [EXT_TX_SETS_INTRA][EXT_TX_SIZES][INTRA_MODES][CDF_SIZE(TX_TYPES_NODDTX)] = {
+#else
 static const aom_cdf_prob default_intra_ext_tx_cdf
     [EXT_TX_SETS_INTRA][EXT_TX_SIZES][INTRA_MODES][CDF_SIZE(TX_TYPES)] = {
+#endif
       {
           {
               { 0 },
@@ -365,9 +370,15 @@ static const aom_cdf_prob default_intra_ext_tx_cdf
       },
     };
 
+#if CONFIG_DATA_DRIVEN_TX
+static const aom_cdf_prob
+    default_inter_ext_tx_cdf[EXT_TX_SETS_INTER][EXT_TX_SIZES][CDF_SIZE(
+        TX_TYPES_NODDTX)] = {
+#else
 static const aom_cdf_prob
     default_inter_ext_tx_cdf[EXT_TX_SETS_INTER][EXT_TX_SIZES][CDF_SIZE(
         TX_TYPES)] = {
+#endif
       {
           { 0 },
           { 0 },
@@ -401,6 +412,20 @@ static const aom_cdf_prob
           { AOM_CDF2(748) },
       },
     };
+
+#if CONFIG_DATA_DRIVEN_TX
+static const aom_cdf_prob default_ddtx_type_cdf[EXT_TX_SIZES][CDF_SIZE(DDTX_TYPES)] = {
+  { AOM_CDF8(4096, 8192, 12288, 16384, 20480, 24576, 28672) },
+  { AOM_CDF8(4096, 8192, 12288, 16384, 20480, 24576, 28672) },
+  { AOM_CDF8(4096, 8192, 12288, 16384, 20480, 24576, 28672) },
+  { AOM_CDF8(4096, 8192, 12288, 16384, 20480, 24576, 28672) },
+};
+
+static const aom_cdf_prob default_use_ddtx_cdf[EXT_TX_SIZES][CDF_SIZE(2)] = {
+  { AOM_CDF2(16384) }, { AOM_CDF2(16384) }, { AOM_CDF2(16384) },
+  { AOM_CDF2(16384) }, 
+};
+#endif
 
 static const aom_cdf_prob default_cfl_sign_cdf[CDF_SIZE(CFL_JOINT_SIGNS)] = {
   AOM_CDF8(1418, 2123, 13340, 18405, 26972, 28343, 32294)
@@ -1048,6 +1073,10 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
   av1_copy(fc->partition_cdf, default_partition_cdf);
   av1_copy(fc->intra_ext_tx_cdf, default_intra_ext_tx_cdf);
   av1_copy(fc->inter_ext_tx_cdf, default_inter_ext_tx_cdf);
+#if CONFIG_DATA_DRIVEN_TX
+  av1_copy(fc->ddtx_type_cdf, default_ddtx_type_cdf);
+	av1_copy(fc->use_ddtx_cdf, default_use_ddtx_cdf);
+#endif
   av1_copy(fc->skip_mode_cdfs, default_skip_mode_cdfs);
   av1_copy(fc->skip_cdfs, default_skip_cdfs);
   av1_copy(fc->intra_inter_cdf, default_intra_inter_cdf);
