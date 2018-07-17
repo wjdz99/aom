@@ -1745,6 +1745,8 @@ static void model_rd_from_sse(const AV1_COMP *const cpi,
     av1_model_rd_from_var_lapndz(sse, num_pels_log2_lookup[bsize],
                                  pd->dequant_Q3[1] >> dequant_shift, rate,
                                  dist);
+    *rate = ((*rate) * 5) >> 3;
+    *dist = ((*dist) * 5) >> 3;
   }
   *dist <<= 4;
 }
@@ -2529,10 +2531,11 @@ static void model_rd_with_dnn(const AV1_COMP *const cpi, MACROBLOCK *const x,
 
   float rate_f, dist_by_sse_norm_f;
   av1_nn_predict(features, &av1_pustats_dist_nnconfig, &dist_by_sse_norm_f);
-  av1_nn_predict(features, &av1_pustats_rate_nnconfig, &rate_f);
   const float dist_f = (float)((double)dist_by_sse_norm_f * (1.0 + sse_norm));
-  int rate_i = (int)(AOMMAX(0.0, rate_f * num_samples) + 0.5);
   int64_t dist_i = (int64_t)(AOMMAX(0.0, dist_f * num_samples) + 0.5);
+
+  av1_nn_predict(features, &av1_pustats_rate_nnconfig, &rate_f);
+  int rate_i = (int)(AOMMAX(0.0, rate_f * num_samples) + 0.5);
 
   // Check if skip is better
   if (RDCOST(x->rdmult, rate_i, dist_i) >= RDCOST(x->rdmult, 0, (sse << 4))) {
@@ -5400,7 +5403,7 @@ static void select_tx_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
     assert(cpi->sf.model_based_prune_tx_search_level >= 0 &&
            cpi->sf.model_based_prune_tx_search_level <= 2);
     if (!model_skip &&
-        model_rd / (5 - cpi->sf.model_based_prune_tx_search_level) >
+        model_rd / (4 - cpi->sf.model_based_prune_tx_search_level) >
             ref_best_rd)
       return;
   }
@@ -8947,7 +8950,7 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
         restore_dst_buf(xd, orig_dst, num_planes);
         continue;
       } else if (cpi->sf.model_based_post_interp_filter_breakout &&
-                 ref_best_rd != INT64_MAX && (rd / 6 > ref_best_rd)) {
+                 ref_best_rd != INT64_MAX && (rd / 5 > ref_best_rd)) {
         restore_dst_buf(xd, orig_dst, num_planes);
         if ((rd >> 4) > ref_best_rd) break;
         continue;
