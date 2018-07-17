@@ -107,8 +107,13 @@ static INLINE uint16_t highbd_clip_pixel_add(uint16_t dest, tran_high_t trans,
 typedef void (*TxfmFunc)(const int32_t *input, int32_t *output, int8_t cos_bit,
                          const int8_t *stage_range);
 
+#if CONFIG_DATA_DRIVEN_TX
+typedef void (*FwdTxfm2dFunc)(const int16_t *input, int32_t *output, int stride,
+                              TX_TYPE tx_type, int base_qindex, int bd);
+#else
 typedef void (*FwdTxfm2dFunc)(const int16_t *input, int32_t *output, int stride,
                               TX_TYPE tx_type, int bd);
+#endif
 
 typedef enum TXFM_TYPE {
   TXFM_TYPE_DCT4,
@@ -123,6 +128,10 @@ typedef enum TXFM_TYPE {
   TXFM_TYPE_IDENTITY8,
   TXFM_TYPE_IDENTITY16,
   TXFM_TYPE_IDENTITY32,
+#if CONFIG_DATA_DRIVEN_TX
+  TXFM_TYPE_DDTX4,
+  TXFM_TYPE_DDTX8,
+#endif
   TXFM_TYPES,
   TXFM_TYPE_INVALID,
 } TXFM_TYPE;
@@ -156,22 +165,38 @@ static INLINE void get_flip_cfg(TX_TYPE tx_type, int *ud_flip, int *lr_flip) {
     case H_DCT:
     case V_ADST:
     case H_ADST:
+#if CONFIG_DATA_DRIVEN_TX
+    case DDTX1_DCT:
+    case DCT_DDTX1:
+    case DDTX1_DDTX1:
+#endif
       *ud_flip = 0;
       *lr_flip = 0;
       break;
     case FLIPADST_DCT:
     case FLIPADST_ADST:
     case V_FLIPADST:
+#if CONFIG_DATA_DRIVEN_TX
+    case DDTX2_DCT:
+    case DDTX2_DDTX1:
+#endif
       *ud_flip = 1;
       *lr_flip = 0;
       break;
     case DCT_FLIPADST:
     case ADST_FLIPADST:
     case H_FLIPADST:
+#if CONFIG_DATA_DRIVEN_TX
+    case DCT_DDTX2:
+    case DDTX1_DDTX2:
+#endif
       *ud_flip = 0;
       *lr_flip = 1;
       break;
     case FLIPADST_FLIPADST:
+#if CONFIG_DATA_DRIVEN_TX
+    case DDTX2_DDTX2:
+#endif
       *ud_flip = 1;
       *lr_flip = 1;
       break;
@@ -225,6 +250,14 @@ static INLINE int get_txh_idx(TX_SIZE tx_size) {
 void av1_range_check_buf(int32_t stage, const int32_t *input,
                          const int32_t *buf, int32_t size, int8_t bit);
 #define MAX_TXWH_IDX 5
+
+#if CONFIG_DATA_DRIVEN_TX
+#define DATA_DRIVEN_TX_DEBUG 0
+#define USE_KLT 0
+#define USE_GFT 1
+#define USE_LGT 0
+#endif
+
 #ifdef __cplusplus
 }
 #endif  // __cplusplus

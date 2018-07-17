@@ -2587,7 +2587,11 @@ void av1_lowbd_fwd_txfm2d_16x32_sse2(const int16_t *input, int32_t *output,
                                           width, 8);
     }
   } else {
+#if CONFIG_DATA_DRIVEN_TX
+    av1_fwd_txfm2d_16x32_c(input, output, stride, tx_type, 0, bd);
+#else
     av1_fwd_txfm2d_16x32_c(input, output, stride, tx_type, bd);
+#endif
   }
 }
 
@@ -2645,7 +2649,11 @@ void av1_lowbd_fwd_txfm2d_32x8_sse2(const int16_t *input, int32_t *output,
                                      width, height);
     }
   } else {
+#if CONFIG_DATA_DRIVEN_TX
+    av1_fwd_txfm2d_32x16_c(input, output, stride, tx_type, 0, bd);
+#else
     av1_fwd_txfm2d_32x16_c(input, output, stride, tx_type, bd);
+#endif
   }
 }
 
@@ -2704,7 +2712,11 @@ void av1_lowbd_fwd_txfm2d_32x16_sse2(const int16_t *input, int32_t *output,
                                           width, 8);
     }
   } else {
+#if CONFIG_DATA_DRIVEN_TX
+    av1_fwd_txfm2d_32x16_c(input, output, stride, tx_type, 0, bd);
+#else
     av1_fwd_txfm2d_32x16_c(input, output, stride, tx_type, bd);
+#endif
   }
 }
 
@@ -2764,7 +2776,11 @@ void av1_lowbd_fwd_txfm2d_32x32_sse2(const int16_t *input, int32_t *output,
                                      width, 8);
     }
   } else {
+#if CONFIG_DATA_DRIVEN_TX
+    av1_fwd_txfm2d_32x32_c(input, output, stride, tx_type, 0, bd);
+#else
     av1_fwd_txfm2d_32x32_c(input, output, stride, tx_type, bd);
+#endif
   }
 }
 
@@ -2884,6 +2900,11 @@ void av1_lowbd_fwd_txfm_sse2(const int16_t *src_diff, tran_low_t *coeff,
       (txfm_param->lossless && txfm_param->tx_size == TX_4X4))
     av1_lowbd_fwd_txfm_c(src_diff, coeff, diff_stride, txfm_param);
   else
+#if CONFIG_DATA_DRIVEN_TX
+    fwd_txfm2d_func(src_diff, coeff, diff_stride, txfm_param->tx_type,
+                    txfm_param->base_qindex, txfm_param->bd);
+#else
     fwd_txfm2d_func(src_diff, coeff, diff_stride, txfm_param->tx_type,
                     txfm_param->bd);
+#endif
 }

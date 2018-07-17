@@ -1268,6 +1268,10 @@ void av1_highbd_inv_txfm_add_32x32_avx2(const tran_low_t *input, uint8_t *dest,
   const int bd = txfm_param->bd;
   const TX_TYPE tx_type = txfm_param->tx_type;
   const int32_t *src = cast_to_int32(input);
+#if CONFIG_DATA_DRIVEN_TX
+  av1_inv_txfm2d_add_32x32_c(src, CONVERT_TO_SHORTPTR(dest), stride, tx_type,
+                             txfm_param->base_qindex, bd);
+#else
   switch (tx_type) {
     case DCT_DCT:
       av1_highbd_inv_txfm2d_add_universe_avx2(input, dest, stride, tx_type,
@@ -1282,6 +1286,7 @@ void av1_highbd_inv_txfm_add_32x32_avx2(const tran_low_t *input, uint8_t *dest,
 
     default: assert(0);
   }
+#endif
 }
 
 void av1_highbd_inv_txfm_add_avx2(const tran_low_t *input, uint8_t *dest,

@@ -182,7 +182,14 @@ static void fadst4x4_sse4_1(__m128i *in, int bit) {
 }
 
 void av1_fwd_txfm2d_4x4_sse4_1(const int16_t *input, int32_t *coeff,
-                               int input_stride, TX_TYPE tx_type, int bd) {
+                               int input_stride, TX_TYPE tx_type,
+#if CONFIG_DATA_DRIVEN_TX
+                               int base_qindex,
+#endif
+                               int bd) {
+#if CONFIG_DATA_DRIVEN_TX
+  (void)base_qindex;
+#endif
   __m128i in[4];
   const int8_t *shift = fwd_txfm_shift_ls[TX_4X4];
   const int txw_idx = get_txw_idx(TX_4X4);
@@ -799,7 +806,14 @@ static void fadst8x8_sse4_1(__m128i *in, __m128i *out, int bit,
 }
 
 void av1_fwd_txfm2d_8x8_sse4_1(const int16_t *input, int32_t *coeff, int stride,
-                               TX_TYPE tx_type, int bd) {
+                               TX_TYPE tx_type,
+#if CONFIG_DATA_DRIVEN_TX
+                               int base_qindex,
+#endif
+                               int bd) {
+#if CONFIG_DATA_DRIVEN_TX
+  (void)base_qindex;
+#endif
   __m128i in[16], out[16];
   const int8_t *shift = fwd_txfm_shift_ls[TX_8X8];
   const int txw_idx = get_txw_idx(TX_8X8);
@@ -1559,7 +1573,14 @@ static void write_buffer_16x16(const __m128i *in, int32_t *output) {
 }
 
 void av1_fwd_txfm2d_16x16_sse4_1(const int16_t *input, int32_t *coeff,
-                                 int stride, TX_TYPE tx_type, int bd) {
+                                 int stride, TX_TYPE tx_type,
+#if CONFIG_DATA_DRIVEN_TX
+                                 int base_qindex,
+#endif
+                                 int bd) {
+#if CONFIG_DATA_DRIVEN_TX
+  (void)base_qindex;
+#endif
   __m128i in[64], out[64];
   const int8_t *shift = fwd_txfm_shift_ls[TX_16X16];
   const int txw_idx = get_txw_idx(TX_16X16);
@@ -1771,7 +1792,14 @@ static const fwd_transform_1d_sse4_1 row_highbd_txfm8x32_arr[TX_TYPES] = {
 };
 
 void av1_fwd_txfm2d_16x8_sse4_1(const int16_t *input, int32_t *coeff,
-                                int stride, TX_TYPE tx_type, int bd) {
+                                int stride, TX_TYPE tx_type,
+#if CONFIG_DATA_DRIVEN_TX
+                                int base_qindex,
+#endif
+                                int bd) {
+#if CONFIG_DATA_DRIVEN_TX
+  (void)base_qindex;
+#endif
   __m128i in[32], out[32];
   const int8_t *shift = fwd_txfm_shift_ls[TX_16X8];
   const int txw_idx = get_txw_idx(TX_16X8);
@@ -1806,7 +1834,14 @@ void av1_fwd_txfm2d_16x8_sse4_1(const int16_t *input, int32_t *coeff,
 }
 
 void av1_fwd_txfm2d_8x16_sse4_1(const int16_t *input, int32_t *coeff,
-                                int stride, TX_TYPE tx_type, int bd) {
+                                int stride, TX_TYPE tx_type,
+#if CONFIG_DATA_DRIVEN_TX
+                                int base_qindex,
+#endif
+                                int bd) {
+#if CONFIG_DATA_DRIVEN_TX
+  (void)base_qindex;
+#endif
   __m128i in[32], out[32];
   const int8_t *shift = fwd_txfm_shift_ls[TX_8X16];
   const int txw_idx = get_txw_idx(TX_8X16);
@@ -1834,7 +1869,14 @@ void av1_fwd_txfm2d_8x16_sse4_1(const int16_t *input, int32_t *coeff,
 }
 
 void av1_fwd_txfm2d_16x32_sse4_1(const int16_t *input, int32_t *coeff,
-                                 int stride, TX_TYPE tx_type, int bd) {
+                                 int stride, TX_TYPE tx_type,
+#if CONFIG_DATA_DRIVEN_TX
+                                 int base_qindex,
+#endif
+                                 int bd) {
+#if CONFIG_DATA_DRIVEN_TX
+  (void)base_qindex;
+#endif
   assert(DCT_DCT == tx_type);
   __m128i in[128];
   __m128i *outcoef128 = (__m128i *)coeff;
@@ -1866,7 +1908,14 @@ void av1_fwd_txfm2d_16x32_sse4_1(const int16_t *input, int32_t *coeff,
 }
 
 void av1_fwd_txfm2d_32x16_sse4_1(const int16_t *input, int32_t *coeff,
-                                 int stride, TX_TYPE tx_type, int bd) {
+                                 int stride, TX_TYPE tx_type,
+#if CONFIG_DATA_DRIVEN_TX
+                                 int base_qindex,
+#endif
+                                 int bd) {
+#if CONFIG_DATA_DRIVEN_TX
+  (void)base_qindex;
+#endif
   assert(DCT_DCT == tx_type);
   __m128i in[128];
   __m128i *outcoef128 = (__m128i *)coeff;

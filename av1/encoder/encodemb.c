@@ -172,6 +172,9 @@ void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
 
   txfm_param.bd = xd->bd;
   txfm_param.is_hbd = get_bitdepth_data_path_index(xd);
+#if CONFIG_DATA_DRIVEN_TX
+  txfm_param.base_qindex = cm->base_qindex;
+#endif
 
   av1_fwd_txfm(src_diff, coeff, diff_stride, &txfm_param);
 
@@ -250,9 +253,15 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
 
     TX_TYPE tx_type = av1_get_tx_type(pd->plane_type, xd, blk_row, blk_col,
                                       tx_size, cm->reduced_tx_set_used);
+#if CONFIG_DATA_DRIVEN_TX
+    av1_inverse_transform_block(xd, dqcoeff, plane, tx_type, tx_size, dst,
+                                pd->dst.stride, p->eobs[block], cm->base_qindex,
+                                cm->reduced_tx_set_used);
+#else
     av1_inverse_transform_block(xd, dqcoeff, plane, tx_type, tx_size, dst,
                                 pd->dst.stride, p->eobs[block],
                                 cm->reduced_tx_set_used);
+#endif
   }
 
   if (p->eobs[block] == 0 && plane == 0) {
@@ -593,8 +602,14 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
   }
 
   if (*eob) {
+#if CONFIG_DATA_DRIVEN_TX
+    av1_inverse_transform_block(xd, dqcoeff, plane, tx_type, tx_size, dst,
+                                dst_stride, *eob, cm->base_qindex,
+                                cm->reduced_tx_set_used);
+#else
     av1_inverse_transform_block(xd, dqcoeff, plane, tx_type, tx_size, dst,
                                 dst_stride, *eob, cm->reduced_tx_set_used);
+#endif
   }
 
   if (*eob == 0 && plane == 0) {

@@ -76,9 +76,16 @@ void fliplrud(Type *dest, int width, int height, int stride);
 typedef void (*TxfmFunc)(const int32_t *in, int32_t *out, const int8_t cos_bit,
                          const int8_t *range_bit);
 
+#if CONFIG_DATA_DRIVEN_TX
+typedef void (*InvTxfm2dFunc)(const int32_t *, uint16_t *, int, TX_TYPE, int,
+                              int);
+typedef void (*LbdInvTxfm2dFunc)(const int32_t *, uint8_t *, int, TX_TYPE,
+                                 TX_SIZE, int, int);
+#else
 typedef void (*InvTxfm2dFunc)(const int32_t *, uint16_t *, int, TX_TYPE, int);
 typedef void (*LbdInvTxfm2dFunc)(const int32_t *, uint8_t *, int, TX_TYPE,
                                  TX_SIZE, int);
+#endif
 
 static const int bd = 10;
 static const int input_base = (1 << bd);
@@ -91,7 +98,11 @@ static INLINE bool IsTxSizeTypeValid(TX_SIZE tx_size, TX_TYPE tx_type) {
   } else if (tx_size_sqr_up == TX_32X32) {
     tx_set_type = EXT_TX_SET_DCT_IDTX;
   } else {
+#if CONFIG_DATA_DRIVEN_TX
+    tx_set_type = EXT_TX_SET_ALL16_DDTX;
+#else
     tx_set_type = EXT_TX_SET_ALL16;
+#endif
   }
   return av1_ext_tx_used[tx_set_type][tx_type] != 0;
 }

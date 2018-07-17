@@ -2062,7 +2062,12 @@ void av1_lowbd_fwd_txfm_avx2(const int16_t *src_diff, tran_low_t *coeff,
       (txfm_param->lossless && txfm_param->tx_size == TX_4X4)) {
     av1_lowbd_fwd_txfm_c(src_diff, coeff, diff_stride, txfm_param);
   } else {
+#if CONFIG_DATA_DRIVEN_TX
+    fwd_txfm2d_func(src_diff, coeff, diff_stride, txfm_param->tx_type,
+                    txfm_param->base_qindex, txfm_param->bd);
+#else
     fwd_txfm2d_func(src_diff, coeff, diff_stride, txfm_param->tx_type,
                     txfm_param->bd);
+#endif
   }
 }

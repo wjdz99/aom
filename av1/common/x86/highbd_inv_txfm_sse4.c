@@ -585,7 +585,14 @@ static void write_buffer_4x4(__m128i *in, uint16_t *output, int stride,
 }
 
 void av1_inv_txfm2d_add_4x4_sse4_1(const int32_t *coeff, uint16_t *output,
-                                   int stride, TX_TYPE tx_type, int bd) {
+                                   int stride, TX_TYPE tx_type,
+#if CONFIG_DATA_DRIVEN_TX
+                                   int base_qindex,
+#endif
+                                   int bd) {
+#if CONFIG_DATA_DRIVEN_TX
+  (void)base_qindex;
+#endif
   __m128i in[4];
   const int8_t *shift = inv_txfm_shift_ls[TX_4X4];
   const int txw_idx = get_txw_idx(TX_4X4);
@@ -1194,7 +1201,14 @@ static void write_buffer_8x8(__m128i *in, uint16_t *output, int stride,
 }
 
 void av1_inv_txfm2d_add_8x8_sse4_1(const int32_t *coeff, uint16_t *output,
-                                   int stride, TX_TYPE tx_type, int bd) {
+                                   int stride, TX_TYPE tx_type,
+#if CONFIG_DATA_DRIVEN_TX
+                                   int base_qindex,
+#endif
+                                   int bd) {
+#if CONFIG_DATA_DRIVEN_TX
+  (void)base_qindex;
+#endif
   __m128i in[16], out[16];
   const int8_t *shift = inv_txfm_shift_ls[TX_8X8];
   const int txw_idx = get_txw_idx(TX_8X8);
@@ -5019,6 +5033,10 @@ void av1_highbd_inv_txfm_add_8x8_sse4_1(const tran_low_t *input, uint8_t *dest,
   int bd = txfm_param->bd;
   const TX_TYPE tx_type = txfm_param->tx_type;
   const int32_t *src = cast_to_int32(input);
+#if CONFIG_DATA_DRIVEN_TX
+  av1_inv_txfm2d_add_8x8_c(src, CONVERT_TO_SHORTPTR(dest), stride, tx_type,
+                           txfm_param->base_qindex, bd);
+#else
   switch (tx_type) {
       // Assembly version doesn't support some transform types, so use C version
       // for those.
@@ -5037,6 +5055,7 @@ void av1_highbd_inv_txfm_add_8x8_sse4_1(const tran_low_t *input, uint8_t *dest,
                                     tx_type, bd);
       break;
   }
+#endif
 }
 
 void av1_highbd_inv_txfm_add_16x8_sse4_1(const tran_low_t *input, uint8_t *dest,
@@ -5045,6 +5064,11 @@ void av1_highbd_inv_txfm_add_16x8_sse4_1(const tran_low_t *input, uint8_t *dest,
   int bd = txfm_param->bd;
   const TX_TYPE tx_type = txfm_param->tx_type;
   const int32_t *src = cast_to_int32(input);
+#if CONFIG_DATA_DRIVEN_TX
+  av1_inv_txfm2d_add_16x8_c(src, CONVERT_TO_SHORTPTR(dest), stride,
+                            txfm_param->tx_type, txfm_param->base_qindex,
+                            txfm_param->bd);
+#else
   switch (tx_type) {
       // Assembly version doesn't support some transform types, so use C version
       // for those.
@@ -5064,6 +5088,7 @@ void av1_highbd_inv_txfm_add_16x8_sse4_1(const tran_low_t *input, uint8_t *dest,
                                                 txfm_param->eob, bd);
       break;
   }
+#endif
 }
 
 void av1_highbd_inv_txfm_add_8x16_sse4_1(const tran_low_t *input, uint8_t *dest,
@@ -5072,6 +5097,11 @@ void av1_highbd_inv_txfm_add_8x16_sse4_1(const tran_low_t *input, uint8_t *dest,
   int bd = txfm_param->bd;
   const TX_TYPE tx_type = txfm_param->tx_type;
   const int32_t *src = cast_to_int32(input);
+#if CONFIG_DATA_DRIVEN_TX
+  av1_inv_txfm2d_add_8x16_c(src, CONVERT_TO_SHORTPTR(dest), stride,
+                            txfm_param->tx_type, txfm_param->base_qindex,
+                            txfm_param->bd);
+#else
   switch (tx_type) {
       // Assembly version doesn't support some transform types, so use C version
       // for those.
@@ -5091,6 +5121,7 @@ void av1_highbd_inv_txfm_add_8x16_sse4_1(const tran_low_t *input, uint8_t *dest,
                                                 txfm_param->eob, bd);
       break;
   }
+#endif
 }
 
 void av1_highbd_inv_txfm_add_16x16_sse4_1(const tran_low_t *input,
@@ -5099,6 +5130,10 @@ void av1_highbd_inv_txfm_add_16x16_sse4_1(const tran_low_t *input,
   int bd = txfm_param->bd;
   const TX_TYPE tx_type = txfm_param->tx_type;
   const int32_t *src = cast_to_int32(input);
+#if CONFIG_DATA_DRIVEN_TX
+  av1_inv_txfm2d_add_16x16_c(src, CONVERT_TO_SHORTPTR(dest), stride, tx_type,
+                             txfm_param->base_qindex, bd);
+#else
   switch (tx_type) {
       // Assembly version doesn't support some transform types, so use C version
       // for those.
@@ -5118,6 +5153,7 @@ void av1_highbd_inv_txfm_add_16x16_sse4_1(const tran_low_t *input,
                                                 txfm_param->eob, bd);
       break;
   }
+#endif
 }
 
 void av1_highbd_inv_txfm_add_32x32_sse4_1(const tran_low_t *input,
@@ -5126,6 +5162,10 @@ void av1_highbd_inv_txfm_add_32x32_sse4_1(const tran_low_t *input,
   int bd = txfm_param->bd;
   const TX_TYPE tx_type = txfm_param->tx_type;
   const int32_t *src = cast_to_int32(input);
+#if CONFIG_DATA_DRIVEN_TX
+  av1_inv_txfm2d_add_32x32_c(src, CONVERT_TO_SHORTPTR(dest), stride, tx_type,
+                             txfm_param->base_qindex, bd);
+#else
   switch (tx_type) {
     case DCT_DCT:
       av1_highbd_inv_txfm2d_add_universe_sse4_1(input, dest, stride, tx_type,
@@ -5139,6 +5179,7 @@ void av1_highbd_inv_txfm_add_32x32_sse4_1(const tran_low_t *input,
       break;
     default: assert(0);
   }
+#endif
 }
 
 void av1_highbd_inv_txfm_add_16x32_sse4_1(const tran_low_t *input,
@@ -5147,6 +5188,11 @@ void av1_highbd_inv_txfm_add_16x32_sse4_1(const tran_low_t *input,
   int bd = txfm_param->bd;
   const TX_TYPE tx_type = txfm_param->tx_type;
   const int32_t *src = cast_to_int32(input);
+#if CONFIG_DATA_DRIVEN_TX
+  av1_inv_txfm2d_add_16x32_c(src, CONVERT_TO_SHORTPTR(dest), stride,
+                             txfm_param->tx_type, txfm_param->base_qindex,
+                             txfm_param->bd);
+#else
   switch (tx_type) {
     case DCT_DCT:
       av1_highbd_inv_txfm2d_add_universe_sse4_1(input, dest, stride, tx_type,
@@ -5159,6 +5205,7 @@ void av1_highbd_inv_txfm_add_16x32_sse4_1(const tran_low_t *input,
       break;
     default: assert(0);
   }
+#endif
 }
 
 void av1_highbd_inv_txfm_add_32x16_sse4_1(const tran_low_t *input,
@@ -5167,6 +5214,11 @@ void av1_highbd_inv_txfm_add_32x16_sse4_1(const tran_low_t *input,
   int bd = txfm_param->bd;
   const TX_TYPE tx_type = txfm_param->tx_type;
   const int32_t *src = cast_to_int32(input);
+#if CONFIG_DATA_DRIVEN_TX
+  av1_inv_txfm2d_add_32x16_c(src, CONVERT_TO_SHORTPTR(dest), stride,
+                             txfm_param->tx_type, txfm_param->base_qindex,
+                             txfm_param->bd);
+#else
   switch (tx_type) {
     case DCT_DCT:
       av1_highbd_inv_txfm2d_add_universe_sse4_1(input, dest, stride, tx_type,
@@ -5179,6 +5231,7 @@ void av1_highbd_inv_txfm_add_32x16_sse4_1(const tran_low_t *input,
       break;
     default: assert(0);
   }
+#endif
 }
 
 void av1_highbd_inv_txfm_add_8x32_sse4_1(const tran_low_t *input, uint8_t *dest,
@@ -5187,6 +5240,11 @@ void av1_highbd_inv_txfm_add_8x32_sse4_1(const tran_low_t *input, uint8_t *dest,
   int bd = txfm_param->bd;
   const TX_TYPE tx_type = txfm_param->tx_type;
   const int32_t *src = cast_to_int32(input);
+#if CONFIG_DATA_DRIVEN_TX
+  av1_inv_txfm2d_add_8x32_c(src, CONVERT_TO_SHORTPTR(dest), stride,
+                            txfm_param->tx_type, txfm_param->base_qindex,
+                            txfm_param->bd);
+#else
   switch (tx_type) {
     case DCT_DCT:
       av1_highbd_inv_txfm2d_add_universe_sse4_1(input, dest, stride, tx_type,
@@ -5199,6 +5257,7 @@ void av1_highbd_inv_txfm_add_8x32_sse4_1(const tran_low_t *input, uint8_t *dest,
       break;
     default: assert(0);
   }
+#endif
 }
 
 void av1_highbd_inv_txfm_add_32x8_sse4_1(const tran_low_t *input, uint8_t *dest,
@@ -5207,6 +5266,11 @@ void av1_highbd_inv_txfm_add_32x8_sse4_1(const tran_low_t *input, uint8_t *dest,
   int bd = txfm_param->bd;
   const TX_TYPE tx_type = txfm_param->tx_type;
   const int32_t *src = cast_to_int32(input);
+#if CONFIG_DATA_DRIVEN_TX
+  av1_inv_txfm2d_add_32x8_c(src, CONVERT_TO_SHORTPTR(dest), stride,
+                            txfm_param->tx_type, txfm_param->base_qindex,
+                            txfm_param->bd);
+#else
   switch (tx_type) {
     case DCT_DCT:
       av1_highbd_inv_txfm2d_add_universe_sse4_1(input, dest, stride, tx_type,
@@ -5219,6 +5283,7 @@ void av1_highbd_inv_txfm_add_32x8_sse4_1(const tran_low_t *input, uint8_t *dest,
       break;
     default: assert(0);
   }
+#endif
 }
 
 void av1_highbd_inv_txfm_add_4x4_sse4_1(const tran_low_t *input, uint8_t *dest,
@@ -5235,6 +5300,10 @@ void av1_highbd_inv_txfm_add_4x4_sse4_1(const tran_low_t *input, uint8_t *dest,
     av1_highbd_iwht4x4_add(input, dest, stride, eob, bd);
     return;
   }
+#if CONFIG_DATA_DRIVEN_TX
+  av1_inv_txfm2d_add_4x4_c(src, CONVERT_TO_SHORTPTR(dest), stride, tx_type,
+                           txfm_param->base_qindex, bd);
+#else
   switch (tx_type) {
       // Assembly version doesn't support some transform types, so use C version
       // for those.
@@ -5253,6 +5322,7 @@ void av1_highbd_inv_txfm_add_4x4_sse4_1(const tran_low_t *input, uint8_t *dest,
                                     tx_type, bd);
       break;
   }
+#endif
 }
 
 static const transform_1d_sse4_1
@@ -5510,6 +5580,10 @@ void av1_highbd_inv_txfm_add_4x8_sse4_1(const tran_low_t *input, uint8_t *dest,
   const TX_SIZE tx_size = txfm_param->tx_size;
   const int32_t *src = cast_to_int32(input);
   int eob = txfm_param->eob;
+#if CONFIG_DATA_DRIVEN_TX
+  av1_inv_txfm2d_add_4x8_c(src, CONVERT_TO_SHORTPTR(dest), stride, tx_type,
+                           txfm_param->base_qindex, bd);
+#else
   switch (tx_type) {
       // Assembly version doesn't support some transform types, so use C version
       // for those.
@@ -5528,6 +5602,7 @@ void av1_highbd_inv_txfm_add_4x8_sse4_1(const tran_low_t *input, uint8_t *dest,
                                       tx_type, tx_size, eob, bd);
       break;
   }
+#endif
 }
 
 void av1_highbd_inv_txfm_add_8x4_sse4_1(const tran_low_t *input, uint8_t *dest,
@@ -5538,6 +5613,10 @@ void av1_highbd_inv_txfm_add_8x4_sse4_1(const tran_low_t *input, uint8_t *dest,
   const TX_SIZE tx_size = txfm_param->tx_size;
   const int32_t *src = cast_to_int32(input);
   int eob = txfm_param->eob;
+#if CONFIG_DATA_DRIVEN_TX
+  av1_inv_txfm2d_add_8x4_c(src, CONVERT_TO_SHORTPTR(dest), stride, tx_type,
+                           txfm_param->base_qindex, bd);
+#else
   switch (tx_type) {
       // Assembly version doesn't support some transform types, so use C version
       // for those.
@@ -5556,6 +5635,7 @@ void av1_highbd_inv_txfm_add_8x4_sse4_1(const tran_low_t *input, uint8_t *dest,
                                       tx_type, tx_size, eob, bd);
       break;
   }
+#endif
 }
 
 void av1_highbd_inv_txfm_add_sse4_1(const tran_low_t *input, uint8_t *dest,

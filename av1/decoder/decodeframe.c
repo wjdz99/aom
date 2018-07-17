@@ -151,7 +151,12 @@ static REFERENCE_MODE read_frame_reference_mode(
 static void inverse_transform_block(MACROBLOCKD *xd, int plane,
                                     const TX_TYPE tx_type,
                                     const TX_SIZE tx_size, uint8_t *dst,
-                                    int stride, int reduced_tx_set) {
+                                    int stride,
+#if CONFIG_DATA_DRIVEN_TX
+                                    int base_qindex,
+#endif
+                                    int reduced_tx_set
+                                    ) {
   struct macroblockd_plane *const pd = &xd->plane[plane];
   tran_low_t *const dqcoeff = pd->dqcoeff;
   eob_info *eob_data = pd->eob_data + xd->txb_offset[plane];
@@ -160,8 +165,13 @@ static void inverse_transform_block(MACROBLOCKD *xd, int plane,
 
   memcpy(dqcoeff, pd->dqcoeff_block + xd->cb_offset[plane],
          (scan_line + 1) * sizeof(dqcoeff[0]));
+#if CONFIG_DATA_DRIVEN_TX
+  av1_inverse_transform_block(xd, dqcoeff, plane, tx_type, tx_size, dst, stride,
+                              eob, base_qindex, reduced_tx_set);
+#else
   av1_inverse_transform_block(xd, dqcoeff, plane, tx_type, tx_size, dst, stride,
                               eob, reduced_tx_set);
+#endif
   memset(dqcoeff, 0, (scan_line + 1) * sizeof(dqcoeff[0]));
 }
 
@@ -234,8 +244,13 @@ static void predict_and_reconstruct_intra_block(
     if (eob_data->eob) {
       uint8_t *dst =
           &pd->dst.buf[(row * pd->dst.stride + col) << tx_size_wide_log2[0]];
+#if CONFIG_DATA_DRIVEN_TX
+      inverse_transform_block(xd, plane, tx_type, tx_size, dst, pd->dst.stride,
+                              cm->base_qindex, cm->reduced_tx_set_used);
+#else
       inverse_transform_block(xd, plane, tx_type, tx_size, dst, pd->dst.stride,
                               cm->reduced_tx_set_used);
+#endif
     }
   }
   if (plane == AOM_PLANE_Y && store_cfl_required(cm, xd)) {
@@ -259,8 +274,13 @@ static void inverse_transform_inter_block(const AV1_COMMON *const cm,
   uint8_t *dst =
       &pd->dst
            .buf[(blk_row * pd->dst.stride + blk_col) << tx_size_wide_log2[0]];
+#if CONFIG_DATA_DRIVEN_TX
+  inverse_transform_block(xd, plane, tx_type, tx_size, dst, pd->dst.stride,
+                          cm->base_qindex, cm->reduced_tx_set_used);
+#else
   inverse_transform_block(xd, plane, tx_type, tx_size, dst, pd->dst.stride,
                           cm->reduced_tx_set_used);
+#endif
 #if CONFIG_MISMATCH_DEBUG
   int pixel_c, pixel_r;
   BLOCK_SIZE bsize = txsize_to_bsize[tx_size];

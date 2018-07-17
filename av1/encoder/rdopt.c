@@ -1467,12 +1467,21 @@ static int prune_one_for_sby(const AV1_COMP *cpi, BLOCK_SIZE bsize,
 
 // 1D Transforms used in inter set, this needs to be changed if
 // ext_tx_used_inter is changed
+#if CONFIG_DATA_DRIVEN_TX
+static const int ext_tx_used_inter_1D[EXT_TX_SETS_INTER][TX_TYPES_1D] = {
+  { 1, 0, 0, 0, 0, 0 },
+  { 1, 1, 1, 1, 1, 1 },
+  { 1, 1, 1, 1, 0, 0 },
+  { 1, 0, 0, 1, 0, 0 },
+};
+#else
 static const int ext_tx_used_inter_1D[EXT_TX_SETS_INTER][TX_TYPES_1D] = {
   { 1, 0, 0, 0 },
   { 1, 1, 1, 1 },
   { 1, 1, 1, 1 },
   { 1, 0, 0, 1 },
 };
+#endif
 
 static void get_energy_distribution_finer(const int16_t *diff, int stride,
                                           int bw, int bh, float *hordist,
@@ -1691,7 +1700,11 @@ static uint16_t prune_tx_2D(MACROBLOCK *x, BLOCK_SIZE bsize, TX_SIZE tx_size,
     FLIPADST_DCT, FLIPADST_ADST, FLIPADST_FLIPADST, V_FLIPADST,
     H_DCT,        H_ADST,        H_FLIPADST,        IDTX
   };
+#if CONFIG_DATA_DRIVEN_TX
+  if (tx_set_type != EXT_TX_SET_ALL16_DDTX &&
+#else
   if (tx_set_type != EXT_TX_SET_ALL16 &&
+#endif
       tx_set_type != EXT_TX_SET_DTT9_IDTX_1DDCT)
     return 0;
   const NN_CONFIG *nn_config_hor = av1_tx_type_nnconfig_map_hor[tx_size];
@@ -1734,7 +1747,11 @@ static uint16_t prune_tx_2D(MACROBLOCK *x, BLOCK_SIZE bsize, TX_SIZE tx_size,
 
   const int prune_aggr_table[2][2] = { { 6, 4 }, { 10, 7 } };
   int pruning_aggressiveness = 1;
+#if CONFIG_DATA_DRIVEN_TX
+  if (tx_set_type == EXT_TX_SET_ALL16_DDTX) {
+#else
   if (tx_set_type == EXT_TX_SET_ALL16) {
+#endif
     score_2D_transform_pow8(scores_2D, (10 - score_2D_average));
     pruning_aggressiveness =
         prune_aggr_table[prune_mode - PRUNE_2D_ACCURATE][0];
@@ -2143,7 +2160,12 @@ int av1_count_colors_highbd(const uint8_t *src8, int stride, int rows, int cols,
 
 static void inverse_transform_block_facade(MACROBLOCKD *xd, int plane,
                                            int block, int blk_row, int blk_col,
-                                           int eob, int reduced_tx_set) {
+                                           int eob,
+#if CONFIG_DATA_DRIVEN_TX
+                                           int base_qindex,
+#endif
+                                           int reduced_tx_set
+                                           ) {
   struct macroblockd_plane *const pd = &xd->plane[plane];
   tran_low_t *dqcoeff = BLOCK_OFFSET(pd->dqcoeff, block);
   const PLANE_TYPE plane_type = get_plane_type(plane);
@@ -2153,8 +2175,13 @@ static void inverse_transform_block_facade(MACROBLOCKD *xd, int plane,
   const int dst_stride = pd->dst.stride;
   uint8_t *dst =
       &pd->dst.buf[(blk_row * dst_stride + blk_col) << tx_size_wide_log2[0]];
+#if CONFIG_DATA_DRIVEN_TX
+  av1_inverse_transform_block(xd, dqcoeff, plane, tx_type, tx_size, dst,
+                              dst_stride, eob, base_qindex, reduced_tx_set);
+#else
   av1_inverse_transform_block(xd, dqcoeff, plane, tx_type, tx_size, dst,
                               dst_stride, eob, reduced_tx_set);
+#endif
 }
 
 static int find_tx_size_rd_info(TXB_RD_RECORD *cur_record, const uint32_t hash);
@@ -2249,9 +2276,15 @@ static INLINE int64_t dist_block_px_domain(const AV1_COMP *cpi, MACROBLOCK *x,
   const PLANE_TYPE plane_type = get_plane_type(plane);
   TX_TYPE tx_type = av1_get_tx_type(plane_type, xd, blk_row, blk_col, tx_size,
                                     cpi->common.reduced_tx_set_used);
+#if CONFIG_DATA_DRIVEN_TX
+  av1_inverse_transform_block(xd, dqcoeff, plane, tx_type, tx_size, recon,
+                              MAX_TX_SIZE, eob, cpi->common.base_qindex,
+                              cpi->common.reduced_tx_set_used);
+#else
   av1_inverse_transform_block(xd, dqcoeff, plane, tx_type, tx_size, recon,
                               MAX_TX_SIZE, eob,
                               cpi->common.reduced_tx_set_used);
+#endif
 
   return 16 * pixel_dist(cpi, x, plane, src, src_stride, recon, MAX_TX_SIZE,
                          blk_row, blk_col, plane_bsize, tx_bsize);
@@ -3124,7 +3157,13 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
   block_sse *= 16;
 
   for (TX_TYPE tx_type = txk_start; tx_type <= txk_end; ++tx_type) {
+#if CONFIG_DATA_DRIVEN_TX
+    if ((tx_type < DDTX1_DDTX1 && !(allowed_tx_mask & (1 << tx_type))) ||
+        (tx_type >= DDTX1_DDTX1 && !av1_ext_tx_used[tx_set_type][tx_type]))
+      continue;
+#else
     if (!(allowed_tx_mask & (1 << tx_type))) continue;
+#endif
     if (plane == 0) mbmi->txk_type[txk_type_idx] = tx_type;
     RD_STATS this_rd_stats;
     av1_invalid_rd_stats(&this_rd_stats);
@@ -3260,9 +3299,15 @@ RECON_INTRA:
       }
     }
 
+#if CONFIG_DATA_DRIVEN_TX
+    inverse_transform_block_facade(xd, plane, block, blk_row, blk_col,
+                                   x->plane[plane].eobs[block], cm->base_qindex,
+                                   cm->reduced_tx_set_used);
+#else
     inverse_transform_block_facade(xd, plane, block, blk_row, blk_col,
                                    x->plane[plane].eobs[block],
                                    cm->reduced_tx_set_used);
+#endif
 
     // This may happen because of hash collision. The eob stored in the hash
     // table is non-zero, but the real eob is zero. We need to make sure tx_type
@@ -3541,7 +3586,11 @@ static void choose_tx_size_type_from_rd(const AV1_COMP *const cpi,
     depth = MAX_TX_DEPTH;
   }
 
+#if CONFIG_DATA_DRIVEN_TX
+  prune_tx(cpi, bs, x, xd, EXT_TX_SET_ALL16_DDTX);
+#else
   prune_tx(cpi, bs, x, xd, EXT_TX_SET_ALL16);
+#endif
 
   for (n = start_tx; depth <= MAX_TX_DEPTH; depth++, n = sub_tx_size_map[n]) {
 #if CONFIG_DIST_8X8
@@ -5627,7 +5676,11 @@ static const TX_SIZE max_predict_sf_tx_size[BLOCK_SIZES_ALL] = {
 // whether optimal RD decision is to skip encoding the residual.
 // The sse value is stored in dist.
 static int predict_skip_flag(MACROBLOCK *x, BLOCK_SIZE bsize, int64_t *dist,
-                             int reduced_tx_set) {
+#if CONFIG_DATA_DRIVEN_TX
+                             int base_qindex,
+#endif
+                             int reduced_tx_set
+                             ) {
   const int bw = block_size_wide[bsize];
   const int bh = block_size_high[bsize];
   const MACROBLOCKD *xd = &x->e_mbd;
@@ -5652,6 +5705,9 @@ static int predict_skip_flag(MACROBLOCK *x, BLOCK_SIZE bsize, int64_t *dist,
   param.bd = xd->bd;
   param.is_hbd = get_bitdepth_data_path_index(xd);
   param.lossless = 0;
+#if CONFIG_DATA_DRIVEN_TX
+  param.base_qindex = base_qindex;
+#endif
   param.tx_set_type = av1_get_ext_tx_set_type(
       param.tx_size, is_inter_block(xd->mi[0]), reduced_tx_set);
   const int bd_idx = (xd->bd == 8) ? 0 : ((xd->bd == 10) ? 1 : 2);
@@ -5759,7 +5815,12 @@ static void select_tx_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
   // context and terminate early.
   int64_t dist;
   if (is_inter && cpi->sf.tx_type_search.use_skip_flag_prediction &&
+#if CONFIG_DATA_DRIVEN_TX
+      predict_skip_flag(x, bsize, &dist, cm->base_qindex,
+                        cm->reduced_tx_set_used)) {
+#else
       predict_skip_flag(x, bsize, &dist, cm->reduced_tx_set_used)) {
+#endif
     set_skip_flag(x, rd_stats, bsize, dist);
     // Save the RD search results into tx_rd_record.
     if (within_border) save_tx_rd_info(n4, hash, x, rd_stats, mb_rd_record);

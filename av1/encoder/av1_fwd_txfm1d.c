@@ -673,6 +673,45 @@ void av1_fdct32_new(const int32_t *input, int32_t *output, int8_t cos_bit,
   av1_range_check_buf(stage, input, bf1, size, stage_range[stage]);
 }
 
+#if CONFIG_DATA_DRIVEN_TX
+void av1_fddt4(const int32_t *input, int32_t *output, int8_t cos_bit,
+               const int8_t *base_qindex) {
+  // For now, unlike stage_range, base_qindex only has one element. This is a
+  // workaround to avoid having different signature from other inverse transform
+  // functions.
+  int32_t s[4] = { 0 };
+  const int32_t *ddt = ddt4_arr(cos_bit, base_qindex[0]);
+  for (int i = 0; i < 4; i++)
+    for (int j = 0; j < 4; j++) s[j] += ddt[j * 4 + i] * input[i];
+
+  // for (int i = 0; i < 8; i++) output[i] = round_shift(s[i], cos_bit);
+  for (int i = 0; i < 4; i++) output[i] = round_shift(s[i], cos_bit + 1);
+
+#if DATA_DRIVEN_TX_DEBUG
+  fprintf(stderr, "(FL:%d,%d,%d,%d) ", input[0], input[1], input[2], input[3]);
+  fprintf(stderr, "[FL:%d,%d,%d,%d]\n", output[0], output[1], output[2], output[3]);
+#endif
+}
+
+void av1_fddt8(const int32_t *input, int32_t *output, int8_t cos_bit,
+               const int8_t *base_qindex) {
+  int32_t s[8] = { 0 };
+  const int32_t *ddt = ddt8_arr(cos_bit, base_qindex[0]);
+  for (int i = 0; i < 8; i++)
+    for (int j = 0; j < 8; j++) s[j] += ddt[j * 8 + i] * input[i];
+
+  // for (int i = 0; i < 8; i++) output[i] = round_shift(s[i], cos_bit);
+  for (int i = 0; i < 8; i++) output[i] = round_shift(s[i], cos_bit + 1);
+
+#if DATA_DRIVEN_TX_DEBUG
+  fprintf(stderr, "(FL:%d,%d,%d,%d,%d,%d,%d,%d) ", input[0], input[1],
+    input[2], input[3], input[4], input[5], input[6], input[7]);
+  fprintf(stderr, "[FL:%d,%d,%d,%d,%d,%d,%d,%d]\n", output[0], output[1],
+    output[2], output[3], output[4], output[5], output[6], output[7]);
+#endif
+}
+#endif  // CONFIG_DATA_DRIVEN_TX
+
 void av1_fadst4_new(const int32_t *input, int32_t *output, int8_t cos_bit,
                     const int8_t *stage_range) {
   int bit = cos_bit;
@@ -730,6 +769,13 @@ void av1_fadst4_new(const int32_t *input, int32_t *output, int8_t cos_bit,
   output[2] = round_shift(s2, bit);
   output[3] = round_shift(s3, bit);
   av1_range_check_buf(6, input, output, 4, stage_range[6]);
+
+#if CONFIG_DATA_DRIVEN_TX && DATA_DRIVEN_TX_DEBUG
+  fprintf(stderr, "(FA:%d,%d,%d,%d) ", input[0], input[1],
+    input[2], input[3]);
+  fprintf(stderr, "[FA:%d,%d,%d,%d]\n", output[0], output[1],
+    output[2], output[3]);
+#endif
 }
 
 void av1_fadst8_new(const int32_t *input, int32_t *output, int8_t cos_bit,
@@ -844,6 +890,13 @@ void av1_fadst8_new(const int32_t *input, int32_t *output, int8_t cos_bit,
   bf1[6] = bf0[7];
   bf1[7] = bf0[0];
   av1_range_check_buf(stage, input, bf1, size, stage_range[stage]);
+
+#if CONFIG_DATA_DRIVEN_TX && DATA_DRIVEN_TX_DEBUG
+  fprintf(stderr, "(FA:%d,%d,%d,%d,%d,%d,%d,%d) ", input[0], input[1],
+    input[2], input[3], input[4], input[5], input[6], input[7]);
+  fprintf(stderr, "[FA:%d,%d,%d,%d,%d,%d,%d,%d]\n", output[0], output[1],
+    output[2], output[3], output[4], output[5], output[6], output[7]);
+#endif
 }
 
 void av1_fadst16_new(const int32_t *input, int32_t *output, int8_t cos_bit,
