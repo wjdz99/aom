@@ -1467,12 +1467,21 @@ static int prune_one_for_sby(const AV1_COMP *cpi, BLOCK_SIZE bsize,
 
 // 1D Transforms used in inter set, this needs to be changed if
 // ext_tx_used_inter is changed
+#if CONFIG_DATA_DRIVEN_TX
+static const int ext_tx_used_inter_1D[EXT_TX_SETS_INTER][TX_TYPES_1D] = {
+  { 1, 0, 0, 0, 0, 0 },
+  { 1, 1, 1, 1, 1, 1 },
+  { 1, 1, 1, 1, 0, 0 },
+  { 1, 0, 0, 1, 0, 0 },
+};
+#else
 static const int ext_tx_used_inter_1D[EXT_TX_SETS_INTER][TX_TYPES_1D] = {
   { 1, 0, 0, 0 },
   { 1, 1, 1, 1 },
   { 1, 1, 1, 1 },
   { 1, 0, 0, 1 },
 };
+#endif
 
 static void get_energy_distribution_finer(const int16_t *diff, int stride,
                                           int bw, int bh, float *hordist,
@@ -1691,7 +1700,11 @@ static uint16_t prune_tx_2D(MACROBLOCK *x, BLOCK_SIZE bsize, TX_SIZE tx_size,
     FLIPADST_DCT, FLIPADST_ADST, FLIPADST_FLIPADST, V_FLIPADST,
     H_DCT,        H_ADST,        H_FLIPADST,        IDTX
   };
+#if CONFIG_DATA_DRIVEN_TX
+  if (tx_set_type != EXT_TX_SET_ALL16_DDTX &&
+#else
   if (tx_set_type != EXT_TX_SET_ALL16 &&
+#endif
       tx_set_type != EXT_TX_SET_DTT9_IDTX_1DDCT)
     return 0;
   const NN_CONFIG *nn_config_hor = av1_tx_type_nnconfig_map_hor[tx_size];
@@ -1734,7 +1747,11 @@ static uint16_t prune_tx_2D(MACROBLOCK *x, BLOCK_SIZE bsize, TX_SIZE tx_size,
 
   const int prune_aggr_table[2][2] = { { 6, 4 }, { 10, 7 } };
   int pruning_aggressiveness = 1;
+#if CONFIG_DATA_DRIVEN_TX
+  if (tx_set_type == EXT_TX_SET_ALL16_DDTX) {
+#else
   if (tx_set_type == EXT_TX_SET_ALL16) {
+#endif
     score_2D_transform_pow8(scores_2D, (10 - score_2D_average));
     pruning_aggressiveness =
         prune_aggr_table[prune_mode - PRUNE_2D_ACCURATE][0];
@@ -3124,7 +3141,13 @@ static int64_t search_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
   block_sse *= 16;
 
   for (TX_TYPE tx_type = txk_start; tx_type <= txk_end; ++tx_type) {
+#if CONFIG_DATA_DRIVEN_TX
+    if ((tx_type < DDTX1_DDTX1 && !(allowed_tx_mask & (1 << tx_type))) ||
+        (tx_type >= DDTX1_DDTX1 && !av1_ext_tx_used[tx_set_type][tx_type]))
+      continue;
+#else
     if (!(allowed_tx_mask & (1 << tx_type))) continue;
+#endif
     if (plane == 0) mbmi->txk_type[txk_type_idx] = tx_type;
     RD_STATS this_rd_stats;
     av1_invalid_rd_stats(&this_rd_stats);
@@ -3541,7 +3564,11 @@ static void choose_tx_size_type_from_rd(const AV1_COMP *const cpi,
     depth = MAX_TX_DEPTH;
   }
 
+#if CONFIG_DATA_DRIVEN_TX
+  prune_tx(cpi, bs, x, xd, EXT_TX_SET_ALL16_DDTX);
+#else
   prune_tx(cpi, bs, x, xd, EXT_TX_SET_ALL16);
+#endif
 
   for (n = start_tx; depth <= MAX_TX_DEPTH; depth++, n = sub_tx_size_map[n]) {
 #if CONFIG_DIST_8X8
