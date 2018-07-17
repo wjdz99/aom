@@ -14,7 +14,7 @@ if(NOT EMSCRIPTEN)
   if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Release"
         CACHE "Build type: Debug, Release, RelWithDebInfo or MinSizeRel" STRING
-              FORCE)
+        FORCE)
   endif()
 endif()
 
@@ -67,11 +67,12 @@ set(LIB_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/lib"
     CACHE PATH "Installation path of libraries")
 
 if("${AOM_ROOT}" STREQUAL "${AOM_CONFIG_DIR}")
-  message(FATAL_ERROR
-            "Building from within the aom source tree is not supported.\n"
-            "Hint: Run these commands\n" "$ rm -rf CMakeCache.txt CMakeFiles\n"
-            "$ mkdir -p ../aom_build\n" "$ cd ../aom_build\n"
-            "And re-run CMake from the aom_build directory.")
+  message(
+    FATAL_ERROR "Building from within the aom source tree is not supported.\n"
+                "Hint: Run these commands\n"
+                "$ rm -rf CMakeCache.txt CMakeFiles\n"
+                "$ mkdir -p ../aom_build\n" "$ cd ../aom_build\n"
+                "And re-run CMake from the aom_build directory.")
 endif()
 
 include("${AOM_ROOT}/build/cmake/aom_configure.cmake")
@@ -163,8 +164,7 @@ list(APPEND AOM_SOURCES
 
 list(APPEND AOM_COMMON_APP_UTIL_SOURCES "${AOM_ROOT}/common/args.c"
             "${AOM_ROOT}/common/args.h" "${AOM_ROOT}/common/md5_utils.c"
-            "${AOM_ROOT}/common/md5_utils.h"
-            "${AOM_ROOT}/common/tools_common.c"
+            "${AOM_ROOT}/common/md5_utils.h" "${AOM_ROOT}/common/tools_common.c"
             "${AOM_ROOT}/common/tools_common.h"
             "${AOM_ROOT}/common/video_common.h" "${AOM_ROOT}/common/y4menc.c"
             "${AOM_ROOT}/common/y4menc.h")
@@ -207,13 +207,14 @@ include_directories(${AOM_ROOT} ${AOM_CONFIG_DIR} ${AOM_ROOT}/apps
 add_library(aom_version ${AOM_VERSION_SOURCES})
 add_dummy_source_file_to_target(aom_version c)
 add_custom_command(OUTPUT "${AOM_CONFIG_DIR}/config/aom_version.h"
-                   COMMAND ${CMAKE_COMMAND} ARGS
-                           -DAOM_CONFIG_DIR=${AOM_CONFIG_DIR}
-                           -DAOM_ROOT=${AOM_ROOT}
-                           -DGIT_EXECUTABLE=${GIT_EXECUTABLE}
-                           -DPERL_EXECUTABLE=${PERL_EXECUTABLE} -P
-                           "${AOM_ROOT}/build/cmake/version.cmake"
-                   COMMENT "Writing aom_version.h" VERBATIM)
+                   COMMAND ${CMAKE_COMMAND}
+                           ARGS -DAOM_CONFIG_DIR=${AOM_CONFIG_DIR}
+                                -DAOM_ROOT=${AOM_ROOT}
+                                -DGIT_EXECUTABLE=${GIT_EXECUTABLE}
+                                -DPERL_EXECUTABLE=${PERL_EXECUTABLE} -P
+                                "${AOM_ROOT}/build/cmake/version.cmake"
+                   COMMENT "Writing aom_version.h"
+                   VERBATIM)
 
 add_custom_target(aom_version_check
                   COMMAND ${CMAKE_COMMAND} -DAOM_CONFIG_DIR=${AOM_CONFIG_DIR}
@@ -221,22 +222,24 @@ add_custom_target(aom_version_check
                           -DGIT_EXECUTABLE=${GIT_EXECUTABLE}
                           -DPERL_EXECUTABLE=${PERL_EXECUTABLE} -P
                           "${AOM_ROOT}/build/cmake/version.cmake"
-                  COMMENT "Updating version info if necessary." VERBATIM)
+                  COMMENT "Updating version info if necessary."
+                  VERBATIM)
 add_dependencies(aom_version aom_version_check)
 
 if(NOT MSVC)
   add_library(aom_pc ${AOM_PKG_CONFIG_SOURCES})
   add_dummy_source_file_to_target(aom_pc c)
   add_custom_command(OUTPUT "${AOM_CONFIG_DIR}/aom.pc"
-                     COMMAND ${CMAKE_COMMAND} ARGS
-                             -DAOM_CONFIG_DIR=${AOM_CONFIG_DIR}
-                             -DAOM_ROOT=${AOM_ROOT}
-                             -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
-                             -DCMAKE_PROJECT_NAME=${CMAKE_PROJECT_NAME}
-                             -DCONFIG_MULTITHREAD=${CONFIG_MULTITHREAD}
-                             -DHAVE_PTHREAD_H=${HAVE_PTHREAD_H} -P
-                             "${AOM_ROOT}/build/cmake/pkg_config.cmake"
-                     COMMENT "Writing aom.pc" VERBATIM)
+                     COMMAND ${CMAKE_COMMAND}
+                             ARGS -DAOM_CONFIG_DIR=${AOM_CONFIG_DIR}
+                                  -DAOM_ROOT=${AOM_ROOT}
+                                  -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
+                                  -DCMAKE_PROJECT_NAME=${CMAKE_PROJECT_NAME}
+                                  -DCONFIG_MULTITHREAD=${CONFIG_MULTITHREAD}
+                                  -DHAVE_PTHREAD_H=${HAVE_PTHREAD_H} -P
+                                  "${AOM_ROOT}/build/cmake/pkg_config.cmake"
+                     COMMENT "Writing aom.pc"
+                     VERBATIM)
   add_dependencies(aom_pc aom_version)
 endif()
 
@@ -361,8 +364,8 @@ if(CONFIG_AV1_DECODER AND ENABLE_EXAMPLES)
   endif()
 
   # Maintain a list of decoder example targets.
-  list(APPEND AOM_DECODER_EXAMPLE_TARGETS aomdec decode_to_md5
-              decode_with_drops scalable_decoder simple_decoder)
+  list(APPEND AOM_DECODER_EXAMPLE_TARGETS aomdec decode_to_md5 decode_with_drops
+              scalable_decoder simple_decoder)
 
   # Add decoder examples to the app targets list.
   list(APPEND AOM_APP_TARGETS ${AOM_DECODER_EXAMPLE_TARGETS})
@@ -626,8 +629,7 @@ if(NOT (MSVC OR XCODE))
 
   # Aomedia install rule.
   list(APPEND AOM_INSTALL_INCS "${AOM_ROOT}/aom/aom.h"
-              "${AOM_ROOT}/aom/aom_codec.h"
-              "${AOM_ROOT}/aom/aom_frame_buffer.h"
+              "${AOM_ROOT}/aom/aom_codec.h" "${AOM_ROOT}/aom/aom_frame_buffer.h"
               "${AOM_ROOT}/aom/aom_image.h" "${AOM_ROOT}/aom/aom_integer.h"
               "${AOM_ROOT}/aom/aom.h")
 
@@ -652,13 +654,13 @@ if(NOT (MSVC OR XCODE))
   set(AOM_INSTALL_LIBS aom)
 
   install(FILES ${AOM_INSTALL_INCS} DESTINATION "${INCLUDE_INSTALL_DIR}/aom")
-  install(FILES "${AOM_CONFIG_DIR}/aom.pc" DESTINATION
-                "${LIB_INSTALL_DIR}/pkgconfig")
+  install(FILES "${AOM_CONFIG_DIR}/aom.pc"
+          DESTINATION "${LIB_INSTALL_DIR}/pkgconfig")
   install(TARGETS ${AOM_INSTALL_LIBS} DESTINATION "${LIB_INSTALL_DIR}")
 
   if(ENABLE_EXAMPLES)
-    install(TARGETS ${AOM_INSTALL_BINS} DESTINATION
-                    "${CMAKE_INSTALL_PREFIX}/bin")
+    install(TARGETS ${AOM_INSTALL_BINS}
+            DESTINATION "${CMAKE_INSTALL_PREFIX}/bin")
   endif()
 endif()
 
@@ -708,8 +710,9 @@ endif()
 # Collect all variables containing libaom source files.
 get_cmake_property(all_cmake_vars VARIABLES)
 foreach(var ${all_cmake_vars})
-  if("${var}" MATCHES "SOURCES$\|_INTRIN_\|_ASM_" AND NOT "${var}" MATCHES
-     "_APP_\|DOXYGEN\|LIBWEBM\|LIBYUV\|_PKG_\|TEST")
+  if("${var}" MATCHES "SOURCES$\|_INTRIN_\|_ASM_"
+     AND
+     NOT "${var}" MATCHES "_APP_\|DOXYGEN\|LIBWEBM\|LIBYUV\|_PKG_\|TEST")
     list(APPEND aom_source_vars ${var})
   endif()
 endforeach()
@@ -728,9 +731,9 @@ foreach(aom_source_var ${aom_source_vars})
   endforeach()
 endforeach()
 
-file(APPEND
-       "${libaom_srcs_txt_file}"
-       "# Files below this line are generated by the libaom build system.\n")
+file(
+  APPEND "${libaom_srcs_txt_file}"
+         "# Files below this line are generated by the libaom build system.\n")
 foreach(aom_source_var ${aom_source_vars})
   foreach(file ${${aom_source_var}})
     if("${file}" MATCHES "${AOM_CONFIG_DIR}")
@@ -763,9 +766,10 @@ foreach(aom_source_var ${aom_source_vars})
   endif()
 endforeach()
 
-file(APPEND
-       "${libaom_srcs_gni_file}"
-       "\n# Files below this line are generated by the libaom build system.\n")
+file(
+  APPEND "${libaom_srcs_gni_file}"
+         "\n# Files below this line are generated by the libaom build system.\n"
+  )
 
 foreach(aom_source_var ${aom_source_vars})
   if("${${aom_source_var}}" MATCHES "${AOM_CONFIG_DIR}")

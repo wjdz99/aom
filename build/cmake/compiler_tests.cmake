@@ -88,10 +88,12 @@ function(aom_check_c_compiles test_name test_source result_var)
 
     if(C_TEST_COMPILED)
       set(AOM_C_PASSED_TESTS "${AOM_C_PASSED_TESTS} ${test_name}"
-          CACHE STRING "" FORCE)
+          CACHE STRING ""
+          FORCE)
     else()
       set(AOM_C_FAILED_TESTS "${AOM_C_FAILED_TESTS} ${test_name}"
-          CACHE STRING "" FORCE)
+          CACHE STRING ""
+          FORCE)
       message("C Compiler test ${test_name} failed.")
     endif()
   elseif(NOT ${C_TEST_PASSED} EQUAL -1)
@@ -118,16 +120,18 @@ function(aom_check_cxx_compiles test_name test_source result_var)
   if(${CXX_TEST_PASSED} EQUAL -1 AND ${CXX_TEST_FAILED} EQUAL -1)
     unset(CXX_TEST_COMPILED CACHE)
     message("Running CXX compiler test: ${test_name}")
-    check_cxx_source_compiles("${test_source} ${AOM_CXX_MAIN}"
-                              CXX_TEST_COMPILED)
+    check_cxx_source_compiles(
+      "${test_source} ${AOM_CXX_MAIN}" CXX_TEST_COMPILED)
     set(${result_var} ${CXX_TEST_COMPILED} PARENT_SCOPE)
 
     if(CXX_TEST_COMPILED)
       set(AOM_CXX_PASSED_TESTS "${AOM_CXX_PASSED_TESTS} ${test_name}"
-          CACHE STRING "" FORCE)
+          CACHE STRING ""
+          FORCE)
     else()
       set(AOM_CXX_FAILED_TESTS "${AOM_CXX_FAILED_TESTS} ${test_name}"
-          CACHE STRING "" FORCE)
+          CACHE STRING ""
+          FORCE)
       message("CXX Compiler test ${test_name} failed.")
     endif()
   elseif(NOT ${CXX_TEST_PASSED} EQUAL -1)
@@ -157,9 +161,8 @@ endfunction()
 # When inline support is detected for the current compiler the supported
 # inlining keyword is written to $result in caller scope.
 function(aom_get_inline result)
-  aom_check_source_compiles("inline_check_1"
-                            "static inline void function(void) {}"
-                            HAVE_INLINE_1)
+  aom_check_source_compiles(
+    "inline_check_1" "static inline void function(void) {}" HAVE_INLINE_1)
   if(HAVE_INLINE_1 EQUAL 1)
     set(${result} "inline" PARENT_SCOPE)
     return()

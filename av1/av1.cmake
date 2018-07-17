@@ -459,4 +459,5 @@ function(setup_av1_targets)
 endfunction()
 
 function(setup_av1_test_targets)
+
 endfunction()

@@ -81,8 +81,7 @@ function(set_compiler_launcher launcher_flag launcher_name)
     set(CMAKE_CXX_COMPILER_LAUNCHER "${launcher_path}" PARENT_SCOPE)
     message("--- Using ${launcher_name} as compiler launcher.")
   else()
-    message(WARNING
-              "--- Cannot find ${launcher_name}, ${launcher_flag} ignored.")
+    message(
+      WARNING "--- Cannot find ${launcher_name}, ${launcher_flag} ignored.")
   endif()
 endfunction()
-

@@ -37,9 +37,8 @@ if(CONFIG_AV1_DECODER)
 
   set(AOM_DOXYGEN_SECTIONS ${AOM_DOXYGEN_SECTIONS} "av1_decoder decoder")
 
-  set(AOM_DOXYGEN_SOURCES ${AOM_DOXYGEN_SOURCES}
-      "${AOM_ROOT}/aom/aom_decoder.h" "${AOM_ROOT}/aom/aomdx.h"
-      "${AOM_ROOT}/usage_dx.dox")
+  set(AOM_DOXYGEN_SOURCES ${AOM_DOXYGEN_SOURCES} "${AOM_ROOT}/aom/aom_decoder.h"
+      "${AOM_ROOT}/aom/aomdx.h" "${AOM_ROOT}/usage_dx.dox")
 
   if(CONFIG_ANALYZER)
     set(AOM_DOXYGEN_EXAMPLE_SOURCES ${AOM_DOXYGEN_EXAMPLE_SOURCES}
@@ -163,25 +162,19 @@ function(setup_documentation_targets)
 
   # Generate samples.dox, an index page that refers to the example_basename.dox
   # files that were just created.
-  set(
-    samples_header
-    "
+  set(samples_header "
 /*!\\page samples Sample Code
 This SDK includes a number of sample applications. Each sample documents a
 feature of the SDK in both prose and the associated C code. The following
 samples are included:
-"
-    )
+")
 
-  set(
-    utils_desc
-    "
+  set(utils_desc "
 In addition, the SDK contains a number of utilities. Since these utilities are
 built upon the concepts described in the sample code listed above, they are not
 documented in pieces like the samples are. Their source is included here for
 reference. The following utilities are included:
-"
-    )
+")
 
   # Write the description for the samples section.
   set(samples_dox "${AOM_CONFIG_DIR}/samples.dox")
