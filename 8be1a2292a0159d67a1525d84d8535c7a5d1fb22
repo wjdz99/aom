@@ -16,6 +16,24 @@
       "revId": "8be1a2292a0159d67a1525d84d8535c7a5d1fb22",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "40c634a1_b00594f9",
+        "filename": "av1/encoder/ratectrl.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 7555
+      },
+      "writtenOn": "2018-07-17T00:06:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8fc19c8a_86bc9802",
+      "revId": "8be1a2292a0159d67a1525d84d8535c7a5d1fb22",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
