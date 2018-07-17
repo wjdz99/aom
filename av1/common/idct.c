@@ -377,6 +377,10 @@ void av1_inverse_transform_block(const MACROBLOCKD *xd,
   if (txfm_param.is_hbd) {
     highbd_inv_txfm_add(dqcoeff, dst, stride, &txfm_param);
   } else {
+#if CONFIG_GFT_LEARNED
+    av1_inv_txfm_add_c(dqcoeff, dst, stride, &txfm_param);
+#else
     av1_inv_txfm_add(dqcoeff, dst, stride, &txfm_param);
+#endif
   }
 }

@@ -14,10 +14,22 @@
 
 #include "av1/common/av1_txfm.h"
 
+#if CONFIG_GFT_LEARNED
+#include "av1/common/gft_coefficients.h"
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+#if CONFIG_GFT_LEARNED
+void av1_fgft4(const int32_t *input, int32_t *output, int8_t cos_bit,
+               const int8_t *stage_range);
+void av1_fgft8(const int32_t *input, int32_t *output, int8_t cos_bit,
+               const int8_t *stage_range);
+void av1_fgft16(const int32_t *input, int32_t *output, int8_t cos_bit,
+                const int8_t *stage_range);
+#endif
 void av1_fdct4_new(const int32_t *input, int32_t *output, int8_t cos_bit,
                    const int8_t *stage_range);
 void av1_fdct8_new(const int32_t *input, int32_t *output, int8_t cos_bit,

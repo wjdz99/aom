@@ -254,6 +254,17 @@ static INLINE int get_txh_idx(TX_SIZE tx_size) {
   return tx_size_high_log2[tx_size] - tx_size_high_log2[0];
 }
 #define MAX_TXWH_IDX 5
+
+#if CONFIG_GFT_LEARNED
+#define GFT_LEARNED_DEBUG 0
+#define USE_LEARNED_4 1
+#define USE_LEARNED_8 1
+#define USE_LEARNED_16 1
+#define USE_KLT 0
+#define USE_GFT 1
+#define USE_SYM 1
+#endif
+
 #ifdef __cplusplus
 }
 #endif  // __cplusplus

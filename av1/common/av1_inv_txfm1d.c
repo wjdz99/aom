@@ -705,6 +705,64 @@ void av1_idct32_new(const int32_t *input, int32_t *output, int8_t cos_bit,
   bf1[31] = clamp_value(bf0[0] - bf0[31], stage_range[stage]);
 }
 
+#if CONFIG_GFT_LEARNED
+void av1_igft4(const int32_t *input, int32_t *output, int8_t cos_bit,
+               const int8_t *stage_range) {
+  (void)stage_range;
+  int32_t s[4] = { 0 };
+  const int32_t *gft = gft4_arr(cos_bit);
+  for (int i = 0; i < 4; i++)
+    for (int j = 0; j < 4; j++) s[j] += gft[i * 4 + j] * input[i];
+
+  for (int i = 0; i < 4; i++) output[i] = round_shift(s[i], cos_bit + 1);
+
+#if GFT_LEARNED_DEBUG
+  fprintf(stderr, "(IL:%d,%d,%d,%d) ", input[0], input[1], input[2], input[3]);
+  fprintf(stderr, "[IL:%d,%d,%d,%d]\n", output[0], output[1], output[2], output[3]);
+#endif
+}
+
+void av1_igft8(const int32_t *input, int32_t *output, int8_t cos_bit,
+               const int8_t *stage_range) {
+  (void)stage_range;
+  int32_t s[8] = { 0 };
+  const int32_t *gft = gft8_arr(cos_bit);
+  for (int i = 0; i < 8; i++)
+    for (int j = 0; j < 8; j++) s[j] += gft[i * 8 + j] * input[i];
+
+  for (int i = 0; i < 8; i++) output[i] = round_shift(s[i], cos_bit + 1);
+
+#if GFT_LEARNED_DEBUG
+  fprintf(stderr, "(IL:%d,%d,%d,%d,%d,%d,%d,%d) ", input[0], input[1],
+    input[2], input[3], input[4], input[5], input[6], input[7]);
+  fprintf(stderr, "[IL:%d,%d,%d,%d,%d,%d,%d,%d]\n", output[0], output[1],
+    output[2], output[3], output[4], output[5], output[6], output[7]);
+#endif
+}
+
+void av1_igft16(const int32_t *input, int32_t *output, int8_t cos_bit,
+                const int8_t *stage_range) {
+  (void)stage_range;
+  int32_t s[16] = { 0 };
+  const int32_t *gft = gft16_arr(cos_bit);
+  for (int i = 0; i < 16; i++)
+    for (int j = 0; j < 16; j++) s[j] += gft[i * 16 + j] * input[i];
+
+  for (int i = 0; i < 16; i++) output[i] = round_shift(s[i], cos_bit + 1);
+
+#if GFT_LEARNED_DEBUG
+  fprintf(stderr, "(IL:%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d) ",
+    input[0], input[1], input[2], input[3], input[4], input[5], input[6],
+    input[7], input[8], input[9], input[10], input[11], input[12], input[13],
+    input[14], input[15]);
+  fprintf(stderr, "[IL:%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d]\n",
+    output[0], output[1], output[2], output[3], output[4], output[5], output[6],
+    output[7], output[8], output[9], output[10], output[11], output[12],
+    output[13], output[14], output[15]);
+#endif
+}
+#endif
+
 void av1_iadst4_new(const int32_t *input, int32_t *output, int8_t cos_bit,
                     const int8_t *stage_range) {
   int bit = cos_bit;
@@ -761,6 +819,13 @@ void av1_iadst4_new(const int32_t *input, int32_t *output, int8_t cos_bit,
   output[2] = round_shift(x2, bit);
   output[3] = round_shift(x3, bit);
   range_check_buf(6, input, output, 4, stage_range[6]);
+
+#if CONFIG_GFT_LEARNED && GFT_LEARNED_DEBUG
+  fprintf(stderr, "(IA:%d,%d,%d,%d) ", input[0], input[1],
+    input[2], input[3]);
+  fprintf(stderr, "[IA:%d,%d,%d,%d]\n", output[0], output[1],
+    output[2], output[3]);
+#endif
 }
 
 void av1_iadst8_new(const int32_t *input, int32_t *output, int8_t cos_bit,
@@ -870,6 +935,13 @@ void av1_iadst8_new(const int32_t *input, int32_t *output, int8_t cos_bit,
   bf1[5] = -bf0[7];
   bf1[6] = bf0[5];
   bf1[7] = -bf0[1];
+
+#if CONFIG_GFT_LEARNED && GFT_LEARNED_DEBUG
+  fprintf(stderr, "(IA:%d,%d,%d,%d,%d,%d,%d,%d) ", input[0], input[1],
+    input[2], input[3], input[4], input[5], input[6], input[7]);
+  fprintf(stderr, "[IA:%d,%d,%d,%d,%d,%d,%d,%d]\n", output[0], output[1],
+    output[2], output[3], output[4], output[5], output[6], output[7]);
+#endif
 }
 
 void av1_iadst16_new(const int32_t *input, int32_t *output, int8_t cos_bit,
@@ -1079,6 +1151,17 @@ void av1_iadst16_new(const int32_t *input, int32_t *output, int8_t cos_bit,
   bf1[13] = -bf0[13];
   bf1[14] = bf0[9];
   bf1[15] = -bf0[1];
+
+#if CONFIG_GFT_LEARNED && GFT_LEARNED_DEBUG
+  fprintf(stderr, "(IA:%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d) ",
+    input[0], input[1], input[2], input[3], input[4], input[5], input[6],
+    input[7], input[8], input[9], input[10], input[11], input[12], input[13],
+    input[14], input[15]);
+  fprintf(stderr, "[IA:%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d]\n",
+    output[0], output[1], output[2], output[3], output[4], output[5], output[6],
+    output[7], output[8], output[9], output[10], output[11], output[12],
+    output[13], output[14], output[15]);
+#endif
 }
 
 void av1_iidentity4_c(const int32_t *input, int32_t *output, int8_t cos_bit,
