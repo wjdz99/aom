@@ -831,7 +831,7 @@ int aom_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
       }
     }
 
-    av1_init_read_bit_buffer(pbi, &rb, data, data_end);
+    av1_init_read_bit_buffer(pbi, &rb, data, data + payload_size);
 
     switch (obu_header.type) {
       case OBU_TEMPORAL_DELIMITER:
