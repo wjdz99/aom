@@ -136,6 +136,7 @@ set_aom_config_var(CONFIG_RD_DEBUG 0 NUMBER "AV1 experiment flag.")
 set_aom_config_var(CONFIG_2PASS_PARTITION_SEARCH_LVL 1 NUMBER
                    "AV1 experiment flag.")
 set_aom_config_var(CONFIG_ADAPT_FILTER_INTRA 0 NUMBER "AV1 experiment flag.")
+set_aom_config_var(CONFIG_DATA_DRIVEN_TX 0 NUMBER "AV1 experiment flag.")
 set_aom_config_var(CONFIG_SHARP_SETTINGS 0 NUMBER
                    "Use sharper encoding settings")
 

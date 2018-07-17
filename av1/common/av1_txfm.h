@@ -225,6 +225,17 @@ static INLINE int get_txh_idx(TX_SIZE tx_size) {
 void av1_range_check_buf(int32_t stage, const int32_t *input,
                          const int32_t *buf, int32_t size, int8_t bit);
 #define MAX_TXWH_IDX 5
+
+#if CONFIG_DATA_DRIVEN_TX
+#define DATA_DRIVEN_TX_DEBUG 0
+#define USE_LEARNED_4 1
+#define USE_LEARNED_8 1
+#define USE_LEARNED_16 0
+#define USE_KLT 0
+#define USE_GFT 1
+#define USE_LGT 0
+#endif
+
 #ifdef __cplusplus
 }
 #endif  // __cplusplus
