@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "dbaa88f5_bc2f23b9",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 383,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-07-17T17:18:12Z",
+      "side": 1,
+      "message": "+1",
+      "parentUuid": "fa3352f8_48d6469b",
+      "range": {
+        "startLine": 383,
+        "startChar": 20,
+        "endLine": 383,
+        "endChar": 45
+      },
+      "revId": "845388da642b9af14a97660ffc5fe43adfde93e6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5b88faff_5fe37af2",
         "filename": "av1/decoder/obu.c",
         "patchSetId": 1
@@ -84,6 +108,30 @@
       "side": 1,
       "message": "it may be useful to have this if we plan to re-use this function for other OBU related tools (like dump_obu for example). Tom was the one working on it, so i will leave it to him.",
       "parentUuid": "5b88faff_5fe37af2",
+      "range": {
+        "startLine": 385,
+        "startChar": 4,
+        "endLine": 385,
+        "endChar": 14
+      },
+      "revId": "845388da642b9af14a97660ffc5fe43adfde93e6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a0b6de3e_4fc9c992",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 385,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-07-17T17:18:12Z",
+      "side": 1,
+      "message": "This might be useful as a public API function at some point in the future, but at present it\u0027s private to the file.\n\nI think the return -1, while redundant due to the longjmp() call inside aom_internal_error(), is at least useful to an uninformed reader-- it helps to clarify that the intention is for the function to exit after the error is encountered.",
+      "parentUuid": "714c7105_fbf0c36f",
       "range": {
         "startLine": 385,
         "startChar": 4,
