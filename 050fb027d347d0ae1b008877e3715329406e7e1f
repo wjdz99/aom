@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "601f56de_043f760c",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 834,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-07-17T19:32:49Z",
+      "side": 0,
+      "message": "Ack",
+      "parentUuid": "9c8c82b5_c2ec7d37",
+      "range": {
+        "startLine": 834,
+        "startChar": 45,
+        "endLine": 834,
+        "endChar": 53
+      },
+      "revId": "050fb027d347d0ae1b008877e3715329406e7e1f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "488e8fab_4372e7fb",
         "filename": "av1/decoder/obu.c",
         "patchSetId": 1
@@ -60,6 +84,30 @@
       "writtenOn": "2018-07-17T19:23:26Z",
       "side": 0,
       "message": "I think we should change this line to:\n\n       if (payload_size \u003c obu_payload_offset) {\n\nThis ensures the \"data + obu_payload_offset\" and \"data + payload_size\" arguments we pass to read_one_tile_group_obu() at lines 901-902 make sense.\n\nWhat do you think?",
+      "range": {
+        "startLine": 896,
+        "startChar": 8,
+        "endLine": 896,
+        "endChar": 61
+      },
+      "revId": "050fb027d347d0ae1b008877e3715329406e7e1f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fcfda5a9_88859cc0",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 896,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-07-17T19:32:49Z",
+      "side": 0,
+      "message": "Haven\u0027t looked at this too closely, but I think we need to check both maybe?\n(Unless we know somehow that data_end - data \u003e\u003d payload_size for sure, in which case, we should at least add an assert).",
+      "parentUuid": "488e8fab_4372e7fb",
       "range": {
         "startLine": 896,
         "startChar": 8,
