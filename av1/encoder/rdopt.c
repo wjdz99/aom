@@ -67,6 +67,13 @@
 static const char av1_tx_size_data_output_file[] = "tx_size_data.txt";
 #endif
 
+#define COLLECT_INTRA_MODE_PREDICTION_DATA 0
+
+#if COLLECT_INTRA_MODE_PREDICTION_DATA
+static const char av1_intra_mode_pred_data_output_file[] =
+    "intra_mode_pred_data.txt";
+#endif
+
 #define DUAL_FILTER_SET_SIZE (SWITCHABLE_FILTERS * SWITCHABLE_FILTERS)
 static const InterpFilters filter_sets[DUAL_FILTER_SET_SIZE] = {
   0x00000000, 0x00010000, 0x00020000,  // y = 0
@@ -4046,6 +4053,504 @@ static void intra_block_yrd(const AV1_COMP *const cpi, MACROBLOCK *x,
   }
 }
 
+#if COLLECT_INTRA_MODE_PREDICTION_DATA
+
+// Tables to store if the top-right reference pixels are available. The flags
+// are represented with bits, packed into 8-bit integers. E.g., for the 32x32
+// blocks in a 128x128 superblock, the index of the "o" block is 10 (in raster
+// order), so its flag is stored at the 3rd bit of the 2nd entry in the table,
+// i.e. (table[10 / 8] >> (10 % 8)) & 1.
+//       . . . .
+//       . . . .
+//       . . o .
+//       . . . .
+static uint8_t has_tr_4x4[128] = {
+  255, 255, 255, 255, 85, 85, 85, 85, 119, 119, 119, 119, 85, 85, 85, 85,
+  127, 127, 127, 127, 85, 85, 85, 85, 119, 119, 119, 119, 85, 85, 85, 85,
+  255, 127, 255, 127, 85, 85, 85, 85, 119, 119, 119, 119, 85, 85, 85, 85,
+  127, 127, 127, 127, 85, 85, 85, 85, 119, 119, 119, 119, 85, 85, 85, 85,
+  255, 255, 255, 127, 85, 85, 85, 85, 119, 119, 119, 119, 85, 85, 85, 85,
+  127, 127, 127, 127, 85, 85, 85, 85, 119, 119, 119, 119, 85, 85, 85, 85,
+  255, 127, 255, 127, 85, 85, 85, 85, 119, 119, 119, 119, 85, 85, 85, 85,
+  127, 127, 127, 127, 85, 85, 85, 85, 119, 119, 119, 119, 85, 85, 85, 85,
+};
+static uint8_t has_tr_4x8[64] = {
+  255, 255, 255, 255, 119, 119, 119, 119, 127, 127, 127, 127, 119,
+  119, 119, 119, 255, 127, 255, 127, 119, 119, 119, 119, 127, 127,
+  127, 127, 119, 119, 119, 119, 255, 255, 255, 127, 119, 119, 119,
+  119, 127, 127, 127, 127, 119, 119, 119, 119, 255, 127, 255, 127,
+  119, 119, 119, 119, 127, 127, 127, 127, 119, 119, 119, 119,
+};
+static uint8_t has_tr_8x4[64] = {
+  255, 255, 0, 0, 85, 85, 0, 0, 119, 119, 0, 0, 85, 85, 0, 0,
+  127, 127, 0, 0, 85, 85, 0, 0, 119, 119, 0, 0, 85, 85, 0, 0,
+  255, 127, 0, 0, 85, 85, 0, 0, 119, 119, 0, 0, 85, 85, 0, 0,
+  127, 127, 0, 0, 85, 85, 0, 0, 119, 119, 0, 0, 85, 85, 0, 0,
+};
+static uint8_t has_tr_8x8[32] = {
+  255, 255, 85, 85, 119, 119, 85, 85, 127, 127, 85, 85, 119, 119, 85, 85,
+  255, 127, 85, 85, 119, 119, 85, 85, 127, 127, 85, 85, 119, 119, 85, 85,
+};
+static uint8_t has_tr_8x16[16] = {
+  255, 255, 119, 119, 127, 127, 119, 119,
+  255, 127, 119, 119, 127, 127, 119, 119,
+};
+static uint8_t has_tr_16x8[16] = {
+  255, 0, 85, 0, 119, 0, 85, 0, 127, 0, 85, 0, 119, 0, 85, 0,
+};
+static uint8_t has_tr_16x16[8] = {
+  255, 85, 119, 85, 127, 85, 119, 85,
+};
+static uint8_t has_tr_16x32[4] = { 255, 119, 127, 119 };
+static uint8_t has_tr_32x16[4] = { 15, 5, 7, 5 };
+static uint8_t has_tr_32x32[2] = { 95, 87 };
+static uint8_t has_tr_32x64[1] = { 127 };
+static uint8_t has_tr_64x32[1] = { 19 };
+static uint8_t has_tr_64x64[1] = { 7 };
+static uint8_t has_tr_64x128[1] = { 3 };
+static uint8_t has_tr_128x64[1] = { 1 };
+static uint8_t has_tr_128x128[1] = { 1 };
+static uint8_t has_tr_4x16[32] = {
+  255, 255, 255, 255, 127, 127, 127, 127, 255, 127, 255,
+  127, 127, 127, 127, 127, 255, 255, 255, 127, 127, 127,
+  127, 127, 255, 127, 255, 127, 127, 127, 127, 127,
+};
+static uint8_t has_tr_16x4[32] = {
+  255, 0, 0, 0, 85, 0, 0, 0, 119, 0, 0, 0, 85, 0, 0, 0,
+  127, 0, 0, 0, 85, 0, 0, 0, 119, 0, 0, 0, 85, 0, 0, 0,
+};
+static uint8_t has_tr_8x32[8] = {
+  255, 255, 127, 127, 255, 127, 127, 127,
+};
+static uint8_t has_tr_32x8[8] = {
+  15, 0, 5, 0, 7, 0, 5, 0,
+};
+static uint8_t has_tr_16x64[2] = { 255, 127 };
+static uint8_t has_tr_64x16[2] = { 3, 1 };
+
+static const uint8_t *const has_tr_tables[BLOCK_SIZES_ALL] = {
+  // 4X4
+  has_tr_4x4,
+  // 4X8,       8X4,            8X8
+  has_tr_4x8, has_tr_8x4, has_tr_8x8,
+  // 8X16,      16X8,           16X16
+  has_tr_8x16, has_tr_16x8, has_tr_16x16,
+  // 16X32,     32X16,          32X32
+  has_tr_16x32, has_tr_32x16, has_tr_32x32,
+  // 32X64,     64X32,          64X64
+  has_tr_32x64, has_tr_64x32, has_tr_64x64,
+  // 64x128,    128x64,         128x128
+  has_tr_64x128, has_tr_128x64, has_tr_128x128,
+  // 4x16,      16x4,            8x32
+  has_tr_4x16, has_tr_16x4, has_tr_8x32,
+  // 32x8,      16x64,           64x16
+  has_tr_32x8, has_tr_16x64, has_tr_64x16
+};
+
+static uint8_t has_tr_vert_8x8[32] = {
+  255, 255, 0, 0, 119, 119, 0, 0, 127, 127, 0, 0, 119, 119, 0, 0,
+  255, 127, 0, 0, 119, 119, 0, 0, 127, 127, 0, 0, 119, 119, 0, 0,
+};
+static uint8_t has_tr_vert_16x16[8] = {
+  255, 0, 119, 0, 127, 0, 119, 0,
+};
+static uint8_t has_tr_vert_32x32[2] = { 15, 7 };
+static uint8_t has_tr_vert_64x64[1] = { 3 };
+
+// The _vert_* tables are like the ordinary tables above, but describe the
+// order we visit square blocks when doing a PARTITION_VERT_A or
+// PARTITION_VERT_B. This is the same order as normal except for on the last
+// split where we go vertically (TL, BL, TR, BR). We treat the rectangular block
+// as a pair of squares, which means that these tables work correctly for both
+// mixed vertical partition types.
+//
+// There are tables for each of the square sizes. Vertical rectangles (like
+// BLOCK_16X32) use their respective "non-vert" table
+static const uint8_t *const has_tr_vert_tables[BLOCK_SIZES] = {
+  // 4X4
+  NULL,
+  // 4X8,      8X4,         8X8
+  has_tr_4x8, NULL, has_tr_vert_8x8,
+  // 8X16,     16X8,        16X16
+  has_tr_8x16, NULL, has_tr_vert_16x16,
+  // 16X32,    32X16,       32X32
+  has_tr_16x32, NULL, has_tr_vert_32x32,
+  // 32X64,    64X32,       64X64
+  has_tr_32x64, NULL, has_tr_vert_64x64,
+  // 64x128,   128x64,      128x128
+  has_tr_64x128, NULL, has_tr_128x128
+};
+
+static const uint8_t *get_has_tr_table(PARTITION_TYPE partition,
+                                       BLOCK_SIZE bsize) {
+  const uint8_t *ret = NULL;
+  // If this is a mixed vertical partition, look up bsize in orders_vert.
+  if (partition == PARTITION_VERT_A || partition == PARTITION_VERT_B) {
+    assert(bsize < BLOCK_SIZES);
+    ret = has_tr_vert_tables[bsize];
+  } else {
+    ret = has_tr_tables[bsize];
+  }
+  assert(ret);
+  return ret;
+}
+
+// Similar to the has_tr_* tables, but store if the bottom-left reference
+// pixels are available.
+static uint8_t has_bl_4x4[128] = {
+  84, 85, 85, 85, 16, 17, 17, 17, 84, 85, 85, 85, 0,  1,  1,  1,  84, 85, 85,
+  85, 16, 17, 17, 17, 84, 85, 85, 85, 0,  0,  1,  0,  84, 85, 85, 85, 16, 17,
+  17, 17, 84, 85, 85, 85, 0,  1,  1,  1,  84, 85, 85, 85, 16, 17, 17, 17, 84,
+  85, 85, 85, 0,  0,  0,  0,  84, 85, 85, 85, 16, 17, 17, 17, 84, 85, 85, 85,
+  0,  1,  1,  1,  84, 85, 85, 85, 16, 17, 17, 17, 84, 85, 85, 85, 0,  0,  1,
+  0,  84, 85, 85, 85, 16, 17, 17, 17, 84, 85, 85, 85, 0,  1,  1,  1,  84, 85,
+  85, 85, 16, 17, 17, 17, 84, 85, 85, 85, 0,  0,  0,  0,
+};
+static uint8_t has_bl_4x8[64] = {
+  16, 17, 17, 17, 0, 1, 1, 1, 16, 17, 17, 17, 0, 0, 1, 0,
+  16, 17, 17, 17, 0, 1, 1, 1, 16, 17, 17, 17, 0, 0, 0, 0,
+  16, 17, 17, 17, 0, 1, 1, 1, 16, 17, 17, 17, 0, 0, 1, 0,
+  16, 17, 17, 17, 0, 1, 1, 1, 16, 17, 17, 17, 0, 0, 0, 0,
+};
+static uint8_t has_bl_8x4[64] = {
+  254, 255, 84, 85, 254, 255, 16, 17, 254, 255, 84, 85, 254, 255, 0, 1,
+  254, 255, 84, 85, 254, 255, 16, 17, 254, 255, 84, 85, 254, 255, 0, 0,
+  254, 255, 84, 85, 254, 255, 16, 17, 254, 255, 84, 85, 254, 255, 0, 1,
+  254, 255, 84, 85, 254, 255, 16, 17, 254, 255, 84, 85, 254, 255, 0, 0,
+};
+static uint8_t has_bl_8x8[32] = {
+  84, 85, 16, 17, 84, 85, 0, 1, 84, 85, 16, 17, 84, 85, 0, 0,
+  84, 85, 16, 17, 84, 85, 0, 1, 84, 85, 16, 17, 84, 85, 0, 0,
+};
+static uint8_t has_bl_8x16[16] = {
+  16, 17, 0, 1, 16, 17, 0, 0, 16, 17, 0, 1, 16, 17, 0, 0,
+};
+static uint8_t has_bl_16x8[16] = {
+  254, 84, 254, 16, 254, 84, 254, 0, 254, 84, 254, 16, 254, 84, 254, 0,
+};
+static uint8_t has_bl_16x16[8] = {
+  84, 16, 84, 0, 84, 16, 84, 0,
+};
+static uint8_t has_bl_16x32[4] = { 16, 0, 16, 0 };
+static uint8_t has_bl_32x16[4] = { 78, 14, 78, 14 };
+static uint8_t has_bl_32x32[2] = { 4, 4 };
+static uint8_t has_bl_32x64[1] = { 0 };
+static uint8_t has_bl_64x32[1] = { 34 };
+static uint8_t has_bl_64x64[1] = { 0 };
+static uint8_t has_bl_64x128[1] = { 0 };
+static uint8_t has_bl_128x64[1] = { 0 };
+static uint8_t has_bl_128x128[1] = { 0 };
+static uint8_t has_bl_4x16[32] = {
+  0, 1, 1, 1, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0,
+  0, 1, 1, 1, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0,
+};
+static uint8_t has_bl_16x4[32] = {
+  254, 254, 254, 84, 254, 254, 254, 16, 254, 254, 254, 84, 254, 254, 254, 0,
+  254, 254, 254, 84, 254, 254, 254, 16, 254, 254, 254, 84, 254, 254, 254, 0,
+};
+static uint8_t has_bl_8x32[8] = {
+  0, 1, 0, 0, 0, 1, 0, 0,
+};
+static uint8_t has_bl_32x8[8] = {
+  238, 78, 238, 14, 238, 78, 238, 14,
+};
+static uint8_t has_bl_16x64[2] = { 0, 0 };
+static uint8_t has_bl_64x16[2] = { 42, 42 };
+
+static const uint8_t *const has_bl_tables[BLOCK_SIZES_ALL] = {
+  // 4X4
+  has_bl_4x4,
+  // 4X8,         8X4,         8X8
+  has_bl_4x8, has_bl_8x4, has_bl_8x8,
+  // 8X16,        16X8,        16X16
+  has_bl_8x16, has_bl_16x8, has_bl_16x16,
+  // 16X32,       32X16,       32X32
+  has_bl_16x32, has_bl_32x16, has_bl_32x32,
+  // 32X64,       64X32,       64X64
+  has_bl_32x64, has_bl_64x32, has_bl_64x64,
+  // 64x128,      128x64,      128x128
+  has_bl_64x128, has_bl_128x64, has_bl_128x128,
+  // 4x16,        16x4,        8x32
+  has_bl_4x16, has_bl_16x4, has_bl_8x32,
+  // 32x8,        16x64,       64x16
+  has_bl_32x8, has_bl_16x64, has_bl_64x16
+};
+
+static uint8_t has_bl_vert_8x8[32] = {
+  254, 255, 16, 17, 254, 255, 0, 1, 254, 255, 16, 17, 254, 255, 0, 0,
+  254, 255, 16, 17, 254, 255, 0, 1, 254, 255, 16, 17, 254, 255, 0, 0,
+};
+static uint8_t has_bl_vert_16x16[8] = {
+  254, 16, 254, 0, 254, 16, 254, 0,
+};
+static uint8_t has_bl_vert_32x32[2] = { 14, 14 };
+static uint8_t has_bl_vert_64x64[1] = { 2 };
+
+// The _vert_* tables are like the ordinary tables above, but describe the
+// order we visit square blocks when doing a PARTITION_VERT_A or
+// PARTITION_VERT_B. This is the same order as normal except for on the last
+// split where we go vertically (TL, BL, TR, BR). We treat the rectangular block
+// as a pair of squares, which means that these tables work correctly for both
+// mixed vertical partition types.
+//
+// There are tables for each of the square sizes. Vertical rectangles (like
+// BLOCK_16X32) use their respective "non-vert" table
+static const uint8_t *const has_bl_vert_tables[BLOCK_SIZES] = {
+  // 4X4
+  NULL,
+  // 4X8,     8X4,         8X8
+  has_bl_4x8, NULL, has_bl_vert_8x8,
+  // 8X16,    16X8,        16X16
+  has_bl_8x16, NULL, has_bl_vert_16x16,
+  // 16X32,   32X16,       32X32
+  has_bl_16x32, NULL, has_bl_vert_32x32,
+  // 32X64,   64X32,       64X64
+  has_bl_32x64, NULL, has_bl_vert_64x64,
+  // 64x128,  128x64,      128x128
+  has_bl_64x128, NULL, has_bl_128x128
+};
+
+static const uint8_t *get_has_bl_table(PARTITION_TYPE partition,
+                                       BLOCK_SIZE bsize) {
+  const uint8_t *ret = NULL;
+  // If this is a mixed vertical partition, look up bsize in orders_vert.
+  if (partition == PARTITION_VERT_A || partition == PARTITION_VERT_B) {
+    assert(bsize < BLOCK_SIZES);
+    ret = has_bl_vert_tables[bsize];
+  } else {
+    ret = has_bl_tables[bsize];
+  }
+  assert(ret);
+  return ret;
+}
+
+static int has_top_right(const AV1_COMMON *cm, BLOCK_SIZE bsize, int mi_row,
+                         int mi_col, int top_available, int right_available,
+                         PARTITION_TYPE partition) {
+  if (!top_available || !right_available) return 0;
+
+  const int bw_in_mi_log2 = mi_size_wide_log2[bsize];
+  const int bh_in_mi_log2 = mi_size_high_log2[bsize];
+  const int sb_mi_size = mi_size_high[cm->seq_params.sb_size];
+  const int blk_row_in_sb = (mi_row & (sb_mi_size - 1)) >> bh_in_mi_log2;
+  const int blk_col_in_sb = (mi_col & (sb_mi_size - 1)) >> bw_in_mi_log2;
+
+  // Top row of superblock: so top-right pixels are in the top and/or
+  // top-right superblocks, both of which are already available.
+  if (blk_row_in_sb == 0) return 1;
+
+  // Rightmost column of superblock (and not the top row): so top-right pixels
+  // fall in the right superblock, which is not available yet.
+  if (((blk_col_in_sb + 1) << bw_in_mi_log2) >= sb_mi_size) {
+    return 0;
+  }
+
+  // General case (neither top row nor rightmost column): check if the
+  // top-right block is coded before the current block.
+  const int this_blk_index =
+      ((blk_row_in_sb + 0) << (MAX_MIB_SIZE_LOG2 - bw_in_mi_log2)) +
+      blk_col_in_sb + 0;
+  const int idx1 = this_blk_index / 8;
+  const int idx2 = this_blk_index % 8;
+  const uint8_t *has_tr_table = get_has_tr_table(partition, bsize);
+  return (has_tr_table[idx1] >> idx2) & 1;
+}
+
+static int has_bottom_left(const AV1_COMMON *cm, BLOCK_SIZE bsize, int mi_row,
+                           int mi_col, int bottom_available, int left_available,
+                           PARTITION_TYPE partition) {
+  if (!bottom_available || !left_available) return 0;
+
+  const int bw_in_mi_log2 = mi_size_wide_log2[bsize];
+  const int bh_in_mi_log2 = mi_size_high_log2[bsize];
+  const int sb_mi_size = mi_size_high[cm->seq_params.sb_size];
+  const int blk_row_in_sb = (mi_row & (sb_mi_size - 1)) >> bh_in_mi_log2;
+  const int blk_col_in_sb = (mi_col & (sb_mi_size - 1)) >> bw_in_mi_log2;
+
+  // Leftmost column of superblock: so bottom-left pixels maybe in the left
+  // and/or bottom-left superblocks. But only the left superblock is
+  // available, so check if all required pixels fall in that superblock.
+  if (blk_col_in_sb == 0) {
+    // Check whether we are in the bottom row
+    return (((blk_row_in_sb + 1) << bh_in_mi_log2) < sb_mi_size);
+  }
+
+  // Bottom row of superblock (and not the leftmost column): so bottom-left
+  // pixels fall in the bottom superblock, which is not available yet.
+  if (((blk_row_in_sb + 1) << bh_in_mi_log2) >= sb_mi_size) return 0;
+
+  // General case (neither leftmost column nor bottom row): check if the
+  // bottom-left block is coded before the current block.
+  const int this_blk_index =
+      ((blk_row_in_sb + 0) << (MAX_MIB_SIZE_LOG2 - bw_in_mi_log2)) +
+      blk_col_in_sb + 0;
+  const int idx1 = this_blk_index / 8;
+  const int idx2 = this_blk_index % 8;
+  const uint8_t *has_bl_table = get_has_bl_table(partition, bsize);
+  return (has_bl_table[idx1] >> idx2) & 1;
+}
+
+static void get_Y_intra_mode_prediction_data(const AV1_COMP *const cpi,
+                                             MACROBLOCK *x, BLOCK_SIZE bsize,
+                                             uint16_t *dst_buffer,
+                                             uint8_t *dst_availability_mask,
+                                             uint16_t *dst_block_buf) {
+  const AV1_COMMON *cm = &cpi->common;
+  MACROBLOCKD *const xd = &x->e_mbd;
+  MB_MODE_INFO *const mbmi = xd->mi[0];
+  const struct macroblock_plane *const p = &x->plane[0];
+  const struct macroblockd_plane *const pd = &xd->plane[0];
+
+  uint16_t *cur_block_ptr = CONVERT_TO_SHORTPTR(pd->dst.buf);
+  uint16_t *src_block_ptr = CONVERT_TO_SHORTPTR(p->src.buf);
+  const int src_stride = p->src.stride;
+  const int stride = pd->dst.stride;
+
+  const int bw = block_size_wide[bsize];
+  const int bh = block_size_high[bsize];
+
+  const int have_top = xd->up_available;
+  const int have_left = xd->left_available;
+
+  const int mi_row = -xd->mb_to_top_edge >> (3 + MI_SIZE_LOG2);
+  const int mi_col = -xd->mb_to_left_edge >> (3 + MI_SIZE_LOG2);
+
+  // Distance between the right edge of this prediction block to
+  // the frame right edge
+  const int xr = (xd->mb_to_right_edge >> 3);
+  // Distance between the bottom edge of this prediction block to
+  // the frame bottom edge
+  const int yd = (xd->mb_to_bottom_edge >> 3);
+
+  // Check whether at least 1 MI_SIZE is available to the right or
+  // to the bottom
+  const int right_available = (mi_col + 1) < xd->tile.mi_col_end;
+  const int bottom_available = (yd > 0) && (mi_row + 1 < xd->tile.mi_row_end);
+
+  const PARTITION_TYPE partition = mbmi->partition;
+
+  const int have_top_right = has_top_right(cm, bsize, mi_row, mi_col, have_top,
+                                           right_available, partition);
+  const int have_bottom_left = has_bottom_left(
+      cm, bsize, mi_row, mi_col, bottom_available, have_left, partition);
+
+  const int n_top_px = have_top ? AOMMIN(bw, xr + bw) : 0;
+  const int n_topright_px = have_top_right ? AOMMIN(MI_SIZE, xr) : 0;
+  const int n_left_px = have_left ? AOMMIN(bh, yd + bh) : 0;
+  const int n_bottomleft_px = have_bottom_left ? AOMMIN(MI_SIZE, yd) : 0;
+
+  // 1. Process top and top-right pixels
+  const int num_top_pixels_needed = bw + MI_SIZE;
+  if (n_top_px > 0) {
+    for (int i = 0; i < MI_SIZE; i++)
+      memcpy(dst_buffer + i * (bw + 2 * MI_SIZE) + MI_SIZE,
+             cur_block_ptr - (MI_SIZE - i) * stride,
+             n_top_px * sizeof(cur_block_ptr[0]));
+    if (n_topright_px > 0) {
+      for (int i = 0; i < MI_SIZE; i++)
+        memcpy(dst_buffer + i * (bw + 2 * MI_SIZE) + MI_SIZE + bw,
+               cur_block_ptr - (MI_SIZE - i) * stride + bw,
+               n_topright_px * sizeof(cur_block_ptr[0]));
+    }
+    int x_pos = n_top_px + n_topright_px;
+    if (x_pos < num_top_pixels_needed) {
+      for (int i = 0; i < MI_SIZE; i++) {
+        aom_memset16(dst_buffer + i * (bw + 2 * MI_SIZE) + MI_SIZE + x_pos,
+                     dst_buffer[i * (bw + 2 * MI_SIZE) + MI_SIZE + x_pos - 1],
+                     num_top_pixels_needed - x_pos);
+        memset(dst_availability_mask + i * (bw + 2 * MI_SIZE) + MI_SIZE + x_pos,
+               1, num_top_pixels_needed - x_pos);
+      }
+    }
+  } else {
+    if (n_left_px > 0) {
+      for (int i = 0; i < MI_SIZE; i++) {
+        aom_memset16(dst_buffer + i * (bw + 2 * MI_SIZE) + MI_SIZE,
+                     cur_block_ptr[-1], num_top_pixels_needed);
+        memset(dst_availability_mask + i * (bw + 2 * MI_SIZE) + MI_SIZE, 1,
+               num_top_pixels_needed);
+      }
+    } else {
+      for (int i = 0; i < MI_SIZE; i++) {
+        aom_memset16(dst_buffer + i * (bw + 2 * MI_SIZE) + MI_SIZE, 127,
+                     num_top_pixels_needed);
+        memset(dst_availability_mask + i * (bw + 2 * MI_SIZE) + MI_SIZE, 2,
+               num_top_pixels_needed);
+      }
+    }
+  }
+
+  // 2. Process left and bottom-left pixels
+  uint16_t *dst_buffer_left_part = dst_buffer + MI_SIZE * (bw + 2 * MI_SIZE);
+  uint8_t *dst_availability_mask_left_part =
+      dst_availability_mask + MI_SIZE * (bw + 2 * MI_SIZE);
+  const int num_left_pixels_needed = bh + MI_SIZE;
+  if (n_left_px > 0) {
+    int i = 0;
+    for (; i < n_left_px; i++)
+      memcpy(dst_buffer_left_part + i * MI_SIZE,
+             cur_block_ptr - MI_SIZE + i * stride,
+             MI_SIZE * sizeof(cur_block_ptr[0]));
+    if (n_bottomleft_px > 0) {
+      for (; i < bh + n_bottomleft_px; i++)
+        memcpy(dst_buffer_left_part + i * MI_SIZE,
+               cur_block_ptr - MI_SIZE + i * stride,
+               MI_SIZE * sizeof(cur_block_ptr[0]));
+    }
+    if (i < num_left_pixels_needed) {
+      for (; i < num_left_pixels_needed; i++) {
+        memcpy(dst_buffer_left_part + i * MI_SIZE,
+               dst_buffer_left_part + (i - 1) * MI_SIZE,
+               MI_SIZE * sizeof(cur_block_ptr[0]));
+        memset(dst_availability_mask_left_part + i * MI_SIZE, 1, MI_SIZE);
+      }
+    }
+  } else {
+    if (n_top_px > 0) {
+      aom_memset16(dst_buffer_left_part, cur_block_ptr[-stride],
+                   MI_SIZE * num_left_pixels_needed);
+      memset(dst_availability_mask_left_part, 1,
+             MI_SIZE * num_left_pixels_needed);
+    } else {
+      aom_memset16(dst_buffer_left_part, 129, MI_SIZE * num_left_pixels_needed);
+      memset(dst_availability_mask_left_part, 2,
+             MI_SIZE * num_left_pixels_needed);
+    }
+  }
+
+  // 3. Process top-left pixels
+  if (n_top_px > 0 && n_left_px > 0) {
+    for (int i = 0; i < MI_SIZE; i++)
+      memcpy(dst_buffer + i * (bw + 2 * MI_SIZE),
+             cur_block_ptr - (MI_SIZE - i) * stride - MI_SIZE,
+             MI_SIZE * sizeof(cur_block_ptr[0]));
+  } else if (n_top_px > 0) {
+    for (int i = 0; i < MI_SIZE; i++) {
+      aom_memset16(dst_buffer + i * (bw + 2 * MI_SIZE),
+                   cur_block_ptr[-(MI_SIZE - i) * stride], MI_SIZE);
+      memset(dst_availability_mask + i * (bw + 2 * MI_SIZE), 1, MI_SIZE);
+    }
+  } else if (n_left_px > 0) {
+    for (int i = 0; i < MI_SIZE; i++) {
+      memcpy(dst_buffer + i * (bw + 2 * MI_SIZE), cur_block_ptr - MI_SIZE,
+             MI_SIZE * sizeof(cur_block_ptr[0]));
+      memset(dst_availability_mask + i * (bw + 2 * MI_SIZE), 1, MI_SIZE);
+    }
+  } else {
+    for (int i = 0; i < MI_SIZE; i++) {
+      aom_memset16(dst_buffer + i * (bw + 2 * MI_SIZE), 128, MI_SIZE);
+      memset(dst_availability_mask + i * (bw + 2 * MI_SIZE), 2, MI_SIZE);
+    }
+  }
+
+  // Also save the src block pixels, just in case:
+  for (int i = 0; i < bh; i++)
+    for (int j = 0; j < bw; j++) {
+      dst_block_buf[i * bw + j] = src_block_ptr[i * src_stride + j];
+    }
+}
+#endif
+
 // This function is used only for intra_only frames
 static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
                                       int *rate, int *rate_tokenonly,
@@ -4091,6 +4596,10 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
     x->use_default_intra_tx_type = 1;
   else
     x->use_default_intra_tx_type = 0;
+
+#if COLLECT_INTRA_MODE_PREDICTION_DATA
+  best_rd = INT64_MAX;
+#endif
 
   MB_MODE_INFO best_mbmi = *mbmi;
   /* Y Search for intra prediction mode */
@@ -4146,12 +4655,14 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
     }
   }
 
+#if !COLLECT_INTRA_MODE_PREDICTION_DATA
   if (try_palette) {
     rd_pick_palette_intra_sby(cpi, x, bsize, bmode_costs[DC_PRED], &best_mbmi,
                               best_palette_color_map, &best_rd, &best_model_rd,
                               rate, rate_tokenonly, distortion, skippable, ctx,
                               ctx->blk_skip);
   }
+#endif
 
   if (beat_best_rd && av1_filter_intra_allowed_bsize(&cpi->common, bsize)) {
     if (rd_pick_filter_intra_sby(cpi, x, rate, rate_tokenonly, distortion,
@@ -4170,6 +4681,53 @@ static int64_t rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
                     distortion, skippable, &best_mbmi, ctx);
   }
 
+#if COLLECT_INTRA_MODE_PREDICTION_DATA
+    // Format for the dst_buffer is:
+    // 1. MI_SIZE rows of length (MI_SIZE + bw + MI_SIZE)
+    // 2. (bh + MI_SIZE) rows of length MI_SIZE
+
+    // dst_availability_mask has the same format and uses
+    // the following values:
+    // 0 means that we have a proper pixel value
+    // 1 means that we copied this value from some other location
+    // 2 means that we used the default value (127 or 128 or 129)
+#define MAX_BUF_SZ (MI_SIZE * (2 * MI_SIZE + 128) + (128 + MI_SIZE) * MI_SIZE)
+  uint16_t dst_buffer[MAX_BUF_SZ];
+  memset(dst_buffer, 0, MAX_BUF_SZ * sizeof(dst_buffer[0]));
+  uint8_t dst_availability_mask[MAX_BUF_SZ];
+  uint16_t block_buffer[128 * 128];
+  memset(dst_availability_mask, 0, MAX_BUF_SZ);
+
+  if ((xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) && xd->bd == 8) {
+    get_Y_intra_mode_prediction_data(cpi, x, bsize, dst_buffer,
+                                     dst_availability_mask, block_buffer);
+    FILE *fp = fopen(av1_intra_mode_pred_data_output_file, "a");
+    if (fp) {
+      // General info
+      int bw = block_size_wide[bsize];
+      int bh = block_size_high[bsize];
+      int dc_q = av1_dc_quant_QTX(x->qindex, 0, xd->bd);
+      int ac_q = av1_ac_quant_QTX(x->qindex, 0, xd->bd);
+      fprintf(fp, "%d,%d,%d,%d,%d,%d,", x->qindex, dc_q, ac_q, x->rdmult, bw,
+              bh);
+
+      // Picked modes as a result of RD search
+      fprintf(fp, "%d,%d,%d,%d,", best_mbmi.mode, best_mbmi.angle_delta[0],
+              best_mbmi.filter_intra_mode_info.use_filter_intra,
+              best_mbmi.filter_intra_mode_info.filter_intra_mode);
+
+      int cur_buf_sz = MI_SIZE * (2 * MI_SIZE + bw) + (MI_SIZE + bh) * MI_SIZE;
+      for (int i = 0; i < cur_buf_sz; i++) fprintf(fp, "%d,", dst_buffer[i]);
+      for (int i = 0; i < cur_buf_sz; i++)
+        fprintf(fp, "%d,", dst_availability_mask[i]);
+      for (int i = 0; i < bw * bh; i++) fprintf(fp, "%d,", block_buffer[i]);
+
+      fprintf(fp, "\n");
+      fclose(fp);
+    }
+  }
+#undef MAX_BUF_SZ
+#endif
   *mbmi = best_mbmi;
   return best_rd;
 }
