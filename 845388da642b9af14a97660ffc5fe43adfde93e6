@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3448cd6c_8e73dd0e",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 383,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-17T16:18:17Z",
+      "side": 1,
+      "message": "I don\u0027t know which error code is more appropriate here: AOM_CODEC_UNSUP_BITSTREAM or AOM_CODEC_CORRUPT_FRAME.",
+      "range": {
+        "startLine": 383,
+        "startChar": 20,
+        "endLine": 383,
+        "endChar": 45
+      },
+      "revId": "845388da642b9af14a97660ffc5fe43adfde93e6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5b88faff_5fe37af2",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 385,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-17T16:18:17Z",
+      "side": 1,
+      "message": "In fact, this return statement can also be deleted, because this function is only reachable from av1_receive_compressed_data(), which calls setjmp(cm-\u003eerror.jmp).",
+      "range": {
+        "startLine": 385,
+        "startChar": 4,
+        "endLine": 385,
+        "endChar": 14
+      },
+      "revId": "845388da642b9af14a97660ffc5fe43adfde93e6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "acf033f3_433dac41",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 404,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-17T16:18:17Z",
+      "side": 1,
+      "message": "If we decide to remove the \"return -1\" statement above, then this line can also be removed.",
+      "range": {
+        "startLine": 404,
+        "startChar": 2,
+        "endLine": 404,
+        "endChar": 34
+      },
+      "revId": "845388da642b9af14a97660ffc5fe43adfde93e6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
