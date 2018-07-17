@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "8073c649_5e078847",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 816,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-17T22:43:58Z",
+      "side": 0,
+      "message": "(size_t)(data_end - data) \u003c payload_size is checked here.",
+      "range": {
+        "startLine": 816,
+        "startChar": 4,
+        "endLine": 816,
+        "endChar": 51
+      },
+      "revId": "050fb027d347d0ae1b008877e3715329406e7e1f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cc599453_3830ccf1",
         "filename": "av1/decoder/obu.c",
         "patchSetId": 1
@@ -108,6 +131,30 @@
       "side": 0,
       "message": "Haven\u0027t looked at this too closely, but I think we need to check both maybe?\n(Unless we know somehow that data_end - data \u003e\u003d payload_size for sure, in which case, we should at least add an assert).",
       "parentUuid": "488e8fab_4372e7fb",
+      "range": {
+        "startLine": 896,
+        "startChar": 8,
+        "endLine": 896,
+        "endChar": 61
+      },
+      "revId": "050fb027d347d0ae1b008877e3715329406e7e1f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6836c7f8_a67692b3",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 896,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-17T22:43:58Z",
+      "side": 0,
+      "message": "Yes, we know that data_end - data \u003e\u003d payload_size. (I annotated the check above.)\n\nI don\u0027t usually add an assertion when the code that guarantees the condition is within the same function. (In this case, it is at line 816). Since this is a long function, I am fine either way. Please let me know what you prefer.",
+      "parentUuid": "fcfda5a9_88859cc0",
       "range": {
         "startLine": 896,
         "startChar": 8,
