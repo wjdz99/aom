@@ -78,7 +78,11 @@ static const int av1_ext_tx_set_idx_to_type[2][AOMMAX(EXT_TX_SETS_INTRA,
   {
       // Inter
       EXT_TX_SET_DCTONLY,
+#if CONFIG_GFT_LEARNED
+      EXT_TX_SET_ALL16_GFT,
+#else
       EXT_TX_SET_ALL16,
+#endif
       EXT_TX_SET_DTT9_IDTX_1DDCT,
       EXT_TX_SET_DCT_IDTX,
   },
