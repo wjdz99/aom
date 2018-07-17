@@ -31,7 +31,11 @@
 #include "av1/encoder/encoder.h"
 
 #define SPACES_PER_TAB 2
+#if CONFIG_GFT_LEARNED
+#define CDF_MAX_SIZE 24
+#else
 #define CDF_MAX_SIZE 16
+#endif
 
 typedef unsigned int aom_count_type;
 // A log file recording parsed counts
@@ -346,7 +350,11 @@ int main(int argc, const char **argv) {
   cts_each_dim[0] = EXT_TX_SETS_INTER;
   cts_each_dim[1] = EXT_TX_SIZES;
   cts_each_dim[2] = TX_TYPES;
+#if CONFIG_GFT_LEARNED
+  int inter_ext_tx_types_each_ctx[EXT_TX_SETS_INTER] = { 0, 24, 12, 2 };
+#else
   int inter_ext_tx_types_each_ctx[EXT_TX_SETS_INTER] = { 0, 16, 12, 2 };
+#endif
   optimize_cdf_table_var_modes_3d(
       &fc.inter_ext_tx[0][0][0], probsfile, 3, cts_each_dim,
       inter_ext_tx_types_each_ctx,

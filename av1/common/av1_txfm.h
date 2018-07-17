@@ -108,6 +108,10 @@ typedef enum TXFM_TYPE {
   TXFM_TYPE_IDENTITY8,
   TXFM_TYPE_IDENTITY16,
   TXFM_TYPE_IDENTITY32,
+#if CONFIG_GFT_LEARNED
+  TXFM_TYPE_GFT4,
+  TXFM_TYPE_GFT8,
+#endif
   TXFM_TYPES,
   TXFM_TYPE_INVALID,
 } TXFM_TYPE;
@@ -141,22 +145,38 @@ static INLINE void get_flip_cfg(TX_TYPE tx_type, int *ud_flip, int *lr_flip) {
     case H_DCT:
     case V_ADST:
     case H_ADST:
+#if CONFIG_GFT_LEARNED
+    case GFT1_DCT:
+    case DCT_GFT1:
+    case GFT1_GFT1:
+#endif
       *ud_flip = 0;
       *lr_flip = 0;
       break;
     case FLIPADST_DCT:
     case FLIPADST_ADST:
     case V_FLIPADST:
+#if CONFIG_GFT_LEARNED
+    case GFT2_DCT:
+    case GFT2_GFT1:
+#endif
       *ud_flip = 1;
       *lr_flip = 0;
       break;
     case DCT_FLIPADST:
     case ADST_FLIPADST:
     case H_FLIPADST:
+#if CONFIG_GFT_LEARNED
+    case DCT_GFT2:
+    case GFT1_GFT2:
+#endif
       *ud_flip = 0;
       *lr_flip = 1;
       break;
     case FLIPADST_FLIPADST:
+#if CONFIG_GFT_LEARNED
+    case GFT2_GFT2:
+#endif
       *ud_flip = 1;
       *lr_flip = 1;
       break;
@@ -207,6 +227,14 @@ static INLINE int get_txh_idx(TX_SIZE tx_size) {
   return tx_size_high_log2[tx_size] - tx_size_high_log2[0];
 }
 #define MAX_TXWH_IDX 5
+
+#if CONFIG_GFT_LEARNED
+#define GFT_LEARNED_DEBUG 0
+#define USE_KLT 0
+#define USE_GFT 1
+#define USE_LGT 0
+#endif
+
 #ifdef __cplusplus
 }
 #endif  // __cplusplus

@@ -251,6 +251,10 @@ typedef enum ATTRIBUTE_PACKED {
   ADST_1D,
   FLIPADST_1D,
   IDTX_1D,
+#if CONFIG_GFT_LEARNED
+  GFT1_1D,
+  GFT2_1D,
+#endif
   TX_TYPES_1D,
 } TX_TYPE_1D;
 
@@ -271,6 +275,16 @@ typedef enum ATTRIBUTE_PACKED {
   H_ADST,
   V_FLIPADST,
   H_FLIPADST,
+#if CONFIG_GFT_LEARNED
+  GFT1_GFT1,
+  GFT1_DCT,
+  DCT_GFT1,
+  GFT2_GFT2,
+  GFT2_DCT,
+  DCT_GFT2,
+  GFT2_GFT1,
+  GFT1_GFT2,
+#endif
   TX_TYPES,
 } TX_TYPE;
 
@@ -297,12 +311,22 @@ typedef enum ATTRIBUTE_PACKED {
   EXT_TX_SET_DTT4_IDTX_1DDCT,
   // Discrete Trig transforms w/ flip (9) + Identity (1) + 1D Hor/Ver DCT (2)
   EXT_TX_SET_DTT9_IDTX_1DDCT,
+#if CONFIG_GFT_LEARNED
+  // Discrete Trig transforms w/ flip (9) + Identity (1) + 1D Hor/Ver (6)
+	//  + DCT w/ 2 GFTs (4) + 2 GFTs (4)
+  EXT_TX_SET_ALL16_GFT,
+#else
   // Discrete Trig transforms w/ flip (9) + Identity (1) + 1D Hor/Ver (6)
   EXT_TX_SET_ALL16,
+#endif
   EXT_TX_SET_TYPES
 } TxSetType;
 
+#if CONFIG_GFT_LEARNED
+#define IS_2D_TRANSFORM(tx_type) (tx_type < IDTX || tx_type > H_FLIPADST)
+#else
 #define IS_2D_TRANSFORM(tx_type) (tx_type < IDTX)
+#endif
 
 #define EXT_TX_SIZES 4       // number of sizes that use extended transforms
 #define EXT_TX_SETS_INTER 4  // Sets of transform selections for INTER
