@@ -14,6 +14,10 @@
 
 #include "av1/common/av1_txfm.h"
 
+#if CONFIG_GFT_LEARNED
+#include "av1/common/gft_coefficients.h"
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -29,6 +33,14 @@ static INLINE void clamp_buf(int32_t *buf, int32_t size, int8_t bit) {
   for (int i = 0; i < size; ++i) buf[i] = clamp_value(buf[i], bit);
 }
 
+#if CONFIG_GFT_LEARNED
+void av1_igft4(const int32_t *input, int32_t *output, int8_t cos_bit,
+               const int8_t *stage_range);
+void av1_igft8(const int32_t *input, int32_t *output, int8_t cos_bit,
+               const int8_t *stage_range);
+void av1_igft16(const int32_t *input, int32_t *output, int8_t cos_bit,
+               const int8_t *stage_range);
+#endif
 void av1_idct4_new(const int32_t *input, int32_t *output, int8_t cos_bit,
                    const int8_t *stage_range);
 void av1_idct8_new(const int32_t *input, int32_t *output, int8_t cos_bit,
