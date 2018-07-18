@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "63bf8b5b_c3b14ed4",
+        "filename": "av1/common/arm/av1_inv_txfm_neon.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-07-18T21:49:06Z",
+      "side": 1,
+      "message": "What else is this buffer used for? It looks like it just reads and writes, and doesn\u0027t need a temp buffer. It always refers to temp_output[i].",
+      "range": {
+        "startLine": 76,
+        "startChar": 12,
+        "endLine": 76,
+        "endChar": 23
+      },
+      "revId": "f18f85e9e8e1a518de1d8823b8e531641745a626",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b003bb32_705af0ca",
+        "filename": "av1/common/arm/av1_inv_txfm_neon.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-07-18T21:49:06Z",
+      "side": 1,
+      "message": "This only uses [0] and [1]. What are the rest for?",
+      "range": {
+        "startLine": 88,
+        "startChar": 12,
+        "endLine": 88,
+        "endChar": 23
+      },
+      "revId": "f18f85e9e8e1a518de1d8823b8e531641745a626",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "71adca29_cba45b28",
+        "filename": "av1/common/arm/av1_inv_txfm_neon.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 566,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-07-18T21:49:06Z",
+      "side": 1,
+      "message": "Capitalize Functions",
+      "range": {
+        "startLine": 566,
+        "startChar": 3,
+        "endLine": 566,
+        "endChar": 12
+      },
+      "revId": "f18f85e9e8e1a518de1d8823b8e531641745a626",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
