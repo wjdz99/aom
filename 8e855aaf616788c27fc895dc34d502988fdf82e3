@@ -65,6 +65,30 @@
     },
     {
       "key": {
+        "uuid": "7b1eb1cf_1cb1630e",
+        "filename": "av1/common/onyxc_int.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-07-19T22:53:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ca1b9874_388c7485",
+      "range": {
+        "startLine": 188,
+        "startChar": 68,
+        "endLine": 188,
+        "endChar": 77
+      },
+      "revId": "8e855aaf616788c27fc895dc34d502988fdf82e3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "95d401a5_0d1e3e95",
         "filename": "av1/common/onyxc_int.h",
         "patchSetId": 4
@@ -76,6 +100,24 @@
       "writtenOn": "2018-07-19T22:32:21Z",
       "side": 1,
       "message": "I found one syntax element of the sequence_header_obu, film_grain_params_present, that is not in the SequenceHeader structure yet. There may be others. Just FYI.",
+      "revId": "8e855aaf616788c27fc895dc34d502988fdf82e3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4bd229c8_41d7c0e1",
+        "filename": "av1/common/onyxc_int.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-07-19T22:53:47Z",
+      "side": 1,
+      "message": "Ack.\nWe can maybe move this in a follow-up.",
+      "parentUuid": "95d401a5_0d1e3e95",
       "revId": "8e855aaf616788c27fc895dc34d502988fdf82e3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -105,6 +147,30 @@
     },
     {
       "key": {
+        "uuid": "43e2b580_5b85a524",
+        "filename": "av1/common/onyxc_int.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-07-19T22:53:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6be4be9f_41f78e1b",
+      "range": {
+        "startLine": 235,
+        "startChar": 2,
+        "endLine": 235,
+        "endChar": 18
+      },
+      "revId": "8e855aaf616788c27fc895dc34d502988fdf82e3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7916343f_d6e9cfaf",
         "filename": "av1/common/onyxc_int.h",
         "patchSetId": 4
@@ -125,6 +191,30 @@
       "revId": "8e855aaf616788c27fc895dc34d502988fdf82e3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5de776c3_25ce52df",
+        "filename": "av1/common/onyxc_int.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-07-19T22:53:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7916343f_d6e9cfaf",
+      "range": {
+        "startLine": 236,
+        "startChar": 2,
+        "endLine": 236,
+        "endChar": 28
+      },
+      "revId": "8e855aaf616788c27fc895dc34d502988fdf82e3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -151,6 +241,30 @@
     },
     {
       "key": {
+        "uuid": "1fce192e_82b4787f",
+        "filename": "av1/common/onyxc_int.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 239,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-07-19T22:53:47Z",
+      "side": 1,
+      "message": "This one is different from the bit read from bitstream actually. It may be true even if bitstream has highbitdepth \u003d 0.\nSee the av1_read_color_config() method, and also the adjoining comment.",
+      "parentUuid": "d62022b7_bccf60f7",
+      "range": {
+        "startLine": 237,
+        "startChar": 0,
+        "endLine": 239,
+        "endChar": 77
+      },
+      "revId": "8e855aaf616788c27fc895dc34d502988fdf82e3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "78575615_70b000b1",
         "filename": "av1/common/onyxc_int.h",
         "patchSetId": 4
@@ -171,6 +285,30 @@
       "revId": "8e855aaf616788c27fc895dc34d502988fdf82e3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "de94c813_caac9959",
+        "filename": "av1/common/onyxc_int.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 245,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-07-19T22:53:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "78575615_70b000b1",
+      "range": {
+        "startLine": 245,
+        "startChar": 2,
+        "endLine": 245,
+        "endChar": 54
+      },
+      "revId": "8e855aaf616788c27fc895dc34d502988fdf82e3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -197,6 +335,30 @@
     },
     {
       "key": {
+        "uuid": "a5b2e656_5c0950ce",
+        "filename": "av1/common/restoration.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1158,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-07-19T22:53:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c20c4831_eb844401",
+      "range": {
+        "startLine": 1158,
+        "startChar": 37,
+        "endLine": 1158,
+        "endChar": 65
+      },
+      "revId": "8e855aaf616788c27fc895dc34d502988fdf82e3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2e5a2cad_3ccf1949",
         "filename": "av1/decoder/decodeframe.c",
         "patchSetId": 4
@@ -217,6 +379,30 @@
       "revId": "8e855aaf616788c27fc895dc34d502988fdf82e3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2d81547b_0bef5e46",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 3834,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-07-19T22:53:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2e5a2cad_3ccf1949",
+      "range": {
+        "startLine": 3834,
+        "startChar": 58,
+        "endLine": 3834,
+        "endChar": 66
+      },
+      "revId": "8e855aaf616788c27fc895dc34d502988fdf82e3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -243,6 +429,30 @@
     },
     {
       "key": {
+        "uuid": "bb8957fd_82e4f695",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 4005,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-07-19T22:53:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b18f94b9_3bbc61e1",
+      "range": {
+        "startLine": 4005,
+        "startChar": 59,
+        "endLine": 4005,
+        "endChar": 67
+      },
+      "revId": "8e855aaf616788c27fc895dc34d502988fdf82e3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f6d5ef49_dd221d95",
         "filename": "av1/decoder/decodeframe.c",
         "patchSetId": 4
@@ -263,6 +473,30 @@
       "revId": "8e855aaf616788c27fc895dc34d502988fdf82e3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "74a7928f_48e96173",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 4037,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-07-19T22:53:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f6d5ef49_dd221d95",
+      "range": {
+        "startLine": 4035,
+        "startChar": 35,
+        "endLine": 4037,
+        "endChar": 52
+      },
+      "revId": "8e855aaf616788c27fc895dc34d502988fdf82e3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -289,6 +523,30 @@
     },
     {
       "key": {
+        "uuid": "b8da0aab_27b1eab5",
+        "filename": "av1/decoder/decodeframe.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-07-19T22:53:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ae553f0c_845c269b",
+      "range": {
+        "startLine": 56,
+        "startChar": 59,
+        "endLine": 56,
+        "endChar": 67
+      },
+      "revId": "8e855aaf616788c27fc895dc34d502988fdf82e3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8a410800_bbdfcd57",
         "filename": "test/resize_test.cc",
         "patchSetId": 4
@@ -309,6 +567,30 @@
       "revId": "8e855aaf616788c27fc895dc34d502988fdf82e3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6878e2fb_0f1e4899",
+        "filename": "test/resize_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 619,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-07-19T22:53:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8a410800_bbdfcd57",
+      "range": {
+        "startLine": 619,
+        "startChar": 22,
+        "endLine": 619,
+        "endChar": 38
+      },
+      "revId": "8e855aaf616788c27fc895dc34d502988fdf82e3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
