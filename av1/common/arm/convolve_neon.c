@@ -164,8 +164,8 @@ static INLINE uint8x8_t convolve8_vert_8x4_s32(
 
 void av1_convolve_x_sr_neon(const uint8_t *src, int src_stride, uint8_t *dst,
                             int dst_stride, int w, int h,
-                            InterpFilterParams *filter_params_x,
-                            InterpFilterParams *filter_params_y,
+                            const InterpFilterParams *filter_params_x,
+                            const InterpFilterParams *filter_params_y,
                             const int subpel_x_q4, const int subpel_y_q4,
                             ConvolveParams *conv_params) {
   const uint8_t horiz_offset = filter_params_x->taps / 2 - 1;
@@ -485,8 +485,8 @@ void av1_convolve_x_sr_neon(const uint8_t *src, int src_stride, uint8_t *dst,
 
 void av1_convolve_y_sr_neon(const uint8_t *src, int src_stride, uint8_t *dst,
                             int dst_stride, int w, int h,
-                            InterpFilterParams *filter_params_x,
-                            InterpFilterParams *filter_params_y,
+                            const InterpFilterParams *filter_params_x,
+                            const InterpFilterParams *filter_params_y,
                             const int subpel_x_q4, const int subpel_y_q4,
                             ConvolveParams *conv_params) {
   const int vert_offset = filter_params_y->taps / 2 - 1;
@@ -680,8 +680,8 @@ void av1_convolve_y_sr_neon(const uint8_t *src, int src_stride, uint8_t *dst,
 
 void av1_convolve_2d_sr_neon(const uint8_t *src, int src_stride, uint8_t *dst,
                              int dst_stride, int w, int h,
-                             InterpFilterParams *filter_params_x,
-                             InterpFilterParams *filter_params_y,
+                             const InterpFilterParams *filter_params_x,
+                             const InterpFilterParams *filter_params_y,
                              const int subpel_x_q4, const int subpel_y_q4,
                              ConvolveParams *conv_params) {
   int im_dst_stride;
@@ -1086,8 +1086,8 @@ void av1_convolve_2d_sr_neon(const uint8_t *src, int src_stride, uint8_t *dst,
 }
 void av1_convolve_2d_copy_sr_neon(const uint8_t *src, int src_stride,
                                   uint8_t *dst, int dst_stride, int w, int h,
-                                  InterpFilterParams *filter_params_x,
-                                  InterpFilterParams *filter_params_y,
+                                  const InterpFilterParams *filter_params_x,
+                                  const InterpFilterParams *filter_params_y,
                                   const int subpel_x_q4, const int subpel_y_q4,
                                   ConvolveParams *conv_params) {
   (void)filter_params_x;
