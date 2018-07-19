@@ -16,6 +16,24 @@
       "revId": "ec4b74c156ef7a35682c30be1a3a115ffacc696d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1c9ec24a_7c76bed4",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 3056,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-19T01:57:55Z",
+      "side": 1,
+      "message": "May I do that in a separate patch?\n\nI was planning to make this CL a pure revert CL.\n\nIf we use any local variables after setjmp() returns a nonzero value, those local variables need to be declared as volatile. I am planning to do that in a separate CL, which will also include a comment to explain why only some variables are declared as volatile. I can add the comment you suggested at that time.",
+      "parentUuid": "741aff20_0f68cda3",
+      "revId": "ec4b74c156ef7a35682c30be1a3a115ffacc696d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
