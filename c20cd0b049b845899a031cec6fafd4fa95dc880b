@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ed74201a_57be4312",
+        "filename": "av1/decoder/decoder.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-19T22:46:42Z",
+      "side": 1,
+      "message": "We don\u0027t do that to the other pointer fields after we free them (for example, see lines 196-197). Although setting a pointer to NULL after freeing it is good defensive-programming practice, it is not common in destructor functions.",
+      "parentUuid": "689fe70e_47386aba",
+      "revId": "c20cd0b049b845899a031cec6fafd4fa95dc880b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8d0676ce_432a8203",
         "filename": "av1/decoder/obu.c",
         "patchSetId": 3
@@ -54,6 +72,30 @@
       "side": 1,
       "message": "\u003e Strictly speaking, these two lines plus a frame_header_size \u003e payload_size check are sufficient to fix the assertion failure reported in https://crbug.com/oss-fuzz/9482. I decided to add the checks required by the spec at the same time.\n\nAck.\n\n\u003e \n\u003e I wonder if we should add a aom_rb_skip_bytes() function rather than modify rb.bit_offset directly like this. What do you think?\n\nIs similar skipping happening in multiple places?\nIf so, feel free to create a function for it.\nBut, do that as a follow-up -- so that we can keep this patch focused on the bugfix.",
       "parentUuid": "8d0676ce_432a8203",
+      "range": {
+        "startLine": 906,
+        "startChar": 0,
+        "endLine": 907,
+        "endChar": 48
+      },
+      "revId": "c20cd0b049b845899a031cec6fafd4fa95dc880b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b6f7e447_dbc7cff2",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 907,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-19T22:46:42Z",
+      "side": 1,
+      "message": "\u003e \u003e I wonder if we should add a aom_rb_skip_bytes() function rather than modify rb.bit_offset directly like this. What do you think?\n\u003e \n\u003e Is similar skipping happening in multiple places?\n\u003e If so, feel free to create a function for it.\n\nThis is the first time we need to skip bytes in the bit buffer. The reason I consider adding a function is for data encapsulation, not to share code.",
+      "parentUuid": "e17a9822_d48f6651",
       "range": {
         "startLine": 906,
         "startChar": 0,
