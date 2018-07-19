@@ -1,0 +1,314 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3881e023_0f9810a4",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-19T22:32:21Z",
+      "side": 1,
+      "message": "Nit/optional: bit-exact \u003d\u003e bit-identical\n\n\"bit-identical\" is the term used in that requirement in the spec.",
+      "range": {
+        "startLine": 15,
+        "startChar": 47,
+        "endLine": 15,
+        "endChar": 56
+      },
+      "revId": "8e855aaf616788c27fc895dc34d502988fdf82e3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "49a8142f_1a37c27d",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-19T22:32:21Z",
+      "side": 1,
+      "message": "Please add BUG\u003daomedia:1875",
+      "revId": "8e855aaf616788c27fc895dc34d502988fdf82e3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ca1b9874_388c7485",
+        "filename": "av1/common/onyxc_int.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-19T22:32:21Z",
+      "side": 1,
+      "message": "Nit/optional: bit-exact \u003d\u003e bit-identical",
+      "range": {
+        "startLine": 188,
+        "startChar": 68,
+        "endLine": 188,
+        "endChar": 77
+      },
+      "revId": "8e855aaf616788c27fc895dc34d502988fdf82e3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "95d401a5_0d1e3e95",
+        "filename": "av1/common/onyxc_int.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-19T22:32:21Z",
+      "side": 1,
+      "message": "I found one syntax element of the sequence_header_obu, film_grain_params_present, that is not in the SequenceHeader structure yet. There may be others. Just FYI.",
+      "revId": "8e855aaf616788c27fc895dc34d502988fdf82e3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6be4be9f_41f78e1b",
+        "filename": "av1/common/onyxc_int.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-19T22:32:21Z",
+      "side": 1,
+      "message": "Nit/optional: It would be good to put the color_config() section at the end of the SequenceHeader struct, to match its position in the sequence_header_obu.",
+      "range": {
+        "startLine": 235,
+        "startChar": 2,
+        "endLine": 235,
+        "endChar": 18
+      },
+      "revId": "8e855aaf616788c27fc895dc34d502988fdf82e3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7916343f_d6e9cfaf",
+        "filename": "av1/common/onyxc_int.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-19T22:32:21Z",
+      "side": 1,
+      "message": "Nit: profile is not part of the color_config() function in the spec, so this field should not be under the \"Color config\" comment.",
+      "range": {
+        "startLine": 236,
+        "startChar": 2,
+        "endLine": 236,
+        "endChar": 28
+      },
+      "revId": "8e855aaf616788c27fc895dc34d502988fdf82e3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d62022b7_bccf60f7",
+        "filename": "av1/common/onyxc_int.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 239,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-19T22:32:21Z",
+      "side": 1,
+      "message": "Nit/optional: might be good to swap these two fields to match their order in the spec.",
+      "range": {
+        "startLine": 237,
+        "startChar": 0,
+        "endLine": 239,
+        "endChar": 77
+      },
+      "revId": "8e855aaf616788c27fc895dc34d502988fdf82e3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "78575615_70b000b1",
+        "filename": "av1/common/onyxc_int.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 245,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-19T22:32:21Z",
+      "side": 1,
+      "message": "Nit/optional: put this field after subsampling_y to match the order of the syntax elements in the spec.",
+      "range": {
+        "startLine": 245,
+        "startChar": 2,
+        "endLine": 245,
+        "endChar": 54
+      },
+      "revId": "8e855aaf616788c27fc895dc34d502988fdf82e3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c20c4831_eb844401",
+        "filename": "av1/common/restoration.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1158,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-19T22:32:21Z",
+      "side": 1,
+      "message": "Nit/optional: seq_params-\u003euse_highbitdepth \u003d\u003e highbd",
+      "range": {
+        "startLine": 1158,
+        "startChar": 37,
+        "endLine": 1158,
+        "endChar": 65
+      },
+      "revId": "8e855aaf616788c27fc895dc34d502988fdf82e3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2e5a2cad_3ccf1949",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 3834,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-19T22:32:21Z",
+      "side": 1,
+      "message": "Nit: rename this parameter \"error_info\". The name \"cm_error\" is not ideal because cm (AV1Common) is not the only struct that contains a struct aom_internal_error_info field.",
+      "range": {
+        "startLine": 3834,
+        "startChar": 58,
+        "endLine": 3834,
+        "endChar": 66
+      },
+      "revId": "8e855aaf616788c27fc895dc34d502988fdf82e3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b18f94b9_3bbc61e1",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 4005,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-19T22:32:21Z",
+      "side": 1,
+      "message": "Nit: rename this parameter \"error_info\"",
+      "range": {
+        "startLine": 4005,
+        "startChar": 59,
+        "endLine": 4005,
+        "endChar": 67
+      },
+      "revId": "8e855aaf616788c27fc895dc34d502988fdf82e3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f6d5ef49_dd221d95",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 4037,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-19T22:32:21Z",
+      "side": 1,
+      "message": "Nit: please manually reformat this comment block.",
+      "range": {
+        "startLine": 4035,
+        "startChar": 35,
+        "endLine": 4037,
+        "endChar": 52
+      },
+      "revId": "8e855aaf616788c27fc895dc34d502988fdf82e3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ae553f0c_845c269b",
+        "filename": "av1/decoder/decodeframe.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-19T22:32:21Z",
+      "side": 1,
+      "message": "Nit: rename this parameter \"error_info\"",
+      "range": {
+        "startLine": 56,
+        "startChar": 59,
+        "endLine": 56,
+        "endChar": 67
+      },
+      "revId": "8e855aaf616788c27fc895dc34d502988fdf82e3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8a410800_bbdfcd57",
+        "filename": "test/resize_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 619,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-19T22:32:21Z",
+      "side": 1,
+      "message": "Nit/optional: We can declare \u0027i\u0027 as a size_t or unsigned int to avoid the static_cast\u003cint\u003e.",
+      "range": {
+        "startLine": 619,
+        "startChar": 22,
+        "endLine": 619,
+        "endChar": 38
+      },
+      "revId": "8e855aaf616788c27fc895dc34d502988fdf82e3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
