@@ -22,6 +22,30 @@
       "revId": "c4b0b0d924c6f35afe85bd2184de91452d010aae",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b234bc0c_0c352aa4",
+        "filename": "av1/common/filter.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 8900
+      },
+      "writtenOn": "2018-07-20T02:29:53Z",
+      "side": 0,
+      "message": "1. Add \"cost\" is just good for compile, if no \"const\", there would be some warnings while compiling libaom and many errors while compiling test_libaom. It is mainly because the removal of struct copy, all InterpFilterParams is a const pointer get from av1_interp_filter_params_list, pass the pointer to functions without \"const\" will cause compile issue.\n\n2. As I mentioned in commit message, the size of aomenc is not increased, so libaom.so should be the same too.\n$ cmake ../.. -DENABLE_CCACHE\u003d1  -DCONFIG_LOWBITDEPTH\u003d1 -DCMAKE_BUILD_TYPE\u003dRelease  -DENABLE_DOCS\u003d0\n$ make -j7\n# before strip, aomenc even get smaller.\n-rwxrwxr-x 2 bpeng bpeng 9207648 Jul 20 10:19 aomenc_7ed2790\n-rwxrwxr-x 2 bpeng bpeng 9207656 Jul 20 10:20 aomenc_c4b0b0d\n\n$ strip aomenc_7ed2790 aomenc_c4b0b0d\n# after strip, aomenc\u0027s size is not changed at all\n-rwxrwxr-x 2 bpeng bpeng 8739168 Jul 20 10:21 aomenc_7ed2790\n-rwxrwxr-x 2 bpeng bpeng 8739168 Jul 20 10:21 aomenc_c4b0b0d\n\n3. I think the speed gain is mainly from two things, \n  a) the elimination of struct copy\n  b) function inlining\nThe total speedup is about 0.8%, but it hard to tell how much for each of them.",
+      "parentUuid": "38d63219_6696bce3",
+      "range": {
+        "startLine": 82,
+        "startChar": 0,
+        "endLine": 83,
+        "endChar": 0
+      },
+      "revId": "c4b0b0d924c6f35afe85bd2184de91452d010aae",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
