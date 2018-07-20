@@ -881,15 +881,11 @@ int aom_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
             (cm->large_scale_tile && !pbi->camera_frame_header_ready)) {
           frame_header_size = read_frame_header_obu(
               pbi, &rb, data, p_data_end, obu_header.type != OBU_FRAME);
-          if (frame_header_size > pbi->frame_header_capacity) {
-            uint8_t *frame_header = (uint8_t *)aom_malloc(frame_header_size);
-            if (!frame_header) {
-              cm->error.error_code = AOM_CODEC_MEM_ERROR;
-              return -1;
-            }
-            aom_free(pbi->frame_header);
-            pbi->frame_header = frame_header;
-            pbi->frame_header_capacity = frame_header_size;
+          if (frame_header_size > sizeof(pbi->frame_header)) {
+            // This is a bug if we reach here. Find out why the
+            // pbi->frame_header buffer is not large enough.
+            cm->error.error_code = AOM_CODEC_UNSUP_BITSTREAM;
+            return -1;
           }
           memcpy(pbi->frame_header, data, frame_header_size);
           pbi->frame_header_size = frame_header_size;

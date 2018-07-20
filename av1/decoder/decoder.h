@@ -206,9 +206,10 @@ typedef struct AV1Decoder {
   int operating_point;
   int current_operating_point;
   int seen_frame_header;
-  uint8_t *frame_header;  // Buffer for storing the original frame_buffer_obu
-  size_t frame_header_capacity;  // Size of the frame_header buffer
-  size_t frame_header_size;      // Size of the original frame_buffer_obu
+  // See Sec. 5.9.2 of the AV1 spec. uncompressed_header() is at most 158 bits,
+  // or 20 bytes.
+  uint8_t frame_header[20];  // Buffer for storing the original frame_buffer_obu
+  size_t frame_header_size;  // Size of the original frame_buffer_obu
 
   // State if the camera frame header is already decoded while
   // large_scale_tile = 1.
