@@ -1256,7 +1256,7 @@ void av1_rc_postencode_update(AV1_COMP *cpi, uint64_t bytes_used) {
   av1_rc_update_rate_correction_factors(cpi, cm->width, cm->height);
 
   // Keep a record of last Q and ambient average Q.
-  if (cm->frame_type == KEY_FRAME) {
+  if (cm->frame_type == KEY_FRAME && cm->show_frame) {
     rc->last_q[KEY_FRAME] = qindex;
     rc->avg_frame_qindex[KEY_FRAME] =
         ROUND_POWER_OF_TWO(3 * rc->avg_frame_qindex[KEY_FRAME] + qindex, 2);
@@ -1282,13 +1282,13 @@ void av1_rc_postencode_update(AV1_COMP *cpi, uint64_t bytes_used) {
   // If all mbs in this group are skipped only update if the Q value is
   // better than that already stored.
   // This is used to help set quality in forced key frames to reduce popping
-  if ((qindex < rc->last_boosted_qindex) || (cm->frame_type == KEY_FRAME) ||
+  if ((qindex < rc->last_boosted_qindex) || (cm->frame_type == KEY_FRAME && cm->show_frame) ||
       (!rc->constrained_gf_group &&
        (cpi->refresh_alt_ref_frame || is_intrnl_arf ||
         (cpi->refresh_golden_frame && !rc->is_src_frame_alt_ref)))) {
     rc->last_boosted_qindex = qindex;
   }
-  if (cm->frame_type == KEY_FRAME) rc->last_kf_qindex = qindex;
+  if (cm->frame_type == KEY_FRAME && cm->show_frame) rc->last_kf_qindex = qindex;
 
   update_buffer_level(cpi, rc->projected_frame_size);
 
@@ -1319,14 +1319,14 @@ void av1_rc_postencode_update(AV1_COMP *cpi, uint64_t bytes_used) {
   rc->total_target_vs_actual = rc->total_actual_bits - rc->total_target_bits;
 
   if (is_altref_enabled(cpi) && cpi->refresh_alt_ref_frame &&
-      (cm->frame_type != KEY_FRAME))
+      !(cm->frame_type == KEY_FRAME && cm->show_frame))
     // Update the alternate reference frame stats as appropriate.
     update_alt_ref_frame_stats(cpi);
   else
     // Update the Golden frame stats as appropriate.
     update_golden_frame_stats(cpi);
 
-  if (cm->frame_type == KEY_FRAME) rc->frames_since_key = 0;
+  if (cm->frame_type == KEY_FRAME && cm->show_frame) rc->frames_since_key = 0;
 
   // TODO(zoeliu): To investigate whether we should treat BWDREF_FRAME
   //               differently here for rc->avg_frame_bandwidth.

@@ -3055,6 +3055,7 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   } else {
     rc->baseline_gf_interval = i - (is_key_frame || rc->source_alt_ref_pending);
   }
+  printf("\n\ninterval: %d, frames to key: %d\n", rc->baseline_gf_interval, rc->frames_to_key);
   if (non_zero_stdev_count) avg_raw_err_stdev /= non_zero_stdev_count;
 
   // Disable extra altrefs and backward refs for "still" gf group:

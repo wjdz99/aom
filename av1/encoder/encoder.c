@@ -4891,6 +4891,7 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
   cm->large_scale_tile = cpi->oxcf.large_scale_tile;
   cm->single_tile_decoding = cpi->oxcf.single_tile_decoding;
   if (cm->large_scale_tile) seq_params->frame_id_numbers_present_flag = 0;
+  if (cm->frame_type == KEY_FRAME) printf("kf vis: %d\n", cm->show_frame);
 
   cm->allow_ref_frame_mvs &= frame_might_allow_ref_frame_mvs(cm);
   // cm->allow_ref_frame_mvs needs to be written into the frame header while
@@ -4985,14 +4986,16 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
 
     // Since we allocate a spot for the OVERLAY frame in the gf group, we need
     // to do post-encoding update accordingly.
-    if (cpi->rc.is_src_frame_alt_ref) {
+    if (cpi->rc.is_src_frame_alt_ref || cm->frame_type == KEY_FRAME) {
       av1_set_target_rate(cpi, cm->width, cm->height);
       av1_rc_postencode_update(cpi, *size);
     }
 
     // Decrement count down till next gf
-    if (cpi->rc.frames_till_gf_update_due > 0)
+    if (cpi->rc.frames_till_gf_update_due > 0) {// && cm->frame_type != KEY_FRAME) {
+      printf("decrement 0, is_kf: %d, is_vis: %d, frames_till_gf: %d, ftkey: %d\n", cm->frame_type == KEY_FRAME, cm->show_frame, cpi->rc.frames_till_gf_update_due, cpi->rc.frames_to_key);
       cpi->rc.frames_till_gf_update_due--;
+    }
 
     ++cm->current_video_frame;
 
@@ -5251,8 +5254,10 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
   // instead of checking the other condition to update the counter properly.
   if (cm->show_frame || is_frame_droppable(cpi)) {
     // Decrement count down till next gf
-    if (cpi->rc.frames_till_gf_update_due > 0)
+    if (cpi->rc.frames_till_gf_update_due > 0) {
+      printf("decrement 1, is_kf: %d, is_vis: %d, frames_till_gf: %d, ftkey: %d\n", cm->frame_type == KEY_FRAME, cm->show_frame, cpi->rc.frames_till_gf_update_due, cpi->rc.frames_to_key);
       cpi->rc.frames_till_gf_update_due--;
+    }
   }
 
   if (cm->show_frame) {
