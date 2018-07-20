@@ -4582,8 +4582,7 @@ static int read_uncompressed_header(AV1Decoder *pbi,
       }
     }
 
-    frame_size_override_flag =
-        frame_is_sframe(cm) ? 1 : aom_rb_read_literal(rb, 1);
+    frame_size_override_flag = frame_is_sframe(cm) ? 1 : aom_rb_read_bit(rb);
 
     cm->frame_offset =
         aom_rb_read_literal(rb, seq_params->order_hint_bits_minus_1 + 1);
@@ -5061,11 +5060,8 @@ void superres_post_decode(AV1Decoder *pbi) {
   unlock_buffer_pool(pool);
 }
 
-uint32_t av1_decode_frame_headers_and_setup(AV1Decoder *pbi,
-                                            struct aom_read_bit_buffer *rb,
-                                            const uint8_t *data,
-                                            const uint8_t **p_data_end,
-                                            int trailing_bits_present) {
+uint32_t av1_decode_frame_header_and_setup(AV1Decoder *pbi,
+                                           struct aom_read_bit_buffer *rb) {
   AV1_COMMON *const cm = &pbi->common;
   const int num_planes = av1_num_planes(cm);
   MACROBLOCKD *const xd = &pbi->mb;
@@ -5083,9 +5079,8 @@ uint32_t av1_decode_frame_headers_and_setup(AV1Decoder *pbi,
   }
   xd->global_motion = cm->global_motion;
 
+  assert(rb->bit_offset == 0);
   read_uncompressed_header(pbi, rb);
-
-  if (trailing_bits_present) av1_check_trailing_bits(pbi, rb);
 
   // If cm->single_tile_decoding = 0, the independent decoding of a single tile
   // or a section of a frame is not allowed.
@@ -5097,6 +5092,20 @@ uint32_t av1_decode_frame_headers_and_setup(AV1Decoder *pbi,
 
   const uint32_t uncomp_hdr_size =
       (uint32_t)aom_rb_bytes_read(rb);  // Size of the uncompressed header
+  if (uncomp_hdr_size > pbi->frame_header_capacity) {
+    uint8_t *frame_header = (uint8_t *)aom_malloc(uncomp_hdr_size);
+    if (!frame_header) {
+      aom_internal_error(&cm->error, AOM_CODEC_MEM_ERROR,
+                         "Could not allocate the frame_header buffer.");
+    }
+    aom_free(pbi->frame_header);
+    pbi->frame_header = frame_header;
+    pbi->frame_header_capacity = uncomp_hdr_size;
+  }
+  memcpy(pbi->frame_header, rb->bit_buffer, uncomp_hdr_size);
+  pbi->frame_header_size = uncomp_hdr_size;
+  pbi->frame_header_unused_bits = uncomp_hdr_size * 8 - rb->bit_offset;
+
   YV12_BUFFER_CONFIG *new_fb = get_frame_new_buffer(cm);
   xd->cur_buf = new_fb;
   if (av1_allow_intrabc(cm)) {
@@ -5107,7 +5116,6 @@ uint32_t av1_decode_frame_headers_and_setup(AV1Decoder *pbi,
 
   if (cm->show_existing_frame) {
     // showing a frame directly
-    *p_data_end = data + uncomp_hdr_size;
     if (cm->reset_decoder_state) {
       // Use the default frame context values.
       *cm->fc = cm->frame_contexts[FRAME_CONTEXT_DEFAULTS];
