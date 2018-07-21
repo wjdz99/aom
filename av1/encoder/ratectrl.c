@@ -1010,7 +1010,11 @@ static int rc_pick_q_and_bounds_two_pass(const AV1_COMP *cpi, int width,
       if (!cpi->refresh_alt_ref_frame && !is_intrl_arf_boost) {
         active_best_quality = cq_level;
       } else {
-        active_best_quality = get_gf_active_quality(rc, q, bit_depth);
+        if (gf_group->update_type[gf_group->index] == ARF_UPDATE) {
+          active_best_quality = get_gf_active_quality(rc, q, bit_depth);
+        } else {
+          active_best_quality = rc->arf_q;
+        }
 #if USE_SYMM_MULTI_LAYER
         if (cpi->new_bwdref_update_rule && is_intrl_arf_boost) {
           int this_height = gf_group->pyramid_level[gf_group->index];
@@ -1129,7 +1133,7 @@ static int rc_pick_q_and_bounds_two_pass(const AV1_COMP *cpi, int width,
   return q;
 }
 
-int av1_rc_pick_q_and_bounds(const AV1_COMP *cpi, int width, int height,
+int av1_rc_pick_q_and_bounds(AV1_COMP *cpi, int width, int height,
                              int *bottom_index, int *top_index) {
   int q;
   if (cpi->oxcf.pass == 0) {
@@ -1139,9 +1143,17 @@ int av1_rc_pick_q_and_bounds(const AV1_COMP *cpi, int width, int height,
     else
       q = rc_pick_q_and_bounds_one_pass_vbr(cpi, width, height, bottom_index,
                                             top_index);
-  } else {
+  } else if (cpi->oxcf.pass == 2) {
+    GF_GROUP *gf_group = &cpi->twopass.gf_group;
+
     q = rc_pick_q_and_bounds_two_pass(cpi, width, height, bottom_index,
                                       top_index);
+
+    if (gf_group->update_type[gf_group->index] == ARF_UPDATE) {
+      cpi->rc.arf_q = q;
+    }
+  } else {
+    assert(0 && "invalid encode pass");
   }
 
   return q;
