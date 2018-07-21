@@ -1229,6 +1229,21 @@ static void update_golden_frame_stats(AV1_COMP *cpi) {
   }
 }
 
+void av1_rc_postencode_update_kf(AV1_COMP *cpi) {
+  const int qindex = cpi->common.base_qindex;
+  RATE_CONTROL *const rc = &cpi->rc;
+  rc->last_q[KEY_FRAME] = qindex;
+  rc->avg_frame_qindex[KEY_FRAME] =
+      ROUND_POWER_OF_TWO(3 * rc->avg_frame_qindex[KEY_FRAME] + qindex, 2);
+
+  rc->last_boosted_qindex = qindex;
+  rc->last_kf_qindex = qindex;
+  update_golden_frame_stats(cpi);
+  rc->frames_since_key = 0;
+  rc->frames_since_key++;
+  rc->frames_to_key--;
+}
+
 void av1_rc_postencode_update(AV1_COMP *cpi, uint64_t bytes_used) {
   const AV1_COMMON *const cm = &cpi->common;
   RATE_CONTROL *const rc = &cpi->rc;
@@ -1244,6 +1259,118 @@ void av1_rc_postencode_update(AV1_COMP *cpi, uint64_t bytes_used) {
 #endif
 
   const int qindex = cm->base_qindex;
+
+
+  if (cpi->oxcf.aq_mode == CYCLIC_REFRESH_AQ && cm->seg.enabled) {
+    av1_cyclic_refresh_postencode(cpi);
+  }
+
+  // Update rate control heuristics
+  rc->projected_frame_size = (int)(bytes_used << 3);
+
+  // Post encode loop adjustment of Q prediction.
+  av1_rc_update_rate_correction_factors(cpi, cm->width, cm->height);
+
+  // Keep a record of last Q and ambient average Q.
+  if (cm->frame_type == KEY_FRAME && cm->show_frame) {
+    rc->last_q[KEY_FRAME] = qindex;
+    rc->avg_frame_qindex[KEY_FRAME] =
+        ROUND_POWER_OF_TWO(3 * rc->avg_frame_qindex[KEY_FRAME] + qindex, 2);
+  } else {
+    if (!rc->is_src_frame_alt_ref &&
+        !(cpi->refresh_golden_frame || is_intrnl_arf ||
+          cpi->refresh_alt_ref_frame)) {
+      rc->last_q[INTER_FRAME] = qindex;
+      rc->avg_frame_qindex[INTER_FRAME] =
+          ROUND_POWER_OF_TWO(3 * rc->avg_frame_qindex[INTER_FRAME] + qindex, 2);
+      rc->ni_frames++;
+      rc->tot_q += av1_convert_qindex_to_q(qindex, cm->seq_params.bit_depth);
+      rc->avg_q = rc->tot_q / rc->ni_frames;
+      // Calculate the average Q for normal inter frames (not key or GFU
+      // frames).
+      rc->ni_tot_qi += qindex;
+      rc->ni_av_qi = rc->ni_tot_qi / rc->ni_frames;
+    }
+  }
+
+  // Keep record of last boosted (KF/GF/ARF) Q value.
+  // If the current frame is coded at a lower Q then we also update it.
+  // If all mbs in this group are skipped only update if the Q value is
+  // better than that already stored.
+  // This is used to help set quality in forced key frames to reduce popping
+  if ((qindex < rc->last_boosted_qindex) || (cm->frame_type == KEY_FRAME && cm->show_frame) ||
+      (!rc->constrained_gf_group &&
+       (cpi->refresh_alt_ref_frame || is_intrnl_arf ||
+        (cpi->refresh_golden_frame && !rc->is_src_frame_alt_ref)))) {
+    rc->last_boosted_qindex = qindex;
+  }
+  if (cm->frame_type == KEY_FRAME && cm->show_frame) rc->last_kf_qindex = qindex;
+
+  update_buffer_level(cpi, rc->projected_frame_size);
+
+  // Rolling monitors of whether we are over or underspending used to help
+  // regulate min and Max Q in two pass.
+  if (av1_frame_scaled(cm))
+    rc->this_frame_target =
+        (int)(rc->this_frame_target /
+              resize_rate_factor(cpi, cm->width, cm->height));
+  if (cm->frame_type != KEY_FRAME) {
+    rc->rolling_target_bits = ROUND_POWER_OF_TWO(
+        rc->rolling_target_bits * 3 + rc->this_frame_target, 2);
+    rc->rolling_actual_bits = ROUND_POWER_OF_TWO(
+        rc->rolling_actual_bits * 3 + rc->projected_frame_size, 2);
+    rc->long_rolling_target_bits = ROUND_POWER_OF_TWO(
+        rc->long_rolling_target_bits * 31 + rc->this_frame_target, 5);
+    rc->long_rolling_actual_bits = ROUND_POWER_OF_TWO(
+        rc->long_rolling_actual_bits * 31 + rc->projected_frame_size, 5);
+  }
+
+  // Actual bits spent
+  rc->total_actual_bits += rc->projected_frame_size;
+  // TODO(zoeliu): To investigate whether we should treat BWDREF_FRAME
+  //               differently here for rc->avg_frame_bandwidth.
+  rc->total_target_bits +=
+      (cm->show_frame || rc->is_bwd_ref_frame) ? rc->avg_frame_bandwidth : 0;
+
+  rc->total_target_vs_actual = rc->total_actual_bits - rc->total_target_bits;
+
+  if (is_altref_enabled(cpi) && cpi->refresh_alt_ref_frame &&
+      (cm->frame_type != KEY_FRAME))
+    // Update the alternate reference frame stats as appropriate.
+    update_alt_ref_frame_stats(cpi);
+  else
+    // Update the Golden frame stats as appropriate.
+    update_golden_frame_stats(cpi);
+
+  if (cm->frame_type == KEY_FRAME && cm->show_frame) rc->frames_since_key = 0;
+
+  // TODO(zoeliu): To investigate whether we should treat BWDREF_FRAME
+  //               differently here for rc->avg_frame_bandwidth.
+  if (cm->show_frame || rc->is_bwd_ref_frame) {
+    rc->frames_since_key++;
+    rc->frames_to_key--;
+  }
+  // if (cm->current_video_frame == 1 && cm->show_frame)
+}
+
+
+/*
+void av1_rc_postencode_update(AV1_COMP *cpi, uint64_t bytes_used) {
+  const AV1_COMMON *const cm = &cpi->common;
+  RATE_CONTROL *const rc = &cpi->rc;
+#if CUSTOMIZED_GF
+  const TWO_PASS *const twopass = &cpi->twopass;
+  const GF_GROUP *const gf_group = &twopass->gf_group;
+  const int is_intrnl_arf =
+      cpi->oxcf.pass == 2
+          ? gf_group->update_type[gf_group->index] == INTNL_ARF_UPDATE
+          : cpi->refresh_alt2_ref_frame;
+#else
+  const int is_intrnl_arf = cpi->refresh_alt2_ref_frame;
+#endif
+
+  const int qindex = cm->base_qindex;
+
 
   if (cpi->oxcf.aq_mode == CYCLIC_REFRESH_AQ && cm->seg.enabled) {
     av1_cyclic_refresh_postencode(cpi);
@@ -1326,7 +1453,7 @@ void av1_rc_postencode_update(AV1_COMP *cpi, uint64_t bytes_used) {
     // Update the Golden frame stats as appropriate.
     update_golden_frame_stats(cpi);
 
-  if (cm->frame_type == KEY_FRAME) rc->frames_since_key = 0;
+  if (cm->frame_type == KEY_FRAME && cm->show_frame) rc->frames_since_key = 0;
 
   // TODO(zoeliu): To investigate whether we should treat BWDREF_FRAME
   //               differently here for rc->avg_frame_bandwidth.
@@ -1335,12 +1462,8 @@ void av1_rc_postencode_update(AV1_COMP *cpi, uint64_t bytes_used) {
     rc->frames_to_key--;
   }
   // if (cm->current_video_frame == 1 && cm->show_frame)
-  /*
-  rc->this_frame_target =
-      (int)(rc->this_frame_target / resize_rate_factor(cpi, cm->width,
-  cm->height));
-      */
 }
+*/
 
 void av1_rc_postencode_update_drop_frame(AV1_COMP *cpi) {
   // Update buffer level with zero size, update frame counters, and return.

@@ -206,6 +206,7 @@ int av1_rc_get_default_max_gf_interval(double framerate, int min_frame_rate);
 void av1_rc_get_one_pass_vbr_params(struct AV1_COMP *cpi);
 void av1_rc_get_one_pass_cbr_params(struct AV1_COMP *cpi);
 
+void av1_rc_postencode_update_kf(struct AV1_COMP *cpi);
 // Post encode update of the rate control parameters based
 // on bytes used
 void av1_rc_postencode_update(struct AV1_COMP *cpi, uint64_t bytes_used);

@@ -4994,6 +4994,10 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
     if (cpi->rc.frames_till_gf_update_due > 0)
       cpi->rc.frames_till_gf_update_due--;
 
+    if (cm->frame_type == KEY_FRAME) {
+      av1_rc_postencode_update_kf(cpi);
+    }
+
     ++cm->current_video_frame;
 
     return AOM_CODEC_OK;
