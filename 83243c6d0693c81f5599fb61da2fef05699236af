@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "088971f3_35e54ffb",
+        "filename": "av1/common/enums.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-23T17:53:19Z",
+      "side": 1,
+      "message": "Note that I did not add ATTRIBUTE_PACKED to the BITSTREAM_PROFILE enum type.",
+      "range": {
+        "startLine": 98,
+        "startChar": 8,
+        "endLine": 98,
+        "endChar": 30
+      },
+      "revId": "83243c6d0693c81f5599fb61da2fef05699236af",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e92152ae_dadc3939",
+        "filename": "av1/common/enums.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-23T17:53:19Z",
+      "side": 1,
+      "message": "The reason I didn\u0027t modify BITSTREAM_PROFILE is because it is defined before this comment.\n\nIf you think we should also add ATTRIBUTE_PACKED to BITSTREAM_PROFILE, then I can move this comment forward.",
+      "range": {
+        "startLine": 117,
+        "startChar": 0,
+        "endLine": 118,
+        "endChar": 73
+      },
+      "revId": "83243c6d0693c81f5599fb61da2fef05699236af",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
