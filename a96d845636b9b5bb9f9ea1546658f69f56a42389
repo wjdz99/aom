@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "9c554d11_ffac9357",
+        "filename": "av1/encoder/firstpass.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2254,
+      "author": {
+        "id": 7555
+      },
+      "writtenOn": "2018-07-23T23:36:54Z",
+      "side": 1,
+      "message": "Done\n\nDue to the constraint on the size of  reference frame buffer, the assertion is\n\nassert(rc-\u003ebaseline_gf_interval \u003e\u003d 4 \u0026\u0026 rc-\u003ebaseline_gf_interval \u003c\u003d 16);",
+      "parentUuid": "1408d4b3_2efe7a5e",
+      "revId": "a96d845636b9b5bb9f9ea1546658f69f56a42389",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d05266f0_20dc627e",
         "filename": "av1/encoder/firstpass.c",
         "patchSetId": 2
@@ -39,6 +57,30 @@
       "revId": "a96d845636b9b5bb9f9ea1546658f69f56a42389",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ccf9a6e3_0742657c",
+        "filename": "av1/encoder/firstpass.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2464,
+      "author": {
+        "id": 7555
+      },
+      "writtenOn": "2018-07-23T23:36:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d05266f0_20dc627e",
+      "range": {
+        "startLine": 2459,
+        "startChar": 0,
+        "endLine": 2464,
+        "endChar": 4
+      },
+      "revId": "a96d845636b9b5bb9f9ea1546658f69f56a42389",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
