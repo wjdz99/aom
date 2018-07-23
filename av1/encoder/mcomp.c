@@ -343,19 +343,19 @@ static unsigned int setup_center_error(
   if (second_pred != NULL) {
     if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
       DECLARE_ALIGNED(16, uint16_t, comp_pred16[MAX_SB_SQUARE]);
+      uint8_t *comp_pred = CONVERT_TO_BYTEPTR(comp_pred16);
       if (mask) {
-        aom_highbd_comp_mask_pred(comp_pred16, second_pred, w, h, y + offset,
+        aom_highbd_comp_mask_pred(comp_pred, second_pred, w, h, y + offset,
                                   y_stride, mask, mask_stride, invert_mask);
       } else {
         if (xd->jcp_param.use_jnt_comp_avg)
-          aom_highbd_jnt_comp_avg_pred(comp_pred16, second_pred, w, h,
-                                       y + offset, y_stride, &xd->jcp_param);
+          aom_highbd_jnt_comp_avg_pred(comp_pred, second_pred, w, h, y + offset,
+                                       y_stride, &xd->jcp_param);
         else
-          aom_highbd_comp_avg_pred(comp_pred16, second_pred, w, h, y + offset,
+          aom_highbd_comp_avg_pred(comp_pred, second_pred, w, h, y + offset,
                                    y_stride);
       }
-      besterr =
-          vfp->vf(CONVERT_TO_BYTEPTR(comp_pred16), w, src, src_stride, sse1);
+      besterr = vfp->vf(comp_pred, w, src, src_stride, sse1);
     } else {
       DECLARE_ALIGNED(16, uint8_t, comp_pred[MAX_SB_SQUARE]);
       if (mask) {
@@ -653,27 +653,27 @@ static int upsampled_pref_error(MACROBLOCKD *xd, const AV1_COMMON *const cm,
   unsigned int besterr;
   if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
     DECLARE_ALIGNED(16, uint16_t, pred16[MAX_SB_SQUARE]);
+    uint8_t *pred8 = CONVERT_TO_BYTEPTR(pred16);
     if (second_pred != NULL) {
       if (mask) {
         aom_highbd_comp_mask_upsampled_pred(
-            xd, cm, mi_row, mi_col, mv, pred16, second_pred, w, h, subpel_x_q3,
+            xd, cm, mi_row, mi_col, mv, pred8, second_pred, w, h, subpel_x_q3,
             subpel_y_q3, y, y_stride, mask, mask_stride, invert_mask, xd->bd);
       } else {
         if (xd->jcp_param.use_jnt_comp_avg)
           aom_highbd_jnt_comp_avg_upsampled_pred(
-              xd, cm, mi_row, mi_col, mv, pred16, second_pred, w, h,
-              subpel_x_q3, subpel_y_q3, y, y_stride, xd->bd, &xd->jcp_param);
+              xd, cm, mi_row, mi_col, mv, pred8, second_pred, w, h, subpel_x_q3,
+              subpel_y_q3, y, y_stride, xd->bd, &xd->jcp_param);
         else
-          aom_highbd_comp_avg_upsampled_pred(xd, cm, mi_row, mi_col, mv, pred16,
+          aom_highbd_comp_avg_upsampled_pred(xd, cm, mi_row, mi_col, mv, pred8,
                                              second_pred, w, h, subpel_x_q3,
                                              subpel_y_q3, y, y_stride, xd->bd);
       }
     } else {
-      aom_highbd_upsampled_pred(xd, cm, mi_row, mi_col, mv, pred16, w, h,
+      aom_highbd_upsampled_pred(xd, cm, mi_row, mi_col, mv, pred8, w, h,
                                 subpel_x_q3, subpel_y_q3, y, y_stride, xd->bd);
     }
-
-    besterr = vfp->vf(CONVERT_TO_BYTEPTR(pred16), w, src, src_stride, sse);
+    besterr = vfp->vf(pred8, w, src, src_stride, sse);
   } else {
     DECLARE_ALIGNED(16, uint8_t, pred[MAX_SB_SQUARE]);
     if (second_pred != NULL) {
@@ -2310,14 +2310,15 @@ static int upsampled_obmc_pref_error(
     const int32_t *const wsrc, const uint8_t *const y, int y_stride,
     int subpel_x_q3, int subpel_y_q3, int w, int h, unsigned int *sse) {
   unsigned int besterr;
+
+  DECLARE_ALIGNED(16, uint8_t, pred[2 * MAX_SB_SQUARE]);
   if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
-    DECLARE_ALIGNED(16, uint16_t, pred16[MAX_SB_SQUARE]);
-    aom_highbd_upsampled_pred(xd, cm, mi_row, mi_col, mv, pred16, w, h,
+    uint8_t *pred8 = CONVERT_TO_BYTEPTR(pred);
+    aom_highbd_upsampled_pred(xd, cm, mi_row, mi_col, mv, pred8, w, h,
                               subpel_x_q3, subpel_y_q3, y, y_stride, xd->bd);
 
-    besterr = vfp->ovf(CONVERT_TO_BYTEPTR(pred16), w, wsrc, mask, sse);
+    besterr = vfp->ovf(pred8, w, wsrc, mask, sse);
   } else {
-    DECLARE_ALIGNED(16, uint8_t, pred[MAX_SB_SQUARE]);
     aom_upsampled_pred(xd, cm, mi_row, mi_col, mv, pred, w, h, subpel_x_q3,
                        subpel_y_q3, y, y_stride);
 
