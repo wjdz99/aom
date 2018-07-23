@@ -991,6 +991,22 @@ static void build_inter_predictors_for_planes(const AV1_COMMON *cm,
   }
 }
 
+void av1_build_inter_predictors_sbp(const AV1_COMMON *cm, MACROBLOCKD *xd,
+                                    int mi_row, int mi_col, BUFFER_SET *ctx,
+                                    int plane, BLOCK_SIZE bsize) {
+  build_inter_predictors_for_planes(cm, xd, bsize, mi_row, mi_col, plane,
+                                    plane);
+  if (is_interintra_pred(xd->mi[0])) {
+    struct macroblockd_plane *p = xd->plane;
+    BUFFER_SET default_ctx = { { p[0].dst.buf, p[1].dst.buf, p[2].dst.buf },
+                               { p[0].dst.stride, p[1].dst.stride,
+                                 p[2].dst.stride } };
+    if (!ctx) ctx = &default_ctx;
+    av1_build_interintra_predictors_sbp(cm, xd, p[plane].dst.buf,
+                                        p[plane].dst.stride, ctx, plane, bsize);
+  }
+}
+
 void av1_build_inter_predictors_sby(const AV1_COMMON *cm, MACROBLOCKD *xd,
                                     int mi_row, int mi_col, BUFFER_SET *ctx,
                                     BLOCK_SIZE bsize) {
