@@ -3030,6 +3030,23 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   assert(num_mbs > 0);
   if (i) avg_sr_coded_error /= i;
 
+  if (non_zero_stdev_count) avg_raw_err_stdev /= non_zero_stdev_count;
+
+  // Disable extra altrefs and backward refs for "still" gf group:
+  //   zero_motion_accumulator: minimum percentage of (0,0) motion;
+  //   avg_sr_coded_error:      average of the SSE per pixel of each frame;
+  //   avg_raw_err_stdev:       average of the standard deviation of (0,0)
+  //                            motion error per block of each frame.
+  const int disable_bwd_extarf =
+      (zero_motion_accumulator > MIN_ZERO_MOTION &&
+       avg_sr_coded_error / num_mbs < MAX_SR_CODED_ERROR &&
+       avg_raw_err_stdev < MAX_RAW_ERR_VAR);
+
+  if (disable_bwd_extarf) {
+    cpi->extra_arf_allowed = 0;
+    allow_alt_ref = 0;
+  }
+
   // Should we use the alternate reference frame.
   if (allow_alt_ref && (i < cpi->oxcf.lag_in_frames) &&
       (i >= rc->min_gf_interval)) {
@@ -3055,19 +3072,6 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   } else {
     rc->baseline_gf_interval = i - (is_key_frame || rc->source_alt_ref_pending);
   }
-  if (non_zero_stdev_count) avg_raw_err_stdev /= non_zero_stdev_count;
-
-  // Disable extra altrefs and backward refs for "still" gf group:
-  //   zero_motion_accumulator: minimum percentage of (0,0) motion;
-  //   avg_sr_coded_error:      average of the SSE per pixel of each frame;
-  //   avg_raw_err_stdev:       average of the standard deviation of (0,0)
-  //                            motion error per block of each frame.
-  const int disable_bwd_extarf =
-      (zero_motion_accumulator > MIN_ZERO_MOTION &&
-       avg_sr_coded_error / num_mbs < MAX_SR_CODED_ERROR &&
-       avg_raw_err_stdev < MAX_RAW_ERR_VAR);
-
-  if (disable_bwd_extarf) cpi->extra_arf_allowed = 0;
 
   if (!cpi->extra_arf_allowed) {
     cpi->num_extra_arfs = 0;
