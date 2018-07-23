@@ -237,6 +237,10 @@ static INLINE MV clamp_mv_to_umv_border_sb(const MACROBLOCKD *xd,
   return clamped_mv;
 }
 
+void av1_build_inter_predictors_sbp(const AV1_COMMON *cm, MACROBLOCKD *xd,
+                                    int mi_row, int mi_col, BUFFER_SET *ctx,
+                                    int plane, BLOCK_SIZE bsize);
+
 void av1_build_inter_predictors_sby(const AV1_COMMON *cm, MACROBLOCKD *xd,
                                     int mi_row, int mi_col, BUFFER_SET *ctx,
                                     BLOCK_SIZE bsize);
