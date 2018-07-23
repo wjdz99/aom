@@ -46,6 +46,30 @@
       "revId": "74c260ba9629a291d3a16b757481aa1c1bf0676d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fe91a3fd_6b462bbe",
+        "filename": "av1/common/enums.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-23T18:06:04Z",
+      "side": 0,
+      "message": "Done. I removed it by mistake. Thank you for catching it.\n\nI thought I added that ATTRIBUTE_PACKED keyword, which is why I deleted it while reviewing the changes I made. That ATTRIBUTE_PACKED keyword has no effect because the enum type is unnamed. We make the TX_SIZE type small by defining it as a synonym for uint8_t (at line 175). But cleaning this up is outside the scope of this CL.",
+      "parentUuid": "5cfb6a63_818e1da5",
+      "range": {
+        "startLine": 176,
+        "startChar": 5,
+        "endLine": 176,
+        "endChar": 21
+      },
+      "revId": "74c260ba9629a291d3a16b757481aa1c1bf0676d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
