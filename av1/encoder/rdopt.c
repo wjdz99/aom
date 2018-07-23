@@ -2259,10 +2259,10 @@ static void get_2x2_normalized_sses_and_sads(
 }
 
 #if CONFIG_COLLECT_RD_STATS
-  // NOTE: CONFIG_COLLECT_RD_STATS has 3 possible values
-  // 0: Do not collect any RD stats
-  // 1: Collect RD stats for transform units
-  // 2: Collect RD stats for partition units
+// NOTE: CONFIG_COLLECT_RD_STATS has 3 possible values
+// 0: Do not collect any RD stats
+// 1: Collect RD stats for transform units
+// 2: Collect RD stats for partition units
 
 #if CONFIG_COLLECT_RD_STATS == 1
 static void PrintTransformUnitStats(const AV1_COMP *const cpi, MACROBLOCK *x,
@@ -7640,68 +7640,56 @@ static INLINE int64_t interpolation_filter_rd(
   const int num_planes = av1_num_planes(cm);
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = xd->mi[0];
-  int tmp_rate, tmp_skip_sb = 0;
-  int64_t tmp_dist, tmp_skip_sse = INT64_MAX;
+  int tmp_rate = 0, tmp_skip_sb = 1;
+  int64_t tmp_dist = 0, tmp_skip_sse = 0, tmp_rd;
 
   const InterpFilters last_best = mbmi->interp_filters;
-  mbmi->interp_filters = filter_sets[filter_idx];
-  const int tmp_rs =
-      get_switchable_rate(x, mbmi->interp_filters, switchable_ctx);
+  const InterpFilters cur_filter = filter_sets[filter_idx];
+  mbmi->interp_filters = cur_filter;
+  const int tmp_rs = get_switchable_rate(x, cur_filter, switchable_ctx);
 
   if (!skip_pred) {
-    av1_build_inter_predictors_sby(cm, xd, mi_row, mi_col, orig_dst, bsize);
-    av1_subtract_plane(x, bsize, 0);
+    for (int plane = 0; plane < num_planes; ++plane) {
+      int tmp_rate_p, tmp_skip_sb_p;
+      int64_t tmp_dist_p, tmp_skip_sse_p;
+      av1_build_inter_predictors_sbp(cm, xd, mi_row, mi_col, orig_dst, plane,
+                                     bsize);
+      av1_subtract_plane(x, bsize, plane);
 #if DNN_BASED_RD_INTERP_FILTER
-    model_rd_for_sb_with_dnn(cpi, bsize, x, xd, 0, 0, &tmp_rate, &tmp_dist,
-                             &tmp_skip_sb, &tmp_skip_sse, NULL, NULL, NULL);
+      model_rd_for_sb_with_dnn(cpi, bsize, x, xd, plane, plane, &tmp_rate_p,
+                               &tmp_dist_p, &tmp_skip_sb_p, &tmp_skip_sse_p,
+                               NULL, NULL, NULL);
 #else
-    model_rd_for_sb(cpi, bsize, x, xd, 0, 0, &tmp_rate, &tmp_dist, &tmp_skip_sb,
-                    &tmp_skip_sse, NULL, NULL, NULL);
+      model_rd_for_sb(cpi, bsize, x, xd, plane, plane, &tmp_rate_p, &tmp_dist_p,
+                      &tmp_skip_sb_p, &tmp_skip_sse_p, NULL, NULL, NULL);
 #endif
-    if (num_planes > 1) {
-      int64_t tmp_y_rd = RDCOST(x->rdmult, tmp_rs + tmp_rate, tmp_dist);
-      if (tmp_y_rd > *rd) {
+      tmp_rate += tmp_rate_p;
+      tmp_skip_sb &= tmp_skip_sb_p;
+      tmp_dist += tmp_dist_p;
+      tmp_skip_sse += tmp_skip_sse_p;
+      tmp_rd = RDCOST(x->rdmult, tmp_rs + tmp_rate, tmp_dist);
+      if (tmp_rd >= *rd) {
         mbmi->interp_filters = last_best;
         return 0;
       }
-      int tmp_rate_uv, tmp_skip_sb_uv;
-      int64_t tmp_dist_uv, tmp_skip_sse_uv;
-      av1_build_inter_predictors_sbuv(cm, xd, mi_row, mi_col, orig_dst, bsize);
-      for (int plane = 1; plane < num_planes; ++plane)
-        av1_subtract_plane(x, bsize, plane);
-#if DNN_BASED_RD_INTERP_FILTER
-      model_rd_for_sb_with_dnn(cpi, bsize, x, xd, 1, num_planes - 1,
-                               &tmp_rate_uv, &tmp_dist_uv, &tmp_skip_sb_uv,
-                               &tmp_skip_sse_uv, NULL, NULL, NULL);
-#else
-      model_rd_for_sb(cpi, bsize, x, xd, 1, num_planes - 1, &tmp_rate_uv,
-                      &tmp_dist_uv, &tmp_skip_sb_uv, &tmp_skip_sse_uv, NULL,
-                      NULL, NULL);
-#endif
-      tmp_rate += tmp_rate_uv;
-      tmp_skip_sb &= tmp_skip_sb_uv;
-      tmp_dist += tmp_dist_uv;
-      tmp_skip_sse += tmp_skip_sse_uv;
     }
-  } else {
-    tmp_rate = *rate;
-    tmp_dist = *dist;
-  }
-  int64_t tmp_rd = RDCOST(x->rdmult, tmp_rs + tmp_rate, tmp_dist);
-  if (tmp_rd < *rd) {
     *rd = tmp_rd;
     *switchable_rate = tmp_rs;
-    *skip_txfm_sb = tmp_skip_sb;
-    *skip_sse_sb = tmp_skip_sse;
     *rate = tmp_rate;
     *dist = tmp_dist;
-    if (!skip_pred) {
-      swap_dst_buf(xd, dst_bufs, num_planes);
+    *skip_txfm_sb = tmp_skip_sb;
+    *skip_sse_sb = tmp_skip_sse;
+    swap_dst_buf(xd, dst_bufs, num_planes);
+  } else {
+    tmp_rd = RDCOST(x->rdmult, tmp_rs + *rate, *dist);
+    if (tmp_rd >= *rd) {
+      mbmi->interp_filters = last_best;
+      return 0;
     }
-    return 1;
+    *rd = tmp_rd;
+    *switchable_rate = tmp_rs;
   }
-  mbmi->interp_filters = last_best;
-  return 0;
+  return 1;
 }
 
 // Find the best rd filter in horizontal direction
