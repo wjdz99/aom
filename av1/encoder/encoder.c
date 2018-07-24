@@ -4991,8 +4991,15 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
     }
 
     // Decrement count down till next gf
-    if (cpi->rc.frames_till_gf_update_due > 0)
+    if (cpi->rc.frames_till_gf_update_due > 0)// && cm->frame_type != KEY_FRAME)
       cpi->rc.frames_till_gf_update_due--;
+
+    if (cm->frame_type == KEY_FRAME) {
+    cpi->rc.frames_since_key++;
+    cpi->rc.frames_to_key--;
+
+    }
+    printf("point 0 ftk: %d, visible: %d, is_key %d\n", cpi->rc.frames_to_key, cm->show_frame, cm->frame_type == KEY_FRAME);
 
     ++cm->current_video_frame;
 
@@ -5111,6 +5118,7 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
   // Special case code to reduce pulsing when key frames are forced at a
   // fixed interval. Note the reconstruction error if it is the frame before
   // the force key frame
+  //sarahparker
   if (cpi->rc.next_key_frame_forced && cpi->rc.frames_to_key == 1) {
     if (seq_params->use_highbitdepth) {
       cpi->ambient_err =
@@ -5254,6 +5262,7 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
     if (cpi->rc.frames_till_gf_update_due > 0)
       cpi->rc.frames_till_gf_update_due--;
   }
+    printf("point 1 ftk: %d, visible: %d, is_key %d\n", cpi->rc.frames_to_key, cm->show_frame, cm->frame_type == KEY_FRAME);
 
   if (cm->show_frame) {
     // TODO(zoeliu): We may only swamp mi and prev_mi for those frames that
@@ -5324,8 +5333,12 @@ static int Pass2Encode(AV1_COMP *cpi, size_t *size, uint8_t *dest,
   // a gf group, but note that an OVERLAY frame always has a spot in a gf
   // group,
   // even when show_existing_frame is used.
-  if (!cpi->common.show_existing_frame || cpi->rc.is_src_frame_alt_ref) {
+  if (!cpi->common.show_existing_frame || cpi->rc.is_src_frame_alt_ref) {// || (cpi->common.frame_type == KEY_FRAME && cpi->common.show_frame)) {
     av1_twopass_postencode_update(cpi);
+  }
+  if (cpi->common.frame_type == KEY_FRAME && cpi->common.show_existing_frame) {
+    TWO_PASS *const twopass = &cpi->twopass;
+    ++twopass->gf_group.index;
   }
   check_show_existing_frame(cpi);
   return AOM_CODEC_OK;
@@ -5934,13 +5947,16 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
       cm->showable_frame = 1;
       cpi->alt_ref_source = source;
       // When arf_src_index == rc->frames_to_key, it indicates a fwd_kf
+      printf("srcind %d, ftk %d\n", arf_src_index, rc->frames_to_key);
       if (arf_src_index == rc->frames_to_key) {
+        printf("fwd kf\n");
         // Skip temporal filtering and mark as intra_only if we have a fwd_kf
         const GF_GROUP *const gf_group = &cpi->twopass.gf_group;
         int which_arf = gf_group->arf_update_idx[gf_group->index];
         cpi->is_arf_filter_off[which_arf] = 1;
         cpi->no_show_kf = 1;
       } else {
+        printf("arf\n");
         if (oxcf->arnr_max_frames > 0) {
           // Produce the filtered ARF frame.
           av1_temporal_filter(cpi, arf_src_index);
