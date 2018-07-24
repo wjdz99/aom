@@ -26,6 +26,8 @@ extern "C" {
 
 #define CUSTOMIZED_GF 1
 #define FIX_GF_INTERVAL_LENGTH 0
+#define REDUCE_LAST_ALT_BOOST 1
+#define REDUCE_LAST_GF_LENGTH 0
 
 #if FIX_GF_INTERVAL_LENGTH
 #define FIXED_GF_LENGTH 16
@@ -160,6 +162,7 @@ typedef struct {
   // Auto frame-scaling variables.
   int rf_level_maxq[RATE_FACTOR_LEVELS];
   // Q index used for ALT frame
+  int reduce_arf_boost;
   int arf_q;
 } RATE_CONTROL;
 
