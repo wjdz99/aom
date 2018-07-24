@@ -556,6 +556,14 @@ static int get_gf_active_quality(const RATE_CONTROL *const rc, int q,
                             arfgf_low_motion_minq, arfgf_high_motion_minq);
 }
 
+#if REDUCE_LAST_ALT_BOOST
+static int get_gf_high_motion_quality(int q, aom_bit_depth_t bit_depth) {
+  int *arfgf_high_motion_minq;
+  ASSIGN_MINQ_TABLE(bit_depth, arfgf_high_motion_minq);
+  return arfgf_high_motion_minq[q];
+}
+#endif
+
 static int calc_active_worst_quality_one_pass_vbr(const AV1_COMP *cpi) {
   const RATE_CONTROL *const rc = &cpi->rc;
   const unsigned int curr_frame = cpi->common.current_video_frame;
@@ -1012,8 +1020,23 @@ static int rc_pick_q_and_bounds_two_pass(const AV1_COMP *cpi, int width,
       } else {
         if (gf_group->update_type[gf_group->index] == ARF_UPDATE) {
           active_best_quality = get_gf_active_quality(rc, q, bit_depth);
+#if REDUCE_LAST_ALT_BOOST
+          if (rc->reduce_arf_boost) {
+            int boost =
+                get_gf_high_motion_quality(q, bit_depth) - active_best_quality;
+            active_best_quality += boost / 2;
+          }
+#endif
         } else {
           active_best_quality = rc->arf_q;
+#if REDUCE_LAST_ALT_BOOST
+          if (rc->reduce_arf_boost) {
+            // recover the boost deduction
+            int boost =
+                get_gf_high_motion_quality(q, bit_depth) - active_best_quality;
+            active_best_quality -= boost;
+          }
+#endif
         }
 #if USE_SYMM_MULTI_LAYER
         if (cpi->new_bwdref_update_rule && is_intrl_arf_boost) {
