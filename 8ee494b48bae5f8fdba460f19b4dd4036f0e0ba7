@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9044395b_5922ca14",
+        "filename": "aom_dsp/x86/variance_sse2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 671,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2018-07-24T15:44:19Z",
+      "side": 1,
+      "message": "Some passed parameters are stored on stack, and the alignment might not fulfill the requirement of SIMD instructions. To be safe, better to pass in the pointer here.",
+      "range": {
+        "startLine": 669,
+        "startChar": 54,
+        "endLine": 671,
+        "endChar": 69
+      },
+      "revId": "8ee494b48bae5f8fdba460f19b4dd4036f0e0ba7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
