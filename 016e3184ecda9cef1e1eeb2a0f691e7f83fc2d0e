@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d1e40f8b_1b0d3f80",
+        "filename": "aom_dsp/x86/masked_sad_intrin_ssse3.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-07-24T02:39:08Z",
+      "side": 1,
+      "message": "this should have a trailing \u0027_\u0027\n\nhttps://google.github.io/styleguide/cppguide.html#The__define_Guard\n\nThere seems to be quite a mix in this directory and probably the others. The full structure should be \u003cproject\u003e_\u003cdirectory\u003e_\u003cfile\u003e technically, but this change is closer to what\u0027s common.",
+      "revId": "016e3184ecda9cef1e1eeb2a0f691e7f83fc2d0e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
