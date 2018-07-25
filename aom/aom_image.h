@@ -173,6 +173,7 @@ typedef struct aom_image {
   unsigned char *planes[4]; /**< pointer to the top left pixel for each plane */
   int stride[4];            /**< stride between rows for each plane */
   size_t sz;                /**< data size */
+  int num_frames;           /**< number of frames */
 
   int bps; /**< bits per sample (for packed formats) */
 

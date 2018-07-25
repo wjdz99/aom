@@ -96,6 +96,7 @@ typedef struct yv12_buffer_config {
   size_t buffer_alloc_sz;
   int border;
   size_t frame_size;
+  int num_frames;
   int subsampling_x;
   int subsampling_y;
   unsigned int bit_depth;
@@ -130,6 +131,13 @@ int aom_realloc_frame_buffer(YV12_BUFFER_CONFIG *ybf, int width, int height,
                              int border, int byte_alignment,
                              aom_codec_frame_buffer_t *fb,
                              aom_get_frame_buffer_cb_fn_t cb, void *cb_priv);
+int aom_realloc_multi_frame_buffer(YV12_BUFFER_CONFIG *ybf, int width,
+                                   int height, int ss_x, int ss_y,
+                                   int use_highbitdepth, int border,
+                                   int byte_alignment,
+                                   aom_codec_frame_buffer_t *fb,
+                                   aom_get_frame_buffer_cb_fn_t cb,
+                                   void *cb_priv, int num_frames);
 int aom_free_frame_buffer(YV12_BUFFER_CONFIG *ybf);
 
 #ifdef __cplusplus

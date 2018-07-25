@@ -45,6 +45,29 @@ void usage_exit(void) {
   exit(EXIT_FAILURE);
 }
 
+static void aom_img_write_tile_list(const aom_image_t *img, FILE *file) {
+  int frame;
+  int plane;
+
+  for (frame = 0; frame < img->num_frames; ++frame) {
+    const unsigned char *buf[3] = { img->planes[0] + frame * img->sz,
+                                    img->planes[1] + frame * img->sz,
+                                    img->planes[2] + frame * img->sz };
+    for (plane = 0; plane < 3; ++plane) {
+      const int stride = img->stride[plane];
+      const int w = aom_img_plane_width(img, plane) *
+                    ((img->fmt & AOM_IMG_FMT_HIGHBITDEPTH) ? 2 : 1);
+      const int h = aom_img_plane_height(img, plane);
+      int y;
+
+      for (y = 0; y < h; ++y) {
+        fwrite(buf[plane], 1, w, file);
+        buf[plane] += stride;
+      }
+    }
+  }
+}
+
 int main(int argc, char **argv) {
   FILE *outfile = NULL;
   aom_codec_ctx_t codec;
@@ -148,9 +171,8 @@ int main(int argc, char **argv) {
     if (aom_codec_decode(&codec, frame, frame_size, NULL))
       die_codec(&codec, "Failed to decode the tile list.");
     aom_codec_iter_t iter = NULL;
-    aom_image_t *img;
-    while ((img = aom_codec_get_frame(&codec, &iter)))
-      fwrite(img->img_data, 1, img->sz, outfile);
+    aom_image_t *img = aom_codec_get_frame(&codec, &iter);
+    aom_img_write_tile_list(img, outfile);
   }
 
   for (i = 0; i < num_references; i++) aom_img_free(&reference_images[i]);

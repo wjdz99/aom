@@ -45,11 +45,13 @@ int aom_free_frame_buffer(YV12_BUFFER_CONFIG *ybf) {
   return 0;
 }
 
-int aom_realloc_frame_buffer(YV12_BUFFER_CONFIG *ybf, int width, int height,
-                             int ss_x, int ss_y, int use_highbitdepth,
-                             int border, int byte_alignment,
-                             aom_codec_frame_buffer_t *fb,
-                             aom_get_frame_buffer_cb_fn_t cb, void *cb_priv) {
+static int aom_realloc_frame_buffer_helper(YV12_BUFFER_CONFIG *ybf, int width,
+                                           int height, int ss_x, int ss_y,
+                                           int use_highbitdepth, int border,
+                                           int byte_alignment,
+                                           aom_codec_frame_buffer_t *fb,
+                                           aom_get_frame_buffer_cb_fn_t cb,
+                                           void *cb_priv, int num_frames) {
   if (ybf) {
 #if CONFIG_SIZE_LIMIT
     if (width > DECODE_WIDTH_LIMIT || height > DECODE_HEIGHT_LIMIT) return -1;
@@ -97,17 +99,19 @@ int aom_realloc_frame_buffer(YV12_BUFFER_CONFIG *ybf, int width, int height,
       memset(ybf->buffer_alloc, 0, (int)frame_size);
 #endif
 #endif
-    } else if (frame_size > (size_t)ybf->buffer_alloc_sz) {
+    } else if (frame_size * num_frames > (size_t)ybf->buffer_alloc_sz) {
       // Allocation to hold larger frame, or first allocation.
       aom_free(ybf->buffer_alloc);
       ybf->buffer_alloc = NULL;
 
       if (frame_size != (size_t)frame_size) return -1;
 
-      ybf->buffer_alloc = (uint8_t *)aom_memalign(32, (size_t)frame_size);
+      ybf->buffer_alloc =
+          (uint8_t *)aom_memalign(32, (size_t)frame_size * num_frames);
       if (!ybf->buffer_alloc) return -1;
 
-      ybf->buffer_alloc_sz = (size_t)frame_size;
+      ybf->buffer_alloc_sz = (size_t)frame_size * num_frames;
+      ybf->num_frames = num_frames;
 
       // This memset is needed for fixing valgrind error from C loop filter
       // due to access uninitialized memory in frame border. It could be
@@ -172,6 +176,28 @@ int aom_realloc_frame_buffer(YV12_BUFFER_CONFIG *ybf, int width, int height,
     return 0;
   }
   return -2;
+}
+
+int aom_realloc_frame_buffer(YV12_BUFFER_CONFIG *ybf, int width, int height,
+                             int ss_x, int ss_y, int use_highbitdepth,
+                             int border, int byte_alignment,
+                             aom_codec_frame_buffer_t *fb,
+                             aom_get_frame_buffer_cb_fn_t cb, void *cb_priv) {
+  return aom_realloc_frame_buffer_helper(ybf, width, height, ss_x, ss_y,
+                                         use_highbitdepth, border,
+                                         byte_alignment, fb, cb, cb_priv, 1);
+}
+
+int aom_realloc_multi_frame_buffer(YV12_BUFFER_CONFIG *ybf, int width,
+                                   int height, int ss_x, int ss_y,
+                                   int use_highbitdepth, int border,
+                                   int byte_alignment,
+                                   aom_codec_frame_buffer_t *fb,
+                                   aom_get_frame_buffer_cb_fn_t cb,
+                                   void *cb_priv, int num_frames) {
+  return aom_realloc_frame_buffer_helper(
+      ybf, width, height, ss_x, ss_y, use_highbitdepth, border, byte_alignment,
+      fb, cb, cb_priv, num_frames);
 }
 
 int aom_alloc_frame_buffer(YV12_BUFFER_CONFIG *ybf, int width, int height,
