@@ -22,6 +22,30 @@
       "revId": "8ee494b48bae5f8fdba460f19b4dd4036f0e0ba7",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e05399f0_b426128c",
+        "filename": "aom_dsp/x86/variance_sse2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 671,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2018-07-25T15:42:19Z",
+      "side": 1,
+      "message": "3 parameters are ok. See: https://bugs.chromium.org/p/aomedia/issues/detail?id\u003d1895",
+      "parentUuid": "9044395b_5922ca14",
+      "range": {
+        "startLine": 669,
+        "startChar": 54,
+        "endLine": 671,
+        "endChar": 69
+      },
+      "revId": "8ee494b48bae5f8fdba460f19b4dd4036f0e0ba7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
