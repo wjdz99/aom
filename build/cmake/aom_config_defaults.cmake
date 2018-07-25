@@ -85,6 +85,7 @@ set(CONFIG_SIZE_LIMIT 0 CACHE NUMBER "Limit max decode width/height.")
 set(CONFIG_SPATIAL_RESAMPLING 1 CACHE NUMBER "Spatial resampling.")
 set(DECODE_HEIGHT_LIMIT 0 CACHE NUMBER "Set limit for decode height.")
 set(DECODE_WIDTH_LIMIT 0 CACHE NUMBER "Set limit for decode width.")
+set(CONFIG_NORMAL_TILE_MODE 0 CACHE NUMBER "Only enables normal tile mode.")
 
 # AV1 experiment flags.
 set(CONFIG_COLLECT_INTER_MODE_RD_STATS 1 CACHE NUMBER "AV1 experiment flag.")
