@@ -496,6 +496,36 @@ typedef enum ATTRIBUTE_PACKED {
   FILTER_INTRA_MODES,
 } FILTER_INTRA_MODE;
 
+#if CONFIG_ADAPT_FILTER_INTRA
+// Different ADAPT_FILTER_INTRA modes fit different filters
+// (either 3 tap or 4 tap). All of them use some subset of
+// the 5 neighbor pixels of the one currently being predicted.
+// We enumerate neighbor pixels in the clockwise order:
+// -------------
+// | 2 | 3 | 4 |
+// -------------
+// | 1 |cur|   |
+// -------------
+// | 0 |   |   |
+// -------------
+// For example, ADAPT_FILTER_1_2_3 fits a 3 tap filter that
+// uses neighbor pixels with numbers 1,2,3 for prediction.
+// ADAPT_FILTER_0_1_2_3_4_LEFT fits a corresponding 4 tap
+// filter, but uses only left context of the block for
+// training, according to the postfix "_LEFT".
+typedef enum {
+  ADAPT_FILTER_1_2_3,
+  ADAPT_FILTER_0_1_3,
+  ADAPT_FILTER_1_3_4,
+  ADAPT_FILTER_0_1_2_3_4_LEFT,
+  ADAPT_FILTER_1_2_3_4_TOP,
+  ADAPT_FILTER_0_2_3,
+  ADAPT_FILTER_1_2_4,
+  ADAPT_FILTER_INTRA_MODES,
+} ADAPT_FILTER_INTRA_MODE;
+#define USED_ADAPT_FILTER_INTRA_MODES 7
+#endif
+
 #define DIRECTIONAL_MODES 8
 #define MAX_ANGLE_DELTA 3
 #define ANGLE_STEP 3
