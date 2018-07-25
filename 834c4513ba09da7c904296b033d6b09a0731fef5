@@ -2,6 +2,121 @@
   "comments": [
     {
       "key": {
+        "uuid": "ab15ae34_f725902c",
+        "filename": "av1/common/arm/av1_inv_txfm_neon.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-07-25T20:34:27Z",
+      "side": 1,
+      "message": "Can you use the same function and just call one with\nbtw_16_neon(in, coef1, -coef2, t0, t1) and\nbtw_16_neon(in, coef1, coef2, t0, t1)?\n\nIt looks like the only difference is that this one uses -coef2.",
+      "range": {
+        "startLine": 198,
+        "startChar": 19,
+        "endLine": 198,
+        "endChar": 30
+      },
+      "revId": "834c4513ba09da7c904296b033d6b09a0731fef5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0dee75c5_27a890a8",
+        "filename": "av1/common/arm/av1_inv_txfm_neon.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 486,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-07-25T20:34:27Z",
+      "side": 1,
+      "message": "What happened to stage 4?",
+      "range": {
+        "startLine": 485,
+        "startChar": 5,
+        "endLine": 486,
+        "endChar": 0
+      },
+      "revId": "834c4513ba09da7c904296b033d6b09a0731fef5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2d1db218_8331ccac",
+        "filename": "av1/common/arm/av1_inv_txfm_neon.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 487,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-07-25T20:34:27Z",
+      "side": 1,
+      "message": "If all the values are step1, why not just return one value?",
+      "range": {
+        "startLine": 487,
+        "startChar": 11,
+        "endLine": 487,
+        "endChar": 16
+      },
+      "revId": "834c4513ba09da7c904296b033d6b09a0731fef5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cbf96b09_06ef6a29",
+        "filename": "av1/common/arm/av1_inv_txfm_neon.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 549,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-07-25T20:34:27Z",
+      "side": 1,
+      "message": "Why not use NewInvSqrt2 directly?",
+      "range": {
+        "startLine": 549,
+        "startChar": 50,
+        "endLine": 549,
+        "endChar": 55
+      },
+      "revId": "834c4513ba09da7c904296b033d6b09a0731fef5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6767de9a_ad8ccf31",
+        "filename": "av1/common/arm/av1_inv_txfm_neon.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 552,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-07-25T20:34:27Z",
+      "side": 1,
+      "message": "Same for NewSqrt2Bits",
+      "range": {
+        "startLine": 552,
+        "startChar": 33,
+        "endLine": 552,
+        "endChar": 38
+      },
+      "revId": "834c4513ba09da7c904296b033d6b09a0731fef5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "4134bff1_0059d42b",
         "filename": "av1/common/arm/av1_inv_txfm_neon.c",
         "patchSetId": 2
@@ -13,6 +128,29 @@
       "writtenOn": "2018-07-25T17:59:14Z",
       "side": 1,
       "message": "Remove av1_ prefix",
+      "revId": "834c4513ba09da7c904296b033d6b09a0731fef5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8c6ba8c2_cb17452d",
+        "filename": "av1/common/arm/av1_inv_txfm_neon.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 606,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-07-25T20:34:27Z",
+      "side": 1,
+      "message": "Same. If only one value is needed, why return so many copies?",
+      "range": {
+        "startLine": 606,
+        "startChar": 11,
+        "endLine": 606,
+        "endChar": 16
+      },
       "revId": "834c4513ba09da7c904296b033d6b09a0731fef5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
