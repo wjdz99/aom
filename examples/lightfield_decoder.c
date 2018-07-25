@@ -72,6 +72,40 @@ const TILE_LIST_INFO tile_list[2][9] = {
     { 50, 2, 5, 4 } },
 };
 
+// Output frame size
+const int output_frame_width = 512;
+const int output_frame_height = 512;
+
+static void aom_img_copy_tile(const aom_image_t *src, const aom_image_t *dst,
+                              int dst_row_offset, int dst_col_offset) {
+  const int shift = (src->fmt & AOM_IMG_FMT_HIGHBITDEPTH) ? 1 : 0;
+  int plane;
+
+  for (plane = 0; plane < 3; ++plane) {
+    const unsigned char *src_buf = src->planes[plane];
+    const int src_stride = src->stride[plane];
+    unsigned char *dst_buf = dst->planes[plane];
+    const int dst_stride = dst->stride[plane];
+    const int roffset =
+        (plane > 0) ? dst_row_offset >> dst->y_chroma_shift : dst_row_offset;
+    const int coffset =
+        (plane > 0) ? dst_col_offset >> dst->x_chroma_shift : dst_col_offset;
+
+    // col offset needs to be adjusted for HBD.
+    dst_buf += roffset * dst_stride + (coffset << shift);
+
+    const int w = (aom_img_plane_width(src, plane) << shift);
+    const int h = aom_img_plane_height(src, plane);
+    int y;
+
+    for (y = 0; y < h; ++y) {
+      memcpy(dst_buf, src_buf, w);
+      src_buf += src_stride;
+      dst_buf += dst_stride;
+    }
+  }
+}
+
 int main(int argc, char **argv) {
   FILE *outfile = NULL;
   aom_codec_ctx_t codec;
@@ -79,7 +113,9 @@ int main(int argc, char **argv) {
   const AvxInterface *decoder = NULL;
   const AvxVideoInfo *info = NULL;
   int num_references;
+  aom_img_fmt_t ref_fmt = 0;
   aom_image_t reference_images[MAX_EXTERNAL_REFERENCES];
+  aom_image_t output;
   size_t frame_size = 0;
   const unsigned char *frame = NULL;
   int n, i, j;
@@ -117,7 +153,6 @@ int main(int argc, char **argv) {
       die_codec(&codec, "Failed to decode frame.");
 
     if (i == 0) {
-      aom_img_fmt_t ref_fmt = 0;
       if (aom_codec_control(&codec, AV1D_GET_IMG_FORMAT, &ref_fmt))
         die_codec(&codec, "Failed to get the image format");
 
@@ -157,8 +192,17 @@ int main(int argc, char **argv) {
   // Record the offset of the first camera image.
   const FileOffset camera_frame_pos = ftello(infile);
 
+  // Allocate the output frame.
+  aom_img_fmt_t out_fmt = ref_fmt;
+  if (!CONFIG_LOWBITDEPTH) out_fmt |= AOM_IMG_FMT_HIGHBITDEPTH;
+  if (!aom_img_alloc(&output, out_fmt, output_frame_width, output_frame_height,
+                     32))
+    die("Failed to allocate output image.");
+
   // Process 1 tile.
   for (n = 0; n < num_tile_lists; n++) {
+    int tile_idx = 0;
+
     for (i = 0; i <= tile_count_minus_1; i++) {
       int image_idx = tile_list[n][i].image_idx;
       int ref_idx = tile_list[n][i].reference_idx;
@@ -196,10 +240,34 @@ int main(int argc, char **argv) {
 
       aom_codec_iter_t iter = NULL;
       aom_image_t *img = aom_codec_get_frame(&codec, &iter);
-      aom_img_write(img, outfile);
+      if (!img) die_codec(&codec, "Failed to get frame.");
+
+      // read out the tile size.
+      unsigned int tile_size = 0;
+      if (aom_codec_control(&codec, AV1D_GET_TILE_SIZE, &tile_size))
+        die_codec(&codec, "Failed to get the tile size");
+      const unsigned int tile_width = tile_size >> 16;
+      const unsigned int tile_height = tile_size & 65535;
+      const uint8_t output_frame_width_in_tiles =
+          output_frame_width / tile_width;
+
+      // Copy the tile to the output frame.
+      const int row_offset =
+          (tile_idx / output_frame_width_in_tiles) * tile_height;
+      const int col_offset =
+          (tile_idx % output_frame_width_in_tiles) * tile_width;
+
+      aom_img_copy_tile(img, &output, row_offset, col_offset);
+      tile_idx++;
     }
+
+    // Write out the tile list.
+    aom_img_write(&output, outfile);
+    // Then memset the frame.
+    memset(output.img_data, 0, output.sz);
   }
 
+  aom_img_free(&output);
   for (i = 0; i < num_references; i++) aom_img_free(&reference_images[i]);
   if (aom_codec_destroy(&codec)) die_codec(&codec, "Failed to destroy codec");
   aom_video_reader_close(reader);

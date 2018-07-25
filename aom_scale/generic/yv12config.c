@@ -105,6 +105,7 @@ int aom_realloc_frame_buffer(YV12_BUFFER_CONFIG *ybf, int width, int height,
       if (frame_size != (size_t)frame_size) return -1;
 
       ybf->buffer_alloc = (uint8_t *)aom_memalign(32, (size_t)frame_size);
+
       if (!ybf->buffer_alloc) return -1;
 
       ybf->buffer_alloc_sz = (size_t)frame_size;
