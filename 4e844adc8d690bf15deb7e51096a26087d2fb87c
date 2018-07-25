@@ -46,6 +46,30 @@
       "revId": "4e844adc8d690bf15deb7e51096a26087d2fb87c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fd96188c_b58ed250",
+        "filename": "build/cmake/aom_config_defaults.cmake",
+        "patchSetId": 1
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2018-07-25T22:30:12Z",
+      "side": 1,
+      "message": "Thanks.",
+      "parentUuid": "08ae9891_aead82c4",
+      "range": {
+        "startLine": 83,
+        "startChar": 0,
+        "endLine": 83,
+        "endChar": 74
+      },
+      "revId": "4e844adc8d690bf15deb7e51096a26087d2fb87c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
