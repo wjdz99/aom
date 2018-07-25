@@ -48,8 +48,8 @@ void usage_exit(void) {
   (((value) + ((1 << (n)) - 1)) & ~((1 << (n)) - 1))
 
 // SB size: 64x64
-const uint8_t output_frame_width_in_tiles_minus_1 = 512 / 64 - 1;
-const uint8_t output_frame_height_in_tiles_minus_1 = 512 / 64 - 1;
+const int output_frame_width = 512;
+const int output_frame_height = 512;
 
 // Spec:
 // typedef struct {
@@ -235,6 +235,11 @@ int main(int argc, char **argv) {
   if (tl_buf == NULL) die_codec(&codec, "Failed to allocate tile list buffer.");
 
   aom_codec_pts_t tl_pts = pts;
+
+  const uint8_t output_frame_width_in_tiles_minus_1 =
+      output_frame_width / tile_width - 1;
+  const uint8_t output_frame_height_in_tiles_minus_1 =
+      output_frame_height / tile_height - 1;
 
   // Process 1 tile list.
   for (n = 0; n < num_tile_lists; n++) {
