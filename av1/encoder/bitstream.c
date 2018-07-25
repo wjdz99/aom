@@ -600,6 +600,25 @@ static void write_filter_intra_mode_info(const AV1_COMMON *cm,
   }
 }
 
+#if ADAPT_FILTER_INTRA
+static void write_adapt_filter_intra_mode_info(const AV1_COMMON *cm,
+                                               const MACROBLOCKD *xd,
+                                               const MB_MODE_INFO *const mbmi,
+                                               aom_writer *w) {
+  if (av1_adapt_filter_intra_allowed(cm, mbmi)) {
+    aom_write_symbol(w,
+                     mbmi->adapt_filter_intra_mode_info.use_adapt_filter_intra,
+                     xd->tile_ctx->adapt_filter_intra_cdfs[mbmi->sb_type], 2);
+    if (mbmi->adapt_filter_intra_mode_info.use_adapt_filter_intra) {
+      const ADAPT_FILTER_INTRA_MODE mode =
+          mbmi->adapt_filter_intra_mode_info.adapt_filter_intra_mode;
+      aom_write_symbol(w, mode, xd->tile_ctx->adapt_filter_intra_mode_cdf,
+                       USED_ADAPT_FILTER_INTRA_MODES);
+    }
+  }
+}
+#endif
+
 static void write_angle_delta(aom_writer *w, int angle_delta,
                               aom_cdf_prob *cdf) {
   aom_write_symbol(w, angle_delta + MAX_ANGLE_DELTA, cdf,
@@ -826,6 +845,11 @@ void av1_write_tx_type(const AV1_COMMON *const cm, const MACROBLOCKD *xd,
       if (mbmi->filter_intra_mode_info.use_filter_intra)
         intra_dir =
             fimode_to_intradir[mbmi->filter_intra_mode_info.filter_intra_mode];
+#if ADAPT_FILTER_INTRA
+      else if (mbmi->adapt_filter_intra_mode_info.use_adapt_filter_intra)
+        intra_dir = afimode_to_intradir[mbmi->adapt_filter_intra_mode_info
+                                            .adapt_filter_intra_mode];
+#endif
       else
         intra_dir = mbmi->mode;
       aom_write_symbol(
@@ -1251,6 +1275,9 @@ static void write_mb_modes_kf(AV1_COMP *cpi, MACROBLOCKD *xd,
     write_palette_mode_info(cm, xd, mbmi, mi_row, mi_col, w);
 
   write_filter_intra_mode_info(cm, xd, mbmi, w);
+#if ADAPT_FILTER_INTRA
+  write_adapt_filter_intra_mode_info(cm, xd, mbmi, w);
+#endif
 }
 
 #if CONFIG_RD_DEBUG
@@ -2735,6 +2762,9 @@ void write_sequence_header(AV1_COMP *cpi, struct aom_write_bit_buffer *wb) {
   write_sb_size(seq_params, wb);
 
   aom_wb_write_bit(wb, seq_params->enable_filter_intra);
+#if ADAPT_FILTER_INTRA
+  aom_wb_write_bit(wb, seq_params->enable_adapt_filter_intra);
+#endif
   aom_wb_write_bit(wb, seq_params->enable_intra_edge_filter);
 
   if (!seq_params->reduced_still_picture_hdr) {
