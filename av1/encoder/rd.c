@@ -665,6 +665,34 @@ static double interp_bicubic(const double *p, int p_stride, double x,
   return interp_cubic(q, y);
 }
 
+void av1_model_rd_curvfit(double xqr, double *rate_f, double *distbysse_f) {
+  static const double interp_rgrid[23] = {
+    2536.978678, 2017.197077, 1484.795789, 1214.318958, 1079.505225, 983.809574,
+    909.973556,  848.103751,  793.580537,  744.418604,  696.701912,  648.466885,
+    601.002679,  554.195025,  503.264848,  444.682269,  375.693409,  287.602986,
+    172.479686,  66.198700,   14.123068,   0.000000,    0.000000,
+  };
+  static const double interp_dgrid[23] = {
+    0.000000, 0.004010, 0.097894,  0.197131,  0.303136,  0.419388,
+    0.548328, 0.692514, 0.857216,  1.048842,  1.267862,  1.523266,
+    1.828230, 2.202769, 2.686563,  3.387585,  4.304151,  5.463582,
+    7.417296, 9.610614, 10.928710, 11.431829, 11.431829,
+  };
+  const double x_start = -0.05;
+  const double x_end = 1.05;
+  const double x_step = 0.05;
+  (void)x_end;
+
+  const double x = (xqr - x_start) / x_step;
+  const int xi = (int)floor(x);
+  const double xo = x - xi;
+
+  const double *prate = &interp_rgrid[(xi - 1)];
+  const double *pdist = &interp_dgrid[(xi - 1)];
+  *rate_f = interp_cubic(prate, xo);
+  *distbysse_f = interp_cubic(pdist, xo);
+}
+
 void av1_model_rd_surffit(double xm, double yl, double *rate_f,
                           double *dist_f) {
   static const double interp_rgrid[65 * 35] = {
