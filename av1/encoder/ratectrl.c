@@ -1342,7 +1342,7 @@ void av1_rc_postencode_update(AV1_COMP *cpi, uint64_t bytes_used) {
 
   // TODO(zoeliu): To investigate whether we should treat BWDREF_FRAME
   //               differently here for rc->avg_frame_bandwidth.
-  if (cm->show_frame || rc->is_bwd_ref_frame) {
+  if (cm->show_frame) {// || rc->is_bwd_ref_frame) {
     rc->frames_since_key++;
     rc->frames_to_key--;
   }

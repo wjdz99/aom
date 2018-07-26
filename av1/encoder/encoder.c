@@ -5249,11 +5249,17 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
   // TODO(weitinglin): This is a work-around to handle the condition
   // when a frame is drop. We should fix the cm->show_frame flag
   // instead of checking the other condition to update the counter properly.
-  if (cm->show_frame || is_frame_droppable(cpi)) {
+    //if(!cpi->rc.is_src_frame_alt_ref) cm->debug = 1;
+  if ((cm->show_frame || is_frame_droppable(cpi))) {
+    printf("here\n");
     // Decrement count down till next gf
     if (cpi->rc.frames_till_gf_update_due > 0)
       cpi->rc.frames_till_gf_update_due--;
-  }
+    } else if (!cpi->refresh_alt_ref_frame && !cpi->refresh_alt2_ref_frame) {
+      printf("here 3\n");
+  //  if (cpi->rc.frames_till_gf_update_due > 0)
+  //    cpi->rc.frames_till_gf_update_due--;
+    } else {printf("none\n");}
 
   if (cm->show_frame) {
     // TODO(zoeliu): We may only swamp mi and prev_mi for those frames that
@@ -5809,6 +5815,7 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
   int arf_src_index;
   int brf_src_index;
   int i;
+  cm->debug = 0;
 
 #if CONFIG_BITSTREAM_DEBUG
   assert(cpi->oxcf.max_threads == 0 &&
@@ -5847,6 +5854,8 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
   // S-Frame. An exception can be made in the case of a keyframe, since it
   // does not depend on any previous frames. We must make this exception here
   // because of the use of show_existing_frame with forward coded keyframes.
+  if (cm->show_existing_frame)
+    printf("show existing, src_frm_arf %d ", cpi->rc.is_src_frame_alt_ref);
   struct lookahead_entry *lookahead_src = NULL;
   if (cm->current_video_frame > 0)
     lookahead_src = av1_lookahead_peek(cpi->lookahead, 0);
@@ -5856,7 +5865,9 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
        (cpi->oxcf.s_frame_mode |
         ((lookahead_src->flags & AOM_EFLAG_SET_S_FRAME) != 0))) &&
       !(rc->frames_to_key == 0 || (cpi->frame_flags & FRAMEFLAGS_KEY))) {
+    if(!cpi->rc.is_src_frame_alt_ref) cm->debug = 1;
     cm->show_existing_frame = 0;
+    cm->show_frame = 1;
   }
 
   if (oxcf->pass == 2 && cm->show_existing_frame) {
@@ -5928,6 +5939,7 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
   }
 
   if (arf_src_index) {
+    printf("ARF ");
     assert(arf_src_index <= rc->frames_to_key);
 
     if ((source = av1_lookahead_peek(cpi->lookahead, arf_src_index)) != NULL) {
@@ -5977,6 +5989,7 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
   }
 
   if (arf_src_index) {
+    printf("ARF2 ");
     assert(arf_src_index <= rc->frames_to_key);
 
     if ((source = av1_lookahead_peek(cpi->lookahead, arf_src_index)) != NULL) {
@@ -6005,6 +6018,7 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
   rc->is_bwd_ref_frame = 0;
   brf_src_index = get_brf_src_index(cpi);
   if (brf_src_index) {
+    printf("BRF ");
     assert(brf_src_index <= rc->frames_to_key);
     if ((source = av1_lookahead_peek(cpi->lookahead, brf_src_index)) != NULL) {
       cm->showable_frame = 1;
