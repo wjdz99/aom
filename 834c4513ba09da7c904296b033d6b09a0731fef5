@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "609e9d7b_533452c2",
+        "filename": "av1/common/arm/av1_inv_txfm_neon.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 9670
+      },
+      "writtenOn": "2018-07-26T10:52:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ab15ae34_f725902c",
+      "range": {
+        "startLine": 198,
+        "startChar": 19,
+        "endLine": 198,
+        "endChar": 30
+      },
+      "revId": "834c4513ba09da7c904296b033d6b09a0731fef5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0dee75c5_27a890a8",
         "filename": "av1/common/arm/av1_inv_txfm_neon.c",
         "patchSetId": 2
@@ -45,6 +69,30 @@
       "revId": "834c4513ba09da7c904296b033d6b09a0731fef5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "55314aee_d5ba3684",
+        "filename": "av1/common/arm/av1_inv_txfm_neon.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 486,
+      "author": {
+        "id": 9670
+      },
+      "writtenOn": "2018-07-26T10:52:33Z",
+      "side": 1,
+      "message": "In stage 4 we are just copying array value to stage 5. In case of DC transform this stage is not required.",
+      "parentUuid": "0dee75c5_27a890a8",
+      "range": {
+        "startLine": 485,
+        "startChar": 5,
+        "endLine": 486,
+        "endChar": 0
+      },
+      "revId": "834c4513ba09da7c904296b033d6b09a0731fef5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "d6c8909a_3527139a",
+        "filename": "av1/common/arm/av1_inv_txfm_neon.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 487,
+      "author": {
+        "id": 9670
+      },
+      "writtenOn": "2018-07-26T10:52:33Z",
+      "side": 1,
+      "message": "In DC transform output of all array will be same. But outside of transform function we are expecting output in terms of array, so we can\u0027t return one value.",
+      "parentUuid": "2d1db218_8331ccac",
+      "range": {
+        "startLine": 487,
+        "startChar": 11,
+        "endLine": 487,
+        "endChar": 16
+      },
+      "revId": "834c4513ba09da7c904296b033d6b09a0731fef5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cbf96b09_06ef6a29",
         "filename": "av1/common/arm/av1_inv_txfm_neon.c",
         "patchSetId": 2
@@ -91,6 +163,30 @@
       "revId": "834c4513ba09da7c904296b033d6b09a0731fef5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "50e6cffe_d869f833",
+        "filename": "av1/common/arm/av1_inv_txfm_neon.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 549,
+      "author": {
+        "id": 9670
+      },
+      "writtenOn": "2018-07-26T10:52:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cbf96b09_06ef6a29",
+      "range": {
+        "startLine": 549,
+        "startChar": 50,
+        "endLine": 549,
+        "endChar": 55
+      },
+      "revId": "834c4513ba09da7c904296b033d6b09a0731fef5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "bdd405c3_bf6bbf20",
+        "filename": "av1/common/arm/av1_inv_txfm_neon.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 552,
+      "author": {
+        "id": 9670
+      },
+      "writtenOn": "2018-07-26T10:52:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6767de9a_ad8ccf31",
+      "range": {
+        "startLine": 552,
+        "startChar": 33,
+        "endLine": 552,
+        "endChar": 38
+      },
+      "revId": "834c4513ba09da7c904296b033d6b09a0731fef5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4134bff1_0059d42b",
         "filename": "av1/common/arm/av1_inv_txfm_neon.c",
         "patchSetId": 2
@@ -131,6 +251,24 @@
       "revId": "834c4513ba09da7c904296b033d6b09a0731fef5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e0c42288_7021cd52",
+        "filename": "av1/common/arm/av1_inv_txfm_neon.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 580,
+      "author": {
+        "id": 9670
+      },
+      "writtenOn": "2018-07-26T10:52:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4134bff1_0059d42b",
+      "revId": "834c4513ba09da7c904296b033d6b09a0731fef5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -157,6 +295,30 @@
     },
     {
       "key": {
+        "uuid": "80e2c6ed_e8439b0b",
+        "filename": "av1/common/arm/av1_inv_txfm_neon.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 606,
+      "author": {
+        "id": 9670
+      },
+      "writtenOn": "2018-07-26T10:52:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8c6ba8c2_cb17452d",
+      "range": {
+        "startLine": 606,
+        "startChar": 11,
+        "endLine": 606,
+        "endChar": 16
+      },
+      "revId": "834c4513ba09da7c904296b033d6b09a0731fef5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "19e057a5_aeda170b",
         "filename": "av1/common/arm/av1_inv_txfm_neon.c",
         "patchSetId": 2
@@ -171,6 +333,24 @@
       "revId": "834c4513ba09da7c904296b033d6b09a0731fef5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2aff09e6_88ea0c6a",
+        "filename": "av1/common/arm/av1_inv_txfm_neon.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2257,
+      "author": {
+        "id": 9670
+      },
+      "writtenOn": "2018-07-26T10:52:33Z",
+      "side": 1,
+      "message": "In identity function we are using same function in case of low_1, low_8 etc. assuming input array of transform function is available for complete transform size. In case of low_1 and low-8 as we are not loading array for complete transform size, so initialization is required.",
+      "parentUuid": "19e057a5_aeda170b",
+      "revId": "834c4513ba09da7c904296b033d6b09a0731fef5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
