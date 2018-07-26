@@ -22,6 +22,30 @@
       "revId": "248a581187220cbbd3297a04179b710c3fc325ab",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "31b275f3_b1b0c432",
+        "filename": "test/fft_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 8612
+      },
+      "writtenOn": "2018-07-26T04:14:50Z",
+      "side": 1,
+      "message": "I had read the comment in the bug earlier but missed the \"lead with\". So yeah, I\u0027ll remove the prefix. There is some internal filtering in these tests that essentially causes them to be no-ops if the cpu flags are missing (so they shouldn\u0027t fail). But that filtering is redundant if it can happen elsewhere when tests are named correctly, so I\u0027ll remove it too.",
+      "parentUuid": "02b2507e_68eec0a9",
+      "range": {
+        "startLine": 170,
+        "startChar": 4,
+        "endLine": 170,
+        "endChar": 17
+      },
+      "revId": "248a581187220cbbd3297a04179b710c3fc325ab",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
