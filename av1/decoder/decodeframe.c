@@ -1468,7 +1468,9 @@ static void store_bitmask_info(AV1_COMMON *cm, int mi_row, int mi_col,
     }
     // ------ implementation 1 end --------
     */
+#if 0
     // vertical direction --- implementation 2
+    // y vertical.
     const TX_SIZE tx_size_y_vert = txsize_vert_map[mbmi->tx_size];
     const TX_SIZE tx_size_y_horz = txsize_horz_map[mbmi->tx_size];
     const TX_SIZE tx_size_uv_vert = txsize_vert_map[av1_get_max_uv_txsize(
@@ -1501,6 +1503,7 @@ static void store_bitmask_info(AV1_COMMON *cm, int mi_row, int mi_col,
         }
       }
     }
+    // u/v vertical.
     for (int r = mi_row; r < mi_row + mi_size_high[bsize];
          r += tx_size_high_unit[tx_size_uv_vert]) {
       for (int c = mi_col; c < mi_col + mi_size_wide[bsize];
@@ -1528,6 +1531,7 @@ static void store_bitmask_info(AV1_COMMON *cm, int mi_row, int mi_col,
       }
     }
     // horizontal direction
+    // y horizontal.
     for (int c = mi_col; c < mi_col + mi_size_wide[bsize];
          c += tx_size_wide_unit[mbmi->tx_size]) {
       for (int r = mi_row; r < mi_row + mi_size_high[bsize];
@@ -1539,6 +1543,7 @@ static void store_bitmask_info(AV1_COMMON *cm, int mi_row, int mi_col,
             (above_txform_mask[0][tx_size_y_horz] << shift);
       }
     }
+    // u/v horizontal.
     for (int c = mi_col; c < mi_col + mi_size_wide[bsize];
          c += tx_size_wide_unit[tx_size_uv_horz]) {
       for (int r = mi_row; r < mi_row + mi_size_high[bsize];
@@ -1551,6 +1556,194 @@ static void store_bitmask_info(AV1_COMMON *cm, int mi_row, int mi_col,
       }
     }
     // ------ implementation 2 end --------
+#else
+    // ------ implementation 3 start --------
+    // Use a lookup table that provides one bitmask for a given block size and
+    // a univariant transform size.
+    const TX_SIZE tx_size_y_vert = txsize_vert_map[mbmi->tx_size];
+    const TX_SIZE tx_size_y_horz = txsize_horz_map[mbmi->tx_size];
+    const TX_SIZE tx_size_uv_vert = txsize_vert_map[av1_get_max_uv_txsize(
+        mbmi->sb_type, cm->subsampling_x, cm->subsampling_y)];
+    const TX_SIZE tx_size_uv_horz = txsize_horz_map[av1_get_max_uv_txsize(
+        mbmi->sb_type, cm->subsampling_x, cm->subsampling_y)];
+    const int is_square_transform_size = mbmi->tx_size <= TX_64X64;
+    int mask_id = 0;
+    int offset = 0;
+    const int half_ratio_tx_size_max32 =
+        (mbmi->tx_size > TX_64X64) & (mbmi->tx_size <= TX_32X16);
+    if (is_square_transform_size) {
+      switch (mbmi->tx_size) {
+        case TX_4X4: mask_id = mask_id_table_tx_4x4[bsize]; break;
+        case TX_8X8:
+          mask_id = mask_id_table_tx_8x8[bsize];
+          offset = 19;
+          break;
+        case TX_16X16:
+          mask_id = mask_id_table_tx_16x16[bsize];
+          offset = 33;
+          break;
+        case TX_32X32:
+          mask_id = mask_id_table_tx_32x32[bsize];
+          offset = 42;
+          break;
+        case TX_64X64: mask_id = 46; break;
+        default: assert(!is_square_transform_size); return;
+      }
+      mask_id += offset;
+    } else if (half_ratio_tx_size_max32) {
+      int tx_size_equal_block_size = bsize == txsize_to_bsize[mbmi->tx_size];
+      mask_id = 47 + 2 * (mbmi->tx_size - TX_4X8) +
+                (tx_size_equal_block_size ? 0 : 1);
+    } else if (mbmi->tx_size == TX_32X64) {
+      mask_id = 59;
+    } else if (mbmi->tx_size == TX_64X32) {
+      mask_id = 60;
+    } else {  // quarter ratio tx size
+      mask_id = 61 + (mbmi->tx_size - TX_4X16);
+    }
+    row = mi_row % MI_SIZE_64X64;
+    col = mi_col % MI_SIZE_64X64;
+    shift = get_index_shift(col, row, &index);
+    const int vert_shift = tx_size_y_vert <= TX_8X8 ? shift : col;
+    // copy bitmask built for reference.
+    LoopFilterMask new_mask;
+    av1_zero(new_mask);
+    for (int i = 0; i < 2; ++i) {
+      for (int j = 0; j < 5; ++j) {
+        for (int k = 0; k < 4; ++k) {
+          new_mask.tx_size_ver[i][j].bits[k] = lfm->tx_size_ver[i][j].bits[k];
+          new_mask.tx_size_hor[i][j].bits[k] = lfm->tx_size_hor[i][j].bits[k];
+        }
+      }
+    }
+    for (int i = 0; i + index < 4; ++i) {
+      // y vertical.
+      lfm->tx_size_ver[0][tx_size_y_horz].bits[i + index] |=
+          (left_mask_univariant_reordered[mask_id].bits[i] << vert_shift);
+      // y horizontal.
+      lfm->tx_size_hor[0][tx_size_y_vert].bits[i + index] |=
+          (above_mask_univariant_reordered[mask_id].bits[i] << shift);
+      // Note: think carefully about the mask for u/v planes. Double check with
+      // the building bitmask function. Also care about the name.
+      // u/v vertical.
+      lfm->tx_size_ver[1][tx_size_uv_horz].bits[i + index] |=
+          (left_mask_univariant_reordered[mask_id].bits[i] << vert_shift);
+      // u/v horizontal.
+      lfm->tx_size_hor[1][tx_size_uv_vert].bits[i + index] |=
+          (above_mask_univariant_reordered[mask_id].bits[i] << shift);
+    }
+      /*  For debug purpose. compare newly built bitmask with original method.
+      // temprorily use original.
+      {
+        // y vertical.
+        for (int r = mi_row; r < mi_row + mi_size_high[bsize];
+             r += tx_size_high_unit[mbmi->tx_size]) {
+          for (int c = mi_col; c < mi_col + mi_size_wide[bsize];
+               c += tx_size_wide_unit[mbmi->tx_size]) {
+            row = r % MI_SIZE_64X64;
+            col = c % MI_SIZE_64X64;
+            shift = get_index_shift(col, row, &index);
+            if (tx_size_y_vert <= TX_8X8) {
+              lfm->tx_size_ver[0][tx_size_y_horz].bits[index] |=
+                  (left_txform_mask[tx_size_y_vert].bits[0] << shift);
+            } else if (tx_size_y_vert == TX_16X16) {
+              lfm->tx_size_ver[0][tx_size_y_horz].bits[index] |=
+                  (left_txform_mask[tx_size_y_vert].bits[0] << col);
+            } else if (tx_size_y_vert == TX_32X32) {
+              for (int i = 0; i < 2; ++i) {
+                lfm->tx_size_ver[0][tx_size_y_horz].bits[i + index] |=
+                    (left_txform_mask[tx_size_y_vert].bits[i] << col);
+              }
+            } else {
+              for (int i = 0; i < 4; ++i) {
+                lfm->tx_size_ver[0][tx_size_y_horz].bits[i + index] |=
+                    (left_txform_mask[tx_size_y_vert].bits[i] << col);
+              }
+            }
+          }
+        }
+        // y horizontal.
+        for (int c = mi_col; c < mi_col + mi_size_wide[bsize];
+             c += tx_size_wide_unit[mbmi->tx_size]) {
+          for (int r = mi_row; r < mi_row + mi_size_high[bsize];
+               r += tx_size_high_unit[mbmi->tx_size]) {
+            row = r % MI_SIZE_64X64;
+            col = c % MI_SIZE_64X64;
+            shift = get_index_shift(col, row, &index);
+            lfm->tx_size_hor[0][tx_size_y_vert].bits[index] |=
+                (above_txform_mask[0][tx_size_y_horz] << shift);
+          }
+        }
+        // u/v vertical.
+        for (int r = mi_row; r < mi_row + mi_size_high[bsize];
+             r += tx_size_high_unit[tx_size_uv_vert]) {
+          for (int c = mi_col; c < mi_col + mi_size_wide[bsize];
+               c += tx_size_wide_unit[tx_size_uv_horz]) {
+            row = r % MI_SIZE_64X64;
+            col = c % MI_SIZE_64X64;
+            shift = get_index_shift(col, row, &index);
+            if (tx_size_uv_vert <= TX_8X8) {
+              lfm->tx_size_ver[1][tx_size_uv_horz].bits[index] |=
+                  (left_txform_mask[tx_size_uv_vert].bits[0] << shift);
+            } else if (tx_size_uv_vert == TX_16X16) {
+              lfm->tx_size_ver[1][tx_size_uv_horz].bits[index] |=
+                  (left_txform_mask[tx_size_uv_vert].bits[0] << col);
+            } else if (tx_size_uv_vert == TX_32X32) {
+              for (int i = 0; i < 2; ++i) {
+                lfm->tx_size_ver[1][tx_size_uv_horz].bits[i + index] |=
+                    (left_txform_mask[tx_size_uv_vert].bits[i] << col);
+              }
+            } else {
+              for (int i = 0; i < 4; ++i) {
+                lfm->tx_size_ver[1][tx_size_uv_horz].bits[i + index] |=
+                    (left_txform_mask[tx_size_uv_vert].bits[i] << col);
+              }
+            }
+          }
+        }
+        // u/v horizontal.
+        for (int c = mi_col; c < mi_col + mi_size_wide[bsize];
+             c += tx_size_wide_unit[tx_size_uv_horz]) {
+          for (int r = mi_row; r < mi_row + mi_size_high[bsize];
+               r += tx_size_high_unit[tx_size_uv_vert]) {
+            row = r % MI_SIZE_64X64;
+            col = c % MI_SIZE_64X64;
+            shift = get_index_shift(col, row, &index);
+            lfm->tx_size_hor[1][tx_size_uv_vert].bits[index] |=
+                (above_txform_mask[0][tx_size_uv_horz] << shift);
+          }
+        }
+      }
+      // compare new built mask and original mask.
+      FILE *pfile = fopen("mask_diff.txt", "a");
+      for (int i = 0; i < 4; ++i) {
+        if (new_mask.tx_size_ver[0][tx_size_y_horz].bits[i] !=
+            lfm->tx_size_ver[0][tx_size_y_horz].bits[i]) {
+          fprintf(pfile,
+                  "y vertical. %d, (%d, %d), mask_id %d, new %lx, "
+                  "orig %lx, block %dx%d, tx_size %dx%d\n",
+                  cm->frame_offset, mi_row, mi_col, mask_id,
+                  new_mask.tx_size_ver[0][tx_size_y_horz].bits[i],
+                  lfm->tx_size_ver[0][tx_size_y_horz].bits[i],
+                  block_size_wide[bsize], block_size_high[bsize],
+                  tx_size_wide[mbmi->tx_size], tx_size_high[mbmi->tx_size]);
+        }
+        if (new_mask.tx_size_hor[0][tx_size_y_vert].bits[i] !=
+            lfm->tx_size_hor[0][tx_size_y_vert].bits[i]) {
+          fprintf(pfile,
+                  "y horizontal. %d, (%d, %d), mask_id %d, new %lx, "
+                  "orig %lx, block %dx%d, tx_size %dx%d\n",
+                  cm->frame_offset, mi_row, mi_col, mask_id,
+                  new_mask.tx_size_hor[0][tx_size_y_vert].bits[i],
+                  lfm->tx_size_hor[0][tx_size_y_vert].bits[i],
+                  block_size_wide[bsize], block_size_high[bsize],
+                  tx_size_wide[mbmi->tx_size], tx_size_high[mbmi->tx_size]);
+        }
+      }
+      fclose(pfile);
+      */
+#endif
+    // ------ implementation 3 end --------
     // store other info
     const int row_start = mi_row % MI_SIZE_64X64;
     const int col_start = mi_col % MI_SIZE_64X64;
