@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "62bc7e72_5505ac8b",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 7695,
+      "author": {
+        "id": 8900
+      },
+      "writtenOn": "2018-07-26T02:04:11Z",
+      "side": 1,
+      "message": "These two lines can be dropped, if move line 7702,7703 into the \"if (!skip_pred) \" branch.",
+      "revId": "0bf95a6eff15e56202ddf4d474b6d30eab66daa1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "33bb1bf2_a72d4999",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 7702,
+      "author": {
+        "id": 8900
+      },
+      "writtenOn": "2018-07-26T02:04:11Z",
+      "side": 1,
+      "message": "This line and line below",
+      "range": {
+        "startLine": 7702,
+        "startChar": 5,
+        "endLine": 7702,
+        "endChar": 17
+      },
+      "revId": "0bf95a6eff15e56202ddf4d474b6d30eab66daa1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9beac0ba_0a0e3ecd",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 7707,
+      "author": {
+        "id": 8900
+      },
+      "writtenOn": "2018-07-26T02:04:11Z",
+      "side": 1,
+      "message": "move into this branch.",
+      "range": {
+        "startLine": 7706,
+        "startChar": 0,
+        "endLine": 7707,
+        "endChar": 0
+      },
+      "revId": "0bf95a6eff15e56202ddf4d474b6d30eab66daa1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6c1ecc3f_3150704b",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 7885,
+      "author": {
+        "id": 8900
+      },
+      "writtenOn": "2018-07-26T02:04:11Z",
+      "side": 1,
+      "message": "Good catch! I missed the scaled case.\n\nMaybe we can add a \"TODO\", for scaled case, it still have a chance to skip.",
+      "range": {
+        "startLine": 7885,
+        "startChar": 6,
+        "endLine": 7885,
+        "endChar": 14
+      },
+      "revId": "0bf95a6eff15e56202ddf4d474b6d30eab66daa1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
