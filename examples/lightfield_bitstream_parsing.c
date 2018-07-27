@@ -33,8 +33,7 @@
 #include "common/tools_common.h"
 #include "common/video_reader.h"
 #include "common/video_writer.h"
-
-#define MAX_TILES 512
+#include "examples/lightfield.h"
 
 static const char *exec_name;
 
@@ -46,53 +45,6 @@ void usage_exit(void) {
 
 #define ALIGN_POWER_OF_TWO(value, n) \
   (((value) + ((1 << (n)) - 1)) & ~((1 << (n)) - 1))
-
-// SB size: 64x64
-const int output_frame_width = 512;
-const int output_frame_height = 512;
-
-// Spec:
-// typedef struct {
-//   uint8_t anchor_frame_idx;
-//   uint8_t tile_row;
-//   uint8_t tile_col;
-//   uint16_t coded_tile_data_size_minus_1;
-//   uint8_t *coded_tile_data;
-// } TILE_LIST_ENTRY;
-
-// Tile list entry provided by the application
-typedef struct {
-  int image_idx;
-  int reference_idx;
-  int tile_col;
-  int tile_row;
-} TILE_LIST_INFO;
-
-// M references: 0 - M-1; N images(including references): 0 - N-1;
-// Note: order the image index incrementally, so that we only go through the
-// bitstream once to construct the tile list.
-const int num_tile_lists = 2;
-const uint16_t tile_count_minus_1 = 9 - 1;
-const TILE_LIST_INFO tile_list[2][9] = {
-  { { 16, 0, 4, 5 },
-    { 83, 3, 13, 2 },
-    { 57, 2, 2, 6 },
-    { 31, 1, 11, 5 },
-    { 2, 0, 7, 4 },
-    { 77, 3, 9, 9 },
-    { 49, 1, 0, 1 },
-    { 6, 0, 3, 10 },
-    { 63, 2, 5, 8 } },
-  { { 65, 2, 11, 1 },
-    { 42, 1, 3, 7 },
-    { 88, 3, 8, 4 },
-    { 76, 3, 1, 15 },
-    { 1, 0, 2, 2 },
-    { 19, 0, 5, 6 },
-    { 60, 2, 4, 0 },
-    { 25, 1, 11, 15 },
-    { 50, 2, 5, 4 } },
-};
 
 static int get_image_bps(aom_img_fmt_t fmt) {
   switch (fmt) {
@@ -268,12 +220,12 @@ int main(int argc, char **argv) {
     // write_tile_list_obu()
     aom_wb_write_literal(&wb, output_frame_width_in_tiles_minus_1, 8);
     aom_wb_write_literal(&wb, output_frame_height_in_tiles_minus_1, 8);
-    aom_wb_write_literal(&wb, tile_count_minus_1, 16);
+    aom_wb_write_literal(&wb, tile_count_minus_1[n], 16);
     tl += 4;
     tile_list_obu_size += 4;
 
     // Write each tile's data
-    for (i = 0; i <= tile_count_minus_1; i++) {
+    for (i = 0; i <= tile_count_minus_1[n]; i++) {
       aom_tile_data tile_data = { 0, NULL, 0 };
 
       int image_idx = tile_list[n][i].image_idx;
