@@ -27,6 +27,7 @@
 #include "aom/aomdx.h"
 #include "common/tools_common.h"
 #include "common/video_reader.h"
+#include "examples/lightfield.h"
 
 #define MAX_EXTERNAL_REFERENCES 128
 #define AOM_BORDER_IN_PIXELS 288
@@ -37,44 +38,6 @@ void usage_exit(void) {
   fprintf(stderr, "Usage: %s <infile> <outfile> <num_references>\n", exec_name);
   exit(EXIT_FAILURE);
 }
-
-// Tile list entry provided by the application
-typedef struct {
-  int image_idx;
-  int reference_idx;
-  int tile_col;
-  int tile_row;
-} TILE_LIST_INFO;
-
-// M references: 0 - M-1; N images(including references): 0 - N-1;
-// Note: order the image index incrementally, so that we only go through the
-// bitstream once to construct the tile list.
-const int num_tile_lists = 2;
-const uint16_t tile_count_minus_1 = 9 - 1;
-const TILE_LIST_INFO tile_list[2][9] = {
-  { { 16, 0, 4, 5 },
-    { 83, 3, 13, 2 },
-    { 57, 2, 2, 6 },
-    { 31, 1, 11, 5 },
-    { 2, 0, 7, 4 },
-    { 77, 3, 9, 9 },
-    { 49, 1, 0, 1 },
-    { 6, 0, 3, 10 },
-    { 63, 2, 5, 8 } },
-  { { 65, 2, 11, 1 },
-    { 42, 1, 3, 7 },
-    { 88, 3, 8, 4 },
-    { 76, 3, 1, 15 },
-    { 1, 0, 2, 2 },
-    { 19, 0, 5, 6 },
-    { 60, 2, 4, 0 },
-    { 25, 1, 11, 15 },
-    { 50, 2, 5, 4 } },
-};
-
-// Output page size
-const int output_frame_width = 512;
-const int output_frame_height = 512;
 
 static void aom_img_copy_tile(const aom_image_t *src, const aom_image_t *dst,
                               int dst_row_offset, int dst_col_offset) {
@@ -197,7 +160,7 @@ int main(int argc, char **argv) {
   for (n = 0; n < num_tile_lists; n++) {
     int tile_idx = 0;
 
-    for (i = 0; i <= tile_count_minus_1; i++) {
+    for (i = 0; i <= tile_count_minus_1[n]; i++) {
       int image_idx = tile_list[n][i].image_idx;
       int ref_idx = tile_list[n][i].reference_idx;
       int tc = tile_list[n][i].tile_col;
