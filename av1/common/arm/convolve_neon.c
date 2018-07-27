@@ -483,6 +483,7 @@ void av1_convolve_x_sr_neon(const uint8_t *src, int src_stride, uint8_t *dst,
   }
 }
 
+#if defined(__aarch64__)
 void av1_convolve_y_sr_neon(const uint8_t *src, int src_stride, uint8_t *dst,
                             int dst_stride, int w, int h,
                             const InterpFilterParams *filter_params_x,
@@ -677,6 +678,135 @@ void av1_convolve_y_sr_neon(const uint8_t *src, int src_stride, uint8_t *dst,
     } while (w > 0);
   }
 }
+#else
+void av1_convolve_y_sr_neon(const uint8_t *src, int src_stride, uint8_t *dst,
+                            int dst_stride, int w, int h,
+                            const InterpFilterParams *filter_params_x,
+                            const InterpFilterParams *filter_params_y,
+                            const int subpel_x_q4, const int subpel_y_q4,
+                            ConvolveParams *conv_params) {
+  const int vert_offset = filter_params_y->taps / 2 - 1;
+
+  src -= vert_offset * src_stride;
+
+  (void)filter_params_x;
+  (void)subpel_x_q4;
+  (void)conv_params;
+
+  assert(conv_params->round_0 <= FILTER_BITS);
+  assert(((conv_params->round_0 + conv_params->round_1) <= (FILTER_BITS + 1)) ||
+         ((conv_params->round_0 + conv_params->round_1) == (2 * FILTER_BITS)));
+
+  const int16_t *y_filter = av1_get_interp_filter_subpel_kernel(
+      filter_params_y, subpel_y_q4 & SUBPEL_MASK);
+
+  if (w <= 4) {
+    uint8x8_t d01;
+    int16x4_t s0, s1, s2, s3, s4, s5, s6, s7, d0;
+
+    s0 = vreinterpret_s16_u16(vget_low_u16(vmovl_u8(vld1_u8(src))));
+    src += src_stride;
+    s1 = vreinterpret_s16_u16(vget_low_u16(vmovl_u8(vld1_u8(src))));
+    src += src_stride;
+    s2 = vreinterpret_s16_u16(vget_low_u16(vmovl_u8(vld1_u8(src))));
+    src += src_stride;
+    s3 = vreinterpret_s16_u16(vget_low_u16(vmovl_u8(vld1_u8(src))));
+    src += src_stride;
+    s4 = vreinterpret_s16_u16(vget_low_u16(vmovl_u8(vld1_u8(src))));
+    src += src_stride;
+    s5 = vreinterpret_s16_u16(vget_low_u16(vmovl_u8(vld1_u8(src))));
+    src += src_stride;
+    s6 = vreinterpret_s16_u16(vget_low_u16(vmovl_u8(vld1_u8(src))));
+    src += src_stride;
+
+    do {
+      s7 = vreinterpret_s16_u16(vget_low_u16(vmovl_u8(vld1_u8(src))));
+      src += src_stride;
+
+      __builtin_prefetch(dst + 0 * dst_stride);
+      __builtin_prefetch(src + 0 * src_stride);
+
+      d0 = convolve8_4x4(s0, s1, s2, s3, s4, s5, s6, s7, y_filter);
+
+      d01 = vqrshrun_n_s16(vcombine_s16(d0, d0), FILTER_BITS);
+
+      if (w == 4) {
+        vst1_lane_u32((uint32_t *)dst, vreinterpret_u32_u8(d01), 0);
+        dst += dst_stride;
+      } else if (w == 2) {
+        vst1_lane_u16((uint16_t *)dst, vreinterpret_u16_u8(d01), 0);
+        dst += dst_stride;
+      }
+      s0 = s1;
+      s1 = s2;
+      s2 = s3;
+      s3 = s4;
+      s4 = s5;
+      s5 = s6;
+      s6 = s7;
+      h -= 1;
+    } while (h > 0);
+  } else {
+    int height;
+    const uint8_t *s;
+    uint8_t *d;
+    uint8x8_t t0;
+    int16x8_t s0, s1, s2, s3, s4, s5, s6, s7;
+
+    do {
+      __builtin_prefetch(src + 0 * src_stride);
+      __builtin_prefetch(src + 1 * src_stride);
+      __builtin_prefetch(src + 2 * src_stride);
+      __builtin_prefetch(src + 3 * src_stride);
+      __builtin_prefetch(src + 4 * src_stride);
+      __builtin_prefetch(src + 5 * src_stride);
+      __builtin_prefetch(src + 6 * src_stride);
+      s = src;
+      s0 = vreinterpretq_s16_u16(vmovl_u8(vld1_u8(s)));
+      s += src_stride;
+      s1 = vreinterpretq_s16_u16(vmovl_u8(vld1_u8(s)));
+      s += src_stride;
+      s2 = vreinterpretq_s16_u16(vmovl_u8(vld1_u8(s)));
+      s += src_stride;
+      s3 = vreinterpretq_s16_u16(vmovl_u8(vld1_u8(s)));
+      s += src_stride;
+      s4 = vreinterpretq_s16_u16(vmovl_u8(vld1_u8(s)));
+      s += src_stride;
+      s5 = vreinterpretq_s16_u16(vmovl_u8(vld1_u8(s)));
+      s += src_stride;
+      s6 = vreinterpretq_s16_u16(vmovl_u8(vld1_u8(s)));
+      s += src_stride;
+      d = dst;
+      height = h;
+
+      do {
+        s7 = vreinterpretq_s16_u16(vmovl_u8(vld1_u8(s)));
+        s += src_stride;
+
+        __builtin_prefetch(d);
+        __builtin_prefetch(s);
+
+        t0 = convolve8_vert_8x4(s0, s1, s2, s3, s4, s5, s6, s7, y_filter);
+
+        vst1_u8(d, t0);
+        d += dst_stride;
+
+        s0 = s1;
+        s1 = s2;
+        s2 = s3;
+        s3 = s4;
+        s4 = s5;
+        s5 = s6;
+        s6 = s7;
+        height -= 1;
+      } while (height > 0);
+      src += 8;
+      dst += 8;
+      w -= 8;
+    } while (w > 0);
+  }
+}
+#endif
 
 void av1_convolve_2d_sr_neon(const uint8_t *src, int src_stride, uint8_t *dst,
                              int dst_stride, int w, int h,
