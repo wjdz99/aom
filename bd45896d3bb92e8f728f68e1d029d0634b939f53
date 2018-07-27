@@ -52,6 +52,24 @@
       "revId": "bd45896d3bb92e8f728f68e1d029d0634b939f53",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6fec46be_c50c4057",
+        "filename": "README.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 423,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-27T16:00:43Z",
+      "side": 1,
+      "message": "\u003e I had to double check your instructions because it has changed recently.\n\nThank you!\n\n\u003e Previously there was a public checkbox.\n\nAh, so that\u0027s why. I was puzzled why I didn\u0027t remember going through this before.",
+      "parentUuid": "0d56fd8d_a35a590d",
+      "revId": "bd45896d3bb92e8f728f68e1d029d0634b939f53",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
