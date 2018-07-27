@@ -45,6 +45,30 @@
       "revId": "b60105b210f146f01e0459c163bbd834fd986366",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a1c120b8_78f2d1a3",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 623,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2018-07-27T21:17:24Z",
+      "side": 1,
+      "message": "Right, but why can\u0027t you just do\n\nTX_TYPE *tx_type \u003d DCT_DCT;\n\nrather than\n\nTX_TYPE *tx_type \u003d \u0026mbmi-\u003etxk_type[txk_type_idx];\n*tx_type \u003d DCT_DCT;",
+      "parentUuid": "04520635_2084aff6",
+      "range": {
+        "startLine": 623,
+        "startChar": 11,
+        "endLine": 623,
+        "endChar": 18
+      },
+      "revId": "b60105b210f146f01e0459c163bbd834fd986366",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
