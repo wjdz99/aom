@@ -1,0 +1,112 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1e6f5ed9_c06362e5",
+        "filename": "aom_dsp/x86/highbd_loopfilter_sse2.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 361,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-07-27T08:10:46Z",
+      "side": 1,
+      "message": "I\u0027m not sure this line adds much benefit in this context",
+      "revId": "a34fbe2d67861e62a3e74712bed9a87ee6432e0a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "63f37038_6b64bfab",
+        "filename": "aom_dsp/x86/highbd_loopfilter_sse2.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 362,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-07-27T08:10:46Z",
+      "side": 1,
+      "message": "we try to avoid inverse comparisons, prefer \u0027val \u003d\u003d constant\u0027. positive checks are also somewhat preferable for readability.",
+      "range": {
+        "startLine": 362,
+        "startChar": 6,
+        "endLine": 362,
+        "endChar": 62
+      },
+      "revId": "a34fbe2d67861e62a3e74712bed9a87ee6432e0a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "63c8b6fc_2d9bf3f0",
+        "filename": "aom_dsp/x86/highbd_loopfilter_sse2.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 414,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-07-27T08:10:46Z",
+      "side": 1,
+      "message": "this can be const",
+      "revId": "a34fbe2d67861e62a3e74712bed9a87ee6432e0a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3994fb67_ec1b08ca",
+        "filename": "aom_dsp/x86/highbd_loopfilter_sse2.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 472,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-07-27T08:10:46Z",
+      "side": 1,
+      "message": "drop this trailing comment",
+      "revId": "a34fbe2d67861e62a3e74712bed9a87ee6432e0a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5b886d3f_ad7b7fa8",
+        "filename": "aom_dsp/x86/highbd_loopfilter_sse2.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 474,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-07-27T08:10:46Z",
+      "side": 1,
+      "message": "this comment pair isn\u0027t particularly helpful. maybe just \u0027apply filter8\u0027?",
+      "revId": "a34fbe2d67861e62a3e74712bed9a87ee6432e0a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d07550ea_5d01fb1a",
+        "filename": "aom_dsp/x86/highbd_loopfilter_sse2.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 485,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-07-27T08:10:46Z",
+      "side": 1,
+      "message": "I don\u0027t think this barrier is adding very much given the previous comment",
+      "revId": "a34fbe2d67861e62a3e74712bed9a87ee6432e0a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
