@@ -155,10 +155,13 @@ int main(int argc, char **argv) {
   // Record the offset of the first camera image.
   const FileOffset camera_frame_pos = ftello(infile);
   int is_output_allocated = 0;
+  aom_image_t *output_shifted = NULL;
 
   // Process 1 tile.
   for (n = 0; n < num_tile_lists; n++) {
     int tile_idx = 0;
+    aom_image_t *out = NULL;
+    unsigned int output_bit_depth = 0;
 
     for (i = 0; i <= tile_count_minus_1[n]; i++) {
       int image_idx = tile_list[n][i].image_idx;
@@ -205,8 +208,15 @@ int main(int argc, char **argv) {
         if (!aom_img_alloc(&output, out_fmt, output_frame_width,
                            output_frame_height, 32))
           die("Failed to allocate output image.");
+        // aom_img_alloc() sets bit_depth as follows:
+        // output->bit_depth = (fmt & AOM_IMG_FMT_HIGHBITDEPTH) ? 16 : 8;
+        // Use img->bit_depth(read from bitstream), so that aom_shift_img()
+        // works as expected.
+        output.bit_depth = img->bit_depth;
         is_output_allocated = 1;
       }
+      out = &output;
+      output_bit_depth = img->bit_depth;
 
       // read out the tile size.
       unsigned int tile_size = 0;
@@ -225,7 +235,11 @@ int main(int argc, char **argv) {
         // Write out the filled frame.
         if (tile_idx) {
           tile_idx = 0;
-          aom_img_write(&output, outfile);
+          // Shift up or down if necessary
+          if (output_bit_depth != 0)
+            aom_shift_img(output_bit_depth, &out, &output_shifted);
+          // Write out a frame.
+          aom_img_write(out, outfile);
         }
         // Then memset the frame.
         memset(output.img_data, 0, output.sz);
@@ -241,10 +255,14 @@ int main(int argc, char **argv) {
       tile_idx++;
     }
 
+    // Shift up or down if necessary
+    if (output_bit_depth != 0)
+      aom_shift_img(output_bit_depth, &out, &output_shifted);
     // Write out the partially filled frame.
-    aom_img_write(&output, outfile);
+    aom_img_write(out, outfile);
   }
 
+  if (output_shifted) aom_img_free(output_shifted);
   aom_img_free(&output);
   for (i = 0; i < num_references; i++) aom_img_free(&reference_images[i]);
   if (aom_codec_destroy(&codec)) die_codec(&codec, "Failed to destroy codec");
