@@ -159,6 +159,10 @@ void av1_setup_block_planes(MACROBLOCKD *xd, int ss_x, int ss_y,
     xd->plane[i].subsampling_x = i ? ss_x : 0;
     xd->plane[i].subsampling_y = i ? ss_y : 0;
   }
+  for (i = num_planes; i < 3; i++) {
+    xd->plane[i].subsampling_x = 0;
+    xd->plane[i].subsampling_y = 0;
+  }
 }
 
 const int16_t dr_intra_derivative[90] = {
