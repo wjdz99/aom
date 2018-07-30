@@ -336,6 +336,12 @@ static const int mask_id_table_tx_32x32[BLOCK_SIZES_ALL] = {
   -1, -1, -1, -1, -1, -1, -1, -1, -1, 0, 1, 2, 3, -1, -1, -1, -1, -1, -1, -1, -1, -1
 };
 
+// corresponds to entry id in table left_mask_univariant_reordered,
+// of block size mxn and TX_mxn.
+static const int mask_id_table_vert_border[BLOCK_SIZES_ALL] = {
+  0, 47, 49, 19, 51, 53, 33, 55, 57, 42, 59, 60, 46, -1, -1, -1, 61, 62, 63, 64, 65, 66
+};
+
 static const FilterMask left_mask_univariant_reordered[] = {
     // TX_4X4
     { { 0x0000000000000001ULL, 0x0000000000000000ULL, 0x0000000000000000ULL, 0x0000000000000000ULL } },  // block size 4X4, TX_4X4
