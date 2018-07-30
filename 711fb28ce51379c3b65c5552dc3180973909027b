@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ac84df9f_07503690",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 2
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-30T21:47:20Z",
+      "side": 1,
+      "message": "[This is a question, not a request for change.] It looks strange to have an example code file in the AOM_COMMON_APP_UTIL_SOURCES list. Perhaps this means lightfield.h should be moved to the ${AOM_ROOT}/common directory?",
+      "range": {
+        "startLine": 174,
+        "startChar": 12,
+        "endLine": 174,
+        "endChar": 47
+      },
+      "revId": "711fb28ce51379c3b65c5552dc3180973909027b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f98fbc90_28eb5767",
+        "filename": "examples/lightfield.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-30T21:47:20Z",
+      "side": 1,
+      "message": "This block of code is commented out. Should this be deleted? Or will this be used very soon?",
+      "range": {
+        "startLine": 23,
+        "startChar": 0,
+        "endLine": 30,
+        "endChar": 21
+      },
+      "revId": "711fb28ce51379c3b65c5552dc3180973909027b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "04762b15_b0c07cf1",
+        "filename": "examples/lightfield.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-30T21:47:20Z",
+      "side": 1,
+      "message": "Nit: I suggest using something other than \u0027-\u0027 to specify a range, for example,\n\n  0 ... M-1  instead of  0 - M-1\n  0 ... N-1  instead of  0 - N-1\n\nor 0 ~ M-1 and 0 ~ N-1",
+      "range": {
+        "startLine": 40,
+        "startChar": 17,
+        "endLine": 40,
+        "endChar": 65
+      },
+      "revId": "711fb28ce51379c3b65c5552dc3180973909027b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fe0f2cd1_b891db4a",
+        "filename": "examples/lightfield.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-30T21:47:20Z",
+      "side": 1,
+      "message": "I don\u0027t understand this comment ... The image indexes in each tile list don\u0027t seem to be increasing. For example, in tile list 0, the image indexes are 16, 83, 57, 31, ...",
+      "range": {
+        "startLine": 41,
+        "startChar": 9,
+        "endLine": 41,
+        "endChar": 44
+      },
+      "revId": "711fb28ce51379c3b65c5552dc3180973909027b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f62c78eb_eee988fa",
+        "filename": "examples/lightfield.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-30T21:47:20Z",
+      "side": 1,
+      "message": "Nit: Ideally we should use num_tile_lists instead of 2 in the declarations of these two arrays:\n\nconst uint16_t tile_count_minus_1[num_tile_lists] \u003d { 9 - 1, 66 - 1 };\nconst TILE_LIST_INFO tile_list[num_tile_lists][MAX_TILES] \u003d {",
+      "range": {
+        "startLine": 44,
+        "startChar": 0,
+        "endLine": 45,
+        "endChar": 48
+      },
+      "revId": "711fb28ce51379c3b65c5552dc3180973909027b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
