@@ -1,0 +1,372 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c7e03538_1d905937",
+        "filename": "aom/aom_image.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-30T21:31:59Z",
+      "side": 1,
+      "message": "It may be better to change this comment to \"frame size\". \"data size\" sounds like the size of the img_data buffer, but we are storing yv12-\u003eframe_size, not yv12-\u003ebuffer_alloc_sz, in the \u0027sz\u0027 field (see av1/av1_iface_common.h:78).",
+      "range": {
+        "startLine": 175,
+        "startChar": 33,
+        "endLine": 175,
+        "endChar": 42
+      },
+      "revId": "81fbd9d05fa7aeb17a4c7f7c7e50f7475dd9ac26",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ffa52837_b248fe1c",
+        "filename": "aom_scale/aom_scale_rtcd.pl",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-30T21:31:59Z",
+      "side": 1,
+      "message": "Optional: It seems that we are including this header for the size_t type. If so, then we can include \u003cstddef.h\u003e instead.",
+      "range": {
+        "startLine": 14,
+        "startChar": 0,
+        "endLine": 14,
+        "endChar": 28
+      },
+      "revId": "81fbd9d05fa7aeb17a4c7f7c7e50f7475dd9ac26",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "56c72529_fc4ed7b2",
+        "filename": "aom_scale/generic/yv12config.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-30T21:31:59Z",
+      "side": 1,
+      "message": "Should we assert num_frames \u003d\u003d 1 in this case?",
+      "range": {
+        "startLine": 79,
+        "startChar": 0,
+        "endLine": 81,
+        "endChar": 78
+      },
+      "revId": "81fbd9d05fa7aeb17a4c7f7c7e50f7475dd9ac26",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "09b3ad6c_d6b24916",
+        "filename": "aom_scale/generic/yv12extend.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 355,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-30T21:31:59Z",
+      "side": 1,
+      "message": "Nit: It would be good to document what \"coloc\" means. (I don\u0027t know what it means.)",
+      "range": {
+        "startLine": 355,
+        "startChar": 22,
+        "endLine": 355,
+        "endChar": 27
+      },
+      "revId": "81fbd9d05fa7aeb17a4c7f7c7e50f7475dd9ac26",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "656aca6b_3891dab3",
+        "filename": "aom_scale/yv12config.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-30T21:31:59Z",
+      "side": 1,
+      "message": "It would be good to document the new function. We can at least describe how it differs from aom_realloc_frame_buffer().",
+      "range": {
+        "startLine": 134,
+        "startChar": 0,
+        "endLine": 140,
+        "endChar": 66
+      },
+      "revId": "81fbd9d05fa7aeb17a4c7f7c7e50f7475dd9ac26",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "09ae7735_7fec6b99",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 436,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-30T21:31:59Z",
+      "side": 1,
+      "message": "Nit: Change \"¼\" to \"1/4\" (in ASCII characters)?",
+      "range": {
+        "startLine": 436,
+        "startChar": 68,
+        "endLine": 436,
+        "endChar": 69
+      },
+      "revId": "81fbd9d05fa7aeb17a4c7f7c7e50f7475dd9ac26",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "92797147_3afbfb55",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 462,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-30T21:31:59Z",
+      "side": 1,
+      "message": "It doesn\u0027t seem necessary to zero the buffer. Also, when the buffer is first allocated in aom_realloc_frame_buffer_helper(), it is zeroed. So the memset() call here is redundant in that case.",
+      "range": {
+        "startLine": 461,
+        "startChar": 0,
+        "endLine": 462,
+        "endChar": 48
+      },
+      "revId": "81fbd9d05fa7aeb17a4c7f7c7e50f7475dd9ac26",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dcd948ec_b3d8e2cd",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 467,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-30T21:31:59Z",
+      "side": 1,
+      "message": "Nit: It would be good to document the frame_offset and tile_idx arguments. For example, I can tell that frame_offset is related to which frame the decoded tile is in, and tile_idx is the index of that file inside that frame.\n\nOne can figure this out by reading the code, but it would be good to have some comments somewhere to let readers confirm they understand the code correctly.",
+      "range": {
+        "startLine": 466,
+        "startChar": 0,
+        "endLine": 467,
+        "endChar": 65
+      },
+      "revId": "81fbd9d05fa7aeb17a4c7f7c7e50f7475dd9ac26",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cb598d08_6242010a",
+        "filename": "examples/lightfield_bitstream_parsing.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-30T21:31:59Z",
+      "side": 1,
+      "message": "Nit: Delete this comment? \"64\" has been deleted from the code, so this comment may no longer make sense ...",
+      "range": {
+        "startLine": 50,
+        "startChar": 0,
+        "endLine": 50,
+        "endChar": 17
+      },
+      "revId": "81fbd9d05fa7aeb17a4c7f7c7e50f7475dd9ac26",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "11bacf27_29a73616",
+        "filename": "examples/lightfield_decoder.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-30T21:31:59Z",
+      "side": 1,
+      "message": "Nit: Did you mean \"page\" or \"frame\"?",
+      "range": {
+        "startLine": 75,
+        "startChar": 10,
+        "endLine": 75,
+        "endChar": 14
+      },
+      "revId": "81fbd9d05fa7aeb17a4c7f7c7e50f7475dd9ac26",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6701f6d1_634da2c5",
+        "filename": "examples/lightfield_decoder.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-30T21:31:59Z",
+      "side": 1,
+      "message": "Rather than using is_output_allocated to allocate \u0027output\u0027 inside the nested for loops, can we just allocate \u0027output\u0027 here?",
+      "range": {
+        "startLine": 194,
+        "startChar": 2,
+        "endLine": 194,
+        "endChar": 30
+      },
+      "revId": "81fbd9d05fa7aeb17a4c7f7c7e50f7475dd9ac26",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a7ededef_e236696b",
+        "filename": "examples/lightfield_decoder.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-30T21:31:59Z",
+      "side": 1,
+      "message": "Should we check if \u0027img\u0027 is null?\n\n    if (!img) die_codec(\u0026codec, \"Failed to get frame.\");\n\nIf \u0027img\u0027 cannot possibly be null here, then we can omit the \"if (img)\" check.",
+      "range": {
+        "startLine": 236,
+        "startChar": 6,
+        "endLine": 236,
+        "endChar": 60
+      },
+      "revId": "81fbd9d05fa7aeb17a4c7f7c7e50f7475dd9ac26",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "48bb5ff9_799fe4c3",
+        "filename": "examples/lightfield_decoder.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-30T21:31:59Z",
+      "side": 1,
+      "message": "It seems that this block of code (lines 248-259) can be moved outside the nested for loops. These variables only need to be calculated once.",
+      "range": {
+        "startLine": 248,
+        "startChar": 0,
+        "endLine": 259,
+        "endChar": 69
+      },
+      "revId": "81fbd9d05fa7aeb17a4c7f7c7e50f7475dd9ac26",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f851c1bf_97188005",
+        "filename": "examples/lightfield_decoder.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 268,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-30T21:31:59Z",
+      "side": 1,
+      "message": "Should the third argument be output.sz * output.num_frames ?",
+      "range": {
+        "startLine": 268,
+        "startChar": 35,
+        "endLine": 268,
+        "endChar": 44
+      },
+      "revId": "81fbd9d05fa7aeb17a4c7f7c7e50f7475dd9ac26",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "06378355_2d23dea1",
+        "filename": "examples/lightfield_tile_list_decoder.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-30T21:31:59Z",
+      "side": 1,
+      "message": "We should check for fwrite() failure here. Since this file is example code, it may be acceptable to not check for file I/O errors.\n\nWe can add a TODO comment.",
+      "range": {
+        "startLine": 64,
+        "startChar": 8,
+        "endLine": 64,
+        "endChar": 14
+      },
+      "revId": "81fbd9d05fa7aeb17a4c7f7c7e50f7475dd9ac26",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "782600f7_e8c1572b",
+        "filename": "examples/lightfield_tile_list_decoder.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-30T21:31:59Z",
+      "side": 1,
+      "message": "Should we check if \u0027img\u0027 is null?\n\n    if (img) {\n      aom_img_write_tile_list(img, outfile);\n    }\n\nIf \u0027img\u0027 cannot possibly be null here, then we can omit the \"if (img)\" check.",
+      "range": {
+        "startLine": 175,
+        "startChar": 4,
+        "endLine": 175,
+        "endChar": 42
+      },
+      "revId": "81fbd9d05fa7aeb17a4c7f7c7e50f7475dd9ac26",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
