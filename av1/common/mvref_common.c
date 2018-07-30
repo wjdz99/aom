@@ -35,7 +35,8 @@ static void get_mv_projection(MV *output, MV ref, int num, int den) {
   output->col = (int16_t)clamp(mv_col, clamp_min, clamp_max);
 }
 
-void av1_copy_frame_mvs(const AV1_COMMON *const cm, MB_MODE_INFO *mi,
+void av1_copy_frame_mvs(const AV1_COMMON *const cm,
+                        const MB_MODE_INFO *const mi,
                         int mi_row, int mi_col, int x_mis, int y_mis) {
   const int frame_mvs_stride = ROUND_POWER_OF_TWO(cm->mi_cols, 1);
   MV_REF *frame_mvs =
