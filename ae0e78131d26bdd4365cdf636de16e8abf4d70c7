@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d45a8fec_e2054248",
+        "filename": "av1/encoder/encodemv.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-31T18:14:52Z",
+      "side": 1,
+      "message": "Log base 2 is a commonly used function. Is there an implementation in libaom?",
+      "range": {
+        "startLine": 26,
+        "startChar": 21,
+        "endLine": 26,
+        "endChar": 34
+      },
+      "revId": "ae0e78131d26bdd4365cdf636de16e8abf4d70c7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c776cd38_84739957",
+        "filename": "av1/encoder/encodemv.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-31T18:14:52Z",
+      "side": 1,
+      "message": "Optional: Could you add a comment to note that this array has 1025 elements? Or perhaps declare it as:\n\nstatic const uint8_t log_in_base_2[1025] \u003d {",
+      "range": {
+        "startLine": 26,
+        "startChar": 0,
+        "endLine": 26,
+        "endChar": 6
+      },
+      "revId": "ae0e78131d26bdd4365cdf636de16e8abf4d70c7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6b789115_39930018",
+        "filename": "av1/encoder/encodemv.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-07-31T18:14:52Z",
+      "side": 1,
+      "message": "Nit: This assertion should be before the get_mv_class() call. If comp is 0, then mag is 0, and we will call get_mv_class with z\u003d-1.\n\nWe can make this change in a separate CL.",
+      "range": {
+        "startLine": 87,
+        "startChar": 2,
+        "endLine": 87,
+        "endChar": 20
+      },
+      "revId": "ae0e78131d26bdd4365cdf636de16e8abf4d70c7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
