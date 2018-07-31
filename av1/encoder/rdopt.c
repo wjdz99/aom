@@ -8930,19 +8930,20 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
           skip_build_pred = 1;
         }
       }
-
-      ret_val = interpolation_filter_search(
-          x, cpi, bsize, mi_row, mi_col, &tmp_dst, &orig_dst,
-          args->single_filter, &rd, &rs, &skip_txfm_sb, &skip_sse_sb,
-          skip_build_pred, args, ref_best_rd);
-      if (ret_val != 0) {
-        restore_dst_buf(xd, orig_dst, num_planes);
-        continue;
-      } else if (cpi->sf.model_based_post_interp_filter_breakout &&
-                 ref_best_rd != INT64_MAX && (rd / 6 > ref_best_rd)) {
-        restore_dst_buf(xd, orig_dst, num_planes);
-        if ((rd >> 4) > ref_best_rd) break;
-        continue;
+      if (/*sf->skip_jnt_comp_interp_search || */ comp_idx) {
+        ret_val = interpolation_filter_search(
+            x, cpi, bsize, mi_row, mi_col, &tmp_dst, &orig_dst,
+            args->single_filter, &rd, &rs, &skip_txfm_sb, &skip_sse_sb,
+            skip_build_pred, args, ref_best_rd);
+        if (ret_val != 0) {
+          restore_dst_buf(xd, orig_dst, num_planes);
+          continue;
+        } else if (cpi->sf.model_based_post_interp_filter_breakout &&
+                   ref_best_rd != INT64_MAX && (rd / 6 > ref_best_rd)) {
+          restore_dst_buf(xd, orig_dst, num_planes);
+          if ((rd >> 4) > ref_best_rd) break;
+          continue;
+        }
       }
 
       if (search_jnt_comp) {
