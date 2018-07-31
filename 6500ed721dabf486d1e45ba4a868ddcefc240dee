@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "88e8f990_65494ef1",
+        "filename": "av1/encoder/firstpass.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 4059,
+      "author": {
+        "id": 7555
+      },
+      "writtenOn": "2018-07-31T18:07:30Z",
+      "side": 1,
+      "message": "The only reason to keep showing existing bwdref from entering this function is to prevent this counter being incremented. Since the rest of codes in this function are doing rate control, maybe we should do some refactor to separate these lines from the function in the next patch?",
+      "range": {
+        "startLine": 4057,
+        "startChar": 0,
+        "endLine": 4059,
+        "endChar": 3
+      },
+      "revId": "6500ed721dabf486d1e45ba4a868ddcefc240dee",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
