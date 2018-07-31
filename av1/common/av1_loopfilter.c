@@ -374,30 +374,6 @@ void av1_loop_filter_frame_init(AV1_COMMON *cm, int plane_start,
       }
     }
   }
-
-#if LOOP_FILTER_BITMASK
-  memset(lf->neighbor_sb_lpf_info.tx_size_y_above, TX_64X64,
-         sizeof(TX_SIZE) * MI_SIZE_64X64);
-  memset(lf->neighbor_sb_lpf_info.tx_size_y_left, TX_64X64,
-         sizeof(TX_SIZE) * MI_SIZE_64X64);
-  memset(lf->neighbor_sb_lpf_info.tx_size_uv_above, TX_64X64,
-         sizeof(TX_SIZE) * MI_SIZE_64X64);
-  memset(lf->neighbor_sb_lpf_info.tx_size_uv_left, TX_64X64,
-         sizeof(TX_SIZE) * MI_SIZE_64X64);
-  memset(lf->neighbor_sb_lpf_info.y_level_above, 0,
-         sizeof(uint8_t) * MI_SIZE_64X64);
-  memset(lf->neighbor_sb_lpf_info.y_level_left, 0,
-         sizeof(uint8_t) * MI_SIZE_64X64);
-  memset(lf->neighbor_sb_lpf_info.u_level_above, 0,
-         sizeof(uint8_t) * MI_SIZE_64X64);
-  memset(lf->neighbor_sb_lpf_info.u_level_left, 0,
-         sizeof(uint8_t) * MI_SIZE_64X64);
-  memset(lf->neighbor_sb_lpf_info.v_level_above, 0,
-         sizeof(uint8_t) * MI_SIZE_64X64);
-  memset(lf->neighbor_sb_lpf_info.v_level_left, 0,
-         sizeof(uint8_t) * MI_SIZE_64X64);
-  memset(lf->neighbor_sb_lpf_info.skip, 0, sizeof(uint8_t) * MI_SIZE_64X64);
-#endif  // LOOP_FILTER_BITMASK
 }
 
 #if LOOP_FILTER_BITMASK
