@@ -1,0 +1,211 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4421d204_2b52e1bf",
+        "filename": "build/cmake/aom_config_defaults.cmake",
+        "patchSetId": 3
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-07-31T18:30:23Z",
+      "side": 1,
+      "message": "\"but can be overridden.\"",
+      "range": {
+        "startLine": 18,
+        "startChar": 72,
+        "endLine": 18,
+        "endChar": 76
+      },
+      "revId": "cdf133c53658626b6d0304c0a64cf61037c27e87",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ce43cf68_90c5f925",
+        "filename": "build/cmake/aom_config_defaults.cmake",
+        "patchSetId": 3
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-07-31T18:30:23Z",
+      "side": 1,
+      "message": "Since these appear to always have \"0 NUMBER\" can those elements be removed from the function signature and just assumed in set_aom_detect_var?",
+      "range": {
+        "startLine": 24,
+        "startChar": 0,
+        "endLine": 24,
+        "endChar": 18
+      },
+      "revId": "cdf133c53658626b6d0304c0a64cf61037c27e87",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1e21ce7c_f536dc57",
+        "filename": "build/cmake/aom_config_defaults.cmake",
+        "patchSetId": 3
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-07-31T18:30:23Z",
+      "side": 1,
+      "message": "\"feature flags\" would probably be more accurate.",
+      "range": {
+        "startLine": 30,
+        "startChar": 6,
+        "endLine": 30,
+        "endChar": 18
+      },
+      "revId": "cdf133c53658626b6d0304c0a64cf61037c27e87",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "60c2b027_b2b69c9c",
+        "filename": "build/cmake/aom_config_defaults.cmake",
+        "patchSetId": 3
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-07-31T18:30:23Z",
+      "side": 1,
+      "message": "Are there any features which are not \"NUMBER\"? If there is a boolean flag, maybe that would be preferred?",
+      "range": {
+        "startLine": 68,
+        "startChar": 40,
+        "endLine": 68,
+        "endChar": 46
+      },
+      "revId": "cdf133c53658626b6d0304c0a64cf61037c27e87",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "375c9950_a5ee47a0",
+        "filename": "build/cmake/aom_config_defaults.cmake",
+        "patchSetId": 3
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-07-31T18:30:23Z",
+      "side": 1,
+      "message": "What does \u0027detected\u0027 mean in this context?",
+      "range": {
+        "startLine": 77,
+        "startChar": 52,
+        "endLine": 77,
+        "endChar": 60
+      },
+      "revId": "cdf133c53658626b6d0304c0a64cf61037c27e87",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ae2ce1a0_70a5a547",
+        "filename": "build/cmake/aom_config_defaults.cmake",
+        "patchSetId": 3
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-07-31T18:30:23Z",
+      "side": 1,
+      "message": "The option order seems weird. The others use \"CONFIG value type description\" and these are \"CONFIG description value\"",
+      "range": {
+        "startLine": 130,
+        "startChar": 0,
+        "endLine": 130,
+        "endChar": 18
+      },
+      "revId": "cdf133c53658626b6d0304c0a64cf61037c27e87",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "00dff719_97d791f9",
+        "filename": "build/cmake/aom_config_defaults.cmake",
+        "patchSetId": 3
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-07-31T18:30:23Z",
+      "side": 1,
+      "message": "Heh, whoops i have .bash_aliases:alias cmake\u003d\u0027cmake -DCONFIG_CCACHE\u003d1",
+      "range": {
+        "startLine": 130,
+        "startChar": 19,
+        "endLine": 130,
+        "endChar": 32
+      },
+      "revId": "cdf133c53658626b6d0304c0a64cf61037c27e87",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "18610a90_adab8c63",
+        "filename": "build/cmake/aom_config_defaults.cmake",
+        "patchSetId": 3
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-07-31T18:30:23Z",
+      "side": 1,
+      "message": "These appear to be shims for HAVE_NEON?",
+      "range": {
+        "startLine": 151,
+        "startChar": 19,
+        "endLine": 151,
+        "endChar": 30
+      },
+      "revId": "cdf133c53658626b6d0304c0a64cf61037c27e87",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d21f4043_b6c0e334",
+        "filename": "build/cmake/generate_aom_config_templates.cmake",
+        "patchSetId": 3
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-07-31T18:30:23Z",
+      "side": 1,
+      "message": "Why exclude INLINE? I would guess it would be harmless?",
+      "range": {
+        "startLine": 93,
+        "startChar": 32,
+        "endLine": 93,
+        "endChar": 38
+      },
+      "revId": "cdf133c53658626b6d0304c0a64cf61037c27e87",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}

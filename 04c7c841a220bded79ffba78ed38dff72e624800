@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6f488dd4_22be417f",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 3
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-07-31T18:30:23Z",
+      "side": 0,
+      "message": "Personally I prefer ON/OFF to 1/0",
+      "range": {
+        "startLine": 47,
+        "startChar": 69,
+        "endLine": 47,
+        "endChar": 71
+      },
+      "revId": "04c7c841a220bded79ffba78ed38dff72e624800",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
