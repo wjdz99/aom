@@ -22,6 +22,30 @@
       "revId": "fa3721dd0ab704c8c79b999eb8c8a3f4dce79a73",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "31b5bf03_0c4402db",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 8320,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2018-07-31T18:09:24Z",
+      "side": 0,
+      "message": "Yup, I forgot to add this part.\nWill submit a patch to do so.",
+      "parentUuid": "3c8e1d29_05648576",
+      "range": {
+        "startLine": 8319,
+        "startChar": 48,
+        "endLine": 8320,
+        "endChar": 28
+      },
+      "revId": "fa3721dd0ab704c8c79b999eb8c8a3f4dce79a73",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
