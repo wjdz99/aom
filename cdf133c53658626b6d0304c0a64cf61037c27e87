@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "f5be7334_aaf3ad06",
+        "filename": "build/cmake/aom_config_defaults.cmake",
+        "patchSetId": 3
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-07-31T22:26:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4421d204_2b52e1bf",
+      "range": {
+        "startLine": 18,
+        "startChar": 72,
+        "endLine": 18,
+        "endChar": 76
+      },
+      "revId": "cdf133c53658626b6d0304c0a64cf61037c27e87",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ce43cf68_90c5f925",
         "filename": "build/cmake/aom_config_defaults.cmake",
         "patchSetId": 3
@@ -36,6 +60,30 @@
       "writtenOn": "2018-07-31T18:30:23Z",
       "side": 1,
       "message": "Since these appear to always have \"0 NUMBER\" can those elements be removed from the function signature and just assumed in set_aom_detect_var?",
+      "range": {
+        "startLine": 24,
+        "startChar": 0,
+        "endLine": 24,
+        "endChar": 18
+      },
+      "revId": "cdf133c53658626b6d0304c0a64cf61037c27e87",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "219c8961_35826ca4",
+        "filename": "build/cmake/aom_config_defaults.cmake",
+        "patchSetId": 3
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-07-31T22:26:58Z",
+      "side": 1,
+      "message": "Not without making INLINE a special case, which I\u0027d prefer to avoid.",
+      "parentUuid": "ce43cf68_90c5f925",
       "range": {
         "startLine": 24,
         "startChar": 0,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "7f5df8d8_e8242ba6",
+        "filename": "build/cmake/aom_config_defaults.cmake",
+        "patchSetId": 3
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-07-31T22:26:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1e21ce7c_f536dc57",
+      "range": {
+        "startLine": 30,
+        "startChar": 6,
+        "endLine": 30,
+        "endChar": 18
+      },
+      "revId": "cdf133c53658626b6d0304c0a64cf61037c27e87",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "60c2b027_b2b69c9c",
         "filename": "build/cmake/aom_config_defaults.cmake",
         "patchSetId": 3
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "d24cf877_bc07e727",
+        "filename": "build/cmake/aom_config_defaults.cmake",
+        "patchSetId": 3
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-07-31T22:26:58Z",
+      "side": 1,
+      "message": "INLINE is STRING.\n\nNote that these types are merely hints for the CMake GUIs. They\u0027re useless otherwise. The reason the type is being passed through is that the cache var form of set() requires the argument (because of the GUIs).",
+      "parentUuid": "60c2b027_b2b69c9c",
+      "range": {
+        "startLine": 68,
+        "startChar": 40,
+        "endLine": 68,
+        "endChar": 46
+      },
+      "revId": "cdf133c53658626b6d0304c0a64cf61037c27e87",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "375c9950_a5ee47a0",
         "filename": "build/cmake/aom_config_defaults.cmake",
         "patchSetId": 3
@@ -105,6 +201,30 @@
       "writtenOn": "2018-07-31T18:30:23Z",
       "side": 1,
       "message": "What does \u0027detected\u0027 mean in this context?",
+      "range": {
+        "startLine": 77,
+        "startChar": 52,
+        "endLine": 77,
+        "endChar": 60
+      },
+      "revId": "cdf133c53658626b6d0304c0a64cf61037c27e87",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "793144f2_8a0b82f4",
+        "filename": "build/cmake/aom_config_defaults.cmake",
+        "patchSetId": 3
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-07-31T22:26:58Z",
+      "side": 1,
+      "message": "It means the value is assigned when the build system detects MSVC.\n\nI\u0027m going to drop this variable in a follow up. It\u0027s no longer used.",
+      "parentUuid": "375c9950_a5ee47a0",
       "range": {
         "startLine": 77,
         "startChar": 52,
@@ -163,6 +283,54 @@
     },
     {
       "key": {
+        "uuid": "d6663fb1_9707c372",
+        "filename": "build/cmake/aom_config_defaults.cmake",
+        "patchSetId": 3
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-07-31T22:26:58Z",
+      "side": 1,
+      "message": "See the option() call this wraps: I\u0027m just matching its argument order. Could reorder if you feel strongly.",
+      "parentUuid": "ae2ce1a0_70a5a547",
+      "range": {
+        "startLine": 130,
+        "startChar": 0,
+        "endLine": 130,
+        "endChar": 18
+      },
+      "revId": "cdf133c53658626b6d0304c0a64cf61037c27e87",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e4a7b426_4efd8a71",
+        "filename": "build/cmake/aom_config_defaults.cmake",
+        "patchSetId": 3
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-07-31T22:26:58Z",
+      "side": 1,
+      "message": "Exactly why I\u0027m bothering with this. :)",
+      "parentUuid": "00dff719_97d791f9",
+      "range": {
+        "startLine": 130,
+        "startChar": 19,
+        "endLine": 130,
+        "endChar": 32
+      },
+      "revId": "cdf133c53658626b6d0304c0a64cf61037c27e87",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "18610a90_adab8c63",
         "filename": "build/cmake/aom_config_defaults.cmake",
         "patchSetId": 3
@@ -186,6 +354,30 @@
     },
     {
       "key": {
+        "uuid": "2a4334c3_c9e7fec8",
+        "filename": "build/cmake/aom_config_defaults.cmake",
+        "patchSetId": 3
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-07-31T22:26:58Z",
+      "side": 1,
+      "message": "This flag is how you turn NEON off. HAVE_NEON is the detected value. That\u0027s why I have the scripts setup to warn if someone passes -DHAVE_NEON\u003d\u003cval\u003e to CMake: It likely won\u0027t do anything good.",
+      "parentUuid": "18610a90_adab8c63",
+      "range": {
+        "startLine": 151,
+        "startChar": 19,
+        "endLine": 151,
+        "endChar": 30
+      },
+      "revId": "cdf133c53658626b6d0304c0a64cf61037c27e87",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d21f4043_b6c0e334",
         "filename": "build/cmake/generate_aom_config_templates.cmake",
         "patchSetId": 3
@@ -197,6 +389,30 @@
       "writtenOn": "2018-07-31T18:30:23Z",
       "side": 1,
       "message": "Why exclude INLINE? I would guess it would be harmless?",
+      "range": {
+        "startLine": 93,
+        "startChar": 32,
+        "endLine": 93,
+        "endChar": 38
+      },
+      "revId": "cdf133c53658626b6d0304c0a64cf61037c27e87",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c8710b22_c66b59e0",
+        "filename": "build/cmake/generate_aom_config_templates.cmake",
+        "patchSetId": 3
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-07-31T22:26:58Z",
+      "side": 1,
+      "message": "We don\u0027t want the assembler to see it. Otherwise it will see the INLINE value in aom_config.asm:\n\nINLINE equ \u003cSTRING or empty\u003e\n\nThe above will cause an error. Basically it\u0027s the same reason as before the changes in this patch, but since we now have a list of known variables the regex reduces to a single string compare instead of having to exclude a bunch of other stuff.",
+      "parentUuid": "d21f4043_b6c0e334",
       "range": {
         "startLine": 93,
         "startChar": 32,
