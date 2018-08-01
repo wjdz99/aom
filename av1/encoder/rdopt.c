@@ -7670,7 +7670,7 @@ static INLINE int64_t interpolation_filter_rd(
         rate[1] = tmp_rate[1];
         dist[1] = tmp_dist[1];
         skip_txfm_sb[1] = skip_txfm_sb[0] & tmp_skip_sb[1];
-        skip_sse_sb[1] = skip_txfm_sb[0] + tmp_skip_sse[1];
+        skip_sse_sb[1] = skip_sse_sb[0] + tmp_skip_sse[1];
         // As luma MC data is not recomputed and current filter is the best,
         // indicate the possibility of recomputing MC data
         // If current buffer contains valid MC data, toggle to indicate that
@@ -7859,6 +7859,8 @@ static int64_t interpolation_filter_search(
   best_skip_txfm_sb[1] = best_skip_txfm_sb[0] & best_skip_txfm_sb[1];
   best_skip_sse_sb[1] = best_skip_sse_sb[0] + best_skip_sse_sb[1];
   *rd = RDCOST(x->rdmult, (*switchable_rate + tmp_rate[1]), tmp_dist[1]);
+  *skip_txfm_sb = best_skip_txfm_sb[1];
+  *skip_sse_sb = best_skip_sse_sb[1];
 
   if (assign_filter != SWITCHABLE || match_found != -1) {
     return 0;
