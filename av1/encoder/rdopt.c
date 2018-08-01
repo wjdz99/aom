@@ -7859,6 +7859,8 @@ static int64_t interpolation_filter_search(
   best_skip_txfm_sb[1] = best_skip_txfm_sb[0] & best_skip_txfm_sb[1];
   best_skip_sse_sb[1] = best_skip_sse_sb[0] + best_skip_sse_sb[1];
   *rd = RDCOST(x->rdmult, (*switchable_rate + tmp_rate[1]), tmp_dist[1]);
+  *skip_txfm_sb = best_skip_txfm_sb[1];
+  *skip_sse_sb = best_skip_sse_sb[1];
 
   if (assign_filter != SWITCHABLE || match_found != -1) {
     return 0;
