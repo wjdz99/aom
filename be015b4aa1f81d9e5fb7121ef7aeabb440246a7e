@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8b4bce0a_75756841",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-08-01T16:04:34Z",
+      "side": 1,
+      "message": "In the commit message, \"zero\" should be changed to \"one\" to match the new code.",
+      "range": {
+        "startLine": 7,
+        "startChar": 36,
+        "endLine": 7,
+        "endChar": 40
+      },
+      "revId": "be015b4aa1f81d9e5fb7121ef7aeabb440246a7e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "33a77ef4_555af315",
+        "filename": "av1/common/blockd.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-08-01T16:04:34Z",
+      "side": 1,
+      "message": "Hi Jonathan: If I understand it correctly, the xd-\u003eplane[i] array elements for i \u003e\u003d num_planes are unused. Why do we need to initialized unused array elements?\n\nCould you explain what the bug is? Is this bug in the encoder or decoder?\n\nThank you.",
+      "revId": "be015b4aa1f81d9e5fb7121ef7aeabb440246a7e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
