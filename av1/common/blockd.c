@@ -59,14 +59,12 @@ void av1_set_contexts(const MACROBLOCKD *xd, struct macroblockd_plane *pd,
 void av1_reset_skip_context(MACROBLOCKD *xd, int mi_row, int mi_col,
                             BLOCK_SIZE bsize, const int num_planes) {
   int i;
-  int nplanes;
-  int chroma_ref;
-  chroma_ref =
-      is_chroma_reference(mi_row, mi_col, bsize, xd->plane[1].subsampling_x,
-                          xd->plane[1].subsampling_y);
-  nplanes = 1 + (num_planes - 1) * chroma_ref;
-  for (i = 0; i < nplanes; i++) {
+  for (i = 0; i < num_planes; i++) {
     struct macroblockd_plane *const pd = &xd->plane[i];
+    if (!is_chroma_reference(mi_row, mi_col, bsize, pd->subsampling_x,
+                             pd->subsampling_y)) {
+      continue;
+    }
     const BLOCK_SIZE plane_bsize =
         get_plane_block_size(bsize, pd->subsampling_x, pd->subsampling_y);
     const int txs_wide = block_size_wide[plane_bsize] >> tx_size_wide_log2[0];
