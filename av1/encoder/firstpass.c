@@ -2463,8 +2463,9 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
     // the current gf length
     if (rc->frames_to_key - i < 9 && i > 10) {
       // too long, reduce the length by one
-      alt_offset = -1;
-      i -= 1;
+      int roll_back = DIVIDE_AND_ROUND(i - 1, 8);
+      alt_offset = -roll_back;
+      i -= roll_back;
     }
   }
 #endif
