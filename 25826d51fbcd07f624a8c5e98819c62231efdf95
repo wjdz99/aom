@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1cebb84b_85528e5b",
+        "filename": "av1/common/blockd.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-08-01T23:17:36Z",
+      "side": 1,
+      "message": "Please ask me if you want me to walk you through this code. It is subtle to verify the new code behaves like the original code.\n\nFor i \u003d\u003d 0, pd-\u003esubsampling_x and pd-\u003esubsampling_y are 0, and is_chroma_reference() returns 0 in that case. So the for loop always executes the i \u003d\u003d 0 iteration. The matches the original code, where nplanes is always \u003e\u003d 1.\n\nIf num_planes \u003d\u003d 1, then in the original code nplanes is 1. So the for loop has the same upper bound in the original code and new code.\n\nIf num_planes \u003e 1, then in the original code nplanes is either num_planes or 1, depending on whether chrome_ref is true or false. In the new code, the i \u003d\u003d 1 and i \u003d\u003d 2 iterations are skipped if is_chroma_reference() is false. Again, the for loop behaves the same.",
+      "revId": "25826d51fbcd07f624a8c5e98819c62231efdf95",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
