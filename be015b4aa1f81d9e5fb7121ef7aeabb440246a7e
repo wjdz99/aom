@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "d884d73c_4914b2cb",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 6145
+      },
+      "writtenOn": "2018-08-01T17:28:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8b4bce0a_75756841",
+      "range": {
+        "startLine": 7,
+        "startChar": 36,
+        "endLine": 7,
+        "endChar": 40
+      },
+      "revId": "be015b4aa1f81d9e5fb7121ef7aeabb440246a7e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "33a77ef4_555af315",
         "filename": "av1/common/blockd.c",
         "patchSetId": 2
@@ -36,6 +60,24 @@
       "writtenOn": "2018-08-01T16:04:34Z",
       "side": 1,
       "message": "Hi Jonathan: If I understand it correctly, the xd-\u003eplane[i] array elements for i \u003e\u003d num_planes are unused. Why do we need to initialized unused array elements?\n\nCould you explain what the bug is? Is this bug in the encoder or decoder?\n\nThank you.",
+      "revId": "be015b4aa1f81d9e5fb7121ef7aeabb440246a7e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2c3a38a6_a1f5e86d",
+        "filename": "av1/common/blockd.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 6145
+      },
+      "writtenOn": "2018-08-01T17:28:47Z",
+      "side": 1,
+      "message": "Hi Wan-Teh,\n\nThe specification (section 5.5.2 Color config syntax) says that they should be set to 1 in monochrome, so it is valid for a decoder to make use of these elements.\n\nIndeed in at the bottom of decode_partition() there is a check that checks the block size is valid given the u plane\u0027s subsampling (regardless of monochrome mode), for example.  I\u0027m sure there are other places in the code that rely on this, so it\u0027s safest to set up the variables as per the specification.\n\nKind regards,\nJonathan",
+      "parentUuid": "33a77ef4_555af315",
       "revId": "be015b4aa1f81d9e5fb7121ef7aeabb440246a7e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
