@@ -1783,8 +1783,6 @@ static void model_rd_for_sb(const AV1_COMP *const cpi, BLOCK_SIZE bsize,
   int64_t dist_sum = 0;
   int64_t total_sse = 0;
 
-  x->pred_sse[ref] = 0;
-
   for (plane = plane_from; plane <= plane_to; ++plane) {
     struct macroblock_plane *const p = &x->plane[plane];
     struct macroblockd_plane *const pd = &xd->plane[plane];
@@ -2555,8 +2553,6 @@ void model_rd_for_sb_with_dnn(const AV1_COMP *const cpi, BLOCK_SIZE bsize,
   int64_t rate_sum = 0;
   int64_t dist_sum = 0;
   int64_t total_sse = 0;
-
-  x->pred_sse[ref] = 0;
 
   aom_clear_system_state();
   for (int plane = plane_from; plane <= plane_to; ++plane) {
