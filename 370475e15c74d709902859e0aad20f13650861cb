@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ae9a92f7_f871fa3b",
+        "filename": "av1/common/blockd.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-08-02T16:59:34Z",
+      "side": 1,
+      "message": "I believe this for loop corresponds to the for loops in the spec that set the subX and subY variables. Here is an example from Section 5.11.3. Clear block decoded flags function:\n\n    for ( plane \u003d 0; plane \u003c NumPlanes; plane++ ) {\n        subX \u003d (plane \u003e 0) ? subsampling_x : 0\n        subY \u003d (plane \u003e 0) ? subsampling_y : 0\n\nDo you agree?",
+      "revId": "370475e15c74d709902859e0aad20f13650861cb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5d6895ec_0f4c28ab",
+        "filename": "av1/common/blockd.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-08-02T16:59:34Z",
+      "side": 1,
+      "message": "1. Could you change these two lines to the following?\n\n    xd-\u003eplane[i].subsampling_x \u003d ss_x;\n    xd-\u003eplane[i].subsampling_y \u003d ss_y;\n\nThis is equivalent to the current patchset, but makes it clearer that xd-\u003eplane[1].subsampling_x and xd-\u003eplane[1].subsampling_y are set to the subsampling_x and subsampling_y variables of the spec, in the monochrome case.\n\n2. Optional: I suggest adding a comment to explain this for loop is intended to allow code that incorrectly uses xd-\u003eplane[1].subsampling_x and xd-\u003eplane[1].subsampling_y in the monochrome case to work. (cm-\u003eseq_params.subsampling_x and cm-\u003eseq_params.subsampling_y should be used instead.)",
+      "range": {
+        "startLine": 103,
+        "startChar": 0,
+        "endLine": 104,
+        "endChar": 35
+      },
+      "revId": "370475e15c74d709902859e0aad20f13650861cb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
