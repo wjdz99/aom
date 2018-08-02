@@ -34,6 +34,24 @@
       "revId": "25826d51fbcd07f624a8c5e98819c62231efdf95",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "135a5383_54af1689",
+        "filename": "av1/common/blockd.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-08-02T00:42:25Z",
+      "side": 1,
+      "message": "Yes, that\u0027s a typo. Thanks! That sentence should read:\n\nFor i \u003d\u003d 0, pd-\u003esubsampling_x and pd-\u003esubsampling_y are 0, and is_chroma_reference() returns 1 in that case.",
+      "parentUuid": "47f468f7_e003c241",
+      "revId": "25826d51fbcd07f624a8c5e98819c62231efdf95",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
