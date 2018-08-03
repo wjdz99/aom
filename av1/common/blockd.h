@@ -619,6 +619,11 @@ static INLINE int get_sqr_bsize_idx(BLOCK_SIZE bsize) {
   }
 }
 
+// For a square block size 'bsize', returns the size of the sub-blocks used by
+// the given partition type. If the partition produces sub-blocks of different
+// sizes, then the function returns the largest sub-block size.
+// Implements the Partition_Subsize lookup table in the spec (Section 9.3.
+// Conversion tables).
 // Note: the input block size should be square.
 // Otherwise it's considered invalid.
 static INLINE BLOCK_SIZE get_partition_subsize(BLOCK_SIZE bsize,
@@ -627,6 +632,9 @@ static INLINE BLOCK_SIZE get_partition_subsize(BLOCK_SIZE bsize,
     return BLOCK_INVALID;
   } else {
     const int sqr_bsize_idx = get_sqr_bsize_idx(bsize);
+    // The spec says the Partition_Subsize table will never get accessed for
+    // rectangular block sizes (Section 9.3. Conversion tables).
+    assert(sqr_bsize_idx < SQR_BLOCK_SIZES);
     return sqr_bsize_idx >= SQR_BLOCK_SIZES
                ? BLOCK_INVALID
                : subsize_lookup[partition][sqr_bsize_idx];
@@ -777,6 +785,8 @@ static INLINE TX_TYPE get_default_tx_type(PLANE_TYPE plane_type,
   return intra_mode_to_tx_type(mbmi, plane_type);
 }
 
+// Implements the get_plane_residual_size() function in the spec (Section
+// 5.11.38. Get plane residual size function).
 static INLINE BLOCK_SIZE get_plane_block_size(BLOCK_SIZE bsize,
                                               int subsampling_x,
                                               int subsampling_y) {

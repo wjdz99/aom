@@ -65,6 +65,8 @@ static const uint8_t num_pels_log2_lookup[BLOCK_SIZES_ALL] = {
   4, 5, 5, 6, 7, 7, 8, 9, 9, 10, 11, 11, 12, 13, 13, 14, 6, 6, 8, 8, 10, 10
 };
 
+// A compressed version of the Partition_Subsize table in the spec (9.3.
+// Conversion tables), for square block sizes only.
 /* clang-format off */
 static const BLOCK_SIZE subsize_lookup[EXT_PARTITION_TYPES][SQR_BLOCK_SIZES] = {
   {     // PARTITION_NONE
