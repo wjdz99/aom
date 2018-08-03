@@ -1203,12 +1203,12 @@ void av1_build_bitmask_vert_info(
         const TX_SIZE min_tx_size =
             AOMMIN(TX_16X16, AOMMIN(tx_size, prev_tx_size));
         if (c > 0) {
-          const int tmp_row = (mi_row | subsampling_y) % MI_SIZE_64X64;
-          const int tmp_col = (mi_col | subsampling_x) % MI_SIZE_64X64;
-          const int shift_1 = get_index_shift(tmp_col, tmp_row, &index);
-          uint64_t mask_1[4] = { 0 };
-          mask_1[index] |= ((uint64_t)1 << shift_1);
-          update_masks(VERT_EDGE, plane, mask_1, min_tx_size, lfm);
+          switch (plane) {
+            case 0: lfm->left_y[min_tx_size].bits[index] |= mask; break;
+            case 1: lfm->left_u[min_tx_size].bits[index] |= mask; break;
+            case 2: lfm->left_v[min_tx_size].bits[index] |= mask; break;
+            default: assert(plane >= 0 && plane <= 2); return;
+          }
         }
       }
 
@@ -1272,12 +1272,12 @@ void av1_build_bitmask_horz_info(
         const TX_SIZE min_tx_size =
             AOMMIN(TX_16X16, AOMMIN(tx_size, prev_tx_size));
         if (r > 0) {
-          const int tmp_row = (mi_row | subsampling_y) % MI_SIZE_64X64;
-          const int tmp_col = (mi_col | subsampling_x) % MI_SIZE_64X64;
-          const int shift_1 = get_index_shift(tmp_col, tmp_row, &index);
-          uint64_t mask_1[4] = { 0 };
-          mask_1[index] |= ((uint64_t)1 << shift_1);
-          update_masks(HORZ_EDGE, plane, mask_1, min_tx_size, lfm);
+          switch (plane) {
+            case 0: lfm->above_y[min_tx_size].bits[index] |= mask; break;
+            case 1: lfm->above_u[min_tx_size].bits[index] |= mask; break;
+            case 2: lfm->above_v[min_tx_size].bits[index] |= mask; break;
+            default: assert(plane >= 0 && plane <= 2); return;
+          }
         }
       }
 
@@ -1315,9 +1315,9 @@ void av1_filter_block_plane_bitmask_vert(
   for (int r = 0;
        ((mi_row + r) << MI_SIZE_LOG2) < cm->height && r < MI_SIZE_64X64;
        r += two_row_step) {
-    const int row = r | ssy;
+    const int row = r;
     const int row_next = row + row_step;
-    const int col = ssx;
+    const int col = 0;
     int index = 0;
     const int shift = get_index_shift(col, row, &index);
     int index_next = 0;
@@ -1391,8 +1391,8 @@ void av1_filter_block_plane_bitmask_horz(
       dst->buf += row_stride;
       continue;
     }
-    const int row = r | ssy;
-    const int col = ssx;
+    const int row = r;
+    const int col = 0;
     int index = 0;
     const int shift = get_index_shift(col, row, &index);
     switch (pl) {
