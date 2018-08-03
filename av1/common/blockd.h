@@ -57,7 +57,7 @@ static INLINE int is_comp_ref_allowed(BLOCK_SIZE bsize) {
 }
 
 static INLINE int is_inter_mode(PREDICTION_MODE mode) {
-  return mode >= INTER_MODE_START && mode < INTER_MODE_END;
+  return mode >= NEARESTMV && mode <= NEW_NEWMV;
 }
 
 typedef struct {
@@ -66,10 +66,10 @@ typedef struct {
 } BUFFER_SET;
 
 static INLINE int is_inter_singleref_mode(PREDICTION_MODE mode) {
-  return mode >= SINGLE_INTER_MODE_START && mode < SINGLE_INTER_MODE_END;
+  return mode >= NEARESTMV && mode <= NEWMV;
 }
 static INLINE int is_inter_compound_mode(PREDICTION_MODE mode) {
-  return mode >= COMP_INTER_MODE_START && mode < COMP_INTER_MODE_END;
+  return mode >= NEAREST_NEARESTMV && mode <= NEW_NEWMV;
 }
 
 static INLINE PREDICTION_MODE compound_ref0_mode(PREDICTION_MODE mode) {
@@ -963,7 +963,7 @@ static INLINE int is_interintra_allowed_bsize(const BLOCK_SIZE bsize) {
 }
 
 static INLINE int is_interintra_allowed_mode(const PREDICTION_MODE mode) {
-  return (mode >= SINGLE_INTER_MODE_START) && (mode < SINGLE_INTER_MODE_END);
+  return (mode >= NEARESTMV) && (mode <= NEWMV);
 }
 
 static INLINE int is_interintra_allowed_ref(const MV_REFERENCE_FRAME rf[2]) {
