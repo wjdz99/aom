@@ -569,10 +569,16 @@ typedef struct InterModeSearchState {
 
 #if CONFIG_COLLECT_INTER_MODE_RD_STATS
 int inter_mode_data_block_idx(BLOCK_SIZE bsize) {
-  if (bsize == BLOCK_8X8) return 1;
-  if (bsize == BLOCK_16X16) return 2;
-  if (bsize == BLOCK_32X32) return 3;
-  return -1;
+  // The rd model is inprecise when the block size is 4.
+  // For example, when the y plane is 4x4, uv planes will be downsampled to 2x2.
+  // Since the smalleast prediction blck we can deal with is 4x4. Therefore, 4
+  // 2x2 UV plane blocks will be treated as one prediction block. This special
+  // treament will mess up with our current rd estimation model.
+  if (bsize == BLOCK_4X4 || bsize == BLOCK_4X8 || bsize == BLOCK_8X4 ||
+      bsize == BLOCK_4X16 || bsize == BLOCK_16X4) {
+    return -1;
+  }
+  return bsize;
 }
 
 void av1_inter_mode_data_init(TileDataEnc *tile_data) {
