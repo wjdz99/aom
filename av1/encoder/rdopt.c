@@ -580,17 +580,27 @@ typedef struct InterModeRdModel {
 InterModeRdModel inter_mode_rd_models[BLOCK_SIZES_ALL];
 
 #define INTER_MODE_RD_DATA_OVERALL_SIZE 6400
-static int inter_mode_data_idx[4];
-static int64_t inter_mode_data_sse[4][INTER_MODE_RD_DATA_OVERALL_SIZE];
-static int64_t inter_mode_data_dist[4][INTER_MODE_RD_DATA_OVERALL_SIZE];
-static int inter_mode_data_residue_cost[4][INTER_MODE_RD_DATA_OVERALL_SIZE];
-static int inter_mode_data_all_cost[4][INTER_MODE_RD_DATA_OVERALL_SIZE];
+static int inter_mode_data_idx[BLOCK_SIZES_ALL];
+static int64_t inter_mode_data_sse[BLOCK_SIZES_ALL]
+                                  [INTER_MODE_RD_DATA_OVERALL_SIZE];
+static int64_t inter_mode_data_dist[BLOCK_SIZES_ALL]
+                                   [INTER_MODE_RD_DATA_OVERALL_SIZE];
+static int inter_mode_data_residue_cost[BLOCK_SIZES_ALL]
+                                       [INTER_MODE_RD_DATA_OVERALL_SIZE];
+static int inter_mode_data_all_cost[BLOCK_SIZES_ALL]
+                                   [INTER_MODE_RD_DATA_OVERALL_SIZE];
 
 int inter_mode_data_block_idx(BLOCK_SIZE bsize) {
-  if (bsize == BLOCK_8X8) return 1;
-  if (bsize == BLOCK_16X16) return 2;
-  if (bsize == BLOCK_32X32) return 3;
-  return -1;
+  // The rd model is inprecise when the block size is 4.
+  // For example, when the y plane is 4x4, uv planes will be downsampled to 2x2.
+  // Since the smalleast prediction blck we can deal with is 4x4. Therefore, 4
+  // 2x2 UV plane blocks will be treated as one prediction block. This special
+  // treament will mess up with our current rd estimation model.
+  if (bsize == BLOCK_4X4 || bsize == BLOCK_4X8 || bsize == BLOCK_8X4 ||
+      bsize == BLOCK_4X16 || bsize == BLOCK_16X4) {
+    return -1;
+  }
+  return bsize;
 }
 
 void av1_inter_mode_data_init() {
