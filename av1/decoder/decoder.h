@@ -302,7 +302,8 @@ void av1_visit_palette(AV1Decoder *const pbi, MACROBLOCKD *const xd, int mi_row,
 
 typedef void (*block_visitor_fn_t)(AV1Decoder *const pbi, ThreadData *const td,
                                    int mi_row, int mi_col, aom_reader *r,
-                                   PARTITION_TYPE partition, BLOCK_SIZE bsize);
+                                   PARTITION_TYPE partition, BLOCK_SIZE bsize,
+                                   int parse_decode_flag);
 
 #ifdef __cplusplus
 }  // extern "C"

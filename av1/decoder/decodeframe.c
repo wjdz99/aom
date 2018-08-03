@@ -1332,7 +1332,9 @@ static TX_SIZE read_tx_size(AV1_COMMON *cm, MACROBLOCKD *xd, int is_inter,
 
 static void parse_decode_block(AV1Decoder *const pbi, ThreadData *const td,
                                int mi_row, int mi_col, aom_reader *r,
-                               PARTITION_TYPE partition, BLOCK_SIZE bsize) {
+                               PARTITION_TYPE partition, BLOCK_SIZE bsize,
+                               int parse_decode_flag) {
+  (void)parse_decode_flag;
   MACROBLOCKD *const xd = &td->xd;
   decode_mbmi_block(pbi, xd, mi_row, mi_col, r, partition, bsize);
 
@@ -1415,9 +1417,12 @@ static void set_offsets_for_pred_and_recon(AV1Decoder *const pbi,
 
 static void decode_block(AV1Decoder *const pbi, ThreadData *const td,
                          int mi_row, int mi_col, aom_reader *r,
-                         PARTITION_TYPE partition, BLOCK_SIZE bsize) {
+                         PARTITION_TYPE partition, BLOCK_SIZE bsize,
+                         int parse_decode_flag) {
   (void)partition;
-  set_offsets_for_pred_and_recon(pbi, td, mi_row, mi_col, bsize);
+  if (parse_decode_flag & 0x2) {
+    set_offsets_for_pred_and_recon(pbi, td, mi_row, mi_col, bsize);
+  }
   decode_token_recon_block(pbi, td, mi_row, mi_col, r, bsize);
 }
 
@@ -1511,22 +1516,25 @@ static void decode_partition(AV1Decoder *const pbi, ThreadData *const td,
 
 #define DEC_BLOCK_STX_ARG
 #define DEC_BLOCK_EPT_ARG partition,
-#define DEC_BLOCK(db_r, db_c, db_subsize)                                     \
+#define DEC_BLOCK(db_r, db_c, db_subsize, parse_decode_flag)                  \
   block_visit[parse_decode_flag](pbi, td, DEC_BLOCK_STX_ARG(db_r), (db_c), r, \
-                                 DEC_BLOCK_EPT_ARG(db_subsize))
+                                 DEC_BLOCK_EPT_ARG(db_subsize),               \
+                                 parse_decode_flag)
 #define DEC_PARTITION(db_r, db_c, db_subsize)                                 \
   decode_partition(pbi, td, DEC_BLOCK_STX_ARG(db_r), (db_c), r, (db_subsize), \
                    parse_decode_flag)
 
   switch (partition) {
-    case PARTITION_NONE: DEC_BLOCK(mi_row, mi_col, subsize); break;
+    case PARTITION_NONE:
+      DEC_BLOCK(mi_row, mi_col, subsize, parse_decode_flag);
+      break;
     case PARTITION_HORZ:
-      DEC_BLOCK(mi_row, mi_col, subsize);
-      if (has_rows) DEC_BLOCK(mi_row + hbs, mi_col, subsize);
+      DEC_BLOCK(mi_row, mi_col, subsize, parse_decode_flag);
+      if (has_rows) DEC_BLOCK(mi_row + hbs, mi_col, subsize, parse_decode_flag);
       break;
     case PARTITION_VERT:
-      DEC_BLOCK(mi_row, mi_col, subsize);
-      if (has_cols) DEC_BLOCK(mi_row, mi_col + hbs, subsize);
+      DEC_BLOCK(mi_row, mi_col, subsize, parse_decode_flag);
+      if (has_cols) DEC_BLOCK(mi_row, mi_col + hbs, subsize, parse_decode_flag);
       break;
     case PARTITION_SPLIT:
       DEC_PARTITION(mi_row, mi_col, subsize);
@@ -1535,37 +1543,37 @@ static void decode_partition(AV1Decoder *const pbi, ThreadData *const td,
       DEC_PARTITION(mi_row + hbs, mi_col + hbs, subsize);
       break;
     case PARTITION_HORZ_A:
-      DEC_BLOCK(mi_row, mi_col, bsize2);
-      DEC_BLOCK(mi_row, mi_col + hbs, bsize2);
-      DEC_BLOCK(mi_row + hbs, mi_col, subsize);
+      DEC_BLOCK(mi_row, mi_col, bsize2, parse_decode_flag);
+      DEC_BLOCK(mi_row, mi_col + hbs, bsize2, parse_decode_flag);
+      DEC_BLOCK(mi_row + hbs, mi_col, subsize, parse_decode_flag);
       break;
     case PARTITION_HORZ_B:
-      DEC_BLOCK(mi_row, mi_col, subsize);
-      DEC_BLOCK(mi_row + hbs, mi_col, bsize2);
-      DEC_BLOCK(mi_row + hbs, mi_col + hbs, bsize2);
+      DEC_BLOCK(mi_row, mi_col, subsize, parse_decode_flag);
+      DEC_BLOCK(mi_row + hbs, mi_col, bsize2, parse_decode_flag);
+      DEC_BLOCK(mi_row + hbs, mi_col + hbs, bsize2, parse_decode_flag);
       break;
     case PARTITION_VERT_A:
-      DEC_BLOCK(mi_row, mi_col, bsize2);
-      DEC_BLOCK(mi_row + hbs, mi_col, bsize2);
-      DEC_BLOCK(mi_row, mi_col + hbs, subsize);
+      DEC_BLOCK(mi_row, mi_col, bsize2, parse_decode_flag);
+      DEC_BLOCK(mi_row + hbs, mi_col, bsize2, parse_decode_flag);
+      DEC_BLOCK(mi_row, mi_col + hbs, subsize, parse_decode_flag);
       break;
     case PARTITION_VERT_B:
-      DEC_BLOCK(mi_row, mi_col, subsize);
-      DEC_BLOCK(mi_row, mi_col + hbs, bsize2);
-      DEC_BLOCK(mi_row + hbs, mi_col + hbs, bsize2);
+      DEC_BLOCK(mi_row, mi_col, subsize, parse_decode_flag);
+      DEC_BLOCK(mi_row, mi_col + hbs, bsize2, parse_decode_flag);
+      DEC_BLOCK(mi_row + hbs, mi_col + hbs, bsize2, parse_decode_flag);
       break;
     case PARTITION_HORZ_4:
       for (int i = 0; i < 4; ++i) {
         int this_mi_row = mi_row + i * quarter_step;
         if (i > 0 && this_mi_row >= cm->mi_rows) break;
-        DEC_BLOCK(this_mi_row, mi_col, subsize);
+        DEC_BLOCK(this_mi_row, mi_col, subsize, parse_decode_flag);
       }
       break;
     case PARTITION_VERT_4:
       for (int i = 0; i < 4; ++i) {
         int this_mi_col = mi_col + i * quarter_step;
         if (i > 0 && this_mi_col >= cm->mi_cols) break;
-        DEC_BLOCK(mi_row, this_mi_col, subsize);
+        DEC_BLOCK(mi_row, this_mi_col, subsize, parse_decode_flag);
       }
       break;
     default: assert(0 && "Invalid partition type");
