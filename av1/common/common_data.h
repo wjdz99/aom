@@ -28,10 +28,14 @@ static const uint8_t mi_size_high_log2[BLOCK_SIZES_ALL] = {
   0, 1, 0, 1, 2, 1, 2, 3, 2, 3, 4, 3, 4, 5, 4, 5, 2, 0, 3, 1, 4, 2
 };
 
+// Num_4x4_Blocks_Wide[ BLOCK_SIZES ] in the spec (Section 9.3. Conversion
+// tables).
 static const uint8_t mi_size_wide[BLOCK_SIZES_ALL] = {
   1, 1, 2, 2, 2, 4, 4, 4, 8, 8, 8, 16, 16, 16, 32, 32, 1, 4, 2, 8, 4, 16
 };
 
+// Num_4x4_Blocks_High[ BLOCK_SIZES ] in the spec (Section 9.3. Conversion
+// tables).
 static const uint8_t mi_size_high[BLOCK_SIZES_ALL] = {
   1, 2, 1, 2, 4, 2, 4, 8, 4, 8, 16, 8, 16, 32, 16, 32, 4, 1, 8, 2, 16, 4
 };
