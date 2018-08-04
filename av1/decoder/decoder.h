@@ -156,7 +156,7 @@ typedef struct AV1Decoder {
   int num_workers;
   DecWorkerData *thread_data;
   ThreadData td;
-  TileDataDec *tile_data;
+  TileDataDec *tile_data;  // An array of allocated_tiles elements.
   int allocated_tiles;
 
   TileBufferDec tile_buffers[MAX_TILE_ROWS][MAX_TILE_COLS];
