@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9992a84c_19d4bf73",
+        "filename": "README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 421,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-08-06T21:27:45Z",
+      "side": 1,
+      "message": "you could add a note here with a link to the gsutil download",
+      "range": {
+        "startLine": 421,
+        "startChar": 6,
+        "endLine": 421,
+        "endChar": 12
+      },
+      "revId": "bdb1af606b227a616e2278d002450d117aa85060",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
