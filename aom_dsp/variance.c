@@ -387,7 +387,7 @@ void aom_upsampled_pred_c(MACROBLOCKD *xd, const AV1_COMMON *const cm,
   }
 
   const InterpFilterParams *filter =
-      av1_get_interp_filter_params_with_block_size(EIGHTTAP_REGULAR, 8);
+      av1_get_4tap_interp_filter_params(EIGHTTAP_REGULAR);
 
   if (!subpel_x_q3 && !subpel_y_q3) {
     for (int i = 0; i < height; i++) {
@@ -975,7 +975,7 @@ void aom_highbd_upsampled_pred_c(MACROBLOCKD *xd,
   }
 
   const InterpFilterParams *filter =
-      av1_get_interp_filter_params_with_block_size(EIGHTTAP_REGULAR, 8);
+      av1_get_4tap_interp_filter_params(EIGHTTAP_REGULAR);
 
   if (!subpel_x_q3 && !subpel_y_q3) {
     const uint16_t *ref;

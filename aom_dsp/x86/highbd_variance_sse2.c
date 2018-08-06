@@ -680,7 +680,7 @@ void aom_highbd_upsampled_pred_sse2(MACROBLOCKD *xd,
   }
 
   const InterpFilterParams *filter =
-      av1_get_interp_filter_params_with_block_size(EIGHTTAP_REGULAR, 8);
+      av1_get_4tap_interp_filter_params(EIGHTTAP_REGULAR);
 
   if (!subpel_x_q3 && !subpel_y_q3) {
     uint16_t *ref = CONVERT_TO_SHORTPTR(ref8);
