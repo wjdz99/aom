@@ -36,7 +36,7 @@ if("${AOM_TARGET_SYSTEM}" STREQUAL "Darwin")
 elseif("${AOM_TARGET_SYSTEM}" MATCHES "Windows\|MSYS" AND AOM_MSVC)
   file(WRITE "${aom_sym_file}" "LIBRARY aom\n" "EXPORTS\n")
 else()
-  file(WRITE "${aom_sym_file}" "{ global:\n")
+  file(WRITE "${aom_sym_file}" "{ local:*\nglobal:\n")
 endif()
 
 foreach(export_file ${AOM_EXPORTS_SOURCES})
