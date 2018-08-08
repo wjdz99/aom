@@ -8410,6 +8410,11 @@ static int txfm_search(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
   return 1;
 }
 
+static INLINE int is_warp_affine(WarpedMotionParams *wm_params) {
+  return ((wm_params->alpha != 0) || (wm_params->beta != 0) ||
+          (wm_params->gamma != 0) || (wm_params->delta != 0));
+}
+
 // TODO(afergs): Refactor the MBMI references in here - there's four
 // TODO(afergs): Refactor optional args - add them to a struct or remove
 static int64_t motion_mode_rd(const AV1_COMP *const cpi, MACROBLOCK *const x,
@@ -8551,6 +8556,8 @@ static int64_t motion_mode_rd(const AV1_COMP *const cpi, MACROBLOCK *const x,
             mbmi->wm_params = wm_params0;
             mbmi->num_proj_ref = num_proj_ref0;
           }
+        } else {
+          if (!is_warp_affine(&mbmi->wm_params)) continue;
         }
 
         av1_build_inter_predictors_sb(cm, xd, mi_row, mi_col, NULL, bsize);
