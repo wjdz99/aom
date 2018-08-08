@@ -6523,6 +6523,7 @@ static void joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
   MB_MODE_INFO *mbmi = xd->mi[0];
   // This function should only ever be called for compound modes
   assert(has_second_ref(mbmi));
+  const int_mv init_mv[2] = { cur_mv[0], cur_mv[1] };
   const int refs[2] = { mbmi->ref_frame[0], mbmi->ref_frame[1] };
   int_mv ref_mv[2];
   int ite, ref;
@@ -6559,7 +6560,11 @@ static void joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
     int bestsme = INT_MAX;
     int sadpb = x->sadperbit16;
     MV *const best_mv = &x->best_mv.as_mv;
-    int search_range = 3;
+    const int search_range = 3;
+    if (ite >= 2 && cur_mv[0].as_int == init_mv[0].as_int &&
+        cur_mv[1].as_int == init_mv[1].as_int) {
+      break;
+    }
 
     MvLimits tmp_mv_limits = x->mv_limits;
     int id = ite % 2;  // Even iterations search in the first reference frame,
@@ -6568,10 +6573,8 @@ static void joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
     const int plane = 0;
     ConvolveParams conv_params = get_conv_params(!id, 0, plane, xd->bd);
     conv_params.use_jnt_comp_avg = 0;
-    WarpTypesAllowed warp_types;
-    warp_types.global_warp_allowed = is_global[!id];
-    warp_types.local_warp_allowed = mbmi->motion_mode == WARPED_CAUSAL;
-
+    const WarpTypesAllowed warp_types = { is_global[!id],
+                                          mbmi->motion_mode == WARPED_CAUSAL };
     for (ref = 0; ref < 2; ++ref) {
       ref_mv[ref] = av1_get_ref_mv(x, ref);
       // Swap out the reference frame for a version that's been scaled to
@@ -6598,7 +6601,7 @@ static void joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
     ref_yv12[1] = xd->plane[plane].pre[1];
 
     // Get the prediction block from the 'other' reference frame.
-    InterpFilters interp_filters = EIGHTTAP_REGULAR;
+    const InterpFilters interp_filters = EIGHTTAP_REGULAR;
 
     // Since we have scaled the reference frames to match the size of the
     // current frame we must use a unit scaling factor during mode selection.
@@ -6628,7 +6631,6 @@ static void joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
     if (id) xd->plane[plane].pre[0] = ref_yv12[id];
     av1_set_mv_search_range(&x->mv_limits, &ref_mv[id].as_mv);
 
-    // Use the mv result from the single mode as mv predictor.
     // Use the mv result from the single mode as mv predictor.
     *best_mv = cur_mv[id].as_mv;
 
