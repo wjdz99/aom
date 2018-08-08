@@ -3130,6 +3130,10 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
 
   (void)*tp_orig;
 
+  RD_STATS none_part_rd;
+  int data_collected = 0;
+  av1_zero(none_part_rd);
+
   // Override partition costs at the edges of the frame in the same
   // way as in read_partition (see decodeframe.c)
   if (!(has_rows && has_cols)) {
@@ -3360,6 +3364,12 @@ BEGIN_PARTITION_SEARCH:
 
         best_rdc = this_rdc;
         if (bsize_at_least_8x8) pc_tree->partitioning = PARTITION_NONE;
+
+        if (!x->e_mbd.lossless[xd->mi[0]->segment_id]) {
+          none_part_rd = this_rdc;
+          none_part_rd.skip = ctx_none->skippable;
+          data_collected = 1;
+        }
 
         // If all y, u, v transform blocks in this partition are skippable, and
         // the dist & rate are within the thresholds, the partition search is
@@ -4072,6 +4082,53 @@ BEGIN_PARTITION_SEARCH:
   } else {
     assert(tp_orig == *tp);
   }
+
+#if 1
+  do {
+    const int bw = block_size_wide[bsize];
+    const int bh = block_size_high[bsize];
+    FILE *fp;
+    unsigned int var;
+
+    if (!data_collected) break;
+
+    if (bw != bh) {
+      printf("error\n");
+      assert(0);
+      break;
+    }
+
+    fp = fopen("av1_breakout_data.txt", "a");
+    if (!fp) break;
+
+    if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
+      var =
+          av1_high_get_sby_perpixel_variance(cpi, &x->plane[0].src, bsize, xd->bd);
+    } else {
+      var = av1_get_sby_perpixel_variance(cpi, &x->plane[0].src, bsize);
+    }
+
+    // bs, final RD(3), none skip, none RD(3), qindex, dc quant, ac quant, rdmult,
+    // var, frame size(2), bitdepth
+    fprintf(fp, "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,",
+            bw,
+            best_rdc.rate,
+            (int)AOMMIN(best_rdc.dist, INT_MAX),
+            (int)AOMMIN(best_rdc.rdcost, INT_MAX),
+            none_part_rd.skip,
+            none_part_rd.rate,
+            (int)AOMMIN(none_part_rd.dist, INT_MAX),
+            (int)AOMMIN(none_part_rd.rdcost, INT_MAX),
+            cm->base_qindex,
+            (int)x->plane[0].dequant_QTX[0], (int)x->plane[0].dequant_QTX[1],
+            x->rdmult,
+            (int)AOMMIN(var, INT_MAX),
+            cm->width, cm->height,
+            xd->bd);
+    fprintf(fp, "\n");
+    fclose(fp);
+  } while (0);
+#endif
 }
 
 // Set all the counters as max.
