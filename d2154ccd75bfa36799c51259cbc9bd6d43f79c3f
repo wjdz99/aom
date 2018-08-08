@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cbd98c52_6926d03d",
+        "filename": "build/cmake/generate_aom_config_templates.cmake",
+        "patchSetId": 1
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-08-08T22:30:57Z",
+      "side": 1,
+      "message": "This gets rid of diffs like this after running third_party/libaom/cmake_update.sh in the Chromium source tree:\n\ndiff --git a/third_party/libaom/source/config/linux/arm-neon-cpu-detect/config/aom_config.h b/third_party/libaom/source/config/linux/arm-neon-cpu-detect/config/aom_config.h\nindex bb36ad4b0c95..f541e7e54993 100644\n--- a/third_party/libaom/source/config/linux/arm-neon-cpu-detect/config/aom_config.h\n+++ b/third_party/libaom/source/config/linux/arm-neon-cpu-detect/config/aom_config.h\n@@ -74,4 +74,4 @@\n #define HAVE_VSX 0\n #define HAVE_WXWIDGETS 0\n #define INLINE inline\n-#endif /* AOM_CONFIG_H_ */\n+#endif  /* AOM_CONFIG_H_ */",
+      "revId": "d2154ccd75bfa36799c51259cbc9bd6d43f79c3f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1610bf71_2bee887d",
+        "filename": "build/cmake/version.pl",
+        "patchSetId": 1
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-08-08T22:30:57Z",
+      "side": 1,
+      "message": "This gets rid of diffs like this after running third_party/libaom/cmake_update.sh in the Chromium source tree:\n\ndiff --git a/third_party/libaom/source/config/config/aom_version.h b/third_party/libaom/source/config/config/aom_version.h\nindex bc0218566212..a8f2155561bf 100644\n--- a/third_party/libaom/source/config/config/aom_version.h\n+++ b/third_party/libaom/source/config/config/aom_version.h\n@@ -13,7 +13,6 @@\n #define VERSION_MINOR 0\n #define VERSION_PATCH 0\n #define VERSION_EXTRA \"176-g9655bde9f\"\n-#define VERSION_PACKED \\\n-  ((VERSION_MAJOR \u003c\u003c 16) | (VERSION_MINOR \u003c\u003c 8) | (VERSION_PATCH))\n+#define VERSION_PACKED ((VERSION_MAJOR\u003c\u003c16)|(VERSION_MINOR\u003c\u003c8)|(VERSION_PATCH))\n #define VERSION_STRING_NOSP \"1.0.0-176-g9655bde9f\"\n #define VERSION_STRING \" 1.0.0-176-g9655bde9f\"",
+      "revId": "d2154ccd75bfa36799c51259cbc9bd6d43f79c3f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
