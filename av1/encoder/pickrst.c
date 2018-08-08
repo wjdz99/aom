@@ -43,6 +43,11 @@ static const RestorationType force_restore_type = RESTORE_TYPES;
 // Penalty factor for use of dual sgr
 #define DUAL_SGR_PENALTY_MULT 0.01
 
+#if CONFIG_INTEGERIZE_WIENER
+// Working precision for Wiener filter coefficients
+#define WIENER_TAP_SCALE_FACTOR ((int64_t)1<<16)
+#endif
+
 const int frame_level_restore_bits[RESTORE_TYPES] = { 2, 2, 2, 2 };
 
 typedef int64_t (*sse_extractor_type)(const YV12_BUFFER_CONFIG *a,
@@ -649,23 +654,44 @@ static void search_sgrproj(const RestorationTileLimits *limits,
 
 void av1_compute_stats_c(int wiener_win, const uint8_t *dgd, const uint8_t *src,
                          int h_start, int h_end, int v_start, int v_end,
-                         int dgd_stride, int src_stride, double *M, double *H) {
+                         int dgd_stride, int src_stride, void *Mp, void *Hp) {
   int i, j, k, l;
-  double Y[WIENER_WIN2];
   const int wiener_win2 = wiener_win * wiener_win;
   const int wiener_halfwin = (wiener_win >> 1);
-  const double avg =
-      find_average(dgd, h_start, h_end, v_start, v_end, dgd_stride);
+
+#if CONFIG_INTEGERIZE_WIENER
+  int64_t *M = Mp, *H = Hp;
+  int64_t Y[WIENER_WIN2];
+  int64_t avg = 0;
+#else
+  double *M = Mp, *H = Hp;
+  double Y[WIENER_WIN2];
+  double avg = 0.0;
+#endif
+  for (i = v_start; i < v_end; i++) {
+    for (j = h_start; j < h_end; j++) {
+      avg += src[i * dgd_stride + j];
+    }
+  }
+  avg /= ((v_end - v_start) * (h_end - h_start));
 
   memset(M, 0, sizeof(*M) * wiener_win2);
   memset(H, 0, sizeof(*H) * wiener_win2 * wiener_win2);
   for (i = v_start; i < v_end; i++) {
     for (j = h_start; j < h_end; j++) {
+#if CONFIG_INTEGERIZE_WIENER
+      const int64_t X = (int64_t)src[i * src_stride + j] - avg;
+#else
       const double X = (double)src[i * src_stride + j] - avg;
+#endif
       int idx = 0;
       for (k = -wiener_halfwin; k <= wiener_halfwin; k++) {
         for (l = -wiener_halfwin; l <= wiener_halfwin; l++) {
+#if CONFIG_INTEGERIZE_WIENER
+          Y[idx] = (int64_t)dgd[(i + l) * dgd_stride + (j + k)] - avg;
+#else
           Y[idx] = (double)dgd[(i + l) * dgd_stride + (j + k)] - avg;
+#endif
           idx++;
         }
       }
@@ -752,12 +778,67 @@ static INLINE int wrap_index(int i, int wiener_win) {
   return (i >= wiener_halfwin1 ? wiener_win - 1 - i : i);
 }
 
+#if CONFIG_INTEGERIZE_WIENER
+// Solve linear equations to find Wiener filter tap values
+// Taps are output scaled by WIENER_FILT_STEP
+static int linsolve_wiener(int n, int64_t *A, int stride, int64_t *b,
+                           int64_t *x) {
+  for (int k = 0; k < n - 1; k++) {
+    // Partial pivoting: bring the row with the largest pivot to the top
+    for (int i = n - 1; i > k; i--) {
+      // If row i has a better (bigger) pivot than row (i-1), swap them
+      if (labs(A[(i - 1) * stride + k]) < labs(A[i * stride + k])) {
+        for (int j = 0; j < n; j++) {
+          const int64_t c = A[i * stride + j];
+          A[i * stride + j] = A[(i - 1) * stride + j];
+          A[(i - 1) * stride + j] = c;
+        }
+        const int64_t c = b[i];
+        b[i] = b[i - 1];
+        b[i - 1] = c;
+      }
+    }
+    // Forward elimination (convert A to row-echelon form)
+    for (int i = k; i < n - 1; i++) {
+      if (labs(A[k * stride + k]) == 0)
+        return 0;
+      const int64_t c = A[(i + 1) * stride + k];
+      const int64_t cd = A[k * stride + k];
+      for (int j = 0; j < n; j++) {
+        A[(i + 1) * stride + j] -= c * A[k * stride + j] / cd;
+      }
+      b[i + 1] -= c * b[k] / cd;
+    }
+  }
+  // Back-substitution
+  for (int i = n - 1; i >= 0; i--) {
+    if (labs(A[i * stride + i]) == 0)
+      return 0;
+    int64_t c = 0;
+    for (int j = i + 1; j <= n - 1; j++) {
+      c += A[i * stride + j] * x[j] / WIENER_TAP_SCALE_FACTOR;
+    }
+    // Store filter taps x in scaled form.
+    x[i] = WIENER_TAP_SCALE_FACTOR * (b[i] - c) / A[i * stride + i];
+  }
+
+  return 1;
+}
+#endif  // CONFIG_INTEGERIZE_WIENER
+
 // Fix vector b, update vector a
+#if CONFIG_INTEGERIZE_WIENER
+static void update_a_sep_sym(int wiener_win, int64_t **Mc, int64_t **Hc,
+                             int64_t *a, int64_t *b) {
+  int64_t S[WIENER_WIN];
+  int64_t A[WIENER_HALFWIN1], B[WIENER_HALFWIN1 * WIENER_HALFWIN1];
+#else
 static void update_a_sep_sym(int wiener_win, double **Mc, double **Hc,
                              double *a, double *b) {
-  int i, j;
   double S[WIENER_WIN];
   double A[WIENER_HALFWIN1], B[WIENER_HALFWIN1 * WIENER_HALFWIN1];
+#endif  // CONFIG_INTEGERIZE_WIENER
+  int i, j;
   const int wiener_win2 = wiener_win * wiener_win;
   const int wiener_halfwin1 = (wiener_win >> 1) + 1;
   memset(A, 0, sizeof(A));
@@ -765,7 +846,11 @@ static void update_a_sep_sym(int wiener_win, double **Mc, double **Hc,
   for (i = 0; i < wiener_win; i++) {
     for (j = 0; j < wiener_win; ++j) {
       const int jj = wrap_index(j, wiener_win);
+#if CONFIG_INTEGERIZE_WIENER
+      A[jj] += Mc[i][j] * b[i] / WIENER_TAP_SCALE_FACTOR;
+#else
       A[jj] += Mc[i][j] * b[i];
+#endif  // CONFIG_INTEGERIZE_WIENER
     }
   }
   for (i = 0; i < wiener_win; i++) {
@@ -775,8 +860,15 @@ static void update_a_sep_sym(int wiener_win, double **Mc, double **Hc,
         for (l = 0; l < wiener_win; ++l) {
           const int kk = wrap_index(k, wiener_win);
           const int ll = wrap_index(l, wiener_win);
+#if CONFIG_INTEGERIZE_WIENER
+          B[ll * wiener_halfwin1 + kk] +=
+              Hc[j * wiener_win + i][k * wiener_win2 + l]
+              * b[i] / WIENER_TAP_SCALE_FACTOR * b[j] /
+              WIENER_TAP_SCALE_FACTOR;
+#else
           B[ll * wiener_halfwin1 + kk] +=
               Hc[j * wiener_win + i][k * wiener_win2 + l] * b[i] * b[j];
+#endif  // CONFIG_INTEGERIZE_WIENER
         }
     }
   }
@@ -793,6 +885,17 @@ static void update_a_sep_sym(int wiener_win, double **Mc, double **Hc,
                B[(wiener_halfwin1 - 1) * wiener_halfwin1 + j] -
                2 * B[(wiener_halfwin1 - 1) * wiener_halfwin1 +
                      (wiener_halfwin1 - 1)]);
+#if CONFIG_INTEGERIZE_WIENER
+  if (linsolve_wiener(wiener_halfwin1 - 1, B, wiener_halfwin1, A, S)) {
+    S[wiener_halfwin1 - 1] = WIENER_TAP_SCALE_FACTOR;
+    for (i = wiener_halfwin1; i < wiener_win; ++i) {
+      S[i] = S[wiener_win - 1 - i];
+      S[wiener_halfwin1 - 1] -= 2 * S[i];
+    }
+    for (int m = 0; m < wiener_win; m++)
+      a[m] = S[m];
+  }
+#else
   if (linsolve(wiener_halfwin1 - 1, B, wiener_halfwin1, A, S)) {
     S[wiener_halfwin1 - 1] = 1.0;
     for (i = wiener_halfwin1; i < wiener_win; ++i) {
@@ -801,21 +904,35 @@ static void update_a_sep_sym(int wiener_win, double **Mc, double **Hc,
     }
     memcpy(a, S, wiener_win * sizeof(*a));
   }
+#endif  // CONFIG_INTEGERIZE_WIENER
 }
 
 // Fix vector a, update vector b
+#if CONFIG_INTEGERIZE_WIENER
+static void update_b_sep_sym(int wiener_win, int64_t **Mc, int64_t **Hc,
+                             int64_t *a, int64_t *b) {
+  int64_t S[WIENER_WIN];
+  int64_t A[WIENER_HALFWIN1], B[WIENER_HALFWIN1 * WIENER_HALFWIN1];
+#else
 static void update_b_sep_sym(int wiener_win, double **Mc, double **Hc,
                              double *a, double *b) {
-  int i, j;
   double S[WIENER_WIN];
   double A[WIENER_HALFWIN1], B[WIENER_HALFWIN1 * WIENER_HALFWIN1];
+#endif  // CONFIG_INTEGERIZE_WIENER
+  int i, j;
   const int wiener_win2 = wiener_win * wiener_win;
   const int wiener_halfwin1 = (wiener_win >> 1) + 1;
   memset(A, 0, sizeof(A));
   memset(B, 0, sizeof(B));
   for (i = 0; i < wiener_win; i++) {
     const int ii = wrap_index(i, wiener_win);
-    for (j = 0; j < wiener_win; j++) A[ii] += Mc[i][j] * a[j];
+    for (j = 0; j < wiener_win; j++) {
+#if CONFIG_INTEGERIZE_WIENER
+      A[ii] += Mc[i][j] * a[j] / WIENER_TAP_SCALE_FACTOR;
+#else
+      A[ii] += Mc[i][j] * a[j];
+#endif  // CONFIG_INTEGERIZE_WIENER
+    }
   }
 
   for (i = 0; i < wiener_win; i++) {
@@ -823,10 +940,19 @@ static void update_b_sep_sym(int wiener_win, double **Mc, double **Hc,
       const int ii = wrap_index(i, wiener_win);
       const int jj = wrap_index(j, wiener_win);
       int k, l;
-      for (k = 0; k < wiener_win; ++k)
-        for (l = 0; l < wiener_win; ++l)
+      for (k = 0; k < wiener_win; ++k) {
+        for (l = 0; l < wiener_win; ++l) {
+#if CONFIG_INTEGERIZE_WIENER
+          B[jj * wiener_halfwin1 + ii] +=
+              Hc[i * wiener_win + j][k * wiener_win2 + l]
+              * a[k] / WIENER_TAP_SCALE_FACTOR * a[l] /
+              WIENER_TAP_SCALE_FACTOR;
+#else
           B[jj * wiener_halfwin1 + ii] +=
               Hc[i * wiener_win + j][k * wiener_win2 + l] * a[k] * a[l];
+#endif  // CONFIG_INTEGERIZE_WIENER
+        }
+      }
     }
   }
   // Normalization enforcement in the system of equations itself
@@ -842,6 +968,17 @@ static void update_b_sep_sym(int wiener_win, double **Mc, double **Hc,
                B[(wiener_halfwin1 - 1) * wiener_halfwin1 + j] -
                2 * B[(wiener_halfwin1 - 1) * wiener_halfwin1 +
                      (wiener_halfwin1 - 1)]);
+#if CONFIG_INTEGERIZE_WIENER
+  if (linsolve_wiener(wiener_halfwin1 - 1, B, wiener_halfwin1, A, S)) {
+    S[wiener_halfwin1 - 1] = WIENER_TAP_SCALE_FACTOR;
+    for (i = wiener_halfwin1; i < wiener_win; ++i) {
+      S[i] = S[wiener_win - 1 - i];
+      S[wiener_halfwin1 - 1] -= 2 * S[i];
+    }
+    for (int m = 0; m < wiener_win; m++)
+      b[m] = S[m];
+  }
+#else
   if (linsolve(wiener_halfwin1 - 1, B, wiener_halfwin1, A, S)) {
     S[wiener_halfwin1 - 1] = 1.0;
     for (i = wiener_halfwin1; i < wiener_win; ++i) {
@@ -850,23 +987,39 @@ static void update_b_sep_sym(int wiener_win, double **Mc, double **Hc,
     }
     memcpy(b, S, wiener_win * sizeof(*b));
   }
+#endif  // CONFIG_INTEGERIZE_WIENER
 }
 
+#if CONFIG_INTEGERIZE_WIENER
+static int wiener_decompose_sep_sym(int wiener_win, int64_t *M, int64_t *H,
+                                    int64_t *a, int64_t *b) {
+#else
 static int wiener_decompose_sep_sym(int wiener_win, double *M, double *H,
                                     double *a, double *b) {
+#endif  // CONFIG_INTEGERIZE_WIENER
   static const int init_filt[WIENER_WIN] = {
     WIENER_FILT_TAP0_MIDV, WIENER_FILT_TAP1_MIDV, WIENER_FILT_TAP2_MIDV,
     WIENER_FILT_TAP3_MIDV, WIENER_FILT_TAP2_MIDV, WIENER_FILT_TAP1_MIDV,
     WIENER_FILT_TAP0_MIDV,
   };
-  double *Hc[WIENER_WIN2];
-  double *Mc[WIENER_WIN];
   int i, j, iter;
   const int plane_off = (WIENER_WIN - wiener_win) >> 1;
   const int wiener_win2 = wiener_win * wiener_win;
+
   for (i = 0; i < wiener_win; i++) {
+#if CONFIG_INTEGERIZE_WIENER
+    a[i] = b[i] = (int64_t)WIENER_TAP_SCALE_FACTOR / WIENER_FILT_STEP *
+        (int64_t)init_filt[i + plane_off];
+#else
     a[i] = b[i] = (double)init_filt[i + plane_off] / WIENER_FILT_STEP;
+#endif  // CONFIG_INTEGERIZE_WIENER
   }
+#if CONFIG_INTEGERIZE_WIENER
+  int64_t *Hc[WIENER_WIN2], *Mc[WIENER_WIN];
+#else
+  double *Hc[WIENER_WIN2], *Mc[WIENER_WIN];
+#endif  // CONFIG_INTEGERIZE_WIENER
+
   for (i = 0; i < wiener_win; i++) {
     Mc[i] = M + i * wiener_win;
     for (j = 0; j < wiener_win; j++) {
@@ -887,19 +1040,50 @@ static int wiener_decompose_sep_sym(int wiener_win, double *M, double *H,
 // Computes the function x'*H*x - x'*M for the learned 2D filter x, and compares
 // against identity filters; Final score is defined as the difference between
 // the function values
+#if CONFIG_INTEGERIZE_WIENER
+static int64_t compute_score(int wiener_win, int64_t *M, int64_t *H,
+                            InterpKernel vfilt, InterpKernel hfilt) {
+  int32_t ab[WIENER_WIN * WIENER_WIN];
+  int16_t a[WIENER_WIN], b[WIENER_WIN];
+  int64_t P = 0, Q = 0;
+  int64_t iP = 0, iQ = 0;
+  int64_t Score, iScore;
+#else
 static double compute_score(int wiener_win, double *M, double *H,
                             InterpKernel vfilt, InterpKernel hfilt) {
   double ab[WIENER_WIN * WIENER_WIN];
-  int i, k, l;
+  double a[WIENER_WIN], b[WIENER_WIN];
   double P = 0, Q = 0;
   double iP = 0, iQ = 0;
   double Score, iScore;
-  double a[WIENER_WIN], b[WIENER_WIN];
+#endif  // CONFIG_INTEGERIZE_WIENER
+  int i, k, l;
   const int plane_off = (WIENER_WIN - wiener_win) >> 1;
   const int wiener_win2 = wiener_win * wiener_win;
 
   aom_clear_system_state();
 
+#if CONFIG_INTEGERIZE_WIENER
+  a[WIENER_HALFWIN] = b[WIENER_HALFWIN] = WIENER_FILT_STEP;
+  for (i = 0; i < WIENER_HALFWIN; ++i) {
+    a[i] = a[WIENER_WIN - i - 1] = vfilt[i];
+    b[i] = b[WIENER_WIN - i - 1] = hfilt[i];
+    a[WIENER_HALFWIN] -= 2 * a[i];
+    b[WIENER_HALFWIN] -= 2 * b[i];
+  }
+  memset(ab, 0, sizeof(ab));
+  for (k = 0; k < wiener_win; ++k) {
+    for (l = 0; l < wiener_win; ++l)
+      ab[k * wiener_win + l] = a[l + plane_off] * b[k + plane_off];
+  }
+  for (k = 0; k < wiener_win2; ++k) {
+    P += ab[k] * M[k] / WIENER_FILT_STEP / WIENER_FILT_STEP;
+    for (l = 0; l < wiener_win2; ++l) {
+      Q += ab[k] * H[k * wiener_win2 + l] * ab[l] / WIENER_FILT_STEP
+          / WIENER_FILT_STEP / WIENER_FILT_STEP / WIENER_FILT_STEP;
+    }
+  }
+#else
   a[WIENER_HALFWIN] = b[WIENER_HALFWIN] = 1.0;
   for (i = 0; i < WIENER_HALFWIN; ++i) {
     a[i] = a[WIENER_WIN - i - 1] = (double)vfilt[i] / WIENER_FILT_STEP;
@@ -917,6 +1101,7 @@ static double compute_score(int wiener_win, double *M, double *H,
     for (l = 0; l < wiener_win2; ++l)
       Q += ab[k] * H[k * wiener_win2 + l] * ab[l];
   }
+#endif  // CONFIG_INTEGERIZE_WIENER
   Score = Q - 2 * P;
 
   iP = M[wiener_win2 >> 1];
@@ -926,6 +1111,39 @@ static double compute_score(int wiener_win, double *M, double *H,
   return Score - iScore;
 }
 
+#if CONFIG_INTEGERIZE_WIENER
+static void finalize_sym_filter(int wiener_win, int64_t *f, InterpKernel fi) {
+  int i;
+  const int wiener_halfwin = (wiener_win >> 1);
+
+  for (i = 0; i < wiener_halfwin; ++i) {
+    const int64_t dividend = f[i] * WIENER_FILT_STEP;
+    const int64_t divisor = WIENER_TAP_SCALE_FACTOR;
+    // Trick to perform this division with proper rounding (like RINT())
+    if (dividend < 0) {
+      fi[i] = (dividend - (divisor / 2)) / divisor;
+    } else {
+      fi[i] = (dividend + (divisor / 2)) / divisor;
+    }
+  }
+  // Specialize for 7-tap filter
+  if (wiener_win == WIENER_WIN) {
+    fi[0] = CLIP(fi[0], WIENER_FILT_TAP0_MINV, WIENER_FILT_TAP0_MAXV);
+    fi[1] = CLIP(fi[1], WIENER_FILT_TAP1_MINV, WIENER_FILT_TAP1_MAXV);
+    fi[2] = CLIP(fi[2], WIENER_FILT_TAP2_MINV, WIENER_FILT_TAP2_MAXV);
+  } else {
+    fi[2] = CLIP(fi[1], WIENER_FILT_TAP2_MINV, WIENER_FILT_TAP2_MAXV);
+    fi[1] = CLIP(fi[0], WIENER_FILT_TAP1_MINV, WIENER_FILT_TAP1_MAXV);
+    fi[0] = 0;
+  }
+  // Satisfy filter constraints
+  fi[WIENER_WIN - 1] = fi[0];
+  fi[WIENER_WIN - 2] = fi[1];
+  fi[WIENER_WIN - 3] = fi[2];
+  // The central element has an implicit +WIENER_FILT_STEP
+  fi[3] = -2 * (fi[0] + fi[1] + fi[2]);
+}
+#else
 static void quantize_sym_filter(int wiener_win, double *f, InterpKernel fi) {
   int i;
   const int wiener_halfwin = (wiener_win >> 1);
@@ -949,6 +1167,7 @@ static void quantize_sym_filter(int wiener_win, double *f, InterpKernel fi) {
   // The central element has an implicit +WIENER_FILT_STEP
   fi[3] = -2 * (fi[0] + fi[1] + fi[2]);
 }
+#endif  // CONFIG_INTEGERIZE_WIENER
 
 static int count_wiener_bits(int wiener_win, WienerInfo *wiener_info,
                              WienerInfo *ref_wiener_info) {
@@ -1108,9 +1327,11 @@ static void search_wiener(const RestorationTileLimits *limits,
   const int wiener_win =
       (rsc->plane == AOM_PLANE_Y) ? WIENER_WIN : WIENER_WIN_CHROMA;
 
-  double M[WIENER_WIN2];
-  double H[WIENER_WIN2 * WIENER_WIN2];
-  double vfilterd[WIENER_WIN], hfilterd[WIENER_WIN];
+#if CONFIG_INTEGERIZE_WIENER
+  int64_t M[WIENER_WIN2], H[WIENER_WIN2 * WIENER_WIN2];
+#else
+  double M[WIENER_WIN2], H[WIENER_WIN2 * WIENER_WIN2];
+#endif  // CONFIG_INTEGERIZE_WIENER
 
   const AV1_COMMON *const cm = rsc->cm;
   if (cm->seq_params.use_highbitdepth) {
@@ -1126,7 +1347,13 @@ static void search_wiener(const RestorationTileLimits *limits,
   const MACROBLOCK *const x = rsc->x;
   const int64_t bits_none = x->wiener_restore_cost[0];
 
-  if (!wiener_decompose_sep_sym(wiener_win, M, H, vfilterd, hfilterd)) {
+#if CONFIG_INTEGERIZE_WIENER
+  int64_t vfilter[WIENER_WIN], hfilter[WIENER_WIN];
+#else
+  double vfilter[WIENER_WIN], hfilter[WIENER_WIN];
+#endif  // CONFIG_INTEGERIZE_WIENER
+
+  if (!wiener_decompose_sep_sym(wiener_win, M, H, vfilter, hfilter)) {
     rsc->bits += bits_none;
     rsc->sse += rusi->sse[RESTORE_NONE];
     rusi->best_rtype[RESTORE_WIENER - 1] = RESTORE_NONE;
@@ -1137,8 +1364,13 @@ static void search_wiener(const RestorationTileLimits *limits,
   RestorationUnitInfo rui;
   memset(&rui, 0, sizeof(rui));
   rui.restoration_type = RESTORE_WIENER;
-  quantize_sym_filter(wiener_win, vfilterd, rui.wiener_info.vfilter);
-  quantize_sym_filter(wiener_win, hfilterd, rui.wiener_info.hfilter);
+#if CONFIG_INTEGERIZE_WIENER
+  finalize_sym_filter(wiener_win, vfilter, rui.wiener_info.vfilter);
+  finalize_sym_filter(wiener_win, hfilter, rui.wiener_info.hfilter);
+#else
+  quantize_sym_filter(wiener_win, vfilter, rui.wiener_info.vfilter);
+  quantize_sym_filter(wiener_win, hfilter, rui.wiener_info.hfilter);
+#endif  // CONFIG_INTEGERIZE_WIENER
 
   // Filter score computes the value of the function x'*A*x - x'*b for the
   // learned filter and compares it against identity filer. If there is no
