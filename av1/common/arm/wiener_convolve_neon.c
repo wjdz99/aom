@@ -295,8 +295,12 @@ void av1_wiener_convolve_add_src_neon(const uint8_t *src, ptrdiff_t src_stride,
   }
 
   {
-    int16x8_t s0, s1, s2, s3, s4, s5, s6, s7, s8, s9, s10;
-    uint8x8_t t0, t1, t2, t3;
+    int16x8_t s0, s1, s2, s3, s4, s5, s6, s7;
+    uint8x8_t t0;
+#if defined(__aarch64__)
+    int16x8_t s8, s9, s10;
+    uint8x8_t t1, t2, t3;
+#endif
     int16_t *src_tmp_ptr, *s;
     uint8_t *dst_tmp_ptr;
     height = h;
@@ -324,6 +328,7 @@ void av1_wiener_convolve_add_src_neon(const uint8_t *src, ptrdiff_t src_stride,
       d = dst_tmp_ptr;
       height = h;
 
+#if defined(__aarch64__)
       do {
         __builtin_prefetch(dst_tmp_ptr + 0 * dst_stride);
         __builtin_prefetch(dst_tmp_ptr + 1 * dst_stride);
@@ -397,5 +402,34 @@ void av1_wiener_convolve_add_src_neon(const uint8_t *src, ptrdiff_t src_stride,
 
       w -= 8;
     } while (w > 0);
+#else
+      do {
+        __builtin_prefetch(dst_tmp_ptr + 0 * dst_stride);
+
+        s7 = vld1q_s16(s);
+        s += src_stride;
+
+        t0 = wiener_convolve8_vert_4x8(s0, s1, s2, s3, s4, s5, s6, filter_y_tmp,
+                                       bd, conv_params->round_1);
+
+        vst1_u8(d, t0);
+        d += dst_stride;
+
+        s0 = s1;
+        s1 = s2;
+        s2 = s3;
+        s3 = s4;
+        s4 = s5;
+        s5 = s6;
+        s6 = s7;
+        height -= 1;
+      } while (height > 0);
+
+      src_tmp_ptr += 8;
+      dst_tmp_ptr += 8;
+
+      w -= 8;
+    } while (w > 0);
+#endif
   }
 }
