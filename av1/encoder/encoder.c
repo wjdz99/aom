@@ -4902,10 +4902,6 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
       av1_rc_postencode_update(cpi, *size);
     }
 
-    // Decrement count down till next gf
-    if (cpi->rc.frames_till_gf_update_due > 0)
-      cpi->rc.frames_till_gf_update_due--;
-
     ++cm->current_video_frame;
 
     return AOM_CODEC_OK;
@@ -5158,14 +5154,6 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
   // takes a space in the gf group. Therefore, even when
   // it is not shown, we still need update the count down.
 
-  // TODO(weitinglin): This is a work-around to handle the condition
-  // when a frame is drop. We should fix the cm->show_frame flag
-  // instead of checking the other condition to update the counter properly.
-  if (cm->show_frame || is_frame_droppable(cpi)) {
-    // Decrement count down till next gf
-    if (cpi->rc.frames_till_gf_update_due > 0)
-      cpi->rc.frames_till_gf_update_due--;
-  }
 
   if (cm->show_frame) {
     // TODO(zoeliu): We may only swamp mi and prev_mi for those frames that
@@ -5191,6 +5179,47 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
   return AOM_CODEC_OK;
 }
 
+static INLINE void update_keyframe_counters(AV1_COMP *cpi) {
+  if (!cpi->common.show_existing_frame || cpi->rc.is_src_frame_alt_ref ||
+      cpi->common.frame_type == KEY_FRAME) {
+    // TODO(zoeliu): To investigate whether we should treat BWDREF_FRAME
+    //               differently here for rc->avg_frame_bandwidth.
+    if (cm->show_frame || rc->is_bwd_ref_frame) {
+      rc->frames_since_key++;
+      rc->frames_to_key--;
+    }
+  }
+}
+
+static INLINE void update_frames_till_gf_update(AV1_COMP *cpi) {
+  // TODO(weitinglin): This is a work-around to handle the condition
+  // when a frame is drop. We should fix the cm->show_frame flag
+  // instead of checking the other condition to update the counter properly.
+  if (cpi->common.show_frame || is_frame_droppable(cpi)) {
+    // Decrement count down till next gf
+    if (cpi->rc.frames_till_gf_update_due > 0)
+      cpi->rc.frames_till_gf_update_due--;
+  }
+}
+
+static INLINE void update_twopass_gf_group_index(AV1_COMP *cpi) {
+  // Increment the gf group index ready for the next frame. If this is
+  // a show_existing_frame with a source other than altref, the index
+  // was incremented when it was originally encoded.
+  if (cpi->common.error_resilient_mode || !cpi->common.show_existing_frame ||
+      cpi->rc.is_src_frame_alt_ref) {
+  if (!cpi->common.show_existing_frame || rc->is_src_frame_alt_ref) {
+    ++twopass->gf_group.index;
+  }
+
+}
+
+static void update_rc_counts(AV1_COMP *cpi) {
+  update_keyframe_counters(cpi);
+  update_frames_till_gf_update(cpi);
+  if (cpi->oxcf.pass == 2) update_twopass_gf_group_index(cpi);
+}
+
 static int Pass0Encode(AV1_COMP *cpi, size_t *size, uint8_t *dest,
                        int skip_adapt, unsigned int *frame_flags) {
   if (cpi->oxcf.rc_mode == AOM_CBR) {
@@ -5202,6 +5231,7 @@ static int Pass0Encode(AV1_COMP *cpi, size_t *size, uint8_t *dest,
       AOM_CODEC_OK) {
     return AOM_CODEC_ERROR;
   }
+  update_rc_counts(cpi);
   check_show_existing_frame(cpi);
   return AOM_CODEC_OK;
 }
@@ -5245,6 +5275,7 @@ static int Pass2Encode(AV1_COMP *cpi, size_t *size, uint8_t *dest,
       cpi->rc.is_src_frame_alt_ref) {
     av1_twopass_postencode_update(cpi);
   }
+  update_rc_counts(cpi);
   check_show_existing_frame(cpi);
   return AOM_CODEC_OK;
 }
@@ -5715,7 +5746,6 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
                             size_t *size, uint8_t *dest, int64_t *time_stamp,
                             int64_t *time_end, int flush,
                             const aom_rational_t *timebase) {
-  const AV1EncoderConfig *const oxcf = &cpi->oxcf;
   AV1_COMMON *const cm = &cpi->common;
   const int num_planes = av1_num_planes(cm);
   BufferPool *const pool = cm->buffer_pool;
