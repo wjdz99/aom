@@ -22,6 +22,96 @@
 #include "av1/common/arm/mem_neon.h"
 #include "av1/common/arm/transpose_neon.h"
 
+static INLINE void compute_avg_4x1(
+    uint16x4_t res0, uint16x4_t d0, const uint16_t fwd_offset,
+    const uint16_t bck_offset, const int16x4_t sub_const_vec,
+    const int16_t round_bits, const int32_t use_jnt_comp_avg, uint8x8_t *t0) {
+  int16x4_t tmp0;
+  uint16x4_t tmp_u0;
+  uint32x4_t sum0;
+  int32x4_t dst0;
+  int16x8_t tmp4;
+
+  if (use_jnt_comp_avg) {
+    const int32x4_t round_bits_vec = vdupq_n_s32((int32_t)(-round_bits));
+
+    sum0 = vmull_n_u16(res0, fwd_offset);
+    sum0 = vmlal_n_u16(sum0, d0, bck_offset);
+
+    sum0 = vshrq_n_u32(sum0, DIST_PRECISION_BITS);
+
+    dst0 = vsubq_s32(vreinterpretq_s32_u32(sum0), vmovl_s16(sub_const_vec));
+
+    dst0 = vqrshlq_s32(dst0, round_bits_vec);
+
+    tmp0 = vqmovn_s32(dst0);
+    tmp4 = vcombine_s16(tmp0, tmp0);
+
+    *t0 = vqmovun_s16(tmp4);
+  } else {
+    const int16x4_t round_bits_vec = vdup_n_s16(-round_bits);
+    tmp_u0 = vhadd_u16(res0, d0);
+
+    tmp0 = vsub_s16(vreinterpret_s16_u16(tmp_u0), sub_const_vec);
+
+    tmp0 = vqrshl_s16(tmp0, round_bits_vec);
+
+    tmp4 = vcombine_s16(tmp0, tmp0);
+
+    *t0 = vqmovun_s16(tmp4);
+  }
+}
+
+static INLINE void compute_avg_8x1(
+    uint16x8_t res0, uint16x8_t d0, const uint16_t fwd_offset,
+    const uint16_t bck_offset, const int16x4_t sub_const,
+    const int16_t round_bits, const int32_t use_jnt_comp_avg, uint8x8_t *t0) {
+  int16x4_t tmp0, tmp2;
+  int16x8_t f0;
+  uint32x4_t sum0, sum2;
+  int32x4_t dst0, dst2;
+
+  uint16x8_t tmp_u0;
+
+  if (use_jnt_comp_avg) {
+    const int32x4_t sub_const_vec = vmovl_s16(sub_const);
+    const int32x4_t round_bits_vec = vdupq_n_s32(-(int32_t)round_bits);
+
+    sum0 = vmull_n_u16(vget_low_u16(res0), fwd_offset);
+    sum0 = vmlal_n_u16(sum0, vget_low_u16(d0), bck_offset);
+    sum0 = vshrq_n_u32(sum0, DIST_PRECISION_BITS);
+
+    sum2 = vmull_n_u16(vget_high_u16(res0), fwd_offset);
+    sum2 = vmlal_n_u16(sum2, vget_high_u16(d0), bck_offset);
+    sum2 = vshrq_n_u32(sum2, DIST_PRECISION_BITS);
+
+    dst0 = vsubq_s32(vreinterpretq_s32_u32(sum0), sub_const_vec);
+    dst2 = vsubq_s32(vreinterpretq_s32_u32(sum2), sub_const_vec);
+
+    dst0 = vqrshlq_s32(dst0, round_bits_vec);
+    dst2 = vqrshlq_s32(dst2, round_bits_vec);
+
+    tmp0 = vqmovn_s32(dst0);
+    tmp2 = vqmovn_s32(dst2);
+
+    f0 = vcombine_s16(tmp0, tmp2);
+
+    *t0 = vqmovun_s16(f0);
+
+  } else {
+    const int16x8_t sub_const_vec = vcombine_s16(sub_const, sub_const);
+    const int16x8_t round_bits_vec = vdupq_n_s16(-round_bits);
+
+    tmp_u0 = vhaddq_u16(res0, d0);
+
+    f0 = vsubq_s16(vreinterpretq_s16_u16(tmp_u0), sub_const_vec);
+
+    f0 = vqrshlq_s16(f0, round_bits_vec);
+
+    *t0 = vqmovun_s16(f0);
+  }
+}
+
 static INLINE void compute_avg_4x4(
     uint16x4_t res0, uint16x4_t res1, uint16x4_t res2, uint16x4_t res3,
     uint16x4_t d0, uint16x4_t d1, uint16x4_t d2, uint16x4_t d3,
@@ -420,10 +510,15 @@ static INLINE void jnt_convolve_2d_vert_neon(
   const int do_average = conv_params->do_average;
   const int use_jnt_comp_avg = conv_params->use_jnt_comp_avg;
 
-  int16x4_t s0, s1, s2, s3, s4, s5, s6, s7, s8, s9, s10;
-  uint16x4_t res4, res5, res6, res7;
-  uint16x4_t d0, d1, d2, d3;
-  uint8x8_t t0, t1;
+  int16x4_t s0, s1, s2, s3, s4, s5, s6, s7;
+  uint16x4_t res4, d0;
+  uint8x8_t t0;
+
+#if defined(__aarch64__)
+  int16x4_t s8, s9, s10;
+  uint16x4_t res5, res6, res7, d1, d2, d3;
+  uint8x8_t t1;
+#endif
 
   dst = conv_params->dst;
   src_ptr = im_block;
@@ -450,6 +545,7 @@ static INLINE void jnt_convolve_2d_vert_neon(
     s += (7 * im_stride);
 
     do {
+#if defined(__aarch64__)
       load_s16_4x4(s, im_stride, &s7, &s8, &s9, &s10);
       s += (im_stride << 2);
 
@@ -480,17 +576,13 @@ static INLINE void jnt_convolve_2d_vert_neon(
                         bck_offset, sub_const_vec, round_bits, use_jnt_comp_avg,
                         &t0, &t1);
 
-        vst1_lane_u32((uint32_t *)d_u8, vreinterpret_u32_u8(t0),
-                      0);  // 00 01 02 03
+        vst1_lane_u32((uint32_t *)d_u8, vreinterpret_u32_u8(t0), 0);
         d_u8 += dst8_stride;
-        vst1_lane_u32((uint32_t *)d_u8, vreinterpret_u32_u8(t0),
-                      1);  // 10 11 12 13
+        vst1_lane_u32((uint32_t *)d_u8, vreinterpret_u32_u8(t0), 1);
         d_u8 += dst8_stride;
-        vst1_lane_u32((uint32_t *)d_u8, vreinterpret_u32_u8(t1),
-                      0);  // 20 21 22 23
+        vst1_lane_u32((uint32_t *)d_u8, vreinterpret_u32_u8(t1), 0);
         d_u8 += dst8_stride;
-        vst1_lane_u32((uint32_t *)d_u8, vreinterpret_u32_u8(t1),
-                      1);  // 30 31 32 33
+        vst1_lane_u32((uint32_t *)d_u8, vreinterpret_u32_u8(t1), 1);
         d_u8 += dst8_stride;
 
       } else {
@@ -505,6 +597,39 @@ static INLINE void jnt_convolve_2d_vert_neon(
       s5 = s9;
       s6 = s10;
       height -= 4;
+#else
+      s7 = vld1_s16(s);
+      s += (im_stride);
+
+      __builtin_prefetch(d + 0 * dst_stride);
+      __builtin_prefetch(d_u8 + 0 * dst8_stride);
+
+      d0 = convolve8_4x4_s32(s0, s1, s2, s3, s4, s5, s6, s7, y_filter,
+                             round_shift_vec, offset_const);
+
+      if (do_average) {
+        res4 = vld1_u16(d);
+        d += (dst_stride);
+
+        compute_avg_4x1(res4, d0, fwd_offset, bck_offset, sub_const_vec,
+                        round_bits, use_jnt_comp_avg, &t0);
+
+        vst1_lane_u32((uint32_t *)d_u8, vreinterpret_u32_u8(t0), 0);
+        d_u8 += dst8_stride;
+
+      } else {
+        vst1_u16(d, d0);
+        d += (dst_stride);
+      }
+      s0 = s1;
+      s1 = s2;
+      s2 = s3;
+      s3 = s4;
+      s4 = s5;
+      s5 = s6;
+      s6 = s7;
+      height--;
+#endif
     } while (height > 0);
     src_ptr += 4;
     dst_ptr += 4;
@@ -1057,7 +1182,6 @@ void av1_jnt_convolve_y_neon(const uint8_t *src, int src_stride, uint8_t *dst8,
   uint8_t *dst_u8_ptr;
   CONV_BUF_TYPE *d, *dst_ptr;
   int width, height;
-  uint8x8_t t0, t1, t2, t3, t4, t5, t6, t7;
 
   s = src_ptr;
   dst_ptr = dst;
@@ -1070,11 +1194,17 @@ void av1_jnt_convolve_y_neon(const uint8_t *src, int src_stride, uint8_t *dst8,
   assert((conv_params->round_1 - 2) >= bits);
 
   if ((w == 4) || (h == 4)) {
-    int16x4_t s0, s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, d0, d1, d2, d3;
-    uint16x4_t res4, res5, res6, res7;
+    int16x4_t s0, s1, s2, s3, s4, s5, s6, s7, d0;
+    uint16x4_t res4;
     uint32x2_t tu0, tu1, tu2, tu3;
     int16x8_t u0, u1, u2, u3;
+    uint8x8_t t0;
 
+#if defined(__aarch64__)
+    int16x4_t s8, s9, s10, d1, d2, d3;
+    uint16x4_t res5, res6, res7;
+    uint8x8_t t1;
+#endif
     const int16x4_t round_offset64 = vdup_n_s16(round_offset);
     const int16x4_t shift_vec = vdup_n_s16(-shift_value);
     const int16x4_t zero = vdup_n_s16(0);
@@ -1111,6 +1241,7 @@ void av1_jnt_convolve_y_neon(const uint8_t *src, int src_stride, uint8_t *dst8,
 
       s += (7 * src_stride);
       do {
+#if defined(__aarch64__)
         load_unaligned_u8_4x4(s, src_stride, &tu0, &tu1);
 
         u0 = vreinterpretq_s16_u16(vmovl_u8(vreinterpret_u8_u32(tu0)));
@@ -1154,17 +1285,13 @@ void av1_jnt_convolve_y_neon(const uint8_t *src, int src_stride, uint8_t *dst8,
                           round_offset64, round_bits, use_jnt_comp_avg, &t0,
                           &t1);
 
-          vst1_lane_u32((uint32_t *)d_u8, vreinterpret_u32_u8(t0),
-                        0);  // 00 01 02 03
+          vst1_lane_u32((uint32_t *)d_u8, vreinterpret_u32_u8(t0), 0);
           d_u8 += dst8_stride;
-          vst1_lane_u32((uint32_t *)d_u8, vreinterpret_u32_u8(t0),
-                        1);  // 10 11 12 13
+          vst1_lane_u32((uint32_t *)d_u8, vreinterpret_u32_u8(t0), 1);
           d_u8 += dst8_stride;
-          vst1_lane_u32((uint32_t *)d_u8, vreinterpret_u32_u8(t1),
-                        0);  // 20 21 22 23
+          vst1_lane_u32((uint32_t *)d_u8, vreinterpret_u32_u8(t1), 0);
           d_u8 += dst8_stride;
-          vst1_lane_u32((uint32_t *)d_u8, vreinterpret_u32_u8(t1),
-                        1);  // 30 31 32 33
+          vst1_lane_u32((uint32_t *)d_u8, vreinterpret_u32_u8(t1), 1);
           d_u8 += dst8_stride;
         } else {
           store_u16_4x4(d, dst_stride, vreinterpret_u16_s16(d0),
@@ -1183,6 +1310,44 @@ void av1_jnt_convolve_y_neon(const uint8_t *src, int src_stride, uint8_t *dst8,
 
         s += (src_stride << 2);
         height -= 4;
+#else
+        load_unaligned_u8_4x1(s, src_stride, &tu0);
+        u0 = vreinterpretq_s16_u16(vmovl_u8(vreinterpret_u8_u32(tu0)));
+        s7 = vget_low_s16(u0);
+
+        d0 = convolve8_4x4_s16(s0, s1, s2, s3, s4, s5, s6, s7, y_filter_tmp,
+                               zero, shift_vec);
+
+        d0 = vadd_s16(d0, round_offset64);
+
+        if (conv_params->do_average) {
+          __builtin_prefetch(d);
+
+          res4 = vld1_u16(d);
+          d += (dst_stride);
+
+          compute_avg_4x1(res4, vreinterpret_u16_s16(d0), fwd_offset,
+                          bck_offset, round_offset64, round_bits,
+                          use_jnt_comp_avg, &t0);
+
+          vst1_lane_u32((uint32_t *)d_u8, vreinterpret_u32_u8(t0), 0);
+          d_u8 += dst8_stride;
+        } else {
+          vst1_u16(d, vreinterpret_u16_s16(d0));
+          d += (dst_stride);
+        }
+
+        s0 = s1;
+        s1 = s2;
+        s2 = s3;
+        s3 = s4;
+        s4 = s5;
+        s5 = s6;
+        s6 = s7;
+
+        s += (src_stride);
+        height--;
+#endif
       } while (height > 0);
       src_ptr += 4;
       dst_ptr += 4;
@@ -1191,15 +1356,19 @@ void av1_jnt_convolve_y_neon(const uint8_t *src, int src_stride, uint8_t *dst8,
     } while (width > 0);
   } else {
     CONV_BUF_TYPE *d_tmp;
-    int16x8_t s11, s12, s13, s14;
-    int16x8_t s0, s1, s2, s3, s4, s5, s6, s7, s8, s9, s10;
-    int16x8_t res0, res1, res2, res3, res4, res5, res6, res7;
-    uint16x8_t res8, res9, res10, res11;
+    int16x8_t s0, s1, s2, s3, s4, s5, s6, s7;
+    int16x8_t res0;
+    uint16x8_t res8;
+    uint8x8_t t0, t1, t2, t3, t4, t5, t6, t7;
     const int16x8_t round_offset128 = vdupq_n_s16(round_offset);
     const int16x8_t shift_vec = vdupq_n_s16(-shift_value);
     const int16x4_t round_offset64 = vdup_n_s16(round_offset);
     const int16x8_t zero = vdupq_n_s16(0);
-
+#if defined(__aarch64__)
+    int16x8_t s8, s9, s10, s11, s12, s13, s14;
+    int16x8_t res1, res2, res3, res4, res5, res6, res7;
+    uint16x8_t res10, res11, res9;
+#endif
     dst_ptr = dst;
     dst_u8_ptr = dst8;
     do {
@@ -1227,6 +1396,7 @@ void av1_jnt_convolve_y_neon(const uint8_t *src, int src_stride, uint8_t *dst8,
       d_u8 = dst_u8_ptr;
 
       do {
+#if defined(__aarch64__)
         load_u8_8x8(s, src_stride, &t0, &t1, &t2, &t3, &t4, &t5, &t6, &t7);
 
         s7 = vreinterpretq_s16_u16(vmovl_u8(t0));
@@ -1316,6 +1486,43 @@ void av1_jnt_convolve_y_neon(const uint8_t *src, int src_stride, uint8_t *dst8,
         s6 = s14;
         s += (8 * src_stride);
         height -= 8;
+#else
+        s7 = vreinterpretq_s16_u16(vmovl_u8(vld1_u8(s)));
+
+        __builtin_prefetch(dst_ptr);
+
+        res0 = convolve8_8x8_s16(s0, s1, s2, s3, s4, s5, s6, s7, y_filter_tmp,
+                                 zero, shift_vec);
+        res0 = vaddq_s16(res0, round_offset128);
+
+        s0 = s1;
+        s1 = s2;
+        s2 = s3;
+        s3 = s4;
+        s4 = s5;
+        s5 = s6;
+        s6 = s7;
+
+        if (conv_params->do_average) {
+          __builtin_prefetch(d_tmp);
+
+          res8 = vld1q_u16(d_tmp);
+          d_tmp += (dst_stride);
+
+          compute_avg_8x1(res8, vreinterpretq_u16_s16(res0), fwd_offset,
+                          bck_offset, round_offset64, round_bits,
+                          use_jnt_comp_avg, &t0);
+
+          vst1_u8(d_u8, t0);
+          d_u8 += (dst8_stride);
+        } else {
+          vst1q_u16(d_tmp, vreinterpretq_u16_s16(res0));
+          d_tmp += dst_stride;
+        }
+
+        s += (src_stride);
+        height--;
+#endif
       } while (height > 0);
       src_ptr += 8;
       dst_ptr += 8;
