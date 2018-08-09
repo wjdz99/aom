@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "0c97dac6_301d390f",
+        "filename": "build/cmake/generate_aom_config_templates.cmake",
+        "patchSetId": 1
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-08-09T16:42:49Z",
+      "side": 1,
+      "message": "I found that our \"git clang-format -f\" command also uses only one space between \"#endif\" and the \"/* FOO_BAR_H_ */ comment. (I tested it with av1/encoder/context_tree.h and av1/encoder/palette.h.) So this formatting behavior is not specific to Chromium\u0027s \"git cl format\" command.\n\nThe majority of our headers use the \"// FOO_BAR_H_\" style comment for the header include guard, so it is fine to switch to \"// FOO_BAR_H_\" in the generated headers.",
+      "parentUuid": "70bf2807_975f3427",
+      "revId": "d2154ccd75bfa36799c51259cbc9bd6d43f79c3f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1610bf71_2bee887d",
         "filename": "build/cmake/version.pl",
         "patchSetId": 1
