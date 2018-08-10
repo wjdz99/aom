@@ -4743,7 +4743,7 @@ static void try_tx_block_no_split(
     const ENTROPY_CONTEXT *ta, const ENTROPY_CONTEXT *tl,
     int txfm_partition_ctx, RD_STATS *rd_stats, int64_t ref_best_rd,
     FAST_TX_SEARCH_MODE ftxs_mode, TXB_RD_INFO_NODE *rd_info_node,
-    TxCandidateInfo *no_split) {
+    TxCandidateInfo *no_split, int account_for_zero_blk_rate) {
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = xd->mi[0];
   struct macroblock_plane *const p = &x->plane[0];
@@ -4759,8 +4759,20 @@ static void try_tx_block_no_split(
   const TX_SIZE txs_ctx = get_txsize_entropy_ctx(tx_size);
   TXB_CTX txb_ctx;
   get_txb_ctx(plane_bsize, tx_size, 0, pta, ptl, &txb_ctx);
-  const int zero_blk_rate = x->coeff_costs[txs_ctx][PLANE_TYPE_Y]
-                                .txb_skip_cost[txb_ctx.txb_skip_ctx][1];
+  int zero_blk_rate, nonzero_blk_rate;
+
+  if (account_for_zero_blk_rate) {
+    const TX_SIZE txs_ctx = get_txsize_entropy_ctx(tx_size);
+    zero_blk_rate = x->coeff_costs[txs_ctx][PLANE_TYPE_Y]
+                        .txb_skip_cost[txb_ctx.txb_skip_ctx][1];
+    nonzero_blk_rate = 0;
+  } else {
+    const int skip_ctx = av1_get_skip_context(xd);
+    const int s0 = x->skip_cost[skip_ctx][0];
+    const int s1 = x->skip_cost[skip_ctx][1];
+    zero_blk_rate = s1;
+    nonzero_blk_rate = s0;
+  }
 
   rd_stats->ref_rdcost = ref_best_rd;
   rd_stats->zero_rate = zero_blk_rate;
@@ -4771,7 +4783,7 @@ static void try_tx_block_no_split(
                 rd_info_node != NULL ? rd_info_node->rd_info_array : NULL);
   assert(rd_stats->rate < INT_MAX);
 
-  if ((RDCOST(x->rdmult, rd_stats->rate, rd_stats->dist) >=
+  if ((RDCOST(x->rdmult, rd_stats->rate + nonzero_blk_rate, rd_stats->dist) >=
            RDCOST(x->rdmult, zero_blk_rate, rd_stats->sse) ||
        rd_stats->skip == 1) &&
       !xd->lossless[mbmi->segment_id]) {
@@ -4780,6 +4792,7 @@ static void try_tx_block_no_split(
                               zero_blk_rate - rd_stats->rate);
 #endif  // CONFIG_RD_DEBUG
     rd_stats->rate = zero_blk_rate;
+    if (!account_for_zero_blk_rate) rd_stats->rate = 0;
     rd_stats->dist = rd_stats->sse;
     rd_stats->skip = 1;
     x->blk_skip[blk_row * bw + blk_col] = 1;
@@ -4808,7 +4821,8 @@ static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
                             TXFM_CONTEXT *tx_left, RD_STATS *rd_stats,
                             int64_t ref_best_rd, int *is_cost_valid,
                             FAST_TX_SEARCH_MODE ftxs_mode,
-                            TXB_RD_INFO_NODE *rd_info_node);
+                            TXB_RD_INFO_NODE *rd_info_node,
+                            int account_for_zero_blk_rate);
 
 static void try_tx_block_split(
     const AV1_COMP *cpi, MACROBLOCK *x, int blk_row, int blk_col, int block,
@@ -4816,7 +4830,8 @@ static void try_tx_block_split(
     ENTROPY_CONTEXT *tl, TXFM_CONTEXT *tx_above, TXFM_CONTEXT *tx_left,
     int txfm_partition_ctx, int64_t no_split_rd, int64_t ref_best_rd,
     FAST_TX_SEARCH_MODE ftxs_mode, TXB_RD_INFO_NODE *rd_info_node,
-    RD_STATS *split_rd_stats, int64_t *split_rd) {
+    RD_STATS *split_rd_stats, int64_t *split_rd,
+    int account_for_zero_blk_rate) {
   MACROBLOCKD *const xd = &x->e_mbd;
   const int max_blocks_high = max_block_high(xd, plane_bsize, 0);
   const int max_blocks_wide = max_block_wide(xd, plane_bsize, 0);
@@ -4827,11 +4842,20 @@ static void try_tx_block_split(
   RD_STATS this_rd_stats;
   int this_cost_valid = 1;
   int64_t tmp_rd = 0;
+  int s0, s1;
 #if CONFIG_DIST_8X8
   int sub8x8_eob[4] = { 0, 0, 0, 0 };
   struct macroblock_plane *const p = &x->plane[0];
   struct macroblockd_plane *const pd = &xd->plane[0];
 #endif
+  if (!account_for_zero_blk_rate) {
+    const int skip_ctx = av1_get_skip_context(xd);
+    s0 = x->skip_cost[skip_ctx][0];
+    s1 = x->skip_cost[skip_ctx][1];
+  } else {
+    s0 = 0;
+    s1 = 0;
+  }
   split_rd_stats->rate = x->txfm_partition_cost[txfm_partition_ctx][1];
 
   assert(tx_size < TX_SIZES_ALL);
@@ -4847,7 +4871,7 @@ static void try_tx_block_split(
           cpi, x, offsetr, offsetc, block, sub_txs, depth + 1, plane_bsize, ta,
           tl, tx_above, tx_left, &this_rd_stats, ref_best_rd - tmp_rd,
           &this_cost_valid, ftxs_mode,
-          (rd_info_node != NULL) ? rd_info_node->children[blk_idx] : NULL);
+          (rd_info_node != NULL) ? rd_info_node->children[blk_idx] : NULL, 1);
 
 #if CONFIG_DIST_8X8
       if (!x->using_dist_8x8)
@@ -4860,7 +4884,9 @@ static void try_tx_block_split(
 #endif  // CONFIG_DIST_8X8
       av1_merge_rd_stats(split_rd_stats, &this_rd_stats);
 
-      tmp_rd = RDCOST(x->rdmult, split_rd_stats->rate, split_rd_stats->dist);
+      tmp_rd = AOMMIN(
+          RDCOST(x->rdmult, split_rd_stats->rate + s0, split_rd_stats->dist),
+          RDCOST(x->rdmult, s1, split_rd_stats->sse));
 #if CONFIG_DIST_8X8
       if (!x->using_dist_8x8)
 #endif
@@ -4977,7 +5003,8 @@ static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
                             TXFM_CONTEXT *tx_left, RD_STATS *rd_stats,
                             int64_t ref_best_rd, int *is_cost_valid,
                             FAST_TX_SEARCH_MODE ftxs_mode,
-                            TXB_RD_INFO_NODE *rd_info_node) {
+                            TXB_RD_INFO_NODE *rd_info_node,
+                            int account_for_zero_blk_rate) {
   assert(tx_size < TX_SIZES_ALL);
   av1_init_rd_stats(rd_stats);
   if (ref_best_rd < 0) {
@@ -5005,7 +5032,8 @@ static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
   if (try_no_split) {
     try_tx_block_no_split(cpi, x, blk_row, blk_col, block, tx_size, depth,
                           plane_bsize, ta, tl, ctx, rd_stats, ref_best_rd,
-                          ftxs_mode, rd_info_node, &no_split);
+                          ftxs_mode, rd_info_node, &no_split,
+                          account_for_zero_blk_rate);
 
     if (cpi->sf.adaptive_txb_search_level &&
         (no_split.rd -
@@ -5037,7 +5065,8 @@ static void select_tx_block(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
     try_tx_block_split(cpi, x, blk_row, blk_col, block, tx_size, depth,
                        plane_bsize, ta, tl, tx_above, tx_left, ctx, no_split.rd,
                        AOMMIN(no_split.rd, ref_best_rd), ftxs_mode,
-                       rd_info_node, &split_rd_stats, &split_rd);
+                       rd_info_node, &split_rd_stats, &split_rd,
+                       account_for_zero_blk_rate);
   }
 
   if (no_split.rd < split_rd) {
@@ -5072,7 +5101,7 @@ static void select_inter_block_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
                                    TXB_RD_INFO_NODE *rd_info_tree) {
   MACROBLOCKD *const xd = &x->e_mbd;
   int is_cost_valid = 1;
-  int64_t this_rd = 0;
+  int64_t this_rd = 0, skip_rd = 0;
 
   if (ref_best_rd < 0) is_cost_valid = 0;
 
@@ -5099,44 +5128,46 @@ static void select_inter_block_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
     const int init_depth =
         get_search_init_depth(mi_width, mi_height, 1, &cpi->sf);
     av1_init_rd_stats(&pn_rd_stats);
+    const int account_for_zero_blk_rate = (mi_width > bw) || (mi_height > bh);
 
     av1_get_entropy_contexts(bsize, pd, ctxa, ctxl);
     memcpy(tx_above, xd->above_txfm_context, sizeof(TXFM_CONTEXT) * mi_width);
     memcpy(tx_left, xd->left_txfm_context, sizeof(TXFM_CONTEXT) * mi_height);
 
+    const int skip_ctx = av1_get_skip_context(xd);
+    const int s0 = x->skip_cost[skip_ctx][0];
+    const int s1 = x->skip_cost[skip_ctx][1];
+
+    skip_rd = RDCOST(x->rdmult, s1, 0);
+    this_rd = RDCOST(x->rdmult, s0, 0);
     for (idy = 0; idy < mi_height; idy += bh) {
       for (idx = 0; idx < mi_width; idx += bw) {
-        select_tx_block(cpi, x, idy, idx, block, max_tx_size, init_depth,
-                        plane_bsize, ctxa, ctxl, tx_above, tx_left,
-                        &pn_rd_stats, ref_best_rd - this_rd, &is_cost_valid,
-                        ftxs_mode, rd_info_tree);
+        select_tx_block(
+            cpi, x, idy, idx, block, max_tx_size, init_depth, plane_bsize, ctxa,
+            ctxl, tx_above, tx_left, &pn_rd_stats,
+            (ref_best_rd - (AOMMIN(skip_rd, this_rd))), &is_cost_valid,
+            ftxs_mode, rd_info_tree, account_for_zero_blk_rate);
         if (!is_cost_valid || pn_rd_stats.rate == INT_MAX) {
           av1_invalid_rd_stats(rd_stats);
           return;
         }
         av1_merge_rd_stats(rd_stats, &pn_rd_stats);
-        this_rd +=
-            AOMMIN(RDCOST(x->rdmult, pn_rd_stats.rate, pn_rd_stats.dist),
-                   RDCOST(x->rdmult, pn_rd_stats.zero_rate, pn_rd_stats.sse));
+        skip_rd = RDCOST(x->rdmult, s1, rd_stats->sse);
+        this_rd = RDCOST(x->rdmult, rd_stats->rate + s0, rd_stats->dist);
         block += step;
         if (rd_info_tree != NULL) rd_info_tree += 1;
       }
     }
+    if (skip_rd <= this_rd) {
+      this_rd = skip_rd;
+      rd_stats->rate = 0;
+      rd_stats->dist = rd_stats->sse;
+      rd_stats->skip = 1;
+    } else {
+      rd_stats->skip = 0;
+    }
   }
 
-  const int skip_ctx = av1_get_skip_context(xd);
-  const int s0 = x->skip_cost[skip_ctx][0];
-  const int s1 = x->skip_cost[skip_ctx][1];
-  int64_t skip_rd = RDCOST(x->rdmult, s1, rd_stats->sse);
-  this_rd = RDCOST(x->rdmult, rd_stats->rate + s0, rd_stats->dist);
-  if (skip_rd <= this_rd) {
-    this_rd = skip_rd;
-    rd_stats->rate = 0;
-    rd_stats->dist = rd_stats->sse;
-    rd_stats->skip = 1;
-  } else {
-    rd_stats->skip = 0;
-  }
   if (this_rd > ref_best_rd) is_cost_valid = 0;
 
   if (!is_cost_valid) {
