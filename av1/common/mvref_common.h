@@ -102,12 +102,8 @@ static INLINE int is_inside(const TileInfo *const tile, int mi_col, int mi_row,
 
 static INLINE int find_valid_row_offset(const TileInfo *const tile, int mi_row,
                                         int mi_rows, int row_offset) {
-  const int dependent_horz_tile_flag = 0;
-  if (dependent_horz_tile_flag && !tile->tg_horz_boundary)
-    return clamp(row_offset, -mi_row, mi_rows - mi_row - 1);
-  else
-    return clamp(row_offset, tile->mi_row_start - mi_row,
-                 tile->mi_row_end - mi_row - 1);
+  return clamp(row_offset, tile->mi_row_start - mi_row,
+               tile->mi_row_end - mi_row - 1);
 }
 
 static INLINE int find_valid_col_offset(const TileInfo *const tile, int mi_col,
