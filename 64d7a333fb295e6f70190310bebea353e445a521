@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e2c876c3_5c09d34e",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1028,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2018-08-10T18:40:23Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 1028,
+        "startChar": 10,
+        "endLine": 1028,
+        "endChar": 13
+      },
+      "revId": "64d7a333fb295e6f70190310bebea353e445a521",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "51fb1d89_562775fd",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1031,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2018-08-10T18:40:23Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 1031,
+        "startChar": 10,
+        "endLine": 1031,
+        "endChar": 13
+      },
+      "revId": "64d7a333fb295e6f70190310bebea353e445a521",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
