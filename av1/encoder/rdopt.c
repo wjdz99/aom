@@ -157,7 +157,9 @@ static void select_tx_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
 
 static int inter_block_uvrd(const AV1_COMP *cpi, MACROBLOCK *x,
                             RD_STATS *rd_stats, BLOCK_SIZE bsize,
-                            int64_t ref_best_rd, FAST_TX_SEARCH_MODE ftxs_mode);
+                            int64_t ref_best_rd_nonskip,
+                            int64_t ref_best_rd_skip,
+                            FAST_TX_SEARCH_MODE ftxs_mode);
 
 struct rdcost_block_args {
   const AV1_COMP *cpi;
@@ -5072,7 +5074,7 @@ static void select_inter_block_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
                                    TXB_RD_INFO_NODE *rd_info_tree) {
   MACROBLOCKD *const xd = &x->e_mbd;
   int is_cost_valid = 1;
-  int64_t this_rd = 0;
+  int64_t this_rd = 0, skip_rd = 0;
 
   if (ref_best_rd < 0) is_cost_valid = 0;
 
@@ -5104,39 +5106,40 @@ static void select_inter_block_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
     memcpy(tx_above, xd->above_txfm_context, sizeof(TXFM_CONTEXT) * mi_width);
     memcpy(tx_left, xd->left_txfm_context, sizeof(TXFM_CONTEXT) * mi_height);
 
+    const int skip_ctx = av1_get_skip_context(xd);
+    const int s0 = x->skip_cost[skip_ctx][0];
+    const int s1 = x->skip_cost[skip_ctx][1];
+
+    skip_rd = RDCOST(x->rdmult, s1, 0);
+    this_rd = RDCOST(x->rdmult, s0, 0);
     for (idy = 0; idy < mi_height; idy += bh) {
       for (idx = 0; idx < mi_width; idx += bw) {
         select_tx_block(cpi, x, idy, idx, block, max_tx_size, init_depth,
                         plane_bsize, ctxa, ctxl, tx_above, tx_left,
-                        &pn_rd_stats, ref_best_rd - this_rd, &is_cost_valid,
-                        ftxs_mode, rd_info_tree);
+                        &pn_rd_stats,
+                        (ref_best_rd - (AOMMIN(skip_rd, this_rd))),
+                        &is_cost_valid, ftxs_mode, rd_info_tree);
         if (!is_cost_valid || pn_rd_stats.rate == INT_MAX) {
           av1_invalid_rd_stats(rd_stats);
           return;
         }
         av1_merge_rd_stats(rd_stats, &pn_rd_stats);
-        this_rd +=
-            AOMMIN(RDCOST(x->rdmult, pn_rd_stats.rate, pn_rd_stats.dist),
-                   RDCOST(x->rdmult, pn_rd_stats.zero_rate, pn_rd_stats.sse));
+        skip_rd = RDCOST(x->rdmult, s1, rd_stats->sse);
+        this_rd = RDCOST(x->rdmult, rd_stats->rate + s0, rd_stats->dist);
         block += step;
         if (rd_info_tree != NULL) rd_info_tree += 1;
       }
     }
+    if (skip_rd <= this_rd) {
+      this_rd = skip_rd;
+      rd_stats->rate = 0;
+      rd_stats->dist = rd_stats->sse;
+      rd_stats->skip = 1;
+    } else {
+      rd_stats->skip = 0;
+    }
   }
 
-  const int skip_ctx = av1_get_skip_context(xd);
-  const int s0 = x->skip_cost[skip_ctx][0];
-  const int s1 = x->skip_cost[skip_ctx][1];
-  int64_t skip_rd = RDCOST(x->rdmult, s1, rd_stats->sse);
-  this_rd = RDCOST(x->rdmult, rd_stats->rate + s0, rd_stats->dist);
-  if (skip_rd <= this_rd) {
-    this_rd = skip_rd;
-    rd_stats->rate = 0;
-    rd_stats->dist = rd_stats->sse;
-    rd_stats->skip = 1;
-  } else {
-    rd_stats->skip = 0;
-  }
   if (this_rd > ref_best_rd) is_cost_valid = 0;
 
   if (!is_cost_valid) {
@@ -5879,6 +5882,7 @@ static void tx_block_uvrd(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
   assert(plane > 0);
   assert(tx_size < TX_SIZES_ALL);
   MACROBLOCKD *const xd = &x->e_mbd;
+  MB_MODE_INFO *const mbmi = xd->mi[0];
   const int max_blocks_high = max_block_high(xd, plane_bsize, plane);
   const int max_blocks_wide = max_block_wide(xd, plane_bsize, plane);
   if (blk_row >= max_blocks_high || blk_col >= max_blocks_wide) return;
@@ -5887,24 +5891,37 @@ static void tx_block_uvrd(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
   ENTROPY_CONTEXT *tl = left_ctx + blk_row;
   TXB_CTX txb_ctx;
   get_txb_ctx(plane_bsize, tx_size, plane, ta, tl, &txb_ctx);
+  const TX_SIZE txs_ctx = get_txsize_entropy_ctx(tx_size);
+  const int zero_blk_rate = x->coeff_costs[txs_ctx][PLANE_TYPE_UV]
+                                .txb_skip_cost[txb_ctx.txb_skip_ctx][1];
+
   tx_block_rd_b(cpi, x, tx_size, blk_row, blk_col, plane, block, plane_bsize,
                 &txb_ctx, rd_stats, ftxs_mode, INT64_MAX, NULL);
   av1_set_txb_context(x, plane, block, tx_size, ta, tl);
+
+  if ((RDCOST(x->rdmult, rd_stats->rate, rd_stats->dist) >=
+       RDCOST(x->rdmult, zero_blk_rate, rd_stats->sse)) &&
+      !xd->lossless[mbmi->segment_id]) {
+    rd_stats->rate = zero_blk_rate;
+    rd_stats->dist = rd_stats->sse;
+  }
 }
 
 // Return value 0: early termination triggered, no valid rd cost available;
 //              1: rd cost values are valid.
 static int inter_block_uvrd(const AV1_COMP *cpi, MACROBLOCK *x,
                             RD_STATS *rd_stats, BLOCK_SIZE bsize,
-                            int64_t ref_best_rd,
+                            int64_t ref_best_rd_nonskip,
+                            int64_t ref_best_rd_skip,
                             FAST_TX_SEARCH_MODE ftxs_mode) {
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = xd->mi[0];
   int plane;
   int is_cost_valid = 1;
-  int64_t this_rd = 0;
+  int64_t this_rd_skip = 0;
+  int64_t this_rd_nonskip = 0;
 
-  if (ref_best_rd < 0) is_cost_valid = 0;
+  if ((ref_best_rd_nonskip < 0) && (ref_best_rd_skip < 0)) is_cost_valid = 0;
 
   av1_init_rd_stats(rd_stats);
 
@@ -5946,10 +5963,10 @@ static int inter_block_uvrd(const AV1_COMP *cpi, MACROBLOCK *x,
             return 0;
           }
           av1_merge_rd_stats(rd_stats, &pn_rd_stats);
-          this_rd =
-              AOMMIN(RDCOST(x->rdmult, rd_stats->rate, rd_stats->dist),
-                     RDCOST(x->rdmult, rd_stats->zero_rate, rd_stats->sse));
-          if (this_rd > ref_best_rd) {
+          this_rd_nonskip = RDCOST(x->rdmult, rd_stats->rate, rd_stats->dist);
+          this_rd_skip = RDCOST(x->rdmult, 0, rd_stats->sse);
+          if ((this_rd_nonskip > ref_best_rd_nonskip) &&
+              (this_rd_skip > ref_best_rd_skip)) {
             av1_invalid_rd_stats(rd_stats);
             return 0;
           }
@@ -8477,8 +8494,10 @@ static int txfm_search(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
   if (!cpi->common.all_lossless)
     check_block_skip(cpi, bsize, x, xd, 0, num_planes - 1, &skip_txfm_sb);
   if (!skip_txfm_sb) {
-    int64_t rdcosty = INT64_MAX;
+    int64_t rdcosty_skip = INT64_MAX;
+    int64_t rdcosty_nonskip = INT64_MAX;
     int is_cost_valid_uv = 0;
+    const int skip_ctx = av1_get_skip_context(xd);
 
     // cost and distortion
     av1_subtract_plane(x, bsize, 0);
@@ -8506,12 +8525,14 @@ static int txfm_search(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
 
     av1_merge_rd_stats(rd_stats, rd_stats_y);
 
-    rdcosty = RDCOST(x->rdmult, rd_stats->rate, rd_stats->dist);
-    rdcosty = AOMMIN(rdcosty, RDCOST(x->rdmult, mode_rate, rd_stats->sse));
+    rdcosty_nonskip = RDCOST(
+        x->rdmult, rd_stats->rate + x->skip_cost[skip_ctx][0], rd_stats->dist);
+    rdcosty_skip =
+        RDCOST(x->rdmult, mode_rate + x->skip_cost[skip_ctx][1], rd_stats->sse);
     if (num_planes > 1) {
       /* clang-format off */
       is_cost_valid_uv =
-          inter_block_uvrd(cpi, x, rd_stats_uv, bsize, ref_best_rd - rdcosty,
+          inter_block_uvrd(cpi, x, rd_stats_uv, bsize, ref_best_rd - rdcosty_nonskip, ref_best_rd - rdcosty_skip,
                            FTXS_NONE);
       if (!is_cost_valid_uv) {
         mbmi->ref_frame[1] = ref_frame_1;
@@ -8522,7 +8543,6 @@ static int txfm_search(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
     } else {
       av1_init_rd_stats(rd_stats_uv);
     }
-    const int skip_ctx = av1_get_skip_context(xd);
     if (rd_stats->skip) {
       rd_stats->rate -= rd_stats_uv->rate + rd_stats_y->rate;
       rd_stats_y->rate = 0;
@@ -10188,7 +10208,8 @@ static void sf_refine_fast_tx_type_search(
                sizeof(x->blk_skip[0]) * xd->n4_h * xd->n4_w);
       }
       if (num_planes > 1) {
-        inter_block_uvrd(cpi, x, &rd_stats_uv, bsize, INT64_MAX, FTXS_NONE);
+        inter_block_uvrd(cpi, x, &rd_stats_uv, bsize, INT64_MAX, INT64_MAX,
+                         FTXS_NONE);
       } else {
         av1_init_rd_stats(&rd_stats_uv);
       }
