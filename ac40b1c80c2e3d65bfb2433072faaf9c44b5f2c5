@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "edb9cecc_49756375",
+        "filename": "av1/common/arm/warp_plane_neon.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-08-10T16:47:51Z",
+      "side": 1,
+      "message": "Thanks for the comment. This is really helpful.",
+      "range": {
+        "startLine": 23,
+        "startChar": 3,
+        "endLine": 23,
+        "endChar": 29
+      },
+      "revId": "ac40b1c80c2e3d65bfb2433072faaf9c44b5f2c5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "21a1b557_8e85a80f",
+        "filename": "av1/common/arm/warp_plane_neon.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-08-10T16:47:51Z",
+      "side": 1,
+      "message": "Given that this and the right array are so formulaic, I want to think there is a way to remove the array and calculate what you need.",
+      "range": {
+        "startLine": 201,
+        "startChar": 21,
+        "endLine": 201,
+        "endChar": 39
+      },
+      "revId": "ac40b1c80c2e3d65bfb2433072faaf9c44b5f2c5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "68555734_4fb01c74",
+        "filename": "av1/common/arm/warp_plane_neon.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 309,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-08-10T16:47:51Z",
+      "side": 1,
+      "message": "This expands these values up to 32, but then the convolve pulls them down to 16 immediately. Why?",
+      "range": {
+        "startLine": 309,
+        "startChar": 16,
+        "endLine": 309,
+        "endChar": 36
+      },
+      "revId": "ac40b1c80c2e3d65bfb2433072faaf9c44b5f2c5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
