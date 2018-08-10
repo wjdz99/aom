@@ -177,6 +177,15 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
       !(boosted || cpi->refresh_bwd_ref_frame || cpi->refresh_alt2_ref_frame);
   sf->less_rectangular_check_level = 1;
 
+  const int is_720p_or_larger = AOMMIN(cm->width, cm->height) >= 720;
+  if (!is_720p_or_larger) {
+    sf->ml_partition_search_breakout_thresh[0] = 200;  // BLOCK_8X8
+    sf->ml_partition_search_breakout_thresh[1] = 250;  // BLOCK_16X16
+    sf->ml_partition_search_breakout_thresh[2] = 300;  // BLOCK_32X32
+    sf->ml_partition_search_breakout_thresh[3] = 500;  // BLOCK_64X64
+    sf->ml_partition_search_breakout_thresh[4] = -1;   // BLOCK_128X128
+  }
+
   if (speed >= 1) {
     sf->gm_erroradv_type = GM_ERRORADV_TR_1;
     sf->selective_ref_frame = 1;
@@ -202,6 +211,13 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->optimize_b_precheck = 1;
     sf->dual_sgr_penalty_level = 1;
     sf->use_accurate_subpel_search = 1;
+    if (!is_720p_or_larger) {
+      sf->ml_partition_search_breakout_thresh[0] = 200;  // BLOCK_8X8
+      sf->ml_partition_search_breakout_thresh[1] = 250;  // BLOCK_16X16
+      sf->ml_partition_search_breakout_thresh[2] = 300;  // BLOCK_32X32
+      sf->ml_partition_search_breakout_thresh[3] = 300;  // BLOCK_64X64
+      sf->ml_partition_search_breakout_thresh[4] = -1;   // BLOCK_128X128
+    }
   }
 
   if (speed >= 2) {
@@ -476,6 +492,8 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi) {
   sf->ml_prune_ab_partition = 0;
   sf->ml_prune_4_partition = 0;
   sf->fast_cdef_search = 0;
+  for (i = 0; i < PARTITION_BLOCK_SIZES; ++i)
+    sf->ml_partition_search_breakout_thresh[i] = -1;
 
   // Set this at the appropriate speed levels
   sf->use_transform_domain_distortion = 0;
