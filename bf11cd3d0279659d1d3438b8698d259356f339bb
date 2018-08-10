@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f86b6733_4aa59ffd",
+        "filename": "av1/common/arm/jnt_convolve_neon.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-08-10T17:09:43Z",
+      "side": 1,
+      "message": "Don\u0027t specify the size unless it is important. It looks like use_jnt_comp_avg is originally just an int?\n\nI probably missed this in an earlier review since it\u0027s throughout the file.",
+      "range": {
+        "startLine": 28,
+        "startChar": 36,
+        "endLine": 28,
+        "endChar": 43
+      },
+      "revId": "bf11cd3d0279659d1d3438b8698d259356f339bb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9490f128_6bf783ec",
+        "filename": "av1/common/arm/jnt_convolve_neon.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-08-10T17:09:43Z",
+      "side": 1,
+      "message": "Since you need can compact this down to a half register, does it make any sense to do 4x2 instead of 4x1? It seems like it would require very few additional registers.",
+      "range": {
+        "startLine": 50,
+        "startChar": 10,
+        "endLine": 50,
+        "endChar": 21
+      },
+      "revId": "bf11cd3d0279659d1d3438b8698d259356f339bb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "19579770_a3aac934",
+        "filename": "av1/common/arm/jnt_convolve_neon.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1222,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-08-10T17:09:43Z",
+      "side": 1,
+      "message": "A large portion of this looks identical to the aarch64 version. Please consolidate.",
+      "range": {
+        "startLine": 1222,
+        "startChar": 2,
+        "endLine": 1222,
+        "endChar": 17
+      },
+      "revId": "bf11cd3d0279659d1d3438b8698d259356f339bb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
