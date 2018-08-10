@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b733c267_0334524b",
+        "filename": "av1/encoder/firstpass.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2508,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-08-10T18:14:01Z",
+      "side": 1,
+      "message": "Just to double check: This was changed from 0 to 1, right?",
+      "range": {
+        "startLine": 2508,
+        "startChar": 33,
+        "endLine": 2508,
+        "endChar": 52
+      },
+      "revId": "61ab5b47551058ba33021d7bd23b67d201bd1fcb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
