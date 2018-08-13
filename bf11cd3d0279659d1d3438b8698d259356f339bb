@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "78db8410_76d42cb9",
+        "filename": "av1/common/arm/jnt_convolve_neon.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 9670
+      },
+      "writtenOn": "2018-08-13T08:26:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f86b6733_4aa59ffd",
+      "range": {
+        "startLine": 28,
+        "startChar": 36,
+        "endLine": 28,
+        "endChar": 43
+      },
+      "revId": "bf11cd3d0279659d1d3438b8698d259356f339bb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9490f128_6bf783ec",
         "filename": "av1/common/arm/jnt_convolve_neon.c",
         "patchSetId": 3
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "f49ea670_d32c1b55",
+        "filename": "av1/common/arm/jnt_convolve_neon.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 9670
+      },
+      "writtenOn": "2018-08-13T08:26:45Z",
+      "side": 1,
+      "message": "We tried with 4x2 as well as 4x1. In case of 4x2 we didn\u0027t get much gain.Thus we used 4x1.",
+      "parentUuid": "9490f128_6bf783ec",
+      "range": {
+        "startLine": 50,
+        "startChar": 10,
+        "endLine": 50,
+        "endChar": 21
+      },
+      "revId": "bf11cd3d0279659d1d3438b8698d259356f339bb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "19579770_a3aac934",
         "filename": "av1/common/arm/jnt_convolve_neon.c",
         "patchSetId": 3
@@ -68,6 +116,30 @@
       "revId": "bf11cd3d0279659d1d3438b8698d259356f339bb",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "585de99a_cf4e1515",
+        "filename": "av1/common/arm/jnt_convolve_neon.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1222,
+      "author": {
+        "id": 9670
+      },
+      "writtenOn": "2018-08-13T08:26:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "19579770_a3aac934",
+      "range": {
+        "startLine": 1222,
+        "startChar": 2,
+        "endLine": 1222,
+        "endChar": 17
+      },
+      "revId": "bf11cd3d0279659d1d3438b8698d259356f339bb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
