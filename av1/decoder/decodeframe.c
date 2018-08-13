@@ -2842,6 +2842,11 @@ static void decode_tile(AV1Decoder *pbi, ThreadData *const td, int tile_row,
       // Bit-stream parsing and decoding of the superblock
       decode_partition(pbi, td, mi_row, mi_col, td->bit_reader,
                        cm->seq_params.sb_size, 0x3);
+
+      if (aom_reader_has_overflowed(td->bit_reader)) {
+        aom_merge_corrupted_flag(&td->xd.corrupted, 1);
+        return;
+      }
     }
   }
 

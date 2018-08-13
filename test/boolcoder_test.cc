@@ -108,6 +108,7 @@ TEST(AV1, TestTell) {
     double frac_diff_total = 0;
     GTEST_ASSERT_GE(aom_reader_tell(&br), 0u);
     GTEST_ASSERT_LE(aom_reader_tell(&br), 1u);
+    ASSERT_FALSE(aom_reader_has_overflowed(&br));
     for (int i = 0; i < kSymbols; i++) {
       aom_read(&br, p, NULL);
       uint32_t tell = aom_reader_tell(&br);
@@ -130,5 +131,39 @@ TEST(AV1, TestTell) {
     // The average frac_diff error should be pretty small.
     GTEST_ASSERT_LE(frac_diff_total / kSymbols, FRAC_DIFF_TOTAL_ERROR)
         << " frac_diff_total: " << frac_diff_total;
+    ASSERT_FALSE(aom_reader_has_overflowed(&br));
+  }
+}
+
+TEST(AV1, TestHasOverflowed) {
+  const int kBufferSize = 10000;
+  aom_writer bw;
+  uint8_t bw_buffer[kBufferSize];
+  const int kSymbols = 1024;
+  // Coders are noisier at low probabilities, so we start at p = 4.
+  for (int p = 32; p < 33; p++) {
+    aom_start_encode(&bw, bw_buffer);
+    for (int i = 0; i < kSymbols; i++) {
+      aom_write(&bw, 0, p);
+    }
+    aom_stop_encode(&bw);
+    aom_reader br;
+    aom_reader_init(&br, bw_buffer, bw.pos);
+    ASSERT_FALSE(aom_reader_has_overflowed(&br));
+    for (int i = 0; i < kSymbols; i++) {
+      GTEST_ASSERT_EQ(aom_read(&br, p, NULL), 0);
+      std::cerr << "tell = " << aom_reader_tell(&br) << std::endl;
+      ASSERT_FALSE(aom_reader_has_overflowed(&br));
+    }
+    aom_read(&br, p, NULL);
+    std::cerr << "tell = " << aom_reader_tell(&br) << std::endl;
+    aom_read(&br, p, NULL);
+    aom_read(&br, p, NULL);
+    aom_read(&br, p, NULL);
+    aom_read(&br, p, NULL);
+    aom_read(&br, p, NULL);
+    aom_read(&br, p, NULL);
+    aom_read(&br, p, NULL);
+    ASSERT_TRUE(aom_reader_has_overflowed(&br));
   }
 }
