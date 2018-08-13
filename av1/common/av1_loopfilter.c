@@ -1178,8 +1178,8 @@ void av1_build_bitmask_vert_info(
         if (x >= plane_ptr->dst.width) break;
         const int col = col_in_unit << subsampling_x;
         const uint64_t mask = ((uint64_t)1 << (shift | col));
-        skip = lfm->skip.bits[index] & mask;
-        is_coding_block_border = lfm->is_vert_border.bits[index] & mask;
+        skip = (int)(lfm->skip.bits[index] & mask);
+        is_coding_block_border = (int)(lfm->is_vert_border.bits[index] & mask);
         switch (plane) {
           case 0: level = lfm->lfl_y_ver[row][col]; break;
           case 1: level = lfm->lfl_u[row][col]; break;
@@ -1249,8 +1249,8 @@ void av1_build_bitmask_horz_info(
         int index = 0;
         const int shift = get_index_shift(col, row, &index);
         const uint64_t mask = ((uint64_t)1 << shift);
-        skip = lfm->skip.bits[index] & mask;
-        is_coding_block_border = lfm->is_horz_border.bits[index] & mask;
+        skip = (int)(lfm->skip.bits[index] & mask);
+        is_coding_block_border = (int)(lfm->is_horz_border.bits[index] & mask);
         switch (plane) {
           case 0: level = lfm->lfl_y_hor[row][col]; break;
           case 1: level = lfm->lfl_u[row][col]; break;
@@ -1973,31 +1973,6 @@ static void loop_filter_rows(YV12_BUFFER_CONFIG *frame_buffer, AV1_COMMON *cm,
     else if (plane == 2 && !(cm->lf.filter_level_v))
       continue;
 
-#if LOOP_FILTER_BITMASK
-    // filter all vertical edges every superblock (could be 128x128 or 64x64)
-    for (mi_row = start; mi_row < stop; mi_row += cm->seq_params.mib_size) {
-      for (mi_col = col_start; mi_col < col_end;
-           mi_col += cm->seq_params.mib_size) {
-        av1_setup_dst_planes(pd, cm->seq_params.sb_size, frame_buffer, mi_row,
-                             mi_col, plane, plane + 1);
-
-        av1_setup_bitmask(cm, mi_row, mi_col, plane, pd[plane].subsampling_x,
-                          pd[plane].subsampling_y, stop, col_end);
-        av1_filter_block_plane_ver(cm, &pd[plane], plane, mi_row, mi_col);
-      }
-    }
-
-    // filter all horizontal edges every superblock
-    for (mi_row = start; mi_row < stop; mi_row += cm->seq_params.mib_size) {
-      for (mi_col = col_start; mi_col < col_end;
-           mi_col += cm->seq_params.mib_size) {
-        av1_setup_dst_planes(pd, cm->seq_params.sb_size, frame_buffer, mi_row,
-                             mi_col, plane, plane + 1);
-
-        av1_filter_block_plane_hor(cm, &pd[plane], plane, mi_row, mi_col);
-      }
-    }
-#else
     if (cm->lf.combine_vert_horz_lf) {
       // filter all vertical and horizontal edges in every 128x128 super block
       for (mi_row = start; mi_row < stop; mi_row += MAX_MIB_SIZE) {
@@ -2043,7 +2018,6 @@ static void loop_filter_rows(YV12_BUFFER_CONFIG *frame_buffer, AV1_COMMON *cm,
         }
       }
     }
-#endif  // LOOP_FILTER_BITMASK
   }
 }
 
