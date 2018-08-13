@@ -2456,20 +2456,21 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   if (i) avg_sr_coded_error /= i;
 
 #define REDUCE_GF_LENGTH_THRESH 10
-#define REDUCE_GF_LENGTH_TO_KEY_THRESH 9
-#define REDUCE_GF_LENGTH_BY 1
   int alt_offset = 0;
+  int roll_back = 0;
 #if REDUCE_LAST_GF_LENGTH
   // We are going to have an alt ref.
   if (allow_alt_ref && (i < cpi->oxcf.lag_in_frames) &&
       (i >= rc->min_gf_interval)) {
     // If the last gf is too long, then we have to reduce
     // the current gf length
-    if (rc->frames_to_key - i < REDUCE_GF_LENGTH_TO_KEY_THRESH &&
-        i > REDUCE_GF_LENGTH_THRESH) {
+    if (rc->frames_to_key - i == 0 && i > REDUCE_GF_LENGTH_THRESH) {
       // too long, reduce the length by one
-      alt_offset = -REDUCE_GF_LENGTH_BY;
-      i -= REDUCE_GF_LENGTH_BY;
+      // Note: Tried roll_back = DIVIDE_AND_ROUND(i, 8), which does not work
+      // better in the current setting
+      roll_back = 1;
+      alt_offset = -roll_back;
+      i -= roll_back;
     }
   }
 #endif
@@ -2501,13 +2502,13 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   }
 
 #if REDUCE_LAST_ALT_BOOST
+#define LAST_ALR_BOOST_FACTOR 0.2f
   rc->arf_boost_factor = 1.0;
   if (rc->source_alt_ref_pending) {
     // If the last gf is too long, then we have to reduce
     // the boost factor on current alt ref
-    if (rc->frames_to_key - i == REDUCE_GF_LENGTH_BY &&
-        i > REDUCE_GF_LENGTH_THRESH) {
-      rc->arf_boost_factor = 0;
+    if (roll_back != 0) {
+      rc->arf_boost_factor = LAST_ALR_BOOST_FACTOR;
     }
   }
 #endif
