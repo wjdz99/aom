@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0c26cf64_57864474",
+        "filename": "aom_dsp/daalaboolreader.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2018-08-13T23:42:24Z",
+      "side": 1,
+      "message": "I have a slight preference for converting the output of tell() into bytes (rounding up, as check_trailing_bits_after_symbol_coder() does) instead of converting the buffer size into bits, just because it ensures there is no possibility of overflow.",
+      "revId": "ea29ea3379a3c5c5a70329c0f17c70bbdc34ca21",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "824b8e81_61336860",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2846,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2018-08-13T23:42:24Z",
+      "side": 1,
+      "message": "Since this check essentially duplicates what is done at the start of check_trailing_bits_after_symbol_coder(), perhaps that function should be adapted to call this at the start instead?",
+      "revId": "ea29ea3379a3c5c5a70329c0f17c70bbdc34ca21",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
