@@ -1102,13 +1102,13 @@ static void highbd_filter_selectively_horiz(
 
         if ((mask_16x16 & two_block_mask) == two_block_mask) {
           if (plane) {
-            aom_highbd_lpf_horizontal_6_dual(s, pitch, lfi->mblim, lfi->lim,
-                                             lfi->hev_thr, lfin->mblim,
-                                             lfin->lim, lfin->hev_thr, bd);
+            aom_highbd_lpf_horizontal_6_dual_c(s, pitch, lfi->mblim, lfi->lim,
+                                               lfi->hev_thr, lfin->mblim,
+                                               lfin->lim, lfin->hev_thr, bd);
           } else {
-            aom_highbd_lpf_horizontal_14_dual(s, pitch, lfi->mblim, lfi->lim,
-                                              lfi->hev_thr, lfin->mblim,
-                                              lfin->lim, lfin->hev_thr, bd);
+            aom_highbd_lpf_horizontal_14_dual_c(s, pitch, lfi->mblim, lfi->lim,
+                                                lfi->hev_thr, lfin->mblim,
+                                                lfin->lim, lfin->hev_thr, bd);
           }
           count = 2;
         } else {
@@ -1121,13 +1121,13 @@ static void highbd_filter_selectively_horiz(
 
         if ((mask_8x8 & two_block_mask) == two_block_mask) {
           if (plane) {
-            aom_highbd_lpf_horizontal_6_dual(s, pitch, lfi->mblim, lfi->lim,
-                                             lfi->hev_thr, lfin->mblim,
-                                             lfin->lim, lfin->hev_thr, bd);
+            aom_highbd_lpf_horizontal_6_dual_c(s, pitch, lfi->mblim, lfi->lim,
+                                               lfi->hev_thr, lfin->mblim,
+                                               lfin->lim, lfin->hev_thr, bd);
           } else {
-            aom_highbd_lpf_horizontal_8_dual(s, pitch, lfi->mblim, lfi->lim,
-                                             lfi->hev_thr, lfin->mblim,
-                                             lfin->lim, lfin->hev_thr, bd);
+            aom_highbd_lpf_horizontal_8_dual_c(s, pitch, lfi->mblim, lfi->lim,
+                                               lfi->hev_thr, lfin->mblim,
+                                               lfin->lim, lfin->hev_thr, bd);
           }
           count = 2;
         } else {
@@ -1136,9 +1136,9 @@ static void highbd_filter_selectively_horiz(
         }
       } else if (mask_4x4 & 1) {
         if ((mask_4x4 & two_block_mask) == two_block_mask) {
-          aom_highbd_lpf_horizontal_4_dual(s, pitch, lfi->mblim, lfi->lim,
-                                           lfi->hev_thr, lfin->mblim, lfin->lim,
-                                           lfin->hev_thr, bd);
+          aom_highbd_lpf_horizontal_4_dual_c(s, pitch, lfi->mblim, lfi->lim,
+                                             lfi->hev_thr, lfin->mblim,
+                                             lfin->lim, lfin->hev_thr, bd);
           count = 2;
         } else {
           aom_highbd_lpf_horizontal_4(s, pitch, lfi->mblim, lfi->lim,
@@ -2089,31 +2089,6 @@ static void loop_filter_rows(YV12_BUFFER_CONFIG *frame_buffer, AV1_COMMON *cm,
     else if (plane == 2 && !(cm->lf.filter_level_v))
       continue;
 
-#if LOOP_FILTER_BITMASK
-    // filter all vertical edges every superblock (could be 128x128 or 64x64)
-    for (mi_row = start; mi_row < stop; mi_row += cm->seq_params.mib_size) {
-      for (mi_col = col_start; mi_col < col_end;
-           mi_col += cm->seq_params.mib_size) {
-        av1_setup_dst_planes(pd, cm->seq_params.sb_size, frame_buffer, mi_row,
-                             mi_col, plane, plane + 1);
-
-        av1_setup_bitmask(cm, mi_row, mi_col, plane, pd[plane].subsampling_x,
-                          pd[plane].subsampling_y, stop, col_end);
-        av1_filter_block_plane_ver(cm, &pd[plane], plane, mi_row, mi_col);
-      }
-    }
-
-    // filter all horizontal edges every superblock
-    for (mi_row = start; mi_row < stop; mi_row += cm->seq_params.mib_size) {
-      for (mi_col = col_start; mi_col < col_end;
-           mi_col += cm->seq_params.mib_size) {
-        av1_setup_dst_planes(pd, cm->seq_params.sb_size, frame_buffer, mi_row,
-                             mi_col, plane, plane + 1);
-
-        av1_filter_block_plane_hor(cm, &pd[plane], plane, mi_row, mi_col);
-      }
-    }
-#else
     if (cm->lf.combine_vert_horz_lf) {
       // filter all vertical and horizontal edges in every 128x128 super block
       for (mi_row = start; mi_row < stop; mi_row += MAX_MIB_SIZE) {
@@ -2159,7 +2134,6 @@ static void loop_filter_rows(YV12_BUFFER_CONFIG *frame_buffer, AV1_COMMON *cm,
         }
       }
     }
-#endif  // LOOP_FILTER_BITMASK
   }
 }
 

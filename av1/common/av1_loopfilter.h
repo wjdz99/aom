@@ -175,40 +175,6 @@ LoopFilterMask *get_loop_filter_mask(const struct AV1Common *const cm,
                                      int mi_row, int mi_col);
 int get_index_shift(int mi_col, int mi_row, int *index);
 
-static const FilterMask left_txform_mask[TX_SIZES] = {
-  { { 0x0000000000000001ULL,  // TX_4X4,
-      0x0000000000000000ULL, 0x0000000000000000ULL, 0x0000000000000000ULL } },
-
-  { { 0x0000000000010001ULL,  // TX_8X8,
-      0x0000000000000000ULL, 0x0000000000000000ULL, 0x0000000000000000ULL } },
-
-  { { 0x0001000100010001ULL,  // TX_16X16,
-      0x0000000000000000ULL, 0x0000000000000000ULL, 0x0000000000000000ULL } },
-
-  { { 0x0001000100010001ULL,  // TX_32X32,
-      0x0001000100010001ULL, 0x0000000000000000ULL, 0x0000000000000000ULL } },
-
-  { { 0x0001000100010001ULL,  // TX_64X64,
-      0x0001000100010001ULL, 0x0001000100010001ULL, 0x0001000100010001ULL } },
-};
-
-static const uint64_t above_txform_mask[2][TX_SIZES] = {
-  {
-      0x0000000000000001ULL,  // TX_4X4
-      0x0000000000000003ULL,  // TX_8X8
-      0x000000000000000fULL,  // TX_16X16
-      0x00000000000000ffULL,  // TX_32X32
-      0x000000000000ffffULL,  // TX_64X64
-  },
-  {
-      0x0000000000000001ULL,  // TX_4X4
-      0x0000000000000005ULL,  // TX_8X8
-      0x0000000000000055ULL,  // TX_16X16
-      0x0000000000005555ULL,  // TX_32X32
-      0x0000000055555555ULL,  // TX_64X64
-  },
-};
-
 /* clang-format off */
 static const int mask_id_table_tx_4x4[BLOCK_SIZES_ALL] = {
   0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, -1, -1, -1, 13, 14, 15, 16, 17, 18
