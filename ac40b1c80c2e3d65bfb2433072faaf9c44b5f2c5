@@ -96,6 +96,30 @@
     },
     {
       "key": {
+        "uuid": "2ef7d690_085a81b6",
+        "filename": "av1/common/arm/warp_plane_neon.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-08-13T19:16:16Z",
+      "side": 1,
+      "message": "Thanks! All the tables really add up and impact our library size.",
+      "parentUuid": "8ff515c3_b1921b0d",
+      "range": {
+        "startLine": 201,
+        "startChar": 21,
+        "endLine": 201,
+        "endChar": 39
+      },
+      "revId": "ac40b1c80c2e3d65bfb2433072faaf9c44b5f2c5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "68555734_4fb01c74",
         "filename": "av1/common/arm/warp_plane_neon.c",
         "patchSetId": 2
@@ -131,6 +155,30 @@
       "side": 1,
       "message": "This is done so as to arrange the filter coeffs in the required order, actual multiplication takes place at 16 bit level itself.",
       "parentUuid": "68555734_4fb01c74",
+      "range": {
+        "startLine": 309,
+        "startChar": 16,
+        "endLine": 309,
+        "endChar": 36
+      },
+      "revId": "ac40b1c80c2e3d65bfb2433072faaf9c44b5f2c5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "59b10a44_f9a892b9",
+        "filename": "av1/common/arm/warp_plane_neon.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 309,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-08-13T19:16:16Z",
+      "side": 1,
+      "message": "Ah sorry, yeah it\u0027s just a reinterpret and not an actual expansion. Thanks.",
+      "parentUuid": "b740abe6_b27cc4a9",
       "range": {
         "startLine": 309,
         "startChar": 16,
