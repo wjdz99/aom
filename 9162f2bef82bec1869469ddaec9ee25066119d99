@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "221bbb7e_912a5a27",
+        "filename": "aom_dsp/daalaboolreader.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2018-08-14T20:34:34Z",
+      "side": 1,
+      "message": "Most of the aom_daala_reader_...() calls are thin wrappers around the od_ec_dec_...() calls, and the documentation for what they do lives there. But there is no corresponding od_ec_dec_has_overflowed(). I think it would be a good idea to document what this function is trying to do here.\n\n(in the long run, now that we\u0027re not trying to maintain the ability to switch between multiple different reader and writer backends, there isn\u0027t much reason to keep the wrappers around at all, but that\u0027s a subject for another patch)",
+      "revId": "9162f2bef82bec1869469ddaec9ee25066119d99",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9b36ee86_c78b0036",
         "filename": "av1/decoder/decodeframe.c",
         "patchSetId": 1
@@ -13,6 +30,24 @@
       "writtenOn": "2018-08-14T17:26:47Z",
       "side": 1,
       "message": "I call aom_reader_has_overflowed() here as you suggested.\n\n(Unfortunately this does not make this function shorter, because this function needs to repeat lines 2776-2780.)",
+      "revId": "9162f2bef82bec1869469ddaec9ee25066119d99",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2f0ce669_15a43246",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2774,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2018-08-14T20:34:34Z",
+      "side": 1,
+      "message": "I think that the more important thing is to make sure behavior stays consistent. That is easiest when the same functionality is only implemented in one place.",
+      "parentUuid": "9b36ee86_c78b0036",
       "revId": "9162f2bef82bec1869469ddaec9ee25066119d99",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
@@ -42,6 +77,30 @@
     },
     {
       "key": {
+        "uuid": "92070856_b04eaf30",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2783,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2018-08-14T20:34:34Z",
+      "side": 1,
+      "message": "I don\u0027t have a strong preference. As I recall you are the one who added this comment, so I will leave it up to you to decide if it is worth preserving.",
+      "parentUuid": "6dcc2014_db396d0b",
+      "range": {
+        "startLine": 2782,
+        "startChar": 0,
+        "endLine": 2783,
+        "endChar": 49
+      },
+      "revId": "9162f2bef82bec1869469ddaec9ee25066119d99",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "203f11f7_74f61bec",
         "filename": "test/boolcoder_test.cc",
         "patchSetId": 1
@@ -53,6 +112,30 @@
       "writtenOn": "2018-08-14T17:26:47Z",
       "side": 1,
       "message": "I need your help with this unit test. I don\u0027t know why I need to read so many extra bits for aom_reader_has_overflowed() to become true, for all p.\n\nI suspect I wrote this unit test incorrectly ...",
+      "range": {
+        "startLine": 159,
+        "startChar": 0,
+        "endLine": 161,
+        "endChar": 5
+      },
+      "revId": "9162f2bef82bec1869469ddaec9ee25066119d99",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "514a4342_c5a37250",
+        "filename": "test/boolcoder_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2018-08-14T20:34:34Z",
+      "side": 1,
+      "message": "No, I think that this is expected.\n\nIn the worst case, the encoder uses just a tiny fraction of the last byte in the buffer. So in order to guarantee that aom_reader_has_overflowed() returns true, you have to consume very nearly 8 additional bits of data. One of the bits in that byte will be 1, and the rest will be zero (still assuming the worst case). Once you are past that 1 bit, when the probability of reading a zero symbol from aom_read() is high, each additional symbol read will consume very little additional data (in the case that p \u003d\u003d 255, approximately -log_2(255/256) ~\u003d 0.0056 bits). In that case it would take around 178 calls to consume more than 8 bits. That is only an upper bound. In practice the fact that at least one of the bits is 1 plus the fact that needing to read (very nearly) 8 bits is a worst case, which you\u0027re not guaranteed to hit for p \u003d\u003d 255 exactly (but are simply likely to hit for one of the high probabilities being tested) means that you\u0027re likely to be able to get away with slightly less. 174 seems like a very plausible result.",
+      "parentUuid": "203f11f7_74f61bec",
       "range": {
         "startLine": 159,
         "startChar": 0,
