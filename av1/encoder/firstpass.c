@@ -2455,7 +2455,7 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   assert(num_mbs > 0);
   if (i) avg_sr_coded_error /= i;
 
-#define REDUCE_GF_LENGTH_THRESH 9
+#define REDUCE_GF_LENGTH_THRESH 4
 #define REDUCE_GF_LENGTH_TO_KEY_THRESH 9
 #define REDUCE_GF_LENGTH_BY 1
   int alt_offset = 0;
@@ -2464,14 +2464,16 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   // We are going to have an alt ref.
   if (allow_alt_ref && (i < cpi->oxcf.lag_in_frames) &&
       (i >= rc->min_gf_interval)) {
-    // adjust length of this gf group if this gf group is too long and
-    // 1: only one overlay frame left
-    // 2: next gf group is too short to have a altref
+    // adjust length of this gf group if one of the following condition met
+    // 1: only one overlay frame left and this gf is too long
+    // 2: next gf group is too short to have arf compared to the current gf
     int next_gf_len = rc->frames_to_key - i;  // maximum length of next gf group
-    int adjust_len =
-        next_gf_len == 0 || (next_gf_len + 1 < REDUCE_GF_LENGTH_TO_KEY_THRESH &&
-                             next_gf_len + 1 >= rc->min_gf_interval);
-    if (adjust_len && i > REDUCE_GF_LENGTH_THRESH) {
+    int single_overlay_left = next_gf_len == 0 && i > REDUCE_GF_LENGTH_THRESH;
+    int unbalanced_gf = i > REDUCE_GF_LENGTH_TO_KEY_THRESH &&
+                        next_gf_len + 1 < REDUCE_GF_LENGTH_TO_KEY_THRESH &&
+                        next_gf_len + 1 >= rc->min_gf_interval;
+
+    if (single_overlay_left || unbalanced_gf) {
       // Note: Tried roll_back = DIVIDE_AND_ROUND(i, 8), but is does not work
       // better in the current setting
       roll_back = REDUCE_GF_LENGTH_BY;
