@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2f81aa9a_06b1cdf8",
+        "filename": "test/blend_a64_mask_test.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 8471
+      },
+      "writtenOn": "2018-08-14T13:18:57Z",
+      "side": 1,
+      "message": "_w, _h",
+      "revId": "83ad6c677ef4bc067582c639c8bb8a84c5b8b95d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1918fa2c_c1d11242",
+        "filename": "test/blend_a64_mask_test.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 8471
+      },
+      "writtenOn": "2018-08-14T13:18:57Z",
+      "side": 1,
+      "message": "Change Speed to DISABLED_Speed",
+      "revId": "83ad6c677ef4bc067582c639c8bb8a84c5b8b95d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
