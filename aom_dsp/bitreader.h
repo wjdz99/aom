@@ -69,6 +69,10 @@ static INLINE int aom_reader_has_error(aom_reader *r) {
   return aom_daala_reader_has_error(r);
 }
 
+static INLINE int aom_reader_has_overflowed(const aom_reader *r) {
+  return aom_daala_reader_has_overflowed(r);
+}
+
 // Returns the position in the bit reader in bits.
 static INLINE uint32_t aom_reader_tell(const aom_reader *r) {
   return aom_daala_reader_tell(r);
