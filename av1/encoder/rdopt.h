@@ -24,6 +24,13 @@
 extern "C" {
 #endif
 
+#define MIMIC_VP9_REFERENCE 0
+
+#if MIMIC_VP9_REFERENCE
+#define ALWAYS_USE_ARF 1
+#define ALWAYS_USE_BWD 1
+#endif
+
 #define MAX_REF_MV_SERCH 3
 #define DEFAULT_LUMA_INTERP_SKIP_FLAG 1
 #define DEFAULT_CHROMA_INTERP_SKIP_FLAG 2

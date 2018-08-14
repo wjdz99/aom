@@ -624,9 +624,9 @@ static int64_t get_est_rd(TileDataEnc *tile_data, BLOCK_SIZE bsize, int rdmult,
 }
 
 #define DATA_BRACKETS 7
-static const int data_num_threshold[DATA_BRACKETS] = {
-  200, 400, 800, 1600, 3200, 6400, INT32_MAX
-};
+static const int data_num_threshold[DATA_BRACKETS] = { 200,      400,  800,
+                                                       1600,     3200, 6400,
+                                                       INT32_MAX };
 
 void av1_inter_mode_data_fit(TileDataEnc *tile_data, int rdmult) {
   aom_clear_system_state();
@@ -10273,6 +10273,27 @@ static void set_params_rd_pick_inter_mode(
     x->interp_filter_stats_idx[0] = 0;
     x->interp_filter_stats_idx[1] = 0;
   }
+
+#if MIMIC_VP9_REFERENCE
+  ref_frame_skip_mask[0] |=
+      (1 << LAST2_FRAME) | (1 << LAST3_FRAME) | (1 << ALTREF2_FRAME);
+  ref_frame_skip_mask[1] |=
+      (1 << LAST2_FRAME) | (1 << LAST3_FRAME) | (1 << ALTREF2_FRAME);
+#if ALWAYS_USE_ARF
+  ref_frame_skip_mask[0] |= (1 << BWDREF_FRAME);
+  ref_frame_skip_mask[1] |= (1 << BWDREF_FRAME);
+#endif
+
+#if ALWAYS_USE_BWD
+  // We need to check if BWDREF is a valid reference. We do not mask out ARF
+  // if BWDREF is same any other reference frames
+  if (cpi->ref_frame_flags & AOM_BWD_FLAG) {
+    // BWD is a valid reference frame
+    ref_frame_skip_mask[0] |= (1 << ALTREF_FRAME);
+    ref_frame_skip_mask[1] |= (1 << ALTREF_FRAME);
+  }
+#endif
+#endif  // MIMIC_VP9_REFERENCE
 }
 
 static void search_palette_mode(const AV1_COMP *cpi, MACROBLOCK *x, int mi_row,
