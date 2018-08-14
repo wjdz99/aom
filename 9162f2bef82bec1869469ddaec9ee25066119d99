@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9b36ee86_c78b0036",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2774,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-08-14T17:26:47Z",
+      "side": 1,
+      "message": "I call aom_reader_has_overflowed() here as you suggested.\n\n(Unfortunately this does not make this function shorter, because this function needs to repeat lines 2776-2780.)",
+      "revId": "9162f2bef82bec1869469ddaec9ee25066119d99",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6dcc2014_db396d0b",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2783,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-08-14T17:26:47Z",
+      "side": 1,
+      "message": "I converted the original if statement to an assertion so that the comment makes sense. Alternatively, I can just delete the comment and the if statement.\n\nWhich would you prefer?",
+      "range": {
+        "startLine": 2782,
+        "startChar": 0,
+        "endLine": 2783,
+        "endChar": 49
+      },
+      "revId": "9162f2bef82bec1869469ddaec9ee25066119d99",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "203f11f7_74f61bec",
+        "filename": "test/boolcoder_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-08-14T17:26:47Z",
+      "side": 1,
+      "message": "I need your help with this unit test. I don\u0027t know why I need to read so many extra bits for aom_reader_has_overflowed() to become true, for all p.\n\nI suspect I wrote this unit test incorrectly ...",
+      "range": {
+        "startLine": 159,
+        "startChar": 0,
+        "endLine": 161,
+        "endChar": 5
+      },
+      "revId": "9162f2bef82bec1869469ddaec9ee25066119d99",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
