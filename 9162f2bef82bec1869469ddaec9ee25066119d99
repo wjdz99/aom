@@ -211,6 +211,30 @@
       "revId": "9162f2bef82bec1869469ddaec9ee25066119d99",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "98257777_c25e2984",
+        "filename": "test/boolcoder_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2018-08-14T21:49:38Z",
+      "side": 1,
+      "message": "No, it doesn\u0027t depend on what you encode in the actual data at all (or only marginally), except inasmuch as that determines where you happen to be in the final byte when you stop encoding. It mostly depends on what shows up in the trailing bits (which is a single 1 bit followed by zero bits, by definition) and what you try to read from that region (the value of p). The -log_2(255/256) bits is what would be consumed by an ideal coder, but in practice, thanks to the finite precision, the real number of bits may be slightly different. Since the number of symbols you need to read is ceil(1/-log_2(255/256)), small rounding errors can have big effects on that count.\n\nSince we generally try to distribute the error such that we overestimate the probability of the 0 symbol (since it is often the highest probability symbol, and we minimize the total error, in terms of excess consumed bits, when the highest probability symbol\u0027s probability is overestimated), I guess it makes sense that reading a bunch of zeros can actually consume slightly less data than expected.",
+      "parentUuid": "06150505_9c1dced5",
+      "range": {
+        "startLine": 159,
+        "startChar": 0,
+        "endLine": 161,
+        "endChar": 5
+      },
+      "revId": "9162f2bef82bec1869469ddaec9ee25066119d99",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
