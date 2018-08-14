@@ -2771,6 +2771,8 @@ static void decode_tile_sb_row(AV1Decoder *pbi, ThreadData *const td,
 }
 
 static int check_trailing_bits_after_symbol_coder(aom_reader *r) {
+  if (aom_reader_has_overflowed(r)) return -1;
+
   uint32_t nb_bits = aom_reader_tell(r);
   uint32_t nb_bytes = (nb_bits + 7) >> 3;
 
@@ -2778,7 +2780,7 @@ static int check_trailing_bits_after_symbol_coder(aom_reader *r) {
   const uint8_t *p_end = aom_reader_find_end(r);
 
   // It is legal to have no padding bytes (nb_bytes == p_end - p_begin).
-  if ((ptrdiff_t)nb_bytes > p_end - p_begin) return -1;
+  assert((ptrdiff_t)nb_bytes <= p_end - p_begin);
   const uint8_t *p = p_begin + nb_bytes;
 
   // aom_reader_tell() returns 1 for a newly initialized decoder, and the
@@ -2842,6 +2844,11 @@ static void decode_tile(AV1Decoder *pbi, ThreadData *const td, int tile_row,
       // Bit-stream parsing and decoding of the superblock
       decode_partition(pbi, td, mi_row, mi_col, td->bit_reader,
                        cm->seq_params.sb_size, 0x3);
+
+      if (aom_reader_has_overflowed(td->bit_reader)) {
+        aom_merge_corrupted_flag(&td->xd.corrupted, 1);
+        return;
+      }
     }
   }
 

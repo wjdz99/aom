@@ -44,6 +44,7 @@ const uint8_t *aom_daala_reader_find_begin(daala_reader *r);
 const uint8_t *aom_daala_reader_find_end(daala_reader *r);
 uint32_t aom_daala_reader_tell(const daala_reader *r);
 uint32_t aom_daala_reader_tell_frac(const daala_reader *r);
+int aom_daala_reader_has_overflowed(const daala_reader *r);
 
 static INLINE int aom_daala_read(daala_reader *r, int prob) {
   int bit;
