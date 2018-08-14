@@ -173,6 +173,11 @@ typedef struct {
   COMPOUND_TYPE comp_type;
 } INTERPOLATION_FILTER_STATS;
 
+#define SEARCH_RANGE_8P 3
+#define SEARCH_GRID_STRIDE_8P (2 * SEARCH_RANGE_8P + 1)
+#define SEARCH_GRID_CENTER_8P \
+  (SEARCH_RANGE_8P * SEARCH_GRID_STRIDE_8P + SEARCH_RANGE_8P)
+
 typedef struct macroblock MACROBLOCK;
 struct macroblock {
   struct macroblock_plane plane[MAX_MB_PLANE];
@@ -355,6 +360,8 @@ struct macroblock {
   int tx_split_prune_flag;  // Flag to skip tx split RD search.
   int recalc_luma_mc_data;  // Flag to indicate recalculation of MC data during
                             // interpolation filter search
+
+  uint8_t do_refine_search_grid[SEARCH_GRID_STRIDE_8P * SEARCH_GRID_STRIDE_8P];
 };
 
 static INLINE int is_rect_tx_allowed_bsize(BLOCK_SIZE bsize) {

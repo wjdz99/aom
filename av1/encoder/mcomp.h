@@ -43,6 +43,11 @@ typedef struct search_site_config {
   int searches_per_step;
 } search_site_config;
 
+typedef struct {
+  MV coord;
+  int coord_offset;
+} search_neighbors;
+
 void av1_init_dsmotion_compensation(search_site_config *cfg, int stride);
 void av1_init3smotion_compensation(search_site_config *cfg, int stride);
 
