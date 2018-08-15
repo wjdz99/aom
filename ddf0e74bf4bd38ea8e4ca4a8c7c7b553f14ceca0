@@ -70,6 +70,30 @@
       "revId": "ddf0e74bf4bd38ea8e4ca4a8c7c7b553f14ceca0",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c8d4b537_4d4e76bd",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 5272,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2018-08-15T18:32:22Z",
+      "side": 1,
+      "message": "We talked offline and are both running borg tests to verify this if statement is ok to remove. I\u0027ll update the patch once the run finishes.",
+      "parentUuid": "3a2aaf03_7bafccf4",
+      "range": {
+        "startLine": 5271,
+        "startChar": 39,
+        "endLine": 5272,
+        "endChar": 34
+      },
+      "revId": "ddf0e74bf4bd38ea8e4ca4a8c7c7b553f14ceca0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
