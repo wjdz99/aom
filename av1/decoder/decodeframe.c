@@ -390,7 +390,7 @@ static void decode_mbmi_block(AV1Decoder *const pbi, MACROBLOCKD *const xd,
                          "Invalid block size.");
   }
 
-  int reader_corrupted_flag = aom_reader_has_error(r);
+  int reader_corrupted_flag = aom_reader_has_overflowed(r);
   aom_merge_corrupted_flag(&xd->corrupted, reader_corrupted_flag);
 }
 
@@ -1381,7 +1381,7 @@ static void parse_decode_block(AV1Decoder *const pbi, ThreadData *const td,
 
   decode_token_recon_block(pbi, td, mi_row, mi_col, r, bsize);
 
-  int reader_corrupted_flag = aom_reader_has_error(r);
+  int reader_corrupted_flag = aom_reader_has_overflowed(r);
   aom_merge_corrupted_flag(&xd->corrupted, reader_corrupted_flag);
 }
 
