@@ -72,7 +72,30 @@ static void write_intra_mode_kf(FRAME_CONTEXT *frame_ctx,
                                 const MB_MODE_INFO *left_mi,
                                 PREDICTION_MODE mode, aom_writer *w) {
   assert(!is_intrabc_block(mi));
-  (void)mi;
+  
+  FILE *fp = fopen("CDF_NN_data.txt", "a");
+  if (fp) {
+   int bw = block_size_wide[mi->sb_type];
+   int bh = block_size_high[mi->sb_type];
+   fprintf(fp, "%d,%d,%d,", bw, bh, (int)mode);
+   aom_cdf_prob* cur_cdf = get_y_mode_cdf(frame_ctx, above_mi, left_mi);
+   for(int i=0;i<INTRA_MODES;i++) {
+     fprintf(fp, "%d,", cur_cdf[i]);
+   }
+
+   for(int i=0;i<4;i++) {
+    fprintf(fp, "%d,", (int)(1000000 * mi->ctx_correlation_feature[i]));
+   }
+   for(int i=0;i<8;i++) {
+    fprintf(fp, "%d,", (int)(1000000 * mi->ctx_HOG_feature[i]));
+   }
+   for(int i=0;i<8;i++) {
+    fprintf(fp, "%d,", (int)(1000000 * mi->ctx_HOG_feature_Scharr[i]));
+   }
+   fprintf(fp,"\n");
+   fclose(fp);
+  }
+
   aom_write_symbol(w, mode, get_y_mode_cdf(frame_ctx, above_mi, left_mi),
                    INTRA_MODES);
 }

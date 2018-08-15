@@ -241,6 +241,10 @@ typedef struct MB_MODE_INFO {
 
   FILTER_INTRA_MODE_INFO filter_intra_mode_info;
 
+  float ctx_HOG_feature[8];
+  float ctx_HOG_feature_Scharr[8];
+  float ctx_correlation_feature[4];
+
   // The actual prediction angle is the base angle + (angle_delta * step).
   int8_t angle_delta[PLANE_TYPES];
 

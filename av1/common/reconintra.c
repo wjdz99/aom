@@ -1118,12 +1118,170 @@ void av1_upsample_intra_edge_high_c(uint16_t *p, int sz, int bd) {
   }
 }
 
+typedef struct accumulated_stats {
+  float HOG[8];
+  float HOG_Scharr[8];
+  ////////////////////////////////
+  int64_t x_sum, x_sq_sum;
+  int64_t l_sum, l_sq_sum;
+  int64_t t_sum, t_sq_sum;
+  int64_t tl_sum, tl_sq_sum;
+  int64_t hor_mult_sum, ver_mult_sum;     // horver correlations
+  int64_t diag1_mult_sum, diag2_mult_sum; // diagonal correlations
+  float num_px; // for correlation computation only
+} ACCUMULATED_STATS;
+
+static void HOG_add_to_bucket(float* dst_HOG, float hor_grad, float ver_grad, int num_buckets) {
+    float grad_magn = sqrt(hor_grad*hor_grad + ver_grad*ver_grad);
+    float grad_angle = atan2(ver_grad, hor_grad) * num_buckets / PI;
+    if(grad_angle < 0) grad_angle = num_buckets + grad_angle; // now grad_angle is in [0,num_buckets] range
+
+    // bucket voting with wraparound:
+    int i1 = (int)floor(grad_angle);
+    int i2 = (int)ceil(grad_angle);
+    if(i1==num_buckets) i1 = 0;
+    if(i2==num_buckets) i2 = 0;
+    float weight = grad_angle - floor(grad_angle);
+    dst_HOG[i1] += (1.0f - weight)*grad_magn;
+    dst_HOG[i2] += weight*grad_magn;
+}
+
+static void accumulate_stats(const uint16_t *src, int stride, int w, int h, ACCUMULATED_STATS* dst_stats, bool HOG_collect_boundary) {
+    for(int i=0;i<h;i++) {
+      for(int j=0;j<w;j++) {
+        int64_t x  = src[i*stride+j];
+        int64_t l  = src[i*stride+j-1];
+        int64_t tl = src[(i-1)*stride+j-1];
+        int64_t t  = src[(i-1)*stride+j];
+
+        dst_stats->hor_mult_sum += x*l;
+        dst_stats->ver_mult_sum += x*t;
+        dst_stats->diag1_mult_sum += x*tl;
+        dst_stats->diag2_mult_sum += l*t;
+        dst_stats->x_sum += x;
+        dst_stats->x_sq_sum += x*x;
+        dst_stats->l_sum += l;
+        dst_stats->l_sq_sum += l*l;
+        dst_stats->t_sum += t;
+        dst_stats->t_sq_sum += t*t;
+        dst_stats->tl_sum += tl;
+        dst_stats->tl_sq_sum += tl*tl;
+        dst_stats->num_px += 1.0f;
+      
+        if((HOG_collect_boundary && (i<h-1 || j<w-1)) || (!HOG_collect_boundary && i<h-1 && j<w-1)) {
+          float hor_grad = src[i*stride+j+1] - src[i*stride+j-1];
+          float ver_grad = src[(i-1)*stride+j] - src[(i+1)*stride+j];
+          HOG_add_to_bucket(dst_stats->HOG, hor_grad, ver_grad, 8);
+
+          float hor_grad_Scharr = (3*src[(i-1)*stride + j + 1] + 10*src[i*stride + j + 1] + 3*src[(i+1)*stride + j + 1]) - 
+                                  (3*src[(i-1)*stride + j - 1] + 10*src[i*stride + j - 1] + 3*src[(i+1)*stride + j - 1]);
+          float ver_grad_Scharr = (3*src[(i-1)*stride + j - 1] + 10*src[(i-1)*stride + j] + 3*src[(i-1)*stride + j + 1]) - 
+                                  (3*src[(i+1)*stride + j - 1] + 10*src[(i+1)*stride + j] + 3*src[(i+1)*stride + j + 1]);
+          HOG_add_to_bucket(dst_stats->HOG_Scharr, hor_grad_Scharr, ver_grad_Scharr, 8);
+        }
+      }
+    }
+}
+
+void normalize_vec(float* vec, int sz) {
+    float vec_sum = 0.0f;
+    for(int i = 0; i<sz;i++)
+      vec_sum += vec[i];
+    if(vec_sum > 0) {
+      for(int i = 0; i<sz;i++)
+        vec[i] /= vec_sum;
+    }
+    else {
+      for(int i = 0; i<sz;i++)
+        vec[i] = 1.0f / sz;
+    }
+}
+
+static void NN_collect_features(MB_MODE_INFO *dst_mbmi, const uint16_t *ref, int stride, TX_SIZE tx_size, int n_top_px, int n_topright_px, 
+                                int n_left_px, int n_bottomleft_px, int px_row, int px_col) {
+  const int txwpx = tx_size_wide[tx_size];
+  const int txhpx = tx_size_high[tx_size];
+
+  const int base_offs_mapping[TX_SIZES_ALL][2] = {
+    {3,3},           // 4x4 transform
+    {5,5},           // 8x8 transform
+    {9,9},           // 16x16 transform
+    {17,17},         // 32x32 transform
+    {33,33},         // 64x64 transform
+    {3,5},           // 4x8 transform
+    {5,3},           // 8x4 transform
+    {5,9},           // 8x16 transform
+    {9,5},           // 16x8 transform
+    {9,17},          // 16x32 transform
+    {17,9},          // 32x16 transform
+    {17,33},         // 32x64 transform
+    {33,17},         // 64x32 transform
+    {3,9},           // 4x16 transform
+    {9,3},           // 16x4 transform
+    {5,17},          // 8x32 transform
+    {17,5},          // 32x8 transform
+    {9,33},          // 16x64 transform
+    {33,9}           // 64x16 transform
+  };
+
+  int BASE_OFFS_HORIZ = base_offs_mapping[tx_size][0];
+  int BASE_OFFS_VERT  = base_offs_mapping[tx_size][1];
+
+  int up_offs   = AOMMIN(BASE_OFFS_VERT ,px_row) - 1;
+  int left_offs = AOMMIN(BASE_OFFS_HORIZ,px_col) - 1;
+
+  int TOP_RIGHT_SZ = BASE_OFFS_HORIZ;
+  int BOTTOM_LEFT_SZ = BASE_OFFS_VERT;
+
+
+  ACCUMULATED_STATS stats = {0};
+  if(n_top_px > 0 && n_left_px > 0) {
+    accumulate_stats(ref - up_offs*stride, stride, AOMMIN(n_top_px + n_topright_px, txwpx + TOP_RIGHT_SZ), up_offs, &stats, false);
+    accumulate_stats(ref - left_offs, stride, left_offs, AOMMIN(n_left_px + n_bottomleft_px, txhpx + BOTTOM_LEFT_SZ), &stats, false);
+    accumulate_stats(ref - up_offs*stride - left_offs, stride, left_offs, up_offs, &stats, true);
+  }
+  else if(n_top_px > 0) {
+    accumulate_stats(ref - up_offs*stride + 1, stride, AOMMIN(n_top_px + n_topright_px, txwpx + TOP_RIGHT_SZ) - 1, up_offs, &stats, false);
+  }
+  else if(n_left_px > 0) {
+    accumulate_stats(ref + stride - left_offs, stride, left_offs, AOMMIN(n_left_px + n_bottomleft_px, txhpx + BOTTOM_LEFT_SZ) - 1, &stats, false);
+  }
+
+  const float x_var_n  = stats.x_sq_sum   - (stats.x_sum  * stats.x_sum)  / stats.num_px;
+  const float l_var_n  = stats.l_sq_sum   - (stats.l_sum  * stats.l_sum)  / stats.num_px;
+  const float t_var_n  = stats.t_sq_sum   - (stats.t_sum  * stats.t_sum)  / stats.num_px;
+  const float tl_var_n = stats.tl_sq_sum  - (stats.tl_sum * stats.tl_sum) / stats.num_px;
+
+  const float hor_var_n   = stats.hor_mult_sum   - (stats.x_sum * stats.l_sum)  / stats.num_px;
+  const float ver_var_n   = stats.ver_mult_sum   - (stats.x_sum * stats.t_sum)  / stats.num_px;
+  const float diag1_var_n = stats.diag1_mult_sum - (stats.x_sum * stats.tl_sum) / stats.num_px;
+  const float diag2_var_n = stats.diag2_mult_sum - (stats.l_sum * stats.t_sum)  / stats.num_px;
+
+  float *corrs = dst_mbmi->ctx_correlation_feature;
+  corrs[0] = corrs[1] = corrs[2] = corrs[3] = 1.0f;
+  if (x_var_n > 0 && l_var_n > 0)
+    corrs[0] = hor_var_n / sqrtf(x_var_n * l_var_n);
+  if (x_var_n > 0 && t_var_n > 0)
+    corrs[1] = ver_var_n / sqrtf(x_var_n * t_var_n);
+  if (x_var_n > 0 && tl_var_n > 0)
+    corrs[2] = diag1_var_n / sqrtf(x_var_n * tl_var_n);
+  if (l_var_n > 0 && t_var_n > 0)
+    corrs[3] = diag2_var_n / sqrtf(l_var_n * t_var_n);
+
+  normalize_vec(stats.HOG, 8);
+  normalize_vec(stats.HOG_Scharr, 8);
+  for(int i=0;i<8;i++) {
+    dst_mbmi->ctx_HOG_feature[i] = stats.HOG[i];
+    dst_mbmi->ctx_HOG_feature_Scharr[i] = stats.HOG_Scharr[i];
+  }
+}
+
 static void build_intra_predictors_high(
     const MACROBLOCKD *xd, const uint8_t *ref8, int ref_stride, uint8_t *dst8,
     int dst_stride, PREDICTION_MODE mode, int angle_delta,
     FILTER_INTRA_MODE filter_intra_mode, TX_SIZE tx_size,
     int disable_edge_filter, int n_top_px, int n_topright_px, int n_left_px,
-    int n_bottomleft_px, int plane) {
+    int n_bottomleft_px, int plane, int col_off, int row_off) {
   int i;
   uint16_t *dst = CONVERT_TO_SHORTPTR(dst8);
   uint16_t *ref = CONVERT_TO_SHORTPTR(ref8);
@@ -1243,6 +1401,14 @@ static void build_intra_predictors_high(
       above_row[-1] = base;
     }
     left_col[-1] = above_row[-1];
+  }
+
+  MB_MODE_INFO *mbmi = xd->mi[0];
+  BLOCK_SIZE bsize = mbmi->sb_type;
+  if(mode == 0 && block_size_wide[bsize] == txwpx && block_size_high[bsize] == txhpx) { //DC should be always checked, I believe
+    const int px_row = (-xd->mb_to_top_edge >> 3) + (row_off << MI_SIZE_LOG2);
+    const int px_col = (-xd->mb_to_left_edge >> 3) + (col_off << MI_SIZE_LOG2);
+    NN_collect_features(mbmi, ref, ref_stride, tx_size, n_top_px, n_topright_px, n_left_px, n_bottomleft_px, px_row, px_col);
   }
 
   if (use_filter_intra) {
@@ -1569,7 +1735,7 @@ void av1_predict_intra_block(
         have_top ? AOMMIN(txwpx, xr + txwpx) : 0,
         have_top_right ? AOMMIN(txwpx, xr) : 0,
         have_left ? AOMMIN(txhpx, yd + txhpx) : 0,
-        have_bottom_left ? AOMMIN(txhpx, yd) : 0, plane);
+        have_bottom_left ? AOMMIN(txhpx, yd) : 0, plane, col_off, row_off);
     return;
   }
 
