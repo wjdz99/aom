@@ -22,6 +22,30 @@
       "revId": "ddf0e74bf4bd38ea8e4ca4a8c7c7b553f14ceca0",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "61e89f70_88d35221",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 5272,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2018-08-15T16:58:50Z",
+      "side": 1,
+      "message": "I think this is still the rule for the postencode update. There was another if statement inside the postencode update before that was filtering out some of the frame types included by this rule for the counter update.",
+      "parentUuid": "2e838b3a_0b2e5483",
+      "range": {
+        "startLine": 5271,
+        "startChar": 39,
+        "endLine": 5272,
+        "endChar": 34
+      },
+      "revId": "ddf0e74bf4bd38ea8e4ca4a8c7c7b553f14ceca0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
