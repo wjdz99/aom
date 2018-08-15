@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "93738305_78125a9d",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 394,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-08-15T23:28:42Z",
+      "side": 1,
+      "message": "There are two days to deal with this.\n\n1. Since aom_reader_has_error() always returns 0, these two lines have no effects and can be deleted.\n\n2. Replace the aom_reader_has_error() call with an aom_reader_has_overflowed() call.\n\nI did the latter, because it matches the intention of the original code better. Is this OK?",
+      "range": {
+        "startLine": 393,
+        "startChar": 0,
+        "endLine": 394,
+        "endChar": 66
+      },
+      "revId": "ded7377c7e9dd8faccc222efdd273aa3d7d79a99",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
