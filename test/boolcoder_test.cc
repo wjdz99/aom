@@ -108,7 +108,7 @@ TEST(AV1, TestTell) {
     double frac_diff_total = 0;
     GTEST_ASSERT_GE(aom_reader_tell(&br), 0u);
     GTEST_ASSERT_LE(aom_reader_tell(&br), 1u);
-    ASSERT_FALSE(aom_reader_has_overflowed(&br));
+    ASSERT_FALSE(aom_reader_has_error(&br));
     for (int i = 0; i < kSymbols; i++) {
       aom_read(&br, p, NULL);
       uint32_t tell = aom_reader_tell(&br);
@@ -131,11 +131,18 @@ TEST(AV1, TestTell) {
     // The average frac_diff error should be pretty small.
     GTEST_ASSERT_LE(frac_diff_total / kSymbols, FRAC_DIFF_TOTAL_ERROR)
         << " frac_diff_total: " << frac_diff_total;
-    ASSERT_FALSE(aom_reader_has_overflowed(&br));
+    ASSERT_FALSE(aom_reader_has_error(&br));
   }
 }
 
-TEST(AV1, TestHasOverflowed) {
+TEST(AV1, TestHasErrorZeroLengthBuffer) {
+  uint8_t buffer[1];
+  aom_reader br;
+  aom_reader_init(&br, buffer, 0);
+  ASSERT_TRUE(aom_reader_has_error(&br));
+}
+
+TEST(AV1, TestHasErrorDecodingOverflow) {
   const int kBufferSize = 10000;
   aom_writer bw;
   uint8_t bw_buffer[kBufferSize];
@@ -149,18 +156,18 @@ TEST(AV1, TestHasOverflowed) {
     aom_stop_encode(&bw);
     aom_reader br;
     aom_reader_init(&br, bw_buffer, bw.pos);
-    ASSERT_FALSE(aom_reader_has_overflowed(&br));
+    ASSERT_FALSE(aom_reader_has_error(&br));
     for (int i = 0; i < kSymbols; i++) {
       GTEST_ASSERT_EQ(aom_read(&br, p, NULL), 1);
-      ASSERT_FALSE(aom_reader_has_overflowed(&br));
+      ASSERT_FALSE(aom_reader_has_error(&br));
     }
     // In the worst case, the encoder uses just a tiny fraction of the last
-    // byte in the buffer. So to guarantee that aom_reader_has_overflowed()
-    // returns true, we have to consume very nearly 8 additional bits of data.
-    // In the worse case, one of the bits in that byte will be 1, and the rest
-    // will be zero. Once we are past that 1 bit, when the probability of
-    // reading zero symbol from aom_read() is high, each additional symbol read
-    // will consume very little additional data (in the case that p == 255,
+    // byte in the buffer. So to guarantee that aom_reader_has_error() returns
+    // true, we have to consume very nearly 8 additional bits of data. In the
+    // worse case, one of the bits in that byte will be 1, and the rest will
+    // be zero. Once we are past that 1 bit, when the probability of reading
+    // zero symbol from aom_read() is high, each additional symbol read will
+    // consume very little additional data (in the case that p == 255,
     // approximately -log_2(255/256) ~= 0.0056 bits). In that case it would
     // take around 178 calls to consume more than 8 bits. That is only an upper
     // bound. In practice we are not guaranteed to hit the worse case and can
@@ -168,6 +175,6 @@ TEST(AV1, TestHasOverflowed) {
     for (int i = 0; i < 174; i++) {
       aom_read(&br, p, NULL);
     }
-    ASSERT_TRUE(aom_reader_has_overflowed(&br));
+    ASSERT_TRUE(aom_reader_has_error(&br));
   }
 }

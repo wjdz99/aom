@@ -2771,7 +2771,7 @@ static void decode_tile_sb_row(AV1Decoder *pbi, ThreadData *const td,
 }
 
 static int check_trailing_bits_after_symbol_coder(aom_reader *r) {
-  if (aom_reader_has_overflowed(r)) return -1;
+  if (aom_reader_has_error(r)) return -1;
 
   uint32_t nb_bits = aom_reader_tell(r);
   uint32_t nb_bytes = (nb_bits + 7) >> 3;
@@ -2840,7 +2840,7 @@ static void decode_tile(AV1Decoder *pbi, ThreadData *const td, int tile_row,
       decode_partition(pbi, td, mi_row, mi_col, td->bit_reader,
                        cm->seq_params.sb_size, 0x3);
 
-      if (aom_reader_has_overflowed(td->bit_reader)) {
+      if (aom_reader_has_error(td->bit_reader)) {
         aom_merge_corrupted_flag(&td->xd.corrupted, 1);
         return;
       }

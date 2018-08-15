@@ -44,9 +44,6 @@ const uint8_t *aom_daala_reader_find_begin(daala_reader *r);
 const uint8_t *aom_daala_reader_find_end(daala_reader *r);
 uint32_t aom_daala_reader_tell(const daala_reader *r);
 uint32_t aom_daala_reader_tell_frac(const daala_reader *r);
-// Returns true if the reader has tried to decode more data from the buffer
-// than was actually provided.
-int aom_daala_reader_has_overflowed(const daala_reader *r);
 
 static INLINE int aom_daala_read(daala_reader *r, int prob) {
   int bit;
@@ -101,6 +98,8 @@ static INLINE int aom_daala_read(daala_reader *r, int prob) {
   return bit;
 }
 
+// Returns true if an error occurred, for example, if the reader has tried to
+// decode more data from the buffer than was actually provided.
 static INLINE int aom_daala_reader_has_error(daala_reader *r) {
   return r->ec.error;
 }
