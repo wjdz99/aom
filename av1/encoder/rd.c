@@ -52,20 +52,20 @@ static const uint8_t rd_thresh_block_size_factor[BLOCK_SIZES_ALL] = {
   2, 3, 3, 4, 6, 6, 8, 12, 12, 16, 24, 24, 32, 48, 48, 64, 4, 4, 8, 8, 16, 16
 };
 
-static const int use_intra_ext_tx_for_txsize[EXT_TX_SETS_INTRA][EXT_TX_SIZES] =
-    {
-      { 1, 1, 1, 1 },  // unused
-      { 1, 1, 0, 0 },
-      { 0, 0, 1, 0 },
-    };
+static const int use_intra_ext_tx_for_txsize[EXT_TX_SETS_INTRA]
+                                            [EXT_TX_SIZES] = {
+                                              { 1, 1, 1, 1 },  // unused
+                                              { 1, 1, 0, 0 },
+                                              { 0, 0, 1, 0 },
+                                            };
 
-static const int use_inter_ext_tx_for_txsize[EXT_TX_SETS_INTER][EXT_TX_SIZES] =
-    {
-      { 1, 1, 1, 1 },  // unused
-      { 1, 1, 0, 0 },
-      { 0, 0, 1, 0 },
-      { 0, 0, 0, 1 },
-    };
+static const int use_inter_ext_tx_for_txsize[EXT_TX_SETS_INTER]
+                                            [EXT_TX_SIZES] = {
+                                              { 1, 1, 1, 1 },  // unused
+                                              { 1, 1, 0, 0 },
+                                              { 0, 0, 1, 0 },
+                                              { 0, 0, 0, 1 },
+                                            };
 
 static const int av1_ext_tx_set_idx_to_type[2][AOMMAX(EXT_TX_SETS_INTRA,
                                                       EXT_TX_SETS_INTER)] = {
@@ -370,8 +370,14 @@ int av1_compute_rd_mult(const AV1_COMP *cpi, int qindex) {
     const FRAME_UPDATE_TYPE frame_type = gf_group->update_type[gf_group->index];
     const int boost_index = AOMMIN(15, (cpi->rc.gfu_boost / 100));
 
-    rdmult = (rdmult * rd_frame_type_factor[frame_type]) >> 7;
-    rdmult += ((rdmult * rd_boost_factor[boost_index]) >> 7);
+    if (cpi->oxcf.rc_mode == AOM_Q) {
+      if (frame_type != LF_UPDATE) {
+        rdmult = (rdmult * rd_frame_type_factor[frame_type]) >> 7;
+      }
+    } else {
+      rdmult = (rdmult * rd_frame_type_factor[frame_type]) >> 7;
+      rdmult += ((rdmult * rd_boost_factor[boost_index]) >> 7);
+    }
   }
   if (rdmult < 1) rdmult = 1;
   return (int)rdmult;
