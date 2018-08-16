@@ -10643,12 +10643,13 @@ static INLINE void init_mbmi(MB_MODE_INFO *mbmi, int mode_index,
   set_default_interp_filters(mbmi, cm->interp_filter);
 }
 
-static int handle_intra_mode(InterModeSearchState *search_state,
-                             const AV1_COMP *cpi, MACROBLOCK *x,
-                             BLOCK_SIZE bsize, int mi_row, int mi_col,
-                             int ref_frame_cost, const PICK_MODE_CONTEXT *ctx,
-                             int disable_skip, RD_STATS *rd_stats,
-                             RD_STATS *rd_stats_y, RD_STATS *rd_stats_uv) {
+static int64_t handle_intra_mode(InterModeSearchState *search_state,
+                                 const AV1_COMP *cpi, MACROBLOCK *x,
+                                 BLOCK_SIZE bsize, int mi_row, int mi_col,
+                                 int ref_frame_cost,
+                                 const PICK_MODE_CONTEXT *ctx, int disable_skip,
+                                 RD_STATS *rd_stats, RD_STATS *rd_stats_y,
+                                 RD_STATS *rd_stats_uv) {
   const AV1_COMMON *cm = &cpi->common;
   const SPEED_FEATURES *const sf = &cpi->sf;
   MACROBLOCKD *const xd = &x->e_mbd;
@@ -10663,9 +10664,6 @@ static int handle_intra_mode(InterModeSearchState *search_state,
   const int rows = block_size_high[bsize];
   const int cols = block_size_wide[bsize];
   const int num_planes = av1_num_planes(cm);
-  av1_init_rd_stats(rd_stats);
-  av1_init_rd_stats(rd_stats_y);
-  av1_init_rd_stats(rd_stats_uv);
   TX_SIZE uv_tx;
   int is_directional_mode = av1_is_directional_mode(mbmi->mode);
   if (is_directional_mode && av1_use_angle_delta(bsize)) {
@@ -10682,12 +10680,14 @@ static int handle_intra_mode(InterModeSearchState *search_state,
                          search_state->directional_mode_skip_mask);
       search_state->angle_stats_ready = 1;
     }
-    if (search_state->directional_mode_skip_mask[mbmi->mode]) return 0;
+    if (search_state->directional_mode_skip_mask[mbmi->mode]) return INT64_MAX;
+    av1_init_rd_stats(rd_stats_y);
     rd_stats_y->rate = INT_MAX;
     rd_pick_intra_angle_sby(cpi, x, mi_row, mi_col, &rate_dummy, rd_stats_y,
                             bsize, intra_mode_cost[mbmi->mode],
                             search_state->best_rd, &model_rd);
   } else {
+    av1_init_rd_stats(rd_stats_y);
     mbmi->angle_delta[PLANE_TYPE_Y] = 0;
     super_block_yrd(cpi, x, rd_stats_y, bsize, search_state->best_rd);
   }
@@ -10753,9 +10753,12 @@ static int handle_intra_mode(InterModeSearchState *search_state,
       mbmi->filter_intra_mode_info.use_filter_intra = 0;
     }
   }
+  if (rd_stats_y->rate == INT_MAX) return INT64_MAX;
+  const int64_t rdy = RDCOST(x->rdmult, rd_stats_y->rate, rd_stats_y->dist);
+  if (rdy > search_state->best_rd) return INT64_MAX;
 
-  if (rd_stats_y->rate == INT_MAX) return 0;
-
+  av1_init_rd_stats(rd_stats);
+  av1_init_rd_stats(rd_stats_uv);
   if (num_planes > 1) {
     uv_tx = av1_get_tx_size(AOM_PLANE_U, xd);
     if (search_state->rate_uv_intra[uv_tx] == INT_MAX) {
@@ -10818,7 +10821,7 @@ static int handle_intra_mode(InterModeSearchState *search_state,
     rd_stats->rate += x->skip_cost[av1_get_skip_context(xd)][0];
   }
   // Calculate the final RD estimate for this mode.
-  int64_t this_rd = RDCOST(x->rdmult, rd_stats->rate, rd_stats->dist);
+  const int64_t this_rd = RDCOST(x->rdmult, rd_stats->rate, rd_stats->dist);
 
   // Keep record of best intra rd
   if (this_rd < search_state->best_intra_rd) {
@@ -10837,7 +10840,7 @@ static int handle_intra_mode(InterModeSearchState *search_state,
       search_state->best_pred_rd[i] =
           AOMMIN(search_state->best_pred_rd[i], this_rd);
   }
-  return 1;
+  return this_rd;
 }
 
 static void collect_single_states(MACROBLOCK *x,
@@ -11464,14 +11467,12 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
     const int mode_index = intra_mode_idx_ls[j];
     const MV_REFERENCE_FRAME ref_frame =
         av1_mode_order[mode_index].ref_frame[0];
-    const MV_REFERENCE_FRAME second_ref_frame =
-        av1_mode_order[mode_index].ref_frame[1];
+    assert(av1_mode_order[mode_index].ref_frame[1] == NONE_FRAME);
     assert(ref_frame == INTRA_FRAME);
-
     init_mbmi(mbmi, mode_index, cm);
 
     x->skip = 0;
-    set_ref_ptrs(cm, xd, ref_frame, second_ref_frame);
+    set_ref_ptrs(cm, xd, INTRA_FRAME, NONE_FRAME);
 
     // Select prediction reference frames.
     for (i = 0; i < num_planes; i++) {
@@ -11481,13 +11482,9 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
     RD_STATS intra_rd_stats, intra_rd_stats_y, intra_rd_stats_uv;
 
     const int ref_frame_cost = ref_costs_single[ref_frame];
-    if (!handle_intra_mode(&search_state, cpi, x, bsize, mi_row, mi_col,
-                           ref_frame_cost, ctx, 0, &intra_rd_stats,
-                           &intra_rd_stats_y, &intra_rd_stats_uv)) {
-      continue;
-    }
-    intra_rd_stats.rdcost =
-        RDCOST(x->rdmult, intra_rd_stats.rate, intra_rd_stats.dist);
+    intra_rd_stats.rdcost = handle_intra_mode(
+        &search_state, cpi, x, bsize, mi_row, mi_col, ref_frame_cost, ctx, 0,
+        &intra_rd_stats, &intra_rd_stats_y, &intra_rd_stats_uv);
     if (intra_rd_stats.rdcost < search_state.best_rd) {
       search_state.best_rd = intra_rd_stats.rdcost;
       // Note index of best mode so far
