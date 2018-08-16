@@ -8308,6 +8308,7 @@ static int txfm_search(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
   int skip_txfm_sb = 0;
   const int num_planes = av1_num_planes(cm);
   const int ref_frame_1 = mbmi->ref_frame[1];
+  const int skip_ctx = av1_get_skip_context(xd);
 
   av1_init_rd_stats(rd_stats);
   av1_init_rd_stats(rd_stats_y);
@@ -8319,18 +8320,38 @@ static int txfm_search(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
   if (!skip_txfm_sb) {
     int64_t rdcosty = INT64_MAX;
     int is_cost_valid_uv = 0;
-
+    int64_t rd_mode_cost;
+    int64_t ref_best_rd_sub_mode_cost;
+    assert(rd_stats->rate == mode_rate);
+    // Calculate the rd cost based on mode rate and exit if it is more than best
+    // rd cost so far. Add minimum of skip and non-skip rates to mode rate as
+    // one of the components will be added to rd cost eventually
+    if (RDCOST(x->rdmult,
+               rd_stats->rate +
+                   AOMMIN(x->skip_cost[skip_ctx][0], x->skip_cost[skip_ctx][1]),
+               0) > ref_best_rd) {
+      av1_invalid_rd_stats(rd_stats);
+      // TODO(angiebird): check if we need this
+      // restore_dst_buf(xd, *orig_dst, num_planes);
+      mbmi->ref_frame[1] = ref_frame_1;
+      return 0;
+    }
+    // Adjust the best rd cost so far based on mode rate
+    rd_mode_cost = RDCOST(x->rdmult, rd_stats->rate, 0);
+    ref_best_rd_sub_mode_cost =
+        (ref_best_rd == INT64_MAX) ? INT64_MAX : (ref_best_rd - rd_mode_cost);
+    assert(ref_best_rd_sub_mode_cost >= 0);
     // cost and distortion
     av1_subtract_plane(x, bsize, 0);
     if (cm->tx_mode == TX_MODE_SELECT && !xd->lossless[mbmi->segment_id]) {
       // Motion mode
       select_tx_type_yrd(cpi, x, rd_stats_y, bsize, mi_row, mi_col,
-                         ref_best_rd);
+                         ref_best_rd_sub_mode_cost);
 #if CONFIG_COLLECT_RD_STATS == 2
       PrintPredictionUnitStats(cpi, x, rd_stats_y, bsize);
 #endif  // CONFIG_COLLECT_RD_STATS == 2
     } else {
-      super_block_yrd(cpi, x, rd_stats_y, bsize, ref_best_rd);
+      super_block_yrd(cpi, x, rd_stats_y, bsize, ref_best_rd_sub_mode_cost);
       memset(mbmi->inter_tx_size, mbmi->tx_size, sizeof(mbmi->inter_tx_size));
       memset(x->blk_skip, rd_stats_y->skip,
              sizeof(x->blk_skip[0]) * xd->n4_h * xd->n4_w);
@@ -8362,7 +8383,6 @@ static int txfm_search(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
     } else {
       av1_init_rd_stats(rd_stats_uv);
     }
-    const int skip_ctx = av1_get_skip_context(xd);
     if (rd_stats->skip) {
       rd_stats->rate -= rd_stats_uv->rate + rd_stats_y->rate;
       rd_stats_y->rate = 0;
@@ -8391,7 +8411,7 @@ static int txfm_search(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
     mbmi->tx_size = tx_size_from_tx_mode(bsize, cm->tx_mode);
     // The cost of skip bit needs to be added.
     mbmi->skip = 0;
-    rd_stats->rate += x->skip_cost[av1_get_skip_context(xd)][1];
+    rd_stats->rate += x->skip_cost[skip_ctx][1];
 
     rd_stats->dist = 0;
     rd_stats->sse = 0;
@@ -8780,7 +8800,7 @@ static int64_t motion_mode_rd(const AV1_COMP *const cpi, MACROBLOCK *const x,
       int mode_rate = rd_stats->rate;
       if (!txfm_search(cpi, x, bsize, mi_row, mi_col, rd_stats, rd_stats_y,
                        rd_stats_uv, mode_rate, ref_best_rd)) {
-        if (rd_stats_y->rate == INT_MAX) {
+        if (rd_stats->rate == INT_MAX) {
           if (mbmi->motion_mode != SIMPLE_TRANSLATION ||
               mbmi->ref_frame[1] == INTRA_FRAME) {
             mbmi->ref_frame[1] = ref_frame_1;
@@ -8791,10 +8811,8 @@ static int64_t motion_mode_rd(const AV1_COMP *const cpi, MACROBLOCK *const x,
             return INT64_MAX;
           }
         }
-        if (rd_stats_uv->rate == INT_MAX) {
-          mbmi->ref_frame[1] = ref_frame_1;
-          continue;
-        }
+        mbmi->ref_frame[1] = ref_frame_1;
+        continue;
       }
 
       if (!skip_txfm_sb) {
