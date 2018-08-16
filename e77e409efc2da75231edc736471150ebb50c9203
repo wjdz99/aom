@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "61f1e4d4_8eea6295",
+        "filename": "aom_dsp/binary_codes_reader.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-08-16T18:00:26Z",
+      "side": 0,
+      "message": "Here is a sample analysis.\n\nThe two versions only differ when n is a power of 2. Suppose n \u003d 2^k. Then in this version we have:\n\nl \u003d get_msb(n - 1) + 1 \u003d (k - 1) + 1 \u003d k\nm \u003d (1 \u003c\u003c l) - n \u003d (1 \u003c\u003c k) - n \u003d n - n \u003d 0\nv \u003d the next k - 1 bits\nv \u003c m is equivalent to v \u003c 0, which is always false.\nSo we always return (v \u003c\u003c 1) - m + aom_read_bit(r, ACCT_STR_NAME).\nSince m \u003d 0, this is equivalent to appending the next bit to the current value of v.\n\nIn summary, the function returns the value represented by the next k bits.",
+      "revId": "e77e409efc2da75231edc736471150ebb50c9203",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "968341fc_2e767170",
+        "filename": "aom_dsp/binary_codes_reader.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-08-16T18:00:26Z",
+      "side": 1,
+      "message": "Suppose n \u003d 2^k. In this version we have:\n\nl \u003d get_msb(n) + 1 \u003d k + 1\nm \u003d (1 \u003c\u003c l) - n \u003d (1 \u003c\u003c (k + 1)) - n \u003d 2 * n - n \u003d n\nv \u003d the next k bits\nv \u003c m is equivalent to v \u003c n, which is always true.\nSo we always return v (the value represented by the next k bits).\n\nSee also Section 4.10.7 ns(n) and Section 4.10.10 NS(n) in the AV1 spec.",
+      "revId": "a4bb22b82f1307f3900a6aab0c2277553d30e847",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
