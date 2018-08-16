@@ -1207,6 +1207,14 @@ void av1_build_bitmask_vert_info(
             case 2: lfm->left_v[min_tx_size].bits[index] |= mask_1; break;
             default: assert(plane >= 0 && plane <= 2); return;
           }
+          if (level == 0 && prev_level != 0) {
+            switch (plane) {
+              case 0: lfm->lfl_y_ver[tmp_row][tmp_col] = prev_level; break;
+              case 1: lfm->lfl_u[tmp_row][tmp_col] = prev_level; break;
+              case 2: lfm->lfl_v[tmp_row][tmp_col] = prev_level; break;
+              default: assert(plane >= 0 && plane <= 2); return;
+            }
+          }
         }
         /*
         {
@@ -1298,6 +1306,14 @@ void av1_build_bitmask_horz_info(
             case 1: lfm->above_u[min_tx_size].bits[index] |= mask_1; break;
             case 2: lfm->above_v[min_tx_size].bits[index] |= mask_1; break;
             default: assert(plane >= 0 && plane <= 2); return;
+          }
+          if (level == 0 && prev_level != 0) {
+            switch (plane) {
+              case 0: lfm->lfl_y_ver[tmp_row][tmp_col] = prev_level; break;
+              case 1: lfm->lfl_u[tmp_row][tmp_col] = prev_level; break;
+              case 2: lfm->lfl_v[tmp_row][tmp_col] = prev_level; break;
+              default: assert(plane >= 0 && plane <= 2); return;
+            }
           }
         }
         /*
@@ -1491,10 +1507,10 @@ void av1_filter_block_plane_ver(AV1_COMMON *const cm,
   uint8_t *lfl2;
 
   // filter two rows at a time
-  for (r = 0; r < cm->seq_params.mib_size &&
+  for (r = 0; r < cm->seq_params.sb_size &&
               ((mi_row + r) << MI_SIZE_LOG2 < cm->height);
        r += r_step) {
-    for (c = 0; c < cm->seq_params.mib_size &&
+    for (c = 0; c < cm->seq_params.sb_size &&
                 ((mi_col + c) << MI_SIZE_LOG2 < cm->width);
          c += MI_SIZE_64X64) {
       dst->buf += ((c << MI_SIZE_LOG2) >> ssx);
@@ -1570,10 +1586,10 @@ void av1_filter_block_plane_hor(AV1_COMMON *const cm,
   uint64_t mask_4x4 = 0;
   uint8_t *lfl;
 
-  for (r = 0; r < cm->seq_params.mib_size &&
+  for (r = 0; r < cm->seq_params.sb_size &&
               ((mi_row + r) << MI_SIZE_LOG2 < cm->height);
        r += r_step) {
-    for (c = 0; c < cm->seq_params.mib_size &&
+    for (c = 0; c < cm->seq_params.sb_size &&
                 ((mi_col + c) << MI_SIZE_LOG2 < cm->width);
          c += MI_SIZE_64X64) {
       if (mi_row + r == 0) continue;
@@ -1763,19 +1779,6 @@ static TX_SIZE set_lpf_parameters(
             // but the previous one is not
             level = (curr_level) ? (curr_level) : (pv_lvl);
           }
-          /*
-          {
-            if (cm->is_decoding && cm->frame_offset == 1 &&
-                edge_dir == HORZ_EDGE && plane == 0 && mi_row == 82 &&
-                mi_col == 113) {
-              fprintf(stderr,
-                      "\norig level %d, prev_level %d, prev_skip %d, "
-                      "skip %d, is_coding_block_border %d, is_inter %d, tx
-          %d\n", curr_level, pv_lvl, pv_skip, curr_skipped, pu_edge,
-                      is_inter_block(mbmi), ts);
-            }
-          }
-          */
         }
       }
       // prepare common parameters
