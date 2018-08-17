@@ -20,14 +20,15 @@
 
 namespace {
 class AVxEncoderThreadTest
-    : public ::libaom_test::CodecTestWith4Params<libaom_test::TestMode, int,
-                                                 int, int>,
+    : public ::libaom_test::CodecTestWith5Params<libaom_test::TestMode, int,
+                                                 int, int, int>,
       public ::libaom_test::EncoderTest {
  protected:
   AVxEncoderThreadTest()
       : EncoderTest(GET_PARAM(0)), encoder_initialized_(false),
         encoding_mode_(GET_PARAM(1)), set_cpu_used_(GET_PARAM(2)),
-        tile_cols_(GET_PARAM(3)), tile_rows_(GET_PARAM(4)) {
+        tile_cols_(GET_PARAM(3)), tile_rows_(GET_PARAM(4)),
+        is_high_res_(GET_PARAM(5)) {
     init_flags_ = AOM_CODEC_USE_PSNR;
     aom_codec_dec_cfg_t cfg = aom_codec_dec_cfg_t();
     cfg.w = 1280;
@@ -72,6 +73,7 @@ class AVxEncoderThreadTest
     if (!encoder_initialized_) {
       SetTileSize(encoder);
       encoder->Control(AOME_SET_CPUUSED, set_cpu_used_);
+      encoder->Control(AV1E_SET_ROW_MT, row_mt_);
       if (encoding_mode_ != ::libaom_test::kRealTime) {
         encoder->Control(AOME_SET_ENABLEAUTOALTREF, 1);
         encoder->Control(AOME_SET_ARNR_MAXFRAMES, 7);
@@ -114,11 +116,32 @@ class AVxEncoderThreadTest
   }
 
   void DoTest() {
-    ::libaom_test::YUVVideoSource video(
-        "niklas_640_480_30.yuv", AOM_IMG_FMT_I420, 640, 480, 30, 1, 15, 18);
-    cfg_.rc_target_bitrate = 1000;
+    std::string file_name;
+    unsigned int width;
+    unsigned int height;
+    unsigned int start;
+    int limit;
+    if (is_high_res_ == 1) {
+      file_name = "niklas_1280_720_30.y4m";
+      width = 1280;
+      height = 720;
+      start = 0;
+      limit = 10;
+      cfg_.rc_target_bitrate = 2000;
+    } else {
+      file_name = "niklas_640_480_30.yuv";
+      width = 640;
+      height = 480;
+      start = 15;
+      limit = 18;
+      cfg_.rc_target_bitrate = 1000;
+    }
+
+    ::libaom_test::YUVVideoSource video(file_name, AOM_IMG_FMT_I420, width,
+                                        height, 30, 1, start, limit);
 
     // Encode using single thread.
+    row_mt_ = 0;
     cfg_.g_threads = 1;
     init_flags_ = AOM_CODEC_USE_PSNR;
     ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
@@ -149,6 +172,73 @@ class AVxEncoderThreadTest
     ASSERT_EQ(single_thr_size_enc, multi_thr_size_enc);
     ASSERT_EQ(single_thr_md5_enc, multi_thr_md5_enc);
     ASSERT_EQ(single_thr_md5_dec, multi_thr_md5_dec);
+
+    // Encode using multiple threads row-mt enabled.
+    row_mt_ = 1;
+    cfg_.g_threads = 2;
+    ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
+    std::vector<size_t> multi_thr2_row_mt_size_enc;
+    std::vector<std::string> multi_thr2_row_mt_md5_enc;
+    std::vector<std::string> multi_thr2_row_mt_md5_dec;
+    multi_thr2_row_mt_size_enc = size_enc_;
+    multi_thr2_row_mt_md5_enc = md5_enc_;
+    multi_thr2_row_mt_md5_dec = md5_dec_;
+    size_enc_.clear();
+    md5_enc_.clear();
+    md5_dec_.clear();
+
+    cfg_.g_threads = 4;
+    ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
+    std::vector<size_t> multi_thr4_row_mt_size_enc;
+    std::vector<std::string> multi_thr4_row_mt_md5_enc;
+    std::vector<std::string> multi_thr4_row_mt_md5_dec;
+    multi_thr4_row_mt_size_enc = size_enc_;
+    multi_thr4_row_mt_md5_enc = md5_enc_;
+    multi_thr4_row_mt_md5_dec = md5_dec_;
+    size_enc_.clear();
+    md5_enc_.clear();
+    md5_dec_.clear();
+
+    // Check that the vectors are equal.
+    ASSERT_EQ(multi_thr4_row_mt_size_enc, multi_thr2_row_mt_size_enc);
+    ASSERT_EQ(multi_thr4_row_mt_md5_enc, multi_thr2_row_mt_md5_enc);
+    ASSERT_EQ(multi_thr4_row_mt_md5_dec, multi_thr2_row_mt_md5_dec);
+
+    cfg_.g_threads = 8;
+    ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
+    std::vector<size_t> multi_thr8_row_mt_size_enc;
+    std::vector<std::string> multi_thr8_row_mt_md5_enc;
+    std::vector<std::string> multi_thr8_row_mt_md5_dec;
+    multi_thr8_row_mt_size_enc = size_enc_;
+    multi_thr8_row_mt_md5_enc = md5_enc_;
+    multi_thr8_row_mt_md5_dec = md5_dec_;
+    size_enc_.clear();
+    md5_enc_.clear();
+    md5_dec_.clear();
+
+    // Check that the vectors are equal.
+    ASSERT_EQ(multi_thr8_row_mt_size_enc, multi_thr2_row_mt_size_enc);
+    ASSERT_EQ(multi_thr8_row_mt_md5_enc, multi_thr2_row_mt_md5_enc);
+    ASSERT_EQ(multi_thr8_row_mt_md5_dec, multi_thr2_row_mt_md5_dec);
+
+    if (is_high_res_ == 1) {
+      cfg_.g_threads = 16;
+      ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
+      std::vector<size_t> multi_thr16_row_mt_size_enc;
+      std::vector<std::string> multi_thr16_row_mt_md5_enc;
+      std::vector<std::string> multi_thr16_row_mt_md5_dec;
+      multi_thr16_row_mt_size_enc = size_enc_;
+      multi_thr16_row_mt_md5_enc = md5_enc_;
+      multi_thr16_row_mt_md5_dec = md5_dec_;
+      size_enc_.clear();
+      md5_enc_.clear();
+      md5_dec_.clear();
+
+      // Check that the vectors are equal.
+      ASSERT_EQ(multi_thr16_row_mt_size_enc, multi_thr2_row_mt_size_enc);
+      ASSERT_EQ(multi_thr16_row_mt_md5_enc, multi_thr2_row_mt_md5_enc);
+      ASSERT_EQ(multi_thr16_row_mt_md5_dec, multi_thr2_row_mt_md5_dec);
+    }
   }
 
   bool encoder_initialized_;
@@ -156,10 +246,12 @@ class AVxEncoderThreadTest
   int set_cpu_used_;
   int tile_cols_;
   int tile_rows_;
+  int row_mt_;
   ::libaom_test::Decoder *decoder_;
   std::vector<size_t> size_enc_;
   std::vector<std::string> md5_enc_;
   std::vector<std::string> md5_dec_;
+  int is_high_res_;
 };
 
 TEST_P(AVxEncoderThreadTest, EncoderResultTest) {
@@ -180,14 +272,42 @@ TEST_P(AVxEncoderThreadTestLarge, EncoderResultTest) {
 AV1_INSTANTIATE_TEST_CASE(AVxEncoderThreadTest,
                           ::testing::Values(::libaom_test::kTwoPassGood,
                                             ::libaom_test::kOnePassGood),
-                          ::testing::Range(2, 4), ::testing::Values(1, 2),
-                          ::testing::Values(0, 1));
+                          ::testing::Range(2, 4), ::testing::Values(0, 1, 2),
+                          ::testing::Values(0, 1), ::testing::Values(0));
+
+class AVxEncoderThreadTestHighRes : public AVxEncoderThreadTest {};
+
+TEST_P(AVxEncoderThreadTestHighRes, EncoderResultTest) {
+  cfg_.large_scale_tile = 0;
+  decoder_->Control(AV1_SET_TILE_MODE, 0);
+  DoTest();
+}
+
+AV1_INSTANTIATE_TEST_CASE(AVxEncoderThreadTestHighRes,
+                          ::testing::Values(::libaom_test::kTwoPassGood,
+                                            ::libaom_test::kOnePassGood),
+                          ::testing::Values(3), ::testing::Values(0, 1, 2),
+                          ::testing::Values(0, 1), ::testing::Values(1));
 
 AV1_INSTANTIATE_TEST_CASE(AVxEncoderThreadTestLarge,
                           ::testing::Values(::libaom_test::kTwoPassGood,
                                             ::libaom_test::kOnePassGood),
                           ::testing::Range(0, 2), ::testing::Values(0, 1, 2, 6),
-                          ::testing::Values(0, 1, 2, 6));
+                          ::testing::Values(0, 1, 2, 6), ::testing::Values(0));
+
+class AVxEncoderThreadTestLargeHighRes : public AVxEncoderThreadTestLarge {};
+
+TEST_P(AVxEncoderThreadTestLargeHighRes, EncoderResultTest) {
+  cfg_.large_scale_tile = 0;
+  decoder_->Control(AV1_SET_TILE_MODE, 0);
+  DoTest();
+}
+
+AV1_INSTANTIATE_TEST_CASE(AVxEncoderThreadTestLargeHighRes,
+                          ::testing::Values(::libaom_test::kTwoPassGood,
+                                            ::libaom_test::kOnePassGood),
+                          ::testing::Range(0, 2), ::testing::Values(0, 1, 2, 6),
+                          ::testing::Values(0, 1, 2, 6), ::testing::Values(1));
 
 class AVxEncoderThreadLSTest : public AVxEncoderThreadTest {
   virtual void SetTileSize(libaom_test::Encoder *encoder) {
@@ -215,11 +335,44 @@ TEST_P(AVxEncoderThreadLSTestLarge, EncoderResultTest) {
 AV1_INSTANTIATE_TEST_CASE(AVxEncoderThreadLSTest,
                           ::testing::Values(::libaom_test::kTwoPassGood,
                                             ::libaom_test::kOnePassGood),
-                          ::testing::Range(2, 4), ::testing::Values(6),
-                          ::testing::Values(0, 6));
+                          ::testing::Range(2, 4), ::testing::Values(0, 6),
+                          ::testing::Values(0, 6), ::testing::Values(0));
+
+class AVxEncoderThreadLSTestHighRes : public AVxEncoderThreadLSTest {};
+
+TEST_P(AVxEncoderThreadLSTestHighRes, EncoderResultTest) {
+  cfg_.large_scale_tile = 1;
+  decoder_->Control(AV1_SET_TILE_MODE, 1);
+  decoder_->Control(AV1D_EXT_TILE_DEBUG, 1);
+  DoTest();
+}
+
+AV1_INSTANTIATE_TEST_CASE(AVxEncoderThreadLSTestHighRes,
+                          ::testing::Values(::libaom_test::kTwoPassGood,
+                                            ::libaom_test::kOnePassGood),
+                          ::testing::Values(3), ::testing::Values(0, 6),
+                          ::testing::Values(0, 6), ::testing::Values(1));
+
 AV1_INSTANTIATE_TEST_CASE(AVxEncoderThreadLSTestLarge,
                           ::testing::Values(::libaom_test::kTwoPassGood,
                                             ::libaom_test::kOnePassGood),
-                          ::testing::Range(0, 2), ::testing::Values(6),
-                          ::testing::Values(0, 6));
+                          ::testing::Range(0, 2), ::testing::Values(0, 6),
+                          ::testing::Values(0, 6), ::testing::Values(0));
+
+class AVxEncoderThreadLSTestLargeHighRes : public AVxEncoderThreadLSTestLarge {
+};
+
+TEST_P(AVxEncoderThreadLSTestLargeHighRes, EncoderResultTest) {
+  cfg_.large_scale_tile = 1;
+  decoder_->Control(AV1_SET_TILE_MODE, 1);
+  decoder_->Control(AV1D_EXT_TILE_DEBUG, 1);
+  DoTest();
+}
+
+AV1_INSTANTIATE_TEST_CASE(AVxEncoderThreadLSTestLargeHighRes,
+                          ::testing::Values(::libaom_test::kTwoPassGood,
+                                            ::libaom_test::kOnePassGood),
+                          ::testing::Range(0, 2), ::testing::Values(0, 6),
+                          ::testing::Values(0, 6), ::testing::Values(1));
+
 }  // namespace
