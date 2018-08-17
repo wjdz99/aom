@@ -638,6 +638,11 @@ typedef struct SPEED_FEATURES {
   // Note: The search order might affect the result. It is better to search same
   // single inter mode as a group.
   int prune_comp_search_by_single_result;
+
+  // Threshold to skip filter intra search in inter frames, early skip if
+  // DC_PRED's rd cost divide threshold is larger than best inter mode's cost.
+  // 0 mean disable early skip.
+  int inter_filter_intra_skip_thr;
 } SPEED_FEATURES;
 
 struct AV1_COMP;
