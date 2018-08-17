@@ -43,7 +43,7 @@
 #include "common/video_writer.h"
 
 #define MAX_EXTERNAL_REFERENCES 128
-#define AOM_BORDER_IN_PIXELS 288
+#define AOM_BORDER_IN_PIXELS 160
 
 static const char *exec_name;
 

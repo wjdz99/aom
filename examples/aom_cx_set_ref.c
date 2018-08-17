@@ -58,7 +58,7 @@
 #include "common/video_writer.h"
 #include "examples/encoder_util.h"
 
-#define AOM_BORDER_IN_PIXELS 288
+#define AOM_BORDER_IN_PIXELS 160
 
 static const char *exec_name;
 
