@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2d08caf7_c7df0d1b",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 5614,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2018-08-20T22:04:26Z",
+      "side": 1,
+      "message": "could be const int.",
+      "range": {
+        "startLine": 5614,
+        "startChar": 10,
+        "endLine": 5614,
+        "endChar": 13
+      },
+      "revId": "c947731a6ef4a264668581d399b3ced1bfb72f16",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
