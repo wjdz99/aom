@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "24491eea_7a663c66",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2018-08-20T16:23:12Z",
+      "side": 1,
+      "message": "As I understand, using CONFIG_2PASS_PARTITION_SEARCH_LVL should be temporary for your own experiment. The concern is that if someone sets CONFIG_2PASS_PARTITION_SEARCH_LVL to 0, then this feature is turned on for speed 0. Maybe move this section under speed 1?",
+      "range": {
+        "startLine": 197,
+        "startChar": 0,
+        "endLine": 200,
+        "endChar": 3
+      },
+      "revId": "470d9d1a506ad5619005df5c0359ff9858f9cb93",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
