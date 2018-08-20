@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "04d407f4_a1c943bc",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2018-08-20T16:35:45Z",
+      "side": 1,
+      "message": "Looks like this patch doesn\u0027t cause any performance change and should be used for all speed levels. No need to create this speed feature, right?",
+      "range": {
+        "startLine": 196,
+        "startChar": 2,
+        "endLine": 196,
+        "endChar": 38
+      },
+      "revId": "2b4f8490844d89f1fcdc19590f52b268cc8c466b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
