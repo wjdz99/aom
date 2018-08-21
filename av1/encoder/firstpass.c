@@ -2515,6 +2515,7 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   } else {
     rc->baseline_gf_interval = i - (is_key_frame || rc->source_alt_ref_pending);
   }
+  printf("interval: %d, ftkey: %d\n", rc->baseline_gf_interval, rc->frames_to_key);
 
 #if REDUCE_LAST_ALT_BOOST
 #define LAST_ALR_BOOST_FACTOR 0.2f

@@ -4828,6 +4828,9 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
 
   cm->allow_warped_motion =
       cpi->oxcf.allow_warped_motion && frame_might_allow_warped_motion(cm);
+  if (cm->frame_type == KEY_FRAME)
+    printf("KEY FRAME VISIBLE %d\n", cm->show_frame);
+  else printf("reg frame\n");
 
   // Reset the frame packet stamp index.
   if (cm->frame_type == KEY_FRAME && cm->show_frame)
