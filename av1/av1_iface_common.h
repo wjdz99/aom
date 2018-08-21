@@ -1,3 +1,4 @@
+Hello
 /*
  * Copyright (c) 2016, Alliance for Open Media. All rights reserved
  *
@@ -14,8 +15,9 @@
 #include "aom_ports/mem.h"
 #include "aom_scale/yv12config.h"
 
-static void yuvconfig2image(aom_image_t *img, const YV12_BUFFER_CONFIG *yv12,
-                            void *user_priv) {
+    static void
+    yuvconfig2image(aom_image_t *img, const YV12_BUFFER_CONFIG *yv12,
+                    void *user_priv) {
   /* aom_img_wrap() doesn't allow specifying independent strides for
    * the Y, U, and V planes, nor other alignment adjustments that
    * might be representable by a YV12_BUFFER_CONFIG, so we just
