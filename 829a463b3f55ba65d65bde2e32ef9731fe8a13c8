@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b81e6118_be2cf4df",
+        "filename": "test/av1_encoder_parms_get_to_decoder.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-08-21T23:47:37Z",
+      "side": 1,
+      "message": "This structure is unnecessary.    Just make the control calls and check the resultant ivf file,  through the image structure to insure that the calls pass through from encode to decode.\n\nAs written this is just checking internal structure values which are set now but someone could optimize away.",
+      "range": {
+        "startLine": 27,
+        "startChar": 15,
+        "endLine": 27,
+        "endChar": 33
+      },
+      "revId": "829a463b3f55ba65d65bde2e32ef9731fe8a13c8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
