@@ -933,6 +933,10 @@ static INLINE int encode_show_existing_frame(const AV1_COMMON *cm) {
          (!cm->error_resilient_mode || cm->frame_type == KEY_FRAME);
 }
 
+// Returns a Sequence Header OBU stored in an aom_fixed_buf_t, or NULL upon
+// failure.
+aom_fixed_buf_t *av1_get_global_headers(AV1_COMP *cpi);
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif
