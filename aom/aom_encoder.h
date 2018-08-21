@@ -849,11 +849,15 @@ aom_codec_err_t aom_codec_enc_config_set(aom_codec_ctx_t *ctx,
 /*!\brief Get global stream headers
  *
  * Retrieves a stream level global header packet, if supported by the codec.
+ * Calls to thie function should be deferred until all configuration information
+ * has been passed to libaom. Otherwise the global header data may be
+ * invalidated by additional configuration changes.
  *
  * \param[in]    ctx     Pointer to this instance's context
  *
  * \retval NULL
- *     Encoder does not support global header
+ *     Encoder does not support global header, or an error occurred while
+ *     generating the global header.
  * \retval Non-NULL
  *     Pointer to buffer containing global header packet
  */
