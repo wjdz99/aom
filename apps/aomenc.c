@@ -1458,6 +1458,9 @@ static void open_output_file(struct stream_state *stream,
   if (stream->config.write_webm && fseek(stream->file, 0, SEEK_CUR))
     fatal("WebM output to pipes not supported.");
 
+  aom_fixed_buf_t *buf = aom_codec_get_global_headers(&stream->encoder);
+  assert(buf);
+
 #if CONFIG_WEBM_IO
   if (stream->config.write_webm) {
     stream->webm_ctx.stream = stream->file;
@@ -2144,10 +2147,12 @@ int main(int argc, const char **argv_) {
     }
 
     FOREACH_STREAM(stream, streams) { setup_pass(stream, &global, pass); }
+    FOREACH_STREAM(stream, streams) { initialize_encoder(stream, &global); }
+
     FOREACH_STREAM(stream, streams) {
       open_output_file(stream, &global, &input.pixel_aspect_ratio);
     }
-    FOREACH_STREAM(stream, streams) { initialize_encoder(stream, &global); }
+
     if (strcmp(global.codec->name, "av1") == 0 ||
         strcmp(global.codec->name, "av1") == 0) {
       // Check to see if at least one stream uses 16 bit internal.

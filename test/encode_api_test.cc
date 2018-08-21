@@ -29,6 +29,7 @@ TEST(EncodeAPI, InvalidParams) {
   aom_image_t img;
   aom_codec_ctx_t enc;
   aom_codec_enc_cfg_t cfg;
+  aom_fixed_buf_t *glob_headers = NULL;
 
   EXPECT_EQ(&img, aom_img_wrap(&img, AOM_IMG_FMT_I420, 1, 1, 1, buf));
 
@@ -54,6 +55,10 @@ TEST(EncodeAPI, InvalidParams) {
 
     EXPECT_EQ(AOM_CODEC_OK, aom_codec_enc_config_default(kCodecs[i], &cfg, 0));
     EXPECT_EQ(AOM_CODEC_OK, aom_codec_enc_init(&enc, kCodecs[i], &cfg, 0));
+    EXPECT_EQ(NULL, aom_codec_get_global_headers(NULL));
+    glob_headers = aom_codec_get_global_headers(&enc);
+    EXPECT_TRUE(glob_headers != NULL);
+
     EXPECT_EQ(AOM_CODEC_OK, aom_codec_encode(&enc, NULL, 0, 0, 0));
 
     EXPECT_EQ(AOM_CODEC_OK, aom_codec_destroy(&enc));
