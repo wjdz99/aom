@@ -159,7 +159,7 @@ class AVxEncoderThreadTest
   std::vector<std::string> md5_dec_;
 };
 
-TEST_P(AVxEncoderThreadTest, EncoderResultTest) {
+TEST_P(AVxEncoderThreadTest, DISABLED_EncoderResultTest) {
   cfg_.large_scale_tile = 0;
   decoder_->Control(AV1_SET_TILE_MODE, 0);
   DoTest();
@@ -167,7 +167,7 @@ TEST_P(AVxEncoderThreadTest, EncoderResultTest) {
 
 class AVxEncoderThreadTestLarge : public AVxEncoderThreadTest {};
 
-TEST_P(AVxEncoderThreadTestLarge, EncoderResultTest) {
+TEST_P(AVxEncoderThreadTestLarge, DISABLED_EncoderResultTest) {
   cfg_.large_scale_tile = 0;
   decoder_->Control(AV1_SET_TILE_MODE, 0);
   DoTest();

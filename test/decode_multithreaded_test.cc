@@ -133,7 +133,7 @@ class AV1DecodeMultiThreadedTest
 // run an encode and do the decode both in single thread
 // and multi thread. Ensure that the MD5 of the output in both cases
 // is identical. If so, the test passes.
-TEST_P(AV1DecodeMultiThreadedTest, MD5Match) {
+TEST_P(AV1DecodeMultiThreadedTest, DISABLED_MD5Match) {
   cfg_.large_scale_tile = 0;
   single_thread_dec_->Control(AV1_SET_TILE_MODE, 0);
   for (int i = 0; i < kNumMultiThreadDecoders; ++i)
@@ -143,7 +143,7 @@ TEST_P(AV1DecodeMultiThreadedTest, MD5Match) {
 
 class AV1DecodeMultiThreadedTestLarge : public AV1DecodeMultiThreadedTest {};
 
-TEST_P(AV1DecodeMultiThreadedTestLarge, MD5Match) {
+TEST_P(AV1DecodeMultiThreadedTestLarge, DISABLED_MD5Match) {
   cfg_.large_scale_tile = 0;
   single_thread_dec_->Control(AV1_SET_TILE_MODE, 0);
   for (int i = 0; i < kNumMultiThreadDecoders; ++i)
