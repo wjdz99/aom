@@ -64,6 +64,7 @@
 #define DEFAULT_GRP_WEIGHT 1.0
 #define RC_FACTOR_MIN 0.75
 #define RC_FACTOR_MAX 1.75
+#define MIN_FWD_KF_INTERVAL 12
 
 #define NCOUNT_INTRA_THRESH 8192
 #define NCOUNT_INTRA_FACTOR 3
@@ -2505,17 +2506,20 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   // Set the interval until the next gf.
   if (cpi->oxcf.fwd_kf_enabled) {
     // Ensure the gf group before the next keyframe will contain an altref
-    if ((rc->frames_to_key - i < rc->min_gf_interval) &&
-        (rc->frames_to_key != i)) {
-      rc->baseline_gf_interval = AOMMIN(rc->frames_to_key - rc->min_gf_interval,
-                                        rc->static_scene_max_gf_interval);
+    if ((rc->frames_to_key - i <
+         AOMMAX(MIN_FWD_KF_INTERVAL, rc->min_gf_interval)) &&
+        (rc->frames_to_key != i) &&
+        (rc->frames_to_key <= rc->static_scene_max_gf_interval)) {
+      rc->baseline_gf_interval = rc->frames_to_key; // - rc->min_gf_interval,
+                                        //rc->static_scene_max_gf_interval);
     } else {
       rc->baseline_gf_interval = i;
     }
   } else {
     rc->baseline_gf_interval = i - (is_key_frame || rc->source_alt_ref_pending);
   }
-  printf("interval: %d, ftkey: %d\n", rc->baseline_gf_interval, rc->frames_to_key);
+  printf("interval: %d, ftkey: %d, max: %d\n", rc->baseline_gf_interval, rc->frames_to_key,
+                                               rc->static_scene_max_gf_interval);
 
 #if REDUCE_LAST_ALT_BOOST
 #define LAST_ALR_BOOST_FACTOR 0.2f
