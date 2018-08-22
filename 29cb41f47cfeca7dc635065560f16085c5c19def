@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7046c5df_df77094b",
+        "filename": "aom_scale/generic/yv12config.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-08-22T23:47:34Z",
+      "side": 1,
+      "message": "If I replace the \"AOM_MAX_ALLOCABLE_MEMORY\" here with a constant, I can go as low as 35*1024*1024 (i.e., 35 MB) and still pass the TestVectorTest.\n\nI believe the value of AOM_MAX_ALLOCABLE_MEMORY that Chromium uses is 1024*1024*1024 (1 GB).",
+      "range": {
+        "startLine": 86,
+        "startChar": 21,
+        "endLine": 86,
+        "endChar": 45
+      },
+      "revId": "29cb41f47cfeca7dc635065560f16085c5c19def",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
