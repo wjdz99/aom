@@ -64,6 +64,7 @@
 #define DEFAULT_GRP_WEIGHT 1.0
 #define RC_FACTOR_MIN 0.75
 #define RC_FACTOR_MAX 1.75
+#define MIN_FWD_KF_INTERVAL 8
 
 #define NCOUNT_INTRA_THRESH 8192
 #define NCOUNT_INTRA_FACTOR 3
@@ -2503,27 +2504,39 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   }
 
   // Set the interval until the next gf.
-  if (cpi->oxcf.fwd_kf_enabled) {
+  if (cpi->oxcf.fwd_kf_enabled &&
+      ((twopass->stats_in - i + rc->frames_to_key) < twopass->stats_in_end)) {
     // Ensure the gf group before the next keyframe will contain an altref
-    if ((rc->frames_to_key - i < rc->min_gf_interval) &&
+    if ((rc->frames_to_key - i <
+         AOMMAX(MIN_FWD_KF_INTERVAL, rc->min_gf_interval)) &&
         (rc->frames_to_key != i)) {
-      rc->baseline_gf_interval = AOMMIN(rc->frames_to_key - rc->min_gf_interval,
-                                        rc->static_scene_max_gf_interval);
-    } else {
+        if (rc->frames_to_key <= 16) {
+        rc->baseline_gf_interval = rc->frames_to_key; // - rc->min_gf_interval,
+                                          //rc->static_scene_max_gf_interval);
+      } else {
+        rc->baseline_gf_interval = rc->frames_to_key - MIN_FWD_KF_INTERVAL;
+      }
+    } else if (i == rc->frames_to_key) {
       rc->baseline_gf_interval = i;
+      printf("debug 2\n");
+    } else {
+      rc->baseline_gf_interval = i - (is_key_frame || rc->source_alt_ref_pending);
+      printf("debug 3\n");
     }
   } else {
     rc->baseline_gf_interval = i - (is_key_frame || rc->source_alt_ref_pending);
+      printf("debug 5\n");
   }
-  printf("interval: %d, ftkey: %d\n", rc->baseline_gf_interval, rc->frames_to_key);
+  printf("interval: %d, ftkey: %d, max: %d, in: %d, in_end: %d\n", rc->baseline_gf_interval, rc->frames_to_key,
+                                               rc->static_scene_max_gf_interval, (int)(twopass->stats_in), (int)(twopass->stats_in_end));
 
 #if REDUCE_LAST_ALT_BOOST
 #define LAST_ALR_BOOST_FACTOR 0.2f
   rc->arf_boost_factor = 1.0;
   if (rc->source_alt_ref_pending && !is_lossless_requested(&cpi->oxcf)) {
     // Reduce the boost of altref in the last gf group
-    if (rc->frames_to_key - i == REDUCE_GF_LENGTH_BY ||
-        rc->frames_to_key - i == 0) {
+    if (rc->frames_to_key - rc->baseline_gf_interval == REDUCE_GF_LENGTH_BY ||
+        rc->frames_to_key - rc->baseline_gf_interval == 0) {
       rc->arf_boost_factor = LAST_ALR_BOOST_FACTOR;
     }
   }
