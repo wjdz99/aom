@@ -65,8 +65,6 @@ extern "C" {
  *
  *  The available flags are specified by AOM_CODEC_USE_* defines.
  */
-/*!\brief Can support frame-based multi-threading */
-#define AOM_CODEC_CAP_FRAME_THREADING 0x200000
 /*!brief Can support external frame buffers */
 #define AOM_CODEC_CAP_EXTERNAL_FRAME_BUFFER 0x400000
 
