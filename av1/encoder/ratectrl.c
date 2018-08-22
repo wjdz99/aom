@@ -949,7 +949,9 @@ static int rc_pick_q_and_bounds_two_pass(const AV1_COMP *cpi, int width,
   const int is_intrl_arf_boost = cpi->refresh_alt2_ref_frame;
 #endif  // CUSTOMIZED_GF
 
+  printf("RC STUFF~~~~~~~~~~\n");
   if (frame_is_intra_only(cm)) {
+    printf("INTRA~~~~~~~~~~ show %d\n", cm->show_frame);
     // Handle the special case for key frames forced when we have reached
     // the maximum key frame interval. Here force the Q to a range
     // based on the ambient Q to reduce the risk of popping.
@@ -973,7 +975,10 @@ static int rc_pick_q_and_bounds_two_pass(const AV1_COMP *cpi, int width,
                                           last_boosted_q * 0.75, bit_depth);
         active_best_quality = AOMMAX(qindex + delta_qindex, rc->best_quality);
       }
+      active_best_quality = (int)(active_best_quality * 1.3);
+      printf("ACTIVE BEST %d\n", active_best_quality);
     } else {
+      // TODO(sarahparker) the first fwd kf is not considered forced, look into this
       // Not forced keyframe.
       double q_adj_factor = 1.0;
       double q_val;

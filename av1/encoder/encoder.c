@@ -4846,6 +4846,7 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
     cpi->ref_frame_flags = get_ref_frame_flags(cpi);
 
   if (encode_show_existing_frame(cm)) {
+    if (cm->frame_type == KEY_FRAME) printf("show existing kf\n");
     // NOTE(zoeliu): In BIDIR_PRED, the existing frame to show is the current
     //               BWDREF_FRAME in the reference frame buffer.
     if (cm->frame_type == KEY_FRAME) {
