@@ -751,10 +751,11 @@ typedef struct InterModeSearchState {
 
 #if CONFIG_COLLECT_INTER_MODE_RD_STATS
 static int inter_mode_data_block_idx(BLOCK_SIZE bsize) {
-  if (bsize == BLOCK_8X8) return 1;
-  if (bsize == BLOCK_16X16) return 2;
-  if (bsize == BLOCK_32X32) return 3;
-  return -1;
+  if (bsize == BLOCK_4X4 || bsize == BLOCK_4X8 || bsize == BLOCK_8X4 ||
+      bsize == BLOCK_4X16 || bsize == BLOCK_16X4) {
+    return -1;
+  }
+  return 1;
 }
 
 void av1_inter_mode_data_init(TileDataEnc *tile_data) {
