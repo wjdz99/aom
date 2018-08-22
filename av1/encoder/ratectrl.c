@@ -974,7 +974,6 @@ static int rc_pick_q_and_bounds_two_pass(const AV1_COMP *cpi, int width,
         active_best_quality = AOMMAX(qindex + delta_qindex, rc->best_quality);
       }
     } else {
-      // Not forced keyframe.
       double q_adj_factor = 1.0;
       double q_val;
 
