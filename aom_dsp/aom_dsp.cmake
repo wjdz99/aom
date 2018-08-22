@@ -19,6 +19,8 @@ list(APPEND AOM_DSP_COMMON_SOURCES
             "${AOM_ROOT}/aom_dsp/aom_filter.h"
             "${AOM_ROOT}/aom_dsp/aom_simd.h"
             "${AOM_ROOT}/aom_dsp/aom_simd_inline.h"
+            "${AOM_ROOT}/aom_dsp/binary_codes_reader.c"
+            "${AOM_ROOT}/aom_dsp/binary_codes_reader.h"
             "${AOM_ROOT}/aom_dsp/bitreader_buffer.c"
             "${AOM_ROOT}/aom_dsp/bitreader_buffer.h"
             "${AOM_ROOT}/aom_dsp/bitwriter_buffer.c"
@@ -126,10 +128,7 @@ list(APPEND AOM_DSP_COMMON_INTRIN_MSA
             "${AOM_ROOT}/aom_dsp/mips/macros_msa.h")
 
 if(CONFIG_AV1_DECODER)
-  list(APPEND AOM_DSP_DECODER_SOURCES
-              "${AOM_ROOT}/aom_dsp/binary_codes_reader.c"
-              "${AOM_ROOT}/aom_dsp/binary_codes_reader.h"
-              "${AOM_ROOT}/aom_dsp/bitreader.h"
+  list(APPEND AOM_DSP_DECODER_SOURCES "${AOM_ROOT}/aom_dsp/bitreader.h"
               "${AOM_ROOT}/aom_dsp/daalaboolreader.c"
               "${AOM_ROOT}/aom_dsp/daalaboolreader.h"
               "${AOM_ROOT}/aom_dsp/entdec.c" "${AOM_ROOT}/aom_dsp/entdec.h"
