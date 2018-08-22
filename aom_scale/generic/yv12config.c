@@ -14,6 +14,7 @@
 #include "aom_mem/aom_mem.h"
 #include "aom_ports/mem.h"
 #include "aom_scale/yv12config.h"
+#include "av1/common/enums.h"
 
 /****************************************************************************
  *  Exports
@@ -73,6 +74,14 @@ int aom_realloc_frame_buffer(YV12_BUFFER_CONFIG *ybf, int width, int height,
         (1 + use_highbitdepth) * (yplane_size + 2 * uvplane_size);
 
     uint8_t *buf = NULL;
+
+#if defined AOM_MAX_ALLOCABLE_MEMORY
+    // read_uncompressed_header() may call aom_realloc_frame_buffer()
+    // REF_FRAMES times from a for loop. Bound the total amount of allocated
+    // memory as if these REF_FRAMES frame buffers were allocated in a single
+    // allocation.
+    if (frame_size * REF_FRAMES > AOM_MAX_ALLOCABLE_MEMORY) return -1;
+#endif
 
     if (cb != NULL) {
       const int align_addr_extra_size = 31;
