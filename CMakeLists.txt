@@ -130,7 +130,8 @@ list(APPEND AOM_COMMON_APP_UTIL_SOURCES "${AOM_ROOT}/common/args.c"
             "${AOM_ROOT}/common/video_common.h" "${AOM_ROOT}/common/y4menc.c"
             "${AOM_ROOT}/common/y4menc.h")
 
-list(APPEND AOM_DECODER_APP_UTIL_SOURCES "${AOM_ROOT}/common/ivfdec.c"
+list(APPEND AOM_DECODER_APP_UTIL_SOURCES "${AOM_ROOT}/common/av1c.c"
+            "${AOM_ROOT}/common/av1c.h" "${AOM_ROOT}/common/ivfdec.c"
             "${AOM_ROOT}/common/ivfdec.h" "${AOM_ROOT}/common/obudec.c"
             "${AOM_ROOT}/common/obudec.h" "${AOM_ROOT}/common/video_reader.c"
             "${AOM_ROOT}/common/video_reader.h")
