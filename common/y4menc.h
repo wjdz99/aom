@@ -9,8 +9,8 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
-#ifndef Y4MENC_H_
-#define Y4MENC_H_
+#ifndef AOM_COMMON_Y4MENC_H_
+#define AOM_COMMON_Y4MENC_H_
 
 #include "aom/aom_decoder.h"
 #include "common/tools_common.h"
@@ -30,4 +30,4 @@ int y4m_write_frame_header(char *buf, size_t len);
 }  // extern "C"
 #endif
 
-#endif  // Y4MENC_H_
+#endif  // AOM_COMMON_Y4MENC_H_

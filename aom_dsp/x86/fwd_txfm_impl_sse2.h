@@ -9,6 +9,9 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
+#ifndef AOM_AOM_DSP_X86_FWD_TXFM_IMPL_SSE2_H_
+#define AOM_AOM_DSP_X86_FWD_TXFM_IMPL_SSE2_H_
+
 #include <emmintrin.h>  // SSE2
 
 #include "config/aom_dsp_rtcd.h"
@@ -342,3 +345,5 @@ void FDCT8x8_2D(const int16_t *input, tran_low_t *output, int stride) {
 
 #undef ADD_EPI16
 #undef SUB_EPI16
+
+#endif  // AOM_AOM_DSP_X86_FWD_TXFM_IMPL_SSE2_H_
