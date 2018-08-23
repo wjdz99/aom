@@ -3507,6 +3507,16 @@ BEGIN_PARTITION_SEARCH:
     restore_context(x, &x_ctx, mi_row, mi_col, bsize, num_planes);
   }
 
+  if (pb_source_variance == UINT_MAX) {
+    if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
+      pb_source_variance = av1_high_get_sby_perpixel_variance(
+          cpi, &x->plane[0].src, bsize, xd->bd);
+    } else {
+      pb_source_variance =
+          av1_get_sby_perpixel_variance(cpi, &x->plane[0].src, bsize);
+    }
+  }
+
   // store estimated motion vector
   if (cpi->sf.adaptive_motion_search) store_pred_mv(x, ctx_none);
 
@@ -3789,16 +3799,6 @@ BEGIN_PARTITION_SEARCH:
     }
 
     restore_context(x, &x_ctx, mi_row, mi_col, bsize, num_planes);
-  }
-
-  if (pb_source_variance == UINT_MAX) {
-    if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
-      pb_source_variance = av1_high_get_sby_perpixel_variance(
-          cpi, &x->plane[0].src, bsize, xd->bd);
-    } else {
-      pb_source_variance =
-          av1_get_sby_perpixel_variance(cpi, &x->plane[0].src, bsize);
-    }
   }
 
   const int ext_partition_allowed =
