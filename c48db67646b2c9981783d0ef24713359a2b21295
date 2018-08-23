@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "01de5610_5df7719d",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 351,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-08-23T23:41:20Z",
+      "side": 1,
+      "message": "It seems wrong to reset pbi-\u003esequence_header_changed here.\n\nSection 7.5 of the spec says:\n\n\"A coded video sequence consists of one or more temporal units. A temporal unit consists of a series of OBUs starting\nfrom a temporal delimiter, optional sequence headers, optional metadata OBUs, a sequence of one or more frame\nheaders, each followed by zero or more tile group OBUs as well as optional padding OBUs.\"\n\nThis seems to allow a new coded video sequence to start with the following temporal unit:\n\nA temporal delimiter\nA sequence header\nThe same sequence header repeated\nA frame\n\nWe will set pbi-\u003esequence_header_changed to 1 after processing the first sequence header, but change it back to 0 (because of line 351) after processing the second sequence header. When we process the frame, we will fail to notice that the sequence header changed.",
+      "range": {
+        "startLine": 351,
+        "startChar": 2,
+        "endLine": 351,
+        "endChar": 35
+      },
+      "revId": "c48db67646b2c9981783d0ef24713359a2b21295",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d92030bb_8907ba83",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 783,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-08-23T23:41:20Z",
+      "side": 1,
+      "message": "Also delete the seq_header_size variable.",
+      "range": {
+        "startLine": 783,
+        "startChar": 2,
+        "endLine": 783,
+        "endChar": 29
+      },
+      "revId": "c48db67646b2c9981783d0ef24713359a2b21295",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "32e83957_0f1e826c",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 882,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-08-23T23:41:20Z",
+      "side": 1,
+      "message": "Optional: I recommend using the exact term used in the spec: \"coded video sequence\".",
+      "range": {
+        "startLine": 882,
+        "startChar": 42,
+        "endLine": 882,
+        "endChar": 50
+      },
+      "revId": "c48db67646b2c9981783d0ef24713359a2b21295",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
