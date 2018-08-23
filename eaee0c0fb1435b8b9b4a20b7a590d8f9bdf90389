@@ -46,6 +46,30 @@
       "revId": "eaee0c0fb1435b8b9b4a20b7a590d8f9bdf90389",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b02665e2_e33ee4a5",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 867,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-08-23T19:47:12Z",
+      "side": 1,
+      "message": "It\u0027s better, but I think the real fix is to remove the else branch, remove the seq_header_received variable, and execute what\u0027s in the if (!seq_header_received) branch unconditionally.",
+      "parentUuid": "f787211e_099bb60b",
+      "range": {
+        "startLine": 855,
+        "startChar": 0,
+        "endLine": 867,
+        "endChar": 9
+      },
+      "revId": "eaee0c0fb1435b8b9b4a20b7a590d8f9bdf90389",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
