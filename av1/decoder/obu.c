@@ -348,11 +348,10 @@ static uint32_t read_sequence_header_obu(AV1Decoder *pbi,
 
   // If a sequence header has been decoded before, we check if the new
   // one is consistent with the old one.
+  pbi->sequence_header_changed = 0;
   if (pbi->sequence_header_ready) {
-    if (!are_seq_headers_consistent(&cm->seq_params, seq_params)) {
-      aom_internal_error(&cm->error, AOM_CODEC_UNSUP_BITSTREAM,
-                         "Inconsistent sequence headers received.");
-    }
+    if (!are_seq_headers_consistent(&cm->seq_params, seq_params))
+      pbi->sequence_header_changed = 1;
   }
 
   cm->seq_params = *seq_params;
@@ -889,6 +888,16 @@ int aom_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
           assert(rb.bit_offset == 0);
           rb.bit_offset = 8 * frame_header_size;
         }
+        if (pbi->sequence_header_changed) {
+          if (pbi->common.frame_type == INTER_FRAME) {
+            cm->error.error_code = AOM_CODEC_CORRUPT_FRAME;
+            return -1;
+          } else {
+            // This can be the start of a new sequence
+            pbi->sequence_header_changed = 0;
+          }
+        }
+
         decoded_payload_size = frame_header_size;
         pbi->frame_header_size = frame_header_size;
 
