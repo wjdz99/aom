@@ -348,11 +348,10 @@ static uint32_t read_sequence_header_obu(AV1Decoder *pbi,
 
   // If a sequence header has been decoded before, we check if the new
   // one is consistent with the old one.
+  pbi->sequence_header_changed = 0;
   if (pbi->sequence_header_ready) {
-    if (!are_seq_headers_consistent(&cm->seq_params, seq_params)) {
-      aom_internal_error(&cm->error, AOM_CODEC_UNSUP_BITSTREAM,
-                         "Inconsistent sequence headers received.");
-    }
+    if (!are_seq_headers_consistent(&cm->seq_params, seq_params))
+      pbi->sequence_header_changed = 1;
   }
 
   cm->seq_params = *seq_params;
@@ -860,10 +859,10 @@ int aom_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
           seq_header_size = decoded_payload_size;
           seq_header_received = 1;
         } else {
-          // Seeing another sequence header, skip as all sequence headers are
-          // required to be identical except for the contents of
-          // operating_parameters_info and the amount of trailing bits.
-          // TODO(yaowu): verifying redundant sequence headers are identical.
+          // Seeing another sequence header within single sequence, skip as all
+          // sequence headers within a sequence are required to be identical
+          // except for the contents of operating_parameters_info and the
+          // amount of trailing bits.
           decoded_payload_size = seq_header_size;
         }
         break;
@@ -889,6 +888,16 @@ int aom_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
           assert(rb.bit_offset == 0);
           rb.bit_offset = 8 * frame_header_size;
         }
+        if (pbi->sequence_header_changed) {
+          if (pbi->common.frame_type == KEY_FRAME) {
+            // This is the start of a new sequence
+            pbi->sequence_header_changed = 0;
+          } else {
+            cm->error.error_code = AOM_CODEC_CORRUPT_FRAME;
+            return -1;
+          }
+        }
+
         decoded_payload_size = frame_header_size;
         pbi->frame_header_size = frame_header_size;
 
