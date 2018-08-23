@@ -3792,14 +3792,15 @@ BEGIN_PARTITION_SEARCH:
   }
 
   if (pb_source_variance == UINT_MAX) {
-    if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
-      pb_source_variance = av1_high_get_sby_perpixel_variance(
-          cpi, &x->plane[0].src, bsize, xd->bd);
-    } else {
-      pb_source_variance =
-          av1_get_sby_perpixel_variance(cpi, &x->plane[0].src, bsize);
+      av1_setup_src_planes(x, cpi->source, mi_row, mi_col, num_planes);
+      if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
+        pb_source_variance = av1_high_get_sby_perpixel_variance(
+            cpi, &x->plane[0].src, bsize, xd->bd);
+      } else {
+        pb_source_variance =
+            av1_get_sby_perpixel_variance(cpi, &x->plane[0].src, bsize);
+      }
     }
-  }
 
   const int ext_partition_allowed =
       do_rectangular_split && bsize > BLOCK_8X8 && partition_none_allowed;
