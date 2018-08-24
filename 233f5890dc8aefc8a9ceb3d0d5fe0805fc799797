@@ -1,0 +1,221 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bdd6a2fd_89ef7383",
+        "filename": "aom_dsp/grain_synthesis.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 399,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-08-24T17:16:40Z",
+      "side": 1,
+      "message": "Nit: Please add a comment to document the return value:\n\n// Returns 0 for success, 1 for failure.",
+      "range": {
+        "startLine": 399,
+        "startChar": 0,
+        "endLine": 399,
+        "endChar": 37
+      },
+      "revId": "233f5890dc8aefc8a9ceb3d0d5fe0805fc799797",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ba6c8303_41afb350",
+        "filename": "aom_dsp/grain_synthesis.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 439,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-08-24T17:16:40Z",
+      "side": 1,
+      "message": "Nit: Please add a comment to document the return value:\n\n// Returns 0 for success, 1 for failure.",
+      "revId": "233f5890dc8aefc8a9ceb3d0d5fe0805fc799797",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6d6812e3_7ba09f64",
+        "filename": "aom_dsp/grain_synthesis.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 514,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-08-24T17:16:40Z",
+      "side": 1,
+      "message": "Nit: I suggest printing the error message to stderr:\n\n         fprintf(stderr,",
+      "range": {
+        "startLine": 514,
+        "startChar": 10,
+        "endLine": 514,
+        "endChar": 17
+      },
+      "revId": "233f5890dc8aefc8a9ceb3d0d5fe0805fc799797",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3525ae58_00a0b41e",
+        "filename": "aom_dsp/grain_synthesis.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 958,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-08-24T17:16:40Z",
+      "side": 1,
+      "message": "Nit: I suggest printing the error message to stderr:\n\n         fprintf(stderr, \"Film grain error: input format is not supported!\");",
+      "revId": "233f5890dc8aefc8a9ceb3d0d5fe0805fc799797",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3e78f7c1_5e10da0d",
+        "filename": "aom_dsp/grain_synthesis.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1019,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-08-24T17:16:40Z",
+      "side": 1,
+      "message": "We need to check for the return value of av1_add_film_grain_run() now. Since the av1_add_film_grain_run() call is at the end of the function, a simple fix is to simply return the return value of av1_add_film_grain_run():\n\n  return av1_add_film_grain_run(...);",
+      "range": {
+        "startLine": 1016,
+        "startChar": 0,
+        "endLine": 1019,
+        "endChar": 11
+      },
+      "revId": "233f5890dc8aefc8a9ceb3d0d5fe0805fc799797",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "04e184ea_4bb6fd7c",
+        "filename": "aom_dsp/grain_synthesis.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-08-24T17:16:40Z",
+      "side": 1,
+      "message": "Optional: I recommend we return -1 for failure, because a 0/1 return value can be misinterpreted as a boolean. This will require changing all the relevant code and comments in this CL.",
+      "range": {
+        "startLine": 88,
+        "startChar": 26,
+        "endLine": 88,
+        "endChar": 39
+      },
+      "revId": "233f5890dc8aefc8a9ceb3d0d5fe0805fc799797",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "52bcc62e_050d71e2",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 619,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-08-24T17:16:40Z",
+      "side": 1,
+      "message": "Let\u0027s also store a NULL in *grain_img_ptr, otherwise *grain_img_ptr may be a dangling pointer if this function returns on error:\n\n     *grain_img_ptr \u003d NULL;",
+      "revId": "233f5890dc8aefc8a9ceb3d0d5fe0805fc799797",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0ceec4ff_3a5bac32",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 623,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-08-24T17:16:40Z",
+      "side": 1,
+      "message": "We should check for aom_img_alloc() failure here:\n\n  if (!grain_img_buf) return grain_img_buf;",
+      "revId": "233f5890dc8aefc8a9ceb3d0d5fe0805fc799797",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "23ee5043_841d88e1",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 627,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-08-24T17:16:40Z",
+      "side": 1,
+      "message": "Optional: av1_add_film_grain() is also called in aom/examples/noise_model.c. Ideally we should also check for av1_add_film_grain() failure there.",
+      "revId": "233f5890dc8aefc8a9ceb3d0d5fe0805fc799797",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e86ed3ac_f4daaac7",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 629,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-08-24T17:16:40Z",
+      "side": 1,
+      "message": "Let\u0027s also store a NULL in *grain_img_ptr, otherwise *grain_img_ptr may be a dangling pointer:\n\n    *grain_img_ptr \u003d NULL;",
+      "revId": "233f5890dc8aefc8a9ceb3d0d5fe0805fc799797",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9fb1deaf_4f56a38d",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 730,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-08-24T17:16:40Z",
+      "side": 1,
+      "message": "I believe we have not called setjmp() at this point, so this aom_internal_error() won\u0027t call longjmp(); it will set the error code and error message and return.\n\nJust wanted to make sure you are aware of this.",
+      "range": {
+        "startLine": 729,
+        "startChar": 0,
+        "endLine": 730,
+        "endChar": 59
+      },
+      "revId": "233f5890dc8aefc8a9ceb3d0d5fe0805fc799797",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
