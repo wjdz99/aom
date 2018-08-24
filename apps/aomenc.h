@@ -54,6 +54,8 @@ struct AvxEncoderConfig {
   int disable_warnings;
   int disable_warning_prompt;
   int experimental_bitstream;
+  int chroma_subsampling_x;
+  int chroma_subsampling_y;
 };
 
 #ifdef __cplusplus
