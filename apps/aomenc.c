@@ -1658,7 +1658,7 @@ static void show_stream_config(struct stream_state *stream,
   SHOW(g_h);
   SHOW(g_bit_depth);
   SHOW(g_input_bit_depth);
-  SHOW(g_timebase.num);
+  SHOW((int)g_timebase.num);
   SHOW(g_timebase.den);
   SHOW(g_error_resilient);
   SHOW(g_pass);
