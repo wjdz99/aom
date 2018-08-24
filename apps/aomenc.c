@@ -2049,6 +2049,12 @@ int main(int argc, const char **argv_) {
                         input.fmt == AOM_IMG_FMT_I42016)) {
               stream->config.cfg.g_profile = 0;
               profile_updated = 1;
+            } else if (input.bit_depth == 12 &&
+                       input.file_type == FILE_TYPE_Y4M) {
+              aom_codec_control(&stream->encoder, AV1E_SET_CHROMA_SUBSAMPLING_X,
+                                input.y4m.src_c_dec_h >> 1);
+              aom_codec_control(&stream->encoder, AV1E_SET_CHROMA_SUBSAMPLING_Y,
+                                input.y4m.src_c_dec_v >> 1);
             }
             break;
           default: break;
