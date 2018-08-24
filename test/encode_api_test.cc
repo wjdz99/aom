@@ -19,6 +19,16 @@
 
 namespace {
 
+struct AomFixedBufDeleter {
+  void operator()(aom_fixed_buf_t *buf) {
+    fprintf(stderr, "1\n");
+    free(buf->buf);
+    fprintf(stderr, "2\n");
+    free(buf);
+    fprintf(stderr, "3\n");
+  }
+};
+
 TEST(EncodeAPI, InvalidParams) {
   static const aom_codec_iface_t *kCodecs[] = {
 #if CONFIG_AV1_ENCODER
@@ -29,7 +39,6 @@ TEST(EncodeAPI, InvalidParams) {
   aom_image_t img;
   aom_codec_ctx_t enc;
   aom_codec_enc_cfg_t cfg;
-  aom_fixed_buf_t *glob_headers = NULL;
 
   EXPECT_EQ(&img, aom_img_wrap(&img, AOM_IMG_FMT_I420, 1, 1, 1, buf));
 
@@ -55,9 +64,12 @@ TEST(EncodeAPI, InvalidParams) {
 
     EXPECT_EQ(AOM_CODEC_OK, aom_codec_enc_config_default(kCodecs[i], &cfg, 0));
     EXPECT_EQ(AOM_CODEC_OK, aom_codec_enc_init(&enc, kCodecs[i], &cfg, 0));
+
     EXPECT_EQ(NULL, aom_codec_get_global_headers(NULL));
-    glob_headers = aom_codec_get_global_headers(&enc);
-    EXPECT_TRUE(glob_headers != NULL);
+
+    std::unique_ptr<aom_fixed_buf_t, AomFixedBufDeleter> glob_headers(
+        aom_codec_get_global_headers(&enc));
+    EXPECT_TRUE(glob_headers->buf != NULL);
 
     EXPECT_EQ(AOM_CODEC_OK, aom_codec_encode(&enc, NULL, 0, 0, 0));
 
