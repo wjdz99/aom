@@ -259,6 +259,9 @@ struct aom_codec_alg_priv {
   aom_codec_priv_t base;
   aom_codec_enc_cfg_t cfg;
   struct av1_extracfg extra_cfg;
+  aom_rational_t timestamp_ratio;
+  aom_codec_pts_t pts_offset;
+  unsigned char pts_offset_initialized;
   AV1EncoderConfig oxcf;
   AV1_COMP *cpi;
   unsigned char *cx_data;
@@ -275,6 +278,23 @@ struct aom_codec_alg_priv {
   // BufferPool that holds all reference frames.
   BufferPool *buffer_pool;
 };
+
+static inline int gcd(int a, int b) {
+  int r;  // remainder
+  while (b > 0) {
+    r = a % b;
+    a = b;
+    b = r;
+  }
+
+  return a;
+}
+
+static inline void reduce_ratio(aom_rational_t *ratio) {
+  int denom = gcd(ratio->num, ratio->den);
+  ratio->num /= denom;
+  ratio->den /= denom;
+}
 
 static aom_codec_err_t update_error_state(
     aom_codec_alg_priv_t *ctx, const struct aom_internal_error_info *error) {
@@ -1584,6 +1604,11 @@ static aom_codec_err_t encoder_init(aom_codec_ctx_t *ctx,
     res = validate_config(priv, &priv->cfg, &priv->extra_cfg);
 
     if (res == AOM_CODEC_OK) {
+      memcpy(&priv->timestamp_ratio, &priv->cfg.g_timebase,
+             sizeof(priv->timestamp_ratio));
+      priv->timestamp_ratio.num *= TICKS_PER_SEC;
+      reduce_ratio(&priv->timestamp_ratio);
+
       set_encoder_config(&priv->oxcf, &priv->cfg, &priv->extra_cfg);
       priv->oxcf.use_highbitdepth =
           (ctx->init_flags & AOM_CODEC_USE_HIGHBITDEPTH) ? 1 : 0;
@@ -1631,7 +1656,7 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
   const size_t kMinCompressedSize = 8192;
   volatile aom_codec_err_t res = AOM_CODEC_OK;
   AV1_COMP *const cpi = ctx->cpi;
-  const aom_rational_t *const timebase = &ctx->cfg.g_timebase;
+  const aom_rational_t *const timestamp_ratio = &ctx->timestamp_ratio;
 
   if (cpi == NULL) return AOM_CODEC_INVALID_PARAM;
 
@@ -1657,6 +1682,12 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
     ctx->oxcf.mode = GOOD;
     av1_change_config(ctx->cpi, &ctx->oxcf);
   }
+
+  if (!ctx->pts_offset_initialized) {
+    ctx->pts_offset = pts;
+    ctx->pts_offset_initialized = 1;
+  }
+  pts -= ctx->pts_offset;
 
   aom_codec_pkt_list_init(&ctx->pkt_list);
 
@@ -1688,9 +1719,9 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
   }
 
   if (res == AOM_CODEC_OK) {
-    int64_t dst_time_stamp = timebase_units_to_ticks(timebase, pts);
+    int64_t dst_time_stamp = timebase_units_to_ticks(timestamp_ratio, pts);
     int64_t dst_end_time_stamp =
-        timebase_units_to_ticks(timebase, pts + duration);
+        timebase_units_to_ticks(timestamp_ratio, pts + duration);
 
     // Set up internal flags
     if (ctx->base.init_flags & AOM_CODEC_USE_PSNR) cpi->b_calculate_psnr = 1;
@@ -1739,7 +1770,7 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
            !is_frame_visible &&
            -1 != av1_get_compressed_data(cpi, &lib_flags, &frame_size, cx_data,
                                          &dst_time_stamp, &dst_end_time_stamp,
-                                         !img, timebase)) {
+                                         !img, timestamp_ratio)) {
       cpi->seq_params_locked = 1;
       if (frame_size) {
         if (ctx->pending_cx_data == 0) ctx->pending_cx_data = cx_data;
@@ -1834,7 +1865,9 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
       pkt.data.frame.partition_id = -1;
       pkt.data.frame.vis_frame_size = frame_size;
 
-      pkt.data.frame.pts = ticks_to_timebase_units(timebase, dst_time_stamp);
+      pkt.data.frame.pts =
+          ticks_to_timebase_units(timestamp_ratio, dst_time_stamp) +
+          ctx->pts_offset;
       pkt.data.frame.flags = get_frame_pkt_flags(cpi, lib_flags);
       if (has_fwd_keyframe) {
         // If one of the invisible frames in the packet is a keyframe, set
@@ -1842,7 +1875,7 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
         pkt.data.frame.flags |= AOM_FRAME_IS_DELAYED_RANDOM_ACCESS_POINT;
       }
       pkt.data.frame.duration = (uint32_t)ticks_to_timebase_units(
-          timebase, dst_end_time_stamp - dst_time_stamp);
+          timestamp_ratio, dst_end_time_stamp - dst_time_stamp);
 
       aom_codec_pkt_list_add(&ctx->pkt_list.head, &pkt);
 
