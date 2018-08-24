@@ -811,6 +811,9 @@ int av1_get_quantizer(struct AV1_COMP *cpi);
 
 int av1_convert_sect5obus_to_annexb(uint8_t *buffer, size_t *input_size);
 
+// av1 uses 10,000,000 ticks/second as time stamp
+#define TICKS_PER_SEC 10000000LL
+
 int64_t timebase_units_to_ticks(const aom_rational_t *timebase, int64_t n);
 int64_t ticks_to_timebase_units(const aom_rational_t *timebase, int64_t n);
 

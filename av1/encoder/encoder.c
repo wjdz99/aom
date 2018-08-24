@@ -71,9 +71,6 @@
 
 #define DEFAULT_EXPLICIT_ORDER_HINT_BITS 7
 
-// av1 uses 10,000,000 ticks/second as time stamp
-#define TICKS_PER_SEC 10000000LL
-
 #if CONFIG_ENTROPY_STATS
 FRAME_COUNTS aggregate_fc;
 #endif  // CONFIG_ENTROPY_STATS
@@ -5772,7 +5769,7 @@ static int is_integer_mv(AV1_COMP *cpi, const YV12_BUFFER_CONFIG *cur_picture,
 int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
                             size_t *size, uint8_t *dest, int64_t *time_stamp,
                             int64_t *time_end, int flush,
-                            const aom_rational_t *timebase) {
+                            const aom_rational_t *timestamp_ratio) {
   const AV1EncoderConfig *const oxcf = &cpi->oxcf;
   AV1_COMMON *const cm = &cpi->common;
   const int num_planes = av1_num_planes(cm);
@@ -6065,7 +6062,7 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
       cm->seq_params.film_grain_params_present;
 
   // only one operating point supported now
-  const int64_t pts64 = ticks_to_timebase_units(timebase, *time_stamp);
+  const int64_t pts64 = ticks_to_timebase_units(timestamp_ratio, *time_stamp);
   if (pts64 < 0 || pts64 > UINT32_MAX) return AOM_CODEC_ERROR;
   cpi->common.frame_presentation_time = (uint32_t)pts64;
 
@@ -6380,13 +6377,16 @@ void av1_apply_encoding_flags(AV1_COMP *cpi, aom_enc_frame_flags_t flags) {
   }
 }
 
-int64_t timebase_units_to_ticks(const aom_rational_t *timebase, int64_t n) {
-  return n * TICKS_PER_SEC * timebase->num / timebase->den;
+int64_t timebase_units_to_ticks(const aom_rational_t *timestamp_ratio,
+                                int64_t n) {
+  return n * TICKS_PER_SEC * timestamp_ratio->num / timestamp_ratio->den;
 }
 
-int64_t ticks_to_timebase_units(const aom_rational_t *timebase, int64_t n) {
-  const int64_t round = TICKS_PER_SEC * timebase->num / 2 - 1;
-  return (n * timebase->den + round) / timebase->num / TICKS_PER_SEC;
+int64_t ticks_to_timebase_units(const aom_rational_t *timestamp_ratio,
+                                int64_t n) {
+  int64_t round = (int64_t)timestamp_ratio->num / 2;
+  if (round > 0) --round;
+  return (n * timestamp_ratio->den + round) / timestamp_ratio->num;
 }
 
 aom_fixed_buf_t *av1_get_global_headers(AV1_COMP *cpi) {
