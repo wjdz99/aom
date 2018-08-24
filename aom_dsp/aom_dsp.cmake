@@ -68,7 +68,9 @@ list(APPEND AOM_DSP_COMMON_INTRIN_SSE2
             "${AOM_ROOT}/aom_dsp/x86/mem_sse2.h"
             "${AOM_ROOT}/aom_dsp/x86/transpose_sse2.h"
             "${AOM_ROOT}/aom_dsp/x86/txfm_common_sse2.h"
-            "${AOM_ROOT}/aom_dsp/x86/sum_squares_sse2.h")
+            "${AOM_ROOT}/aom_dsp/x86/sum_squares_sse2.h"
+            "${AOM_ROOT}/aom_dsp/x86/avg_intrin_sse2.c"
+            "${AOM_ROOT}/aom_dsp/x86/bitdepth_conversion_sse2.h")
 
 list(APPEND AOM_DSP_COMMON_ASM_SSSE3
             "${AOM_ROOT}/aom_dsp/x86/aom_subpixel_8t_ssse3.asm"
@@ -94,7 +96,9 @@ list(APPEND AOM_DSP_COMMON_INTRIN_AVX2
             "${AOM_ROOT}/aom_dsp/x86/highbd_convolve_avx2.c"
             "${AOM_ROOT}/aom_dsp/x86/highbd_loopfilter_avx2.c"
             "${AOM_ROOT}/aom_dsp/x86/intrapred_avx2.c"
-            "${AOM_ROOT}/aom_dsp/x86/blend_a64_mask_avx2.c")
+            "${AOM_ROOT}/aom_dsp/x86/blend_a64_mask_avx2.c"
+            "${AOM_ROOT}/aom_dsp/x86/avg_intrin_avx2.c"
+            "${AOM_ROOT}/aom_dsp/x86/bitdepth_conversion_avx2.h")
 
 list(APPEND AOM_DSP_COMMON_INTRIN_NEON
             "${AOM_ROOT}/aom_dsp/arm/fwd_txfm_neon.c"
