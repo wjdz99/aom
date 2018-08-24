@@ -1637,6 +1637,9 @@ static void show_stream_config(struct stream_state *stream,
 #define SHOW(field) \
   fprintf(stderr, "    %-28s = %d\n", #field, stream->config.cfg.field)
 
+#define SHOW_INT64(field) \
+  fprintf(stderr, "    %-28s = %ld\n", #field, stream->config.cfg.field)
+
   if (stream->index == 0) {
     fprintf(stderr, "Codec: %s\n",
             aom_codec_iface_name(global->codec->codec_interface()));
@@ -1658,7 +1661,7 @@ static void show_stream_config(struct stream_state *stream,
   SHOW(g_h);
   SHOW(g_bit_depth);
   SHOW(g_input_bit_depth);
-  SHOW(g_timebase.num);
+  SHOW_INT64(g_timebase.num);
   SHOW(g_timebase.den);
   SHOW(g_error_resilient);
   SHOW(g_pass);

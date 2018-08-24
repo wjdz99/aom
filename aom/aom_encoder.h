@@ -176,7 +176,7 @@ typedef struct aom_codec_cx_pkt {
  * This structure holds a fractional value.
  */
 typedef struct aom_rational {
-  int num;        /**< fraction numerator */
+  int64_t num;    /**< fraction numerator */
   int den;        /**< fraction denominator */
 } aom_rational_t; /**< alias for struct aom_rational */
 
