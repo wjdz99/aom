@@ -10305,8 +10305,7 @@ static void set_params_rd_pick_inter_mode(
       continue;
     }
     if (block_size_wide[bsize] != block_size_high[bsize]) {
-      if ((skip_ref_frame_mask & (1 << rf[0])) ||
-          (skip_ref_frame_mask & (1 << rf[1]))) {
+      if (skip_ref_frame_mask & (1 << ref_frame)) {
         continue;
       }
     }
@@ -10634,9 +10633,8 @@ static int inter_mode_search_order_independent_skip(
   const PREDICTION_MODE this_mode = av1_mode_order[mode_index].mode;
 
   if (block_size_wide[bsize] != block_size_high[bsize]) {
-    if (ctx->skip_ref_frame_mask & (1 << ref_frame[0])) return 1;
-    if (ref_frame[1] > 0 && (ctx->skip_ref_frame_mask & (1 << ref_frame[1])))
-      return 1;
+    const int ref_type = av1_ref_frame_type(ref_frame);
+    if (ctx->skip_ref_frame_mask & (1 << ref_type)) return 1;
   }
 
   if (cpi->sf.mode_pruning_based_on_two_pass_partition_search &&
