@@ -309,6 +309,9 @@ typedef struct AV1EncoderConfig {
   float noise_level;
   int noise_block_size;
 #endif
+
+  unsigned int chroma_subsampling_x;
+  unsigned int chroma_subsampling_y;
 } AV1EncoderConfig;
 
 static INLINE int is_lossless_requested(const AV1EncoderConfig *cfg) {
@@ -747,6 +750,7 @@ typedef struct AV1_COMP {
   // Set as 1 for monochrome and 3 for other color formats
   int default_interp_skip_flags;
   int preserve_arf_as_gld;
+
 } AV1_COMP;
 
 // Must not be called more than once.
