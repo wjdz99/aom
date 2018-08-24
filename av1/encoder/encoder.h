@@ -1106,15 +1106,16 @@ int av1_convert_sect5obus_to_annexb(uint8_t *buffer, size_t *input_size);
 // av1 uses 10,000,000 ticks/second as time stamp
 #define TICKS_PER_SEC 10000000LL
 
-static INLINE int64_t timebase_units_to_ticks(const aom_rational_t *timebase,
-                                              int64_t n) {
-  return n * TICKS_PER_SEC * timebase->num / timebase->den;
+static INLINE int64_t
+timebase_units_to_ticks(const aom_rational_t *timestamp_ratio, int64_t n) {
+  return n * timestamp_ratio->num / timestamp_ratio->den;
 }
 
-static INLINE int64_t ticks_to_timebase_units(const aom_rational_t *timebase,
-                                              int64_t n) {
-  const int64_t round = TICKS_PER_SEC * timebase->num / 2 - 1;
-  return (n * timebase->den + round) / timebase->num / TICKS_PER_SEC;
+static INLINE int64_t
+ticks_to_timebase_units(const aom_rational_t *timestamp_ratio, int64_t n) {
+  int64_t round = (int64_t)timestamp_ratio->num / 2;
+  if (round > 0) --round;
+  return (n * timestamp_ratio->den + round) / timestamp_ratio->num;
 }
 
 static INLINE int frame_is_kf_gf_arf(const AV1_COMP *cpi) {
