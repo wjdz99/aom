@@ -180,6 +180,15 @@ typedef struct aom_rational {
   int den;        /**< fraction denominator */
 } aom_rational_t; /**< alias for struct aom_rational */
 
+/*!\brief Rational Number with an int64 numerator
+ *
+ * This structure holds a fractional value.
+ */
+typedef struct aom_rational64 {
+  int64_t num;      /**< fraction numerator */
+  int den;          /**< fraction denominator */
+} aom_rational64_t; /**< alias for struct aom_rational */
+
 /*!\brief Multi-pass Encoding Pass */
 enum aom_enc_pass {
   AOM_RC_ONE_PASS,   /**< Single pass mode */
