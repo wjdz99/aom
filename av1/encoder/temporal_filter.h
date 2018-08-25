@@ -16,7 +16,13 @@
 extern "C" {
 #endif
 
+#define NOISE_DETECTION 1
+
 void av1_temporal_filter(AV1_COMP *cpi, int distance);
+
+#if NOISE_DETECTION
+int force_temporal_filter_off(AV1_COMP *cpi);
+#endif
 
 #ifdef __cplusplus
 }  // extern "C"

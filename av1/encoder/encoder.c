@@ -5882,7 +5882,17 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
           // Produce the filtered ARF frame.
           av1_temporal_filter(cpi, arf_src_index);
           aom_extend_frame_borders(&cpi->alt_ref_buffer, num_planes);
-          force_src_buffer = &cpi->alt_ref_buffer;
+#if NOISE_DETECTION
+          if (!force_temporal_filter_off(cpi)) {
+#endif
+            force_src_buffer = &cpi->alt_ref_buffer;
+#if NOISE_DETECTION
+            fprintf(stdout, "turn on\n");
+          } else {
+            force_src_buffer = NULL;
+            fprintf(stdout, "turn off\n");
+          }
+#endif
         }
       }
       cm->show_frame = 0;
