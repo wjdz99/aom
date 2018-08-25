@@ -544,6 +544,209 @@ static void adjust_arnr_filter(AV1_COMP *cpi, int distance, int group_boost,
   *arnr_strength = strength;
 }
 
+#if NOISE_DETECTION
+#define USE_75_THR 1
+#if USE_75_THR
+#define NOISE_THRESHOLD 23
+#define NOISE_MEAN 6.5
+#endif
+#define ND_BLOCK_SIZE 8
+
+void swap(int *a, int *b) {
+  int tmp = *a;
+  *a = *b;
+  *b = tmp;
+}
+
+int quick_kth_select(int *vec, int l, int r, int k, int n) {
+  int pv = (l + r) / 2;
+  int low = l - 1;
+  swap(&vec[r], &vec[pv]);
+
+  for (int i = l; i < r; ++i) {
+    if (vec[i] <= vec[r]) {
+      ++low;
+      swap(&vec[low], &vec[i]);
+    }
+  }
+
+  swap(&vec[r], &vec[low + 1]);
+  // check where is the target k
+  if (low + 1 == k) {
+    // we got lucky and guess the kth number right
+    return k;
+  } else if (k < low + 1) {
+    // search the "lower" partition
+    return quick_kth_select(vec, l, low, k, n);
+  } else {
+    return quick_kth_select(vec, low + 2, r, k, n);
+  }
+}
+
+int block_sad_wo_dc(uint8_t *src, uint8_t *filtered, int s_stride, int f_stride,
+                    int row, int col, int s) {
+  int sad = 0;
+  int dc = 0;
+
+  for (int i = 0; i < s; ++i) {
+    int s_r = (row + i) * s_stride + col;
+    int f_r = (row + i) * f_stride + col;
+    for (int j = 0; j < s; ++j) {
+      int diff = src[s_r + j] - filtered[f_r + j];
+      sad += abs(diff);
+      dc += diff;
+    }
+  }
+
+  return sad - abs(dc);
+}
+int is_noise_reduced(YV12_BUFFER_CONFIG *src, YV12_BUFFER_CONFIG *filtered) {
+  const int step = ND_BLOCK_SIZE;
+  int temp, blocks = 0;
+  double accumulator = 0;
+
+  const int block_num = filtered->y_height / step * filtered->y_width / step;
+  int *vec = malloc(sizeof(int) * block_num);
+
+  // compuate SAD
+  for (int r = 0; r < filtered->y_height; r += step) {
+    for (int c = 0; c < filtered->y_width; c += step) {
+      // check if this block is in boundary
+      if (r + step <= filtered->y_height && c + step <= filtered->y_width) {
+        temp = block_sad_wo_dc(src->y_buffer, filtered->y_buffer, src->y_stride,
+                               filtered->y_stride, r, c, step);
+
+        vec[blocks] = temp;
+
+        accumulator += ((double)temp) / (step * step);
+        blocks += 1;
+      }
+    }
+  }
+  accumulator /= blocks;
+
+  int three_q;
+  double three_mean = 0;
+  double three_mean_l = 0;
+
+  {
+    int k = blocks * 3 / 4;
+    quick_kth_select(vec, 0, blocks - 1, k, 0);
+    three_q = vec[k];
+
+    for (int i = k + 1; i < blocks; ++i) {
+      three_mean += vec[i];
+    }
+    for (int i = 0; i < k; ++i) {
+      three_mean_l += vec[i];
+    }
+    three_mean_l /= k;
+    three_mean /= (blocks - k - 1);
+  }
+  free(vec);
+
+  fprintf(stdout, "lbd: [%d %.3f %.3f %.3f] ", three_q, three_mean_l,
+          three_mean, accumulator);
+#if USE_75_THR
+  return three_q < NOISE_THRESHOLD && three_mean_l < NOISE_MEAN ? 0 : 1;
+#else
+  return accumulator < NOISE_THRESHOLD ? 0 : 1;
+#endif
+}
+
+int block_sad_wo_dc_hdb(uint16_t *src, uint16_t *filtered, int s_stride,
+                        int f_stride, int row, int col, int s) {
+  int sad = 0;
+  int dc = 0;
+
+  for (int i = 0; i < s; ++i) {
+    int s_r = (row + i) * s_stride + col;
+    int f_r = (row + i) * f_stride + col;
+    for (int j = 0; j < s; ++j) {
+      int diff = src[s_r + j] - filtered[f_r + j];
+      sad += abs(diff);
+      dc += diff;
+    }
+  }
+
+  return sad - abs(dc);
+}
+int is_noise_reduced_hbd(YV12_BUFFER_CONFIG *src,
+                         YV12_BUFFER_CONFIG *filtered) {
+  const int step = ND_BLOCK_SIZE;
+  int temp, blocks = 0;
+  double accumulator = 0;
+
+  uint16_t *src16 = CONVERT_TO_SHORTPTR(src->y_buffer);
+  uint16_t *ftr16 = CONVERT_TO_SHORTPTR(filtered->y_buffer);
+
+  const int block_num = filtered->y_height / step * filtered->y_width / step;
+  int *vec = malloc(sizeof(int) * block_num);
+
+  // compuate SAD
+  for (int r = 0; r < filtered->y_height; r += step) {
+    for (int c = 0; c < filtered->y_width; c += step) {
+      // check if this block is in boundary
+      if (r + step <= filtered->y_height && c + step <= filtered->y_width) {
+        temp = block_sad_wo_dc_hdb(src16, ftr16, src->y_stride,
+                                   filtered->y_stride, r, c, step);
+
+        vec[blocks] = temp;
+
+        accumulator += ((double)temp) / (step * step);
+        blocks += 1;
+      }
+    }
+  }
+  accumulator /= blocks;
+
+  int three_q;
+  double three_mean = 0;
+  double three_mean_l = 0;
+
+  {
+    int k = blocks * 3 / 4;
+    quick_kth_select(vec, 0, blocks - 1, k, 0);
+    three_q = vec[k];
+
+    for (int i = k + 1; i < blocks; ++i) {
+      three_mean += vec[i];
+    }
+    for (int i = 0; i < k; ++i) {
+      three_mean_l += vec[i];
+    }
+    three_mean_l /= k;
+    three_mean /= (blocks - k - 1);
+  }
+  free(vec);
+
+  fprintf(stdout, "hbd: [%d %.3f %.3f %.3f] ", three_q, three_mean_l,
+          three_mean, accumulator);
+#if USE_75_THR
+  return three_q < NOISE_THRESHOLD && three_mean_l < NOISE_MEAN ? 0 : 1;
+#else
+  return accumulator < NOISE_THRESHOLD ? 0 : 1;
+#endif
+}
+
+int force_temporal_filter_off(AV1_COMP *cpi) {
+  const GF_GROUP *const gf_group = &cpi->twopass.gf_group;
+  int which_arf = gf_group->arf_update_idx[gf_group->index];
+
+  int turn_off =
+      (cpi->alt_ref_buffer.flags & YV12_FLAG_HIGHBITDEPTH)
+          ? !is_noise_reduced_hbd(&cpi->alt_ref_source->img,
+                                  &cpi->alt_ref_buffer)
+          : !is_noise_reduced(&cpi->alt_ref_source->img, &cpi->alt_ref_buffer);
+
+  if (turn_off) {
+    cpi->is_arf_filter_off[which_arf] = 1;
+  }
+
+  return turn_off;
+}
+#endif  // NOISE_DETECTION
+
 void av1_temporal_filter(AV1_COMP *cpi, int distance) {
   RATE_CONTROL *const rc = &cpi->rc;
   int frame;
