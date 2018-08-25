@@ -15,7 +15,7 @@
 #include "aom/aom_codec.h"
 #include "aom/aom_integer.h"
 #include "aom_ports/mem_ops.h"
-#include "av1/decoder/obu.h"
+#include "av1/common/obu_util.h"
 #include "tools/obu_parser.h"
 
 namespace aom_tools {
