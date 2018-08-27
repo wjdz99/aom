@@ -3162,6 +3162,7 @@ static void rd_pick_partition(const AV1_COMP *const cpi, ThreadData *td,
       pl >= 0 ? x->partition_cost[pl] : x->partition_cost[0];
 
   int do_rectangular_split = 1;
+  int64_t data_collect_none_rd = 0;
   int64_t split_rd[4] = { 0, 0, 0, 0 };
   int64_t horz_rd[2] = { 0, 0 };
   int64_t vert_rd[2] = { 0, 0 };
@@ -3401,6 +3402,7 @@ BEGIN_PARTITION_SEARCH:
                      PARTITION_NONE, bsize, ctx_none, best_rdc.rdcost);
     pb_source_variance = x->source_variance;
     if (none_rd) *none_rd = this_rdc.rdcost;
+    data_collect_none_rd = this_rdc.rdcost;
     if (this_rdc.rate != INT_MAX) {
       if (cpi->sf.prune_ref_frame_for_rect_partitions) {
         const int ref1 = ctx_none->mic.ref_frame[0];
@@ -3551,6 +3553,7 @@ BEGIN_PARTITION_SEARCH:
         sum_rdc.rate += this_rdc.rate;
         sum_rdc.dist += this_rdc.dist;
         sum_rdc.rdcost += this_rdc.rdcost;
+
         if (cpi->sf.prune_ref_frame_for_rect_partitions &&
             pc_tree->split[idx]->none.rate != INT_MAX) {
           const int ref1 = pc_tree->split[idx]->none.mic.ref_frame[0];
@@ -3620,9 +3623,13 @@ BEGIN_PARTITION_SEARCH:
     if (used_frames) pc_tree->vertical[1].skip_ref_frame_mask = ~used_frames;
   }
 
+  int tried_horz = 0, tried_vert = 0;
+  int64_t best_rd_after_square_split = best_rdc.rdcost;
+
   // PARTITION_HORZ
   if (partition_horz_allowed &&
       (do_rectangular_split || active_h_edge(cpi, mi_row, mi_step))) {
+    tried_horz = 1;
     av1_init_rd_stats(&sum_rdc);
     subsize = get_partition_subsize(bsize, PARTITION_HORZ);
     if (cpi->sf.adaptive_motion_search) load_pred_mv(x, ctx_none);
@@ -3707,6 +3714,7 @@ BEGIN_PARTITION_SEARCH:
   // PARTITION_VERT
   if (partition_vert_allowed &&
       (do_rectangular_split || active_v_edge(cpi, mi_col, mi_step))) {
+    tried_vert = 1;
     av1_init_rd_stats(&sum_rdc);
     subsize = get_partition_subsize(bsize, PARTITION_VERT);
 
@@ -3872,6 +3880,111 @@ BEGIN_PARTITION_SEARCH:
         break;
     }
   }
+
+#if 0
+  do {
+    const int bw = block_size_wide[bsize];
+    const int bh = block_size_high[bsize];
+    unsigned int split_variance[4] = { 0 };
+    unsigned int horz_variance[2] = { 0 };
+    unsigned int vert_variance[2] = { 0 };
+    struct buf_2d buf;
+    FILE *fp;
+
+    if (frame_is_intra_only(cm)) break;
+    if (!tried_horz && !tried_vert) break;
+    if (bsize < BLOCK_8X8) break;
+    if (best_rd_after_square_split == INT64_MAX) break;
+
+    if (bw != bh) {
+      printf("error\n");
+      assert(0);
+      break;
+    }
+
+    {
+      subsize = get_partition_subsize(bsize, PARTITION_SPLIT);
+
+      av1_setup_src_planes(x, cpi->source, mi_row, mi_col, num_planes);
+      buf.stride = x->plane[0].src.stride;
+      for (int i = 0; i < 4; ++i) {
+        const int x_idx = (i & 1) * bw / 2;
+        const int y_idx = (i >> 1) * bh / 2;
+        buf.buf = x->plane[0].src.buf + x_idx + y_idx * buf.stride;
+        if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
+          split_variance[i] =
+              av1_high_get_sby_perpixel_variance(cpi, &buf, subsize, xd->bd);
+        } else {
+          split_variance[i] = av1_get_sby_perpixel_variance(cpi, &buf, subsize);
+        }
+      }
+    }
+
+    {
+      subsize = get_partition_subsize(bsize, PARTITION_HORZ);
+
+      av1_setup_src_planes(x, cpi->source, mi_row, mi_col, num_planes);
+      buf.stride = x->plane[0].src.stride;
+      for (int i = 0; i < 2; ++i) {
+        const int x_idx = i * bw / 2;
+        buf.buf = x->plane[0].src.buf + x_idx;
+        if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
+          horz_variance[i] =
+              av1_high_get_sby_perpixel_variance(cpi, &buf, subsize, xd->bd);
+        } else {
+          horz_variance[i] = av1_get_sby_perpixel_variance(cpi, &buf, subsize);
+        }
+      }
+    }
+
+    {
+      subsize = get_partition_subsize(bsize, PARTITION_VERT);
+
+      av1_setup_src_planes(x, cpi->source, mi_row, mi_col, num_planes);
+      buf.stride = x->plane[0].src.stride;
+      for (int i = 0; i < 2; ++i) {
+        const int y_idx = i * bh / 2;
+        buf.buf = x->plane[0].src.buf + y_idx * buf.stride;
+        if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
+          vert_variance[i] =
+              av1_high_get_sby_perpixel_variance(cpi, &buf, subsize, xd->bd);
+        } else {
+          vert_variance[i] = av1_get_sby_perpixel_variance(cpi, &buf, subsize);
+        }
+      }
+    }
+
+    data_collect_none_rd =
+        (data_collect_none_rd < INT64_MAX ? data_collect_none_rd : 0);
+
+    int GT_label = 0;  // means that horz/vert didn't improve best RD
+    if (pc_tree->partitioning == PARTITION_HORZ)
+      GT_label = 1;
+    else if (pc_tree->partitioning == PARTITION_VERT)
+      GT_label = 2;
+
+    fp = fopen("av1_rect_partition_data.txt", "a");
+    if (!fp) break;
+
+    fprintf(
+        fp, "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,\n", bw,
+        cm->base_qindex, x->rdmult,
+        (int)AOMMIN(best_rd_after_square_split, INT_MAX),
+        (int)AOMMIN(data_collect_none_rd, INT_MAX),
+        (int)AOMMIN(split_rd[0], INT_MAX), (int)AOMMIN(split_rd[1], INT_MAX),
+        (int)AOMMIN(split_rd[2], INT_MAX), (int)AOMMIN(split_rd[3], INT_MAX),
+        (int)AOMMIN(pb_source_variance, INT_MAX),
+        (int)AOMMIN(split_variance[0], INT_MAX),
+        (int)AOMMIN(split_variance[1], INT_MAX),
+        (int)AOMMIN(split_variance[2], INT_MAX),
+        (int)AOMMIN(split_variance[3], INT_MAX),
+        (int)AOMMIN(horz_variance[0], INT_MAX),
+        (int)AOMMIN(horz_variance[1], INT_MAX),
+        (int)AOMMIN(vert_variance[0], INT_MAX),
+        (int)AOMMIN(vert_variance[1], INT_MAX), GT_label);
+    fclose(fp);
+  } while (0);
+#endif
 
   if (cpi->sf.ml_prune_ab_partition && ext_partition_allowed &&
       partition_horz_allowed && partition_vert_allowed) {
