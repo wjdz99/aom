@@ -116,14 +116,16 @@ static void set_good_speed_feature_framesize_dependent(AV1_COMP *cpi,
       sf->use_square_partition_only_threshold = BLOCK_32X32;
     }
 
-    if (!is_720p_or_larger) {
-      sf->ml_partition_search_breakout_thresh[0] = 200;  // BLOCK_8X8
-      sf->ml_partition_search_breakout_thresh[1] = 250;  // BLOCK_16X16
-      sf->ml_partition_search_breakout_thresh[2] = 300;  // BLOCK_32X32
-      sf->ml_partition_search_breakout_thresh[3] = 300;  // BLOCK_64X64
-      sf->ml_partition_search_breakout_thresh[4] = -1;   // BLOCK_128X128
-    }
+    // if (!is_720p_or_larger) {
+    //   sf->ml_partition_search_breakout_thresh[0] = 200;  // BLOCK_8X8
+    //   sf->ml_partition_search_breakout_thresh[1] = 250;  // BLOCK_16X16
+    //   sf->ml_partition_search_breakout_thresh[2] = 300;  // BLOCK_32X32
+    //   sf->ml_partition_search_breakout_thresh[3] = 300;  // BLOCK_64X64
+    //   sf->ml_partition_search_breakout_thresh[4] = -1;   // BLOCK_128X128
+    // }
   }
+
+  sf->use_square_partition_only_threshold = BLOCK_128X128;
 
   if (speed >= 2) {
     if (is_720p_or_larger) {
