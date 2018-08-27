@@ -4123,8 +4123,8 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
                  cm->coded_lossless && cm->all_lossless));
 
   const int no_loopfilter = cm->coded_lossless || cm->large_scale_tile;
-  const int no_cdef =
-      !cm->seq_params.enable_cdef || cm->coded_lossless || cm->large_scale_tile;
+  const int no_cdef = !cm->seq_params.enable_cdef || cm->coded_lossless ||
+                      cm->large_scale_tile || !cm->allow_screen_content_tools;
   const int no_restoration = !cm->seq_params.enable_restoration ||
                              cm->all_lossless || cm->large_scale_tile;
 
