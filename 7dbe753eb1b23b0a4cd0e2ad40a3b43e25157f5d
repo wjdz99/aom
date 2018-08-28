@@ -190,6 +190,30 @@
     },
     {
       "key": {
+        "uuid": "ee8ee707_dc127290",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2071,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-08-28T17:02:22Z",
+      "side": 1,
+      "message": "Thanks. The code in y4minput.c uses _y4m-\u003edst_c_dec_h \u003e\u003e 1. We use input.y4m.src_c_dec_h \u003e\u003e 1 here (note the \"dst\" vs. \"src\"). Is it because we are dealing with input chroma subsampling?",
+      "parentUuid": "787e10f8_df6f3010",
+      "range": {
+        "startLine": 2068,
+        "startChar": 0,
+        "endLine": 2071,
+        "endChar": 60
+      },
+      "revId": "7dbe753eb1b23b0a4cd0e2ad40a3b43e25157f5d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d7d5fbd1_dd40a0bd",
         "filename": "av1/encoder/encoder.h",
         "patchSetId": 5
@@ -225,6 +249,30 @@
       "side": 1,
       "message": "I wanted to use unsigned int everywhere, but the RANGE_CHECK macro used in av1_cx_iface.c won\u0027t work w/unsigned ints (const comparison warning; unsigned ints always \u003e\u003d 0). I guess I could do the range check without the macro. Would you prefer it if I changed it to do that instead of using the macro?",
       "parentUuid": "d7d5fbd1_dd40a0bd",
+      "range": {
+        "startLine": 313,
+        "startChar": 0,
+        "endLine": 314,
+        "endChar": 36
+      },
+      "revId": "7dbe753eb1b23b0a4cd0e2ad40a3b43e25157f5d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1c3f61d8_0d0914b9",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 314,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-08-28T17:02:22Z",
+      "side": 1,
+      "message": "Thank you for the explanation. I found a RANGE_CHECK_HI macro that handles this case. We can use the unsigned int type and use RANGE_CHECK_HI to check that the maximum value is 1.",
+      "parentUuid": "027e5df6_c0a8dc2d",
       "range": {
         "startLine": 313,
         "startChar": 0,
