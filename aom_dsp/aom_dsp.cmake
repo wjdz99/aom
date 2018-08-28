@@ -159,6 +159,7 @@ if(CONFIG_AV1_ENCODER)
               "${AOM_ROOT}/aom_dsp/quantize.c"
               "${AOM_ROOT}/aom_dsp/quantize.h"
               "${AOM_ROOT}/aom_dsp/sad.c"
+              "${AOM_ROOT}/aom_dsp/sse.c"
               "${AOM_ROOT}/aom_dsp/sad_av1.c"
               "${AOM_ROOT}/aom_dsp/sum_squares.c"
               "${AOM_ROOT}/aom_dsp/variance.c"
@@ -200,6 +201,7 @@ if(CONFIG_AV1_ENCODER)
               "${AOM_ROOT}/aom_dsp/x86/sad_highbd_avx2.c"
               "${AOM_ROOT}/aom_dsp/x86/sad_impl_avx2.c"
               "${AOM_ROOT}/aom_dsp/x86/variance_avx2.c"
+              "${AOM_ROOT}/aom_dsp/x86/sse_avx2.c"
               "${AOM_ROOT}/aom_dsp/x86/variance_impl_avx2.c"
               "${AOM_ROOT}/aom_dsp/x86/obmc_sad_avx2.c"
               "${AOM_ROOT}/aom_dsp/x86/obmc_variance_avx2.c")
@@ -221,6 +223,7 @@ if(CONFIG_AV1_ENCODER)
 
   list(APPEND AOM_DSP_ENCODER_INTRIN_SSE4_1
               "${AOM_ROOT}/aom_dsp/x86/highbd_variance_sse4.c"
+              "${AOM_ROOT}/aom_dsp/x86/sse_sse4.c"
               "${AOM_ROOT}/aom_dsp/x86/obmc_sad_sse4.c"
               "${AOM_ROOT}/aom_dsp/x86/obmc_variance_sse4.c")
 
