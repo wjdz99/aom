@@ -2214,8 +2214,18 @@ static int get_refresh_mask(AV1_COMP *cpi) {
   // (2) The original virtual indexes for LAST_FRAME and LAST2_FRAME will be
   //     shifted and become the new virtual indexes for LAST2_FRAME and
   //     LAST3_FRAME.
-  refresh_mask |=
-      (cpi->refresh_last_frame << cpi->ref_fb_idx[LAST_REF_FRAMES - 1]);
+#if USE_SYMM_MULTI_LAYER
+  if (cpi->new_bwdref_update_rule == 1 && cpi->rc.is_src_frame_ext_arf) {
+    refresh_mask |=
+        (cpi->refresh_last_frame << cpi->ref_fb_idx[BWDREF_FRAME - 1]);
+  } else {
+#endif
+    refresh_mask |=
+        (cpi->refresh_last_frame << cpi->ref_fb_idx[LAST_REF_FRAMES - 1]);
+#if USE_SYMM_MULTI_LAYER
+  }
+#endif
+
 #if USE_SYMM_MULTI_LAYER
   refresh_mask |=
       (cpi->new_bwdref_update_rule == 1)
