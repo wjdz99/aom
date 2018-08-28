@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "7f3055a1_cdcb3c35",
+        "filename": "aom/aom_encoder.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 864,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-08-28T23:56:14Z",
+      "side": 1,
+      "message": "I decided to stick with malloc() in the follow up, and I documented that callers should use free().",
+      "parentUuid": "20bb54b1_122e8666",
+      "range": {
+        "startLine": 863,
+        "startChar": 47,
+        "endLine": 864,
+        "endChar": 43
+      },
+      "revId": "008b6e45b372a2d283112e47314a926e73ec9309",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "425932b5_8d78faf7",
         "filename": "av1/encoder/encoder.h",
         "patchSetId": 14
@@ -68,6 +92,30 @@
       "revId": "008b6e45b372a2d283112e47314a926e73ec9309",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d4f0e480_3aa449a5",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 948,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-08-28T23:56:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "425932b5_8d78faf7",
+      "range": {
+        "startLine": 948,
+        "startChar": 67,
+        "endLine": 948,
+        "endChar": 72
+      },
+      "revId": "008b6e45b372a2d283112e47314a926e73ec9309",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
