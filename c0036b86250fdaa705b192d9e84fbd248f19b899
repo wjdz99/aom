@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "45fdd81c_82c54797",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 878,
+      "author": {
+        "id": 5975
+      },
+      "writtenOn": "2018-08-28T10:23:38Z",
+      "side": 1,
+      "message": "Minor nit - this should be \"pbi-\u003ecommon.frame_type \u003d\u003d KEY_FRAME \u0026\u0026 pbi-\u003ecommon.show_frame\" to match the requirements in the spec",
+      "range": {
+        "startLine": 878,
+        "startChar": 14,
+        "endLine": 878,
+        "endChar": 49
+      },
+      "revId": "c0036b86250fdaa705b192d9e84fbd248f19b899",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
