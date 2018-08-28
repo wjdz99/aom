@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "9276d46c_fdb26de2",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 10646,
+      "author": {
+        "id": 8900
+      },
+      "writtenOn": "2018-08-28T10:23:47Z",
+      "side": 1,
+      "message": "Set skip_motion_mode to 2 will make inter_mode_search_order_independent_skip return 2. So we can  go to different branch at line 11346.\n\nCase 1: return 0, means don\u0027t skip this mode\nCase 2: return 1, means skip this mode completely\nCase 3: return 2, means skip compound only, but still try single motion modes",
+      "parentUuid": "96bcee66_40c0bf67",
+      "range": {
+        "startLine": 10646,
+        "startChar": 12,
+        "endLine": 10646,
+        "endChar": 33
+      },
+      "revId": "35a74d908d498b4279101a4710088236835c4baf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "1ea76f1b_198739fe",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 5
@@ -45,6 +69,30 @@
       "revId": "35a74d908d498b4279101a4710088236835c4baf",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8df3b1d6_60d6e2d9",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 10651,
+      "author": {
+        "id": 8900
+      },
+      "writtenOn": "2018-08-28T10:23:47Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "1ea76f1b_198739fe",
+      "range": {
+        "startLine": 10641,
+        "startChar": 4,
+        "endLine": 10651,
+        "endChar": 7
+      },
+      "revId": "35a74d908d498b4279101a4710088236835c4baf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
