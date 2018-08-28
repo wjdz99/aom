@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "1d417be4_904044da",
+        "filename": "av1/encoder/bitstream.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-08-28T20:41:17Z",
+      "side": 1,
+      "message": "No harm in being more specific. I updated the comment to mention that the OBU header, optional extension, and OBU size are not written to dst.",
+      "parentUuid": "9fb36b50_d2cb80eb",
+      "range": {
+        "startLine": 23,
+        "startChar": 44,
+        "endLine": 23,
+        "endChar": 68
+      },
+      "revId": "a8b6196994e24c3834333321a9035399556920a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d5edeffd_f5b1beae",
         "filename": "av1/encoder/bitstream.h",
         "patchSetId": 12
@@ -36,6 +60,30 @@
       "writtenOn": "2018-08-28T18:33:40Z",
       "side": 1,
       "message": "IMPORTANT: The size of the \u0027dst\u0027 output buffer should also be passed to the function as an input parameter.\n\nUPDATE: I found that this is a fundamental problem with aom_write_bit_buffer. Let\u0027s deal with this separately.",
+      "range": {
+        "startLine": 25,
+        "startChar": 50,
+        "endLine": 25,
+        "endChar": 68
+      },
+      "revId": "a8b6196994e24c3834333321a9035399556920a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ab0d8362_45cff014",
+        "filename": "av1/encoder/bitstream.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-08-28T20:41:17Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "d5edeffd_f5b1beae",
       "range": {
         "startLine": 25,
         "startChar": 50,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "54a51da9_a80bdf7d",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 1081,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-08-28T20:41:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5d91d0a6_634ad2a9",
+      "range": {
+        "startLine": 1065,
+        "startChar": 0,
+        "endLine": 1081,
+        "endChar": 3
+      },
+      "revId": "a8b6196994e24c3834333321a9035399556920a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6dce3f21_630fa4fe",
         "filename": "av1/encoder/encoder.c",
         "patchSetId": 12
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "e8740b08_4dd8d890",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 6377,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-08-28T20:41:17Z",
+      "side": 1,
+      "message": "Bumped this to 512. Looks like the worst case scenario is around 389 bytes-- I might have missed a bit here or there, so just using 512 to be safe.",
+      "parentUuid": "6dce3f21_630fa4fe",
+      "range": {
+        "startLine": 6377,
+        "startChar": 21,
+        "endLine": 6377,
+        "endChar": 24
+      },
+      "revId": "a8b6196994e24c3834333321a9035399556920a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "810fbfb1_00e4bea1",
         "filename": "av1/encoder/encoder.c",
         "patchSetId": 12
@@ -105,6 +201,30 @@
       "writtenOn": "2018-08-28T18:33:40Z",
       "side": 1,
       "message": "We should abort the program if sequence_header_size \u003e\u003d sizeof(header_buf), because memory beyond the end of header_buf has been written incorrectly.",
+      "range": {
+        "startLine": 6380,
+        "startChar": 2,
+        "endLine": 6380,
+        "endChar": 45
+      },
+      "revId": "a8b6196994e24c3834333321a9035399556920a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5bca175b_11c2f478",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 6380,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-08-28T20:41:17Z",
+      "side": 1,
+      "message": "I\u0027ve added an assert. I don\u0027t think calling exit() or abort() directly from a library is appropriate.",
+      "parentUuid": "810fbfb1_00e4bea1",
       "range": {
         "startLine": 6380,
         "startChar": 2,
@@ -140,6 +260,30 @@
     },
     {
       "key": {
+        "uuid": "917d4ac4_4714397f",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 6385,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-08-28T20:41:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3a8ec86a_12cbf8f9",
+      "range": {
+        "startLine": 6385,
+        "startChar": 2,
+        "endLine": 6385,
+        "endChar": 77
+      },
+      "revId": "a8b6196994e24c3834333321a9035399556920a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c4022853_e8336db1",
         "filename": "av1/encoder/encoder.c",
         "patchSetId": 12
@@ -163,6 +307,30 @@
     },
     {
       "key": {
+        "uuid": "6c8843a2_93bf4ecb",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 6394,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-08-28T20:41:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c4022853_e8336db1",
+      "range": {
+        "startLine": 6393,
+        "startChar": 0,
+        "endLine": 6394,
+        "endChar": 66
+      },
+      "revId": "a8b6196994e24c3834333321a9035399556920a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a7b8513_9df4b1d4",
         "filename": "av1/encoder/encoder.h",
         "patchSetId": 12
@@ -183,6 +351,30 @@
       "revId": "a8b6196994e24c3834333321a9035399556920a6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "42957c24_e019783f",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 946,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-08-28T20:41:17Z",
+      "side": 1,
+      "message": "Done. I\u0027ve also updated the comment for aom_codec_get_global_headers() with similar information-- av1_get_global_headers() is the private implementation; users of the library are more likely to see the doc comments provided with aom_codec_get_global_headers().",
+      "parentUuid": "3a7b8513_9df4b1d4",
+      "range": {
+        "startLine": 946,
+        "startChar": 0,
+        "endLine": 946,
+        "endChar": 15
+      },
+      "revId": "a8b6196994e24c3834333321a9035399556920a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
