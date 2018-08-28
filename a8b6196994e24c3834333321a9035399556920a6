@@ -190,6 +190,30 @@
     },
     {
       "key": {
+        "uuid": "ef26892e_61ba12c8",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 6377,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-08-28T23:25:57Z",
+      "side": 1,
+      "message": "I got 393 byes as the worst case. 512 is definitely big enough.",
+      "parentUuid": "e8740b08_4dd8d890",
+      "range": {
+        "startLine": 6377,
+        "startChar": 21,
+        "endLine": 6377,
+        "endChar": 24
+      },
+      "revId": "a8b6196994e24c3834333321a9035399556920a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "810fbfb1_00e4bea1",
         "filename": "av1/encoder/encoder.c",
         "patchSetId": 12
@@ -234,6 +258,30 @@
       "revId": "a8b6196994e24c3834333321a9035399556920a6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fa1d1779_c32424e7",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 6380,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-08-28T23:25:57Z",
+      "side": 1,
+      "message": "The reason I suggested aborting the program is that a buffer overflow is a serious error. (assert() is usually disabled in release builds.) Now that we have determined the maximum size of header_buf, this check is no longer that important.",
+      "parentUuid": "5bca175b_11c2f478",
+      "range": {
+        "startLine": 6380,
+        "startChar": 2,
+        "endLine": 6380,
+        "endChar": 45
+      },
+      "revId": "a8b6196994e24c3834333321a9035399556920a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
