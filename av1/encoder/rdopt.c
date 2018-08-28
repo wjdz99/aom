@@ -1875,7 +1875,13 @@ static void model_rd_for_sb(const AV1_COMP *const cpi, BLOCK_SIZE bsize,
 
     // TODO(geza): Write direct sse functions that do not compute
     // variance as well.
-    sse = aom_sum_squares_2d_i16(p->src_diff, bw, bw, bh);
+    if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
+      sse = aom_highbd_sse(p->src.buf, p->src.stride, pd->dst.buf,
+                           pd->dst.stride, bw, bh);
+    } else {
+      sse = aom_sse(p->src.buf, p->src.stride, pd->dst.buf, pd->dst.stride, bw,
+                    bh);
+    }
     sse = ROUND_POWER_OF_TWO(sse, (xd->bd - 8) * 2);
 
     model_rd_from_sse(cpi, x, plane_bsize, plane, sse, &rate, &dist);
@@ -2649,11 +2655,16 @@ static void model_rd_for_sb_with_dnn(
 
     int bw, bh;
     const struct macroblock_plane *const p = &x->plane[plane];
-    const int diff_stride = block_size_wide[plane_bsize];
     const int shift = (xd->bd - 8);
     get_txb_dimensions(xd, plane, plane_bsize, 0, 0, plane_bsize, NULL, NULL,
                        &bw, &bh);
-    sse = aom_sum_squares_2d_i16(p->src_diff, diff_stride, bw, bh);
+    if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
+      sse = aom_highbd_sse(p->src.buf, p->src.stride, pd->dst.buf,
+                           pd->dst.stride, bw, bh);
+    } else {
+      sse = aom_sse(p->src.buf, p->src.stride, pd->dst.buf, pd->dst.stride, bw,
+                    bh);
+    }
     sse = ROUND_POWER_OF_TWO(sse, shift * 2);
 
     model_rd_with_dnn(cpi, x, plane_bsize, plane, sse, &rate, &dist);
@@ -2750,11 +2761,16 @@ static void model_rd_for_sb_with_surffit(
 
     int bw, bh;
     const struct macroblock_plane *const p = &x->plane[plane];
-    const int diff_stride = block_size_wide[plane_bsize];
     const int shift = (xd->bd - 8);
     get_txb_dimensions(xd, plane, plane_bsize, 0, 0, plane_bsize, NULL, NULL,
                        &bw, &bh);
-    sse = aom_sum_squares_2d_i16(p->src_diff, diff_stride, bw, bh);
+    if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
+      sse = aom_highbd_sse(p->src.buf, p->src.stride, pd->dst.buf,
+                           pd->dst.stride, bw, bh);
+    } else {
+      sse = aom_sse(p->src.buf, p->src.stride, pd->dst.buf, pd->dst.stride, bw,
+                    bh);
+    }
     sse = ROUND_POWER_OF_TWO(sse, shift * 2);
 
     model_rd_with_surffit(cpi, x, plane_bsize, plane, sse, &rate, &dist);
@@ -2851,11 +2867,18 @@ static void model_rd_for_sb_with_curvfit(
 
     int bw, bh;
     const struct macroblock_plane *const p = &x->plane[plane];
-    const int diff_stride = block_size_wide[plane_bsize];
     const int shift = (xd->bd - 8);
     get_txb_dimensions(xd, plane, plane_bsize, 0, 0, plane_bsize, NULL, NULL,
                        &bw, &bh);
-    sse = aom_sum_squares_2d_i16(p->src_diff, diff_stride, bw, bh);
+
+    if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
+      sse = aom_highbd_sse(p->src.buf, p->src.stride, pd->dst.buf,
+                           pd->dst.stride, bw, bh);
+    } else {
+      sse = aom_sse(p->src.buf, p->src.stride, pd->dst.buf, pd->dst.stride, bw,
+                    bh);
+    }
+
     sse = ROUND_POWER_OF_TWO(sse, shift * 2);
     model_rd_with_curvfit(cpi, x, plane_bsize, plane, sse, &rate, &dist);
 
@@ -2901,7 +2924,13 @@ static void model_rd_for_sb_with_fullrdy(
 
     if (x->skip_chroma_rd && plane) continue;
 
-    sse = aom_sum_squares_2d_i16(p->src_diff, bw, bw, bh);
+    if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
+      sse = aom_highbd_sse(p->src.buf, p->src.stride, pd->dst.buf,
+                           pd->dst.stride, bw, bh);
+    } else {
+      sse = aom_sse(p->src.buf, p->src.stride, pd->dst.buf, pd->dst.stride, bw,
+                    bh);
+    }
     sse = ROUND_POWER_OF_TWO(sse, (xd->bd - 8) * 2);
 
     RD_STATS rd_stats;
@@ -3793,7 +3822,6 @@ static int64_t intra_model_yrd(const AV1_COMP *const cpi, MACROBLOCK *const x,
     }
   }
   // RD estimation.
-  av1_subtract_plane(x, bsize, 0);
   model_rd_fn[MODELRD_LEGACY](cpi, bsize, x, xd, 0, 0, mi_row, mi_col,
                               &this_rd_stats.rate, &this_rd_stats.dist,
                               &this_rd_stats.skip, &temp_sse, NULL, NULL, NULL);
@@ -7866,7 +7894,6 @@ static int64_t build_and_cost_compound_type(
     *out_rate_mv = interinter_compound_motion_search(cpi, x, cur_mv, bsize,
                                                      this_mode, mi_row, mi_col);
     av1_build_inter_predictors_sby(cm, xd, mi_row, mi_col, ctx, bsize);
-    av1_subtract_plane(x, bsize, 0);
     model_rd_fn[MODELRD_LEGACY](cpi, bsize, x, xd, 0, 0, mi_row, mi_col,
                                 &rate_sum, &dist_sum, &tmp_skip_txfm_sb,
                                 &tmp_skip_sse_sb, NULL, NULL, NULL);
@@ -8064,7 +8091,7 @@ static INLINE int64_t interpolation_filter_rd(
   if (skip_pred != cpi->default_interp_skip_flags) {
     if (skip_pred != DEFAULT_LUMA_INTERP_SKIP_FLAG) {
       av1_build_inter_predictors_sby(cm, xd, mi_row, mi_col, orig_dst, bsize);
-      av1_subtract_plane(x, bsize, 0);
+      // av1_subtract_plane(x, bsize, 0);
 #if CONFIG_COLLECT_RD_STATS == 3
       RD_STATS rd_stats_y;
       select_tx_type_yrd(cpi, x, &rd_stats_y, bsize, mi_row, mi_col, INT64_MAX);
@@ -8091,7 +8118,7 @@ static INLINE int64_t interpolation_filter_rd(
         }
         av1_build_inter_predictors_sbp(cm, xd, mi_row, mi_col, orig_dst, bsize,
                                        plane);
-        av1_subtract_plane(x, bsize, plane);
+        // av1_subtract_plane(x, bsize, plane);
         model_rd_fn[MODELRD_TYPE_INTERP_FILTER](
             cpi, bsize, x, xd, plane, plane, mi_row, mi_col, &tmp_rate_uv,
             &tmp_dist_uv, &tmp_skip_sb_uv, &tmp_skip_sse_uv, NULL, NULL, NULL);
@@ -8294,8 +8321,7 @@ static int64_t interpolation_filter_search(
       get_switchable_rate(x, mbmi->interp_filters, switchable_ctx);
   if (!skip_build_pred)
     av1_build_inter_predictors_sb(cm, xd, mi_row, mi_col, orig_dst, bsize);
-  for (int plane = 0; plane < num_planes; ++plane)
-    av1_subtract_plane(x, bsize, plane);
+
 #if CONFIG_COLLECT_RD_STATS == 3
   RD_STATS rd_stats_y;
   select_tx_type_yrd(cpi, x, &rd_stats_y, bsize, mi_row, mi_col, INT64_MAX);
@@ -8757,7 +8783,6 @@ static int64_t motion_mode_rd(const AV1_COMP *const cpi, MACROBLOCK *const x,
         av1_build_intra_predictors_for_interintra(cm, xd, bsize, 0, orig_dst,
                                                   intrapred, bw);
         av1_combine_interintra(xd, bsize, 0, tmp_buf, bw, intrapred, bw);
-        av1_subtract_plane(x, bsize, 0);
         model_rd_fn[MODELRD_LEGACY](cpi, bsize, x, xd, 0, 0, mi_row, mi_col,
                                     &rate_sum, &dist_sum, &tmp_skip_txfm_sb,
                                     &tmp_skip_sse_sb, NULL, NULL, NULL);
@@ -8818,7 +8843,6 @@ static int64_t motion_mode_rd(const AV1_COMP *const cpi, MACROBLOCK *const x,
             mbmi->mv[0].as_int = tmp_mv.as_int;
             av1_build_inter_predictors_sby(cm, xd, mi_row, mi_col, orig_dst,
                                            bsize);
-            av1_subtract_plane(x, bsize, 0);
             model_rd_fn[MODELRD_LEGACY](cpi, bsize, x, xd, 0, 0, mi_row, mi_col,
                                         &rate_sum, &dist_sum, &tmp_skip_txfm_sb,
                                         &tmp_skip_sse_sb, NULL, NULL, NULL);
