@@ -93,6 +93,30 @@
       "revId": "dbbe94f773826032bd468b4d2dee27f8bde5554d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "af7c5cc1_8baed4fb",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 5134,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2018-08-28T17:36:43Z",
+      "side": 1,
+      "message": "There are several things to think of here. Please let me know if I didn\u0027t understand correctly.\n1. It seems we need to compare 3 RDs here: 1.) Skipping whole prediction block(s1); 2.) Non-skipping prediction block(s0) with non-skipping tx block; 3.) Non-skipping prediction block(s0) with skipping tx block;\nIn this patch, 3) is missing, right?\n2. I think it is easier to evaluate s1 after every tx block is done(as handled in original code). In your patch, if you pick s1 for first tx block, that means all following tx blocks have to be skipping blocks. Using AOMMIN(skip_rd, this_rd) doesn\u0027t make sense to me.\n3. ref_best_rd can be traced back to handle_inter_mode(), and it includes the cost of mv, ref frame,single/comp mode,... I don\u0027t see those costs are deducted along the way, so ref_best_rd should be too large. Calculating an accurate ref_best_rd should be done.\n4. I think the speedup is achieved because best_rd_sofar is smaller than that in original code. Right? I think making ref_best_rd more accurate is the right thing to do, which shouldn\u0027t cause quality loss.",
+      "parentUuid": "b58da432_ae3cd4bc",
+      "range": {
+        "startLine": 5132,
+        "startChar": 8,
+        "endLine": 5134,
+        "endChar": 0
+      },
+      "revId": "dbbe94f773826032bd468b4d2dee27f8bde5554d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
