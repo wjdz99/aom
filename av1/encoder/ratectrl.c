@@ -1027,19 +1027,38 @@ static int rc_pick_q_and_bounds_two_pass(const AV1_COMP *cpi, int width,
 #if REDUCE_LAST_ALT_BOOST
           const int min_boost = get_gf_high_motion_quality(q, bit_depth);
           const int boost = min_boost - active_best_quality;
-
           active_best_quality = min_boost - (int)(boost * rc->arf_boost_factor);
 #endif
         } else {
           active_best_quality = rc->arf_q;
         }
 #if USE_SYMM_MULTI_LAYER
+#if SEARCH_INTNL_ARF_BOOST
+        float_t boost_factor = 1;
+        int boost = cq_level - active_best_quality;
+#endif
         if (cpi->new_bwdref_update_rule && is_intrl_arf_boost) {
           int this_height = gf_group->pyramid_level[gf_group->index];
           while (this_height < gf_group->pyramid_height) {
+#if SEARCH_INTNL_ARF_BOOST
+            if (this_height == 3)
+              boost_factor *= cpi->oxcf.input_param0;
+            else if (this_height == 2)
+              boost_factor *= cpi->oxcf.input_param1;
+            else if (this_height == 1)
+              boost_factor *= cpi->oxcf.input_param2;
+            else
+              boost_factor *= 0.5f;
+#else
             active_best_quality = (active_best_quality + cq_level + 1) / 2;
+#endif
             ++this_height;
           }
+
+#if SEARCH_INTNL_ARF_BOOST
+          active_best_quality = cq_level - ((int)(boost * boost_factor));
+#endif
+
         } else {
 #endif
           // Modify best quality for second level arfs. For mode AOM_Q this
