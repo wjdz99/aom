@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "7c352b81_599da391",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 7
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-08-28T20:53:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "472c903f_cd708167",
+      "range": {
+        "startLine": 20,
+        "startChar": 32,
+        "endLine": 20,
+        "endChar": 41
+      },
+      "revId": "13f39b5418d078e95f49c5961a8aeb56fdadc3f8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b5341a5e_34bd14be",
         "filename": "aom/exports_com",
         "patchSetId": 7
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "c2f5726d_b0f0bfa4",
+        "filename": "aom/exports_com",
+        "patchSetId": 7
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-08-28T20:53:32Z",
+      "side": 1,
+      "message": "Apparently I forgot a sort step at some point in making these edits. Done.",
+      "parentUuid": "b5341a5e_34bd14be",
+      "range": {
+        "startLine": 21,
+        "startChar": 0,
+        "endLine": 22,
+        "endChar": 20
+      },
+      "revId": "13f39b5418d078e95f49c5961a8aeb56fdadc3f8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "28748246_a1cf34e3",
         "filename": "aom_dsp/aom_dsp.cmake",
         "patchSetId": 7
@@ -59,6 +107,30 @@
       "writtenOn": "2018-08-28T19:22:38Z",
       "side": 1,
       "message": "Nothing in this CL requires moving bitwriter_buffer to \u0027common\u0027. I assume this is preparing for a future CL?",
+      "range": {
+        "startLine": 24,
+        "startChar": 0,
+        "endLine": 25,
+        "endChar": 52
+      },
+      "revId": "13f39b5418d078e95f49c5961a8aeb56fdadc3f8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "489eea67_c6e465d1",
+        "filename": "aom_dsp/aom_dsp.cmake",
+        "patchSetId": 7
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-08-28T20:53:32Z",
+      "side": 1,
+      "message": "yes-- I\u0027m using the writer in the follow up to this one to write out the av1C bytes. It\u0027s not entirely necessary, but I find the code more readable with the bitwriter_buffer function than without them.",
+      "parentUuid": "28748246_a1cf34e3",
       "range": {
         "startLine": 24,
         "startChar": 0,
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "95d09794_9b440c24",
+        "filename": "av1/common/obu_util.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-08-28T20:53:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cd4ea9c3_104b73b4",
+      "range": {
+        "startLine": 15,
+        "startChar": 0,
+        "endLine": 15,
+        "endChar": 32
+      },
+      "revId": "13f39b5418d078e95f49c5961a8aeb56fdadc3f8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "94a626a0_28a95db1",
         "filename": "av1/common/obu_util.h",
         "patchSetId": 7
@@ -114,6 +210,30 @@
       "revId": "13f39b5418d078e95f49c5961a8aeb56fdadc3f8",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "90967d87_0efa19bc",
+        "filename": "av1/common/obu_util.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-08-28T20:53:32Z",
+      "side": 1,
+      "message": "I thought it was still being used in obu.c, but apparently I\u0027m mistaken-- thanks, reverted to static.",
+      "parentUuid": "94a626a0_28a95db1",
+      "range": {
+        "startLine": 34,
+        "startChar": 4,
+        "endLine": 34,
+        "endChar": 18
+      },
+      "revId": "13f39b5418d078e95f49c5961a8aeb56fdadc3f8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
