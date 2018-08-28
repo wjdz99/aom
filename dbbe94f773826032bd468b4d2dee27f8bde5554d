@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "79394e19_cd6b983a",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 5119,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2018-08-28T06:26:33Z",
+      "side": 1,
+      "message": "s0 corresponds to bits required to code the prediction block as non-skip. Hence it is required.",
+      "parentUuid": "acfe0a49_15357f30",
+      "range": {
+        "startLine": 5119,
+        "startChar": 3,
+        "endLine": 5119,
+        "endChar": 39
+      },
+      "revId": "dbbe94f773826032bd468b4d2dee27f8bde5554d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "4a44550e_4247c542",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 2
@@ -36,6 +60,30 @@
       "writtenOn": "2018-08-28T05:41:22Z",
       "side": 1,
       "message": "Though the result is good, I am not very convinced. s0 and s1 are skip_cost which means the skipping of the whole prediction block. pn_rd_stats.zero_rate should be for 1 tx block and should be used here, right?",
+      "range": {
+        "startLine": 5132,
+        "startChar": 8,
+        "endLine": 5134,
+        "endChar": 0
+      },
+      "revId": "dbbe94f773826032bd468b4d2dee27f8bde5554d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b58da432_ae3cd4bc",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 5134,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2018-08-28T06:26:33Z",
+      "side": 1,
+      "message": "zero_rate is bits required to signal a transform block as zero block. In case of skip, zero_rate is not required as s1 is already considered at prediction block level. This code change is in align with the final decision as in \u0027code snippet A\u0027 highlighted below (which is present in reference code).",
+      "parentUuid": "4a44550e_4247c542",
       "range": {
         "startLine": 5132,
         "startChar": 8,
