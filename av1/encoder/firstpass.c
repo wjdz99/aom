@@ -825,8 +825,9 @@ void av1_first_pass(AV1_COMP *cpi, const struct lookahead_entry *source) {
           }
         }
 #endif
+        float_t intra_scale = 1.0;
 
-        if (motion_error <= this_error) {
+        if (motion_error <= intra_scale * this_error) {
           aom_clear_system_state();
 
           // Keep a count of cases where the inter and intra were very close
@@ -1621,7 +1622,8 @@ static void set_multi_layer_params(GF_GROUP *const gf_group, int l, int r,
     gf_group->update_type[*frame_ind] = INTNL_ARF_UPDATE;
     gf_group->arf_src_offset[*frame_ind] = m - l - 1;
     gf_group->arf_pos_in_gf[*frame_ind] = 0;
-    gf_group->arf_update_idx[*frame_ind] = 1;  // mark all internal ARF 1
+    // for height >= 3 mark internal ARF as 2, else mark it as 1
+    gf_group->arf_update_idx[*frame_ind] = 1 + (level >= 3);
     gf_group->pyramid_level[*frame_ind] = level;
     ++(*frame_ind);
 
@@ -1633,7 +1635,7 @@ static void set_multi_layer_params(GF_GROUP *const gf_group, int l, int r,
     gf_group->update_type[*frame_ind] = INTNL_OVERLAY_UPDATE;
     gf_group->arf_src_offset[*frame_ind] = 0;
     gf_group->arf_pos_in_gf[*frame_ind] = arf_pos_in_gf;
-    gf_group->arf_update_idx[*frame_ind] = 1;
+    gf_group->arf_update_idx[*frame_ind] = 1 + (level >= 3);
     gf_group->pyramid_level[*frame_ind] = 0;
     ++(*frame_ind);
 
@@ -2205,10 +2207,28 @@ static void allocate_gf_group_bits(AV1_COMP *cpi, int64_t gf_group_bits,
 
       gf_group->bit_allocation[arf_pos] = target_frame_size;
 #if MULTI_LVL_BOOST_VBR_CQ
+#if SEARCH_BIT_BOOST
+      float_t boost_factor;
+      int this_height = gf_group->pyramid_level[arf_pos];
+      if (gf_group->pyramid_height - this_height == 1)
+        boost_factor = cpi->oxcf.input_param0;
+      else if (gf_group->pyramid_height - this_height == 2)
+        boost_factor = cpi->oxcf.input_param1;
+      else if (gf_group->pyramid_height - this_height == 3)
+        boost_factor = cpi->oxcf.input_param2;
+      else
+        boost_factor = 25;
+
+      boost_factor /= 25;
+
+      gf_group->bit_allocation[arf_pos] +=
+          (int)(target_frame_size * boost_factor);
+#else
       if (gf_group->pyramid_level[arf_pos] == (gf_group->pyramid_height - 1))
         gf_group->bit_allocation[arf_pos] += target_frame_size;
       else
         gf_group->bit_allocation[arf_pos] += (target_frame_size >> 1);
+#endif  // SEARCH_BIT_BOOST
 #endif  // MULTI_LVL_BOOST_VBR_CQ
 #endif  // USE_SYMM_MULTI_LAYER
     } else {
@@ -2524,6 +2544,11 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   }
 
 #if REDUCE_LAST_ALT_BOOST
+#if CONFIG_FIX_GF_LENGTH
+#define MAX_GF_LENGTH FIXED_GF_LENGTH
+#else
+#define MAX_GF_LENGTH MAX_GF_INTERVAL
+#endif  // CONFIG_FIX_GF_LENGTH
 #define LAST_ALR_BOOST_FACTOR 0.2f
   rc->arf_boost_factor = 1.0;
   if (rc->source_alt_ref_pending && !is_lossless_requested(&cpi->oxcf)) {
@@ -3085,6 +3110,7 @@ static void configure_buffer_updates(AV1_COMP *cpi) {
       break;
 
     case INTNL_OVERLAY_UPDATE:
+      // choose whether update filtered frames with unfiltered one
       cpi->refresh_last_frame = 1;
       cpi->refresh_golden_frame = 0;
       cpi->refresh_bwd_ref_frame = 0;

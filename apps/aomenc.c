@@ -267,6 +267,19 @@ static const arg_def_t global_error_resilient =
             "Enable global error resiliency features");
 static const arg_def_t lag_in_frames =
     ARG_DEF(NULL, "lag-in-frames", 1, "Max number of frames to lag");
+
+static const arg_def_t input_param0 =
+    ARG_DEF(NULL, "input-param0", 1,
+            "an arbitrary input parameter use for optimal parameter search");
+
+static const arg_def_t input_param1 =
+    ARG_DEF(NULL, "input-param1", 1,
+            "an arbitrary input parameter use for optimal parameter search");
+
+static const arg_def_t input_param2 =
+    ARG_DEF(NULL, "input-param2", 1,
+            "an arbitrary input parameter use for optimal parameter search");
+
 static const arg_def_t large_scale_tile =
     ARG_DEF(NULL, "large-scale-tile", 1,
             "Large scale tile coding (0: off (default), 1: on)");
@@ -360,6 +373,9 @@ static const arg_def_t *rc_args[] = { &dropframe_thresh,
                                       &buf_sz,
                                       &buf_initial_sz,
                                       &buf_optimal_sz,
+                                      &input_param0,
+                                      &input_param1,
+                                      &input_param1,
                                       NULL };
 
 static const arg_def_t bias_pct =
@@ -1237,6 +1253,12 @@ static int parse_stream_params(struct AvxEncoderConfig *global,
       config->cfg.rc_min_quantizer = arg_parse_uint(&arg);
     } else if (arg_match(&arg, &max_quantizer, argi)) {
       config->cfg.rc_max_quantizer = arg_parse_uint(&arg);
+    } else if (arg_match(&arg, &input_param0, argi)) {
+      config->cfg.input_param0_x100 = arg_parse_uint(&arg);
+    } else if (arg_match(&arg, &input_param1, argi)) {
+      config->cfg.input_param1_x100 = arg_parse_uint(&arg);
+    } else if (arg_match(&arg, &input_param2, argi)) {
+      config->cfg.input_param2_x100 = arg_parse_uint(&arg);
     } else if (arg_match(&arg, &undershoot_pct, argi)) {
       config->cfg.rc_undershoot_pct = arg_parse_uint(&arg);
     } else if (arg_match(&arg, &overshoot_pct, argi)) {
@@ -1429,6 +1451,9 @@ static void show_stream_config(struct stream_state *stream,
   SHOW(g_error_resilient);
   SHOW(g_pass);
   SHOW(g_lag_in_frames);
+  SHOW(input_param0_x100);
+  SHOW(input_param1_x100);
+  SHOW(input_param2_x100);
   SHOW(large_scale_tile);
   SHOW(rc_dropframe_thresh);
   SHOW(rc_resize_mode);
