@@ -1,0 +1,188 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bc7a36c6_85a76f84",
+        "filename": "av1/common/enums.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 499,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2018-08-28T21:47:06Z",
+      "side": 1,
+      "message": "It\u0027s better to enable/disable this experiment with a build config flag. You can add a flag in build/cmake/aom_config_defaults.cmake(in the \"AV1 experiment flags\" section), then use --enable-adapt-filter-intra to turn this experiment on.",
+      "range": {
+        "startLine": 499,
+        "startChar": 8,
+        "endLine": 499,
+        "endChar": 26
+      },
+      "revId": "2f2821668015130492b6f105a5a1efaf36dd0069",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f38c96c3_66b15469",
+        "filename": "av1/common/enums.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 509,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2018-08-28T21:47:06Z",
+      "side": 1,
+      "message": "Could you add some comments to explain what the numbers(0, 1, 2,..) mean?",
+      "range": {
+        "startLine": 503,
+        "startChar": 2,
+        "endLine": 509,
+        "endChar": 21
+      },
+      "revId": "2f2821668015130492b6f105a5a1efaf36dd0069",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "906e490f_006d6de4",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1137,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2018-08-28T21:47:06Z",
+      "side": 1,
+      "message": "These can be const. Similarly for ADAPT_FILTER_INTRA_DEFINE_4_TAP_ACCUM_FUNC.",
+      "range": {
+        "startLine": 1134,
+        "startChar": 8,
+        "endLine": 1137,
+        "endChar": 58
+      },
+      "revId": "2f2821668015130492b6f105a5a1efaf36dd0069",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b07f3967_a6e24a53",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1447,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2018-08-28T21:47:06Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 1447,
+        "startChar": 4,
+        "endLine": 1447,
+        "endChar": 7
+      },
+      "revId": "2f2821668015130492b6f105a5a1efaf36dd0069",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2c47cefa_756ab886",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1454,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2018-08-28T21:47:06Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 1454,
+        "startChar": 4,
+        "endLine": 1454,
+        "endChar": 7
+      },
+      "revId": "2f2821668015130492b6f105a5a1efaf36dd0069",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "98358332_a8ef14f5",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1483,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2018-08-28T21:47:06Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 1483,
+        "startChar": 2,
+        "endLine": 1483,
+        "endChar": 9
+      },
+      "revId": "2f2821668015130492b6f105a5a1efaf36dd0069",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "17833e27_c314ef5e",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1487,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2018-08-28T21:47:06Z",
+      "side": 1,
+      "message": "const. similarly for adapt_filter_intra_solve_4x4.",
+      "range": {
+        "startLine": 1485,
+        "startChar": 2,
+        "endLine": 1487,
+        "endChar": 9
+      },
+      "revId": "2f2821668015130492b6f105a5a1efaf36dd0069",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d694b37d_74ab462c",
+        "filename": "av1/encoder/rd.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2018-08-28T21:47:06Z",
+      "side": 1,
+      "message": "Use {} for branch with multiple lines.",
+      "range": {
+        "startLine": 128,
+        "startChar": 52,
+        "endLine": 130,
+        "endChar": 69
+      },
+      "revId": "2f2821668015130492b6f105a5a1efaf36dd0069",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
