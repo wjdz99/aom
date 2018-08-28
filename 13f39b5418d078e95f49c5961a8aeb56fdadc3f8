@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "472c903f_cd708167",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 7
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-08-28T19:22:38Z",
+      "side": 1,
+      "message": "Nit: Should we also mention \"bitwriter\" here?",
+      "range": {
+        "startLine": 20,
+        "startChar": 32,
+        "endLine": 20,
+        "endChar": 41
+      },
+      "revId": "13f39b5418d078e95f49c5961a8aeb56fdadc3f8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b5341a5e_34bd14be",
+        "filename": "aom/exports_com",
+        "patchSetId": 7
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-08-28T19:22:38Z",
+      "side": 1,
+      "message": "Nit: reverse these two lines, if you want to list them in alphabetical order.",
+      "range": {
+        "startLine": 21,
+        "startChar": 0,
+        "endLine": 22,
+        "endChar": 20
+      },
+      "revId": "13f39b5418d078e95f49c5961a8aeb56fdadc3f8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "28748246_a1cf34e3",
+        "filename": "aom_dsp/aom_dsp.cmake",
+        "patchSetId": 7
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-08-28T19:22:38Z",
+      "side": 1,
+      "message": "Nothing in this CL requires moving bitwriter_buffer to \u0027common\u0027. I assume this is preparing for a future CL?",
+      "range": {
+        "startLine": 24,
+        "startChar": 0,
+        "endLine": 25,
+        "endChar": 52
+      },
+      "revId": "13f39b5418d078e95f49c5961a8aeb56fdadc3f8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cd4ea9c3_104b73b4",
+        "filename": "av1/common/obu_util.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-08-28T19:22:38Z",
+      "side": 1,
+      "message": "It doesn\u0027t seem necessary to include \"av1/decoder/decoder.h. Including \"aom/aom_codec.h\" should be enough.\n\nNote: I assume av1/common should not depend on av1/decoder. That\u0027s another reason we should not include \"av1/decoder/decoder.h\" here.",
+      "range": {
+        "startLine": 15,
+        "startChar": 0,
+        "endLine": 15,
+        "endChar": 32
+      },
+      "revId": "13f39b5418d078e95f49c5961a8aeb56fdadc3f8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "94a626a0_28a95db1",
+        "filename": "av1/common/obu_util.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-08-28T19:22:38Z",
+      "side": 1,
+      "message": "1. Nit: This function was a static function. As a public function, it probably should have an \"aom_\" or \"av1_\" prefix.\n\n2. In this CL, valid_obu_type() can still be static. I assume that in a future CL, we will call valid_obu_type() from a file other than av1/common/obu_util.c.",
+      "range": {
+        "startLine": 34,
+        "startChar": 4,
+        "endLine": 34,
+        "endChar": 18
+      },
+      "revId": "13f39b5418d078e95f49c5961a8aeb56fdadc3f8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
