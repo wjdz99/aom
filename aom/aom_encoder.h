@@ -858,10 +858,12 @@ aom_codec_err_t aom_codec_enc_config_set(aom_codec_ctx_t *ctx,
  * \retval NULL
  *     Encoder does not support global header, or an error occurred while
  *     generating the global header.
+ *
  * \retval Non-NULL
  *     Pointer to buffer containing global header packet. The caller owns the
- *     memory associated with this buffer, and must free the 'buf' member as
- *     well as the aom_fixed_buf_t pointer.
+ *     memory associated with this buffer, and must free the 'buf' member of the
+ *     aom_fixed_buf_t as well as the aom_fixed_buf_t pointer. Memory is
+ *     allocated using malloc(), and should be freed via call to free().
  */
 aom_fixed_buf_t *aom_codec_get_global_headers(aom_codec_ctx_t *ctx);
 
