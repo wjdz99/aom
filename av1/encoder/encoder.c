@@ -3078,13 +3078,7 @@ static void check_show_existing_frame(AV1_COMP *cpi) {
   AV1_COMMON *const cm = &cpi->common;
   const FRAME_UPDATE_TYPE next_frame_update_type =
       gf_group->update_type[gf_group->index];
-#if USE_SYMM_MULTI_LAYER
-  const int which_arf = (cpi->new_bwdref_update_rule == 1)
-                            ? gf_group->arf_update_idx[gf_group->index] > 0
-                            : gf_group->arf_update_idx[gf_group->index];
-#else
   const int which_arf = gf_group->arf_update_idx[gf_group->index];
-#endif
 
   if (cm->show_existing_frame == 1) {
     cm->show_existing_frame = 0;
@@ -3116,16 +3110,19 @@ static void check_show_existing_frame(AV1_COMP *cpi) {
     // Other parameters related to OVERLAY_UPDATE will be taken care of
     // in av1_rc_get_second_pass_params(cpi)
     cm->show_existing_frame = 1;
-    cpi->rc.is_src_frame_alt_ref = 1;
     cpi->existing_fb_idx_to_show = (next_frame_update_type == OVERLAY_UPDATE)
                                        ? cpi->ref_fb_idx[ALTREF_FRAME - 1]
                                        : cpi->ref_fb_idx[bwdref_to_show - 1];
 #if USE_SYMM_MULTI_LAYER
+
     if (cpi->new_bwdref_update_rule == 0)
 #endif
       cpi->is_arf_filter_off[which_arf] = 0;
   }
-  cpi->rc.is_src_frame_ext_arf = 0;
+  cpi->rc.is_src_frame_ext_arf = next_frame_update_type == INTNL_OVERLAY_UPDATE;
+  cpi->rc.is_src_frame_alt_ref =
+      (next_frame_update_type == OVERLAY_UPDATE ||
+       next_frame_update_type == INTNL_OVERLAY_UPDATE);
 }
 
 #ifdef OUTPUT_YUV_REC
@@ -3300,7 +3297,7 @@ static INLINE void shift_last_ref_frames(AV1_COMP *cpi) {
 
     // [0] is allocated to the current coded frame. The statistics for the
     // reference frames start at [LAST_FRAME], i.e. [1].
-    if (!cpi->rc.is_src_frame_alt_ref) {
+    if (!cpi->rc.is_src_frame_alt_ref || cpi->rc.is_src_frame_ext_arf) {
       memcpy(cpi->interp_filter_selected[ref_frame + LAST_FRAME],
              cpi->interp_filter_selected[ref_frame - 1 + LAST_FRAME],
              sizeof(cpi->interp_filter_selected[ref_frame - 1 + LAST_FRAME]));
@@ -3414,11 +3411,13 @@ static void update_reference_frames(AV1_COMP *cpi) {
 
     // TODO(zoeliu): Do we need to copy cpi->interp_filter_selected[0] over to
     // cpi->interp_filter_selected[GOLDEN_FRAME]?
-  } else if (cpi->rc.is_src_frame_ext_arf && cm->show_existing_frame) {
+  } else if (cpi->rc.is_src_frame_ext_arf &&
+             (cm->show_existing_frame || cpi->refresh_last_frame == 0)) {
 #if CONFIG_DEBUG
     const GF_GROUP *const gf_group = &cpi->twopass.gf_group;
     assert(gf_group->update_type[gf_group->index] == INTNL_OVERLAY_UPDATE);
 #endif
+
 #if USE_SYMM_MULTI_LAYER
     const int bwdref_to_show =
         (cpi->new_bwdref_update_rule == 1) ? BWDREF_FRAME : ALTREF2_FRAME;
@@ -3540,24 +3539,45 @@ static void update_reference_frames(AV1_COMP *cpi) {
     //      v                v                v
     // ref_fb_idx[2],   ref_fb_idx[0],   ref_fb_idx[1]
     int tmp;
+#if USE_SYMM_MULTI_LAYER
+    if (cpi->new_bwdref_update_rule && cpi->rc.is_src_frame_ext_arf) {
+      const int bwdref_to_show = BWDREF_FRAME;
 
-    ref_cnt_fb(pool->frame_bufs,
-               &cm->ref_frame_map[cpi->ref_fb_idx[LAST_REF_FRAMES - 1]],
-               cm->new_fb_idx);
+      tmp = cpi->ref_fb_idx[LAST_REF_FRAMES - 1];
+      shift_last_ref_frames(cpi);
 
-    tmp = cpi->ref_fb_idx[LAST_REF_FRAMES - 1];
+      ref_cnt_fb(pool->frame_bufs,
+                 &cm->ref_frame_map[cpi->ref_fb_idx[bwdref_to_show - 1]],
+                 cm->new_fb_idx);
+      cpi->ref_fb_idx[LAST_FRAME - 1] = cpi->ref_fb_idx[bwdref_to_show - 1];
 
-    shift_last_ref_frames(cpi);
-    cpi->ref_fb_idx[0] = tmp;
+      memcpy(cpi->interp_filter_selected[LAST_FRAME],
+             cpi->interp_filter_selected[0],
+             sizeof(cpi->interp_filter_selected[0]));
 
-    assert(cm->show_existing_frame == 0);
-    memcpy(cpi->interp_filter_selected[LAST_FRAME],
-           cpi->interp_filter_selected[0],
-           sizeof(cpi->interp_filter_selected[0]));
+      lshift_bwd_ref_frames(cpi);
+      cpi->ref_fb_idx[EXTREF_FRAME - 1] = tmp;
+    } else {
+#endif
+      ref_cnt_fb(pool->frame_bufs,
+                 &cm->ref_frame_map[cpi->ref_fb_idx[LAST_REF_FRAMES - 1]],
+                 cm->new_fb_idx);
 
-    // If the new structure is used, we will always have overlay frames coupled
-    // with bwdref frames. Therefore, we won't have to perform this update
-    // in advance (we do this update when the overlay frame shows up).
+      tmp = cpi->ref_fb_idx[LAST_REF_FRAMES - 1];
+
+      shift_last_ref_frames(cpi);
+      cpi->ref_fb_idx[0] = tmp;
+
+      assert(cm->show_existing_frame == 0);
+      memcpy(cpi->interp_filter_selected[LAST_FRAME],
+             cpi->interp_filter_selected[0],
+             sizeof(cpi->interp_filter_selected[0]));
+#if USE_SYMM_MULTI_LAYER
+    }
+#endif
+      // If the new structure is used, we will always have overlay frames
+      // coupled with bwdref frames. Therefore, we won't have to perform this
+      // update in advance (we do this update when the overlay frame shows up).
 #if USE_SYMM_MULTI_LAYER
     if (cpi->new_bwdref_update_rule == 0 && cpi->rc.is_last_bipred_frame) {
 #else

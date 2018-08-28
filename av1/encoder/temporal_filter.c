@@ -562,12 +562,12 @@ void av1_temporal_filter(AV1_COMP *cpi, int distance) {
   //                   extra ARFs' to be zeros. We should investigate in which
   //                   case it is more beneficial to use non-zero strength
   //                   filtering.
+  int which_arf = gf_group->arf_update_idx[gf_group->index];
+
   if (gf_group->update_type[gf_group->index] == INTNL_ARF_UPDATE) {
     strength = 0;
     frames_to_blur = 1;
   }
-
-  int which_arf = gf_group->arf_update_idx[gf_group->index];
 
   // Set the temporal filtering status for the corresponding OVERLAY frame
   if (strength == 0 && frames_to_blur == 1)
