@@ -2454,8 +2454,10 @@ static void rd_pick_sqr_partition(const AV1_COMP *const cpi, ThreadData *td,
   save_context(x, &x_ctx, mi_row, mi_col, bsize, num_planes);
 
 #if CONFIG_DIST_8X8
-  if (block_size_high[bsize] <= 8 || block_size_wide[bsize] <= 8)
-    do_square_split = 0;
+  if (x->using_dist_8x8) {
+    if (block_size_high[bsize] <= 8 || block_size_wide[bsize] <= 8)
+      do_square_split = 0;
+  }
 #endif
 
   // PARTITION_NONE
@@ -3336,12 +3338,12 @@ BEGIN_PARTITION_SEARCH:
   unsigned int pb_source_variance = UINT_MAX;
 
 #if CONFIG_DIST_8X8
-  if (block_size_high[bsize] <= 8) partition_horz_allowed = 0;
-
-  if (block_size_wide[bsize] <= 8) partition_vert_allowed = 0;
-
-  if (block_size_high[bsize] <= 8 || block_size_wide[bsize] <= 8)
-    do_square_split = 0;
+  if (x->using_dist_8x8) {
+    if (block_size_high[bsize] <= 8) partition_horz_allowed = 0;
+    if (block_size_wide[bsize] <= 8) partition_vert_allowed = 0;
+    if (block_size_high[bsize] <= 8 || block_size_wide[bsize] <= 8)
+      do_square_split = 0;
+  }
 #endif
 
   // PARTITION_NONE
@@ -3687,9 +3689,11 @@ BEGIN_PARTITION_SEARCH:
   int vertab_partition_allowed = ext_partition_allowed;
 
 #if CONFIG_DIST_8X8
-  if (block_size_high[bsize] <= 8 || block_size_wide[bsize] <= 8) {
-    horzab_partition_allowed = 0;
-    vertab_partition_allowed = 0;
+  if (x->using_dist_8x8) {
+    if (block_size_high[bsize] <= 8 || block_size_wide[bsize] <= 8) {
+      horzab_partition_allowed = 0;
+      vertab_partition_allowed = 0;
+    }
   }
 #endif
 
@@ -3931,9 +3935,11 @@ BEGIN_PARTITION_SEARCH:
   }
 
 #if CONFIG_DIST_8X8
-  if (block_size_high[bsize] <= 16 || block_size_wide[bsize] <= 16) {
-    partition_horz4_allowed = 0;
-    partition_vert4_allowed = 0;
+  if (x->using_dist_8x8) {
+    if (block_size_high[bsize] <= 16 || block_size_wide[bsize] <= 16) {
+      partition_horz4_allowed = 0;
+      partition_vert4_allowed = 0;
+    }
   }
 #endif
 
