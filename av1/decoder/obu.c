@@ -745,9 +745,6 @@ int aom_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
           if (pbi->common.frame_type == KEY_FRAME) {
             // This is the start of a new coded video sequence.
             pbi->sequence_header_changed = 0;
-          } else {
-            cm->error.error_code = AOM_CODEC_UNSUP_BITSTREAM;
-            return -1;
           }
         }
 
