@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9dc7b4c2_f10c901a",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 4479,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-08-29T21:16:56Z",
+      "side": 1,
+      "message": "I suggest we move the entire check here:\n  if (pbi-\u003esequence_header_changed) {\n    if (cm-\u003eframe_type \u003d\u003d KEY_FRAME) {\n      // This is the start of a new coded video sequence.\n      pbi-\u003esequence_header_changed \u003d 0;\n    } else {\n      aom_internal_error(\u0026cm-\u003eerror, AOM_CODEC_CORRUPT_FRAME,\n                         \"Sequence header has changed without a keyframe.\");\n    }\n  }",
+      "range": {
+        "startLine": 4479,
+        "startChar": 4,
+        "endLine": 4479,
+        "endChar": 70
+      },
+      "revId": "4fe127319daff9012d4f48dbb69c9739b94870ed",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "29353954_84eeb550",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 4480,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-08-29T21:16:56Z",
+      "side": 1,
+      "message": "This probably doesn\u0027t really matter, but the original code uses the AOM_CODEC_UNSUP_BITSTREAM error code. Just wanted to make sure you intended to change the error code to AOM_CODEC_CORRUPT_FRAME.",
+      "range": {
+        "startLine": 4480,
+        "startChar": 37,
+        "endLine": 4480,
+        "endChar": 60
+      },
+      "revId": "4fe127319daff9012d4f48dbb69c9739b94870ed",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
