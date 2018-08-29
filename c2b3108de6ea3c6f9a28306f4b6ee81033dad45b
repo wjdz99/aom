@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "345bd64b_7d7e8414",
+        "filename": "aom/aom_encoder.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 870,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-08-29T15:31:38Z",
+      "side": 1,
+      "message": "Nit: \"is allocated using malloc()\" is implementation detail. (For example, the implementation could switch to calloc() in the future.) We just need to document which function should be used to free the memory.",
+      "range": {
+        "startLine": 869,
+        "startChar": 70,
+        "endLine": 870,
+        "endChar": 36
+      },
+      "revId": "c2b3108de6ea3c6f9a28306f4b6ee81033dad45b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "62d3e520_7a93b7fd",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 949,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-08-29T15:31:38Z",
+      "side": 1,
+      "message": "Nit: Same here -- I suggest removing \"is allocated using malloc(), and\".",
+      "range": {
+        "startLine": 949,
+        "startChar": 3,
+        "endLine": 949,
+        "endChar": 35
+      },
+      "revId": "c2b3108de6ea3c6f9a28306f4b6ee81033dad45b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
