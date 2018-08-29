@@ -4476,6 +4476,11 @@ static int read_uncompressed_header(AV1Decoder *pbi,
     }
 
     cm->frame_type = (FRAME_TYPE)aom_rb_read_literal(rb, 2);  // 2 bits
+    if (pbi->sequence_header_changed && cm->frame_type != KEY_FRAME) {
+      aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
+                         "Sequence header has changed without a keyframe.");
+    }
+
     cm->show_frame = aom_rb_read_bit(rb);
     if (seq_params->still_picture &&
         (cm->frame_type != KEY_FRAME || !cm->show_frame)) {
