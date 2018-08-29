@@ -1002,7 +1002,8 @@ static void init_seq_coding_tools(SequenceHeader *seq, AV1_COMMON *cm,
   seq->enable_cdef = oxcf->enable_cdef;
   seq->enable_restoration = oxcf->enable_restoration;
   seq->enable_warped_motion = oxcf->enable_warped_motion;
-  seq->enable_interintra_compound = 1;
+  // seq->enable_interintra_compound = 1;
+  seq->enable_interintra_compound = 0;  // Disable interintra
   seq->enable_masked_compound = 1;
   seq->enable_intra_edge_filter = 1;
   seq->enable_filter_intra = 1;
