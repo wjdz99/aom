@@ -2207,11 +2207,17 @@ static void allocate_gf_group_bits(AV1_COMP *cpi, int64_t gf_group_bits,
       // by (target_frame_size >> 2) as in the original setting. However it
       // does not bring gains for pyramid structure with GF length = 16.
       gf_group->bit_allocation[arf_pos] = target_frame_size;
+      if (gf_group->pyramid_level[arf_pos] == gf_group->pyramid_height - 1)
+        gf_group->bit_allocation[arf_pos] += target_frame_size;
+      else
+        gf_group->bit_allocation[arf_pos] += (target_frame_size >> 1);
 #endif
     } else {
       assert(gf_group->update_type[frame_index] == LF_UPDATE ||
              gf_group->update_type[frame_index] == INTNL_OVERLAY_UPDATE);
       gf_group->bit_allocation[frame_index] = target_frame_size;
+      if (cpi->new_bwdref_update_rule == 1)
+        gf_group->bit_allocation[frame_index] -= (target_frame_size >> 1);
     }
 
     ++frame_index;
