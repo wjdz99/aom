@@ -9,8 +9,8 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
-#ifndef Y4MENC_H_
-#define Y4MENC_H_
+#ifndef RAWENC_H_
+#define RAWENC_H_
 
 #include "aom/aom_decoder.h"
 #include "common/tools_common.h"
@@ -19,14 +19,9 @@
 extern "C" {
 #endif
 
-#define Y4M_BUFFER_SIZE 128
-
-int y4m_write_file_header(char *buf, size_t len, int width, int height,
-                          const struct AvxRational *framerate,
-                          aom_img_fmt_t fmt, unsigned int bit_depth);
-int y4m_write_frame_header(char *buf, size_t len);
-void y4m_write_image_file(const aom_image_t *img, const int *planes, FILE *file);
-void y4m_update_image_md5(const aom_image_t *img, const int planes[3],
+void raw_write_image_file(
+    const aom_image_t *img, const int *planes, FILE *file);
+void raw_update_image_md5(const aom_image_t *img, const int planes[3],
                           MD5Context *md5);
 
 
@@ -34,4 +29,4 @@ void y4m_update_image_md5(const aom_image_t *img, const int planes[3],
 }  // extern "C"
 #endif
 
-#endif  // Y4MENC_H_
+#endif  // RAWENC_H_
