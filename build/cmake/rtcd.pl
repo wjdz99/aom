@@ -12,6 +12,7 @@
 no strict 'refs';
 use warnings;
 use Getopt::Long;
+use diagnostics;
 Getopt::Long::Configure("auto_help") if $Getopt::Long::VERSION > 2.32;
 
 my %ALL_FUNCS = ();
