@@ -162,7 +162,7 @@ class Y4mVideoWriteTest : public Y4mVideoSourceTest {
     tmpfile_ = new libaom_test::TempOutFile;
     ASSERT_TRUE(tmpfile_->file() != NULL);
     y4m_write_file_header(buf, sizeof(buf), kWidth, kHeight, &framerate,
-                          y4m_.aom_fmt, y4m_.bit_depth);
+                          0, y4m_.aom_fmt, y4m_.bit_depth);
     fputs(buf, tmpfile_->file());
     for (unsigned int i = start_; i < limit_; i++) {
       y4m_write_frame_header(buf, sizeof(buf));
