@@ -582,6 +582,19 @@ static INLINE YV12_BUFFER_CONFIG *get_frame_new_buffer(
   return &cm->buffer_pool->frame_bufs[cm->new_fb_idx].buf;
 }
 
+static INLINE void reset_frame_fbs(AV1_COMMON *cm) {
+  RefCntBuffer *const frame_bufs = cm->buffer_pool->frame_bufs;
+  int i;
+
+  lock_buffer_pool(cm->buffer_pool);
+  for (i = 0; i < FRAME_BUFFERS; ++i) {
+    frame_bufs[i].ref_count = i == cm->new_fb_idx ? 1 : 0;
+    frame_bufs[i].cur_frame_offset = 0;
+    av1_zero(frame_bufs[i].ref_frame_offset);
+  }
+  unlock_buffer_pool(cm->buffer_pool);
+}
+
 static INLINE int get_free_fb(AV1_COMMON *cm) {
   RefCntBuffer *const frame_bufs = cm->buffer_pool->frame_bufs;
   int i;
