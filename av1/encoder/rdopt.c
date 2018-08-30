@@ -6354,65 +6354,6 @@ static INLINE PREDICTION_MODE get_single_mode(PREDICTION_MODE this_mode,
   return single_mode;
 }
 
-/* If the current mode shares the same mv with other modes with higher prority,
- * skip this mode. This priority order is nearest > global > near. */
-static int skip_repeated_mv(const AV1_COMMON *const cm,
-                            const MACROBLOCK *const x,
-                            PREDICTION_MODE this_mode,
-                            const MV_REFERENCE_FRAME ref_frames[2]) {
-  const int is_comp_pred = ref_frames[1] > INTRA_FRAME;
-  const uint8_t ref_frame_type = av1_ref_frame_type(ref_frames);
-  const MB_MODE_INFO_EXT *const mbmi_ext = x->mbmi_ext;
-  if (!is_comp_pred) {
-    if (this_mode == NEARMV) {
-      if (mbmi_ext->ref_mv_count[ref_frame_type] == 0) {
-        // NEARMV has the same motion vector as NEARESTMV
-        return 1;
-      }
-      if (mbmi_ext->ref_mv_count[ref_frame_type] == 1 &&
-          cm->global_motion[ref_frames[0]].wmtype <= TRANSLATION) {
-        // NEARMV has the same motion vector as GLOBALMV
-        return 1;
-      }
-    }
-    if (this_mode == GLOBALMV) {
-      if (mbmi_ext->ref_mv_count[ref_frame_type] == 0 &&
-          cm->global_motion[ref_frames[0]].wmtype <= TRANSLATION) {
-        // GLOBALMV has the same motion vector as NEARESTMV
-        return 1;
-      }
-    }
-  } else {
-    for (int i = 0; i < 2; ++i) {
-      const PREDICTION_MODE single_mode =
-          get_single_mode(this_mode, i, is_comp_pred);
-      if (single_mode == NEARMV) {
-        if (mbmi_ext->ref_mv_count[ref_frame_type] == 0) {
-          // NEARMV has the same motion vector as NEARESTMV in compound mode
-          return 1;
-        }
-      }
-    }
-    if (this_mode == NEAR_NEARMV) {
-      if (mbmi_ext->ref_mv_count[ref_frame_type] == 1 &&
-          cm->global_motion[ref_frames[0]].wmtype <= TRANSLATION &&
-          cm->global_motion[ref_frames[1]].wmtype <= TRANSLATION) {
-        // NEAR_NEARMV has the same motion vector as GLOBAL_GLOBALMV
-        return 1;
-      }
-    }
-    if (this_mode == GLOBAL_GLOBALMV) {
-      if (mbmi_ext->ref_mv_count[ref_frame_type] == 0 &&
-          cm->global_motion[ref_frames[0]].wmtype <= TRANSLATION &&
-          cm->global_motion[ref_frames[1]].wmtype <= TRANSLATION) {
-        // GLOBAL_GLOBALMV has the same motion vector as NEARST_NEARSTMV
-        return 1;
-      }
-    }
-  }
-  return 0;
-}
-
 static void joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
                                 BLOCK_SIZE bsize, int_mv *cur_mv, int mi_row,
                                 int mi_col, int_mv *ref_mv_sub8x8[2],
@@ -7720,6 +7661,62 @@ typedef struct {
   int single_comp_cost;
   int64_t (*simple_rd)[MAX_REF_MV_SERCH][REF_FRAMES];
 } HandleInterModeArgs;
+
+/* If the current mode shares the same mv with other modes with higher cost,
+ * skip this mode. */
+static int skip_repeated_mv(const AV1_COMMON *const cm,
+                            const MACROBLOCK *const x,
+                            PREDICTION_MODE this_mode,
+                            const MV_REFERENCE_FRAME ref_frames[2],
+                            HandleInterModeArgs *args) {
+  const int is_comp_pred = ref_frames[1] > INTRA_FRAME;
+  const uint8_t ref_frame_type = av1_ref_frame_type(ref_frames);
+  const MB_MODE_INFO_EXT *const mbmi_ext = x->mbmi_ext;
+  const int ref_mv_count = mbmi_ext->ref_mv_count[ref_frame_type];
+  PREDICTION_MODE compare_mode = MB_MODE_COUNT;
+  if (!is_comp_pred) {
+    if (this_mode == NEARMV) {
+      if (ref_mv_count == 0) {
+        // NEARMV has the same motion vector as NEARESTMV
+        compare_mode = NEARESTMV;
+      }
+      if (ref_mv_count == 1 &&
+          cm->global_motion[ref_frames[0]].wmtype <= TRANSLATION) {
+        // NEARMV has the same motion vector as GLOBALMV
+        compare_mode = GLOBALMV;
+      }
+    }
+    if (this_mode == GLOBALMV) {
+      if (ref_mv_count == 0 &&
+          cm->global_motion[ref_frames[0]].wmtype <= TRANSLATION) {
+        // GLOBALMV has the same motion vector as NEARESTMV
+        compare_mode = NEARESTMV;
+      }
+      if (ref_mv_count == 1) {
+        // GLOBALMV has the same motion vector as NEARMV
+        compare_mode = NEARMV;
+      }
+    }
+
+    if (compare_mode != MB_MODE_COUNT) {
+      // Use modelled_rd to check whether compare mode was searched
+      if (args->modelled_rd[compare_mode][0][ref_frames[0]] != INT64_MAX) {
+        const int16_t mode_ctx =
+            av1_mode_context_analyzer(mbmi_ext->mode_context, ref_frames);
+        const int compare_cost = cost_mv_ref(x, compare_mode, mode_ctx);
+        const int this_cost = cost_mv_ref(x, this_mode, mode_ctx);
+
+        // Only skip if the mode cost is larger than compare mode cost
+        if (this_cost > compare_cost) {
+          args->modelled_rd[this_mode][0][ref_frames[0]] =
+              args->modelled_rd[compare_mode][0][ref_frames[0]];
+          return 1;
+        }
+      }
+    }
+  }
+  return 0;
+}
 
 static INLINE int clamp_and_check_mv(int_mv *out_mv, int_mv in_mv,
                                      const AV1_COMMON *cm,
@@ -10451,7 +10448,8 @@ static void init_inter_mode_search_state(InterModeSearchState *search_state,
 static int inter_mode_search_order_independent_skip(
     const AV1_COMP *cpi, const PICK_MODE_CONTEXT *ctx, const MACROBLOCK *x,
     BLOCK_SIZE bsize, int mode_index, int mi_row, int mi_col,
-    uint32_t *mode_skip_mask, uint16_t *ref_frame_skip_mask) {
+    uint32_t *mode_skip_mask, uint16_t *ref_frame_skip_mask,
+    HandleInterModeArgs *args) {
   const SPEED_FEATURES *const sf = &cpi->sf;
   const AV1_COMMON *const cm = &cpi->common;
   const struct segmentation *const seg = &cm->seg;
@@ -10577,7 +10575,7 @@ static int inter_mode_search_order_independent_skip(
     return 1;
   }
 
-  if (skip_repeated_mv(cm, x, this_mode, ref_frame)) {
+  if (skip_repeated_mv(cm, x, this_mode, ref_frame, args)) {
     return 1;
   }
   return 0;
@@ -11173,7 +11171,7 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
 
     if (inter_mode_search_order_independent_skip(cpi, ctx, x, bsize, mode_index,
                                                  mi_row, mi_col, mode_skip_mask,
-                                                 ref_frame_skip_mask))
+                                                 ref_frame_skip_mask, &args))
       continue;
 
     if (sf->prune_comp_search_by_single_result > 0 &&
