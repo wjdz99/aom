@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "4efdedec_349d2b87",
+        "filename": "common/av1c.c",
+        "patchSetId": 33
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-08-30T21:09:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a69ef553_c8d94f4c",
+      "revId": "fd7d0f36e06f070e34391c3bd34adaff4b37c6ab",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1287808b_819e46ec",
         "filename": "common/av1c.c",
         "patchSetId": 33
@@ -30,6 +48,24 @@
       "writtenOn": "2018-08-30T18:52:38Z",
       "side": 1,
       "message": "nit: i\u0027m not sure if we do this in libaom, but undef these macros at the end of the file?",
+      "revId": "fd7d0f36e06f070e34391c3bd34adaff4b37c6ab",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "abd415aa_641585f1",
+        "filename": "common/av1c.c",
+        "patchSetId": 33
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-08-30T21:09:24Z",
+      "side": 1,
+      "message": "A quick grep says that they are (at least in some places), so: done.",
+      "parentUuid": "1287808b_819e46ec",
       "revId": "fd7d0f36e06f070e34391c3bd34adaff4b37c6ab",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "530eab47_29b613dc",
+        "filename": "common/av1c.c",
+        "patchSetId": 33
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-08-30T21:09:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5a2d80e9_1ec137a6",
+      "revId": "fd7d0f36e06f070e34391c3bd34adaff4b37c6ab",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0447835f_d40ed000",
         "filename": "common/av1c.c",
         "patchSetId": 33
@@ -70,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "4b0702a0_66336e2e",
+        "filename": "common/av1c.c",
+        "patchSetId": 33
+      },
+      "lineNbr": 375,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-08-30T21:09:24Z",
+      "side": 1,
+      "message": "oops! Thanks/done.",
+      "parentUuid": "0447835f_d40ed000",
+      "revId": "fd7d0f36e06f070e34391c3bd34adaff4b37c6ab",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "695d1f1b_7cfcbf9c",
         "filename": "common/av1c.c",
         "patchSetId": 33
@@ -81,6 +153,24 @@
       "writtenOn": "2018-08-30T18:52:38Z",
       "side": 1,
       "message": "nit: could use a comment as to why this is needed.\n\nit seems like the \"reader\" variable could be used directly in the macro as \u0026reader ?",
+      "revId": "fd7d0f36e06f070e34391c3bd34adaff4b37c6ab",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "74697405_f119462e",
+        "filename": "common/av1c.c",
+        "patchSetId": 33
+      },
+      "lineNbr": 412,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-08-30T21:09:24Z",
+      "side": 1,
+      "message": "Added a comment explaining that there\u0027s only one reader, and that it\u0027s shared by all the functions in this file.",
+      "parentUuid": "695d1f1b_7cfcbf9c",
       "revId": "fd7d0f36e06f070e34391c3bd34adaff4b37c6ab",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
@@ -104,6 +194,24 @@
     },
     {
       "key": {
+        "uuid": "02ab76fc_928dd081",
+        "filename": "test/av1c_test.cc",
+        "patchSetId": 33
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-08-30T21:09:24Z",
+      "side": 1,
+      "message": "I don\u0027t understand-- I did fix the order of declarations here, though.",
+      "parentUuid": "00b8e0cc_d7e4c1c8",
+      "revId": "fd7d0f36e06f070e34391c3bd34adaff4b37c6ab",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "19731f7e_c6e4ca75",
         "filename": "test/av1c_test.cc",
         "patchSetId": 33
@@ -115,6 +223,24 @@
       "writtenOn": "2018-08-30T18:52:38Z",
       "side": 1,
       "message": "this (and the one below) could be a parameterized (still picture or full) to avoid the duplicate checks. could at least be a loop with a conditional over the get_av1c_from_obu call.",
+      "revId": "fd7d0f36e06f070e34391c3bd34adaff4b37c6ab",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6b61587b_81bea5f2",
+        "filename": "test/av1c_test.cc",
+        "patchSetId": 33
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-08-30T21:09:24Z",
+      "side": 1,
+      "message": "I didn\u0027t parameterize it, but I did move the duped checks into a helper.",
+      "parentUuid": "19731f7e_c6e4ca75",
       "revId": "fd7d0f36e06f070e34391c3bd34adaff4b37c6ab",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
@@ -135,6 +261,24 @@
       "revId": "fd7d0f36e06f070e34391c3bd34adaff4b37c6ab",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "403cb833_5878c083",
+        "filename": "test/av1c_test.cc",
+        "patchSetId": 33
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-08-30T21:09:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ae43206e_5c981d2d",
+      "revId": "fd7d0f36e06f070e34391c3bd34adaff4b37c6ab",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
