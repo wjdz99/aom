@@ -7694,6 +7694,7 @@ typedef struct {
   int ref_frame_cost;
   int single_comp_cost;
   int64_t (*simple_rd)[MAX_REF_MV_SERCH][REF_FRAMES];
+  INTERINTRA_MODE inter_intra_mode[REF_FRAMES];
 } HandleInterModeArgs;
 
 static INLINE int clamp_and_check_mv(int_mv *out_mv, int_mv in_mv,
@@ -8364,6 +8365,7 @@ static int txfm_search(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
 static int handle_inter_intra_mode(const AV1_COMP *const cpi,
                                    MACROBLOCK *const x, BLOCK_SIZE bsize,
                                    int mi_row, int mi_col, MB_MODE_INFO *mbmi,
+                                   HandleInterModeArgs *args,
                                    int64_t ref_best_rd, int rate_mv,
                                    int *tmp_rate2, BUFFER_SET *orig_dst) {
   const AV1_COMMON *const cm = &cpi->common;
@@ -8374,7 +8376,6 @@ static int handle_inter_intra_mode(const AV1_COMP *const cpi,
   int64_t rd, best_interintra_rd = INT64_MAX;
   int rmode, rate_sum;
   int64_t dist_sum;
-  int j;
   int tmp_rate_mv = 0;
   int tmp_skip_txfm_sb;
   int bw = block_size_wide[bsize];
@@ -8395,27 +8396,35 @@ static int handle_inter_intra_mode(const AV1_COMP *const cpi,
   restore_dst_buf(xd, *orig_dst, num_planes);
   mbmi->ref_frame[1] = INTRA_FRAME;
   mbmi->use_wedge_interintra = 0;
-  for (j = 0; j < INTERINTRA_MODES; ++j) {
-    mbmi->interintra_mode = (INTERINTRA_MODE)j;
+  best_interintra_mode = args->inter_intra_mode[mbmi->ref_frame[0]];
+  int j = 0;
+  if (cpi->sf.reuse_inter_intra_mode == 0 ||
+      best_interintra_mode == INTERINTRA_MODES) {
+    for (j = 0; j < INTERINTRA_MODES; ++j) {
+      mbmi->interintra_mode = (INTERINTRA_MODE)j;
+      rmode = interintra_mode_cost[mbmi->interintra_mode];
+      av1_build_intra_predictors_for_interintra(cm, xd, bsize, 0, orig_dst,
+                                                intrapred, bw);
+      av1_combine_interintra(xd, bsize, 0, tmp_buf, bw, intrapred, bw);
+      av1_subtract_plane(x, bsize, 0);
+      model_rd_fn[MODELRD_LEGACY](cpi, bsize, x, xd, 0, 0, mi_row, mi_col,
+                                  &rate_sum, &dist_sum, &tmp_skip_txfm_sb,
+                                  &tmp_skip_sse_sb, NULL, NULL, NULL);
+      rd = RDCOST(x->rdmult, tmp_rate_mv + rate_sum + rmode, dist_sum);
+      if (rd < best_interintra_rd) {
+        best_interintra_rd = rd;
+        best_interintra_mode = mbmi->interintra_mode;
+      }
+    }
+    args->inter_intra_mode[mbmi->ref_frame[0]] = best_interintra_mode;
+  }
+  if (j != II_SMOOTH_PRED || best_interintra_rd != II_SMOOTH_PRED) {
+    mbmi->interintra_mode = best_interintra_mode;
     rmode = interintra_mode_cost[mbmi->interintra_mode];
     av1_build_intra_predictors_for_interintra(cm, xd, bsize, 0, orig_dst,
                                               intrapred, bw);
     av1_combine_interintra(xd, bsize, 0, tmp_buf, bw, intrapred, bw);
-    av1_subtract_plane(x, bsize, 0);
-    model_rd_fn[MODELRD_LEGACY](cpi, bsize, x, xd, 0, 0, mi_row, mi_col,
-                                &rate_sum, &dist_sum, &tmp_skip_txfm_sb,
-                                &tmp_skip_sse_sb, NULL, NULL, NULL);
-    rd = RDCOST(x->rdmult, tmp_rate_mv + rate_sum + rmode, dist_sum);
-    if (rd < best_interintra_rd) {
-      best_interintra_rd = rd;
-      best_interintra_mode = mbmi->interintra_mode;
-    }
   }
-  mbmi->interintra_mode = best_interintra_mode;
-  rmode = interintra_mode_cost[mbmi->interintra_mode];
-  av1_build_intra_predictors_for_interintra(cm, xd, bsize, 0, orig_dst,
-                                            intrapred, bw);
-  av1_combine_interintra(xd, bsize, 0, tmp_buf, bw, intrapred, bw);
   rd = estimate_yrd_for_sb(cpi, bsize, x, &rate_sum, &dist_sum,
                            &tmp_skip_txfm_sb, &tmp_skip_sse_sb, INT64_MAX);
   if (rd != INT64_MAX)
@@ -8654,7 +8663,7 @@ static int64_t motion_mode_rd(const AV1_COMP *const cpi, MACROBLOCK *const x,
       }
     } else if (is_interintra_mode) {
       const int ret =
-          handle_inter_intra_mode(cpi, x, bsize, mi_row, mi_col, mbmi,
+          handle_inter_intra_mode(cpi, x, bsize, mi_row, mi_col, mbmi, args,
                                   ref_best_rd, rate_mv, &tmp_rate2, orig_dst);
       if (ret < 0) continue;
     }
@@ -11098,12 +11107,20 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
                                best_rd_so_far);
 
   HandleInterModeArgs args = {
-    { NULL },  { MAX_SB_SIZE, MAX_SB_SIZE, MAX_SB_SIZE },
-    { NULL },  { MAX_SB_SIZE >> 1, MAX_SB_SIZE >> 1, MAX_SB_SIZE >> 1 },
-    NULL,      NULL,
-    NULL,      NULL,
-    { { 0 } }, INT_MAX,
-    INT_MAX,   NULL
+    { NULL },
+    { MAX_SB_SIZE, MAX_SB_SIZE, MAX_SB_SIZE },
+    { NULL },
+    { MAX_SB_SIZE >> 1, MAX_SB_SIZE >> 1, MAX_SB_SIZE >> 1 },
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    { { 0 } },
+    INT_MAX,
+    INT_MAX,
+    NULL,
+    { INTERINTRA_MODES, INTERINTRA_MODES, INTERINTRA_MODES, INTERINTRA_MODES,
+      INTERINTRA_MODES, INTERINTRA_MODES, INTERINTRA_MODES, INTERINTRA_MODES }
   };
   for (i = 0; i < REF_FRAMES; ++i) x->pred_sse[i] = INT_MAX;
 
