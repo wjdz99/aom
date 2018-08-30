@@ -1,0 +1,140 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a69ef553_c8d94f4c",
+        "filename": "common/av1c.c",
+        "patchSetId": 33
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 7025
+      },
+      "writtenOn": "2018-08-30T18:52:38Z",
+      "side": 1,
+      "message": "nit: the reader variable name seems to be the same everywhere this macro is used. it could be removed?",
+      "revId": "fd7d0f36e06f070e34391c3bd34adaff4b37c6ab",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1287808b_819e46ec",
+        "filename": "common/av1c.c",
+        "patchSetId": 33
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 7025
+      },
+      "writtenOn": "2018-08-30T18:52:38Z",
+      "side": 1,
+      "message": "nit: i\u0027m not sure if we do this in libaom, but undef these macros at the end of the file?",
+      "revId": "fd7d0f36e06f070e34391c3bd34adaff4b37c6ab",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5a2d80e9_1ec137a6",
+        "filename": "common/av1c.c",
+        "patchSetId": 33
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 7025
+      },
+      "writtenOn": "2018-08-30T18:52:38Z",
+      "side": 1,
+      "message": "nit: might be cleaner to just return + 1 (since that\u0027s the only way this value is used elsewhere).",
+      "revId": "fd7d0f36e06f070e34391c3bd34adaff4b37c6ab",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0447835f_d40ed000",
+        "filename": "common/av1c.c",
+        "patchSetId": 33
+      },
+      "lineNbr": 375,
+      "author": {
+        "id": 7025
+      },
+      "writtenOn": "2018-08-30T18:52:38Z",
+      "side": 1,
+      "message": "nit: seems to be missing the film_grain_params_present bit? not a big deal, but for completeness\u0027 sake.",
+      "revId": "fd7d0f36e06f070e34391c3bd34adaff4b37c6ab",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "695d1f1b_7cfcbf9c",
+        "filename": "common/av1c.c",
+        "patchSetId": 33
+      },
+      "lineNbr": 412,
+      "author": {
+        "id": 7025
+      },
+      "writtenOn": "2018-08-30T18:52:38Z",
+      "side": 1,
+      "message": "nit: could use a comment as to why this is needed.\n\nit seems like the \"reader\" variable could be used directly in the macro as \u0026reader ?",
+      "revId": "fd7d0f36e06f070e34391c3bd34adaff4b37c6ab",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "00b8e0cc_d7e4c1c8",
+        "filename": "test/av1c_test.cc",
+        "patchSetId": 33
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 7025
+      },
+      "writtenOn": "2018-08-30T18:52:38Z",
+      "side": 1,
+      "message": "nit: kLobfFullSequenceHeaderObu seems to match the comment in line 21.",
+      "revId": "fd7d0f36e06f070e34391c3bd34adaff4b37c6ab",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "19731f7e_c6e4ca75",
+        "filename": "test/av1c_test.cc",
+        "patchSetId": 33
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 7025
+      },
+      "writtenOn": "2018-08-30T18:52:38Z",
+      "side": 1,
+      "message": "this (and the one below) could be a parameterized (still picture or full) to avoid the duplicate checks. could at least be a loop with a conditional over the get_av1c_from_obu call.",
+      "revId": "fd7d0f36e06f070e34391c3bd34adaff4b37c6ab",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ae43206e_5c981d2d",
+        "filename": "test/av1c_test.cc",
+        "patchSetId": 33
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 7025
+      },
+      "writtenOn": "2018-08-30T18:52:38Z",
+      "side": 1,
+      "message": "nit: doing this in an explicit loop may help pin point the exact indices of mismatch.",
+      "revId": "fd7d0f36e06f070e34391c3bd34adaff4b37c6ab",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
