@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cc257700_aaa495de",
+        "filename": "av1/common/onyxc_int.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 585,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-08-30T23:24:25Z",
+      "side": 1,
+      "message": "1. Please define this function in decodeframe.c as a static function. It is only called in decodeframe.c.\n\n2. I don\u0027t know what \"fbs\" means. Would \"reset_frame_buffers\" be a reasonable name?",
+      "range": {
+        "startLine": 585,
+        "startChar": 19,
+        "endLine": 585,
+        "endChar": 34
+      },
+      "revId": "e08de491a4966a37c1b246c02106af85ad0e9e51",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "541e62d1_ed19589e",
+        "filename": "av1/common/onyxc_int.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 591,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-08-30T23:24:25Z",
+      "side": 1,
+      "message": "It is risky to reset the ref_count without clearing the holders of the references. We should also clear the ref_frame_map and next_ref_frame_map arrays.",
+      "range": {
+        "startLine": 591,
+        "startChar": 4,
+        "endLine": 591,
+        "endChar": 58
+      },
+      "revId": "e08de491a4966a37c1b246c02106af85ad0e9e51",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
