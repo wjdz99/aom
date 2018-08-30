@@ -4397,6 +4397,7 @@ static void show_existing_frame_reset(AV1Decoder *const pbi,
 
 static INLINE void reset_frame_buffers(AV1_COMMON *cm) {
   RefCntBuffer *const frame_bufs = cm->buffer_pool->frame_bufs;
+  const SequenceHeader *const seq_params = &cm->seq_params;
   int i;
 
   memset(&cm->ref_frame_map, -1, sizeof(cm->ref_frame_map));
@@ -4406,6 +4407,9 @@ static INLINE void reset_frame_buffers(AV1_COMMON *cm) {
   for (i = 0; i < FRAME_BUFFERS; ++i) {
     frame_bufs[i].ref_count = i == cm->new_fb_idx ? 1 : 0;
     frame_bufs[i].cur_frame_offset = 0;
+    // Previous sequence with different bitdepth may have set to a 
+    // neutral gray in different bit depth, need reset here.  
+    set_planes_to_neutral_grey(seq_params, &frame_bufs[i].buf, 0);
     av1_zero(frame_bufs[i].ref_frame_offset);
   }
   unlock_buffer_pool(cm->buffer_pool);
