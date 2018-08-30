@@ -592,10 +592,11 @@ static INLINE void highbd_dc_predictor_rect(uint16_t *dst, ptrdiff_t stride,
     sum += left[i];
   }
 
-  const int expected_dc = divide_using_multiply_shift(
-      sum + ((bw + bh) >> 1), shift1, multiplier, HIGHBD_DC_SHIFT2);
-  assert(expected_dc < (1 << bd));
-
+  int expected_dc = divide_using_multiply_shift(sum + ((bw + bh) >> 1), shift1,
+                                                multiplier, HIGHBD_DC_SHIFT2);
+#if !CONFIG_LOWBITDEPTH
+  expected_dc = clamp(expected_dc, 0, (1 << bd) - 1);
+#endif
   for (int r = 0; r < bh; r++) {
     aom_memset16(dst, expected_dc, bw);
     dst += stride;
