@@ -23,12 +23,14 @@ extern "C" {
 
 // Bits Per MB at different Q (Multiplied by 512)
 #define BPER_MB_NORMBITS 9
+#define SEARCH_BIT_BOOST 1
 
 #define CUSTOMIZED_GF 1
 #define MULTI_LVL_BOOST_VBR_CQ 1
 
 #if CONFIG_FIX_GF_LENGTH
 #define FIXED_GF_LENGTH 16
+#define MAX_PYRAMID_LVL 4
 #define USE_SYMM_MULTI_LAYER 1
 #define REDUCE_LAST_ALT_BOOST 1
 #define REDUCE_LAST_GF_LENGTH 1
