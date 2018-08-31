@@ -1584,6 +1584,12 @@ void check_frame_params(GF_GROUP *const gf_group, int gf_interval,
             gf_group->arf_src_offset[i], gf_group->arf_pos_in_gf[i],
             gf_group->arf_update_idx[i], gf_group->pyramid_level[i]);
   }
+
+  fprintf(fid, "number of nodes in each level: \n");
+  for (int i = 0; i < MAX_PYRAMID_LVL; ++i) {
+    fprintf(fid, "lvl %d: %d ", i, gf_group->pyramid_lvl_nodes[i]);
+  }
+  fprintf(fid, "\n");
   fclose(fid);
 }
 #endif  // CHCEK_GF_PARAMETER
@@ -1611,7 +1617,8 @@ static void set_multi_layer_params(GF_GROUP *const gf_group, int l, int r,
       gf_group->arf_src_offset[*frame_ind] = 0;
       gf_group->arf_pos_in_gf[*frame_ind] = 0;
       gf_group->arf_update_idx[*frame_ind] = arf_ind;
-      gf_group->pyramid_level[*frame_ind] = level;
+      gf_group->pyramid_level[*frame_ind] = 0;
+      gf_group->pyramid_lvl_nodes[0] += 1;
       ++(*frame_ind);
     }
   } else {
@@ -1623,6 +1630,7 @@ static void set_multi_layer_params(GF_GROUP *const gf_group, int l, int r,
     gf_group->arf_pos_in_gf[*frame_ind] = 0;
     gf_group->arf_update_idx[*frame_ind] = 1;  // mark all internal ARF 1
     gf_group->pyramid_level[*frame_ind] = level;
+    gf_group->pyramid_lvl_nodes[level] += 1;
     ++(*frame_ind);
 
     // set parameters for frames displayed before this frame
@@ -1653,6 +1661,12 @@ static int construct_multi_layer_gf_structure(GF_GROUP *const gf_group,
                                               const int gf_interval) {
   int frame_index = 0;
   gf_group->pyramid_height = get_pyramid_height(gf_interval);
+
+  assert(gf_group->pyramid_height <= MAX_PYRAMID_LVL);
+
+  for (int lvl = 0; lvl < MAX_PYRAMID_LVL; ++lvl) {
+    gf_group->pyramid_lvl_nodes[lvl] = 0;
+  }
 
   // At the beginning of each GF group it will be a key or overlay frame,
   gf_group->update_type[frame_index] = OVERLAY_UPDATE;
@@ -2205,10 +2219,35 @@ static void allocate_gf_group_bits(AV1_COMP *cpi, int64_t gf_group_bits,
 
       gf_group->bit_allocation[arf_pos] = target_frame_size;
 #if MULTI_LVL_BOOST_VBR_CQ
+#if SEARCH_BIT_BOOST
+      float_t reduced_factor = (oxcf->input_param2 * 50 + 25) / 100;
+      float_t budget = (1 - reduced_factor) * gf_group->pyramid_lvl_nodes[0];
+
+      // fprintf(stdout, "[%.3f x %d  = %.3f]\n",
+      //         reduced_factor, gf_group->pyramid_lvl_nodes[0], budget);
+
+      float_t lvl_budget[3] = {
+        budget * oxcf->input_param0,
+        budget * (1 - oxcf->input_param0) * oxcf->input_param1,
+        budget * (1 - oxcf->input_param0) * (1 - oxcf->input_param1)
+      };
+      int this_lvl = gf_group->pyramid_level[arf_pos];
+      int dist2top = gf_group->pyramid_height - 1 - this_lvl;
+      float_t lvl_boost =
+          lvl_budget[dist2top] / gf_group->pyramid_lvl_nodes[this_lvl];
+
+      gf_group->bit_allocation[arf_pos] += (int)(target_frame_size * lvl_boost);
+
+      // fprintf(stdout, "{%d %d %f %f}\n",
+      //         this_lvl, gf_group->pyramid_lvl_nodes[this_lvl],
+      //         lvl_budget[dist2top], lvl_boost);
+
+#else
       if (gf_group->pyramid_level[arf_pos] == (gf_group->pyramid_height - 1))
         gf_group->bit_allocation[arf_pos] += target_frame_size;
       else
         gf_group->bit_allocation[arf_pos] += (target_frame_size >> 1);
+#endif  // SEARCH_BIT_BOOST
 #endif  // MULTI_LVL_BOOST_VBR_CQ
 #endif  // USE_SYMM_MULTI_LAYER
     } else {
@@ -2216,9 +2255,18 @@ static void allocate_gf_group_bits(AV1_COMP *cpi, int64_t gf_group_bits,
              gf_group->update_type[frame_index] == INTNL_OVERLAY_UPDATE);
       gf_group->bit_allocation[frame_index] = target_frame_size;
 #if MULTI_LVL_BOOST_VBR_CQ
+#if SEARCH_BIT_BOOST
+      if (cpi->new_bwdref_update_rule) {
+        float_t reduced_factor = (oxcf->input_param2 * 50 + 25) / 100;
+        // fprintf(stdout, "reduced factor: %.3f ", reduced_factor);
+        gf_group->bit_allocation[frame_index] -=
+            (int)(target_frame_size * reduced_factor);
+      }
+#else
       if (cpi->new_bwdref_update_rule)
         gf_group->bit_allocation[frame_index] -= (target_frame_size >> 1);
-#endif
+#endif  // SEARCH_BIT_BOOST
+#endif  // MULTI_LVL_BOOST_VBR_CQ
     }
 
     ++frame_index;
