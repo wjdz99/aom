@@ -45,6 +45,54 @@
       "revId": "96bd7da3688223228b97e17688438a6c5f47c672",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "00f02f3b_c67963b7",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 8421,
+      "author": {
+        "id": 8900
+      },
+      "writtenOn": "2018-08-31T02:20:29Z",
+      "side": 1,
+      "message": "Done.\nThis condition is trying to save one inter_intra predictor build if the best mode is the last mode(II_SMOOTH_PRED).\n\nThis typo should not effect the encode result, if the condition is always true, the behavior is the same as before. After fix it, encoder is a bit faster.",
+      "parentUuid": "e9c8b085_d0948b02",
+      "range": {
+        "startLine": 8421,
+        "startChar": 6,
+        "endLine": 8421,
+        "endChar": 25
+      },
+      "revId": "96bd7da3688223228b97e17688438a6c5f47c672",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8bcd9a8d_29bd712e",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 8421,
+      "author": {
+        "id": 8900
+      },
+      "writtenOn": "2018-08-31T02:20:29Z",
+      "side": 1,
+      "message": "Sorry, this is a typo, should use best_interintra_mode.",
+      "parentUuid": "906b89ee_6591f375",
+      "range": {
+        "startLine": 8421,
+        "startChar": 29,
+        "endLine": 8421,
+        "endChar": 65
+      },
+      "revId": "96bd7da3688223228b97e17688438a6c5f47c672",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
