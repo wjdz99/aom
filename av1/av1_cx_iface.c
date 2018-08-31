@@ -499,9 +499,9 @@ static aom_codec_err_t set_encoder_config(
       cfg->g_pass == AOM_RC_FIRST_PASS ? 0 : cfg->g_lag_in_frames;
   oxcf->rc_mode = cfg->rc_end_usage;
 
-  oxcf->input_param0 = (float_t)cfg->input_param0_x100 / 100;
-  oxcf->input_param1 = (float_t)cfg->input_param1_x100 / 100;
-  oxcf->input_param2 = (float_t)cfg->input_param2_x100 / 100;
+  oxcf->input_param0 = (float_t)cfg->input_param0_x100 / 10;
+  oxcf->input_param1 = (float_t)cfg->input_param1_x100 / 10;
+  oxcf->input_param2 = (float_t)cfg->input_param2_x100 / 10;
 
   // Convert target bandwidth from Kbit/s to Bit/s
   oxcf->target_bandwidth = 1000 * cfg->rc_target_bitrate;

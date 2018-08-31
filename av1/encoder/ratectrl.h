@@ -26,6 +26,7 @@ extern "C" {
 
 #define CUSTOMIZED_GF 1
 #define MULTI_LVL_BOOST_VBR_CQ 1
+#define SEARCH_INTNL_ARF_BOOST 1
 
 #if CONFIG_FIX_GF_LENGTH
 #define FIXED_GF_LENGTH 16

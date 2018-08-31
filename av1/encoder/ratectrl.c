@@ -1055,12 +1055,34 @@ static int rc_pick_q_and_bounds_two_pass(const AV1_COMP *cpi, int width,
           active_best_quality = rc->arf_q;
         }
 #if USE_SYMM_MULTI_LAYER
+#if SEARCH_INTNL_ARF_BOOST
+        float_t boost_factor = 1;
+        int boost = cq_level - active_best_quality;
+#endif
         if (cpi->new_bwdref_update_rule && is_intrl_arf_boost) {
           int this_height = gf_group->pyramid_level[gf_group->index];
           while (this_height < gf_group->pyramid_height) {
+#if SEARCH_INTNL_ARF_BOOST
+            if (gf_group->pyramid_height - this_height == 1)
+              boost_factor *= 0.6f + (cpi->oxcf.input_param0 * 0.5f - 0.2f);
+            else if (gf_group->pyramid_height - this_height == 2)
+              boost_factor *= cpi->oxcf.input_param1;
+            else if (gf_group->pyramid_height - this_height == 3)
+              boost_factor *= cpi->oxcf.input_param2;
+            else
+              boost_factor *= 0.5f;
+#else
             active_best_quality = (active_best_quality + cq_level + 1) / 2;
+#endif
             ++this_height;
           }
+#if SEARCH_INTNL_ARF_BOOST
+          active_best_quality = cq_level - ((int)(boost * boost_factor));
+#endif
+          // fprintf(stdout, "%d %.3f\n",
+          //         gf_group->pyramid_level[gf_group->index],
+          //         boost_factor);
+
         } else {
 #endif
           // Modify best quality for second level arfs. For mode AOM_Q this
