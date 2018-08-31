@@ -1,0 +1,435 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "234580cc_0018c8bb",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 36
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-08-31T19:37:55Z",
+      "side": 1,
+      "message": "Nit: List this file after the av1c.* files.",
+      "range": {
+        "startLine": 128,
+        "startChar": 12,
+        "endLine": 128,
+        "endChar": 44
+      },
+      "revId": "41fd6d48c12decc5ddb5754a15d4777571ec022c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "144b8210_8cb43492",
+        "filename": "common/av1c.c",
+        "patchSetId": 36
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-08-31T19:37:55Z",
+      "side": 1,
+      "message": "Nit: The Style Guide recommend including av1c.h first in this file and in av1c_test.cc.\n\n#include \"common/av1c.h\"",
+      "revId": "41fd6d48c12decc5ddb5754a15d4777571ec022c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9d3d3d9c_f9210e3e",
+        "filename": "common/av1c.c",
+        "patchSetId": 36
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-08-31T19:37:55Z",
+      "side": 1,
+      "message": "Optional: Since we don\u0027t need to know which syntax element gives us the read error, we can just call aom_rb_read_bit() and aom_rb_read_literal() as usual, and only check the \u0027result\u0027 variable at the end of the parse_sequence_header() and read_av1c() functions. This will eliminate the need for all the four helper macros.",
+      "range": {
+        "startLine": 22,
+        "startChar": 0,
+        "endLine": 22,
+        "endChar": 71
+      },
+      "revId": "41fd6d48c12decc5ddb5754a15d4777571ec022c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "54215e63_6c67e53f",
+        "filename": "common/av1c.c",
+        "patchSetId": 36
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-08-31T19:37:55Z",
+      "side": 1,
+      "message": "[Just a comment, no change requested.] Nit: The \u0027field\u0027 argument makes the code more readable, but it generates a lot of local variables that are only used in a small region.\n\nI assume this code is not performance critical, and compiler should be able to optimize these variables anyway. But I would probably define this macro to assume a variable named \u0027value\u0027 exists.",
+      "range": {
+        "startLine": 23,
+        "startChar": 38,
+        "endLine": 23,
+        "endChar": 43
+      },
+      "revId": "41fd6d48c12decc5ddb5754a15d4777571ec022c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c1bcee2c_4e27fdee",
+        "filename": "common/av1c.c",
+        "patchSetId": 36
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-08-31T19:37:55Z",
+      "side": 1,
+      "message": "Nit: It might be useful to add a cautionary note that we must use curly braces if we use these helper macros in an if statement.\n\n(AV1C_POP_ERROR_HANDLER_DATA is the only exception because it consists of the do-while(0) block only.)",
+      "range": {
+        "startLine": 24,
+        "startChar": 2,
+        "endLine": 24,
+        "endChar": 16
+      },
+      "revId": "41fd6d48c12decc5ddb5754a15d4777571ec022c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a868f2c5_c83be175",
+        "filename": "common/av1c.c",
+        "patchSetId": 36
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-08-31T19:37:55Z",
+      "side": 1,
+      "message": "Nit: parenthesize the macro argument \u0027length\u0027.",
+      "range": {
+        "startLine": 38,
+        "startChar": 40,
+        "endLine": 38,
+        "endChar": 46
+      },
+      "revId": "41fd6d48c12decc5ddb5754a15d4777571ec022c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "33d40c9f_37bc2fc8",
+        "filename": "common/av1c.c",
+        "patchSetId": 36
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-08-31T19:37:55Z",
+      "side": 1,
+      "message": "Nit: For symmetry with the AV1C_PUSH_ERROR_HANDLER_DATA macro, this macro should not have the \u0027reader\u0027 argument.",
+      "range": {
+        "startLine": 57,
+        "startChar": 36,
+        "endLine": 57,
+        "endChar": 42
+      },
+      "revId": "41fd6d48c12decc5ddb5754a15d4777571ec022c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c03b127f_9c43a0f1",
+        "filename": "common/av1c.c",
+        "patchSetId": 36
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-08-31T19:37:55Z",
+      "side": 1,
+      "message": "[Just a comment, no change requested.] It is risky to not call AV1C_POP_ERROR_HANDLER_DATA on error returns, because it leaves reader-\u003eerror_handler_data pointing to a local variable in a function that has returned. It will require extra effort to verify that we never use reader-\u003eerror_handler_data after an error return.\n\nA safer approach is to use the same \"result\" variable that has the same lifetime as \u0027reader\u0027, and pass that variable along with \u0027reader\u0027 to these functions. For example, we can define a struct that contains a aom_read_bit_buffer and an \"int result\" field, and pass that struct to these functions.",
+      "range": {
+        "startLine": 96,
+        "startChar": 2,
+        "endLine": 96,
+        "endChar": 29
+      },
+      "revId": "41fd6d48c12decc5ddb5754a15d4777571ec022c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2cfa20ee_c03d951c",
+        "filename": "common/av1c.c",
+        "patchSetId": 36
+      },
+      "lineNbr": 400,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-08-31T19:37:55Z",
+      "side": 1,
+      "message": "Nit: the local variable \u0027consumed\u0027 is not useful. It is just an alias of obu_header_length. I would omit it.",
+      "range": {
+        "startLine": 400,
+        "startChar": 15,
+        "endLine": 400,
+        "endChar": 23
+      },
+      "revId": "41fd6d48c12decc5ddb5754a15d4777571ec022c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "335f7c55_c8732c89",
+        "filename": "common/av1c.c",
+        "patchSetId": 36
+      },
+      "lineNbr": 466,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-08-31T19:37:55Z",
+      "side": 1,
+      "message": "Call the aom_rb_bytes_read() function:\n\n  *bytes_read \u003d aom_rb_bytes_read(reader);",
+      "range": {
+        "startLine": 466,
+        "startChar": 16,
+        "endLine": 466,
+        "endChar": 39
+      },
+      "revId": "41fd6d48c12decc5ddb5754a15d4777571ec022c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eead4e98_728354ac",
+        "filename": "common/av1c.c",
+        "patchSetId": 36
+      },
+      "lineNbr": 473,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-08-31T19:37:55Z",
+      "side": 1,
+      "message": "Nit: also check !config.",
+      "range": {
+        "startLine": 473,
+        "startChar": 6,
+        "endLine": 473,
+        "endChar": 13
+      },
+      "revId": "41fd6d48c12decc5ddb5754a15d4777571ec022c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f53486cf_2a643f10",
+        "filename": "common/av1c.c",
+        "patchSetId": 36
+      },
+      "lineNbr": 501,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-08-31T19:37:55Z",
+      "side": 1,
+      "message": "Call the aom_wb_bytes_written() function:\n\n  *bytes_written \u003d aom_wb_bytes_written(\u0026writer);\n\nNOTE: By counting bits, we know writer.bit_offset must be 32. So we can also say:\n\n  *bytes_written \u003d kAv1cSize;",
+      "range": {
+        "startLine": 501,
+        "startChar": 19,
+        "endLine": 501,
+        "endChar": 41
+      },
+      "revId": "41fd6d48c12decc5ddb5754a15d4777571ec022c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3ebf2db0_99d2e78f",
+        "filename": "common/av1c.c",
+        "patchSetId": 36
+      },
+      "lineNbr": 508,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-08-31T19:37:55Z",
+      "side": 1,
+      "message": "Nit: This is not necessary. It\u0027s OK if this is the convention in libaom.",
+      "range": {
+        "startLine": 505,
+        "startChar": 0,
+        "endLine": 508,
+        "endChar": 34
+      },
+      "revId": "41fd6d48c12decc5ddb5754a15d4777571ec022c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0754c122_efd7b7c4",
+        "filename": "common/av1c.h",
+        "patchSetId": 36
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-08-31T19:37:55Z",
+      "side": 1,
+      "message": "1. In our naming convention, the struct\u0027s name should be capitalized: Av1c. Otherwise it looks like a local variable or function argument.\n\n2. Can we name this struct \"Av1Config\" or \"AV1Config\"? I didn\u0027t know what \"av1c\" meant until I looked at this file.\n\nIf you rename the struct, the files should also be renamed av1_config.{h,c}.",
+      "range": {
+        "startLine": 63,
+        "startChar": 2,
+        "endLine": 63,
+        "endChar": 6
+      },
+      "revId": "41fd6d48c12decc5ddb5754a15d4777571ec022c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9b932332_a7d96442",
+        "filename": "common/av1c.h",
+        "patchSetId": 36
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-08-31T19:37:55Z",
+      "side": 1,
+      "message": "Nit: I suggest mentioning sequence header in the function\u0027s name, such as \"get_av1c_from_sequence_header_obu\".",
+      "range": {
+        "startLine": 68,
+        "startChar": 4,
+        "endLine": 68,
+        "endChar": 21
+      },
+      "revId": "41fd6d48c12decc5ddb5754a15d4777571ec022c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3ff3b56e_aff4cebb",
+        "filename": "common/av1c.h",
+        "patchSetId": 36
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-08-31T19:37:55Z",
+      "side": 1,
+      "message": "Nit: This \"const\" can be omitted in the function declarations. Please remove it from the declarations of the other functions.\n\nI will email you an internal webpage on this issue, which recommends against using this \"const\" in function declarations, but allows it in function definitions.\n\nNote: If we use this \"const\" on the other function parameters, they would look like this:\n    const size_t length, const int is_annexb, av1c *const config\n\nSo it\u0027s also unclear why this \"const\" is only used on the first parameter.",
+      "range": {
+        "startLine": 68,
+        "startChar": 37,
+        "endLine": 68,
+        "endChar": 42
+      },
+      "revId": "41fd6d48c12decc5ddb5754a15d4777571ec022c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "52cd2b17_afffb2c3",
+        "filename": "common/av1c.h",
+        "patchSetId": 36
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-08-31T19:37:55Z",
+      "side": 1,
+      "message": "Please document the successful return value (I assume it\u0027s 0).",
+      "range": {
+        "startLine": 71,
+        "startChar": 50,
+        "endLine": 71,
+        "endChar": 60
+      },
+      "revId": "41fd6d48c12decc5ddb5754a15d4777571ec022c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c9e61153_0f805be5",
+        "filename": "common/av1c.h",
+        "patchSetId": 36
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-08-31T19:37:55Z",
+      "side": 1,
+      "message": "Nit: The order of these arguments is unusual. I would list them in this order:\n    uint8_t *buffer, size_t capacity, size_t *bytes_written\n\nThe reason is that (buffer, capacity) usually go together.",
+      "range": {
+        "startLine": 79,
+        "startChar": 41,
+        "endLine": 80,
+        "endChar": 30
+      },
+      "revId": "41fd6d48c12decc5ddb5754a15d4777571ec022c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b1b5b58f_3d7a76f2",
+        "filename": "test/av1c_test.cc",
+        "patchSetId": 36
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-08-31T19:37:55Z",
+      "side": 1,
+      "message": "Nit: The Style Guide recommends listing this #include first.",
+      "range": {
+        "startLine": 13,
+        "startChar": 0,
+        "endLine": 13,
+        "endChar": 24
+      },
+      "revId": "41fd6d48c12decc5ddb5754a15d4777571ec022c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
