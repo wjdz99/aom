@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "4d232749_ad4c079e",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 36
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-08-31T20:38:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "234580cc_0018c8bb",
+      "range": {
+        "startLine": 128,
+        "startChar": 12,
+        "endLine": 128,
+        "endChar": 44
+      },
+      "revId": "41fd6d48c12decc5ddb5754a15d4777571ec022c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "144b8210_8cb43492",
         "filename": "common/av1c.c",
         "patchSetId": 36
@@ -42,6 +66,24 @@
     },
     {
       "key": {
+        "uuid": "c878f470_4481bea7",
+        "filename": "common/av1c.c",
+        "patchSetId": 36
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-08-31T20:38:34Z",
+      "side": 1,
+      "message": "Our linters disagree on this point. This example is from av1c_test.cc, but the same problem happens with av1c.c.\n\nCode Style Warnings:\n\n   test/av1c_test.cc:13:  Found C system header after other header. Should be: -.h, c system, c++ system, other.  [build/include_order] [4]",
+      "parentUuid": "144b8210_8cb43492",
+      "revId": "41fd6d48c12decc5ddb5754a15d4777571ec022c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9d3d3d9c_f9210e3e",
         "filename": "common/av1c.c",
         "patchSetId": 36
@@ -53,6 +95,30 @@
       "writtenOn": "2018-08-31T19:37:55Z",
       "side": 1,
       "message": "Optional: Since we don\u0027t need to know which syntax element gives us the read error, we can just call aom_rb_read_bit() and aom_rb_read_literal() as usual, and only check the \u0027result\u0027 variable at the end of the parse_sequence_header() and read_av1c() functions. This will eliminate the need for all the four helper macros.",
+      "range": {
+        "startLine": 22,
+        "startChar": 0,
+        "endLine": 22,
+        "endChar": 71
+      },
+      "revId": "41fd6d48c12decc5ddb5754a15d4777571ec022c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c7df4261_8d6d231e",
+        "filename": "common/av1c.c",
+        "patchSetId": 36
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-08-31T20:38:34Z",
+      "side": 1,
+      "message": "Not doing this-- I want to know where a failure happens, when it happens, and what the code was attempting to read when the error occurred.",
+      "parentUuid": "9d3d3d9c_f9210e3e",
       "range": {
         "startLine": 22,
         "startChar": 0,
@@ -88,6 +154,30 @@
     },
     {
       "key": {
+        "uuid": "82d43d9d_50cc59c2",
+        "filename": "common/av1c.c",
+        "patchSetId": 36
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-08-31T20:38:34Z",
+      "side": 1,
+      "message": "I prefer the readability provided by the current implementation.",
+      "parentUuid": "54215e63_6c67e53f",
+      "range": {
+        "startLine": 23,
+        "startChar": 38,
+        "endLine": 23,
+        "endChar": 43
+      },
+      "revId": "41fd6d48c12decc5ddb5754a15d4777571ec022c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c1bcee2c_4e27fdee",
         "filename": "common/av1c.c",
         "patchSetId": 36
@@ -99,6 +189,30 @@
       "writtenOn": "2018-08-31T19:37:55Z",
       "side": 1,
       "message": "Nit: It might be useful to add a cautionary note that we must use curly braces if we use these helper macros in an if statement.\n\n(AV1C_POP_ERROR_HANDLER_DATA is the only exception because it consists of the do-while(0) block only.)",
+      "range": {
+        "startLine": 24,
+        "startChar": 2,
+        "endLine": 24,
+        "endChar": 16
+      },
+      "revId": "41fd6d48c12decc5ddb5754a15d4777571ec022c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2d0c39a9_adef3a10",
+        "filename": "common/av1c.c",
+        "patchSetId": 36
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-08-31T20:38:34Z",
+      "side": 1,
+      "message": "I don\u0027t think a comment is necessary. The compiler is going to tell you if this is a problem (i.e. shadowing a local). Maybe I\u0027m not understanding the reasoning here-- could you explain?",
+      "parentUuid": "c1bcee2c_4e27fdee",
       "range": {
         "startLine": 24,
         "startChar": 2,
@@ -134,6 +248,30 @@
     },
     {
       "key": {
+        "uuid": "bfec080c_2935dd68",
+        "filename": "common/av1c.c",
+        "patchSetId": 36
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-08-31T20:38:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a868f2c5_c83be175",
+      "range": {
+        "startLine": 38,
+        "startChar": 40,
+        "endLine": 38,
+        "endChar": 46
+      },
+      "revId": "41fd6d48c12decc5ddb5754a15d4777571ec022c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "33d40c9f_37bc2fc8",
         "filename": "common/av1c.c",
         "patchSetId": 36
@@ -157,6 +295,30 @@
     },
     {
       "key": {
+        "uuid": "aec8ebd8_c3618a45",
+        "filename": "common/av1c.c",
+        "patchSetId": 36
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-08-31T20:38:34Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "33d40c9f_37bc2fc8",
+      "range": {
+        "startLine": 57,
+        "startChar": 36,
+        "endLine": 57,
+        "endChar": 42
+      },
+      "revId": "41fd6d48c12decc5ddb5754a15d4777571ec022c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c03b127f_9c43a0f1",
         "filename": "common/av1c.c",
         "patchSetId": 36
@@ -168,6 +330,30 @@
       "writtenOn": "2018-08-31T19:37:55Z",
       "side": 1,
       "message": "[Just a comment, no change requested.] It is risky to not call AV1C_POP_ERROR_HANDLER_DATA on error returns, because it leaves reader-\u003eerror_handler_data pointing to a local variable in a function that has returned. It will require extra effort to verify that we never use reader-\u003eerror_handler_data after an error return.\n\nA safer approach is to use the same \"result\" variable that has the same lifetime as \u0027reader\u0027, and pass that variable along with \u0027reader\u0027 to these functions. For example, we can define a struct that contains a aom_read_bit_buffer and an \"int result\" field, and pass that struct to these functions.",
+      "range": {
+        "startLine": 96,
+        "startChar": 2,
+        "endLine": 96,
+        "endChar": 29
+      },
+      "revId": "41fd6d48c12decc5ddb5754a15d4777571ec022c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "820b6bd3_ca27dc7a",
+        "filename": "common/av1c.c",
+        "patchSetId": 36
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-08-31T20:38:34Z",
+      "side": 1,
+      "message": "Any error aborts parse in this code, thus there is no concern at present. It can be handled in a follow up should it become necessary.",
+      "parentUuid": "c03b127f_9c43a0f1",
       "range": {
         "startLine": 96,
         "startChar": 2,
@@ -203,6 +389,30 @@
     },
     {
       "key": {
+        "uuid": "6148d056_74533be2",
+        "filename": "common/av1c.c",
+        "patchSetId": 36
+      },
+      "lineNbr": 400,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-08-31T20:38:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2cfa20ee_c03d951c",
+      "range": {
+        "startLine": 400,
+        "startChar": 15,
+        "endLine": 400,
+        "endChar": 23
+      },
+      "revId": "41fd6d48c12decc5ddb5754a15d4777571ec022c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "335f7c55_c8732c89",
         "filename": "common/av1c.c",
         "patchSetId": 36
@@ -223,6 +433,30 @@
       "revId": "41fd6d48c12decc5ddb5754a15d4777571ec022c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "001c0fd6_330376c1",
+        "filename": "common/av1c.c",
+        "patchSetId": 36
+      },
+      "lineNbr": 466,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-08-31T20:38:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "335f7c55_c8732c89",
+      "range": {
+        "startLine": 466,
+        "startChar": 16,
+        "endLine": 466,
+        "endChar": 39
+      },
+      "revId": "41fd6d48c12decc5ddb5754a15d4777571ec022c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -249,6 +483,30 @@
     },
     {
       "key": {
+        "uuid": "baa34f9e_507fc619",
+        "filename": "common/av1c.c",
+        "patchSetId": 36
+      },
+      "lineNbr": 473,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-08-31T20:38:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "eead4e98_728354ac",
+      "range": {
+        "startLine": 473,
+        "startChar": 6,
+        "endLine": 473,
+        "endChar": 13
+      },
+      "revId": "41fd6d48c12decc5ddb5754a15d4777571ec022c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f53486cf_2a643f10",
         "filename": "common/av1c.c",
         "patchSetId": 36
@@ -269,6 +527,30 @@
       "revId": "41fd6d48c12decc5ddb5754a15d4777571ec022c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3b46f0e2_3e013d51",
+        "filename": "common/av1c.c",
+        "patchSetId": 36
+      },
+      "lineNbr": 501,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-08-31T20:38:34Z",
+      "side": 1,
+      "message": "Went with aom_wb_bytes_writtn().",
+      "parentUuid": "f53486cf_2a643f10",
+      "range": {
+        "startLine": 501,
+        "startChar": 19,
+        "endLine": 501,
+        "endChar": 41
+      },
+      "revId": "41fd6d48c12decc5ddb5754a15d4777571ec022c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -295,6 +577,30 @@
     },
     {
       "key": {
+        "uuid": "a55b2817_7811cc73",
+        "filename": "common/av1c.c",
+        "patchSetId": 36
+      },
+      "lineNbr": 508,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-08-31T20:38:34Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "3ebf2db0_99d2e78f",
+      "range": {
+        "startLine": 505,
+        "startChar": 0,
+        "endLine": 508,
+        "endChar": 34
+      },
+      "revId": "41fd6d48c12decc5ddb5754a15d4777571ec022c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0754c122_efd7b7c4",
         "filename": "common/av1c.h",
         "patchSetId": 36
@@ -315,6 +621,30 @@
       "revId": "41fd6d48c12decc5ddb5754a15d4777571ec022c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f73bb219_a53b0b19",
+        "filename": "common/av1c.h",
+        "patchSetId": 36
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-08-31T20:38:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0754c122_efd7b7c4",
+      "range": {
+        "startLine": 63,
+        "startChar": 2,
+        "endLine": 63,
+        "endChar": 6
+      },
+      "revId": "41fd6d48c12decc5ddb5754a15d4777571ec022c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -364,6 +694,54 @@
     },
     {
       "key": {
+        "uuid": "81c133a7_8141e79d",
+        "filename": "common/av1c.h",
+        "patchSetId": 36
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-08-31T20:38:34Z",
+      "side": 1,
+      "message": "Partially done. Eventually this function should be able to support extracting the av1C from a buffer containing multiple OBUs-- I\u0027m not including sequence header in the name for this reason.",
+      "parentUuid": "9b932332_a7d96442",
+      "range": {
+        "startLine": 68,
+        "startChar": 4,
+        "endLine": 68,
+        "endChar": 21
+      },
+      "revId": "41fd6d48c12decc5ddb5754a15d4777571ec022c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "735be1b3_20742ddc",
+        "filename": "common/av1c.h",
+        "patchSetId": 36
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-08-31T20:38:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3ff3b56e_aff4cebb",
+      "range": {
+        "startLine": 68,
+        "startChar": 37,
+        "endLine": 68,
+        "endChar": 42
+      },
+      "revId": "41fd6d48c12decc5ddb5754a15d4777571ec022c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "52cd2b17_afffb2c3",
         "filename": "common/av1c.h",
         "patchSetId": 36
@@ -387,6 +765,30 @@
     },
     {
       "key": {
+        "uuid": "c7428b6c_1a34d4ea",
+        "filename": "common/av1c.h",
+        "patchSetId": 36
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-08-31T20:38:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "52cd2b17_afffb2c3",
+      "range": {
+        "startLine": 71,
+        "startChar": 50,
+        "endLine": 71,
+        "endChar": 60
+      },
+      "revId": "41fd6d48c12decc5ddb5754a15d4777571ec022c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c9e61153_0f805be5",
         "filename": "common/av1c.h",
         "patchSetId": 36
@@ -398,6 +800,30 @@
       "writtenOn": "2018-08-31T19:37:55Z",
       "side": 1,
       "message": "Nit: The order of these arguments is unusual. I would list them in this order:\n    uint8_t *buffer, size_t capacity, size_t *bytes_written\n\nThe reason is that (buffer, capacity) usually go together.",
+      "range": {
+        "startLine": 79,
+        "startChar": 41,
+        "endLine": 80,
+        "endChar": 30
+      },
+      "revId": "41fd6d48c12decc5ddb5754a15d4777571ec022c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b18963e7_a30aa551",
+        "filename": "common/av1c.h",
+        "patchSetId": 36
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-08-31T20:38:34Z",
+      "side": 1,
+      "message": "Output args come after input args:\n\nhttps://google.github.io/styleguide/cppguide.html#Output_Parameters\n\n\"If output-only parameters are used they should appear after input parameters.\"",
+      "parentUuid": "c9e61153_0f805be5",
       "range": {
         "startLine": 79,
         "startChar": 41,
