@@ -514,6 +514,13 @@ typedef struct aom_codec_enc_cfg {
    */
   unsigned int rc_max_quantizer;
 
+  /* these are the input parameter that can be used to perform general purposes
+   * for parameters optimization
+   */
+  unsigned int input_param0_x100;
+  unsigned int input_param1_x100;
+  unsigned int input_param2_x100;
+
   /*
    * bitrate tolerance
    */

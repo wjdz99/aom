@@ -499,6 +499,10 @@ static aom_codec_err_t set_encoder_config(
       cfg->g_pass == AOM_RC_FIRST_PASS ? 0 : cfg->g_lag_in_frames;
   oxcf->rc_mode = cfg->rc_end_usage;
 
+  oxcf->input_param0 = (float_t)cfg->input_param0_x100 / 100;
+  oxcf->input_param1 = (float_t)cfg->input_param1_x100 / 100;
+  oxcf->input_param2 = (float_t)cfg->input_param2_x100 / 100;
+
   // Convert target bandwidth from Kbit/s to Bit/s
   oxcf->target_bandwidth = 1000 * cfg->rc_target_bitrate;
   oxcf->rc_max_intra_bitrate_pct = extra_cfg->rc_max_intra_bitrate_pct;
@@ -1845,6 +1849,9 @@ static aom_codec_enc_cfg_map_t encoder_usage_cfg_map[] = {
         256,          // rc_target_bandwidth
         0,            // rc_min_quantizer
         63,           // rc_max_quantizer
+        0,            // input_param0_x100
+        0,            // input_param1_x100
+        0,            // input_param2_x100
         25,           // rc_undershoot_pct
         25,           // rc_overshoot_pct
 
