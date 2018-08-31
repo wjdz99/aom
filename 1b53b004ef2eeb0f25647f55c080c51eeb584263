@@ -46,6 +46,30 @@
       "revId": "1b53b004ef2eeb0f25647f55c080c51eeb584263",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8c253630_d620e389",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 4485,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2018-08-31T00:50:24Z",
+      "side": 1,
+      "message": "also added comment regarding why reset to neutral gray is necessary.",
+      "parentUuid": "66fbe1af_43ec5341",
+      "range": {
+        "startLine": 4484,
+        "startChar": 0,
+        "endLine": 4485,
+        "endChar": 38
+      },
+      "revId": "1b53b004ef2eeb0f25647f55c080c51eeb584263",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
