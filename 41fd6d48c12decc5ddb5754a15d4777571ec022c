@@ -84,6 +84,24 @@
     },
     {
       "key": {
+        "uuid": "6371fc67_6623c1ee",
+        "filename": "common/av1c.c",
+        "patchSetId": 36
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-08-31T22:06:56Z",
+      "side": 1,
+      "message": "My suggestion is a recommendation of the Style Guide:\n\nhttps://google.github.io/styleguide/cppguide.html#Names_and_Order_of_Includes\n\nIn dir/foo.cc or dir/foo_test.cc, whose main purpose is to implement or test the stuff in dir2/foo2.h, order your includes as follows:\n\n  1. dir2/foo2.h.\n  2. A blank line\n  3. C system files.\n  4. C++ system files.\n  5. A blank line\n  6. Other libraries\u0027 .h files.\n  7. Your project\u0027s .h files.\n\ncommon/av1c.c corresponds to dir/foo.cc in the example, therefore it should first include common/av1c.h, which corresponds to dir2/foo2.h in the example.\n\nSince the linters do not handle these files correctly (perhaps the linters think this Style Guide recommendation only applies to C++ files), let\u0027s ignore this issue.",
+      "parentUuid": "c878f470_4481bea7",
+      "revId": "41fd6d48c12decc5ddb5754a15d4777571ec022c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9d3d3d9c_f9210e3e",
         "filename": "common/av1c.c",
         "patchSetId": 36
@@ -128,6 +146,30 @@
       "revId": "41fd6d48c12decc5ddb5754a15d4777571ec022c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "335eca4c_778b081e",
+        "filename": "common/av1c.c",
+        "patchSetId": 36
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-08-31T22:06:56Z",
+      "side": 1,
+      "message": "Yes, an informative error message is useful for debugging.",
+      "parentUuid": "c7df4261_8d6d231e",
+      "range": {
+        "startLine": 22,
+        "startChar": 0,
+        "endLine": 22,
+        "endChar": 71
+      },
+      "revId": "41fd6d48c12decc5ddb5754a15d4777571ec022c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -213,6 +255,30 @@
       "side": 1,
       "message": "I don\u0027t think a comment is necessary. The compiler is going to tell you if this is a problem (i.e. shadowing a local). Maybe I\u0027m not understanding the reasoning here-- could you explain?",
       "parentUuid": "c1bcee2c_4e27fdee",
+      "range": {
+        "startLine": 24,
+        "startChar": 2,
+        "endLine": 24,
+        "endChar": 16
+      },
+      "revId": "41fd6d48c12decc5ddb5754a15d4777571ec022c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a45d3391_365f5df6",
+        "filename": "common/av1c.c",
+        "patchSetId": 36
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-08-31T22:06:56Z",
+      "side": 1,
+      "message": "Yes. Consider this example, which does not use curly braces around the AV1C_READ_BIT_OR_RETURN_ERROR macro:\n\n  if (!config-\u003emonochrome)\n    AV1C_READ_BIT_OR_RETURN_ERROR(separate_uv_delta_q);\n\nThis code is expanded by the C-preprocessor to:\n\n  if (!config-\u003emonochrome)\n    int separate_uv_delta_q \u003d 0;\n    do {\n      separate_uv_delta_q \u003d aom_rb_read_bit(reader);\n      if (result \u003d\u003d -1) {\n        fprintf(stderr,\t\n                \"av1c: Error reading bit for separate_uv_delta_q, value\u003d%d result\u003d%d.\\n\",\n                separate_uv_delta_q, result);\t\n        return -1;\t\n      }\t\n    } while (0);\n\nWithout the curly braces, the if statement\u0027s body contains only the \"int separate_uv_delta_q \u003d 0;\" statement.",
+      "parentUuid": "2d0c39a9_adef3a10",
       "range": {
         "startLine": 24,
         "startChar": 2,
@@ -363,6 +429,30 @@
       "revId": "41fd6d48c12decc5ddb5754a15d4777571ec022c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "85d279c4_e467e9a6",
+        "filename": "common/av1c.c",
+        "patchSetId": 36
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-08-31T22:06:56Z",
+      "side": 1,
+      "message": "I verified that \u0027reader\u0027 is not used after an error, so the dangling pointer in reader-\u003eerror_handler_data is harmless.",
+      "parentUuid": "820b6bd3_ca27dc7a",
+      "range": {
+        "startLine": 96,
+        "startChar": 2,
+        "endLine": 96,
+        "endChar": 29
+      },
+      "revId": "41fd6d48c12decc5ddb5754a15d4777571ec022c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -824,6 +914,30 @@
       "side": 1,
       "message": "Output args come after input args:\n\nhttps://google.github.io/styleguide/cppguide.html#Output_Parameters\n\n\"If output-only parameters are used they should appear after input parameters.\"",
       "parentUuid": "c9e61153_0f805be5",
+      "range": {
+        "startLine": 79,
+        "startChar": 41,
+        "endLine": 80,
+        "endChar": 30
+      },
+      "revId": "41fd6d48c12decc5ddb5754a15d4777571ec022c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2dfd8ebd_9e216d7e",
+        "filename": "common/av1c.h",
+        "patchSetId": 36
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-08-31T22:06:56Z",
+      "side": 1,
+      "message": "I suspected that\u0027s why you ordered them this way. The (uint8_t *buffer, size_t capacity) pair forms a unit and should be considered jointly as an output argument.\n\nHere is an example in the Abseil library:\n\nhttps://cs.corp.google.com/piper///depot/google3/third_party/absl/strings/string_view.h\n\n  // string_view::copy()\n  //\n  // Copies the contents of the `string_view` at offset `pos` and length `n`\n  // into `buf`.\n  size_type copy(char* buf, size_type n, size_type pos \u003d 0) const;\n\nThere are many other examples in\n\nhttps://cs.corp.google.com/piper///depot/google3/util/coding/coder.h",
+      "parentUuid": "b18963e7_a30aa551",
       "range": {
         "startLine": 79,
         "startChar": 41,
