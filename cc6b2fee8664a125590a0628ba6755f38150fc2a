@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "96a9806c_7ba87874",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-09-01T16:50:36Z",
+      "side": 1,
+      "message": "It would be good to mention we are using the format recommended by the Style Guide:\n\nThe format of the symbol name should be \u003cPROJECT\u003e_\u003cPATH\u003e_\u003cFILE\u003e_H_.\n\nSo the AOM_ project prefix is added to all the include guards.",
+      "revId": "cc6b2fee8664a125590a0628ba6755f38150fc2a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "45902ba0_f366698e",
         "filename": "aom_dsp/aom_dsp_common.h",
         "patchSetId": 1
@@ -13,6 +30,30 @@
       "writtenOn": "2018-09-01T05:57:15Z",
       "side": 1,
       "message": "leaving off the \u0027project\u0027 prefix would be slightly less invasive, any preference?",
+      "range": {
+        "startLine": 12,
+        "startChar": 8,
+        "endLine": 12,
+        "endChar": 12
+      },
+      "revId": "cc6b2fee8664a125590a0628ba6755f38150fc2a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "20918032_3dfdba7b",
+        "filename": "aom_dsp/aom_dsp_common.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-09-01T16:50:36Z",
+      "side": 1,
+      "message": "I was going to suggest leaving off the AOM_ prefix because it looks strange when the first subdirectory\u0027s name starts with \"aom\", such as \"aom\" and \"aom_dsp\".\n\nBut the C++ Style Guide recommends the project prefix:\n\nhttps://google.github.io/styleguide/cppguide.html#The__define_Guard\n\n\"All header files should have #define guards to prevent multiple inclusion. The format of the symbol name should be \u003cPROJECT\u003e_\u003cPATH\u003e_\u003cFILE\u003e_H_.\"\n\nSo I think we should use the AOM_ prefix.",
+      "parentUuid": "45902ba0_f366698e",
       "range": {
         "startLine": 12,
         "startChar": 8,
