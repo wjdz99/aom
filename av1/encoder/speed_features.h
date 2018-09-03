@@ -638,6 +638,11 @@ typedef struct SPEED_FEATURES {
   // Note: The search order might affect the result. It is better to search same
   // single inter mode as a group.
   int prune_comp_search_by_single_result;
+
+  // Set the full pixel search level of obmc
+  // 0: obmc_full_pixel_diamond
+  // 1: obmc_refining_search_sad (faster)
+  int obmc_full_pixel_search_level;
 } SPEED_FEATURES;
 
 struct AV1_COMP;
