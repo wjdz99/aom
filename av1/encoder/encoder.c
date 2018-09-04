@@ -743,6 +743,7 @@ static void alloc_raw_frame_buffers(AV1_COMP *cpi) {
 static void alloc_util_frame_buffers(AV1_COMP *cpi) {
   AV1_COMMON *const cm = &cpi->common;
   const SequenceHeader *const seq_params = &cm->seq_params;
+
   if (aom_realloc_frame_buffer(
           &cpi->last_frame_uf, cm->width, cm->height, seq_params->subsampling_x,
           seq_params->subsampling_y, seq_params->use_highbitdepth,
@@ -1011,9 +1012,15 @@ static void init_seq_coding_tools(SequenceHeader *seq, AV1_COMMON *cm,
     // first (operating_points_cnt-i) spatial layers and the first temporal
     // layer are decoded Note that highest quality operating point should come
     // first
-    for (int i = 0; i < seq->operating_points_cnt_minus_1 + 1; i++)
-      seq->operating_point_idc[i] =
-          (~(~0u << (seq->operating_points_cnt_minus_1 + 1 - i)) << 8) | 1;
+    for (unsigned int i = 0; i < cm->number_spatial_layers; i++) {
+      for (unsigned int j = 0; j < cm->number_temporal_layers; j++) {
+        int index = i * cm->number_temporal_layers + j;
+        seq->operating_point_idc[index] =
+            ~(~0u << (cm->number_temporal_layers - j));
+        seq->operating_point_idc[index] |=
+            ~(~0u << (cm->number_spatial_layers - i)) << 8;
+      }
+    }
   }
 }
 
@@ -2416,7 +2423,9 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
   // This should not be called after the first key frame.
   if (!cpi->seq_params_locked) {
     seq_params->operating_points_cnt_minus_1 =
-        cm->number_spatial_layers > 1 ? cm->number_spatial_layers - 1 : 0;
+        cm->number_spatial_layers > 1 || cm->number_temporal_layers > 1
+            ? cm->number_spatial_layers * cm->number_temporal_layers - 1
+            : 0;
     init_seq_coding_tools(&cm->seq_params, cm, oxcf);
   }
 }
@@ -3779,8 +3788,13 @@ static void check_initial_width(AV1_COMP *cpi, int use_highbitdepth,
 
     init_motion_estimation(cpi);  // TODO(agrange) This can be removed.
 
-    cpi->initial_width = cm->width;
-    cpi->initial_height = cm->height;
+    cpi->initial_width = cpi->oxcf.forced_max_frame_width
+                             ? cpi->oxcf.forced_max_frame_width
+                             : cm->width;
+    cpi->initial_height = cpi->oxcf.forced_max_frame_height
+                              ? cpi->oxcf.forced_max_frame_height
+                              : cm->height;
+
     cpi->initial_mbs = cm->MBs;
   }
 }
