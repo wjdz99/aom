@@ -221,6 +221,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->optimize_b_precheck = 1;
     sf->dual_sgr_penalty_level = 1;
     sf->use_accurate_subpel_search = 1;
+    sf->prune_comp_search_by_single_result = 1;
   }
 
   if (speed >= 2) {
@@ -243,7 +244,6 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->allow_partition_search_skip = 1;
     sf->disable_wedge_search_var_thresh = 100;
     sf->fast_wedge_sign_estimate = 1;
-    sf->prune_comp_search_by_single_result = 1;
   }
 
   if (speed >= 3) {
