@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6fdf06d6_70801883",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 4399,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2018-09-04T19:16:06Z",
+      "side": 1,
+      "message": "Is \"cur_buf-\u003ebuffer_alloc_sz \u003c cur_buf-\u003eframe_size\" a valid situation? Should we return a memory error in this case? I am concerned that if we don\u0027t do \"set_planes_to_neutral_grey\", the fix we put in https://aomedia-review.googlesource.com/c/aom/+/69436 may become reverted.",
+      "range": {
+        "startLine": 4399,
+        "startChar": 6,
+        "endLine": 4399,
+        "endChar": 58
+      },
+      "revId": "fd17b0d64e8a692c5fc0d1611d4afb69800175fb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
