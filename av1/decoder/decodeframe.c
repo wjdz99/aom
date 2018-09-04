@@ -4432,6 +4432,10 @@ static int read_uncompressed_header(AV1Decoder *pbi,
     cm->reset_decoder_state = 0;
 
     if (cm->show_existing_frame) {
+      if (pbi->sequence_header_changed) {
+        aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
+                           "Sequence header has changed without a keyframe.");
+      }
       // Show an existing frame directly.
       const int existing_frame_idx = aom_rb_read_literal(rb, 3);
       const int frame_to_show = cm->ref_frame_map[existing_frame_idx];
