@@ -243,6 +243,10 @@ enum aome_enc_control_id {
    */
   AOME_SET_NUMBER_SPATIAL_LAYERS,
 
+  /*!\brief Codec control function to set number of temporal layers.
+   */
+  AOME_SET_NUMBER_TEMPORAL_LAYERS,
+
   /*!\brief Codec control function to set max data rate for Inter frames.
    *
    * This value controls additional clamping on the maximum size of an
@@ -865,6 +869,10 @@ enum aome_enc_control_id {
 
   /*!\brief Sets the chroma subsampling y value */
   AV1E_SET_CHROMA_SUBSAMPLING_Y,
+
+  /*!\brief Codec control function to set encoder temporal layer id.
+   */
+  AOME_SET_TEMPORAL_LAYER_ID,
 };
 
 /*!\brief aom 1-D scaling mode
@@ -973,6 +981,8 @@ AOM_CTRL_USE_TYPE(AOME_SET_SCALEMODE, aom_scaling_mode_t *)
 
 AOM_CTRL_USE_TYPE(AOME_SET_SPATIAL_LAYER_ID, int)
 #define AOM_CTRL_AOME_SET_SPATIAL_LAYER_ID
+AOM_CTRL_USE_TYPE(AOME_SET_TEMPORAL_LAYER_ID, int)
+#define AOM_CTRL_AOME_SET_TEMPORAL_LAYER_ID
 
 AOM_CTRL_USE_TYPE(AOME_SET_CPUUSED, int)
 #define AOM_CTRL_AOME_SET_CPUUSED
@@ -1028,6 +1038,9 @@ AOM_CTRL_USE_TYPE(AOME_SET_MAX_INTER_BITRATE_PCT, unsigned int)
 
 AOM_CTRL_USE_TYPE(AOME_SET_NUMBER_SPATIAL_LAYERS, int)
 #define AOME_CTRL_AOME_SET_NUMBER_SPATIAL_LAYERS
+
+AOM_CTRL_USE_TYPE(AOME_SET_NUMBER_TEMPORAL_LAYERS, int)
+#define AOME_CTRL_AOME_SET_NUMBER_TEMPORAL_LAYERS
 
 AOM_CTRL_USE_TYPE(AV1E_SET_GF_CBR_BOOST_PCT, unsigned int)
 #define AOM_CTRL_AV1E_SET_GF_CBR_BOOST_PCT
