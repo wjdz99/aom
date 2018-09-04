@@ -1607,8 +1607,14 @@ INSTANTIATE_TEST_CASE_P(
                       MseParams(3, 3, &aom_highbd_8_mse8x8_sse2)));
 */
 
+// The generator for SSE2 AvxHBDVarianceTest is split into three to avoid the
+// Visual C++ Compiler Warning C4503:
+//   decorated name length exceeded, name was truncated.
+// See Bug aomedia:2122.
+
+// SSE2, bit depth = 12.
 INSTANTIATE_TEST_CASE_P(
-    SSE2, AvxHBDVarianceTest,
+    SSE2_12Bit, AvxHBDVarianceTest,
     ::testing::Values(
         VarianceParams(7, 7, &aom_highbd_12_variance128x128_sse2, 12),
         VarianceParams(7, 6, &aom_highbd_12_variance128x64_sse2, 12),
@@ -1622,7 +1628,12 @@ INSTANTIATE_TEST_CASE_P(
         VarianceParams(4, 4, &aom_highbd_12_variance16x16_sse2, 12),
         VarianceParams(4, 3, &aom_highbd_12_variance16x8_sse2, 12),
         VarianceParams(3, 4, &aom_highbd_12_variance8x16_sse2, 12),
-        VarianceParams(3, 3, &aom_highbd_12_variance8x8_sse2, 12),
+        VarianceParams(3, 3, &aom_highbd_12_variance8x8_sse2, 12)));
+
+// SSE2, bit depth = 10.
+INSTANTIATE_TEST_CASE_P(
+    SSE2_10Bit, AvxHBDVarianceTest,
+    ::testing::Values(
         VarianceParams(7, 7, &aom_highbd_10_variance128x128_sse2, 10),
         VarianceParams(7, 6, &aom_highbd_10_variance128x64_sse2, 10),
         VarianceParams(6, 7, &aom_highbd_10_variance64x128_sse2, 10),
@@ -1635,7 +1646,12 @@ INSTANTIATE_TEST_CASE_P(
         VarianceParams(4, 4, &aom_highbd_10_variance16x16_sse2, 10),
         VarianceParams(4, 3, &aom_highbd_10_variance16x8_sse2, 10),
         VarianceParams(3, 4, &aom_highbd_10_variance8x16_sse2, 10),
-        VarianceParams(3, 3, &aom_highbd_10_variance8x8_sse2, 10),
+        VarianceParams(3, 3, &aom_highbd_10_variance8x8_sse2, 10)));
+
+// SSE2, bit depth = 8.
+INSTANTIATE_TEST_CASE_P(
+    SSE2_8Bit, AvxHBDVarianceTest,
+    ::testing::Values(
         VarianceParams(7, 7, &aom_highbd_8_variance128x128_sse2, 8),
         VarianceParams(7, 6, &aom_highbd_8_variance128x64_sse2, 8),
         VarianceParams(6, 7, &aom_highbd_8_variance64x128_sse2, 8),
