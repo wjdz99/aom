@@ -111,7 +111,7 @@ static struct av1_extracfg default_extra_cfg = {
   0,                 // noise_sensitivity
   0,                 // sharpness
   0,                 // static_thresh
-  0,                 // row_mt
+  1,                 // row_mt, turn on row_mt by default
   0,                 // tile_columns
   0,                 // tile_rows
   7,                 // arnr_max_frames
