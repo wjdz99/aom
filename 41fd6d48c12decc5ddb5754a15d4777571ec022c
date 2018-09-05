@@ -856,6 +856,30 @@
     },
     {
       "key": {
+        "uuid": "13877b06_ecf62d12",
+        "filename": "common/av1c.h",
+        "patchSetId": 36
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-09-05T19:37:23Z",
+      "side": 1,
+      "message": "\u003e\u003e Nit: This \"const\" can be omitted in the function declarations. Please remove it from the declarations of the other functions.\n\u003e Done\n\nA mix is only valid in C++ under visual studio. This will produce a mismatch warning.",
+      "parentUuid": "735be1b3_20742ddc",
+      "range": {
+        "startLine": 68,
+        "startChar": 37,
+        "endLine": 68,
+        "endChar": 42
+      },
+      "revId": "41fd6d48c12decc5ddb5754a15d4777571ec022c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "52cd2b17_afffb2c3",
         "filename": "common/av1c.h",
         "patchSetId": 36
