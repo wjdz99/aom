@@ -228,7 +228,6 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
   if (speed >= 2) {
     sf->gm_erroradv_type = GM_ERRORADV_TR_2;
 
-    sf->selective_ref_frame = 2;
     sf->fast_cdef_search = 1;
 
     sf->use_rd_breakout = 1;
