@@ -2567,7 +2567,7 @@ static void rd_pick_sqr_partition(const AV1_COMP *const cpi, ThreadData *td,
 
     if (pc_tree->partitioning == PARTITION_NONE) {
       pc_tree->cb_search_range = SEARCH_SAME_PLANE;
-      if (pn_rdc.dist <= sum_rdc.dist)
+      if (pn_rdc.dist <= sum_rdc.dist && reached_last_index)
         pc_tree->cb_search_range = NONE_PARTITION_PLANE;
     }
 
