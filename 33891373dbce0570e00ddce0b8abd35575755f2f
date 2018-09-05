@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "e6615498_ededfb75",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 7434,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2018-09-05T19:41:20Z",
+      "side": 1,
+      "message": "Eventually I want to flip to using the new curvfit or the surffit model, but need to fix some issues first. Let\u0027s keep the commented out code for now.",
+      "parentUuid": "2e5b807c_15b15bef",
+      "range": {
+        "startLine": 7434,
+        "startChar": 4,
+        "endLine": 7434,
+        "endChar": 69
+      },
+      "revId": "33891373dbce0570e00ddce0b8abd35575755f2f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b525939b_fed05609",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 3
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "862d093f_de493376",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 7480,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2018-09-05T19:41:20Z",
+      "side": 1,
+      "message": "ditto",
+      "parentUuid": "b525939b_fed05609",
+      "range": {
+        "startLine": 7480,
+        "startChar": 4,
+        "endLine": 7480,
+        "endChar": 69
+      },
+      "revId": "33891373dbce0570e00ddce0b8abd35575755f2f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0314544e_437822cc",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 3
@@ -59,6 +107,30 @@
       "writtenOn": "2018-09-05T18:36:26Z",
       "side": 1,
       "message": "ditto",
+      "range": {
+        "startLine": 7559,
+        "startChar": 4,
+        "endLine": 7559,
+        "endChar": 69
+      },
+      "revId": "33891373dbce0570e00ddce0b8abd35575755f2f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0ba04a1c_5e42aefa",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 7559,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2018-09-05T19:41:20Z",
+      "side": 1,
+      "message": "ditto",
+      "parentUuid": "0314544e_437822cc",
       "range": {
         "startLine": 7559,
         "startChar": 4,
