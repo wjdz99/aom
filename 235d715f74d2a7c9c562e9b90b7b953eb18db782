@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7c9731e5_36fece7d",
+        "filename": "aom/aom_codec.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 266,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-09-05T19:25:22Z",
+      "side": 0,
+      "message": "this is a public header, so should be considered as part of the public API. given the more specific function-like macros below it\u0027s probably OK to remove them as a legacy from libvpx, but it\u0027s something to keep in mind when editing headers under aom/.",
+      "revId": "235d715f74d2a7c9c562e9b90b7b953eb18db782",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
