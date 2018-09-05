@@ -33,7 +33,7 @@ static MESH_PATTERN
       { { 64, 16 }, { 24, 8 }, { 12, 4 }, { 7, 1 } },
       { { 64, 16 }, { 24, 8 }, { 12, 4 }, { 7, 1 } },
     };
-static unsigned char good_quality_max_mesh_pct[MAX_MESH_SPEED + 1] = {
+static unsigned char good_quality_max_mesh_pct[MAX_MESH_SPEED + 1] ={
   50, 50, 25, 15, 5, 1
 };
 
@@ -228,7 +228,6 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
   if (speed >= 2) {
     sf->gm_erroradv_type = GM_ERRORADV_TR_2;
 
-    sf->selective_ref_frame = 2;
     sf->fast_cdef_search = 1;
 
     sf->use_rd_breakout = 1;
