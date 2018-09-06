@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bf29e493_b924675a",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-09-06T16:58:29Z",
+      "side": 1,
+      "message": "MAX_SB_SIZE * MAX_SB_SIZE * sizeof(uint16_t) \u003d 32768, not 8192.",
+      "range": {
+        "startLine": 17,
+        "startChar": 22,
+        "endLine": 17,
+        "endChar": 26
+      },
+      "revId": "3bb925869b02f99c6b23cfe1810d1bbc1592b9b8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b7e4263c_de2a111c",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 625,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-09-06T16:58:29Z",
+      "side": 1,
+      "message": "My analysis shows that predict_inter_block seems to be the common ancestor of all these functions. If so, then we can have predict_inter_block allocate the tmp_dst, tmp_buf1, and tmp_buf_2 arrays and pass them down to these callers. The advantage is that these functions won\u0027t need to check for memory allocation errors and their \u0027cm\u0027 parameters can remain const.\n\nIn the extreme, these arrays can be allocated and saved in either \u0027cm\u0027 or \u0027xd\u0027. (Yaowu suggested this.)\n\nIf this approach works, it will also be more efficient because some of these functions are called in a for-each loop.",
+      "range": {
+        "startLine": 625,
+        "startChar": 19,
+        "endLine": 625,
+        "endChar": 45
+      },
+      "revId": "3bb925869b02f99c6b23cfe1810d1bbc1592b9b8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6fb43ae2_d3ed69c4",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 920,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-09-06T16:58:29Z",
+      "side": 1,
+      "message": "This \"const\" cast is bad. We should avoid it.",
+      "range": {
+        "startLine": 920,
+        "startChar": 31,
+        "endLine": 920,
+        "endChar": 45
+      },
+      "revId": "3bb925869b02f99c6b23cfe1810d1bbc1592b9b8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e71fb5f0_487534ed",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 973,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-09-06T16:58:29Z",
+      "side": 1,
+      "message": "We should avoid this \"const\" cast.",
+      "range": {
+        "startLine": 973,
+        "startChar": 31,
+        "endLine": 973,
+        "endChar": 45
+      },
+      "revId": "3bb925869b02f99c6b23cfe1810d1bbc1592b9b8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
