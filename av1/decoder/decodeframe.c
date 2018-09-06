@@ -40,6 +40,7 @@
 #include "av1/decoder/inspection.h"
 #endif
 #include "av1/common/common.h"
+#include "av1/common/frame_buffers.h"
 #include "av1/common/entropy.h"
 #include "av1/common/entropymode.h"
 #include "av1/common/entropymv.h"
@@ -4397,6 +4398,7 @@ static INLINE void reset_frame_buffers(AV1_COMMON *cm) {
     frame_bufs[i].cur_frame_offset = 0;
     av1_zero(frame_bufs[i].ref_frame_offset);
   }
+  av1_zero_unused_internal_frame_buffers(&cm->buffer_pool->int_frame_buffers);
   unlock_buffer_pool(cm->buffer_pool);
 }
 
