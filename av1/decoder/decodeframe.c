@@ -622,9 +622,8 @@ static INLINE void dec_calc_subpel_params(
   }
 }
 
-static INLINE void dec_build_inter_predictors(const AV1_COMMON *cm,
-                                              MACROBLOCKD *xd, int plane,
-                                              const MB_MODE_INFO *mi,
+static INLINE void dec_build_inter_predictors(AV1_COMMON *cm, MACROBLOCKD *xd,
+                                              int plane, const MB_MODE_INFO *mi,
                                               int build_for_obmc, int bw,
                                               int bh, int mi_x, int mi_y) {
   struct macroblockd_plane *const pd = &xd->plane[plane];
@@ -676,6 +675,8 @@ static INLINE void dec_build_inter_predictors(const AV1_COMMON *cm,
     const int b8_w = block_size_wide[plane_bsize] >> ss_x;
     const int b8_h = block_size_high[plane_bsize] >> ss_y;
     assert(!is_compound);
+    CONV_BUF_TYPE *tmp_dst;
+    CHECK_MEM_ERROR(cm, tmp_dst, aom_memalign(32, 8 * 8 * sizeof(*tmp_dst)));
 
     const struct buf_2d orig_pred_buf[2] = { pd->pre[0], pd->pre[1] };
 
@@ -686,7 +687,6 @@ static INLINE void dec_build_inter_predictors(const AV1_COMMON *cm,
       for (int x = 0; x < b8_w; x += b4_w) {
         MB_MODE_INFO *this_mbmi = xd->mi[row * xd->mi_stride + col];
         is_compound = has_second_ref(this_mbmi);
-        DECLARE_ALIGNED(32, CONV_BUF_TYPE, tmp_dst[8 * 8]);
         int tmp_dst_stride = 8;
         assert(bw < 8 || bh < 8);
         ConvolveParams conv_params = get_conv_params_no_round(
@@ -752,6 +752,7 @@ static INLINE void dec_build_inter_predictors(const AV1_COMMON *cm,
     }
 
     for (ref = 0; ref < 2; ++ref) pd->pre[ref] = orig_pred_buf[ref];
+    aom_free(tmp_dst);
     return;
   }
 
@@ -760,7 +761,10 @@ static INLINE void dec_build_inter_predictors(const AV1_COMMON *cm,
     uint8_t *const dst = dst_buf->buf;
     uint8_t *pre[2];
     SubpelParams subpel_params[2];
-    DECLARE_ALIGNED(32, uint16_t, tmp_dst[MAX_SB_SIZE * MAX_SB_SIZE]);
+    uint16_t *tmp_dst;
+    CHECK_MEM_ERROR(
+        cm, tmp_dst,
+        aom_memalign(32, MAX_SB_SIZE * MAX_SB_SIZE * sizeof(*tmp_dst)));
     int src_stride[2];
     for (ref = 0; ref < 1 + is_compound; ++ref) {
       const struct scale_factors *const sf =
@@ -825,10 +829,11 @@ static INLINE void dec_build_inter_predictors(const AV1_COMMON *cm,
             &warp_types, mi_x >> pd->subsampling_x, mi_y >> pd->subsampling_y,
             plane, ref, mi, build_for_obmc, xd, cm->allow_warped_motion);
     }
+    aom_free(tmp_dst);
   }
 }
 
-static void dec_build_inter_predictors_for_planes(const AV1_COMMON *cm,
+static void dec_build_inter_predictors_for_planes(AV1_COMMON *cm,
                                                   MACROBLOCKD *xd,
                                                   BLOCK_SIZE bsize, int mi_row,
                                                   int mi_col, int plane_from,
@@ -849,10 +854,9 @@ static void dec_build_inter_predictors_for_planes(const AV1_COMMON *cm,
   }
 }
 
-static void dec_build_inter_predictors_sby(const AV1_COMMON *cm,
-                                           MACROBLOCKD *xd, int mi_row,
-                                           int mi_col, BUFFER_SET *ctx,
-                                           BLOCK_SIZE bsize) {
+static void dec_build_inter_predictors_sby(AV1_COMMON *cm, MACROBLOCKD *xd,
+                                           int mi_row, int mi_col,
+                                           BUFFER_SET *ctx, BLOCK_SIZE bsize) {
   dec_build_inter_predictors_for_planes(cm, xd, bsize, mi_row, mi_col, 0, 0);
 
   if (is_interintra_pred(xd->mi[0])) {
@@ -864,10 +868,9 @@ static void dec_build_inter_predictors_sby(const AV1_COMMON *cm,
   }
 }
 
-static void dec_build_inter_predictors_sbuv(const AV1_COMMON *cm,
-                                            MACROBLOCKD *xd, int mi_row,
-                                            int mi_col, BUFFER_SET *ctx,
-                                            BLOCK_SIZE bsize) {
+static void dec_build_inter_predictors_sbuv(AV1_COMMON *cm, MACROBLOCKD *xd,
+                                            int mi_row, int mi_col,
+                                            BUFFER_SET *ctx, BLOCK_SIZE bsize) {
   dec_build_inter_predictors_for_planes(cm, xd, bsize, mi_row, mi_col, 1,
                                         MAX_MB_PLANE - 1);
 
@@ -883,7 +886,7 @@ static void dec_build_inter_predictors_sbuv(const AV1_COMMON *cm,
   }
 }
 
-static void dec_build_inter_predictors_sb(const AV1_COMMON *cm, MACROBLOCKD *xd,
+static void dec_build_inter_predictors_sb(AV1_COMMON *cm, MACROBLOCKD *xd,
                                           int mi_row, int mi_col,
                                           BUFFER_SET *ctx, BLOCK_SIZE bsize) {
   const int num_planes = av1_num_planes(cm);
@@ -914,8 +917,8 @@ static INLINE void dec_build_prediction_by_above_pred(
                    block_size_high[BLOCK_64X64] >> (pd->subsampling_y + 1));
 
     if (av1_skip_u4x4_pred_in_obmc(bsize, pd, 0)) continue;
-    dec_build_inter_predictors(ctxt->cm, xd, j, &backup_mbmi, 1, bw, bh, mi_x,
-                               mi_y);
+    dec_build_inter_predictors((AV1_COMMON *)ctxt->cm, xd, j, &backup_mbmi, 1,
+                               bw, bh, mi_x, mi_y);
   }
 }
 
@@ -967,8 +970,8 @@ static INLINE void dec_build_prediction_by_left_pred(
     int bh = (left_mi_height << MI_SIZE_LOG2) >> pd->subsampling_y;
 
     if (av1_skip_u4x4_pred_in_obmc(bsize, pd, 1)) continue;
-    dec_build_inter_predictors(ctxt->cm, xd, j, &backup_mbmi, 1, bw, bh, mi_x,
-                               mi_y);
+    dec_build_inter_predictors((AV1_COMMON *)ctxt->cm, xd, j, &backup_mbmi, 1,
+                               bw, bh, mi_x, mi_y);
   }
 }
 
@@ -999,12 +1002,9 @@ static void dec_build_prediction_by_left_preds(
   xd->mb_to_bottom_edge = ctxt.mb_to_far_edge;
 }
 
-static void dec_build_obmc_inter_predictors_sb(const AV1_COMMON *cm,
-                                               MACROBLOCKD *xd, int mi_row,
-                                               int mi_col) {
+static void dec_build_obmc_inter_predictors_sb(AV1_COMMON *cm, MACROBLOCKD *xd,
+                                               int mi_row, int mi_col) {
   const int num_planes = av1_num_planes(cm);
-  DECLARE_ALIGNED(16, uint8_t, tmp_buf1[2 * MAX_MB_PLANE * MAX_SB_SQUARE]);
-  DECLARE_ALIGNED(16, uint8_t, tmp_buf2[2 * MAX_MB_PLANE * MAX_SB_SQUARE]);
   uint8_t *dst_buf1[MAX_MB_PLANE], *dst_buf2[MAX_MB_PLANE];
   int dst_stride1[MAX_MB_PLANE] = { MAX_SB_SIZE, MAX_SB_SIZE, MAX_SB_SIZE };
   int dst_stride2[MAX_MB_PLANE] = { MAX_SB_SIZE, MAX_SB_SIZE, MAX_SB_SIZE };
@@ -1012,6 +1012,15 @@ static void dec_build_obmc_inter_predictors_sb(const AV1_COMMON *cm,
   int dst_width2[MAX_MB_PLANE] = { MAX_SB_SIZE, MAX_SB_SIZE, MAX_SB_SIZE };
   int dst_height1[MAX_MB_PLANE] = { MAX_SB_SIZE, MAX_SB_SIZE, MAX_SB_SIZE };
   int dst_height2[MAX_MB_PLANE] = { MAX_SB_SIZE, MAX_SB_SIZE, MAX_SB_SIZE };
+
+  uint8_t *tmp_buf1;
+  uint8_t *tmp_buf2;
+  CHECK_MEM_ERROR(
+      cm, tmp_buf1,
+      aom_memalign(16, 2 * MAX_MB_PLANE * MAX_SB_SQUARE * sizeof(*tmp_buf1)));
+  CHECK_MEM_ERROR(
+      cm, tmp_buf2,
+      aom_memalign(16, 2 * MAX_MB_PLANE * MAX_SB_SQUARE * sizeof(*tmp_buf2)));
 
   if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
     int len = sizeof(uint16_t);
@@ -1037,6 +1046,8 @@ static void dec_build_obmc_inter_predictors_sb(const AV1_COMMON *cm,
                        mi_row, mi_col, 0, num_planes);
   av1_build_obmc_inter_prediction(cm, xd, mi_row, mi_col, dst_buf1, dst_stride1,
                                   dst_buf2, dst_stride2);
+  aom_free(tmp_buf1);
+  aom_free(tmp_buf2);
 }
 
 static void cfl_store_inter_block(AV1_COMMON *const cm, MACROBLOCKD *const xd) {
