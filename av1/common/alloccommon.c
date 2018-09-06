@@ -295,6 +295,12 @@ void av1_remove_common(AV1_COMMON *cm) {
   cm->fc = NULL;
   aom_free(cm->frame_contexts);
   cm->frame_contexts = NULL;
+  aom_free(cm->tmp_conv_dst);
+  cm->tmp_conv_dst = NULL;
+  for (int i = 0; i < 2; ++i) {
+    aom_free(cm->tmp_obmc_bufs[i]);
+    cm->tmp_obmc_bufs[i] = NULL;
+  }
 }
 
 void av1_init_context_buffers(AV1_COMMON *cm) { cm->setup_mi(cm); }

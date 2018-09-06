@@ -96,6 +96,15 @@ AV1Decoder *av1_decoder_create(BufferPool *const pool) {
   memset(cm->fc, 0, sizeof(*cm->fc));
   memset(cm->frame_contexts, 0, FRAME_CONTEXTS * sizeof(*cm->frame_contexts));
 
+  CHECK_MEM_ERROR(
+      cm, cm->tmp_conv_dst,
+      aom_memalign(32, MAX_SB_SIZE * MAX_SB_SIZE * sizeof(*cm->tmp_conv_dst)));
+  for (int i = 0; i < 2; ++i) {
+    CHECK_MEM_ERROR(cm, cm->tmp_obmc_bufs[i],
+                    aom_memalign(16, 2 * MAX_MB_PLANE * MAX_SB_SQUARE *
+                                         sizeof(*cm->tmp_obmc_bufs[i])));
+  }
+
   pbi->need_resync = 1;
   aom_once(initialize_dec);
 

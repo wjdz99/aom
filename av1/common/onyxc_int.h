@@ -396,6 +396,10 @@ typedef struct AV1Common {
   MB_MODE_INFO **prev_mi_grid_base;
   MB_MODE_INFO **prev_mi_grid_visible;
 
+  // Temporary buffers: allocated once, used multiple times.
+  CONV_BUF_TYPE *tmp_conv_dst;
+  uint8_t *tmp_obmc_bufs[2];
+
   // Whether to use previous frames' motion vectors for prediction.
   int allow_ref_frame_mvs;
 

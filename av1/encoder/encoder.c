@@ -2466,7 +2466,6 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
 
 AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
                                 BufferPool *const pool) {
-  unsigned int i;
   AV1_COMP *volatile const cpi = aom_memalign(32, sizeof(AV1_COMP));
   AV1_COMMON *volatile const cm = cpi != NULL ? &cpi->common : NULL;
 
@@ -2496,6 +2495,15 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
   memset(cm->fc, 0, sizeof(*cm->fc));
   memset(cm->frame_contexts, 0, FRAME_CONTEXTS * sizeof(*cm->frame_contexts));
 
+  CHECK_MEM_ERROR(
+      cm, cm->tmp_conv_dst,
+      aom_memalign(32, MAX_SB_SIZE * MAX_SB_SIZE * sizeof(*cm->tmp_conv_dst)));
+  for (int i = 0; i < 2; ++i) {
+    CHECK_MEM_ERROR(cm, cm->tmp_obmc_bufs[i],
+                    aom_memalign(16, 2 * MAX_MB_PLANE * MAX_SB_SQUARE *
+                                         sizeof(*cm->tmp_obmc_bufs[i])));
+  }
+
   cpi->resize_state = 0;
   cpi->resize_avg_qp = 0;
   cpi->resize_buffer_underflow = 0;
@@ -2516,8 +2524,8 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
   memset(cpi->nmv_costs, 0, sizeof(cpi->nmv_costs));
   memset(cpi->nmv_costs_hp, 0, sizeof(cpi->nmv_costs_hp));
 
-  for (i = 0; i < (sizeof(cpi->mbgraph_stats) / sizeof(cpi->mbgraph_stats[0]));
-       i++) {
+  for (unsigned int i = 0;
+       i < (sizeof(cpi->mbgraph_stats) / sizeof(cpi->mbgraph_stats[0])); i++) {
     CHECK_MEM_ERROR(
         cm, cpi->mbgraph_stats[i].mb_stats,
         aom_calloc(cm->MBs * sizeof(*cpi->mbgraph_stats[i].mb_stats), 1));
