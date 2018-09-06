@@ -7704,6 +7704,16 @@ static int64_t build_and_cost_compound_type(
 }
 
 typedef struct {
+  RD_STATS rd_stats;
+  RD_STATS rd_stats_y;
+  RD_STATS rd_stats_uv;
+  uint8_t blk_skip[MAX_MIB_SIZE * MAX_MIB_SIZE];
+  uint8_t skip;
+  uint8_t disable_skip;
+  uint8_t early_skipped;
+} SimpleRDState;
+
+typedef struct {
   // OBMC secondary prediction buffers and respective strides
   uint8_t *above_pred_buf[MAX_MB_PLANE];
   int above_pred_stride[MAX_MB_PLANE];
@@ -7723,6 +7733,8 @@ typedef struct {
   int64_t (*simple_rd)[MAX_REF_MV_SERCH][REF_FRAMES];
   int skip_motion_mode;
   INTERINTRA_MODE inter_intra_mode[REF_FRAMES];
+  int single_ref_first_pass;
+  SimpleRDState *simple_rd_state;
 } HandleInterModeArgs;
 
 /* If the current mode shares the same mv with other modes with higher cost,
@@ -8650,6 +8662,7 @@ static int64_t motion_mode_rd(const AV1_COMP *const cpi, MACROBLOCK *const x,
   }
   base_mbmi = *mbmi;
 
+  SimpleRDState *simple_states = &args->simple_rd_state[mbmi->ref_mv_idx];
   const int switchable_rate =
       av1_is_interp_needed(xd) ? av1_get_switchable_rate(cm, x, xd) : 0;
   int64_t best_rd = INT64_MAX;
@@ -8657,6 +8670,9 @@ static int64_t motion_mode_rd(const AV1_COMP *const cpi, MACROBLOCK *const x,
        mode_index <= (int)last_motion_mode_allowed + interintra_allowed;
        mode_index++) {
     if (args->skip_motion_mode && mode_index) continue;
+    if (cpi->sf.prune_single_motion_modes_by_simple_trans &&
+        args->single_ref_first_pass && mode_index)
+      break;
     int64_t tmp_rd = INT64_MAX;
     int tmp_rate2 = rate2_nocoeff;
     int is_interintra_mode = mode_index > (int)last_motion_mode_allowed;
@@ -8674,6 +8690,28 @@ static int64_t motion_mode_rd(const AV1_COMP *const cpi, MACROBLOCK *const x,
       // SIMPLE_TRANSLATION mode: no need to recalculate.
       // The prediction is calculated before motion_mode_rd() is called in
       // handle_inter_mode()
+      if (cpi->sf.prune_single_motion_modes_by_simple_trans &&
+          args->single_ref_first_pass == 0 && !is_comp_pred) {
+        int64_t simple_rd =
+            args->simple_rd[this_mode][mbmi->ref_mv_idx][mbmi->ref_frame[0]];
+        if (simple_states->early_skipped) {
+          assert(simple_rd == INT64_MAX);
+          return INT64_MAX;
+        }
+        if (simple_rd != INT64_MAX) {
+          best_rd = simple_rd;
+          best_rd_stats = simple_states->rd_stats;
+          best_rd_stats_y = simple_states->rd_stats_y;
+          best_rd_stats_uv = simple_states->rd_stats_uv;
+          memcpy(best_blk_skip, simple_states->blk_skip,
+                 sizeof(x->blk_skip[0]) * xd->n4_h * xd->n4_w);
+          best_xskip = simple_states->skip;
+          best_disable_skip = simple_states->disable_skip;
+          best_mbmi = *mbmi;
+        }
+        continue;
+      }
+      simple_states->early_skipped = 0;
     } else if (mbmi->motion_mode == OBMC_CAUSAL) {
       uint32_t cur_mv = mbmi->mv[0].as_int;
       assert(!is_comp_pred);
@@ -8847,12 +8885,16 @@ static int64_t motion_mode_rd(const AV1_COMP *const cpi, MACROBLOCK *const x,
       int mode_rate = rd_stats->rate;
       const int64_t tmp_mode_rd = RDCOST(x->rdmult, rd_stats->rate, 0);
       if (ref_best_rd < INT64_MAX && tmp_mode_rd > ref_best_rd) {
-        if (mode_index == 0) return INT64_MAX;
+        if (mode_index == 0) {
+          simple_states->early_skipped = 1;
+          return INT64_MAX;
+        }
         continue;
       }
       if (!txfm_search(cpi, x, bsize, mi_row, mi_col, rd_stats, rd_stats_y,
                        rd_stats_uv, mode_rate, ref_best_rd)) {
         if (rd_stats_y->rate == INT_MAX && mode_index == 0) {
+          simple_states->early_skipped = 1;
           return INT64_MAX;
         }
         continue;
@@ -8888,8 +8930,18 @@ static int64_t motion_mode_rd(const AV1_COMP *const cpi, MACROBLOCK *const x,
     }
 
     tmp_rd = RDCOST(x->rdmult, rd_stats->rate, rd_stats->dist);
-    if (mode_index == 0)
+    if (mode_index == 0) {
       args->simple_rd[this_mode][mbmi->ref_mv_idx][mbmi->ref_frame[0]] = tmp_rd;
+      if (!is_comp_pred) {
+        simple_states->rd_stats = *rd_stats;
+        simple_states->rd_stats_y = *rd_stats_y;
+        simple_states->rd_stats_uv = *rd_stats_uv;
+        memcpy(simple_states->blk_skip, x->blk_skip,
+               sizeof(x->blk_skip[0]) * xd->n4_h * xd->n4_w);
+        simple_states->skip = x->skip;
+        simple_states->disable_skip = *disable_skip;
+      }
+    }
     if ((mode_index == 0) || (tmp_rd < best_rd)) {
       best_mbmi = *mbmi;
       best_rd = tmp_rd;
@@ -9344,9 +9396,14 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
           rate_mv = backup_rate_mv;
         }
 
-        // when jnt_comp_skip_mv_search flag is on, new mv will be searched once
-        if (!(search_jnt_comp && cpi->sf.jnt_comp_skip_mv_search &&
-              comp_idx == 0)) {
+        if (cpi->sf.prune_single_motion_modes_by_simple_trans &&
+            args->single_ref_first_pass == 0 && !is_comp_pred) {
+          const int ref0 = mbmi->ref_frame[0];
+          newmv_ret_val = args->single_newmv_valid[ref_mv_idx][ref0] ? 0 : 1;
+          cur_mv[0] = args->single_newmv[ref_mv_idx][ref0];
+          rate_mv = args->single_newmv_rate[ref_mv_idx][ref0];
+        } else if (!(search_jnt_comp && cpi->sf.jnt_comp_skip_mv_search &&
+                     comp_idx == 0)) {
           newmv_ret_val = handle_newmv(cpi, x, bsize, cur_mv, mi_row, mi_col,
                                        &rate_mv, args);
 
@@ -11197,7 +11254,7 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   InterModeSearchState search_state;
   init_inter_mode_search_state(&search_state, cpi, tile_data, x, bsize,
                                best_rd_so_far);
-
+  SimpleRDState simple_rd_state[MAX_SINGLE_REF_MODES][MAX_REF_MV_SERCH];
   HandleInterModeArgs args = {
     { NULL },
     { MAX_SB_SIZE, MAX_SB_SIZE, MAX_SB_SIZE },
@@ -11213,7 +11270,9 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
     NULL,
     0,
     { INTERINTRA_MODES, INTERINTRA_MODES, INTERINTRA_MODES, INTERINTRA_MODES,
-      INTERINTRA_MODES, INTERINTRA_MODES, INTERINTRA_MODES, INTERINTRA_MODES }
+      INTERINTRA_MODES, INTERINTRA_MODES, INTERINTRA_MODES, INTERINTRA_MODES },
+    1,  // single_ref_first_pass
+    NULL
   };
   for (i = 0; i < REF_FRAMES; ++i) x->pred_sse[i] = INT_MAX;
 
@@ -11252,23 +11311,22 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
 
   for (int midx = 0; midx < MAX_MODES; ++midx) {
     int mode_index = mode_map[midx];
-    int64_t this_rd = INT64_MAX;
-    int disable_skip = 0;
-    int rate2 = 0, rate_y = 0, rate_uv = 0;
-    int64_t distortion2 = 0;
-    int skippable = 0;
-    int this_skip2 = 0;
+    const MODE_DEFINITION *mode_order = &av1_mode_order[mode_index];
+    this_mode = mode_order->mode;
+    const MV_REFERENCE_FRAME ref_frame = mode_order->ref_frame[0];
+    const MV_REFERENCE_FRAME second_ref_frame = mode_order->ref_frame[1];
 
-    this_mode = av1_mode_order[mode_index].mode;
-    const MV_REFERENCE_FRAME ref_frame =
-        av1_mode_order[mode_index].ref_frame[0];
-    const MV_REFERENCE_FRAME second_ref_frame =
-        av1_mode_order[mode_index].ref_frame[1];
-
-    init_mbmi(mbmi, mode_index, cm);
-
-    x->skip = 0;
-    set_ref_ptrs(cm, xd, ref_frame, second_ref_frame);
+    // When single ref motion search ends:
+    // 1st pass: To evaluate single ref RD results and rewind to the beginning;
+    // 2nd pass: To continue with compound ref search.
+    if (sf->prune_single_motion_modes_by_simple_trans &&
+        second_ref_frame > INTRA_FRAME && args.single_ref_first_pass) {
+      args.single_ref_first_pass = 0;
+      // analyze_single_ref_simple_trans(cpi, &search_state);
+      // Reset midx to start the 2nd pass for single ref motion search
+      midx = -1;
+      continue;
+    }
 
     // Reach the first compound prediction mode
     if (sf->prune_comp_search_by_single_result > 0 &&
@@ -11276,6 +11334,18 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
       analyze_single_states(cpi, &search_state);
       reach_first_comp_mode = 1;
     }
+    int64_t this_rd = INT64_MAX;
+    int disable_skip = 0;
+    int rate2 = 0, rate_y = 0, rate_uv = 0;
+    int64_t distortion2 = 0;
+    int skippable = 0;
+    int this_skip2 = 0;
+
+    init_mbmi(mbmi, mode_index, cm);
+
+    x->skip = 0;
+    set_ref_ptrs(cm, xd, ref_frame, second_ref_frame);
+
     const int ret = inter_mode_search_order_independent_skip(
         cpi, ctx, x, bsize, mode_index, mi_row, mi_col, mode_skip_mask,
         ref_frame_skip_mask, &search_state);
@@ -11355,6 +11425,7 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
 
     if (ref_frame == INTRA_FRAME) {
       intra_mode_idx_ls[intra_mode_num++] = mode_index;
+      continue;
     } else {
       mbmi->angle_delta[PLANE_TYPE_Y] = 0;
       mbmi->angle_delta[PLANE_TYPE_UV] = 0;
@@ -11374,6 +11445,9 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
         args.single_comp_cost = real_compmode_cost;
         args.ref_frame_cost = ref_frame_cost;
         args.simple_rd = search_state.simple_rd;
+        if (mode_index < MAX_SINGLE_REF_MODES) {
+          args.simple_rd_state = simple_rd_state[mode_index];
+        }
 #if CONFIG_COLLECT_INTER_MODE_RD_STATS
         this_rd = handle_inter_mode(
             cpi, x, bsize, &rd_stats, &rd_stats_y, &rd_stats_uv, &disable_skip,
@@ -11392,7 +11466,7 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
       }
 
       if (sf->prune_comp_search_by_single_result > 0 &&
-          is_inter_singleref_mode(this_mode)) {
+          is_inter_singleref_mode(this_mode) && args.single_ref_first_pass) {
         collect_single_states(x, &search_state, mbmi);
       }
 
