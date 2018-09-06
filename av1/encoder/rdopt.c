@@ -8370,6 +8370,7 @@ static int txfm_search(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
       if (tokenonly_rdy - (tokenonly_rdy >> cpi->sf.adaptive_txb_search_level) >
           rd_thresh)
         av1_invalid_rd_stats(rd_stats_y);
+      return 0;
     }
 
     if (num_planes > 1) {
