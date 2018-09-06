@@ -7886,7 +7886,7 @@ static INLINE int64_t interpolation_filter_rd(
     int64_t *const skip_sse_sb, const BUFFER_SET *dst_bufs[2], int filter_idx,
     const int switchable_ctx[2], const int skip_pred, int *rate,
     int64_t *dist) {
-  const AV1_COMMON *cm = &cpi->common;
+  AV1_COMMON *cm = &cpi->common;
   const int num_planes = av1_num_planes(cm);
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = xd->mi[0];
@@ -8432,7 +8432,7 @@ static int handle_inter_intra_mode(const AV1_COMP *const cpi,
                                    HandleInterModeArgs *args,
                                    int64_t ref_best_rd, int rate_mv,
                                    int *tmp_rate2, BUFFER_SET *orig_dst) {
-  const AV1_COMMON *const cm = &cpi->common;
+  AV1_COMMON *const cm = &cpi->common;
   const int num_planes = av1_num_planes(cm);
   MACROBLOCKD *xd = &x->e_mbd;
 
@@ -9180,7 +9180,7 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
                                  InterModesInfo *inter_modes_info
 #endif
 ) {
-  const AV1_COMMON *cm = &cpi->common;
+  AV1_COMMON *cm = &cpi->common;
   const int num_planes = av1_num_planes(cm);
   MACROBLOCKD *xd = &x->e_mbd;
   MB_MODE_INFO *mbmi = xd->mi[0];
@@ -10003,7 +10003,7 @@ static void sf_refine_fast_tx_type_search(
     int best_mode_index, MB_MODE_INFO *best_mbmode,
     struct buf_2d yv12_mb[REF_FRAMES][MAX_MB_PLANE], int best_rate_y,
     int best_rate_uv, int *best_skip2) {
-  const AV1_COMMON *const cm = &cpi->common;
+  AV1_COMMON *const cm = &cpi->common;
   const SPEED_FEATURES *const sf = &cpi->sf;
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = xd->mi[0];
@@ -11165,7 +11165,7 @@ void av1_rd_pick_inter_mode_sb(const AV1_COMP *cpi, TileDataEnc *tile_data,
                                MACROBLOCK *x, int mi_row, int mi_col,
                                RD_STATS *rd_cost, BLOCK_SIZE bsize,
                                PICK_MODE_CONTEXT *ctx, int64_t best_rd_so_far) {
-  const AV1_COMMON *const cm = &cpi->common;
+  AV1_COMMON *const cm = &cpi->common;
   const int num_planes = av1_num_planes(cm);
   const SPEED_FEATURES *const sf = &cpi->sf;
   MACROBLOCKD *const xd = &x->e_mbd;

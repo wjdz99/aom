@@ -23,20 +23,20 @@
 extern "C" {
 #endif
 
-void av1_build_inter_predictors_sby(const AV1_COMMON *cm, MACROBLOCKD *xd,
-                                    int mi_row, int mi_col, BUFFER_SET *ctx,
+void av1_build_inter_predictors_sby(AV1_COMMON *cm, MACROBLOCKD *xd, int mi_row,
+                                    int mi_col, BUFFER_SET *ctx,
                                     BLOCK_SIZE bsize);
 
-void av1_build_inter_predictors_sbuv(const AV1_COMMON *cm, MACROBLOCKD *xd,
+void av1_build_inter_predictors_sbuv(AV1_COMMON *cm, MACROBLOCKD *xd,
                                      int mi_row, int mi_col, BUFFER_SET *ctx,
                                      BLOCK_SIZE bsize);
 
-void av1_build_inter_predictors_sbp(const AV1_COMMON *cm, MACROBLOCKD *xd,
-                                    int mi_row, int mi_col, BUFFER_SET *ctx,
+void av1_build_inter_predictors_sbp(AV1_COMMON *cm, MACROBLOCKD *xd, int mi_row,
+                                    int mi_col, BUFFER_SET *ctx,
                                     BLOCK_SIZE bsize, int plane_idx);
 
-void av1_build_inter_predictors_sb(const AV1_COMMON *cm, MACROBLOCKD *xd,
-                                   int mi_row, int mi_col, BUFFER_SET *ctx,
+void av1_build_inter_predictors_sb(AV1_COMMON *cm, MACROBLOCKD *xd, int mi_row,
+                                   int mi_col, BUFFER_SET *ctx,
                                    BLOCK_SIZE bsize);
 
 void av1_build_inter_predictor(const uint8_t *src, int src_stride, uint8_t *dst,
@@ -105,7 +105,7 @@ void av1_build_prediction_by_left_preds(const AV1_COMMON *cm, MACROBLOCKD *xd,
                                         int tmp_height[MAX_MB_PLANE],
                                         int tmp_stride[MAX_MB_PLANE]);
 
-void av1_build_obmc_inter_predictors_sb(const AV1_COMMON *cm, MACROBLOCKD *xd,
+void av1_build_obmc_inter_predictors_sb(AV1_COMMON *cm, MACROBLOCKD *xd,
                                         int mi_row, int mi_col);
 
 void av1_build_inter_predictors_for_planes_single_buf(
