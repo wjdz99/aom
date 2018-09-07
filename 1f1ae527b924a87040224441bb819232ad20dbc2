@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "29462346_63ff4273",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2751,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-09-07T18:30:24Z",
+      "side": 1,
+      "message": "This should probably go to ml.[hc], as it may be useful for other models too.",
+      "range": {
+        "startLine": 2751,
+        "startChar": 12,
+        "endLine": 2751,
+        "endChar": 19
+      },
+      "revId": "1f1ae527b924a87040224441bb819232ad20dbc2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "87c00670_89aa79c0",
+        "filename": "av1/encoder/partition_model_weights.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 1988,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-09-07T18:30:24Z",
+      "side": 1,
+      "message": "Use a #define for 32 also (here and in the config struct below)",
+      "range": {
+        "startLine": 1988,
+        "startChar": 73,
+        "endLine": 1988,
+        "endChar": 75
+      },
+      "revId": "1f1ae527b924a87040224441bb819232ad20dbc2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
