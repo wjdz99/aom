@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "477c43ce_82fef43f",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-09-07T22:58:50Z",
+      "side": 1,
+      "message": "Please add a BUG\u003d line with chromium bug 879549. Perhaps BUG\u003dchromium:879549 ?",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 9,
+        "endChar": 50
+      },
+      "revId": "58a3ad0cb58cfd107660fa6bbdea969ad19497d2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fc115ba1_becc5d52",
+        "filename": "av1/common/x86/convolve_sse2.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-09-07T22:58:50Z",
+      "side": 1,
+      "message": "Note that we need to cast \u0027dst\u0027 to point to a uint16_t or uint32_t here. Unfortunately this C-style cast also casts away the const. This is why the incorrect declaration of \u0027dst\u0027 as a const pointer went unnoticed.",
+      "range": {
+        "startLine": 134,
+        "startChar": 0,
+        "endLine": 137,
+        "endChar": 35
+      },
+      "revId": "58a3ad0cb58cfd107660fa6bbdea969ad19497d2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
