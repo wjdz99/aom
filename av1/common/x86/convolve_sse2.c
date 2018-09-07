@@ -76,7 +76,7 @@ static INLINE __m128i convolve_hi_y(const __m128i *const s,
 }
 
 void av1_convolve_y_sr_sse2(const uint8_t *src, int src_stride,
-                            const uint8_t *dst, int dst_stride, int w, int h,
+                            uint8_t *dst, int dst_stride, int w, int h,
                             const InterpFilterParams *filter_params_x,
                             const InterpFilterParams *filter_params_y,
                             const int subpel_x_q4, const int subpel_y_q4,
@@ -237,7 +237,7 @@ void av1_convolve_y_sr_sse2(const uint8_t *src, int src_stride,
 }
 
 void av1_convolve_x_sr_sse2(const uint8_t *src, int src_stride,
-                            const uint8_t *dst, int dst_stride, int w, int h,
+                            uint8_t *dst, int dst_stride, int w, int h,
                             const InterpFilterParams *filter_params_x,
                             const InterpFilterParams *filter_params_y,
                             const int subpel_x_q4, const int subpel_y_q4,
