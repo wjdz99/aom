@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "162f297a_63a6f609",
+        "filename": "av1/decoder/decoder.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-09-08T00:05:15Z",
+      "side": 1,
+      "message": "Please document the sizes and alignments of these buffers, and whether this struct owns these buffers.",
+      "range": {
+        "startLine": 61,
+        "startChar": 0,
+        "endLine": 62,
+        "endChar": 28
+      },
+      "revId": "ef3a12addeba6192ae4f3efd95877381f652df37",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "75535fe3_f2fefb07",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-09-08T00:05:15Z",
+      "side": 1,
+      "message": "Please document the sizes and alignments of these buffers, and whether this struct owns these buffers.",
+      "range": {
+        "startLine": 258,
+        "startChar": 0,
+        "endLine": 259,
+        "endChar": 28
+      },
+      "revId": "ef3a12addeba6192ae4f3efd95877381f652df37",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bd8b0cf9_1e7190a8",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 487,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-09-08T00:05:15Z",
+      "side": 1,
+      "message": "Please document the sizes and alignments of these buffers, and whether this struct owns these buffers.",
+      "range": {
+        "startLine": 486,
+        "startChar": 0,
+        "endLine": 487,
+        "endChar": 28
+      },
+      "revId": "ef3a12addeba6192ae4f3efd95877381f652df37",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
