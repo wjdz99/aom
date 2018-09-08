@@ -9221,8 +9221,7 @@ static int64_t handle_inter_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   int refs[2] = { mbmi->ref_frame[0],
                   (mbmi->ref_frame[1] < 0 ? 0 : mbmi->ref_frame[1]) };
   int rate_mv = 0;
-  DECLARE_ALIGNED(32, uint8_t, tmp_buf_[2 * MAX_MB_PLANE * MAX_SB_SQUARE]);
-  uint8_t *tmp_buf = get_buf_by_bd(xd, tmp_buf_);
+  uint8_t *tmp_buf = get_buf_by_bd(xd, x->tmp_obmc_bufs[0]);
   int64_t rd = INT64_MAX;
 
   // do first prediction into the destination buffer. Do the next
