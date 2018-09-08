@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fc6b6e35_e32f8a15",
+        "filename": "av1/decoder/decoder.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-09-08T00:15:40Z",
+      "side": 1,
+      "message": "I feel that it\u0027s better to let the code itself document the sizes \u0026 alignments -- otherwise comment and code may go out of sync.\n\nIn terms of ownership: all the structs here own the corresponding variables -- some in case of multi-threading only and some for both single and multi-threading.\n\nThis is something I also found hard to understand. And I think it\u0027s better to document which structs are used for single vs multi-threading instead (as these arrays behave similarly to others in the same structs).\n\nLet me do this in a follow-up pls.",
+      "parentUuid": "162f297a_63a6f609",
+      "range": {
+        "startLine": 61,
+        "startChar": 0,
+        "endLine": 62,
+        "endChar": 28
+      },
+      "revId": "ef3a12addeba6192ae4f3efd95877381f652df37",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "75535fe3_f2fefb07",
         "filename": "av1/encoder/block.h",
         "patchSetId": 3
