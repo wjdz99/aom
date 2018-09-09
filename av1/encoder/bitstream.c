@@ -2538,15 +2538,16 @@ static void write_film_grain_params(AV1_COMP *cpi,
   aom_film_grain_t *pars = &cm->film_grain_params;
 
   cm->cur_frame->film_grain_params = *pars;
+  static uint16_t random_seed = 7391;
 
   aom_wb_write_bit(wb, pars->apply_grain);
   if (!pars->apply_grain) return;
 
-  aom_wb_write_literal(wb, pars->random_seed, 16);
+  aom_wb_write_literal(wb, random_seed, 16);
 
-  pars->random_seed += 3245;  // For film grain test vectors purposes
-  if (!pars->random_seed)     // Random seed should not be zero
-    pars->random_seed += 1735;
+  random_seed += 3381;  // Changing random seed for film grain
+  if (!random_seed)     // Random seed should not be zero
+    random_seed += 7391;
   if (cm->frame_type == INTER_FRAME)
     aom_wb_write_bit(wb, pars->update_parameters);
   else
