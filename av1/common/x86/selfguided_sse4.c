@@ -504,7 +504,9 @@ void av1_selfguided_restoration_sse4_1(const uint8_t *dgd8, int width,
                                        int32_t *flt0, int32_t *flt1,
                                        int flt_stride, int sgr_params_idx,
                                        int bit_depth, int highbd) {
-  DECLARE_ALIGNED(16, int32_t, buf[4 * RESTORATION_PROC_UNIT_PELS]);
+  // DECLARE_ALIGNED(16, int32_t, buf[4 * RESTORATION_PROC_UNIT_PELS]);
+  int32_t *buf = aom_memalign(16, 4 * RESTORATION_PROC_UNIT_PELS);
+  asser(buf);
   memset(buf, 0, sizeof(buf));
 
   const int width_ext = width + 2 * SGRPROJ_BORDER_HORZ;
@@ -574,6 +576,7 @@ void av1_selfguided_restoration_sse4_1(const uint8_t *dgd8, int width,
     final_filter(flt1, flt_stride, A, B, buf_stride, dgd8, dgd_stride, width,
                  height, highbd);
   }
+  aom_free(buf);
 }
 
 void apply_selfguided_restoration_sse4_1(const uint8_t *dat8, int width,

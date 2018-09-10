@@ -555,8 +555,11 @@ void av1_selfguided_restoration_avx2(const uint8_t *dgd8, int width, int height,
   // Ctl and Dtl is 32-byte aligned.
   const int buf_elts = ALIGN_POWER_OF_TWO(RESTORATION_PROC_UNIT_PELS, 3);
 
-  DECLARE_ALIGNED(32, int32_t,
-                  buf[4 * ALIGN_POWER_OF_TWO(RESTORATION_PROC_UNIT_PELS, 3)]);
+  // DECLARE_ALIGNED(
+  //   32, int32_t, buf[4 * ALIGN_POWER_OF_TWO(RESTORATION_PROC_UNIT_PELS, 3)]);
+  int32_t *buf =
+      aom_memalign(32, 4 * ALIGN_POWER_OF_TWO(RESTORATION_PROC_UNIT_PELS, 3));
+  assert(buf);
 
   const int width_ext = width + 2 * SGRPROJ_BORDER_HORZ;
   const int height_ext = height + 2 * SGRPROJ_BORDER_VERT;
@@ -625,6 +628,7 @@ void av1_selfguided_restoration_avx2(const uint8_t *dgd8, int width, int height,
     final_filter(flt1, flt_stride, A, B, buf_stride, dgd8, dgd_stride, width,
                  height, highbd);
   }
+  aom_free(buf);
 }
 
 void apply_selfguided_restoration_avx2(const uint8_t *dat8, int width,
