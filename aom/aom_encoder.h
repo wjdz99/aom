@@ -940,8 +940,11 @@ aom_codec_err_t aom_codec_set_cx_data_buf(aom_codec_ctx_t *ctx,
  * application. The different kinds of packets available are enumerated in
  * #aom_codec_cx_pkt_kind.
  *
- * #AOM_CODEC_CX_FRAME_PKT packets should be passed to the application's
- * muxer. Multiple compressed frames may be in the list.
+ * #AOM_CODEC_CX_FRAME_PKT packets contain exactly one Temporal Unit in AV1. A
+ * temporal unit MAY consist of multiple compressed frames. The Temporal Unit in
+ * the AOM_CODEC_CX_FRAME_PKT MAY be suitable for muxing into a container as a
+ * single video sample. Consult the appropriate binding document to determine
+ * suitability.
  * #AOM_CODEC_STATS_PKT packets should be appended to a global buffer.
  *
  * The application \ref MUST silently ignore any packet kinds that it does
