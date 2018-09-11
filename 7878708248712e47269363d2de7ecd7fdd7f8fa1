@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "03c7a5d0_73cd32a2",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 9359,
+      "author": {
+        "id": 9978
+      },
+      "writtenOn": "2018-09-11T00:04:24Z",
+      "side": 1,
+      "message": "Following is just a suggestion. The original way is also good.\n\nif (have_newmv_in_inter_mode(this_mode)) {\n  if (args-\u003esingle_ref_first_pass) {\n    if (args-\u003esingle_newmv_valid[ref_mv_idx][mbmi-\u003eref_frame[0]] \u003d\u003d 1)\n      x-\u003ebest_mv \u003d args-\u003esingle_newmv[ref_mv_idx][mbmi-\u003eref_frame[0]];\n    else\n      continue;\n  } else {\n    ...\n  }\n}",
+      "revId": "7878708248712e47269363d2de7ecd7fdd7f8fa1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
