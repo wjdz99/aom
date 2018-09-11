@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "159e0c8c_9cacc9c6",
+        "filename": "av1/common/restoration.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 899,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2018-09-11T18:58:51Z",
+      "side": 1,
+      "message": "Actually we have both in the codebase and probably more cases of returning 1/-1 on error than 0.",
+      "parentUuid": "8a49ac39_8e62f7a8",
+      "revId": "b114798d1cf4c42cc8c01d786f3dd05ce7dc6320",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "2c6cd365_9a66a863",
         "filename": "av1/common/restoration.c",
         "patchSetId": 8
@@ -42,6 +60,30 @@
     },
     {
       "key": {
+        "uuid": "4641156c_c9d58e16",
+        "filename": "av1/common/restoration.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 914,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2018-09-11T18:58:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2c6cd365_9a66a863",
+      "range": {
+        "startLine": 913,
+        "startChar": 21,
+        "endLine": 914,
+        "endChar": 0
+      },
+      "revId": "b114798d1cf4c42cc8c01d786f3dd05ce7dc6320",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5b1cefde_f62dcbd9",
         "filename": "av1/common/x86/selfguided_avx2.c",
         "patchSetId": 8
@@ -53,6 +95,24 @@
       "writtenOn": "2018-09-11T18:39:43Z",
       "side": 1,
       "message": "return 0 on error",
+      "revId": "b114798d1cf4c42cc8c01d786f3dd05ce7dc6320",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f886520f_1362bc6c",
+        "filename": "av1/common/x86/selfguided_avx2.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 560,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2018-09-11T18:58:51Z",
+      "side": 1,
+      "message": "Keeping -1",
+      "parentUuid": "5b1cefde_f62dcbd9",
       "revId": "b114798d1cf4c42cc8c01d786f3dd05ce7dc6320",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
@@ -73,6 +133,24 @@
       "revId": "b114798d1cf4c42cc8c01d786f3dd05ce7dc6320",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "48436cff_a02b1077",
+        "filename": "av1/common/x86/selfguided_avx2.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 643,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2018-09-11T18:58:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "80bc90cc_c12ca946",
+      "revId": "b114798d1cf4c42cc8c01d786f3dd05ce7dc6320",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -99,6 +177,30 @@
     },
     {
       "key": {
+        "uuid": "5d27ff7b_229bbf5c",
+        "filename": "av1/common/x86/selfguided_sse4.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 507,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2018-09-11T18:58:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "04ecf8d7_ab0a31db",
+      "range": {
+        "startLine": 507,
+        "startChar": 3,
+        "endLine": 507,
+        "endChar": 70
+      },
+      "revId": "b114798d1cf4c42cc8c01d786f3dd05ce7dc6320",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5e4f5f8f_ce79cf7c",
         "filename": "av1/common/x86/selfguided_sse4.c",
         "patchSetId": 8
@@ -116,6 +218,24 @@
     },
     {
       "key": {
+        "uuid": "e0d9cc95_cfa3efa8",
+        "filename": "av1/common/x86/selfguided_sse4.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 508,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2018-09-11T18:58:51Z",
+      "side": 1,
+      "message": "Here we also need alignment, so using memalign()",
+      "parentUuid": "5e4f5f8f_ce79cf7c",
+      "revId": "b114798d1cf4c42cc8c01d786f3dd05ce7dc6320",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d476bb01_1132c999",
         "filename": "av1/common/x86/selfguided_sse4.c",
         "patchSetId": 8
@@ -127,6 +247,24 @@
       "writtenOn": "2018-09-11T18:39:43Z",
       "side": 1,
       "message": "return 0",
+      "revId": "b114798d1cf4c42cc8c01d786f3dd05ce7dc6320",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "df865019_b47ab1eb",
+        "filename": "av1/common/x86/selfguided_sse4.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 510,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2018-09-11T18:58:51Z",
+      "side": 1,
+      "message": "Returning -1.",
+      "parentUuid": "d476bb01_1132c999",
       "revId": "b114798d1cf4c42cc8c01d786f3dd05ce7dc6320",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
@@ -156,6 +294,30 @@
     },
     {
       "key": {
+        "uuid": "25fd93f4_ad6735c7",
+        "filename": "av1/common/x86/selfguided_sse4.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 595,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2018-09-11T18:58:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "31015286_032f7184",
+      "range": {
+        "startLine": 594,
+        "startChar": 0,
+        "endLine": 595,
+        "endChar": 0
+      },
+      "revId": "b114798d1cf4c42cc8c01d786f3dd05ce7dc6320",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c4cc04a5_655e94fc",
         "filename": "av1/encoder/pickrst.c",
         "patchSetId": 8
@@ -176,6 +338,30 @@
       "revId": "b114798d1cf4c42cc8c01d786f3dd05ce7dc6320",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1ae93824_8dadb4ef",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 529,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2018-09-11T18:58:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c4cc04a5_655e94fc",
+      "range": {
+        "startLine": 528,
+        "startChar": 0,
+        "endLine": 529,
+        "endChar": 0
+      },
+      "revId": "b114798d1cf4c42cc8c01d786f3dd05ce7dc6320",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
