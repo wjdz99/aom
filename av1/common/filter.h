@@ -37,6 +37,13 @@ typedef enum ATTRIBUTE_PACKED {
   EXTRA_FILTERS = INTERP_FILTERS_ALL - SWITCHABLE_FILTERS,
 } InterpFilter;
 
+typedef enum {
+  USE_2_TAPS_ORIG = 0,  // This is used in temporal filtering.
+  USE_2_TAPS,
+  USE_4_TAPS,
+  USE_8_TAPS,
+} SUBPEL_SEARCH_TYPE;
+
 // With CONFIG_DUAL_FILTER, pack two InterpFilter's into a uint32_t: since
 // there are at most 10 filters, we can use 16 bits for each and have more than
 // enough space. This reduces argument passing and unifies the operation of
