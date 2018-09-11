@@ -571,11 +571,16 @@ void aom_upsampled_pred_sse2(MACROBLOCKD *xd, const struct AV1Common *const cm,
     }
   }
 
+  assert(subpel_search >= USE_2_TAPS);
   const InterpFilterParams *filter =
-      (subpel_search == 1)
-          ? av1_get_4tap_interp_filter_params(EIGHTTAP_REGULAR)
-          : av1_get_interp_filter_params_with_block_size(EIGHTTAP_REGULAR, 8);
-  int filter_taps = (subpel_search == 1) ? 4 : SUBPEL_TAPS;
+      (subpel_search == USE_2_TAPS)
+          ? av1_get_4tap_interp_filter_params(BILINEAR)
+          : ((subpel_search == USE_4_TAPS)
+                 ? av1_get_4tap_interp_filter_params(EIGHTTAP_REGULAR)
+                 : av1_get_interp_filter_params_with_block_size(
+                       EIGHTTAP_REGULAR, 8));
+
+  int filter_taps = (subpel_search <= USE_4_TAPS) ? 4 : SUBPEL_TAPS;
 
   if (!subpel_x_q3 && !subpel_y_q3) {
     if (width >= 16) {
