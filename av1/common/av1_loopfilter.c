@@ -1043,11 +1043,15 @@ static void filter_selectively_horiz(uint8_t *s, int pitch, int plane,
   int count;
   const int step = 1 << subsampling;
   const unsigned int two_block_mask = subsampling ? 5 : 3;
+  const int max_block_step = 16;  // max block width is 64.
+  int offset = 0;
 
   for (mask = mask_16x16 | mask_8x8 | mask_4x4; mask; mask >>= step * count) {
     const loop_filter_thresh *lfi = lfi_n->lfthr + *lfl;
     // Next block's thresholds.
-    const loop_filter_thresh *lfin = lfi_n->lfthr + *(lfl + step);
+    const loop_filter_thresh *lfin =
+        offset < max_block_step ? lfi_n->lfthr + *(lfl + step) : lfi;
+    (void)lfin;
 
     count = 1;
     if (mask & 1) {
@@ -1108,6 +1112,7 @@ static void filter_selectively_horiz(uint8_t *s, int pitch, int plane,
     mask_16x16 >>= step * count;
     mask_8x8 >>= step * count;
     mask_4x4 >>= step * count;
+    offset += step * count;
   }
 }
 
@@ -1119,11 +1124,15 @@ static void highbd_filter_selectively_horiz(
   int count;
   const int step = 1 << subsampling;
   const unsigned int two_block_mask = subsampling ? 5 : 3;
+  const int max_block_step = 16;  // max block width is 64.
+  int offset = 0;
 
   for (mask = mask_16x16 | mask_8x8 | mask_4x4; mask; mask >>= step * count) {
     const loop_filter_thresh *lfi = lfi_n->lfthr + *lfl;
     // Next block's thresholds.
-    const loop_filter_thresh *lfin = lfi_n->lfthr + *(lfl + step);
+    const loop_filter_thresh *lfin =
+        offset < max_block_step ? lfi_n->lfthr + *(lfl + step) : lfi;
+    (void)lfin;
 
     count = 1;
     if (mask & 1) {
@@ -1183,6 +1192,7 @@ static void highbd_filter_selectively_horiz(
     mask_16x16 >>= step * count;
     mask_8x8 >>= step * count;
     mask_4x4 >>= step * count;
+    offset += step * count;
   }
 }
 
