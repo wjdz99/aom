@@ -14,6 +14,13 @@
 #include <arm_neon.h>
 #include <string.h>
 
+// gcc 6.3 fails to recognize that subsequent lane loads create a variable with
+// no "uninitialized" values.
+#if !defined(__clang__) && defined(__GNUC__) && __GNUC__ == 6 && \
+    __GNUC_MINOR__ == 3
+#define AOM_UNINITIALIZED_GCC
+#endif
+
 static INLINE void store_row2_u8_8x8(uint8_t *s, int p, const uint8x8_t s0,
                                      const uint8x8_t s1) {
   vst1_u8(s, s0);
@@ -320,6 +327,13 @@ static INLINE void load_unaligned_u8_4x8(const uint8_t *buf, int stride,
                                          uint32x2_t *tu2, uint32x2_t *tu3) {
   uint32_t a;
 
+#ifdef AOM_UNINITIALIZED_GCC
+  *tu0 = vdup_n_u32(0);
+  *tu1 = vdup_n_u32(0);
+  *tu2 = vdup_n_u32(0);
+  *tu3 = vdup_n_u32(0);
+#endif
+
   memcpy(&a, buf, 4);
   buf += stride;
   *tu0 = vset_lane_u32(a, *tu0, 0);
@@ -349,6 +363,11 @@ static INLINE void load_unaligned_u8_4x4(const uint8_t *buf, int stride,
                                          uint32x2_t *tu0, uint32x2_t *tu1) {
   uint32_t a;
 
+#ifdef AOM_UNINITIALIZED_GCC
+  *tu0 = vdup_n_u32(0);
+  *tu1 = vdup_n_u32(0);
+#endif
+
   memcpy(&a, buf, 4);
   buf += stride;
   *tu0 = vset_lane_u32(a, *tu0, 0);
@@ -375,6 +394,10 @@ static INLINE void load_unaligned_u8_4x2(const uint8_t *buf, int stride,
                                          uint32x2_t *tu0) {
   uint32_t a;
 
+#ifdef AOM_UNINITIALIZED_GCC
+  *tu0 = vdup_n_u32(0);
+#endif
+
   memcpy(&a, buf, 4);
   buf += stride;
   *tu0 = vset_lane_u32(a, *tu0, 0);
@@ -386,6 +409,10 @@ static INLINE void load_unaligned_u8_4x2(const uint8_t *buf, int stride,
 static INLINE void load_unaligned_u8_2x2(const uint8_t *buf, int stride,
                                          uint16x4_t *tu0) {
   uint16_t a;
+
+#ifdef AOM_UNINITIALIZED_GCC
+  *tu0 = vdup_n_u16(0);
+#endif
 
   memcpy(&a, buf, 2);
   buf += stride;
@@ -432,6 +459,11 @@ static INLINE void load_u8_16x4(const uint8_t *s, ptrdiff_t p,
 static INLINE void load_unaligned_u16_4x4(const uint16_t *buf, uint32_t stride,
                                           uint64x2_t *tu0, uint64x2_t *tu1) {
   uint64_t a;
+
+#ifdef AOM_UNINITIALIZED_GCC
+  *tu0 = vdupq_n_u64(0);
+  *tu1 = vdupq_n_u64(0);
+#endif
 
   memcpy(&a, buf, 8);
   buf += stride;
