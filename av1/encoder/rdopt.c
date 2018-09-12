@@ -11029,7 +11029,7 @@ static void analyze_single_states(const AV1_COMP *cpi,
       for (mode = 0; mode < SINGLE_INTER_MODE_NUM; ++mode) {
         for (i = 1; i < search_state->single_state_cnt[dir][mode]; ++i) {
           if (state[mode][i].rd != INT64_MAX &&
-              (state[mode][i].rd >> 1) > best_rd) {
+              (state[mode][i].rd - (state[mode][i].rd >> 2)) > best_rd) {
             state[mode][i].valid = 0;
           }
         }
@@ -11042,7 +11042,7 @@ static void analyze_single_states(const AV1_COMP *cpi,
         for (i = 1; i < search_state->single_state_modelled_cnt[dir][mode];
              ++i) {
           if (state[mode][i].rd != INT64_MAX &&
-              (state[mode][i].rd >> 1) > best_rd) {
+              (state[mode][i].rd - (state[mode][i].rd >> 2)) > best_rd) {
             state[mode][i].valid = 0;
           }
         }
