@@ -386,6 +386,8 @@ void av1_loop_filter_frame_mt(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
 static INLINE void lr_sync_read(void *const lr_sync, int r, int c, int plane) {
 #if CONFIG_MULTITHREAD
   AV1LrSync *const loop_res_sync = (AV1LrSync *)lr_sync;
+  if (r >= loop_res_sync->rows) return;
+
   const int nsync = loop_res_sync->sync_range;
 
   if (r && !(c & (nsync - 1))) {
@@ -409,6 +411,8 @@ static INLINE void lr_sync_write(void *const lr_sync, int r, int c,
                                  const int sb_cols, int plane) {
 #if CONFIG_MULTITHREAD
   AV1LrSync *const loop_res_sync = (AV1LrSync *)lr_sync;
+  if (r >= loop_res_sync->rows) return;
+
   const int nsync = loop_res_sync->sync_range;
   int cur;
   // Only signal when there are enough filtered SB for next row to run.
