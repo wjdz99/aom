@@ -11121,7 +11121,7 @@ static void analyze_single_states(const AV1_COMP *cpi,
       for (mode = 0; mode < SINGLE_INTER_MODE_NUM; ++mode) {
         for (i = 1; i < search_state->single_state_cnt[dir][mode]; ++i) {
           if (state[mode][i].rd != INT64_MAX &&
-              (state[mode][i].rd >> 1) > best_rd) {
+              (state[mode][i].rd - (state[mode][i].rd >> 2)) > best_rd) {
             state[mode][i].valid = 0;
           }
         }
@@ -11134,7 +11134,7 @@ static void analyze_single_states(const AV1_COMP *cpi,
         for (i = 1; i < search_state->single_state_modelled_cnt[dir][mode];
              ++i) {
           if (state[mode][i].rd != INT64_MAX &&
-              (state[mode][i].rd >> 1) > best_rd) {
+              (state[mode][i].rd - (state[mode][i].rd >> 2)) > best_rd) {
             state[mode][i].valid = 0;
           }
         }
@@ -11173,16 +11173,7 @@ static void analyze_single_states(const AV1_COMP *cpi,
               }
             }
             if (!match) {
-              // Check if this ref_frame is removed in simple rd
-              int valid = 1;
-              for (j = 0; j < state_cnt_s; j++) {
-                if (ref_frame == state_s[j].ref_frame && !state_s[j].valid) {
-                  valid = 0;
-                  break;
-                }
-              }
-              if (valid)
-                search_state->single_rd_order[dir][mode][count++] = ref_frame;
+              search_state->single_rd_order[dir][mode][count++] = ref_frame;
             }
             if (count >= max_candidates) break;
           }
@@ -11269,17 +11260,40 @@ static int compound_skip_by_single_states(
     }
   }
 
-  for (i = 0; i < 2; ++i) {
-    if (ref_searched[i] && ref_mv_match[i]) {
+  if (mode_dir[0] != mode_dir[1] || mode[0] != mode[1]) {
+    for (i = 0; i < 2; ++i) {
+      if (ref_searched[i] && ref_mv_match[i]) {
+        const int candidates = compound_skip_get_candidates(
+            cpi, search_state, mode_dir[i], mode[i]);
+        const MV_REFERENCE_FRAME *ref_order =
+            search_state->single_rd_order[mode_dir[i]][mode_offset[i]];
+        int match = 0;
+        for (j = 0; j < candidates; ++j) {
+          if (refs[i] == ref_order[j]) {
+            match = 1;
+            break;
+          }
+        }
+        if (!match) return 1;
+      }
+    }
+  } else {
+    // Uni-directional prediction with same modes
+    if (ref_searched[0] && ref_mv_match[0] && ref_searched[1] &&
+        ref_mv_match[1]) {
+      assert(mode_dir[0] == mode_dir[1]);
+      assert(mode[0] == mode[1]);
       const int candidates =
-          compound_skip_get_candidates(cpi, search_state, mode_dir[i], mode[i]);
+          compound_skip_get_candidates(cpi, search_state, mode_dir[0], mode[0]);
       const MV_REFERENCE_FRAME *ref_order =
-          search_state->single_rd_order[mode_dir[i]][mode_offset[i]];
+          search_state->single_rd_order[mode_dir[0]][mode_offset[0]];
       int match = 0;
-      for (j = 0; j < candidates; ++j) {
-        if (refs[i] == ref_order[j]) {
-          match = 1;
-          break;
+      for (i = 0; i < 2; ++i) {
+        for (j = 0; j < candidates; ++j) {
+          if (refs[i] == ref_order[j]) {
+            match = 1;
+            break;
+          }
         }
       }
       if (!match) return 1;
