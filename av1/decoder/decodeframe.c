@@ -3732,7 +3732,7 @@ static const uint8_t *decode_tiles_row_mt(AV1Decoder *pbi, const uint8_t *data,
     tile_cols_end = tile_cols;
   }
   tile_count_tg = end_tile - start_tile + 1;
-  num_workers = pbi->max_threads;
+  num_workers = AOMMIN(pbi->max_threads, tile_count_tg);
 
   // No tiles to decode.
   if (tile_rows_end <= tile_rows_start || tile_cols_end <= tile_cols_start ||
