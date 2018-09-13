@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fa39cc34_f813219e",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 9065,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-09-13T21:16:43Z",
+      "side": 1,
+      "message": "As noted on a previous patch, I prefer to let the code be the documentation for the sizes and alignments. Because, otherwise, code and documentation can go out of sync.\nBut I added a note to refer to the alloc function for the sizes and alignments.",
+      "parentUuid": "e16d57b4_d3aea729",
+      "range": {
+        "startLine": 9061,
+        "startChar": 0,
+        "endLine": 9065,
+        "endChar": 70
+      },
+      "revId": "365baeeebf73b66d681344503413b9d170555dd7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8fbd5b43_203831c8",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 1
@@ -36,6 +60,30 @@
       "writtenOn": "2018-09-13T18:31:14Z",
       "side": 1,
       "message": "[Just a comment. No response needed.] It is strange to declare an array of size 1. We should be able to avoid this.",
+      "range": {
+        "startLine": 9089,
+        "startChar": 0,
+        "endLine": 9090,
+        "endChar": 42
+      },
+      "revId": "365baeeebf73b66d681344503413b9d170555dd7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c34f9323_67c5b424",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 9090,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-09-13T21:16:43Z",
+      "side": 1,
+      "message": "Yeah, I found it weird too.\nBut I think the lowest level function needs an array of \"num_planes\" size -- which is 1 or 3 depending on the caller.",
+      "parentUuid": "8fbd5b43_203831c8",
       "range": {
         "startLine": 9089,
         "startChar": 0,
@@ -94,6 +142,30 @@
     },
     {
       "key": {
+        "uuid": "2944bba8_fa4ba1ab",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 11200,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-09-13T21:16:43Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "03159342_3d5b764e",
+      "range": {
+        "startLine": 11198,
+        "startChar": 0,
+        "endLine": 11200,
+        "endChar": 75
+      },
+      "revId": "365baeeebf73b66d681344503413b9d170555dd7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a23b601_46b4593e",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 1
@@ -117,6 +189,30 @@
     },
     {
       "key": {
+        "uuid": "d5ba9f05_18866168",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 11293,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-09-13T21:16:43Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "7a23b601_46b4593e",
+      "range": {
+        "startLine": 11293,
+        "startChar": 2,
+        "endLine": 11293,
+        "endChar": 55
+      },
+      "revId": "365baeeebf73b66d681344503413b9d170555dd7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "76a9a1b3_71440010",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 1
@@ -137,6 +233,30 @@
       "revId": "365baeeebf73b66d681344503413b9d170555dd7",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a4c57682_3870b840",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 11563,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-09-13T21:16:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "76a9a1b3_71440010",
+      "range": {
+        "startLine": 11562,
+        "startChar": 0,
+        "endLine": 11563,
+        "endChar": 53
+      },
+      "revId": "365baeeebf73b66d681344503413b9d170555dd7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
