@@ -374,6 +374,8 @@ const QuantizeParam kQParamArraySSE2[] = {
              AOM_BITS_8),
   make_tuple(&av1_quantize_fp_c, &av1_quantize_fp_sse2, TX_32X8, TYPE_FP,
              AOM_BITS_8),
+  make_tuple(&aom_quantize_b_c, &aom_quantize_b_sse2, TX_16X16, TYPE_B,
+             AOM_BITS_8),
   make_tuple(&aom_highbd_quantize_b_c, &aom_highbd_quantize_b_sse2, TX_16X16,
              TYPE_B, AOM_BITS_8),
   make_tuple(&aom_highbd_quantize_b_c, &aom_highbd_quantize_b_sse2, TX_16X16,
