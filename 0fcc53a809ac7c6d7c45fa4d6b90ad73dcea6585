@@ -70,6 +70,30 @@
       "revId": "0fcc53a809ac7c6d7c45fa4d6b90ad73dcea6585",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a08a0831_c65acd73",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2541,
+      "author": {
+        "id": 6720
+      },
+      "writtenOn": "2018-09-13T19:18:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bdf349c8_92bc4a11",
+      "range": {
+        "startLine": 2541,
+        "startChar": 0,
+        "endLine": 2541,
+        "endChar": 37
+      },
+      "revId": "0fcc53a809ac7c6d7c45fa4d6b90ad73dcea6585",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
