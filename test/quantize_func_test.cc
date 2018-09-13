@@ -394,21 +394,17 @@ INSTANTIATE_TEST_CASE_P(SSE2, QuantizeTest,
                         ::testing::ValuesIn(kQParamArraySSE2));
 #endif
 
-#if HAVE_SSSE3 && ARCH_X86_64
+#if HAVE_SSSE3
 INSTANTIATE_TEST_CASE_P(
     SSSE3, QuantizeTest,
     ::testing::Values(make_tuple(&aom_quantize_b_c, &aom_quantize_b_ssse3,
-                                 TX_16X16, TYPE_B, AOM_BITS_8)));
+                                 TX_16X16, TYPE_B, AOM_BITS_8),
 
-// Like libvpx, the ssse3 and avx quantize tests do not pass.
-// https://bugs.chromium.org/p/webm/issues/detail?id=1448
-INSTANTIATE_TEST_CASE_P(
-    DISABLED_SSSE3_32x32, QuantizeTest,
-    ::testing::Values(make_tuple(&aom_quantize_b_32x32_c,
+                      make_tuple(&aom_quantize_b_32x32_c,
                                  &aom_quantize_b_32x32_ssse3, TX_16X16, TYPE_B,
                                  AOM_BITS_8)));
 
-#endif  // HAVE_SSSE3 && ARCH_X86_64
+#endif  // HAVE_SSSE3
 
 #if HAVE_AVX && ARCH_X86_64
 INSTANTIATE_TEST_CASE_P(
