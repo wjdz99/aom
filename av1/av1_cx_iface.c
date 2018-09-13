@@ -109,7 +109,7 @@ static struct av1_extracfg default_extra_cfg = {
   1,                 // enable_auto_alt_ref
   0,                 // enable_auto_bwd_ref
   0,                 // noise_sensitivity
-  0,                 // sharpness
+  1,                 // sharpness
   0,                 // static_thresh
   0,                 // row_mt
   0,                 // tile_columns
@@ -124,7 +124,7 @@ static struct av1_extracfg default_extra_cfg = {
   0,                 // rc_max_inter_bitrate_pct
   0,                 // gf_cbr_boost_pct
   0,                 // lossless
-  1,                 // enable_cdef
+  0,                 // enable_cdef
   1,                 // enable_restoration
   0,                 // disable_trellis_quant
   0,                 // enable_qm
