@@ -46,6 +46,30 @@
       "revId": "0fcc53a809ac7c6d7c45fa4d6b90ad73dcea6585",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bdf349c8_92bc4a11",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2541,
+      "author": {
+        "id": 6720
+      },
+      "writtenOn": "2018-09-13T07:52:17Z",
+      "side": 1,
+      "message": "I think I found the problem. The second fix does not use static variables.",
+      "parentUuid": "284172d8_eda4a3ec",
+      "range": {
+        "startLine": 2541,
+        "startChar": 0,
+        "endLine": 2541,
+        "endChar": 37
+      },
+      "revId": "0fcc53a809ac7c6d7c45fa4d6b90ad73dcea6585",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
