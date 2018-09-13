@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e16d57b4_d3aea729",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 9065,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-09-13T18:31:14Z",
+      "side": 1,
+      "message": "Nit: Please document the sizes of these arrays and perhaps also their alignment boundaries.",
+      "range": {
+        "startLine": 9061,
+        "startChar": 0,
+        "endLine": 9065,
+        "endChar": 70
+      },
+      "revId": "365baeeebf73b66d681344503413b9d170555dd7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8fbd5b43_203831c8",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 9090,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-09-13T18:31:14Z",
+      "side": 1,
+      "message": "[Just a comment. No response needed.] It is strange to declare an array of size 1. We should be able to avoid this.",
+      "range": {
+        "startLine": 9089,
+        "startChar": 0,
+        "endLine": 9090,
+        "endChar": 42
+      },
+      "revId": "365baeeebf73b66d681344503413b9d170555dd7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7552df4_a598ae20",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 9221,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-09-13T18:31:14Z",
+      "side": 1,
+      "message": "Nit: I think \"cmp\" failed the Style Guide\u0027s test of an obvious/well-known abbreviation. C programmers familiar with strcmp and memcmp are likely to misinterpret \"cmp\" as \"compare\".\n\nMaybe just \"rd_bufs\" or \"rd_buffers\", if you need a short name?",
+      "range": {
+        "startLine": 9221,
+        "startChar": 56,
+        "endLine": 9221,
+        "endChar": 63
+      },
+      "revId": "365baeeebf73b66d681344503413b9d170555dd7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "03159342_3d5b764e",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 11200,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-09-13T18:31:14Z",
+      "side": 1,
+      "message": "[Just a comment, not a request for change.] If CHECK_MEM_ERROR calls longjmp (inside aom_internal_error), then the buffers allocated above are leaked. I don\u0027t think libaom tries to avoid this kind of memory leak on error paths.",
+      "range": {
+        "startLine": 11198,
+        "startChar": 0,
+        "endLine": 11200,
+        "endChar": 75
+      },
+      "revId": "365baeeebf73b66d681344503413b9d170555dd7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7a23b601_46b4593e",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 11293,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-09-13T18:31:14Z",
+      "side": 1,
+      "message": "[Just a comment, not a request for change.] Note that tmp_buf_orig is leaked if alloc_compound_type_rd_buffers() calls longjmp() inside aom_internal_error().",
+      "range": {
+        "startLine": 11293,
+        "startChar": 2,
+        "endLine": 11293,
+        "endChar": 55
+      },
+      "revId": "365baeeebf73b66d681344503413b9d170555dd7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "76a9a1b3_71440010",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 11563,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-09-13T18:31:14Z",
+      "side": 1,
+      "message": "Optional: Since this is a very long function, as defensive programming, I suggest\nwe set tmp_buf_orig to NULL after freeing, and similarly release_compound_type_rd_buffers\nshould set the fields of cmp_typ_rd_bufs to NULL after freeing them.",
+      "range": {
+        "startLine": 11562,
+        "startChar": 0,
+        "endLine": 11563,
+        "endChar": 53
+      },
+      "revId": "365baeeebf73b66d681344503413b9d170555dd7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
