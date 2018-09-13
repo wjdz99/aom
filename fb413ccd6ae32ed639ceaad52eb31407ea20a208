@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a5df1f86_2ab28f56",
+        "filename": "av1/encoder/firstpass.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1671,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-09-13T00:15:04Z",
+      "side": 1,
+      "message": "You can use a \"memset\" instead.",
+      "range": {
+        "startLine": 1668,
+        "startChar": 2,
+        "endLine": 1671,
+        "endChar": 0
+      },
+      "revId": "fb413ccd6ae32ed639ceaad52eb31407ea20a208",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2d67a4fe_705db136",
+        "filename": "av1/encoder/firstpass.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2257,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-09-13T00:15:04Z",
+      "side": 1,
+      "message": "Do you need this variable?",
+      "range": {
+        "startLine": 2257,
+        "startChar": 16,
+        "endLine": 2257,
+        "endChar": 30
+      },
+      "revId": "fb413ccd6ae32ed639ceaad52eb31407ea20a208",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
