@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cc2e4da0_72811160",
+        "filename": "aom/aomdx.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-09-14T16:40:06Z",
+      "side": 1,
+      "message": "Just curious: Does \"AV1D\" mean this control is for decoder only?",
+      "range": {
+        "startLine": 234,
+        "startChar": 5,
+        "endLine": 234,
+        "endChar": 6
+      },
+      "revId": "037776921b06525f3fe7481b85d2552875b4962a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bf8ac7ce_a8f75824",
+        "filename": "aom/aomdx.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 285,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-09-14T16:40:06Z",
+      "side": 1,
+      "message": "Should this be \u0027int\u0027?\n\nIn aom_codec_err_t ctrl_set_skip_film_grain(), we read the flag as an \u0027int\u0027:\n\nstatic aom_codec_err_t ctrl_set_skip_film_grain(aom_codec_alg_priv_t *ctx,\n                                                va_list args) {\n  ctx-\u003eskip_film_grain \u003d va_arg(args, int);\n\n  ...\n}",
+      "range": {
+        "startLine": 285,
+        "startChar": 44,
+        "endLine": 285,
+        "endChar": 56
+      },
+      "revId": "037776921b06525f3fe7481b85d2552875b4962a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "327f6ebf_83f7cf9b",
+        "filename": "aom/aomdx.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 285,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-09-14T16:40:06Z",
+      "side": 1,
+      "message": "Just curious: Do you know why there is no AOM_CTRL_USE_TYPE for AV1_SET_SKIP_LOOP_FILTER?",
+      "range": {
+        "startLine": 285,
+        "startChar": 0,
+        "endLine": 285,
+        "endChar": 17
+      },
+      "revId": "037776921b06525f3fe7481b85d2552875b4962a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "579a6c90_1b232d12",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 618,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-09-14T16:40:06Z",
+      "side": 1,
+      "message": "1. Optional: See also my comment below. If we add an \"int skip_film_grain\" argument to\nthis function, then this line will become:\n\n  if (skip_film_grain || !grain_params-\u003eapply_grain) return img;\n\n2. An alternative approach is to set cm-\u003efilm_grain_params.apply_grain to 0 if cm-\u003eskip_film_grain is nonzero. Then we can just rely on the \"if (!grain_params-\u003eapply_grain)\"\ncheck here to get the same effect.",
+      "range": {
+        "startLine": 618,
+        "startChar": 2,
+        "endLine": 618,
+        "endChar": 45
+      },
+      "revId": "037776921b06525f3fe7481b85d2552875b4962a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "86a1ea69_4bc8c856",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 746,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-09-14T16:40:06Z",
+      "side": 1,
+      "message": "Optional: I wonder if we should pass an \"int skip_film_grain\" parameter to\nadd_grain_if_needed(). Then it will be clearer that either cm-\u003eskip_film_grain\nor !grain_params-\u003eapply_grain causes us to skip applying film grain.",
+      "range": {
+        "startLine": 746,
+        "startChar": 40,
+        "endLine": 746,
+        "endChar": 52
+      },
+      "revId": "037776921b06525f3fe7481b85d2552875b4962a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
