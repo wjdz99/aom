@@ -29,6 +29,7 @@ extern "C" {
 #if CONFIG_FIX_GF_LENGTH
 #define FIXED_GF_LENGTH 16
 #define MAX_PYRAMID_LVL 4
+#define MAX_PYRAMID_SIZE 24  // the max gf size can support by 4 layer structure
 #define USE_SYMM_MULTI_LAYER 1
 #define REDUCE_LAST_ALT_BOOST 1
 #define REDUCE_LAST_GF_LENGTH 1
