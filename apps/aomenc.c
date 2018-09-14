@@ -1306,13 +1306,11 @@ static void validate_stream_config(const struct stream_state *stream,
         " and --height (-h)",
         stream->index);
 
-  // Check that the codec bit depth is greater than the input bit depth.
-  if (stream->config.cfg.g_input_bit_depth >
-      (unsigned int)stream->config.cfg.g_bit_depth) {
-    fatal("Stream %d: codec bit depth (%d) less than input bit depth (%d)",
-          stream->index, (int)stream->config.cfg.g_bit_depth,
-          stream->config.cfg.g_input_bit_depth);
-  }
+  /* Even if bit depth is set on the command line flag to be lower,
+   * it is upgraded to at least match the input bit depth.
+   */
+  assert(stream->config.cfg.g_input_bit_depth <=
+         (unsigned int)stream->config.cfg.g_bit_depth);
 
   for (streami = stream; streami; streami = streami->next) {
     /* All streams require output files */
@@ -2074,6 +2072,12 @@ int main(int argc, const char **argv_) {
       if (stream->config.cfg.g_input_bit_depth >
           (unsigned int)stream->config.cfg.g_bit_depth) {
         stream->config.cfg.g_bit_depth = stream->config.cfg.g_input_bit_depth;
+        if (!global.quiet) {
+          fprintf(stderr,
+                  "Warning: automatically updating bit depth to %d to "
+                  "match input format.\n",
+                  stream->config.cfg.g_input_bit_depth);
+        }
       }
       if (stream->config.cfg.g_bit_depth > 10) {
         switch (stream->config.cfg.g_profile) {
