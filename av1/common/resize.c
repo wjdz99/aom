@@ -1152,13 +1152,18 @@ YV12_BUFFER_CONFIG *av1_scale_if_required(AV1_COMMON *cm,
 }
 
 // Calculates the scaled dimension given the original dimension and the scale
-// denominator.
+// denominator. This is with the constraint that returned dimension is >= 16
+// when resizing.
+// This is to ensure the constraint in "Appendix A" of the spec:
+// * FrameWidth is greater than or equal to 16
+// * FrameHeight is greater than or equal to 16
 static void calculate_scaled_size_helper(int *dim, int denom) {
   if (denom != SCALE_NUMERATOR) {
     // Use this version if we need *dim to be even
     // *width = (*width * SCALE_NUMERATOR + denom) / (2 * denom);
     // *width <<= 1;
     *dim = (*dim * SCALE_NUMERATOR + denom / 2) / (denom);
+    *dim = AOMMAX(*dim, 16);
   }
 }
 
