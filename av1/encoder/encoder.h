@@ -455,6 +455,9 @@ typedef struct TileDataEnc {
   InterModeRdModel inter_mode_rd_models[BLOCK_SIZES_ALL];
   InterModesInfo inter_modes_info;
 #endif
+#if CONFIG_MULTITHREAD
+  pthread_mutex_t *search_count_mutex;
+#endif
 } TileDataEnc;
 
 typedef struct {

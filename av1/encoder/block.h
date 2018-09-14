@@ -228,6 +228,9 @@ struct macroblock {
   int sb_energy_level;
   int *m_search_count_ptr;
   int *ex_search_count_ptr;
+#if CONFIG_MULTITHREAD
+  pthread_mutex_t *search_count_mutex;
+#endif
 
   unsigned int txb_split_count;
 

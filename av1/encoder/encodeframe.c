@@ -4427,6 +4427,9 @@ void av1_init_tile_data(AV1_COMP *cpi) {
       tile_data->allow_update_cdf = !cm->large_scale_tile;
       tile_data->allow_update_cdf =
           tile_data->allow_update_cdf && !cm->disable_cdf_update;
+#if CONFIG_MULTITHREAD
+      tile_data->search_count_mutex = NULL;
+#endif
     }
   }
 }
@@ -4490,6 +4493,9 @@ void av1_encode_tile(AV1_COMP *cpi, ThreadData *td, int tile_row,
   this_tile->ex_search_count = 0;  // Exhaustive mesh search hits.
   td->mb.m_search_count_ptr = &this_tile->m_search_count;
   td->mb.ex_search_count_ptr = &this_tile->ex_search_count;
+#if CONFIG_MULTITHREAD
+  td->mb.search_count_mutex = this_tile->search_count_mutex;
+#endif
   this_tile->tctx = *cm->fc;
   td->mb.e_mbd.tile_ctx = &this_tile->tctx;
 
