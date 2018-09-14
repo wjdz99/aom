@@ -1162,9 +1162,21 @@ static void calculate_scaled_size_helper(int *dim, int denom) {
   }
 }
 
+// Same as above, but with extra constraint that returned dimension is >= 16
+// when resizing.
+// This is to ensure the constraint in "Appendix A" of the spec:
+// * FrameWidth is greater than or equal to 16
+// * FrameHeight is greater than or equal to 16
+static void calculate_scaled_size_helper_resize(int *dim, int denom) {
+  calculate_scaled_size_helper(dim, denom);
+  if (denom != SCALE_NUMERATOR) {
+    *dim = AOMMAX(*dim, 16);
+  }
+}
+
 void av1_calculate_scaled_size(int *width, int *height, int resize_denom) {
-  calculate_scaled_size_helper(width, resize_denom);
-  calculate_scaled_size_helper(height, resize_denom);
+  calculate_scaled_size_helper_resize(width, resize_denom);
+  calculate_scaled_size_helper_resize(height, resize_denom);
 }
 
 void av1_calculate_scaled_superres_size(int *width, int *height,

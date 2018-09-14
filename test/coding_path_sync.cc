@@ -46,8 +46,8 @@ class CompressedSource {
 
     // choose the picture size
     {
-      width_ = rnd_.PseudoUniform(kWidth - 8) + 8;
-      height_ = rnd_.PseudoUniform(kHeight - 8) + 8;
+      width_ = rnd_.PseudoUniform(kWidth - 16) + 16;
+      height_ = rnd_.PseudoUniform(kHeight - 16) + 16;
     }
 
     // choose the chroma subsampling
