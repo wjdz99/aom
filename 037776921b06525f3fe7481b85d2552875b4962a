@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "7bb31d8e_68102fa8",
+        "filename": "aom/aomdx.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2018-09-15T05:14:17Z",
+      "side": 1,
+      "message": "Yes, that is the intention.",
+      "parentUuid": "cc2e4da0_72811160",
+      "range": {
+        "startLine": 234,
+        "startChar": 5,
+        "endLine": 234,
+        "endChar": 6
+      },
+      "revId": "037776921b06525f3fe7481b85d2552875b4962a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "bf8ac7ce_a8f75824",
         "filename": "aom/aomdx.h",
         "patchSetId": 1
@@ -71,6 +95,30 @@
     },
     {
       "key": {
+        "uuid": "0c224a85_32b0d078",
+        "filename": "aom/aomdx.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 285,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2018-09-15T05:14:17Z",
+      "side": 1,
+      "message": "changed to int here to be consistent",
+      "parentUuid": "bf8ac7ce_a8f75824",
+      "range": {
+        "startLine": 285,
+        "startChar": 44,
+        "endLine": 285,
+        "endChar": 56
+      },
+      "revId": "037776921b06525f3fe7481b85d2552875b4962a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "579a6c90_1b232d12",
         "filename": "av1/av1_dx_iface.c",
         "patchSetId": 1
@@ -82,6 +130,30 @@
       "writtenOn": "2018-09-14T16:40:06Z",
       "side": 1,
       "message": "1. Optional: See also my comment below. If we add an \"int skip_film_grain\" argument to\nthis function, then this line will become:\n\n  if (skip_film_grain || !grain_params-\u003eapply_grain) return img;\n\n2. An alternative approach is to set cm-\u003efilm_grain_params.apply_grain to 0 if cm-\u003eskip_film_grain is nonzero. Then we can just rely on the \"if (!grain_params-\u003eapply_grain)\"\ncheck here to get the same effect.",
+      "range": {
+        "startLine": 618,
+        "startChar": 2,
+        "endLine": 618,
+        "endChar": 45
+      },
+      "revId": "037776921b06525f3fe7481b85d2552875b4962a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f5cf1798_ff2186d0",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 618,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2018-09-15T05:14:17Z",
+      "side": 1,
+      "message": "thanks for the suggestion, 2 looks good to me, done in newer patch",
+      "parentUuid": "579a6c90_1b232d12",
       "range": {
         "startLine": 618,
         "startChar": 2,
