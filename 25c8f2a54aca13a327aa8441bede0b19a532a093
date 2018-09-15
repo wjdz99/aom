@@ -22,6 +22,30 @@
       "revId": "25c8f2a54aca13a327aa8441bede0b19a532a093",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "302f79bb_35d93c3d",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 742,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2018-09-15T21:57:20Z",
+      "side": 1,
+      "message": "Thanks for the suggestion, though I am not completely sure about the implication for moving the override and having apply_grain \u003d 0 stay with the film_grain_params in cur_frame, which can have implication to future frames that use \"show_existing_frame\" flag. Decoder application can call the skip_film_grain control API changing its intended behavior between this cur_frame and the future show_existing_frame.",
+      "parentUuid": "c673974b_0e79e7ce",
+      "range": {
+        "startLine": 742,
+        "startChar": 10,
+        "endLine": 742,
+        "endChar": 65
+      },
+      "revId": "25c8f2a54aca13a327aa8441bede0b19a532a093",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
