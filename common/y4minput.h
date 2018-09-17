@@ -55,10 +55,11 @@ struct y4m_input {
   enum aom_img_fmt aom_fmt;
   int bps;
   unsigned int bit_depth;
+  aom_chroma_sample_position_t csp;
 };
 
 int y4m_input_open(y4m_input *_y4m, FILE *_fin, char *_skip, int _nskip,
-                   int only_420);
+                   aom_chroma_sample_position_t csp, int only_420);
 void y4m_input_close(y4m_input *_y4m);
 int y4m_input_fetch_frame(y4m_input *_y4m, FILE *_fin, aom_image_t *img);
 
