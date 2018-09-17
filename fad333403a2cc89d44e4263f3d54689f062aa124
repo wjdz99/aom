@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7ee2b984_558c1b68",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-09-17T22:50:02Z",
+      "side": 1,
+      "message": "0.25 from code?",
+      "range": {
+        "startLine": 14,
+        "startChar": 3,
+        "endLine": 14,
+        "endChar": 7
+      },
+      "revId": "fad333403a2cc89d44e4263f3d54689f062aa124",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6d4c1895_c20d19c2",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 972,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-09-17T22:50:02Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 972,
+        "startChar": 8,
+        "endLine": 972,
+        "endChar": 14
+      },
+      "revId": "fad333403a2cc89d44e4263f3d54689f062aa124",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
