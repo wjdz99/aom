@@ -3465,6 +3465,7 @@ static int row_mt_worker_hook(void *arg1, void *arg2) {
     pthread_mutex_lock(pbi->row_mt_mutex_);
 #endif
     frame_row_mt_info->row_mt_exit = 1;
+    pthread_cond_broadcast(pbi->row_mt_cond_);
 #if CONFIG_MULTITHREAD
     pthread_mutex_unlock(pbi->row_mt_mutex_);
 #endif
