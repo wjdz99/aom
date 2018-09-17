@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5b3f100c_415f803e",
+        "filename": "av1/common/av1_loopfilter.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 1023,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2018-09-17T21:34:38Z",
+      "side": 1,
+      "message": "Meant to remove the following lines?",
+      "range": {
+        "startLine": 1023,
+        "startChar": 60,
+        "endLine": 1023,
+        "endChar": 64
+      },
+      "revId": "dbfde4406f1adc813540ae4379dc3616a49d1225",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "70344152_223db5ec",
+        "filename": "av1/common/av1_loopfilter.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 1228,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2018-09-17T21:34:38Z",
+      "side": 1,
+      "message": "debug code?",
+      "range": {
+        "startLine": 1225,
+        "startChar": 8,
+        "endLine": 1228,
+        "endChar": 24
+      },
+      "revId": "dbfde4406f1adc813540ae4379dc3616a49d1225",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
