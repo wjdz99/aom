@@ -645,6 +645,7 @@ static aom_image_t *add_grain_if_needed(aom_image_t *img,
     }
   }
 
+  grain_img_buf->user_priv = img->user_priv;
   return grain_img_buf;
 }
 
