@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "af2baa01_6744aae5",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2018-09-17T03:30:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dda5a1e6_c8e7edce",
+      "range": {
+        "startLine": 7,
+        "startChar": 19,
+        "endLine": 7,
+        "endChar": 35
+      },
+      "revId": "7ab53f96811cb159e5ced3023398250f516dcadc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c3ce7fa9_eddcead4",
         "filename": "/COMMIT_MSG",
         "patchSetId": 1
@@ -45,6 +69,30 @@
       "revId": "7ab53f96811cb159e5ced3023398250f516dcadc",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3f581a3d_593d009e",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2018-09-17T03:30:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c3ce7fa9_eddcead4",
+      "range": {
+        "startLine": 9,
+        "startChar": 39,
+        "endLine": 9,
+        "endChar": 55
+      },
+      "revId": "7ab53f96811cb159e5ced3023398250f516dcadc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "b3586b5b_995c671e",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2018-09-17T03:30:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4bec69fb_4c503992",
+      "range": {
+        "startLine": 10,
+        "startChar": 51,
+        "endLine": 10,
+        "endChar": 60
+      },
+      "revId": "7ab53f96811cb159e5ced3023398250f516dcadc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "923f5d27_11496e5d",
         "filename": "apps/aomdec.c",
         "patchSetId": 1
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "451fccf5_7bc86316",
+        "filename": "apps/aomdec.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2018-09-17T03:30:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "923f5d27_11496e5d",
+      "range": {
+        "startLine": 108,
+        "startChar": 19,
+        "endLine": 108,
+        "endChar": 33
+      },
+      "revId": "7ab53f96811cb159e5ced3023398250f516dcadc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f5aa1b9c_c4c4a96e",
         "filename": "apps/aomdec.c",
         "patchSetId": 1
@@ -105,6 +201,30 @@
       "writtenOn": "2018-09-14T16:47:25Z",
       "side": 1,
       "message": "Nit/optional: I probably would change \"skip film grain\" to \"set skip_film_grain\".",
+      "range": {
+        "startLine": 707,
+        "startChar": 31,
+        "endLine": 707,
+        "endChar": 46
+      },
+      "revId": "7ab53f96811cb159e5ced3023398250f516dcadc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "66cfbd0e_4b1924be",
+        "filename": "apps/aomdec.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 707,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2018-09-17T03:30:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f5aa1b9c_c4c4a96e",
       "range": {
         "startLine": 707,
         "startChar": 31,
