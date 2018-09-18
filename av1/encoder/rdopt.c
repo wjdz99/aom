@@ -11495,7 +11495,7 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
     }
 
     // Did this mode help.. i.e. is it the new best mode
-    if (this_rd < search_state.best_rd || x->skip) {
+    if (this_rd < search_state.best_rd) {
       int mode_excluded = 0;
       if (comp_pred) {
         mode_excluded = cm->reference_mode == SINGLE_REFERENCE;
@@ -11570,8 +11570,6 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
       // Collect data from single ref mode, and analyze data.
       sf_drop_ref_analyze(&search_state, mode_order, distortion2);
     }
-
-    if (x->skip && !comp_pred) break;
   }
 
   aom_free(tmp_buf_orig);
