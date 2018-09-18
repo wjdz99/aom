@@ -387,9 +387,17 @@ typedef struct FRAME_COUNTS {
   unsigned int delta_lf_multi[FRAME_LF_COUNT][DELTA_LF_PROBS][2];
   unsigned int delta_lf[DELTA_LF_PROBS][2];
 
+#if CONFIG_GFT_LEARNED
+  unsigned int use_gft[EXT_TX_SIZES][2];
+  unsigned int gft_type[EXT_TX_SIZES][GFT_TYPES];
+  unsigned int inter_ext_tx[EXT_TX_SETS_INTER][EXT_TX_SIZES][TX_TYPES_NOGFT];
+  unsigned int intra_ext_tx[EXT_TX_SETS_INTRA][EXT_TX_SIZES][INTRA_MODES]
+                           [TX_TYPES_NOGFT];
+#else
   unsigned int inter_ext_tx[EXT_TX_SETS_INTER][EXT_TX_SIZES][TX_TYPES];
   unsigned int intra_ext_tx[EXT_TX_SETS_INTRA][EXT_TX_SIZES][INTRA_MODES]
                            [TX_TYPES];
+#endif
   unsigned int filter_intra_mode[FILTER_INTRA_MODES];
   unsigned int filter_intra[BLOCK_SIZES_ALL][2];
 #if CONFIG_ADAPT_FILTER_INTRA
