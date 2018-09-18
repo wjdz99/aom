@@ -288,6 +288,7 @@ typedef enum ATTRIBUTE_PACKED {
   TX_TYPES,
 } TX_TYPE;
 
+
 typedef enum ATTRIBUTE_PACKED {
   REG_REG,
   REG_SMOOTH,
@@ -323,6 +324,8 @@ typedef enum ATTRIBUTE_PACKED {
 } TxSetType;
 
 #if CONFIG_GFT_LEARNED
+#define TX_TYPES_NOGFT 16
+#define GFT_TYPES 8
 #define IS_2D_TRANSFORM(tx_type) (tx_type < IDTX || tx_type > H_FLIPADST)
 #else
 #define IS_2D_TRANSFORM(tx_type) (tx_type < IDTX)
