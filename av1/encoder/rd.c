@@ -215,6 +215,14 @@ void av1_fill_mode_rates(AV1_COMMON *const cm, MACROBLOCK *x,
       }
     }
   }
+#if CONFIG_GFT_LEARNED
+  for (i = TX_4X4; i < EXT_TX_SIZES; ++i) {
+    av1_cost_tokens_from_cdf(x->gft_type_costs[i], fc->gft_type_cdf[i], NULL);
+  }
+  for (int s = 0; s < EXT_TX_SIZES; ++s) {
+    av1_cost_tokens_from_cdf(x->use_gft_costs[s], fc->use_gft_cdf[s], NULL);
+  }
+#endif
   for (i = 0; i < DIRECTIONAL_MODES; ++i) {
     av1_cost_tokens_from_cdf(x->angle_delta_cost[i], fc->angle_delta_cdf[i],
                              NULL);
