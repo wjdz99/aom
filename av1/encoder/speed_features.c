@@ -333,6 +333,10 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->mv.subpel_force_stop = 2;
     sf->lpf_pick = LPF_PICK_MINIMAL_LPF;
   }
+  if (cpi->row_mt == 1) {
+    sf->adaptive_rd_thresh = 0;
+    sf->inter_mode_rd_model_estimation = 0;
+  }
 }
 
 void av1_set_speed_features_framesize_dependent(AV1_COMP *cpi) {
