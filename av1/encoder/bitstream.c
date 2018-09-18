@@ -837,9 +837,26 @@ void av1_write_tx_type(const AV1_COMMON *const cm, const MACROBLOCKD *xd,
     assert(eset > 0);
     assert(av1_ext_tx_used[tx_set_type][tx_type]);
     if (is_inter) {
+#if CONFIG_GFT_LEARNED
+      if (tx_set_type == EXT_TX_SET_ALL16_GFT) {
+        aom_write_symbol(w, tx_type >= GFT1_GFT1,
+                         ec_ctx->use_gft_cdf[square_tx_size], 2);
+        if (tx_type >= GFT1_GFT1) {
+          aom_write_symbol(w, tx_type - GFT1_GFT1,
+                           ec_ctx->gft_type_cdf[square_tx_size], GFT_TYPES);
+        } else {
+          aom_write_symbol(w, av1_ext_tx_ind[tx_set_type][tx_type],
+                           ec_ctx->inter_ext_tx_cdf[eset][square_tx_size],
+                           av1_num_ext_tx_set[tx_set_type]);
+        }
+      } else {
+#endif
       aom_write_symbol(w, av1_ext_tx_ind[tx_set_type][tx_type],
                        ec_ctx->inter_ext_tx_cdf[eset][square_tx_size],
                        av1_num_ext_tx_set[tx_set_type]);
+#if CONFIG_GFT_LEARNED
+      }
+#endif
     } else {
       PREDICTION_MODE intra_dir;
       if (mbmi->filter_intra_mode_info.use_filter_intra)

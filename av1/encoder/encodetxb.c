@@ -1868,13 +1868,42 @@ static void update_tx_type_count(const AV1_COMMON *cm, MACROBLOCKD *xd,
           av1_get_ext_tx_set_type(tx_size, is_inter, cm->reduced_tx_set_used);
       if (is_inter) {
         if (allow_update_cdf) {
+#if CONFIG_GFT_LEARNED
+          if (tx_set_type == EXT_TX_SET_ALL16_GFT) {
+            update_cdf(fc->use_gft_cdf[txsize_sqr_map[tx_size]], tx_type >= GFT1_GFT1, 2);
+            if (tx_type >= GFT1_GFT1) {
+              update_cdf(fc->gft_type_cdf[txsize_sqr_map[tx_size]], tx_type - GFT1_GFT1,
+                         GFT_TYPES);
+            } else {
+              update_cdf(fc->inter_ext_tx_cdf[eset][txsize_sqr_map[tx_size]],
+                         av1_ext_tx_ind[tx_set_type][tx_type],
+                         av1_num_ext_tx_set[tx_set_type]);
+            }
+          } else {
+#endif
           update_cdf(fc->inter_ext_tx_cdf[eset][txsize_sqr_map[tx_size]],
                      av1_ext_tx_ind[tx_set_type][tx_type],
                      av1_num_ext_tx_set[tx_set_type]);
+#if CONFIG_GFT_LEARNED
+        }
+#endif
         }
 #if CONFIG_ENTROPY_STATS
+#if CONFIG_GFT_LEARNED
+        if (tx_set_type == EXT_TX_SET_ALL16_GFT) {
+				  ++counts->use_gft[txsize_sqr_map[tx_size]][tx_type >= GFT1_GFT1];
+          if (tx_type >= GFT1_GFT1)
+            ++counts->gft_type[txsize_sqr_map[tx_size]][tx_type - GFT1_GFT1];
+          else
+            ++counts->inter_ext_tx[eset][txsize_sqr_map[tx_size]]
+                                  [av1_ext_tx_ind[tx_set_type][tx_type]];
+        } else {
+#endif
         ++counts->inter_ext_tx[eset][txsize_sqr_map[tx_size]]
                               [av1_ext_tx_ind[tx_set_type][tx_type]];
+#if CONFIG_GFT_LEARNED
+        }
+#endif
 #endif  // CONFIG_ENTROPY_STATS
       } else {
         PREDICTION_MODE intra_dir;

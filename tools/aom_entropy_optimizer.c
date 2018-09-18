@@ -31,11 +31,7 @@
 #include "av1/encoder/encoder.h"
 
 #define SPACES_PER_TAB 2
-#if CONFIG_GFT_LEARNED
-#define CDF_MAX_SIZE 24
-#else
 #define CDF_MAX_SIZE 16
-#endif
 
 typedef unsigned int aom_count_type;
 // A log file recording parsed counts
@@ -335,6 +331,20 @@ int main(int argc, const char **argv) {
       "static const aom_cdf_prob default_partition_cdf[PARTITION_CONTEXTS]"
       "[CDF_SIZE(EXT_PARTITION_TYPES)]");
 
+#if CONFIG_GFT_LEARNED
+  /* gft_type */
+  cts_each_dim[0] = EXT_TX_SIZES;
+  cts_each_dim[1] = 2;
+	optimize_cdf_table(&fc.use_gft[0][0], probsfile, 2, cts_each_dim,
+      "static const aom-cdf_prob default_use_gft[EXT_TX_SIZES][CDF_SIZE(2)]");
+
+  cts_each_dim[0] = EXT_TX_SIZES;
+  cts_each_dim[1] = GFT_TYPES;
+  optimize_cdf_table(&fc.gft_type[0][0], probsfile, 2, cts_each_dim,
+                     "static const aom_cdf_prob\n"
+                     "default_gft_type[EXT_TX_SIZES][CDF_SIZE(GFT_TYPES)]");
+#endif
+
   /* tx type */
   cts_each_dim[0] = EXT_TX_SETS_INTRA;
   cts_each_dim[1] = EXT_TX_SIZES;
@@ -350,11 +360,7 @@ int main(int argc, const char **argv) {
   cts_each_dim[0] = EXT_TX_SETS_INTER;
   cts_each_dim[1] = EXT_TX_SIZES;
   cts_each_dim[2] = TX_TYPES;
-#if CONFIG_GFT_LEARNED
-  int inter_ext_tx_types_each_ctx[EXT_TX_SETS_INTER] = { 0, 24, 12, 2 };
-#else
   int inter_ext_tx_types_each_ctx[EXT_TX_SETS_INTER] = { 0, 16, 12, 2 };
-#endif
   optimize_cdf_table_var_modes_3d(
       &fc.inter_ext_tx[0][0][0], probsfile, 3, cts_each_dim,
       inter_ext_tx_types_each_ctx,
