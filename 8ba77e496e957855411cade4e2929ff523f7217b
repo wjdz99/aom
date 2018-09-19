@@ -22,6 +22,30 @@
       "revId": "8ba77e496e957855411cade4e2929ff523f7217b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "286b41a3_f6dfeb2f",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 11
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2018-09-19T23:07:26Z",
+      "side": 1,
+      "message": "Changed the commit message description.",
+      "parentUuid": "a5893aa6_367a0f9e",
+      "range": {
+        "startLine": 7,
+        "startChar": 4,
+        "endLine": 7,
+        "endChar": 8
+      },
+      "revId": "8ba77e496e957855411cade4e2929ff523f7217b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
