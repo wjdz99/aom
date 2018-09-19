@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4655575a_3eb2ee46",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 339,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2018-09-19T16:43:04Z",
+      "side": 1,
+      "message": "Suggest to move this to the end of av1_set_speed_features_framesize_independent() since this should be for all modes/speeds.",
+      "range": {
+        "startLine": 336,
+        "startChar": 0,
+        "endLine": 339,
+        "endChar": 3
+      },
+      "revId": "bb6e459b2fbaaaeafe3dd8d0b8597df97e936950",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
