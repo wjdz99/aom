@@ -5744,16 +5744,13 @@ static void tx_block_uvrd(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
   const int blk_idx = blk_row * mi_width + blk_col;
 
   av1_set_txb_context(x, plane, block, tx_size, ta, tl);
-  if ((RDCOST(x->rdmult, rd_stats->rate, rd_stats->dist) >=
-           RDCOST(x->rdmult, zero_blk_rate, rd_stats->sse) ||
-       rd_stats->skip == 1) &&
-      !xd->lossless[mbmi->segment_id]) {
+  if (rd_stats->skip == 1 && !xd->lossless[mbmi->segment_id]) {
     rd_stats->rate = zero_blk_rate;
     rd_stats->dist = rd_stats->sse;
+    set_blk_skip(x, plane, blk_idx, 1);
+  } else {
+    set_blk_skip(x, plane, blk_idx, 0);
   }
-
-  // Set chroma blk_skip to 0
-  set_blk_skip(x, plane, blk_idx, 0);
 }
 
 // Return value 0: early termination triggered, no valid rd cost available;
