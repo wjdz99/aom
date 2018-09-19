@@ -11105,7 +11105,7 @@ static void collect_single_states(MACROBLOCK *x,
 
 static void analyze_single_states(const AV1_COMP *cpi,
                                   InterModeSearchState *search_state) {
-  int i, j, dir, mode;
+  int i, dir, mode;
   if (cpi->sf.prune_comp_search_by_single_result >= 1) {
     for (dir = 0; dir < 2; ++dir) {
       int64_t best_rd;
@@ -11115,18 +11115,6 @@ static void analyze_single_states(const AV1_COMP *cpi,
       // reference frames for all the modes (NEARESTMV and NEARMV may not
       // have same motion vectors). Always keep the best of each mode
       // because it might form the best possible combination with other mode.
-      state = search_state->single_state[dir];
-      best_rd = AOMMIN(state[INTER_OFFSET(NEWMV)][0].rd,
-                       state[INTER_OFFSET(GLOBALMV)][0].rd);
-      for (mode = 0; mode < SINGLE_INTER_MODE_NUM; ++mode) {
-        for (i = 1; i < search_state->single_state_cnt[dir][mode]; ++i) {
-          if (state[mode][i].rd != INT64_MAX &&
-              (state[mode][i].rd >> 1) > best_rd) {
-            state[mode][i].valid = 0;
-          }
-        }
-      }
-
       state = search_state->single_state_modelled[dir];
       best_rd = AOMMIN(state[INTER_OFFSET(NEWMV)][0].rd,
                        state[INTER_OFFSET(GLOBALMV)][0].rd);
@@ -11142,48 +11130,21 @@ static void analyze_single_states(const AV1_COMP *cpi,
     }
   }
 
-  // Ordering by simple rd first, then by modelled rd
+  // Ordering by by modelled rd
   for (dir = 0; dir < 2; ++dir) {
     for (mode = 0; mode < SINGLE_INTER_MODE_NUM; ++mode) {
-      const int state_cnt_s = search_state->single_state_cnt[dir][mode];
       const int state_cnt_m =
           search_state->single_state_modelled_cnt[dir][mode];
-      SingleInterModeState *state_s = search_state->single_state[dir][mode];
       SingleInterModeState *state_m =
           search_state->single_state_modelled[dir][mode];
       int count = 0;
-      const int max_candidates = AOMMAX(state_cnt_s, state_cnt_m);
-      for (i = 0; i < state_cnt_s; ++i) {
-        if (state_s[i].rd == INT64_MAX) break;
-        if (state_s[i].valid)
-          search_state->single_rd_order[dir][mode][count++] =
-              state_s[i].ref_frame;
-      }
+      const int max_candidates = state_cnt_m;
       if (count < max_candidates) {
         for (i = 0; i < state_cnt_m; ++i) {
           if (state_m[i].rd == INT64_MAX) break;
           if (state_m[i].valid) {
             int ref_frame = state_m[i].ref_frame;
-            int match = 0;
-            // Check if existing already
-            for (j = 0; j < count; ++j) {
-              if (search_state->single_rd_order[dir][mode][j] == ref_frame) {
-                match = 1;
-                break;
-              }
-            }
-            if (!match) {
-              // Check if this ref_frame is removed in simple rd
-              int valid = 1;
-              for (j = 0; j < state_cnt_s; j++) {
-                if (ref_frame == state_s[j].ref_frame && !state_s[j].valid) {
-                  valid = 0;
-                  break;
-                }
-              }
-              if (valid)
-                search_state->single_rd_order[dir][mode][count++] = ref_frame;
-            }
+            search_state->single_rd_order[dir][mode][count++] = ref_frame;
             if (count >= max_candidates) break;
           }
         }
@@ -11237,9 +11198,9 @@ static int compound_skip_by_single_states(
 
   for (i = 0; i < 2; ++i) {
     const SingleInterModeState *state =
-        search_state->single_state[mode_dir[i]][mode_offset[i]];
+        search_state->single_state_modelled[mode_dir[i]][mode_offset[i]];
     const int state_cnt =
-        search_state->single_state_cnt[mode_dir[i]][mode_offset[i]];
+        search_state->single_state_modelled_cnt[mode_dir[i]][mode_offset[i]];
     for (j = 0; j < state_cnt; ++j) {
       if (state[j].ref_frame == refs[i]) {
         ref_searched[i] = 1;
