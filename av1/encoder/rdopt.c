@@ -5789,6 +5789,7 @@ static int inter_block_uvrd(const AV1_COMP *cpi, MACROBLOCK *x,
   }
 
   if (is_cost_valid) {
+    int early_exit = 0;
     for (plane = 1; plane < MAX_MB_PLANE; ++plane) {
       const struct macroblockd_plane *const pd = &xd->plane[plane];
       const BLOCK_SIZE plane_bsize =
@@ -5808,6 +5809,10 @@ static int inter_block_uvrd(const AV1_COMP *cpi, MACROBLOCK *x,
 
       for (idy = 0; idy < mi_height; idy += bh) {
         for (idx = 0; idx < mi_width; idx += bw) {
+          if (early_exit) {
+            av1_invalid_rd_stats(rd_stats);
+            return 0;
+          }
           RD_STATS pn_rd_stats;
           av1_init_rd_stats(&pn_rd_stats);
           tx_block_uvrd(cpi, x, idy, idx, plane, block, max_tx_size,
@@ -5821,8 +5826,7 @@ static int inter_block_uvrd(const AV1_COMP *cpi, MACROBLOCK *x,
           skip_rd = RDCOST(x->rdmult, 0, rd_stats->sse);
           if ((this_rd > non_skip_ref_best_rd) &&
               (skip_rd > skip_ref_best_rd)) {
-            av1_invalid_rd_stats(rd_stats);
-            return 0;
+            early_exit = 1;
           }
           block += step;
         }
@@ -8455,12 +8459,6 @@ static int txfm_search(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
       rd_stats->rate += x->skip_cost[skip_ctx][1];
       mbmi->skip = 0;
       // here mbmi->skip temporarily plays a role as what this_skip2 does
-
-      int64_t tmprd = RDCOST(x->rdmult, rd_stats->rate, rd_stats->dist);
-      if (tmprd > ref_best_rd) {
-        mbmi->ref_frame[1] = ref_frame_1;
-        return 0;
-      }
     } else if (!xd->lossless[mbmi->segment_id] &&
                (RDCOST(x->rdmult,
                        rd_stats_y->rate + rd_stats_uv->rate +
@@ -8489,11 +8487,6 @@ static int txfm_search(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
     rd_stats_y->rate = 0;
     rd_stats_uv->rate = 0;
     rd_stats->skip = 1;
-    int64_t tmprd = RDCOST(x->rdmult, rd_stats->rate, rd_stats->dist);
-    if (tmprd > ref_best_rd) {
-      mbmi->ref_frame[1] = ref_frame_1;
-      return 0;
-    }
   }
   return 1;
 }
@@ -8891,9 +8884,13 @@ static int64_t motion_mode_rd(const AV1_COMP *const cpi, MACROBLOCK *const x,
         }
         continue;
       }
+      const int64_t curr_rd = RDCOST(x->rdmult, rd_stats->rate, rd_stats->dist);
+      if (mode_index == 0)
+        args->simple_rd[this_mode][mbmi->ref_mv_idx][mbmi->ref_frame[0]] =
+            curr_rd;
+      if (curr_rd > ref_best_rd) continue;
+
       if (!skip_txfm_sb) {
-        const int64_t curr_rd =
-            RDCOST(x->rdmult, rd_stats->rate, rd_stats->dist);
         if (curr_rd < ref_best_rd) {
           ref_best_rd = curr_rd;
         }
@@ -8922,8 +8919,6 @@ static int64_t motion_mode_rd(const AV1_COMP *const cpi, MACROBLOCK *const x,
     }
 
     tmp_rd = RDCOST(x->rdmult, rd_stats->rate, rd_stats->dist);
-    if (mode_index == 0)
-      args->simple_rd[this_mode][mbmi->ref_mv_idx][mbmi->ref_frame[0]] = tmp_rd;
     if ((mode_index == 0) || (tmp_rd < best_rd)) {
       best_mbmi = *mbmi;
       best_rd = tmp_rd;
