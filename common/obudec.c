@@ -199,10 +199,13 @@ static int obudec_read_one_obu(FILE *f, uint8_t **obu_buffer,
     return -1;
   }
 
-  if (bytes_read + obu_payload_length > available_buffer_capacity) {
+  const size_t required_buffer_capacity = bytes_read + obu_payload_length +
+                                          OBU_HEADER_SIZE + OBU_EXTENSION_SIZE +
+                                          OBU_MAX_LENGTH_FIELD_SIZE;
+  if (required_buffer_capacity > available_buffer_capacity) {
     // TODO(tomfinegan): Add overflow check.
     const size_t new_capacity =
-        obu_bytes_buffered + bytes_read + 2 * obu_payload_length;
+        obu_bytes_buffered + required_buffer_capacity + obu_payload_length;
 
 #if defined AOM_MAX_ALLOCABLE_MEMORY
     if (new_capacity > AOM_MAX_ALLOCABLE_MEMORY) {
