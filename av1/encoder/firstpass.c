@@ -2132,7 +2132,7 @@ static void define_gf_group_structure(AV1_COMP *cpi) {
 #define LVL_3_BOOST_FACTOR 0.8f
 #define LVL_2_BOOST_FACTOR 0.3f
 
-static float_t lvl_budget_factor[MAX_PYRAMID_LVL - 1][MAX_PYRAMID_LVL - 1] = {
+static float lvl_budget_factor[MAX_PYRAMID_LVL - 1][MAX_PYRAMID_LVL - 1] = {
   { 1, 0, 0 },
   { LVL_3_BOOST_FACTOR, 0, 0 },  // Leaking budget works better
   { LVL_3_BOOST_FACTOR, (1 - LVL_3_BOOST_FACTOR) * LVL_2_BOOST_FACTOR,
@@ -2240,10 +2240,10 @@ static void allocate_gf_group_bits(AV1_COMP *cpi, int64_t gf_group_bits,
       const int this_lvl = gf_group->pyramid_level[arf_pos];
       const int dist2top = gf_group->pyramid_height - 1 - this_lvl;
 
-      const float_t budget =
+      const float budget =
           LEAF_REDUCTION_FACTOR * gf_group->pyramid_lvl_nodes[0];
-      const float_t lvl_boost = budget * lvl_budget_factor[pyr_h][dist2top] /
-                                gf_group->pyramid_lvl_nodes[this_lvl];
+      const float lvl_boost = budget * lvl_budget_factor[pyr_h][dist2top] /
+                              gf_group->pyramid_lvl_nodes[this_lvl];
 
       gf_group->bit_allocation[arf_pos] += (int)(target_frame_size * lvl_boost);
 #endif  // MULTI_LVL_BOOST_VBR_CQ
