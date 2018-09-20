@@ -1,0 +1,113 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e707c7df_46260e5a",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 3353,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-09-20T22:41:56Z",
+      "side": 1,
+      "message": "I added a lot of comments in this CL to document my understanding of how this\ncode works. Please review the comments for accuracy. Please feel free to tell\nme if they are excessive or too verbose; I\u0027d be happy to shorten or delete them.",
+      "revId": "e3a7166acbc93cf0d604da714899984c0fde408c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "16fdbbbb_f71dcd52",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 3391,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-09-20T22:41:56Z",
+      "side": 1,
+      "message": "This is just code cleanup. I changed:\n    if (X - Y \u003d\u003d 0)\nto:\n    if (X \u003d\u003d Y)",
+      "range": {
+        "startLine": 3390,
+        "startChar": 0,
+        "endLine": 3391,
+        "endChar": 48
+      },
+      "revId": "e3a7166acbc93cf0d604da714899984c0fde408c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "938916b7_e5e7acf2",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 3449,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-09-20T22:41:56Z",
+      "side": 1,
+      "message": "This is the first real change of this CL.",
+      "range": {
+        "startLine": 3446,
+        "startChar": 0,
+        "endLine": 3449,
+        "endChar": 3
+      },
+      "revId": "e3a7166acbc93cf0d604da714899984c0fde408c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9f109da6_a994d994",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 3470,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-09-20T22:41:56Z",
+      "side": 1,
+      "message": "This is the second real change of this CL.",
+      "range": {
+        "startLine": 3470,
+        "startChar": 2,
+        "endLine": 3470,
+        "endChar": 41
+      },
+      "revId": "e3a7166acbc93cf0d604da714899984c0fde408c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f13fa47f_decd83fa",
+        "filename": "av1/decoder/decoder.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-09-20T22:41:56Z",
+      "side": 1,
+      "message": "I moved the mi_rows_to_decode field forward to be with the other fixed fields.",
+      "range": {
+        "startLine": 100,
+        "startChar": 2,
+        "endLine": 100,
+        "endChar": 24
+      },
+      "revId": "e3a7166acbc93cf0d604da714899984c0fde408c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
