@@ -380,6 +380,7 @@ typedef struct AVxWorkerImpl AVxWorkerImpl;
 typedef struct {
   AVxWorkerImpl *impl_;
   AVxWorkerStatus status_;
+  const char *thread_name;
   AVxWorkerHook hook;  // hook to call
   void *data1;         // first argument passed to 'hook'
   void *data2;         // second argument passed to 'hook'
