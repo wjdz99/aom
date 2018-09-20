@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4fb45fd6_1d2ca56b",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 404,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-09-20T17:18:34Z",
+      "side": 1,
+      "message": "I searched for \"-\u003einit(\" and \"-\u003ereset(\"in the libaom source tree to identify all the places where we create worker threads.",
+      "range": {
+        "startLine": 404,
+        "startChar": 14,
+        "endLine": 404,
+        "endChar": 21
+      },
+      "revId": "b5eaef215e1645bafd1da06d1d9fa7bf4041f5ea",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
