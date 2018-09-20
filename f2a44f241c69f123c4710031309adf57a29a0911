@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "60fa6ee9_fd22e8a5",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 3434,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-09-20T04:12:49Z",
+      "side": 1,
+      "message": "A side effect of signal_parse_sb_row_done() is that we signal pbi-\u003erow_mt_cond_.\nTherefore, if all the other worker threads are waiting on pbi-\u003erow_mt_cond_ and\nthe running worker thread fails to call signal_parse_sb_row_done(), libaom will\nhang. My comment below explains why this may happen in the original code.",
+      "range": {
+        "startLine": 3434,
+        "startChar": 2,
+        "endLine": 3434,
+        "endChar": 44
+      },
+      "revId": "f2a44f241c69f123c4710031309adf57a29a0911",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3b45378d_d9fd10cd",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 3505,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-09-20T04:12:49Z",
+      "side": 1,
+      "message": "We call signal_parse_sb_row_done() here, when we process cur_job_info.\nIn the original code, we may grab a non-NULL cur_job_info from get_dec_job_info()\nbut drop it because td-\u003exd.corrupted is true. In that case, we will fail to call\nsignal_parse_sb_row_done().",
+      "range": {
+        "startLine": 3505,
+        "startChar": 8,
+        "endLine": 3505,
+        "endChar": 61
+      },
+      "revId": "f2a44f241c69f123c4710031309adf57a29a0911",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
