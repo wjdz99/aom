@@ -3509,6 +3509,16 @@ static int row_mt_worker_hook(void *arg1, void *arg2) {
           (check_trailing_bits_after_symbol_coder(td->bit_reader)) ? 1 : 0;
       aom_merge_corrupted_flag(&td->xd.corrupted, corrupted);
     } else {
+      if (td->xd.corrupted) {
+#if CONFIG_MULTITHREAD
+        pthread_mutex_lock(pbi->row_mt_mutex_);
+#endif
+        frame_row_mt_info->row_mt_exit = 1;
+#if CONFIG_MULTITHREAD
+        pthread_cond_broadcast(pbi->row_mt_cond_);
+        pthread_mutex_unlock(pbi->row_mt_mutex_);
+#endif
+      }
       break;
     }
   }
