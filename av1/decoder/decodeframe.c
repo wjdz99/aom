@@ -3242,13 +3242,13 @@ static void read_film_grain(AV1_COMMON *cm, struct aom_read_bit_buffer *rb) {
 }
 
 void av1_read_color_config(AV1_COMMON *cm, struct aom_read_bit_buffer *rb,
-                           int allow_lowbitdepth) {
+                           int allow_lowbitdepth, SequenceHeader *seq_params) {
   av1_read_bitdepth(cm, rb);
 
   cm->use_highbitdepth = cm->bit_depth > AOM_BITS_8 || !allow_lowbitdepth;
   // monochrome bit (not needed for PROFILE_1)
   const int is_monochrome = cm->profile != PROFILE_1 ? aom_rb_read_bit(rb) : 0;
-  cm->seq_params.monochrome = is_monochrome;
+  seq_params->monochrome = is_monochrome;
   int color_description_present_flag = aom_rb_read_bit(rb);
   if (color_description_present_flag) {
     cm->color_primaries = aom_rb_read_literal(rb, 8);
@@ -3376,17 +3376,12 @@ static void av1_read_tu_pts_info(AV1_COMMON *const cm,
       aom_rb_read_literal(rb, cm->buffer_model.frame_presentation_delay_length);
 }
 
-void read_sequence_header(AV1_COMMON *cm, struct aom_read_bit_buffer *rb) {
-  // rb->error_handler may be triggered during aom_rb_read_bit(), raising
-  // internal errors and immediate decoding termination. We use a local variable
-  // to store the info. as we decode. At the end, if no errors have occurred,
-  // cm->seq_params is updated.
-  SequenceHeader sh = cm->seq_params;
-  SequenceHeader *const seq_params = &sh;
-  int num_bits_width = aom_rb_read_literal(rb, 4) + 1;
-  int num_bits_height = aom_rb_read_literal(rb, 4) + 1;
-  int max_frame_width = aom_rb_read_literal(rb, num_bits_width) + 1;
-  int max_frame_height = aom_rb_read_literal(rb, num_bits_height) + 1;
+void av1_read_sequence_header(AV1_COMMON *cm, struct aom_read_bit_buffer *rb,
+                              SequenceHeader *seq_params) {
+  const int num_bits_width = aom_rb_read_literal(rb, 4) + 1;
+  const int num_bits_height = aom_rb_read_literal(rb, 4) + 1;
+  const int max_frame_width = aom_rb_read_literal(rb, num_bits_width) + 1;
+  const int max_frame_height = aom_rb_read_literal(rb, num_bits_height) + 1;
 
   seq_params->num_bits_width = num_bits_width;
   seq_params->num_bits_height = num_bits_height;
@@ -3461,7 +3456,6 @@ void read_sequence_header(AV1_COMMON *cm, struct aom_read_bit_buffer *rb) {
   seq_params->enable_superres = aom_rb_read_bit(rb);
   seq_params->enable_cdef = aom_rb_read_bit(rb);
   seq_params->enable_restoration = aom_rb_read_bit(rb);
-  cm->seq_params = *seq_params;
 }
 
 static int read_global_motion_params(WarpedMotionParams *params,
@@ -3649,6 +3643,26 @@ static void show_existing_frame_reset(AV1Decoder *const pbi,
   *cm->fc = cm->frame_contexts[existing_frame_idx];
 }
 
+static INLINE void reset_frame_buffers(AV1_COMMON *cm) {
+  RefCntBuffer *const frame_bufs = cm->buffer_pool->frame_bufs;
+  int i;
+
+  memset(&cm->ref_frame_map, -1, sizeof(cm->ref_frame_map));
+  memset(&cm->next_ref_frame_map, -1, sizeof(cm->next_ref_frame_map));
+
+  lock_buffer_pool(cm->buffer_pool);
+  for (i = 0; i < FRAME_BUFFERS; ++i) {
+    if (i != cm->new_fb_idx) {
+      frame_bufs[i].ref_count = 0;
+      cm->buffer_pool->release_fb_cb(cm->buffer_pool->cb_priv,
+                                     &frame_bufs[i].raw_frame_buffer);
+    }
+    frame_bufs[i].cur_frame_offset = 0;
+    av1_zero(frame_bufs[i].ref_frame_offset);
+  }
+  unlock_buffer_pool(cm->buffer_pool);
+}
+
 static int read_uncompressed_header(AV1Decoder *pbi,
                                     struct aom_read_bit_buffer *rb) {
   AV1_COMMON *const cm = &pbi->common;
@@ -3727,6 +3741,18 @@ static int read_uncompressed_header(AV1Decoder *pbi,
     }
 
     cm->frame_type = (FRAME_TYPE)aom_rb_read_literal(rb, 2);  // 2 bits
+    if (pbi->sequence_header_changed) {
+      if (pbi->common.frame_type == KEY_FRAME) {
+        // This is the start of a new coded video sequence.
+        pbi->sequence_header_changed = 0;
+        pbi->decoding_first_frame = 1;
+        reset_frame_buffers(&pbi->common);
+      } else {
+        aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
+                           "Sequence header has changed without a keyframe.");
+      }
+    }
+
     cm->show_frame = aom_rb_read_bit(rb);
     if (cm->seq_params.still_picture &&
         (cm->frame_type != KEY_FRAME || !cm->show_frame)) {
