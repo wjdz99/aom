@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "eeb2dd0f_fe7ab425",
+        "filename": "aom_util/aom_thread.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5435
+      },
+      "writtenOn": "2018-09-20T17:54:59Z",
+      "side": 1,
+      "message": "Should it be guarded with an if linux/android condition? What happens on win/mac builds?",
+      "parentUuid": "710969b1_f1b3b286",
+      "range": {
+        "startLine": 17,
+        "startChar": 0,
+        "endLine": 19,
+        "endChar": 21
+      },
+      "revId": "449c50b005fa85664f1b1f04449557b32f9fa3b5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "bdcaf5e7_490aab54",
         "filename": "aom_util/aom_thread.c",
         "patchSetId": 2
