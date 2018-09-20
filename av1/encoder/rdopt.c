@@ -4731,7 +4731,6 @@ static void try_tx_block_no_split(
 #endif  // CONFIG_RD_DEBUG
     rd_stats->rate = zero_blk_rate;
     rd_stats->dist = rd_stats->sse;
-    rd_stats->skip = 1;
     set_blk_skip(x, 0, blk_row * bw + blk_col, 1);
     p->eobs[block] = 0;
     update_txk_array(mbmi->txk_type, plane_bsize, blk_row, blk_col, tx_size,
