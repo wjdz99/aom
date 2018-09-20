@@ -3308,10 +3308,10 @@ static int tile_worker_hook(void *arg1, void *arg2) {
   set_decode_func_pointers(td, 0x3);
 
   assert(cm->tile_cols > 0);
-  while (1) {
+  while (!td->xd.corrupted) {
     TileJobsDec *cur_job_info = get_dec_job_info(&pbi->tile_mt_info);
 
-    if (cur_job_info != NULL && !td->xd.corrupted) {
+    if (cur_job_info != NULL) {
       const TileBufferDec *const tile_buffer = cur_job_info->tile_buffer;
       TileDataDec *const tile_data = cur_job_info->tile_data;
       tile_worker_hook_init(pbi, thread_data, tile_buffer, tile_data,
@@ -3469,10 +3469,10 @@ static int row_mt_worker_hook(void *arg1, void *arg2) {
   allow_update_cdf = allow_update_cdf && !cm->disable_cdf_update;
 
   assert(cm->tile_cols > 0);
-  while (1) {
+  while (!td->xd.corrupted) {
     TileJobsDec *cur_job_info = get_dec_job_info(&pbi->tile_mt_info);
 
-    if (cur_job_info != NULL && !td->xd.corrupted) {
+    if (cur_job_info != NULL) {
       const TileBufferDec *const tile_buffer = cur_job_info->tile_buffer;
       TileDataDec *const tile_data = cur_job_info->tile_data;
       tile_worker_hook_init(pbi, thread_data, tile_buffer, tile_data,
