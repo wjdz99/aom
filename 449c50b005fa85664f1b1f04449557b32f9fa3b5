@@ -153,6 +153,24 @@
       "revId": "449c50b005fa85664f1b1f04449557b32f9fa3b5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "148e045b_ae7f7be4",
+        "filename": "aom_util/aom_thread.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2018-09-20T18:10:32Z",
+      "side": 1,
+      "message": "Probably better to void it explicitly. I\u0027m finding conflicting information about whether or not -Wunused-result is turned on by default. I think the default state of the flag may vary by gcc/clang version and platform (host and target).",
+      "parentUuid": "19a371dd_b5753615",
+      "revId": "449c50b005fa85664f1b1f04449557b32f9fa3b5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
