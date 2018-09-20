@@ -5750,6 +5750,7 @@ static void tx_block_uvrd(const AV1_COMP *cpi, MACROBLOCK *x, int blk_row,
       !xd->lossless[mbmi->segment_id]) {
     rd_stats->rate = zero_blk_rate;
     rd_stats->dist = rd_stats->sse;
+    rd_stats->skip = 1;
   }
 
   // Set chroma blk_skip to 0
