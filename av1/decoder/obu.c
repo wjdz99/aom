@@ -173,6 +173,11 @@ static int read_bitstream_level(BitstreamLevel *bl,
   return 1;
 }
 
+static int are_seq_headers_consistent(const SequenceHeader *seq_params_old,
+                                      const SequenceHeader *seq_params_new) {
+  return !memcmp(seq_params_old, seq_params_new, sizeof(SequenceHeader));
+}
+
 // On success, sets pbi->sequence_header_ready to 1 and returns the number of
 // bytes read from 'rb'.
 // On failure, sets pbi->common.error.error_code and returns 0.
@@ -190,7 +195,8 @@ static uint32_t read_sequence_header_obu(AV1Decoder *pbi,
     return 0;
   }
 
-  SequenceHeader *const seq_params = &cm->seq_params;
+  SequenceHeader sh = cm->seq_params;
+  SequenceHeader *const seq_params = &sh;
 
   // Still picture or not
   seq_params->still_picture = aom_rb_read_bit(rb);
@@ -304,10 +310,9 @@ static uint32_t read_sequence_header_obu(AV1Decoder *pbi,
     cm->error.error_code = AOM_CODEC_ERROR;
     return 0;
   }
-
-  read_sequence_header(cm, rb);
-
-  av1_read_color_config(cm, rb, pbi->allow_lowbitdepth);
+  
+  av1_read_sequence_header(cm, rb, seq_params);
+  av1_read_color_config(cm, rb, pbi->allow_lowbitdepth, seq_params);
   if (!(cm->subsampling_x == 0 && cm->subsampling_y == 0) &&
       !(cm->subsampling_x == 1 && cm->subsampling_y == 1) &&
       !(cm->subsampling_x == 1 && cm->subsampling_y == 0)) {
@@ -324,6 +329,12 @@ static uint32_t read_sequence_header_obu(AV1Decoder *pbi,
     return 0;
   }
 
+  if (pbi->sequence_header_ready) {
+    if (!are_seq_headers_consistent(&cm->seq_params, seq_params))
+      pbi->sequence_header_changed = 1;
+  }
+
+  cm->seq_params = *seq_params;
   pbi->sequence_header_ready = 1;
 
   return ((rb->bit_offset - saved_bit_offset + 7) >> 3);
@@ -729,8 +740,6 @@ int aom_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
   int frame_decoding_finished = 0;
   int is_first_tg_obu_received = 1;
   int frame_header_size = 0;
-  int seq_header_received = 0;
-  size_t seq_header_size = 0;
   ObuHeader obu_header;
   memset(&obu_header, 0, sizeof(obu_header));
   pbi->seen_frame_header = 0;
@@ -801,19 +810,8 @@ int aom_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
         pbi->seen_frame_header = 0;
         break;
       case OBU_SEQUENCE_HEADER:
-        if (!seq_header_received) {
-          decoded_payload_size = read_sequence_header_obu(pbi, &rb);
-          if (cm->error.error_code != AOM_CODEC_OK) return -1;
-
-          seq_header_size = decoded_payload_size;
-          seq_header_received = 1;
-        } else {
-          // Seeing another sequence header, skip as all sequence headers are
-          // required to be identical except for the contents of
-          // operating_parameters_info and the amount of trailing bits.
-          // TODO(yaowu): verifying redundant sequence headers are identical.
-          decoded_payload_size = seq_header_size;
-        }
+        decoded_payload_size = read_sequence_header_obu(pbi, &rb);
+        if (cm->error.error_code != AOM_CODEC_OK) return -1;
         break;
       case OBU_FRAME_HEADER:
       case OBU_REDUNDANT_FRAME_HEADER:
