@@ -97,9 +97,25 @@ typedef struct AV1DecRowMTInfo {
   int tile_cols_end;
   int start_tile;
   int end_tile;
-  int mi_rows_parse_done;
-  int mi_rows_decode_started;
   int mi_rows_to_decode;
+
+  // Invariant:
+  //   mi_rows_parse_done >= mi_rows_decode_started.
+  // mi_rows_parse_done and mi_rows_decode_started are both initialized to 0.
+  // mi_rows_parse_done is incremented freely. mi_rows_decode_started may only
+  // be incremented to catch up to mi_rows_parse_done but is not allowed to
+  // surpass mi_rows_parse_done.
+  //
+  // There are no more decode jobs when mi_rows_decode_started reaches
+  // mi_rows_to_decode.
+
+  // Indicates the progress of the bit-stream parsing of superblocks.
+  // Initialized to 0. Incremented by sb_mi_size when parse sb row is done.
+  int mi_rows_parse_done;
+  // Indicates the progress of the decoding of superblocks.
+  // Initialized to 0. Incremented by sb_mi_size when decode sb row is started.
+  int mi_rows_decode_started;
+  // Boolean: initialized to 0 (false). Set to 1 (true) on error.
   int row_mt_exit;
 } AV1DecRowMTInfo;
 
