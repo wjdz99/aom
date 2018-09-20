@@ -97,6 +97,30 @@
     },
     {
       "key": {
+        "uuid": "e090407b_b069c960",
+        "filename": "aom_util/aom_thread.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2018-09-20T18:00:52Z",
+      "side": 1,
+      "message": "Defining _GNU_SOURCE should be harmless on other platforms.\n\nPlease let me know if you want me to add #ifdef __linux__.\n\nNote: Originally I had #ifdef __GLIBC__, but that didn\u0027t work because __GLIBC__ is defined by the act of including a glibc header.",
+      "parentUuid": "eeb2dd0f_fe7ab425",
+      "range": {
+        "startLine": 17,
+        "startChar": 0,
+        "endLine": 19,
+        "endChar": 21
+      },
+      "revId": "449c50b005fa85664f1b1f04449557b32f9fa3b5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "bdcaf5e7_490aab54",
         "filename": "aom_util/aom_thread.c",
         "patchSetId": 2
