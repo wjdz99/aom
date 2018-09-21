@@ -254,6 +254,7 @@ static int temporal_filter_find_matching_mb_c(AV1_COMP *cpi,
     bestsme = cpi->fn_ptr[BLOCK_16X16].vf(y + offset, y_stride, src_address,
                                           src_stride, &sse);
   } else {
+    av1_set_fractional_mv(x->fractional_best_mv);
     bestsme = cpi->find_fractional_mv_step(
         x, &cpi->common, 0, 0, &best_ref_mv1,
         cpi->common.allow_high_precision_mv, x->errorperbit,

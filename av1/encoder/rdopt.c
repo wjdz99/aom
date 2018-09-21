@@ -6573,6 +6573,7 @@ static void joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
     if (bestsme < INT_MAX && cpi->common.cur_frame_force_integer_mv == 0) {
       int dis; /* TODO: use dis in distortion calculation later. */
       unsigned int sse;
+      av1_set_fractional_mv(x->fractional_best_mv);
       bestsme = cpi->find_fractional_mv_step(
           x, cm, mi_row, mi_col, &ref_mv[id].as_mv,
           cpi->common.allow_high_precision_mv, x->errorperbit,
@@ -6943,7 +6944,7 @@ static void single_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,
                                  x->second_best_mv.as_int != x->best_mv.as_int;
           const int pw = block_size_wide[bsize];
           const int ph = block_size_high[bsize];
-
+          av1_set_fractional_mv(x->fractional_best_mv);
           best_mv_var = cpi->find_fractional_mv_step(
               x, cm, mi_row, mi_col, &ref_mv, cm->allow_high_precision_mv,
               x->errorperbit, &cpi->fn_ptr[bsize], cpi->sf.mv.subpel_force_stop,
@@ -6980,6 +6981,7 @@ static void single_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,
             }
           }
         } else {
+          av1_set_fractional_mv(x->fractional_best_mv);
           cpi->find_fractional_mv_step(
               x, cm, mi_row, mi_col, &ref_mv, cm->allow_high_precision_mv,
               x->errorperbit, &cpi->fn_ptr[bsize], cpi->sf.mv.subpel_force_stop,
@@ -7156,6 +7158,7 @@ static void compound_single_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
   if (use_fractional_mv) {
     int dis; /* TODO: use dis in distortion calculation later. */
     unsigned int sse;
+    av1_set_fractional_mv(x->fractional_best_mv);
     bestsme = cpi->find_fractional_mv_step(
         x, cm, mi_row, mi_col, &ref_mv.as_mv,
         cpi->common.allow_high_precision_mv, x->errorperbit,

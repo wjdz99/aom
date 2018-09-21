@@ -154,6 +154,12 @@ unsigned int av1_refine_warped_mv(const struct AV1_COMP *cpi,
                                   int mi_row, int mi_col, int *pts0,
                                   int *pts_inref0, int total_samples);
 
+static INLINE void av1_set_fractional_mv(int_mv *fractional_best_mv) {
+  for (int z = 0; z < 3; z++) {
+    fractional_best_mv[z].as_int = INVALID_MV;
+  }
+}
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif

@@ -797,6 +797,11 @@ int av1_find_best_sub_pixel_tree(
   (void)cost_list;  // to silence compiler warning
 
   for (iter = 0; iter < round; ++iter) {
+    if ((x->fractional_best_mv[iter].as_mv.row == br) &&
+        (x->fractional_best_mv[iter].as_mv.col == bc))
+      return INT_MAX;
+    x->fractional_best_mv[iter].as_mv.row = br;
+    x->fractional_best_mv[iter].as_mv.col = bc;
     // Check vertical and horizontal sub-pixel positions.
     for (idx = 0; idx < 4; ++idx) {
       tr = br + search_step[idx].row;
