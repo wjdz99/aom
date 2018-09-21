@@ -2128,23 +2128,28 @@ static void define_gf_group_structure(AV1_COMP *cpi) {
 }
 
 #if USE_SYMM_MULTI_LAYER
-// TODO(debargha): Temporarily disable the allocation startegy that
+// TODO(debargha): Temporarily disable the allocation strategy that
 // uses the macros below, since it seems to cause a slowdown.
 // INvestigate and either re-enable or remove.
-#define NEW_MULTI_LVL_BOOST_VBR_ALLOC 0
+#define NEW_MULTI_LVL_BOOST_VBR_ALLOC 1
 
 #if NEW_MULTI_LVL_BOOST_VBR_ALLOC
 #define LEAF_REDUCTION_FACTOR 0.75f
+static float lvl_budget_factor[MAX_PYRAMID_LVL - 1][MAX_PYRAMID_LVL - 1] = {
+  { 1.0f, 0.0f, 0.0f },
+  { 1.0f, 0.6f, 0.0f },
+  { 1.0f, 0.6f, 0.36f },
+};
+/*
 #define LVL_3_BOOST_FACTOR 0.8f
 #define LVL_2_BOOST_FACTOR 0.3f
-
-static float_t lvl_budget_factor[MAX_PYRAMID_LVL][MAX_PYRAMID_LVL - 1] = {
-  { 0, 0, 0 },
+static float_t lvl_budget_factor[MAX_PYRAMID_LVL - 1][MAX_PYRAMID_LVL - 1] = {
   { 1, 0, 0 },
   { LVL_3_BOOST_FACTOR, 0, 0 },  // Leaking budget works better
   { LVL_3_BOOST_FACTOR, (1 - LVL_3_BOOST_FACTOR) * LVL_2_BOOST_FACTOR,
     (1 - LVL_3_BOOST_FACTOR) * (1 - LVL_2_BOOST_FACTOR) }
 };
+*/
 #endif  // NEW_MULTI_LVL_BOOST_VBR_ALLOC
 #endif  // USE_SYMM_MULTI_LAYER
 static void allocate_gf_group_bits(AV1_COMP *cpi, int64_t gf_group_bits,
@@ -2247,11 +2252,12 @@ static void allocate_gf_group_bits(AV1_COMP *cpi, int64_t gf_group_bits,
       const int this_lvl = gf_group->pyramid_level[arf_pos];
       const int dist2top = gf_group->pyramid_height - 1 - this_lvl;
 #if NEW_MULTI_LVL_BOOST_VBR_ALLOC
-      const float_t budget =
-          LEAF_REDUCTION_FACTOR * gf_group->pyramid_lvl_nodes[0];
-      const float_t lvl_boost =
-          budget * lvl_budget_factor[gf_group->pyramid_height - 1][dist2top] /
-          gf_group->pyramid_lvl_nodes[this_lvl];
+      const float lvl_ratio = LEAF_REDUCTION_FACTOR *
+                              (float)gf_group->pyramid_lvl_nodes[0] /
+                              (float)gf_group->pyramid_lvl_nodes[this_lvl];
+      const float lvl_boost =
+          AOMMIN(lvl_ratio, 3.0) *
+          lvl_budget_factor[gf_group->pyramid_height - 2][dist2top];
       gf_group->bit_allocation[arf_pos] += (int)(target_frame_size * lvl_boost);
 #else
       gf_group->bit_allocation[arf_pos] += (target_frame_size >> dist2top);
