@@ -56,6 +56,7 @@ static unsigned int do_16x16_motion_iteration(AV1_COMP *cpi, const MV *ref_mv,
   } else {
     int distortion;
     unsigned int sse;
+    av1_set_fractional_mv(x->fractional_best_mv);
     cpi->find_fractional_mv_step(
         x, &cpi->common, mb_row, mb_col, ref_mv,
         cpi->common.allow_high_precision_mv, x->errorperbit, &v_fn_ptr, 0,
